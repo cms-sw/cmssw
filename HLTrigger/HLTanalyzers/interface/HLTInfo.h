@@ -49,6 +49,7 @@ public:
 	       const l1extra::L1JetParticleCollection& l1extjetf,
 	       const l1extra::L1JetParticleCollection& l1exttaujet,
 	       const l1extra::L1EtMissParticle& l1extmet,
+	       const l1extra::L1ParticleMapCollection& l1mapcoll,
 	       TTree* tree);
 
 private:
@@ -62,8 +63,8 @@ private:
   float *l1extjtfet, *l1extjtfe, *l1extjtfeta, *l1extjtfphi;
   float *l1exttauet, *l1exttaue, *l1exttaueta, *l1exttauphi;
   float met, metphi, mettot, methad;
-  int evtCount,nhltpart,nl1extiem,nl1extnem,nl1extmu,nl1extjetc,nl1extjetf,nl1extjt,nl1exttau;
-  int *trigflag, *l1extmuiso, *l1extmumip;
+  int L1EvtCnt,HltEvtCnt,nhltpart,nl1extiem,nl1extnem,nl1extmu,nl1extjetc,nl1extjetf,nl1extjt,nl1exttau;
+  int *trigflag, *l1flag, *l1extmuiso, *l1extmumip;
 
   // input variables
   bool _Debug;

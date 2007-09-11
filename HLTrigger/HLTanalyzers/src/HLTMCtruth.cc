@@ -44,6 +44,7 @@ void HLTMCtruth::setup(const edm::ParameterSet& pSet, TTree* HltTree) {
   HltTree->Branch("MCVtxY",mcvy,"MCVtxY[NobjMCPart]/F");
   HltTree->Branch("MCVtxZ",mcvz,"MCVtxZ[NobjMCPart]/F");
   HltTree->Branch("MCPt",mcpt,"MCPt[NobjMCPart]/F");
+  HltTree->Branch("MCPtHat",&pthat,"MCPtHat/F");
 
 }
 
@@ -56,17 +57,18 @@ void HLTMCtruth::analyze(const HepMC::GenEvent mctruth,
   if (_Monte) {
     int nmc = 0;
     if (&mctruth){
-      for (HepMC::GenEvent::particle_const_iterator partIter = mctruth.particles_begin();
-	   partIter != mctruth.particles_end();++partIter) {
-	HepMC::ThreeVector creation = (*partIter)->production_vertex()->point3d();
-	HepMC::FourVector  momentum = (*partIter)->momentum();
-	mcpid[nmc] = (*partIter)->pdg_id(); // electrons and positrons are 11 and -11                                     
-	mcvx[nmc] = creation.x();  
-	mcvy[nmc] = creation.y();
-	mcvz[nmc] = creation.z();
-	mcpt[nmc] = momentum.perp();
-	nmc++;
-      }
+      //for (HepMC::GenEvent::particle_const_iterator partIter = mctruth.particles_begin();
+      //	   partIter != mctruth.particles_end();++partIter) {
+	//	HepMC::ThreeVector creation = (*partIter)->production_vertex()->point3d();
+	//HepMC::FourVector  momentum = (*partIter)->momentum();
+	//mcpid[nmc] = (*partIter)->pdg_id(); // electrons and positrons are 11 and -11                                     
+	//mcvx[nmc] = creation.x();  
+	//mcvy[nmc] = creation.y();
+	//mcvz[nmc] = creation.z();
+	//mcpt[nmc] = momentum.perp();
+	//nmc++;
+      //}
+      pthat = mctruth.event_scale(); // Pt-hat of the event
     }
     else {std::cout << "%HLTMCtruth -- No MC truth information" << std::endl;}
     nmcpart = nmc;

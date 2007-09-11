@@ -28,9 +28,12 @@ void HLTInfo::setup(const edm::ParameterSet& pSet, TTree* HltTree) {
     if ( (*iParam) == "Debug" ) _Debug =  myHltParams.getParameter<bool>( *iParam );
   }
 
-  evtCount = 0;
+  HltEvtCnt = 0;
   const int kMaxTrigFlag = 10000;
   trigflag = new int[kMaxTrigFlag];
+  L1EvtCnt = 0;
+  const int kMaxL1Flag = 10000;
+  l1flag = new int[kMaxL1Flag];
   const int kMaxHLTPart = 10000;
   hltppt = new float[kMaxHLTPart];
   hltpeta = new float[kMaxHLTPart];
@@ -94,7 +97,7 @@ void HLTInfo::setup(const edm::ParameterSet& pSet, TTree* HltTree) {
   HltTree->Branch("NobjL1ExtCenJet",&nl1extjetc,"NobjL1ExtCenJet/I");
   HltTree->Branch("L1ExtCenJetEt",l1extjtcet,"L1ExtCenJetEt[NobjL1ExtCenJet]/F");
   HltTree->Branch("L1ExtCenJetE",l1extjtce,"L1ExtCenJetE[NobjL1ExtCenJet]/F");
-  HltTree->Branch("L1ExtCenJetEta",l1extjtceta,"L1ExtCenJetEta[NobjL1ExtJCenet]/F");
+  HltTree->Branch("L1ExtCenJetEta",l1extjtceta,"L1ExtCenJetEta[NobjL1ExtCenJet]/F");
   HltTree->Branch("L1ExtCenJetPhi",l1extjtcphi,"L1ExtCenJetPhi[NobjL1ExtCenJet]/F");
   HltTree->Branch("NobjL1ExtForJet",&nl1extjetf,"NobjL1ExtForJet/I");
   HltTree->Branch("L1ExtForJetEt",l1extjtfet,"L1ExtForJetEt[NobjL1ExtForJet]/F");
@@ -123,6 +126,7 @@ void HLTInfo::analyze(const HLTFilterObjectWithRefs& hltobj,
 		      const l1extra::L1JetParticleCollection& L1ExtJetF,
 		      const l1extra::L1JetParticleCollection& L1ExtTau,
 		      const l1extra::L1EtMissParticle& L1ExtMet,
+		      const l1extra::L1ParticleMapCollection& L1MapColl,
 		      TTree* HltTree) {
 
 //   std::cout << " Beginning HLTInfo " << std::endl;
@@ -137,12 +141,12 @@ void HLTInfo::analyze(const HLTFilterObjectWithRefs& hltobj,
     triggerNames_.init(hltresults);
 
     // 1st event : Book as many branches as trigger paths provided in the input...
-    if (evtCount==0){
+    if (HltEvtCnt==0){
       for (int itrig = 0; itrig != ntrigs; ++itrig){
 	TString trigName = triggerNames_.triggerName(itrig);
 	HltTree->Branch("TRIGG_"+trigName,trigflag+itrig,"TRIGG_"+trigName+"/I");
       }
-      evtCount++;
+      HltEvtCnt++;
     }
     // ...Fill the corresponding accepts in branch-variables
     for (int itrig = 0; itrig != ntrigs; ++itrig){
@@ -160,7 +164,7 @@ void HLTInfo::analyze(const HLTFilterObjectWithRefs& hltobj,
 
     }
   }
-  else {std::cout << "%HLTInfo -- No Trigger Result" << std::endl;}
+  else { if (_Debug) std::cout << "%HLTInfo -- No Trigger Result" << std::endl;}
 
   /////////// Analyzing HLT Objects (HLTFilterObjectsWithRefs) //////////
  
@@ -184,7 +188,7 @@ void HLTInfo::analyze(const HLTFilterObjectWithRefs& hltobj,
   }
   else {
     nhltpart = 0;
-    std::cout << "%HLTInfo -- No HLT Object" << std::endl;
+    if (_Debug) std::cout << "%HLTInfo -- No HLT Object" << std::endl;
   }
 
   /////////// Analyzing L1Extra (from MC Truth) objects //////////
@@ -205,7 +209,7 @@ void HLTInfo::analyze(const HLTFilterObjectWithRefs& hltobj,
   }
   else {
     nl1extiem = 0;
-    std::cout << "%HLTInfo -- No Isolated L1 EM object" << std::endl;
+    if (_Debug) std::cout << "%HLTInfo -- No Isolated L1 EM object" << std::endl;
   }
   if (&L1ExtEmNIsol) {
     nl1extnem = L1ExtEmNIsol.size();
@@ -223,7 +227,7 @@ void HLTInfo::analyze(const HLTFilterObjectWithRefs& hltobj,
   }
   else {
     nl1extnem = 0;
-    std::cout << "%HLTInfo -- No Non-Isolated L1 EM object" << std::endl;
+    if (_Debug) std::cout << "%HLTInfo -- No Non-Isolated L1 EM object" << std::endl;
   }
 
   if (&L1ExtMu) {
@@ -244,7 +248,7 @@ void HLTInfo::analyze(const HLTFilterObjectWithRefs& hltobj,
   }
   else {
     nl1extmu = 0;
-    std::cout << "%HLTInfo -- No L1 MU object" << std::endl;
+    if (_Debug) std::cout << "%HLTInfo -- No L1 MU object" << std::endl;
   }
 
   if (&L1ExtJetC) {
@@ -263,7 +267,7 @@ void HLTInfo::analyze(const HLTFilterObjectWithRefs& hltobj,
   }
   else {
     nl1extjetc = 0;
-    std::cout << "%HLTInfo -- No L1 Central JET object" << std::endl;
+    if (_Debug) std::cout << "%HLTInfo -- No L1 Central JET object" << std::endl;
   }
   if (&L1ExtJetF) {
     nl1extjetf = L1ExtJetF.size();
@@ -281,7 +285,7 @@ void HLTInfo::analyze(const HLTFilterObjectWithRefs& hltobj,
   }
   else {
     nl1extjetf = 0;
-    std::cout << "%HLTInfo -- No L1 Forward JET object" << std::endl;
+    if (_Debug) std::cout << "%HLTInfo -- No L1 Forward JET object" << std::endl;
   }
 
   if (&L1ExtTau) {
@@ -300,7 +304,7 @@ void HLTInfo::analyze(const HLTFilterObjectWithRefs& hltobj,
   }
   else {
     nl1exttau = 0;
-    std::cout << "%HLTInfo -- No L1 TAU object" << std::endl;
+    if (_Debug) std::cout << "%HLTInfo -- No L1 TAU object" << std::endl;
   }
 
   if (&L1ExtMet) {
@@ -309,6 +313,30 @@ void HLTInfo::analyze(const HLTFilterObjectWithRefs& hltobj,
     mettot = L1ExtMet.etTotal();
     methad = L1ExtMet.etHad();
   }
-  else {std::cout << "%HLTInfo -- No L1 MET object" << std::endl;}
+  else {
+    if (_Debug) std::cout << "%HLTInfo -- No L1 MET object" << std::endl;
+  }
+
+  if (&L1MapColl) {
+
+    // 1st event : Book as many branches as trigger paths provided in the input...
+    if (L1EvtCnt==0){
+      for (int itrig = 0; itrig != l1extra::L1ParticleMap::kNumOfL1TriggerTypes; ++itrig){
+	const l1extra::L1ParticleMap& map = ( L1MapColl )[ itrig ] ;
+	TString trigName = map.triggerName();
+	HltTree->Branch(trigName,l1flag+itrig,trigName+"/I");
+      }
+      L1EvtCnt++;
+    }
+    // ...Fill the corresponding accepts in branch-variables
+    for (int itrig = 0; itrig != l1extra::L1ParticleMap::kNumOfL1TriggerTypes; ++itrig){
+      const l1extra::L1ParticleMap& map = ( L1MapColl )[ itrig ] ;
+      l1flag[itrig] = map.triggerDecision();
+    }
+   
+  }
+  else {
+    if (_Debug) std::cout << "%HLTInfo -- No L1 Map Collection" << std::endl;
+  }
 
 }

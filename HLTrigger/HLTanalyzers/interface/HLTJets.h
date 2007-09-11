@@ -15,8 +15,10 @@
 #include "DataFormats/JetReco/interface/CaloJetfwd.h"
 #include "DataFormats/JetReco/interface/GenJet.h"
 #include "DataFormats/JetReco/interface/GenJetfwd.h"
+#include "DataFormats/METReco/interface/MET.h"
 #include "DataFormats/METReco/interface/CaloMETCollection.h"
 #include "DataFormats/METReco/interface/GenMETCollection.h"
+#include "DataFormats/METReco/interface/METCollection.h"
 #include "DataFormats/CaloTowers/interface/CaloTowerCollection.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
@@ -43,6 +45,7 @@ public:
 	       const GenJetCollection& gjets,
 	       const CaloMETCollection& rmets,
 	       const GenMETCollection& gmets,
+	       const METCollection& ht,
 	       const CaloTowerCollection& caloTowers,
 	       const CaloGeometry& geom,
 	       TTree* tree);
@@ -54,6 +57,7 @@ private:
   float *jgenpt, *jgenphi, *jgeneta, *jgenet, *jgene;
   float *towet, *toweta, *towphi, *towen, *towem, *towhd, *towoe;
   float mcalmet,mcalphi,mcalsum;
+  float htcalet,htcalphi,htcalsum;
   float mgenmet,mgenphi,mgensum;
   int njetcal,njetgen,ntowcal;
 

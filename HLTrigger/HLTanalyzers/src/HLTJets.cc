@@ -9,8 +9,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "DataFormats/METReco/interface/CaloMET.h"
-#include "DataFormats/METReco/interface/GenMET.h"
 #include "HLTrigger/HLTanalyzers/interface/HLTJets.h"
 
 HLTJets::HLTJets() {
@@ -81,6 +79,9 @@ void HLTJets::setup(const edm::ParameterSet& pSet, TTree* HltTree) {
   HltTree->Branch("MetGen",&mgenmet,"MetGen/F");
   HltTree->Branch("MetGenPhi",&mgenphi,"MetGenPhi/F");
   HltTree->Branch("MetGenSum",&mgensum,"MetGenSum/F");
+  HltTree->Branch("HTCal",&htcalet,"HTCal/F");
+  HltTree->Branch("HTCalPhi",&htcalphi,"HTCalPhi/F");
+  HltTree->Branch("HTCalSum",&htcalsum,"HTCalSum/F");
 
   //for(int ieta=0;ieta<NETA;ieta++){cout << " ieta " << ieta << " eta min " << CaloTowerEtaBoundries[ieta] <<endl;}
 
@@ -91,11 +92,18 @@ void HLTJets::analyze(const CaloJetCollection& calojets,
 		      const GenJetCollection& genjets,
 		      const CaloMETCollection& recmets,
 		      const GenMETCollection& genmets,
+		      const METCollection& ht,
 		      const CaloTowerCollection& caloTowers,
 		      const CaloGeometry& geom,
 		      TTree* HltTree) {
 
   //std::cout << " Beginning HLTJets " << std::endl;
+
+  //initialize branch variables
+  njetcal=0; njetgen=0;ntowcal=0;
+  mcalmet=0.; mcalphi=0.;
+  mgenmet=0.; mgenphi=0.;
+  htcalet=0.,htcalphi=0.,htcalsum=0.;
 
   if (&calojets) {
     CaloJetCollection mycalojets;
@@ -137,6 +145,15 @@ void HLTJets::analyze(const CaloJetCollection& calojets,
       mcalmet = i->pt();
       mcalphi = i->phi();
       mcalsum = i->sumEt();
+    }
+  }
+
+  if (&ht) {
+    typedef METCollection::const_iterator iter;
+    for ( iter i=ht.begin(); i!=ht.end(); i++) {
+      htcalet = i->pt();
+      htcalphi = i->phi();
+      htcalsum = i->sumEt();
     }
   }
 
