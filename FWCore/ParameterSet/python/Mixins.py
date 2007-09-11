@@ -275,7 +275,7 @@ class _ValidatingParameterListBase(_ValidatingListBase,_ParameterTypeBase):
     def pythonValueForItem(self,item,indent,deltaIndent):
         return self.configValueForItem(item,indent,deltaIndent)
     def dumpPython(self,indent,deltaIndent):
-        result = "cms."+type(self).__name__+"("
+        result = self.pythonTypeName()+"("
         first = True
         for value in iter(self):
             if not first:
