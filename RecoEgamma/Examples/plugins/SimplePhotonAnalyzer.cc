@@ -1,7 +1,7 @@
 /**\class PhotonSimpleAnalyzer
  **
- ** $Date: 2007/07/05 10:34:46 $ 
- ** $Revision: 1.1 $
+ ** $Date: 2007/08/28 01:49:46 $ 
+ ** $Revision: 1.2 $
  ** \author Nancy Marinelli, U. of Notre Dame, US
 */
 
@@ -16,6 +16,7 @@
 #include "DataFormats/EgammaReco/interface/BasicCluster.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
+#include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
 //
 #include "CLHEP/Units/PhysicalConstants.h"

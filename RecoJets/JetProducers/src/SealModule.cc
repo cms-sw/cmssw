@@ -2,6 +2,7 @@
 #include "FWCore/PluginManager/interface/ModuleDef.h"
 
 #include "FWCore/Framework/interface/MakerMacros.h"
+#include "DataFormats/JetReco/interface/BasicJet.h"
 
 #include "KtJetProducer.h"
 #include "MidpointJetProducer.h"
