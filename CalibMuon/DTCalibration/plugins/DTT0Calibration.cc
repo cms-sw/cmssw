@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2007/07/26 09:46:04 $
- *  $Revision: 1.4 $
+ *  $Date: 2007/08/02 13:20:18 $
+ *  $Revision: 1.5 $
  *  \author S. Bolognesi - INFN Torino
  */
 #include "CalibMuon/DTCalibration/plugins/DTT0Calibration.h"
@@ -211,7 +211,8 @@ void DTT0Calibration::analyze(const edm::Event & event, const edm::EventSetup& e
       if((*lHisto).second->GetRMS()<5.0){
 	if(hT0SectorHisto == 0){
 	  hT0SectorHisto = new TH1D("hT0AllLayerOfSector","T0 from pulses per layer in sector", 
-				    20, (*lHisto).second->GetMean()-100, (*lHisto).second->GetMean()+100);
+				    //20, (*lHisto).second->GetMean()-100, (*lHisto).second->GetMean()+100);
+				    700, 0, 7000);
 	}
 	if(debug)
 	  cout<<" accepted"<<endl;
@@ -222,7 +223,8 @@ void DTT0Calibration::analyze(const edm::Event & event, const edm::EventSetup& e
 	double t0_estim = (*lHisto).second->GetMean() + 400;
 	if(hT0SectorHisto == 0){
 	  hT0SectorHisto = new TH1D("hT0AllLayerOfSector","T0 from pulses per layer in sector", 
-				    20, t0_estim-100, t0_estim+100);
+				    //20, t0_estim-100, t0_estim+100);
+				    700, 0, 7000);
 	}
 	if(debug)
 	  cout<<" accepted + 400ns"<<endl;
