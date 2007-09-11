@@ -1,5 +1,5 @@
-#ifndef HLTPixlMBSelectFilter_h
-#define HLTPixlMBSelectFilter_h
+#ifndef HLTPixlMBForAlignmentFilter_h
+#define HLTPixlMBForAlignmentFilter_h
 
 /** \class HLTFiltCand
  *
@@ -7,7 +7,7 @@
  *  This class is an HLTFilter (-> EDFilter) implementing a minimum-bias
  *  HLT trigger acting on candidates, requiring tracks in Pixel det
  *
- *  $Date: 2007/03/30 15:56:10 $
+ *  $Date: 2007/07/26 13:56:52 $
  *
  *  \author Mika Huhtinen
  *
@@ -19,11 +19,11 @@
 // class declaration
 //
 
-class HLTPixlMBSelectFilter : public HLTFilter {
+class HLTPixlMBForAlignmentFilter : public HLTFilter {
 
    public:
-      explicit HLTPixlMBSelectFilter(const edm::ParameterSet&);
-      ~HLTPixlMBSelectFilter();
+      explicit HLTPixlMBForAlignmentFilter(const edm::ParameterSet&);
+      ~HLTPixlMBForAlignmentFilter();
       virtual bool filter(edm::Event&, const edm::EventSetup&);
 
    private:
@@ -36,4 +36,4 @@ class HLTPixlMBSelectFilter : public HLTFilter {
 
 };
 
-#endif //HLTPixlMBSelectFilter_h
+#endif //HLTPixlMBForAlignmentFilter_h

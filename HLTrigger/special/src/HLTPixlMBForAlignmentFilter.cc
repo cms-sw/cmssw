@@ -1,15 +1,15 @@
-/** \class HLTPixlMBSelectFilter
+/** \class HLTPixlMBForAlignmentFilter
  *
  * See header file for documentation
  *
- *  $Date: 2007/07/25 16:43:02 $
- *  $Revision: 1.2 $
+ *  $Date: 2007/07/26 13:56:52 $
+ *  $Revision: 1.1 $
  *
  *  \author Mika Huhtinen
  *
  */
 
-#include "HLTrigger/special/interface/HLTPixlMBSelectFilter.h"
+#include "HLTrigger/special/interface/HLTPixlMBForAlignmentFilter.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -32,7 +32,7 @@
 // constructors and destructor
 //
  
-HLTPixlMBSelectFilter::HLTPixlMBSelectFilter(const edm::ParameterSet& iConfig) :
+HLTPixlMBForAlignmentFilter::HLTPixlMBForAlignmentFilter(const edm::ParameterSet& iConfig) :
     pixlTag_ (iConfig.getParameter<edm::InputTag>("pixlTag")),
     min_Pt_  (iConfig.getParameter<double>("MinPt")),
     min_trks_  (iConfig.getParameter<unsigned int>("MinTrks")),
@@ -48,7 +48,7 @@ HLTPixlMBSelectFilter::HLTPixlMBSelectFilter(const edm::ParameterSet& iConfig) :
   produces<reco::HLTFilterObjectWithRefs>();
 }
 
-HLTPixlMBSelectFilter::~HLTPixlMBSelectFilter()
+HLTPixlMBForAlignmentFilter::~HLTPixlMBForAlignmentFilter()
 {
 }
 
@@ -57,7 +57,7 @@ HLTPixlMBSelectFilter::~HLTPixlMBSelectFilter()
 //
 
 // ------------ method called to produce the data  ------------
-bool HLTPixlMBSelectFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
+bool HLTPixlMBForAlignmentFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
    using namespace std;
    using namespace edm;
@@ -186,6 +186,7 @@ bool HLTPixlMBSelectFilter::filter(edm::Event& iEvent, const edm::EventSetup& iS
          ref=RefToBase<Candidate>(RecoChargedCandidateRef(tracks,iaddr));
          filterobject->putParticle(ref);
        }
+       std::cout << "Accept this event " << std::endl;
      }
      // put filter object into the Event
      iEvent.put(filterobject);
