@@ -99,16 +99,16 @@ void CaloRecHitsProducer::produce(edm::Event & iEvent, const edm::EventSetup & e
 {
   // create empty outputs for HCAL 
   // see RecoLocalCalo/HcalRecProducers/src/HcalSimpleReconstructor.cc
-  std::auto_ptr<EBRecHitCollection> receb(new EBRecHitCollection(1));  // ECAL Barrel
-  std::auto_ptr<EERecHitCollection> recee(new EERecHitCollection(1));  // ECAL Endcap
+  std::auto_ptr<EBRecHitCollection> receb(new EBRecHitCollection);  // ECAL Barrel
+  std::auto_ptr<EERecHitCollection> recee(new EERecHitCollection);  // ECAL Endcap
   std::auto_ptr<ESRecHitCollection> reces(new ESRecHitCollection);  // ECAL pre-shower
 
   std::auto_ptr<HBHERecHitCollection> rec1(new HBHERecHitCollection); // Barrel+Endcap
   std::auto_ptr<HORecHitCollection> rec2(new HORecHitCollection);     // Outer
   std::auto_ptr<HFRecHitCollection> rec3(new HFRecHitCollection);     // Forward
  
-  std::auto_ptr<EBDigiCollection> digieb(new EBDigiCollection);
-  std::auto_ptr<EEDigiCollection> digiee(new EEDigiCollection);
+  std::auto_ptr<EBDigiCollection> digieb(new EBDigiCollection(1));
+  std::auto_ptr<EEDigiCollection> digiee(new EEDigiCollection(1));
   std::auto_ptr<HBHEDigiCollection> digihbhe(new HBHEDigiCollection);
   std::auto_ptr<HODigiCollection> digiho(new HODigiCollection);
   std::auto_ptr<HFDigiCollection> digihf(new HFDigiCollection);
