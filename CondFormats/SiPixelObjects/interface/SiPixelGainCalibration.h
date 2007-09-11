@@ -42,7 +42,9 @@ class SiPixelGainCalibration {
   typedef std::vector<DetRegistry>                         Registry;
   typedef Registry::const_iterator                         RegistryIterator;
   
-  SiPixelGainCalibration(){};
+  // Constructors
+  SiPixelGainCalibration();
+  SiPixelGainCalibration(float minPed, float maxPed, float minGain, float maxGain);
   virtual ~SiPixelGainCalibration(){};
 
   bool  put(const uint32_t& detID,Range input, const int& nCols);
@@ -53,10 +55,19 @@ class SiPixelGainCalibration {
   void  setData(float ped, float gain, std::vector<char>& vped);
   float getPed   (const int& col, const int& row, const Range& range, const int& nCols) const;
   float getGain  (const int& col, const int& row, const Range& range, const int& nCols) const;
+  void  setPedRange(float minPed, float maxPed);
+  void  setGainRange(float minGain, float maxGain);
 
   private:
+
+  float   encodeGain(const float& gain);
+  float   encodePed (const float& ped);
+  float   decodeGain(unsigned int gain) const;
+  float   decodePed (unsigned int ped) const;
+
   std::vector<char> v_pedestals; //@@@ blob streaming doesn't work with uint16_t and with classes
   std::vector<DetRegistry> indexes;
+  float  minGain_, maxGain_, minPed_, maxPed_;
 
 };
     

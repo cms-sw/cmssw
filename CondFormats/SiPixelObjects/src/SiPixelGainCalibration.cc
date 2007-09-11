@@ -1,6 +1,25 @@
 #include "CondFormats/SiPixelObjects/interface/SiPixelGainCalibration.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
+//
+// Constructors
+//
+SiPixelGainCalibration::SiPixelGainCalibration() :
+  minPed_(0.),
+  maxPed_(255.),
+  minGain_(0.),
+  maxGain_(255.)
+{
+}
+//
+SiPixelGainCalibration::SiPixelGainCalibration(float minPed, float maxPed, float minGain, float maxGain) :
+  minPed_(minPed),
+  maxPed_(maxPed),
+  minGain_(minGain),
+  maxGain_(maxGain)
+{
+}
+
 bool SiPixelGainCalibration::put(const uint32_t& DetId, Range input, const int& nCols) {
   // put in SiPixelGainCalibration of DetId
 
@@ -50,14 +69,11 @@ void SiPixelGainCalibration::getDetIds(std::vector<uint32_t>& DetIds_) const {
 
 void SiPixelGainCalibration::setData(float ped, float gain, std::vector<char>& vped){
   
-  // ACTION: Should ped and gain be rescaled to match the 8bit dinamic range?
+  float theEncodedGain  = encodeGain(gain);
+  float theEncodedPed   = encodePed (ped);
 
-  unsigned int ped_   = (static_cast<unsigned int>(ped))  & 0xFF; 
-  unsigned int gain_  = (static_cast<unsigned int>(gain)) & 0xFF;
-
-  //  unsigned int low_  = (static_cast<unsigned int>(lth*5.0+0.5)) & 0x3F; 
-  // unsigned int hig_  = (static_cast<unsigned int>(hth*5.0+0.5)) & 0x3F; 
-  //  unsigned int data = (ped_ << 12) | (hig_ << 6) | low_ ;
+  unsigned int ped_   = (static_cast<unsigned int>(theEncodedPed))  & 0xFF; 
+  unsigned int gain_  = (static_cast<unsigned int>(theEncodedGain)) & 0xFF;
 
   unsigned int data = (ped_ << 8) | gain_ ;
   vped.resize(vped.size()+2);
@@ -73,7 +89,7 @@ float SiPixelGainCalibration::getPed(const int& col, const int& row, const Range
     throw cms::Exception("CorruptedData")
       << "[SiPixelGainCalibration::getPed] Pixel out of range: col " << col << " row " << row;
   }  
-  return (s.ped & 0xFF);  
+  return decodePed(s.ped & 0xFF);  
 }
 
 float SiPixelGainCalibration::getGain(const int& col, const int& row, const Range& range, const int& nCols) const {
@@ -84,5 +100,37 @@ float SiPixelGainCalibration::getGain(const int& col, const int& row, const Rang
     throw cms::Exception("CorruptedData")
       << "[SiPixelGainCalibration::getPed] Pixel out of range: col " << col << " row " << row;
   }  
-  return (s.gain & 0xFF);
+  return decodeGain(s.gain & 0xFF);
+}
+
+float SiPixelGainCalibration::encodeGain( const float& gain ) {
+  
+  double precision   = (maxGain_-minGain_)/255.;
+  float  encodedGain = (float)((gain-minGain_)/precision);
+  return encodedGain;
+
+}
+
+float SiPixelGainCalibration::encodePed( const float& ped ) {
+  
+  double precision   = (maxPed_-minPed_)/255.;
+  float  encodedPed = (float)((ped-minPed_)/precision);
+  return encodedPed;
+
+}
+
+float SiPixelGainCalibration::decodePed( unsigned int ped ) const {
+
+  double precision = (maxPed_-minPed_)/255.;
+  float decodedPed = (float)(ped*precision + minPed_);
+  return decodedPed;
+
+}
+
+float SiPixelGainCalibration::decodeGain( unsigned int gain ) const {
+
+  double precision = (maxGain_-minGain_)/255.;
+  float decodedGain = (float)(gain*precision + minGain_);
+  return decodedGain;
+
 }
