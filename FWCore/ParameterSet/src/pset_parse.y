@@ -3,7 +3,7 @@
 %{
 
 /*
- * $Id: pset_parse.y,v 1.59 2007/05/11 22:55:05 rpw Exp $
+ * $Id: pset_parse.y,v 1.60 2007/07/23 23:42:35 wmtan Exp $
  *
  * Author: Us
  * Date:   4/28/05
@@ -628,18 +628,12 @@ any:             VALUE_tok
    keyword as their tag.  Whatever.  We'll allow it
  */
 anyproducttag:   PRODUCTTAG_tok
-                 {
-                   DBPRINT("anyproducttag: PRODUCTTAG");
-                   $<str>$ = $<str>1;
-                 }
                |
                  LETTERSTART_tok
-                 {
-                   DBPRINT("anyproducttag: LETTERSTART");
-                   $<str>$ = $<str>1;
-                 }
                |
                  SOURCE_tok
+               |
+                 anyquote
                ;
 
 replaceEntry:    VALUE_tok
