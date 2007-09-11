@@ -2,8 +2,8 @@
  *  See header file for a description of this class.
  *
  *
- *  $Date: 2007/03/28 01:21:32 $
- *  $Revision: 1.1 $
+ *  $Date: 2007/05/14 17:27:02 $
+ *  $Revision: 1.2 $
  *  \author A. Vitelli - INFN Torino, V.Palichik
  *  \author porting  R. Bellan
  *
@@ -293,24 +293,25 @@ void MuonDTSeedFromRecHits::computePtWithoutVtx(double* pt, double* spt) const {
       if ( radius2<450 ) stat2=1;
       if ( radius2>650 ) stat2=4;
 
+      GlobalVector globalDir1 = (*iter)->globalDirection();
+      GlobalVector globalDir2 = (*iter2)->globalDirection();
+      float dphi = -globalDir1.phi()+globalDir2.phi();
+      // Maybe these aren't necessary with Geom::Phi
+      if(dphi>M_PI) dphi -= 2*M_PI;
+      if(dphi<-M_PI) dphi += 2*M_PI;
+
+      ch = (dphi > 0) ? 1 : -1;
+
       if ( stat1>stat2) {
+        ch = -ch
         int tmp = stat1;
         stat1 = stat2;
         stat2 = tmp;
       }
       unsigned int st = stat1*10+stat2;
 
-      LocalVector dir1 = (*iter)->localDirection();
-      
-      LocalVector dir2 = (*iter)->det()->toLocal((*iter2)->globalDirection());
-       
-      float phi1 = (dir1.z()/dir1.x());     
-      float phi2 = (dir2.z()/dir2.x());
-      float dphi = fabs((phi1 - phi2)/(1+phi1*phi2)) ; 
-      ch = static_cast<int>(-(phi1 - phi2)/fabs(phi1 - phi2));
-      if ( stat2 > stat1 ) ch = -ch;
-
       if ( dphi ) {
+        dphi = fabs(dphi);
         switch (st) {
 	case  12 : {//MB1-MB2
 	  pt[2]=(12.802+0.38647/dphi)*ch ; 
