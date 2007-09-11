@@ -264,8 +264,7 @@ class PSet(_ParameterTypeBase,_Parameterizable,_ConfigureComponent,_Labelable):
         config += indent+'}\n'
         return config
     def dumpPython(self,indent,deltaIndent):
-        result = "cms.PSet(\n"+_Parameterizable.dumpPython(self, indent,deltaIndent)+indent+")"
-        return result
+        return self.pythonTypeName()+"(\n"+_Parameterizable.dumpPython(self, indent,deltaIndent)+indent+")"
     def copy(self):
         import copy
         return copy.copy(self)
