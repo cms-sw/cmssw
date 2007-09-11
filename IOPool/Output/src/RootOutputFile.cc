@@ -1,4 +1,4 @@
-// $Id: RootOutputFile.cc,v 1.11 2007/09/08 02:16:33 wmtan Exp $
+// $Id: RootOutputFile.cc,v 1.12 2007/09/10 20:27:08 wmtan Exp $
 
 #include "RootOutputFile.h"
 #include "PoolOutputModule.h"
@@ -204,9 +204,14 @@ namespace edm {
       treePointers_[branchType]->writeTree();
     }
 
+    // close the file -- mfp
+    filePtr_->Close();
+    filePtr_.reset();
+
     // report that file has been closed
     Service<JobReport> reportSvc;
     reportSvc->outputFileClosed(reportToken_);
+
   }
 
   void RootOutputFile::RootOutputFile::fillBranches(BranchType const& branchType, Principal const& principal) const {

@@ -1,4 +1,4 @@
-// $Id: PoolOutputModule.cc,v 1.84 2007/08/30 22:34:53 wmtan Exp $
+// $Id: PoolOutputModule.cc,v 1.85 2007/09/04 19:39:38 paterno Exp $
 
 #include "IOPool/Output/src/PoolOutputModule.h"
 #include "boost/array.hpp" 
@@ -106,6 +106,7 @@ namespace edm {
   void PoolOutputModule::writeProductDescriptionRegistry() { rootFile_->writeProductDescriptionRegistry(); }
   void PoolOutputModule::finishEndFile() { rootFile_->finishEndFile(); }
   bool PoolOutputModule::isFileOpen() const { return rootFile_.get() != 0; }
-  // Ask Bill how to do this correctly.
-  bool PoolOutputModule::isFileFull() const { return false; }
+
+
+  bool PoolOutputModule::isFileFull() const { return rootFile_->isFileFull(); }
 }
