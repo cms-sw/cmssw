@@ -1,42 +1,23 @@
 
 [oval run] =================================================
 [oval run] USER : uberthon
-[oval run] HOST : lxcms72.cern.ch
+[oval run] HOST : lxcmsf3.cern.ch
 [oval run] run tool: oval
 [oval run] final instruction: ./testsuite.csh
 [oval run] =================================================
 
 Please cd into the directory where cmsset_default.csh is.
-/bin/ls: /afs/cern.ch/cms/slc3_ia32_gcc323/etc/profile.d/: No such file or directory
+/bin/ls: /afs/cern.ch/cms/slc4_ia32_gcc345/etc/profile.d/: No such file or directory
 ===================> Step1: executing EDProducer (MixingModule) for bcr -5
-
-       =================================================
-
-       Message Log File written by MessageLogger service 
-       
-       =================================================
-       
-/tmp/Cum_-5.root: level[Always] Root file version:51400
 ===================> Step2: executing EDAnalyser (TestSuite) to create histos for bcr -5
 Constructed testSuite , bunchcr -5 filename: histos.root
  ------------------------------------------------------------
                     Directory structure:                     
  ------------------------------------------------------------
  ------------------------------------------------------------
-%MSG-i FwkReport:  main_input:source 28-Feb-2007 15:48:53 CET BeforeEvents
-Begin processing the 1th record. Run 5002, Event 1
-%MSG-i Root_NoDictionary:  TestSuite:test TClass::TClass() 
-       28-Feb-2007 15:48:53 CET Run: 5002 Event: 1
-no dictionary for class pair<string,vector<PSimHit> > is available
-%MSG-i Root_NoDictionary:  TestSuite:test TClass::TClass() 
-       28-Feb-2007 15:48:53 CET Run: 5002 Event: 1
-no dictionary for class pair<string,vector<PCaloHit> > is available
-%MSG-i Root_NoDictionary:  TestSuite:test TClass::TClass() 
-       28-Feb-2007 15:48:54 CET Run: 5002 Event: 1
-no dictionary for class pair<string,vector<vector<PSimHit> > > is available
-%MSG-i Root_NoDictionary:  TestSuite:test TClass::TClass() 
-       28-Feb-2007 15:48:54 CET Run: 5002 Event: 1
-no dictionary for class pair<string,vector<vector<PCaloHit> > > is available
+%MSG-i FwkReport:  main_input:source 11-Sep-2007 14:39:02 CEST BeforeEvents
+Begin processing the 1st record. Run 200025, Event 1
+%MSG
  Adding new TH1F object Tracks_bcr_-5 to directory Mixing
  Adding new TH1F object SignalTracks_bcr_-5 to directory Mixing
  Adding new TH1F object VtxPointers_-5 to directory Mixing
@@ -52,48 +33,19 @@ no dictionary for class pair<string,vector<vector<PCaloHit> > > is available
  Adding new TH1F object HcalHit_Tof_bcr_-5 to directory Mixing
  Adding new TH1F object SignalHcalHit_Tof_bcr_-5 to directory Mixing
  Saved file histos.root with collection of monitoring objects 
-%MSG-i FwkJob:  PostModule 28-Feb-2007 15:48:54 CET Run: 5002 Event: 1
-
-<InputFile>
-<State  Value="closed"/>
-<LFN></LFN>
-<PFN>file:/tmp/Cum_-5.root</PFN>
-<Catalog></Catalog>
-<ModuleLabel>source</ModuleLabel>
-<GUID></GUID>
-<Runs>
-  <Run>5002</Run>
-</Runs>
-<Branches>
-</Branches>
-<InputSourceClass>PoolSource</InputSourceClass>
-<EventsRead>1</EventsRead>
-</InputFile>
-%MSG-i FwkJob:  PostModule 28-Feb-2007 15:48:54 CET Run: 5002 Event: 1
-<StorageStatistics>
-Storage parameters: adaptor: true Stats:true Buffering:false Caching:0,0
-Storage statistics: file/close=1/1/0MB/0.134044ms/0.134044ms/0.134044ms; file/destruct=1/1/0MB/0.211576ms/0.211576ms/0.211576ms; file/open=2/2/0MB/0.94226ms/0.074548ms/0.867712ms; file/position=32/32/0MB/0.338684ms/0.003212ms/0.072536ms; file/read=22/22/0.169494MB/1.7981ms/0.006468ms/0.333644ms; file/write=0/0/0MB/0ms/100000ms/0ms; tstoragefile/close=1/1/0MB/0.422004ms/0.422004ms/0.422004ms; tstoragefile/construct=2/2/0MB/3525.5ms/57.4026ms/3468.1ms; tstoragefile/read=22/22/0.169494MB/2.81683ms/0.013596ms/0.565544ms; tstoragefile/readu=0/0/0MB/0ms/100000ms/0ms; tstoragefile/readx=22/22/0.169494MB/1.93845ms/0.008836ms/0.339536ms; tstoragefile/seek=22/22/0MB/0.295344ms/0.00174ms/0.055292ms; tstoragefile/seekx=16/16/0MB/0.2804ms/0.006108ms/0.0285ms; tstoragefile/stat=4/4/0MB/0.25388ms/0.019868ms/0.18476ms; tfile/read=?/?/0.169494MB/?ms/?ms/?ms; tfile/write=?/?/0.00914097MB/?ms/?ms/?ms
-</StorageStatistics>
-%MSG-i FwkJob:  PostModule 28-Feb-2007 15:48:54 CET Run: 5002 Event: 1
-
-<GeneratorInfo>
-%MSG-i FwkJob:  PostModule 28-Feb-2007 15:48:54 CET Run: 5002 Event: 1
-</GeneratorInfo>
-
-Main Thread CPU elapsed time 435u 14s
 ===================> Step2a: histogram comparison
   *******************************************
   *                                         *
   *        W E L C O M E  to  R O O T       *
   *                                         *
-  *   Version  5.14/00b   17 January 2007   *
+  *   Version  5.14/00g       9 July 2007   *
   *                                         *
   *  You are welcome to visit our Web site  *
   *          http://root.cern.ch            *
   *                                         *
   *******************************************
 
-Compiled on 9 February 2007 for linux with thread support.
+Compiled on 28 August 2007 for linux with thread support.
 
 CINT/ROOT C/C++ Interpreter version 5.16.16, November 24, 2006
 Type ? for help. Commands must be C++ statements.
@@ -101,17 +53,18 @@ Enclose multiple statements between { }.
 
 Processing DoCompare.C("histos","../data/MMValHistos_-5")...
 Initializing HistoCompare... 
-(class HistoCompare)162942192
+(class HistoCompare)167666352
 Initializing HistoCompare... 
-[OVAL] EcalEBHit_Tof_bcr_-5 PV= 1
+[OVAL] EcalEBHit_Tof_bcr_-5 PV= 9.92776e-09
 Info in <TCanvas::Print>: eps file EcalEBHit_Tof_bcr_-5.eps has been created
 [OVAL] HcalHit_Tof_bcr_-5 PV= 1
 Info in <TCanvas::Print>: eps file HcalHit_Tof_bcr_-5.eps has been created
-[OVAL] SignalEcalEBHit_Tof_bcr_-5 PV= 1
+[OVAL] SignalEcalEBHit_Tof_bcr_-5 PV= 0
 Info in <TCanvas::Print>: eps file SignalEcalEBHit_Tof_bcr_-5.eps has been created
-[OVAL] SignalHcalHit_Tof_bcr_-5 PV= 1
+There is bin in Hist2 with less than 1 exp number of events.
+[OVAL] SignalHcalHit_Tof_bcr_-5 PV= 0.323361
 Info in <TCanvas::Print>: eps file SignalHcalHit_Tof_bcr_-5.eps has been created
-[OVAL] SignalTrackerHit_Tof_bcr_-5 PV= 1
+[OVAL] SignalTrackerHit_Tof_bcr_-5 PV= 4.55501e-07
 Info in <TCanvas::Print>: eps file SignalTrackerHit_Tof_bcr_-5.eps has been created
 [OVAL] SignalTracks_bcr_-5 PV= 1
 Info in <TCanvas::Print>: eps file SignalTracks_bcr_-5.eps has been created
@@ -119,7 +72,8 @@ Info in <TCanvas::Print>: eps file SignalTracks_bcr_-5.eps has been created
 Info in <TCanvas::Print>: eps file SignalVertices_bcr_-5.eps has been created
 [OVAL] TrackPointers_-5 PV= 1
 Info in <TCanvas::Print>: eps file TrackPointers_-5.eps has been created
-[OVAL] TrackPointers_signal_-5 PV= 1
+There is bin in Hist2 with less than 1 exp number of events.
+[OVAL] TrackPointers_signal_-5 PV= 0.970114
 Info in <TCanvas::Print>: eps file TrackPointers_signal_-5.eps has been created
 [OVAL] TrackerHit_Tof_bcr_-5 PV= 1
 Info in <TCanvas::Print>: eps file TrackerHit_Tof_bcr_-5.eps has been created
@@ -127,39 +81,20 @@ Info in <TCanvas::Print>: eps file TrackerHit_Tof_bcr_-5.eps has been created
 Info in <TCanvas::Print>: eps file Tracks_bcr_-5.eps has been created
 [OVAL] Vertices_bcr_-5 PV= 1
 Info in <TCanvas::Print>: eps file Vertices_bcr_-5.eps has been created
-[OVAL] VtxPointers_-5 PV= 1
+[OVAL] VtxPointers_-5 PV= 0.556732
 Info in <TCanvas::Print>: eps file VtxPointers_-5.eps has been created
-[OVAL] VtxPointers_signal_-5 PV= 1
+[OVAL] VtxPointers_signal_-5 PV= 0.844635
 Info in <TCanvas::Print>: eps file VtxPointers_signal_-5.eps has been created
 ===================> Step1: executing EDProducer (MixingModule) for bcr -4
-
-       =================================================
-
-       Message Log File written by MessageLogger service 
-       
-       =================================================
-       
-/tmp/Cum_-4.root: level[Always] Root file version:51400
 ===================> Step2: executing EDAnalyser (TestSuite) to create histos for bcr -4
 Constructed testSuite , bunchcr -4 filename: histos.root
  ------------------------------------------------------------
                     Directory structure:                     
  ------------------------------------------------------------
  ------------------------------------------------------------
-%MSG-i FwkReport:  main_input:source 28-Feb-2007 15:50:50 CET BeforeEvents
-Begin processing the 1th record. Run 5002, Event 1
-%MSG-i Root_NoDictionary:  TestSuite:test TClass::TClass() 
-       28-Feb-2007 15:50:50 CET Run: 5002 Event: 1
-no dictionary for class pair<string,vector<PSimHit> > is available
-%MSG-i Root_NoDictionary:  TestSuite:test TClass::TClass() 
-       28-Feb-2007 15:50:50 CET Run: 5002 Event: 1
-no dictionary for class pair<string,vector<PCaloHit> > is available
-%MSG-i Root_NoDictionary:  TestSuite:test TClass::TClass() 
-       28-Feb-2007 15:50:50 CET Run: 5002 Event: 1
-no dictionary for class pair<string,vector<vector<PSimHit> > > is available
-%MSG-i Root_NoDictionary:  TestSuite:test TClass::TClass() 
-       28-Feb-2007 15:50:50 CET Run: 5002 Event: 1
-no dictionary for class pair<string,vector<vector<PCaloHit> > > is available
+%MSG-i FwkReport:  main_input:source 11-Sep-2007 14:40:21 CEST BeforeEvents
+Begin processing the 1st record. Run 200025, Event 1
+%MSG
  Adding new TH1F object Tracks_bcr_-4 to directory Mixing
  Adding new TH1F object SignalTracks_bcr_-4 to directory Mixing
  Adding new TH1F object VtxPointers_-4 to directory Mixing
@@ -175,48 +110,19 @@ no dictionary for class pair<string,vector<vector<PCaloHit> > > is available
  Adding new TH1F object HcalHit_Tof_bcr_-4 to directory Mixing
  Adding new TH1F object SignalHcalHit_Tof_bcr_-4 to directory Mixing
  Saved file histos.root with collection of monitoring objects 
-%MSG-i FwkJob:  PostModule 28-Feb-2007 15:50:50 CET Run: 5002 Event: 1
-
-<InputFile>
-<State  Value="closed"/>
-<LFN></LFN>
-<PFN>file:/tmp/Cum_-4.root</PFN>
-<Catalog></Catalog>
-<ModuleLabel>source</ModuleLabel>
-<GUID></GUID>
-<Runs>
-  <Run>5002</Run>
-</Runs>
-<Branches>
-</Branches>
-<InputSourceClass>PoolSource</InputSourceClass>
-<EventsRead>1</EventsRead>
-</InputFile>
-%MSG-i FwkJob:  PostModule 28-Feb-2007 15:50:50 CET Run: 5002 Event: 1
-<StorageStatistics>
-Storage parameters: adaptor: true Stats:true Buffering:false Caching:0,0
-Storage statistics: file/close=1/1/0MB/0.13568ms/0.13568ms/0.13568ms; file/destruct=1/1/0MB/0.211928ms/0.211928ms/0.211928ms; file/open=2/2/0MB/0.93566ms/0.075644ms/0.860016ms; file/position=32/32/0MB/0.329416ms/0.003172ms/0.070088ms; file/read=22/22/0.16953MB/1.76705ms/0.006452ms/0.356372ms; file/write=0/0/0MB/0ms/100000ms/0ms; tstoragefile/close=1/1/0MB/0.420412ms/0.420412ms/0.420412ms; tstoragefile/construct=2/2/0MB/3528.96ms/57.4548ms/3471.51ms; tstoragefile/read=22/22/0.16953MB/2.79402ms/0.013312ms/0.566376ms; tstoragefile/readu=0/0/0MB/0ms/100000ms/0ms; tstoragefile/readx=22/22/0.16953MB/1.9011ms/0.00894ms/0.362752ms; tstoragefile/seek=22/22/0MB/0.297584ms/0.00174ms/0.054044ms; tstoragefile/seekx=16/16/0MB/0.274964ms/0.006792ms/0.02756ms; tstoragefile/stat=4/4/0MB/0.244304ms/0.019984ms/0.17596ms; tfile/read=?/?/0.16953MB/?ms/?ms/?ms; tfile/write=?/?/0.00914383MB/?ms/?ms/?ms
-</StorageStatistics>
-%MSG-i FwkJob:  PostModule 28-Feb-2007 15:50:50 CET Run: 5002 Event: 1
-
-<GeneratorInfo>
-%MSG-i FwkJob:  PostModule 28-Feb-2007 15:50:50 CET Run: 5002 Event: 1
-</GeneratorInfo>
-
-Main Thread CPU elapsed time 436u 12s
 ===================> Step2a: histogram comparison
   *******************************************
   *                                         *
   *        W E L C O M E  to  R O O T       *
   *                                         *
-  *   Version  5.14/00b   17 January 2007   *
+  *   Version  5.14/00g       9 July 2007   *
   *                                         *
   *  You are welcome to visit our Web site  *
   *          http://root.cern.ch            *
   *                                         *
   *******************************************
 
-Compiled on 9 February 2007 for linux with thread support.
+Compiled on 28 August 2007 for linux with thread support.
 
 CINT/ROOT C/C++ Interpreter version 5.16.16, November 24, 2006
 Type ? for help. Commands must be C++ statements.
@@ -224,17 +130,18 @@ Enclose multiple statements between { }.
 
 Processing DoCompare.C("histos","../data/MMValHistos_-4")...
 Initializing HistoCompare... 
-(class HistoCompare)169962792
+(class HistoCompare)148914912
 Initializing HistoCompare... 
-[OVAL] EcalEBHit_Tof_bcr_-4 PV= 1
+[OVAL] EcalEBHit_Tof_bcr_-4 PV= 9.92776e-09
 Info in <TCanvas::Print>: eps file EcalEBHit_Tof_bcr_-4.eps has been created
 [OVAL] HcalHit_Tof_bcr_-4 PV= 1
 Info in <TCanvas::Print>: eps file HcalHit_Tof_bcr_-4.eps has been created
-[OVAL] SignalEcalEBHit_Tof_bcr_-4 PV= 1
+[OVAL] SignalEcalEBHit_Tof_bcr_-4 PV= 0
 Info in <TCanvas::Print>: eps file SignalEcalEBHit_Tof_bcr_-4.eps has been created
-[OVAL] SignalHcalHit_Tof_bcr_-4 PV= 1
+There is bin in Hist2 with less than 1 exp number of events.
+[OVAL] SignalHcalHit_Tof_bcr_-4 PV= 0.323361
 Info in <TCanvas::Print>: eps file SignalHcalHit_Tof_bcr_-4.eps has been created
-[OVAL] SignalTrackerHit_Tof_bcr_-4 PV= 1
+[OVAL] SignalTrackerHit_Tof_bcr_-4 PV= 4.55501e-07
 Info in <TCanvas::Print>: eps file SignalTrackerHit_Tof_bcr_-4.eps has been created
 [OVAL] SignalTracks_bcr_-4 PV= 1
 Info in <TCanvas::Print>: eps file SignalTracks_bcr_-4.eps has been created
@@ -242,7 +149,8 @@ Info in <TCanvas::Print>: eps file SignalTracks_bcr_-4.eps has been created
 Info in <TCanvas::Print>: eps file SignalVertices_bcr_-4.eps has been created
 [OVAL] TrackPointers_-4 PV= 1
 Info in <TCanvas::Print>: eps file TrackPointers_-4.eps has been created
-[OVAL] TrackPointers_signal_-4 PV= 1
+There is bin in Hist2 with less than 1 exp number of events.
+[OVAL] TrackPointers_signal_-4 PV= 0.970114
 Info in <TCanvas::Print>: eps file TrackPointers_signal_-4.eps has been created
 [OVAL] TrackerHit_Tof_bcr_-4 PV= 1
 Info in <TCanvas::Print>: eps file TrackerHit_Tof_bcr_-4.eps has been created
@@ -250,39 +158,20 @@ Info in <TCanvas::Print>: eps file TrackerHit_Tof_bcr_-4.eps has been created
 Info in <TCanvas::Print>: eps file Tracks_bcr_-4.eps has been created
 [OVAL] Vertices_bcr_-4 PV= 1
 Info in <TCanvas::Print>: eps file Vertices_bcr_-4.eps has been created
-[OVAL] VtxPointers_-4 PV= 1
+[OVAL] VtxPointers_-4 PV= 0.556732
 Info in <TCanvas::Print>: eps file VtxPointers_-4.eps has been created
-[OVAL] VtxPointers_signal_-4 PV= 1
+[OVAL] VtxPointers_signal_-4 PV= 0.844635
 Info in <TCanvas::Print>: eps file VtxPointers_signal_-4.eps has been created
 ===================> Step1: executing EDProducer (MixingModule) for bcr -3
-
-       =================================================
-
-       Message Log File written by MessageLogger service 
-       
-       =================================================
-       
-/tmp/Cum_-3.root: level[Always] Root file version:51400
 ===================> Step2: executing EDAnalyser (TestSuite) to create histos for bcr -3
 Constructed testSuite , bunchcr -3 filename: histos.root
  ------------------------------------------------------------
                     Directory structure:                     
  ------------------------------------------------------------
  ------------------------------------------------------------
-%MSG-i FwkReport:  main_input:source 28-Feb-2007 15:52:54 CET BeforeEvents
-Begin processing the 1th record. Run 5002, Event 1
-%MSG-i Root_NoDictionary:  TestSuite:test TClass::TClass() 
-       28-Feb-2007 15:52:55 CET Run: 5002 Event: 1
-no dictionary for class pair<string,vector<PSimHit> > is available
-%MSG-i Root_NoDictionary:  TestSuite:test TClass::TClass() 
-       28-Feb-2007 15:52:55 CET Run: 5002 Event: 1
-no dictionary for class pair<string,vector<PCaloHit> > is available
-%MSG-i Root_NoDictionary:  TestSuite:test TClass::TClass() 
-       28-Feb-2007 15:52:55 CET Run: 5002 Event: 1
-no dictionary for class pair<string,vector<vector<PSimHit> > > is available
-%MSG-i Root_NoDictionary:  TestSuite:test TClass::TClass() 
-       28-Feb-2007 15:52:55 CET Run: 5002 Event: 1
-no dictionary for class pair<string,vector<vector<PCaloHit> > > is available
+%MSG-i FwkReport:  main_input:source 11-Sep-2007 14:41:40 CEST BeforeEvents
+Begin processing the 1st record. Run 200025, Event 1
+%MSG
  Adding new TH1F object Tracks_bcr_-3 to directory Mixing
  Adding new TH1F object SignalTracks_bcr_-3 to directory Mixing
  Adding new TH1F object VtxPointers_-3 to directory Mixing
@@ -298,48 +187,19 @@ no dictionary for class pair<string,vector<vector<PCaloHit> > > is available
  Adding new TH1F object HcalHit_Tof_bcr_-3 to directory Mixing
  Adding new TH1F object SignalHcalHit_Tof_bcr_-3 to directory Mixing
  Saved file histos.root with collection of monitoring objects 
-%MSG-i FwkJob:  PostModule 28-Feb-2007 15:52:55 CET Run: 5002 Event: 1
-
-<InputFile>
-<State  Value="closed"/>
-<LFN></LFN>
-<PFN>file:/tmp/Cum_-3.root</PFN>
-<Catalog></Catalog>
-<ModuleLabel>source</ModuleLabel>
-<GUID></GUID>
-<Runs>
-  <Run>5002</Run>
-</Runs>
-<Branches>
-</Branches>
-<InputSourceClass>PoolSource</InputSourceClass>
-<EventsRead>1</EventsRead>
-</InputFile>
-%MSG-i FwkJob:  PostModule 28-Feb-2007 15:52:55 CET Run: 5002 Event: 1
-<StorageStatistics>
-Storage parameters: adaptor: true Stats:true Buffering:false Caching:0,0
-Storage statistics: file/close=1/1/0MB/0.130468ms/0.130468ms/0.130468ms; file/destruct=1/1/0MB/0.209996ms/0.209996ms/0.209996ms; file/open=2/2/0MB/0.93242ms/0.076364ms/0.856056ms; file/position=32/32/0MB/0.3278ms/0.00316ms/0.070792ms; file/read=22/22/0.169489MB/1.76953ms/0.006312ms/0.314836ms; file/write=0/0/0MB/0ms/100000ms/0ms; tstoragefile/close=1/1/0MB/0.414976ms/0.414976ms/0.414976ms; tstoragefile/construct=2/2/0MB/3516.38ms/57.6841ms/3458.7ms; tstoragefile/read=22/22/0.169489MB/2.762ms/0.013456ms/0.562396ms; tstoragefile/readu=0/0/0MB/0ms/100000ms/0ms; tstoragefile/readx=22/22/0.169489MB/1.90568ms/0.008636ms/0.32124ms; tstoragefile/seek=22/22/0MB/0.289208ms/0.001856ms/0.052456ms; tstoragefile/seekx=16/16/0MB/0.265324ms/0.006448ms/0.0269ms; tstoragefile/stat=4/4/0MB/0.247688ms/0.01924ms/0.180152ms; tfile/read=?/?/0.169489MB/?ms/?ms/?ms; tfile/write=?/?/0.00914192MB/?ms/?ms/?ms
-</StorageStatistics>
-%MSG-i FwkJob:  PostModule 28-Feb-2007 15:52:55 CET Run: 5002 Event: 1
-
-<GeneratorInfo>
-%MSG-i FwkJob:  PostModule 28-Feb-2007 15:52:55 CET Run: 5002 Event: 1
-</GeneratorInfo>
-
-Main Thread CPU elapsed time 415u 11s
 ===================> Step2a: histogram comparison
   *******************************************
   *                                         *
   *        W E L C O M E  to  R O O T       *
   *                                         *
-  *   Version  5.14/00b   17 January 2007   *
+  *   Version  5.14/00g       9 July 2007   *
   *                                         *
   *  You are welcome to visit our Web site  *
   *          http://root.cern.ch            *
   *                                         *
   *******************************************
 
-Compiled on 9 February 2007 for linux with thread support.
+Compiled on 28 August 2007 for linux with thread support.
 
 CINT/ROOT C/C++ Interpreter version 5.16.16, November 24, 2006
 Type ? for help. Commands must be C++ statements.
@@ -347,17 +207,18 @@ Enclose multiple statements between { }.
 
 Processing DoCompare.C("histos","../data/MMValHistos_-3")...
 Initializing HistoCompare... 
-(class HistoCompare)156179808
+(class HistoCompare)151126808
 Initializing HistoCompare... 
-[OVAL] EcalEBHit_Tof_bcr_-3 PV= 1
+[OVAL] EcalEBHit_Tof_bcr_-3 PV= 9.92776e-09
 Info in <TCanvas::Print>: eps file EcalEBHit_Tof_bcr_-3.eps has been created
 [OVAL] HcalHit_Tof_bcr_-3 PV= 1
 Info in <TCanvas::Print>: eps file HcalHit_Tof_bcr_-3.eps has been created
-[OVAL] SignalEcalEBHit_Tof_bcr_-3 PV= 1
+[OVAL] SignalEcalEBHit_Tof_bcr_-3 PV= 0
 Info in <TCanvas::Print>: eps file SignalEcalEBHit_Tof_bcr_-3.eps has been created
-[OVAL] SignalHcalHit_Tof_bcr_-3 PV= 1
+There is bin in Hist2 with less than 1 exp number of events.
+[OVAL] SignalHcalHit_Tof_bcr_-3 PV= 0.323361
 Info in <TCanvas::Print>: eps file SignalHcalHit_Tof_bcr_-3.eps has been created
-[OVAL] SignalTrackerHit_Tof_bcr_-3 PV= 1
+[OVAL] SignalTrackerHit_Tof_bcr_-3 PV= 4.55501e-07
 Info in <TCanvas::Print>: eps file SignalTrackerHit_Tof_bcr_-3.eps has been created
 [OVAL] SignalTracks_bcr_-3 PV= 1
 Info in <TCanvas::Print>: eps file SignalTracks_bcr_-3.eps has been created
@@ -365,7 +226,8 @@ Info in <TCanvas::Print>: eps file SignalTracks_bcr_-3.eps has been created
 Info in <TCanvas::Print>: eps file SignalVertices_bcr_-3.eps has been created
 [OVAL] TrackPointers_-3 PV= 1
 Info in <TCanvas::Print>: eps file TrackPointers_-3.eps has been created
-[OVAL] TrackPointers_signal_-3 PV= 1
+There is bin in Hist2 with less than 1 exp number of events.
+[OVAL] TrackPointers_signal_-3 PV= 0.970114
 Info in <TCanvas::Print>: eps file TrackPointers_signal_-3.eps has been created
 [OVAL] TrackerHit_Tof_bcr_-3 PV= 1
 Info in <TCanvas::Print>: eps file TrackerHit_Tof_bcr_-3.eps has been created
@@ -373,39 +235,20 @@ Info in <TCanvas::Print>: eps file TrackerHit_Tof_bcr_-3.eps has been created
 Info in <TCanvas::Print>: eps file Tracks_bcr_-3.eps has been created
 [OVAL] Vertices_bcr_-3 PV= 1
 Info in <TCanvas::Print>: eps file Vertices_bcr_-3.eps has been created
-[OVAL] VtxPointers_-3 PV= 1
+[OVAL] VtxPointers_-3 PV= 0.556732
 Info in <TCanvas::Print>: eps file VtxPointers_-3.eps has been created
-[OVAL] VtxPointers_signal_-3 PV= 1
+[OVAL] VtxPointers_signal_-3 PV= 0.844635
 Info in <TCanvas::Print>: eps file VtxPointers_signal_-3.eps has been created
 ===================> Step1: executing EDProducer (MixingModule) for bcr -2
-
-       =================================================
-
-       Message Log File written by MessageLogger service 
-       
-       =================================================
-       
-/tmp/Cum_-2.root: level[Always] Root file version:51400
 ===================> Step2: executing EDAnalyser (TestSuite) to create histos for bcr -2
 Constructed testSuite , bunchcr -2 filename: histos.root
  ------------------------------------------------------------
                     Directory structure:                     
  ------------------------------------------------------------
  ------------------------------------------------------------
-%MSG-i FwkReport:  main_input:source 28-Feb-2007 15:54:53 CET BeforeEvents
-Begin processing the 1th record. Run 5002, Event 1
-%MSG-i Root_NoDictionary:  TestSuite:test TClass::TClass() 
-       28-Feb-2007 15:54:53 CET Run: 5002 Event: 1
-no dictionary for class pair<string,vector<PSimHit> > is available
-%MSG-i Root_NoDictionary:  TestSuite:test TClass::TClass() 
-       28-Feb-2007 15:54:53 CET Run: 5002 Event: 1
-no dictionary for class pair<string,vector<PCaloHit> > is available
-%MSG-i Root_NoDictionary:  TestSuite:test TClass::TClass() 
-       28-Feb-2007 15:54:53 CET Run: 5002 Event: 1
-no dictionary for class pair<string,vector<vector<PSimHit> > > is available
-%MSG-i Root_NoDictionary:  TestSuite:test TClass::TClass() 
-       28-Feb-2007 15:54:53 CET Run: 5002 Event: 1
-no dictionary for class pair<string,vector<vector<PCaloHit> > > is available
+%MSG-i FwkReport:  main_input:source 11-Sep-2007 14:43:00 CEST BeforeEvents
+Begin processing the 1st record. Run 200025, Event 1
+%MSG
  Adding new TH1F object Tracks_bcr_-2 to directory Mixing
  Adding new TH1F object SignalTracks_bcr_-2 to directory Mixing
  Adding new TH1F object VtxPointers_-2 to directory Mixing
@@ -421,48 +264,19 @@ no dictionary for class pair<string,vector<vector<PCaloHit> > > is available
  Adding new TH1F object HcalHit_Tof_bcr_-2 to directory Mixing
  Adding new TH1F object SignalHcalHit_Tof_bcr_-2 to directory Mixing
  Saved file histos.root with collection of monitoring objects 
-%MSG-i FwkJob:  PostModule 28-Feb-2007 15:54:53 CET Run: 5002 Event: 1
-
-<InputFile>
-<State  Value="closed"/>
-<LFN></LFN>
-<PFN>file:/tmp/Cum_-2.root</PFN>
-<Catalog></Catalog>
-<ModuleLabel>source</ModuleLabel>
-<GUID></GUID>
-<Runs>
-  <Run>5002</Run>
-</Runs>
-<Branches>
-</Branches>
-<InputSourceClass>PoolSource</InputSourceClass>
-<EventsRead>1</EventsRead>
-</InputFile>
-%MSG-i FwkJob:  PostModule 28-Feb-2007 15:54:53 CET Run: 5002 Event: 1
-<StorageStatistics>
-Storage parameters: adaptor: true Stats:true Buffering:false Caching:0,0
-Storage statistics: file/close=1/1/0MB/0.133276ms/0.133276ms/0.133276ms; file/destruct=1/1/0MB/0.21076ms/0.21076ms/0.21076ms; file/open=2/2/0MB/0.93586ms/0.073844ms/0.862016ms; file/position=32/32/0MB/0.329832ms/0.00316ms/0.069464ms; file/read=22/22/0.170461MB/1.70056ms/0.006048ms/0.329276ms; file/write=0/0/0MB/0ms/100000ms/0ms; tstoragefile/close=1/1/0MB/0.41934ms/0.41934ms/0.41934ms; tstoragefile/construct=2/2/0MB/3545.82ms/57.4038ms/3488.42ms; tstoragefile/read=22/22/0.170461MB/2.70519ms/0.013156ms/0.561752ms; tstoragefile/readu=0/0/0MB/0ms/100000ms/0ms; tstoragefile/readx=22/22/0.170461MB/1.83833ms/0.008364ms/0.33588ms; tstoragefile/seek=22/22/0MB/0.273212ms/0.001728ms/0.050028ms; tstoragefile/seekx=16/16/0MB/0.273116ms/0.006064ms/0.028436ms; tstoragefile/stat=4/4/0MB/0.243672ms/0.019944ms/0.17616ms; tfile/read=?/?/0.170461MB/?ms/?ms/?ms; tfile/write=?/?/0.00917053MB/?ms/?ms/?ms
-</StorageStatistics>
-%MSG-i FwkJob:  PostModule 28-Feb-2007 15:54:53 CET Run: 5002 Event: 1
-
-<GeneratorInfo>
-%MSG-i FwkJob:  PostModule 28-Feb-2007 15:54:53 CET Run: 5002 Event: 1
-</GeneratorInfo>
-
-Main Thread CPU elapsed time 437u 5s
 ===================> Step2a: histogram comparison
   *******************************************
   *                                         *
   *        W E L C O M E  to  R O O T       *
   *                                         *
-  *   Version  5.14/00b   17 January 2007   *
+  *   Version  5.14/00g       9 July 2007   *
   *                                         *
   *  You are welcome to visit our Web site  *
   *          http://root.cern.ch            *
   *                                         *
   *******************************************
 
-Compiled on 9 February 2007 for linux with thread support.
+Compiled on 28 August 2007 for linux with thread support.
 
 CINT/ROOT C/C++ Interpreter version 5.16.16, November 24, 2006
 Type ? for help. Commands must be C++ statements.
@@ -470,17 +284,18 @@ Enclose multiple statements between { }.
 
 Processing DoCompare.C("histos","../data/MMValHistos_-2")...
 Initializing HistoCompare... 
-(class HistoCompare)165281176
+(class HistoCompare)159081296
 Initializing HistoCompare... 
-[OVAL] EcalEBHit_Tof_bcr_-2 PV= 1
+[OVAL] EcalEBHit_Tof_bcr_-2 PV= 9.92776e-09
 Info in <TCanvas::Print>: eps file EcalEBHit_Tof_bcr_-2.eps has been created
 [OVAL] HcalHit_Tof_bcr_-2 PV= 1
 Info in <TCanvas::Print>: eps file HcalHit_Tof_bcr_-2.eps has been created
-[OVAL] SignalEcalEBHit_Tof_bcr_-2 PV= 1
+[OVAL] SignalEcalEBHit_Tof_bcr_-2 PV= 0
 Info in <TCanvas::Print>: eps file SignalEcalEBHit_Tof_bcr_-2.eps has been created
-[OVAL] SignalHcalHit_Tof_bcr_-2 PV= 1
+There is bin in Hist2 with less than 1 exp number of events.
+[OVAL] SignalHcalHit_Tof_bcr_-2 PV= 0.323361
 Info in <TCanvas::Print>: eps file SignalHcalHit_Tof_bcr_-2.eps has been created
-[OVAL] SignalTrackerHit_Tof_bcr_-2 PV= 1
+[OVAL] SignalTrackerHit_Tof_bcr_-2 PV= 4.55501e-07
 Info in <TCanvas::Print>: eps file SignalTrackerHit_Tof_bcr_-2.eps has been created
 [OVAL] SignalTracks_bcr_-2 PV= 1
 Info in <TCanvas::Print>: eps file SignalTracks_bcr_-2.eps has been created
@@ -488,7 +303,8 @@ Info in <TCanvas::Print>: eps file SignalTracks_bcr_-2.eps has been created
 Info in <TCanvas::Print>: eps file SignalVertices_bcr_-2.eps has been created
 [OVAL] TrackPointers_-2 PV= 1
 Info in <TCanvas::Print>: eps file TrackPointers_-2.eps has been created
-[OVAL] TrackPointers_signal_-2 PV= 1
+There is bin in Hist2 with less than 1 exp number of events.
+[OVAL] TrackPointers_signal_-2 PV= 0.970114
 Info in <TCanvas::Print>: eps file TrackPointers_signal_-2.eps has been created
 [OVAL] TrackerHit_Tof_bcr_-2 PV= 1
 Info in <TCanvas::Print>: eps file TrackerHit_Tof_bcr_-2.eps has been created
@@ -496,39 +312,20 @@ Info in <TCanvas::Print>: eps file TrackerHit_Tof_bcr_-2.eps has been created
 Info in <TCanvas::Print>: eps file Tracks_bcr_-2.eps has been created
 [OVAL] Vertices_bcr_-2 PV= 1
 Info in <TCanvas::Print>: eps file Vertices_bcr_-2.eps has been created
-[OVAL] VtxPointers_-2 PV= 1
+[OVAL] VtxPointers_-2 PV= 0.556732
 Info in <TCanvas::Print>: eps file VtxPointers_-2.eps has been created
-[OVAL] VtxPointers_signal_-2 PV= 1
+[OVAL] VtxPointers_signal_-2 PV= 0.844635
 Info in <TCanvas::Print>: eps file VtxPointers_signal_-2.eps has been created
 ===================> Step1: executing EDProducer (MixingModule) for bcr -1
-
-       =================================================
-
-       Message Log File written by MessageLogger service 
-       
-       =================================================
-       
-/tmp/Cum_-1.root: level[Always] Root file version:51400
 ===================> Step2: executing EDAnalyser (TestSuite) to create histos for bcr -1
 Constructed testSuite , bunchcr -1 filename: histos.root
  ------------------------------------------------------------
                     Directory structure:                     
  ------------------------------------------------------------
  ------------------------------------------------------------
-%MSG-i FwkReport:  main_input:source 28-Feb-2007 15:57:38 CET BeforeEvents
-Begin processing the 1th record. Run 5002, Event 1
-%MSG-i Root_NoDictionary:  TestSuite:test TClass::TClass() 
-       28-Feb-2007 15:57:38 CET Run: 5002 Event: 1
-no dictionary for class pair<string,vector<PSimHit> > is available
-%MSG-i Root_NoDictionary:  TestSuite:test TClass::TClass() 
-       28-Feb-2007 15:57:38 CET Run: 5002 Event: 1
-no dictionary for class pair<string,vector<PCaloHit> > is available
-%MSG-i Root_NoDictionary:  TestSuite:test TClass::TClass() 
-       28-Feb-2007 15:57:38 CET Run: 5002 Event: 1
-no dictionary for class pair<string,vector<vector<PSimHit> > > is available
-%MSG-i Root_NoDictionary:  TestSuite:test TClass::TClass() 
-       28-Feb-2007 15:57:38 CET Run: 5002 Event: 1
-no dictionary for class pair<string,vector<vector<PCaloHit> > > is available
+%MSG-i FwkReport:  main_input:source 11-Sep-2007 14:44:21 CEST BeforeEvents
+Begin processing the 1st record. Run 200025, Event 1
+%MSG
  Adding new TH1F object Tracks_bcr_-1 to directory Mixing
  Adding new TH1F object SignalTracks_bcr_-1 to directory Mixing
  Adding new TH1F object VtxPointers_-1 to directory Mixing
@@ -544,48 +341,19 @@ no dictionary for class pair<string,vector<vector<PCaloHit> > > is available
  Adding new TH1F object HcalHit_Tof_bcr_-1 to directory Mixing
  Adding new TH1F object SignalHcalHit_Tof_bcr_-1 to directory Mixing
  Saved file histos.root with collection of monitoring objects 
-%MSG-i FwkJob:  PostModule 28-Feb-2007 15:57:39 CET Run: 5002 Event: 1
-
-<InputFile>
-<State  Value="closed"/>
-<LFN></LFN>
-<PFN>file:/tmp/Cum_-1.root</PFN>
-<Catalog></Catalog>
-<ModuleLabel>source</ModuleLabel>
-<GUID></GUID>
-<Runs>
-  <Run>5002</Run>
-</Runs>
-<Branches>
-</Branches>
-<InputSourceClass>PoolSource</InputSourceClass>
-<EventsRead>1</EventsRead>
-</InputFile>
-%MSG-i FwkJob:  PostModule 28-Feb-2007 15:57:39 CET Run: 5002 Event: 1
-<StorageStatistics>
-Storage parameters: adaptor: true Stats:true Buffering:false Caching:0,0
-Storage statistics: file/close=1/1/0MB/0.133924ms/0.133924ms/0.133924ms; file/destruct=1/1/0MB/0.20786ms/0.20786ms/0.20786ms; file/open=2/2/0MB/0.937924ms/0.075124ms/0.8628ms; file/position=32/32/0MB/0.339256ms/0.00322ms/0.070852ms; file/read=23/23/0.175049MB/1.86596ms/0.006188ms/0.384524ms; file/write=0/0/0MB/0ms/100000ms/0ms; tstoragefile/close=1/1/0MB/0.41748ms/0.41748ms/0.41748ms; tstoragefile/construct=2/2/0MB/3526.01ms/58.3983ms/3467.61ms; tstoragefile/read=23/23/0.175049MB/2.90457ms/0.013132ms/0.565364ms; tstoragefile/readu=0/0/0MB/0ms/100000ms/0ms; tstoragefile/readx=23/23/0.175049MB/2.01107ms/0.008584ms/0.391888ms; tstoragefile/seek=23/23/0MB/0.303028ms/0.001808ms/0.049296ms; tstoragefile/seekx=16/16/0MB/0.279804ms/0.006152ms/0.02936ms; tstoragefile/stat=4/4/0MB/0.24848ms/0.019928ms/0.179124ms; tfile/read=?/?/0.175049MB/?ms/?ms/?ms; tfile/write=?/?/0.00917816MB/?ms/?ms/?ms
-</StorageStatistics>
-%MSG-i FwkJob:  PostModule 28-Feb-2007 15:57:39 CET Run: 5002 Event: 1
-
-<GeneratorInfo>
-%MSG-i FwkJob:  PostModule 28-Feb-2007 15:57:39 CET Run: 5002 Event: 1
-</GeneratorInfo>
-
-Main Thread CPU elapsed time 437u 10s
 ===================> Step2a: histogram comparison
   *******************************************
   *                                         *
   *        W E L C O M E  to  R O O T       *
   *                                         *
-  *   Version  5.14/00b   17 January 2007   *
+  *   Version  5.14/00g       9 July 2007   *
   *                                         *
   *  You are welcome to visit our Web site  *
   *          http://root.cern.ch            *
   *                                         *
   *******************************************
 
-Compiled on 9 February 2007 for linux with thread support.
+Compiled on 28 August 2007 for linux with thread support.
 
 CINT/ROOT C/C++ Interpreter version 5.16.16, November 24, 2006
 Type ? for help. Commands must be C++ statements.
@@ -593,17 +361,18 @@ Enclose multiple statements between { }.
 
 Processing DoCompare.C("histos","../data/MMValHistos_-1")...
 Initializing HistoCompare... 
-(class HistoCompare)158973392
+(class HistoCompare)169948040
 Initializing HistoCompare... 
-[OVAL] EcalEBHit_Tof_bcr_-1 PV= 1
+[OVAL] EcalEBHit_Tof_bcr_-1 PV= 9.92776e-09
 Info in <TCanvas::Print>: eps file EcalEBHit_Tof_bcr_-1.eps has been created
 [OVAL] HcalHit_Tof_bcr_-1 PV= 1
 Info in <TCanvas::Print>: eps file HcalHit_Tof_bcr_-1.eps has been created
-[OVAL] SignalEcalEBHit_Tof_bcr_-1 PV= 1
+[OVAL] SignalEcalEBHit_Tof_bcr_-1 PV= 0
 Info in <TCanvas::Print>: eps file SignalEcalEBHit_Tof_bcr_-1.eps has been created
-[OVAL] SignalHcalHit_Tof_bcr_-1 PV= 1
+There is bin in Hist2 with less than 1 exp number of events.
+[OVAL] SignalHcalHit_Tof_bcr_-1 PV= 0.323361
 Info in <TCanvas::Print>: eps file SignalHcalHit_Tof_bcr_-1.eps has been created
-[OVAL] SignalTrackerHit_Tof_bcr_-1 PV= 1
+[OVAL] SignalTrackerHit_Tof_bcr_-1 PV= 4.55501e-07
 Info in <TCanvas::Print>: eps file SignalTrackerHit_Tof_bcr_-1.eps has been created
 [OVAL] SignalTracks_bcr_-1 PV= 1
 Info in <TCanvas::Print>: eps file SignalTracks_bcr_-1.eps has been created
@@ -611,47 +380,30 @@ Info in <TCanvas::Print>: eps file SignalTracks_bcr_-1.eps has been created
 Info in <TCanvas::Print>: eps file SignalVertices_bcr_-1.eps has been created
 [OVAL] TrackPointers_-1 PV= 1
 Info in <TCanvas::Print>: eps file TrackPointers_-1.eps has been created
-[OVAL] TrackPointers_signal_-1 PV= 1
+There is bin in Hist2 with less than 1 exp number of events.
+[OVAL] TrackPointers_signal_-1 PV= 0.970114
 Info in <TCanvas::Print>: eps file TrackPointers_signal_-1.eps has been created
-[OVAL] TrackerHit_Tof_bcr_-1 PV= 1
+There is bin in Hist2 with less than 1 exp number of events.
+[OVAL] TrackerHit_Tof_bcr_-1 PV= 0.410953
 Info in <TCanvas::Print>: eps file TrackerHit_Tof_bcr_-1.eps has been created
 [OVAL] Tracks_bcr_-1 PV= 1
 Info in <TCanvas::Print>: eps file Tracks_bcr_-1.eps has been created
 [OVAL] Vertices_bcr_-1 PV= 1
 Info in <TCanvas::Print>: eps file Vertices_bcr_-1.eps has been created
-[OVAL] VtxPointers_-1 PV= 1
+[OVAL] VtxPointers_-1 PV= 0.556732
 Info in <TCanvas::Print>: eps file VtxPointers_-1.eps has been created
-[OVAL] VtxPointers_signal_-1 PV= 1
+[OVAL] VtxPointers_signal_-1 PV= 0.844635
 Info in <TCanvas::Print>: eps file VtxPointers_signal_-1.eps has been created
 ===================> Step1: executing EDProducer (MixingModule) for bcr 0
-
-       =================================================
-
-       Message Log File written by MessageLogger service 
-       
-       =================================================
-       
-/tmp/Cum_0.root: level[Always] Root file version:51400
 ===================> Step2: executing EDAnalyser (TestSuite) to create histos for bcr 0
 Constructed testSuite , bunchcr 0 filename: histos.root
  ------------------------------------------------------------
                     Directory structure:                     
  ------------------------------------------------------------
  ------------------------------------------------------------
-%MSG-i FwkReport:  main_input:source 28-Feb-2007 15:59:37 CET BeforeEvents
-Begin processing the 1th record. Run 5002, Event 1
-%MSG-i Root_NoDictionary:  TestSuite:test TClass::TClass() 
-       28-Feb-2007 15:59:37 CET Run: 5002 Event: 1
-no dictionary for class pair<string,vector<PSimHit> > is available
-%MSG-i Root_NoDictionary:  TestSuite:test TClass::TClass() 
-       28-Feb-2007 15:59:37 CET Run: 5002 Event: 1
-no dictionary for class pair<string,vector<PCaloHit> > is available
-%MSG-i Root_NoDictionary:  TestSuite:test TClass::TClass() 
-       28-Feb-2007 15:59:37 CET Run: 5002 Event: 1
-no dictionary for class pair<string,vector<vector<PSimHit> > > is available
-%MSG-i Root_NoDictionary:  TestSuite:test TClass::TClass() 
-       28-Feb-2007 15:59:37 CET Run: 5002 Event: 1
-no dictionary for class pair<string,vector<vector<PCaloHit> > > is available
+%MSG-i FwkReport:  main_input:source 11-Sep-2007 14:45:45 CEST BeforeEvents
+Begin processing the 1st record. Run 200025, Event 1
+%MSG
  Adding new TH1F object Tracks_bcr_0 to directory Mixing
  Adding new TH1F object SignalTracks_bcr_0 to directory Mixing
  Adding new TH1F object VtxPointers_0 to directory Mixing
@@ -667,48 +419,19 @@ no dictionary for class pair<string,vector<vector<PCaloHit> > > is available
  Adding new TH1F object HcalHit_Tof_bcr_0 to directory Mixing
  Adding new TH1F object SignalHcalHit_Tof_bcr_0 to directory Mixing
  Saved file histos.root with collection of monitoring objects 
-%MSG-i FwkJob:  PostModule 28-Feb-2007 15:59:38 CET Run: 5002 Event: 1
-
-<InputFile>
-<State  Value="closed"/>
-<LFN></LFN>
-<PFN>file:/tmp/Cum_0.root</PFN>
-<Catalog></Catalog>
-<ModuleLabel>source</ModuleLabel>
-<GUID></GUID>
-<Runs>
-  <Run>5002</Run>
-</Runs>
-<Branches>
-</Branches>
-<InputSourceClass>PoolSource</InputSourceClass>
-<EventsRead>1</EventsRead>
-</InputFile>
-%MSG-i FwkJob:  PostModule 28-Feb-2007 15:59:38 CET Run: 5002 Event: 1
-<StorageStatistics>
-Storage parameters: adaptor: true Stats:true Buffering:false Caching:0,0
-Storage statistics: file/close=1/1/0MB/0.134204ms/0.134204ms/0.134204ms; file/destruct=1/1/0MB/0.21292ms/0.21292ms/0.21292ms; file/open=2/2/0MB/0.941728ms/0.074228ms/0.8675ms; file/position=32/32/0MB/0.336844ms/0.003256ms/0.072052ms; file/read=23/23/0.175008MB/1.90406ms/0.006248ms/0.335472ms; file/write=0/0/0MB/0ms/100000ms/0ms; tstoragefile/close=1/1/0MB/0.421412ms/0.421412ms/0.421412ms; tstoragefile/construct=2/2/0MB/3543.65ms/57.8325ms/3485.81ms; tstoragefile/read=23/23/0.175008MB/2.94036ms/0.013512ms/0.573284ms; tstoragefile/readu=0/0/0MB/0ms/100000ms/0ms; tstoragefile/readx=23/23/0.175008MB/2.05349ms/0.008708ms/0.341168ms; tstoragefile/seek=23/23/0MB/0.323072ms/0.001804ms/0.053584ms; tstoragefile/seekx=16/16/0MB/0.274832ms/0.006324ms/0.027204ms; tstoragefile/stat=4/4/0MB/0.250848ms/0.0197ms/0.182116ms; tfile/read=?/?/0.175008MB/?ms/?ms/?ms; tfile/write=?/?/0.00913239MB/?ms/?ms/?ms
-</StorageStatistics>
-%MSG-i FwkJob:  PostModule 28-Feb-2007 15:59:38 CET Run: 5002 Event: 1
-
-<GeneratorInfo>
-%MSG-i FwkJob:  PostModule 28-Feb-2007 15:59:38 CET Run: 5002 Event: 1
-</GeneratorInfo>
-
-Main Thread CPU elapsed time 440u 10s
 ===================> Step2a: histogram comparison
   *******************************************
   *                                         *
   *        W E L C O M E  to  R O O T       *
   *                                         *
-  *   Version  5.14/00b   17 January 2007   *
+  *   Version  5.14/00g       9 July 2007   *
   *                                         *
   *  You are welcome to visit our Web site  *
   *          http://root.cern.ch            *
   *                                         *
   *******************************************
 
-Compiled on 9 February 2007 for linux with thread support.
+Compiled on 28 August 2007 for linux with thread support.
 
 CINT/ROOT C/C++ Interpreter version 5.16.16, November 24, 2006
 Type ? for help. Commands must be C++ statements.
@@ -716,17 +439,18 @@ Enclose multiple statements between { }.
 
 Processing DoCompare.C("histos","../data/MMValHistos_0")...
 Initializing HistoCompare... 
-(class HistoCompare)165232136
+(class HistoCompare)166171584
 Initializing HistoCompare... 
-[OVAL] EcalEBHit_Tof_bcr_0 PV= 1
+[OVAL] EcalEBHit_Tof_bcr_0 PV= 9.92776e-09
 Info in <TCanvas::Print>: eps file EcalEBHit_Tof_bcr_0.eps has been created
 [OVAL] HcalHit_Tof_bcr_0 PV= 1
 Info in <TCanvas::Print>: eps file HcalHit_Tof_bcr_0.eps has been created
-[OVAL] SignalEcalEBHit_Tof_bcr_0 PV= 1
+[OVAL] SignalEcalEBHit_Tof_bcr_0 PV= 0
 Info in <TCanvas::Print>: eps file SignalEcalEBHit_Tof_bcr_0.eps has been created
-[OVAL] SignalHcalHit_Tof_bcr_0 PV= 1
+There is bin in Hist2 with less than 1 exp number of events.
+[OVAL] SignalHcalHit_Tof_bcr_0 PV= 0.323361
 Info in <TCanvas::Print>: eps file SignalHcalHit_Tof_bcr_0.eps has been created
-[OVAL] SignalTrackerHit_Tof_bcr_0 PV= 1
+[OVAL] SignalTrackerHit_Tof_bcr_0 PV= 4.55501e-07
 Info in <TCanvas::Print>: eps file SignalTrackerHit_Tof_bcr_0.eps has been created
 [OVAL] SignalTracks_bcr_0 PV= 1
 Info in <TCanvas::Print>: eps file SignalTracks_bcr_0.eps has been created
@@ -734,48 +458,30 @@ Info in <TCanvas::Print>: eps file SignalTracks_bcr_0.eps has been created
 Info in <TCanvas::Print>: eps file SignalVertices_bcr_0.eps has been created
 [OVAL] TrackPointers_0 PV= 1
 Info in <TCanvas::Print>: eps file TrackPointers_0.eps has been created
-[OVAL] TrackPointers_signal_0 PV= 1
+There is bin in Hist2 with less than 1 exp number of events.
+[OVAL] TrackPointers_signal_0 PV= 0.970114
 Info in <TCanvas::Print>: eps file TrackPointers_signal_0.eps has been created
-[OVAL] TrackerHit_Tof_bcr_0 PV= 1
+There is bin in Hist2 with less than 1 exp number of events.
+[OVAL] TrackerHit_Tof_bcr_0 PV= 0.410953
 Info in <TCanvas::Print>: eps file TrackerHit_Tof_bcr_0.eps has been created
 [OVAL] Tracks_bcr_0 PV= 1
 Info in <TCanvas::Print>: eps file Tracks_bcr_0.eps has been created
 [OVAL] Vertices_bcr_0 PV= 1
 Info in <TCanvas::Print>: eps file Vertices_bcr_0.eps has been created
-[OVAL] VtxPointers_0 PV= 1
+[OVAL] VtxPointers_0 PV= 0.556732
 Info in <TCanvas::Print>: eps file VtxPointers_0.eps has been created
-[OVAL] VtxPointers_signal_0 PV= 1
+[OVAL] VtxPointers_signal_0 PV= 0.844635
 Info in <TCanvas::Print>: eps file VtxPointers_signal_0.eps has been created
 ===================> Step1: executing EDProducer (MixingModule) for bcr 1
-
-       =================================================
-
-       Message Log File written by MessageLogger service 
-       
-       =================================================
-       
-/tmp/Cum_1.root: level[Always] Root file version:51400
-101.450u 0.740s 1:49.10 93.6%	0+0k 0+0io 12246pf+0w
 ===================> Step2: executing EDAnalyser (TestSuite) to create histos for bcr 1
 Constructed testSuite , bunchcr 1 filename: histos.root
  ------------------------------------------------------------
                     Directory structure:                     
  ------------------------------------------------------------
  ------------------------------------------------------------
-%MSG-i FwkReport:  main_input:source 28-Feb-2007 16:01:36 CET BeforeEvents
-Begin processing the 1th record. Run 5002, Event 1
-%MSG-i Root_NoDictionary:  TestSuite:test TClass::TClass() 
-       28-Feb-2007 16:01:36 CET Run: 5002 Event: 1
-no dictionary for class pair<string,vector<PSimHit> > is available
-%MSG-i Root_NoDictionary:  TestSuite:test TClass::TClass() 
-       28-Feb-2007 16:01:36 CET Run: 5002 Event: 1
-no dictionary for class pair<string,vector<PCaloHit> > is available
-%MSG-i Root_NoDictionary:  TestSuite:test TClass::TClass() 
-       28-Feb-2007 16:01:36 CET Run: 5002 Event: 1
-no dictionary for class pair<string,vector<vector<PSimHit> > > is available
-%MSG-i Root_NoDictionary:  TestSuite:test TClass::TClass() 
-       28-Feb-2007 16:01:36 CET Run: 5002 Event: 1
-no dictionary for class pair<string,vector<vector<PCaloHit> > > is available
+%MSG-i FwkReport:  main_input:source 11-Sep-2007 14:47:09 CEST BeforeEvents
+Begin processing the 1st record. Run 200025, Event 1
+%MSG
  Adding new TH1F object Tracks_bcr_1 to directory Mixing
  Adding new TH1F object SignalTracks_bcr_1 to directory Mixing
  Adding new TH1F object VtxPointers_1 to directory Mixing
@@ -791,48 +497,19 @@ no dictionary for class pair<string,vector<vector<PCaloHit> > > is available
  Adding new TH1F object HcalHit_Tof_bcr_1 to directory Mixing
  Adding new TH1F object SignalHcalHit_Tof_bcr_1 to directory Mixing
  Saved file histos.root with collection of monitoring objects 
-%MSG-i FwkJob:  PostModule 28-Feb-2007 16:01:37 CET Run: 5002 Event: 1
-
-<InputFile>
-<State  Value="closed"/>
-<LFN></LFN>
-<PFN>file:/tmp/Cum_1.root</PFN>
-<Catalog></Catalog>
-<ModuleLabel>source</ModuleLabel>
-<GUID></GUID>
-<Runs>
-  <Run>5002</Run>
-</Runs>
-<Branches>
-</Branches>
-<InputSourceClass>PoolSource</InputSourceClass>
-<EventsRead>1</EventsRead>
-</InputFile>
-%MSG-i FwkJob:  PostModule 28-Feb-2007 16:01:37 CET Run: 5002 Event: 1
-<StorageStatistics>
-Storage parameters: adaptor: true Stats:true Buffering:false Caching:0,0
-Storage statistics: file/close=1/1/0MB/0.134084ms/0.134084ms/0.134084ms; file/destruct=1/1/0MB/0.20886ms/0.20886ms/0.20886ms; file/open=2/2/0MB/0.931956ms/0.072944ms/0.859012ms; file/position=32/32/0MB/0.341544ms/0.003252ms/0.070508ms; file/read=23/23/0.173779MB/1.90271ms/0.0063ms/0.320248ms; file/write=0/0/0MB/0ms/100000ms/0ms; tstoragefile/close=1/1/0MB/0.4161ms/0.4161ms/0.4161ms; tstoragefile/construct=2/2/0MB/3539.3ms/57.9721ms/3481.33ms; tstoragefile/read=23/23/0.173779MB/2.9544ms/0.013336ms/0.575116ms; tstoragefile/readu=0/0/0MB/0ms/100000ms/0ms; tstoragefile/readx=23/23/0.173779MB/2.04389ms/0.008656ms/0.326032ms; tstoragefile/seek=23/23/0MB/0.33004ms/0.001888ms/0.049228ms; tstoragefile/seekx=16/16/0MB/0.281644ms/0.006124ms/0.028124ms; tstoragefile/stat=4/4/0MB/0.248128ms/0.019972ms/0.17832ms; tfile/read=?/?/0.173779MB/?ms/?ms/?ms; tfile/write=?/?/0.00911522MB/?ms/?ms/?ms
-</StorageStatistics>
-%MSG-i FwkJob:  PostModule 28-Feb-2007 16:01:37 CET Run: 5002 Event: 1
-
-<GeneratorInfo>
-%MSG-i FwkJob:  PostModule 28-Feb-2007 16:01:37 CET Run: 5002 Event: 1
-</GeneratorInfo>
-
-Main Thread CPU elapsed time 437u 11s
 ===================> Step2a: histogram comparison
   *******************************************
   *                                         *
   *        W E L C O M E  to  R O O T       *
   *                                         *
-  *   Version  5.14/00b   17 January 2007   *
+  *   Version  5.14/00g       9 July 2007   *
   *                                         *
   *  You are welcome to visit our Web site  *
   *          http://root.cern.ch            *
   *                                         *
   *******************************************
 
-Compiled on 9 February 2007 for linux with thread support.
+Compiled on 28 August 2007 for linux with thread support.
 
 CINT/ROOT C/C++ Interpreter version 5.16.16, November 24, 2006
 Type ? for help. Commands must be C++ statements.
@@ -840,17 +517,18 @@ Enclose multiple statements between { }.
 
 Processing DoCompare.C("histos","../data/MMValHistos_1")...
 Initializing HistoCompare... 
-(class HistoCompare)146189888
+(class HistoCompare)162337784
 Initializing HistoCompare... 
-[OVAL] EcalEBHit_Tof_bcr_1 PV= 1
+[OVAL] EcalEBHit_Tof_bcr_1 PV= 9.92776e-09
 Info in <TCanvas::Print>: eps file EcalEBHit_Tof_bcr_1.eps has been created
 [OVAL] HcalHit_Tof_bcr_1 PV= 1
 Info in <TCanvas::Print>: eps file HcalHit_Tof_bcr_1.eps has been created
-[OVAL] SignalEcalEBHit_Tof_bcr_1 PV= 1
+[OVAL] SignalEcalEBHit_Tof_bcr_1 PV= 0
 Info in <TCanvas::Print>: eps file SignalEcalEBHit_Tof_bcr_1.eps has been created
-[OVAL] SignalHcalHit_Tof_bcr_1 PV= 1
+There is bin in Hist2 with less than 1 exp number of events.
+[OVAL] SignalHcalHit_Tof_bcr_1 PV= 0.323361
 Info in <TCanvas::Print>: eps file SignalHcalHit_Tof_bcr_1.eps has been created
-[OVAL] SignalTrackerHit_Tof_bcr_1 PV= 1
+[OVAL] SignalTrackerHit_Tof_bcr_1 PV= 4.55501e-07
 Info in <TCanvas::Print>: eps file SignalTrackerHit_Tof_bcr_1.eps has been created
 [OVAL] SignalTracks_bcr_1 PV= 1
 Info in <TCanvas::Print>: eps file SignalTracks_bcr_1.eps has been created
@@ -858,47 +536,29 @@ Info in <TCanvas::Print>: eps file SignalTracks_bcr_1.eps has been created
 Info in <TCanvas::Print>: eps file SignalVertices_bcr_1.eps has been created
 [OVAL] TrackPointers_1 PV= 1
 Info in <TCanvas::Print>: eps file TrackPointers_1.eps has been created
-[OVAL] TrackPointers_signal_1 PV= 1
+There is bin in Hist2 with less than 1 exp number of events.
+[OVAL] TrackPointers_signal_1 PV= 0.970114
 Info in <TCanvas::Print>: eps file TrackPointers_signal_1.eps has been created
-[OVAL] TrackerHit_Tof_bcr_1 PV= 1
+[OVAL] TrackerHit_Tof_bcr_1 PV= 0.492072
 Info in <TCanvas::Print>: eps file TrackerHit_Tof_bcr_1.eps has been created
 [OVAL] Tracks_bcr_1 PV= 1
 Info in <TCanvas::Print>: eps file Tracks_bcr_1.eps has been created
 [OVAL] Vertices_bcr_1 PV= 1
 Info in <TCanvas::Print>: eps file Vertices_bcr_1.eps has been created
-[OVAL] VtxPointers_1 PV= 1
+[OVAL] VtxPointers_1 PV= 0.556732
 Info in <TCanvas::Print>: eps file VtxPointers_1.eps has been created
-[OVAL] VtxPointers_signal_1 PV= 1
+[OVAL] VtxPointers_signal_1 PV= 0.844635
 Info in <TCanvas::Print>: eps file VtxPointers_signal_1.eps has been created
 ===================> Step1: executing EDProducer (MixingModule) for bcr 2
-
-       =================================================
-
-       Message Log File written by MessageLogger service 
-       
-       =================================================
-       
-/tmp/Cum_2.root: level[Always] Root file version:51400
 ===================> Step2: executing EDAnalyser (TestSuite) to create histos for bcr 2
 Constructed testSuite , bunchcr 2 filename: histos.root
  ------------------------------------------------------------
                     Directory structure:                     
  ------------------------------------------------------------
  ------------------------------------------------------------
-%MSG-i FwkReport:  main_input:source 28-Feb-2007 16:03:32 CET BeforeEvents
-Begin processing the 1th record. Run 5002, Event 1
-%MSG-i Root_NoDictionary:  TestSuite:test TClass::TClass() 
-       28-Feb-2007 16:03:32 CET Run: 5002 Event: 1
-no dictionary for class pair<string,vector<PSimHit> > is available
-%MSG-i Root_NoDictionary:  TestSuite:test TClass::TClass() 
-       28-Feb-2007 16:03:32 CET Run: 5002 Event: 1
-no dictionary for class pair<string,vector<PCaloHit> > is available
-%MSG-i Root_NoDictionary:  TestSuite:test TClass::TClass() 
-       28-Feb-2007 16:03:32 CET Run: 5002 Event: 1
-no dictionary for class pair<string,vector<vector<PSimHit> > > is available
-%MSG-i Root_NoDictionary:  TestSuite:test TClass::TClass() 
-       28-Feb-2007 16:03:32 CET Run: 5002 Event: 1
-no dictionary for class pair<string,vector<vector<PCaloHit> > > is available
+%MSG-i FwkReport:  main_input:source 11-Sep-2007 14:48:30 CEST BeforeEvents
+Begin processing the 1st record. Run 200025, Event 1
+%MSG
  Adding new TH1F object Tracks_bcr_2 to directory Mixing
  Adding new TH1F object SignalTracks_bcr_2 to directory Mixing
  Adding new TH1F object VtxPointers_2 to directory Mixing
@@ -914,48 +574,19 @@ no dictionary for class pair<string,vector<vector<PCaloHit> > > is available
  Adding new TH1F object HcalHit_Tof_bcr_2 to directory Mixing
  Adding new TH1F object SignalHcalHit_Tof_bcr_2 to directory Mixing
  Saved file histos.root with collection of monitoring objects 
-%MSG-i FwkJob:  PostModule 28-Feb-2007 16:03:32 CET Run: 5002 Event: 1
-
-<InputFile>
-<State  Value="closed"/>
-<LFN></LFN>
-<PFN>file:/tmp/Cum_2.root</PFN>
-<Catalog></Catalog>
-<ModuleLabel>source</ModuleLabel>
-<GUID></GUID>
-<Runs>
-  <Run>5002</Run>
-</Runs>
-<Branches>
-</Branches>
-<InputSourceClass>PoolSource</InputSourceClass>
-<EventsRead>1</EventsRead>
-</InputFile>
-%MSG-i FwkJob:  PostModule 28-Feb-2007 16:03:32 CET Run: 5002 Event: 1
-<StorageStatistics>
-Storage parameters: adaptor: true Stats:true Buffering:false Caching:0,0
-Storage statistics: file/close=1/1/0MB/0.133912ms/0.133912ms/0.133912ms; file/destruct=1/1/0MB/0.2063ms/0.2063ms/0.2063ms; file/open=2/2/0MB/0.939248ms/0.075048ms/0.8642ms; file/position=32/32/0MB/0.333796ms/0.003176ms/0.071384ms; file/read=22/22/0.169476MB/1.70383ms/0.005952ms/0.337176ms; file/write=0/0/0MB/0ms/100000ms/0ms; tstoragefile/close=1/1/0MB/0.413908ms/0.413908ms/0.413908ms; tstoragefile/construct=2/2/0MB/3545.93ms/58.8974ms/3487.03ms; tstoragefile/read=22/22/0.169476MB/2.69636ms/0.0127ms/0.561472ms; tstoragefile/readu=0/0/0MB/0ms/100000ms/0ms; tstoragefile/readx=22/22/0.169476MB/1.83405ms/0.008396ms/0.343516ms; tstoragefile/seek=22/22/0MB/0.282608ms/0.001768ms/0.055188ms; tstoragefile/seekx=16/16/0MB/0.277064ms/0.006712ms/0.028244ms; tstoragefile/stat=4/4/0MB/0.248964ms/0.01984ms/0.180588ms; tfile/read=?/?/0.169476MB/?ms/?ms/?ms; tfile/write=?/?/0.00910187MB/?ms/?ms/?ms
-</StorageStatistics>
-%MSG-i FwkJob:  PostModule 28-Feb-2007 16:03:32 CET Run: 5002 Event: 1
-
-<GeneratorInfo>
-%MSG-i FwkJob:  PostModule 28-Feb-2007 16:03:32 CET Run: 5002 Event: 1
-</GeneratorInfo>
-
-Main Thread CPU elapsed time 440u 10s
 ===================> Step2a: histogram comparison
   *******************************************
   *                                         *
   *        W E L C O M E  to  R O O T       *
   *                                         *
-  *   Version  5.14/00b   17 January 2007   *
+  *   Version  5.14/00g       9 July 2007   *
   *                                         *
   *  You are welcome to visit our Web site  *
   *          http://root.cern.ch            *
   *                                         *
   *******************************************
 
-Compiled on 9 February 2007 for linux with thread support.
+Compiled on 28 August 2007 for linux with thread support.
 
 CINT/ROOT C/C++ Interpreter version 5.16.16, November 24, 2006
 Type ? for help. Commands must be C++ statements.
@@ -963,17 +594,18 @@ Enclose multiple statements between { }.
 
 Processing DoCompare.C("histos","../data/MMValHistos_2")...
 Initializing HistoCompare... 
-(class HistoCompare)152927856
+(class HistoCompare)156210224
 Initializing HistoCompare... 
-[OVAL] EcalEBHit_Tof_bcr_2 PV= 1
+[OVAL] EcalEBHit_Tof_bcr_2 PV= 9.92776e-09
 Info in <TCanvas::Print>: eps file EcalEBHit_Tof_bcr_2.eps has been created
 [OVAL] HcalHit_Tof_bcr_2 PV= 1
 Info in <TCanvas::Print>: eps file HcalHit_Tof_bcr_2.eps has been created
-[OVAL] SignalEcalEBHit_Tof_bcr_2 PV= 1
+[OVAL] SignalEcalEBHit_Tof_bcr_2 PV= 0
 Info in <TCanvas::Print>: eps file SignalEcalEBHit_Tof_bcr_2.eps has been created
-[OVAL] SignalHcalHit_Tof_bcr_2 PV= 1
+There is bin in Hist2 with less than 1 exp number of events.
+[OVAL] SignalHcalHit_Tof_bcr_2 PV= 0.323361
 Info in <TCanvas::Print>: eps file SignalHcalHit_Tof_bcr_2.eps has been created
-[OVAL] SignalTrackerHit_Tof_bcr_2 PV= 1
+[OVAL] SignalTrackerHit_Tof_bcr_2 PV= 4.55501e-07
 Info in <TCanvas::Print>: eps file SignalTrackerHit_Tof_bcr_2.eps has been created
 [OVAL] SignalTracks_bcr_2 PV= 1
 Info in <TCanvas::Print>: eps file SignalTracks_bcr_2.eps has been created
@@ -981,7 +613,8 @@ Info in <TCanvas::Print>: eps file SignalTracks_bcr_2.eps has been created
 Info in <TCanvas::Print>: eps file SignalVertices_bcr_2.eps has been created
 [OVAL] TrackPointers_2 PV= 1
 Info in <TCanvas::Print>: eps file TrackPointers_2.eps has been created
-[OVAL] TrackPointers_signal_2 PV= 1
+There is bin in Hist2 with less than 1 exp number of events.
+[OVAL] TrackPointers_signal_2 PV= 0.970114
 Info in <TCanvas::Print>: eps file TrackPointers_signal_2.eps has been created
 [OVAL] TrackerHit_Tof_bcr_2 PV= 1
 Info in <TCanvas::Print>: eps file TrackerHit_Tof_bcr_2.eps has been created
@@ -989,39 +622,20 @@ Info in <TCanvas::Print>: eps file TrackerHit_Tof_bcr_2.eps has been created
 Info in <TCanvas::Print>: eps file Tracks_bcr_2.eps has been created
 [OVAL] Vertices_bcr_2 PV= 1
 Info in <TCanvas::Print>: eps file Vertices_bcr_2.eps has been created
-[OVAL] VtxPointers_2 PV= 1
+[OVAL] VtxPointers_2 PV= 0.556732
 Info in <TCanvas::Print>: eps file VtxPointers_2.eps has been created
-[OVAL] VtxPointers_signal_2 PV= 1
+[OVAL] VtxPointers_signal_2 PV= 0.844635
 Info in <TCanvas::Print>: eps file VtxPointers_signal_2.eps has been created
 ===================> Step1: executing EDProducer (MixingModule) for bcr 3
-
-       =================================================
-
-       Message Log File written by MessageLogger service 
-       
-       =================================================
-       
-/tmp/Cum_3.root: level[Always] Root file version:51400
 ===================> Step2: executing EDAnalyser (TestSuite) to create histos for bcr 3
 Constructed testSuite , bunchcr 3 filename: histos.root
  ------------------------------------------------------------
                     Directory structure:                     
  ------------------------------------------------------------
  ------------------------------------------------------------
-%MSG-i FwkReport:  main_input:source 28-Feb-2007 16:05:38 CET BeforeEvents
-Begin processing the 1th record. Run 5002, Event 1
-%MSG-i Root_NoDictionary:  TestSuite:test TClass::TClass() 
-       28-Feb-2007 16:05:38 CET Run: 5002 Event: 1
-no dictionary for class pair<string,vector<PSimHit> > is available
-%MSG-i Root_NoDictionary:  TestSuite:test TClass::TClass() 
-       28-Feb-2007 16:05:38 CET Run: 5002 Event: 1
-no dictionary for class pair<string,vector<PCaloHit> > is available
-%MSG-i Root_NoDictionary:  TestSuite:test TClass::TClass() 
-       28-Feb-2007 16:05:38 CET Run: 5002 Event: 1
-no dictionary for class pair<string,vector<vector<PSimHit> > > is available
-%MSG-i Root_NoDictionary:  TestSuite:test TClass::TClass() 
-       28-Feb-2007 16:05:38 CET Run: 5002 Event: 1
-no dictionary for class pair<string,vector<vector<PCaloHit> > > is available
+%MSG-i FwkReport:  main_input:source 11-Sep-2007 14:49:50 CEST BeforeEvents
+Begin processing the 1st record. Run 200025, Event 1
+%MSG
  Adding new TH1F object Tracks_bcr_3 to directory Mixing
  Adding new TH1F object SignalTracks_bcr_3 to directory Mixing
  Adding new TH1F object VtxPointers_3 to directory Mixing
@@ -1037,48 +651,19 @@ no dictionary for class pair<string,vector<vector<PCaloHit> > > is available
  Adding new TH1F object HcalHit_Tof_bcr_3 to directory Mixing
  Adding new TH1F object SignalHcalHit_Tof_bcr_3 to directory Mixing
  Saved file histos.root with collection of monitoring objects 
-%MSG-i FwkJob:  PostModule 28-Feb-2007 16:05:39 CET Run: 5002 Event: 1
-
-<InputFile>
-<State  Value="closed"/>
-<LFN></LFN>
-<PFN>file:/tmp/Cum_3.root</PFN>
-<Catalog></Catalog>
-<ModuleLabel>source</ModuleLabel>
-<GUID></GUID>
-<Runs>
-  <Run>5002</Run>
-</Runs>
-<Branches>
-</Branches>
-<InputSourceClass>PoolSource</InputSourceClass>
-<EventsRead>1</EventsRead>
-</InputFile>
-%MSG-i FwkJob:  PostModule 28-Feb-2007 16:05:39 CET Run: 5002 Event: 1
-<StorageStatistics>
-Storage parameters: adaptor: true Stats:true Buffering:false Caching:0,0
-Storage statistics: file/close=1/1/0MB/0.133104ms/0.133104ms/0.133104ms; file/destruct=1/1/0MB/0.20864ms/0.20864ms/0.20864ms; file/open=2/2/0MB/0.936912ms/0.075464ms/0.861448ms; file/position=32/32/0MB/0.329744ms/0.003192ms/0.070388ms; file/read=22/22/0.169452MB/1.72496ms/0.006076ms/0.366392ms; file/write=0/0/0MB/0ms/100000ms/0ms; tstoragefile/close=1/1/0MB/0.415092ms/0.415092ms/0.415092ms; tstoragefile/construct=2/2/0MB/3539.91ms/57.5468ms/3482.36ms; tstoragefile/read=22/22/0.169452MB/2.72817ms/0.013136ms/0.584624ms; tstoragefile/readu=0/0/0MB/0ms/100000ms/0ms; tstoragefile/readx=22/22/0.169452MB/1.85893ms/0.008512ms/0.373008ms; tstoragefile/seek=22/22/0MB/0.298004ms/0.001732ms/0.049244ms; tstoragefile/seekx=16/16/0MB/0.271244ms/0.006372ms/0.027388ms; tstoragefile/stat=4/4/0MB/0.247472ms/0.019728ms/0.179472ms; tfile/read=?/?/0.169452MB/?ms/?ms/?ms; tfile/write=?/?/0.00910282MB/?ms/?ms/?ms
-</StorageStatistics>
-%MSG-i FwkJob:  PostModule 28-Feb-2007 16:05:39 CET Run: 5002 Event: 1
-
-<GeneratorInfo>
-%MSG-i FwkJob:  PostModule 28-Feb-2007 16:05:39 CET Run: 5002 Event: 1
-</GeneratorInfo>
-
-Main Thread CPU elapsed time 442u 7s
 ===================> Step2a: histogram comparison
   *******************************************
   *                                         *
   *        W E L C O M E  to  R O O T       *
   *                                         *
-  *   Version  5.14/00b   17 January 2007   *
+  *   Version  5.14/00g       9 July 2007   *
   *                                         *
   *  You are welcome to visit our Web site  *
   *          http://root.cern.ch            *
   *                                         *
   *******************************************
 
-Compiled on 9 February 2007 for linux with thread support.
+Compiled on 28 August 2007 for linux with thread support.
 
 CINT/ROOT C/C++ Interpreter version 5.16.16, November 24, 2006
 Type ? for help. Commands must be C++ statements.
@@ -1086,18 +671,19 @@ Enclose multiple statements between { }.
 
 Processing DoCompare.C("histos","../data/MMValHistos_3")...
 Initializing HistoCompare... 
-(class HistoCompare)176975576
+(class HistoCompare)165426280
 Initializing HistoCompare... 
 There is bin in Hist1 with less than 1 exp number of events.
-[OVAL] EcalEBHit_Tof_bcr_3 PV= 0.00640229
+[OVAL] EcalEBHit_Tof_bcr_3 PV= 4.18007e-05
 Info in <TCanvas::Print>: eps file EcalEBHit_Tof_bcr_3.eps has been created
 Error in <TH1F::ChistatTestX>: one of the histograms is empty
 [OVAL] HcalHit_Tof_bcr_3 PV= 0
 Info in <TCanvas::Print>: eps file HcalHit_Tof_bcr_3.eps has been created
-[OVAL] SignalEcalEBHit_Tof_bcr_3 PV= 1.74733e-14
+There is bin in Hist1 with less than 1 exp number of events.
+[OVAL] SignalEcalEBHit_Tof_bcr_3 PV= 1.64443e-05
 Info in <TCanvas::Print>: eps file SignalEcalEBHit_Tof_bcr_3.eps has been created
 There is bin in Hist1 with less than 1 exp number of events.
-[OVAL] SignalHcalHit_Tof_bcr_3 PV= 0
+[OVAL] SignalHcalHit_Tof_bcr_3 PV= 0.0474569
 Info in <TCanvas::Print>: eps file SignalHcalHit_Tof_bcr_3.eps has been created
 [OVAL] SignalTrackerHit_Tof_bcr_3 PV= 1
 Info in <TCanvas::Print>: eps file SignalTrackerHit_Tof_bcr_3.eps has been created
@@ -1109,7 +695,8 @@ Error in <TH1F::ChistatTestX>: different number of x channels
 Info in <TCanvas::Print>: eps file SignalVertices_bcr_3.eps has been created
 [OVAL] TrackPointers_3 PV= 1
 Info in <TCanvas::Print>: eps file TrackPointers_3.eps has been created
-[OVAL] TrackPointers_signal_3 PV= 1
+There is bin in Hist2 with less than 1 exp number of events.
+[OVAL] TrackPointers_signal_3 PV= 0.970114
 Info in <TCanvas::Print>: eps file TrackPointers_signal_3.eps has been created
 [OVAL] TrackerHit_Tof_bcr_3 PV= 1
 Info in <TCanvas::Print>: eps file TrackerHit_Tof_bcr_3.eps has been created
@@ -1119,240 +706,51 @@ Info in <TCanvas::Print>: eps file Tracks_bcr_3.eps has been created
 Error in <TH1F::ChistatTestX>: different number of x channels
 [OVAL] Vertices_bcr_3 PV= 1
 Info in <TCanvas::Print>: eps file Vertices_bcr_3.eps has been created
-[OVAL] VtxPointers_3 PV= 1
+[OVAL] VtxPointers_3 PV= 0.556732
 Info in <TCanvas::Print>: eps file VtxPointers_3.eps has been created
-[OVAL] VtxPointers_signal_3 PV= 1
+[OVAL] VtxPointers_signal_3 PV= 0.844635
 Info in <TCanvas::Print>: eps file VtxPointers_signal_3.eps has been created
 ===================> Step3: Global comparisons 
-%MSG-w Root_Warning:  PoolSource:source{*ctor*} TClassTable::Add() 
-       28-Feb-2007 16:05:53 CET pre-events
-class ROOT::Math::Cartesian3D<double> already in TClassTable
-%MSG-w Root_Warning:  PoolSource:source{*ctor*} TClassTable::Add() 
-       28-Feb-2007 16:05:53 CET pre-events
-class ROOT::Math::DisplacementVector3D<ROOT::Math::Cartesian3D<double>,ROOT::Math::DefaultCoordinateSystemTag> already in TClassTable
-%MSG-w Root_Warning:  PoolSource:source{*ctor*} TClassTable::Add() 
-       28-Feb-2007 16:05:53 CET pre-events
-class ROOT::Math::CylindricalEta3D<double> already in TClassTable
-%MSG-w Root_Warning:  PoolSource:source{*ctor*} TClassTable::Add() 
-       28-Feb-2007 16:05:53 CET pre-events
-class ROOT::Math::DisplacementVector3D<ROOT::Math::CylindricalEta3D<double>,ROOT::Math::DefaultCoordinateSystemTag> already in TClassTable
-%MSG-w Root_Warning:  PoolSource:source{*ctor*} TClassTable::Add() 
-       28-Feb-2007 16:05:53 CET pre-events
-class ROOT::Math::Polar3D<double> already in TClassTable
-%MSG-w Root_Warning:  PoolSource:source{*ctor*} TClassTable::Add() 
-       28-Feb-2007 16:05:53 CET pre-events
-class ROOT::Math::DisplacementVector3D<ROOT::Math::Polar3D<double>,ROOT::Math::DefaultCoordinateSystemTag> already in TClassTable
-%MSG-w Root_Warning:  PoolSource:source{*ctor*} TClassTable::Add() 
-       28-Feb-2007 16:05:53 CET pre-events
-class ROOT::Math::PositionVector3D<ROOT::Math::Cartesian3D<double>,ROOT::Math::DefaultCoordinateSystemTag> already in TClassTable
-%MSG-w Root_Warning:  PoolSource:source{*ctor*} TClassTable::Add() 
-       28-Feb-2007 16:05:53 CET pre-events
-class ROOT::Math::PxPyPzE4D<double> already in TClassTable
-%MSG-w Root_Warning:  PoolSource:source{*ctor*} TClassTable::Add() 
-       28-Feb-2007 16:05:53 CET pre-events
-class ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > already in TClassTable
-%MSG-w Root_Warning:  PoolSource:source{*ctor*} TClassTable::Add() 
-       28-Feb-2007 16:05:53 CET pre-events
-class ROOT::Math::PtEtaPhiE4D<double> already in TClassTable
-%MSG-w Root_Warning:  PoolSource:source{*ctor*} TClassTable::Add() 
-       28-Feb-2007 16:05:53 CET pre-events
-class ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiE4D<double> > already in TClassTable
-%MSG-i Root_NoDictionary:  PoolSource:source{*ctor*} TClass::TClass() 
-       28-Feb-2007 16:06:20 CET pre-events
-no dictionary for class pair<unsigned int,vector<unsigned int> > is available
-%MSG-i Root_NoDictionary:  PoolSource:source{*ctor*} TClass::TClass() 
-       28-Feb-2007 16:06:28 CET pre-events
-no dictionary for class reco::JetTagProxy is available
-Using the site default catalog: trivialcatalog_file:/afs/cern.ch/cms/SITECONF/local/PhEDEx/storage.xml?protocol=rfio
-%MSG-i Constructor:  AfterModuleConstruction 28-Feb-2007 16:06:41 CET pre-events
-Adding calo container CaloHitsTk for pileup treatment
-%MSG-i Constructor:  AfterModuleConstruction 28-Feb-2007 16:06:41 CET pre-events
-Adding calo container CastorBU for pileup treatment
-%MSG-i Constructor:  AfterModuleConstruction 28-Feb-2007 16:06:41 CET pre-events
-Adding calo container CastorFI for pileup treatment
-%MSG-i Constructor:  AfterModuleConstruction 28-Feb-2007 16:06:41 CET pre-events
-Adding calo container CastorPL for pileup treatment
-%MSG-i Constructor:  AfterModuleConstruction 28-Feb-2007 16:06:41 CET pre-events
-Adding calo container CastorTU for pileup treatment
-%MSG-i Constructor:  AfterModuleConstruction 28-Feb-2007 16:06:41 CET pre-events
-Adding calo container EcalHitsEB for pileup treatment
-%MSG-i Constructor:  AfterModuleConstruction 28-Feb-2007 16:06:41 CET pre-events
-Adding calo container EcalHitsEE for pileup treatment
-%MSG-i Constructor:  AfterModuleConstruction 28-Feb-2007 16:06:41 CET pre-events
-Adding calo container EcalHitsES for pileup treatment
-%MSG-i Constructor:  AfterModuleConstruction 28-Feb-2007 16:06:41 CET pre-events
-Adding calo container HcalHits for pileup treatment
-%MSG-i Constructor:  AfterModuleConstruction 28-Feb-2007 16:06:41 CET pre-events
-Adding calo container HcalTB06BeamHits for pileup treatment
-%MSG-i Constructor:  AfterModuleConstruction 28-Feb-2007 16:06:41 CET pre-events
-Adding calo container ZDCHITS for pileup treatment
-%MSG-i Constructor:  AfterModuleConstruction 28-Feb-2007 16:06:41 CET pre-events
-Adding simhit container MuonCSCHits for pileup treatment
-%MSG-i Constructor:  AfterModuleConstruction 28-Feb-2007 16:06:41 CET pre-events
-Adding simhit container MuonDTHits for pileup treatment
-%MSG-i Constructor:  AfterModuleConstruction 28-Feb-2007 16:06:41 CET pre-events
-Adding simhit container MuonRPCHits for pileup treatment
-%MSG-i Constructor:  AfterModuleConstruction 28-Feb-2007 16:06:41 CET pre-events
-Adding simhit container TotemHitsRP for pileup treatment
-%MSG-i Constructor:  AfterModuleConstruction 28-Feb-2007 16:06:41 CET pre-events
-Adding simhit container TotemHitsT1 for pileup treatment
-%MSG-i Constructor:  AfterModuleConstruction 28-Feb-2007 16:06:41 CET pre-events
-Adding simhit container TotemHitsT2Gem for pileup treatment
-%MSG-i Constructor:  AfterModuleConstruction 28-Feb-2007 16:06:41 CET pre-events
-Adding container TrackerHitsPixelBarrel for pileup treatment
-%MSG-i Constructor:  AfterModuleConstruction 28-Feb-2007 16:06:41 CET pre-events
-Adding container TrackerHitsPixelEndcap for pileup treatment
-%MSG-i Constructor:  AfterModuleConstruction 28-Feb-2007 16:06:41 CET pre-events
-Adding container TrackerHitsTEC for pileup treatment
-%MSG-i Constructor:  AfterModuleConstruction 28-Feb-2007 16:06:41 CET pre-events
-Adding container TrackerHitsTIB for pileup treatment
-%MSG-i Constructor:  AfterModuleConstruction 28-Feb-2007 16:06:41 CET pre-events
-Adding container TrackerHitsTID for pileup treatment
-%MSG-i Constructor:  AfterModuleConstruction 28-Feb-2007 16:06:41 CET pre-events
-Adding container TrackerHitsTOB for pileup treatment
-/tmp/Cum_global.root: level[Always] Root file version:51400
-%MSG-i FwkReport:  main_input:source 28-Feb-2007 16:07:21 CET BeforeEvents
-Begin processing the 1th record. Run 5002, Event 1
-%MSG-i Root_NoDictionary:  MixingModule:mix TClass::TClass() 
-       28-Feb-2007 16:07:24 CET Run: 5002 Event: 1
-no dictionary for class edm::RunBlock is available
-%MSG-i Root_NoDictionary:  MixingModule:mix TClass::TClass() 
-       28-Feb-2007 16:07:24 CET Run: 5002 Event: 1
-no dictionary for class edm::LuminosityBlock is available
-%MSG-i Root_NoDictionary:  MixingModule:mix TClass::TClass() 
-       28-Feb-2007 16:07:24 CET Run: 5002 Event: 1
-no dictionary for class pair<int,HepMC::GenParticle*> is available
-%MSG-i Root_NoDictionary:  PoolOutputModule:out TClass::TClass() 
-       28-Feb-2007 16:07:33 CET Run: 5002 Event: 1
-no dictionary for class pair<string,vector<PSimHit> > is available
-%MSG-i Root_NoDictionary:  PoolOutputModule:out TClass::TClass() 
-       28-Feb-2007 16:07:33 CET Run: 5002 Event: 1
-no dictionary for class pair<string,vector<PCaloHit> > is available
-%MSG-i Root_NoDictionary:  PoolOutputModule:out TClass::TClass() 
-       28-Feb-2007 16:07:34 CET Run: 5002 Event: 1
-no dictionary for class pair<string,vector<vector<PSimHit> > > is available
-%MSG-i Root_NoDictionary:  PoolOutputModule:out TClass::TClass() 
-       28-Feb-2007 16:07:34 CET Run: 5002 Event: 1
-no dictionary for class pair<string,vector<vector<PCaloHit> > > is available
-%MSG-i FwkReport:  main_input:source 28-Feb-2007 16:07:46 CET Run: 5002 Event: 1
-Begin processing the 2th record. Run 5002, Event 2
-%MSG-i FwkReport:  main_input:source 28-Feb-2007 16:08:03 CET Run: 5002 Event: 2
-Begin processing the 3th record. Run 5002, Event 3
-%MSG-i FwkReport:  main_input:source 28-Feb-2007 16:08:16 CET Run: 5002 Event: 3
-Begin processing the 4th record. Run 5002, Event 4
-%MSG-i FwkReport:  main_input:source 28-Feb-2007 16:08:30 CET Run: 5002 Event: 4
-Begin processing the 5th record. Run 5002, Event 5
-%MSG-i FwkReport:  main_input:source 28-Feb-2007 16:08:47 CET Run: 5002 Event: 5
-Begin processing the 6th record. Run 5002, Event 6
-%MSG-i FwkReport:  main_input:source 28-Feb-2007 16:09:02 CET Run: 5002 Event: 6
-Begin processing the 7th record. Run 5002, Event 7
-%MSG-i FwkReport:  main_input:source 28-Feb-2007 16:09:19 CET Run: 5002 Event: 7
-Begin processing the 8th record. Run 5002, Event 8
-%MSG-i FwkReport:  main_input:source 28-Feb-2007 16:09:31 CET Run: 5002 Event: 8
-Begin processing the 9th record. Run 5002, Event 9
-%MSG-i FwkReport:  main_input:source 28-Feb-2007 16:09:46 CET Run: 5002 Event: 9
-Begin processing the 10th record. Run 5002, Event 10
-%MSG-i FwkJob:  PostModule 28-Feb-2007 16:10:02 CET Run: 5002 Event: 10
+%MSG-w Root_Warning:  PoolSource:source{*ctor*} TStreamerInfo::BuildCheck()  11-Sep-2007 14:50:01 CEST  pre-events
 
-<File>
-%MSG-i FwkJob:  PostModule 28-Feb-2007 16:10:02 CET Run: 5002 Event: 10
+                     The StreamerInfo of class EcalDataFrame read from file rfio:///castor/cern.ch/cms/store/RelVal/2007/7/11/RelVal-RelVal160pre4SingleEPt35-1184176348/0000/5EF3794C-7530-DC11-833F-000423D6C8EE.root
+                     has the same version (=1) as the active class but a different checksum.
+                     You should update the version to ClassDef(EcalDataFrame,2).
+                     Do not try to write objects with the current class definition,
+                     the files will not be readable.
 
-<State  Value="closed"/>
-<LFN></LFN>
-<PFN>/tmp/Cum_global.root</PFN>
-<Catalog>file:PoolFileCatalog.xml</Catalog>
-<ModuleLabel>out</ModuleLabel>
-<GUID>EC56F510-8BC6-DB11-8170-000E0C4DE51A</GUID>
-<Runs>
-  <Run>5002</Run>
-</Runs>
-<Branches>
-  <Branch>CrossingFrame_mix__GlobalVal.</Branch>
-</Branches>
-<OutputModuleClass>PoolOutputModule</OutputModuleClass>
-<TotalEvents>10</TotalEvents>
-
-%MSG-i FwkJob:  PostModule 28-Feb-2007 16:10:02 CET Run: 5002 Event: 10
-
-<Inputs>
-%MSG-i FwkJob:  PostModule 28-Feb-2007 16:10:02 CET Run: 5002 Event: 10
-
-<Input>
-%MSG-i FwkJob:  PostModule 28-Feb-2007 16:10:02 CET Run: 5002 Event: 10
-
-  <LFN></LFN>
-%MSG-i FwkJob:  PostModule 28-Feb-2007 16:10:02 CET Run: 5002 Event: 10
-
-  <PFN>rfio:/castor/cern.ch/cms/store/RelVal/2006/12/16/RelVal120SingleEPt35/0000/D41C6AF5-588D-DB11-9E2D-0013D4C3BAFA.root</PFN>
-%MSG-i FwkJob:  PostModule 28-Feb-2007 16:10:02 CET Run: 5002 Event: 10
-
-</Input>
-%MSG-i FwkJob:  PostModule 28-Feb-2007 16:10:02 CET Run: 5002 Event: 10
-
-<Input>
-%MSG-i FwkJob:  PostModule 28-Feb-2007 16:10:02 CET Run: 5002 Event: 10
-
-  <LFN>/store/MC/2006/10/23/MC-110-os-minbias/BA337A0F-3963-DB11-8D09-001731A28A31.root</LFN>
-%MSG-i FwkJob:  PostModule 28-Feb-2007 16:10:02 CET Run: 5002 Event: 10
-
-  <PFN>rfio:/castor/cern.ch/cms/store/MC/2006/10/23/MC-110-os-minbias/BA337A0F-3963-DB11-8D09-001731A28A31.root</PFN>
-%MSG-i FwkJob:  PostModule 28-Feb-2007 16:10:02 CET Run: 5002 Event: 10
-
-</Input>
-%MSG-i FwkJob:  PostModule 28-Feb-2007 16:10:02 CET Run: 5002 Event: 10
-
-</Inputs>
-%MSG-i FwkJob:  PostModule 28-Feb-2007 16:10:02 CET Run: 5002 Event: 10
-
-</File>
-%MSG-i FwkJob:  PostModule 28-Feb-2007 16:10:02 CET Run: 5002 Event: 10
-
-<InputFile>
-<State  Value="closed"/>
-<LFN></LFN>
-<PFN>rfio:/castor/cern.ch/cms/store/RelVal/2006/12/16/RelVal120SingleEPt35/0000/D41C6AF5-588D-DB11-9E2D-0013D4C3BAFA.root</PFN>
-<Catalog></Catalog>
-<ModuleLabel>source</ModuleLabel>
-<GUID></GUID>
-<Runs>
-  <Run>5002</Run>
-</Runs>
-<Branches>
-</Branches>
-<InputSourceClass>PoolSource</InputSourceClass>
-<EventsRead>10</EventsRead>
-</InputFile>
-%MSG-i FwkJob:  PostModule 28-Feb-2007 16:10:02 CET Run: 5002 Event: 10
-<StorageStatistics>
-Storage parameters: adaptor: true Stats:true Buffering:false Caching:0,0
-Storage statistics: file/close=2/2/0MB/0.21662ms/0.021264ms/0.195356ms; file/destruct=2/2/0MB/0.218892ms/0.012116ms/0.206776ms; file/flush=32/32/0MB/626.116ms/0.953932ms/394.376ms; file/open=2/2/0MB/0.638528ms/0.065704ms/0.572824ms; file/position=82/82/0MB/0.89018ms/0.00322ms/0.06846ms; file/read=10/10/0.0455341MB/0.495636ms/0.006424ms/0.235788ms; file/write=139/139/171.517MB/3115.75ms/0.021128ms/171.956ms; rfio/close=1/1/0MB/106.91ms/106.91ms/106.91ms; rfio/destruct=1/1/0MB/0.3266ms/0.3266ms/0.3266ms; rfio/open=3/3/0MB/19093.6ms/2907.94ms/9794.67ms; rfio/position=3521/3521/0MB/182.614ms/0.006824ms/2.28294ms; rfio/read=19461/19461/179.874MB/84450.1ms/1.34934ms/801.007ms; rfio/write=0/0/0MB/0ms/100000ms/0ms; tstoragefile/close=3/3/0MB/107.855ms/0.04902ms/107.337ms; tstoragefile/construct=5/5/0MB/124041ms/5.5835ms/110674ms; tstoragefile/flush=32/32/0MB/626.479ms/0.961292ms/394.401ms; tstoragefile/read=19471/19471/179.92MB/84905.1ms/0.020524ms/801.138ms; tstoragefile/readu=0/0/0MB/0ms/100000ms/0ms; tstoragefile/readx=19471/19471/179.92MB/84534.7ms/0.008828ms/801.028ms; tstoragefile/seek=19610/19610/0MB/120.275ms/0.001972ms/0.077616ms; tstoragefile/seekx=3571/3571/0MB/190.743ms/0.006444ms/0.129792ms; tstoragefile/stat=8/8/0MB/11.9573ms/0.020808ms/2.31725ms; tstoragefile/write=139/139/171.517MB/3124.25ms/0.042152ms/172.058ms; tstoragefile/writex=139/139/171.517MB/3117.39ms/0.024236ms/171.983ms; tfile/read=?/?/179.92MB/?ms/?ms/?ms; tfile/write=?/?/171.517MB/?ms/?ms/?ms
-</StorageStatistics>
-%MSG-i FwkJob:  PostModule 28-Feb-2007 16:10:02 CET Run: 5002 Event: 10
-
-<GeneratorInfo>
-%MSG-i FwkJob:  PostModule 28-Feb-2007 16:10:02 CET Run: 5002 Event: 10
-</GeneratorInfo>
-%MSG-i FwkJob:  PostModule 28-Feb-2007 16:10:02 CET Run: 5002 Event: 10
-
-<InputFile>
-<State  Value="open"/>
-<LFN>/store/MC/2006/10/23/MC-110-os-minbias/BA337A0F-3963-DB11-8D09-001731A28A31.root</LFN>
-<PFN>rfio:/castor/cern.ch/cms/store/MC/2006/10/23/MC-110-os-minbias/BA337A0F-3963-DB11-8D09-001731A28A31.root</PFN>
-<Catalog>trivialcatalog_file:/afs/cern.ch/cms/SITECONF/local/PhEDEx/storage.xml?protocol=rfio</Catalog>
-<ModuleLabel>source</ModuleLabel>
-<GUID></GUID>
-<Runs>
-  <Run>6</Run>
-  <Run>15</Run>
-  <Run>27</Run>
-  <Run>36</Run>
-</Runs>
-<Branches>
-</Branches>
-<InputSourceClass>PoolSource</InputSourceClass>
-<EventsRead>1800</EventsRead>
-</InputFile>
-208.180u 9.090s 4:21.87 82.9%	0+0k 0+0io 13299pf+0w
+%MSG
+%MSG-i FwkReport:  main_input:source 11-Sep-2007 14:51:01 CEST BeforeEvents
+Begin processing the 1st record. Run 200025, Event 1
+%MSG
+%MSG-i FwkReport:  main_input:source 11-Sep-2007 14:51:32 CEST  Run: 200025 Event: 1
+Begin processing the 2nd record. Run 200025, Event 2
+%MSG
+%MSG-i FwkReport:  main_input:source 11-Sep-2007 14:51:41 CEST  Run: 200025 Event: 2
+Begin processing the 3rd record. Run 200025, Event 3
+%MSG
+%MSG-i FwkReport:  main_input:source 11-Sep-2007 14:51:49 CEST  Run: 200025 Event: 3
+Begin processing the 4th record. Run 200025, Event 4
+%MSG
+%MSG-i FwkReport:  main_input:source 11-Sep-2007 14:51:56 CEST  Run: 200025 Event: 4
+Begin processing the 5th record. Run 200025, Event 5
+%MSG
+%MSG-i FwkReport:  main_input:source 11-Sep-2007 14:52:04 CEST  Run: 200025 Event: 5
+Begin processing the 6th record. Run 200025, Event 6
+%MSG
+%MSG-i FwkReport:  main_input:source 11-Sep-2007 14:52:12 CEST  Run: 200025 Event: 6
+Begin processing the 7th record. Run 200025, Event 7
+%MSG
+%MSG-i FwkReport:  main_input:source 11-Sep-2007 14:52:20 CEST  Run: 200025 Event: 7
+Begin processing the 8th record. Run 200025, Event 8
+%MSG
+%MSG-i FwkReport:  main_input:source 11-Sep-2007 14:52:29 CEST  Run: 200025 Event: 8
+Begin processing the 9th record. Run 200025, Event 9
+%MSG
+%MSG-i FwkReport:  main_input:source 11-Sep-2007 14:52:37 CEST  Run: 200025 Event: 9
+Begin processing the 10th record. Run 200025, Event 10
+%MSG
+117.764u 5.360s 2:54.72 70.4%	0+0k 0+0io 0pf+0w
 Constructed GlobalTest, filename: GlobalHistos.root minbunch: -5, maxbunch: 3
  ------------------------------------------------------------
                     Directory structure:                     
@@ -1412,80 +810,49 @@ Constructed GlobalTest, filename: GlobalHistos.root minbunch: -5, maxbunch: 3
  Adding new TH1F object TrackPartId_3 to directory Mixing
  Adding new TH1F object CaloEnergyEB_3 to directory Mixing
  Adding new TH1F object CaloEnergyEE_3 to directory Mixing
-%MSG-i FwkReport:  main_input:source 28-Feb-2007 16:10:12 CET BeforeEvents
-Begin processing the 1th record. Run 5002, Event 1
-%MSG-i Root_NoDictionary:  GlobalTest:test TClass::TClass() 
-       28-Feb-2007 16:10:12 CET Run: 5002 Event: 1
-no dictionary for class pair<string,vector<PSimHit> > is available
-%MSG-i Root_NoDictionary:  GlobalTest:test TClass::TClass() 
-       28-Feb-2007 16:10:12 CET Run: 5002 Event: 1
-no dictionary for class pair<string,vector<PCaloHit> > is available
-%MSG-i Root_NoDictionary:  GlobalTest:test TClass::TClass() 
-       28-Feb-2007 16:10:12 CET Run: 5002 Event: 1
-no dictionary for class pair<string,vector<vector<PSimHit> > > is available
-%MSG-i Root_NoDictionary:  GlobalTest:test TClass::TClass() 
-       28-Feb-2007 16:10:12 CET Run: 5002 Event: 1
-no dictionary for class pair<string,vector<vector<PCaloHit> > > is available
-%MSG-i FwkReport:  main_input:source 28-Feb-2007 16:10:19 CET Run: 5002 Event: 1
-Begin processing the 2th record. Run 5002, Event 2
-%MSG-i FwkReport:  main_input:source 28-Feb-2007 16:10:27 CET Run: 5002 Event: 2
-Begin processing the 3th record. Run 5002, Event 3
-%MSG-i FwkReport:  main_input:source 28-Feb-2007 16:10:33 CET Run: 5002 Event: 3
-Begin processing the 4th record. Run 5002, Event 4
-%MSG-i FwkReport:  main_input:source 28-Feb-2007 16:10:39 CET Run: 5002 Event: 4
-Begin processing the 5th record. Run 5002, Event 5
-%MSG-i FwkReport:  main_input:source 28-Feb-2007 16:10:47 CET Run: 5002 Event: 5
-Begin processing the 6th record. Run 5002, Event 6
-%MSG-i FwkReport:  main_input:source 28-Feb-2007 16:10:55 CET Run: 5002 Event: 6
-Begin processing the 7th record. Run 5002, Event 7
-%MSG-i FwkReport:  main_input:source 28-Feb-2007 16:11:02 CET Run: 5002 Event: 7
-Begin processing the 8th record. Run 5002, Event 8
-%MSG-i FwkReport:  main_input:source 28-Feb-2007 16:11:08 CET Run: 5002 Event: 8
-Begin processing the 9th record. Run 5002, Event 9
-%MSG-i FwkReport:  main_input:source 28-Feb-2007 16:11:14 CET Run: 5002 Event: 9
-Begin processing the 10th record. Run 5002, Event 10
+%MSG-i FwkReport:  main_input:source 11-Sep-2007 14:52:51 CEST BeforeEvents
+Begin processing the 1st record. Run 200025, Event 1
+%MSG
+%MSG-i FwkReport:  main_input:source 11-Sep-2007 14:52:52 CEST  Run: 200025 Event: 1
+Begin processing the 2nd record. Run 200025, Event 2
+%MSG
+%MSG-i FwkReport:  main_input:source 11-Sep-2007 14:52:53 CEST  Run: 200025 Event: 2
+Begin processing the 3rd record. Run 200025, Event 3
+%MSG
+%MSG-i FwkReport:  main_input:source 11-Sep-2007 14:52:54 CEST  Run: 200025 Event: 3
+Begin processing the 4th record. Run 200025, Event 4
+%MSG
+%MSG-i FwkReport:  main_input:source 11-Sep-2007 14:52:55 CEST  Run: 200025 Event: 4
+Begin processing the 5th record. Run 200025, Event 5
+%MSG
+%MSG-i FwkReport:  main_input:source 11-Sep-2007 14:52:56 CEST  Run: 200025 Event: 5
+Begin processing the 6th record. Run 200025, Event 6
+%MSG
+%MSG-i FwkReport:  main_input:source 11-Sep-2007 14:52:57 CEST  Run: 200025 Event: 6
+Begin processing the 7th record. Run 200025, Event 7
+%MSG
+%MSG-i FwkReport:  main_input:source 11-Sep-2007 14:52:58 CEST  Run: 200025 Event: 7
+Begin processing the 8th record. Run 200025, Event 8
+%MSG
+%MSG-i FwkReport:  main_input:source 11-Sep-2007 14:52:59 CEST  Run: 200025 Event: 8
+Begin processing the 9th record. Run 200025, Event 9
+%MSG
+%MSG-i FwkReport:  main_input:source 11-Sep-2007 14:53:00 CEST  Run: 200025 Event: 9
+Begin processing the 10th record. Run 200025, Event 10
+%MSG
  Saved file GlobalHistos.root with collection of monitoring objects 
-%MSG-i FwkJob:  PostModule 28-Feb-2007 16:11:22 CET Run: 5002 Event: 10
-
-<InputFile>
-<State  Value="closed"/>
-<LFN></LFN>
-<PFN>file:/tmp/Cum_global.root</PFN>
-<Catalog></Catalog>
-<ModuleLabel>source</ModuleLabel>
-<GUID></GUID>
-<Runs>
-  <Run>5002</Run>
-</Runs>
-<Branches>
-</Branches>
-<InputSourceClass>PoolSource</InputSourceClass>
-<EventsRead>10</EventsRead>
-</InputFile>
-%MSG-i FwkJob:  PostModule 28-Feb-2007 16:11:22 CET Run: 5002 Event: 10
-<StorageStatistics>
-Storage parameters: adaptor: true Stats:true Buffering:false Caching:0,0
-Storage statistics: file/close=1/1/0MB/0.131068ms/0.131068ms/0.131068ms; file/destruct=1/1/0MB/0.208968ms/0.208968ms/0.208968ms; file/open=2/2/0MB/0.929816ms/0.07262ms/0.857196ms; file/position=32/32/0MB/0.3366ms/0.003188ms/0.075572ms; file/read=79/79/171.421MB/3752.25ms/0.006832ms/411.959ms; file/write=0/0/0MB/0ms/100000ms/0ms; tstoragefile/close=1/1/0MB/0.416656ms/0.416656ms/0.416656ms; tstoragefile/construct=2/2/0MB/4623.49ms/57.5283ms/4565.96ms; tstoragefile/read=79/79/171.421MB/3755.55ms/0.013548ms/412.007ms; tstoragefile/readu=0/0/0MB/0ms/100000ms/0ms; tstoragefile/readx=79/79/171.421MB/3753.33ms/0.009328ms/411.981ms; tstoragefile/seek=79/79/0MB/1.91832ms/0.001816ms/0.050008ms; tstoragefile/seekx=16/16/0MB/0.273788ms/0.006484ms/0.028452ms; tstoragefile/stat=4/4/0MB/0.253692ms/0.019676ms/0.185248ms; tfile/read=?/?/171.421MB/?ms/?ms/?ms; tfile/write=?/?/0.0227203MB/?ms/?ms/?ms
-</StorageStatistics>
-%MSG-i FwkJob:  PostModule 28-Feb-2007 16:11:22 CET Run: 5002 Event: 10
-
-<GeneratorInfo>
-%MSG-i FwkJob:  PostModule 28-Feb-2007 16:11:22 CET Run: 5002 Event: 10
-</GeneratorInfo>
-
-Main Thread CPU elapsed time 6994u 313s
   *******************************************
   *                                         *
   *        W E L C O M E  to  R O O T       *
   *                                         *
-  *   Version  5.14/00b   17 January 2007   *
+  *   Version  5.14/00g       9 July 2007   *
   *                                         *
   *  You are welcome to visit our Web site  *
   *          http://root.cern.ch            *
   *                                         *
   *******************************************
 
-Compiled on 9 February 2007 for linux with thread support.
+Compiled on 28 August 2007 for linux with thread support.
 
 CINT/ROOT C/C++ Interpreter version 5.16.16, November 24, 2006
 Type ? for help. Commands must be C++ statements.
@@ -1493,7 +860,7 @@ Enclose multiple statements between { }.
 
 Processing DoCompare.C("GlobalHistos","../data/GlobalHistos")...
 Initializing HistoCompare... 
-(class HistoCompare)165916464
+(class HistoCompare)151938248
 Initializing HistoCompare... 
 [OVAL] CaloEnergyEB_-1 PV= 1
 Info in <TCanvas::Print>: eps file CaloEnergyEB_-1.eps has been created
@@ -1503,15 +870,19 @@ Info in <TCanvas::Print>: eps file CaloEnergyEB_-2.eps has been created
 Info in <TCanvas::Print>: eps file CaloEnergyEB_-3.eps has been created
 [OVAL] CaloEnergyEB_-4 PV= 1
 Info in <TCanvas::Print>: eps file CaloEnergyEB_-4.eps has been created
-[OVAL] CaloEnergyEB_-5 PV= 1
+There is bin in Hist2 with less than 1 exp number of events.
+[OVAL] CaloEnergyEB_-5 PV= 0.973456
 Info in <TCanvas::Print>: eps file CaloEnergyEB_-5.eps has been created
 [OVAL] CaloEnergyEB_0 PV= 1
 Info in <TCanvas::Print>: eps file CaloEnergyEB_0.eps has been created
-[OVAL] CaloEnergyEB_1 PV= 1
+There is bin in Hist2 with less than 1 exp number of events.
+[OVAL] CaloEnergyEB_1 PV= 0.540291
 Info in <TCanvas::Print>: eps file CaloEnergyEB_1.eps has been created
-[OVAL] CaloEnergyEB_2 PV= 1
+There is bin in Hist2 with less than 1 exp number of events.
+[OVAL] CaloEnergyEB_2 PV= 0.973456
 Info in <TCanvas::Print>: eps file CaloEnergyEB_2.eps has been created
-[OVAL] CaloEnergyEB_3 PV= 1
+There is bin in Hist2 with less than 1 exp number of events.
+[OVAL] CaloEnergyEB_3 PV= 0.932912
 Info in <TCanvas::Print>: eps file CaloEnergyEB_3.eps has been created
 [OVAL] CaloEnergyEE_-1 PV= 1
 Info in <TCanvas::Print>: eps file CaloEnergyEE_-1.eps has been created
@@ -1523,7 +894,8 @@ Info in <TCanvas::Print>: eps file CaloEnergyEE_-3.eps has been created
 Info in <TCanvas::Print>: eps file CaloEnergyEE_-4.eps has been created
 [OVAL] CaloEnergyEE_-5 PV= 1
 Info in <TCanvas::Print>: eps file CaloEnergyEE_-5.eps has been created
-[OVAL] CaloEnergyEE_0 PV= 1
+Error in <TH1F::ChistatTestX>: one of the histograms is empty
+[OVAL] CaloEnergyEE_0 PV= 0
 Info in <TCanvas::Print>: eps file CaloEnergyEE_0.eps has been created
 [OVAL] CaloEnergyEE_1 PV= 1
 Info in <TCanvas::Print>: eps file CaloEnergyEE_1.eps has been created
@@ -1553,55 +925,69 @@ Info in <TCanvas::Print>: eps file NrPileupEvts_3.eps has been created
 Info in <TCanvas::Print>: eps file NrTracks_-1.eps has been created
 [OVAL] NrTracks_-2 PV= 1
 Info in <TCanvas::Print>: eps file NrTracks_-2.eps has been created
-[OVAL] NrTracks_-3 PV= 1
+There is bin in Hist2 with less than 1 exp number of events.
+[OVAL] NrTracks_-3 PV= 0.829029
 Info in <TCanvas::Print>: eps file NrTracks_-3.eps has been created
-[OVAL] NrTracks_-4 PV= 1
+Error in <TH1F::ChistatTestX>: one of the histograms is empty
+[OVAL] NrTracks_-4 PV= 0
 Info in <TCanvas::Print>: eps file NrTracks_-4.eps has been created
-[OVAL] NrTracks_-5 PV= 1
+There is bin in Hist1 with less than 1 exp number of events.
+[OVAL] NrTracks_-5 PV= 0.80915
 Info in <TCanvas::Print>: eps file NrTracks_-5.eps has been created
-[OVAL] NrTracks_0 PV= 1
+There is bin in Hist2 with less than 1 exp number of events.
+[OVAL] NrTracks_0 PV= 0.907354
 Info in <TCanvas::Print>: eps file NrTracks_0.eps has been created
 [OVAL] NrTracks_1 PV= 1
 Info in <TCanvas::Print>: eps file NrTracks_1.eps has been created
-[OVAL] NrTracks_2 PV= 1
+There is bin in Hist2 with less than 1 exp number of events.
+[OVAL] NrTracks_2 PV= 0.709388
 Info in <TCanvas::Print>: eps file NrTracks_2.eps has been created
 [OVAL] NrTracks_3 PV= 1
 Info in <TCanvas::Print>: eps file NrTracks_3.eps has been created
-[OVAL] NrVertices_-1 PV= 1
+Error in <TH1F::ChistatTestX>: one of the histograms is empty
+[OVAL] NrVertices_-1 PV= 0
 Info in <TCanvas::Print>: eps file NrVertices_-1.eps has been created
-[OVAL] NrVertices_-2 PV= 1
+Error in <TH1F::ChistatTestX>: one of the histograms is empty
+[OVAL] NrVertices_-2 PV= 0
 Info in <TCanvas::Print>: eps file NrVertices_-2.eps has been created
-[OVAL] NrVertices_-3 PV= 1
+Error in <TH1F::ChistatTestX>: one of the histograms is empty
+[OVAL] NrVertices_-3 PV= 0
 Info in <TCanvas::Print>: eps file NrVertices_-3.eps has been created
-[OVAL] NrVertices_-4 PV= 1
+Error in <TH1F::ChistatTestX>: one of the histograms is empty
+[OVAL] NrVertices_-4 PV= 0
 Info in <TCanvas::Print>: eps file NrVertices_-4.eps has been created
-[OVAL] NrVertices_-5 PV= 1
+Error in <TH1F::ChistatTestX>: one of the histograms is empty
+[OVAL] NrVertices_-5 PV= 0
 Info in <TCanvas::Print>: eps file NrVertices_-5.eps has been created
-[OVAL] NrVertices_0 PV= 1
+Error in <TH1F::ChistatTestX>: one of the histograms is empty
+[OVAL] NrVertices_0 PV= 0
 Info in <TCanvas::Print>: eps file NrVertices_0.eps has been created
-[OVAL] NrVertices_1 PV= 1
+Error in <TH1F::ChistatTestX>: one of the histograms is empty
+[OVAL] NrVertices_1 PV= 0
 Info in <TCanvas::Print>: eps file NrVertices_1.eps has been created
-[OVAL] NrVertices_2 PV= 1
+Error in <TH1F::ChistatTestX>: one of the histograms is empty
+[OVAL] NrVertices_2 PV= 0
 Info in <TCanvas::Print>: eps file NrVertices_2.eps has been created
-[OVAL] NrVertices_3 PV= 1
+Error in <TH1F::ChistatTestX>: one of the histograms is empty
+[OVAL] NrVertices_3 PV= 0
 Info in <TCanvas::Print>: eps file NrVertices_3.eps has been created
-[OVAL] TrackPartId_-1 PV= 1
+[OVAL] TrackPartId_-1 PV= 0.764085
 Info in <TCanvas::Print>: eps file TrackPartId_-1.eps has been created
-[OVAL] TrackPartId_-2 PV= 1
+[OVAL] TrackPartId_-2 PV= 1.74057e-11
 Info in <TCanvas::Print>: eps file TrackPartId_-2.eps has been created
-[OVAL] TrackPartId_-3 PV= 1
+[OVAL] TrackPartId_-3 PV= 0.00866695
 Info in <TCanvas::Print>: eps file TrackPartId_-3.eps has been created
-[OVAL] TrackPartId_-4 PV= 1
+[OVAL] TrackPartId_-4 PV= 1.85275e-09
 Info in <TCanvas::Print>: eps file TrackPartId_-4.eps has been created
-[OVAL] TrackPartId_-5 PV= 1
+[OVAL] TrackPartId_-5 PV= 0.0122224
 Info in <TCanvas::Print>: eps file TrackPartId_-5.eps has been created
-[OVAL] TrackPartId_0 PV= 1
+[OVAL] TrackPartId_0 PV= 0.000785552
 Info in <TCanvas::Print>: eps file TrackPartId_0.eps has been created
-[OVAL] TrackPartId_1 PV= 1
+[OVAL] TrackPartId_1 PV= 1.97039e-05
 Info in <TCanvas::Print>: eps file TrackPartId_1.eps has been created
-[OVAL] TrackPartId_2 PV= 1
+[OVAL] TrackPartId_2 PV= 4.5524e-11
 Info in <TCanvas::Print>: eps file TrackPartId_2.eps has been created
-[OVAL] TrackPartId_3 PV= 1
+[OVAL] TrackPartId_3 PV= 9.9941e-05
 Info in <TCanvas::Print>: eps file TrackPartId_3.eps has been created
 ===================> MM Validation finished 
 
@@ -1613,618 +999,378 @@ Info in <TCanvas::Print>: eps file TrackPartId_3.eps has been created
 [oval diff] diff line: /^\[OVAL\](.*)$/
 [oval diff] ================================================
 
-=== olog #106 != oref #351
-olog: [OVAL] EcalEBHit_Tof_bcr_-5 PV= 1
----
-oref: [OVAL] Mean of track pileup histo (bcrossings) -5 for bunchcrossing -5
-=== olog #108 != oref #352
-olog: [OVAL] HcalHit_Tof_bcr_-5 PV= 1
----
-oref: [OVAL] Mean of track signal histo (bcrossings) 0 for bunchcrossing -5
-=== olog #110 != oref #353
-olog: [OVAL] SignalEcalEBHit_Tof_bcr_-5 PV= 1
----
-oref: [OVAL] Mean of track pileup histo (vtx indices) 50.5 for bunchcrossing -5
-=== olog #112 != oref #354
-olog: [OVAL] SignalHcalHit_Tof_bcr_-5 PV= 1
----
-oref: [OVAL] Mean of track signal histo (vtx indices) 50.5 for bunchcrossing -5
-=== olog #114 != oref #356
-olog: [OVAL] SignalTrackerHit_Tof_bcr_-5 PV= 1
----
-oref: [OVAL] Mean of vertex pileup histo (bcrossings) -5 for bunchcrossing -5
-=== olog #116 != oref #357
-olog: [OVAL] SignalTracks_bcr_-5 PV= 1
----
-oref: [OVAL] Mean of vertex signal histo (bcrossings) 0 for bunchcrossing -5
-=== olog #118 != oref #358
-olog: [OVAL] SignalVertices_bcr_-5 PV= 1
----
-oref: [OVAL] Mean of vertex pileup histo (track indices) 32.5 for bunchcrossing -5
-=== olog #120 != oref #359
-olog: [OVAL] TrackPointers_-5 PV= 1
----
-oref: [OVAL] Mean of vertex signal histo (track indices) 32.5 for bunchcrossing -5
-=== olog #122 != oref #361
-olog: [OVAL] TrackPointers_signal_-5 PV= 1
----
-oref: [OVAL] Mean of tracker pileup histo (ToF) 0 for bunchcrossing -5
-=== olog #124 != oref #362
-olog: [OVAL] TrackerHit_Tof_bcr_-5 PV= 1
----
-oref: [OVAL] Mean of tracker signal histo (ToF) 0 for bunchcrossing -5
-=== olog #126 != oref #364
-olog: [OVAL] Tracks_bcr_-5 PV= 1
----
-oref: [OVAL] Mean of Ecal pileup histo (ToF) 0, sigma: 0 for bunchcrossing -5
-=== olog #128 != oref #365
-olog: [OVAL] Vertices_bcr_-5 PV= 1
----
-oref: [OVAL] Mean of Ecal signal histo (ToF) 0, sigma: 0 for bunchcrossing -5
-=== olog #130 != oref #367
-olog: [OVAL] VtxPointers_-5 PV= 1
----
-oref: [OVAL] Mean of Hcal pileup histo (ToF) -86.5217, sigma: 10.0985 for bunchcrossing -5
-=== olog #132 != oref #368
-olog: [OVAL] VtxPointers_signal_-5 PV= 1
----
-oref: [OVAL] Mean of Hcal signal histo (ToF) 38.4783, sigma: 10.0985 for bunchcrossing -5
-=== olog #229 != oref #370
-olog: [OVAL] EcalEBHit_Tof_bcr_-4 PV= 1
----
-oref: [OVAL] Mean of track pileup histo (bcrossings) -4 for bunchcrossing -4
-=== olog #231 != oref #371
-olog: [OVAL] HcalHit_Tof_bcr_-4 PV= 1
----
-oref: [OVAL] Mean of track signal histo (bcrossings) 0 for bunchcrossing -4
-=== olog #233 != oref #372
-olog: [OVAL] SignalEcalEBHit_Tof_bcr_-4 PV= 1
----
-oref: [OVAL] Mean of track pileup histo (vtx indices) 50.5 for bunchcrossing -4
-=== olog #235 != oref #373
-olog: [OVAL] SignalHcalHit_Tof_bcr_-4 PV= 1
----
-oref: [OVAL] Mean of track signal histo (vtx indices) 50.5 for bunchcrossing -4
-=== olog #237 != oref #375
-olog: [OVAL] SignalTrackerHit_Tof_bcr_-4 PV= 1
----
-oref: [OVAL] Mean of vertex pileup histo (bcrossings) -4 for bunchcrossing -4
-=== olog #239 != oref #376
-olog: [OVAL] SignalTracks_bcr_-4 PV= 1
----
-oref: [OVAL] Mean of vertex signal histo (bcrossings) 0 for bunchcrossing -4
-=== olog #241 != oref #377
-olog: [OVAL] SignalVertices_bcr_-4 PV= 1
----
-oref: [OVAL] Mean of vertex pileup histo (track indices) 32.5 for bunchcrossing -4
-=== olog #243 != oref #378
-olog: [OVAL] TrackPointers_-4 PV= 1
----
-oref: [OVAL] Mean of vertex signal histo (track indices) 32.5 for bunchcrossing -4
-=== olog #245 != oref #380
-olog: [OVAL] TrackPointers_signal_-4 PV= 1
----
-oref: [OVAL] Mean of tracker pileup histo (ToF) 0 for bunchcrossing -4
-=== olog #247 != oref #381
-olog: [OVAL] TrackerHit_Tof_bcr_-4 PV= 1
----
-oref: [OVAL] Mean of tracker signal histo (ToF) 0 for bunchcrossing -4
-=== olog #249 != oref #383
-olog: [OVAL] Tracks_bcr_-4 PV= 1
----
-oref: [OVAL] Mean of Ecal pileup histo (ToF) 0, sigma: 0 for bunchcrossing -4
-=== olog #251 != oref #384
-olog: [OVAL] Vertices_bcr_-4 PV= 1
----
-oref: [OVAL] Mean of Ecal signal histo (ToF) 0, sigma: 0 for bunchcrossing -4
-=== olog #253 != oref #386
-olog: [OVAL] VtxPointers_-4 PV= 1
----
-oref: [OVAL] Mean of Hcal pileup histo (ToF) -61.5217, sigma: 10.0985 for bunchcrossing -4
-=== olog #255 != oref #387
-olog: [OVAL] VtxPointers_signal_-4 PV= 1
----
-oref: [OVAL] Mean of Hcal signal histo (ToF) 38.4783, sigma: 10.0985 for bunchcrossing -4
-=== olog #352 != oref #389
-olog: [OVAL] EcalEBHit_Tof_bcr_-3 PV= 1
----
-oref: [OVAL] Mean of track pileup histo (bcrossings) -3 for bunchcrossing -3
-=== olog #354 != oref #390
-olog: [OVAL] HcalHit_Tof_bcr_-3 PV= 1
----
-oref: [OVAL] Mean of track signal histo (bcrossings) 0 for bunchcrossing -3
-=== olog #356 != oref #391
-olog: [OVAL] SignalEcalEBHit_Tof_bcr_-3 PV= 1
----
-oref: [OVAL] Mean of track pileup histo (vtx indices) 50.5 for bunchcrossing -3
-=== olog #358 != oref #392
-olog: [OVAL] SignalHcalHit_Tof_bcr_-3 PV= 1
----
-oref: [OVAL] Mean of track signal histo (vtx indices) 50.5 for bunchcrossing -3
-=== olog #360 != oref #394
-olog: [OVAL] SignalTrackerHit_Tof_bcr_-3 PV= 1
----
-oref: [OVAL] Mean of vertex pileup histo (bcrossings) -3 for bunchcrossing -3
-=== olog #362 != oref #395
-olog: [OVAL] SignalTracks_bcr_-3 PV= 1
----
-oref: [OVAL] Mean of vertex signal histo (bcrossings) 0 for bunchcrossing -3
-=== olog #364 != oref #396
-olog: [OVAL] SignalVertices_bcr_-3 PV= 1
----
-oref: [OVAL] Mean of vertex pileup histo (track indices) 32.5 for bunchcrossing -3
-=== olog #366 != oref #397
-olog: [OVAL] TrackPointers_-3 PV= 1
----
-oref: [OVAL] Mean of vertex signal histo (track indices) 32.5 for bunchcrossing -3
-=== olog #368 != oref #399
-olog: [OVAL] TrackPointers_signal_-3 PV= 1
----
-oref: [OVAL] Mean of tracker pileup histo (ToF) 0 for bunchcrossing -3
-=== olog #370 != oref #400
-olog: [OVAL] TrackerHit_Tof_bcr_-3 PV= 1
----
-oref: [OVAL] Mean of tracker signal histo (ToF) 0 for bunchcrossing -3
-=== olog #372 != oref #402
-olog: [OVAL] Tracks_bcr_-3 PV= 1
----
-oref: [OVAL] Mean of Ecal pileup histo (ToF) 0, sigma: 0 for bunchcrossing -3
-=== olog #374 != oref #403
-olog: [OVAL] Vertices_bcr_-3 PV= 1
----
-oref: [OVAL] Mean of Ecal signal histo (ToF) 0, sigma: 0 for bunchcrossing -3
-=== olog #376 != oref #405
-olog: [OVAL] VtxPointers_-3 PV= 1
----
-oref: [OVAL] Mean of Hcal pileup histo (ToF) -36.5217, sigma: 10.0985 for bunchcrossing -3
-=== olog #378 != oref #406
-olog: [OVAL] VtxPointers_signal_-3 PV= 1
----
-oref: [OVAL] Mean of Hcal signal histo (ToF) 38.4783, sigma: 10.0985 for bunchcrossing -3
-=== olog #475 != oref #408
-olog: [OVAL] EcalEBHit_Tof_bcr_-2 PV= 1
----
-oref: [OVAL] Mean of track pileup histo (bcrossings) -2 for bunchcrossing -2
-=== olog #477 != oref #409
-olog: [OVAL] HcalHit_Tof_bcr_-2 PV= 1
----
-oref: [OVAL] Mean of track signal histo (bcrossings) 0 for bunchcrossing -2
-=== olog #479 != oref #410
-olog: [OVAL] SignalEcalEBHit_Tof_bcr_-2 PV= 1
----
-oref: [OVAL] Mean of track pileup histo (vtx indices) 50.5 for bunchcrossing -2
-=== olog #481 != oref #411
-olog: [OVAL] SignalHcalHit_Tof_bcr_-2 PV= 1
----
-oref: [OVAL] Mean of track signal histo (vtx indices) 50.5 for bunchcrossing -2
-=== olog #483 != oref #413
-olog: [OVAL] SignalTrackerHit_Tof_bcr_-2 PV= 1
----
-oref: [OVAL] Mean of vertex pileup histo (bcrossings) -2 for bunchcrossing -2
-=== olog #485 != oref #414
-olog: [OVAL] SignalTracks_bcr_-2 PV= 1
----
-oref: [OVAL] Mean of vertex signal histo (bcrossings) 0 for bunchcrossing -2
-=== olog #487 != oref #415
-olog: [OVAL] SignalVertices_bcr_-2 PV= 1
----
-oref: [OVAL] Mean of vertex pileup histo (track indices) 32.5 for bunchcrossing -2
-=== olog #489 != oref #416
-olog: [OVAL] TrackPointers_-2 PV= 1
----
-oref: [OVAL] Mean of vertex signal histo (track indices) 32.5 for bunchcrossing -2
-=== olog #491 != oref #418
-olog: [OVAL] TrackPointers_signal_-2 PV= 1
----
-oref: [OVAL] Mean of tracker pileup histo (ToF) 0 for bunchcrossing -2
-=== olog #493 != oref #419
-olog: [OVAL] TrackerHit_Tof_bcr_-2 PV= 1
----
-oref: [OVAL] Mean of tracker signal histo (ToF) 0 for bunchcrossing -2
-=== olog #495 != oref #421
-olog: [OVAL] Tracks_bcr_-2 PV= 1
----
-oref: [OVAL] Mean of Ecal pileup histo (ToF) 0, sigma: 0 for bunchcrossing -2
-=== olog #497 != oref #422
-olog: [OVAL] Vertices_bcr_-2 PV= 1
----
-oref: [OVAL] Mean of Ecal signal histo (ToF) 0, sigma: 0 for bunchcrossing -2
-=== olog #499 != oref #424
-olog: [OVAL] VtxPointers_-2 PV= 1
----
-oref: [OVAL] Mean of Hcal pileup histo (ToF) -11.5217, sigma: 10.0985 for bunchcrossing -2
-=== olog #501 != oref #425
-olog: [OVAL] VtxPointers_signal_-2 PV= 1
----
-oref: [OVAL] Mean of Hcal signal histo (ToF) 38.4783, sigma: 10.0985 for bunchcrossing -2
-=== olog #598 != oref #427
-olog: [OVAL] EcalEBHit_Tof_bcr_-1 PV= 1
----
-oref: [OVAL] Mean of track pileup histo (bcrossings) -1 for bunchcrossing -1
-=== olog #600 != oref #428
-olog: [OVAL] HcalHit_Tof_bcr_-1 PV= 1
----
-oref: [OVAL] Mean of track signal histo (bcrossings) 0 for bunchcrossing -1
-=== olog #602 != oref #429
-olog: [OVAL] SignalEcalEBHit_Tof_bcr_-1 PV= 1
----
-oref: [OVAL] Mean of track pileup histo (vtx indices) 50.5 for bunchcrossing -1
-=== olog #604 != oref #430
-olog: [OVAL] SignalHcalHit_Tof_bcr_-1 PV= 1
----
-oref: [OVAL] Mean of track signal histo (vtx indices) 50.5 for bunchcrossing -1
-=== olog #606 != oref #432
-olog: [OVAL] SignalTrackerHit_Tof_bcr_-1 PV= 1
----
-oref: [OVAL] Mean of vertex pileup histo (bcrossings) -1 for bunchcrossing -1
-=== olog #608 != oref #433
-olog: [OVAL] SignalTracks_bcr_-1 PV= 1
----
-oref: [OVAL] Mean of vertex signal histo (bcrossings) 0 for bunchcrossing -1
-=== olog #610 != oref #434
-olog: [OVAL] SignalVertices_bcr_-1 PV= 1
----
-oref: [OVAL] Mean of vertex pileup histo (track indices) 32.5 for bunchcrossing -1
-=== olog #612 != oref #435
-olog: [OVAL] TrackPointers_-1 PV= 1
----
-oref: [OVAL] Mean of vertex signal histo (track indices) 32.5 for bunchcrossing -1
-=== olog #614 != oref #437
-olog: [OVAL] TrackPointers_signal_-1 PV= 1
----
-oref: [OVAL] Mean of tracker pileup histo (ToF) 0 for bunchcrossing -1
-=== olog #616 != oref #438
-olog: [OVAL] TrackerHit_Tof_bcr_-1 PV= 1
----
-oref: [OVAL] Mean of tracker signal histo (ToF) 0 for bunchcrossing -1
-=== olog #618 != oref #440
-olog: [OVAL] Tracks_bcr_-1 PV= 1
----
-oref: [OVAL] Mean of Ecal pileup histo (ToF) 0, sigma: 0 for bunchcrossing -1
-=== olog #620 != oref #441
-olog: [OVAL] Vertices_bcr_-1 PV= 1
----
-oref: [OVAL] Mean of Ecal signal histo (ToF) 0, sigma: 0 for bunchcrossing -1
-=== olog #622 != oref #443
-olog: [OVAL] VtxPointers_-1 PV= 1
----
-oref: [OVAL] Mean of Hcal pileup histo (ToF) 13.4783, sigma: 10.0985 for bunchcrossing -1
-=== olog #624 != oref #444
-olog: [OVAL] VtxPointers_signal_-1 PV= 1
----
-oref: [OVAL] Mean of Hcal signal histo (ToF) 38.4783, sigma: 10.0985 for bunchcrossing -1
-=== olog #721 != oref #446
-olog: [OVAL] EcalEBHit_Tof_bcr_0 PV= 1
----
-oref: [OVAL] Mean of track pileup histo (bcrossings) 0 for bunchcrossing 0
-=== olog #723 != oref #447
-olog: [OVAL] HcalHit_Tof_bcr_0 PV= 1
----
-oref: [OVAL] Mean of track signal histo (bcrossings) 0 for bunchcrossing 0
-=== olog #725 != oref #448
-olog: [OVAL] SignalEcalEBHit_Tof_bcr_0 PV= 1
----
-oref: [OVAL] Mean of track pileup histo (vtx indices) 50.5 for bunchcrossing 0
-=== olog #727 != oref #449
-olog: [OVAL] SignalHcalHit_Tof_bcr_0 PV= 1
----
-oref: [OVAL] Mean of track signal histo (vtx indices) 50.5 for bunchcrossing 0
-=== olog #729 != oref #451
-olog: [OVAL] SignalTrackerHit_Tof_bcr_0 PV= 1
----
-oref: [OVAL] Mean of vertex pileup histo (bcrossings) 0 for bunchcrossing 0
-=== olog #731 != oref #452
-olog: [OVAL] SignalTracks_bcr_0 PV= 1
----
-oref: [OVAL] Mean of vertex signal histo (bcrossings) 0 for bunchcrossing 0
-=== olog #733 != oref #453
-olog: [OVAL] SignalVertices_bcr_0 PV= 1
----
-oref: [OVAL] Mean of vertex pileup histo (track indices) 32.5 for bunchcrossing 0
-=== olog #735 != oref #454
-olog: [OVAL] TrackPointers_0 PV= 1
----
-oref: [OVAL] Mean of vertex signal histo (track indices) 32.5 for bunchcrossing 0
-=== olog #737 != oref #456
-olog: [OVAL] TrackPointers_signal_0 PV= 1
----
-oref: [OVAL] Mean of tracker pileup histo (ToF) 0 for bunchcrossing 0
-=== olog #739 != oref #457
-olog: [OVAL] TrackerHit_Tof_bcr_0 PV= 1
----
-oref: [OVAL] Mean of tracker signal histo (ToF) 0 for bunchcrossing 0
-=== olog #741 != oref #459
-olog: [OVAL] Tracks_bcr_0 PV= 1
----
-oref: [OVAL] Mean of Ecal pileup histo (ToF) 0, sigma: 0 for bunchcrossing 0
-=== olog #743 != oref #460
-olog: [OVAL] Vertices_bcr_0 PV= 1
----
-oref: [OVAL] Mean of Ecal signal histo (ToF) 0, sigma: 0 for bunchcrossing 0
-=== olog #745 != oref #462
-olog: [OVAL] VtxPointers_0 PV= 1
----
-oref: [OVAL] Mean of Hcal pileup histo (ToF) 38.4783, sigma: 10.0985 for bunchcrossing 0
-=== olog #747 != oref #463
-olog: [OVAL] VtxPointers_signal_0 PV= 1
----
-oref: [OVAL] Mean of Hcal signal histo (ToF) 38.4783, sigma: 10.0985 for bunchcrossing 0
-=== olog #845 != oref #465
-olog: [OVAL] EcalEBHit_Tof_bcr_1 PV= 1
----
-oref: [OVAL] Mean of track pileup histo (bcrossings) 1 for bunchcrossing 1
-=== olog #847 != oref #466
-olog: [OVAL] HcalHit_Tof_bcr_1 PV= 1
----
-oref: [OVAL] Mean of track signal histo (bcrossings) 0 for bunchcrossing 1
-=== olog #849 != oref #467
-olog: [OVAL] SignalEcalEBHit_Tof_bcr_1 PV= 1
----
-oref: [OVAL] Mean of track pileup histo (vtx indices) 50.5 for bunchcrossing 1
-=== olog #851 != oref #468
-olog: [OVAL] SignalHcalHit_Tof_bcr_1 PV= 1
----
-oref: [OVAL] Mean of track signal histo (vtx indices) 50.5 for bunchcrossing 1
-=== olog #853 != oref #470
-olog: [OVAL] SignalTrackerHit_Tof_bcr_1 PV= 1
----
-oref: [OVAL] Mean of vertex pileup histo (bcrossings) 1 for bunchcrossing 1
-=== olog #855 != oref #471
-olog: [OVAL] SignalTracks_bcr_1 PV= 1
----
-oref: [OVAL] Mean of vertex signal histo (bcrossings) 0 for bunchcrossing 1
-=== olog #857 != oref #472
-olog: [OVAL] SignalVertices_bcr_1 PV= 1
----
-oref: [OVAL] Mean of vertex pileup histo (track indices) 32.5 for bunchcrossing 1
-=== olog #859 != oref #473
-olog: [OVAL] TrackPointers_1 PV= 1
----
-oref: [OVAL] Mean of vertex signal histo (track indices) 32.5 for bunchcrossing 1
-=== olog #861 != oref #475
-olog: [OVAL] TrackPointers_signal_1 PV= 1
----
-oref: [OVAL] Mean of tracker pileup histo (ToF) 0 for bunchcrossing 1
-=== olog #863 != oref #476
-olog: [OVAL] TrackerHit_Tof_bcr_1 PV= 1
----
-oref: [OVAL] Mean of tracker signal histo (ToF) 0 for bunchcrossing 1
-=== olog #865 != oref #478
-olog: [OVAL] Tracks_bcr_1 PV= 1
----
-oref: [OVAL] Mean of Ecal pileup histo (ToF) 0, sigma: 0 for bunchcrossing 1
-=== olog #867 != oref #479
-olog: [OVAL] Vertices_bcr_1 PV= 1
----
-oref: [OVAL] Mean of Ecal signal histo (ToF) 0, sigma: 0 for bunchcrossing 1
-=== olog #869 != oref #481
-olog: [OVAL] VtxPointers_1 PV= 1
----
-oref: [OVAL] Mean of Hcal pileup histo (ToF) 62.4406, sigma: 0.868207 for bunchcrossing 1
-=== olog #871 != oref #482
-olog: [OVAL] VtxPointers_signal_1 PV= 1
----
-oref: [OVAL] Mean of Hcal signal histo (ToF) 38.4783, sigma: 10.0985 for bunchcrossing 1
-=== olog #968 != oref #484
-olog: [OVAL] EcalEBHit_Tof_bcr_2 PV= 1
----
-oref: [OVAL] Mean of track pileup histo (bcrossings) 2 for bunchcrossing 2
-=== olog #970 != oref #485
-olog: [OVAL] HcalHit_Tof_bcr_2 PV= 1
----
-oref: [OVAL] Mean of track signal histo (bcrossings) 0 for bunchcrossing 2
-=== olog #972 != oref #486
-olog: [OVAL] SignalEcalEBHit_Tof_bcr_2 PV= 1
----
-oref: [OVAL] Mean of track pileup histo (vtx indices) 50.5 for bunchcrossing 2
-=== olog #974 != oref #487
-olog: [OVAL] SignalHcalHit_Tof_bcr_2 PV= 1
----
-oref: [OVAL] Mean of track signal histo (vtx indices) 50.5 for bunchcrossing 2
-=== olog #976 != oref #489
-olog: [OVAL] SignalTrackerHit_Tof_bcr_2 PV= 1
----
-oref: [OVAL] Mean of vertex pileup histo (bcrossings) 2 for bunchcrossing 2
-=== olog #978 != oref #490
-olog: [OVAL] SignalTracks_bcr_2 PV= 1
----
-oref: [OVAL] Mean of vertex signal histo (bcrossings) 0 for bunchcrossing 2
-=== olog #980 != oref #491
-olog: [OVAL] SignalVertices_bcr_2 PV= 1
----
-oref: [OVAL] Mean of vertex pileup histo (track indices) 32.5 for bunchcrossing 2
-=== olog #982 != oref #492
-olog: [OVAL] TrackPointers_2 PV= 1
----
-oref: [OVAL] Mean of vertex signal histo (track indices) 32.5 for bunchcrossing 2
-=== olog #984 != oref #494
-olog: [OVAL] TrackPointers_signal_2 PV= 1
----
-oref: [OVAL] Mean of tracker pileup histo (ToF) 0 for bunchcrossing 2
-=== olog #986 != oref #495
-olog: [OVAL] TrackerHit_Tof_bcr_2 PV= 1
----
-oref: [OVAL] Mean of tracker signal histo (ToF) 0 for bunchcrossing 2
-=== olog #988 != oref #497
-olog: [OVAL] Tracks_bcr_2 PV= 1
----
-oref: [OVAL] Mean of Ecal pileup histo (ToF) 0, sigma: 0 for bunchcrossing 2
-=== olog #990 != oref #498
-olog: [OVAL] Vertices_bcr_2 PV= 1
----
-oref: [OVAL] Mean of Ecal signal histo (ToF) 0, sigma: 0 for bunchcrossing 2
-=== olog #992 != oref #500
-olog: [OVAL] VtxPointers_2 PV= 1
----
-oref: [OVAL] Mean of Hcal pileup histo (ToF) 87.4406, sigma: 0.868206 for bunchcrossing 2
-=== olog #994 != oref #501
-olog: [OVAL] VtxPointers_signal_2 PV= 1
----
-oref: [OVAL] Mean of Hcal signal histo (ToF) 38.4783, sigma: 10.0985 for bunchcrossing 2
-=== olog #1092 != oref #503
-olog: [OVAL] EcalEBHit_Tof_bcr_3 PV= 0.00640229
----
-oref: [OVAL] Mean of track pileup histo (bcrossings) 3 for bunchcrossing 3
-=== olog #1095 != oref #504
-olog: [OVAL] HcalHit_Tof_bcr_3 PV= 0
----
-oref: [OVAL] Mean of track signal histo (bcrossings) 0 for bunchcrossing 3
-=== olog #1097 != oref #505
-olog: [OVAL] SignalEcalEBHit_Tof_bcr_3 PV= 1.74733e-14
----
-oref: [OVAL] Mean of track pileup histo (vtx indices) 50.5 for bunchcrossing 3
-=== olog #1100 != oref #506
-olog: [OVAL] SignalHcalHit_Tof_bcr_3 PV= 0
----
-oref: [OVAL] Mean of track signal histo (vtx indices) 50.5 for bunchcrossing 3
-=== olog #1102 != oref #508
-olog: [OVAL] SignalTrackerHit_Tof_bcr_3 PV= 1
----
-oref: [OVAL] Mean of vertex pileup histo (bcrossings) 3 for bunchcrossing 3
-=== olog #1105 != oref #509
-olog: [OVAL] SignalTracks_bcr_3 PV= 1
----
-oref: [OVAL] Mean of vertex signal histo (bcrossings) 0 for bunchcrossing 3
-=== olog #1108 != oref #510
-olog: [OVAL] SignalVertices_bcr_3 PV= 1
----
-oref: [OVAL] Mean of vertex pileup histo (track indices) 32.5 for bunchcrossing 3
-=== olog #1110 != oref #511
-olog: [OVAL] TrackPointers_3 PV= 1
----
-oref: [OVAL] Mean of vertex signal histo (track indices) 32.5 for bunchcrossing 3
-=== olog #1112 != oref #513
-olog: [OVAL] TrackPointers_signal_3 PV= 1
----
-oref: [OVAL] Mean of tracker pileup histo (ToF) 0 for bunchcrossing 3
-=== olog #1114 != oref #514
-olog: [OVAL] TrackerHit_Tof_bcr_3 PV= 1
----
-oref: [OVAL] Mean of tracker signal histo (ToF) 0 for bunchcrossing 3
-=== olog #1117 != oref #516
-olog: [OVAL] Tracks_bcr_3 PV= 1
----
-oref: [OVAL] Mean of Ecal pileup histo (ToF) 0, sigma: 0 for bunchcrossing 3
-=== olog #1120 != oref #517
-olog: [OVAL] Vertices_bcr_3 PV= 1
----
-oref: [OVAL] Mean of Ecal signal histo (ToF) 0, sigma: 0 for bunchcrossing 3
-=== olog #1122 != oref #519
-olog: [OVAL] VtxPointers_3 PV= 1
----
-oref: [OVAL] Mean of Hcal pileup histo (ToF) 112.441, sigma: 0.868206 for bunchcrossing 3
-=== olog #1124 != oref #520
-olog: [OVAL] VtxPointers_signal_3 PV= 1
----
-oref: [OVAL] Mean of Hcal signal histo (ToF) 38.4783, sigma: 10.0985 for bunchcrossing 3
-=== olog #1498 != oref
-olog: [OVAL] CaloEnergyEB_-1 PV= 1
-=== olog #1500 != oref
-olog: [OVAL] CaloEnergyEB_-2 PV= 1
-=== olog #1502 != oref
-olog: [OVAL] CaloEnergyEB_-3 PV= 1
-=== olog #1504 != oref
-olog: [OVAL] CaloEnergyEB_-4 PV= 1
-=== olog #1506 != oref
-olog: [OVAL] CaloEnergyEB_-5 PV= 1
-=== olog #1508 != oref
-olog: [OVAL] CaloEnergyEB_0 PV= 1
-=== olog #1510 != oref
-olog: [OVAL] CaloEnergyEB_1 PV= 1
-=== olog #1512 != oref
-olog: [OVAL] CaloEnergyEB_2 PV= 1
-=== olog #1514 != oref
-olog: [OVAL] CaloEnergyEB_3 PV= 1
-=== olog #1516 != oref
-olog: [OVAL] CaloEnergyEE_-1 PV= 1
-=== olog #1518 != oref
-olog: [OVAL] CaloEnergyEE_-2 PV= 1
-=== olog #1520 != oref
-olog: [OVAL] CaloEnergyEE_-3 PV= 1
-=== olog #1522 != oref
-olog: [OVAL] CaloEnergyEE_-4 PV= 1
-=== olog #1524 != oref
-olog: [OVAL] CaloEnergyEE_-5 PV= 1
-=== olog #1526 != oref
-olog: [OVAL] CaloEnergyEE_0 PV= 1
-=== olog #1528 != oref
-olog: [OVAL] CaloEnergyEE_1 PV= 1
-=== olog #1530 != oref
-olog: [OVAL] CaloEnergyEE_2 PV= 1
-=== olog #1532 != oref
-olog: [OVAL] CaloEnergyEE_3 PV= 1
-=== olog #1534 != oref
-olog: [OVAL] NrPileupEvts_-1 PV= 1
-=== olog #1536 != oref
-olog: [OVAL] NrPileupEvts_-2 PV= 1
-=== olog #1538 != oref
-olog: [OVAL] NrPileupEvts_-3 PV= 1
-=== olog #1540 != oref
-olog: [OVAL] NrPileupEvts_-4 PV= 1
-=== olog #1542 != oref
-olog: [OVAL] NrPileupEvts_-5 PV= 1
-=== olog #1544 != oref
-olog: [OVAL] NrPileupEvts_0 PV= 1
-=== olog #1546 != oref
-olog: [OVAL] NrPileupEvts_1 PV= 1
-=== olog #1548 != oref
-olog: [OVAL] NrPileupEvts_2 PV= 1
-=== olog #1550 != oref
-olog: [OVAL] NrPileupEvts_3 PV= 1
-=== olog #1552 != oref
-olog: [OVAL] NrTracks_-1 PV= 1
-=== olog #1554 != oref
-olog: [OVAL] NrTracks_-2 PV= 1
-=== olog #1556 != oref
-olog: [OVAL] NrTracks_-3 PV= 1
-=== olog #1558 != oref
-olog: [OVAL] NrTracks_-4 PV= 1
-=== olog #1560 != oref
-olog: [OVAL] NrTracks_-5 PV= 1
-=== olog #1562 != oref
-olog: [OVAL] NrTracks_0 PV= 1
-=== olog #1564 != oref
-olog: [OVAL] NrTracks_1 PV= 1
-=== olog #1566 != oref
-olog: [OVAL] NrTracks_2 PV= 1
-=== olog #1568 != oref
-olog: [OVAL] NrTracks_3 PV= 1
-=== olog #1570 != oref
-olog: [OVAL] NrVertices_-1 PV= 1
-=== olog #1572 != oref
-olog: [OVAL] NrVertices_-2 PV= 1
-=== olog #1574 != oref
-olog: [OVAL] NrVertices_-3 PV= 1
-=== olog #1576 != oref
-olog: [OVAL] NrVertices_-4 PV= 1
-=== olog #1578 != oref
-olog: [OVAL] NrVertices_-5 PV= 1
-=== olog #1580 != oref
-olog: [OVAL] NrVertices_0 PV= 1
-=== olog #1582 != oref
-olog: [OVAL] NrVertices_1 PV= 1
-=== olog #1584 != oref
-olog: [OVAL] NrVertices_2 PV= 1
-=== olog #1586 != oref
-olog: [OVAL] NrVertices_3 PV= 1
-=== olog #1588 != oref
-olog: [OVAL] TrackPartId_-1 PV= 1
-=== olog #1590 != oref
-olog: [OVAL] TrackPartId_-2 PV= 1
-=== olog #1592 != oref
-olog: [OVAL] TrackPartId_-3 PV= 1
-=== olog #1594 != oref
-olog: [OVAL] TrackPartId_-4 PV= 1
-=== olog #1596 != oref
-olog: [OVAL] TrackPartId_-5 PV= 1
-=== olog #1598 != oref
-olog: [OVAL] TrackPartId_0 PV= 1
-=== olog #1600 != oref
-olog: [OVAL] TrackPartId_1 PV= 1
-=== olog #1602 != oref
-olog: [OVAL] TrackPartId_2 PV= 1
-=== olog #1604 != oref
-olog: [OVAL] TrackPartId_3 PV= 1
+=== olog #58 != oref #106
+olog: [OVAL] EcalEBHit_Tof_bcr_-5 PV= 9.92776e-09
+---
+oref: [OVAL] EcalEBHit_Tof_bcr_-5 PV= 1
+=== olog #62 != oref #110
+olog: [OVAL] SignalEcalEBHit_Tof_bcr_-5 PV= 0
+---
+oref: [OVAL] SignalEcalEBHit_Tof_bcr_-5 PV= 1
+=== olog #65 != oref #112
+olog: [OVAL] SignalHcalHit_Tof_bcr_-5 PV= 0.323361
+---
+oref: [OVAL] SignalHcalHit_Tof_bcr_-5 PV= 1
+=== olog #67 != oref #114
+olog: [OVAL] SignalTrackerHit_Tof_bcr_-5 PV= 4.55501e-07
+---
+oref: [OVAL] SignalTrackerHit_Tof_bcr_-5 PV= 1
+=== olog #76 != oref #122
+olog: [OVAL] TrackPointers_signal_-5 PV= 0.970114
+---
+oref: [OVAL] TrackPointers_signal_-5 PV= 1
+=== olog #84 != oref #130
+olog: [OVAL] VtxPointers_-5 PV= 0.556732
+---
+oref: [OVAL] VtxPointers_-5 PV= 1
+=== olog #86 != oref #132
+olog: [OVAL] VtxPointers_signal_-5 PV= 0.844635
+---
+oref: [OVAL] VtxPointers_signal_-5 PV= 1
+=== olog #135 != oref #229
+olog: [OVAL] EcalEBHit_Tof_bcr_-4 PV= 9.92776e-09
+---
+oref: [OVAL] EcalEBHit_Tof_bcr_-4 PV= 1
+=== olog #139 != oref #233
+olog: [OVAL] SignalEcalEBHit_Tof_bcr_-4 PV= 0
+---
+oref: [OVAL] SignalEcalEBHit_Tof_bcr_-4 PV= 1
+=== olog #142 != oref #235
+olog: [OVAL] SignalHcalHit_Tof_bcr_-4 PV= 0.323361
+---
+oref: [OVAL] SignalHcalHit_Tof_bcr_-4 PV= 1
+=== olog #144 != oref #237
+olog: [OVAL] SignalTrackerHit_Tof_bcr_-4 PV= 4.55501e-07
+---
+oref: [OVAL] SignalTrackerHit_Tof_bcr_-4 PV= 1
+=== olog #153 != oref #245
+olog: [OVAL] TrackPointers_signal_-4 PV= 0.970114
+---
+oref: [OVAL] TrackPointers_signal_-4 PV= 1
+=== olog #161 != oref #253
+olog: [OVAL] VtxPointers_-4 PV= 0.556732
+---
+oref: [OVAL] VtxPointers_-4 PV= 1
+=== olog #163 != oref #255
+olog: [OVAL] VtxPointers_signal_-4 PV= 0.844635
+---
+oref: [OVAL] VtxPointers_signal_-4 PV= 1
+=== olog #212 != oref #352
+olog: [OVAL] EcalEBHit_Tof_bcr_-3 PV= 9.92776e-09
+---
+oref: [OVAL] EcalEBHit_Tof_bcr_-3 PV= 1
+=== olog #216 != oref #356
+olog: [OVAL] SignalEcalEBHit_Tof_bcr_-3 PV= 0
+---
+oref: [OVAL] SignalEcalEBHit_Tof_bcr_-3 PV= 1
+=== olog #219 != oref #358
+olog: [OVAL] SignalHcalHit_Tof_bcr_-3 PV= 0.323361
+---
+oref: [OVAL] SignalHcalHit_Tof_bcr_-3 PV= 1
+=== olog #221 != oref #360
+olog: [OVAL] SignalTrackerHit_Tof_bcr_-3 PV= 4.55501e-07
+---
+oref: [OVAL] SignalTrackerHit_Tof_bcr_-3 PV= 1
+=== olog #230 != oref #368
+olog: [OVAL] TrackPointers_signal_-3 PV= 0.970114
+---
+oref: [OVAL] TrackPointers_signal_-3 PV= 1
+=== olog #238 != oref #376
+olog: [OVAL] VtxPointers_-3 PV= 0.556732
+---
+oref: [OVAL] VtxPointers_-3 PV= 1
+=== olog #240 != oref #378
+olog: [OVAL] VtxPointers_signal_-3 PV= 0.844635
+---
+oref: [OVAL] VtxPointers_signal_-3 PV= 1
+=== olog #289 != oref #475
+olog: [OVAL] EcalEBHit_Tof_bcr_-2 PV= 9.92776e-09
+---
+oref: [OVAL] EcalEBHit_Tof_bcr_-2 PV= 1
+=== olog #293 != oref #479
+olog: [OVAL] SignalEcalEBHit_Tof_bcr_-2 PV= 0
+---
+oref: [OVAL] SignalEcalEBHit_Tof_bcr_-2 PV= 1
+=== olog #296 != oref #481
+olog: [OVAL] SignalHcalHit_Tof_bcr_-2 PV= 0.323361
+---
+oref: [OVAL] SignalHcalHit_Tof_bcr_-2 PV= 1
+=== olog #298 != oref #483
+olog: [OVAL] SignalTrackerHit_Tof_bcr_-2 PV= 4.55501e-07
+---
+oref: [OVAL] SignalTrackerHit_Tof_bcr_-2 PV= 1
+=== olog #307 != oref #491
+olog: [OVAL] TrackPointers_signal_-2 PV= 0.970114
+---
+oref: [OVAL] TrackPointers_signal_-2 PV= 1
+=== olog #315 != oref #499
+olog: [OVAL] VtxPointers_-2 PV= 0.556732
+---
+oref: [OVAL] VtxPointers_-2 PV= 1
+=== olog #317 != oref #501
+olog: [OVAL] VtxPointers_signal_-2 PV= 0.844635
+---
+oref: [OVAL] VtxPointers_signal_-2 PV= 1
+=== olog #366 != oref #598
+olog: [OVAL] EcalEBHit_Tof_bcr_-1 PV= 9.92776e-09
+---
+oref: [OVAL] EcalEBHit_Tof_bcr_-1 PV= 1
+=== olog #370 != oref #602
+olog: [OVAL] SignalEcalEBHit_Tof_bcr_-1 PV= 0
+---
+oref: [OVAL] SignalEcalEBHit_Tof_bcr_-1 PV= 1
+=== olog #373 != oref #604
+olog: [OVAL] SignalHcalHit_Tof_bcr_-1 PV= 0.323361
+---
+oref: [OVAL] SignalHcalHit_Tof_bcr_-1 PV= 1
+=== olog #375 != oref #606
+olog: [OVAL] SignalTrackerHit_Tof_bcr_-1 PV= 4.55501e-07
+---
+oref: [OVAL] SignalTrackerHit_Tof_bcr_-1 PV= 1
+=== olog #384 != oref #614
+olog: [OVAL] TrackPointers_signal_-1 PV= 0.970114
+---
+oref: [OVAL] TrackPointers_signal_-1 PV= 1
+=== olog #387 != oref #616
+olog: [OVAL] TrackerHit_Tof_bcr_-1 PV= 0.410953
+---
+oref: [OVAL] TrackerHit_Tof_bcr_-1 PV= 1
+=== olog #393 != oref #622
+olog: [OVAL] VtxPointers_-1 PV= 0.556732
+---
+oref: [OVAL] VtxPointers_-1 PV= 1
+=== olog #395 != oref #624
+olog: [OVAL] VtxPointers_signal_-1 PV= 0.844635
+---
+oref: [OVAL] VtxPointers_signal_-1 PV= 1
+=== olog #444 != oref #721
+olog: [OVAL] EcalEBHit_Tof_bcr_0 PV= 9.92776e-09
+---
+oref: [OVAL] EcalEBHit_Tof_bcr_0 PV= 1
+=== olog #448 != oref #725
+olog: [OVAL] SignalEcalEBHit_Tof_bcr_0 PV= 0
+---
+oref: [OVAL] SignalEcalEBHit_Tof_bcr_0 PV= 1
+=== olog #451 != oref #727
+olog: [OVAL] SignalHcalHit_Tof_bcr_0 PV= 0.323361
+---
+oref: [OVAL] SignalHcalHit_Tof_bcr_0 PV= 1
+=== olog #453 != oref #729
+olog: [OVAL] SignalTrackerHit_Tof_bcr_0 PV= 4.55501e-07
+---
+oref: [OVAL] SignalTrackerHit_Tof_bcr_0 PV= 1
+=== olog #462 != oref #737
+olog: [OVAL] TrackPointers_signal_0 PV= 0.970114
+---
+oref: [OVAL] TrackPointers_signal_0 PV= 1
+=== olog #465 != oref #739
+olog: [OVAL] TrackerHit_Tof_bcr_0 PV= 0.410953
+---
+oref: [OVAL] TrackerHit_Tof_bcr_0 PV= 1
+=== olog #471 != oref #745
+olog: [OVAL] VtxPointers_0 PV= 0.556732
+---
+oref: [OVAL] VtxPointers_0 PV= 1
+=== olog #473 != oref #747
+olog: [OVAL] VtxPointers_signal_0 PV= 0.844635
+---
+oref: [OVAL] VtxPointers_signal_0 PV= 1
+=== olog #522 != oref #845
+olog: [OVAL] EcalEBHit_Tof_bcr_1 PV= 9.92776e-09
+---
+oref: [OVAL] EcalEBHit_Tof_bcr_1 PV= 1
+=== olog #526 != oref #849
+olog: [OVAL] SignalEcalEBHit_Tof_bcr_1 PV= 0
+---
+oref: [OVAL] SignalEcalEBHit_Tof_bcr_1 PV= 1
+=== olog #529 != oref #851
+olog: [OVAL] SignalHcalHit_Tof_bcr_1 PV= 0.323361
+---
+oref: [OVAL] SignalHcalHit_Tof_bcr_1 PV= 1
+=== olog #531 != oref #853
+olog: [OVAL] SignalTrackerHit_Tof_bcr_1 PV= 4.55501e-07
+---
+oref: [OVAL] SignalTrackerHit_Tof_bcr_1 PV= 1
+=== olog #540 != oref #861
+olog: [OVAL] TrackPointers_signal_1 PV= 0.970114
+---
+oref: [OVAL] TrackPointers_signal_1 PV= 1
+=== olog #542 != oref #863
+olog: [OVAL] TrackerHit_Tof_bcr_1 PV= 0.492072
+---
+oref: [OVAL] TrackerHit_Tof_bcr_1 PV= 1
+=== olog #548 != oref #869
+olog: [OVAL] VtxPointers_1 PV= 0.556732
+---
+oref: [OVAL] VtxPointers_1 PV= 1
+=== olog #550 != oref #871
+olog: [OVAL] VtxPointers_signal_1 PV= 0.844635
+---
+oref: [OVAL] VtxPointers_signal_1 PV= 1
+=== olog #599 != oref #968
+olog: [OVAL] EcalEBHit_Tof_bcr_2 PV= 9.92776e-09
+---
+oref: [OVAL] EcalEBHit_Tof_bcr_2 PV= 1
+=== olog #603 != oref #972
+olog: [OVAL] SignalEcalEBHit_Tof_bcr_2 PV= 0
+---
+oref: [OVAL] SignalEcalEBHit_Tof_bcr_2 PV= 1
+=== olog #606 != oref #974
+olog: [OVAL] SignalHcalHit_Tof_bcr_2 PV= 0.323361
+---
+oref: [OVAL] SignalHcalHit_Tof_bcr_2 PV= 1
+=== olog #608 != oref #976
+olog: [OVAL] SignalTrackerHit_Tof_bcr_2 PV= 4.55501e-07
+---
+oref: [OVAL] SignalTrackerHit_Tof_bcr_2 PV= 1
+=== olog #617 != oref #984
+olog: [OVAL] TrackPointers_signal_2 PV= 0.970114
+---
+oref: [OVAL] TrackPointers_signal_2 PV= 1
+=== olog #625 != oref #992
+olog: [OVAL] VtxPointers_2 PV= 0.556732
+---
+oref: [OVAL] VtxPointers_2 PV= 1
+=== olog #627 != oref #994
+olog: [OVAL] VtxPointers_signal_2 PV= 0.844635
+---
+oref: [OVAL] VtxPointers_signal_2 PV= 1
+=== olog #677 != oref #1092
+olog: [OVAL] EcalEBHit_Tof_bcr_3 PV= 4.18007e-05
+---
+oref: [OVAL] EcalEBHit_Tof_bcr_3 PV= 0.00640229
+=== olog #683 != oref #1097
+olog: [OVAL] SignalEcalEBHit_Tof_bcr_3 PV= 1.64443e-05
+---
+oref: [OVAL] SignalEcalEBHit_Tof_bcr_3 PV= 1.74733e-14
+=== olog #686 != oref #1100
+olog: [OVAL] SignalHcalHit_Tof_bcr_3 PV= 0.0474569
+---
+oref: [OVAL] SignalHcalHit_Tof_bcr_3 PV= 0
+=== olog #699 != oref #1112
+olog: [OVAL] TrackPointers_signal_3 PV= 0.970114
+---
+oref: [OVAL] TrackPointers_signal_3 PV= 1
+=== olog #709 != oref #1122
+olog: [OVAL] VtxPointers_3 PV= 0.556732
+---
+oref: [OVAL] VtxPointers_3 PV= 1
+=== olog #711 != oref #1124
+olog: [OVAL] VtxPointers_signal_3 PV= 0.844635
+---
+oref: [OVAL] VtxPointers_signal_3 PV= 1
+=== olog #874 != oref #1506
+olog: [OVAL] CaloEnergyEB_-5 PV= 0.973456
+---
+oref: [OVAL] CaloEnergyEB_-5 PV= 1
+=== olog #879 != oref #1510
+olog: [OVAL] CaloEnergyEB_1 PV= 0.540291
+---
+oref: [OVAL] CaloEnergyEB_1 PV= 1
+=== olog #882 != oref #1512
+olog: [OVAL] CaloEnergyEB_2 PV= 0.973456
+---
+oref: [OVAL] CaloEnergyEB_2 PV= 1
+=== olog #885 != oref #1514
+olog: [OVAL] CaloEnergyEB_3 PV= 0.932912
+---
+oref: [OVAL] CaloEnergyEB_3 PV= 1
+=== olog #898 != oref #1526
+olog: [OVAL] CaloEnergyEE_0 PV= 0
+---
+oref: [OVAL] CaloEnergyEE_0 PV= 1
+=== olog #929 != oref #1556
+olog: [OVAL] NrTracks_-3 PV= 0.829029
+---
+oref: [OVAL] NrTracks_-3 PV= 1
+=== olog #932 != oref #1558
+olog: [OVAL] NrTracks_-4 PV= 0
+---
+oref: [OVAL] NrTracks_-4 PV= 1
+=== olog #935 != oref #1560
+olog: [OVAL] NrTracks_-5 PV= 0.80915
+---
+oref: [OVAL] NrTracks_-5 PV= 1
+=== olog #938 != oref #1562
+olog: [OVAL] NrTracks_0 PV= 0.907354
+---
+oref: [OVAL] NrTracks_0 PV= 1
+=== olog #943 != oref #1566
+olog: [OVAL] NrTracks_2 PV= 0.709388
+---
+oref: [OVAL] NrTracks_2 PV= 1
+=== olog #948 != oref #1570
+olog: [OVAL] NrVertices_-1 PV= 0
+---
+oref: [OVAL] NrVertices_-1 PV= 1
+=== olog #951 != oref #1572
+olog: [OVAL] NrVertices_-2 PV= 0
+---
+oref: [OVAL] NrVertices_-2 PV= 1
+=== olog #954 != oref #1574
+olog: [OVAL] NrVertices_-3 PV= 0
+---
+oref: [OVAL] NrVertices_-3 PV= 1
+=== olog #957 != oref #1576
+olog: [OVAL] NrVertices_-4 PV= 0
+---
+oref: [OVAL] NrVertices_-4 PV= 1
+=== olog #960 != oref #1578
+olog: [OVAL] NrVertices_-5 PV= 0
+---
+oref: [OVAL] NrVertices_-5 PV= 1
+=== olog #963 != oref #1580
+olog: [OVAL] NrVertices_0 PV= 0
+---
+oref: [OVAL] NrVertices_0 PV= 1
+=== olog #966 != oref #1582
+olog: [OVAL] NrVertices_1 PV= 0
+---
+oref: [OVAL] NrVertices_1 PV= 1
+=== olog #969 != oref #1584
+olog: [OVAL] NrVertices_2 PV= 0
+---
+oref: [OVAL] NrVertices_2 PV= 1
+=== olog #972 != oref #1586
+olog: [OVAL] NrVertices_3 PV= 0
+---
+oref: [OVAL] NrVertices_3 PV= 1
+=== olog #974 != oref #1588
+olog: [OVAL] TrackPartId_-1 PV= 0.764085
+---
+oref: [OVAL] TrackPartId_-1 PV= 1
+=== olog #976 != oref #1590
+olog: [OVAL] TrackPartId_-2 PV= 1.74057e-11
+---
+oref: [OVAL] TrackPartId_-2 PV= 1
+=== olog #978 != oref #1592
+olog: [OVAL] TrackPartId_-3 PV= 0.00866695
+---
+oref: [OVAL] TrackPartId_-3 PV= 1
+=== olog #980 != oref #1594
+olog: [OVAL] TrackPartId_-4 PV= 1.85275e-09
+---
+oref: [OVAL] TrackPartId_-4 PV= 1
+=== olog #982 != oref #1596
+olog: [OVAL] TrackPartId_-5 PV= 0.0122224
+---
+oref: [OVAL] TrackPartId_-5 PV= 1
+=== olog #984 != oref #1598
+olog: [OVAL] TrackPartId_0 PV= 0.000785552
+---
+oref: [OVAL] TrackPartId_0 PV= 1
+=== olog #986 != oref #1600
+olog: [OVAL] TrackPartId_1 PV= 1.97039e-05
+---
+oref: [OVAL] TrackPartId_1 PV= 1
+=== olog #988 != oref #1602
+olog: [OVAL] TrackPartId_2 PV= 4.5524e-11
+---
+oref: [OVAL] TrackPartId_2 PV= 1
+=== olog #990 != oref #1604
+olog: [OVAL] TrackPartId_3 PV= 9.9941e-05
+---
+oref: [OVAL] TrackPartId_3 PV= 1
 
 [oval diff] =========================================
 [oval diff] result: DIFFS
