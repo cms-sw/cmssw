@@ -1,6 +1,6 @@
 /*----------------------------------------------------------------------
 
-$Id: OutputModule.cc,v 1.36 2007/09/04 19:39:37 paterno Exp $
+$Id: OutputModule.cc,v 1.37 2007/09/07 19:34:44 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "FWCore/Framework/interface/OutputModule.h"
@@ -126,7 +126,6 @@ namespace edm {
     current_context_(0),
     //prods_(),
     prodsValid_(false),
-    current_md_(0),
     wantAllEvents_(false),
     selectors_(),
     eventCount_(0)
@@ -275,10 +274,6 @@ namespace edm {
     detail::CPCSentry sentry(current_context_, c);
     PVSentry          products_sentry(selectors_, prodsValid_);
 
-    //Save the current Mod Desc
-    current_md_ = &md;
-    assert(current_md_ == c->moduleDescription());
-
     FDEBUG(2) << "writeEvent called\n";
 
     // This ugly little bit is here to prevent making the Event if
@@ -318,9 +313,6 @@ namespace edm {
 				CurrentProcessingContext const* c)
   {
     detail::CPCSentry sentry(current_context_, c);
-    //Save the current Mod Desc
-    current_md_ = &md;
-    assert (current_md_ == c->moduleDescription());
     FDEBUG(2) << "beginRun called\n";
     beginRun(rp);
   }
@@ -330,9 +322,6 @@ namespace edm {
 			      CurrentProcessingContext const* c)
   {
     detail::CPCSentry sentry(current_context_, c);
-    //Save the current Mod Desc
-    current_md_ = &md;
-    assert (current_md_ == c->moduleDescription());
     FDEBUG(2) << "endRun called\n";
     endRun(rp);
   }
@@ -342,9 +331,6 @@ namespace edm {
 					    CurrentProcessingContext const* c)
   {
     detail::CPCSentry sentry(current_context_, c);
-    //Save the current Mod Desc
-    current_md_ = &md;
-    assert (current_md_ == c->moduleDescription());
     FDEBUG(2) << "beginLuminosityBlock called\n";
     beginLuminosityBlock(lbp);
   }
@@ -354,9 +340,6 @@ namespace edm {
 					  CurrentProcessingContext const* c)
   {
     detail::CPCSentry sentry(current_context_, c);
-    //Save the current Mod Desc
-    current_md_ = &md;
-    assert (current_md_ == c->moduleDescription());
     FDEBUG(2) << "endLuminosityBlock called\n";
     endLuminosityBlock(lbp);
   }

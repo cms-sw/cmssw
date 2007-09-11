@@ -6,7 +6,7 @@
 OutputModule: The base class of all "modules" that write Events to an
 output stream.
 
-$Id: OutputModule.h,v 1.48 2007/09/10 16:38:46 wmtan Exp $
+$Id: OutputModule.h,v 1.49 2007/09/10 20:22:49 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -163,11 +163,6 @@ namespace edm {
     //This will store TriggerResults objects for the current event.
     // mutable std::vector<Trig> prods_;
     mutable bool prodsValid_;
-
-    //Store the current Module Desc
-    //  *** This should be superfluous, because current_context_->moduleDescription()
-    // returns a pointer to the current ModuleDescription.
-    ModuleDescription const* current_md_;  
 
     bool wantAllEvents_;
     mutable detail::CachedProducts selectors_;
