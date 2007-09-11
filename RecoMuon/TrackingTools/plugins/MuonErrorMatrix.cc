@@ -200,12 +200,12 @@ double MuonErrorMatrix::Value(GlobalVector & momentum, int i, int j)  {
     if (!jj){edm::LogError(theCategory)<<"cannot get the profile ("<<j<<":"<<j<<")"; return result;}
 
 
-    int iBin_i_x = ii->GetXaxis()->FindBin(pT);
-    int iBin_i_y = ii->GetYaxis()->FindBin(eta);
-    int iBin_i_z = ii->GetZaxis()->FindBin(phi);
-    int iBin_j_x = jj->GetXaxis()->FindBin(pT);
-    int iBin_j_y = jj->GetYaxis()->FindBin(eta);
-    int iBin_j_z = jj->GetZaxis()->FindBin(phi);
+    int iBin_i_x = findBin(ii->GetXaxis(),pT);
+    int iBin_i_y = findBin(ii->GetYaxis(),eta);
+    int iBin_i_z = findBin(ii->GetZaxis(),phi);
+    int iBin_j_x = findBin(jj->GetXaxis(),pT);
+    int iBin_j_y = findBin(jj->GetYaxis(),eta);
+    int iBin_j_z = findBin(jj->GetZaxis(),phi);
 
     double corr = ij->GetBinContent(iBin_x,iBin_y,iBin_z);
     double sigma2_1 = (ii->GetBinContent(iBin_i_x,iBin_i_y,iBin_i_z));
