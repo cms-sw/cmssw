@@ -2,8 +2,8 @@
  *  See header file for a description of this class.
  *
  *
- *  $Date: 2007/05/14 17:27:02 $
- *  $Revision: 1.2 $
+ *  $Date: 2007/09/11 03:11:32 $
+ *  $Revision: 1.3 $
  *  \author A. Vitelli - INFN Torino, V.Palichik
  *  \author porting  R. Bellan
  *
@@ -68,7 +68,7 @@ TrajectorySeed MuonDTSeedFromRecHits::seed() const {
   float sptmean=0.;
   computeBestPt(pt, spt, ptmean, sptmean);
   
-  LogTrace(metname) << " Seed Pt :" << ptmean << "+/-" << sptmean << endl;
+  LogTrace(metname) << " Seed Pt: " << ptmean << " +/- " << sptmean << endl;
   
   // take the best candidate
   ConstMuonRecHitPointer last = best_cand();
