@@ -1,6 +1,6 @@
 // Associate jets with tracks by simple "dR" criteria
 // Fedor Ratnikov (UMd), Aug. 28, 2007
-// $Id: JetTracksAssociationDRCalo.cc,v 1.1 2007/08/29 17:53:14 fedor Exp $
+// $Id: JetTracksAssociationDRCalo.cc,v 1.1 2007/09/10 21:26:59 fedor Exp $
 
 #include "RecoJets/JetAssociationAlgorithms/interface/JetTracksAssociationDRCalo.h"
 
@@ -47,10 +47,10 @@ namespace {
       }
     }
     catch (...) {}
-    std::cout << "propagateTrackToCalo-> start propagating track"
-	      << " x/y/z: " << trackPosition.x() << '/' << trackPosition.y() << '/' << trackPosition.z()
-	      << ", pt/eta/phi: " << trackMomentum.perp() << '/' << trackMomentum.eta() << '/' << trackMomentum.barePhi()
-	      << std::endl;
+//     std::cout << "propagateTrackToCalo-> start propagating track"
+// 	      << " x/y/z: " << trackPosition.x() << '/' << trackPosition.y() << '/' << trackPosition.z()
+// 	      << ", pt/eta/phi: " << trackMomentum.perp() << '/' << trackMomentum.eta() << '/' << trackMomentum.barePhi()
+// 	      << std::endl;
     GlobalTrajectoryParameters trackParams(trackPosition, trackMomentum, fTrack.charge(), &fField);
     FreeTrajectoryState trackState (trackParams);
 
@@ -64,9 +64,9 @@ namespace {
     if (propagatedInfo.isValid()) {
       GlobalPoint result (propagatedInfo.globalPosition ());
       if (fabs (result.z()) < zEndcap) {
-	std::cout << "propagateTrackToCalo-> propagated to barrel:"
-		  << " x/y/z/r: " << result.x() << '/' << result.y() << '/' << result.z() << '/' << result.perp()
-		  << std::endl;
+// 	std::cout << "propagateTrackToCalo-> propagated to barrel:"
+// 		  << " x/y/z/r: " << result.x() << '/' << result.y() << '/' << result.z() << '/' << result.perp()
+// 		  << std::endl;
 	return result;
       }
     }
@@ -80,9 +80,9 @@ namespace {
     if (propagatedInfo.isValid()) {
       GlobalPoint result (propagatedInfo.globalPosition ());
       if (fabs (result.perp()) > rEndcapMin) {
-	std::cout << "propagateTrackToCalo-> propagated to endcap:"
-		  << " x/y/z/r: " << result.x() << '/' << result.y() << '/' << result.z() << '/' << result.perp()
-		  << std::endl;
+// 	std::cout << "propagateTrackToCalo-> propagated to endcap:"
+// 		  << " x/y/z/r: " << result.x() << '/' << result.y() << '/' << result.z() << '/' << result.perp()
+// 		  << std::endl;
 	return result;
       }
     }
@@ -95,14 +95,14 @@ namespace {
     if (propagatedInfo.isValid()) {
       GlobalPoint result (propagatedInfo.globalPosition ());
       if (fabs (result.perp()) > rVFMin) {
-	std::cout << "propagateTrackToCalo-> propagated to VF:"
-		  << " x/y/z/r: " << result.x() << '/' << result.y() << '/' << result.z() << '/' << result.perp()
-		  << std::endl;
+// 	std::cout << "propagateTrackToCalo-> propagated to VF:"
+// 		  << " x/y/z/r: " << result.x() << '/' << result.y() << '/' << result.z() << '/' << result.perp()
+// 		  << std::endl;
 	return result;
       }
     }
     // no luck
-    std::cout << "propagateTrackToCalo-> failed to propagate track to calorimeter" << std::endl;
+//     std::cout << "propagateTrackToCalo-> failed to propagate track to calorimeter" << std::endl;
     return GlobalPoint (0, 0, 0);
   }
 }

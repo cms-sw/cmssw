@@ -1,7 +1,10 @@
 // \class JetTracksAssociationDRVertex
 // Associate jets with tracks by simple "delta R" criteria
 // Fedor Ratnikov (UMd), Aug. 28, 2007
-// $Id: JetToTracksAssociator.cc,v 1.1 2007/07/31 00:34:54 fedor Exp $
+// $Id: JetTracksAssociationDRVertex.h,v 1.1 2007/08/29 17:53:13 fedor Exp $
+
+#ifndef JetTracksAssociationDRVertex_h
+#define JetTracksAssociationDRVertex_h
 
 #include "DataFormats/JetReco/interface/JetToTracksAssociation.h"
 
@@ -17,3 +20,5 @@ class JetTracksAssociationDRVertex {
   /// fidutial dR between track in the vertex and jet's reference direction
   double mDeltaR2Threshold;
 };
+
+#endif
