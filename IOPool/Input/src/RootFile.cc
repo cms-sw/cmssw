@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: RootFile.cc,v 1.79 2007/08/10 22:11:26 wmtan Exp $
+$Id: RootFile.cc,v 1.80 2007/08/29 21:47:56 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "RootFile.h"
@@ -197,7 +197,7 @@ namespace edm {
       EventAux *pEvAux = &eventAux;
       eventTree().fillAux<EventAux>(pEvAux);
       conversion(eventAux, eventAux_);
-      if (fileFormatVersion_.value_ <= 1) {
+      if (eventAux_.luminosityBlock_ == 0 || fileFormatVersion_.value_ <= 1) {
         eventAux_.luminosityBlock_ = 1;
       }
     }
