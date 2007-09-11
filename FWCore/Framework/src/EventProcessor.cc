@@ -1066,7 +1066,11 @@ namespace edm {
     IOVSyncValue ts(EventID(lbp->runNumber(),EventID::maxEventNumber()), lbp->endTime());
     EventSetup const& es = esp_->eventSetupForInstance(ts);
     schedule_->runOneEvent(*lbp, es, BranchActionEnd);
-    schedule_->maybeEndFile();
+
+    // This call to maybeEndFile should be uncommented when we want to
+    // allow runs to be split across files.
+
+    // schedule_->maybeEndFile();
   }
 
   void 

@@ -1,6 +1,6 @@
 /*----------------------------------------------------------------------
 
-$Id: OutputModule.cc,v 1.37 2007/09/07 19:34:44 wmtan Exp $
+$Id: OutputModule.cc,v 1.38 2007/09/11 17:08:54 paterno Exp $
 ----------------------------------------------------------------------*/
 
 #include "FWCore/Framework/interface/OutputModule.h"
@@ -347,8 +347,11 @@ namespace edm {
   void OutputModule::maybeEndFile()
   {
     if (isFileOpen() && isFileFull()) doEndFile();
-    // Where should we open a new file? It does not seem that here is
-    // the right place...
+  }
+
+  void OutputModule::maybeOpenFile()
+  {
+    if (!isFileOpen()) doOpenFile();
   }
   
   void OutputModule::doEndFile()

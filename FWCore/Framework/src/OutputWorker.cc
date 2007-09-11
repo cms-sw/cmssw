@@ -1,6 +1,6 @@
 
 /*----------------------------------------------------------------------
-$Id: OutputWorker.cc,v 1.24 2007/07/09 07:29:51 llista Exp $
+$Id: OutputWorker.cc,v 1.25 2007/09/04 19:39:37 paterno Exp $
 ----------------------------------------------------------------------*/
 
 #include "FWCore/Framework/interface/OutputModule.h"
@@ -27,6 +27,11 @@ namespace edm {
   void
   OutputWorker::doEndFile() {
     mod_->doEndFile();
+  }
+
+  void
+  OutputWorker::openNewFileIfNeeded() {
+    mod_->maybeOpenFile();
   }
 
 

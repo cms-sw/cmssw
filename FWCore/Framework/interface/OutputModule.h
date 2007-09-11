@@ -6,7 +6,7 @@
 OutputModule: The base class of all "modules" that write Events to an
 output stream.
 
-$Id: OutputModule.h,v 1.49 2007/09/10 20:22:49 wmtan Exp $
+$Id: OutputModule.h,v 1.50 2007/09/11 17:08:50 paterno Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -53,6 +53,10 @@ namespace edm {
 
     /// Tell the OutputModule that is must end the current file.
     void doEndFile();
+
+    /// Tell the OutputModule to open an output file, if one is not
+    /// already open.
+    void maybeOpenFile();
 
     bool selected(BranchDescription const& desc) const;
 
@@ -135,6 +139,14 @@ namespace edm {
     virtual void beginLuminosityBlock(LuminosityBlockPrincipal const& lb){}
     virtual void endLuminosityBlock(LuminosityBlockPrincipal const& lb) = 0;
 
+    virtual bool isFileOpen() const { return true; }
+    virtual bool isFileFull() const { return false; }
+
+    virtual void doOpenFile() { }
+
+    // The following member functions are part of the Template Method
+    // pattern, used for implementing doEndFile() and maybeEndFil().
+
     virtual void startEndFile() {}
     virtual void writeFileFormatVersion() {}
     virtual void writeProcessConfigurationRegistry() {}
@@ -144,8 +156,6 @@ namespace edm {
     virtual void writeProductDescriptionRegistry() {}
     virtual void finishEndFile() {}
 
-    virtual bool isFileOpen() const { return true; }
-    virtual bool isFileFull() const { return false; }
 
     std::string process_name_;
     GroupSelector groupSelector_;

@@ -806,6 +806,10 @@ namespace edm {
       for_all(all_output_workers_, boost::bind(&OutputWorker::doEndFile, _1));
     }
 
+    void Schedule::openNewOutputFilesIfNeeded() {
+      for_all(all_output_workers_, boost::bind(&OutputWorker::openNewFileIfNeeded, _1));
+    }
+
     void Schedule::beginJob(EventSetup const& es) {
       AllWorkers::iterator i(workersBegin()),e(workersEnd());
       for(; i != e; ++i) { (*i)->beginJob(es); }

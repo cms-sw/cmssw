@@ -1,4 +1,4 @@
-// $Id: PoolOutputModule.cc,v 1.85 2007/09/04 19:39:38 paterno Exp $
+// $Id: PoolOutputModule.cc,v 1.86 2007/09/11 18:22:37 paterno Exp $
 
 #include "IOPool/Output/src/PoolOutputModule.h"
 #include "boost/array.hpp" 
@@ -64,7 +64,54 @@ namespace edm {
   }
 
   void PoolOutputModule::beginRun(RunPrincipal const&) {
-    if (rootFile_.get() == 0) {
+    if (!isFileOpen()) {
+//       std::string suffix(".root");
+//       std::string::size_type offset = fileName().rfind(suffix);
+//       bool ext = (offset == fileName().size() - suffix.size());
+//       if (!ext) suffix.clear();
+//       std::string fileBase(ext ? fileName().substr(0, offset) : fileName());
+//       std::ostringstream ofilename;
+//       std::ostringstream lfilename;
+//       ofilename << fileBase;
+//       lfilename << logicalFileName();
+//       if (fileCount_) {
+//         ofilename << std::setw(3) << std::setfill('0') << fileCount_;
+// 	if (!logicalFileName().empty()) {
+// 	  lfilename << std::setw(3) << std::setfill('0') << fileCount_;
+// 	}
+//       }
+//       ofilename << suffix;
+//       rootFile_ = boost::shared_ptr<RootOutputFile>(new RootOutputFile(this, ofilename.str(), lfilename.str()));
+//       ++fileCount_;
+      doOpenFile();
+    }
+  }
+
+  void PoolOutputModule::endRun(RunPrincipal const& r) {
+      if (hasNewlyDroppedBranch()[InRun]) r.addToProcessHistory();
+      if (rootFile_->writeRun(r)) {
+	// maybeEndFile should be called from the framework, not internally
+	// rootFile_->endFile();
+	// rootFile_.reset();
+      }
+  }
+
+  // At some later date, we may move functionality from finishEndFile() to here.
+  void PoolOutputModule::startEndFile() { }
+
+  void PoolOutputModule::writeFileFormatVersion() { rootFile_->writeFileFormatVersion(); }
+  void PoolOutputModule::writeProcessConfigurationRegistry() { rootFile_->writeProcessConfigurationRegistry(); }
+  void PoolOutputModule::writeProcessHistoryRegistry() { rootFile_->writeProcessHistoryRegistry(); }
+  void PoolOutputModule::writeModuleDescriptionRegistry() { rootFile_->writeModuleDescriptionRegistry(); }
+  void PoolOutputModule::writeParameterSetRegistry() { rootFile_->writeParameterSetRegistry(); }
+  void PoolOutputModule::writeProductDescriptionRegistry() { rootFile_->writeProductDescriptionRegistry(); }
+  void PoolOutputModule::finishEndFile() { rootFile_->finishEndFile(); rootFile_.reset(); }
+  bool PoolOutputModule::isFileOpen() const { return rootFile_.get() != 0; }
+
+
+  bool PoolOutputModule::isFileFull() const { return rootFile_->isFileFull(); }
+
+  void PoolOutputModule::doOpenFile() {
       std::string suffix(".root");
       std::string::size_type offset = fileName().rfind(suffix);
       bool ext = (offset == fileName().size() - suffix.size());
@@ -83,30 +130,5 @@ namespace edm {
       ofilename << suffix;
       rootFile_ = boost::shared_ptr<RootOutputFile>(new RootOutputFile(this, ofilename.str(), lfilename.str()));
       ++fileCount_;
-    }
   }
-
-  void PoolOutputModule::endRun(RunPrincipal const& r) {
-      if (hasNewlyDroppedBranch()[InRun]) r.addToProcessHistory();
-      if (rootFile_->writeRun(r)) {
-	// maybeEndFile should be called from the framework, not internally
-// 	rootFile_->endFile();
-// 	rootFile_.reset();
-      }
-  }
-
-  // At some later date, we may move functionality from finishEndFile() to here.
-  void PoolOutputModule::startEndFile() { }
-
-  void PoolOutputModule::writeFileFormatVersion() { rootFile_->writeFileFormatVersion(); }
-  void PoolOutputModule::writeProcessConfigurationRegistry() { rootFile_->writeProcessConfigurationRegistry(); }
-  void PoolOutputModule::writeProcessHistoryRegistry() { rootFile_->writeProcessHistoryRegistry(); }
-  void PoolOutputModule::writeModuleDescriptionRegistry() { rootFile_->writeModuleDescriptionRegistry(); }
-  void PoolOutputModule::writeParameterSetRegistry() { rootFile_->writeParameterSetRegistry(); }
-  void PoolOutputModule::writeProductDescriptionRegistry() { rootFile_->writeProductDescriptionRegistry(); }
-  void PoolOutputModule::finishEndFile() { rootFile_->finishEndFile(); }
-  bool PoolOutputModule::isFileOpen() const { return rootFile_.get() != 0; }
-
-
-  bool PoolOutputModule::isFileFull() const { return rootFile_->isFileFull(); }
 }
