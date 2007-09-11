@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea Rizzi
 //         Created:  Thu Apr  6 09:56:23 CEST 2006
-// $Id: ImpactParameter.cc,v 1.2 2006/10/24 12:50:15 slehti Exp $
+// $Id: ImpactParameter.cc,v 1.3 2007/03/23 08:14:55 slehti Exp $
 //
 //
 
@@ -32,6 +32,8 @@
 
 #include "DataFormats/BTauReco/interface/JetTag.h"
 #include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/VertexReco/interface/Vertex.h"
+#include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "DataFormats/BTauReco/interface/IsolatedTauTagInfo.h"
 
 #include "FWCore/Framework/interface/EventSetup.h"
