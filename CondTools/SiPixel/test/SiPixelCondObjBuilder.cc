@@ -44,7 +44,10 @@ SiPixelCondObjBuilder::analyze(const edm::Event& iEvent, const edm::EventSetup& 
    int myrow = 159;
 
    edm::LogInfo("SiPixelCondObjBuilder") << "... creating dummy SiPixelGainCalibration Data for Run " << run << "\n " << std::endl;
-   SiPixelGainCalibration_ = new SiPixelGainCalibration();
+   //
+   // Instantiate Gain calibration offset and define pedestal/gain range
+   //
+   SiPixelGainCalibration_ = new SiPixelGainCalibration(0., 50, 0., 10.);
 
 
    edm::ESHandle<TrackerGeometry> pDD;
@@ -64,7 +67,7 @@ SiPixelCondObjBuilder::analyze(const edm::Event& iEvent, const edm::EventSetup& 
        // Get the module sizes.
        int nrows = topol.nrows();      // rows in x
        int ncols = topol.ncolumns();   // cols in y
-       std::cout << " ---> PIXEL DETID " << detid << " Cols " << ncols << " Rows " << nrows << std::endl;
+       //std::cout << " ---> PIXEL DETID " << detid << " Cols " << ncols << " Rows " << nrows << std::endl;
 
        PixelIndices pIndexConverter( ncols , nrows );
 
@@ -99,17 +102,11 @@ SiPixelCondObjBuilder::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 	   //	     std::cout << "       Col "<<i<<" Row "<<j<<" Ped "<<ped<<" Gain "<<gain<<std::endl;
 // 	   }
 
-	   // Encode to use the full 8-bit range
-
-	   gain =  2.8;
-	   ped  = 28.2;
-	   float theEncodedGain  = SiPixelGainCalibrationService_.encodeGain(gain);
-	   float theEncodedPed   = SiPixelGainCalibrationService_.encodePed (ped);
-
-	   //std::cout << i <<  " " << j << " EncGain " << theEncodedGain << " EncPed " << theEncodedPed << std::endl;
+ 	   gain =  2.8;
+ 	   ped  = 28.2;
 
 	   // Insert data in the container
-	   SiPixelGainCalibration_->setData( theEncodedPed, theEncodedGain, theSiPixelGainCalibration);
+	   SiPixelGainCalibration_->setData( ped , gain , theSiPixelGainCalibration);
 	 }
        }
 

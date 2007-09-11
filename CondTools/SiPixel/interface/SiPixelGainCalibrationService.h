@@ -18,19 +18,13 @@ class SiPixelGainCalibrationService {
   void    setESObjects(const edm::EventSetup& es );
   float   getPedestal (const uint32_t& detID,const int& col, const int& row) ;
   float   getGain     (const uint32_t& detID,const int& col, const int& row) ;
-  float   encodeGain(const float& gain);
-  float   encodePed (const float& ped);
-  float   decodeGain(const float& gain);
-  float   decodePed (const float& ped);
 
   std::vector<uint32_t> getDetIds();
 
  private:
+
   edm::ParameterSet conf_;
   edm::ESHandle<SiPixelGainCalibration> ped;
-  //bool UseCalibDataFromDB_;
-  //float    PedestalValue_, GainValue_;
-  double   minGain_, maxGain_, minPed_, maxPed_;
   bool ESetupInit_;
 
   uint32_t old_detID;

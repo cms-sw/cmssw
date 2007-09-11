@@ -10,6 +10,10 @@
         <Primitive column="INDEXES_VALUE_TYPE_NCOLS" name="ncols" />
       </Object >
     </Container >
+    <Primitive column="MAXGAIN" name="maxGain_" />
+    <Primitive column="MAXPED" name="maxPed_" />
+    <Primitive column="MINGAIN" name="minGain_" />
+    <Primitive column="MINPED" name="minPed_" />
     <Container table="SIPIXELGAINCALIBRA_3" id_columns="ID_ID" name="v_pedestals" position_column="POS" >
       <Primitive column="V_PEDESTALS_VALUE_TYPE" name="value_type" />
     </Container >
