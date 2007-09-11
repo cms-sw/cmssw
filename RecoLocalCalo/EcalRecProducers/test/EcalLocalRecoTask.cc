@@ -1,7 +1,7 @@
 /*
  * \file EcalLocalReco.cc
  *
- * $Id: EcalLocalRecoTask.cc,v 1.3 2006/10/27 01:35:37 wmtan Exp $
+ * $Id: EcalLocalRecoTask.cc,v 1.4 2007/08/06 14:44:56 innocent Exp $
  *
 */
 
@@ -190,10 +190,11 @@ void EcalLocalRecoTask::analyze(const Event& e, const EventSetup& c)
    }
 
 
-  Handle<CrossingFrame> crossingFrame;
+  Handle< CrossingFrame<PCaloHit> > crossingFrame;
+  const std::string barrelHitsName ("EcalHitsEB") ;
   try 
     {
-      e.getByType(crossingFrame);
+      e.getByLabel("mix",barrelHitsName,crossingFrame);
     } catch ( std::exception& ex ) {
       edm::LogError("EcalLocalRecoTaskError") << "Error! can't get the crossingFrame" << std::endl;
     }
@@ -217,9 +218,8 @@ void EcalLocalRecoTask::analyze(const Event& e, const EventSetup& c)
 //     } 
 
 
-  const std::string barrelHitsName ("EcalHitsEB") ;
   std::auto_ptr<MixCollection<PCaloHit> > 
-    barrelHits (new MixCollection<PCaloHit>(crossingFrame.product (), barrelHitsName)) ;
+    barrelHits (new MixCollection<PCaloHit>(crossingFrame.product ())) ;
 
   MapType EBSimMap;
   
