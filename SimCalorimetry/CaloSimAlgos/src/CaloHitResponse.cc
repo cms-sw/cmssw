@@ -10,7 +10,7 @@
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
-#include "CLHEP/Random/RandPoisson.h"
+#include "CLHEP/Random/RandPoissonQ.h"
 #include "CLHEP/Random/RandFlat.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
@@ -48,7 +48,7 @@ void CaloHitResponse::setBunchRange(int minBunch, int maxBunch) {
 
 void CaloHitResponse::setRandomEngine(CLHEP::HepRandomEngine & engine)
 {
-  theRandPoisson = new CLHEP::RandPoisson(engine);
+  theRandPoisson = new CLHEP::RandPoissonQ(engine);
 }
 
 
@@ -138,7 +138,7 @@ double CaloHitResponse::analogSignalAmplitude(const PCaloHit & hit, const CaloSi
         "which is not present in the configuration file.  You must add the service\n"
         "in the configuration file or remove the modules that require it.";
     }
-    theRandPoisson = new CLHEP::RandPoisson(rng->getEngine());
+    theRandPoisson = new CLHEP::RandPoissonQ(rng->getEngine());
   }
 
   // OK, the "energy" in the hit could be a real energy, deposited energy,

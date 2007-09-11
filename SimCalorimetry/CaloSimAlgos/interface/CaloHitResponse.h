@@ -6,7 +6,7 @@
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "SimDataFormats/CrossingFrame/interface/MixCollection.h"
 #include "SimDataFormats/CaloHit/interface/PCaloHit.h"
-#include "CLHEP/Random/RandPoisson.h"
+#include "CLHEP/Random/RandPoissonQ.h"
 
 #include<map>
 #include<vector>
@@ -103,7 +103,7 @@ protected:
 
   const CaloGeometry * theGeometry;
 
-  mutable CLHEP::RandPoisson * theRandPoisson;
+  mutable CLHEP::RandPoissonQ * theRandPoisson;
 
   int theMinBunch;
   int theMaxBunch;
