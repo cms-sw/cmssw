@@ -25,15 +25,22 @@ class SiStripRegionCabling {
 
  public:
 
+  /** enums */
   enum SubDet {TIB = 0, TOB = 1, TID = 2, TEC = 3, ALLSUBDETS = 4}; 
   enum Layer {TIBLAYERS = 4, TOBLAYERS = 6, TIDLAYERS = 3, TECLAYERS = 9, ALLLAYERS = 10}; 
 
+  /** Cabling typedefs */
   typedef std::map< uint32_t, std::vector<FedChannelConnection> > ElementCabling;
   typedef std::vector< ElementCabling > WedgeCabling;
   typedef std::vector< WedgeCabling > RegionCabling;
   typedef std::vector< RegionCabling > Cabling;
+
+  /** Position typedefs */
   typedef std::pair<double,double> Position;
   typedef std::pair<uint32_t,uint32_t> PositionIndex;
+
+  /** Encoded information typedefs */
+  typedef uint32_t ElementIndex;
 
   SiStripRegionCabling(const uint32_t,const uint32_t, const double);
 
@@ -73,17 +80,17 @@ class SiStripRegionCabling {
   /** Methods for interchanging between region-subdet-layer and the 
       corresponding element index. */
 
-  inline static const uint32_t elementIndex(const uint32_t region, const SubDet, const uint32_t layer);
+  inline static const ElementIndex elementIndex(const uint32_t region, const SubDet, const uint32_t layer);
 
-  inline const uint32_t elementIndex(const PositionIndex, const SubDet, const uint32_t layer) const;
+  inline const ElementIndex elementIndex(const PositionIndex, const SubDet, const uint32_t layer) const;
 
-  inline const uint32_t elementIndex(const Position, const SubDet, const uint32_t layer) const;
+  inline const ElementIndex elementIndex(const Position, const SubDet, const uint32_t layer) const;
 
-  inline static const uint32_t layer(const uint32_t index);
+  inline static const uint32_t layer(const ElementIndex);
   
-  inline static const SubDet subdet(const uint32_t index);
+  inline static const SubDet subdet(const ElementIndex);
   
-  inline static const uint32_t region(const uint32_t index);
+  inline static const uint32_t region(const ElementIndex);
  
   /** Methods for extracting det-id information */
 
@@ -101,7 +108,7 @@ class SiStripRegionCabling {
   template <class T>
     void updateSiStripRefGetter(edm::SiStripRefGetter<T>& refgetter, 
 				const edm::Handle< edm::SiStripLazyGetter<T> >& lazygetter, 
-				const uint32_t index) const;
+				const ElementIndex) const;
   
   template <class T>
     void updateSiStripRefGetter(edm::SiStripRefGetter<T>& refgetter, 
