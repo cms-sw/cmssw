@@ -271,7 +271,8 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
 		reco::TrackRef t = rt.begin()->first;
 		ats++;
 		totASSeta[w][f]++;
-		edm::LogVerbatim("TrackValidator") << "TrackingParticle #" << st << " with pt=" << t->pt() 
+		edm::LogVerbatim("TrackValidator") << "TrackingParticle #" << st 
+						   << " with pt=" << sqrt(tp->momentum().perp2()) 
 						   << " associated with quality:" << rt.begin()->second <<"\n";
 	      }
 	    }else{
