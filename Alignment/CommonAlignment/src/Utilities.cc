@@ -99,9 +99,11 @@ align::RotationType align::diffRot(const GlobalVectors& current,
   GlobalVectors rotated = current; // rotated current vectors in each step
 
   unsigned int nPoints = nominal.size();
+	//edm::LogInfo("Utilities") << "---------->ResidualPoints: " << nPoints;
 
   for (unsigned int j = 0; j < nPoints; ++j)
   {
+		//edm::LogInfo("Utilities") << "currentPoint: " << current[j] << ", nominalPoint: " << nominal[j];
     const GlobalVector& r = nominal[j];
 
   // Inertial tensor: I_ij = delta_ij * r^2 - r_i * r_j (sum over points)
@@ -113,10 +115,10 @@ align::RotationType align::diffRot(const GlobalVectors& current,
     I.fast(3, 1) -= r.x() * r.z();
     I.fast(3, 2) -= r.y() * r.z();
   }
-
+	int it = 0;
   while (true)
   {
-    AlgebraicVector rhs(3); // sum of dr * r
+		AlgebraicVector rhs(3); // sum of dr * r
 
     for (unsigned int j = 0; j < nPoints; ++j)
     {
@@ -131,23 +133,53 @@ align::RotationType align::diffRot(const GlobalVectors& current,
     }
 
     EulerAngles dOmega = CLHEP::solve(I, rhs);
-
+				
     if (dOmega.normsq() < tolerance) break; // converges, so exit loop
 
     rot *= toMatrix(dOmega); // add to rotation
 
-  // Not yet converge; move current vectors to new positions and find dr
-
+		// Not yet converge; move current vectors to new positions and find dr
     for (unsigned int j = 0; j < nPoints; ++j)
     {
       rotated[j] = GlobalVector( rot.multiplyInverse( current[j].basicVector() ) );
     }
+		it++;
   }
-
   return rot;
+}
+
+
+align::GlobalVector align::diffR(const GlobalVectors& current,
+				   const GlobalVectors& nominal)
+{
+
+	unsigned int nPoints = nominal.size();
+	GlobalVector nCM(0,0,0);
+	GlobalVector cCM(0,0,0);
+	for (unsigned int j = 0; j < nPoints; ++j)
+	{
+		nCM += nominal[j];
+		cCM += current[j];
+	}
+	nCM /= nPoints;
+	cCM /= nPoints;
+	GlobalVector theR = nCM - cCM;
+	return theR;
+}
+
+align::GlobalVector align::centerOfMass(const GlobalVectors& theVs){
+
+	unsigned int nPoints = theVs.size();
+	GlobalVector CM(0,0,0);
+	for (unsigned int j = 0; j < nPoints; ++j){
+		CM += theVs[j];
+	}
+	CM /= nPoints;
+	return CM;
 }
 
 void align::rectify(RotationType& rot)
 {
   rot = toMatrix( toAngles(rot) );
 }
+

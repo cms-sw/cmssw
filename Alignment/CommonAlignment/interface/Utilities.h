@@ -5,12 +5,25 @@
  *
  *  Namespace for common calculations in alignment.
  *
- *  $Date: 2007/04/07 03:29:04 $
- *  $Revision: 1.6 $
+ *  $Date: 2007/04/09 00:40:21 $
+ *  $Revision: 1.7 $
  *  \author Chung Khim Lae
  */
 
 #include "CondFormats/Alignment/interface/Definitions.h"
+#include "CondFormats/Alignment/interface/Alignments.h"
+#include <CLHEP/Vector/ThreeVector.h>
+#include <CLHEP/Vector/AxisAngle.h>
+#include <CLHEP/Matrix/Vector.h>
+#include <CLHEP/Matrix/SymMatrix.h>
+#include <CLHEP/Matrix/Matrix.h>
+#include <CLHEP/Vector/Rotation.h>
+
+//#include "Alignment/CommonAlignment/interface/Alignable.h"
+//#include "Alignment/CommonAlignment/interface/AlignableSurface.h"
+
+//class Alignable;
+//class AlignableSurface;
 
 namespace align
 {
@@ -37,14 +50,25 @@ namespace align
   /// Find matrix to rotate from nominal to current vectors.
   /// Assume both sets of vectors have the same size and order.
   RotationType diffRot(
-		       const GlobalVectors& current,
-		       const GlobalVectors& nominal
-		       );
+		const GlobalVectors& current,
+		const GlobalVectors& nominal
+		);
 
-  /// Correct a rotation matrix for rounding errors.
+	GlobalVector diffR(
+		const GlobalVectors& current,
+		const GlobalVectors& nominal
+		);
+	/// Fins the CM of a set of points
+	GlobalVector centerOfMass(
+		const GlobalVectors& theVs
+		);
+	
+	
+	/// Correct a rotation matrix for rounding errors.
   void rectify(
-	       RotationType&
-	       );
+		RotationType&
+		);
+	
 }
 
 #endif
