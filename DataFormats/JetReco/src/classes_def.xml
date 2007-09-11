@@ -69,10 +69,28 @@
   <class name="reco::JetToTracksAssociation::RefProd"/>
   <class name="reco::JetToTracksAssociation::RefVector"/>
   <class name="edm::Wrapper<reco::JetToTracksAssociation::Container>" />
+  <function name="reco::JetToTracksAssociation::tracksNumber"/>
+  <function name="reco::JetToTracksAssociation::tracksP4"/>
   <function name="reco::JetToTracksAssociation::setValue"/>
   <function name="reco::JetToTracksAssociation::getValue"/>
   <function name="reco::JetToTracksAssociation::allJets"/>
   <function name="reco::JetToTracksAssociation::hasJet"/>
+
+  <class name="reco::JetExtendedAssociation::JetExtendedData"/>
+  <class name="reco::JetExtendedAssociation::Object"/>
+  <class name="reco::JetExtendedAssociation::Container"/>
+  <class name="reco::JetExtendedAssociation::Ref"/>
+  <class name="reco::JetExtendedAssociation::RefProd"/>
+  <class name="reco::JetExtendedAssociation::RefVector"/>
+  <class name="edm::Wrapper<reco::JetExtendedAssociation::Container>" />
+  <function name="reco::JetExtendedAssociation::tracksInVertexNumber"/>
+  <function name="reco::JetExtendedAssociation::tracksInVertexP4"/>
+  <function name="reco::JetExtendedAssociation::tracksAtCaloNumber"/>
+  <function name="reco::JetExtendedAssociation::tracksAtCaloP4"/>
+  <function name="reco::JetExtendedAssociation::setValue"/>
+  <function name="reco::JetExtendedAssociation::getValue"/>
+  <function name="reco::JetExtendedAssociation::allJets"/>
+  <function name="reco::JetExtendedAssociation::hasJet"/>
 
   <class name="edm::RefToBase<reco::Jet>" />
   <class name="edm::reftobase::BaseHolder<reco::Jet>" />
