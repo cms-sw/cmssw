@@ -20,6 +20,11 @@
   <use name=SimDataFormats/HepMCProduct>
 </library>
 
+<library file=GenParticleProducer.cc>
+  <use name=SimGeneral/HepPDTRecord>
+  <use name=SimDataFormats/HepMCProduct>
+</library>
+
 <library file=GenParticleCandidateSelector.cc>
   <use name=SimGeneral/HepPDTRecord>
 </library>

@@ -4,7 +4,8 @@ process = Process("MCCand")
 
 process.include( "FWCore/MessageLogger/data/MessageLogger.cfi" )
 process.include( "SimGeneral/HepPDTESSource/data/pythiapdt.cfi")
-process.include( "PhysicsTools/HepMCCandAlgos/data/genParticleCandidatesFast.cfi")
+process.include( "PhysicsTools/HepMCCandAlgos/data/genParticleCandidates.cfi")
+process.include( "PhysicsTools/HepMCCandAlgos/data/genParticles.cfi")
 process.include( "PhysicsTools/HepMCCandAlgos/data/genEventWeight.cfi")
 # The following is still not clear how should be converted to .py...
 # process.include( "PhysicsTools/HepMCCandAlgos/test/h4l.cff")
@@ -35,6 +36,7 @@ process.printEventNumber = OutputModule( "AsciiOutputModule" )
   
 process.p = Path( 
   process.genParticleCandidates *
+  process.genParticles *
   process.genEventWeight
 )
 
