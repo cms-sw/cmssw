@@ -30,6 +30,11 @@ class MonitorElement
   void setResetMe(bool flag);
   /// get name of ME
   virtual std::string getName() const  = 0;
+  /// get pathname of parent folder
+  virtual std::string getPathname() const;
+  /// get full name of ME including Pathname
+  std::string getFullname() const {return getPathname()+"/"+getName();}
+  
   /// "Fill" ME methods:
   /// can be used with 1D histograms or scalars
   virtual void Fill(float)=0;
@@ -65,8 +70,6 @@ class MonitorElement
   /// get QReport corresponding to <qtname> (null pointer if QReport does not exist)
   const QReport * getQReport(std::string qtname) const;
 
-  /// get pathname of parent folder
-  virtual std::string getPathname() const;
 
   /// get map of QReports
   dqm::qtests::QR_map getQReports(void) const {return qreports_;}
