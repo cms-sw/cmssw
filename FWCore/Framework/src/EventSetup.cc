@@ -89,6 +89,20 @@ EventSetup::find(const eventsetup::EventSetupRecordKey& iKey) const
    return itFind->second;
 }
 
+void 
+EventSetup::fillAvailableRecordKeys(std::vector<eventsetup::EventSetupRecordKey>& oToFill) const
+{
+  oToFill.clear();
+  oToFill.reserve(recordMap_.size());
+  
+  typedef std::map<eventsetup::EventSetupRecordKey, eventsetup::EventSetupRecord const *> KeyToRecordMap;
+  for(KeyToRecordMap::const_iterator it = recordMap_.begin(), itEnd=recordMap_.end();
+      it != itEnd;
+      ++it) {
+    oToFill.push_back(it->first);
+  }
+}
+
 //
 // static member functions
 //

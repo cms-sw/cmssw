@@ -20,6 +20,7 @@
 
 // system include files
 #include <map>
+#include <vector>
 #include "boost/type_traits/is_base_and_derived.hpp"
 // user include files
 #include "FWCore/Framework/interface/IOVSyncValue.h"
@@ -75,6 +76,10 @@ class EventSetup
       const IOVSyncValue& iovSyncValue() const { return syncValue_;}
 
       const eventsetup::EventSetupRecord* find(const eventsetup::EventSetupRecordKey&) const;
+      
+      ///clears the oToFill vector and then fills it with the keys for all available records
+      void fillAvailableRecordKeys(std::vector<eventsetup::EventSetupRecordKey>& oToFill) const;
+      
       // ---------- static member functions --------------------
 
       // ---------- member functions ---------------------------

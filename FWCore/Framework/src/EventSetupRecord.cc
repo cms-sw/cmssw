@@ -135,6 +135,20 @@ EventSetupRecord::find(const DataKey& iKey) const
    return 0;
 }
 
+void 
+EventSetupRecord::fillRegisteredDataKeys(std::vector<DataKey>& oToFill) const
+{
+  oToFill.clear();
+  oToFill.reserve(proxies_.size());
+  
+  for(std::map< DataKey , const DataProxy* >::const_iterator it = proxies_.begin(), itEnd=proxies_.end();
+      it != itEnd;
+      ++it) {
+    oToFill.push_back(it->first);
+  }
+  
+}
+
 //
 // static member functions
 //

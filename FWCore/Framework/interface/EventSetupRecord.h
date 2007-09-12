@@ -49,6 +49,7 @@ using the 'setEventSetup' and 'clearEventSetup' functions.
 
 // system include files
 #include <map>
+#include <vector>
 
 // user include files
 #include "FWCore/Framework/interface/ValidityInterval.h"
@@ -90,6 +91,9 @@ class EventSetupRecord
         unsigned long long cacheIdentifier() const {
         return cacheIdentifier_;
       }
+        
+      ///clears the oToFill vector and then fills it with the keys for all registered data keys
+      void fillRegisteredDataKeys(std::vector<DataKey>& oToFill) const;
       // ---------- static member functions --------------------
 
       // ---------- member functions ---------------------------
