@@ -23,7 +23,9 @@ public:
   CalibratedHistogram(std::vector<float> binLimits) : m_binULimits(binLimits),m_normalization(0) 
   { }
   CalibratedHistogram(int nBins, float min, float max) : m_binULimits(constantBinning(nBins,min,max)),m_normalization(0)
-  {}
+  {
+    m_binValues.resize(nBins+1);
+  }
 
   std::vector<float> values() const { return m_binValues;}
   std::vector<float> upperLimits() const {return m_binULimits; }
