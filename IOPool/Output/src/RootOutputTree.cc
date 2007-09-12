@@ -25,15 +25,15 @@ namespace edm {
 
   void
   RootOutputTree::writeTTree(TTree *tree) {
-    if (tree->GetNbranches() != 0) {
-      tree->SetEntries(-1);
-    }
     tree->AutoSave();
   }
 
   void
-  RootOutputTree::fillTTree(std::vector<TBranch *> const& branches) {
+  RootOutputTree::fillTTree(TTree * tree, std::vector<TBranch *> const& branches) {
     for_each(branches.begin(), branches.end(), fillHelper);
+    if (tree->GetNbranches() != 0) {
+      tree->SetEntries(-1);
+    }
   }
 
   void
@@ -43,8 +43,8 @@ namespace edm {
   }
 
   void RootOutputTree::fillTree() const {
-    fillTTree(metaBranches_);
-    fillTTree(branches_);
+    fillTTree(metaTree_, metaBranches_);
+    fillTTree(tree_, branches_);
   }
 
   void

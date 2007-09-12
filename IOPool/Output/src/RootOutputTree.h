@@ -5,7 +5,7 @@
 
 RootOutputTree.h // used by ROOT output modules
 
-$Id: RootOutputTree.h,v 1.5 2007/09/08 02:16:33 wmtan Exp $
+$Id: RootOutputTree.h,v 1.6 2007/09/10 20:27:09 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -89,7 +89,7 @@ namespace edm {
     bool const& fastCloning() const {return fastCloning_;}
 
   private:
-    static void fillTTree(std::vector<TBranch *> const& branches);
+    static void fillTTree(TTree *tree, std::vector<TBranch *> const& branches);
     static void fillHelper(TBranch * br) {br->Fill();}
 // We use bare pointers for pointers to some ROOT entities.
 // Root owns them and uses bare pointers internally.
