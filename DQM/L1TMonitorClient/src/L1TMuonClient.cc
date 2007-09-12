@@ -56,7 +56,7 @@ L1TMuonClient::L1TMuonClient(const edm::ParameterSet& iConfig): L1TBaseClient()
   if (getMESubscriptionListFromFile)
   subscriber->getMEList("MESubscriptionList.xml"); 
   if (getQualityTestsFromFile)
-  qtHandler->configureTests("QualityTests.xml",mui_);
+  qtHandler->configureTests("QualityTests.xml",mui_->getBEInterface());
 
   }
   
@@ -165,8 +165,8 @@ for ( std::vector<GeomDet*>::const_iterator iGeomDet = pDT->dets().begin(); iGeo
 // ----------------- save results
    
 	    if(stdalone){
-	     mui_->runQTests();
-             qtHandler->checkGolbalQTStatus(mui_);
+	     mui_->getBEInterface()->runQTests();
+             qtHandler->checkGlobalQTStatus(mui_->getBEInterface());
             }
   
  	    if ( saveOutput && nevents%5 == 0) {
@@ -213,7 +213,7 @@ void L1TMuonClient::beginJob(const edm::EventSetup&)
 
   if(stdalone){
   subscriber->makeSubscriptions(mui_);
-  qtHandler->attachTests(mui_);	
+  qtHandler->attachTests(mui_->getBEInterface());	
   }
 
 }

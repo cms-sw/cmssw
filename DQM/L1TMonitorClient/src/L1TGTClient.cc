@@ -53,7 +53,7 @@ L1TGTClient::L1TGTClient(const edm::ParameterSet& iConfig): L1TBaseClient()
   if (getMESubscriptionListFromFile)
   subscriber->getMEList("MESubscriptionList.xml"); 
   if (getQualityTestsFromFile)
-  qtHandler->configureTests("QualityTests.xml",mui_);
+  qtHandler->configureTests("QualityTests.xml",mui_->getBEInterface());
 
   }
   
@@ -105,7 +105,7 @@ void L1TGTClient::beginJob(const edm::EventSetup&)
 
   if(stdalone){
    subscriber->makeSubscriptions(mui_);
-   qtHandler->attachTests(mui_);	
+   qtHandler->attachTests(mui_->getBEInterface());	
   }
 
 }
@@ -154,8 +154,8 @@ void L1TGTClient::endLuminosityBlock(const edm::LuminosityBlock & iLumiSection, 
 // ----------------- save results
    
      if(stdalone){
-	     mui_->runQTests();
-             qtHandler->checkGolbalQTStatus(mui_);
+	     mui_->getBEInterface()->runQTests();
+             qtHandler->checkGlobalQTStatus(mui_->getBEInterface());
      }
   
   this->getReport("L1TMonitor/QTests/normGTFEBx", dbe, qualityCriterionName);

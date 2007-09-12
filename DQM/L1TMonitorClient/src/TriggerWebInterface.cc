@@ -126,7 +126,7 @@ void TriggerWebInterface::printMeListXML(std::string source, xgi::Output * out)
 
   std::vector<std::string> contents;
   std::vector<std::string> contentVec;
-  (*mui_p)->getContents(contentVec);
+  (*mui_p)->getBEInterface()->getContents(contentVec);
 
   std::cout << "contentVec size = " << contentVec.size() << std::endl;
 
@@ -286,7 +286,7 @@ void TriggerWebInterface::displayMeXML(xgi::Input * in, xgi::Output * out)
 
    name = "Collector/GlobalDQM/L1TMonitor/" + source +"/" + name;
   
-   MonitorElement *pointer = (*mui_p)->get(name);
+   MonitorElement *pointer = (*mui_p)->getBEInterface()->get(name);
 
    if (pointer != 0) {
      view_map.add(name, pointer);
@@ -644,7 +644,7 @@ void TriggerWebInterface::Summary(xgi::Input * in, xgi::Output * out)
    
   for(std::vector<std::string>::const_iterator i = meList.begin();
       i != meList.end(); ++i ) {
-    MonitorElement *p = (*mui_p)->get(*i);
+    MonitorElement *p = (*mui_p)->getBEInterface()->get(*i);
     if ( p == 0 ) {
       std::cout << "No such ME " << *i << std::endl;
       continue;

@@ -53,7 +53,7 @@ L1TCaloClient::L1TCaloClient(const edm::ParameterSet& iConfig): L1TBaseClient()
   if (getMESubscriptionListFromFile)
   subscriber->getMEList("MESubscriptionList.xml"); 
   if (getQualityTestsFromFile)
-  qtHandler->configureTests("QualityTests.xml",mui_);
+  qtHandler->configureTests("QualityTests.xml",mui_->getBEInterface());
 
   }
 
@@ -157,8 +157,8 @@ const CaloSubdetectorGeometry barrelGeometry = gHandle->getSubdetectorGeometry(D
          }
     
 	    if(stdalone){
-	     mui_->runQTests();
-             qtHandler->checkGolbalQTStatus(mui_);
+	     mui_->getBEInterface()->runQTests();
+             qtHandler->checkGlobalQTStatus(mui_->getBEInterface());
             }
   
  	    if ( saveOutput && nevents%5 == 0) {
