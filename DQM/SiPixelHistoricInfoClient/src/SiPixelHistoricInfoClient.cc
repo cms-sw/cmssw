@@ -80,7 +80,7 @@ void SiPixelHistoricInfoClient::endRun() {
   cout << "+++++++++++++++++++++++++++++++++" << endl;
   std::string final_filename = "endRun_SiPixelHistoricInfoClient.root"; // run-specific filename would be better
   std::cout << "saving all histograms to " << final_filename << std::endl;
-  mui_->save(final_filename); 
+  mui_->getBEInterface()->save(final_filename); 
   
   tstore_connect();
 }
@@ -97,7 +97,7 @@ void SiPixelHistoricInfoClient::onUpdate() const {
   // perform ROOT thread-unsafe actions in onUpdate
   if (webInterface_p->getSaveToFile()) {
     cout << "SiPixelHistoricInfoClient::onUpdate(). Saving to file." << endl;
-    mui_->save("SiPixelHistoricInfoClient.root");
+    mui_->getBEInterface()->save("SiPixelHistoricInfoClient.root");
     webInterface_p->setSaveToFile(false); // done, set flag to false again
   }
   int nr_updates = mui_->getNumUpdates();
@@ -135,7 +135,7 @@ void SiPixelHistoricInfoClient::retrievePointersToModuleMEs() const {
   // painful and dangerous string operations to extract list of pointer to MEs and avoid 
   // strings with full paths uses the MonitorUserInterface and fills the data member map
   vector<string> listOfMEsWithFullPath;
-  mui_->getContents(listOfMEsWithFullPath); 
+  mui_->getBEInterface()->getContents(listOfMEsWithFullPath); 
   // put the list of MEs in a vector to pass as a parameter to methods
   
   cout << "SiPixelHistoricInfoClient::retrievePointersToModuleMEs: listOfMEsWithFullPath.size() = " 
@@ -164,7 +164,7 @@ void SiPixelHistoricInfoClient::retrievePointersToModuleMEs() const {
       string fullhistopath = thepath + "/" + thehistoname;
 
       // get a pointer to each ME
-      MonitorElement* theMEPointer = mui_->get(fullhistopath); // give the full path and get back the pointer to the ME
+      MonitorElement* theMEPointer = mui_->getBEInterface()->get(fullhistopath); // give the full path and get back the pointer to the ME
 
       // extract detid from id/title - use SiPixelHistogramId for doing this
       SiPixelHistogramId hIdManager; 
