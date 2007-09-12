@@ -211,10 +211,10 @@ namespace cms{
       
       
       
-      LogDebug("CkfPattern") << "========== CkfTrackCandidateMaker Info ==========";
+      LogTrace("CkfPattern") << "========== CkfTrackCandidateMaker Info ==========";
       edm::ESHandle<TrackerGeometry> tracker;
       es.get<TrackerDigiGeometryRecord>().get(tracker);
-      LogDebug("CkfPattern") << "number of Seed: " << collseed->size();
+      LogTrace("CkfPattern") << "number of Seed: " << collseed->size();
       
       /*
       for(iseed=theSeedColl.begin();iseed!=theSeedColl.end();iseed++){
@@ -222,23 +222,23 @@ namespace cms{
 	const GeomDet* tmpDet  = tracker->idToDet( tmpId );
 	GlobalVector gv = tmpDet->surface().toGlobal( iseed->startingState().parameters().momentum() );
 	
-	LogDebug("CkfPattern") << "seed perp,phi,eta : " 
+	LogTrace("CkfPattern") << "seed perp,phi,eta : " 
 				       << gv.perp() << " , " 
 				       << gv.phi() << " , " 
 				       << gv.eta() ;
       }
       */
       
-      LogDebug("CkfPattern") << "number of finalTrajectories: " << unsmoothedResult.size();
+      LogTrace("CkfPattern") << "number of finalTrajectories: " << unsmoothedResult.size();
       for (vector<Trajectory>::const_iterator it = unsmoothedResult.begin();
 	   it != unsmoothedResult.end(); it++) {
-	LogDebug("CkfPattern") << "candidate's n valid and invalid hit, chi2, pt : " 
+	LogTrace("CkfPattern") << "candidate's n valid and invalid hit, chi2, pt : " 
 				       << it->foundHits() << " , " 
 				       << it->lostHits() <<" , " 
 				       <<it->chiSquared() << " , "
 				       <<it->lastMeasurement().predictedState().globalMomentum().perp();
       }
-      LogDebug("CkfPattern") << "=================================================";
+      LogTrace("CkfPattern") << "=================================================";
           
     }
     
