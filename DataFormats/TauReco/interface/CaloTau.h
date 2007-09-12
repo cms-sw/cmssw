@@ -6,7 +6,7 @@
  *                          is a hadronic tau-jet candidate -built from a calo. jet- that analysts manipulate;
  * authors: Simone Gennai (simone.gennai@cern.ch), Ludovic Houchu (Ludovic.Houchu@cern.ch)
  * created: Jun 21 2007,
- * revised: Sep 4 2007
+ * revised: Sep 12 2007
  */
 #include "DataFormats/Math/interface/LorentzVector.h"
 #include "DataFormats/TauReco/interface/BaseTau.h"
@@ -28,7 +28,7 @@ namespace reco {
     const CaloTauTagInfoRef& caloTauTagInfoRef()const;
     void setcaloTauTagInfoRef(const CaloTauTagInfoRef);
     
-    // signed transverse impact parameter significance of the lead Track
+    // signed transverse impact parameter significance of the leading Track
     float leadTracksignedSipt()const;
     void setleadTracksignedSipt(const float&);
     
@@ -44,13 +44,13 @@ namespace reco {
     float isolationTracksPtSum()const;
     void setisolationTracksPtSum(const float&);
    
-    // sum of Et of the isolation annulus ECAL hits
+    // sum of Et of the isolation annulus ECAL RecHits
     float isolationECALhitsEtSum()const;
     void setisolationECALhitsEtSum(const float&);
   
-    // Et of the highest Et HCAL hit
-    float highestEtHCALhitEt()const;
-    void sethighestEtHCALhitEt(const float&);    
+    // Et of the highest Et HCAL CaloTower
+    float maximumHCALhitEt()const;
+    void setmaximumHCALhitEt(const float&);    
   private:
     // check overlap with another candidate
     virtual bool overlap(const Candidate&d)const;
@@ -60,7 +60,7 @@ namespace reco {
     float TracksInvariantMass_; 
     float isolationTracksPtSum_;
     float isolationECALhitsEtSum_;
-    float highestEtHCALhitEt_;
+    float maximumHCALhitEt_;
   };
 }
 #endif

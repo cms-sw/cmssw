@@ -6,7 +6,7 @@
  *                          is a hadronic tau-jet candidate -built from a jet made employing a particle flow technique- that analysts manipulate;
  * authors: Simone Gennai (simone.gennai@cern.ch), Ludovic Houchu (Ludovic.Houchu@cern.ch)
  * created: Jun 21 2007,
- * revised: Sep 4 2007
+ * revised: Sep 12 2007
  */
 #include "DataFormats/Math/interface/LorentzVector.h"
 #include "DataFormats/TauReco/interface/BaseTau.h"
@@ -63,8 +63,8 @@ namespace reco {
     void setisolationPFGammaCandsEtSum(const float&);
     
     // Et of the highest Et HCAL PFCluster  
-    float highestEtHCALPFClusterEt()const;
-    void sethighestEtHCALPFClusterEt(const float&);    
+    float maximumHCALPFClusterEt()const;
+    void setmaximumHCALPFClusterEt(const float&);    
   private:
     // check overlap with another candidate
     virtual bool overlap(const Candidate&)const;
@@ -75,7 +75,7 @@ namespace reco {
     PFCandidateRefVector selectedIsolationPFCands_, selectedIsolationPFChargedHadrCands_, selectedIsolationPFNeutrHadrCands_, selectedIsolationPFGammaCands_;
     float isolationPFChargedHadrCandsPtSum_;
     float isolationPFGammaCandsEtSum_;
-    float highestEtHCALPFClusterEt_;
+    float maximumHCALPFClusterEt_;
   };
 }
 #endif

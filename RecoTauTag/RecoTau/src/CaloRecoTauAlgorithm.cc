@@ -35,14 +35,14 @@ void CaloRecoTauAlgorithm::setTransientTrackBuilder(const TransientTrackBuilder*
 
 CaloTau CaloRecoTauAlgorithm::buildCaloTau(Event& iEvent,const CaloTauTagInfoRef& myCaloTauTagInfoRef,const Vertex& myPV){
   CaloJetRef myCaloJet=(*myCaloTauTagInfoRef).calojetRef(); // catch a ref to the initial CaloJet  
-  CaloTau myCaloTau(numeric_limits<int>::quiet_NaN(),myCaloJet->p4()); //create the Tau with the initial CaloJet Lorentz-vector
+  CaloTau myCaloTau(numeric_limits<int>::quiet_NaN(),myCaloJet->p4()); // create the CaloTau with the initial CaloJet Lorentz-vector
   
   myCaloTau.setcaloTauTagInfoRef(myCaloTauTagInfoRef);
 
   myCaloTau.setalternatLorentzVect((*myCaloTauTagInfoRef).alternatLorentzVect());
 
   TrackRefVector myTks=(*myCaloTauTagInfoRef).Tracks();
-  //Setting invariant mass of the Tracks system
+  // setting invariant mass of the Tracks system
   math::XYZTLorentzVector myTks_XYZTLorentzVect(0.,0.,0.,0.);
   if((int)(myTks.size())!=0){
     for(int i=0;i<(int)myTks.size();i++){
@@ -86,7 +86,7 @@ CaloTau CaloRecoTauAlgorithm::buildCaloTau(Event& iEvent,const CaloTauTagInfoRef
     else mySignalTks=myCaloTauElementsOperators.tracksInCone((*myleadTk).momentum(),TrackerSignalConeMetric_,myTrackerSignalConeSize,Track_minPt_);
     myCaloTau.setsignalTracks(mySignalTks);
     
-    //Setting invariant mass of the signal Tracks system
+    // setting invariant mass of the signal Tracks system
     math::XYZTLorentzVector mySignalTksInvariantMass(0.,0.,0.,0.);
     if((int)(mySignalTks.size())!=0){
       int mySignalTks_qsum=0;       
@@ -104,12 +104,12 @@ CaloTau CaloRecoTauAlgorithm::buildCaloTau(Event& iEvent,const CaloTauTagInfoRef
     else myIsolTks=myCaloTauElementsOperators.tracksInAnnulus((*myleadTk).momentum(),TrackerSignalConeMetric_,myTrackerSignalConeSize,TrackerIsolConeMetric_,myTrackerIsolConeSize,Track_minPt_);
     myCaloTau.setisolationTracks(myIsolTks);
     
-    //Setting sum of Pt of the isolation annulus Tracks
+    // setting sum of Pt of the isolation annulus Tracks
     float myIsolTks_Ptsum=0.;
     for(int i=0;i<(int)myIsolTks.size();i++) myIsolTks_Ptsum+=myIsolTks[i]->pt();
     myCaloTau.setisolationTracksPtSum(myIsolTks_Ptsum);
     
-    //Setting sum of Et of the isolation annulus ECAL RecHits
+    // setting sum of Et of the isolation annulus ECAL RecHits
     float myIsolEcalRecHits_EtSum=0.;
     vector<pair<math::XYZPoint,float> > myIsolPositionAndEnergyEcalRecHits=myCaloTauElementsOperators.EcalRecHitsInAnnulus((*myleadTk).momentum(),ECALSignalConeMetric_,myECALSignalConeSize,ECALIsolConeMetric_,myECALIsolConeSize,ECALRecHit_minEt_);
     for(vector<pair<math::XYZPoint,float> >::const_iterator iEcalRecHit=myIsolPositionAndEnergyEcalRecHits.begin();iEcalRecHit!=myIsolPositionAndEnergyEcalRecHits.end();iEcalRecHit++){
@@ -119,13 +119,13 @@ CaloTau CaloRecoTauAlgorithm::buildCaloTau(Event& iEvent,const CaloTauTagInfoRef
   }
   myCaloTau.setVertex(math::XYZPoint(myCaloTau_refInnerPosition_x,myCaloTau_refInnerPosition_y,myCaloTau_refInnerPosition_z));
     
-  //Setting Et of the highest Et HCAL hit
+  // setting Et of the highest Et HCAL CaloTower
   const vector<CaloTowerRef> myCaloTowers=(*myCaloJet).getConstituents();
   double mymaxEtHCALtower_Et=0.; 
   for(unsigned int iTower=0;iTower<myCaloTowers.size();iTower++){
     if((*myCaloTowers[iTower]).hadEt()>=mymaxEtHCALtower_Et) mymaxEtHCALtower_Et=(*myCaloTowers[iTower]).hadEt();
   }
-  myCaloTau.sethighestEtHCALhitEt(mymaxEtHCALtower_Et);
+  myCaloTau.setmaximumHCALhitEt(mymaxEtHCALtower_Et);
 
   return myCaloTau;  
 }

@@ -2,32 +2,40 @@
 
 PFTau::PFTau(){
   PFCandidateRef pfLead;
-  leadPFChargedHadrCand_ = pfLead;
+  leadPFChargedHadrCand_=pfLead;
   leadPFChargedHadrCandsignedSipt_=NAN;
   
   PFCandidateRefVector pfTmp;
-  selectedSignalPFChargedHadrCands_ =pfTmp;
+  selectedSignalPFChargedHadrCands_=pfTmp;
   selectedSignalPFNeutrHadrCands_=pfTmp;
-  selectedSignalPFGammaCands_ = pfTmp;
+  selectedSignalPFGammaCands_=pfTmp;
 
-  selectedIsolationPFChargedHadrCands_ = pfTmp;
-  selectedIsolationPFNeutrHadrCands_ = pfTmp;
-  selectedIsolationPFGammaCands_ = pfTmp;
+  selectedIsolationPFChargedHadrCands_=pfTmp;
+  selectedIsolationPFNeutrHadrCands_=pfTmp;
+  selectedIsolationPFGammaCands_=pfTmp;
+
+  isolationPFChargedHadrCandsPtSum_=NAN;
+  isolationPFGammaCandsEtSum_=NAN;
+  maximumHCALPFClusterEt_=NAN;
 }
 
 PFTau::PFTau(Charge q,const LorentzVector& p4,const Point& vtx) : BaseTau(q,p4,vtx){
   PFCandidateRef pfLead;
-  leadPFChargedHadrCand_ = pfLead;
+  leadPFChargedHadrCand_=pfLead;
   leadPFChargedHadrCandsignedSipt_=NAN;
   
   PFCandidateRefVector pfTmp;
-  selectedSignalPFChargedHadrCands_ =pfTmp;
+  selectedSignalPFChargedHadrCands_=pfTmp;
   selectedSignalPFNeutrHadrCands_=pfTmp;
-  selectedSignalPFGammaCands_ = pfTmp;
+  selectedSignalPFGammaCands_=pfTmp;
 
-  selectedIsolationPFChargedHadrCands_ = pfTmp;
-  selectedIsolationPFNeutrHadrCands_ = pfTmp;
-  selectedIsolationPFGammaCands_ = pfTmp;
+  selectedIsolationPFChargedHadrCands_=pfTmp;
+  selectedIsolationPFNeutrHadrCands_=pfTmp;
+  selectedIsolationPFGammaCands_=pfTmp;
+
+  isolationPFChargedHadrCandsPtSum_=NAN;
+  isolationPFGammaCandsEtSum_=NAN;
+  maximumHCALPFClusterEt_=NAN;
 }
 
 PFTau* PFTau::clone()const{return new PFTau(*this);}
@@ -64,8 +72,8 @@ void PFTau::setisolationPFChargedHadrCandsPtSum(const float& x){isolationPFCharg
 float PFTau::isolationPFGammaCandsEtSum()const{return isolationPFGammaCandsEtSum_;}
 void PFTau::setisolationPFGammaCandsEtSum(const float& x){isolationPFGammaCandsEtSum_=x;}
 
-float PFTau::highestEtHCALPFClusterEt()const{return highestEtHCALPFClusterEt_;}
-void PFTau::sethighestEtHCALPFClusterEt(const float& x){highestEtHCALPFClusterEt_=x;}
+float PFTau::maximumHCALPFClusterEt()const{return maximumHCALPFClusterEt_;}
+void PFTau::setmaximumHCALPFClusterEt(const float& x){maximumHCALPFClusterEt_=x;}
 
 bool PFTau::overlap(const Candidate& theCand)const{
   const RecoCandidate* theRecoCand=dynamic_cast<const RecoCandidate *>(&theCand);

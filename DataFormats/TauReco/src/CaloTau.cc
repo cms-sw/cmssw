@@ -1,7 +1,7 @@
 #include "DataFormats/TauReco/interface/CaloTau.h"
 
 CaloTau::CaloTau() {  
-  highestEtHCALhitEt_ = NAN;
+  maximumHCALhitEt_ = NAN;
   leadTracksignedSipt_=NAN;
   signalTracksInvariantMass_ = NAN; 
   TracksInvariantMass_ = NAN;
@@ -10,7 +10,7 @@ CaloTau::CaloTau() {
 }
 
 CaloTau::CaloTau(Charge q,const LorentzVector& p4,const Point& vtx) : BaseTau(q,p4,vtx) {
-  highestEtHCALhitEt_ = NAN;
+  maximumHCALhitEt_ = NAN;
   leadTracksignedSipt_ =NAN;
   signalTracksInvariantMass_ = NAN; 
   TracksInvariantMass_ = NAN;
@@ -38,8 +38,8 @@ void CaloTau::setisolationTracksPtSum(const float& x){isolationTracksPtSum_=x;}
 float CaloTau::isolationECALhitsEtSum()const{return isolationECALhitsEtSum_;}
 void CaloTau::setisolationECALhitsEtSum(const float& x){isolationECALhitsEtSum_=x;}
 
-float CaloTau::highestEtHCALhitEt()const{return highestEtHCALhitEt_;}
-void CaloTau::sethighestEtHCALhitEt(const float& x){highestEtHCALhitEt_=x;}
+float CaloTau::maximumHCALhitEt()const{return maximumHCALhitEt_;}
+void CaloTau::setmaximumHCALhitEt(const float& x){maximumHCALhitEt_=x;}
 
 bool CaloTau::overlap(const Candidate& theCand)const{
   const RecoCandidate* theRecoCand=dynamic_cast<const RecoCandidate *>(&theCand);

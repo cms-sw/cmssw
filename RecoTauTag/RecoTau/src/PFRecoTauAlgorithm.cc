@@ -48,7 +48,7 @@ void PFRecoTauAlgorithm::setTransientTrackBuilder(const TransientTrackBuilder* x
 
 PFTau PFRecoTauAlgorithm::buildPFTau(const PFTauTagInfoRef& myPFTauTagInfoRef,const Vertex& myPV){
   PFJetRef myPFJet=(*myPFTauTagInfoRef).pfjetRef();  // catch a ref to the initial PFJet  
-  PFTau myPFTau(numeric_limits<int>::quiet_NaN(),myPFJet->p4());   // create the Tau
+  PFTau myPFTau(numeric_limits<int>::quiet_NaN(),myPFJet->p4());   // create the PFTau
    
   myPFTau.setpfTauTagInfoRef(myPFTauTagInfoRef);
   
@@ -149,15 +149,15 @@ PFTau PFRecoTauAlgorithm::buildPFTau(const PFTauTagInfoRef& myPFTauTagInfoRef,co
     myPFTau.setisolationPFGammaCandsEtSum(myIsolPFGammaCands_Etsum);
     myPFTau.setisolationPFCands(myIsolPFCands);
      
-    float myhighestEtHCALPFClusterEt=0.;
+    float mymaximumHCALPFClusterEt=0.;
     for(int i=0;i<(int)myPFCands.size();i++){ 
       if (myPFCands[i]->blockRef()->elements().size()!=0){
 	for (OwnVector<PFBlockElement>::const_iterator iPFBlockElement=myPFCands[i]->blockRef()->elements().begin();iPFBlockElement!=myPFCands[i]->blockRef()->elements().end();iPFBlockElement++){
-	  if ((*iPFBlockElement).type()==PFBlockElement::HCAL && (*iPFBlockElement).clusterRef()->energy()*fabs(sin((*iPFBlockElement).clusterRef()->positionXYZ().Theta()))>myhighestEtHCALPFClusterEt) myhighestEtHCALPFClusterEt=(*iPFBlockElement).clusterRef()->energy()*fabs(sin((*iPFBlockElement).clusterRef()->positionXYZ().Theta()));
+	  if ((*iPFBlockElement).type()==PFBlockElement::HCAL && (*iPFBlockElement).clusterRef()->energy()*fabs(sin((*iPFBlockElement).clusterRef()->positionXYZ().Theta()))>mymaximumHCALPFClusterEt) mymaximumHCALPFClusterEt=(*iPFBlockElement).clusterRef()->energy()*fabs(sin((*iPFBlockElement).clusterRef()->positionXYZ().Theta()));
 	}
       }
     }    
-    myPFTau.sethighestEtHCALPFClusterEt(myhighestEtHCALPFClusterEt);    
+    myPFTau.setmaximumHCALPFClusterEt(mymaximumHCALPFClusterEt);    
   }
   myPFTau.setVertex(math::XYZPoint(myPFTau_refInnerPosition_x,myPFTau_refInnerPosition_y,myPFTau_refInnerPosition_z));
   
