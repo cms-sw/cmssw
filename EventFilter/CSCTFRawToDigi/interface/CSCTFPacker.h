@@ -31,6 +31,7 @@ private:
 	unsigned short nTBINs;
 	unsigned short activeSectors;
 	bool putBufferToEvent;
+	int LCTtimeOffset, TRKtimeOffset;
 
 	FILE *file;
 
