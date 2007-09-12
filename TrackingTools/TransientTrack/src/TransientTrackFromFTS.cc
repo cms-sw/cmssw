@@ -88,6 +88,14 @@ TrajectoryStateOnSurface TransientTrackFromFTS::innermostMeasurementState() cons
     "TransientTrack built from a FreeTrajectoryState (TransientTrackFromFTS) can not have an innermostMeasurementState";
 }
 
+
+TrackBaseRef TransientTrackFromFTS::trackBaseRef() const
+{
+  throw cms::Exception("LogicError") << 
+    "TransientTrack built from a FreeTrajectoryState (TransientTrackFromFTS) can not have an TrackBaseRef";
+}
+
+
 void TransientTrackFromFTS::calculateTSOSAtVertex() const
 {
   TransverseImpactPointExtrapolator tipe(theField);

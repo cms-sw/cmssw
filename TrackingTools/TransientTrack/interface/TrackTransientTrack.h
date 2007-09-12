@@ -60,6 +60,8 @@ namespace reco {
    * access to original persistent track
    */
     TrackRef persistentTrackRef() const { return tkr_; }
+    
+    TrackBaseRef trackBaseRef() const {return TrackBaseRef(tkr_);}
 
     TrackCharge charge() const {return Track::charge();}
 

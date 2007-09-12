@@ -18,7 +18,6 @@
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateClosestToBeamLine.h"
 
-
 namespace reco {
 
   class BasicTransientTrack : private ReferenceCounted {
@@ -58,7 +57,7 @@ namespace reco {
     virtual TrajectoryStateOnSurface impactPointState() const = 0;
     virtual bool impactPointStateAvailable() const = 0;
 
-//     TrackRef persistentTrackRef() const { return tkr_; }
+    virtual TrackBaseRef trackBaseRef() const = 0;
 
     virtual TrackCharge charge() const = 0;
 

@@ -14,6 +14,7 @@
 
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h" 
+#include "DataFormats/Common/interface/RefToBase.h" 
 
 namespace reco {
 
@@ -81,6 +82,8 @@ namespace reco {
     const BasicTransientTrack* basicTransientTrack() const {return &(data());}
 
     const Track & track() const {return data().track();}
+
+    TrackBaseRef trackBaseRef() const {return data().trackBaseRef();}
 
     TrajectoryStateClosestToBeamLine stateAtBeamLine() const
 	{return data().stateAtBeamLine();}

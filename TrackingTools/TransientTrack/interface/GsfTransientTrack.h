@@ -77,6 +77,8 @@ namespace reco {
    */
     GsfTrackRef persistentTrackRef() const { return tkr_; }
 
+    TrackBaseRef trackBaseRef() const {return TrackBaseRef(tkr_);}
+
     TrackCharge charge() const {return GsfTrack::charge();}
 
     const MagneticField* field() const {return theField;}
