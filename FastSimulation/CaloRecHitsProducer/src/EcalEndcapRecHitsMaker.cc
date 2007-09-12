@@ -102,9 +102,9 @@ void EcalEndcapRecHitsMaker::loadEcalEndcapRecHits(edm::Event &iEvent,EERecHitCo
 void EcalEndcapRecHitsMaker::loadPCaloHits(const edm::Event & iEvent)
 {
 
-  edm::Handle<CrossingFrame> cf;
-  iEvent.getByType(cf);
-  std::auto_ptr<MixCollection<PCaloHit> > colcalo(new MixCollection<PCaloHit>(cf.product(),"EcalHitsEE",std::pair<int,int>(0,0) ));
+  edm::Handle<CrossingFrame<PCaloHit> > cf;
+  iEvent.getByLabel("mix","EcalHitsEE",cf);
+  std::auto_ptr<MixCollection<PCaloHit> > colcalo(new MixCollection<PCaloHit>(cf.product(),std::pair<int,int>(0,0) ));
 
   theFiredCells_.reserve(colcalo->size());
 

@@ -125,9 +125,9 @@ void HcalRecHitsMaker::loadPCaloHits(const edm::Event & iEvent)
 
   clean();
 
-  edm::Handle<CrossingFrame> cf;
-  iEvent.getByType(cf);
-  std::auto_ptr<MixCollection<PCaloHit> > colcalo(new MixCollection<PCaloHit>(cf.product(),"HcalHits",std::pair<int,int>(0,0) ));
+  edm::Handle<CrossingFrame<PCaloHit> > cf;
+  iEvent.getByLabel("mix","HcalHits",cf);
+  std::auto_ptr<MixCollection<PCaloHit> > colcalo(new MixCollection<PCaloHit>(cf.product(),std::pair<int,int>(0,0) ));
 
   MixCollection<PCaloHit>::iterator it=colcalo->begin();;
   MixCollection<PCaloHit>::iterator itend=colcalo->end();
