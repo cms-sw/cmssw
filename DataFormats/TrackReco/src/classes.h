@@ -80,6 +80,6 @@ namespace {
     //edm::reftobase::BaseHolder<reco::Track>             bh_tk;
     edm::reftobase::RefHolder<reco::TrackRef>           rf_tkr;
     edm::reftobase::Holder<reco::Track, reco::TrackRef> h_tk_tkr;
-
+    std::vector< edm::RefToBase<reco::Track> >		rtb_tk_vect;
   }
 }

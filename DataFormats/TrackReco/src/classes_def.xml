@@ -93,4 +93,6 @@
      <class name="edm::reftobase::RefHolder<reco::TrackRef>"/>
      <class name="edm::reftobase::Holder<reco::Track, reco::TrackRef>"/>
 
+     <class name="std::vector<edm::RefToBase<reco::Track> >" />
+
   </lcgdict>
