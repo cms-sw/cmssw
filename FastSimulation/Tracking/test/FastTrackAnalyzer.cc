@@ -338,10 +338,14 @@ void FastTrackAnalyzer::analyze(const edm::Event& event, const edm::EventSetup& 
 
 
     // Get PSimHit's of the Event
-    edm::Handle<CrossingFrame> cf;
-    event.getByType(cf);
-    MixCollection<PSimHit> allTrackerHits(cf.product(),trackerContainers);
-
+    edm::Handle<CrossingFrame<PSimHit> > cf_simhit; 
+    std::vector<const CrossingFrame<PSimHit> *> cf_simhitvec;
+    for(uint32_t i=0; i<trackerContainers.size(); i++){
+      event.getByLabel("mix",trackerContainers[i], cf_simhit);
+      cf_simhitvec.push_back(cf_simhit.product());
+    }
+    std::auto_ptr<MixCollection<PSimHit> > allTrackerHits(new MixCollection<PSimHit>(cf_simhitvec));
+    
     //Get RecHits from the event
     edm::Handle<SiTrackerGSRecHit2DCollection> theGSRecHits;
     event.getByType(theGSRecHits);
@@ -404,7 +408,7 @@ void FastTrackAnalyzer::analyze(const edm::Event& event, const edm::EventSetup& 
       PSimHit* simHit = NULL;
       PSimHit* simHitStereoPatch = NULL;
       int numpartners=0;
-      for (MixCollection<PSimHit>::iterator isim=allTrackerHits.begin(); isim!= allTrackerHits.end(); isim++) {
+      for (MixCollection<PSimHit>::iterator isim=(*allTrackerHits).begin(); isim!= (*allTrackerHits).end(); isim++) {
 	//	std::cout<<" looping over simhits " << std::endl;
 	//compare detUnitIds && SimTrackIds to match rechit to simhit (for pileup will need to add EncodedEventId info as well).
 	int simdetid = (*isim).detUnitId();
@@ -549,7 +553,7 @@ void FastTrackAnalyzer::analyze(const edm::Event& event, const edm::EventSetup& 
 	      PSimHit* simHitStereoPatch = NULL;
 	      int numpartners=0;
 
-	      for (MixCollection<PSimHit>::iterator isim=allTrackerHits.begin(); isim!= allTrackerHits.end(); isim++) {
+	      for (MixCollection<PSimHit>::iterator isim=(*allTrackerHits).begin(); isim!= (*allTrackerHits).end(); isim++) {
 		if(detid.rawId() == (*isim).detUnitId() && rechit->simtrackId()==(*isim).trackId()){
 		  simHit = const_cast<PSimHit*>(&(*isim));
 		  matchedSimHits++;
