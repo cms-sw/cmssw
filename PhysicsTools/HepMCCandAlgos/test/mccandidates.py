@@ -14,10 +14,12 @@ process.include( "PhysicsTools/HepMCCandAlgos/data/genEventWeight.cfi")
 # include "PhysicsTools/HepMCCandAlgos/test/h4l.cff"
 # include "PhysicsTools/HepMCCandAlgos/test/herwig.cff"
 
+process.add_( Service("Timing") )
+
 process.add_( Service("RandomNumberGeneratorService",
               sourceSeed= untracked.uint32( 123456789 ) ) )
 
-process.maxEvents = untracked.PSet( input = untracked.int32(50) )
+process.maxEvents = untracked.PSet( input = untracked.int32(1000) )
 
 from PhysicsTools.HepMCCandAlgos.data.h4l_cff import pythiaSource
 
@@ -28,6 +30,7 @@ process.out = OutputModule( "PoolOutputModule",
   outputCommands= untracked.vstring(
     "drop *",
     "keep *_genParticleCandidates_*_*",
+    "keep *_genParticles_*_*",
     "keep *_genEventWeight_*_*"
   )
 )

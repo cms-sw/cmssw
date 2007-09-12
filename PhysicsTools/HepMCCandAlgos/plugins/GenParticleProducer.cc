@@ -5,7 +5,7 @@
  * Convert HepMC GenEvent format into a collection of type
  * CandidateCollection containing objects of type GenParticle
  *
- * \version $Id: GenParticleProducer.cc,v 1.22 2007/06/19 17:52:55 llista Exp $
+ * \version $Id: GenParticleProducer.cc,v 1.1 2007/09/11 16:17:42 llista Exp $
  *
  */
 #include "FWCore/Framework/interface/EDProducer.h"
@@ -35,19 +35,6 @@ class GenParticleProducer : public edm::EDProducer {
   edm::InputTag src_;
   /// unknown code treatment flag
   bool abortOnUnknownPDGCode_;
-  /// internal functional decomposition
-  void fillIndices( const HepMC::GenEvent *, 
-		    std::vector<const HepMC::GenParticle *>  &,
-		    std::map<int, size_t> &) const;
-  /// internal functional decomposition
-  void fillOutput( const std::vector<const HepMC::GenParticle *> &,
-		   reco::GenParticleCollection &, 
-		   std::vector<reco::GenParticle *> & ) const;
-  /// internal functional decomposition
-  void fillRefs( const std::vector<const HepMC::GenParticle *> &,
-		 const std::map<int, size_t> &,
-		 const reco::GenParticleRefProd,
-		 const std::vector<reco::GenParticle *> & ) const;
   /// charge indices
   std::vector<int> chargeP_, chargeM_;
   std::map<int, int> chargeMap_;
@@ -131,45 +118,27 @@ void GenParticleProducer::produce( Event& evt, const EventSetup& es ) {
   
   vector<const HepMC::GenParticle *> particles( size );
   map<int, size_t> barcodes;
-  auto_ptr<GenParticleCollection> cands( new GenParticleCollection );
+  auto_ptr<GenParticleCollection> candsPtr( new GenParticleCollection( size ) );
   const GenParticleRefProd ref = evt.getRefBeforePut<GenParticleCollection>();
+  GenParticleCollection & cands = * candsPtr;
 
-  vector<reco::GenParticle *> candVector( size );
   /// fill indices
-  fillIndices( mc, particles, barcodes );
-  // fill output collection and save association
-  fillOutput( particles, * cands, candVector );
-  // fill references to daughters
-  fillRefs( particles, barcodes, ref, candVector );
-
-  evt.put( cands );
-}
-
-void GenParticleProducer::fillIndices( const GenEvent * mc,
-				       vector<const HepMC::GenParticle *> & particles,
-				       map<int, size_t> & barcodes ) const {
   GenEvent::particle_const_iterator begin = mc->particles_begin(), end = mc->particles_end();
   size_t idx = 0;
   for( GenEvent::particle_const_iterator p = begin; p != end; ++ p ) {
     const HepMC::GenParticle * particle = * p;
     size_t i = particle->barcode();
-    if( barcodes.find(i) != barcodes.end() ) {
+    if( barcodes.find(i) != barcodes.end() )
       throw cms::Exception( "WrongReference" )
 	<< "barcodes are duplicated! " << endl;
-    }
     particles[ idx ] = particle;
-    barcodes.insert( make_pair( i, idx ++) );
+    barcodes.insert( make_pair(i, idx ++) );
   }
-}
 
-void GenParticleProducer::fillOutput( const vector<const HepMC::GenParticle *> & particles,
-				      GenParticleCollection & cands, 
-				      vector<reco::GenParticle *> & candVector ) const {
-  const size_t size = particles.size();
-  cands.reserve( size );
-  for( size_t i = 0; i < size; ++ i ) {
+  // fill output collection and save association
+  for( size_t i = 0; i < particles.size(); ++ i ) {
     const HepMC::GenParticle * part = particles[ i ];
-    Candidate::LorentzVector momentum( part->momentum() );
+    Candidate::LorentzVector p4( part->momentum() );
     Candidate::Point vertex( 0, 0, 0 );
     const GenVertex * v = part->production_vertex();
     if ( v != 0 ) {
@@ -177,19 +146,16 @@ void GenParticleProducer::fillOutput( const vector<const HepMC::GenParticle *> &
       vertex.SetXYZ( vtx.x() * mmToCm, vtx.y() * mmToCm, vtx.z() * mmToCm );
     }
     int pdgId = part->pdg_id();
-    // this allocation can be optimized...
-    reco::GenParticle c( chargeTimesThree( pdgId ), momentum, vertex, 
-		   pdgId, part->status(), false );
-    cands.push_back( c );
-    candVector[ i ] = & cands.back();
+    reco::GenParticle & cand = cands[ i ];
+    cand.setP4( p4 );
+    cand.setVertex( vertex );
+    cand.setPdgId( pdgId );
+    cand.setStatus( part->status() );
+    cand.setThreeCharge( chargeTimesThree( pdgId ) );
   }
-}
 
-void GenParticleProducer::fillRefs( const std::vector<const HepMC::GenParticle *> & particles,
-				    const std::map<int, size_t> & barcodes,
-				    const GenParticleRefProd ref,
-				    const vector<reco::GenParticle *> & candVector ) const {
-  for( size_t d = 0; d < candVector.size(); ++ d ) {
+  // fill references to daughters
+  for( size_t d = 0; d < cands.size(); ++ d ) {
     const HepMC::GenParticle * part = particles[ d ];
     const GenVertex * productionVertex = part->production_vertex();
     if ( productionVertex != 0 ) {
@@ -199,11 +165,13 @@ void GenParticleProducer::fillRefs( const std::vector<const HepMC::GenParticle *
         for( ; motherIt != productionVertex->particles_in_const_end(); motherIt++) {
           const HepMC::GenParticle * mother = * motherIt;
 	  size_t m = barcodes.find( mother->barcode() )->second;
-          candVector[ m ]->addDaughter( GenParticleRef( ref, d ) );  
+          cands[ m ].addDaughter( GenParticleRef( ref, d ) );  
         }
       }
     }
   }
+
+  evt.put( candsPtr );
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"
