@@ -24,6 +24,8 @@
 #include "GeneratorInterface/ExhumeInterface/interface/GG.h"
 #include "GeneratorInterface/ExhumeInterface/interface/Higgs.h"
 
+class Run;
+
 namespace edm
 {
   class ExhumeSource : public GeneratedInputSource {
@@ -34,12 +36,12 @@ namespace edm
     /// Destructor
     virtual ~ExhumeSource();
 
-
+    void endRun( Run& r);	
   private:
 
     /// Interface to the PYGIVE pythia routine, with add'l protections
-    bool call_pygive(const std::string& iParm );
-    bool call_txgive(const std::string& iParm );
+    //bool call_pygive(const std::string& iParm );
+    //bool call_txgive(const std::string& iParm );
     //bool call_txgive_init();
   
   private:
@@ -57,9 +59,13 @@ namespace edm
     unsigned int maxEventsToPrint_;    
     
     double comenergy;
-    
-    CLHEP::HepRandomEngine* fRandomEngine;
-    CLHEP::RandFlat*        fRandomGenerator;
+	
+    // external cross section and filter efficiency
+    double extCrossSect;
+    double extFilterEff;
+	
+    //CLHEP::HepRandomEngine* fRandomEngine;
+    //CLHEP::RandFlat*        fRandomGenerator;
 
     Exhume::Event* ExhumeEvent;	
     //Exhume::Higgs* higgs;

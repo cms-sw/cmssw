@@ -1,10 +1,15 @@
 #include "GeneratorInterface/ExhumeInterface/interface/ExhumeSource.h"
 #include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
+#include "SimDataFormats/HepMCProduct/interface/GenInfoProduct.h"
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/Run.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
-#include "CLHEP/Random/JamesRandom.h"
-#include "CLHEP/Random/RandFlat.h"
+#include "Utilities/General/interface/FileInPath.h"
+
+//#include "CLHEP/Random/JamesRandom.h"
+//#include "CLHEP/Random/RandFlat.h"
 
 #include <iostream>
 #include "time.h"
@@ -41,7 +46,7 @@ extern struct {
 #define pypars pypars_
 
 //HepMC::ConvertHEPEVT conv;
-HepMC::IO_HEPEVT conv;
+//HepMC::IO_HEPEVT conv;
 
 // ***********************
 
@@ -57,6 +62,8 @@ ExhumeSource::ExhumeSource( const ParameterSet & pset,
   pythiaHepMCVerbosity_ (pset.getUntrackedParameter<bool>("pythiaHepMCVerbosity",false)),
   maxEventsToPrint_ (pset.getUntrackedParameter<int>("maxEventsToPrint",1)),
   comenergy(pset.getUntrackedParameter<double>("comEnergy",14000.)),
+  extCrossSect(pset.getUntrackedParameter<double>("crossSection", -1.)),
+  extFilterEff(pset.getUntrackedParameter<double>("filterEfficiency", -1.)),
   ProcessType(pset.getParameter<string>("ProcessType")),
   HiggsDecay(pset.getParameter<int>("HiggsDecay")),
   QuarkType(pset.getParameter<int>("QuarkType")),
@@ -64,21 +71,22 @@ ExhumeSource::ExhumeSource( const ParameterSet & pset,
   MassRangeLow(pset.getParameter<double>("MassRangeLow")),
   MassRangeHigh(pset.getParameter<double>("MassRangeHigh"))		
 {
-  
-  cout << "ExhumeSource: initializing Exhume/Pythia. " << endl;
+  std::ostringstream header_str;
+
+  header_str << "ExhumeSource: initializing Exhume/Pythia.\n";
   
   // PYLIST Verbosity Level
   // Valid PYLIST arguments are: 1, 2, 3, 5, 7, 11, 12, 13
   pythiaPylistVerbosity_ = pset.getUntrackedParameter<int>("pythiaPylistVerbosity",0);
-  cout << "Pythia PYLIST verbosity level = " << pythiaPylistVerbosity_ << endl;
+  header_str << "Pythia PYLIST verbosity level = " << pythiaPylistVerbosity_ << "\n";
   
   // HepMC event verbosity Level
   pythiaHepMCVerbosity_ = pset.getUntrackedParameter<bool>("pythiaHepMCVerbosity",false);
-  cout << "Pythia HepMC verbosity = " << pythiaHepMCVerbosity_ << endl; 
+  header_str << "Pythia HepMC verbosity = " << pythiaHepMCVerbosity_ << "\n"; 
 
   //Max number of events printed on verbosity level 
   maxEventsToPrint_ = pset.getUntrackedParameter<int>("maxEventsToPrint",0);
-  cout << "Number of events to be printed = " << maxEventsToPrint_ << endl;
+  header_str << "Number of events to be printed = " << maxEventsToPrint_ << "\n";
 
   //Exhume Initialization
   if(ProcessType == "Higgs"){
@@ -109,44 +117,64 @@ ExhumeSource::ExhumeSource( const ParameterSet & pset,
   //my_pythia_init();
   //pydata();
 
-  cout << endl; // Stetically add for the output
+  header_str << "\n"; // Stetically add for the output
   //********                                      
   
   produces<HepMCProduct>();
-  cout << "ExhumeSource: starting event generation ... " << endl;
+  produces<GenInfoProduct, edm::InRun>();
+
+  header_str << "ExhumeSource: starting event generation ...\n";
+
+  edm::LogInfo("")<<header_str.str();
 }
 
 
 ExhumeSource::~ExhumeSource(){
-  cout << "ExhumeSource: event generation done. " << endl;
-  clear(); 
+  std::ostringstream footer_str;
+  footer_str << "ExhumeSource: event generation done.\n";
+
+  edm::LogInfo("") << footer_str.str();
+
+  clear();
 }
 
 void ExhumeSource::clear() {
-  double XS = ExhumeEvent->CrossSectionCalculation();
-  double Eff = ExhumeEvent->GetEfficiency();
-  string Name = ExhumeProcess->GetName();
-
-  cout<<endl<<"   You have just been ExHuMEd."<<endl<<endl;;
-  cout<<"   The cross section for process "<<Name
-            <<" is "<<XS<<" fb"<<endl<<endl;
-  cout<<"   The efficiency of event generation was "<<Eff<<"%"<<endl<<endl;
-
   delete ExhumeEvent;
   delete ExhumeProcess;
 }
 
+void ExhumeSource::endRun(Run & r) {
+ std::ostringstream footer_str;
+
+ double cs = ExhumeEvent->CrossSectionCalculation();
+ double eff = ExhumeEvent->GetEfficiency();
+ string name = ExhumeProcess->GetName();
+
+ footer_str << "\n" <<"   You have just been ExHuMEd." << "\n" << "\n";
+ footer_str << "   The cross section for process " << name
+            << " is " << cs << " fb" << "\n" << "\n";
+ footer_str << "   The efficiency of event generation was " << eff << "%" << "\n" << "\n";
+
+ edm::LogInfo("") << footer_str.str();
+
+ auto_ptr<GenInfoProduct> giprod (new GenInfoProduct());
+ giprod->set_cross_section(cs);
+ giprod->set_external_cross_section(extCrossSect);
+ giprod->set_filter_efficiency(extFilterEff);
+ r.put(giprod);
+}
 
 bool ExhumeSource::produce(Event & e) {
 
     auto_ptr<HepMCProduct> bare_product(new HepMCProduct());  
-    cout << "ExhumeSource: Generating event ...  " << endl;
+    edm::LogInfo("") << "ExhumeSource: Generating event ...\n";
 
     //********                                         
     //
     ExhumeEvent->Generate();
     ExhumeProcess->Hadronise();
 
+    HepMC::IO_HEPEVT conv;	
     //HepMC::GenEvent* evt = conv.getGenEventfromHEPEVT();
     HepMC::GenEvent* evt = conv.read_next_event();
     //evt->set_signal_process_id(pypars.msti[0]);
@@ -167,8 +195,8 @@ bool ExhumeSource::produce(Event & e) {
       
       // Prints HepMC event
       if(pythiaHepMCVerbosity_) {
-	cout << "Event process = " << ExhumeProcess->GetName() << endl 
-	<< "----------------------" << endl;
+	edm::LogInfo("") << "Event process = " << ExhumeProcess->GetName() << "\n" 
+	<< "----------------------" << "\n";
 	evt->print();
       }
     }
