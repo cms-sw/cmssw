@@ -1,6 +1,6 @@
 #ifndef Common_OwnVector_h
 #define Common_OwnVector_h
-// $Id: OwnVector.h,v 1.31 2007/07/31 09:13:10 llista Exp $
+// $Id: OwnVector.h,v 1.32 2007/08/01 08:45:08 llista Exp $
 
 #include <algorithm>
 #include <functional>
@@ -22,35 +22,9 @@
 #include "DataFormats/Common/interface/debugging_allocator.h"
 #endif
 
+#include "DataFormats/Common/interface/PostReadFixupTrait.h"
+
 namespace edm {
-  namespace helpers {
-    struct DoNoPostReadFixup {
-      void touch() { }
-      template<typename C>
-      void operator()(const C &) const { }
-    };
-    
-    struct PostReadFixup {
-      PostReadFixup() : fixed_(false) { }
-      void touch() { fixed_ = false; }
-      template<typename C>
-      void operator()(const C & c) const { 
-	if (!fixed_) {
-	  fixed_ = true;
-	  for (typename C::const_iterator i = c.begin(), e = c.end(); i != e; ++i)
-	    (*i)->fixup();
-	}
-      }
-    private:
-      mutable bool fixed_;
-    };
-
-    template<typename T>
-    struct PostReadFixupTrait {
-     typedef DoNoPostReadFixup type;
-    };
-  }
-
   template <typename T, typename P = ClonePolicy<T> >
   class OwnVector  {
   private:
@@ -224,12 +198,14 @@ namespace edm {
   template<typename T, typename P>
   inline typename OwnVector<T, P>::iterator OwnVector<T, P>::begin() {
     fixup();
+    touch();
     return iterator(data_.begin());
   }
   
   template<typename T, typename P>
   inline typename OwnVector<T, P>::iterator OwnVector<T, P>::end() {
     fixup();
+    touch();
     return iterator(data_.end());
   }
   
@@ -329,6 +305,7 @@ namespace edm {
 	<< "if you wish to avoid this exception.\n"
 	<< "Consider using OwnVector::is_back_safe()\n";
     fixup();
+    touch();
     return *data_.back();
   }
   
@@ -349,6 +326,7 @@ namespace edm {
   template<typename T, typename P>
   inline typename OwnVector<T, P>::reference OwnVector<T, P>::front() {
     fixup();
+    touch();
     return *data_.front();
   }
   
@@ -379,6 +357,7 @@ namespace edm {
 
   template<typename T, typename P>
   typename OwnVector<T, P>::iterator OwnVector<T, P>::erase(iterator pos) {
+    fixup();
     touch();
     delete * pos.i;
     return iterator(data_.erase(pos.i));
@@ -386,6 +365,7 @@ namespace edm {
 
   template<typename T, typename P>
   typename OwnVector<T, P>::iterator OwnVector<T, P>::erase(iterator first, iterator last) {
+    fixup();
     touch();
     typename base::iterator b = first.i, e = last.i;
     for( typename base::iterator i = b; i != e; ++ i )
