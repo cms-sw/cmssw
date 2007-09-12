@@ -13,12 +13,18 @@ CSCTFPacker::CSCTFPacker(const edm::ParameterSet &conf):edm::EDProducer(){
 	std::string mapPath = "/"+conf.getUntrackedParameter<std::string>("MappingFile","");
 	TFMapping = new CSCTriggerMappingFromFile(getenv("CMSSW_BASE") + mapPath);
 
-	zeroSuppression = conf.getUntrackedParameter<bool>("zeroSuppression");
-	nTBINs          = conf.getUntrackedParameter<int> ("nTBINs");
-	activeSectors   = conf.getUntrackedParameter<int> ("activeSectors");
+	// Following are required SP configuration parameters, initialized with default HW values:
+	zeroSuppression = conf.getUntrackedParameter<bool>("zeroSuppression",true);
+	nTBINs          = conf.getUntrackedParameter<int> ("nTBINs",7);
+	activeSectors   = conf.getUntrackedParameter<int> ("activeSectors",0x0FFF);
 
+	// Unpacking changes timing to be compatible with simulation code, here it is changed back
+	LCTtimeOffset = conf.getUntrackedParameter<int>("LCTtimeOffset",-3);
+	TRKtimeOffset = conf.getUntrackedParameter<int>("TRKtimeOffset",3);
+
+	// Configuration that controls CMSSW specific stuff
 	putBufferToEvent       = conf.getUntrackedParameter<bool>("putBufferToEvent");
-	std::string outputFile = conf.getUntrackedParameter<std::string>("outputFile");
+	std::string outputFile = conf.getUntrackedParameter<std::string>("outputFile","");
 	lctProducer            = conf.getUntrackedParameter<edm::InputTag>("lctProducer",edm::InputTag("csctfunpacker","MuonCSCTFCorrelatedLCTDigi"));
 	trackProducer          = conf.getUntrackedParameter<edm::InputTag>("trackProducer",edm::InputTag("csctfunpacker","MuonL1CSCTrackCollection"));
 
