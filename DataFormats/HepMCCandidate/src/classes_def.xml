@@ -6,7 +6,8 @@
   <class name="reco::CompositeRefCandidateT<reco::GenParticleRefVector>" />
   <class name="reco::GenParticle" />
   <class name="std::vector<reco::GenParticle>" />
-  <class name="edm::Wrapper<std::vector<reco::GenParticle> >" />
+  <class name="reco::GenParticleCollection" />
+  <class name="edm::Wrapper<reco::GenParticleCollection>" />
   <class name="reco::GenParticleRef" />
   <class name="reco::GenParticleRefVector" />
 </lcgdict>

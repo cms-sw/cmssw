@@ -6,7 +6,7 @@ namespace {
   namespace {
     edm::Wrapper<std::vector<reco::GenParticleCandidate> > w1;
     reco::CompositeRefCandidateT<reco::GenParticleRefVector> v1;
-    edm::Wrapper<std::vector<reco::GenParticle> > w2;
+    edm::Wrapper<reco::GenParticleCollection> w2;
     reco::GenParticleRef r1;
     reco::GenParticleRefVector rv1;
   }
