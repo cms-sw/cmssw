@@ -13,7 +13,7 @@
 //
 // Original Author:  Ursula Berthon
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: PixelMatchGsfElectronAnalyzer.cc,v 1.6 2007/08/28 01:49:46 ratnik Exp $
+// $Id: PixelMatchGsfElectronAnalyzer.cc,v 1.7 2007/09/12 08:33:27 charlot Exp $
 //
 //
 
@@ -377,6 +377,7 @@ PixelMatchGsfElectronAnalyzer::analyze(const edm::Event& iEvent, const edm::Even
             mother = *((*mcIter)->production_vertex()->particles_begin(HepMC::parents));
       } 
       if ( ((mother == 0) || ((mother != 0) && (mother->pdg_id() == 23))
+	                  || ((mother != 0) && (mother->pdg_id() == 32))
 	                  || ((mother != 0) && (fabs(mother->pdg_id()) == 24)))) {       
    
       genPc=(*mcIter);
