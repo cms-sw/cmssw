@@ -16,6 +16,8 @@
   <class name="reco::ShallowCloneCandidate" />
   <class name="reco::candidate::iterator" />
   <class name="reco::candidate::const_iterator" />
+  <class name="reco::candidate::const_iterator_imp" />
+  <class name="reco::candidate::iterator_imp" />
 
   <class name="edm::Ref<edm::OwnVector<reco::Candidate,edm::ClonePolicy<reco::Candidate> >,reco::Candidate,edm::refhelper::FindUsingAdvance<edm::OwnVector<reco::Candidate,edm::ClonePolicy<reco::Candidate> >,reco::Candidate> >"/>
   <class name="edm::RefVector<edm::OwnVector<reco::Candidate,edm::ClonePolicy<reco::Candidate> >,reco::Candidate,edm::refhelper::FindUsingAdvance<edm::OwnVector<reco::Candidate,edm::ClonePolicy<reco::Candidate> >,reco::Candidate> >"/>
