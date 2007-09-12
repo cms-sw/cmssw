@@ -42,7 +42,7 @@ AdaptiveVertexReconstructor::AdaptiveVertexReconstructor( const edm::ParameterSe
     thePrimCut =  m.getParameter<double>("primcut");
     theSecCut  =  m.getParameter<double>("seccut");
     theMinWeight = m.getParameter<double>("minweight");
-    theWeightThreshold = m.getParameter<double>("weightthreshold");
+    // theWeightThreshold = m.getParameter<double>("weightthreshold");
   } catch ( edm::Exception & e ) {
     edm::LogError ("") << e.what();
   }
