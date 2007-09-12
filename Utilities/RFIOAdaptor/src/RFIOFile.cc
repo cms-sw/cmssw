@@ -1,5 +1,5 @@
 
-// $Id: RFIOFile.cc,v 1.17 2007/08/21 19:31:28 wdd Exp $
+// $Id: RFIOFile.cc,v 1.18 2007/09/04 15:36:39 wdd Exp $
 
 #include "Utilities/RFIOAdaptor/interface/RFIOFile.h"
 #include "Utilities/RFIOAdaptor/interface/RFIO.h"
@@ -9,6 +9,7 @@
 
 #include "SealBase/TimeInfo.h"
 #include <iostream>
+#include <unistd.h>
 
 RFIOFile::RFIOFile (void)
     : m_fd (IOFD_INVALID),
@@ -168,23 +169,21 @@ RFIOFile::close (void)
       m_close = false;
       return;
     }
-    serrno = 0;
 
+    serrno = 0;
     if (rfio_close64 (m_fd) == -1) {
       edm::LogWarning("RFIOFileWarning")
-        << "RFIO::close() - error in rfio_close() " << rfio_errno
-        << " " << serrno << std::endl;
+        << "RFIO::close(): error occurred in rfio_close64(), "
+        << "rfio_errno = " << rfio_errno
+        << "  serrno = " << serrno << std::endl;
       sleep(5);
     }
 
     m_close = false;
     m_fd = IOFD_INVALID;
 
-    std::string lname (m_name);
-    if (lname.find ("//")==0) lname.erase(0,1);
-
     edm::LogInfo("RFIOFileInfo")
-      << "Closed file " << lname;
+      << "Closed file " << m_name;
 }
 
 void
@@ -215,29 +214,44 @@ void RFIOFile::reOpen() {
 
 ssize_t
 RFIOFile::retry_read (void *into, IOSize n, int max_retry /* =10 */) {
-  if (max_retry == 0) return -1;
+
+  // Retries are accomplished by this function recursively
+  // calling itself.  Note that the first call in this series
+  // of recursive function calls is not actually a retry, it
+  // is the initial try.
+
   serrno=0;
   ssize_t s = rfio_read64 (m_fd, into, n);
   if ( (s == -1 && serrno == 1004) || (s>int(n)) ) {
-    edm::LogWarning("RFIOFileRetry")
-      << "RFIOFile retrying read\n"
-      << "  return value from rfio_read64 = " << s << "  (normally this is bytes read, -1 for error)\n"
-      << "  bytes requested = " << n << "  (this and bytes read are equal unless error or EOF)\n"
-      << "  serrno = " << serrno << "  (an error code rfio sets, 0 = OK, 1004 = timeout, ...)\n"
-      << "  current position = " << m_currentPosition << "  (in bytes, beginning of file is 0)\n"
-      << "  retries left before quitting = " << max_retry << "\n"
-      << "  will close and reopen file " << m_name;
 
-    sleep(5);
-    max_retry--;
+    if (max_retry > 0) {
 
-    // Improve the chances of success by closing and reopening
-    // the file before retrying the read.  This also resets
-    // the position in the file to the correct place.
-    reOpen();
+      edm::LogWarning("RFIOFileRetry")
+        << "RFIOFile retrying read\n"
+        << "  return value from rfio_read64 = " << s << "  (normally this is bytes read, -1 for error)\n"
+        << "  bytes requested = " << n << "  (this and bytes read are equal unless error or EOF)\n"
+        << "  serrno = " << serrno << "  (an error code rfio sets, 0 = OK, 1004 = timeout, ...)\n"
+        << "  current position = " << m_currentPosition << "  (in bytes, beginning of file is 0)\n"
+        << "  retries left before quitting = " << max_retry << "\n"
+        << "  will close and reopen file " << m_name;
 
-    return retry_read (into, n, max_retry);
-  } 
+      // Wait a little while to give the problem causing the
+      // timeout a little time to clear.  Wait 1 minute,
+      // except on the last 2 retries increase the time to
+      // 5 and 10 minutes.
+      if (max_retry >= 3) sleep(60);
+      else if (max_retry == 2) sleep(300);
+      else if (max_retry == 1) sleep(600);
+
+      // Improve the chances of success by closing and reopening
+      // the file before retrying the read.  This also resets
+      // the position in the file to the correct place.
+      reOpen();
+
+      max_retry--;
+      return retry_read (into, n, max_retry);
+    }
+  }
   return s;
 }
 
@@ -253,12 +267,12 @@ RFIOFile::read (void *into, IOSize n)
   double start = seal::TimeInfo::realNsecs();
 
   serrno = 0;
-  ssize_t s = retry_read (into, n);
+  int maximumNumberOfRetries = 3;
+  ssize_t s = retry_read (into, n, maximumNumberOfRetries);
 
   if (s == -1) {
-    std::string lname (m_name);
     throw cms::Exception("RFIOFile")
-      << "  rfio_read() failed: filename = " << lname
+      << "  rfio_read() failed: filename = " << m_name
       << "\n  requested " << n << " bytes"
       << "\n  read " << s << " bytes (negative indicates error)"
       << "\n  current position in file = " << m_currentPosition
@@ -281,12 +295,11 @@ RFIOFile::read (void *into, IOSize n)
 IOSize
 RFIOFile::write (const void *from, IOSize n)
 {
-  serrno = 0;
+    serrno = 0;
     ssize_t s = rfio_write64 (m_fd, from, n);
     if (s == -1) {
-      std::string lname (m_name);
       throw cms::Exception("RFIOFile")
-        << "  rfio_write() failed: filename = " << lname
+        << "  rfio_write() failed: filename = " << m_name
         << "\n  requested " << n << " bytes"
         << "\n  wrote " << s << " bytes (negative indicates error)"
         << "\n  rfio error code = " << rfio_errno << " / " << serrno;
