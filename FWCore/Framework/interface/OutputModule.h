@@ -6,7 +6,7 @@
 OutputModule: The base class of all "modules" that write Events to an
 output stream.
 
-$Id: OutputModule.h,v 1.50 2007/09/11 17:08:50 paterno Exp $
+$Id: OutputModule.h,v 1.51 2007/09/11 21:57:18 paterno Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -129,6 +129,10 @@ namespace edm {
     SelectionsArray droppedPriorVec_;
 
     boost::array<bool, EndBranchType> hasNewlyDroppedBranch_;
+
+    // Do the end-of-file tasks; this is only called internally, after
+    // the appropriate tests have been done.
+    void reallyEndFile();
 
     virtual void write(EventPrincipal const& e) = 0;
     //bool wantEvent(Event const& e);

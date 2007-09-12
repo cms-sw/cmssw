@@ -1,6 +1,6 @@
 /*----------------------------------------------------------------------
 
-$Id: OutputModule.cc,v 1.38 2007/09/11 17:08:54 paterno Exp $
+$Id: OutputModule.cc,v 1.39 2007/09/11 21:57:19 paterno Exp $
 ----------------------------------------------------------------------*/
 
 #include "FWCore/Framework/interface/OutputModule.h"
@@ -346,7 +346,7 @@ namespace edm {
 
   void OutputModule::maybeEndFile()
   {
-    if (isFileOpen() && isFileFull()) doEndFile();
+    if (isFileOpen() && isFileFull()) reallyEndFile();
   }
 
   void OutputModule::maybeOpenFile()
@@ -355,6 +355,11 @@ namespace edm {
   }
   
   void OutputModule::doEndFile()
+  {
+    if (isFileOpen()) reallyEndFile();
+  }
+
+  void OutputModule::reallyEndFile()
   {
     startEndFile();
     writeFileFormatVersion();
