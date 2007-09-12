@@ -23,7 +23,7 @@ namespace reco{
     BaseTauTagInfo();
     virtual ~BaseTauTagInfo(){};
     
-    //get the rec. Tracks which are components of JetTracksAssociator object and which were filtered by RecoTauTag/TauTagTools/ TauTagTools::filteredTracks(.,...) function through RecoTauTag/RecoTauTag/ CaloRecoTauTagInfoProducer or PFRecoTauTagInfoProducer EDProducer
+    // Tracks which are components of JetTracksAssociation object and which were filtered by RecoTauTag/TauTagTools/ TauTagTools::filteredTracks(.,...) function through RecoTauTag/RecoTauTag/ CaloRecoTauTagInfoProducer or PFRecoTauTagInfoProducer EDProducer
     const TrackRefVector& Tracks()const;
     void setTracks(const TrackRefVector);
     
