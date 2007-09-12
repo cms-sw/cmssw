@@ -1,15 +1,23 @@
-//----------------------------------------------------------------------------
-//! \class PixelGainCalibration
-//! \brief A C++ container for the pixel gain calibration. Modified version
-//!        of the strip container.
-//!
-//! \author Vincenzo Chiochia
-//!
-//----------------------------------------------------------------------------
+#ifndef CondFormats_SiPixelObjects_SiPixelGainCalibration_h
+#define CondFormats_SiPixelObjects_SiPixelGainCalibration_h
+// -*- C++ -*-
+//
+// Package:    SiPixelObjects
+// Class:      SiPixelGainCalibration
+// 
+/**\class SiPixelGainCalibration SiPixelGainCalibration.h CondFormats/SiPixelObjects/src/SiPixelGainCalibration.cc
 
-#ifndef SiPixelGainCalibration_h
-#define SiPixelGainCalibration_h
+ Description: Gain calibration object for the Silicon Pixel detector. 
 
+ Implementation:
+     <Notes on implementation>
+*/
+//
+// Original Author:  Vincenzo Chiochia
+//         Created:  Tue 8 12:31:25 CEST 2007
+// $Id: SiPixelGainCalibration.h,v 1.3 2007/08/21 10:37:30 chiochia Exp $
+//
+//
 #include<vector>
 #include<map>
 #include<iostream>
@@ -52,11 +60,10 @@ class SiPixelGainCalibration {
   void  getDetIds(std::vector<uint32_t>& DetIds_) const;
   const int getNCols(const uint32_t& detID) const;
 
+  // Set and get public methods
   void  setData(float ped, float gain, std::vector<char>& vped);
   float getPed   (const int& col, const int& row, const Range& range, const int& nCols) const;
   float getGain  (const int& col, const int& row, const Range& range, const int& nCols) const;
-  void  setPedRange(float minPed, float maxPed);
-  void  setGainRange(float minGain, float maxGain);
 
   private:
 
@@ -67,7 +74,7 @@ class SiPixelGainCalibration {
 
   std::vector<char> v_pedestals; //@@@ blob streaming doesn't work with uint16_t and with classes
   std::vector<DetRegistry> indexes;
-  float  minGain_, maxGain_, minPed_, maxPed_;
+  float  minPed_, maxPed_, minGain_, maxGain_;
 
 };
     

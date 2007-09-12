@@ -105,17 +105,27 @@ float SiPixelGainCalibration::getGain(const int& col, const int& row, const Rang
 
 float SiPixelGainCalibration::encodeGain( const float& gain ) {
   
-  double precision   = (maxGain_-minGain_)/255.;
-  float  encodedGain = (float)((gain-minGain_)/precision);
-  return encodedGain;
+  if(gain < minGain_ || gain > maxGain_ ) {
+    throw cms::Exception("InsertFailure")
+      << "[SiPixelGainCalibration::encodeGain] Trying to encode gain out of range\n";
+  } else {
+    double precision   = (maxGain_-minGain_)/255.;
+    float  encodedGain = (float)((gain-minGain_)/precision);
+    return encodedGain;
+  }
 
 }
 
 float SiPixelGainCalibration::encodePed( const float& ped ) {
-  
-  double precision   = (maxPed_-minPed_)/255.;
-  float  encodedPed = (float)((ped-minPed_)/precision);
-  return encodedPed;
+
+  if(ped < minPed_ || ped > maxPed_ ) {
+    throw cms::Exception("InsertFailure")
+      << "[SiPixelGainCalibration::encodePed] Trying to encode pedestal out of range\n";
+  } else {
+    double precision   = (maxPed_-minPed_)/255.;
+    float  encodedPed = (float)((ped-minPed_)/precision);
+    return encodedPed;
+  }
 
 }
 
