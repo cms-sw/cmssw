@@ -9,7 +9,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: PixelMatchGsfElectronAnalyzer.h,v 1.2 2007/07/05 11:40:05 charlot Exp $
+// $Id: PixelMatchGsfElectronAnalyzer.h,v 1.3 2007/08/16 16:03:11 futyand Exp $
 //
 //
   
@@ -221,6 +221,11 @@ class PixelMatchGsfElectronAnalyzer : public edm::EDAnalyzer
   edm::InputTag barrelClusterShapeAssocProducer_;
   edm::InputTag endcapClusterShapeAssocProducer_;
   std::string MCTruthProducer_;
+  
+  double maxPt_;
+  double maxAbsEta_;
+  double deltaR_; 
+  
  };
   
 #endif

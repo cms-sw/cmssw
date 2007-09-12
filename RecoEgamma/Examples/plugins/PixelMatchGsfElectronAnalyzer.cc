@@ -13,7 +13,7 @@
 //
 // Original Author:  Ursula Berthon
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: PixelMatchGsfElectronAnalyzer.cc,v 1.5 2007/08/16 16:03:11 futyand Exp $
+// $Id: PixelMatchGsfElectronAnalyzer.cc,v 1.6 2007/08/28 01:49:46 ratnik Exp $
 //
 //
 
@@ -55,6 +55,10 @@ PixelMatchGsfElectronAnalyzer::PixelMatchGsfElectronAnalyzer(const edm::Paramete
   barrelClusterShapeAssocProducer_ = conf.getParameter<edm::InputTag>("barrelClusterShapeAssociation");
   endcapClusterShapeAssocProducer_ = conf.getParameter<edm::InputTag>("endcapClusterShapeAssociation");
   MCTruthProducer_ = conf.getParameter<std::string>("MCTruthProducer");
+  maxPt_ = conf.getParameter<double>("MaxPt");
+  maxAbsEta_ = conf.getParameter<double>("MaxAbsEta");
+  deltaR_ = conf.getParameter<double>("DeltaR");
+  
 }  
   
 PixelMatchGsfElectronAnalyzer::~PixelMatchGsfElectronAnalyzer()
@@ -343,7 +347,7 @@ PixelMatchGsfElectronAnalyzer::analyze(const edm::Event& iEvent, const edm::Even
   for (reco::PixelMatchGsfElectronCollection::const_iterator gsfIter=gsfElectrons->begin();
    gsfIter!=gsfElectrons->end(); gsfIter++){
     // preselect electrons
-    if (gsfIter->pt()>50. || fabs(gsfIter->eta())>2.5) continue;
+    if (gsfIter->pt()>maxPt_ || fabs(gsfIter->eta())>maxAbsEta_) continue;
     h_ele_vertexEta_all     -> Fill( gsfIter->eta() );
     h_ele_vertexPt_all      -> Fill( gsfIter->pt() );
   }
@@ -378,8 +382,7 @@ PixelMatchGsfElectronAnalyzer::analyze(const edm::Event& iEvent, const edm::Even
       genPc=(*mcIter);
       pAssSim = genPc->momentum();
 
-      if (pAssSim.perp()>50. || fabs(pAssSim.eta())>2.5) continue;
-//      if (fabs(pAssSim.eta())>2.5) continue;
+      if (pAssSim.perp()> maxPt_ || fabs(pAssSim.eta())> maxAbsEta_) continue;
       
       eleNum++;
       h_simEta -> Fill( pAssSim.eta() );
@@ -401,7 +404,7 @@ PixelMatchGsfElectronAnalyzer::analyze(const edm::Event& iEvent, const edm::Even
        gsfIter!=gsfElectrons->end(); gsfIter++){
 	
 	float deltaR = sqrt(pow((gsfIter->eta()-pAssSim.eta()),2) + pow((gsfIter->phi()-pAssSim.phi()),2));
-	if ( deltaR < 0.05 ){
+	if ( deltaR < deltaR_ ){
 	if ( (genPc->pdg_id() == 11) && (gsfIter->charge() < 0.) || (genPc->pdg_id() == -11) &&
 	(gsfIter->charge() > 0.) ){
 	  float tmpGsfRatio = gsfIter->p()/pAssSim.t();
