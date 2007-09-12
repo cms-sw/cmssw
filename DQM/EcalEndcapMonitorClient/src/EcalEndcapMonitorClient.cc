@@ -1,8 +1,8 @@
 /*
  * \file EcalEndcapMonitorClient.cc
  *
- * $Date: 2007/09/06 18:59:06 $
- * $Revision: 1.64 $
+ * $Date: 2007/09/07 22:30:07 $
+ * $Revision: 1.65 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -48,7 +48,6 @@
 #include <DQM/EcalEndcapMonitorClient/interface/EECosmicClient.h>
 #include <DQM/EcalEndcapMonitorClient/interface/EEIntegrityClient.h>
 #include <DQM/EcalEndcapMonitorClient/interface/EELaserClient.h>
-#include <DQM/EcalEndcapMonitorClient/interface/EELedClient.h>
 #include <DQM/EcalEndcapMonitorClient/interface/EEPedestalClient.h>
 #include <DQM/EcalEndcapMonitorClient/interface/EEPedestalOnlineClient.h>
 #include <DQM/EcalEndcapMonitorClient/interface/EETestPulseClient.h>
@@ -57,6 +56,7 @@
 #include <DQM/EcalEndcapMonitorClient/interface/EETriggerTowerClient.h>
 #include <DQM/EcalEndcapMonitorClient/interface/EEClusterClient.h>
 #include <DQM/EcalEndcapMonitorClient/interface/EETimingClient.h>
+#include <DQM/EcalEndcapMonitorClient/interface/EELedClient.h>
 
 #include "xgi/Method.h"
 #include "xgi/Utils.h"
@@ -445,21 +445,6 @@ void EcalEndcapMonitorClient::initialize(const ParameterSet& ps){
 
   }
 
-  if ( find(enabledClients_.begin(), enabledClients_.end(), "Led" ) != enabledClients_.end() ) {
-
-    clients_.push_back( new EELedClient(ps) );
-    clientNames_.push_back( "Led" );
-    chb_.insert( EECIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::COSMIC ));
-    chb_.insert( EECIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::LED_STD ));
-    chb_.insert( EECIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::BEAMH4 ));
-    chb_.insert( EECIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::BEAMH2 ));
-
-    chb_.insert( EECIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::PHYSICS_GLOBAL ));
-    chb_.insert( EECIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::PHYSICS_LOCAL ));
-    chb_.insert( EECIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::LED_GAP ));
-
-  }
-
   if ( find(enabledClients_.begin(), enabledClients_.end(), "Pedestal" ) != enabledClients_.end() ) {
 
     clients_.push_back( new EEPedestalClient(ps) );
@@ -567,6 +552,21 @@ void EcalEndcapMonitorClient::initialize(const ParameterSet& ps){
     chb_.insert( EECIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::LASER_GAP ));
     chb_.insert( EECIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::LED_GAP ));
 //    chb_.insert( EECIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::TESTPULSE_GAP ));
+
+  }
+
+  if ( find(enabledClients_.begin(), enabledClients_.end(), "Led" ) != enabledClients_.end() ) {
+
+    clients_.push_back( new EELedClient(ps) );
+    clientNames_.push_back( "Led" );
+    chb_.insert( EECIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::COSMIC ));
+    chb_.insert( EECIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::LED_STD ));
+    chb_.insert( EECIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::BEAMH4 ));
+    chb_.insert( EECIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::BEAMH2 ));
+
+    chb_.insert( EECIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::PHYSICS_GLOBAL ));
+    chb_.insert( EECIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::PHYSICS_LOCAL ));
+    chb_.insert( EECIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::LED_GAP ));
 
   }
 
