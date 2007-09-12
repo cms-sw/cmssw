@@ -8,7 +8,7 @@
 //
 // Original Author:  dkcira
 //         Created:  Thu Jun 15 09:32:49 CEST 2006
-// $Id: SiStripHistoricInfoClient.cc,v 1.15 2007/04/24 09:40:46 dkcira Exp $
+// $Id: SiStripHistoricInfoClient.cc,v 1.16 2007/05/16 08:06:56 dkcira Exp $
 //
 
 #include "DQM/SiStripHistoricInfoClient/interface/SiStripHistoricInfoClient.h"
@@ -115,7 +115,7 @@ void SiStripHistoricInfoClient::endRun(){
   pSummary_->print();
   std::string final_filename = "endRun_SiStripHistoricInfoClient.root"; // run specific filename would be better
   std::cout<<"Saving all histograms in "<<final_filename<<std::endl;
-  mui_->save(final_filename);
+  mui_->getBEInterface()->save(final_filename);
   std::cout<<"Writing objects to DB"<<std::endl;
   writeToDB();
 }
@@ -140,7 +140,7 @@ void SiStripHistoricInfoClient::onUpdate() const{
   // perform ROOT thread-unsafe actions in onUpdate
   if(webInterface_p->getSaveToFile()){
     cout<<"SiStripHistoricInfoClient::onUpdate(). Saving to file."<<endl;
-    mui_->save("SiStripHistoricInfoClient.root");
+    mui_->getBEInterface()->save("SiStripHistoricInfoClient.root");
     webInterface_p->setSaveToFile(false); // done, set flag to false again
   }
 
@@ -159,7 +159,7 @@ void SiStripHistoricInfoClient::retrievePointersToModuleMEs() const{
 // painful and dangerous string operations to extract list of pointer to MEs and avoid strings with full paths
 // uses the MonitorUserInterface and fills the data member map
   vector<string> listOfMEsWithFullPath;
-  mui_->getContents(listOfMEsWithFullPath); // put list of MEs in vector which is passed as parameter to method
+  mui_->getBEInterface()->getContents(listOfMEsWithFullPath); // put list of MEs in vector which is passed as parameter to method
   cout<<"SiStripHistoricInfoClient::retrievePointersToModuleMEs : listOfMEsWithFullPath.size() "<<listOfMEsWithFullPath.size()<<endl;
   for(vector<string>::const_iterator ime = listOfMEsWithFullPath.begin(); ime != listOfMEsWithFullPath.end(); ime++){ // loop over strings
      // divide path and histogram names
@@ -180,7 +180,8 @@ void SiStripHistoricInfoClient::retrievePointersToModuleMEs() const{
        }
        string fullhistopath = thepath + "/" + thehistoname;
        // get pointer to each ME
-       MonitorElement * theMEPointer = mui_->get(fullhistopath); // give the full path and get back the pointer to the ME
+//DKC
+       MonitorElement * theMEPointer = mui_->getBEInterface()->get(fullhistopath); // give the full path and get back the pointer to the ME
        // extract detid from id/title - use SistripHistoId for doing this
        SiStripHistoId hidmanager; string histoid="#"; uint32_t theMEDetId = 0;
        if(theMEPointer){
