@@ -14,7 +14,7 @@
  *   path p = { comparator }
  *
  *
- *  $Date: 2007/05/03 19:20:00 $
+ *  $Date: 2007/09/11 22:20:08 $
  *  $Revision: 1.1 $
  *  \author Nhan Tran
  */
@@ -22,7 +22,9 @@
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "Alignment/TrackerAlignment/interface/AlignableTracker.h"
+#include "CondFormats/Alignment/interface/SurveyErrors.h"
 
+#include <algorithm>
 #include "TROOT.h"
 #include "TTree.h"
 #include "TFile.h"
@@ -31,7 +33,10 @@ class TrackerGeometryCompare:
 public edm::EDAnalyzer
 {
 public:
-	
+	typedef AlignTransform SurveyValue;
+	typedef Alignments SurveyValues;
+	typedef std::vector<Alignable*> Alignables;
+		
   /// Do nothing. Required by framework.
   TrackerGeometryCompare(
 		const edm::ParameterSet&
@@ -55,12 +60,23 @@ private:
 	std::vector<AlignableObjectId::AlignableObjectIdType> theLevels;
 	std::vector<int> theSubDets;
 	
-	
+	//compares two geometries
 	void compareGeometries(Alignable* refAli, Alignable* curAli);
+	//filling the ROOT file
 	void fillTree(Alignable *refAli, AlgebraicVector diff);
+	//converts surveyRcd into alignmentRcd
+	void surveyToTracker(AlignableTracker* ali, Alignments* alignVals, AlignmentErrors* alignErrors);
+	//need for conversion for surveyToTracker
+	void addSurveyInfo(Alignable* ali);
 	
 	AlignableTracker* referenceTracker;
+	AlignableTracker* dummyTracker;
 	AlignableTracker* currentTracker;
+
+	unsigned int theSurveyIndex;
+	const Alignments* theSurveyValues;
+	const SurveyErrors* theSurveyErrors;
+	
 
 	std::string _inputType;
 	

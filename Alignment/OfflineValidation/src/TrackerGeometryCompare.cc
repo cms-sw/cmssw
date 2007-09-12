@@ -1,4 +1,6 @@
 #include "CondFormats/Alignment/interface/Alignments.h"
+#include "CondFormats/Alignment/interface/AlignmentErrors.h"
+#include "CondFormats/Alignment/interface/AlignmentSorter.h"
 #include "CondFormats/Alignment/interface/SurveyErrors.h"
 #include "CondFormats/DataRecord/interface/TrackerSurveyRcd.h"
 #include "CondFormats/DataRecord/interface/TrackerSurveyErrorRcd.h"
@@ -72,8 +74,8 @@ TrackerGeometryCompare::TrackerGeometryCompare(const edm::ParameterSet& cfg)
 
 void TrackerGeometryCompare::beginJob(const edm::EventSetup& iSetup){
 
-	typedef AlignTransform SurveyValue;
-	typedef Alignments SurveyValues;
+	//typedef AlignTransform SurveyValue;
+	//typedef Alignments SurveyValues;
 	
 	//accessing the initial geometry
 	edm::ESHandle<DDCompactView> cpv;
@@ -84,6 +86,8 @@ void TrackerGeometryCompare::beginJob(const edm::EventSetup& iSetup){
 	//reference tracker
 	TrackerGeometry* theRefTracker = trackerBuilder.build(&*cpv, &*theGeometricDet); 
 	referenceTracker = new AlignableTracker(&(*theGeometricDet),&(*theRefTracker));
+	//dummy tracker
+	dummyTracker = new AlignableTracker(&(*theGeometricDet),&(*theRefTracker));
 	//currernt tracker
 	TrackerGeometry* theCurTracker = trackerBuilder.build(&*cpv, &*theGeometricDet); 
 
@@ -94,14 +98,12 @@ void TrackerGeometryCompare::beginJob(const edm::EventSetup& iSetup){
 		
 		iSetup.get<TrackerAlignmentRcd>().get(alignments);
 		iSetup.get<TrackerAlignmentErrorRcd>().get(alignmentErrors);
-		
+
 		//apply the latest alignments
 		GeometryAligner aligner;
 		aligner.applyAlignments<TrackerGeometry>( &(*theCurTracker), &(*alignments), &(*alignmentErrors));
 		currentTracker = new AlignableTracker(&(*theGeometricDet),&(*theCurTracker));
 		
-		compareGeometries(referenceTracker,currentTracker);
-				
 	}
 	if (_inputType == "survey"){
 		edm::ESHandle<SurveyValues> valuesHandle;
@@ -110,28 +112,28 @@ void TrackerGeometryCompare::beginJob(const edm::EventSetup& iSetup){
 		iSetup.get<TrackerSurveyRcd>().get(valuesHandle);
 		iSetup.get<TrackerSurveyErrorRcd>().get(errorsHandle);
 
-		const std::vector<SurveyValue>& values = valuesHandle->m_align;
-		const std::vector<SurveyError>& errors = errorsHandle->m_surveyErrors;
+		//add the survey info
+		theSurveyIndex = 0;
+		theSurveyValues = &*valuesHandle;
+		theSurveyErrors = &*errorsHandle;
+		addSurveyInfo(dummyTracker);
 		
-		unsigned int size = values.size();
+		//convert survey into alignments
+		Alignments* alignVals = new Alignments();
+		AlignmentErrors* alignErrors = new AlignmentErrors();
+		surveyToTracker(&(*dummyTracker), alignVals, alignErrors); 
 		
-		for (unsigned int i = 0; i < size; ++i)
-		{
-			const SurveyValue& value = values[i];
-			const SurveyError& error = errors[i];
+		//apply the survey alignments
+		GeometryAligner aligner;
+		aligner.applyAlignments<TrackerGeometry>( &(*theCurTracker), alignVals, alignErrors);
+		currentTracker = new AlignableTracker(&(*theGeometricDet),&(*theCurTracker));
 			
-			edm::LogInfo("SurveyDBReader")
-				<< "Type " << static_cast<unsigned int>( error.structureType() )
-				<< " raw id " << error.rawId()
-				<< " pos " << value.translation()
-				<< " rot " << value.rotation();
-		}
-		
-		edm::LogInfo("SurveyDBReader")
-			<< "Number of alignables read " << size << std::endl;
-		
 	}
-	
+
+	//compare the goemetries
+	compareGeometries(referenceTracker,currentTracker);
+				
+
 	//write out ntuple
 	//might be better to do within output module
 	_theFile->cd();
@@ -216,7 +218,7 @@ void TrackerGeometryCompare::compareGeometries(Alignable* refAli, Alignable* cur
 
 void TrackerGeometryCompare::fillTree(Alignable *refAli, AlgebraicVector diff){
 
-	//edm::LogInfo("compareGeometries") << "DIFF: " << diff;
+
 	_id = refAli->geomDetId().rawId();
 	_level = refAli->alignableObjectId();
 	//need if ali has no mother
@@ -233,8 +235,6 @@ void TrackerGeometryCompare::fillTree(Alignable *refAli, AlgebraicVector diff){
 	_xVal = refAli->globalPosition().x();
 	_yVal = refAli->globalPosition().y();
 	_zVal = refAli->globalPosition().z();
-	//_rVal = sqrt(_xVal*_xVal + _yVal*_yVal);
-	//_phiVal = atan(_yVal/_xVal);
 	align::GlobalVector vec(_xVal,_yVal,_zVal);
 	_rVal = vec.perp();
 	_phiVal = vec.phi();
@@ -258,3 +258,90 @@ void TrackerGeometryCompare::fillTree(Alignable *refAli, AlgebraicVector diff){
 	_alignTree->Fill();
 
 }
+
+void TrackerGeometryCompare::surveyToTracker(AlignableTracker* ali, Alignments* alignVals, AlignmentErrors* alignErrors){
+
+	//getting the right alignables for the alignment record
+	std::vector<Alignable*> detPB = ali->pixelHalfBarrelGeomDets();
+	std::vector<Alignable*> detPEC = ali->pixelEndcapGeomDets();
+	std::vector<Alignable*> detTIB = ali->innerBarrelGeomDets();
+	std::vector<Alignable*> detTID = ali->TIDGeomDets();
+	std::vector<Alignable*> detTOB = ali->outerBarrelGeomDets();
+	std::vector<Alignable*> detTEC = ali->endcapGeomDets();
+
+	std::vector<Alignable*> allGeomDets;
+	std::copy(detPB.begin(), detPB.end(), std::back_inserter(allGeomDets));
+	std::copy(detPEC.begin(), detPEC.end(), std::back_inserter(allGeomDets));
+	std::copy(detTIB.begin(), detTIB.end(), std::back_inserter(allGeomDets));
+	std::copy(detTID.begin(), detTID.end(), std::back_inserter(allGeomDets));
+	std::copy(detTOB.begin(), detTOB.end(), std::back_inserter(allGeomDets));
+	std::copy(detTEC.begin(), detTEC.end(), std::back_inserter(allGeomDets));
+	
+	std::vector<Alignable*> rcdAlis;
+	for (std::vector<Alignable*>::iterator i = allGeomDets.begin(); i!= allGeomDets.end(); i++){
+		if ((*i)->components().size() == 1){
+			rcdAlis.push_back((*i));
+		}
+		else if ((*i)->components().size() > 1){
+			rcdAlis.push_back((*i));
+			std::vector<Alignable*> comp = (*i)->components();
+			for (std::vector<Alignable*>::iterator j = comp.begin(); j != comp.end(); j++){
+				rcdAlis.push_back((*j));
+			}
+		}
+	}
+
+	//turning them into alignments
+	for(std::vector<Alignable*>::iterator k = rcdAlis.begin(); k != rcdAlis.end(); k++){
+
+		const SurveyDet* surveyInfo = (*k)->survey();
+		align::PositionType pos(surveyInfo->position());
+		align::RotationType rot(surveyInfo->rotation());
+		Hep3Vector clhepVector(pos.x(),pos.y(),pos.z());
+		HepRotation clhepRotation( HepRep3x3(rot.xx(),rot.xy(),rot.xz(),rot.yx(),rot.yy(),rot.yz(),rot.zx(),rot.zy(),rot.zz()));
+		AlignTransform transform(clhepVector, clhepRotation, (*k)->id());
+		AlignTransformError transformError(HepSymMatrix(3,1), (*k)->id());
+		alignVals->m_align.push_back(transform);
+		alignErrors->m_alignError.push_back(transformError);
+	}
+
+	//to get the right order
+	std::sort( alignVals->m_align.begin(), alignVals->m_align.end(), lessAlignmentDetId<AlignTransform>() );
+	std::sort( alignErrors->m_alignError.begin(), alignErrors->m_alignError.end(), lessAlignmentDetId<AlignTransformError>() );
+	
+}
+
+void TrackerGeometryCompare::addSurveyInfo(Alignable* ali){
+
+	const std::vector<Alignable*>& comp = ali->components();
+
+  unsigned int nComp = comp.size();
+
+  for (unsigned int i = 0; i < nComp; ++i) addSurveyInfo(comp[i]);
+
+  const SurveyError& error = theSurveyErrors->m_surveyErrors[theSurveyIndex];
+
+  if ( ali->geomDetId().rawId() != error.rawId() ||
+       ali->alignableObjectId() != error.structureType() )
+  {
+    throw cms::Exception("DatabaseError")
+      << "Error reading survey info from DB. Mismatched id!";
+  }
+
+  const CLHEP::Hep3Vector&  pos = theSurveyValues->m_align[theSurveyIndex].translation();
+  const CLHEP::HepRotation& rot = theSurveyValues->m_align[theSurveyIndex].rotation();
+
+  AlignableSurface surf( align::PositionType( pos.x(), pos.y(), pos.z() ),
+			 align::RotationType( rot.xx(), rot.xy(), rot.xz(),
+					      rot.yx(), rot.yy(), rot.yz(),
+					      rot.zx(), rot.zy(), rot.zz() ) );
+
+  surf.setWidth( ali->surface().width() );
+  surf.setLength( ali->surface().length() );
+
+  ali->setSurvey( new SurveyDet( surf, error.matrix() ) );
+
+	++theSurveyIndex;
+	
+}
+
