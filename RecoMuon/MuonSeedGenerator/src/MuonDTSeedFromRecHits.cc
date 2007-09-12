@@ -2,8 +2,8 @@
  *  See header file for a description of this class.
  *
  *
- *  $Date: 2007/09/11 03:11:32 $
- *  $Revision: 1.3 $
+ *  $Date: 2007/09/11 20:19:00 $
+ *  $Revision: 1.4 $
  *  \author A. Vitelli - INFN Torino, V.Palichik
  *  \author porting  R. Bellan
  *
@@ -303,7 +303,7 @@ void MuonDTSeedFromRecHits::computePtWithoutVtx(double* pt, double* spt) const {
       ch = (dphi > 0) ? 1 : -1;
 
       if ( stat1>stat2) {
-        ch = -ch
+        ch = -ch;
         int tmp = stat1;
         stat1 = stat2;
         stat2 = tmp;
