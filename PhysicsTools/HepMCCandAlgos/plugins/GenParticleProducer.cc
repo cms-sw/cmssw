@@ -118,9 +118,6 @@ void GenParticleProducer::produce( Event& evt, const EventSetup& es ) {
   
   vector<const HepMC::GenParticle *> particles( size );
   map<int, size_t> barcodes;
-  auto_ptr<GenParticleCollection> candsPtr( new GenParticleCollection( size ) );
-  const GenParticleRefProd ref = evt.getRefBeforePut<GenParticleCollection>();
-  GenParticleCollection & cands = * candsPtr;
 
   /// fill indices
   GenEvent::particle_const_iterator begin = mc->particles_begin(), end = mc->particles_end();
@@ -135,23 +132,25 @@ void GenParticleProducer::produce( Event& evt, const EventSetup& es ) {
     barcodes.insert( make_pair(i, idx ++) );
   }
 
+  auto_ptr<GenParticleCollection> candsPtr( new GenParticleCollection( size ) );
+  const GenParticleRefProd ref = evt.getRefBeforePut<GenParticleCollection>();
+  GenParticleCollection & cands = * candsPtr;
+
   // fill output collection and save association
   for( size_t i = 0; i < particles.size(); ++ i ) {
     const HepMC::GenParticle * part = particles[ i ];
     Candidate::LorentzVector p4( part->momentum() );
-    Candidate::Point vertex( 0, 0, 0 );
-    const GenVertex * v = part->production_vertex();
-    if ( v != 0 ) {
-      ThreeVector vtx = v->point3d();
-      vertex.SetXYZ( vtx.x() * mmToCm, vtx.y() * mmToCm, vtx.z() * mmToCm );
-    }
     int pdgId = part->pdg_id();
     reco::GenParticle & cand = cands[ i ];
     cand.setP4( p4 );
-    cand.setVertex( vertex );
-    cand.setPdgId( pdgId );
-    cand.setStatus( part->status() );
-    cand.setThreeCharge( chargeTimesThree( pdgId ) );
+    const GenVertex * v = part->production_vertex();
+    if ( v != 0 ) {
+      ThreeVector vtx = v->point3d();
+      Candidate::Point vertex( vtx.x() * mmToCm, vtx.y() * mmToCm, vtx.z() * mmToCm );
+      cand.setVertex( vertex );
+    } else {
+      cand.setVertex( Candidate::Point( 0, 0, 0 ) );
+    }
   }
 
   // fill references to daughters
