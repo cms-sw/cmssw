@@ -1,0 +1,126 @@
+#!/usr/bin/perl -w
+#
+# $Id: checkdeps,v 1.4 2007/06/07 19:55:09 dlange Exp $
+#
+# Created by: David Lange
+#             LLNL
+#             12 September 207
+#
+use strict;
+use Getopt::Long;
+use Cwd;
+
+#Idea: diff checked out packages.
+#     looking for changed headers
+#     find all packages that depend on those headers
+#     print that list.
+
+if ( $ENV{'LOCALRT'} eq "" ) {
+    print "Please setup the scram runtime environment before running this script\n";
+    exit;
+}
+
+if ( $ENV{'CMSSW_RELEASE_BASE'} eq "" ) {
+    print "Please setup the scram runtime environment before running this script\n";
+    exit;
+}
+
+if ( !(-e "$ENV{'CMSSW_RELEASE_BASE'}/etc/dependencies/usedby.out.gz") ) {
+    print "This release appears not to support the functionality of this script (170pre4 and higher). Sorry\n";
+    exit;
+}
+
+open(F1,"gunzip -c $ENV{'CMSSW_RELEASE_BASE'}/etc/dependencies/usedby.out |");
+     
+
+
+chdir("$ENV{'LOCALRT'}/src");
+my @f1 = `ls`;
+my $maindir=cwd;
+
+my @subsys;
+my @packages;
+
+# Get the list of packages
+for my $f (@f1) {
+  chomp($f);
+  chdir("$maindir");
+  if( -d $f && ($f ne "CVS") ) { 
+    push @subsys, $f;
+    chdir("$f");
+    # list of packages in subystem
+    my @f2 = `ls`;
+    for my $ff (@f2) {
+      chomp($ff);
+      if(-d $ff && ($ff ne "CVS") ) {
+        my $pack = "$f/$ff";
+        push @packages, "$pack";
+      }
+    }
+  }
+
+}
+
+#check that addpkg is ok...
+my $isaddpkg=`which addpkg`;
+if ( $isaddpkg =~ /Command not found/) {
+    print "This script relies on addpkg, which appears not to be in your path\n";
+    print "Perhaps something is wrong with this release or your run time\n";
+    print "environment is not set correctly?\n";
+    return;
+}
+
+my @changedFiles;
+
+foreach my $package (@packages) {
+    chdir("$maindir");
+    chdir("$package");
+    my $reltag=`addpkg -q $package`;
+    my @sp1=split(' ',$reltag);
+    $reltag=$sp1[4];
+    my $diffs=`cvs -q -n update -r $reltag`;
+    my @diffs=split('\n',$diffs);
+    foreach my $diff (@diffs) {
+	if ( $diff =~/^M/ ) {
+	    my @sp2=split(' ', $diff);
+	    push(@changedFiles,"$package/$sp2[1]");
+	}
+    }
+}
+
+my %vals;
+
+while  (<F1>) { 
+    my $line=$_;
+    chomp($line);
+    my @sp1=split(' ',$line,2);
+    $vals{$sp1[0]}=$sp1[1];
+}
+
+my @recompileList;
+foreach my $file (@changedFiles) {
+    next if (!(exists $vals{$file}));
+    my @sp3=split(' ',$vals{$file});
+    foreach my $dep (@sp3) {
+	my @sp4=split('/',$dep);
+	my $recompile=$dep;#"$sp4[0]/$sp4[1]";
+	if (!(grep {$_ eq $recompile} @recompileList)) {
+	    if (!(grep {$_ eq $recompile} @packages)) {
+		push(@recompileList,$recompile);
+	    }
+	}
+    }
+}
+
+my @t=sort(@recompileList);
+my $len=length(@t);
+print "Packages to check out and compile:\n";
+if ( $len > 0 ) {
+    foreach my $i (@t) {
+	print "$i\n";
+    }
+}
+else{
+    print "None\n";
+}
+close F1;
