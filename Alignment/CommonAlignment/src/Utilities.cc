@@ -115,7 +115,7 @@ align::RotationType align::diffRot(const GlobalVectors& current,
     I.fast(3, 1) -= r.x() * r.z();
     I.fast(3, 2) -= r.y() * r.z();
   }
-	int it = 0;
+
   while (true)
   {
 		AlgebraicVector rhs(3); // sum of dr * r
@@ -143,7 +143,7 @@ align::RotationType align::diffRot(const GlobalVectors& current,
     {
       rotated[j] = GlobalVector( rot.multiplyInverse( current[j].basicVector() ) );
     }
-		it++;
+
   }
   return rot;
 }
@@ -161,8 +161,8 @@ align::GlobalVector align::diffR(const GlobalVectors& current,
 		nCM += nominal[j];
 		cCM += current[j];
 	}
-	nCM /= nPoints;
-	cCM /= nPoints;
+	nCM /= static_cast<float>(nPoints);
+	cCM /= static_cast<float>(nPoints);
 	GlobalVector theR = nCM - cCM;
 	return theR;
 }
