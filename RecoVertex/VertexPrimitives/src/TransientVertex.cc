@@ -1,6 +1,5 @@
 #include "RecoVertex/VertexPrimitives/interface/TransientVertex.h"
 #include "RecoVertex/VertexPrimitives/interface/VertexException.h"
-// #include "CommonReco/PatternTools/interface/RefittedRecTrack.h"
 #include "RecoVertex/VertexPrimitives/interface/ConvertError.h"
 #include "TrackingTools/TransientTrack/interface/TrackTransientTrack.h"
 #include <algorithm>
@@ -134,6 +133,8 @@ void TransientVertex::weightMap(const TransientTrackToFloatMap & theMap)
 void TransientVertex::refittedTracks(
 	const std::vector<reco::TransientTrack> & refittedTracks)
 {
+  if (refittedTracks.empty())
+    throw VertexException("TransientVertex::refittedTracks: No refitted tracks stored in input container");
   theRefittedTracks = refittedTracks;
   withRefittedTracks = true;
 }
@@ -222,19 +223,18 @@ TransientVertex::operator reco::Vertex() const
 	totalChiSquared(), degreesOfFreedom(), theOriginalTracks.size() );
   for (vector<TransientTrack>::const_iterator i = theOriginalTracks.begin();
        i != theOriginalTracks.end(); ++i) {
-    const TrackTransientTrack* ttt = dynamic_cast<const TrackTransientTrack*>((*i).basicTransientTrack());
-    if ((ttt!=0) && (ttt->persistentTrackRef().isNonnull()))
-    {
+//     const TrackTransientTrack* ttt = dynamic_cast<const TrackTransientTrack*>((*i).basicTransientTrack());
+//     if ((ttt!=0) && (ttt->persistentTrackRef().isNonnull()))
+//     {
+//       TrackRef tr = ttt->persistentTrackRef();
+//       TrackBaseRef tbr(tr);
       if (withRefittedTracks) {
-        try {
-          vertex.add(ttt->persistentTrackRef(), refittedTrack(*i).track(), trackWeight ( *i ) );
-        } catch ( ... ) {
-	        vertex.add(ttt->persistentTrackRef(), trackWeight ( *i ) );
-        }
+        
+	vertex.add((*i).trackBaseRef(), refittedTrack(*i).track(), trackWeight ( *i ) );
       } else { 
-	      vertex.add(ttt->persistentTrackRef(), trackWeight ( *i ) );
+	vertex.add((*i).trackBaseRef(), trackWeight ( *i ) );
       }
-    }
+    //}
   }
   return vertex;
 }
