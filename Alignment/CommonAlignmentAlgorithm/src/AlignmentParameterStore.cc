@@ -1,9 +1,9 @@
 /**
  * \file AlignmentParameterStore.cc
  *
- *  $Revision: 1.16 $
- *  $Date: 2007/05/15 17:56:15 $
- *  (last update by $Author: cklae $)
+ *  $Revision: 1.17 $
+ *  $Date: 2007/06/12 15:08:19 $
+ *  (last update by $Author: ewidl $)
  */
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -633,8 +633,8 @@ void AlignmentParameterStore::setAlignmentPositionError( const Alignables& alive
     ali->addAlignmentPositionErrorFromRotation( align::toMatrix(r) );
   }
 
-  LogDebug("StoreAPE") << "Store APE from shift: " << valshift;
-  LogDebug("StoreAPE") << "Store APE from rotation: " << valrot;
+  LogDebug("StoreAPE") << "Store APE from shift: " << valshift
+		       << "\nStore APE from rotation: " << valrot;
 }
 
 //__________________________________________________________________________________________________
@@ -642,9 +642,9 @@ bool AlignmentParameterStore
 ::hierarchyConstraints(const Alignable *ali, const Alignables &aliComps,
 		       std::vector<std::vector<ParameterId> > &paramIdsVecOut,
 		       std::vector<std::vector<float> > &factorsVecOut,
-		       float epsilon) const
+		       bool all6, float epsilon) const
 {
-  // Weak point:
+  // Weak point if all6 = false:
   // Ignores constraints between non-subsequent levels in case the parameter is not considered in
   // the intermediate level, e.g. global z for dets and layers is aligned, but not for rods!
   if (!ali || !ali->alignmentParameters()) return false;
@@ -660,13 +660,12 @@ bool AlignmentParameterStore
     const AlgebraicMatrix f2fDeriv(f2fDerivMaker.frameToFrameDerivative(*iComp, ali));
     const std::vector<bool> &aliCompSel = (*iComp)->alignmentParameters()->selector();
     for (unsigned int iParMast = 0, iParMastUsed = 0; iParMast < aliSel.size(); ++iParMast) {
-      if (!aliSel[iParMast]) continue; // nothing to constrain if no parameter at higher level
+      if (!all6 && !aliSel[iParMast]) continue;// no higher level parameter & constraint deselected
       if (firstComp) { // fill output with empty arrays 
 	paramIdsVecOut.push_back(std::vector<ParameterId>());
 	factorsVecOut.push_back(std::vector<float>());
       }
       for (int iParComp = 0; iParComp < f2fDeriv.num_col(); ++iParComp) {
-// 	if (aliCompSel[iParMast] && aliCompSel[iParComp]) {
 	if (aliCompSel[iParComp]) {
 	  const float factor = f2fDeriv[iParMast][iParComp]; // switch col/row? GF: Should be fine.
 	  if (fabs(factor) > epsilon) {

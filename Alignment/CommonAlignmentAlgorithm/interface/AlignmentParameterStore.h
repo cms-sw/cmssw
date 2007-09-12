@@ -15,9 +15,9 @@
 ///
 /// Basic class for management of alignment parameters and correlations 
 ///
-///  $Date: 2007/04/30 12:11:37 $
-///  $Revision: 1.11 $
-/// (last update by $Author: flucke $)
+///  $Date: 2007/06/12 15:08:17 $
+///  $Revision: 1.12 $
+/// (last update by $Author: ewidl $)
 
 class GeomDet;
 class Alignable;
@@ -127,17 +127,21 @@ public:
 
   /// a single alignable parameter of an Alignable
   typedef std::pair<Alignable*, unsigned int> ParameterId;
-  /// Assuming aliMaster has (sub-)components aliComps with parameters
+  /// Assuming aliMaster has (sub-)components aliComps with (up to) 6 rigid body parameters
   /// (cf. Alignable::firstParamComponents), paramIdsVecOut and factorsVecOut will be filled
   /// (in parallel) with constraints on the alignment parameters of aliMaster to get rid of the
-  /// addionally introduced degrees of freedom:
+  /// additionally introduced degrees of freedom:
   /// The 'vector product' of the parameters identified by ParameterId in std::vector<ParameterId>
   /// and the factors in std::vector<float> has to vanish (i.e. == 0.),
   /// |factor| < epsilon will be treated as 0.
+  /// If all6 == false, skip constraint on aliMaster's degree of freedom 'i' if 'i'th alignment
+  /// parameter of aliMaster is not selected, i.e. constrain only for otherwise doubled d.o.f.
+  /// If all6 == true, produce all 6 rigid body constraints irrespective of the aliMaster's
+  /// parameters.
   bool hierarchyConstraints(const Alignable *aliMaster, const Alignables &aliComps,
 			    std::vector<std::vector<ParameterId> > &paramIdsVecOut,
 			    std::vector<std::vector<float> > &factorsVecOut,
-			    float epsilon = 1.e-15) const;
+			    bool all6, float epsilon = 1.e-15) const;
 
 protected:
 
