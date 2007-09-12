@@ -37,14 +37,14 @@ Vertex::trackRef_iterator Vertex::tracks_end() const
   // return weights_.keys().end();
 }
 
-void Vertex::add ( const TrackRef & r, float w )
+void Vertex::add ( const TrackBaseRef & r, float w )
 {
   tracks_.push_back ( r );
   weights_.push_back(w);
 
 }
 
-void Vertex::add ( const TrackRef & r, const Track & refTrack, float w )
+void Vertex::add ( const TrackBaseRef & r, const Track & refTrack, float w )
 {
   tracks_.push_back ( r );
   refittedTracks_.push_back ( refTrack );
@@ -58,7 +58,7 @@ void Vertex::removeTracks()
   refittedTracks_.clear();
 }
 
-float Vertex::trackWeight ( const TrackRef & track ) const
+float Vertex::trackWeight ( const TrackBaseRef & track ) const
 {
   trackRef_iterator it = find(tracks_begin(), tracks_end(), track);
   if (it==tracks_end()) return 0.0;
@@ -66,7 +66,13 @@ float Vertex::trackWeight ( const TrackRef & track ) const
   return weights_[pos];
 }
 
-TrackRef Vertex::originalTrack(const Track & refTrack) const
+float Vertex::trackWeight ( const TrackRef & track ) const
+{
+  return trackWeight(TrackBaseRef(track));
+}
+
+
+TrackBaseRef Vertex::originalTrack(const Track & refTrack) const
 {
   if (refittedTracks_.empty())
 	throw cms::Exception("Vertex") << "No refitted tracks stored in vertex\n";
@@ -78,7 +84,7 @@ TrackRef Vertex::originalTrack(const Track & refTrack) const
   return tracks_[pos];
 }
 
-Track Vertex::refittedTrack(const TrackRef & track) const
+Track Vertex::refittedTrack(const TrackBaseRef & track) const
 {
   if (refittedTracks_.empty())
 	 throw cms::Exception("Vertex") << "No refitted tracks stored in vertex\n";
@@ -86,4 +92,9 @@ Track Vertex::refittedTrack(const TrackRef & track) const
   if (it==tracks_end()) throw cms::Exception("Vertex") << "Track not found in list\n";
   size_t pos = it - tracks_begin();
   return refittedTracks_[pos];
+}
+
+Track Vertex::refittedTrack(const TrackRef & track) const
+{
+  return refittedTrack(TrackBaseRef(track));
 }

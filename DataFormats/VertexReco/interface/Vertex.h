@@ -15,8 +15,8 @@
 #include "DataFormats/Math/interface/Point3D.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/TrackReco/interface/Track.h"
-#include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include <iostream>
+#include "DataFormats/Common/interface/RefToBase.h" 
 
 namespace reco {
 
@@ -25,7 +25,7 @@ namespace reco {
   class Vertex {
   public:
     /// The iteratator for the vector<TrackRef>
-    typedef std::vector<TrackRef>::const_iterator trackRef_iterator;
+    typedef std::vector<TrackBaseRef >::const_iterator trackRef_iterator;
     /// point in the space
     typedef math::XYZPoint Point;
     /// error matrix dimension
@@ -43,10 +43,12 @@ namespace reco {
     /// constructor from values
     Vertex( const Point &, const Error &, double chi2, double ndof, size_t size );
     /// add a reference to a Track
-    void add( const TrackRef & r, float w=1.0 );
+    void add( const TrackBaseRef & r, float w=1.0 );
     /// add the original a Track(reference) and the smoothed Track
-    void add( const TrackRef & r, const Track & refTrack, float w=1.0 );
+    void add( const TrackBaseRef & r, const Track & refTrack, float w=1.0 );
     void removeTracks();
+    ///returns the weight with which a Track has contributed to the vertex-fit.
+    float trackWeight ( const TrackBaseRef & r ) const;
     ///returns the weight with which a Track has contributed to the vertex-fit.
     float trackWeight ( const TrackRef & r ) const;
     /// first iterator over tracks
@@ -101,7 +103,11 @@ namespace reco {
     
     /// Returns the original track which corresponds to a particular refitted Track
     /// Throws an exception if now refitted tracks are stored ot the track is not found in the list
-    TrackRef originalTrack(const Track & refTrack) const;
+    TrackBaseRef originalTrack(const Track & refTrack) const;
+
+    /// Returns the refitted track which corresponds to a particular original Track
+    /// Throws an exception if now refitted tracks are stored ot the track is not found in the list
+    Track refittedTrack(const TrackBaseRef & track) const;
 
     /// Returns the refitted track which corresponds to a particular original Track
     /// Throws an exception if now refitted tracks are stored ot the track is not found in the list
@@ -127,7 +133,7 @@ namespace reco {
     /// covariance matrix (3x3) as vector
     Double32_t covariance_[ size ];
     /// reference to tracks
-    std::vector<TrackRef> tracks_;
+    std::vector<TrackBaseRef > tracks_;
     /// The vector of refitted tracks
     std::vector<Track> refittedTracks_;
     std::vector<float> weights_;
