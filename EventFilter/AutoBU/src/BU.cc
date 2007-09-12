@@ -175,7 +175,6 @@ bool BU::configuring(toolbox::task::WorkLoop* wl)
   try {
     LOG4CPLUS_INFO(log_,"Start configuring ...");
     reset();
-    startBuildingWorkLoop();
     LOG4CPLUS_INFO(log_,"Finished configuring!");
     fsm_.fireEvent("ConfigureDone",this);
   }

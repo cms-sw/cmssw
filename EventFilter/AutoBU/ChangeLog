@@ -1,3 +1,10 @@
+2007-09-12  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
+
+	* tag V00-05-07
+	* don't start building work-loop in configure state-transition:
+	the queue will otherwise be filled with RANDOM events at the
+	beginning even in PLAYBACK mode.
+
 2007-08-28  Philipp Schieferdecker  <philipp.schieferdecker@cern.ch>
 
 	* tag V00-05-06
