@@ -13,7 +13,7 @@
 //
 // Original Author:  Freya Blekman
 //         Created:  Mon May  7 14:22:37 CEST 2007
-// $Id: SiPixelGainCalibrationAnalysis.cc,v 1.8 2007/09/04 14:49:10 friis Exp $
+// $Id: SiPixelGainCalibrationAnalysis.cc,v 1.9 2007/09/06 12:24:54 friis Exp $
 //
 //
 
@@ -67,6 +67,7 @@ SiPixelGainCalibrationAnalysis::SiPixelGainCalibrationAnalysis(const edm::Parame
   conf_(iConfig),
   appendMode_(conf_.getUntrackedParameter<bool>("appendDatabaseMode",false)),
   SiPixelGainCalibration_(0),
+  vcalvalues_(0),
   SiPixelGainCalibrationService_(iConfig),
   eventno_counter_(0),
   src_( iConfig.getUntrackedParameter<std::string>("src","source")),
@@ -86,11 +87,12 @@ SiPixelGainCalibrationAnalysis::SiPixelGainCalibrationAnalysis(const edm::Parame
   only_one_detid_(iConfig.getUntrackedParameter<bool>("onlyOneDetID",false)),
   usethisdetid_(0),
   do_scurveinstead_(iConfig.getUntrackedParameter<bool>("doSCurve",false)),
-   saveAllGainCurvesForGivenPlaquettes_(iConfig.getUntrackedParameter<bool>("saveAllGainCurvesForGivenPlaquettes", false)),
-   saveGainCurvesWithBadChi2_(iConfig.getUntrackedParameter<bool>("saveGainCurvesWithBadChi2", false)),
-   maximumChi2overNDF_(iConfig.getUntrackedParameter<double>("maximumChi2", 4)),
-   dropLowVcalOutliersForCurvesWithBadChi2_(iConfig.getUntrackedParameter<bool>("dropLowVcalOutliersForCurvesWithBadChi2", false)),
-   useFirstNonZeroBinForFitMin_(iConfig.getUntrackedParameter<bool>("useFirstNonZeroBinForFitMin", false))
+  fast_no_plots_(iConfig.getUntrackedParameter<bool>("runOnlineConfiguration",false)),
+  saveAllGainCurvesForGivenPlaquettes_(iConfig.getUntrackedParameter<bool>("saveAllGainCurvesForGivenPlaquettes", false)),
+  saveGainCurvesWithBadChi2_(iConfig.getUntrackedParameter<bool>("saveGainCurvesWithBadChi2", false)),
+  maximumChi2overNDF_(iConfig.getUntrackedParameter<double>("maximumChi2", 4)),
+  dropLowVcalOutliersForCurvesWithBadChi2_(iConfig.getUntrackedParameter<bool>("dropLowVcalOutliersForCurvesWithBadChi2", false)),
+  useFirstNonZeroBinForFitMin_(iConfig.getUntrackedParameter<bool>("useFirstNonZeroBinForFitMin", false))
 
 {
    //now do what ever initialization is needed
@@ -106,7 +108,7 @@ SiPixelGainCalibrationAnalysis::SiPixelGainCalibrationAnalysis(const edm::Parame
   plaquettesToSave_ = iConfig.getUntrackedParameter< std::vector<std::string> >("plaquettesToSave", defaultEmptyVString );
   // intialize error dir
   if (saveGainCurvesWithBadChi2_)
-     errordir_ = new TFileDirectory(therootfileservice_->mkdir("Errors", "Errors"));
+    errordir_ = new TFileDirectory(therootfileservice_->mkdir("Errors", "Errors"));
 
 
   // database vars
@@ -132,14 +134,29 @@ SiPixelGainCalibrationAnalysis::~SiPixelGainCalibrationAnalysis()
 
 bool SiPixelGainCalibrationAnalysis::doFits(){
   TH1F gr("temporary","temporary",calib_.nVcal(),calib_.vcal_first(),calib_.vcal_last());
+    
   for(std::map<uint32_t,uint32_t>::iterator imap = detIDmap_.begin(); imap!=detIDmap_.end(); ++imap){
     uint32_t detid= imap->first;
     TString detidname = detnames_[detid];
-    std::cout << detidname << " " << calibPixels_[detid].size()<< std::endl;
+    //    std::cout << detidname << " " << calibPixels_[detid].size()<< std::endl;
     TFileDirectory thisdir = therootfileservice_->mkdir(detidname.Data(),detidname.Data());
     for(uint32_t ipixel=0; ipixel<calibPixels_[detid].size(); ipixel++){
-      std::cout << "event : " << eventno_counter_ << " summary for pixel : " << ipixel << "(="<< detid << ","<< colrowpairs_[detid][ipixel].first << "," << colrowpairs_[detid][ipixel].second<<")"<<  std::endl;
-	
+      //      std::cout << "event : " << eventno_counter_ << " summary for pixel : " << ipixel << "(="<< detid << ","<< colrowpairs_[detid][ipixel].first << "," << colrowpairs_[detid][ipixel].second<<")"<<  std::endl;
+      float chi2=-1;
+      float ped = 255;
+      float gain = 255;
+      float plat = -1;
+      if(fast_no_plots_){// fast and with analytical fit. No monitoring histograms except on gain and pedestal
+	calibPixels_[detid][ipixel].doAnalyticalFit(vcalvalues_,vcal_fitmin_,vcal_fitmax_fixed_);
+	ped= calibPixels_[detid][ipixel].getpedestal();
+	gain = calibPixels_[detid][ipixel].getgain();
+	summaries1D_pedestal_[detid]->Fill(ped);
+	summaries1D_gain_[detid]->Fill(gain);
+	summaries_pedestal_[detid]->Fill(colrowpairs_[detid][ipixel].second,colrowpairs_[detid][ipixel].first,ped);
+	summaries_gain_[detid]->Fill(colrowpairs_[detid][ipixel].second,colrowpairs_[detid][ipixel].first,gain);
+	calibPixels_[detid][ipixel].clearAllPoints();
+	continue;
+      }
       TString histname = detidname;
       histname += ", row " ;
       histname+=colrowpairs_[detid][ipixel].first;
@@ -155,20 +172,8 @@ bool SiPixelGainCalibrationAnalysis::doFits(){
 	float response = calibPixels_[detid][ipixel].getpoint(ipoint,0);
 	float error = calibPixels_[detid][ipixel].geterror(ipoint,1);
 	if(do_scurveinstead_){
-	  float m = calibPixels_[detid][ipixel].getentries(ipoint);
-	  float n = calib_.nTriggers();
-	  response = m/n;
-	  //debug
-	  std::cout << " nEntries: " << m << "  nTrigs: " << n << " response: " << m/n << "  ipoint: " << ipoint << std::endl;
-	  float d = n *n *(1+2.*m)-4.*n*(1.+n)*m*m;
-	  //only fill the largest of the two (asymmetric) binomial errors
-	  float temperror = ( n*(1.0+2.0*m) + sqrt(d) )/(2.0*n*(1.0+n));
-	  error = fabs(temperror-response);
-	  temperror = ( n*(1.0+2.0*m) - sqrt(d) )/(2.0*n*(1.0+n));
-	  if(fabs(temperror-response)>error)
-	    error = fabs(temperror-response);
-	  //debug
-	  error = 0;
+	  response = calibPixels_[detid][ipixel].getefficiency(ipoint,calib_.nTriggers());
+	  error = calibPixels_[detid][ipixel].geterroreff(ipoint,calib_.nTriggers());
 	}
 	gr.SetBinContent(ipoint,response);
 	gr.SetBinError(ipoint,error);
@@ -177,7 +182,7 @@ bool SiPixelGainCalibrationAnalysis::doFits(){
 	///	std::cout << "filled hist: " << gr.GetBinCenter(ipoint) << " " << gr.GetBinContent(ipoint) << " " << gr.GetBinError(ipoint) << std::endl;
 	
 	if (useFirstNonZeroBinForFitMin_ && !do_scurveinstead_)
-	   vcal_fitmin_ = gr.GetBinLowEdge(firstNonZeroBin);
+	  vcal_fitmin_ = (uint32_t) gr.GetBinLowEdge(firstNonZeroBin);
 	//only start looking once we've found the first non zero bin
 	if(!do_scurveinstead_ && firstNonZeroBin > 0 && ipoint-firstNonZeroBin > 3 && plateaustart<0){
 	  float npoints=0;
@@ -213,8 +218,13 @@ bool SiPixelGainCalibrationAnalysis::doFits(){
       gr.Fit(func, "RQ");
       //std::cout << "***********************************************************************************EK**********************" << std::endl;
       //std::cout << "fit 0 " << func->GetParameter(0) << "   fit 1 " << func->GetParameter(1) << std::endl;
+  
+      chi2=func->GetChisquare()/func->GetNDF();
+      ped = 255;
+      gain = 255;
+      plat = -1;
 
-      if (!do_scurveinstead_ && func->GetChisquare()/func->GetNDF() > maximumChi2overNDF_ && dropLowVcalOutliersForCurvesWithBadChi2_ ) { 
+      if (!do_scurveinstead_ &&  chi2 > maximumChi2overNDF_ && dropLowVcalOutliersForCurvesWithBadChi2_ ) { 
 	 //std::cout << "Found bad fit in " << detidname << "[" << colrowpairs_[detid][ipixel].first << "],[" << colrowpairs_[detid][ipixel].second << "] with a chi-square of " << func->GetChisquare() << std::endl;
 	 int testPoint = firstNonZeroBin+1;
 	 bool doneWithOutlierCheck = false;
@@ -259,11 +269,6 @@ bool SiPixelGainCalibrationAnalysis::doFits(){
 	 }
       }
       
-      float ped = 255;
-      float gain = 255;
-      float chi2 = -1;
-      float plat = -1;
-
       //check if this is a plaquette that we want to save all gain curves for
       bool thisDetIdinSaveList = false;
       for (std::vector<std::string>::const_iterator plaquetteToSave = plaquettesToSave_.begin(); plaquetteToSave != plaquettesToSave_.end(); ++plaquetteToSave)
@@ -279,7 +284,7 @@ bool SiPixelGainCalibrationAnalysis::doFits(){
       if(!save_histos_  && !(saveAllGainCurvesForGivenPlaquettes_ && thisDetIdinSaveList) ){
 	 //only refit if we dropped points - this should only run if dropLowVcalOutliersForCurvesWithBadChi2_ is set
 	 if (redoFit)
-	    gr.Fit(func,"RQ");
+	   gr.Fit(func,"RQ");
       }
       else{
 	 TH1F *gr2 = thisdir.make<TH1F>(histname.Data(),histname.Data(),calib_.nVcal(),calib_.vcal_first(),calib_.vcal_last());
@@ -296,7 +301,8 @@ bool SiPixelGainCalibrationAnalysis::doFits(){
       //save the gain curves that had to be refit to a seperate directory
       if (redoFit || (!do_scurveinstead_ && saveGainCurvesWithBadChi2_ && func->GetChisquare()/func->GetNDF() > maximumChi2overNDF_)) {
 	 assert(errordir_);
-	 TH1F *gr3 = errordir_->make<TH1F>(histname.Data(),histname.Data(),calib_.nVcal(),calib_.vcal_first(),calib_.vcal_last());
+	 TFileDirectory workerrordir = errordir_->mkdir(detnames_[detid].Data(),detnames_[detid].Data());
+	 TH1F *gr3 = workerrordir.make<TH1F>(histname.Data(),histname.Data(),calib_.nVcal(),calib_.vcal_first(),calib_.vcal_last());
 	 gr3->Sumw2();
 	 gr3->SetMarkerStyle(22);
 	 gr3->SetMarkerSize(0.5*gr3->GetMarkerSize());
@@ -310,21 +316,25 @@ bool SiPixelGainCalibrationAnalysis::doFits(){
 
       ped =func->GetParameter(0);
       gain = func->GetParameter(1);
-      /*
-      if (gain == 0) {
-	 std::cout << "Gain of zero for " << histname.Data() << " with Nentries " << gr.GetNbinsX() << " and fit chi2 " << func->GetChisquare() << " and NDF " << func->GetNDF() << std::endl;
+      chi2 = func->GetChisquare()/func->GetNDF();
+
+      if(gain==0){// check that the summaries are already filled, do not fill histograms if so.
+	if(summaries_gain_[detid]->GetBinContent(colrowpairs_[detid][ipixel].second,colrowpairs_[detid][ipixel].first)>0.0001)
+	  continue;
       }
       //DEBUG
+      /*
       if (thisDetIdinSaveList && colrowpairs_[detid][ipixel].first == 0 && colrowpairs_[detid][ipixel].second == 201) {
-	 for(uint32_t ipoint=0; ipoint<calibPixels_[detid][ipixel].npoints(); ipoint++){
+	for(uint32_t ipoint=0; ipoint<calibPixels_[detid][ipixel].npoints(); ipoint++){
 	    std::cout << "getPoint: " << calibPixels_[detid][ipixel].getpoint(ipoint, 0) << " Nentries: " 
 	       << calibPixels_[detid][ipixel].getentries(ipoint) << "   " << calibPixels_[detid][ipixel].geterror(ipoint, 1) << std::endl;
 	 }
-      }*/
-
+      }
+      */
       summaries1D_pedestal_[detid]->Fill(ped);
       summaries1D_gain_[detid]->Fill(gain);
       summaries1D_plat_[detid]->Fill(plat);
+      summaries1D_chi2_[detid]->Fill(chi2);
       summaries_pedestal_[detid]->Fill(colrowpairs_[detid][ipixel].second,colrowpairs_[detid][ipixel].first,ped);
       summaries_gain_[detid]->Fill(colrowpairs_[detid][ipixel].second,colrowpairs_[detid][ipixel].first,gain);
       summaries_plat_[detid]->Fill(colrowpairs_[detid][ipixel].second,colrowpairs_[detid][ipixel].first,plat);
@@ -428,6 +438,11 @@ SiPixelGainCalibrationAnalysis::analyze(const edm::Event& iEvent, const edm::Eve
      if(new_det){ 
        std::vector<std::pair<uint32_t, uint32_t> > colrowpairs(0);
        std::vector<PixelROCGainCalibPixel> pixels(0,PixelROCGainCalibPixel(calib_.nVcal()));
+       if(vcalvalues_.size()==0){
+	 for(uint32_t ivcal=calib_.vcal_first();ivcal<=calib_.vcal_last(); ivcal+=calib_.vcal_step()){
+	   vcalvalues_.push_back(ivcal);
+	 }
+       }
        edm::LogInfo("SiPixelGainCalibrationAnalysis") << " adding new Det ID " << detid << " at position " << detIDmap_.size() << std::endl;
        detIDmap_[detid]=detIDmap_.size();
        detnames_[detid]=detstring;
@@ -440,21 +455,23 @@ SiPixelGainCalibrationAnalysis::analyze(const edm::Event& iEvent, const edm::Eve
        TString titleplat1d = detstring;
        titleplat1d+=" plateau in all pixels";
        TString titlechi21d = detstring;
-       titlechi21d+=" #Chi^{2} / NDOF in all pixels";
+       titlechi21d+=" #chi^{2} / NDOF in all pixels";
        TString titleped2d = detstring;
        titleped2d+=" pedestals";
        TString titlegain2d = detstring;
        titlegain2d+=" gains";
        TString titlechi22d = detstring;
-       titlechi22d+=" #Chi^{2} / NDOF";
+       titlechi22d+=" #chi^{2} / NDOF";
        TString titleplat2d = detstring;
        titleplat2d+=" plateau";
        summaries1D_pedestal_[detid]=therootfileservice_->make<TH1F>(titleped1d.Data(),titleped1d.Data(),256,0,256);
        summaries1D_gain_[detid]=therootfileservice_->make<TH1F>(titlegain1d.Data(),titlegain1d.Data(),100,0,10);
-       summaries1D_chi2_[detid]=therootfileservice_->make<TH1F>(titlechi21d.Data(),titlechi21d.Data(),100,0,20);
-       summaries1D_plat_[detid]=therootfileservice_->make<TH1F>(titleplat1d.Data(),titleplat1d.Data(),256,0,256);
        summaries_pedestal_[detid]=therootfileservice_->make<TH2F>(titleped2d.Data(),titleped2d.Data(),maxcol,0,maxcol,maxrow,0,maxrow);
        summaries_gain_[detid]=therootfileservice_->make<TH2F>(titlegain2d.Data(),titlegain2d.Data(),maxcol,0,maxcol,maxrow,0,maxrow);
+       if(fast_no_plots_)
+	 break;
+       summaries1D_chi2_[detid]=therootfileservice_->make<TH1F>(titlechi21d.Data(),titlechi21d.Data(),100,0,20);
+       summaries1D_plat_[detid]=therootfileservice_->make<TH1F>(titleplat1d.Data(),titleplat1d.Data(),256,0,256);
        summaries_chi2_[detid]=therootfileservice_->make<TH2F>(titlechi22d.Data(),titlechi22d.Data(),maxcol,0,maxcol,maxrow,0,maxrow);
        summaries_plat_[detid]=therootfileservice_->make<TH2F>(titleplat2d.Data(),titleplat2d.Data(),maxcol,0,maxcol,maxrow,0,maxrow);
        //       std::cout << detIDmap_.size() << " " << detnames_.size() << " " << colrowpairs_.size() << " " << calibPixels_.size() << std::endl;
@@ -543,8 +560,25 @@ SiPixelGainCalibrationAnalysis::endJob(){
   if(doFits())
     edm::LogInfo("now starting Database filling...");
   // loop over histograms and save 
-  SiPixelGainCalibration_ = new SiPixelGainCalibration();
+  //  first loop over all histograms once to find minimum/maximum.
 
+  float minPed=minimum_ped_;
+  float maxPed=maximum_ped_;
+  float minGain = minimum_gain_;
+  float maxGain = maximum_gain_;
+  for(std::map<uint32_t, uint32_t>::iterator imap = detIDmap_.begin(); imap!=detIDmap_.end(); imap++){
+    uint32_t detid = imap->first;
+    if(summaries_pedestal_[detid]->GetMinimum()<minPed)
+      minPed = summaries_pedestal_[detid]->GetMinimum();
+    if(summaries_pedestal_[detid]->GetMaximum()>maxPed)
+      maxPed = summaries_pedestal_[detid]->GetMaximum();
+    if(summaries_gain_[detid]->GetMinimum()<minGain)
+      minGain = summaries_gain_[detid]->GetMinimum();
+    if(summaries_gain_[detid]->GetMaximum()>maxGain)
+      maxGain = summaries_gain_[detid]->GetMaximum();
+  }  
+  SiPixelGainCalibration_ = new SiPixelGainCalibration(minPed,maxPed,minGain,maxGain);
+  
   for(std::map<uint32_t, uint32_t>::iterator imap = detIDmap_.begin(); imap!=detIDmap_.end(); imap++){
     uint32_t detid = imap->first;
     std::vector<char> theSiPixelGainCalibration;
@@ -552,23 +586,18 @@ SiPixelGainCalibrationAnalysis::endJob(){
     uint32_t nrows = summaries_gain_[detid]->GetNbinsX();
     for(uint32_t icol=0; icol<ncols; icol++){// at the moment: the order of rows... 
       for(uint32_t irow=0; irow<nrows; irow++){
-	float ped=summaries_pedestal_[detid]->GetBinContent(irow+1,icol+1);//root histos run from 1 through Nbins
-	float gain=summaries_gain_[detid]->GetBinContent(irow+1,icol+1);   //root histos run from 1 through Nbins
+	float ped=summaries_pedestal_[detid]->GetBinContent(icol+1,irow+1);//root histos run from 1 through Nbins
+	float gain=summaries_gain_[detid]->GetBinContent(icol+1,irow+1);   //root histos run from 1 through Nbins
 	if(ped==0 || gain==0){
-	  ped=255;
-	  gain=255;
+	  ped=maxPed;
+	  gain=maxGain;
 	}
 	else if(ped<minimum_ped_||ped>maximum_ped_||gain<minimum_gain_||gain>maximum_gain_){
-	  ped=255;
-	  gain=255;
+	  ped=maxPed;
+	  gain=maxGain;
 	}
 	//	std::cout << "Detid,row,col: "<< detid << ","<<irow<< "," << icol << " ped,gain:" << ped << "," << gain <<  std::endl;
-
-	float theEncodedGain  = SiPixelGainCalibrationService_.encodeGain(gain);
-	float theEncodedPed   = SiPixelGainCalibrationService_.encodePed (ped);	
-	//	edm::LogInfo("SiPixelGainCalibrationAnalysis") << "gains: " << theEncodedGain << " " << gain << std::endl;
-	//	edm::LogInfo("SiPixelGainCalibrationAnalysis") << "peds: " << theEncodedPed << " " << ped << std::endl;
-	SiPixelGainCalibration_->setData( theEncodedPed, theEncodedGain, theSiPixelGainCalibration);
+	SiPixelGainCalibration_->setData( gain, ped, theSiPixelGainCalibration);
       }// loop over rows...
     } // loop over columns ...  
     std::cout << "now starting to fill database..." << std::endl;

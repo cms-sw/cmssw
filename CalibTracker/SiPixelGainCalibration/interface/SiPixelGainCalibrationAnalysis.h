@@ -15,7 +15,7 @@
 //
 // Original Author:  Freya Blekman
 //         Created:  Mon May  7 14:22:37 CEST 2007
-// $Id: SiPixelGainCalibrationAnalysis.h,v 1.8 2007/09/04 14:49:10 friis Exp $
+// $Id: SiPixelGainCalibrationAnalysis.h,v 1.9 2007/09/06 12:24:53 friis Exp $
 //
 //
 
@@ -79,6 +79,7 @@ class SiPixelGainCalibrationAnalysis : public edm::EDAnalyzer {
       uint32_t vcal_fitmin_;
       uint32_t vcal_fitmax_;
       uint32_t vcal_fitmax_fixed_;
+      std::vector <uint32_t> vcalvalues_ ; // a vector that contains the entire range.... preparation for possibility to have non-constant vcal-step.
       double maximum_ped_; 
       double maximum_gain_;
       double minimum_ped_; 
@@ -87,6 +88,7 @@ class SiPixelGainCalibrationAnalysis : public edm::EDAnalyzer {
       bool save_histos_;
       uint32_t usethisdetid_;
       bool only_one_detid_;
+      bool fast_no_plots_; // for use in online filter farm. Ignores all settings, only ped & gain are saved.
       bool do_scurveinstead_;
       // and the containers
       
@@ -125,7 +127,7 @@ class SiPixelGainCalibrationAnalysis : public edm::EDAnalyzer {
       TFileDirectory * errordir_; // directory to store bad gain curves
      
       std::string fitfuncrootformulaGain_;
-      std::string fitfuncrootformulaSCurve_;
+      std::string fitfuncrootformulaSCurve_; /// TO BE REMOVED. ONLY ONE FIT FUNCTION per module is necessary.
 };
 
 #endif
