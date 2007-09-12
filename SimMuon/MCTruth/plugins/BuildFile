@@ -1,0 +1,6 @@
+<library file=Module.cc name=SimMuonMCTruthPlugin>
+  <use name=FWCore/Framework>
+  <use name=SimMuon/MCTruth>
+  <flags EDM_PLUGIN=1>
+</library>
+
