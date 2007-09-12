@@ -8,8 +8,6 @@
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "SimMuon/MCTruth/interface/MuonTruth.h"
 #include "DataFormats/CSCRecHit/interface/CSCRecHit2DCollection.h"
@@ -61,5 +59,3 @@ CSCTruthTest::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 }
 
 
-
-DEFINE_FWK_MODULE(CSCTruthTest);
