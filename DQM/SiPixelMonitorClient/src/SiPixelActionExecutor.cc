@@ -92,13 +92,14 @@ bool SiPixelActionExecutor::readConfiguration(int& tkmap_freq,
 //=============================================================================================================
 // -- Create Tracker Map
 //
-void SiPixelActionExecutor::createTkMap(MonitorUserInterface* mui, 
+//void SiPixelActionExecutor::createTkMap(MonitorUserInterface* mui, 
+void SiPixelActionExecutor::createTkMap(DaqMonitorBEInterface* bei, 
                                         string mEName,
 					string theTKType) 
 {
  
   TrackerMapCreator tkmap_creator(mEName,theTKType);
-  tkmap_creator.create(mui);
+  tkmap_creator.create(bei);
   
 //   cout << ACYellow << ACBold 
 //        << "[SiPixelActionExecutor::createTkMap()]"
@@ -110,8 +111,10 @@ void SiPixelActionExecutor::createTkMap(MonitorUserInterface* mui,
 }
 
 //=============================================================================================================
-void SiPixelActionExecutor::createSummary(MonitorUserInterface* mui) {
+//void SiPixelActionExecutor::createSummary(MonitorUserInterface* mui) {
+void SiPixelActionExecutor::createSummary(DaqMonitorBEInterface* bei) {
 //cout<<"entering SiPixelActionExecutor::createSummary..."<<endl;
+  //DaqMonitorBEInterface * bei = mui->getBEInterface();
   string barrel_structure_name;
   vector<string> barrel_me_names;
   if (!configParser_->getMENamesForBarrelSummary(barrel_structure_name, barrel_me_names)){
@@ -119,18 +122,18 @@ void SiPixelActionExecutor::createSummary(MonitorUserInterface* mui) {
     return;
   }
   configParser_->getSourceType(source_type_); 
-  mui->cd();
-  fillBarrelSummary(mui, barrel_structure_name, barrel_me_names);
-  mui->cd();
+  bei->cd();
+  fillBarrelSummary(bei, barrel_structure_name, barrel_me_names);
+  bei->cd();
   string endcap_structure_name;
   vector<string> endcap_me_names;
   if (!configParser_->getMENamesForEndcapSummary(endcap_structure_name, endcap_me_names)){
     edm::LogInfo("SiPixelActionExecutor")  << "Failed to read Endcap Summary configuration parameters!! " << "\n" ;
     return;
   }
-  mui->cd();
-  fillEndcapSummary(mui, endcap_structure_name, endcap_me_names);
-  mui->cd();
+  bei->cd();
+  fillEndcapSummary(bei, endcap_structure_name, endcap_me_names);
+  bei->cd();
   if(source_type_==0||source_type_>4){//do this only if RawData source is present
     string federror_structure_name;
     vector<string> federror_me_names;
@@ -138,21 +141,26 @@ void SiPixelActionExecutor::createSummary(MonitorUserInterface* mui) {
       cout << "SiPixelActionExecutor::createSummary: Failed to read FED Error Summary configuration parameters!! ";
       return;
     }
-    mui->cd();
-    fillFEDErrorSummary(mui, federror_structure_name, federror_me_names);
-    mui->cd();
+    bei->cd();
+    fillFEDErrorSummary(bei, federror_structure_name, federror_me_names);
+    bei->cd();
   }
-  createLayout(mui);
+  createLayout(bei);
   string fname = "test.xml";
   configWriter_->write(fname);
   if (configWriter_) delete configWriter_;
   configWriter_ = 0;
 //cout<<"leaving SiPixelActionExecutor::createSummary..."<<endl;
 }
-void SiPixelActionExecutor::fillBarrelSummary(MonitorUserInterface* mui,
-                               string dir_name,vector<string>& me_names) {
+
+
+//void SiPixelActionExecutor::fillBarrelSummary(MonitorUserInterface* mui,
+void SiPixelActionExecutor::fillBarrelSummary(DaqMonitorBEInterface* bei,
+                                              string dir_name,
+					      vector<string>& me_names) {
   //cout<<"entering SiPixelActionExecutor::fillBarrelSummary..."<<endl;
-  string currDir = mui->pwd();
+  //DaqMonitorBEInterface * bei = mui->getBEInterface();
+  string currDir = bei->pwd();
   string prefix;
   if(source_type_==0) prefix="SUMRAW";
   else if (source_type_==1) prefix="SUMDIG";
@@ -181,16 +189,16 @@ void SiPixelActionExecutor::fillBarrelSummary(MonitorUserInterface* mui,
       if((*iv).find("residual")!=string::npos){ // track residuals
         string tag = prefix + "_" + (*iv) + "_mean_" 
                                 + currDir.substr(currDir.find(dir_name));
-        MonitorElement* temp = getSummaryME(mui, tag);
+        MonitorElement* temp = getSummaryME(bei, tag);
         sum_mes.push_back(temp);
         tag = prefix + "_" + (*iv) + "_RMS_" 
                                 + currDir.substr(currDir.find(dir_name));
-        temp = getSummaryME(mui, tag);
+        temp = getSummaryME(bei, tag);
         sum_mes.push_back(temp);
       }else{
         string tag = prefix + "_" + (*iv) + "_" 
                                 + currDir.substr(currDir.find(dir_name));
-        MonitorElement* temp = getSummaryME(mui, tag);
+        MonitorElement* temp = getSummaryME(bei, tag);
         sum_mes.push_back(temp);
       }
     }
@@ -198,14 +206,17 @@ void SiPixelActionExecutor::fillBarrelSummary(MonitorUserInterface* mui,
       edm::LogInfo("SiPixelActionExecutor") << " Summary MEs can not be created" << "\n" ;
       return;
     }
-    vector<string> subdirs = mui->getSubdirs();
+    vector<string> subdirs = bei->getSubdirs();
     int ndet = 0;
     for (vector<string>::const_iterator it = subdirs.begin();
        it != subdirs.end(); it++) {
       if ( (*it).find("Module_") == string::npos) continue;
-      mui->cd(*it);
+      bei->cd(*it);
       ndet++;
-      vector<string> contents = mui->getMEs(); 
+
+  //    vector<string> contents = mui->getMEs(); 
+      vector<string> contents = bei->getMEs(); 
+      
       for (vector<MonitorElement*>::const_iterator isum = sum_mes.begin();
 	   isum != sum_mes.end(); isum++) {
 	for (vector<string>::const_iterator im = contents.begin();
@@ -215,8 +226,11 @@ void SiPixelActionExecutor::fillBarrelSummary(MonitorUserInterface* mui,
           tname = sname.substr(7,(sname.find("_",7)-6));
 	  //cout<<"sname="<<sname<<" , tname="<<tname<<endl;
 	  if (((*im)).find(tname) == 0) {
-	    string fullpathname = mui->pwd() + "/" + (*im); 
-	    MonitorElement *  me = mui->get(fullpathname);
+	    string fullpathname = bei->pwd() + "/" + (*im); 
+
+//	    MonitorElement *  me = mui->get(fullpathname);
+	    MonitorElement *  me = bei->get(fullpathname);
+	    
 	    if (me){ 
 	    //cout<<"sname="<<sname<<endl;
 	      if (sname.find("residual")!=string::npos && sname.find("_RMS_")!=string::npos){
@@ -237,20 +251,20 @@ void SiPixelActionExecutor::fillBarrelSummary(MonitorUserInterface* mui,
           }
 	}
       }
-      mui->goUp();
+      bei->goUp();
     }
   } else {  
-    vector<string> subdirs = mui->getSubdirs();
+    vector<string> subdirs = bei->getSubdirs();
     for (vector<string>::const_iterator it = subdirs.begin();
        it != subdirs.end(); it++) {
-      if(mui->pwd()=="Collector/Collated" && (*it).find("FU")==0) continue;
-      if((mui->pwd()).find("PixelEndcap")!=string::npos ||
-         (mui->pwd()).find("AdditionalPixelErrors")!=string::npos) mui->goUp();
-      mui->cd(*it);
+      if(bei->pwd()=="Collector/Collated" && (*it).find("FU")==0) continue;
+      if((bei->pwd()).find("PixelEndcap")!=string::npos ||
+         (bei->pwd()).find("AdditionalPixelErrors")!=string::npos) bei->goUp();
+      bei->cd(*it);
       if((*it).find("PixelEndcap")!=string::npos ||
          (*it).find("AdditionalPixelErrors")!=string::npos) continue;
-      fillBarrelSummary(mui, dir_name, me_names);
-      mui->goUp();
+      fillBarrelSummary(bei, dir_name, me_names);
+      bei->goUp();
     }
     string grandbarrel_structure_name;
     vector<string> grandbarrel_me_names;
@@ -258,15 +272,18 @@ void SiPixelActionExecutor::fillBarrelSummary(MonitorUserInterface* mui,
       cout << "SiPixelActionExecutor::createSummary: Failed to read Grand Barrel Summary configuration parameters!! ";
       return;
     }
-    fillGrandBarrelSummaryHistos(mui, grandbarrel_me_names);
+    fillGrandBarrelSummaryHistos(bei, grandbarrel_me_names);
   }
   //cout<<"...leaving SiPixelActionExecutor::fillBarrelSummary!"<<endl;
 }
 
-void SiPixelActionExecutor::fillEndcapSummary(MonitorUserInterface* mui,
-                               string dir_name,vector<string>& me_names) {
+//void SiPixelActionExecutor::fillEndcapSummary(MonitorUserInterface* mui,
+void SiPixelActionExecutor::fillEndcapSummary(DaqMonitorBEInterface* bei,
+                                              string dir_name,
+					      vector<string>& me_names) {
   //cout<<"entering SiPixelActionExecutor::fillEndcapSummary..."<<endl;
-  string currDir = mui->pwd();
+  //DaqMonitorBEInterface * bei = mui->getBEInterface();
+  string currDir = bei->pwd();
   string prefix;
   if(source_type_==0) prefix="SUMRAW";
   else if (source_type_==1) prefix="SUMDIG";
@@ -296,16 +313,16 @@ void SiPixelActionExecutor::fillEndcapSummary(MonitorUserInterface* mui,
       if((*iv).find("residual")!=string::npos){ // track residuals
         string tag = prefix + "_" + (*iv) + "_mean_" 
                                 + currDir.substr(currDir.find(dir_name));
-        MonitorElement* temp = getSummaryME(mui, tag);
+        MonitorElement* temp = getSummaryME(bei, tag);
         sum_mes.push_back(temp);
         tag = prefix + "_" + (*iv) + "_RMS_" 
                                 + currDir.substr(currDir.find(dir_name));
-        temp = getSummaryME(mui, tag);
+        temp = getSummaryME(bei, tag);
         sum_mes.push_back(temp);
       }else{
         string tag = prefix + "_" + (*iv) + "_" 
                                 + currDir.substr(currDir.find(dir_name));
-        MonitorElement* temp = getSummaryME(mui, tag);
+        MonitorElement* temp = getSummaryME(bei, tag);
         sum_mes.push_back(temp);
       }
     }
@@ -313,14 +330,17 @@ void SiPixelActionExecutor::fillEndcapSummary(MonitorUserInterface* mui,
       edm::LogInfo("SiPixelActionExecutor")  << " Summary MEs can not be created" << "\n" ;
       return;
     }
-    vector<string> subdirs = mui->getSubdirs();
+    vector<string> subdirs = bei->getSubdirs();
     int ndet = 0;
     for (vector<string>::const_iterator it = subdirs.begin();
        it != subdirs.end(); it++) {
       if ( (*it).find("Module_") == string::npos) continue;
-      mui->cd(*it);
+      bei->cd(*it);
       ndet++;
-      vector<string> contents = mui->getMEs(); 
+
+  //    vector<string> contents = mui->getMEs(); 
+      vector<string> contents = bei->getMEs();
+       
       for (vector<MonitorElement*>::const_iterator isum = sum_mes.begin();
 	   isum != sum_mes.end(); isum++) {
 	for (vector<string>::const_iterator im = contents.begin();
@@ -329,8 +349,11 @@ void SiPixelActionExecutor::fillEndcapSummary(MonitorUserInterface* mui,
 	  string tname = " ";
           tname = sname.substr(7,(sname.find("_",7)-6));
 	  if (((*im)).find(tname) == 0) {
-	    string fullpathname = mui->pwd() + "/" + (*im); 
-	    MonitorElement *  me = mui->get(fullpathname);
+	    string fullpathname = bei->pwd() + "/" + (*im); 
+
+  //	    MonitorElement *  me = mui->get(fullpathname);
+	    MonitorElement *  me = bei->get(fullpathname);
+	    
 	    if (me){ 
 	      if (sname.find("residual")!=string::npos && sname.find("_RMS_")!=string::npos){
 	        (*isum)->Fill(ndet, me->getRMS());
@@ -350,19 +373,19 @@ void SiPixelActionExecutor::fillEndcapSummary(MonitorUserInterface* mui,
           }
 	}
       }
-      mui->goUp();
+      bei->goUp();
     }
   } else {  
-    vector<string> subdirs = mui->getSubdirs();
+    vector<string> subdirs = bei->getSubdirs();
     for (vector<string>::const_iterator it = subdirs.begin();
        it != subdirs.end(); it++) {
-      if((mui->pwd()).find("PixelBarrel")!=string::npos ||
-         (mui->pwd()).find("AdditionalPixelErrors")!=string::npos) mui->goUp();
-      mui->cd((*it));
+      if((bei->pwd()).find("PixelBarrel")!=string::npos ||
+         (bei->pwd()).find("AdditionalPixelErrors")!=string::npos) bei->goUp();
+      bei->cd((*it));
       if ((*it).find("PixelBarrel")!=string::npos ||
           (*it).find("AdditionalPixelErrors")!=string::npos) continue;
-      fillEndcapSummary(mui, dir_name, me_names);
-      mui->goUp();
+      fillEndcapSummary(bei, dir_name, me_names);
+      bei->goUp();
     }
     string grandendcap_structure_name;
     vector<string> grandendcap_me_names;
@@ -370,16 +393,19 @@ void SiPixelActionExecutor::fillEndcapSummary(MonitorUserInterface* mui,
       cout << "SiPixelActionExecutor::createSummary: Failed to read Grand Endcap Summary configuration parameters!! ";
       return;
     }
-    fillGrandEndcapSummaryHistos(mui, grandendcap_me_names);
+    fillGrandEndcapSummaryHistos(bei, grandendcap_me_names);
   }
   //cout<<"...leaving SiPixelActionExecutor::fillEndcapSummary!"<<endl;
 }
 
 
-void SiPixelActionExecutor::fillFEDErrorSummary(MonitorUserInterface* mui,
-                               string dir_name,vector<string>& me_names) {
+//void SiPixelActionExecutor::fillFEDErrorSummary(MonitorUserInterface* mui,
+void SiPixelActionExecutor::fillFEDErrorSummary(DaqMonitorBEInterface* bei,
+                                                string dir_name,
+						vector<string>& me_names) {
   //cout<<"entering SiPixelActionExecutor::fillFEDErrorSummary..."<<endl;
-  string currDir = mui->pwd();
+  //DaqMonitorBEInterface * bei = mui->getBEInterface();
+  string currDir = bei->pwd();
   //cout<<"currDir="<<currDir<<endl;
   
   string prefix;
@@ -397,21 +423,24 @@ void SiPixelActionExecutor::fillFEDErrorSummary(MonitorUserInterface* mui,
 	  prefix="SUMRAW";
       }
       string tag = prefix + "_" + (*iv) + "_FEDErrors";
-      MonitorElement* temp = getFEDSummaryME(mui, tag);
+      MonitorElement* temp = getFEDSummaryME(bei, tag);
       sum_mes.push_back(temp);
     }
     if (sum_mes.size() == 0) {
       edm::LogInfo("SiPixelActionExecutor") << " Summary MEs can not be created" << "\n" ;
       return;
     }
-    vector<string> subdirs = mui->getSubdirs();
+    vector<string> subdirs = bei->getSubdirs();
     int ndet = 0;
     for (vector<string>::const_iterator it = subdirs.begin();
        it != subdirs.end(); it++) {
       if ( (*it).find("FED_") == string::npos) continue;
-      mui->cd(*it);
+      bei->cd(*it);
       ndet++;
-      vector<string> contents = mui->getMEs(); 
+
+  //    vector<string> contents = mui->getMEs(); 
+      vector<string> contents = bei->getMEs(); 
+      
       for (vector<MonitorElement*>::const_iterator isum = sum_mes.begin();
 	   isum != sum_mes.end(); isum++) {
 	for (vector<string>::const_iterator im = contents.begin();
@@ -421,8 +450,11 @@ void SiPixelActionExecutor::fillFEDErrorSummary(MonitorUserInterface* mui,
           tname = sname.substr(7,(sname.find("_",7)-6));
 	  //cout<<"sname="<<sname<<" , tname="<<tname<<" , (*im)="<<(*im)<<endl;
 	  if (((*im)).find(tname) == 0) {
-	    string fullpathname = mui->pwd() + "/" + (*im); 
-	    MonitorElement *  me = mui->get(fullpathname);
+	    string fullpathname = bei->pwd() + "/" + (*im); 
+
+  //	    MonitorElement *  me = mui->get(fullpathname);
+	    MonitorElement *  me = bei->get(fullpathname);
+	    
 	    if (me){ 
 	    //cout<<"we have the ME in "<<fullpathname<<endl;
 	    //cout<"ME: "<<me->getRMS()<<" , "<<me->getMean()<<endl;
@@ -436,29 +468,31 @@ void SiPixelActionExecutor::fillFEDErrorSummary(MonitorUserInterface* mui,
           }
 	}
       }
-      mui->goUp();
+      bei->goUp();
     }
   } else {  
-    vector<string> subdirs = mui->getSubdirs();
+    vector<string> subdirs = bei->getSubdirs();
     for (vector<string>::const_iterator it = subdirs.begin();
        it != subdirs.end(); it++) {
       //cout<<"3 - now in "<<mui->pwd()<<" , going to cd into "<<(*it)<<endl;
       if((*it).find("PixelEndcap")!=string::npos ||
          (*it).find("PixelBarrel")!=string::npos) continue;
-      mui->cd(*it);
-      fillFEDErrorSummary(mui, dir_name, me_names);
-      mui->goUp();
+      bei->cd(*it);
+      fillFEDErrorSummary(bei, dir_name, me_names);
+      bei->goUp();
     }
   }
   //cout<<"...leaving SiPixelActionExecutor::fillFEDErrorSummary!"<<endl;
 }
 
 
-void SiPixelActionExecutor::fillGrandBarrelSummaryHistos(MonitorUserInterface* mui,
-                                 vector<string>& me_names) {
+//void SiPixelActionExecutor::fillGrandBarrelSummaryHistos(MonitorUserInterface* mui,
+void SiPixelActionExecutor::fillGrandBarrelSummaryHistos(DaqMonitorBEInterface* bei,
+                                                         vector<string>& me_names) {
 //cout<<"Entering SiPixelActionExecutor::fillGrandBarrelSummaryHistos..."<<endl;
+  //DaqMonitorBEInterface * bei = mui->getBEInterface();
   vector<MonitorElement*> gsum_mes;
-  string path_name = mui->pwd();
+  string path_name = bei->pwd();
   string dir_name =  path_name.substr(path_name.find_last_of("/")+1);
   if ((dir_name.find("Collector") == 0) ||
       (dir_name.find("FU") == 0) ||
@@ -469,7 +503,7 @@ void SiPixelActionExecutor::fillGrandBarrelSummaryHistos(MonitorUserInterface* m
       (dir_name.find("Disk") == 0) ||
       (dir_name.find("Blade") == 0) ||
       (dir_name.find("Panel") == 0) ) return;
-  vector<string> subdirs = mui->getSubdirs();
+  vector<string> subdirs = bei->getSubdirs();
   int nDirs = subdirs.size();
   int iDir =0;
   int nbin = 0;
@@ -479,9 +513,12 @@ void SiPixelActionExecutor::fillGrandBarrelSummaryHistos(MonitorUserInterface* m
   for (vector<string>::const_iterator it = subdirs.begin();
        it != subdirs.end(); it++) {
     cnt++;
-    mui->cd(*it);
-    vector<string> contents = mui->getMEs();
-    mui->goUp();
+    bei->cd(*it);
+
+  //  vector<string> contents = mui->getMEs();
+    vector<string> contents = bei->getMEs();
+    
+    bei->goUp();
     
     string prefix;
     if(source_type_==0) prefix="SUMRAW";
@@ -512,7 +549,10 @@ void SiPixelActionExecutor::fillGrandBarrelSummaryHistos(MonitorUserInterface* m
 	string var = "_" + (*iv) + "_";
 	if ((*im).find(var) != string::npos) {
 	  string full_path = path_name + "/" + (*it) + "/" +(*im);
-	   MonitorElement * me = mui->get(full_path.c_str());
+
+  //	   MonitorElement * me = mui->get(full_path.c_str());
+	   MonitorElement * me = bei->get(full_path.c_str());
+	   
 	   if (!me) continue; 
            if (gsum_mes.size() !=  me_names.size()) {
 	     MonitorElementT<TNamed>* obh1 = 
@@ -525,7 +565,7 @@ void SiPixelActionExecutor::fillGrandBarrelSummaryHistos(MonitorUserInterface* m
              if(dir_name=="PixelBarrel") nbin=768;
 	     else if(dir_name.find("Shell")!=string::npos) nbin=192;
 	     else nbin=nbin*nDirs;
-	     getGrandSummaryME(mui, nbin, me_name, gsum_mes);
+	     getGrandSummaryME(bei, nbin, me_name, gsum_mes);
            }
 	   for (vector<MonitorElement*>::const_iterator igm = gsum_mes.begin();
 		igm != gsum_mes.end(); igm++) {
@@ -560,11 +600,13 @@ void SiPixelActionExecutor::fillGrandBarrelSummaryHistos(MonitorUserInterface* m
 //cout<<"...leaving SiPixelActionExecutor::fillGrandBarrelSummaryHistos!"<<endl;
 }
 
-void SiPixelActionExecutor::fillGrandEndcapSummaryHistos(MonitorUserInterface* mui,
-                                 vector<string>& me_names) {
+//void SiPixelActionExecutor::fillGrandEndcapSummaryHistos(MonitorUserInterface* mui,
+void SiPixelActionExecutor::fillGrandEndcapSummaryHistos(DaqMonitorBEInterface* bei,
+                                                         vector<string>& me_names) {
 //cout<<"Entering SiPixelActionExecutor::fillGrandEndcapSummaryHistos..."<<endl;
+  //DaqMonitorBEInterface * bei = mui->getBEInterface();
   vector<MonitorElement*> gsum_mes;
-  string path_name = mui->pwd();
+  string path_name = bei->pwd();
   string dir_name =  path_name.substr(path_name.find_last_of("/")+1);
   if ((dir_name.find("Collector") == 0) ||
       (dir_name.find("FU") == 0) ||
@@ -574,7 +616,7 @@ void SiPixelActionExecutor::fillGrandEndcapSummaryHistos(MonitorUserInterface* m
       (dir_name.find("Shell") == 0) ||
       (dir_name.find("Layer") == 0) ||
       (dir_name.find("Ladder") == 0) ) return;
-  vector<string> subdirs = mui->getSubdirs();
+  vector<string> subdirs = bei->getSubdirs();
   int iDir =0;
   int nbin = 0;
   int nbin_i = 0; 
@@ -583,9 +625,12 @@ void SiPixelActionExecutor::fillGrandEndcapSummaryHistos(MonitorUserInterface* m
   for (vector<string>::const_iterator it = subdirs.begin();
        it != subdirs.end(); it++) {
     cnt++;
-    mui->cd(*it);
-    vector<string> contents = mui->getMEs();
-    mui->goUp();
+    bei->cd(*it);
+
+  //  vector<string> contents = mui->getMEs();
+    vector<string> contents = bei->getMEs();
+    
+    bei->goUp();
     
     string prefix;
     if(source_type_==0) prefix="SUMRAW";
@@ -616,7 +661,10 @@ void SiPixelActionExecutor::fillGrandEndcapSummaryHistos(MonitorUserInterface* m
 	string var = "_" + (*iv) + "_";
 	if ((*im).find(var) != string::npos) {
 	  string full_path = path_name + "/" + (*it) + "/" +(*im);
-	   MonitorElement * me = mui->get(full_path.c_str());
+
+  //	   MonitorElement * me = mui->get(full_path.c_str());
+	   MonitorElement * me = bei->get(full_path.c_str());
+	   
 	   if (!me) continue; 
            if (gsum_mes.size() !=  me_names.size()) {
 	     MonitorElementT<TNamed>* obh1 = 
@@ -632,7 +680,7 @@ void SiPixelActionExecutor::fillGrandEndcapSummaryHistos(MonitorUserInterface* m
 	     else if(dir_name.find("Blade")!=string::npos) nbin=7;
 	     else if(dir_name.find("Panel_1")!=string::npos) nbin=4;
 	     else if(dir_name.find("Panel_2")!=string::npos) nbin=3;
-	     getGrandSummaryME(mui, nbin, me_name, gsum_mes);
+	     getGrandSummaryME(bei, nbin, me_name, gsum_mes);
 	   }
 	   for (vector<MonitorElement*>::const_iterator igm = gsum_mes.begin();
 		igm != gsum_mes.end(); igm++) {
@@ -673,14 +721,24 @@ void SiPixelActionExecutor::fillGrandEndcapSummaryHistos(MonitorUserInterface* m
 //
 // -- Get Summary ME
 //
-void SiPixelActionExecutor::getGrandSummaryME(MonitorUserInterface* mui,
-    int nbin, string& me_name, vector<MonitorElement*> & mes) {
-  vector<string> contents = mui->getMEs();    
+//void SiPixelActionExecutor::getGrandSummaryME(MonitorUserInterface* mui,
+void SiPixelActionExecutor::getGrandSummaryME(DaqMonitorBEInterface* bei,
+                                              int nbin, 
+					      string& me_name, 
+					      vector<MonitorElement*> & mes) {
+
+  //DaqMonitorBEInterface * bei = mui->getBEInterface();
+  //vector<string> contents = mui->getMEs();    
+  vector<string> contents = bei->getMEs();
+      
   for (vector<string>::const_iterator it = contents.begin();
        it != contents.end(); it++) {
     if ((*it).find(me_name) == 0) {
-      string fullpathname = mui->pwd() + "/" + me_name;
-      MonitorElement* me = mui->get(fullpathname);
+      string fullpathname = bei->pwd() + "/" + me_name;
+
+  //    MonitorElement* me = mui->get(fullpathname);
+      MonitorElement* me = bei->get(fullpathname);
+      
       if (me) {
 	MonitorElementT<TNamed>* obh1 = dynamic_cast<MonitorElementT<TNamed>*> (me);
 	if (obh1) {
@@ -692,7 +750,6 @@ void SiPixelActionExecutor::getGrandSummaryME(MonitorUserInterface* mui,
       }
     }
   }
-  DaqMonitorBEInterface * bei = mui->getBEInterface();
   MonitorElement* temp_me = bei->book1D(me_name.c_str(),me_name.c_str(),nbin,1.,nbin+1.);
   if (temp_me) mes.push_back(temp_me);
 }
@@ -701,16 +758,25 @@ void SiPixelActionExecutor::getGrandSummaryME(MonitorUserInterface* mui,
 //
 // -- Get Summary ME
 //
-MonitorElement* SiPixelActionExecutor::getSummaryME(MonitorUserInterface* mui,string me_name) {
+//MonitorElement* SiPixelActionExecutor::getSummaryME(MonitorUserInterface* mui,
+MonitorElement* SiPixelActionExecutor::getSummaryME(DaqMonitorBEInterface* bei,
+                                                    string me_name) {
 //cout<<"Entering SiPixelActionExecutor::getSummaryME..."<<endl;
+  //DaqMonitorBEInterface * bei = mui->getBEInterface();
   MonitorElement* me = 0;
   // If already booked
-  vector<string> contents = mui->getMEs();    
+
+  //vector<string> contents = mui->getMEs();    
+  vector<string> contents = bei->getMEs();    
+  
   for (vector<string>::const_iterator it = contents.begin();
        it != contents.end(); it++) {
     if ((*it).find(me_name) == 0) {
-      string fullpathname = mui->pwd() + "/" + (*it); 
-      me = mui->get(fullpathname);
+      string fullpathname = bei->pwd() + "/" + (*it); 
+
+  //    me = mui->get(fullpathname);
+      me = bei->get(fullpathname);
+      
       if (me) {
 	MonitorElementT<TNamed>* obh1 = dynamic_cast<MonitorElementT<TNamed>*> (me);
 	if (obh1) {
@@ -721,23 +787,31 @@ MonitorElement* SiPixelActionExecutor::getSummaryME(MonitorUserInterface* mui,st
       }
     }
   }
-  DaqMonitorBEInterface * bei = mui->getBEInterface();
   me = bei->book1D(me_name.c_str(), me_name.c_str(),4,1.,5.);
   return me;
   //cout<<"...leaving SiPixelActionExecutor::getSummaryME!"<<endl;
 }
 
 
-MonitorElement* SiPixelActionExecutor::getFEDSummaryME(MonitorUserInterface* mui,string me_name) {
+//MonitorElement* SiPixelActionExecutor::getFEDSummaryME(MonitorUserInterface* mui,
+MonitorElement* SiPixelActionExecutor::getFEDSummaryME(DaqMonitorBEInterface* bei,
+                                                       string me_name) {
 //cout<<"Entering SiPixelActionExecutor::getFEDSummaryME..."<<endl;
+  //DaqMonitorBEInterface * bei = mui->getBEInterface();
   MonitorElement* me = 0;
   // If already booked
-  vector<string> contents = mui->getMEs();    
+
+  //vector<string> contents = mui->getMEs();    
+  vector<string> contents = bei->getMEs();
+      
   for (vector<string>::const_iterator it = contents.begin();
        it != contents.end(); it++) {
     if ((*it).find(me_name) == 0) {
-      string fullpathname = mui->pwd() + "/" + (*it); 
-      me = mui->get(fullpathname);
+      string fullpathname = bei->pwd() + "/" + (*it); 
+
+  //    me = mui->get(fullpathname);
+      me = bei->get(fullpathname);
+      
       if (me) {
 	MonitorElementT<TNamed>* obh1 = dynamic_cast<MonitorElementT<TNamed>*> (me);
 	if (obh1) {
@@ -748,7 +822,6 @@ MonitorElement* SiPixelActionExecutor::getFEDSummaryME(MonitorUserInterface* mui
       }
     }
   }
-  DaqMonitorBEInterface * bei = mui->getBEInterface();
   me = bei->book1D(me_name.c_str(), me_name.c_str(),40,-0.5,39.5);
   return me;
   //cout<<"...leaving SiPixelActionExecutor::getFEDSummaryME!"<<endl;
@@ -756,17 +829,19 @@ MonitorElement* SiPixelActionExecutor::getFEDSummaryME(MonitorUserInterface* mui
 //
 // -- Setup Quality Tests 
 //
-void SiPixelActionExecutor::setupQTests(MonitorUserInterface * mui) {
-  mui->cd();
-  if (collationDone) mui->cd("Collector/Collated/Tracker");
+//void SiPixelActionExecutor::setupQTests(MonitorUserInterface * mui) {
+void SiPixelActionExecutor::setupQTests(DaqMonitorBEInterface * bei) {
+  //DaqMonitorBEInterface * bei = mui->getBEInterface();
+  bei->cd();
+  if (collationDone) bei->cd("Collector/Collated/Tracker");
   string localPath = string("DQM/SiPixelMonitorClient/test/sipixel_qualitytest_config.xml");
   if(!qtHandler_){
     qtHandler_ = new QTestHandle();
   }
-  if(!qtHandler_->configureTests(edm::FileInPath(localPath).fullPath(),mui)){
+  if(!qtHandler_->configureTests(edm::FileInPath(localPath).fullPath(),bei)){
     cout << " Setting up quality tests " << endl;
-    qtHandler_->attachTests(mui);
-    mui->cd();
+    qtHandler_->attachTests(bei);
+    bei->cd();
   }else{
     cout << " Problem setting up quality tests "<<endl;
   }
@@ -774,12 +849,17 @@ void SiPixelActionExecutor::setupQTests(MonitorUserInterface * mui) {
 //
 // -- Check Status of Quality Tests
 //
-void SiPixelActionExecutor::checkQTestResults(MonitorUserInterface * mui) {
+//void SiPixelActionExecutor::checkQTestResults(MonitorUserInterface * mui) {
+void SiPixelActionExecutor::checkQTestResults(DaqMonitorBEInterface * bei) {
 //cout<<"Entering SiPixelActionExecutor::checkQTestResults..."<<endl;
+  //DaqMonitorBEInterface * bei = mui->getBEInterface();
   int messageCounter=0;
-  string currDir = mui->pwd();
+  string currDir = bei->pwd();
   vector<string> contentVec;
-  mui->getContents(contentVec);
+
+  //mui->getContents(contentVec);
+  bei->getContents(contentVec);
+  
   configParser_->getMessageLimitForQTests(message_limit_); 
   for (vector<string>::iterator it = contentVec.begin();
        it != contentVec.end(); it++) {
@@ -788,7 +868,10 @@ void SiPixelActionExecutor::checkQTestResults(MonitorUserInterface * mui) {
     if (nval == 0) continue;
     for (vector<string>::const_iterator im = contents.begin();
 	 im != contents.end(); im++) {
-      MonitorElement * me = mui->get((*im));
+
+  //    MonitorElement * me = mui->get((*im));
+      MonitorElement * me = bei->get((*im));
+      
       if (me) {
 	// get all warnings associated with me
 	vector<QReport*> warnings = me->getQWarnings();
@@ -840,10 +923,15 @@ void SiPixelActionExecutor::checkQTestResults(MonitorUserInterface * mui) {
 //
 void SiPixelActionExecutor::createCollation(MonitorUserInterface * mui){
  // cout<<"Entering SiPixelActionExecutor::createCollation in directory:"<<mui->pwd()<<endl;
-  string currDir = mui->pwd();
+  DaqMonitorBEInterface * bei = mui->getBEInterface();
+  string currDir = bei->pwd();
   map<string, vector<string> > collation_map;
   vector<string> contentVec;
-  mui->getContents(contentVec);
+
+  // non-backward compatible MUI<->BEI change:
+  //mui->getContents(contentVec);
+  bei->getContents(contentVec);
+  
   for (vector<string>::iterator it = contentVec.begin();
       it != contentVec.end(); it++) {
     if ((*it).find("Module_") == string::npos &&
@@ -855,7 +943,11 @@ void SiPixelActionExecutor::createCollation(MonitorUserInterface * mui){
     for (vector<string>::iterator ic = contents.begin(); ic != contents.end(); ic++) {
       string me_path = dir_path + (*ic);
       string path = dir_path.substr(dir_path.find("Tracker"),dir_path.size());
-      MonitorElement* me = mui->get( me_path );
+
+  // non-backward compatible MUI<->BEI change:
+  //    MonitorElement* me = mui->get( me_path );
+      MonitorElement* me = bei->get( me_path );
+      
       TProfile* prof = ExtractTObject<TProfile>().extract( me );
       TH1F* hist1 = ExtractTObject<TH1F>().extract( me );
       TH2F* hist2 = ExtractTObject<TH2F>().extract( me );
@@ -866,19 +958,29 @@ void SiPixelActionExecutor::createCollation(MonitorUserInterface * mui){
         if (collation_map[tag].capacity() != contents.size()) { 
           collation_map[tag].reserve(contents.size()); 
         }
+  // non-backward compatible MUI<->BEI change:
         if      (hist1) coll_me = mui->collate1D((*ic),(*ic),coll_dir);
         else if (hist2) coll_me = mui->collate2D((*ic),(*ic),coll_dir);
         else if (prof) coll_me = mui->collate2D((*ic),(*ic),coll_dir);
+   //     if      (hist1) coll_me = bei->collate1D((*ic),(*ic),coll_dir);
+  //      else if (hist2) coll_me = bei->collate2D((*ic),(*ic),coll_dir);
+  //      else if (prof) coll_me = bei->collate2D((*ic),(*ic),coll_dir);
         collation_map[tag].push_back(coll_dir+(*ic));
       } else {
         if (find(ipos->second.begin(), ipos->second.end(), (*ic)) == ipos->second.end()){
-	  if (hist1)      coll_me = mui->collate1D((*ic),(*ic),coll_dir);
-	  else if (hist2) coll_me = mui->collate2D((*ic),(*ic),coll_dir);
-	  else if (prof)  coll_me = mui->collateProf((*ic),(*ic),coll_dir);
+  // non-backward compatible MUI<->BEI change:
+  	  if (hist1)      coll_me = mui->collate1D((*ic),(*ic),coll_dir);
+  	  else if (hist2) coll_me = mui->collate2D((*ic),(*ic),coll_dir);
+  	  else if (prof)  coll_me = mui->collateProf((*ic),(*ic),coll_dir);
+   //	  if (hist1)      coll_me = bei->collate1D((*ic),(*ic),coll_dir);
+   //	  else if (hist2) coll_me = bei->collate2D((*ic),(*ic),coll_dir);
+   //	  else if (prof)  coll_me = bei->collateProf((*ic),(*ic),coll_dir);
 	  collation_map[tag].push_back(coll_dir+(*ic));	  
         }
       }
+  // non-backward compatible MUI<->BEI change:
       if (coll_me) mui->add(coll_me, me_path);
+   //   if (coll_me) bei->add(coll_me, me_path);
     }
   }
   collationDone = true;
@@ -886,33 +988,40 @@ void SiPixelActionExecutor::createCollation(MonitorUserInterface * mui){
 }
 
 
-void SiPixelActionExecutor::createLayout(MonitorUserInterface * mui){
+//void SiPixelActionExecutor::createLayout(MonitorUserInterface * mui){
+void SiPixelActionExecutor::createLayout(DaqMonitorBEInterface * bei){
+  //DaqMonitorBEInterface * bei = mui->getBEInterface();
   if (configWriter_ == 0) {
     configWriter_ = new SiPixelConfigWriter();
     if (!configWriter_->init()) return;
   }
-  string currDir = mui->pwd();   
+  string currDir = bei->pwd();   
   if (currDir.find("Layer") != string::npos) {
     string name = "Default";
    configWriter_->createLayout(name);
    configWriter_->createRow();
-    fillLayout(mui);
+    fillLayout(bei);
   } else {
-    vector<string> subdirs = mui->getSubdirs();
+    vector<string> subdirs = bei->getSubdirs();
     for (vector<string>::const_iterator it = subdirs.begin();
 	 it != subdirs.end(); it++) {
-      mui->cd(*it);
-      createLayout(mui);
-      mui->goUp();
+      bei->cd(*it);
+      createLayout(bei);
+      bei->goUp();
     }
   }  
 }
-void SiPixelActionExecutor::fillLayout(MonitorUserInterface * mui){
+//void SiPixelActionExecutor::fillLayout(MonitorUserInterface * mui){
+void SiPixelActionExecutor::fillLayout(DaqMonitorBEInterface * bei){
   
+  //DaqMonitorBEInterface * bei = mui->getBEInterface();
   static int icount = 0;
-  string currDir = mui->pwd();
+  string currDir = bei->pwd();
   if (currDir.find("Ladder_") != string::npos) {
-    vector<string> contents = mui->getMEs(); 
+
+  //  vector<string> contents = mui->getMEs(); 
+    vector<string> contents = bei->getMEs(); 
+    
     for (vector<string>::const_iterator im = contents.begin();
 	 im != contents.end(); im++) {
       if ((*im).find("Clusters") != string::npos) {
@@ -928,24 +1037,31 @@ void SiPixelActionExecutor::fillLayout(MonitorUserInterface * mui){
       }
     }
   } else {
-    vector<string> subdirs = mui->getSubdirs();
+    vector<string> subdirs = bei->getSubdirs();
     for (vector<string>::const_iterator it = subdirs.begin();
 	 it != subdirs.end(); it++) {
-      mui->cd(*it);
-      fillLayout(mui);
-      mui->goUp();
+      bei->cd(*it);
+      fillLayout(bei);
+      bei->goUp();
     }
   }
 }
 //
 // -- Save Monitor Elements in a file
 //      
-void SiPixelActionExecutor::saveMEs(MonitorUserInterface* mui, string fname){
+//void SiPixelActionExecutor::saveMEs(MonitorUserInterface* mui,
+void SiPixelActionExecutor::saveMEs(DaqMonitorBEInterface* bei, 
+                                    string fname){
+  //DaqMonitorBEInterface * bei = mui->getBEInterface();
   if (collationDone) {
     //mui->save(fname,"Collector/Collated/SiPixel");
-     mui->save(fname,mui->pwd(),90);
+  // non-backward compatible MUI<->BEI change:
+  //   mui->save(fname,mui->pwd(),90);
+     bei->save(fname,bei->pwd(),90);
   } else {
-     mui->save(fname,mui->pwd(),90);
+  // non-backward compatible MUI<->BEI change:
+  //   mui->save(fname,mui->pwd(),90);
+     bei->save(fname,bei->pwd(),90);
   }
 }
 //

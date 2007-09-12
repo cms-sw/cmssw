@@ -3,6 +3,7 @@
 
 #include "DQMServices/UI/interface/MonitorUIRoot.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
+#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
 #include "DQM/SiPixelMonitorClient/interface/SiPixelTrackerMap.h"
 #include <fstream>
 #include <map>
@@ -19,14 +20,16 @@ class TrackerMapCreator {
                              std::string            theTKType);
  ~TrackerMapCreator();
 
-  void create(               MonitorUserInterface * mui);
+  //void create(               MonitorUserInterface * mui);
+  void create(               DaqMonitorBEInterface * bei);
 
  private:
-  MonitorElement* getTkMapMe(MonitorUserInterface * mui,
+  //MonitorElement* getTkMapMe(MonitorUserInterface * mui,
+  MonitorElement* getTkMapMe(DaqMonitorBEInterface * bei,
                              std::string          & me_name,
 			     int                    ndet);
 
-  void paintTkMap(           MonitorElement       * mui);
+  void paintTkMap(           MonitorElement       * mE);
 
   SiPixelInformationExtractor			  * infoExtractor_;
   SiPixelTrackerMap          			  * trackerMap;
@@ -34,6 +37,7 @@ class TrackerMapCreator {
   std::string					    mEName ;
   std::string					    TKType ;
   
-  bool exploreMuiStructure(  MonitorUserInterface * mui) ;
+  //bool exploreMuiStructure(  MonitorUserInterface * mui) ;
+  bool exploreBeiStructure(  DaqMonitorBEInterface * bei) ;
 };
 #endif

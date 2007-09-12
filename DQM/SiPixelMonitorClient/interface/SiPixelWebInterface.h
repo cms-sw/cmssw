@@ -27,13 +27,19 @@ public:
 			 periodicTrackerMapUpdate = 11,
 			 PlotHistogramFromPath    = 12};
 
-  SiPixelWebInterface(std::string theContextURL, std::string theApplicationURL, MonitorUserInterface ** _mui_p);
+  SiPixelWebInterface(std::string theContextURL, 
+                      std::string theApplicationURL, 
+		      MonitorUserInterface ** _mui_p);
   ~SiPixelWebInterface();
 
-  void handleCustomRequest(xgi::Input * in, xgi::Output * out ) throw (xgi::exception::Exception);
+  void handleCustomRequest(xgi::Input * in, 
+                           xgi::Output * out ) 
+			   throw (xgi::exception::Exception);
   void createAll();
 
-  void configureCustomRequest(xgi::Input * in, xgi::Output * out) throw (xgi::exception::Exception);
+  void configureCustomRequest(xgi::Input * in, 
+                              xgi::Output * out) 
+			      throw (xgi::exception::Exception);
   void performAction();
   void readConfiguration(int& freq_tkmap, 
                          int& freq_barrel_sum, 
@@ -56,7 +62,9 @@ private:
   SiPixelActionExecutor* actionExecutor_;
   SiPixelInformationExtractor* infoExtractor_;
 
-  void returnReplyXml(xgi::Output * out, const std::string& name, const std::string& comment);
+  void returnReplyXml(xgi::Output * out, 
+                      const std::string& name, 
+		      const std::string& comment);
 
   std::vector<std::string> tkMapOptions_;
   bool tkMapCreated;

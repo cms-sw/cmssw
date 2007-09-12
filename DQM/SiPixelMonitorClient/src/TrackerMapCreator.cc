@@ -10,6 +10,7 @@
 #include "DQM/SiPixelMonitorClient/interface/SiPixelInformationExtractor.h"
 #include "DQM/SiPixelMonitorClient/interface/ANSIColors.h"
 #include "DQMServices/Core/interface/QTestStatus.h"
+#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
 #include <qstring.h>
 #include <qregexp.h>
 #include <iostream>
@@ -21,7 +22,8 @@ using namespace std;
 //==============================================================================
 // -- Constructor
 // 
-TrackerMapCreator::TrackerMapCreator(string themEName, string theTKType) 
+TrackerMapCreator::TrackerMapCreator(string themEName, 
+                                     string theTKType) 
 {
   cout << ACYellow << ACBold 
        << "[TrackerMapCreator::TrackerMapCreator()]" 
@@ -54,7 +56,8 @@ TrackerMapCreator::~TrackerMapCreator()
 /*! \brief (Documentation under construction).
  *  
  */
-void TrackerMapCreator::create(MonitorUserInterface * mui) 
+//void TrackerMapCreator::create(MonitorUserInterface * mui) 
+void TrackerMapCreator::create(DaqMonitorBEInterface * bei) 
 {
 //   cout << ACYellow << ACBold
 //        << "[TrackerMapCreator::create()] "
@@ -62,12 +65,13 @@ void TrackerMapCreator::create(MonitorUserInterface * mui)
 //        << " Creating tracker map for ME: " 
 //        << mEName 
 //        << endl;
+//  DaqMonitorBEInterface * bei = mui->getBEInterface();
 
   vector<MonitorElement*> mEList ;
   map<string, int>        mEHash ;
   
-  infoExtractor_->selectMEList(mui, mEName, mEList) ;
-  infoExtractor_->getMEList(   mui,         mEHash) ;
+  infoExtractor_->selectMEList(bei, mEName, mEList) ;
+  infoExtractor_->getMEList(   bei,         mEHash) ;
   
   int nImages = mEHash.size() ;
   
@@ -180,7 +184,10 @@ void TrackerMapCreator::paintTkMap(MonitorElement * mE)
 //==============================================================================
 // -- get Tracker Map ME 
 //
-MonitorElement* TrackerMapCreator::getTkMapMe(MonitorUserInterface* mui,string& me_name, int ndet) 
+//MonitorElement* TrackerMapCreator::getTkMapMe(MonitorUserInterface* mui,
+MonitorElement* TrackerMapCreator::getTkMapMe(DaqMonitorBEInterface* bei,
+                                              string& me_name, 
+					      int ndet) 
 {
 /*
   string new_name = "TrackerMap_for_" + me_name;
@@ -201,8 +208,10 @@ MonitorElement* TrackerMapCreator::getTkMapMe(MonitorUserInterface* mui,string& 
 //==============================================================================
 // -- Browse through monitorable and get values needed by TrackerMap
 //
-bool TrackerMapCreator::exploreMuiStructure(MonitorUserInterface* mui) 
+//bool TrackerMapCreator::exploreMuiStructure(MonitorUserInterface* mui) 
+bool TrackerMapCreator::exploreBeiStructure(DaqMonitorBEInterface* bei) 
 {
+  //DaqMonitorBEInterface * bei = mui->getBEInterface();
   cout << ACCyan << ACBold
        << "[TrackerMapCreator::create()] "
        << ACRed << ACReverse 
@@ -210,10 +219,12 @@ bool TrackerMapCreator::exploreMuiStructure(MonitorUserInterface* mui)
        << ACPlain
        << " "
        << ACBlue << ACBold
-       << mui->pwd()
+       << bei->pwd()
        << ACPlain << endl ;
 
-  vector<string> histoList = mui->getMEs();    
+
+  vector<string> histoList = bei->getMEs(); 
+     
   for (vector<string>::const_iterator it = histoList.begin(); it != histoList.end(); it++) 
   {
    cout << ACCyan << ACBold
@@ -225,10 +236,12 @@ bool TrackerMapCreator::exploreMuiStructure(MonitorUserInterface* mui)
    	<< *it
    	<< ACPlain << endl ;
   }
-  vector<string> subDirs = mui->getSubdirs();
+
+  vector<string> subDirs = bei->getSubdirs();
+  
   for (vector<string>::const_iterator it = subDirs.begin(); it != subDirs.end(); it++) 
   {
-    mui->cd(*it);
+    bei->cd(*it);
     cout << ACCyan << ACBold
     	 << "[TrackerMapCreator::create()] "
     	 << ACRed << ACBold 
@@ -236,10 +249,10 @@ bool TrackerMapCreator::exploreMuiStructure(MonitorUserInterface* mui)
     	 << ACPlain
     	 << " "
     	 << ACBlue << ACBold
-    	 << mui->pwd()
+    	 << bei->pwd()
     	 << ACPlain << endl ;
-    exploreMuiStructure(mui);
-    mui->goUp();
+    exploreBeiStructure(bei);
+    bei->goUp();
     cout << ACCyan << ACBold
     	 << "[TrackerMapCreator::create()] "
     	 << ACRed << ACBold 
@@ -247,7 +260,7 @@ bool TrackerMapCreator::exploreMuiStructure(MonitorUserInterface* mui)
     	 << ACPlain
     	 << " "
     	 << ACBlue << ACBold
-    	 << mui->pwd()
+    	 << bei->pwd()
     	 << ACPlain << endl ;
   }
   return true ;

@@ -2,6 +2,7 @@
 #include "DQM/SiPixelMonitorClient/interface/SiPixelActionExecutor.h"
 #include "DQM/SiPixelMonitorClient/interface/SiPixelInformationExtractor.h"
 #include "DQM/SiPixelMonitorClient/interface/ANSIColors.h"
+#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
 #include "DQMServices/WebComponents/interface/CgiWriter.h"
 #include "DQMServices/WebComponents/interface/CgiReader.h"
 #include "DQMServices/WebComponents/interface/ConfigBox.h"
@@ -77,6 +78,7 @@ void SiPixelWebInterface::handleCustomRequest(xgi::Input  * in,
 //  cout<<"entering handleCustomRequest"<<endl;
   // put the request information in a multimap...
   //std::multimap<std::string, std::string> request_multimap;
+  DaqMonitorBEInterface * bei = (*mui_p)->getBEInterface();
   CgiReader reader(in);
   reader.read_form(requestMap_);
 
@@ -125,11 +127,14 @@ void SiPixelWebInterface::handleCustomRequest(xgi::Input  * in,
     out->getHTTPResponseHeader().addHeader("Pragma", "no-cache");   
     out->getHTTPResponseHeader().addHeader("Cache-Control", "no-store, no-cache, must-revalidate,max-age=0");
     out->getHTTPResponseHeader().addHeader("Expires","Mon, 26 Jul 1997 05:00:00 GMT");
-    (*mui_p)->cd() ;
-    (*mui_p)->cd(MEFolder) ;
-    vector<std::string> meList = (*mui_p)->getMEs() ;
+    bei->cd() ;
+    bei->cd(MEFolder) ;
+
+  //  vector<std::string> meList = (*mui_p)->getMEs() ;
+    vector<std::string> meList = bei->getMEs() ;
+    
     *out << MEFolder << " " ;
-    (*mui_p)->cd() ;
+    bei->cd() ;
     for(vector<std::string>::iterator it=meList.begin(); it!=meList.end(); it++)
     {
      *out << *it << " " ;
@@ -146,7 +151,7 @@ void SiPixelWebInterface::handleCustomRequest(xgi::Input  * in,
     out->getHTTPResponseHeader().addHeader("Pragma", "no-cache");   
     out->getHTTPResponseHeader().addHeader("Cache-Control", "no-store, no-cache, must-revalidate,max-age=0");
     out->getHTTPResponseHeader().addHeader("Expires","Mon, 26 Jul 1997 05:00:00 GMT");
-    *out << infoExtractor_->getIMGCImage((*mui_p), fullPath.str(), canvasW, canvasH ).str();
+    *out << infoExtractor_->getIMGCImage(bei, fullPath.str(), canvasW, canvasH ).str();
     theActionFlag = NoAction;    
 
   } else if (requestID == "OpenTkMap") {
@@ -159,30 +164,30 @@ void SiPixelWebInterface::handleCustomRequest(xgi::Input  * in,
 
   } else if (requestID == "SingleModuleHistoList") {
     theActionFlag = NoAction;
-    infoExtractor_->readModuleAndHistoList((*mui_p), out, actionExecutor_->getCollationFlag() );    
+    infoExtractor_->readModuleAndHistoList(bei, out, actionExecutor_->getCollationFlag() );    
 
   } else if (requestID == "ModuleHistoList") {
     theActionFlag = NoAction;
     string sname = get_from_multimap(requestMap_, "StructureName");
-    infoExtractor_->readModuleHistoTree((*mui_p), sname, out,
+    infoExtractor_->readModuleHistoTree(bei, sname, out,
                           actionExecutor_->getCollationFlag());    
 
   } else if (requestID == "SummaryHistoList") {
     theActionFlag = NoAction;
     string sname = get_from_multimap(requestMap_, "StructureName");
-    infoExtractor_->readSummaryHistoTree((*mui_p), sname, out,
+    infoExtractor_->readSummaryHistoTree(bei, sname, out,
                            actionExecutor_->getCollationFlag());    
 
   } else if (requestID == "AlarmList") {
     theActionFlag = NoAction;
     string sname = get_from_multimap(requestMap_, "StructureName");
-    infoExtractor_->readAlarmTree((*mui_p), sname, out,
+    infoExtractor_->readAlarmTree(bei, sname, out,
                            actionExecutor_->getCollationFlag());    
 
   } else if (requestID == "ReadQTestStatus") {
     theActionFlag = NoAction;
     string path = get_from_multimap(requestMap_, "Path");
-    infoExtractor_->readStatusMessage((*mui_p), path, out);
+    infoExtractor_->readStatusMessage(bei, path, out);
 
   } else if (requestID == "PlotAsModule") {
     theActionFlag = PlotSingleModuleHistos;    
@@ -200,7 +205,7 @@ void SiPixelWebInterface::handleCustomRequest(xgi::Input  * in,
 //   	 << endl ;
     string theMEName = get_from_multimap(requestMap_, "MEName");
     string theModId  = get_from_multimap(requestMap_, "ModId");
-    infoExtractor_->plotTkMapHisto((*mui_p), theModId, theMEName);
+    infoExtractor_->plotTkMapHisto(bei, theModId, theMEName);
     out->getHTTPResponseHeader().addHeader("Content-Type", "image/png");
     out->getHTTPResponseHeader().addHeader("Pragma", "no-cache");   
     out->getHTTPResponseHeader().addHeader("Cache-Control", "no-store, no-cache, must-revalidate,max-age=0");
@@ -232,7 +237,7 @@ void SiPixelWebInterface::handleCustomRequest(xgi::Input  * in,
 
   } else if (requestID == "GetMEList") {
     theActionFlag = NoAction;
-    infoExtractor_->readModuleAndHistoList((*mui_p), out, actionExecutor_->getCollationFlag() );    
+    infoExtractor_->readModuleAndHistoList(bei, out, actionExecutor_->getCollationFlag() );    
 
   } else if (requestID == "periodicTrackerMapUpdate") {
    theActionFlag = NoAction;
@@ -248,10 +253,15 @@ void SiPixelWebInterface::handleCustomRequest(xgi::Input  * in,
 //
 // -- Schedule Custom Action
 //
-void SiPixelWebInterface::configureCustomRequest(xgi::Input * in, xgi::Output * out) throw (xgi::exception::Exception){
+void SiPixelWebInterface::configureCustomRequest(xgi::Input * in, 
+                                                 xgi::Output * out) 
+						 throw (xgi::exception::Exception){
+  DaqMonitorBEInterface * bei = (*mui_p)->getBEInterface();
   seal::Callback action(seal::CreateCallback(this, 
                       &SiPixelWebInterface::performAction));
+  // non-backward compatible MUI<->BEI change:
   (*mui_p)->addCallback(action);
+  //bei->addCallback(action);
 }
 
 //____________________________________________________________________________________________________
@@ -259,7 +269,8 @@ void SiPixelWebInterface::configureCustomRequest(xgi::Input * in, xgi::Output * 
 // -- Setup Quality Tests
 // 
 void SiPixelWebInterface::setupQTests() {
-  actionExecutor_->setupQTests((*mui_p));
+  DaqMonitorBEInterface * bei = (*mui_p)->getBEInterface();
+  actionExecutor_->setupQTests(bei);
 }
 
 //____________________________________________________________________________________________________
@@ -298,12 +309,16 @@ void SiPixelWebInterface::readConfiguration(int& tkmap_freq,
 //
 void SiPixelWebInterface::performAction() {
 //cout<<"entering performAction..."<<endl;
+  DaqMonitorBEInterface * bei = (*mui_p)->getBEInterface();
   switch (theActionFlag) {
   case SiPixelWebInterface::SubscribeAll :
     {
 //      cout << " SiPixelWebInterface::subscribeAll " << endl;
 //      (*mui_p)->subscribe("Collector/FU0/Tracker/PixelBarrel/Layer_1/Ladder_01/*");
+
+  // non-backward compatible MUI<->BEI change:
       (*mui_p)->subscribe("Collector/*");
+  //    bei->subscribe("Collector/*");
       break;
     } 
   case SiPixelWebInterface::Collate :
@@ -327,31 +342,31 @@ void SiPixelWebInterface::performAction() {
   case SiPixelWebInterface::Summary :
     {
 //      cout << " SiPixelWebInterface::Summary " << endl;
-      actionExecutor_->createSummary((*mui_p));
+      actionExecutor_->createSummary(bei);
       break;
     }
   case SiPixelWebInterface::setupQTest :
     {
 //      cout << " SiPixelWebInterface::setupQTests " << endl;
-      actionExecutor_->setupQTests((*mui_p));
+      actionExecutor_->setupQTests(bei);
       break;
     }
   case SiPixelWebInterface::QTestResult :
     {
 //      cout << " SiPixelWebInterface::QTestResult " << endl;
-      actionExecutor_->checkQTestResults((*mui_p));
+      actionExecutor_->checkQTestResults(bei);
       break;
     }
   case SiPixelWebInterface::SaveData :
     {
 //      cout << " Saving Monitoring Elements " << endl;
-      actionExecutor_->saveMEs((*mui_p), "SiPixelWebClient.root");
+      actionExecutor_->saveMEs(bei, "SiPixelWebClient.root");
       break;
     }
   case SiPixelWebInterface::PlotSingleModuleHistos :
     {
 //      cout << " SiPixelWebInterface::PlotSingleModuleHistos " << endl;
-      infoExtractor_->plotSingleModuleHistos((*mui_p), requestMap_);
+      infoExtractor_->plotSingleModuleHistos(bei, requestMap_);
       break;
     }
   case SiPixelWebInterface::PlotTkMapHistogram :
@@ -376,7 +391,7 @@ void SiPixelWebInterface::performAction() {
 // --> new tkmap plot
       string theMEName = get_from_multimap(requestMap_, "MEName");
       string theModId  = get_from_multimap(requestMap_, "ModId");
-      infoExtractor_->plotTkMapHisto((*mui_p), theModId, theMEName);
+      infoExtractor_->plotTkMapHisto(bei, theModId, theMEName);
 
       cout << ACYellow << ACBold 
            << "[SiPixelWebInterface::PlotTkMapHistogram()]"
@@ -402,7 +417,7 @@ void SiPixelWebInterface::performAction() {
   case SiPixelWebInterface::PlotSingleHistogram :
     {
 //      cout << " SiPixelWebInterface::PlotSingleHistogram " << endl;
-      infoExtractor_->plotSingleHistogram((*mui_p), requestMap_);
+      infoExtractor_->plotSingleHistogram(bei, requestMap_);
       break;
     }
   case SiPixelWebInterface::periodicTrackerMapUpdate :
@@ -411,7 +426,7 @@ void SiPixelWebInterface::performAction() {
     }
   case SiPixelWebInterface::PlotHistogramFromPath :
     {
-      infoExtractor_->plotHistosFromPath((*mui_p), requestMap_);
+      infoExtractor_->plotHistosFromPath(bei, requestMap_);
       break;
     }
   case SiPixelWebInterface::NoAction :
@@ -425,7 +440,9 @@ void SiPixelWebInterface::performAction() {
 
 
 //____________________________________________________________________________________________________
-void SiPixelWebInterface::returnReplyXml(xgi::Output * out, const std::string& name, const std::string& comment){
+void SiPixelWebInterface::returnReplyXml(xgi::Output * out, 
+                                         const std::string& name, 
+					 const std::string& comment){
    out->getHTTPResponseHeader().addHeader("Content-Type", "text/xml");
   *out << "<?xml version=\"1.0\" ?>" << std::endl;
   *out << "<TkMap>" << endl;
@@ -441,10 +458,11 @@ void SiPixelWebInterface::returnReplyXml(xgi::Output * out, const std::string& n
 
 //____________________________________________________________________________________________________
 bool SiPixelWebInterface::createTkMap() {
+  DaqMonitorBEInterface * bei = (*mui_p)->getBEInterface();
   if (theActionFlag == SiPixelWebInterface::CreateTkMap) {
     string sname     = get_from_multimap(requestMap_, "MEName");
     string theTKType = get_from_multimap(requestMap_, "TKMapType");
-    actionExecutor_->createTkMap((*mui_p), sname, theTKType);
+    actionExecutor_->createTkMap(bei, sname, theTKType);
     return true;
   } else {
     return false;
@@ -456,7 +474,8 @@ bool SiPixelWebInterface::createTkMap() {
 //____________________________________________________________________________________________________
 void SiPixelWebInterface::periodicTkMapUpdate(xgi::Output * out)
 {
+  DaqMonitorBEInterface * bei = (*mui_p)->getBEInterface();
   string sname     = get_from_multimap(requestMap_, "MEName");
   string theTKType = get_from_multimap(requestMap_, "TKMapType");
-  infoExtractor_->sendTkUpdatedStatus((*mui_p), out, sname, theTKType) ;
+  infoExtractor_->sendTkUpdatedStatus(bei, out, sname, theTKType) ;
 }

@@ -15,7 +15,7 @@
 
 
 class SiPixelWebClient : public DQMBaseClient, 
-			       public dqm::UpdateObserver
+			 public dqm::UpdateObserver
 {
 public:
   
@@ -26,10 +26,13 @@ public:
   SiPixelWebClient(xdaq::ApplicationStub *s);
 
   // implement the method that outputs the page with the widgets (declared in DQMBaseClient):
-  void general(xgi::Input * in, xgi::Output * out ) throw (xgi::exception::Exception);
+  void general(xgi::Input * in, 
+               xgi::Output * out ) 
+	       throw (xgi::exception::Exception);
 
   // the method which answers all HTTP requests of the form ".../Request?RequestID=..."
-  void handleWebRequest(xgi::Input * in, xgi::Output * out);
+  void handleWebRequest(xgi::Input * in, 
+                        xgi::Output * out);
 
   // this obligatory method is called whenever the client enters the "Configured" state:
   void configure();

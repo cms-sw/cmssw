@@ -58,20 +58,22 @@ SiPixelInformationExtractor::~SiPixelInformationExtractor() {
 /*! \brief (Documentation under construction).
  *  
  */
-void SiPixelInformationExtractor::createModuleTree(MonitorUserInterface* mui) {
+//void SiPixelInformationExtractor::createModuleTree(MonitorUserInterface* mui) {
+void SiPixelInformationExtractor::createModuleTree(DaqMonitorBEInterface* bei) {
 //cout<<"entering SiPixelInformationExtractor::createModuleTree..."<<endl;
+  //DaqMonitorBEInterface * bei = mui->getBEInterface();
   string structure_name;
   vector<string> me_names;
   if (!configParser_->getMENamesForTree(structure_name, me_names)){
     cout << "SiPixelInformationExtractor::createModuleTree: Failed to read Tree configuration parameters!! ";
     return;
   }
-  mui->cd();
-  fillBarrelList(mui, structure_name, me_names);
-  mui->cd();
-  fillEndcapList(mui, structure_name, me_names);
-  mui->cd();
-  actionExecutor_->createLayout(mui);
+  bei->cd();
+  fillBarrelList(bei, structure_name, me_names);
+  bei->cd();
+  fillEndcapList(bei, structure_name, me_names);
+  bei->cd();
+  actionExecutor_->createLayout(bei);
   string fname = "test1.xml";
   configWriter_->write(fname);
   if (configWriter_) delete configWriter_;
@@ -83,13 +85,19 @@ void SiPixelInformationExtractor::createModuleTree(MonitorUserInterface* mui) {
 /*! \brief (Documentation under construction).
  *  
  */
-void SiPixelInformationExtractor::fillBarrelList(MonitorUserInterface* mui,
-                               string dir_name,vector<string>& me_names) {
+//void SiPixelInformationExtractor::fillBarrelList(MonitorUserInterface* mui,
+void SiPixelInformationExtractor::fillBarrelList(DaqMonitorBEInterface* bei,
+                                                 string dir_name,
+						 vector<string>& me_names) {
   //cout<<"entering SiPixelInformationExtractor::fillBarrelList..."<<endl;
-  string currDir = mui->pwd();
+  //DaqMonitorBEInterface * bei = mui->getBEInterface();
+  string currDir = bei->pwd();
   if (currDir.find(dir_name) != string::npos)  {
     vector<MonitorElement*> mod_mes;
-    vector<string> contents = mui->getMEs(); 
+
+  //  vector<string> contents = mui->getMEs(); 
+    vector<string> contents = bei->getMEs(); 
+    
     for (vector<string>::const_iterator iv = me_names.begin();
 	 iv != me_names.end(); iv++) {
       for (vector<string>::const_iterator im = contents.begin();
@@ -97,35 +105,41 @@ void SiPixelInformationExtractor::fillBarrelList(MonitorUserInterface* mui,
         string sname = (*iv);
         string tname = sname.substr(8,(sname.find("_",8)-8)) + "_";
 	if (((*im)).find(tname) == 0) {
-	  string fullpathname = mui->pwd() + "/" + (*im); 
-          getModuleME(mui, fullpathname);                       
+	  string fullpathname = bei->pwd() + "/" + (*im); 
+          getModuleME(bei, fullpathname);                       
 	}
       }
     }
   } else {  
-    vector<string> subdirs = mui->getSubdirs();
+    vector<string> subdirs = bei->getSubdirs();
     for (vector<string>::const_iterator it = subdirs.begin();
        it != subdirs.end(); it++) {
       if((*it).find("PixelEndcap")!=string::npos) continue;
-      mui->cd(*it);
-      fillBarrelList(mui, dir_name, me_names);
-      mui->goUp();
+      bei->cd(*it);
+      fillBarrelList(bei, dir_name, me_names);
+      bei->goUp();
     }
   }
-  //cout<<"...leaving SiPixelActionExecutor::fillBarrelSummary!"<<endl;
+  //cout<<"...leaving SiPixelActionExecutor::fillBarrelList!"<<endl;
 }
 
 //------------------------------------------------------------------------------
 /*! \brief (Documentation under construction).
  *  
  */
-void SiPixelInformationExtractor::fillEndcapList(MonitorUserInterface* mui,
-                               string dir_name,vector<string>& me_names) {
+//void SiPixelInformationExtractor::fillEndcapList(MonitorUserInterface* mui,
+void SiPixelInformationExtractor::fillEndcapList(DaqMonitorBEInterface* bei,
+                                                 string dir_name,
+						 vector<string>& me_names) {
   //cout<<"entering SiPixelInformationExtractor::fillEndcapList..."<<endl;
-  string currDir = mui->pwd();
+  //DaqMonitorBEInterface * bei = mui->getBEInterface();
+  string currDir = bei->pwd();
   if (currDir.find(dir_name) != string::npos)  {
     vector<MonitorElement*> mod_mes;
-    vector<string> contents = mui->getMEs(); 
+
+  //  vector<string> contents = mui->getMEs(); 
+    vector<string> contents = bei->getMEs(); 
+    
     for (vector<string>::const_iterator iv = me_names.begin();
 	 iv != me_names.end(); iv++) {
       for (vector<string>::const_iterator im = contents.begin();
@@ -133,23 +147,23 @@ void SiPixelInformationExtractor::fillEndcapList(MonitorUserInterface* mui,
         string sname = (*iv);
         string tname = sname.substr(8,(sname.find("_",8)-8)) + "_";
 	if (((*im)).find(tname) == 0) {
-	  string fullpathname = mui->pwd() + "/" + (*im); 
-          getModuleME(mui, fullpathname);                        
+	  string fullpathname = bei->pwd() + "/" + (*im); 
+          getModuleME(bei, fullpathname);                        
 	}
       }
     }
   } else {  
-    vector<string> subdirs = mui->getSubdirs();
+    vector<string> subdirs = bei->getSubdirs();
     for (vector<string>::const_iterator it = subdirs.begin();
        it != subdirs.end(); it++) {
-      if((mui->pwd()).find("PixelBarrel")!=string::npos) mui->goUp();
-      mui->cd((*it));
+      if((bei->pwd()).find("PixelBarrel")!=string::npos) bei->goUp();
+      bei->cd((*it));
       if((*it).find("PixelBarrel")!=string::npos) continue;
-      fillEndcapList(mui, dir_name, me_names);
-      mui->goUp();
+      fillEndcapList(bei, dir_name, me_names);
+      bei->goUp();
     }
   }
-  //cout<<"...leaving SiPixelActionExecutor::fillBarrelSummary!"<<endl;
+  //cout<<"...leaving SiPixelActionExecutor::fillEndcapList!"<<endl;
 }
 
 //------------------------------------------------------------------------------
@@ -158,16 +172,27 @@ void SiPixelInformationExtractor::fillEndcapList(MonitorUserInterface* mui,
  *  Returns a pointer to a ME filtered by me_name from the list of ME in the current directory
  *  In doing so it clears its content (not sure why...)
  */
-MonitorElement* SiPixelInformationExtractor::getModuleME(MonitorUserInterface* mui,string me_name) {
+//MonitorElement* SiPixelInformationExtractor::getModuleME(MonitorUserInterface* mui,
+MonitorElement* SiPixelInformationExtractor::getModuleME(DaqMonitorBEInterface* bei,
+                                                         string me_name) {
 //cout<<"Entering SiPixelInformationExtractor::getModuleME..."<<endl;
+  //DaqMonitorBEInterface * bei = mui->getBEInterface();
   MonitorElement* me = 0;
   // If already booked
-  vector<string> contents = mui->getMEs();    
+
+  // non-backward compatible MUI<->BEI change:
+  //vector<string> contents = mui->getMEs();    
+  vector<string> contents = bei->getMEs();   
+   
   for (vector<string>::const_iterator it = contents.begin();
        it != contents.end(); it++) {
     if ((*it).find(me_name) == 0) {
-      string fullpathname = mui->pwd() + "/" + (*it); 
-      me = mui->get(fullpathname);
+      string fullpathname = bei->pwd() + "/" + (*it); 
+
+  // non-backward compatible MUI<->BEI change:
+  //    me = mui->get(fullpathname);
+      me = bei->get(fullpathname);
+      
       if (me) {
 	MonitorElementT<TNamed>* obh1 = dynamic_cast<MonitorElementT<TNamed>*> (me);
 	if (obh1) {
@@ -202,12 +227,14 @@ MonitorElement* SiPixelInformationExtractor::getModuleME(MonitorUserInterface* m
  *  The method is specialized to siPixel Monitor Elements only
  *  
  */
-void SiPixelInformationExtractor::selectSingleModuleHistos(MonitorUserInterface    * mui,  
+//void SiPixelInformationExtractor::selectSingleModuleHistos(MonitorUserInterface    * mui,  
+void SiPixelInformationExtractor::selectSingleModuleHistos(DaqMonitorBEInterface   * bei,  
                                                            string                    mid,  
 							   vector<string>          & names,
 							   vector<MonitorElement*> & mes) 
 {  
-  string currDir = mui->pwd();
+  //DaqMonitorBEInterface * bei = mui->getBEInterface();
+  string currDir = bei->pwd();
   //QRegExp rx("(\\w+)_siPixel") ;
   //QRegExp rx2("(\\w+)_ctfWithMaterialTracks") ;
   QRegExp rx("(\\w+)_3") ;
@@ -215,7 +242,9 @@ void SiPixelInformationExtractor::selectSingleModuleHistos(MonitorUserInterface 
   if (currDir.find("Module_") != string::npos ||
       currDir.find("FED_") != string::npos)  
   {
-    vector<string> contents = mui->getMEs();    
+  //  vector<string> contents = mui->getMEs();    
+    vector<string> contents = bei->getMEs(); 
+       
     for (vector<string>::const_iterator it = contents.begin(); it != contents.end(); it++) 
     {
 //       cout << ACRed << ACReverse
@@ -237,7 +266,10 @@ void SiPixelInformationExtractor::selectSingleModuleHistos(MonitorUserInterface 
 	  {
 	    string full_path = currDir + "/" + (*it);
 	    //cout<<"full_path="<<full_path<<endl;
-	    MonitorElement * me = mui->get(full_path.c_str());
+
+  //	    MonitorElement * me = mui->get(full_path.c_str());
+	    MonitorElement * me = bei->get(full_path.c_str());
+	    
 	    if (me) 
 	    {
 	     mes.push_back(me);
@@ -251,12 +283,12 @@ void SiPixelInformationExtractor::selectSingleModuleHistos(MonitorUserInterface 
      return;
     }
   } else {  
-    vector<string> subdirs = mui->getSubdirs();
+    vector<string> subdirs = bei->getSubdirs();
     for (vector<string>::const_iterator it = subdirs.begin(); it != subdirs.end(); it++) 
     {
-      mui->cd(*it);
-      selectSingleModuleHistos(mui, mid, names, mes);
-      mui->goUp();
+      bei->cd(*it);
+      selectSingleModuleHistos(bei, mid, names, mes);
+      bei->goUp();
     }
   }
 //cout<<"leaving SiPixelInformationExtractor::selectSingleModuleHistos"<<endl;
@@ -266,8 +298,11 @@ void SiPixelInformationExtractor::selectSingleModuleHistos(MonitorUserInterface 
  *
  *  This method 
  */
-void SiPixelInformationExtractor::plotSingleModuleHistos(MonitorUserInterface* mui, multimap<string, string>& req_map) {
+//void SiPixelInformationExtractor::plotSingleModuleHistos(MonitorUserInterface* mui, 
+void SiPixelInformationExtractor::plotSingleModuleHistos(DaqMonitorBEInterface* bei, 
+                                                         multimap<string, string>& req_map) {
 //cout<<"entering SiPixelInformationExtractor::plotSingleModuleHistos"<<endl;
+  //DaqMonitorBEInterface * bei = mui->getBEInterface();
   vector<string> item_list;  
 
   string mod_id = getItemValue(req_map,"ModId");
@@ -281,9 +316,9 @@ void SiPixelInformationExtractor::plotSingleModuleHistos(MonitorUserInterface* m
   getItemList(req_map,"histo", item_list); // item_list holds all histos to plot
   vector<MonitorElement*> me_list;
 
-  mui->cd();
-  selectSingleModuleHistos(mui, mod_id, item_list, me_list);
-  mui->cd();
+  bei->cd();
+  selectSingleModuleHistos(bei, mod_id, item_list, me_list);
+  bei->cd();
 
 //  plotHistos(req_map,me_list);
   if (me_list.size() == 0) {
@@ -298,17 +333,19 @@ void SiPixelInformationExtractor::plotSingleModuleHistos(MonitorUserInterface* m
 //============================================================================================================
 // --  Plot a Selected Monitor Element
 // 
-void SiPixelInformationExtractor::plotTkMapHisto(MonitorUserInterface * mui, 
-                                                 string                 theModId, 
-						 string                 theMEName) 
+//void SiPixelInformationExtractor::plotTkMapHisto(MonitorUserInterface * mui, 
+void SiPixelInformationExtractor::plotTkMapHisto(DaqMonitorBEInterface * bei, 
+                                                 string                  theModId, 
+						 string                  theMEName) 
 {
+  //DaqMonitorBEInterface * bei = mui->getBEInterface();
   vector<MonitorElement*> me_list;
   vector<string>	  theMENameList;
   theMENameList.push_back(theMEName) ;
     
-  mui->cd();
-  selectSingleModuleHistos(mui, theModId, theMENameList, me_list);
-  mui->cd();
+  bei->cd();
+  selectSingleModuleHistos(bei, theModId, theMENameList, me_list);
+  bei->cd();
 
   if( me_list.size() < 1 )
   {
@@ -446,11 +483,13 @@ void SiPixelInformationExtractor::plotHisto(MonitorElement * theMe,
 //============================================================================================================
 // --  Plot Selected Monitor Elements
 // 
-void SiPixelInformationExtractor::plotTkMapHistos(MonitorUserInterface     * mui, 
+//void SiPixelInformationExtractor::plotTkMapHistos(MonitorUserInterface     * mui, 
+void SiPixelInformationExtractor::plotTkMapHistos(DaqMonitorBEInterface    * bei, 
                                                   multimap<string, string> & req_map, 
 						  string                     sname) 
 {
 //cout<<"entering SiPixelInformationExtractor::plotSingleModuleHistos"<<endl;
+  //DaqMonitorBEInterface * bei = mui->getBEInterface();
   string mod_id = getItemValue(req_map,"ModId");
 //   cout << ACYellow << ACBold << ACReverse
 //        << "[SiPixelInformationExtractor::plotTkMapHistos()]"
@@ -467,9 +506,9 @@ void SiPixelInformationExtractor::plotTkMapHistos(MonitorUserInterface     * mui
   getItemList(req_map,"histo", item_list); // item_list holds all histos to plot
   vector<MonitorElement*> me_list;
 
-  mui->cd();
-  selectSingleModuleHistos(mui, mod_id, item_list, me_list);
-  mui->cd();
+  bei->cd();
+  selectSingleModuleHistos(bei, mod_id, item_list, me_list);
+  bei->cd();
 
   QRegExp rx(sname) ;
   QString meName ;
@@ -508,15 +547,20 @@ void SiPixelInformationExtractor::plotTkMapHistos(MonitorUserInterface     * mui
  *
  *  This method 
  */
-void SiPixelInformationExtractor::plotSingleHistogram(MonitorUserInterface * mui,
-		       std::multimap<std::string, std::string>& req_map){
+//void SiPixelInformationExtractor::plotSingleHistogram(MonitorUserInterface * mui,
+void SiPixelInformationExtractor::plotSingleHistogram(DaqMonitorBEInterface * bei,
+		                                      std::multimap<std::string, 
+						      std::string>& req_map){
 //cout<<"entering SiPixelInformationExtractor::plotSingleHistogram"<<endl;
+  //DaqMonitorBEInterface * bei = mui->getBEInterface();
   vector<string> item_list;  
 
   string path_name = getItemValue(req_map,"Path");
   if (path_name.size() == 0) return;
   
-  MonitorElement* me = mui->get(path_name);
+  //MonitorElement* me = mui->get(path_name);
+  MonitorElement* me = bei->get(path_name);
+  
   vector<MonitorElement*> me_list;
   if (me) {
     me_list.push_back(me);
@@ -531,7 +575,7 @@ void SiPixelInformationExtractor::plotSingleHistogram(MonitorUserInterface * mui
  *  This method 
  */
 void SiPixelInformationExtractor::plotHistos(multimap<string,string>& req_map, 
-  			   vector<MonitorElement*> me_list){
+  			                     vector<MonitorElement*> me_list){
 //cout<<"entering SiPixelInformationExtractor::plotHistos"<<endl;
   int nhist = me_list.size();
   if (nhist == 0) return;
@@ -644,12 +688,16 @@ void SiPixelInformationExtractor::plotHistos(multimap<string,string>& req_map,
  *
  *  This method 
  */
-void SiPixelInformationExtractor::readModuleAndHistoList(MonitorUserInterface* mui, xgi::Output * out, bool coll_flag) {
+//void SiPixelInformationExtractor::readModuleAndHistoList(MonitorUserInterface* mui, 
+void SiPixelInformationExtractor::readModuleAndHistoList(DaqMonitorBEInterface* bei, 
+                                                         xgi::Output * out, 
+							 bool coll_flag) {
 //cout<<"entering SiPixelInformationExtractor::readModuleAndHistoList"<<endl;
+  //DaqMonitorBEInterface * bei = mui->getBEInterface();
    std::map<std::string,std::string> hnames;
    std::vector<std::string> mod_names;
-   if (coll_flag)  mui->cd("Collector/Collated");
-   fillModuleAndHistoList(mui, mod_names, hnames);
+   if (coll_flag)  bei->cd("Collector/Collated");
+   fillModuleAndHistoList(bei, mod_names, hnames);
    //for (std::vector<std::string>::iterator im = mod_names.begin();
    //     im != mod_names.end(); im++) cout<<"mod_names="<<*im<<endl;
    out->getHTTPResponseHeader().addHeader("Content-Type", "text/xml");
@@ -674,7 +722,7 @@ void SiPixelInformationExtractor::readModuleAndHistoList(MonitorUserInterface* m
    }
    *out << "</HistoList>" << endl;
    *out << "</ModuleAndHistoList>" << endl;
-   if (coll_flag)  mui->cd();
+   if (coll_flag)  bei->cd();
 //cout<<"leaving SiPixelInformationExtractor::readModuleAndHistoList"<<endl;
 }
 
@@ -683,22 +731,30 @@ void SiPixelInformationExtractor::readModuleAndHistoList(MonitorUserInterface* m
  *
  *  This method 
  */
-void SiPixelInformationExtractor::fillModuleAndHistoList(MonitorUserInterface * mui, 
-                                                         vector<string>       & modules,
-							 map<string,string>   & histos) {
+//void SiPixelInformationExtractor::fillModuleAndHistoList(MonitorUserInterface * mui, 
+void SiPixelInformationExtractor::fillModuleAndHistoList(DaqMonitorBEInterface * bei, 
+                                                         vector<string>        & modules,
+							 map<string,string>    & histos) {
 //cout<<"entering SiPixelInformationExtractor::fillModuleAndHistoList"<<endl;
-  string currDir = mui->pwd();
+  //DaqMonitorBEInterface * bei = mui->getBEInterface();
+  string currDir = bei->pwd();
   if (currDir.find("Module_") != string::npos ||
       currDir.find("FED_") != string::npos)  {
     if (histos.size() == 0) {
       //cout<<"currDir="<<currDir<<endl;
-      vector<string> contents = mui->getMEs();    
+
+  //    vector<string> contents = mui->getMEs();    
+      vector<string> contents = bei->getMEs();
+          
       for (vector<string>::const_iterator it = contents.begin();
 	   it != contents.end(); it++) {
 	string hname          = (*it).substr(0, (*it).find("_siPixel"));
 	if (hname==" ") hname = (*it).substr(0, (*it).find("_ctfWithMaterialTracks"));
-        string fullpathname   = mui->pwd() + "/" + (*it); 
-        MonitorElement * me   = mui->get(fullpathname);
+        string fullpathname   = bei->pwd() + "/" + (*it); 
+
+  //      MonitorElement * me   = mui->get(fullpathname);
+        MonitorElement * me   = bei->get(fullpathname);
+	
         string htype          = "undefined" ;
         if (me) 
 	{
@@ -719,15 +775,15 @@ void SiPixelInformationExtractor::fillModuleAndHistoList(MonitorUserInterface * 
       }    
     }
   } else {  
-    vector<string> subdirs = mui->getSubdirs();
+    vector<string> subdirs = bei->getSubdirs();
     for (vector<string>::const_iterator it = subdirs.begin();
 	 it != subdirs.end(); it++) {
-      mui->cd(*it);
-      fillModuleAndHistoList(mui, modules, histos);
-      mui->goUp();
+      bei->cd(*it);
+      fillModuleAndHistoList(bei, modules, histos);
+      bei->goUp();
     }
   }
-//  fillBarrelList(mui, modules, histos);
+//  fillBarrelList(bei, modules, histos);
 //cout<<"leaving SiPixelInformationExtractor::fillModuleAndHistoList"<<endl;
 }
 
@@ -736,15 +792,20 @@ void SiPixelInformationExtractor::fillModuleAndHistoList(MonitorUserInterface * 
  *
  *  This method 
  */
-void SiPixelInformationExtractor::readModuleHistoTree(MonitorUserInterface* mui, string& str_name, xgi::Output * out, bool coll_flag) {
+//void SiPixelInformationExtractor::readModuleHistoTree(MonitorUserInterface* mui, 
+void SiPixelInformationExtractor::readModuleHistoTree(DaqMonitorBEInterface* bei, 
+                                                      string& str_name, 
+						      xgi::Output * out, 
+						      bool coll_flag) {
 //cout<<"entering  SiPixelInformationExtractor::readModuleHistoTree"<<endl;
+  //DaqMonitorBEInterface * bei = mui->getBEInterface();
   ostringstream modtree;
-  if (goToDir(mui, str_name, coll_flag)) {
+  if (goToDir(bei, str_name, coll_flag)) {
     modtree << "<form name=\"IMGCanvasItemsSelection\" "
             << "action=\"javascript:void%200\">" 
 	    << endl ;
     modtree << "<ul id=\"dhtmlgoodies_tree\" class=\"dhtmlgoodies_tree\">" << endl;
-    printModuleHistoList(mui,modtree);
+    printModuleHistoList(bei,modtree);
     modtree <<"</ul>" << endl;   
     modtree <<"</form>" << endl;   
   } else {
@@ -761,7 +822,7 @@ void SiPixelInformationExtractor::readModuleHistoTree(MonitorUserInterface* mui,
   //     << "String complete " << endl ;
   out->getHTTPResponseHeader().addHeader("Content-Type", "text/plain");
   *out << modtree.str();
-   mui->cd();
+   bei->cd();
 //cout<<"leaving  SiPixelInformationExtractor::readModuleHistoTree"<<endl;
 }
 
@@ -770,18 +831,24 @@ void SiPixelInformationExtractor::readModuleHistoTree(MonitorUserInterface* mui,
  *
  *  This method 
  */
-void SiPixelInformationExtractor::printModuleHistoList(MonitorUserInterface * mui, ostringstream& str_val){
+//void SiPixelInformationExtractor::printModuleHistoList(MonitorUserInterface * mui, 
+void SiPixelInformationExtractor::printModuleHistoList(DaqMonitorBEInterface * bei, 
+                                                       ostringstream& str_val){
 //cout<<"entering SiPixelInformationExtractor::printModuleHistoList"<<endl;
+  //DaqMonitorBEInterface * bei = mui->getBEInterface();
   static string indent_str = "";
-  string currDir = mui->pwd();
+  string currDir = bei->pwd();
   string dname = currDir.substr(currDir.find_last_of("/")+1);
   str_val << " <li>\n"
 	  << "  <a href=\"#\" id=\"" << currDir << "\">\n   " 
 	  <<     dname << "\n"
 	  << "  </a>\n"
 	  << endl << endl;
-  vector<string> meVec     = mui->getMEs(); 
-  vector<string> subDirVec = mui->getSubdirs();
+
+  //vector<string> meVec     = mui->getMEs(); 
+  vector<string> meVec     = bei->getMEs(); 
+  
+  vector<string> subDirVec = bei->getSubdirs();
   if ( meVec.size()== 0  && subDirVec.size() == 0 ) {
     str_val << " </li>" << endl;    
     return;
@@ -812,9 +879,9 @@ void SiPixelInformationExtractor::printModuleHistoList(MonitorUserInterface * mu
   }
   for (vector<string>::const_iterator ic  = subDirVec.begin();
                                       ic != subDirVec.end(); ic++) {
-    mui->cd(*ic);
-    printModuleHistoList(mui, str_val);
-    mui->goUp();
+    bei->cd(*ic);
+    printModuleHistoList(bei, str_val);
+    bei->goUp();
   }
   str_val << "   </ul>" << endl;  
   str_val << "  </li>"  << endl;  
@@ -826,12 +893,17 @@ void SiPixelInformationExtractor::printModuleHistoList(MonitorUserInterface * mu
  *
  *  This method 
  */
-void SiPixelInformationExtractor::readSummaryHistoTree(MonitorUserInterface* mui, string& str_name, xgi::Output * out, bool coll_flag) {
+//void SiPixelInformationExtractor::readSummaryHistoTree(MonitorUserInterface* mui, 
+void SiPixelInformationExtractor::readSummaryHistoTree(DaqMonitorBEInterface* bei, 
+                                                       string& str_name, 
+						       xgi::Output * out, 
+						       bool coll_flag) {
 //cout<<"entering  SiPixelInformationExtractor::readSummaryHistoTree"<<endl;
+  //DaqMonitorBEInterface * bei = mui->getBEInterface();
   ostringstream sumtree;
-  if (goToDir(mui, str_name, coll_flag)) {
+  if (goToDir(bei, str_name, coll_flag)) {
     sumtree << "<ul id=\"dhtmlgoodies_tree\" class=\"dhtmlgoodies_tree\">" << endl;
-    printSummaryHistoList(mui,sumtree);
+    printSummaryHistoList(bei,sumtree);
     sumtree <<"</ul>" << endl;   
   } else {
     sumtree << "Desired Directory does not exist";
@@ -847,7 +919,7 @@ void SiPixelInformationExtractor::readSummaryHistoTree(MonitorUserInterface* mui
   //     << "String complete " << endl ;
   out->getHTTPResponseHeader().addHeader("Content-Type", "text/plain");
   *out << sumtree.str();
-   mui->cd();
+   bei->cd();
 //cout<<"leaving  SiPixelInformationExtractor::readSummaryHistoTree"<<endl;
 }
 //------------------------------------------------------------------------------
@@ -857,10 +929,13 @@ void SiPixelInformationExtractor::readSummaryHistoTree(MonitorUserInterface* mui
  *  directory. 
  *  This is a recursive method.
  */
-void SiPixelInformationExtractor::printSummaryHistoList(MonitorUserInterface * mui, ostringstream& str_val){
+//void SiPixelInformationExtractor::printSummaryHistoList(MonitorUserInterface * mui, 
+void SiPixelInformationExtractor::printSummaryHistoList(DaqMonitorBEInterface * bei, 
+                                                        ostringstream& str_val){
 //cout<<"entering SiPixelInformationExtractor::printSummaryHistoList"<<endl;
+  //DaqMonitorBEInterface * bei = mui->getBEInterface();
   static string indent_str = "";
-  string currDir = mui->pwd();
+  string currDir = bei->pwd();
   string dname = currDir.substr(currDir.find_last_of("/")+1);
   if (dname.find("Module_") ==0 || dname.find("FED_")==0) return;
   str_val << " <li>\n"
@@ -868,8 +943,11 @@ void SiPixelInformationExtractor::printSummaryHistoList(MonitorUserInterface * m
 	  <<     dname 
 	  << "  </a>" 
 	  << endl;
-  vector<string> meVec     = mui->getMEs(); 
-  vector<string> subDirVec = mui->getSubdirs();
+
+  //vector<string> meVec     = mui->getMEs(); 
+  vector<string> meVec     = bei->getMEs(); 
+  
+  vector<string> subDirVec = bei->getSubdirs();
   if ( meVec.size()== 0  && subDirVec.size() == 0 ) {
     str_val << " </li> "<< endl;    
     return;
@@ -903,9 +981,9 @@ void SiPixelInformationExtractor::printSummaryHistoList(MonitorUserInterface * m
 
   for (vector<string>::const_iterator ic = subDirVec.begin();
        ic != subDirVec.end(); ic++) {
-    mui->cd(*ic);
-    printSummaryHistoList(mui, str_val);
-    mui->goUp();
+    bei->cd(*ic);
+    printSummaryHistoList(bei, str_val);
+    bei->goUp();
   }
   str_val << "   </ul> "<< endl;  
   str_val << "  </li> "<< endl;  
@@ -918,14 +996,18 @@ void SiPixelInformationExtractor::printSummaryHistoList(MonitorUserInterface * m
  *
  *  This method 
  */
-void SiPixelInformationExtractor::readAlarmTree(MonitorUserInterface* mui, 
-                  string& str_name, xgi::Output * out, bool coll_flag){
+//void SiPixelInformationExtractor::readAlarmTree(MonitorUserInterface* mui, 
+void SiPixelInformationExtractor::readAlarmTree(DaqMonitorBEInterface* bei, 
+                                                string& str_name, 
+						xgi::Output * out, 
+						bool coll_flag){
 //cout<<"entering SiPixelInformationExtractor::readAlarmTree"<<endl;
+  //DaqMonitorBEInterface * bei = mui->getBEInterface();
   ostringstream alarmtree;
-  if (goToDir(mui, str_name, coll_flag)) {
+  if (goToDir(bei, str_name, coll_flag)) {
     alarmtree << "<ul id=\"dhtmlgoodies_tree\" class=\"dhtmlgoodies_tree\">" << endl;
     alarmCounter_=0;
-    printAlarmList(mui,alarmtree);
+    printAlarmList(bei,alarmtree);
     if(alarmCounter_==0) alarmtree <<"<li>No problematic modules found, all ok!</li>" << endl;
     alarmtree <<"</ul>" << endl; 
   } else {
@@ -942,7 +1024,7 @@ void SiPixelInformationExtractor::readAlarmTree(MonitorUserInterface* mui,
   //     << "String complete " << endl ;
   out->getHTTPResponseHeader().addHeader("Content-Type", "text/plain");
  *out << alarmtree.str();
-  mui->cd();
+  bei->cd();
   cout << ACYellow << ACBold
        << "[SiPixelInformationExtractor::readAlarmTree()]"
        << ACPlain 
@@ -957,18 +1039,21 @@ void SiPixelInformationExtractor::readAlarmTree(MonitorUserInterface* mui,
  *  directory. 
  *  This is a recursive method.
  */
-void SiPixelInformationExtractor::printAlarmList(MonitorUserInterface * mui, ostringstream& str_val){
+//void SiPixelInformationExtractor::printAlarmList(MonitorUserInterface * mui, 
+void SiPixelInformationExtractor::printAlarmList(DaqMonitorBEInterface * bei, 
+                                                 ostringstream& str_val){
 //cout<<"entering SiPixelInformationExtractor::printAlarmList"<<endl;
 //   cout << ACRed << ACBold
 //        << "[SiPixelInformationExtractor::printAlarmList()]"
 //        << ACPlain
 //        << " Enter" 
 //        << endl ;
+  //DaqMonitorBEInterface * bei = mui->getBEInterface();
   static string indent_str = "";
-  string currDir = mui->pwd();
+  string currDir = bei->pwd();
   string dname = currDir.substr(currDir.find_last_of("/")+1);
   string image_name;
-  selectImage(image_name,mui->getStatus(currDir));
+  selectImage(image_name,bei->getStatus(currDir));
   if(image_name!="images/LI_green.gif")
     str_val << " <li>\n"
             << "  <a href=\"#\" id=\"" << currDir << "\">\n   " 
@@ -977,8 +1062,11 @@ void SiPixelInformationExtractor::printAlarmList(MonitorUserInterface * mui, ost
 	    << "  <img src=\"" 
             <<     image_name 
 	    << "\">" << endl;
-  vector<string> subDirVec = mui->getSubdirs();
-  vector<string> meVec = mui->getMEs(); 
+  vector<string> subDirVec = bei->getSubdirs();
+
+  //vector<string> meVec = mui->getMEs(); 
+  vector<string> meVec = bei->getMEs();
+   
   if (subDirVec.size() == 0 && meVec.size() == 0) {
     str_val <<  "</li> "<< endl;    
     return;
@@ -987,7 +1075,10 @@ void SiPixelInformationExtractor::printAlarmList(MonitorUserInterface * mui, ost
   for (vector<string>::const_iterator it = meVec.begin();
 	   it != meVec.end(); it++) {
     string full_path = currDir + "/" + (*it);
-    MonitorElement * me = mui->get(full_path);
+
+  //  MonitorElement * me = mui->get(full_path);
+    MonitorElement * me = bei->get(full_path);
+    
     if (!me) continue;
     dqm::qtests::QR_map my_map = me->getQReports();
     if (my_map.size() > 0) {
@@ -1026,9 +1117,9 @@ void SiPixelInformationExtractor::printAlarmList(MonitorUserInterface * mui, ost
   }
   for (vector<string>::const_iterator ic = subDirVec.begin();
        ic != subDirVec.end(); ic++) {
-    mui->cd(*ic);
-    printAlarmList(mui, str_val);
-    mui->goUp();
+    bei->cd(*ic);
+    printAlarmList(bei, str_val);
+    bei->goUp();
   }
   str_val << "</ul> "<< endl;  
   str_val << "</li> "<< endl;  
@@ -1047,7 +1138,8 @@ void SiPixelInformationExtractor::printAlarmList(MonitorUserInterface * mui, ost
  *  This method 
  */
 void SiPixelInformationExtractor::getItemList(multimap<string, string>& req_map, 
-                      string item_name,vector<string>& items) {
+                                              string item_name,
+					      vector<string>& items) {
 //cout<<"entering SiPixelInformationExtractor::getItemList"<<endl;
   items.clear();
   for (multimap<string, string>::const_iterator it = req_map.begin();
@@ -1097,7 +1189,8 @@ string SiPixelInformationExtractor::getItemValue(multimap<string,string>& req_ma
  *
  *  This method 
  */
-void SiPixelInformationExtractor::fillNamedImageBuffer(TCanvas * c1, std::string theName) 
+void SiPixelInformationExtractor::fillNamedImageBuffer(TCanvas * c1, 
+                                                       std::string theName) 
 {
   // Now extract the image
   // 114 - stands for "no write on Close"
@@ -1201,12 +1294,16 @@ const ostringstream&  SiPixelInformationExtractor::getImage() const {
  *
  *  This method 
  */
-const ostringstream&  SiPixelInformationExtractor::getIMGCImage(MonitorUserInterface* mui, 
+//const ostringstream&  SiPixelInformationExtractor::getIMGCImage(MonitorUserInterface* mui, 
+const ostringstream&  SiPixelInformationExtractor::getIMGCImage(DaqMonitorBEInterface* bei, 
                                                                 std::string theFullPath,
 								std::string canvasW,
 								std::string canvasH) 
 {
-   MonitorElement * theME = mui->get(theFullPath) ;
+  //DaqMonitorBEInterface * bei = mui->getBEInterface();
+  // MonitorElement * theME = mui->get(theFullPath) ;
+   MonitorElement * theME = bei->get(theFullPath) ;
+   
    if( !theME ) 
    {
      cout << ACRed << ACBold
@@ -1283,24 +1380,28 @@ const ostringstream&  SiPixelInformationExtractor::getNamedImage(std::string the
  *
  *  This method 
  */
-bool SiPixelInformationExtractor::goToDir(MonitorUserInterface* mui, string& sname, bool flg){ 
+//bool SiPixelInformationExtractor::goToDir(MonitorUserInterface* mui, 
+bool SiPixelInformationExtractor::goToDir(DaqMonitorBEInterface* bei, 
+                                          string& sname, 
+					  bool flg){ 
 //cout<<"entering SiPixelInformationExtractor::goToDir"<<endl;
-  mui->cd();
-  mui->cd("Collector");
+  //DaqMonitorBEInterface * bei = mui->getBEInterface();
+  bei->cd();
+  bei->cd("Collector");
   //cout << mui->pwd() << endl;
   vector<string> subdirs;
-  subdirs = mui->getSubdirs();
+  subdirs = bei->getSubdirs();
   if (subdirs.size() == 0) return false;
   
-  if (flg) mui->cd("Collated");
-  else mui->cd(subdirs[0]);
-  //cout << mui->pwd() << endl;
+  if (flg) bei->cd("Collated");
+  else bei->cd(subdirs[0]);
+  //cout << bei->pwd() << endl;
   subdirs.clear();
-  subdirs = mui->getSubdirs();
+  subdirs = bei->getSubdirs();
   if (subdirs.size() == 0) return false;
   //cout<<"sname="<<sname<<endl;
-  mui->cd(sname);
-  string dirName = mui->pwd();
+  bei->cd(sname);
+  string dirName = bei->pwd();
   if (dirName.find(sname) != string::npos) return true;
   else return false;  
 //cout<<"leaving SiPixelInformationExtractor::goToDir"<<endl;
@@ -1311,13 +1412,9 @@ bool SiPixelInformationExtractor::goToDir(MonitorUserInterface* mui, string& sna
  *
  *  This method 
  */
-void SiPixelInformationExtractor::selectImage(string& name, int status){
+void SiPixelInformationExtractor::selectImage(string& name, 
+                                              int status){
 //cout<<"entering SiPixelInformationExtractor::selectImage"<<endl;
-/*  if (status == dqm::qstatus::STATUS_OK) name="images/LI_green.gif";
-  else if (status == dqm::qstatus::WARNING) name="images/LI_yellow.gif";
-  else if (status == dqm::qstatus::ERROR) name="images/LI_red.gif";
-  else if (status == dqm::qstatus::OTHER) name="images/LI_orange.gif";
-  else  name="images/LI_blue.gif";*/
   switch(status){
   case dqm::qstatus::STATUS_OK:
     name="images/LI_green.gif";
@@ -1345,7 +1442,8 @@ void SiPixelInformationExtractor::selectImage(string& name, int status){
  *
  *  This method 
  */
-void SiPixelInformationExtractor::selectImage(string& name, dqm::qtests::QR_map& test_map){
+void SiPixelInformationExtractor::selectImage(string& name, 
+                                              dqm::qtests::QR_map& test_map){
 //cout<<"entering SiPixelInformationExtractor::selectImage"<<endl;
   int istat = 999;
   int status = 0;
@@ -1363,9 +1461,16 @@ void SiPixelInformationExtractor::selectImage(string& name, dqm::qtests::QR_map&
  *
  *  This method 
  */
-void SiPixelInformationExtractor::readStatusMessage(MonitorUserInterface* mui, string& path,xgi::Output * out) {
+//void SiPixelInformationExtractor::readStatusMessage(MonitorUserInterface* mui, 
+void SiPixelInformationExtractor::readStatusMessage(DaqMonitorBEInterface* bei, 
+                                                    string& path,
+						    xgi::Output * out) {
 //cout<<"entering SiPixelInformationExtractor::readStatusMessage"<<endl;
-  MonitorElement* me = mui->get(path);
+  //DaqMonitorBEInterface * bei = mui->getBEInterface();
+
+  //MonitorElement* me = mui->get(path);
+  MonitorElement* me = bei->get(path);
+  
   string hpath;
   ostringstream test_status; //this is the output stream displayed in browser!
   if (!me) {
@@ -1592,11 +1697,13 @@ void SiPixelInformationExtractor::getNormalization2D(MonitorElement     * theME,
  *
  *   
  */
-void SiPixelInformationExtractor::selectMEList(MonitorUserInterface    * mui,  
+//void SiPixelInformationExtractor::selectMEList(MonitorUserInterface    * mui,  
+void SiPixelInformationExtractor::selectMEList(DaqMonitorBEInterface   * bei,  
 					       string	               & theMEName,
 					       vector<MonitorElement*> & mes) 
 {  
-  string currDir = mui->pwd();
+  //DaqMonitorBEInterface * bei = mui->getBEInterface();
+  string currDir = bei->pwd();
    
   //QRegExp rx("(\\w+)_siPixel") ;
   //QRegExp rx2("(\\w+)_ctfWithMaterialTracks") ;
@@ -1607,7 +1714,9 @@ void SiPixelInformationExtractor::selectMEList(MonitorUserInterface    * mui,
   if (currDir.find("Module_") != string::npos ||
       currDir.find("FED_") != string::npos)  
   {
-    vector<string> contents = mui->getMEs();    
+  //  vector<string> contents = mui->getMEs();    
+    vector<string> contents = bei->getMEs(); 
+       
     for (vector<string>::const_iterator it = contents.begin(); it != contents.end(); it++) 
     {
       theME = *it ;
@@ -1618,18 +1727,21 @@ void SiPixelInformationExtractor::selectMEList(MonitorUserInterface    * mui,
       if (rx.cap(1).latin1() == theMEName)  
       {
         string full_path = currDir + "/" + (*it);
-        MonitorElement * me = mui->get(full_path.c_str());
+
+  //      MonitorElement * me = mui->get(full_path.c_str());
+        MonitorElement * me = bei->get(full_path.c_str());
+	
         if (me) {mes.push_back(me);}
       }
     }
     return;
   } else {  // If not yet reached the desired level in the directory tree, recursively go down one level more
-    vector<string> subdirs = mui->getSubdirs();
+    vector<string> subdirs = bei->getSubdirs();
     for (vector<string>::const_iterator it = subdirs.begin(); it != subdirs.end(); it++) 
     {
-      mui->cd(*it);
-      selectMEList(mui, theMEName, mes);
-      mui->goUp();
+      bei->cd(*it);
+      selectMEList(bei, theMEName, mes);
+      bei->goUp();
     }
   }
 }
@@ -1638,20 +1750,22 @@ void SiPixelInformationExtractor::selectMEList(MonitorUserInterface    * mui,
 /*! \brief (Documentation under construction).
  *  
  */
-void SiPixelInformationExtractor::sendTkUpdatedStatus(MonitorUserInterface  * mui, 
-                                                      xgi::Output           * out,
-						      std::string           & theMEName,
-						      std::string           & theTKType) 
+//void SiPixelInformationExtractor::sendTkUpdatedStatus(MonitorUserInterface  * mui, 
+void SiPixelInformationExtractor::sendTkUpdatedStatus(DaqMonitorBEInterface  * bei, 
+                                                      xgi::Output            * out,
+						      std::string            & theMEName,
+						      std::string            & theTKType) 
 {
+  //DaqMonitorBEInterface * bei = mui->getBEInterface();
   int rval, gval, bval;
   vector<string>          colorMap ;
   vector<MonitorElement*> me_list;
   pair<double,double>     norm ;
   double sts ;
     
-  mui->cd();
-  selectMEList(mui, theMEName, me_list) ;
-  mui->cd();
+  bei->cd();
+  selectMEList(bei, theMEName, me_list) ;
+  bei->cd();
 
   string detId = "undefined";
 
@@ -1815,10 +1929,12 @@ int SiPixelInformationExtractor::getDetId(MonitorElement * mE)
 /*! \brief (Documentation under construction).
  *  
  */
-void SiPixelInformationExtractor::getMEList(MonitorUserInterface     * mui,  
+//void SiPixelInformationExtractor::getMEList(MonitorUserInterface     * mui,  
+void SiPixelInformationExtractor::getMEList(DaqMonitorBEInterface    * bei,  
 					    map<string, int>         & mEHash)
 {
-  string currDir = mui->pwd();
+  //DaqMonitorBEInterface * bei = mui->getBEInterface();
+  string currDir = bei->pwd();
    
 //   cout << ACRed << ACBold
 //        << "[SiPixelInformationExtractor::getMEList()]"
@@ -1836,7 +1952,9 @@ void SiPixelInformationExtractor::getMEList(MonitorUserInterface     * mui,
   if (currDir.find("Module_") != string::npos ||
       currDir.find("FED_") != string::npos)  
   {
-    vector<string> contents = mui->getMEs();    
+  //  vector<string> contents = mui->getMEs();    
+    vector<string> contents = bei->getMEs(); 
+       
     for (vector<string>::const_iterator it = contents.begin(); it != contents.end(); it++) 
     {
       theME = *it ;
@@ -1866,12 +1984,12 @@ void SiPixelInformationExtractor::getMEList(MonitorUserInterface     * mui,
     
     return;
   } else {  // If not yet reached the desired level in the directory tree, recursively go down one level more
-    vector<string> subdirs = mui->getSubdirs();
+    vector<string> subdirs = bei->getSubdirs();
     for (vector<string>::const_iterator it = subdirs.begin(); it != subdirs.end(); it++) 
     {
-      mui->cd(*it);
-      getMEList(mui, mEHash);
-      mui->goUp();
+      bei->cd(*it);
+      getMEList(bei, mEHash);
+      bei->goUp();
     }
   }
 }
@@ -1922,13 +2040,16 @@ void SiPixelInformationExtractor::setCanvasMessage(const string& error_string) {
  *
  *  This method 
  */
-void SiPixelInformationExtractor::plotHistosFromPath(MonitorUserInterface * mui, std::multimap<std::string, std::string>& req_map){
+//void SiPixelInformationExtractor::plotHistosFromPath(MonitorUserInterface * mui, 
+void SiPixelInformationExtractor::plotHistosFromPath(DaqMonitorBEInterface * bei, 
+                                                     std::multimap<std::string, std::string>& req_map){
 
   cout << ACYellow << ACBold
        << "[SiPixelInformationExtractor::plotHistosFromPath()] "
        << ACPlain 
        << " Enter" 
        << endl ;
+  //DaqMonitorBEInterface * bei = mui->getBEInterface();
   vector<string> item_list;  
   getItemList(req_map,"Path", item_list);
   
@@ -1950,7 +2071,8 @@ void SiPixelInformationExtractor::plotHistosFromPath(MonitorUserInterface * mui,
     string path_name = (*it);
     if (path_name.size() == 0) continue;
     
-    MonitorElement* me = mui->get(path_name);
+  //  MonitorElement* me = mui->get(path_name);
+    MonitorElement* me = bei->get(path_name);
 
     if (me) me_list.push_back(me);
   }

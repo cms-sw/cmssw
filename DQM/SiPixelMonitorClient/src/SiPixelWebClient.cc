@@ -2,6 +2,7 @@
 #include "DQM/SiPixelMonitorClient/interface/SiPixelActionExecutor.h"
 #include "DQM/SiPixelMonitorClient/interface/ANSIColors.h"
 #include "DQMServices/ClientConfig/interface/QTestHandle.h"
+#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
 #include <SealBase/Callback.h>
 
 
@@ -27,7 +28,9 @@ SiPixelWebClient::SiPixelWebClient(xdaq::ApplicationStub *stub)
 /*
   implement the method that outputs the page with the widgets (declared in DQMBaseClient):
 */
-void SiPixelWebClient::general(xgi::Input * in, xgi::Output * out ) throw (xgi::exception::Exception)
+void SiPixelWebClient::general(xgi::Input * in, 
+                               xgi::Output * out ) 
+			       throw (xgi::exception::Exception)
 {
 //  cout<<"entering general"<<endl;
   // the web interface should know what to do:
@@ -39,7 +42,8 @@ void SiPixelWebClient::general(xgi::Input * in, xgi::Output * out ) throw (xgi::
 /*
   the method called on all HTTP requests of the form ".../Request?RequestID=..."
 */
-void SiPixelWebClient::handleWebRequest(xgi::Input * in, xgi::Output * out)
+void SiPixelWebClient::handleWebRequest(xgi::Input * in, 
+                                        xgi::Output * out)
 {
 //  cout<<"entering handleWebRequest"<<endl;
   // the web interface should know what to do:
@@ -87,10 +91,14 @@ void SiPixelWebClient::onUpdate() const
 {
 //  cout<<"entering onUpdate"<<endl;
   if (!mui_) return;
+  DaqMonitorBEInterface * bei = (mui_)->getBEInterface();
+
   int nUpdate = mui_->getNumUpdates();
+  //int nUpdate = bei->getNumUpdates();
   
   // SubscribeAll once:
   if (nUpdate == 0) mui_->subscribe("Collector/*");
+  //if (nUpdate == 0) bei->subscribe("Collector/*");
 
   // Set Up Quality Tests once:
   if (nUpdate == 1) webInterface_p->setupQTests();
@@ -101,6 +109,7 @@ void SiPixelWebClient::onUpdate() const
       seal::Callback action(seal::CreateCallback(webInterface_p, 
 			    &SiPixelWebInterface::performAction));
       mui_->addCallback(action); 
+   //   bei->addCallback(action); 
   }
   
   // Initial Creation of Summary ME's: 
@@ -109,6 +118,7 @@ void SiPixelWebClient::onUpdate() const
       seal::Callback action(seal::CreateCallback(webInterface_p, 
 			    &SiPixelWebInterface::performAction));
       mui_->addCallback(action);
+  //    bei->addCallback(action);
   }	 
 
   // Initial Check of Quality Test Results:
@@ -117,11 +127,13 @@ void SiPixelWebClient::onUpdate() const
       seal::Callback action(seal::CreateCallback(webInterface_p, 
 			    &SiPixelWebInterface::performAction));
       mui_->addCallback(action);
+  //    bei->addCallback(action);
   }
   
   // put here the code that needs to be executed on every update:
   std::vector<std::string> uplist;
-  mui_->getUpdatedContents(uplist);
+  //mui_->getUpdatedContents(uplist);
+  bei->getUpdatedContents(uplist);
 
   // Frequent Updating of Summary ME's: 
 //  if (updateFrequencyForBarrelSummary_ != -1 ) {
@@ -130,6 +142,7 @@ void SiPixelWebClient::onUpdate() const
       seal::Callback action(seal::CreateCallback(webInterface_p, 
 			    &SiPixelWebInterface::performAction));
       mui_->addCallback(action);	 
+  //    bei->addCallback(action);	 
     }
 //  }	
   // Frequent Updating of Quality Test Results:
@@ -138,6 +151,7 @@ void SiPixelWebClient::onUpdate() const
       seal::Callback action(seal::CreateCallback(webInterface_p, 
 			    &SiPixelWebInterface::performAction));
       mui_->addCallback(action);
+  //    bei->addCallback(action);
   }
 /*  // Creation of TrackerMap
   if (updateFrequencyForTrackerMap_ != -1 && nUpdate > 30) {
@@ -146,6 +160,7 @@ void SiPixelWebClient::onUpdate() const
       seal::Callback action(seal::CreateCallback(webInterface_p, 
 				 &SiPixelWebInterface::performAction));
       mui_->addCallback(action); 
+  //    bei->addCallback(action); 
     }
   }
 */  
@@ -155,6 +170,7 @@ void SiPixelWebClient::onUpdate() const
     seal::Callback action(seal::CreateCallback(webInterface_p, 
 			  &SiPixelWebInterface::performAction));
     mui_->addCallback(action); 
+   // bei->addCallback(action); 
   }  
 
  
