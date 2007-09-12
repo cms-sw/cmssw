@@ -13,7 +13,7 @@
 //
 // Original Author:  Freya Blekman
 //         Created:  Fri Sep  7 15:46:34 CEST 2007
-// $Id$
+// $Id: PixelSLinkDataInputSource.cc,v 1.10 2007/09/07 14:41:33 fblekman Exp $
 //
 //
 
@@ -119,7 +119,7 @@ bool PixelSLinkDataInputSource::produce(edm::Event& event) {
     buffer.push_back(data);
   }while((data >> 60) != 0xa);
 
-  std::cout << "read " <<  buffer.size() << " long words" << std::endl;
+  //  std::cout << "read " <<  buffer.size() << " long words" << std::endl;
 
   std::auto_ptr<FEDRawData> rawData(new FEDRawData(8*buffer.size()));
   //  FEDRawData * rawData = new FEDRawData(8*buffer.size());
