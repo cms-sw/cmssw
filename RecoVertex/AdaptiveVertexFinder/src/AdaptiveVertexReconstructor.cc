@@ -84,7 +84,7 @@ TransientVertex AdaptiveVertexReconstructor::cleanUp ( const TransientVertex & o
       newrfs.push_back ( *i );
     }
   }
-  ret.refittedTracks ( newrfs ); // copy refitted tracks
+  if ( !newrfs.empty() ) ret.refittedTracks ( newrfs ); // copy refitted tracks
   return ret;
 }
   
