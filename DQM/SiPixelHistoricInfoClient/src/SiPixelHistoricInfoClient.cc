@@ -60,11 +60,12 @@ void SiPixelHistoricInfoClient::endRun() {
   cout << "SiPixelHistoricInfoClient::endRun ClientPointersToModuleMEs.size() = "
        <<  ClientPointersToModuleMEs.size() << endl;
 
+  DaqMonitorBEInterface* dbe_ = mui_->getBEInterface();
+
   for (std::map< uint32_t, vector<MonitorElement*> >::iterator imapmes=ClientPointersToModuleMEs.begin(); 
        imapmes!=ClientPointersToModuleMEs.end(); imapmes++) {
      cout << "detid = " << imapmes->first << endl;
      vector<MonitorElement*> locvec = imapmes->second;
-     DaqMonitorBEInterface* dbe_ = mui_->getBEInterface();
      vector<MonitorElement*> tagged_mes = dbe_->get(imapmes->first);
      for (vector<MonitorElement*>::const_iterator imep=locvec.begin(); imep!=locvec.end(); imep++) {
        cout << (*imep)->getName() << " entries/mean/rms: " << (*imep)->getEntries() << "/" 
@@ -80,7 +81,7 @@ void SiPixelHistoricInfoClient::endRun() {
   cout << "+++++++++++++++++++++++++++++++++" << endl;
   std::string final_filename = "endRun_SiPixelHistoricInfoClient.root"; // run-specific filename would be better
   std::cout << "saving all histograms to " << final_filename << std::endl;
-  mui_->getBEInterface()->save(final_filename); 
+  dbe_->save(final_filename); 
   
   tstore_connect();
 }
@@ -132,10 +133,12 @@ void SiPixelHistoricInfoClient::fillSummaryObjects() {
 
 
 void SiPixelHistoricInfoClient::retrievePointersToModuleMEs() const {
+  DaqMonitorBEInterface* dbe_ = mui_->getBEInterface();
+  
   // painful and dangerous string operations to extract list of pointer to MEs and avoid 
   // strings with full paths uses the MonitorUserInterface and fills the data member map
   vector<string> listOfMEsWithFullPath;
-  mui_->getBEInterface()->getContents(listOfMEsWithFullPath); 
+  dbe_->getContents(listOfMEsWithFullPath); 
   // put the list of MEs in a vector to pass as a parameter to methods
   
   cout << "SiPixelHistoricInfoClient::retrievePointersToModuleMEs: listOfMEsWithFullPath.size() = " 
@@ -164,7 +167,7 @@ void SiPixelHistoricInfoClient::retrievePointersToModuleMEs() const {
       string fullhistopath = thepath + "/" + thehistoname;
 
       // get a pointer to each ME
-      MonitorElement* theMEPointer = mui_->getBEInterface()->get(fullhistopath); // give the full path and get back the pointer to the ME
+      MonitorElement* theMEPointer = dbe_->get(fullhistopath); // give the full path and get back the pointer to the ME
 
       // extract detid from id/title - use SiPixelHistogramId for doing this
       SiPixelHistogramId hIdManager; 
