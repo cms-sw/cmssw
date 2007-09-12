@@ -57,6 +57,7 @@ CPPUNIT_TEST(proxyTest);
 CPPUNIT_TEST(getTest);
 CPPUNIT_TEST(doGetTest);
 CPPUNIT_TEST(proxyResetTest);
+CPPUNIT_TEST(introspectionTest);
 
 CPPUNIT_TEST_EXCEPTION(getNodataExpTest,NoDataExceptionType);
 CPPUNIT_TEST_EXCEPTION(getExepTest,ExceptionType);
@@ -72,7 +73,8 @@ public:
   void getTest();
   void doGetTest();
   void proxyResetTest();
-
+  void introspectionTest();
+  
   void getNodataExpTest();
   void getExepTest();
   void doGetExepTest();
@@ -269,6 +271,39 @@ void testEventsetupRecord::doGetTest()
    
    CPPUNIT_ASSERT(dummyRecord.doGet(workingDataKey));
    
+}
+
+void testEventsetupRecord::introspectionTest()
+{
+  DummyRecord dummyRecord;
+  FailingDummyProxy dummyProxy;
+  
+  const DataKey dummyDataKey(DataKey::makeTypeTag<FailingDummyProxy::value_type>(),
+                             "");
+
+  std::vector<edm::eventsetup::DataKey> keys;
+  dummyRecord.fillRegisteredDataKeys(keys);
+  
+  CPPUNIT_ASSERT(keys.empty()) ;
+  
+  dummyRecord.add(dummyDataKey,
+                  &dummyProxy);
+  
+  typedef edm::eventsetup::MakeDataException<DummyRecord,Dummy> ExceptionType;
+  dummyRecord.fillRegisteredDataKeys(keys);
+  CPPUNIT_ASSERT(1 == keys.size());
+  
+  Dummy myDummy;
+  WorkingDummyProxy workingProxy(&myDummy);
+  
+  const DataKey workingDataKey(DataKey::makeTypeTag<WorkingDummyProxy::value_type>(),
+                               "working");
+  
+  dummyRecord.add(workingDataKey,
+                  &workingProxy);
+  
+  dummyRecord.fillRegisteredDataKeys(keys);
+  CPPUNIT_ASSERT(2 == keys.size());
 }
 
 void testEventsetupRecord::doGetExepTest()

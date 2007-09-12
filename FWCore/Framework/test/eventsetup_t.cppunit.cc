@@ -66,6 +66,8 @@ CPPUNIT_TEST(twoSourceTest);
 CPPUNIT_TEST(sourceProducerResolutionTest);
 CPPUNIT_TEST(preferTest);
 
+CPPUNIT_TEST(introspectionTest);
+
 CPPUNIT_TEST_SUITE_END();
 public:
   void setUp(){}
@@ -85,6 +87,8 @@ public:
   void twoSourceTest();
   void sourceProducerResolutionTest();
   void preferTest();
+  
+  void introspectionTest();
   
 };
 
@@ -538,3 +542,47 @@ void testEventsetup::preferTest()
    }
 }
 
+void testEventsetup::introspectionTest()
+{
+  using edm::eventsetup::test::DummyProxyProvider;
+  using edm::eventsetup::test::DummyData;
+  DummyData kGood; kGood.value_ = 1;
+  DummyData kBad; kBad.value_=0;
+  
+  eventsetup::EventSetupProvider provider;
+  try {
+  {
+    edm::eventsetup::ComponentDescription description("DummyProxyProvider","",true);
+    edm::ParameterSet ps;
+    ps.addParameter<std::string>("name", "test11");
+    description.pid_ = ps.id();
+    description.releaseVersion_ = "CMSSW_11_0_0";
+    boost::shared_ptr<eventsetup::DataProxyProvider> dummyProv(new DummyProxyProvider(kBad));
+    dummyProv->setDescription(description);
+    provider.add(dummyProv);
+  }
+    {
+      edm::eventsetup::ComponentDescription description("DummyProxyProvider","",false);
+      edm::ParameterSet ps;
+      ps.addParameter<std::string>("name", "test22");
+      description.pid_ = ps.id();
+      description.releaseVersion_ = "CMSSW_12_0_0";
+      description.processName_ = "UnitTest";
+      description.passID_ = "22";
+      boost::shared_ptr<eventsetup::DataProxyProvider> dummyProv(new DummyProxyProvider(kGood));
+      dummyProv->setDescription(description);
+      provider.add(dummyProv);
+    }
+    EventSetup const& eventSetup = provider.eventSetupForInstance(IOVSyncValue::invalidIOVSyncValue());
+
+    std::vector<edm::eventsetup::EventSetupRecordKey> recordKeys;
+    eventSetup.fillAvailableRecordKeys(recordKeys);
+    CPPUNIT_ASSERT(1==recordKeys.size());
+    const eventsetup::EventSetupRecord* record = eventSetup.find(recordKeys[0]);
+    CPPUNIT_ASSERT(0!=record);
+    
+  } catch (const cms::Exception& iException) {
+    std::cout <<"caught "<<iException.explainSelf()<<std::endl;
+    throw;
+  }
+}
