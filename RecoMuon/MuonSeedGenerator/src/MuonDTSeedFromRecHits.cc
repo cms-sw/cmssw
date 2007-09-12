@@ -2,8 +2,8 @@
  *  See header file for a description of this class.
  *
  *
- *  $Date: 2007/09/11 20:19:00 $
- *  $Revision: 1.4 $
+ *  $Date: 2007/09/12 16:24:04 $
+ *  $Revision: 1.5 $
  *  \author A. Vitelli - INFN Torino, V.Palichik
  *  \author porting  R. Bellan
  *
@@ -68,6 +68,14 @@ TrajectorySeed MuonDTSeedFromRecHits::seed() const {
   float sptmean=0.;
   computeBestPt(pt, spt, ptmean, sptmean);
   
+  // add an extra term to the error in quadrature, 30% of pT per point
+  int npoints = 0;
+  for(int i = 0; i < 8; ++i)
+    if(pt[i] != 0) ++npoints;
+  if(npoints != 0) {
+    sptmean = sqrt(sptmean*sptmean + 0.09*ptmean*ptmean/npoints);
+  }
+
   LogTrace(metname) << " Seed Pt: " << ptmean << " +/- " << sptmean << endl;
   
   // take the best candidate
