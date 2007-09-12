@@ -42,18 +42,19 @@ namespace edm {
 		   int splitLevel,
 		   TChain * chain = 0,
 		   TChain * metaChain = 0,
-		   Selections const& dropList = Selections()) :
+		   Selections const& keepList = Selections()) :
       fastCloning_(chain != 0 && metaChain != 0),
       filePtr_(filePtr),
       tree_(makeTree(filePtr.get(),
 		     BranchTypeToProductTreeName(branchType),
 		     splitLevel,
 		     (fastCloning_ ? chain : 0),
-		     dropList)),
+		     keepList)),
       metaTree_(makeTree(filePtr.get(),
 	        BranchTypeToMetaDataTreeName(branchType),
 		0,
-		(fastCloning_ ? metaChain : 0))),
+		(fastCloning_ ? metaChain : 0),
+		keepList)),
       auxBranch_(tree_->Branch(BranchTypeToAuxiliaryBranchName(branchType).c_str(), &pAux, bufSize, 0)),
       branches_(),
       metaBranches_(),
@@ -68,9 +69,11 @@ namespace edm {
 			    std::string const& name,
 			    int splitLevel,
 			    TChain * chain,
-			    Selections const& dropList = Selections());
+			    Selections const& keepList = Selections());
 
     static void writeTTree(TTree *tree);
+
+    static void pruneTTree(TTree *tree, Selections const& keepList);
 
     bool isValid() const;
 
@@ -90,7 +93,6 @@ namespace edm {
 
   private:
     static void fillTTree(TTree *tree, std::vector<TBranch *> const& branches);
-    static void fillHelper(TBranch * br) {br->Fill();}
 // We use bare pointers for pointers to some ROOT entities.
 // Root owns them and uses bare pointers internally.
 // Therefore,using smart pointers here will do no good.

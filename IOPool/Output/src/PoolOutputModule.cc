@@ -1,4 +1,4 @@
-// $Id: PoolOutputModule.cc,v 1.86 2007/09/11 18:22:37 paterno Exp $
+// $Id: PoolOutputModule.cc,v 1.87 2007/09/11 21:57:20 paterno Exp $
 
 #include "IOPool/Output/src/PoolOutputModule.h"
 #include "boost/array.hpp" 
@@ -28,6 +28,7 @@ namespace edm {
     compressionLevel_(pset.getUntrackedParameter<int>("compressionLevel", 1)),
     basketSize_(pset.getUntrackedParameter<int>("basketSize", 16384)),
     splitLevel_(pset.getUntrackedParameter<int>("splitLevel", 99)),
+    fastCloning_(pset.getUntrackedParameter<bool>("fastCloning", false)),
     moduleLabel_(pset.getParameter<std::string>("@module_label")),
     fileCount_(0),
     rootFile_() {

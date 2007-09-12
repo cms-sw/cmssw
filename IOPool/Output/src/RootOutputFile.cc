@@ -1,4 +1,4 @@
-// $Id: RootOutputFile.cc,v 1.12 2007/09/10 20:27:08 wmtan Exp $
+// $Id: RootOutputFile.cc,v 1.13 2007/09/11 18:22:37 paterno Exp $
 
 #include "RootOutputFile.h"
 #include "PoolOutputModule.h"
@@ -36,7 +36,7 @@
 
 namespace edm {
   RootOutputFile::RootOutputFile(PoolOutputModule *om, std::string const& fileName, std::string const& logicalFileName) :
-      chains_(om->wantAllEvents() ? RootChains::instance() : RootChains()),
+      chains_(om->wantAllEvents() && om->fastCloning() ? RootChains::instance() : RootChains()),
       outputItemList_(), 
       file_(fileName),
       logicalFile_(logicalFileName),
@@ -54,11 +54,11 @@ namespace edm {
       pLumiAux_(&lumiAux_),
       pRunAux_(&runAux_),
       eventTree_(filePtr_, InEvent, pEventAux_, om_->basketSize(), om_->splitLevel(),
-		  chains_.event_.get(), chains_.eventMeta_.get(), om_->droppedPriorVec()[InEvent]),
+		  chains_.event_.get(), chains_.eventMeta_.get(), om_->descPriorVec()[InEvent]),
       lumiTree_(filePtr_, InLumi, pLumiAux_, om_->basketSize(), om_->splitLevel(),
-		 chains_.lumi_.get(), chains_.lumiMeta_.get(), om_->droppedPriorVec()[InLumi]),
+		 chains_.lumi_.get(), chains_.lumiMeta_.get(), om_->descPriorVec()[InLumi]),
       runTree_(filePtr_, InRun, pRunAux_, om_->basketSize(), om_->splitLevel(),
-		chains_.run_.get(), chains_.runMeta_.get(), om_->droppedPriorVec()[InRun]),
+		chains_.run_.get(), chains_.runMeta_.get(), om_->descPriorVec()[InRun]),
       treePointers_(),
       provenances_(),
       newFileAtEndOfRun_(false) {
@@ -70,8 +70,12 @@ namespace edm {
     for (int i = InEvent; i < EndBranchType; ++i) {
       BranchType branchType = static_cast<BranchType>(i);
       OutputItemList & outputItemList = outputItemList_[branchType];
-      Selections const& descVector = om_->descVec()[branchType];
-      Selections const& droppedVector = om_->droppedVec()[branchType];
+
+      bool fastCloning = treePointers_[branchType]->fastCloning();
+      Selections const& descVector =
+	 (fastCloning ? om_->descProducedVec()[branchType] : om_->descVec()[branchType]);
+      Selections const& droppedVector =
+	 (fastCloning ? om_->droppedProducedVec()[branchType] : om_->droppedVec()[branchType]);
       
       for (Selections::const_iterator it = descVector.begin(), itEnd = descVector.end(); it != itEnd; ++it) {
         BranchDescription const& prod = **it;
@@ -279,6 +283,8 @@ namespace edm {
   void
   RootOutputFile::buildIndex(TTree * tree, BranchType const& branchType) {
 
+    if (tree->GetNbranches() == 0) return;
+    tree->SetEntries(-1);
     if (tree->GetEntries() == 0) return;
 
     // BuildIndex must read the auxiliary branch, so the
@@ -301,7 +307,7 @@ namespace edm {
   
   void
   RootOutputFile::setBranchAliases(TTree *tree, Selections const& branches) const {
-    if (tree) {
+    if (tree && tree->GetNbranches() != 0) {
       for (Selections::const_iterator i = branches.begin(), iEnd = branches.end();
 	  i != iEnd; ++i) {
 	BranchDescription const& pd = **i;

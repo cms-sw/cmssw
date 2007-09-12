@@ -1,7 +1,10 @@
 #include "RootOutputTree.h"
 #include "TFile.h"
+#include "TChain.h"
 #include "FWCore/Utilities/interface/WrappedClassName.h"
+#include "FWCore/Utilities/interface/for_all.h"
 
+#include "boost/bind.hpp"
 #include <algorithm>
 
 namespace edm {
@@ -11,10 +14,12 @@ namespace edm {
 			   std::string const& name,
 			   int splitLevel,
 			   TChain * chain,
-			   Selections const&) {
+			   Selections const& keepList) {
     TTree *tree;
     if (chain != 0) {
-      tree = new TTree(name.c_str(), "", splitLevel);
+      pruneTTree(chain, keepList);
+      tree = chain->CloneTree(-1, "fast");
+      tree->SetBranchStatus("*", 1);
     } else {
       tree = new TTree(name.c_str(), "", splitLevel);
     }
@@ -25,15 +30,15 @@ namespace edm {
 
   void
   RootOutputTree::writeTTree(TTree *tree) {
+    if (tree->GetNbranches() != 0) {
+      tree->SetEntries(-1);
+    }
     tree->AutoSave();
   }
 
   void
   RootOutputTree::fillTTree(TTree * tree, std::vector<TBranch *> const& branches) {
-    for_each(branches.begin(), branches.end(), fillHelper);
-    if (tree->GetNbranches() != 0) {
-      tree->SetEntries(-1);
-    }
+    for_all(branches, boost::bind(&TBranch::Fill, _1));
   }
 
   void
@@ -42,9 +47,29 @@ namespace edm {
     writeTTree(metaTree_);
   }
 
-  void RootOutputTree::fillTree() const {
+  void
+  RootOutputTree::fillTree() const {
     fillTTree(metaTree_, metaBranches_);
     fillTTree(tree_, branches_);
+  }
+
+  void
+  RootOutputTree::pruneTTree(TTree *tree, Selections const& keepList) {
+  // Since we don't know the history, make sure all branches are deactivated.
+    tree->SetBranchStatus("*", 0);
+  
+  // Iterate over the list of branch names to keep
+  
+   for(Selections::const_iterator it = keepList.begin(), itEnd=keepList.end(); it != itEnd; ++it) {
+     std::string branchName = (*it)->branchName();
+     char lastchar = branchName.at(branchName.size()-1);
+     if(lastchar == '.') {
+       branchName += "*";
+     } else {
+       branchName += ".*";
+     }
+     tree->SetBranchStatus(branchName.c_str(), 1);
+    }
   }
 
   void
