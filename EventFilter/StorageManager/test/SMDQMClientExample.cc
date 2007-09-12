@@ -7,7 +7,7 @@
 
   Description: Example DQM Client 
 
-  $Id: SMDQMClientExample.cc,v 1.1 2007/04/18 01:56:30 hcheung Exp $
+  $Id: SMDQMClientExample.cc,v 1.2 2007/04/26 01:04:36 hcheung Exp $
 
 */
 
@@ -67,8 +67,6 @@ private:
   // back-end interface
   DaqMonitorBEInterface * dbe;
 
-  MonitorUserInterface * mui;
-  
 };
 
 SMDQMClientExample::SMDQMClientExample( const edm::ParameterSet& iConfig )
@@ -77,17 +75,12 @@ SMDQMClientExample::SMDQMClientExample( const edm::ParameterSet& iConfig )
   // get hold of back-end interface
   dbe = edm::Service<DaqMonitorBEInterface>().operator->();
 
-  // instantiate Monitor UI without connecting to any monitoring server
-  // (i.e. "standalone mode")
-  mui = new MonitorUIRoot();
-  
   dbe->showDirStructure();
 }
 
 
 SMDQMClientExample::~SMDQMClientExample()
 {
-   delete mui;
 }
 
 void SMDQMClientExample::endJob(void)
@@ -104,7 +97,6 @@ void SMDQMClientExample::endJob(void)
 void SMDQMClientExample::analyze(const edm::Event& iEvent, 
 			       const edm::EventSetup& iSetup )
 {   
-  // mui->update() is not needed here?
   std::vector<std::string> topLevelFolderList;
   dbe->cd();
   topLevelFolderList = dbe->getSubdirs();
@@ -118,9 +110,8 @@ void SMDQMClientExample::analyze(const edm::Event& iEvent,
   }
   dbe->showDirStructure();
 
-  // now operations with mui
   // determine the "global" status of the system
-  int status = mui->getSystemStatus();
+  int status = dbe->getStatus();
   switch(status)
   {
     case dqm::qstatus::ERROR:
@@ -137,7 +128,7 @@ void SMDQMClientExample::analyze(const edm::Event& iEvent,
   }
   cout << " after getSystemStatus" << endl;
 
-  h7 = mui->get("C1/C3/histo7");
+  h7 = dbe->get("C1/C3/histo7");
   if(h7) {
     // fit h7 to gaussian
     MonitorElementT<TNamed>* ob = dynamic_cast<MonitorElementT<TNamed>*> (h7);
@@ -154,7 +145,7 @@ void SMDQMClientExample::analyze(const edm::Event& iEvent,
     std::cout << "did not find histo7" << std::endl;
   }
 
-  h8 = mui->get("D1/histo8");
+  h8 = dbe->get("D1/histo8");
   if(h8) {
     // fit h7 to gaussian
     MonitorElementT<TNamed>* ob = dynamic_cast<MonitorElementT<TNamed>*> (h8);

@@ -1,3 +1,9 @@
+2007-09-12  Harry Cheung <cheung@fnal.gov>
+
+	* tag V03-07-03
+	* fixed SMDQMClientExample.cc to be compatible with changes to DQM Services
+          by removing use of MonitorUIRoot/MonitorUserInterface
+
 2007-08-22  Emilio Meschi <Emilio.Meschi@cern.ch>
 
 	* tag V03-07-02
