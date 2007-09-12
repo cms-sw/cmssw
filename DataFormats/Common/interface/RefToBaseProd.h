@@ -5,7 +5,7 @@
  *
  * \author Luca Lista, INFN
  *
- * $Id: RefToBaseProd.h,v 1.7 2007/07/25 15:33:00 llista Exp $
+ * $Id: RefToBaseProd.h,v 1.8 2007/07/27 14:50:58 llista Exp $
  *
  */
   
@@ -223,7 +223,7 @@ namespace edm {
   RefToBaseProd<T>::RefToBaseProd(HandleC const& handle) :
     product_(handle.id(), handle.product(), 0) { 
     std::vector<void const*> pointers;
-    typedef typename refhelper::RefToBaseProdTrait<typename HandleC::product_type>::ref_vector_type ref_vector;
+    typedef typename refhelper::RefToBaseProdTrait<typename HandleC::element_type>::ref_vector_type ref_vector;
     typedef reftobase::RefVectorHolder<ref_vector> holder_type;
     helper_vector_ptr helpers( new holder_type );
     detail::reallyFillView( * handle, handle.id(), pointers, * helpers );
