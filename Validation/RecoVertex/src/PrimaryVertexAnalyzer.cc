@@ -33,6 +33,7 @@
 
 
 using namespace edm;
+using namespace reco;
 //
 // constants, enums and typedefs
 //
@@ -600,7 +601,7 @@ PrimaryVertexAnalyzer::analyze(const Event& iEvent, const EventSetup& iSetup)
       v!=recVtxs->end(); ++v){
 
     try {
-      for(reco::track_iterator t = v->tracks_begin(); 
+      for(reco::Vertex::trackRef_iterator t = v->tracks_begin(); 
 	  t!=v->tracks_end(); t++) {
 	// illegal charge
         if ( (**t).charge() < -1 || (**t).charge() > 1 ) {
@@ -654,7 +655,7 @@ PrimaryVertexAnalyzer::analyze(const Event& iEvent, const EventSetup& iSetup)
       double data[25];
       try {
 	int itk = 0;
-	for(reco::track_iterator t = v->tracks_begin(); 
+	for(reco::Vertex::trackRef_iterator t = v->tracks_begin(); 
 	    t!=v->tracks_end(); t++) {
 	  std::cout << "Track " << itk++ << std::endl;
 	  int i2 = 0;
