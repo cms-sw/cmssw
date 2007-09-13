@@ -71,22 +71,15 @@ CaloGeometryLoader<T>::makeGeometry( const DDCompactView* cpv  ,
 
    fillNamedParams( fv0, geom ) ;
 
-   DDFilteredView fv1 ( *cpv ) ;
-   fv1.addFilter( m_filter ) ;
-   unsigned int counter ( 0 ) ;
-  
-   for( bool doSubDets = fv1.firstChild(); doSubDets ; doSubDets = fv1.nextSibling() )
-   {
-      ++counter ;
-   } 
-
-   geom->allocateCorners( counter ) ;
+   geom->allocateCorners( T::k_NumberOfCellsForCorners ) ;
 
    DDFilteredView fv( *cpv ) ;
    fv.addFilter( m_filter ) ;
  
+   unsigned int counter ( 0 ) ;
    for( bool doSubDets = fv.firstChild(); doSubDets ; doSubDets = fv.nextSibling() )
    {
+      ++counter ;
       const DDSolid& solid ( fv.logicalPart().solid() ) ;
       
       const ParmVec& parameters ( solid.parameters() ) ;
@@ -100,12 +93,15 @@ CaloGeometryLoader<T>::makeGeometry( const DDCompactView* cpv  ,
       const Hep3Vector h3v( fv.translation().X(),
 			    fv.translation().Y(),
 			    fv.translation().Z()  ) ;
-      const HepTransform3D ht3d ( HepScale3D( 0.1 )*HepTransform3D( hr, h3v ) ) ;    
+      const HepTransform3D ht3d ( hr,                        // only scale translation
+				  CaloCellGeometry::k_ScaleFromDDDtoGeant*h3v ) ;    
 
       const DetId id ( getDetIdForDDDNode( fv ) ) ;
 
       fillGeom( geom, parameters, ht3d, id ) ;
    }
+
+   assert( counter <= T::k_NumberOfCellsForCorners ) ;
 
    extraStuff( geom ) ;
 }
@@ -118,7 +114,7 @@ CaloGeometryLoader<T>::getDetIdForDDDNode( const DDFilteredView& fv )
   // get the parents and grandparents of this node
 
   const DDGeoHistory& parents ( fv.geoHistory() ) ;
-  const size_t psize ( parents.size() ) ;
+  const DDGeoHistory::size_type psize ( parents.size() ) ;
 
   EcalBaseNumber baseNumber ;
   baseNumber.setSize( psize ) ;

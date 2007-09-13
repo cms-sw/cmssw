@@ -3,8 +3,8 @@
 
 <ConstantsSection  label="eehier.xml" eval="true">
 
-<Constant name="EESCLimsXlo"    value="5"/>
-<Constant name="EESCLimsXhi"    value="9"/>
+<Constant name="EESCLimsXlo"    value="4"/>
+<Constant name="EESCLimsXhi"    value="7"/>
 <Constant name="EESCLimsYlo"    value="1"/>
 <Constant name="EESCLimsYhi"    value="5"/>
 

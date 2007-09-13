@@ -1,5 +1,7 @@
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
 
+const float CaloCellGeometry::k_ScaleFromDDDtoGeant ( 0.1 ) ;
+
 const CaloCellGeometry::CornersVec&
 CaloCellGeometry::getCorners() const
 {
@@ -38,7 +40,7 @@ CaloCellGeometry::getParmPtr(
 
    for( unsigned int i ( 0 ) ; i != vd.size() ; ++i )
    {
-      vv.push_back( vd[i] ) ;
+      vv.push_back( CaloCellGeometry::k_ScaleFromDDDtoGeant*vd[i] ) ;
    }
    for( unsigned int ii ( 0 ) ; ii != pvv.size() ; ++ii )
    {
@@ -49,8 +51,8 @@ CaloCellGeometry::getParmPtr(
       for( unsigned int j ( 0 ) ; j != np ; ++j )
       {
 	 same = same && ( vv[j] == v[j] ) ;
+	 if( !same ) break ;
       }
-
       if( same )
       {
 	 pP = &(*v.begin()) ;
@@ -61,6 +63,7 @@ CaloCellGeometry::getParmPtr(
    {
       pvv.push_back( vv ) ;
       pP = &(*pvv.back().begin()) ;
+//      std::cout<<"Size of ParmVecVec is now "<<pvv.size() <<std::endl ;
    }
    return pP ;
 }

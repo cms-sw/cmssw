@@ -11,8 +11,8 @@
 
 Abstract base class for an individual cell's geometry.
     
-$Date: 2007/09/06 21:40:14 $
-$Revision: 1.9 $
+$Date: 2007/09/07 19:08:33 $
+$Revision: 1.10 $
 \author J. Mans, P. Meridiani
 */
 
@@ -27,6 +27,8 @@ class CaloCellGeometry
       typedef std::vector<ParVec> ParVecVec ;
 
       enum CornersSize { k_cornerSize = 8 };
+
+      static const float k_ScaleFromDDDtoGeant ;
 
       virtual ~CaloCellGeometry() {}
       

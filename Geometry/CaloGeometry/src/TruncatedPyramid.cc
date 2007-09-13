@@ -18,36 +18,19 @@ TruncatedPyramid::createCorners( const std::vector<double>&    pv ,
    // to get the ordering right for fast sim, we have to use their convention
    // which were based on the old static geometry. Some gymnastics required here.
 
-   const double dz  ( pv[0] ) ;
-   const double thx ( pv[1] ) ;
-   const double phx ( pv[2] ) ;
-   const double h1x ( pv[3] ) ;
-   const double b1x ( pv[4] ) ;
-   const double t1x ( pv[5] ) ;
-   const double a1x ( pv[6] ) ;
-   const double h2x ( pv[7] ) ;
-   const double b2x ( pv[8] ) ;
-   const double t2x ( pv[9] ) ;
-   const double a2x ( pv[10]) ;
+   static const float kf ( CaloCellGeometry::k_ScaleFromDDDtoGeant ) ;
 
-   double th, ph, h1, b1, t1, a1, h2, b2, t2, a2 ;
-
-   if( h1x < h2x ) // small end is z<0
-   {
-      th = thx ; ph = phx ;
-      h1 = h1x ; h2 = h2x ;
-      b1 = ( b1x<t1x ? b1x : t1x ) ; b2 = ( b2x<t2x ? b2x : t2x ) ;
-      t1 = ( b1x<t1x ? t1x : b1x ) ; t2 = ( b2x<t2x ? t2x : b2x ) ;
-      a1 = a1x ; a2 = a2x ;
-   }
-   else
-   {
-      th = thx ; ph = M_PI - phx ;
-      h1 = h2x ; h2 = h1x ;
-      b1 = ( b2x<t2x ? b2x : t2x ) ; b2 = ( b1x<t1x ? b1x : t1x ) ;
-      t1 = ( b2x<t2x ? t2x : b2x ) ; t2 = ( b1x<t1x ? t1x : b1x ) ;
-      a1 = a2x ; a2 = a1x ;
-   }
+   const double dz ( kf*pv[0] ) ;
+   const double th ( kf*pv[1] ) ;
+   const double ph ( kf*pv[2] ) ;
+   const double h1 ( kf*pv[3] ) ;
+   const double b1 ( kf*pv[4] ) ;
+   const double t1 ( kf*pv[5] ) ;
+   const double a1 ( kf*pv[6] ) ;
+   const double h2 ( kf*pv[7] ) ;
+   const double b2 ( kf*pv[8] ) ;
+   const double t2 ( kf*pv[9] ) ;
+   const double a2 ( kf*pv[10]) ;
 
    std::vector<HepPoint3D> to ( 8, HepPoint3D(0,0,0) ) ;
    std::vector<HepPoint3D> ko ( 8, HepPoint3D(0,0,0) ) ;
@@ -59,14 +42,16 @@ TruncatedPyramid::createCorners( const std::vector<double>&    pv ,
    const double tthcp ( tth * cos( ph ) ) ;
    const double tthsp ( tth * sin( ph ) ) ;
 
-   to[0] = HepPoint3D( -dz*tthcp - h1*ta1 - b1, -dz*tthsp - h1 , -dz ); // (-,-,-)
-   to[1] = HepPoint3D( -dz*tthcp + h1*ta1 - t1, -dz*tthsp + h1 , -dz ); // (-,+,-)
-   to[2] = HepPoint3D( -dz*tthcp + h1*ta1 + t1, to[1].y()      , -dz ); // (+,+,-)
-   to[3] = HepPoint3D( -dz*tthcp - h1*ta1 + b1, to[0].y()      , -dz ); // (+,-,-)
-   to[4] = HepPoint3D(  dz*tthcp - h2*ta2 - b2, -dz*tthsp - h2 ,  dz ); // (-,-,+)
-   to[5] = HepPoint3D(  dz*tthcp + h2*ta2 - t2, -dz*tthsp + h2 ,  dz ); // (-,+,+)
-   to[6] = HepPoint3D(  dz*tthcp + h2*ta2 + t2, to[5].y()      ,  dz ); // (+,+,+)
-   to[7] = HepPoint3D(  dz*tthcp - h2*ta2 + b2, to[4].y()      ,  dz ); // (+,-,+)
+   const unsigned int off ( h1<h2 ? 0 :  4 ) ;
+
+   to[0+off] = HepPoint3D( -dz*tthcp - h1*ta1 - b1, -dz*tthsp - h1 , -dz ); // (-,-,-)
+   to[1+off] = HepPoint3D( -dz*tthcp + h1*ta1 - t1, -dz*tthsp + h1 , -dz ); // (-,+,-)
+   to[2+off] = HepPoint3D( -dz*tthcp + h1*ta1 + t1, to[1].y()      , -dz ); // (+,+,-)
+   to[3+off] = HepPoint3D( -dz*tthcp - h1*ta1 + b1, to[0].y()      , -dz ); // (+,-,-)
+   to[4-off] = HepPoint3D(  dz*tthcp - h2*ta2 - b2, -dz*tthsp - h2 ,  dz ); // (-,-,+)
+   to[5-off] = HepPoint3D(  dz*tthcp + h2*ta2 - t2, -dz*tthsp + h2 ,  dz ); // (-,+,+)
+   to[6-off] = HepPoint3D(  dz*tthcp + h2*ta2 + t2, to[5].y()      ,  dz ); // (+,+,+)
+   to[7-off] = HepPoint3D(  dz*tthcp - h2*ta2 + b2, to[4].y()      ,  dz ); // (+,-,+)
 
    for( unsigned int i ( 0 ) ; i != 8 ; ++i )
    {
@@ -78,7 +63,8 @@ TruncatedPyramid::createCorners( const std::vector<double>&    pv ,
    static const HepVector3D y ( 0, 1, 0 ) ;
    static const HepVector3D z ( 0, 0, 1 ) ;
    const bool refl ( ( ( tr*x ).cross( tr*y ) ).dot( tr*z ) < 0 ) ; // has reflection!
-   if( refl )
+   if( refl || 
+       h1>h2  )
    {
       if( 11.2 < dz ) //barrel
       {

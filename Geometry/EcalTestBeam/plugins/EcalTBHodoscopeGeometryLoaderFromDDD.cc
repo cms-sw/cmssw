@@ -86,7 +86,11 @@ void EcalTBHodoscopeGeometryLoaderFromDDD::makeGeometry(const DDCompactView* cpv
       HepRotation hrot(hx, hy, hz);
       Hep3Vector htran(fv.translation().X(), fv.translation().Y(), fv.translation().Z());
 
-      const HepPoint3D ctr ( htran*HepPoint3D(0,0,-pv[2]) ) ;
+      const HepTransform3D ht3d ( hrot,                        // only scale translation
+				  CaloCellGeometry::k_ScaleFromDDDtoGeant*htran ) ;    
+
+
+      const HepPoint3D ctr ( ht3d*HepPoint3D(0,0,0) ) ;
 
       const GlobalPoint refPoint ( ctr.x(), ctr.y(), ctr.z() ) ;
 
