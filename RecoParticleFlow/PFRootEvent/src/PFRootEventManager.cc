@@ -915,13 +915,15 @@ bool PFRootEventManager::processEntry(int entry) {
   if(outTree_) outTree_->Fill();
   
  
-  if( deltaEt<-0.5 ) {
-    cout<<deltaEt<<endl;
-    return true;
-  }
-  //  if(trueParticles_.size() != 1 ) return false;
-  else 
-    return false;
+//   if( deltaEt<-0.5 ) {
+//     cout<<deltaEt<<endl;
+//     return true;
+//   }
+//   //  if(trueParticles_.size() != 1 ) return false;
+//   else 
+//     return false;
+
+  return goodevent;
 
 }
 
@@ -933,6 +935,7 @@ bool PFRootEventManager::readFromSimulation(int entry) {
   
   // setAddresses();
 
+  if(stdTracksBranch_) stdTracksBranch_->GetEntry(entry);
   if(MCTruthBranch_) { 
     MCTruthBranch_->GetEntry(entry);
   }
@@ -964,7 +967,6 @@ bool PFRootEventManager::readFromSimulation(int entry) {
     caloTowersBranch_->GetEntry(entry);
   } 
   if(recTracksBranch_) recTracksBranch_->GetEntry(entry);
-  if(stdTracksBranch_) stdTracksBranch_->GetEntry(entry);
   
   tree_->GetEntry( entry, 0 );
 
@@ -983,7 +985,8 @@ bool PFRootEventManager::readFromSimulation(int entry) {
       cout << "PFRootEventManager : leptonic tau discarded " << endl; 
       goodevent =  false;
     }
-    if( goodevent && !filterTaus_.empty() && !chargedNeutralTau() ) {
+    if( goodevent && !filterTaus_.empty() 
+	&& !countChargedAndPhotons() ) {
       assert( filterTaus_.size() == 2 );
       cout <<"PFRootEventManager : tau discarded: "
 	   <<"number of charged and neutral particles different from "
@@ -1058,9 +1061,9 @@ bool PFRootEventManager::isHadronicTau() const {
 
 
 
-bool PFRootEventManager::chargedNeutralTau() const {
+bool PFRootEventManager::countChargedAndPhotons() const {
   
-  int nNeutral = 0;
+  int nPhoton = 0;
   int nCharged = 0;
   
   for ( unsigned i=0;  i < trueParticles_.size(); i++) {
@@ -1073,11 +1076,12 @@ bool PFRootEventManager::chargedNeutralTau() const {
     if(!daughters.empty() ) continue; 
 
     double charge = ptc.charge();
+    double pdgCode = ptc.pdgCode();
     
     if( abs(charge)>1e-9) 
       nCharged++;
-    else 
-      nNeutral++;
+    else if( pdgCode==22 )
+      nPhoton++;
   }    
 
 //   const HepMC::GenEvent* myGenEvent = MCTruth_.GetEvent();
@@ -1104,11 +1108,11 @@ bool PFRootEventManager::chargedNeutralTau() const {
 //     if(charge) 
 //       nCharged++;
 //     else 
-//       nNeutral++;
+//       nPhoton++;
 //   }
   
   if( nCharged == filterTaus_[0] && 
-      nNeutral == filterTaus_[1]  )
+      nPhoton == filterTaus_[1]  )
     return true;
   else 
     return false;
@@ -2901,6 +2905,10 @@ void  PFRootEventManager::print(ostream& out) const {
       printCluster((*clustersPS_)[i], out);
     }    
     out<<endl;
+  }
+  bool printTracks = true;
+  if( printTracks) {
+    
   }
   if( printPFBlocks_ ) {
     out<<"Particle Flow Blocks ======================================"<<endl;

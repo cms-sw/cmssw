@@ -5,6 +5,8 @@
   </class>
   <class name="PFRootEventManagerColin"/>  
   <class name="JetPFRootEventManager"/>
+  <class name="TauEvent"/>
+  <class name="NeutralEvent"/>
   <class name="EventColin"/>
   <class name="EventColin::Particle"/>
   <class name="std::vector<EventColin::Particle>"/>
@@ -24,9 +26,5 @@
   <class name="GPFTrack"/>
   <class name="std::vector<GPFTrack>"/>
   <class name="DialogFrame"/>
-  
-  
-  
-     
 </lcgdict>
 

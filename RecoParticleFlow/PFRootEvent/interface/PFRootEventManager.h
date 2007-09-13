@@ -153,9 +153,9 @@ class PFRootEventManager {
 
   /// parse option file
   /// if(reconnect), the rootfile will be reopened, and the tree reconnected
-  void readOptions(const char* file, 
-		   bool refresh=true,
-		   bool reconnect=false);
+  virtual void readOptions(const char* file, 
+			   bool refresh=true,
+			   bool reconnect=false);
 
   /// open the root file and connect to the tree
   void connect(const char* infilename="");
@@ -173,8 +173,9 @@ class PFRootEventManager {
   bool isHadronicTau() const;
 
   /// study the sim event to check if the 
-  /// number of charged and neutral particles match the selection
-  bool chargedNeutralTau() const;
+  /// number of stable charged particles and stable photons
+  /// match the selection
+  bool countChargedAndPhotons() const;
 
   /// return the chargex3
   /// \todo function stolen from famos. remove when it it possible to 
