@@ -6,7 +6,7 @@
 Worker: this is a basic scheduling unit - an abstract base class to
 something that is really a producer or filter.
 
-$Id: Worker.h,v 1.25 2007/08/03 16:25:59 wmtan Exp $
+$Id: Worker.h,v 1.26 2007/08/29 15:25:31 wmtan Exp $
 
 A worker will not actually call through to the module unless it is
 in a Ready state.  After a module is actually run, the state will not
@@ -221,6 +221,7 @@ namespace edm {
 	  }
 
 	  case actions::FailModule: {
+	      rc=true;
 	      LogWarning("FailModule")
                 << "Module failed an event due to exception\n"
                 << e.what() << "\n";
