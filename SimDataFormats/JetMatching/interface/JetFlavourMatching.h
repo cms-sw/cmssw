@@ -5,7 +5,22 @@
 #include "SimDataFormats/JetMatching/interface/JetFlavour.h"
 #include <vector>
 
-typedef  edm::AssociationVector<reco::CaloJetRefProd,std::vector<reco::JetFlavour> >  JetFlavourMatchingCollection;
+typedef edm::AssociationVector<reco::CaloJetRefProd,std::vector<reco::JetFlavour> > JetFlavourMatchingCollectionBase;
+
+class JetFlavourMatchingCollection : public JetFlavourMatchingCollectionBase {
+public:
+  JetFlavourMatchingCollection() :
+    JetFlavourMatchingCollectionBase()
+  { }
+ 
+  JetFlavourMatchingCollection(const reco::CaloJetRefProd & ref) :
+    JetFlavourMatchingCollectionBase(ref)
+  { }
+
+  JetFlavourMatchingCollection(const JetFlavourMatchingCollectionBase &v) :
+    JetFlavourMatchingCollectionBase(v)
+  { }
+};
 
 typedef  JetFlavourMatchingCollection::value_type JetFlavourMatching;
 
