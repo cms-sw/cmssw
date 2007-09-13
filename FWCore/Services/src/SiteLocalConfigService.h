@@ -29,8 +29,6 @@ namespace edm
 			     const ActivityRegistry &activityRegistry);
 	    
 	    const std::string dataCatalog (void) const;
-	    const std::string calibCatalog (void) const;
-	    const std::string calibLogicalServer (void) const;
 	    const std::string lookupCalibConnect (const std::string& input) const;
 
 	    // implicit copy constructor
@@ -41,7 +39,6 @@ namespace edm
 	    const std::string frontierConnect (const std::string &servlet) const;
 	    std::string 	m_url;	    
 	    std::string 	m_dataCatalog;
-	    mutable std::string m_calibCatalog;
 	    std::string		m_frontierConnect;
 	    bool		m_connected;	    
 	};
