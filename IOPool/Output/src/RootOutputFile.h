@@ -3,7 +3,7 @@
 
 //////////////////////////////////////////////////////////////////////
 //
-// $Id: RootOutputFile.h,v 1.8 2007/09/08 02:16:33 wmtan Exp $
+// $Id: RootOutputFile.h,v 1.9 2007/09/10 20:27:09 wmtan Exp $
 //
 // Class PoolOutputModule. Output module to POOL file
 //
@@ -38,7 +38,7 @@ namespace edm {
 
   class RootOutputFile {
   public:
-    typedef boost::array<RootOutputTree *, EndBranchType> RootOutputTreePtrArray;
+    typedef boost::array<RootOutputTree *, NumBranchTypes> RootOutputTreePtrArray;
     explicit RootOutputFile(PoolOutputModule * om, std::string const& fileName, std::string const& logicalFileName);
     ~RootOutputFile() {}
     void writeOne(EventPrincipal const& e);
@@ -72,7 +72,7 @@ namespace edm {
       mutable void const* product_;
     };
     typedef std::vector<OutputItem> OutputItemList;
-    typedef boost::array<OutputItemList, EndBranchType> OutputItemListArray;
+    typedef boost::array<OutputItemList, NumBranchTypes> OutputItemListArray;
 
     void fillBranches(BranchType const& branchType, Principal const& principal) const;
 

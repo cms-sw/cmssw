@@ -6,7 +6,7 @@
   
 BranchType: The type of a Branch (Event, LuminosityBlock, or Run)
 
-$Id: BranchType.h,v 1.1 2007/03/04 04:48:08 wmtan Exp $
+$Id: BranchType.h,v 1.2 2007/03/15 21:44:45 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 namespace edm {
@@ -15,7 +15,7 @@ namespace edm {
     InEvent = 0,
     InLumi = 1,
     InRun = 2,
-    EndBranchType = 3
+    NumBranchTypes
   };
 
   inline

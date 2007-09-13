@@ -9,7 +9,7 @@
 namespace edm {
   class BranchDescription;
   typedef std::vector<BranchDescription const *> Selections;
-  typedef boost::array<Selections, EndBranchType> SelectionsArray;
+  typedef boost::array<Selections, NumBranchTypes> SelectionsArray;
 }
 
 #endif

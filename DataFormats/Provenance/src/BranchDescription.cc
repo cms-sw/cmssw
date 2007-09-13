@@ -8,7 +8,7 @@
 
 /*----------------------------------------------------------------------
 
-$Id: BranchDescription.cc,v 1.3 2007/08/23 23:32:53 wmtan Exp $
+$Id: BranchDescription.cc,v 1.4 2007/08/28 14:33:25 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -202,7 +202,7 @@ namespace edm {
   void
   BranchDescription::throwIfInvalid_() const
   {
-    if (branchType_ >= edm::EndBranchType)
+    if (branchType_ >= edm::NumBranchTypes)
       throwExceptionWithText("Illegal BranchType detected");
 
     if (moduleLabel_.empty())

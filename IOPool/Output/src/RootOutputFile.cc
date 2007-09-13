@@ -1,4 +1,4 @@
-// $Id: RootOutputFile.cc,v 1.13 2007/09/11 18:22:37 paterno Exp $
+// $Id: RootOutputFile.cc,v 1.14 2007/09/12 22:39:05 wmtan Exp $
 
 #include "RootOutputFile.h"
 #include "PoolOutputModule.h"
@@ -67,7 +67,7 @@ namespace edm {
     treePointers_[InRun]   = &runTree_;
     TTree::SetMaxTreeSize(kMaxLong64);
 
-    for (int i = InEvent; i < EndBranchType; ++i) {
+    for (int i = InEvent; i < NumBranchTypes; ++i) {
       BranchType branchType = static_cast<BranchType>(i);
       OutputItemList & outputItemList = outputItemList_[branchType];
 
@@ -201,7 +201,7 @@ namespace edm {
   void RootOutputFile::finishEndFile() { 
     metaDataTree_->SetEntries(-1);
     RootOutputTree::writeTTree(metaDataTree_);
-    for (int i = InEvent; i < EndBranchType; ++i) {
+    for (int i = InEvent; i < NumBranchTypes; ++i) {
       BranchType branchType = static_cast<BranchType>(i);
       buildIndex(treePointers_[branchType]->tree(), branchType);
       setBranchAliases(treePointers_[branchType]->tree(), om_->descVec()[branchType]);
