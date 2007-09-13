@@ -19,6 +19,9 @@
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 
+#include "DataFormats/VertexReco/interface/Vertex.h"
+#include "DataFormats/VertexReco/interface/VertexFwd.h"
+
 #include "DataFormats/VZero/interface/VZero.h"
 #include "DataFormats/VZero/interface/VZeroFwd.h"
 

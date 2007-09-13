@@ -31,10 +31,12 @@ namespace reco {
      Vertex::Point crossingPoint() const { return vertex_.position(); }
 
      // reference to positive daughter
-     TrackRef positiveDaughter() const { return *(vertex_.tracks_begin()  ); }
+     TrackRef positiveDaughter() const
+     { return (*(vertex_.tracks_begin()  )).castTo<reco::TrackRef>(); }
 
      // reference to negative daughter
-     TrackRef negativeDaughter() const { return *(vertex_.tracks_begin()+1); }
+     TrackRef negativeDaughter() const
+     { return (*(vertex_.tracks_begin()+1)).castTo<reco::TrackRef>(); }
 
      // distance of closest approach (radial)
      float dcaR() const { return data_.dcaR; }
