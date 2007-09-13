@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Aug  4 20:45:44 EDT 2006
-// $Id: XMLOutputModule.cc,v 1.8 2007/08/16 23:39:24 wmtan Exp $
+// $Id: XMLOutputModule.cc,v 1.9 2007/09/10 20:23:27 wmtan Exp $
 //
 
 // system include files
@@ -458,7 +458,7 @@ XMLOutputModule::write(EventPrincipal const& iEP)
   edm::Event event(const_cast<EventPrincipal&>(iEP),desc);
   stream_ <<"<event run=\""<< event.id().run()<< "\" number=\""<< event.id().event()<<"\" >\n";
   std::string startIndent = indentation_;
-  for(Selections::const_iterator itBD = descVec()[InEvent].begin(), itBDEnd = descVec()[InEvent].end();
+  for(Selections::const_iterator itBD = keptProducts()[InEvent].begin(), itBDEnd = keptProducts()[InEvent].end();
       itBD != itBDEnd;
       ++itBD) {
     stream_<<"<product type=\""<<(*itBD)->friendlyClassName()

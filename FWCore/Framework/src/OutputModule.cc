@@ -1,6 +1,6 @@
 /*----------------------------------------------------------------------
 
-$Id: OutputModule.cc,v 1.39 2007/09/11 21:57:19 paterno Exp $
+$Id: OutputModule.cc,v 1.40 2007/09/12 18:55:11 paterno Exp $
 ----------------------------------------------------------------------*/
 
 #include "FWCore/Framework/interface/OutputModule.h"
@@ -113,18 +113,15 @@ namespace edm {
   // -------------------------------------------------------
   OutputModule::OutputModule(ParameterSet const& pset) : 
     nextID_(),
-    descVec_(),
-    droppedVec_(),
-    descProducedVec_(),
-    droppedProducedVec_(),
+    keptProducts_(),
+    droppedProducts_(),
+    keptProducedProducts_(),
+    droppedProducedProducts_(),
     hasNewlyDroppedBranch_(),
     process_name_(),
     groupSelector_(pset),
-    //eventSelectors_(),
-    //selectResult_("*"),  // use the most recent process name
     moduleDescription_(),
     current_context_(0),
-    //prods_(),
     prodsValid_(false),
     wantAllEvents_(false),
     selectors_(),
@@ -173,7 +170,7 @@ namespace edm {
     Service<ConstProductRegistry> reg;
     nextID_ = reg->nextID();
 
-    // TODO: See if we can collapse descVec_ and groupSelector_ into a
+    // TODO: See if we can collapse keptProducts_ and groupSelector_ into a
     // single object. See the notes in the header for GroupSelector
     // for more information.
 
@@ -190,12 +187,12 @@ namespace edm {
 	  continue;
 	} else if (selected(desc)) {
 	  // else if the branch has been selected, put it in the list of selected branches
-	  descVec_[desc.branchType()].push_back(&desc);
-	  descProducedVec_[desc.branchType()].push_back(&desc);
+	  keptProducts_[desc.branchType()].push_back(&desc);
+	  keptProducedProducts_[desc.branchType()].push_back(&desc);
 	} else {
 	  // otherwise, drop the product branch.
-	  droppedVec_[desc.branchType()].push_back(&desc);
-	  droppedProducedVec_[desc.branchType()].push_back(&desc);
+	  droppedProducts_[desc.branchType()].push_back(&desc);
+	  droppedProducedProducts_[desc.branchType()].push_back(&desc);
 	  // mark the fact that there is a newly dropped branch of this type.
 	  hasNewlyDroppedBranch_[desc.branchType()] = true;
 	}
@@ -210,16 +207,16 @@ namespace edm {
 	} else if(!desc.present()) {
 	  // else if the branch containing the product has been previously dropped,
 	  // drop the product branch again.
-	  droppedVec_[desc.branchType()].push_back(&desc);
-	  droppedPriorVec_[desc.branchType()].push_back(&desc);
+	  droppedProducts_[desc.branchType()].push_back(&desc);
+	  droppedPriorProducts_[desc.branchType()].push_back(&desc);
 	} else if (selected(desc)) {
 	  // else if the branch has been selected, put it in the list of selected branches
-	  descVec_[desc.branchType()].push_back(&desc);
-	  descPriorVec_[desc.branchType()].push_back(&desc);
+	  keptProducts_[desc.branchType()].push_back(&desc);
+	  keptPriorProducts_[desc.branchType()].push_back(&desc);
 	} else {
 	  // otherwise, drop the product branch.
-	  droppedVec_[desc.branchType()].push_back(&desc);
-	  droppedPriorVec_[desc.branchType()].push_back(&desc);
+	  droppedProducts_[desc.branchType()].push_back(&desc);
+	  droppedPriorProducts_[desc.branchType()].push_back(&desc);
 	  // mark the fact that there is a newly dropped branch of this type.
 	  hasNewlyDroppedBranch_[desc.branchType()] = true;
 	}

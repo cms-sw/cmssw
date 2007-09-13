@@ -97,7 +97,7 @@ namespace edm
     OutputModule(ps),
     bufs_(getEventBuffer(ps.template getParameter<int>("max_event_size"),
 			 ps.template getParameter<int>("max_queue_depth"))),
-    es_(ps,&descVec()[InEvent],bufs_),
+    es_(ps,&keptProducts()[InEvent],bufs_),
     c_(ps.template getParameter<ParameterSet>("consumer_config"),bufs_)
   {
     // temporary hack
@@ -134,7 +134,7 @@ namespace edm
   {
     //std::cerr << "In beginJob" << std::endl;
 
-    es_.serializeRegistry(descVec()[InEvent]);
+    es_.serializeRegistry(keptProducts()[InEvent]);
     c_.sendRegistry(es_.registryBuffer(),es_.registryBufferSize());
 
   }

@@ -1,7 +1,7 @@
 #ifndef StreamerOutputModule_h_
 #define StreamerOutputModule_h_
 
-// $Id: StreamerOutputModule.h,v 1.28 2007/08/20 20:23:24 hcheung Exp $
+// $Id: StreamerOutputModule.h,v 1.29 2007/09/10 20:23:09 wmtan Exp $
 
 #include "FWCore/RootAutoLibraryLoader/interface/RootAutoLibraryLoader.h"
 #include "FWCore/Utilities/interface/Exception.h"
@@ -145,7 +145,7 @@ namespace edm
 template <class Consumer>
 StreamerOutputModule<Consumer>::StreamerOutputModule(edm::ParameterSet const& ps):
   OutputModule(ps),
-  selections_(&descVec()[InEvent]),
+  selections_(&keptProducts()[InEvent]),
   prod_reg_buf_(1000 * 1000),
   maxEventSize_(ps.template getUntrackedParameter<int>("max_event_size", 7000000)),
   useCompression_(ps.template getUntrackedParameter<bool>("use_compression", true)),

@@ -6,7 +6,7 @@
 OutputModule: The base class of all "modules" that write Events to an
 output stream.
 
-$Id: OutputModule.h,v 1.52 2007/09/12 18:55:10 paterno Exp $
+$Id: OutputModule.h,v 1.53 2007/09/13 16:29:49 paterno Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -64,12 +64,12 @@ namespace edm {
     void selectProducts();
     int eventCount() const {return eventCount_;}
     std::string const& processName() const {return process_name_;}
-    SelectionsArray const& descVec() const {return descVec_;}
-    SelectionsArray const& droppedVec() const {return droppedVec_;}
-    SelectionsArray const& descProducedVec() const {return descProducedVec_;}
-    SelectionsArray const& droppedProducedVec() const {return droppedProducedVec_;}
-    SelectionsArray const& descPriorVec() const {return descPriorVec_;}
-    SelectionsArray const& droppedPriorVec() const {return droppedPriorVec_;}
+    SelectionsArray const& keptProducts() const {return keptProducts_;}
+    SelectionsArray const& droppedProducts() const {return droppedProducts_;}
+    SelectionsArray const& keptProducedProducts() const {return keptProducedProducts_;}
+    SelectionsArray const& droppedProducedProducts() const {return droppedProducedProducts_;}
+    SelectionsArray const& keptPriorProducts() const {return keptPriorProducts_;}
+    SelectionsArray const& droppedPriorProducts() const {return droppedPriorProducts_;}
     boost::array<bool, NumBranchTypes> const& hasNewlyDroppedBranch() const {return hasNewlyDroppedBranch_;}
 
     bool const& wantAllEvents() const {return wantAllEvents_;}
@@ -94,79 +94,45 @@ namespace edm {
     // TODO: Give OutputModule
     // an interface (protected?) that supplies client code with the
     // needed functionality *without* giving away implementation
-    // details ... don't just return a reference to descVec_, because
+    // details ... don't just return a reference to keptProducts_, because
     // we are looking to have the flexibility to change the
-    // implementation of descVec_ without modifying clients. When this
+    // implementation of keptProducts_ without modifying clients. When this
     // change is made, we'll have a one-time-only task of modifying
     // clients (classes derived from OutputModule) to use the
     // newly-introduced interface.
-    // ditto for droppedVec_.
+    // ditto for droppedProducts_.
     // TODO: Consider using shared pointers here?
 
-    // descVec_ are pointers to the BranchDescription objects describing
+    // keptProducts_ are pointers to the BranchDescription objects describing
     // the branches we are to write.
-    // droppedVec_ are pointers to the BranchDescription objects describing
+    // droppedProducts_ are pointers to the BranchDescription objects describing
     // the branches we are NOT to write.
     // 
     // We do not own the BranchDescriptions to which we point.
-    SelectionsArray descVec_;
-    SelectionsArray droppedVec_;
+    SelectionsArray keptProducts_;
+    SelectionsArray droppedProducts_;
 
-    // descProducedVec_ is the subset of descVec_ describing only the branches
+    // keptProducedProducts_ is the subset of keptProducts_ describing only the branches
     // newly produced in the current process.
-    // droppedProducedVec_ is the subset of droppedVec_ describing only the branches
+    // droppedProducedProducts_ is the subset of droppedProducts_ describing only the branches
     // newly produced in the current process.
     //
-    SelectionsArray descProducedVec_;
-    SelectionsArray droppedProducedVec_;
+    SelectionsArray keptProducedProducts_;
+    SelectionsArray droppedProducedProducts_;
 
-    // descPriorVec_ is the subset of descVec_ describing only the branches
+    // keptPriorProducts_ is the subset of keptProducts_ describing only the branches
     // produced in prior processes.
-    // droppedPriorVec_ is the subset of droppedVec_ describing only the branches
+    // droppedPriorProducts_ is the subset of droppedProducts_ describing only the branches
     // produced in prior processes.
     //
-    SelectionsArray descPriorVec_;
-    SelectionsArray droppedPriorVec_;
+    SelectionsArray keptPriorProducts_;
+    SelectionsArray droppedPriorProducts_;
 
     boost::array<bool, NumBranchTypes> hasNewlyDroppedBranch_;
 
-    // Do the end-of-file tasks; this is only called internally, after
-    // the appropriate tests have been done.
-    void reallyEndFile();
-
-    virtual void write(EventPrincipal const& e) = 0;
-    //bool wantEvent(Event const& e);
-    virtual void beginJob(EventSetup const&){}
-    virtual void endJob(){}
-    virtual void beginRun(RunPrincipal const& r){}
-    virtual void endRun(RunPrincipal const& r) = 0;
-    virtual void beginLuminosityBlock(LuminosityBlockPrincipal const& lb){}
-    virtual void endLuminosityBlock(LuminosityBlockPrincipal const& lb) = 0;
-
-    virtual bool isFileOpen() const { return true; }
-    virtual bool isFileFull() const { return false; }
-
-    virtual void doOpenFile() { }
-
-    // The following member functions are part of the Template Method
-    // pattern, used for implementing doEndFile() and maybeEndFil().
-
-    virtual void startEndFile() {}
-    virtual void writeFileFormatVersion() {}
-    virtual void writeProcessConfigurationRegistry() {}
-    virtual void writeProcessHistoryRegistry() {}
-    virtual void writeModuleDescriptionRegistry() {}
-    virtual void writeParameterSetRegistry() {}
-    virtual void writeProductDescriptionRegistry() {}
-    virtual void finishEndFile() {}
-
-
     std::string process_name_;
     GroupSelector groupSelector_;
-    
-    void setModuleDescription(ModuleDescription const& md) {
-      moduleDescription_ = md;
-    }
+
     ModuleDescription moduleDescription_;
 
     // We do not own the pointed-to CurrentProcessingContext.
@@ -180,6 +146,44 @@ namespace edm {
     mutable detail::CachedProducts selectors_;
 
     int eventCount_;
+
+
+    //------------------------------------------------------------------
+    // private member functions
+    //------------------------------------------------------------------
+
+    // Do the end-of-file tasks; this is only called internally, after
+    // the appropriate tests have been done.
+    void reallyEndFile();
+
+    virtual void write(EventPrincipal const& e) = 0;
+    virtual void beginJob(EventSetup const&){}
+    virtual void endJob(){}
+    virtual void beginRun(RunPrincipal const& r){}
+    virtual void endRun(RunPrincipal const& r) = 0;
+    virtual void beginLuminosityBlock(LuminosityBlockPrincipal const& lb){}
+    virtual void endLuminosityBlock(LuminosityBlockPrincipal const& lb) = 0;
+
+    virtual bool isFileOpen() const { return true; }
+    virtual bool isFileFull() const { return false; }
+
+    virtual void doOpenFile() { }
+
+    void setModuleDescription(ModuleDescription const& md) {
+      moduleDescription_ = md;
+    }
+
+    // The following member functions are part of the Template Method
+    // pattern, used for implementing doEndFile() and maybeEndFil().
+
+    virtual void startEndFile() {}
+    virtual void writeFileFormatVersion() {}
+    virtual void writeProcessConfigurationRegistry() {}
+    virtual void writeProcessHistoryRegistry() {}
+    virtual void writeModuleDescriptionRegistry() {}
+    virtual void writeParameterSetRegistry() {}
+    virtual void writeProductDescriptionRegistry() {}
+    virtual void finishEndFile() {}
   };
 }
 

@@ -1,4 +1,4 @@
-// $Id: RootOutputFile.cc,v 1.14 2007/09/12 22:39:05 wmtan Exp $
+// $Id: RootOutputFile.cc,v 1.15 2007/09/13 16:29:50 paterno Exp $
 
 #include "RootOutputFile.h"
 #include "PoolOutputModule.h"
@@ -54,11 +54,11 @@ namespace edm {
       pLumiAux_(&lumiAux_),
       pRunAux_(&runAux_),
       eventTree_(filePtr_, InEvent, pEventAux_, om_->basketSize(), om_->splitLevel(),
-		  chains_.event_.get(), chains_.eventMeta_.get(), om_->descPriorVec()[InEvent]),
+		  chains_.event_.get(), chains_.eventMeta_.get(), om_->keptPriorProducts()[InEvent]),
       lumiTree_(filePtr_, InLumi, pLumiAux_, om_->basketSize(), om_->splitLevel(),
-		 chains_.lumi_.get(), chains_.lumiMeta_.get(), om_->descPriorVec()[InLumi]),
+		 chains_.lumi_.get(), chains_.lumiMeta_.get(), om_->keptPriorProducts()[InLumi]),
       runTree_(filePtr_, InRun, pRunAux_, om_->basketSize(), om_->splitLevel(),
-		chains_.run_.get(), chains_.runMeta_.get(), om_->descPriorVec()[InRun]),
+		chains_.run_.get(), chains_.runMeta_.get(), om_->keptPriorProducts()[InRun]),
       treePointers_(),
       provenances_(),
       newFileAtEndOfRun_(false) {
@@ -73,9 +73,9 @@ namespace edm {
 
       bool fastCloning = treePointers_[branchType]->fastCloning();
       Selections const& descVector =
-	 (fastCloning ? om_->descProducedVec()[branchType] : om_->descVec()[branchType]);
+	 (fastCloning ? om_->keptProducedProducts()[branchType] : om_->keptProducts()[branchType]);
       Selections const& droppedVector =
-	 (fastCloning ? om_->droppedProducedVec()[branchType] : om_->droppedVec()[branchType]);
+	 (fastCloning ? om_->droppedProducedProducts()[branchType] : om_->droppedProducts()[branchType]);
       
       for (Selections::const_iterator it = descVector.begin(), itEnd = descVector.end(); it != itEnd; ++it) {
         BranchDescription const& prod = **it;
@@ -204,7 +204,7 @@ namespace edm {
     for (int i = InEvent; i < NumBranchTypes; ++i) {
       BranchType branchType = static_cast<BranchType>(i);
       buildIndex(treePointers_[branchType]->tree(), branchType);
-      setBranchAliases(treePointers_[branchType]->tree(), om_->descVec()[branchType]);
+      setBranchAliases(treePointers_[branchType]->tree(), om_->keptProducts()[branchType]);
       treePointers_[branchType]->writeTree();
     }
 
