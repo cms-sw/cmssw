@@ -33,13 +33,13 @@ CSCOldCrossTalkAnalyzer::CSCOldCrossTalkAnalyzer(edm::ParameterSet const& conf) 
 
   debug = conf.getUntrackedParameter<bool>("debug",false);
   eventNumber=0, Nddu=0,chamber=0;
-  strip=0,misMatch=0,max1 =-9999999.,max2=-9999999., min1=9999999.;
-  layer=0,reportedChambers=0,myNcham=-999;
+  strip=0,misMatch=0,max1 =-9999999.,max2=-9999999.,adcMAX=-99999, min1=9999999.;
+  layer=0,reportedChambers=0;
   length=1,myevt=0,flagRMS=-9,flagNoise=-9;
   aPeak=0.0,sumFive=0.0,maxPed=-99999.0,maxRMS=-99999.0;
   maxPeakTime=-9999.0, maxPeakADC=-999.0;
-  minPeakTime=9999.0, minPeakADC=999.0,myCounter=0;
-  pedMean=0.0,evt=1,NChambers=0,myIndex=0;
+  minPeakTime=9999.0, minPeakADC=999.0;
+  pedMean=0.0,evt=0,NChambers=0,myIndex=0;
   
   //definition of histograms
   xtime = TH1F("time", "time", 50, 0, 500 );
@@ -153,7 +153,7 @@ void CSCOldCrossTalkAnalyzer::analyze(edm::Event const& e, edm::EventSetup const
       
       const std::vector<CSCDDUEventData> & dduData = dccData.dduData(); 
       
-      //evt++;  
+      evt++;  
  
       for (unsigned int iDDU=0; iDDU<dduData.size(); ++iDDU) { 
 	
@@ -165,16 +165,6 @@ void CSCOldCrossTalkAnalyzer::analyze(edm::Event const& e, edm::EventSetup const
 	int repChambers = dduData[iDDU].header().ncsc();
 	std::cout << " Reported Chambers = " << repChambers <<"   "<<NChambers<< std::endl;
 	if (NChambers!=repChambers) { std::cout<< "misMatched size!!!" << std::endl; misMatch++; continue;}
-	if(NChambers > myNcham){
-	  myNcham=NChambers;
-	}	
-
-	if (NChambers !=0){
-	  myCounter++;
-	  if(myCounter%REP_oldxt==0){
-	    evt++;  
-	  }
-	}
 
 	for (int chamber = 0; chamber < NChambers; chamber++){
 	  
@@ -192,7 +182,7 @@ void CSCOldCrossTalkAnalyzer::analyze(edm::Event const& e, edm::EventSetup const
                 size[chamber] = digis.size();
 		int strip = digis[i].getStrip();
                 std::vector<int> adc = digis[i].getADCCounts();
-		pedMean1 =(adc[0]+adc[1])/2;
+		if (adc[0]>0 && adc[1]>0) pedMean1 =(adc[0]+adc[1])/2;
 		int offset = (evt-1)/PULSES_oldxt;
                 int smain[5],splus[5],sminus[5]; //5 for CFEBs
                 for(int s=0;s<5;s++) smain[s]  = s*16+offset;
@@ -206,21 +196,22 @@ void CSCOldCrossTalkAnalyzer::analyze(edm::Event const& e, edm::EventSetup const
                 if(iuse!=-99){
 		  
                   for(unsigned int k=0;k<adc.size();k++){
-                    time = (50. * k)-(((evt-1)%PULSES_oldxt)* 6.25)+116.5;
+		    
+		    time = (50. * k)-(((evt-1)%PULSES_oldxt)* 6.25)+116.5;
 		    pedMean =(adc[0]+adc[1])/2;
 		    ped_mean_all.Fill(pedMean);  
 		    xtime.Fill(time);
 		    		    
-		    if(chamber==0) pulseshape_ch0.Fill(time,adc[k]-pedMean);
-		    if(chamber==1) pulseshape_ch1.Fill(time,adc[k]-pedMean);
-		    if(chamber==2) pulseshape_ch2.Fill(time,adc[k]-pedMean);
-		    if(chamber==3) pulseshape_ch3.Fill(time,adc[k]-pedMean);
-		    if(chamber==4) pulseshape_ch4.Fill(time,adc[k]-pedMean);
-		    if(chamber==5) pulseshape_ch5.Fill(time,adc[k]-pedMean);
-		    if(chamber==6) pulseshape_ch6.Fill(time,adc[k]-pedMean);
-		    if(chamber==7) pulseshape_ch7.Fill(time,adc[k]-pedMean);
-		    if(chamber==8) pulseshape_ch8.Fill(time,adc[k]-pedMean);
-		    if(chamber==9) pulseshape_ch9.Fill(time,adc[k]-pedMean);
+		    if(chamber==0)  pulseshape_ch0.Fill(time,adc[k]-pedMean);
+		    if(chamber==1)  pulseshape_ch1.Fill(time,adc[k]-pedMean);
+		    if(chamber==2)  pulseshape_ch2.Fill(time,adc[k]-pedMean);
+		    if(chamber==3)  pulseshape_ch3.Fill(time,adc[k]-pedMean);
+		    if(chamber==4)  pulseshape_ch4.Fill(time,adc[k]-pedMean);
+		    if(chamber==5)  pulseshape_ch5.Fill(time,adc[k]-pedMean);
+		    if(chamber==6)  pulseshape_ch6.Fill(time,adc[k]-pedMean);
+		    if(chamber==7)  pulseshape_ch7.Fill(time,adc[k]-pedMean);
+		    if(chamber==8)  pulseshape_ch8.Fill(time,adc[k]-pedMean);
+		    if(chamber==9)  pulseshape_ch9.Fill(time,adc[k]-pedMean);
 		    if(chamber==10) pulseshape_ch10.Fill(time,adc[k]-pedMean);
 		    if(chamber==11) pulseshape_ch11.Fill(time,adc[k]-pedMean);
 		    if(chamber==12) pulseshape_ch12.Fill(time,adc[k]-pedMean);
@@ -243,7 +234,7 @@ void CSCOldCrossTalkAnalyzer::analyze(edm::Event const& e, edm::EventSetup const
 		      min1=aPeak;
 		    }
 
-		    maxADC.Fill(max1-pedMean1);
+		    if (pedMean1>0) maxADC.Fill(max1-pedMean1);
 
                     int kk=8*k-(evt-1)%PULSES_oldxt+19;//19 to zero everything, for binning 120
 		    
@@ -257,12 +248,12 @@ void CSCOldCrossTalkAnalyzer::analyze(edm::Event const& e, edm::EventSetup const
 		}//end iuse!=99
 	
 		arrayPed[iDDU][chamber][layer-1][strip-1] = pedMean1;	
-		arrayOfPed[iDDU][chamber][layer-1][strip-1] += pedMean1;
-		arrayOfPedSquare[iDDU][chamber][layer-1][strip-1] += pedMean1*pedMean1 ;
+		arrayOfPed[iDDU][chamber][layer-1][strip-1] += pedMean1/evt;
+		arrayOfPedSquare[iDDU][chamber][layer-1][strip-1] += pedMean1*pedMean1/(evt*evt) ;
 		arrayPeak[iDDU][chamber][layer-1][strip-1] = max1-pedMean1;
 		arrayPeakMin[iDDU][chamber][layer-1][strip-1] = min1;
 		arrayOfPeak[iDDU][chamber][layer-1][strip-1] += max1-pedMean1;
-		arrayOfPeakSquare[iDDU][chamber][layer-1][strip-1] += (max1-pedMean1)*(max1-pedMean1);
+		arrayOfPeakSquare[iDDU][chamber][layer-1][strip-1] += (max1-pedMean1)*(max1-pedMean1)/(evt*evt);
 		arraySumFive[iDDU][chamber][layer-1][strip-1] = (max2-pedMean1)/(max1-pedMean1);
 	
 	      }//end loop over digis
@@ -300,7 +291,7 @@ CSCOldCrossTalkAnalyzer::~CSCOldCrossTalkAnalyzer(){
   //get name of run file from .cfg and name root output after that
   std::string::size_type runNameStart = name.find("\"",0);
   std::string::size_type runNameEnd   = name.find("raw",0);
-  std::string::size_type rootStart    = name.find("Crosstalk",0);
+  std::string::size_type rootStart    = name.find("CrossTalk",0);
   
   int nameSize = runNameEnd+2-runNameStart;
   int myRootSize = rootStart-runNameStart+8;
@@ -324,7 +315,7 @@ CSCOldCrossTalkAnalyzer::~CSCOldCrossTalkAnalyzer(){
   //DB map
   cscmap *map = new cscmap();
   //root ntuple
-  TCalibCrossTalkEvt calib_evt;
+  TCalibOldCrossTalkEvt calib_evt;
   TFile calibfile(myNewName, "RECREATE");
   TTree calibtree("Calibration","Crosstalk");
   calibtree.Branch("EVENT", &calib_evt, "xtalk_slope_left/F:xtalk_slope_right/F:xtalk_int_left/F:xtalk_int_right/F:xtalk_chi2_left/F:xtalk_chi2_right/F:peakTime/F:strip/I:layer/I:cham/I:ddu/I:pedMean/F:pedRMS/F:peakRMS/F:maxADC/F:sum/F:id/I:flagRMS/I:flagNoise/I:MaxPed[13]/F:MaxRMS[13]/F:MaxPeakTime[13]/F:MinPeakTime[13]/F:MaxPeakADC[13]/F:MinPeakADC[13]/F");
@@ -356,7 +347,7 @@ CSCOldCrossTalkAnalyzer::~CSCOldCrossTalkAnalyzer(){
 
   for (int iii=0; iii<Nddu; iii++){
     
-    for (int i=0; i<myNcham; i++){
+    for (int i=0; i<NChambers; i++){
       
       //get chamber ID from DB mapping        
       int new_crateID = crateID[i];

@@ -33,14 +33,13 @@ CSCCrossTalkAnalyzer::CSCCrossTalkAnalyzer(edm::ParameterSet const& conf) {
 
   debug = conf.getUntrackedParameter<bool>("debug",false);
   eventNumber=0, Nddu=0,chamber=0;
-  strip=0,misMatch=0,max1 =-9999999.,max2=-9999999., min1=9999999.;
+  strip=0,misMatch=0,max1 =-9999999.,max2=-9999999.,adcMAX=-99999, min1=9999999.;
   layer=0,reportedChambers=0,myNcham=-999;
   length=1,myevt=0,flagRMS=-9,flagNoise=-9;
   aPeak=0.0,sumFive=0.0,maxPed=-99999.0,maxRMS=-99999.0;
   maxPeakTime=-9999.0, maxPeakADC=-999.0;
-  minPeakTime=9999.0, minPeakADC=999.0;
-  pedMean=0.0,evt=0,NChambers=0;
-  myIndex=0;
+  minPeakTime=9999.0, minPeakADC=999.0,myCounter=0;
+  pedMean=0.0,evt=0,NChambers=0,myIndex=0;
   
   //definition of histograms
   xtime = TH1F("time", "time", 50, 0, 500 );
@@ -57,11 +56,11 @@ CSCCrossTalkAnalyzer::CSCCrossTalkAnalyzer(edm::ParameterSet const& conf) {
   pulseshape_ch10=TH2F("Pulse Ch=10","All strips",  96,-100,500,100,-100,1100);
   pulseshape_ch11=TH2F("Pulse Ch=11","All strips",  96,-100,500,100,-100,1100);
   pulseshape_ch12=TH2F("Pulse Ch=12","All strips",  96,-100,500,100,-100,1100);
-  ped_mean_all    = TH1F("pedMean","Mean baseline noise", 100,300,900);
-  maxADC          = TH1F("maxADC","Peak ADC", 100,800,1300);
+  ped_mean_all   = TH1F("pedMean","Mean baseline noise", 100,300,900);
+  maxADC         = TH1F("maxADC","Peak ADC", 100,800,1300);
 
 
-  for (int i=0;i<480;i++){
+  for (int i=0;i<TOTALSTRIPS_xt;i++){
     new_xtalk_intercept_right[i] = -999.;
     new_xtalk_intercept_left[i]  = -999.;
     new_xtalk_slope_right[i]     = -999.;
@@ -92,7 +91,7 @@ CSCCrossTalkAnalyzer::CSCCrossTalkAnalyzer(edm::ParameterSet const& conf) {
     for (int i=0; i<CHAMBERS_xt; i++){
       for (int j=0; j<LAYERS_xt; j++){
 	for (int k=0; k<STRIPS_xt; k++){
-	  for (int l=0; l<TIMEBINS_xt*PULSES; l++){
+	  for (int l=0; l<TIMEBINS_xt*PULSES_xt; l++){
 	    thetime[iii][i][j][k][l]       = 0.0;
 	    thebins[iii][i][j][k][l]       = 0  ;
 	    theadccountsc[iii][i][j][k][l] = 0  ;
@@ -154,14 +153,12 @@ void CSCCrossTalkAnalyzer::analyze(edm::Event const& e, edm::EventSetup const& i
       
       const std::vector<CSCDDUEventData> & dduData = dccData.dduData(); 
       
+      //evt++;  
+ 
       for (unsigned int iDDU=0; iDDU<dduData.size(); ++iDDU) { 
 	
 	///get a reference to chamber data
 	const std::vector<CSCEventData> & cscData = dduData[iDDU].cscData();
-	//exclude empty events with no DMB/CFEB data
-        //if(dduData[iDDU].cscData().size()==0) continue;
-        //if(dduData[iDDU].cscData().size() !=0) evt++;
-
 	Nddu = dduData.size();
 	reportedChambers += dduData[iDDU].header().ncsc();
 	NChambers = cscData.size();
@@ -170,6 +167,13 @@ void CSCCrossTalkAnalyzer::analyze(edm::Event const& e, edm::EventSetup const& i
 	if (NChambers!=repChambers) { std::cout<< "misMatched size!!!" << std::endl; misMatch++; continue;}
 	if(NChambers > myNcham){
 	  myNcham=NChambers;
+	}	
+
+	if (NChambers !=0){
+	  myCounter++;
+	  if((myCounter-1)%REP_xt==0){
+	    evt++;  
+	  }
 	}
 
 	for (int chamber = 0; chamber < NChambers; chamber++){
@@ -188,87 +192,85 @@ void CSCCrossTalkAnalyzer::analyze(edm::Event const& e, edm::EventSetup const& i
                 size[chamber] = digis.size();
 		int strip = digis[i].getStrip();
                 std::vector<int> adc = digis[i].getADCCounts();
-		pedMean1 =(adc[0]+adc[1])/2;
-		int offset = (evt-1) / PULSES;
+		if (adc[0]>0 && adc[1]>0) pedMean1 =(adc[0]+adc[1])/2;
+		int offset = (evt-1)/PULSES_xt;
                 int smain[5],splus[5],sminus[5]; //5 for CFEBs
-		if (evt%NUMMODTEN_xt == 0 && (strip-1)%16 == (evt-1)/NUMMODTEN_xt){
-
-		for(int s=0;s<5;s++) smain[s]  = (s*16+offset);
-		for(int s=0;s<5;s++) splus[s]  = (s*16+offset+1);
-		for(int s=0;s<5;s++) sminus[s] = (s*16+offset-1);
-		int iuse=-99;
-		for(int s=0; s<5; s++) {if(strip-1==smain[s])  iuse=smain[s];}
-		for(int s=0; s<5; s++) {if(strip-1==splus[s])  iuse=smain[s];}
-		for(int s=0; s<5; s++) {if(strip-1==sminus[s]) iuse=smain[s];}
+                for(int s=0;s<5;s++) smain[s]  = s*16+offset;
+                for(int s=0;s<5;s++) splus[s]  = s*16+offset+1;
+                for(int s=0;s<5;s++) sminus[s] = s*16+offset-1;
+                int iuse=-99;
+                for(int s=0; s<5; s++) {if(strip-1==smain[s])  iuse=smain[s];}
+                for(int s=0; s<5; s++) {if(strip-1==splus[s])  iuse=smain[s];}
+                for(int s=0; s<5; s++) {if(strip-1==sminus[s]) iuse=smain[s];}
 		
-		if(iuse!=-99){
+                if(iuse!=-99){
 		  
-		  for(unsigned int k=0;k<adc.size();k++){
-		    time = (50. * k)-(((evt-1)%PULSES)* 6.25)+116.5;
-		    pedMean =(adc[0]+adc[1])/2;
+                  for(unsigned int k=0;k<adc.size();k++){
 		    
-		    ped_mean_all.Fill(pedMean);  
+		    time = (50. * k)-(((evt-1)%PULSES_xt)* 6.25)+116.5;
+		    if (adc[0]>0 && adc[1]>0) pedMean =(adc[0]+adc[1])/2;
+		    if (pedMean >0) ped_mean_all.Fill(pedMean);  
 		    xtime.Fill(time);
-		    if(chamber==0) pulseshape_ch0.Fill(time,adc[k]-pedMean);
-		    if(chamber==1) pulseshape_ch1.Fill(time,adc[k]-pedMean);
-		    if(chamber==2) pulseshape_ch2.Fill(time,adc[k]-pedMean);
-		    if(chamber==3) pulseshape_ch3.Fill(time,adc[k]-pedMean);
-		    if(chamber==4) pulseshape_ch4.Fill(time,adc[k]-pedMean);
-		    if(chamber==5) pulseshape_ch5.Fill(time,adc[k]-pedMean);
-		    if(chamber==6) pulseshape_ch6.Fill(time,adc[k]-pedMean);
-		    if(chamber==7) pulseshape_ch7.Fill(time,adc[k]-pedMean);
-		    if(chamber==8) pulseshape_ch8.Fill(time,adc[k]-pedMean);
-		    if(chamber==9) pulseshape_ch9.Fill(time,adc[k]-pedMean);
-		    if(chamber==10) pulseshape_ch10.Fill(time,adc[k]-pedMean);
-		    if(chamber==11) pulseshape_ch11.Fill(time,adc[k]-pedMean);
-		    if(chamber==12) pulseshape_ch12.Fill(time,adc[k]-pedMean);
-		    
+		    		    
+		    if(chamber==0 && pedMean>0)  pulseshape_ch0.Fill(time,adc[k]-pedMean);
+		    if(chamber==1 && pedMean>0)  pulseshape_ch1.Fill(time,adc[k]-pedMean);
+		    if(chamber==2 && pedMean>0)  pulseshape_ch2.Fill(time,adc[k]-pedMean);
+		    if(chamber==3 && pedMean>0)  pulseshape_ch3.Fill(time,adc[k]-pedMean);
+		    if(chamber==4 && pedMean>0)  pulseshape_ch4.Fill(time,adc[k]-pedMean);
+		    if(chamber==5 && pedMean>0)  pulseshape_ch5.Fill(time,adc[k]-pedMean);
+		    if(chamber==6 && pedMean>0)  pulseshape_ch6.Fill(time,adc[k]-pedMean);
+		    if(chamber==7 && pedMean>0)  pulseshape_ch7.Fill(time,adc[k]-pedMean);
+		    if(chamber==8 && pedMean>0)  pulseshape_ch8.Fill(time,adc[k]-pedMean);
+		    if(chamber==9 && pedMean>0)  pulseshape_ch9.Fill(time,adc[k]-pedMean);
+		    if(chamber==10 && pedMean>0) pulseshape_ch10.Fill(time,adc[k]-pedMean);
+		    if(chamber==11 && pedMean>0) pulseshape_ch11.Fill(time,adc[k]-pedMean);
+		    if(chamber==12 && pedMean>0) pulseshape_ch12.Fill(time,adc[k]-pedMean);
+
 		    myTime[k]=time;
 		    myADC[k]=adc[k];
 		    myTbin[k]=k;
-		    
-		    aPeak = adc[3];
+
+		    aPeak = adc[5];
 		    if (max1 < aPeak) {
 		      max1 = aPeak;
 		    }
-		    sumFive = adc[2]+adc[3]+adc[4];
+		    sumFive = adc[2]+adc[3]+adc[4]+adc[5]+adc[6];
 		    
 		    if (max2<sumFive){
 		      max2=sumFive;
 		    }
-		    
+
 		    if (min1 > aPeak){
 		      min1=aPeak;
 		    }
+
+		    if (pedMean1>0) maxADC.Fill(max1-pedMean1);
+
+                    int kk=8*k-(evt-1)%PULSES_xt+19;//19 to zero everything, for binning 120
 		    
-		    maxADC.Fill(max1-pedMean1);
-		    
-		    int kk=8*k-(evt-1)%PULSES+19;//19 to zero everything, for binning 120
-		    
-		    thebins[iDDU][chamber][layer-1][strip-1][kk] = 8*k-(evt-1)%PULSES+19;
+                    thebins[iDDU][chamber][layer-1][strip-1][kk] = 8*k-(evt-1)%PULSES_xt+19;
 		    thetime[iDDU][chamber][layer-1][strip-1][kk] = time;
 		    
-		    if(iuse==strip-1)  theadccountsc[iDDU][chamber][layer-1][iuse][kk] = adc[k];
-		    if(iuse==strip)    theadccountsr[iDDU][chamber][layer-1][iuse][kk] = adc[k];
-		    if(iuse==strip-2)  theadccountsl[iDDU][chamber][layer-1][iuse][kk] = adc[k];
+                    if(iuse==strip-1)  theadccountsc[iDDU][chamber][layer-1][iuse][kk] = adc[k];
+                    if(iuse==strip)    theadccountsr[iDDU][chamber][layer-1][iuse][kk] = adc[k];
+                    if(iuse==strip-2)  theadccountsl[iDDU][chamber][layer-1][iuse][kk] = adc[k];
 		  }//adc.size()
 		}//end iuse!=99
-		}//25th event
-		
+	
 		arrayPed[iDDU][chamber][layer-1][strip-1] = pedMean1;	
-		arrayOfPed[iDDU][chamber][layer-1][strip-1] += pedMean1;
-		arrayOfPedSquare[iDDU][chamber][layer-1][strip-1] += pedMean1*pedMean1 ;
+		arrayOfPed[iDDU][chamber][layer-1][strip-1] += pedMean1/evt;
+		arrayOfPedSquare[iDDU][chamber][layer-1][strip-1] += pedMean1*pedMean1/(evt*evt) ;
 		arrayPeak[iDDU][chamber][layer-1][strip-1] = max1-pedMean1;
 		arrayPeakMin[iDDU][chamber][layer-1][strip-1] = min1;
 		arrayOfPeak[iDDU][chamber][layer-1][strip-1] += max1-pedMean1;
-		arrayOfPeakSquare[iDDU][chamber][layer-1][strip-1] += (max1-pedMean1)*(max1-pedMean1);
+		arrayOfPeakSquare[iDDU][chamber][layer-1][strip-1] += (max1-pedMean1)*(max1-pedMean1)/(evt*evt);
 		arraySumFive[iDDU][chamber][layer-1][strip-1] = (max2-pedMean1)/(max1-pedMean1);
-		
+	
 	      }//end loop over digis
             }//end cfeb.available loop
           }//end loop over layers
         }//end loop over chambers
-	
+
 	eventNumber++;
 	edm::LogInfo ("CSCCrossTalkAnalyzer")  << "end of event number " << eventNumber;
 
@@ -282,7 +284,7 @@ CSCCrossTalkAnalyzer::~CSCCrossTalkAnalyzer(){
 
   Conv binsConv;
   //get time of Run file for DB transfer
-  filein.open("../test/CSCxtalk.cfg");
+  filein.open("../test/CSColdxtalk.cfg");
   filein.ignore(1000,'\n');
     
   while(filein != NULL){
@@ -300,6 +302,7 @@ CSCCrossTalkAnalyzer::~CSCCrossTalkAnalyzer(){
   std::string::size_type runNameStart = name.find("\"",0);
   std::string::size_type runNameEnd   = name.find("raw",0);
   std::string::size_type rootStart    = name.find("CrossTalk",0);
+  
   int nameSize = runNameEnd+2-runNameStart;
   int myRootSize = rootStart-runNameStart+8;
   std::string myname= name.substr(runNameStart+1,nameSize);
@@ -311,26 +314,24 @@ CSCCrossTalkAnalyzer::~CSCCrossTalkAnalyzer(){
   std::string myASCIIFileName= runFile+myASCIIFileEnd;
   const char *myNewName=myRootFileName.c_str();
   const char *myFileName=myASCIIFileName.c_str();
-   
+
   struct tm* clock;			    
   struct stat attrib;			    
   stat(myname.c_str(), &attrib);          
   clock = localtime(&(attrib.st_mtime));  
   std::string myTime=asctime(clock);
-  std::ofstream myfile(myFileName,std::ios::out);
+  std::ofstream myXtalkfile(myFileName,std::ios::app);
 
   //DB map
   cscmap *map = new cscmap();
- 
   //root ntuple
   TCalibCrossTalkEvt calib_evt;
   TFile calibfile(myNewName, "RECREATE");
-  TTree calibtree("Calibration","CrossTalk");
-  calibtree.Branch("EVENT", &calib_evt, "xtalk_slope_left/F:xtalk_slope_right/F:xtalk_int_left/F:xtalk_int_right/F:xtalk_chi2_left/F:xtalk_chi2_right/F:peakTime/F:strip/I:layer/I:cham/I:ddu/I:pedMean/F:pedRMS/F:peakRMS/F:maxADC/F:sum/F:id/I:flagRMS/I:flagNoise/I:MaxPed[9]/F:MaxRMS[9]/F:MaxPeakTime[9]/F:MinPeakTime[9]/F:MaxPeakADC[9]/F:MinPeakADC[9]/F");
+  TTree calibtree("Calibration","Crosstalk");
+  calibtree.Branch("EVENT", &calib_evt, "xtalk_slope_left/F:xtalk_slope_right/F:xtalk_int_left/F:xtalk_int_right/F:xtalk_chi2_left/F:xtalk_chi2_right/F:peakTime/F:strip/I:layer/I:cham/I:ddu/I:pedMean/F:pedRMS/F:peakRMS/F:maxADC/F:sum/F:id/I:flagRMS/I:flagNoise/I:MaxPed[13]/F:MaxRMS[13]/F:MaxPeakTime[13]/F:MinPeakTime[13]/F:MaxPeakADC[13]/F:MinPeakADC[13]/F");
   xtime.Write();
   ped_mean_all.Write();
   maxADC.Write();
-  
   pulseshape_ch0.Write();
   pulseshape_ch1.Write();
   pulseshape_ch2.Write();
@@ -344,7 +345,7 @@ CSCCrossTalkAnalyzer::~CSCCrossTalkAnalyzer(){
   pulseshape_ch10.Write();
   pulseshape_ch11.Write();
   pulseshape_ch12.Write();
-
+ 
   ////////////////////////////////////////////////////////////////////iuse==strip-1
   // Now that we have filled our array, extract convd and nconvd
   float adc_ped_sub_left = -999.;
@@ -365,6 +366,8 @@ CSCCrossTalkAnalyzer::~CSCCrossTalkAnalyzer(){
       std::cout<<" Crate: "<<new_crateID<<" and DMB:  "<<new_dmbID<<std::endl;
       map->crate_chamber(new_crateID,new_dmbID,&chamber_id,&chamber_num,&sector,&first_strip_index,&strips_per_layer,&chamber_index);
       std::cout<<"Data is for chamber:: "<< chamber_num<<" in sector:  "<<sector<<std::endl;
+
+      calib_evt.id = chamber_num;
 
       meanPedestal = 0.0;
       meanPeak     = 0.0;
@@ -389,11 +392,10 @@ CSCCrossTalkAnalyzer::~CSCCrossTalkAnalyzer(){
 	    }
 	  }
 	 
-	  for (int l=0; l < TIMEBINS_xt*PULSES; l++){
+	  for (int l=0; l < TIMEBINS_xt*PULSES_xt; l++){
 	    adc_ped_sub_left  = theadccountsl[iii][i][j][s][l] - (theadccountsl[iii][i][j][s][0] + theadccountsl[iii][i][j][s][1])/2.;
 	    adc_ped_sub       = theadccountsc[iii][i][j][s][l] - (theadccountsc[iii][i][j][s][0] + theadccountsc[iii][i][j][s][1])/2.;
 	    adc_ped_sub_right = theadccountsr[iii][i][j][s][l] - (theadccountsr[iii][i][j][s][0] + theadccountsr[iii][i][j][s][1])/2.;
-	    
 	    thebin=thebins[iii][i][j][s][l];
 	    
 	    if (thebin >= 0 && thebin < 120){
@@ -434,7 +436,6 @@ CSCCrossTalkAnalyzer::~CSCCrossTalkAnalyzer(){
 	}
 	
 	int layer_id=chamber_num+j+1;
-	calib_evt.id = layer_id;
 	if(sector==-100)continue;
 
 	for (int k=0; k<size[i]; k++){
@@ -446,7 +447,7 @@ CSCCrossTalkAnalyzer::~CSCCrossTalkAnalyzer(){
 	    }
 	  }
 	  
-	  for (int l=0; l < TIMEBINS_xt*PULSES; l++){
+	  for (int l=0; l < TIMEBINS_xt*PULSES_xt; l++){
 	    adc_ped_sub_left  = theadccountsl[iii][i][j][k][l] - (theadccountsl[iii][i][j][k][0] + theadccountsl[iii][i][j][k][1])/2.;	  
 	    adc_ped_sub       = theadccountsc[iii][i][j][k][l] - (theadccountsc[iii][i][j][k][0] + theadccountsc[iii][i][j][k][1])/2.;
 	    adc_ped_sub_right = theadccountsr[iii][i][j][k][l] - (theadccountsr[iii][i][j][k][0] + theadccountsr[iii][i][j][k][1])/2.;
@@ -610,10 +611,10 @@ CSCCrossTalkAnalyzer::~CSCCrossTalkAnalyzer(){
 	  if (meanPedestal >200. && meanPedestal<1000.)  flagNoise = 1; // ok
 
 	  //dump values to ASCII file
-	  counter++; 
+	  counter++;
 	  myIndex = first_strip_index+counter-1;
 	  if (counter>size[i]*LAYERS_xt) counter=0;
-	  myfile <<layer_id<<"  "<<myIndex<<"  "<<k<<"  "<<the_xtalk_right_b<<"  "<<the_xtalk_right_a<<"  "<<the_chi2_right<<"  "<<the_xtalk_left_b<<"  "<<the_xtalk_left_a<<"  "<<the_chi2_left<<"  "<<meanPedestal<<"  "<<theRMS<<std::endl;
+	  myXtalkfile <<layer_id<<"  "<<myIndex<<"  "<<k<<"  "<<the_xtalk_right_b<<"  "<<the_xtalk_right_a<<"  "<<the_chi2_right<<"  "<<the_xtalk_left_b<<"  "<<the_xtalk_left_a<<"  "<<the_chi2_left<<std::endl;
 
 	  calib_evt.xtalk_slope_left  = xtalk_slope_left[iii][i][j][k]; 
 	  calib_evt.xtalk_slope_right = xtalk_slope_right[iii][i][j][k]; 

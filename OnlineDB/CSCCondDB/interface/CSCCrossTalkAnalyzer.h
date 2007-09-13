@@ -39,12 +39,12 @@ class TCalibCrossTalkEvt {
   Int_t id;
   Int_t flagRMS;
   Int_t flagNoise;
-  Float_t MaxPed[9];
-  Float_t MaxRMS[9];
-  Float_t MaxPeakTime[9];
-  Float_t MinPeakTime[9];
-  Float_t MaxPeakADC[9];
-  Float_t MinPeakADC[9];
+  Float_t MaxPed[13];
+  Float_t MaxRMS[13];
+  Float_t MaxPeakTime[13];
+  Float_t MinPeakTime[13];
+  Float_t MaxPeakADC[13];
+  Float_t MinPeakADC[13];
 };
 
 class CSCCrossTalkAnalyzer : public edm::EDAnalyzer {
@@ -57,27 +57,27 @@ class CSCCrossTalkAnalyzer : public edm::EDAnalyzer {
 #define LAYERS_xt 6
 #define STRIPS_xt 80
 #define TIMEBINS_xt 8
-#define DDU_xt 2
+#define DDU_xt 9
 #define TOTALSTRIPS_xt 480
-#define TOTALEVENTS_xt 320
-#define PULSES 25 
-#define NUMMODTEN_xt 10 
+#define PULSES_xt 10
+#define REP_xt 25
 
+  //TH2F *g1=new TH2F("g1","Baseline RMS",100,0,80,100,0,200);
  private:
-  int eventNumber,evt,strip,misMatch,fff,ret_code,length,Nddu,myevt,myNcham,myIndex;
-  int chamber,layer,reportedChambers,chamber_num,sector,record,NChambers,first_strip_index,strips_per_layer,chamber_index ;
+  int eventNumber,evt,strip,misMatch,fff,ret_code,length,Nddu,myevt,first_strip_index,strips_per_layer,chamber_index;
+  int chamber,layer,reportedChambers,chamber_num,sector,record,NChambers ;
   int dmbID[CHAMBERS_xt],crateID[CHAMBERS_xt],size[CHAMBERS_xt];
   std::vector<int> adc;
   std::string chamber_id;
-  int thebins[DDU_xt][CHAMBERS_xt][LAYERS_xt][STRIPS_xt][TIMEBINS_xt*PULSES];
-  int theadccountsc[DDU_xt][CHAMBERS_xt][LAYERS_xt][STRIPS_xt][TIMEBINS_xt*PULSES];
-  int theadccountsl[DDU_xt][CHAMBERS_xt][LAYERS_xt][STRIPS_xt][TIMEBINS_xt*PULSES];
-  int theadccountsr[DDU_xt][CHAMBERS_xt][LAYERS_xt][STRIPS_xt][TIMEBINS_xt*PULSES];
-  float pedMean,pedMean1,time,max1,max2,min1, aPeak,sumFive,maxRMS,maxPed;
+  int thebins[DDU_xt][CHAMBERS_xt][LAYERS_xt][STRIPS_xt][TIMEBINS_xt*PULSES_xt];
+  int theadccountsc[DDU_xt][CHAMBERS_xt][LAYERS_xt][STRIPS_xt][TIMEBINS_xt*PULSES_xt];
+  int theadccountsl[DDU_xt][CHAMBERS_xt][LAYERS_xt][STRIPS_xt][TIMEBINS_xt*PULSES_xt];
+  int theadccountsr[DDU_xt][CHAMBERS_xt][LAYERS_xt][STRIPS_xt][TIMEBINS_xt*PULSES_xt];
+  float pedMean,pedMean1,time,max1,max2,min1, aPeak,sumFive,maxRMS,maxPed,adcMAX;
   float maxPeakTime, minPeakTime, maxPeakADC, minPeakADC;
   float meanPedestal,meanPeak,meanPeakSquare,meanPedestalSquare,theRMS;
   float thePeak,thePeakMin, thePeakRMS,theSumFive,thePedestal,theRSquare;
-  float thetime[DDU_xt][CHAMBERS_xt][LAYERS_xt][STRIPS_xt][TIMEBINS_xt*PULSES];
+  float thetime[DDU_xt][CHAMBERS_xt][LAYERS_xt][STRIPS_xt][TIMEBINS_xt*PULSES_xt];
   float xtalk_intercept_left[DDU_xt][CHAMBERS_xt][LAYERS_xt][STRIPS_xt];
   float xtalk_intercept_right[DDU_xt][CHAMBERS_xt][LAYERS_xt][STRIPS_xt];
   float xtalk_slope_left[DDU_xt][CHAMBERS_xt][LAYERS_xt][STRIPS_xt];
@@ -112,11 +112,11 @@ class CSCCrossTalkAnalyzer : public edm::EDAnalyzer {
   float new_lchi2[TOTALSTRIPS_xt];
   float newPeakTime[TOTALSTRIPS_xt];
   float newMeanPeakTime[TOTALSTRIPS_xt];
-  int lines;
+  int lines,myIndex;
   std::ifstream filein;
   std::string PSet,name;
   bool debug;
-  int flagRMS,flagNoise;
+  int flagRMS,flagNoise,myNcham,myCounter;
 
   //root ntuple
   TCalibCrossTalkEvt calib_evt;
@@ -141,5 +141,6 @@ class CSCCrossTalkAnalyzer : public edm::EDAnalyzer {
   TH2F pulseshape_ch10;
   TH2F pulseshape_ch11;
   TH2F pulseshape_ch12;
+
 };
 

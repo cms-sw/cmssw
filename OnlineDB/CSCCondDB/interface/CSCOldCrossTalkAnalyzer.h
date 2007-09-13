@@ -18,7 +18,7 @@
 #include "TH2F.h"
 #include "TCanvas.h"
 
-class TCalibCrossTalkEvt {
+class TCalibOldCrossTalkEvt {
   public:
   Float_t xtalk_slope_left;
   Float_t xtalk_slope_right;
@@ -57,11 +57,9 @@ class CSCOldCrossTalkAnalyzer : public edm::EDAnalyzer {
 #define LAYERS_oldxt 6
 #define STRIPS_oldxt 80
 #define TIMEBINS_oldxt 8
-#define DDU_oldxt 9
+#define DDU_oldxt 4
 #define TOTALSTRIPS_oldxt 480
-  //#define TOTALEVENTS_oldxt 4000
 #define PULSES_oldxt 20
-#define REP_oldxt 10
 
   //TH2F *g1=new TH2F("g1","Baseline RMS",100,0,80,100,0,200);
  private:
@@ -70,15 +68,15 @@ class CSCOldCrossTalkAnalyzer : public edm::EDAnalyzer {
   int dmbID[CHAMBERS_oldxt],crateID[CHAMBERS_oldxt],size[CHAMBERS_oldxt];
   std::vector<int> adc;
   std::string chamber_id;
-  int thebins[DDU_oldxt][CHAMBERS_oldxt][LAYERS_oldxt][STRIPS_oldxt][TIMEBINS_oldxt*20];
-  int theadccountsc[DDU_oldxt][CHAMBERS_oldxt][LAYERS_oldxt][STRIPS_oldxt][TIMEBINS_oldxt*20];
-  int theadccountsl[DDU_oldxt][CHAMBERS_oldxt][LAYERS_oldxt][STRIPS_oldxt][TIMEBINS_oldxt*20];
-  int theadccountsr[DDU_oldxt][CHAMBERS_oldxt][LAYERS_oldxt][STRIPS_oldxt][TIMEBINS_oldxt*20];
-  float pedMean,pedMean1,time,max1,max2,min1, aPeak,sumFive,maxRMS,maxPed;
+  int thebins[DDU_oldxt][CHAMBERS_oldxt][LAYERS_oldxt][STRIPS_oldxt][TIMEBINS_oldxt*PULSES_oldxt];
+  int theadccountsc[DDU_oldxt][CHAMBERS_oldxt][LAYERS_oldxt][STRIPS_oldxt][TIMEBINS_oldxt*PULSES_oldxt];
+  int theadccountsl[DDU_oldxt][CHAMBERS_oldxt][LAYERS_oldxt][STRIPS_oldxt][TIMEBINS_oldxt*PULSES_oldxt];
+  int theadccountsr[DDU_oldxt][CHAMBERS_oldxt][LAYERS_oldxt][STRIPS_oldxt][TIMEBINS_oldxt*PULSES_oldxt];
+  float pedMean,pedMean1,time,max1,max2,min1, aPeak,sumFive,maxRMS,maxPed,adcMAX;
   float maxPeakTime, minPeakTime, maxPeakADC, minPeakADC;
   float meanPedestal,meanPeak,meanPeakSquare,meanPedestalSquare,theRMS;
   float thePeak,thePeakMin, thePeakRMS,theSumFive,thePedestal,theRSquare;
-  float thetime[DDU_oldxt][CHAMBERS_oldxt][LAYERS_oldxt][STRIPS_oldxt][TIMEBINS_oldxt*20];
+  float thetime[DDU_oldxt][CHAMBERS_oldxt][LAYERS_oldxt][STRIPS_oldxt][TIMEBINS_oldxt*PULSES_oldxt];
   float xtalk_intercept_left[DDU_oldxt][CHAMBERS_oldxt][LAYERS_oldxt][STRIPS_oldxt];
   float xtalk_intercept_right[DDU_oldxt][CHAMBERS_oldxt][LAYERS_oldxt][STRIPS_oldxt];
   float xtalk_slope_left[DDU_oldxt][CHAMBERS_oldxt][LAYERS_oldxt][STRIPS_oldxt];
@@ -117,10 +115,10 @@ class CSCOldCrossTalkAnalyzer : public edm::EDAnalyzer {
   std::ifstream filein;
   std::string PSet,name;
   bool debug;
-  int flagRMS,flagNoise,myNcham,myCounter;
+  int flagRMS,flagNoise;
 
   //root ntuple
-  TCalibCrossTalkEvt calib_evt;
+  TCalibOldCrossTalkEvt calib_evt;
   TBranch *calibevt;
   TTree *calibtree;
   TFile *calibfile;
