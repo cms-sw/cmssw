@@ -1,9 +1,12 @@
-#ifndef SimDataFormats_JetMatching_JetFlavourMatching
-#define SimDataFormats_JetMatching_JetFlavourMatching
+#ifndef SimDataFormats_JetMatching_JetFlavourMatching_h
+#define SimDataFormats_JetMatching_JetFlavourMatching_h
+
 #include "DataFormats/JetReco/interface/CaloJetCollection.h"
 #include "DataFormats/Common/interface/AssociationVector.h"
 #include "SimDataFormats/JetMatching/interface/JetFlavour.h"
 #include <vector>
+
+namespace reco {
 
 typedef edm::AssociationVector<reco::CaloJetRefProd,std::vector<reco::JetFlavour> > JetFlavourMatchingCollectionBase;
 
@@ -22,12 +25,14 @@ public:
   { }
 };
 
-typedef  JetFlavourMatchingCollection::value_type JetFlavourMatching;
+typedef  JetFlavourMatchingCollection::value_type       JetFlavourMatching;
 
-typedef  edm::Ref<JetFlavourMatchingCollection> JetFlavourMatchingRef;
-   
-typedef  edm::RefProd<JetFlavourMatchingCollection> JetFlavourMatchingRefProd;
-   
-typedef  edm::RefVector<JetFlavourMatchingCollection> JetFlavourMatchingRefVector; 
+typedef  edm::Ref<JetFlavourMatchingCollection>         JetFlavourMatchingRef;
 
-#endif
+typedef  edm::RefProd<JetFlavourMatchingCollection>     JetFlavourMatchingRefProd;
+
+typedef  edm::RefVector<JetFlavourMatchingCollection>   JetFlavourMatchingRefVector; 
+
+}
+
+#endif // SimDataFormats_JetMatching_JetFlavourMatching_h

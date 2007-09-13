@@ -1,17 +1,18 @@
 <lcgdict>
-  <class name="JetFlavourMatchingCollectionBase">
+  <class name="reco::JetFlavour"/>
+  <class name="std::pair<reco::CaloJetRef, reco::JetFlavour>"/>
+  <class name="std::vector<std::pair<reco::CaloJetRef, reco::JetFlavour> >"/>
+
+  <class name="reco::JetFlavourMatchingCollectionBase">
     <field name="transientVector_" transient="true"/>
     <field name="fixed_" transient="true"/>
   </class>
-  <class name="JetFlavourMatchingCollection">
+  <class name="reco::JetFlavourMatchingCollection">
     <field name="transientVector_" transient="true"/>
     <field name="fixed_" transient="true"/>
   </class>
-  <class name="JetFlavourMatchingRef"/>
-  <class name="JetFlavourMatchingRefProd"/>
-  <class name="JetFlavourMatchingRefVector"/>
-  <class name="edm::Wrapper<JetFlavourMatchingCollection>"/>
-  
-  <class name="std::pair<reco::CaloJetRef, int>"/>
-  <class name="std::vector<std::pair<reco::CaloJetRef, int> >" />
+  <class name="reco::JetFlavourMatchingRef"/>
+  <class name="reco::JetFlavourMatchingRefProd"/>
+  <class name="reco::JetFlavourMatchingRefVector"/>
+  <class name="edm::Wrapper<reco::JetFlavourMatchingCollection>"/>
 </lcgdict>

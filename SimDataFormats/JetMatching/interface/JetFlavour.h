@@ -2,7 +2,8 @@
 #define SimDataFormats_JetMatching_JetFlavour_H
 
 #include <vector>
-#include "DataFormats/HepMCCandidate/interface/GenParticleCandidateFwd.h"
+#include "DataFormats/Math/interface/Point3D.h"
+#include "DataFormats/Math/interface/LorentzVector.h"
 
 namespace reco
 {
@@ -11,17 +12,23 @@ namespace reco
  * It can store by value the matching information about flavour and parton kinematics
  * The flavour definition and the corresponding parton information should be configured
  * in the producer.
+ * The typedefs are taken from reco::Particle
  * */
 class JetFlavour
 {
   public:
-    JetFlavour();
+    /// Lorentz vector
+    typedef math::XYZTLorentzVector LorentzVector;
+    /// point in the space
+    typedef math::XYZPoint Point;
+
+    JetFlavour(void) { }
      
   private:
-    LorenzVector m_partonMomentum;
-    Point m_partonVertex; //is it needed?
-    int m_flavour;
-
+    LorentzVector m_partonMomentum;
+    Point         m_partonVertex;       // is it needed?
+    int           m_flavour;
 };
+
 }
 #endif

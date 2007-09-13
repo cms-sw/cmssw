@@ -6,11 +6,12 @@
 
 namespace {
   namespace {
-    JetFlavourMatchingCollectionBase jf0;
-    JetFlavourMatchingCollection jf1;
-    JetFlavourMatchingRef jf2;
-    JetFlavourMatchingRefProd jf3;
-    JetFlavourMatchingRefVector jf4;
-    edm::Wrapper<JetFlavourMatchingCollection> jf5;
+    reco::JetFlavour                                 jf;
+    reco::JetFlavourMatchingCollectionBase           jfmcb;
+    reco::JetFlavourMatchingCollection               jfmc;
+    reco::JetFlavourMatchingRef                      jfmr;
+    reco::JetFlavourMatchingRefProd                  jfmrp;
+    reco::JetFlavourMatchingRefVector                jfrv;
+    edm::Wrapper<reco::JetFlavourMatchingCollection> wjfmc;
   }
 }
