@@ -3,6 +3,20 @@
 
 #include "Geometry/CaloGeometry/interface/EZMgrFL.h"
 
+/*
+
+  stl-vector-LIKE Class designed to allow many small fixed-length
+  containers to have a common memory managed by a single higher-level object.
+
+  It has the usual common iterators (begin, end) and functions (size, capacity, etc)
+  but is NOT actually an STL-vector.
+
+  It practices 'on-demand', or 'lazy evaluation', only allocating
+  memory when requested.
+
+*/
+
+
 template < class T >
 class EZArrayFL
 {
