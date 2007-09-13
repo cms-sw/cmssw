@@ -15,7 +15,7 @@
 //
 // Original Author:  Giuseppe Cerati
 //         Created:  Tue Feb 13 17:29:10 CET 2007
-// $Id$
+// $Id: TestTrackHits.h,v 1.1 2007/03/16 18:49:15 cerati Exp $
 //
 //
 
@@ -40,6 +40,7 @@
 #include "TrackingTools/Records/interface/TransientRecHitRecord.h" 
 #include "SimTracker/TrackerHitAssociation/interface/TrackerHitAssociator.h"
 #include "TrackingTools/PatternTools/interface/TrajectoryStateUpdator.h"
+#include "TrackingTools/GeomPropagators/interface/Propagator.h"
 #include "Geometry/TrackerGeometryBuilder/interface/GluedGeomDet.h"
 #include <TFile.h>
 #include <TH1F.h>
