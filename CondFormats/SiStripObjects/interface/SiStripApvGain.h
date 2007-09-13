@@ -20,7 +20,7 @@ class SiStripApvGain {
   SiStripApvGain(){};
   ~SiStripApvGain(){};
   
-  bool put(const uint32_t& detID,Range input);
+  bool put(const uint32_t& detID, Range input);
   const Range getRange(const uint32_t& detID) const;
   void getDetIds(std::vector<uint32_t>& DetIds_) const;
 
