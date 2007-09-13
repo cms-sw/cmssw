@@ -758,7 +758,7 @@ void PFRootEventManager::connect( const char* infilename ) {
     cerr<<"PFRootEventManager::ReadOptions : stdTracks_branch not found : "
 	<<stdTracksbranchname<< endl;
   }
-  
+
 
   string trueParticlesbranchname;
   options_->GetOpt("root","trueParticles_branch", trueParticlesbranchname);
@@ -768,9 +768,7 @@ void PFRootEventManager::connect( const char* infilename ) {
     cerr<<"PFRootEventManager::ReadOptions : trueParticles_branch not found : "
 	<<trueParticlesbranchname<< endl;
   }
-  else {
-    trueParticlesBranch_->SetAddress(&trueParticles_);
-  }    
+ 
 
   string MCTruthbranchname;
   options_->GetOpt("root","MCTruth_branch", MCTruthbranchname);
@@ -780,9 +778,6 @@ void PFRootEventManager::connect( const char* infilename ) {
     cerr<<"PFRootEventManager::ReadOptions : MCTruth_branch not found : "
 	<<MCTruthbranchname << endl;
   }
-  else {
-    MCTruthBranch_->SetAddress(&MCTruth_);
-  }    
 
   string caloTowersBranchName;
   caloTowersBranch_ = 0;
@@ -792,11 +787,7 @@ void PFRootEventManager::connect( const char* infilename ) {
     if(!caloTowersBranch_) {
       cerr<<"PFRootEventManager::ReadOptions : caloTowers_branch not found : "
 	  <<caloTowersBranchName<< endl;
-    }
-    else {
-      // cerr<<"setting address"<<endl;
-      caloTowersBranch_->SetAddress(&caloTowers_);
-    }           
+    }   
   }    
 
   setAddresses();
@@ -933,9 +924,11 @@ bool PFRootEventManager::readFromSimulation(int entry) {
 
   if(!tree_) return false;
   
-  // setAddresses();
+  setAddresses();
 
-  if(stdTracksBranch_) stdTracksBranch_->GetEntry(entry);
+  if(stdTracksBranch_) { 
+    stdTracksBranch_->GetEntry(entry);
+  }
   if(MCTruthBranch_) { 
     MCTruthBranch_->GetEntry(entry);
   }
@@ -966,8 +959,9 @@ bool PFRootEventManager::readFromSimulation(int entry) {
   if(caloTowersBranch_) {
     caloTowersBranch_->GetEntry(entry);
   } 
-  if(recTracksBranch_) recTracksBranch_->GetEntry(entry);
-  
+  if(recTracksBranch_) {
+    recTracksBranch_->GetEntry(entry);
+  }
   tree_->GetEntry( entry, 0 );
 
   // now can use the tree
