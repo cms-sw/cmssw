@@ -5,8 +5,8 @@
  * default eta thresholds (lepton and jets) set to 3
  * At least two leptons and two jets present for each channel
  *
- * $Date: 2007/08/28 22:24:24 $
- * $Revision: 1.7 $
+ * $Date: 2007/09/10 21:47:41 $
+ * $Revision: 1.8 $
  *
  * \author Michele Gallinaro and Nuno Almeida - LIP
  *
@@ -36,6 +36,7 @@
 #include "DataFormats/JetReco/interface/CaloJet.h"
 #include "DataFormats/METReco/interface/CaloMETCollection.h"
 
+#include "DataFormats/TrackReco/interface/Track.h"
 
 using namespace edm;
 using namespace std;
