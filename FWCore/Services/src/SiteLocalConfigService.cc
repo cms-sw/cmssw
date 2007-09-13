@@ -99,27 +99,6 @@ edm::service::SiteLocalConfigService::dataCatalog (void) const
 }
 
 const std::string
-edm::service::SiteLocalConfigService::calibCatalog (void) const
-{
-    if (! m_connected)
-	throw cms::Exception ("Incomplete configuration") 
-	    << "Valid site-local-config not found at " << m_url ;
-
-    if (m_calibCatalog == "")
-    {
-	// No catalog in config file, use default relationalcatalog
-	std::string logicalserverurl = calibLogicalServer();
-	std::string logicalservername = 
-		logicalserverurl.substr(logicalserverurl.rfind('/')+1,
-					logicalserverurl.length());
-	m_calibCatalog = "relationalcatalog_frontier://" + 
-		logicalservername + "/CMS_COND_FRONTIER";
-    }
-
-    return  m_calibCatalog;    
-}
-
-const std::string
 edm::service::SiteLocalConfigService::frontierConnect (const std::string& servlet) const
 {
     if (! m_connected)
@@ -154,39 +133,40 @@ edm::service::SiteLocalConfigService::frontierConnect (const std::string& servle
 }
 
 const std::string
-edm::service::SiteLocalConfigService::calibLogicalServer (void) const
-{
-    return "http://cms_conditions_data";
-}
-
-const std::string
 edm::service::SiteLocalConfigService::lookupCalibConnect (const std::string& input) const
 {
     static const std::string proto = "frontier://";
 
-    if ((input.substr(0,proto.length()) == proto) && (input[proto.length()] != '('))
+    if (input.substr(0,proto.length()) == proto)
     {
-	std::string logicalserverurl = calibLogicalServer();
-	std::string logicalservername = 
-		logicalserverurl.substr(logicalserverurl.rfind('/')+1,
-					logicalserverurl.length());
+	// Replace the part after the frontier:// and before either an open-
+	//  parentheses (which indicates user-supplied options) or the last
+	//  slash (which indicates start of the schema) with the complex
+	//  parenthesized string returned from frontierConnect() (which
+	//  contains all the information needed to connect to frontier),
+	//  if that part is a simple servlet name (non-empty and not
+	//  containing special characters)
+	// Example connect strings where servlet is replaced:
+	//  frontier://cms_conditions_data/CMS_COND_ECAL
+	//  frontier://FrontierInt/CMS_COND_ECAL
+	//  frontier://FrontierInt(retrieve-ziplevel=0)/CMS_COND_ECAL
+	// Example connect strings left untouched:
+	//  frontier://cmsfrontier.cern.ch:8000/FrontierInt/CMS_COND_ECAL
+	//  frontier://(serverurl=cmsfrontier.cern.ch:8000/FrontierInt)/CMS_COND_ECAL
+	std::string::size_type startservlet = proto.length();
+	// if user supplied extra parenthesized options, stop servlet there
+	std::string::size_type endservlet = input.find("(", startservlet);
+	if (endservlet == std::string::npos)
+	    endservlet = input.rfind('/', input.length());
+	std::string servlet = input.substr(startservlet, endservlet - startservlet);
+	if ((servlet != "") && (servlet.find_first_of(":/)[]") == std::string::npos))
+	{
+	    if (servlet == "cms_conditions_data")
+		// use the default servlet from site-local-config.xml
+		servlet = "";
 
-	// Replace the part after the protocol and before the last slash 
-	//  (that is, the servlet name) with the complex parenthesized string
-	//  returned from frontierConnect() which contains all the information
-	//  needed to connect to frontier.  Also add a keyword to the complex
-	//  string defining the logical server name.  This allows the pool
-	//  catalog file to use that shorter name which doesn't change.
-	std::string::size_type lastslash = input.rfind('/', input.length());
-	std::string schema = input.substr(lastslash);
-	std::string::size_type protolen = proto.length();
-	std::string servlet = input.substr(protolen, lastslash - protolen);
-	if (servlet == logicalservername)
-	    // use the default servlet from site-local-config.xml
-	    servlet = "";
-
-	return "frontier://(logicalserverurl=" + logicalserverurl + ")" +
-		frontierConnect(servlet) + schema;
+	    return proto + frontierConnect(servlet) + input.substr(endservlet);
+	}
     }
     return input;
 }
@@ -265,16 +245,6 @@ edm::service::SiteLocalConfigService::parse (const std::string &url)
 		    DOMElement *calibData 
 			= static_cast <DOMElement *> (calibDataList->item (0));
 	    
-		    DOMNodeList *catalogs = calibData->getElementsByTagName (_toDOMS ("catalog"));
-	    
-		    if (catalogs->getLength () > 0)
-		    {
-			DOMElement *catalog
-			    = static_cast <DOMElement *> (catalogs->item (0));
-	    
-			m_calibCatalog = _toString (catalog->getAttribute (_toDOMS ("url")));
-		    }
-		    
 		    DOMNodeList *frontierConnectList
 			= calibData->getElementsByTagName (_toDOMS ("frontier-connect"));
 
