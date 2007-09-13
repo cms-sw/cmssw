@@ -12,7 +12,9 @@
   <class name="edm::Ref<std::vector<reco::CaloTauTagInfo>,reco::CaloTauTagInfo,edm::refhelper::FindUsingAdvance<std::vector<reco::CaloTauTagInfo>,reco::CaloTauTagInfo> >"/>
   <class name="edm::RefProd<std::vector<reco::CaloTauTagInfo> >"/>
   <class name="edm::RefVector<std::vector<reco::CaloTauTagInfo>,reco::CaloTauTagInfo,edm::refhelper::FindUsingAdvance<std::vector<reco::CaloTauTagInfo>,reco::CaloTauTagInfo> >"/>
-  
+  <class name="std::vector<std::pair<ROOT::Math::PositionVector3D<ROOT::Math::Cartesian3D<double>,ROOT::Math::DefaultCoordinateSystemTag>,float> >"/>
+  <class name="std::pair<ROOT::Math::PositionVector3D<ROOT::Math::Cartesian3D<double>,ROOT::Math::DefaultCoordinateSystemTag>,float>"/>
+
   <class name="reco::PFTauTagInfo"/>
   <class name="std::vector<reco::PFTauTagInfo>"/>
   <class name="edm::Wrapper<std::vector<reco::PFTauTagInfo> >"/>
