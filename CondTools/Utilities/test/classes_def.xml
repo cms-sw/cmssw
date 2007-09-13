@@ -1,0 +1,13 @@
+ <lcgdict>
+<!-- the class you need -->
+  <class name="CondCachedIter<Pedestals>"/>
+  <class name="CondCachedIter<AlignmentErrors>"/>
+  <class name="CondCachedIter<EcalPedestals>"/>
+  <class name="CondCachedIter<EcalLaserAPDPNRatios>"/>
+  <class name="CondCachedIter<SiPixelGainCalibration>"/>    
+  <class name="CondCachedIter<SiStripFedCabling>"/>   
+  <class name="CondCachedIter<DTReadOutMapping>"/>   
+
+  <class name="CondIter<Pedestals>"/>
+
+</lcgdict>   
