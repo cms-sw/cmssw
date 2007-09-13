@@ -7,7 +7,7 @@
 #include "FWCore/Sources/interface/VectorInputSource.h"
 
 namespace CLHEP {
-  class RandPoisson;
+  class RandPoissonQ;
 }
 
 namespace edm {
@@ -35,7 +35,7 @@ namespace edm {
     bool const fixed_;
     bool const none_;
     VectorInputSource * const input_;
-    CLHEP::RandPoisson *poissonDistribution_;
+    CLHEP::RandPoissonQ *poissonDistribution_;
   };
 }
 

@@ -2,7 +2,7 @@
 #define POISSON_PU_GENERATOR_H
 
 #include "Mixing/Base/interface/PUGenerator.h"
-#include "CLHEP/Random/RandPoisson.h"
+#include "CLHEP/Random/RandPoissonQ.h"
 
 /*----------------------------------------------------------------------
 
@@ -18,7 +18,7 @@ namespace edm
       ~PoissonPUGenerator() { }
     
     private:
-      virtual unsigned int numberOfEventsPerBunch() const {return RandPoisson::shoot(average);}
+      virtual unsigned int numberOfEventsPerBunch() const {return RandPoissonQ::shoot(average);}
       double average;
     };
 }//edm

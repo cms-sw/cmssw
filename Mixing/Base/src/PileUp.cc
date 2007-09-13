@@ -9,7 +9,7 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
 
-#include "CLHEP/Random/RandPoisson.h"
+#include "CLHEP/Random/RandPoissonQ.h"
 
 #include <algorithm>
 
@@ -36,7 +36,7 @@ namespace edm {
 
    CLHEP::HepRandomEngine& engine = rng->getEngine();
 
-   poissonDistribution_ = new CLHEP::RandPoisson(engine, averageNumber_);
+   poissonDistribution_ = new CLHEP::RandPoissonQ(engine, averageNumber_);
 
     if (!(poisson_ || fixed_ || none_)) {
       throw cms::Exception("Illegal parameter value","PileUp::PileUp(ParameterSet const& pset)")
