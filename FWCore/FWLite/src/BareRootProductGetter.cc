@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue May 23 11:03:31 EDT 2006
-// $Id: BareRootProductGetter.cc,v 1.17 2007/08/17 20:36:30 chrjones Exp $
+// $Id: BareRootProductGetter.cc,v 1.18 2007/08/23 23:20:53 wmtan Exp $
 //
 
 // system include files
@@ -18,6 +18,7 @@
 #include "TBranch.h"
 #include "TClass.h"
 #include "Reflex/Type.h"
+#include "TROOT.h"
 
 // user include files
 #include "FWCore/FWLite/src/BareRootProductGetter.h"

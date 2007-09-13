@@ -1,5 +1,7 @@
 #include "RefStreamer.h"
 #include "DataFormats/Common/interface/RefCore.h"
+#include "TROOT.h"
+
 class TBuffer;
 
 namespace fwlite {

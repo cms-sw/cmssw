@@ -1,6 +1,7 @@
 #include "FWCore/RootAutoLibraryLoader/interface/CacheStreamers.h"
 #include "DataFormats/Common/interface/ConstPtrCache.h"
 #include "DataFormats/Common/interface/BoolCache.h"
+#include "TROOT.h"
 class TBuffer;
 
 namespace edm {
