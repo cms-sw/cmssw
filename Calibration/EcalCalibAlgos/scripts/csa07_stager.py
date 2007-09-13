@@ -12,7 +12,7 @@ def dostaging(filelist):
    print "Asking stageing for files"
    for file in filelist:
       print file
-      values1=['stager_get ','-M','/castor/cern.ch/cms/'+str(file)]
+      values1=['stager_get ','-M','/castor/cern.ch/cms'+str(file)]
       do_stager=subprocess.Popen(values1,0,"stager_get")
 
 def staginginfo(filelist):
@@ -20,8 +20,8 @@ def staginginfo(filelist):
    print "Asking stager status informations"
    for file in filelist:
       print file
-      file="-M /castor/cern.ch/cms"+file
-      values1=['stager_qry',file]
+      file="/castor/cern.ch/cms"+file
+      values1=['stager_qry','-M',file]
       stager_info=subprocess.Popen(values1,0, "stager_qry")
 
 
