@@ -16,33 +16,34 @@ using namespace std;
 #include <iostream>
 
 HcalSimpleAmplitudeZS::HcalSimpleAmplitudeZS(edm::ParameterSet const& conf):
-  algo_(((conf.getParameter<bool>("triggerOR"))?(HcalZeroSuppressionAlgo::zs_TriggerTowerOR):(HcalZeroSuppressionAlgo::zs_SingleChannel)),
-	conf.getParameter<int>("level"),
-	conf.getParameter<int>("firstSample"),
-	conf.getParameter<int>("samplesToAdd"),
-	conf.getParameter<bool>("twoSided")),
   inputLabel_(conf.getParameter<edm::InputTag>("digiLabel"))
 {
-  std::string subd=conf.getParameter<std::string>("Subdetector");
-  if (!strcasecmp(subd.c_str(),"ALL")) {
-    subdets_.insert(HcalBarrel);
-    subdets_.insert(HcalOuter);
-    subdets_.insert(HcalForward);
-    produces<HBHEDigiCollection>();
-    produces<HODigiCollection>();
-    produces<HFDigiCollection>();
-  } else if (!strcasecmp(subd.c_str(),"HBHE")) {
-    subdets_.insert(HcalBarrel);
-    produces<HBHEDigiCollection>();
-  } else if (!strcasecmp(subd.c_str(),"HO")) {
-    subdets_.insert(HcalOuter);
-    produces<HODigiCollection>();
-  } else if (!strcasecmp(subd.c_str(),"HF")) {
-    subdets_.insert(HcalForward);
-    produces<HFDigiCollection>();
-  } else {
-    throw cms::Exception("Configuration") << "HcalSimpleAmplitudeZS is not associated with a specific subdetector or with ALL!";
-  }       
+  const edm::ParameterSet& psHBHE=conf.getParameter<edm::ParameterSet>("hbhe");
+  hbhe_=std::auto_ptr<HcalZSAlgoEnergy>(new HcalZSAlgoEnergy(
+							     (psHBHE.getParameter<bool>("triggerOR")?(HcalZeroSuppressionAlgo::zs_TriggerTowerOR):(HcalZeroSuppressionAlgo::zs_SingleChannel)),
+							     psHBHE.getParameter<int>("level"),
+							     psHBHE.getParameter<int>("firstSample"),
+							     psHBHE.getParameter<int>("samplesToAdd"),
+							     psHBHE.getParameter<bool>("twoSided")));
+  produces<HBHEDigiCollection>();
+  
+  const edm::ParameterSet& psHO=conf.getParameter<edm::ParameterSet>("ho");
+  ho_=std::auto_ptr<HcalZSAlgoEnergy>(new HcalZSAlgoEnergy(
+							     (psHO.getParameter<bool>("triggerOR")?(HcalZeroSuppressionAlgo::zs_TriggerTowerOR):(HcalZeroSuppressionAlgo::zs_SingleChannel)),
+							     psHO.getParameter<int>("level"),
+							     psHO.getParameter<int>("firstSample"),
+							     psHO.getParameter<int>("samplesToAdd"),
+							     psHO.getParameter<bool>("twoSided")));
+  produces<HODigiCollection>();
+  
+  const edm::ParameterSet& psHF=conf.getParameter<edm::ParameterSet>("hf");
+  hf_=std::auto_ptr<HcalZSAlgoEnergy>(new HcalZSAlgoEnergy(
+							     (psHF.getParameter<bool>("triggerOR")?(HcalZeroSuppressionAlgo::zs_TriggerTowerOR):(HcalZeroSuppressionAlgo::zs_SingleChannel)),
+							     psHF.getParameter<int>("level"),
+							     psHF.getParameter<int>("firstSample"),
+							     psHF.getParameter<int>("samplesToAdd"),
+							     psHF.getParameter<bool>("twoSided")));
+  produces<HFDigiCollection>();
   
 }
     
@@ -56,51 +57,53 @@ void HcalSimpleAmplitudeZS::produce(edm::Event& e, const edm::EventSetup& eventS
   eventSetup.get<HcalDbRecord>().get(conditions);
   
 
-  algo_.prepare(&(*conditions));
-
-  if (subdets_.find(HcalBarrel)!=subdets_.end() ||
-      subdets_.find(HcalEndcap)!=subdets_.end()) {
-    edm::Handle<HBHEDigiCollection> digi;
-    
+  {
+    hbhe_->prepare(&(*conditions));
+    edm::Handle<HBHEDigiCollection> digi;    
     e.getByLabel(inputLabel_,digi);
     
     // create empty output
     std::auto_ptr<HBHEDigiCollection> zs(new HBHEDigiCollection);
     // run the algorithm
-    algo_.suppress(*(digi.product()),*zs);
+    hbhe_->suppress(*(digi.product()),*zs);
     
     edm::LogInfo("HcalZeroSuppression") << "Suppression (HBHE) input " << digi->size() << " digis, output " << zs->size() << " digis";
     
     // return result
     e.put(zs);
+    hbhe_->done();
   } 
-  if (subdets_.find(HcalOuter)!=subdets_.end()) {
+  {
+    ho_->prepare(&(*conditions));
     edm::Handle<HODigiCollection> digi;
     e.getByLabel(inputLabel_,digi);
     
     // create empty output
     std::auto_ptr<HODigiCollection> zs(new HODigiCollection);
     // run the algorithm
-    algo_.suppress(*(digi.product()),*zs);
+    ho_->suppress(*(digi.product()),*zs);
 
     edm::LogInfo("HcalZeroSuppression") << "Suppression (HO) input " << digi->size() << " digis, output " << zs->size() << " digis";
 
     // return result
     e.put(zs);    
+    ho_->done();
   } 
-  if (subdets_.find(HcalForward)!=subdets_.end()) {
+  {
+    hf_->prepare(&(*conditions));
     edm::Handle<HFDigiCollection> digi;
     e.getByLabel(inputLabel_,digi);
     
     // create empty output
     std::auto_ptr<HFDigiCollection> zs(new HFDigiCollection);
     // run the algorithm
-    algo_.suppress(*(digi.product()),*zs);
+    hf_->suppress(*(digi.product()),*zs);
 
     edm::LogInfo("HcalZeroSuppression") << "Suppression (HF) input " << digi->size() << " digis, output " << zs->size() << " digis";
 
     // return result
     e.put(zs);     
+    hf_->done();
   }
-  algo_.done();
+
 }

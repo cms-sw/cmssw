@@ -11,11 +11,10 @@
 
 #include "SimCalorimetry/HcalZeroSuppressionAlgos/interface/HcalZSAlgoEnergy.h"
 
-
 /** \class HcalSimpleAmplitudeZS
 	
-$Date: 2007/03/08 22:13:22 $
-$Revision: 1.3 $
+$Date: 2007/03/20 17:34:31 $
+$Revision: 1.1 $
 \author J. Mans - Minnesota
 */
 class HcalSimpleAmplitudeZS : public edm::EDProducer {
@@ -24,8 +23,7 @@ public:
   virtual ~HcalSimpleAmplitudeZS();
   virtual void produce(edm::Event& e, const edm::EventSetup& c);
 private:
-  HcalZSAlgoEnergy algo_;
-  std::set<HcalSubdetector> subdets_;
+  std::auto_ptr<HcalZSAlgoEnergy> hbhe_,ho_,hf_;
   edm::InputTag inputLabel_;
 };
 
