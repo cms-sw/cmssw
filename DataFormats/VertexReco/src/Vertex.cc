@@ -1,6 +1,6 @@
 #include "DataFormats/VertexReco/interface/Vertex.h"
 
-// $Id: Vertex.cc,v 1.11 2007/05/30 07:47:38 llista Exp $
+// $Id: Vertex.cc,v 1.13 2007/09/12 14:39:01 speer Exp $
 using namespace reco;
 using namespace std;
 
@@ -11,6 +11,7 @@ Vertex::Vertex( const Point & p , const Error & err, double chi2, double ndof, s
   for( index i = 0; i < dimension; ++ i ) 
     for( index j = 0; j <= i; ++ j )
       covariance_[ idx ++ ] = err( i, j );
+  validity_ = true;
 }
 
 void Vertex::fill( Error & err ) const {

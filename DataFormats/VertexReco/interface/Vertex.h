@@ -7,7 +7,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: Vertex.h,v 1.27 2007/05/30 07:47:37 llista Exp $
+ * \version $Id: Vertex.h,v 1.29 2007/09/12 14:38:57 speer Exp $
  *
  */
 #include <Rtypes.h>
@@ -38,10 +38,14 @@ namespace reco {
     enum { size = dimension * ( dimension + 1 ) / 2 };
     /// index type
     typedef unsigned int index;
-    /// default constructor
-    Vertex() { }
+    /// default constructor - The vertex will not be valid. Position, error,
+    /// chi2, ndof will have random entries, and the vectors of tracks will be empty
+    /// Use the isValid method to check that your vertex is valid. 
+    Vertex() { validity_ = false;}
     /// constructor from values
     Vertex( const Point &, const Error &, double chi2, double ndof, size_t size );
+    /// Tells whether the vertex is valid.
+    bool isValid() {return validity_;}
     /// add a reference to a Track
     void add( const TrackBaseRef & r, float w=1.0 );
     /// add the original a Track(reference) and the smoothed Track
@@ -137,6 +141,8 @@ namespace reco {
     /// The vector of refitted tracks
     std::vector<Track> refittedTracks_;
     std::vector<float> weights_;
+    /// tells wether the vertex is really valid.
+    bool validity_;
 
 
     /// position index
