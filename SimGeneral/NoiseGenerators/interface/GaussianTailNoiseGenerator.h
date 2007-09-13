@@ -20,8 +20,8 @@ namespace CLHEP {
   class HepRandomEngine;
 }
 
-#include "CLHEP/Random/RandPoisson.h"
-#include "CLHEP/Random/RandGauss.h"
+#include "CLHEP/Random/RandPoissonQ.h"
+#include "CLHEP/Random/RandGaussQ.h"
 #include "CLHEP/Random/RandFlat.h"
 
 
@@ -51,9 +51,9 @@ public:
   double generate_gaussian_tail(const double,const double);
 
 private:
-  CLHEP::RandGauss        gaussDistribution_;
-  CLHEP::RandPoisson      poissonDistribution_;
-  CLHEP::RandFlat         flatDistribution_;
+  CLHEP::RandGaussQ        gaussDistribution_;
+  CLHEP::RandPoissonQ      poissonDistribution_;
+  CLHEP::RandFlat          flatDistribution_;
 };
 
 #endif

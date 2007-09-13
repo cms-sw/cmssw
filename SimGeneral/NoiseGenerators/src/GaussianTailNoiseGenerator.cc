@@ -1,6 +1,6 @@
 #include "SimGeneral/NoiseGenerators/interface/GaussianTailNoiseGenerator.h"
-#include "CLHEP/Random/RandPoisson.h"
-#include "CLHEP/Random/RandGauss.h"
+#include "CLHEP/Random/RandPoissonQ.h"
+#include "CLHEP/Random/RandGaussQ.h"
 #include "CLHEP/Random/RandFlat.h"
 
 #include <math.h>

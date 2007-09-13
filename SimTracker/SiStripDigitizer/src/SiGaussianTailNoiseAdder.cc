@@ -1,7 +1,7 @@
 #include "SimTracker/SiStripDigitizer/interface/SiGaussianTailNoiseAdder.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
-#include "CLHEP/Random/RandGauss.h"
+#include "CLHEP/Random/RandGaussQ.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "Utilities/Timing/interface/TimingReport.h"
 
@@ -11,7 +11,7 @@ SiGaussianTailNoiseAdder::SiGaussianTailNoiseAdder(float th,CLHEP::HepRandomEngi
   gaussDistribution(0)
 {
   genNoise = new GaussianTailNoiseGenerator(rndEngine);
-  gaussDistribution = new CLHEP::RandGauss(rndEngine);
+  gaussDistribution = new CLHEP::RandGaussQ(rndEngine);
 }
 
 SiGaussianTailNoiseAdder::~SiGaussianTailNoiseAdder(){

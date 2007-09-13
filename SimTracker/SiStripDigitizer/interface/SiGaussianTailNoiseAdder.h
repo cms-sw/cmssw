@@ -10,7 +10,7 @@
 
 namespace CLHEP {
   class HepRandomEngine;
-  class RandGauss;
+  class RandGaussQ;
 }
 
 class SiGaussianTailNoiseAdder : public SiNoiseAdder{
@@ -24,7 +24,7 @@ class SiGaussianTailNoiseAdder : public SiNoiseAdder{
   float noiseRMS;
   float threshold;
   CLHEP::HepRandomEngine& rndEngine;
-  CLHEP::RandGauss* gaussDistribution;
+  CLHEP::RandGaussQ* gaussDistribution;
   GaussianTailNoiseGenerator* genNoise;
 };
 #endif
