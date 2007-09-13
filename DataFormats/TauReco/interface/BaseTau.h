@@ -10,7 +10,7 @@
 #include "DataFormats/Math/interface/LorentzVector.h"
 #include "DataFormats/TauReco/interface/BaseTauFwd.h"
 #include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
-#include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
 
 #include <limits>
 

@@ -10,7 +10,7 @@
 
 #include "DataFormats/Math/interface/LorentzVector.h"
 #include "DataFormats/TauReco/interface/BaseTauTagInfoFwd.h"
-#include "DataFormats/TrackReco/interface/Track.h" 
+#include "DataFormats/TrackReco/interface/TrackFwd.h" 
 #include "DataFormats/JetReco/interface/CaloJetCollection.h"
 
 using namespace std;
