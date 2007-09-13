@@ -25,7 +25,9 @@ public:
                          PlotSingleHistogram      =  9,
 			 PlotTkMapHistogram       = 10,
 			 periodicTrackerMapUpdate = 11,
-			 PlotHistogramFromPath    = 12};
+			 PlotHistogramFromPath    = 12,
+			 PlotHistogramFromLayout     = 13,
+			 PlotErrorOverviewHistogram  = 14};
 
   SiPixelWebInterface(std::string theContextURL, 
                       std::string theApplicationURL, 
@@ -70,6 +72,7 @@ private:
   bool tkMapCreated;
   std::multimap<std::string, std::string> requestMap_;
   xgi::Output * theOut ;
+  std::string fileName_;  
   
   
 protected:

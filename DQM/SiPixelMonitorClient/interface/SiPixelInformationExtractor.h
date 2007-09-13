@@ -7,12 +7,17 @@
 #include "DQM/SiPixelMonitorClient/interface/SiPixelConfigParser.h"
 #include "DQM/SiPixelMonitorClient/interface/SiPixelConfigWriter.h"
 #include "DQM/SiPixelMonitorClient/interface/SiPixelActionExecutor.h"
+#include "DQM/SiPixelMonitorClient/interface/SiPixelLayoutParser.h"
+#include "DQM/SiPixelMonitorClient/interface/SiPixelQTestsParser.h"
 
 
 #include "xgi/Utils.h"
 #include "xgi/Method.h"
 
 #include "TCanvas.h"
+#include "TPaveText.h"
+#include "TF1.h"
+#include "TGaxis.h"
 #include "qstring.h"
 
 #include <fstream>
@@ -103,8 +108,14 @@ class SiPixelInformationExtractor {
   const std::ostringstream& getNamedImage( std::string                    theName);
   std::string getMEType(        MonitorElement                          * mE) ;
   
+  void   readLayoutNames(       xgi::Output                             * out);
+  void   plotHistosFromLayoutForSlideShow(    DaqMonitorBEInterface     * bei);
+  void   plotErrorOverviewHistos(DaqMonitorBEInterface                  * bei);
+  
 
  private:
+
+  void readConfiguration();
 
   //void fillBarrelList(        	MonitorUserInterface			* mui, 
   void fillBarrelList(        	DaqMonitorBEInterface			* bei, 
@@ -161,6 +172,13 @@ class SiPixelInformationExtractor {
   MonitorElement* getModuleME(  DaqMonitorBEInterface                   * bei, 
                                 std::string                               me_name);
   void setCanvasMessage(        const std::string                       & error_string);
+  void setDrawingOption(        TH1                                     * hist, 
+				float                                     xlow  =-1.0, 
+				float                                     xhigh =-1.0);
+  void setSubDetAxisDrawing(    TH1                                     * hist, 
+				std::string                             & detector);
+  void createDummiesFromLayout();  
+  
   
   
   
@@ -172,8 +190,25 @@ class SiPixelInformationExtractor {
   SiPixelConfigParser   	       * configParser_  ;
   SiPixelConfigWriter   	       * configWriter_  ;
   SiPixelActionExecutor 	       * actionExecutor_;
+  SiPixelLayoutParser                  * layoutParser_  ;
+  SiPixelQTestsParser                  * qtestsParser_  ;
+
+  std::map<std::string, 
+           std::vector< std::string> >  layoutMap;
+  std::map<std::string, 
+           std::map<std::string, 
+                    std::string> >      qtestsMap;
+  std::map<std::string, 
+           std::vector<std::string> >   meQTestsMap;
+
   
   TCanvas                              * theCanvas ;
   TCanvas                              * canvas_ ;
+  TPaveText                            * paveOnCanvas;
+
+  bool  readReference_;
+  bool  readQTestMap_;
+  bool  readMeMap_;
+  
 };
 #endif

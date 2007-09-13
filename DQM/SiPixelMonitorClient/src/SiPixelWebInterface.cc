@@ -92,7 +92,12 @@ void SiPixelWebInterface::handleCustomRequest(xgi::Input  * in,
        << ACPlain
        << requestID << endl;
 
-  if (requestID == "SubscribeAll") {		  // <-----------------
+  if (requestID == "IsReady") {	                  // <-----------------
+    theActionFlag = NoAction;    
+    if ((*mui_p)->getNumUpdates() > 2) infoExtractor_->readLayoutNames(out);
+    else returnReplyXml(out, "ReadyState", "wait");
+
+  } else  if (requestID == "SubscribeAll") {		  // <-----------------
    theActionFlag = SubscribeAll;
 
   } else if (requestID == "SetupQTest") {	  // <-----------------
@@ -245,8 +250,21 @@ void SiPixelWebInterface::handleCustomRequest(xgi::Input  * in,
 
   } else if (requestID == "PlotHistogramFromPath") {
    theActionFlag = PlotHistogramFromPath;
+  
+  } else if (requestID == "PlotHistogramFromLayout") {
+    cout << ACYellow << ACBold << "[SiPixelWebInterface::handleCustomRequest] "
+	 << ACPlain << "Plot Histogram from Layout" << endl ;
+    theActionFlag = PlotHistogramFromLayout;
+
+  } else if (requestID == "PlotErrorOverviewHistogram") {
+    cout << ACYellow << ACBold << "[SiPixelWebInterface::handleCustomRequest] "
+	 << ACPlain << "Plot error overview Histogram" << endl ;
+
+    theActionFlag = PlotErrorOverviewHistogram;
   }
+  
   configureCustomRequest(in, out);
+  
 }
 
 //____________________________________________________________________________________________________
@@ -427,6 +445,19 @@ void SiPixelWebInterface::performAction() {
   case SiPixelWebInterface::PlotHistogramFromPath :
     {
       infoExtractor_->plotHistosFromPath(bei, requestMap_);
+      break;
+    }
+  case SiPixelWebInterface::PlotHistogramFromLayout :
+    {
+      actionExecutor_->createSummary(bei);
+      actionExecutor_->checkQTestResults(bei);
+      infoExtractor_->plotHistosFromLayoutForSlideShow(bei);
+      break;
+    }
+  case SiPixelWebInterface::PlotErrorOverviewHistogram :
+    {
+      actionExecutor_->checkQTestResults(bei);
+      infoExtractor_->plotErrorOverviewHistos(bei);
       break;
     }
   case SiPixelWebInterface::NoAction :

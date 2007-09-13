@@ -166,3 +166,38 @@ ClientActions.CollateME = function() {
   
   WebLib.makeRequest(url, WebLib.dummy);     
 }
+//___________________________________________________________________________________
+//
+// Request Plot from layout
+//
+ClientActions.RequestPlotFromLayout = function()
+{
+  try{
+   var queryString;
+   var url = WebLib.getApplicationURL2();
+   url += "/Request?";
+   queryString = "RequestID=PlotHistogramFromLayout";
+   url += queryString;
+   WebLib.makeRequest(url,WebLib.dummy);
+  }catch(e){
+   alert(e.message);
+  }
+}
+//___________________________________________________________________________________//
+//
+// Request Error Overview Plot
+//
+ClientActions.RequestErrorOverviewPlot = function()
+{
+  try{
+   var queryString;
+   var url = WebLib.getApplicationURL2();
+   url += "/Request?";
+   queryString = "RequestID=PlotErrorOverviewHistogram";
+   url += queryString;
+   WebLib.makeRequest(url,WebLib.dummy);
+  }catch(e){
+   alert(e.message);
+  }
+}
+//___________________________________________________________________________________

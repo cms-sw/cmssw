@@ -23,6 +23,10 @@
 #include "TPaveText.h"
 #include "TImageDump.h"
 #include "TRandom.h"
+#include "TStopwatch.h"
+#include "TAxis.h"
+#include "TPaveLabel.h"
+#include "Rtypes.h"
 
 #include <qstring.h>
 #include <qregexp.h>
@@ -40,7 +44,29 @@ using namespace std;
 SiPixelInformationExtractor::SiPixelInformationExtractor() {
   edm::LogInfo("SiPixelInformationExtractor") << 
     " Creating SiPixelInformationExtractor " << "\n" ;
+  
   canvas_ = new TCanvas("PlotCanvas", "Plot Canvas"); 
+  paveOnCanvas = new TPaveText(0.7,0.75,0.99,0.94,"NDCtr");   
+
+  // variables used for reading layout names
+  // ---------------------------------------
+  layoutParser_ = 0;
+  readReference_ = false;
+  layoutMap.clear();
+
+  // variables used to store qtest information
+  // for the slide show plot
+  //  -----------------------------------------
+  qtestsParser_ = 0;
+  readQTestMap_  = false;
+  readMeMap_     = false;
+  qtestsMap.clear();
+  meQTestsMap.clear();
+
+  // function used for reading configuration files [layout and qtest]
+  // ----------------------------------------------------------------
+  readConfiguration();
+
 }
 
 //------------------------------------------------------------------------------
@@ -50,10 +76,75 @@ SiPixelInformationExtractor::SiPixelInformationExtractor() {
 SiPixelInformationExtractor::~SiPixelInformationExtractor() {
   edm::LogInfo("SiPixelInformationExtractor") << 
     " Deleting SiPixelInformationExtractor " << "\n" ;
-  //  if (theCanvas) delete theCanvas;
+  
   if (canvas_) delete canvas_;
+  if (paveOnCanvas)    delete paveOnCanvas;
+
+  if (layoutParser_) delete layoutParser_;
+  if (qtestsParser_) delete qtestsParser_;
 }
 
+//------------------------------------------------------------------------------
+/*! \brief Read Configurationn File
+ *
+ */
+void SiPixelInformationExtractor::readConfiguration() {
+  //  cout << "entering in SiPixelInformationExtractor::readConfiguration" << endl;
+
+  // read layout configuration file
+  // ------------------------------
+  string localPath = string("DQM/SiPixelMonitorClient/test/sipixel_plot_layout_config.xml");
+  if (layoutParser_ == 0) {
+    layoutParser_ = new SiPixelLayoutParser();
+    layoutParser_->getDocument(edm::FileInPath(localPath).fullPath());
+  }
+  if (layoutParser_->getAllLayouts(layoutMap)) {
+     edm::LogInfo("SiPixelInformationExtractor") << 
+                  " Layouts correctly readout " << "\n" ;
+     //     cout << "SiPixelInformationExtractor: correctly Layout readout " << endl;
+  } else {
+    edm::LogInfo("SiPixelInformationExtractor") << 
+                 " Problem in reading Layout " << "\n" ;
+    //    cout << "SiPixelInformationExtractor: Problem in reading Layout " << endl;
+  }
+  if (layoutParser_) delete layoutParser_;
+  
+  // create default .png files for the slide show [Plot not ready yet!!]
+  // -------------------------------------------------------------------
+  createDummiesFromLayout();
+
+
+  // read quality test configuration file
+  // ------------------------------------
+  localPath = string("DQM/SiPixelMonitorClient/test/sipixel_qualitytest_config.xml");
+  if (qtestsParser_ == 0) {
+    qtestsParser_ = new SiPixelQTestsParser();
+    qtestsParser_->getDocument(edm::FileInPath(localPath).fullPath());
+  }
+  if (qtestsParser_->getAllQTests(qtestsMap)){
+     edm::LogInfo("SiPixelInformationExtractor") << 
+                  " QTestsMap correctly readout " << "\n" ;
+     //     cout << "SiPixelInformationExtractor: correctly QTestsMap readout " << endl;
+     readQTestMap_ = true;
+  } else {
+    edm::LogInfo("SiPixelInformationExtractor") << 
+                 " Problem in reading QTestsMap " << "\n" ;
+    //    cout << "SiPixelInformationExtractor: Problem in reading QTestsMap " << endl;
+  }
+  if (qtestsParser_->monitorElementTestsMap(meQTestsMap)){
+    edm::LogInfo("SiPixelInformationExtractor") << 
+                 " ME-QTestsMap correctly readout " << "\n" ;
+    //    cout << "SiPixelInformationExtractor: correctly ME-QTestsMap readout " << endl;
+    readMeMap_ = true;
+  } else {
+    edm::LogInfo("SiPixelInformationExtractor") << 
+                 " Problem in reading ME-QTestsMap " << "\n" ;
+    //    cout << "SiPixelInformationExtractor: Problem in reading ME-QTestsMap " << endl;
+  }
+  if (qtestsParser_) delete qtestsParser_;
+  
+  cout << "..leaving SiPixelInformationExtractor::readConfiguration" << endl;
+}
 //------------------------------------------------------------------------------
 /*! \brief (Documentation under construction).
  *  
@@ -2092,4 +2183,355 @@ void SiPixelInformationExtractor::plotHistosFromPath(DaqMonitorBEInterface * bei
   gROOT->Reset(); gStyle->SetPalette(1);
   fillImageBuffer();
   canvas_->Clear();
+}
+//------------------------------------------------------------------------------
+//
+// -- Read Layout Group names
+//
+void SiPixelInformationExtractor::readLayoutNames(xgi::Output * out){
+  //  cout << "entering in SiPixelInformationExtractor::readLayoutNames" << endl;
+
+  if (layoutMap.size() > 0) {
+    out->getHTTPResponseHeader().addHeader("Content-Type", "text/xml");
+    *out << "<?xml version=\"1.0\" ?>" << std::endl;
+    *out << "<LayoutList>" << endl;
+    cout << "<?xml version=\"1.0\" ?>" << endl;
+    cout << "<LayoutList>" << endl;
+
+   for (map<string, vector< string > >::iterator it =  layoutMap.begin();
+	                                         it != layoutMap.end(); 
+                                                 it++) {
+     *out << "<LName>" << it->first << "</LName>" << endl;  
+     cout << "<LName>" << it->first << "</LName>" << endl;  
+     for(vector<string>::iterator ivec =  it->second.begin();
+	                          ivec != it->second.end(); 
+                                  ivec++){
+       *out << "<LMEName>" << *ivec << "</LMEName>" << endl;  
+       cout << "<LMEName>" << *ivec << "</LMEName>" << endl;  
+     }
+   }
+   *out << "</LayoutList>" << endl;
+   cout << "</LayoutList>" << endl;
+  }  
+  //  cout << "leaving SiPixelInformationExtractor::readLayoutNames" << endl;
+}
+
+//------------------------------------------------------------------------------
+//
+// -- Plot Dummy Histograms from Layout
+//
+void SiPixelInformationExtractor::createDummiesFromLayout(){
+  //  cout << "entering in SiPixelInformationExtractor::createDummiesFromLayout" << endl;
+
+  if (layoutMap.size() == 0) return;
+
+  canvas_->SetWindowSize(600,600);
+  canvas_->Clear();
+
+  for (map<std::string, std::vector< std::string > >::iterator it =  layoutMap.begin(); 
+                                                               it != layoutMap.end(); 
+                                                               it++) {
+    for(vector<string>::iterator ivec =  it->second.begin();
+                               	 ivec != it->second.end(); 
+	                         ivec++){
+      string fname  = "images/" + *ivec + ".png";
+      setCanvasMessage("Plot not ready yet!!");
+      canvas_->Print(fname.c_str(),"png");
+      canvas_->Clear();
+
+    }
+  }
+  //  cout << "leaving in SiPixelInformationExtractor::createDummiesFromLayout" << endl;
+}
+//------------------------------------------------------------------------------
+//
+// plot Histograms from Layout for Slide Show
+//
+void SiPixelInformationExtractor::plotHistosFromLayoutForSlideShow(DaqMonitorBEInterface * bei){
+  //  cout << "entering in SiPixelInformationExtractor::plotHistosFromLayoutForSlideShow" << endl;
+
+  //DaqMonitorBEInterface* bei = mui->getBEInterface();
+
+  if (layoutMap.size() == 0) return;
+
+  gStyle->SetOptStat("e");
+  gStyle->SetStatFontSize(0.05);
+  canvas_->SetWindowSize(600,600);
+  canvas_->SetBorderMode(0);
+  canvas_->SetFillColor(0);
+  canvas_->Clear();
+
+  paveOnCanvas->SetFillColor(0);
+
+  TLine* l_ymin = new TLine();
+  l_ymin->SetLineWidth(4);
+  TLine* l_ymax = new TLine();
+  l_ymax->SetLineWidth(4);
+
+  for (map<std::string, std::vector< std::string > >::iterator it  = layoutMap.begin() ; 
+                                                               it != layoutMap.end(); 
+                                                             ++it) {
+    gStyle->SetOptTitle(0);
+    string subDet  = it->first;
+    for (vector<string>::iterator im =  it->second.begin(); 
+	                          im != it->second.end(); 
+                                ++im) { 
+      string meName = (*im);
+      string path_name = "Collector/Collated/Tracker/" + subDet + "/" + meName;
+      cout << "path_name: " << path_name << endl;
+
+      if (path_name.size() == 0) continue;
+
+      MonitorElement* me = bei->get(path_name.c_str());
+      canvas_->Clear();
+      if (!me){
+	setCanvasMessage("ME doesn't exist!!");
+      } else {
+	TH1* histoME = ExtractTObject<TH1>().extract(me);
+	if (histoME) {
+	  TText tTitle;
+	  tTitle.SetTextFont(64);
+	  tTitle.SetTextSizePixels(20);
+          setDrawingOption(histoME);
+	  histoME->DrawCopy();
+          string hname = histoME->GetTitle();
+          tTitle.DrawTextNDC(0.1, 0.92, hname.c_str());
+	  setSubDetAxisDrawing(histoME, hname);
+
+	  double ymin = -1.;
+	  double ymax = -1.;
+	  string messageString = "";
+	  int    messageColor  = 1;
+	  string expThreshold;
+
+	  dqm::qtests::QR_map qtestReportMap = me->getQReports();
+	  
+	  for(map<string, vector<string> >::iterator meQTestsMapItr =  meQTestsMap.begin();
+	                                             meQTestsMapItr != meQTestsMap.end(); 
+                                                   ++meQTestsMapItr){
+	    if((meQTestsMapItr->first).find(meName.c_str()) == string::npos) continue;
+
+	    vector<string> meQTestNameList = meQTestsMapItr->second;
+	    if(meQTestNameList.size() > 0){
+
+	      for(vector<string>::iterator meQTestNameListItr = meQTestNameList.begin();
+		                           meQTestNameListItr != meQTestNameList.end(); 
+                                         ++meQTestNameListItr){
+		
+		map<string,string> qtestParamsMap = qtestsMap[*meQTestNameListItr];
+		
+		string qtestType = "ContentsYRange";
+		string test = qtestParamsMap["type"];
+		if(test == qtestType){
+		  ymin = atof(qtestParamsMap["ymin"].c_str());
+		  ymax = atof(qtestParamsMap["ymax"].c_str());
+		  
+		  if(!qtestReportMap.empty()){
+		    int qtestReportStatus = qtestReportMap[*meQTestNameListItr]->getStatus();
+		    switch(qtestReportStatus){
+		    case dqm::qstatus::STATUS_OK:
+		      messageString = " OK ";
+		      messageColor  = kGreen;
+		      break;
+		    case dqm::qstatus::WARNING:
+		      messageString = " WARNING ";
+		      messageColor  = kRed;
+		      expThreshold  = qtestParamsMap["warning"];
+		      break;
+		    case dqm::qstatus::ERROR:
+		      messageString = " ERROR ";
+		      messageColor  = kMagenta;
+		      expThreshold  = qtestParamsMap["error"];
+		      break;
+		    case dqm::qstatus::INSUF_STAT:
+		      messageString = " NOT ENOUGH STATISTICS ";
+		      messageColor  = kBlue;
+		      break;
+		    } // end of switch
+		  } // end of if(!qtestReportMap.empty())
+		  
+		} // end of if (test == qtestType) 
+	      } // end loop over meQTestNameListItr
+	     
+	      double xmin = histoME->GetXaxis()->GetXmin();
+	      double xmax = histoME->GetXaxis()->GetXmax(); 
+	      
+	      l_ymin->SetLineColor(messageColor);
+	      l_ymin->SetX1(xmin);
+	      l_ymin->SetX2(xmax);
+	      l_ymin->SetY1(ymin);
+	      l_ymin->SetY2(ymin);
+	      l_ymin->Draw("same");
+	      l_ymax->SetLineColor(messageColor);
+	      l_ymax->SetX1(xmin);
+	      l_ymax->SetX2(xmax);
+	      l_ymax->SetY1(ymax);
+	      l_ymax->SetY2(ymax);
+	      l_ymax->Draw("same");
+	      
+	      paveOnCanvas->Clear();
+	      
+	      TText* statusOnCanvas = paveOnCanvas->AddText(messageString.c_str());
+	      statusOnCanvas->SetTextSize(0.06);
+	      statusOnCanvas->SetTextFont(112);
+	      statusOnCanvas->SetNDC(kTRUE);
+	      statusOnCanvas->SetTextColor(messageColor);
+	      
+	      if(messageString.find("OK") ==  string::npos){
+		string textMessage = "input threshold: " + expThreshold + "%";
+		TText* messageOnCanvas = paveOnCanvas->AddText(textMessage.c_str());
+		messageOnCanvas->SetTextSize(0.04);
+		//	  messageOnCanvas->SetTextFont(112);
+		messageOnCanvas->SetNDC(kTRUE);
+	      }
+	      paveOnCanvas->Draw("same");
+	      
+	    }
+	    
+	  } // end loop over meQTestsMapItr
+	
+	} else setCanvasMessage("Plot not ready yet!!"); 
+      }
+      string fileName = "images/" + meName + ".png";
+      string command  = "rm -f " + fileName;
+      gSystem->Exec(command.c_str());
+      canvas_->Print(fileName.c_str(),"png");
+      canvas_->Clear();
+    }
+  }
+  delete l_ymin;
+  delete l_ymax;
+
+  //  cout << "leaving SiPixelInformationExtractor::plotHistosFromLayoutForSlideShow" << endl;
+}
+
+////
+//// Error encoding overview creation
+////
+void SiPixelInformationExtractor::plotErrorOverviewHistos(DaqMonitorBEInterface * bei
+					      //string                 module,
+					     // string               & source,
+					     // MonitorElement       * me,
+					     // string               & qtest,
+					     // int                    qtestStatus
+					                                        ){
+//  
+//  cout << "entering in SiPixelInformationExtractor::encodeError" << endl;
+//
+//  DaqMonitorBEInterface* bei = mui->getBEInterface();
+//
+//  int nbin;
+//  float xmin = 0;
+//  float xmax = float(nbin);
+//  TH1F* errorCode = new TH1F("errorCode","error code",nbin,xmin,xmax);
+//
+//
+//  string module_path_name = "Collector/FU0/Tracker/PixelBarrel"; 
+//  int qtestStatus = bei->getStatus(module_path_name);
+//
+//
+////  if(source.find("RAW") ) sourceCode = 1;
+////  if(source.find("DIGI")) sourceCode = 10;
+////  if(source.find("CLU") ) sourceCode = 100;
+////  if(source.find("TRK") ) sourceCode = 1000;
+////  if(source.find("REC") ) sourceCode = 10000;
+//
+//  int statusCode = -1;
+//  switch(qtestStatus){
+//  case dqm::qstatus::STATUS_OK:
+//    statusCode = 0;
+//    cout << " qtestStatus: OK " << endl;
+//    break;
+//  case dqm::qstatus::INSUF_STAT:
+//    statusCode = 1;
+//    cout << " qtestStatus: INSUF_STAT " << endl;
+//    break;
+//  case dqm::qstatus::WARNING:
+//    statusCode = 2;
+//    cout << " qtestStatus: WARNING " << endl;
+//    break;
+//  case dqm::qstatus::ERROR:
+//    statusCode = 3;
+//    cout << " qtestStatus: ERROR " << endl;
+//    break;
+//  } // end of switch
+//
+}
+
+//------------------------------------------------------------------------------
+//
+// -- Set Drawing Option
+//
+void SiPixelInformationExtractor::setDrawingOption(TH1   * hist, 
+						   float   xlow, 
+						   float   xhigh) {
+  if (!hist) return;
+
+  TAxis* xa = hist->GetXaxis();
+  TAxis* ya = hist->GetYaxis();
+
+
+  xa->SetTitleOffset(0.7);
+  xa->SetTitleSize(0.06);
+  xa->SetLabelSize(0.04);
+  xa->SetLabelColor(0);
+  xa->SetAxisColor(0);
+
+  ya->SetTitleOffset(0.7);
+  ya->SetTitleSize(0.06);
+
+
+  if (xlow != -1 &&  xhigh != -1.0) {
+    xa->SetRangeUser(xlow, xhigh);
+  }
+}
+
+//------------------------------------------------------------------------------
+//
+// -- Set Axis Drawing Option for slide show plots
+//
+void SiPixelInformationExtractor::setSubDetAxisDrawing(TH1    * hist, 
+						       string & detector) {
+  if (!hist) return;
+
+  string ownName;
+  int    ownNOModules = -1;
+  if(detector.find("Barrel") != string::npos){
+    ownName      = "Shell";
+    ownNOModules = 192;
+  }
+  if(detector.find("Endcap") != string::npos){
+    ownName = "HalfCylinder";
+    ownNOModules = 168;
+  }
+
+  TF1* subDet = new TF1("subDet","x",0,ownNOModules);
+  TGaxis* subDet_mI = new TGaxis(  0,0,ownNOModules,0,"subDet",1,"U");
+  subDet_mI->SetTitle((ownName + "_mI").c_str());
+  subDet_mI->SetTitleOffset(0.4);
+  subDet_mI->CenterTitle(kTRUE);
+  TGaxis* subDet_mO = new TGaxis(ownNOModules+1,0,2*ownNOModules,0,"subDet",1,"U");
+  subDet_mO->SetTitle((ownName + "_mO").c_str());
+  subDet_mO->SetTitleOffset(0.4);
+  subDet_mO->CenterTitle(kTRUE);
+  TGaxis* subDet_pI = new TGaxis(2*ownNOModules+1,0,3*ownNOModules,0,"subDet",1,"U");
+  subDet_pI->SetTitle((ownName + "_pI").c_str());
+  subDet_pI->SetTitleOffset(0.4);
+  subDet_pI->CenterTitle(kTRUE);
+  TGaxis* subDet_pO = new TGaxis(3*ownNOModules+1,0,4*ownNOModules,0,"subDet",1,"U");
+  subDet_pO->SetTitle((ownName + "_pO").c_str());
+  subDet_pO->SetTitleOffset(0.4);
+  subDet_pO->CenterTitle(kTRUE);
+
+  subDet_mI->Draw("same");
+  subDet_mO->Draw("same");
+  subDet_pI->Draw("same");
+  subDet_pO->Draw("same");
+
+  delete subDet;
+//  delete subDet_mI;
+//  delete subDet_mO;
+//  delete subDet_pI;
+//  delete subDet_pO;
+
 }

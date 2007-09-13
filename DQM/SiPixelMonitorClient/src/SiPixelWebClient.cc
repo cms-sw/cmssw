@@ -129,6 +129,14 @@ void SiPixelWebClient::onUpdate() const
       mui_->addCallback(action);
   //    bei->addCallback(action);
   }
+
+  // Initial Creation of Summary Plot for Slide Show:
+  if (nUpdate == 5){ //actionExecutor_->checkQTestResults(mui_);
+      webInterface_p->setActionFlag(SiPixelWebInterface::PlotHistogramFromLayout);
+      seal::Callback action(seal::CreateCallback(webInterface_p, 
+			    &SiPixelWebInterface::performAction));
+      mui_->addCallback(action);
+  }  
   
   // put here the code that needs to be executed on every update:
   std::vector<std::string> uplist;
@@ -152,6 +160,13 @@ void SiPixelWebClient::onUpdate() const
 			    &SiPixelWebInterface::performAction));
       mui_->addCallback(action);
   //    bei->addCallback(action);
+  }
+  // Frequent Updating of Summary Plot for Slide Show:
+  if (nUpdate > 0 && nUpdate%301 == 0){ 
+      webInterface_p->setActionFlag(SiPixelWebInterface::PlotHistogramFromLayout);
+      seal::Callback action(seal::CreateCallback(webInterface_p, 
+			    &SiPixelWebInterface::performAction));
+      mui_->addCallback(action);
   }
 /*  // Creation of TrackerMap
   if (updateFrequencyForTrackerMap_ != -1 && nUpdate > 30) {

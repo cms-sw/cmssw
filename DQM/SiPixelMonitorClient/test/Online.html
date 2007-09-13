@@ -20,17 +20,162 @@
   <script type = "text/javascript" src = "js_files/scriptaculous/src/scriptaculous.js"></script>
   <script type = "text/javascript" src = "js_files/scriptaculous/lib/moo.fx.js">       </script>
   <script type = "text/javascript" src = "js_files/IMGC.js">                           </script>
+  <script type = "text/javascript" src = "js_files/SlideShow.js">                      </script>
   <script type = "text/javascript">
    function CloseUpperWindow()
    {
     var frameSet = parent.document.getElementsByTagName("frameset") ;
     frameSet[0].setAttribute("rows","0,100%") ;
    }
+   function ShowTabs(option) 
+   {
+     var obj = document.getElementById("dhtmlgoodies_tabView1");
+     if (obj == null) return;
+     obj.style.visibility = option; // "visible" or "hidden"
+   }
+   function ShowButtons(option) 
+   {
+     var obj;
+     obj = document.getElementById("collate_me");
+     if (obj != null ) obj.disabled=option;
+     obj = document.getElementById("create_summary");
+     if (obj != null ) obj.disabled=option;
+     obj = document.getElementById("check_qtest_result");
+     if (obj != null ) obj.disabled=option;
+     obj = document.getElementById("create_tkmap");
+     if (obj != null ) obj.disabled=option;
+     obj = document.getElementById("barrel_summary_overview_show");
+     if (obj != null ) obj.disabled=option;
+     obj = document.getElementById("endcap_summary_overview_show");
+     if (obj != null ) obj.disabled=option;
+     obj = document.getElementById("structure_for_overview");
+     if (obj != null ) obj.disabled=option;
+     obj = document.getElementById("summary_plot_creation");
+     if (obj != null ) obj.disabled=option;
+     obj = document.getElementById("save_to_file");
+     if (obj != null ) obj.disabled=option;
+     obj = document.getElementById("start_slide_show");
+     if (obj != null ) obj.disabled=option;
+     obj = document.getElementById("previous_slide_show");
+     if (obj != null ) obj.disabled=option;
+     obj = document.getElementById("play_slide_show");
+     if (obj != null ) obj.disabled=option;
+     obj = document.getElementById("stop_slide_show");
+     if (obj != null ) obj.disabled=option;
+     obj = document.getElementById("next_slide_show");
+     if (obj != null ) obj.disabled=option;
+     obj = document.getElementById("end_slide_show");
+     if (obj != null ) obj.disabled=option;
+     obj = document.getElementById("list_ME_command");
+     if (obj != null ) obj.disabled=option;
+     obj = document.getElementById("refreshInterval");
+     if (obj != null ) obj.disabled=option;
+     obj = document.getElementById("create_tkmap");
+     if (obj != null ) obj.disabled=option;
+     obj = document.getElementById("list_module");
+     if (obj != null ) obj.disabled=option;
+     obj = document.getElementById("structure_for_module");
+     if (obj != null ) obj.disabled=option;
+     obj = document.getElementById("list_summary");
+     if (obj != null ) obj.disabled=option;
+     obj = document.getElementById("structure_name");
+     if (obj != null ) obj.disabled=option;
+     obj = document.getElementById("read_alarm");
+     if (obj != null ) obj.disabled=option;
+     obj = document.getElementById("structure_for_alarm");
+     if (obj != null ) obj.disabled=option;
+   }
+   function ShowProgress (option) 
+   {
+     var progress = document.getElementById("progressIcon");
+     if (progress == null) return;
+   
+     var label = document.getElementById("progress_message");
+     if (label == null) return;
+   
+     var args = arguments[1];
+     if (args != null && args.length > 0) {
+       label.innerHTML = args;
+     }
+     progress.style.visibility = option; // "visible" or "hidden"
+   }
+   function RequestReadyState() 
+   {
+     var queryString;
+     var url = WebLib.getApplicationURL2();
+     url += "/Request?";
+     queryString = "RequestID=IsReady";
+     url += queryString;
+     WebLib.makeRequest(url, FillReadyState);
+   }
+   function FillReadyState() 
+   {
+     if (WebLib.http_request.readyState == 4) {
+       if (WebLib.http_request.status == 200) {
+         try {
+           var callAgain = false;
+           var doc = WebLib.http_request.responseXML;
+           var root = doc.documentElement;
+           var hrows = root.getElementsByTagName('LName');
+           if (hrows.length < 1) {
+             callAgain = true; 
+           } 
+           else {
+
+             for (var i = 0; i < hrows.length; i++) {
+               var l_name  = hrows[i].childNodes[0].nodeValue;
+               var MErows = root.getElementsByTagName('LMEName');
+
+               for (var j = 0; j < MErows.length; j++) {
+                 var lME_name = MErows[j].childNodes[0].nodeValue;
+                 if( lME_name.match(l_name) ){ 
+		   var slideName = lME_name + ".png";
+                   slideListFiles.push(slideName); 
+		   if(l_name.match("Barrel")) BarrelListFiles.push(slideName); 
+		   if(l_name.match("Endcap")) EndcapListFiles.push(slideName); 
+		   slideName = "Plot=" + slideName + "&Folder=" + l_name;
+                   slideListTitles.push(slideName); 
+		   if(l_name.match("Barrel")) BarrelListTitles.push(slideName); 
+		   if(l_name.match("Endcap")) EndcapListTitles.push(slideName); 
+                 }
+               }
+
+             }
+             nSlides = slideListFiles.length;
+
+       	     ShowButtons(false);
+             ShowTabs('visible');
+             ShowProgress('hidden');
+
+           }
+           if (callAgain){
+             setTimeout('RequestReadyState()',20000);
+           }
+         } 
+         catch (err) {
+           alert ("Error detail: " + err.message); 
+         }
+       }
+     }
+   }
+
+   function Onload()
+   {
+     try{
+       CloseUpperWindow();
+       ShowProgress("visible","&nbsp Histograms from Collector");
+       ShowButtons(true);
+       RequestReadyState();
+     }catch(e){
+       alert(e.message);
+     }
+   }
   </script> 
  </head>
  
  <body onresize = "IMGC.repaintUponResize()"
-       onload   = "CloseUpperWindow()">
+       onload   = "Onload()">
+<!--       onload   = "CloseUpperWindow()"> -->
   <form id     = "theWholeForm"
   	action = "javascript:void%200">
 
@@ -170,15 +315,19 @@
     		      color:	  black;">
       &nbsp; Client Controls &nbsp; 
      </legend>
-      <div class="bloc"  id="bloc2_1" style="background:#C093FF;">
-       <div    id = "dhtmlgoodies_tabView1" 
-            style = "float:  right;
-                     width:  300px;">
+      <div class = "bloc"  
+           id    = "bloc2_1" 
+	   style = "background:#C093FF;">
+       <div  id    = "dhtmlgoodies_tabView1" 
+             style = "float:  right;
+                      width:  300px;">
         <div class = "dhtmlgoodies_aTab">
          <div class = "bloc" 
-              id    = "bloc2_2">
+              id    = "bloc2_2"
+              onmouseover = "ddrivetip('Different actions for the non-expert Client ', '#EAFFF9', 200);"
+              onmouseout  = "hideddrivetip()">
                <!-- These are the non-expert action buttons: -->
-           <input name    = "summary"
+           <!-- <input name    = "summary"
             	  id	  = "create_summary"
             	  class   = "controlButton"
             	  value   = "Update Summary"
@@ -191,12 +340,122 @@
             	  value   = "Update QTests"
             	  onClick = "ClientActions.CheckQualityTestResults()"
             	  type    = "submit">
+           </input> -->
+ 	   <!-- These are the slide shown action buttons: -->
+	   <p/>
+           <label id      = "slide_show"
+                  style   = "margin-left:2%">
+               Slide Show:
+           </label>
+           <input name    = "StartSLShow" 
+                  id      = "start_slide_show"
+                  class   = "controlButton"
+                  value   = "|<<" 
+                  onClick = "SlideShow.ShowFirst()" 
+                  type    = "image"
+                  src     = "images/player_start.png">
+           </input>
+           <input name    = "PreviousSLShow" 
+                  id	  = "previous_slide_show"
+                  class   = "controlButton"
+                  value   = "<<" 
+                  onClick = "SlideShow.ShowPrev()" 
+                  type    = "image"
+                  src	  = "images/player_rew.png">
+           </input>
+           <input name    = "PlaySLShow" 
+                  id	  = "play_slide_show"
+                  class   = "controlButton"
+                  value   = ">" 
+                  onClick = "SlideShow.StartSlideShow()" 
+                  type    = "image"
+                  src	  = "images/player_play.png">
+           </input>
+           <input name    = "StopSLShow" 
+           	  id	  = "stop_slide_show"
+           	  class   = "controlButton"
+           	  value   = "||" 
+           	  onClick = "SlideShow.StopSlideShow()" 
+           	  type    = "image"
+           	  src	  = "images/player_stop.png">
+           </input>
+           <input name    = "NextSLShow" 
+           	  id	  = "next_slide_show"
+           	  class   = "controlButton"
+           	  value   = ">>" 
+           	  onClick = "SlideShow.ShowNext()" 
+           	  type    = "image"
+           	  src	  = "images/player_fwd.png">	 
+           </input>
+           <input name    = "EndSLShow" 
+           	  id	  = "end_slide_show"
+           	  class   = "controlButton"
+           	  value   = ">>|" 
+           	  onClick = "SlideShow.ShowLast()" 
+           	  type    = "image"
+           	  src	  = "images/player_end.png">
+           </input>
+
+	   <!-- <p/>
+           <label id	  = "summaryOverview_slideShow"
+           	  style   = "margin-left:2%">
+               Summary Plots Overview:
+           </label> -->
+           <input name    = "SummaryPlotsCreation" 
+                  id	  = "summary_plot_creation"
+                  class   = "controlButton"
+                  value   = "Manual
+Update" 
+                  onClick = "ClientActions.RequestPlotFromLayout()"
+                  type    = "submit">
+           </input>
+
+	   <p/>
+           <label id      = "summary_canvas"
+                  style   = "margin-left:2%">
+               Status Summary:
+           </label>
+           <input name    = "BarrelSummaryOverviewShow" 
+                  id	  = "barrel_summary_overview_show"
+                  class   = "controlButton"
+                  value   = "Barrel" 
+                  onClick = "SlideShow.BarrelSummaryOverView()" 
+                  type    = "submit">
+           </input>
+           <input name	  = "EndcapSummaryOverviewShow" 
+           	  id	  = "endcap_summary_overview_show"
+           	  class   = "controlButton"
+           	  value   = "Endcap" 
+           	  onClick = "SlideShow.EndcapSummaryOverView()" 
+           	  type    = "submit">
+           </input>
+
+	   <p/>
+           <label id	  = "errorOverview_slideShow"
+           	  style   = "margin-left:2%">
+               Error Overview Plots:
+           </label>
+           <input name    = "errorOverviewPlotsCreation" 
+           	  id	  = "errorOverview_plot_creation"
+           	  class   = "controlButton"
+                  value   = "Create" 
+                  onClick = "ClientActions.RequestErrorOverviewPlot()"
+                  type    = "submit">
+           </input>
+           <input name    = "ErrorOverviewShow" 
+           	  id	  = "errorOverview_plot_show"
+           	  class   = "controlButton"
+           	  value   = "Display" 
+           	  onClick = "SlideShow.ErrorOverview()" 
+           	  type    = "submit">
            </input>
          </div>
         </div>
         <div class = "dhtmlgoodies_aTab">
          <div class = "bloc" 
-              id    = "bloc2_3">
+              id    = "bloc2_3"
+              onmouseover = "ddrivetip('Different actions for the expert Client ', '#EAFFF9', 200)"
+              onmouseout  = "hideddrivetip()">
           <!-- These are the expert action buttons: -->
           <input name	 = "subscribe"
            	 id	 = "subscribe_all"
@@ -295,10 +554,16 @@
 
          <div id = "progressIcon">	 
           <h3>
-           <img src="images/loading.gif" border="0" /> 
-           &nbsp; Please, wait, loading...
+           <img id  = "progress_icon"
+	        src = "images/loading.gif" 
+		border = "0" /> 
+                &nbsp; Please, wait, loading...
+           </img>
+           <label class = "label"
+                  id    = "progress_message"
+                  style = "text-align:left;">
+           </label>
           </h3>
-
          </div>
         </fieldset>
        </div>
@@ -308,9 +573,7 @@
      <!-- Following is the area to display the trees: -->
      <fieldset style = "background:#DDEFFF;">
 
-      <label>
-       Detector Trees
-      </label>
+      <label>Detector Trees</label>
       
       <div id = "dhtmlgoodies_tabView2" 
            style = "float:  right;
@@ -454,7 +717,7 @@
   </form>
   
   <script type="text/javascript">
-   initTabs('dhtmlgoodies_tabView1', Array('Non-expert Actions','Expert Actions'), 0, '99.5%','100%');
+   initTabs('dhtmlgoodies_tabView1', Array('Summary Slideshow','Expert Actions'), 0, '99.5%','100%');
    initTabs('dhtmlgoodies_tabView2', Array('Single Module View','Summary View','Alarm View'), 0, '99.5%','100%');
   </script>
   
