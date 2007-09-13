@@ -19,7 +19,6 @@
 #include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHit.h"
-#include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackExtra.h"
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
 #include "DataFormats/SiStripDetId/interface/TIBDetId.h"
@@ -33,7 +32,7 @@
 #include <Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h>
 #include "SimTracker/TrackerHitAssociation/interface/TrackerHitAssociator.h"
 #include "DataFormats/SiPixelDetId/interface/PXBDetId.h"
-
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
 
 #include "TrackingTools/Records/interface/TransientRecHitRecord.h"
 #include "Geometry/TrackerGeometryBuilder/interface/GluedGeomDet.h"
