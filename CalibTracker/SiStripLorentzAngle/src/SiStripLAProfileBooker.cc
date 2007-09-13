@@ -190,6 +190,7 @@ void SiStripLAProfileBooker::analyze(const edm::Event& e, const edm::EventSetup&
   //Analysis of Trajectory-RecHits
         
   edm::InputTag TkTag = conf_.getParameter<edm::InputTag>("Tracks");
+  int nHitMin = conf_.getParameter<int>("NHitMin");
   
   edm::Handle<reco::TrackCollection> trackCollection;
   e.getByLabel(TkTag,trackCollection);
@@ -209,7 +210,7 @@ void SiStripLAProfileBooker::analyze(const edm::Event& e, const edm::EventSetup&
 
   std::vector<Trajectory>::const_iterator theTraj;
   for(theTraj = TrajectoryCollection->begin(); theTraj!= TrajectoryCollection->end();theTraj++){ //loop on trajectories
-    if(theTraj->foundHits()>=5){
+    if(theTraj->foundHits()>=nHitMin){
       std::vector<TrajectoryMeasurement> TMeas=theTraj->measurements();
       std::vector<TrajectoryMeasurement>::iterator itm;
       
