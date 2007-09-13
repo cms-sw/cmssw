@@ -2,7 +2,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/FileInPath.h"
 #include "CLHEP/Random/RandFlat.h"
-#include "CLHEP/Random/RandPoisson.h"
+#include "CLHEP/Random/RandPoissonQ.h"
 #include "SimMuon/Neutron/src/NeutronReader.h"
 #include "SimMuon/Neutron/src/RootNeutronReader.h"
 #include "SimMuon/Neutron/src/AsciiNeutronReader.h"
@@ -46,7 +46,7 @@ SubsystemNeutronReader::~SubsystemNeutronReader() {
 void SubsystemNeutronReader::setRandomEngine(CLHEP::HepRandomEngine & engine)
 {
   theRandFlat = new CLHEP::RandFlat(engine);
-  theRandPoisson = new CLHEP::RandPoisson(engine);
+  theRandPoisson = new CLHEP::RandPoissonQ(engine);
 }
 
 

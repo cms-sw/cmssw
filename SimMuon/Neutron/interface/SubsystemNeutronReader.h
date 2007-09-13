@@ -10,7 +10,7 @@
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
 #include "CLHEP/Random/RandomEngine.h"
 #include "CLHEP/Random/RandFlat.h"
-#include "CLHEP/Random/RandPoisson.h"
+#include "CLHEP/Random/RandPoissonQ.h"
 #include<vector>
 class NeutronReader;
 
@@ -42,7 +42,7 @@ private:
   NeutronReader * theHitReader;
 
   CLHEP::RandFlat * theRandFlat;
-  CLHEP::RandPoisson * theRandPoisson;
+  CLHEP::RandPoissonQ * theRandPoisson;
 
   /// just makes sure chambers aren't done twice
   std::vector<int> theChambersDone;
