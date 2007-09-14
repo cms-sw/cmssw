@@ -7,7 +7,7 @@ namespace TauTagTools{
       if ((**iTk).pt()>=tkminPt &&
 	  (**iTk).normalizedChi2()<=tkmaxChi2 &&
 	  fabs((**iTk).d0())<=tkmaxipt &&
-	  (**iTk).recHitsSize()>=(unsigned int)tkminTrackerHitsn &&
+	  (**iTk).numberOfValidHits()>=tkminTrackerHitsn &&
 	  (**iTk).hitPattern().numberOfValidPixelHits()>=tkminPixelHitsn)
 	filteredTracks.push_back(*iTk);
     }
@@ -19,7 +19,7 @@ namespace TauTagTools{
       if ((**iTk).pt()>=tkminPt &&
 	  (**iTk).normalizedChi2()<=tkmaxChi2 &&
 	  fabs((**iTk).d0())<=tkmaxipt &&
-	  (**iTk).recHitsSize()>=(unsigned int)tkminTrackerHitsn &&
+	  (**iTk).numberOfValidHits()>=tkminTrackerHitsn &&
 	  (**iTk).hitPattern().numberOfValidPixelHits()>=tkminPixelHitsn &&
 	  fabs((**iTk).dz()-refpoint_Z)<=tktorefpointmaxDZ)
 	filteredTracks.push_back(*iTk);
@@ -43,7 +43,7 @@ namespace TauTagTools{
 	if ((*PFChargedHadrCand_rectk).pt()>=ChargedHadrCand_tkminPt &&
 	    (*PFChargedHadrCand_rectk).normalizedChi2()<=ChargedHadrCand_tkmaxChi2 &&
 	    fabs((*PFChargedHadrCand_rectk).d0())<=ChargedHadrCand_tkmaxipt &&
-	    (*PFChargedHadrCand_rectk).recHitsSize()>=(unsigned int)ChargedHadrCand_tkminTrackerHitsn &&
+	    (*PFChargedHadrCand_rectk).numberOfValidHits()>=ChargedHadrCand_tkminTrackerHitsn &&
 	    (*PFChargedHadrCand_rectk).hitPattern().numberOfValidPixelHits()>=ChargedHadrCand_tkminPixelHitsn) 
 	  filteredPFChargedHadrCands.push_back(*iPFCand);
       }
@@ -67,7 +67,7 @@ namespace TauTagTools{
 	if ((*PFChargedHadrCand_rectk).pt()>=ChargedHadrCand_tkminPt &&
 	    (*PFChargedHadrCand_rectk).normalizedChi2()<=ChargedHadrCand_tkmaxChi2 &&
 	    fabs((*PFChargedHadrCand_rectk).d0())<=ChargedHadrCand_tkmaxipt &&
-	    (*PFChargedHadrCand_rectk).recHitsSize()>=(unsigned int)ChargedHadrCand_tkminTrackerHitsn &&
+	    (*PFChargedHadrCand_rectk).numberOfValidHits()>=ChargedHadrCand_tkminTrackerHitsn &&
 	    (*PFChargedHadrCand_rectk).hitPattern().numberOfValidPixelHits()>=ChargedHadrCand_tkminPixelHitsn &&
 	    fabs((*PFChargedHadrCand_rectk).dz()-refpoint_Z)<=ChargedHadrCand_tktorefpointmaxDZ)
 	  filteredPFChargedHadrCands.push_back(*iPFCand);
