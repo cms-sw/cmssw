@@ -2,8 +2,8 @@
  *
  *  Implementation of  MuonDQMClient
  *
- *  $Date: 2006/05/09 22:10:12 $
- *  $Revision: 1.4 $
+ *  $Date: 2006/07/20 16:17:46 $
+ *  $Revision: 1.5 $
  *  \author Ilaria Segoni
  */
 
@@ -50,9 +50,9 @@ void MuonDQMClient::handleWebRequest(xgi::Input * in, xgi::Output * out){
 	logFile <<"request: "<<webInterface_p->requestType() <<std::endl;
 	if (webInterface_p->requestType() == "QTestConfigure")   {
 		qtestsConfigured=false;
-		if(!qtHandler->configureTests("QualityTests.xml",mui_)){
+		if(!qtHandler->configureTests("QualityTests.xml",mui_->getBEInterface())){
 			qtestsConfigured=true;
-			qtHandler->attachTests(mui_);			
+			qtHandler->attachTests(mui_->getBEInterface());			
 		}
 	}		
 }
@@ -65,7 +65,7 @@ void MuonDQMClient::configure(){
 	qtestsConfigured=false;
 
 	if(!subscriber->getMEList("MESubscriptionList.xml")) meListConfigured=true; 
-	if(!qtHandler->configureTests("QualityTests.xml",mui_)) qtestsConfigured=true; 
+	if(!qtHandler->configureTests("QualityTests.xml",mui_->getBEInterface())) qtestsConfigured=true; 
 }
 
 void MuonDQMClient::newRun(){
@@ -79,7 +79,7 @@ void MuonDQMClient::newRun(){
 	}
 	///QT's enabling
 	if(qtestsConfigured){
-		qtHandler->attachTests(mui_);	
+		qtHandler->attachTests(mui_->getBEInterface());	
 	}else{
 		logFile << "Cannot run quality tests, error occurred in configuration." << std::endl;		
 	}
@@ -93,14 +93,15 @@ void MuonDQMClient::endRun(){
 void MuonDQMClient::onUpdate() const{
 	// put here the code that needs to be executed on every update:
 	std::vector<std::string> uplist;
-	mui_->getUpdatedContents(uplist);
+	mui_->getBEInterface()->getUpdatedContents(uplist);
 	
 	if(meListConfigured) subscriber->updateSubscriptions(mui_);
 	if(qtestsConfigured){	
 		
-		if(webInterface_p->globalQTStatusRequest()) qtHandler->checkGolbalQTStatus(mui_);
+		if(webInterface_p->globalQTStatusRequest()) 
+		  qtHandler->checkGlobalQTStatus(mui_->getBEInterface());
 		if(webInterface_p->detailedQTStatusRequest()) {
-			 std::map< std::string, std::vector<std::string> > theAlarms=qtHandler->checkDetailedQTStatus(mui_);
+			 std::map< std::string, std::vector<std::string> > theAlarms=qtHandler->checkDetailedQTStatus(mui_->getBEInterface());
 			 for(std::map<std::string,std::vector<std::string> >::iterator itr=theAlarms.begin();itr!=theAlarms.end();++itr){
 			 	std::string alarmType=	itr->first;
 				std::vector<std::string> messages=itr->second;
