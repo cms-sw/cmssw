@@ -1,12 +1,12 @@
 
-// $Id: GaussEvtVtxGenerator.cc,v 1.2 2006/11/07 19:38:47 wdd Exp $
+// $Id: GaussEvtVtxGenerator.cc,v 1.3 2007/03/22 02:28:46 yarba Exp $
 
 #include "IOMC/EventVertexGenerators/interface/GaussEvtVtxGenerator.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "CLHEP/Random/RandGauss.h"
+#include "CLHEP/Random/RandGaussQ.h"
 #include "CLHEP/Units/SystemOfUnits.h"
 //#include "CLHEP/Vector/ThreeVector.h"
 #include "HepMC/SimpleVector.h"
@@ -15,7 +15,7 @@ GaussEvtVtxGenerator::GaussEvtVtxGenerator(const edm::ParameterSet & p )
 : BaseEvtVtxGenerator(p)
 { 
   
-  fRandom = new CLHEP::RandGauss(getEngine());
+  fRandom = new CLHEP::RandGaussQ(getEngine());
   
   fMeanX =  p.getParameter<double>("MeanX")*cm;
   fMeanY =  p.getParameter<double>("MeanY")*cm;

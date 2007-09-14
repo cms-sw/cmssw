@@ -1,5 +1,5 @@
 
-// $Id: BetafuncEvtVtxGenerator.cc,v 1.5 2007/04/27 14:25:35 yumiceva Exp $
+// $Id: BetafuncEvtVtxGenerator.cc,v 1.6 2007/05/28 10:19:41 elmer Exp $
 /*
 ________________________________________________________________________
 
@@ -23,7 +23,7 @@ ________________________________________________________________________
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "CLHEP/Random/RandGauss.h"
+#include "CLHEP/Random/RandGaussQ.h"
 #include "CLHEP/Units/SystemOfUnits.h"
 //#include "CLHEP/Vector/ThreeVector.h"
 #include "HepMC/SimpleVector.h"
@@ -36,7 +36,7 @@ BetafuncEvtVtxGenerator::BetafuncEvtVtxGenerator(const edm::ParameterSet & p )
 : BaseEvtVtxGenerator(p)
 { 
   
-  fRandom = new CLHEP::RandGauss(getEngine());
+  fRandom = new CLHEP::RandGaussQ(getEngine());
 
   fX0 =        p.getParameter<double>("X0")*cm;
   fY0 =        p.getParameter<double>("Y0")*cm;

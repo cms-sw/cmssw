@@ -1,5 +1,5 @@
 
-// $Id: BeamProfileVtxGenerator.cc,v 1.2 2006/11/07 19:38:47 wdd Exp $
+// $Id: BeamProfileVtxGenerator.cc,v 1.3 2007/03/22 02:28:46 yarba Exp $
 
 #include "IOMC/EventVertexGenerators/interface/BeamProfileVtxGenerator.h"
 #include "FWCore/Utilities/interface/Exception.h"
@@ -8,7 +8,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "CLHEP/Random/RandFlat.h"
-#include "CLHEP/Random/RandGauss.h"
+#include "CLHEP/Random/RandGaussQ.h"
 #include "CLHEP/Units/SystemOfUnits.h"
 //#include "CLHEP/Vector/ThreeVector.h"
 #include "HepMC/SimpleVector.h"
@@ -47,11 +47,11 @@ BeamProfileVtxGenerator::~BeamProfileVtxGenerator() {
 HepMC::FourVector* BeamProfileVtxGenerator::newVertex() {
   double aX, aY;
   if (fType) 
-    aX = fSigmaX * (dynamic_cast<CLHEP::RandGauss*>(fRandom))->fire() + fMeanX;
+    aX = fSigmaX * (dynamic_cast<CLHEP::RandGaussQ*>(fRandom))->fire() + fMeanX;
   else
     aX = (dynamic_cast<CLHEP::RandFlat*>(fRandom))->fire(-0.5*fSigmaX,0.5*fSigmaX) + fMeanX ;
   if (fType) 
-    aY = fSigmaY * (dynamic_cast<CLHEP::RandGauss*>(fRandom))->fire() + fMeanY;
+    aY = fSigmaY * (dynamic_cast<CLHEP::RandGaussQ*>(fRandom))->fire() + fMeanY;
   else
     aY = (dynamic_cast<CLHEP::RandFlat*>(fRandom))->fire(-0.5*fSigmaY,0.5*fSigmaY) + fMeanY;
 
@@ -104,7 +104,7 @@ void BeamProfileVtxGenerator::setType(bool s) {
   delete fRandom;
   
   if (fType == true)
-    fRandom = new CLHEP::RandGauss(getEngine());
+    fRandom = new CLHEP::RandGaussQ(getEngine());
   else
     fRandom = new CLHEP::RandFlat(getEngine());
 }

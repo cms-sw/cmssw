@@ -1,7 +1,7 @@
 #ifndef IOMC_BetafuncEvtVtxGenerator_H
 #define IOMC_BetafuncEvtVtxGenerator_H
 
-// $Id: BetafuncEvtVtxGenerator.h,v 1.3 2007/03/22 02:28:46 yarba Exp $
+// $Id: BetafuncEvtVtxGenerator.h,v 1.4 2007/04/27 14:25:34 yumiceva Exp $
 /*
 ________________________________________________________________________
 
@@ -23,7 +23,7 @@ ________________________________________________________________________
 
 
 namespace CLHEP {
-   class RandGauss;
+   class RandGaussQ;
 }
 
 class BetafuncEvtVtxGenerator : public BaseEvtVtxGenerator 
@@ -79,7 +79,7 @@ private:
   double falpha;
   
   
-  CLHEP::RandGauss*  fRandom ;
+  CLHEP::RandGaussQ*  fRandom ;
   
 };
 
