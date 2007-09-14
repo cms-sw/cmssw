@@ -6,7 +6,7 @@
 // Implementation:
 //
 // Original Author:  Jim Kowalkowski
-// $Id: PathTimerService.cc,v 1.8 2007/03/30 01:28:08 bdahmes Exp $
+// $Id: PathTimerService.cc,v 1.9 2007/08/17 14:49:05 bdahmes Exp $
 //
 
 #include "DQM/HLTEvF/interface/PathTimerService.h"
@@ -27,18 +27,19 @@
 #include <vector>
 #include <sys/time.h>
 #include <sstream>
+#include <math.h>
 
 using namespace std ;
 namespace edm {
     namespace service {
 
-//         static double getTime()  {
-//             struct timeval t;
-//             if(gettimeofday(&t,0)<0)
-//                 throw cms::Exception("SysCallFailed","Failed call to gettimeofday");
+        static double getTime()  {
+            struct timeval t;
+            if(gettimeofday(&t,0)<0)
+                throw cms::Exception("SysCallFailed","Failed call to gettimeofday");
       
-//             return (double)t.tv_sec + (double(t.tv_usec) * 1E-6);
-//         }
+            return (double)t.tv_sec + (double(t.tv_usec) * 1E-6);
+        }
 
         edm::CPUTimer* PathTimerService::_CPUtimer = 0;
 
@@ -87,7 +88,7 @@ namespace edm {
                     HLTPerformanceInfo::Modules::const_iterator iMod =
                         _perfInfo->findModule(modules[j].c_str());
                     if ( iMod == _perfInfo->endModules() ) {
-                        HLTPerformanceInfo::Module hltModule(modules[j].c_str(),0,0);
+                        HLTPerformanceInfo::Module hltModule(modules[j].c_str(),0.,0.,hlt::Ready);
                         _perfInfo->addModule(hltModule);
                     }
 
@@ -107,17 +108,15 @@ namespace edm {
                 _perfInfo->addPath(hltPath);
                 _newPathIndex.push_back(loc) ;
             }
-            // curr_job_ = getTime();
+            curr_job_ = getTime();
         }
 
-    void PathTimerService::postEndJob() {
-
-    }
+    void PathTimerService::postEndJob() {}
 
     void PathTimerService::preEventProcessing(const edm::EventID& iID,
 				    const edm::Timestamp& iTime) {
       curr_event_ = iID;
-      // curr_event_time_ = getTime();
+      curr_event_time_ = getTime();
 
       HLTPerformanceInfo::Modules::const_iterator iMod=_perfInfo->beginModules();
       while ( iMod != _perfInfo->endModules() ) {
@@ -135,28 +134,26 @@ namespace edm {
 	iter++;
       }
       while ( iCPU != _moduleCPUTime.end()) {
-	(*iter).second=0.;
-	iter++;
+	(*iCPU).second=0.;
+	iCPU++;
       }
 
     }
     void PathTimerService::postEventProcessing(const Event& e, const EventSetup&)  {
-
       total_event_count_ = total_event_count_ + 1;
     }
 
     void PathTimerService::preModule(const ModuleDescription&) {
-        // curr_module_time_ = getTime();
-      _CPUtimer->reset() ; 
-      _CPUtimer->start() ; 
+        _CPUtimer->reset() ; 
+        _CPUtimer->start() ; 
     }
 
       void PathTimerService::postModule(const ModuleDescription& desc) {
-          // double t = getTime() - curr_module_time_;
 
           _CPUtimer->stop() ;
           double tWall = _CPUtimer->realTime() ; 
-          double tCPU  = _CPUtimer->cpuTime() ; 
+          double tCPU  = _CPUtimer->cpuTime() ;
+          _CPUtimer->reset() ; 
       
           _moduleTime[desc.moduleLabel()] = tWall ;
           _moduleCPUTime[desc.moduleLabel()] = tCPU ; 
@@ -166,9 +163,8 @@ namespace edm {
           if ( iMod != _perfInfo->endModules() ) {
               HLTPerformanceInfo::Module *mod = const_cast<HLTPerformanceInfo::Module*>(&(*iMod));
               mod->setTime(tWall) ;
-              mod->setCPUTime(tCPU) ; 
+              mod->setCPUTime(tCPU) ;
           }
-
       }
 
       void PathTimerService::postPathProcessing(const std::string &name, 

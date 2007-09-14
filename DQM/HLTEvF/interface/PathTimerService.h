@@ -7,14 +7,13 @@
 // 
 //
 // Original Author:  David Lange
-// $Id: PathTimerService.h,v 1.4 2007/03/30 01:20:33 bdahmes Exp $
+// $Id: PathTimerService.h,v 1.5 2007/08/17 14:49:05 bdahmes Exp $
 //
 #include "sigc++/signal.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
 #include "DataFormats/Provenance/interface/EventID.h"
-//#include "DataFormats/HLTReco/interface/PathTiming.h"
 #include "DataFormats/HLTReco/interface/HLTPerformanceInfo.h"
 // Keep track of CPU time
 #include "FWCore/Utilities/interface/CPUTimer.h"
@@ -41,13 +40,11 @@ namespace edm {
             void postPathProcessing(const std::string&, const HLTPathStatus&);
             void preModule(const ModuleDescription&);
             void postModule(const ModuleDescription&);
-            //      void prePath(const PathDescription&);
-            //void postPath(const PathDescription&);
 
             edm::EventID curr_event_;
-            double curr_job_; // seconds
+            double curr_job_;         // seconds
             double curr_event_time_;  // seconds
-            // double curr_module_time_; // seconds
+            double curr_module_time_; // seconds
       
             //
             // Min Max and average event times for summary
