@@ -7,7 +7,7 @@
 
   Description: Example DQM Client 
 
-  $Id: SMDQMClientExample.cc,v 1.2 2007/04/26 01:04:36 hcheung Exp $
+  $Id: SMDQMClientExample.cc,v 1.3 2007/09/12 11:05:11 hcheung Exp $
 
 */
 
@@ -22,6 +22,8 @@
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/Framework/interface/Run.h"
+#include "FWCore/Framework/interface/LuminosityBlock.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
@@ -42,7 +44,11 @@ public:
    explicit SMDQMClientExample( const edm::ParameterSet& );
    ~SMDQMClientExample();
    
-  virtual void analyze( const edm::Event&, const edm::EventSetup& );
+  void analyze( const edm::Event&, const edm::EventSetup& );
+
+  void endLuminosityBlock(edm::LuminosityBlock const& lumiSeg,
+                          edm::EventSetup const& eSetup);
+  void endRun(edm::Run const& run, edm::EventSetup const& eSetup);
 
   virtual void endJob(void);
 
@@ -164,6 +170,20 @@ void SMDQMClientExample::analyze(const edm::Event& iEvent,
   }
 
   ++counter;
+}
+
+void SMDQMClientExample::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, 
+                                            edm::EventSetup const& eSetup)
+{
+  std::cout << "Doing end of lumi processing for lumi number "
+            << lumiSeg.luminosityBlock() << " of run " 
+            << lumiSeg.run() << std::endl;
+}
+
+void SMDQMClientExample::endRun(edm::Run const& run, edm::EventSetup const& eSetup)
+{
+  std::cout << "Doing end of run processing for run number "
+            <<  run.run() << std::endl;
 }
 
 //define this as a plug-in

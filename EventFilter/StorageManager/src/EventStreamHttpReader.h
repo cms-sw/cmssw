@@ -1,7 +1,7 @@
 #ifndef STREAMER_EVENTSTREAMHTTPREADER_H
 #define STREAMER_EVENTSTREAMHTTPREADER_H
 
-// $Id: EventStreamHttpReader.h,v 1.13 2007/05/16 22:55:03 hcheung Exp $
+// $Id: EventStreamHttpReader.h,v 1.14 2007/07/30 04:50:43 wmtan Exp $
 
 #include "IOPool/Streamer/interface/EventBuffer.h"
 #include "IOPool/Streamer/interface/StreamerInputSource.h"
@@ -48,6 +48,9 @@ namespace edm
     double minEventRequestInterval_;
     unsigned int consumerId_;
     struct timeval lastRequestTime_;
+    bool endRunAlreadyNotified_;
+    bool runEnded_;
+    bool alreadySaidHalted_;
   };
 
 }

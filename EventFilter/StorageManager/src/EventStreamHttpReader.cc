@@ -17,7 +17,7 @@
                 Manager or specify a maximum number of events for
                 the client to read through a maxEvents parameter.
 
-  $Id: EventStreamHttpReader.cc,v 1.20 2007/06/06 23:35:08 wmtan Exp $
+  $Id: EventStreamHttpReader.cc,v 1.21 2007/07/30 04:50:42 wmtan Exp $
 */
 
 #include "EventFilter/StorageManager/src/EventStreamHttpReader.h"
@@ -48,7 +48,10 @@ namespace edm
     edm::StreamerInputSource(ps, desc),
     sourceurl_(ps.getParameter<string>("sourceURL")),
     buf_(1000*1000*7), 
-    events_read_(0)
+    events_read_(0),
+    endRunAlreadyNotified_(true),
+    runEnded_(false),
+    alreadySaidHalted_(false)
   {
     std::string evturl = sourceurl_ + "/geteventdata";
     int stlen = evturl.length();
@@ -120,11 +123,12 @@ namespace edm
 
     bool gotEvent = false;
     std::auto_ptr<EventPrincipal> result(0);
-    while (!gotEvent)
+    while ((!gotEvent) && (!runEnded_))
     {
        result = getOneEvent();
        if(result.get() != NULL) gotEvent = true;
     }
+    if(runEnded_) runEnded_ = false;
     return result;
   }
 
@@ -231,9 +235,20 @@ namespace edm
 
     if (msgView.code() == Header::DONE) {
       // no need to register again as the SM/EventServer is kept alive on a stopAction
-      std::cout << "Storage Manager has halted - waiting for restart" << std::endl;
+      if(!alreadySaidHalted_) {
+        alreadySaidHalted_ = true;
+        std::cout << "Storage Manager has halted - waiting for restart" << std::endl;
+      }
+      // decide if we need to notify that a run has ended
+      if(!endRunAlreadyNotified_) {
+        endRunAlreadyNotified_ = true;
+        setEndRun();
+        runEnded_ = true;
+      }
       return std::auto_ptr<edm::EventPrincipal>();
     } else {
+      // reset need-to-set-end-run flag when we get the first event (here any event)
+      endRunAlreadyNotified_ = false;
       events_read_++;
       EventMsgView eventView(&buf_[0]);
       return deserializeEvent(eventView);

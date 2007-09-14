@@ -2,7 +2,7 @@
  *  An input source for DQM consumers run in cmsRun that connect to
  *  the StorageManager or SMProxyServer to get DQM data.
  *
- *  $Id: DQMHttpSource.cc,v 1.6 2007/05/16 22:55:03 hcheung Exp $
+ *  $Id: DQMHttpSource.cc,v 1.7 2007/06/13 14:50:28 hcheung Exp $
  */
 
 #include "EventFilter/StorageManager/src/DQMHttpSource.h"
@@ -36,7 +36,8 @@ namespace edm
     sourceurl_(pset.getUntrackedParameter<string>("sourceURL")),
     buf_(1000*1000*7), 
     events_read_(0),
-    consumerTopFolderName_(pset.getUntrackedParameter<string>("topLevelFolderName"))
+    consumerTopFolderName_(pset.getUntrackedParameter<string>("topLevelFolderName")),
+    alreadySaidHalted_(false)
   {
     std::string evturl = sourceurl_ + "/getDQMeventdata";
     int stlen = evturl.length();
@@ -194,8 +195,11 @@ namespace edm
     if (msgView.code() == Header::DONE) {
       // Continue past run boundaries (SM halt)
       // no need to register again as the SM/EventServer is kept alive on a stopAction
-      std::cout << "Storage Manager has halted - waiting for restart" << std::endl;
-       return std::auto_ptr<edm::Event>();
+     if(!alreadySaidHalted_) {
+       alreadySaidHalted_ = true;
+       std::cout << "Storage Manager has halted - waiting for restart" << std::endl;
+     }
+     return std::auto_ptr<edm::Event>();
     } else {
       // counting the updates
       ++updatesCounter_;
