@@ -13,11 +13,6 @@ namespace cond{
   class ConnectionHandler{
   public:
     static ConnectionHandler& Instance();
-    /// register pool-capable connection with a given name 
-    void registerConnection(const std::string& name,
-			    const std::string& con,
-			    const std::string& filecatalog,
-			    unsigned int timeOutInSec=0);
     /// register coral only connection with a given name
     void registerConnection(const std::string& name,
 			    const std::string& con,

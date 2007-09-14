@@ -15,7 +15,6 @@ namespace cond{
     public ITransactionObserver{
   public:
     PoolConnectionProxy(const std::string& con,
-			const std::string& catalog,
 			bool isReadOnly,
 			unsigned int connectionTimeOut);
     ~PoolConnectionProxy();
@@ -35,11 +34,11 @@ namespace cond{
     pool::IDataSvc* m_datasvc;
     cond::ITransaction* m_transaction;
     std::string m_con;
-    mutable pool::IFileCatalog* m_catalog;
     bool m_isReadOnly;
     unsigned int m_transactionCounter;
     unsigned int m_connectionTimeOut;
     boost::timer m_timer;
+    pool::IFileCatalog* m_catalog;
   };
 }
 #endif

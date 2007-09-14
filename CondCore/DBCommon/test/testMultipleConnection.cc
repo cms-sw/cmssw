@@ -25,8 +25,8 @@ int main(){
   session->configuration().setMessageLevel( cond::Error );
   session->configuration().setAuthenticationMethod(cond::XML);
   static cond::ConnectionHandler& conHandler=cond::ConnectionHandler::Instance();
-  conHandler.registerConnection("mysqlite1","sqlite_file:mydata.db","file:mycatalog.xml",0);
-  conHandler.registerConnection("mysqlite2","sqlite_file:miodati.db","file:mycatalog.xml",0);
+  conHandler.registerConnection("mysqlite1","sqlite_file:mydata.db",0);
+  conHandler.registerConnection("mysqlite2","sqlite_file:miodati.db",0);
   session->open();
   conHandler.connect(session);
   cond::Connection* myconnection=conHandler.getConnection("mysqlite1");

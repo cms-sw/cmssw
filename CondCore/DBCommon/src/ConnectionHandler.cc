@@ -1,13 +1,6 @@
 #include "CondCore/DBCommon/interface/ConnectionHandler.h"
 #include "CondCore/DBCommon/interface/Connection.h"
 #include "CondCore/DBCommon/interface/DBSession.h"
-void 
-cond::ConnectionHandler::registerConnection(const std::string& name,
-					    const std::string& con,
-					    const std::string& filecatalog,
-					    unsigned int connectionTimeout){
-  m_registry.insert(std::make_pair<std::string,cond::Connection*>(name,new cond::Connection(con,filecatalog,connectionTimeout)));
-}
 void
 cond::ConnectionHandler::registerConnection(const std::string& name,
 					    const std::string& con,

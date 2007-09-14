@@ -5,19 +5,8 @@
 #include "PoolConnectionProxy.h"
 #include "CoralConnectionProxy.h"
 cond::Connection::Connection(const std::string& con,
-			     const std::string& catalog,
 			     unsigned int connectionTimeOut):
   m_con( con ),
-  m_catalog( catalog ),
-  m_connectionTimeOut ( connectionTimeOut )
-{
-  m_poolConnectionPool.reserve(10);
-  m_coralConnectionPool.reserve(10);
-}
-cond::Connection::Connection(const std::string& con,
-			     unsigned int connectionTimeOut):
-  m_con( con ),
-  m_catalog( "" ),
   m_connectionTimeOut ( connectionTimeOut )
 {
   m_coralConnectionPool.reserve(10);
@@ -74,7 +63,7 @@ cond::Connection::poolTransaction(bool isReadOnly){
       }
     }
   }
-  cond::PoolConnectionProxy* me=new cond::PoolConnectionProxy(m_con,m_catalog,isReadOnly,m_connectionTimeOut); 
+  cond::PoolConnectionProxy* me=new cond::PoolConnectionProxy(m_con,isReadOnly,m_connectionTimeOut); 
   m_poolConnectionPool.push_back(me);
   return static_cast<cond::PoolTransaction&>(me->transaction());
 }
@@ -82,7 +71,7 @@ std::string
 cond::Connection::connectStr() const{
   return m_con;
 }
-std::string 
-cond::Connection::catalogStr() const{
-  return m_catalog;
-}
+//std::string 
+//cond::Connection::catalogStr() const{
+//  return m_catalog;
+//}

@@ -8,30 +8,32 @@
 #include "DataSvc/DataSvcFactory.h"
 #include "DataSvc/IDataSvc.h"
 #include "FileCatalog/IFileCatalog.h"
+//#include <iostream>
 cond::PoolConnectionProxy::PoolConnectionProxy(const std::string& con,
-					       const std::string& catalog,
 					       bool isReadOnly,
 					       unsigned int connectionTimeOut):
   m_datasvc( 0 ),
   m_transaction( 0 ),
   m_con( con ),
-  m_catalog( new pool::IFileCatalog ),
   m_isReadOnly( isReadOnly ),
   m_transactionCounter( 0 ),
-  m_connectionTimeOut( connectionTimeOut )
+  m_connectionTimeOut( connectionTimeOut ),
+  m_catalog( new pool::IFileCatalog ) 
 {
-  m_catalog->setWriteCatalog(catalog);
-  //if(!m_isReadOnly){
-  //}else{
-  //  m_catalog->addReadCatalog(catalog);
-  //}
+  std::string catconnect("pfncatalog_memory://POOL_RDBMS?");
+  catconnect.append(con);
+  m_catalog->setWriteCatalog(catconnect);
+  m_catalog->connect();
+  m_catalog->start();
 }
 cond::PoolConnectionProxy::~PoolConnectionProxy(){
   //std::cout<<"PoolConnectionProxy::~PoolConnectionProxy"<<std::endl;
-  //m_catalog->disconnect();
+  m_catalog->commit();
+  m_catalog->disconnect();
   //m_datasvc->session().disconnectAll();
   delete m_transaction;
   delete m_datasvc;
+  delete m_catalog;
   m_datasvc=0;
 }
 cond::ITransaction&  
@@ -65,21 +67,14 @@ cond::PoolConnectionProxy::connect(){
   policy.setWriteModeForExisting(pool::DatabaseConnectionPolicy::UPDATE);
   policy.setReadMode(pool::DatabaseConnectionPolicy::READ);
   m_datasvc->session().setDefaultConnectionPolicy(policy);
-  m_catalog->connect();
-  m_catalog->start();
   if(m_connectionTimeOut!=0){
     m_timer.restart();
   }
-  
 }
 void
 cond::PoolConnectionProxy::disconnect(){
   m_datasvc->transaction().commit();
-  m_catalog->commit();
-  m_catalog->disconnect();
   m_datasvc->session().disconnectAll();
-  //delete m_datasvc;
-  //m_datasvc=0;
 }
 void 
 cond::PoolConnectionProxy::reactOnStartOfTransaction( const ITransaction* transactionSubject ){
