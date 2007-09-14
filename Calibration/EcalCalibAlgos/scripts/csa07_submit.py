@@ -83,8 +83,13 @@ def main():
 
  nfilesroot = len(runs_list)/n
  
- for jobcount in range(n):    
-      inputfilefrag = runs_list[(jobcount*nfilesroot):((jobcount+1)*nfilesroot)]                     
+ for jobcount in range(n):
+      # solving logic problem
+      if jobcount != (n-1):
+         inputfilefrag = runs_list[(jobcount*nfilesroot):((jobcount+1)*nfilesroot)]
+      else:
+         inputfilefrag = runs_list[(jobcount*nfilesroot):]
+      
       outputfile = outputfile_basename+str(jobcount)+".root"
       configuration_file = open(conffile_template)
       data = configuration_file.read()
