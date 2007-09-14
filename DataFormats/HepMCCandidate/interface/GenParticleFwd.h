@@ -4,12 +4,11 @@
 #include "DataFormats/Common/interface/Ref.h"
 #include "DataFormats/Common/interface/RefProd.h"
 #include "DataFormats/Common/interface/RefVector.h"
-#include "DataFormats/Common/interface/Vector.h"
 
 namespace reco {
   class GenParticle;
   /// collection of GenParticles
-  typedef edm::Vector<GenParticle> GenParticleCollection;
+  typedef std::vector<GenParticle> GenParticleCollection;
   /// persistent reference to a GenParticle
   typedef edm::Ref<GenParticleCollection> GenParticleRef;
   /// persistent reference to a GenParticle collection
