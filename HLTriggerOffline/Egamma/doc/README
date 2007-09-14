@@ -1,0 +1,57 @@
+************************************************
+* Validation/Optimization Tools for HLTOffline *
+* by Joshua Berger                             *
+************************************************
+
+Instructions for running code:
+
+1. Compile the code as usual using scramv1 b.
+
+2. Find a suitable sample to run on.  The sample should have RAW since the HLT now works from RAW.  
+   Insert this in PoolSource.fileNames in test/HLTRecoWithoutFilters.cfg.
+
+3. Change the output file name to something suitable for the input file.  The output of this stage 
+   will be a root file containing all the HLT isolation variables and some other quantities of 
+   interest for e/gamma.  Then do
+
+		> cmsRun HLTRecoWithoutFilters.cfg
+
+For Validation:
+4. Edit macros/Get*Eff.C, where * is the name of one of the Egamma HLT paths: SingleElectron, 
+   RelaxedSingleElectron, etc.  Change the TFile argument to the file created in 3.  Change the cuts 
+   at the beginning of the file to the cuts you would like to test.  These are currently the cuts in 
+   the actual HLT code as of 1_6_0.
+
+5. Do the following:
+
+                > cd <path-to-HLTriggerOffline/Egamma>/macros
+		> root.exe
+		[] .L CopyTreeMulti.C; // Only if running a Double trigger
+		[] .x Get*Eff.C
+
+   The output will be as follows: a text output to stdout of the number of events passing each filter
+   and the efficiency of each filter and 3 graphs of efficiency vs. Et, eta, phi to 
+   macros/images/EffV(Et/eta/phi)(SE/RSE/etc.).gif.
+
+Bugs:
+- Root scripts produce a long series of errors that do no affect the output.  I see no way to get rid
+  of these in the current version of root (unfortunately).
+- When eff = 1, the errors are calculated using some Bayesian algorithm in this version root.  This is
+  changed to the more usual "error = 0 for eff = 1" way of working in newer versions of root.
+
+For Optimization:
+6. Repeat 2-3 for a background sample, giving the output a different name.
+
+7. Edit macros/GetOptimization.C.  Change the signal and background file names to reflect those from 3.
+   and 6.  Then do:
+
+		> root.exe // in macros directory
+		[] .L GetEntriesMulti.C
+		[] .x GetOptimization.C
+
+  The output will be a graph of Efficiency vs. Background for each trigger path filter eventually;
+  currently only for the Et filter in electrons.
+
+Bugs:
+- Completely untested in 1_6_0 due to lack of background samples.
+- Only does one filter for now, but can easily be scaled up after testing.
