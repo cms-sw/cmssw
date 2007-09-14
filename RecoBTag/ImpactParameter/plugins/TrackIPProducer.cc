@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea Rizzi
 //         Created:  Thu Apr  6 09:56:23 CEST 2006
-// $Id: TrackIPProducer.cc,v 1.7 2007/07/30 17:54:50 fwyzard Exp $
+// $Id: TrackIPProducer.cc,v 1.8 2007/08/22 12:38:13 arizzi Exp $
 //
 //
 
@@ -41,7 +41,7 @@
 #include "TrackingTools/Records/interface/TransientTrackRecord.h"
 
 #include "RecoBTag/TrackProbability/interface/HistogramProbabilityEstimator.h"
-#include "RecoBTag/ImpactParameter/interface/TrackIPProducer.h"
+#include "RecoBTag/ImpactParameter/plugins/TrackIPProducer.h"
 
 using namespace std;
 using namespace reco;
@@ -160,38 +160,43 @@ TrackIPProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
         TrackRefVector selectedTracks;
         vector<Measurement1D> ip3Dv,ip2Dv,dLenv,jetDistv;
         vector<float> prob2D,prob3D;
+        vector<TrackIPTagInfo::TrackIPData> ipData;
+
        for (TrackRefVector::const_iterator itTrack = tracks.begin(); itTrack != tracks.end(); ++itTrack) {
              const Track & track = **itTrack;
      	     const TransientTrack & transientTrack = builder->build(&(**itTrack));
-           
-             //FIXME: this stuff is computed twice. transienttrack like container in IPTools for caching? 
-             //       is it needed? does it matter at HLT?
-             float distToAxis = IPTools::jetTrackDistance(transientTrack,direction,*pv).second.value();
-             float dLen = IPTools::signedDecayLength3D(transientTrack,direction,*pv).second.value();
 
-         if( track.pt() > m_cutMinPt  &&                          // minimum pt
+         if(     track.pt() > m_cutMinPt  &&                          // minimum pt
                  fabs(track.d0()) < m_cutMaxTIP &&                // max transverse i.p.
                  track.hitPattern().numberOfValidHits() >= m_cutTotalHits &&         // min num tracker hits
-                 fabs(track.dz()-pvZ) < m_cutMaxLIP &&            // z-impact parameter
+                 fabs(track.dz()-pvZ) < m_cutMaxLIP &&            // z-impact parameter, loose only to reject PU
                  track.normalizedChi2() < m_cutMaxChiSquared &&   // normalized chi2
-                 fabs(distToAxis) < m_cutMaxDistToAxis  &&        // distance to JetAxis
-                 fabs(dLen) < m_cutMaxDecayLen &&                 // max decay len
                  track.hitPattern().numberOfValidPixelHits() >= m_cutPixelHits //min # pix hits 
            )     // quality cuts
         { 
          //Fill vectors
-         selectedTracks.push_back(*itTrack);
          ip3Dv.push_back(IPTools::signedImpactParameter3D(transientTrack,direction,*pv).second);
          ip2Dv.push_back(IPTools::signedTransverseImpactParameter(transientTrack,direction,*pv).second);
          dLenv.push_back(IPTools::signedDecayLength3D(transientTrack,direction,*pv).second);
          jetDistv.push_back(IPTools::jetTrackDistance(transientTrack,direction,*pv).second);
+
+         TrackIPTagInfo::TrackIPData trackIp;
+         trackIp.ip3d=IPTools::signedImpactParameter3D(transientTrack,direction,*pv).second;
+         trackIp.ip2d=IPTools::signedTransverseImpactParameter(transientTrack,direction,*pv).second;
+         trackIp.closestToJetAxis=IPTools::closestApproachToJet(transientTrack.impactPointState(), *pv, direction,transientTrack.field()).globalPosition();
+         //TODO:cross check if it is the same using other methods
+         trackIp.distanceToJetAxis=IPTools::jetTrackDistance(transientTrack,direction,*pv).second.value();
+ 
+         ipData.push_back(trackIp);
+         selectedTracks.push_back(*itTrack);
+
          if(m_computeProbabilities) {
               //probability with 3D ip
-              pair<bool,double> probability =  m_probabilityEstimator->probability(0,ip3Dv.back().significance(),track,*(it->first),*pv);
+              pair<bool,double> probability =  m_probabilityEstimator->probability(0,ipData.back().ip3d.significance(),track,*(it->first),*pv);
               if(probability.first)  prob3D.push_back(probability.second); else  prob3D.push_back(-1.); 
               
               //probability with 2D ip
-              probability =  m_probabilityEstimator->probability(1,ip2Dv.back().significance(),track,*(it->first),*pv);
+              probability =  m_probabilityEstimator->probability(1,ipData.back().ip2d.significance(),track,*(it->first),*pv);
               if(probability.first)  prob2D.push_back(probability.second); else  prob2D.push_back(-1.); 
 
           } 
@@ -199,7 +204,7 @@ TrackIPProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
          } // quality cuts if
      
       } //track loop
-       TrackIPTagInfo tagInfo(ip2Dv,ip3Dv,dLenv,jetDistv,prob2D,prob3D,selectedTracks,
+       TrackIPTagInfo tagInfo(ipData,prob2D,prob3D,selectedTracks,
                               edm::Ref<JetTracksAssociationCollection>(jetTracksAssociation,i),
                               *pvRef);
        outCollection->push_back(tagInfo); 
@@ -264,6 +269,4 @@ using namespace edm::eventsetup;
 }
 
 
-//define this as a plug-in
-DEFINE_FWK_MODULE(TrackIPProducer);
 

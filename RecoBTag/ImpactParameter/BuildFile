@@ -1,17 +1,8 @@
-<use name=CondFormats/BTauObjects>
-<use name=CondFormats/DataRecord>
 <use name=DataFormats/BTauReco>
-<use name=DataFormats/TrackReco>
-<use name=FWCore/Framework>
-<use name=FWCore/ParameterSet>
-<use name=RecoBTag/TrackProbability>
-<use name=RecoBTag/XMLCalibration>
-<use name=TrackingTools/IPTools>
-<use name=TrackingTools/Records>
-<use name=TrackingTools/TransientTrack>
-<flags EDM_PLUGIN="1">
+      <flags EDM_PLUGIN=1>
+
 <export>
-  <use name=FWCore/Framework>
+  <use name=DataFormats/BTauReco>
   <lib name=RecoBTagImpactParameter>
 </export>
 
