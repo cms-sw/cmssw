@@ -49,8 +49,8 @@ std::cout << std::endl;
 CondCachedIter<EcalPedestals> Iterator;
 Iterator.create(NameDB,FileXml,FileData,User,Password);
 
-Iterator.setMin(10);
 Iterator.setMax(170);
+Iterator.setMin(10);
 
 std::cout << "Iterator has been created ..."<<std::endl;
 
