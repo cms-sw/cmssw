@@ -41,13 +41,14 @@
 #include "DataFormats/L1GlobalMuonTrigger/interface/L1MuGMTExtendedCand.h"
 #include "DataFormats/L1GlobalMuonTrigger/interface/L1MuGMTReadoutCollection.h"
 
+#include "DataFormats/Common/interface/RefProd.h"
+
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/InputTag.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
+
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
-
-#include "DataFormats/Common/interface/RefProd.h"
 
 #include "FWCore/Utilities/interface/EDMException.h"
 
@@ -56,6 +57,13 @@
 
 #include "CondFormats/L1TObjects/interface/L1MuTriggerScales.h"
 #include "CondFormats/DataRecord/interface/L1MuTriggerScalesRcd.h"
+
+#include "CondFormats/L1TObjects/interface/L1GtFwd.h"
+#include "CondFormats/L1TObjects/interface/L1GtBoard.h"
+
+#include "CondFormats/L1TObjects/interface/L1GtBoardMaps.h"
+#include "CondFormats/DataRecord/interface/L1GtBoardMapsRcd.h"
+
 
 // constructor(s)
 L1GlobalTriggerRawToDigi::L1GlobalTriggerRawToDigi(const edm::ParameterSet& pSet)
@@ -75,7 +83,7 @@ L1GlobalTriggerRawToDigi::L1GlobalTriggerRawToDigi(const edm::ParameterSet& pSet
 
     // FED Id for GT DAQ record
     // default value defined in DataFormats/FEDRawData/src/FEDNumbering.cc
-    // default value: assume the DAQ record is the last GT record 
+    // default value: assume the DAQ record is the last GT record
     m_daqGtFedId = pSet.getUntrackedParameter<int>(
                        "DaqGtFedId", FEDNumbering::getTriggerGTPFEDIds().second);
 
@@ -143,15 +151,24 @@ L1GlobalTriggerRawToDigi::~L1GlobalTriggerRawToDigi()
 void L1GlobalTriggerRawToDigi::beginJob(const edm::EventSetup& evSetup)
 {
 
-  edm::ESHandle< L1MuTriggerScales > trigscales_h;
-  evSetup.get< L1MuTriggerScalesRcd >().get( trigscales_h );
-  m_TriggerScales = trigscales_h.product();
+    edm::ESHandle< L1MuTriggerScales > trigscales_h;
+    evSetup.get< L1MuTriggerScalesRcd >().get( trigscales_h );
+    m_TriggerScales = trigscales_h.product();
 
 }
 
 // method called to produce the data
 void L1GlobalTriggerRawToDigi::produce(edm::Event& iEvent, const edm::EventSetup& evSetup)
 {
+
+    // get records from EventSetup
+
+    //  board maps
+    edm::ESHandle< L1GtBoardMaps > l1GtBM;
+    evSetup.get< L1GtBoardMapsRcd >().get( l1GtBM );
+
+
+    // raw collection
 
     edm::Handle<FEDRawDataCollection> fedHandle;
     iEvent.getByLabel(m_daqGtInputTag.label(), fedHandle);
@@ -188,12 +205,10 @@ void L1GlobalTriggerRawToDigi::produce(edm::Event& iEvent, const edm::EventSetup
     unpackHeader(ptrGt, cmsHeader);
     ptrGt += headerSize; // advance with header size
 
-    //
-    L1GlobalTriggerReadoutSetup tmpGtSetup; // TODO FIXME temporary event setup
-    std::map<int, L1GlobalTriggerReadoutSetup::GtBoard> recordMap =
-        tmpGtSetup.GtDaqRecordMap;
+    // get record map
+    std::map<int, L1GtBoard> recordMap = l1GtBM->gtDaqRecordMap();
+    typedef std::map<int, L1GtBoard>::const_iterator CItRecord;
 
-    typedef std::map<int, L1GlobalTriggerReadoutSetup::GtBoard>::const_iterator CItRecord;
 
     // unpack first GTFE to find the length of the record and the active boards
     // here GTFE assumed immediately after the header, the loop is superfluous
@@ -203,7 +218,7 @@ void L1GlobalTriggerRawToDigi::produce(edm::Event& iEvent, const edm::EventSetup
     for (CItRecord itRecord = recordMap.begin();
             itRecord != recordMap.end(); ++itRecord) {
 
-        if (itRecord->second.boardType == GTFE) {
+        if (itRecord->second.boardType() == GTFE) {
 
             // unpack GTFE
             m_gtfeWord->unpack(ptrGt);
@@ -372,9 +387,9 @@ void L1GlobalTriggerRawToDigi::produce(edm::Event& iEvent, const edm::EventSetup
 
     // loop over other blocks in the raw record, if they are active
 
-    std::map<L1GlobalTriggerReadoutSetup::GtBoard, int> activeBoardsMap =
-        tmpGtSetup.GtDaqActiveBoardsMap;
-    typedef std::map<L1GlobalTriggerReadoutSetup::GtBoard, int>::const_iterator CItActive;
+    // get "active boards" map
+    std::map<L1GtBoard, int> activeBoardsMap = l1GtBM->gtDaqActiveBoardsMap();
+    typedef std::map<L1GtBoard, int>::const_iterator CItActive;
 
 
     // first, clean the L1GlobalTriggerReadoutRecord of un-necessary empty boards ...
@@ -394,8 +409,8 @@ void L1GlobalTriggerRawToDigi::produce(edm::Event& iEvent, const edm::EventSetup
         } else {
             // board not found in the map (pretty strange, throw exception? TODO)
             LogDebug("L1GlobalTriggerRawToDigi")
-            << "\nBoard of type " << itRecord->second.boardType
-            << " with index "  << itRecord->second.boardIndex
+            << "\nBoard of type " << itRecord->second.boardType()
+            << " with index "  << itRecord->second.boardIndex()
             << " not found in the activeBoardsMap\n"
             << std::endl;
 
@@ -404,8 +419,8 @@ void L1GlobalTriggerRawToDigi::produce(edm::Event& iEvent, const edm::EventSetup
 
         if (activeBoardToUnpack) {
             LogDebug("L1GlobalTriggerRawToDigi")
-            << "\nBoard of type " << itRecord->second.boardType
-            << " with index "  << itRecord->second.boardIndex
+            << "\nBoard of type " << itRecord->second.boardType()
+            << " with index "  << itRecord->second.boardIndex()
             << "\nexists in the raw data and is requested to be unpacked.\n"
             << std::endl;
 
@@ -416,7 +431,7 @@ void L1GlobalTriggerRawToDigi::produce(edm::Event& iEvent, const edm::EventSetup
             // all FDL and PSB boards are created in constructor
             // for the required number of BxInEvent at the beginning
 
-            switch (itRecord->second.boardType) {
+            switch (itRecord->second.boardType()) {
 
                 case FDL: {
 
@@ -486,8 +501,8 @@ void L1GlobalTriggerRawToDigi::produce(edm::Event& iEvent, const edm::EventSetup
 
         if ( !activeBoardInitial ) {
             LogDebug("L1GlobalTriggerRawToDigi")
-            << "\nBoard of type " << itRecord->second.boardType
-            << " with index "  << itRecord->second.boardIndex
+            << "\nBoard of type " << itRecord->second.boardType()
+            << " with index "  << itRecord->second.boardIndex()
             << " not active initially in raw data (from activeBoardsMap)\n"
             << std::endl;
 
@@ -495,7 +510,7 @@ void L1GlobalTriggerRawToDigi::produce(edm::Event& iEvent, const edm::EventSetup
         }
 
         // active board initially, could unpack it
-        switch (itRecord->second.boardType) {
+        switch (itRecord->second.boardType()) {
 
             case FDL: {
                     for (int iFdl = 0; iFdl < m_totalBxInEvent; ++iFdl) {
@@ -828,9 +843,12 @@ void L1GlobalTriggerRawToDigi::unpackGMT(
                 cand.setPhiValue( m_TriggerScales->getPhiScale()->getLowEdge( cand.phiIndex() ));
                 cand.setEtaValue( m_TriggerScales->getGMTEtaScale()->getCenter( cand.etaIndex() ));
                 cand.setPtValue( m_TriggerScales->getPtScale()->getLowEdge( cand.ptIndex() ));
-                if(im<4) gmtrr.setGMTBrlCand(im, cand);
-                else if(im<8) gmtrr.setGMTFwdCand(im-4, cand);
-                else gmtrr.setGMTCand(im-8, cand);
+                if(im<4)
+                    gmtrr.setGMTBrlCand(im, cand);
+                else if(im<8)
+                    gmtrr.setGMTFwdCand(im-4, cand);
+                else
+                    gmtrr.setGMTCand(im-8, cand);
             }
 
             // skip the two sort rank words and two chip BX words

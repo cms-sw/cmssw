@@ -45,6 +45,15 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/MessageLogger/interface/MessageDrop.h"
 
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+
+#include "CondFormats/L1TObjects/interface/L1GtFwd.h"
+#include "CondFormats/L1TObjects/interface/L1GtBoard.h"
+
+#include "CondFormats/L1TObjects/interface/L1GtBoardMaps.h"
+#include "CondFormats/DataRecord/interface/L1GtBoardMapsRcd.h"
+
 
 // constructor(s)
 L1GTEvmDigiToRaw::L1GTEvmDigiToRaw(const edm::ParameterSet& pSet)
@@ -52,7 +61,7 @@ L1GTEvmDigiToRaw::L1GTEvmDigiToRaw(const edm::ParameterSet& pSet)
 
     // FED Id for GT EVM record
     // default value defined in DataFormats/FEDRawData/src/FEDNumbering.cc
-    // default value: assume the EVM record is the first GT record 
+    // default value: assume the EVM record is the first GT record
     m_evmGtFedId = pSet.getUntrackedParameter<int>(
                        "EvmGtFedId", FEDNumbering::getTriggerGTPFEDIds().first);
 
@@ -108,6 +117,12 @@ void L1GTEvmDigiToRaw::beginJob(const edm::EventSetup& evSetup)
 void L1GTEvmDigiToRaw::produce(edm::Event& iEvent, const edm::EventSetup& evSetup)
 {
 
+    // get records from EventSetup
+
+    //  board maps
+    edm::ESHandle< L1GtBoardMaps > l1GtBM;
+    evSetup.get< L1GtBoardMapsRcd >().get( l1GtBM );
+
     // get L1GlobalTriggerEvmReadoutRecord
     edm::Handle<L1GlobalTriggerEvmReadoutRecord> gtReadoutRecord;
     iEvent.getByLabel(m_evmGtInputTag.label(), gtReadoutRecord);
@@ -123,12 +138,9 @@ void L1GTEvmDigiToRaw::produce(edm::Event& iEvent, const edm::EventSetup& evSetu
         << std::endl;
     }
 
-    //
-    L1GlobalTriggerReadoutSetup tmpGtSetup; // TODO FIXME temporary event setup
-    std::map<int, L1GlobalTriggerReadoutSetup::GtBoard> recordMap =
-        tmpGtSetup.GtEvmRecordMap;
-
-    typedef std::map<int, L1GlobalTriggerReadoutSetup::GtBoard>::const_iterator CItRecord;
+    // get record map
+    std::map<int, L1GtBoard> recordMap = l1GtBM->gtEvmRecordMap();
+    typedef std::map<int, L1GtBoard>::const_iterator CItRecord;
 
     // get GTFE block
     L1GtfeExtWord gtfeBlock = gtReadoutRecord->gtfeWord();
@@ -151,7 +163,7 @@ void L1GTEvmDigiToRaw::produce(edm::Event& iEvent, const edm::EventSetup& evSetu
     for (CItRecord itRecord = recordMap.begin();
             itRecord != recordMap.end(); ++itRecord) {
 
-        if (itRecord->second.boardType == GTFE) {
+        if (itRecord->second.boardType() == GTFE) {
 
             gtfeKey = itRecord->first;
             break; // there is only one GTFE block
@@ -193,10 +205,9 @@ void L1GTEvmDigiToRaw::produce(edm::Event& iEvent, const edm::EventSetup& evSetu
     << std::dec << std::setfill(' ') << " \n"
     << std::endl;
 
-    std::map<L1GlobalTriggerReadoutSetup::GtBoard, int> activeBoardsMap =
-        tmpGtSetup.GtEvmActiveBoardsMap;
-    typedef std::map<L1GlobalTriggerReadoutSetup::GtBoard, int>::const_iterator CItActive;
-
+    // get "active boards" map
+    std::map<L1GtBoard, int> activeBoardsMap = l1GtBM->gtEvmActiveBoardsMap();
+    typedef std::map<L1GtBoard, int>::const_iterator CItActive;
 
     // get the size of the record
 
@@ -225,8 +236,8 @@ void L1GTEvmDigiToRaw::produce(edm::Event& iEvent, const edm::EventSetup& evSetu
 
             // board not found in the map
             LogDebug("L1GTEvmDigiToRaw")
-            << "\nBoard of type " << itRecord->second.boardType
-            << " with index "  << itRecord->second.boardIndex
+            << "\nBoard of type " << itRecord->second.boardType()
+            << " with index "  << itRecord->second.boardIndex()
             << " not found in the activeBoardsMap\n"
             << std::endl;
 
@@ -236,8 +247,8 @@ void L1GTEvmDigiToRaw::produce(edm::Event& iEvent, const edm::EventSetup& evSetu
         if ( !activeBoard ) {
 
             LogDebug("L1GTEvmDigiToRaw")
-            << "\nBoard of type " << itRecord->second.boardType
-            << " with index "  << itRecord->second.boardIndex
+            << "\nBoard of type " << itRecord->second.boardType()
+            << " with index "  << itRecord->second.boardIndex()
             << " not active (from activeBoardsMap)\n"
             << std::endl;
 
@@ -245,7 +256,7 @@ void L1GTEvmDigiToRaw::produce(edm::Event& iEvent, const edm::EventSetup& evSetu
         }
 
         // active board, add its size
-        switch (itRecord->second.boardType) {
+        switch (itRecord->second.boardType()) {
 
             case TCS: {
                     L1TcsWord tcsBlock;
@@ -329,8 +340,8 @@ void L1GTEvmDigiToRaw::produce(edm::Event& iEvent, const edm::EventSetup& evSetu
             // board not found in the map
 
             LogDebug("L1GTEvmDigiToRaw")
-            << "\nBoard of type " << itRecord->second.boardType
-            << " with index "  << itRecord->second.boardIndex
+            << "\nBoard of type " << itRecord->second.boardType()
+            << " with index "  << itRecord->second.boardIndex()
             << " not found in the activeBoardsMap\n"
             << std::endl;
 
@@ -340,8 +351,8 @@ void L1GTEvmDigiToRaw::produce(edm::Event& iEvent, const edm::EventSetup& evSetu
         if ( !activeBoard ) {
 
             LogDebug("L1GTEvmDigiToRaw")
-            << "\nBoard of type " << itRecord->second.boardType
-            << " with index "  << itRecord->second.boardIndex
+            << "\nBoard of type " << itRecord->second.boardType()
+            << " with index "  << itRecord->second.boardIndex()
             << " not active (from activeBoardsMap)\n"
             << std::endl;
 
@@ -349,13 +360,13 @@ void L1GTEvmDigiToRaw::produce(edm::Event& iEvent, const edm::EventSetup& evSetu
         }
 
         // active board, pack it
-        switch (itRecord->second.boardType) {
+        switch (itRecord->second.boardType()) {
 
             case TCS: {
 
-                        L1TcsWord tcsBlock = gtReadoutRecord->tcsWord();
-                        packTCS(evSetup, ptrGt, tcsBlock);
-                        ptrGt += tcsBlock.getSize(); // advance with TCS block size
+                    L1TcsWord tcsBlock = gtReadoutRecord->tcsWord();
+                    packTCS(evSetup, ptrGt, tcsBlock);
+                    ptrGt += tcsBlock.getSize(); // advance with TCS block size
 
                 }
                 break;
@@ -513,7 +524,7 @@ void L1GTEvmDigiToRaw::packTCS(
 
 
         // FIXME
-        
+
     }
 
     // put the words in the FED record

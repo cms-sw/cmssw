@@ -51,6 +51,14 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/MessageLogger/interface/MessageDrop.h"
 
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+
+#include "CondFormats/L1TObjects/interface/L1GtFwd.h"
+#include "CondFormats/L1TObjects/interface/L1GtBoard.h"
+
+#include "CondFormats/L1TObjects/interface/L1GtBoardMaps.h"
+#include "CondFormats/DataRecord/interface/L1GtBoardMapsRcd.h"
 
 // constructor(s)
 L1GTDigiToRaw::L1GTDigiToRaw(const edm::ParameterSet& pSet)
@@ -58,7 +66,7 @@ L1GTDigiToRaw::L1GTDigiToRaw(const edm::ParameterSet& pSet)
 
     // FED Id for GT DAQ record
     // default value defined in DataFormats/FEDRawData/src/FEDNumbering.cc
-    // default value: assume the DAQ record is the last GT record 
+    // default value: assume the DAQ record is the last GT record
     m_daqGtFedId = pSet.getUntrackedParameter<int>(
                        "DaqGtFedId", FEDNumbering::getTriggerGTPFEDIds().second);
 
@@ -123,6 +131,12 @@ void L1GTDigiToRaw::beginJob(const edm::EventSetup& evSetup)
 void L1GTDigiToRaw::produce(edm::Event& iEvent, const edm::EventSetup& evSetup)
 {
 
+    // get records from EventSetup
+
+    //  board maps
+    edm::ESHandle< L1GtBoardMaps > l1GtBM;
+    evSetup.get< L1GtBoardMapsRcd >().get( l1GtBM );
+
     // get L1GlobalTriggerReadoutRecord
     edm::Handle<L1GlobalTriggerReadoutRecord> gtReadoutRecord;
     iEvent.getByLabel(m_daqGtInputTag.label(), gtReadoutRecord);
@@ -138,12 +152,9 @@ void L1GTDigiToRaw::produce(edm::Event& iEvent, const edm::EventSetup& evSetup)
         << std::endl;
     }
 
-    //
-    L1GlobalTriggerReadoutSetup tmpGtSetup; // TODO FIXME temporary event setup
-    std::map<int, L1GlobalTriggerReadoutSetup::GtBoard> recordMap =
-        tmpGtSetup.GtDaqRecordMap;
-
-    typedef std::map<int, L1GlobalTriggerReadoutSetup::GtBoard>::const_iterator CItRecord;
+    // get record map
+    std::map<int, L1GtBoard> recordMap = l1GtBM->gtDaqRecordMap();
+    typedef std::map<int, L1GtBoard>::const_iterator CItRecord;
 
     // get GTFE block
     L1GtfeWord gtfeBlock = gtReadoutRecord->gtfeWord();
@@ -166,7 +177,7 @@ void L1GTDigiToRaw::produce(edm::Event& iEvent, const edm::EventSetup& evSetup)
     for (CItRecord itRecord = recordMap.begin();
             itRecord != recordMap.end(); ++itRecord) {
 
-        if (itRecord->second.boardType == GTFE) {
+        if (itRecord->second.boardType() == GTFE) {
 
             gtfeKey = itRecord->first;
             break; // there is only one GTFE block
@@ -208,10 +219,9 @@ void L1GTDigiToRaw::produce(edm::Event& iEvent, const edm::EventSetup& evSetup)
     << std::dec << std::setfill(' ') << " \n"
     << std::endl;
 
-    std::map<L1GlobalTriggerReadoutSetup::GtBoard, int> activeBoardsMap =
-        tmpGtSetup.GtDaqActiveBoardsMap;
-    typedef std::map<L1GlobalTriggerReadoutSetup::GtBoard, int>::const_iterator CItActive;
-
+    // get "active boards" map
+    std::map<L1GtBoard, int> activeBoardsMap = l1GtBM->gtDaqActiveBoardsMap();
+    typedef std::map<L1GtBoard, int>::const_iterator CItActive;
 
     // get the size of the record
 
@@ -240,8 +250,8 @@ void L1GTDigiToRaw::produce(edm::Event& iEvent, const edm::EventSetup& evSetup)
 
             // board not found in the map
             LogDebug("L1GTDigiToRaw")
-            << "\nBoard of type " << itRecord->second.boardType
-            << " with index "  << itRecord->second.boardIndex
+            << "\nBoard of type " << itRecord->second.boardType()
+            << " with index "  << itRecord->second.boardIndex()
             << " not found in the activeBoardsMap\n"
             << std::endl;
 
@@ -251,8 +261,8 @@ void L1GTDigiToRaw::produce(edm::Event& iEvent, const edm::EventSetup& evSetup)
         if ( !activeBoard ) {
 
             LogDebug("L1GTDigiToRaw")
-            << "\nBoard of type " << itRecord->second.boardType
-            << " with index "  << itRecord->second.boardIndex
+            << "\nBoard of type " << itRecord->second.boardType()
+            << " with index "  << itRecord->second.boardIndex()
             << " not active (from activeBoardsMap)\n"
             << std::endl;
 
@@ -260,7 +270,7 @@ void L1GTDigiToRaw::produce(edm::Event& iEvent, const edm::EventSetup& evSetup)
         }
 
         // active board, add its size
-        switch (itRecord->second.boardType) {
+        switch (itRecord->second.boardType()) {
 
             case FDL: {
                     L1GtFdlWord fdlBlock;
@@ -298,7 +308,7 @@ void L1GTDigiToRaw::produce(edm::Event& iEvent, const edm::EventSetup& evSetup)
     // ptrGt: pointer to the beginning of GT record in the raw data
 
     FEDRawData& gtRawData = allFedRawData->FEDData(m_daqGtFedId);
-    
+
     // resize, GT raw data record has variable length,
     // depending on active boards (read in GTFE)
     gtRawData.resize(gtDataSize);
@@ -352,8 +362,8 @@ void L1GTDigiToRaw::produce(edm::Event& iEvent, const edm::EventSetup& evSetup)
             // board not found in the map
 
             LogDebug("L1GTDigiToRaw")
-            << "\nBoard of type " << itRecord->second.boardType
-            << " with index "  << itRecord->second.boardIndex
+            << "\nBoard of type " << itRecord->second.boardType()
+            << " with index "  << itRecord->second.boardIndex()
             << " not found in the activeBoardsMap\n"
             << std::endl;
 
@@ -363,8 +373,8 @@ void L1GTDigiToRaw::produce(edm::Event& iEvent, const edm::EventSetup& evSetup)
         if ( !activeBoard ) {
 
             LogDebug("L1GTDigiToRaw")
-            << "\nBoard of type " << itRecord->second.boardType
-            << " with index "  << itRecord->second.boardIndex
+            << "\nBoard of type " << itRecord->second.boardType()
+            << " with index "  << itRecord->second.boardIndex()
             << " not active (from activeBoardsMap)\n"
             << std::endl;
 
@@ -372,7 +382,7 @@ void L1GTDigiToRaw::produce(edm::Event& iEvent, const edm::EventSetup& evSetup)
         }
 
         // active board, pack it
-        switch (itRecord->second.boardType) {
+        switch (itRecord->second.boardType()) {
 
             case FDL: {
 
@@ -398,11 +408,11 @@ void L1GTDigiToRaw::produce(edm::Event& iEvent, const edm::EventSetup& evSetup)
                 break;
             case PSB: {
 
-                    boost::uint16_t boardIdValue = itRecord->second.boardId();
+                    boost::uint16_t boardIdValue = l1GtBM->boardId(itRecord->second);
 
                     LogDebug("L1GTDigiToRaw")
-                    << "\nBoard of type " << itRecord->second.boardType
-                    << " with index "  << itRecord->second.boardIndex
+                    << "\nBoard of type " << itRecord->second.boardType()
+                    << " with index "  << itRecord->second.boardIndex()
                     << " has the boardId " << std::hex << boardIdValue << std::dec << "\n"
                     << std::endl;
 
@@ -740,7 +750,7 @@ unsigned L1GTDigiToRaw::packGMT(L1MuGMTReadoutRecord const& gmtrr, unsigned char
         *pp++ = (*irc).getDataWord();
     }
     p+=4;
-    
+
     // the regional candidates are written to the record with inverted Pt and qual bits
     pp = p-16;
     for(int i=0; i<16; i++) {
@@ -791,7 +801,8 @@ unsigned L1GTDigiToRaw::packGMT(L1MuGMTReadoutRecord const& gmtrr, unsigned char
     return SIZE;
 }
 
-unsigned int L1GTDigiToRaw::flipPtQ(unsigned int w) {
+unsigned int L1GTDigiToRaw::flipPtQ(unsigned int w)
+{
     return ( (w&0xffff00ff) | ((~w)&0x0000ff00) );
 }
 
