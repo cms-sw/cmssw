@@ -6,7 +6,7 @@
 RefVector: A template for a vector of interproduct references.
 	Each vector element is a reference to a member of the same product.
 
-$Id: RefVector.h,v 1.28 2007/07/13 08:49:32 llista Exp $
+$Id: RefVector.h,v 1.29 2007/07/24 21:05:12 llista Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -55,6 +55,7 @@ namespace edm {
     /// store. Not for direct use.
     RefVector() : refVector_() {}
 
+    RefVector( ProductID const & id ) : refVector_(id) {}
     /// Add a Ref<C, T> to the RefVector
     void push_back(value_type const& ref) 
     {refVector_.pushBack(ref.ref().refCore(), ref.ref().item());}
