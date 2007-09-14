@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2007/03/27 08:20:05 $
- *  $Revision: 1.3 $
+ *  $Date: 2007/03/28 17:05:19 $
+ *  $Revision: 1.1 $
  *  \author S. Bolognesi - INFN Torino
  */
 
@@ -103,9 +103,10 @@ void ProduceFakeDB::endJob() {
 	
       //Get the number of wires for each layer
       int nWires = (*ly)->specificTopology().channels();
+      int firstWire = (*ly)->specificTopology().firstChannel();
       //Loop on wires
-      for(int w=1; w<=nWires; w++){
-	DTWireId wireId((*ly)->id(), w);
+      for(int w=0; w<nWires; w++){
+	DTWireId wireId((*ly)->id(), w + firstWire);
 	tZeroMap->setCellT0(wireId, tzero, sigmaTzero, DTTimeUnits::counts );
       }
     }
