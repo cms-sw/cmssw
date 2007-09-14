@@ -1,3 +1,10 @@
+2007-09-14  Harry Cheung <cheung@fnal.gov>
+
+	* tag V03-07-04
+	* fixed EventStreamHttpReader to allow proper end of run processing, 
+          and add an example to check proper behaviour. Requires
+          IOPool/Streamer V04-24-00 only in the 1_7_X series.
+
 2007-09-12  Harry Cheung <cheung@fnal.gov>
 
 	* tag V03-07-03
