@@ -12,8 +12,8 @@
  *   
  * \author: Vasile Mihai Ghete - HEPHY Vienna
  * 
- * $Date:$
- * $Revision:$
+ * $Date$
+ * $Revision$
  *
  */
 
@@ -22,6 +22,9 @@
 
 // user include files
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+
+#include "FWCore/Framework/interface/EventSetup.h"
+
 #include "FWCore/ParameterSet/interface/InputTag.h"
 
 // forward declarations
@@ -34,36 +37,41 @@ class L1GlobalTriggerSetup
 public:
 
     // constructor
-	L1GlobalTriggerSetup(L1GlobalTrigger&, const edm::ParameterSet&);
-    
+    L1GlobalTriggerSetup(L1GlobalTrigger&, const edm::ParameterSet&);
+
     // destructor
-	virtual ~L1GlobalTriggerSetup();
-    
+    virtual ~L1GlobalTriggerSetup();
+
 public:
 
-    // maximum number of blocks per trigger object  
+    // maximum number of blocks per trigger object
     static const int MaxItem = 64;
-    
-    static const edm::ParameterSet* getParameterSet() { return m_pSet; }
-    
-    const edm::InputTag muGmtInputTag() const;
-    const edm::InputTag caloGctInputTag() const;  
-        
-    virtual void setTriggerMenu(std::string&);
-    
-    const L1GlobalTriggerConfig* gtConfig() const { return m_gtConfig; }
-    
+
+    static const edm::ParameterSet* getParameterSet()
+    {
+        return m_pSet;
+    }
+
+    /// return pointer to L1 GT configuration
+    const L1GlobalTriggerConfig* gtConfig() const
+    {
+        return m_gtConfig;
+    }
+
+    /// set the L1 GT trigger menu
+    void setTriggerMenu(std::string&);
+
+    /// set the L1 GT input mask
+    void setInputMask();
+
+
 private:
-    
+
     L1GlobalTrigger& m_GT;
 
     static const edm::ParameterSet* m_pSet;
     static L1GlobalTriggerConfig* m_gtConfig;
-    
-    edm::InputTag m_muGmtInputTag;
-    edm::InputTag m_caloGctInputTag;
-    
-    
+
 };
 
 #endif /*GlobalTrigger_L1GlobalTriggerSetup_h*/

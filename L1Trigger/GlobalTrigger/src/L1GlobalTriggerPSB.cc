@@ -10,8 +10,8 @@
  * \author: M. Fierro            - HEPHY Vienna - ORCA version 
  * \author: Vasile Mihai Ghete   - HEPHY Vienna - CMSSW version 
  * 
- * $Date:$
- * $Revision:$
+ * $Date$
+ * $Revision$
  *
  */
 
@@ -40,6 +40,12 @@
 
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/ParameterSet/interface/InputTag.h"
+
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/ESHandle.h"
 
 // forward declarations
 
@@ -92,12 +98,14 @@ L1GlobalTriggerPSB::~L1GlobalTriggerPSB() {
 
 // receive input data
 
-//void L1GlobalTriggerPSB::receiveData(edm::Event& iEvent) {
-void L1GlobalTriggerPSB::receiveData(edm::Event& iEvent, int iBxInEvent) {
+void L1GlobalTriggerPSB::receiveData(edm::Event& iEvent, 
+    const edm::InputTag& caloGctInputTag, const int iBxInEvent, 
+    const edm::EventSetup& evSetup) {
 
-    reset();
+    reset(); 
     
-    // disabling calorimeter input
+    // check which PSB boards receiving GCT data are enabled
+    // for the disabled boards, enter corresponding empty trigger objects 
 
     const L1GlobalTriggerConfig* gtConf = m_GT.gtSetup()->gtConfig();
 
@@ -190,7 +198,7 @@ void L1GlobalTriggerPSB::receiveData(edm::Event& iEvent, int iBxInEvent) {
     // reading data from Global Calorimeter Trigger
     LogDebug("L1GlobalTriggerPSB") 
         << "**** L1GlobalTriggerPSB receiving calorimeter data from input tag " 
-        << m_GT.gtSetup()->caloGctInputTag().label()
+        << caloGctInputTag.label()
         << std::endl;
     
     edm::Handle<L1GctEmCandCollection> emCands;
@@ -206,19 +214,19 @@ void L1GlobalTriggerPSB::receiveData(edm::Event& iEvent, int iBxInEvent) {
     
     edm::Handle<L1GctJetCounts> jetCounts;
  
-    iEvent.getByLabel(m_GT.gtSetup()->caloGctInputTag().label(), "nonIsoEm", emCands);
-    iEvent.getByLabel(m_GT.gtSetup()->caloGctInputTag().label(), "isoEm",    isoEmCands);
+    iEvent.getByLabel(caloGctInputTag.label(), "nonIsoEm", emCands);
+    iEvent.getByLabel(caloGctInputTag.label(), "isoEm",    isoEmCands);
 
-    iEvent.getByLabel(m_GT.gtSetup()->caloGctInputTag().label(), "cenJets", cenJets);
-    iEvent.getByLabel(m_GT.gtSetup()->caloGctInputTag().label(), "forJets", forJets);
-    iEvent.getByLabel(m_GT.gtSetup()->caloGctInputTag().label(), "tauJets", tauJets);
+    iEvent.getByLabel(caloGctInputTag.label(), "cenJets", cenJets);
+    iEvent.getByLabel(caloGctInputTag.label(), "forJets", forJets);
+    iEvent.getByLabel(caloGctInputTag.label(), "tauJets", tauJets);
 
-    iEvent.getByLabel(m_GT.gtSetup()->caloGctInputTag().label(), missEt);
-    iEvent.getByLabel(m_GT.gtSetup()->caloGctInputTag().label(), totalEt);
-    iEvent.getByLabel(m_GT.gtSetup()->caloGctInputTag().label(), totalHt);
+    iEvent.getByLabel(caloGctInputTag.label(), missEt);
+    iEvent.getByLabel(caloGctInputTag.label(), totalEt);
+    iEvent.getByLabel(caloGctInputTag.label(), totalHt);
   
     // TODO FIXME un-comment when the "jet counts" collection is written     
-//    iEvent.getByLabel(m_GT.gtSetup()->caloGctInputTag().label(), jetCounts);
+//    iEvent.getByLabel(caloGctInputTag.label(), jetCounts);
     
     // electrons
     for ( unsigned int i = 0; i < L1GlobalTriggerReadoutSetup::NumberL1Electrons; i++ ) {

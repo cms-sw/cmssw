@@ -24,16 +24,30 @@
 // user include files
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetupFwd.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetup.h"
-#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GtFdlWord.h"
 
 #include "L1Trigger/GlobalTrigger/interface/L1GlobalTrigger.h"
 #include "L1Trigger/GlobalTrigger/interface/L1GlobalTriggerGTL.h"
-#include "L1Trigger/GlobalTrigger/interface/L1GlobalTriggerSetup.h"
-#include "L1Trigger/GlobalTrigger/interface/L1GlobalTriggerConfig.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/MessageLogger/interface/MessageDrop.h"
+
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+
+#include "CondFormats/L1TObjects/interface/L1GtParameters.h"
+#include "CondFormats/DataRecord/interface/L1GtParametersRcd.h"
+
+#include "CondFormats/L1TObjects/interface/L1GtPrescaleFactors.h"
+#include "CondFormats/DataRecord/interface/L1GtPrescaleFactorsRcd.h"
+#include "CondFormats/L1TObjects/interface/L1GtTriggerMask.h"
+#include "CondFormats/DataRecord/interface/L1GtTriggerMaskRcd.h"
+
+#include "CondFormats/L1TObjects/interface/L1GtFwd.h"
+#include "CondFormats/L1TObjects/interface/L1GtBoard.h"
+#include "CondFormats/L1TObjects/interface/L1GtBoardMaps.h"
+#include "CondFormats/DataRecord/interface/L1GtBoardMapsRcd.h"
+
 
 // forward declarations
 
@@ -47,64 +61,15 @@ L1GlobalTriggerFDL::L1GlobalTriggerFDL(
     // create empty FDL word
     m_gtFdlWord = new L1GtFdlWord();
 
-    //
-    const unsigned int numberTriggerBits =
-        L1GlobalTriggerReadoutSetup::NumberPhysTriggers;
+    // logical switches
+    m_firstEv = true;
+    m_firstEvLumiSegment = true;
+    m_firstEvRun = true;
 
-    // get number of bunch crosses in event
-    m_totalBxInEvent =
-        m_GT.gtSetup()->getParameterSet()->getParameter<int>("totalBxInEvent");
-
-    if (m_totalBxInEvent > 0) {
-        if ( (m_totalBxInEvent%2) == 0 ) {
-            m_totalBxInEvent = m_totalBxInEvent - 1;
-
-            edm::LogInfo("L1GlobalTriggerFDL")
-            << "\nWARNING: Number of bunch crossing in event rounded to: "
-            << m_totalBxInEvent << "\n         The number must be an odd number!\n"
-            << std::endl;
-        }
-    } else {
-
-        edm::LogInfo("L1GlobalTriggerFDL")
-        << "\nWARNING: Number of bunch crossing in event must be a positive number!"
-        << "\n  Requested value was: " << m_totalBxInEvent
-        << "\n  Reset to 1 (L1Accept bunch only).\n"
-        << std::endl;
-
-        m_totalBxInEvent = 1;
-
-    }
-
-    // algorithm prescale factors (default to 1)
-    m_prescaleFactor.reserve(numberTriggerBits);
-    m_prescaleFactor.assign(numberTriggerBits, 1);
-
-    // get the non-default scale factors
-    // TODO FIXME EventSetup
-    m_prescaleFactor =
-        m_GT.gtSetup()->getParameterSet()->getParameter<std::vector<int> >("PrescaleFactors");
-
-    if ( edm::isDebugEnabled() ) {
-        LogTrace("L1GlobalTriggerFDL")
-        << "\nPrescale factors for algorithms\n"
-        << std::endl;
-
-        for (unsigned int iBit = 0; iBit < numberTriggerBits; ++iBit) {
-            LogTrace("L1GlobalTriggerFDL")
-            << iBit << "\t" << m_prescaleFactor.at(iBit)
-            << std::endl;
-        }
-    }
+    // can not reserve memory here for m_prescaleCounter - no access to EventSetup
 
     // prescale counters: NumberPhysTriggers counters per bunch cross
-    m_prescaleCounter.reserve(numberTriggerBits*m_totalBxInEvent);
-
-    for (int iBxInEvent = 0; iBxInEvent <= m_totalBxInEvent;
-            ++iBxInEvent) {
-
-        m_prescaleCounter.push_back(m_prescaleFactor);
-    }
+    //m_prescaleCounter.reserve(numberTriggerBits*totalBxInEvent);
 
 }
 
@@ -120,12 +85,10 @@ L1GlobalTriggerFDL::~L1GlobalTriggerFDL()
 // Operations
 
 // run FDL
-void L1GlobalTriggerFDL::run(int iBxInEvent)
+void L1GlobalTriggerFDL::run(int iBxInEvent, const edm::EventSetup& evSetup)
 {
 
-    const L1GlobalTriggerConfig* gtConf = m_GT.gtSetup()->gtConfig();
-
-
+    // TODO take it from EventSetup
     const unsigned int numberTriggerBits =
         L1GlobalTriggerReadoutSetup::NumberPhysTriggers;
 
@@ -133,14 +96,60 @@ void L1GlobalTriggerFDL::run(int iBxInEvent)
     std::bitset<numberTriggerBits> gtlDecisionWord = m_GT.gtGTL()->getAlgorithmOR();
     std::bitset<numberTriggerBits> fdlDecisionWord = gtlDecisionWord;
 
+    // get from EventSetup: total number of Bx's in the event
+
+    edm::ESHandle< L1GtParameters > l1GtPar ;
+    evSetup.get< L1GtParametersRcd >().get( l1GtPar ) ;
+
+    int totalBxInEvent = l1GtPar->gtTotalBxInEvent();
+
+    // get from EventSetup: prescale factors
+    edm::ESHandle< L1GtPrescaleFactors > l1GtPF ;
+    evSetup.get< L1GtPrescaleFactorsRcd >().get( l1GtPF ) ;
+
+    std::vector<int> prescaleFactors = l1GtPF->gtPrescaleFactors();
+
+    // TODO FIXME check with firmware to see where and if the prescale counters are reset
+
+    // prescale counters are reset at the beginning of the luminosity segment
+
+    if (m_firstEv) {
+
+        // prescale counters: NumberPhysTriggers counters per bunch cross
+        m_prescaleCounter.reserve(numberTriggerBits*totalBxInEvent);
+
+        for (int iBxInEvent = 0; iBxInEvent <= totalBxInEvent; ++iBxInEvent) {
+
+            m_prescaleCounter.push_back(prescaleFactors);
+        }
+
+
+        m_firstEv = false;
+    }
+
+    // TODO FIXME find the beginning of the luminosity segment
+    if (m_firstEvLumiSegment) {
+
+        m_prescaleCounter.clear();
+
+        for (int iBxInEvent = 0; iBxInEvent <= totalBxInEvent; ++iBxInEvent) {
+
+            m_prescaleCounter.push_back(prescaleFactors);
+        }
+
+        m_firstEvLumiSegment = false;
+
+    }
+
+
     // prescale it, if necessary
 
     // iBxInEvent is ... -2 -1 0 1 2 ... while counters are 0 1 2 3 4 ...
-    int inBxInEvent =  m_totalBxInEvent/2 + iBxInEvent;
+    int inBxInEvent =  totalBxInEvent/2 + iBxInEvent;
 
     for (unsigned int iBit = 0; iBit < numberTriggerBits; ++iBit) {
 
-        if (m_prescaleFactor.at(iBit) != 1) {
+        if (prescaleFactors.at(iBit) != 1) {
 
             bool bitValue = gtlDecisionWord.test( iBit );
             if (bitValue) {
@@ -149,13 +158,13 @@ void L1GlobalTriggerFDL::run(int iBxInEvent)
                 if (m_prescaleCounter.at(inBxInEvent).at(iBit) == 0) {
 
                     // bit already true in fdlDecisionWord, just reset counter
-                    m_prescaleCounter.at(inBxInEvent).at(iBit) = m_prescaleFactor.at(iBit);
+                    m_prescaleCounter.at(inBxInEvent).at(iBit) = prescaleFactors.at(iBit);
 
                     //LogTrace("L1GlobalTriggerFDL")
                     //<< "\nPrescaled algorithm: " << iBit << ". Reset counter to "
-                    //<< m_prescaleFactor.at(iBit) << "\n"
+                    //<< prescaleFactors.at(iBit) << "\n"
                     //<< std::endl;
-                    
+
                 } else {
 
                     // change bit to false
@@ -170,11 +179,22 @@ void L1GlobalTriggerFDL::run(int iBxInEvent)
         }
     }
 
-    // add trigger mask
+    // set the trigger mask: block the corresponding algorithm if bit value is 1
+    // one converts from vector in EventSetup as there there is no "bitset" parameter type
 
-    if (gtConf != 0) {
-        fdlDecisionWord = fdlDecisionWord & ~(gtConf->getTriggerMask());
+    edm::ESHandle< L1GtTriggerMask > l1GtTM ;
+    evSetup.get< L1GtTriggerMaskRcd >().get( l1GtTM ) ;
+
+    std::vector<unsigned int> triggerMaskV = l1GtTM->gtTriggerMask();
+
+    std::bitset<numberTriggerBits> triggerMask;
+    for (unsigned int i = 0; i < numberTriggerBits; ++i) {
+        if ( triggerMaskV[i] ) {
+            triggerMask.set(i);
+        }
     }
+
+    fdlDecisionWord = fdlDecisionWord & ~(triggerMask);
 
 
     // add trigger veto mask TODO FIXME
@@ -195,6 +215,15 @@ void L1GlobalTriggerFDL::run(int iBxInEvent)
     // ... ]
 
     // fill everything we know in the L1GtFdlWord
+
+    // get from EventSetup the board maps
+    edm::ESHandle< L1GtBoardMaps > l1GtBM;
+    evSetup.get< L1GtBoardMapsRcd >().get( l1GtBM );
+
+    // set boardId 
+    int iBoard = 0; // just one FDL board, one could use the record map however    
+    L1GtBoard fdlBoard = L1GtBoard(FDL, iBoard);    
+    m_gtFdlWord->setBoardId( l1GtBM->boardId(fdlBoard) );
 
     // BxInEvent
     m_gtFdlWord->setBxInEvent(iBxInEvent);

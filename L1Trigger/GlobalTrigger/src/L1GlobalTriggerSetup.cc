@@ -2,7 +2,7 @@
  * \class L1GlobalTriggerSetup
  * 
  * 
- * Description: see header file.
+ * Description: L1 Global Trigger Setup.
  *  
  * Implementation:
  *    <TODO: enter implementation details>
@@ -25,6 +25,7 @@
 #include "L1Trigger/GlobalTrigger/interface/L1GlobalTriggerConfig.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+
 #include "FWCore/ParameterSet/interface/InputTag.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -35,30 +36,26 @@
 // constructor
 L1GlobalTriggerSetup::L1GlobalTriggerSetup(
     L1GlobalTrigger& gt,
-    const edm::ParameterSet& iConfig)
+    const edm::ParameterSet& parSet)
         : m_GT(gt)
 {
     LogDebug ("Trace") << "Entering " << __PRETTY_FUNCTION__ << std::endl;
 
-    m_pSet = &iConfig;
+    m_pSet = &parSet;
 
-    // input tag for muon collection from GMT
-    m_muGmtInputTag = m_pSet->getUntrackedParameter<edm::InputTag>(
-                          "GmtInputTag", edm::InputTag("gmt"));
+    // get the new trigger configuration
 
-    LogDebug("L1GlobalTriggerSetup")
-    << "\nInput tag for muon collection from GMT: "
-    << m_muGmtInputTag.label() << " \n"
-    << std::endl;
+    if (!m_gtConfig) {
+        m_gtConfig = new L1GlobalTriggerConfig(&m_GT);
+    }
 
-    // input tag for calorimeter collection from GCT
-    m_caloGctInputTag = m_pSet->getUntrackedParameter<edm::InputTag>(
-                            "GctInputTag", edm::InputTag("gct"));
+    // set the L1 GT trigger menu
+    std::string emptyString;
+    setTriggerMenu(emptyString);
 
-    LogDebug("L1GlobalTriggerSetup")
-    << "\nInput tag for calorimeter collection from GCT: "
-    << m_caloGctInputTag.label() << " \n"
-    << std::endl;
+    // set input mask TODO use activeBoards instead
+    setInputMask();
+
 
 }
 
@@ -74,22 +71,7 @@ L1GlobalTriggerSetup::~L1GlobalTriggerSetup()
 
 // methods
 
-
-// input tag for muon collection from GMT
-const edm::InputTag L1GlobalTriggerSetup::muGmtInputTag() const
-{
-
-    return m_muGmtInputTag;
-}
-
-const edm::InputTag L1GlobalTriggerSetup::caloGctInputTag() const
-{
-
-    return m_caloGctInputTag;
-}
-
-
-//
+// set the L1 GT trigger menu
 void L1GlobalTriggerSetup::setTriggerMenu(std::string& menuDir)
 {
 
@@ -121,39 +103,18 @@ void L1GlobalTriggerSetup::setTriggerMenu(std::string& menuDir)
         << std::endl;
     }
 
-    // get the new trigger configuration
-    if (!m_gtConfig) {
-        m_gtConfig = new L1GlobalTriggerConfig(&m_GT, defXmlFile, vmeXmlFile);
-    }
+    m_gtConfig->parseTriggerMenu(defXmlFile, vmeXmlFile);
 
-    // set the trigger mask: block the corresponding algorithm if bit value is 1
-    // one converts from vector as there is no "bitset" parameter type
-    std::vector<unsigned int> trigMaskV =
-        m_pSet->getParameter<std::vector<unsigned int> >("triggerMask");
+}
 
-    std::bitset<L1GlobalTriggerConfig::MaxNumberAlgorithms> trigMask;
-    for (unsigned int i = 0; i < L1GlobalTriggerConfig::MaxNumberAlgorithms; ++i) {
-        if ( trigMaskV[i] ) {
-            trigMask.set(i);
-        }
-    }
+// set the input mask: bit 0 GCT, bit 1 GMT
+void L1GlobalTriggerSetup::setInputMask()
+{
 
-    m_gtConfig->setTriggerMask(trigMask);
+    LogDebug ("Trace") << "Entering " << __PRETTY_FUNCTION__ << std::endl;
 
-    if ( edm::isDebugEnabled() ) {
 
-        LogDebug("L1GlobalTriggerSetup")
-        << "Trigger mask: bit number  & mask value \n  "
-        << std::endl;
-
-        for (unsigned int i = 0; i < L1GlobalTriggerConfig::MaxNumberAlgorithms; ++i) {
-
-            LogTrace("L1GlobalTriggerSetup")
-            << "Bit number " << i << "\t" << m_gtConfig->getTriggerMask()[i]
-            << std::endl;
-        }
-
-    }
+    // TODO FIXME get it from event setup
 
     // set the input mask: bit 0 GCT, bit 1 GMT
     // one converts from vector as there is no "bitset" parameter type

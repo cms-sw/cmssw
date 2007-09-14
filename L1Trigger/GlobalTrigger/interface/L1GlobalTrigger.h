@@ -32,8 +32,7 @@
 #include "FWCore/Framework/interface/EDProducer.h"
 
 #include "FWCore/Framework/interface/Event.h"
-#include "DataFormats/Common/interface/Handle.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/Framework/interface/EventSetup.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/InputTag.h"
@@ -46,7 +45,7 @@ class L1GlobalTriggerFDL;
 
 
 // class declaration
-class L1GlobalTrigger : public edm::EDProducer 
+class L1GlobalTrigger : public edm::EDProducer
 {
 
 public:
@@ -57,17 +56,29 @@ public:
     virtual void produce(edm::Event&, const edm::EventSetup&);
 
     // return pointer to setup
-    inline const L1GlobalTriggerSetup* gtSetup() const { return m_gtSetup; }    
+    inline const L1GlobalTriggerSetup* gtSetup() const
+    {
+        return m_gtSetup;
+    }
 
     // return pointer to PSB
-    inline const L1GlobalTriggerPSB* gtPSB() const { return m_gtPSB; }
-  
+    inline const L1GlobalTriggerPSB* gtPSB() const
+    {
+        return m_gtPSB;
+    }
+
     // return pointer to GTL
-    inline const L1GlobalTriggerGTL* gtGTL() const { return m_gtGTL; }
-  
+    inline const L1GlobalTriggerGTL* gtGTL() const
+    {
+        return m_gtGTL;
+    }
+
     // return pointer to FDL
-    inline const L1GlobalTriggerFDL* gtFDL() const { return m_gtFDL; }
-      
+    inline const L1GlobalTriggerFDL* gtFDL() const
+    {
+        return m_gtFDL;
+    }
+
 private:
 
     static L1GlobalTriggerSetup* m_gtSetup;
@@ -76,22 +87,11 @@ private:
     L1GlobalTriggerGTL* m_gtGTL;
     L1GlobalTriggerFDL* m_gtFDL;
     
-    /// total Bx's in the event
-    int m_totalBxInEvent;
+    edm::InputTag m_muGmtInputTag;
 
-    /// min Bx's in the event, computed from m_totalBxInEvent
-    /// assume symmetrical number of BX around L1Accept
-    int m_minBxInEvent;
+    edm::InputTag m_caloGctInputTag;
+    
 
-    /// max Bx's in the event, computed from m_totalBxInEvent
-    /// assume symmetrical number of BX around L1Accept
-    int m_maxBxInEvent;
-
-    /// active boards
-    boost::uint16_t m_activeBoards; 
-    
-    
-    
 };
 
 #endif /*GlobalTrigger_L1GlobalTrigger_h*/

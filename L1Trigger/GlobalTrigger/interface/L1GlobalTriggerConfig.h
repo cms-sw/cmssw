@@ -13,8 +13,8 @@
  * \author  M. Eder      - HEPHY Vienna - ORCA version
  * \author  Vasile Ghete - HEPHY Vienna - CMSSW version
  * 
- * $Date:$
- * $Revision:$
+ * $Date$
+ * $Revision$
  *
  */
 
@@ -52,6 +52,8 @@ class L1GlobalTriggerConfig {
 public:
 
     // constructors
+    L1GlobalTriggerConfig(L1GlobalTrigger*);
+
     L1GlobalTriggerConfig(L1GlobalTrigger*, std::string&, std::string&);
      
     // destructor 
@@ -75,6 +77,8 @@ public:
     // number of input modules: 2 (GMT, GCT)
     static const unsigned int NumberInputModules = 2;  
 
+public:
+
     // map containing the conditions from the xml file
     typedef std::map<std::string, L1GlobalTriggerConditions*> ConditionsMap;
     ConditionsMap conditionsmap[NumberConditionChips];
@@ -89,118 +93,18 @@ public:
         VERSION_FINAL		    // final version
     };	
 
-    inline XMLFileVersionType getVersion() const {return p_xmlfileversion;} 
+    inline XMLFileVersionType getVersion() const {return m_xmlFileVersion;} 
 
     virtual void parseTriggerMenu(std::string&, std::string&);
     
-    // return / set mask to block output pins
-    inline const std::bitset<MaxNumberAlgorithms>& getTriggerMask() const { return p_triggermask; }
-    void setTriggerMask(std::bitset<MaxNumberAlgorithms> trigMask) { p_triggermask = trigMask; }
-
     // return / set mask to block input: bit 0 GCT, bit 1 GMT 
-    inline const std::bitset<NumberInputModules>& getInputMask() const { return p_inputmask; }
-    void setInputMask(std::bitset<NumberInputModules> inMask) { p_inputmask = inMask; }
+    inline const std::bitset<NumberInputModules>& getInputMask() const { return m_inputMask; }
+    void setInputMask(std::bitset<NumberInputModules> inMask) { m_inputMask = inMask; }
 
     // return time of the vme bus preamble
     inline double getVmePreambleTime() const { return p_vmePreambleTime; }
     
 private:
-
-    std::bitset<MaxNumberAlgorithms> p_triggermask;
-    std::bitset<NumberInputModules> p_inputmask;
- 
-    // strings for the xml-syntax
-    static const std::string xml_condition_attr_condition;
-    static const std::string xml_condition_attr_particle;
-    static const std::string xml_condition_attr_type;
-    static const std::string xml_condition_attr_condition_muon;
-    static const std::string xml_condition_attr_condition_calo;
-    static const std::string xml_condition_attr_condition_esums;
-    static const std::string xml_condition_attr_condition_jetcnts;
-
-    static const std::string xml_condition_attr_particle_muon;
-    static const std::string xml_condition_attr_particle_eg;
-    static const std::string xml_condition_attr_particle_ieg;
-    static const std::string xml_condition_attr_particle_jet;
-    static const std::string xml_condition_attr_particle_fwdjet;
-    static const std::string xml_condition_attr_particle_tau;
-    static const std::string xml_condition_attr_particle_etm;
-    static const std::string xml_condition_attr_particle_ett;
-    static const std::string xml_condition_attr_particle_htt;
-
-    static const std::string xml_condition_attr_type_1;
-    static const std::string xml_condition_attr_type_2;
-    static const std::string xml_condition_attr_type_2wsc;
-    static const std::string xml_condition_attr_type_3;
-    static const std::string xml_condition_attr_type_4;
-
-    static const std::string xml_attr_mode;
-    static const std::string xml_attr_mode_bit;
-    static const std::string xml_attr_max;
-
-    static const std::string xml_attr_pin;
-    static const std::string xml_attr_pin_a;
-    static const std::string xml_attr_nr;
-
-    
-    static const std::string xml_conditions_tag;
-    static const std::string xml_prealgos_tag;
-    static const std::string xml_algos_tag;
-    static const std::string xml_chip_tag;
-    static const std::string xml_value_tag;
-    static const std::string xml_def_tag;
-
-    static const std::string xml_etthreshold_tag;
-    
-    static const std::string xml_pththreshold_tag;
-    static const std::string xml_ptlthreshold_tag;
-    static const std::string xml_quality_tag;
-    static const std::string xml_eta_tag;
-    static const std::string xml_phi_tag;
-    static const std::string xml_phih_tag;
-    static const std::string xml_phil_tag; 
-    static const std::string xml_geeq_tag;
-    static const std::string xml_chargecorrelation_tag;
-    static const std::string xml_eniso_tag;
-    static const std::string xml_enmip_tag;
-    static const std::string xml_enoverflow_tag;
-    static const std::string xml_deltaeta_tag;
-    static const std::string xml_deltaphi_tag;
-
-    static const std::string xml_output_tag;
-    static const std::string xml_outputpin_tag;
-
-
-    static const std::string xml_chipdef_tag;
-    static const std::string xml_chip1_tag;
-    static const std::string xml_ca_tag;
-
-    // strings for the vme bus xml file syntax
-    static const std::string vmexml_vme_tag;
-    static const std::string vmexml_condchip_tag;
-    static const std::string vmexml_address_tag;
-    static const std::string vmexml_value_tag;
-    static const std::string vmexml_attr_particle;
-    static const std::string vmexml_attr_particle_muon;
-
-
-    // name of the file to write the vme bus preamble
-    static const char p_vmePreambleFileName[];
-
-    // time for the vme bus preamble
-    double p_vmePreambleTime;
-    // time for one line
-    static const double p_vmePreambleTimeTick;
-
-    // the rest of a line in the preamble
-    static const char p_vmePreambleLineRest[];
-
-
-    // the version of the xml-file is stored here
-    XMLFileVersionType p_xmlfileversion;
-
-    // error handler for xml-parser
-    ErrorHandler* m_xmlErrHandler;
 
     // clear the conditions map
     void clearConditionsMap();
@@ -303,9 +207,110 @@ private:
         
     // print all thresholds from conditions
     void printThresholds(std::ostream& myCout);
+
+private:
+
+    /// input mask
+    std::bitset<NumberInputModules> m_inputMask;
+ 
+
+    // the version of the xml-file is stored here
+    XMLFileVersionType m_xmlFileVersion;
+
+    // error handler for xml-parser
+    ErrorHandler* m_xmlErrHandler;
     
     L1GlobalTrigger* m_GT;
     
+private:
+
+    // strings for the xml-syntax
+    static const std::string xml_condition_attr_condition;
+    static const std::string xml_condition_attr_particle;
+    static const std::string xml_condition_attr_type;
+    static const std::string xml_condition_attr_condition_muon;
+    static const std::string xml_condition_attr_condition_calo;
+    static const std::string xml_condition_attr_condition_esums;
+    static const std::string xml_condition_attr_condition_jetcnts;
+
+    static const std::string xml_condition_attr_particle_muon;
+    static const std::string xml_condition_attr_particle_eg;
+    static const std::string xml_condition_attr_particle_ieg;
+    static const std::string xml_condition_attr_particle_jet;
+    static const std::string xml_condition_attr_particle_fwdjet;
+    static const std::string xml_condition_attr_particle_tau;
+    static const std::string xml_condition_attr_particle_etm;
+    static const std::string xml_condition_attr_particle_ett;
+    static const std::string xml_condition_attr_particle_htt;
+
+    static const std::string xml_condition_attr_type_1;
+    static const std::string xml_condition_attr_type_2;
+    static const std::string xml_condition_attr_type_2wsc;
+    static const std::string xml_condition_attr_type_3;
+    static const std::string xml_condition_attr_type_4;
+
+    static const std::string xml_attr_mode;
+    static const std::string xml_attr_mode_bit;
+    static const std::string xml_attr_max;
+
+    static const std::string xml_attr_pin;
+    static const std::string xml_attr_pin_a;
+    static const std::string xml_attr_nr;
+
+    
+    static const std::string xml_conditions_tag;
+    static const std::string xml_prealgos_tag;
+    static const std::string xml_algos_tag;
+    static const std::string xml_chip_tag;
+    static const std::string xml_value_tag;
+    static const std::string xml_def_tag;
+
+    static const std::string xml_etthreshold_tag;
+    
+    static const std::string xml_pththreshold_tag;
+    static const std::string xml_ptlthreshold_tag;
+    static const std::string xml_quality_tag;
+    static const std::string xml_eta_tag;
+    static const std::string xml_phi_tag;
+    static const std::string xml_phih_tag;
+    static const std::string xml_phil_tag; 
+    static const std::string xml_geeq_tag;
+    static const std::string xml_chargecorrelation_tag;
+    static const std::string xml_eniso_tag;
+    static const std::string xml_enmip_tag;
+    static const std::string xml_enoverflow_tag;
+    static const std::string xml_deltaeta_tag;
+    static const std::string xml_deltaphi_tag;
+
+    static const std::string xml_output_tag;
+    static const std::string xml_outputpin_tag;
+
+
+    static const std::string xml_chipdef_tag;
+    static const std::string xml_chip1_tag;
+    static const std::string xml_ca_tag;
+
+private:
+
+    // strings for the vme bus xml file syntax
+    static const std::string vmexml_vme_tag;
+    static const std::string vmexml_condchip_tag;
+    static const std::string vmexml_address_tag;
+    static const std::string vmexml_value_tag;
+    static const std::string vmexml_attr_particle;
+    static const std::string vmexml_attr_particle_muon;
+
+
+    // name of the file to write the vme bus preamble
+    static const char p_vmePreambleFileName[];
+
+    // time for the vme bus preamble
+    double p_vmePreambleTime;
+    // time for one line
+    static const double p_vmePreambleTimeTick;
+
+    // the rest of a line in the preamble
+    static const char p_vmePreambleLineRest[];
 
 };
 

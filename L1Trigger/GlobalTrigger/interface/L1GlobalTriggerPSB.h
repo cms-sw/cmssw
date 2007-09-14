@@ -15,8 +15,8 @@
  * \author: M. Fierro            - HEPHY Vienna - ORCA version 
  * \author: Vasile Mihai Ghete   - HEPHY Vienna - CMSSW version 
  * 
- * $Date:$
- * $Revision:$
+ * $Date$
+ * $Revision$
  *
  */
 
@@ -28,6 +28,9 @@
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetup.h"
 
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/ParameterSet/interface/InputTag.h"
+
+#include "FWCore/Framework/interface/EventSetup.h"
 
 // forward declarations
 class L1GlobalTrigger;
@@ -62,8 +65,8 @@ public:
 public:
   
     /// receive input data
-    void receiveData(edm::Event&, int iBxInEvent);
-//    void receiveData(edm::Event&);
+    void receiveData(edm::Event&, const edm::InputTag&, const int iBxInEvent, 
+        const edm::EventSetup&);
     
     /// clear PSB
     void reset();

@@ -13,8 +13,8 @@
  * \author: M. Fierro            - HEPHY Vienna - ORCA version 
  * \author: Vasile Mihai Ghete   - HEPHY Vienna - CMSSW version 
  * 
- * $Date:$
- * $Revision:$
+ * $Date$
+ * $Revision$
  *
  */
 
@@ -37,6 +37,9 @@
 #include "L1Trigger/GlobalTrigger/interface/L1GlobalTriggerSetup.h"
 
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/ParameterSet/interface/InputTag.h"
+
+#include "FWCore/Framework/interface/EventSetup.h"
 
 // forward declarations
 class L1GlobalTrigger;
@@ -74,7 +77,8 @@ public:
 public:
 
     /// receive data from Global Muon Trigger
-    void receiveData(edm::Event&, int iBxInEvent);
+    void receiveData(edm::Event&, const edm::InputTag&, const int iBxInEvent, 
+        const edm::EventSetup&);
     
     /// run the GTL
     void run(int iBxInEvent);

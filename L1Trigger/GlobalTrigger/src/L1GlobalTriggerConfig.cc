@@ -51,6 +51,16 @@ XERCES_CPP_NAMESPACE_USE
 
 // constructors
 
+L1GlobalTriggerConfig::L1GlobalTriggerConfig(L1GlobalTrigger* gt) 
+    : m_GT(gt)
+    {
+
+    LogDebug ("Trace") << "Entering " << __PRETTY_FUNCTION__ << std::endl; 
+    
+    m_xmlErrHandler = 0;
+    
+}
+
 L1GlobalTriggerConfig::L1GlobalTriggerConfig(
     L1GlobalTrigger* gt,
     std::string& defXmlFile, 
@@ -1938,7 +1948,7 @@ int L1GlobalTriggerConfig::parseAllAlgos(XercesDOMParser* parser) {
      
     // parse algos and prealgos
     if (parsePreAlgos(n1) != 0) return -1;  
-    if (p_xmlfileversion == VERSION_PROTOTYPE) {    //algos only for prototype version
+    if (m_xmlFileVersion == VERSION_PROTOTYPE) {    //algos only for prototype version
         if (parseAlgos(n1) != 0 ) return -1;
     }
 
@@ -2000,12 +2010,12 @@ int L1GlobalTriggerConfig::checkVersion(XercesDOMParser* parser) {
     // if there is a 5th ca tag the version is the final version
     n1 = findXMLChild(n1, xml_ca_tag, true);
     if (n1 == 0) {
-        p_xmlfileversion = VERSION_PROTOTYPE;
+        m_xmlFileVersion = VERSION_PROTOTYPE;
         LogTrace("L1GlobalTriggerConfig") 
             << "  XML-File is prototype version (6U)" 
             << std::endl;
     } else {
-        p_xmlfileversion = VERSION_FINAL;
+        m_xmlFileVersion = VERSION_FINAL;
         LogTrace("L1GlobalTriggerConfig") 
             << "  XML-File is final version (9U)" 
             << std::endl;

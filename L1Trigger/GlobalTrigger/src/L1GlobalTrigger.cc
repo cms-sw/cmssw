@@ -20,13 +20,13 @@
 // system include files
 #include <memory>
 #include <iostream>
+#include <iomanip>
 #include <bitset>
 
 #include <boost/cstdint.hpp>
 
 // user include files
-#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetupFwd.h"
-#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetup.h"
+//#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetupFwd.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerEvmReadoutRecord.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerObjectMapRecord.h"
@@ -45,6 +45,17 @@
 #include "L1Trigger/GlobalTrigger/interface/L1GlobalTriggerSetup.h"
 #include "L1Trigger/GlobalTrigger/interface/L1GlobalTriggerConfig.h"
 
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+
+#include "CondFormats/L1TObjects/interface/L1GtParameters.h"
+#include "CondFormats/DataRecord/interface/L1GtParametersRcd.h"
+
+#include "CondFormats/L1TObjects/interface/L1GtFwd.h"
+#include "CondFormats/L1TObjects/interface/L1GtBoard.h"
+#include "CondFormats/L1TObjects/interface/L1GtBoardMaps.h"
+#include "CondFormats/DataRecord/interface/L1GtBoardMapsRcd.h"
+
 #include "L1Trigger/GlobalTrigger/interface/L1GlobalTriggerPSB.h"
 #include "L1Trigger/GlobalTrigger/interface/L1GlobalTriggerGTL.h"
 #include "L1Trigger/GlobalTrigger/interface/L1GlobalTriggerFDL.h"
@@ -54,6 +65,7 @@
 #include "DataFormats/L1GlobalTrigger/interface/L1TcsWord.h"
 
 #include "DataFormats/Common/interface/RefProd.h"
+#include "FWCore/ParameterSet/interface/InputTag.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/MessageLogger/interface/MessageDrop.h"
@@ -62,23 +74,39 @@
 
 // constructors
 
-L1GlobalTrigger::L1GlobalTrigger(const edm::ParameterSet& iConfig)
+L1GlobalTrigger::L1GlobalTrigger(const edm::ParameterSet& parSet)
 {
 
     LogDebug ("Trace") << "Entering L1GlobalTriger constructor";
+
+    // input tag for muon collection from GMT
+    m_muGmtInputTag = parSet.getUntrackedParameter<edm::InputTag>(
+                          "GmtInputTag", edm::InputTag("L1GmtEmulDigis"));
+
+    LogDebug("L1GlobalTrigger")
+    << "\nInput tag for muon collection from GMT: "
+    << m_muGmtInputTag.label() << " \n"
+    << std::endl;
+
+    // input tag for calorimeter collection from GCT
+    m_caloGctInputTag = parSet.getUntrackedParameter<edm::InputTag>(
+                            "GctInputTag", edm::InputTag("L1GctEmulDigis"));
+
+    LogDebug("L1GlobalTrigger")
+    << "\nInput tag for calorimeter collection from GCT: "
+    << m_caloGctInputTag.label() << " \n"
+    << std::endl;
+
+    // set L1 GT configuration parameters
+    if(!m_gtSetup) {
+        m_gtSetup = new L1GlobalTriggerSetup(*this, parSet);
+    }
 
     // register products
     produces<L1GlobalTriggerReadoutRecord>();
     produces<L1GlobalTriggerEvmReadoutRecord>();
     produces<L1GlobalTriggerObjectMapRecord>();
 
-    // set configuration parameters
-    if(!m_gtSetup) {
-        m_gtSetup = new L1GlobalTriggerSetup(*this, iConfig);
-    }
-
-    std::string emptyString;
-    m_gtSetup->setTriggerMenu(emptyString);
 
     // create new PSBs
     LogDebug("L1GlobalTrigger") << "\n Creating GT PSBs" << std::endl;
@@ -92,49 +120,6 @@ L1GlobalTrigger::L1GlobalTrigger(const edm::ParameterSet& iConfig)
     LogDebug("L1GlobalTrigger") << "\n Creating GT FDL" << std::endl;
     m_gtFDL = new L1GlobalTriggerFDL(*this);
 
-    // set the total number of bunch crosses in the GT readout records
-
-    m_totalBxInEvent = m_gtSetup->getParameterSet()->getParameter<int>("totalBxInEvent");
-
-    if (m_totalBxInEvent > 0) {
-        if ( (m_totalBxInEvent%2) == 0 ) {
-            m_totalBxInEvent = m_totalBxInEvent - 1;
-
-            edm::LogInfo("L1GlobalTrigger")
-            << "\nWARNING: Number of bunch crossing in event rounded to: "
-            << m_totalBxInEvent << "\n         The number must be an odd number!\n"
-            << std::endl;
-        }
-    } else {
-
-        edm::LogInfo("L1GlobalTrigger")
-        << "\nWARNING: Number of bunch crossing in event must be a positive number!"
-        << "\n  Requested value was: " << m_totalBxInEvent
-        << "\n  Reset to 1 (L1Accept bunch only).\n"
-        << std::endl;
-
-        m_totalBxInEvent = 1;
-
-    }
-
-    m_minBxInEvent = (m_totalBxInEvent + 1)/2 - m_totalBxInEvent;
-    m_maxBxInEvent = (m_totalBxInEvent + 1)/2 - 1;
-
-    LogDebug("L1GlobalTrigger")
-    << "\nTotal number of bunch crosses to put in the GT readout record: "
-    << m_totalBxInEvent << " = " << "["
-    << m_minBxInEvent << ", " << m_maxBxInEvent << "] BX\n"
-    << std::endl;
-
-    // set the list of active boards
-
-    m_activeBoards =
-        static_cast<boost::uint16_t>(
-            m_gtSetup->getParameterSet()->getParameter<unsigned int>("ActiveBoards"));
-    LogDebug("L1GlobalTrigger")
-    << "\nActive boards in L1 GT: "
-    << m_activeBoards
-    << std::endl;
 
 
 }
@@ -158,9 +143,39 @@ L1GlobalTrigger::~L1GlobalTrigger()
 void L1GlobalTrigger::produce(edm::Event& iEvent, const edm::EventSetup& evSetup)
 {
 
-    using namespace edm;
-
     // process event iEvent
+    
+    // get from EventSetup
+    //  parameter record
+    edm::ESHandle< L1GtParameters > l1GtPar;
+    evSetup.get< L1GtParametersRcd >().get( l1GtPar );
+    //  board maps
+    edm::ESHandle< L1GtBoardMaps > l1GtBM;
+    evSetup.get< L1GtBoardMapsRcd >().get( l1GtBM );
+
+    //    total number of Bx's in the event
+    int totalBxInEvent = l1GtPar->gtTotalBxInEvent();
+    
+    int minBxInEvent = (totalBxInEvent + 1)/2 - totalBxInEvent;
+    int maxBxInEvent = (totalBxInEvent + 1)/2 - 1;
+
+    LogDebug("L1GlobalTrigger")
+    << "\nTotal number of bunch crosses to put in the GT readout record: "
+    << totalBxInEvent << " = " << "["
+    << minBxInEvent << ", " << maxBxInEvent << "] BX\n"
+    << std::endl;
+
+    // get from EventSetup: active boards
+    boost::uint16_t activeBoards = l1GtPar->gtActiveBoards();
+    
+    LogDebug("L1GlobalTrigger")
+    << "\n  Active boards in L1 GT (hex format) = "
+    << std::hex << std::setw(sizeof(activeBoards)*2) << std::setfill('0')
+    << activeBoards
+    << std::dec << std::setfill(' ')
+    << std::endl;
+
+    
 
     // * produce the L1GlobalTriggerReadoutRecord
     LogDebug("L1GlobalTrigger")
@@ -168,7 +183,7 @@ void L1GlobalTrigger::produce(edm::Event& iEvent, const edm::EventSetup& evSetup
     << std::endl;
 
     std::auto_ptr<L1GlobalTriggerReadoutRecord> gtReadoutRecord(
-        new L1GlobalTriggerReadoutRecord(m_totalBxInEvent) );
+        new L1GlobalTriggerReadoutRecord(totalBxInEvent) );
 
 
     // * produce the L1GlobalTriggerEvmReadoutRecord
@@ -177,7 +192,7 @@ void L1GlobalTrigger::produce(edm::Event& iEvent, const edm::EventSetup& evSetup
     << std::endl;
 
     std::auto_ptr<L1GlobalTriggerEvmReadoutRecord> gtEvmReadoutRecord(
-        new L1GlobalTriggerEvmReadoutRecord(m_totalBxInEvent) );
+        new L1GlobalTriggerEvmReadoutRecord(totalBxInEvent) );
 
     // * produce the L1GlobalTriggerObjectMapRecord
     LogDebug("L1GlobalTrigger")
@@ -188,47 +203,20 @@ void L1GlobalTrigger::produce(edm::Event& iEvent, const edm::EventSetup& evSetup
         new L1GlobalTriggerObjectMapRecord() );
 
 
-    // TODO FIXME temporary event setup
-    L1GlobalTriggerReadoutSetup tmpGtSetup;
-    std::map<L1GlobalTriggerReadoutSetup::GtBoard, int> slotMap =
-        tmpGtSetup.GtBoardSlotMap;
-
-    typedef std::map<L1GlobalTriggerReadoutSetup::GtBoard, int>::const_iterator CItSlot;
-
-    boost::uint16_t gtfeBoardId = 0;  //  GTFE:   8 bits board identifier
-    boost::uint16_t tcsBoardId = 0;   //  other: 16 bits board identifier
-
-    for (CItSlot itSlot = slotMap.begin(); itSlot != slotMap.end(); ++itSlot) {
-
-        // active board, add its size
-        switch (itSlot->first.boardType) {
-
-            case GTFE: {
-                    gtfeBoardId = itSlot->second;
-                }
-                break;
-            case TCS: {
-                    tcsBoardId = tcsBoardId*100 + itSlot->second; // FIXME
-                }
-                break;
-            default: {
-
-                    // do nothing here
-                }
-                break;
-        }
-
-    }
 
     // * create L1GtfeExtWord
 
     L1GtfeExtWord gtfeExtWordValue;
-    gtfeExtWordValue.setBoardId(gtfeBoardId);
+    
+    int iBoard = 0;    
+    L1GtBoard gtfeBoard = L1GtBoard(GTFE, iBoard);    
+    gtfeExtWordValue.setBoardId( l1GtBM->boardId(gtfeBoard) );
+    
     // cast int to boost::uint16_t (there are normally 3 or 5 BxInEvent)
-    gtfeExtWordValue.setRecordLength(static_cast<boost::uint16_t>(m_totalBxInEvent));
+    gtfeExtWordValue.setRecordLength(static_cast<boost::uint16_t>(totalBxInEvent));
 
     // set the list of active boards
-    gtfeExtWordValue.setActiveBoards(m_activeBoards);
+    gtfeExtWordValue.setActiveBoards(activeBoards);
 
     // ** fill L1GtfeWord in GT DAQ record
 
@@ -249,6 +237,12 @@ void L1GlobalTrigger::produce(edm::Event& iEvent, const edm::EventSetup& evSetup
     // * create L1TcsWord
 
     L1TcsWord tcsWordValue;
+
+    iBoard = 0;    
+    L1GtBoard tcsBoard = L1GtBoard(TCS, iBoard);    
+    // TODO FIXME add boardId to TCS
+    // tcsWordValue.setBoardId( l1GtBM->boardId(tcsBoard) ); 
+
     tcsWordValue.setTriggerType(0x5); // 0101 simulated event
 
     // ** fill L1TcsWord in the EVM record
@@ -260,7 +254,7 @@ void L1GlobalTrigger::produce(edm::Event& iEvent, const edm::EventSetup& evSetup
     << std::endl;
 
     // loop over bx in event
-    for (int iBxInEvent = m_minBxInEvent; iBxInEvent <= m_maxBxInEvent;
+    for (int iBxInEvent = minBxInEvent; iBxInEvent <= maxBxInEvent;
             ++iBxInEvent) {
 
         // * receive GCT data via PSBs
@@ -268,8 +262,7 @@ void L1GlobalTrigger::produce(edm::Event& iEvent, const edm::EventSetup& evSetup
             LogDebug("L1GlobalTrigger")
             << "\nL1GlobalTrigger : running PSB for bx = " << iBxInEvent << "\n"
             << std::endl;
-            m_gtPSB->receiveData(iEvent, iBxInEvent);
-            //            m_gtPSB->receiveData(iEvent);
+            m_gtPSB->receiveData(iEvent, m_caloGctInputTag, iBxInEvent, evSetup);
         }
 
         // * receive GMT data via GTL
@@ -277,7 +270,7 @@ void L1GlobalTrigger::produce(edm::Event& iEvent, const edm::EventSetup& evSetup
             LogDebug("L1GlobalTrigger")
             << "\nL1GlobalTrigger : receiving GMT data for bx = " << iBxInEvent << "\n"
             << std::endl;
-            m_gtGTL->receiveData(iEvent, iBxInEvent);
+            m_gtGTL->receiveData(iEvent, m_muGmtInputTag, iBxInEvent, evSetup);
         }
 
         // * run GTL
@@ -309,7 +302,7 @@ void L1GlobalTrigger::produce(edm::Event& iEvent, const edm::EventSetup& evSetup
             << "\nL1GlobalTrigger : running FDL for bx = " << iBxInEvent << "\n"
             << std::endl;
 
-            m_gtFDL->run(iBxInEvent);
+            m_gtFDL->run(iBxInEvent, evSetup);
 
             std::ostringstream myCoutStream;
             if ( edm::isDebugEnabled() ) {
@@ -349,7 +342,7 @@ void L1GlobalTrigger::produce(edm::Event& iEvent, const edm::EventSetup& evSetup
 
     // print result for every bx in event
     if ( edm::isDebugEnabled() ) {
-        for (int iBxInEvent = m_minBxInEvent; iBxInEvent <= m_maxBxInEvent;
+        for (int iBxInEvent = minBxInEvent; iBxInEvent <= maxBxInEvent;
                 ++iBxInEvent) {
 
             gtReadoutRecord->printGtDecision(myCoutStream, iBxInEvent);
@@ -384,14 +377,14 @@ void L1GlobalTrigger::produce(edm::Event& iEvent, const edm::EventSetup& evSetup
         LogDebug("L1GlobalTrigger")
         << "\n**** "
         << "\n  Persistent reference for L1MuGMTReadoutCollection with input tag: "
-        << m_gtSetup->muGmtInputTag().label()
+        << m_muGmtInputTag.label()
         << "\n**** \n"
         << std::endl;
 
         // get L1MuGMTReadoutCollection reference and set it in GT record
 
         edm::Handle<L1MuGMTReadoutCollection> gmtRcHandle;
-        iEvent.getByLabel(m_gtSetup->muGmtInputTag().label(), gmtRcHandle);
+        iEvent.getByLabel(m_muGmtInputTag.label(), gmtRcHandle);
 
         gtReadoutRecord->setMuCollectionRefProd(gmtRcHandle);
 

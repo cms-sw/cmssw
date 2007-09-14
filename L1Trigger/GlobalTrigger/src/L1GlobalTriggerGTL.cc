@@ -46,17 +46,32 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/MessageLogger/interface/MessageDrop.h"
 
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/ParameterSet/interface/InputTag.h"
+
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+
+#include "CondFormats/L1TObjects/interface/L1GtParameters.h"
+#include "CondFormats/DataRecord/interface/L1GtParametersRcd.h"
+
+#include "CondFormats/L1TObjects/interface/L1GtFwd.h"
+#include "CondFormats/L1TObjects/interface/L1GtBoard.h"
+#include "CondFormats/L1TObjects/interface/L1GtBoardMaps.h"
+#include "CondFormats/DataRecord/interface/L1GtBoardMapsRcd.h"
+
 // forward declarations
 
 // constructor
-L1GlobalTriggerGTL::L1GlobalTriggerGTL(const L1GlobalTrigger& gt) 
-    : 
-    m_GT(gt), 
-    glt_muonCand( new GMTVector(L1GlobalTriggerReadoutSetup::NumberL1Muons) ) {
+L1GlobalTriggerGTL::L1GlobalTriggerGTL(const L1GlobalTrigger& gt)
+        :
+        m_GT(gt),
+        glt_muonCand( new GMTVector(L1GlobalTriggerReadoutSetup::NumberL1Muons) )
+{
 
     m_gtlAlgorithmOR.reset();
-    m_gtlDecisionWord.reset(); 
-    
+    m_gtlDecisionWord.reset();
+
     for ( int i = 0; i < 9; i++) {
         glt_cond[i].reset();
         glt_algos.push_back( particleBlock() );
@@ -64,17 +79,19 @@ L1GlobalTriggerGTL::L1GlobalTriggerGTL(const L1GlobalTrigger& gt)
     }
 
     glt_muonCand->reserve(L1GlobalTriggerReadoutSetup::NumberL1Muons);
-    
+
 }
 
 // destructor
-L1GlobalTriggerGTL::~L1GlobalTriggerGTL() { 
-    
+L1GlobalTriggerGTL::~L1GlobalTriggerGTL()
+{
+
     reset();
     glt_muonCand->clear();
     delete glt_muonCand;
-    
-    for (conditionContainer::iterator iter = glt_particleConditions.begin(); 
+
+    for (conditionContainer::iterator
+            iter = glt_particleConditions.begin();
             iter != glt_particleConditions.end(); iter++ ) {
         (*iter)->clear();
         delete *iter;
@@ -85,57 +102,98 @@ L1GlobalTriggerGTL::~L1GlobalTriggerGTL() {
 
 // receive input data
 
-void L1GlobalTriggerGTL::receiveData(edm::Event& iEvent, int iBxInEvent) {
+void L1GlobalTriggerGTL::receiveData(edm::Event& iEvent,
+                                     const edm::InputTag& muGmtInputTag, const int iBxInEvent,
+                                     const edm::EventSetup& evSetup)
+{
 
-    reset(); 
-    
-    // disabling Global Muon input 
+    reset();
 
-    const L1GlobalTriggerConfig* gtConf = m_GT.gtSetup()->gtConfig();
+    // check if GMT board is disabled
 
-    if ( gtConf != 0 ) { 
-        if ( gtConf->getInputMask()[1] ) {
+    // get from EventSetup: active boards
+    edm::ESHandle< L1GtParameters > l1GtPar ;
+    evSetup.get< L1GtParametersRcd >().get( l1GtPar ) ;
 
-            LogDebug("L1GlobalTriggerGTL") 
-                << "\n**** Global Muon input disabled! \n  inputMask[1] = " 
-                << gtConf->getInputMask()[1]
-                << "     All candidates empty." << "\n**** \n"
-                << std::endl;
+    boost::uint16_t activeBoards = l1GtPar->gtActiveBoards();
 
-            // set all muon candidates empty                
-            for ( unsigned int iMuon = 0; iMuon < L1GlobalTriggerReadoutSetup::NumberL1Muons; iMuon++ ) {
-        
-                MuonDataWord dataword = 0; 
-                (*glt_muonCand)[iMuon] = new L1MuGMTCand( dataword );
-            }
-            return;
-            
-        }
+    // get "active boards" map
+    edm::ESHandle< L1GtBoardMaps > l1GtBM;
+    evSetup.get< L1GtBoardMapsRcd >().get( l1GtBM );
+
+    std::map<L1GtBoard, int> activeBoardsMap = l1GtBM->gtDaqActiveBoardsMap();
+    typedef std::map<L1GtBoard, int>::const_iterator CItActive;
+
+    // just one GMT board
+    // TODO one could use the record map however to find the GMT board
+    int iBoard = 0;
+    L1GtBoard gmtBoard = L1GtBoard(GMT, iBoard);
+
+    // skip if the board is not active
+    bool activeBoard = false;
+
+    CItActive itBoard = activeBoardsMap.find(gmtBoard);
+    if (itBoard != activeBoardsMap.end()) {
+        activeBoard = activeBoards & (1 << (itBoard->second));
     } else {
-        throw cms::Exception("L1GtConfiguration")
-         << "**** No configuration file exists! \n";
+
+        // board not found in the map
+        LogDebug("L1GlobalTriggerGTL")
+        << "\nBoard of type " << itBoard->first.boardType()
+        << " with index "  << itBoard->first.boardIndex()
+        << " not found in the activeBoardsMap\n"
+        << std::endl;
+
     }
 
-    LogDebug("L1GlobalTriggerGTL") 
-        << "**** L1GlobalTriggerGTL receiving muon data from input tag " 
-        << m_GT.gtSetup()->muGmtInputTag().label()
+    if ( !activeBoard ) {
+
+        LogDebug("L1GlobalTriggerGTL")
+        << "\nBoard of type " << itBoard->first.boardType()
+        << " with index "  << itBoard->first.boardIndex()
+        << " not active (from activeBoardsMap)\n"
         << std::endl;
-    
+
+        LogDebug("L1GlobalTriggerGTL")
+        << "\n**** Global Muon input disabled!"
+        << "     All candidates empty." << "\n**** \n"
+        << std::endl;
+
+        // set all muon candidates empty
+        for ( unsigned int
+                iMuon = 0;
+                iMuon < L1GlobalTriggerReadoutSetup::NumberL1Muons; iMuon++ ) {
+
+            MuonDataWord dataword = 0;
+            (*glt_muonCand)[iMuon] = new L1MuGMTCand( dataword );
+        }
+
+        return;
+
+    }
+
+    LogDebug("L1GlobalTriggerGTL")
+    << "**** L1GlobalTriggerGTL receiving muon data from input tag "
+    << muGmtInputTag.label()
+    << std::endl;
+
 
     // get data from Global Muon Trigger
     // the GLT receives 4 * 26 bits from the Global Muon Trigger
 
     edm::Handle<std::vector<L1MuGMTCand> > muonData;
-    iEvent.getByLabel(m_GT.gtSetup()->muGmtInputTag().label(), muonData);
+    iEvent.getByLabel(muGmtInputTag.label(), muonData);
 
     for ( unsigned int iMuon = 0; iMuon < L1GlobalTriggerReadoutSetup::NumberL1Muons; iMuon++ ) {
 
         L1MuGMTCand muCand;
         unsigned int nMuon = 0;
 
-        for ( std::vector<L1MuGMTCand>::const_iterator itMuon = muonData->begin(); 
-            itMuon != muonData->end(); itMuon++ ) {
-            
+        for (std::vector<L1MuGMTCand>::const_iterator itMuon = muonData->
+                begin();
+                itMuon != muonData->end();
+                itMuon++ ) {
+
             // retrieving info for a given bx only
             if ( (*itMuon).bx() == iBxInEvent ) {
                 if ( nMuon == iMuon ) {
@@ -145,134 +203,110 @@ void L1GlobalTriggerGTL::receiveData(edm::Event& iEvent, int iBxInEvent) {
                 nMuon++;
             }
         }
-        
+
         (*glt_muonCand)[iMuon] = new L1MuGMTCand( muCand );
     }
-    
+
     if ( edm::isDebugEnabled() ) {
-        printGmtData(iBxInEvent);    
+        printGmtData(iBxInEvent);
     }
 }
 
 // run GTL
-void L1GlobalTriggerGTL::run(int iBxInEvent) {
-        
-//    LogDebug ("Trace") << "**** L1GlobalTriggerGTL run " << std::endl;
+void L1GlobalTriggerGTL::run(int iBxInEvent)
+{
+
+    //    LogDebug ("Trace") << "**** L1GlobalTriggerGTL run " << std::endl;
 
     // try xml conditions
     const L1GlobalTriggerConfig* gtConf = m_GT.gtSetup()->gtConfig();
-     
+
     if (gtConf != 0) {
         unsigned int chipnr;
-        LogDebug("L1GlobalTriggerGTL") 
-            << "\n***** Result of the XML-conditions \n" 
+        LogDebug("L1GlobalTriggerGTL")
+        << "\n***** Result of the XML-conditions \n"
+        << std::endl;
+
+        for (chipnr = 0; chipnr < L1GlobalTriggerConfig::NumberConditionChips; chipnr++) {
+            LogTrace("L1GlobalTriggerGTL")
+            << "\n---------Chip " << chipnr + 1 << " ----------\n"
             << std::endl;
 
-        for (chipnr = 0; chipnr < L1GlobalTriggerConfig::NumberConditionChips; chipnr++) { 
-            LogTrace("L1GlobalTriggerGTL") 
-                << "\n---------Chip " << chipnr + 1 << " ----------\n" 
-                << std::endl; 
-    
-            for (L1GlobalTriggerConfig::ConditionsMap::const_iterator 
-                itxml = gtConf->conditionsmap[chipnr].begin(); 
-                itxml != gtConf->conditionsmap[chipnr].end(); itxml++) {
+            for (L1GlobalTriggerConfig::ConditionsMap::const_iterator
+                    itxml = gtConf->conditionsmap[chipnr].begin();
+                    itxml != gtConf->conditionsmap[chipnr].end(); itxml++) {
 
                 std::string condName = itxml->first;
 
-                LogTrace("L1GlobalTriggerGTL") 
-                    << "\n===============================================\n" 
-                    << "Evaluating condition: " << condName 
-                    << "\n" 
-                    << std::endl;
-
-                bool condResult = itxml->second->blockCondition_sr(); 
-                
                 LogTrace("L1GlobalTriggerGTL")
-                    << condName << " result: " << condResult 
-                    << std::endl;
-                    
-//                CombinationsInCond* combsInCond = itxml->second->getCombinationsInCond();
-//                    
-//                CombinationsInCond::const_iterator itVV;
-//                std::ostringstream myCout1;                 
-//        
-//                for(itVV  = (*combsInCond).begin(); 
-//                    itVV != (*combsInCond).end(); itVV++) {
-//                    
-//                    myCout1 << "( ";
-//                
-//                    std::copy((*itVV).begin(), (*itVV).end(), 
-//                        std::ostream_iterator<int> (myCout1, " "));
-//                    
-//                    myCout1 << "); ";
-//        
-//                }
-//        
-//        
-//                LogTrace("L1GlobalTriggerGTL") 
-//                    << "\n  List of combinations passing all requirements for this condition: \n  " 
-//                    <<  myCout1.str() 
-//                    << " \n" 
-//                    << std::endl;
-                                         
-            
+                << "\n===============================================\n"
+                << "Evaluating condition: " << condName
+                << "\n"
+                << std::endl;
+
+                bool condResult = itxml->second->blockCondition_sr();
+
+                LogTrace("L1GlobalTriggerGTL")
+                << condName << " result: " << condResult
+                << std::endl;
+
             }
         }
-        
-        LogTrace("L1GlobalTriggerGTL") 
-            << "\n---------- Prealgorithms: evaluation ---------\n" 
-            << std::endl;
-        for (L1GlobalTriggerConfig::ConditionsMap::const_iterator 
-            itxml  = gtConf->prealgosmap.begin(); 
-            itxml != gtConf->prealgosmap.end(); itxml++) {
-                                
+
+        LogTrace("L1GlobalTriggerGTL")
+        << "\n---------- Prealgorithms: evaluation ---------\n"
+        << std::endl;
+        for (L1GlobalTriggerConfig::ConditionsMap::const_iterator
+                itxml  = gtConf->prealgosmap.begin();
+                itxml != gtConf->prealgosmap.end(); itxml++) {
+
             std::string prealgoName = itxml->first;
-            bool prealgoResult = itxml->second->blockCondition_sr(); 
+            bool prealgoResult = itxml->second->blockCondition_sr();
             std::string prealgoLogExpression = itxml->second->getLogicalExpression();
             std::string prealgoNumExpression = itxml->second->getNumericExpression();
-            
+
             // set the pins if VERSION_FINAL (final version uses prealgorithms)
             if (gtConf->getVersion() == L1GlobalTriggerConfig::VERSION_FINAL) {
 
                 // algo( i ) = prealgo( i+1 ), i = 0, MaxNumberAlgorithms
-                int prealgoNumber = itxml->second->getAlgoNumber();               
-    
+                int prealgoNumber = itxml->second->getAlgoNumber();
+
                 if (itxml->second->getLastResult()) {
                     if (prealgoNumber > 0) {
                         m_gtlAlgorithmOR.set( prealgoNumber-1);
-                        
+
                     }
                 }
-                
-                LogTrace("L1GlobalTriggerGTL")
-                    << " Bit " << prealgoNumber-1
-                    << " " << prealgoName << " = " << prealgoLogExpression << ": " 
-                    << m_gtlAlgorithmOR[ prealgoNumber-1 ]
-                    << " = " << prealgoNumExpression
-                    << std::endl;
-            } else {
-            
-                LogTrace("L1GlobalTriggerGTL")
-                    << " " << prealgoName << " = " << prealgoLogExpression << ": " 
-                    << prealgoResult 
-                    << " = " << prealgoNumExpression
-                    << std::endl;
-            }
-            
-        }
-        LogTrace("L1GlobalTriggerGTL") 
-            << "\n---------- End of prealgorithm list ---------\n" 
-            << std::endl;
 
-        LogTrace("L1GlobalTriggerGTL") 
-            << "\n---------- Algorithms: evaluation ----------\n" 
-            << std::endl;
-        for (L1GlobalTriggerConfig::ConditionsMap::const_iterator 
-            itxml  = gtConf->algosmap.begin(); 
-            itxml != gtConf->algosmap.end(); itxml++) {
-            
+                LogTrace("L1GlobalTriggerGTL")
+                << " Bit " << prealgoNumber-1
+                << " " << prealgoName << " = " << prealgoLogExpression << ": "
+                << m_gtlAlgorithmOR[ prealgoNumber-1 ]
+                << " = " << prealgoNumExpression
+                << std::endl;
+            } else {
+
+                LogTrace("L1GlobalTriggerGTL")
+                << " " << prealgoName << " = " << prealgoLogExpression << ": "
+                << prealgoResult
+                << " = " << prealgoNumExpression
+                << std::endl;
+            }
+
+        }
+        LogTrace("L1GlobalTriggerGTL")
+        << "\n---------- End of prealgorithm list ---------\n"
+        << std::endl;
+
+        LogTrace("L1GlobalTriggerGTL")
+        << "\n---------- Algorithms: evaluation ----------\n"
+        << std::endl;
+        for (L1GlobalTriggerConfig::ConditionsMap::const_iterator
+                itxml  = gtConf->algosmap.begin();
+                itxml != gtConf->algosmap.end(); itxml++) {
+
             std::string algoName = itxml->first;
-            bool algoResult = itxml->second->blockCondition_sr(); 
+            bool algoResult = itxml->second->blockCondition_sr();
             std::string algoLogExpression = itxml->second->getLogicalExpression();
             std::string algoNumExpression = itxml->second->getNumericExpression();
 
@@ -285,50 +319,51 @@ void L1GlobalTriggerGTL::run(int iBxInEvent) {
                 }
 
                 LogTrace("L1GlobalTriggerGTL")
-                    << " Bit " << itxml->second->getOutputPin()-1
-                    << " " << algoName << " = " << algoLogExpression  
-                    << " = " << algoNumExpression
-                    << std::endl;
+                << " Bit " << itxml->second->getOutputPin()-1
+                << " " << algoName << " = " << algoLogExpression
+                << " = " << algoNumExpression
+                << std::endl;
 
-            } else {           
-                                     
+            } else {
+
                 LogTrace("L1GlobalTriggerGTL")
-                    << "  " << algoName << " = " << algoLogExpression 
-                    << " = " << algoNumExpression  << " = " << algoResult
-                    << std::endl;
+                << "  " << algoName << " = " << algoLogExpression
+                << " = " << algoNumExpression  << " = " << algoResult
+                << std::endl;
             }
 
         }
-        LogTrace("L1GlobalTriggerGTL") 
-            << "\n---------- End of algorithm list ----------\n" 
-            << std::endl;
+        LogTrace("L1GlobalTriggerGTL")
+        << "\n---------- End of algorithm list ----------\n"
+        << std::endl;
 
     }
-    
+
 }
 
 // fill object map record
-const std::vector<L1GlobalTriggerObjectMap>* L1GlobalTriggerGTL::objectMap() {
+const std::vector<L1GlobalTriggerObjectMap>* L1GlobalTriggerGTL::objectMap()
+{
 
     const L1GlobalTriggerConfig* gtConf = m_GT.gtSetup()->gtConfig();
-    
+
     // empty vector for object maps
-    std::vector<L1GlobalTriggerObjectMap>* 
-        objMapVec = new std::vector<L1GlobalTriggerObjectMap>();
-        
+    std::vector<L1GlobalTriggerObjectMap>*
+    objMapVec = new std::vector<L1GlobalTriggerObjectMap>();
+
     // do it only if VERSION_FINAL
     if (gtConf->getVersion() == L1GlobalTriggerConfig::VERSION_FINAL) {
-    
+
         L1GlobalTriggerObjectMap* objMap = new L1GlobalTriggerObjectMap();
-        
-        for (L1GlobalTriggerConfig::ConditionsMap::const_iterator 
-            itxml  = gtConf->prealgosmap.begin(); 
-            itxml != gtConf->prealgosmap.end(); itxml++) {
-                                
+
+        for (L1GlobalTriggerConfig::ConditionsMap::const_iterator
+                itxml  = gtConf->prealgosmap.begin();
+                itxml != gtConf->prealgosmap.end(); itxml++) {
+
             std::string prealgoNameVal = itxml->first;
 
             // algo( i ) = prealgo( i+1 ), i = 0, MaxNumberAlgorithms
-            int prealgoNumberVal = itxml->second->getAlgoNumber(); 
+            int prealgoNumberVal = itxml->second->getAlgoNumber();
             int algoBitNumberVal = prealgoNumberVal -1;
 
             bool prealgoResultVal = itxml->second->getLastResult();
@@ -336,16 +371,16 @@ const std::vector<L1GlobalTriggerObjectMap>* L1GlobalTriggerGTL::objectMap() {
             std::string prealgoLogExpressionVal = itxml->second->getLogicalExpression();
             std::string prealgoNumExpressionVal = itxml->second->getNumericExpression();
 
-            std::vector<CombinationsInCond> combVectorVal = 
-                itxml->second->getCombinationVector(); 
+            std::vector<CombinationsInCond> combVectorVal =
+                itxml->second->getCombinationVector();
 
-            std::vector<ObjectTypeInCond> objTypeVal = 
-                itxml->second->getObjectTypeVector(); 
-            
+            std::vector<ObjectTypeInCond> objTypeVal =
+                itxml->second->getObjectTypeVector();
+
             // set object map
-            
+
             objMap->reset();
-            
+
             objMap->setAlgoName(prealgoNameVal);
             objMap->setAlgoBitNumber(algoBitNumberVal);
             objMap->setAlgoGtlResult(prealgoResultVal);
@@ -353,30 +388,31 @@ const std::vector<L1GlobalTriggerObjectMap>* L1GlobalTriggerGTL::objectMap() {
             objMap->setAlgoNumericalExpression(prealgoNumExpressionVal);
             objMap->setCombinationVector(combVectorVal);
             objMap->setObjectTypeVector(objTypeVal);
-            
-            std::ostringstream myCout1;                 
+
+            std::ostringstream myCout1;
             objMap->print(myCout1);
 
-            LogTrace("L1GlobalTriggerGTL") 
-                <<  myCout1.str() 
-                << std::endl;
-                
+            LogTrace("L1GlobalTriggerGTL")
+            <<  myCout1.str()
+            << std::endl;
+
             objMapVec->push_back(*objMap);
-                                                
-            // after last usage, objMapVec must be deleted! 
-            
+
+            // after last usage, objMapVec must be deleted!
+
         }
-        
+
         delete objMap;
     }
 
     return objMapVec;
-    
+
 }
 
 // clear GTL
-void L1GlobalTriggerGTL::reset() {
-    
+void L1GlobalTriggerGTL::reset()
+{
+
     GMTVector::iterator iter;
     for ( iter = glt_muonCand->begin(); iter < glt_muonCand->end(); iter++ ) {
         if (*iter) {
@@ -386,7 +422,7 @@ void L1GlobalTriggerGTL::reset() {
     }
 
     m_gtlDecisionWord.reset();
-    
+
     // TODO get rid of 9 hardwired!!!!!
     for (int i = 0; i < 9; i++) {
         glt_cond[i].reset();
@@ -398,21 +434,25 @@ void L1GlobalTriggerGTL::reset() {
 
 // print Global Muon Trigger data
 
-void L1GlobalTriggerGTL::printGmtData(int iBxInEvent) const {
-    
-    LogTrace("L1GlobalTriggerGTL") 
-        << "\nMuon data received by GTL for BxInEvent = " << iBxInEvent << std::endl;
-    
-    for ( GMTVector::iterator iter = glt_muonCand->begin(); 
+void L1GlobalTriggerGTL::printGmtData(int iBxInEvent) const
+{
+
+    LogTrace("L1GlobalTriggerGTL")
+    << "\nMuon data received by GTL for BxInEvent = " << iBxInEvent << std::endl;
+
+    for ( GMTVector::iterator iter = glt_muonCand->begin();
             iter < glt_muonCand->end(); iter++ ) {
 
-        (*iter)->print();
-        
         LogTrace("L1GlobalTriggerGTL")
-            << "Indices: pt = " << (*iter)->ptIndex() 
-            << " eta = " << (*iter)->etaIndex()  
-            << " phi = " << (*iter)->phiIndex()
-            << std::endl;  
+        << std::endl;
+
+        (*iter)->print();
+
+        LogTrace("L1GlobalTriggerGTL")
+        << "Indices: pt = " << (*iter)->ptIndex()
+        << " eta = " << (*iter)->etaIndex()
+        << " phi = " << (*iter)->phiIndex()
+        << std::endl;
 
     }
 
@@ -421,12 +461,13 @@ void L1GlobalTriggerGTL::printGmtData(int iBxInEvent) const {
 }
 
 
-const std::vector<MuonDataWord> L1GlobalTriggerGTL::getMuons() const { 
+const std::vector<MuonDataWord> L1GlobalTriggerGTL::getMuons() const
+{
 
     std::vector<MuonDataWord> muon(L1GlobalTriggerReadoutSetup::NumberL1Muons);
 
     for (unsigned int i = 0; i < L1GlobalTriggerReadoutSetup::NumberL1Muons; i++) {
-        muon[i] = (*glt_muonCand)[i]->getDataWord(); 
+        muon[i] = (*glt_muonCand)[i]->getDataWord();
     }
 
     return muon;
