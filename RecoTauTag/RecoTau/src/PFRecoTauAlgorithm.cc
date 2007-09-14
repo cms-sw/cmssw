@@ -62,7 +62,7 @@ PFTau PFRecoTauAlgorithm::buildPFTau(const PFTauTagInfoRef& myPFTauTagInfoRef,co
   PFTauElementsOperators myPFTauElementsOperators(myPFTau);
   TFormula myMatchingConeSizeTFormula=myPFTauElementsOperators.computeConeSizeTFormula(MatchingConeSizeFormula_,"Matching cone size");
   double myMatchingConeSize=myPFTauElementsOperators.computeConeSize(myMatchingConeSizeTFormula,MatchingConeVariableSize_min_,MatchingConeVariableSize_max_);
-  PFCandidateRef myleadPFCand=myPFTauElementsOperators.leadPFCand(MatchingConeMetric_,myMatchingConeSize,LeadChargedHadrCand_minPt_);
+  PFCandidateRef myleadPFCand=myPFTauElementsOperators.leadPFChargedHadrCand(MatchingConeMetric_,myMatchingConeSize,LeadChargedHadrCand_minPt_);
   bool myleadPFCand_rectkavailable=false;
   double myleadPFCand_rectkDZ=0.;
   double myPFTau_refInnerPosition_x=0.;
