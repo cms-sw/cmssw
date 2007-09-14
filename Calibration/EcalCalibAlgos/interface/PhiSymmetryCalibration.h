@@ -94,7 +94,7 @@ class PhiSymmetryCalibration :  public edm::EDAnalyzer
 
   // input calibration constants
   double oldCalibs_barl[85][360][2];
-  double oldCalibs_endc[85][360][2];
+  double oldCalibs_endc[100][360][2];
 
   // steering parameters
 
