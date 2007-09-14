@@ -1748,7 +1748,7 @@ END COMMENT-->
   <rChild name="YB1_w1N_b5"/> 
   <ParE name="startCopyNo" value="4" />
   <ParE name="n" value="9 "/> 
-  <ParE name="startAngle" value="355.706*deg"/> 
+  <ParE name="startAngle" value="85.706*deg"/> 
   <ParE name="rangeAngle" value="240*deg"/> 
   <ParE name="radius" value="4.67312*m"/> 
   <ParE name="rotateSolid" value="0"/> 
