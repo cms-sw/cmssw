@@ -38,4 +38,13 @@
   <class name="std::map<std::string, std::string>"/>
   <class name="std::map<std::string, std::string>::value_type"/>
   <class name="L1RCTParameters"/>
+  <class name="L1GtPrescaleFactors"/>
+  <class name="L1GtTriggerMask"/>
+  <class name="L1GtParameters"/>
+  <class name="L1GtBoard"/>
+  <class name="L1GtBoardMaps"/>
+  <class name="std::map<int, L1GtBoard>"/>
+  <class name="std::map<int, L1GtCaloQuad>"/>
+  <class name="std::map<int, int>"/> 
+  
 </lcgdict>
