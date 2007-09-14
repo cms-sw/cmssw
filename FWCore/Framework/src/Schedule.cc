@@ -349,7 +349,7 @@ namespace edm {
 	std::string const newname("WronglyPlaced");
 	unsigned int const pos(end_path_name_list_.size());
 	Path p(pos,newname,tmp_wrongly_placed_,
-	       endpath_results_,pset_,*act_table_,act_reg_);
+	       endpath_results_,pset_,*act_table_,act_reg_,true);
 	end_paths_.push_back(p);
 	end_path_name_list_.push_back(newname);
       }
@@ -422,7 +422,7 @@ namespace edm {
 
       // an empty path will cause an extra bit that is not used
       if(!goodworkers.empty()) {
-	Path p(bitpos,name,goodworkers,trptr,pset_,*act_table_,act_reg_);
+	Path p(bitpos,name,goodworkers,trptr,pset_,*act_table_,act_reg_,false);
 	trig_paths_.push_back(p);
       }
       all_workers_.insert(holder.begin(),holder.end());
@@ -438,7 +438,7 @@ namespace edm {
       transform(tmpworkers.begin(),tmpworkers.end(),
 		back_inserter(holder),ToWorker());
 
-      Path p(bitpos,name,tmpworkers,endpath_results_,pset_,*act_table_,act_reg_);
+      Path p(bitpos,name,tmpworkers,endpath_results_,pset_,*act_table_,act_reg_,true);
       end_paths_.push_back(p);
       all_workers_.insert(holder.begin(), holder.end());
     }

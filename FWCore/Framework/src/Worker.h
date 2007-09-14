@@ -6,7 +6,7 @@
 Worker: this is a basic scheduling unit - an abstract base class to
 something that is really a producer or filter.
 
-$Id: Worker.h,v 1.26 2007/08/29 15:25:31 wmtan Exp $
+$Id: Worker.h,v 1.27 2007/09/13 19:11:20 wmtan Exp $
 
 A worker will not actually call through to the module unless it is
 in a Ready state.  After a module is actually run, the state will not
@@ -28,6 +28,7 @@ the worker is reset().
 #include "FWCore/Framework/src/WorkerParams.h"
 #include "FWCore/Framework/interface/Actions.h"
 #include "FWCore/Framework/interface/BranchActionType.h"
+#include "FWCore/Framework/interface/CurrentProcessingContext.h"
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
@@ -209,7 +210,13 @@ namespace edm {
 	// a module will only be printed during the full true processing
 	// pass of this module
 
-	switch(actions_->find(e.rootCause())) {
+	actions::ActionCodes action = actions_->find(e.rootCause());
+	// If we are processing an endpath, treat SkipEvent or FailPath
+	// as FailModule, so any subsequent OutputModules are still run.
+	if (cpc->isEndPath()) {
+	  if (action == actions::SkipEvent || action == actions::FailPath) action = actions::FailModule;
+	}
+	switch(action) {
 	  case actions::IgnoreCompletely: {
 	      rc=true;
 	      if (isEvent) ++timesPassed_;
@@ -223,7 +230,7 @@ namespace edm {
 	  case actions::FailModule: {
 	      rc=true;
 	      LogWarning("FailModule")
-                << "Module failed an event due to exception\n"
+                << "Module failed due to an exception\n"
                 << e.what() << "\n";
 	      if (isEvent) ++timesFailed_;
 	      state_ = Fail;

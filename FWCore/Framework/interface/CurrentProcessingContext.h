@@ -31,7 +31,7 @@ namespace edm
     /// Create a CurrentProcessingContext ready to handle the Path
     /// with given name and bit position (slot in Schedule).
     CurrentProcessingContext(std::string const* name,
-			     int bitpos);			     
+			     int bitpos, bool isEndPth);
 
     /// The compiler-generated copy c'tor and d'tor are correct,
     /// because all our resources are contained by value. We do not
@@ -59,6 +59,9 @@ namespace edm
     /// is active, and -1 otherwise.
     int slotInPath() const;
 
+    /// Return true if the path is an end path, and false otherwise.
+    bool isEndPath() const;
+
     /// Set the context to reflect the active state.
     void activate(std::size_t theSlotInPath,
 		  ModuleDescription const* mod);
@@ -73,6 +76,7 @@ namespace edm
     std::size_t              slotInPath_;
     ModuleDescription const* moduleDescription_;
     std::string const*       pathName_;
+    bool		     isEndPath_;
 
     bool is_active() const { return moduleDescription_ != 0; }
   };

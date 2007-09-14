@@ -4,7 +4,7 @@
 /*
   Author: Jim Kowalkowski  28-01-06
 
-  $Id: Schedule.h,v 1.26 2007/09/04 19:39:36 paterno Exp $
+  $Id: Schedule.h,v 1.27 2007/09/11 21:57:18 paterno Exp $
 
   A class for creating a schedule based on paths in the configuration file.
   The schedule is maintained as a sequence of paths.
@@ -342,54 +342,71 @@ namespace edm {
       //If the CallPrePost object is used, it must live for the entire time the event is
       // being processed
       std::auto_ptr<CallPrePost> sentry;
-      if (isEvent) {
- 	sentry = std::auto_ptr<CallPrePost>(new CallPrePost(act_reg_.get(), &ep, &es));
+      try {
+        if (isEvent) {
+ 	  sentry = std::auto_ptr<CallPrePost>(new CallPrePost(act_reg_.get(), &ep, &es));
+        }
+        if (runTriggerPaths(ep, es, bat)) {
+	  if (isEvent) ++total_passed_;
+        }
+        state_ = Latched;
+	
+        if (results_inserter_.get()) results_inserter_->doWork(ep, es, bat, 0);
+      }
+      catch(cms::Exception& e) {
+        actions::ActionCodes code = act_table_->find(e.rootCause());
+        assert (code != actions::FailPath);
+        assert (code != actions::FailModule);
+        switch(code) {
+        case actions::IgnoreCompletely: {
+  	  LogWarning(e.category())
+  	    << "exception being ignored for current event:\n"
+  	    << e.what();
+  	  break;
+        }
+        case actions::SkipEvent: {
+          if (isEvent) {
+            LogWarning(e.category())
+              << "an exception occurred and all paths for the event are being skipped: \n"
+              << e.what();
+          } else {
+            LogWarning(e.category())
+              << "an exception occurred and all paths are being skipped: \n"
+              << e.what();
+          }
+  	  break;
+        }
+        default: {
+ 	  throw;
+        }
+        }
       }
 
-      if (runTriggerPaths(ep, es, bat)) {
-	if (isEvent) ++total_passed_;
-      }
-      state_ = Latched;
-	
-      if (results_inserter_.get()) results_inserter_->doWork(ep, es, bat, 0);
-	
       if (endpathsAreActive_) runEndPaths(ep, es, bat);
     }
-    catch(cms::Exception& e) {
-      actions::ActionCodes code = act_table_->find(e.rootCause());
-
+    catch(cms::Exception& ex) {
+      actions::ActionCodes code = act_table_->find(ex.rootCause());
+      assert (code != actions::SkipEvent);
+      assert (code != actions::FailPath);
+      assert (code != actions::FailModule);
       switch(code) {
       case actions::IgnoreCompletely: {
-	LogWarning(e.category())
-	  << "exception being ignored for current event:\n"
-	  << e.what();
-	break;
-      }
-      case actions::SkipEvent: {
-        if (isEvent) {
-          LogWarning(e.category())
-            << "an exception occurred and event is being skipped: \n"
-            << e.what();
-          reportSkipped(ep);
-        } else {
-	  state_ = Ready;
-	  throw edm::Exception(errors::EventProcessorFailure,
-			     "EventProcessingStopped",e)
-	    << "an exception ocurred during current event processing\n";
-        }
-	break;
+  	LogWarning(ex.category())
+  	  << "exception being ignored for current event:\n"
+  	  << ex.what();
+  	break;
       }
       default: {
-	state_ = Ready;
-	throw edm::Exception(errors::EventProcessorFailure,
-			     "EventProcessingStopped",e)
-	  << "an exception ocurred during current event processing\n";
+        state_ = Ready;
+        throw edm::Exception(errors::EventProcessorFailure,
+			     "EventProcessingStopped",ex)
+	  << "an exception occurred during current event processing\n";
       }
       }
     }
     catch(...) {
       LogError("PassingThrough")
-	<< "an exception ocurred during current event processing\n";
+	<< "an exception occurred during current event processing\n";
       state_ = Ready;
       throw;
     }

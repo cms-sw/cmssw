@@ -10,15 +10,18 @@ namespace edm
     pathInSchedule_(0),
     slotInPath_(0),
     moduleDescription_(0),
-    pathName_(0)
+    pathName_(0),
+    isEndPath_(false)
   { }
 
   CurrentProcessingContext::CurrentProcessingContext(string const* name,
-						     int bitpos) :
+						     int bitpos,
+						     bool isEndPth) :
     pathInSchedule_(bitpos),
     slotInPath_(0),
     moduleDescription_(0),
-    pathName_(name)
+    pathName_(name),
+    isEndPath_(isEndPth)
   { }
 
   string const*
@@ -56,6 +59,12 @@ namespace edm
     return is_active()
       ? static_cast<int>(slotInPath_)
       : -1;
+  }
+
+  bool
+  CurrentProcessingContext::isEndPath() const
+  {
+    return isEndPath_;
   }
 
   void

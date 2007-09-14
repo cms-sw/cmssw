@@ -10,7 +10,8 @@ namespace edm {
 	     TrigResPtr trptr,
 	     ParameterSet const&,
 	     ActionTable& actions,
-	     ActivityRegistryPtr areg):
+	     ActivityRegistryPtr areg,
+	     bool isEndPath):
     stopwatch_(new RunStopwatch::StopwatchPointer::element_type),
     timesRun_(),
     timesPassed_(),
@@ -22,7 +23,8 @@ namespace edm {
     trptr_(trptr),
     act_reg_(areg),
     act_table_(&actions),
-    workers_(workers)
+    workers_(workers),
+    isEndPath_(isEndPath)
   {
   }
   
@@ -35,7 +37,7 @@ namespace edm {
     // different exception behavior
     
     actions::ActionCodes code = act_table_->find(e.rootCause());
-
+    assert (code != actions::FailModule);
     switch(code) {
       case actions::IgnoreCompletely: {
 	  LogWarning(e.category())
@@ -55,9 +57,7 @@ namespace edm {
 	  if (isEvent) ++timesExcept_;
 	  state_ = edm::hlt::Exception;
 	  recordStatus(nwrwue, isEvent);
-	  throw edm::Exception(errors::ScheduleExecutionFailure,
-			       "ProcessingStopped", e)
-	    << "Exception going through path " << name_ << "\n";
+	  throw e << "Exception going through path " << name_ << "\n";
       }
     }
 

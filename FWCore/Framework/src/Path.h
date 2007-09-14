@@ -5,7 +5,7 @@
 
   Author: Jim Kowalkowski 28-01-06
 
-  $Id: Path.h,v 1.13 2007/06/05 04:02:32 wmtan Exp $
+  $Id: Path.h,v 1.14 2007/06/14 17:52:18 wmtan Exp $
 
   An object of this type represents one path in a job configuration.
   It holds the assigned bit position and the list of workers that are
@@ -45,7 +45,8 @@ namespace edm {
 	 TrigResPtr trptr,
 	 ParameterSet const& proc_pset,
 	 ActionTable& actions,
-	 ActivityRegistryPtr reg);
+	 ActivityRegistryPtr reg,
+	 bool isEndPath);
 
     template <typename T>
     void runOneEvent(T&, EventSetup const&, BranchActionType const&);
@@ -91,6 +92,8 @@ namespace edm {
     ActionTable* act_table_;
 
     WorkersInPath workers_;
+
+    bool isEndPath_;
 
     // Helper functions
     // nwrwue = numWorkersRunWithoutUnhandledException (really!)
@@ -147,7 +150,7 @@ namespace edm {
 
     // nwrue =  numWorkersRunWithoutUnhandledException
     bool should_continue = true;
-    CurrentProcessingContext cpc(&name_, bitPosition());
+    CurrentProcessingContext cpc(&name_, bitPosition(), isEndPath_);
 
     WorkersInPath::size_type idx = 0;
     // It seems likely that 'nwrwue' and 'idx' can never differ ---

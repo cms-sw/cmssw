@@ -41,17 +41,17 @@ namespace edmtest {
   //
   class FailingProducer : public edm::EDProducer {
   public:
-    explicit FailingProducer(edm::ParameterSet const& /*p*/) {  }
+    explicit FailingProducer(edm::ParameterSet const& /*p*/) {
+      produces<IntProduct>();
+    }
     virtual ~FailingProducer() { }
     virtual void produce(edm::Event& e, edm::EventSetup const& c);
   };
 
   void
   FailingProducer::produce(edm::Event&, edm::EventSetup const&) {
-    // We throw a double because the EventProcessor is *never*
-    // configured to catch doubles.
-    double x = 2.5;
-    throw x;
+    // We throw an edm exception with a configurable action.
+    throw edm::Exception(edm::errors::NotFound) << "Intentional 'NotFound' exception for testing purposes\n";
   }
 
   //--------------------------------------------------------------------
