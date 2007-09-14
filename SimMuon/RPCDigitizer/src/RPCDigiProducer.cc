@@ -6,8 +6,17 @@
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
 #include "SimDataFormats/CrossingFrame/interface/CrossingFrame.h"
 #include "SimDataFormats/CrossingFrame/interface/MixCollection.h"
-
-
+#include "DataFormats/Common/interface/Handle.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "Geometry/Records/interface/MuonGeometryRecord.h"
+#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
+#include "SimDataFormats/CrossingFrame/interface/MixCollection.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/Utilities/interface/RandomNumberGenerator.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
 
 RPCDigiProducer::RPCDigiProducer(const edm::ParameterSet& ps) {
   theDigitizer = new RPCDigitizer(ps);
@@ -23,14 +32,13 @@ RPCDigiProducer::~RPCDigiProducer() {
 void RPCDigiProducer::produce(edm::Event& e, const edm::EventSetup& eventSetup) {
 
   edm::Handle<CrossingFrame<PSimHit> > cf;
+  e.getByLabel("mix", "MuonRPCHits", cf);
 
   // test access to SimHits
   const std::string hitsName("MuonRPCHits");
-  e.getByLabel("mix",hitsName,cf);
 
   std::auto_ptr<MixCollection<PSimHit> > 
-    hits( new MixCollection<PSimHit>(cf.product()));
-
+    hits( new MixCollection<PSimHit>(cf.product()) );
 
   // Create empty output
   std::auto_ptr<RPCDigiCollection> pDigis(new RPCDigiCollection());
@@ -48,8 +56,8 @@ void RPCDigiProducer::produce(edm::Event& e, const edm::EventSetup& eventSetup) 
   //theDigitizer->setMagneticField(&*magfield);
 
   // run the digitizer
-  theDigitizer->doAction(*hits, *pDigis);
 
+  theDigitizer->doAction(*hits, *pDigis);
 
   // store them in the event
   e.put(pDigis);

@@ -158,7 +158,6 @@ void
 RPCSimAverage::simulate(const RPCRoll* roll,
 			const edm::PSimHitContainer& rpcHits,const RPCGeometry* geo)
 {
-
   _rpcSync->setGeometry(geo);
   _rpcSync->setReadOutTime(geo);
 
@@ -172,7 +171,6 @@ RPCSimAverage::simulate(const RPCRoll* roll,
 
   for (edm::PSimHitContainer::const_iterator _hit = rpcHits.begin();
        _hit != rpcHits.end(); ++_hit){
- 
 
     // Here I hould check if the RPC are up side down;
     const LocalPoint& entr=_hit->entryPoint();
@@ -224,12 +222,9 @@ RPCSimAverage::simulate(const RPCRoll* roll,
 	}
       }
 
-//       std::cout<<"CLUSTER SIZE: "<<cls.size()<<std::endl;
-
       for (std::vector<int>::iterator i=cls.begin(); i!=cls.end();i++){
 	// Check the timing of the adjacent strip
 	std::pair<int, int> digi(*i,_rpcSync->getSimHitBx(&(*_hit)));
-	//	std::cout<<"STRIP: "<<*i<<"  "<<"BX: "<<bx<<std::endl;
 	strips.insert(digi);
       }
     }

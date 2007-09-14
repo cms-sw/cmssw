@@ -43,12 +43,8 @@ void RPCDigitizer::doAction(MixCollection<PSimHit> & simHits,
     LogDebug("RPCDigitizer") << "RPCDigitizer: found " << rollSimHits.size() <<" hit(s) in the rpc roll";
     TimeMe t2("RPCSim");
 
-<<<<<<< RPCDigitizer.cc
     theRPCSim->simulate(roll, rollSimHits,theGeometry);
 
-=======
-    theRPCSim->simulate(roll, rollSimHits, theGeometry);
->>>>>>> 1.8
     theRPCSim->fillDigis(rollDetId,rpcDigis);
   }
 }

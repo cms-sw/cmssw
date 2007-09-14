@@ -52,5 +52,11 @@ class RPCSynchronizer
   double resEle;
   double sspeed;
   double lbGate;
+  double lbGateNew;
+
+  std::string filename;
+  bool file;
+  bool cosmics;
+  std::fstream* infile;
 };
 #endif
