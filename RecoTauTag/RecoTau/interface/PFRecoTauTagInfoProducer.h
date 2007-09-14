@@ -42,6 +42,7 @@ class PFRecoTauTagInfoProducer : public EDProducer {
   virtual void produce(Event&,const EventSetup&);
  private:
   PFRecoTauTagInfoAlgorithm* PFRecoTauTagInfoAlgo_;
+  string PFCandidateProducer_;
   string PFJetTracksAssociatorProducer_;
   string PVProducer_;
   double smearedPVsigmaX_;

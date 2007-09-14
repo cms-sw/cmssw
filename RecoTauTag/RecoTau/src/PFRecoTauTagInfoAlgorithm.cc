@@ -22,14 +22,22 @@ PFRecoTauTagInfoAlgorithm::PFRecoTauTagInfoAlgorithm(const ParameterSet& paramet
   ChargedHadrCand_tkPVmaxDZ_          = parameters.getParameter<double>("ChargedHadrCand_tkPVmaxDZ");
   tkPVmaxDZ_                          = parameters.getParameter<double>("tkPVmaxDZ");
 }
-PFTauTagInfo PFRecoTauTagInfoAlgorithm::buildPFTauTagInfo(const PFJetRef& thePFJet,const TrackRefVector& theTracks,const Vertex& thePV){
+PFTauTagInfo PFRecoTauTagInfoAlgorithm::buildPFTauTagInfo(const PFJetRef& thePFJet,const PFCandidateRefVector& thePFCandsInEvent,const TrackRefVector& theTracks,const Vertex& thePV){
   PFTauTagInfo resultExtended;
   resultExtended.setpfjetRef(thePFJet);
   
   PFCandidateRefVector thePFCands;
-  for (CandidateBaseRefVector ::const_iterator iConstit=(*thePFJet).getJetConstituents().begin();iConstit!=(*thePFJet).getJetConstituents().end();iConstit++) 
-    thePFCands.push_back((*iConstit).castTo<PFCandidateRef>());
-
+  CandidateBaseRefVector theCandidateBaseRefVector=(*thePFJet).getJetConstituents();
+  for(unsigned int i_Constit=0;i_Constit!=theCandidateBaseRefVector.size();i_Constit++) { 
+    const PFCandidate* thePFCand=dynamic_cast<const PFCandidate*>(&*(theCandidateBaseRefVector[i_Constit]));
+    for (PFCandidateRefVector::const_iterator iPFCand=thePFCandsInEvent.begin();iPFCand!=thePFCandsInEvent.end();iPFCand++){
+      if ((*thePFCand).p4()==(**iPFCand).p4() && (*thePFCand).vertex()==(**iPFCand).vertex() && (*thePFCand).charge()==(**iPFCand).charge()){
+	thePFCands.push_back(*iPFCand);
+	break;
+      } 
+    }
+  }
+  
   PFCandidateRefVector theFilteredPFChargedHadrCands;
   if (UsePVconstraint_) theFilteredPFChargedHadrCands=TauTagTools::filteredPFChargedHadrCands(thePFCands,ChargedHadrCand_tkminPt_,ChargedHadrCand_tkminPixelHitsn_,ChargedHadrCand_tkminTrackerHitsn_,ChargedHadrCand_tkmaxipt_,ChargedHadrCand_tkmaxChi2_,ChargedHadrCand_tkPVmaxDZ_,thePV.z());
   else theFilteredPFChargedHadrCands=TauTagTools::filteredPFChargedHadrCands(thePFCands,ChargedHadrCand_tkminPt_,ChargedHadrCand_tkminPixelHitsn_,ChargedHadrCand_tkminTrackerHitsn_,ChargedHadrCand_tkmaxipt_,ChargedHadrCand_tkmaxChi2_);

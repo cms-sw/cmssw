@@ -21,7 +21,7 @@ class  PFRecoTauTagInfoAlgorithm  {
   PFRecoTauTagInfoAlgorithm(){}
   PFRecoTauTagInfoAlgorithm(const ParameterSet&);
   ~PFRecoTauTagInfoAlgorithm(){}
-  PFTauTagInfo buildPFTauTagInfo(const PFJetRef&,const TrackRefVector&,const Vertex&); 
+  PFTauTagInfo buildPFTauTagInfo(const PFJetRef&,const PFCandidateRefVector&,const TrackRefVector&,const Vertex&); 
  private: 
   double ChargedHadrCand_tkminPt_;
   int ChargedHadrCand_tkminPixelHitsn_;

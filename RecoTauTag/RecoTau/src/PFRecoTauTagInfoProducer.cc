@@ -1,6 +1,7 @@
 #include "RecoTauTag/RecoTau/interface/PFRecoTauTagInfoProducer.h"
 
 PFRecoTauTagInfoProducer::PFRecoTauTagInfoProducer(const ParameterSet& iConfig){
+  PFCandidateProducer_                = iConfig.getParameter<string>("PFCandidateProducer");
   PFJetTracksAssociatorProducer_      = iConfig.getParameter<string>("PFJetTracksAssociatorProducer");
   PVProducer_                         = iConfig.getParameter<string>("PVProducer");
   smearedPVsigmaX_                    = iConfig.getParameter<double>("smearedPVsigmaX");
@@ -16,6 +17,15 @@ PFRecoTauTagInfoProducer::~PFRecoTauTagInfoProducer(){
 void PFRecoTauTagInfoProducer::produce(Event& iEvent, const EventSetup& iSetup){
   Handle<JetTracksAssociationCollection> thePFJetTracksAssociatorCollection;
   iEvent.getByLabel(PFJetTracksAssociatorProducer_,thePFJetTracksAssociatorCollection);
+  
+  // *** access the PFCandidateCollection in the event in order to retrieve the PFCandidateRefVector which constitutes each PFJet
+  Handle<PFCandidateCollection> thePFCandidateCollection;
+  iEvent.getByLabel(PFCandidateProducer_,thePFCandidateCollection);
+  PFCandidateRefVector thePFCands;
+  for(unsigned int i_PFCand=0;i_PFCand!=thePFCandidateCollection->size();i_PFCand++) { 
+    thePFCands.push_back(PFCandidateRef(thePFCandidateCollection,i_PFCand));
+  }
+  // ***
   
   // query a rec/sim PV
   Handle<VertexCollection> thePVs;
@@ -38,7 +48,7 @@ void PFRecoTauTagInfoProducer::produce(Event& iEvent, const EventSetup& iSetup){
 
   unsigned int i_Assoc=0;
   for(JetTracksAssociationCollection::const_iterator iAssoc=thePFJetTracksAssociatorCollection->begin();iAssoc!=thePFJetTracksAssociatorCollection->end();iAssoc++){
-    PFTauTagInfo myPFTauTagInfo=PFRecoTauTagInfoAlgo_->buildPFTauTagInfo((*iAssoc).first.castTo<PFJetRef>(),(*iAssoc).second,thePV);
+    PFTauTagInfo myPFTauTagInfo=PFRecoTauTagInfoAlgo_->buildPFTauTagInfo((*iAssoc).first.castTo<PFJetRef>(),thePFCands,(*iAssoc).second,thePV);
     extCollection->push_back(myPFTauTagInfo);
     ++i_Assoc;
   }
