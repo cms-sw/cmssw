@@ -2,8 +2,8 @@
  *  See header file for a description of this class.
  *
  *
- *  $Date: 2007/09/12 22:28:50 $
- *  $Revision: 1.6 $
+ *  $Date: 2007/09/14 00:08:16 $
+ *  $Revision: 1.7 $
  *  \author A. Vitelli - INFN Torino, V.Palichik
  *  \author porting  R. Bellan
  *
@@ -183,52 +183,46 @@ void MuonDTSeedFromRecHits::computePtWithVtx(double* pt, double* spt) const {
   for (MuonRecHitContainer::const_iterator iter=theRhits.begin(); iter!=theRhits.end(); iter++ ) {
 
  //+vvp !:
-      float eta1= (*iter)->globalPosition().eta(); 
 
-      if ( fabs (eta1-eta0) > .2 ) continue;  //   !!! +vvp
+    float eta1= (*iter)->globalPosition().eta(); 
+
+    if ( fabs (eta1-eta0) > .2 ) continue;  //   !!! +vvp
 
     // assign Pt from MB1 & vtx   
     float radius = (*iter)->det()->position().perp();
     unsigned int stat = 0;
     if ( radius>450 && radius<550 ) stat=2;
     if ( radius<450 ) stat=1;
+
+    if(stat == 0) continue;
+
+    GlobalPoint pos = (*iter)->globalPosition();
+    GlobalVector dir = (*iter)->globalDirection();
+
+    float dphi = -pos.phi()+dir.phi();
+    if(dphi>M_PI) dphi -= 2*M_PI;
+    if(dphi<-M_PI) dphi += 2*M_PI;
+    int ch = (dphi<0) ? 1 : -1;
+
     if( stat==1 ) {
-      GlobalPoint pos = (*iter)->globalPosition();
-
-      GlobalVector dir = (*iter)->globalDirection();
-      
-      float dphi = -pos.phi()+dir.phi();
-      if(dphi>M_PI) dphi -= 2*M_PI;
-      if(dphi<-M_PI) dphi += 2*M_PI;
-
-      pt[0]=1.0-1.46/dphi; 
+      pt[0]=1.0+1.46/fabs(dphi); 
       if ( abs(pos.z()) > 500 ) {
         // overlap 
         float a1 = dir.y()/dir.x(); float a2 = pos.y()/pos.x();
         dphi = fabs((a1-a2)/(1+a1*a2));
 
-        float new_pt = fabs(-3.3104+(1.2373/dphi));
-        pt[0] = new_pt*pt[0]/fabs(pt[0]);
+        pt[0] = fabs(-3.3104+(1.2373/dphi)) * ch;
       }
     }
     // assign Pt from MB2 & vtx
     if( stat==2 ) {
-      GlobalPoint pos = (*iter)->globalPosition();
-
-      GlobalVector dir = (*iter)->globalDirection();
-      
-      float dphi = -pos.phi()+dir.phi();
-      if(dphi>M_PI) dphi -= 2*M_PI;
-      if(dphi<-M_PI) dphi += 2*M_PI;
-
-      pt[1]=1.0-0.9598/dphi;
+      pt[1]=1.0+0.9598/fabs(dphi);
       if ( abs(pos.z()) > 600 ) {
         // overlap 
         float a1 = dir.y()/dir.x(); float a2 = pos.y()/pos.x();
         dphi = fabs((a1-a2)/(1+a1*a2));
 
-        float new_pt = fabs(10.236+(0.5766/dphi));
-        pt[1] = new_pt*pt[1]/fabs(pt[1]);
+        pt[1] = fabs(10.236+(0.5766/dphi)) * ch;
       }
     }
     float ptmax = 2000.;
@@ -398,8 +392,10 @@ void MuonDTSeedFromRecHits::computeMean(const double* pt, const double * weights
                                         bool tossOutlyers, float& ptmean, float & sptmean) const
 {
   int n=0;
-  double * ptTmp = new double(sz);
-  double * wtTmp = new double(sz);
+  double ptTmp[8];
+  double wtTmp[8];
+  assert(sz<=8);
+
   for (int i=0; i<sz; ++i) {
     ptTmp[i] = 0.;
     wtTmp[i] = 0;
@@ -433,7 +429,5 @@ void MuonDTSeedFromRecHits::computeMean(const double* pt, const double * weights
     }
   }
 
-  delete[] ptTmp;
-  delete[] wtTmp;
 }
 
