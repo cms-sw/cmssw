@@ -1,8 +1,11 @@
 
-// $Id: RFIOFile.cc,v 1.18 2007/09/04 15:36:39 wdd Exp $
+// $Id: RFIOFile.cc,v 1.19 2007/09/12 21:25:14 wdd Exp $
 
 #include "Utilities/RFIOAdaptor/interface/RFIOFile.h"
 #include "Utilities/RFIOAdaptor/interface/RFIO.h"
+#ifdef close
+#undef close
+#endif
 
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -177,6 +180,21 @@ RFIOFile::close (void)
         << "rfio_errno = " << rfio_errno
         << "  serrno = " << serrno << std::endl;
       sleep(5);
+
+      // When rfio_close64 fails then try the system close
+      // function.  Added this on advice of Olof from CASTOR
+      // operations.
+      int status = ::close(m_fd);
+      if (status < 0) {
+        edm::LogWarning("RFIOFileWarning")
+          << "RFIOFile::close(): Tried system level close after rfio_close64 failed\n"
+          << "It also returns an error code: " << status;
+      }
+      else {
+        edm::LogWarning("RFIOFileWarning")
+          << "RFIOFile::close(): Tried system level close after rfio_close64 failed\n"
+          << "It succeeded: " << status;
+      }
     }
 
     m_close = false;
@@ -226,6 +244,23 @@ RFIOFile::retry_read (void *into, IOSize n, int max_retry /* =10 */) {
 
     if (max_retry > 0) {
 
+      // Wait a little while to give the CASTOR problem
+      // causing the timeout a little time to clear.
+      std::string sleepTime;
+      int secondsToSleep = 5;
+      if (max_retry >= 3) {
+        sleepTime = "1 minute";
+        secondsToSleep = 60;
+      }
+      else if (max_retry == 2) {
+        sleepTime = "5 minutes";
+        secondsToSleep = 300;
+      }
+      else if (max_retry == 1) {
+        sleepTime = "10 minutes";
+        secondsToSleep = 600;
+      }
+
       edm::LogWarning("RFIOFileRetry")
         << "RFIOFile retrying read\n"
         << "  return value from rfio_read64 = " << s << "  (normally this is bytes read, -1 for error)\n"
@@ -233,15 +268,11 @@ RFIOFile::retry_read (void *into, IOSize n, int max_retry /* =10 */) {
         << "  serrno = " << serrno << "  (an error code rfio sets, 0 = OK, 1004 = timeout, ...)\n"
         << "  current position = " << m_currentPosition << "  (in bytes, beginning of file is 0)\n"
         << "  retries left before quitting = " << max_retry << "\n"
-        << "  will close and reopen file " << m_name;
+        << "  will close and reopen file " << m_name << "\n"
+        << "  process waiting (sleeping) for " << sleepTime << " before attempting retry";
+      edm::FlushMessageLog();
 
-      // Wait a little while to give the problem causing the
-      // timeout a little time to clear.  Wait 1 minute,
-      // except on the last 2 retries increase the time to
-      // 5 and 10 minutes.
-      if (max_retry >= 3) sleep(60);
-      else if (max_retry == 2) sleep(300);
-      else if (max_retry == 1) sleep(600);
+      sleep(secondsToSleep);
 
       // Improve the chances of success by closing and reopening
       // the file before retrying the read.  This also resets
