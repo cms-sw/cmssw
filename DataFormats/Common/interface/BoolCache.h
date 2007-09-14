@@ -17,7 +17,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Sat Aug 18 17:30:08 EDT 2007
-// $Id$
+// $Id: BoolCache.h,v 1.1 2007/08/20 13:55:58 chrjones Exp $
 //
 
 // system include files
@@ -26,13 +26,13 @@
 
 // forward declarations
 namespace edm {
-class BoolCache
-{
-
-   public:
+class BoolCache {
+public:
   BoolCache() : isCached_(false) {}
   BoolCache(bool iValue) : isCached_(iValue) {}
-
+  operator bool() { return isCached_; }
+  BoolCache & operator=( bool b ) { isCached_ = b; return *this; }
+private:
   bool isCached_;
 };
 
