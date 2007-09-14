@@ -2,8 +2,8 @@
  *  See header file for a description of this class.
  *
  *
- *  $Date: 2007/09/14 00:08:16 $
- *  $Revision: 1.7 $
+ *  $Date: 2007/09/14 03:03:28 $
+ *  $Revision: 1.8 $
  *  \author A. Vitelli - INFN Torino, V.Palichik
  *  \author porting  R. Bellan
  *
@@ -205,7 +205,7 @@ void MuonDTSeedFromRecHits::computePtWithVtx(double* pt, double* spt) const {
     int ch = (dphi<0) ? 1 : -1;
 
     if( stat==1 ) {
-      pt[0]=1.0+1.46/fabs(dphi); 
+      pt[0]=(1.0+1.46/fabs(dphi)) * ch; 
       if ( abs(pos.z()) > 500 ) {
         // overlap 
         float a1 = dir.y()/dir.x(); float a2 = pos.y()/pos.x();
@@ -216,7 +216,7 @@ void MuonDTSeedFromRecHits::computePtWithVtx(double* pt, double* spt) const {
     }
     // assign Pt from MB2 & vtx
     if( stat==2 ) {
-      pt[1]=1.0+0.9598/fabs(dphi);
+      pt[1]=(1.0+0.9598/fabs(dphi))*ch;
       if ( abs(pos.z()) > 600 ) {
         // overlap 
         float a1 = dir.y()/dir.x(); float a2 = pos.y()/pos.x();
