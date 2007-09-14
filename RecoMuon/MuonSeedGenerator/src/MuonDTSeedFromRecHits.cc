@@ -2,8 +2,8 @@
  *  See header file for a description of this class.
  *
  *
- *  $Date: 2007/09/14 03:03:28 $
- *  $Revision: 1.8 $
+ *  $Date: 2007/09/14 05:17:54 $
+ *  $Revision: 1.9 $
  *  \author A. Vitelli - INFN Torino, V.Palichik
  *  \author porting  R. Bellan
  *
@@ -205,7 +205,7 @@ void MuonDTSeedFromRecHits::computePtWithVtx(double* pt, double* spt) const {
     int ch = (dphi<0) ? 1 : -1;
 
     if( stat==1 ) {
-      pt[0]=(1.0+1.46/fabs(dphi)) * ch; 
+      pt[0]=(-1.0+1.46/fabs(dphi)) * ch; 
       if ( abs(pos.z()) > 500 ) {
         // overlap 
         float a1 = dir.y()/dir.x(); float a2 = pos.y()/pos.x();
@@ -216,7 +216,7 @@ void MuonDTSeedFromRecHits::computePtWithVtx(double* pt, double* spt) const {
     }
     // assign Pt from MB2 & vtx
     if( stat==2 ) {
-      pt[1]=(1.0+0.9598/fabs(dphi))*ch;
+      pt[1]=(-1.0+0.9598/fabs(dphi))*ch;
       if ( abs(pos.z()) > 600 ) {
         // overlap 
         float a1 = dir.y()/dir.x(); float a2 = pos.y()/pos.x();
@@ -237,7 +237,6 @@ void MuonDTSeedFromRecHits::computePtWithVtx(double* pt, double* spt) const {
 
 void MuonDTSeedFromRecHits::computePtWithoutVtx(double* pt, double* spt) const {
   float eta0 = bestEta();
-  int ch=0;
 
   for (MuonRecHitContainer::const_iterator iter=theRhits.begin(); 
         iter!=theRhits.end(); iter++ ) {
@@ -274,8 +273,8 @@ void MuonDTSeedFromRecHits::computePtWithoutVtx(double* pt, double* spt) const {
       // Maybe these aren't necessary with Geom::Phi
       if(dphi>M_PI) dphi -= 2*M_PI;
       if(dphi<-M_PI) dphi += 2*M_PI;
-
-      ch = (dphi > 0) ? 1 : -1;
+      // assume we're going inward, so + dphi means + charge
+      int ch = (dphi > 0) ? 1 : -1;
 
       if ( stat1>stat2) {
         ch = -ch;
