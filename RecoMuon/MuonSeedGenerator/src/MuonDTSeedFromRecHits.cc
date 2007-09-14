@@ -2,8 +2,8 @@
  *  See header file for a description of this class.
  *
  *
- *  $Date: 2007/09/12 16:24:04 $
- *  $Revision: 1.5 $
+ *  $Date: 2007/09/12 22:28:50 $
+ *  $Revision: 1.6 $
  *  \author A. Vitelli - INFN Torino, V.Palichik
  *  \author porting  R. Bellan
  *
@@ -42,6 +42,8 @@ MuonDTSeedFromRecHits::MuonDTSeedFromRecHits(const edm::EventSetup& eSetup)
 
 TrajectorySeed MuonDTSeedFromRecHits::seed() const {
   double pt[8] = { 0.0, 0.0 ,0.0 ,0.0 ,0.0 ,0.0 ,0.0 ,0.0 };
+  // these weights are supposed to be 1/sigma^2(pt), but they're so small.
+  // Instead of the 0.2-0.5 GeV here, we'll add something extra in quadrature later
   double spt[8] = { 1/0.048 , 1/0.075 , 1/0.226 , 1/0.132 , 1/0.106 , 1/0.175 , 1/0.125 , 1/0.185 }; 
 
   const std::string metname = "Muon|RecoMuon|MuonDTSeedFromRecHits";
@@ -137,14 +139,12 @@ MuonDTSeedFromRecHits::best_cand() const {
   return best;
 }
 
-void MuonDTSeedFromRecHits::computePtWithVtx(double* pt, double* spt) const {
 
-
-//+vvp ! Try to search group of nearest segm-s:
+float MuonDTSeedFromRecHits::bestEta() const {
 
   int Maxseg = 0;
   float Msdeta = 100.;
-  float eta0 = (*theRhits.begin())->globalPosition().eta();
+  float result = (*theRhits.begin())->globalPosition().eta();
 
   for (MuonRecHitContainer::const_iterator iter=theRhits.begin(); iter!=theRhits.end(); iter++ ) {
 
@@ -167,12 +167,18 @@ void MuonDTSeedFromRecHits::computePtWithVtx(double* pt, double* spt) const {
       if ( Nseg > Maxseg ||  Nseg == Maxseg && sdeta < Msdeta ) {
 	Maxseg = Nseg;
 	Msdeta = sdeta;
-	eta0 = eta1;
+	result = eta1;
       }
 
     }
   }   //  +v.
+  return result;
+}
 
+
+void MuonDTSeedFromRecHits::computePtWithVtx(double* pt, double* spt) const {
+
+  float eta0 = bestEta();
 
   for (MuonRecHitContainer::const_iterator iter=theRhits.begin(); iter!=theRhits.end(); iter++ ) {
 
@@ -192,7 +198,9 @@ void MuonDTSeedFromRecHits::computePtWithVtx(double* pt, double* spt) const {
       GlobalVector dir = (*iter)->globalDirection();
       
       float dphi = -pos.phi()+dir.phi();
-      if(dphi>M_PI) dphi=2*M_PI-dphi;
+      if(dphi>M_PI) dphi -= 2*M_PI;
+      if(dphi<-M_PI) dphi += 2*M_PI;
+
       pt[0]=1.0-1.46/dphi; 
       if ( abs(pos.z()) > 500 ) {
         // overlap 
@@ -210,7 +218,9 @@ void MuonDTSeedFromRecHits::computePtWithVtx(double* pt, double* spt) const {
       GlobalVector dir = (*iter)->globalDirection();
       
       float dphi = -pos.phi()+dir.phi();
-      if(dphi>M_PI) dphi=2*M_PI-dphi;
+      if(dphi>M_PI) dphi -= 2*M_PI;
+      if(dphi<-M_PI) dphi += 2*M_PI;
+
       pt[1]=1.0-0.9598/dphi;
       if ( abs(pos.z()) > 600 ) {
         // overlap 
@@ -230,46 +240,9 @@ void MuonDTSeedFromRecHits::computePtWithVtx(double* pt, double* spt) const {
   }
 }
 
+
 void MuonDTSeedFromRecHits::computePtWithoutVtx(double* pt, double* spt) const {
-
-
-
- //+vvp ! Try to search group of nearest segm-s:
-
-  int Maxseg = 0;
-  float Msdeta = 100.;
-  float eta0 = (*theRhits.begin())->globalPosition().eta();
-
-  for (MuonRecHitContainer::const_iterator iter=theRhits.begin(); 
-        iter!=theRhits.end(); iter++ ) {
-
-    float eta1= (*iter)->globalPosition().eta(); 
-
-    int Nseg = 0;
-    float sdeta = .0;
-
-    for (MuonRecHitContainer::const_iterator iter2=theRhits.begin(); 
-          iter2!=theRhits.end(); iter2++ ) {
-
-      if ( iter2 == iter )  continue;
-
-      float eta2 = (*iter2)->globalPosition().eta(); 
-
-      if ( fabs (eta1-eta2) > .2 ) continue;
-
-      Nseg++;
-      sdeta += fabs (eta1-eta2); 
-
-      if ( Nseg > Maxseg ||  Nseg == Maxseg && sdeta < Msdeta ) {
-	Maxseg = Nseg;
-	Msdeta = sdeta;
-	eta0 = eta1;
-      }
-
-    }
-  }   //  +v.
-
-
+  float eta0 = bestEta();
   int ch=0;
 
   for (MuonRecHitContainer::const_iterator iter=theRhits.begin(); 
@@ -388,29 +361,12 @@ void MuonDTSeedFromRecHits::computeBestPt(double* pt,
     // calculate pt with vertex
     float ptvtx=0.0;
     float sptvtx=0.0;
-    if(pt[0]!=0. || pt[1]!=0.) {
-      float ptTmp[2]={0.,0.};
-      float sptTmp[2]={0.,0.};
-      int n=0;
-      for (int i=0; i<2; ++i) {
-        if (pt[i]!=0) {
-          ptTmp[n]=pt[i];
-          sptTmp[n]=spt[i];
-          n++;
-        }
-      }
-      if (n==1) {
-        ptvtx=ptTmp[0];
-        sptvtx=1/sqrt(sptTmp[0]);
-      } else {
-        ptvtx = gsl_stats_wmean(spt, 1, pt, 1, n);
-        sptvtx = gsl_stats_wvariance_m (spt, 1, pt, 1, n, ptvtx);
-        sptvtx = sqrt(sptvtx);
-      }
-      LogTrace(metname) << " GSL: Pt w vtx :" << ptvtx << "+/-" <<
-        sptvtx << endl;
+    computeMean(pt, spt, 2, false, ptvtx, sptvtx);
+    LogTrace(metname) << " GSL: Pt w vtx :" << ptvtx << "+/-" <<
+      sptvtx << endl;
       
-      // FIXME: temp hack
+    // FIXME: temp hack
+    if(ptvtx != 0.) {
       ptmean = ptvtx;
       sptmean = sptvtx;
       return;
@@ -419,28 +375,9 @@ void MuonDTSeedFromRecHits::computeBestPt(double* pt,
     // calculate pt w/o vertex
     float ptMB=0.0;
     float sptMB=0.0;
-    if(pt[2]!=0. || pt[3]!=0. || pt[4]!=0. || pt[5]!=0. || pt[6]!=0. || pt[7]!=0. ) {
-      int n=0;
-      float ptTmp[6]={ 0.0, 0.0 ,0.0 ,0.0 ,0.0 ,0.0};
-      float sptTmp[6]={ 0.0, 0.0 ,0.0 ,0.0 ,0.0 ,0.0};
-      for (int i=2; i<8; ++i) {
-        if (pt[i]!=0) {
-          ptTmp[n]=pt[i];
-          sptTmp[n]=spt[i];
-          n++;
-        }
-      }
-      if (n==1) {
-        ptMB=ptTmp[0];
-        sptMB=1/sqrt(sptTmp[0]);
-      } else {
-        ptMB = gsl_stats_wmean(&spt[2], 1, &pt[2], 1, n);
-        sptMB = gsl_stats_wvariance_m (&spt[2], 1, &pt[2], 1, n, ptMB);
-        sptMB = sqrt(sptMB);
-      }
-      LogTrace(metname) << " GSL: Pt w/o vtx :" << ptMB << "+/-" <<
+    computeMean(pt+2, spt+2, 6, false, ptMB, sptMB);
+    LogTrace(metname) << " GSL: Pt w/o vtx :" << ptMB << "+/-" <<
         sptMB << endl;
-    }
 
     // decide wheter the muon comes or not from vertex 
     float ptpool=0.0;
@@ -450,36 +387,53 @@ void MuonDTSeedFromRecHits::computeBestPt(double* pt,
     LogTrace(metname) << "From vtx? " <<fromvtx << " ptpool "<< ptpool << endl;
 
     // now choose the "right" pt => weighted mean
-    int n=0;
-    double ptTmp[8]={ 0.0, 0.0 ,0.0 ,0.0 ,0.0 ,0.0, 0.0, 0.0};
-    double sptTmp[8]={ 0.0, 0.0 ,0.0 ,0.0 ,0.0 ,0.0, 0.0, 0.0};
-    for (int i=0; i<8; ++i) {
-      if (pt[i]!=0) {
-        ptTmp[n]=pt[i];
-        sptTmp[n]=spt[i];
-        n++;
-      }
-    }
-    if (n==1) {
-      ptmean=ptTmp[0];
-      sptmean=1/sqrt(sptTmp[0]);
-    } else {
-      ptmean = gsl_stats_wmean(sptTmp, 1, ptTmp, 1, n);
-      sptmean = gsl_stats_wvariance_m (sptTmp, 1, ptTmp, 1, n, ptmean);
-      sptmean = sqrt(sptmean);
-    }
+    computeMean(pt, spt, 8, true, ptmean, sptmean);
     LogTrace(metname) << " GSL Pt :" << ptmean << "+/-" << sptmean << endl;
 
-    // Recompute mean with a cut at 3 sigma
-    for ( int nm =0; nm<8; nm++ ){
-      if ( ptTmp[nm]!=0 && fabs(ptTmp[nm]-ptmean)>3*(sptmean) ) {
-        sptTmp[nm]=0.;
-      }
-    }  
-    ptmean = gsl_stats_wmean(sptTmp, 1, ptTmp, 1, n);
-    sptmean = gsl_stats_wvariance_m (sptTmp, 1, ptTmp, 1, n, ptmean);
-    sptmean = sqrt(sptmean);
-    LogTrace(metname) << " GSL recomp Pt :" << ptmean << "+/-" << sptmean << endl;
   }
+}
+
+
+void MuonDTSeedFromRecHits::computeMean(const double* pt, const double * weights, int sz,
+                                        bool tossOutlyers, float& ptmean, float & sptmean) const
+{
+  int n=0;
+  double * ptTmp = new double(sz);
+  double * wtTmp = new double(sz);
+  for (int i=0; i<sz; ++i) {
+    ptTmp[i] = 0.;
+    wtTmp[i] = 0;
+    if (pt[i]!=0) {
+      ptTmp[n]=pt[i];
+      wtTmp[n]=weights[i];
+      ++n;
+    }
+  }
+
+  if(n != 0) 
+  {
+    if (n==1) {
+      ptmean=ptTmp[0];
+      sptmean=1/sqrt(wtTmp[0]);
+    } else {
+      ptmean = gsl_stats_wmean(wtTmp, 1, ptTmp, 1, n);
+      sptmean = sqrt( gsl_stats_wvariance_m (wtTmp, 1, ptTmp, 1, n, ptmean) );
+    }
+
+    if(tossOutlyers)
+    {
+      // Recompute mean with a cut at 3 sigma
+      for ( int nm =0; nm<8; nm++ ){
+        if ( ptTmp[nm]!=0 && fabs(ptTmp[nm]-ptmean)>3*(sptmean) ) {
+          wtTmp[nm]=0.;
+        }
+      }
+      ptmean = gsl_stats_wmean(wtTmp, 1, ptTmp, 1, n);
+      sptmean = sqrt( gsl_stats_wvariance_m (wtTmp, 1, ptTmp, 1, n, ptmean) );
+    }
+  }
+
+  delete[] ptTmp;
+  delete[] wtTmp;
 }
 
