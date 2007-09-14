@@ -13,6 +13,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/InputTag.h"
 #include <vector>
 #include "TDirectory.h"
 
@@ -60,6 +61,7 @@ private:
   std::vector <TDirectory *> TDirs;
   int theNbins;
   double theTMax;
+  edm::InputTag TimerLabel_;
   TDirectory* HistoDir;
   TDirectory* muondigi;
   TDirectory* trackerdigi;

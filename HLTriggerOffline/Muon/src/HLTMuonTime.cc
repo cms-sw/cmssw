@@ -13,6 +13,7 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/InputTag.h"
 
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Common/interface/RefToBase.h"
@@ -33,6 +34,7 @@ using namespace edm;
 HLTMuonTime::HLTMuonTime(const ParameterSet& pset)
 {
   TimerIn=true;
+  InputTag TimerLabel_=pset.getParameter<InputTag>("TimerLabel"); 
   ParameterSet ModulesForTiming =  pset.getUntrackedParameter<ParameterSet>("TimingModules");
   theMuonDigiModules=ModulesForTiming.getUntrackedParameter<vector<string> >("MuonDigiModules");
   theMuonLocalRecModules=ModulesForTiming.getUntrackedParameter<vector<string> >("MuonLocalRecModules");
@@ -191,7 +193,7 @@ void HLTMuonTime::analyze(const Event & event ){
   //get the timing info
   Handle<EventTime> evtTime;
   try {
-      event.getByLabel("hltTimer", evtTime);
+      event.getByLabel(TimerLabel_, evtTime);
   } catch (...) {
     LogWarning("HLTMuonVal") << "!!!!!!!!! No timer run";
     TimerIn=false;
