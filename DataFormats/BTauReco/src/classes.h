@@ -188,11 +188,14 @@ namespace {
     edm::Wrapper<reco::JetTracksIPDataAssociationCollection>            jtip_wc;
     */
 
+
     reco::TrackIPTagInfo                                                tcip;
+    reco::TrackIPTagInfo::TrackIPData                                   tcip_data;
     reco::TrackIPTagInfoCollection                                      tcip_c;
     reco::TrackIPTagInfoRef                                             tcip_r;
     reco::TrackIPTagInfoRefProd                                         tcip_rp;
     reco::TrackIPTagInfoRefVector                                       tcip_rv;
+
     edm::Wrapper<reco::TrackIPTagInfoCollection>                        tcip_wc;
 
     reco::BaseTagInfo                                                   bti;

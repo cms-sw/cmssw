@@ -7,24 +7,30 @@
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "DataFormats/BTauReco/interface/JetTracksAssociation.h"
 #include "DataFormats/BTauReco/interface/JTATagInfo.h"
+#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 
 namespace reco {
  
 class TrackIPTagInfo : public JTATagInfo
  {
   public:
-
+ struct TrackIPData
+ {
+  Measurement1D ip2d;
+  Measurement1D ip3d;
+  GlobalPoint closestToJetAxis;
+  GlobalPoint closestToFirstTrack;
+  float  distanceToJetAxis;
+  float  distanceToFirstTrack;
+ };
+  
  TrackIPTagInfo(
-    std::vector<Measurement1D> ip2d,
-   std::vector<Measurement1D> ip3d,
-   std::vector<Measurement1D> decayLen,
-   std::vector<Measurement1D> jetDistance,
+    std::vector<TrackIPData> ipData,
    std::vector<float> prob2d,
    std::vector<float> prob3d,
    edm::RefVector<TrackCollection> selectedTracks,const JetTracksAssociationRef & jtaRef,
    const edm::Ref<VertexCollection> & pv) : JTATagInfo(jtaRef),
-     m_ip2d(ip2d),  m_ip3d(ip3d),  m_decayLen(decayLen),
-     m_jetDistance(jetDistance),  m_prob2d(prob2d),
+     m_data(ipData),  m_prob2d(prob2d),
      m_prob3d(prob3d), m_selectedTracks(selectedTracks), m_pv(pv) {}
 
   TrackIPTagInfo() {}
@@ -39,17 +45,16 @@ class TrackIPTagInfo : public JTATagInfo
    if some problem occured
   */
 
-  virtual bool hasProbabilities() const { return  m_ip3d.size()==m_prob3d.size(); }
+  virtual bool hasProbabilities() const { return  m_data.size()==m_prob3d.size(); }
   
   /**
-   Vectors of IPs measurement1D orderd as the tracks()
-   ip = 0   means 3D
-   ip = 1   means transverse IP 
+   Vectors of TrackIPData orderd as the selectedTracks()
    */
-  const std::vector<Measurement1D> & impactParameters(int ip) const {return (ip==0)?m_ip3d:m_ip2d; }
-  const std::vector<Measurement1D> & decayLengths() const {return m_decayLen; }
-  const std::vector<Measurement1D> & jetDistances() const {return m_jetDistance; }
-
+  const std::vector<TrackIPData> & impactParameterData() const {return m_data; }
+  /**
+   Return the vector of tracks for which the IP information is available
+   Quality cuts are applied to reject fake tracks  
+  */
   const edm::RefVector<TrackCollection> & selectedTracks() const { return m_selectedTracks; }
   const std::vector<float> & probabilities(int ip) const {return (ip==0)?m_prob3d:m_prob2d; }
 
@@ -70,16 +75,13 @@ class TrackIPTagInfo : public JTATagInfo
    Return the list of track index sorted by mode
   */ 
   std::vector<size_t> sortedIndexes(SortCriteria mode = IP3DSig) const;
-
-  reco::TrackRefVector tracks(std::vector<size_t> indexes) const;
+  reco::TrackRefVector sortedTracks(std::vector<size_t> indexes) const;
 
   virtual TaggingVariableList taggingVariables(void) const; 
-   
+ 
+  edm::Ref<VertexCollection>   primaryVertex() const {return m_pv; }
    private:
-   std::vector<Measurement1D> m_ip2d;   
-   std::vector<Measurement1D> m_ip3d;   
-   std::vector<Measurement1D> m_decayLen;
-   std::vector<Measurement1D> m_jetDistance;
+   std::vector<TrackIPData> m_data;
    std::vector<float> m_prob2d;   
    std::vector<float> m_prob3d;   
    edm::RefVector<TrackCollection> m_selectedTracks;

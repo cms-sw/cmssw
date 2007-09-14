@@ -166,6 +166,7 @@
   -->
 
   <class name="reco::TrackIPTagInfo"/>
+  <class name="reco::TrackIPTagInfo::TrackIPData"/>
   <class name="reco::TrackIPTagInfoCollection"/>
   <class name="reco::TrackIPTagInfoRef"/>
   <class name="reco::TrackIPTagInfoRefProd"/>

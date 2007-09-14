@@ -7,20 +7,17 @@ using namespace std;
 TaggingVariableList TrackIPTagInfo::taggingVariables(void) const {
  TaggingVariableList vars;
  
-   std::vector<Measurement1D>::const_iterator it=m_ip3d.begin();
-   std::vector<Measurement1D>::const_iterator itEnd=m_ip3d.end();
+   std::vector<TrackIPData>::const_iterator it=m_data.begin();
+   std::vector<TrackIPData>::const_iterator itEnd=m_data.end();
    for(;it!=itEnd;++it)
     {
-      vars.insert(TaggingVariable(reco::btau::trackSip3d,it->significance()));
-    } 
-   for(it=m_ip2d.begin(),itEnd=m_ip2d.end();it!=itEnd;++it)
-    {
-      vars.insert(TaggingVariable(reco::btau::trackSip2d,it->significance()));
+      vars.insert(TaggingVariable(reco::btau::trackSip3d,it->ip3d.significance()));
+      vars.insert(TaggingVariable(reco::btau::trackSip2d,it->ip2d.significance()));
     } 
  return vars;
 }
 
-TrackRefVector TrackIPTagInfo::tracks(std::vector<size_t> indexes) const
+TrackRefVector TrackIPTagInfo::sortedTracks(std::vector<size_t> indexes) const
 {
  TrackRefVector tr;
  for(size_t i =0 ; i < indexes.size(); i++) tr.push_back(m_selectedTracks[indexes[i]]);
@@ -52,16 +49,16 @@ std::vector<size_t> TrackIPTagInfo::sortedIndexesWithCut(float cut, SortCriteria
      switch(mode)
      {
       case IP3DSig:
-           sortingKey=m_ip3d[i].significance();
+           sortingKey=m_data[i].ip3d.significance();
            break;
       case IP2DSig:
-           sortingKey=m_ip2d[i].significance();
+           sortingKey=m_data[i].ip2d.significance();
            break;
       case IP3DValue:
-           sortingKey=m_ip3d[i].value();
+           sortingKey=m_data[i].ip3d.value();
            break;
       case IP2DValue:
-           sortingKey=m_ip2d[i].value();
+           sortingKey=m_data[i].ip2d.value();
            break;
       case Prob3D:
            sortingKey=m_prob3d[i];
