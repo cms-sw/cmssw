@@ -1,5 +1,5 @@
 // -*-c++-*-
-// $Id: HLTPerformanceInfo.h,v 1.7 2007/03/27 01:05:07 bdahmes Exp $
+// $Id: HLTPerformanceInfo.h,v 1.8 2007/08/17 14:48:02 bdahmes Exp $
 #ifndef HLTPERFORMANCEINFO_H
 #define HLTPERFORMANCEINFO_H
 
@@ -10,178 +10,185 @@
 
 #include "DataFormats/Common/interface/HLTPathStatus.h"
 
-
-
-class HLTPerformanceInfo
-{
- public:
-  class Path;
-  class Module;
-  typedef std::vector<Path> PathList;
-  typedef std::vector<Module> Modules;
-  typedef std::vector<size_t> ModulesInPath;
-  HLTPerformanceInfo();
-  // need to make a copy constructor due to 
-  HLTPerformanceInfo(const HLTPerformanceInfo & rhs);
-  HLTPerformanceInfo & operator=(const HLTPerformanceInfo & rhs);
-  ~HLTPerformanceInfo() {}
-  bool uniqueModule(const char *mod) const;
-  ///////////////////////////////////////////////////
-  class Module {
-  private:
-    std::string name_; // module instance name
-    double dt_;
-    // I am using this even for modules....
-    edm::HLTPathStatus status_;
-  public:
-  Module() 
-    : name_("unknown")
-    {}
-  Module(const char *n, const double dt, 
-	 edm::HLTPathStatus stat = edm::hlt::Ready)
-    : name_(n), dt_(dt), status_(stat)
-    { }
-    std::string name() const {
-      return name_;
-    }
-    double time() const { return dt_; }
-    edm::HLTPathStatus status() const { return status_; }
-    bool operator==(const char *tname ) {
-      return std::string(tname) == name();
-    }
-    void clear() {
-      dt_ = 0;
-      status_.reset();// = edm::hlt::Ready;
-    }
-    void setTime(double t) { dt_=t;}
-    void setStatus(edm::HLTPathStatus status) { status_=status;} 
-    void setStatusByPath(Path *p) ; 
-    int indexInPath(Path path) const ; 
-
-  };
-  ///////////////////////////////////////////////////
-  class Path {
-  private:
-    std::string name_;
-    const Modules * allModules_; // need this
-    ModulesInPath moduleView_; // does not own the modules
-    edm::HLTPathStatus status_;
-
-    void setModules_(const Modules *m ) {
-      allModules_ = m;
-    }           
-    // need this friend declaration for containing to call setModules
-    friend class HLTPerformanceInfo;
-  public:
-    // Adapter for iterator to make the mapping btw modules on 
-    // paths and modules
-    // thanks chris!
-    class Adapter : public std::unary_function<size_t,const Module &> {
+class HLTPerformanceInfo {
+public:
+    class Path;
+    class Module;
+    typedef std::vector<Path> PathList;
+    typedef std::vector<Module> Modules;
+    typedef std::vector<size_t> ModulesInPath;
+    HLTPerformanceInfo();
+    // need to make a copy constructor due to 
+    HLTPerformanceInfo(const HLTPerformanceInfo & rhs);
+    HLTPerformanceInfo & operator=(const HLTPerformanceInfo & rhs);
+    ~HLTPerformanceInfo() {}
+    bool uniqueModule(const char *mod) const;
+    ///////////////////////////////////////////////////
+    class Module {
     private:
-      const Modules *m_;
+        std::string name_; // module instance name
+        double dt_; // Wall-clock time
+        double dtCPU_ ; // CPU time
+        // I am using this even for modules....
+        edm::HLTPathStatus status_;
     public:
-      Adapter(const Modules *a=0) : m_(a) { }
-      const Module & operator()(size_t i) const {
-	return (*m_)[i];
-      }
+        Module() 
+            : name_("unknown")
+            {}
+        // new constructor adding cpu time
+        Module(const char *n, const double dt, const double dtCPU, 
+               edm::HLTPathStatus stat = edm::hlt::Ready)
+            : name_(n), dt_(dt), dtCPU_(dtCPU), status_(stat)
+            { }
+        std::string name() const {
+            return name_;
+        }
+        double time() const { return dt_; }
+        double cputime() const { return dtCPU_; }
+        edm::HLTPathStatus status() const { return status_; }
+        bool operator==(const char *tname ) {
+            return std::string(tname) == name();
+        }
+        void clear() {
+            dt_ = 0 ;
+            dtCPU_ = 0 ; 
+            status_.reset();// = edm::hlt::Ready;
+        }
+        void setTime(double t) { dt_=t;}
+        void setCPUTime(double t) { dtCPU_=t;}
+        void setStatus(edm::HLTPathStatus status) { status_=status;} 
+        void setStatusByPath(Path *p) ; 
+        int indexInPath(Path path) const ; 
+        
     };
-
-    typedef boost::transform_iterator<Adapter, ModulesInPath::const_iterator> 
-    const_iterator;
+    ///////////////////////////////////////////////////
+    class Path {
+    private:
+        std::string name_;
+        const Modules * allModules_; // need this
+        ModulesInPath moduleView_; // does not own the modules
+        edm::HLTPathStatus status_;
+        
+        void setModules_(const Modules *m ) {
+            allModules_ = m;
+        }           
+        // need this friend declaration for containing to call setModules
+        friend class HLTPerformanceInfo;
+    public:
+        // Adapter for iterator to make the mapping btw modules on 
+        // paths and modules
+        // thanks chris!
+        class Adapter : public std::unary_function<size_t,const Module &> {
+        private:
+            const Modules *m_;
+        public:
+            Adapter(const Modules *a=0) : m_(a) { }
+            const Module & operator()(size_t i) const {
+                return (*m_)[i];
+            }
+        };
+        
+        typedef boost::transform_iterator<Adapter, ModulesInPath::const_iterator> 
+        const_iterator;
+        
+        const_iterator begin() const {
+            return const_iterator(moduleView_.begin(),Adapter(allModules_));
+        }
+        const_iterator end() const {
+            return const_iterator(moduleView_.end(),Adapter(allModules_));
+        }
+        
+        Path(const std::string n = "unknown") : 
+            name_(n),
+            allModules_(0),
+            moduleView_(),
+            status_()
+            {}
+        std::string name() const {
+            return name_;
+        }
+        void setStatus( const edm::HLTPathStatus & result ) {
+            status_ = result;
+        }
+        
+        edm::HLTPathStatus status() const {
+            return status_;
+        }
+        void clear() {
+            status_.reset();
+            // time is dynamic, nothing to reset
+        }
+        bool operator==( const char* tname) {
+            return (std::string(tname) == name());
+        }
+        double time() const;
+        double cputime() const;
+        
+        double lastModuleTime() const;
+        double lastModuleCPUTime() const;
+        
+        void addModuleRef( size_t m) {
+            moduleView_.push_back(m);
+        }
+        
+        const_iterator lastModuleByStatus() const;
+        const char* lastModuleByStatusName() const;
+        
+        size_t numberOfModules() const { return moduleView_.size(); };
+        
+    };
+    ///////////////////////////////////////////////////
     
-    const_iterator begin() const {
-      return const_iterator(moduleView_.begin(),Adapter(allModules_));
+private:
+    PathList paths_; // owns the paths
+    Modules modules_; // owns the modules, since each can be on more than one path
+    
+public:
+    void addPath(Path & p ); 
+    void addModule(const Module & m ) {
+        modules_.push_back(m);
     }
-    const_iterator end() const {
-      return const_iterator(moduleView_.end(),Adapter(allModules_));
-    }
-
-    Path(const std::string n = "unknown") : 
-      name_(n),
-      allModules_(0),
-      moduleView_(),
-      status_()
-    {}
-    std::string name() const {
-      return name_;
-    }
-    void setStatus( const edm::HLTPathStatus & result ) {
-      status_ = result;
-    }
-
-    edm::HLTPathStatus status() const {
-      return status_;
-    }
+    
     void clear() {
-      status_.reset();
-      // time is dynamic, nothing to reset
+        modules_.clear(); paths_.clear();
     }
-    bool operator==( const char* tname) {
-      return (std::string(tname) == name());
-    }
-    double time() const;
-
-    double lastModuleTime() const;
-
-    void addModuleRef( size_t m) {
-      moduleView_.push_back(m);
-    }
-
-    const_iterator lastModuleByStatus() const;
-    const char* lastModuleByStatusName() const;
-
-    size_t numberOfModules() const { return moduleView_.size(); };
     
-  };
-  ///////////////////////////////////////////////////
-
- private:
-  PathList paths_; // owns the paths
-  Modules modules_; // owns the modules, since each can be on more than one path
-
- public:
-  void addPath(Path & p ); 
-  void addModule(const Module & m ) {
-    modules_.push_back(m);
-  }
-
-  void clear() {
-    modules_.clear(); paths_.clear();
-  }
-
-  // add a module pointed to the end of a path
-  void addModuleToPath(const char *mod, Path *p );
-
-  // find a module, given its name.
-  // returns endModules() on failure
-  Modules::const_iterator findModule(const char* moduleInstanceName) ;
-  PathList::const_iterator findPath(const char* pathName) ;
-
-  size_t numberOfPaths() const {
-    return paths_.size();
-  }
-  size_t numberOfModules() const {
-    return modules_.size();
-  }
-
-  PathList::const_iterator beginPaths() const {
-    return paths_.begin();
-  }
-  PathList::const_iterator endPaths() const {
-    return paths_.end();
-  }
-
-  Modules::const_iterator beginModules() const {
-    return modules_.begin();
-  }
-
-  Modules::const_iterator endModules() const {
-    return modules_.end();
-  }
-
-  double totalTime() const;
-  double longestModuleTime() const;
-  const char* longestModuleTimeName() const;
+    // add a module pointed to the end of a path
+    void addModuleToPath(const char *mod, Path *p );
+    
+    // find a module, given its name.
+    // returns endModules() on failure
+    Modules::const_iterator findModule(const char* moduleInstanceName) ;
+    PathList::const_iterator findPath(const char* pathName) ;
+    
+    size_t numberOfPaths() const {
+        return paths_.size();
+    }
+    size_t numberOfModules() const {
+        return modules_.size();
+    }
+    
+    PathList::const_iterator beginPaths() const {
+        return paths_.begin();
+    }
+    PathList::const_iterator endPaths() const {
+        return paths_.end();
+    }
+    
+    Modules::const_iterator beginModules() const {
+        return modules_.begin();
+    }
+    
+    Modules::const_iterator endModules() const {
+        return modules_.end();
+    }
+    
+    double totalTime() const;
+    double totalCPUTime() const;
+    double longestModuleTime() const;
+    double longestModuleCPUTime() const;
+    const char* longestModuleTimeName() const;
+    const char* longestModuleCPUTimeName() const;
 };
 
 typedef std::vector<HLTPerformanceInfo> HLTPerformanceInfoCollection;
