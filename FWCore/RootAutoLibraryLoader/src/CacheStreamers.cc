@@ -10,7 +10,7 @@ namespace edm {
     if (R__b.IsReading()) {
       cl_->ReadBuffer(R__b, objp);
       BoolCache* obj = static_cast<BoolCache *>(objp);
-      obj->isCached_=false;
+      *obj = false;
     } else {
       cl_->WriteBuffer(R__b, objp);
     }
