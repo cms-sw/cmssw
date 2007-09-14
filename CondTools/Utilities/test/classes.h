@@ -36,6 +36,7 @@ CondCachedIter<DTReadOutMapping> dummy6;
 
 CondIter<Pedestals> dummy7;
 
+CondIter<EcalPedestals> dummy8;
 
 }}
 
