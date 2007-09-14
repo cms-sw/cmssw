@@ -52,12 +52,7 @@ typedef boost::uint32_t CaloMissingEtWord;
 // code jet count = 31 indicate overflow condition
 typedef std::vector<unsigned> CaloJetCountsWord;
 
-// hardware-related stuff
-
-/// board types in GT
-enum GtBoardType {GTFE, FDL, PSB, GMT, TCS, TIM};
-
-enum L1GtCaloQuad { NoIsoEGQ, IsoEGQ, CenJetQ, ForJetQ, TauJetQ, ESumsQ, JetCountsQ };
+/// GT objects
 enum L1GtObject { Mu, NoIsoEG, IsoEG, CenJet, ForJet, TauJet, ETM, ETT, HTT, JetCounts };
 
 #endif /*L1GlobalTrigger_L1GlobalTriggerReadoutSetupFwd_h*/

@@ -24,11 +24,6 @@
   <class name="L1GlobalTriggerReadoutSetup"/>
   <class name="edm::Wrapper<L1GlobalTriggerReadoutSetup>"/>
   
-  <class name="std::map<int, L1GlobalTriggerReadoutSetup::GtBoard>"/>
-  <class name="std::map<int, L1GtCaloQuad>"/>
-  <class name="std::map<int, int>"/> 
-
-
   <class name="L1GlobalTriggerReadoutRecord"/>
   <class name="edm::Wrapper<L1GlobalTriggerReadoutRecord>"/>
   

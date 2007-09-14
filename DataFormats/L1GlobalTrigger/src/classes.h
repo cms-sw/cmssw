@@ -47,13 +47,6 @@ namespace { namespace {
     L1GlobalTriggerReadoutSetup dummy50;
     edm::Wrapper<L1GlobalTriggerReadoutSetup> dummy51;
 
-    L1GlobalTriggerReadoutSetup::GtBoard dummy52;
-    L1GtCaloQuad dummy53;
-    
-    std::map<int, L1GlobalTriggerReadoutSetup::GtBoard> dummy54;
-    std::map<int, L1GtCaloQuad> dummy56;
-    std::map<int, int> dummy57; 
-    
     // dictionary for L1 Global Trigger Readout Record
     L1GlobalTriggerReadoutRecord dummy10;
     edm::Wrapper<L1GlobalTriggerReadoutRecord> dummy11;

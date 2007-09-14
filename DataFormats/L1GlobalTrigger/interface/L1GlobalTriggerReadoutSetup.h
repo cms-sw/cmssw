@@ -83,62 +83,8 @@ public:
     static const unsigned int NumberJetCountsWords = 2;
     static const unsigned int NumberCountBits = 5;
 
-public:
-
-    // hardware-related stuff
-
-    /// board type and index of the board
-    struct GtBoard
-    {
-        GtBoardType boardType;
-        int boardIndex;
-        
-        boost::uint16_t boardId() const;
-        
-        bool operator< (const GtBoard&) const; 
-    };
-
     /// number of PSB boards in GT
     static const int NumberPsbBoards = 7;
-
-    /// L1 GT DAQ record map
-    ///    gives the position of each block in the GT DAQ readout record
-    std::map<int, GtBoard> GtDaqRecordMap;
-
-    /// L1 GT EVM record map
-    ///    gives the position of each block in the GT EVM readout record
-    std::map<int, GtBoard> GtEvmRecordMap;
-
-    /// L1 GT active boards map
-    ///    gives the bit of each GT board in the GTFE ACTIVE_BOARDS
-    ///    for the GT DAQ readout record
-    std::map<GtBoard, int> GtDaqActiveBoardsMap;
-
-    /// L1 GT active boards map
-    ///    gives the bit of each GT board in the GTFE ACTIVE_BOARDS
-    ///    for the GT EVM readout record
-    std::map<GtBoard, int> GtEvmActiveBoardsMap;
-
-    /// L1 GT board - slot map
-    ///    gives the slot of each GT board (part of Board_Id)
-    std::map<GtBoard, int> GtBoardSlotMap;
-
-    /// L1 GT board name in hw record map
-    ///    gives the bits written for each GT board in the Board_Id
-    std::map<GtBoardType, int> GtBoardHexNameMap;
-
-public:
-
-    /// L1 GT calo input map
-    ///    gives the mapping of calorimeter objects to GT calorimeter input
-    /// GT calorimeter input will be mapped to PSBs later
-    std::map<int, L1GtCaloQuad> GtCaloObjectInputMap;
-
-
-    /// L1 GT calo input to PSB map
-    ///    gives the mapping of GT calorimeter input to GT PSBs
-    std::map<int, int> GtCaloInputToPsbMap;
-
 
 };
 
