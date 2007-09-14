@@ -28,7 +28,7 @@ reference type.
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Apr  3 16:37:59 EDT 2006
-// $Id: RefToBase.h,v 1.25 2007/07/25 15:33:00 llista Exp $
+// $Id: RefToBase.h,v 1.26 2007/09/14 08:28:05 llista Exp $
 //
 
 // system include files
@@ -174,10 +174,9 @@ namespace edm {
   RefToBase<T> const&
   RefToBase<T>:: operator= (RefToBase<T> const& iRHS) 
   {
-    reftobase::BaseHolder<value_type>* h = iRHS.holder_;
-    delete holder_;
-    holder_ = h == 0 ? 0 : h->clone();
-    return *this;
+    RefToBase<T> temp( iRHS);
+    temp.swap(*this);
+    return *this; 
   }
 
   template <class T>
