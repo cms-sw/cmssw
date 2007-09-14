@@ -5,7 +5,7 @@
  * Convert HepMC GenEvent format into a collection of type
  * CandidateCollection containing objects of type GenParticle
  *
- * \version $Id: GenParticleProducer.cc,v 1.1 2007/09/11 16:17:42 llista Exp $
+ * \version $Id: GenParticleProducer.cc,v 1.3 2007/09/12 11:10:26 llista Exp $
  *
  */
 #include "FWCore/Framework/interface/EDProducer.h"
@@ -142,6 +142,9 @@ void GenParticleProducer::produce( Event& evt, const EventSetup& es ) {
     Candidate::LorentzVector p4( part->momentum() );
     int pdgId = part->pdg_id();
     reco::GenParticle & cand = cands[ i ];
+    cand.setThreeCharge( chargeTimesThree( pdgId ) );
+    cand.setPdgId( pdgId );
+    cand.setStatus( part->status() );
     cand.setP4( p4 );
     const GenVertex * v = part->production_vertex();
     if ( v != 0 ) {
@@ -151,6 +154,7 @@ void GenParticleProducer::produce( Event& evt, const EventSetup& es ) {
     } else {
       cand.setVertex( Candidate::Point( 0, 0, 0 ) );
     }
+    cand.resetDaughters( ref.id() );
   }
 
   // fill references to daughters

@@ -6,7 +6,7 @@
 #include "FWCore/ParameterSet/interface/InputTag.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
-#include "DataFormats/Candidate/interface/CandidateFwd.h"
+#include "DataFormats/Candidate/interface/Candidate.h"
 
 class ParticleDecayDrawer : public edm::EDAnalyzer {
 public:
@@ -31,8 +31,8 @@ private:
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "DataFormats/Common/interface/Handle.h"
+#include "DataFormats/Common/interface/View.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "DataFormats/HepMCCandidate/interface/GenParticleCandidate.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include <iostream>
 #include <sstream> 
@@ -40,7 +40,6 @@ private:
 using namespace std;
 using namespace edm;
 using namespace reco;
-using namespace HepMC;
 
 ParticleDecayDrawer::ParticleDecayDrawer( const ParameterSet & cfg ) :
   src_( cfg.getParameter<InputTag>( "src" ) ),
@@ -68,11 +67,11 @@ bool ParticleDecayDrawer::hasValidDaughters( const reco::Candidate & c ) const {
 
 void ParticleDecayDrawer::analyze( const Event & event, const EventSetup & es ) {  
   es.getData( pdt_ );
-  Handle<CandidateCollection> particles;
+  Handle<View<Candidate> > particles;
   event.getByLabel( src_, particles );
   list<const Candidate *> skip;
   vector<const Candidate *> nodes, moms;
-  for( CandidateCollection::const_iterator p = particles->begin();
+  for( View<Candidate>::const_iterator p = particles->begin();
        p != particles->end(); ++ p ) {
     if( p->numberOfMothers() > 1 ) {
       if ( select( * p ) ) {
