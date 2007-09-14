@@ -7,7 +7,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: ShallowCloneCandidate.h,v 1.8 2007/05/14 12:09:47 llista Exp $
+ * \version $Id: ShallowCloneCandidate.h,v 1.9 2007/06/13 16:31:37 llista Exp $
  *
  */
 #include "DataFormats/Candidate/interface/Candidate.h"
@@ -64,7 +64,7 @@ namespace reco {
     /// CandidateBaseReference to master clone
     CandidateBaseRef masterClone_;
     /// post-read fixup operation
-    virtual void fixup() const;
+    virtual void doFixupMothers() const;
   };
 
 }

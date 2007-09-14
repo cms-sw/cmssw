@@ -6,17 +6,6 @@ namespace reco {
   class Candidate;
 }
 
-namespace edm {
-  namespace helpers {
-    template<typename T> struct PostReadFixupTrait;
-    
-    template<>
-    struct PostReadFixupTrait<reco::Candidate> {
-      typedef PostReadFixup type;
-    };
-  }
-}
-
 #include "DataFormats/Common/interface/Ref.h"
 #include "DataFormats/Common/interface/RefProd.h"
 #include "DataFormats/Common/interface/RefVector.h"

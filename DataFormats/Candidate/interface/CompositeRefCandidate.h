@@ -9,7 +9,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: CompositeRefCandidate.h,v 1.14 2007/06/12 21:27:21 llista Exp $
+ * \version $Id: CompositeRefCandidate.h,v 1.15 2007/06/26 08:24:28 llista Exp $
  *
  */
 
@@ -55,6 +55,8 @@ namespace reco {
     CandidateRef daughterRef( size_type i ) const { return dau[ i ]; }
     /// references to daughtes
     const daughters & daughterRefVector() const { return dau; }
+    /// set daughters product ID
+    void resetDaughters( const edm::ProductID & id ) { dau = daughters( id ); }
 
   private:
     /// const iterator implementation
@@ -66,7 +68,7 @@ namespace reco {
     /// check overlap with another candidate
     virtual bool overlap( const Candidate & ) const;
     /// post-read fixup operation
-    virtual void fixup() const;
+    virtual void doFixupMothers() const;
   };
 
   inline void CompositeRefCandidate::addDaughter( const CandidateRef & cand ) { 

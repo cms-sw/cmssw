@@ -1,6 +1,5 @@
 #ifndef Candidate_CompositeRefCandidateT_h
 #define Candidate_CompositeRefCandidateT_h
-#include "DataFormats/Candidate/interface/Candidate.h"
 /** \class reco::CompositeRefCandidateT<D>
  *
  * a reco::Candidate composed of daughters. 
@@ -9,10 +8,10 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: CompositeRefCandidateT.h,v 1.15 2007/06/26 08:24:28 llista Exp $
+ * \version $Id: CompositeRefCandidateT.h,v 1.1 2007/09/11 16:16:44 llista Exp $
  *
  */
-
+#include "DataFormats/Candidate/interface/Candidate.h"
 #include "DataFormats/Candidate/interface/iterator_imp_specific.h"
 
 namespace reco {
@@ -26,7 +25,7 @@ namespace reco {
     CompositeRefCandidateT() : Candidate() { }
     /// constructor from values
     CompositeRefCandidateT( Charge q, const LorentzVector & p4, const Point & vtx = Point( 0, 0, 0 ),
-			   int pdgId = 0, int status = 0, bool integerCharge = true ) :
+			    int pdgId = 0, int status = 0, bool integerCharge = true ) :
       Candidate( q, p4, vtx, pdgId, status, integerCharge ) { }
     /// constructor from a particle
     CompositeRefCandidateT( const Particle & p ) : Candidate( p ) { }
@@ -56,6 +55,8 @@ namespace reco {
     typename daughters::value_type daughterRef( size_type i ) const { return dau[ i ]; }
     /// references to daughtes
     const daughters & daughterRefVector() const { return dau; }
+    /// set daughters product ID
+    void resetDaughters( const edm::ProductID & id ) { dau = daughters( id ); }
 
   private:
     /// const iterator implementation
@@ -67,7 +68,7 @@ namespace reco {
     /// check overlap with another candidate
     virtual bool overlap( const Candidate & ) const;
     /// post-read fixup operation
-    virtual void fixup() const;
+    virtual void doFixupMothers() const;
   };
 
   template<typename D>
@@ -123,15 +124,19 @@ namespace reco {
   bool CompositeRefCandidateT<D>::overlap( const Candidate & c2 ) const {
     throw cms::Exception( "Error" ) << "can't check overlap internally for CompositeRefCanddate";
   }
-  
+
   template<typename D>
-  void CompositeRefCandidateT<D>::fixup() const {
-    size_t n = numberOfDaughters();
-    for( size_t i = 0; i < n; ++ i ) {
-      daughter( i )->addMother( this );
+  void CompositeRefCandidateT<D>::doFixupMothers() const {
+    typedef typename D::collection_type Collection;
+    const Collection * cands = dau.product();
+    assert( cands != 0 );
+    for( typename Collection::const_iterator c = cands->begin(); 
+	 c != cands->end(); ++ c ) {
+      c->setMotherLinksToDaughters();
+      c->setFixed();
     }
   }
-  
+
 }
 
 #endif

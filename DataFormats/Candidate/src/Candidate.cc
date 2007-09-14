@@ -1,4 +1,4 @@
-// $Id: Candidate.cc,v 1.9 2007/05/08 13:11:17 llista Exp $
+// $Id: Candidate.cc,v 1.10 2007/07/31 15:19:59 ratnik Exp $
 #include "DataFormats/Candidate/interface/Candidate.h"
 using namespace reco;
 
@@ -12,4 +12,11 @@ const CandidateBaseRef & Candidate::masterClone() const {
 
 bool Candidate::hasMasterClone() const { 
   return false;
+}
+
+void Candidate::setMotherLinksToDaughters() const {
+  size_t n = numberOfDaughters();
+  for( size_t i = 0; i < n; ++ i ) {
+    daughter( i )->addMother( this );
+  }
 }

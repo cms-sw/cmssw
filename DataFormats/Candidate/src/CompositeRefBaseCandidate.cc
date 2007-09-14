@@ -1,4 +1,4 @@
-// $Id: CompositeRefBaseCandidate.cc,v 1.4 2007/02/19 12:59:05 llista Exp $
+// $Id: CompositeRefBaseCandidate.cc,v 1.5 2007/05/14 11:47:16 llista Exp $
 #include "DataFormats/Candidate/interface/CompositeRefBaseCandidate.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
@@ -43,9 +43,9 @@ bool CompositeRefBaseCandidate::overlap( const Candidate & c2 ) const {
   throw cms::Exception( "Error" ) << "can't check overlap internally for CompositeRefBaseCanddate";
 }
 
-void CompositeRefBaseCandidate::fixup() const {
-  size_t n = numberOfDaughters();
-  for( size_t i = 0; i < n; ++ i ) {
-    daughter( i )->addMother( this );
-  }
+void CompositeRefBaseCandidate::doFixupMothers() const {
+  /// warning: no way to automatically set mother references
+  /// because no unique ProductID is stored here.
+  /// Mother links will not be automatically set up
+  /// for this class.
 }

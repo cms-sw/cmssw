@@ -6,7 +6,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: Candidate.h,v 1.28 2007/06/12 21:27:21 llista Exp $
+ * \version $Id: Candidate.h,v 1.29 2007/06/13 16:31:37 llista Exp $
  *
  */
 #include "DataFormats/Candidate/interface/Particle.h"
@@ -14,6 +14,7 @@
 #include "DataFormats/Candidate/interface/const_iterator.h"
 #include "DataFormats/Candidate/interface/iterator.h"
 #include "DataFormats/Candidate/interface/CandidateFwd.h"
+#include "DataFormats/Common/interface/BoolCache.h"
 
 namespace reco {
   
@@ -51,10 +52,14 @@ namespace reco {
     /// return daughter at a given position, i = 0, ... numberOfDaughters() - 1
     virtual Candidate * daughter( size_type i ) = 0;
     /// number of mothers (zero or one in most of but not all the cases)
-    unsigned int numberOfMothers() const { return mothers_.size(); }
+    unsigned int numberOfMothers() const { 
+      fixupMothers(); 
+      return mothers_.size(); 
+    }
     /// return pointer to mother
     const Candidate * mother( unsigned int i = 0 ) const { 
-      return i < numberOfMothers() ? mothers_[ i ] : 0; 
+      size_t n = numberOfMothers(); // this calls fixupMothers()
+      return i < n ? mothers_[ i ] : 0; 
     }
     /// returns true if this candidate has a reference to a master clone.
     /// This only happens if the concrete Candidate type is ShallowCloneCandidate
@@ -92,10 +97,15 @@ namespace reco {
       if ( hasMasterClone() ) return masterClone()->numberOf<T, Tag>();
       else return reco::numberOf<T, Tag>( * this ); 
     }
-
     /// add a new mother pointer
     void addMother( const Candidate * mother ) const {
       mothers_.push_back( mother );
+    }
+    /// set mother links
+    void setMotherLinksToDaughters() const;
+    /// set fixed flag
+    void setFixed() const {
+      fixed_ = true;
     }
 
   private:
@@ -106,10 +116,13 @@ namespace reco {
     friend class ShallowCloneCandidate;
     /// mother link
     mutable std::vector<const Candidate *> mothers_;
+    /// post-read fixup implementation
+    virtual void doFixupMothers() const = 0;
     /// post-read fixup
-    virtual void fixup() const = 0;
-    /// declare friend class
-    friend class edm::helpers::PostReadFixup;
+    void fixupMothers() const { if(!fixed_) { doFixupMothers(); setFixed(); } }
+    /// boolean fixed flag. Reset to false every time
+    /// an object is read from disk with a custom streamer
+    mutable edm::BoolCache fixed_;
   };
 
 }

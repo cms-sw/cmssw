@@ -9,7 +9,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: CompositeRefBaseCandidate.h,v 1.10 2007/05/14 11:59:26 llista Exp $
+ * \version $Id: CompositeRefBaseCandidate.h,v 1.11 2007/06/12 21:27:21 llista Exp $
  *
  */
 #include "DataFormats/Candidate/interface/iterator_imp_specific.h"
@@ -63,7 +63,11 @@ namespace reco {
     /// check overlap with another candidate
     virtual bool overlap( const Candidate & ) const;
     /// post-read fixup operation
-    virtual void fixup() const;
+    /// warning: no way to automatically set mother references
+    /// because no unique ProductID is stored here.
+    /// Mother links will not be automatically set up
+    /// for this class.
+    virtual void doFixupMothers() const;
   };
 
   inline void CompositeRefBaseCandidate::addDaughter( const CandidateBaseRef & cand ) { 
