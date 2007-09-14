@@ -170,7 +170,7 @@ void PhiSymmetryCalibration::beginJob( const edm::EventSetup& iSetup )
 
 
     // calculate and store eta-phi area for each crystal front face
-    std::vector<GlobalPoint> cellCorners = cellGeometry->getCorners();
+    const CaloCellGeometry::CornersVec& cellCorners (cellGeometry->getCorners()) ;
     cellArea_[ix][iy]=0.;
     for (int i=0; i<4; i++) {
       int iplus1 = i==3 ? 0 : i+1;
