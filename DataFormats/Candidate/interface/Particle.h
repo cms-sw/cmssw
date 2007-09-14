@@ -7,13 +7,14 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: Particle.h,v 1.13 2007/03/05 08:56:51 llista Exp $
+ * \version $Id: Particle.h,v 1.14 2007/06/19 14:48:15 llista Exp $
  *
  */
 #include "DataFormats/Math/interface/Point3D.h"
 #include "DataFormats/Math/interface/Vector3D.h"
 #include "DataFormats/Math/interface/LorentzVector.h"
- 
+#include "DataFormats/Common/interface/BoolCache.h"
+
 namespace reco {
   
   class Particle {
@@ -27,12 +28,12 @@ namespace reco {
     /// point in the space
     typedef math::XYZVector Vector;
     /// default constructor
-    Particle() : hasCacheSet_( false ) { }
+    Particle() : cacheFixed_( false ) { }
     /// constructor from values
     Particle( Charge q, const LorentzVector & p4, const Point & vertex = Point( 0, 0, 0 ),
 	      int pdgId = 0, int status = 0, bool integerCharge = true ) : 
       qx3_( q ), p4_( p4 ), vertex_( vertex ), pdgId_( pdgId ), status_( status ),
-      hasCacheSet_( false ) { 
+      cacheFixed_( false ) { 
       if ( integerCharge ) qx3_ *= 3;
     }
     /// destructor
@@ -122,12 +123,12 @@ namespace reco {
     /// internal cache for p4
     mutable LorentzVectorCache p4Cache_;
     /// has cache been set?
-    mutable bool hasCacheSet_;
+    mutable  edm::BoolCache cacheFixed_;
     /// set internal cache
     void cache() const { 
-      if ( hasCacheSet_ ) return;
+      if ( cacheFixed_ ) return;
       p4Cache_ = p4_;
-      hasCacheSet_ = true;
+      cacheFixed_ = true;
     }
   };
 
