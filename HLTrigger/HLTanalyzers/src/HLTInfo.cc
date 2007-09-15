@@ -54,6 +54,8 @@ void HLTInfo::setup(const edm::ParameterSet& pSet, TTree* HltTree) {
   l1extmuphi = new float[kMaxL1ExtMu];
   l1extmuiso = new int[kMaxL1ExtMu];
   l1extmumip = new int[kMaxL1ExtMu];
+  l1extmufor = new int[kMaxL1ExtMu];
+  l1extmurpc = new int[kMaxL1ExtMu];
   const int kMaxL1ExtJtC = 10000;
   l1extjtcet = new float[kMaxL1ExtJtC];
   l1extjtce = new float[kMaxL1ExtJtC];
@@ -71,48 +73,48 @@ void HLTInfo::setup(const edm::ParameterSet& pSet, TTree* HltTree) {
   l1exttauphi = new float[kMaxL1ExtTau];
 
   // HLT-specific branches of the tree 
-  HltTree->Branch("NobjHltPart",&nhltpart,"NobjHltPart/I");
-  HltTree->Branch("HLTPartPt",hltppt,"HLTPartPt[NobjHltPart]/F");
-  HltTree->Branch("HLTPartEta",hltpeta,"HLTPartEta[NobjHltPart]/F");
+  HltTree->Branch("NHltPart",&nhltpart,"NHltPart/I");
+  HltTree->Branch("HLTPartPt",hltppt,"HLTPartPt[NHltPart]/F");
+  HltTree->Branch("HLTPartEta",hltpeta,"HLTPartEta[NHltPart]/F");
 
-  HltTree->Branch("NobjL1ExtIsolEm",&nl1extiem,"NobjL1ExtIsolEm/I");
-  HltTree->Branch("L1ExtIsolEmEt",l1extiemet,"L1ExtIsolEmEt[NobjL1ExtIsolEm]/F");
-  HltTree->Branch("L1ExtIsolEmE",l1extieme,"L1ExtIsolEmE[NobjL1ExtIsolEm]/F");
-  HltTree->Branch("L1ExtIsolEmEta",l1extiemeta,"L1ExtIsolEmEta[NobjL1ExtIsolEm]/F");
-  HltTree->Branch("L1ExtIsolEmPhi",l1extiemphi,"L1ExtIsolEmPhi[NobjL1ExtIsolEm]/F");
-
-  HltTree->Branch("NobjL1ExtNIsolEm",&nl1extnem,"NobjL1ExtNIsolEm/I");
-  HltTree->Branch("L1ExtNIsolEmEt",l1extnemet,"L1ExtNIsolEmEt[NobjL1ExtNIsolEm]/F");
-  HltTree->Branch("L1ExtNIsolEmE",l1extneme,"L1ExtNIsolEmE[NobjL1ExtNIsolEm]/F");
-  HltTree->Branch("L1ExtNIsolEmEta",l1extnemeta,"L1ExtNIsolEmEta[NobjL1ExtNIsolEm]/F");
-  HltTree->Branch("L1ExtNIsolEmPhi",l1extnemphi,"L1ExtNIsolEmPhi[NobjL1ExtNIsolEm]/F");
-
-  HltTree->Branch("NobjL1ExtMu",&nl1extmu,"NobjL1ExtMu/I");
-  HltTree->Branch("L1ExtMuPt",l1extmupt,"L1ExtMuPt[NobjL1ExtMu]/F");
-  HltTree->Branch("L1ExtMuE",l1extmue,"L1ExtMuE[NobjL1ExtMu]/F");
-  HltTree->Branch("L1ExtMuEta",l1extmueta,"L1ExtMuEta[NobjL1ExtMu]/F");
-  HltTree->Branch("L1ExtMuPhi",l1extmuphi,"L1ExtMuPhi[NobjL1ExtMu]/F");
-  HltTree->Branch("L1ExtMuIsol",l1extmuiso,"L1ExtMuIsol[NobjL1ExtMu]/I");
-  HltTree->Branch("L1ExtMuMip",l1extmumip,"L1ExtMuMip[NobjL1ExtMu]/I");
-  HltTree->Branch("NobjL1ExtCenJet",&nl1extjetc,"NobjL1ExtCenJet/I");
-  HltTree->Branch("L1ExtCenJetEt",l1extjtcet,"L1ExtCenJetEt[NobjL1ExtCenJet]/F");
-  HltTree->Branch("L1ExtCenJetE",l1extjtce,"L1ExtCenJetE[NobjL1ExtCenJet]/F");
-  HltTree->Branch("L1ExtCenJetEta",l1extjtceta,"L1ExtCenJetEta[NobjL1ExtCenJet]/F");
-  HltTree->Branch("L1ExtCenJetPhi",l1extjtcphi,"L1ExtCenJetPhi[NobjL1ExtCenJet]/F");
-  HltTree->Branch("NobjL1ExtForJet",&nl1extjetf,"NobjL1ExtForJet/I");
-  HltTree->Branch("L1ExtForJetEt",l1extjtfet,"L1ExtForJetEt[NobjL1ExtForJet]/F");
-  HltTree->Branch("L1ExtForJetE",l1extjtfe,"L1ExtForJetE[NobjL1ExtForJet]/F");
-  HltTree->Branch("L1ExtForJetEta",l1extjtfeta,"L1ExtForJetEta[NobjL1ExtForJet]/F");
-  HltTree->Branch("L1ExtForJetPhi",l1extjtfphi,"L1ExtForJetPhi[NobjL1ExtForJet]/F");
-  HltTree->Branch("NobjL1ExtTau",&nl1exttau,"NobjL1ExtTau/I");
-  HltTree->Branch("L1ExtTauEt",l1exttauet,"L1ExtTauEt[NobjL1ExtTau]/F");
-  HltTree->Branch("L1ExtTauE",l1exttaue,"L1ExtTauE[NobjL1ExtTau]/F");
-  HltTree->Branch("L1ExtTauEta",l1exttaueta,"L1ExtTauEta[NobjL1ExtTau]/F");
-  HltTree->Branch("L1ExtTauPhi",l1exttauphi,"L1ExtTauPhi[NobjL1ExtTau]/F");
-  HltTree->Branch("L1ExtMet",&met,"L1ExtMet/F");
-  HltTree->Branch("L1ExtMetPhi",&metphi,"L1ExtMetPhi/F");
-  HltTree->Branch("L1ExtMetTot",&mettot,"L1ExtMetTot/F");
-  HltTree->Branch("L1ExtMetHad",&methad,"L1ExtMetHad/F");
+  HltTree->Branch("NL1IsolEm",&nl1extiem,"NL1IsolEm/I");
+  HltTree->Branch("L1IsolEmEt",l1extiemet,"L1IsolEmEt[NL1IsolEm]/F");
+  HltTree->Branch("L1IsolEmE",l1extieme,"L1IsolEmE[NL1IsolEm]/F");
+  HltTree->Branch("L1IsolEmEta",l1extiemeta,"L1IsolEmEta[NL1IsolEm]/F");
+  HltTree->Branch("L1IsolEmPhi",l1extiemphi,"L1IsolEmPhi[NL1IsolEm]/F");
+  HltTree->Branch("NL1NIsolEm",&nl1extnem,"NL1NIsolEm/I");
+  HltTree->Branch("L1NIsolEmEt",l1extnemet,"L1NIsolEmEt[NL1NIsolEm]/F");
+  HltTree->Branch("L1NIsolEmE",l1extneme,"L1NIsolEmE[NL1NIsolEm]/F");
+  HltTree->Branch("L1NIsolEmEta",l1extnemeta,"L1NIsolEmEta[NL1NIsolEm]/F");
+  HltTree->Branch("L1NIsolEmPhi",l1extnemphi,"L1NIsolEmPhi[NL1NIsolEm]/F");
+  HltTree->Branch("NL1Mu",&nl1extmu,"NL1Mu/I");
+  HltTree->Branch("L1MuPt",l1extmupt,"L1MuPt[NL1Mu]/F");
+  HltTree->Branch("L1MuE",l1extmue,"L1MuE[NL1Mu]/F");
+  HltTree->Branch("L1MuEta",l1extmueta,"L1MuEta[NL1Mu]/F");
+  HltTree->Branch("L1MuPhi",l1extmuphi,"L1MuPhi[NL1Mu]/F");
+  HltTree->Branch("L1MuIsol",l1extmuiso,"L1MuIsol[NL1Mu]/I");
+  HltTree->Branch("L1MuMip",l1extmumip,"L1MuMip[NL1Mu]/I");
+  HltTree->Branch("L1MuFor",l1extmufor,"L1MuFor[NL1Mu]/I");
+  HltTree->Branch("L1MuRPC",l1extmurpc,"L1MuRPC[NL1Mu]/I");
+  HltTree->Branch("NL1CenJet",&nl1extjetc,"NL1CenJet/I");
+  HltTree->Branch("L1CenJetEt",l1extjtcet,"L1CenJetEt[NL1CenJet]/F");
+  HltTree->Branch("L1CenJetE",l1extjtce,"L1CenJetE[NL1CenJet]/F");
+  HltTree->Branch("L1CenJetEta",l1extjtceta,"L1CenJetEta[NL1CenJet]/F");
+  HltTree->Branch("L1CenJetPhi",l1extjtcphi,"L1CenJetPhi[NL1CenJet]/F");
+  HltTree->Branch("NL1ForJet",&nl1extjetf,"NL1ForJet/I");
+  HltTree->Branch("L1ForJetEt",l1extjtfet,"L1ForJetEt[NL1ForJet]/F");
+  HltTree->Branch("L1ForJetE",l1extjtfe,"L1ForJetE[NL1ForJet]/F");
+  HltTree->Branch("L1ForJetEta",l1extjtfeta,"L1ForJetEta[NL1ForJet]/F");
+  HltTree->Branch("L1ForJetPhi",l1extjtfphi,"L1ForJetPhi[NL1ForJet]/F");
+  HltTree->Branch("NL1Tau",&nl1exttau,"NL1Tau/I");
+  HltTree->Branch("L1TauEt",l1exttauet,"L1TauEt[NL1Tau]/F");
+  HltTree->Branch("L1TauE",l1exttaue,"L1TauE[NL1Tau]/F");
+  HltTree->Branch("L1TauEta",l1exttaueta,"L1TauEta[NL1Tau]/F");
+  HltTree->Branch("L1TauPhi",l1exttauphi,"L1TauPhi[NL1Tau]/F");
+  HltTree->Branch("L1Met",&met,"L1Met/F");
+  HltTree->Branch("L1MetPhi",&metphi,"L1MetPhi/F");
+  HltTree->Branch("L1MetTot",&mettot,"L1MetTot/F");
+  HltTree->Branch("L1MetHad",&methad,"L1MetHad/F");
 
 }
 
@@ -144,7 +146,8 @@ void HLTInfo::analyze(const HLTFilterObjectWithRefs& hltobj,
     if (HltEvtCnt==0){
       for (int itrig = 0; itrig != ntrigs; ++itrig){
 	TString trigName = triggerNames_.triggerName(itrig);
-	HltTree->Branch("TRIGG_"+trigName,trigflag+itrig,"TRIGG_"+trigName+"/I");
+// 	HltTree->Branch("TRIGG_"+trigName,trigflag+itrig,"TRIGG_"+trigName+"/I");
+	HltTree->Branch(trigName,trigflag+itrig,trigName+"/I");
       }
       HltEvtCnt++;
     }
@@ -191,7 +194,7 @@ void HLTInfo::analyze(const HLTFilterObjectWithRefs& hltobj,
     if (_Debug) std::cout << "%HLTInfo -- No HLT Object" << std::endl;
   }
 
-  /////////// Analyzing L1Extra (from MC Truth) objects //////////
+  /////////// Analyzing L1Extra objects //////////
 
   if (&L1ExtEmIsol) {
     nl1extiem = L1ExtEmIsol.size();
@@ -243,6 +246,8 @@ void HLTInfo::analyze(const HLTFilterObjectWithRefs& hltobj,
       l1extmuphi[il1exmu] = muItr->phi();
       l1extmuiso[il1exmu] = muItr->isIsolated(); // = 1 for Isolated ?
       l1extmumip[il1exmu] = muItr->isMip(); // = 1 for Mip ?
+      l1extmufor[il1exmu] = muItr->isForward();
+      l1extmurpc[il1exmu] = muItr->isRPC();
       il1exmu++;
     }
   }
