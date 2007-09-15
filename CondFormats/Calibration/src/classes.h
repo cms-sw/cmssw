@@ -1,6 +1,7 @@
 #include "CondFormats/Calibration/interface/Pedestals.h"
 #include "CondFormats/Calibration/interface/BlobPedestals.h"
 #include "CondFormats/Calibration/interface/BlobNoises.h"
+#include "CondFormats/Calibration/interface/BlobComplex.h"
 #include "CondFormats/Calibration/interface/mySiStripNoises.h"
 #include "CondFormats/Calibration/interface/CalibHistograms.h"
 /*#include "CondFormats/SiStripObjects/interface/SiStripFedCabling.h"
@@ -26,4 +27,10 @@ namespace {
   std::vector<float>::const_iterator tmp13;
   std::vector<CalibHistogram>::iterator tmp14;
   std::vector<CalibHistogram>::const_iterator tmp15;
+  std::vector<BlobComplexData>::iterator tmp16;
+  std::vector<BlobComplexData>::const_iterator tmp17;
+  std::vector<BlobComplexContent>::iterator tmp18;
+  std::vector<BlobComplexContent>::const_iterator tmp19;
+  std::vector<BlobComplexObjects>::iterator tmp20;
+  std::vector<BlobComplexObjects>::const_iterator tmp21;
 }
