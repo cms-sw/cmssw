@@ -1,8 +1,6 @@
 <use name=root>
-<use name=rootcint>
 <export>
   <lib name=PhysicsToolsKinFitter>
   <use name=root>
-  <use name=rootcint>
 </export>
 

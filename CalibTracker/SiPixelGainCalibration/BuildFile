@@ -10,7 +10,6 @@
 <use name=PhysicsTools/UtilAlgos>
 <use name=FWCore/ServiceRegistry>
 <use name=Geometry/Records>
-<use name=EventSetup/SiPixelRawToDigi>
 <use name=root>
 <use name=Geometry/Records>
 <use name=Geometry/CommonDetUnit>
@@ -30,5 +29,4 @@
    <use name=PhysicsTools/UtilAlgos>
    <use name=CondFormats/DataRecord>
    <use name=Geometry/Records>
-   <use name=EventSetup/SiPixelRawToDigi>
 </export>
