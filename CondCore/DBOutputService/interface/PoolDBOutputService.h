@@ -70,7 +70,7 @@ namespace cond{
 	  std::string payloadToken=myPayload.token();
 	  iovToken=this->insertIOV(pooldb, myrecord,payloadToken,firstTillTime);
 	  pooldb.commit();
-	}catch(...){
+	}catch(const std::exception& ){
 	  pooldb.rollback();
 	  throw cond::Exception("createNewIOV: error in commit in pool");
 	}
@@ -80,7 +80,7 @@ namespace cond{
 	  coraldb.start();
 	  metadata.addMapping(myrecord.m_tag,iovToken);
 	  coraldb.commit();
-	}catch(...){
+	}catch(const std::exception&){
 	  //I hope it'll never happen!
 	  coraldb.rollback();
 	  //delete new payload; 
@@ -110,7 +110,7 @@ namespace cond{
 	  std::string payloadToken=myPayload.token();
 	  pooldb.commit();
 	  std::string iovToken=this->insertIOV(pooldb,myrecord,payloadToken,tillTime);
-	}catch(...){
+	}catch(const std::exception&){
 	  pooldb.rollback();
 	}
       }
@@ -135,7 +135,7 @@ namespace cond{
 	  std::string payloadToken=myPayload.token();
 	  this->appendIOV(pooldb,myrecord,payloadToken,sinceTime);
 	  pooldb.commit();
-	}catch(...){
+	}catch(const std::exception&){
 	  pooldb.rollback();
 	}
       }

@@ -18,7 +18,6 @@
 #include "CondCore/DBCommon/interface/ConfigSessionFromParameterSet.h"
 #include "CondCore/DBOutputService/interface/Exception.h"
 #include "CondCore/DBCommon/interface/ObjectRelationalMappingUtility.h"
-#include "CondCore/DBCommon/interface/DBCatalog.h"
 #include "CondCore/DBCommon/interface/DBSession.h"
 //POOL include
 #include "FileCatalog/IFileCatalog.h"
@@ -31,52 +30,17 @@ cond::service::PoolDBOutputService::PoolDBOutputService(const edm::ParameterSet 
   m_dbstarted( false )
 {
   std::string connect=iConfig.getParameter<std::string>("connect");
-  std::string catconnect=iConfig.getUntrackedParameter<std::string>("catalog","");
-  cond::DBCatalog mycat;
-  std::pair<std::string,std::string> logicalService=mycat.logicalservice(connect);
-  std::string logicalServiceName=logicalService.first;
-  std::string dataName=logicalService.second;
-  if( !logicalServiceName.empty() ){
-    if( catconnect.empty() ){
-      if( logicalServiceName=="dev" ){
-	catconnect=mycat.defaultDevCatalogName();
-      }else if( logicalServiceName=="online" ){
-	catconnect=mycat.defaultOnlineCatalogName();
-      }else if( logicalServiceName=="offline" ){
-	catconnect=mycat.defaultOfflineCatalogName();
-      }else if( logicalServiceName=="local" ){
-	catconnect="file:localCondDBCatalog.xml";
-	connect=std::string("sqlite_file:")+dataName;
-      }else{
-	throw cond::Exception(std::string("no default catalog found for ")+logicalServiceName);
-      }
-    }
-    if(logicalServiceName != "local"){
-      mycat.poolCatalog().setWriteCatalog(catconnect);
-      mycat.poolCatalog().connect();
-      mycat.poolCatalog().start();
-      std::string pf=mycat.getPFN(mycat.poolCatalog(),connect, false);
-      mycat.poolCatalog().commit();
-      mycat.poolCatalog().disconnect();
-      connect=pf;
-    }
-  }
-  m_session=new cond::DBSession;
+  m_session=new cond::DBSession;  
   m_timetype=iConfig.getParameter< std::string >("timetype");
   edm::ParameterSet connectionPset = iConfig.getParameter<edm::ParameterSet>("DBParameters"); 
   ConfigSessionFromParameterSet configConnection(*m_session,connectionPset);
   static cond::ConnectionHandler& conHandler=cond::ConnectionHandler::Instance();
-  conHandler.registerConnection("outputdb",connect,catconnect,0);
+  std::string catconnect("pfncatalog_memory://POOL_RDBMS?");
+  catconnect.append(connect);
+  conHandler.registerConnection("outputdb",connect,0);
   m_session->open();
   conHandler.connect(m_session);
   m_connection=conHandler.getConnection("outputdb");
-  //cond::PoolTransaction& pooldb=m_connection->poolTransaction(false);
-  /*if( timetype=="timestamp" ){
-    m_iovservice=new cond::IOVService(pooldb,cond::timestamp);
-  }else{
-    m_iovservice=new cond::IOVService(pooldb,cond::runnumber);
-  }
-  */
   typedef std::vector< edm::ParameterSet > Parameters;
   Parameters toPut=iConfig.getParameter<Parameters>("toPut");
   for(Parameters::iterator itToPut = toPut.begin(); itToPut != toPut.end(); ++itToPut) {
@@ -132,9 +96,6 @@ cond::service::PoolDBOutputService::initDB()
   }catch( const std::exception& er ){
     coraldb.rollback();
     throw cms::Exception( er.what() );
-  }catch(...){
-    coraldb.rollback();
-    throw cms::Exception( "Unknown error" );
   }
   m_dbstarted=true;
 }
@@ -142,16 +103,7 @@ cond::service::PoolDBOutputService::initDB()
 void 
 cond::service::PoolDBOutputService::postEndJob()
 {
-  //std::cout<<"PoolDBOutputService::postEndJob"<<std::endl;
-  /*if(!m_dbstarted) return;
-    m_coraldb->startTransaction(false); 
-    cond::MetaData metadata(*m_coraldb);
-    for(std::vector<std::pair<std::string,std::string> >::iterator it=m_newtags.begin(); it!=m_newtags.end(); ++it){
-    //std::cout<<"adding "<<it->first<<" "<<it->second<<std::endl;
-    metadata.addMapping(it->first,it->second);
-    }
-    m_coraldb->commit();
-  */
+
 }
 
 void 
@@ -172,17 +124,6 @@ cond::service::PoolDBOutputService::postModule(const edm::ModuleDescription& des
 }
 
 cond::service::PoolDBOutputService::~PoolDBOutputService(){
-  /*std::cout<<"~PoolDBOutputService"<<std::endl;
-    for(std::map<size_t,cond::service::serviceCallbackRecord>::iterator it=m_callbacks.begin(); it!=m_callbacks.end(); ++it){
-    if(it->second.m_iovEditor){
-    delete it->second.m_iovEditor;
-    it->second.m_iovEditor=0;
-    }
-    }
-    m_callbacks.clear();
-    std::cout<<"before delete iov"<<std::endl;
-    delete m_iovservice;
-  */
   delete m_session;
 }
 
@@ -222,9 +163,10 @@ cond::service::PoolDBOutputService::createNewIOV( const std::string& firstPayloa
     coraldb.start();
     metadata.addMapping(myrecord.m_tag,iovToken);
     coraldb.commit();
-  }catch(...){
+  }catch(const std::exception&){
     //I hope it'll never happen!
     coraldb.rollback();
+    //TODO: proper cleaning and rollback  in sequence
     //delete new payload; 
     //pooldb.start();
     //this->resetPreviousPoolStatus(payloadToken,iovToken);
@@ -244,7 +186,7 @@ cond::service::PoolDBOutputService::appendTillTime( const std::string& payloadTo
     pooldb.start();
     this->insertIOV(pooldb,myrecord,payloadToken,tillTime);
     pooldb.commit();
-  }catch(...){
+  }catch(const std::exception&){
     pooldb.rollback();
     throw cond::Exception("PoolDBOutputService::appendTillTime error in commit");
   }
@@ -259,7 +201,7 @@ cond::service::PoolDBOutputService::appendSinceTime( const std::string& payloadT
     pooldb.start();
     this->appendIOV(pooldb,myrecord,payloadToken,sinceTime);
     pooldb.commit();
-  }catch(...){
+  }catch(const std::exception&){
     pooldb.rollback();
     throw cond::Exception("PoolDBOutputService::appendSinceTime error in commit");
   }
