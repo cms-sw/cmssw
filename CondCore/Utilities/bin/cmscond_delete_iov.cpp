@@ -11,6 +11,7 @@
 #include "CondCore/MetaDataService/interface/MetaData.h"
 #include "CondCore/IOVService/interface/IOVService.h"
 #include "CondCore/IOVService/interface/IOVEditor.h"
+#include "CondCore/DBCommon/interface/FipProtocolParser.h"
 #include <boost/program_options.hpp>
 #include <iostream>
 int main( int argc, char** argv ){
@@ -20,7 +21,8 @@ int main( int argc, char** argv ){
     ("connect,c",boost::program_options::value<std::string>(),"connection string(required)")
     ("user,u",boost::program_options::value<std::string>(),"user name (default \"\")")
     ("pass,p",boost::program_options::value<std::string>(),"password (default \"\")")
-    ("catalog,f",boost::program_options::value<std::string>(),"file catalog contact string (default $POOL_CATALOG)")
+    //("catalog,f",boost::program_options::value<std::string>(),"file catalog contact string (default $POOL_CATALOG)")
+    ("authPath,P",boost::program_options::value<std::string>(),"path to authentication.xml")
     ("all,a","delete all tags")
     ("tag,t",boost::program_options::value<std::string>(),"delete the specified tag and IOV")
     ("withPayload","delete payload data associated with the specified tag (default off)")
@@ -41,7 +43,7 @@ int main( int argc, char** argv ){
     return 0;
   }
   std::string connect;
-  std::string catalog("file:PoolFileCatalog.xml");
+  std::string authPath("");
   std::string user("");
   std::string pass("");
   bool deleteAll=true;
@@ -61,9 +63,12 @@ int main( int argc, char** argv ){
   if(vm.count("pass")){
     pass=vm["pass"].as<std::string>();
   }
-  if(vm.count("catalog")){
-    catalog=vm["catalog"].as<std::string>();
+  if( vm.count("authPath") ){
+    authPath=vm["authPath"].as<std::string>();
   }
+  /*if(vm.count("catalog")){
+    catalog=vm["catalog"].as<std::string>();
+    }*/
   if(vm.count("tag")){
     tag=vm["tag"].as<std::string>();
     deleteAll=false;
@@ -76,7 +81,11 @@ int main( int argc, char** argv ){
   }
   
   cond::DBSession* session=new cond::DBSession;
-  session->configuration().setAuthenticationMethod( cond::Env );
+  if( !authPath.empty() ){
+    session->configuration().setAuthenticationMethod( cond::XML );
+  }else{
+    session->configuration().setAuthenticationMethod( cond::Env );
+  }
   if(debug){
     session->configuration().setMessageLevel( cond::Debug );
   }else{
@@ -87,10 +96,14 @@ int main( int argc, char** argv ){
   session->configuration().connectionConfiguration()->enableReadOnlySessionOnUpdateConnections(); 
   std::string userenv(std::string("CORAL_AUTH_USER=")+user);
   std::string passenv(std::string("CORAL_AUTH_PASSWORD=")+pass);
+  std::string authenv(std::string("CORAL_AUTH_PATH=")+authPath);
   ::putenv(const_cast<char*>(userenv.c_str()));
   ::putenv(const_cast<char*>(passenv.c_str()));
+  ::putenv(const_cast<char*>(authenv.c_str()));
+  //std::string catalog("pfncatalog_memory://POOL_RDBMS?");
+  //catalog.append(connect);
   static cond::ConnectionHandler& conHandler=cond::ConnectionHandler::Instance();
-  conHandler.registerConnection("mydb",connect,catalog,0);
+  conHandler.registerConnection("mydb",connect,0);
   session->open();
   if( deleteAll ){
     try{
@@ -109,8 +122,6 @@ int main( int argc, char** argv ){
       std::cout<<er.what()<<std::endl;
     }catch(std::exception& er){
       std::cout<<er.what()<<std::endl;
-    }catch(...){
-      std::cout<<"Unknown error"<<std::endl;
     }
   }else{
     try{
@@ -137,8 +148,6 @@ int main( int argc, char** argv ){
       std::cout<<er.what()<<std::endl;
     }catch(std::exception& er){
       std::cout<<er.what()<<std::endl;
-    }catch(...){
-      std::cout<<"Unknown error"<<std::endl;
     }
   }
   delete session;

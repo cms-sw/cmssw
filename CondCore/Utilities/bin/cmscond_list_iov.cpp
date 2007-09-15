@@ -8,6 +8,7 @@
 #include "CondCore/DBCommon/interface/MessageLevel.h"
 #include "CondCore/DBCommon/interface/DBSession.h"
 #include "CondCore/DBCommon/interface/Exception.h"
+#include "CondCore/DBCommon/interface/FipProtocolParser.h"
 #include "CondCore/MetaDataService/interface/MetaData.h"
 #include "CondCore/IOVService/interface/IOVService.h"
 #include "CondCore/IOVService/interface/IOVIterator.h"
@@ -21,7 +22,7 @@ int main( int argc, char** argv ){
     ("connect,c",boost::program_options::value<std::string>(),"connection string(required)")
     ("user,u",boost::program_options::value<std::string>(),"user name (default \"\")")
     ("pass,p",boost::program_options::value<std::string>(),"password (default \"\")")
-    ("catalog,f",boost::program_options::value<std::string>(),"file catalog contact string (default $POOL_CATALOG)")
+    ("authPath,P",boost::program_options::value<std::string>(),"path to authentication.xml")
     ("all,a","list all tags(default mode)")
     ("tag,t",boost::program_options::value<std::string>(),"list info of the specified tag")
     ("debug,d","switch on debug mode")
@@ -41,7 +42,7 @@ int main( int argc, char** argv ){
     return 0;
   }
   std::string connect;
-  std::string catalog("file:PoolFileCatalog.xml");
+  std::string authPath("");
   std::string user("");
   std::string pass("");
   bool listAll=true;
@@ -60,8 +61,8 @@ int main( int argc, char** argv ){
   if(vm.count("pass")){
     pass=vm["pass"].as<std::string>();
   }
-  if(vm.count("catalog")){
-    catalog=vm["catalog"].as<std::string>();
+  if( vm.count("authPath") ){
+      authPath=vm["authPath"].as<std::string>();
   }
   if(vm.count("tag")){
     tag=vm["tag"].as<std::string>();
@@ -71,7 +72,11 @@ int main( int argc, char** argv ){
     debug=true;
   }
   cond::DBSession* session=new cond::DBSession;
-  session->configuration().setAuthenticationMethod( cond::Env );
+  if( !authPath.empty() ){
+    session->configuration().setAuthenticationMethod( cond::XML );
+  }else{
+    session->configuration().setAuthenticationMethod( cond::Env );
+  }
   if(debug){
     session->configuration().setMessageLevel( cond::Debug );
   }else{
@@ -82,10 +87,16 @@ int main( int argc, char** argv ){
   session->configuration().connectionConfiguration()->enableReadOnlySessionOnUpdateConnections();
   std::string userenv(std::string("CORAL_AUTH_USER=")+user);
   std::string passenv(std::string("CORAL_AUTH_PASSWORD=")+pass);
+  std::string authenv(std::string("CORAL_AUTH_PATH=")+authPath);
   ::putenv(const_cast<char*>(userenv.c_str()));
   ::putenv(const_cast<char*>(passenv.c_str()));
+  ::putenv(const_cast<char*>(authenv.c_str()));
   static cond::ConnectionHandler& conHandler=cond::ConnectionHandler::Instance();
-  conHandler.registerConnection("mydb",connect,catalog,0);
+  if( connect.find("sqlite_fip:") != std::string::npos ){
+    cond::FipProtocolParser p;
+    connect=p.getRealConnect(connect);
+  }
+  conHandler.registerConnection("mydb",connect,0);  
   if( listAll ){
     try{
       session->open();
@@ -106,44 +117,40 @@ int main( int argc, char** argv ){
       std::cout<<er.what()<<std::endl;
     }catch(std::exception& er){
       std::cout<<er.what()<<std::endl;
-    }catch(...){
-      std::cout<<"Unknown error"<<std::endl;
     }
-  }else{
-    try{
-      session->open();
-      conHandler.connect(session);
-      cond::Connection* myconnection=conHandler.getConnection("mydb");
-      cond::CoralTransaction& coraldb=myconnection->coralTransaction(true);
-      cond::MetaData metadata_svc(coraldb);
-      std::string token;
-      coraldb.start();
-      token=metadata_svc.getToken(tag);
-      coraldb.commit();
-      cond::PoolTransaction& pooldb = myconnection->poolTransaction(true);
-      cond::IOVService iovservice(pooldb);
-      cond::IOVIterator* ioviterator=iovservice.newIOVIterator(token);
-      pooldb.start();
-      unsigned int counter=0;
-      std::string payloadContainer=iovservice.payloadContainerName(token);
-      std::cout<<"Tag "<<tag<<"\n";
-      std::cout<<"PayloadContainerName "<<payloadContainer<<"\n";
-      std::cout<<"since \t till \t payloadToken"<<std::endl;
-      while( ioviterator->next() ){
-	std::cout<<ioviterator->validity().first<<" \t "<<ioviterator->validity().second<<" \t "<<ioviterator->payloadToken()<<std::endl;	
-	++counter;
-      }
-      std::cout<<"Total # of payload objects: "<<counter<<std::endl;
-      pooldb.commit();
-      delete ioviterator;
-    }catch(cond::Exception& er){
-      std::cout<<er.what()<<std::endl;
-    }catch(std::exception& er){
-      std::cout<<er.what()<<std::endl;
-    }catch(...){
-      std::cout<<"Unknown error"<<std::endl;
-    }
-  }
+   }else{ 
+     try{
+       session->open();
+       conHandler.connect(session);
+       cond::Connection* myconnection=conHandler.getConnection("mydb");
+       cond::CoralTransaction& coraldb=myconnection->coralTransaction(true);
+       cond::MetaData metadata_svc(coraldb);
+       std::string token;
+       coraldb.start();
+       token=metadata_svc.getToken(tag);
+       coraldb.commit();
+       cond::PoolTransaction& pooldb = myconnection->poolTransaction(true);
+       cond::IOVService iovservice(pooldb);
+       cond::IOVIterator* ioviterator=iovservice.newIOVIterator(token);
+       pooldb.start();
+       unsigned int counter=0;
+       std::string payloadContainer=iovservice.payloadContainerName(token);
+       std::cout<<"Tag "<<tag<<"\n";
+       std::cout<<"PayloadContainerName "<<payloadContainer<<"\n";
+       std::cout<<"since \t till \t payloadToken"<<std::endl;
+       while( ioviterator->next() ){
+	 std::cout<<ioviterator->validity().first<<" \t "<<ioviterator->validity().second<<" \t "<<ioviterator->payloadToken()<<std::endl;	
+	 ++counter;
+       }
+       std::cout<<"Total # of payload objects: "<<counter<<std::endl;
+       pooldb.commit();
+       delete ioviterator;
+     }catch(cond::Exception& er){
+       std::cout<<er.what()<<std::endl;
+     }catch(std::exception& er){
+       std::cout<<er.what()<<std::endl;
+     }
+   }
   delete session;
   return 0;
 }
