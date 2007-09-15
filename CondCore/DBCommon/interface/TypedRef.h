@@ -1,7 +1,7 @@
 #ifndef COND_DBCommon_TypedRef_H
 #define COND_DBCommon_TypedRef_H
 #include <string>
-#include <iostream>
+//#include <iostream>
 // pool includes
 #include "DataSvc/IDataSvc.h"
 #include "DataSvc/Ref.h"
@@ -87,7 +87,6 @@ cond::TypedRef<T>::TypedRef( cond::PoolTransaction& pooldb,
   m_datasvc(&(pooldb.poolDataSvc())),
   m_con(pooldb.parentConnection().connectStr()),
   m_data(m_datasvc, token){
-  std::cout<<"in TypedRef constructor"<<std::endl;
   //m_place=0;
   //m_place = new pool::Placement;
   //m_place->setTechnology(pool::POOL_RDBMS_HOMOGENEOUS_StorageType.type());
