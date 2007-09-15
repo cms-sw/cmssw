@@ -11,7 +11,7 @@ BaseCrystal::BaseCrystal(const DetId&  cell):cellid_(cell)
   subdetn_ = cellid_.subdetId();
 }
 
-void BaseCrystal::setCorners(const std::vector<GlobalPoint>& vec,const GlobalPoint& pos)
+void BaseCrystal::setCorners(const CaloCellGeometry::CornersVec& vec,const GlobalPoint& pos)
 {
   unsigned ncorners= vec.size();
   if(ncorners!=8) return;
