@@ -41,9 +41,9 @@ QGSPCMS_BERT::QGSPCMS_BERT(G4LogicalVolumeToDDLogicalPartMap& map,
     RegisterPhysics( new G4HadronElasticPhysics("elastic",ver,false));
 
     // Hadron Physics
-    //G4bool quasiElastic=true;
-    //RegisterPhysics( new HadronPhysicsQGSP_BERT("hadron",quasiElastic));
-    RegisterPhysics( new HadronPhysicsQGSP_BERT("hadron"));
+    G4bool quasiElastic=true;
+    RegisterPhysics( new HadronPhysicsQGSP_BERT("hadron",quasiElastic));
+    //RegisterPhysics( new HadronPhysicsQGSP_BERT("hadron"));
   
     // Stopping Physics
     RegisterPhysics( new G4QStoppingPhysics("stopping"));

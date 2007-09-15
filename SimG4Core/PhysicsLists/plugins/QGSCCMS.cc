@@ -41,13 +41,13 @@ QGSCCMS::QGSCCMS(G4LogicalVolumeToDDLogicalPartMap& map,
     RegisterPhysics( new G4HadronElasticPhysics("elastic",ver));
 
     // Hadron Physics
-    //G4bool quasiElastic=true;
-    //RegisterPhysics(  new HadronPhysicsQGSC("hadron",quasiElastic));
-    RegisterPhysics(  new HadronPhysicsQGSC("hadron"));
+    G4bool quasiElastic=true;
+    RegisterPhysics(  new HadronPhysicsQGSC("hadron",quasiElastic));
+    //RegisterPhysics(  new HadronPhysicsQGSC("hadron"));
 
     // Stopping Physics
-    RegisterPhysics( new G4QStoppingPhysics("stopping",ver));
-    //RegisterPhysics( new G4QStoppingPhysics("stopping",ver,false));
+    //RegisterPhysics( new G4QStoppingPhysics("stopping",ver));
+    RegisterPhysics( new G4QStoppingPhysics("stopping",ver,false));
     
     // Ion Physics
     RegisterPhysics( new G4IonPhysics("ion"));
