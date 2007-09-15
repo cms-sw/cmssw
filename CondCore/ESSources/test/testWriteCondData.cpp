@@ -11,16 +11,14 @@
 #include "CondCore/IOVService/interface/IOVService.h"
 #include "CondCore/IOVService/interface/IOVEditor.h"
 #include "CondCore/MetaDataService/interface/MetaData.h"
-//#include "CondCore/DBCommon/interface/ConnectMode.h"
 #include "CondCore/DBCommon/interface/TypedRef.h"
-//#include "CondFormats/EcalObjects/interface/EcalPedestals.h"
 #include "CondFormats/Calibration/interface/Pedestals.h"
 int main(){
   try{
     cond::DBSession* session=new cond::DBSession;
     session->configuration().setMessageLevel(cond::Error);
     static cond::ConnectionHandler& conHandler=cond::ConnectionHandler::Instance();
-    conHandler.registerConnection("mysqlite","sqlite_file:test.db","file:mycatalog.xml",0);
+    conHandler.registerConnection("mysqlite","sqlite_file:test.db",0);
     session->open();
     conHandler.connect(session);
     cond::Connection* myconnection=conHandler.getConnection("mysqlite");
