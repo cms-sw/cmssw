@@ -11,7 +11,7 @@
 #include "TChain.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
+/* #include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h" */
 #include "DataFormats/Candidate/interface/Candidate.h"
 
 #include "DataFormats/METReco/interface/CaloMETCollection.h"
@@ -31,14 +31,15 @@ public:
   void setup(const edm::ParameterSet& pSet, TTree* tree);
 
   /** Analyze the Data */
-  void analyze(const HepMC::GenEvent mctruth,
+  void analyze(const CandidateCollection& mctruth,
 	       TTree* tree);
 
 private:
 
   // Tree variables
-  float *mcpid, *mcvx, *mcvy, *mcvz, *mcpt;
-  int nmcpart;
+  float *mcvx, *mcvy, *mcvz, *mcpt;
+  int *mcpid;
+  int nmcpart,nmu3,nab,nbb;
   float pthat;
   // input variables
   bool _Monte,_Debug;
