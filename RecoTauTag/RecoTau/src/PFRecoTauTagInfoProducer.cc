@@ -46,11 +46,9 @@ void PFRecoTauTagInfoProducer::produce(Event& iEvent, const EventSetup& iSetup){
   
   PFTauTagInfoCollection* extCollection=new PFTauTagInfoCollection();
 
-  unsigned int i_Assoc=0;
   for(JetTracksAssociationCollection::const_iterator iAssoc=thePFJetTracksAssociatorCollection->begin();iAssoc!=thePFJetTracksAssociatorCollection->end();iAssoc++){
     PFTauTagInfo myPFTauTagInfo=PFRecoTauTagInfoAlgo_->buildPFTauTagInfo((*iAssoc).first.castTo<PFJetRef>(),thePFCands,(*iAssoc).second,thePV);
     extCollection->push_back(myPFTauTagInfo);
-    ++i_Assoc;
   }
   
   auto_ptr<PFTauTagInfoCollection> resultExt(extCollection);  

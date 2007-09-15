@@ -36,11 +36,9 @@ void CaloRecoTauTagInfoProducer::produce(Event& iEvent,const EventSetup& iSetup)
   
   CaloTauTagInfoCollection* extCollection=new CaloTauTagInfoCollection();
 
-  unsigned int i_Assoc=0;
   for(JetTracksAssociationCollection::const_iterator iAssoc=theCaloJetTracksAssociatorCollection->begin();iAssoc!=theCaloJetTracksAssociatorCollection->end();iAssoc++){
     CaloTauTagInfo myCaloTauTagInfo=CaloRecoTauTagInfoAlgo_->buildCaloTauTagInfo(iEvent,iSetup,(*iAssoc).first.castTo<CaloJetRef>(),(*iAssoc).second,thePV);
     extCollection->push_back(myCaloTauTagInfo);
-    ++i_Assoc;
   }
   
   auto_ptr<CaloTauTagInfoCollection> resultExt(extCollection);  
