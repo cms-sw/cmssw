@@ -1,8 +1,5 @@
 // system include files
 #include "boost/shared_ptr.hpp"
-//#include "boost/filesystem/path.hpp"
-//#include "boost/filesystem/operations.hpp"
-// user include files
 #include "CondCore/ESSources/interface/PoolDBESSource.h"
 #include "CondCore/DBCommon/interface/DBSession.h"
 #include "CondCore/DBCommon/interface/Exception.h"
@@ -10,7 +7,7 @@
 #include "CondCore/DBCommon/interface/Time.h"
 #include "CondCore/DBCommon/interface/ConfigSessionFromParameterSet.h"
 #include "CondCore/DBCommon/interface/SessionConfiguration.h"
-#include "CondCore/DBCommon/interface/DBCatalog.h"
+#include "CondCore/DBCommon/interface/FipProtocolParser.h"
 #include "CondCore/DBCommon/interface/PoolTransaction.h"
 #include "CondCore/DBCommon/interface/CoralTransaction.h"
 #include "CondCore/DBCommon/interface/ConnectionHandler.h"
@@ -20,6 +17,7 @@
 #include "CondCore/IOVService/interface/IOVService.h"
 #include "CondCore/IOVService/interface/IOVNames.h"
 #include "CondCore/MetaDataService/interface/MetaData.h"
+#include "CondCore/MetaDataService/interface/MetaDataNames.h"
 #include "POOLCore/Exception.h"
 #include "RelationalAccess/IConnectionService.h"
 #include "RelationalAccess/IWebCacheControl.h"
@@ -30,9 +28,7 @@
 #include "FileCatalog/IFileCatalog.h"
 #include <sstream>
 #include <cstdlib>
-
-#include <iostream>
-namespace fs = boost::filesystem;
+//#include <iostream>
 //
 // static data member definitions
 //
@@ -108,55 +104,50 @@ PoolDBESSource::PoolDBESSource( const edm::ParameterSet& iConfig ) :
   //std::cout<<"PoolDBESSource::PoolDBESSource"<<std::endl;
   /*parameter set parsing and pool environment setting
    */
-  std::string catStr,catconnect, mycatalog;
+  std::string catStr;
   std::string connect;
-  bool usingDefaultCatalog=false;
-  connect=iConfig.getParameter<std::string>("connect");
-  if( iConfig.exists("InPathCatalog") ){
-    edm::FileInPath inpathcat=iConfig.getParameter<edm::FileInPath>("InPathCatalog");
-    catStr="file://" + inpathcat.fullPath();
-    //std::cout<<"full path "<<catStr<<std::endl;
-  }else{
-    catStr=iConfig.getUntrackedParameter<std::string>("catalog","");
+  connect=iConfig.getParameter<std::string>("connect"); 
+  if( connect.find("sqlite_fip:") != std::string::npos ){
+    cond::FipProtocolParser p;
+    connect=p.getRealConnect(connect);
   }
-  if( catStr.empty() ){
-    usingDefaultCatalog=true;
-  }else{
-    catconnect=catStr;
-  }
-  bool siteLocalConfig=iConfig.getUntrackedParameter<bool>("siteLocalConfig",false);
-  cond::DBCatalog mycat;
-  std::pair<std::string,std::string> logicalService=mycat.logicalservice(connect);
-  std::string logicalServiceName=logicalService.first;
-  if( !logicalServiceName.empty() ){
-    if( usingDefaultCatalog ){
-      if( logicalServiceName=="dev" ){
-	catconnect=mycat.defaultDevCatalogName();
-      }else if( logicalServiceName=="online" ){
-	catconnect=mycat.defaultOnlineCatalogName();
-      }else if( logicalServiceName=="offline" ){
-	catconnect=mycat.defaultOfflineCatalogName();
-      }else{
-	throw cond::Exception(std::string("no default catalog found for ")+logicalServiceName);
-      }
-    }
-    mycat.poolCatalog().setWriteCatalog(catconnect);
-    mycat.poolCatalog().connect();
-    mycat.poolCatalog().start();
-    std::string pf=mycat.getPFN(mycat.poolCatalog(),connect, siteLocalConfig);
-    mycat.poolCatalog().commit();
-    mycat.poolCatalog().disconnect();
-    connect=pf;
-  }
-  //std::cout<<"using connect "<<connect<<std::endl;
-  //std::cout<<"using catalog "<<catconnect<<std::endl;
   m_session=new cond::DBSession;
   edm::ParameterSet connectionPset = iConfig.getParameter<edm::ParameterSet>("DBParameters"); 
   cond::ConfigSessionFromParameterSet configConnection(*m_session,connectionPset);
-  conHandler.registerConnection("inputdb",connect,catconnect,0);
+  //std::cout<<"using connect "<<connect<<std::endl;
   m_session->open();
+  ///handle frontier cache refresh
+  if( connect.rfind("frontier://") != std::string::npos){
+    //Mark tables that need to not be cached (always refreshed)
+    //strip off the leading protocol:// and trailing schema name from connect
+    edm::Service<edm::SiteLocalConfig> localconfservice;
+    if( !localconfservice.isAvailable() ){
+      throw cms::Exception("edm::SiteLocalConfigService is not available");       
+    }
+    connect=localconfservice->lookupCalibConnect(connect);
+    std::string::size_type startRefresh = connect.find("://");
+    if (startRefresh != std::string::npos){
+      startRefresh += 3;
+    }
+    std::string::size_type endRefresh = connect.rfind("/", std::string::npos);
+    std::string refreshConnect;
+    if (endRefresh == std::string::npos){
+      refreshConnect = connect;
+    }else{
+      refreshConnect = connect.substr(startRefresh, endRefresh-startRefresh);
+      if(refreshConnect.substr(0,1) != "("){
+	//if the connect string is not a complicated parenthesized string,
+	// an http:// needs to be at the beginning of it
+	refreshConnect.insert(0, "http://");
+      }
+    }
+    //get handle to webCacheControl()
+    m_session->webCacheControl().refreshTable( refreshConnect,cond::IOVNames::iovTableName() );
+    m_session->webCacheControl().refreshTable( refreshConnect,cond::IOVNames::iovDataTableName() );
+    m_session->webCacheControl().refreshTable( refreshConnect,cond::MetaDataNames::metadataTable() );
+  }
+  conHandler.registerConnection("inputdb",connect,0);
   conHandler.connect(m_session);
-  //m_connection=conHandler.getConnection("inputdb");
   using namespace edm;
   using namespace edm::eventsetup;  
   fillRecordToTypeMap(m_recordToTypes);
@@ -172,7 +163,6 @@ PoolDBESSource::PoolDBESSource( const edm::ParameterSet& iConfig ) :
   std::string recordName;
   std::string typeName;
   std::vector< std::pair<std::string, cond::TagMetadata> > tagcollection;
-  
   std::string lastRecordName;
   for(Parameters::iterator itToGet = toGet.begin(); itToGet != toGet.end(); ++itToGet ) {
     cond::TagMetadata m;
@@ -208,18 +198,6 @@ PoolDBESSource::PoolDBESSource( const edm::ParameterSet& iConfig ) :
       usingRecordWithKey( recordKey );
     }
     tagcollection.push_back(std::make_pair<std::string,cond::TagMetadata>(tagName,m));
-  }
-  if( siteLocalConfig ){
-    edm::Service<edm::SiteLocalConfig> localconfservice;
-    if( !localconfservice.isAvailable() ){
-      throw cms::Exception("edm::SiteLocalConfigService is not available");       
-    }
-    connect=localconfservice->lookupCalibConnect(connect);
-    //catconnect=iConfig.getUntrackedParameter<std::string>("catalog","");
-    if(usingDefaultCatalog){ //jump to use the frontier catalog
-      catconnect=localconfservice->calibCatalog();
-    }
-    std::string logicalconnect=localconfservice->calibLogicalServer();
   }
   m_con=connect;
   this->tagToToken(tagcollection);
@@ -347,6 +325,7 @@ PoolDBESSource::tagToToken( std::vector< std::pair<std::string, cond::TagMetadat
     std::string pfn=it->second.pfn;
     std::string iovToken;
     try{
+      //std::cout<<"pfn "<<pfn<<std::endl;
       cond::Connection* connection=conHandler.getConnection(pfn);
       cond::CoralTransaction& coraldb=connection->coralTransaction(true);
       cond::MetaData metadata(coraldb);
