@@ -39,7 +39,7 @@ using namespace std;
 //
 HLTmumuGammaFilter::HLTmumuGammaFilter(const edm::ParameterSet& iConfig)
 {
-	//now do what ever initialization is needed
+        //now do what ever initialization is needed
 
   CandSrc_ = iConfig.getParameter<edm::InputTag>("CandSrc");
   m_vertexSrc  = iConfig.getParameter<edm::InputTag>("TrigVertex");
@@ -72,7 +72,7 @@ void HLTmumuGammaFilter::beginJob(const edm::EventSetup&)
 // ------------ method called once each job just after ending the event loop  ------------
 void HLTmumuGammaFilter::endJob() 
 {
- 	
+        
 }
 
 // ------------ method called on each new Event  ------------
@@ -88,7 +88,7 @@ bool HLTmumuGammaFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetu
 
   // get vertex collection
   Handle<VertexCollection> trigvertex;
-  iEvent.getByLabel(m_vertexSrc, trigvertex);			
+  iEvent.getByLabel(m_vertexSrc, trigvertex);                   
 
   // Get the recoEcalCandidates
    edm::Handle<reco::RecoEcalCandidateCollection> recoecalcands;
@@ -101,30 +101,30 @@ bool HLTmumuGammaFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetu
      */
      if(recoecalcand->pt()>ClusPtMin ){
        for(reco::VertexCollection::const_iterator vtx = trigvertex->begin(); vtx != trigvertex->end(); vtx++){
-	 /*cout << " trig vtx position, x "<< vtx->x()
-	   << " y "<<vtx->y() << " z " <<vtx->z()<<endl;*/
-	 // get tracks
-	 reco::TrackRefVector::const_iterator trk = vtx->tracks_begin();
-	 //cout<<" trk ref1 pT "<< (*trk)->pt()<<endl;
-	 //cout<<" trk ref2 pT "<< (*(trk+1))->pt()<<endl;
-	 // match deltaR between trk and ecal cluster
-	 double delr = ROOT::Math::VectorUtil::DeltaR(recoecalcand->p4(), (*trk)->momentum()+ (*(trk+1))->momentum());
-	 //cout<< " delR trk cluster "<<delr<<endl;
-	 if(delr < deltaRCut){
-	   math::XYZVector p1= recoecalcand->momentum(), 
-	     p2 = (*trk)->momentum(),
-	     p3 = (*(trk+1))->momentum();
-	   math::XYZTLorentzVector v1( p1.x(), p1.y(), p1.z(), p1.r() ), 
-	     v2( p2.x(), p2.y(), p2.z(), p2.r() ),
-	     v3(p3.x(), p3.y(), p3.z(), p3.r() );
-	   double invMass = (v1 + v2 + v3).mass();
-	   //cout << " mu mu gamma inv.mass "<<invMass<<endl;
-	   if(minInvMass < invMass < maxInvMass){
-	     accept = true;
-	     ref=edm::RefToBase<reco::Candidate>(reco::RecoEcalCandidateRef(recoecalcands,distance(recoecalcands->begin(),recoecalcand)));
-	     filterproduct->putParticle(ref);
-	   }
-	 } 
+         /*cout << " trig vtx position, x "<< vtx->x()
+           << " y "<<vtx->y() << " z " <<vtx->z()<<endl;*/
+         // get tracks
+         reco::Vertex::trackRef_iterator trk = vtx->tracks_begin();
+         //cout<<" trk ref1 pT "<< (*trk)->pt()<<endl;
+         //cout<<" trk ref2 pT "<< (*(trk+1))->pt()<<endl;
+         // match deltaR between trk and ecal cluster
+         double delr = ROOT::Math::VectorUtil::DeltaR(recoecalcand->p4(), (*trk)->momentum()+ (*(trk+1))->momentum());
+         //cout<< " delR trk cluster "<<delr<<endl;
+         if(delr < deltaRCut){
+           math::XYZVector p1 = recoecalcand->momentum(), 
+             p2 = (*trk)->momentum(),
+             p3 = (*(trk+1))->momentum();
+           math::XYZTLorentzVector v1( p1.x(), p1.y(), p1.z(), p1.r() ), 
+             v2( p2.x(), p2.y(), p2.z(), p2.r() ),
+             v3( p3.x(), p3.y(), p3.z(), p3.r() );
+           double invMass = (v1 + v2 + v3).mass();
+           //cout << " mu mu gamma inv.mass "<<invMass<<endl;
+           if ((minInvMass < invMass) and (invMass < maxInvMass)) {
+             accept = true;
+             ref=edm::RefToBase<reco::Candidate>(reco::RecoEcalCandidateRef(recoecalcands,distance(recoecalcands->begin(),recoecalcand)));
+             filterproduct->putParticle(ref);
+           }
+         } 
        }
      }
    }
