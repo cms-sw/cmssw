@@ -27,8 +27,7 @@ HLTAnalyzer::HLTAnalyzer(edm::ParameterSet const& conf) {
   ht_         = conf.getParameter< std::string > ("ht");
   calotowers_ = conf.getParameter< std::string > ("calotowers");
 
-  pixElectron_    = conf.getParameter< std::string > ("pixElectron");
-  silElectron_    = conf.getParameter< std::string > ("silElectron");
+  Electron_    = conf.getParameter< std::string > ("Electron");
   Photon_    = conf.getParameter< std::string > ("Photon");
   muon_    = conf.getParameter< std::string > ("muon");
 
@@ -91,8 +90,9 @@ void HLTAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetu
   edm::Handle<CaloMETCollection> recmet;
   edm::Handle<GenMETCollection> genmet;
   edm::Handle<METCollection> ht;
-  edm::Handle<edm::HepMCProduct> mctruthHandle;
-  edm::Handle<ElectronCollection> pixElectron, silElectron;
+//   edm::Handle<edm::HepMCProduct> mctruthHandle;
+  edm::Handle<CandidateCollection> mctruth;
+  edm::Handle<ElectronCollection> Electron;
   edm::Handle<PhotonCollection> Photon;
   edm::Handle<MuonCollection> muon;
   edm::Handle<HLTFilterObjectWithRefs> hltobj;
@@ -103,6 +103,7 @@ void HLTAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetu
   edm::Handle<l1extra::L1EtMissParticle> l1extmet;
   edm::Handle<l1extra::L1ParticleMapCollection> l1mapcoll;
 
+
   // Extract Data objects (event fragments)
   // make sure to catch exceptions if they don't exist...
   string errMsg("");
@@ -112,8 +113,7 @@ void HLTAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetu
   try {iEvent.getByLabel (genjets_,genjets);} catch (...) { errMsg=errMsg + "  -- No GenJets";}
   try {iEvent.getByLabel (ht_,ht);} catch (...) { errMsg=errMsg + "  -- No HT";}
   try {iEvent.getByLabel (genmet_,genmet);} catch (...) { errMsg=errMsg + "  -- No GenMet";}
-  try {iEvent.getByLabel(pixElectron_,pixElectron);} catch (...) { errMsg=errMsg + "  -- No pixel Candidate Electrons";}
-  try {iEvent.getByLabel(silElectron_,silElectron);} catch (...) { errMsg=errMsg + "  -- No silicon Candidate Electrons";}
+  try {iEvent.getByLabel(Electron_,Electron);} catch (...) { errMsg=errMsg + "  -- No Candidate Electrons";}
   try {iEvent.getByLabel(Photon_,Photon);} catch (...) { errMsg=errMsg + "  -- No Candidate Photons";}
   try {iEvent.getByLabel(muon_,muon);} catch (...) { errMsg=errMsg + "  -- No Candidate Muons";}
   try {iEvent.getByLabel(hltobj_,hltobj);} catch (...) { errMsg=errMsg + "  -- No HLTOBJ";}
@@ -127,28 +127,30 @@ void HLTAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetu
   try {iEvent.getByLabel(l1extramc_,l1extmet);} catch (...) { errMsg=errMsg + "  -- No L1EtMiss object";}
   try {iEvent.getByLabel(particleMapSource_,l1mapcoll );} catch (...) { errMsg=errMsg + "  -- No L1 Map Collection";}
 
-  HepMC::GenEvent mctruth;
-  try {
-    //iEvent.getByLabel("VtxSmeared", "", mctruthHandle);
-    iEvent.getByLabel(mctruth_, "", mctruthHandle);
-    mctruth = mctruthHandle->getHepMCData(); 
-  } catch (...) { errMsg=errMsg + "  -- No MC truth"; }
+  try {iEvent.getByLabel(mctruth_,mctruth);} catch (...) { errMsg=errMsg + "  -- No Gen Particles";}
 
-  if ((errMsg != "") && (errCnt < errMax())){
-    errCnt=errCnt+1;
-    errMsg=errMsg + ".";
-    std::cout << "%HLTAnalyzer-Warning" << errMsg << std::endl;
-    if (errCnt == errMax()){
-      errMsg="%HLTAnalyzer-Warning -- Maximum error count reached -- No more messages will be printed.";
-      std::cout << errMsg << std::endl;    
-    }
-  }
+//   HepMC::GenEvent mctruth;
+//   try {
+//     //iEvent.getByLabel("VtxSmeared", "", mctruthHandle);
+//     iEvent.getByLabel(mctruth_, "", mctruthHandle);
+//     mctruth = mctruthHandle->getHepMCData(); 
+//   } catch (...) { errMsg=errMsg + "  -- No MC truth"; }
+
+//   if ((errMsg != "") && (errCnt < errMax())){
+//     errCnt=errCnt+1;
+//     errMsg=errMsg + ".";
+//     std::cout << "%HLTAnalyzer-Warning" << errMsg << std::endl;
+//     if (errCnt == errMax()){
+//       errMsg="%HLTAnalyzer-Warning -- Maximum error count reached -- No more messages will be printed.";
+//       std::cout << errMsg << std::endl;    
+//     }
+//   }
 
   // run the analysis, passing required event fragments
   jet_analysis_.analyze(*recjets,*genjets, *recmet,*genmet, *ht, *caloTowers, *geometry, HltTree);
-  elm_analysis_.analyze(*pixElectron, *silElectron, *Photon, *geometry, HltTree);
+  elm_analysis_.analyze(*Electron, *Photon, *geometry, HltTree);
   muon_analysis_.analyze(*muon, *geometry, HltTree);
-  mct_analysis_.analyze(mctruth,HltTree);
+  mct_analysis_.analyze(*mctruth,HltTree);
   hlt_analysis_.analyze(*hltobj,*hltresults,*l1extemi,*l1extemn,*l1extmu,*l1extjetc,*l1extjetf,*l1exttaujet,*l1extmet,*l1mapcoll,HltTree);
 
   // After analysis, fill the variables tree
