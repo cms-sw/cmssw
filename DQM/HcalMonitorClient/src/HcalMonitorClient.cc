@@ -36,7 +36,7 @@ HcalMonitorClient::~HcalMonitorClient(){
   if( rechit_client_ )     delete rechit_client_;
   if( pedestal_client_ )   delete pedestal_client_;
   if( led_client_ )        delete led_client_;
-  if( tb_client_ )         delete tb_client_;
+  //  if( tb_client_ )         delete tb_client_;
   if( hot_client_ )         delete hot_client_;
 
   if(mui_) mui_->disconnect();
@@ -52,7 +52,7 @@ void HcalMonitorClient::initialize(const ParameterSet& ps){
 
   dataformat_client_ = 0; digi_client_ = 0;
   rechit_client_ = 0; pedestal_client_ = 0;
-  led_client_ = 0; tb_client_ = 0;
+  led_client_ = 0; //tb_client_ = 0;
   hot_client_ = 0;
   trigger_=0;
 
@@ -116,8 +116,8 @@ void HcalMonitorClient::initialize(const ParameterSet& ps){
     else mui_ = new MonitorUIRoot(hostName_, hostPort_, clientName_, 5);
   }
 
-  if( verbose_ && mui_ ) mui_->setVerbose(1);
-  else if(mui_) mui_->setVerbose(0);
+  if( verbose_ && mui_ ) mui_->getBEInterface()->setVerbose(1);
+  else if(mui_) mui_->getBEInterface()->setVerbose(0);
 
   // will attempt to reconnect upon connection problems (w/ a 5-sec delay)
   if(mui_) mui_->setReconnectDelay(5);
@@ -184,8 +184,8 @@ void HcalMonitorClient::initialize(const ParameterSet& ps){
     pedestal_client_     = new HcalPedestalClient(ps, mui_);
   if( ps.getUntrackedParameter<bool>("LEDClient", false) )
     led_client_          = new HcalLEDClient(ps, mui_);
-  if( ps.getUntrackedParameter<bool>("TestBeamClient", false) )
-    tb_client_          = new HcalTBClient(ps, mui_);
+  //  if( ps.getUntrackedParameter<bool>("TestBeamClient", false) )
+  //    tb_client_          = new HcalTBClient(ps, mui_);
   if( ps.getUntrackedParameter<bool>("HotCellClient", false) )
     hot_client_          = new HcalHotCellClient(ps, mui_);
 
@@ -228,7 +228,7 @@ void HcalMonitorClient::beginJob(const EventSetup& eventSetup){
   if( rechit_client_ )     rechit_client_->beginJob();
   if( pedestal_client_ )   pedestal_client_->beginJob(eventSetup);
   if( led_client_ )        led_client_->beginJob(eventSetup);
-  if( tb_client_ )         tb_client_->beginJob();
+  //  if( tb_client_ )         tb_client_->beginJob();
   if( hot_client_ )         hot_client_->beginJob();
 
   if( inputFile_.size() != 0 && m_dbe!=NULL){
@@ -250,7 +250,7 @@ void HcalMonitorClient::beginRun(void){
   if( rechit_client_ )     rechit_client_->beginRun();
   if( pedestal_client_ )   pedestal_client_->beginRun();
   if( led_client_ )        led_client_->beginRun();
-  if( tb_client_ )         tb_client_->beginRun();
+  //  if( tb_client_ )         tb_client_->beginRun();
   if( hot_client_ )        hot_client_->beginRun();
 
   return;
@@ -263,7 +263,7 @@ void HcalMonitorClient::endJob(void) {
 
   this->cleanup();
 
-  if( tb_client_ ) tb_client_->endJob();
+  //  if( tb_client_ ) tb_client_->endJob();
   if( hot_client_ ) hot_client_->endJob();
   if( dataformat_client_ ) dataformat_client_->endJob();
   if( digi_client_ )  digi_client_->endJob();
@@ -281,7 +281,7 @@ void HcalMonitorClient::resetAllME() {
   if( rechit_client_ )     rechit_client_->resetAllME();
   if( pedestal_client_ )   pedestal_client_->resetAllME();
   if( led_client_ )        led_client_->resetAllME();
-  if( tb_client_ )         tb_client_->resetAllME();
+  //  if( tb_client_ )         tb_client_->resetAllME();
   if( hot_client_ )         hot_client_->resetAllME();
   return;
 }
@@ -295,7 +295,7 @@ void HcalMonitorClient::report(bool doUpdate) {
     this->createTests();  
     mui_->update();
     mui_->doMonitoring();
-    mui_->runQTests();
+    mui_->getBEInterface()->runQTests();
   }
 
   if( hot_client_ ) hot_client_->report();
@@ -309,7 +309,7 @@ void HcalMonitorClient::report(bool doUpdate) {
   if(doUpdate && mui_){
     mui_->update();
     mui_->doMonitoring();
-    mui_->runQTests();
+    mui_->getBEInterface()->runQTests();
   }
   */
 
@@ -332,7 +332,7 @@ void HcalMonitorClient::report(bool doUpdate) {
     if(run_!=-1) sprintf(tmp,"%09d.root", run_);
     else sprintf(tmp,"%09d.root", 0);
     string saver = outputFile_+tmp;
-    if(mui_) mui_->save(saver);
+    if(mui_) mui_->getBEInterface()->save(saver);
     
   }
 
@@ -351,7 +351,7 @@ void HcalMonitorClient::endRun(void) {
   if(inputFile_.size()!=0) this->report(true);
   else this->report(false);
   
-  if( tb_client_ )         tb_client_->endRun();
+  //  if( tb_client_ )         tb_client_->endRun();
   if( hot_client_ )         hot_client_->endRun();
   if( dataformat_client_ ) dataformat_client_->endRun();
   if( digi_client_ )       digi_client_->endRun();
@@ -400,7 +400,7 @@ void HcalMonitorClient::subscribe(void){
     Char_t histo[150];
     mui_->subscribe("*/HcalMonitor/STATUS");
     sprintf(histo, "%sHcalMonitor/STATUS",process_.c_str());
-    MonitorElement* me = mui_->get(histo);
+    MonitorElement* me = mui_->getBEInterface()->get(histo);
     if(!me) return;
   }
 
@@ -414,7 +414,7 @@ void HcalMonitorClient::subscribe(void){
     mui_->subscribe("*/HcalMonitor/RUN TYPE");
   }
 
-  if( tb_client_ ) tb_client_->subscribe();
+  //  if( tb_client_ ) tb_client_->subscribe();
   if( hot_client_ ) hot_client_->subscribe();
   if( dataformat_client_ ) dataformat_client_->subscribe();
   if( digi_client_ ) digi_client_->subscribe();
@@ -443,7 +443,7 @@ void HcalMonitorClient::subscribeNew(void){
   if( rechit_client_ ) rechit_client_->subscribeNew();
   if( pedestal_client_ ) pedestal_client_->subscribeNew();  
   if( led_client_ ) led_client_->subscribeNew();
-  if( tb_client_ ) tb_client_->subscribeNew();
+  //  if( tb_client_ ) tb_client_->subscribeNew();
   if( hot_client_ ) hot_client_->subscribeNew();
 
   return;
@@ -462,7 +462,7 @@ void HcalMonitorClient::unsubscribe(void) {
     mui_->unsubscribe("*/HcalMonitor/RUN TYPE");
   }
 
-  if( tb_client_ ) tb_client_->unsubscribe();
+  //  if( tb_client_ ) tb_client_->unsubscribe();
   if( hot_client_ ) hot_client_->unsubscribe();
   if( dataformat_client_ ) dataformat_client_->unsubscribe();
   if( digi_client_ ) digi_client_->unsubscribe();
@@ -507,7 +507,7 @@ void HcalMonitorClient::analyze(const Event& e, const edm::EventSetup& eventSetu
     int lastRun = run_;
     
     sprintf(histo, "%sHcalMonitor/RUN NUMBER",process_.c_str());
-    me = mui_->get(histo);    
+    me = mui_->getBEInterface()->get(histo);    
     if( me ) {
       s = me->valueString();
       run_ = -1;
@@ -528,7 +528,7 @@ void HcalMonitorClient::analyze(const Event& e, const edm::EventSetup& eventSetu
     */
 
     sprintf(histo, "%sHcalMonitor/EVT NUMBER",process_.c_str());
-    me = mui_->get(histo);
+    me = mui_->getBEInterface()->get(histo);
     if( me ) {
       s = me->valueString();
       mon_evt_ = -1;
@@ -537,7 +537,7 @@ void HcalMonitorClient::analyze(const Event& e, const edm::EventSetup& eventSetu
     }
     
     sprintf(histo, "%sHcalMonitor/EVT MASK",process_.c_str());
-    me = mui_->get(histo);
+    me = mui_->getBEInterface()->get(histo);
     if( me ) {
       s = me->valueString();
       int mask = -1;
@@ -554,7 +554,7 @@ void HcalMonitorClient::analyze(const Event& e, const edm::EventSetup& eventSetu
     if(!force_update){
       status_="unknown";
       sprintf(histo, "%sHcalMonitor/STATUS",process_.c_str());
-      me = mui_->get(histo);
+      me = mui_->getBEInterface()->get(histo);
       if( me ) {
 	s = me->valueString();
 	status_ = "unknown";
@@ -577,7 +577,7 @@ void HcalMonitorClient::analyze(const Event& e, const edm::EventSetup& eventSetu
       if( rechit_client_ )     rechit_client_->analyze(); 
       if( pedestal_client_ )   pedestal_client_->analyze();      
       if( led_client_ )        led_client_->analyze(); 
-      if( tb_client_ )         tb_client_->analyze(); 
+      //      if( tb_client_ )         tb_client_->analyze(); 
       if( hot_client_ )         hot_client_->analyze(); 
     }    
     else if(status_ == "end-of-run") this->endRun();    
@@ -650,7 +650,7 @@ void HcalMonitorClient::createTests(void){
   if( rechit_client_ ) rechit_client_->createTests(); 
   if( pedestal_client_ ) pedestal_client_->createTests(); 
   if( led_client_ ) led_client_->createTests(); 
-  if( tb_client_ ) tb_client_->createTests(); 
+  //  if( tb_client_ ) tb_client_->createTests(); 
   if( hot_client_ ) hot_client_->createTests(); 
 
   return;
@@ -690,7 +690,7 @@ void HcalMonitorClient::htmlOutput(void){
   htmlFile << "<ul>" << endl;
 
   string htmlName;
-
+  /*
   // Dataformat check
   if( tb_client_ ) {
     htmlName = "TestBeamClient.html";
@@ -703,7 +703,7 @@ void HcalMonitorClient::htmlOutput(void){
     else htmlFile << "<td bgcolor=lime align=center>This monitor task has no problems</td>" << endl;
     htmlFile << "</table>" << endl;
   }
-
+  */
   if( dataformat_client_ ) {
     htmlName = "HcalDataFormatClient.html";
     dataformat_client_->htmlOutput(run_, htmlDir, htmlName);
@@ -801,7 +801,7 @@ void HcalMonitorClient::offlineSetup(){
 
   dataformat_client_ = 0; digi_client_ = 0;
   rechit_client_ = 0; pedestal_client_ = 0;
-  led_client_ = 0; tb_client_ = 0;
+  led_client_ = 0; //tb_client_ = 0;
   trigger_=0; hot_client_ = 0;
 
   begin_run_done_ = false;   end_run_done_   = false;
@@ -871,7 +871,7 @@ void HcalMonitorClient::loadHistograms(TFile* infile, const char* fname){
   if(trigger_!=NULL) labelBins(trigger_);
 
 
-  if(tb_client_) tb_client_->loadHistograms(infile);
+  //  if(tb_client_) tb_client_->loadHistograms(infile);
   if(hot_client_) hot_client_->loadHistograms(infile);
   if(dataformat_client_) dataformat_client_->loadHistograms(infile);
   if(rechit_client_) rechit_client_->loadHistograms(infile);

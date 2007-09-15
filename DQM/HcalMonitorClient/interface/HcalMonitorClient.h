@@ -16,7 +16,7 @@
 #include "CalibFormats/HcalObjects/interface/HcalDbService.h"
 #include "CalibFormats/HcalObjects/interface/HcalDbRecord.h"
           
-#include <DQM/HcalMonitorClient/interface/HcalTBClient.h>
+//#include <DQM/HcalMonitorClient/interface/HcalTBClient.h>
 #include <DQM/HcalMonitorClient/interface/HcalClientUtils.h>
 #include <DQM/HcalMonitorClient/interface/HcalDataFormatClient.h>
 #include <DQM/HcalMonitorClient/interface/HcalDigiClient.h>
@@ -152,7 +152,7 @@ private:
   HcalRecHitClient* rechit_client_;
   HcalPedestalClient* pedestal_client_;
   HcalLEDClient* led_client_;
-  HcalTBClient* tb_client_;
+  //  HcalTBClient* tb_client_;
   HcalHotCellClient* hot_client_;
 
 };

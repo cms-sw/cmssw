@@ -266,7 +266,7 @@ void HcalDataFormatClient::errorOutput(){
   for (map<string, string>::iterator testsMap=dqmQtests_.begin(); testsMap!=dqmQtests_.end();testsMap++){
     string testName = testsMap->first;
     string meName = testsMap->second;
-    MonitorElement* me = mui_->get(meName);
+    MonitorElement* me = mui_->getBEInterface()->get(meName);
     if(me){
       if (me->hasError()){
 	vector<QReport*> report =  me->getQErrors();
@@ -495,7 +495,7 @@ void HcalDataFormatClient::report(){
   
   char name[256];
   sprintf(name, "%sHcalMonitor/DataFormatMonitor/Data Format Task Event Number",process_.c_str());
-  MonitorElement* me = mui_->get(name);
+  MonitorElement* me = mui_->getBEInterface()->get(name);
   if ( me ) {
     string s = me->valueString();
     ievt_ = -1;
@@ -787,7 +787,7 @@ void HcalDataFormatClient::createTests(){
     sprintf(meTitle,"%sHcalMonitor/DataFormatMonitor/%s Data Format Error Word",process_.c_str(),type.c_str());
     sprintf(name,"%s DataFormat",type.c_str());
     if(dqmQtests_.find(name) == dqmQtests_.end()){	
-      MonitorElement* me = mui_->get(meTitle);
+      MonitorElement* me = mui_->getBEInterface()->get(meTitle);
       if(me){
 	dqmQtests_[name]=meTitle;	  
 	params.clear();

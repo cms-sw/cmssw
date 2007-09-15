@@ -1,20 +1,28 @@
 <flags EDM_PLUGIN=1>
-<use name=FWCore/Framework>
-<use name=FWCore/MessageLogger>
-<use name=DQMServices/CoreROOT>
 <use name=boost>
-<use name=root>
+<use name=root> 
+<use name=FWCore/Framework>
+<use name=DQMServices/Core>
+<use name=DQMServices/CoreROOT>
 <use name=DQMServices/NodeROOT>
+<use name=DQMServices/Daemon>
 <use name=DQMServices/UI>
+<use name=DQMServices/Components>
+<use name=DQMServices/WebComponents>
+<use name=DQMServices/ClientConfig>
 <use name=CalibCalorimetry/HcalAlgos>
 <export>
  <lib name=DQMHcalMonitorClient>
- <use name=FWCore/Framework>
- <use name=FWCore/MessageLogger>
- <use name=DQMServices/CoreROOT>
  <use name=boost>
- <use name=root>
+ <use name=root> 
+ <use name=FWCore/Framework>
+ <use name=DQMServices/CoreROOT>
+ <use name=DQMServices/Core>
  <use name=DQMServices/NodeROOT>
+ <use name=DQMServices/Daemon>
  <use name=DQMServices/UI>
+ <use name=DQMServices/Components>
+ <use name=DQMServices/WebComponents>
+ <use name=DQMServices/ClientConfig>
  <use name=CalibCalorimetry/HcalAlgos>
 </export>
