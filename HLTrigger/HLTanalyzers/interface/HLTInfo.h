@@ -64,7 +64,7 @@ private:
   float *l1exttauet, *l1exttaue, *l1exttaueta, *l1exttauphi;
   float met, metphi, mettot, methad;
   int L1EvtCnt,HltEvtCnt,nhltpart,nl1extiem,nl1extnem,nl1extmu,nl1extjetc,nl1extjetf,nl1extjt,nl1exttau;
-  int *trigflag, *l1flag, *l1extmuiso, *l1extmumip;
+  int *trigflag, *l1flag, *l1extmuiso, *l1extmumip, *l1extmufor, *l1extmurpc;
 
   // input variables
   bool _Debug;
