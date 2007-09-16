@@ -32,6 +32,7 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "DataFormats/Math/interface/Vector3D.h"
 #include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
+#include "DataFormats/JetReco/interface/PFJet.h"
 
 // Math
 #include "Math/GenVector/VectorUtil.h"
@@ -77,10 +78,12 @@ private:
   // MonteCarlo Taus -- to see what kind of Taus do we originally have!
   MonitorElement* ptTauMC_;
   MonitorElement* etaTauMC_;
+  MonitorElement* phiTauMC_;
   MonitorElement* energyTauMC_;
  
   MonitorElement* nMCTaus_ptTauJet_;
   MonitorElement* nMCTaus_etaTauJet_;
+  MonitorElement* nMCTaus_phiTauJet_;
   MonitorElement* nMCTaus_energyTauJet_;
 
  
@@ -91,6 +94,7 @@ private:
   // The following histograms count the number of matched Montecarlo to isolatedTauTagInfoCollection
   MonitorElement* nRecoJet_ptTauJet_;
   MonitorElement* nRecoJet_etaTauJet_;
+  MonitorElement* nRecoJet_phiTauJet_;
   MonitorElement* nRecoJet_energyTauJet_;
   MonitorElement* nAssociatedTracks_;   // for recoJets
   MonitorElement* nSelectedTracks_;     // for recoJets
@@ -98,16 +102,22 @@ private:
   // The following histograms count  of RecoJets that are matched to MC Tau with a LeadingTrack of 6.0 GeV
   MonitorElement* nRecoJet_LeadingTrack_ptTauJet_;
   MonitorElement* nRecoJet_LeadingTrack_etaTauJet_;
+  MonitorElement* nRecoJet_LeadingTrack_phiTauJet_;
   MonitorElement* nRecoJet_LeadingTrack_energyTauJet_;  
   MonitorElement* nSignalTracks_;                     // Signal Tracks in IsolatedTauTagInfo after finding leading track in rMatch=0.1 and pt 1.0
 
   // The following histograms count the number of isolated isolatedTauTagInfoCollection
   MonitorElement* nIsolatedJet_ptTauJet_;
   MonitorElement* nIsolatedJet_etaTauJet_;
+  MonitorElement* nIsolatedJet_phiTauJet_;
   MonitorElement* nIsolatedJet_energyTauJet_;
   MonitorElement* nSignalTracksAfterIsolation_;       // Same as above but after Isolation
-  
-  // I still don't know what I'll be doing with this histograms
+  MonitorElement* nIsolatedTausLeadingTrackPt_;
+  MonitorElement* nIsolatedTausDeltaR_LTandJet_;
+  MonitorElement* nAssociatedTracks_of_IsolatedTaus_;
+  MonitorElement* nSelectedTracks_of_IsolatedTaus_;
+
+  // What is the behaviour of cone isolation size on tagging of MC Taus (CONE_MATCHING_CRITERIA) 
   MonitorElement* nTausTotvsConeIsolation_;
   MonitorElement* nTausTaggedvsConeIsolation_;
   MonitorElement* nTausTotvsConeSignal_;
@@ -116,7 +126,7 @@ private:
   MonitorElement* nTausTaggedvsPtLeadingTrack_;
   MonitorElement* nTausTotvsMatchingConeSize_;
   MonitorElement* nTausTaggedvsMatchingConeSize_;
-
+ 
   // book-keeping variables
  
   int numEvents_;
