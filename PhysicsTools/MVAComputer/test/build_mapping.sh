@@ -1,6 +1,6 @@
 #!/bin/sh
 pool_build_object_relational_mapping \
-	-f MVAComputer-mapping-custom_1.0.xml \
-	-d CondFormatsBTauObjects \
+	-f MVAComputer-mapping-2.0.xml \
+	-d CondFormatsPhysicsToolsObjects \
 	-c sqlite_file:FoobarDiscriminator.db \
 	-u me -p mypass

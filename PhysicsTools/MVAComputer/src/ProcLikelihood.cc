@@ -12,13 +12,13 @@
 //
 // Author:      Christophe Saout
 // Created:     Sat Apr 24 15:18 CEST 2007
-// $Id: ProcLikelihood.cc,v 1.3 2007/05/25 16:37:59 saout Exp $
+// $Id: ProcLikelihood.cc,v 1.4 2007/07/15 22:31:46 saout Exp $
 //
 
-#include <algorithm>
-#include <iterator>
 #include <vector>
+#include <memory>
 
+#include "CondFormats/PhysicsToolsObjects/interface/Histogram.h"  
 #include "PhysicsTools/MVAComputer/interface/VarProcessor.h"
 #include "PhysicsTools/MVAComputer/interface/Calibration.h"
 #include "PhysicsTools/MVAComputer/interface/Spline.h"
@@ -42,49 +42,91 @@ class ProcLikelihood : public VarProcessor {
 
     private:
 	struct PDF {
-		PDF(const Calibration::PDF *calib) :
-			min(calib->range.first),
-			width(calib->range.second - calib->range.first),
-			spline(calib->distr.size(), &calib->distr.front()) {}
+		virtual ~PDF() {}
+		virtual double eval(double value) const = 0;
+	};
 
-		inline double eval(double value) const;
+	struct SplinePDF : public PDF {
+		SplinePDF(const Calibration::Histogram *calib) :
+			min(calib->getRange().min),
+			width(calib->getRange().width())
+		{
+			std::vector<double> values(
+					calib->getValueArray().begin() + 1,
+					calib->getValueArray().end() - 1);
+			spline.set(values.size(), &values.front());
+		}
+
+		virtual double eval(double value) const;
 
 		double		min, width;
 		Spline		spline;
 	};
 
-	struct SigBkg {
-		SigBkg(const Calibration::ProcLikelihood::SigBkg &calib) :
-			signal(&calib.signal),
-			background(&calib.background) {}
+	struct HistogramPDF : public PDF {
+		HistogramPDF(const Calibration::Histogram *calib) :
+			histo(calib) {}
 
-		PDF	signal;
-		PDF	background;
+		virtual double eval(double value) const;
+
+		const Calibration::Histogram	*histo;
+	};
+
+	struct SigBkg {
+		SigBkg(const Calibration::ProcLikelihood::SigBkg &calib)
+		{
+			if (calib.useSplines) {
+				signal = std::auto_ptr<PDF>(
+					new SplinePDF(&calib.signal));
+				background = std::auto_ptr<PDF>(
+					new SplinePDF(&calib.background));
+			} else {
+				signal = std::auto_ptr<PDF>(
+					new HistogramPDF(&calib.signal));
+				background = std::auto_ptr<PDF>(
+					new HistogramPDF(&calib.background));
+			}
+		}
+
+		std::auto_ptr<PDF>	signal;
+		std::auto_ptr<PDF>	background;
 	};
 
 	std::vector<SigBkg>	pdfs;
+	unsigned int		nCategories;
+	double			bias;
 };
 
 static ProcLikelihood::Registry registry("ProcLikelihood");
 
-inline double ProcLikelihood::PDF::eval(double value) const
+double ProcLikelihood::SplinePDF::eval(double value) const
 {
 	value = (value - min) / width;
 	return spline.eval(value) / spline.getArea();
 }
 
+double ProcLikelihood::HistogramPDF::eval(double value) const
+{
+	return histo->value(value) / histo->getIntegral();
+}
+
 ProcLikelihood::ProcLikelihood(const char *name,
                                const Calibration::ProcLikelihood *calib,
                                const MVAComputer *computer) :
-	VarProcessor(name, calib, computer)
+	VarProcessor(name, calib, computer),
+	pdfs(calib->pdfs.begin(), calib->pdfs.end()),
+	nCategories(calib->nCategories),
+	bias(calib->bias)
 {
-	std::copy(calib->pdfs.begin(), calib->pdfs.end(),
-	          std::back_inserter(pdfs));
 }
 
 void ProcLikelihood::configure(ConfIterator iter, unsigned int n)
 {
-	if (n != pdfs.size())
+	if (nCategories) {
+		if (n < 1 || (n - 1) * nCategories != pdfs.size())
+			return;
+		iter++(Variable::FLAG_NONE);
+	} else if (n != pdfs.size())
 		return;
 
 	while(iter)
@@ -95,28 +137,42 @@ void ProcLikelihood::configure(ConfIterator iter, unsigned int n)
 
 void ProcLikelihood::eval(ValueIterator iter, unsigned int n) const
 {
+	std::vector<SigBkg>::const_iterator pdf;
+	std::vector<SigBkg>::const_iterator last;
+
+	if (nCategories) {
+		int cat = (int)*iter++;
+		if (cat < 0 || (unsigned int)cat >= nCategories) {
+			iter();
+			return;
+		}
+
+		pdf = pdfs.begin() + cat * (n - 1);
+		last = pdf + (n - 1);
+	} else {
+		pdf = pdfs.begin();
+		last = pdfs.end();
+	}		
+
 	bool empty = true;
-	double signal = 1.0;
+	double signal = bias;
 	double background = 1.0;
 
-	for(std::vector<SigBkg>::const_iterator pdf = pdfs.begin();
-	    pdf != pdfs.end(); pdf++, ++iter) {
+	for(; pdf != last; ++pdf, ++iter) {
 		for(double *value = iter.begin();
 		    value < iter.end(); value++) {
 			empty = false;
-			double signalProb = pdf->signal.eval(*value);
-			double backgroundProb = pdf->background.eval(*value);
+			double signalProb = pdf->signal->eval(*value);
+			double backgroundProb = pdf->background->eval(*value);
 			signal *= std::max(0.0, signalProb);
 			background *= std::max(0.0, backgroundProb);
 		}
 	}
 
-	if (empty)
+	if (empty || signal + background < 1.0e-30)
 		iter();
-	else if (signal + background > 1.0e-20)
-		iter(signal / (signal + background));
 	else
-		iter();
+		iter(signal / (signal + background));
 }
 
 } // anonymous namespace

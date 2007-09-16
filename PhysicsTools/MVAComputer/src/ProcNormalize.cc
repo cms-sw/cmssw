@@ -12,13 +12,12 @@
 //
 // Author:      Christophe Saout
 // Created:     Sat Apr 24 15:18 CEST 2007
-// $Id: ProcNormalize.cc,v 1.3 2007/05/17 15:04:08 saout Exp $
+// $Id: ProcNormalize.cc,v 1.4 2007/07/15 22:31:46 saout Exp $
 //
 
-#include <algorithm>
-#include <iterator>
 #include <vector>
 
+#include "CondFormats/PhysicsToolsObjects/interface/Histogram.h"
 #include "PhysicsTools/MVAComputer/interface/VarProcessor.h"
 #include "PhysicsTools/MVAComputer/interface/Calibration.h"
 #include "PhysicsTools/MVAComputer/interface/Spline.h"
@@ -42,16 +41,22 @@ class ProcNormalize : public VarProcessor {
 
     private:
 	struct Map {
-		inline Map(const Calibration::PDF &pdf) :
-			min(pdf.range.first),
-			width(pdf.range.second - pdf.range.first),
-			spline(pdf.distr.size(), &pdf.distr.front()) {}
+		Map(const Calibration::Histogram &pdf) :
+			min(pdf.getRange().min),
+			width(pdf.getRange().max - pdf.getRange().min)
+		{
+			std::vector<double> values(
+					pdf.getValueArray().begin() + 1,
+					pdf.getValueArray().end() - 1);
+			spline.set(values.size(), &values.front());
+		}
 
 		double		min, width;
 		Spline		spline;
 	};
 
 	std::vector<Map>	maps;
+	unsigned int		nCategories;
 };
 
 static ProcNormalize::Registry registry("ProcNormalize");
@@ -59,15 +64,19 @@ static ProcNormalize::Registry registry("ProcNormalize");
 ProcNormalize::ProcNormalize(const char *name,
                              const Calibration::ProcNormalize *calib,
                              const MVAComputer *computer) :
-	VarProcessor(name, calib, computer)
+	VarProcessor(name, calib, computer),
+	maps(calib->distr.begin(), calib->distr.end()),
+	nCategories(calib->nCategories)
 {
-	std::copy(calib->distr.begin(), calib->distr.end(),
-	          std::back_inserter(maps));
 }
 
 void ProcNormalize::configure(ConfIterator iter, unsigned int n)
 {
-	if (n != maps.size())
+	if (nCategories) {
+		if (n < 1 || (n - 1) * nCategories != maps.size())
+			return;
+		iter++(Variable::FLAG_NONE);
+	} else if (n != maps.size())
 		return;
 
 	while(iter)
@@ -76,8 +85,25 @@ void ProcNormalize::configure(ConfIterator iter, unsigned int n)
 
 void ProcNormalize::eval(ValueIterator iter, unsigned int n) const
 {
-	for(std::vector<Map>::const_iterator map = maps.begin();
-	    map != maps.end(); map++, ++iter) {
+	std::vector<Map>::const_iterator map;
+	std::vector<Map>::const_iterator last;
+
+	if (nCategories) {
+		int cat = (int)*iter++;
+		if (cat < 0 || (unsigned int)cat >= nCategories) {
+			for(; iter; ++iter)
+				iter();
+			return;
+		}
+
+		map = maps.begin() + cat * (n - 1);
+		last = map + (n - 1);
+	} else {
+		map = maps.begin();
+		last = maps.end();
+	}
+
+	for(; map != last; ++map, ++iter) {
 		for(double *value = iter.begin();
 		    value < iter.end(); value++) {
 			double val = *value;
