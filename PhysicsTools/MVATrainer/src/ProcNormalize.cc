@@ -55,9 +55,20 @@ class ProcNormalize : public TrainProcessor {
 		ITER_DONE
 	};
 
-	struct PDF : public Calibration::PDF {
-		unsigned int	smooth;
-		Iteration	iteration;
+	struct PDF {
+		operator Calibration::Histogram() const
+		{
+			Calibration::Histogram histo(distr.size(), range);
+			for(unsigned int i = 0; i < distr.size(); i++)
+				histo.setBinContent(i + 1, distr[i]);
+			histo.normalize();
+			return histo;
+		}
+
+		unsigned int			smooth;
+		std::vector<float>		distr;
+		Calibration::Histogram::Range	range;
+		Iteration			iteration;
 	};
 
 	std::vector<PDF> pdfs;
@@ -97,9 +108,9 @@ void ProcNormalize::configure(DOMElement *elem)
 							elem, "smooth", 40);
 
 		try {
-			pdf.range.first = XMLDocument::readAttribute<double>(
+			pdf.range.min = XMLDocument::readAttribute<float>(
 								elem, "lower");
-			pdf.range.second = XMLDocument::readAttribute<double>(
+			pdf.range.max = XMLDocument::readAttribute<float>(
 								elem, "upper");
 			pdf.iteration = ITER_FILL;
 		} catch(...) {
@@ -120,6 +131,7 @@ Calibration::VarProcessor *ProcNormalize::getCalibration() const
 {
 	Calibration::ProcNormalize *calib = new Calibration::ProcNormalize;
 	std::copy(pdfs.begin(), pdfs.end(), std::back_inserter(calib->distr));
+	calib->nCategories = 0;
 	return calib;
 }
 
@@ -137,8 +149,7 @@ void ProcNormalize::trainData(const std::vector<double> *values,
 			for(std::vector<double>::const_iterator value =
 							values->begin();
 				value != values->end(); value++) {
-				iter->range.first =
-					iter->range.second = *value;
+				iter->range.min = iter->range.max = *value;
 				iter->iteration = ITER_RANGE;
 				break;
 			}
@@ -146,10 +157,10 @@ void ProcNormalize::trainData(const std::vector<double> *values,
 			for(std::vector<double>::const_iterator value =
 							values->begin();
 				value != values->end(); value++) {
-				iter->range.first =
-					std::min(iter->range.first, *value);
-				iter->range.second =
-					std::max(iter->range.second, *value);
+				iter->range.min = std::min(iter->range.min,
+				                           (float)*value);
+				iter->range.max = std::max(iter->range.max,
+				                           (float)*value);
 			}
 			continue;
 		    case ITER_FILL:
@@ -159,11 +170,11 @@ void ProcNormalize::trainData(const std::vector<double> *values,
 		}
 
 		unsigned int n = iter->distr.size() - 1;
-		double mult = 1.0 / (iter->range.second - iter->range.first);
+		double mult = 1.0 / iter->range.width();
 
 		for(std::vector<double>::const_iterator value =
 			values->begin(); value != values->end(); value++) {
-			double x = (*value - iter->range.first) * mult;
+			double x = (*value - iter->range.min) * mult;
 			if (x < 0.0)
 				x = 0.0;
 			else if (x >= 1.0)
@@ -174,13 +185,13 @@ void ProcNormalize::trainData(const std::vector<double> *values,
 	}
 }
 
-static void smoothArray(unsigned int n, double *values, unsigned int nTimes)
+static void smoothArray(unsigned int n, float *values, unsigned int nTimes)
 {
 	for(unsigned int iter = 0; iter < nTimes; iter++) {
-		double hold = n > 0 ? values[0] : 0.0;
+		float hold = n > 0 ? values[0] : 0.0;
 		for(unsigned int i = 0; i < n; i++) {
-			double delta = hold * 0.1;
-			double rem = 0.0;
+			float delta = hold * 0.1;
+			float rem = 0.0;
 			if (i > 0) {
 				values[i - 1] += delta;
 				rem -= delta;
@@ -262,10 +273,10 @@ bool ProcNormalize::load()
 
 		PDF pdf;
 
-		pdf.range.first =
-			XMLDocument::readAttribute<double>(elem, "lower");
-		pdf.range.second =
-			XMLDocument::readAttribute<double>(elem, "upper");
+		pdf.range.min =
+			XMLDocument::readAttribute<float>(elem, "lower");
+		pdf.range.max =
+			XMLDocument::readAttribute<float>(elem, "upper");
 		pdf.iteration = ITER_DONE;
 
 		for(DOMNode *subNode = elem->getFirstChild();
@@ -282,7 +293,7 @@ bool ProcNormalize::load()
 			elem = static_cast<DOMElement*>(node);
 
 			pdf.distr.push_back(
-				XMLDocument::readContent<double>(subNode));
+				XMLDocument::readContent<float>(subNode));
 		}
 
 		*cur++ = pdf;
@@ -306,16 +317,16 @@ void ProcNormalize::save()
 		DOMElement *elem = doc->createElement(XMLUniStr("pdf"));
 		xml.getRootNode()->appendChild(elem);
 
-		XMLDocument::writeAttribute(elem, "lower", iter->range.first);
-		XMLDocument::writeAttribute(elem, "upper", iter->range.second);
+		XMLDocument::writeAttribute(elem, "lower", iter->range.min);
+		XMLDocument::writeAttribute(elem, "upper", iter->range.max);
 
-		for(std::vector<double>::const_iterator iter2 =
+		for(std::vector<float>::const_iterator iter2 =
 		    iter->distr.begin(); iter2 != iter->distr.end(); iter2++) {
 			DOMElement *value =
 					doc->createElement(XMLUniStr("value"));
 			elem->appendChild(value);	
 
-			XMLDocument::writeContent<double>(value, doc, *iter2);
+			XMLDocument::writeContent<float>(value, doc, *iter2);
 		}
 	}
 }
