@@ -73,6 +73,7 @@ void DTDigiToRawModule::produce(Event & e, const EventSetup& iSetup) {
     
     FEDRawData& fedRawData = fed_buffers->FEDData(id);
     fedRawData = *rawData;
+    delete rawData;
   }
   // Put the raw data to the event
   e.put(fed_buffers);
