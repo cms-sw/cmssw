@@ -3,8 +3,8 @@
  *
  *  \author    : Gero Flucke
  *  date       : October 2006
- *  $Revision: 1.15 $
- *  $Date: 2007/08/31 17:24:28 $
+ *  $Revision: 1.16 $
+ *  $Date: 2007/08/31 18:03:19 $
  *  (last update by $Author: flucke $)
  */
 
@@ -274,16 +274,16 @@ std::vector<Alignable*> PedeSteerer::selectCoordinateAlis(const std::vector<Alig
       const char selector = selVar->fullSelection()[iParam];
       if (selector == 'r') {
 	++refParam;
-      } else if (selector != '0') { // allow inactive parameters
+      } else if (selector != '0' && selector != 'f') { // allow also 'c'?
 	++nonRefParam;
       }
     }
     // Check whether some 'r' selection string. If yes and selection makes sense, add to result:
     if (refParam) {
       if (nonRefParam) {
-	throw cms::Exception("BadConfig") << "[PedeSteerer::selectCoordinateAlis] "
-					  << "All active parameters of alignables defining "
-					  << "the coordinate system must be marked with 'r'!";
+	throw cms::Exception("BadConfig") 
+	  << "[PedeSteerer::selectCoordinateAlis] All active parameters of alignables defining "
+	  << "the coordinate system must be marked with 'r' (or fixed, 'f')!";
       } else {
 	Alignable *mother = *iAli;
 	while ((mother = mother->mother())) {
@@ -307,7 +307,7 @@ void PedeSteerer::defineCoordinates(const std::vector<Alignable*> &alis, Alignab
 				    const std::string &fileName)
 {
   std::ofstream *filePtr = this->createSteerFile(fileName, true);
-  (*filePtr) << "* Contraints to define coordinate system:\n";
+  (*filePtr) << "* Constraints to define coordinate system:\n";
   if (!aliMaster || aliMaster->alignmentParameters()) {
     throw cms::Exception("BadConfig")
       << "[PedeSteerer::defineCoordinates] " << "No master alignable or it has parameters!";
@@ -341,18 +341,18 @@ void PedeSteerer::correctToReferenceSystem()
     meanPars /= definerDets.size();
     const align::Scalar squareSum = meanPars.normsq();
 
-    if (true || iLoop == 0) {
+    if (iLoop == 0) {
       edm::LogInfo("Alignment") << "@SUB=PedeSteerer::correctToReferenceSystem"
 				<< "Loop " << iLoop << " "
-				<< "Mean misalignment of dets of defined coordinate system "
-				<< "(will be iteratively corrected to about 0.):" << meanPars;
+				<< "Mean misalignment of dets of defined coordinate system"
+				<< (squareSum < 1.e-20 ? ":" :
+				    " (will be iteratively corrected to < 1.e-10):") << meanPars;
     }
-    if (iLoop >=5 || squareSum < 1.e-20) { // sqrt(1.e-20)=1.e-10: close enough to stop iterating
-      if (iLoop >=5) {
+    if (squareSum < 1.e-20) break; // sqrt(1.e-20)=1.e-10: close enough to stop iterating
+    if (iLoop >=5) { // 3 iterations should be safe, use 5 for 'more' safety...
 	edm::LogError("Alignment") << "@SUB=PedeSteerer::correctToReferenceSystem"
 				   << "No convergence in " << iLoop << " iterations, " 
 				   << "remaining misalignment: " << meanPars;
-      }
       break;
     }
 
@@ -380,7 +380,8 @@ unsigned int PedeSteerer::hierarchyConstraints(const std::vector<Alignable*> &al
     aliDaughts.clear();
     if (!(*iA)->firstCompsWithParams(aliDaughts)) {
       edm::LogError("Alignment") << "@SUB=PedeSteerer::hierarchyConstraints"
-                                 << "Some but not all daughters with params!";
+                                 << "Some but not all daughters of "
+				 << TrackerAlignableId().alignableTypeName(*iA) << " with params!";
     }
 //     edm::LogInfo("Alignment") << "@SUB=PedeSteerer::hierarchyConstraints"
 // 			      << aliDaughts.size() << " ali param components";
@@ -412,7 +413,14 @@ void PedeSteerer::hierarchyConstraint(const Alignable *ali,
 
   std::vector<std::vector<ParameterId> > paramIdsVec;
   std::vector<std::vector<float> > factorsVec;
-  if (!myParameterStore->hierarchyConstraints(ali, components, paramIdsVec, factorsVec)) {
+  const bool allConstr = false; // true; // make configurable?
+  static bool first = true;
+  if (allConstr && first) {
+    edm::LogWarning("Alignment") << "@SUB=PedeSteerer::hierarchyConstraint"
+				 << "changed to use all 6 constraints";
+    first = false;
+  }
+  if (!myParameterStore->hierarchyConstraints(ali, components, paramIdsVec, factorsVec, allConstr)){
     edm::LogWarning("Alignment") << "@SUB=PedeSteerer::hierarchyConstraint"
 				 << "Problems from store.";
   }
