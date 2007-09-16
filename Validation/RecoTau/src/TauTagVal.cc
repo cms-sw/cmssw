@@ -13,7 +13,7 @@
 //
 // Original Author:  Simone Gennai/Ricardo Vasquez Sierra
 //         Created:  Wed Apr 12 11:12:49 CEST 2006
-// $Id: TauTagVal.cc,v 1.8 2007/06/28 11:44:34 gennai Exp $
+// $Id: TauTagVal.cc,v 1.9 2007/09/04 21:50:03 vasquez Exp $
 //
 //
 // user include files
@@ -45,10 +45,12 @@ TauTagVal::TauTagVal(const edm::ParameterSet& iConfig)
 	
     ptTauMC_    = dbe->book1D("pt_Tau_GenLevel", "pt_Tau_GenLevel", 75, 0., 150.);
     etaTauMC_   = dbe->book1D("eta_Tau_GenLevel", "eta_Tau_GenLevel", 60, -3.0, 3.0 );
+    phiTauMC_   = dbe->book1D("phi_Tau_GenLevel", "phi_Tau_GenLevel", 36, -180., 180.);
     energyTauMC_= dbe->book1D("Energy_Tau_GenLevel", "Energy_Tau_GenLevel", 45, 0., 450.0);
 
     nMCTaus_ptTauJet_ = dbe->book1D("nMC_Taus_vs_ptTauJet", "nMC_Taus_vs_ptTauJet", 75, 0., 150.); 
     nMCTaus_etaTauJet_ = dbe->book1D("nMC_Taus_vs_etaTauJet", "nMC_Taus_vs_etaTauJet", 60, -3.0, 3.0 );
+    nMCTaus_phiTauJet_ = dbe->book1D("nMC_Taus_vs_phiTauJet", "nMC_Taus_vs_phiTauJet", 36, -180., 180.);
     nMCTaus_energyTauJet_ = dbe->book1D("nMC_Taus_vs_energyTauJet", "nMC_Taus_vs_energyTauJet", 45, 0., 450.0);
 
      // Leading Track Related Histograms In case the finding of the leading track is a problem ( with deltaR 0.15 and minimum pt of 1.0 GeV )
@@ -62,6 +64,7 @@ TauTagVal::TauTagVal(const edm::ParameterSet& iConfig)
 
     nRecoJet_ptTauJet_ = dbe->book1D("n_RecoJet_vs_ptTauJet", "n_RecoJet_vs_ptTauJet", 75, 0., 150.);
     nRecoJet_etaTauJet_ = dbe->book1D("n_RecoJet_vs_etaTauJet", "n_RecoJet_vs_etaTauJet",60, -3.0, 3.0 );
+    nRecoJet_phiTauJet_ = dbe->book1D("n_RecoJet_vs_phiTauJet", "n_RecoJet_vs_phiTauJet",36, -180.,180.);
     nRecoJet_energyTauJet_ = dbe->book1D("n_RecoJet_vs_energyTauJet", "n_RecoJet_vs_energyTauJet", 45, 0., 450.0);  
     nAssociatedTracks_ = dbe->book1D("Number_Associated_Tracks", "Number_Associated_Tracks", 10, 0., 10.);
     nSelectedTracks_ = dbe->book1D("Number_Selected_Tracks", "Number_Selected_Tracks", 10, 0., 10.);
@@ -71,16 +74,22 @@ TauTagVal::TauTagVal(const edm::ParameterSet& iConfig)
 
     nRecoJet_LeadingTrack_ptTauJet_ = dbe->book1D("n_RecoJet+LeadingTrack_vs_ptTauJet", "n_RecoJet+LeadingTrack_vs_ptTauJet", 75, 0., 150.);
     nRecoJet_LeadingTrack_etaTauJet_ = dbe->book1D("n_RecoJet+LeadingTrack_vs_etaTauJet", "n_RecoJet+LeadingTrack_vs_etaTauJet",60, -3.0, 3.0 );
+    nRecoJet_LeadingTrack_phiTauJet_ = dbe->book1D("n_RecoJet+LeadingTrack_vs_phiTauJet", "n_RecoJet+LeadingTrack_vs_phiTauJet",36,-180.,180);
     nRecoJet_LeadingTrack_energyTauJet_ = dbe->book1D("n_RecoJet+LeadingTrack_vs_energyTauJet", "n_RecoJet+LeadingTrack_vs_energyTauJet", 45, 0., 450.0); 
     nSignalTracks_ = dbe->book1D("Number_Signal_Tracks", "Number_Signal_Tracks", 10, 0., 10.); 
 
-    // What are the numbers of Tagged and matched IsolatedTauTagInfoCollection with with MC Jet
+    // What are the numbers of Tagged and matched IsolatedTauTagInfoCollection with  MC Jet
     dbe->setCurrentFolder("TauTaggedJets_"+jetTagSrc_.label());
 
-    nIsolatedJet_ptTauJet_ = dbe->book1D("n_IsolatedTauTaggedJets_vs_ptTauJet","n_IsolatedTauTaggedJets_vs_ptTauJet", 75, 0., 150.);
-    nIsolatedJet_etaTauJet_ = dbe->book1D("n_IsolatedTauTaggedJets_vs_etaTauJet","n_IsolatedTauTaggedJets_vs_etaTauJet", 60, -3.0, 3.0 );
-    nIsolatedJet_energyTauJet_ = dbe->book1D("n_IsolatedTauTaggedJets_vs_energyTauJet", "n_IsolatedTauTaggedJets_vs_energyTauJet", 45, 0., 450.0);    
-    nSignalTracksAfterIsolation_ = dbe->book1D("Number_Signal_Tks_After_Isolation", "Number_of_Signal_Tks_After_Isolation", 10, 0., 10.);
+    nIsolatedJet_ptTauJet_ =       dbe->book1D("n_IsolatedTauTaggedJets_vs_ptTauJet","n_IsolatedTauTaggedJets_vs_ptTauJet", 75, 0., 150.);
+    nIsolatedJet_etaTauJet_ =      dbe->book1D("n_IsolatedTauTaggedJets_vs_etaTauJet","n_IsolatedTauTaggedJets_vs_etaTauJet", 60, -3.0, 3.0 );
+    nIsolatedJet_phiTauJet_ =      dbe->book1D("n_IsolatedTauTaggedJets_vs_phiTauJet","n_IsolatedTauTaggedJets_vs_phiTauJets", 36, -180., 180);
+    nIsolatedJet_energyTauJet_ =   dbe->book1D("n_IsolatedTauTaggedJets_vs_energyTauJet", "n_IsolatedTauTaggedJets_vs_energyTauJet", 45, 0., 450.0);    
+    nSignalTracksAfterIsolation_ = dbe->book1D("Signal_Tks_After_Isolation", "Signal_Tks_After_Isolation", 10, 0., 10.);
+    nIsolatedTausLeadingTrackPt_ = dbe->book1D("LeadingTrackPt_After_Isolation", "LeadingTrackPt_After_Isolation",  75, 0., 150.);
+    nIsolatedTausDeltaR_LTandJet_= dbe->book1D("DeltaR_LT_and_Jet_After_Isolation","DeltaR_LT_and_Jet_After_Isolation", 22, 0.,0.11);
+    nAssociatedTracks_of_IsolatedTaus_ = dbe->book1D("Associated_Tks_After_Isolation","Associated_Tks_After_Isolation", 10, 0., 10.);
+    nSelectedTracks_of_IsolatedTaus_ = dbe->book1D("Selected_Tks_After_Isolation","Selected_Tks_After_Isolation", 10, 0., 10.); 
 
  // What is the behaviour of cone isolation size on tagging of MC Taus (CONE_MATCHING_CRITERIA) 
     dbe->setCurrentFolder("TaggingStudies_"+ jetTagSrc_.label());
@@ -104,7 +113,6 @@ TauTagVal::TauTagVal(const edm::ParameterSet& iConfig)
     LogInfo("OutputInfo") << " TauJet histograms will NOT be saved";
   } else {
     LogInfo("OutputInfo") << " TauJethistograms will be saved to file:" << outPutFile_;
-    
   }
 
   //---- book-keeping information ---
@@ -139,8 +147,33 @@ void TauTagVal::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   vector<TLorentzVector> TauJetsMC=getVectorOfVisibleTauJets(myGenEvent); 
   
   //  myGenEvent->print();
-
+  // CaloJets iterativeCone5CaloJets counting stuff-----------------------------------------------------------------------------------------------
+  /*  Handle<CaloJetCollection> jetHandle;
+  iEvent.getByLabel("iterativeCone5CaloJets", jetHandle);
+  CaloJetCollection jetCollection = *(jetHandle.product());
+ 
+  int CaloJetsIterativeCone5 =0;
+  CaloJetCollection::const_iterator k = jetCollection.begin();
   
+  for(; k!=jetCollection.end(); k++) {
+    CaloJetsIterativeCone5++;
+  }
+  cout<<"-------------------------------------------------------------------------"<<endl;
+  cout<<"CaloJetsIterativeCone5: "<<CaloJetsIterativeCone5<<endl;
+
+
+  // PFJets iterativeCone5PFJets---------------------------------------------------------------------------------------------
+
+  Handle<PFJetCollection> pfjetHandle;
+  iEvent.getByLabel("iterativeCone5PFJets", pfjetHandle);
+  PFJetCollection pfjetCollection = *(pfjetHandle.product());
+  int PFJetsIterativeCone5 = 0;
+  
+  PFJetCollection::const_iterator l = pfjetCollection.begin();
+  for (; l!=pfjetCollection.end(); l++){
+    PFJetsIterativeCone5++;
+  }
+  cout<<"PFJetsIterativeCone5: "<< PFJetsIterativeCone5<<endl;*/
 //---------------------------------------- IsolatedTauTagInfoCollection -------------------------------------------------
 // ----------------------------------- Matching and filling up histograms -----------------------------------------------
   Handle<IsolatedTauTagInfoCollection> tauTagInfoHandle;
@@ -155,7 +188,7 @@ void TauTagVal::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   //  cout <<rMatch_<<" "<< rSig_ << " "<< rIso_ << " "<< ptLeadTk_ << " " << minPtIsoRing_ << " "<< nTracksInIsolationRing_ << endl;
  
   for (; i != tauTagInfo.end(); ++i) {  // Loop over all the IsolatedTauTagInfoCollection
-    
+    num_taujet_candidates++;
     TLorentzVector recoTauJet(i->jet()->px(), i->jet()->py(),i->jet()->pz(),i->jet()->energy());
     bool trueTauJet=false;
     std::vector<TLorentzVector>::iterator MCjet;
@@ -170,10 +203,9 @@ void TauTagVal::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     // If the IsolatedTauTagInfoCollection is matched to a MC Tau then continue
     if (trueTauJet) {
 
-      num_taujet_candidates++;
-
       nRecoJet_ptTauJet_->Fill(MCjet->Perp());  // Fill the histogram with the Pt, Eta, Energy of the Tau Jet at Generator level only for matched Jets
       nRecoJet_etaTauJet_->Fill(MCjet->Eta());  // How many Taus became RecoJets
+      nRecoJet_phiTauJet_->Fill(MCjet->Phi()*180.0/TMath::Pi());
       nRecoJet_energyTauJet_->Fill(MCjet->E()); 
 
       nAssociatedTracks_->Fill(double(i->allTracks().size()));   // Fill histogram with lower kind of tracks quality kind inside of the 0.5 cone around the Jet Momentum
@@ -182,14 +214,17 @@ void TauTagVal::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       if(!(i->leadingSignalTrack(rMatch_, ptLeadTk_))) {} else { // Fill in the histogram if a leading track is found how many Taus that became RecoJets have a leading track
 	nRecoJet_LeadingTrack_ptTauJet_->Fill(MCjet->Perp());  // Fill the histogram with the Pt, Eta, Energy of the Tau Jet at Generator level only for matched Jets
 	nRecoJet_LeadingTrack_etaTauJet_->Fill(MCjet->Eta());  // How many Tau became RecoJets
+        nRecoJet_LeadingTrack_phiTauJet_->Fill(MCjet->Phi()*180.0/TMath::Pi());
 	nRecoJet_LeadingTrack_energyTauJet_->Fill(MCjet->E()); 
       }	
       
       if ( i->discriminator(rMatch_, rSig_, rIso_, ptLeadTk_, minPtIsoRing_, nTracksInIsolationRing_)) {
 	nIsolatedJet_ptTauJet_->Fill(MCjet->Perp());  // Fill the histogram with the Pt, Eta, Energy of the Tau Jet at Generator level only for matched Jets
 	nIsolatedJet_etaTauJet_->Fill(MCjet->Eta()); 
+        nIsolatedJet_phiTauJet_->Fill(MCjet->Phi()*180./TMath::Pi()); 
 	nIsolatedJet_energyTauJet_->Fill(MCjet->E());
-	
+        nAssociatedTracks_of_IsolatedTaus_->Fill(double(i->allTracks().size()));
+        nSelectedTracks_of_IsolatedTaus_->Fill(double(i->selectedTracks().size()));	
 	//	nSignalTracksAfterIsolation->Fill(double (i->tracksInCone(momentum, rSig_,1.)).size()));           // Fill the histograms of the ones that get isolated
       }
       
@@ -206,8 +241,14 @@ void TauTagVal::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	// Get the number of tracks greater than 1. GeV in cone of 0.07 around the leading track momentum
 	nSignalTracks_->Fill(double (i->tracksInCone(momentum, rSig_,  1.).size()));                           // Fill the histogram with this number of tracks
 	
-	if(i->discriminator(rMatch_,rSig_, rIso_, ptLeadTk_, minPtIsoRing_, nTracksInIsolationRing_) == 1)//  using rMatch_ = 0.1; rSig_ =0.07; ptLeadTk_ = 6.0, pT_min = 1.0
+	if(i->discriminator(rMatch_,rSig_, rIso_, ptLeadTk_, minPtIsoRing_, nTracksInIsolationRing_) == 1) {//  using rMatch_ = 0.1; rSig_ =0.07; ptLeadTk_ = 6.0, pT_min = 1.0
 	  nSignalTracksAfterIsolation_->Fill(double (i->tracksInCone(momentum, rSig_,  1.).size()));           // Fill the histograms of the ones that get isolated
+	  nIsolatedTausLeadingTrackPt_->Fill(double (momentum.rho()));
+	  math::XYZVector jetMomentum(i->jet()->px(), i->jet()->py(), i->jet()->pz()); 
+	  double deltaR = ROOT::Math::VectorUtil::DeltaR(jetMomentum, momentum);         // Calculate the deltaR of the two momenta
+          nIsolatedTausDeltaR_LTandJet_->Fill(deltaR);
+         
+	}
       }
       
       // ------------------------------------------------------------------------------------------------------------------------------ 
@@ -262,10 +303,10 @@ void TauTagVal::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	}
 
     }// end of if (trueTauJet)
-  }// end of the 
+  }// end of the IsolatedTauTagInfoCollection loop
   
   //  std::cout<<" Number of Matched Reconstructed Tau Jets: "<<numTauRecoJets_<<endl;
-  //std::cout<<" " << num_taujet_candidates_ <<" num_taujet_candidates per event: " << endl;  num_taujet_candidates_ = 0;
+  //std::cout<<"num_taujet_candidates: " <<num_taujet_candidates << endl; 
   delete myGenEvent;  
 }
 
@@ -385,7 +426,8 @@ std::vector<TLorentzVector> TauTagVal::getVectorOfVisibleTauJets(HepMC::GenEvent
 	      if(FinalTau)   // Meaning: did it find a Neutrino in the list of Daughter particles? Then fill histograms of the original Tau info
 		{
 		  ptTauMC_->Fill((*p)->momentum().perp());
-		  etaTauMC_->Fill((*p)->momentum().eta());
+		  etaTauMC_->Fill((*p)->momentum().eta()); 
+                  phiTauMC_->Fill((*p)->momentum().phi()*(180./TMath::Pi()));
 		  energyTauMC_->Fill((*p)->momentum().e());		   
                    
                       // Get the Tau Lorentz Vector
@@ -394,6 +436,7 @@ std::vector<TLorentzVector> TauTagVal::getVectorOfVisibleTauJets(HepMC::GenEvent
 		  if (abs(TauJetMC.Eta())<2.5 && TauJetMC.Perp()>5.0) {
 		    nMCTaus_ptTauJet_->Fill(TauJetMC.Perp());  // Fill the histogram with the Pt, Eta, Energy of the Tau Jet at Generator level
 		    nMCTaus_etaTauJet_->Fill(TauJetMC.Eta()); 
+                    nMCTaus_phiTauJet_->Fill(TauJetMC.Phi()*180./TMath::Pi());
 		    nMCTaus_energyTauJet_->Fill(TauJetMC.E());
 
 		    tempvec.push_back(TauJetMC);
