@@ -1,8 +1,11 @@
 <lcgdict>
+	<!-- Histogram -->
+	<class name="PhysicsTools::Calibration::Histogram::Range"/>
+	<class name="PhysicsTools::Calibration::Histogram"/>
+
 	<!-- MVAComputer -->
 	<class name="PhysicsTools::Calibration::BitSet"/>
 	<class name="PhysicsTools::Calibration::Matrix"/>
-	<class name="PhysicsTools::Calibration::PDF"/>
 	<class name="PhysicsTools::Calibration::VarProcessor"/>
 	<class name="PhysicsTools::Calibration::Variable"/>
 
@@ -16,6 +19,11 @@
 	<class name="std::vector&lt;PhysicsTools::Calibration::ProcSplitter&gt;"/>
 	<class name="PhysicsTools::Calibration::ProcForeach"/>
 	<class name="std::vector&lt;PhysicsTools::Calibration::ProcForeach&gt;"/>
+	<class name="PhysicsTools::Calibration::ProcSort"/>
+	<class name="std::vector&lt;PhysicsTools::Calibration::ProcSort&gt;"/>
+	<class name="PhysicsTools::Calibration::ProcCategory"/>
+	<class name="PhysicsTools::Calibration::ProcCategory::BinLimits"/>
+	<class name="std::vector&lt;PhysicsTools::Calibration::ProcCategory&gt;"/>
 	<class name="PhysicsTools::Calibration::ProcNormalize"/>
 	<class name="std::vector&lt;PhysicsTools::Calibration::ProcNormalize&gt;"/>
 	<class name="PhysicsTools::Calibration::ProcLikelihood::SigBkg"/>
@@ -40,7 +48,7 @@
 	<class name="std::vector&lt;unsigned char&gt;"/>
 	<class name="std::vector&lt;std::string&gt;"/>
 	<class name="std::vector&lt;PhysicsTools::Calibration::Variable&gt;"/>
-	<class name="std::vector&lt;PhysicsTools::Calibration::PDF&gt;"/>
+	<class name="std::vector&lt;PhysicsTools::Calibration::Histogram&gt;"/>
 	<class name="std::vector&lt;PhysicsTools::Calibration::ProcLikelihood::SigBkg&gt;"/>
 	<class name="std::pair&lt;double, std::vector&lt;double&gt; &gt;"/>
 	<class name="std::pair&lt;std::vector&lt;PhysicsTools::Calibration::ProcMLP::Neuron&gt;, bool&gt;"/>

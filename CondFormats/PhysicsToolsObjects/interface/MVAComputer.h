@@ -9,19 +9,17 @@
 //
 // Author:	Christophe Saout <christophe.saout@cern.ch>
 // Created:     Sat Apr 24 15:18 CEST 2007
-// $Id: MVAComputer.h,v 1.7 2007/05/21 02:00:22 saout Exp $
+// $Id: MVAComputer.h,v 1.8 2007/05/24 18:11:38 saout Exp $
 //
 
 #include <string>
 #include <vector>
 #include <map>
 
+#include "CondFormats/PhysicsToolsObjects/interface/Histogram.h"
+
 namespace PhysicsTools {
 namespace Calibration {
-
-// forward declarations
-
-typedef std::pair<double, double> MinMax;
 
 // helper classes
 
@@ -36,12 +34,6 @@ class Matrix {
 	std::vector<double>		elements;
 	unsigned int			rows;
 	unsigned int			columns;
-};
-
-class PDF {
-    public:
-	std::vector<double>		distr;
-	MinMax				range;
 };
 
 // configuration base classes
@@ -83,20 +75,38 @@ class ProcForeach : public VarProcessor {
 	unsigned int			nProcs;
 };
 
+class ProcSort : public VarProcessor {
+    public:
+	unsigned int			sortByIndex;
+	bool				descending;
+};
+
+class ProcCategory : public VarProcessor {
+    public:
+	typedef std::vector<double> BinLimits;
+
+	std::vector<BinLimits>		variableBinLimits;
+	std::vector<int>		categoryMapping;
+};
+
 class ProcNormalize : public VarProcessor {
     public:
-	std::vector<PDF>		distr;
+	std::vector<Histogram>		distr;
+	unsigned int			nCategories;
 };
 
 class ProcLikelihood : public VarProcessor {
     public:
 	class SigBkg {
 	    public:
-		PDF			signal;
-		PDF			background;
+		Histogram		background;
+		Histogram		signal;
+		bool			useSplines;
 	};
 
 	std::vector<SigBkg>		pdfs;
+	unsigned int			nCategories;
+	double				bias;
 };
 
 class ProcLinear : public VarProcessor {
@@ -161,6 +171,8 @@ class MVAComputer {
 	std::vector<ProcClassed>	vProcClassed_;
 	std::vector<ProcSplitter>	vProcSplitter_;
 	std::vector<ProcForeach>	vProcForeach_;
+	std::vector<ProcSort>		vProcSort_;
+	std::vector<ProcCategory>	vProcCategory_;
 	std::vector<ProcNormalize>	vProcNormalize_;
 	std::vector<ProcLikelihood>	vProcLikelihood_;
 	std::vector<ProcLinear>		vProcLinear_;
