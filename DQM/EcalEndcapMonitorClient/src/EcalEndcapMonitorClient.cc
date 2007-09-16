@@ -1,8 +1,8 @@
 /*
  * \file EcalEndcapMonitorClient.cc
  *
- * $Date: 2007/09/07 22:30:07 $
- * $Revision: 1.65 $
+ * $Date: 2007/09/12 10:59:36 $
+ * $Revision: 1.66 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -15,7 +15,7 @@
 #include <algorithm>
 
 #include "FWCore/Framework/interface/Run.h"
-
+#include "FWCore/Framework/interface/LuminosityBlock.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -860,6 +860,22 @@ void EcalEndcapMonitorClient::beginLuminosityBlock(const LuminosityBlock &l, con
 }
 
 void EcalEndcapMonitorClient::endLuminosityBlock(const LuminosityBlock &l, const EventSetup &c) {
+
+  if ( outputFile_.size() != 0 ) {
+    string fileName = outputFile_;
+    for ( unsigned int i = 0; i < fileName.size(); i++ ) {
+      if( fileName.substr(i, 9) == "RUNNUMBER" )  {
+        char tmp[10];
+        if ( run_ != -1 ) {
+          sprintf(tmp,"%09d.%04d", run_, l.id().luminosityBlock());
+        } else {
+          sprintf(tmp,"%09d.%04d", 0, 0);
+        }
+        fileName.replace(i, 13, tmp);
+      }
+    }
+    dbe_->save(fileName);
+  }
 
 }
 
