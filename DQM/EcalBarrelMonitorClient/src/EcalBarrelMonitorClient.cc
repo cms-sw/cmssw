@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  *
- * $Date: 2007/09/07 22:30:04 $
- * $Revision: 1.309 $
+ * $Date: 2007/09/16 15:57:19 $
+ * $Revision: 1.310 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -837,17 +837,21 @@ void EcalBarrelMonitorClient::beginLuminosityBlock(const LuminosityBlock &l, con
 
 void EcalBarrelMonitorClient::endLuminosityBlock(const LuminosityBlock &l, const EventSetup &c) {
 
+  this->analyze();
+
   if ( outputFile_.size() != 0 ) {
     string fileName = outputFile_;
     for ( unsigned int i = 0; i < fileName.size(); i++ ) {
       if( fileName.substr(i, 9) == "RUNNUMBER" )  {
         char tmp[10];
         if ( run_ != -1 ) {
-          sprintf(tmp,"%09d.%04d", run_, l.id().luminosityBlock());
+          sprintf(tmp,"%09d", run_);
         } else {
-          sprintf(tmp,"%09d.%04d", 0, 0);
+          sprintf(tmp,"%09d", 0);
         }
-        fileName.replace(i, 13, tmp);
+        fileName.replace(i, 9, tmp);
+        sprintf(tmp,".%04d", l.id().luminosityBlock());
+        fileName.insert(i+9, tmp, 5);
       }
     }
     dbe_->save(fileName);
