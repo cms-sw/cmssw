@@ -18,7 +18,7 @@
 //
 // Original Author:  Dmytro Kovalskyi
 //         Created:  Fri Apr 21 10:59:41 PDT 2006
-// $Id: CachedTrajectory.h,v 1.6 2007/05/16 09:26:22 dmytro Exp $
+// $Id: CachedTrajectory.h,v 1.7 2007/06/27 07:09:11 dmytro Exp $
 //
 //
 
@@ -71,6 +71,11 @@ class CachedTrajectory {
    SteppingHelixStateInfo getStateAtEcal();
    SteppingHelixStateInfo getStateAtHcal();
    SteppingHelixStateInfo getStateAtHO();
+   
+   //get the innermost state of the whole trajectory 
+   SteppingHelixStateInfo getInnerState();
+   //get the outermost state of the whole trajectory 
+   SteppingHelixStateInfo getOuterState();
    
    // specify the detector global boundaries to limit the propagator
    // units: cm

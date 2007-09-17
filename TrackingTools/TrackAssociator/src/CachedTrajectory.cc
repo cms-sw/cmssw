@@ -3,7 +3,7 @@
 // Package:    TrackAssociator
 // Class:      CachedTrajectory
 // 
-// $Id: CachedTrajectory.cc,v 1.11 2007/05/16 09:26:23 dmytro Exp $
+// $Id: CachedTrajectory.cc,v 1.12 2007/06/27 07:09:12 dmytro Exp $
 //
 //
 
@@ -95,24 +95,38 @@ bool CachedTrajectory::propagateAll(const SteppingHelixStateInfo& initialState)
      fullTrajectory_.push_back(currentState);
    }
 
+
    SteppingHelixStateInfo currentState2(initialState);
-   
+   SteppingHelixStateInfo previousState;
    while (currentState2.position().perp()>minRho_ || fabs(currentState2.position().z())>minZ_) {
-     LogTrace("TrackAssociator") << "[propagateAll] Propagated inward from (Rho, z) (" << currentState2.position().perp()
-       << "," << currentState2.position().z() << ") to (";
-     propagateForward(currentState2,-step_);
-     if (! currentState2.isValid() ) {
-       LogTrace("TrackAssociator") << "Failed to propagate the track; moving on\n";
-       break;
-     }
-     LogTrace("TrackAssociator") << currentState2.position().perp() << ", " << currentState2.position().z() << ")\n";
-     fullTrajectory_.push_front(currentState2);
+      previousState=currentState2;
+      propagateForward(currentState2,-step_);
+      if (! currentState2.isValid() ) {
+	 LogTrace("TrackAssociator") << "Failed to propagate the track; moving on\n";
+	 break;
+      }
+      if(previousState.position().perp()- currentState2.position().perp() < 0) { 
+	 LogTrace("TrackAssociator") << "Error: TrackAssociator has propogated the particle past the point of closest approach to IP" << std::endl;
+	 break;
+      }
+      LogTrace("TrackAssociator") << "[propagateAll] Propagated inward from (Rho, z) (" << previousState.position().perp()
+	<< "," << previousState.position().z() << ") to (";
+      LogTrace("TrackAssociator") << currentState2.position().perp() << ", " << currentState2.position().z() << ")\n";
+      fullTrajectory_.push_front(currentState2);
    }
+
+
+
+
    // LogTrace("TrackAssociator") << "fullTrajectory_ has " << fullTrajectory_.size() << " states with (R, z):\n";
    // for(uint i=0; i<fullTrajectory_.size(); i++) {
    //  LogTrace("TrackAssociator") << "state " << i << ": (" << fullTrajectory_[i].position().perp() << ", "
    //    << fullTrajectory_[i].position().z() << ")\n";
    // }
+
+
+
+
 
    LogTrace("TrackAssociator") << "Done with the track propagation in the detector. Number of steps: " << fullTrajectory_.size();
    fullTrajectoryFilled_ = true;
@@ -147,9 +161,8 @@ TrajectoryStateOnSurface CachedTrajectory::propagate(const Plane* plane)
    while (leftIndex + 1 < rightIndex) {
       closestPointOnLeft = int((leftIndex+rightIndex)/2);
       float dist = distance(plane,closestPointOnLeft);
-      /*
-      LogTrace("TrackAssociator") << "Closest point on left: " << closestPointOnLeft << "\n"
-	<< "Distance to the plane: " << dist; */
+      // LogTrace("TrackAssociator") << "Closest point on left: " << closestPointOnLeft << "\n"
+      //    << "Distance to the plane: " << dist;
       if (fabs(dist)<matchingDistance) {
 	 // found close match, verify that we are on the left side
 	 if (closestPointOnLeft>0 && sign( distance(plane, closestPointOnLeft-1) ) * dist == -1)
@@ -162,24 +175,24 @@ TrajectoryStateOnSurface CachedTrajectory::propagate(const Plane* plane)
 	rightIndex = closestPointOnLeft;
       else
 	leftIndex = closestPointOnLeft;
-      /*
-      LogTrace("TrackAssociator") << "Distance on left: " << distance(plane, leftIndex) << "\n"
-	<< "Distance to closest point: " <<  distance(plane, closestPointOnLeft) << "\n"
-	<< "Left index: " << leftIndex << "\n"
-	<< "Right index: " << rightIndex;
-       */
+      
+      // LogTrace("TrackAssociator") << "Distance on left: " << distance(plane, leftIndex) << "\n"
+      //	<< "Distance to closest point: " <<  distance(plane, closestPointOnLeft) << "\n"
+      //	<< "Left index: " << leftIndex << "\n"
+      //	<< "Right index: " << rightIndex;
+      
    }
-   //   LogTrace("TrackAssociator") << "closestPointOnLeft: " << closestPointOnLeft 
-   //     << "\n\ttrajectory point (z,R,eta,phi): " 
-   //     << fullTrajectory_[closestPointOnLeft].freeState()->position().z() << ", "
-   //     << fullTrajectory_[closestPointOnLeft].freeState()->position().perp() << " , "	
-   //     << fullTrajectory_[closestPointOnLeft].freeState()->position().eta() << " , " 
-   //     << fullTrajectory_[closestPointOnLeft].freeState()->position().phi()
-   //     << "\n\tplane center (z,R,eta,phi): " 
-   //     << plane->position().z() << ", "
-   //     << plane->position().perp() << " , "	
-   //     << plane->position().eta() << " , " 
-   //     << plane->position().phi();
+      LogTrace("TrackAssociator") << "closestPointOnLeft: " << closestPointOnLeft 
+        << "\n\ttrajectory point (z,R,eta,phi): " 
+        << fullTrajectory_[closestPointOnLeft].position().z() << ", "
+        << fullTrajectory_[closestPointOnLeft].position().perp() << " , "	
+        << fullTrajectory_[closestPointOnLeft].position().eta() << " , " 
+        << fullTrajectory_[closestPointOnLeft].position().phi()
+        << "\n\tplane center (z,R,eta,phi): " 
+        << plane->position().z() << ", "
+        << plane->position().perp() << " , "	
+        << plane->position().eta() << " , " 
+        << plane->position().phi();
      
    // propagate to the plane
    timers.pop_and_push("CachedTrajectory::propagate::localPropagation",TimerStack::FastMonitoring);
@@ -397,3 +410,20 @@ SteppingHelixStateInfo CachedTrajectory::getStateAtHO()
    else 
      return hoTrajectory_.front();
 }
+
+
+SteppingHelixStateInfo CachedTrajectory::getInnerState() {
+  if(fullTrajectory_.empty() )
+    return SteppingHelixStateInfo();
+  else
+    return fullTrajectory_.front();
+}
+
+
+SteppingHelixStateInfo CachedTrajectory::getOuterState() {
+  if(fullTrajectory_.empty() )
+    return SteppingHelixStateInfo();
+  else
+    return fullTrajectory_.back();
+}
+
