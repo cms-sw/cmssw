@@ -16,7 +16,7 @@
 
 namespace reco {
   namespace modules {
-    template<typename C1, typename C2>
+    template<typename C1, typename C2, typename M = edm::AssociationMap<edm::OneToOne<C1, C2> > >
     class MatcherBase : public edm::EDProducer {
     public:
       MatcherBase( const edm::ParameterSet & );
@@ -25,7 +25,7 @@ namespace reco {
     protected:
       typedef typename C1::value_type T1;
       typedef typename C2::value_type T2;
-      typedef edm::AssociationMap<edm::OneToOne<C1, C2> >MatchMap;
+      typedef M MatchMap;
 
     private:
       void produce( edm::Event&, const edm::EventSetup& );
@@ -37,18 +37,19 @@ namespace reco {
     };
 
     template<typename C1, typename C2,
-	     typename S, typename D = DeltaR<typename C1::value_type, typename C2::value_type> >
-    class Matcher : public MatcherBase<C1, C2> {
+             typename S, typename D = DeltaR<typename C1::value_type, typename C2::value_type>,
+             typename M =  edm::AssociationMap<edm::OneToOne<C1, C2> > >
+    class Matcher : public MatcherBase<C1, C2, M> {
     public:
       Matcher(  const edm::ParameterSet & cfg ) : 
-	MatcherBase<C1, C2>( cfg ),
+	MatcherBase<C1, C2, M>( cfg ),
         select_( reco::modules::make<S>( cfg ) ), 
 	distance_( reco::modules::make<D>( cfg ) ) { }
       ~Matcher() { }
     private:
-      typedef typename MatcherBase<C1, C2>::T1 T1;
-      typedef typename MatcherBase<C1, C2>::T2 T2;
-      typedef typename MatcherBase<C1, C2>::MatchMap MatchMap;
+      typedef typename MatcherBase<C1, C2, M>::T1 T1;
+      typedef typename MatcherBase<C1, C2, M>::T2 T2;
+      typedef typename MatcherBase<C1, C2, M>::MatchMap MatchMap;
 
       double matchDistance( const T1 & c1, const T2 & c2 ) const {
 	return distance_( c1, c2 );
@@ -70,27 +71,30 @@ namespace reco {
       };
     }
 
-    template<typename C1, typename C2>
-    MatcherBase<C1, C2>::MatcherBase( const edm::ParameterSet & cfg ) :
+    template<typename C1, typename C2, typename M>
+    MatcherBase<C1, C2, M>::MatcherBase( const edm::ParameterSet & cfg ) :
       src_( cfg.template getParameter<edm::InputTag>( "src" ) ),
       matched_( cfg.template getParameter<edm::InputTag>( "matched" ) ), 
       distMin_( cfg.template getParameter<double>( "distMin" ) ) {
       produces<MatchMap>();
     }
 
-    template<typename C1, typename C2>
-    MatcherBase<C1, C2>::~MatcherBase() { }
+    template<typename C1, typename C2, typename M>
+    MatcherBase<C1, C2, M>::~MatcherBase() { }
 
-    template<typename C1, typename C2>    
-    void MatcherBase<C1, C2>::produce( edm::Event& evt, const edm::EventSetup& ) {
+    template<typename C1, typename C2, typename M>    
+    void MatcherBase<C1, C2, M>::produce( edm::Event& evt, const edm::EventSetup& ) {
       using namespace edm;
       using namespace std;
       Handle<C2> matched;  
       evt.getByLabel( matched_, matched );
       Handle<C1> cands;  
       evt.getByLabel( src_, cands );
-      auto_ptr<MatchMap> matchMap( new MatchMap( typename MatchMap::ref_type( RefProd<C1>( cands ), 
-									      RefProd<C2>( matched ) ) ) );
+      typedef typename MatchMap::ref_type ref_type;
+      typedef typename ref_type::key_type key_ref_type;
+      typedef typename ref_type::value_type value_ref_type;
+      auto_ptr<MatchMap> matchMap( new MatchMap( ref_type( key_ref_type( cands ), 
+							   value_ref_type( matched ) ) ) );
       for( size_t c = 0; c != cands->size(); ++ c ) {
 	const T1 & cand = (*cands)[ c ];
 	vector<helper::MatchPair> v;
@@ -103,7 +107,9 @@ namespace reco {
 	}
 	if ( v.size() > 0 ) {
 	  size_t mMin = min_element( v.begin(), v.end(), helper::SortBySecond() )->first;
-	  matchMap->insert( Ref<C1>( cands, c ), Ref<C2>( matched, mMin ) );
+	  typedef typename MatchMap::key_type key_type;
+	  typedef typename MatchMap::data_type data_type;
+	  matchMap->insert( key_type( cands, c ), data_type( matched, mMin ) );
 	}
       }
       

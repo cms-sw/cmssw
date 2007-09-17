@@ -10,12 +10,28 @@
 
 namespace reco {
   namespace modules {
+    namespace helper {
+      template<typename T>
+      struct CandMapTrait {
+      };
+
+      template<>
+      struct CandMapTrait<CandidateCollection> {
+	typedef edm::AssociationMap<edm::OneToOne<CandidateCollection, CandidateCollection> > type;
+      };
+
+      template<>
+      struct CandMapTrait<CandidateView> {
+	typedef edm::AssociationMap<edm::OneToOneGeneric<CandidateView, CandidateView> > type;
+      };
+    }
    
-    template<typename S, typename D = DeltaR<reco::Candidate> >
-    class CandMatcher : public Matcher<reco::CandidateCollection, reco::CandidateCollection, S, D> {
-    public:
-      CandMatcher(  const edm::ParameterSet & cfg ) : 
-	Matcher<reco::CandidateCollection, reco::CandidateCollection, S, D>( cfg ) { }
+    template<typename S, typename Collection = CandidateCollection, typename D = DeltaR<reco::Candidate> >
+    class CandMatcher : 
+      public Matcher<Collection, Collection, S, D, typename helper::CandMapTrait<Collection>::type> {
+      public:
+        CandMatcher(  const edm::ParameterSet & cfg ) : 
+          Matcher<Collection, Collection, S, D, typename helper::CandMapTrait<Collection>::type>( cfg ) { }
       ~CandMatcher() { }
     };
 
