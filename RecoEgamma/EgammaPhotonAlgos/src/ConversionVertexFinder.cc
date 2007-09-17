@@ -31,20 +31,23 @@ ConversionVertexFinder::~ConversionVertexFinder() {
 }
 
 
-CachingVertex  ConversionVertexFinder::run(std::vector<reco::TransientTrack>  pair) {
+TransientVertex  ConversionVertexFinder::run(std::vector<reco::TransientTrack>  pair) {
   LogDebug("ConversionVertexFinder") << "ConversionVertexFinder run pair size " << pair.size() <<  "\n";  
   
   //for ( std::vector<reco::TransientTrack>::const_iterator iTk=pair.begin(); iTk!=pair.end(); ++iTk) {
   // LogDebug("ConversionVertexFinder") << "  ConversionVertexFinder  Tracks in the pair  charge " << iTk->charge() << " Num of RecHits " << iTk->recHitsSize() << " inner momentum " << iTk->track().innerMomentum() << "\n";  
   //}
-  
-  
-  
+
+
+  //reco::Vertex theVertex;  
   KalmanVertexFitter fitter;
-  CachingVertex theVertex;
+  CachingVertex cachingVertex;
+  TransientVertex transientVtx;
+
   const string metname =  "ConversionVertexFinder| ConversionVertexFinder";
   try{
-    theVertex = fitter.vertex(pair); 
+    cachingVertex = fitter.vertex(pair); 
+
   }  catch ( cms::Exception& e ) {
     // std::cout << " cms::Exception caught in ConversionVertexFinder::run " << "\n" ;
     edm::LogWarning(metname) << "cms::Exception caught in ConversionVertexFinder::run\n"
@@ -53,14 +56,20 @@ CachingVertex  ConversionVertexFinder::run(std::vector<reco::TransientTrack>  pa
   }
   
 
-  if ( theVertex.isValid() ) {
-    LogDebug("ConversionVertexFinder") << "  ConversionVertexFinder VALID " << "\n";
-    LogDebug("ConversionVertexFinder") << "  ConversionVertexFinder vertex position " << theVertex.position() << "\n"; 
+  if ( cachingVertex.isValid() ) {
+    transientVtx = cachingVertex; 
+    //theVertex = transientVtx;
+
+    //    std::cout << "  ConversionVertexFinder VALID " << "\n";
+    //std::cout << "  ConversionVertexFinder caching vertex position " << cachingVertex.position() << " tran vertex position " << transientVtx.position() << "\n"; 
+    // std::cout << "  ConversionVertexFinder reco vertex position " << theVertex.position() << "\n"; 
   } else {
     LogDebug("ConversionVertexFinder") << "  ConversionVertexFinder NOT VALID " << "\n";
   }
-  
-  return theVertex;
+
+
+  //  std::cout << " ConversionVertexFinder before return " << std::endl;
+  return transientVtx;
     
     
 }

@@ -15,6 +15,7 @@
 //
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackExtra.h"
+#include "DataFormats/VertexReco/interface/Vertex.h"
 //
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -32,10 +33,7 @@ public:
   ~ConversionVertexFinder();
 
 
-  //reco::Vertex* run (std::vector<reco::TransientTrack> pair);
-  // reco::Vertex run (std::vector<reco::TransientTrack> pair);
-  //  TransientVertex run (std::vector<reco::TransientTrack> pair);
-  CachingVertex run (std::vector<reco::TransientTrack> pair);
+    TransientVertex run (std::vector<reco::TransientTrack> pair);
 
 
 
