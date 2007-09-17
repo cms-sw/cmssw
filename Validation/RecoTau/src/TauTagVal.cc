@@ -13,7 +13,7 @@
 //
 // Original Author:  Simone Gennai/Ricardo Vasquez Sierra
 //         Created:  Wed Apr 12 11:12:49 CEST 2006
-// $Id: TauTagVal.cc,v 1.9 2007/09/04 21:50:03 vasquez Exp $
+// $Id: TauTagVal.cc,v 1.10 2007/09/16 12:18:02 vasquez Exp $
 //
 //
 // user include files
@@ -103,8 +103,8 @@ TauTagVal::TauTagVal(const edm::ParameterSet& iConfig)
     nTausTotvsPtLeadingTrack_ = dbe->book1D("nTaus_Tot_vs_PtLeadingTrack","nTaus_Tot_vs_PtLeadingTrack", 6, 1.5, 7.5);
     nTausTaggedvsPtLeadingTrack_ = dbe->book1D("nTaus_Tagged_vs_PtLeadingTrack","nTaus_Tagged_vs_PtLeadingTrack",6, 1.5, 7.5);
 
-    nTausTotvsMatchingConeSize_ = dbe->book1D("nTaus_Tot_vs_MatchingConeSize","nTaus_Tot_vs_MathingConeSize", 6, 0.065, 0.125);
-    nTausTaggedvsMatchingConeSize_ = dbe->book1D("nTaus_Tagged_vs_MatchingConeSize","nTaus_Tagged_vs_MathingConeSize", 6, 0.065, 0.125);
+    nTausTotvsMatchingConeSize_ = dbe->book1D("nTaus_Tot_vs_MatchingConeSize","nTaus_Tot_vs_MatchingConeSize", 6, 0.065, 0.125);
+    nTausTaggedvsMatchingConeSize_ = dbe->book1D("nTaus_Tagged_vs_MatchingConeSize","nTaus_Tagged_vs_MatchingConeSize", 6, 0.065, 0.125);
     TString tversion(edm::getReleaseVersion());
     cout<<endl<<"-----------------------*******************************Version: " << tversion<<endl;
   }
@@ -145,7 +145,14 @@ void TauTagVal::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
   // Get a TLorentzVector with the Visible Taus at Generator level (the momentum of the neutrino is substracted
   vector<TLorentzVector> TauJetsMC=getVectorOfVisibleTauJets(myGenEvent); 
+  //---------------------LET's See what this CaloTau has -----------------
+
+  //Handle<CaloTauCollection> theCaloTauHandle;
+  //iEvent.getByLabel("caloRecoTauProducer" ,theCaloTauHandle);
   
+  //  cout<<"***"<<endl;
+  //cout<<"Found "<<theCaloTauHandle->size()<<" had. tau-jet candidates"<<endl;
+
   //  myGenEvent->print();
   // CaloJets iterativeCone5CaloJets counting stuff-----------------------------------------------------------------------------------------------
   /*  Handle<CaloJetCollection> jetHandle;
@@ -218,7 +225,7 @@ void TauTagVal::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	nRecoJet_LeadingTrack_energyTauJet_->Fill(MCjet->E()); 
       }	
       
-      if ( i->discriminator(rMatch_, rSig_, rIso_, ptLeadTk_, minPtIsoRing_, nTracksInIsolationRing_)) {
+      if ( i->discriminator(rMatch_, rSig_, rIso_, ptLeadTk_, minPtIsoRing_, nTracksInIsolationRing_)==1) {
 	nIsolatedJet_ptTauJet_->Fill(MCjet->Perp());  // Fill the histogram with the Pt, Eta, Energy of the Tau Jet at Generator level only for matched Jets
 	nIsolatedJet_etaTauJet_->Fill(MCjet->Eta()); 
         nIsolatedJet_phiTauJet_->Fill(MCjet->Phi()*180./TMath::Pi()); 
@@ -256,23 +263,19 @@ void TauTagVal::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       for(int ii=0;ii<6;ii++) {  // Six cone isolation size steps
 
 	double ChangingIsoCone = ii*0.05 + 0.2;    // calculate the size of the Isolation Ring
-	nTausTotvsConeIsolation_->Fill(ChangingIsoCone);
 	if (i->discriminator(rMatch_,rSig_, ChangingIsoCone, ptLeadTk_, minPtIsoRing_, nTracksInIsolationRing_) == 1)
 	  nTausTaggedvsConeIsolation_->Fill(ChangingIsoCone);
 	
 	double ChangingSigCone = ii*0.01+0.07;
-	nTausTotvsConeSignal_->Fill(ChangingSigCone);
 	if (i->discriminator(rMatch_,ChangingSigCone, rIso_, ptLeadTk_, minPtIsoRing_, nTracksInIsolationRing_) == 1)
 	  nTausTaggedvsConeSignal_->Fill(ChangingSigCone);
 	
 	int ChangingPtLeadTk = int(ii*1.0 + 2.0);
-	nTausTotvsPtLeadingTrack_->Fill(double (ChangingPtLeadTk));
 	if (i->discriminator(rMatch_,rSig_, rIso_, ChangingPtLeadTk, minPtIsoRing_, nTracksInIsolationRing_) == 1)
 	  nTausTaggedvsPtLeadingTrack_->Fill(double (ChangingPtLeadTk));
 
 	double ChangingMatchingCone = ii*0.01 + 0.07;
-        nTausTotvsMatchingConeSize_->Fill(ChangingMatchingCone);
-	if (i->discriminator(ChangingMatchingCone,rSig_, rIso_, ptLeadTk_, minPtIsoRing_, nTracksInIsolationRing_) == 1)
+ 	if (i->discriminator(ChangingMatchingCone,rSig_, rIso_, ptLeadTk_, minPtIsoRing_, nTracksInIsolationRing_) == 1)
 	  nTausTaggedvsMatchingConeSize_->Fill(ChangingMatchingCone);
 	  
       }
@@ -313,13 +316,15 @@ void TauTagVal::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 // ---------------------------------------------------------------------------  endJob -----------------------------------------------------------------------
 
 void TauTagVal::endJob(){
+  // just fill the denominator histograms for the changing cone sizes
 
+  
   
   double MC_Taus = nMCTaus_etaTauJet_->getEntries();
   double CaloJets_Taus = nRecoJet_etaTauJet_->getEntries();
   double CaloJetsLeadTrack_Taus = nRecoJet_LeadingTrack_etaTauJet_->getEntries();
   double IsolatedTagged_Taus = nIsolatedJet_etaTauJet_->getEntries();
-
+  
   std::streamsize prec = cout.precision();
  
   cout<<setfill('-')<<setw(110)<<"-"<<endl;
@@ -438,7 +443,16 @@ std::vector<TLorentzVector> TauTagVal::getVectorOfVisibleTauJets(HepMC::GenEvent
 		    nMCTaus_etaTauJet_->Fill(TauJetMC.Eta()); 
                     nMCTaus_phiTauJet_->Fill(TauJetMC.Phi()*180./TMath::Pi());
 		    nMCTaus_energyTauJet_->Fill(TauJetMC.E());
-
+		    for (int jj =0; jj != 6; jj++){
+                      double ChangingIsoCone = jj*0.05 + 0.2;
+		      nTausTotvsConeIsolation_->Fill(ChangingIsoCone);
+		      double ChangingSigCone = jj*0.01+0.07;
+		      nTausTotvsConeSignal_->Fill(ChangingSigCone);
+		      int ChangingPtLeadTk = int(jj*1.0 + 2.0);
+		      nTausTotvsPtLeadingTrack_->Fill(double (ChangingPtLeadTk));
+		      double ChangingMatchingCone = jj*0.01 + 0.07;
+		      nTausTotvsMatchingConeSize_->Fill(ChangingMatchingCone);
+		    }
 		    tempvec.push_back(TauJetMC);
 		    ++numMCTaus;
 		  }
@@ -448,5 +462,5 @@ std::vector<TLorentzVector> TauTagVal::getVectorOfVisibleTauJets(HepMC::GenEvent
   } // closing the loop over the Particles at Generator level
 
   return tempvec;
-  //  cout<<" Number of Taus at Generator Level: "<< numMCTaus_ << endl; 
+  //  cout<<" Number of Taus at Generator Level: "<< numMCTaus << endl; 
 }
