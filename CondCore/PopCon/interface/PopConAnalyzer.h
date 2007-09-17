@@ -116,7 +116,7 @@ namespace popcon
 					if(m_debug)
 						std::cerr << "Begin Job\n"; 
 					try{
-						lgr = new Logger(m_popcon_db,m_payload_name,m_debug);
+						lgr = new Logger(m_popcon_db, m_offline_connection, m_payload_name,m_debug);
 						//lock the run (other instances of analyzer of the same typename will be blocked till the end of execution)
 						lgr->lock();
 						//log the new app execution

@@ -26,39 +26,51 @@ popcon::StateCreator::StateCreator(std::string connectionString, std::string off
 		std::cerr<< "State creator: " << " Constructor\n";	
 
 	nfo.object_name = oname;
+	
+	//do not check the state for sqlite DBs
+	std::string::size_type loc = m_offline.find( "sqlite_file", 0 );
+	if( loc == std::string::npos ) {
+		m_sqlite = false;
 
-	//m_connect="oracle://rls1/CMSTHUSER";
-	session=new cond::DBSession();
-	condsession=new cond::DBSession();
+		//m_connect="oracle://rls1/CMSTHUSER";
+		session=new cond::DBSession();
+		condsession=new cond::DBSession();
 
-	session->sessionConfiguration().setAuthenticationMethod( cond::XML );
-	if (m_debug)
-		session->sessionConfiguration().setMessageLevel( cond::Debug );
-	else
-		session->sessionConfiguration().setMessageLevel( cond::Error );
+		session->sessionConfiguration().setAuthenticationMethod( cond::XML );
+		if (m_debug)
+			session->sessionConfiguration().setMessageLevel( cond::Debug );
+		else
+			session->sessionConfiguration().setMessageLevel( cond::Error );
 
-	condsession->sessionConfiguration().setAuthenticationMethod( cond::XML );
-	if (m_debug)
-		condsession->sessionConfiguration().setMessageLevel( cond::Debug );
-	else
-		condsession->sessionConfiguration().setMessageLevel( cond::Error );
-	session->connectionConfiguration().setConnectionRetrialTimeOut(60);
-	session->connectionConfiguration().enableConnectionSharing();
-	//session->connectionConfiguration().enableReadOnlySessionOnUpdateConnections();
-	initialize();
+		condsession->sessionConfiguration().setAuthenticationMethod( cond::XML );
+		if (m_debug)
+			condsession->sessionConfiguration().setMessageLevel( cond::Debug );
+		else
+			condsession->sessionConfiguration().setMessageLevel( cond::Error );
+		session->connectionConfiguration().setConnectionRetrialTimeOut(60);
+		session->connectionConfiguration().enableConnectionSharing();
+		//session->connectionConfiguration().enableReadOnlySessionOnUpdateConnections();
+		initialize();
+	}
+	else 
+		m_sqlite = true;
 }
 
 popcon::StateCreator::~StateCreator()
 { 
-	delete m_coraldb;
-	delete session;
-	delete condsession;
+	if (!m_sqlite){
+		delete m_coraldb;
+		delete session;
+		delete condsession;
+	}
 }
 
 void  popcon::StateCreator::initialize()
 {		
 	if (m_debug)
 		std::cerr<< "State creator: " << " initialize\n";	
+	if (m_sqlite)
+		return;
 	try{
 
 		session->open();
@@ -77,6 +89,8 @@ void  popcon::StateCreator::initialize()
 
 void popcon::StateCreator::disconnect()
 {
+	if (m_sqlite)
+		return;
 	m_coraldb->disconnect();	
 }
 
@@ -93,6 +107,8 @@ void popcon::StateCreator::storeStatusData()
 {
 	if (m_debug)
 		std::cerr<< "State creator: " << " store status data\n";	
+	if (m_sqlite)
+		return;
 	try{	
 		m_coraldb->startTransaction(false);
 		coral::ITable& mytable=m_coraldb->sessionProxy().nominalSchema().tableHandle("O2O_PAYLOAD_STATE");
@@ -123,6 +139,8 @@ void popcon::StateCreator::generateStatusData()
 	//FIXME using m_info_vector rather than parameter 
 	if (m_debug)
 		std::cerr<< "State creator: " << " generate status data\n";	
+	if (m_sqlite)
+		return;
 
 	try{
 		cond::RelationalStorageManager status_db(m_offline, /*cond*/session);
@@ -213,6 +231,8 @@ bool popcon::StateCreator::previousExceptions(bool& fix)
 {
 	if (m_debug)
 		std::cerr<< "State creator: " << " previous exceptions\n";	
+	if (m_sqlite)
+		return false;
 
 	getStoredStatusData();
 	if(m_saved_state.except_description != "")	//exception
@@ -227,6 +247,8 @@ bool popcon::StateCreator::previousExceptions(bool& fix)
 
 bool popcon::StateCreator::checkAndCompareState()
 {
+	if (m_sqlite)
+		return true;
 	getPoolTableName();
 	generateStatusData();
 	return compareStatusData();
@@ -244,6 +266,8 @@ void popcon::StateCreator::getStoredStatusData()
 {
 	if (m_debug)
 		std::cerr<< "State creator: " << "getStoredStatusData\n";	
+	if (m_sqlite)
+		return;
 	try{
 		//TODO Some error checking with exceptions
 		//

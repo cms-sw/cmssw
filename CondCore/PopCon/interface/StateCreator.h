@@ -40,6 +40,9 @@ namespace popcon{
 	
 			void initialize();
 			void disconnect();
+		private:
+
+			bool m_sqlite;
 			
 			//name of the schema (to be determined by object name)
 			DBInfo nfo;

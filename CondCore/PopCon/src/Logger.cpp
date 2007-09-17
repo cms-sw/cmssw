@@ -17,31 +17,42 @@
 #include "CoralBase/TimeStamp.h"
 
 #include "CondCore/PopCon/interface/Exception.h"
+#include <string>
 
 
-popcon::Logger::Logger (std::string connectionString,std::string name, bool dbg) : m_obj_name(name), m_connect(connectionString), m_debug(dbg), m_established(false) {
+popcon::Logger::Logger (std::string connectionString, std::string offlineString,std::string name, bool dbg) : m_obj_name(name), m_connect(connectionString), 
+m_offline(offlineString), m_debug(dbg), m_established(false)  {
 
 	//W A R N I N G - session has to be alive throughout object lifetime
 	//otherwiese there will be problems with currvals of the sequences
 
-
-	session=new cond::DBSession(false);
-	session->sessionConfiguration().setAuthenticationMethod( cond::XML );
-	if (m_debug)
-		session->sessionConfiguration().setMessageLevel( cond::Debug );
-	else	
-		session->sessionConfiguration().setMessageLevel( cond::Error );
-	session->connectionConfiguration().setConnectionRetrialTimeOut(60);
-	session->connectionConfiguration().enableConnectionSharing();
-	session->connectionConfiguration().enableReadOnlySessionOnUpdateConnections();
-	initialize();
+	std::string::size_type loc = m_offline.find( "sqlite_file", 0 );
+	if( loc == std::string::npos ) {
+		m_sqlite = false;
+		session=new cond::DBSession(false);
+		session->sessionConfiguration().setAuthenticationMethod( cond::XML );
+		if (m_debug)
+			session->sessionConfiguration().setMessageLevel( cond::Debug );
+		else	
+			session->sessionConfiguration().setMessageLevel( cond::Error );
+		session->connectionConfiguration().setConnectionRetrialTimeOut(60);
+		session->connectionConfiguration().enableConnectionSharing();
+		session->connectionConfiguration().enableReadOnlySessionOnUpdateConnections();
+		initialize();
+	}
+	else{ 
+		m_sqlite=true;
+	}
 }
 
 popcon::Logger::~Logger ()
 {	
-	disconnect();
-	delete m_coraldb;
-	delete session;
+	if (!m_sqlite)
+	{
+		disconnect();
+		delete m_coraldb;
+		delete session;
+	}
 }
 
 void  popcon::Logger::initialize()
@@ -71,6 +82,8 @@ void  popcon::Logger::initialize()
 
 void popcon::Logger::disconnect()
 {
+	if (m_sqlite)
+		return;
 	if (!m_established)
 	{
 		std::cerr << " Logger::disconnect - connection has not been established, skipping\n";
@@ -111,6 +124,8 @@ void popcon::Logger::payloadIDMap()
 
 void popcon::Logger::lock()
 {
+	if (m_sqlite)
+		return;
 	std::cerr<< " Locking\n";
 	if (!m_established)
 		throw popcon::Exception("Logger::lock exception ");
@@ -136,6 +151,8 @@ void popcon::Logger::lock()
 
 void popcon::Logger::unlock()
 {
+	if (m_sqlite)
+		return;
 	if (!m_established)
 		return;
 	std::cerr<< " Unlocking\n";
@@ -188,6 +205,8 @@ void popcon::Logger::updatePayloadID()
 }
 void popcon::Logger::newExecution()
 {
+	if (m_sqlite)
+		return;
 	if (m_debug)
 		std::cerr << "Logger::newExecution\n";
 
@@ -217,6 +236,8 @@ void popcon::Logger::newExecution()
 }
 void popcon::Logger::newPayload()
 {
+	if (m_sqlite)
+		return;
 	if (m_debug)
 		std::cerr << "Logger::newPayload\n";
 	//m_coraldb->startTransaction(false);
@@ -236,6 +257,8 @@ void popcon::Logger::newPayload()
 
 void popcon::Logger::finalizeExecution(std::string ok)
 {
+	if (m_sqlite)
+		return;
 	if (m_debug)
 		std::cerr << "Logger::finalizeExecution\n";
 	if (!m_established)
@@ -266,6 +289,8 @@ void popcon::Logger::finalizeExecution(std::string ok)
 }
 void popcon::Logger::finalizePayload(std::string ok)
 {
+	if (m_sqlite)
+		return;
 	if (m_debug)
 		std::cerr << "Logger::finalizePayload\n";
 	updatePayloadID();

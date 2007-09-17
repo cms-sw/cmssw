@@ -20,7 +20,7 @@ namespace popcon
 	class Logger
 	{
 		public:	
-			Logger(std::string connectionString, std::string payloadName, bool debug);
+			Logger(std::string connectionString, std::string offlineString, std::string payloadName, bool debug);
 			virtual ~Logger();
 
 			void finalizePayload(std::string ok="OK");
@@ -39,8 +39,10 @@ namespace popcon
 
 			std::string m_obj_name;
 			std::string m_connect;
+			std::string m_offline;
 			bool m_debug;
 			bool m_established;
+			bool m_sqlite;
 
 			unsigned int m_exec_id;
 			unsigned int m_payload_id;
