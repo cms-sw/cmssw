@@ -1,6 +1,6 @@
 //<<<<<< INCLUDES                                                       >>>>>>
 
-#include "Utilities/StorageFactory/interface/RFIOStorageMaker.h"
+#include "Utilities/StorageFactory/plugins/RFIOStorageMaker.h"
 #include "Utilities/RFIOAdaptor/interface/RFIOFile.h"
 #include "Utilities/RFIOAdaptor/interface/RFIO.h"
 
@@ -16,7 +16,6 @@
 //<<<<<< PUBLIC FUNCTION DEFINITIONS                                    >>>>>>
 //<<<<<< MEMBER FUNCTION DEFINITIONS                                    >>>>>>
 
-
 namespace {
 
   /* cope with new RFIO TURL stile
@@ -31,15 +30,19 @@ namespace {
       // old syntax
       p=0;       
       // special treatment for /dpm: use old syntax
-      size_t c = path.find("/dpm/");
-      if (c!=std::string::npos) {
-	p = c;
-      }
-      // special treatment for /castor
-      c = path.find("/castor/");
-      if (c!=std::string::npos) {
+      size_t e = path.find_first_not_of ("/");
+      size_t c = path.find("/castor/");
+      if (c==e-1) {
 	p = c;
 	ret = "rfio:///?path=";
+      }
+      else {
+        // special treatment for /castor
+        c = path.find("/dpm/");
+        if (c==e-1) {
+	  p = c;
+	  ret = "rfio:///?path=";
+        }
       }
     }
     else {
@@ -54,7 +57,6 @@ namespace {
     }
     return ret+path.substr(p);
   }
-  
 }
 
 RFIOStorageMaker::RFIOStorageMaker() {
@@ -80,13 +82,14 @@ RFIOStorageMaker::doCheck (const std::string &proto,
 		         const std::string &path,
 		         seal::IOOffset *size /* = 0 */)
 {
-    if (rfio_access (normalizeURL(path).c_str (), R_OK) != 0)
+    std::string npath = normalizeURL(path);
+    if (rfio_access (npath.c_str (), R_OK) != 0)
 	return false;
 
     if (size)
     {
 	struct stat64 buf;
-	if (rfio_stat64 (normalizeURL(path).c_str (), &buf) != 0)
+	if (rfio_stat64 (npath.c_str (), &buf) != 0)
 	    return false;
 
 	*size = buf.st_size;

@@ -1,6 +1,6 @@
 //<<<<<< INCLUDES                                                       >>>>>>
 
-#include "Utilities/StorageFactory/interface/ZipMemberStorageMaker.h"
+#include "Utilities/StorageFactory/plugins/ZipMemberStorageMaker.h"
 #include "Utilities/StorageFactory/interface/StorageFactory.h"
 #include "SealZip/ZipArchive.h"
 #include "SealZip/ZipMember.h"

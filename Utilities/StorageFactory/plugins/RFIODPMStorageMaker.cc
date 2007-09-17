@@ -1,7 +1,7 @@
 //<<<<<< INCLUDES                                                       >>>>>>
 
-#include "Utilities/StorageFactory/interface/RedirectStorageMaker.h"
-#include "Utilities/StorageFactory/interface/StorageFactory.h"
+#include "Utilities/StorageFactory/plugins/RFIODPMStorageMaker.h"
+#include "Utilities/StorageFactory/interface/StorageMakerFactory.h"
 
 //<<<<<< PRIVATE DEFINES                                                >>>>>>
 //<<<<<< PRIVATE CONSTANTS                                              >>>>>>
@@ -13,12 +13,5 @@
 //<<<<<< PUBLIC FUNCTION DEFINITIONS                                    >>>>>>
 //<<<<<< MEMBER FUNCTION DEFINITIONS                                    >>>>>>
 
-seal::Storage *
-RedirectStorageMaker::doOpen (const std::string &proto,
-		            const std::string &path,
-			    int mode,
-		            const std::string &tmpdir)
-{
-    // Strip off proto and send rest back to factory.
-    return StorageFactory::get ()->open (path, mode, tmpdir);
-}
+using edm::storage::StorageMakerFactory;
+DEFINE_EDM_PLUGIN (StorageMakerFactory, RFIODPMStorageMaker, "dpm");

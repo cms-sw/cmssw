@@ -1,3 +1,9 @@
+2007-09-17  Shahzad Muzaffar <Shahzad.Muzaffar@cern.ch>
+
+	* *: Cleanup. Moved all storage makers types in to plugins directory
+	and now StorageFactory only provides interface for different storage
+	makers types. New plugin for DPM implementation of RFIO added.
+
 2007-07-25  William Tanenbaum <wmtan@fnal.gov>
 
 	* DCacheStorageMaker.h, GsiFTPStorageMaker.h,

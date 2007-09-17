@@ -1,6 +1,6 @@
 //<<<<<< INCLUDES                                                       >>>>>>
 
-#include "Utilities/StorageFactory/interface/LocalStorageMaker.h"
+#include "Utilities/StorageFactory/plugins/LocalStorageMaker.h"
 #include "SealBase/IOStatus.h"
 #include "SealBase/Filename.h"
 #include "SealBase/File.h"

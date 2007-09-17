@@ -1,6 +1,6 @@
 //<<<<<< INCLUDES                                                       >>>>>>
 
-#include "Utilities/StorageFactory/interface/GsiFTPStorageMaker.h"
+#include "Utilities/StorageFactory/plugins/GsiFTPStorageMaker.h"
 #include "SealBase/File.h"
 #include "SealBase/Filename.h"
 #include "SealBase/TempFile.h"

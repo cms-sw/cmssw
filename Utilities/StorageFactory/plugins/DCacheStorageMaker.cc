@@ -1,6 +1,6 @@
 //<<<<<< INCLUDES                                                       >>>>>>
 
-#include "Utilities/StorageFactory/interface/DCacheStorageMaker.h"
+#include "Utilities/StorageFactory/plugins/DCacheStorageMaker.h"
 #include "Utilities/DCacheAdaptor/interface/DCacheFile.h"
 #include<unistd.h>
 #include <dcap.h>

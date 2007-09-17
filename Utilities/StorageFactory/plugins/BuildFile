@@ -1,5 +1,19 @@
 <use name=Utilities/StorageFactory>
-<library file=module.cc name=UtilitiesStorageFactoryPlugins>
+<library file="module.cc DCacheStorageMaker.cc GsiFTPStorageMaker.cc HttpStorageMaker.cc LocalStorageMaker.cc RedirectStorageMaker.cc ZipMemberStorage.cc" name=UtilitiesStorageFactoryPlugins>
+<use name=Foundation/SealZip>
+<use name=Utilities/DCacheAdaptor>
+<use name=dcap>
 <flags EDM_PLUGIN=1>
 </library>
 
+<library file="RFIOShiftStorageMaker.cc RFIOStorageMaker.cc" name=RFIOShiftStorageFactoryPlugins>
+<use name=Utilities/RFIOAdaptor>
+<use name=castor>
+<flags EDM_PLUGIN=1>
+</library>
+
+<library file="RFIODPMStorageMaker.cc RFIOStorageMaker.cc" name=RFIODPMStorageFactoryPlugins>
+<use name=Utilities/RFIOAdaptor>
+<use name=dpm>
+<flags EDM_PLUGIN=1>
+</library>

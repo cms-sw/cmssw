@@ -1,6 +1,6 @@
 //<<<<<< INCLUDES                                                       >>>>>>
 
-#include "Utilities/StorageFactory/interface/HttpStorageMaker.h"
+#include "Utilities/StorageFactory/plugins/HttpStorageMaker.h"
 #include "SealBase/File.h"
 #include "SealBase/Filename.h"
 #include "SealBase/TempFile.h"
