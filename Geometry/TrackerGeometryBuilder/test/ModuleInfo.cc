@@ -309,11 +309,11 @@ ModuleInfo::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
 	Output << " TIB" << side << "\t" << "Layer " << theLayer << " " << part
 	       << "\t" << "string " << theString[2] << "\t" << " module " << theModule << " " << name << "\t";
 	if ( fromDDD_ && printDDD_ ) {
-	  Output << "son of " << modules[i]->parents()[modules[i]->parents().size()-3].logicalPart().name() << std::endl;
+	  Output << "son of " << modules[i]->parents()[modules[i]->parents().size()-3].logicalPart().name();
 	} else {
 	  Output << " NO DDD Hierarchy available ";
 	}
-	Output << modules[i]->translation().X() << "   \t" << modules[i]->translation().Y() << "   \t" << modules[i]->translation().Z() << std::endl;
+	Output << " " << modules[i]->translation().X() << "   \t" << modules[i]->translation().Y() << "   \t" << modules[i]->translation().Z() << std::endl;
 	break;
       }
       
@@ -341,11 +341,11 @@ ModuleInfo::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
 	Output << " TID" << side << "\t" << "Disk " << theDisk << " Ring " << theRing << " " << part
 	       << "\t" << " module " << theModule[1] << "\t" << name << "\t";
 	if ( fromDDD_ && printDDD_ ) {
-	  Output << "son of " << modules[i]->parents()[modules[i]->parents().size()-3].logicalPart().name() << std::endl;
+	  Output << "son of " << modules[i]->parents()[modules[i]->parents().size()-3].logicalPart().name();
 	} else {
 	  Output << " NO DDD Hierarchy available ";
 	}
-	Output << modules[i]->translation().X() << "   \t" << modules[i]->translation().Y() << "   \t" << modules[i]->translation().Z() << std::endl;
+	Output << " " << modules[i]->translation().X() << "   \t" << modules[i]->translation().Y() << "   \t" << modules[i]->translation().Z() << std::endl;
 	break;
       }
       
@@ -372,11 +372,11 @@ ModuleInfo::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
 	Output << " TOB" << side << "\t" << "Layer " << theLayer 
 	       << "\t" << "rod " << theRod[1] << " module " << theModule << "\t" << name << "\t" ;
 	if ( fromDDD_ && printDDD_ ) {
-	  Output << "son of " << modules[i]->parents()[modules[i]->parents().size()-3].logicalPart().name() << std::endl;
+	  Output << "son of " << modules[i]->parents()[modules[i]->parents().size()-3].logicalPart().name();
 	} else {
 	  Output << " NO DDD Hierarchy available ";
 	}
-	Output << modules[i]->translation().X() << "   \t" << modules[i]->translation().Y() << "   \t" << modules[i]->translation().Z() << std::endl;
+	Output << " " << modules[i]->translation().X() << "   \t" << modules[i]->translation().Y() << "   \t" << modules[i]->translation().Z() << std::endl;
 	break;
       }
       
@@ -410,11 +410,11 @@ ModuleInfo::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
 	Output << " TEC" << side << "\t" << "Wheel " << theWheel << " Petal " << thePetal[1] << " " << petal << " Ring " << theRing << "\t"
 	       << "\t" << " module " << theModule << "\t" << name << "\t";
 	if ( fromDDD_ && printDDD_ ) {
-	  Output << "son of " << modules[i]->parents()[modules[i]->parents().size()-3].logicalPart().name() << std::endl;
+	  Output << "son of " << modules[i]->parents()[modules[i]->parents().size()-3].logicalPart().name();
 	} else {
 	  Output << " NO DDD Hierarchy available ";
 	}
-	Output << modules[i]->translation().X() << "   \t" << modules[i]->translation().Y() << "   \t" << modules[i]->translation().Z() << std::endl;
+	Output << " " << modules[i]->translation().X() << "   \t" << modules[i]->translation().Y() << "   \t" << modules[i]->translation().Z() << std::endl;
 	
 	// TEC output as Martin Weber's
 	int out_side  = (module.side() == 1 ) ? -1 : 1;
