@@ -15,7 +15,7 @@
 //
 // Original Author:  Freya Blekman
 //         Created:  Mon May  7 14:22:37 CEST 2007
-// $Id: SiPixelGainCalibrationAnalysis.h,v 1.9 2007/09/06 12:24:53 friis Exp $
+// $Id: SiPixelGainCalibrationAnalysis.h,v 1.10 2007/09/12 13:33:18 fblekman Exp $
 //
 //
 
@@ -107,6 +107,7 @@ class SiPixelGainCalibrationAnalysis : public edm::EDAnalyzer {
       std::map < uint32_t, TH1F*> summaries1D_pedestal_;
       std::map < uint32_t, TH1F*> summaries1D_gain_;
       std::map < uint32_t, TH1F*> summaries1D_chi2_;
+      std::map < uint32_t, TH1F*> summaries1D_chi2prob_;
       std::map < uint32_t, TH1F*> summaries1D_plat_;
       std::map < uint32_t, TH2F*> summaries_pedestal_;
       std::map < uint32_t, TH2F*> summaries_gain_;

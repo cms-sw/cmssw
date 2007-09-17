@@ -13,7 +13,7 @@
 //
 // Original Author:  Freya Blekman
 //         Created:  Mon May  7 14:22:37 CEST 2007
-// $Id: SiPixelGainCalibrationAnalysis.cc,v 1.9 2007/09/06 12:24:54 friis Exp $
+// $Id: SiPixelGainCalibrationAnalysis.cc,v 1.10 2007/09/12 13:33:22 fblekman Exp $
 //
 //
 
@@ -142,6 +142,8 @@ bool SiPixelGainCalibrationAnalysis::doFits(){
     TFileDirectory thisdir = therootfileservice_->mkdir(detidname.Data(),detidname.Data());
     for(uint32_t ipixel=0; ipixel<calibPixels_[detid].size(); ipixel++){
       //      std::cout << "event : " << eventno_counter_ << " summary for pixel : " << ipixel << "(="<< detid << ","<< colrowpairs_[detid][ipixel].first << "," << colrowpairs_[detid][ipixel].second<<")"<<  std::endl;
+    
+      float chi2prob = -1;
       float chi2=-1;
       float ped = 255;
       float gain = 255;
@@ -219,6 +221,7 @@ bool SiPixelGainCalibrationAnalysis::doFits(){
       //std::cout << "***********************************************************************************EK**********************" << std::endl;
       //std::cout << "fit 0 " << func->GetParameter(0) << "   fit 1 " << func->GetParameter(1) << std::endl;
   
+      chi2prob = func->GetProb();
       chi2=func->GetChisquare()/func->GetNDF();
       ped = 255;
       gain = 255;
@@ -317,7 +320,7 @@ bool SiPixelGainCalibrationAnalysis::doFits(){
       ped =func->GetParameter(0);
       gain = func->GetParameter(1);
       chi2 = func->GetChisquare()/func->GetNDF();
-
+      chi2prob = func->GetProb();
       if(gain==0){// check that the summaries are already filled, do not fill histograms if so.
 	if(summaries_gain_[detid]->GetBinContent(colrowpairs_[detid][ipixel].second,colrowpairs_[detid][ipixel].first)>0.0001)
 	  continue;
@@ -335,6 +338,7 @@ bool SiPixelGainCalibrationAnalysis::doFits(){
       summaries1D_gain_[detid]->Fill(gain);
       summaries1D_plat_[detid]->Fill(plat);
       summaries1D_chi2_[detid]->Fill(chi2);
+      summaries1D_chi2prob_[detid]->Fill(chi2prob);
       summaries_pedestal_[detid]->Fill(colrowpairs_[detid][ipixel].second,colrowpairs_[detid][ipixel].first,ped);
       summaries_gain_[detid]->Fill(colrowpairs_[detid][ipixel].second,colrowpairs_[detid][ipixel].first,gain);
       summaries_plat_[detid]->Fill(colrowpairs_[detid][ipixel].second,colrowpairs_[detid][ipixel].first,plat);
@@ -456,6 +460,8 @@ SiPixelGainCalibrationAnalysis::analyze(const edm::Event& iEvent, const edm::Eve
        titleplat1d+=" plateau in all pixels";
        TString titlechi21d = detstring;
        titlechi21d+=" #chi^{2} / NDOF in all pixels";
+       TString titlechi2prob1d = detstring;
+       titlechi2prob1d+=" #chi^{2} probability [P(#chi^{2],NDOF) ] in all pixels";
        TString titleped2d = detstring;
        titleped2d+=" pedestals";
        TString titlegain2d = detstring;
@@ -471,6 +477,7 @@ SiPixelGainCalibrationAnalysis::analyze(const edm::Event& iEvent, const edm::Eve
        if(fast_no_plots_)
 	 break;
        summaries1D_chi2_[detid]=therootfileservice_->make<TH1F>(titlechi21d.Data(),titlechi21d.Data(),100,0,20);
+       summaries1D_chi2prob_[detid]=therootfileservice_->make<TH1F>(titlechi2prob1d.Data(),titlechi2prob1d.Data(),100,0,1);
        summaries1D_plat_[detid]=therootfileservice_->make<TH1F>(titleplat1d.Data(),titleplat1d.Data(),256,0,256);
        summaries_chi2_[detid]=therootfileservice_->make<TH2F>(titlechi22d.Data(),titlechi22d.Data(),maxcol,0,maxcol,maxrow,0,maxrow);
        summaries_plat_[detid]=therootfileservice_->make<TH2F>(titleplat2d.Data(),titleplat2d.Data(),maxcol,0,maxcol,maxrow,0,maxrow);
@@ -577,6 +584,11 @@ SiPixelGainCalibrationAnalysis::endJob(){
     if(summaries_gain_[detid]->GetMaximum()>maxGain)
       maxGain = summaries_gain_[detid]->GetMaximum();
   }  
+  // set the range slightly (2%) wider
+  minPed*=0.98;
+  maxPed*=1.02;
+  minGain*=0.98;
+  maxGain*=1.02;
   SiPixelGainCalibration_ = new SiPixelGainCalibration(minPed,maxPed,minGain,maxGain);
   
   for(std::map<uint32_t, uint32_t>::iterator imap = detIDmap_.begin(); imap!=detIDmap_.end(); imap++){
@@ -592,12 +604,8 @@ SiPixelGainCalibrationAnalysis::endJob(){
 	  ped=maxPed;
 	  gain=maxGain;
 	}
-	else if(ped<minimum_ped_||ped>maximum_ped_||gain<minimum_gain_||gain>maximum_gain_){
-	  ped=maxPed;
-	  gain=maxGain;
-	}
-	//	std::cout << "Detid,row,col: "<< detid << ","<<irow<< "," << icol << " ped,gain:" << ped << "," << gain <<  std::endl;
-	SiPixelGainCalibration_->setData( gain, ped, theSiPixelGainCalibration);
+
+	SiPixelGainCalibration_->setData( ped,gain,  theSiPixelGainCalibration);
       }// loop over rows...
     } // loop over columns ...  
     std::cout << "now starting to fill database..." << std::endl;
