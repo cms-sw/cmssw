@@ -3,6 +3,7 @@
   <class name="L1MuTriggerScales"/>
   <class name="L1MuGMTScales"/>
   <class name="L1CaloEtScale"/>
+  <class name="L1GctJetCounterSetup"/>
   <class name="L1GctJetEtCalibrationFunction"/>
   <class name="L1GctJetFinderParams"/>
   <class name="L1MuDTExtLut"/>
