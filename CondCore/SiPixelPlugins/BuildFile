@@ -3,7 +3,7 @@
 <use name=CondCore/PluginSystem>
 <use name=CondFormats/SiPixelObjects>
 <use name=CondFormats/DataRecord>
-
+<use name=CalibFormats/SiPixelObjects>
 <flags EDM_PLUGIN=1>
 <export>
    <lib name=CondCoreSiPixelPlugins>
@@ -12,4 +12,5 @@
    <use name=CondCore/PluginSystem>
    <use name=CondFormats/SiPixelObjects>
    <use name=CondFormats/DataRecord>
+   <use name=CalibFormats/SiPixelObjects>
 </export>

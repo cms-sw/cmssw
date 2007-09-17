@@ -8,9 +8,13 @@
 #include "CondFormats/DataRecord/interface/SiPixelLorentzAngleRcd.h"
 #include "CondFormats/SiPixelObjects/interface/PixelCPEParmErrors.h"
 #include "CondFormats/DataRecord/interface/PixelCPEParmErrorsRcd.h"
+#include "CalibFormats/SiPixelObjects/interface/SiPixelCalibConfiguration.h"
+#include "CondFormats/DataRecord/interface/SiPixelCalibConfigurationRcd.h"
 
 DEFINE_SEAL_MODULE();
 REGISTER_PLUGIN(SiPixelFedCablingMapRcd,SiPixelFedCablingMap);
 REGISTER_PLUGIN(SiPixelGainCalibrationRcd,SiPixelGainCalibration);
 REGISTER_PLUGIN(SiPixelLorentzAngleRcd,SiPixelLorentzAngle);
 REGISTER_PLUGIN(PixelCPEParmErrorsRcd,PixelCPEParmErrors);
+REGISTER_PLUGIN(SiPixelCalibConfigurationRcd,SiPixelCalibConfiguration);
+
