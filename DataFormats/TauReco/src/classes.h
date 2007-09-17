@@ -44,21 +44,31 @@ namespace {
     edm::Ref<std::vector<reco::CaloTau> >                       calot_r;
     edm::RefProd<std::vector<reco::CaloTau> >                   calot_rp;
     edm::RefVector<std::vector<reco::CaloTau> >                 calot_rv;
-    edm::reftobase::Holder<reco::BaseTau,reco::CaloTauRef>  calot_rb;
+    edm::reftobase::Holder<reco::BaseTau,reco::CaloTauRef>      calot_rb;
 
     std::vector<reco::PFTau>                                    pft_v;
     edm::Wrapper<std::vector<reco::PFTau> >                     pft_w;
     edm::Ref<std::vector<reco::PFTau> >                         pft_r;
     edm::RefProd<std::vector<reco::PFTau> >                     pft_rp;
     edm::RefVector<std::vector<reco::PFTau> >                   pft_rv;
-    edm::reftobase::Holder<reco::BaseTau,reco::PFTauRef>    pft_rb;
+    edm::reftobase::Holder<reco::BaseTau,reco::PFTauRef>        pft_rb;
 
-    reco::CaloTauDiscriminatorByIsolation                       calotdi;
-    std::pair<reco::CaloTau,double>                             calotdi_p;
-    edm::Wrapper<reco::CaloTauDiscriminatorByIsolation>         calotdi_wc;
-    
-    reco::PFTauDiscriminatorByIsolation                         pftdi;
-    std::pair<reco::PFTau,double>                               pftdi_p;
-    edm::Wrapper<reco::PFTauDiscriminatorByIsolation>           pftdi_wc;
+    reco::CaloTauDiscriminatorByIsolationBase                   calotdi_b;         
+    reco::CaloTauDiscriminatorByIsolation                       calotdi_o;     
+    reco::CaloTauDiscriminatorByIsolationRef                    calotdi_r;     
+    reco::CaloTauDiscriminatorByIsolationRefProd                calotdi_rp;     
+    reco::CaloTauDiscriminatorByIsolationRefVector              calotdi_rv;     
+    edm::Wrapper<reco::CaloTauDiscriminatorByIsolation>         calotdi_w;     
+    std::pair<reco::CaloTauRef, int>                            calotdi_p;
+    std::vector<std::pair<reco::CaloTauRef, int> >              calotdi_v;
+  
+    reco::PFTauDiscriminatorByIsolationBase                     pftdi_b;         
+    reco::PFTauDiscriminatorByIsolation                         pftdi_o;     
+    reco::PFTauDiscriminatorByIsolationRef                      pftdi_r;     
+    reco::PFTauDiscriminatorByIsolationRefProd                  pftdi_rp;     
+    reco::PFTauDiscriminatorByIsolationRefVector                pftdi_rv;     
+    edm::Wrapper<reco::PFTauDiscriminatorByIsolation>           pftdi_w;     
+    std::pair<reco::PFTauRef, int>                              pftdi_p;
+    std::vector<std::pair<reco::PFTauRef, int> >                pftdi_v;    
   }
 }

@@ -7,7 +7,26 @@
 #include <vector>
 
 namespace reco {
-  typedef edm::AssociationVector<PFTauRefProd,std::vector<double> > PFTauDiscriminatorByIsolation;
+  typedef edm::AssociationVector<PFTauRefProd,std::vector<int> > PFTauDiscriminatorByIsolationBase;
+  
+  class PFTauDiscriminatorByIsolation : public PFTauDiscriminatorByIsolationBase {
+  public:
+    PFTauDiscriminatorByIsolation() :
+      PFTauDiscriminatorByIsolationBase()
+      { }
+    
+    PFTauDiscriminatorByIsolation(const reco::PFTauRefProd & ref) :
+      PFTauDiscriminatorByIsolationBase(ref)
+      { }
+    
+    PFTauDiscriminatorByIsolation(const PFTauDiscriminatorByIsolationBase &v) :
+      PFTauDiscriminatorByIsolationBase(v)
+      { }
+  };
+  
+  typedef PFTauDiscriminatorByIsolation::value_type PFTauDiscriminatorByIsolationVT;  
+  typedef edm::Ref<PFTauDiscriminatorByIsolation> PFTauDiscriminatorByIsolationRef;  
+  typedef edm::RefProd<PFTauDiscriminatorByIsolation> PFTauDiscriminatorByIsolationRefProd;  
+  typedef edm::RefVector<PFTauDiscriminatorByIsolation> PFTauDiscriminatorByIsolationRefVector; 
 }
 #endif
-

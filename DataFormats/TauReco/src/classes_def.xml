@@ -46,17 +46,35 @@
   <class name="edm::RefVector<std::vector<reco::PFTau>,reco::PFTau,edm::refhelper::FindUsingAdvance<std::vector<reco::PFTau>,reco::PFTau> >"/>
   <class name="edm::reftobase::Holder<reco::BaseTau, edm::Ref<std::vector<reco::PFTau>,reco::PFTau,edm::refhelper::FindUsingAdvance<std::vector<reco::PFTau>,reco::PFTau> > >" />
   
-  <class name="reco::CaloTauDiscriminatorByIsolation"/>
-  <class pattern="edm::AssociationVector<*>">
-     <field name="transientVector_" transient="true"/>
-     <field name="fixed_" transient="true"/>
+  <class name="reco::CaloTauDiscriminatorByIsolationBase">
+    <field name="transientVector_" transient="true"/>
+    <field name="fixed_" transient="true"/>
   </class>
-  <class pattern="edm::Wrapper<edm::AssociationVector<*>"/>
+  <class name="reco::CaloTauDiscriminatorByIsolation">
+    <field name="transientVector_" transient="true"/>
+    <field name="fixed_" transient="true"/>
+  </class>
+  <class name="reco::CaloTauDiscriminatorByIsolationRef"/>
+  <class name="reco::CaloTauDiscriminatorByIsolationRefProd"/>
+  <class name="reco::CaloTauDiscriminatorByIsolationRefVector"/>
+  <class name="edm::Wrapper<reco::CaloTauDiscriminatorByIsolation>"/>
+  
+  <class name="std::pair<reco::CaloTauRef, int>"/>
+  <class name="std::vector<std::pair<reco::CaloTauRef, int> >" />
 
-  <class name="reco::PFTauDiscriminatorByIsolation"/>
-  <class pattern="edm::AssociationVector<*>">
-     <field name="transientVector_" transient="true"/>
-     <field name="fixed_" transient="true"/>
+  <class name="reco::PFTauDiscriminatorByIsolationBase">
+    <field name="transientVector_" transient="true"/>
+    <field name="fixed_" transient="true"/>
   </class>
-  <class pattern="edm::Wrapper<edm::AssociationVector<*>"/>
+  <class name="reco::PFTauDiscriminatorByIsolation">
+    <field name="transientVector_" transient="true"/>
+    <field name="fixed_" transient="true"/>
+  </class>
+  <class name="reco::PFTauDiscriminatorByIsolationRef"/>
+  <class name="reco::PFTauDiscriminatorByIsolationRefProd"/>
+  <class name="reco::PFTauDiscriminatorByIsolationRefVector"/>
+  <class name="edm::Wrapper<reco::PFTauDiscriminatorByIsolation>"/>
+  
+  <class name="std::pair<reco::PFTauRef, int>"/>
+  <class name="std::vector<std::pair<reco::PFTauRef, int> >" />
 </lcgdict>
