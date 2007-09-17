@@ -28,7 +28,7 @@ reference type.
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Apr  3 16:37:59 EDT 2006
-// $Id: RefToBase.h,v 1.26 2007/09/14 08:28:05 llista Exp $
+// $Id: RefToBase.h,v 1.27 2007/09/14 12:35:45 llista Exp $
 //
 
 // system include files
@@ -59,6 +59,7 @@ namespace edm {
   template<typename C, typename T, typename F> class Ref;
   template<typename C> class RefProd;
   template<typename T> class RefToBaseProd;
+  template<typename T> class View;
 
   template <class T>
   class RefToBase
@@ -72,11 +73,11 @@ namespace edm {
     explicit RefToBase(Ref<C1, T1, F1> const& r);
     template <typename C> 
     explicit RefToBase(RefProd<C> const& r);
-    explicit RefToBase(RefToBaseProd<T> const& r, size_t i);
+    RefToBase(RefToBaseProd<T> const& r, size_t i);
+    RefToBase(Handle<View<T> > const& handle, size_t i);
     template <typename T1>
     explicit RefToBase(RefToBase<T1> const & r );
     RefToBase(boost::shared_ptr<reftobase::RefHolderBase> p);
-
     ~RefToBase();
 
     RefToBase const& operator= (RefToBase const& rhs);
@@ -329,6 +330,8 @@ namespace edm {
 }
 
 #include "DataFormats/Common/interface/RefToBaseProd.h"
+#include "DataFormats/Common/interface/Handle.h"
+#include "DataFormats/Common/interface/View.h"
 
 namespace edm {
   template <class T>
@@ -339,6 +342,16 @@ namespace edm {
     reftobase::BaseHolder<value_type> * h = ri.holder_;
     holder_ = h->clone();
   }
+
+  template<typename T>
+  inline 
+  RefToBase<T>::RefToBase(Handle<View<T> > const& handle, size_t i) {
+    const View<T> * v = handle.operator->();
+    RefToBase<T> ri = v->refAt( i );
+    reftobase::BaseHolder<value_type> * h = ri.holder_;
+    holder_ = h->clone();
+  }
+
 }
 
 #endif

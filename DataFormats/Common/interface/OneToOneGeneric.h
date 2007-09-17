@@ -23,8 +23,10 @@ namespace edm {
   }
 
   template<typename CKey, typename CVal, typename index = unsigned int,
-    typename KeyRefProd = RefProd<CKey>, typename ValRefProd = RefProd<CVal>,
-    typename KeyRef = Ref<CKey>, typename ValRef = Ref<CVal> >
+    typename KeyRefProd = typename helper::MapRefViewTrait<CKey>::refprod_type, 
+    typename ValRefProd = typename helper::MapRefViewTrait<CVal>::refprod_type, 
+    typename KeyRef = typename helper::MapRefViewTrait<CKey>::ref_type, 
+    typename ValRef = typename helper::MapRefViewTrait<CVal>::ref_type >
   class OneToOneGeneric {
     /// reference to "key" collection
     typedef KeyRefProd keyrefprod_type;
