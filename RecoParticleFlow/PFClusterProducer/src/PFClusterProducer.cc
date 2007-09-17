@@ -933,7 +933,7 @@ PFClusterProducer::createHcalRecHit( const DetId& detid,
 			0,0,0 );
  
   // set the corners
-  const vector<GlobalPoint>& corners = thisCell->getCorners();
+  const CaloCellGeometry::CornersVec& corners = thisCell->getCorners();
 //   cout<<"number of corners "<<corners.size()<<endl;
 //   for(unsigned i=0; i<corners.size(); i++) {
 //     cout<<" "<<i<<"\t"
