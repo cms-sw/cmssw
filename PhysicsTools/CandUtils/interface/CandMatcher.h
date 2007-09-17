@@ -10,12 +10,13 @@
 #include "DataFormats/Common/interface/AssociationMap.h"
 #include "DataFormats/Common/interface/OneToOne.h"
 #include "FWCore/Utilities/interface/EDMException.h"
+#include "PhysicsTools/CandUtils/interface/CandMapTrait.h"
 
-template<typename C>
+template<typename C1, typename C2 = C1>
 class CandMatcherBase {
 public:
   /// map type
-  typedef edm::AssociationMap<edm::OneToOne<C, reco::CandidateCollection> > map_type;
+  typedef typename reco::helper::CandMapTrait<C1, C2>::type map_type;
   /// map vector
   typedef std::vector<const map_type *> map_vector;
   /// concrete candidate reference type
