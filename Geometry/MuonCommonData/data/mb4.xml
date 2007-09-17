@@ -6,11 +6,16 @@
 
 <!--- ### The center of the HC is at 7220-[mbCommon:MBSL_posDisp] for all the MB4 (but the feet???) -->
 
-  <Constant name="MB4BigUnitRadius" value="7267.02187986935951*mm"/>
-  <Constant name="MB4BigPosAngle" value="-7.67032050510571217*deg"/>
+<!--- ### old  MB4 big center values -->
+  <!--- Constant name="MB4BigUnitRadius" value="7267.02187986935951*mm"/ -->
+  <!--- Constant name="MB4BigPosAngle" value="-7.67032050510571217*deg"/ -->
+
+<!--- ### corrected  MB4 big center values (14 Sept 2007)-->
+  <Constant name="MB4BigUnitRadius" value="7264.24876380895967*mm"/>
+  <Constant name="MB4BigPosAngle" value="-7.50616764184939633*deg"/>
 
   <Constant name="MB4BigPos_x" value="7220.*mm-[mbCommon:MBSL_posDisp]"/> 
-  <Constant name="MB4BigPos_y" value="-969.95*mm"/>  
+  <Constant name="MB4BigPos_y" value="-948.95*mm"/>  
 
   <Constant name="MB4SmallUnitRadius" value="7253.75964586641112*mm"/>
   <Constant name="MB4SmallPosAngle" value="-6.84873371708398970*deg"/>
