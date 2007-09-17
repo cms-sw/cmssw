@@ -13,7 +13,7 @@
 //
 // Original Author:  Freya Blekman
 //         Created:  Mon May  7 14:22:37 CEST 2007
-// $Id: SiPixelGainCalibrationAnalysis.cc,v 1.10 2007/09/12 13:33:22 fblekman Exp $
+// $Id: SiPixelGainCalibrationAnalysis.cc,v 1.11 2007/09/17 13:24:47 fblekman Exp $
 //
 //
 
@@ -99,8 +99,8 @@ SiPixelGainCalibrationAnalysis::SiPixelGainCalibrationAnalysis(const edm::Parame
   if(test_)
     save_histos_=true;
   
-  // std::auto_ptr <PixelCalib> bla( new PixelCalib(inputconfigfile_));
-  PixelCalib tempcalib(inputconfigfile_);
+  // std::auto_ptr <SiPixelCalibConfiguration> bla( new SiPixelCalibConfiguration(inputconfigfile_));
+  SiPixelCalibConfiguration tempcalib(inputconfigfile_);
   calib_ =tempcalib;
 
   //intiatialize list of plaquettes to save (default empty)
@@ -509,7 +509,7 @@ SiPixelGainCalibrationAnalysis::analyze(const edm::Event& iEvent, const edm::Eve
 	 pairindex==colrowpairs_[detid].size()-1;
 	 foundpair=true;
 	 while(colrowpairs_[detid].size()>calibPixels_[detid].size()){// colrowpairs_ gets reset, only expaind calibPixels_ when really necessary
-	   //	   PixelROCGainCalibPixel bla(calib_.nVcal());
+	   //	   PixelROCGainSiSiPixelCalibConfigurationConfiguration bla(calib_.nVcal());
 	   calibPixels_[detid].push_back(PixelROCGainCalibPixel(calib_.nVcal()));
 	 }
 	 if(!new_configuration_){

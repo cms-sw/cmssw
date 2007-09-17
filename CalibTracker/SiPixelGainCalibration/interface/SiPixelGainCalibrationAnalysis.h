@@ -15,7 +15,7 @@
 //
 // Original Author:  Freya Blekman
 //         Created:  Mon May  7 14:22:37 CEST 2007
-// $Id: SiPixelGainCalibrationAnalysis.h,v 1.10 2007/09/12 13:33:18 fblekman Exp $
+// $Id: SiPixelGainCalibrationAnalysis.h,v 1.11 2007/09/17 13:24:46 fblekman Exp $
 //
 //
 
@@ -39,7 +39,7 @@
 #include "CondFormats/DataRecord/interface/SiPixelFedCablingMapRcd.h"
 
 
-#include "CalibFormats/SiPixelObjects/interface/PixelCalib.h"
+#include "CalibFormats/SiPixelObjects/interface/SiPixelCalibConfiguration.h"
 #include "CalibTracker/SiPixelGainCalibration/interface/PixelROCGainCalib.h"
 #include "CalibTracker/SiPixelGainCalibration/interface/PixelROCGainCalibPixel.h"
 
@@ -67,7 +67,7 @@ class SiPixelGainCalibrationAnalysis : public edm::EDAnalyzer {
       // ----------member data ---------------------------
       // internal class for storing parameters
 
-      PixelCalib calib_; // keeps track of the calibration constants
+      SiPixelCalibConfiguration calib_; // keeps track of the calibration constants
 
       std::string recordName_;
       uint32_t eventno_counter_;
