@@ -13,7 +13,7 @@
 */
 //
 // Original Author:  Dmytro Kovalskyi
-// $Id: TrackAssociatorParameters.h,v 1.1 2007/03/20 06:46:32 dmytro Exp $
+// $Id: TrackAssociatorParameters.h,v 1.2 2007/04/13 03:09:27 dmytro Exp $
 //
 //
 
@@ -50,6 +50,8 @@ class TrackAssociatorParameters {
    /// distance from a chamber should be available as output of the TrackAssociation
    double muonMaxDistanceX;
    double muonMaxDistanceY;
+   double muonMaxDistanceSigmaX;
+   double muonMaxDistanceSigmaY;
    
    bool useEcal;
    bool useHcal;

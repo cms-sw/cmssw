@@ -10,7 +10,7 @@
 */
 //
 // Original Author:  Dmytro Kovalskyi
-// $Id: TrackAssociatorParameters.cc,v 1.1 2007/03/20 06:49:28 dmytro Exp $
+// $Id: TrackAssociatorParameters.cc,v 1.2 2007/04/13 03:09:27 dmytro Exp $
 //
 //
 
@@ -29,6 +29,8 @@ void TrackAssociatorParameters::loadParameters( const edm::ParameterSet& iConfig
    
    muonMaxDistanceX = iConfig.getParameter<double>("muonMaxDistanceX");
    muonMaxDistanceY = iConfig.getParameter<double>("muonMaxDistanceY");
+   muonMaxDistanceSigmaX = iConfig.getParameter<double>("muonMaxDistanceSigmaX");
+   muonMaxDistanceSigmaY = iConfig.getParameter<double>("muonMaxDistanceSigmaY");
    
    useEcal = iConfig.getParameter<bool>("useEcal");
    useHcal = iConfig.getParameter<bool>("useHcal");

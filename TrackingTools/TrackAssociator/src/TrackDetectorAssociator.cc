@@ -13,7 +13,7 @@
 //
 // Original Author:  Dmytro Kovalskyi
 //         Created:  Fri Apr 21 10:59:41 PDT 2006
-// $Id: TrackDetectorAssociator.cc,v 1.20 2007/06/25 21:06:50 jribnik Exp $
+// $Id: TrackDetectorAssociator.cc,v 1.21 2007/06/27 07:09:12 dmytro Exp $
 //
 //
 
@@ -163,7 +163,7 @@ TrackDetMatchInfo TrackDetectorAssociator::associate( const edm::Event& iEvent,
      "Configuration error! No subdetector was selected for the track association.";
    TimerStack timers;
    timers.push("TrackDetectorAssociator::associate",TimerStack::DetailedMonitoring);
-
+   
    SteppingHelixStateInfo trackOrigin(*innerState);
    info.stateAtIP = *innerState;
    cachedTrajectory_.setStateAtIP(trackOrigin);
@@ -217,7 +217,7 @@ TrackDetMatchInfo TrackDetectorAssociator::associate( const edm::Event& iEvent,
      cachedTrajectory_.setMaxDetectorRadius(HOmaxR);
      cachedTrajectory_.setMaxDetectorLength(HOmaxZ*2.);
    }
-
+   
    // If track extras exist and outerState is before HO maximum, then use outerState
    if (outerState) {
      if (outerState->position().perp()<HOmaxR && fabs(outerState->position().z())<HOmaxZ) {
@@ -608,9 +608,7 @@ DetIdAssociator::MapRange TrackDetectorAssociator::getMapRange( const std::pair<
 }
 
 void TrackDetectorAssociator::getMuonChamberMatches(std::vector<MuonChamberMatch>& matches,
-						    const float dRMuonPreselection,
-						    const float maxDistanceX,
-						    const float maxDistanceY)
+						    const AssociatorParameters& parameters)
 {
    // Strategy:
    //    Propagate through the whole detector, estimate change in eta and phi 
@@ -624,7 +622,10 @@ void TrackDetectorAssociator::getMuonChamberMatches(std::vector<MuonChamberMatch
    // timers.pop();
    // get the direction first
    SteppingHelixStateInfo trajectoryPoint = cachedTrajectory_.getStateAtHcal();
-   if (! trajectoryPoint.isValid() ) {
+   // If trajectory point at HCAL is not valid, try to use the outer most state of the
+   // trajectory instead.
+   if(! trajectoryPoint.isValid() ) trajectoryPoint = cachedTrajectory_.getOuterState();
+   if(! trajectoryPoint.isValid() ) {
       LogTrace("TrackAssociator") << 
 	"trajectory position at HCAL is not valid. Assume the track cannot reach muon detectors and skip it";
       return;
@@ -635,7 +636,7 @@ void TrackDetectorAssociator::getMuonChamberMatches(std::vector<MuonChamberMatch
      trajectoryPoint.position() <<"\n";
    
    DetIdAssociator::MapRange mapRange = getMapRange(cachedTrajectory_.trajectoryDelta(CachedTrajectory::FullTrajectory),
-						    dRMuonPreselection);
+						    parameters.dRMuonPreselection);
      
    // and find chamber DetIds
 
@@ -644,7 +645,6 @@ void TrackDetectorAssociator::getMuonChamberMatches(std::vector<MuonChamberMatch
      muonDetIdAssociator_.getDetIdsCloseToAPoint(trajectoryPoint.position(), mapRange);
    // timers.pop_and_push("MuonDetIdAssociator::getTrajectoryInMuonDetector::matching",TimerStack::FastMonitoring);
    LogTrace("TrackAssociator") << "Number of chambers to check: " << muonIdsInRegion.size();
-	
    for(std::set<DetId>::const_iterator detId = muonIdsInRegion.begin(); detId != muonIdsInRegion.end(); detId++)
    {
       const GeomDet* geomDet = muonDetIdAssociator_.getGeomDet(*detId);
@@ -657,8 +657,11 @@ void TrackDetectorAssociator::getMuonChamberMatches(std::vector<MuonChamberMatch
       }
       // timers.pop_and_push("MuonDetIdAssociator::getTrajectoryInMuonDetector::matching::geometryAccess",TimerStack::FastMonitoring);
       LocalPoint localPoint = geomDet->surface().toLocal(stateOnSurface.freeState()->position());
+      LocalError localError = stateOnSurface.localError().positionError();
       float distanceX = 0;
       float distanceY = 0;
+      float sigmaX = 0.0;
+      float sigmaY = 0.0;
       if(const CSCChamber* cscChamber = dynamic_cast<const CSCChamber*>(geomDet) ) {
          const CSCChamberSpecs* chamberSpecs = cscChamber->specs();
          if(! chamberSpecs) {
@@ -692,12 +695,17 @@ void TrackDetectorAssociator::getMuonChamberMatches(std::vector<MuonChamberMatch
          float halfWidthAtYPrime = 0.5*narrowWidth+yPrime*tangent;
          distanceX = fabs(localPoint.x()) - halfWidthAtYPrime;
          distanceY = fabs(localPoint.y()-yCOWPOffset) - 0.5*length;
+	 sigmaX = distanceX/sqrt(localError.xx());
+         sigmaY = distanceY/sqrt(localError.yy());
       } else {
          distanceX = fabs(localPoint.x()) - geomDet->surface().bounds().width()/2.;
          distanceY = fabs(localPoint.y()) - geomDet->surface().bounds().length()/2.;
+	 sigmaX = distanceX/sqrt(localError.xx());
+         sigmaY = distanceY/sqrt(localError.yy());
       }
       // timers.pop_and_push("MuonDetIdAssociator::getTrajectoryInMuonDetector::matching::checking",TimerStack::FastMonitoring);
-      if (distanceX < maxDistanceX && distanceY < maxDistanceY) {
+      if ( (distanceX < parameters.muonMaxDistanceX && distanceY < parameters.muonMaxDistanceY) ||
+	   (sigmaX < parameters.muonMaxDistanceSigmaX && sigmaY < parameters.muonMaxDistanceSigmaY) ) {
          LogTrace("TrackAssociator") << "found a match, DetId: " << detId->rawId();
          MuonChamberMatch match;
          match.tState = stateOnSurface;
@@ -746,7 +754,8 @@ void TrackDetectorAssociator::fillMuon( const edm::Event& iEvent,
    
    // get a set of matches corresponding to muon chambers
    std::vector<MuonChamberMatch> matchedChambers;
-   getMuonChamberMatches(matchedChambers, parameters.dRMuonPreselection, parameters.muonMaxDistanceX, parameters.muonMaxDistanceY);
+   LogTrace("TrackAssociator") << "Trying to Get ChamberMatches" << std::endl;
+   getMuonChamberMatches(matchedChambers, parameters);
    LogTrace("TrackAssociator") << "Chambers matched: " << matchedChambers.size() << "\n";
    
    // Iterate over all chamber matches and fill segment matching 
