@@ -1,6 +1,7 @@
 // File: SiPixelSCurveCalibrationAnalysis.cc
 // Description:  see SiPixelSCurveCalibrationAnalysis.h
 // Author: Jason Keller (University of Nebraska)
+// Modifications to include new naming conventions for calibration objects by Freya Blekman
 //--------------------------------------------
 
 
@@ -37,7 +38,7 @@ SiPixelSCurveCalibrationAnalysis::SiPixelSCurveCalibrationAnalysis(const edm::Pa
   histoNum_(0),
   printHistos_(conf.getParameter<bool>("PrintPixelHistos"))
   {
-    calib_ = new PixelCalib(inputcalibfile_);
+    calib_ = new SiPixelCalibConfiguration(inputcalibfile_);
     vcalmin_ = calib_->vcal_first();
     vcalmax_ = calib_->vcal_last();
     vcalstep_ = calib_->vcal_step();

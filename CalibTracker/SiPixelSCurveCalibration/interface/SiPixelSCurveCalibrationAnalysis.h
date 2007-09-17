@@ -6,17 +6,16 @@
  * A class which will perform an SCurve Calibration
  * analysis, given an SCurve file.
  *
- * \authors Jason Keller (University of Nebraska)
+ * \authors Jason Keller (University of Nebraska), Freya Blekman (Cornell University)
  *
  * \version 1.3 July 5, 2007
-
  *
  ***********************************************************/
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "CalibFormats/SiPixelObjects/interface/PixelCalib.h"  
+#include "CalibFormats/SiPixelObjects/interface/SiPixelCalibConfiguration.h"  
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "PhysicsTools/UtilAlgos/interface/TFileService.h"
 #include "CalibTracker/SiPixelSCurveCalibration/interface/SCurveContainer.h" 
@@ -58,7 +57,7 @@ class SiPixelSCurveCalibrationAnalysis : public edm::EDAnalyzer
     unsigned int fedid_; 
     unsigned int histoNum_;
     bool printHistos_; 
-    PixelCalib* calib_;
+    SiPixelCalibConfiguration* calib_;
     unsigned int vcalmin_;
     unsigned int vcalmax_;
     unsigned int vcalstep_; 
