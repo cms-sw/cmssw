@@ -21,6 +21,9 @@
 #include "GeneratorInterface/GenFilters/interface/MCParticlePairFilter.h"
 #include "GeneratorInterface/GenFilters/interface/CosmicGenFilterHelix.h"
 #include "GeneratorInterface/GenFilters/interface/CosmicGenFilterLowE.h"
+<<<<<<< SealModule.cc
+#include "GeneratorInterface/GenFilters/interface/BHFilter.h"
+=======
 #include "GeneratorInterface/GenFilters/interface/PythiaFilterEMJet.h"
 #include "GeneratorInterface/GenFilters/interface/HZZ4lFilter.h"
 #include "GeneratorInterface/GenFilters/interface/PythiaFilterGammaGamma.h"
@@ -28,6 +31,7 @@
 #include "GeneratorInterface/GenFilters/interface/BdecayFilter.h"
 #include "GeneratorInterface/GenFilters/interface/PythiaFilterGammaJetIsoPi0.h"
 #include "GeneratorInterface/GenFilters/interface/Zto2lFilter.h"
+>>>>>>> 1.15
 
   DEFINE_SEAL_MODULE();
   DEFINE_ANOTHER_FWK_MODULE(PythiaFilter);
@@ -50,6 +54,11 @@
   DEFINE_ANOTHER_FWK_MODULE(MCParticlePairFilter);
   DEFINE_ANOTHER_FWK_MODULE(CosmicGenFilterHelix);
   DEFINE_ANOTHER_FWK_MODULE(CosmicGenFilterLowE);
+<<<<<<< SealModule.cc
+  DEFINE_ANOTHER_FWK_MODULE(BHFilter);
+
+
+=======
   DEFINE_ANOTHER_FWK_MODULE(PythiaFilterEMJet);
   DEFINE_ANOTHER_FWK_MODULE(HZZ4lFilter);
   DEFINE_ANOTHER_FWK_MODULE(PythiaFilterGammaGamma);
@@ -57,3 +66,4 @@
   DEFINE_ANOTHER_FWK_MODULE(BdecayFilter);
   DEFINE_ANOTHER_FWK_MODULE(PythiaFilterGammaJetIsoPi0);
   DEFINE_ANOTHER_FWK_MODULE(Zto2lFilter);
+>>>>>>> 1.15
