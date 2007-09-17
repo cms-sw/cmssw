@@ -15,6 +15,7 @@ namespace edm
 {
   class ParameterSet;
   class FileInPath;
+  class ParameterSetDescription;
 }
 
 #endif
