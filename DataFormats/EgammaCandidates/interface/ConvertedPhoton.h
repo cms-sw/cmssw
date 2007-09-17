@@ -6,7 +6,7 @@
  *
  * \author N.Marinelli  University of Notre Dame, US
  *
- * \version $Id: ConvertedPhoton.h,v 1.10 2007/08/28 15:34:45 nancy Exp $
+ * \version $Id: ConvertedPhoton.h,v 1.12 2007/08/28 17:30:19 nancy Exp $
  *
  */
 #include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
@@ -20,11 +20,17 @@ namespace reco {
     /// default constructor
     ConvertedPhoton() : RecoCandidate() { }
   
+
     ConvertedPhoton( const reco::SuperClusterRef sc, 
                      const std::vector<reco::TrackRef> tr, 
                      Charge q, const LorentzVector & p4, double r9,
-                     const std::vector<math::XYZPoint> a , 
-		     const Point & vtx, const Point & convVtx );
+		     const std::vector<math::XYZPoint> trackPositionAtEcal , 
+		     const reco::Vertex  &  convVtx,
+		     const std::vector<reco::BasicCluster> & matchingBC, 
+		     const Point & vtx);
+
+
+
     /// destructor
     virtual ~ConvertedPhoton();
     /// returns a clone of the candidate
@@ -56,10 +62,12 @@ namespace reco {
     double EoverP() const {return ep_;}
     /// ratio of E(3x3)/ESC
     double r9() const { return r9_; }
-    /// returns the position of the conversion vertex
-    const Point & convVertexPosition() const { return theConversionVertex_ ; }
-    /// positions of the track extrapolation at the ECAL front face
+    /// returns  the reco conversion vertex
+    reco::Vertex const & conversionVertex()  { return theConversionVertex_ ; }
+     /// positions of the track extrapolation at the ECAL front face
     std::vector<math::XYZPoint> const & ecalImpactPosition()  {return thePositionAtEcal_;}
+    //  pair of BC matching the tracks
+    const std::vector<reco::BasicCluster>&  bcMatchingWithTracks() const { return theMatchingBCs_;}
     /// set primary event vertex used to define photon direction
     void setVertex(const Point & vertex);
 
@@ -74,8 +82,9 @@ namespace reco {
     /// reference to a vector Track references
     std::vector<reco::TrackRef>  tracks_;
     double r9_;
-    reco::Particle::Point theConversionVertex_;
     std::vector<math::XYZPoint>  thePositionAtEcal_;
+    reco::Vertex theConversionVertex_;
+    std::vector<reco::BasicCluster> theMatchingBCs_;
 
 
 
