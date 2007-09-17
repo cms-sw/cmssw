@@ -8,7 +8,7 @@
 namespace edm {
   template<typename CKey, typename CVal, typename index = unsigned int,
     typename KeyRefProd = RefProd<CKey>, typename ValRefProd = RefProd<CVal>,
-    typename KeyRef = Ref<CKey>, typename ValRef = Ref<CKey> >
+    typename KeyRef = Ref<CKey>, typename ValRef = Ref<CVal> >
   class OneToOneGeneric {
     /// reference to "key" collection
     typedef KeyRefProd keyrefprod_type;
