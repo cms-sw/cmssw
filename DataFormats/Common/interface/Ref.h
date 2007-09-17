@@ -5,7 +5,7 @@
   
 Ref: A template for a interproduct reference to a member of a product.
 
-$Id: Ref.h,v 1.29 2007/07/12 12:08:57 llista Exp $
+$Id: Ref.h,v 1.30 2007/07/13 08:49:31 llista Exp $
 
 ----------------------------------------------------------------------*/
 /**
@@ -384,6 +384,12 @@ namespace edm {
 	                  typename REF::value_type, 
                        	  typename REF::finder_type> REFV;
 	return std::auto_ptr<BaseVectorHolder<T> >( new VectorHolder<T, REFV> );
+      }
+      static  std::auto_ptr<RefVectorHolderBase> makeVectorBaseHolder() {
+	typedef RefVector<typename REF::product_type,
+	                  typename REF::value_type, 
+                       	  typename REF::finder_type> REFV;
+	return std::auto_ptr<RefVectorHolderBase>( new RefVectorHolder<REFV> );
       }
     };
 

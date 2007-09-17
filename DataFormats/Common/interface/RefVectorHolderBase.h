@@ -150,6 +150,7 @@ namespace edm {
       virtual const_iterator end() const = 0;
       template <class T> RefToBase<T> getRef( size_t idx ) const;
       virtual const void * product() const = 0;
+      virtual void reallyFillView( const void *, const ProductID &, std::vector<void const*> & ) = 0;
     private:
       virtual boost::shared_ptr<reftobase::RefHolderBase> refBase(size_t idx) const = 0;
     };

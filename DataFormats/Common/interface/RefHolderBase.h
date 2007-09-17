@@ -2,7 +2,7 @@
 #define Common_RefHolderBase_h
 /* \class edm::reftobase::Base
  *
- * $Id: RefHolderBase.h,v 1.3 2007/07/23 11:08:55 llista Exp $
+ * $Id: RefHolderBase.h,v 1.4 2007/08/15 03:23:19 wmtan Exp $
  *
  */
 #include "Reflex/Type.h"
@@ -36,6 +36,9 @@ namespace edm {
 					  std::string& msg) const = 0;
 
       virtual std::auto_ptr<RefVectorHolderBase> makeVectorHolder() const = 0;
+      virtual EDProductGetter const* productGetter() const = 0;
+      virtual bool hasProductCache() const = 0;
+      virtual void const * product() const = 0;
 
     private:
       // "cast" the real type of the element (the T of contained Ref),

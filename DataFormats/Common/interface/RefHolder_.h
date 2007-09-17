@@ -35,6 +35,9 @@ namespace edm {
       REF const& getRef() const;
       void setRef(REF const& r);
       virtual std::auto_ptr<RefVectorHolderBase> makeVectorHolder() const;
+      virtual EDProductGetter const* productGetter() const;
+      virtual bool hasProductCache() const;
+      virtual void const * product() const;
 
     private:
       virtual void const* pointerToType(Type const& iToType) const;
@@ -111,6 +114,21 @@ namespace edm {
     RefHolder<REF>::getRef() const
     {
       return ref_;
+    }
+
+    template<class REF>
+    EDProductGetter const* RefHolder<REF>::productGetter() const {
+      return ref_.productGetter();
+    }
+
+    template<class REF>
+    bool RefHolder<REF>::hasProductCache() const {
+      return ref_.hasProductCache();
+    }
+
+    template<class REF>
+    void const * RefHolder<REF>::product() const {
+      return ref_.product();
     }
 
     template <class REF>

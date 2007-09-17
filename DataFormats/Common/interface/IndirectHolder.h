@@ -9,7 +9,7 @@ namespace edm {
   namespace reftobase {
 
     template<typename T> class IndirectVectorHolder;
-
+    class RefVectorHolderBase;
     class RefHolderBase;
 
     //------------------------------------------------------------------
@@ -39,6 +39,10 @@ namespace edm {
 					  std::string& msg) const;
       virtual std::auto_ptr<RefHolderBase> holder() const;
       virtual std::auto_ptr<BaseVectorHolder<T> > makeVectorHolder() const;
+      virtual std::auto_ptr<RefVectorHolderBase> makeVectorBaseHolder() const;
+      virtual EDProductGetter const* productGetter() const;
+      virtual bool hasProductCache() const;
+      virtual void const * product() const;
 
     private:
       friend class RefToBase<T>;
@@ -114,6 +118,24 @@ namespace edm {
     }
 
     template <class T>
+    inline
+    EDProductGetter const* IndirectHolder<T>::productGetter() const {
+      return helper_->productGetter();
+    }
+
+    template <class T>
+    inline
+    bool IndirectHolder<T>::hasProductCache() const {
+      return helper_->hasProductCache();
+    }
+
+    template <class T>
+    inline
+    void const * IndirectHolder<T>::product() const {
+      return helper_->product();
+    }
+
+    template <class T>
     bool
     IndirectHolder<T>::isEqualTo(BaseHolder<T> const& rhs) const 
     {
@@ -137,6 +159,7 @@ namespace edm {
 }
 
 #include "DataFormats/Common/interface/IndirectVectorHolder.h"
+#include "DataFormats/Common/interface/RefVectorHolderBase.h"
 
 namespace edm {
   namespace reftobase {
@@ -145,6 +168,11 @@ namespace edm {
       std::auto_ptr<RefVectorHolderBase> p = helper_->makeVectorHolder();
       boost::shared_ptr<RefVectorHolderBase> sp( p );
       return std::auto_ptr<BaseVectorHolder<T> >( new IndirectVectorHolder<T>( sp ) );
+    }
+
+    template <class T>
+    std::auto_ptr<RefVectorHolderBase> IndirectHolder<T>::makeVectorBaseHolder() const {
+      return helper_->makeVectorHolder();
     }
   }
 }

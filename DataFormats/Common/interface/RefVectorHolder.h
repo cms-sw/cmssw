@@ -23,6 +23,7 @@ namespace edm {
       virtual EDProductGetter const* productGetter() const;
       virtual RefVectorHolder<REFV> * clone() const;
       void setRefs( const REFV & refs );
+      virtual void reallyFillView( const void *, const ProductID &, std::vector<void const*> & );
 
     private:
       typedef typename RefVectorHolderBase::const_iterator_imp const_iterator_imp;
@@ -149,6 +150,19 @@ namespace edm {
       return boost::shared_ptr<RefHolderBase>( new RefHolder<typename REFV::value_type>( * i ) );
     }
 
+  }
+}
+
+#include "DataFormats/Common/interface/FillView.h"
+
+namespace edm {
+  namespace reftobase {
+    template<typename REFV>
+    void RefVectorHolder<REFV>::reallyFillView( const void * prod, const ProductID & id , std::vector<void const*> & pointers ) {
+      typedef typename REFV::collection_type collection;
+      const collection * product = static_cast<const collection *>( prod );
+      detail::reallyFillView( * product, id, pointers, * this );
+    }
   }
 }
 

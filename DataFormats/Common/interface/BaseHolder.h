@@ -6,6 +6,7 @@ namespace edm {
 
   namespace reftobase {
     template<typename T> class BaseVectorHolder;
+    class RefVectorHolderBase;
 
     //------------------------------------------------------------------
     // Class template BaseHolder<T>
@@ -48,6 +49,11 @@ namespace edm {
       virtual std::auto_ptr<RefHolderBase> holder() const = 0;
 
       virtual std::auto_ptr<BaseVectorHolder<T> > makeVectorHolder() const = 0;
+      virtual std::auto_ptr<RefVectorHolderBase> makeVectorBaseHolder() const = 0;
+
+      virtual EDProductGetter const* productGetter() const = 0;
+      virtual bool hasProductCache() const = 0;
+      virtual void const * product() const = 0;
 
     protected:
       // We want the following called only by derived classes.

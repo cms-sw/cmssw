@@ -5,7 +5,7 @@
  *
  * \author Luca Lista, INFN
  *
- * $Id: RefToBaseProd.h,v 1.8 2007/07/27 14:50:58 llista Exp $
+ * $Id: RefToBaseProd.h,v 1.9 2007/09/12 10:05:57 llista Exp $
  *
  */
   
@@ -29,13 +29,14 @@ namespace edm {
     // The templating is artificial.
     // HandleC must have the following methods:
     //   id(),      returning a ProductID,
-    //   product(), returning a C*.
+   //   product(), returning a C*.
     template <class HandleC>
     explicit RefToBaseProd(HandleC const& handle);
     explicit RefToBaseProd(Handle<View<T> > const& handle);
     /// Constructor from Ref<C,T,F>
     template <typename C, typename F>
     explicit RefToBaseProd(Ref<C, T, F> const& ref);
+    explicit RefToBaseProd(RefToBase<T> const& ref);
     explicit RefToBaseProd( const View<T> & );
     RefToBaseProd( const RefToBaseProd<T> & );
     template<typename C>
@@ -206,7 +207,7 @@ namespace edm {
   template <typename T>
   template <typename C>
   inline
-  RefToBaseProd<T>::RefToBaseProd( const RefProd<C> & ref ) :
+  RefToBaseProd<T>::RefToBaseProd(const RefProd<C> & ref) :
     product_( ref.refCore() ) {
     std::vector<void const*> pointers;
     typedef typename refhelper::RefToBaseProdTrait<C>::ref_vector_type ref_vector;
@@ -244,6 +245,20 @@ namespace edm {
     typedef reftobase::RefVectorHolder<ref_vector> holder_type;
     helper_vector_ptr helpers( new holder_type );
     detail::reallyFillView( * ref.product(), ref.id(), pointers, * helpers );
+    view_.reset( new View<T>( pointers, helpers ) );
+  }
+
+  /// Constructor from RefToBase.
+  template <typename T>
+  inline
+  RefToBaseProd<T>::RefToBaseProd(RefToBase<T> const& ref) :
+    product_(ref.id(), 
+	     ref.hasProductCache() ? 
+	     ref.product() : 
+	     0, ref.productGetter()) {
+    std::vector<void const*> pointers;
+    helper_vector_ptr helpers( ref.holder_->makeVectorBaseHolder().release() );
+    helpers->reallyFillView( ref.product(), ref.id(), pointers );
     view_.reset( new View<T>( pointers, helpers ) );
   }
 

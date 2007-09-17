@@ -28,7 +28,7 @@ reference type.
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Apr  3 16:37:59 EDT 2006
-// $Id: RefToBase.h,v 1.27 2007/09/14 12:35:45 llista Exp $
+// $Id: RefToBase.h,v 1.28 2007/09/17 10:19:14 llista Exp $
 //
 
 // system include files
@@ -102,10 +102,15 @@ namespace edm {
     
     std::auto_ptr<reftobase::RefHolderBase> holder() const;
 
+    EDProductGetter const* productGetter() const;
+    bool hasProductCache() const;
+    void const * product() const;
+
   private:
     value_type const* getPtrImpl() const;
     reftobase::BaseHolder<value_type>* holder_;
     friend class RefToBaseVector<T>;
+    friend class RefToBaseProd<T>;
     template<typename B> friend class RefToBase;
   };
 
@@ -304,6 +309,23 @@ namespace edm {
     std::swap(holder_, other.holder_);
   }
     
+  template <class T>
+  inline
+  EDProductGetter const* RefToBase<T>::productGetter() const {
+    return holder_->productGetter();
+  }
+
+  template <class T>
+  inline
+  bool RefToBase<T>::hasProductCache() const {
+    return holder_->hasProductCache();
+  }
+
+  template <class T>
+  inline
+  void const * RefToBase<T>::product() const {
+    return holder_->product();
+  }
 
   template <class T>
   inline
@@ -326,7 +348,6 @@ namespace edm {
   {
     a.swap(b);
   }
-
 }
 
 #include "DataFormats/Common/interface/RefToBaseProd.h"

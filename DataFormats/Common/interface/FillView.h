@@ -6,7 +6,7 @@
 Several fillView function templates, to provide View support for 
 Standard Library containers.
 
-$Id: FillView.h,v 1.4 2007/07/24 11:37:36 llista Exp $
+$Id: FillView.h,v 1.5 2007/07/24 21:05:12 llista Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -46,6 +46,24 @@ namespace edm {
 
 namespace edm {
   namespace detail {
+    template<typename COLLECTION>
+    struct GetAddress {
+      typedef typename COLLECTION::value_type element_type;
+      typedef typename COLLECTION::const_iterator iter;
+      static const element_type * address( const iter & i ) {
+	return &*i;
+      }
+    };
+
+    template<typename C, typename T, typename F>
+    struct GetAddress<RefVector<C, T, F> > {
+      typedef T element_type;
+      typedef typename RefVector<C, T, F>::const_iterator iter;
+      static const element_type * address( const iter & i ) {
+	return &**i;
+      }
+    };
+
     template <class COLLECTION>
     void
     reallyFillView(COLLECTION const& coll,
@@ -54,7 +72,7 @@ namespace edm {
 		   helper_vector& helpers)
     {
       typedef COLLECTION                            product_type;
-      typedef typename product_type::value_type     element_type;
+      typedef typename GetAddress<product_type>::element_type     element_type;
       typedef typename product_type::const_iterator iter;
       typedef typename product_type::size_type      size_type;
       typedef typename FillViewRefTypeTrait<product_type, 
@@ -65,7 +83,7 @@ namespace edm {
       
       size_type key = 0;
       for (iter i = coll.begin(), e = coll.end(); i!=e; ++i, ++key) {
-	element_type const* address = &*i;
+	element_type const* address = GetAddress<product_type>::address(i);
 	ptrs.push_back(address);
 	holder_type h(ref_type(id, address, key));
 	helpers.push_back(&h);
