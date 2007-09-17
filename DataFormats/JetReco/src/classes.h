@@ -71,6 +71,8 @@ namespace {
     edm::reftobase::Holder<reco::Candidate, reco::PFJetRef> rtb5;
     JetTrackMatch<PFJetCollection> jtm5;
 
+    edm::reftobase::Holder<reco::Candidate,edm::RefToBase<reco::Jet> >  rtbb6;
+
     JetToFloatAssociation::Container       j2f_c;
     JetToFloatAssociation::Object          j2f_o;
     JetToFloatAssociation::Objects         j2f_oo;
