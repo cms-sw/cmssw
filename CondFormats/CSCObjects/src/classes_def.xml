@@ -33,7 +33,7 @@
  
  <class name="CSCChamberMap"/>
  <class name="CSCChamberMap::MapItem"/>
- <class name="std::map<int,CSCChamberMap::MapItem>"/>
+
 
  <class name="CSCIdentifier" id="DC949595-1360-DA11-86C4-000E0C4DE689"/>
  <class name="CSCIdentifier::Item"/>
