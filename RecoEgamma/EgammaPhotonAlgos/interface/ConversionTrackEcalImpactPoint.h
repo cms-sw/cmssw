@@ -20,6 +20,7 @@
 //
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/EgammaTrackReco/interface/TrackSuperClusterAssociation.h"
+#include "DataFormats/EgammaReco/interface/BasicCluster.h"
 //
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
@@ -44,8 +45,13 @@ public:
 
   ~ConversionTrackEcalImpactPoint();
 
-  std::vector<math::XYZPoint> find( const std::vector<reco::TransientTrack>& tracks ) ;
- private:
+  std::vector<math::XYZPoint> find( const std::vector<reco::TransientTrack>& tracks, 
+				    const edm::Handle<reco::BasicClusterCollection>&  bcHandle ); 
+  const std::vector<reco::BasicCluster>& matchingBC() const {return matchingBC_;}				  
+ 
+
+ 
+private:
   
   const MagneticField* theMF_;
 
@@ -53,8 +59,8 @@ public:
 
   mutable PropagatorWithMaterial*    forwardPropagator_ ;
   PropagationDirection       dir_;
-
-  
+  mutable std::vector<reco::BasicCluster> matchingBC_;
+     
 
 
 /** Hard-wired numbers defining the surfaces on which the crystal front faces lie. */
