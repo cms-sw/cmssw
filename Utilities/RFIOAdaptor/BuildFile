@@ -1,11 +1,10 @@
-
 <export>
  <lib name=UtilitiesRFIOAdaptor>
  <use name=Foundation/SealBase>
- <use name=castor>
+ <use name=Utilities/StorageTypes>
 </export>
-
+<flags NO_LIB_CHECKING=yes>
 <use name=Foundation/SealBase>
 <use name=FWCore/MessageLogger>
 <use name=FWCore/Utilities>
-<use name=castor>
+<use name=Utilities/StorageTypes>
