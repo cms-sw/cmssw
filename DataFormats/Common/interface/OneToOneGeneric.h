@@ -3,9 +3,25 @@
 #include "DataFormats/Common/interface/AssociationMapHelpers.h"
 #include "DataFormats/Common/interface/Ref.h"
 #include "DataFormats/Common/interface/RefProd.h"
+#include "DataFormats/Common/interface/RefToBase.h"
+#include "DataFormats/Common/interface/RefToBaseProd.h"
 #include <map>
 
 namespace edm {
+  namespace helper {
+    template<typename C>
+    struct MapRefViewTrait {
+      typedef Ref<C> ref_type;
+      typedef RefProd<C> refprod_type;
+    }; 
+    
+    template<typename T>
+    struct MapRefViewTrait<View<T> > {
+      typedef RefToBase<T> ref_type;
+      typedef RefToBaseProd<T> refprod_type;
+    }; 
+  }
+
   template<typename CKey, typename CVal, typename index = unsigned int,
     typename KeyRefProd = RefProd<CKey>, typename ValRefProd = RefProd<CVal>,
     typename KeyRef = Ref<CKey>, typename ValRef = Ref<CVal> >

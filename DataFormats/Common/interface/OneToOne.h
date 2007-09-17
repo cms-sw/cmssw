@@ -7,6 +7,7 @@ namespace edm {
   class OneToOne : public OneToOneGeneric<CKey, CVal, index> {
   private:
     typedef OneToOneGeneric<CKey, CVal, index> base;
+
   public:
     /// values reference collection type
     typedef typename base::val_type val_type;
