@@ -6,9 +6,9 @@
 // Implementation:
 //     Cache and make prescale factors available online.
 //
-// Current revision: $Revision: 1.7 $
-// On branch: $Name: V00-03-01 $
-// Latest change by $Author: gruen $ on $Date: 2007/08/14 19:20:29 $ 
+// Current revision: $Revision: 1.8 $
+// On branch: $Name: CMSSW_1_7_0_pre3 $
+// Latest change by $Author: gruen $ on $Date: 2007/08/14 19:54:40 $ 
 //
 
 
@@ -40,7 +40,7 @@ namespace edm {
       const std::vector<std::string> InitialConfig(iPS.getParameter< std::vector<std::string> >("InitialConfig"));
       for (unsigned int I=0; I!=InitialConfig.size(); ++I) {
 	const int i(putPrescale(InitialConfig[I]));
-	if (i-1!=I) LogDebug("PrescaleService")
+	if (i-1!=static_cast<int>(I)) LogDebug("PrescaleService")
 	  << "Invalid config string " << I << ": '"
 	  << InitialConfig[I] << "' - Ignored!";
       }
