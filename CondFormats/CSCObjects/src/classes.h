@@ -30,6 +30,10 @@ namespace{
 namespace{
   std::vector< CSCDBCrosstalk::Item> ccontainer;
 }
+#include "CondFormats/CSCObjects/interface/CSCChamberMap.h"
+namespace{
+  std::map< int, CSCChamberMap::MapItem > chmap;
+}
 #include "CondFormats/CSCObjects/interface/CSCIdentifier.h"
 #include "CondFormats/CSCObjects/interface/CSCReadoutMapping.h"
 #include "CondFormats/CSCObjects/interface/CSCTriggerMapping.h"
