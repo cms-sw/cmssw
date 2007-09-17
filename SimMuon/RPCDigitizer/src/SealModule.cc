@@ -15,3 +15,4 @@ DEFINE_EDM_PLUGIN(RPCSimFactory,RPCSimSimple,"RPCSimSimple");
 DEFINE_EDM_PLUGIN(RPCSimFactory,RPCSimParam,"RPCSimParam");
 DEFINE_EDM_PLUGIN(RPCSimFactory,RPCSimAverage,"RPCSimAverage");
 DEFINE_EDM_PLUGIN(RPCSimFactory,RPCSimTriv,"RPCSimTriv");
+

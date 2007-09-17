@@ -35,7 +35,7 @@ class RPCSimAverage : public RPCSim
 
   void simulate(const RPCRoll* roll,
 		const edm::PSimHitContainer& rpcHits, const RPCGeometry*);
-
+  void simulateNoise(const RPCRoll*);
   int getClSize(float posX); 
 
  private:
@@ -51,6 +51,11 @@ class RPCSimAverage : public RPCSim
   double lbGate;
   bool rpcdigiprint;
   
+  int N_hits;
+  int nbxing;
+  double rate;
+  double gate;
+
   std::map< int, std::vector<double> > clsMap;
   std::vector<double> sum_clsize;
   std::ifstream *infile;

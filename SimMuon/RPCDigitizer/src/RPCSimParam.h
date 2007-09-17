@@ -26,6 +26,7 @@ class RPCSimParam : public RPCSim
 
   void simulate(const RPCRoll* roll,
 		const edm::PSimHitContainer& rpcHits, const RPCGeometry*);
+  void simulateNoise(const RPCRoll*);
 
  private:
   void init(){};
@@ -39,6 +40,11 @@ class RPCSimParam : public RPCSim
   double sspeed;
   double lbGate;
   bool rpcdigiprint;
+
+  int N_hits;
+  int nbxing;
+  double rate;
+  double gate;
 
   CLHEP::HepRandomEngine* rndEngine;
   CLHEP::RandFlat* flatDistribution;

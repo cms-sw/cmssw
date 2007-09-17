@@ -11,6 +11,12 @@
 #include "CLHEP/Random/RandFlat.h"
 #include <cmath>
 
+#include "CLHEP/config/CLHEP.h"
+#include "CLHEP/Random/Random.h"
+#include "CLHEP/Random/RandFlat.h"
+#include "CLHEP/Random/RandPoissonQ.h"
+
+
 #include<cstring>
 #include<iostream>
 #include<fstream>
@@ -21,6 +27,10 @@
 #include <map>
 
 RPCSimSimple::RPCSimSimple(const edm::ParameterSet& config) : RPCSim(config){
+
+  rate=config.getParameter<double>("Rate");
+  nbxing=config.getParameter<int>("Nbxing");
+  gate=config.getParameter<double>("Gate");
 
   edm::Service<edm::RandomNumberGenerator> rng;
   if ( ! rng.isAvailable()) {
@@ -65,4 +75,38 @@ RPCSimSimple::simulate(const RPCRoll* roll,
   }
 }
 
+void RPCSimSimple::simulateNoise(const RPCRoll* roll)
+{
 
+  RPCDetId rpcId = roll->id();
+  int nstrips = roll->nstrips();
+  double area = 0.0;
+  
+  if ( rpcId.region() == 0 )
+    {
+      const RectangularStripTopology* top_ = dynamic_cast<const
+	RectangularStripTopology*>(&(roll->topology()));
+      float xmin = (top_->localPosition(0.)).x();
+      float xmax = (top_->localPosition((float)roll->nstrips())).x();
+      float striplength = (top_->stripLength());
+      area = striplength*(xmax-xmin);
+    }
+  else
+    {
+      const TrapezoidalStripTopology* top_=dynamic_cast<const TrapezoidalStripTopology*>(&(roll->topology()));
+      float xmin = (top_->localPosition(0.)).x();
+      float xmax = (top_->localPosition((float)roll->nstrips())).x();
+      float striplength = (top_->stripLength());
+      area = striplength*(xmax-xmin);
+    }
+  
+  double ave = rate*nbxing*gate*area*1.0e-9;
+  
+  N_hits = RandPoissonQ::shoot(ave);
+  for (int i = 0; i < N_hits; i++ ){
+      int strip = RandFlat::shootInt(nstrips);
+      int time_hit = static_cast<int>(RandFlat::shoot((nbxing*gate))/gate);
+      std::pair<int, int> digi(strip,time_hit);
+      strips.insert(digi);
+  }
+}

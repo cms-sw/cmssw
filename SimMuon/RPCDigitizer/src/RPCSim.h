@@ -24,6 +24,8 @@ class RPCSim
 			const edm::PSimHitContainer& rpcHits, 
 			const RPCGeometry*)=0;
 
+  virtual void simulateNoise(const RPCRoll* roll)=0;
+
   virtual void fillDigis(int rollDetId, RPCDigiCollection& digis);
  protected:
   RPCSim(const edm::ParameterSet& config);
