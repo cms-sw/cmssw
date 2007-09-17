@@ -13,7 +13,7 @@
 //
 // Original Author:  Joshua Berger
 //         Created:  Wed Aug 22 20:56:48 CEST 2007
-// $Id$
+// $Id: HLTVars.cc,v 1.1 2007/09/14 19:05:49 jberger Exp $
 //
 //
 
@@ -74,6 +74,7 @@
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 
+#include "DataFormats/HLTReco/interface/ModuleTiming.h"
 //
 // class decleration
 //
@@ -142,6 +143,8 @@ HLTVars::HLTVars(const edm::ParameterSet& iConfig)
    produces<CaloVarsCollection>("mcDoubleElecs");
    produces<CaloVarsCollection>("mcSinglePhots");
    produces<CaloVarsCollection>("mcDoublePhots");
+   produces<HLTTiming>("IsoTiming");
+   produces<HLTTiming>("NonIsoTiming");
 
    //now do what ever other initialization is needed
    //L1 Match region size
@@ -349,6 +352,7 @@ HLTVars::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
    Handle<RecoEcalCandidateIsolationMap> l1NonIsoIEcalMap;
    Handle<RecoEcalCandidateIsolationMap> l1IsoPhotItrackMap;
    Handle<RecoEcalCandidateIsolationMap> l1NonIsoPhotItrackMap;
+   Handle<EventTime> hltTimes;
 
    try{iEvent.getByLabel("l1IsoRecoEcalCandidate", l1IsoRecoEcalCands);} catch(...){};
    try{iEvent.getByLabel("l1NonIsoRecoEcalCandidate", l1NonIsoRecoEcalCands);} catch(...){};
@@ -371,7 +375,7 @@ HLTVars::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
    try{iEvent.getByLabel("l1NonIsolatedPhotonEcalIsol", l1NonIsoIEcalMap);} catch(...){};
    try{iEvent.getByLabel("l1IsoPhotonTrackIsol", l1IsoPhotItrackMap);} catch(...){};
    try{iEvent.getByLabel("l1NonIsoPhotonTrackIsol", l1NonIsoPhotItrackMap);} catch(...){};
-
+   try{iEvent.getByLabel("myTimer", hltTimes);} catch(...){};
 
    /* Check all the labels that need to be checked */
    bool doL1Iso = l1IsoEmParts.isValid();
@@ -413,6 +417,8 @@ HLTVars::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
    std::auto_ptr<CaloVarsCollection> mcDoubleElecs(new CaloVarsCollection);
    std::auto_ptr<CaloVarsCollection> mcSinglePhots(new CaloVarsCollection);
    std::auto_ptr<CaloVarsCollection> mcDoublePhots(new CaloVarsCollection);
+   std::auto_ptr<HLTTiming> IsoTiming(new HLTTiming);
+   std::auto_ptr<HLTTiming> NonIsoTiming(new HLTTiming);
 
    /* Get MC particles */
    int nMCElecs = 0;
@@ -451,6 +457,186 @@ HLTVars::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
        }
      }
    }
+
+   double l1MatchIsoTime = 0.;
+   double EtIsoTime = 0.;
+   double ElecIHcalIsoTime = 0.;
+   double pixMatchIsoTime = 0.;
+   double EoverpIsoTime = 0.;
+   double ElecItrackIsoTime = 0.;
+   double l1MatchNonIsoTime = 0.;
+   double EtNonIsoTime = 0.;
+   double ElecIHcalNonIsoTime = 0.;
+   double pixMatchNonIsoTime = 0.;
+   double EoverpNonIsoTime = 0.;
+   double ElecItrackNonIsoTime = 0.;
+   double IEcalIsoTime = 0.;
+   double PhotIHcalIsoTime = 0.;
+   double PhotItrackIsoTime = 0.;
+   double IEcalNonIsoTime = 0.;
+   double PhotIHcalNonIsoTime = 0.;
+   double PhotItrackNonIsoTime = 0.;
+
+   for (unsigned int i = 0; i < hltTimes->size(); i++) {
+     if (hltTimes->name(i) == "ecalPreshowerDigis" || 
+         hltTimes->name(i) == "ecalRegionalEgammaFEDs" || 
+         hltTimes->name(i) == "ecalRegionalEgammaDigis" || 
+         hltTimes->name(i) == "ecalRegionalEgammaWeightUncalibRecHit" || 
+         hltTimes->name(i) == "ecalRegionalEgammaRecHit" ||
+         hltTimes->name(i) == "ecalPreshowerRecHit" ||
+         hltTimes->name(i) == "hltIslandBasicClustersEndcapL1Isolated" ||
+         hltTimes->name(i) == "hltIslandBasicClustersBarrelL1Isolated" ||
+         hltTimes->name(i) == "hltHybridSuperClustersL1Isolated" ||
+         hltTimes->name(i) == "hltIslandSuperClustersL1Isolated" ||
+	 hltTimes->name(i) == "correctedIslandEndcapSuperClustersL1Isolated" ||
+	 hltTimes->name(i) == "correctedIslandBarrelSuperClustersL1Isolated" ||
+	 hltTimes->name(i) == "correctedHybridSuperClustersL1Isolated" ||
+	 hltTimes->name(i) == "correctedEndcapSuperClustersWithPreshowerL1Isolated" ||
+	 hltTimes->name(i) == "l1IsoRecoEcalCandidate") 
+     {
+       l1MatchIsoTime += hltTimes->time(i);
+       EtIsoTime += hltTimes->time(i);
+       ElecIHcalIsoTime += hltTimes->time(i);
+       pixMatchIsoTime += hltTimes->time(i);
+       EoverpIsoTime += hltTimes->time(i);
+       ElecItrackIsoTime += hltTimes->time(i);
+       l1MatchNonIsoTime += hltTimes->time(i);
+       EtNonIsoTime += hltTimes->time(i);
+       ElecIHcalNonIsoTime += hltTimes->time(i);
+       pixMatchNonIsoTime += hltTimes->time(i);
+       EoverpNonIsoTime += hltTimes->time(i);
+       ElecItrackNonIsoTime += hltTimes->time(i);
+     }
+     if (hltTimes->name(i) == "hltIslandBasicClustersEndcapL1NonIsolated" ||
+         hltTimes->name(i) == "hltIslandBasicClustersBarrelL1NonIsolated" ||
+         hltTimes->name(i) == "hltHybridSuperClustersL1NonIsolated" ||
+         hltTimes->name(i) == "hltIslandSuperClustersL1NonIsolated" ||
+	 hltTimes->name(i) == "correctedIslandEndcapSuperClustersL1NonIsolated" ||
+	 hltTimes->name(i) == "correctedIslandBarrelSuperClustersL1NonIsolated" ||
+	 hltTimes->name(i) == "correctedHybridSuperClustersL1NonIsolated" ||
+	 hltTimes->name(i) == "correctedEndcapSuperClustersWithPreshowerL1NonIsolated" ||
+	 hltTimes->name(i) == "l1NonIsoRecoEcalCandidate") 
+     {
+       l1MatchNonIsoTime += hltTimes->time(i);
+       EtNonIsoTime += hltTimes->time(i);
+       ElecIHcalNonIsoTime += hltTimes->time(i);
+       pixMatchNonIsoTime += hltTimes->time(i);
+       EoverpNonIsoTime += hltTimes->time(i);
+       ElecItrackNonIsoTime += hltTimes->time(i);
+     }
+     if (hltTimes->name(i) == "hcalZeroSuppressedDigis" ||
+         hltTimes->name(i) == "hbhereco" ||
+         hltTimes->name(i) == "hfreco" ||
+         hltTimes->name(i) == "l1IsolatedElectronHcalIsol")
+     {
+       ElecIHcalIsoTime += hltTimes->time(i);
+       ElecIHcalNonIsoTime += hltTimes->time(i);
+     }
+     if (hltTimes->name(i) == "l1NonIsolatedElectronHcalIsol")
+     {
+       ElecIHcalNonIsoTime += hltTimes->time(i);
+     }
+     if (hltTimes->name(i) == "siPixelDigis" ||
+         hltTimes->name(i) == "siPixelClusters" ||
+         hltTimes->name(i) == "siPixelRecHits" ||
+         hltTimes->name(i) == "l1IsoElectronPixelSeeds")
+     {
+       pixMatchIsoTime += hltTimes->time(i);
+       EoverpIsoTime += hltTimes->time(i);
+       ElecItrackIsoTime += hltTimes->time(i);
+       pixMatchNonIsoTime += hltTimes->time(i);
+       EoverpNonIsoTime += hltTimes->time(i);
+       ElecItrackNonIsoTime += hltTimes->time(i);
+     }
+     if (hltTimes->name(i) == "l1NonIsoElectronPixelSeeds")
+     {
+       pixMatchNonIsoTime += hltTimes->time(i);
+       EoverpNonIsoTime += hltTimes->time(i);
+       ElecItrackNonIsoTime += hltTimes->time(i);
+     }
+     if (hltTimes->name(i) == "SiStripRawToClustersFacility" ||
+	 hltTimes->name(i) == "siStripClusters" ||
+	 hltTimes->name(i) == "ckfL1IsoTrackCandidatesBarrel" ||
+         hltTimes->name(i) == "ckfL1IsoTrackCandidatesEndcap" ||
+         hltTimes->name(i) == "ctfL1IsoWithMaterialTracksBarrel" ||
+         hltTimes->name(i) == "ctfL1IsoWithMaterialTracksEndcap" ||
+         hltTimes->name(i) == "pixelMatchElectronsL1IsoForHLT")
+     {
+       EoverpIsoTime += hltTimes->time(i);
+       ElecItrackIsoTime += hltTimes->time(i);
+       EoverpNonIsoTime += hltTimes->time(i);
+       ElecItrackNonIsoTime += hltTimes->time(i);
+     }
+     if (hltTimes->name(i) == "ckfL1NonIsoTrackCandidatesBarrel" ||
+         hltTimes->name(i) == "ckfL1NonIsoTrackCandidatesEndcap" ||
+         hltTimes->name(i) == "ctfL1NonIsoWithMaterialTracksBarrel" ||
+         hltTimes->name(i) == "ctfL1NonIsoWithMaterialTracksEndcap" ||
+         hltTimes->name(i) == "pixelMatchElectronsL1NonIsoForHLT")
+     {
+       EoverpNonIsoTime += hltTimes->time(i);
+       ElecItrackNonIsoTime += hltTimes->time(i);
+     }
+     if (hltTimes->name(i) == "l1IsoElectronsRegionalPixelSeedGenerator" ||
+         hltTimes->name(i) == "l1IsoElectronsRegionalCkfTrackCandidates" ||
+         hltTimes->name(i) == "l1IsoElectronsRegionalCTFFinalFitWithMaterial" ||
+         hltTimes->name(i) == "l1IsoElectronTrackIsol")
+     {
+       ElecItrackIsoTime += hltTimes->time(i);
+       ElecItrackNonIsoTime += hltTimes->time(i);
+     }
+     if (hltTimes->name(i) == "l1NonIsoElectronsRegionalPixelSeedGenerator" ||
+         hltTimes->name(i) == "l1NonIsoElectronsRegionalCkfTrackCandidates" ||
+         hltTimes->name(i) == "l1NonIsoElectronsRegionalCTFFinalFitWithMaterial" ||
+         hltTimes->name(i) == "l1NonIsoElectronTrackIsol")
+     {
+       ElecItrackNonIsoTime += hltTimes->time(i);
+     }
+     if (hltTimes->name(i) == "l1IsolatedPhotonEcalIsol")
+     {
+       IEcalIsoTime += hltTimes->time(i);
+       IEcalNonIsoTime += hltTimes->time(i);
+     }
+     if (hltTimes->name(i) == "l1NonIsolatedPhotonEcalIsol")
+     {
+       IEcalNonIsoTime += hltTimes->time(i);
+     }
+     if (hltTimes->name(i) == "hcalZeroSuppressedDigis" ||
+         hltTimes->name(i) == "hbhereco" ||
+         hltTimes->name(i) == "hfreco" ||
+         hltTimes->name(i) == "l1IsolatedPhotonHcalIsol")
+     {
+       PhotIHcalIsoTime += hltTimes->time(i);
+       PhotIHcalNonIsoTime += hltTimes->time(i);
+     }
+     if (hltTimes->name(i) == "l1NonIsolatedPhotonHcalIsol")
+     {
+       PhotIHcalNonIsoTime += hltTimes->time(i);
+     }
+     if (hltTimes->name(i) == "siPixelDigis" ||
+         hltTimes->name(i) == "siPixelClusters" ||
+         hltTimes->name(i) == "siPixelRecHits" ||
+         hltTimes->name(i) == "SiStripRawToClustersFacility" ||
+         hltTimes->name(i) == "siStripClusters" ||
+         hltTimes->name(i) == "l1IsoEgammaRegionalPixelSeedGenerator" ||
+         hltTimes->name(i) == "l1IsoEgammaRegionalCkfTrackCandidates" ||
+         hltTimes->name(i) == "l1IsoEgammaRegionalCTFFinalFitWithMaterial" ||
+	 hltTimes->name(i) == "l1IsoPhotonTrackIsol")
+     {
+       PhotItrackIsoTime += hltTimes->time(i);
+       PhotItrackNonIsoTime += hltTimes->time(i);
+     }
+     if (hltTimes->name(i) == "l1NonIsoEgammaRegionalPixelSeedGenerator" ||
+         hltTimes->name(i) == "l1NonIsoEgammaRegionalCkfTrackCandidates" ||
+         hltTimes->name(i) == "l1NonIsoEgammaRegionalCTFFinalFitWithMaterial" ||
+	 hltTimes->name(i) == "l1NonIsoPhotonTrackIsol")
+     {
+       PhotItrackNonIsoTime += hltTimes->time(i);
+     }
+   }
+   struct HLTTiming IsoTimingTemp = {l1MatchIsoTime, EtIsoTime, ElecIHcalIsoTime, pixMatchIsoTime, EoverpIsoTime, ElecItrackIsoTime, IEcalIsoTime, PhotIHcalIsoTime, PhotItrackIsoTime};
+   *IsoTiming = IsoTimingTemp;
+struct HLTTiming NonIsoTimingTemp = {l1MatchNonIsoTime, EtNonIsoTime, ElecIHcalNonIsoTime, pixMatchNonIsoTime, EoverpNonIsoTime, ElecItrackNonIsoTime, IEcalNonIsoTime, PhotIHcalNonIsoTime, PhotItrackNonIsoTime};
+ *NonIsoTiming = NonIsoTimingTemp;
 
    /* Maybe turn this code into a function later?  Actually calculate and store isolation variables for Iso and NonIso
       The code is identical, so it might be good to consolidate it into a function soon */
@@ -586,6 +772,8 @@ HLTVars::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
    if (nMCPhots >= 1) iEvent.put(mcSinglePhots, "mcSinglePhots");
    if (nMCPhots >= 2) iEvent.put(mcDoublePhots, "mcDoublePhots");
 
+   iEvent.put(IsoTiming, "IsoTiming");
+   iEvent.put(NonIsoTiming, "NonIsoTiming");
 }
 
 // ------------ method called once each job just before starting event loop  ------------

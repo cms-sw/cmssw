@@ -11,5 +11,7 @@
  <class name="CaloVars"/>
  <class name="std::vector<CaloVars>"/>
  <class name="edm::Wrapper<std::vector<CaloVars> >"/>
+ <class name="HLTTiming"/>
+ <class name="edm::Wrapper<HLTTiming>"/>
 </lcgdict>
 

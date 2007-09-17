@@ -1,7 +1,7 @@
 {
-TFile signalFile("../test/ZEE-HLTEgamma.root");
+TFile signalFile("../test/ZEE-HLTVars.root");
 TTree *sigEvents = (TTree*)signalFile.Get("Events");
-TFile background5080File("../test/QCD50-80-HLTEgamma.root");
+TFile background5080File("../test/QCD-HLTVars.root");
 TTree *bkgEvents = (TTree*)background5080File.Get("Events");
 Long64_t *sSigEt = new Long64_t[120];
 Long64_t *rsSigEt = new Long64_t[120];
@@ -197,4 +197,80 @@ myCanvas->cd(3);
 dEffVBkg->Draw();
 myCanvas->cd(4);
 rdEffVBkg->Draw();
+delete myCanvas;
+
+TH1F *timingSig = new TH1F("timingSig", "Timing of Single Electron Filters in Signal Events", 6, 0, 6);
+timingSig->SetBit(TH1::kCanRebin);
+timingSig->SetStats(0);
+TTreeFormula *l1MatchTiming = new TTreeFormula("Timing","HLTTiming_hltCutVars_IsoTiming_EGAMMAHLT.obj.l1Match",sigEvents);
+TTreeFormula *EtTiming = new TTreeFormula("Timing","HLTTiming_hltCutVars_IsoTiming_EGAMMAHLT.obj.Et",sigEvents);
+TTreeFormula *IHcalTiming = new TTreeFormula("Timing","HLTTiming_hltCutVars_IsoTiming_EGAMMAHLT.obj.ElecIHcal",sigEvents);
+TTreeFormula *pixMatchTiming = new TTreeFormula("Timing","HLTTiming_hltCutVars_IsoTiming_EGAMMAHLT.obj.pixMatch",sigEvents);
+TTreeFormula *EoverpTiming = new TTreeFormula("Timing","HLTTiming_hltCutVars_IsoTiming_EGAMMAHLT.obj.Eoverp",sigEvents);
+TTreeFormula *ItrackTiming = new TTreeFormula("Timing","HLTTiming_hltCutVars_IsoTiming_EGAMMAHLT.obj.ElecItrack",sigEvents);
+Long64_t event = 0;
+Double_t avgL1Match = 0.;
+Double_t avgEt = 0.;
+Double_t avgIHcal = 0.;
+Double_t avgPixMatch = 0.;
+Double_t avgEoverp = 0.;
+Double_t avgItrack = 0.;
+for (event = 0; event < sigEvents->GetEntries(); event++) {
+  Long64_t localEntry = sigEvents->LoadTree(event);
+  avgL1Match = (i*avgL1Match + l1MatchTiming->EvalInstance(0))/ ((Double_t) (i+1)); 
+  avgEt = (i*avgEt + EtTiming->EvalInstance(0))/ ((Double_t) (i+1)); 
+  avgIHcal = (i*avgIHcal + IHcalTiming->EvalInstance(0))/ ((Double_t) (i+1)); 
+  avgPixMatch = (i*avgPixMatch + pixMatchTiming->EvalInstance(0))/ ((Double_t) (i+1)); 
+  avgEoverp = (i*avgEoverp + EoverpTiming->EvalInstance(0))/ ((Double_t) (i+1)); 
+  avgItrack = (i*avgItrack + ItrackTiming->EvalInstance(0))/ ((Double_t) (i+1)); 
+}
+timingSig->Fill("L1 Match", avgL1Match);
+timingSig->Fill("Et", avgEt); 
+timingSig->Fill("IHcal", avgIHcal); 
+timingSig->Fill("Pix Match", avgPixMatch); 
+timingSig->Fill("E/p", avgEoverp); 
+timingSig->Fill("Itrack", avgItrack); 
+timingSig->LabelsDeflate("X");
+timingSig->LabelsOption("v");
+
+TH1F *timingBkg = new TH1F("timingBkg", "Timing of Single Electron Filters in Background Events", 6, 0, 6);
+timingBkg->SetBit(TH1::kCanRebin);
+timingBkg->SetStats(0);
+delete l1MatchTiming; l1MatchTiming = new TTreeFormula("Timing","HLTTiming_hltCutVars_IsoTiming_EGAMMAHLT.obj.l1Match",bkgEvents);
+delete EtTiming; EtTiming = new TTreeFormula("Timing","HLTTiming_hltCutVars_IsoTiming_EGAMMAHLT.obj.Et",bkgEvents);
+delete IHcalTiming; IHcalTiming = new TTreeFormula("Timing","HLTTiming_hltCutVars_IsoTiming_EGAMMAHLT.obj.ElecIHcal",bkgEvents);
+delete pixMatchTiming; pixMatchTiming = new TTreeFormula("Timing","HLTTiming_hltCutVars_IsoTiming_EGAMMAHLT.obj.pixMatch",bkgEvents);
+delete EoverpTiming; EoverpTiming = new TTreeFormula("Timing","HLTTiming_hltCutVars_IsoTiming_EGAMMAHLT.obj.Eoverp",bkgEvents);
+delete ItrackTiming; ItrackTiming = new TTreeFormula("Timing","HLTTiming_hltCutVars_IsoTiming_EGAMMAHLT.obj.ElecItrack",bkgEvents);
+event = 0;
+avgL1Match = 0.;
+avgEt = 0.;
+avgIHcal = 0.;
+avgPixMatch = 0.;
+avgEoverp = 0.;
+avgItrack = 0.;
+for (event = 0; event <  bkgEvents->GetEntries(); event++) {
+  Long64_t localEntry = bkgEvents->LoadTree(event);
+  avgL1Match = (i*avgL1Match + l1MatchTiming->EvalInstance(0))/ ((Double_t) (i+1)); 
+  avgEt = (i*avgEt + EtTiming->EvalInstance(0))/ ((Double_t) (i+1)); 
+  avgIHcal = (i*avgIHcal + IHcalTiming->EvalInstance(0))/ ((Double_t) (i+1)); 
+  avgPixMatch = (i*avgPixMatch + pixMatchTiming->EvalInstance(0))/ ((Double_t) (i+1)); 
+  avgEoverp = (i*avgEoverp + EoverpTiming->EvalInstance(0))/ ((Double_t) (i+1)); 
+  avgItrack = (i*avgItrack + ItrackTiming->EvalInstance(0))/ ((Double_t) (i+1)); 
+}
+timingBkg->Fill("L1 Match", avgL1Match);
+timingBkg->Fill("Et", avgEt); 
+timingBkg->Fill("IHcal", avgIHcal); 
+timingBkg->Fill("Pix Match", avgPixMatch); 
+timingBkg->Fill("E/p", avgEoverp); 
+timingBkg->Fill("Itrack", avgItrack); 
+timingBkg->LabelsDeflate("X");
+timingBkg->LabelsOption("v");
+
+myCanvas = new TCanvas("myCanvas", "Efficiency vs. Background for Et Cut", 1000, 500);
+myCanvas->Divide(2,1);
+myCanvas->cd(1);
+timingSig->Draw();
+myCanvas->cd(2);
+timingBkg->Draw();
 }

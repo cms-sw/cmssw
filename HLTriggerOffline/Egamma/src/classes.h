@@ -10,4 +10,5 @@ namespace { namespace {
   edm::Wrapper<PhotHLTCutVarsCollection> dummy5;
   CaloVarsCollection dummy6;
   edm::Wrapper<CaloVarsCollection> dummy7;
+  edm::Wrapper<HLTTiming> dummy8;
 }}
