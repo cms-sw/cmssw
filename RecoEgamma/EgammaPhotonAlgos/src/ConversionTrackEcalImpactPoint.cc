@@ -41,9 +41,11 @@ ConversionTrackEcalImpactPoint::~ConversionTrackEcalImpactPoint() {
     
 }
 
-std::vector<math::XYZPoint> ConversionTrackEcalImpactPoint::find( const std::vector<reco::TransientTrack>&  tracks  )   {
-  std::vector<math::XYZPoint> result;
+std::vector<math::XYZPoint> ConversionTrackEcalImpactPoint::find( const std::vector<reco::TransientTrack>&  tracks, const edm::Handle<reco::BasicClusterCollection>&  bcHandle )   {
+
   
+  std::vector<math::XYZPoint> result;
+   
   for (    std::vector<reco::TransientTrack>::const_iterator iTk=tracks.begin(); iTk!=tracks.end(); ++iTk) {
 
     math::XYZPoint ecalImpactPosition(0.,0.,0.);
@@ -54,7 +56,7 @@ std::vector<math::XYZPoint> ConversionTrackEcalImpactPoint::find( const std::vec
     
 
     if (!stateAtECAL_.isValid() || ( stateAtECAL_.isValid() && fabs(stateAtECAL_.globalPosition().eta() ) >1.479 )  ) {
-      //   if (!stateAtECAL_.isValid()  ) {
+    
          
       if ( (*iTk).innermostMeasurementState().globalPosition().eta() > 0.) {
 	stateAtECAL_= forwardPropagator_->propagate( myTSOS, positiveEtaEndcap());
@@ -72,7 +74,25 @@ std::vector<math::XYZPoint> ConversionTrackEcalImpactPoint::find( const std::vec
 
     result.push_back(ecalImpactPosition  );
 
+    float bcDistanceToTrack=9999;
+    reco::BasicClusterCollection::const_iterator matchedBCItr;
+    
+    reco::BasicClusterCollection bcBarrel = *(bcHandle.product());
+    for( reco::BasicClusterCollection::const_iterator bcItr = bcBarrel.begin(); bcItr != bcBarrel.end(); bcItr++) {
+      float dEta= bcItr->eta() - ecalImpactPosition.eta()  ;
+      float dPhi= bcItr->phi() - ecalImpactPosition.phi()  ;
+      if ( sqrt(dEta*dEta + dPhi*dPhi)  <  bcDistanceToTrack ) {
+	matchedBCItr= bcItr;
+	bcDistanceToTrack=sqrt(dEta*dEta + dPhi*dPhi);
+      } 
+      
+    }
+     
+    matchingBC_.push_back( *matchedBCItr );
+
   }
+
+
 
   return result;
 
