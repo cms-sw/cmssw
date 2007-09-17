@@ -1,5 +1,5 @@
 //
-// $Id: TopJetProducer.cc,v 1.19 2007/08/24 15:47:07 delaer Exp $
+// $Id: TopJetProducer.cc,v 1.20 2007/08/27 11:04:33 tsirig Exp $
 //
 
 #include "TopQuarkAnalysis/TopObjectProducers/interface/TopJetProducer.h"
@@ -223,8 +223,8 @@ void TopJetProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
               bestDR = currDR;
             }
 //          }
-          ajet.setGenJet(*itGenJet);
         }
+        ajet.setGenJet(bestGenJet);
       }
       // TO BE IMPLEMENTED FOR >=1_5_X: do the PartonJet matching
       if (doPartonJetMatch_) {
