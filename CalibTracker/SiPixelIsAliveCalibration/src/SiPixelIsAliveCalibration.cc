@@ -13,7 +13,7 @@
 //
 // Original Author:  Freya Blekman
 //         Created:  Thu Jun 14 18:06:29 CEST 2007
-// $Id: SiPixelIsAliveCalibration.cc,v 1.4 2007/08/16 14:46:37 fblekman Exp $
+// $Id: SiPixelIsAliveCalibration.cc,v 1.5 2007/08/16 14:56:52 fblekman Exp $
 //
 //
 
@@ -76,7 +76,7 @@ SiPixelIsAliveCalibration::SiPixelIsAliveCalibration(const edm::ParameterSet& iC
    //now do what ever initialization is needed
   theHistos_=new TObjArray();
   if(use_calib_)
-    calib_ = new PixelCalib(inputconfigfile_);
+    calib_ = new SiPixelCalibConfiguration(inputconfigfile_);
 }
 
 

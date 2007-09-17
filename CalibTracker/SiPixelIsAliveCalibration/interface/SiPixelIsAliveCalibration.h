@@ -1,5 +1,5 @@
 
-#include "CalibFormats/SiPixelObjects/interface/PixelCalib.h"
+#include "CalibFormats/SiPixelObjects/interface/SiPixelCalibConfiguration.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "PhysicsTools/UtilAlgos/interface/TFileDirectory.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
@@ -24,7 +24,7 @@
 #include "CondFormats/SiPixelObjects/interface/SiPixelFedCablingMap.h"
 #include "CondFormats/DataRecord/interface/SiPixelFedCablingMapRcd.h"
 
-#include "CalibFormats/SiPixelObjects/interface/PixelCalib.h"
+#include "CalibFormats/SiPixelObjects/interface/SiPixelCalibConfiguration.h"
 #include "CondTools/SiPixel/interface/SiPixelGainCalibrationService.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
@@ -50,7 +50,7 @@ class SiPixelIsAliveCalibration : public edm::EDAnalyzer {
       void fill(unsigned int detid, unsigned int adc, unsigned int icol, unsigned int irow, unsigned int ntimes);
       void init(unsigned detid);
       TObjArray *theHistos_;
-      PixelCalib *calib_;
+      SiPixelCalibConfiguration *calib_;
       TString makeHistName(unsigned int detid);
       edm::Service<TFileService> therootfileservice_;
       edm::ESHandle<TrackerGeometry> geom_;
