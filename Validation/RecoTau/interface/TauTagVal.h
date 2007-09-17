@@ -33,6 +33,7 @@
 #include "DataFormats/Math/interface/Vector3D.h"
 #include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
 #include "DataFormats/JetReco/interface/PFJet.h"
+//#include "DataFormats/TauReco/interface/CaloTau.h"
 
 // Math
 #include "Math/GenVector/VectorUtil.h"
