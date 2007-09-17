@@ -1,7 +1,17 @@
 <lcgdict>
 	<!-- Histogram -->
-	<class name="PhysicsTools::Calibration::Histogram::Range"/>
-	<class name="PhysicsTools::Calibration::Histogram"/>
+	<class name="PhysicsTools::Calibration::Range&lt;float&gt;"/>
+	<class name="PhysicsTools::Calibration::Histogram&lt;float,float&gt;">
+		<field name="total" transient="true"/>
+		<field name="totalValid" transient="true"/>
+	</class>
+	<class name="std::vector&lt;PhysicsTools::Calibration::HistogramF&gt;"/>
+	<class name="PhysicsTools::Calibration::Range&lt;double&gt;"/>
+	<class name="PhysicsTools::Calibration::Histogram&lt;double,double&gt;">
+		<field name="total" transient="true"/>
+		<field name="totalValid" transient="true"/>
+	</class>
+	<class name="std::vector&lt;PhysicsTools::Calibration::HistogramD&gt;"/>
 
 	<!-- MVAComputer -->
 	<class name="PhysicsTools::Calibration::BitSet"/>
@@ -48,7 +58,6 @@
 	<class name="std::vector&lt;unsigned char&gt;"/>
 	<class name="std::vector&lt;std::string&gt;"/>
 	<class name="std::vector&lt;PhysicsTools::Calibration::Variable&gt;"/>
-	<class name="std::vector&lt;PhysicsTools::Calibration::Histogram&gt;"/>
 	<class name="std::vector&lt;PhysicsTools::Calibration::ProcLikelihood::SigBkg&gt;"/>
 	<class name="std::pair&lt;double, std::vector&lt;double&gt; &gt;"/>
 	<class name="std::pair&lt;std::vector&lt;PhysicsTools::Calibration::ProcMLP::Neuron&gt;, bool&gt;"/>

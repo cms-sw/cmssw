@@ -9,7 +9,7 @@
 //
 // Author:	Christophe Saout <christophe.saout@cern.ch>
 // Created:     Sat Apr 24 15:18 CEST 2007
-// $Id: MVAComputer.h,v 1.8 2007/05/24 18:11:38 saout Exp $
+// $Id: MVAComputer.h,v 1.9 2007/09/16 22:51:49 saout Exp $
 //
 
 #include <string>
@@ -91,7 +91,7 @@ class ProcCategory : public VarProcessor {
 
 class ProcNormalize : public VarProcessor {
     public:
-	std::vector<Histogram>		distr;
+	std::vector<HistogramF>		distr;
 	unsigned int			nCategories;
 };
 
@@ -99,8 +99,8 @@ class ProcLikelihood : public VarProcessor {
     public:
 	class SigBkg {
 	    public:
-		Histogram		background;
-		Histogram		signal;
+		HistogramF		background;
+		HistogramF		signal;
 		bool			useSplines;
 	};
 
@@ -184,8 +184,7 @@ class MVAComputer {
 	CacheId				cacheId;	// transient
 };
 
-// this is a temporary hack used in RecoBTau until ESSources can be
-// retrieved via label from the same record
+// useful if different categories exist with different configurations
 class MVAComputerContainer {
     public:
 	typedef std::pair<std::string, MVAComputer> Entry;

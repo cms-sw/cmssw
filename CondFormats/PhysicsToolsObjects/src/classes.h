@@ -4,25 +4,34 @@
 using namespace PhysicsTools::Calibration;
 
 namespace { // anonymous
+namespace {
 
 #ifdef STD_DICTIONARIES_STUFF_MISSING
 std::vector<unsigned char> v1;
-std::vector<unsigned char>::iterator v1i;
-std::vector<unsigned char>::const_iterator v1ci;
-std::vector<double> v2;
-std::vector<double>::iterator v2i;
-std::vector<double>::const_iterator v2ci;
-std::vector<std::string> v3;
+std::vector<unsigned char>::iterator v2;
+std::vector<unsigned char>::const_iterator v3;
+std::vector<double> v4;
+std::vector<double>::iterator v5;
+std::vector<double>::const_iterator v6;
+std::vector<std::string> v7;
 #endif
 
-// MVAComputer
-std::vector<Variable> v4;
-std::vector<Histogram> v5;
-std::vector<ProcCategory::BinLimits> v6;
-std::vector<ProcLikelihood::SigBkg> v7;
-std::pair<double, std::vector<double> > v8;
-std::pair<std::vector<ProcMLP::Neuron>, bool> v9;
-MVAComputerContainer::Entry v10;
-std::vector<MVAComputerContainer::Entry> v11;
+// Histogram
+HistogramF::Range v8;
+HistogramF v9;
+std::vector<HistogramF> v10;
+HistogramD::Range v11;
+HistogramD v12;
+std::vector<HistogramD> v13;
 
+// MVAComputer
+std::vector<Variable> v14;
+std::vector<ProcCategory::BinLimits> v15;
+std::vector<ProcLikelihood::SigBkg> v16;
+std::pair<double, std::vector<double> > v17;
+std::pair<std::vector<ProcMLP::Neuron>, bool> v18;
+MVAComputerContainer::Entry v19;
+std::vector<MVAComputerContainer::Entry> v20;
+
+}
 } // anonymous namespace

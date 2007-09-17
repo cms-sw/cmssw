@@ -6,62 +6,101 @@
 namespace PhysicsTools {
 namespace Calibration {
 
+template<typename Axis_t>
+struct Range {
+	inline Range() {}
+
+	template<typename OAxis_t>
+	inline Range(const Range<OAxis_t> &orig) :
+		min(orig.min), max(orig.max) {}
+
+	inline Range(Axis_t min, Axis_t max) : min(min), max(max) {}
+
+	inline ~Range() {}
+
+	inline Axis_t width() const { return max - min; }
+
+	Axis_t	min, max;
+};
+
+template<typename Value_t, typename Axis_t = Value_t>
 class Histogram {
     public:
-	struct Range {
-		Range() {}
-		Range(const Range &orig) : min(orig.min), max(orig.max) {}
-		Range(float min, float max) : min(min), max(max) {}
-		~Range() {}
-
-		inline float width() const { return max - min; }
-
-		float min, max;
-	};
+	typedef Range<Axis_t> Range;
 
 	Histogram();
+
 	Histogram(const Histogram &orig);
-	Histogram(std::vector<float> binLimits);
-	Histogram(unsigned int nBins, Range range);
-	Histogram(unsigned int nBins, float min, float max);
+
+	template<typename OValue_t, typename OAxis_t>
+	Histogram(const Histogram<OValue_t, OAxis_t> &orig);
+
+	Histogram(const std::vector<Axis_t> &binULimits);
+
+	template<typename OAxis_t>
+	Histogram(const std::vector<OAxis_t> &binULimits);
+
+	template<typename OAxis_t>
+	Histogram(unsigned int nBins,
+	          const PhysicsTools::Calibration::Range<OAxis_t> &range);
+
+	Histogram(unsigned int nBins, Axis_t min, Axis_t max);
+
 	~Histogram();
 
 	Histogram &operator = (const Histogram &orig);
 
-	void normalize();
+	template<typename OValue_t, typename OAxis_t>
+	Histogram &operator = (const Histogram<OValue_t, OAxis_t> &orig);
+
 	void reset();
 
-	float binContent(int bin) const { return binValues[bin]; }
-	float value(float x) const { return binContent(findBin(x)); }
+	Value_t binContent(int bin) const { return binValues[bin]; }
+	Value_t value(Axis_t x) const { return binContent(findBin(x)); }
+	Value_t normalizedValue(Axis_t x) const
+	{ return binContent(findBin(x)) / normalization(); }
 
-	void setBinContent(int bin, float value);
-	void fill(float x, float weight = 1.0);
+	void setBinContent(int bin, Value_t value);
+	void fill(Axis_t x, Value_t weight = 1.0);
 
-	bool hasEquidistantBins() const { return binLimits.empty(); }
-	int getNBins() const { return binValues.size() - 2; }
+	bool empty() const { return binValues.empty(); }
+	bool hasEquidistantBins() const { return binULimits.empty(); }
+	int numberOfBins() const { return binValues.size() - 2; }
 
-	inline const std::vector<float> &getValueArray() const
+	inline const std::vector<Value_t> &values() const
 	{ return binValues; }
-	inline std::vector<float> &getValueArray()
-	{ return binValues; }
-	inline Range getRange() const { return range; }
-	Range getBinRange(int bin) const;
 
-	int findBin(float x) const;
-	inline float getIntegral() const { return total; }
+	void setValues(const std::vector<Value_t> &values);
 
-	float integral(float hBound, float lBound = 0.0, int mode = 2) const;
-	float normalizedIntegral(float hBound, float lBound = 0.0, int mode = 2) const
-	{ return integral(hBound, lBound, mode) / total; }
+	template<typename OValue_t>
+	void setValues(const std::vector<OValue_t> &values);
+
+	inline Range range() const { return limits; }
+	Range binRange(int bin) const;
+
+	int findBin(Axis_t x) const;
+	Value_t normalization() const;
+
+	Value_t integral(Axis_t hBound, Axis_t lBound = 0.0, int mode = 1) const;
+	Value_t normalizedIntegral(Axis_t hBound, Axis_t lBound = 0.0, int mode = 1) const
+	{ return integral(hBound, lBound, mode) / normalization(); }
 
     protected:
-	std::vector<float>	binLimits;
-	std::vector<float>	binValues;
-	Range			range;
-	float			total;
+	std::vector<Axis_t>	binULimits;
+	std::vector<Value_t>	binValues;
+	Range			limits;
+
+	// transient cache variables
+	mutable Value_t		total;
+	mutable bool		totalValid;
 };
+
+typedef Histogram<float>  HistogramF;
+typedef Histogram<double> HistogramD;
 
 } // namespace Calibration
 } // namespace PhysicsTools
+
+#include "CondFormats/PhysicsToolsObjects/interface/Histogram.icc"
 
 #endif // CondFormats_PhysicsToolsObjects_Histogram_h
