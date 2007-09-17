@@ -56,18 +56,17 @@ class ProcNormalize : public TrainProcessor {
 	};
 
 	struct PDF {
-		operator Calibration::Histogram() const
+		operator Calibration::HistogramF() const
 		{
-			Calibration::Histogram histo(distr.size(), range);
+			Calibration::HistogramF histo(distr.size(), range);
 			for(unsigned int i = 0; i < distr.size(); i++)
 				histo.setBinContent(i + 1, distr[i]);
-			histo.normalize();
 			return histo;
 		}
 
 		unsigned int			smooth;
-		std::vector<float>		distr;
-		Calibration::Histogram::Range	range;
+		std::vector<double>		distr;
+		Calibration::HistogramD::Range	range;
 		Iteration			iteration;
 	};
 
@@ -108,9 +107,9 @@ void ProcNormalize::configure(DOMElement *elem)
 							elem, "smooth", 40);
 
 		try {
-			pdf.range.min = XMLDocument::readAttribute<float>(
+			pdf.range.min = XMLDocument::readAttribute<double>(
 								elem, "lower");
-			pdf.range.max = XMLDocument::readAttribute<float>(
+			pdf.range.max = XMLDocument::readAttribute<double>(
 								elem, "upper");
 			pdf.iteration = ITER_FILL;
 		} catch(...) {
@@ -158,9 +157,9 @@ void ProcNormalize::trainData(const std::vector<double> *values,
 							values->begin();
 				value != values->end(); value++) {
 				iter->range.min = std::min(iter->range.min,
-				                           (float)*value);
+				                           *value);
 				iter->range.max = std::max(iter->range.max,
-				                           (float)*value);
+				                           *value);
 			}
 			continue;
 		    case ITER_FILL:
@@ -185,13 +184,13 @@ void ProcNormalize::trainData(const std::vector<double> *values,
 	}
 }
 
-static void smoothArray(unsigned int n, float *values, unsigned int nTimes)
+static void smoothArray(unsigned int n, double *values, unsigned int nTimes)
 {
 	for(unsigned int iter = 0; iter < nTimes; iter++) {
-		float hold = n > 0 ? values[0] : 0.0;
+		double hold = n > 0 ? values[0] : 0.0;
 		for(unsigned int i = 0; i < n; i++) {
-			float delta = hold * 0.1;
-			float rem = 0.0;
+			double delta = hold * 0.1;
+			double rem = 0.0;
 			if (i > 0) {
 				values[i - 1] += delta;
 				rem -= delta;
@@ -274,9 +273,9 @@ bool ProcNormalize::load()
 		PDF pdf;
 
 		pdf.range.min =
-			XMLDocument::readAttribute<float>(elem, "lower");
+			XMLDocument::readAttribute<double>(elem, "lower");
 		pdf.range.max =
-			XMLDocument::readAttribute<float>(elem, "upper");
+			XMLDocument::readAttribute<double>(elem, "upper");
 		pdf.iteration = ITER_DONE;
 
 		for(DOMNode *subNode = elem->getFirstChild();
@@ -293,7 +292,7 @@ bool ProcNormalize::load()
 			elem = static_cast<DOMElement*>(node);
 
 			pdf.distr.push_back(
-				XMLDocument::readContent<float>(subNode));
+				XMLDocument::readContent<double>(subNode));
 		}
 
 		*cur++ = pdf;
@@ -320,13 +319,13 @@ void ProcNormalize::save()
 		XMLDocument::writeAttribute(elem, "lower", iter->range.min);
 		XMLDocument::writeAttribute(elem, "upper", iter->range.max);
 
-		for(std::vector<float>::const_iterator iter2 =
+		for(std::vector<double>::const_iterator iter2 =
 		    iter->distr.begin(); iter2 != iter->distr.end(); iter2++) {
 			DOMElement *value =
 					doc->createElement(XMLUniStr("value"));
 			elem->appendChild(value);	
 
-			XMLDocument::writeContent<float>(value, doc, *iter2);
+			XMLDocument::writeContent<double>(value, doc, *iter2);
 		}
 	}
 }

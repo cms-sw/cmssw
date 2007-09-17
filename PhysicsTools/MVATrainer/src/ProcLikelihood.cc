@@ -48,8 +48,8 @@ class ProcLikelihood : public TrainProcessor {
 	virtual void save();
 
 	struct PDF {
-		std::vector<float>		distr;
-		Calibration::Histogram::Range	range;
+		std::vector<double>		distr;
+		Calibration::HistogramD::Range	range;
 	};
 
     private:
@@ -108,10 +108,10 @@ void ProcLikelihood::configure(DOMElement *elem)
 
 		try {
 			pdf.signal.range.min =
-				XMLDocument::readAttribute<float>(
+				XMLDocument::readAttribute<double>(
 								elem, "lower");
 			pdf.signal.range.max =
-				XMLDocument::readAttribute<float>(
+				XMLDocument::readAttribute<double>(
 								elem, "upper");
 			pdf.background.range = pdf.signal.range;
 			pdf.iteration = ITER_FILL;
@@ -137,29 +137,32 @@ Calibration::VarProcessor *ProcLikelihood::getCalibration() const
 	    iter != pdfs.end(); iter++) {
 		Calibration::ProcLikelihood::SigBkg pdf;
 
-		pdf.signal =
-			Calibration::Histogram(iter->signal.distr.size(),
-			                       iter->signal.range);
+		pdf.signal = Calibration::HistogramF(iter->signal.distr.size(),
+		                                     iter->signal.range);
 		double factor = std::accumulate(iter->signal.distr.begin(),
 			                        iter->signal.distr.end(), 0.0);
 		factor = 1.0 / factor;
+		std::vector<double> values(iter->signal.distr.size() + 2);
 		std::transform(iter->signal.distr.begin(),
 		               iter->signal.distr.end(),
-		               pdf.signal.getValueArray().begin() + 1,
-		               std::bind1st(std::multiplies<float>(), factor));
-		pdf.signal.normalize();
+		               values.begin() + 1,
+		               std::bind1st(std::multiplies<double>(),
+		                            factor));
+		pdf.signal.setValues(values);
 
 		pdf.background =
-			Calibration::Histogram(iter->background.distr.size(),
-			                       iter->background.range);
+			Calibration::HistogramF(iter->background.distr.size(),
+			                        iter->background.range.min,
+			                        iter->background.range.max);
 		factor = std::accumulate(iter->background.distr.begin(),
 		                         iter->background.distr.end(), 0.0);
 		factor = 1.0 / factor;
 		std::transform(iter->background.distr.begin(),
 		               iter->background.distr.end(),
-		               pdf.background.getValueArray().begin() + 1,
-		               std::bind1st(std::multiplies<float>(), factor));
-		pdf.background.normalize();
+		               values.begin() + 1,
+		               std::bind1st(std::multiplies<double>(),
+		                            factor));
+		pdf.background.setValues(values);
 
 		pdf.useSplines = true;
 
@@ -197,10 +200,10 @@ void ProcLikelihood::trainData(const std::vector<double> *values,
 				value != values->end(); value++) {
 				iter->signal.range.min =
 					std::min(iter->signal.range.min,
-					         (float)*value);
+					         *value);
 				iter->signal.range.max =
 					std::max(iter->signal.range.max,
-					         (float)*value);
+					         *value);
 			}
 			continue;
 		    case ITER_FILL:
@@ -226,13 +229,13 @@ void ProcLikelihood::trainData(const std::vector<double> *values,
 	}
 }
 
-static void smoothArray(unsigned int n, float *values, unsigned int nTimes)
+static void smoothArray(unsigned int n, double *values, unsigned int nTimes)
 {
 	for(unsigned int iter = 0; iter < nTimes; iter++) {
-		float hold = n > 0 ? values[0] : 0.0;
+		double hold = n > 0 ? values[0] : 0.0;
 		for(unsigned int i = 0; i < n; i++) {
-			float delta = hold * 0.1;
-			float rem = 0.0;
+			double delta = hold * 0.1;
+			double rem = 0.0;
 			if (i > 0) {
 				values[i - 1] += delta;
 				rem -= delta;
@@ -291,8 +294,8 @@ static void xmlParsePDF(ProcLikelihood::PDF &pdf, DOMElement *elem)
 			<< "Expected pdf tag in sigbkg train data."
 			<< std::endl;
 
-	pdf.range.min = XMLDocument::readAttribute<float>(elem, "lower");
-	pdf.range.max = XMLDocument::readAttribute<float>(elem, "upper");
+	pdf.range.min = XMLDocument::readAttribute<double>(elem, "lower");
+	pdf.range.max = XMLDocument::readAttribute<double>(elem, "upper");
 
 	for(DOMNode *node = elem->getFirstChild();
 	    node; node = node->getNextSibling()) {
@@ -305,7 +308,7 @@ static void xmlParsePDF(ProcLikelihood::PDF &pdf, DOMElement *elem)
 				<< "Expected value tag in train file."
 				<< std::endl;
 
-		pdf.distr.push_back(XMLDocument::readContent<float>(node));
+		pdf.distr.push_back(XMLDocument::readContent<double>(node));
 	}
 }
 
@@ -395,12 +398,12 @@ static DOMElement *xmlStorePDF(DOMDocument *doc,
 	XMLDocument::writeAttribute(elem, "lower", pdf.range.min);
 	XMLDocument::writeAttribute(elem, "upper", pdf.range.max);
 
-	for(std::vector<float>::const_iterator iter =
+	for(std::vector<double>::const_iterator iter =
 	    pdf.distr.begin(); iter != pdf.distr.end(); iter++) {
 		DOMElement *value = doc->createElement(XMLUniStr("value"));
 		elem->appendChild(value);	
 
-		XMLDocument::writeContent<float>(value, doc, *iter);
+		XMLDocument::writeContent<double>(value, doc, *iter);
 	}
 
 	return elem;
