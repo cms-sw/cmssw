@@ -12,7 +12,7 @@
 //
 // Author:      Christophe Saout
 // Created:     Sat Apr 24 15:18 CEST 2007
-// $Id: ProcNormalize.cc,v 1.4 2007/07/15 22:31:46 saout Exp $
+// $Id: ProcNormalize.cc,v 1.5 2007/09/16 22:55:34 saout Exp $
 //
 
 #include <vector>
@@ -41,13 +41,12 @@ class ProcNormalize : public VarProcessor {
 
     private:
 	struct Map {
-		Map(const Calibration::Histogram &pdf) :
-			min(pdf.getRange().min),
-			width(pdf.getRange().max - pdf.getRange().min)
+		Map(const Calibration::HistogramF &pdf) :
+			min(pdf.range().min), width(pdf.range().width())
 		{
 			std::vector<double> values(
-					pdf.getValueArray().begin() + 1,
-					pdf.getValueArray().end() - 1);
+					pdf.values().begin() + 1,
+					pdf.values().end() - 1);
 			spline.set(values.size(), &values.front());
 		}
 

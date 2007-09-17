@@ -12,7 +12,7 @@
 //
 // Author:      Christophe Saout
 // Created:     Sat Apr 24 15:18 CEST 2007
-// $Id: ProcLikelihood.cc,v 1.4 2007/07/15 22:31:46 saout Exp $
+// $Id: ProcLikelihood.cc,v 1.5 2007/09/16 22:55:34 saout Exp $
 //
 
 #include <vector>
@@ -47,13 +47,13 @@ class ProcLikelihood : public VarProcessor {
 	};
 
 	struct SplinePDF : public PDF {
-		SplinePDF(const Calibration::Histogram *calib) :
-			min(calib->getRange().min),
-			width(calib->getRange().width())
+		SplinePDF(const Calibration::HistogramF *calib) :
+			min(calib->range().min),
+			width(calib->range().width())
 		{
 			std::vector<double> values(
-					calib->getValueArray().begin() + 1,
-					calib->getValueArray().end() - 1);
+					calib->values().begin() + 1,
+					calib->values().end() - 1);
 			spline.set(values.size(), &values.front());
 		}
 
@@ -64,12 +64,12 @@ class ProcLikelihood : public VarProcessor {
 	};
 
 	struct HistogramPDF : public PDF {
-		HistogramPDF(const Calibration::Histogram *calib) :
+		HistogramPDF(const Calibration::HistogramF *calib) :
 			histo(calib) {}
 
 		virtual double eval(double value) const;
 
-		const Calibration::Histogram	*histo;
+		const Calibration::HistogramF	*histo;
 	};
 
 	struct SigBkg {
@@ -107,7 +107,7 @@ double ProcLikelihood::SplinePDF::eval(double value) const
 
 double ProcLikelihood::HistogramPDF::eval(double value) const
 {
-	return histo->value(value) / histo->getIntegral();
+	return histo->normalizedValue(value);
 }
 
 ProcLikelihood::ProcLikelihood(const char *name,

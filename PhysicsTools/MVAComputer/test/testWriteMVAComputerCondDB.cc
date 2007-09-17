@@ -73,11 +73,10 @@ void testWriteMVAComputerCondDB::endJob()
 	testSet[0] = testSet[1] = true;
 	norm.inputVars = convert(testSet);
 
-	Histogram pdf(3, 4.0, 5.5);
+	HistogramF pdf(3, 4.0, 5.5);
 	pdf.setBinContent(1, 1.0);
 	pdf.setBinContent(2, 1.5);
 	pdf.setBinContent(3, 1.0);
-	pdf.normalize();
 	norm.nCategories = 0;
 	norm.distr.push_back(pdf);
 	norm.distr.push_back(pdf);
@@ -92,17 +91,16 @@ void testWriteMVAComputerCondDB::endJob()
 	testSet[2] = true;
 	lkh.inputVars = convert(testSet);
 
-	pdf = Histogram(6, 0.0, 1.0);
+	pdf = HistogramF(6, 0.0, 1.0);
 	pdf.setBinContent(1, 1.0);
 	pdf.setBinContent(2, 1.5);
 	pdf.setBinContent(3, 1.0);
 	pdf.setBinContent(4, 1.0);
 	pdf.setBinContent(5, 1.5);
 	pdf.setBinContent(6, 1.0);
-	pdf.normalize();
 	ProcLikelihood::SigBkg sigBkg;
 	sigBkg.signal = pdf;
-	pdf = Histogram(9, 0.0, 1.0);
+	pdf = HistogramF(9, 0.0, 1.0);
 	pdf.setBinContent(1, 1.0);
 	pdf.setBinContent(2, 1.5);
 	pdf.setBinContent(3, 1.0);
@@ -112,7 +110,6 @@ void testWriteMVAComputerCondDB::endJob()
 	pdf.setBinContent(7, 1.5);
 	pdf.setBinContent(8, 1.0);
 	pdf.setBinContent(9, 1.7);
-	pdf.normalize();
 	sigBkg.background = pdf;
 	sigBkg.useSplines = true;
 	lkh.nCategories = 0;
