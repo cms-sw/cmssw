@@ -5,7 +5,7 @@
 //
 //
 
-#include "CalibFormats/SiPixelObjects/interface/PixelCalib.h"
+#include "CalibFormats/SiPixelObjects/interface/SiPixelCalibConfiguration.h"
 #include <fstream>
 #include <iostream>
 #include <ios>
@@ -16,7 +16,7 @@ char* itoa(int i){
     assert(0);
 }
 
-PixelCalib::PixelCalib(std::string filename):
+SiPixelCalibConfiguration::SiPixelCalibConfiguration(std::string filename):
   PixelConfigBase("","",""){
 
 
@@ -120,7 +120,7 @@ PixelCalib::PixelCalib(std::string filename):
 
 }
 
-unsigned int PixelCalib::vcal(unsigned int state) const{
+unsigned int SiPixelCalibConfiguration::vcal(unsigned int state) const{
 
     assert(state<nConfigurations());
 
@@ -130,14 +130,14 @@ unsigned int PixelCalib::vcal(unsigned int state) const{
     return vcal;
 
 }
-unsigned int PixelCalib::vcal_fromeventno(unsigned int evtno) const {
-  // added by Freya, calculates state and uses PixelCalib::vcal.
+unsigned int SiPixelCalibConfiguration::vcal_fromeventno(unsigned int evtno) const {
+  // added by Freya, calculates state and uses SiPixelCalibConfiguration::vcal.
   
   unsigned int state = evtno/ntrigger_;
   return vcal(state);
 }
 
-std::ostream& operator<<(std::ostream& s, const PixelCalib& calib){
+std::ostream& operator<<(std::ostream& s, const SiPixelCalibConfiguration& calib){
 
     s<< "Rows:"<<std::endl;
     for (unsigned int i=0;i<calib.rows_.size();i++){
@@ -169,7 +169,7 @@ std::ostream& operator<<(std::ostream& s, const PixelCalib& calib){
 }
 
 
-void PixelCalib::getRowsAndCols(unsigned int state,
+void SiPixelCalibConfiguration::getRowsAndCols(unsigned int state,
 				std::vector<unsigned int>& rows,
 				std::vector<unsigned int>& cols) const{
 
