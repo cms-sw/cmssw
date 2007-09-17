@@ -18,9 +18,10 @@
 
 <use name=PhysicsTools/UtilAlgos>
 <use name=FWCore/ServiceRegistry>
+<use name=FastSimulation/Particle>
+<use name=FastSimulation/BaseParticlePropagator>
 
-<flags SEAL_PLUGIN_NAME="GeneratorInterfaceGenFilters">
-#<flags EDM_PLUGIN=1>
+<flags EDM_PLUGIN=1>
 <export>
  <use name=boost>
  <use name=FWCore/Framework>
@@ -34,4 +35,6 @@
  <use name=GeneratorInterface/Pythia6Interface>
  <use name=DataFormats/GeometryVector>
  <use name=DataFormats/GeometrySurface>
+<use name=FastSimulation/Particle>
+<use name=FastSimulation/BaseParticlePropagator>
 </export>
