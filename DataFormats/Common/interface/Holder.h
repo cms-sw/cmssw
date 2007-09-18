@@ -1,3 +1,4 @@
+
 #ifndef DataFormats_Common_Holder_h
 #define DataFormats_Common_Holder_h
 #include "DataFormats/Common/interface/BaseHolder.h"
@@ -168,6 +169,7 @@ namespace edm {
 }
 
 #include "DataFormats/Common/interface/HolderToVectorTrait.h"
+#include "DataFormats/Common/interface/Ref.h"
 
 namespace edm {
   namespace reftobase {

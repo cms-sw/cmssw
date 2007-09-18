@@ -8,14 +8,14 @@ namespace edm {
 
     template <typename T, typename REF>
     struct InvaidHolderToVector {
-      static  std::auto_ptr<BaseVectorHolder<T> > makeVectorHolder() {
+      static std::auto_ptr<BaseVectorHolder<T> > makeVectorHolder() {
 	throw edm::Exception(errors::InvalidReference)
 	  << "InvaidHolderToVector: trying to use RefToBase built with "
 	  << "an internal type. RefToBase should be built passing an "
 	  << "object of type edm::Ref<C>. This exception should never "
 	  << "be thrown if a RefToBase was built from a RefProd<C>.";
       }
-      static  std::auto_ptr<BaseVectorHolder<T> > makeVectorBaseHolder() {
+      static std::auto_ptr<RefVectorHolderBase> makeVectorBaseHolder() {
 	throw edm::Exception(errors::InvalidReference)
 	  << "InvaidHolderToVector: trying to use RefToBase built with "
 	  << "an internal type. RefToBase should be built passing an "
