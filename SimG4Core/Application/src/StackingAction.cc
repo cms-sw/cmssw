@@ -6,16 +6,18 @@
  
 StackingAction::StackingAction(const edm::ParameterSet & p) {
   savePrimaryDecayProductsAndConversions = p.getUntrackedParameter<bool>("SavePrimaryDecayProductsAndConversions",false);
+  trackNeutrino = p.getUntrackedParameter<bool>("TrackNeutrino", false);
   suppressHeavy = p.getUntrackedParameter<bool>("SuppressHeavy", false);
   pmaxIon       = p.getUntrackedParameter<double>("IonThreshold", 50.0)*MeV;
   pmaxProton    = p.getUntrackedParameter<double>("ProtonThreshold", 50.0)*MeV;
   pmaxNeutron   = p.getUntrackedParameter<double>("NeutronThreshold", 50.0)*MeV;
   edm::LogInfo("SimG4CoreApplication") << "StackingAction initiated with"
-				       << " flag for saving decay products "
+				       << " flag for saving decay products: "
 				       <<savePrimaryDecayProductsAndConversions
-				       << " Suppression Flag " << suppressHeavy
-				       << " protons below " << pmaxProton 
-				       << " MeV/c, neutrons below "
+				       << " Flag for tracking neutrino: "
+				       << trackNeutrino << " Suppression Flag "
+				       << suppressHeavy << " protons below " 
+				       <<pmaxProton <<" MeV/c, neutrons below "
 				       << pmaxNeutron << " MeV/c and ions"
 				       << " below " << pmaxIon << " MeV/c\n";
 
@@ -41,6 +43,11 @@ G4ClassificationOfNewTrack StackingAction::ClassifyNewTrack(const G4Track * aTra
 	   (((pdg/10)%100) > 0) && (pp<pmaxIon)) || 
 	  ((pdg == 2212) && (pp < pmaxProton)) ||
 	  ((pdg == 2112) && (pp < pmaxNeutron))) classification = fKill;
+    }
+    if (!trackNeutrino) {
+      int    pdg = std::abs(aTrack->GetDefinition()->GetPDGEncoding());
+      if (pdg == 12 || pdg == 14 || pdg == 16 || pdg == 18) 
+	classification = fKill;
     }
     LogDebug("SimG4CoreApplication") << "StackingAction:Classify Track "
 				     << aTrack->GetTrackID() << " Parent " 

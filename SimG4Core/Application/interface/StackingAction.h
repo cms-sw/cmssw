@@ -15,7 +15,7 @@ public:
   virtual void NewStage();
   virtual void PrepareNewEvent();
 private:
-  bool   savePrimaryDecayProductsAndConversions, suppressHeavy;
+  bool   savePrimaryDecayProductsAndConversions, suppressHeavy, trackNeutrino;
   double pmaxIon, pmaxNeutron, pmaxProton;
 };
 
