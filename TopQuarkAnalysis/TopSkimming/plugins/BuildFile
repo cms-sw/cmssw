@@ -10,7 +10,6 @@
 <library file=TopLeptonTauFilter.cc>
   <use name=FWCore/Framework>
   <use name=FWCore/ParameterSet>
-  <use name=DataFormats/JetReco>
   <use name=DataFormats/METReco>
   <use name=DataFormats/MuonReco>
   <use name=DataFormats/TauReco>
