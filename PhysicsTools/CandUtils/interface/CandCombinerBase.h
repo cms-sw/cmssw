@@ -72,7 +72,7 @@ private:
   /// returns a composite candidate combined from two daughters
   reco::Candidate * combine( const Ref &, const Ref & ) const;
   /// temporary candidate stack
-  typedef std::vector<std::pair<Ref, typename std::vector<RefProd>::const_iterator> > CandStack;
+  typedef std::vector<std::pair<std::pair<Ref, size_t>, typename std::vector<RefProd>::const_iterator> > CandStack;
   typedef std::vector<int> ChargeStack;
   /// returns a composite candidate combined from two daughters
   void combine( size_t collectionIndex, CandStack &, ChargeStack &,
@@ -164,7 +164,6 @@ CandCombinerBase<InputCollection, OutputCollection>::combine( const std::vector<
       << " but configured to check against " << dauCharge_.size() << " charges.";
   
   std::auto_ptr<OutputCollection> comps( new OutputCollection );
-  
   if( srcSize == 2 ) {
     RefProd src1 = src[ 0 ], src2 = src[ 1 ];
     if ( src1 == src2 ) {
@@ -217,7 +216,7 @@ CandCombinerBase<InputCollection, OutputCollection>::combine( const RefProd & sr
       << "CandCombiner: trying to combine 2 collections"
       << " but configured to check against " << dauCharge_.size() << " charges.";
 
-  std::auto_ptr<Collection> comps( new Collection );
+  std::auto_ptr<OutputCollection> comps( new OutputCollection );
   const Collection & cands = * src; 
   const int n = cands.size();
   for( int i1 = 0; i1 < n; ++ i1 ) {
@@ -259,7 +258,7 @@ CandCombinerBase<InputCollection, OutputCollection>::combine( const RefProd & sr
 template<typename InputCollection, typename OutputCollection>
 std::auto_ptr<OutputCollection> 
 CandCombinerBase<InputCollection, OutputCollection>::combine( const RefProd & src1, const RefProd & src2, 
-				   const RefProd & src3, const RefProd & src4 ) const {
+							      const RefProd & src3, const RefProd & src4 ) const {
   std::vector<RefProd> src;
   src.push_back( src1 );
   src.push_back( src2 );
@@ -270,10 +269,10 @@ CandCombinerBase<InputCollection, OutputCollection>::combine( const RefProd & sr
 
 template<typename InputCollection, typename OutputCollection>
 void CandCombinerBase<InputCollection, OutputCollection>::combine( size_t collectionIndex, CandStack & stack, ChargeStack & qStack,
-				 typename std::vector<RefProd>::const_iterator collBegin,
-				 typename std::vector<RefProd>::const_iterator collEnd,
-				 std::auto_ptr<OutputCollection> & comps
-				 ) const {
+								   typename std::vector<RefProd>::const_iterator collBegin,
+								   typename std::vector<RefProd>::const_iterator collEnd,
+								   std::auto_ptr<OutputCollection> & comps
+								   ) const {
   if( collBegin == collEnd ) {
     static const int undetermined = 0, sameDecay = 1, conjDecay = -1, wrongDecay = 2;
     int decayType = undetermined;
@@ -295,32 +294,33 @@ void CandCombinerBase<InputCollection, OutputCollection>::combine( size_t collec
       }
     }
     if ( decayType != wrongDecay ) { 
-      reco::CompositeCandidate * cmp( new reco::CompositeCandidate );
+      std::auto_ptr<reco::CompositeCandidate> cmp( new reco::CompositeCandidate );
       for( typename CandStack::const_iterator i = stack.begin(); i != stack.end(); ++ i ) {
-	addDaughter( cmp, i->first );
+	addDaughter( cmp.get(), i->first.first );
       }
-      setup( cmp );
+      setup( cmp.get() );
       if ( select( * cmp ) )
 	comps->push_back( cmp );
     }
   } else {
-    const RefProd srcRef = * collBegin;
+    const RefProd & srcRef = * collBegin;
     const Collection & src = * srcRef;
     size_t candBegin = 0, candEnd = src.size();
     for( typename CandStack::const_iterator i = stack.begin(); i != stack.end(); ++i ) 
-      if ( * collBegin == * i->second ) 
-	candBegin = i->first.key() + 1;
+      if ( srcRef == * i->second ) 
+	candBegin = i->first.second + 1;
     for( size_t candIndex = candBegin; candIndex != candEnd; ++ candIndex ) {
-      Ref cand( srcRef, candIndex );
+      Ref candRef( srcRef, candIndex );
       bool noOverlap = true;
+      const reco::Candidate & cand = * candRef;
       for( typename CandStack::const_iterator i = stack.begin(); i != stack.end(); ++i ) 
-	if ( overlap_( * cand, * ( i->first ) ) ) { 
+	if ( overlap_( cand, * ( i->first.first ) ) ) { 
 	  noOverlap = false; 
 	  break; 
 	}
       if ( noOverlap ) {
-	stack.push_back( make_pair( cand, collBegin ) );
-	if ( checkCharge_ ) qStack.push_back( cand->charge() ); 
+	stack.push_back( std::make_pair( std::make_pair(candRef, candIndex), collBegin ) );
+	if ( checkCharge_ ) qStack.push_back( cand.charge() ); 
 	combine( collectionIndex + 1, stack, qStack, collBegin + 1, collEnd, comps );
 	stack.pop_back();
 	qStack.pop_back();
