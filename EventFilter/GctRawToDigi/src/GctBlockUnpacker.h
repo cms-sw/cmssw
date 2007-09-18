@@ -69,7 +69,7 @@ class GctBlockUnpacker {
   L1GctEmCandCollection* gctIsoEm_;
   L1GctEmCandCollection* gctNonIsoEm_;
   L1GctInternEmCandCollection* gctInternEm_;  
-  L1GctFibreCollection* gctFibres_;  
+  L1GctFibreCollection* gctFibres_;
 
 };
 

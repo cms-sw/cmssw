@@ -50,8 +50,8 @@ class GctBlockHeader {
   
   uint32_t d;
 
-  static std::map<unsigned, unsigned> blockLength_;  // fundamental size of a block (ie for 1 readout sample)
-  static std::map<unsigned, std::string> blockName_;  // block name!
+  static const std::map<unsigned, unsigned> blockLength_;  // fundamental size of a block (ie for 1 readout sample)
+  static const std::map<unsigned, std::string> blockName_;  // block name!
 
 
 

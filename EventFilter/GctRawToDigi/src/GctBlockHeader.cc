@@ -49,7 +49,7 @@ pair<unsigned, unsigned> a[] = {
   pair<unsigned, unsigned>(0xcb,4),
 };
 
-map<unsigned, unsigned> GctBlockHeader::blockLength_(a, a + sizeof(a) / sizeof(a[0]));
+const map<unsigned, unsigned> GctBlockHeader::blockLength_(a, a + sizeof(a) / sizeof(a[0]));
 
 /// setup class static to lookup block name
 pair<unsigned, string> b[] = {
@@ -75,5 +75,5 @@ pair<unsigned, string> b[] = {
   pair<unsigned, string>(0xcb,"Leaf-U2, Elec, PosEta, Sort Output"),
 };
 
-map<unsigned, string> GctBlockHeader::blockName_(b, b + sizeof(b) / sizeof(b[0]));
+const map<unsigned, string> GctBlockHeader::blockName_(b, b + sizeof(b) / sizeof(b[0]));
 

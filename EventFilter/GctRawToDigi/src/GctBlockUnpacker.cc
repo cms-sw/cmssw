@@ -56,23 +56,17 @@ void GctBlockUnpacker::convertBlock(const unsigned char * data, GctBlockHeader& 
   unsigned int nSamples = hdr.nSamples();
 
   // if the block has no time samples, don't bother
-  if ( nSamples > 1 ) { return; }
+  if ( nSamples < 1 ) { return; }
 
   // check block is valid
-  if ( hdr.valid() ) {
-    std::ostringstream os;
-    os << "Attempting to unpack an unidentified block" << std::endl; 
-    os << hdr << endl;
-    edm::LogError("GCT") << os.str();
+  if ( !hdr.valid() ) {
+    edm::LogError("GCT") << "Attempting to unpack an unidentified block\n" << hdr << endl;
     return;     
   }
 
   // check block doesn't have too many time samples
   if ( nSamples >= 0xf ) {
-    std::ostringstream os;
-    os << "Cannot unpack a block with 15 or more time samples" << std::endl; 
-    os << hdr << endl;
-    edm::LogError("GCT") << os.str();
+    edm::LogError("GCT") << "Cannot unpack a block with 15 or more time samples\n" << hdr << endl;
     return; 
   }
 
@@ -159,8 +153,8 @@ void GctBlockUnpacker::blockToGctEmCand(const unsigned char * d, GctBlockHeader&
   // re-interpret pointer
   uint16_t * p = reinterpret_cast<uint16_t *>(const_cast<unsigned char *>(d));
 
-  for (int iso=0; iso<2; iso++) {   // loop over non-iso/iso candidates
-    for (int bx=0; bx<nSamples; bx++) {   // loop over time samples
+  for (int iso=0; iso<2; ++iso) {   // loop over non-iso/iso candidates
+    for (int bx=0; bx<nSamples; ++bx) {   // loop over time samples
 
       bool isolated = (iso==1);
       uint16_t * pp = p+ (2*bx) + (iso*4*nSamples);
@@ -193,7 +187,7 @@ void GctBlockUnpacker::blockToGctInternEmCand(const unsigned char * d, GctBlockH
   unsigned int nSamples = hdr.nSamples();
   unsigned int length = hdr.length();
 
-  for (int i=0; i<length*nSamples; i=i+nSamples) {  // temporarily just take 0th time sample
+  for (int i=0; i<length*nSamples; i+=nSamples) {  // temporarily just take 0th time sample
     unsigned offset = i*4*nSamples;
     uint16_t w0 = d[offset]   + (d[offset+1]<<8); 
     uint16_t w1 = d[offset+2] + (d[offset+3]<<8);
@@ -231,20 +225,17 @@ void GctBlockUnpacker::blockToRctEmCand(const unsigned char * d, GctBlockHeader&
   int bx = 0;
 
   // loop over crates
-  for (int crate=rctCrate_[id]; crate<length/3; crate++) {
+  for (int crate=rctCrate_[id]; crate<length/3; ++crate) {
 
     // read SC SFP words
-    for (int iSfp=0; iSfp<4; iSfp++) {
-      for (int cyc=0; cyc<2; cyc++) {
-	
-	if (iSfp==0) { sfp[cyc][iSfp] = 0; } // muon bits
-	else {                               // EM candidate
-	  sfp[cyc][iSfp] = *p;
-	  p++;
-	}
-	  
+    for (int iSfp=0; iSfp<4; ++iSfp) {
+      for (int cyc=0; cyc<2; ++cyc) {
+        if (iSfp==0) { sfp[cyc][iSfp] = 0; } // muon bits
+        else {                               // EM candidate
+          sfp[cyc][iSfp] = *p;
+          ++p;
+        }
       }
-      
       p = p + 2*(nSamples-1);
     }
 
@@ -252,15 +243,13 @@ void GctBlockUnpacker::blockToRctEmCand(const unsigned char * d, GctBlockHeader&
     srcCardRouting_.SFPtoEMU(eIsoRank, eIsoCard, eIsoRgn, eNonIsoRank, eNonIsoCard, eNonIsoRgn, MIPbits, QBits, sfp);
     
     // create EM cands
-    for (int i=0; i<4; i++) {
+    for (int i=0; i<4; ++i) {
       rctEm_->push_back( L1CaloEmCand( eIsoRank[i], eIsoRgn[i], eIsoCard[i], crate, true, i, bx) );
     }
-    for (int i=0; i<4; i++) {
+    for (int i=0; i<4; ++i) {
       rctEm_->push_back( L1CaloEmCand( eNonIsoRank[i], eNonIsoRgn[i], eNonIsoCard[i], crate, false, i, bx) );
     }
-    
   }
-  
 }
 
 
@@ -276,12 +265,11 @@ void GctBlockUnpacker::blockToFibres(const unsigned char * d, GctBlockHeader& hd
   // re-interpret pointer
   uint32_t * p = reinterpret_cast<uint32_t *>(const_cast<unsigned char *>(d));
 
-  for (int i=0; i<length; i++) {
-    for (int bx=0; bx<nSamples; bx++) {
+  for (int i=0; i<length; ++i) {
+    for (int bx=0; bx<nSamples; ++bx) {
       gctFibres_->push_back( L1GctFibreWord(*p, id, i, bx) );
-      p++;
+      ++p;
     }
   } 
- 
 }
 

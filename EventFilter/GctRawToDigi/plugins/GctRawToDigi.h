@@ -16,7 +16,7 @@
 //
 // Original Author:  Jim Brooke
 //         Created:  Wed Nov  1 11:57:10 CET 2006
-// $Id: GctRawToDigi.h,v 1.8 2007/07/24 20:19:40 jbrooke Exp $
+// $Id: GctRawToDigi.h,v 1.9 2007/07/30 09:58:29 jbrooke Exp $
 //
 //
 
@@ -53,23 +53,18 @@ class GctRawToDigi : public edm::EDProducer {
 
  private: // members
 
-  static unsigned MAX_EXCESS;
-  static unsigned MAX_BLOCKS;
+  static const unsigned MAX_BLOCKS;
 
-  bool verbose_;         // print out for each event
+  edm::InputTag inputLabel_;  // FED collection label.
+  int fedId_;                 // GCT FED ID.
+  bool verbose_;              // If true, then debug print out for each event.
 
-  edm::InputTag inputLabel_;  // FED collection label
-
-  int fedId_;            // GCT FED ID
-  int nDebugSamples_;    // number of samples per block in debug mode
-  
   // unpacking options
   bool doEm_;
   bool doJets_;
   bool doEtSums_;
   bool doInternEm_;
   bool doFibres_;
-
 
   // Block to Digi converter
   GctBlockUnpacker blockUnpacker_;

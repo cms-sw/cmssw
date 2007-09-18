@@ -1,43 +1,42 @@
 #include "EventFilter/GctRawToDigi/plugins/GctRawToDigi.h"
 
-// system
+// System headers
 #include <vector>
 #include <sstream>
 #include <iostream>
 
-// framework
+// Framework headers
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/PluginManager/interface/ModuleDef.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
-
-// Raw data collection
+// Raw data collection headers
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 
-// GCT raw data formats
+// GCT raw data format headers
 #include "EventFilter/GctRawToDigi/src/GctBlockHeader.h"
 //#include "EventFilter/GctRawToDigi/interface/L1GctInternalObject.h"
 
-// GCT input data formats
+// GCT input data format headers
 #include "DataFormats/L1CaloTrigger/interface/L1CaloEmCand.h"
 #include "DataFormats/L1CaloTrigger/interface/L1CaloRegion.h"
 #include "DataFormats/L1CaloTrigger/interface/L1CaloRegionDetId.h"
 #include "DataFormats/L1CaloTrigger/interface/L1CaloCollections.h"
 
-// GCT output data formats
+// GCT output data format headers
 #include "DataFormats/L1GlobalCaloTrigger/interface/L1GctEmCand.h"
 #include "DataFormats/L1GlobalCaloTrigger/interface/L1GctJetCand.h"
 #include "DataFormats/L1GlobalCaloTrigger/interface/L1GctEtSums.h"
 #include "DataFormats/L1GlobalCaloTrigger/interface/L1GctJetCounts.h"
 #include "DataFormats/L1GlobalCaloTrigger/interface/L1GctCollections.h"
 
-
+// Namespace resolution
 using std::cout;
 using std::endl;
 using std::vector;
 
-unsigned GctRawToDigi::MAX_EXCESS = 512;
-unsigned GctRawToDigi::MAX_BLOCKS = 128;
+// Define class constants. 
+const unsigned GctRawToDigi::MAX_BLOCKS = 128;
 
 
 GctRawToDigi::GctRawToDigi(const edm::ParameterSet& iConfig) :
@@ -48,9 +47,9 @@ GctRawToDigi::GctRawToDigi(const edm::ParameterSet& iConfig) :
   doJets_(iConfig.getUntrackedParameter<bool>("unpackJets",true)),
   doEtSums_(iConfig.getUntrackedParameter<bool>("unpackEtSums",true)),
   doInternEm_(iConfig.getUntrackedParameter<bool>("unpackInternEm",true)),
-  doFibres_(iConfig.getUntrackedParameter<bool>("unpackFibres",true))
+  doFibres_(iConfig.getUntrackedParameter<bool>("unpackFibres",true)),
+  blockUnpacker_()
 {
-
   edm::LogInfo("GCT") << "GctRawToDigi will unpack FED Id " << fedId_ << endl;
 
   //register the products
@@ -67,7 +66,6 @@ GctRawToDigi::GctRawToDigi(const edm::ParameterSet& iConfig) :
   produces<L1GctEtMiss>();
   produces<L1GctJetCounts>();
   produces<L1GctFibreCollection>();
-
 }
 
 
@@ -109,9 +107,9 @@ GctRawToDigi::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 }
 
 
-void GctRawToDigi::unpack(const FEDRawData& d, edm::Event& e) {
-
-  // make collections for storing data
+void GctRawToDigi::unpack(const FEDRawData& d, edm::Event& e)
+{
+  // First make collections for storing data...:
 
   // Block headers
   std::vector<GctBlockHeader> bHdrs;
@@ -137,27 +135,27 @@ void GctRawToDigi::unpack(const FEDRawData& d, edm::Event& e) {
   std::auto_ptr<L1GctFibreCollection> gctFibres( new L1GctFibreCollection() );
 
 
-  // setup blockUnpackerer
+  // Setup blockUnpacker
   blockUnpacker_.setRctEmCollection( rctEm.get() );
   blockUnpacker_.setIsoEmCollection( gctIsoEm.get() );
   blockUnpacker_.setNonIsoEmCollection( gctNonIsoEm.get() );
   blockUnpacker_.setInternEmCollection( gctInternEm.get() );
   blockUnpacker_.setFibreCollection( gctFibres.get() );
 
-  // unpacking variables
+  // Unpacking variables
   const unsigned char * data = d.data();
   unsigned dEnd = d.size()-16; // bytes in payload
-  unsigned dPtr = 8; // data pointer
+  unsigned dPtr = 8; // data pointer (starts at 8 as there is a 64-bit Slink header at start of packet).
   bool lost = false;
 
   // read blocks
-  for (unsigned nb=0; !lost && dPtr<dEnd && nb<MAX_BLOCKS; nb++) {
+  for (unsigned nb=0; !lost && dPtr<dEnd && nb<MAX_BLOCKS; ++nb) {
 
     // read block header
     GctBlockHeader blockHead(&data[dPtr]);
 
     // unpack the block
-    blockUnpacker_.convertBlock(&data[dPtr+4], blockHead);
+    blockUnpacker_.convertBlock(&data[dPtr+4], blockHead);  // dPtr+4 to get to the block data.
 
     // store the header
     bHdrs.push_back(blockHead);
@@ -173,7 +171,7 @@ void GctRawToDigi::unpack(const FEDRawData& d, edm::Event& e) {
   if (verbose_) {
     std::ostringstream os;
     os << "Found " << bHdrs.size() << " GCT internal headers" << endl;
-    for (unsigned i=0; i<bHdrs.size(); i++) {
+    for (unsigned i=0; i<bHdrs.size(); ++i) {
       os << bHdrs[i]<< endl;
     }
     os << "Read " << rctEm.get()->size() << " RCT EM candidates" << endl;
