@@ -4,6 +4,7 @@
 #include "DataFormats/Common/interface/Handle.h"
 
 #include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
 
 #include "RecoTracker/TkSeedGenerator/interface/SeedFromConsecutiveHits.h"

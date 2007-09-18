@@ -4,6 +4,7 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "SimDataFormats/Track/interface/SimTrackContainer.h"
 #include "SimDataFormats/Vertex/interface/SimVertexContainer.h"
 #include "SimTracker/TrackAssociation/interface/TrackAssociatorByChi2.h"
