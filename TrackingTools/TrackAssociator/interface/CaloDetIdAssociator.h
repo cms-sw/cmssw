@@ -15,7 +15,7 @@
 //
 // Original Author:  Dmytro Kovalskyi
 //         Created:  Fri Apr 21 10:59:41 PDT 2006
-// $Id: CaloDetIdAssociator.h,v 1.3 2007/01/22 08:15:06 dmytro Exp $
+// $Id: CaloDetIdAssociator.h,v 1.4 2007/01/30 18:40:00 dmytro Exp $
 //
 //
 
@@ -61,7 +61,8 @@ class CaloDetIdAssociator: public DetIdAssociator{
          if(! geometry_->getSubdetectorGeometry(id)->getGeometry(id)) {
             LogDebug("TrackAssociator") << "Cannot find CaloCell geometry for " << id.rawId() <<"\n";
          } else {
-            const std::vector<GlobalPoint>& points( geometry_->getSubdetectorGeometry(id)->getGeometry(id)->getCorners() );
+	    const CaloCellGeometry::CornersVec& cor (geometry_->getSubdetectorGeometry(id)->getGeometry(id)->getCorners() ) ; 
+            const std::vector<GlobalPoint> points( cor.begin(), cor.end() ) ;
 	    for(std::vector<GlobalPoint>::const_iterator itr=points.begin();itr!=points.end();itr++)
 	      {
 		 //FIX ME

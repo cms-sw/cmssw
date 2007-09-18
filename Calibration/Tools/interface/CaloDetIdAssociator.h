@@ -58,7 +58,8 @@ class HCaloDetIdAssociator: public HDetIdAssociator{
 	 if(! geometry_->getSubdetectorGeometry(id)->getGeometry(id)) {
 	    LogDebug("CaloDetIdAssociator") << "Cannot find CaloCell geometry for " << id.rawId() <<"\n";
 	 } else {
-	    points = geometry_->getSubdetectorGeometry(id)->getGeometry(id)->getCorners();
+	    const CaloCellGeometry::CornersVec& cor ( geometry_->getSubdetectorGeometry(id)->getGeometry(id)->getCorners() );
+	    points.assign( cor.begin(), cor.end() ) ;
 	    points.push_back(getPosition(id));
 	 }
       }
