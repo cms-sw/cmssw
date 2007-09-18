@@ -7,9 +7,9 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Revision: 1.9 $
+ * \version $Revision: 1.10 $
  *
- * $Id: CandCombiner.h,v 1.9 2007/07/23 10:04:07 llista Exp $
+ * $Id: CandCombiner.h,v 1.10 2007/07/23 11:13:58 llista Exp $
  *
  */
 #include "FWCore/Framework/interface/EDProducer.h"
@@ -81,7 +81,6 @@ namespace reco {
 	RefProd r( *c );
 	cv.push_back( r );
       }
-      
       evt.put( combiner_.combine( cv ) );
     }
     
