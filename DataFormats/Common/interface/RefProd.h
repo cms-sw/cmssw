@@ -5,7 +5,7 @@
   
 Ref: A template for an interproduct reference to a product.
 
-$Id: RefProd.h,v 1.13 2007/07/25 15:33:00 llista Exp $
+$Id: RefProd.h,v 1.14 2007/07/27 14:50:57 llista Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -117,6 +117,9 @@ namespace edm {
     /// Checks if product is in memory.
     bool hasCache() const {return product_.productPtr() != 0;}
 
+    /// Checks if product is in memory.
+    bool hasProductCache() const { return hasCache(); }
+
     void swap( RefProd<C> & );
 
   private:
@@ -204,6 +207,10 @@ namespace edm {
 	throw edm::Exception(errors::InvalidReference)
 	  << "attempting to make a BaseVectorHolder<T> from a RefProd<C>.";
       }
+      static std::auto_ptr<RefVectorHolderBase> makeVectorBaseHolder() {
+	throw edm::Exception(errors::InvalidReference)
+          << "attempting to make a RefVectorHolderBase from a RefProd<C>.";
+       }
     };
 
     template<typename C, typename T>
@@ -213,6 +220,10 @@ namespace edm {
 
     struct RefProdRefHolderToRefVector {
       static  std::auto_ptr<RefVectorHolderBase> makeVectorHolder() {
+	throw edm::Exception(errors::InvalidReference)
+	  << "attempting to make a RefVectorHolderBase from a RefProd<C>.";
+      }
+      static  std::auto_ptr<RefVectorHolderBase> makeVectorBaseHolder() {
 	throw edm::Exception(errors::InvalidReference)
 	  << "attempting to make a RefVectorHolderBase from a RefProd<C>.";
       }
