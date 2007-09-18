@@ -1,3 +1,5 @@
+#ifndef L1GCTCONFIGPRODUCERS_H_
+#define L1GCTCONFIGPRODUCERS_H_
 // -*- C++ -*-
 //
 // Package:    GctConfigProducers
@@ -13,7 +15,7 @@
 //
 // Original Author:  Gregory Heath
 //         Created:  Thu Mar  1 15:10:47 CET 2007
-// $Id: L1GctConfigProducers.h,v 1.3 2007/07/10 11:43:59 heath Exp $
+// $Id: L1GctConfigProducers.h,v 1.4 2007/07/23 12:49:25 jbrooke Exp $
 //
 //
 
@@ -25,19 +27,26 @@
 #include<vector>
 
 // user include files
+
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/ModuleFactory.h"
 #include "FWCore/Framework/interface/ESProducer.h"
 
 #include "FWCore/Framework/interface/ESHandle.h"
 
-#include "CondFormats/L1TObjects/interface/L1GctJetEtCalibrationFunction.h"
-#include "CondFormats/L1TObjects/interface/L1GctJetFinderParams.h"
-#include "CondFormats/L1TObjects/interface/L1CaloEtScale.h"
+class L1GctCalibFunConfigurer;
+class L1GctJctSetupConfigurer;
+class L1GctJfParamsConfigurer;
 
+class L1GctJetEtCalibrationFunction;
+class L1GctJetCounterSetup;
+class L1GctJetFinderParams;
 
 class L1GctJetCalibFunRcd;
+class L1GctJetCounterNegativeEtaRcd;
+class L1GctJetCounterPositiveEtaRcd;
 class L1GctJetFinderParamsRcd;
-class L1JetEtScaleRcd;
 
 //
 // class declaration
@@ -49,36 +58,26 @@ class L1GctConfigProducers : public edm::ESProducer {
       ~L1GctConfigProducers();
 
       typedef boost::shared_ptr<L1GctJetEtCalibrationFunction> CalibFunReturnType;
+      typedef boost::shared_ptr<L1GctJetCounterSetup>          JCtSetupReturnType;
       typedef boost::shared_ptr<L1GctJetFinderParams>          JfParamsReturnType;
 
       CalibFunReturnType produceCalibFun(const L1GctJetCalibFunRcd&);
+      JCtSetupReturnType produceJCNegEta(const L1GctJetCounterNegativeEtaRcd&);
+      JCtSetupReturnType produceJCPosEta(const L1GctJetCounterPositiveEtaRcd&);
       JfParamsReturnType produceJfParams(const L1GctJetFinderParamsRcd&);
+
+
+
 
    private:
       // ----------member data ---------------------------
 
-  // PARAMETERS TO BE STORED IN THE JetFinderParameters
-  /// seed thresholds and eta boundary
-  unsigned m_CenJetSeed;
-  unsigned m_FwdJetSeed;
-  unsigned m_TauJetSeed;
-  unsigned m_EtaBoundry;
-
-  // PARAMETERS TO BE STORED IN THE CalibrationFunction
-  /// scale and threshold parameters
-  double m_htScaleLSB;
-  double m_threshold;
-
-  /// the calibration function - converts jet Et to linear 
-  std::vector< std::vector<double> > m_jetCalibFunc;
-  std::vector< std::vector<double> > m_tauCalibFunc;
-
-  /// type of correction function to apply
-  L1GctJetEtCalibrationFunction::CorrectionFunctionType m_corrFunType; 
-
-  /// member functions to set up the ORCA-style calibrations (if needed)
-  void setOrcaStyleParams();
-  void setOrcaStyleParamsForBin(std::vector<double>& paramsForBin);
-
+     L1GctCalibFunConfigurer* m_CalibFunConf;
+     L1GctJctSetupConfigurer* m_JctSetupConfNegativeEta;
+     L1GctJctSetupConfigurer* m_JctSetupConfPositiveEta;
+     L1GctJfParamsConfigurer* m_JfParamsConf;
 };
+
+#endif
+
 
