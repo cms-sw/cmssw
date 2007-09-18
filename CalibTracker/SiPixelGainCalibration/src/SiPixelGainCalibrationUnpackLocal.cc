@@ -13,7 +13,7 @@ Implementation:
 //
 // Original Author:  Freya Blekman
 //         Created:  Thu Apr 26 10:38:32 CEST 2007
-// $Id: SiPixelGainCalibrationUnpackLocal.cc,v 1.1 2007/05/20 18:08:10 fblekman Exp $
+// $Id: SiPixelGainCalibrationUnpackLocal.cc,v 1.2 2007/06/26 14:03:33 fblekman Exp $
 //
 //
 
@@ -36,7 +36,7 @@ Implementation:
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 // calibration information and worker classes
-#include "CalibFormats/SiPixelObjects/interface/PixelCalib.h"
+#include "CalibFormats/SiPixelObjects/interface/SiPixelCalibConfiguration.h"
 #include "CalibTracker/SiPixelGainCalibration/interface/PixelROCGainCalibHists.h"
 #include "CalibTracker/SiPixelGainCalibration/interface/PixelSLinkDataHit.h"
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
@@ -173,8 +173,8 @@ SiPixelGainCalibrationUnpackLocal::beginJob(const edm::EventSetup&)
 {
 
   edm::LogVerbatim("") << "In SiPixelGainCalibrationUnpackLocal::beginJob" << std::endl;
-  edm::LogVerbatim("") << "Reading in PixelCalib file: " << inputfile_ << std::endl;
-  calib_=new PixelCalib(inputfile_);
+  edm::LogVerbatim("") << "Reading in SiPixelCalibConfiguration file: " << inputfile_ << std::endl;
+  calib_=new SiPixelCalibConfiguration(inputfile_);
 
   int nvcal=calib_->nVcal();	
   edm::LogVerbatim("") << calib_->vcal_first() << " " << calib_->vcal_last() << " " << calib_->vcal_step() << std::endl;

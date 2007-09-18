@@ -13,7 +13,7 @@ Implementation:
 //
 // Original Author:  Freya Blekman
 //         Created:  Thu Apr 26 10:38:32 CEST 2007
-// $Id: SiPixelGainCalibrationUnpackLocal.h,v 1.2 2007/06/26 08:02:01 fblekman Exp $
+// $Id: SiPixelGainCalibrationUnpackLocal.h,v 1.3 2007/06/26 14:03:33 fblekman Exp $
 //
 //
 // system include files
@@ -34,7 +34,7 @@ Implementation:
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "CalibFormats/SiPixelObjects/interface/PixelCalib.h"
+#include "CalibFormats/SiPixelObjects/interface/SiPixelCalibConfiguration.h"
 #include "CalibTracker/SiPixelGainCalibration/interface/PixelROCGainCalibHists.h"
 #include "CalibTracker/SiPixelGainCalibration/interface/PixelSLinkDataHit.h"
 //#include "CondTools/SiPixel/interface/SiPixelGainCalibrationService.h"
@@ -66,7 +66,7 @@ class SiPixelGainCalibrationUnpackLocal : public edm::EDAnalyzer {
   unsigned int eventno_counter;
   std::string inputfile_;  
   std::string outputfilename_;
-  PixelCalib* calib_;
+  SiPixelCalibConfiguration* calib_;
   //for now assume only on fed_id!
   PixelROCGainCalibHists rocgain_[40][24];
   bool rocgainused_[40][24];
