@@ -154,14 +154,37 @@ namespace edm {
 }
 
 #include "DataFormats/Common/interface/FillView.h"
+#include "DataFormats/Common/interface/traits.h"
+#include "boost/mpl/if.hpp"
 
 namespace edm {
   namespace reftobase {
     template<typename REFV>
+    struct RefVectorHolderNoFillView {
+      static void reallyFillView(RefVectorHolder<REFV>&, const void *, const ProductID &, std::vector<void const*> & ) {
+	throw Exception(errors::ProductDoesNotSupportViews)
+	  << "The product type " 
+	  << typeid(typename REFV::collection_type).name()
+	  << "\ndoes not support Views\n";
+      }
+    };
+
+    template<typename REFV>
+    struct RefVectorHolderDoFillView {
+      static void reallyFillView(RefVectorHolder<REFV>& rvh, const void * prod, const ProductID & id , std::vector<void const*> & pointers ) {
+	typedef typename REFV::collection_type collection;
+	const collection * product = static_cast<const collection *>( prod );
+	detail::reallyFillView( * product, id, pointers, rvh );
+      }
+    };    
+
+    template<typename REFV>
     void RefVectorHolder<REFV>::reallyFillView( const void * prod, const ProductID & id , std::vector<void const*> & pointers ) {
-      typedef typename REFV::collection_type collection;
-      const collection * product = static_cast<const collection *>( prod );
-      detail::reallyFillView( * product, id, pointers, * this );
+      typedef 
+	typename boost::mpl::if_c<has_fillView<typename REFV::collection_type>::value,
+	RefVectorHolderDoFillView<REFV>,
+	RefVectorHolderNoFillView<REFV> >::type maybe_filler;      
+      maybe_filler::reallyFillView( *this, prod, id, pointers );
     }
   }
 }
