@@ -15,7 +15,7 @@
 // Original Author:  Andrey Pozdnyakov
 //                   ... and Sergey Petrushanko (all lines between M+ and M-)
 //         Created:  Thu Jul 12 18:12:19 CEST 2007
-// $Id: HcalIsoTrkAnalyzer.cc,v 1.1 2007/07/13 14:58:56 safronov Exp $
+// $Id: HcalIsoTrkAnalyzer.cc,v 1.2 2007/09/14 13:32:01 kodolova Exp $
 //
 //
 
@@ -30,6 +30,7 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 
