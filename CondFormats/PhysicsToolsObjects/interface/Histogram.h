@@ -55,6 +55,8 @@ class Histogram {
 
 	void reset();
 
+	const std::vector<Axis_t> upperLimits() const { return binULimits; }
+
 	Value_t binContent(int bin) const { return binValues[bin]; }
 	Value_t value(Axis_t x) const { return binContent(findBin(x)); }
 	Value_t normalizedValue(Axis_t x) const
