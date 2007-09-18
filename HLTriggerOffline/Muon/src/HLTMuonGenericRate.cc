@@ -89,14 +89,14 @@ void HLTMuonGenericRate::BookHistograms(){
   snprintf(chname, 255, "rate_%s", mylabel);
   snprintf(chtitle, 255, "Rate (Hz) vs L1 Pt threshold (GeV), label=%s, L=%.2E (cm^{-2} s^{-1})", mylabel, theLuminosity*1.e33);
   hL1rate = new TH1F(chname, chtitle, theNbins, thePtMin, thePtMax);
+  snprintf(chtitle, 255, "L1 max ref pt efficiency label=%s", mylabel);
+  snprintf(chname, 255, "MCTurnOn_%s", mylabel);
+  hL1MCeff = new TH1F(chname, chtitle, theNbins, thePtMin, thePtMax);
   top->cd("Distributions");
   distribdir=gDirectory;
   distribdir->mkdir(mydirlabel);
   distribdir->cd(mydirlabel);
   distribdir=gDirectory;
-  snprintf(chtitle, 255, "L1 max ref pt efficiency label=%s", mylabel);
-  snprintf(chname, 255, "MCeff_%s", mylabel);
-  hL1MCeff = new TH1F(chname, chtitle, theNbins, thePtMin, thePtMax);
   snprintf(chtitle, 255, "L1 max ref pt distribution label=%s", mylabel);
   snprintf(chname, 255, "MCptNorm_%s", mylabel);
   hMCptnor = new TH1F(chname, chtitle, theNbins, thePtMin, thePtMax);
@@ -127,9 +127,9 @@ void HLTMuonGenericRate::BookHistograms(){
     snprintf(chtitle, 255, "Rate (Hz) vs HLT Pt threshold (GeV), label=%s, L=%.2E (cm^{-2} s^{-1})", mylabel, theLuminosity*1.e33);
     h=new TH1F(chname, chtitle, theNbins, thePtMin, thePtMax);
     hHLTrate.push_back(h);
+    snprintf(chname, 255, "MCTurnOn_%s", mylabel);
+    hHLTMCeff.push_back(new TH1F(chname, chtitle, theNbins, thePtMin, thePtMax));   
     distribdir->cd();
-    snprintf(chname, 255, "MCeff_%s", mylabel);
-    hHLTMCeff.push_back(new TH1F(chname, chtitle, theNbins, thePtMin, thePtMax));
     snprintf(chname, 255, "pt_%s",mylabel );
     snprintf(chtitle, 255, "Pt distribution label=%s", mylabel); 
     h=new TH1F(chname, chtitle, theNbins, thePtMin, thePtMax);
@@ -204,6 +204,9 @@ void HLTMuonGenericRate::WriteHistograms(){
   hL1rate->SetMarkerStyle(20);
   hL1rate->GetXaxis()->SetTitle("90% Muon Pt threshold (GeV)");
   hL1rate->GetYaxis()->SetTitle("Rate (Hz)");
+  hL1MCeff->GetXaxis()->SetTitle("Generated Muon PtMax (GeV)");
+  hL1MCeff->GetYaxis()->SetTitle("L1 trigger Efficiency (%)");
+  hL1MCeff->Write();
   distribdir->cd();
   hL1pt->GetXaxis()->SetTitle("Muon Pt (GeV)");
   hL1pt->Write();
@@ -211,9 +214,6 @@ void HLTMuonGenericRate::WriteHistograms(){
   hL1eta->Write();
   hL1phi->GetXaxis()->SetTitle("Muon phi");
   hL1phi->Write();
-  hL1MCeff->GetXaxis()->SetTitle("Generated Muon PtMax (GeV)");
-  hL1MCeff->GetYaxis()->SetTitle("L1 trigger Efficiency (%)");
-  hL1MCeff->Write();
   if (useMuonFromGenerator){
     hMCetanor->GetXaxis()->SetTitle("Gen Muon Eta");
     hMCetanor->Write();
@@ -233,6 +233,9 @@ void HLTMuonGenericRate::WriteHistograms(){
     hHLTrate[i]->SetLineColor(i+2);
     hHLTrate[i]->GetXaxis()->SetTitle("90% Muon Pt threshold (GeV)");
     hHLTrate[i]->Write();
+    hHLTMCeff[i]->GetXaxis()->SetTitle("Generated Muon PtMax (GeV)");
+    hHLTMCeff[i]->GetYaxis()->SetTitle("Trigger Efficiency (%)");
+    hHLTMCeff[i]->Write();
     distribdir->cd();
     hHLTpt[i]->GetXaxis()->SetTitle("Muon Pt (GeV)");
     hHLTpt[i]->Write();
@@ -240,9 +243,6 @@ void HLTMuonGenericRate::WriteHistograms(){
     hHLTeta[i]->Write();
     hHLTphi[i]->GetXaxis()->SetTitle("Muon phi");
     hHLTphi[i]->Write();
-    hHLTMCeff[i]->GetXaxis()->SetTitle("Generated Muon PtMax (GeV)");
-    hHLTMCeff[i]->GetYaxis()->SetTitle("Trigger Efficiency (%)");
-    hHLTMCeff[i]->Write();
   }
   top->cd();
 }
