@@ -220,7 +220,10 @@ unsigned short L1RCTReceiverCard::calcRegionSum(L1RCTRegion region){
   unsigned short overflow = 0;
   for(int i = 0; i<4; i++){
     for(int j = 0; j<4; j++){
-      sum = sum + region.getEtIn9Bits(i,j);
+      unsigned short towerEt = region.getEtIn9Bits(i,j);
+      // If tower is saturated, peg the region to max value
+      if(towerEt == 0x1FF) sum = 0x3FF;
+      else sum = sum + towerEt;
     }
   }
   if(sum > 1023){

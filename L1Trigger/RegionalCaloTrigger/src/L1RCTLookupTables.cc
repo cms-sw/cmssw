@@ -39,8 +39,19 @@ unsigned int L1RCTLookupTables::lookup(unsigned short ecalInput,
       << "1 <= |IEta| <= 28, is " << iAbsEta;
   float ecal = convertEcal(ecalInput, iAbsEta);
   float hcal = convertHcal(hcalInput, iAbsEta);
-  unsigned long etIn7Bits = eGammaETCode(ecal, hcal, iAbsEta);
-  unsigned long etIn9Bits = jetMETETCode(ecal, hcal, iAbsEta);
+  unsigned long etIn7Bits;
+  unsigned long etIn9Bits;
+  // Saturated input towers cause tower ET pegging at the highest value
+  if(ecalInput == 0xFF || hcalInput == 0xFF)
+    {
+      etIn7Bits = 0x7F;
+      etIn9Bits = 0x1FF;
+    }
+  else
+    {
+      etIn7Bits = eGammaETCode(ecal, hcal, iAbsEta);
+      etIn9Bits = jetMETETCode(ecal, hcal, iAbsEta);
+    }
   unsigned long shiftEtIn9Bits = etIn9Bits<<8;
   unsigned long shiftHE_FGBit = hOeFGVetoBit(ecal, hcal, fgbit)<<7;
   unsigned long shiftActivityBit = activityBit(ecal, hcal)<<17;
