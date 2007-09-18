@@ -6,7 +6,6 @@
 <use name=root>
 <flags EDM_PLUGIN=1>
 <export>
-   <lib name=HLTriggerMuonTriggerRateTimeAnalyzer>
    <use name=SimDataFormats/HepMCProduct>
    <use name=FWCore/Framework>
    <use name=FWCore/PluginManager>
