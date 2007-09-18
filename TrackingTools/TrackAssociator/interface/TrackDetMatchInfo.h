@@ -45,16 +45,16 @@ class TrackDetMatchInfo {
    bool isGoodMuon;
    
    /// hits in the cone
-   std::vector<EcalRecHit> ecalRecHits;
-   std::vector<HBHERecHit> hcalRecHits;
-   std::vector<HORecHit>   hoRecHits;
-   std::vector<CaloTower>  towers;
+   std::vector<const EcalRecHit*> ecalRecHits;
+   std::vector<const HBHERecHit*> hcalRecHits;
+   std::vector<const HORecHit*>   hoRecHits;
+   std::vector<const CaloTower*>  towers;
 
    /// hits in detector elements crossed by a track
-   std::vector<EcalRecHit> crossedEcalRecHits;
-   std::vector<HBHERecHit> crossedHcalRecHits;
-   std::vector<HORecHit>   crossedHORecHits;
-   std::vector<CaloTower>  crossedTowers;
+   std::vector<const EcalRecHit*> crossedEcalRecHits;
+   std::vector<const HBHERecHit*> crossedHcalRecHits;
+   std::vector<const HORecHit*>   crossedHORecHits;
+   std::vector<const CaloTower*>  crossedTowers;
 
    /// detector elements crossed by a track 
    /// (regardless of whether energy was deposited or not)

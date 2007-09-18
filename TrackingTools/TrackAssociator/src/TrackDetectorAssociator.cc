@@ -13,7 +13,7 @@
 //
 // Original Author:  Dmytro Kovalskyi
 //         Created:  Fri Apr 21 10:59:41 PDT 2006
-// $Id: TrackDetectorAssociator.cc,v 1.21 2007/06/27 07:09:12 dmytro Exp $
+// $Id: TrackDetectorAssociator.cc,v 1.22 2007/09/17 22:00:57 dmytro Exp $
 //
 //
 
@@ -313,9 +313,9 @@ void TrackDetectorAssociator::fillEcal( const edm::Event& iEvent,
       std::vector<EcalRecHit>::const_iterator ebHit = (*EBRecHits).find(*itr);
       std::vector<EcalRecHit>::const_iterator eeHit = (*EERecHits).find(*itr);
       if(ebHit != (*EBRecHits).end()) 
-         info.crossedEcalRecHits.push_back(*ebHit);
+         info.crossedEcalRecHits.push_back(&*ebHit);
       else if(eeHit != (*EERecHits).end()) 
-         info.crossedEcalRecHits.push_back(*eeHit);
+         info.crossedEcalRecHits.push_back(&*eeHit);
       else  
          LogTrace("TrackAssociator") << "Crossed EcalRecHit is not found for DetId: " << itr->rawId();
    }
@@ -325,9 +325,9 @@ void TrackDetectorAssociator::fillEcal( const edm::Event& iEvent,
       std::vector<EcalRecHit>::const_iterator ebHit = (*EBRecHits).find(*itr);
       std::vector<EcalRecHit>::const_iterator eeHit = (*EERecHits).find(*itr);
       if(ebHit != (*EBRecHits).end()) 
-         info.ecalRecHits.push_back(*ebHit);
+         info.ecalRecHits.push_back(&*ebHit);
       else if(eeHit != (*EERecHits).end()) 
-         info.ecalRecHits.push_back(*eeHit);
+         info.ecalRecHits.push_back(&*eeHit);
       else 
          LogTrace("TrackAssociator") << "EcalRecHit from the cone is not found for DetId: " << itr->rawId();
    }
@@ -386,7 +386,7 @@ void TrackDetectorAssociator::fillCaloTowers( const edm::Event& iEvent,
      {
 	CaloTowerCollection::const_iterator tower = (*caloTowers).find(*itr);
 	if(tower != (*caloTowers).end()) 
-	  info.crossedTowers.push_back(*tower);
+	  info.crossedTowers.push_back(&*tower);
 	else
 	  LogTrace("TrackAssociator") << "Crossed CaloTower is not found for DetId: " << (*itr).rawId();
      }
@@ -396,7 +396,7 @@ void TrackDetectorAssociator::fillCaloTowers( const edm::Event& iEvent,
      {
 	CaloTowerCollection::const_iterator tower = (*caloTowers).find(*itr);
 	if(tower != (*caloTowers).end()) 
-	  info.towers.push_back(*tower);
+	  info.towers.push_back(&*tower);
 	else 
 	  LogTrace("TrackAssociator") << "CaloTower from the cone is not found for DetId: " << (*itr).rawId();
      }
@@ -452,7 +452,7 @@ void TrackDetectorAssociator::fillHcal( const edm::Event& iEvent,
      {
 	HBHERecHitCollection::const_iterator hit = (*collection).find(*itr);
 	if( hit != (*collection).end() ) 
-	  info.crossedHcalRecHits.push_back(*hit);
+	  info.crossedHcalRecHits.push_back(&*hit);
 	else
 	  LogTrace("TrackAssociator") << "Crossed HBHERecHit is not found for DetId: " << itr->rawId();
      }
@@ -461,7 +461,7 @@ void TrackDetectorAssociator::fillHcal( const edm::Event& iEvent,
      {
 	HBHERecHitCollection::const_iterator hit = (*collection).find(*itr);
 	if( hit != (*collection).end() ) 
-	  info.hcalRecHits.push_back(*hit);
+	  info.hcalRecHits.push_back(&*hit);
 	else 
 	  LogTrace("TrackAssociator") << "HBHERecHit from the cone is not found for DetId: " << itr->rawId();
      }
@@ -516,7 +516,7 @@ void TrackDetectorAssociator::fillHO( const edm::Event& iEvent,
      {
 	HORecHitCollection::const_iterator hit = (*collection).find(*itr);
 	if( hit != (*collection).end() ) 
-	  info.crossedHORecHits.push_back(*hit);
+	  info.crossedHORecHits.push_back(&*hit);
 	else
 	  LogTrace("TrackAssociator") << "Crossed HORecHit is not found for DetId: " << itr->rawId();
      }
@@ -526,7 +526,7 @@ void TrackDetectorAssociator::fillHO( const edm::Event& iEvent,
      {
 	HORecHitCollection::const_iterator hit = (*collection).find(*itr);
 	if( hit != (*collection).end() ) 
-	  info.hoRecHits.push_back(*hit);
+	  info.hoRecHits.push_back(&*hit);
 	else 
 	  LogTrace("TrackAssociator") << "HORecHit from the cone is not found for DetId: " << itr->rawId();
      }
@@ -849,71 +849,6 @@ void TrackDetectorAssociator::addMuonSegmentMatch(MuonChamberMatch& matchedChamb
 }
 
 //********************** NON-CORE CODE ******************************//
-
-std::vector<EcalRecHit> TrackDetectorAssociator::associateEcal( const edm::Event& iEvent,
-							const edm::EventSetup& iSetup,
-							const FreeTrajectoryState& trackOrigin,
-							const double dR )
-{
-   AssociatorParameters parameters;
-   parameters.useHcal = false;
-   parameters.useMuon = false;
-   parameters.dREcal = dR;
-   TrackDetMatchInfo info( associate(iEvent, iSetup, trackOrigin, parameters ));
-   if (dR>0) 
-     return info.ecalRecHits;
-   else
-     return info.crossedEcalRecHits;
-}
-
-double TrackDetectorAssociator::getEcalEnergy( const edm::Event& iEvent,
-				       const edm::EventSetup& iSetup,
-				       const FreeTrajectoryState& trackOrigin,
-				       const double dR )
-{
-   AssociatorParameters parameters;
-   parameters.useHcal = false;
-   parameters.useMuon = false;
-   parameters.dREcal = dR;
-   TrackDetMatchInfo info = associate(iEvent, iSetup, trackOrigin, parameters );
-   if(dR>0) 
-     return info.ecalConeEnergy();
-   else
-     return info.ecalEnergy();
-}
-
-std::vector<CaloTower> TrackDetectorAssociator::associateHcal( const edm::Event& iEvent,
-						       const edm::EventSetup& iSetup,
-						       const FreeTrajectoryState& trackOrigin,
-						       const double dR )
-{
-   AssociatorParameters parameters;
-   parameters.useEcal = false;
-   parameters.useMuon = false;
-   parameters.dRHcal = dR;
-   TrackDetMatchInfo info( associate(iEvent, iSetup, trackOrigin, parameters ));
-   if (dR>0) 
-     return info.towers;
-   else
-     return info.crossedTowers;
-   
-}
-
-double TrackDetectorAssociator::getHcalEnergy( const edm::Event& iEvent,
-				       const edm::EventSetup& iSetup,
-				       const FreeTrajectoryState& trackOrigin,
-				       const double dR )
-{
-   AssociatorParameters parameters;
-   parameters.useEcal = false;
-   parameters.useMuon = false;
-   parameters.dRHcal = dR;
-   TrackDetMatchInfo info( associate(iEvent, iSetup, trackOrigin, parameters ));
-   if (dR>0) 
-     return info.hcalConeEnergy();
-   else
-     return info.hcalEnergy();
-}
 
 void TrackDetectorAssociator::fillCaloTruth( const edm::Event& iEvent,
 					     TrackDetMatchInfo& info,

@@ -13,7 +13,7 @@
 //
 // Original Author:  Dmytro Kovalskyi
 //         Created:  Fri Apr 21 10:59:41 PDT 2006
-// $Id: TestTrackAssociator.cc,v 1.15 2007/04/02 17:45:02 dmytro Exp $
+// $Id: TestTrackAssociator.cc,v 1.16 2007/04/13 03:09:28 dmytro Exp $
 //
 //
 
@@ -161,11 +161,11 @@ void TestTrackAssociator::analyze( const edm::Event& iEvent, const edm::EventSet
 	"(" << info.trkGlobPosAtEcal.z() << ", " << info.trkGlobPosAtEcal.Rho() << ", " <<
 	info.trkGlobPosAtEcal.eta() << ", " << info.trkGlobPosAtEcal.phi() << "), " << centerId.rawId();
       LogVerbatim("TrackAssociator") << "ECAL crossed DetIds with associated hits: (id, energy, z, perp, eta, phi)";
-      for(std::vector<EcalRecHit>::const_iterator hit = info.crossedEcalRecHits.begin(); 
+      for(std::vector<const EcalRecHit*>::const_iterator hit = info.crossedEcalRecHits.begin(); 
 	  hit != info.crossedEcalRecHits.end(); ++hit)
 	{
-	   GlobalPoint point = info.getPosition(hit->detid());
-	   LogVerbatim("TrackAssociator") << "\t" << hit->detid().rawId() << ", " << hit->energy() << 
+	   GlobalPoint point = info.getPosition((*hit)->detid());
+	   LogVerbatim("TrackAssociator") << "\t" << (*hit)->detid().rawId() << ", " << (*hit)->energy() << 
 	     " \t(" << point.z() << ", \t" << point.perp() << ", \t" << point.eta() << ", \t" << point.phi() << ")";
 	}
       LogVerbatim("TrackAssociator") << "ECAL crossed DetIds: (id, z, perp, eta, phi)";
@@ -177,11 +177,11 @@ void TestTrackAssociator::analyze( const edm::Event& iEvent, const edm::EventSet
 	     " \t(" << point.z() << ", \t" << point.perp() << ", \t" << point.eta() << ", \t" << point.phi() << ")";
 	}
       LogVerbatim("TrackAssociator") << "ECAL associated DetIds: (id, energy, z, perp, eta, phi)";
-      for(std::vector<EcalRecHit>::const_iterator hit = info.ecalRecHits.begin(); 
+      for(std::vector<const EcalRecHit*>::const_iterator hit = info.ecalRecHits.begin(); 
 	  hit != info.ecalRecHits.end(); ++hit)
 	{
-	   GlobalPoint point = info.getPosition(hit->detid());
-	   LogVerbatim("TrackAssociator") << "\t" << hit->detid().rawId() << ", " << hit->energy() << 
+	   GlobalPoint point = info.getPosition((*hit)->detid());
+	   LogVerbatim("TrackAssociator") << "\t" << (*hit)->detid().rawId() << ", " << (*hit)->energy() << 
 	     " \t(" << point.z() << ", \t" << point.perp() << ", \t" << point.eta() << ", \t" << point.phi() << ")";
 	}
 
@@ -201,11 +201,11 @@ void TestTrackAssociator::analyze( const edm::Event& iEvent, const edm::EventSet
 	"(" << info.trkGlobPosAtHcal.z() << ", " << info.trkGlobPosAtHcal.Rho() << ", " <<
 	info.trkGlobPosAtHcal.eta() << ", " << info.trkGlobPosAtHcal.phi() << "), " << centerId.rawId();
       LogVerbatim("TrackAssociator") << "HCAL crossed DetIds with hits:";
-      for(std::vector<HBHERecHit>::const_iterator hit = info.crossedHcalRecHits.begin(); 
+      for(std::vector<const HBHERecHit*>::const_iterator hit = info.crossedHcalRecHits.begin(); 
 	  hit != info.crossedHcalRecHits.end(); ++hit)
 	{
-	   GlobalPoint point = info.getPosition(hit->detid());
-	   LogVerbatim("TrackAssociator") << "\t" << hit->detid().rawId() << ", " << hit->energy() << 
+	   GlobalPoint point = info.getPosition((*hit)->detid());
+	   LogVerbatim("TrackAssociator") << "\t" << (*hit)->detid().rawId() << ", " << (*hit)->energy() << 
 	     " \t(" << point.z() << ", \t" << point.perp() << ", \t" << point.eta() << ", \t" << point.phi() << ")";
 	}
       LogVerbatim("TrackAssociator") << "HCAL crossed DetIds: (id, z, perp, eta, phi)";
@@ -217,11 +217,11 @@ void TestTrackAssociator::analyze( const edm::Event& iEvent, const edm::EventSet
 	     " \t(" << point.z() << ", \t" << point.perp() << ", \t" << point.eta() << ", \t" << point.phi() << ")";
 	}
       LogVerbatim("TrackAssociator") << "HCAL associated DetIds: (id, energy)";
-      for(std::vector<HBHERecHit>::const_iterator hit = info.hcalRecHits.begin(); 
+      for(std::vector<const HBHERecHit*>::const_iterator hit = info.hcalRecHits.begin(); 
 	  hit != info.hcalRecHits.end(); ++hit)
 	{
-	   GlobalPoint point = info.getPosition(hit->detid());
-	   LogVerbatim("TrackAssociator") << "\t" << hit->detid().rawId() << ", " << hit->energy() << 
+	   GlobalPoint point = info.getPosition((*hit)->detid());
+	   LogVerbatim("TrackAssociator") << "\t" << (*hit)->detid().rawId() << ", " << (*hit)->energy() << 
 	     " \t(" << point.z() << ", \t" << point.perp() << ", \t" << point.eta() << ", \t" << point.phi() << ")";
 	}
 
@@ -240,11 +240,11 @@ void TestTrackAssociator::analyze( const edm::Event& iEvent, const edm::EventSet
 	"(" << info.trkGlobPosAtHO.z() << ", " << info.trkGlobPosAtHO.Rho() << ", " <<
 	info.trkGlobPosAtHO.eta() << ", " << info.trkGlobPosAtHO.phi() << "), " << centerId.rawId();
       LogVerbatim("TrackAssociator") << "HO crossed DetIds with hits:";
-      for(std::vector<HORecHit>::const_iterator hit = info.crossedHORecHits.begin(); 
+      for(std::vector<const HORecHit*>::const_iterator hit = info.crossedHORecHits.begin(); 
 	  hit != info.crossedHORecHits.end(); ++hit)
 	{
-	   GlobalPoint point = info.getPosition(hit->detid());
-	   LogVerbatim("TrackAssociator") << "\t" << hit->detid().rawId() << ", " << hit->energy() << 
+	   GlobalPoint point = info.getPosition((*hit)->detid());
+	   LogVerbatim("TrackAssociator") << "\t" << (*hit)->detid().rawId() << ", " << (*hit)->energy() << 
 	     " \t(" << point.z() << ", \t" << point.perp() << ", \t" << point.eta() << ", \t" << point.phi() << ")";
 	}
       LogVerbatim("TrackAssociator") << "HO crossed DetIds: (id, z, perp, eta, phi)";
@@ -256,13 +256,13 @@ void TestTrackAssociator::analyze( const edm::Event& iEvent, const edm::EventSet
 	     " \t(" << point.z() << ", \t" << point.perp() << ", \t" << point.eta() << ", \t" << point.phi() << ")";
 	}
       LogVerbatim("TrackAssociator") << "HO associated DetIds: (id, energy,position)";
-      for(std::vector<HORecHit>::const_iterator hit = info.hoRecHits.begin(); 
+      for(std::vector<const HORecHit*>::const_iterator hit = info.hoRecHits.begin(); 
 	  hit != info.hoRecHits.end(); ++hit)
 	{
-	   GlobalPoint point = info.getPosition(hit->detid());
-	   LogVerbatim("TrackAssociator") << "\t" << hit->detid().rawId() << ", " << hit->energy() << 
+	   GlobalPoint point = info.getPosition((*hit)->detid());
+	   LogVerbatim("TrackAssociator") << "\t" << (*hit)->detid().rawId() << ", " << (*hit)->energy() << 
 	     " \t(" << point.z() << ", \t" << point.perp() << ", \t" << point.eta() << ", \t" << point.phi();
-	       // << ") ## " << info.dumpGeometry(hit->detid());
+	       // << ") ## " << info.dumpGeometry((*hit)->detid());
 	}
 
       if (parameters_.useMuon) {

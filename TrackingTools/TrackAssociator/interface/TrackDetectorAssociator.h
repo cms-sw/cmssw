@@ -14,7 +14,7 @@
 //
 // Original Author:  Dmytro Kovalskyi
 //         Created:  Fri Apr 21 10:59:41 PDT 2006
-// $Id: TrackDetectorAssociator.h,v 1.9 2007/05/16 09:26:23 dmytro Exp $
+// $Id: TrackDetectorAssociator.h,v 1.10 2007/09/17 22:00:56 dmytro Exp $
 //
 //
 
@@ -97,33 +97,6 @@ class TrackDetectorAssociator {
 					   const int,
 					   const AssociatorParameters& );
    
-   /// associate ECAL only and return RecHits
-   /// negative dR means only crossed elements
-   std::vector<EcalRecHit>  associateEcal( const edm::Event&,
-					   const edm::EventSetup&,
-					   const FreeTrajectoryState&,
-					   const double dR = -1 );
-   
-   /// associate ECAL only and return energy
-   /// negative dR means only crossed elements
-   double                   getEcalEnergy( const edm::Event&,
-					   const edm::EventSetup&,
-					   const FreeTrajectoryState&,
-					   const double dR = -1 );
-   
-   /// associate ECAL only and return RecHits
-   /// negative dR means only crossed elements
-   std::vector<CaloTower>   associateHcal( const edm::Event&,
-					   const edm::EventSetup&,
-					   const FreeTrajectoryState&,
-					   const double dR = -1 );
-
-   /// associate ECAL only and return energy
-   /// negative dR means only crossed elements
-   double                   getHcalEnergy( const edm::Event&,
-					   const edm::EventSetup&,
-					   const FreeTrajectoryState&,
-					   const double dR = -1 );
    /// use a user configured propagator
    void setPropagator( const Propagator* );
    
