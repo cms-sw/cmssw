@@ -19,8 +19,11 @@
 // Trigger configuration includes
 #include "CondFormats/L1TObjects/interface/L1GctJetFinderParams.h"
 #include "CondFormats/L1TObjects/interface/L1GctJetEtCalibrationFunction.h"
+#include "CondFormats/L1TObjects/interface/L1GctJetCounterSetup.h"
 #include "CondFormats/DataRecord/interface/L1GctJetFinderParamsRcd.h"
 #include "CondFormats/DataRecord/interface/L1GctJetCalibFunRcd.h"
+#include "CondFormats/DataRecord/interface/L1GctJetCounterPositiveEtaRcd.h"
+#include "CondFormats/DataRecord/interface/L1GctJetCounterNegativeEtaRcd.h"
 
 // GCT include files
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctJetEtCalibrationLut.h"
@@ -66,7 +69,6 @@ L1GctEmulator::L1GctEmulator(const edm::ParameterSet& ps) :
   if (m_verbose) {
     m_gct->print();
   }
-
 }
 
 L1GctEmulator::~L1GctEmulator() {
@@ -90,6 +92,10 @@ void L1GctEmulator::configureGct(const edm::EventSetup& c)
   // get data from EventSetup
   edm::ESHandle< L1GctJetFinderParams > jfPars ;
   c.get< L1GctJetFinderParamsRcd >().get( jfPars ) ; // which record?
+  edm::ESHandle< L1GctJetCounterSetup > jcPosPars ;
+  c.get< L1GctJetCounterPositiveEtaRcd >().get( jcPosPars ) ; // which record?
+  edm::ESHandle< L1GctJetCounterSetup > jcNegPars ;
+  c.get< L1GctJetCounterNegativeEtaRcd >().get( jcNegPars ) ; // which record?
   edm::ESHandle< L1GctJetEtCalibrationFunction > calibFun ;
   c.get< L1GctJetCalibFunRcd >().get( calibFun ) ; // which record?
   edm::ESHandle< L1CaloEtScale > etScale ;
@@ -113,6 +119,7 @@ void L1GctEmulator::configureGct(const edm::EventSetup& c)
   m_jetEtCalibLut->setFunction(calibFun.product());
   m_jetEtCalibLut->setOutputEtScale(etScale.product());
   m_gct->setJetEtCalibrationLut(m_jetEtCalibLut);
+  m_gct->setupJetCounterLuts(jcPosPars.product(), jcNegPars.product());
   
 }
 
