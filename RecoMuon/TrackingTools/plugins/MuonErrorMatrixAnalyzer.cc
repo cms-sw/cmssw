@@ -8,7 +8,8 @@
 //#include <TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h>
 #include <TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h>
 
-#include <DataFormats/TrackReco/interface/Track.h>
+#include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include <MagneticField/Records/interface/IdealMagneticFieldRecord.h>
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
