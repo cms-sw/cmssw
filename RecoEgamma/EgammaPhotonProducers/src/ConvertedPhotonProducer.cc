@@ -21,6 +21,7 @@
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackExtra.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
+#include "DataFormats/VertexReco/interface/VertexFwd.h"
 //
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 //
