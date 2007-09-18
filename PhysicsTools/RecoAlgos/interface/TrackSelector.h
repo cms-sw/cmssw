@@ -7,12 +7,13 @@
  * 
  * \author Luca Lista, INFN
  *
- * \version $Revision: 1.16 $
+ * \version $Revision: 1.17 $
  *
- * $Id: TrackSelector.h,v 1.16 2007/03/14 12:22:11 llista Exp $
+ * $Id: TrackSelector.h,v 1.17 2007/08/01 11:50:45 llista Exp $
  *
  */
 #include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/TrackReco/interface/TrackExtra.h"
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
 #include "PhysicsTools/UtilAlgos/interface/ObjectSelector.h"

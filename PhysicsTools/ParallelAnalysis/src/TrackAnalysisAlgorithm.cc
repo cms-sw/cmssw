@@ -1,5 +1,6 @@
 #include "PhysicsTools/ParallelAnalysis/interface/TrackAnalysisAlgorithm.h"
 #include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include <TCanvas.h>

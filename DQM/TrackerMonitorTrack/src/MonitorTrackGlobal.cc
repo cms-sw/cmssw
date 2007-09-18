@@ -3,6 +3,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DQM/TrackerMonitorTrack/interface/MonitorTrackGlobal.h"
 
 MonitorTrackGlobal::MonitorTrackGlobal(const edm::ParameterSet& iConfig) {
