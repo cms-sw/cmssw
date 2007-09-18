@@ -16,13 +16,13 @@
 #include "Geometry/TrackerCommonData/interface/DDTIDRingAlgo.h"
 #include "Geometry/TrackerCommonData/interface/DDTOBRodAlgo.h"
 #include "Geometry/TrackerCommonData/interface/DDTOBRadCableAlgo.h"
-#include "Geometry/TrackerCommonData/interface/DDTOBAxCableAlgo.h"
 #include "Geometry/TrackerCommonData/interface/DDTrackerAngular.h"
 #include "Geometry/TrackerCommonData/interface/DDTrackerLinear.h"
 #include "Geometry/TrackerCommonData/interface/DDTrackerLinearXY.h"
 #include "Geometry/TrackerCommonData/interface/DDTrackerPhiAltAlgo.h"
 #include "Geometry/TrackerCommonData/interface/DDTrackerPhiAlgo.h"
 #include "Geometry/TrackerCommonData/interface/DDTrackerZPosAlgo.h"
+#include "Geometry/TrackerCommonData/interface/DDTrackerXYZPosAlgo.h"
 #include "DetectorDescription/Algorithm/interface/DDAlgorithmFactory.h"
 
 DEFINE_EDM_PLUGIN (DDAlgorithmFactory, DDPixBarLayerAlgo,   "track:DDPixBarLayerAlgo");
@@ -41,10 +41,10 @@ DEFINE_EDM_PLUGIN (DDAlgorithmFactory, DDTIDModulePosAlgo,  "track:DDTIDModulePo
 DEFINE_EDM_PLUGIN (DDAlgorithmFactory, DDTIDRingAlgo,       "track:DDTIDRingAlgo");
 DEFINE_EDM_PLUGIN (DDAlgorithmFactory, DDTOBRodAlgo,        "track:DDTOBRodAlgo");
 DEFINE_EDM_PLUGIN (DDAlgorithmFactory, DDTOBRadCableAlgo,   "track:DDTOBRadCableAlgo");
-DEFINE_EDM_PLUGIN (DDAlgorithmFactory, DDTOBAxCableAlgo,    "track:DDTOBAxCableAlgo");
 DEFINE_EDM_PLUGIN (DDAlgorithmFactory, DDTrackerAngular,    "track:DDTrackerAngular");
 DEFINE_EDM_PLUGIN (DDAlgorithmFactory, DDTrackerLinear,     "track:DDTrackerLinear");
 DEFINE_EDM_PLUGIN (DDAlgorithmFactory, DDTrackerLinearXY,   "track:DDTrackerLinearXY");
 DEFINE_EDM_PLUGIN (DDAlgorithmFactory, DDTrackerPhiAltAlgo, "track:DDTrackerPhiAltAlgo");
 DEFINE_EDM_PLUGIN (DDAlgorithmFactory, DDTrackerPhiAlgo,    "track:DDTrackerPhiAlgo");
 DEFINE_EDM_PLUGIN (DDAlgorithmFactory, DDTrackerZPosAlgo,   "track:DDTrackerZPosAlgo");
+DEFINE_EDM_PLUGIN (DDAlgorithmFactory, DDTrackerXYZPosAlgo, "track:DDTrackerXYZPosAlgo");

@@ -83,18 +83,27 @@ void DDTIBLayerAlgo::initialize(const DDNumericArguments & nArgs,
 		      << roffCableUp;
 
   cylinderT    = nArgs["CylinderThickness"];
+  cylinderInR  = nArgs["CylinderInnerRadius"];
   cylinderMat  = sArgs["CylinderMaterial"];
-  supportW     = nArgs["SupportWidth"];
+  MFRingInR    = nArgs["MFRingInnerRadius"]; 
+  MFRingOutR   = nArgs["MFRingOuterRadius"]; 
+  MFRingT      = nArgs["MFRingThickness"];   
+  MFRingDz     = nArgs["MFRingDeltaz"];      
+  MFIntRingMat    = sArgs["MFIntRingMaterial"];      
+  MFExtRingMat    = sArgs["MFExtRingMaterial"];      
+
   supportT     = nArgs["SupportThickness"];
-  supportMat   = sArgs["SupportMaterial"];
+
+  centMat      = sArgs["CentRingMaterial"];
+  centRing1par = vArgs["CentRing1"];
+  centRing2par = vArgs["CentRing2"];
+
   ribMat       = sArgs["RibMaterial"];
   ribW         = vArgs["RibWidth"];
   ribPhi       = vArgs["RibPhi"];
   LogDebug("TIBGeom") << "DDTIBLayerAlgo debug: Cylinder Material/"
 		      << "thickness " << cylinderMat << " " << cylinderT 
-		      << " Support Wall Material/" << "Width/Thickness " 
-		      << supportMat << " " << supportW << " " 
-		      << supportT << " Rib Material " << ribMat << " at "
+		      << " Rib Material " << ribMat << " at "
 		      << ribW.size() << " positions with width/phi";
   for (int i = 0; i < (int)(ribW.size()); i++)
     LogDebug("TIBGeom") << "\tribW[" << i << "] = " <<  ribW[i] 
@@ -164,10 +173,13 @@ void DDTIBLayerAlgo::execute() {
 
   DDName  parentName = parent().name(); 
   std::string idName = DDSplit(parentName).first;
-  double rmin = radiusLo + roffDetLo - redgd1 - detectorTol;
-  double rmax = sqrt((radiusUp+roffDetUp+redgd1)*(radiusUp+roffDetUp+redgd1)+
-		     redgd2*redgd2) + detectorTol;
-  double rmaxTube = rmax + 2*(dohmCarrierT+dohmAuxT);
+  //double rmin = radiusLo + roffDetLo - redgd1 - detectorTol;
+  double rmin = MFRingInR;
+  //  double rmax = sqrt((radiusUp+roffDetUp+redgd1)*(radiusUp+roffDetUp+redgd1)+
+  //		     redgd2*redgd2) + detectorTol;
+  double rmax = MFRingOutR;
+  //  double rmaxTube = rmax + 2*(dohmCarrierT+dohmAuxT);
+  double rmaxTube = rmax;
   DDSolid solid = DDSolidFactory::tubs(DDName(idName, idNameSpace), 0.5*layerL,
 				       rmin, rmaxTube, 0, twopi);
   LogDebug("TIBGeom") << "DDTIBLayerAlgo test: "  
@@ -180,8 +192,9 @@ void DDTIBLayerAlgo::execute() {
   DDLogicalPart layer(solid.ddname(), matter, solid);
 
   //Lower part first
-  double rin  = rmin;
-  double rout = 0.5*(radiusLo+radiusUp-cylinderT);
+  double rin  = rmin+MFRingT;
+  //  double rout = 0.5*(radiusLo+radiusUp-cylinderT);
+  double rout = cylinderInR;
   std::string name = idName + "Down";
   solid = DDSolidFactory::tubs(DDName(name, idNameSpace), 0.5*layerL,
 			       rin, rout, 0, twopi);
@@ -228,7 +241,7 @@ void DDTIBLayerAlgo::execute() {
 			<< layerIn.name() << " at " << trdet << " with "
 			<< rotation;
     DDTranslation trcab(rposcab*cos(phi), rposcab*sin(phi), 0);
-    DDpos (cabIn, layerIn, n+1, trcab, rotation);
+    //    DDpos (cabIn, layerIn, n+1, trcab, rotation);
     LogDebug("TIBGeom") << "DDTIBLayerAlgo test " << cabIn.name() 
 			<< " number " << n+1 << " positioned in " 
 			<< layerIn.name() << " at " << trcab << " with "
@@ -236,8 +249,8 @@ void DDTIBLayerAlgo::execute() {
   }
 
   //Now the upper part
-  rin  = 0.5*(radiusLo+radiusUp+cylinderT);
-  rout = rmax;
+  rin  = cylinderInR + cylinderT;
+  rout = rmax-MFRingT;
   name = idName + "Up";
   solid = DDSolidFactory::tubs(DDName(name, idNameSpace), 0.5*layerL,
 			       rin, rout, 0, twopi);
@@ -284,16 +297,16 @@ void DDTIBLayerAlgo::execute() {
 			<< layerOut.name() << " at " << trdet << " with "
 			<< rotation;
     DDTranslation trcab(rposcab*cos(phi), rposcab*sin(phi), 0);
-    DDpos (cabOut, layerOut, n+1, trcab, rotation);
+    //    DDpos (cabOut, layerOut, n+1, trcab, rotation);
     LogDebug("TIBGeom") << "DDTIBLayerAlgo test " << cabOut.name() 
 			<< " number " << n+1 << " positioned in " 
 			<< layerOut.name() << " at " << trcab << " with "
 			<< rotation;
   }
 
-  //Finally the inner cylinder, support wall and ribs
-  rin  = 0.5*(radiusLo+radiusUp-cylinderT);
-  rout = 0.5*(radiusLo+radiusUp+cylinderT);
+  //Inner cylinder, support wall and ribs
+  rin  = cylinderInR;
+  rout = cylinderInR+cylinderT;
   name = idName + "Cylinder";
   solid = DDSolidFactory::tubs(DDName(name, idNameSpace), 0.5*layerL,
 			       rin, rout, 0, twopi);
@@ -324,27 +337,13 @@ void DDTIBLayerAlgo::execute() {
   LogDebug("TIBGeom") << "DDTIBLayerAlgo test: " << cylinderIn.name() 
 		      << " number 1 positioned in " << cylinder.name() 
 		      << " at (0,0,0) with no rotation";
-  name  = idName + "CylinderInSup";
-  solid = DDSolidFactory::tubs(DDName(name, idNameSpace), 0.5*supportW,
-			       rin, rout, 0, twopi);
-  LogDebug("TIBGeom") << "DDTIBLayerAlgo test: " 
-		      << DDName(name, idNameSpace) << " Tubs made of " 
-		      << genMat << " from 0 to " << twopi/deg 
-		      << " with Rin " << rin << " Rout " << rout 
-		      << " ZHalf " << 0.5*supportW;
-  matname = DDName(DDSplit(supportMat).first, DDSplit(supportMat).second);
-  DDMaterial matsup(matname);
-  DDLogicalPart cylinderSup(solid.ddname(), matsup, solid);
-  DDpos (cylinderSup, cylinderIn, 1, DDTranslation(0., 0., 0.), DDRotation());
-  LogDebug("TIBGeom") << "DDTIBLayerAlgo test: " << cylinderSup.name()
-		      << " number 1 positioned in " << cylinderIn.name()
-		      << " at (0,0,0) with no rotation";
+
   matname = DDName(DDSplit(ribMat).first, DDSplit(ribMat).second);
   DDMaterial matrib(matname);
   for (int i = 0; i < (int)(ribW.size()); i++) {
     name = idName + "Rib" + dbl_to_string(i);
     double width = 2.*ribW[i]/(rin+rout);
-    double dz    = 0.25*(layerL - supportW);
+    double dz    = 0.5*layerL;
     solid = DDSolidFactory::tubs(DDName(name, idNameSpace), dz, rin, rout, 
 				 -0.5*width, width);
     LogDebug("TIBGeom") << "DDTIBLayerAlgo test: " 
@@ -369,25 +368,111 @@ void DDTIBLayerAlgo::execute() {
                          0., 0.);
       }
     }
-    DDTranslation tran(0, 0, -0.25*(layerL+supportW));
+    DDTranslation tran(0, 0, 0);
     DDpos (cylinderRib, cylinderIn, 1, tran, rotation);
     LogDebug("TIBGeom") << "DDTIBLayerAlgo test " << cylinderRib.name()
 			<< " number 1" << " positioned in " 
 			<< cylinderIn.name() << " at " << tran << " with " 
 			<< rotation;
-    tran = DDTranslation(0, 0, 0.25*(layerL+supportW));
-    DDpos (cylinderRib, cylinderIn, 2, tran, rotation);
-    LogDebug("TIBGeom") << "DDTIBLayerAlgo test " << cylinderRib.name()
-			<< " number 2" << " positioned in "
-			<< cylinderIn.name() << " at " << tran << " with "
-			<< rotation;
   }
+
+  //Manifold rings
+  //
+  // Inner ones first
+  matname = DDName(DDSplit(MFIntRingMat).first, DDSplit(MFIntRingMat).second);
+  DDMaterial matintmfr(matname);
+  rin  = MFRingInR;
+  rout = rin + MFRingT;
+  name = idName + "InnerMFRing";
+  solid = DDSolidFactory::tubs(DDName(name, idNameSpace), MFRingDz,
+			       rin, rout, 0, twopi);
+
+  LogDebug("TIBGeom") << "DDTIBLayerAlgo test: " 
+		      << DDName(name, idNameSpace) << " Tubs made of " 
+		      << MFIntRingMat << " from 0 to " << twopi/deg 
+		      << " with Rin " << rin << " Rout " << rout 
+		      << " ZHalf " << MFRingDz;
+
+  DDLogicalPart inmfr(solid.ddname(), matintmfr, solid);
+  DDpos (inmfr, layer, 1, DDTranslation(0.0, 0.0, -0.5*layerL+MFRingDz), DDRotation());
+  DDpos (inmfr, layer, 2, DDTranslation(0.0, 0.0, +0.5*layerL-MFRingDz), DDRotation());
+  LogDebug("TIBGeom") << "DDTIBLayerAlgo test: " << inmfr.name() 
+		      << " number 1 and 2 positioned in " << layer.name()
+		      << " at (0,0,+-" << 0.5*layerL-MFRingDz << ") with no rotation";
+  // Outer ones
+  matname = DDName(DDSplit(MFExtRingMat).first, DDSplit(MFExtRingMat).second);
+  DDMaterial matextmfr(matname);
+  rout  = MFRingOutR;
+  rin   = rout - MFRingT;
+  name = idName + "OuterMFRing";
+  solid = DDSolidFactory::tubs(DDName(name, idNameSpace), MFRingDz,
+			       rin, rout, 0, twopi);
+
+  LogDebug("TIBGeom") << "DDTIBLayerAlgo test: " 
+		      << DDName(name, idNameSpace) << " Tubs made of " 
+		      << MFExtRingMat << " from 0 to " << twopi/deg 
+		      << " with Rin " << rin << " Rout " << rout 
+		      << " ZHalf " << MFRingDz;
+
+  DDLogicalPart outmfr(solid.ddname(), matextmfr, solid);
+  DDpos (outmfr, layer, 1, DDTranslation(0.0, 0.0, -0.5*layerL+MFRingDz), DDRotation());
+  DDpos (outmfr, layer, 2, DDTranslation(0.0, 0.0, +0.5*layerL-MFRingDz), DDRotation());
+  LogDebug("TIBGeom") << "DDTIBLayerAlgo test: " << outmfr.name() 
+		      << " number 1 and 2 positioned in " << layer.name()
+		      << " at (0,0,+-" << 0.5*layerL-MFRingDz << ") with no rotation";
+
+  //Central Support rings
+  //
+  matname = DDName(DDSplit(centMat).first, DDSplit(centMat).second);
+  DDMaterial matcent(matname);
+  // Ring 1
+  double centZ  = centRing1par[0];
+  double centDz = 0.5*centRing1par[1];
+  rin  = centRing1par[2];
+  rout = centRing1par[3];
+  name = idName + "CentRing1";
+  solid = DDSolidFactory::tubs(DDName(name, idNameSpace), centDz,
+			       rin, rout, 0, twopi);
+
+  LogDebug("TIBGeom") << "DDTIBLayerAlgo test: " 
+		      << DDName(name, idNameSpace) << " Tubs made of " 
+		      << centMat << " from 0 to " << twopi/deg 
+		      << " with Rin " << rin << " Rout " << rout 
+		      << " ZHalf " << centDz;
+
+  DDLogicalPart cent1(solid.ddname(), matcent, solid);
+  DDpos (cent1, layer, 1, DDTranslation(0.0, 0.0, centZ), DDRotation());
+  LogDebug("TIBGeom") << "DDTIBLayerAlgo test: " << cent1.name() 
+		      << " positioned in " << layer.name()
+		      << " at (0,0," << centZ << ") with no rotation";
+  // Ring 2
+  centZ  = centRing2par[0];
+  centDz = 0.5*centRing2par[1];
+  rin  = centRing2par[2];
+  rout = centRing2par[3];
+  name = idName + "CentRing2";
+  solid = DDSolidFactory::tubs(DDName(name, idNameSpace), centDz,
+			       rin, rout, 0, twopi);
+
+  LogDebug("TIBGeom") << "DDTIBLayerAlgo test: " 
+		      << DDName(name, idNameSpace) << " Tubs made of " 
+		      << centMat << " from 0 to " << twopi/deg 
+		      << " with Rin " << rin << " Rout " << rout 
+		      << " ZHalf " << centDz;
+
+  DDLogicalPart cent2(solid.ddname(), matcent, solid);
+  DDpos (cent2, layer, 1, DDTranslation(0.0, 0.0, centZ), DDRotation());
+  LogDebug("TIBGeom") << "DDTIBLayerAlgo test: " << cent2.name() 
+		      << " positioned in " << layer.name()
+		      << " at (0,0," << centZ << ") with no rotation";
 
   // DOHM + carrier (portadohm)
   double dz_dohm    = 0.5*dohmCarrierW;
   double dphi_dohm  = twopi/((double)dohmN);
   //  double rout_dohm  = 0.5*(radiusLo+radiusUp+cylinderT)+dohmCarrierR;
-  double rout_dohm = rmax;
+  // double rout_dohm = rmax;  
+  double rout_dohm = MFRingOutR - 2*dohmCarrierT - 2*dohmAuxT;
+  double Z_dohm = 0.5*layerL-2.*MFRingDz-dz_dohm;
   
   // DOHM Carrier TIB+ & TIB-
   // lower
@@ -498,7 +583,7 @@ void DDTIBLayerAlgo::execute() {
 	}
       }
       // TIB+ DOHM Carrier - lower
-      DDTranslation tran(0, 0, 0.5*layerL-dz_dohm);
+      DDTranslation tran(0, 0, Z_dohm);
       DDpos (dohmCarrier_lo_r, parent(), i+1, tran, rotation );
       LogDebug("TIBGeom") << "DDTIBLayerAlgo test "
 			  << dohmCarrier_lo_r.name() << " z+ number " <<i+1
@@ -512,7 +597,7 @@ void DDTIBLayerAlgo::execute() {
 			  << " positioned in " << parent().name() << " at "
 			  << tran << " with " << rotation;
       // TIB- DOHM Carrier - lower
-      tran = DDTranslation(0, 0, -0.5*layerL+dz_dohm);
+      tran = DDTranslation(0, 0, -Z_dohm);
       DDpos (dohmCarrier_lo_l, parent(), i+1, tran, rotation);
       LogDebug("TIBGeom") << "DDTIBLayerAlgo test "
 			  << dohmCarrier_lo_l.name() << " z- number " <<i+1

@@ -50,10 +50,21 @@ private:
   double                   roffCableUp;    //Radial offset          ......
 
   double                   cylinderT;      //Cylinder thickness
+  double                   cylinderInR;    //Cylinder inner radius
   std::string              cylinderMat;    //Cylinder material
-  double                   supportW;       //Support wall width
-  double                   supportT;       //Support wall thickness
-  std::string              supportMat;     //Support wall  material
+  double                   MFRingInR;      //Inner Manifold Ring Inner Radius 
+  double                   MFRingOutR;     //Outer Manifold Ring Outer Radius 
+  double                   MFRingT;        //Manifold Ring Thickness
+  double                   MFRingDz;       //Manifold Ring Half Lenght
+  std::string              MFIntRingMat;      //Manifold Ring Material
+  std::string              MFExtRingMat;      //Manifold Ring Material
+
+  double                   supportT;       //Cylinder barrel CF skin thickness
+
+  std::string              centMat;        //Central rings  material
+  std::vector<double>      centRing1par;   //Central rings parameters
+  std::vector<double>      centRing2par;   //Central rings parameters
+
   std::string              ribMat;         //Rib material
   std::vector<double>      ribW;           //Rib width
   std::vector<double>      ribPhi;         //Rib Phi position
