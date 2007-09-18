@@ -11,13 +11,16 @@
 <library file=AssociatedVariableMaxCutCandRefSelector.cc></library>
 <library file=PtMinAssociatedVariableMaxCutCandSelector.cc></library>
 <library file=LargestPtCandSelector.cc></library>
+<library file=LargestPtCandViewSelector.cc></library>
 <library file=EtaPtMinCandSelector.cc></library>
 <library file=EtaPtMinCandViewSelector.cc></library>
 <library file=EtaPtMinPdgIdCandSelector.cc></library>
 <library file=PdgIdCandSelector.cc></library>
-<library file=PdgIdAndStatusCandSelector.cc></library>
-<library file=PdgIdAndStatusCandDecaySelector.cc></library>
 <library file=PdgIdCandRefSelector.cc></library>
+<library file=PdgIdCandViewSelector.cc></library>
+<library file=PdgIdAndStatusCandSelector.cc></library>
+<library file=PdgIdAndStatusCandViewSelector.cc></library>
+<library file=PdgIdAndStatusCandDecaySelector.cc></library>
 <library file=StatusCandSelector.cc></library>
 <library file=StatusCandRefSelector.cc></library>
 <library file=StatusCandViewSelector.cc></library>
@@ -34,6 +37,7 @@
 <library file=CandShallowCloneCombiner.cc></library>
 <library file=CandViewShallowCloneCombiner.cc></library>
 <library file=CandMerger.cc></library>
+<library file=CandRefMerger.cc></library>
 <library file=CandShallowCloneProducer.cc></library>
 <library file=CandCountFilter.cc></library>
 <library file=CandReducer.cc></library>
