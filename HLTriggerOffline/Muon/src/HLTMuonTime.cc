@@ -10,15 +10,11 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/ParameterSet/interface/InputTag.h"
 
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Common/interface/RefToBase.h"
 #include "DataFormats/HLTReco/interface/ModuleTiming.h"
-
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -34,7 +30,7 @@ using namespace edm;
 HLTMuonTime::HLTMuonTime(const ParameterSet& pset)
 {
   TimerIn=true;
-  InputTag TimerLabel_=pset.getParameter<InputTag>("TimerLabel"); 
+  theTimerLabel=pset.getParameter<InputTag>("TimerLabel"); 
   ParameterSet ModulesForTiming =  pset.getUntrackedParameter<ParameterSet>("TimingModules");
   theMuonDigiModules=ModulesForTiming.getUntrackedParameter<vector<string> >("MuonDigiModules");
   theMuonLocalRecModules=ModulesForTiming.getUntrackedParameter<vector<string> >("MuonLocalRecModules");
@@ -192,10 +188,11 @@ void HLTMuonTime::analyze(const Event & event ){
 
   //get the timing info
   Handle<EventTime> evtTime;
+  LogDebug("HLTMuonVal") << "About to try"<< theTimerLabel;  
   try {
-      event.getByLabel(TimerLabel_, evtTime);
+      event.getByLabel(theTimerLabel, evtTime);
   } catch (...) {
-    LogWarning("HLTMuonVal") << "!!!!!!!!! No timer run";
+    LogWarning("HLTMuonVal") << "!!!!!!!!! No timer run with label"<< theTimerLabel;
     TimerIn=false;
     return;
   }

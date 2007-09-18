@@ -61,7 +61,7 @@ private:
   std::vector <TDirectory *> TDirs;
   int theNbins;
   double theTMax;
-  edm::InputTag TimerLabel_;
+  edm::InputTag theTimerLabel;
   TDirectory* HistoDir;
   TDirectory* muondigi;
   TDirectory* trackerdigi;
