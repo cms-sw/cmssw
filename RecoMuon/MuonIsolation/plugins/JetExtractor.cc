@@ -126,10 +126,10 @@ MuIsoDeposit JetExtractor::deposit( const Event & event, const EventSetup& event
     
   }
 
-  std::vector<CaloTower>::const_iterator crossedCI =  mInfo.crossedTowers.begin();
+  std::vector<const CaloTower*>::const_iterator crossedCI =  mInfo.crossedTowers.begin();
   double muSumEt = 0;
   for (; crossedCI != mInfo.crossedTowers.end(); ++crossedCI){
-    muSumEt += crossedCI->et();
+    muSumEt += (*crossedCI)->et();
   }
   depJet.addMuonEnergy(muSumEt);
 

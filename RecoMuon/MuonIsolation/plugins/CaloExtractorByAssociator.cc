@@ -139,15 +139,16 @@ std::vector<MuIsoDeposit> CaloExtractorByAssociator::deposits( const Event & eve
     eventSetup.get<IdealGeometryRecord>().get(caloGeom);
 
     //Ecal
-    std::vector<EcalRecHit>::const_iterator eHitCI = mInfo.ecalRecHits.begin();
+    std::vector<const EcalRecHit*>::const_iterator eHitCI = mInfo.ecalRecHits.begin();
     for (; eHitCI != mInfo.ecalRecHits.end(); ++eHitCI){
-      GlobalPoint eHitPos = caloGeom->getPosition(eHitCI->detid());
+      const EcalRecHit* eHitCPtr = *eHitCI;
+      GlobalPoint eHitPos = caloGeom->getPosition(eHitCPtr->detid());
       double deltar0 = deltaR(muon, eHitPos);
       double cosTheta = 1./cosh(eHitPos.eta());
-      double energy = eHitCI->energy();
+      double energy = eHitCPtr->energy();
       double et = energy*cosTheta; 
       if (deltar0 > theDR_Max 
-	  || ! (et > theThreshold_E && energy > 3*noiseRecHit(eHitCI->detid()))) continue;
+	  || ! (et > theThreshold_E && energy > 3*noiseRecHit(eHitCPtr->detid()))) continue;
 
       bool vetoHit = false;
       double deltar = deltaR(mInfo.trkGlobPosAtEcal, eHitPos);
@@ -162,7 +163,7 @@ std::vector<MuIsoDeposit> CaloExtractorByAssociator::deposits( const Event & eve
       //! and now pitch those in the crossed list
       if (! vetoHit){
 	for (uint iH = 0; iH< mInfo.crossedEcalIds.size() && ! vetoHit; ++iH){
-	  if (mInfo.crossedEcalIds[iH].rawId() == eHitCI->detid().rawId()) vetoHit = true;
+	  if (mInfo.crossedEcalIds[iH].rawId() == eHitCPtr->detid().rawId()) vetoHit = true;
 	}
       }
 
@@ -174,15 +175,16 @@ std::vector<MuIsoDeposit> CaloExtractorByAssociator::deposits( const Event & eve
     }
 
     //Hcal
-    std::vector<HBHERecHit>::const_iterator hHitCI = mInfo.hcalRecHits.begin();
+    std::vector<const HBHERecHit*>::const_iterator hHitCI = mInfo.hcalRecHits.begin();
     for (; hHitCI != mInfo.hcalRecHits.end(); ++hHitCI){
-      GlobalPoint hHitPos = caloGeom->getPosition(hHitCI->detid());
+      const HBHERecHit* hHitCPtr = *hHitCI;
+      GlobalPoint hHitPos = caloGeom->getPosition(hHitCPtr->detid());
       double deltar0 = deltaR(muon, hHitPos);
       double cosTheta = 1./cosh(hHitPos.eta());
-      double energy = hHitCI->energy();
+      double energy = hHitCPtr->energy();
       double et = energy*cosTheta;
       if (deltar0 > theDR_Max 
-	  || ! (et > theThreshold_H && energy > 3*noiseRecHit(hHitCI->detid()))) continue;
+	  || ! (et > theThreshold_H && energy > 3*noiseRecHit(hHitCPtr->detid()))) continue;
 
       bool vetoHit = false;
       double deltar = deltaR(mInfo.trkGlobPosAtHcal, hHitPos);
@@ -197,7 +199,7 @@ std::vector<MuIsoDeposit> CaloExtractorByAssociator::deposits( const Event & eve
       //! and now pitch those in the crossed list
       if (! vetoHit){
 	for (uint iH = 0; iH< mInfo.crossedHcalIds.size() && ! vetoHit; ++iH){
-	  if (mInfo.crossedHcalIds[iH].rawId() == hHitCI->detid().rawId()) vetoHit = true;
+	  if (mInfo.crossedHcalIds[iH].rawId() == hHitCPtr->detid().rawId()) vetoHit = true;
 	}
       }
 
@@ -209,15 +211,16 @@ std::vector<MuIsoDeposit> CaloExtractorByAssociator::deposits( const Event & eve
     }
 
     //HOcal
-    std::vector<HORecHit>::const_iterator hoHitCI = mInfo.hoRecHits.begin();
+    std::vector<const HORecHit*>::const_iterator hoHitCI = mInfo.hoRecHits.begin();
     for (; hoHitCI != mInfo.hoRecHits.end(); ++hoHitCI){
-      GlobalPoint hoHitPos = caloGeom->getPosition(hoHitCI->detid());
+      const HORecHit* hoHitCPtr = *hoHitCI;
+      GlobalPoint hoHitPos = caloGeom->getPosition(hoHitCPtr->detid());
       double deltar0 = deltaR(muon, hoHitPos);
       double cosTheta = 1./cosh(hoHitPos.eta());
-      double energy = hoHitCI->energy();
+      double energy = hoHitCPtr->energy();
       double et = energy*cosTheta;
       if (deltar0 > theDR_Max 
-	  || ! (et > theThreshold_HO && energy > 3*noiseRecHit(hoHitCI->detid()))) continue;
+	  || ! (et > theThreshold_HO && energy > 3*noiseRecHit(hoHitCPtr->detid()))) continue;
 
       bool vetoHit = false;
       double deltar = deltaR(mInfo.trkGlobPosAtHO, hoHitPos);
@@ -232,7 +235,7 @@ std::vector<MuIsoDeposit> CaloExtractorByAssociator::deposits( const Event & eve
       //! and now pitch those in the crossed list
       if (! vetoHit){
 	for (uint iH = 0; iH< mInfo.crossedHOIds.size() && ! vetoHit; ++iH){
-	  if (mInfo.crossedHOIds[iH].rawId() == hoHitCI->detid().rawId()) vetoHit = true;
+	  if (mInfo.crossedHOIds[iH].rawId() == hoHitCPtr->detid().rawId()) vetoHit = true;
 	}
       }
 
@@ -246,58 +249,59 @@ std::vector<MuIsoDeposit> CaloExtractorByAssociator::deposits( const Event & eve
 
   } else {
     //! use calo towers    
-    CaloTowerCollection::const_iterator calCI = mInfo.towers.begin();
+    std::vector<const CaloTower*>::const_iterator calCI = mInfo.towers.begin();
     for (; calCI != mInfo.towers.end(); ++calCI){
-      double deltar0 = deltaR(muon,*calCI);
+      const CaloTower* calCPtr = *calCI;
+      double deltar0 = deltaR(muon,*calCPtr);
       if (deltar0>theDR_Max) continue;
     
       //even more copy-pasting .. need to refactor
-      double etecal = calCI->emEt();
-      double eecal = calCI->emEnergy();
-      bool doEcal = etecal>theThreshold_E && eecal>3*noiseEcal(*calCI);
-      double ethcal = calCI->hadEt();
-      double ehcal = calCI->hadEnergy();
-      bool doHcal = ethcal>theThreshold_H && ehcal>3*noiseHcal(*calCI);
-      double ethocal = calCI->outerEt();
-      double ehocal = calCI->outerEnergy();
-      bool doHOcal = ethocal>theThreshold_HO && ehocal>3*noiseHOcal(*calCI);
+      double etecal = calCPtr->emEt();
+      double eecal = calCPtr->emEnergy();
+      bool doEcal = etecal>theThreshold_E && eecal>3*noiseEcal(*calCPtr);
+      double ethcal = calCPtr->hadEt();
+      double ehcal = calCPtr->hadEnergy();
+      bool doHcal = ethcal>theThreshold_H && ehcal>3*noiseHcal(*calCPtr);
+      double ethocal = calCPtr->outerEt();
+      double ehocal = calCPtr->outerEnergy();
+      bool doHOcal = ethocal>theThreshold_HO && ehocal>3*noiseHOcal(*calCPtr);
       if ((!doEcal) && (!doHcal) && (!doHcal)) continue;
     
       bool vetoTowerEcal = false;
-      double deltarEcal = deltaR(mInfo.trkGlobPosAtEcal, *calCI);
+      double deltarEcal = deltaR(mInfo.trkGlobPosAtEcal, *calCPtr);
       //! first check if the tower is inside the veto cone by dR-alone
       if (deltarEcal < theDR_Veto_E ){
 	LogDebug("RecoMuon|CaloExtractorByAssociator")
 	  << " >>> Veto ecal tower: Calo deltaR= " << deltarEcal;
 	LogDebug("RecoMuon|CaloExtractorByAssociator")
-	  << " >>> Calo eta phi ethcal: " << calCI->eta() << " " << calCI->phi() << " " << ethcal;
+	  << " >>> Calo eta phi ethcal: " << calCPtr->eta() << " " << calCPtr->phi() << " " << ethcal;
 	vetoTowerEcal = true;
       }
       bool vetoTowerHcal = false;
-      double deltarHcal = deltaR(mInfo.trkGlobPosAtHcal, *calCI);
+      double deltarHcal = deltaR(mInfo.trkGlobPosAtHcal, *calCPtr);
       //! first check if the tower is inside the veto cone by dR-alone
       if (deltarHcal < theDR_Veto_H ){
 	LogDebug("RecoMuon|CaloExtractorByAssociator")
 	  << " >>> Veto hcal tower: Calo deltaR= " << deltarHcal;
 	LogDebug("RecoMuon|CaloExtractorByAssociator")
-	  << " >>> Calo eta phi ethcal: " << calCI->eta() << " " << calCI->phi() << " " << ethcal;
+	  << " >>> Calo eta phi ethcal: " << calCPtr->eta() << " " << calCPtr->phi() << " " << ethcal;
 	vetoTowerHcal = true;
       }
       bool vetoTowerHOCal = false;
-      double deltarHOcal = deltaR(mInfo.trkGlobPosAtHO, *calCI);
+      double deltarHOcal = deltaR(mInfo.trkGlobPosAtHO, *calCPtr);
       //! first check if the tower is inside the veto cone by dR-alone
       if (deltarHOcal < theDR_Veto_HO ){
 	LogDebug("RecoMuon|CaloExtractorByAssociator")
 	  << " >>> Veto HO tower: Calo deltaR= " << deltarHOcal;
 	LogDebug("RecoMuon|CaloExtractorByAssociator")
-	  << " >>> Calo eta phi ethcal: " << calCI->eta() << " " << calCI->phi() << " " << ethcal;
+	  << " >>> Calo eta phi ethcal: " << calCPtr->eta() << " " << calCPtr->phi() << " " << ethcal;
 	vetoTowerHOCal = true;
       }
 
       //! and now pitch those in the crossed list
       if (! (vetoTowerHOCal && vetoTowerHcal &&  vetoTowerEcal )){
 	for (uint iH = 0; iH< mInfo.crossedTowerIds.size(); ++iH){
-	  if (mInfo.crossedTowerIds[iH].rawId() == calCI->id().rawId()){
+	  if (mInfo.crossedTowerIds[iH].rawId() == calCPtr->id().rawId()){
 	    vetoTowerEcal = true;
 	    vetoTowerHcal = true;
 	    vetoTowerHOCal = true;
@@ -306,7 +310,7 @@ std::vector<MuIsoDeposit> CaloExtractorByAssociator::deposits( const Event & eve
 	}
       }
 
-      Direction towerDir(calCI->eta(), calCI->phi());
+      Direction towerDir(calCPtr->eta(), calCPtr->phi());
       //! add the Et of the tower to deposits if it's not a vetoed; put into muonEnergy otherwise
       if (doEcal){
 	if (vetoTowerEcal) depEcal.addMuonEnergy(etecal);
