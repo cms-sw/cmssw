@@ -1,5 +1,7 @@
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctWheelJetFpga.h"
 
+#include "CondFormats/L1TObjects/interface/L1GctJetCounterSetup.h"
+
 #include "FWCore/Utilities/interface/Exception.h"
 
 //DEFINE STATICS
@@ -10,7 +12,7 @@ const int L1GctWheelJetFpga::MAX_JETS_IN = L1GctWheelJetFpga::MAX_LEAF_CARDS * L
 const int L1GctWheelJetFpga::MAX_RAW_CJETS = 36;
 const int L1GctWheelJetFpga::MAX_RAW_FJETS = 18;
 const int L1GctWheelJetFpga::MAX_RAW_TJETS = 36;
-const unsigned int L1GctWheelJetFpga::N_JET_COUNTERS = 12;
+const unsigned int L1GctWheelJetFpga::N_JET_COUNTERS = L1GctJetCounterSetup::MAX_JET_COUNTERS;
 
 
 L1GctWheelJetFpga::L1GctWheelJetFpga(int id,
