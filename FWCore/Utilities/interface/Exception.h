@@ -115,6 +115,7 @@ namespace cms {
     Exception(Exception const& other); 
     virtual ~Exception() throw();
 
+    // The signature for what() must be identical to that of std::exception::what().
     virtual char const* what() const throw();
 
     virtual std::string explainSelf() const;
@@ -205,6 +206,7 @@ namespace cms {
     // data members
     std::ostringstream ost_;
     CategoryList category_;
+    mutable std::string what_;
   };
 
 

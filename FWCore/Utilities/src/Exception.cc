@@ -6,7 +6,8 @@ namespace cms {
   Exception::Exception(std::string const& aCategory) :
     std::exception(),
     ost_(),
-    category_(1, aCategory)
+    category_(1, aCategory),
+    what_()
   {
   }
 
@@ -14,7 +15,8 @@ namespace cms {
 		       std::string const& message) :
     std::exception(),
     ost_(),
-    category_(1, aCategory)
+    category_(1, aCategory),
+    what_()
   {
     ost_ << message;
     if(!message.empty()) {
@@ -28,7 +30,8 @@ namespace cms {
 		       Exception const& another) :
     std::exception(),
     ost_(),
-    category_(1, aCategory)
+    category_(1, aCategory),
+    what_()
   {
     ost_ << message;
     // check for newline at end of message first
@@ -41,7 +44,8 @@ namespace cms {
   Exception::Exception(Exception const& other):
     std::exception(),
     ost_(),
-    category_(other.category_)
+    category_(other.category_),
+    what_(other.what_)
   {
     ost_ << other.ost_.str();
   }
@@ -91,7 +95,8 @@ namespace cms {
   // required for being a std::exception
 
   char const* Exception::what() const throw() {
-    return explainSelf().c_str();;
+    what_ = explainSelf();
+    return what_.c_str();
   }
 
   std::exception* Exception::clone() const {
