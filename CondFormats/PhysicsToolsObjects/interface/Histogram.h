@@ -16,7 +16,7 @@ struct Range {
 
 	inline Range(Axis_t min, Axis_t max) : min(min), max(max) {}
 
-	inline ~Range() {}
+	virtual ~Range() {}
 
 	inline Axis_t width() const { return max - min; }
 
