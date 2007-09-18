@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: RootDelayedReader.cc,v 1.13 2007/08/28 17:54:53 wmtan Exp $
+$Id: RootDelayedReader.cc,v 1.14 2007/09/05 23:51:01 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "RootDelayedReader.h"
@@ -14,8 +14,9 @@ $Id: RootDelayedReader.cc,v 1.13 2007/08/28 17:54:53 wmtan Exp $
 namespace edm {
 
   RootDelayedReader::RootDelayedReader(EntryNumber const& entry,
- boost::shared_ptr<BranchMap const> bMap)
- : entryNumber_(entry), branches_(bMap) {}
+ boost::shared_ptr<BranchMap const> bMap,
+ boost::shared_ptr<TFile const> filePtr)
+ : entryNumber_(entry), branches_(bMap), filePtr_(filePtr) {}
 
   RootDelayedReader::~RootDelayedReader() {}
 
