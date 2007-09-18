@@ -1,0 +1,14 @@
+<use name=CondFormats/EgammaObjects>
+<use name=CondFormats/DataRecord>
+<use name=CondCore/DBCommon>
+<use name=FWCore/PluginManager>
+<use name=CondCore/PluginSystem>
+<flags SEAL_PLUGIN_NAME="CondCoreEgammaPlugins">
+<export>
+   <lib name=CondCoreEgammaPlugins>
+   <use name=CondFormats/EgammaObjects>
+   <use name=CondFormats/DataRecord>
+   <use name=CondCore/DBCommon>
+   <use name=FWCore/PluginManager>
+   <use name=CondCore/PluginSystem>
+</export>
