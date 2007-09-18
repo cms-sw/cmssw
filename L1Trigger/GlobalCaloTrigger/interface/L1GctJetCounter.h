@@ -2,11 +2,11 @@
 #define L1GCTJETCOUNTER_H_
 
 #include "DataFormats/L1GlobalCaloTrigger/interface/L1GctJetCand.h"
+#include "CondFormats/L1TObjects/interface/L1GctJetCounterSetup.h"
 
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctProcessor.h"
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctJetLeafCard.h"
 #include "L1Trigger/GlobalCaloTrigger/src/L1GctJetCount.h"
-#include "L1Trigger/GlobalCaloTrigger/interface/L1GctJetCounterLut.h"
 
 #include <boost/cstdint.hpp> //for uint16_t
 #include <vector>
@@ -22,7 +22,7 @@
  * \date June 2006
  */
 
-
+class L1GctJetCounterLut;
 
 class L1GctJetCounter : public L1GctProcessor
 {
@@ -54,10 +54,13 @@ public:
   virtual void process();
 
   /// set a new lut for this counter
-  void setLut(L1GctJetCounterLut& lut);
+  void setLut(const L1GctJetCounterLut& lut);
 
-  /// set a new lut for this counter by specifying the cuts
-  void setLut(L1GctJetCounterLut::validCutType cutType, unsigned cutValue1=0, unsigned cutValue2=0);
+  /// set a new lut for this counter by specifying the cuts - just one cut
+  void setLut(const L1GctJetCounterSetup::cutDescription& cut);
+
+  /// set a new lut for this counter by specifying the cuts - list of cuts
+  void setLut(const L1GctJetCounterSetup::cutsListForJetCounter& cutList);
 
   /// set the input jets (for test purposes)
   void setJets(JetVector jets);

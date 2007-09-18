@@ -1,7 +1,13 @@
 #ifndef L1GCTJETCOUNTERLUT_H_
 #define L1GCTJETCOUNTERLUT_H_
 
-#include "DataFormats/L1GlobalCaloTrigger/interface/L1GctJetCand.h"
+#define JET_COUNTER_LUT_ADD_BITS 16
+
+#include "CondFormats/L1TObjects/interface/L1GctJetCounterSetup.h"
+
+#include "L1Trigger/GlobalCaloTrigger/src/L1GctLut.h"
+
+class L1GctJetCand;
 
 #include <vector>
 
@@ -33,23 +39,24 @@
  */
 
 
-class L1GctJetCounterLut
+class L1GctJetCounterLut : public L1GctLut<JET_COUNTER_LUT_ADD_BITS,1>
+
 {
 public:
 
   // Definitions.
-  // nullCutType should be the last in the list.
-  enum validCutType { minRank, maxRank, centralEta, forwardEta, phiWindow, nullCutType};
-  static const unsigned int MAX_CUT_TYPE;
+  static const int NAddress;
 
   /// Construct with a list of cuts (most general case)
-  L1GctJetCounterLut(std::vector<validCutType> cutType, std::vector<unsigned> cutValue1, std::vector<unsigned> cutValue2);
-  /// Construct with just one cut (includes default constructor)
-  L1GctJetCounterLut(validCutType cutType=nullCutType, unsigned cutValue1=0, unsigned cutValue2=0);
+  L1GctJetCounterLut(const L1GctJetCounterSetup::cutsListForJetCounter& cuts);
+  /// Construct with just one cut
+  L1GctJetCounterLut(const L1GctJetCounterSetup::cutDescription& cut);
+  /// Default constructor
+  L1GctJetCounterLut();
   /// Copy constructor
   L1GctJetCounterLut(const L1GctJetCounterLut& lut);
   /// Destructor
-  ~L1GctJetCounterLut();
+  virtual ~L1GctJetCounterLut();
   
   /// Overload = operator
   L1GctJetCounterLut operator= (const L1GctJetCounterLut& lut);
@@ -59,28 +66,25 @@ public:
 
   /// Checks whether jet passes the cut
   bool passesCut(const L1GctJetCand jet) const;
+  bool passesCut(const uint16_t lutAddress) const;
   
   /// Return the number of cuts
-  unsigned nCuts() const { return m_nCuts; }
+  unsigned nCuts() const { return m_cutList.size(); }
 
-  /// Return the cut types
-  std::vector<validCutType> cutType() const { return m_cutType; }
+  /// Return the cut descriptions
+  L1GctJetCounterSetup::cutsListForJetCounter cutList() const { return m_cutList; }
 
-  /// Return the first cut values
-  std::vector<unsigned> cutValue1() const { return m_cutValue1; }
+protected:
+  
 
-  /// Return the second cut values
-  std::vector<unsigned> cutValue2() const { return m_cutValue2; }
+  virtual uint16_t value (const uint16_t lutAddress) const;
 
 private:
 
-  unsigned m_nCuts;
-  std::vector<validCutType> m_cutType;
-  std::vector<unsigned> m_cutValue1;
-  std::vector<unsigned> m_cutValue2;
+  L1GctJetCounterSetup::cutsListForJetCounter m_cutList;
 
   // PRIVATE MEMBER FUNCTIONS
-  void checkCut (const validCutType cutType, const unsigned cutValue1, const unsigned cutValue2) const;
+  void checkCut (const L1GctJetCounterSetup::cutDescription cut) const;
   bool jetPassesThisCut (const L1GctJetCand jet, const unsigned i) const;
 
   // locally calculated jet properties
