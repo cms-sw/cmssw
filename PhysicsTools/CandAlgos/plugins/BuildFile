@@ -25,6 +25,7 @@
 <library file=StatusCandRefSelector.cc></library>
 <library file=StatusCandViewSelector.cc></library>
 <library file=MassRangeCandCombiner.cc></library>
+<library file=MassRangeCandViewShallowCloneCombiner.cc></library>
 <library file=MassRangeCandShallowCloneCombiner.cc></library>
 <library file=MassMinCandCombiner.cc></library>
 <library file=MassMinCandShallowCloneCombiner.cc></library>
