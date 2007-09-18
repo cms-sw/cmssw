@@ -6,14 +6,14 @@
 
 
 ElectronLikelihoodESSource::ElectronLikelihoodESSource (const edm::ParameterSet& cfg) :
-  m_pdfEBlt15FileName (cfg.getParameter<edm::FileInPath> ("pdfEBlt15FileName")) ,
-  m_pdfEBgt15FileName (cfg.getParameter<edm::FileInPath> ("pdfEBgt15FileName")) ,
-  m_pdfEElt15FileName (cfg.getParameter<edm::FileInPath> ("pdfEElt15FileName")) ,
-  m_pdfEEgt15FileName (cfg.getParameter<edm::FileInPath> ("pdfEEgt15FileName")) ,
   m_fisherEBFileName (cfg.getParameter<edm::FileInPath> ("fisherEBFileName")) ,
   m_fisherEEFileName (cfg.getParameter<edm::FileInPath> ("fisherEEFileName")) ,
   m_eleWeight (cfg.getParameter<double> ("eleWeight")) ,
-  m_piWeight  (cfg.getParameter<double> ("piWeight"))
+  m_piWeight  (cfg.getParameter<double> ("piWeight")) ,
+  m_signalWeightSplitting (cfg.getParameter<std::string> ("signalWeightSplitting")) ,
+  m_backgroundWeightSplitting (cfg.getParameter<std::string> ("backgroundWeightSplitting")) ,
+  m_splitSignalPdfs (cfg.getParameter<bool> ("splitSignalPdfs")) ,
+  m_splitBackgroundPdfs (cfg.getParameter<bool> ("splitBackgroundPdfs"))
 {
   setWhatProduced (this) ;
   findingRecord<ElectronLikelihoodRcd> () ;
@@ -57,7 +57,7 @@ ElectronLikelihoodESSource::ElectronLikelihoodESSource (const edm::ParameterSet&
   m_eleIDSwitches.m_useHoverE = cfg.getParameter<double> ("useHoverE") ;
   m_eleIDSwitches.m_useEoverPOut = cfg.getParameter<double> ("useEoverPOut") ;
   m_eleIDSwitches.m_useShapeFisher = cfg.getParameter<double> ("useShapeFisher") ;
-
+  
 }
 
 
@@ -75,19 +75,19 @@ ElectronLikelihoodESSource::ReturnType
 ElectronLikelihoodESSource::produce (const ElectronLikelihoodRcd & iRecord) 
 {
 
-  readPdfFromRootFile () ;
+  const ElectronLikelihoodCalibration *calibration = readPdfFromDB (iRecord) ;
 
-  //PG FIXME maybe these can be passed in the general EleIdAlgo class ctor
-  //PG in the future
-  ReturnType LHAlgo (new ElectronLikelihood ( m_EBlt15dir,        m_EElt15dir,
-					      m_EBgt15dir,        m_EEgt15dir,
-					      m_fisherEBFileName, m_fisherEEFileName,
-					      m_eleEBFracsLt15,   m_piEBFracsLt15, 
-					      m_eleEEFracsLt15,   m_piEEFracsLt15,
-					      m_eleEBFracsGt15,   m_piEBFracsGt15, 
-					      m_eleEEFracsGt15,   m_piEEFracsGt15,
-					      m_eleWeight,        m_piWeight,
-					      m_eleIDSwitches ) ); 
+  ReturnType LHAlgo (new ElectronLikelihood (&(*calibration), 
+					     m_fisherEBFileName, m_fisherEEFileName,
+					     m_eleEBFracsLt15,   m_piEBFracsLt15, 
+					     m_eleEEFracsLt15,   m_piEEFracsLt15,
+					     m_eleEBFracsGt15,   m_piEBFracsGt15, 
+					     m_eleEEFracsGt15,   m_piEEFracsGt15,
+					     m_eleWeight,        m_piWeight,
+					     m_eleIDSwitches,
+					     m_signalWeightSplitting, m_backgroundWeightSplitting,
+					     m_splitSignalPdfs, m_splitBackgroundPdfs
+					     ) ); 
 
   return LHAlgo;
 }
@@ -97,8 +97,7 @@ ElectronLikelihoodESSource::produce (const ElectronLikelihoodRcd & iRecord)
 
 
 void 
-ElectronLikelihoodESSource::setIntervalFor( 
-					   const edm::eventsetup::EventSetupRecordKey&,
+ElectronLikelihoodESSource::setIntervalFor(const edm::eventsetup::EventSetupRecordKey&,
 					   const edm::IOVSyncValue&,
 					   edm::ValidityInterval& oInterval ) {
   // the same PDF's is valid for any time
@@ -109,27 +108,14 @@ ElectronLikelihoodESSource::setIntervalFor(
 
 // ----------------------------------------------------
 
+const ElectronLikelihoodCalibration*
+ElectronLikelihoodESSource::readPdfFromDB( const ElectronLikelihoodRcd & iRecord ) {
 
-void 
-ElectronLikelihoodESSource::readPdfFromRootFile() {
-                                           
-  m_EBlt15dir = new TFile (m_pdfEBlt15FileName.fullPath ().c_str ()) ;
-  m_EElt15dir = new TFile (m_pdfEElt15FileName.fullPath ().c_str ()) ;
-  m_EBgt15dir = new TFile (m_pdfEBgt15FileName.fullPath ().c_str ()) ;
-  m_EEgt15dir = new TFile (m_pdfEEgt15FileName.fullPath ().c_str ()) ;
+  // setup the PDF's from DB
+  const ElectronLikelihoodCalibration *calibration = 0;
+  edm::ESHandle<ElectronLikelihoodCalibration> calibHandle;
+  iRecord.getRecord<ElectronLikelihoodPdfsRcd>().get(calibHandle);
+  calibration = calibHandle.product();
 
-  if (m_EBlt15dir == 0)
-    throw edm::Exception(edm::errors::InvalidReference,"NullPointer")
-      << m_pdfEBlt15FileName << " not opened" ; 
-  if (m_EBgt15dir == 0)
-    throw edm::Exception(edm::errors::InvalidReference,"NullPointer")
-      << m_pdfEBgt15FileName << " not opened" ; 
-  if (m_EElt15dir == 0)
-    throw edm::Exception(edm::errors::InvalidReference,"NullPointer")
-      << m_pdfEElt15FileName << " not opened" ; 
-  if (m_EEgt15dir == 0)
-    throw edm::Exception(edm::errors::InvalidReference,"NullPointer")
-      << m_pdfEEgt15FileName << " not opened" ; 
-  return ;
+  return calibration;
 }
-

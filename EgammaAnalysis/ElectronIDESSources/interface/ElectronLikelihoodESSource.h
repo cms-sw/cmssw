@@ -34,9 +34,9 @@
 #include "FWCore/Framework/interface/EventSetupRecordIntervalFinder.h"
 #include "FWCore/Framework/interface/SourceFactory.h"
 #include "CondFormats/DataRecord/interface/ElectronLikelihoodRcd.h"
-#include <TDirectory.h>
+#include "CondFormats/EgammaObjects/interface/ElectronLikelihoodCalibration.h"
 #include <climits>
-
+#include <string>
 
 class ElectronLikelihoodESSource : public edm::ESProducer, public  edm::EventSetupRecordIntervalFinder {
  public:
@@ -47,29 +47,17 @@ class ElectronLikelihoodESSource : public edm::ESProducer, public  edm::EventSet
   /// define the return type
   typedef std::auto_ptr<ElectronLikelihood> ReturnType;
   /// return the particle table
-  ReturnType produce( const ElectronLikelihoodRcd & );
+  ReturnType produce( const ElectronLikelihoodRcd &);
   /// set validity interval
   void setIntervalFor( const edm::eventsetup::EventSetupRecordKey &,
 		       const edm::IOVSyncValue &,
 		       edm::ValidityInterval & );
   
  private:
-  /// read pdf's from ROOT files
-  void readPdfFromRootFile ();
+  /// read PDF's from CondDB
+  const ElectronLikelihoodCalibration* readPdfFromDB ( const ElectronLikelihoodRcd & );
 
  private:
-  /// TDirectories with pdf's
-  TDirectory *m_EBlt15dir;
-  TDirectory *m_EElt15dir;
-  TDirectory *m_EBgt15dir;
-  TDirectory *m_EEgt15dir;
-
-  /// input file names for EB pdf
-  edm::FileInPath m_pdfEBlt15FileName ;
-  edm::FileInPath m_pdfEBgt15FileName ;
-  /// input file names for EE pdf
-  edm::FileInPath m_pdfEElt15FileName ;
-  edm::FileInPath m_pdfEEgt15FileName ;
 
   /// input file names for EB/EE Fisher coefficients
   edm::FileInPath m_fisherEBFileName ;
@@ -96,6 +84,12 @@ class ElectronLikelihoodESSource : public edm::ESProducer, public  edm::EventSet
   double m_eleWeight ;
   //! pions weight
   double m_piWeight ;
+
+  //! signal pdf splitting
+  std::string m_signalWeightSplitting ;
+  std::string m_backgroundWeightSplitting ;
+  bool m_splitSignalPdfs ;
+  bool m_splitBackgroundPdfs ;
 
 };
 #endif
