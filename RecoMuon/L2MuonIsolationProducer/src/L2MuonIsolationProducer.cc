@@ -17,6 +17,7 @@
 #include "DataFormats/Common/interface/AssociationMap.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
+#include "DataFormats/MuonReco/interface/MuIsoDepositFwd.h"
 
 #include "RecoMuon/MuonIsolation/interface/MuIsoExtractor.h"
 #include "RecoMuon/MuonIsolation/interface/MuIsoExtractorFactory.h"

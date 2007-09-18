@@ -3,6 +3,7 @@
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
+#include "DataFormats/MuonReco/interface/MuIsoDepositFwd.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/MuonReco/interface/Direction.h"
 

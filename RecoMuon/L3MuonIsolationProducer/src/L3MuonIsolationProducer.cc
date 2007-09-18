@@ -15,6 +15,7 @@
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 
 #include "DataFormats/MuonReco/interface/MuIsoDeposit.h"
+#include "DataFormats/MuonReco/interface/MuIsoDepositFwd.h"
 
 #include "RecoMuon/MuonIsolation/interface/Range.h"
 #include "DataFormats/MuonReco/interface/Direction.h"
