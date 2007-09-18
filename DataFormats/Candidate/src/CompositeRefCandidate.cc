@@ -1,4 +1,4 @@
-// $Id: CompositeRefCandidate.cc,v 1.5 2007/05/14 11:47:16 llista Exp $
+// $Id: CompositeRefCandidate.cc,v 1.6 2007/09/14 09:53:43 llista Exp $
 #include "DataFormats/Candidate/interface/CompositeRefCandidate.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
@@ -45,9 +45,10 @@ bool CompositeRefCandidate::overlap( const Candidate & c2 ) const {
 
 void CompositeRefCandidate::doFixupMothers() const {
   const CandidateCollection * cands = dau.product();
-  for( CandidateCollection::const_iterator c = cands->begin(); 
-       c != cands->end(); ++ c ) {
-    c->setMotherLinksToDaughters();
-    c->setFixed();
-  }
+  if ( cands != 0 )
+    for( CandidateCollection::const_iterator c = cands->begin(); 
+	 c != cands->end(); ++ c ) {
+      c->setMotherLinksToDaughters();
+      c->setFixed();
+    }
 }
