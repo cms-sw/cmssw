@@ -66,7 +66,6 @@ double JetPlusTrackCorrector::correction(const reco::Jet& fJet,
                                          const edm::EventSetup& theEventSetup) const 
 {
 //   cout<<" JetPlusTrackCorrector::correction::starts "<<endl;
-         if(fabs(fJet.eta())>2.1) return 1.;
 // Get Tracker information
 // Take Vertex collection   
    edm::Handle<reco::VertexCollection> primary_vertices;                 //Define Inputs (vertices)
@@ -81,13 +80,21 @@ double JetPlusTrackCorrector::correction(const reco::Jet& fJet,
 
    if(theZeroSuppressionCorr > 0.)
    {
-
-// 
      double OldResponse =  NewResponse;
-     NewResponse = OldResponse/(1.+(0.2-52.72/(OldResponse+100.)));
+     double theta = fJet.theta();
+     double et = fJet.energy()*sin(theta);
+     float myfunc = 1.;
+     if(fabs(fJet.eta())<0.5) myfunc = 1. - 2.32401e-02 - 2.81192e+03/((et+90.)*(et+90.));
+     if(fabs(fJet.eta())>0.5&&fabs(fJet.eta())<1.0) myfunc = 1. - 2.05604e-02 - 2.77028e+03/((et+90.)*(et+90.));
+     if(fabs(fJet.eta())>1.0&&fabs(fJet.eta())<1.5) myfunc = 1. - 2.79727e-02 - 3.12238e+03/((et+90.)*(et+90.));
+     if(fabs(fJet.eta())>1.5&&fabs(fJet.eta())<2.0) myfunc = 1. - 2.93144e-02 - 3.43492e+03/((et+90.)*(et+90.));
+     if(fabs(fJet.eta())>2.0&&fabs(fJet.eta())<2.5) myfunc = 1. - 1.60337e-02 - 9.9769e+02/((et+50.)*(et+50.));
+     if(fabs(fJet.eta())>2.5&&fabs(fJet.eta())<3.0) myfunc = 1. - 9.28562e-03 - 5.32833e+02/((et+40.)*(et+40.));
+     NewResponse = OldResponse/myfunc;
 
    }
 
+   if(fabs(fJet.eta())>2.1) {return NewResponse/fJet.energy();}
 
    if( primary_vertices->size() == 0 )
    {
@@ -110,7 +117,7 @@ double JetPlusTrackCorrector::correction(const reco::Jet& fJet,
       double pto = 0.;
       
       vector<reco::Track>  tmp;
-      for (reco::track_iterator track = (*pv).tracks_begin();
+      for (reco::Vertex::trackRef_iterator track = (*pv).tracks_begin();
                 track != (*pv).tracks_end(); track++)
 		{
 		   pto = pto + (*track)->pt();
