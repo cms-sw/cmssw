@@ -1,6 +1,8 @@
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GlobalCaloTrigger.h"
 
 #include "CondFormats/L1TObjects/interface/L1GctJetFinderParams.h"
+#include "CondFormats/L1TObjects/interface/L1GctJetCounterSetup.h"
+
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctJetEtCalibrationLut.h"
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctEmLeafCard.h"
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctWheelJetFpga.h"
@@ -24,7 +26,7 @@ const unsigned int L1GlobalCaloTrigger::N_JET_COUNTERS = L1GctGlobalEnergyAlgos:
 
 
 // constructor
-L1GlobalCaloTrigger::L1GlobalCaloTrigger(L1GctJetLeafCard::jetFinderType jfType) :
+L1GlobalCaloTrigger::L1GlobalCaloTrigger(const L1GctJetLeafCard::jetFinderType jfType) :
   theJetLeafCards(N_JET_LEAF_CARDS),
   theJetFinders(N_JET_LEAF_CARDS*3),
   theEmLeafCards(N_EM_LEAF_CARDS),
@@ -38,9 +40,6 @@ L1GlobalCaloTrigger::L1GlobalCaloTrigger(L1GctJetLeafCard::jetFinderType jfType)
   // construct hardware
   build(jfType);
   
-  // jet counter LUT
-  setupJetCounterLuts();
-
 }
 
 /// GCT Destructor
@@ -191,7 +190,21 @@ void L1GlobalCaloTrigger::setJetEtCalibrationLut(const L1GctJetEtCalibrationLut*
   }
 }
 
-void L1GlobalCaloTrigger::setRegion(L1CaloRegion region) 
+void L1GlobalCaloTrigger::setupJetCounterLuts(const L1GctJetCounterSetup* jcPosPars,
+                                              const L1GctJetCounterSetup* jcNegPars) {
+
+  // Initialise look-up tables for Plus and Minus wheels
+  for (unsigned j=0; j<jcPosPars->numberOfJetCounters(); ++j) {
+    theWheelJetFpgas.at(0)->getJetCounter(j)->setLut(
+                 jcPosPars->getCutsForJetCounter(j) );
+  }
+  for (unsigned j=0; j<jcNegPars->numberOfJetCounters(); ++j) {
+    theWheelJetFpgas.at(1)->getJetCounter(j)->setLut(
+                 jcNegPars->getCutsForJetCounter(j) );
+  }
+}
+
+void L1GlobalCaloTrigger::setRegion(const L1CaloRegion& region) 
 {
   if (region.bx()==0) {
     unsigned crate = region.rctCrate();
@@ -211,13 +224,14 @@ void L1GlobalCaloTrigger::setRegion(L1CaloRegion region)
   }
 }
 
-void L1GlobalCaloTrigger::setRegion(unsigned et, unsigned ieta, unsigned iphi, bool overFlow, bool fineGrain)
+void L1GlobalCaloTrigger::setRegion(const unsigned et, const unsigned ieta, const unsigned iphi,
+                                    const bool overFlow, const bool fineGrain)
 {
   L1CaloRegion temp(et, overFlow, fineGrain, false, false, ieta, iphi);
   setRegion(temp);
 }
 
-void L1GlobalCaloTrigger::setIsoEm(L1CaloEmCand em) 
+void L1GlobalCaloTrigger::setIsoEm(const L1CaloEmCand& em) 
 {
   if (em.bx()==0) {
     unsigned crate = em.rctCrate();
@@ -231,7 +245,7 @@ void L1GlobalCaloTrigger::setIsoEm(L1CaloEmCand em)
   }
 }
 
-void L1GlobalCaloTrigger::setNonIsoEm(L1CaloEmCand em) 
+void L1GlobalCaloTrigger::setNonIsoEm(const L1CaloEmCand& em) 
 {
   if (em.bx()==0) {
     unsigned crate = em.rctCrate();
@@ -245,14 +259,14 @@ void L1GlobalCaloTrigger::setNonIsoEm(L1CaloEmCand em)
   }
 }
 
-void L1GlobalCaloTrigger::fillRegions(vector<L1CaloRegion> rgn)
+void L1GlobalCaloTrigger::fillRegions(const vector<L1CaloRegion>& rgn)
 {
   for (uint i=0; i<rgn.size(); i++){
     setRegion(rgn.at(i));
   }
 }
 
-void L1GlobalCaloTrigger::fillEmCands(vector<L1CaloEmCand> em)
+void L1GlobalCaloTrigger::fillEmCands(const vector<L1CaloEmCand>& em)
 {
   for (uint i=0; i<em.size(); i++){
     if (em.at(i).isolated()){
@@ -431,32 +445,4 @@ void L1GlobalCaloTrigger::build(L1GctJetLeafCard::jetFinderType jfType) {
   // Global Energy Algos
   theEnergyFinalStage = new L1GctGlobalEnergyAlgos(theWheelEnergyFpgas, theWheelJetFpgas);
 
-}
-
-void L1GlobalCaloTrigger::setupJetCounterLuts() {
-
-  // Initialise look-up tables for Minus and Plus wheels
-  for (unsigned wheel=0; wheel<2; ++wheel) {
-    unsigned j=0;
-    // Setup the first counters in the list for some arbitrary conditions
-    // Energy cut
-    theWheelJetFpgas.at(wheel)->getJetCounter(j)->setLut(L1GctJetCounterLut::minRank, 5);
-    j++;
-
-    // Eta cuts
-    theWheelJetFpgas.at(wheel)->getJetCounter(j)->setLut(L1GctJetCounterLut::centralEta, 5);
-    j++;
-
-    // Some one-sided eta cuts
-    if (wheel==0) {
-      theWheelJetFpgas.at(wheel)->getJetCounter(j)->setLut(L1GctJetCounterLut::forwardEta, 6);
-    }
-    j++;
-
-    if (wheel==1) {
-      theWheelJetFpgas.at(wheel)->getJetCounter(j)->setLut(L1GctJetCounterLut::forwardEta, 6);
-    }
-    j++;
-
-  }
 }
