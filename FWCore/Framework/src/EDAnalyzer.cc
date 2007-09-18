@@ -1,11 +1,13 @@
 /*----------------------------------------------------------------------
   
-$Id: EDAnalyzer.cc,v 1.7 2006/10/31 23:54:01 wmtan Exp $
+$Id: EDAnalyzer.cc,v 1.8 2007/06/14 17:52:18 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/src/CPCSentry.h"
+
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 namespace edm
 {
@@ -63,5 +65,10 @@ namespace edm
     return current_context_;
   }
 
+  void
+  EDAnalyzer::fillDescription(ParameterSetDescription& iDesc) {
+    iDesc.setUnknown();
+  }
+  
 }
   

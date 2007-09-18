@@ -1,6 +1,6 @@
 /*----------------------------------------------------------------------
 
-$Id: OutputModule.cc,v 1.40 2007/09/12 18:55:11 paterno Exp $
+$Id: OutputModule.cc,v 1.41 2007/09/13 20:16:25 paterno Exp $
 ----------------------------------------------------------------------*/
 
 #include "FWCore/Framework/interface/OutputModule.h"
@@ -14,6 +14,8 @@ $Id: OutputModule.cc,v 1.40 2007/09/12 18:55:11 paterno Exp $
 #include "FWCore/Utilities/interface/DebugMacros.h"
 #include "FWCore/Framework/interface/CurrentProcessingContext.h"
 #include "FWCore/Framework/src/CPCSentry.h"
+
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 using std::vector;
 using std::string;
@@ -383,4 +385,10 @@ namespace edm {
   {
     return nextID_;
   }
+  
+  void
+  OutputModule::fillDescription(ParameterSetDescription& iDesc) {
+    iDesc.setUnknown();
+  }
+  
 }

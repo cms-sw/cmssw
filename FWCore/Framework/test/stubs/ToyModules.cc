@@ -25,6 +25,7 @@ Toy EDProducers and EDProducts for testing purposes only.
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 namespace edmtest {
 
@@ -69,6 +70,10 @@ namespace edmtest {
     }
     virtual ~IntProducer() { }
     virtual void produce(edm::Event& e, edm::EventSetup const& c);
+    
+    static void fillDescription(edm::ParameterSetDescription& iDesc) {
+      iDesc.add<int>("ivalue");
+    }
   private:
     int value_;
   };

@@ -8,12 +8,13 @@ processing in a processing path.
 Filters can also insert products into the event.
 These products should be informational products about the filter decision.
 
-$Id: EDFilter.h,v 1.13 2006/11/03 17:57:51 wmtan Exp $
+$Id: EDFilter.h,v 1.14 2007/06/08 23:52:59 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
 #include "FWCore/Framework/interface/ProducerBase.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/ParameterSet/interface/ParameterSetfwd.h"
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
 
 namespace edm {
@@ -38,6 +39,7 @@ namespace edm {
     bool doEndLuminosityBlock(LuminosityBlock & lb, EventSetup const& c,
 		   CurrentProcessingContext const* cpc);
 
+    static void fillDescription(edm::ParameterSetDescription&);
 
   protected:
     // The returned pointer will be null unless the this is currently

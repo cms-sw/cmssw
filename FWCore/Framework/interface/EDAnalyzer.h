@@ -3,7 +3,7 @@
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
-
+#include "FWCore/ParameterSet/interface/ParameterSetfwd.h"
 // EDAnalyzer is the base class for all reconstruction "modules".
 
 namespace edm {
@@ -28,6 +28,8 @@ namespace edm {
 		   CurrentProcessingContext const* cpc);
     void doEndLuminosityBlock(LuminosityBlock const& lb, EventSetup const& c,
 		   CurrentProcessingContext const* cpc);
+
+    static void fillDescription(edm::ParameterSetDescription&);
 
   protected:
     // The returned pointer will be null unless the this is currently

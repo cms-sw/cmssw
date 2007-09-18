@@ -6,7 +6,7 @@
 OutputModule: The base class of all "modules" that write Events to an
 output stream.
 
-$Id: OutputModule.h,v 1.53 2007/09/13 16:29:49 paterno Exp $
+$Id: OutputModule.h,v 1.54 2007/09/13 20:16:25 paterno Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -20,6 +20,8 @@ $Id: OutputModule.h,v 1.53 2007/09/13 16:29:49 paterno Exp $
 #include "FWCore/Framework/interface/CachedProducts.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/GroupSelector.h"
+#include "FWCore/ParameterSet/interface/ParameterSetfwd.h"
+
 
 namespace edm {
 
@@ -72,6 +74,7 @@ namespace edm {
     SelectionsArray const& droppedPriorProducts() const {return droppedPriorProducts_;}
     boost::array<bool, NumBranchTypes> const& hasNewlyDroppedBranch() const {return hasNewlyDroppedBranch_;}
 
+    static void fillDescription(edm::ParameterSetDescription&);
     bool const& wantAllEvents() const {return wantAllEvents_;}
 
   protected:

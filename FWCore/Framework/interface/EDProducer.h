@@ -6,13 +6,14 @@
 EDProducer: The base class of "modules" whose main purpose is to insert new
 EDProducts into an Event.
 
-$Id: EDProducer.h,v 1.17 2006/11/03 17:57:51 wmtan Exp $
+$Id: EDProducer.h,v 1.18 2007/06/08 23:52:59 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
 #include "FWCore/Framework/interface/ProducerBase.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
+#include "FWCore/ParameterSet/interface/ParameterSetfwd.h"
 
 namespace edm {
   class EDProducer : public ProducerBase {
@@ -36,7 +37,8 @@ namespace edm {
     void doEndLuminosityBlock(LuminosityBlock & lb, EventSetup const& c,
 		   CurrentProcessingContext const* cpc);
 
-
+    static void fillDescription(edm::ParameterSetDescription&);
+    
   protected:
     // The returned pointer will be null unless the this is currently
     // executing its event loop function ('produce').
