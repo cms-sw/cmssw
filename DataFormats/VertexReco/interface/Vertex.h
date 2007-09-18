@@ -7,7 +7,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: Vertex.h,v 1.29 2007/09/12 14:38:57 speer Exp $
+ * \version $Id: Vertex.h,v 1.30 2007/09/13 16:05:24 speer Exp $
  *
  */
 #include <Rtypes.h>
@@ -45,7 +45,7 @@ namespace reco {
     /// constructor from values
     Vertex( const Point &, const Error &, double chi2, double ndof, size_t size );
     /// Tells whether the vertex is valid.
-    bool isValid() {return validity_;}
+    bool isValid() const {return validity_;}
     /// add a reference to a Track
     void add( const TrackBaseRef & r, float w=1.0 );
     /// add the original a Track(reference) and the smoothed Track
