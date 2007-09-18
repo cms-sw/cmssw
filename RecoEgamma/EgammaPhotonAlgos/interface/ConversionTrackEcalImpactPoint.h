@@ -21,6 +21,7 @@
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/EgammaTrackReco/interface/TrackSuperClusterAssociation.h"
 #include "DataFormats/EgammaReco/interface/BasicCluster.h"
+#include "DataFormats/EgammaReco/interface/BasicClusterFwd.h"
 //
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
