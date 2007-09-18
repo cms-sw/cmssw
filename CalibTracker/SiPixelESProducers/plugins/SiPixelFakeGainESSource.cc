@@ -13,7 +13,7 @@
 //
 // Original Author:  Vincenzo Chiochia
 //         Created:  Fri Apr 27 12:31:25 CEST 2007
-// $Id: SiPixelFakeGainESSource.cc,v 1.2 2007/08/17 16:49:59 chiochia Exp $
+// $Id: SiPixelFakeGainESSource.cc,v 1.3 2007/08/21 10:37:30 chiochia Exp $
 //
 //
 
@@ -53,7 +53,7 @@ std::auto_ptr<SiPixelGainCalibration> SiPixelFakeGainESSource::produce(const SiP
    using namespace edm::es;
    unsigned int nmodules = 0;
    uint32_t nchannels = 0;
-   SiPixelGainCalibration * obj = new SiPixelGainCalibration();
+   SiPixelGainCalibration * obj = new SiPixelGainCalibration(25.,30., 2.,3.);
    SiPixelDetInfoFileReader reader(fp_.fullPath());
    const std::vector<uint32_t> DetIds = reader.getAllDetIds();
 
@@ -69,9 +69,9 @@ std::auto_ptr<SiPixelGainCalibration> SiPixelFakeGainESSource::produce(const SiP
 	 nchannels++;
 	 float gain =  2.8;
 	 float ped  = 28.2;	 
-	 float theEncodedGain  = SiPixelGainCalibrationService_.encodeGain(gain);
-	 float theEncodedPed   = SiPixelGainCalibrationService_.encodePed (ped);
-	 obj->setData( theEncodedPed , theEncodedGain , theSiPixelGainCalibration);	 
+	 //float theEncodedGain  = SiPixelGainCalibrationService_.encodeGain(gain);
+	 //float theEncodedPed   = SiPixelGainCalibrationService_.encodePed (ped);
+	 obj->setData(ped, gain , theSiPixelGainCalibration);	 
        }
      }
 
