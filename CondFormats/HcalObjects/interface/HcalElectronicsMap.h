@@ -6,8 +6,8 @@
 \author Fedor Ratnikov (UMd)
 POOL object to store map between detector ID, electronics ID and trigger ID
 $Author: ratnikov
-$Date: 2007/02/19 04:06:34 $
-$Revision: 1.13 $
+$Date: 2007/05/05 19:49:05 $
+$Revision: 1.14 $
 */
 
 #include <vector>
@@ -48,6 +48,8 @@ class HcalElectronicsMap {
   bool lookup(const HcalElectronicsId pId, HcalElectronicsId& eid, HcalTrigTowerDetId& did) const;
 
   std::vector <HcalElectronicsId> allElectronicsId () const;
+  std::vector <HcalElectronicsId> allElectronicsIdPrecision() const;
+  std::vector <HcalElectronicsId> allElectronicsIdTrigger() const;
   std::vector <HcalGenericDetId> allPrecisionId () const;
   std::vector <HcalTrigTowerDetId> allTriggerId () const;
 

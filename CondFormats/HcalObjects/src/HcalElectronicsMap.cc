@@ -3,8 +3,8 @@
 \author Fedor Ratnikov (UMd)
 POOL object to store mapping for Hcal channels
 $Author: ratnikov
-$Date: 2007/07/13 20:44:33 $
-$Revision: 1.20 $
+$Date: 2007/07/15 20:38:14 $
+$Revision: 1.21 $
 */
 
 #include <iostream>
@@ -115,7 +115,22 @@ std::vector <HcalElectronicsId> HcalElectronicsMap::allElectronicsId () const {
   std::vector <HcalElectronicsId> result;
   for (std::vector<PrecisionItem>::const_iterator item = mPItems.begin (); item != mPItems.end (); item++) 
     if (item->mElId) result.push_back(HcalElectronicsId(item->mElId));
+  for (std::vector<TriggerItem>::const_iterator item = mTItems.begin (); item != mTItems.end (); item++) 
+    if (item->mElId) result.push_back(HcalElectronicsId(item->mElId));
+
+  return result;
+}
+
+std::vector <HcalElectronicsId> HcalElectronicsMap::allElectronicsIdPrecision() const {
+  std::vector <HcalElectronicsId> result;
   for (std::vector<PrecisionItem>::const_iterator item = mPItems.begin (); item != mPItems.end (); item++) 
+    if (item->mElId) result.push_back(HcalElectronicsId(item->mElId));
+  return result;
+}
+
+std::vector <HcalElectronicsId> HcalElectronicsMap::allElectronicsIdTrigger() const {
+  std::vector <HcalElectronicsId> result;
+  for (std::vector<TriggerItem>::const_iterator item = mTItems.begin (); item != mTItems.end (); item++) 
     if (item->mElId) result.push_back(HcalElectronicsId(item->mElId));
 
   return result;
