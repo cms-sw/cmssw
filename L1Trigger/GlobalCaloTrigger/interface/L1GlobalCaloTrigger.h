@@ -40,6 +40,7 @@ class L1GctGlobalEnergyAlgos;
 class L1GctElectronFinalSort;
 class L1GctJetFinderParams;
 class L1GctJetEtCalibrationLut;
+class L1GctJetCounterSetup;
 class L1CaloEtScale;
 
 
@@ -56,7 +57,7 @@ public:
   static const unsigned int N_JET_COUNTERS;
 
   /// construct the GCT
-  L1GlobalCaloTrigger(L1GctJetLeafCard::jetFinderType jfType = L1GctJetLeafCard::tdrJetFinder);
+  L1GlobalCaloTrigger(const L1GctJetLeafCard::jetFinderType jfType = L1GctJetLeafCard::tdrJetFinder);
 
   /// dismantle the GCT
   ~L1GlobalCaloTrigger();
@@ -73,23 +74,28 @@ public:
   /// setup the Jet Calibration Lut
   void setJetEtCalibrationLut(const L1GctJetEtCalibrationLut* lut);
 
+  /// setup Jet Counter LUTs
+  void setupJetCounterLuts(const L1GctJetCounterSetup* jcPosPars,
+                           const L1GctJetCounterSetup* jcNegPars);
+
   /// set a jet region at the input to be processed
-  void setRegion(L1CaloRegion region);
+  void setRegion(const L1CaloRegion& region);
 
   /// construct a jet region and set it at the input to be processed
-  void setRegion(unsigned et, unsigned ieta, unsigned iphi, bool overFlow=false, bool fineGrain=true);
+  void setRegion(const unsigned et, const unsigned ieta, const unsigned iphi, 
+                 const bool overFlow=false, const bool fineGrain=true);
 
   /// set an isolated EM candidate to be processed
-  void setIsoEm(L1CaloEmCand em);
+  void setIsoEm(const L1CaloEmCand& em);
 
   /// set a non-isolated EM candidate to be processed
-  void setNonIsoEm(L1CaloEmCand em);
+  void setNonIsoEm(const L1CaloEmCand& em);
 
   /// set jet regions from the RCT at the input to be processed
-  void fillRegions(std::vector<L1CaloRegion> rgn);
+  void fillRegions(const std::vector<L1CaloRegion>& rgn);
 
   /// set electrons from the RCT at the input to be processed
-  void fillEmCands(std::vector<L1CaloEmCand> rgn);
+  void fillEmCands(const std::vector<L1CaloEmCand>& rgn);
 
   /// iso electron outputs to GT
   std::vector<L1GctEmCand> getIsoElectrons() const;
@@ -154,9 +160,6 @@ public:
   
   /// instantiate the hardware & algo objects and wire up the system
   void build(L1GctJetLeafCard::jetFinderType jfType);
-
-  /// setup Jet Counter LUTs
-  void setupJetCounterLuts();
 
   /// check we have done all the setup
   bool setupOk() { return (m_jetFinderParams != 0)
