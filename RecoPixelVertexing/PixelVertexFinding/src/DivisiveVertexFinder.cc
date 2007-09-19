@@ -37,8 +37,8 @@ bool DivisiveVertexFinder::findVertexes(const reco::TrackRefVector &trks,  // in
   err(2,2) = vz.error()*vz.error();
 
   reco::Vertex v( reco::Vertex::Point(0,0,vz.value()), err, 0, 1, trks.size() );
-  for (int i=0; i<trks.size(); i++) {
-    v.add(trks[i]);
+  for (unsigned int i=0; i<trks.size(); i++) {
+    v.add(reco::TrackBaseRef(trks[i]));
   }
 
   vertexes.push_back(v);
@@ -93,7 +93,7 @@ bool DivisiveVertexFinder::findVertexesAlt(const reco::TrackRefVector &trks,  //
 							    << " tracks and a position of " << v.z() 
 							    << " +- " << std::sqrt(v.error(2,2));
     for (unsigned int itrk=0; itrk<out.first[iv].tracks().size(); ++itrk) {
-      v.add( mapa[out.first[iv].tracks()[itrk]] );
+      v.add( reco::TrackBaseRef(mapa[out.first[iv].tracks()[itrk]] ) );
     }
     vertexes.push_back(v); // Done with horrible conversion, save it
   }

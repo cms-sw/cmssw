@@ -6,6 +6,7 @@
 
 #include "DataFormats/VZero/interface/VZero.h"
 #include "DataFormats/VZero/interface/VZeroFwd.h"
+#include "DataFormats/VertexReco/interface/VertexFwd.h"
 
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"

@@ -78,8 +78,8 @@ void PixelVZeroProducer::produce(edm::Event& ev, const edm::EventSetup& es)
                             reco::Vertex::Error(), 0.,0.,0);
 
         // Add references to daughters
-        vertex.add(*ipos);
-        vertex.add(*ineg);
+        vertex.add(reco::TrackBaseRef(*ipos));
+        vertex.add(reco::TrackBaseRef(*ineg));
 
         // Store vzero
         result->push_back(reco::VZero(vertex,data));
