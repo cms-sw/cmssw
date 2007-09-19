@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: RootFile.cc,v 1.80 2007/08/29 21:47:56 wmtan Exp $
+$Id: RootFile.cc,v 1.81 2007/09/11 19:52:11 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "RootFile.h"
@@ -13,6 +13,7 @@ $Id: RootFile.cc,v 1.80 2007/08/29 21:47:56 wmtan Exp $
 #include "DataFormats/Provenance/interface/ParameterSetBlob.h"
 #include "DataFormats/Provenance/interface/ModuleDescriptionRegistry.h"
 #include "DataFormats/Provenance/interface/ProcessHistoryRegistry.h"
+#include "DataFormats/Provenance/interface/RunID.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/Registry.h"
@@ -29,20 +30,6 @@ $Id: RootFile.cc,v 1.80 2007/08/29 21:47:56 wmtan Exp $
 #include "Rtypes.h"
 
 namespace edm {
-  namespace {
-    void
-    kludgeZeroRun(RunID *id) {
-      if (id->run() == 0) (*id) = RunID(1);
-    }
-    void
-    kludgeZeroRun(LuminosityBlockID *id) {
-      if (id->run() == 0) (*id) = LuminosityBlockID(1, id->luminosityBlock());
-    }
-    void
-    kludgeZeroRun(EventID *id) {
-      if (id->run() == 0) (*id) = EventID(1, id->event());
-    }
-  }
 //---------------------------------------------------------------------
   RootFile::RootFile(std::string const& fileName,
 		     std::string const& catalogName,
@@ -62,7 +49,9 @@ namespace edm {
       lumiTree_(filePtr_, InLumi),
       runTree_(filePtr_, InRun),
       treePointers_(),
-      productRegistry_() {
+      productRegistry_(),
+      forcedRunNumber_(0),
+      forcedRunNumberOffset_(0) {
     treePointers_[InEvent] = &eventTree_;
     treePointers_[InLumi]  = &lumiTree_;
     treePointers_[InRun]   = &runTree_;
@@ -201,7 +190,7 @@ namespace edm {
         eventAux_.luminosityBlock_ = 1;
       }
     }
-    kludgeZeroRun(&eventAux_.id_);
+    overrideRunNumber(eventAux_.id_);
   }
 
   // readEvent() is responsible for creating, and setting up, the
@@ -273,7 +262,7 @@ namespace edm {
       EventAux eventAux;
       EventAux *pEvAux = &eventAux;
       eventTree().fillAux<EventAux>(pEvAux);
-      kludgeZeroRun(&eventAux.id_);
+      overrideRunNumber(eventAux.id_);
       // back up, so event will not be skipped.
       eventTree().previous();
       return boost::shared_ptr<RunPrincipal>(
@@ -294,7 +283,7 @@ namespace edm {
       runTree().fillAux<RunAux>(pRunAux);
       conversion(runAux, runAux_);
     } 
-    kludgeZeroRun(&runAux_.id_);
+    overrideRunNumber(runAux_.id_);
     if (runAux_.beginTime() == Timestamp::invalidTimestamp()) {
       // RunAuxiliary did not contain a valid timestamp.  Take it from the next event.
       if (eventTree().next()) {
@@ -328,7 +317,7 @@ namespace edm {
       EventAux eventAux;
       EventAux *pEvAux = &eventAux;
       eventTree().fillAux<EventAux>(pEvAux);
-      kludgeZeroRun(&eventAux.id_);
+      overrideRunNumber(eventAux.id_);
       // back up, so event will not be skipped.
       eventTree().previous();
       if (eventAux.id_.run() != rp->run()) {
@@ -356,7 +345,7 @@ namespace edm {
       lumiTree().fillAux<LuminosityBlockAux>(pLumiAux);
       conversion(lumiAux, lumiAux_);
     }
-    kludgeZeroRun(&lumiAux_.id_);
+    overrideRunNumber(lumiAux_.id_);
 
     if (lumiAux_.run() != rp->run()) {
       // The lumi block is in a different run.  Back up, and return a null pointer.
@@ -383,5 +372,31 @@ namespace edm {
     // Create a group in the lumi for each product
     lumiTree().fillGroups(thisLumi->groupGetter());
     return thisLumi;
+  }
+
+  void
+  RootFile::overrideRunNumber(RunID & id) {
+    if (forcedRunNumber_ != 0) {
+       forcedRunNumberOffset_ = forcedRunNumber_ - id.run();
+       forcedRunNumber_ = 0;
+    }
+    if (forcedRunNumberOffset_ != 0) {
+      id = RunID(id.run() + forcedRunNumberOffset_);
+    } 
+    if (id.run() == 0) id = RunID::firstValidRun();
+  }
+  void
+  RootFile::overrideRunNumber(LuminosityBlockID & id) {
+    if (forcedRunNumberOffset_ != 0) {
+      id = LuminosityBlockID(id.run() + forcedRunNumberOffset_, id.luminosityBlock());
+    } 
+    if (id.run() == 0) id = LuminosityBlockID(RunID::firstValidRun().run(), id.luminosityBlock());
+  }
+  void
+  RootFile::overrideRunNumber(EventID & id) {
+    if (forcedRunNumberOffset_ != 0) {
+      id = EventID(id.run() + forcedRunNumberOffset_, id.event());
+    } 
+    if (id.run() == 0) id = EventID(RunID::firstValidRun().run(), id.event());
   }
 }

@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: PoolSource.cc,v 1.61 2007/09/08 02:16:32 wmtan Exp $
+$Id: PoolSource.cc,v 1.62 2007/09/10 20:25:11 wmtan Exp $
 ----------------------------------------------------------------------*/
 #include "PoolSource.h"
 #include "RootFile.h"
@@ -35,6 +35,7 @@ namespace edm {
       init(*fileIter_);
       updateProductRegistry();
       setInitialPosition(pset);
+      rootFile_->forceRunNumber(pset.getUntrackedParameter<unsigned int>("setRunNumber", 0));
       if (fileIter_ == fileCatalogItems().begin() && rootFile_->eventTree().entryNumber() == -1) {
 	// Set up TChains for fast cloning if and only if we start from the beginning of the first file.
         RootChains & chains = RootChains::instance();

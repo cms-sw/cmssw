@@ -5,7 +5,7 @@
 
 RootFile.h // used by ROOT input sources
 
-$Id: RootFile.h,v 1.31 2007/08/10 22:11:26 wmtan Exp $
+$Id: RootFile.h,v 1.32 2007/09/13 16:29:50 paterno Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -21,6 +21,7 @@ $Id: RootFile.h,v 1.31 2007/08/10 22:11:26 wmtan Exp $
 #include "DataFormats/Provenance/interface/LuminosityBlockAuxiliary.h"
 #include "DataFormats/Provenance/interface/RunAuxiliary.h"
 #include "DataFormats/Provenance/interface/FileFormatVersion.h"
+#include "DataFormats/Provenance/interface/ProvenanceFwd.h"
 #include "FWCore/MessageLogger/interface/JobReport.h"
 class TFile;
 
@@ -55,10 +56,14 @@ namespace edm {
     RootTree & eventTree() {return eventTree_;}
     RootTree & lumiTree() {return lumiTree_;}
     RootTree & runTree() {return runTree_;}
+    void forceRunNumber(RunNumber_t const& run) {forcedRunNumber_ = run;}
 
   private:
     void validateFile();
     void fillEventAuxiliary();
+    void overrideRunNumber(RunID & id);
+    void overrideRunNumber(LuminosityBlockID & id);
+    void overrideRunNumber(EventID & id);
     RootFile(RootFile const&); // disable copy construction
     RootFile & operator=(RootFile const&); // disable assignment
     std::string const file_;
@@ -76,6 +81,8 @@ namespace edm {
     RootTree runTree_;
     RootTreePtrArray treePointers_;
     boost::shared_ptr<ProductRegistry const> productRegistry_;
+    RunNumber_t forcedRunNumber_;
+    int forcedRunNumberOffset_;
   }; // class RootFile
 
 }
