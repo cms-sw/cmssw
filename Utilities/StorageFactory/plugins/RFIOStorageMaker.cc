@@ -3,7 +3,11 @@
 #include "Utilities/StorageFactory/plugins/RFIOStorageMaker.h"
 #include "Utilities/RFIOAdaptor/interface/RFIOFile.h"
 #include "Utilities/RFIOAdaptor/interface/RFIO.h"
-
+#include "Utilities/RFIOAdaptor/interface/RFIOPluginFactory.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/Catalog/interface/SiteLocalConfig.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Utilities/interface/CodedException.h"
 #include <cstdlib>
 
 //<<<<<< PRIVATE DEFINES                                                >>>>>>
@@ -60,8 +64,31 @@ namespace {
 }
 
 RFIOStorageMaker::RFIOStorageMaker() {
+   std::string rfiotype("");
+   bool err = false;
+   try {
+     edm::Service<edm::SiteLocalConfig> siteconfig;
+     if (!siteconfig.isAvailable())
+       err = true;
+     else
+       rfiotype = siteconfig->rfioType();
+   } catch (const edm::CodedException<edm::errors::ErrorCodes>& e) {
+     err = true;
+   }
+   
+   if (err) {
+     edm::LogWarning("RFIOStorageMaker") 
+          << "SiteLocalConfig Failed: SiteLocalConfigService is not loaded yet."
+	  << "Going to use default RFIO implementation i.e. \"castor\".";
+     edm::FlushMessageLog();
+   }
+
+   if (rfiotype.size() == 0)
+       rfiotype = "castor";
+   
+   RFIOPluginFactory::get()->create(rfiotype);
 // init rfio MT
-  Cthread_init();
+   Cthread_init();
 
   // this was suggested by Olof at castor-operations
   // It should help debugging CASTOR/rfio problems
@@ -97,3 +124,7 @@ RFIOStorageMaker::doCheck (const std::string &proto,
 
     return true;
 }
+
+#include "Utilities/StorageFactory/interface/StorageMakerFactory.h"
+using edm::storage::StorageMakerFactory;
+DEFINE_EDM_PLUGIN (StorageMakerFactory, RFIOStorageMaker, "rfio");

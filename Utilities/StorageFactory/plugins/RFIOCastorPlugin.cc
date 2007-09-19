@@ -1,7 +1,6 @@
 //<<<<<< INCLUDES                                                       >>>>>>
 
-#include "Utilities/StorageFactory/plugins/RFIODPMStorageMaker.h"
-#include "Utilities/StorageFactory/interface/StorageMakerFactory.h"
+#include "Utilities/RFIOAdaptor/interface/RFIOPluginFactory.h"
 
 //<<<<<< PRIVATE DEFINES                                                >>>>>>
 //<<<<<< PRIVATE CONSTANTS                                              >>>>>>
@@ -13,5 +12,5 @@
 //<<<<<< PUBLIC FUNCTION DEFINITIONS                                    >>>>>>
 //<<<<<< MEMBER FUNCTION DEFINITIONS                                    >>>>>>
 
-using edm::storage::StorageMakerFactory;
-DEFINE_EDM_PLUGIN (StorageMakerFactory, RFIODPMStorageMaker, "dpm");
+typedef RFIODummyFile RFIOCastorPlugin;
+DEFINE_EDM_PLUGIN (RFIOPluginFactory,RFIOCastorPlugin,"castor");
