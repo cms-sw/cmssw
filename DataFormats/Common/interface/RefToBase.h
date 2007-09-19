@@ -28,7 +28,7 @@ reference type.
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Apr  3 16:37:59 EDT 2006
-// $Id: RefToBase.h,v 1.28 2007/09/17 10:19:14 llista Exp $
+// $Id: RefToBase.h,v 1.29 2007/09/17 14:15:23 llista Exp $
 //
 
 // system include files
@@ -357,20 +357,14 @@ namespace edm {
 namespace edm {
   template <class T>
   inline
-  RefToBase<T>::RefToBase(RefToBaseProd<T> const& r, size_t i) {
-    const View<T> * v = r.operator->();
-    RefToBase<T> ri = v->refAt( i );
-    reftobase::BaseHolder<value_type> * h = ri.holder_;
-    holder_ = h->clone();
+  RefToBase<T>::RefToBase(RefToBaseProd<T> const& r, size_t i) :
+    holder_( r.operator->()->refAt( i ).holder_->clone() ) {
   }
 
   template<typename T>
   inline 
-  RefToBase<T>::RefToBase(Handle<View<T> > const& handle, size_t i) {
-    const View<T> * v = handle.operator->();
-    RefToBase<T> ri = v->refAt( i );
-    reftobase::BaseHolder<value_type> * h = ri.holder_;
-    holder_ = h->clone();
+  RefToBase<T>::RefToBase(Handle<View<T> > const& handle, size_t i) :
+    holder_( handle.operator->()->refAt( i ).holder_->clone() ) {
   }
 
 }
