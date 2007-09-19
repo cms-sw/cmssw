@@ -25,7 +25,7 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include <exception>
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FileCatalog/IFileCatalog.h"
+//#include "FileCatalog/IFileCatalog.h"
 #include <sstream>
 #include <cstdlib>
 //#include <iostream>
@@ -312,6 +312,7 @@ PoolDBESSource::registerProxies(const edm::eventsetup::EventSetupRecordKey& iRec
   RecordToIOVInfo::iterator itRec=m_recordToIOVInfo.find(recordname);
   std::string tagname=itRec->second.tag;
   TagCollection::iterator itTag=m_tagCollection.find(tagname);
+  std::string labelname=itTag->second.labelname;
   cond::Connection* c=conHandler.getConnection(itTag->second.pfn);
   std::pair< RecordToTypes::iterator,RecordToTypes::iterator > typeItrs = m_recordToTypes.equal_range( recordname );
   //loop over types in the same record
@@ -320,11 +321,12 @@ PoolDBESSource::registerProxies(const edm::eventsetup::EventSetupRecordKey& iRec
     //std::cout<<std::string("   ") + itType->second <<std::endl;
     static eventsetup::TypeTag defaultType;
     eventsetup::TypeTag type = eventsetup::TypeTag::findType( itType->second );
+    eventsetup::IdTags iid(labelname.c_str());
     if( type != defaultType ) {
       ProxyToToken::iterator pos=m_proxyToToken.find(buildName(recordname, type.name()));
       boost::shared_ptr<DataProxy> proxy(cond::ProxyFactory::get()->create( buildName(recordname, type.name() ), c, pos));
       if(0 != proxy.get()) {
-	eventsetup::DataKey key( type, "");
+	eventsetup::DataKey key( type, iid );
 	aProxyList.push_back(KeyedProxies::value_type(key,proxy));
       }
     }
