@@ -1,8 +1,8 @@
 /*
  * \file DTtTrigCalibrationTest.cc
  * 
- * $Date: 2007/06/19 10:21:25 $
- * $Revision: 1.7 $
+ * $Date: 2007/09/19 17:32:01 $
+ * $Revision: 1.8 $
  * \author M. Zanetti - CERN
  *
  */
@@ -120,6 +120,7 @@ void DTtTrigCalibrationTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, 
   // prescale factor
   if ( nLumiSegs%prescaleFactor != 0 ) return;
 
+  edm::LogVerbatim ("tTrigCalibration") <<"[DTtTrigCalibrationTest]: "<<nLumiSegs<<" updates";
 
   context.get<DTTtrigRcd>().get(tTrigMap);
   float tTrig, tTrigRMS;
