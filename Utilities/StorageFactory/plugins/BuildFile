@@ -21,3 +21,9 @@
   <use name=castor>
   <flags EDM_PLUGIN=1>
 </library>
+
+<library file=RFIODPMPlugin.cc name=RFIODPMPlugin>
+  <use name=Utilities/RFIOAdaptor>
+  <use name=dpm>
+  <flags EDM_PLUGIN=1>
+</library>
