@@ -1,8 +1,6 @@
 #include "RecoVertex/PrimaryVertexProducer/interface/PrimaryVertexProducer.h"
 
-#include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
-#include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/Common/interface/EDProduct.h"
 #include "DataFormats/Common/interface/Handle.h"
@@ -11,13 +9,10 @@
 
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
 #include "RecoVertex/VertexPrimitives/interface/TransientVertex.h"
-#include "RecoVertex/VertexPrimitives/interface/ConvertError.h"
-#include "RecoVertex/KalmanVertexFit/interface/KalmanVertexFitter.h"
 
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
 #include "TrackingTools/Records/interface/TransientTrackRecord.h"
-#include "MagneticField/Engine/interface/MagneticField.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
 
 //using namespace reco;
@@ -123,7 +118,15 @@ PrimaryVertexProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
      reco::Vertex v = *iv;
      vColl.push_back(v);
    }
-   
+
+   if (vColl.empty()) {
+     vColl.push_back(reco::Vertex(vertexBeamSpot.position(), 
+    			    vertexBeamSpot.rotatedCovariance3D(),0.,0.,0));
+     if(fVerbose){
+       std::cout <<"RecoVertex/PrimaryVertexProducer: "
+		 << " will put Vertex derived from BeamSpot into Event.\n";
+     }
+   }
 
    if(fVerbose){
      cout << "RecoVertex/PrimaryVertexProducer:   nv=" <<vColl.size()<< endl;
@@ -144,9 +147,7 @@ PrimaryVertexProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
      }
    }
 
-  }
-  
-  catch (std::exception & err) {
+  }  catch (std::exception & err) {
     edm::LogInfo("RecoVertex/PrimaryVertexProducer") 
       << "Exception during event number: " << iEvent.id() 
       << "\n" << err.what() << "\n";
