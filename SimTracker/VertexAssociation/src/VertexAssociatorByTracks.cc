@@ -74,21 +74,28 @@ VertexRecoToSimCollection VertexAssociatorByTracks::associateRecoToSim(
 
     // Loop over daughter tracks of reco::Vertex
 
-    for (reco::track_iterator recoDaughter = vertex->tracks_begin();
+    for (reco::Vertex::trackRef_iterator recoDaughter = vertex->tracks_begin();
          recoDaughter != vertex->tracks_end(); ++recoDaughter) {
-      if (trackAssocResult[*recoDaughter].size() > 0) {
-        std::vector<std::pair<TrackingParticleRef, double> > tpV = trackAssocResult[*recoDaughter];
+      try {
+        TrackRef tr = recoDaughter->castTo<TrackRef>();
+	if (trackAssocResult[tr].size() > 0) {
+          std::vector<std::pair<TrackingParticleRef, double> > tpV = trackAssocResult[tr];
 
-        // Loop over TrackingParticles associated with reco::Track
+          // Loop over TrackingParticles associated with reco::Track
 
-        for (std::vector<std::pair<TrackingParticleRef, double> >::const_iterator match = tpV.begin();
-             match != tpV.end(); ++match) {
-          // ... and keep count of it's parent vertex
-          TrackingParticleRef tp = match->first;
-//          double trackFraction = match->second;
-          TrackingVertexRef   tv = tp->parentVertex();
-          ++tVCount[tv]; // Count matches to this reco:Vertex for this TrackingVertex
-        }
+          for (std::vector<std::pair<TrackingParticleRef, double> >::const_iterator match = tpV.begin();
+               match != tpV.end(); ++match) {
+            // ... and keep count of it's parent vertex
+            TrackingParticleRef tp = match->first;
+  //          double trackFraction = match->second;
+            TrackingVertexRef   tv = tp->parentVertex();
+            ++tVCount[tv]; // Count matches to this reco:Vertex for this TrackingVertex
+          }
+	}
+      } catch ( edm::Exception& e ) {
+        edm::LogWarning("SimTracker/VertexAssociation") 
+	  << "Exception while comparing reco::Vertex/TrackingVertex tracks: "
+	  << e.what() << endl;
       }
     }
 
@@ -141,7 +148,7 @@ VertexSimToRecoCollection VertexAssociatorByTracks::associateSimToReco(
              match != recoTracks.end(); ++match) {
           // ... and keep count of it's parent vertex
 
-          TrackRef        track = match->first;
+          TrackBaseRef track(match->first);
 //          double   trackQuality = match->second;
 
           // Find vertex if any where this track comes from
@@ -149,7 +156,7 @@ VertexSimToRecoCollection VertexAssociatorByTracks::associateSimToReco(
           for (reco::VertexCollection::const_iterator vertex = vC.begin();
               vertex != vC.end(); ++vertex,++iv) {
             VertexRef rVertexR = VertexRef(vertexCollectionH,iv);
-            for (reco::track_iterator recoDaughter = vertex->tracks_begin();
+            for (reco::Vertex::trackRef_iterator recoDaughter = vertex->tracks_begin();
                  recoDaughter != vertex->tracks_end(); ++recoDaughter) {
               if (*recoDaughter == track) {
                 ++vCount[rVertexR]; // Count matches to this TrackingVertex for this reco:Vertex
