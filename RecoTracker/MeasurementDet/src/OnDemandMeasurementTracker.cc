@@ -127,9 +127,8 @@ OnDemandMeasurementTracker::OnDemandMeasurementTracker(const edm::ParameterSet& 
 }
 
 
-void OnDemandMeasurementTracker::define( const edm::Event& event,
-				   const edm::Handle< LazyGetter> & theLazyGetterH,
-				   std::auto_ptr< RefGetter > &  theGetter ) const
+void OnDemandMeasurementTracker::define( const edm::Handle< LazyGetter> & theLazyGetterH,
+					 std::auto_ptr< RefGetter > &  theGetter ) const
 {
   //  define is supposed to be call by an EDProducer module, which wil put the RefGetter in the event
   //  so that reference can be made to it.

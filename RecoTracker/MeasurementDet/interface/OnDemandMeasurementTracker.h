@@ -30,8 +30,7 @@ public:
   typedef edm::SiStripRefGetter<SiStripCluster> RefGetter;
 
   /// OnDemandMeasurementTracker specific function to be called to define the region in the RefGetter according to MeasurementDet content
-  void define(const edm::Event&,
-	      const edm::Handle< edm::SiStripLazyGetter<SiStripCluster> > & ,
+  void define(const edm::Handle< edm::SiStripLazyGetter<SiStripCluster> > & ,
 	      std::auto_ptr< RefGetter > &  ) const;
 
   /// MeasurementDetSystem interface

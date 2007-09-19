@@ -59,7 +59,7 @@ void MeasurementTrackerSiStripRefGetterProducer::produce( edm::Event& event,
   }
   else{
     //define the regions for each individual module
-    tOD->define(event, lazygetter, refgetter);
+    tOD->define(lazygetter, refgetter);
   }
 
   // Add to event
