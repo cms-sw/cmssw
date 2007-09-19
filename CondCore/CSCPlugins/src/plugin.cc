@@ -26,9 +26,13 @@
 #include "CondFormats/DataRecord/interface/CSCNoiseMatrixRcd.h"
 #include "CondFormats/DataRecord/interface/CSCDBNoiseMatrixRcd.h"
 #include "CondFormats/DataRecord/interface/CSCChamberMap.h"
+#include "CondFormats/DataRecord/interface/CSCChamberMapRcd.h"
 #include "CondFormats/DataRecord/interface/CSCChamberIndex.h"
+#include "CondFormats/DataRecord/interface/CSCChamberIndexRcd.h"
 #include "CondFormats/DataRecord/interface/CSCCrateMap.h"
+#include "CondFormats/DataRecord/interface/CSCCrateMapRcd.h"
 #include "CondFormats/DataRecord/interface/CSCDDUMap.h"
+#include "CondFormats/DataRecord/interface/CSCDDUMapRcd.h"
 #include "CondFormats/CSCObjects/interface/CSCReadoutMapping.h"
 #include "CondFormats/DataRecord/interface/CSCReadoutMappingRcd.h"
 
