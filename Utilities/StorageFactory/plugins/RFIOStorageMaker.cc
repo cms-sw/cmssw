@@ -80,7 +80,6 @@ RFIOStorageMaker::RFIOStorageMaker() {
      edm::LogWarning("RFIOStorageMaker") 
           << "SiteLocalConfig Failed: SiteLocalConfigService is not loaded yet."
 	  << "Going to use default RFIO implementation i.e. \"castor\".";
-     edm::FlushMessageLog();
    }
 
    if (rfiotype.size() == 0)
