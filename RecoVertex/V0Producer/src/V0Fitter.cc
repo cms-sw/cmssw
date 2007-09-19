@@ -13,7 +13,7 @@
 //
 // Original Author:  Brian Drell
 //         Created:  Fri May 18 22:57:40 CEST 2007
-// $Id: V0Fitter.cc,v 1.6 2007/09/10 21:13:07 drell Exp $
+// $Id: V0Fitter.cc,v 1.7 2007/09/10 22:21:00 drell Exp $
 //
 //
 
@@ -69,6 +69,7 @@ void V0Fitter::fitAll(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   //vector<Track> theTracks_;
   vector<TrackRef> theTrackRefs_;
   vector<TrackRef> theTrackRefs;
+  vector<TransientTrack> theTransTracks;
 
   // Handles for tracks, B-field, and tracker geometry
   Handle<reco::TrackCollection> theTrackHandle;
@@ -111,12 +112,17 @@ void V0Fitter::fitAll(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   //  and fill track vector with ones that pass the cut (> 1 cm).
 
   for( unsigned int indx2 = 0; indx2 < theTrackRefs_.size(); indx2++ ) {
-    if( sqrt(  theTrackRefs_[indx2]->dxy( beamSpot )
+    TransientTrack tmpTk( *(theTrackRefs_[indx2]), &(*bFieldHandle) );
+    TrajectoryStateClosestToBeamLine
+      tscb( tmpTk.stateAtBeamLine() );
+    if( tscb.transverseImpactParameter().value() > 0.1 ) {
+    /*if( sqrt(  theTrackRefs_[indx2]->dxy( beamSpot )
 	     * theTrackRefs_[indx2]->dxy( beamSpot )
 	     + theTrackRefs_[indx2]->dsz( beamSpot )
-	     * theTrackRefs_[indx2]->dsz( beamSpot ) ) > 0. ) {
+	     * theTrackRefs_[indx2]->dsz( beamSpot ) ) > 0.5 ) {*/
       theTrackRefs.push_back( theTrackRefs_[indx2] );
       theTracks.push_back( *(theTrackRefs_[indx2]) );
+      theTransTracks.push_back( tmpTk );
     }
   }
 
@@ -130,14 +136,20 @@ void V0Fitter::fitAll(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
   // Loop over tracks and vertex good charged track pairs
   for(unsigned int trdx1 = 0; trdx1 < theTracks.size(); trdx1++) {
-    for(unsigned int trdx2 = trdx1 + 1; trdx2 < theTracks.size(); trdx2++) {
-      
+    for(unsigned int trdx2 = trdx1 + 1; trdx2 < theTracks.size(); 
+	trdx2++) {
+      vector<Track> theTracks;  
       vector<TransientTrack> transTracks;
+
+      //theTracks.push_back( theTransTracks[trdx1].track() );
+      //theTracks.push_back( theTransTracks[trdx2].track() );
 
       TrackRef positiveTrackRef;
       TrackRef negativeTrackRef;
       Track* positiveIter = 0;
       Track* negativeIter = 0;
+      TransientTrack* posTransTkPtr;
+      TransientTrack* negTransTkPtr;
 
       // Look at the two tracks we're looping over.  If they're oppositely
       //  charged, load them into the hypothesized positive and negative tracks
@@ -148,6 +160,8 @@ void V0Fitter::fitAll(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
 	positiveTrackRef = theTrackRefs[trdx2];
 	negativeIter = &theTracks[trdx1];
 	positiveIter = &theTracks[trdx2];
+	negTransTkPtr = &theTransTracks[trdx1];
+	posTransTkPtr = &theTransTracks[trdx2];
       }
       else if(theTrackRefs[trdx1]->charge() > 0. &&
 	      theTrackRefs[trdx2]->charge() < 0.) {
@@ -155,6 +169,8 @@ void V0Fitter::fitAll(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
 	positiveTrackRef = theTrackRefs[trdx1];
 	negativeIter = &theTracks[trdx2];
 	positiveIter = &theTracks[trdx1];
+	negTransTkPtr = &theTransTracks[trdx2];
+	posTransTkPtr = &theTransTracks[trdx1];
       }
       // If they're not 2 oppositely charged tracks, loop back to the
       //  beginning and try the next pair.
@@ -181,12 +197,14 @@ void V0Fitter::fitAll(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
       //----->> Finished making cuts.
 
       // Create TransientTrack objects.  They're needed for the KVF.
-      TransientTrack thePositiveTransTrack( *positiveIter, &(*bFieldHandle) );
-      TransientTrack theNegativeTransTrack( *negativeIter, &(*bFieldHandle) );
+      //TransientTrack thePositiveTransTrack( *positiveIter, &(*bFieldHandle) );
+      //TransientTrack theNegativeTransTrack( *negativeIter, &(*bFieldHandle) );
 
       // Fill the vector of TransientTracks to send to KVF
-      transTracks.push_back(thePositiveTransTrack);
-      transTracks.push_back(theNegativeTransTrack);
+      //transTracks.push_back(thePositiveTransTrack);
+      //transTracks.push_back(theNegativeTransTrack);
+      transTracks.push_back(*posTransTkPtr);
+      transTracks.push_back(*negTransTkPtr);
 
       // Create the vertex fitter object
       KalmanVertexFitter theFitter(useRefTrax == 0 ? false : true);
@@ -203,16 +221,23 @@ void V0Fitter::fitAll(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
       bool yesorno = false;
 
-      if( thePositiveTransTrack.recHitsSize() 
+      /*if( thePositiveTransTrack.recHitsSize() 
 	 && theNegativeTransTrack.recHitsSize() ) {
 	trackingRecHit_iterator posTrackHitIt 
 	  = thePositiveTransTrack.recHitsBegin();
 	trackingRecHit_iterator negTrackHitIt
-	  = theNegativeTransTrack.recHitsBegin();
+	= theNegativeTransTrack.recHitsBegin();*/
+      if( posTransTkPtr->recHitsSize()
+	  && negTransTkPtr->recHitsSize() ) {
+	trackingRecHit_iterator posTrackHitIt
+	  = posTransTkPtr->recHitsBegin();
+	trackingRecHit_iterator negTrackHitIt
+	  = negTransTkPtr->recHitsBegin();
 	
 	//std::cout << "Doing the recHit thing." << std::endl;
 	
-	for( ; posTrackHitIt < thePositiveTransTrack.recHitsEnd();
+	//for( ; posTrackHitIt < thePositiveTransTrack.recHitsEnd();
+	for( ; posTrackHitIt < posTransTkPtr->recHitsEnd();
 	     posTrackHitIt++) {
 	  const TrackingRecHit* posHitPtr = (*posTrackHitIt).get();
 	  if( (*posTrackHitIt)->isValid() && theRecoVertex.isValid() ) {
@@ -224,16 +249,17 @@ void V0Fitter::fitAll(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
 	    //std::cout << "@@POS: " << posHitPosition.perp() << std::endl;
 	  
 	    if( posHitPosition.perp() < theRecoVertex.position().perp() ) {
-	      std::cout << typeid(*posHitPtr).name()
+	      /*std::cout << typeid(*posHitPtr).name()
 		<< "+" << theRecoVertex.position().perp() -
 		posHitPosition.perp() 
-		<< std::endl;
+		<< std::endl;*/
 	      yesorno = true;
 	    }
 	  }
 	}
 	
-	for( ; negTrackHitIt < theNegativeTransTrack.recHitsEnd();
+	//for( ; negTrackHitIt < theNegativeTransTrack.recHitsEnd();
+	for( ; negTrackHitIt < negTransTkPtr->recHitsEnd();
 	     negTrackHitIt++) {
 	  const TrackingRecHit* negHitPtr = (*negTrackHitIt).get();
 	  if( (*negTrackHitIt)->isValid() && theRecoVertex.isValid() ) {
@@ -245,17 +271,17 @@ void V0Fitter::fitAll(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
 	    //std::cout << "@@NEG: " << negHitPosition.perp() << std::endl;
 	    
 	    if( negHitPosition.perp() < theRecoVertex.position().perp() ) {
-	      std::cout << typeid(*negHitPtr).name()
+	      /*std::cout << typeid(*negHitPtr).name()
 		<< "-" << theRecoVertex.position().perp() -
 		negHitPosition.perp()
-		<< std::endl;
+		<< std::endl;*/
 	      yesorno = true;
 	    }
 	  }
 	}
       }
       if(yesorno) {
-	std::cout << "End of track pair hits." << std::endl;
+	//std::cout << "End of track pair hits." << std::endl;
       }
       
       // If the vertex is valid, make a V0Candidate with it
@@ -274,14 +300,20 @@ void V0Fitter::fitAll(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
       if( continue_ ) {
 	// Create reco::Vertex object to be put into the Event
-	TransientVertex tempVtx = theRecoVertex;
-	reco::Vertex theVtx = tempVtx;
+	//TransientVertex tempVtx = theRecoVertex;
+	reco::Vertex theVtx = theRecoVertex;
+
+	std::cout << "bef: reco::Vertex: " << theVtx.tracksSize() 
+		  << " " << theVtx.hasRefittedTracks() << std::endl;
+	std::cout << "bef: reco::TransientVertex: " 
+		  << theRecoVertex.originalTracks().size() 
+		  << " " << theRecoVertex.hasRefittedTracks() << std::endl;
 
 	// Create and fill vector of refitted TransientTracks
 	//  (iff they've been created by the KVF)
 	vector<TransientTrack> refittedTrax;
-	if( tempVtx.hasRefittedTracks() ) {
-	  refittedTrax = tempVtx.refittedTracks();
+	if( theRecoVertex.hasRefittedTracks() ) {
+	  refittedTrax = theRecoVertex.refittedTracks();
 	}
 	// Need an iterator over the refitted tracks for below
 	vector<TransientTrack>::iterator traxIter = refittedTrax.begin(),
@@ -294,14 +326,15 @@ void V0Fitter::fitAll(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
 	
 	// Store track info in reco::Vertex object.  If the option is set,
 	//  store the refitted ones as well.
+	/*float one_ = 1.;
 	if(storeRefTrax) {
 	  for( ; traxIter != traxEnd; traxIter++) {
 	    if( traxIter->track().charge() > 0. ) {
-	      theVtx.add( positiveTrackRef, traxIter->track(), 1.);
+	      theVtx.add( positiveTrackRef, traxIter->track(), one_ ); 
 	      thePositiveRefTrack = new TransientTrack(*traxIter);
 	    }
 	    else if (traxIter->track().charge() < 0.) {
-	      theVtx.add( negativeTrackRef, traxIter->track(), 1.);
+	      theVtx.add( negativeTrackRef, traxIter->track(), one_);
 	      theNegativeRefTrack = new TransientTrack(*traxIter);
 	    }
 	  }
@@ -309,7 +342,14 @@ void V0Fitter::fitAll(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
 	else {
 	  theVtx.add( positiveTrackRef );
 	  theVtx.add( negativeTrackRef );
-	}
+	  }*/
+
+	std::cout << "aft: reco::Vertex: " << theVtx.tracksSize() 
+		  << " " << theVtx.hasRefittedTracks() << std::endl;
+	std::cout << "aft: reco::TransientVertex: " 
+		  << theRecoVertex.originalTracks().size() 
+		  << " " << theRecoVertex.hasRefittedTracks() << std::endl
+		  << std::endl;
 
 	// Calculate momentum vectors for both tracks at the vertex
 	GlobalPoint vtxPos(theVtx.x(), theVtx.y(), theVtx.z());
@@ -325,9 +365,12 @@ void V0Fitter::fitAll(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
 	}
 	else {
 	  trajPlus = new TrajectoryStateClosestToPoint(
-		  thePositiveTransTrack.trajectoryStateClosestToPoint(vtxPos));
+		//thePositiveTransTrack.trajectoryStateClosestToPoint(vtxPos));
+			 posTransTkPtr->trajectoryStateClosestToPoint(vtxPos));
 	  trajMins = new TrajectoryStateClosestToPoint(
-		  theNegativeTransTrack.trajectoryStateClosestToPoint(vtxPos));
+		//theNegativeTransTrack.trajectoryStateClosestToPoint(vtxPos));
+			 negTransTkPtr->trajectoryStateClosestToPoint(vtxPos));
+
 	}
 
 	//  Just fixed this to make candidates for all 3 V0 particle types.
