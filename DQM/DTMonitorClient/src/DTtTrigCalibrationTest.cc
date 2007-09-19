@@ -1,8 +1,8 @@
 /*
  * \file DTtTrigCalibrationTest.cc
  * 
- * $Date: 2007/06/14 17:49:15 $
- * $Revision: 1.6 $
+ * $Date: 2007/06/19 10:21:25 $
+ * $Revision: 1.7 $
  * \author M. Zanetti - CERN
  *
  */
@@ -56,6 +56,8 @@ DTtTrigCalibrationTest::DTtTrigCalibrationTest(const edm::ParameterSet& ps){
 
   theFitter = new DTTimeBoxFitter();
 
+  prescaleFactor = parameters.getUntrackedParameter<int>("diagnosticPrescale", 1);
+
 }
 
 
@@ -67,12 +69,6 @@ DTtTrigCalibrationTest::~DTtTrigCalibrationTest(){
 
 }
 
-void DTtTrigCalibrationTest::endJob(){
-
-  edm::LogVerbatim ("tTrigCalibration") <<"[DTtTrigCalibrationTest] endjob called!";
-
-  dbe->rmdir("DT/Tests/DTtTrigCalibration");
-}
 
 void DTtTrigCalibrationTest::beginJob(const edm::EventSetup& context){
 
@@ -85,30 +81,45 @@ void DTtTrigCalibrationTest::beginJob(const edm::EventSetup& context){
 
 }
 
-void DTtTrigCalibrationTest::bookHistos(const DTChamberId & ch) {
 
-  stringstream wheel; wheel << ch.wheel();	
-  stringstream station; station << ch.station();	
-  stringstream sector; sector << ch.sector();	
+void DTtTrigCalibrationTest::beginLuminosityBlock(LuminosityBlock const& lumiSeg, EventSetup const& context) {
 
-  string histoName =  "tTrigTest_W" + wheel.str() + "_St" + station.str() + "_Sec" + sector.str(); 
+  edm::LogVerbatim ("tTrigCalibration") <<"[DTtTrigCalibrationTest]: Begin of LS transition";
 
-  dbe->setCurrentFolder("DT/Tests/DTtTrigCalibration");
-  
-  histos[ch.rawId()] = dbe->book1D(histoName.c_str(),histoName.c_str(),3,0,2);
+  // Get the run number
+  run = lumiSeg.run();
 
 }
 
+
 void DTtTrigCalibrationTest::analyze(const edm::Event& e, const edm::EventSetup& context){
+
+  nevents++;
+  edm::LogVerbatim ("tTrigCalibration") << "[DTtTrigCalibrationTest]: "<<nevents<<" events";
+
+}
+
+
+
+void DTtTrigCalibrationTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, EventSetup const& context) {
 
 
   // counts number of updats (online mode) or number of events (standalone mode)
-  nevents++;
+  //nevents++;
   // if running in standalone perform diagnostic only after a reasonalbe amount of events
-  if ( parameters.getUntrackedParameter<bool>("runningStandalone", false) && 
-       nevents%parameters.getUntrackedParameter<int>("diagnosticPrescale", 1000) != 0 ) return;
+  //if ( parameters.getUntrackedParameter<bool>("runningStandalone", false) && 
+  //   nevents%parameters.getUntrackedParameter<int>("diagnosticPrescale", 1000) != 0 ) return;
+  //edm::LogVerbatim ("tTrigCalibration") <<"[DTtTrigCalibrationTest]: "<<nevents<<" updates";
 
-  edm::LogVerbatim ("tTrigCalibration") <<"[DTtTrigCalibrationTest]: "<<nevents<<" updates";
+
+  edm::LogVerbatim ("tTrigCalibration") <<"[DTtTrigCalibrationTest]: End of LS transition, performing the DQM client operation";
+
+  // counts number of lumiSegs 
+  nLumiSegs = lumiSeg.id().luminosityBlock();
+
+  // prescale factor
+  if ( nLumiSegs%prescaleFactor != 0 ) return;
+
 
   context.get<DTTtrigRcd>().get(tTrigMap);
   float tTrig, tTrigRMS;
@@ -162,11 +173,36 @@ void DTtTrigCalibrationTest::analyze(const edm::Event& e, const edm::EventSetup&
 
   }
   
-  if (nevents%parameters.getUntrackedParameter<int>("resultsSavingRate",10) == 0){
-    if ( parameters.getUntrackedParameter<bool>("writeHisto", true) ) 
-      dbe->save(parameters.getUntrackedParameter<string>("outputFile", "DTtTrigCalibrationTest.root")); 
-  }
+  //if (nevents%parameters.getUntrackedParameter<int>("resultsSavingRate",10) == 0){
+  //  if ( parameters.getUntrackedParameter<bool>("writeHisto", true) ) 
+  //    dbe->save(parameters.getUntrackedParameter<string>("outputFile", "DTtTrigCalibrationTest.root")); 
+  //}
+
+
 }
+
+
+void DTtTrigCalibrationTest::endRun(){
+
+  if ( parameters.getUntrackedParameter<bool>("writeHisto", true) ) {
+    stringstream runNumber; runNumber << run;
+    string rootFile = "DTtTrigCalibrationTest_" + runNumber.str() + ".root";
+    dbe->save(parameters.getUntrackedParameter<string>("outputFile", rootFile));
+  }
+
+}
+
+
+
+
+void DTtTrigCalibrationTest::endJob(){
+
+  edm::LogVerbatim ("tTrigCalibration") <<"[DTtTrigCalibrationTest] endjob called!";
+
+  dbe->rmdir("DT/Tests/DTtTrigCalibration");
+}
+
+
 
 
 string DTtTrigCalibrationTest::getMEName(const DTSuperLayerId & slID) {
@@ -195,3 +231,17 @@ string DTtTrigCalibrationTest::getMEName(const DTSuperLayerId & slID) {
 }
 
 
+
+void DTtTrigCalibrationTest::bookHistos(const DTChamberId & ch) {
+
+  stringstream wheel; wheel << ch.wheel();	
+  stringstream station; station << ch.station();	
+  stringstream sector; sector << ch.sector();	
+
+  string histoName =  "tTrigTest_W" + wheel.str() + "_St" + station.str() + "_Sec" + sector.str(); 
+
+  dbe->setCurrentFolder("DT/Tests/DTtTrigCalibration");
+  
+  histos[ch.rawId()] = dbe->book1D(histoName.c_str(),histoName.c_str(),3,0,2);
+
+}
