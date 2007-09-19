@@ -25,6 +25,9 @@ TkStripMeasurementDet::TkStripMeasurementDet( const GeomDet* gdet,
     if (theStripGDU == 0) {
       throw MeasurementDetException( "TkStripMeasurementDet constructed with a GeomDet which is not a StripGeomDetUnit");
     }
+
+    //intialize the detId !
+    id_ = gdet->geographicalId().rawId();
   }
 
 std::vector<TrajectoryMeasurement> 
@@ -152,6 +155,7 @@ fastMeasurements( const TrajectoryStateOnSurface& stateOnThisDet,
   return result;
 }
 
+
 TransientTrackingRecHit::RecHitPointer
 TkStripMeasurementDet::buildRecHit( const SiStripClusterRef& cluster,
 				    const LocalTrajectoryParameters& ltp) const
@@ -159,8 +163,6 @@ TkStripMeasurementDet::buildRecHit( const SiStripClusterRef& cluster,
   const GeomDetUnit& gdu( specificGeomDet());
   LocalValues lv = theCPE->localParameters( *cluster, gdu, ltp);
   return TSiStripRecHit2DLocalPos::build( lv.first, lv.second, &geomDet(), cluster, theCPE);
-
-								    
 }
 
 TransientTrackingRecHit::RecHitPointer
@@ -170,8 +172,6 @@ TkStripMeasurementDet::buildRecHit( const SiStripRegionalClusterRef& cluster,
   const GeomDetUnit& gdu( specificGeomDet());
   LocalValues lv = theCPE->localParameters( *cluster, gdu, ltp);
   return TSiStripRecHit2DLocalPos::build( lv.first, lv.second, &geomDet(), cluster, theCPE);
-
-								    
 }
 
 

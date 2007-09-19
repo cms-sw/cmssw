@@ -47,7 +47,7 @@ public:
 
   void update( std::vector<SiStripCluster>::const_iterator begin ,std::vector<SiStripCluster>::const_iterator end, 
 	       const edm::Handle<edm::SiStripRefGetter<SiStripCluster> > h,
-	       uint32_t id ) { 
+	       unsigned int id ) { 
     beginCluster = begin;
     endCluster   = end;
     regionalHandle_ = h;

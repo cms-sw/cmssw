@@ -23,7 +23,10 @@ public:
 		    const TrajectoryStateOnSurface& startingState, 
 		    const Propagator&, 
 		    const MeasurementEstimator&) const;
-  
+
+  const TkStripMeasurementDet* monoDet() const{ return theMonoDet;} 
+  const TkStripMeasurementDet* stereoDet() const{ return theStereoDet;} 
+
 private:
 
   const GluedGeomDet*         theGeomDet;
