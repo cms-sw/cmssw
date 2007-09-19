@@ -42,7 +42,7 @@ void SiStripTrivialClusterSource::produce(edm::Event& iEvent,const edm::EventSet
   uint32_t counter = 0;
   while (counter < 10000) {
  
-  if (ndigis >= clustersize) ndigis-=clustersize;
+  if (clustersize && ndigis >= clustersize) ndigis-=clustersize;
   else break;
 
   while (counter < 10000) {
