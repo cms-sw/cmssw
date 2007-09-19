@@ -11,6 +11,7 @@
 #include "TrackingTools/Records/interface/TransientRecHitRecord.h"
 #include "CalibTracker/Records/interface/SiStripDetCablingRcd.h"
 #include "CondFormats/DataRecord/interface/SiStripNoisesRcd.h"
+#include "CalibTracker/Records/interface/SiStripRegionCablingRcd.h"
 
 
 #include "boost/mpl/vector.hpp"
@@ -24,7 +25,8 @@ class CkfComponentsRecord : public edm::eventsetup::DependentRecordImplementatio
                                                TrackingComponentsRecord,
 			                       TrackerRecoGeometryRecord,
 					       SiStripDetCablingRcd,
-					       SiStripNoisesRcd> > {};
+                                               SiStripNoisesRcd,
+                                               SiStripRegionCablingRcd> > {};
 
 #endif 
 
