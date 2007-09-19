@@ -151,10 +151,6 @@ L1GlobalTriggerRawToDigi::~L1GlobalTriggerRawToDigi()
 void L1GlobalTriggerRawToDigi::beginJob(const edm::EventSetup& evSetup)
 {
 
-    edm::ESHandle< L1MuTriggerScales > trigscales_h;
-    evSetup.get< L1MuTriggerScalesRcd >().get( trigscales_h );
-    m_TriggerScales = trigscales_h.product();
-
 }
 
 // method called to produce the data
@@ -162,6 +158,11 @@ void L1GlobalTriggerRawToDigi::produce(edm::Event& iEvent, const edm::EventSetup
 {
 
     // get records from EventSetup
+
+    //  muon trigger scales
+    edm::ESHandle< L1MuTriggerScales > trigscales_h;
+    evSetup.get< L1MuTriggerScalesRcd >().get( trigscales_h );
+    m_TriggerScales = trigscales_h.product();
 
     //  board maps
     edm::ESHandle< L1GtBoardMaps > l1GtBM;
