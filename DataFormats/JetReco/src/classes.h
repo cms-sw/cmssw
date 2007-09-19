@@ -18,6 +18,7 @@
 #include "DataFormats/JetReco/interface/JetTrackMatch.h"
 #include "DataFormats/JetReco/interface/JetToFloatAssociation.h"
 #include "DataFormats/JetReco/interface/JetToTracksAssociation.h"
+#include "DataFormats/JetReco/interface/JetTracksAssociation.h"
 #include "DataFormats/JetReco/interface/JetExtendedAssociation.h"
 #include "DataFormats/Common/interface/Wrapper.h"
 
@@ -78,12 +79,12 @@ namespace {
     JetToFloatAssociation::Objects         j2f_oo;
     edm::Wrapper<JetToFloatAssociation::Container>  j2f_c_w;
 
-    JetToTracksAssociation::Container       j2t_c;
-    JetToTracksAssociation::Object          j2t_o;
-    JetToTracksAssociation::Ref             j2t_r;
-    JetToTracksAssociation::RefProd         j2t_rp;
-    JetToTracksAssociation::RefVector       j2t_rv;
-    edm::Wrapper<JetToTracksAssociation::Container>  j2t_c_w;
+    JetTracksAssociation::Container       jt_c;
+    JetTracksAssociation::Object          jt_o;
+    JetTracksAssociation::Ref             jt_r;
+    JetTracksAssociation::RefProd         jt_rp;
+    JetTracksAssociation::RefVector       jt_rv;
+    edm::Wrapper<JetTracksAssociation::Container>  jt_c_w;
 
     JetExtendedAssociation::Container       jea_c;
     JetExtendedAssociation::Object          jea_o;

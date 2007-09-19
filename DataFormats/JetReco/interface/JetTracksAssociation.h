@@ -1,13 +1,13 @@
-#ifndef JetReco_JetToTracksAssociation_h
-#define JetReco_JetToTracksAssociation_h
+#ifndef JetReco_JetTracksAssociation_h
+#define JetReco_JetTracksAssociation_h
 
-/** \class JetToTracksAssociation
+/** \class JetTracksAssociation
  *
  * \short Association between jets and float value
  *
  * \author Fedor Ratnikov, July 27, 2007
  *
- * \version   $Id: JetToTracksAssociation.h,v 1.5 2007/08/24 17:35:23 fedor Exp $
+ * \version   $Id: JetTracksAssociation.h,v 1.6 2007/09/11 23:54:17 fedor Exp $
  ************************************************************/
 
 #include "DataFormats/JetReco/interface/Jet.h"
@@ -17,7 +17,7 @@
 #include "DataFormats/Math/interface/LorentzVector.h"
 
 namespace reco {
-  namespace JetToTracksAssociation {
+  namespace JetTracksAssociation {
     typedef math::PtEtaPhiELorentzVectorF LorentzVector;
     typedef std::pair <edm::RefToBase<reco::Jet>, reco::TrackRefVector> Object;
     typedef std::vector <Object> Container;
@@ -43,6 +43,12 @@ namespace reco {
     /// check if jet is associated
     bool hasJet (const Container&, const edm::RefToBase<reco::Jet>&);
   }
+  /// typedefs for backward compatibility
+  typedef JetTracksAssociation::Container JetTracksAssociationCollection;
+  typedef JetTracksAssociation::Object JetTracksAssociationObject;
+  typedef JetTracksAssociation::Ref JetTracksAssociationRef;
+  typedef JetTracksAssociation::RefProd JetTracksAssociationRefProd;
+  typedef JetTracksAssociation::RefVector JetTracksAssociationRefVector; 
 }
 
 #endif
