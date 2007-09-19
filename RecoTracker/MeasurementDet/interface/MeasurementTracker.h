@@ -48,7 +48,7 @@ public:
 
   virtual ~MeasurementTracker();
  
-  void update( const edm::Event&) const;
+  virtual  void update( const edm::Event&) const;
   void updatePixels( const edm::Event&) const;
   void updateStrips( const edm::Event&) const;
 
@@ -68,7 +68,7 @@ public:
   const std::vector<TkGluedMeasurementDet*>& gluedDets() const {return theGluedDets;}
 
 
-private:
+ protected:
   const edm::ParameterSet& pset_;
 
   mutable unsigned int lastEventNumberPixels;

@@ -1,4 +1,4 @@
-#include "RecoTracker/MeasurementDet/interface/MeasurementTrackerESProducer.h"
+#include "RecoTracker/MeasurementDet/plugins/MeasurementTrackerESProducer.h"
 
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -19,6 +19,9 @@
 #include "CondFormats/SiStripObjects/interface/SiStripNoises.h"
 #include "CalibTracker/Records/interface/SiStripDetCablingRcd.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripDetCabling.h"
+
+#include "CalibFormats/SiStripObjects/interface/SiStripRegionCabling.h"
+#include "RecoTracker/MeasurementDet/interface/OnDemandMeasurementTracker.h"
 
 #include <string>
 #include <memory>
@@ -41,6 +44,8 @@ MeasurementTrackerESProducer::produce(const CkfComponentsRecord& iRecord)
   std::string stripCPEName = pset_.getParameter<std::string>("StripCPE");
   std::string matcherName  = pset_.getParameter<std::string>("HitMatcher");
   bool regional            = pset_.getParameter<bool>("Regional");  
+
+  bool onDemand = pset_.getParameter<bool>("OnDemand");
 
   const SiStripNoises *ptr_stripNoises = 0;
   edm::ESHandle<SiStripNoises>	stripNoises;
@@ -69,7 +74,7 @@ MeasurementTrackerESProducer::produce(const CkfComponentsRecord& iRecord)
   iRecord.getRecord<TrackerDigiGeometryRecord>().get(trackerGeom);
   iRecord.getRecord<TrackerRecoGeometryRecord>().get(geometricSearchTracker);
   
-  
+  if (!onDemand){
   _measurementTracker  = boost::shared_ptr<MeasurementTracker>(new MeasurementTracker(pset_,
 										      pixelCPE.product(),
 										      stripCPE.product(),
@@ -79,6 +84,26 @@ MeasurementTrackerESProducer::produce(const CkfComponentsRecord& iRecord)
 										      ptr_stripCabling,
 										      ptr_stripNoises,
 										      regional) ); 
+  }
+  else{
+    const SiStripRegionCabling * ptr_stripRegionCabling =0;
+    //get regional cabling
+    edm::ESHandle<SiStripRegionCabling> rcabling;
+    iRecord.getRecord<SiStripRegionCablingRcd>().get(rcabling);
+    ptr_stripRegionCabling = rcabling.product();
+
+    _measurementTracker  = boost::shared_ptr<MeasurementTracker>( new OnDemandMeasurementTracker(pset_,
+												 pixelCPE.product(),
+												 stripCPE.product(),
+												 hitMatcher.product(),
+												 trackerGeom.product(),
+												 geometricSearchTracker.product(),
+												 ptr_stripCabling,
+												 ptr_stripNoises,
+												 ptr_stripRegionCabling,
+												 regional) );
+    
+  }
   return _measurementTracker;
 }
 
