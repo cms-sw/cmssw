@@ -1,7 +1,11 @@
-//find out what goes here
 #ifndef EgammaElectronProducers_HFClusterProducer_h
 #define EgammaElectronProducers_HFClusterProducer_h
-
+//Package:    EgammaHFProdcers
+// Class  :    HFClusterProducer
+// Original Author:  Kevin Klapoetke (minnesota)
+//        
+// $Id: HFClusterProducer.h,v 1.2 2007/09/19 Kevin Klapoetke
+//
 #include "RecoEgamma/EgammaHFProducers/interface/HFClusterAlgo.h"
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
