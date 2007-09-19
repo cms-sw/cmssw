@@ -302,8 +302,8 @@ void
 PoolDBESSource::registerProxies(const edm::eventsetup::EventSetupRecordKey& iRecordKey , KeyedProxies& aProxyList) 
 {
   //LogDebug ("PoolDBESSource ")<<"registerProxies";
-  using namespace edm;
-  using namespace edm::eventsetup;
+  //using namespace edm;
+  //using namespace edm::eventsetup;
   //using namespace std;
   //std::cout <<"registering Proxies for "<< iRecordKey.name() << std::endl;
   //For each data type in this Record, create the proxy by dynamically loading it
@@ -318,14 +318,14 @@ PoolDBESSource::registerProxies(const edm::eventsetup::EventSetupRecordKey& iRec
   for( RecordToTypes::iterator itType = typeItrs.first; itType != typeItrs.second; ++itType ) {
     //std::cout<<"Entering loop PoolDBESSource::registerProxies"<<std::endl;
     //std::cout<<std::string("   ") + itType->second <<std::endl;
-    static eventsetup::TypeTag defaultType;
-    eventsetup::TypeTag type = eventsetup::TypeTag::findType( itType->second );
-    eventsetup::IdTags iid(labelname.c_str());
+    static edm::eventsetup::TypeTag defaultType;
+    edm::eventsetup::TypeTag type = edm::eventsetup::TypeTag::findType( itType->second );
+    edm::eventsetup::IdTags iid(labelname.c_str());
     if( type != defaultType ) {
       ProxyToToken::iterator pos=m_proxyToToken.find(buildName(recordname, type.name()));
-      boost::shared_ptr<DataProxy> proxy(cond::ProxyFactory::get()->create( buildName(recordname, type.name() ), c, pos));
+      boost::shared_ptr<edm::eventsetup::DataProxy> proxy(cond::ProxyFactory::get()->create( buildName(recordname, type.name() ), c, pos));
       if(0 != proxy.get()) {
-	eventsetup::DataKey key( type, iid );
+	edm::eventsetup::DataKey key( type, iid );
 	aProxyList.push_back(KeyedProxies::value_type(key,proxy));
       }
     }
