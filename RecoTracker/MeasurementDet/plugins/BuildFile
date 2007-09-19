@@ -1,4 +1,8 @@
 <use name=RecoTracker/MeasurementDet>
+<use name=CalibFormats/SiStripObjects>
+<use name=CalibTracker/Records>
+
+
 <library file="*.cc" name=RecoTrackerMeasurementDetPlugins>
         <flags EDM_PLUGIN=1>
 </library>
