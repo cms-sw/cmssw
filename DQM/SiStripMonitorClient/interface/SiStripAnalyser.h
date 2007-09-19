@@ -4,8 +4,8 @@
 /** \class SiStripAnalyser
  * *
  *  SiStrip SiStripAnalyser
- *  $Date: 2007/08/13 18:01:35 $
- *  $Revision: 1.6 $
+ *  $Date: 2007/09/03 20:51:09 $
+ *  $Revision: 1.7 $
  *  \author  S. Dutta INFN-Pisa
  *   
  */
@@ -19,6 +19,7 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/LuminosityBlock.h"
+#include "FWCore/Framework/interface/Run.h"
 
 #include <iostream>
 #include <fstream>
@@ -53,9 +54,10 @@ protected:
   /// BeginJob
   void beginJob(const edm::EventSetup& eSetup);
 
-  /// BeginRun
-  void beginRun(const edm::EventSetup& eSetup);
 
+  /// EndRun
+
+  void endRun(edm::Run const& run, edm::EventSetup const& eSetup);
 
   /// Endjob
   void endJob();
@@ -67,7 +69,7 @@ protected:
 
   /// Save histograms to a root file
 
-  void saveAll();
+  void saveAll(int irun, int ilumi);
 
 private:
 
@@ -85,7 +87,10 @@ private:
   int summaryFrequency_;
   int fileSaveFrequency_;
   unsigned int collationFlag_;
-  unsigned int runNumber_;
+  unsigned int staticUpdateFrequency_;
+
+  std::string outputFilePath_;
+
   edm::ESHandle< SiStripFedCabling > fedCabling_;
   TrackerMapCreator* trackerMapCreator_;
   bool defaultPageCreated_;

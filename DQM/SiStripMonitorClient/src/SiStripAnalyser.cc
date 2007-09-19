@@ -1,8 +1,8 @@
 /*
  * \file SiStripAnalyser.cc
  * 
- * $Date: 2007/08/21 21:52:53 $
- * $Revision: 1.8 $
+ * $Date: 2007/09/03 20:51:11 $
+ * $Revision: 1.9 $
  * \author  S. Dutta INFN-Pisa
  *
  */
@@ -16,7 +16,6 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "DQMServices/UI/interface/MonitorUIRoot.h"
@@ -95,8 +94,6 @@ SiStripAnalyser::~SiStripAnalyser(){
 //
 void SiStripAnalyser::endJob(){
 
-  cout << " Saving Monitoring Elements " << endl;
-  saveAll();
 }
 //
 // -- Begin Job
@@ -104,15 +101,16 @@ void SiStripAnalyser::endJob(){
 void SiStripAnalyser::beginJob(const edm::EventSetup& eSetup){
 
   nLumiBlock = 0;
-  runNumber_ = 0;
+
   sistripWebInterface_->readConfiguration(summaryFrequency_);
   edm::LogInfo("SiStripAnalyser") << " Configuration files read out correctly" 
                                   << "\n" ;
   cout  << " Update Frequencies are " << tkMapFrequency_ << " " 
                                       << summaryFrequency_ << endl ;
 
-  collationFlag_ = parameters.getUntrackedParameter<int>("CollationtionFlag",0); 
-
+          collationFlag_ = parameters.getUntrackedParameter<int>("CollationtionFlag",0);
+         outputFilePath_ = parameters.getUntrackedParameter<string>("OutputFilePath",".");
+  staticUpdateFrequency_ = parameters.getUntrackedParameter<int>("StaticUpdateFrequency",10);
   // Get Fed cabling
   eSetup.get<SiStripFedCablingRcd>().get(fedCabling_);
   trackerMapCreator_ = new TrackerMapCreator();
@@ -124,23 +122,31 @@ void SiStripAnalyser::beginJob(const edm::EventSetup& eSetup){
 //  -- Analyze 
 //
 void SiStripAnalyser::analyze(const edm::Event& e, const edm::EventSetup& eSetup){
-  runNumber_ = e.id().run();
+
 }
+//
+// -- Begin  Luminosity Block
+//
 void SiStripAnalyser::beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& context) {
   
-  edm::LogVerbatim ("monitorClient") <<"[MonitorClient]: Begin of LS transition";
+  edm::LogVerbatim ("SiStripAnalyser") <<"[SiStripAnalyser]: Begin of LS transition";
 
 }
+//
+// -- End Luminosity Block
+//
 void SiStripAnalyser::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& eSetup) {
 
-  edm::LogVerbatim ("monitorClient") <<"[MonitorClient]: End of LS transition, performing the DQM client operation";
+  edm::LogVerbatim ("SiStripAnalyser") <<"[SiStripAnalyser]: End of LS transition, performing the DQM client operation";
 
-  
   nLumiBlock++;
 
   eSetup.get<SiStripFedCablingRcd>().get(fedCabling_);
  
-  cout << " ===> Iteration # " << nLumiBlock << endl;
+  cout << "====================================================== " << endl;
+  cout << " ===> Iteration # " << nLumiBlock << " " 
+                               << lumiSeg.luminosityBlock() << endl;
+  cout << "====================================================== " << endl;
   // -- Create summary monitor elements according to the frequency
   if (summaryFrequency_ != -1 && nLumiBlock%summaryFrequency_ == 1) {
     cout << " Creating Summary " << endl;
@@ -156,25 +162,37 @@ void SiStripAnalyser::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, ed
 
   }
   // Create predefined plots
-  if (nLumiBlock%100  == 1) {
+  if (nLumiBlock%staticUpdateFrequency_  == 1) {
     cout << " Creating predefined plots " << endl;
     sistripWebInterface_->setActionFlag(SiStripWebInterface::PlotHistogramFromLayout);
     sistripWebInterface_->performAction();
   }
 
-  if (nLumiBlock % fileSaveFrequency_ == 1) {
-    saveAll();
+  if ((nLumiBlock % fileSaveFrequency_) == 0) {
+    int iRun = lumiSeg.run();
+    int iLumi  = lumiSeg.luminosityBlock();
+    saveAll(iRun, iLumi);
   }
-
-
+}
+//
+// -- End Run
+//
+void SiStripAnalyser::endRun(edm::Run const& run, edm::EventSetup const& eSetup){
+  edm::LogVerbatim ("SiStripAnalyser") <<"[SiStripAnalyser]: End of Run, saving  DQM output ";
+  int iRun = run.run();
+  saveAll(iRun, -1);
 }
 //
 // -- Save file
 //
-void SiStripAnalyser::saveAll() {
+void SiStripAnalyser::saveAll(int irun, int ilumi) {
   ostringstream fname;
-  fname << "SiStripWebInterface_" << runNumber_ << ".root";
-  cout << " Saving Monitoring Elements in " << fname.str() <<endl;
+  if (ilumi != -1) {
+    fname << outputFilePath_ << "/" << "SiStrip." << irun << "."<< ilumi << ".root";
+  } else {
+    fname << outputFilePath_ << "/" << "SiStrip." << irun << ".root";
+  }
+
   sistripWebInterface_->setOutputFileName(fname.str());
   sistripWebInterface_->setActionFlag(SiStripWebInterface::SaveData);
   sistripWebInterface_->performAction();
