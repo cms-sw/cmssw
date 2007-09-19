@@ -17,6 +17,8 @@ using namespace reco;
  
   * \author K. Klapoetke -- Minnesota
   */
+//$Id:HFClusterAlgo.h,v 1.2 2007/09/19 09:52 K. Klapoetke Minnesota
+
 class HFClusterAlgo {
 public:
   HFClusterAlgo(); 

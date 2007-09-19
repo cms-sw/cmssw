@@ -6,6 +6,14 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 using namespace std;
 
+/** \class HFClusterAlgo
+ *
+ *  \author Kevin Klapoetke (Minnesota)
+ *
+ * $Id:version 1.2
+ */
+
+
 
 HFClusterAlgo::HFClusterAlgo() {
 }
@@ -32,7 +40,7 @@ void HFClusterAlgo::setup() {
 /** Analyze the hits */
 void HFClusterAlgo::clusterize(const HFRecHitCollection& hf, 
 			       const CaloGeometry& geom,
-			       HFEMClusterShapeCollection& clusters,
+			       HFEMClusterShapeCollection& clusterShapes,
 			       BasicClusterCollection& BasicClusters,
 			       SuperClusterCollection& SuperClusters) {
   
@@ -45,7 +53,7 @@ void HFClusterAlgo::clusterize(const HFRecHitCollection& hf,
   HFEMClusterShape clusShp;
   BasicCluster Bclus;
   SuperCluster Sclus;
-  
+   bool doCluster=false;
   for (j=hf.begin(); j!= hf.end(); j++)  {
     HFCompleteHit ahit;
     ahit.id=j->id();
@@ -64,11 +72,14 @@ void HFClusterAlgo::clusterize(const HFRecHitCollection& hf,
 	isok = false; 
       
       if ( (i==hits.begin()) && (isok) ) {
-	seeds.push_back(*i);
-	makeCluster( i->id(),hf, geom,clusShp,Bclus,Sclus);
-	clusters.push_back(clusShp); 
-	BasicClusters.push_back(Bclus);
-	SuperClusters.push_back(Sclus);    
+	doCluster=true;
+// 	seeds.push_back(*i);
+// 	makeCluster( i->id(),hf, geom,clusShp,Bclus,Sclus);
+// 	clusterShapes.push_back(clusShp); 
+// 	BasicClusters.push_back(Bclus);
+// 	SuperClusters.push_back(Sclus);  	
+	//clusterAsoc.insert(SuperClusters,clusterShapes);
+  
       }
       else {
 	for (k=seeds.begin(); isok && k!=seeds.end(); k++) { //i->hits, k->seeds
@@ -86,15 +97,25 @@ void HFClusterAlgo::clusterize(const HFRecHitCollection& hf,
 	    }
 	} 
 	if (isok) {
-	  seeds.push_back(*i);
-	  makeCluster( i->id(),hf, geom,clusShp,Bclus,Sclus);
-	  clusters.push_back(clusShp);
-	  BasicClusters.push_back(Bclus);
-	  SuperClusters.push_back(Sclus);
+	  doCluster=true;
 	}
+      }
+      if (doCluster) { 
+	seeds.push_back(*i);
+	makeCluster( i->id(),hf, geom,clusShp,Bclus,Sclus);
+	
+	unsigned int where=clusterShapes.size(); // index of all these
+	clusterShapes.push_back(clusShp);
+	BasicClusters.push_back(Bclus);
+	SuperClusters.push_back(Sclus);
+	
+// 	clusterAssoc.insert(edm::Ref<SuperClusterCollection>(SuperClusters,where),
+// 			    edm::Ref<HFEMClusterShapeCollection>(clusterShapes,where));
+	
       }
       
     }  
+    // clusterAsoc.insert(SuperClusters,clusters);
   }
 }
 
@@ -104,6 +125,7 @@ void HFClusterAlgo::makeCluster(const HcalDetId& seedid,
 				HFEMClusterShape& clusShp,
 				BasicCluster& Bclus,
 				SuperCluster& Sclus)  {
+			
 
   double w=0;//sum over all log E's
   double wgt=0;
@@ -256,7 +278,7 @@ void HFClusterAlgo::makeCluster(const HcalDetId& seedid,
   AlgoId algoID = hybrid;
   //return  HFEMClusterShape, BasicCluster, SuperCluster
   
-  HFEMClusterShape myClusShp(l_3+s_3, l_1, s_1, l_3, s_3, l_5,s_5, l_1e,Ceta, Cphi);
+  HFEMClusterShape myClusShp(l_1, s_1, l_3, s_3, l_5,s_5, l_1e,Ceta, Cphi,seedid);
   
   clusShp = myClusShp;
   
