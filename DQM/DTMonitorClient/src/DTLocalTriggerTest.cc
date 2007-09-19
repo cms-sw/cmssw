@@ -79,8 +79,12 @@ void DTLocalTriggerTest::bookChambHistos(DTChamberId chambId, string htype) {
 			"/Station" + station.str());
   
   uint32_t indexChId = chambId.rawId();
-  if (htype.find("Angle") != string::npos){
-    chambME[indexChId][htype] = dbe->book1D(HistoName.c_str(),HistoName.c_str(),50,-2.,2.);
+  if (htype.find("TrigEffAngle_Phi") == 0){
+    chambME[indexChId][htype] = dbe->book1D(HistoName.c_str(),HistoName.c_str(),25,-1.,1.);
+    return;
+  }
+  if (htype.find("TrigEffAngle_Theta") == 0){
+    chambME[indexChId][htype] = dbe->book1D(HistoName.c_str(),HistoName.c_str(),25,-1.,1.);
     return;
   }
   if (htype.find("TrigPosition_Phi") == 0){
@@ -97,8 +101,14 @@ void DTLocalTriggerTest::bookChambHistos(DTChamberId chambId, string htype) {
     chambME[indexChId][htype] = dbe->book1D(HistoName.c_str(),HistoName.c_str(),nbins,range.first,range.second);
     return;
   }
+  if (htype.find("TrigEffPosHHHL_Phi") == 0 ){
+    pair<float,float> range = phiRange(chambId);
+    int nbins = int((range.second - range.first)/15);
+    chambME[indexChId][htype] = dbe->book1D(HistoName.c_str(),HistoName.c_str(),nbins,range.first,range.second);
+    return;
+  }
   if (htype.find("TrigEffPos_Theta") == 0){
-    chambME[indexChId][htype] = dbe->book1D(HistoName.c_str(),HistoName.c_str(),40,-117.5,117.5);
+    chambME[indexChId][htype] = dbe->book1D(HistoName.c_str(),HistoName.c_str(),20,-117.5,117.5);
     return;
   }
   
@@ -160,10 +170,15 @@ pair<float,float> DTLocalTriggerTest::phiRange(const DTChamberId& id){
     
     DTTopology topo2 = layer2->specificTopology();
 
-    if (lposx>0)
-      max = lposx+topo2.wirePosition(topo2.lastChannel());
-    else 
-      min = lposx+topo2.wirePosition(topo2.firstChannel());
+    if (lposx>0){
+      max = lposx*.5+topo2.wirePosition(topo2.lastChannel());
+      min -= lposx*.5;
+    }
+    else{
+      min = lposx*.5+topo2.wirePosition(topo2.firstChannel());
+      max -= lposx*.5;
+    }
+      
   }
   
   return make_pair(min,max);
@@ -290,24 +305,27 @@ void DTLocalTriggerTest::analyze(const edm::Event& e, const edm::EventSetup& con
 
 	// Get the ME produced by DTLocalTriggerTask Source (Phi+Segments)
 	MonitorElement * Track_pos_ME = dbe->get(getMEName("TrackPos","Segment", chId));	
-	MonitorElement * Track_pos_andtrig_ME = dbe->get(getMEName("TrackPosandTrig","Segment", chId));	
+	MonitorElement * Track_pos_andtrig_ME = dbe->get(getMEName("TrackPosandTrig","Segment", chId));
+	MonitorElement * Track_pos_andtrig_HHHL_ME = dbe->get(getMEName("TrackPosandTrigHHHL","Segment", chId));
 	MonitorElement * Track_angle_ME = dbe->get(getMEName("TrackAngle","Segment", chId));	
 	MonitorElement * Track_angle_andtrig_ME = dbe->get(getMEName("TrackAngleandTrig","Segment", chId));		
 
 	// ME -> TH1F
-	if(Track_pos_ME && Track_pos_andtrig_ME && Track_angle_ME && Track_angle_andtrig_ME) {
-	  MonitorElementT<TNamed>* Track_pos           = dynamic_cast<MonitorElementT<TNamed>*>(Track_pos_ME);
-	  MonitorElementT<TNamed>* Track_pos_andtrig   = dynamic_cast<MonitorElementT<TNamed>*>(Track_pos_andtrig_ME);
-	  MonitorElementT<TNamed>* Track_angle         = dynamic_cast<MonitorElementT<TNamed>*>(Track_angle_ME);
-	  MonitorElementT<TNamed>* Track_angle_andtrig = dynamic_cast<MonitorElementT<TNamed>*>(Track_angle_andtrig_ME);
+	if(Track_pos_ME && Track_pos_andtrig_ME && Track_pos_andtrig_HHHL_ME && Track_angle_ME && Track_angle_andtrig_ME) {
+	  MonitorElementT<TNamed>* Track_pos              = dynamic_cast<MonitorElementT<TNamed>*>(Track_pos_ME);
+	  MonitorElementT<TNamed>* Track_pos_andtrig      = dynamic_cast<MonitorElementT<TNamed>*>(Track_pos_andtrig_ME);
+	  MonitorElementT<TNamed>* Track_pos_andtrig_HHHL = dynamic_cast<MonitorElementT<TNamed>*>(Track_pos_andtrig_HHHL_ME);
+	  MonitorElementT<TNamed>* Track_angle            = dynamic_cast<MonitorElementT<TNamed>*>(Track_angle_ME);
+	  MonitorElementT<TNamed>* Track_angle_andtrig    = dynamic_cast<MonitorElementT<TNamed>*>(Track_angle_andtrig_ME);
 	  
-	  if (Track_pos_andtrig && Track_pos && Track_angle_andtrig && Track_angle) {
+	  if (Track_pos_andtrig && Track_pos && Track_angle_andtrig && Track_pos_andtrig_HHHL && Track_angle) {
 	    TH1F * Track_pos_histo             = dynamic_cast<TH1F*> (Track_pos->operator->());
 	    TH1F * Track_pos_andtrig_histo     = dynamic_cast<TH1F*> (Track_pos_andtrig->operator->());
+	    TH1F * Track_pos_andtrig_HHHL_histo= dynamic_cast<TH1F*> (Track_pos_andtrig_HHHL->operator->());
 	    TH1F * Track_angle_histo           = dynamic_cast<TH1F*> (Track_angle->operator->());
 	    TH1F * Track_angle_andtrig_histo   = dynamic_cast<TH1F*> (Track_angle_andtrig->operator->());
 	    
-	    if (Track_pos_histo && Track_pos_andtrig_histo && Track_angle_histo && Track_angle_andtrig_histo) {
+	    if (Track_pos_histo && Track_pos_andtrig_histo && Track_pos_andtrig_HHHL_histo && Track_angle_histo && Track_angle_andtrig_histo) {
 	      
 	      // Fill client histos
 	      if( secME[sector_id].find("TrigEff_Phi") == secME[sector_id].end() ){
@@ -321,10 +339,12 @@ void DTLocalTriggerTest::analyze(const edm::Event& e, const edm::EventSetup& con
 	      globaleff->setBinError(stat,binerr);
 	      if( chambME[indexCh].find("TrigEffAngle_Phi") == chambME[indexCh].end()){
 		bookChambHistos(chId,"TrigEffPos_Phi");
+		bookChambHistos(chId,"TrigEffPosHHHL_Phi");
 		bookChambHistos(chId,"TrigEffAngle_Phi");
 	      }
 	      innerME = chambME[indexCh];
 	      makeEfficiencyME(Track_pos_andtrig_histo,Track_pos_histo,innerME.find("TrigEffPos_Phi")->second);
+	      makeEfficiencyME(Track_pos_andtrig_HHHL_histo,Track_pos_histo,innerME.find("TrigEffPosHHHL_Phi")->second);
 	      makeEfficiencyME(Track_angle_andtrig_histo,Track_angle_histo,innerME.find("TrigEffAngle_Phi")->second);
 
 	    }
