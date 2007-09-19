@@ -69,6 +69,23 @@ namespace reco {
 	  return p1.second < p2.second;
 	} 
       };
+
+      template<typename C>
+      struct MatcherGetRef {
+	typedef edm::Ref<C> ref_type;
+	static ref_type getRef( const edm::Handle<C> & c, size_t k ) { return ref_type(c, k); }
+      };
+
+      template<typename T>
+      struct MatcherGetRef<edm::View<T> > {
+	typedef edm::RefToBase<T> ref_type;
+	static ref_type getRef( const edm::Handle<edm::View<T> > & v, size_t k ) { return v->refAt(k); }
+      };
+
+      template<typename C> 
+      typename MatcherGetRef<C>::ref_type getRef( const edm::Handle<C> & c, size_t k ) { 
+	return MatcherGetRef<C>::getRef( c, k ); 
+      }
     }
 
     template<typename C1, typename C2, typename M>
@@ -109,10 +126,9 @@ namespace reco {
 	  size_t mMin = min_element( v.begin(), v.end(), helper::SortBySecond() )->first;
 	  typedef typename MatchMap::key_type key_type;
 	  typedef typename MatchMap::data_type data_type;
-	  matchMap->insert( key_type( cands, c ), data_type( matched, mMin ) );
+	  matchMap->insert( helper::getRef( cands, c ), helper::getRef( matched, mMin ) );
 	}
       }
-      
       evt.put( matchMap );
     }    
     
