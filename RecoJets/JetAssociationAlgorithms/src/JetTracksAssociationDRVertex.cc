@@ -1,6 +1,6 @@
 // Associate jets with tracks by simple "dR" criteria
 // Fedor Ratnikov (UMd), Aug. 28, 2007
-// $Id: JetToTracksAssociator.cc,v 1.1 2007/07/31 00:34:54 fedor Exp $
+// $Id: JetTracksAssociationDRVertex.cc,v 1.1 2007/08/29 17:53:14 fedor Exp $
 
 #include "RecoJets/JetAssociationAlgorithms/interface/JetTracksAssociationDRVertex.h"
 
@@ -15,7 +15,7 @@ JetTracksAssociationDRVertex::JetTracksAssociationDRVertex (double fDr)
 : mDeltaR2Threshold (fDr*fDr)
 {}
 
-void JetTracksAssociationDRVertex::produce (reco::JetToTracksAssociation::Container* fAssociation, 
+void JetTracksAssociationDRVertex::produce (reco::JetTracksAssociation::Container* fAssociation, 
 					 const std::vector <edm::RefToBase<reco::Jet> >& fJets,
 					 const std::vector <reco::TrackRef>& fTracks) const 
 {
@@ -36,6 +36,6 @@ void JetTracksAssociationDRVertex::produce (reco::JetToTracksAssociation::Contai
       double dR2 = deltaR2 (jetEta, jetPhi, trackP3s[t].eta(), trackP3s[t].phi());
       if (dR2 < mDeltaR2Threshold)  assoTracks.push_back (fTracks[t]);
     }
-    reco::JetToTracksAssociation::setValue (fAssociation, fJets[j], assoTracks);
+    reco::JetTracksAssociation::setValue (fAssociation, fJets[j], assoTracks);
   }
 }

@@ -1,6 +1,6 @@
 // Associate jets with tracks by simple "dR" criteria
 // Fedor Ratnikov (UMd), Aug. 28, 2007
-// $Id: JetTracksAssociationDRCalo.cc,v 1.1 2007/09/10 21:26:59 fedor Exp $
+// $Id: JetTracksAssociationDRCalo.cc,v 1.2 2007/09/11 23:59:19 fedor Exp $
 
 #include "RecoJets/JetAssociationAlgorithms/interface/JetTracksAssociationDRCalo.h"
 
@@ -111,7 +111,7 @@ JetTracksAssociationDRCalo::JetTracksAssociationDRCalo (double fDr)
 : mDeltaR2Threshold (fDr*fDr)
 {}
 
-void JetTracksAssociationDRCalo::produce (reco::JetToTracksAssociation::Container* fAssociation, 
+void JetTracksAssociationDRCalo::produce (reco::JetTracksAssociation::Container* fAssociation, 
 					  const std::vector <edm::RefToBase<reco::Jet> >& fJets,
 					  const std::vector <reco::TrackRef>& fTracks,
 					  const MagneticField& fField,
@@ -139,6 +139,6 @@ void JetTracksAssociationDRCalo::produce (reco::JetToTracksAssociation::Containe
       double dR2 = deltaR2 (jetEta, jetPhi, impacts[t].eta, impacts[t].phi);
       if (dR2 < mDeltaR2Threshold)  assoTracks.push_back (fTracks[impacts[t].index]);
     }
-    reco::JetToTracksAssociation::setValue (fAssociation, fJets[j], assoTracks);
+    reco::JetTracksAssociation::setValue (fAssociation, fJets[j], assoTracks);
   }
 }
