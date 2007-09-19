@@ -3,8 +3,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2007/06/14 17:49:15 $
- *  $Revision: 1.11 $
+ *  $Date: 2007/06/19 10:21:25 $
+ *  $Revision: 1.12 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -50,20 +50,14 @@ DTResolutionTest::DTResolutionTest(const edm::ParameterSet& ps){
   dbe = edm::Service<DaqMonitorBEInterface>().operator->();
   dbe->setVerbose(1);
 
+  prescaleFactor = parameters.getUntrackedParameter<int>("diagnosticPrescale", 1);
+
 }
 
 
 DTResolutionTest::~DTResolutionTest(){
 
   edm::LogVerbatim ("resolution") << "DTResolutionTest: analyzed " << nevents << " events";
-
-}
-
-void DTResolutionTest::endJob(){
-
-  edm::LogVerbatim ("resolution") << "[DTResolutionTest] endjob called!";
-
-  dbe->rmdir("DT/Tests/DTResolution");
 
 }
 
@@ -80,69 +74,43 @@ void DTResolutionTest::beginJob(const edm::EventSetup& context){
 }
 
 
-void DTResolutionTest::bookHistos(const DTChamberId & ch) {
+void DTResolutionTest::beginLuminosityBlock(LuminosityBlock const& lumiSeg, EventSetup const& context) {
 
-  stringstream wheel; wheel << ch.wheel();		
-  stringstream sector; sector << ch.sector();	
+  edm::LogVerbatim ("resolution") <<"[DTResolutionTest]: Begin of LS transition";
 
-  string MeanHistoName =  "MeanTest_W" + wheel.str() + "_Sec" + sector.str(); 
-  string SigmaHistoName =  "SigmaTest_W" + wheel.str() + "_Sec" + sector.str(); 
-
-  dbe->setCurrentFolder("DT/Tests/DTResolution");
-
-  string HistoName = "W" + wheel.str() + "_Sec" + sector.str(); 
-
-  MeanHistos[HistoName] = dbe->book1D(MeanHistoName.c_str(),MeanHistoName.c_str(),11,0,10);
-  (MeanHistos[HistoName])->setBinLabel(1,"MB1_SL1",1);
-  (MeanHistos[HistoName])->setBinLabel(2,"MB1_SL2",1);
-  (MeanHistos[HistoName])->setBinLabel(3,"MB1_SL3",1);
-  (MeanHistos[HistoName])->setBinLabel(4,"MB2_SL1",1);
-  (MeanHistos[HistoName])->setBinLabel(5,"MB2_SL2",1);
-  (MeanHistos[HistoName])->setBinLabel(6,"MB2_SL3",1);
-  (MeanHistos[HistoName])->setBinLabel(7,"MB3_SL1",1);
-  (MeanHistos[HistoName])->setBinLabel(8,"MB3_SL2",1);
-  (MeanHistos[HistoName])->setBinLabel(9,"MB3_SL3",1);
-  (MeanHistos[HistoName])->setBinLabel(10,"MB4_SL1",1);
-  (MeanHistos[HistoName])->setBinLabel(11,"MB4_SL3",1);
-
-  SigmaHistos[HistoName] = dbe->book1D(SigmaHistoName.c_str(),SigmaHistoName.c_str(),11,0,10);
-  (SigmaHistos[HistoName])->setBinLabel(1,"MB1_SL1",1);  
-  (SigmaHistos[HistoName])->setBinLabel(2,"MB1_SL2",1);
-  (SigmaHistos[HistoName])->setBinLabel(3,"MB1_SL3",1);
-  (SigmaHistos[HistoName])->setBinLabel(4,"MB2_SL1",1);
-  (SigmaHistos[HistoName])->setBinLabel(5,"MB2_SL2",1);
-  (SigmaHistos[HistoName])->setBinLabel(6,"MB2_SL3",1);
-  (SigmaHistos[HistoName])->setBinLabel(7,"MB3_SL1",1);
-  (SigmaHistos[HistoName])->setBinLabel(8,"MB3_SL2",1);
-  (SigmaHistos[HistoName])->setBinLabel(9,"MB3_SL3",1);
-  (SigmaHistos[HistoName])->setBinLabel(10,"MB4_SL1",1);
-  (SigmaHistos[HistoName])->setBinLabel(11,"MB4_SL3",1);
-
-
-  string MeanHistoNameSetRange = "MeanWrong_W" + wheel.str() + "_Sec" + sector.str() + "_SetRange";
-  string SigmaHistoNameSetRange =  "SigmaWrong_W" + wheel.str() + "_Sec" + sector.str()  + "_SetRange";
-  MeanHistosSetRange[HistoName] = dbe->book1D(MeanHistoNameSetRange.c_str(),MeanHistoNameSetRange.c_str(),10,0.5,10.5);
-  SigmaHistosSetRange[HistoName] = dbe->book1D(SigmaHistoNameSetRange.c_str(),SigmaHistoNameSetRange.c_str(),10,0.5,10.5);
-  string MeanHistoNameSetRange2D = "MeanWrong_W" + wheel.str() + "_Sec" + sector.str() + "_SetRange" + "_2D";
-  string SigmaHistoNameSetRange2D =  "SigmaWrong_W" + wheel.str() + "_Sec" + sector.str()  + "_SetRange" + "_2D";
-  MeanHistosSetRange2D[HistoName] = dbe->book2D(MeanHistoNameSetRange2D.c_str(),MeanHistoNameSetRange2D.c_str(),10, 0.5, 10.5, 100, -0.05, 0.05);
-  SigmaHistosSetRange2D[HistoName] = dbe->book2D(SigmaHistoNameSetRange2D.c_str(),SigmaHistoNameSetRange2D.c_str(),10, 0.5, 10.5, 500, 0, 0.5);
+  // Get the run number
+  run = lumiSeg.run();
 
 }
 
 
 void DTResolutionTest::analyze(const edm::Event& e, const edm::EventSetup& context){
-  
 
-
-  // counts number of updats (online mode) or number of events (standalone mode)
   nevents++;
+  edm::LogVerbatim ("resolution") << "[DTResolutionTest]: "<<nevents<<" events";
+
+}
+
+
+
+void DTResolutionTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, EventSetup const& context) {
+  
+  // counts number of updats (online mode) or number of events (standalone mode)
+  //nevents++;
   // if running in standalone perform diagnostic only after a reasonalbe amount of events
-  if ( parameters.getUntrackedParameter<bool>("runningStandalone", false) && 
-       nevents%parameters.getUntrackedParameter<int>("diagnosticPrescale", 1000) != 0 ) return;
+  //if ( parameters.getUntrackedParameter<bool>("runningStandalone", false) && 
+  //   nevents%parameters.getUntrackedParameter<int>("diagnosticPrescale", 1000) != 0 ) return;
+  //edm::LogVerbatim ("resolution") << "[DTResolutionTest]: "<<nevents<<" updates";
 
+  edm::LogVerbatim ("resolution") <<"[DTResolutionTest]: End of LS transition, performing the DQM client operation";
 
-  edm::LogVerbatim ("resolution") << "[DTResolutionTest]: "<<nevents<<" updates";
+  // counts number of lumiSegs 
+  nLumiSegs = lumiSeg.id().luminosityBlock();
+
+  // prescale factor
+  if ( nLumiSegs%prescaleFactor != 0 ) return;
+
+  edm::LogVerbatim ("resolution") <<"[DTResolutionTest]: "<<nLumiSegs<<" updates";
 
   vector<DTChamber*>::const_iterator ch_it = muonGeom->chambers().begin();
   vector<DTChamber*>::const_iterator ch_end = muonGeom->chambers().end();
@@ -236,11 +204,34 @@ void DTResolutionTest::analyze(const edm::Event& e, const edm::EventSetup& conte
     }
   }
 
-  if (nevents%parameters.getUntrackedParameter<int>("resultsSavingRate",10) == 0){
-    if ( parameters.getUntrackedParameter<bool>("writeHisto", true) ) 
-      dbe->save(parameters.getUntrackedParameter<string>("outputFile", "DTResolutionTest.root"));
-  }
+  //if (nevents%parameters.getUntrackedParameter<int>("resultsSavingRate",10) == 0){
+  //  if ( parameters.getUntrackedParameter<bool>("writeHisto", true) ) 
+  //    dbe->save(parameters.getUntrackedParameter<string>("outputFile", "DTResolutionTest.root"));
+  // }
+
+
 }
+
+
+void DTResolutionTest::endRun(){
+
+  if ( parameters.getUntrackedParameter<bool>("writeHisto", true) ) {
+    stringstream runNumber; runNumber << run;
+    string rootFile = "DTResolutionTest_" + runNumber.str() + ".root";
+    dbe->save(parameters.getUntrackedParameter<string>("outputFile", rootFile));
+  }
+
+}
+
+
+
+void DTResolutionTest::endJob(){
+
+  edm::LogVerbatim ("resolution") << "[DTResolutionTest] endjob called!";
+  dbe->rmdir("DT/Tests/DTResolution");
+
+}
+
 
 
 string DTResolutionTest::getMEName(const DTSuperLayerId & slID) {
@@ -267,3 +258,55 @@ string DTResolutionTest::getMEName(const DTSuperLayerId & slID) {
   return histoname;
   
 }
+
+
+void DTResolutionTest::bookHistos(const DTChamberId & ch) {
+
+  stringstream wheel; wheel << ch.wheel();		
+  stringstream sector; sector << ch.sector();	
+
+  string MeanHistoName =  "MeanTest_W" + wheel.str() + "_Sec" + sector.str(); 
+  string SigmaHistoName =  "SigmaTest_W" + wheel.str() + "_Sec" + sector.str(); 
+
+  dbe->setCurrentFolder("DT/Tests/DTResolution");
+
+  string HistoName = "W" + wheel.str() + "_Sec" + sector.str(); 
+
+  MeanHistos[HistoName] = dbe->book1D(MeanHistoName.c_str(),MeanHistoName.c_str(),11,0,10);
+  (MeanHistos[HistoName])->setBinLabel(1,"MB1_SL1",1);
+  (MeanHistos[HistoName])->setBinLabel(2,"MB1_SL2",1);
+  (MeanHistos[HistoName])->setBinLabel(3,"MB1_SL3",1);
+  (MeanHistos[HistoName])->setBinLabel(4,"MB2_SL1",1);
+  (MeanHistos[HistoName])->setBinLabel(5,"MB2_SL2",1);
+  (MeanHistos[HistoName])->setBinLabel(6,"MB2_SL3",1);
+  (MeanHistos[HistoName])->setBinLabel(7,"MB3_SL1",1);
+  (MeanHistos[HistoName])->setBinLabel(8,"MB3_SL2",1);
+  (MeanHistos[HistoName])->setBinLabel(9,"MB3_SL3",1);
+  (MeanHistos[HistoName])->setBinLabel(10,"MB4_SL1",1);
+  (MeanHistos[HistoName])->setBinLabel(11,"MB4_SL3",1);
+
+  SigmaHistos[HistoName] = dbe->book1D(SigmaHistoName.c_str(),SigmaHistoName.c_str(),11,0,10);
+  (SigmaHistos[HistoName])->setBinLabel(1,"MB1_SL1",1);  
+  (SigmaHistos[HistoName])->setBinLabel(2,"MB1_SL2",1);
+  (SigmaHistos[HistoName])->setBinLabel(3,"MB1_SL3",1);
+  (SigmaHistos[HistoName])->setBinLabel(4,"MB2_SL1",1);
+  (SigmaHistos[HistoName])->setBinLabel(5,"MB2_SL2",1);
+  (SigmaHistos[HistoName])->setBinLabel(6,"MB2_SL3",1);
+  (SigmaHistos[HistoName])->setBinLabel(7,"MB3_SL1",1);
+  (SigmaHistos[HistoName])->setBinLabel(8,"MB3_SL2",1);
+  (SigmaHistos[HistoName])->setBinLabel(9,"MB3_SL3",1);
+  (SigmaHistos[HistoName])->setBinLabel(10,"MB4_SL1",1);
+  (SigmaHistos[HistoName])->setBinLabel(11,"MB4_SL3",1);
+
+
+  string MeanHistoNameSetRange = "MeanWrong_W" + wheel.str() + "_Sec" + sector.str() + "_SetRange";
+  string SigmaHistoNameSetRange =  "SigmaWrong_W" + wheel.str() + "_Sec" + sector.str()  + "_SetRange";
+  MeanHistosSetRange[HistoName] = dbe->book1D(MeanHistoNameSetRange.c_str(),MeanHistoNameSetRange.c_str(),10,0.5,10.5);
+  SigmaHistosSetRange[HistoName] = dbe->book1D(SigmaHistoNameSetRange.c_str(),SigmaHistoNameSetRange.c_str(),10,0.5,10.5);
+  string MeanHistoNameSetRange2D = "MeanWrong_W" + wheel.str() + "_Sec" + sector.str() + "_SetRange" + "_2D";
+  string SigmaHistoNameSetRange2D =  "SigmaWrong_W" + wheel.str() + "_Sec" + sector.str()  + "_SetRange" + "_2D";
+  MeanHistosSetRange2D[HistoName] = dbe->book2D(MeanHistoNameSetRange2D.c_str(),MeanHistoNameSetRange2D.c_str(),10, 0.5, 10.5, 100, -0.05, 0.05);
+  SigmaHistosSetRange2D[HistoName] = dbe->book2D(SigmaHistoNameSetRange2D.c_str(),SigmaHistoNameSetRange2D.c_str(),10, 0.5, 10.5, 500, 0, 0.5);
+
+}
+

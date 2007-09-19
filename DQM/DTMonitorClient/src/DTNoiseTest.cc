@@ -1,7 +1,7 @@
 /*
  * 
- * $Date: 2007/06/18 16:57:50 $
- * $Revision: 1.10 $
+ * $Date: 2007/06/19 10:21:25 $
+ * $Revision: 1.11 $
  * \authors:
  *  A. Gresele - INFN Trento
  *  G. Mila - INFN Torino
@@ -44,6 +44,8 @@
 using namespace edm;
 using namespace std;
 
+
+
 DTNoiseTest::DTNoiseTest(const edm::ParameterSet& ps){
 
   edm::LogVerbatim ("noise") <<"[DTNoiseTest]: Constructor";  
@@ -53,24 +55,20 @@ DTNoiseTest::DTNoiseTest(const edm::ParameterSet& ps){
   dbe = edm::Service<DaqMonitorBEInterface>().operator->();
   dbe->setVerbose(1);
   dbe->setCurrentFolder("DT/Tests/Noise");
+
+  prescaleFactor = parameters.getUntrackedParameter<int>("diagnosticPrescale", 1);
+
 }
+
 
 
 DTNoiseTest::~DTNoiseTest(){
 
-edm::LogVerbatim ("noise") <<"DTNoiseTest: analyzed " << updates << " events";
+  edm::LogVerbatim ("noise") <<"DTNoiseTest: analyzed " << updates << " events";
 
 }
 
-void DTNoiseTest::endJob(){
 
-  edm::LogVerbatim ("noise") <<"[DTNoiseTest] endjob called!";
-  
-  if ( parameters.getUntrackedParameter<bool>("writeHisto", true) ) 
-    dbe->save(parameters.getUntrackedParameter<string>("outputFile", "DTNoiseTest.root"));
-  
-  dbe->rmdir("DT/Tests/Noise");
-}
 
 void DTNoiseTest::beginJob(const edm::EventSetup& context){
 
@@ -84,55 +82,47 @@ void DTNoiseTest::beginJob(const edm::EventSetup& context){
 }
 
 
-void DTNoiseTest::bookHistos(const DTChamberId & ch, string folder, string histoTag ) {
 
-  stringstream wheel; wheel << ch.wheel();	
-  stringstream station; station << ch.station();	
-  stringstream sector; sector << ch.sector();	
+void DTNoiseTest::beginLuminosityBlock(LuminosityBlock const& lumiSeg, EventSetup const& context) {
 
-  dbe->setCurrentFolder("DT/Tests/Noise/" + folder);
+  edm::LogVerbatim ("noise") <<"[DTNoiseTest]: Begin of LS transition";
 
-  string histoName =  histoTag + "W" + wheel.str() + "_St" + station.str() + "_Sec" + sector.str(); 
- 
-  if (folder == "NoiseAverage")
-  (histos[histoTag])[ch.rawId()] = dbe->book1D(histoName.c_str(),histoName.c_str(),3,0,3);
- 
-  if ( folder == "NewNoisyChannels")
-  (histos[histoTag])[ch.rawId()] = dbe->book1D(histoName.c_str(),histoName.c_str(),3,0,3);
-  
-}
-
-
-void DTNoiseTest::bookHistos(const DTLayerId & lId, int nWires, string folder, string histoTag) {
-
-  stringstream wheel; wheel << lId.superlayerId().wheel();
-  stringstream station; station << lId.superlayerId().station();	
-  stringstream sector; sector << lId.superlayerId().sector();
-  stringstream superLayer; superLayer << lId.superlayerId().superlayer();
-  stringstream layer; layer << lId.layer();
-
-  string histoName = histoTag + "_W" + wheel.str() + "_St" + station.str() + "_Sec" + sector.str() +  "_SL" + superLayer.str() +  "_L" + layer.str();
-
-  dbe->setCurrentFolder("DT/Tests/Noise/" + folder +
-			"/Wheel" + wheel.str() +
-			"/Station" + station.str() +
-			"/Sector" + sector.str());
-
-  (histos[histoTag])[lId.rawId()] = dbe->book1D(histoName.c_str(),histoName.c_str(),nWires,0,nWires);
+  // Get the run number
+  run = lumiSeg.run();
 
 }
-
 
 
 void DTNoiseTest::analyze(const edm::Event& e, const edm::EventSetup& context){
 
-  // counts number of updats (online mode) or number of events (standalone mode)
   updates++;
-  // if running in standalone perform diagnostic only after a reasonalbe amount of events
-  if ( parameters.getUntrackedParameter<bool>("runningStandalone", false) &&
-       updates%parameters.getUntrackedParameter<int>("diagnosticPrescale", 1000) != 0 ) return;
+  edm::LogVerbatim ("noise") << "[DTNoiseTest]: "<<updates<<" events";
 
-  edm::LogVerbatim ("noise") <<"[DTNoiseTest]: "<<updates<<" updates";
+}
+
+
+void DTNoiseTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, EventSetup const& context) {
+
+  // counts number of updats (online mode) or number of events (standalone mode)
+  //updates++;
+  // if running in standalone perform diagnostic only after a reasonalbe amount of events
+  //if ( parameters.getUntrackedParameter<bool>("runningStandalone", false) &&
+  //     updates%parameters.getUntrackedParameter<int>("diagnosticPrescale", 1000) != 0 ) return;
+
+  //edm::LogVerbatim ("noise") <<"[DTNoiseTest]: "<<updates<<" updates";
+
+
+  edm::LogVerbatim ("noise") <<"[DTNoiseTest]: End of LS transition, performing the DQM client operation";
+
+  // counts number of lumiSegs 
+  nLumiSegs = lumiSeg.id().luminosityBlock();
+
+  // prescale factor
+  if ( nLumiSegs%prescaleFactor != 0 ) return;
+
+  edm::LogVerbatim ("noise") <<"[DTNoiseTest]: "<<nLumiSegs<<" updates";
+
+
 
   ESHandle<DTStatusFlag> statusMap;
   context.get<DTStatusFlagRcd>().get(statusMap);
@@ -279,11 +269,37 @@ void DTNoiseTest::analyze(const edm::Event& e, const edm::EventSetup& context){
     }
   }
   
-  if (updates%parameters.getUntrackedParameter<int>("resultsSavingRate",10) == 0){
-    if ( parameters.getUntrackedParameter<bool>("writeHisto", true) ) 
-      dbe->save(parameters.getUntrackedParameter<string>("outputFile", "DTNoiseTest.root"));
-  }
+  //if (updates%parameters.getUntrackedParameter<int>("resultsSavingRate",10) == 0){
+  //  if ( parameters.getUntrackedParameter<bool>("writeHisto", true) ) 
+  //    dbe->save(parameters.getUntrackedParameter<string>("outputFile", "DTNoiseTest.root"));
+  //}
+
 }
+
+
+
+void DTNoiseTest::endRun(){
+
+  if ( parameters.getUntrackedParameter<bool>("writeHisto", true) ) {
+    stringstream runNumber; runNumber << run;
+    string rootFile = "DTNoiseTest_" + runNumber.str() + ".root";
+    dbe->save(parameters.getUntrackedParameter<string>("outputFile", rootFile));
+  }
+
+}
+
+
+
+void DTNoiseTest::endJob(){
+
+  edm::LogVerbatim ("noise") <<"[DTNoiseTest] endjob called!";
+  
+  //if ( parameters.getUntrackedParameter<bool>("writeHisto", true) ) 
+  //  dbe->save(parameters.getUntrackedParameter<string>("outputFile", "DTNoiseTest.root"));
+  
+  dbe->rmdir("DT/Tests/Noise");
+}
+
 
 string DTNoiseTest::getMEName(const DTChamberId & ch) {
   
@@ -334,5 +350,44 @@ string DTNoiseTest::getMEName(const DTLayerId & ly) {
     
     
   return histoname;
+
+}
+
+
+void DTNoiseTest::bookHistos(const DTChamberId & ch, string folder, string histoTag ) {
+
+  stringstream wheel; wheel << ch.wheel();	
+  stringstream station; station << ch.station();	
+  stringstream sector; sector << ch.sector();	
+
+  dbe->setCurrentFolder("DT/Tests/Noise/" + folder);
+
+  string histoName =  histoTag + "W" + wheel.str() + "_St" + station.str() + "_Sec" + sector.str(); 
+ 
+  if (folder == "NoiseAverage")
+  (histos[histoTag])[ch.rawId()] = dbe->book1D(histoName.c_str(),histoName.c_str(),3,0,3);
+ 
+  if ( folder == "NewNoisyChannels")
+  (histos[histoTag])[ch.rawId()] = dbe->book1D(histoName.c_str(),histoName.c_str(),3,0,3);
+  
+}
+
+
+void DTNoiseTest::bookHistos(const DTLayerId & lId, int nWires, string folder, string histoTag) {
+
+  stringstream wheel; wheel << lId.superlayerId().wheel();
+  stringstream station; station << lId.superlayerId().station();	
+  stringstream sector; sector << lId.superlayerId().sector();
+  stringstream superLayer; superLayer << lId.superlayerId().superlayer();
+  stringstream layer; layer << lId.layer();
+
+  string histoName = histoTag + "_W" + wheel.str() + "_St" + station.str() + "_Sec" + sector.str() +  "_SL" + superLayer.str() +  "_L" + layer.str();
+
+  dbe->setCurrentFolder("DT/Tests/Noise/" + folder +
+			"/Wheel" + wheel.str() +
+			"/Station" + station.str() +
+			"/Sector" + sector.str());
+
+  (histos[histoTag])[lId.rawId()] = dbe->book1D(histoName.c_str(),histoName.c_str(),nWires,0,nWires);
 
 }
