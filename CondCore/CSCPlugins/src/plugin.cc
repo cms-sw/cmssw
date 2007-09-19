@@ -26,6 +26,9 @@
 #include "CondFormats/DataRecord/interface/CSCNoiseMatrixRcd.h"
 #include "CondFormats/DataRecord/interface/CSCDBNoiseMatrixRcd.h"
 #include "CondFormats/DataRecord/interface/CSCChamberMap.h"
+#include "CondFormats/DataRecord/interface/CSCChamberIndex.h"
+#include "CondFormats/DataRecord/interface/CSCCrateMap.h"
+#include "CondFormats/DataRecord/interface/CSCDDUMap.h"
 #include "CondFormats/CSCObjects/interface/CSCReadoutMapping.h"
 #include "CondFormats/DataRecord/interface/CSCReadoutMappingRcd.h"
 
@@ -39,5 +42,8 @@ REGISTER_PLUGIN(CSCDBCrosstalkRcd,CSCDBCrosstalk);
 REGISTER_PLUGIN(CSCNoiseMatrixRcd,CSCNoiseMatrix);
 REGISTER_PLUGIN(CSCDBNoiseMatrixRcd,CSCDBNoiseMatrix);
 REGISTER_PLUGIN(CSCChamberMapRcd,CSCChamberMap);
+REGISTER_PLUGIN(CSCChamberMapRcd,CSCChamberIndex);
+REGISTER_PLUGIN(CSCChamberMapRcd,CSCCrateMap);
+REGISTER_PLUGIN(CSCChamberMapRcd,CSCDDUMap);
 REGISTER_PLUGIN(CSCIdentifierRcd,CSCIdentifier);
 REGISTER_PLUGIN(CSCReadoutMappingRcd,CSCReadoutMapping);
