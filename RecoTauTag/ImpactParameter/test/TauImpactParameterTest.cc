@@ -127,7 +127,7 @@ void TauImpactParameterTest::analyze(const edm::Event& iEvent, const edm::EventS
 	      double ptmin = 6;
 	      const TrackRef leadingTrack = iJet->getIsolatedTauTag()->leadingSignalTrack(cone,ptmin);
 
-	      if((leadingTrack)->recHitsSize() < 8 || leadingTrack->normalizedChi2() > 10) continue;
+	      if((leadingTrack)->numberOfValidHits() < 8 || leadingTrack->normalizedChi2() > 10) continue;
 
 	      if(!leadingTrack) continue;
 
