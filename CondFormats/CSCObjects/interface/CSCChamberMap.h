@@ -34,9 +34,8 @@ class CSCChamberMap{
     int slink;
   };
 
-  typedef std::map< int,MapItem > ChamberMap;
-  ChamberMap ch_map;
+  typedef std::map< int,MapItem > CSCMap;
+  CSCMap ch_map;
 };
 
 #endif
-
