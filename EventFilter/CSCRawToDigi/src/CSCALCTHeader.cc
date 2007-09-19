@@ -22,7 +22,7 @@ CSCALCTHeader::CSCALCTHeader(int chamberType) { //constructor for digi->raw pack
 				   << " " << header2006.activeFEBs << " " << header2006.nTBins;
 
   ///in order to be able to return header via data()
-  memcpy(theOriginalBuffer, &header2006, header2006.sizeInWords()*2);
+  memcpy(theOriginalBuffer, &header2006, header2006.sizeForPacking());
 
 }
 
@@ -115,6 +115,8 @@ void CSCALCTHeader::setEventInformation(const CSCDMBHeader & dmb) {
  header2006.cscID = dmb.dmbID();
  header2006.nTBins = 16;
  header2006.bxnCount = dmb.bxn();
+ ///have to re-copy header into original buffer to update the data
+ memcpy(theOriginalBuffer, &header2006, header2006.sizeForPacking());
 }
 
 unsigned short CSCALCTHeader::nLCTChipRead() const {///header2006 method
