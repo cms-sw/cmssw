@@ -47,10 +47,15 @@ namespace {
     reco::CandMatchMap::const_iterator cmm1it;
     edm::Wrapper<reco::CandMatchMap> wcmm1;
     edm::helpers::KeyVal<reco::CandidateRefProd, reco::CandidateRefProd> kv2;
+    reco::CandViewMatchMap cmm2;
+    reco::CandViewMatchMap::const_iterator cmm2it;
+    edm::Wrapper<reco::CandViewMatchMap> wcmm2;
+    edm::helpers::KeyVal<reco::CandidateBaseRefProd, reco::CandidateBaseRefProd> kv3;
     std::map<const reco::Candidate *, const reco::Candidate *> m1;
     std::vector<const reco::Candidate *> vc1;
-    reco::CandMatchMapMany cmm2;
-    edm::Wrapper<reco::CandMatchMapMany> wcmm2;
+    reco::CandMatchMapMany cmm3;
+    reco::CandMatchMapMany::const_iterator cmm3it;
+    edm::Wrapper<reco::CandMatchMapMany> wcmm3;
     edm::Wrapper<std::vector<reco::CandidateBaseRef> > wvrb1;
   }
 }
