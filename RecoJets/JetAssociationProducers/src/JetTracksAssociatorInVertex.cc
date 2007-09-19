@@ -1,9 +1,9 @@
-// \class JetToTracksAssociator JetToTracksAssociator.cc 
+// \class JetTracksAssociatorInVertex JetTracksAssociatorInVertex.cc 
 //
 // Original Author:  Andrea Rizzi
 //         Created:  Wed Apr 12 11:12:49 CEST 2006
 // Accommodated for Jet Package by: Fedor Ratnikov Jul. 30, 2007
-// $Id: JetToTracksAssociator.cc,v 1.1 2007/07/31 00:34:54 fedor Exp $
+// $Id: JetTracksAssociatorInVertex.cc,v 1.1 2007/08/29 17:53:15 fedor Exp $
 //
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -12,27 +12,27 @@
 #include "DataFormats/Common/interface/View.h"
 #include "DataFormats/JetReco/interface/Jet.h"
 #include "DataFormats/TrackReco/interface/Track.h"
-#include "DataFormats/JetReco/interface/JetToTracksAssociation.h"
+#include "DataFormats/JetReco/interface/JetTracksAssociation.h"
 
-#include "JetToTracksAssociator.h"
+#include "JetTracksAssociatorInVertex.h"
 
-JetToTracksAssociator::JetToTracksAssociator(const edm::ParameterSet& fConfig)
+JetTracksAssociatorInVertex::JetTracksAssociatorInVertex(const edm::ParameterSet& fConfig)
   : mJets (fConfig.getParameter<edm::InputTag> ("jets")),
     mTracks (fConfig.getParameter<edm::InputTag> ("tracks")),
     mAssociator (fConfig.getParameter<double> ("coneSize"))
 {
-  produces<reco::JetToTracksAssociation::Container> ();
+  produces<reco::JetTracksAssociation::Container> ();
 }
 
-JetToTracksAssociator::~JetToTracksAssociator() {}
+JetTracksAssociatorInVertex::~JetTracksAssociatorInVertex() {}
 
-void JetToTracksAssociator::produce(edm::Event& fEvent, const edm::EventSetup& fSetup) {
+void JetTracksAssociatorInVertex::produce(edm::Event& fEvent, const edm::EventSetup& fSetup) {
   edm::Handle <edm::View <reco::Jet> > jets_h;
   fEvent.getByLabel (mJets, jets_h);
   edm::Handle <reco::TrackCollection> tracks_h;
   fEvent.getByLabel (mTracks, tracks_h);
   
-  std::auto_ptr<reco::JetToTracksAssociation::Container> jetTracks (new reco::JetToTracksAssociation::Container);
+  std::auto_ptr<reco::JetTracksAssociation::Container> jetTracks (new reco::JetTracksAssociation::Container);
 
   // format inputs
   std::vector <edm::RefToBase<reco::Jet> > allJets;

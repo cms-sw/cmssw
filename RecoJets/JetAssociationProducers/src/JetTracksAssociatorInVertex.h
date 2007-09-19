@@ -1,13 +1,13 @@
-// \class JetToTracksAssociator JetToTracksAssociator.cc 
+// \class JetTracksAssociatorInVertex JetTracksAssociatorInVertex.cc 
 //
 // Original Author:  Andrea Rizzi
 //         Created:  Wed Apr 12 11:12:49 CEST 2006
 // Accommodated for Jet Package by: Fedor Ratnikov Jul. 30, 2007
-// $Id: JetToTracksAssociator.h,v 1.1 2007/07/31 00:34:54 fedor Exp $
+// $Id: JetTracksAssociatorInVertex.h,v 1.1 2007/08/29 17:53:15 fedor Exp $
 //
 //
-#ifndef JetToTracksAssociator_h
-#define JetToTracksAssociator_h
+#ifndef JetTracksAssociatorInVertex_h
+#define JetTracksAssociatorInVertex_h
 
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "DataFormats/Common/interface/EDProductfwd.h"
@@ -16,10 +16,10 @@
 
 #include "RecoJets/JetAssociationAlgorithms/interface/JetTracksAssociationDRVertex.h"
 
-class JetToTracksAssociator : public edm::EDProducer {
+class JetTracksAssociatorInVertex : public edm::EDProducer {
    public:
-      JetToTracksAssociator(const edm::ParameterSet&);
-      virtual ~JetToTracksAssociator();
+      JetTracksAssociatorInVertex(const edm::ParameterSet&);
+      virtual ~JetTracksAssociatorInVertex();
 
       virtual void produce(edm::Event&, const edm::EventSetup&);
 

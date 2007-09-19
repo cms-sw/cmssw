@@ -3,7 +3,7 @@
 // Combines different Jet associations into single compact object
 // which extends basic Jet information
 // Fedor Ratnikov Sep. 10, 2007
-// $Id: JetExtender.cc,v 1.1 2007/09/10 21:34:14 fedor Exp $
+// $Id: JetExtender.cc,v 1.1 2007/09/11 23:57:26 fedor Exp $
 //
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -12,7 +12,7 @@
 #include "DataFormats/Common/interface/View.h"
 #include "DataFormats/JetReco/interface/Jet.h"
 #include "DataFormats/JetReco/interface/JetExtendedAssociation.h"
-#include "DataFormats/JetReco/interface/JetToTracksAssociation.h"
+#include "DataFormats/JetReco/interface/JetTracksAssociation.h"
 
 #include "JetExtender.h"
 
@@ -30,9 +30,9 @@ void JetExtender::produce(edm::Event& fEvent, const edm::EventSetup& fSetup) {
   // get stuff from Event
   edm::Handle <edm::View <reco::Jet> > jets_h;
   fEvent.getByLabel (mJets, jets_h);
-  edm::Handle <reco::JetToTracksAssociation::Container> j2tVX_h;
+  edm::Handle <reco::JetTracksAssociation::Container> j2tVX_h;
   if (!(mJet2TracksAtVX.label().empty())) fEvent.getByLabel (mJet2TracksAtVX, j2tVX_h);
-  edm::Handle <reco::JetToTracksAssociation::Container> j2tCALO_h;
+  edm::Handle <reco::JetTracksAssociation::Container> j2tCALO_h;
   if (!(mJet2TracksAtCALO.label().empty())) fEvent.getByLabel (mJet2TracksAtCALO, j2tCALO_h);
   
   std::auto_ptr<reco::JetExtendedAssociation::Container> jetExtender (new reco::JetExtendedAssociation::Container);
@@ -44,8 +44,8 @@ void JetExtender::produce(edm::Event& fEvent, const edm::EventSetup& fSetup) {
     reco::JetExtendedAssociation::JetExtendedData extendedData;
     if (j2tVX_h.isValid ()) { // fill tracks@VX  summary
       try {
-	extendedData.mTracksInVertexNumber = reco::JetToTracksAssociation::tracksNumber (*j2tVX_h, jet);
-	extendedData.mTracksInVertexP4 = reco::JetToTracksAssociation::tracksP4 (*j2tVX_h, jet);
+	extendedData.mTracksInVertexNumber = reco::JetTracksAssociation::tracksNumber (*j2tVX_h, jet);
+	extendedData.mTracksInVertexP4 = reco::JetTracksAssociation::tracksP4 (*j2tVX_h, jet);
       }
       catch (cms::Exception e) {
 	edm::LogError ("MismatchedJets") << "Jets in original collection " << mJets 
@@ -56,8 +56,8 @@ void JetExtender::produce(edm::Event& fEvent, const edm::EventSetup& fSetup) {
     }
     if (j2tCALO_h.isValid ()) { // fill tracks@CALO  summary
       try {
-	extendedData.mTracksAtCaloNumber = reco::JetToTracksAssociation::tracksNumber (*j2tCALO_h, jet);
-	extendedData.mTracksAtCaloP4 = reco::JetToTracksAssociation::tracksP4 (*j2tCALO_h, jet);
+	extendedData.mTracksAtCaloNumber = reco::JetTracksAssociation::tracksNumber (*j2tCALO_h, jet);
+	extendedData.mTracksAtCaloP4 = reco::JetTracksAssociation::tracksP4 (*j2tCALO_h, jet);
       }
       catch (cms::Exception e) {
 	edm::LogError ("MismatchedJets") << "Jets in original collection " << mJets 

@@ -1,11 +1,11 @@
-// \class JetToTracksAssociator JetToTracksAssociatorAtCaloFace.cc 
+// \class JetTracksAssociatorAtCaloFace JetTracksAssociatorAtCaloFace.cc 
 // Associate jet with tracks extrapolated to CALO face
 // Accommodated for Jet Package by: Fedor Ratnikov Sep.7, 2007
-// $Id: JetToTracksAssociator.h,v 1.1 2007/08/29 17:53:15 fedor Exp $
+// $Id: JetTracksAssociatorAtCaloFace.h,v 1.1 2007/09/10 21:34:14 fedor Exp $
 //
 //
-#ifndef JetToTracksAssociatorAtCaloFace_h
-#define JetToTracksAssociatorAtCaloFace_h
+#ifndef JetTracksAssociatorAtCaloFace_h
+#define JetTracksAssociatorAtCaloFace_h
 
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "DataFormats/Common/interface/EDProductfwd.h"
@@ -14,10 +14,10 @@
 
 #include "RecoJets/JetAssociationAlgorithms/interface/JetTracksAssociationDRCalo.h"
 
-class JetToTracksAssociatorAtCaloFace : public edm::EDProducer {
+class JetTracksAssociatorAtCaloFace : public edm::EDProducer {
    public:
-      JetToTracksAssociatorAtCaloFace(const edm::ParameterSet&);
-      virtual ~JetToTracksAssociatorAtCaloFace();
+      JetTracksAssociatorAtCaloFace(const edm::ParameterSet&);
+      virtual ~JetTracksAssociatorAtCaloFace();
 
       virtual void produce(edm::Event&, const edm::EventSetup&);
 
