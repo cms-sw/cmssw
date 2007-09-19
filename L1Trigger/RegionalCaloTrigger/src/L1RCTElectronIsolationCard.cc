@@ -19,8 +19,8 @@ L1RCTElectronIsolationCard::~L1RCTElectronIsolationCard(){}
 
 
 void L1RCTElectronIsolationCard::fillElectronCandidates(){
-  std::vector<unsigned short> region0Electrons = calcElectronCandidates(regions.at(0));
-  std::vector<unsigned short> region1Electrons = calcElectronCandidates(regions.at(1));
+  std::vector<unsigned short> region0Electrons = calcElectronCandidates(regions.at(0),0);
+  std::vector<unsigned short> region1Electrons = calcElectronCandidates(regions.at(1),1);
   isoElectrons.at(0) = region0Electrons.at(0);
   isoElectrons.at(1) = region1Electrons.at(0);
   nonIsoElectrons.at(0) = region0Electrons.at(1);
@@ -35,7 +35,7 @@ void L1RCTElectronIsolationCard::fillElectronCandidates(){
 //An electron candidate is *always* a non-isolated electron.
 //If it also passes the neighbor cuts then it is an isolated electron as well.
 std::vector<unsigned short>
-L1RCTElectronIsolationCard::calcElectronCandidates(L1RCTRegion* region){
+L1RCTElectronIsolationCard::calcElectronCandidates(L1RCTRegion* region, int regionNum){
   
   unsigned short nonIsoElectron = 0;
   unsigned short isoElectron = 0;
@@ -65,15 +65,208 @@ L1RCTElectronIsolationCard::calcElectronCandidates(L1RCTRegion* region){
       unsigned short seHE_FG    = region->getHE_FGBit(i+1,j+1);
       unsigned short swHE_FG    = region->getHE_FGBit(i+1,j-1);
 
-      if(primaryEt > northEt && primaryEt >= southEt && primaryEt > westEt
-	 && primaryEt >= eastEt && !primaryHE_FG){
+      bool top = false;
+
+      int nCrate = crateNumber();
+      int nCard = cardNumber();
+      int nRegion = regionNum;
+
+      // top row of crate
+      if (nCard == 0 || nCard == 2 || nCard == 4 || (nCard == 6 && nRegion == 0))
+	{
+	  top = true;
+	}
+      // bottom row of crate
+      else if (nCard == 1 || nCard == 3 || nCard == 5 || (nCard == 6 && nRegion == 1))
+	{} // top already false
+      else
+	{
+	  std::cerr << "Error! EIC top assignment" << std::endl;  // this shouldn't happen!
+	}
+
+      // The following values are used for zeroing and determining whether or
+      // not a tower is a "candidate".  The original primaryEt, northEt, neEt, etc.
+      // are used to calculate vetoes and must not be zeroed.
+
+      unsigned short primaryTowerEt = primaryEt;
+      unsigned short northTowerEt = northEt;
+      unsigned short southTowerEt = southEt;
+      unsigned short eastTowerEt = eastEt;
+      unsigned short westTowerEt = westEt;
+
+      // In order to ensure proper selection of candidate tower and neighbor,
+      // if two neighbor energies are equal, one is set to zero (in the
+      // appropriate regions, those for which tp_lf bit is set to 0 in
+      // Pam's JCCTest/EGWithShare.cc). 
+
+      if (primaryEt > 0)  // this value should maybe be customizable?
+	{
+	  if (nCard != 6)  // all cards except 6
+	    {
+	      if(top && nCrate >= 9)  // top row of regions in positive-eta crate
+		{
+		  if(westTowerEt == eastTowerEt) westTowerEt=0;
+		  if(southTowerEt == northTowerEt) southTowerEt=0;
+		  if(southTowerEt == eastTowerEt) southTowerEt=0;
+		  if(westTowerEt == northTowerEt) westTowerEt=0;
+                }
+              else if((!top) && nCrate < 9) // bottom row of regions in negative-eta crate
+		{
+		  if(eastTowerEt == westTowerEt) eastTowerEt=0;
+		  if(northTowerEt == southTowerEt) northTowerEt=0;
+		  if(northTowerEt == westTowerEt) northTowerEt=0;
+		  if(eastTowerEt == southTowerEt) eastTowerEt=0;
+		}
+            }
+          else  // card 6                                            
+            {
+	      // only +eta card 6 needs to have zeroing.  Pam sez.  
+	      // -eta card 6 does what it's supposed to even w/o zeroing.
+              if(nRegion == 0 && nCrate >=9)
+                {
+                  if(westTowerEt == eastTowerEt) westTowerEt=0;
+                  if(southTowerEt == northTowerEt) southTowerEt=0;
+                  if(southTowerEt == eastTowerEt) southTowerEt=0;
+                  if(westTowerEt == northTowerEt) westTowerEt=0;
+                }
+	    }
+	}
+      
+      // This section compares the energies in the primary tower with the
+      // surrounding towers to determine whether or not the primary tower
+      // should be considered a "candidate".  
+
+      bool candidate = false;
+
+      // for case where primary tower et greater than all neighbors -> candidate
+      if (primaryEt > northEt && primaryEt > southEt && primaryEt > eastEt
+	  && primaryEt > westEt && !primaryHE_FG)
+	{
+	  candidate = true;
+	}
+
+      // if primary et less than any neighbors (or HE_FG veto set) NOT a candidate!
+      else if (primaryEt < northEt || primaryEt < southEt || primaryEt < eastEt
+	  || primaryEt < westEt || primaryHE_FG)
+	{} // candidate already false
+
+      else // Case of primary tower et being equal to any of its neighbors.
+	// This section determines which tower gets the candidate.
+	// See AboutTP.pdf document, figure on p. 4, for clarification.
+	// Zeroed values are used in this calculation.
+	{
+	  if (primaryEt > 0)
+	    {
+	      if (nCrate >=9)  // positive eta
+		{
+		  if (top) // top row of regions in crate.  tp_lf == 0
+		    // priority order: east < south < north < west
+		    {
+		      if (westTowerEt == primaryTowerEt)
+			candidate = true;
+		      else if (northTowerEt == primaryTowerEt)
+			candidate = false;
+		      else if (southTowerEt == primaryTowerEt)
+			candidate = true;
+		      else if (eastTowerEt == primaryTowerEt)
+			candidate = false;
+		    }
+
+		  else // bottom row of regions in crate.  tp_lf == 1
+		    // priority order: west < north < south < east
+		    {
+		      if (eastTowerEt == primaryTowerEt)
+			candidate = true;
+		      else if (southTowerEt == primaryTowerEt)
+			candidate = true;
+		      else if (northTowerEt == primaryTowerEt)
+			candidate = false;
+		      else if (westTowerEt == primaryTowerEt)
+			candidate = false;
+		      if (nCard == 6)  // card 6. tp_lf == 1
+			{
+			  // priority order: east < north < south < west
+			  if (westTowerEt == primaryTowerEt)
+			    candidate = true;
+			  else if (southTowerEt == primaryTowerEt)
+			    candidate = true;
+			  else if (northTowerEt == primaryTowerEt)
+			    candidate = false;
+			  else if (eastTowerEt == primaryTowerEt)
+			    candidate = false;
+			}
+		    }
+		}
+	      else // negative eta
+		{
+		  if (top) // top row of regions in crate.  tp_lf == 1  
+		    // priority order: east < south < north < west
+		    {
+		      if (westTowerEt == primaryTowerEt)
+			candidate = true;
+		      else if (northTowerEt == primaryTowerEt)
+			candidate = true;
+		      else if (southTowerEt == primaryTowerEt)
+			candidate = false;
+		      else if (eastTowerEt == primaryTowerEt)
+			candidate = false;
+		      if (nCard == 6)  // card 6.  tp_lf == 0
+			// east < south < north < west
+			{
+			  if (westTowerEt == primaryTowerEt)
+			    candidate = false;
+			  else if (northTowerEt == primaryTowerEt)
+			    candidate = false;
+			  else if (southTowerEt == primaryTowerEt)
+			    candidate = true;
+			  else if (eastTowerEt == primaryTowerEt)
+			    candidate = true;
+			}
+		    }
+		  else // bottom row of regions.  tp_lf == 0
+		    // west < north < south < east
+		    {
+		      if (eastTowerEt == primaryTowerEt)
+			candidate = true;
+		      else if (southTowerEt == primaryTowerEt)
+			candidate = false;
+		      else if (northTowerEt == primaryTowerEt)
+			candidate = true;
+		      else if (westTowerEt == primaryTowerEt)
+			candidate = false;
+		      
+		      if (nCard == 6) // card 6.  tp_lf == 1
+			// west < north < south < east
+			{
+			  if (eastTowerEt == primaryTowerEt)
+			    candidate = true;
+			  else if (southTowerEt == primaryTowerEt)
+			    candidate = true;
+			  else if (northTowerEt == primaryTowerEt)
+			    candidate = false;
+			  else if (westTowerEt == primaryTowerEt)
+			    candidate = false;
+			}
+		    }
+		}
+	    }
+	} // end of if (primary == neighbors)
+      
+      if (candidate) {
 	
+	// Either zeroed or non-zeroed set of values can be used here --
+	// neighbor tower only zeroed if another neighbor tower of same
+	// energy.  Max sum calculated from primary and only one neighbor
+	// tower, and always one neighbor tower left over, so value of sum
+	// is not affected.  Currently using non-zeroed.
 	unsigned short candidateEt = calcMaxSum(primaryEt,northEt,southEt,
 						eastEt,westEt);
-
+	
+	// neighbor HE_FG veto true if neighbor has HE_FG set
 	bool neighborVeto = (nwHE_FG || northHE_FG || neHE_FG || westHE_FG ||
 			     eastHE_FG || swHE_FG || southHE_FG || seHE_FG); 
 	
+	// threshold for five-tower corner quiet veto
 	int quietThreshold = 3;   // 3 - loose isolation 0 - very tight isolation
 	
 	bool nw = false;
@@ -85,6 +278,7 @@ L1RCTElectronIsolationCard::calcElectronCandidates(L1RCTRegion* region){
 	bool s = false;
 	bool e = false;
 
+	// individual neighbor vetoes set if neighbor is over threshold
 	if (nwEt > quietThreshold) nw = true;
 	if (neEt > quietThreshold) ne = true;
 	if (swEt > quietThreshold) sw = true;
@@ -94,17 +288,22 @@ L1RCTElectronIsolationCard::calcElectronCandidates(L1RCTRegion* region){
 	if (westEt > quietThreshold) w = true;
 	if (eastEt > quietThreshold) e = true;
 
+	// veto TRUE for each corner set if any individual tower in each set is over threshold
 	bool nwC = (sw || w || nw || n || ne);
 	bool neC = (nw || n || ne || e || se);
 	bool seC = (ne || e || se || s || sw);
 	bool swC = (se || s || sw || w || nw);
 
+	// overall quiet veto TRUE only if NO corner sets are quiet 
+	// (all are "loud") -> non-isolated
 	bool quietVeto = (nwC && neC && seC && swC);
 
+	// only isolated if both vetoes are false
 	if(!(quietVeto || neighborVeto)){
 	  if(candidateEt > isoElectron)
 	    isoElectron = candidateEt;
 	}
+	// otherwise, non-isolated
 	else if(candidateEt > nonIsoElectron)
 	  nonIsoElectron = candidateEt;
 
