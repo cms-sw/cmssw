@@ -25,7 +25,6 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include <exception>
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-//#include "FileCatalog/IFileCatalog.h"
 #include <sstream>
 #include <cstdlib>
 //#include <iostream>
@@ -107,14 +106,14 @@ PoolDBESSource::PoolDBESSource( const edm::ParameterSet& iConfig ) :
   std::string timetype=iConfig.getUntrackedParameter<std::string>("timetype","runnumber");
   //std::cout<<"connect "<<connect<<std::endl;
   //std::cout<<"timetype "<<timetype<<std::endl;
+  edm::ParameterSet connectionPset = iConfig.getParameter<edm::ParameterSet>("DBParameters"); 
+  cond::ConfigSessionFromParameterSet configConnection(*m_session,connectionPset);
+  m_session->open();
   if( connect.find("sqlite_fip:") != std::string::npos ){
     cond::FipProtocolParser p;
     connect=p.getRealConnect(connect);
   }
-  edm::ParameterSet connectionPset = iConfig.getParameter<edm::ParameterSet>("DBParameters"); 
-  cond::ConfigSessionFromParameterSet configConnection(*m_session,connectionPset);
   //std::cout<<"using connect "<<connect<<std::endl;
-  m_session->open();
   ///handle frontier cache refresh
   if( connect.rfind("frontier://") != std::string::npos){
     //Mark tables that need to not be cached (always refreshed)
@@ -146,11 +145,11 @@ PoolDBESSource::PoolDBESSource( const edm::ParameterSet& iConfig ) :
     m_session->webCacheControl().refreshTable( refreshConnect,cond::MetaDataNames::metadataTable() );
   }
   conHandler.registerConnection(connect,connect,0);
-  using namespace edm;
-  using namespace edm::eventsetup;  
+  //using namespace edm;
+  //using namespace edm::eventsetup;  
   fillRecordToTypeMap(m_recordToTypes);
   //std::cout<<"filled record to type map"<<std::endl;
-  typedef std::vector< ParameterSet > Parameters;
+  typedef std::vector< edm::ParameterSet > Parameters;
   Parameters toGet = iConfig.getParameter<Parameters>("toGet");
   
   std::string tagName;
@@ -200,9 +199,9 @@ PoolDBESSource::PoolDBESSource( const edm::ParameterSet& iConfig ) :
     ProxyToToken::iterator pos=m_proxyToToken.find(proxyName);
     cond::Connection* c=conHandler.getConnection(m.pfn);
     conHandler.connect(m_session);
-    boost::shared_ptr<DataProxy> proxy(cond::ProxyFactory::get()->create(buildName(m.recordname, m.objectname), c, pos));
-    eventsetup::EventSetupRecordKey recordKey(eventsetup::EventSetupRecordKey::TypeTag::findType( m.recordname ) );
-    if( recordKey.type() == eventsetup::EventSetupRecordKey::TypeTag() ) {
+    boost::shared_ptr<edm::eventsetup::DataProxy> proxy(cond::ProxyFactory::get()->create(buildName(m.recordname, m.objectname), c, pos));
+    edm::eventsetup::EventSetupRecordKey recordKey(edm::eventsetup::EventSetupRecordKey::TypeTag::findType( m.recordname ) );
+    if( recordKey.type() == edm::eventsetup::EventSetupRecordKey::TypeTag() ) {
       //record not found
       throw cond::Exception("NoRecord")<<"The record \""<< m.recordname <<"\" does not exist ";
     }
