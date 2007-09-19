@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: RootFile.cc,v 1.81 2007/09/11 19:52:11 wmtan Exp $
+$Id: RootFile.cc,v 1.82 2007/09/19 19:35:51 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "RootFile.h"
@@ -190,7 +190,7 @@ namespace edm {
         eventAux_.luminosityBlock_ = 1;
       }
     }
-    overrideRunNumber(eventAux_.id_);
+    overrideRunNumber(eventAux_.id_, eventAux_.isRealData());
   }
 
   // readEvent() is responsible for creating, and setting up, the
@@ -262,7 +262,7 @@ namespace edm {
       EventAux eventAux;
       EventAux *pEvAux = &eventAux;
       eventTree().fillAux<EventAux>(pEvAux);
-      overrideRunNumber(eventAux.id_);
+      overrideRunNumber(eventAux.id_, false);
       // back up, so event will not be skipped.
       eventTree().previous();
       return boost::shared_ptr<RunPrincipal>(
@@ -317,7 +317,7 @@ namespace edm {
       EventAux eventAux;
       EventAux *pEvAux = &eventAux;
       eventTree().fillAux<EventAux>(pEvAux);
-      overrideRunNumber(eventAux.id_);
+      overrideRunNumber(eventAux.id_, false);
       // back up, so event will not be skipped.
       eventTree().previous();
       if (eventAux.id_.run() != rp->run()) {
@@ -393,8 +393,12 @@ namespace edm {
     if (id.run() == 0) id = LuminosityBlockID(RunID::firstValidRun().run(), id.luminosityBlock());
   }
   void
-  RootFile::overrideRunNumber(EventID & id) {
+  RootFile::overrideRunNumber(EventID & id, bool isRealData) {
     if (forcedRunNumberOffset_ != 0) {
+      if (isRealData) {
+        throw cms::Exception("Configuration","RootFile::RootFile()")
+          << "The 'setRunNumber' parameter of PoolSource cannot be used with real data.\n";
+      }
       id = EventID(id.run() + forcedRunNumberOffset_, id.event());
     } 
     if (id.run() == 0) id = EventID(RunID::firstValidRun().run(), id.event());

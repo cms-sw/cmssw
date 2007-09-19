@@ -5,7 +5,7 @@
 
 RootFile.h // used by ROOT input sources
 
-$Id: RootFile.h,v 1.32 2007/09/13 16:29:50 paterno Exp $
+$Id: RootFile.h,v 1.33 2007/09/19 19:35:51 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -63,7 +63,7 @@ namespace edm {
     void fillEventAuxiliary();
     void overrideRunNumber(RunID & id);
     void overrideRunNumber(LuminosityBlockID & id);
-    void overrideRunNumber(EventID & id);
+    void overrideRunNumber(EventID & id, bool isRealData);
     RootFile(RootFile const&); // disable copy construction
     RootFile & operator=(RootFile const&); // disable assignment
     std::string const file_;
