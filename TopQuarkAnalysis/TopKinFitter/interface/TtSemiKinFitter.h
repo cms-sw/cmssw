@@ -1,5 +1,5 @@
 //
-// $Id: TtSemiKinFitter.h,v 1.1 2007/07/19 00:32:12 lowette Exp $
+// $Id: TtSemiKinFitter.h,v 1.2 2007/07/26 08:41:04 lowette Exp $
 //
 
 #ifndef TopKinFitter_TtSemiKinFitter_h
@@ -37,6 +37,7 @@ class TtSemiKinFitter {
   private:
 
     void setupFitter();
+    std::vector<double> translateCovM(TMatrixD &);
 
   private:
 
@@ -62,7 +63,6 @@ class TtSemiKinFitter {
     double maxDeltaS_;
     double maxF_;
     std::vector<int> constraints_;
-    std::vector<double> translateCovM(TMatrixD &);
 
 };
 

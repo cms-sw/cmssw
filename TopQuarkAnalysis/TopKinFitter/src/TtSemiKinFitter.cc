@@ -1,5 +1,5 @@
 //
-// $Id: TtSemiKinFitter.cc,v 1.2.2.3 2007/08/30 16:59:29 heyninck Exp $
+// $Id: TtSemiKinFitter.cc,v 1.4 2007/08/30 22:15:36 heyninck Exp $
 //
 
 #include "TopQuarkAnalysis/TopKinFitter/interface/TtSemiKinFitter.h"
@@ -11,9 +11,10 @@
 #include "PhysicsTools/KinFitter/interface/TFitParticleEScaledMomDev.h"
 #include "PhysicsTools/KinFitter/interface/TFitParticleEtEtaPhi.h"
 #include "PhysicsTools/KinFitter/interface/TFitParticleEtThetaPhi.h"
-/*#include "PhysicsTools/KinFitter/interface/TFitParticleESpher.h"
+/* other parametrizations and constraints
+#include "PhysicsTools/KinFitter/interface/TFitParticleESpher.h"
 #include "PhysicsTools/KinFitter/interface/TFitParticleMCPInvSpher.h"
-//#include "PhysicsTools/KinFitter/interface/TFitConstraintMGaus.h"
+#include "PhysicsTools/KinFitter/interface/TFitConstraintMGaus.h"
 #include "PhysicsTools/KinFitter/interface/TFitConstraintEp.h"*/
 
 
@@ -61,7 +62,7 @@ TtSemiEvtSolution TtSemiKinFitter::addKinFitInfo(TtSemiEvtSolution * asol) {
 
   TMatrixD m1(3,3),  m2(3,3),  m3(3,3),  m4(3,3);
   TMatrixD m1b(4,4), m2b(4,4), m3b(4,4), m4b(4,4);
-  TMatrixD m5(3,3), m6(3,3);
+  TMatrixD m5(3,3),  m6(3,3);
   m1.Zero();  m2.Zero();  m3.Zero();  m4.Zero();
   m1b.Zero(); m2b.Zero(); m3b.Zero(); m4b.Zero();
   m5.Zero();  m6.Zero();
@@ -332,6 +333,8 @@ TtSemiEvtSolution TtSemiKinFitter::addKinFitInfo(TtSemiEvtSolution * asol) {
 /// Method to setup the fitter
 void TtSemiKinFitter::setupFitter() {
   
+  // FIXME: replace by messagelogger!!!
+
   cout<<endl<<endl<<"+++++++++++ KINFIT SETUP ++++++++++++"<<endl;
   cout<<"  jet parametrisation:     ";
   if(jetParam_ == EMom) cout<<"EMomDev"<<endl;
