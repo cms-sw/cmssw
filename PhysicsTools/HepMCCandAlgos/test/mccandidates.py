@@ -7,6 +7,7 @@ process.include( "SimGeneral/HepPDTESSource/data/pythiapdt.cfi")
 process.include( "PhysicsTools/HepMCCandAlgos/data/genParticleCandidates.cfi")
 process.include( "PhysicsTools/HepMCCandAlgos/data/genParticles.cfi")
 process.include( "PhysicsTools/HepMCCandAlgos/data/genEventWeight.cfi")
+process.include( "PhysicsTools/HepMCCandAlgos/data/genEventScale.cfi")
 # The following is still not clear how should be converted to .py...
 # process.include( "PhysicsTools/HepMCCandAlgos/test/h4l.cff")
 # include "PhysicsTools/HepMCCandAlgos/test/ttbar.cff"
