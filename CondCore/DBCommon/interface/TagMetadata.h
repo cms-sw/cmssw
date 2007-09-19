@@ -2,10 +2,13 @@
 #define DBCommon_TagMetadata_h
 #include <string>
 namespace cond{
-  struct TagMetadata{
+  class TagMetadata{
+  public:
     std::string pfn;
     std::string recordname;
     std::string objectname;
+    std::string labelname;
+    std::string timetype;
   };
 }
 #endif
