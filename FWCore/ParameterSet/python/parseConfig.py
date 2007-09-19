@@ -335,12 +335,48 @@ class _IncludeNode(cms._ParameterTypeBase):
     """
     def __init__(self,filename):
         self.filename = filename
-    def __repr__(self):
-        # strip out the ".py"
+    def pythonFileRoot(self):
+       # strip out the ".py"
         import os.path
         fileRoot = os.path.splitext(self.filename)[0]
-        pythonFileRoot = fileRoot.replace('/','.')
-        return "import "+pythonFileRoot+"\nprocess.extend("+pythonFileRoot+")\n"
+        # translate, e.g., "SimMuon/DT/data/mod.cfg" to "SimMuon.DT.mod"
+        return fileRoot.replace('/','.').replace('.data.','.')
+    def pythonFileName(self):
+        import os.path
+        fileRoot = os.path.splitext(self.filename)[0]
+        return fileRoot.replace('/data/','/python/')+".py"
+    def __repr__(self):
+        return self.cfgRepr()
+    def cfgRepr(self):
+        pythonRoot = self.pythonFileRoot()
+        #moduleName = os.path.split(pythonRoot)[1]
+        return "import "+pythonRoot+"\nprocess.extend("+pythonRoot+")\n"
+    def cffRepr(self):
+        return "from "+self.pythonFileRoot()+" import *"
+    def createIfNeeded(self):
+        import os
+        import os.path
+        pythonName = self.pythonFileName()
+        cmsswSrc = os.path.expandvars("$CMSSW_BASE/src/")
+        cmsswReleaseSrc = os.path.expandvars("$CMSSW_RELEASE_BASE/src/")
+        if not os.path.exists(cmsswSrc+pythonName) and not os.path.exists(cmsswReleaseSrc+pythonName):
+            # need to check out my own version
+            cwd = os.getcwd()
+            os.chdir(cmsswSrc)
+            pythonDir = os.path.dirname(pythonName)
+            os.system("cvs co "+pythonDir)
+            if not os.path.exists(pythonName):
+                # have to make it myself
+                if not os.path.exists(pythonDir):
+                    print "Making " + pythonDir
+                    os.makedirs(pythonDir)
+                f=open(pythonName, 'w')
+                f.write(dumpCff(self.filename))
+                f.close()
+                os.chdir(pythonDir)
+                os.system("scramv1 build") 
+            os.chdir(cwd)
+          
 
 def _makeInclude(s,loc,toks):
     return (toks[0][0],_IncludeNode(toks[0][0]))
@@ -624,7 +660,9 @@ class _ModuleSeries(object):
         return "cms."+self.factory().__name__+"("+str(self)+")"
     def dumpPython(self, indent, deltaindent):
         return repr(self)
-    
+    def cfgRepr(self, proc):
+        return repr(self)
+        #return self.make(process).dumpPython('','') 
 
 class _Sequence(_ModuleSeries):
     def factory(self):
@@ -966,6 +1004,30 @@ def _finalizeProcessFragment(values,usingLabels):
 #==================================================================
 # Process
 #==================================================================
+def _dumpCfg(s,loc,toks):
+    label = toks[0][0]
+    p=cms.Process(label)
+
+    values = list(iter(toks[0][1]))
+    try:
+        values = _validateLabelledList(values)
+    except Exception, e:
+        raise pp.ParseFatalException(s,loc,"the process contains the error \n"+str(e))
+    result = "process = cms.Process(\""+label+"\")\n"
+    for key,value in values:
+        if isinstance(value,_IncludeNode):
+            value.createIfNeeded()
+            result += repr(value)+"\n"
+        elif isinstance(value,_ReplaceNode):
+            result += "process."+ repr(value)+"\n"
+        elif isinstance(value,_ModuleSeries):
+            result += "process."+key+" = "+value.cfgRepr(p)+"\n"
+        else:
+            #result += "process."+str(key)+" ="+value.dumpPython('','    ')
+            result += "process."+key+" = "+value.dumpPython('','    ')+"\n"
+    print result
+
+
 def _makeProcess(s,loc,toks):
     """create a Process from the tokens"""
     #print toks
@@ -1093,6 +1155,14 @@ process = pp.Group(pp.Suppress('process')+label+_equalTo+
 process.ignore(pp.cppStyleComment)
 process.ignore(pp.pythonStyleComment)
 
+cfgDumper = pp.Group(pp.Suppress('process')+label+_equalTo+
+                   _scopeBegin+
+                     pp.Group(processBody)+
+                   _scopeEnd).setParseAction(_dumpCfg)+pp.StringEnd()
+cfgDumper.ignore(pp.cppStyleComment)
+cfgDumper.ignore(pp.pythonStyleComment)
+
+
 class _ConfigReturn(object):
     def __init__(self,d):
         for key,value in d.iteritems():
@@ -1130,13 +1200,15 @@ def parseCffFile(fileName):
     d=_finalizeProcessFragment(t,_allUsingLabels)
     return _ConfigReturn(d)
 
-def dump(fileName):
+def dumpCfg(fileName):
+    cfgDumper.parseFile(_fileFactory(fileName))
+def dumpCff(fileName):
     """Read a .cff file and return a dictionary"""
     t=onlyFragment.parseFile(_fileFactory(fileName))
     result = ''
     for key,value in t:
         if isinstance(value,_IncludeNode) or isinstance(value,_ReplaceNode):
-            result += repr(value)+"\n"
+            result += value.cffRepr()+"\n"
         else:
             #result += "process."+str(key)+" ="+value.dumpPython('','    ')
             result += key+" = "+value.dumpPython('','    ')+"\n"
@@ -1166,6 +1238,7 @@ if __name__=="__main__":
     class TestFactory(object):
         def __init__(self,name, contents):
             self._name=name
+
             self._contents = contents
         def __call__(self, filename):
             if self._name != filename:
