@@ -10,9 +10,7 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "AnalysisDataFormats/TopObjects/interface/StEvtSolution.h"
-#include "TopQuarkAnalysis/TopKinFitter/interface/StKinFitterEtEtaPhi.h"
-#include "TopQuarkAnalysis/TopKinFitter/interface/StKinFitterEtThetaPhi.h"
-#include "TopQuarkAnalysis/TopKinFitter/interface/StKinFitterEMom.h"
+#include "TopQuarkAnalysis/TopKinFitter/interface/StKinFitter.h"
 //#include "TopQuarkAnalysis/TopJetCombination/interface/TtJetCombinationProbability.h"
 
 class StEvtSolutionMaker : public edm::EDProducer {
@@ -22,10 +20,9 @@ class StEvtSolutionMaker : public edm::EDProducer {
 
 
       virtual void produce(edm::Event&, const edm::EventSetup&);
+
    private:
-      StKinFitterEtThetaPhi * myKinFitterEtThetaPhi;
-      StKinFitterEtEtaPhi   * myKinFitterEtEtaPhi;
-      StKinFitterEMom       * myKinFitterEMom;
+      StKinFitter * myKinFitter;
       //std::vector<TtJetCombinationProbability> jetCombProbs;
       edm::InputTag electronSrc_;
       edm::InputTag muonSrc_;
@@ -38,6 +35,6 @@ class StEvtSolutionMaker : public edm::EDProducer {
       bool addLRJetComb_, doKinFit_, matchToGenEvt_;
       int maxNrIter_;
       double maxDeltaS_, maxF_;
-      int param_;
+      int jetParam_, lepParam_, metParam_;
       std::vector<int> constraints_;
 };
