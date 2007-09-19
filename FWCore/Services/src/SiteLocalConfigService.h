@@ -30,6 +30,7 @@ namespace edm
 	    
 	    const std::string dataCatalog (void) const;
 	    const std::string lookupCalibConnect (const std::string& input) const;
+	    const std::string rfioType (void) const;
 
 	    // implicit copy constructor
 	    // implicit assignment operator
@@ -40,6 +41,7 @@ namespace edm
 	    std::string 	m_url;	    
 	    std::string 	m_dataCatalog;
 	    std::string		m_frontierConnect;
+	    std::string 	m_rfioType;
 	    bool		m_connected;	    
 	};
     }

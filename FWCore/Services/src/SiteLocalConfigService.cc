@@ -70,6 +70,7 @@ edm::service::SiteLocalConfigService::SiteLocalConfigService (const edm::Paramet
 							      const edm::ActivityRegistry &activityRegistry)
     : m_connected (false)
 {
+    m_rfioType = "castor";
     m_url = "/SITECONF/local/JobConfig/site-local-config.xml";
     char * tmp = getenv ("CMS_PATH");
     
@@ -171,6 +172,12 @@ edm::service::SiteLocalConfigService::lookupCalibConnect (const std::string& inp
     return input;
 }
 
+const std::string
+edm::service::SiteLocalConfigService::rfioType (void) const
+{
+    return m_rfioType;
+}
+
 void
 edm::service::SiteLocalConfigService::parse (const std::string &url)
 {
@@ -193,6 +200,7 @@ edm::service::SiteLocalConfigService::parse (const std::string &url)
 	// <site name="FNAL">
 	//   <event-data>
 	//     <catalog url="trivialcatalog_file:/x/y/z.xml"/>
+	//     <rfiotype value="castor">
 	//   </event-data>
 	//   <calib-data>
 	//     <catalog url="trivialcatalog_file:/x/y/z.xml"/>
@@ -232,6 +240,18 @@ edm::service::SiteLocalConfigService::parse (const std::string &url)
 	    
 			m_dataCatalog = _toString (catalog->getAttribute (_toDOMS ("url")));
 		    }
+		    
+		    DOMNodeList *rfiotypes 
+			= eventData->getElementsByTagName (_toDOMS ("rfiotype"));
+	    
+		    if (rfiotypes->getLength () > 0)
+		    {
+			DOMElement * rfiotype 
+			    = static_cast <DOMElement *> (rfiotypes->item (0));
+	    
+			m_rfioType = _toString (rfiotype->getAttribute (_toDOMS ("value")));
+		    }
+		    
 		}
 	    }
 	
