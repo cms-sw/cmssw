@@ -3,8 +3,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2007/06/14 17:49:15 $
- *  $Revision: 1.4 $
+ *  $Date: 2007/06/19 10:20:29 $
+ *  $Revision: 1.5 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -41,6 +41,8 @@
 using namespace edm;
 using namespace std;
 
+
+
 DTChamberEfficiencyTest::DTChamberEfficiencyTest(const edm::ParameterSet& ps){
 
   edm::LogVerbatim ("chamberEfficiency") << "[DTChamberEfficiencyTest]: Constructor";
@@ -50,7 +52,11 @@ DTChamberEfficiencyTest::DTChamberEfficiencyTest(const edm::ParameterSet& ps){
   dbe = edm::Service<DaqMonitorBEInterface>().operator->();
   dbe->setVerbose(1);
 
+  prescaleFactor = parameters.getUntrackedParameter<int>("diagnosticPrescale", 1);
+
 }
+
+
 
 DTChamberEfficiencyTest::~DTChamberEfficiencyTest(){
 
@@ -58,13 +64,6 @@ DTChamberEfficiencyTest::~DTChamberEfficiencyTest(){
 
 }
 
-void DTChamberEfficiencyTest::endJob(){
-
-  edm::LogVerbatim ("chamberEfficiency") << "[DTChamberEfficiencyTest] endjob called!";
-
-  dbe->rmdir("DT/Tests/DTChamberEfficiency");
-
-}
 
 void DTChamberEfficiencyTest::beginJob(const edm::EventSetup& context){
 
@@ -78,39 +77,44 @@ void DTChamberEfficiencyTest::beginJob(const edm::EventSetup& context){
 }
 
 
-void DTChamberEfficiencyTest::bookHistos(const DTChamberId & chId) {
+void DTChamberEfficiencyTest::beginLuminosityBlock(LuminosityBlock const& lumiSeg, EventSetup const& context) {
 
-  stringstream wheel; wheel << chId.wheel();
-  stringstream station; station << chId.station();	
-  stringstream sector; sector << chId.sector();
+  edm::LogVerbatim ("chamberEfficiency") <<"[DTChamberEfficiencyTest]: Begin of LS transition";
 
-  string HistoName = "W" + wheel.str() + "_St" + station.str() + "_Sec" + sector.str();
-  string xEfficiencyHistoName =  "xEfficiency_" + HistoName; 
-  string yEfficiencyHistoName =  "yEfficiency_" + HistoName; 
-  string xVSyEffHistoName =  "xVSyEff_" + HistoName; 
-
-  dbe->setCurrentFolder("DT/Tests/DTChamberEfficiency/Wheel" + wheel.str() +
-			   "/Station" + station.str() +
-			   "/Sector" + sector.str());
-
-  xEfficiencyHistos[HistoName] = dbe->book1D(xEfficiencyHistoName.c_str(),xEfficiencyHistoName.c_str(),25,-250.,250.);
-  yEfficiencyHistos[HistoName] = dbe->book1D(yEfficiencyHistoName.c_str(),yEfficiencyHistoName.c_str(),25,-250.,250.);
-  xVSyEffHistos[HistoName] = dbe->book2D(xVSyEffHistoName.c_str(),xVSyEffHistoName.c_str(),25,-250.,250., 25,-250.,250.);
+  // Get the run number
+  run = lumiSeg.run();
 
 }
 
 
 void DTChamberEfficiencyTest::analyze(const edm::Event& e, const edm::EventSetup& context){
+
+  nevents++;
+  edm::LogVerbatim ("chamberEfficiency") << "[DTChamberEfficiencyTest]: "<<nevents<<" events";
+
+}
+
+
+void DTChamberEfficiencyTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, EventSetup const& context) {
   
   // counts number of updats (online mode) or number of events (standalone mode)
-  nevents++;
+  //nevents++;
   // if running in standalone perform diagnostic only after a reasonalbe amount of events
-  if ( parameters.getUntrackedParameter<bool>("runningStandalone", false) && 
-       nevents%parameters.getUntrackedParameter<int>("diagnosticPrescale", 1000) != 0 ) return;
+  //if ( parameters.getUntrackedParameter<bool>("runningStandalone", false) && 
+  //     nevents%parameters.getUntrackedParameter<int>("diagnosticPrescale", 1000) != 0 ) return;  
+  //edm::LogVerbatim ("chamberEfficiency") << "[DTChamberEfficiencyTest]: "<<nevents<<" updates";
   
+  edm::LogVerbatim ("chamberEfficiency") <<"[DTChamberEfficiencyTest]: End of LS transition, performing the DQM client operation";
+
+  // counts number of lumiSegs 
+  nLumiSegs = lumiSeg.id().luminosityBlock();
+
+  // prescale factor
+  if ( nLumiSegs%prescaleFactor != 0 ) return;
+
+  edm::LogVerbatim ("chamberEfficiency") <<"[DTChamberEfficiencyTest]: "<<nLumiSegs<<" updates";
   
-  edm::LogVerbatim ("chamberEfficiency") << "[DTChamberEfficiencyTest]: "<<nevents<<" updates";
-  
+
   vector<DTChamber*>::const_iterator ch_it = muonGeom->chambers().begin();
   vector<DTChamber*>::const_iterator ch_end = muonGeom->chambers().end();
 
@@ -213,11 +217,33 @@ void DTChamberEfficiencyTest::analyze(const edm::Event& e, const edm::EventSetup
     }
   }
 
-  if (nevents%parameters.getUntrackedParameter<int>("resultsSavingRate",10) == 0){
-    if ( parameters.getUntrackedParameter<bool>("writeHisto", true) ) 
-      dbe->save(parameters.getUntrackedParameter<string>("outputFile", "DTChamberEfficiencyTest.root"));
-  }
+  //if (nevents%parameters.getUntrackedParameter<int>("resultsSavingRate",10) == 0){
+  //  if ( parameters.getUntrackedParameter<bool>("writeHisto", true) ) 
+  //    dbe->save(parameters.getUntrackedParameter<string>("outputFile", "DTChamberEfficiencyTest.root"));
+  //}
 }
+
+
+void DTChamberEfficiencyTest::endRun(){
+
+  if (parameters.getUntrackedParameter<bool>("writeHisto", true) ) {
+    stringstream runNumber; runNumber << run;
+    string rootFile = "DTChamberEfficiencyTest_" + runNumber.str() + ".root";
+    dbe->save(parameters.getUntrackedParameter<string>("outputFile", rootFile));
+  }
+
+}
+
+
+
+void DTChamberEfficiencyTest::endJob(){
+
+  edm::LogVerbatim ("chamberEfficiency") << "[DTChamberEfficiencyTest] endjob called!";
+  dbe->rmdir("DT/Tests/DTChamberEfficiency");
+
+}
+
+
 
 
 string DTChamberEfficiencyTest::getMEName(string histoTag, const DTChamberId & chID) {
@@ -239,4 +265,26 @@ string DTChamberEfficiencyTest::getMEName(string histoTag, const DTChamberId & c
   
   return histoname;
   
+}
+
+
+void DTChamberEfficiencyTest::bookHistos(const DTChamberId & chId) {
+
+  stringstream wheel; wheel << chId.wheel();
+  stringstream station; station << chId.station();	
+  stringstream sector; sector << chId.sector();
+
+  string HistoName = "W" + wheel.str() + "_St" + station.str() + "_Sec" + sector.str();
+  string xEfficiencyHistoName =  "xEfficiency_" + HistoName; 
+  string yEfficiencyHistoName =  "yEfficiency_" + HistoName; 
+  string xVSyEffHistoName =  "xVSyEff_" + HistoName; 
+
+  dbe->setCurrentFolder("DT/Tests/DTChamberEfficiency/Wheel" + wheel.str() +
+			   "/Station" + station.str() +
+			   "/Sector" + sector.str());
+
+  xEfficiencyHistos[HistoName] = dbe->book1D(xEfficiencyHistoName.c_str(),xEfficiencyHistoName.c_str(),25,-250.,250.);
+  yEfficiencyHistos[HistoName] = dbe->book1D(yEfficiencyHistoName.c_str(),yEfficiencyHistoName.c_str(),25,-250.,250.);
+  xVSyEffHistos[HistoName] = dbe->book2D(xVSyEffHistoName.c_str(),xVSyEffHistoName.c_str(),25,-250.,250., 25,-250.,250.);
+
 }

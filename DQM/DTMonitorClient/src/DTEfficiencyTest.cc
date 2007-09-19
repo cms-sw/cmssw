@@ -3,8 +3,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2007/06/14 17:49:15 $
- *  $Revision: 1.9 $
+ *  $Date: 2007/06/19 10:20:52 $
+ *  $Revision: 1.10 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -49,6 +49,8 @@ DTEfficiencyTest::DTEfficiencyTest(const edm::ParameterSet& ps){
 
   dbe = edm::Service<DaqMonitorBEInterface>().operator->();
   dbe->setVerbose(1);
+  
+  prescaleFactor = parameters.getUntrackedParameter<int>("diagnosticPrescale", 1);
 
 }
 
@@ -58,13 +60,6 @@ DTEfficiencyTest::~DTEfficiencyTest(){
 
 }
 
-void DTEfficiencyTest::endJob(){
-
-  edm::LogVerbatim ("efficiency") << "[DTEfficiencyTest] endjob called!";
-
-  dbe->rmdir("DT/Tests/DTEfficiency");
-
-}
 
 void DTEfficiencyTest::beginJob(const edm::EventSetup& context){
 
@@ -78,37 +73,42 @@ void DTEfficiencyTest::beginJob(const edm::EventSetup& context){
 }
 
 
-void DTEfficiencyTest::bookHistos(const DTLayerId & lId, int firstWire, int lastWire) {
+void DTEfficiencyTest::beginLuminosityBlock(LuminosityBlock const& lumiSeg, EventSetup const& context) {
 
-  stringstream wheel; wheel << lId.superlayerId().wheel();
-  stringstream station; station << lId.superlayerId().station();	
-  stringstream sector; sector << lId.superlayerId().sector();
-  stringstream superLayer; superLayer << lId.superlayerId().superlayer();
-  stringstream layer; layer << lId.layer();
+  edm::LogVerbatim ("efficiency") <<"[DTEfficiencyTest]: Begin of LS transition";
 
-  string HistoName = "W" + wheel.str() + "_St" + station.str() + "_Sec" + sector.str() +  "_SL" + superLayer.str() +  "_L" + layer.str();
-  string EfficiencyHistoName =  "Efficiency_" + HistoName; 
-  string UnassEfficiencyHistoName =  "UnassEfficiency_" + HistoName; 
-
-  dbe->setCurrentFolder("DT/Tests/DTEfficiency/Wheel" + wheel.str() +
-			   "/Station" + station.str() +
-			   "/Sector" + sector.str());
-
-  EfficiencyHistos[HistoName] = dbe->book1D(EfficiencyHistoName.c_str(),EfficiencyHistoName.c_str(),lastWire-firstWire+1, firstWire-0.5, lastWire+0.5);
-  UnassEfficiencyHistos[HistoName] = dbe->book1D(UnassEfficiencyHistoName.c_str(),UnassEfficiencyHistoName.c_str(),lastWire-firstWire+1, firstWire-0.5, lastWire+0.5);
+  // Get the run number
+  run = lumiSeg.run();
 
 }
 
+
 void DTEfficiencyTest::analyze(const edm::Event& e, const edm::EventSetup& context){
+
+  nevents++;
+  edm::LogVerbatim ("efficiency") << "[DTEfficiencyTest]: "<<nevents<<" events";
+
+}
+
+
+void DTEfficiencyTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, EventSetup const& context) {
   
   // counts number of updats (online mode) or number of events (standalone mode)
-  nevents++;
+  //nevents++;
   // if running in standalone perform diagnostic only after a reasonalbe amount of events
-  if ( parameters.getUntrackedParameter<bool>("runningStandalone", false) && 
-       nevents%parameters.getUntrackedParameter<int>("diagnosticPrescale", 1000) != 0 ) return;
+  //if ( parameters.getUntrackedParameter<bool>("runningStandalone", false) && 
+  //     nevents%parameters.getUntrackedParameter<int>("diagnosticPrescale", 1000) != 0 ) return;
 
-  edm::LogVerbatim ("efficiency") << "[DTEfficiencyTest]: "<<nevents<<" updates";
+  edm::LogVerbatim ("efficiency") <<"[DTEfficiencyTest]: End of LS transition, performing the DQM client operation"; 
 
+  // counts number of lumiSegs 
+  nLumiSegs = lumiSeg.id().luminosityBlock();
+
+  // prescale factor
+  if ( nLumiSegs%prescaleFactor != 0 ) return;
+
+  edm::LogVerbatim ("efficiency") <<"[DTEfficiencyTest]: "<<nLumiSegs<<" updates";
+  
   vector<DTChamber*>::const_iterator ch_it = muonGeom->chambers().begin();
   vector<DTChamber*>::const_iterator ch_end = muonGeom->chambers().end();
 
@@ -218,11 +218,31 @@ void DTEfficiencyTest::analyze(const edm::Event& e, const edm::EventSetup& conte
   }
 
   
-  if (nevents%parameters.getUntrackedParameter<int>("resultsSavingRate",10) == 0){
-    if ( parameters.getUntrackedParameter<bool>("writeHisto", true) ) 
-      dbe->save(parameters.getUntrackedParameter<string>("outputFile", "DTEfficiencyTest.root"));
-    edm::LogStatistics();
+  //if (nevents%parameters.getUntrackedParameter<int>("resultsSavingRate",10) == 0){
+  //  if ( parameters.getUntrackedParameter<bool>("writeHisto", true) ) 
+  //    dbe->save(parameters.getUntrackedParameter<string>("outputFile", "DTEfficiencyTest.root"));
+  //  edm::LogStatistics();
+  //}
+}
+
+
+void DTEfficiencyTest::endRun(){
+
+  if ( parameters.getUntrackedParameter<bool>("writeHisto", true) ) {
+    stringstream runNumber; runNumber << run;
+    string rootFile = "DTEfficiencyTest_" + runNumber.str() + ".root";
+    dbe->save(parameters.getUntrackedParameter<string>("outputFile", rootFile));
   }
+
+}
+
+
+void DTEfficiencyTest::endJob(){
+
+  edm::LogVerbatim ("efficiency") << "[DTEfficiencyTest] endjob called!";
+
+  dbe->rmdir("DT/Tests/DTEfficiency");
+
 }
 
 
@@ -250,4 +270,26 @@ string DTEfficiencyTest::getMEName(string histoTag, const DTLayerId & lID) {
   
   return histoname;
   
+}
+
+
+void DTEfficiencyTest::bookHistos(const DTLayerId & lId, int firstWire, int lastWire) {
+
+  stringstream wheel; wheel << lId.superlayerId().wheel();
+  stringstream station; station << lId.superlayerId().station();	
+  stringstream sector; sector << lId.superlayerId().sector();
+  stringstream superLayer; superLayer << lId.superlayerId().superlayer();
+  stringstream layer; layer << lId.layer();
+
+  string HistoName = "W" + wheel.str() + "_St" + station.str() + "_Sec" + sector.str() +  "_SL" + superLayer.str() +  "_L" + layer.str();
+  string EfficiencyHistoName =  "Efficiency_" + HistoName; 
+  string UnassEfficiencyHistoName =  "UnassEfficiency_" + HistoName; 
+
+  dbe->setCurrentFolder("DT/Tests/DTEfficiency/Wheel" + wheel.str() +
+			   "/Station" + station.str() +
+			   "/Sector" + sector.str());
+
+  EfficiencyHistos[HistoName] = dbe->book1D(EfficiencyHistoName.c_str(),EfficiencyHistoName.c_str(),lastWire-firstWire+1, firstWire-0.5, lastWire+0.5);
+  UnassEfficiencyHistos[HistoName] = dbe->book1D(UnassEfficiencyHistoName.c_str(),UnassEfficiencyHistoName.c_str(),lastWire-firstWire+1, firstWire-0.5, lastWire+0.5);
+
 }
