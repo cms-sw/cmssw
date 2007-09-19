@@ -9,6 +9,7 @@
 #include "DataFormats/SiStripCommon/interface/SiStripRefGetter.h"
 #include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
+#include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripRegionCabling.h"
 #include <string>
 #include <memory>
