@@ -103,12 +103,6 @@ bool BHFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	  float py0=momentum.y();
 	  float pz0=momentum.z();
 
-
-
-	  //	  cout << " x y z " << x0 << " " << y0 << " " << z0 << endl; 
-
-
-
 	  // beam 1 or 2 ?
 	  // propagator -> need to be implemented 
 	  
@@ -117,8 +111,6 @@ bool BHFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	      float zs = 10860.;
 	      float ys = (zs-z0)*(py0/pz0)+y0;
 	      float xs = (ys-y0)*(px0/py0)+x0;
-	      
-	      //    cout << endl << " xs ys zs " << xs << " " << ys << " " << zs; 
 	      
 	      
 	      if(xs<0 && ys>0) {xs=-xs;}
@@ -148,13 +140,13 @@ bool BHFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	      if(ys>y1 && ys<y2 && ys<y3 && ys>y4)
 		{
 		  pad_plus = true;
-		 	  cout << " trig1+" << endl;
+		  //  cout << " trig1+" << endl;
 		}
 	      
 	      if((ys<sqrt(450*450-xs*xs) && ys>sqrt(208*208-xs*xs)) || (ys<sqrt(450*450-xs*xs) && xs>208)) 
 		{
 		  circ_plus = true;
-		   cout << " trig2+" << endl;
+		  //  cout << " trig2+" << endl;
 		}
 	      
 	      
@@ -163,7 +155,7 @@ bool BHFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	      ys = (zs-z0)*(py0/pz0)+y0;
 	      xs = (ys-y0)*(px0/py0)+x0;
 	      
-	      //	      cout << endl << " xs ys zs " << xs << " " << ys << " " << zs; 
+	      //  cout << endl << " xs ys zs " << xs << " " << ys << " " << zs; 
 	      
 	      
 	      if(xs<0 && ys>0) {xs=-xs;}
@@ -184,13 +176,13 @@ bool BHFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	      if(ys>y1 && ys<y2 && ys<y3 && ys>y4)
 		{
 		  pad_minus = true;
-		   cout << " trig1-" << endl;
+		  // cout << " trig1-" << endl;
 		}
 	      
 	      if((ys<sqrt(450*450-xs*xs) && ys>sqrt(208*208-xs*xs)) || (ys<sqrt(450*450-xs*xs) && xs>208)) 
 		{
 		  circ_minus = true;
-		   cout << " trig2-" << endl;
+		  //   cout << " trig2-" << endl;
 		}
 	      
 	      
@@ -209,23 +201,22 @@ bool BHFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	      
 	      if(trig_==0 && (pad_plus || circ_plus) && (pad_minus || circ_minus) )
 		{
-		  cout << "triggg 0 " << endl;
+		  //		  cout << "triggg 0 " << endl;
 		  return true;
 		}
 	      if(trig_==1 && (pad_plus || circ_plus)) 
 		{
-		  cout << "triggg 1 " << endl;
+		  //		  cout << "triggg 1 " << endl;
 		  return true;
 		}
 	      if(trig_==-1 && (pad_minus || circ_minus)) 
 		{
-		  cout << "triggg -1 " << endl;
+		  //		  cout << "triggg -1 " << endl;
 		  return true;
 		}
 
     }
 	  
-  //	  cout << " false " << endl;
 	  return false;
 
 }
