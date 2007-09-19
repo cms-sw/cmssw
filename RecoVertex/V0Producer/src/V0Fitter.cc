@@ -13,7 +13,7 @@
 //
 // Original Author:  Brian Drell
 //         Created:  Fri May 18 22:57:40 CEST 2007
-// $Id: V0Fitter.cc,v 1.7 2007/09/10 22:21:00 drell Exp $
+// $Id: V0Fitter.cc,v 1.8 2007/09/19 05:34:54 drell Exp $
 //
 //
 
@@ -138,7 +138,7 @@ void V0Fitter::fitAll(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   for(unsigned int trdx1 = 0; trdx1 < theTracks.size(); trdx1++) {
     for(unsigned int trdx2 = trdx1 + 1; trdx2 < theTracks.size(); 
 	trdx2++) {
-      vector<Track> theTracks;  
+      //vector<Track> theTracks;  
       vector<TransientTrack> transTracks;
 
       //theTracks.push_back( theTransTracks[trdx1].track() );
