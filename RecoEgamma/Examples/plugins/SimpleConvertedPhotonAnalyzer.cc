@@ -286,8 +286,8 @@ void SimpleConvertedPhotonAnalyzer::analyze( const edm::Event& e, const edm::Eve
       h_phoEta_->Fill( (*iPho).eta() );
       h_phoPhi_->Fill( (*iPho).phi() );
       
-      std::cout  << " ConvertedPhotonAnalyzer reco conversion vtx position " << (*iPho).convVertexPosition() <<  "\n";
-      std::cout  << " ConvertedPhotonAnalyzer reco tracks size " <<  (*iPho).tracks().size() << "\n"; 
+      //std::cout  << " ConvertedPhotonAnalyzer reco conversion vtx position " << (*iPho).conversionVertex().position() <<  "\n";
+      //std::cout  << " ConvertedPhotonAnalyzer reco tracks size " <<  (*iPho).tracks().size() << "\n"; 
       
       
       for (unsigned int i=0; i<(*iPho).tracks().size(); i++) {
