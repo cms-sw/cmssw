@@ -14,6 +14,10 @@ namespace edm{
 namespace cond{
   class DBSession;
   class Connection;
+  struct IOVInfo{
+    std::string tag; 
+    std::string token;
+  };
 }
 class PoolDBESSource : public edm::eventsetup::DataProxyProvider,
 		       public edm::EventSetupRecordIntervalFinder{
@@ -29,27 +33,18 @@ class PoolDBESSource : public edm::eventsetup::DataProxyProvider,
   virtual void newInterval(const edm::eventsetup::EventSetupRecordKey& iRecordType, const edm::ValidityInterval& iInterval) ;    
  private:
   // ----------member data ---------------------------
-  typedef std::multimap<std::string, std::string> RecordToTypes;
-  RecordToTypes m_recordToTypes; //should be static?
-  typedef std::string proxyName;
-  typedef std::string tokenType;
-  typedef std::map<proxyName, tokenType > ProxyToToken;
+  typedef std::multimap< std::string, std::string > RecordToTypes;
+  RecordToTypes m_recordToTypes; 
+  typedef std::map< std::string, cond::IOVInfo > RecordToIOVInfo;
+  RecordToIOVInfo m_recordToIOVInfo;
+  typedef std::map< std::string, cond::TagMetadata > TagCollection;
+  TagCollection m_tagCollection;
+  typedef std::map<std::string, std::string > ProxyToToken;
   ProxyToToken m_proxyToToken;
-  typedef ProxyToToken::iterator pProxyToToken;
-  std::string m_con;
-  typedef std::map<std::string, std::string > RecordToIOV;
-  RecordToIOV m_recordToIOV;
-  //std::vector< std::pair < std::string, std::string> > m_recordToTag;
-  std::string m_timetype;
   cond::DBSession* m_session;
-  //cond::Connection* m_connection;
-  //bool m_tagTranslated;
-  //std::string m_catalog; 
-  //bool m_connected;
  private:
-  //void tagToToken(cond::Connection* connection,
-  //const std::vector< std::pair < std::string, std::string> >& recordToTag);
-  void tagToToken( std::vector< std::pair<std::string, cond::TagMetadata> >& tagcollection );
-  //void initIOV();
+  void fillRecordToIOVInfo();
+  std::string buildRecordTagKey( const std::string& recordName, 
+				 const std::string& tagName );  
 };
 #endif
