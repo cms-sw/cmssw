@@ -10,5 +10,7 @@
   <class name="edm::Wrapper<reco::GenParticleCollection>" />
   <class name="reco::GenParticleRef" />
   <class name="reco::GenParticleRefVector" />
+  <class name="edm::reftobase::Holder<reco::Candidate, reco::GenParticleRef>" />
+  <class name="edm::reftobase::RefHolder<reco::GenParticleRef>" />
 </lcgdict>
  
