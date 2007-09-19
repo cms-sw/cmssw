@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripCommissioningOfflineClient.cc,v 1.17 2007/07/13 13:51:38 bainbrid Exp $
+// Last commit: $Id: SiStripCommissioningOfflineClient.cc,v 1.18 2007/09/06 22:33:47 delaer Exp $
 
 #include "DQM/SiStripCommissioningClients/interface/SiStripCommissioningOfflineClient.h"
 #include "DataFormats/SiStripCommon/interface/SiStripEnumsAndStrings.h"
@@ -163,7 +163,7 @@ void SiStripCommissioningOfflineClient::beginJob( const edm::EventSetup& setup )
 
   // Retrieve list of histograms
   std::vector<std::string> contents;
-  mui_->getContents( contents ); 
+  bei->getContents( contents ); 
   
   // If merged histos exist, remove FU directories from list
   if ( clientHistos_ ) {

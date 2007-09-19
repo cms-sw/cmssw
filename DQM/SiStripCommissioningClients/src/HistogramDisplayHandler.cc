@@ -76,7 +76,7 @@ const CgiEnvironment& env = cgi.getEnvironment();
 	std::vector<std::string> histolist;
  
        std::vector<std::string> contents;
-       mui_->getContents( contents ); 
+       mui_->getBEInterface()->getContents( contents ); 
 	std::ostringstream xmlstr;
 	bool modulefound=false;
 	//out->getHTTPResponseHeader().addHeader("Content-Type", "text/xml");
@@ -119,7 +119,7 @@ const CgiEnvironment& env = cgi.getEnvironment();
 
  
        std::vector<std::string> contents;
-       mui_->getContents( contents ); 
+       mui_->getBEInterface()->getContents( contents ); 
 	std::ostringstream xmlstr;
 	//bool modulefound=false;
 	//out->getHTTPResponseHeader().addHeader("Content-Type", "text/xml");
@@ -151,7 +151,7 @@ const CgiEnvironment& env = cgi.getEnvironment();
 	std::vector<std::string> histolist;
  
        std::vector<std::string> contents;
-       mui_->getContents( contents ); 
+       mui_->getBEInterface()->getContents( contents ); 
 	std::ostringstream xmlstr;
 	bool modulefound=false;
 	//out->getHTTPResponseHeader().addHeader("Content-Type", "text/xml");
@@ -218,18 +218,18 @@ const CgiEnvironment& env = cgi.getEnvironment();
 	  TProfile* prof=NULL;TH1F* his=NULL;
 	  int ntry=0;
 	do {
-	  mui_->setCurrentFolder( "SiStrip/ControlView/"+mod_id );
-	  cout << mui_->pwd()<<endl;
+	  mui_->getBEInterface()->setCurrentFolder( "SiStrip/ControlView/"+mod_id );
+	  cout << mui_->getBEInterface()->pwd()<<endl;
 
-	  std::vector<std::string> tme = mui_->getMEs();
+	  std::vector<std::string> tme = mui_->getBEInterface()->getMEs();
 	  for (unsigned int j=0;j<tme.size();j++)
 	    cout << tme[j] <<endl;
 
 	  std::string  hname="SiStrip/ControlView/"+mod_id+"/"+hlist[i];
     
 	  
-	MonitorElement* me = mui_->get( hname ); // path + name
-	  cout << mui_->pwd()<<endl;
+	MonitorElement* me = mui_->getBEInterface()->get( hname ); // path + name
+	  cout << mui_->getBEInterface()->pwd()<<endl;
 	  cout << " Monitoring element " << hname  << " gives" << me <<endl;
 
 	 prof = ExtractTObject<TProfile>().extract( me );

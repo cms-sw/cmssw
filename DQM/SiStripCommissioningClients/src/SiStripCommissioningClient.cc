@@ -70,7 +70,7 @@ SiStripCommissioningClient::~SiStripCommissioningClient() {
 /** Called whenever the client enters the "Configured" state. */
 void SiStripCommissioningClient::configure() {
   
-  if ( mui_ ) { mui_->setVerbose(0); }
+  if ( mui_ ) { mui_->getBEInterface()->setVerbose(0); }
   web_ = new SiStripCommissioningWebClient( this,
 					    getContextURL(),
 					    getApplicationURL(), 
@@ -181,7 +181,7 @@ void SiStripCommissioningClient::onUpdate() const {
   subscribenew("*");
   std::vector<std::string> contents;
   //mui_->getAddedContents( contents ); 
-  mui_->getContents( contents ); 
+  mui_->getBEInterface()->getContents( contents ); 
 
   // Extract run type from contents
   if ( runType_ == sistrip::UNKNOWN_RUN_TYPE ) { 
@@ -629,7 +629,7 @@ void SiStripCommissioningClient::save( std::string filename ) {
   ss << name << "_" << std::setfill('0') << std::setw(7) << runNumber_ << ".root";
 
   // Save file with appropriate filename
-  mui_->save( ss.str() ); 
+  mui_->getBEInterface()->save( ss.str() ); 
   
   LogTrace(mlDqmClient_)
     << "[SiStripCommissioningClient::" << __func__ << "]"

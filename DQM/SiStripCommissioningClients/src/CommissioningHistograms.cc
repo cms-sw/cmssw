@@ -491,8 +491,8 @@ void CommissioningHistograms::createCollations( const std::vector<std::string>& 
     if ( slash == sistrip::dir_ ) { client_dir = client_dir.substr( 0, client_dir.size()-1 ); }
 
     // Retrieve MonitorElements from pwd directory
-    mui_->setCurrentFolder( source_dir );
-    std::vector<std::string> me_list = mui_->getMEs();
+    bei_->setCurrentFolder( source_dir );
+    std::vector<std::string> me_list = bei_->getMEs();
 
     // Iterate through MonitorElements and create CMEs
     std::vector<std::string>::iterator ime = me_list.begin(); 
@@ -550,7 +550,7 @@ void CommissioningHistograms::createCollations( const std::vector<std::string>& 
       if ( !histo ) {
 
 	// Retrieve ME pointer
-	MonitorElement* me = mui_->get( mui_->pwd()+"/"+(*ime) );
+	MonitorElement* me = bei_->get( bei_->pwd()+"/"+(*ime) );
 	
 	// Check if profile or 1D
 	TProfile* prof = ExtractTObject<TProfile>().extract( me );
@@ -568,7 +568,7 @@ void CommissioningHistograms::createCollations( const std::vector<std::string>& 
 	    histo->cme_ = mui_->collate1D( (*ime), (*ime), client_dir ); 
 	  }
 	  if ( histo->cme_ ) { 
-	    mui_->add( histo->cme_, mui_->pwd()+"/"+(*ime) );
+	    mui_->add( histo->cme_, bei_->pwd()+"/"+(*ime) );
 	    histo->me_ = histo->cme_->getMonitorElement(); 
 	  }
 	}
@@ -582,7 +582,7 @@ void CommissioningHistograms::createCollations( const std::vector<std::string>& 
 	while ( ihis < jhistos->second.end() ) {
 	  if ( (*ime) == (*ihis)->title_ ) { 
 	    if ( (*ihis)->cme_ ) {
-	      mui_->add( (*ihis)->cme_, mui_->pwd()+"/"+(*ime) );
+	      mui_->add( (*ihis)->cme_, bei_->pwd()+"/"+(*ime) );
 	    }
 	    break; 
 	  }
@@ -687,14 +687,14 @@ TH1* CommissioningHistograms::histogram( const sistrip::Monitorable& mon,
 					 const float& xhigh ) {
   
   // Remember pwd 
-  std::string pwd = mui_->pwd();
-  mui_->setCurrentFolder( directory );
+  std::string pwd = bei_->pwd();
+  bei_->setCurrentFolder( directory );
   
   // Construct histogram name 
   std::string name = SummaryGenerator::name( task_, mon, pres, view, directory );
   
   // Check if summary plot already exists and remove
-  MonitorElement* me = mui_->get( mui_->pwd() + "/" + name );
+  MonitorElement* me = bei_->get( bei_->pwd() + "/" + name );
   if ( me ) { 
     edm::LogWarning(mlDqmClient_)
       << "[CommissioningHistograms::" << __func__ << "]"
@@ -741,7 +741,7 @@ TH1* CommissioningHistograms::histogram( const sistrip::Monitorable& mon,
       << "[CommissioningHistograms::" << __func__ << "]"
       << " Created summary plot with name \"" << me->getName()
       << "\" in directory \""
-      << mui_->pwd() << "\"!"; 
+      << bei_->pwd() << "\"!"; 
   } else {
     edm::LogWarning(mlDqmClient_)
       << "[CommissioningHistograms::" << __func__ << "]"
@@ -759,7 +759,7 @@ TH1* CommissioningHistograms::histogram( const sistrip::Monitorable& mon,
   }
   
   // Return to pwd
-  mui_->setCurrentFolder( pwd );
+  bei_->setCurrentFolder( pwd );
   
   return summary;
   
@@ -871,7 +871,7 @@ void CommissioningHistograms::save( std::string& path,
     << " Saving histograms to root file \""
     << ss.str() << "\"... (This may take some time!)";
   path = ss.str();
-  mui_->save( path, sistrip::root_ ); 
+  bei_->save( path, sistrip::root_ ); 
   edm::LogVerbatim(mlDqmClient_)
     << "[CommissioningHistograms::" << __func__ << "]"
     << " Saved histograms to root file!";
