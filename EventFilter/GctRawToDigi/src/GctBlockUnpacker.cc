@@ -9,8 +9,6 @@
 
 #include <iostream>
 
-//#define CALL_GCT_CONVERT_FN(object,ptrToMember)  ((object).*(ptrToMember))
-
 using std::cout;
 using std::endl;
 
@@ -147,27 +145,31 @@ void GctBlockUnpacker::blockToGctEmCand(const unsigned char * d, GctBlockHeader&
   unsigned int id = hdr.id();
   unsigned int nSamples = hdr.nSamples();
 
-  // re-interpret pointer
+  // Re-interpret pointer.  p will be pointing at the 16 bit word that
+  // contains the rank0 non-isolated electron of the zeroth time-sample. 
   uint16_t * p = reinterpret_cast<uint16_t *>(const_cast<unsigned char *>(d));
 
   for (unsigned int iso=0; iso<2; ++iso) {   // loop over non-iso/iso candidates
     for (unsigned int bx=0; bx<nSamples; ++bx) {   // loop over time samples
 
       bool isolated = (iso==1);
-      uint16_t * pp = p+ (2*bx) + (iso*4*nSamples);
+      
+      // The +(2*bx) for the start of the correct time sample
+      // The +(iso*4*nSamples) for selecting the start of the non-iso/iso. 
+      uint16_t * pp = p + (2*bx) + (iso*4*nSamples);
+      
 
       L1GctEmCandCollection* em;
       if (isolated) { em = gctIsoEm_; }
       else { em = gctNonIsoEm_; }
 
-      pp=pp+3+(2*(nSamples-1));
-      em->push_back(L1GctEmCand(*pp, isolated, id, 0, bx));
-      pp=pp-(2*(nSamples-1))-2;
-      em->push_back(L1GctEmCand(*pp, isolated, id, 0, bx));
-      pp=pp+(2*(nSamples-1))+1;
-      em->push_back(L1GctEmCand(*pp, isolated, id, 0, bx));
-      pp=pp-(2*(nSamples-1))-2;
-      em->push_back(L1GctEmCand(*pp, isolated, id, 0, bx));
+      em->push_back(L1GctEmCand(*pp, isolated, id, 0, bx));  // rank0 electron
+      pp = pp + (2*(nSamples-1)) + 2;
+      em->push_back(L1GctEmCand(*pp, isolated, id, 0, bx));  // rank1 electron
+      pp = pp - (2*(nSamples-1)) - 1;
+      em->push_back(L1GctEmCand(*pp, isolated, id, 0, bx));  // rank2 electron
+      pp = pp + (2*(nSamples-1)) + 2;
+      em->push_back(L1GctEmCand(*pp, isolated, id, 0, bx));  // rank3 electron
 
     }
   }
