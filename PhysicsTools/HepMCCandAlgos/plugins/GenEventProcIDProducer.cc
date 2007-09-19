@@ -3,7 +3,7 @@
  * \author Luca Lista, INFN
  * \author Filip Moortgat, ETH
  * 
- * \version $Id: GenEventProcIDProducer.cc,v 1.1 2007/08/12 11:53:57 llista Exp $
+ * \version $Id: GenEventProcIDProducer.cc,v 1.1 2007/08/29 07:33:41 fabiocos Exp $
  *
  */
 #include "FWCore/Framework/interface/EDProducer.h"
@@ -35,7 +35,7 @@ using namespace HepMC;
 
 GenEventProcIDProducer::GenEventProcIDProducer( const ParameterSet & p ) :
   src_( p.getParameter<InputTag>( "src" ) ) {
-  produces<double>();
+  produces<int>();
 }
 
 
