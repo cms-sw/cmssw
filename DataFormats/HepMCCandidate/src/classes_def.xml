@@ -12,5 +12,7 @@
   <class name="reco::GenParticleRefVector" />
   <class name="edm::reftobase::Holder<reco::Candidate, reco::GenParticleRef>" />
   <class name="edm::reftobase::RefHolder<reco::GenParticleRef>" />
+  <class name="edm::reftobase::VectorHolder<reco::Candidate, reco::GenParticleRefVector>" />
+  <class name="edm::reftobase::RefVectorHolder<reco::GenParticleRefVector>" />
 </lcgdict>
  
