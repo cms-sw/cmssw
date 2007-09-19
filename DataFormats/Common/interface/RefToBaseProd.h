@@ -5,7 +5,7 @@
  *
  * \author Luca Lista, INFN
  *
- * $Id: RefToBaseProd.h,v 1.10 2007/09/17 14:15:24 llista Exp $
+ * $Id: RefToBaseProd.h,v 1.11 2007/09/19 10:55:39 llista Exp $
  *
  */
   
@@ -122,7 +122,7 @@ namespace edm {
   template <typename T>
   inline
   RefToBaseProd<T>::RefToBaseProd(Handle<View<T> > const& handle) :
-    product_(handle.id(), 0, handle->productGetter() ),
+    product_(handle->id(), 0, handle->productGetter() ),
     view_( new View<T>( * handle ) ) {
     assert( handle->productGetter() == 0 );
   }
