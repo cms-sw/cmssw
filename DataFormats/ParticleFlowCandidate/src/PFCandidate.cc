@@ -47,14 +47,14 @@ ostream& reco::operator<<(ostream& out,
   out<<", E ="<<setw(7)<<c.energy()<<" ) ";
   out<<", iele = unknown";
   
-//   for(unsigned i=0; i<c.elementIndices_.size(); i++) {
-//     out<<c.elementIndices_[0]<<" ";
-//   }
+  //   for(unsigned i=0; i<c.elementIndices_.size(); i++) {
+  //     out<<c.elementIndices_[0]<<" ";
+  //   }
   
   out<<endl;
   out<<resetiosflags(ios::right|ios::fixed);
   
-  out<< *(c.blockRef_)<<endl;
+  //  out<< *(c.blockRef_)<<endl;
   
   return out;
 }
