@@ -13,6 +13,7 @@ namespace edm {
       BaseVectorHolder() {}
       virtual ~BaseVectorHolder() {}
       virtual BaseVectorHolder* clone() const = 0;
+      virtual BaseVectorHolder* cloneEmpty() const = 0;
       virtual base_ref_type const at(size_type idx) const = 0;
       virtual bool empty() const = 0;
       

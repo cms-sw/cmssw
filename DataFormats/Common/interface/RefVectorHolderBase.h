@@ -17,6 +17,7 @@ namespace edm {
       virtual ProductID id() const = 0;
       virtual EDProductGetter const* productGetter() const = 0;
       virtual RefVectorHolderBase * clone() const = 0;
+      virtual RefVectorHolderBase * cloneEmpty() const = 0;
       virtual void push_back( const RefHolderBase * r ) = 0;
       // the following structure is public 
       // to allow reflex dictionary to compile

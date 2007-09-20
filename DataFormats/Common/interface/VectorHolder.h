@@ -20,8 +20,10 @@ namespace edm {
 
       VectorHolder() {}
       explicit VectorHolder(const ref_vector_type& iRefVector) : refVector_(iRefVector) {}
+      explicit VectorHolder(const ProductID& id) : refVector_(id) {}
       virtual ~VectorHolder() {}
       virtual base_type* clone() const { return new VectorHolder(*this); }
+      virtual base_type* cloneEmpty() const { return new VectorHolder(refVector_.id()); }
       base_ref_type const at(size_type idx) const { return base_ref_type( refVector_.at( idx ) ); }
       bool empty() const { return refVector_.empty(); }
       size_type size() const { return refVector_.size(); }

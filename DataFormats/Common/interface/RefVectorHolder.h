@@ -22,6 +22,7 @@ namespace edm {
       virtual ProductID id() const;
       virtual EDProductGetter const* productGetter() const;
       virtual RefVectorHolder<REFV> * clone() const;
+      virtual RefVectorHolder<REFV> * cloneEmpty() const;
       void setRefs( const REFV & refs );
       virtual void reallyFillView( const void *, const ProductID &, std::vector<void const*> & );
 
@@ -112,6 +113,11 @@ namespace edm {
     template<typename REFV>
     RefVectorHolder<REFV> * RefVectorHolder<REFV>::clone() const {
       return new RefVectorHolder<REFV>( * this );
+    }
+
+    template<typename REFV>
+    RefVectorHolder<REFV> * RefVectorHolder<REFV>::cloneEmpty() const {
+      return new RefVectorHolder<REFV>( id() );
     }
 
     template<typename REFV>
