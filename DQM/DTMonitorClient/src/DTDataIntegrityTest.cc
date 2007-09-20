@@ -1,8 +1,9 @@
+
 /*
  * \file DTDataIntegrityTest.cc
  * 
- * $Date: 2007/06/19 10:20:52 $
- * $Revision: 1.9 $
+ * $Date: 2007/08/06 09:57:04 $
+ * $Revision: 1.10 $
  * \author S. Bolognesi - CERN
  *
  */
@@ -24,6 +25,7 @@
 using namespace std;
 using namespace edm;
 
+
 DTDataIntegrityTest::DTDataIntegrityTest(const ParameterSet& ps){
   
   edm::LogVerbatim ("dataIntegrity") << "[DTDataIntegrityTest]: Constructor";
@@ -35,7 +37,11 @@ DTDataIntegrityTest::DTDataIntegrityTest(const ParameterSet& ps){
 
   dbe = Service<DaqMonitorBEInterface>().operator->();
   dbe->setVerbose(1);
+
+  prescaleFactor = parameters.getUntrackedParameter<int>("diagnosticPrescale", 1);
+
 }
+
 
 DTDataIntegrityTest::~DTDataIntegrityTest(){
 
@@ -43,118 +49,73 @@ DTDataIntegrityTest::~DTDataIntegrityTest(){
 
 }
 
+
 void DTDataIntegrityTest::beginJob(const edm::EventSetup& context){
 
   edm::LogVerbatim ("dataIntegrity") << "[DTtTrigCalibrationTest]: BeginJob";
 
-  nSTAEvents = 0;
+  //nSTAEvents = 0;
   nupdates = 0;
+  run=0;
 }
 
 
-void DTDataIntegrityTest::endJob(){
 
-  edm::LogVerbatim ("dataIntegrity") <<"[DTDataIntegrityTest] endjob called!";
+void DTDataIntegrityTest::beginLuminosityBlock(LuminosityBlock const& lumiSeg, EventSetup const& context) {
 
-  if ( parameters.getUntrackedParameter<bool>("writeHisto", true) ) 
-    dbe->save(parameters.getUntrackedParameter<string>("outputFile", "DTDataIntegrityTest.root"));
-  
-  dbe->rmdir("DT/Tests/DTDataIntegrity");
+  edm::LogVerbatim ("dataIntegrity") <<"[DTtTrigCalibrationTest]: Begin of LS transition";
+
+  // Get the run number
+  run = lumiSeg.run();
+
 }
 
-void DTDataIntegrityTest::bookHistos(string histoType, int dduId){
-  stringstream dduId_s; dduId_s << dduId;
-  dbe->setCurrentFolder("DT/Tests/DTDataIntegrity/FED" + dduId_s.str());
-  string histoName;
 
-  if(histoType == "TTSValues_Percent"){
-    histoName = "FED" + dduId_s.str() + histoType;
-    (dduHistos[histoType])[dduId] = dbe->book1D(histoName,histoName,7,0,7);
-    ((dduHistos[histoType])[dduId])->setBinLabel(1,"disconnected",1);	
-    ((dduHistos[histoType])[dduId])->setBinLabel(2,"warning overflow",1);	
-    ((dduHistos[histoType])[dduId])->setBinLabel(3,"out of synch",1);	
-    ((dduHistos[histoType])[dduId])->setBinLabel(4,"busy",1);	
-    ((dduHistos[histoType])[dduId])->setBinLabel(5,"ready",1);	
-    ((dduHistos[histoType])[dduId])->setBinLabel(6,"error",1);	
-    ((dduHistos[histoType])[dduId])->setBinLabel(7,"disconnected",1);	
-  }
+
+void DTDataIntegrityTest::analyze(const edm::Event& e, const edm::EventSetup& context){
+
+  nevents++;
+  edm::LogVerbatim ("dataIntegrity") << "[DTtTrigCalibrationTest]: "<<nevents<<" events";
+
 }
 
-void DTDataIntegrityTest::bookTimeHistos(string histoType, int dduId, int evNumber){
-  stringstream dduId_s; dduId_s << dduId;
-  stringstream evNumber_s; evNumber_s << evNumber;
-  string histoName;
-  edm::LogVerbatim ("dataIntegrity") <<"Booking time histo "<<histoType<<" for ddu "<<dduId<<" from event "<<evNumber;
-
-  //Counter for x bin in the timing histos
-  counter = 1;//assuming synchronized booking for all histo VS time
-
-  if(histoType == "TTSVSTime"){
-    dbe->setCurrentFolder("DT/Tests/DTDataIntegrity/FED" + dduId_s.str()+ "/TimeInfo/TTSVSTime");
-    histoName = "FED" + dduId_s.str() + "_" + histoType + "_disconn_Ev" + evNumber_s.str();
-    ((dduVectorHistos[histoType])[dduId]).push_back(dbe->book1D(histoName,histoName,nTimeBin,evNumber,evNumber+nTimeBin));
-    histoName = "FED" + dduId_s.str() + histoType + "_overflow_Ev" + evNumber_s.str();
-    ((dduVectorHistos[histoType])[dduId]).push_back(dbe->book1D(histoName,histoName,nTimeBin,evNumber,evNumber+nTimeBin));
-    histoName = "FED" + dduId_s.str() + histoType + "_outSynch_Ev" + evNumber_s.str();
-    ((dduVectorHistos[histoType])[dduId]).push_back(dbe->book1D(histoName,histoName,nTimeBin,evNumber,evNumber+nTimeBin));
-    histoName = "FED" + dduId_s.str() + histoType + "_busy_Ev" + evNumber_s.str();
-    ((dduVectorHistos[histoType])[dduId]).push_back(dbe->book1D(histoName,histoName,nTimeBin,evNumber,evNumber+nTimeBin));
-    histoName = "FED" + dduId_s.str() + histoType + "_ready_Ev" + evNumber_s.str();
-    ((dduVectorHistos[histoType])[dduId]).push_back(dbe->book1D(histoName,histoName,nTimeBin,evNumber,evNumber+nTimeBin));
-    histoName = "FED" + dduId_s.str() + histoType + "_error_Ev" + evNumber_s.str();
-    ((dduVectorHistos[histoType])[dduId]).push_back(dbe->book1D(histoName,histoName,nTimeBin,evNumber,evNumber+nTimeBin));
-    histoName = "FED" + dduId_s.str() + histoType + "_disconnect_Ev" + evNumber_s.str();
-    ((dduVectorHistos[histoType])[dduId]).push_back(dbe->book1D(histoName,histoName,nTimeBin,evNumber,evNumber+nTimeBin));
-  }
-  else if(histoType == "ROSVSTime"){
-    dbe->setCurrentFolder("DT/Tests/DTDataIntegrity/FED" + dduId_s.str()+ "/TimeInfo/ROSVSTime");
-    histoName = "FED" + dduId_s.str() + "_" + histoType + "_Ev" + evNumber_s.str();
-    (dduHistos[histoType])[dduId] = dbe->book1D(histoName,histoName,nTimeBin,evNumber,evNumber+nTimeBin);
-  }
-  else if(histoType == "EventLenghtVSTime"){
-    dbe->setCurrentFolder("DT/Tests/DTDataIntegrity/FED" + dduId_s.str()+ "/TimeInfo/EvLenghtVSTime");
-    histoName = "FED" + dduId_s.str() + "_" + histoType + "_Ev" +  evNumber_s.str();
-    (dduHistos[histoType])[dduId] = dbe->book1D(histoName,histoName,nTimeBin,evNumber,evNumber+nTimeBin);
-  }
-  else if(histoType == "FIFOVSTime"){
-    dbe->setCurrentFolder("DT/Tests/DTDataIntegrity/FED" + dduId_s.str()+ "/TimeInfo/FIFOVSTime");
-    histoName = "FED" + dduId_s.str() + "_" + histoType + "_Input1_Ev" + evNumber_s.str();
-    ((dduVectorHistos[histoType])[dduId]).push_back(dbe->book1D(histoName,histoName,nTimeBin,evNumber,evNumber+nTimeBin));
-    histoName = "FED" + dduId_s.str() + "_" + histoType + "_Input2_Ev" + evNumber_s.str();
-    ((dduVectorHistos[histoType])[dduId]).push_back(dbe->book1D(histoName,histoName,nTimeBin,evNumber,evNumber+nTimeBin));
-    histoName = "FED" + dduId_s.str() + "_" + histoType + "_Input3_Ev" + evNumber_s.str();
-    ((dduVectorHistos[histoType])[dduId]).push_back(dbe->book1D(histoName,histoName,nTimeBin,evNumber,evNumber+nTimeBin));
-    histoName = "FED" + dduId_s.str() + "_" + histoType + "_L1A1_Ev" + evNumber_s.str();
-    ((dduVectorHistos[histoType])[dduId]).push_back(dbe->book1D(histoName,histoName,nTimeBin,evNumber,evNumber+nTimeBin));
-    histoName = "FED" + dduId_s.str() + "_" + histoType + "_L1A2_Ev" + evNumber_s.str();
-    ((dduVectorHistos[histoType])[dduId]).push_back(dbe->book1D(histoName,histoName,nTimeBin,evNumber,evNumber+nTimeBin));
-    histoName = "FED" + dduId_s.str() + "_" + histoType + "_L1A3_Ev" + evNumber_s.str();
-    ((dduVectorHistos[histoType])[dduId]).push_back(dbe->book1D(histoName,histoName,nTimeBin,evNumber,evNumber+nTimeBin));
-    histoName = "FED" + dduId_s.str() + "_" + histoType + "_Output_Ev" + evNumber_s.str();
-    ((dduVectorHistos[histoType])[dduId]).push_back(dbe->book1D(histoName,histoName,nTimeBin,evNumber,evNumber+nTimeBin));
-  }
-} 
 
 
-void DTDataIntegrityTest::analyze(const Event& e, const EventSetup& context){ 
+void DTDataIntegrityTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, EventSetup const& context) {
 
-  nSTAEvents++;
+  //nSTAEvents++;
  // if running in standalone perform diagnostic only after a reasonalbe amount of events
-  if ( parameters.getUntrackedParameter<bool>("runningStandalone", false) && 
-       nSTAEvents%parameters.getUntrackedParameter<int>("diagnosticPrescale", 1000) != 0 ) return;
-  // counts number of updats (online mode) or number of test (standalone mode)
+  //if ( parameters.getUntrackedParameter<bool>("runningStandalone", false) && 
+  //   nSTAEvents%parameters.getUntrackedParameter<int>("diagnosticPrescale", 1000) != 0 ) return;
+ 
+  edm::LogVerbatim ("dataIntegrity") <<"[DTDataIntegrityTest]: End of LS transition, performing the DQM client operation";
+
+  // counts number of lumiSegs 
+  nLumiSegs = lumiSeg.id().luminosityBlock();
+  stringstream nLumiSegs_s; nLumiSegs_s << nLumiSegs;
+
+  // prescale factor
+  if ( nLumiSegs%prescaleFactor != 0 ) return;
+
+
+  // counts number of updats 
   nupdates++;
  
-  int evNumber = e.id().event();
-  stringstream evNumber_s; evNumber_s << evNumber;
- 
   edm::LogVerbatim ("dataIntegrity") <<"[DTDataIntegrityTest]: "<<nupdates<<" updates";
-  edm::LogVerbatim ("dataIntegrity") <<"[DTDataIntegrityTest]: "<<evNumber<<" event number";
+  edm::LogVerbatim ("dataIntegrity") <<"[DTDataIntegrityTest]: "<<nLumiSegs<<" luminosity block number";
 
-  if(nupdates%nTimeBin == 0){
+  if(nupdates%nTimeBin == 0 && parameters.getUntrackedParameter<bool>("writeHisto", true)){
     edm::LogVerbatim ("dataIntegrity") <<"[DTDataIntegrityTest]: saving all histos";
-    dbe->save(parameters.getUntrackedParameter<string>("outputFile", "DTDataIntegrityTest.root"));
-   }
+    if(run == 0){
+      string rootFile = "DTDataIntegrityTest_0.root";
+      dbe->save(parameters.getUntrackedParameter<string>("outputFile", rootFile));
+    }
+    else{
+      stringstream runNumber; runNumber << run;
+      string rootFile = "DTDataIntegrityTest_" + runNumber.str() + ".root";
+      dbe->save(parameters.getUntrackedParameter<string>("outputFile", rootFile));
+    }
+  }
   
   //Counter for x bin in the timing histos
   counter++;
@@ -170,10 +131,10 @@ void DTDataIntegrityTest::analyze(const Event& e, const EventSetup& context){
       //if(nupdates>nTimeBin)
       //dbe->rmdir("DT/Tests/DTDataIntegrity/FED" + dduId_s.str() + "/TimeInfo"); //FIXME: it doesn't work anymore
       //    (dduVectorHistos.find("TTSVSTime")->second).find(dduId)->second.clear();
-      bookTimeHistos("TTSVSTime",dduId, evNumber);
-      bookTimeHistos("ROSVSTime",dduId, evNumber);
-      bookTimeHistos("EventLenghtVSTime",dduId,evNumber);
-      bookTimeHistos("FIFOVSTime",dduId,evNumber);
+      bookTimeHistos("TTSVSTime",dduId, nLumiSegs);
+      bookTimeHistos("ROSVSTime",dduId, nLumiSegs);
+      bookTimeHistos("EvLenghtVSTime",dduId,nLumiSegs);
+      bookTimeHistos("FIFOVSTime",dduId,nLumiSegs);
     }
 
     string histoType;
@@ -192,14 +153,14 @@ void DTDataIntegrityTest::analyze(const Event& e, const EventSetup& context){
 	    setBinContent(i,tts_histo->getBinContent(i)/tts_histo->getEntries());
 
 	  if(doTimeHisto){
-	    //Fill timing histos and set x label with event number
+	    //Fill timing histos and set x label with luminosity block number
 	    if( dduVectorHistos["TTSVSTime"].find(dduId) == dduVectorHistos["TTSVSTime"].end() ){
-	      bookTimeHistos("TTSVSTime",dduId,evNumber); 
+	      bookTimeHistos("TTSVSTime",dduId,nLumiSegs); 
 	    }
 	    (dduVectorHistos.find("TTSVSTime")->second).find(dduId)->second[i-1]->
 	      setBinContent(counter,tts_histo->getBinContent(i)/tts_histo->getEntries());
 	    (dduVectorHistos.find("TTSVSTime")->second).find(dduId)->second[i-1]->
-	      setBinLabel(counter, evNumber_s.str(), 1);
+	      setBinLabel(counter, nLumiSegs_s.str(), 1);
 	  }
 	}
 
@@ -241,13 +202,13 @@ void DTDataIntegrityTest::analyze(const Event& e, const EventSetup& context){
       edm::LogVerbatim ("dataIntegrity") <<"[DTDataIntegrityTest]:histo DDUROSList found";
 
       double rosNumber_mean = rosNumber_histo->getMean();
-      //Fill timing histos and set x label with event number
+      //Fill timing histos and set x label with luminosity block number
       histoType = "ROSVSTime";
       if (dduHistos[histoType].find(dduId) == dduHistos[histoType].end()) {
-	bookTimeHistos(histoType,dduId,evNumber);
+	bookTimeHistos(histoType,dduId,nLumiSegs);
       }
       (dduHistos.find(histoType)->second).find(dduId)->second->setBinContent(counter,rosNumber_mean);
-      (dduHistos.find(histoType)->second).find(dduId)->second->setBinLabel(counter, evNumber_s.str(), 1);
+      (dduHistos.find(histoType)->second).find(dduId)->second->setBinLabel(counter, nLumiSegs_s.str(), 1);
    }
 
     //Monitor the event lenght VS time
@@ -256,13 +217,13 @@ void DTDataIntegrityTest::analyze(const Event& e, const EventSetup& context){
        edm::LogVerbatim ("dataIntegrity") <<"[DTDataIntegrityTest]:histo DDUEventLenght found";
 
       double evLenght_mean = evLenght_histo->getMean();
-      //Fill timing histos and set x label with event number
-      histoType = "EventLenghtVSTime";
+      //Fill timing histos and set x label with luminosity block number
+      histoType = "EvLenghtVSTime";
       if (dduHistos[histoType].find(dduId) == dduHistos[histoType].end()) {
-	bookTimeHistos(histoType,dduId,evNumber);
+	bookTimeHistos(histoType,dduId,nLumiSegs);
       }
       (dduHistos.find(histoType)->second).find(dduId)->second->setBinContent(counter,evLenght_mean);
-      (dduHistos.find(histoType)->second).find(dduId)->second->setBinLabel(counter, evNumber_s.str(), 1);
+      (dduHistos.find(histoType)->second).find(dduId)->second->setBinLabel(counter, nLumiSegs_s.str(), 1);
 
       //FIXME: it does not reset the histo!!!
       MonitorElementT<TNamed>* ob = dynamic_cast<MonitorElementT<TNamed>*>( const_cast<MonitorElement*>(evLenght_histo) );
@@ -278,25 +239,51 @@ void DTDataIntegrityTest::analyze(const Event& e, const EventSetup& context){
      if (fifo_histo && doTimeHisto) {
        edm::LogVerbatim ("dataIntegrity") <<"[DTDataIntegrityTest]:histo DDUFIFOStatus found";
        
-       //Fill timing histos and set x label with event number
+       //Fill timing histos and set x label with luminosity block number
        histoType = "FIFOVSTime";
        if (dduVectorHistos[histoType].find(dduId) == dduVectorHistos[histoType].end()) {
-	 bookTimeHistos(histoType,dduId,evNumber);
+	 bookTimeHistos(histoType,dduId,nLumiSegs);
        }
        for(int i=1;i<8;i++){
 	 (dduVectorHistos.find("FIFOVSTime")->second).find(dduId)->second[i-1]->
 	   setBinContent(counter,(fifo_histo->getBinContent(i,1) + 2*(fifo_histo->getBinContent(i,2)))/fifo_histo->getEntries());
 	 (dduVectorHistos.find("FIFOVSTime")->second).find(dduId)->second[i-1]->
-	   setBinLabel(counter, evNumber_s.str(), 1);
+	   setBinLabel(counter, nLumiSegs_s.str(), 1);
        }
      }
   }
 
   //Save MEs in a root file
-  if ((nupdates%parameters.getUntrackedParameter<int>("saveResultsFrequency", 5)==0) && 
-      (parameters.getUntrackedParameter<bool>("writeHisto", true)) ) 
-    dbe->save(parameters.getUntrackedParameter<string>("outputFile", "DataIntegrityTest.root"));  
+  //if ((nupdates%parameters.getUntrackedParameter<int>("saveResultsFrequency", 5)==0) && 
+  //  (parameters.getUntrackedParameter<bool>("writeHisto", true)) ) 
+  //dbe->save(parameters.getUntrackedParameter<string>("outputFile", "DataIntegrityTest.root"));  
 }
+
+
+
+void DTDataIntegrityTest::endRun(){
+
+  if ( parameters.getUntrackedParameter<bool>("writeHisto", true) ) {
+    stringstream runNumber; runNumber << run;
+    string rootFile = "DTDataIntegrityTest_" + runNumber.str() + ".root";
+    dbe->save(parameters.getUntrackedParameter<string>("outputFile", rootFile));
+  }
+
+}
+
+
+
+void DTDataIntegrityTest::endJob(){
+
+  edm::LogVerbatim ("dataIntegrity") <<"[DTDataIntegrityTest] endjob called!";
+
+  //if ( parameters.getUntrackedParameter<bool>("writeHisto", true) ) 
+  //dbe->save(parameters.getUntrackedParameter<string>("outputFile", "DTDataIntegrityTest.root"));
+  
+  dbe->rmdir("DT/Tests/DTDataIntegrity");
+}
+
+
 
 string DTDataIntegrityTest::getMEName(string histoType, int FEDId){
   //Use the DDU name to find the ME
@@ -308,3 +295,79 @@ string DTDataIntegrityTest::getMEName(string histoType, int FEDId){
   string histoName = folderName + "/FED" + dduID_s.str() + "_" + histoType;
   return histoName;
 }
+
+
+
+void DTDataIntegrityTest::bookHistos(string histoType, int dduId){
+  stringstream dduId_s; dduId_s << dduId;
+  dbe->setCurrentFolder("DT/Tests/DTDataIntegrity/FED" + dduId_s.str());
+  string histoName;
+
+  if(histoType == "TTSValues_Percent"){
+    histoName = "FED" + dduId_s.str() + histoType;
+    (dduHistos[histoType])[dduId] = dbe->book1D(histoName,histoName,7,0,7);
+    ((dduHistos[histoType])[dduId])->setBinLabel(1,"disconnected",1);	
+    ((dduHistos[histoType])[dduId])->setBinLabel(2,"warning overflow",1);	
+    ((dduHistos[histoType])[dduId])->setBinLabel(3,"out of synch",1);	
+    ((dduHistos[histoType])[dduId])->setBinLabel(4,"busy",1);	
+    ((dduHistos[histoType])[dduId])->setBinLabel(5,"ready",1);	
+    ((dduHistos[histoType])[dduId])->setBinLabel(6,"error",1);	
+    ((dduHistos[histoType])[dduId])->setBinLabel(7,"disconnected",1);	
+  }
+}
+
+void DTDataIntegrityTest::bookTimeHistos(string histoType, int dduId, int nLumiSegs){
+  stringstream dduId_s; dduId_s << dduId;
+  stringstream nLumiSegs_s; nLumiSegs_s << nLumiSegs;
+  string histoName;
+  edm::LogVerbatim ("dataIntegrity") <<"Booking time histo "<<histoType<<" for ddu "<<dduId<<" from luminosity block "<<nLumiSegs;
+
+  //Counter for x bin in the timing histos
+  counter = 1;//assuming synchronized booking for all histo VS time
+
+  if(histoType == "TTSVSTime"){
+    dbe->setCurrentFolder("DT/Tests/DTDataIntegrity/FED" + dduId_s.str()+ "/TimeInfo/TTSVSTime");
+    histoName = "FED" + dduId_s.str() + "_" + histoType + "_disconn_LumBlock" + nLumiSegs_s.str();
+    ((dduVectorHistos[histoType])[dduId]).push_back(dbe->book1D(histoName,histoName,nTimeBin,nLumiSegs,nLumiSegs+nTimeBin));
+    histoName = "FED" + dduId_s.str() + histoType + "_overflow_LumBlock" + nLumiSegs_s.str();
+    ((dduVectorHistos[histoType])[dduId]).push_back(dbe->book1D(histoName,histoName,nTimeBin,nLumiSegs,nLumiSegs+nTimeBin));
+    histoName = "FED" + dduId_s.str() + histoType + "_outSynch_LumBlock" + nLumiSegs_s.str();
+    ((dduVectorHistos[histoType])[dduId]).push_back(dbe->book1D(histoName,histoName,nTimeBin,nLumiSegs,nLumiSegs+nTimeBin));
+    histoName = "FED" + dduId_s.str() + histoType + "_busy_LumBlock" + nLumiSegs_s.str();
+    ((dduVectorHistos[histoType])[dduId]).push_back(dbe->book1D(histoName,histoName,nTimeBin,nLumiSegs,nLumiSegs+nTimeBin));
+    histoName = "FED" + dduId_s.str() + histoType + "_ready_LumBlock" + nLumiSegs_s.str();
+    ((dduVectorHistos[histoType])[dduId]).push_back(dbe->book1D(histoName,histoName,nTimeBin,nLumiSegs,nLumiSegs+nTimeBin));
+    histoName = "FED" + dduId_s.str() + histoType + "_error_LumBlock" + nLumiSegs_s.str();
+    ((dduVectorHistos[histoType])[dduId]).push_back(dbe->book1D(histoName,histoName,nTimeBin,nLumiSegs,nLumiSegs+nTimeBin));
+    histoName = "FED" + dduId_s.str() + histoType + "_disconnect_LumBlock" + nLumiSegs_s.str();
+    ((dduVectorHistos[histoType])[dduId]).push_back(dbe->book1D(histoName,histoName,nTimeBin,nLumiSegs,nLumiSegs+nTimeBin));
+  }
+  else if(histoType == "ROSVSTime"){
+    dbe->setCurrentFolder("DT/Tests/DTDataIntegrity/FED" + dduId_s.str()+ "/TimeInfo/ROSVSTime");
+    histoName = "FED" + dduId_s.str() + "_" + histoType + "_LumBlock" + nLumiSegs_s.str();
+    (dduHistos[histoType])[dduId] = dbe->book1D(histoName,histoName,nTimeBin,nLumiSegs,nLumiSegs+nTimeBin);
+  }
+  else if(histoType == "EvLenghtVSTime"){
+    dbe->setCurrentFolder("DT/Tests/DTDataIntegrity/FED" + dduId_s.str()+ "/TimeInfo/EvLenghtVSTime");
+    histoName = "FED" + dduId_s.str() + "_" + histoType + "_LumBlock" +  nLumiSegs_s.str();
+    (dduHistos[histoType])[dduId] = dbe->book1D(histoName,histoName,nTimeBin,nLumiSegs,nLumiSegs+nTimeBin);
+  }
+  else if(histoType == "FIFOVSTime"){
+    dbe->setCurrentFolder("DT/Tests/DTDataIntegrity/FED" + dduId_s.str()+ "/TimeInfo/FIFOVSTime");
+    histoName = "FED" + dduId_s.str() + "_" + histoType + "_Input1_LumBlock" + nLumiSegs_s.str();
+    ((dduVectorHistos[histoType])[dduId]).push_back(dbe->book1D(histoName,histoName,nTimeBin,nLumiSegs,nLumiSegs+nTimeBin));
+    histoName = "FED" + dduId_s.str() + "_" + histoType + "_Input2_LumBlock" + nLumiSegs_s.str();
+    ((dduVectorHistos[histoType])[dduId]).push_back(dbe->book1D(histoName,histoName,nTimeBin,nLumiSegs,nLumiSegs+nTimeBin));
+    histoName = "FED" + dduId_s.str() + "_" + histoType + "_Input3_LumBlock" + nLumiSegs_s.str();
+    ((dduVectorHistos[histoType])[dduId]).push_back(dbe->book1D(histoName,histoName,nTimeBin,nLumiSegs,nLumiSegs+nTimeBin));
+    histoName = "FED" + dduId_s.str() + "_" + histoType + "_L1A1_LumBlock" + nLumiSegs_s.str();
+    ((dduVectorHistos[histoType])[dduId]).push_back(dbe->book1D(histoName,histoName,nTimeBin,nLumiSegs,nLumiSegs+nTimeBin));
+    histoName = "FED" + dduId_s.str() + "_" + histoType + "_L1A2_LumBlock" + nLumiSegs_s.str();
+    ((dduVectorHistos[histoType])[dduId]).push_back(dbe->book1D(histoName,histoName,nTimeBin,nLumiSegs,nLumiSegs+nTimeBin));
+    histoName = "FED" + dduId_s.str() + "_" + histoType + "_L1A3_LumBlock" + nLumiSegs_s.str();
+    ((dduVectorHistos[histoType])[dduId]).push_back(dbe->book1D(histoName,histoName,nTimeBin,nLumiSegs,nLumiSegs+nTimeBin));
+    histoName = "FED" + dduId_s.str() + "_" + histoType + "_Output_LumBlock" + nLumiSegs_s.str();
+    ((dduVectorHistos[histoType])[dduId]).push_back(dbe->book1D(histoName,histoName,nTimeBin,nLumiSegs,nLumiSegs+nTimeBin));
+  }
+} 
+

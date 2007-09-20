@@ -5,8 +5,8 @@
  * *
  *  DQM Client to check the data integrity
  *
- *  $Date: 2007/05/23 12:36:55 $
- *  $Revision: 1.4 $
+ *  $Date: 2007/08/06 09:57:04 $
+ *  $Revision: 1.5 $
  *  \author S. Bolognesi - INFN TO
  *   
  */
@@ -14,6 +14,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include <FWCore/Framework/interface/Event.h>
 #include <FWCore/Framework/interface/EventSetup.h>
+#include <FWCore/Framework/interface/LuminosityBlock.h>
 
 class DaqMonitorBEInterface;
 class MonitorElement;
@@ -45,11 +46,20 @@ protected:
   void bookHistos(std::string histoType, int dduId);
   void bookTimeHistos(std::string histoType, int dduId, int evNumber);
 
+  void beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& context) ;
+
+  /// DQM Client Diagnostic
+  void endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& c);
+
+  /// Save the plots into a file
+  void endRun();
+
+
 private:
 
   //Number of onUpdates
   int nupdates;
-  int nSTAEvents;
+  //int nSTAEvents;
   
   //If you want info VS time histos
   bool doTimeHisto;
@@ -57,6 +67,11 @@ private:
   int nTimeBin;
   //Counter between 0 and nTimeBin
   int counter;
+
+  int nevents;
+  unsigned int nLumiSegs;
+  int prescaleFactor;
+  int run;
 
   DaqMonitorBEInterface* dbe;
 
