@@ -36,32 +36,18 @@ class GctBlockUnpacker {
 
  private:
 
-  // convert functions for each type of block
-  /// unpack GCT EM Candidates
-  void blockToGctEmCand(const unsigned char * d, GctBlockHeader& hdr);
-
-  /// unpack GCT internal EM Candidates
-  void blockToGctInternEmCand(const unsigned char * d, GctBlockHeader& hdr);
-
-  /// unpack RCT EM Candidates
-  void blockToRctEmCand(const unsigned char * d, GctBlockHeader& hdr);
-
-  /// unpack Fibres
-  void blockToFibres(const unsigned char * d, GctBlockHeader& hdr);
-
-
- private:
-
   // source card mapping info
   SourceCardRouting srcCardRouting_;
 
-  // RCT crate map
-  std::map<unsigned, unsigned> rctCrate_;
+  typedef std::map<unsigned int, unsigned int> RctCrateMap; // RCT Crate Map typedef.
+  static RctCrateMap rctCrate_;  // And the RCT Crate Map itself.
 
-  // map of conversion functions
-  //   typedef  void (GctBlockUnpacker::*convFn)(const unsigned char*, GctBlockHeader&);
-  //   std::vector< unsigned, convFn > convertFn_;
+  // Typedefs for the block ID to unpack function mapping.
+  typedef void (GctBlockUnpacker::*PtrToUnpackFn)(const unsigned char *, const GctBlockHeader&);
+  typedef std::map<unsigned int, PtrToUnpackFn> BlockIdToUnpackFnMap;
   
+  static BlockIdToUnpackFnMap blockUnpackFn_;  // And the block ID to unpack function map itself.
+
   // collections of RCT objects
   L1CaloEmCollection* rctEm_;
 
@@ -71,6 +57,28 @@ class GctBlockUnpacker {
   L1GctInternEmCandCollection* gctInternEm_;  
   L1GctFibreCollection* gctFibres_;
 
+ private:  // FUNCTIONS
+
+  // convert functions for each type of block
+  /// unpack GCT EM Candidates
+  void blockToGctEmCand(const unsigned char * d, const GctBlockHeader& hdr);
+
+  /// unpack GCT internal EM Candidates
+  void blockToGctInternEmCand(const unsigned char * d, const GctBlockHeader& hdr);
+
+  /// unpack RCT EM Candidates
+  void blockToRctEmCand(const unsigned char * d, const GctBlockHeader& hdr);
+
+  /// unpack Fibres
+  void blockToFibres(const unsigned char * d, const GctBlockHeader& hdr);
+  
+  /// unpack Fibres and RCT EM Candidates
+  void blockToFibresAndToRctEmCand(const unsigned char * d, const GctBlockHeader& hdr);
+  
+  /// Do nothing
+  void blockDoNothing(const unsigned char * d, const GctBlockHeader& hdr) {}
+
 };
 
 #endif
+

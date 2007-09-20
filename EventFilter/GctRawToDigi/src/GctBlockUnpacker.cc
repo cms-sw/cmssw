@@ -12,6 +12,11 @@
 using std::cout;
 using std::endl;
 
+// INITIALISE STATIC VARIABLES
+GctBlockUnpacker::RctCrateMap GctBlockUnpacker::rctCrate_ = GctBlockUnpacker::RctCrateMap();
+GctBlockUnpacker::BlockIdToUnpackFnMap GctBlockUnpacker::blockUnpackFn_ = GctBlockUnpacker::BlockIdToUnpackFnMap();
+
+
 GctBlockUnpacker::GctBlockUnpacker() :
   rctEm_(0),
   gctIsoEm_(0),
@@ -19,27 +24,40 @@ GctBlockUnpacker::GctBlockUnpacker() :
   gctInternEm_(0),
   gctFibres_(0)
 {
+  static bool initClass = true;
+  
+  if(initClass)
+  {
+    initClass = false;
+    
+    // RCT crates
+    rctCrate_[0x81] = 4;
+    rctCrate_[0x89] = 0;
+    rctCrate_[0xC1] = 13;
+    rctCrate_[0xC9] = 9;
 
-  // RCT crates
-  rctCrate_[0x81] = 4;
-  rctCrate_[0x89] = 0;
-  rctCrate_[0xC1] = 13;
-  rctCrate_[0xC9] = 9;
-
-  // setup converter fn map
-//   convertFn_[0x68] = &GctBlockUnpacker::blockToGctEmCand;
-//   convertFn_[0x69] = &GctBlockUnpacker::blockToGctInternEmCand;
-//   convertFn_[0x81] = &GctBlockUnpacker::blockToRctEmCand;
-//   convertFn_[0x83] = &GctBlockUnpacker::blockToGctInternEmCand;
-//   convertFn_[0x88] = &GctBlockUnpacker::blockToGctInternEmCand;
-//   convertFn_[0x89] = &GctBlockUnpacker::blockToRctEmCand;
-//   convertFn_[0x8b] = &GctBlockUnpacker::blockToGctInternEmCand;
-//   convertFn_[0xc0] = &GctBlockUnpacker::blockToGctInternEmCand;
-//   convertFn_[0xc1] = &GctBlockUnpacker::blockToRctEmCand;
-//   convertFn_[0xc3] = &GctBlockUnpacker::blockToGctInternEmCand;
-//   convertFn_[0xc8] = &GctBlockUnpacker::blockToGctInternEmCand;
-//   convertFn_[0xc9] = &GctBlockUnpacker::blockToRctEmCand;
-//   convertFn_[0xcb] = &GctBlockUnpacker::blockToGctInternEmCand;
+    // Setup block unpack function map.
+    blockUnpackFn_[0x00] = &GctBlockUnpacker::blockDoNothing;
+    blockUnpackFn_[0x58] = &GctBlockUnpacker::blockDoNothing;
+    blockUnpackFn_[0x59] = &GctBlockUnpacker::blockDoNothing;
+    blockUnpackFn_[0x5f] = &GctBlockUnpacker::blockDoNothing;
+    blockUnpackFn_[0x68] = &GctBlockUnpacker::blockToGctEmCand;
+    blockUnpackFn_[0x69] = &GctBlockUnpacker::blockToGctInternEmCand;
+    blockUnpackFn_[0x6b] = &GctBlockUnpacker::blockDoNothing;
+    blockUnpackFn_[0x6f] = &GctBlockUnpacker::blockDoNothing; 
+    blockUnpackFn_[0x80] = &GctBlockUnpacker::blockToGctInternEmCand;
+    blockUnpackFn_[0x81] = &GctBlockUnpacker::blockToFibresAndToRctEmCand;
+    blockUnpackFn_[0x83] = &GctBlockUnpacker::blockToGctInternEmCand;
+    blockUnpackFn_[0x88] = &GctBlockUnpacker::blockToGctInternEmCand;
+    blockUnpackFn_[0x89] = &GctBlockUnpacker::blockToFibresAndToRctEmCand;
+    blockUnpackFn_[0x8b] = &GctBlockUnpacker::blockToGctInternEmCand;
+    blockUnpackFn_[0xc0] = &GctBlockUnpacker::blockToGctInternEmCand;
+    blockUnpackFn_[0xc1] = &GctBlockUnpacker::blockToFibresAndToRctEmCand;
+    blockUnpackFn_[0xc3] = &GctBlockUnpacker::blockToGctInternEmCand;
+    blockUnpackFn_[0xc8] = &GctBlockUnpacker::blockToGctInternEmCand;
+    blockUnpackFn_[0xc9] = &GctBlockUnpacker::blockToFibresAndToRctEmCand;
+    blockUnpackFn_[0xcb] = &GctBlockUnpacker::blockToGctInternEmCand;
+  }
 
 }
 
@@ -66,79 +84,16 @@ void GctBlockUnpacker::convertBlock(const unsigned char * data, GctBlockHeader& 
     return; 
   }
 
-  // if this is a fibre block unpack fibres
-  if (id==0x81 || id==0x89 || id==0xc1 || id==0xc9) {
-    this->blockToFibres(data, hdr);
-  }
-  
-  // unpack the block
-  //  CALL_GCT_CONVERT_FN((*this), convertFn_.find(id).second)(data, hdr);
-
-  switch (hdr.id()) {
-  case (0x00):
-    break;
-  case (0x58):
-    break;
-  case (0x59):
-    break;
-  case (0x5f) :
-    break;
-  case (0x68) :
-    blockToGctEmCand(data, hdr);
-    break;
-  case (0x69) : 
-    blockToGctInternEmCand(data, hdr);
-    break;
-  case (0x6b) :
-    break;
-  case (0x6f) :
-    break;
-  case (0x80) :
-    blockToGctInternEmCand(data, hdr);
-    break;
-  case (0x81) :
-    blockToRctEmCand(data, hdr);
-    break;
-  case (0x83) :
-    blockToGctInternEmCand(data, hdr);
-    break;
-  case (0x88) :
-    blockToGctInternEmCand(data, hdr);
-    break;
-  case (0x89) :
-    blockToRctEmCand(data, hdr);
-    break;
-  case (0x8b) :
-    blockToGctInternEmCand(data, hdr);
-    break;
-  case (0xc0) :
-    blockToGctInternEmCand(data, hdr);
-    break;
-  case (0xc1) :
-    blockToRctEmCand(data, hdr);
-    break;
-  case (0xc3) :
-    blockToGctInternEmCand(data, hdr);
-    break;
-  case (0xc8) :
-    blockToGctInternEmCand(data, hdr);
-    break;
-  case (0xc9) :
-    blockToRctEmCand(data, hdr);
-    break;
-  case (0xcb) :
-    blockToGctInternEmCand(data, hdr);
-    break;
-  default :
-    edm::LogError("GCT") << "Trying to unpack an identified block, ID=" << std::hex << hdr.id() << std::endl;
-    break;
-  }
+  // The header validity check above will protect against 
+  // the map::find() method returning the end of the map,
+  // assuming the GctBlockHeader definitions are up-to-date.
+  (this->*blockUnpackFn_.find(id)->second)(data, hdr);
 
 }
 
 
 // Output EM Candidates unpacking
-void GctBlockUnpacker::blockToGctEmCand(const unsigned char * d, GctBlockHeader& hdr) {
+void GctBlockUnpacker::blockToGctEmCand(const unsigned char * d, const GctBlockHeader& hdr) {
 
   LogDebug("GCT") << "Unpacking GCT output EM Cands" << std::endl;
 
@@ -178,7 +133,7 @@ void GctBlockUnpacker::blockToGctEmCand(const unsigned char * d, GctBlockHeader&
 
 
 // Internal EM Candidates unpacking
-void GctBlockUnpacker::blockToGctInternEmCand(const unsigned char * d, GctBlockHeader& hdr) {
+void GctBlockUnpacker::blockToGctInternEmCand(const unsigned char * d, const GctBlockHeader& hdr) {
 
   LogDebug("GCT") << "Unpacking internal EM Cands" << std::endl;
 
@@ -199,7 +154,7 @@ void GctBlockUnpacker::blockToGctInternEmCand(const unsigned char * d, GctBlockH
 
 // Input EM Candidates unpacking
 // this is the last time I deal the RCT bit assignment travesty!!!
-void GctBlockUnpacker::blockToRctEmCand(const unsigned char * d, GctBlockHeader& hdr) {
+void GctBlockUnpacker::blockToRctEmCand(const unsigned char * d, const GctBlockHeader& hdr) {
 
   LogDebug("GCT") << "Unpacking RCT EM Cands" << std::endl;
 
@@ -253,7 +208,7 @@ void GctBlockUnpacker::blockToRctEmCand(const unsigned char * d, GctBlockHeader&
 
 
 // Fibre unpacking
-void GctBlockUnpacker::blockToFibres(const unsigned char * d, GctBlockHeader& hdr) {
+void GctBlockUnpacker::blockToFibres(const unsigned char * d, const GctBlockHeader& hdr) {
 
   LogDebug("GCT") << "Unpacking GCT Fibres" << std::endl;
   
@@ -270,5 +225,10 @@ void GctBlockUnpacker::blockToFibres(const unsigned char * d, GctBlockHeader& hd
       ++p;
     }
   } 
+}
+
+void GctBlockUnpacker::blockToFibresAndToRctEmCand(const unsigned char * d, const GctBlockHeader& hdr) {
+  this->blockToFibres(d, hdr);
+  this->blockToRctEmCand(d, hdr);
 }
 
