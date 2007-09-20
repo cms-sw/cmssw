@@ -6,7 +6,7 @@
 //
 //THere are serious problems with this class!!!
 //findline() gets confused with random data looking like the markers
-//need to fix A.Tumanov
+//need to fix A.Tumanov 
 //
 
 #include "EventFilter/CSCRawToDigi/interface/CSCTMBData.h"
@@ -88,23 +88,35 @@ int CSCTMBData::TMBCRCcalc()
 }
 
 int CSCTMBData::UnpackTMB(unsigned short *buf) {
+  ///determine 2007 or 2006 version
+  unsigned short int firmwareVersion=2006;
+  int Ntbins = 0 ;
+  int NHeaderFrames = 0;
+  
+  int b0cLine = findLine(buf, 0xDB0C, 0, 10);
+  if ((b0cLine!=-1)&&((buf[b0cLine+1]&0xf000)==0xD000)&&((buf[b0cLine+2]&0xf000)==0xD000)
+      &&((buf[b0cLine+3]&0xf000)==0xD000)&&((buf[b0cLine+4]&0xf000)==0xD000)){
+    firmwareVersion=2007;
+    Ntbins = buf[b0cLine+19]&0xF8;
+    NHeaderFrames = buf[b0cLine+5]&0x3F;  
+  }
 
-  int b0cLine = findLine(buf, 0x6b0c, 0, 10);
-  if(b0cLine == -1) 
-    {
-      edm::LogError("CSCTMBData") << "+++ CSCTMBData warning: No b0c line!";
-      return 0;  
-    }
-  //
-  int Ntbins =  buf[b0cLine+1]&0x1f ;
-  int NHeaderFrames = buf[b0cLine+4]&0x1f;
-  //
+  if(b0cLine == -1) b0cLine = findLine(buf, 0x6B0C, 0, 10);
+  if(b0cLine != -1) {
+    firmwareVersion=2006;
+    Ntbins =  buf[b0cLine+1]&0x1f ;
+    NHeaderFrames = buf[b0cLine+4]&0x1f;
+  }
+  else {
+    edm::LogError("CSCTMBData") << "+++ CSCTMBData warning: No b0c line!";
+    return 0;  
+  }
+
   int TotTMBReadout = 27+Ntbins*6*5+1+Ntbins*2*4+2+8*256+8; //see tmb2004 manual (version v2p06) page54.
   int MaxSizeRPC = 1+Ntbins*2*4+1;
   int MaxSizeScope = 5;
   int e0bLine = findLine(buf, 0x6e0b, 0, TotTMBReadout);
   
-
   if(e0bLine == -1) 
     {
       edm::LogError("CSCTMBData") << "+++ CSCTMBData warning: No e0b line!";
@@ -112,13 +124,12 @@ int CSCTMBData::UnpackTMB(unsigned short *buf) {
       return 0;
     } 
 
-  memcpy(&theTMBHeader, buf, NHeaderFrames*2);
-
-  if(!theTMBHeader.check()) 
-    {
-      edm::LogError("CSCTMBData") << "+++ CSCTMBData warning: Bad TMB header e0bLine=" << std::hex << buf[e0bLine];
-      return 0;
-    }
+  theTMBHeader=CSCTMBHeader(buf);
+  
+  if(!theTMBHeader.check())   {
+    edm::LogError("CSCTMBData") << "+++ CSCTMBData warning: Bad TMB header e0bLine=" << std::hex << buf[e0bLine];
+    return 0;
+  }
 
   int afterHeader = theTMBHeader.sizeInWords();
 

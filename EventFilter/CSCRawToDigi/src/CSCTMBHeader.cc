@@ -6,116 +6,170 @@
 #include <string.h> // memcpy
 
 bool CSCTMBHeader::debug = false;
+short unsigned int CSCTMBHeader::firmwareVersion=2006;
 
-CSCTMBHeader::CSCTMBHeader() 
-{
-  bzero(this, 54);
-  nHeaderFrames = 26;
-  e0bline = 0x6E0B;
-  b0cline = 0x6B0C;
-  nTBins = 7; 
-  nCFEBs = 5;
+CSCTMBHeader::CSCTMBHeader() {
+  firmwareVersion=2006;
+  header2006.nHeaderFrames = 26;
+  header2006.e0bline = 0x6E0B;
+  header2006.b0cline = 0x6B0C;
+  header2006.nTBins = 7; 
+  header2006.nCFEBs = 5;
 }
 
-void CSCTMBHeader::setEventInformation(const CSCDMBHeader & dmbHeader) 
-{
-  cscID = dmbHeader.dmbID();
-  l1aNumber = dmbHeader.l1a();
-  bxnCount = dmbHeader.bxn();
+void CSCTMBHeader::setEventInformation(const CSCDMBHeader & dmbHeader) {
+  header2006.cscID = dmbHeader.dmbID();
+  header2006.l1aNumber = dmbHeader.l1a();
+  header2006.bxnCount = dmbHeader.bxn();
 }
 
+CSCTMBHeader::CSCTMBHeader(const CSCTMBStatusDigi & digi) {
+  CSCTMBHeader(digi.header());
+}
 
-std::vector<CSCCLCTDigi> CSCTMBHeader::CLCTDigis() const 
-{
+CSCTMBHeader::CSCTMBHeader(const unsigned short * buf) {
+  ///first determine the format
+  if (buf[0]==0xDB0C) {
+    firmwareVersion=2007;
+  }
+  else if (buf[0]==0x6B0C) {
+    firmwareVersion=2006;
+  }
+  else {
+    edm::LogError("CSCTMBHeader") <<"failed to determine TMB firmware version!!";
+  }
+    
+  ///now fill data
+  switch (firmwareVersion) {
+  case 2006:
+    memcpy(&header2006, buf, header2006.sizeInWords()*2);    
+    break;
+  case 2007:
+    memcpy(&header2007, buf, header2007.sizeInWords()*2);
+    break;
+  default:
+    edm::LogError("CSCTMBHeader")
+      <<"coundn't construct: TMB firmware version is bad/not defined!";
+    break;
+  }
+}	
+    
+
+std::vector<CSCCLCTDigi> CSCTMBHeader::CLCTDigis() const {
   std::vector<CSCCLCTDigi> result;
-
-  //std::cout<<"in the CLCTDigis now rev code is " << std::dec << FirmRevCode() <<std::endl;
   
-  ///fill digis here
-  /// for the zeroth clct:
-  int shape=0;
-  int type=0;
+  switch (firmwareVersion) {
+  case 2006: {
+    ///fill digis here
+    /// for the zeroth clct:
+    int shape=0;
+    int type=0;
   
-  if ( FirmRevCode() < 3769 ) { //3769 is may 25 2007 - date of firmware with halfstrip only patterns 
-    shape = clct0Shape();
-    type  = clct0StripType();
-  }else {//new firmware only halfstrip pattern => stripType==1 and shape is 4 bits 
-    shape = (clct0StripType()<<3)+clct0Shape();
-    type = 1;
+    if ( header2006.firmRevCode < 3769 ) { //3769 is may 25 2007 - date of firmware with halfstrip only patterns 
+    shape = header2006.clct0_shape;
+    type  = header2006.clct0_strip_type;
+    }else {//new firmware only halfstrip pattern => stripType==1 and shape is 4 bits 
+      shape = ( header2006.clct0_strip_type<<3)+header2006.clct0_shape;
+      type = 1;
+    }
+    CSCCLCTDigi digi0(header2006.clct0_valid, header2006.clct0_quality, shape, type, header2006.clct0_bend, 
+		      header2006.clct0_key, (header2006.clct0_cfeb_low)|(header2006.clct0_cfeb_high<<1), 
+		      header2006.clct0_bxn, 1);
+    digi0.setFullBX(header2006.bxnPreTrigger);
+    result.push_back(digi0);
+    
+    /// for the first clct:
+    if ( header2006.firmRevCode < 3769 ) { 
+      shape = header2006.clct1_shape;
+      type  = header2006.clct1_strip_type;;
+    } else {
+      shape = (header2006.clct1_strip_type<<3)+header2006.clct1_shape;
+      type = 1;
+    }
+    CSCCLCTDigi digi1(header2006.clct1_valid, header2006.clct1_quality, shape, type, header2006.clct1_bend,
+		      header2006.clct1_key, (header2006.clct1_cfeb_low)|(header2006.clct1_cfeb_high<<1),
+		      header2006.clct1_bxn, 2);
+    digi1.setFullBX(header2006.bxnPreTrigger);
+    result.push_back(digi1);
+    break;
   }
-  CSCCLCTDigi digi0(clct0Valid(),clct0Quality(),shape,type,clct0Bend(),
-		   clct0Key(),clct0CFEB(), clct0BXN(), 1);
-  digi0.setFullBX(BXNPreTrigger());
-  result.push_back(digi0);
-
-  /// for the first clct:
-  if ( FirmRevCode() < 3769 ) { 
-    shape = clct1Shape();
-    type  = clct1StripType();
-  } else {
-    shape = (clct1StripType()<<3)+clct1Shape();
-    type = 1;
+  case 2007: {
+    std::vector<CSCCLCTDigi> result;
+    CSCCLCTDigi digi0(header2007.clct0_valid, header2007.clct0_quality, header2007.clct0_shape, 1, 
+		      header2007.clct0_bend, header2007.clct0_key, 
+		      (header2007.clct0_cfeb_low)|(header2007.clct0_cfeb_high<<1),
+                      header2007.clct0_bxn, 1);
+    digi0.setFullBX(header2007.bxnPreTrigger);
+    result.push_back(digi0);
+    CSCCLCTDigi digi1(header2007.clct1_valid, header2007.clct1_quality, header2007.clct1_shape, 1,
+                      header2007.clct1_bend, header2007.clct1_key,
+                      (header2007.clct1_cfeb_low)|(header2007.clct1_cfeb_high<<1),
+                      header2007.clct1_bxn, 2);
+    digi1.setFullBX(header2007.bxnPreTrigger);
+    result.push_back(digi1);
+    break;
   }
-  CSCCLCTDigi digi1(clct1Valid(),clct1Quality(),shape,type,clct1Bend(),
-		   clct1Key(),clct1CFEB(), clct1BXN(), 2);
-  digi1.setFullBX(BXNPreTrigger());
-  result.push_back(digi1);
-  
+  default:
+    edm::LogError("CSCTMBHeader")
+      <<"Empty Digis: TMB firmware version is bad/not defined!"; 
+    break;
+  }
   return result;
 }
 
-std::vector<CSCCorrelatedLCTDigi> CSCTMBHeader::CorrelatedLCTDigis() const 
-{
-  std::vector<CSCCorrelatedLCTDigi> result;
-  
-  ///fill digis here
-  /// for the zeroth MPC word:
-  CSCCorrelatedLCTDigi digi(1, MPC_Muon0_valid(), MPC_Muon0_quality(), MPC_Muon0_wire(),
-			    MPC_Muon0_halfstrip_pat(), MPC_Muon0_clct_pattern(), 
-			    MPC_Muon0_bend(), MPC_Muon0_bx());
-  result.push_back(digi);
-  
-  /// for the first MPC word:
-  digi = CSCCorrelatedLCTDigi(2, MPC_Muon1_valid(), MPC_Muon1_quality(), MPC_Muon1_wire(),
-			      MPC_Muon1_halfstrip_pat(), MPC_Muon1_clct_pattern(), 
-			      MPC_Muon1_bend(), MPC_Muon1_bx());
+std::vector<CSCCorrelatedLCTDigi> CSCTMBHeader::CorrelatedLCTDigis() const {
+  std::vector<CSCCorrelatedLCTDigi> result;  
+  switch (firmwareVersion) {
+  case 2006: {
+    /// for the zeroth MPC word:
+    CSCCorrelatedLCTDigi digi(1, header2006.MPC_Muon0_vpf_, header2006.MPC_Muon0_quality_, 
+			      header2006.MPC_Muon0_wire_, header2006.MPC_Muon0_halfstrip_clct_pattern, 
+			      header2006.MPC_Muon0_clct_pattern_, header2006.MPC_Muon0_bend_, 
+			      header2006.MPC_Muon0_bx_);
+    result.push_back(digi);  
+    /// for the first MPC word:
+    digi = CSCCorrelatedLCTDigi(2, header2006.MPC_Muon1_vpf_, header2006.MPC_Muon1_quality_, 
+				header2006.MPC_Muon1_wire_, header2006.MPC_Muon1_halfstrip_clct_pattern,
+				header2006.MPC_Muon1_clct_pattern_, header2006.MPC_Muon1_bend_, 
+				header2006.MPC_Muon1_bx_);
+    result.push_back(digi);
+    break;
+  }
+  case 2007: {
+    break;
+  }
+  default:
+    edm::LogError("CSCTMBHeader")
+      <<"Empty CorrDigis: TMB firmware version is bad/not defined!";
+    break;
+  }
 
-
-  result.push_back(digi);
   return result;
 }
 
 
-
-
-
-
-std::ostream & operator<<(std::ostream & os, const CSCTMBHeader & hdr) 
-{
-
+std::ostream & operator<<(std::ostream & os, const CSCTMBHeader & hdr) {
   os << "...............TMB Header.................." << std::endl;
-  os << std::hex << "BOC LINE " << hdr.b0cline << " EOB " << hdr.e0bline << std::endl;
-  os << std::dec << "fifoMode = " << hdr.fifoMode << ", nTBins = " << hdr.nTBins << std::endl;
-  os << "dumpCFEBs = " << hdr.dumpCFEBs << ", nHeaderFrames = "
-     << hdr.nHeaderFrames << std::endl;
-  os << "boardID = " << hdr.boardID << ", cscID = " << hdr.cscID << std::endl;
-  os << "l1aNumber = " << hdr.l1aNumber << ", bxnCount = " << hdr.bxnCount << std::endl;
-  os << "preTrigTBins = " << hdr.preTrigTBins << ", nCFEBs = "<< hdr.nCFEBs<< std::endl;
-  os << "trigSourceVect = " << hdr.trigSourceVect
-     << ", activeCFEBs = " << hdr.activeCFEBs << std::endl;
-  os << "bxnPreTrigger = " << hdr.bxnPreTrigger << std::endl;
-  os << "tmbMatch = " << hdr.tmbMatch << " alctOnly = " << hdr.alctOnly
-     << " clctOnly = " << hdr.clctOnly
-     << " alctMatchTime = " << hdr.alctMatchTime << std::endl;
-  os << "hs_thresh = " << hdr.hs_thresh << ", ds_thresh = " << hdr.ds_thresh
+  os << std::hex << "BOC LINE " << hdr.header2006.b0cline << " EOB " << hdr.header2006.e0bline << std::endl;
+  os << std::dec << "fifoMode = " << hdr.header2006.fifoMode 
+     << ", nTBins = " << hdr.header2006.nTBins << std::endl;
+  os << "dumpCFEBs = " << hdr.header2006.dumpCFEBs << ", nHeaderFrames = "
+     << hdr.header2006.nHeaderFrames << std::endl;
+  os << "boardID = " << hdr.header2006.boardID << ", cscID = " << hdr.header2006.cscID << std::endl;
+  os << "l1aNumber = " << hdr.header2006.l1aNumber << ", bxnCount = " << hdr.header2006.bxnCount << std::endl;
+  os << "preTrigTBins = " << hdr.header2006.preTrigTBins << ", nCFEBs = "<< hdr.header2006.nCFEBs<< std::endl;
+  os << "trigSourceVect = " << hdr.header2006.trigSourceVect
+     << ", activeCFEBs = " << hdr.header2006.activeCFEBs << std::endl;
+  os << "bxnPreTrigger = " << hdr.header2006.bxnPreTrigger << std::endl;
+  os << "tmbMatch = " << hdr.header2006.tmbMatch << " alctOnly = " << hdr.header2006.alctOnly
+     << " clctOnly = " << hdr.header2006.clctOnly
+     << " alctMatchTime = " << hdr.header2006.alctMatchTime << std::endl;
+  os << "hs_thresh = " << hdr.header2006.hs_thresh << ", ds_thresh = " << hdr.header2006.ds_thresh
      << std::endl;
-  os << "clct0_key = " << hdr.clct0_key << " clct0_shape = " << hdr.clct0_shape
-     << " clct0_quality = " << hdr.clct0_quality << std::endl;
-  os << "r_buf_nbusy = " << hdr.r_buf_nbusy << std::endl;
+  os << "clct0_key = " << hdr.header2006.clct0_key << " clct0_shape = " << hdr.header2006.clct0_shape
+     << " clct0_quality = " << hdr.header2006.clct0_quality << std::endl;
+  os << "r_buf_nbusy = " << hdr.header2006.r_buf_nbusy << std::endl;
 
   os << "..................CLCT....................." << std::endl;
-
-
   return os;
-
 }

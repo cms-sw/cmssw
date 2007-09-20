@@ -1,154 +1,24 @@
 #ifndef CSCTMBHeader_h
 #define CSCTMBHeader_h
 
+///A.Tumanov Sept 18, 07
+
 #include <iostream>
 #include <iosfwd>
 #include <vector>
 #include "DataFormats/CSCDigi/interface/CSCTMBStatusDigi.h"
-
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 class CSCCLCTDigi;
 class CSCDMBHeader;
 class CSCCorrelatedLCTDigi;
-class CSCTMBHeader {
 
- public:
-  CSCTMBHeader();
-  CSCTMBHeader(const CSCTMBStatusDigi & digi)
-    {
-      memcpy(this, digi.header(), sizeInBytes()); 
-    }
-
-  uint16_t sizeInBytes() const {return 54;}
-
-  /// fills fields like bxn and l1a
-  void setEventInformation(const CSCDMBHeader &);
-  short unsigned int FIFOMode()        const {return fifoMode;}
-  short unsigned int DumpCFEBs()       const {return dumpCFEBs;}
-  short unsigned int NTBins()          const {return nTBins;}
-  short unsigned int BoardID()         const {return boardID;}
-  short unsigned int CSCID()           const {return cscID;}
-  short unsigned int BXNCount()        const {return bxnCount;}
-  short unsigned int L1ANumber()       const {return l1aNumber;}
-  short unsigned int PreTrigTBins()    const {return preTrigTBins;}
-  short unsigned int NCFEBs()          const {return nCFEBs;}
-  short unsigned int NHeaderFrames()   const {return nHeaderFrames;}
-  short unsigned int TrigSourceVect()  const {return trigSourceVect;}
-  short unsigned int ActiveCFEBs()     const {return activeCFEBs;}
-  short unsigned int InstantiatedCFEBs() const {return CFEBsInstantiated;}
-  short unsigned int BXNPreTrigger()   const {return bxnPreTrigger;}
-  short unsigned int SyncError()       const {return syncError;}
-  short unsigned int FirmRevCode()     const {return firmRevCode;}
-//  short unsigned int WordCnt()         const {return wordCnt;}  // TMB header word cnt
-//  short unsigned int CWordCnt()        const {return cWordCnt;} // "full" cathode word cnt
-  short unsigned int Bxn1Diff()        const {return bxn1Diff;}
-  short unsigned int Bxn0Diff()        const {return bxn0Diff;}
-  short unsigned int CLCTOnly()        const {return clctOnly;}
-  short unsigned int ALCTOnly()        const {return alctOnly;}
-  short unsigned int TMBMatch()        const {return tmbMatch;}
-  short unsigned int ALCTMatchTime()   const {return alctMatchTime;}
-  short unsigned int MPCAcceptLCT0()   const {return mpcAcceptLCT0;}
-  short unsigned int MPCAcceptLCT1()   const {return mpcAcceptLCT1;}
-  short unsigned int HSThresh()        const {return hs_thresh;}
-  short unsigned int DSThresh()        const {return ds_thresh;}
-
-
-  short unsigned int RPCExists()       const {return rpc_exists;}
-  short unsigned int RDRPCList()       const {return rd_rpc_list;}
-  short unsigned int RDNRPCs()         const {return rd_nrpcs;}
-  short unsigned int RPCReadEnable()   const {return rpc_read_enable;}
-  short unsigned int NLayersHit()      const {return r_nlayers_hit_vec;}
-  short unsigned int PopL1AMatch()     const {return pop_l1a_match_win;}
-
-  
-  short unsigned int MPC_Muon0_wire()          const {return MPC_Muon0_wire_;}
-  short unsigned int MPC_Muon0_clct_pattern()  const {return MPC_Muon0_clct_pattern_;}
-  short unsigned int MPC_Muon0_quality()       const {return MPC_Muon0_quality_;}
-  short unsigned int MPC_Muon0_halfstrip_pat() const {return MPC_Muon0_halfstrip_clct_pattern;}
-  short unsigned int MPC_Muon0_bend()          const {return MPC_Muon0_bend_;}
-  short unsigned int MPC_Muon0_sync()          const {return MPC_Muon0_SyncErr_;}
-  short unsigned int MPC_Muon0_bx()            const {return MPC_Muon0_bx_;}
-  short unsigned int MPC_Muon0_bc0()           const {return MPC_Muon0_bc0_;}
-  short unsigned int MPC_Muon0_cscid()         const {
-    return MPC_Muon0_cscid_low | (MPC_Muon0_cscid_bit4<<3);}
-  short unsigned int MPC_Muon0_valid()         const {return MPC_Muon0_vpf_;}
-  
-  short unsigned int MPC_Muon1_wire()          const {return MPC_Muon1_wire_;}
-  short unsigned int MPC_Muon1_clct_pattern()  const {return MPC_Muon1_clct_pattern_;}
-  short unsigned int MPC_Muon1_quality()       const {return MPC_Muon1_quality_;}
-  short unsigned int MPC_Muon1_halfstrip_pat() const {return MPC_Muon1_halfstrip_clct_pattern;}
-  short unsigned int MPC_Muon1_bend()          const {return MPC_Muon1_bend_;}
-  short unsigned int MPC_Muon1_sync()          const {return MPC_Muon1_SyncErr_;}
-  short unsigned int MPC_Muon1_bx()            const {return MPC_Muon1_bx_;}
-  short unsigned int MPC_Muon1_bc0()           const {return MPC_Muon1_bc0_;}
-  short unsigned int MPC_Muon1_cscid()         const {
-    return MPC_Muon1_cscid_low | (MPC_Muon1_cscid_bit4<<3);}
-  short unsigned int MPC_Muon1_valid()         const {return MPC_Muon1_vpf_;}
- 
-
-
-  short unsigned int ALCT_delay()   const {return alct_delay;}
-  ///unsigned int clct0Word() const {return (CLCT0_low)|(CLCT0_high<<15);}
-  ///unsigned int clct1Word() const {return (CLCT1_low)|(CLCT1_high<<15);}
-  ///unsigned int clct0Word_low()  const {return (CLCT0_low) ;}
-  ///unsigned int clct0Word_high() const {return (CLCT0_high);}
-  ///these words are replaced by smaller constituents below:
-  unsigned short int clct0Valid()     const {return clct0_valid;} 
-  unsigned short int clct0Quality()   const {return clct0_quality;} 
-  unsigned short int clct0Shape()     const {return clct0_shape;} 
-  unsigned short int clct0StripType() const {return clct0_strip_type;} 
-  unsigned short int clct0Bend()      const {return clct0_bend;} 
-  unsigned short int clct0Key()       const {return clct0_key;} 
-  unsigned short int clct0CFEB()      const {return (clct0_cfeb_low)|(clct0_cfeb_high<<1);} 
-  unsigned short int clct0BXN()       const {return clct0_bxn;} 
-  unsigned short int clct0SyncErr()   const {return clct0_sync_err;} 
-  unsigned short int clct0BX0Local()  const {return clct0_bx0_local;} 
-
-  unsigned short int clct1Valid()     const {return clct1_valid;} 
-  unsigned short int clct1Quality()   const {return clct1_quality;} 
-  unsigned short int clct1Shape()     const {return clct1_shape;} 
-  unsigned short int clct1StripType() const {return clct1_strip_type;} 
-  unsigned short int clct1Bend()      const {return clct1_bend;} 
-  unsigned short int clct1Key()       const {return clct1_key;} 
-  unsigned short int clct1CFEB()      const {return (clct1_cfeb_low)|(clct1_cfeb_high<<1);} 
-  unsigned short int clct1BXN()       const {return clct1_bxn;} 
-  unsigned short int clct1SyncErr()   const {return clct1_sync_err;} 
-  unsigned short int clct1BX0Local()  const {return clct1_bx0_local;} 
-
- 
-
-  ///returns CLCT digis
-  std::vector<CSCCLCTDigi> CLCTDigis() const;
-
-  ///returns CorrelatedLCT digis
-  std::vector<CSCCorrelatedLCTDigi> CorrelatedLCTDigis() const;
-
-  ///these are broken into smaller words above
-  /*unsigned int CLCT(const unsigned int index) const {
-    if      (index == 0) return clct0Word();
-    else if (index == 1) return clct1Word();
-    else {
-    //std::cout << "+++ CSCTMBHeader:CLCT(): called with illegal index = "
-      //	   << index << "! +++" << std::endl;
-      return 0;
-      }
-    }
-  */
-
-  /// in 16-bit words.  Add olne because we include beginning(b0c) and
-  /// end (e0c) flags
-  unsigned short int sizeInWords() const     {return nHeaderFrames+1;}
-  
-  unsigned short * data() {return (unsigned short *) this;}
-
-//  void SetCWordCnt(const unsigned short value) {cWordCnt = value;}
-
-  /** turns on/off debug flag for this class */
-  static void setDebug(const bool value) {debug = value;}
-
-  bool check() const {return e0bline==0x6e0b;}
-
-  friend std::ostream & operator<<(std::ostream & os, const CSCTMBHeader & hdr);
-private:
+struct CSCTMBHeader2006 {///this struct is for 2006 and earlier versions of dataformat
+  CSCTMBHeader2006() {
+    bzero(this, sizeInWords()*2);
+  }
+  short unsigned int sizeInWords() const {//size of TMBHeader
+    return 27;
+  }
   unsigned b0cline:16;
   unsigned nTBins:5, dumpCFEBs:7, fifoMode:3, reserved_1:1;
   unsigned l1aNumber:4, cscID:4, boardID:5, l1atype:2, reserved_2:1 ;
@@ -158,45 +28,37 @@ private:
   unsigned activeCFEBs:5, CFEBsInstantiated:5, runID:4, reserved_6:2;
   unsigned bxnPreTrigger:12, syncError:1, reserved_7:3;
 
-
-  ///these words are broken into smaller pieces
-  ///unsigned CLCT0_low:15, reserved_8:1;
-  ///unsigned CLCT1_low:15, reserved_9:1;
-  ///line 10 (counting from 0)
-  ///unsigned CLCT0_high:6, CLCT1_high:6;
-  
   unsigned clct0_valid      :1;
   unsigned clct0_quality    :3;
   unsigned clct0_shape      :3;
-  unsigned clct0_strip_type :1; 
-  unsigned clct0_bend       :1; 
+  unsigned clct0_strip_type :1;
+  unsigned clct0_bend       :1;
   unsigned clct0_key        :5;
-  unsigned clct0_cfeb_low   :1;  
+  unsigned clct0_cfeb_low   :1;
   unsigned reserved_8       :1;
 
   unsigned clct1_valid      :1;
   unsigned clct1_quality    :3;
   unsigned clct1_shape      :3;
-  unsigned clct1_strip_type :1; 
-  unsigned clct1_bend       :1; 
+  unsigned clct1_strip_type :1;
+  unsigned clct1_bend       :1;
   unsigned clct1_key        :5;
-  unsigned clct1_cfeb_low   :1;  
+  unsigned clct1_cfeb_low   :1;
   unsigned reserved_9       :1;
 
   unsigned clct0_cfeb_high  :2;
   unsigned clct0_bxn        :2;
   unsigned clct0_sync_err   :1;
-  unsigned clct0_bx0_local  :1;  
+  unsigned clct0_bx0_local  :1;
   unsigned clct1_cfeb_high  :2;
   unsigned clct1_bxn        :2;
   unsigned clct1_sync_err   :1;
   unsigned clct1_bx0_local  :1;
-  unsigned invalidPattern   :1; 
+  unsigned invalidPattern   :1;
   unsigned reserved_10      :3;
 
   unsigned tmbMatch:1, alctOnly:1, clctOnly:1, bxn0Diff:2, bxn1Diff:2,
-           alctMatchTime:4, reserved_11:5;
-
+    alctMatchTime:4, reserved_11:5;
 
   unsigned MPC_Muon0_wire_         : 7;
   unsigned MPC_Muon0_clct_pattern_ : 4;
@@ -235,7 +97,6 @@ private:
   unsigned ds_thresh             : 3;
   unsigned reserved_16_2:2;
 
-
   unsigned buffer_info_0:16;
   unsigned r_buf_nbusy:4; unsigned buffer_info_1:12;
   unsigned buffer_info_2:16;
@@ -249,14 +110,178 @@ private:
   unsigned r_nlayers_hit_vec:3;
   unsigned pop_l1a_match_win:4;
   unsigned reserved_22:2;
-  
+
   unsigned bd_status :14;  unsigned reserved_23:2;
   unsigned uptime :14;  unsigned reserved_24:2;
   unsigned firmRevCode:14, reserved_25:2;
-  /// constant 6e0b
   unsigned e0bline:16;
-  static bool debug;
+};
 
+
+struct CSCTMBHeader2007 {///this struct is for 2007 version of dataformat
+  CSCTMBHeader2007() {
+    bzero(this, sizeInWords()*2);
+  }
+  short unsigned int sizeInWords() const {//size of TMBHeader
+    return 43;
+  }
+  unsigned b0cline:16;
+  unsigned bxnCount:12, dduCode1:3, flag1:1;
+  unsigned l1aNumber:12, dduCode2:3, flag2:1;
+  unsigned readoutCounter:12, dduCode3:3, flag3:1;
+  unsigned boardID:5, cscID:4, runID:4, stackOvf:1, syncError:1, flag4:1;
+  unsigned nHeaderFrames:6, fifoMode:3, r_type:2, l1atype:2, hasBuf:1, bufFull:1, flag5:1;
+  unsigned bd_status:15, flag6:1;
+  unsigned firmRevCode:15, flag7:1;
+  unsigned bxnPreTrigger:12, reserved:3, flag8:1; 
+  unsigned preTrigCounterLow:15, flag9:1;
+  unsigned preTrigCounterHigh:15, flag10:1;
+  unsigned clctCounterLow:15, flag11:1;
+  unsigned clctCounterHigh:15, flag12:1;
+  unsigned trigCounterLow:15, flag13:1;
+  unsigned trigCounterHigh:15, flag14:1;
+  unsigned alctCounterLow:15, flag15:1;
+  unsigned alctCounterHigh:15, flag16:1;
+  unsigned uptimeCounterLow:15, flag17:1;
+  unsigned uptimeCounterHigh:15, flag18:1;
+  unsigned nCFEBs:3, nTBins:5, fifoPretrig:5, scopeExists:1, vmeExists:1, flag19:1;
+  unsigned hitThresh:3, pidThresh:4, nphThresh:3, lyrThresh:3, layerTrigEnabled:1, staggerCSC:1, flag20:1;
+  unsigned triadPersist:4, dmbThresh:3, alct_delay:4, clct_width:4, flag21:1;
+  unsigned trigSourceVect:8, r_nlayers_hit_vec:6, flag22:1;
+  unsigned activeCFEBs:5, readCFEBs:5, pop_l1a_match_win:4, layerTriggered:1, flag23:1;
+  unsigned tmbMatch:1, alctOnly:1, clctOnly:1, matchWin:4, noTMBTrig:1, noMPCFrame:1, noMPCResponse:1, reserved1:5, flag24:1;
+  unsigned clct0_valid:1, clct0_quality:3, clct0_shape:4, clct0_bend:1, clct0_key:5, clct0_cfeb_low:1, flag25:1;
+  unsigned clct1_valid:1, clct1_quality:3, clct1_shape:4, clct1_bend:1, clct1_key:5, clct1_cfeb_low:1, flag26:1;
+  unsigned clct0_cfeb_high:2, clct0_bxn:2, clct0_sync_err:1, clct0_bx0_local:1, clct1_cfeb_high:2, clct1_bxn:2, clct1_sync_err:1, clct1_bx0_local:1, clct0Invalid:1, clct1Invalid:1, clct1Busy:1, flag27:1;
+  unsigned alct0Valid:1, alct0Quality:2, alct0Amu:2, alct0Key:7, reserved2:4, flag28:1;
+  unsigned alct1Valid:1, alct1Quality:2, alct1Amu:2, alct1Key:7, reserved3:4, flag29:1;
+  unsigned alctBXN:5, alctSeqStatus:2, alctSEUStatus:2, alctReserved:4, alctCfg:1, reserved4:1, flag30;
+
+  unsigned MPC0ALCTKeywire:7, MPC0CLCTPat:3, MPC0CLCTHsds:1, MPC0Quality:4, flag31:1;
+  unsigned MPC0CLCTCFEBKey:8, MPC0CLCTBend:1, MPC0SyncErr:1, MPC0bxn:1, MPC0bx0:1, MPC0CSCIdLow:3, flag32:1;
+  unsigned MPC1ALCTKeywire:7, MPC1CLCTPat:3, MPC1CLCTHsds:1, MPC1Quality:4, flag33:1;
+  unsigned MPC1CLCTCFEBKey:8, MPC1CLCTBend:1, MPC1SyncErr:1, MPC1bxn:1, MPC1bx0:1, MPC1CSCIdLow:3, flag34:1;
+  unsigned MPC0vpf:1, MPC0CSCIdBit4:1, MPC1vpf:1, MPC1CSCIdBit4:1, MPCDelay:4, MPCAccept:2, CFEBsEnabled:5, flag35:1;
+  unsigned RPCExists:2, RPCList:2, NRPCs:2, RPCEnable:1, RPCMatch:8, flag36:1;
+  unsigned addrPretrig:12, bufReady:1, reserved5:2, flag37:1;
+  unsigned addrL1a:12, reserved6:3, flag38:1;
+  unsigned reserved7:15, flag39:1;
+  unsigned reserved8:15, flag40:1;
+  unsigned reserved9:15, flag41:1;
+  unsigned e0bline:16;
+};
+
+
+class CSCTMBHeader {
+
+ public:
+  CSCTMBHeader();
+  CSCTMBHeader(const CSCTMBStatusDigi & digi);
+  /// fills fields like bxn and l1a
+  void setEventInformation(const CSCDMBHeader &);
+  CSCTMBHeader(const unsigned short * buf);
+
+  uint16_t sizeInBytes() const {
+    switch (firmwareVersion) {
+    case 2006:
+      return header2006.sizeInWords()*2;
+    case 2007:
+      return header2007.sizeInWords()*2;
+    default:
+      edm::LogError("CSCTMBHeader")
+	<<"coundn't get size: TMB firmware version is bad/not defined!";
+      break;
+    }
+  }
+
+  uint16_t NTBins() const {
+    switch (firmwareVersion) {
+    case 2006:
+      return header2006.nTBins;
+    case 2007:
+      return header2007.nTBins;
+    default:
+      edm::LogError("CSCTMBHeader")
+        <<"coundn't get tbin: TMB firmware version is bad/not defined!";
+      break;
+    }
+  }
+  uint16_t NCFEBs() const {
+    switch (firmwareVersion) {
+    case 2006:
+      return header2006.nCFEBs;
+    case 2007:
+      return header2007.nCFEBs;
+    default:
+      edm::LogError("CSCTMBHeader")
+        <<"coundn't get ncfebs: TMB firmware version is bad/not defined!";
+      break;
+    }
+  }
+
+
+  ///returns CLCT digis
+  std::vector<CSCCLCTDigi> CLCTDigis() const;
+  ///returns CorrelatedLCT digis
+  std::vector<CSCCorrelatedLCTDigi> CorrelatedLCTDigis() const;
+ 
+  
+  /// in 16-bit words.  Add olne because we include beginning(b0c) and
+  /// end (e0c) flags
+  unsigned short int sizeInWords() const     {return NHeaderFrames()+1;}
+
+  unsigned short int NHeaderFrames() const {
+    switch (firmwareVersion) {
+    case 2006:
+      return header2006.nHeaderFrames;
+    case 2007:
+      return header2007.nHeaderFrames;
+    default:
+      edm::LogError("CSCTMBHeader")
+        <<"coundn't header frames: TMB firmware version is bad/not defined!";
+      break;
+    }
+  }
+  
+  unsigned short * data() {
+    switch (firmwareVersion) {
+    case 2006:
+      memcpy(theOriginalBuffer, &header2006, header2006.sizeInWords()*2);
+    case 2007:
+      memcpy(theOriginalBuffer, &header2006, header2006.sizeInWords()*2);
+    default:
+      edm::LogError("CSCTMBHeader")
+        <<"coundn't access data: TMB firmware version is bad/not defined!";
+      break;
+    }
+    return theOriginalBuffer;
+  }
+  
+  /** turns on/off debug flag for this class */
+  static void setDebug(const bool value) {debug = value;}
+  
+  bool check() const {
+    switch (firmwareVersion) {
+    case 2006:
+      return header2006.e0bline==0x6e0b;
+    case 2007:
+      return header2007.e0bline==0x6e0b;
+    default:
+      edm::LogError("CSCTMBHeader")
+        <<"checked and TMB firmware version is bad/not defined!";
+      return false;
+    }
+  }
+  
+  friend std::ostream & operator<<(std::ostream & os, const CSCTMBHeader & hdr);
+
+private:
+  CSCTMBHeader2006 header2006;
+  CSCTMBHeader2007 header2007;
+
+  unsigned short * theOriginalBuffer;
+  static bool debug;
+  static unsigned short int firmwareVersion;
 };
 
 #endif
