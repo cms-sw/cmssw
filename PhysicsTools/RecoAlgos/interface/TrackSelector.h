@@ -7,9 +7,9 @@
  * 
  * \author Luca Lista, INFN
  *
- * \version $Revision: 1.17 $
+ * \version $Revision: 1.18 $
  *
- * $Id: TrackSelector.h,v 1.17 2007/08/01 11:50:45 llista Exp $
+ * $Id: TrackSelector.h,v 1.18 2007/09/18 13:50:55 ratnik Exp $
  *
  */
 #include "DataFormats/TrackReco/interface/Track.h"
@@ -21,7 +21,7 @@
 namespace helper {
   struct TrackCollectionStoreManager {
     typedef reco::TrackCollection collection;
-    TrackCollectionStoreManager() :
+    TrackCollectionStoreManager(const edm::Handle<reco::TrackCollection>&) :
       selTracks_( new reco::TrackCollection ),
       selTrackExtras_( new reco::TrackExtraCollection ),
       selHits_( new TrackingRecHitCollection ) {

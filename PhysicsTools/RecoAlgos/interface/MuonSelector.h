@@ -8,9 +8,9 @@
  * 
  * \author Javier Fernandez, IFCA
  *
- * \version $Revision: 1.4 $
+ * \version $Revision: 1.5 $
  *
- * $Id: MuonSelector.h,v 1.4 2007/08/01 11:50:45 llista Exp $
+ * $Id: MuonSelector.h,v 1.5 2007/08/02 13:58:30 rahatlou Exp $
  *
  */
 #include "DataFormats/MuonReco/interface/Muon.h"
@@ -22,7 +22,7 @@
 namespace helper {
   struct MuonCollectionStoreManager {
     typedef reco::MuonCollection collection;
-    MuonCollectionStoreManager() :
+    MuonCollectionStoreManager(const edm::Handle<reco::MuonCollection>&) :
       selMuons_( new reco::MuonCollection ),
       selTracks_( new reco::TrackCollection ),
       selTracksExtras_( new reco::TrackExtraCollection ),

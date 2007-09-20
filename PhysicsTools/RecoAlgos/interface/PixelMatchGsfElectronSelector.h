@@ -7,9 +7,9 @@
  * 
  * \author Luca Lista, INFN
  *
- * \version $Revision: 1.1 $
+ * \version $Revision: 1.2 $
  *
- * $Id: PixelMatchGsfElectronSelector.h,v 1.1 2007/06/14 09:28:27 meridian Exp $
+ * $Id: PixelMatchGsfElectronSelector.h,v 1.2 2007/08/01 11:50:45 llista Exp $
  *
  */
 
@@ -23,7 +23,7 @@
 namespace helper {
   struct PixelMatchGsfElectronCollectionStoreManager {
     typedef reco::PixelMatchGsfElectronCollection collection;
-    PixelMatchGsfElectronCollectionStoreManager() :
+    PixelMatchGsfElectronCollectionStoreManager(const edm::Handle<reco::PixelMatchGsfElectronCollection>&) :
       selElectrons_( new reco::PixelMatchGsfElectronCollection ),
       selSuperClusters_( new reco::SuperClusterCollection ),
       selTracks_( new reco::GsfTrackCollection ),
