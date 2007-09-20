@@ -5,15 +5,22 @@ using namespace reco;
 using namespace std;
 
 TaggingVariableList TrackIPTagInfo::taggingVariables(void) const {
- TaggingVariableList vars;
- 
-   std::vector<TrackIPData>::const_iterator it=m_data.begin();
-   std::vector<TrackIPData>::const_iterator itEnd=m_data.end();
-   for(;it!=itEnd;++it)
-    {
-      vars.insert(TaggingVariable(reco::btau::trackSip3d,it->ip3d.significance()));
-      vars.insert(TaggingVariable(reco::btau::trackSip2d,it->ip2d.significance()));
-    } 
+  TaggingVariableList vars;
+
+  std::vector<size_t> indexes = sortedIndexes(); // use default criterium
+  for(std::vector<size_t>::const_iterator it = indexes.begin();
+      it != indexes.end(); ++it)
+   {
+     const TrackIPData *data = &m_data[*it];
+     vars.insert(TaggingVariable(reco::btau::trackSip3dVal, data->ip3d.value()));
+     vars.insert(TaggingVariable(reco::btau::trackSip3dSig, data->ip3d.significance()));
+     vars.insert(TaggingVariable(reco::btau::trackSip2dVal, data->ip2d.value()));
+     vars.insert(TaggingVariable(reco::btau::trackSip2dSig, data->ip2d.significance()));
+//     vars.insert(TaggingVariable(reco::btau::trackDecayLenVal, data->));
+//     vars.insert(TaggingVariable(reco::btau::trackDecayLenSig, data->));
+     vars.insert(TaggingVariable(reco::btau::trackJetDist, data->distanceToJetAxis));
+     vars.insert(TaggingVariable(reco::btau::trackFirstTrackDist, data->distanceToFirstTrack));
+   } 
  return vars;
 }
 

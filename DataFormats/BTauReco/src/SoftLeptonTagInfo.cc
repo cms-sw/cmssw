@@ -17,17 +17,17 @@ TaggingVariableList SoftLeptonTagInfo::taggingVariables(void) const {
 
   for (unsigned int i = 0; i < m_leptons.size(); ++i) {
     const Track & track = *(m_leptons[i].first);
-    list.insert( TaggingVariable(trackMomemtum,  track.p()),     true );
+    list.insert( TaggingVariable(trackMomentum,  track.p()),     true );
     list.insert( TaggingVariable(trackEta,       track.eta()),   true );
     list.insert( TaggingVariable(trackPhi,       track.phi()),   true );
     const SoftLeptonProperties & data = m_leptons[i].second;
     list.insert( TaggingVariable(leptonQuality , data.quality),  true );
-    list.insert( TaggingVariable(trackSip2d,     data.sip2d),    true );
-    list.insert( TaggingVariable(trackSip3d,     data.sip3d),    true );
+    list.insert( TaggingVariable(trackSip2dSig,  data.sip2d),    true );
+    list.insert( TaggingVariable(trackSip3dSig,  data.sip3d),    true );
     list.insert( TaggingVariable(trackPtRel,     data.ptRel),    true );
     list.insert( TaggingVariable(trackEtaRel,    data.etaRel),   true );
     list.insert( TaggingVariable(trackDeltaR,    data.deltaR),   true );
-    list.insert( TaggingVariable(trackPparRatio, data.ratioRel), true );
+    list.insert( TaggingVariable(trackPParRatio, data.ratioRel), true );
   }
 
   list.finalize();

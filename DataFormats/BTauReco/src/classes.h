@@ -28,6 +28,7 @@
 #include "DataFormats/BTauReco/interface/CombinedTauTagInfo.h"
 #include "DataFormats/BTauReco/interface/PFCombinedTauTagInfo.h"
 #include "DataFormats/BTauReco/interface/CombinedSVTagInfo.h"
+#include "DataFormats/BTauReco/interface/SecondaryVertexTagInfo.h"
 #include "DataFormats/BTauReco/interface/SoftLeptonTagInfo.h"
 #include "DataFormats/BTauReco/interface/TauImpactParameterInfo.h"
 #include "DataFormats/BTauReco/interface/TauMassTagInfo.h"
@@ -56,12 +57,22 @@ namespace {
     reco::JetTagRefVector                                               jt_rv;
     edm::Wrapper<reco::JetTagCollection>                                jt_wc;
 
-    reco::CombinedSVTagInfo                                             sv;
-    reco::CombinedSVTagInfoCollection                                   sv_c;
-    reco::CombinedSVTagInfoRef                                          sv_r;
-    reco::CombinedSVTagInfoRefProd                                      sv_rp;
-    reco::CombinedSVTagInfoRefVector                                    sv_rv;
-    edm::Wrapper<reco::CombinedSVTagInfoCollection>                     sv_wc;
+    reco::SecondaryVertexTagInfo::TrackData                             sv_td;
+    reco::SecondaryVertexTagInfo::IndexedTrackData                      sv_itd;
+    std::vector<reco::SecondaryVertexTagInfo::IndexedTrackData>         sv_itdv;
+    reco::SecondaryVertexTagInfo                                        sv;
+    reco::SecondaryVertexTagInfoCollection                              sv_c;
+    reco::SecondaryVertexTagInfoRef                                     sv_r;
+    reco::SecondaryVertexTagInfoRefProd                                 sv_rp;
+    reco::SecondaryVertexTagInfoRefVector                               sv_rv;
+    edm::Wrapper<reco::SecondaryVertexTagInfoCollection>                sv_wc;
+
+    reco::CombinedSVTagInfo                                             csv;
+    reco::CombinedSVTagInfoCollection                                   csv_c;
+    reco::CombinedSVTagInfoRef                                          csv_r;
+    reco::CombinedSVTagInfoRefProd                                      csv_rp;
+    reco::CombinedSVTagInfoRefVector                                    csv_rv;
+    edm::Wrapper<reco::CombinedSVTagInfoCollection>                     csv_wc;
 
     reco::CombinedTauTagInfo                                            ct;
     reco::CombinedTauTagInfoCollection                                  ct_c;
@@ -191,6 +202,7 @@ namespace {
 
     reco::TrackIPTagInfo                                                tcip;
     reco::TrackIPTagInfo::TrackIPData                                   tcip_data;
+    std::vector<reco::TrackIPTagInfo::TrackIPData>                      tcip_datav;
     reco::TrackIPTagInfoCollection                                      tcip_c;
     reco::TrackIPTagInfoRef                                             tcip_r;
     reco::TrackIPTagInfoRefProd                                         tcip_rp;
@@ -227,7 +239,8 @@ namespace {
     edm::reftobase::Holder<reco::BaseTagInfo, reco::JetTagInfoRef>              rb_jti;
     edm::reftobase::Holder<reco::BaseTagInfo, reco::TrackCountingTagInfoRef>    rb_tc;
     edm::reftobase::Holder<reco::BaseTagInfo, reco::TrackIPTagInfoRef>          rb_tcip;
-    edm::reftobase::Holder<reco::BaseTagInfo, reco::CombinedSVTagInfoRef>       rb_sv;
+    edm::reftobase::Holder<reco::BaseTagInfo, reco::SecondaryVertexTagInfoRef>  rb_sv;
+    edm::reftobase::Holder<reco::BaseTagInfo, reco::CombinedSVTagInfoRef>       rb_csv;
     edm::reftobase::Holder<reco::BaseTagInfo, reco::CombinedTauTagInfoRef>      rb_ct;
     edm::reftobase::Holder<reco::BaseTagInfo, reco::PFCombinedTauTagInfoRef>    rb_pfct;
     edm::reftobase::Holder<reco::BaseTagInfo, reco::IsolatedTauTagInfoRef>      rb_it;

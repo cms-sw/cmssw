@@ -7,30 +7,55 @@ using namespace std;
 namespace reco {
 
 const char* TaggingVariableDescription[] = {
-  /* [jetEnergy]                                = */  "jet energy",
-  /* [jetPt]                                    = */  "jet transverse momentum",
-  /* [jetEta]                                   = */  "jet pseudorapidity",
-  /* [jetPhi]                                   = */  "jet polar angle",
-  /* [trackMomentum]                            = */  "track momentum",
-  /* [trackEta]                                 = */  "track pseudorapidity",
-  /* [trackPhi]                                 = */  "track polar angle",
-  /* [trackip2d]                                = */  "track 2D impact parameter significance",
-  /* [trackSip2d]                               = */  "track 2D signed impact parameter significance",
-  /* [trackSip3d]                               = */  "track 3D signed impact parameter significance",
-  /* [trackPtRel]                               = */  "track transverse momentum, relative to the jet axis",
-  /* [trackPpar]                                = */  "track parallel momentum, along the jet axis",
-  /* [trackEtaRel]                              = */  "track pseudorapidity, relative to the jet axis",
-  /* [trackDeltaR]                              = */  "track pseudoangular distance from the jet axis",
-  /* [trackPtRatio]                             = */  "track transverse momentum, relative to the jet axis, normalized to its energy",
-  /* [trackPparRatio]                           = */  "track parallel momentum, along the jet axis, normalized to its energy",
-  /* [vertexCategory]                           = */  "category of secondary vertex (Reco, Pseudo, No)",
-  /* [vertexMass]                               = */  "mass of secondary vertex",
-  /* [vertexMultiplicity]                       = */ "track multiplicity at secondary vertex",
-  /* [flightDistance2DSignificance]             = */ "significance in 2d of distance between primary and secondary vtx",
-  /* [flightDistance3DSignificance]             = */ "significance in 3d of distance between primary and secondary vtx",
-  /* [secondaryVtxEnergyRatio]                  = */ "ratio of energy at secondary vertex over total energy",
-  /* [piontracksEtjetEtRatio]                   = */ "ratio of pion tracks transverse energy over jet energy",
-  /* [trackSip2dAbCharm]                        = */ "track 2D signed impact parameter significance above charm mass",
+  /* [jetEnergy]                                = */ "jet energy",
+  /* [jetPt]                                    = */ "jet transverse momentum",
+  /* [jetEta]                                   = */ "jet pseudorapidity",
+  /* [jetPhi]                                   = */ "jet polar angle",
+  /* [jetNTracks]                               = */ "tracks associated to jet",
+
+  /* [trackMomentum]                            = */ "track momentum",
+  /* [trackEta]                                 = */ "track pseudorapidity",
+  /* [trackPhi]                                 = */ "track polar angle",
+
+  /* [trackPtRel]                               = */ "track transverse momentum, relative to the jet axis",
+  /* [trackPPar]                                = */ "track parallel momentum, along the jet axis",
+  /* [trackEtaRel]                              = */ "track pseudorapidity, relative to the jet axis",
+  /* [trackDeltaR]                              = */ "track pseudoangular distance from the jet axis",
+  /* [trackPtRatio]                             = */ "track transverse momentum, relative to the jet axis, normalized to its energy",
+  /* [trackPParRatio]                           = */ "track parallel momentum, along the jet axis, normalized to its energy",
+
+  /* [trackSip2dVal]                            = */ "track 2D signed impact parameter",
+  /* [trackSip2dSig]                            = */ "track 2D signed impact parameter significance",
+  /* [trackSip3dVal]                            = */ "track 3D signed impact parameter",
+  /* [trackSip3dSig]                            = */ "track 3D signed impact parameter significance",
+  /* [trackDecayLenVal]                         = */ "track decay length",
+  /* [trackDecayLenSig]                         = */ "track decay length significance",
+  /* [trackJetDist]                             = */ "minimum track approach distance to jet axis",
+  /* [trackFirstTrackDist]                      = */ "minimum approach distance to first track",
+
+  /* [trackSumJetEtRatio]                       = */ "ratio of track sum transverse energy over jet energy",
+  /* [trackSumJetDeltaR]                        = */ "pseudoangular distance between jet axis and track fourvector sum",
+
+  /* [vertexCategory]                           = */ "category of secondary vertex (Reco, Pseudo, No)",
+
+  /* [jetNSecondaryVertices]                    = */ "number of reconstructed possible secondary vertices in jet",
+
+  /* [vertexMass]                               = */ "mass of track sum at secondary vertex",
+  /* [vertexNTracks]                            = */ "number of tracks at secondary vertex",
+
+  /* [vertexEnergyRatio]                        = */ "ratio of energy at secondary vertex over total energy",
+  /* [vertexJetDeltaR]                          = */ "pseudoangular distance between jet axis and secondary vertex direction",
+
+  /* [flightDistance2dVal]                      = */ "transverse distance between primary and secondary vertex",
+  /* [flightDistance2dSig]                      = */ "transverse distance significance between primary and secondary vertex",
+  /* [flightDistance3dVal]                      = */ "distance between primary and secondary vertex",
+  /* [flightDistance3dSig]                      = */ "distance significance between primary and secondary vertex",
+
+  /* [trackSip2dValAboveCharm]                  = */ "track 2D signed impact parameter of first track lifting mass above charm",
+  /* [trackSip2dSigAboveCharm]                  = */ "track 2D signed impact parameter significance of first track lifting mass above charm",
+  /* [trackSip3dValAboveCharm]                  = */ "track 3D signed impact parameter of first track lifting mass above charm",
+  /* [trackSip3dSigAboveCharm]                  = */ "track 3D signed impact parameter significance of first track lifting mass above charm",
+
   /* [neutralEnergy]                            = */ "neutral ECAL clus. energy sum",
   /* [neutralEnergyOverCombinedEnergy]          = */ "neutral ECAL clus. energy sum/(neutral ECAL clus. energy sum + pion tracks energy)",
   /* [neutralIsolEnergy]                        = */ "neutral ECAL clus. energy sum in isolation band",
@@ -38,9 +63,8 @@ const char* TaggingVariableDescription[] = {
   /* [neutralEnergyRatio]                       = */ "ratio of neutral ECAL clus. energy sum in isolation band over neutral ECAL clus. energy sum",
   /* [neutralclusterNumber]                     = */ "number of neutral ECAL clus.",
   /* [neutralclusterRadius]                     = */ "mean DR between neutral ECAL clus. and lead.track",
-  /* [secondaryVtxWeightedEnergyRatio]          = */ "ratio of weighted energy at secondary vertex over total energy",
-  /* [jetNVertices]                             = */ "number of vertices found in a jet",
-  /* [leptonQuality]                            = */ "quality of the reconstructed lepton",
+
+  /* [leptonQuality]                            = */ "lepton identification quality",
   
   /* [lastTaggingVariable]                      = */ ""
 };
@@ -50,26 +74,51 @@ const char* TaggingVariableTokens[] = {
   /* [jetPt]                                    = */ "jetPt",
   /* [jetEta]                                   = */ "jetEta",
   /* [jetPhi]                                   = */ "jetPhi",
+  /* [jetNTracks]                               = */ "jetNTracks",
+
   /* [trackMomentum]                            = */ "trackMomentum",
   /* [trackEta]                                 = */ "trackEta",
   /* [trackPhi]                                 = */ "trackPhi",
-  /* [trackip2d]                                = */ "trackip2d",
-  /* [trackSip2d]                               = */ "trackSip2d",
-  /* [trackSip3d]                               = */ "trackSip3d",
+
   /* [trackPtRel]                               = */ "trackPtRel",
-  /* [trackPpar]                                = */ "trackPpar",
+  /* [trackPPar]                                = */ "trackPPar",
   /* [trackEtaRel]                              = */ "trackEtaRel",
   /* [trackDeltaR]                              = */ "trackDeltaR",
   /* [trackPtRatio]                             = */ "trackPtRatio",
-  /* [trackPparRatio]                           = */ "trackPparRatio",
+  /* [trackPParRatio]                           = */ "trackPParRatio",
+
+  /* [trackSip2dVal]                            = */ "trackSip2dVal",
+  /* [trackSip2dSig]                            = */ "trackSip2dSig",
+  /* [trackSip3dVal]                            = */ "trackSip3dVal",
+  /* [trackSip3dSig]                            = */ "trackSip3dSig",
+  /* [trackDecayLenVal]                         = */ "trackDecayLenVal",
+  /* [trackDecayLenSig]                         = */ "trackDecayLenSig",
+  /* [trackJetDist]                             = */ "trackJetDist",
+  /* [trackFirstTrackDist]                      = */ "trackFirstTrackDist",
+
+  /* [trackSumJetEtRatio]                       = */ "trackSumJetEtRatio",
+  /* [trackSumJetDeltaR]                        = */ "trackSumJetDeltaR",
+
   /* [vertexCategory]                           = */ "vertexCategory",
+
+  /* [jetNSecondaryVertices]                    = */ "jetNSecondaryVertices",
+
   /* [vertexMass]                               = */ "vertexMass",
-  /* [vertexMultiplicity]                       = */ "vertexMultiplicity",
-  /* [flightDistance2DSignificance]             = */ "flightDistance2DSignificance",
-  /* [flightDistance3DSignificance]             = */ "flightDistance3DSignificance",
-  /* [secondaryVtxEnergyRatio]                  = */ "secondaryVtxEnergyRatio",
-  /* [piontracksEtjetEtRatio]                   = */ "piontracksEtjetEtRatio",
-  /* [trackSip2dAbCharm]                        = */ "trackSip2dAbCharm",
+  /* [vertexNTracks]                            = */ "vertexNTracks",
+
+  /* [vertexEnergyRatio]                        = */ "vertexEnergyRatio",
+  /* [vertexJetDeltaR]                          = */ "vertexJetDeltaR",
+
+  /* [flightDistance2dVal]                      = */ "flightDistance2dVal",
+  /* [flightDistance2dSig]                      = */ "flightDistance2dSig",
+  /* [flightDistance3dVal]                      = */ "flightDistance3dVal",
+  /* [flightDistance3dSig]                      = */ "flightDistance3dSig",
+
+  /* [trackSip2dValAboveCharm]                  = */ "trackSip2dValAboveCharm",
+  /* [trackSip2dSigAboveCharm]                  = */ "trackSip2dSigAboveCharm",
+  /* [trackSip3dValAboveCharm]                  = */ "trackSip3dValAboveCharm",
+  /* [trackSip3dSigAboveCharm]                  = */ "trackSip3dSigAboveCharm",
+
   /* [neutralEnergy]                            = */ "neutralEnergy",
   /* [neutralEnergyOverCombinedEnergy]          = */ "neutralEnergyOverCombinedEnergy",
   /* [neutralIsolEnergy]                        = */ "neutralIsolEnergy",
@@ -77,8 +126,7 @@ const char* TaggingVariableTokens[] = {
   /* [neutralEnergyRatio]                       = */ "neutralEnergyRatio",
   /* [neutralclusterNumber]                     = */ "neutralclusterNumber",
   /* [neutralclusterRadius]                     = */ "neutralclusterRadius",
-  /* [secondaryVtxWeightedEnergyRatio]          = */ "secondaryVtxWeightedEnergyRatio",
-  /* [jetNVertices]                             = */ "jetNVertices",
+
   /* [leptonQuality]                            = */ "leptonQuality",
 
   /* [lastTaggingVariable]                      = */ "lastTaggingVariable"
