@@ -24,8 +24,8 @@
 
 class ProtoJet {
 public:
-  typedef reco::CandidateBaseRef Constituent;
-  typedef std::vector <reco::CandidateBaseRef> Constituents;
+  typedef JetReco::InputItem Constituent;
+  typedef JetReco::InputCollection Constituents;
 
   typedef math::XYZTLorentzVector LorentzVector;
   /** Default Constructor */
@@ -91,13 +91,13 @@ public:
   const LorentzVector& p4() const {return mP4;}
   
   
-  /** Returns the list of tower in a particular protojet */
+  /** Returns the list of towers in a particular protojet */
   const Constituents& getTowerList();
   Constituents getTowerList() const;
 
-  /** Returns the list of tower in a particular protojet in reco::Jet format*/
-  JetReco::JetConstituents getJetTowerList() const;
-  
+  /** Returns the list of presorted towers in a particular protojet */
+  const Constituents& getPresortedTowerList() const;
+
   /** Sets the list of towers in a protojet */
   void putTowers(const Constituents& towers);
 

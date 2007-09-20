@@ -1,6 +1,6 @@
 // Jet.cc
 // Fedor Ratnikov, UMd
-// $Id: Jet.cc,v 1.13 2007/08/15 17:43:13 fedor Exp $
+// $Id: Jet.cc,v 1.15 2007/08/20 17:53:31 fedor Exp $
 
 #include <sstream>
 #include "DataFormats/Math/interface/deltaR.h"
@@ -76,6 +76,14 @@ Jet::Jet (const LorentzVector& fP4,
     addDaughter (fConstituents [i]);
   }
 }  
+
+Jet::Jet (const LorentzVector& fP4, 
+	  const Point& fVertex) 
+  :  CompositeRefBaseCandidate (0, fP4, fVertex),
+     mJetArea (0),
+     mPileupEnergy (0),
+     mPassNumber (0)
+{}
 
 /// eta-phi statistics
 Jet::EtaPhiMoments Jet::etaPhiStatistics () const {

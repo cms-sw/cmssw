@@ -1,6 +1,6 @@
 // File: BasePilupSubtractionJetProducer.cc
 // Author: F.Ratnikov UMd Aug 22, 2006
-// $Id: BasePilupSubtractionJetProducer.cc,v 1.13 2007/08/15 17:43:16 fedor Exp $
+// $Id: BasePilupSubtractionJetProducer.cc,v 1.15 2007/08/20 17:53:34 fedor Exp $
 //--------------------------------------------
 #include <memory>
 #include "DataFormats/Common/interface/EDProduct.h"
@@ -12,13 +12,11 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "DataFormats/JetReco/interface/CaloJetCollection.h"
-#include "DataFormats/JetReco/interface/GenJetCollection.h"
-#include "DataFormats/JetReco/interface/PFJetCollection.h"
-#include "DataFormats/JetReco/interface/BasicJetCollection.h"
-#include "DataFormats/JetReco/interface/GenericJetCollection.h"
 
 #include "RecoJets/JetAlgorithms/interface/JetMaker.h"
+#include "RecoJets/JetAlgorithms/interface/JetRecoTypes.h"
 #include "RecoJets/JetAlgorithms/interface/JetAlgoHelper.h"
+#include "RecoJets/JetAlgorithms/interface/ProtoJet.h"
 #include "DataFormats/Candidate/interface/CandidateFwd.h"
 #include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
 #include "DataFormats/RecoCandidate/interface/RecoCaloTowerCandidate.h"
@@ -56,6 +54,13 @@ namespace {
   bool makeGenericJet (const string& fTag) {
     return !makeCaloJet (fTag) && !makeGenJet (fTag) && !makeBasicJet (fTag);
   }
+
+  template <class T>  
+  void dumpJets (const T& fJets) {
+    for (unsigned i = 0; i < fJets.size(); ++i) {
+      std::cout << "Jet # " << i << std::endl << fJets[i].print();
+    }
+  }
 }
 
 namespace cms
@@ -74,17 +79,18 @@ namespace cms
       nSigmaPU (conf.getParameter<double>("nSigmaPU")),
       radiusPU (conf.getParameter<double>("radiusPU")),geo(0)
   {
-//    std::cout<<" Number of sigmas "<<nSigmaPU<<std::endl;
+    //    std::cout<<" Number of sigmas "<<nSigmaPU<<std::endl;
     std::string alias = conf.getUntrackedParameter<string>( "alias", conf.getParameter<std::string>("@module_label"));
-    if (makeCaloJetPU (mJetType)) produces<CaloJetCollection>().setBranchAlias (alias);
-    if (makeGenJet (mJetType)) produces<GenJetCollection>().setBranchAlias (alias);
-    if (makeBasicJet (mJetType)) produces<BasicJetCollection>().setBranchAlias (alias);
-    if (makeGenericJet (mJetType)) produces<GenericJetCollection>().setBranchAlias (alias);
+    if (!makeCaloJetPU (mJetType)) {
+      std::cerr << "BasePilupSubtractionJetProducer-> ERROR: wrong jetType '" << mJetType
+		<< "'. The only supported jetType is 'CaloJetPileupSubtraction'" << std::endl;
+    }
+    produces<CaloJetCollection>().setBranchAlias (alias);
   }
-
+  
   // Virtual destructor needed.
   BasePilupSubtractionJetProducer::~BasePilupSubtractionJetProducer() { }
-   
+  
   void BasePilupSubtractionJetProducer::beginJob( const edm::EventSetup& iSetup)
   {
   }
@@ -92,334 +98,322 @@ namespace cms
   // Functions that gets called by framework every event
   void BasePilupSubtractionJetProducer::produce(edm::Event& e, const edm::EventSetup& fSetup)
   {
-//    std::cout<<"========================BasePilupSubtractionJetProducer::produce::start"<<std::endl;
-
-    const CaloSubdetectorGeometry* towerGeometry = 0; // cache geometry
-
+    //    std::cout<<"========================BasePilupSubtractionJetProducer::produce::start"<<std::endl;
+    
     // Provenance
-/*
-  std::vector<edm::Provenance const*> theProvenance;
-  e.getAllProvenance(theProvenance);
-  for( std::vector<edm::Provenance const*>::const_iterator ip = theProvenance.begin();
-                                                      ip != theProvenance.end(); ip++)
-  {
-     
-     std::cout<<" Print all module/label names "<<(**ip).moduleName()<<" "<<(**ip).moduleLabel()<<
-     " "<<(**ip).productInstanceName()<<std::endl;
-     edm::ParameterSetID pset = (**ip).psetID();
-     std::cout<<" Try to print "<<pset<<std::endl; 
-  }
-*/
- 
-    if(geo == 0)
-    {
-      edm::ESHandle<CaloGeometry> pG;
-      fSetup.get<IdealGeometryRecord>().get(pG);
-      geo = pG.product();
-      std::vector<DetId> alldid =  geo->getValidDetIds();
-      
-      int ietaold = -10000;
-      ietamax = -10000;
-      ietamin = 10000;   
-   for(std::vector<DetId>::const_iterator did=alldid.begin(); did != alldid.end(); did++)
-   {
-      if( (*did).det() == DetId::Hcal )
+    /*
+      std::vector<edm::Provenance const*> theProvenance;
+      e.getAllProvenance(theProvenance);
+      for( std::vector<edm::Provenance const*>::const_iterator ip = theProvenance.begin();
+      ip != theProvenance.end(); ip++)
       {
-                 HcalDetId hid = HcalDetId(*did);
-                 if( (hid).depth() == 1 )
-                 { 
-//                  std::cout<<" Hcal detector eta,phi,depth "<<(hid).ieta()<<" "<<(hid).iphi()<<" "<<(hid).depth()<<std::endl; 
-                  allgeomid.push_back(*did);
-
-                  if((hid).ieta() != ietaold)
-                  {
-                    ietaold = (hid).ieta();
-                    geomtowers[(hid).ieta()] = 1;
-                    if((hid).ieta() > ietamax) ietamax = (hid).ieta();
-                    if((hid).ieta() < ietamin) ietamin = (hid).ieta();
-                  }
-                    else
-                    {
-                      geomtowers[(hid).ieta()]++;
-                    } 
-                 }
+      
+      std::cout<<" Print all module/label names "<<(**ip).moduleName()<<" "<<(**ip).moduleLabel()<<
+      " "<<(**ip).productInstanceName()<<std::endl;
+      edm::ParameterSetID pset = (**ip).psetID();
+      std::cout<<" Try to print "<<pset<<std::endl; 
       }
-  }       
-    }
-// Clear ntowers_with_jets ====================================================
+    */
+    
+    if(geo == 0)
+      {
+	edm::ESHandle<CaloGeometry> pG;
+	fSetup.get<IdealGeometryRecord>().get(pG);
+	geo = pG.product();
+	std::vector<DetId> alldid =  geo->getValidDetIds();
+	
+	int ietaold = -10000;
+	ietamax = -10000;
+	ietamin = 10000;   
+	for(std::vector<DetId>::const_iterator did=alldid.begin(); did != alldid.end(); did++)
+	  {
+	    if( (*did).det() == DetId::Hcal )
+	      {
+		HcalDetId hid = HcalDetId(*did);
+		if( (hid).depth() == 1 )
+		  { 
+		    //                  std::cout<<" Hcal detector eta,phi,depth "<<(hid).ieta()<<" "<<(hid).iphi()<<" "<<(hid).depth()<<std::endl; 
+		    allgeomid.push_back(*did);
+		    
+		    if((hid).ieta() != ietaold)
+		      {
+			ietaold = (hid).ieta();
+			geomtowers[(hid).ieta()] = 1;
+			if((hid).ieta() > ietamax) ietamax = (hid).ieta();
+			if((hid).ieta() < ietamin) ietamin = (hid).ieta();
+		      }
+                    else
+		      {
+			geomtowers[(hid).ieta()]++;
+		      } 
+		  }
+	      }
+	  }       
+      }
+    // Clear ntowers_with_jets ====================================================
     for (int i = ietamin; i<ietamax+1; i++)
-    {
+      {
         ntowers_with_jets[i] = 0;
-    }
-//==============================================================================
+      }
+    //==============================================================================
     // get input
     edm::Handle<edm::View <Candidate> > inputHandle; 
     e.getByLabel( mSrc, inputHandle);
-    JetReco::InputCollection input (inputHandle->refVector().begin(), inputHandle->refVector().end());
-//
-// Create the initial vector for Candidates
-//  
-//    std::cout<<"============================================= Before calculate pedestal "<<std::endl;  
-
+    // convert to input collection
+    JetReco::InputCollection input;
+    input.reserve (inputHandle->size());
+    for (unsigned i = 0; i < inputHandle->size(); ++i) {
+      input.push_back (JetReco::InputItem (&((*inputHandle)[i]), i));
+    }
+    //
+    // Create the initial vector for Candidates
+    //  
+    //    std::cout<<"============================================= Before calculate pedestal "<<std::endl;  
+    
     calculate_pedestal(input); 
     std::vector<ProtoJet> output;
-
-//    std::cout<<"============================================= After calculate pedestal "<<std::endl;
-
+    
+    //    std::cout<<"============================================= After calculate pedestal "<<std::endl;
+    
     CandidateCollection inputTMPN = subtract_pedestal(input);
-
-//    std::cout<<"============================================= After pedestal subtraction "<<inputTMPN.size()<<std::endl;
-
-
+    
+    //    std::cout<<"============================================= After pedestal subtraction "<<inputTMPN.size()<<std::endl;
+    
+    
     // run algorithm
-   vector <ProtoJet> firstoutput;
-
-//   std::cout<<" We are here at Point 0 "<<std::endl;   
-
-   runAlgorithm (input, &firstoutput);
-
-//   std::cout<<" We are here at Point 1 with firstoutput size (Njets) "<<firstoutput.size()<<std::endl; 
-//
-// Now we find jets and need to recalculate their energy,
-// mark towers participated in jet,
-// remove occupied towers from the list and recalculate mean and sigma
-// put the initial towers collection to the jet,   
-// and subtract from initial towers in jet recalculated mean and sigma of towers 
-  
-      InputCollection jettowers;
-      vector <ProtoJet>::iterator protojetTMP = firstoutput.begin ();
-
-      for (; protojetTMP != firstoutput.end (); protojetTMP++) {
-
-//         std::cout<<" Before mEtJetInputCut, firstoutput.size()="<<firstoutput.size()
-//                  <<" (*protojetTMP).et()="<<(*protojetTMP).et()<<std::endl;
-
-        if( (*protojetTMP).et() < mEtJetInputCut) continue;
-
-         ProtoJet::Constituents newtowers;
-
-//        std::cout<<" First passed cut, (*protojetTMP).et()= "<<(*protojetTMP).et()
-//                 <<" Eta_jet= "<< (*protojetTMP).eta()<<" Phi_jet="<<(*protojetTMP).phi()<<std::endl;
-
-          double eta2 = (*protojetTMP).eta();
-          double phi2 = (*protojetTMP).phi();
-          for(vector<HcalDetId>::const_iterator im = allgeomid.begin(); im != allgeomid.end(); im++)
-          {
-              double eta1 = geo->getPosition((DetId)(*im)).eta();
-              double phi1 = geo->getPosition((DetId)(*im)).phi();
-
-              double dphi = fabs(phi1-phi2);
-              double deta = eta1-eta2;
-               if (dphi > 4.*atan(1.)) dphi = 8.*atan(1.) - dphi;
-              double dr = sqrt(dphi*dphi+deta*deta);
-
-//               std::cout<<" dr="<<dr<<std::endl;
-
-              if( dr < radiusPU) {
-                ntowers_with_jets[(*im).ieta()]++; 
-
-//               std::cout<<"Towers WITH jets, eta1="<<eta1<<" phi1="<<phi1
-//                        <<" ntowers_with_jets="<<ntowers_with_jets[(*im).ieta()]
-//                        <<"(DetId)(*im)="<<(*im)<<std::endl;
-
-              }
-
-          }
-
-//          std::cout<<" Number of towers in input collection "<<inputs.size()<<std::endl;
-
-         for (InputCollection::const_iterator it = input.begin(); it != input.end(); it++ ) {
-
-              double eta1 = (**it).eta();
-              double phi1 = (**it).phi();
-
-              double dphi = fabs(phi1-phi2);
-	      double deta = eta1-eta2;
-	       if (dphi > 4.*atan(1.)) dphi = 8.*atan(1.) - dphi;
-	      double dr = sqrt(dphi*dphi+deta*deta);
-
-	      if( dr < radiusPU) {
-                newtowers.push_back(*it);
-                jettowers.push_back(*it);
- 
-		//                int ieta1 = ieta(&(**it));
-		//                int iphi1 = iphi(&(**it));
-		//       std::cout<<" Take Et of tower inputs, (dr < 0.5), (**it).et()= "<<(**it).et()<<" eta= "<<(**it).eta()
-		//                <<" phi= "<<(**it).phi()<<" ieta1= "<<ieta1<<" iphi1= "<<iphi1<<std::endl;
-
-	      } //dr < 0.5
-                
-           } // initial input collection
-
-//         std::cout<<" Jet with new towers before putTowers (after background subtraction) "<<(*protojetTMP).et()<<std::endl;
-
-	(*protojetTMP).putTowers(newtowers);  // put the reference of the towers from initial map
-
-//         std::cout<<" Jet with new towers (Initial tower energy)"<<(*protojetTMP).et()<<std::endl;	
-
-
-//========> PRINT  Tower after Subtraction
-	if (0) { // bypass
-	  for (InputCollection::const_iterator itt = input.begin(); itt !=  input.end(); itt++ ) {
+    vector <ProtoJet> firstoutput;
+    
+    //   std::cout<<" We are here at Point 0 "<<std::endl;   
+    
+    runAlgorithm (input, &firstoutput);
+    
+    //   std::cout<<" We are here at Point 1 with firstoutput size (Njets) "<<firstoutput.size()<<std::endl; 
+    //
+    // Now we find jets and need to recalculate their energy,
+    // mark towers participated in jet,
+    // remove occupied towers from the list and recalculate mean and sigma
+    // put the initial towers collection to the jet,   
+    // and subtract from initial towers in jet recalculated mean and sigma of towers 
+    
+    InputCollection jettowers;
+    vector <ProtoJet>::iterator protojetTMP = firstoutput.begin ();
+    
+    for (; protojetTMP != firstoutput.end (); protojetTMP++) {
+      
+      //         std::cout<<" Before mEtJetInputCut, firstoutput.size()="<<firstoutput.size()
+      //                  <<" (*protojetTMP).et()="<<(*protojetTMP).et()<<std::endl;
+      
+      if( (*protojetTMP).et() < mEtJetInputCut) continue;
+      
+      ProtoJet::Constituents newtowers;
+      
+      //        std::cout<<" First passed cut, (*protojetTMP).et()= "<<(*protojetTMP).et()
+      //                 <<" Eta_jet= "<< (*protojetTMP).eta()<<" Phi_jet="<<(*protojetTMP).phi()<<std::endl;
+      
+      double eta2 = (*protojetTMP).eta();
+      double phi2 = (*protojetTMP).phi();
+      for(vector<HcalDetId>::const_iterator im = allgeomid.begin(); im != allgeomid.end(); im++)
+	{
+	  double eta1 = geo->getPosition((DetId)(*im)).eta();
+	  double phi1 = geo->getPosition((DetId)(*im)).phi();
+	  
+	  double dphi = fabs(phi1-phi2);
+	  double deta = eta1-eta2;
+	  if (dphi > 4.*atan(1.)) dphi = 8.*atan(1.) - dphi;
+	  double dr = sqrt(dphi*dphi+deta*deta);
+	  
+	  //               std::cout<<" dr="<<dr<<std::endl;
+	  
+	  if( dr < radiusPU) {
+	    ntowers_with_jets[(*im).ieta()]++; 
 	    
-	    double eta_pu1 = (**itt).eta();
-	    double phi_pu1 = (**itt).phi();
+	    //               std::cout<<"Towers WITH jets, eta1="<<eta1<<" phi1="<<phi1
+	    //                        <<" ntowers_with_jets="<<ntowers_with_jets[(*im).ieta()]
+	    //                        <<"(DetId)(*im)="<<(*im)<<std::endl;
 	    
-	    double dphi = fabs(phi_pu1-phi2);
-	    double deta = eta_pu1-eta2;
-	    if (dphi > 4.*atan(1.)) dphi = 8.*atan(1.) - dphi;
-	    double dr = sqrt(dphi*dphi+deta*deta);
-	    
-	    if( dr < radiusPU) {        
-	      int ieta_pu1 = ieta(&(**itt));
-	      int iphi_pu1 = iphi(&(**itt));
-	      
-	      std::cout<<" Take Et of tower after Subtraction, (**itt).et()= "<<(**itt).et()
-		       <<" eta= "<<(**itt).eta()<<" phi= "<<(**itt).phi()
-		       <<" ieta_pu1= "<<ieta_pu1<<" iphi_pu1= "<<iphi_pu1<<std::endl;
-	      
-	    } //dr < 0.5
-	    
-	  } //  input collection after Subtraction
+	  }
+	  
 	}
-
-//=====================>
-
-
-       } // protojets
-
-//       std::cout<<" We are at Point 2 with "<<firstoutput.size()<<std::endl;
-//
-// Create a new collections from the towers not included in jets 
-//
-        InputCollection orphanInput;   
-        for(InputCollection::const_iterator it = input.begin(); it != input.end(); it++ ) {
-          InputCollection::const_iterator itjet = find(jettowers.begin(),jettowers.end(),*it);
-          if( itjet == jettowers.end() ) orphanInput.push_back(*it); 
-        }
-//       std::cout<<" We are at Point 3, Number of tower not included in jets= "<<orphanInput.size()<<std::endl;
-
-/*
-//======================> PRINT NEW InputCollection without jets
-
-       for (InputCollection::const_iterator it = input.begin(); it != input.end(); it++ ) {
-
-              int ieta1 = ieta(&(**it));
-              int iphi1 = iphi(&(**it));
-
-       std::cout<<" Take Et of tower WITHOUT jet, (**it).et()= "<<(**it).et()
-                <<" eta= "<<(**it).eta()<<" phi= "<<(**it).phi()
-                <<" ieta1= "<<ieta1<<" iphi1="<<iphi1<<std::endl;
-       }
-//======================>
-*/
-
-//
-// Recalculate pedestal
-//
+      
+      //          std::cout<<" Number of towers in input collection "<<inputs.size()<<std::endl;
+      
+      for (InputCollection::const_iterator it = input.begin(); it != input.end(); it++ ) {
+	
+	double eta1 = (**it).eta();
+	double phi1 = (**it).phi();
+	
+	double dphi = fabs(phi1-phi2);
+	double deta = eta1-eta2;
+	if (dphi > 4.*atan(1.)) dphi = 8.*atan(1.) - dphi;
+	double dr = sqrt(dphi*dphi+deta*deta);
+	
+	if( dr < radiusPU) {
+	  newtowers.push_back(*it);
+	  jettowers.push_back(*it);
+	  
+	  //                int ieta1 = ieta(&(**it));
+	  //                int iphi1 = iphi(&(**it));
+	  //       std::cout<<" Take Et of tower inputs, (dr < 0.5), (**it).et()= "<<(**it).et()<<" eta= "<<(**it).eta()
+	  //                <<" phi= "<<(**it).phi()<<" ieta1= "<<ieta1<<" iphi1= "<<iphi1<<std::endl;
+	  
+	} //dr < 0.5
+	
+      } // initial input collection
+      
+      //         std::cout<<" Jet with new towers before putTowers (after background subtraction) "<<(*protojetTMP).et()<<std::endl;
+      
+      (*protojetTMP).putTowers(newtowers);  // put the reference of the towers from initial map
+      
+      //         std::cout<<" Jet with new towers (Initial tower energy)"<<(*protojetTMP).et()<<std::endl;	
+      
+      
+      //========> PRINT  Tower after Subtraction
+      if (0) { // bypass
+	for (InputCollection::const_iterator itt = input.begin(); itt !=  input.end(); itt++ ) {
+	  
+	  double eta_pu1 = (**itt).eta();
+	  double phi_pu1 = (**itt).phi();
+	  
+	  double dphi = fabs(phi_pu1-phi2);
+	  double deta = eta_pu1-eta2;
+	  if (dphi > 4.*atan(1.)) dphi = 8.*atan(1.) - dphi;
+	  double dr = sqrt(dphi*dphi+deta*deta);
+	  
+	  if( dr < radiusPU) {        
+	    int ieta_pu1 = ieta(&(**itt));
+	    int iphi_pu1 = iphi(&(**itt));
+	    
+	    std::cout<<" Take Et of tower after Subtraction, (**itt).et()= "<<(**itt).et()
+		     <<" eta= "<<(**itt).eta()<<" phi= "<<(**itt).phi()
+		     <<" ieta_pu1= "<<ieta_pu1<<" iphi_pu1= "<<iphi_pu1<<std::endl;
+	    
+	  } //dr < 0.5
+	  
+	} //  input collection after Subtraction
+      }
+      
+      //=====================>
+      
+      
+    } // protojets
+    
+    //       std::cout<<" We are at Point 2 with "<<firstoutput.size()<<std::endl;
+    //
+    // Create a new collections from the towers not included in jets 
+    //
+    InputCollection orphanInput;   
+    for(InputCollection::const_iterator it = input.begin(); it != input.end(); it++ ) {
+      InputCollection::const_iterator itjet = find(jettowers.begin(),jettowers.end(),*it);
+      if( itjet == jettowers.end() ) orphanInput.push_back(*it); 
+    }
+    //       std::cout<<" We are at Point 3, Number of tower not included in jets= "<<orphanInput.size()<<std::endl;
+    
+    /*
+    //======================> PRINT NEW InputCollection without jets
+    
+    for (InputCollection::const_iterator it = input.begin(); it != input.end(); it++ ) {
+    
+    int ieta1 = ieta(&(**it));
+    int iphi1 = iphi(&(**it));
+    
+    std::cout<<" Take Et of tower WITHOUT jet, (**it).et()= "<<(**it).et()
+    <<" eta= "<<(**it).eta()<<" phi= "<<(**it).phi()
+    <<" ieta1= "<<ieta1<<" iphi1="<<iphi1<<std::endl;
+    }
+    //======================>
+    */
+    
+    //
+    // Recalculate pedestal
+    //
     calculate_pedestal(orphanInput);
-
-//    std::cout<<" We are at Point 4, After Recalculation of pedestal"<<std::endl;
-//    
-// Reestimate energy of jet (energy of jet with initial map)
-//
+    
+    //    std::cout<<" We are at Point 4, After Recalculation of pedestal"<<std::endl;
+    //    
+    // Reestimate energy of jet (energy of jet with initial map)
+    //
     protojetTMP = firstoutput.begin ();
     int kk = 0; 
     for (; protojetTMP != firstoutput.end (); protojetTMP++) {
-
-//      std::cout<<" ++++++++++++++Jet with initial map energy "<<kk<<" "<<(*protojetTMP).et()
-//               <<" mEtJetInputCut="<<mEtJetInputCut<<std::endl;
- 
+      
+      //      std::cout<<" ++++++++++++++Jet with initial map energy "<<kk<<" "<<(*protojetTMP).et()
+      //               <<" mEtJetInputCut="<<mEtJetInputCut<<std::endl;
+      
       if( (*protojetTMP).et() < mEtJetInputCut) continue;
-
-//      std::cout<<" Jet with energyi passed condition "<<kk<<" "<<(*protojetTMP).et()<<std::endl;
+      
+      //      std::cout<<" Jet with energyi passed condition "<<kk<<" "<<(*protojetTMP).et()<<std::endl;
       
       const ProtoJet::Constituents towers = (*protojetTMP).getTowerList();
-
-//      std::cout<<" List of candidates "<<towers.size()<<std::endl;
+      
+      //      std::cout<<" List of candidates "<<towers.size()<<std::endl;
       
       double offset = 0.;
       
       for(ProtoJet::Constituents::const_iterator ito = towers.begin(); ito != towers.end(); ito++)
-      {
-//       std::cout<<" start towers list "<<std::endl;
-
-       int it = ieta(&(**ito));
-
-//       std::cout<<" Reference to tower : "<<it<<std::endl;
-//       offset = offset + (*emean.find(it)).second + (*esigma.find(it)).second;
-// Temporarily for test       
-
-        double etnew = (**ito).et() - (*emean.find(it)).second - (*esigma.find(it)).second; 
-        if( etnew <0.) etnew = 0.;
- 
-        offset = offset + etnew;
-      }
-//      double mScale = ((*protojetTMP).et()-offset)/(*protojetTMP).et();
-// Temporarily for test only
-
+	{
+	  //       std::cout<<" start towers list "<<std::endl;
+	  
+	  int it = ieta(&(**ito));
+	  
+	  //       std::cout<<" Reference to tower : "<<it<<std::endl;
+	  //       offset = offset + (*emean.find(it)).second + (*esigma.find(it)).second;
+	  // Temporarily for test       
+	  
+	  double etnew = (**ito).et() - (*emean.find(it)).second - (*esigma.find(it)).second; 
+	  if( etnew <0.) etnew = 0.;
+	  
+	  offset = offset + etnew;
+	}
+      //      double mScale = ((*protojetTMP).et()-offset)/(*protojetTMP).et();
+      // Temporarily for test only
+      
       double mScale = offset/(*protojetTMP).et();
       
-//////
+      //////
       Jet::LorentzVector fP4((*protojetTMP).px()*mScale, (*protojetTMP).py()*mScale,
-                            (*protojetTMP).pz()*mScale, (*protojetTMP).energy()*mScale);      
+			     (*protojetTMP).pz()*mScale, (*protojetTMP).energy()*mScale);      
       
-//      std::cout<<" Final energy of jet, fP4.pt()= "<<fP4.pt()<<" Eta "<<fP4.eta()<<" Phi "<<fP4.phi()<<std::endl;      
-///
-///!!! Change towers to rescaled towers///
-///
+      //      std::cout<<" Final energy of jet, fP4.pt()= "<<fP4.pt()<<" Eta "<<fP4.eta()<<" Phi "<<fP4.phi()<<std::endl;      
+      ///
+      ///!!! Change towers to rescaled towers///
+      ///
       ProtoJet pj(fP4, towers);
       kk++;
       output.push_back(pj);
-   }    
-
-//   std::cout<<" Size of final collection "<<output.size()<<std::endl;
+    }    
     
-    // produce output collection
-    auto_ptr<CaloJetCollection> caloJets;
-    if (makeCaloJetPU (mJetType)) caloJets.reset (new CaloJetCollection);
-    auto_ptr<GenJetCollection> genJets;
-    if (makeGenJet (mJetType)) genJets.reset (new GenJetCollection);
-    auto_ptr<BasicJetCollection> basicJets;
-    if (makeBasicJet (mJetType)) basicJets.reset (new BasicJetCollection);
-    vector <ProtoJet>::const_iterator protojet = output.begin ();
-    JetMaker jetMaker;
-    for (; protojet != output.end (); protojet++) {
-      if (caloJets.get ()) {
-	if (!towerGeometry) {
-	  edm::ESHandle<CaloGeometry> geometry;
-	  fSetup.get<IdealGeometryRecord>().get(geometry);
-	  towerGeometry = geometry->getSubdetectorGeometry(DetId::Calo, CaloTowerDetId::SubdetId);
-	}
-	caloJets->push_back (jetMaker.makeCaloJet (*protojet, *towerGeometry));
+    //   std::cout<<" Size of final collection "<<output.size()<<std::endl;
+    
+    reco::Jet::Point vertex (0,0,0); // do not have true vertex yet, use default
+    // make sure protojets are sorted
+    sortByPt (&output);
+    // produce output collection Only CaloJets at the moment
+    edm::ESHandle<CaloGeometry> geometry;
+    fSetup.get<IdealGeometryRecord>().get(geometry);
+    const CaloSubdetectorGeometry* towerGeometry = 
+      geometry->getSubdetectorGeometry(DetId::Calo, CaloTowerDetId::SubdetId);
+    auto_ptr<CaloJetCollection> jets (new CaloJetCollection);
+    for (unsigned iJet = 0; iJet < output.size (); ++iJet) {
+      ProtoJet* protojet = &(output [iJet]);
+      const JetReco::InputCollection& constituents = protojet->getTowerList();
+      CaloJet::Specific specific;
+      JetMaker::makeSpecific (constituents, *towerGeometry, &specific);
+      jets->push_back (CaloJet (protojet->p4(), vertex, specific));
+      Jet* newJet = &(jets->back());
+      // put constituents
+      for (unsigned iConstituent = 0; iConstituent < constituents.size (); ++iConstituent) {
+	newJet->addDaughter (inputHandle->refAt (constituents[iConstituent].index ()));
       }
-      if (genJets.get ()) { 
-	genJets->push_back (jetMaker.makeGenJet (*protojet));
-      }
-      if (basicJets.get ()) { 
-	basicJets->push_back (jetMaker.makeBasicJet (*protojet));
-      }
+      newJet->setJetArea (protojet->jetArea ());
+      newJet->setPileup (protojet->pileup ());
+      newJet->setNPasses (protojet->nPasses ());
     }
-    // sort and store output
-    if (caloJets.get ()) {
-      GreaterByPt<CaloJet> compJets;
-      std::sort (caloJets->begin (), caloJets->end (), compJets);
-      e.put(caloJets);  //Puts Jet Collection into event
-    }
-    if (genJets.get ()) {
-      GreaterByPt<GenJet> compJets;
-      std::sort (genJets->begin (), genJets->end (), compJets);
-      e.put(genJets);  //Puts Jet Collection into event
-    }
-    if (basicJets.get ()) {
-      GreaterByPt<BasicJet> compJets;
-      std::sort (basicJets->begin (), basicJets->end (), compJets);
-      e.put(basicJets);  //Puts Jet Collection into event
-    }
+    if (mVerbose) dumpJets (*jets);
+    e.put(jets);
   }
   
-void BasePilupSubtractionJetProducer::calculate_pedestal(const JetReco::InputCollection& fInputs)
-{
+  void BasePilupSubtractionJetProducer::calculate_pedestal(const JetReco::InputCollection& fInputs)
+  {
 //   std::cout<<"========== Start BasePilupSubtractionJetProducer::calculate_pedestal"<<std::endl;
 //   std::cout<<" ietamax="<<ietamax<<" ietamin="<<ietamin<<std::endl;
 

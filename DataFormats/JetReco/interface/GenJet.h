@@ -12,7 +12,7 @@
  * \author Fedor Ratnikov, UMd
  *
  * \version   Original March 31, 2006 by F.R.
- * \version   $Id: GenJet.h,v 1.14 2007/08/20 17:53:30 fedor Exp $
+ * \version   $Id: GenJet.h,v 1.15 2007/08/24 17:35:23 fedor Exp $
  ************************************************************/
 
 
@@ -47,6 +47,7 @@ public:
   /** Constructor from values*/
   GenJet(const LorentzVector& fP4, const Point& fVertex, const Specific& fSpecific, 
 	 const Jet::Constituents& fConstituents);
+  GenJet(const LorentzVector& fP4, const Point& fVertex, const Specific& fSpecific);
 
   /** backward compatible, vertex=(0,0,0) */
   GenJet(const LorentzVector& fP4, const Specific& fSpecific, 

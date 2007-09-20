@@ -18,7 +18,7 @@
  *
  * \version   May 3, 2006, F.Ratnikov, include all different
  *            energy components separately
- * \version   $Id: CaloJet.h,v 1.28 2007/08/20 17:53:30 fedor Exp $
+ * \version   $Id: CaloJet.h,v 1.29 2007/08/24 17:35:23 fedor Exp $
  ************************************************************/
 
 
@@ -77,6 +77,9 @@ class CaloJet : public Jet {
   /** Constructor from values*/
   CaloJet(const LorentzVector& fP4, const Point& fVertex, const Specific& fSpecific, 
 	  const Jet::Constituents& fConstituents);
+
+  /** Constructor from values*/
+  CaloJet(const LorentzVector& fP4, const Point& fVertex, const Specific& fSpecific);
 
   /** backward compatible, vertex=(0,0,0) */
   CaloJet(const LorentzVector& fP4, const Specific& fSpecific, 

@@ -11,7 +11,7 @@
  *
  * \author Fedor Ratnikov, UMd
  *
- * \version   $Id: BasicJet.h,v 1.9 2007/08/20 17:53:30 fedor Exp $
+ * \version   $Id: BasicJet.h,v 1.10 2007/08/24 17:35:23 fedor Exp $
  ************************************************************/
 
 
@@ -25,6 +25,7 @@ class BasicJet : public Jet {
   BasicJet() {}
   
   /** Constructor from values*/
+  BasicJet(const LorentzVector& fP4, const Point& fVertex);
   BasicJet(const LorentzVector& fP4, const Point& fVertex, const Jet::Constituents& fConstituents);
   
   virtual ~BasicJet() {};

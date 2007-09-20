@@ -1,31 +1,35 @@
 //  ProtJet2.cc
 //  Revision History:  R. Harris 10/19/05  Modified to work with real CaloTowers from Jeremy Mans
 //
+// #include <stdio.h>
+// #include "stl_algobase.h"
+// #include "stl_algo.h"
 
 #include "DataFormats/Candidate/interface/Candidate.h"
 #include "RecoJets/JetAlgorithms/interface/ProtoJet.h"
-#include "PhysicsTools/Utilities/interface/EtComparator.h"
+#include "RecoJets/JetAlgorithms/interface/JetAlgoHelper.h"
 
 #include <vector>
 #include <algorithm>               // include STL algorithm implementations
 #include <numeric>		   // For the use of numeric
 
+
 namespace {
   class ERecombination {
-    public: double weight (const reco::Candidate& c) {return c.energy();}
+    public: inline double weight (const reco::Candidate& c) {return c.energy();}
   };
   class EtRecombination {
-    public: double weight (const reco::Candidate& c) {return c.et();}
+    public: inline double weight (const reco::Candidate& c) {return c.et();}
   };
   class PRecombination {
-    public: double weight (const reco::Candidate& c) {return c.p();}
+    public: inline double weight (const reco::Candidate& c) {return c.p();}
   };
   class PtRecombination {
-    public: double weight (const reco::Candidate& c) {return c.pt();}
+    public: inline double weight (const reco::Candidate& c) {return c.pt();}
   };
 
   template <class T>
-   ProtoJet::LorentzVector calculateLorentzVectorRecombination(const ProtoJet::Constituents& fConstituents) {
+   inline ProtoJet::LorentzVector calculateLorentzVectorRecombination(const ProtoJet::Constituents& fConstituents) {
     T weightMaker;
     ProtoJet::LorentzVector result (0,0,0,0);
     double weights = 0;
@@ -38,13 +42,6 @@ namespace {
     result = result / weights;
     return result;
   }
-
-  struct CandidateRefGreaterByEt {
-    bool operator() (const reco::CandidateBaseRef& first, const reco::CandidateBaseRef& second) {
-      NumericSafeGreaterByEt<reco::Candidate> comparator;
-      return comparator (*first, *second);
-    }
-  };
 
 }
 
@@ -89,28 +86,15 @@ const ProtoJet::Constituents& ProtoJet::getTowerList() {
   
 ProtoJet::Constituents ProtoJet::getTowerList() const {
   if (mOrdered) return mConstituents;
-
-  Constituents result = mConstituents;
-  CandidateRefGreaterByEt comparator;
-  std::sort (result.begin(), result.end(), comparator);
+  ProtoJet::Constituents result (mConstituents);
+  sortByEtRef (&result);
   return result;
 }
 
-JetReco::JetConstituents ProtoJet::getJetTowerList() const {
-  const ProtoJet::Constituents* towers = &mConstituents;
-  ProtoJet::Constituents orderedTowers;
-  if (!mOrdered) {
-    orderedTowers = getTowerList ();
-    towers = &orderedTowers;
-  }
-  JetReco::JetConstituents result;
-  ProtoJet::Constituents::const_iterator tower = towers->begin();
-  for (; tower != towers->end(); tower++) {
-    result.push_back (*tower);
-  }
-  return result;
+const ProtoJet::Constituents& ProtoJet::getPresortedTowerList() const {
+  if (!mOrdered) std::cerr << "ProtoJet::getPresortedTowerList-> ERROR: constituents are not sorted." << std::endl;
+  return mConstituents;
 }
-
 
 void ProtoJet::putTowers(const Constituents& towers) {
   mConstituents = towers; 
@@ -120,8 +104,7 @@ void ProtoJet::putTowers(const Constituents& towers) {
 
 void ProtoJet::reorderTowers () {
   if (!mOrdered) {
-    CandidateRefGreaterByEt comparator;
-    std::sort (mConstituents.begin(), mConstituents.end(), comparator); 
+    sortByEtRef (&mConstituents);
     mOrdered = true;
   }
 }

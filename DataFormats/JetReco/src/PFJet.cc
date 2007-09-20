@@ -1,6 +1,6 @@
 // PFJet.cc
 // Fedor Ratnikov UMd
-// $Id: PFJet.cc,v 1.3 2007/05/08 05:34:59 fedor Exp $
+// $Id: PFJet.cc,v 1.4 2007/05/19 04:26:35 fedor Exp $
 #include <sstream>
 
 #include "FWCore/Utilities/interface/Exception.h"
@@ -15,6 +15,12 @@ PFJet::PFJet (const LorentzVector& fP4, const Point& fVertex,
 		  const Specific& fSpecific, 
 		  const Jet::Constituents& fConstituents)
   : Jet (fP4, fVertex, fConstituents),
+    m_specific (fSpecific)
+{}
+
+PFJet::PFJet (const LorentzVector& fP4, const Point& fVertex, 
+	      const Specific& fSpecific)
+  : Jet (fP4, fVertex),
     m_specific (fSpecific)
 {}
 

@@ -12,7 +12,7 @@
  *
  * \version   Original: April 22, 2005 by Fernando Varela Rodriguez.
  * \version   May 23, 2006 by F.R.
- * \version   $Id: Jet.h,v 1.18 2007/08/15 17:43:13 fedor Exp $
+ * \version   $Id: Jet.h,v 1.20 2007/08/20 17:53:30 fedor Exp $
  ************************************************************/
 #include <string>
 #include "DataFormats/Candidate/interface/CompositeRefBaseCandidate.h"
@@ -35,6 +35,7 @@ namespace reco {
     /// Default constructor
     Jet () : mJetArea (0), mPileupEnergy (0), mPassNumber (0) {}
     /// Initiator
+    Jet (const LorentzVector& fP4, const Point& fVertex);
     Jet (const LorentzVector& fP4, const Point& fVertex, const Constituents& fConstituents);
     /// Destructor
     virtual ~Jet () {}
@@ -105,8 +106,6 @@ namespace reco {
     double yUncached() const {return p4().Rapidity();}
 
   private:
-    // disallow constituents modifications
-    void addDaughter( const CandidateBaseRef & fRef) {CompositeRefBaseCandidate::addDaughter (fRef);}
     float mJetArea;
     float mPileupEnergy;
     int mPassNumber;

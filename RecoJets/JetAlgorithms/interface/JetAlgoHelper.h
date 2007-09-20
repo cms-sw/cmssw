@@ -3,7 +3,7 @@
 
 // Various simple tools
 // F.Ratnikov, UMd
-// $Id: JetAlgoHelper.h,v 1.4 2006/12/05 18:37:43 fedor Exp $
+// $Id: JetAlgoHelper.h,v 1.5 2007/07/20 18:46:37 fedor Exp $
 
 #include<limits>
 #include <iostream>
@@ -12,6 +12,63 @@
 #include "PhysicsTools/Utilities/interface/PtComparator.h"
 #include "PhysicsTools/Utilities/interface/EtComparator.h"
 
+namespace {
+
+  struct SortObject {
+    double value;
+    unsigned index;
+  };
+  
+  inline bool so_lt (const SortObject& a, const SortObject& b) {return a.value < b.value;}
+  inline bool so_gt (const SortObject& a, const SortObject& b) {return a.value > b.value;}
+  
+  template <class T> struct GetPt {inline double getValue (const T& a) {return a.pt();}};
+  template <class T> struct GetEt {inline double getValue (const T& a) {return a.et();}};
+  template <class T> struct GetPtRef {inline double getValue (const T& a) {return a->pt();}};
+  template <class T> struct GetEtRef {inline double getValue (const T& a) {return a->et();}};
+  
+  template <class T, class GetValue>
+    inline void sortGreater (std::vector <T>* container) {
+    std::vector <SortObject> sortable (container->size());
+    bool sorted = true;
+    GetValue getter;
+    for (unsigned i = 0; i < container->size(); i++) {
+      sortable[i].value = getter.getValue ((*container)[i]);
+      sortable[i].index = i;
+      if (sorted && i && so_gt (sortable[i-1], sortable[i])) sorted = false;
+    }
+    if (!sorted) { // needs sorting
+      std::sort (sortable.begin(), sortable.end(), so_gt);
+      std::vector <T> result;
+      for (unsigned i = 0; i < container->size(); i++) {
+	result.push_back ((*container)[sortable[i].index]);
+      }
+      container->swap (result);
+    }
+  }
+  
+  template <class T>
+    inline void sortByPt (std::vector <T>* container) {
+    sortGreater <T, GetPt<T> > (container);
+  }
+  
+  template <class T>
+    inline void sortByEt (std::vector <T>* container) {
+    sortGreater <T, GetEt<T> > (container);
+  }
+  
+  
+  template <class T>
+    inline void sortByPtRef (std::vector <T>* container) {
+    sortGreater <T, GetPtRef<T> > (container);
+  }
+  
+  template <class T>
+    inline void sortByEtRef (std::vector <T>* container) {
+    sortGreater <T, GetEtRef<T> > (container);
+  }
+  
+}
 
 template <class T>
 class GreaterByPtRef {

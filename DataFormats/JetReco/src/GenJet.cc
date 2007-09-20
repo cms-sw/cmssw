@@ -1,6 +1,6 @@
 // GenJet.cc
 // Fedor Ratnikov, UMd
-// $Id: GenJet.cc,v 1.7 2006/12/06 22:43:24 fedor Exp $
+// $Id: GenJet.cc,v 1.8 2006/12/08 21:15:11 fedor Exp $
 
 #include <sstream>
 
@@ -10,6 +10,12 @@
 #include "DataFormats/JetReco/interface/GenJet.h"
 
 using namespace reco;
+
+GenJet::GenJet (const LorentzVector& fP4, const Point& fVertex, 
+		const Specific& fSpecific)
+  : Jet (fP4, fVertex),
+    m_specific (fSpecific)
+{}
 
 GenJet::GenJet (const LorentzVector& fP4, const Point& fVertex, 
 		const Specific& fSpecific, 

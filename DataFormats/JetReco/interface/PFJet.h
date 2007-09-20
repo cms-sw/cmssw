@@ -10,7 +10,7 @@
  * in addition to generic Jet parameters
  *
  * \author Fedor Ratnikov, UMd, Apr 24, 2007
-  * \version   $Id: PFJet.h,v 1.9 2007/08/20 17:53:30 fedor Exp $
+  * \version   $Id: PFJet.h,v 1.10 2007/08/24 17:35:23 fedor Exp $
  ************************************************************/
 
 
@@ -48,6 +48,8 @@ class PFJet : public Jet {
   /** Constructor from values*/
   PFJet(const LorentzVector& fP4, const Point& fVertex, const Specific& fSpecific, 
 	  const Jet::Constituents& fConstituents);
+
+  PFJet(const LorentzVector& fP4, const Point& fVertex, const Specific& fSpecific); 
 
   /** backward compatible, vertex=(0,0,0) */
   PFJet(const LorentzVector& fP4, const Specific& fSpecific, 

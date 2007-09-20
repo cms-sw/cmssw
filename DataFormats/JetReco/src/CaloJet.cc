@@ -1,6 +1,6 @@
 // CaloJet.cc
 // Fedor Ratnikov UMd
-// $Id: CaloJet.cc,v 1.13 2007/05/03 21:13:18 fedor Exp $
+// $Id: CaloJet.cc,v 1.14 2007/05/04 23:23:03 fedor Exp $
 #include <sstream>
 
 #include "FWCore/Utilities/interface/Exception.h"
@@ -10,6 +10,12 @@
 #include "DataFormats/JetReco/interface/CaloJet.h"
 
 using namespace reco;
+
+ CaloJet::CaloJet (const LorentzVector& fP4, const Point& fVertex, 
+		   const Specific& fSpecific)
+   : Jet (fP4, fVertex),
+     m_specific (fSpecific)
+ {}
 
  CaloJet::CaloJet (const LorentzVector& fP4, const Point& fVertex, 
  		  const Specific& fSpecific, 
