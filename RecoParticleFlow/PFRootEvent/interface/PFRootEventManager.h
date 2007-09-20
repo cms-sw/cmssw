@@ -153,9 +153,12 @@ class PFRootEventManager {
 
   /// parse option file
   /// if(reconnect), the rootfile will be reopened, and the tree reconnected
-  virtual void readOptions(const char* file, 
-			   bool refresh=true,
-			   bool reconnect=false);
+  void readOptions(const char* file, 
+		   bool refresh=true,
+		   bool reconnect=false);
+  
+  virtual void readSpecificOptions(const char* file) {}
+  
 
   /// open the root file and connect to the tree
   void connect(const char* infilename="");

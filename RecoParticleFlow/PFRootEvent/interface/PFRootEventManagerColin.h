@@ -62,9 +62,7 @@ class PFRootEventManagerColin : public PFRootEventManager {
 
   ~PFRootEventManagerColin();
 
-  void readOptions(const char* file, 
-		   bool refresh=true,
-		   bool reconnect=false);
+  void readSpecificOptions(const char* file);
 
   bool processEntry(int entry);
   bool processNeutral(); 
