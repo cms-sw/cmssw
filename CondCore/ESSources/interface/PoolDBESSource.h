@@ -13,6 +13,7 @@ namespace edm{
 }
 namespace cond{
   class DBSession;
+  class CoralTransaction;
   class Connection;
   struct IOVInfo{
     std::string tag; 
@@ -44,6 +45,8 @@ class PoolDBESSource : public edm::eventsetup::DataProxyProvider,
   cond::DBSession* m_session;
  private:
   void fillRecordToIOVInfo();
+  void fillTagCollectionFromDB( cond::CoralTransaction& coraldb,
+				const std::string& roottag );
   std::string buildRecordTagKey( const std::string& recordName, 
 				 const std::string& tagName );  
   std::string setupFrontier(const std::string& frontierconnect);

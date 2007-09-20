@@ -27,6 +27,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <sstream>
 #include <cstdlib>
+#include "TagCollectionRetriever.h"
 //#include <iostream>
 //
 // static data member definitions
@@ -103,13 +104,14 @@ PoolDBESSource::PoolDBESSource( const edm::ParameterSet& iConfig ) :
   /*parameter set parsing and pool environment setting
    */
   bool usetagDB=false;
-  if( iConfig.exists("globalTag") ){
+  if( iConfig.exists("globaltag") ){
+    std::cout<<"exists global tag parameter"<<std::endl;
     usetagDB=true;
   }
   std::string connect=iConfig.getParameter<std::string>("connect"); 
   std::string timetype=iConfig.getUntrackedParameter<std::string>("timetype","runnumber");
-  //std::cout<<"connect "<<connect<<std::endl;
-  //std::cout<<"timetype "<<timetype<<std::endl;
+  std::cout<<"connect "<<connect<<std::endl;
+  std::cout<<"timetype "<<timetype<<std::endl;
   edm::ParameterSet connectionPset = iConfig.getParameter<edm::ParameterSet>("DBParameters"); 
   cond::ConfigSessionFromParameterSet configConnection(*m_session,connectionPset);
   m_session->open();
@@ -117,15 +119,16 @@ PoolDBESSource::PoolDBESSource( const edm::ParameterSet& iConfig ) :
     cond::FipProtocolParser p;
     connect=p.getRealConnect(connect);
   }
-  //std::cout<<"using connect "<<connect<<std::endl;
+  std::cout<<"using connect "<<connect<<std::endl;
   ///handle frontier cache refresh
   if( connect.rfind("frontier://") != std::string::npos){
     connect=this->setupFrontier(connect);
   }
   conHandler.registerConnection(connect,connect,0);
   fillRecordToTypeMap(m_recordToTypes);
-  //std::cout<<"filled record to type map"<<std::endl;
+  std::cout<<"filled record to type map"<<std::endl;
   if( !usetagDB ){
+    std::cout<<"not using tag db"<<std::endl;
     typedef std::vector< edm::ParameterSet > Parameters;
     Parameters toGet = iConfig.getParameter<Parameters>("toGet");
     std::string tagName;
@@ -195,9 +198,15 @@ PoolDBESSource::PoolDBESSource( const edm::ParameterSet& iConfig ) :
       m_tagCollection.insert(std::make_pair<std::string,cond::TagMetadata>(tagName,m));
     }
   }else{
-    std::string globalTag=iConfig.getParameter<std::string>("globalTag");
-    std::cout<<"globalTag "<<globalTag<<std::endl;
-    exit(0);
+    std::cout<<"here"<<std::endl;
+    std::string globaltag=iConfig.getParameter<std::string>("globaltag");
+    std::cout<<"globaltag "<<globaltag<<std::endl;
+    cond::Connection* c=conHandler.getConnection(connect);
+    conHandler.connect(m_session);
+    cond::CoralTransaction& coraldb=c->coralTransaction(true);
+    coraldb.start();
+    this->fillTagCollectionFromDB(coraldb, globaltag);
+    coraldb.commit();
   }
   this->fillRecordToIOVInfo();
 }
@@ -385,4 +394,11 @@ PoolDBESSource::setupFrontier(const std::string& frontierconnect){
   m_session->webCacheControl().refreshTable( refreshConnect,cond::IOVNames::iovDataTableName() );
   m_session->webCacheControl().refreshTable( refreshConnect,cond::MetaDataNames::metadataTable() );
   return realconnect;
+}
+void 
+PoolDBESSource::fillTagCollectionFromDB( cond::CoralTransaction& coraldb, 
+					 const std::string& roottag ){
+  cond::TagCollectionRetriever tagRetriever( coraldb );
+  tagRetriever.getTagCollection(roottag,m_tagCollection);
+  //m_tagCollection.insert(std::make_pair<std::string,cond::TagMetadata>(tagName,m));
 }
