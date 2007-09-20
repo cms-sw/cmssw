@@ -5,8 +5,8 @@
 //   L1 DT Track Finder Raw-to-Digi
 //
 //
-//   $Date: 2007/07/03 12:24:40 $
-//   $Revision: 1.5 $
+//   $Date: 2007/08/30 09:03:49 $
+//   $Revision: 1.6 $
 //
 //   Author :
 //   J. Troconiz  UAM Madrid
@@ -309,7 +309,7 @@ int DTTFFEDReader::channel( int wheel, int sector,  int bx ){
   if ( sector < 0 || sector > 11) { return myChannel; }
   if ( abs(wheel) > 3)            { return myChannel; }
 
-   myChannel = sector*21 + wheel*3 + bx + 10 ; 
+   myChannel = sector*21 + wheel*3 - bx + 10 ; 
 
   return myChannel;
 }
@@ -318,7 +318,7 @@ int DTTFFEDReader::bxNr( int channel ){
 
   if (channel < 0 || channel > 252 ){ return -999; }
 
-  int myBx = (channel%3)-1;
+  int myBx = 1-(channel%3);
 
   return myBx;
 }
