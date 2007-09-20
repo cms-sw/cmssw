@@ -1,26 +1,39 @@
 #include "EventFilter/SiStripRawToDigi/plugins/SiStripRawToClustersRoI.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "DataFormats/Common/interface/Handle.h"
-#include "DataFormats/EgammaReco/interface/BasicCluster.h"
 #include "CalibTracker/Records/interface/SiStripRegionCablingRcd.h"
 #include "CLHEP/Random/RandFlat.h"
 
 using namespace std;
 using namespace sistrip;
 
-// -----------------------------------------------------------------------------
-//
 SiStripRawToClustersRoI::SiStripRawToClustersRoI( const edm::ParameterSet& conf ) :
 
-  inputModuleLabel_(conf.getUntrackedParameter<string>("InputModuleLabel","")),
   cabling_(),
+  inputModuleLabel_(conf.getUntrackedParameter<string>("InputModuleLabel","")),
   nlayers_(conf.getUntrackedParameter<int>("Layers",-1)),
+  global_(conf.getUntrackedParameter<bool>("Global",true)),
   random_(conf.getUntrackedParameter<bool>("Random",false)),
-  all_(conf.getUntrackedParameter<bool>("All",true)),
-  electron_(conf.getUntrackedParameter<bool>("Electron",false)),
-  deta_(conf.getUntrackedParameter<double>("DeltaEta",0.2)),
-  dphi_(conf.getUntrackedParameter<double>("DeltaPhi",0.2))
-  
+  electrons_(conf.getUntrackedParameter<bool>("Electrons",false)),
+  muons_(conf.getUntrackedParameter<bool>("Muons",false)),
+  taus_(conf.getUntrackedParameter<bool>("Taus",false)),
+  bjets_(conf.getUntrackedParameter<bool>("Bjets",false)),
+  electronBarrelModule_(conf.getUntrackedParameter<string>("ElectronBarrelModule","")),
+  electronBarrelProduct_(conf.getUntrackedParameter<string>("ElectronBarrelProduct","")),
+  electronEndcapModule_(conf.getUntrackedParameter<string>("ElectronEndcapModule","")),
+  electronEndcapProduct_(conf.getUntrackedParameter<string>("ElectronEndcapProduct","")),
+  muonModule_(conf.getUntrackedParameter<string>("MuonModule","")),
+  muonProduct_(conf.getUntrackedParameter<string>("MuonProduct","")),
+  tauModule_(conf.getUntrackedParameter<string>("TauModule","")),
+  tauProduct_(conf.getUntrackedParameter<string>("TauProduct","")),
+  bjetModule_(conf.getUntrackedParameter<string>("BjetModule","")),
+  bjetProduct_(conf.getUntrackedParameter<string>("BjetProduct","")),
+  electrondeta_(conf.getUntrackedParameter<double>("ElectronDeta",0.2)),
+  electrondphi_(conf.getUntrackedParameter<double>("ElectronDphi",0.2)),
+  muondeta_(conf.getUntrackedParameter<double>("MuonDeta",0.2)),
+  muondphi_(conf.getUntrackedParameter<double>("MuonDphi",0.2)),
+  taudeta_(conf.getUntrackedParameter<double>("TauDeta",0.2)),
+  taudphi_(conf.getUntrackedParameter<double>("TauDphi",0.2)),
+  bjetdeta_(conf.getUntrackedParameter<double>("BjetDeta",0.2)),
+  bjetdphi_(conf.getUntrackedParameter<double>("BjetDphi",0.2))
 {
   LogTrace(mlRawToCluster_)
     << "[SiStripRawToClustersRoI::" 
@@ -31,8 +44,6 @@ SiStripRawToClustersRoI::SiStripRawToClustersRoI( const edm::ParameterSet& conf 
   produces< RefGetter >();
 }
 
-// -----------------------------------------------------------------------------
-/** */
 SiStripRawToClustersRoI::~SiStripRawToClustersRoI() {
 
   LogTrace(mlRawToCluster_)
@@ -42,7 +53,6 @@ SiStripRawToClustersRoI::~SiStripRawToClustersRoI() {
     << " Destructing object...";
 }
 
-// -----------------------------------------------------------------------------
 void SiStripRawToClustersRoI::beginJob( const edm::EventSetup& setup) {
 
   LogTrace(mlRawToCluster_) 
@@ -50,17 +60,12 @@ void SiStripRawToClustersRoI::beginJob( const edm::EventSetup& setup) {
     << __func__ 
     << "]";
 
- //Fill cabling
   setup.get<SiStripRegionCablingRcd>().get(cabling_);
 }
 
-// -----------------------------------------------------------------------------
-void SiStripRawToClustersRoI::endJob() {;}
+void SiStripRawToClustersRoI::endJob() {}
 
-// -----------------------------------------------------------------------------
-/** */
-void SiStripRawToClustersRoI::produce( edm::Event& event, 
-					    const edm::EventSetup& setup ) {
+void SiStripRawToClustersRoI::produce( edm::Event& event, const edm::EventSetup& setup ) {
   
   // Retrieve unpacking tool from event
   edm::Handle< LazyGetter > lazygetter;
@@ -68,27 +73,46 @@ void SiStripRawToClustersRoI::produce( edm::Event& event,
   
   // Construct default RefGetter object
   std::auto_ptr<RefGetter> refgetter(new RefGetter());
-
+  
   // Fill RefGetter with regions of interest
-  if (random_) 
-    {
-      random(*refgetter,lazygetter);
-    }
+  if (global_) global(*refgetter,lazygetter);
 
-  if (all_) 
-    {
-      all(*refgetter,lazygetter);
-    }
+  if (random_) random(*refgetter,lazygetter);
+  
+  if (electrons_) {
+    try {
+    edm::Handle<reco::SuperClusterCollection> barrelcollection;
+    edm::Handle<reco::SuperClusterCollection> endcapcollection;
+    event.getByLabel(electronBarrelModule_,electronBarrelProduct_,barrelcollection);
+    event.getByLabel(electronEndcapModule_,electronEndcapProduct_,endcapcollection);
+    superclusters(*barrelcollection,*refgetter,lazygetter);
+    superclusters(*endcapcollection,*refgetter,lazygetter);
+    } catch(...) {}
+  }
 
-  if (electron_) 
-    {
-      edm::Handle<reco::SuperClusterCollection> barrelsclustersisolated;
-      edm::Handle<reco::SuperClusterCollection> endcapsclustersisolated;
-      event.getByLabel("hltIslandSuperClustersL1Isolated","islandEndcapSuperClusters",endcapsclustersisolated);
-      event.getByLabel("hltHybridSuperClustersL1Isolated","",barrelsclustersisolated);
-      superclusters(*barrelsclustersisolated,*refgetter,lazygetter);
-      superclusters(*endcapsclustersisolated,*refgetter,lazygetter);
-    }
+  if (muons_) {
+    try {
+    edm::Handle<reco::TrackCollection> collection;
+    event.getByLabel(muonModule_,muonProduct_,collection);
+    muons(*collection,*refgetter,lazygetter);
+    } catch(...) {}
+  }
+  
+  if (taus_) {
+    try {
+    edm::Handle<reco::CaloJetCollection> collection;
+    event.getByLabel(tauModule_,tauProduct_,collection);
+    taus(*collection,*refgetter,lazygetter);
+    } catch(...) {}
+  }
+  
+  if (bjets_) {
+    try {
+    edm::Handle<reco::CaloJetCollection> collection;
+    event.getByLabel(bjetModule_,bjetProduct_,collection);
+    bjets(*collection,*refgetter,lazygetter);
+    } catch(...) {}
+  }
   
   // Add to event
   event.put(refgetter);
@@ -102,7 +126,7 @@ bool SiStripRawToClustersRoI::physicalLayer(SiStripRegionCabling::SubDet& subdet
 void SiStripRawToClustersRoI::random(RefGetter& refgetter, edm::Handle<LazyGetter>& lazygetter) const {
   
   uint32_t total = cabling_->getRegionCabling().size();
-  uint32_t required = (uint32_t)(RandFlat::shoot()*(total+1));
+  uint32_t required = static_cast<uint32_t>(RandFlat::shoot()*(total+1));
   for (uint32_t iregion = 0; iregion < required; iregion++) {
     for (uint32_t isubdet = 0; isubdet < SiStripRegionCabling::ALLSUBDETS; isubdet++) {
       SiStripRegionCabling::SubDet subdet = static_cast<SiStripRegionCabling::SubDet>(isubdet);
@@ -114,7 +138,7 @@ void SiStripRawToClustersRoI::random(RefGetter& refgetter, edm::Handle<LazyGette
   }
 }
 
-void SiStripRawToClustersRoI::all(RefGetter& refgetter, edm::Handle<LazyGetter>& lazygetter) const {
+void SiStripRawToClustersRoI::global(RefGetter& refgetter, edm::Handle<LazyGetter>& lazygetter) const {
   
   for (uint32_t iregion = 0; iregion < cabling_->getRegionCabling().size(); iregion++) {
     for (uint32_t isubdet = 0; isubdet < SiStripRegionCabling::ALLSUBDETS; isubdet++) {
@@ -127,17 +151,59 @@ void SiStripRawToClustersRoI::all(RefGetter& refgetter, edm::Handle<LazyGetter>&
   }
 }
 
-void SiStripRawToClustersRoI::superclusters(const reco::SuperClusterCollection& coll, RefGetter& refgetter, edm::Handle<LazyGetter>& lazygetter) const {
+void SiStripRawToClustersRoI::superclusters(const reco::SuperClusterCollection& collection, RefGetter& refgetter, edm::Handle<LazyGetter>& lazygetter) const {
   
-  for (reco::SuperClusterCollection::const_iterator iclust = coll.begin(); iclust!=coll.end(); iclust++) {
-    SiStripRegionCabling::Position position(iclust->seed()->position().eta(),iclust->seed()->position().phi());
+  for (reco::SuperClusterCollection::const_iterator icollection = collection.begin(); icollection!=collection.end(); icollection++) {
+    SiStripRegionCabling::Position position(icollection->eta(),icollection->phi());
     for (uint32_t isubdet = 0; isubdet < SiStripRegionCabling::ALLSUBDETS; isubdet++) {
       SiStripRegionCabling::SubDet subdet = static_cast<SiStripRegionCabling::SubDet>(isubdet);
       for (uint32_t ilayer = 0; ilayer < SiStripRegionCabling::ALLLAYERS; ilayer++) {
 	if (!physicalLayer(subdet,ilayer)) break;
-	cabling_->updateSiStripRefGetter<SiStripCluster>(refgetter,lazygetter,position,deta_,dphi_,subdet,ilayer);
+	cabling_->updateSiStripRefGetter<SiStripCluster>(refgetter,lazygetter,position,electrondeta_,electrondphi_,subdet,ilayer);
       }
-    }
+    }    
+  }
+}
+
+void SiStripRawToClustersRoI::muons(const reco::TrackCollection& collection, RefGetter& refgetter, edm::Handle<LazyGetter>& lazygetter) const {
+
+  for (reco::TrackCollection::const_iterator icollection = collection.begin(); icollection!=collection.end(); icollection++) {
+    SiStripRegionCabling::Position position(icollection->outerEta(),icollection->outerPhi());
+    for (uint32_t isubdet = 0; isubdet < SiStripRegionCabling::ALLSUBDETS; isubdet++) {
+      SiStripRegionCabling::SubDet subdet = static_cast<SiStripRegionCabling::SubDet>(isubdet);
+      for (uint32_t ilayer = 0; ilayer < SiStripRegionCabling::ALLLAYERS; ilayer++) {
+	if (!physicalLayer(subdet,ilayer)) break;
+	cabling_->updateSiStripRefGetter<SiStripCluster>(refgetter,lazygetter,position,muondeta_,muondphi_,subdet,ilayer);
+      }
+    }    
+  }
+}
+
+void SiStripRawToClustersRoI::taus(const reco::CaloJetCollection& collection, RefGetter& refgetter, edm::Handle<LazyGetter>& lazygetter) const {
+
+  for (reco::CaloJetCollection::const_iterator icollection = collection.begin(); icollection!=collection.end(); icollection++) {
+    SiStripRegionCabling::Position position(icollection->eta(),icollection->phi());
+    for (uint32_t isubdet = 0; isubdet < SiStripRegionCabling::ALLSUBDETS; isubdet++) {
+      SiStripRegionCabling::SubDet subdet = static_cast<SiStripRegionCabling::SubDet>(isubdet);
+      for (uint32_t ilayer = 0; ilayer < SiStripRegionCabling::ALLLAYERS; ilayer++) {
+	if (!physicalLayer(subdet,ilayer)) break;
+	cabling_->updateSiStripRefGetter<SiStripCluster>(refgetter,lazygetter,position,taudeta_,taudphi_,subdet,ilayer);
+      }
+    }    
+  }
+}
+
+void SiStripRawToClustersRoI::bjets(const reco::CaloJetCollection& collection, RefGetter& refgetter, edm::Handle<LazyGetter>& lazygetter) const {
+
+  for (reco::CaloJetCollection::const_iterator icollection = collection.begin(); icollection!=collection.end(); icollection++) {
+    SiStripRegionCabling::Position position(icollection->eta(),icollection->phi());
+    for (uint32_t isubdet = 0; isubdet < SiStripRegionCabling::ALLSUBDETS; isubdet++) {
+      SiStripRegionCabling::SubDet subdet = static_cast<SiStripRegionCabling::SubDet>(isubdet);
+      for (uint32_t ilayer = 0; ilayer < SiStripRegionCabling::ALLLAYERS; ilayer++) {
+	if (!physicalLayer(subdet,ilayer)) break;
+	cabling_->updateSiStripRefGetter<SiStripCluster>(refgetter,lazygetter,position,bjetdeta_,bjetdphi_,subdet,ilayer);
+      }
+    }    
   }
 }
 
