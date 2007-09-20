@@ -1,21 +1,6 @@
 //
-// Author:  Jan Heyninck
-// Created: Tue Apr  3 17:33:23 PDT 2007
+// $Id: TtSemiSimpleBestJetComb.cc,v 1.2 2007/06/09 01:17:40 lowette Exp $
 //
-// $Id: TtSemiSimpleBestJetComb.cc,v 1.1 2007/05/19 09:54:39 heyninck Exp $
-//
-
-/**
-  \class    TtSemiSimpleBestJetComb
-  \brief    Simple method to get the correct jet combination in semileptonic ttbar events
-
-   This method starts from a vector of fitted TtSemiEvtSolutions. This class returns the solution with the highest probChi^2 value. In case
-   that there are more possibilities (eg when only a hadrW constraint was applied), the correct hadronic b is assumed to be the one with the
-   smallest DR angle wrt the Whadr direction. 
-
-  \author   Jan Heyninck
-  \version  $Id: TtSemiSimpleBestJetComb.cc,v 1.1 2007/05/19 09:54:39 heyninck Exp $
-*/
 
 #include "TopQuarkAnalysis/TopJetCombination/interface/TtSemiSimpleBestJetComb.h"
 
