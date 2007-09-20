@@ -50,8 +50,8 @@ ostream& reco::operator<<(ostream& out,
   //   for(unsigned i=0; i<c.elementIndices_.size(); i++) {
   //     out<<c.elementIndices_[0]<<" ";
   //   }
+  //   out<<endl;
   
-  out<<endl;
   out<<resetiosflags(ios::right|ios::fixed);
   
   //  out<< *(c.blockRef_)<<endl;
