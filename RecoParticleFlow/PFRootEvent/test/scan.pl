@@ -55,7 +55,7 @@ print "======== tags: $tag1 $tag2 ==  values: $svalues == $sfiles ======= \n";
 
 
 my $date = `date +%d%b%Y_%H%M%S`;
-my $scandir = "ScanOut\_$tag1\_$tag2";
+my $scandir = "ScanOut\_$tag1\_$tag2\_$date";
 chomp $scandir;
 `mkdir $scandir`;
 `echo "scan.pl @args" > scan.pl.log`;
@@ -139,8 +139,8 @@ foreach my $value (@values) {
 	while ( <IN> ) {
 	    my $line = $_;
 	    
-	    if($line =~ /PFRootEventManager\s+em/ && $line !~ /\s*\/\//) {
-		print OUT "PFRootEventManager em(\"$optfile\");\n";
+	    if($line =~ /(PFRootEventManager\S*)\s+em/ && $line !~ /\s*\/\//) {
+		print OUT "$1 em(\"$optfile\");\n";
 	    }
 	    else {
 		print OUT "$line";
