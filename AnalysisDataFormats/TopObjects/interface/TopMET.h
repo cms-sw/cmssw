@@ -1,5 +1,5 @@
 //
-// $Id: TopMET.h,v 1.7 2007/07/05 23:49:59 lowette Exp $
+// $Id: TopMET.h,v 1.8 2007/07/17 13:46:14 yumiceva Exp $
 //
 
 #ifndef TopObjects_TopMET_h
@@ -12,7 +12,7 @@
    TopMET contains a missing ET 4-vector as a TopObject
 
   \author   Steven Lowette
-  \version  $Id: TopMET.h,v 1.7 2007/07/05 23:49:59 lowette Exp $
+  \version  $Id: TopMET.h,v 1.8 2007/07/17 13:46:14 yumiceva Exp $
 */
 
 
@@ -39,7 +39,7 @@ class TopMET : public TopObject<TopMETType> {
 
   protected:
 
-    void setGenMET(const Particle & gm);
+    void setGenMET(const reco::Particle & gm);
 
   protected:
 
