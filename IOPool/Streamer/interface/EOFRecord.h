@@ -6,8 +6,8 @@ lastevent-offset 8
 
 */
 
-#ifndef _EOFRecord_h
-#define _EOFRecord_h
+#ifndef IOPool_Streamer_EOFRecord_h
+#define IOPool_Streamer_EOFRecord_h
 
 #include "IOPool/Streamer/interface/MsgTools.h"
 #include "IOPool/Streamer/interface/MsgHeader.h"

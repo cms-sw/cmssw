@@ -1,5 +1,5 @@
-#ifndef Stream_DQM_Serializer_h
-#define Stream_DQM_Serializer_h
+#ifndef IOPool_Streamer_StreamDQMSerializer_h
+#define IOPool_Streamer_StreamDQMSerializer_h
 
 /**
  * StreamDQMSerializer.h

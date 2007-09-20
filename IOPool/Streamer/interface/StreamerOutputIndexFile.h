@@ -1,7 +1,7 @@
  /** Class for doing Index write operations. */
 
-#ifndef _StreamerOutputIndexFile_h
-#define _StreamerOutputIndexFile_h
+#ifndef IOPool_Streamer_StreamerOutputIndexFile_h
+#define IOPool_Streamer_StreamerOutputIndexFile_h
 
 #include "IOPool/Streamer/interface/InitMsgBuilder.h"
 #include "IOPool/Streamer/interface/InitMessage.h"

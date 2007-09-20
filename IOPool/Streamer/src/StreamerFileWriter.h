@@ -1,7 +1,7 @@
-#ifndef _StreamerFileWriter_h
-#define _StreamerFileWriter_h 
+#ifndef IOPool_Streamer_StreamerFileWriter_h
+#define IOPool_Streamer_StreamerFileWriter_h 
 
-// $Id$
+// $Id: StreamerFileWriter.h,v 1.9 2007/05/01 22:41:12 hcheung Exp $
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 

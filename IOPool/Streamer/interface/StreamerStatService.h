@@ -1,7 +1,7 @@
-#ifndef StreamerStatService_h
-#define StreamerStatService_h
+#ifndef IOPool_Streamer_StreamerStatService_h
+#define IOPool_Streamer_StreamerStatService_h
 
-// $Id: StreamerStatService.h,v 1.4 2006/10/11 14:39:32 klute Exp $
+// $Id: StreamerStatService.h,v 1.5 2007/06/29 16:37:51 wmtan Exp $
 
 #include<string>
 #include<vector>

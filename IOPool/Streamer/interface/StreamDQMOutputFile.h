@@ -1,5 +1,5 @@
-#ifndef _StreamDQMOutputFile_h
-#define _StreamDQMOutputFile_h
+#ifndef IOPool_Streamer_StreamDQMOutputFile_h
+#define IOPool_Streamer_StreamDQMOutputFile_h
 
 /** StreamDQMOutputFile: Class for doing Streamer Write operations */
 

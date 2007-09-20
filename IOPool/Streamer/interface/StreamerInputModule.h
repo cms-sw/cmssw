@@ -1,5 +1,5 @@
-#ifndef Streamer_InputModule_h
-#define Streamer_InputModule_h
+#ifndef IOPool_Streamer_StreamerInputModule_h
+#define IOPool_Streamer_StreamerInputModule_h
 
 #include "IOPool/Streamer/interface/StreamerInputSource.h"
 

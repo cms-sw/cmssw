@@ -1,5 +1,5 @@
-#ifndef _DQMEventMsgBuilder_h
-#define _DQMEventMsgBuilder_h
+#ifndef IOPool_Streamer_DQMEventMsgBuilder_h
+#define IOPool_Streamer_DQMEventMsgBuilder_h
 
 /**
  * This class is used to build and view the DQM Event data

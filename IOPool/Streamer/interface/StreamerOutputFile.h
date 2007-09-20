@@ -1,5 +1,5 @@
-#ifndef _StreamerOutputFile_h
-#define _StreamerOutputFile_h
+#ifndef IOPool_Streamer_StreamerOutputFile_h
+#define IOPool_Streamer_StreamerOutputFile_h
 
 /** StreamerOutputFile: Class for doing Streamer Write operations */
 

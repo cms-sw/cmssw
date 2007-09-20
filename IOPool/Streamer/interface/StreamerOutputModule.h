@@ -1,7 +1,7 @@
-#ifndef StreamerOutputModule_h_
-#define StreamerOutputModule_h_
+#ifndef IOPool_Streamer_StreamerOutputModule_h
+#define IOPool_Streamer_StreamerOutputModule_h
 
-// $Id: StreamerOutputModule.h,v 1.29 2007/09/10 20:23:09 wmtan Exp $
+// $Id: StreamerOutputModule.h,v 1.30 2007/09/13 20:16:27 paterno Exp $
 
 #include "FWCore/RootAutoLibraryLoader/interface/RootAutoLibraryLoader.h"
 #include "FWCore/Utilities/interface/Exception.h"

@@ -1,5 +1,5 @@
-#ifndef _EventMsgBuilder_h
-#define _EventMsgBuilder_h
+#ifndef IOPool_Streamer_EventMsgBuilder_h
+#define IOPool_Streamer_EventMsgBuilder_h
 
 #include "IOPool/Streamer/interface/MsgTools.h"
 

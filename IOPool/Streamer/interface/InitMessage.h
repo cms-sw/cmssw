@@ -12,8 +12,8 @@ code 1 | size 4 | protocol version 1 | pset 16 | run 4 | Init Header Size 4| Eve
 
 */
 
-#ifndef _InitMessage_h
-#define _InitMessage_h
+#ifndef IOPool_Streamer_InitMessage_h
+#define IOPool_Streamer_InitMessage_h
 
 #include "IOPool/Streamer/interface/MsgTools.h"
 #include "IOPool/Streamer/interface/MsgHeader.h"

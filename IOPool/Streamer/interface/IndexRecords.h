@@ -1,5 +1,5 @@
-#ifndef _IndexRecords_h
-#define _IndexRecords_h
+#ifndef IOPool_Streamer_IndexRecords_h
+#define IOPool_Streamer_IndexRecords_h
 
 /** Contains definitions for calsses representing Records
 in an Index file, a little different from Init and Event Message Herades */

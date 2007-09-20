@@ -1,7 +1,7 @@
-#ifndef _StreamerOutputService_h
-#define _StreamerOutputService_h 
+#ifndef IOPool_Streamer_StreamerOutputService_h
+#define IOPool_Streamer_StreamerOutputService_h 
 
-// $Id: StreamerOutputService.h,v 1.10 2006/12/19 00:30:44 wmtan Exp $
+// $Id: StreamerOutputService.h,v 1.11 2007/06/29 16:37:51 wmtan Exp $
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/EventSelector.h"

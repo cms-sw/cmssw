@@ -1,5 +1,5 @@
-#ifndef Streamer_TestConsumer_h
-#define Streamer_TestConsumer_h
+#ifndef IOPool_Streamer_TestConsumer_h
+#define IOPool_Streamer_TestConsumer_h
 
 #include "IOPool/Streamer/interface/EventBuffer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"

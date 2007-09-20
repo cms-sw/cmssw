@@ -1,5 +1,5 @@
-#ifndef CONSUMER_REG_MESSAGE_H
-#define CONSUMER_REG_MESSAGE_H
+#ifndef IOPool_Streamer_ConsumerRegMessage_h
+#define IOPool_Streamer_ConsumerRegMessage_h
 
 /**
  * These classes are used to build and view

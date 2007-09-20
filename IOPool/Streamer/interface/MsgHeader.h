@@ -1,5 +1,5 @@
-#ifndef _MsgHeader_h
-#define _MsgHeader_h
+#ifndef IOPool_Streamer_MsgHeader_h
+#define IOPool_Streamer_MsgHeader_h
 
 #include "IOPool/Streamer/interface/MsgTools.h"
 // as it is in memory of file

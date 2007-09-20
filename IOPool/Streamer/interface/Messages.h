@@ -1,5 +1,5 @@
-#ifndef Streamer_Messages_h
-#define Streamer_Messages_h
+#ifndef IOPool_Streamer_Messages_h
+#define IOPool_Streamer_Messages_h
 
 /*
   The header for each of the data buffer that will be transferred.

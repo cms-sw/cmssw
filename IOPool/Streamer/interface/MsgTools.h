@@ -1,5 +1,5 @@
-#ifndef _MsgTools_h
-#define _MsgTools_h
+#ifndef IOPool_Streamer_MsgTools_h
+#define IOPool_Streamer_MsgTools_h
 
 #include <vector>
 #include <string>

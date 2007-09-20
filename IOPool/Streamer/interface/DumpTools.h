@@ -1,9 +1,9 @@
+#ifndef IOPool_Streamer_DumpTools_h
+#define IOPool_Streamer_DumpTools_h
+
 /** File contains simple tools to dump Init and Event 
     Messages on screen.
 */
-
-#ifndef _dump_tool_
-#define _dump_tool_
 
 #include "IOPool/Streamer/interface/MsgTools.h"
 #include "IOPool/Streamer/interface/InitMessage.h"

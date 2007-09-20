@@ -1,5 +1,5 @@
-#ifndef _StreamerInputIndexFile_h
-#define _StreamerInputIndexFile_h
+#ifndef IOPool_Streamer_StreamerInputIndexFile_h
+#define IOPool_Streamer_StreamerInputIndexFile_h
 
 #include "IOPool/Streamer/interface/MsgTools.h"
 #include "IOPool/Streamer/interface/IndexRecords.h"

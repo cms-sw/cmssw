@@ -1,5 +1,5 @@
-#ifndef _InitMsgBuilder_h
-#define _InitMsgBuilder_h
+#ifndef IOPool_Streamer_InitMsgBuilder_h
+#define IOPool_Streamer_InitMsgBuilder_h
 
 #include "IOPool/Streamer/interface/MsgTools.h"
 #include "IOPool/Streamer/interface/InitMessage.h"

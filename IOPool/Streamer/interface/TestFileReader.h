@@ -1,5 +1,5 @@
-#ifndef Streamer_TestFileReader_h
-#define Streamer_TestFileReader_h
+#ifndef IOPool_Streamer_TestFileReader_h
+#define IOPool_Streamer_TestFileReader_h
 
 #include "IOPool/Streamer/interface/EventBuffer.h"
 #include "DataFormats/Provenance/interface/ProductRegistry.h"

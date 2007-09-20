@@ -1,5 +1,5 @@
-#ifndef Stream_Serializer_h
-#define Stream_Serializer_h
+#ifndef IOPool_Streamer_StreamSerializer_h
+#define IOPool_Streamer_StreamSerializer_h
 
 /**
  * StreamSerializer.h

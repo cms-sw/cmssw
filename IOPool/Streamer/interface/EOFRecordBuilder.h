@@ -1,5 +1,5 @@
-#ifndef _EOFRecordBuilder_h
-#define _EOFRecordBuilder_h
+#ifndef IOPool_Streamer_EOFRecordBuilder_h
+#define IOPool_Streamer_EOFRecordBuilder_h
 
 #include "IOPool/Streamer/interface/MsgTools.h"
 

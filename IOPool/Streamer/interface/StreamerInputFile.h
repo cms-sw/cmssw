@@ -1,5 +1,5 @@
-#ifndef _StreamerInputFile_h
-#define _StreamerInputFile_h
+#ifndef IOPool_Streamer_StreamerInputFile_h
+#define IOPool_Streamer_StreamerInputFile_h
 
 #include "IOPool/Streamer/interface/InitMessage.h"
 #include "IOPool/Streamer/interface/EventMessage.h"

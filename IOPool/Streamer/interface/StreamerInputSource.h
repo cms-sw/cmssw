@@ -1,5 +1,5 @@
-#ifndef StreamerInputSource_h
-#define StreamerInputSource_h
+#ifndef IOPool_Streamer_StreamerInputSource_h
+#define IOPool_Streamer_StreamerInputSource_h
 
 /**
  * StreamerInputSource.h

@@ -1,5 +1,5 @@
-#ifndef Streamer_EventStreamOutput_h
-#define Streamer_EventStreamOutput_h
+#ifndef IOPool_Streamer_EventStreamOutput_h
+#define IOPool_Streamer_EventStreamOutput_h
 
 // -*- C++ -*-
 

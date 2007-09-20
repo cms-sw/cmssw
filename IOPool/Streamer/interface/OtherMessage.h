@@ -6,8 +6,8 @@ For now use can provide any code, in future we may restrict 0, 1 and 2.
 
 */
 
-#ifndef _OtherMessage_h
-#define _OtherMessage_h
+#ifndef IOPool_Streamer_OtherMessage_h
+#define IOPool_Streamer_OtherMessage_h
 
 #include "IOPool/Streamer/interface/MsgTools.h"
 #include "IOPool/Streamer/interface/MsgHeader.h"

@@ -1,5 +1,5 @@
-#ifndef Streamer_Utilties_h
-#define Streamer_Utilties_h
+#ifndef IOPool_Streamer_Utilties_h
+#define IOPool_Streamer_Utilties_h
 
 // -*- C++ -*-
 //

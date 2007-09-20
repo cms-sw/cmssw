@@ -1,5 +1,5 @@
-#ifndef Streamer_BufferArea_h
-#define Streamer_BufferArea_h
+#ifndef IOPool_Streamer_BufferArea_h
+#define IOPool_Streamer_BufferArea_h
 
 // -*- C++ -*-
 

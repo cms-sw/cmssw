@@ -7,8 +7,8 @@ eventdatalength 4 | eventdata blob {variable}
 
 */
 
-#ifndef _EventMessage_h
-#define _EventMessage_h
+#ifndef IOPool_Streamer_EventMessage_h
+#define IOPool_Streamer_EventMessage_h
 
 #include "IOPool/Streamer/interface/MsgTools.h"
 #include "IOPool/Streamer/interface/MsgHeader.h"

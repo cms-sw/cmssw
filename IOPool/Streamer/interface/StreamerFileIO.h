@@ -3,8 +3,8 @@ This file contains Class definitions for the
 Class representing Output (Streamer/Index) file.
 */
 
-#ifndef _StreamerFileIO_h
-#define _StreamerFileIO_h
+#ifndef IOPool_Streamer_StreamerFileIO_h
+#define IOPool_Streamer_StreamerFileIO_h
 
 #include "IOPool/Streamer/interface/MsgTools.h"
 

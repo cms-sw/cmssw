@@ -1,5 +1,5 @@
-#ifndef _StreamDQMInputFile_h
-#define _StreamDQMInputFile_h
+#ifndef IOPool_Streamer_StreamDQMInputFile_h
+#define IOPool_Streamer_StreamDQMInputFile_h
 
 #include "IOPool/Streamer/interface/DQMEventMessage.h"
 

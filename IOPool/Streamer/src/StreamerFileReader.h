@@ -1,5 +1,5 @@
-#ifndef _StreamerFileReader_H
-#define _StreamerFileReader_H
+#ifndef IOPool_Streamer_StreamerFileReader_h
+#define IOPool_Streamer_StreamerFileReader_h
 
 #include "IOPool/Streamer/interface/InitMessage.h"
 #include "IOPool/Streamer/interface/EventMessage.h"

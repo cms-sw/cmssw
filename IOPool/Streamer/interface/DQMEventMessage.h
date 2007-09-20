@@ -1,5 +1,5 @@
-#ifndef _DQMEventMessage_h
-#define _DQMEventMessage_h
+#ifndef IOPool_Streamer_DQMEventMessage_h
+#define IOPool_Streamer_DQMEventMessage_h
 
 /**
  * The DQMEventMsgView class is used to view the DQM data messages that
