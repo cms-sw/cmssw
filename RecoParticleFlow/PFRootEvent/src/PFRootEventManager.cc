@@ -549,10 +549,11 @@ void PFRootEventManager::readOptions(const char* file,
   options_->GetOpt("particle_flow", "nsigma_ECAL", nSigmaECAL);
   double nSigmaHCAL = 99999;
   options_->GetOpt("particle_flow", "nsigma_HCAL", nSigmaHCAL);
-  double mvaCut = -99999;
+
+  double mvaCut = 999999;
   options_->GetOpt("particle_flow", "mergedPhotons_mvaCut", mvaCut);
     
-
+  
   pfAlgo_.setParameters( eCalibP0, eCalibP1, nSigmaECAL, nSigmaHCAL,
 			 mvaCut );
 
