@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2007/06/19 10:20:52 $
- *  $Revision: 1.7 $
+ *  $Date: 2007/09/19 13:37:45 $
+ *  $Revision: 1.9 $
  *  \author C. Battilana S. Marcellini - INFN Bologna
  */
 
@@ -40,20 +40,14 @@ DTLocalTriggerTest::DTLocalTriggerTest(const edm::ParameterSet& ps){
   dbe = edm::Service<DaqMonitorBEInterface>().operator->();
   dbe->setVerbose(1);
 
+  prescaleFactor = parameters.getUntrackedParameter<int>("diagnosticPrescale", 1);
+
 }
 
 
 DTLocalTriggerTest::~DTLocalTriggerTest(){
 
   edm::LogVerbatim ("localTrigger") << "[DTLocalTriggerTest]: analyzed " << nevents << " events";
-
-}
-
-
-void DTLocalTriggerTest::endJob(){
-
-  edm::LogVerbatim ("localTrigger") << "[DTLocalTriggerTest] endjob called!";
-  dbe->rmdir("DT/Tests/DTLocalTrigger");
 
 }
 
@@ -66,132 +60,46 @@ void DTLocalTriggerTest::beginJob(const edm::EventSetup& context){
   
 }
 
-void DTLocalTriggerTest::bookChambHistos(DTChamberId chambId, string htype) {
-  
-  stringstream wheel; wheel << chambId.wheel();
-  stringstream station; station << chambId.station();	
-  stringstream sector; sector << chambId.sector();
 
-  string HistoName = htype + "_W" + wheel.str() + "_Sec" + sector.str() + "_St" + station.str();
+void DTLocalTriggerTest::beginLuminosityBlock(LuminosityBlock const& lumiSeg, EventSetup const& context) {
 
-  dbe->setCurrentFolder("DT/Tests/DTLocalTrigger/Wheel" + wheel.str() +
-			"/Sector" + sector.str() +
-			"/Station" + station.str());
-  
-  uint32_t indexChId = chambId.rawId();
-  if (htype.find("TrigEffAngle_Phi") == 0){
-    chambME[indexChId][htype] = dbe->book1D(HistoName.c_str(),HistoName.c_str(),25,-1.,1.);
-    return;
-  }
-  if (htype.find("TrigEffAngle_Theta") == 0){
-    chambME[indexChId][htype] = dbe->book1D(HistoName.c_str(),HistoName.c_str(),25,-1.,1.);
-    return;
-  }
-  if (htype.find("TrigPosition_Phi") == 0){
-    chambME[indexChId][htype] = dbe->book1D(HistoName.c_str(),HistoName.c_str(),100,-500.,500.);
-    return;
-  }
-  if (htype.find("TrigDirection_Phi") == 0){
-    chambME[indexChId][htype] = dbe->book1D(HistoName.c_str(),HistoName.c_str(),200,-2.,2.);
-    return;
-  }
-  if (htype.find("TrigEffPos_Phi") == 0 ){
-    pair<float,float> range = phiRange(chambId);
-    int nbins = int((range.second - range.first)/15);
-    chambME[indexChId][htype] = dbe->book1D(HistoName.c_str(),HistoName.c_str(),nbins,range.first,range.second);
-    return;
-  }
-  if (htype.find("TrigEffPosHHHL_Phi") == 0 ){
-    pair<float,float> range = phiRange(chambId);
-    int nbins = int((range.second - range.first)/15);
-    chambME[indexChId][htype] = dbe->book1D(HistoName.c_str(),HistoName.c_str(),nbins,range.first,range.second);
-    return;
-  }
-  if (htype.find("TrigEffPos_Theta") == 0){
-    chambME[indexChId][htype] = dbe->book1D(HistoName.c_str(),HistoName.c_str(),20,-117.5,117.5);
-    return;
-  }
-  
+  edm::LogVerbatim ("localTrigger") <<"[DTLocalTriggerTest]: Begin of LS transition";
+
+  // Get the run number
+  run = lumiSeg.run();
 
 }
 
-void DTLocalTriggerTest::bookSectorHistos(int wheel,int sector,string folder, string htype) {
-  
-  stringstream wh; wh << wheel;
-  stringstream sc; sc << sector;
-  int sectorid = (wheel+3) + (sector-1)*5;
-  dbe->setCurrentFolder("DT/Tests/DTLocalTrigger/Wheel"+ wh.str()+"/Sector"+ sc.str()+"/"+folder);
 
-  if (htype.find("Phi") != string::npos){    
-    string hname = htype + "_W" + wh.str()+"_Sec" +sc.str();
-    MonitorElement* me = dbe->book1D(hname.c_str(),hname.c_str(),4,1,5);
-    //setLabelPh(me);
-    secME[sectorid][htype] = me;
-    return;
-  }
-  
-  if (htype.find("Theta") != string::npos){
-    string hname = htype + "_W" + wh.str()+ "_Sec"+sc.str();
-    MonitorElement* me =dbe->book1D(hname.c_str(),hname.c_str(),3,1,4);
-    //setLabelTh(me);
-    secME[sectorid][htype] = me;
-    return;
-  }
-  
-}
-
-pair<float,float> DTLocalTriggerTest::phiRange(const DTChamberId& id){
-
-  float min,max;
-  int station = id.station();
-  int sector  = id.sector(); 
-  int wheel   = id.wheel();
-  
-  const DTLayer  *layer = muonGeom->layer(DTLayerId(id,1,1));
-  DTTopology topo = layer->specificTopology();
-  min = topo.wirePosition(topo.firstChannel());
-  max = topo.wirePosition(topo.lastChannel());
-
-  if (station == 4){
-    
-    const DTLayer *layer2;
-    float lposx;
-    
-    if (sector == 4){
-      layer2  = muonGeom->layer(DTLayerId(wheel,station,13,1,1));
-      lposx = layer->toLocal(layer2->position()).x();
-    }
-    else if (sector == 10){
-      layer2 = muonGeom->layer(DTLayerId(wheel,station,14,1,1));
-      lposx = layer->toLocal(layer2->position()).x();
-    }
-    else
-      return make_pair(min,max);
-    
-    DTTopology topo2 = layer2->specificTopology();
-
-    if (lposx>0){
-      max = lposx*.5+topo2.wirePosition(topo2.lastChannel());
-      min -= lposx*.5;
-    }
-    else{
-      min = lposx*.5+topo2.wirePosition(topo2.firstChannel());
-      max -= lposx*.5;
-    }
-      
-  }
-  
-  return make_pair(min,max);
-
-}
 
 void DTLocalTriggerTest::analyze(const edm::Event& e, const edm::EventSetup& context){
+
+  nevents++;
+  edm::LogVerbatim ("localTrigger") << "[DTLocalTriggerTest]: "<<nevents<<" events";
+
+}
+
+
+
+void DTLocalTriggerTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, EventSetup const& context) {
   
   // counts number of updats (online mode) or number of events (standalone mode)
-  nevents++;
+  //nevents++;
   // if running in standalone perform diagnostic only after a reasonalbe amount of events
-  if ( parameters.getUntrackedParameter<bool>("runningStandalone", false) && 
-       nevents%parameters.getUntrackedParameter<int>("diagnosticPrescale", 1000) != 0 ) return;
+  //if ( parameters.getUntrackedParameter<bool>("runningStandalone", false) && 
+  //   nevents%parameters.getUntrackedParameter<int>("diagnosticPrescale", 1000) != 0 ) return;
+
+
+  edm::LogVerbatim ("localTrigger") <<"[DTLocalTriggerTest]: End of LS transition, performing the DQM client operation";
+
+  // counts number of lumiSegs 
+  nLumiSegs = lumiSeg.id().luminosityBlock();
+
+  // prescale factor
+  if ( nLumiSegs%prescaleFactor != 0 ) return;
+
+  edm::LogVerbatim ("localTrigger") <<"[DTLocalTriggerTest]: "<<nLumiSegs<<" updates";
+  
 
   // Loop over the TriggerUnits
   for (int stat=1; stat<=4; ++stat){
@@ -445,12 +353,36 @@ void DTLocalTriggerTest::analyze(const edm::Event& e, const edm::EventSetup& con
     }
   }
 
-  if (nevents%parameters.getUntrackedParameter<int>("resultsSavingRate",10) == 0){
-    if ( parameters.getUntrackedParameter<bool>("writeHisto", true) ) 
-      dbe->save(parameters.getUntrackedParameter<string>("outputFile", "DTLocalTriggerTest.root"));
+  //if (nevents%parameters.getUntrackedParameter<int>("resultsSavingRate",10) == 0){
+  // if ( parameters.getUntrackedParameter<bool>("writeHisto", true) ) 
+  //  dbe->save(parameters.getUntrackedParameter<string>("outputFile", "DTLocalTriggerTest.root"));
+  //}
+
+}
+
+
+void DTLocalTriggerTest::endRun(){
+
+  if ( parameters.getUntrackedParameter<bool>("writeHisto", true) ) {
+    stringstream runNumber; runNumber << run;
+    string rootFile = "DTLocalTriggerTest_" + runNumber.str() + ".root";
+    dbe->save(parameters.getUntrackedParameter<string>("outputFile", rootFile));
   }
 
 }
+
+
+
+void DTLocalTriggerTest::endJob(){
+
+  edm::LogVerbatim ("localTrigger") << "[DTLocalTriggerTest] endjob called!";
+  dbe->rmdir("DT/Tests/DTLocalTrigger");
+
+}
+
+
+
+
 
 void DTLocalTriggerTest::makeEfficiencyME(TH1F* numerator, TH1F* denominator, MonitorElement* result){
   
@@ -476,6 +408,8 @@ void DTLocalTriggerTest::makeEfficiencyME(TH1F* numerator, TH1F* denominator, Mo
 
 }
     
+
+
 string DTLocalTriggerTest::getMEName(string histoTag, string subfolder, const DTChamberId & chambid) {
 
   stringstream wheel; wheel << chambid.wheel();
@@ -499,4 +433,129 @@ string DTLocalTriggerTest::getMEName(string histoTag, string subfolder, const DT
   
   return histoname;
   
+}
+
+
+
+void DTLocalTriggerTest::bookChambHistos(DTChamberId chambId, string htype) {
+  
+  stringstream wheel; wheel << chambId.wheel();
+  stringstream station; station << chambId.station();	
+  stringstream sector; sector << chambId.sector();
+
+  string HistoName = htype + "_W" + wheel.str() + "_Sec" + sector.str() + "_St" + station.str();
+
+  dbe->setCurrentFolder("DT/Tests/DTLocalTrigger/Wheel" + wheel.str() +
+			"/Sector" + sector.str() +
+			"/Station" + station.str());
+  
+  uint32_t indexChId = chambId.rawId();
+  if (htype.find("TrigEffAngle_Phi") == 0){
+    chambME[indexChId][htype] = dbe->book1D(HistoName.c_str(),HistoName.c_str(),25,-1.,1.);
+    return;
+  }
+  if (htype.find("TrigEffAngle_Theta") == 0){
+    chambME[indexChId][htype] = dbe->book1D(HistoName.c_str(),HistoName.c_str(),25,-1.,1.);
+    return;
+  }
+  if (htype.find("TrigPosition_Phi") == 0){
+    chambME[indexChId][htype] = dbe->book1D(HistoName.c_str(),HistoName.c_str(),100,-500.,500.);
+    return;
+  }
+  if (htype.find("TrigDirection_Phi") == 0){
+    chambME[indexChId][htype] = dbe->book1D(HistoName.c_str(),HistoName.c_str(),200,-2.,2.);
+    return;
+  }
+  if (htype.find("TrigEffPos_Phi") == 0 ){
+    pair<float,float> range = phiRange(chambId);
+    int nbins = int((range.second - range.first)/15);
+    chambME[indexChId][htype] = dbe->book1D(HistoName.c_str(),HistoName.c_str(),nbins,range.first,range.second);
+    return;
+  }
+  if (htype.find("TrigEffPosHHHL_Phi") == 0 ){
+    pair<float,float> range = phiRange(chambId);
+    int nbins = int((range.second - range.first)/15);
+    chambME[indexChId][htype] = dbe->book1D(HistoName.c_str(),HistoName.c_str(),nbins,range.first,range.second);
+    return;
+  }
+  if (htype.find("TrigEffPos_Theta") == 0){
+    chambME[indexChId][htype] = dbe->book1D(HistoName.c_str(),HistoName.c_str(),20,-117.5,117.5);
+    return;
+  }
+  
+
+}
+
+
+
+void DTLocalTriggerTest::bookSectorHistos(int wheel,int sector,string folder, string htype) {
+  
+  stringstream wh; wh << wheel;
+  stringstream sc; sc << sector;
+  int sectorid = (wheel+3) + (sector-1)*5;
+  dbe->setCurrentFolder("DT/Tests/DTLocalTrigger/Wheel"+ wh.str()+"/Sector"+ sc.str()+"/"+folder);
+
+  if (htype.find("Phi") != string::npos){    
+    string hname = htype + "_W" + wh.str()+"_Sec" +sc.str();
+    MonitorElement* me = dbe->book1D(hname.c_str(),hname.c_str(),4,1,5);
+    //setLabelPh(me);
+    secME[sectorid][htype] = me;
+    return;
+  }
+  
+  if (htype.find("Theta") != string::npos){
+    string hname = htype + "_W" + wh.str()+ "_Sec"+sc.str();
+    MonitorElement* me =dbe->book1D(hname.c_str(),hname.c_str(),3,1,4);
+    //setLabelTh(me);
+    secME[sectorid][htype] = me;
+    return;
+  }
+  
+}
+
+
+
+pair<float,float> DTLocalTriggerTest::phiRange(const DTChamberId& id){
+
+  float min,max;
+  int station = id.station();
+  int sector  = id.sector(); 
+  int wheel   = id.wheel();
+  
+  const DTLayer  *layer = muonGeom->layer(DTLayerId(id,1,1));
+  DTTopology topo = layer->specificTopology();
+  min = topo.wirePosition(topo.firstChannel());
+  max = topo.wirePosition(topo.lastChannel());
+
+  if (station == 4){
+    
+    const DTLayer *layer2;
+    float lposx;
+    
+    if (sector == 4){
+      layer2  = muonGeom->layer(DTLayerId(wheel,station,13,1,1));
+      lposx = layer->toLocal(layer2->position()).x();
+    }
+    else if (sector == 10){
+      layer2 = muonGeom->layer(DTLayerId(wheel,station,14,1,1));
+      lposx = layer->toLocal(layer2->position()).x();
+    }
+    else
+      return make_pair(min,max);
+    
+    DTTopology topo2 = layer2->specificTopology();
+
+    if (lposx>0){
+      max = lposx*.5+topo2.wirePosition(topo2.lastChannel());
+      min -= lposx*.5;
+    }
+    else{
+      min = lposx*.5+topo2.wirePosition(topo2.firstChannel());
+      max -= lposx*.5;
+    }
+      
+  }
+  
+  return make_pair(min,max);
+
 }
