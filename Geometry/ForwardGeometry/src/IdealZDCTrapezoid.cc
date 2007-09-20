@@ -7,7 +7,7 @@ namespace calogeom {
    IdealZDCTrapezoid::getCorners() const 
    {
       const CornersVec& co ( CaloCellGeometry::getCorners() ) ;
-      if( co.empty() ) 
+      if( co.uninitialized() ) 
       {
 	 CaloCellGeometry::CornersVec& corners ( setCorners() ) ;
 	 const GlobalPoint& p ( getPosition() ) ;

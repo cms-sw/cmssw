@@ -58,7 +58,7 @@ void ZdcHardcodeGeometryLoader::fill(HcalZDCDetId::Section section, CaloSubdetec
     id = HcalZDCDetId(section, false, idepth);
     if(theTopology.valid(id)) zdcIds.push_back(id);
    }
-  if( geom->cornersMgr() == 0 ) geom->allocateCorners( 8000 ) ;
+  if( geom->cornersMgr() == 0 ) geom->allocateCorners( 1000 ) ;
 
   edm::LogInfo("ZdcHardcodeGeometry") << "Number of ZDC DetIds made: " << section << " " << zdcIds.size();
  

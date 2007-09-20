@@ -49,8 +49,7 @@ void HcalDDDGeometryLoader::fill(HcalSubdetector subdet,
   LogDebug("HCalGeom") << "HcalDDDGeometryLoader::fill gets " 
 		       << hcalCells.size() << " cells for subdetector " 
 		       << subdet;
-
-  geom->allocateCorners( hcalCells.size() ) ;
+  if( geom->cornersMgr() == 0 ) geom->allocateCorners( 11000 ) ;
 			 
   // Make the new HcalDetIds and the cells
   double deg = M_PI/180.;
