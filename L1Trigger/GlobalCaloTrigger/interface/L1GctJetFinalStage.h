@@ -4,10 +4,10 @@
 #include "DataFormats/L1GlobalCaloTrigger/interface/L1GctJetCand.h"
 
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctProcessor.h"
-#include "L1Trigger/GlobalCaloTrigger/interface/L1GctWheelJetFpga.h"
-//#include "L1Trigger/GlobalCaloTrigger/src/L1Gct.h"
 
 #include <vector>
+
+class L1GctWheelJetFpga;
 
 /*!
 * \class L1GctJetFinalStage

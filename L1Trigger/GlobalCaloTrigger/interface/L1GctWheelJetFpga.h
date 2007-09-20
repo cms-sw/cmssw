@@ -15,12 +15,15 @@
 */ 
 
 #include "DataFormats/L1GlobalCaloTrigger/interface/L1GctJetCand.h"
+#include "DataFormats/L1GlobalCaloTrigger/interface/L1GctEtHad.h"
 
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctProcessor.h"
-#include "L1Trigger/GlobalCaloTrigger/interface/L1GctJetLeafCard.h"
-#include "L1Trigger/GlobalCaloTrigger/interface/L1GctJetCounter.h"
-#include "L1Trigger/GlobalCaloTrigger/interface/L1GctJetCounterLut.h"
+
+#include "L1Trigger/GlobalCaloTrigger/src/L1GctUnsignedInt.h"
 #include "L1Trigger/GlobalCaloTrigger/src/L1GctJetCount.h"
+
+class L1GctJetLeafCard;
+class L1GctJetCounter;
 
 #include <vector>
 
@@ -28,6 +31,7 @@ class L1GctWheelJetFpga : public L1GctProcessor
 {
 public:
   typedef std::vector<L1GctJetCand> JetVector;
+  typedef L1GctUnsignedInt<L1GctEtHad::kEtHadNBits> EtHadType;
 
   /// Max number of jets of each type we output.
   static const int MAX_JETS_OUT;
@@ -40,11 +44,6 @@ public:
 
   /// Number of jet counters
   static const unsigned int N_JET_COUNTERS;
-
-  /// id must be 0 / 1 for -ve/+ve eta halves of CMS
-  L1GctWheelJetFpga(int id,
-		    std::vector<L1GctJetLeafCard*> inputLeafCards,
-		    std::vector<L1GctJetCounterLut*> jetCounterLuts);
 
   /// id must be 0 / 1 for -ve/+ve eta halves of CMS
   L1GctWheelJetFpga(int id,
@@ -73,7 +72,7 @@ public:
   JetVector getInputJets() const { return m_inputJets; }
     
   /// get the input Ht
-  L1GctUnsignedInt<12> inputHt(unsigned leafnum) const { return m_inputHt.at(leafnum); }
+  EtHadType inputHt(unsigned leafnum) const { return m_inputHt.at(leafnum); }
     
   /// get the output jets
   JetVector getCentralJets() const { return m_centralJets; }
@@ -85,7 +84,7 @@ public:
   JetVector getTauJets() const { return m_tauJets; }
     
   /// get the output Ht
-  L1GctUnsignedInt<12> getOutputHt() const { return m_outputHt; }
+  EtHadType getOutputHt() const { return m_outputHt; }
 
   /// get the output jet counts
   L1GctJetCount<3> getOutputJc(unsigned jcnum) const { return m_outputJc.at(jcnum); }
@@ -118,7 +117,7 @@ private:
   JetVector m_rawTauJets; 
 
   // input Ht sums from each leaf card
-  std::vector< L1GctUnsignedInt<12> > m_inputHt;
+  std::vector< EtHadType > m_inputHt;
 
   // output data
   JetVector m_centralJets;
@@ -126,7 +125,7 @@ private:
   JetVector m_tauJets;
     
   // data sent to GlobalEnergyAlgos
-  L1GctUnsignedInt<12> m_outputHt;
+  EtHadType m_outputHt;
   std::vector< L1GctJetCount<3> > m_outputJc;
       
   //PRIVATE METHODS

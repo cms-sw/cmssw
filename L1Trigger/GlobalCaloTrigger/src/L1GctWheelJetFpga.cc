@@ -1,8 +1,11 @@
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctWheelJetFpga.h"
 
+#include "FWCore/Utilities/interface/Exception.h"
+
 #include "CondFormats/L1TObjects/interface/L1GctJetCounterSetup.h"
 
-#include "FWCore/Utilities/interface/Exception.h"
+#include "L1Trigger/GlobalCaloTrigger/interface/L1GctJetLeafCard.h"
+#include "L1Trigger/GlobalCaloTrigger/interface/L1GctJetCounter.h"
 
 //DEFINE STATICS
 const int L1GctWheelJetFpga::MAX_JETS_OUT = 4;
@@ -14,35 +17,6 @@ const int L1GctWheelJetFpga::MAX_RAW_FJETS = 18;
 const int L1GctWheelJetFpga::MAX_RAW_TJETS = 36;
 const unsigned int L1GctWheelJetFpga::N_JET_COUNTERS = L1GctJetCounterSetup::MAX_JET_COUNTERS;
 
-
-L1GctWheelJetFpga::L1GctWheelJetFpga(int id,
-				     std::vector<L1GctJetLeafCard*> inputLeafCards,
-				     std::vector<L1GctJetCounterLut*> jetCounterLuts):
-  m_id(id),
-  m_inputLeafCards(inputLeafCards),
-  m_jetCounters(N_JET_COUNTERS),
-  m_inputJets(MAX_JETS_IN),
-  m_rawCentralJets(MAX_RAW_CJETS),
-  m_rawForwardJets(MAX_RAW_FJETS),
-  m_inputHt(MAX_LEAF_CARDS),
-  m_centralJets(MAX_JETS_OUT),
-  m_forwardJets(MAX_JETS_OUT),
-  m_tauJets(MAX_JETS_OUT),
-  m_outputJc(N_JET_COUNTERS)
-{
-  checkSetup();
-
-  // Initalise the jetCounters using the jetCounterLuts supplied
-  if (jetCounterLuts.size() != N_JET_COUNTERS) {
-    throw cms::Exception("L1GctSetupError")
-      << "L1GctWheelJetFpga::L1GctWheelJetFpga() : Wheel Jet FPGA ID " << m_id << " has been incorrectly constructed!\n"
-      << "size of jetCounterLut vector should be " << N_JET_COUNTERS << ", but is in fact " << jetCounterLuts.size() << "!\n";
-  }
-
-  for (unsigned int i=0; i < N_JET_COUNTERS; i++) {
-    m_jetCounters.at(i) = new L1GctJetCounter(((100*m_id)+i), m_inputLeafCards, jetCounterLuts.at(i));
-  }
-}
 
 L1GctWheelJetFpga::L1GctWheelJetFpga(int id,
 				     std::vector<L1GctJetLeafCard*> inputLeafCards) :

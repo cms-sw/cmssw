@@ -207,7 +207,7 @@ void L1GctJetFinderBase::doEnergySums()
 
 
 // Calculates total (raw) energy in a phi strip
-L1GctUnsignedInt<12> L1GctJetFinderBase::calcEtStrip(const UShort strip) const
+L1GctJetFinderBase::etTotalType L1GctJetFinderBase::calcEtStrip(const UShort strip) const
 {
   if (strip !=0 && strip != 1) {
     throw cms::Exception("L1GctProcessingError")
@@ -224,13 +224,13 @@ L1GctUnsignedInt<12> L1GctJetFinderBase::calcEtStrip(const UShort strip) const
     et += m_inputRegions.at(offset).et();
     of |= m_inputRegions.at(offset).overFlow();
   }
-  L1GctUnsignedInt<12> temp(et);
+  etTotalType temp(et);
   temp.setOverFlow(temp.overFlow() || of);
   return temp;
 }
 
 // Calculates total calibrated energy in jets (Ht) sum
-L1GctUnsignedInt<12> L1GctJetFinderBase::calcHt() const
+L1GctJetFinderBase::etHadType L1GctJetFinderBase::calcHt() const
 {    
   unsigned ht = 0;
   bool of = false;
@@ -242,7 +242,7 @@ L1GctUnsignedInt<12> L1GctJetFinderBase::calcHt() const
       of |= m_outputJets.at(i).overFlow();
     }
   }
-  L1GctUnsignedInt<12> temp(ht);
+  etHadType temp(ht);
   temp.setOverFlow(temp.overFlow() || of);
   return temp;
 }

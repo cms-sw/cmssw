@@ -34,7 +34,9 @@
 
 // GCT data includes
 #include "DataFormats/L1GlobalCaloTrigger/interface/L1GctCollections.h"
-#include "DataFormats/L1GlobalCaloTrigger/interface/L1GctEtSums.h"
+#include "DataFormats/L1GlobalCaloTrigger/interface/L1GctEtTotal.h"
+#include "DataFormats/L1GlobalCaloTrigger/interface/L1GctEtHad.h"
+#include "DataFormats/L1GlobalCaloTrigger/interface/L1GctEtMiss.h"
 #include "DataFormats/L1GlobalCaloTrigger/interface/L1GctJetCounts.h"
 
 using std::vector;

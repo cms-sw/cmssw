@@ -1,4 +1,6 @@
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctJetFinalStage.h"
+#include "L1Trigger/GlobalCaloTrigger/interface/L1GctWheelJetFpga.h"
+#include "L1Trigger/GlobalCaloTrigger/interface/L1GctJetFinderBase.h"
 
 #include "FWCore/Utilities/interface/Exception.h"
 

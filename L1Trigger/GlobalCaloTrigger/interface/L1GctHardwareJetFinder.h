@@ -54,9 +54,6 @@ private:
   static const unsigned int N_COLS;
   static const unsigned int CENTRAL_COL0;
 
-  /// Threshold value to find a local et maximum
-  static const unsigned int JET_THRESHOLD;
-
   /// Positive/negative eta flag used in the initial clustering
   bool m_positiveEtaWheel;
 

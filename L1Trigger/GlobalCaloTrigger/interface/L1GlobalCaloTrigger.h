@@ -7,7 +7,10 @@
 #include "DataFormats/L1GlobalCaloTrigger/interface/L1GctEmCand.h"
 #include "DataFormats/L1GlobalCaloTrigger/interface/L1GctJetCand.h"
 
-//#include "L1Trigger/GlobalCaloTrigger/src/L1GctTwosComplement.h"
+#include "DataFormats/L1GlobalCaloTrigger/interface/L1GctEtTotal.h"
+#include "DataFormats/L1GlobalCaloTrigger/interface/L1GctEtHad.h"
+#include "DataFormats/L1GlobalCaloTrigger/interface/L1GctEtMiss.h"
+
 #include "L1Trigger/GlobalCaloTrigger/src/L1GctUnsignedInt.h"
 #include "L1Trigger/GlobalCaloTrigger/src/L1GctJetCount.h"
 
@@ -55,6 +58,12 @@ public:
   
   /// Number of jet counter per wheel
   static const unsigned int N_JET_COUNTERS;
+
+  /// typedefs for energy values in fixed numbers of bits
+  typedef L1GctUnsignedInt< L1GctEtTotal::kEtTotalNBits   > etTotalType;
+  typedef L1GctUnsignedInt<   L1GctEtHad::kEtHadNBits     > etHadType;
+  typedef L1GctUnsignedInt<  L1GctEtMiss::kEtMissNBits    > etMissType;
+  typedef L1GctUnsignedInt<  L1GctEtMiss::kEtMissPhiNBits > etMissPhiType;
 
   /// construct the GCT
   L1GlobalCaloTrigger(const L1GctJetLeafCard::jetFinderType jfType = L1GctJetLeafCard::tdrJetFinder);
@@ -113,16 +122,16 @@ public:
   std::vector<L1GctJetCand> getTauJets() const;
   
   /// Total Et output to GT
-  L1GctUnsignedInt<12> getEtSum() const;
+  etTotalType   getEtSum() const;
   
   /// Total hadronic Et output to GT
-  L1GctUnsignedInt<12> getEtHad() const;
+  etHadType     getEtHad() const;
 
   /// Etmiss output to GT
-  L1GctUnsignedInt<12> getEtMiss() const;
+  etMissType    getEtMiss() const;
   
   /// Etmiss phi output to GT
-  L1GctUnsignedInt<7> getEtMissPhi() const;
+  etMissPhiType getEtMissPhi() const;
 
   // Jet Count output to GT
   L1GctJetCount<5> getJetCount(unsigned jcnum) const;

@@ -1,6 +1,10 @@
 #ifndef L1GCTJETLEAFCARD_H_
 #define L1GCTJETLEAFCARD_H_
 
+#include "DataFormats/L1GlobalCaloTrigger/interface/L1GctEtTotal.h"
+#include "DataFormats/L1GlobalCaloTrigger/interface/L1GctEtHad.h"
+#include "DataFormats/L1GlobalCaloTrigger/interface/L1GctEtMiss.h"
+
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctJetFinderBase.h"
 #include "L1Trigger/GlobalCaloTrigger/src/L1GctTwosComplement.h"
 #include "L1Trigger/GlobalCaloTrigger/src/L1GctUnsignedInt.h"
@@ -26,6 +30,13 @@ public:
 
   //Statics
   static const int MAX_JET_FINDERS;  ///< Number of jetfinders per jet leaf card
+
+  //Typedefs
+  typedef L1GctUnsignedInt< L1GctEtTotal::kEtTotalNBits   > etTotalType;
+  typedef L1GctUnsignedInt<   L1GctEtHad::kEtHadNBits     > etHadType;
+  typedef L1GctUnsignedInt<  L1GctEtMiss::kEtMissNBits    > etMissType;
+  typedef L1GctUnsignedInt<  L1GctEtMiss::kEtMissPhiNBits > etMissPhiType;
+  typedef L1GctTwosComplement< L1GctEtMiss::kEtMissNBits  > etComponentType;
 
   //Construtors/destructor
   L1GctJetLeafCard(int id, int iphi, jetFinderType jfType = tdrJetFinder);
@@ -63,14 +74,14 @@ public:
   std::vector<L1GctJetCand> getOutputJetsC() const { return m_jetFinderC->getJets(); }  ///< Ouptut jetfinder C jets (highest jetFinder in phi)
     
   /// get the Ex output
-  L1GctTwosComplement<12> getOutputEx() const { return m_exSum; }
+  etComponentType getOutputEx() const { return m_exSum; }
    
   /// get the Ey output
-  L1GctTwosComplement<12> getOutputEy() const { return m_eySum; }
+  etComponentType getOutputEy() const { return m_eySum; }
     
   /// get the Et output
-  L1GctUnsignedInt<12> getOutputEt() const { return m_etSum; }
-  L1GctUnsignedInt<12> getOutputHt() const { return m_htSum; }
+  etTotalType getOutputEt() const { return m_etSum; }
+  etHadType   getOutputHt() const { return m_htSum; }
    
 private:
 
@@ -89,18 +100,18 @@ private:
 
   int phiPosition;
 
-  L1GctTwosComplement<12> m_exSum;
-  L1GctTwosComplement<12> m_eySum;
-  L1GctUnsignedInt<12> m_etSum;
-  L1GctUnsignedInt<12> m_htSum;
+  etComponentType m_exSum;
+  etComponentType m_eySum;
+  etTotalType m_etSum;
+  etHadType   m_htSum;
 
   // PRIVATE MEMBER FUNCTIONS
   // Given a strip Et sum, perform rotations by sine and cosine
   // factors to find the corresponding Ex and Ey
-  L1GctTwosComplement<12> exComponent(const L1GctUnsignedInt<12> etStrip, const unsigned jphi) const;
-  L1GctTwosComplement<12> eyComponent(const L1GctUnsignedInt<12> etStrip, const unsigned jphi) const;
+  etComponentType exComponent(const etTotalType etStrip, const unsigned jphi) const;
+  etComponentType eyComponent(const etTotalType etStrip, const unsigned jphi) const;
   // Here is where the rotations are actually done
-  L1GctTwosComplement<12> rotateEtValue(const L1GctUnsignedInt<12> etStrip, const unsigned fact) const;
+  etComponentType rotateEtValue(const etTotalType etStrip, const unsigned fact) const;
 
 };
 

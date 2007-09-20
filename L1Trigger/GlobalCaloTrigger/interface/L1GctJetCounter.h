@@ -1,11 +1,9 @@
 #ifndef L1GCTJETCOUNTER_H_
 #define L1GCTJETCOUNTER_H_
 
-#include "DataFormats/L1GlobalCaloTrigger/interface/L1GctJetCand.h"
 #include "CondFormats/L1TObjects/interface/L1GctJetCounterSetup.h"
 
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctProcessor.h"
-#include "L1Trigger/GlobalCaloTrigger/interface/L1GctJetLeafCard.h"
 #include "L1Trigger/GlobalCaloTrigger/src/L1GctJetCount.h"
 
 #include <boost/cstdint.hpp> //for uint16_t
@@ -23,6 +21,8 @@
  */
 
 class L1GctJetCounterLut;
+class L1GctJetCand;
+class L1GctJetLeafCard;
 
 class L1GctJetCounter : public L1GctProcessor
 {

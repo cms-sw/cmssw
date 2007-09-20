@@ -3,6 +3,8 @@
 
 #include "DataFormats/L1CaloTrigger/interface/L1CaloRegion.h"
 #include "DataFormats/L1GlobalCaloTrigger/interface/L1GctJetCand.h"
+#include "DataFormats/L1GlobalCaloTrigger/interface/L1GctEtTotal.h"
+#include "DataFormats/L1GlobalCaloTrigger/interface/L1GctEtHad.h"
 
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctProcessor.h"
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctJet.h"
@@ -50,6 +52,8 @@ public:
   typedef std::vector<L1CaloRegion> RegionsVector;
   typedef std::vector<L1GctJet>     RawJetVector;
   typedef std::vector<L1GctJetCand> JetVector;
+  typedef L1GctUnsignedInt<L1GctEtTotal::kEtTotalNBits> etTotalType;
+  typedef L1GctUnsignedInt<  L1GctEtHad::kEtHadNBits  > etHadType;
 
   //Statics
   static const unsigned int MAX_JETS_OUT;  ///< Max of 6 jets found per jetfinder in a 2*11 search area.
@@ -110,9 +114,9 @@ public:
 
   // The hardware output quantities
   JetVector getJets() const { return m_sortedJets; } ///< Get the located jets. 
-  L1GctUnsignedInt<12> getEtStrip0() const { return m_outputEtStrip0; }  ///< Get transverse energy strip sum 0
-  L1GctUnsignedInt<12> getEtStrip1() const { return m_outputEtStrip1; }  ///< Get transverse energy strip sum 1
-  L1GctUnsignedInt<12> getHt() const { return m_outputHt; }              ///< Get the total calibrated energy in jets (Ht) found by this jet finder
+  etTotalType getEtStrip0() const { return m_outputEtStrip0; }  ///< Get transverse energy strip sum 0
+  etTotalType getEtStrip1() const { return m_outputEtStrip1; }  ///< Get transverse energy strip sum 1
+  etHadType   getHt() const { return m_outputHt; }              ///< Get the total calibrated energy in jets (Ht) found by this jet finder
 
   // comparison operator for sorting jets in the Wheel Fpga, JetFinder, and JetFinalStage
   struct rankGreaterThan : public std::binary_function<L1GctJetCand, L1GctJetCand, bool> 
@@ -163,9 +167,9 @@ public:
   JetVector m_sortedJets;
 
   /// output Et strip sums and Ht
-  L1GctUnsignedInt<12> m_outputEtStrip0;
-  L1GctUnsignedInt<12> m_outputEtStrip1;
-  L1GctUnsignedInt<12> m_outputHt;
+  etTotalType m_outputEtStrip0;
+  etTotalType m_outputEtStrip1;
+  etHadType   m_outputHt;
     
   //PROTECTED METHODS
   // Return the values of constants that might be changed by different jetFinders.
@@ -184,10 +188,10 @@ public:
   void doEnergySums();
     
   /// Calculates total (raw) energy in a phi strip
-  L1GctUnsignedInt<12> calcEtStrip(const UShort strip) const;
+  etTotalType calcEtStrip(const UShort strip) const;
 
   /// Calculates total calibrated energy in jets (Ht) sum
-  L1GctUnsignedInt<12> calcHt() const;
+  etHadType   calcHt() const;
   
   /// parameter to determine which Regions belong in our acceptance
   unsigned m_minColThisJf;

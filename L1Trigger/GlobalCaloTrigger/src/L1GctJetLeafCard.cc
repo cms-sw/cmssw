@@ -135,7 +135,7 @@ void L1GctJetLeafCard::process() {
   m_jetFinderC->process();
 
   // Finish Et and Ht sums for the Leaf Card
-  vector< L1GctUnsignedInt<12> > etStripSum(6);
+  vector< etTotalType > etStripSum(6);
   etStripSum.at(0) = m_jetFinderA->getEtStrip0();
   etStripSum.at(1) = m_jetFinderA->getEtStrip1();
   etStripSum.at(2) = m_jetFinderB->getEtStrip0();
@@ -163,14 +163,14 @@ void L1GctJetLeafCard::process() {
 // Given a strip Et sum, perform rotations by sine and cosine
 // factors to find the corresponding Ex and Ey
 
-L1GctTwosComplement<12>
-L1GctJetLeafCard::exComponent(const L1GctUnsignedInt<12> etStrip, const unsigned jphi) const {
+L1GctJetLeafCard::etComponentType
+L1GctJetLeafCard::exComponent(const L1GctJetLeafCard::etTotalType etStrip, const unsigned jphi) const {
   unsigned fact = (2*jphi+10) % 36;
   return rotateEtValue(etStrip, fact);
 }
 
-L1GctTwosComplement<12>
-L1GctJetLeafCard::eyComponent(const L1GctUnsignedInt<12> etStrip, const unsigned jphi) const {
+L1GctJetLeafCard::etComponentType
+L1GctJetLeafCard::eyComponent(const L1GctJetLeafCard::etTotalType etStrip, const unsigned jphi) const {
   unsigned fact = (2*jphi+19) % 36;
   return rotateEtValue(etStrip, fact);
 }
@@ -178,8 +178,8 @@ L1GctJetLeafCard::eyComponent(const L1GctUnsignedInt<12> etStrip, const unsigned
 // Here is where the rotations are actually done
 // Procedure suitable for implementation in hardware, using
 // integer multiplication and bit shifting operations
-L1GctTwosComplement<12>
-L1GctJetLeafCard::rotateEtValue(const L1GctUnsignedInt<12> etStrip, const unsigned fact) const {
+L1GctJetLeafCard::etComponentType
+L1GctJetLeafCard::rotateEtValue(const L1GctJetLeafCard::etTotalType etStrip, const unsigned fact) const {
   // These factors correspond to the sine of angles from -90 degrees to
   // 90 degrees in 10 degree steps, multiplied by 256 and written in 20 bits
   const int factors[19] = {0xfff00, 0xfff04, 0xfff0f, 0xfff22, 0xfff3c,
@@ -210,7 +210,7 @@ L1GctJetLeafCard::rotateEtValue(const L1GctUnsignedInt<12> etStrip, const unsign
     myValue = myValue - maxEt;
   }
 
-  L1GctTwosComplement<12> temp(myValue);
+  etComponentType temp(myValue);
   temp.setOverFlow(temp.overFlow() || etStrip.overFlow());
 
   return temp;

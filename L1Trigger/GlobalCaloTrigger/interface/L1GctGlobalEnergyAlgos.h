@@ -1,6 +1,10 @@
 #ifndef L1GCTGLOBALENERGYALGOS_H_
 #define L1GCTGLOBALENERGYALGOS_H_
 
+#include "DataFormats/L1GlobalCaloTrigger/interface/L1GctEtTotal.h"
+#include "DataFormats/L1GlobalCaloTrigger/interface/L1GctEtHad.h"
+#include "DataFormats/L1GlobalCaloTrigger/interface/L1GctEtMiss.h"
+
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctProcessor.h"
 #include "L1Trigger/GlobalCaloTrigger/src/L1GctTwosComplement.h"
 #include "L1Trigger/GlobalCaloTrigger/src/L1GctUnsignedInt.h"
@@ -32,6 +36,12 @@ class L1GctGlobalEnergyAlgos : public L1GctProcessor
 {
 public:
   
+        typedef L1GctUnsignedInt< L1GctEtTotal::kEtTotalNBits   > etTotalType;
+        typedef L1GctUnsignedInt<   L1GctEtHad::kEtHadNBits     > etHadType;
+        typedef L1GctUnsignedInt<  L1GctEtMiss::kEtMissNBits    > etMissType;
+        typedef L1GctUnsignedInt<  L1GctEtMiss::kEtMissPhiNBits > etMissPhiType;
+        typedef L1GctTwosComplement< L1GctEtMiss::kEtMissNBits  > etComponentType;
+
         /// Number of jet counter per wheel
         static const unsigned int N_JET_COUNTERS;
 
@@ -75,34 +85,34 @@ public:
 	L1GctWheelJetFpga* getMinusWheelJetFpga() const { return m_minusWheelJetFpga; }
 
 	/// return input Ex value wheel 1
-        inline L1GctTwosComplement<12> getInputExValPlusWheel() const { return m_exValPlusWheel; }
+       inline etComponentType getInputExValPlusWheel() const { return m_exValPlusWheel; }
 	/// return input Ex value wheel 1
-        inline L1GctTwosComplement<12> getInputEyValPlusWheel() const { return m_eyValPlusWheel; }
+       inline etComponentType getInputEyValPlusWheel() const { return m_eyValPlusWheel; }
 	/// return input Ey value wheel 0
-        inline L1GctTwosComplement<12> getInputExVlMinusWheel() const { return m_exVlMinusWheel; }
+       inline etComponentType getInputExVlMinusWheel() const { return m_exVlMinusWheel; }
 	/// return input Ey value wheel 0
-        inline L1GctTwosComplement<12> getInputEyVlMinusWheel() const { return m_eyVlMinusWheel; }
+       inline etComponentType getInputEyVlMinusWheel() const { return m_eyVlMinusWheel; }
 	/// return input Et value wheel 1
-	inline L1GctUnsignedInt<12> getInputEtValPlusWheel() const { return m_etValPlusWheel; }
+	inline etTotalType getInputEtValPlusWheel() const { return m_etValPlusWheel; }
 	/// return input Ht value wheel 1
-	inline L1GctUnsignedInt<12> getInputHtValPlusWheel() const { return m_htValPlusWheel; }
+	inline etHadType   getInputHtValPlusWheel() const { return m_htValPlusWheel; }
 	/// return input Et value wheel 0
-	inline L1GctUnsignedInt<12> getInputEtVlMinusWheel() const { return m_etVlMinusWheel; }
+	inline etTotalType getInputEtVlMinusWheel() const { return m_etVlMinusWheel; }
 	/// return input Ht value wheel 0
-	inline L1GctUnsignedInt<12> getInputHtVlMinusWheel() const { return m_htVlMinusWheel; }
+	inline etHadType   getInputHtVlMinusWheel() const { return m_htVlMinusWheel; }
 	/// return input jet count (number 0-11) wheel 1
-        inline L1GctJetCount<3> getInputJcValPlusWheel(unsigned jcnum) const {return m_jcValPlusWheel.at(jcnum); }
+       inline L1GctJetCount<3> getInputJcValPlusWheel(unsigned jcnum) const {return m_jcValPlusWheel.at(jcnum); }
 	/// return input jet count (number 0-11) wheel 0
-        inline L1GctJetCount<3> getInputJcVlMinusWheel(unsigned jcnum) const {return m_jcVlMinusWheel.at(jcnum); }
+       inline L1GctJetCount<3> getInputJcVlMinusWheel(unsigned jcnum) const {return m_jcVlMinusWheel.at(jcnum); }
 
 	/// return output missing Et magnitude
-	inline L1GctUnsignedInt<12> getEtMiss()    const { return m_outputEtMiss; }
+	inline etMissType    getEtMiss()    const { return m_outputEtMiss; }
 	/// return output missing Et value
-	inline L1GctUnsignedInt<7>  getEtMissPhi() const { return m_outputEtMissPhi; }
+	inline etMissPhiType getEtMissPhi() const { return m_outputEtMissPhi; }
 	/// return output total scalar Et
-	inline L1GctUnsignedInt<12> getEtSum()     const { return m_outputEtSum; }
+	inline etTotalType   getEtSum()     const { return m_outputEtSum; }
 	/// return output calibrated jet Et
-	inline L1GctUnsignedInt<12> getEtHad()     const { return m_outputEtHad; }
+	inline etHadType     getEtHad()     const { return m_outputEtHad; }
 	/// return output jet count (number 0-11)
 	inline L1GctJetCount<5> getJetCount(unsigned jcnum) const { return m_outputJetCounts.at(jcnum); }
 
@@ -118,32 +128,32 @@ private:
 	L1GctWheelJetFpga* m_minusWheelJetFpga;
 
 	// input data
-	L1GctTwosComplement<12> m_exValPlusWheel;
-        L1GctTwosComplement<12> m_eyValPlusWheel;
-	L1GctUnsignedInt<12> m_etValPlusWheel;
-	L1GctUnsignedInt<12> m_htValPlusWheel;
-	L1GctTwosComplement<12> m_exVlMinusWheel;
-	L1GctTwosComplement<12> m_eyVlMinusWheel;
-	L1GctUnsignedInt<12> m_etVlMinusWheel;
-	L1GctUnsignedInt<12> m_htVlMinusWheel;
+	etComponentType m_exValPlusWheel;
+       etComponentType m_eyValPlusWheel;
+	etTotalType m_etValPlusWheel;
+	etHadType   m_htValPlusWheel;
+	etComponentType m_exVlMinusWheel;
+	etComponentType m_eyVlMinusWheel;
+	etTotalType m_etVlMinusWheel;
+	etHadType   m_htVlMinusWheel;
 
         std::vector< L1GctJetCount<3> > m_jcValPlusWheel;
         std::vector< L1GctJetCount<3> > m_jcVlMinusWheel;
 
 	// output data
-	L1GctUnsignedInt<12> m_outputEtMiss;
-	L1GctUnsignedInt<7>  m_outputEtMissPhi;
-	L1GctUnsignedInt<12> m_outputEtSum;
-	L1GctUnsignedInt<12> m_outputEtHad;
+	etMissType    m_outputEtMiss;
+	etMissPhiType m_outputEtMissPhi;
+	etTotalType   m_outputEtSum;
+	etHadType     m_outputEtHad;
         std::vector< L1GctJetCount<5> > m_outputJetCounts;
 
         // PRIVATE MEMBER FUNCTION
 	// the Etmiss algorithm
         struct etmiss_vec {
-	  L1GctUnsignedInt<12> mag;
-	  L1GctUnsignedInt<7>  phi;
+	  etMissType    mag;
+	  etMissPhiType phi;
 	};
-        etmiss_vec calculate_etmiss_vec (const L1GctTwosComplement<12> ex, const L1GctTwosComplement<12> ey) const ;
+        etmiss_vec calculate_etmiss_vec (const etComponentType ex, const etComponentType ey) const ;
 	
 };
 

@@ -10,7 +10,8 @@
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctJetFinalStage.h"
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctGlobalEnergyAlgos.h"
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctElectronFinalSort.h"
-#include "L1Trigger/GlobalCaloTrigger/interface/L1GctJetCounterLut.h"
+#include "L1Trigger/GlobalCaloTrigger/interface/L1GctJetCounter.h"
+//#include "L1Trigger/GlobalCaloTrigger/interface/L1GctJetCounterLut.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Exception.h"
@@ -358,19 +359,19 @@ vector<L1GctJetCand> L1GlobalCaloTrigger::getTauJets() const {
 }
 
 // total Et output
-L1GctUnsignedInt<12> L1GlobalCaloTrigger::getEtSum() const {
+L1GlobalCaloTrigger::etTotalType   L1GlobalCaloTrigger::getEtSum() const {
   return theEnergyFinalStage->getEtSum();
 }
 
-L1GctUnsignedInt<12> L1GlobalCaloTrigger::getEtHad() const {
+L1GlobalCaloTrigger::etHadType     L1GlobalCaloTrigger::getEtHad() const {
   return theEnergyFinalStage->getEtHad();
 }
 
-L1GctUnsignedInt<12> L1GlobalCaloTrigger::getEtMiss() const {
+L1GlobalCaloTrigger::etMissType    L1GlobalCaloTrigger::getEtMiss() const {
   return theEnergyFinalStage->getEtMiss();
 }
 
-L1GctUnsignedInt<7> L1GlobalCaloTrigger::getEtMissPhi() const {
+L1GlobalCaloTrigger::etMissPhiType L1GlobalCaloTrigger::getEtMissPhi() const {
   return theEnergyFinalStage->getEtMissPhi();
 }
 

@@ -152,7 +152,7 @@ void L1GctGlobalEnergyAlgos::fetchInput() {
 // process the event
 void L1GctGlobalEnergyAlgos::process()
 {
-  L1GctTwosComplement<12> ExSum, EySum;
+  L1GctGlobalEnergyAlgos::etComponentType ExSum, EySum;
   L1GctGlobalEnergyAlgos::etmiss_vec EtMissing;
 
   //
@@ -269,7 +269,8 @@ void L1GctGlobalEnergyAlgos::setInputWheelJc(unsigned wheel, unsigned jcnum, uns
 //
 //-----------------------------------------------------------------------------------
 L1GctGlobalEnergyAlgos::etmiss_vec
-L1GctGlobalEnergyAlgos::calculate_etmiss_vec (const L1GctTwosComplement<12> ex, const L1GctTwosComplement<12> ey) const
+L1GctGlobalEnergyAlgos::calculate_etmiss_vec (const L1GctGlobalEnergyAlgos::etComponentType ex,
+                                              const L1GctGlobalEnergyAlgos::etComponentType ey) const
 {
   //---------------------------------------------------------------------------------
   //

@@ -8,8 +8,6 @@ const unsigned int L1GctHardwareJetFinder::MAX_REGIONS_IN = (((L1CaloRegionDetId
 const unsigned int L1GctHardwareJetFinder::N_COLS = 2;
 const unsigned int L1GctHardwareJetFinder::CENTRAL_COL0 = 0;
 
-//const unsigned int L1GctHardwareJetFinder::JET_THRESHOLD = 1;
-
 L1GctHardwareJetFinder::L1GctHardwareJetFinder(int id):
   L1GctJetFinderBase(id),
   m_positiveEtaWheel(id >= (int) (L1CaloRegionDetId::N_PHI/2)),
