@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2007/08/01 12:15:10 $
- *  $Revision: 1.3 $
+ *  $Date: 2007/08/28 01:17:49 $
+ *  $Revision: 1.4 $
  *
  *  \author Martin Grunewald
  *
@@ -24,7 +24,9 @@
 #include "DataFormats/METReco/interface/GenMET.h"
 
 #include "DataFormats/RecoCandidate/interface/RecoChargedCandidate.h"
+#include "DataFormats/RecoCandidate/interface/RecoChargedCandidateFwd.h"
 #include "DataFormats/RecoCandidate/interface/RecoEcalCandidate.h"
+#include "DataFormats/RecoCandidate/interface/RecoEcalCandidateFwd.h"
 
 #include "DataFormats/Common/interface/RefToBase.h"
 #include "DataFormats/HLTReco/interface/HLTFilterObject.h"

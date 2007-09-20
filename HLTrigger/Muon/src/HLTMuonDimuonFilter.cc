@@ -16,6 +16,7 @@
 
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/RecoCandidate/interface/RecoChargedCandidate.h"
+#include "DataFormats/RecoCandidate/interface/RecoChargedCandidateFwd.h"
 
 //
 // constructors and destructor
