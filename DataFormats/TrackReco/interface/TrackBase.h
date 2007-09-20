@@ -4,12 +4,15 @@
  *
  * Common base class to all track types, including Muon fits.
  * Internally, the following information is stored: <BR>
- *   <DT> Reference position on the track: (vx,vy,vz) </DT>
- *   <DT> Momentum at the given reference point on track: (px,py,pz) </DT>
+ *   <DT> A reference position on the track: (vx,vy,vz) </DT>
+ *   <DT> Momentum at this given reference point on track: (px,py,pz) </DT>
  *   <DT> 5D curvilinear covariance matrix from the track fit </DT>
  *   <DT> Charge </DT>
  *   <DT> Chi-square and number of degrees of freedom </DT>
  *   <DT> Summary information of the hit pattern </DT>
+ *
+ * For tracks reconstructed in the CMS Tracker, the reference position is the point of
+ * closest approach to the centre of CMS. For muons, this is not necessarily true.
  *
  * Parameters associated to the 5D curvilinear covariance matrix: <BR>
  * <B> (qoverp, lambda, phi, dxy, dsz) </B><BR>
@@ -32,10 +35,10 @@
  *
  * Note that dxy and dsz provide sensible estimates of the distance from 
  * the true particle trajectory to (0,0,0) ONLY in two cases:<BR>
- *   <DT> When (vx,vy,z) already corresponds to the point of minimum transverse 
- *   distance to the beam spot or is close to it (so that the differences 
+ *   <DT> When (vx,vy,vz) already correspond to the point of minimum transverse 
+ *   distance to (0,0,0) or is close to it (so that the differences 
  *   between considering the exact trajectory or a straight line in this range 
- *   are negligible) </DT>
+ *   are negligible). This is usually true for Tracker tracks. </DT>
  *   <DT> When the track has infinite or extremely high momentum </DT>
  *
  * More details about this parametrization are provided in the following document: <BR>
@@ -43,7 +46,7 @@
  * 
  * \author Thomas Speer, Luca Lista, Pascal Vanlaer, Juan Alcaraz
  *
- * \version $Id: TrackBase.h,v 1.53 2007/04/04 12:51:35 jalcaraz Exp $
+ * \version $Id: TrackBase.h,v 1.54 2007/04/19 11:10:27 llista Exp $
  *
  */
 
@@ -91,19 +94,19 @@ namespace reco {
     double normalizedChi2() const { return chi2_ / ndof_; }
     /// track electric charge
     int charge() const { return charge_; }
-    /// transverse curvature
+    /// charge-signed transverse curvature
     double qoverp() const { return charge() / p(); }
     /// polar angle  
     double theta() const { return momentum_.theta(); }
     /// Lambda angle
     double lambda() const { return M_PI/2 - momentum_.theta(); }
-    /// dxy parameter (THIS IS NOT the transverse impact parameter to (0,0,0) if refPoint is far from (0,0,0): see parametrization definition above for details)
+    /// dxy parameter. (This is the transverse impact parameter w.r.t. to (0,0,0) ONLY if refPoint is close to (0,0,0): see parametrization definition above for details). See also function dxy(myBeamSpot) below.
     double dxy() const { return ( - vx() * py() + vy() * px() ) / pt(); }
     /// dxy parameter in perigee convention (d0 = - dxy)
     double d0() const { return - dxy(); }
     /// dsz parameter (THIS IS NOT the SZ impact parameter to (0,0,0) if refPoint is far from (0,0,0): see parametrization definition above for details)
     double dsz() const { return vz()*pt()/p() - (vx()*px()+vy()*py())/pt() * pz()/p(); }
-    /// dz parameter (= dsz/cos(lambda))
+    /// dz parameter (= dsz/cos(lambda)). This is the track z0 w.r.t (0,0,0) only if the refPoint is close to (0,0,0). See also function dz(myBeamSpot) below.
     double dz() const { return vz() - (vx()*px()+vy()*py())/pt() * (pz()/pt()); }
     /// momentum vector magnitude
     double p() const { return momentum_.R(); }
@@ -135,24 +138,24 @@ namespace reco {
     /// reference point on the track. This method is DEPRECATED, please use referencePoint() instead
     const Point & vertex() const { return vertex_; }
 
-    /// dxy parameter with respect to a user-given beamSpot (WARNING: this quantity can only be interpreted as a minimum transverse distance if beamSpot is reasonably close to refPoint and (0,0,0), since linear approximations are involved)
+    /// dxy parameter with respect to a user-given beamSpot (WARNING: this quantity can only be interpreted as a minimum transverse distance if beamSpot, if the beam spot is reasonably close to the refPoint, since linear approximations are involved). This is a good approximation for Tracker tracks.
     double dxy(const Point& myBeamSpot) const { 
       return ( - (vx()-myBeamSpot.x()) * py() + (vy()-myBeamSpot.y()) * px() ) / pt(); 
     }
-    /// dsz parameter with respect to a user-given beamSpot (WARNING: this quantity can only be interpreted as a minimum transverse distance if beamSpot is reasonably close to refPoint and (0,0,0), since linear approximations are involved)
+    /// dsz parameter with respect to a user-given beamSpot (WARNING: this quantity can only be interpreted as the distance in the S-Z plane to the beamSpot, if the beam spot is reasonably close to the refPoint, since linear approximations are involved). This is a good approximation for Tracker tracks.
     double dsz(const Point& myBeamSpot) const { 
       return (vz()-myBeamSpot.z())*pt()/p() - ((vx()-myBeamSpot.x())*px()+(vy()-myBeamSpot.y())*py())/pt() *pz()/p(); 
     }
-    /// dsz parameter with respect to a user-given beamSpot (WARNING: this quantity can only be interpreted as a minimum distance if beamSpot is reasonably close to refPoint and (0,0,0), since linear approximations are involved)
+    /// dz parameter with respect to a user-given beamSpot (WARNING: this quantity can only be interpreted as the track z0, if the beamSpot is reasonably close to the refPoint, since linear approximations are involved). This is a good approximation for Tracker tracks.
     double dz(const Point& myBeamSpot) const { 
       return (vz()-myBeamSpot.z()) - ((vx()-myBeamSpot.x())*px()+(vy()-myBeamSpot.y())*py())/pt() * pz()/pt(); 
     }
 
-    /// Parameters with one-to-one correspondence to the covariance matrix
+    /// Track parameters with one-to-one correspondence to the covariance matrix
     ParameterVector parameters() const { 
       return ParameterVector(qoverp(),lambda(),phi(),dxy(),dsz());
     }
-    /// return SMatrix
+    /// return track covariance matrix
     CovarianceMatrix covariance() const { CovarianceMatrix m; fill( m ); return m; }
 
     /// i-th parameter ( i = 0, ... 4 )
@@ -193,11 +196,11 @@ namespace reco {
     /// covariance matrix index in array
     static index covIndex( index i, index j );
    
-    //  hit pattern
+    ///  Access the hit pattern, indicating in which Tracker layers the track has hits.
     const HitPattern & hitPattern() const { return hitPattern_; }
-    /// number of hits found 
+    /// number of valid hits found 
     unsigned short numberOfValidHits() const { return hitPattern_.numberOfValidHits(); }
-    /// number of hits lost
+    /// number of cases where track crossed a layer without getting a hit.
     unsigned short numberOfLostHits() const { return hitPattern_.numberOfLostHits(); }
     /// set hit pattern from vector of hit references
     template<typename C>

@@ -2,13 +2,14 @@
 #define TrackReco_TrackExtra_h
 /** \class reco::TrackExtra TrackExtra.h DataFormats/TrackReco/interface/TrackExtra.h
  *
- * Extension of a reconstructed Track. It is ment to be stored
- * in the RECO, and to be referenced by its corresponding
- * object stored in the AOD
+ * Additional information about a reconstructed track. It is stored in RECO and supplements
+ * the basic information stored in the Track class that is stored on AOD only.
+ * If you wish to use information in the TrackExtra class, you should
+ * access it via the reference supplied in the Track class.
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: TrackExtra.h,v 1.21 2007/08/04 10:29:47 mangano Exp $
+ * \version $Id: TrackExtra.h,v 1.22 2007/08/21 02:08:52 ratnik Exp $
  *
  */
 #include <Rtypes.h>
@@ -21,9 +22,9 @@
 namespace reco {
   class TrackExtra : public TrackExtraBase {
   public:
-    /// parameter dimension
+    /// tracker parameter dimension
     enum { dimension = 5 };
-    /// error matrix size
+    /// track error matrix size
     enum { covarianceSize = dimension * ( dimension + 1 ) / 2 };
     /// point in the space
     typedef math::XYZPoint Point;

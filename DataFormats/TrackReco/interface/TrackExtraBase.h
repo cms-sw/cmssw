@@ -3,11 +3,14 @@
 /** \class reco::TrackExtraBase TrackExtraBase.h DataFormats/TrackReco/interface/TrackExtraBase.h
  *
  * Basic extension of a reconstructed Track. 
- * Contains references to RecHits used in the fit.
+ * Contains references to the hits assigned to the track.
+ * 
+ * If you access the hits, check if they are valid or not. (Invalid hits are dummy hits
+ * created in layers crossed by the track, where no physical hit was found).
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: TrackExtraBase.h,v 1.4 2006/04/28 11:23:43 llista Exp $
+ * \version $Id: TrackExtraBase.h,v 1.5 2006/07/24 19:33:39 tboccali Exp $
  *
  */
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHitFwd.h"
@@ -25,12 +28,12 @@ namespace reco {
     trackingRecHit_iterator recHitsEnd() const { return recHits_.end(); }
     /// number of RecHits
     size_t recHitsSize() const { return recHits_.size(); }
-    /// get n-th recHit
+    /// get i-th recHit
     TrackingRecHitRef recHit( size_t i ) const { return recHits_[ i ]; }
     TrackingRecHitRefVector recHits() const {return recHits_;}
 
   private:
-    /// references to RecHits
+    /// references to the hit assigned to the track.
     TrackingRecHitRefVector recHits_;
   };
 
