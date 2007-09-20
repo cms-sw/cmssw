@@ -1,5 +1,5 @@
 //
-// $Id: TopJetProducer.h,v 1.16 2007/08/19 17:04:00 lowette Exp $
+// $Id: TopJetProducer.h,v 1.17 2007/08/27 11:04:31 tsirig Exp $
 //
 
 #ifndef TopObjectProducers_TopJetProducer_h
@@ -13,7 +13,7 @@
    with possible adding of resolutions and more things to come
 
   \author   Jan Heyninck
-  \version  $Id: TopJetProducer.h,v 1.16 2007/08/19 17:04:00 lowette Exp $
+  \version  $Id: TopJetProducer.h,v 1.17 2007/08/27 11:04:31 tsirig Exp $
 */
 
 
@@ -25,11 +25,12 @@
 #include "PhysicsTools/Utilities/interface/EtComparator.h"
 
 #include "AnalysisDataFormats/TopObjects/interface/TopJet.h"
-#include "AnalysisDataFormats/TopObjects/interface/TopLepton.h"
-
+#include "AnalysisDataFormats/TopObjects/interface/TopElectron.h"
+#include "AnalysisDataFormats/TopObjects/interface/TopMuon.h"
 
 #include "PhysicsTools/JetCharge/interface/JetCharge.h"
 #include "TopQuarkAnalysis/TopObjectProducers/interface/SimpleJetTrackAssociator.h"
+
 
 class JetFlavourIdentifier;
 class TopObjectResolutionCalc;

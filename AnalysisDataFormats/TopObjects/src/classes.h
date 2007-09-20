@@ -1,4 +1,6 @@
-#include "AnalysisDataFormats/TopObjects/interface/TopLepton.h"
+#include "AnalysisDataFormats/TopObjects/interface/TopElectron.h"
+#include "AnalysisDataFormats/TopObjects/interface/TopMuon.h"
+#include "AnalysisDataFormats/TopObjects/interface/TopTau.h"
 #include "AnalysisDataFormats/TopObjects/interface/TopJet.h"
 #include "AnalysisDataFormats/TopObjects/interface/TopMET.h"
 #include "AnalysisDataFormats/TopObjects/interface/TtGenEvent.h"

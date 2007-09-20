@@ -1,5 +1,5 @@
 //
-// $Id: TtDilepEvtSolution.h,v 1.6 2007/07/20 07:05:14 lowette Exp $
+// $Id: TtDilepEvtSolution.h,v 1.7 2007/08/03 09:24:23 tsirig Exp $
 //
 
 #ifndef TopObjects_TtDilepEvtSolution_h
@@ -12,7 +12,8 @@
 #include "DataFormats/Candidate/interface/Particle.h"
 #include "AnalysisDataFormats/TopObjects/interface/TtGenEvent.h"
 #include "AnalysisDataFormats/TopObjects/interface/TopJet.h"
-#include "AnalysisDataFormats/TopObjects/interface/TopLepton.h"
+#include "AnalysisDataFormats/TopObjects/interface/TopElectron.h"
+#include "AnalysisDataFormats/TopObjects/interface/TopMuon.h"
 #include "AnalysisDataFormats/TopObjects/interface/TopMET.h"
 
 #include <vector>

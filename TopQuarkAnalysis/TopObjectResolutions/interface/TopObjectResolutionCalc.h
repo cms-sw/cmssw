@@ -2,7 +2,7 @@
 // Author:  Jan Heyninck
 // Created: Tue Apr  3 17:33:23 PDT 2007
 //
-// $Id: TopObjectResolutionCalc.h,v 1.5.2.2 2007/08/30 17:08:24 heyninck Exp $
+// $Id: TopObjectResolutionCalc.h,v 1.7 2007/08/30 22:25:28 heyninck Exp $
 //
 
 #ifndef TopObjectResolutionCalc_h
@@ -11,7 +11,7 @@
 /**
   \class    TopObjectResolutionCalc TopObjectResolutionCalc.h "TopQuarkAnalysis/TopLeptonSelection/interface/TopObjectResolutionCalc.h"
   \author   Jan Heyninck
-  \version  $Id: TopObjectResolutionCalc.h,v 1.5.2.2 2007/08/30 17:08:24 heyninck Exp $
+  \version  $Id: TopObjectResolutionCalc.h,v 1.7 2007/08/30 22:25:28 heyninck Exp $
 */
 
 
@@ -21,7 +21,9 @@
 #include "FWCore/Utilities/interface/Exception.h"
 #include "Utilities/General/interface/envUtil.h"
 
-#include "AnalysisDataFormats/TopObjects/interface/TopLepton.h"
+#include "AnalysisDataFormats/TopObjects/interface/TopElectron.h"
+#include "AnalysisDataFormats/TopObjects/interface/TopMuon.h"
+#include "AnalysisDataFormats/TopObjects/interface/TopTau.h"
 #include "AnalysisDataFormats/TopObjects/interface/TopMET.h"
 #include "AnalysisDataFormats/TopObjects/interface/TopJet.h"
 

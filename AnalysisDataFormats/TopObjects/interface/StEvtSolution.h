@@ -1,5 +1,5 @@
 //
-// $Id$
+// $Id: StEvtSolution.h,v 1.6 2007/09/19 23:05:05 lowette Exp $
 //
 
 #ifndef TopObjects_StEvtSolution_h
@@ -11,7 +11,8 @@
 
 #include "AnalysisDataFormats/TopObjects/interface/StGenEvent.h"
 #include "AnalysisDataFormats/TopObjects/interface/TopJet.h"
-#include "AnalysisDataFormats/TopObjects/interface/TopLepton.h"
+#include "AnalysisDataFormats/TopObjects/interface/TopMuon.h"
+#include "AnalysisDataFormats/TopObjects/interface/TopElectron.h"
 #include "AnalysisDataFormats/TopObjects/interface/TopMET.h"
 
 #include <vector>

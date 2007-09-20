@@ -1,5 +1,5 @@
 //
-// $Id: TopElectronProducer.h,v 1.13 2007/08/28 22:35:59 rwolf Exp $
+// $Id: TopElectronProducer.h,v 1.14 2007/09/07 22:23:08 lowette Exp $
 //
 
 #ifndef TopObjectProducers_TopElectronProducer_h
@@ -14,7 +14,7 @@
    and calculation of a lepton likelihood ratio
 
   \author   Jan Heyninck, Steven Lowette
-  \version  $Id: TopElectronProducer.h,v 1.8 2007/07/12 19:36:00 lowette Exp $
+  \version  $Id: TopElectronProducer.h,v 1.14 2007/09/07 22:23:08 lowette Exp $
 */
 
 
@@ -28,7 +28,7 @@
 #include "AnalysisDataFormats/Egamma/interface/ElectronIDAssociation.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticleCandidate.h"
 
-#include "AnalysisDataFormats/TopObjects/interface/TopLepton.h"
+#include "AnalysisDataFormats/TopObjects/interface/TopElectron.h"
 
 #include <string>
 
@@ -53,7 +53,7 @@ class TopElectronProducer : public edm::EDProducer {
     void removeGhosts(std::vector<TopElectronType> & elecs);
     reco::GenParticleCandidate findTruth(const reco::CandidateCollection & parts, const TopElectronType & elec);
     void matchTruth(const reco::CandidateCollection & particles, std::vector<TopElectronType> & electrons);
-    double electronID(const edm::Handle<TopElectronTypeCollection> & elecs, 
+    double electronID(const edm::Handle<std::vector<TopElectronType> > & elecs, 
                       const edm::Handle<reco::ElectronIDAssociationCollection> & elecIDs, int idx);
 
   private:

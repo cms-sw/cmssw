@@ -1,5 +1,5 @@
 //
-// $Id: TopElectronProducer.cc,v 1.19 2007/09/07 22:23:07 lowette Exp $
+// $Id: TopElectronProducer.cc,v 1.20 2007/09/07 23:53:27 lowette Exp $
 //
 
 #include "TopQuarkAnalysis/TopObjectProducers/interface/TopElectronProducer.h"
@@ -215,7 +215,7 @@ void TopElectronProducer::matchTruth(const reco::CandidateCollection & particles
 double TopElectronProducer::electronID(const edm::Handle<std::vector<TopElectronType> > & elecs,
                                        const edm::Handle<reco::ElectronIDAssociationCollection> & elecIDs, int idx) {
   //find elecID for elec with index idx
-  edm::Ref<TopElectronTypeCollection> elecsRef( elecs, idx );
+  edm::Ref<std::vector<TopElectronType> > elecsRef( elecs, idx );
   reco::ElectronIDAssociationCollection::const_iterator elecID = elecIDs->find( elecsRef );
 
   //return corresponding elecID (only 

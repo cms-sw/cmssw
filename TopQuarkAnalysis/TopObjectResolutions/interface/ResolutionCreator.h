@@ -19,7 +19,9 @@
 #include "DataFormats/JetReco/interface/CaloJet.h"
 #include "DataFormats/METReco/interface/CaloMET.h"
 
-#include "AnalysisDataFormats/TopObjects/interface/TopLepton.h" //added to work with the TopElectron and TopMuon (tmp)
+#include "AnalysisDataFormats/TopObjects/interface/TopElectron.h" //added to work with the TopElectron and TopMuon (tmp)
+#include "AnalysisDataFormats/TopObjects/interface/TopMuon.h" //added to work with the TopElectron and TopMuon (tmp)
+#include "AnalysisDataFormats/TopObjects/interface/TopTau.h" //added to work with the TopElectron and TopMuon (tmp)
 #include "AnalysisDataFormats/TopObjects/interface/TtGenEvent.h"
 #include "TH1.h"
 #include "TF1.h"
