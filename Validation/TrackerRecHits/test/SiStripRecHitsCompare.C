@@ -15,6 +15,58 @@ void SiStripRecHitsCompare()
  rfile->cd("DQMData/TrackerRecHits/Strip");
  sfile->cd("DQMData/TrackerRecHits/Strip");
 
+  TLegend leg(0.3, 0.80, 0.55, 0.90);
+ //Get list of Keys from the Reference file.
+  TList* ref_list = rfile->GetListOfKeys() ;
+  if (!ref_list) {
+      std::cout<<"=========>> AutoComaprison:: There is no Keys available in the Reference file."<<std::endl;
+      exit(1) ;
+   }
+
+  //Get list of Keys from the New file.
+  TList* new_list = sfile->GetListOfKeys() ;
+  if (!new_list) {
+      std::cout<<"=========>> AutoComaprison:: There is no Keys available in New file."<<std::endl;
+      exit(1) ;
+   }
+
+
+  //Iterate on the List of Keys of the  Reference file.
+  TIter     refkey_iter( ref_list) ;
+  TKey*     ref_key ;
+  TObject*  ref_obj ;
+
+  char rver[50];
+  char cver[50];
+  while ( ref_key = (TKey*) refkey_iter() ) {
+      ref_obj = ref_key->ReadObj() ;
+      if (strcmp(ref_obj->IsA()->GetName(),"TObjString")==0) {
+
+         TObjString * rversion = dynamic_cast< TObjString*> (ref_obj);
+         sprintf(rver, "%s", rversion->GetName());
+         std::cout<<" Ref. version =" << rver<<std::endl;
+         break;
+      }
+  }
+
+  //Iterate on the List of Keys of the  Reference file.
+  TIter     newkey_iter( new_list) ;
+  TKey*     new_key ;
+  TObject*  new_obj ;
+  while ( new_key = (TKey*) newkey_iter() ) {
+      new_obj = new_key->ReadObj() ;
+      if (strcmp(new_obj->IsA()->GetName(),"TObjString")==0) {
+
+         TObjString * cversion = dynamic_cast< TObjString*> (new_obj);
+         sprintf(cver, "%s", cversion->GetName());
+         std::cout<<" Cur version =" << cver<<std::endl;
+         break;
+
+      }
+  }
+
+
+
  Char_t histo[200];
 
  gROOT->ProcessLine(".x HistoCompare.C");
@@ -104,6 +156,10 @@ void SiStripRecHitsCompare()
    adctib[i]->Draw("h");
    newadctib[i]->Draw("sameh");
    myPV->PVCompute(adctib[i] , newadctib[i] , te );
+    leg.Clear();
+   leg.AddEntry(adctib[i],rver , "l");
+   leg.AddEntry(newadctib[i],cver , "l");
+   leg.Draw();
  }
  
  Strip0->Print("AdcTIBCompare.eps");
@@ -137,6 +193,10 @@ void SiStripRecHitsCompare()
    nstptib[i]->Draw("h");
    newnstptib[i]->Draw("sameh");
    myPV->PVCompute(nstptib[i] , newnstptib[i] , te );
+   //   leg.Clear();
+   leg.AddEntry(nstptib[i],rver , "l");
+   leg.AddEntry(newnstptib[i],cver , "l");
+   leg.Draw();
  }
  
  Strip1->Print("NstpTIBCompare.eps");
@@ -169,6 +229,10 @@ void SiStripRecHitsCompare()
     postib[i]->Draw("h");
     newpostib[i]->Draw("sameh");
     myPV->PVCompute(postib[i] , newpostib[i] , te );
+   leg.Clear();
+   leg.AddEntry(postib[i],rver , "l");
+   leg.AddEntry(newpostib[i],cver , "l");
+   leg.Draw();
   }
   
   Strip2->Print("PosTIBCompare.eps");
@@ -202,7 +266,11 @@ void SiStripRecHitsCompare()
     errxtib[i]->Draw("h");
     newerrxtib[i]->Draw("sameh");
     myPV->PVCompute(errxtib[i] , newerrxtib[i] , te );
-  }
+    leg.Clear();
+   leg.AddEntry(errxtib[i],rver , "l");
+   leg.AddEntry(newerrxtib[i],cver , "l");
+   leg.Draw();
+ }
   
   Strip3->Print("ErrxTIBCompare.eps");
   Strip3->Print("ErrxTIBCompare.gif");
@@ -234,7 +302,11 @@ void SiStripRecHitsCompare()
     restib[i]->Draw("h");
     newrestib[i]->Draw("sameh");
     myPV->PVCompute(restib[i] , newrestib[i] , te );
-  }
+    leg.Clear();
+   leg.AddEntry(restib[i],rver , "l");
+   leg.AddEntry(newrestib[i],cver , "l");
+   leg.Draw();
+ }
   
   Strip4->Print("ResTIBCompare.eps");
   Strip4->Print("ResTIBCompare.gif");
@@ -266,6 +338,10 @@ void SiStripRecHitsCompare()
    pulltib[i]->Draw("h");
    newpulltib[i]->Draw("sameh");
    myPV->PVCompute(pulltib[i] , newpulltib[i] , te );
+   leg.Clear();
+   leg.AddEntry(pulltib[i],rver , "l");
+   leg.AddEntry(newpulltib[i],cver , "l");
+   leg.Draw();
  }
  
  Strip31->Print("PullTIBCompare.eps");
@@ -299,7 +375,11 @@ void SiStripRecHitsCompare()
     chi2tib[i]->Draw("h");
     newchi2tib[i]->Draw("sameh");
     myPV->PVCompute(chi2tib[i] , newchi2tib[i] , te );
-  }
+     leg.Clear();
+   leg.AddEntry(chi2tib[i],rver , "l");
+   leg.AddEntry(newchi2tib[i],cver , "l");
+   leg.Draw();
+}
   
   Strip5->Print("Chi2TIBCompare.eps");
   Strip5->Print("Chi2TIBCompare.gif");
@@ -343,8 +423,12 @@ void SiStripRecHitsCompare()
    newmatchedtib[i]->SetNormFactor(1.0);
    matchedtib[i]->Draw("h");
    newmatchedtib[i]->Draw("sameh");
-   //   myPV->PVCompute(matchedtib[i] , newmatchedtib[i] , te );
- }
+   myPV->PVCompute(matchedtib[i] , newmatchedtib[i] , te );
+    leg.Clear();
+   leg.AddEntry(matchedtib[i],rver , "l");
+   leg.AddEntry(newmatchedtib[i],cver , "l");
+   leg.Draw();
+}
  
  Strip6->Print("MatchedTIBCompare.eps");
  Strip6->Print("MatchedTIBCompare.gif");
@@ -401,6 +485,10 @@ void SiStripRecHitsCompare()
    adctob[i]->Draw("h");
    newadctob[i]->Draw("sameh");
    myPV->PVCompute(adctob[i] , newadctob[i] , te );
+   leg.Clear();
+   leg.AddEntry(adctob[i],rver , "l");
+   leg.AddEntry(newadctob[i],cver , "l");
+   leg.Draw();
  }
  
  Strip7->Print("AdcTOBCompare.eps");
@@ -437,6 +525,10 @@ void SiStripRecHitsCompare()
    nstptob[i]->Draw("h");
    newnstptob[i]->Draw("sameh");
    myPV->PVCompute(nstptob[i] , newnstptob[i] , te );
+   leg.Clear();
+   leg.AddEntry(nstptob[i],rver , "l");
+   leg.AddEntry(newnstptob[i],cver , "l");
+   leg.Draw();
  }
  
  Strip8->Print("NstpTOBCompare.eps");
@@ -473,7 +565,11 @@ void SiStripRecHitsCompare()
     postob[i]->Draw("h");
     newpostob[i]->Draw("sameh");
     myPV->PVCompute(postob[i] , newpostob[i] , te );
-  }
+     leg.Clear();
+   leg.AddEntry(postob[i],rver , "l");
+   leg.AddEntry(newpostob[i],cver , "l");
+   leg.Draw();
+}
   
   Strip9->Print("PosTOBCompare.eps");
   Strip9->Print("PosTOBCompare.gif");
@@ -510,7 +606,11 @@ void SiStripRecHitsCompare()
     errxtob[i]->Draw("h");
     newerrxtob[i]->Draw("sameh");
     myPV->PVCompute(errxtob[i] , newerrxtob[i] , te );
-  }
+     leg.Clear();
+   leg.AddEntry(errxtob[i],rver , "l");
+   leg.AddEntry(newerrxtob[i],cver , "l");
+   leg.Draw();
+}
   
   Strip10->Print("ErrxTOBCompare.eps");
   Strip10->Print("ErrxTOBCompare.gif");
@@ -547,7 +647,11 @@ void SiStripRecHitsCompare()
     restob[i]->Draw("h");
     newrestob[i]->Draw("sameh");
     myPV->PVCompute(restob[i] , newrestob[i] , te );
-  }
+    leg.Clear();
+   leg.AddEntry(restob[i],rver , "l");
+   leg.AddEntry(newrestob[i],cver , "l");
+   leg.Draw();
+ }
   
   Strip11->Print("ResTOBCompare.eps");
   Strip11->Print("ResTOBCompare.gif");
@@ -582,7 +686,11 @@ void SiStripRecHitsCompare()
    newpulltob[i]->SetNormFactor(1.0);
    pulltob[i]->Draw("h");
    newpulltob[i]->Draw("sameh");
-   myPV->PVCompute(pulltob[i] , newpulltob[i] , te );
+    leg.Clear();
+  myPV->PVCompute(pulltob[i] , newpulltob[i] , te );
+   leg.AddEntry(pulltob[i],rver , "l");
+   leg.AddEntry(newpulltob[i],cver , "l");
+   leg.Draw();
  }
  
  Strip32->Print("PullTOBCompare.eps");
@@ -620,7 +728,11 @@ void SiStripRecHitsCompare()
     chi2tob[i]->Draw("h");
     newchi2tob[i]->Draw("sameh");
     myPV->PVCompute(chi2tob[i] , newchi2tob[i] , te );
-  }
+    leg.Clear();
+   leg.AddEntry(chi2tob[i],rver , "l");
+   leg.AddEntry(newchi2tob[i],cver , "l");
+   leg.Draw();
+ }
   
   Strip12->Print("Chi2TOBCompare.eps");
   Strip12->Print("Chi2TOBCompare.gif");
@@ -665,7 +777,11 @@ void SiStripRecHitsCompare()
    matchedtob[i]->Draw("h");
    newmatchedtob[i]->Draw("sameh");
    myPV->PVCompute(matchedtob[i] , newmatchedtob[i] , te );
- }
+    leg.Clear();
+   leg.AddEntry(matchedtob[i],rver , "l");
+   leg.AddEntry(newmatchedtob[i],cver , "l");
+   leg.Draw();
+}
  
  Strip13->Print("MatchedTOBCompare.eps");
  Strip13->Print("MatchedTOBCompare.gif");
@@ -718,7 +834,11 @@ void SiStripRecHitsCompare()
    adctid[i]->Draw("h");
    newadctid[i]->Draw("sameh");
    myPV->PVCompute(adctid[i] , newadctid[i] , te );
- }
+    leg.Clear();
+   leg.AddEntry(adctid[i],rver , "l");
+   leg.AddEntry(newadctid[i],cver , "l");
+   leg.Draw();
+}
  
  Strip14->Print("AdcTIDCompare.eps");
  Strip14->Print("AdcTIDCompare.gif");
@@ -748,7 +868,11 @@ void SiStripRecHitsCompare()
    nstptid[i]->Draw("h");
    newnstptid[i]->Draw("sameh");
    myPV->PVCompute(nstptid[i] , newnstptid[i] , te );
- }
+    leg.Clear();
+   leg.AddEntry(nstptid[i],rver , "l");
+   leg.AddEntry(newnstptid[i],cver , "l");
+   leg.Draw();
+}
  
  Strip15->Print("NstpTIDCompare.eps");
  Strip15->Print("NstpTIDCompare.gif");
@@ -778,7 +902,11 @@ void SiStripRecHitsCompare()
     postid[i]->Draw("h");
     newpostid[i]->Draw("sameh");
     myPV->PVCompute(postid[i] , newpostid[i] , te );
-  }
+     leg.Clear();
+   leg.AddEntry(postid[i],rver , "l");
+   leg.AddEntry(newpostid[i],cver , "l");
+   leg.Draw();
+}
   
   Strip16->Print("PosTIDCompare.eps");
   Strip16->Print("PosTIDCompare.gif");
@@ -809,7 +937,11 @@ void SiStripRecHitsCompare()
     errxtid[i]->Draw("h");
     newerrxtid[i]->Draw("sameh");
     myPV->PVCompute(errxtid[i] , newerrxtid[i] , te );
-  }
+    leg.Clear();
+   leg.AddEntry(errxtid[i],rver , "l");
+   leg.AddEntry(newerrxtid[i],cver , "l");
+   leg.Draw();
+ }
   
   Strip17->Print("ErrxTIDCompare.eps");
   Strip17->Print("ErrxTIDCompare.gif");
@@ -840,6 +972,10 @@ void SiStripRecHitsCompare()
     restid[i]->Draw("h");
     newrestid[i]->Draw("sameh");
     myPV->PVCompute(restid[i] , newrestid[i] , te );
+   leg.Clear();
+   leg.AddEntry(restid[i],rver , "l");
+   leg.AddEntry(newrestid[i],cver , "l");
+   leg.Draw();
   }
   
   Strip18->Print("ResTIDCompare.eps");
@@ -870,6 +1006,10 @@ void SiStripRecHitsCompare()
    pulltid[i]->Draw("h");
    newpulltid[i]->Draw("sameh");
    myPV->PVCompute(pulltid[i] , newpulltid[i] , te );
+   leg.Clear();
+   leg.AddEntry(pulltid[i],rver , "l");
+   leg.AddEntry(newpulltid[i],cver , "l");
+   leg.Draw();
  }
  
  Strip33->Print("PullTIDCompare.eps");
@@ -900,7 +1040,11 @@ void SiStripRecHitsCompare()
     chi2tid[i]->Draw("h");
     newchi2tid[i]->Draw("sameh");
     myPV->PVCompute(chi2tid[i] , newchi2tid[i] , te );
-  }
+    leg.Clear();
+   leg.AddEntry(chi2tid[i],rver , "l");
+   leg.AddEntry(newchi2tid[i],cver , "l");
+   leg.Draw();
+ }
   
   Strip19->Print("Chi2TIDCompare.eps");
   Strip19->Print("Chi2TIDCompare.gif");
@@ -945,7 +1089,11 @@ void SiStripRecHitsCompare()
    matchedtid[i]->Draw("h");
    newmatchedtid[i]->Draw("sameh");
    myPV->PVCompute(matchedtid[i] , newmatchedtid[i] , te );
- }
+    leg.Clear();
+   leg.AddEntry(matchedtid[i],rver , "l");
+   leg.AddEntry(newmatchedtid[i],cver , "l");
+   leg.Draw();
+}
  
  Strip20->Print("MatchedTIDCompare.eps");
  Strip20->Print("MatchedTIDCompare.gif");
@@ -977,7 +1125,11 @@ void SiStripRecHitsCompare()
     chi2tid[i]->Draw("h");
     newchi2tid[i]->Draw("sameh");
     myPV->PVCompute(matchedchi2tid[i] , newmatchedchi2tid[i] , te );
-  }
+    leg.Clear();
+   leg.AddEntry(chi2tid[i],rver , "l");
+   leg.AddEntry(newchi2tid[i],cver , "l");
+   leg.Draw();
+ }
   
   Strip21->Print("Chi2MatchedTIDCompare.eps");
   Strip21->Print("Chi2MatchedTIDCompare.gif");
@@ -1041,7 +1193,11 @@ void SiStripRecHitsCompare()
    adctec[i]->Draw("h");
    newadctec[i]->Draw("sameh");
    myPV->PVCompute(adctec[i] , newadctec[i] , te );
- }
+    leg.Clear();
+   leg.AddEntry(adctec[i],rver , "l");
+   leg.AddEntry(newadctec[i],cver , "l");
+   leg.Draw();
+}
  
  Strip22->Print("AdcTECCompare.eps");
  Strip22->Print("AdcTECCompare.gif");
@@ -1081,7 +1237,11 @@ void SiStripRecHitsCompare()
    nstptec[i]->Draw("h");
    newnstptec[i]->Draw("sameh");
    myPV->PVCompute(nstptec[i] , newnstptec[i] , te );
- }
+    leg.Clear();
+   leg.AddEntry(nstptec[i],rver , "l");
+   leg.AddEntry(newnstptec[i],cver , "l");
+   leg.Draw();
+}
  
  Strip23->Print("NstpTECCompare.eps");
  Strip23->Print("NstpTECCompare.gif");
@@ -1121,7 +1281,11 @@ void SiStripRecHitsCompare()
     postec[i]->Draw("h");
     newpostec[i]->Draw("sameh");
     myPV->PVCompute(postec[i] , newpostec[i] , te );
-  }
+     leg.Clear();
+   leg.AddEntry(postec[i],rver , "l");
+   leg.AddEntry(newpostec[i],cver , "l");
+   leg.Draw();
+}
   
   Strip24->Print("PosTECCompare.eps");
   Strip24->Print("PosTECCompare.gif");
@@ -1163,7 +1327,11 @@ void SiStripRecHitsCompare()
     errxtec[i]->Draw("h");
     newerrxtec[i]->Draw("sameh");
     myPV->PVCompute(errxtec[i] , newerrxtec[i] , te );
-  }
+    leg.Clear();
+   leg.AddEntry(errxtec[i],rver , "l");
+   leg.AddEntry(newerrxtec[i],cver , "l");
+   leg.Draw();
+ }
   
   Strip25->Print("ErrxTECCompare.eps");
   Strip25->Print("ErrxTECCompare.gif");
@@ -1204,7 +1372,11 @@ void SiStripRecHitsCompare()
     restec[i]->Draw("h");
     newrestec[i]->Draw("sameh");
     myPV->PVCompute(restec[i] , newrestec[i] , te );
-  }
+    leg.Clear();
+   leg.AddEntry(restec[i],rver , "l");
+   leg.AddEntry(newrestec[i],cver , "l");
+   leg.Draw();
+ }
   
   Strip26->Print("ResTECCompare.eps");
   Strip26->Print("ResTECCompare.gif");
@@ -1244,7 +1416,11 @@ void SiStripRecHitsCompare()
     pulltec[i]->Draw("h");
     newpulltec[i]->Draw("sameh");
     myPV->PVCompute(pulltec[i] , newpulltec[i] , te );
-  }
+     leg.Clear();
+   leg.AddEntry(pulltec[i],rver , "l");
+   leg.AddEntry(newpulltec[i],cver , "l");
+   leg.Draw();
+}
   
   Strip34->Print("PullTECCompare.eps");
   Strip34->Print("PullTECCompare.gif");
@@ -1284,7 +1460,11 @@ void SiStripRecHitsCompare()
     chi2tec[i]->Draw("h");
     newchi2tec[i]->Draw("sameh");
     myPV->PVCompute(chi2tec[i] , newchi2tec[i] , te );
-  }
+     leg.Clear();
+   leg.AddEntry(chi2tec[i],rver , "l");
+   leg.AddEntry(newchi2tec[i],cver , "l");
+   leg.Draw();
+}
   
   Strip27->Print("Chi2TECCompare.eps");
   Strip27->Print("Chi2TECCompare.gif");
@@ -1328,7 +1508,11 @@ void SiStripRecHitsCompare()
    matchedtec[i]->Draw("h");
    newmatchedtec[i]->Draw("sameh");
    myPV->PVCompute(matchedtec[i] , newmatchedtec[i] , te );
- }
+    leg.Clear();
+   leg.AddEntry(matchedtec[i],rver , "l");
+   leg.AddEntry(newmatchedtec[i],cver , "l");
+   leg.Draw();
+}
  
  Strip28->Print("MatchedTECCompare.eps");
  Strip28->Print("MatchedTECCompare.gif");
@@ -1360,7 +1544,11 @@ void SiStripRecHitsCompare()
    matchedrestec[i]->Draw("h");
    newmatchedrestec[i]->Draw("sameh");
    myPV->PVCompute(matchedrestec[i] , newmatchedrestec[i] , te );
- }
+    leg.Clear();
+   leg.AddEntry(matchedrestec[i],rver , "l");
+   leg.AddEntry(newmatchedrestec[i],cver , "l");
+   leg.Draw();
+}
  
  Strip29->Print("MatchedResTECCompare.eps");
  Strip29->Print("MatchedResTECCompare.gif");
@@ -1386,7 +1574,11 @@ void SiStripRecHitsCompare()
    matchedchi2tec[i]->Draw("h");
    newmatchedchi2tec[i]->Draw("sameh");
    myPV->PVCompute(matchedchi2tec[i] , newmatchedchi2tec[i] , te );
- }
+    leg.Clear();
+   leg.AddEntry(matchedchi2tec[i],rver , "l");
+   leg.AddEntry(newmatchedchi2tec[i],cver , "l");
+   leg.Draw();
+}
  
  Strip30->Print("MatchedChi2TECCompare.eps");
  Strip30->Print("MatchedChi2TECCompare.gif");
