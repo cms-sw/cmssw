@@ -112,7 +112,7 @@ AlignmentMuonSelector::basicCuts(const Muons& muons) const
     float chi2nSA = muonp->standAloneMuon()->normalizedChi2();  // standAlone Muon
     int nhitGB = muonp->combinedMuon()->recHitsSize(); 		// global Muon
     float chi2nGB = muonp->combinedMuon()->normalizedChi2();	// global Muon
-    int nhitTO = muonp->track()->recHitsSize(); 		// Tracker Only
+    int nhitTO = muonp->track()->numberOfValidHits(); 		// Tracker Only
     float chi2nTO = muonp->track()->normalizedChi2();		// Tracker Only
 
     edm::LogInfo("AlignmentMuonSelector") << " pt,eta,phi,nhitSA,chi2nSA,nhitGB,chi2nGB,nhitTO,chi2nTO: "
