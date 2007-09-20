@@ -1,7 +1,7 @@
 #ifndef RecoParticleFlow_PFAlgo_PFBlock_h
 #define RecoParticleFlow_PFAlgo_PFBlock_h 
 
-#include <set>
+#include <map>
 #include <iostream>
 
 /* #include "boost/graph/adjacency_matrix.hpp" */
@@ -58,6 +58,14 @@ namespace reco {
     /// lock an element ( unlink it from the others )
     void lock(unsigned i, std::vector<double>& linkData ) const;
 
+
+    /// fills a map with the elements associated to element i.
+    /// elements are sorted by increasing chi2.
+    /// if specified, only the elements of type "type" will be considered
+    void associatedElements( unsigned i,
+			     std::map<double, unsigned>& sortedAssociates,
+			     reco::PFBlockElement::Type type = PFBlockElement::NONE) const;  
+      
 
     /// \return chi2 of link
     double chi2( unsigned ie1, unsigned ie2, 
