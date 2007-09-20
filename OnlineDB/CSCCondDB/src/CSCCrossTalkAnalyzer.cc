@@ -284,7 +284,7 @@ CSCCrossTalkAnalyzer::~CSCCrossTalkAnalyzer(){
 
   Conv binsConv;
   //get time of Run file for DB transfer
-  filein.open("../test/CSColdxtalk.cfg");
+  filein.open("../test/CSCxtalk.cfg");
   filein.ignore(1000,'\n');
     
   while(filein != NULL){
