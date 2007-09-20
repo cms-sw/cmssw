@@ -13,7 +13,7 @@
 //
 // Original Author:  Michael Weinberger
 //         Created:  Mon Mar 19 11:53:56 CDT 2007
-// $Id: HcalLuttoDB.cc,v 1.1 2007/05/04 18:16:56 mlw Exp $
+// $Id: HcalLuttoDB.cc,v 1.2 2007/09/18 10:01:00 mansj Exp $
 //
 //
 
@@ -55,6 +55,7 @@ using namespace edm;
 using namespace std;
 #include <iostream>
 #include <fstream>
+#include "FWCore/Utilities/interface/md5.h"
 
 //
 // class decleration
@@ -154,6 +155,21 @@ HcalLuttoDB::writeoutlut1(HcalDetId id, HcalElectronicsId eid, const std::vector
     ((id.ieta()<0)?(0):(100))+((id.subdet()==HcalForward && id.ietaAbs()==29)?(4*10000):(0));
 
   os <<" <Parameter name='GENERALIZEDINDEX' type='int'>"<<generalizedIndex<<"</Parameter>"<<std::endl;
+  // do checksum
+  md5_state_t md5er;
+  md5_byte_t digest[16];
+  unsigned char tool[2];
+  md5_init(&md5er);
+  for (int i=0; i<128; i++) {
+    tool[0]=lut[i]&0xFF;
+    tool[1]=(lut[i]>>8)&0xFF;
+    md5_append(&md5er,tool,2);
+  }
+  md5_finish(&md5er,digest);
+  os <<" <Parameter name='CHECKSUM' type='string'>";
+  for (int i=0; i<16; i++) os << std::hex << (((int)(digest[i]))&0xFF);
+  os << "</Parameter>\n";
+
   os <<" <Data elements='128' encoding='hex'> "<<std::endl;
   os << std::hex;
   for(int initr2 = 0; initr2 < 128; initr2++){
@@ -187,6 +203,18 @@ HcalLuttoDB::writeoutlut2(HcalTrigTowerDetId id, HcalElectronicsId eid, const st
 
 
   os <<" <Parameter name='GENERALIZEDINDEX' type='int'>"<<generalizedIndex<<"</Parameter>"<<std::endl;
+
+
+// do checksum
+  md5_state_t md5er;
+  md5_byte_t digest[16];
+  md5_init(&md5er);
+  md5_append(&md5er,&(lut[0]),1024);
+  md5_finish(&md5er,digest);
+  os <<" <Parameter name='CHECKSUM' type='string'>";
+  for (int i=0; i<16; i++) os << std::hex << (((int)(digest[i]))&0xFF);
+  os << "</Parameter>\n";
+
   os <<" <Data elements='1024' encoding='hex'> "<<std::endl;
   os << std::hex;
   for(int initr2 = 0; initr2 < 1024; initr2++){
