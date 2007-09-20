@@ -1,5 +1,5 @@
 //
-// $Id: TopMuonProducer.cc,v 1.12 2007/09/07 22:23:07 lowette Exp $
+// $Id: TopMuonProducer.cc,v 1.13 2007/09/07 23:53:27 lowette Exp $
 //
 
 #include "TopQuarkAnalysis/TopObjectProducers/interface/TopMuonProducer.h"
@@ -11,8 +11,6 @@
 
 #include "TopQuarkAnalysis/TopLeptonSelection/interface/TopLeptonLRCalc.h"
 #include "TopQuarkAnalysis/TopObjectResolutions/interface/TopObjectResolutionCalc.h"
-#include "TopQuarkAnalysis/TopLeptonSelection/interface/TopLeptonTrackerIsolationPt.h"
-#include "TopQuarkAnalysis/TopLeptonSelection/interface/TopLeptonCaloIsolationEnergy.h"
 
 #include <vector>
 #include <memory>
@@ -32,13 +30,10 @@ TopMuonProducer::TopMuonProducer(const edm::ParameterSet & iConfig) {
   addResolutions_= iConfig.getParameter<bool>         ( "addResolutions" );
   useNNReso_     = iConfig.getParameter<bool>         ( "useNNResolution" );
   muonResoFile_  = iConfig.getParameter<std::string>  ( "muonResoFile" );
-  // isolation configurables
-  doTrkIso_      = iConfig.getParameter<bool>         ( "doTrkIsolation" );
-  tracksSrc_     = iConfig.getParameter<edm::InputTag>( "tracksSrc" );
-  doCalIso_      = iConfig.getParameter<bool>         ( "doCalIsolation" );
   // likelihood ratio configurables
   addLRValues_   = iConfig.getParameter<bool>         ( "addLRValues" );
   muonLRFile_    = iConfig.getParameter<std::string>  ( "muonLRFile" );
+  tracksSrc_     = iConfig.getParameter<edm::InputTag>( "tracksSrc" );
 
   // construct resolution calculator
   if (addResolutions_) {
@@ -70,10 +65,6 @@ void TopMuonProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetu
     matchTruth(*particles, muons);
   }
 
-  // prepare isolation calculation
-  if (doTrkIso_) trkIsolation_ = new TopLeptonTrackerIsolationPt (iSetup, tracksSrc_);
-  if (doCalIso_) calIsolation_ = new TopLeptonCaloIsolationEnergy(iSetup);
-
   // prepare LR calculation
   if (addLRValues_) {
     theLeptonLRCalc_ = new TopLeptonLRCalc(iSetup, "", muonLRFile_, "", tracksSrc_);
@@ -92,14 +83,6 @@ void TopMuonProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetu
     if (addResolutions_) {
       (*theResoCalc_)(aMuon);
     }
-    // do tracker isolation
-    if (doTrkIso_) {
-      aMuon.setTrackIso(trkIsolation_->calculate(aMuon, iEvent));
-    }
-    // do calorimeter isolation
-    if (doCalIso_) {
-      aMuon.setCaloIso(calIsolation_->calculate(aMuon, iEvent));
-    }
     // add lepton LR info
     if (addLRValues_) {
       theLeptonLRCalc_->calcLikelihood(aMuon, iEvent);
@@ -115,8 +98,6 @@ void TopMuonProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetu
   std::auto_ptr<std::vector<TopMuon> > ptr(topMuons);
   iEvent.put(ptr);
 
-  if (doTrkIso_ ) delete trkIsolation_;
-  if (doCalIso_ ) delete calIsolation_;
   if (addLRValues_) delete theLeptonLRCalc_;
 
 }
