@@ -15,7 +15,7 @@ PFRootEventManagerColin::PFRootEventManagerColin(const char* file)
   neutralEvent_ = 0;
   outTree_ = 0;   
   
-  readOptions(file, false, false);
+//   readOptions(file, false, false);
   
   // book histos here
 //   neutralEvent_ = new NeutralEvent();  
@@ -24,6 +24,7 @@ PFRootEventManagerColin::PFRootEventManagerColin(const char* file)
 //   outTree_ = new TTree("Tau","");
 //   outTree_->Branch("event","TauEvent", &tauEvent_,32000,2);
 
+  readSpecificOptions(file);
 
 }
 
@@ -33,13 +34,11 @@ PFRootEventManagerColin::~PFRootEventManagerColin() {
 }
 
 
-void PFRootEventManagerColin::readOptions(const char* file, 
-					  bool refresh,
-					  bool reconnect) {
+void PFRootEventManagerColin::readSpecificOptions(const char* file) {
 
 
-  cout<<"calling PFRootEventManagerColin::readOptions"<<endl; 
-  // PFRootEventManager::readOptions(file, refresh, reconnect);
+  cout<<"calling PFRootEventManagerColin::readSpecificOptions"<<endl; 
+//   PFRootEventManager::readOptions(file, refresh, reconnect);
 
   
   options_->GetOpt("colin", "mode", mode_);
@@ -73,18 +72,19 @@ void PFRootEventManagerColin::readOptions(const char* file,
 
 bool PFRootEventManagerColin::processEntry(int entry) {
   if( ! PFRootEventManager::processEntry(entry) ) {
-    cerr<<"event was not accepted"<<endl;
+    // cerr<<"event was not accepted"<<endl;
     return false; // event not accepted
   }
+
 
   bool rvalue = false;
   switch(mode_) {
   case Neutral:
-    cout<<"colin: process Neutral"<<endl;
+    // cout<<"colin: process Neutral"<<endl;
     rvalue = processNeutral();
     break;
   case HIGH_E_TAUS:
-    cout<<"colin: process highETaus"<<endl;
+    // cout<<"colin: process highETaus"<<endl;
     rvalue = processHIGH_E_TAUS();
     break;
   default:
@@ -201,10 +201,10 @@ bool PFRootEventManagerColin::processHIGH_E_TAUS() {
       iPi0 = i; 
     } 
 
-    cout<<i<<" "<<part<<endl;
+    // cout<<i<<" "<<part<<endl;
   }
 
-  
+
   // one has to select 1 charged and 2 photons 
   // to use this function.
 
@@ -218,9 +218,9 @@ bool PFRootEventManagerColin::processHIGH_E_TAUS() {
 //     assert(0);
 //   }
   
-  cout<<"true particles : "<<endl;
-  cout<<" hadron "<<iHadron
-      <<" pi0 "<<iPi0<<endl;
+//   cout<<"true particles : "<<endl;
+//   cout<<" hadron "<<iHadron
+//       <<" pi0 "<<iPi0<<endl;
 
 
   
@@ -236,6 +236,10 @@ bool PFRootEventManagerColin::processHIGH_E_TAUS() {
   }
   else {
     tauEvent_->eNeutral = 0;
+  }
+
+  if( tauEvent_->eNeutral > 0.1* tauEvent_->pHadron ) {
+    print();
   }
 
 
@@ -326,14 +330,14 @@ bool PFRootEventManagerColin::processHIGH_E_TAUS() {
       }
     }
     
-    cout<<block<<endl;
-    cout<<iTrack<<" "<<iEcal<<" "<<iHcal<<endl;
+//     cout<<block<<endl;
+//     cout<<iTrack<<" "<<iEcal<<" "<<iHcal<<endl;
 
     // fill the tree and exit the function. 
     if(iEcal>-1)
       tauEvent_->chi2ECAL = chi2Ecal;
     outTree_->Fill();
-    break;
+    return true;
   }
   
   return false;

@@ -143,6 +143,10 @@ void PFRootEventManager::readOptions(const char* file,
 				     bool refresh, 
 				     bool reconnect) {
 
+  readSpecificOptions(file);
+  
+  cout<<"calling PFRootEventManager::readOptions"<<endl; 
+
   reset();
   
   PFGeometry pfGeometry; // initialize geometry
@@ -545,9 +549,12 @@ void PFRootEventManager::readOptions(const char* file,
   options_->GetOpt("particle_flow", "nsigma_ECAL", nSigmaECAL);
   double nSigmaHCAL = 99999;
   options_->GetOpt("particle_flow", "nsigma_HCAL", nSigmaHCAL);
+  double mvaCut = -99999;
+  options_->GetOpt("particle_flow", "mergedPhotons_mvaCut", mvaCut);
+    
 
-
-  pfAlgo_.setParameters( eCalibP0, eCalibP1, nSigmaECAL, nSigmaHCAL );
+  pfAlgo_.setParameters( eCalibP0, eCalibP1, nSigmaECAL, nSigmaHCAL,
+			 mvaCut );
 
 
   // print flags -------------
@@ -906,15 +913,16 @@ bool PFRootEventManager::processEntry(int entry) {
   if(outTree_) outTree_->Fill();
   
  
-//   if( deltaEt<-0.5 ) {
-//     cout<<deltaEt<<endl;
-//     return true;
-//   }
+  if( deltaEt>0.5 ) {
+    cout<<"Delta E_T = "<<deltaEt<<endl;
+    return true;
+  }
+  else return false;
 //   //  if(trueParticles_.size() != 1 ) return false;
 //   else 
 //     return false;
 
-  return goodevent;
+//   return goodevent;
 
 }
 
