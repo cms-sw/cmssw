@@ -49,6 +49,8 @@ std::auto_ptr<CaloSubdetectorGeometry> EcalTBHodoscopeGeometryLoaderFromDDD::loa
 
 void EcalTBHodoscopeGeometryLoaderFromDDD::makeGeometry(const DDCompactView* cpv,CaloSubdetectorGeometry* ebg)
 {
+
+   if( ebg->cornersMgr() == 0 ) ebg->allocateCorners( 256 ) ;
   
   DDFilter* filter = getDDFilter();
 
