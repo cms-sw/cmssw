@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2007/08/01 12:36:42 $
- *  $Revision: 1.38 $
+ *  $Date: 2007/08/28 01:14:42 $
+ *  $Revision: 1.39 $
  *
  *  \author Martin Grunewald
  *
@@ -31,7 +31,9 @@
 #include "DataFormats/METReco/interface/GenMETCollection.h"
 
 #include "DataFormats/RecoCandidate/interface/RecoChargedCandidate.h"
+#include "DataFormats/RecoCandidate/interface/RecoChargedCandidateFwd.h"
 #include "DataFormats/RecoCandidate/interface/RecoEcalCandidate.h"
+#include "DataFormats/RecoCandidate/interface/RecoEcalCandidateFwd.h"
 
 #include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
 
