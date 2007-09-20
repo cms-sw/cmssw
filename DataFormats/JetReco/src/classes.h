@@ -17,7 +17,6 @@
 #include "DataFormats/TrackReco/interface/TrackFwd.h" 
 #include "DataFormats/JetReco/interface/JetTrackMatch.h"
 #include "DataFormats/JetReco/interface/JetToFloatAssociation.h"
-#include "DataFormats/JetReco/interface/JetToTracksAssociation.h"
 #include "DataFormats/JetReco/interface/JetTracksAssociation.h"
 #include "DataFormats/JetReco/interface/JetExtendedAssociation.h"
 #include "DataFormats/Common/interface/Wrapper.h"
