@@ -5,6 +5,8 @@
 <use name=FWCore/MessageLogger>
 <use name=PhysicsTools/UtilAlgos>
 <use name=FWCore/ServiceRegistry>
+<use name=CondCore/DBCommon>
+<use name=CondCore/DBOutputService>
 <export>
    <lib name=CalibFormatsSiPixelObjects>
    <use name=FWCore/Framework>
@@ -12,4 +14,6 @@
    <use name=Foundation/PluginManager>
    <use name=FWCore/ParameterSet>
    <use name=FWCore/MessageLogger>
+   <use name=CondCore/DBCommon>
+   <use name=CondCore/DBOutputService>
 </export>

@@ -3,6 +3,8 @@
   <class name="uint32_t"/>
   <class name="std::vector<uint32_t>"/>
   <class name="std::string"/>
+  <class name="std::vector<std::pair<uint32_t, std::vector<uint32_t> > > "/>
+  <class name="std::pair<uint32_t,std::vector<uint32_t> >"/>
   <class name="std::vector<std::string>"/>
   <class name="std::vector<std::vector<uint32_t> >"/>
 </lcgdict>

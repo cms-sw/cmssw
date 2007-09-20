@@ -16,6 +16,19 @@ char* itoa(int i){
     assert(0);
 }
 
+void SiPixelCalibConfiguration::print() const{
+  std::cout << "Number of pixel patterns: " << nPixelPatterns() << std::endl;
+  std::cout << "Number of Vcals: " << (vcal_first_-vcal_last_)/vcal_step_ << ", starting at " << vcal_first_ << " in steps of " << vcal_step_ <<", last point " << vcal_last_ << std::endl;
+  std::cout << "Number of triggers per pattern:" << ntrigger_ << std::endl;
+  std::cout << "list of ROCs" << std::endl;
+  for(std::vector<std::string>::iterator iroc = rocs_.begin(); iroc !=rocs_.end(); ++iroc){
+    std::cout << iroc->c_str() << "\t" ;
+    ++iroc;
+    std::cout << iroc->c_str() << std::endl;
+  }
+}
+
+
 SiPixelCalibConfiguration::SiPixelCalibConfiguration(std::string filename):
   PixelConfigBase("","",""){
 

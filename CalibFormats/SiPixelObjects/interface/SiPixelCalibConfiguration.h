@@ -61,6 +61,8 @@ class SiPixelCalibConfiguration: public PixelConfigBase {
 			std::vector<uint32_t>& rows,
 			std::vector<uint32_t>& cols) const;
 
+    void print() const;
+
  private:
 
     std::vector<std::vector<uint32_t> > rows_;
