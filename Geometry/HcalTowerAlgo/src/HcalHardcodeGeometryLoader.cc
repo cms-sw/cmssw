@@ -63,7 +63,7 @@ std::auto_ptr<CaloSubdetectorGeometry> HcalHardcodeGeometryLoader::load() {
 }
 
 void HcalHardcodeGeometryLoader::fill(HcalSubdetector subdet, int firstEtaRing, int lastEtaRing, 
-                             CaloSubdetectorGeometry* geom) 
+				      CaloSubdetectorGeometry* geom) 
 {
   // start by making the new HcalDetIds
   std::vector<HcalDetId> hcalIds;
@@ -83,6 +83,7 @@ void HcalHardcodeGeometryLoader::fill(HcalSubdetector subdet, int firstEtaRing, 
       } 
     }
   }
+  if( geom->cornersMgr() == 0 ) geom->allocateCorners( 10000 ) ;
 
   edm::LogInfo("HcalHardcodeGeometry") << "Number of HCAL DetIds made: " << subdet << " " << hcalIds.size();
   // for each new HcalDetId, make a CaloCellGeometry

@@ -7,6 +7,17 @@
 
 std::auto_ptr<CaloSubdetectorGeometry> CaloTowerHardcodeGeometryLoader::load() {
   CaloTowerGeometry* geom=new CaloTowerGeometry();
+
+  int nnn=0;
+  // simple loop
+  for (int ieta=-limits.lastHFRing(); ieta<=limits.lastHFRing(); ieta++) {
+    if (ieta==0) continue; // skip not existing eta=0 ring
+    for (int iphi=1; iphi<=72; iphi++) {
+      ++nnn;
+    }
+  }
+  geom->allocateCorners( nnn ) ; 
+
   int n=0;
   // simple loop
   for (int ieta=-limits.lastHFRing(); ieta<=limits.lastHFRing(); ieta++) {
