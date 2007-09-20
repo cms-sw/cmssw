@@ -6,9 +6,9 @@
  * 
  * \author Luca Lista, INFN
  *
- * \version $Revision: 1.20 $
+ * \version $Revision: 1.21 $
  *
- * $Id: ObjectSelector.h,v 1.20 2007/05/17 08:36:35 llista Exp $
+ * $Id: ObjectSelector.h,v 1.21 2007/07/09 08:54:14 llista Exp $
  *
  */
 
@@ -62,7 +62,7 @@ private:
     using namespace std;
     edm::Handle<typename Selector::collection> source;
     evt.getByLabel( src_, source );
-    StoreManager manager;
+    StoreManager manager( source );
     selector_.select( source, evt );
     manager.cloneAndStore( selector_.begin(), selector_.end(), evt );
     bool result = ( ! filter_ || sizeSelector_( manager.size() ) );

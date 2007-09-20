@@ -41,6 +41,10 @@
   <use name=PhysicsTools/CandAlgos>
 </library>
 
+<library file=MCTruthDeltaRViewMatcher.cc>
+  <use name=PhysicsTools/CandAlgos>
+</library>
+
 <library file=MCTruthCompositeMatcher.cc>
 </library>
 
