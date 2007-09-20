@@ -4,8 +4,8 @@
 /*
  * \file DTLocalTriggerTask.h
  *
- * $Date: 2007/04/02 16:19:50 $
- * $Revision: 1.4 $
+ * $Date: 2007/09/19 13:36:08 $
+ * $Revision: 1.10 $
  * \author M. Zanetti - INFN Padova
  *
 */
@@ -14,6 +14,7 @@
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include <FWCore/Framework/interface/LuminosityBlock.h>
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -67,6 +68,9 @@ class DTLocalTriggerTask: public edm::EDAnalyzer{
   
   /// Analyze
   void analyze(const edm::Event& e, const edm::EventSetup& c);
+
+  /// To reset the MEs
+  void beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& context) ;
   
   /// EndJob
   void endJob(void);

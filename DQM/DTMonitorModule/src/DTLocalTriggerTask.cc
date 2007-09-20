@@ -1,8 +1,8 @@
 /*
  * \file DTLocalTriggerTask.cc
  * 
- * $Date: 2006/10/18 18:00:14 $
- * $Revision: 1.2 $
+ * $Date: 2007/09/19 13:36:08 $
+ * $Revision: 1.12 $
  * \author M. Zanetti - INFN Padova
  *
 */
@@ -80,6 +80,29 @@ void DTLocalTriggerTask::beginJob(const edm::EventSetup& context){
  nevents = 0;
 
 }
+
+
+
+void DTLocalTriggerTask::beginLuminosityBlock(LuminosityBlock const& lumiSeg, EventSetup const& context) {
+
+  if(debug)
+    cout<<"[DTLocalTriggerTask]: Begin of LS transition"<<endl;
+  
+
+  /*for(map<string, map<uint32_t, MonitorElement*> > ::const_iterator histo = digiHistos.begin();
+      histo != digiHistos.end();
+      histo++) {
+    for(map<uint32_t, MonitorElement*> ::const_iterator ht = (*histo).second.begin();
+      ht != (*histo).second.end();
+      ht++) {
+      (*ht).second->Reset();
+    }
+    }*/
+
+  
+}
+
+
 
 void DTLocalTriggerTask::endJob(){
 
