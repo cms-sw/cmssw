@@ -7,7 +7,7 @@
  *
  * \author Fedor Ratnikov, Sept. 9, 2007
  *
- * \version   $Id: JetExtendedAssociation.h,v 1.5 2007/08/24 17:35:23 fedor Exp $
+ * \version   $Id: JetExtendedAssociation.h,v 1.1 2007/09/11 23:54:17 fedor Exp $
  ************************************************************/
 
 #include "DataFormats/JetReco/interface/Jet.h"
@@ -28,11 +28,11 @@ namespace reco {
 
 
     /// Number of tracks associated in the vertex
-    int tracksInVertexNumber (const Container&, const edm::RefToBase<reco::Jet>&);
-    int tracksInVertexNumber (const Container&, const reco::Jet&);
+    int tracksAtVertexNumber (const Container&, const edm::RefToBase<reco::Jet>&);
+    int tracksAtVertexNumber (const Container&, const reco::Jet&);
     /// p4 of tracks associated in the vertex
-    const LorentzVector& tracksInVertexP4 (const Container&, const edm::RefToBase<reco::Jet>&);
-    const LorentzVector& tracksInVertexP4 (const Container&, const reco::Jet&);
+    const LorentzVector& tracksAtVertexP4 (const Container&, const edm::RefToBase<reco::Jet>&);
+    const LorentzVector& tracksAtVertexP4 (const Container&, const reco::Jet&);
     /// Number of tracks associated at calo face
     int tracksAtCaloNumber (const Container&, const edm::RefToBase<reco::Jet>&);
     int tracksAtCaloNumber (const Container&, const reco::Jet&);
@@ -57,8 +57,8 @@ namespace reco {
     public:
       JetExtendedData ();
       ~JetExtendedData () {}
-      int mTracksInVertexNumber;
-      LorentzVector mTracksInVertexP4;
+      int mTracksAtVertexNumber;
+      LorentzVector mTracksAtVertexP4;
       int mTracksAtCaloNumber;
       LorentzVector mTracksAtCaloP4;
     };

@@ -83,8 +83,8 @@
   <class name="reco::JetExtendedAssociation::RefProd"/>
   <class name="reco::JetExtendedAssociation::RefVector"/>
   <class name="edm::Wrapper<reco::JetExtendedAssociation::Container>" />
-  <function name="reco::JetExtendedAssociation::tracksInVertexNumber"/>
-  <function name="reco::JetExtendedAssociation::tracksInVertexP4"/>
+  <function name="reco::JetExtendedAssociation::tracksAtVertexNumber"/>
+  <function name="reco::JetExtendedAssociation::tracksAtVertexP4"/>
   <function name="reco::JetExtendedAssociation::tracksAtCaloNumber"/>
   <function name="reco::JetExtendedAssociation::tracksAtCaloP4"/>
   <function name="reco::JetExtendedAssociation::setValue"/>

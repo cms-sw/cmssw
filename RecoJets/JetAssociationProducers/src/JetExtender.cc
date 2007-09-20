@@ -3,7 +3,7 @@
 // Combines different Jet associations into single compact object
 // which extends basic Jet information
 // Fedor Ratnikov Sep. 10, 2007
-// $Id: JetExtender.cc,v 1.1 2007/09/11 23:57:26 fedor Exp $
+// $Id: JetExtender.cc,v 1.2 2007/09/19 18:29:59 fedor Exp $
 //
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -44,8 +44,8 @@ void JetExtender::produce(edm::Event& fEvent, const edm::EventSetup& fSetup) {
     reco::JetExtendedAssociation::JetExtendedData extendedData;
     if (j2tVX_h.isValid ()) { // fill tracks@VX  summary
       try {
-	extendedData.mTracksInVertexNumber = reco::JetTracksAssociation::tracksNumber (*j2tVX_h, jet);
-	extendedData.mTracksInVertexP4 = reco::JetTracksAssociation::tracksP4 (*j2tVX_h, jet);
+	extendedData.mTracksAtVertexNumber = reco::JetTracksAssociation::tracksNumber (*j2tVX_h, jet);
+	extendedData.mTracksAtVertexP4 = reco::JetTracksAssociation::tracksP4 (*j2tVX_h, jet);
       }
       catch (cms::Exception e) {
 	edm::LogError ("MismatchedJets") << "Jets in original collection " << mJets 

@@ -12,7 +12,7 @@
      fwlite::Handle<reco::CaloJetCollection> jets;
      jets.getByLabel(ev,"iterativeCone5CaloJets");
      fwlite::Handle<std::vector <std::pair <edm::RefToBase<reco::Jet>, reco::TrackRefVector> > > jet2tracksVX;
-     jet2tracksVX.getByLabel(ev,"ic5JetTracksAssociatorInVertex");
+     jet2tracksVX.getByLabel(ev,"ic5JetTracksAssociatorAtVertex");
      fwlite::Handle<std::vector <std::pair <edm::RefToBase<reco::Jet>, reco::TrackRefVector> > > jet2tracksCALO;
      jet2tracksCALO.getByLabel(ev,"ic5JetTracksAssociatorAtCaloFace");
      fwlite::Handle<std::vector <std::pair <edm::RefToBase<reco::Jet>, reco::JetExtendedAssociation::JetExtendedData> > > jetExtend;
@@ -23,7 +23,7 @@
        std::cout << "Jet #" << j << std::endl
 		 << ((*jets)[j]).print() << std::endl;
 
-       std::cout << "Associated tracks: " << reco::JetTracksAssociation::tracksNumber (*jet2tracksVX, (*jets)[j]) 
+       std::cout << "Associated tracks at VX: " << reco::JetTracksAssociation::tracksNumber (*jet2tracksVX, (*jets)[j]) 
 		 << ", sumPt: " << reco::JetTracksAssociation::tracksP4 (*jet2tracksVX, (*jets)[j]).pt() << std::endl;
        reco::TrackRefVector tracks = reco::JetTracksAssociation::getValue (*jet2tracksVX, (*jets)[j]);
        for (unsigned t = 0; t < tracks.size(); ++t) {
@@ -40,8 +40,8 @@
        }
 
        std::cout << "Jet extended information:"
-		 << " in VX tracks " << reco::JetExtendedAssociation::tracksInVertexNumber (*jetExtend, (*jets)[j])
-		 << ", sumPt: " << reco::JetExtendedAssociation::tracksInVertexP4 (*jetExtend, (*jets)[j]).pt()
+		 << " at VX tracks " << reco::JetExtendedAssociation::tracksAtVertexNumber (*jetExtend, (*jets)[j])
+		 << ", sumPt: " << reco::JetExtendedAssociation::tracksAtVertexP4 (*jetExtend, (*jets)[j]).pt()
 		 << "; at CALO tracks " << reco::JetExtendedAssociation::tracksAtCaloNumber (*jetExtend, (*jets)[j])
 		 << ", sumPt: " << reco::JetExtendedAssociation::tracksAtCaloP4 (*jetExtend, (*jets)[j]).pt()
 		 << std::endl;

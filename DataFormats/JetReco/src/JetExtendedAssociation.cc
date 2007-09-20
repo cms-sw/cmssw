@@ -30,20 +30,20 @@ namespace {
 }
 
 /// Number of tracks associated in the vertex
-int reco::JetExtendedAssociation::tracksInVertexNumber (const Container& fContainer, const edm::RefToBase<reco::Jet>& fJet) {
-  return getValue (fContainer, fJet).mTracksInVertexNumber;
+int reco::JetExtendedAssociation::tracksAtVertexNumber (const Container& fContainer, const edm::RefToBase<reco::Jet>& fJet) {
+  return getValue (fContainer, fJet).mTracksAtVertexNumber;
 }
-int reco::JetExtendedAssociation::tracksInVertexNumber (const Container& fContainer, const reco::Jet& fJet) {
-  return getValue (fContainer, fJet).mTracksInVertexNumber;
+int reco::JetExtendedAssociation::tracksAtVertexNumber (const Container& fContainer, const reco::Jet& fJet) {
+  return getValue (fContainer, fJet).mTracksAtVertexNumber;
 }
 /// p4 of tracks associated in the vertex
 const reco::JetExtendedAssociation::LorentzVector& 
-reco::JetExtendedAssociation::tracksInVertexP4 (const Container& fContainer, const edm::RefToBase<reco::Jet>& fJet) {
-  return getValue (fContainer, fJet).mTracksInVertexP4;
+reco::JetExtendedAssociation::tracksAtVertexP4 (const Container& fContainer, const edm::RefToBase<reco::Jet>& fJet) {
+  return getValue (fContainer, fJet).mTracksAtVertexP4;
 }
 const reco::JetExtendedAssociation::LorentzVector& 
-reco::JetExtendedAssociation::tracksInVertexP4 (const Container& fContainer, const reco::Jet& fJet) {
-  return getValue (fContainer, fJet).mTracksInVertexP4;
+reco::JetExtendedAssociation::tracksAtVertexP4 (const Container& fContainer, const reco::Jet& fJet) {
+  return getValue (fContainer, fJet).mTracksAtVertexP4;
 }
 /// Number of tracks associated at calo face
 int reco::JetExtendedAssociation::tracksAtCaloNumber (const Container& fContainer, const edm::RefToBase<reco::Jet>& fJet) {
@@ -116,8 +116,8 @@ bool reco::JetExtendedAssociation::hasJet (const Container& fContainer,
 }
 
 reco::JetExtendedAssociation::JetExtendedData::JetExtendedData () 
-  : mTracksInVertexNumber (0),
-    mTracksInVertexP4 (0, 0, 0, 0),
+  : mTracksAtVertexNumber (0),
+    mTracksAtVertexP4 (0, 0, 0, 0),
     mTracksAtCaloNumber (0),
     mTracksAtCaloP4 (0, 0, 0, 0)
 {}

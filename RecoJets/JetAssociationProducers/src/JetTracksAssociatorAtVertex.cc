@@ -1,9 +1,9 @@
-// \class JetTracksAssociatorInVertex JetTracksAssociatorInVertex.cc 
+// \class JetTracksAssociatorAtVertex JetTracksAssociatorAtVertex.cc 
 //
 // Original Author:  Andrea Rizzi
 //         Created:  Wed Apr 12 11:12:49 CEST 2006
 // Accommodated for Jet Package by: Fedor Ratnikov Jul. 30, 2007
-// $Id: JetTracksAssociatorInVertex.cc,v 1.1 2007/08/29 17:53:15 fedor Exp $
+// $Id: JetTracksAssociatorAtVertex.cc,v 1.1 2007/09/19 18:30:01 fedor Exp $
 //
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -14,9 +14,9 @@
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/JetReco/interface/JetTracksAssociation.h"
 
-#include "JetTracksAssociatorInVertex.h"
+#include "JetTracksAssociatorAtVertex.h"
 
-JetTracksAssociatorInVertex::JetTracksAssociatorInVertex(const edm::ParameterSet& fConfig)
+JetTracksAssociatorAtVertex::JetTracksAssociatorAtVertex(const edm::ParameterSet& fConfig)
   : mJets (fConfig.getParameter<edm::InputTag> ("jets")),
     mTracks (fConfig.getParameter<edm::InputTag> ("tracks")),
     mAssociator (fConfig.getParameter<double> ("coneSize"))
@@ -24,9 +24,9 @@ JetTracksAssociatorInVertex::JetTracksAssociatorInVertex(const edm::ParameterSet
   produces<reco::JetTracksAssociation::Container> ();
 }
 
-JetTracksAssociatorInVertex::~JetTracksAssociatorInVertex() {}
+JetTracksAssociatorAtVertex::~JetTracksAssociatorAtVertex() {}
 
-void JetTracksAssociatorInVertex::produce(edm::Event& fEvent, const edm::EventSetup& fSetup) {
+void JetTracksAssociatorAtVertex::produce(edm::Event& fEvent, const edm::EventSetup& fSetup) {
   edm::Handle <edm::View <reco::Jet> > jets_h;
   fEvent.getByLabel (mJets, jets_h);
   edm::Handle <reco::TrackCollection> tracks_h;
