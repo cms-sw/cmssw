@@ -5,7 +5,7 @@
   
 Wrapper: A template wrapper around EDProducts to hold the product ID.
 
-$Id: Wrapper.h,v 1.19 2007/07/09 07:28:50 llista Exp $
+$Id: Wrapper.h,v 1.20 2007/08/23 23:16:21 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -218,10 +218,12 @@ namespace edm {
 		       std::vector<void const*>& pointers,
 		       helper_vector_ptr & helpers) {
 	std::auto_ptr<helper_vector> h = obj.vectorHolder();
-	pointers.reserve( h->size() );
-	// NOTE: the following implementation has unusual signature!
-	fillView( obj, pointers );
-	helpers = helper_vector_ptr( h );
+	if( h.get() != 0 ) {
+	  pointers.reserve( h->size() );
+	  // NOTE: the following implementation has unusual signature!
+	  fillView( obj, pointers );
+	  helpers = helper_vector_ptr( h );
+	}
       }
     };
   }

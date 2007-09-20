@@ -14,7 +14,7 @@ EDProduct that is a sequence.
 //
 // Original Author:  
 //         Created:  Mon Dec 18 09:48:30 CST 2006
-// $Id: View.h,v 1.1 2007/07/09 07:28:50 llista Exp $
+// $Id: View.h,v 1.2 2007/07/25 15:33:00 llista Exp $
 //
 
 #include <vector>
@@ -172,13 +172,15 @@ namespace edm
     // If the two input vectors are not of the same size, there is a
     // logic error in the framework code that called this.
     // constructor.
-    assert (numElements == helpers->size());
-
-    items_.reserve(numElements);
-    for (std::vector<void const*>::size_type i = 0; i < pointers.size(); ++i) {
+    if( helpers.get() != 0 ) {
+      assert (numElements == helpers->size());
+      
+      items_.reserve(numElements);
+      for (std::vector<void const*>::size_type i = 0; i < pointers.size(); ++i) {
 	items_.push_back(static_cast<pointer>(pointers[i]));
+      }
+      refs_ = RefToBaseVector<T>( helpers );
     }
-    refs_ = RefToBaseVector<T>( helpers );
   }
 
   template <class T>

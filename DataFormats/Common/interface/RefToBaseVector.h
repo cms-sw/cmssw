@@ -4,7 +4,7 @@
  *
  * \author Luca Lista, INFN
  *
- * $Id: RefToBaseVector.h,v 1.11 2007/07/24 11:37:36 llista Exp $
+ * $Id: RefToBaseVector.h,v 1.12 2007/07/25 15:33:00 llista Exp $
  *
  */
 
@@ -191,10 +191,7 @@ namespace edm {
   ProductID
   RefToBaseVector<T>::id() const
   {
-    if ( holder_ == 0 )
-      throw edm::Exception( edm::errors::InvalidReference ) 
-	<< "Trying to dereference null RefToBaseVector<T> in method: id()";
-    return holder_->id();
+    return holder_ ? holder_->id() : ProductID();
   }
 
   template <class T>
@@ -210,8 +207,7 @@ namespace edm {
   typename RefToBaseVector<T>::const_iterator
   RefToBaseVector<T>::begin() const
   {
-    if ( holder_ == 0 ) return const_iterator();
-    return holder_->begin();
+    return holder_ ? holder_->begin() : const_iterator();
   }
 
   template <class T>
@@ -219,18 +215,16 @@ namespace edm {
   typename RefToBaseVector<T>::const_iterator
   RefToBaseVector<T>::end() const
   {
-    if ( holder_ == 0 ) return const_iterator();
-    return holder_->end();
+    return  holder_ ? holder_->end() : const_iterator();
   }
 
   template <typename T>
   void
   RefToBaseVector<T>::fillView(std::vector<void const*>& pointers) const
   {
-    typedef RefToBase<T>             ref_type;
     pointers.reserve(this->size());
     for (const_iterator i=begin(), e=end(); i!=e; ++i) {
-      ref_type ref = * i;
+      RefToBase<T> ref = * i;
       member_type const * address = ref.isNull() ? 0 : & * ref;
       pointers.push_back(address);
     }
@@ -259,12 +253,12 @@ namespace edm {
 
   template <typename T>
   std::auto_ptr<reftobase::RefVectorHolderBase> RefToBaseVector<T>::vectorHolder() const {
-    return holder_->vectorHolder();
+    return holder_ ? holder_->vectorHolder() : std::auto_ptr<reftobase::RefVectorHolderBase>();
   }
 
   template <typename T>
   const void * RefToBaseVector<T>::product() const {
-    return holder_->product();
+    return holder_ ? holder_->product() : 0;
   }
 
 }
