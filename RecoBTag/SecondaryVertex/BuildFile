@@ -1,0 +1,18 @@
+<use name=FWCore/ParameterSet>
+<use name=DataFormats/Math>
+<use name=DataFormats/GeometryCommonDetAlgo>
+<use name=DataFormats/GeometryVector>
+<use name=DataFormats/TrackReco>
+<use name=DataFormats/VertexReco>
+<use name=DataFormats/BTauReco>
+<use name=rootmath>
+<export>
+  <use name=FWCore/ParameterSet>
+  <use name=DataFormats/Math>
+  <use name=DataFormats/GeometryCommonDetAlgo>
+  <use name=DataFormats/GeometryVector>
+  <use name=DataFormats/TrackReco>
+  <use name=DataFormats/VertexReco>
+  <use name=DataFormats/BTauReco>
+  <lib name=RecoBTagSecondaryVertex>
+</export>

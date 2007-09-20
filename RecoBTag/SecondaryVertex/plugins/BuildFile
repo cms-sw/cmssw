@@ -1,0 +1,17 @@
+<use name=FWCore/Framework>
+<use name=FWCore/MessageLogger>
+<use name=FWCore/ParameterSet>
+<use name=FWCore/Utilities>
+<use name=DataFormats/GeometryCommonDetAlgo>
+<use name=DataFormats/BeamSpot>
+<use name=DataFormats/TrackReco>
+<use name=DataFormats/VertexReco>
+<use name=DataFormats/BTauReco>
+<use name=RecoBTag/SecondaryVertex>
+<use name=boost>
+<library file="SecondaryVertexProducer.cc" name=RecoBTagSecondaryVertexProducer>
+  <use name=RecoVertex/ConfigurableVertexReco>
+  <use name=TrackingTools/Records>
+  <use name=TrackingTools/TransientTrack>
+  <flags EDM_PLUGIN=1>
+</library>
