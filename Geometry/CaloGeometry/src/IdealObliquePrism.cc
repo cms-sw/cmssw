@@ -28,7 +28,7 @@ namespace calogeom {
    IdealObliquePrism::getCorners() const
    {
       const CornersVec& co ( CaloCellGeometry::getCorners() ) ;
-      if( co.empty() )
+      if( co.uninitialized() )
       {
 	 CornersVec& corners ( setCorners() ) ;
 	 if( thick()>0 ) 

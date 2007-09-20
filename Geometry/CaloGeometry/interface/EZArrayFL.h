@@ -71,7 +71,7 @@ class EZArrayFL
 	 return *( m_begin + i ) ;
       }
 
-      bool uninitialized() const { return ( 0 == m_begin ) ;  }
+      bool uninitialized() const { return ( (iterator)0 == m_begin ) ;  }
 
       bool empty()         const { return ( 0 == size() ) ;  }
 

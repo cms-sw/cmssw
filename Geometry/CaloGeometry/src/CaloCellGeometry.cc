@@ -63,7 +63,6 @@ CaloCellGeometry::getParmPtr(
    {
       pvv.push_back( vv ) ;
       pP = &(*pvv.back().begin()) ;
-//      std::cout<<"Size of ParmVecVec is now "<<pvv.size() <<std::endl ;
    }
    return pP ;
 }

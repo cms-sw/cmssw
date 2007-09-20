@@ -34,7 +34,7 @@ namespace calogeom
    IdealZPrism::getCorners() const 
    {
       const CornersVec& co ( CaloCellGeometry::getCorners() ) ;
-      if( co.empty() ) 
+      if( co.uninitialized() ) 
       {
 	 CornersVec& corners ( setCorners() ) ;
 
