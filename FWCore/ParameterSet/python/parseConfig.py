@@ -1446,7 +1446,8 @@ PSet blah = {
                 t=onlyParameters.parseString("PSet blah = {include 'Sub/Pack/data/foo.cff'}")
                 d=dict(iter(t))
                 self.assertEqual(type(d['blah']),cms.PSet)
-                self.assertEqual(getattr(d['blah'],"blah").value(), 1)            
+                self.assertEqual(getattr(d['blah'],"blah").value(), 1)
+                
                 _fileFactory = TestFactory('Sub/Pack/data/foo.cfi', 'module foo = TestProd {}')
                 t=onlyProcessBody.parseString("include 'Sub/Pack/data/foo.cfi'")
                 d=dict(iter(t))
@@ -1454,6 +1455,7 @@ PSet blah = {
                 t = _findAndHandleProcessBlockIncludes(t)
                 d=dict(iter(t))
                 self.assertEqual(type(d['foo']),cms.EDProducer)
+                
                 #test ending with a comment
                 _fileFactory = TestFactory('Sub/Pack/data/foo.cfi', """module c = CProd {}
 #""")
@@ -1469,10 +1471,22 @@ PSet blah = {
                 self.assertEqual(d['Sub/Pack/data/foo.cfi'].filename, 'Sub/Pack/data/foo.cfi')
                 self.assertRaises(RuntimeError,_findAndHandleProcessBlockIncludes,t)
                 #t = _findAndHandleProcessBlockIncludes(t)
+
                 _fileFactory = TestFactory('Sub/Pack/data/foo.cff', '#an empty file')
                 t=onlyParameters.parseString("PSet blah = {include 'Sub/Pack/data/foo.cff'}")
                 d=dict(iter(t))
                 self.assertEqual(type(d['blah']),cms.PSet)
+
+                #test block
+                _fileFactory = TestFactory('Sub/Pack/data/foo.cff', """block c = { ##
+                                           ##
+                                           double EBs25notContainment = 0.965}
+""")
+                t=onlyProcessBody.parseString("""module b = BProd {using c}
+                                              include 'Sub/Pack/data/foo.cff'""")
+                d=dict(iter(t))
+                self.assertEqual(d['Sub/Pack/data/foo.cff'].filename, 'Sub/Pack/data/foo.cff')
+                t = _findAndHandleProcessBlockIncludes(t)
             finally:
                 _fileFactory = oldFactory
         def testParseCffFile(self):
