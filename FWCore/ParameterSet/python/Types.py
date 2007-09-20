@@ -155,6 +155,8 @@ class string(_SimpleParameterTypeBase):
 class InputTag(_ParameterTypeBase):
     def __init__(self,moduleLabel,productInstanceLabel='',processName=''):
         super(InputTag,self).__init__()
+        if -1 != moduleLabel.find(":"):
+            raise RuntimeError("the module label '"+str(moduleLabel)+"' contains a ':'. If you want to specify more than one label, please pass them as separate arguments.")
         self.__moduleLabel = moduleLabel
         self.__productInstance = productInstanceLabel
         self.__processName=processName
@@ -490,6 +492,11 @@ if __name__ == "__main__":
         def testInputTag(self):
             it = InputTag._valueFromString("label::proc")
             print it.pythonValue('','')
+            self.assertEqual(it.getModuleLabel(), "label")
+            self.assertEqual(it.getProductInstanceLabel(), "")
+            self.assertEqual(it.getProcessName(), "proc")
+            self.assertRaises(RuntimeError, InputTag,'foo:bar')
+            it=InputTag('label',processName='proc')
             self.assertEqual(it.getModuleLabel(), "label")
             self.assertEqual(it.getProductInstanceLabel(), "")
             self.assertEqual(it.getProcessName(), "proc")
