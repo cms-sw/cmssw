@@ -20,6 +20,8 @@
 
 // needed for type tests
 #include "FWCore/Framework/src/OutputWorker.h"
+#include "FWCore/Framework/src/FilterWorker.h"
+#include "FWCore/Framework/src/ProducerWorker.h"
 
 #include "boost/bind.hpp"
 
@@ -390,10 +392,6 @@ namespace edm {
       out.swap(tmpworkers);
     }
 
-    struct ToWorker {
-      Worker* operator()(WorkerInPath& w) const { return w.getWorker(); }
-    };
-
     void Schedule::fillTrigPath(int bitpos, std::string const& name, TrigResPtr trptr) {
       PathWorkers tmpworkers;
       PathWorkers goodworkers;
@@ -435,8 +433,26 @@ namespace edm {
       fillWorkers(name,tmpworkers);
       Workers holder;
 
-      transform(tmpworkers.begin(),tmpworkers.end(),
-		back_inserter(holder),ToWorker());
+      // check for any Filters or Producers
+      for(PathWorkers::iterator wi(tmpworkers.begin()),
+	    we(tmpworkers.end()); wi != we; ++wi) {
+	Worker* tworker = wi->getWorker();
+	if(dynamic_cast<ProducerWorker*>(tworker)!=0) {
+          throw edm::Exception(edm::errors::Configuration)
+	    << "\nProducer "
+	    << tworker->description().moduleLabel_
+	    << " appears in endpath " << name << ".\n"
+	    << "A producer is not allowed in an endpath.\n";
+	}
+	if(dynamic_cast<FilterWorker*>(tworker)!=0) {
+          throw edm::Exception(edm::errors::Configuration)
+	    << "\nFilter "
+	    << tworker->description().moduleLabel_
+	    << " appears in endpath " << name << ".\n"
+	    << "A filter is not allowed in an endpath.\n";
+	}
+	holder.push_back(tworker);
+      }
 
       Path p(bitpos,name,tmpworkers,endpath_results_,pset_,*act_table_,act_reg_,true);
       end_paths_.push_back(p);
