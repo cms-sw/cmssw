@@ -5,8 +5,8 @@
  *
  *  Digi for CSC TMB info available in DDU
  *  
- *  $Date: 2007/05/23 18:02:50 $
- *  $Revision: 1.6 $
+ *  $Date: 2007/07/23 12:08:19 $
+ *  $Revision: 1.7 $
  *
  */
 
@@ -28,7 +28,7 @@ public:
 
 private:
 
-  uint16_t header_[27];
+  uint16_t header_[43];
   uint16_t trailer_[8];
 };
 
