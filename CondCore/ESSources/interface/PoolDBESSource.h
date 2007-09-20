@@ -46,5 +46,6 @@ class PoolDBESSource : public edm::eventsetup::DataProxyProvider,
   void fillRecordToIOVInfo();
   std::string buildRecordTagKey( const std::string& recordName, 
 				 const std::string& tagName );  
+  std::string setupFrontier(const std::string& frontierconnect);
 };
 #endif

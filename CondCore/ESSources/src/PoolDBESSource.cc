@@ -102,6 +102,10 @@ PoolDBESSource::PoolDBESSource( const edm::ParameterSet& iConfig ) :
   //std::cout<<"PoolDBESSource::PoolDBESSource"<<std::endl;
   /*parameter set parsing and pool environment setting
    */
+  bool usetagDB=false;
+  if( iConfig.exists("globalTag") ){
+    usetagDB=true;
+  }
   std::string connect=iConfig.getParameter<std::string>("connect"); 
   std::string timetype=iConfig.getUntrackedParameter<std::string>("timetype","runnumber");
   //std::cout<<"connect "<<connect<<std::endl;
@@ -116,102 +120,84 @@ PoolDBESSource::PoolDBESSource( const edm::ParameterSet& iConfig ) :
   //std::cout<<"using connect "<<connect<<std::endl;
   ///handle frontier cache refresh
   if( connect.rfind("frontier://") != std::string::npos){
-    //Mark tables that need to not be cached (always refreshed)
-    //strip off the leading protocol:// and trailing schema name from connect
-    edm::Service<edm::SiteLocalConfig> localconfservice;
-    if( !localconfservice.isAvailable() ){
-      throw cms::Exception("edm::SiteLocalConfigService is not available");       
-    }
-    connect=localconfservice->lookupCalibConnect(connect);
-    std::string::size_type startRefresh = connect.find("://");
-    if (startRefresh != std::string::npos){
-      startRefresh += 3;
-    }
-    std::string::size_type endRefresh = connect.rfind("/", std::string::npos);
-    std::string refreshConnect;
-    if (endRefresh == std::string::npos){
-      refreshConnect = connect;
-    }else{
-      refreshConnect = connect.substr(startRefresh, endRefresh-startRefresh);
-      if(refreshConnect.substr(0,1) != "("){
-	//if the connect string is not a complicated parenthesized string,
-	// an http:// needs to be at the beginning of it
-	refreshConnect.insert(0, "http://");
-      }
-    }
-    //get handle to webCacheControl()
-    m_session->webCacheControl().refreshTable( refreshConnect,cond::IOVNames::iovTableName() );
-    m_session->webCacheControl().refreshTable( refreshConnect,cond::IOVNames::iovDataTableName() );
-    m_session->webCacheControl().refreshTable( refreshConnect,cond::MetaDataNames::metadataTable() );
+    connect=this->setupFrontier(connect);
   }
   conHandler.registerConnection(connect,connect,0);
-  //using namespace edm;
-  //using namespace edm::eventsetup;  
   fillRecordToTypeMap(m_recordToTypes);
   //std::cout<<"filled record to type map"<<std::endl;
-  typedef std::vector< edm::ParameterSet > Parameters;
-  Parameters toGet = iConfig.getParameter<Parameters>("toGet");
-  
-  std::string tagName;
-  std::string recordName;
-  std::string typeName;
-  std::string lastRecordName;
-  for(Parameters::iterator itToGet = toGet.begin(); itToGet != toGet.end(); ++itToGet ) {
-    cond::TagMetadata m;
-    if( itToGet->exists("connect") ){
-      m.pfn=itToGet->getUntrackedParameter<std::string>("connect");
-      conHandler.registerConnection(m.pfn,m.pfn,0);
-      //std::cout<<"using local pfn "<<m.pfn<<std::endl;
-    }else{
-      m.pfn=connect;
-      //std::cout<<"using global pfn "<<m.pfn<<std::endl;
+  if( !usetagDB ){
+    typedef std::vector< edm::ParameterSet > Parameters;
+    Parameters toGet = iConfig.getParameter<Parameters>("toGet");
+    std::string tagName;
+    std::string recordName;
+    std::string typeName;
+    std::string lastRecordName;
+    for(Parameters::iterator itToGet = toGet.begin(); itToGet != toGet.end(); ++itToGet ) {
+      cond::TagMetadata m;
+      if( itToGet->exists("connect") ){
+	std::string connect=itToGet->getUntrackedParameter<std::string>("connect");
+	if( connect.find("sqlite_fip:") != std::string::npos ){
+	  cond::FipProtocolParser p;
+	  connect=p.getRealConnect(connect);
+	}
+	m.pfn=connect;
+	conHandler.registerConnection(m.pfn,m.pfn,0);
+	//std::cout<<"using local pfn "<<m.pfn<<std::endl;
+      }else{
+	m.pfn=connect;
+	//std::cout<<"using global pfn "<<m.pfn<<std::endl;
+      }
+      if( itToGet->exists("timetype") ){
+	m.timetype=itToGet->getUntrackedParameter<std::string>("timetype");
+	//std::cout<<"using local timetype "<<m.timetype<<std::endl;
+      }else{
+	m.timetype=timetype;
+	//std::cout<<"using global timetype "<<m.timetype<<std::endl;
+      }
+      if( itToGet->exists("label") ){
+	m.labelname=itToGet->getUntrackedParameter<std::string>("label");
+      }else{
+	m.labelname="";
+      }
+      m.recordname = itToGet->getParameter<std::string>("record");
+      tagName = itToGet->getParameter<std::string>("tag");
+      //std::cout<<"requested record "<<m.recordname<<std::endl;
+      //std::cout<<"requested tag "<<tagName<<std::endl;
+      
+      //load proxy code now to force in the Record code
+      //std::cout<<"recordName "<<recordName<<std::endl;
+      //std::cout<<"tagName "<<tagName<<std::endl;
+      std::multimap<std::string, std::string>::iterator itFound=m_recordToTypes.find(m.recordname);
+      if(itFound == m_recordToTypes.end()){
+	throw cond::Exception("NoRecord")<<" The record \""<<m.recordname<<"\" is not known by the PoolDBESSource";
+      }
+      m.objectname=itFound->second;
+      std::string proxyName = buildName(m.recordname,m.objectname);
+      //std::cout<<"typeName "<<typeName<<std::endl;
+      //std::cout<<"proxyName "<<proxyName<<std::endl;
+      m_proxyToToken.insert( make_pair(proxyName,"") );
+      //fill in dummy tokens now, change in setIntervalFor
+      ProxyToToken::iterator pos=m_proxyToToken.find(proxyName);
+      cond::Connection* c=conHandler.getConnection(m.pfn);
+      conHandler.connect(m_session);
+      boost::shared_ptr<edm::eventsetup::DataProxy> proxy(cond::ProxyFactory::get()->create(buildName(m.recordname, m.objectname), c, pos));
+      edm::eventsetup::EventSetupRecordKey recordKey(edm::eventsetup::EventSetupRecordKey::TypeTag::findType( m.recordname ) );
+      if( recordKey.type() == edm::eventsetup::EventSetupRecordKey::TypeTag() ) {
+	//record not found
+	throw cond::Exception("NoRecord")<<"The record \""<< m.recordname <<"\" does not exist ";
+      }
+      //recordToTag.push_back(std::make_pair(m.recordname, tagName));
+      if( lastRecordName != m.recordname ) {
+	lastRecordName = m.recordname;
+	findingRecordWithKey( recordKey );
+	usingRecordWithKey( recordKey );
+      }    
+      m_tagCollection.insert(std::make_pair<std::string,cond::TagMetadata>(tagName,m));
     }
-    if( itToGet->exists("timetype") ){
-      m.timetype=itToGet->getUntrackedParameter<std::string>("timetype");
-      //std::cout<<"using local timetype "<<m.timetype<<std::endl;
-    }else{
-      m.timetype=timetype;
-      //std::cout<<"using global timetype "<<m.timetype<<std::endl;
-    }
-    if( itToGet->exists("label") ){
-      m.labelname=itToGet->getUntrackedParameter<std::string>("label");
-    }else{
-      m.labelname="";
-    }
-    m.recordname = itToGet->getParameter<std::string>("record");
-    tagName = itToGet->getParameter<std::string>("tag");
-    //std::cout<<"requested record "<<m.recordname<<std::endl;
-    //std::cout<<"requested tag "<<tagName<<std::endl;
-    
-    //load proxy code now to force in the Record code
-    //std::cout<<"recordName "<<recordName<<std::endl;
-    //std::cout<<"tagName "<<tagName<<std::endl;
-    std::multimap<std::string, std::string>::iterator itFound=m_recordToTypes.find(m.recordname);
-    if(itFound == m_recordToTypes.end()){
-      throw cond::Exception("NoRecord")<<" The record \""<<m.recordname<<"\" is not known by the PoolDBESSource";
-    }
-    m.objectname=itFound->second;
-    std::string proxyName = buildName(m.recordname,m.objectname);
-    //std::cout<<"typeName "<<typeName<<std::endl;
-    //std::cout<<"proxyName "<<proxyName<<std::endl;
-    m_proxyToToken.insert( make_pair(proxyName,"") );
-    //fill in dummy tokens now, change in setIntervalFor
-    ProxyToToken::iterator pos=m_proxyToToken.find(proxyName);
-    cond::Connection* c=conHandler.getConnection(m.pfn);
-    conHandler.connect(m_session);
-    boost::shared_ptr<edm::eventsetup::DataProxy> proxy(cond::ProxyFactory::get()->create(buildName(m.recordname, m.objectname), c, pos));
-    edm::eventsetup::EventSetupRecordKey recordKey(edm::eventsetup::EventSetupRecordKey::TypeTag::findType( m.recordname ) );
-    if( recordKey.type() == edm::eventsetup::EventSetupRecordKey::TypeTag() ) {
-      //record not found
-      throw cond::Exception("NoRecord")<<"The record \""<< m.recordname <<"\" does not exist ";
-    }
-    //recordToTag.push_back(std::make_pair(m.recordname, tagName));
-    if( lastRecordName != m.recordname ) {
-      lastRecordName = m.recordname;
-      findingRecordWithKey( recordKey );
-      usingRecordWithKey( recordKey );
-    }    
-    m_tagCollection.insert(std::make_pair<std::string,cond::TagMetadata>(tagName,m));
+  }else{
+    std::string globalTag=iConfig.getParameter<std::string>("globalTag");
+    std::cout<<"globalTag "<<globalTag<<std::endl;
+    exit(0);
   }
   this->fillRecordToIOVInfo();
 }
@@ -369,4 +355,34 @@ PoolDBESSource::fillRecordToIOVInfo(){
     }
   }
 }
-
+std::string
+PoolDBESSource::setupFrontier(const std::string& frontierconnect){ 
+  //Mark tables that need to not be cached (always refreshed)
+  //strip off the leading protocol:// and trailing schema name from connect
+  edm::Service<edm::SiteLocalConfig> localconfservice;
+  if( !localconfservice.isAvailable() ){
+    throw cms::Exception("edm::SiteLocalConfigService is not available");       
+  }
+  std::string realconnect=localconfservice->lookupCalibConnect(frontierconnect);
+  std::string::size_type startRefresh = realconnect.find("://");
+  if (startRefresh != std::string::npos){
+    startRefresh += 3;
+  }
+  std::string::size_type endRefresh = realconnect.rfind("/", std::string::npos);
+  std::string refreshConnect;
+  if (endRefresh == std::string::npos){
+    refreshConnect = realconnect;
+  }else{
+    refreshConnect = realconnect.substr(startRefresh, endRefresh-startRefresh);
+    if(refreshConnect.substr(0,1) != "("){
+      //if the connect string is not a complicated parenthesized string,
+      // an http:// needs to be at the beginning of it
+      refreshConnect.insert(0, "http://");
+    }
+  }
+  //get handle to webCacheControl()
+  m_session->webCacheControl().refreshTable( refreshConnect,cond::IOVNames::iovTableName() );
+  m_session->webCacheControl().refreshTable( refreshConnect,cond::IOVNames::iovDataTableName() );
+  m_session->webCacheControl().refreshTable( refreshConnect,cond::MetaDataNames::metadataTable() );
+  return realconnect;
+}
