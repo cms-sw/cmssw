@@ -46,7 +46,7 @@
  * 
  * \author Thomas Speer, Luca Lista, Pascal Vanlaer, Juan Alcaraz
  *
- * \version $Id: TrackBase.h,v 1.54 2007/04/19 11:10:27 llista Exp $
+ * \version $Id: TrackBase.h,v 1.55 2007/09/20 16:55:38 tomalini Exp $
  *
  */
 
@@ -94,7 +94,7 @@ namespace reco {
     double normalizedChi2() const { return chi2_ / ndof_; }
     /// track electric charge
     int charge() const { return charge_; }
-    /// charge-signed transverse curvature
+    /// q/p 
     double qoverp() const { return charge() / p(); }
     /// polar angle  
     double theta() const { return momentum_.theta(); }
