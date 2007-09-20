@@ -1,6 +1,6 @@
 /** \class HLTElectronTrackIsolFilter
  *
- * $Id: HLTElectronTrackIsolFilter.cc,v 1.4 2007/04/02 17:14:14 mpieri Exp $ 
+ * $Id: HLTElectronTrackIsolFilter.cc,v 1.5 2007/08/28 01:11:46 ratnik Exp $ 
  *
  *  \author Monica Vazquez Acosta (CERN)
  *
@@ -21,6 +21,7 @@
 #include "DataFormats/Common/interface/AssociationMap.h"
 
 #include "DataFormats/RecoCandidate/interface/RecoEcalCandidate.h"
+#include "DataFormats/RecoCandidate/interface/RecoEcalCandidateFwd.h"
 
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 
