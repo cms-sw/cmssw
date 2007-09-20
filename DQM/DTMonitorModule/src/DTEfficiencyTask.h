@@ -8,8 +8,8 @@
  *  All histos are produced per Layer
  *
  *
- *  $Date: 2007/03/27 11:10:26 $
- *  $Revision: 1.2 $
+ *  $Date: 2007/03/27 16:13:45 $
+ *  $Revision: 1.3 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -18,6 +18,7 @@
 #include "DataFormats/MuonDetId/interface/DTLayerId.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include <FWCore/Framework/interface/EDAnalyzer.h>
+#include <FWCore/Framework/interface/LuminosityBlock.h>
 
 #include <string>
 #include <map>
@@ -37,6 +38,9 @@ public:
 
   /// BeginJob
   void beginJob(const edm::EventSetup& c);
+
+  /// To reset the MEs
+  void beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& context) ;
 
   /// Endjob
   void endJob();

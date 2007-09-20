@@ -1,8 +1,8 @@
  /*
  * \file DTDigiTask.cc
  * 
- * $Date: 2007/06/12 14:31:41 $
- * $Revision: 1.24 $
+ * $Date: 2007/08/27 14:16:05 $
+ * $Revision: 1.27 $
  * \author M. Zanetti - INFN Padova
  *
  */
@@ -109,6 +109,24 @@ void DTDigiTask::beginJob(const edm::EventSetup& context){
 
 }
 
+
+void DTDigiTask::beginLuminosityBlock(LuminosityBlock const& lumiSeg, EventSetup const& context) {
+
+  if(debug)
+    cout<<"[DTDigiTask]: Begin of LS transition"<<endl;
+  
+  /*for(map<string, map<uint32_t, MonitorElement*> > ::const_iterator histo = digiHistos.begin();
+      histo != digiHistos.end();
+      histo++) {
+    for(map<uint32_t, MonitorElement*> ::const_iterator ht = (*histo).second.begin();
+      ht != (*histo).second.end();
+      ht++) {
+      (*ht).second->Reset();
+    }
+    }*/
+
+  
+}
 
 
 

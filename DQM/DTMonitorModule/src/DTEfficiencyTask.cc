@@ -3,8 +3,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2007/03/28 12:40:48 $
- *  $Revision: 1.5 $
+ *  $Date: 2007/03/30 16:29:02 $
+ *  $Revision: 1.6 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -72,6 +72,24 @@ void DTEfficiencyTask::beginJob(const edm::EventSetup& context){
   // the name of the rechits collection
   theRecHitLabel = parameters.getParameter<string>("recHitLabel");
 }
+
+
+void DTEfficiencyTask::beginLuminosityBlock(LuminosityBlock const& lumiSeg, EventSetup const& context) {
+
+  if(debug)
+    cout<<"[DTEfficiencyTask]: Begin of LS transition"<<endl;
+  
+  /*for(map<DTLayerId, vector<MonitorElement*> > ::const_iterator histo = histosPerL.begin();
+      histo != histosPerL.end();
+      histo++) {
+    int size = (*histo).second.size();
+    for(int i=0; i<size; i++){
+      (*histo).second[i]->Reset();
+    }
+    }*/
+  
+}
+
 
 void DTEfficiencyTask::endJob(){
  if(debug)

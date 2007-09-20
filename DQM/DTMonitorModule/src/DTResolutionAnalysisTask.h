@@ -10,8 +10,8 @@
  *  All histos are produce per Chamber
  *
  *
- *  $Date: 2006/10/08 16:03:21 $
- *  $Revision: 1.2 $
+ *  $Date: 2007/03/07 08:20:31 $
+ *  $Revision: 1.1 $
  *  \author G. Cerminara - INFN Torino
  */
 
@@ -19,6 +19,7 @@
 #include "DataFormats/MuonDetId/interface/DTSuperLayerId.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include <FWCore/Framework/interface/EDAnalyzer.h>
+#include <FWCore/Framework/interface/LuminosityBlock.h>
 
 #include <string>
 #include <map>
@@ -38,6 +39,9 @@ public:
 
   /// BeginJob
   void beginJob(const edm::EventSetup& c);
+
+  /// To reset the MEs
+  void beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& context) ;
 
   /// Endjob
   void endJob();

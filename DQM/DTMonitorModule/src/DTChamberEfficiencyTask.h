@@ -10,8 +10,8 @@
  *  Class based on the code written by S. Lacaprara :
  *  RecoLocalMuon / DTSegment / test / DTEffAnalyzer.h
  *
- *  $Date: 2007/03/27 16:13:45 $
- *  $Revision: 1.3 $
+ *  $Date: 2007/04/20 15:15:54 $
+ *  $Revision: 1.1 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -21,6 +21,7 @@
 #include "DataFormats/MuonDetId/interface/DTLayerId.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include <FWCore/Framework/interface/EDAnalyzer.h>
+#include <FWCore/Framework/interface/LuminosityBlock.h>
 
 #include "Geometry/DTGeometry/interface/DTGeometry.h"
 #include "DataFormats/DTRecHit/interface/DTRecSegment4DCollection.h"
@@ -45,6 +46,9 @@ public:
 
   /// BeginJob
   void beginJob(const edm::EventSetup& c);
+
+  /// To reset the MEs
+  void beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& context) ;
 
   /// Endjob
   void endJob();

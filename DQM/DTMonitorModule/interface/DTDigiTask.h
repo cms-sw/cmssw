@@ -4,8 +4,8 @@
 /*
  * \file DTDigiTask.h
  *
- * $Date: 2007/03/22 18:52:01 $
- * $Revision: 1.11 $
+ * $Date: 2007/08/27 14:17:26 $
+ * $Revision: 1.13 $
  * \author M. Zanetti - INFN Padova
  *
 */
@@ -24,6 +24,7 @@
 #include "DQMServices/Core/interface/MonitorElementBaseT.h"
 #include "DQMServices/Daemon/interface/MonitorDaemon.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
+#include <FWCore/Framework/interface/LuminosityBlock.h>
 
 #include <memory>
 #include <iostream>
@@ -59,6 +60,9 @@ protected:
   void bookHistos(const DTSuperLayerId& dtSL, std::string folder, std::string histoTag);
   void bookHistos(const DTChamberId& dtCh, std::string folder, std::string histoTag);
  
+  /// To reset the MEs
+  void beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& context) ;
+
   /// Analyze
   void analyze(const edm::Event& e, const edm::EventSetup& c);
 

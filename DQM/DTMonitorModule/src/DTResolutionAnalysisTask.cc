@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2007/03/07 08:20:55 $
- *  $Revision: 1.1 $
+ *  $Date: 2007/03/13 18:59:53 $
+ *  $Revision: 1.2 $
  *  \author G. Cerminara - INFN Torino
  */
 
@@ -67,6 +67,24 @@ void DTResolutionAnalysisTask::beginJob(const edm::EventSetup& context){
   theRecHits4DLabel = parameters.getParameter<string>("recHits4DLabel");
   // the name of the rechits collection
   theRecHitLabel = parameters.getParameter<string>("recHitLabel");
+}
+
+
+
+void DTResolutionAnalysisTask::beginLuminosityBlock(LuminosityBlock const& lumiSeg, EventSetup const& context) {
+
+  if(debug)
+    cout<<"[DTResolutionTask]: Begin of LS transition"<<endl;
+  
+  /*for(map<DTSuperLayerId, vector<MonitorElement*> > ::const_iterator histo = histosPerSL.begin();
+      histo != histosPerSL.end();
+      histo++) {
+    int size = (*histo).second.size();
+    for(int i=0; i<size; i++){
+      (*histo).second[i]->Reset();
+    }
+    }*/
+  
 }
 
 
