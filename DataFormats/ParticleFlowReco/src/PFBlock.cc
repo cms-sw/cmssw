@@ -67,7 +67,6 @@ void PFBlock::associatedElements( unsigned i,
   const {
   
 
-  cout<<"look for associated elems to elem number "<<i<<endl;
 
   sortedAssociates.clear();
   
@@ -77,33 +76,24 @@ void PFBlock::associatedElements( unsigned i,
   
   for(unsigned ie=0; ie<elements_.size(); ie++) {
     
-    cout<<" ie "<<ie;
-
     // considered element itself
     if( ie == i ) {
-      cout<<" same"<<endl;
       continue;
     }
     // not the right type
     if(type !=  PFBlockElement::NONE && 
        elements_[ie].type() != type ) {
-      cout<<" bad type"<<endl;
       continue;
     }
 
     double c2 = chi2(i, ie, linkData() );
     
-    cout<<" chi2 "<<c2;
     // not associated
     if( c2 < 0 ) { 
-      cout<<" not associated "<<endl;
       continue;
     }
-    cout<<"inserting"<<endl;
     sortedAssociates.insert( make_pair(c2, ie) );
   }
-
-  cout<<"size "<<sortedAssociates.size()<<endl;
 } 
 
 bool PFBlock::matrix2vector( unsigned iindex, unsigned jindex, 
