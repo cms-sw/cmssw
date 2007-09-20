@@ -2,7 +2,7 @@
 
 Test of the EventProcessor class.
 
-$Id: eventprocessor2_t.cppunit.cc,v 1.9 2007/05/08 03:18:39 wmtan Exp $
+$Id: eventprocessor2_t.cppunit.cc,v 1.10 2007/08/07 22:10:55 wmtan Exp $
 
 ----------------------------------------------------------------------*/  
 #include <exception>
@@ -35,7 +35,8 @@ void work()
 		    "module m1 = IntProducer { int32 ivalue = 10 }\n"
 		    "module m2 = DoubleProducer { double dvalue = 3.3 }\n"
 		    "module out = AsciiOutputModule { }\n"
-                    "path p1 = { m1,m2,out }\n"
+                    "path p1 = { m1,m2 }\n"
+                    "endpath ep1 = { out }\n"
 		    "}\n");
   edm::EventProcessor proc(configuration);
   proc.beginJob();

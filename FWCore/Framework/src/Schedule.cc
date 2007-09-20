@@ -131,7 +131,6 @@ namespace edm {
       limited_output_workers_(),
       trig_paths_(),
       end_paths_(),
-      tmp_wrongly_placed_(),
       wantSummary_(tns.wantSummary()),
       total_events_(),
       total_passed_(),
@@ -187,21 +186,12 @@ namespace edm {
 				     preg, actions, results_);
       all_workers_.insert(results_inserter_.get());
 
-      // check whether an endpath for wrongly placed modules is needed
-      if(tmp_wrongly_placed_.empty()) {
-	TrigResPtr epptr(new HLTGlobalStatus(end_path_name_list_.size()));
-	endpath_results_ = epptr;
-      } else {
-	TrigResPtr epptr(new HLTGlobalStatus(end_path_name_list_.size()+1));
-	endpath_results_ = epptr;
-      }
+      TrigResPtr epptr(new HLTGlobalStatus(end_path_name_list_.size()));
+      endpath_results_ = epptr;
 
       // fill normal endpaths
       vstring::iterator eib(end_path_name_list_.begin()),eie(end_path_name_list_.end());
       for(int bitpos = 0; eib != eie; ++eib, ++bitpos) fillEndPath(bitpos, *eib);
-
-      // handle additional endpath containing wrongly placed modules
-      handleWronglyPlacedModules();
 
       //See if all modules were used
       std::set<std::string> usedWorkerLabels;
@@ -342,22 +332,6 @@ namespace edm {
       return true;
     }
 
-    void Schedule::handleWronglyPlacedModules() {
-      // the wrongly placed workers (always output modules)
-      // are already accounted for, but are not yet in paths.
-      // Here we do that path assignment.
-
-      if(!tmp_wrongly_placed_.empty()) {
-	std::string const newname("WronglyPlaced");
-	unsigned int const pos(end_path_name_list_.size());
-	Path p(pos,newname,tmp_wrongly_placed_,
-	       endpath_results_,pset_,*act_table_,act_reg_,true);
-	end_paths_.push_back(p);
-	end_path_name_list_.push_back(newname);
-      }
-    }
-
-
     void Schedule::fillWorkers(std::string const& name, PathWorkers& out) {
       vstring modnames = pset_.getParameter<vstring>(name);
       vstring::iterator it(modnames.begin()),ie(modnames.end());
@@ -394,7 +368,6 @@ namespace edm {
 
     void Schedule::fillTrigPath(int bitpos, std::string const& name, TrigResPtr trptr) {
       PathWorkers tmpworkers;
-      PathWorkers goodworkers;
       Workers holder;
       fillWorkers(name,tmpworkers);
 
@@ -403,28 +376,24 @@ namespace edm {
 	    we(tmpworkers.end()); wi != we; ++wi) {
 	Worker* tworker = wi->getWorker();
 	if(dynamic_cast<OutputWorker*>(tworker)!=0) {
-	  LogWarning("path")
-	    << "OutputModule "
+          throw edm::Exception(edm::errors::Configuration)
+	    << "\nOutputModule "
 	    << tworker->description().moduleLabel_
 	    << " appears in path " << name << ".\n"
-	    << "This will not be allowed in future releases.\n"
-	    << "This module has been moved to the endpath.\n";
-
-	  tmp_wrongly_placed_.push_back(*wi);
-	} else {
-	  goodworkers.push_back(*wi);
+	    << "An output module is allowed only on an endpath.\n"
+	    << "If you wish to select specific events for output,\n"
+	    << "you need to use the 'SelectEvents' parameter\n"
+	    << "in the specification for that output module.\n";
 	}
-
 	holder.push_back(tworker);
       }
 
       // an empty path will cause an extra bit that is not used
-      if(!goodworkers.empty()) {
-	Path p(bitpos,name,goodworkers,trptr,pset_,*act_table_,act_reg_,false);
+      if(!tmpworkers.empty()) {
+	Path p(bitpos,name,tmpworkers,trptr,pset_,*act_table_,act_reg_,false);
 	trig_paths_.push_back(p);
       }
       all_workers_.insert(holder.begin(),holder.end());
-
       return;
     }
 
@@ -454,8 +423,10 @@ namespace edm {
 	holder.push_back(tworker);
       }
 
-      Path p(bitpos,name,tmpworkers,endpath_results_,pset_,*act_table_,act_reg_,true);
-      end_paths_.push_back(p);
+      if (!tmpworkers.empty()) {
+        Path p(bitpos,name,tmpworkers,endpath_results_,pset_,*act_table_,act_reg_,true);
+        end_paths_.push_back(p);
+      }
       all_workers_.insert(holder.begin(), holder.end());
     }
 

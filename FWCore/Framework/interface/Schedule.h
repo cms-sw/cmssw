@@ -4,7 +4,7 @@
 /*
   Author: Jim Kowalkowski  28-01-06
 
-  $Id: Schedule.h,v 1.27 2007/09/11 21:57:18 paterno Exp $
+  $Id: Schedule.h,v 1.28 2007/09/14 23:12:25 wmtan Exp $
 
   A class for creating a schedule based on paths in the configuration file.
   The schedule is maintained as a sequence of paths.
@@ -235,7 +235,6 @@ namespace edm {
     void fillWorkers(std::string const& name, PathWorkers& out);
     void fillTrigPath(int bitpos, std::string const& name, TrigResPtr);
     void fillEndPath(int bitpos, std::string const& name);
-    void handleWronglyPlacedModules();
 
     ParameterSet        pset_;
     WorkerRegistry*     worker_reg_;
@@ -257,8 +256,6 @@ namespace edm {
     AllLimitedOutputWorkers  limited_output_workers_;
     TrigPaths                trig_paths_;
     TrigPaths                end_paths_;
-
-    PathWorkers tmp_wrongly_placed_;
 
     bool                             wantSummary_;
     int                              total_events_;
