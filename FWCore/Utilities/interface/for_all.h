@@ -1,5 +1,5 @@
-#ifndef FWCORE_UTILITIES_FOR_ALL_INC
-#define FWCORE_UTILITIES_FOR_ALL_INC
+#ifndef FWCore_Utilities_for_all_h
+#define FWCore_Utilities_for_all_h
 
 #include <algorithm>
 
@@ -10,7 +10,7 @@ namespace edm
   /// for std::for_each, avoiding some duplication and assuring that
   /// incommensurate iterators are not used.
 
-  template <class ForwardSequence, class Func>
+  template <typename ForwardSequence, typename Func>
   inline
   Func
   for_all(ForwardSequence& s, Func f)

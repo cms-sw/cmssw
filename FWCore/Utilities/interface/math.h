@@ -1,5 +1,5 @@
-#ifndef FWCORE_UTILITIES_MATH
-#define FWCORE_UTILITIES_MATH
+#ifndef FWCore_Utilities_math_h
+#define FWCore_Utilities_math_h
 
 #include <cmath>
 #include <sys/types.h>
