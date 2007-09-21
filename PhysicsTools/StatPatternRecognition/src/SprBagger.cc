@@ -1,4 +1,4 @@
-//$Id: SprBagger.cc,v 1.5 2007/02/05 21:49:45 narsky Exp $
+//$Id: SprBagger.cc,v 1.8 2007/05/25 17:59:17 narsky Exp $
 
 #include "PhysicsTools/StatPatternRecognition/interface/SprExperiment.hh"
 #include "PhysicsTools/StatPatternRecognition/interface/SprBagger.hh"
@@ -9,6 +9,7 @@
 #include "PhysicsTools/StatPatternRecognition/interface/SprAbsTwoClassCriterion.hh"
 #include "PhysicsTools/StatPatternRecognition/interface/SprAverageLoss.hh"
 #include "PhysicsTools/StatPatternRecognition/interface/SprLoss.hh"
+#include "PhysicsTools/StatPatternRecognition/interface/SprDefs.hh"
 
 #include <stdio.h>
 #include <functional>
@@ -114,6 +115,8 @@ bool SprBagger::reset()
 
 bool SprBagger::setData(SprAbsFilter* data)
 {
+  assert( data != 0 );
+
   // reset base data
   data_ = data;
 
@@ -291,6 +294,11 @@ SprTrainedBagger* SprBagger::makeTrained() const
   // make a trained bagger
   SprTrainedBagger* t = new SprTrainedBagger(trained,discrete_);
 
+  // vars
+  vector<string> vars;
+  data_->vars(vars);
+  t->setVars(vars);
+
   // exit
   return t;
 }
@@ -298,7 +306,7 @@ SprTrainedBagger* SprBagger::makeTrained() const
 
 void SprBagger::print(std::ostream& os) const
 {
-  os << "Trained " << this->name().c_str() << endl;
+  os << "Trained Bagger " << SprVersion << endl;
   os << "Classifiers: " << trained_.size() << endl;
   for( int i=0;i<trained_.size();i++ ) {
     os << "Classifier " << i 

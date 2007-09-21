@@ -1,4 +1,4 @@
-//$Id: SprBaggerDecisionTreeApp.cc,v 1.5 2007/02/05 21:49:45 narsky Exp $
+//$Id: SprBaggerDecisionTreeApp.cc,v 1.10 2007/08/30 17:54:42 narsky Exp $
 
 #include "PhysicsTools/StatPatternRecognition/interface/SprExperiment.hh"
 #include "PhysicsTools/StatPatternRecognition/interface/SprAbsFilter.hh"
@@ -61,6 +61,7 @@ void help(const char* prog)
   cout << "\t-b use a version of Breiman's arc-x4 algorithm     " << endl;
   cout << "\t-v verbose level (0=silent default,1,2)            " << endl;
   cout << "\t-f store trained Bagger to file                    " << endl;
+  cout << "\t-F generate code for AdaBoost and store to file    " << endl;
   cout << "\t-c criterion for optimization                      " << endl;
   cout << "\t\t 1 = correctly classified fraction               " << endl;
   cout << "\t\t 2 = signal significance s/sqrt(s+b)             " << endl;
@@ -75,9 +76,13 @@ void help(const char* prog)
   cout << "\t-g per-event loss for (cross-)validation           " << endl;
   cout << "\t\t 1 - quadratic loss (y-f(x))^2                   " << endl;
   cout << "\t\t 2 - exponential loss exp(-y*f(x))               " << endl;
+  cout << "\t\t 3 - misid fraction                              " << endl;
   cout << "\t-m replace data values below this cutoff with medians" << endl;
   cout << "\t-i count splits on input variables                 " << endl;
   cout << "\t-r resume training for Bagger stored in file       " << endl;
+  cout << "\t-K keep this fraction in training set and          " << endl;
+  cout << "\t\t put the rest into validation set                " << endl;
+  cout << "\t-D randomize training set split-up                 " << endl;
   cout << "\t-t read validation/test data from a file           " << endl;
   cout << "\t\t (must be in same format as input data!!!        " << endl;
   cout << "\t-d frequency of print-outs for validation data     " << endl;
@@ -111,6 +116,7 @@ int main(int argc, char ** argv)
   unsigned nmin = 1;
   int verbose = 0;
   string outFile;
+  string codeFile;
   string resumeFile;
   int iCrit = 5;
   string valFile;
@@ -131,12 +137,15 @@ int main(int argc, char ** argv)
   bool useArcE4 = false;
   double bW = 1.;
   string stringVarsDoNotFeed;
+  bool split = false;
+  double splitFactor = 0;
+  bool splitRandomize = false;
 
   // decode command line
   int c;
   extern char* optarg;
   //  extern int optind;
-  while( (c = getopt(argc,argv,"hjko:a:n:l:s:y:bv:f:c:P:g:m:ir:t:d:w:V:z:Z:x:q:")) 
+  while( (c = getopt(argc,argv,"hjko:a:n:l:s:y:bv:f:F:c:P:g:m:ir:K:Dt:d:w:V:z:Z:x:q:")) 
 	 != EOF ) {
     switch( c )
       {
@@ -176,6 +185,9 @@ int main(int argc, char ** argv)
       case 'f' :
 	outFile = optarg;
 	break;
+      case 'F' :
+	codeFile = optarg;
+	break;
       case 'c' :
         iCrit = (optarg==0 ? 5 : atoi(optarg));
         break;
@@ -197,6 +209,13 @@ int main(int argc, char ** argv)
       case 'r' :
 	resumeFile = optarg;
 	break;
+      case 'K' :
+        split = true;
+        splitFactor = (optarg==0 ? 0 : atof(optarg));
+        break;
+      case 'D' :
+        splitRandomize = true;
+        break;
       case 't' :
 	valFile = optarg;
 	break;
@@ -328,6 +347,29 @@ int main(int argc, char ** argv)
 
   // read validation data from file
   auto_ptr<SprAbsFilter> valFilter;
+  if( split && !valFile.empty() ) {
+    cerr << "Unable to split training data and use validation data "
+         << "from a separate file." << endl;
+    return 2;
+  }
+  if( split && valPrint!=0 ) {
+    cout << "Splitting training data with factor " << splitFactor << endl;
+    if( splitRandomize )
+      cout << "Will use randomized splitting." << endl;
+    vector<double> weights;
+    SprData* splitted = filter->split(splitFactor,weights,splitRandomize);
+    if( splitted == 0 ) {
+      cerr << "Unable to split training data." << endl;
+      return 2;
+    }
+    bool ownData = true;
+    valFilter.reset(new SprEmptyFilter(splitted,weights,ownData));
+    cout << "Training data re-filtered:" << endl;
+    for( int i=0;i<inputClasses.size();i++ ) {
+      cout << "Points in class " << inputClasses[i] << ":   "
+           << filter->ptsInClass(inputClasses[i]) << endl;
+    }
+  }
   if( !valFile.empty() && valPrint!=0 ) {
     SprSimpleReader valReader(readMode);
     if( !includeSet.empty() ) {
@@ -461,6 +503,12 @@ int main(int argc, char ** argv)
       cout << "Per-event loss set to "
            << "Exponential loss exp(-y*f(x)) " << endl;
       break;
+    case 3 :
+      loss.reset(new SprAverageLoss(&SprLoss::correct_id,
+				&SprTransformation::continuous01ToDiscrete01));
+      cout << "Per-event loss set to "
+	   << "Misid rate int(y==f(x)) " << endl;
+      break;
     default :
       cout << "No per-event loss is chosen. Will use the default." << endl;
       break;
@@ -477,9 +525,10 @@ int main(int argc, char ** argv)
 
   // make decision tree
   bool doMerge = !crit->symmetric();
+  if( doMerge ) useTopdown = false;
   auto_ptr<SprDecisionTree> tree;
   if( useTopdown ) {
-    tree.reset(new SprTopdownTree(filter.get(),crit.get(),nmin,doMerge,
+    tree.reset(new SprTopdownTree(filter.get(),crit.get(),nmin,
 				  discrete,bootstrap.get()));
   }
   else {
@@ -487,6 +536,7 @@ int main(int argc, char ** argv)
 				   discrete,bootstrap.get()));
   }
   if( countTreeSplits ) tree->startSplitCounter();
+  tree->useFastSort();
 
   // if cross-validation requested, cross-validate and exit
   if( nCross > 0 ) {
@@ -520,12 +570,13 @@ int main(int argc, char ** argv)
       SprDecisionTree* tree1 = 0;
       if( useTopdown ) {
 	tree1 = new SprTopdownTree(filter.get(),crit.get(),nodeMinSize[0][i],
-				   doMerge,discrete,bootstrap.get());
+				   discrete,bootstrap.get());
       }
       else {
 	tree1 = new SprDecisionTree(filter.get(),crit.get(),nodeMinSize[0][i],
 				    doMerge,discrete,bootstrap.get());
       }
+      tree1->useFastSort();
       SprBagger* bagger1 = 0;
       if( useArcE4 )
 	bagger1 = new SprArcE4(filter.get(),cycles,discrete);
@@ -632,6 +683,14 @@ int main(int argc, char ** argv)
   if( trainedBagger.get() == 0 ) {
     cerr << "Unable to get trained Bagger." << endl;
     return 7;
+  }
+
+  // store code into file
+  if( !codeFile.empty() ) {
+    if( !trainedBagger->storeCode(codeFile.c_str()) ) {
+      cerr << "Unable to store code for trained Bagger." << endl;
+      return 8;
+    }
   }
 
   // make histogram if requested

@@ -1,6 +1,6 @@
 //------------------------------------------------------------------------
 // File and Version Information:
-//      $Id: SprTransformation.hh,v 1.3 2006/11/26 02:04:30 narsky Exp $
+//      $Id: SprTransformation.hh,v 1.4 2007/08/30 17:54:38 narsky Exp $
 //
 // Description:
 //      Class SprTransformation :
@@ -55,6 +55,18 @@ struct SprTransformation
   }
   static double logitDoubleToMinusPlusOne(double x) { 
     return (2.*logitDouble(x)-1.);
+  }
+
+  static double inftyRangeToDiscrete01(double x) {
+    if( x < 0. ) return 0.;
+    if( x > 0. ) return 1.;
+    return 0.5;
+  }
+
+  static double continuous01ToDiscrete01(double x) {
+    if( x < 0.5 ) return 0.;
+    if( x > 0.5 ) return 1.;
+    return 0.5;
   }
 };
 

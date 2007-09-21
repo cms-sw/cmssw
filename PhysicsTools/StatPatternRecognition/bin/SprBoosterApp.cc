@@ -1,4 +1,4 @@
-//$Id: SprBoosterApp.cc,v 1.1 2007/02/05 21:49:45 narsky Exp $
+//$Id: SprBoosterApp.cc,v 1.4 2007/07/24 23:05:12 narsky Exp $
 
 #include "PhysicsTools/StatPatternRecognition/interface/SprExperiment.hh"
 #include "PhysicsTools/StatPatternRecognition/interface/SprAbsFilter.hh"
@@ -57,6 +57,9 @@ void help(const char* prog)
   cout << "\t-v verbose level (0=silent default,1,2)            " << endl;
   cout << "\t-f store trained AdaBoost to file                  " << endl;
   cout << "\t-r resume training for AdaBoost stored in file     " << endl;
+  cout << "\t-K keep this fraction in training set and          " << endl;
+  cout << "\t\t put the rest into validation set                " << endl;
+  cout << "\t-D randomize training set split-up                 " << endl;
   cout << "\t-t read validation/test data from a file           " << endl;
   cout << "\t\t (must be in same format as input data!!!        " << endl;
   cout << "\t-d frequency of print-outs for validation data     " << endl;
@@ -107,12 +110,15 @@ int main(int argc, char ** argv)
   int iLoss = 0;
   bool bagInput = false;
   string inputClassesString;
+  bool split = false;
+  double splitFactor = 0;
+  bool splitRandomize = false;
 
   // decode command line
   int c;
   extern char* optarg;
   //  extern int optind;
-  while((c = getopt(argc,argv,"hM:E:a:n:y:g:bm:eu:v:f:r:t:d:w:V:z:")) != EOF ) {
+  while((c = getopt(argc,argv,"hM:E:a:n:y:g:bm:eu:v:f:r:K:Dt:d:w:V:z:")) != EOF ) {
     switch( c )
       {
       case 'h' :
@@ -159,6 +165,13 @@ int main(int argc, char ** argv)
 	break;
       case 'r' :
 	resumeFile = optarg;
+	break;
+      case 'K' :
+	split = true;
+	splitFactor = (optarg==0 ? 0 : atof(optarg));
+	break;
+      case 'D' :
+	splitRandomize = true;
 	break;
       case 't' :
 	valFile = optarg;
@@ -286,6 +299,29 @@ int main(int argc, char ** argv)
 
   // read validation data from file
   auto_ptr<SprAbsFilter> valFilter;
+  if( split && !valFile.empty() ) {
+    cerr << "Unable to split training data and use validation data " 
+	 << "from a separate file." << endl;
+    return 2;
+  }
+  if( split && valPrint!=0 ) {
+    cout << "Splitting training data with factor " << splitFactor << endl;
+    if( splitRandomize )
+      cout << "Will use randomized splitting." << endl;
+    vector<double> weights;
+    SprData* splitted = filter->split(splitFactor,weights,splitRandomize);
+    if( splitted == 0 ) {
+      cerr << "Unable to split training data." << endl;
+      return 2;
+    }
+    bool ownData = true;
+    valFilter.reset(new SprEmptyFilter(splitted,weights,ownData));
+    cout << "Training data re-filtered:" << endl;
+    for( int i=0;i<inputClasses.size();i++ ) {
+      cout << "Points in class " << inputClasses[i] << ":   " 
+	   << filter->ptsInClass(inputClasses[i]) << endl;
+    }
+  }
   if( !valFile.empty() && valPrint!=0 ) {
     SprSimpleReader valReader(readMode);
     if( !includeSet.empty() ) {
@@ -407,10 +443,12 @@ int main(int argc, char ** argv)
   unsigned nLine = 0;
   bool discreteTree = (abMode!=SprTrainedAdaBoost::Real);
   bool mixedNodesTree = (abMode==SprTrainedAdaBoost::Real);
+  bool fastSort = true;
   bool readOneEntry = false;
   if( !SprClassifierReader::readTrainableConfig(file,nLine,filter.get(),
 						discreteTree,mixedNodesTree,
-						criteria,bstraps,destroyC,useC,
+						fastSort,criteria,
+						bstraps,destroyC,useC,
 						readOneEntry) ) {
     cerr << "Unable to read weak classifier configurations from file " 
 	 << configFile.c_str() << endl;

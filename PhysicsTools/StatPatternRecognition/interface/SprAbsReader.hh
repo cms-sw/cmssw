@@ -1,6 +1,6 @@
 //------------------------------------------------------------------------
 // File and Version Information:
-//      $Id: SprAbsReader.hh,v 1.2 2006/10/19 21:27:52 narsky Exp $
+//      $Id: SprAbsReader.hh,v 1.3 2007/05/17 23:31:37 narsky Exp $
 //
 // Description:
 //      Class SprAbsReader :
@@ -24,13 +24,16 @@
 #include <string>
 
 class SprAbsFilter;
+class SprPreFilter;
+
 
 class SprAbsReader
 {
 public:
   virtual ~SprAbsReader() {}
 
-  SprAbsReader() {}
+  SprAbsReader(SprPreFilter* filter)
+    : filter_(filter) {}
 
   // Choose variables (by name) to read in. By default all variables
   // are chosen. chooseAllBut() chooses all variables except those specified.
@@ -44,6 +47,9 @@ public:
   // Read data from a file.  Returns a newly-allocated filter, which the
   // caller is responsible for deleting, or NULL on error.
   virtual SprAbsFilter* read(const char* filename) = 0;
+
+protected:
+  SprPreFilter* filter_;
 };
 
 #endif

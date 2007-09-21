@@ -1,6 +1,6 @@
 //------------------------------------------------------------------------
 // File and Version Information:
-//      $Id: SprSimpleReader.hh,v 1.3 2006/11/13 19:09:40 narsky Exp $
+//      $Id: SprSimpleReader.hh,v 1.4 2007/05/17 23:31:37 narsky Exp $
 //
 // Description:
 //      Class SprSimpleReader :
@@ -95,6 +95,7 @@
 #include <string>
 
 class SprAbsFilter;
+class SprPreFilter;
 
 
 class SprSimpleReader : public SprAbsReader
@@ -102,7 +103,7 @@ class SprSimpleReader : public SprAbsReader
 public:
   virtual ~SprSimpleReader() {}
 
-  SprSimpleReader(int mode=1);
+  SprSimpleReader(int mode, SprPreFilter* filter=0);
 
   bool chooseVars(const std::set<std::string>& vars) { 
     include_ = vars;

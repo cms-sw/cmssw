@@ -1,4 +1,4 @@
-//$Id: SprMultiClassApp.cc,v 1.1 2007/02/05 21:49:45 narsky Exp $
+//$Id: SprMultiClassApp.cc,v 1.8 2007/08/30 17:54:42 narsky Exp $
 /*
   Note: "-y" option has a different meaning for this executable than
   for other executables in the package. Instead of specifying what
@@ -57,15 +57,22 @@ void help(const char* prog)
   cout << "\t-y list of input classes                                " << endl;
   cout << "\t\t Classes must be listed in quotes and separated by commas." 
        << endl;
-  cout << "\t-e Multi class mode (OneVsAll=1 (default); OneVsOne=2)  " << endl;
+  cout << "\t-e Multi class mode                                     " << endl;
+  cout << "\t\t 1 - OneVsAll (default)                               " << endl;
+  cout << "\t\t 2 - OneVsOne                                         " << endl;
+  cout << "\t\t 3 - user-defined (must use -i option)                " << endl;
+  cout << "\t-i input file with user-defined indicator matrix        " << endl;
   cout << "\t-c file with trainable classifier configurations        " << endl;
   cout << "\t-g per-event loss to be displayed for each input class  " << endl;
   cout << "\t\t 1 - quadratic loss (y-f(x))^2                        " << endl;
   cout << "\t\t 2 - exponential loss exp(-y*f(x))                    " << endl;
-   cout << "\t-m replace data values below this cutoff with medians  " << endl;
+  cout << "\t-m replace data values below this cutoff with medians   " << endl;
   cout << "\t-v verbose level (0=silent default,1,2)                 " << endl;
   cout << "\t-f store trained multi class learner to file            " << endl;
   cout << "\t-r read multi class learner configuration stored in file" << endl;
+  cout << "\t-K keep this fraction in training set and          " << endl;
+  cout << "\t\t put the rest into validation set                " << endl;
+  cout << "\t-D randomize training set split-up                 " << endl;
   cout << "\t-t read validation/test data from a file           " << endl;
   cout << "\t\t (must be in same format as input data!!!        " << endl;
   cout << "\t-V include only these input variables              " << endl;
@@ -111,13 +118,17 @@ int main(int argc, char ** argv)
   string inputClassesString;
   int iLoss = 1;
   int iMode = 1;
+  string indicatorFile;
   string stringVarsDoNotFeed;
+  bool split = false;
+  double splitFactor = 0;
+  bool splitRandomize = false;
 
   // decode command line
   int c;
   extern char* optarg;
   //  extern int optind;
-  while( (c = getopt(argc,argv,"ho:a:y:e:c:g:m:v:f:r:t:V:z:Z:")) != EOF ) {
+  while( (c = getopt(argc,argv,"ho:a:y:e:i:c:g:m:v:f:r:K:Dt:V:z:Z:")) != EOF ) {
     switch( c )
       {
       case 'h' :
@@ -135,6 +146,9 @@ int main(int argc, char ** argv)
       case 'e' :
         iMode = (optarg==0 ? 1 : atoi(optarg));
         break;
+      case 'i' :
+	indicatorFile = optarg;
+	break;
       case 'c' :
 	configFile = optarg;
 	break;
@@ -155,6 +169,13 @@ int main(int argc, char ** argv)
 	break;
       case 'r' :
 	resumeFile = optarg;
+	break;
+      case 'K' :
+	split = true;
+	splitFactor = (optarg==0 ? 0 : atof(optarg));
+	break;
+      case 'D' :
+	splitRandomize = true;
 	break;
       case 't' :
 	valFile = optarg;
@@ -277,8 +298,12 @@ int main(int argc, char ** argv)
   }
   cout << "Training data filtered by class." << endl;
   for( int i=0;i<inputClasses.size();i++ ) {
-    cout << "Points in class " << inputClasses[i] << ":   " 
-	 << filter->ptsInClass(inputClasses[i]) << endl;
+    unsigned npts = filter->ptsInClass(inputClasses[i]);
+    if( npts == 0 ) {
+      cerr << "Error!!! No points in class " << inputClasses[i] << endl;
+      return 2;
+    }
+    cout << "Points in class " << inputClasses[i] << ":   " << npts << endl;
   }
 
   // apply low cutoff
@@ -294,6 +319,29 @@ int main(int argc, char ** argv)
 
   // read validation data from file
   auto_ptr<SprAbsFilter> valFilter;
+  if( split && !valFile.empty() ) {
+    cerr << "Unable to split training data and use validation data " 
+	 << "from a separate file." << endl;
+    return 2;
+  }
+  if( split ) {
+    cout << "Splitting training data with factor " << splitFactor << endl;
+    if( splitRandomize )
+      cout << "Will use randomized splitting." << endl;
+    vector<double> weights;
+    SprData* splitted = filter->split(splitFactor,weights,splitRandomize);
+    if( splitted == 0 ) {
+      cerr << "Unable to split training data." << endl;
+      return 2;
+    }
+    bool ownData = true;
+    valFilter.reset(new SprEmptyFilter(splitted,weights,ownData));
+    cout << "Training data re-filtered:" << endl;
+    for( int i=0;i<inputClasses.size();i++ ) {
+      cout << "Points in class " << inputClasses[i] << ":   " 
+	   << filter->ptsInClass(inputClasses[i]) << endl;
+    }
+  }
   if( !valFile.empty() ) {
     SprSimpleReader valReader(readMode);
     if( !includeSet.empty() ) {
@@ -321,8 +369,6 @@ int main(int argc, char ** argv)
       cout << " \"" << valVars[i].c_str() << "\"";
     cout << endl;
     cout << "Total number of points read: " << valFilter->size() << endl;
-    cout << "Points in class 0: " << valFilter->ptsInClass(inputClasses[0])
-	 << " 1: " << valFilter->ptsInClass(inputClasses[1]) << endl;
   }
 
   // filter validation data by class
@@ -334,8 +380,10 @@ int main(int argc, char ** argv)
     }
     cout << "Validation data filtered by class." << endl;
     for( int i=0;i<inputClasses.size();i++ ) {
-      cout << "Points in class " << inputClasses[i] << ":   " 
-	   << valFilter->ptsInClass(inputClasses[i]) << endl;
+     unsigned npts = valFilter->ptsInClass(inputClasses[i]);
+     if( npts == 0 )
+       cerr << "Warning!!! No points in class " << inputClasses[i] << endl;
+     cout << "Points in class " << inputClasses[i] << ":   " << npts << endl;
     }
   }
 
@@ -370,11 +418,12 @@ int main(int argc, char ** argv)
     // read classifier params
     unsigned nLine = 0;
     bool discreteTree = false;
-    bool mixedNodesTree = true;
+    bool mixedNodesTree = false;
+    bool fastSort = false;
     bool readOneEntry = true;
     if( !SprClassifierReader::readTrainableConfig(file,nLine,filter.get(),
 						  discreteTree,mixedNodesTree,
-						  criteria,
+						  fastSort,criteria,
 						  bstraps,destroyC,useC,
 						  readOneEntry) ) {
       cerr << "Unable to read classifier configurations from file " 
@@ -400,14 +449,33 @@ int main(int argc, char ** argv)
         multiClassMode = SprMultiClassLearner::OneVsOne;
       	cout << "Multi class learning mode set to OneVsOne." << endl;
   	break;
+      case 3:
+	if( indicatorFile.empty() ) {
+	  cerr << "No indicator matrix specified." << endl;
+	  return 4;
+	}
+	multiClassMode = SprMultiClassLearner::User;
+	cout << "Multi class learning mode set to User." << endl;
+	break;
       default :
         cerr << "No multi class learning mode chosen." << endl;
         prepareExit(criteria,destroyC,bstraps);
         return 4;
       }
 
-    // make a multi class learner
+    // get indicator matrix
     SprMatrix indicator;
+    if( multiClassMode==SprMultiClassLearner::User 
+	&& !indicatorFile.empty() ) {
+      if( !SprMultiClassReader::readIndicatorMatrix(indicatorFile.c_str(),
+						    indicator) ) {
+	cerr << "Unable to read indicator matrix from file " 
+	     << indicatorFile.c_str() << endl;
+	return 4;
+      }
+    }
+
+    // make a multi class learner
     SprMultiClassLearner multi(filter.get(),trainable,inputIntClasses[0],
        			       indicator,multiClassMode);
 
@@ -482,17 +550,91 @@ int main(int argc, char ** argv)
 
   // analyze validation data
   if( valFilter.get() != 0 ) {
+
+    // init
     SprAverageLoss loss(&SprLoss::correct_id);
-    map<int,double> output;
+    map<int,SprAverageLoss> lossPerClass;
+    unsigned nClasses = trainedMulti->nClasses();
+    vector<int> classes;
+    trainedMulti->classes(classes);
+    map<int,vector<double> > lossTable;
+
+    // loop over test points
     for( int i=0;i<valFilter->size();i++ ) {
+      if( ((i+1)%1000) == 0 ) 
+	cout << "Processing validation point " << i+1 << endl;
+
       const SprPoint* p = (*(valFilter.get()))[i];
-      loss.update(p->class_,
-		  double(trainedMulti->response(p,output)),
-		  valFilter->w(i));
+      int cls = p->class_;
+      double w = valFilter->w(i);
+
+      // overall loss
+      map<int,double> output;
+      int resp = trainedMulti->response(p,output);
+      loss.update(cls,double(resp),w);
+
+      // individual loss
+      map<int,SprAverageLoss>::iterator found = lossPerClass.find(cls);
+      if( found == lossPerClass.end() ) {
+	pair<map<int,SprAverageLoss>::iterator,bool> inserted
+	  = lossPerClass.insert(pair<const int,
+				SprAverageLoss>(cls,
+				        SprAverageLoss(&SprLoss::correct_id)));
+	assert( inserted.second );
+	found = inserted.first;
+      }
+      found->second.update(cls,double(resp),w);
+
+      // indvidual loss mapped to classes
+      map<int,vector<double> >::iterator tabulated = lossTable.find(cls);
+      if( tabulated == lossTable.end() ) {
+	pair<map<int,vector<double> >::iterator,bool> inserted
+	  = lossTable.insert(pair<const int,
+			     vector<double> >(cls,vector<double>(nClasses,0)));
+	assert( inserted.second );
+	tabulated = inserted.first;
+      }
+      vector<int>::const_iterator foundClass =
+	find(classes.begin(),classes.end(),resp);
+      assert( foundClass != classes.end() );
+      int icls = foundClass - classes.begin();
+      (tabulated->second)[icls] += w;
     }
     cout << "=====================================" << endl;
-    cout << "Validation misid fraction = " << loss.value() << endl;
+    cout << "Overall validation misid fraction = " << loss.value() << endl;
+    cout << "Misid fraction per class:" << endl;
+    for( map<int,SprAverageLoss>::const_iterator
+	   i=lossPerClass.begin();i!=lossPerClass.end();i++ ) {
+      cout << "Class " << i->first 
+	   << "    Loss " << i->second.value() << endl;
+    }
     cout << "=====================================" << endl;
+    cout << "Classification table:" << endl;
+    char s[200];
+    sprintf(s,"True Class \\ Classification |");
+    string temp = "------------------------------";
+    cout << s;
+    for( int i=0;i<nClasses;i++ ) {
+      sprintf(s," %5i      |",classes[i]);
+      cout << s;
+      temp += "-------------";
+    }
+    sprintf(s,"   Total weight in class |");
+    temp += "-------------------------";
+    cout << s << endl;
+    cout << temp.c_str() << endl;
+    for( map<int,vector<double> >::const_iterator
+	   i=lossTable.begin();i!=lossTable.end();i++ ) {
+      sprintf(s,"%5i                       |",i->first);
+      cout << s;
+      for( int j=0;j<i->second.size();j++ ) {
+	sprintf(s," %10.4f |",i->second[j]);
+	cout << s;
+      }
+      sprintf(s,"              %10.4f |",valFilter->weightInClass(i->first));
+      cout << s << endl;
+    }
+    cout << temp.c_str() << endl;
   }
 
   // make histogram if requested

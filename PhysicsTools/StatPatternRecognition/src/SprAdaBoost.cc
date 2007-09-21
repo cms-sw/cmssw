@@ -1,4 +1,4 @@
-//$Id: SprAdaBoost.cc,v 1.6 2007/02/05 21:49:45 narsky Exp $
+//$Id: SprAdaBoost.cc,v 1.9 2007/05/25 17:59:17 narsky Exp $
 
 #include "PhysicsTools/StatPatternRecognition/interface/SprExperiment.hh"
 #include "PhysicsTools/StatPatternRecognition/interface/SprAdaBoost.hh"
@@ -169,13 +169,14 @@ bool SprAdaBoost::addTrained(const SprAbsTrainedClassifier* c, bool own)
 bool SprAdaBoost::addTrainable(SprAbsClassifier* c, const SprCut& cut)
 {
   if( c == 0 ) return false;
-  trainable_.push_back(pair<SprAbsClassifier*,SprCut>(c,cut));
+  trainable_.push_back(SprCCPair(c,cut));
   return true;
 }
 
 
 bool SprAdaBoost::setData(SprAbsFilter* data)
 {
+  assert( data != 0 );
   data_ = data;
   for( int i=0;i<trainable_.size();i++ ) {
     if( !trainable_[i].first->setData(data) ) {
@@ -617,6 +618,11 @@ SprTrainedAdaBoost* SprAdaBoost::makeTrained() const
 						 useStandard_,mode_);
   t->setEpsilon(epsilon_);
 
+  // vars
+  vector<string> vars;
+  data_->vars(vars);
+  t->setVars(vars);
+
   // exit
   return t;
 }
@@ -647,7 +653,7 @@ bool SprAdaBoost::prepareExit(bool status)
 void SprAdaBoost::print(std::ostream& os) const
 {
   assert( beta_.size() == trained_.size() );
-  os << "Trained AdaBoost" << endl;
+  os << "Trained AdaBoost " << SprVersion << endl;
   os << "Classifiers: " << trained_.size() << endl;
   os << "Mode: " << int(mode_) << "   Epsilon: " << epsilon_ << endl;
   for( int i=0;i<trained_.size();i++ ) {

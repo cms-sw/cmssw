@@ -1,4 +1,4 @@
-//$Id: SprArcE4.hh,v 1.4 2007/02/05 21:49:44 narsky Exp $
+//$Id: SprArcE4.hh,v 1.5 2007/02/12 23:13:58 narsky Exp $
 //
 // Description:
 //      Class SprArcE4 :

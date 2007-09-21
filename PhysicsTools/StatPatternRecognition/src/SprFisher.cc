@@ -1,10 +1,11 @@
-//$Id: SprFisher.cc,v 1.6 2007/02/05 21:49:45 narsky Exp $
+//$Id: SprFisher.cc,v 1.8 2007/05/25 17:59:17 narsky Exp $
 
 #include "PhysicsTools/StatPatternRecognition/interface/SprExperiment.hh"
 #include "PhysicsTools/StatPatternRecognition/interface/SprFisher.hh"
 #include "PhysicsTools/StatPatternRecognition/interface/SprAbsFilter.hh"
 #include "PhysicsTools/StatPatternRecognition/interface/SprPoint.hh"
 #include "PhysicsTools/StatPatternRecognition/interface/SprUtils.hh"
+#include "PhysicsTools/StatPatternRecognition/interface/SprDefs.hh"
 
 #include <stdio.h>
 #include <iostream>
@@ -33,6 +34,7 @@ SprFisher::SprFisher(SprAbsFilter* data, int mode)
 
 bool SprFisher::setData(SprAbsFilter* data)
 {
+  assert( data != 0 );
   data_ = data;
   return this->reset();
 }
@@ -40,12 +42,20 @@ bool SprFisher::setData(SprAbsFilter* data)
 
 SprTrainedFisher* SprFisher::makeTrained() const
 {
-  SprTrainedFisher* trained = 0;
+  // make
+  SprTrainedFisher* t = 0;
   if(      mode_ == 1 )
-    trained = new SprTrainedFisher(linear_,cterm_);
+    t = new SprTrainedFisher(linear_,cterm_);
   else if( mode_ == 2 )
-    trained = new SprTrainedFisher(linear_,quadr_,cterm_);
-  return trained;
+    t = new SprTrainedFisher(linear_,quadr_,cterm_);
+
+  // vars
+  vector<string> vars;
+  data_->vars(vars);
+  t->setVars(vars);
+
+  // exit
+  return t;
 }
 
 
@@ -197,7 +207,7 @@ bool SprFisher::train(int verbose)
 
 void SprFisher::print(std::ostream& os) const
 {
-  os << "Trained Fisher" << endl;
+  os << "Trained Fisher " << SprVersion << endl;
   os << "Fisher dimensionality: " << linear_.num_row() << endl;
   os << "Fisher response: F = C + T(L)*X + T(X)*Q*X; T is transposition" 
      << endl;

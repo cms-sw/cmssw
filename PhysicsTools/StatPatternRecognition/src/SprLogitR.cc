@@ -1,4 +1,4 @@
-//$Id: SprLogitR.cc,v 1.5 2007/02/05 21:49:45 narsky Exp $
+//$Id: SprLogitR.cc,v 1.7 2007/05/25 17:59:18 narsky Exp $
 
 #include "PhysicsTools/StatPatternRecognition/interface/SprExperiment.hh"
 #include "PhysicsTools/StatPatternRecognition/interface/SprLogitR.hh"
@@ -6,6 +6,7 @@
 #include "PhysicsTools/StatPatternRecognition/interface/SprPoint.hh"
 #include "PhysicsTools/StatPatternRecognition/interface/SprTransformation.hh"
 #include "PhysicsTools/StatPatternRecognition/interface/SprFisher.hh"
+#include "PhysicsTools/StatPatternRecognition/interface/SprDefs.hh"
 
 #include "PhysicsTools/StatPatternRecognition/src/SprMatrix.hh"
 #include "PhysicsTools/StatPatternRecognition/src/SprSymMatrix.hh"
@@ -63,6 +64,7 @@ SprLogitR::SprLogitR(SprAbsFilter* data,
 
 bool SprLogitR::setData(SprAbsFilter* data)
 {
+  assert( data != 0 );
   data_ = data;
   return this->reset();
 }
@@ -70,7 +72,16 @@ bool SprLogitR::setData(SprAbsFilter* data)
 
 SprTrainedLogitR* SprLogitR::makeTrained() const
 {
-  return new SprTrainedLogitR(beta0_,beta_);
+  // make
+  SprTrainedLogitR* t = new SprTrainedLogitR(beta0_,beta_);
+
+  // vars
+  vector<string> vars;
+  data_->vars(vars);
+  t->setVars(vars);
+
+  // exit
+  return t;
 }
 
 
@@ -245,7 +256,7 @@ bool SprLogitR::iterate(const SprVector& y,
 
 void SprLogitR::print(std::ostream& os) const
 {
-  os << "Trained LogitR" << endl;
+  os << "Trained LogitR " << SprVersion << endl;
   os << "LogitR dimensionality: " << beta_.num_row() << endl;
   os << "LogitR response: L = Beta0 + Beta*X" << endl;  
   os << "By default logit transform is applied: L <- 1/[1+exp(-L)]" << endl;

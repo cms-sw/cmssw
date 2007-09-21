@@ -1,10 +1,11 @@
-//$Id: SprAbsFilter.cc,v 1.4 2006/11/26 02:04:30 narsky Exp $
+//$Id: SprAbsFilter.cc,v 1.9 2007/08/30 17:54:38 narsky Exp $
 
 #include "PhysicsTools/StatPatternRecognition/interface/SprExperiment.hh"
 #include "PhysicsTools/StatPatternRecognition/interface/SprAbsFilter.hh"
 #include "PhysicsTools/StatPatternRecognition/interface/SprPoint.hh"
 #include "PhysicsTools/StatPatternRecognition/interface/SprUtils.hh"
 #include "PhysicsTools/StatPatternRecognition/interface/SprStringParser.hh"
+#include "PhysicsTools/StatPatternRecognition/interface/SprIntegerPermutator.hh"
 
 #include <stdio.h>
 #include <fstream>
@@ -158,8 +159,17 @@ void SprAbsFilter::clear()
   }
   copy_ = data_;
   this->resetIndexRange();
-  this->resetCut();
+  this->reset();
   copyWeights_ = dataWeights_;
+}
+
+
+void SprAbsFilter::classes(std::vector<SprClass>& classes) const 
+{
+  if( classes_.empty() )
+    this->allClasses(classes);
+  else
+    classes = classes_;
 }
 
 
@@ -183,7 +193,7 @@ bool SprAbsFilter::filter()
   }
 
   // save copy
-  if( copy_!=0 && ownCopy_ ) delete copy_;
+  if( ownCopy_ ) delete copy_;
   copy_ = copy;
   ownCopy_ = true;
 
@@ -233,6 +243,8 @@ bool SprAbsFilter::category(const SprPoint* p) const
 bool SprAbsFilter::normalizeWeights(const std::vector<SprClass>& classes,
 				    double totalWeight)
 {
+  assert( copy_ != 0 );
+
   // save classes
   vector<SprClass> saveClasses = classes_;
   classes_ = classes;
@@ -295,6 +307,8 @@ void SprAbsFilter::setUniformWeights()
 
 bool SprAbsFilter::resetWeights()
 {
+  assert( copy_ != 0 );
+
   // if no filter requirements imposed, copy the whole set
   if( copy_->size() == data_->size() ) {
     copyWeights_ = dataWeights_;
@@ -338,6 +352,7 @@ bool SprAbsFilter::remove(const SprData* data)
   }
 
   // make a copy
+  assert( copy_ != 0 );
   SprData* copy = copy_->emptyCopy();
 
   // loop through points and accept
@@ -351,7 +366,49 @@ bool SprAbsFilter::remove(const SprData* data)
   }
 
   // save copy
-  if( copy_!=0 && ownCopy_ ) delete copy_;
+  if( ownCopy_ ) delete copy_;
+  copy_ = copy;
+  copyWeights_ = copyWeights;
+  ownCopy_ = true;
+
+  // exit
+  return true;
+}
+
+
+bool SprAbsFilter::fastRemove(const SprData* data)
+{
+  // sanity check
+  assert( data != 0 );
+  if( data->dim() != this->dim() ) {
+    cerr << "SprAbsFilter::remove data dimensionality does not match." << endl;
+    return false;
+  }
+
+  // make a copy
+  assert( copy_ != 0 );
+  SprData* copy = copy_->emptyCopy();
+  vector<double> copyWeights;
+
+  // loop through points and accept
+  int isplit(0), istart(0);
+  for( int i=0;i<data->size();i++ ) {
+    SprPoint* pToRemove = (*data)[i];
+    for( isplit=istart;isplit<copy_->size();isplit++ ) {
+      SprPoint* p = (*copy_)[isplit];
+      if( p == pToRemove ) {
+	istart = isplit+1;
+	break;
+      }
+      else {
+	copy->uncheckedInsert(p);
+	copyWeights.push_back(copyWeights_[isplit]);
+      }
+    }
+  }
+
+  // save copy
+  if( ownCopy_ ) delete copy_;
   copy_ = copy;
   copyWeights_ = copyWeights;
   ownCopy_ = true;
@@ -363,6 +420,7 @@ bool SprAbsFilter::remove(const SprData* data)
 
 double SprAbsFilter::weightInClass(const SprClass& cls) const
 {
+  assert( copy_ != 0 );
   double w = 0;
   for( int i=0;i<copy_->size();i++ )
     if( (*copy_)[i]->class_ == cls ) w += copyWeights_[i];
@@ -388,6 +446,7 @@ void SprAbsFilter::scaleWeights(const SprClass& cls, double w)
 
 void SprAbsFilter::print(std::ostream& os) const
 {
+  assert( copy_ != 0 );
   os << copy_->dim() << endl;
   vector<string> vars;
   copy_->vars(vars);
@@ -501,7 +560,7 @@ bool SprAbsFilter::replaceMissing(const SprCut& validRange, int verbose)
   }// end loop thru dimensions
 
   // store the copy
-  if( copy_!=0 && ownCopy_ ) delete copy_;
+  if( ownCopy_ ) delete copy_;
   copy_ = copy;
   ownCopy_ = true;
 
@@ -511,105 +570,103 @@ bool SprAbsFilter::replaceMissing(const SprCut& validRange, int verbose)
 
 
 bool SprAbsFilter::decodeClassString(const char* inputClassString,
-				     std::pair<SprClass,SprClass>& classes)
+				     std::vector<SprClass>& classes)
 {
-  // init default
-  classes = pair<SprClass,SprClass>(SprClass(0),SprClass(1));
+  // clear
+  classes.clear();
 
   // parse to strings
   vector<vector<string> > members;
   SprStringParser::parseToStrings(inputClassString,members);
 
-  // less than 2 classes
-  if( members.size() < 2 ) {
-    cout << "Less than 2 input classes specified."
-	 << " Classes 0 and 1 will be chosen by default." << endl;
+  // sanity check
+  if( members.empty() ) {
+    cout << "No input classes specified in string " 
+	 << inputClassString << " Will use 0 and 1 by default." << endl;
+    classes.resize(2);
+    classes[0] = 0;
+    classes[1] = 1;
     return true;
   }
 
-  // sanity check for dots
-  if( ::find(members[0].begin(),members[0].end(),".")!=members[0].end() 
-      && members[0].size()>1 ) {
-    cerr << "\".\" must preclude other classes in group 0." << endl;
-    return false;
-  }
-  if( ::find(members[1].begin(),members[1].end(),".")!=members[1].end() 
-      && members[1].size()>1 ) {
-    cerr << "\".\" must preclude other classes in group 1." << endl;
-    return false;
-  }
-
-  // choose one vs the rest
-  vector<int> cls0, cls1;
-  if( members[0][0]=="." || members[1][0]=="." ) {
-    // sanity check
-    if( members[0][0]=="." && members[1][0]=="." ) {
-      cerr << "Classes 0 and 1 are both set to \".\"." 
-	   << endl;
+  // Sanity check for dots and sizes.
+  for( int i=0;i<members.size();i++ ) {
+    if( members[i].empty() ) {
+      cerr << "Class " << i << " is empty in string " 
+	   << inputClassString << endl;
       return false;
     }
-
-    // set classes
-    if(      members[0][0] == "." ) {
-      cls1.resize(members[1].size());
-      for( int i=0;i<members[1].size();i++ )
-	cls1[i] = atoi(members[1][i].c_str());
-      classes.first = SprClass(cls1,true);
-      classes.second = SprClass(cls1,false);
+    if( ::find(members[i].begin(),members[i].end(),".")!=members[i].end() 
+	&& members[i].size()>1 ) {
+      cerr << "\".\" does not allow other classes in group " << i << endl;
+      return false;
     }
-    else if( members[1][0] == "." ) {
-      cls0.resize(members[0].size());
-      for( int i=0;i<members[0].size();i++ )
-	cls0[i] = atoi(members[0][i].c_str());
-      classes.first = SprClass(cls0,false);
-      classes.second = SprClass(cls0,true);
-    }
+  }
 
-    // exit
+  // All classes are given as a list separated by commas.
+  // Typical for multi-class problems.
+  if( members.size() < 2 ) {
+    if( members[0].size() < 2 ) {
+      cerr << "Less than 2 input classes specified in string " 
+	   << inputClassString << endl;
+      return false;
+    }
+    classes.resize(members[0].size());
+    for( int i=0;i<members[0].size();i++ )
+      classes[i] = atoi(members[0][i].c_str());
     return true;
   }
 
-  // choose the first two classes in the input list
-  if( members.size() > 2 ) {
-    cout << "Warning: more than two classes are chosen."
-	 << " Will select the first two." << endl;
+  // Classes separated by colons.
+
+  // Make sure the dot is used only once.
+  int ndot = 0;
+  int dottedClass = -1;
+  for( int i=0;i<members.size();i++ ) {
+    if( members[i][0] == "." ) {
+      ndot++;
+      dottedClass = i;
+    }
   }
-  cls0.resize(members[0].size());
-  cls1.resize(members[1].size());
-  for( int i=0;i<members[0].size();i++ )
-    cls0[i] = atoi(members[0][i].c_str());
-  for( int i=0;i<members[1].size();i++ )
-    cls1[i] = atoi(members[1][i].c_str());
+  if( ndot > 1 ) {
+    cerr << "More than one class has a dot in its definition." << endl;
+    return false;
+  }
+
+  // record all classes found in the expression
+  vector<int> allButDot;
+  for( int i=0;i<members.size();i++ ) {
+    if( i != dottedClass ) {
+      for( int j=0;j<members[i].size();j++ ) {
+	allButDot.push_back(atoi(members[i][j].c_str()));
+      }
+    }
+  }
+
+  // fill out classes
+  classes.resize(members.size());
+  for( int i=0;i<members.size();i++ ) {
+    if( i == dottedClass ) {
+      classes[i] = SprClass(allButDot,true);// negate
+    }
+    else {
+      vector<int> cls(members[i].size());
+      for( int j=0;j<members[i].size();j++ ) {
+	cls[j] = atoi(members[i][j].c_str());
+      }
+      classes[i] = SprClass(cls,false);
+    }
+  }
 
   // make sure the two class vectors do not contain the same class
-  int sameCls = 0;
-  bool identical = false;
-  for( int i=0;i<cls0.size();i++ ) {
-    if( ::find(cls1.begin(),cls1.end(),cls0[i]) != cls1.end() ) {
-      sameCls = cls0[i];
-      identical = true;
-      break;
+  for( int i=0;i<classes.size()-1;i++ ) {
+    for( int j=i+1;j<classes.size();j++ ) {
+      if( classes[i].overlap(classes[j]) == 1 ) {
+	cerr << "Classes " << i << " and " << j << " overlap." << endl;
+	return false;
+      }
     }
   }
-  if( identical ) {
-    cerr << "Class vectors 0 and 1 contain same class " << sameCls << endl;
-    return false;
-  }
-  for( int i=0;i<cls1.size();i++ ) {
-    if( ::find(cls0.begin(),cls0.end(),cls1[i]) != cls0.end() ) {
-      sameCls = cls1[i];
-      identical = true;
-      break;
-    }
-  }
-  if( identical ) {
-    cerr << "Class vectors 0 and 1 contain same class " << sameCls << endl;
-    return false;
-  }
-
-  // set up classes
-  classes.first = cls0;
-  classes.second = cls1;
 
   // exit
   return true;
@@ -618,23 +675,7 @@ bool SprAbsFilter::decodeClassString(const char* inputClassString,
 
 bool SprAbsFilter::filterByClass(const char* inputClassString)
 {
-  // init
-  pair<SprClass,SprClass> classes;
-
-  // decode input string
-  if( !SprAbsFilter::decodeClassString(inputClassString,classes) ) {
-    cerr << "Unable to decode classes from string " 
-	 << inputClassString << endl;
-    return false;
-  }
-
-  // assign classes
-  classes_.clear();
-  classes_.resize(2);
-  classes_[0] = classes.first;
-  classes_[1] = classes.second;
-
-  // filter and exit
+  if( !this->chooseClassesFromString(inputClassString) ) return false;
   return this->filter();
 }
 
@@ -677,6 +718,8 @@ bool SprAbsFilter::flatten(const SprClass& cls,
 			   const char* varname, 
 			   const std::vector<double>& intervals)
 {
+  assert( copy_ != 0 );
+
   // sanity check
   if( intervals.size() < 3 ) {
     cerr << "No intervals are specified for flattening." << endl;
@@ -790,5 +833,112 @@ bool SprAbsFilter::flatten(const SprClass& cls,
 }
 
 
+void SprAbsFilter::allClasses(std::vector<SprClass>& classes) const
+{
+  assert( copy_ != 0 );
+  classes.clear();
+  // This algorithm is inefficient - one would need to use std::set.
+  // But I want to avoid defining operator< for SprClass.
+  for( int i=0;i<copy_->size();i++ ) {
+    const SprPoint* p = (*copy_)[i];
+    if( ::find(classes.begin(),classes.end(),p->class_) == classes.end() )
+      classes.push_back(SprClass(p->class_));
+  }
+}
+
+
+SprData* SprAbsFilter::split(double fractionToKeep, 
+			     std::vector<double>& splitWeights,
+			     bool randomize)
+{
+  assert( copy_ != 0 );
+
+  // init
+  splitWeights.clear();
+
+  // sanity check
+  if( fractionToKeep < SprUtils::eps() ) {
+    cerr << "Fraction of events to keep too small: " << fractionToKeep << endl;
+    return 0;
+  }
+
+  // if no classes specified, find all
+  vector<SprClass> classes = classes_;
+  if( classes.empty() )
+    this->allClasses(classes);
+  assert( !classes.empty() );
+
+  // get weights for each class
+  int nClass = classes.size();  
+  vector<double> maxW(nClass);
+  for( int ic=0;ic<nClass;ic++ )
+    maxW[ic] = this->weightInClass(classes[ic]) * fractionToKeep;
+
+  // randomize if necessary
+  int N = copy_->size();
+  vector<unsigned> indices;
+  if( randomize ) {
+    SprIntegerPermutator permu(N);
+    if( !permu.sequence(indices) ) {
+      cerr << "Unable to permute input indices for splitting." << endl;
+      return 0;
+    }
+  }
+  else {
+    indices.resize(N);
+    for( int i=0;i<N;i++ ) indices[i] = i;
+  }
+
+  // loop through points for each class
+  vector<double> weightInClass(nClass,0);
+  vector<int> keepPoint(N,0);
+  vector<int> processClass(nClass,1);
+  for( int i=0;i<N;i++ ) {
+    int ind = indices[i];
+    const SprPoint* p = (*copy_)[ind];
+    double w = copyWeights_[ind];
+    for( int ic=0;ic<nClass;ic++ ) {
+      if( classes[ic] == p->class_ ) {
+	if( processClass[ic] == 1 ) {
+	  weightInClass[ic] += w;
+	  if( weightInClass[ic] > maxW[ic] )
+	    processClass[ic] = 0;
+	  else
+	    keepPoint[i] = 1;
+	}
+	break;// exit loop over classes
+      }
+    }
+  }
+
+  // make data copies to keep and split
+  SprData* keep  = copy_->emptyCopy();
+  SprData* split = copy_->emptyCopy();
+
+  // loop through points and assign them to copies
+  vector<double> keepWeights;
+  for( int i=0;i<N;i++ ) {
+    int ind = indices[i];
+    SprPoint* p = (*copy_)[ind];
+    double w = copyWeights_[ind];
+    if(      keepPoint[i] == 0 ) {
+      split->uncheckedInsert(p);
+      splitWeights.push_back(w);
+    }
+    else if( keepPoint[i] == 1 ) {
+      keep->uncheckedInsert(p);
+      keepWeights.push_back(w);
+    }
+  }
+
+  // data to be kept
+  if( ownCopy_ ) delete copy_;
+  copy_ = keep;
+  copyWeights_ = keepWeights;
+  ownCopy_ = true;
+
+  // data to be split
+  return split;
+}
 
 

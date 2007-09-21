@@ -1,5 +1,5 @@
 // File and Version Information:
-//      $Id: SprTrainedMultiClassLearner.hh,v 1.3 2006/11/13 19:09:40 narsky Exp $
+//      $Id: SprTrainedMultiClassLearner.hh,v 1.5 2007/07/11 19:52:09 narsky Exp $
 //
 // Description:
 //      Class SprTrainedMultiClassLearner :
@@ -19,6 +19,7 @@
 #ifndef _SprTrainedMultiClassLearner_HH
 #define _SprTrainedMultiClassLearner_HH
 
+#include "PhysicsTools/StatPatternRecognition/interface/SprAbsTrainedMultiClassLearner.hh"
 #include "PhysicsTools/StatPatternRecognition/interface/SprPoint.hh"
 #include "PhysicsTools/StatPatternRecognition/src/SprMatrix.hh"
 
@@ -31,7 +32,7 @@
 class SprAbsTrainedClassifier;
 
 
-class SprTrainedMultiClassLearner
+class SprTrainedMultiClassLearner : public SprAbsTrainedMultiClassLearner
 {
 public:
   typedef double (*SprPerEventLoss)(int,double);
@@ -72,12 +73,22 @@ public:
     is the class and the value is the corresponding loss.
     The returned integer is the class for which the loss is minimal.
   */
+  int response(const std::vector<double>& input) const {
+    std::map<int,double> output;
+    return this->response(input,output);
+  }
   int response(const std::vector<double>& input,
 	       std::map<int,double>& output) const;
-
   int response(const SprPoint* input, 
 	       std::map<int,double>& output) const {
     return this->response(input->x_,output);
+  }
+
+  /*
+    Generate code.
+  */
+  bool generateCode(std::ostream& os) const {
+    return false;
   }
 
   /*

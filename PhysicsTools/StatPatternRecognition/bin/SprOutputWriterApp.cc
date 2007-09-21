@@ -1,4 +1,4 @@
-//$Id: SprOutputWriterApp.cc,v 1.1 2007/02/05 21:49:46 narsky Exp $
+//$Id: SprOutputWriterApp.cc,v 1.6 2007/08/11 22:08:10 narsky Exp $
 
 
 #include "PhysicsTools/StatPatternRecognition/interface/SprExperiment.hh"
@@ -11,6 +11,7 @@
 #include "PhysicsTools/StatPatternRecognition/interface/SprStringParser.hh"
 #include "PhysicsTools/StatPatternRecognition/interface/SprClass.hh"
 #include "PhysicsTools/StatPatternRecognition/interface/SprClassifierReader.hh"
+#include "PhysicsTools/StatPatternRecognition/interface/SprCoordinateMapper.hh"
 #include "PhysicsTools/StatPatternRecognition/interface/SprAbsTrainedClassifier.hh"
 #include "PhysicsTools/StatPatternRecognition/interface/SprTrainedAdaBoost.hh"
 #include "PhysicsTools/StatPatternRecognition/interface/SprTrainedFisher.hh"
@@ -24,6 +25,7 @@
 #include <memory>
 #include <string>
 #include <cassert>
+#include <algorithm>
 
 using namespace std;
 
@@ -37,6 +39,8 @@ void help(const char* prog)
   cout << "\t-h --- help                                        " << endl;
   cout << "\t-y list of input classes (see SprAbsFilter.hh)     " << endl;
   cout << "\t-a input ascii file mode (see SprSimpleReader.hh)  " << endl;
+  cout << "\t-K use 1-fraction of input data                    " << endl;
+  cout << "\t\t This option is for consistency with other execs." << endl;
   cout << "\t-v verbose level (0=silent default,1,2)            " << endl;
   cout << "\t-w scale all signal weights by this factor         " << endl;
   cout << "\t-t output tuple name (default=data)                " << endl;
@@ -48,6 +52,8 @@ void help(const char* prog)
   cout << "\t-z exclude input variables from the list           " << endl;
   cout << "\t-Z exclude input variables from the list, "
        << "but put them in the output file " << endl;
+  cout << "\t-M map variable lists from trained classifiers onto" << endl;
+  cout << "\t\t variables available in input data."               << endl;
   cout << "\t\t Variables must be listed in quotes and separated by commas." 
        << endl;
 }
@@ -78,12 +84,15 @@ int main(int argc, char ** argv)
   string inputClassesString;
   int nPrintOut = 1000;
   string stringVarsDoNotFeed;
+  bool mapTrainedVars = false;
+  bool split = false;
+  double splitFactor = 0;
   
   // decode command line
   int c;
   extern char* optarg;
   extern int optind;
-  while( (c = getopt(argc,argv,"hy:a:v:w:t:C:p:sV:z:Z:")) != EOF ) {
+  while( (c = getopt(argc,argv,"hy:a:K:v:w:t:C:p:sV:z:Z:M")) != EOF ) {
     switch( c )
       {
       case 'h' :
@@ -95,6 +104,10 @@ int main(int argc, char ** argv)
       case 'a' :
 	readMode = (optarg==0 ? 1 : atoi(optarg));
 	break;
+      case 'K' :
+        split = true;
+        splitFactor = (optarg==0 ? 0 : atof(optarg));
+        break;
       case 'v' :
 	verbose = (optarg==0 ? 0 : atoi(optarg));
 	break;
@@ -124,6 +137,9 @@ int main(int argc, char ** argv)
 	break;
       case 'Z' :
 	stringVarsDoNotFeed = optarg;
+	break;
+      case 'M' :
+	mapTrainedVars = true;
 	break;
       }
   }
@@ -243,9 +259,34 @@ int main(int argc, char ** argv)
     filter->scaleWeights(inputClasses[1],sW);
   }
 
+  // split data if desired
+  auto_ptr<SprAbsFilter> valFilter;
+  if( split ) {
+    cout << "Splitting data with factor " << splitFactor << endl;
+    vector<double> weights;
+    SprData* splitted = filter->split(splitFactor,weights,false);
+    if( splitted == 0 ) {
+      cerr << "Unable to split data." << endl;
+      return 2;
+    }
+    bool ownData = true;
+    valFilter.reset(new SprEmptyFilter(splitted,weights,ownData));
+    cout << "Data re-filtered:" << endl;
+    for( int i=0;i<inputClasses.size();i++ ) {
+      cout << "Points in class " << inputClasses[i] << ":   "
+           << valFilter->ptsInClass(inputClasses[i]) << endl;
+    }
+  }
+  else {
+    valFilter.reset(filter.get());
+  }
+ 
   // read classifier configuration
   vector<SprAbsTrainedClassifier*> trained(nTrained);
+  vector<SprCoordinateMapper*> specificMappers(nTrained);
   for( int i=0;i<nTrained;i++ ) {
+
+    // read classifier
     trained[i] 
       = SprClassifierReader::readTrained(configFiles[0][i].c_str(),verbose);
     if( trained[i] == 0 ) {
@@ -253,6 +294,24 @@ int main(int argc, char ** argv)
 	   << configFiles[0][i].c_str() << endl;
       cleanup(trained);
       return 3;
+    }
+    cout << "Read classifier " << trained[i]->name().c_str()
+	 << " with dimensionality " << trained[i]->dim() << endl;
+
+    // get a list of trained variables
+    vector<string> trainedVars;
+    trained[i]->vars(trainedVars);
+    if( verbose > 0 ) {
+      cout << "Variables:      " << endl;
+      for( int j=0;j<trainedVars.size();j++ ) 
+	cout << trainedVars[j].c_str() << " ";
+      cout << endl;
+    }
+
+    // map trained-classifier variables onto data variables
+    if( mapTrainedVars || trained[i]->name()=="Combiner" ) {
+      specificMappers[i] 
+	= SprCoordinateMapper::createMapper(trainedVars,vars);
     }
 
     // switch classifier output range
@@ -308,14 +367,14 @@ int main(int argc, char ** argv)
   }
 
   // feed data into tuple
-  SprDataFeeder feeder(filter.get(),&tuple,mapper);
+  SprDataFeeder feeder(valFilter.get(),&tuple,mapper);
   for( int i=0;i<nTrained;i++ ) {
     string useName;
     if( useClassifierNames ) 
       useName = classifierNames[0][i];
     else
       useName = trained[i]->name();
-    feeder.addClassifier(trained[i],useName.c_str());
+    feeder.addClassifier(trained[i],useName.c_str(),specificMappers[i]);
   }
   if( !feeder.feed(nPrintOut) ) {
     cerr << "Cannot feed data into file " << tupleFile.c_str() << endl;

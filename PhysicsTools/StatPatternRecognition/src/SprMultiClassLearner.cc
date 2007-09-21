@@ -1,4 +1,4 @@
-//$Id: SprMultiClassLearner.cc,v 1.3 2006/11/13 19:09:43 narsky Exp $
+//$Id: SprMultiClassLearner.cc,v 1.7 2007/08/13 16:49:21 narsky Exp $
 
 #include "PhysicsTools/StatPatternRecognition/interface/SprExperiment.hh"
 #include "PhysicsTools/StatPatternRecognition/interface/SprMultiClassLearner.hh"
@@ -6,6 +6,8 @@
 #include "PhysicsTools/StatPatternRecognition/interface/SprTrainedMultiClassLearner.hh"
 #include "PhysicsTools/StatPatternRecognition/interface/SprAbsClassifier.hh"
 #include "PhysicsTools/StatPatternRecognition/interface/SprAbsTrainedClassifier.hh"
+#include "PhysicsTools/StatPatternRecognition/interface/SprDefs.hh"
+#include "PhysicsTools/StatPatternRecognition/interface/SprClass.hh"
 
 #include <fstream>
 #include <string>
@@ -26,7 +28,7 @@ SprMultiClassLearner::SprMultiClassLearner(SprAbsFilter* data,
 					   const SprMatrix& indicator,
 					   MultiClassMode mode)
   :
-  data_(data),
+  SprAbsMultiClassLearner(data),
   mode_(mode),
   indicator_(indicator),
   mapper_(classes),
@@ -46,12 +48,6 @@ bool SprMultiClassLearner::setClasses()
   // sanity check
   if( mapper_.size() < 2 ) {
     cerr << "Less than 2 classes are specified." << endl;
-    return false;
-  }
-
-  // set up classes for the trainable classifier
-  if( !trainable_->setClasses(0,1) ) {
-    cerr << "Unable to set up classes for the trainable classifier." << endl;
     return false;
   }
 
@@ -121,47 +117,36 @@ bool SprMultiClassLearner::train(int verbose)
     mapper.insert(pair<const int,unsigned>(mapper_[i],i));
 
   // loop thru columns of the indicator matrix
-  unsigned size = data_->size();
-  vector<int> classes(size);
-  vector<double> weights;
   for( int j=0;j<indicator_.num_col();j++ ) {
-    // memorize classes and weights
-    for( int i=0;i<size;i++ )
-      classes[i] = (*data_)[i]->class_;
-    data_->weights(weights);
-
-    // adjust classes according to the indicator matrix
-    for( int i=0;i<size;i++ ) {
-      map<int,unsigned>::const_iterator iter 
-	= mapper.find((*data_)[i]->class_);
-      if( iter == mapper.end() ) {
-	(*data_)[i]->class_ = -1;
-	data_->setW(i,0);
-	continue;
-      }
-      double flag = indicator_[iter->second][j];
+    vector<int> classes0, classes1;
+    for( map<int,unsigned>::const_iterator
+	   i=mapper.begin();i!=mapper.end();i++ ) {
+      int cls = i->first;
+      double flag = indicator_[i->second][j];
       if(      flag < -0.5 )
-	(*data_)[i]->class_ = 0;
+	classes0.push_back(cls);
       else if( flag > 0.5 )
-	(*data_)[i]->class_ = 1;
-      else {
-	(*data_)[i]->class_ = -1;
-	data_->setW(i,0);
-      }
-    }
+	classes1.push_back(cls);
+    }	
+    SprClass cls0(classes0);
+    SprClass cls1(classes1);
 
     // message
-    double w0 = data_->weightInClass(0);
-    double w1 = data_->weightInClass(1);
-    unsigned n0 = data_->ptsInClass(0);
-    unsigned n1 = data_->ptsInClass(1);
+    double w0 = data_->weightInClass(cls0);
+    double w1 = data_->weightInClass(cls1);
+    unsigned n0 = data_->ptsInClass(cls0);
+    unsigned n1 = data_->ptsInClass(cls1);
     cout << "Training classifier for matrix column " << j << " with "
 	 << "     W0=" << w0 << " W1=" << w1
 	 << "     N0=" << n0 << " N1=" << n1 << endl;
 
     // apply a classifier
-    if( !trainable_->setData(data_) ) {
+    if( !trainable_->reset() ) {
       cerr << "Unable to reset classifier for indicator column " << j << endl;
+      return false;
+    }
+    if( !trainable_->setClasses(cls0,cls1) ) {
+      cerr << "Unable to reset classes for indicator column " << j << endl;
       return false;
     }
     if( !trainable_->train(verbose) ) {
@@ -176,12 +161,7 @@ bool SprMultiClassLearner::train(int verbose)
       return false;
     }
     trained_[j] = pair<const SprAbsTrainedClassifier*,bool>(t,true);
-
-    // reset classes and weights
-    for( int i=0;i<size;i++ )
-      (*data_)[i]->class_ = classes[i];
-    data_->setWeights(weights);
-  }
+  }// end loop over columns
 
   // exit
   return true;
@@ -210,6 +190,7 @@ void SprMultiClassLearner::destroy()
 
 bool SprMultiClassLearner::setData(SprAbsFilter* data)
 {
+  assert( data != 0 );
   if( !trainable_->setData(data) ) {
     cerr << "Unable to set data for trainable classifier." << endl;
     return false;
@@ -221,7 +202,7 @@ bool SprMultiClassLearner::setData(SprAbsFilter* data)
 
 void SprMultiClassLearner::print(std::ostream& os) const 
 {
-  os << "Trained Multi Class Learner" << endl;
+  os << "Trained MultiClassLearner " << SprVersion << endl;
 
   // print matrix
   this->printIndicatorMatrix(os);
@@ -231,49 +212,28 @@ void SprMultiClassLearner::print(std::ostream& os) const
     os << "Multi class learner classifier: " << i << endl;
     trained_[i].first->print(os);
   }
-
-  // print variables
-  vector<string> vars;
-  data_->vars(vars);
-  assert( vars.size() == data_->dim() );
-  os << "==================================================" << endl;
-  os << "Dimensions:" << endl;
-  for( int i=0;i<vars.size();i++ ) {
-    char s [200];
-    sprintf(s,"%5i %40s",i,vars[i].c_str());
-    os << s << endl;
-  }
-  os << "==================================================" << endl;
-}
-
-
-bool SprMultiClassLearner::store(const char* filename) const
-{
-  // open file for output
-  string fname = filename;
-  ofstream fout(fname.c_str());
-  if( !fout ) {
-    cerr << "Unable to open file " << fname.c_str() << endl;
-    return false;
-  }
-  
-  // store into file
-  this->print(fout);
- 
-  // exit
-  return true;
 }
 
 
 SprTrainedMultiClassLearner* SprMultiClassLearner::makeTrained() const
 {
+  // make
   vector<pair<const SprAbsTrainedClassifier*,bool> > trained(trained_.size());
   for( int i=0;i<trained_.size();i++ ) {
     trained[i] 
       = pair<const SprAbsTrainedClassifier*,bool>(trained_[i].first->clone(),
 						  true);
   }
-  return new SprTrainedMultiClassLearner(indicator_,mapper_,trained);
+  SprTrainedMultiClassLearner* t 
+    = new SprTrainedMultiClassLearner(indicator_,mapper_,trained);
+
+  // vars
+  vector<string> vars;
+  data_->vars(vars);
+  t->setVars(vars);
+
+  // exit
+  return t;
 }
 
 

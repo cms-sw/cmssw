@@ -1,6 +1,6 @@
 //------------------------------------------------------------------------
 // File and Version Information:
-//      $Id: SprAbsFilter.hh,v 1.4 2006/11/26 02:04:29 narsky Exp $
+//      $Id: SprAbsFilter.hh,v 1.9 2007/08/30 17:54:38 narsky Exp $
 //
 // Description:
 //      Class SprAbsFilter :
@@ -68,13 +68,11 @@ public:
   */
   SprAbsFilter(const SprAbsFilter& filter);
 
-  // define cuts
-  virtual bool setCut(const SprGrid& cuts) = 0;
-  virtual bool setCut(const std::vector<SprCut>& cuts) = 0;
-  virtual bool resetCut() = 0;
-
   // accept or reject a point
   virtual bool pass(const SprPoint* p) const = 0;
+
+  // specific reset
+  virtual bool reset() = 0;
 
   // filter input data
   virtual bool filter();
@@ -94,31 +92,38 @@ public:
   void chooseClasses(const std::vector<SprClass>& classes) {
     classes_ = classes;
   }
-  void classes(std::vector<SprClass>& classes) const {
-    classes = classes_;
-  }
+  void classes(std::vector<SprClass>& classes) const;
+
+  // Find all classes in data.
+  void allClasses(std::vector<SprClass>& classes) const;
 
   /*
-    This method filters input data to select an arbitrary number of
-    classes split in two groups, one group for background and another
-    group for signal.
+    This method allows to select an arbitrary number of classes split
+    in an arbitrary number of groups.
 
     The input for this method is a list of classes separated by commas
     and grouped by colons. By default, the first group is treated as
     background and the 2nd group as signal. For example, '1,3:2,4'
     will force classes 1 and 3 to be treated as background and classes
     2 and 4 as signal. If you supply more than 2 groups, the first two
-    will be chosen. If you supply less than two groups, the default
-    classes will be used: 0 for background and 1 for signal.
+    will be used for two-class methods and all groups will be used
+    for multi-class methods.
 
-    This method allows selection of all classes against one group.
-    For example, if you enter '.:2,3', classes 2 and 3 will be treated
-    as signal and all other classes found in input data will be
-    treated as background; vice versa for '2,3:.'.
+    A dot '.' means 'all classes but those in other groups'. For
+    example, if you enter '.:2,3' for a two-class method, classes 2
+    and 3 will be treated as signal and all other classes found in
+    input data will be treated as background; vice versa for '2,3:.'.
+    For a multi-class problem, if you enter, for example, '1:.:2,3',
+    it means that the 1st category is class 1, the 3rd category are
+    classes 2 and 3, and the 2nd category is all classes but 1, 2 and
+    3.
   */
+  bool chooseClassesFromString(const char* inputClassString) {
+    return SprAbsFilter::decodeClassString(inputClassString,classes_);
+  }
   bool filterByClass(const char* inputClassString);
   static bool decodeClassString(const char* inputClassString,
-				std::pair<SprClass,SprClass>& classes);
+				std::vector<SprClass>& classes);
 
   // Define index range to look at part of data.
   // By default all data are looked at.
@@ -137,10 +142,24 @@ public:
   // store data into a file
   bool store(const char* filename) const;
 
+  // Splits data using the specified fraction.
+  // Keeps fractionToKeep in this filter and splits 1.-fractionToKeep
+  // off to a new SprData object. Returns weights for the split-off events.
+  // If randomize is set, data points will be permuted.
+  SprData* split(double fractionToKeep, 
+		 std::vector<double>& splitWeights,
+		 bool randomize=false);
+
   // Remove a bunch of points from the sample.
   // This method compares points by their unique id (SprPoint::index_)
   // and removes points from the original sample.
   bool remove(const SprData* data);
+
+  // Fast algorithm for removing points from data.
+  // Assumes that the points are sorted in the same order in
+  // the data being removed and the data from which they are removed.
+  // Use with care!!!
+  bool fastRemove(const SprData* data);
 
   /*
     Replaces missing values (i.e., values outside the given valid range)

@@ -1,4 +1,4 @@
-//$Id: SprTreeNode.cc,v 1.5 2007/02/05 21:49:46 narsky Exp $
+//$Id: SprTreeNode.cc,v 1.10 2007/08/13 16:49:21 narsky Exp $
 
 #include "PhysicsTools/StatPatternRecognition/interface/SprExperiment.hh"
 #include "PhysicsTools/StatPatternRecognition/interface/SprTreeNode.hh"
@@ -44,6 +44,7 @@ SprTreeNode::SprTreeNode(const SprAbsTwoClassCriterion* crit,
 			 int nmin,
 			 bool discrete,
 			 bool canHavePureNodes,
+			 bool fastSort,
 			 SprIntegerBootstrap* bootstrap)
   :
   crit_(crit),
@@ -52,6 +53,7 @@ SprTreeNode::SprTreeNode(const SprAbsTwoClassCriterion* crit,
   nmin_(nmin),
   discrete_(discrete),
   canHavePureNodes_(canHavePureNodes),
+  fastSort_(fastSort),
   cls0_(0),
   cls1_(1),
   parent_(0),
@@ -71,7 +73,6 @@ SprTreeNode::SprTreeNode(const SprAbsTwoClassCriterion* crit,
 {
   assert( crit_ != 0 );
   assert( data_->size() > nmin_ );
-  this->setClasses();
   counter_ = 0;// if no parent specified, starting a new tree from scratch
 }
 
@@ -82,14 +83,11 @@ SprTreeNode::SprTreeNode(const SprAbsTwoClassCriterion* crit,
 			 int nmin,
 			 bool discrete,
 			 bool canHavePureNodes,
+			 bool fastSort,
 			 const SprClass& cls0,
 			 const SprClass& cls1,
 			 const SprTreeNode* parent,
-			 int d,
-			 const SprCut& cut,
 			 const SprBox& limits,
-			 //			 double w0, double w1,
-			 //			 unsigned n0, unsigned n1,
 			 SprIntegerBootstrap* bootstrap)
   :
   crit_(crit),
@@ -98,6 +96,7 @@ SprTreeNode::SprTreeNode(const SprAbsTwoClassCriterion* crit,
   nmin_(nmin),
   discrete_(discrete),
   canHavePureNodes_(canHavePureNodes),
+  fastSort_(fastSort),
   cls0_(cls0),
   cls1_(cls1),
   parent_(parent),
@@ -117,37 +116,24 @@ SprTreeNode::SprTreeNode(const SprAbsTwoClassCriterion* crit,
 {
   assert( crit_ != 0 );
   assert( parent_ != 0 );
-  bool status = data_->setCut(d,cut);
+  bool status = data_->setBox(limits);
   assert( status );
   status = data_->irreversibleFilter();
   assert( status );
 }
 
 
-void SprTreeNode::setClasses() 
+SprInterval SprTreeNode::limits(int d) const 
 {
-  vector<SprClass> classes;
-  data_->classes(classes);
-  int size = classes.size();
-  if( size > 0 ) cls0_ = classes[0];
-  if( size > 1 ) cls1_ = classes[1];
-  //  cout << "Classes for decision tree are set to " 
-  //       << cls0_ << " " << cls1_ << endl;
-}
-
-
-std::pair<double,double> SprTreeNode::limits(int d) const 
-{
-  // if out of range return zeros
-  if( d<0 || d>=limits_.size() ) 
-    return pair<double,double>(0,0);
+  // sanity check
+  assert( d>=0 );
 
   // find the cut
   SprBox::const_iterator iter = limits_.find(d);
 
   // if not found, infty range
   if( iter == limits_.end() ) 
-    return std::pair<double,double>(SprUtils::min(),SprUtils::max());
+    return SprInterval(SprUtils::min(),SprUtils::max());
 
   // exit
   return iter->second;
@@ -166,22 +152,10 @@ bool SprTreeNode::split(std::vector<SprTreeNode*>& nodesToSplit,
     cout << "Splitting node " << id_ << " ..." << endl;
 
   // check weights
-  /*
-  double w0actual = data_->weightInClass(cls0_);
-  double w1actual = data_->weightInClass(cls1_);
-  w0_ = ( w0_<w0actual ? w0actual : w0_ );
-  w1_ = ( w1_<w1actual ? w1actual : w1_ );
-  */
   w0_ = data_->weightInClass(cls0_);
   w1_ = data_->weightInClass(cls1_);
 
   // check numbers of events
-  /*
-  unsigned n0actual = data_->ptsInClass(cls0_);
-  unsigned n1actual = data_->ptsInClass(cls1_);
-  n0_ = ( n0_<n0actual ? n0actual : n0_ );
-  n1_ = ( n1_<n1actual ? n1actual : n1_ );
-  */
   n0_ = data_->ptsInClass(cls0_);
   n1_ = data_->ptsInClass(cls1_);
 
@@ -279,8 +253,6 @@ bool SprTreeNode::split(std::vector<SprTreeNode*>& nodesToSplit,
   unsigned dim = data_->dim();
   vector<double> fom(dim,SprUtils::min());
   vector<double> cut(dim,SprUtils::min());
-  //  vector<double> w0best(dim,0), w1best(dim,0);
-  //  vector<unsigned> n0best(dim,0), n1best(dim,0);
 
   // loop through dimensions
   for( set<unsigned>::const_iterator 
@@ -308,8 +280,6 @@ bool SprTreeNode::split(std::vector<SprTreeNode*>& nodesToSplit,
     int ncor1 = n1_;
     int nmis1(0), ncor0(0);
     vector<double> flo, fhi;
-    //    vector<double> w0lo, w1lo;
-    //    vector<unsigned> n0lo, n1lo;
 
     // loop through points
     int ndiv = division.size();
@@ -364,10 +334,6 @@ bool SprTreeNode::split(std::vector<SprTreeNode*>& nodesToSplit,
 	else
 	  fhi.push_back(SprUtils::min());
       }
-      //      w0lo.push_back(wmis0);
-      //      w1lo.push_back(wcor1);
-      //      n0lo.push_back( (nmis0<0 ? 0 : nmis0) );
-      //      n1lo.push_back( (ncor1<0 ? 0 : ncor1) );
     }
 
     // find optimal point and sign of cut
@@ -377,19 +343,11 @@ bool SprTreeNode::split(std::vector<SprTreeNode*>& nodesToSplit,
       int k = ilo - flo.begin();
       cut[d] = division[k]; 
       fom[d] = *ilo;
-      //      w0best[d] = w0lo[k];
-      //      w1best[d] = w1lo[k];
-      //      n0best[d] = n0lo[k];
-      //      n1best[d] = n1lo[k];
     }
     else {
       int k = ihi - fhi.begin();
       cut[d] = division[k]; 
       fom[d] = *ihi;
-      //      w0best[d] = w0lo[k];
-      //      w1best[d] = w1lo[k];
-      //      n0best[d] = n0lo[k];
-      //      n1best[d] = n1lo[k];
     }
   }
 
@@ -453,10 +411,10 @@ bool SprTreeNode::split(std::vector<SprTreeNode*>& nodesToSplit,
     // update limits
     SprBox::iterator iter = limits_.find(d_);
     if( iter == limits_.end() ) {
-      pair<double,double> leftcut(SprUtils::min(),cut_);
-      leftLims.insert(pair<const unsigned,pair<double,double> >(d_,leftcut));
-      pair<double,double> rightcut(cut_,SprUtils::max());
-      rightLims.insert(pair<const unsigned,pair<double,double> >(d_,rightcut));
+      SprInterval leftcut(SprUtils::min(),cut_);
+      leftLims.insert(pair<const unsigned,SprInterval>(d_,leftcut));
+      SprInterval rightcut(cut_,SprUtils::max());
+      rightLims.insert(pair<const unsigned,SprInterval>(d_,rightcut));
     }
     else {
       leftLims[d_].second = cut_;
@@ -465,17 +423,11 @@ bool SprTreeNode::split(std::vector<SprTreeNode*>& nodesToSplit,
 
     // make new nodes
     left_ = new SprTreeNode(crit_,*data_,allLeafsSignal_,nmin_,
-			    discrete_,canHavePureNodes_,cls0_,cls1_,
-			    this,d_,SprUtils::upperBound(cut_),leftLims,
-			    //    w0_-w0best[d_],w1_-w1best[d_],
-			    //    n0_-n0best[d_],n1_-n1best[d_],
-			    bootstrap_);
+			    discrete_,canHavePureNodes_,fastSort_,
+			    cls0_,cls1_,this,leftLims,bootstrap_);
     right_ = new SprTreeNode(crit_,*data_,allLeafsSignal_,nmin_,
-			     discrete_,canHavePureNodes_,cls0_,cls1_,
-			     this,d_,SprUtils::lowerBound(cut_),rightLims,
-			     //			     w0best[d_],w1best[d_],
-			     //			     n0best[d_],n1best[d_],
-			     bootstrap_);
+			     discrete_,canHavePureNodes_,fastSort_,
+			     cls0_,cls1_,this,rightLims,bootstrap_);
 
     // add new nodes to the split list
     nodesToSplit.push_back(left_);
@@ -523,7 +475,10 @@ bool SprTreeNode::sort(unsigned d, std::vector<int>& sorted,
     r[j] = pair<double,int>((*data_)[j]->x_[d],j);
   
   // sort
-  SprSort(r.begin(),r.end(),STNCmpPairFirst());
+  if( fastSort_ )
+    SprSort(r.begin(),r.end(),STNCmpPairFirst());
+  else
+    stable_sort(r.begin(),r.end(),STNCmpPairFirst());
   
   // fill out sorted indices
   double xprev = r[0].first;
@@ -557,8 +512,13 @@ SprTrainedNode* SprTreeNode::makeTrained() const
   if( discrete_ )
     t->score_ = nodeClass_;
   else {
-    assert( (w0_+w1_) > 0 );
-    t->score_ = w1_/(w0_+w1_);
+    if( (w0_+w1_) > 0 )
+      t->score_ = w1_/(w0_+w1_);
+    else {
+      //      cout << "Warning: node " << id_ 
+      // << " has no associated weight." << endl;
+      t->score_ = 0.5;
+    }
   }
   t->d_ = d_;
   t->cut_ = cut_;
@@ -575,6 +535,8 @@ bool SprTreeNode::setClasses(const SprClass& cls0, const SprClass& cls1)
   }
   cls0_ = cls0; 
   cls1_ = cls1;
-  cout << "Classes for tree node reset to " << cls0_ << " " << cls1_ << endl;
+  vector<SprClass> classes(2);
+  classes[0] = cls0_; classes[1] = cls1_;
+  data_->chooseClasses(classes);
   return true;
 }

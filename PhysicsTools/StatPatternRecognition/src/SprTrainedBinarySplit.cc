@@ -1,4 +1,4 @@
-//$Id: SprTrainedBinarySplit.cc,v 1.4 2007/02/05 21:49:46 narsky Exp $
+//$Id: SprTrainedBinarySplit.cc,v 1.5 2007/05/14 18:08:08 narsky Exp $
 
 #include "PhysicsTools/StatPatternRecognition/interface/SprExperiment.hh"
 #include "PhysicsTools/StatPatternRecognition/interface/SprTrainedBinarySplit.hh"
@@ -54,7 +54,7 @@ double SprTrainedBinarySplit::response(const std::vector<double>& v) const
 
 void SprTrainedBinarySplit::print(std::ostream& os) const
 {
-  os << "Trained BinarySplit" << endl;
+  os << "Trained BinarySplit " << SprVersion << endl;
   os << "Dimension: " << d_ << endl;
   os << "Cut: " << inputCut_.size() << endl;
   for( int i=0;i<inputCut_.size();i++ ) {

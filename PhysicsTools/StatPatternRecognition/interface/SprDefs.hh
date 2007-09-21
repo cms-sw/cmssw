@@ -1,6 +1,6 @@
 //------------------------------------------------------------------------
 // File and Version Information:
-//      $Id: SprDefs.hh,v 1.3 2007/02/05 21:49:44 narsky Exp $
+//      $Id: SprDefs.hh,v 1.8 2007/08/30 17:54:38 narsky Exp $
 //
 // Description:
 //      Class SprDefs :
@@ -20,6 +20,7 @@
 #ifndef _SprDefs_HH
 #define _SprDefs_HH
 
+#include <string>
 #include <vector>
 #include <map>
 #include <utility>
@@ -27,11 +28,19 @@
 class SprAbsClassifier;
 
 /*
+  SPR version.
+*/
+const std::string SprVersion="SPR-07-00-00";
+
+// 1D interval
+typedef std::pair<double,double> SprInterval;
+
+/*
   SprCut represents a cut on one dimension. To satisfy this cut, a point
   must belong to one of the intervals given by the pairs. Each pair gives 
   lower and upper interval bounds.
 */
-typedef std::vector<std::pair<double,double> > SprCut;
+typedef std::vector<SprInterval> SprCut;
 
 
 /*
@@ -39,7 +48,7 @@ typedef std::vector<std::pair<double,double> > SprCut;
   the input dimension, and the map element is the pair of lower and upper
   bounds in this dimension.
 */
-typedef std::map<unsigned,std::pair<double,double> > SprBox;
+typedef std::map<unsigned,SprInterval> SprBox;
 
 
 /*

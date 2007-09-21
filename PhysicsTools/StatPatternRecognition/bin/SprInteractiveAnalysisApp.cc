@@ -1,4 +1,4 @@
-//$Id: SprInteractiveAnalysisApp.cc,v 1.5 2007/02/05 21:49:45 narsky Exp $
+//$Id: SprInteractiveAnalysisApp.cc,v 1.9 2007/08/30 17:54:42 narsky Exp $
 /*
   This executable is intended for interactive analysis of small samples.
   The user can interactively add and remove various classifiers with
@@ -88,14 +88,18 @@ struct SIACmpPairDDFirst
 
 void help(const char* prog) 
 {
-  cout << "Usage:  " << prog 
-       << " training_data_file validation_data_file" << endl;
+  cout << "Usage:  " << prog << " training_data_file " << endl;
   cout << "\t Options: " << endl;
   cout << "\t-h --- help                                        " << endl;
   cout << "\t-p path to temporary cache files (default=\"./\")  " << endl;
   cout << "\t-o output Tuple file                               " << endl;
   cout << "\t-a input ascii file mode (see SprSimpleReader.hh)  " << endl;
   cout << "\t-y list of input classes (see SprAbsFilter.hh)     " << endl;
+  cout << "\t-K keep this fraction in training set and          " << endl;
+  cout << "\t\t put the rest into validation set                " << endl;
+  cout << "\t-D randomize training set split-up                 " << endl;
+  cout << "\t-t read validation/test data from a file           " << endl;
+  cout << "\t\t (must be in same format as input data!!!        " << endl;
   cout << "\t-v verbose level (0=silent default,1,2)            " << endl;
   cout << "\t-V include only these input variables              " << endl;
   cout << "\t-z exclude input variables from the list           " << endl;
@@ -365,7 +369,7 @@ bool resetValidation(const char* cacheName,
 int main(int argc, char ** argv)
 {
   // check command line
-  if( argc < 3 ) {
+  if( argc < 2 ) {
     help(argv[0]);
     return 1;
   }
@@ -377,12 +381,16 @@ int main(int argc, char ** argv)
   int verbose = 0;
   string includeList, excludeList;
   string inputClassesString;
+  string valFile;
+  bool split = false;
+  double splitFactor = 0;
+  bool splitRandomize = false; 
 
   // decode command line
   int c;
   extern char* optarg;
   //  extern int optind;
-  while( (c = getopt(argc,argv,"hp:o:a:y:v:V:z:")) 
+  while( (c = getopt(argc,argv,"hp:o:a:y:K:Dt:v:V:z:")) 
 	 != EOF ) {
     switch( c )
       {
@@ -401,6 +409,16 @@ int main(int argc, char ** argv)
       case 'y' :
 	inputClassesString = optarg;
 	break;
+      case 'K' :
+	split = true;
+	splitFactor = (optarg==0 ? 0 : atof(optarg));
+	break;
+      case 'D' :
+	splitRandomize = true;
+	break;
+      case 't' :
+	valFile = optarg;
+	break;
       case 'v' :
 	verbose = (optarg==0 ? 0 : atoi(optarg));
 	break;
@@ -413,15 +431,10 @@ int main(int argc, char ** argv)
       }
   }
 
-  // There have to be 2 arguments after all options.
-  string trFile = argv[argc-2];
+  // There have to be 1 argument after all options.
+  string trFile = argv[argc-1];
   if( trFile.empty() ) {
     cerr << "No training file is specified." << endl;
-    return 1;
-  }
-  string valFile = argv[argc-1];
-  if( valFile.empty() ) {
-    cerr << "No validation file is specified." << endl;
     return 1;
   }
 
@@ -501,32 +514,65 @@ int main(int argc, char ** argv)
   }
 
   // read validation data from file
-  SprSimpleReader valReader(readMode);
-  if( !includeSet.empty() ) {
-    if( !valReader.chooseVars(includeSet) ) {
-      cerr << "Unable to include variables in validation set." << endl;
-      return 2;
-    }
+  auto_ptr<SprAbsFilter> valFilter;
+  if( !split && valFile.empty() ) {
+    cout << "No test data specified. Will use training data." << endl;
+    vector<double> weights;
+    filter->weights(weights);
+    bool ownData = false;
+    valFilter.reset(new SprEmptyFilter(filter->data(),weights,ownData));
   }
-  if( !excludeSet.empty() ) {
-    if( !valReader.chooseAllBut(excludeSet) ) {
-      cerr << "Unable to exclude variables from validation set." << endl;
-      return 2;
-    }
-  }
-  auto_ptr<SprAbsFilter> valFilter(valReader.read(valFile.c_str()));
-  if( valFilter.get() == 0 ) {
-    cerr << "Unable to read data from file " << valFile.c_str() << endl;
+  if( split && !valFile.empty() ) {
+    cerr << "Unable to split training data and use validation data " 
+	 << "from a separate file." << endl;
     return 2;
   }
-  vector<string> valVars;
-  valFilter->vars(valVars);
-  cout << "Read validation data from file " << valFile.c_str() 
-       << " for variables";
-  for( int i=0;i<valVars.size();i++ ) 
-    cout << " \"" << valVars[i].c_str() << "\"";
-  cout << endl;
-  cout << "Total number of points read: " << valFilter->size() << endl;
+  if( split ) {
+    cout << "Splitting training data with factor " << splitFactor << endl;
+    if( splitRandomize )
+      cout << "Will use randomized splitting." << endl;
+    vector<double> weights;
+    SprData* splitted = filter->split(splitFactor,weights,splitRandomize);
+    if( splitted == 0 ) {
+      cerr << "Unable to split training data." << endl;
+      return 2;
+    }
+    bool ownData = true;
+    valFilter.reset(new SprEmptyFilter(splitted,weights,ownData));
+    cout << "Training data re-filtered:" << endl;
+    for( int i=0;i<inputClasses.size();i++ ) {
+      cout << "Points in class " << inputClasses[i] << ":   " 
+	   << filter->ptsInClass(inputClasses[i]) << endl;
+    }
+  }
+  if( !valFile.empty() ) {
+    SprSimpleReader valReader(readMode);
+    if( !includeSet.empty() ) {
+      if( !valReader.chooseVars(includeSet) ) {
+	cerr << "Unable to include variables in validation set." << endl;
+	return 2;
+      }
+    }
+    if( !excludeSet.empty() ) {
+      if( !valReader.chooseAllBut(excludeSet) ) {
+	cerr << "Unable to exclude variables from validation set." << endl;
+	return 2;
+      }
+    }
+    valFilter.reset(valReader.read(valFile.c_str()));
+    if( valFilter.get() == 0 ) {
+      cerr << "Unable to read data from file " << valFile.c_str() << endl;
+      return 2;
+    }
+    vector<string> valVars;
+    valFilter->vars(valVars);
+    cout << "Read validation data from file " << valFile.c_str() 
+	 << " for variables";
+    for( int i=0;i<valVars.size();i++ ) 
+      cout << " \"" << valVars[i].c_str() << "\"";
+    cout << endl;
+    cout << "Total number of points read: " << valFilter->size() << endl;
+  }
 
   // filter validation data by class
   if( !valFilter->filterByClass(inputClassesString.c_str()) ) {
@@ -772,10 +818,9 @@ int main(int argc, char ** argv)
 	  }
 	  
 	  // make decision tree
-	  bool doMerge = false;
 	  bool discrete = false;
 	  SprTopdownTree* tree = new SprTopdownTree(filter.get(),&gini,
-						    nleaf,doMerge,discrete);
+						    nleaf,discrete);
 	  classifiers.insert(pair<const string,SprAbsClassifier*>(name,
 								  tree));
 	}
@@ -1237,11 +1282,11 @@ int main(int argc, char ** argv)
 	    }
 	  
 	  // make decision tree
-	  bool doMerge = false;
 	  bool discrete = (mode!=SprTrainedAdaBoost::Real);
 	  SprTopdownTree* tree = new SprTopdownTree(filter.get(),&gini,
-						    nleaf,doMerge,discrete,0);
+						    nleaf,discrete,0);
 	  if( mode == SprTrainedAdaBoost::Real ) tree->forceMixedNodes();
+	  tree->useFastSort();
 	  cToClean.push_back(tree);
 	  
 	  // make AdaBoost
@@ -1377,11 +1422,10 @@ int main(int argc, char ** argv)
 	  bootstraps.push_back(bootstrap);
 	
 	  // make decision tree
-	  bool doMerge = false;
 	  bool discrete = false;
 	  SprTopdownTree* tree = new SprTopdownTree(filter.get(),&gini,
-						    nleaf,doMerge,discrete,
-						    bootstrap);
+						    nleaf,discrete,bootstrap);
+	  tree->useFastSort();
 	  cToClean.push_back(tree);
 	  
 	  // make bagger
@@ -1488,11 +1532,10 @@ int main(int argc, char ** argv)
 	  bootstraps.push_back(bootstrap);
 	  
 	  // make decision tree
-	  bool doMerge = false;
 	  bool discrete = false;
 	  SprTopdownTree* tree = new SprTopdownTree(filter.get(),&gini,
-						    nleaf,doMerge,discrete,
-						    bootstrap);
+						    nleaf,discrete,bootstrap);
+	  tree->useFastSort();
 	  cToClean.push_back(tree);
 	  
 	  // make bagger

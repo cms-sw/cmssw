@@ -1,5 +1,5 @@
 // File and Version Information:
-//      $Id: SprTrainedTopdownTree.hh,v 1.3 2006/11/13 19:09:40 narsky Exp $
+//      $Id: SprTrainedTopdownTree.hh,v 1.4 2007/07/11 19:52:10 narsky Exp $
 //
 // Description:
 //      Class SprTrainedTopdownTree :
@@ -90,6 +90,14 @@ public:
   double response(const std::vector<double>& v) const;
 
   /*
+    Generate code.
+  */
+  bool generateCode(std::ostream& os) const {
+    this->printFunction(os,0);
+    return true;
+  }
+
+  /*
     Print out.
   */
   void print(std::ostream& os) const;
@@ -98,6 +106,9 @@ public:
 
 protected:
   bool replicate(const std::vector<const SprTrainedNode*>& nodes);
+  void printFunction(std::ostream& os,
+		     const SprTrainedNode* currentNode,
+		     int indentLevel=2) const;
 
   std::vector<const SprTrainedNode*> nodes_;
   bool ownTree_;

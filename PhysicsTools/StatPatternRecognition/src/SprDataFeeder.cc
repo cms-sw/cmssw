@@ -1,4 +1,4 @@
-//$Id: SprDataFeeder.cc,v 1.3 2006/11/13 19:09:41 narsky Exp $
+//$Id: SprDataFeeder.cc,v 1.5 2007/05/23 21:18:59 narsky Exp $
 
 #include "PhysicsTools/StatPatternRecognition/interface/SprExperiment.hh"
 #include "PhysicsTools/StatPatternRecognition/interface/SprDataFeeder.hh"
@@ -7,6 +7,7 @@
 #include "PhysicsTools/StatPatternRecognition/interface/SprAbsWriter.hh"
 #include "PhysicsTools/StatPatternRecognition/interface/SprAbsTrainedClassifier.hh"
 #include "PhysicsTools/StatPatternRecognition/interface/SprTrainedMultiClassLearner.hh"
+#include "PhysicsTools/StatPatternRecognition/interface/SprCoordinateMapper.hh"
 
 #include <stdio.h>
 #include <iostream>
@@ -16,53 +17,13 @@
 using namespace std;
 
 
-class CoordinateMapper
-{
-public:
-  ~CoordinateMapper() { this->clear(); }
-
-  CoordinateMapper(const std::vector<unsigned>& mapper)
-    : mapper_(mapper), toDelete_() {}
-
-  // map vectors
-  const SprPoint* output(const SprPoint* input) {
-    // sanity check
-    if( mapper_.empty() ) return input;
-
-    // make new point and copy index+class
-    SprPoint* p = new SprPoint;
-    p->index_ = input->index_;
-    p->class_ = input->class_;
-
-    // copy vector elements
-    for( int i=0;i<mapper_.size();i++ ) {
-      unsigned d = mapper_[i];
-      assert( d < input->dim() );
-      p->x_.push_back(input->x_[d]);
-    }
-
-    // add to the cleanup list
-    toDelete_.push_back(p);
-
-    // exit
-    return p;
-  }
-
-  // clean up
-  void clear() {
-    for( int i=0;i<toDelete_.size();i++ ) delete toDelete_[i];
-    toDelete_.clear();
-  }
-
-private:
-  vector<unsigned> mapper_;
-  vector<const SprPoint*> toDelete_;
-};
-
-
 SprDataFeeder::~SprDataFeeder()
 {
   delete mapper_;
+  for( int i=0;i<specificMappers_.size();i++ ) 
+    delete specificMappers_[i];
+  for( int i=0;i<multiSpecificMappers_.size();i++ ) 
+    delete multiSpecificMappers_[i];
 }
 
 
@@ -75,7 +36,9 @@ SprDataFeeder::SprDataFeeder(const SprAbsFilter* data,
   mode_(0),
   classifiers_(),
   multiclass_(),
-  mapper_(new CoordinateMapper(mapper))
+  mapper_(SprCoordinateMapper::createMapper(mapper)),
+  specificMappers_(),
+  multiSpecificMappers_()
 {
   assert( data_ != 0 );
   assert( writer_ != 0 );
@@ -86,7 +49,16 @@ SprDataFeeder::SprDataFeeder(const SprAbsFilter* data,
 
 
 bool SprDataFeeder::addClassifier(const SprAbsTrainedClassifier* c,
-				  const char* name) 
+				  const char* name,
+				  const std::vector<unsigned>& mapper) 
+{
+  return this->addClassifier(c,name,SprCoordinateMapper::createMapper(mapper));
+}
+
+
+bool SprDataFeeder::addClassifier(const SprAbsTrainedClassifier* c,
+				  const char* name,
+				  SprCoordinateMapper* mapper) 
 { 
   if( c != 0 ) {
     // sanity check
@@ -100,6 +72,7 @@ bool SprDataFeeder::addClassifier(const SprAbsTrainedClassifier* c,
 
     // add classifier
     classifiers_.push_back(c);
+    specificMappers_.push_back(mapper);
     writer_->addAxis(name);
   }
 
@@ -109,8 +82,18 @@ bool SprDataFeeder::addClassifier(const SprAbsTrainedClassifier* c,
 
 
 bool SprDataFeeder::addMultiClassLearner(const SprTrainedMultiClassLearner* c,
-					 const char* name) 
+					 const char* name,
+					 const std::vector<unsigned>& mapper) 
 { 
+  return this->addMultiClassLearner(c,name,
+				    SprCoordinateMapper::createMapper(mapper));
+}
+
+
+bool SprDataFeeder::addMultiClassLearner(const SprTrainedMultiClassLearner* c,
+					 const char* name,
+					 SprCoordinateMapper* mapper) 
+{
   if( c != 0 ) {
     // sanity check
     if( mode_ == 1 ) {
@@ -123,6 +106,7 @@ bool SprDataFeeder::addMultiClassLearner(const SprTrainedMultiClassLearner* c,
 
     // add multi class learner
     multiclass_.push_back(c);
+    multiSpecificMappers_.push_back(mapper);
     vector<int> classes;
     c->classes(classes);
     for( int i=0;i<classes.size();i++ ) {
@@ -151,7 +135,6 @@ bool SprDataFeeder::feed(int nout) const
   }
 
   // loop through data
-  vector<double> f;
   for( int i=0;i<data_->size();i++ ) {
     // message
     if( nout>0 && (i%nout)==0 ) {
@@ -161,28 +144,43 @@ bool SprDataFeeder::feed(int nout) const
 
     // get point
     const SprPoint* pTuple = (*data_)[i];
-    const SprPoint* pResp = mapper_->output(pTuple);
-    f.clear();
+    const SprPoint* pResp = ( mapper_==0 ? pTuple : mapper_->output(pTuple) );
 
     // add classifiers
-    for( int j=0;j<classifiers_.size();j++ )
-      f.push_back(classifiers_[j]->response(pResp));
+    vector<double> f;
+    for( int j=0;j<classifiers_.size();j++ ) {
+      const SprPoint* pSpecific = 0;
+      if( specificMappers_[j] != 0 ) 
+	pSpecific = specificMappers_[j]->output(pTuple);
+      else
+	pSpecific = pResp;
+      assert( pSpecific != 0 );
+      f.push_back(classifiers_[j]->response(pSpecific));
+      if( specificMappers_[j] != 0 ) specificMappers_[j]->clear();
+    }
 
     // add multi class learners
     for( int j=0;j<multiclass_.size();j++ ) {
       map<int,double> resp;
-      int cls = multiclass_[j]->response(pResp,resp);
+      const SprPoint* pSpecific = 0;
+      if( multiSpecificMappers_[j] != 0 ) 
+	pSpecific = multiSpecificMappers_[j]->output(pTuple);
+      else
+	pSpecific = pResp;
+      assert( pSpecific != 0 );
+      int cls = multiclass_[j]->response(pSpecific,resp);
       for( map<int,double>::const_iterator 
 	     iter=resp.begin();iter!=resp.end();iter++ ) 
 	f.push_back(iter->second);
       f.push_back(double(cls));
+      if( multiSpecificMappers_[j] != 0 ) multiSpecificMappers_[j]->clear();
     }
 
     // write
     writer_->write(data_->w(i),pTuple,f);
 
     // clean up
-    mapper_->clear();
+    if( mapper_ != 0 ) mapper_->clear();
   }
 
   // exit

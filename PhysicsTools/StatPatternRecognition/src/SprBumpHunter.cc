@@ -1,4 +1,4 @@
-//$Id: SprBumpHunter.cc,v 1.5 2007/02/05 21:49:45 narsky Exp $
+//$Id: SprBumpHunter.cc,v 1.9 2007/05/29 19:38:06 narsky Exp $
 
 #include "PhysicsTools/StatPatternRecognition/interface/SprExperiment.hh"
 #include "PhysicsTools/StatPatternRecognition/interface/SprBumpHunter.hh"
@@ -67,8 +67,8 @@ void SprBumpHunter::setClasses()
 
 bool SprBumpHunter::train(int verbose)
 {
-  // continue until all bums are found
-  vector<SprCut> limits;
+  // continue until all bumps are found
+  SprBox limits;
   while( fom_.size() < nbump_ ) {
     // init
     int status = -1;
@@ -114,7 +114,7 @@ bool SprBumpHunter::train(int verbose)
       }
       box_->clear();
       int beforeRemoval = box_->size();
-      if( !box_->remove(&forRemoval) ) {
+      if( !box_->fastRemove(&forRemoval) ) {
 	cerr << "Cannot remove data from box." << endl;
 	return false;
       }
@@ -155,6 +155,7 @@ bool SprBumpHunter::reset()
 
 bool SprBumpHunter::setData(SprAbsFilter* data)
 {
+  assert( data != 0 );
   data_ = data;
   return this->reset();
 }
@@ -162,20 +163,20 @@ bool SprBumpHunter::setData(SprAbsFilter* data)
 
 void SprBumpHunter::print(std::ostream& os) const
 {
-  os << "Bumps: " << boxes_.size() << endl;
+  os << "Bumps: " << boxes_.size() << " " << SprVersion << endl;
   os << "-------------------------------------------------------" << endl;
   vector<string> vars;
   box_->vars(vars);
   for( int i=0;i<boxes_.size();i++ ) {
     int size = boxes_[i].size();
-    assert( vars.size() == size );
     char s [200];
     sprintf(s,"Bump %6i    Size %-4i    FOM=%-10g W0=%-10g W1=%-10g N0=%-10i N1=%-10i",i,size,fom_[i],w0_[i],w1_[i],n0_[i],n1_[i]);
     os << s << endl;
-    for( int j=0;j<size;j++ ) {
+    for( SprBox::const_iterator j=boxes_[i].begin();j!=boxes_[i].end();j++ ) {
+      assert( j->first < vars.size() );
       char s [200];
-      sprintf(s,"Variable %30s    Limits  %15g %15g",vars[j].c_str(),
-	      boxes_[i][j][0].first,boxes_[i][j][0].second);
+      sprintf(s,"Variable %30s    Limits  %15g %15g",
+	      vars[j->first].c_str(),j->second.first,j->second.second);
       os << s << endl;
     }
     os << "-------------------------------------------------------" << endl;
@@ -185,14 +186,16 @@ void SprBumpHunter::print(std::ostream& os) const
 
 SprTrainedDecisionTree* SprBumpHunter::makeTrained() const
 {
-  vector<SprBox> nodes1(boxes_.size());
-  for( int i=0;i<boxes_.size();i++ ) {
-    for( int d=0;d<data_->dim();d++ ) {
-      nodes1[i].insert(pair<const unsigned,
-                            pair<double,double> >(d,boxes_[i][d][0]));
-    }
-  }
-  return new SprTrainedDecisionTree(nodes1);
+  // make tree
+  SprTrainedDecisionTree* t =  new SprTrainedDecisionTree(boxes_);
+
+  // vars
+  vector<string> vars;
+  data_->vars(vars);
+  t->setVars(vars);
+
+  // exit
+  return t;
 }
 
 
@@ -227,7 +230,7 @@ bool SprBumpHunter::sort(int dsort,
       r[j] = pair<double,int>((*box_)[j]->x_[d],j);
     
     // sort
-    SprSort(r.begin(),r.end(),SBHCmpPairFirst());
+    stable_sort(r.begin(),r.end(),SBHCmpPairFirst());
     
     // fill out sorted indices
     division[d].push_back(SprUtils::min());
@@ -249,7 +252,7 @@ bool SprBumpHunter::sort(int dsort,
 }
 
 
-int SprBumpHunter::shrink(std::vector<SprCut>& limits,
+int SprBumpHunter::shrink(SprBox& limits,
 			  unsigned& n0, unsigned& n1,
 			  double& w0, double& w1, double& fom0, int verbose)
 {
@@ -273,13 +276,11 @@ int SprBumpHunter::shrink(std::vector<SprCut>& limits,
   }
 
   // set limits
-  if( limits.empty() )
-    limits.resize(box_->dim(),SprUtils::inftyRange());
   if( verbose > 1 ) {
     cout << "Limits:" << endl;
-    for( int d=0;d<limits.size();d++ ) {
-      cout << "Dimension " << d << "    " 
-	   << limits[d][0].first << " " << limits[d][0].second << endl;
+    for( SprBox::const_iterator d=limits.begin();d!=limits.end();d++ ) {
+      cout << "Dimension " << d->first << "    " 
+	   << d->second.first << " " << d->second.second << endl;
     }
   }
 
@@ -318,7 +319,7 @@ int SprBumpHunter::shrink(std::vector<SprCut>& limits,
   // init
   unsigned dim = box_->dim();
   vector<double> fom(dim,SprUtils::min());
-  vector<SprCut> cut(dim,SprUtils::inftyRange());
+  SprBox savedBox;
 
   // loop through dimensions
   for( int d=0;d<dim;d++ ) {
@@ -436,12 +437,18 @@ int SprBumpHunter::shrink(std::vector<SprCut>& limits,
       khi = ihi - fhi.begin();
       hfom = *ihi;
     }
-    if( lfom > hfom ) {
-      cut[d] = SprUtils::lowerBound(division[d][klo]);
+    if( lfom>hfom && klo!=0 && klo!=(division[d].size()-1) ) {
+      if( !savedBox.insert(pair<const unsigned,SprInterval>(d,(SprUtils::lowerBound(division[d][klo]))[0])).second ) {
+	cerr << "Unable to insert interval for dimension " << d << endl;
+	return -1;
+      }
       fom[d] = lfom;
     }
-    else {
-      cut[d] = SprUtils::upperBound(division[d][division[d].size()-1-khi]);
+    else if( khi!=0 && khi!=(division[d].size()-1) ) {
+      if( !savedBox.insert(pair<const unsigned,SprInterval>(d,(SprUtils::upperBound(division[d][division[d].size()-1-khi]))[0])).second ) {
+	cerr << "Unable to insert interval for dimension " << d << endl;
+	return -1;
+      }
       fom[d] = hfom;
     }
   }
@@ -454,24 +461,32 @@ int SprBumpHunter::shrink(std::vector<SprCut>& limits,
   if( *imax > fom0 ) {
     lexit = false;
     int d = imax - fom.begin();
-    SprCut z = cut[d];
+    SprBox::const_iterator imposed = savedBox.find(d);
+    assert( imposed != savedBox.end() );
+    SprInterval z = imposed->second;
     if( verbose > 0 ) {
       cout << "Making shrinking split " << nsplit_ 
 	   << " in dimension " << d << " with " 
 	   << n1 << " signal and " << n0 << " background events" 
 	   << "     FOM=" << *imax 
-	   << "    interval=" << z[0].first << " " << z[0].second << endl;
+	   << "    interval=" << z.first << " " << z.second << endl;
     }
 
     // update limits
-    if( limits[d][0].first < z[0].first )
-      limits[d][0].first = z[0].first;
-    if( limits[d][0].second > z[0].second )
-      limits[d][0].second = z[0].second;
-    assert( limits[d][0].first < limits[d][0].second );
+    SprBox::iterator found = limits.find(d);
+    if( found == limits.end() ) {
+      limits.insert(pair<const unsigned,SprInterval>(d,z));
+    }
+    else {
+      if( found->second.first < z.first )
+	found->second.first = z.first;
+      if( found->second.second > z.second )
+	found->second.second = z.second;
+      assert( found->second.first < found->second.second );
+    }
 
     // cut off tails
-    box_->setCut(d,limits[d]);
+    box_->setBox(limits);
     if( !box_->filter() ) {
       cerr << "Cannot filter box." << endl;
       return -1;
@@ -480,7 +495,7 @@ int SprBumpHunter::shrink(std::vector<SprCut>& limits,
     // print out
     if( verbose > 1 ) {
       cout << "Imposed cut in dimension " << d << "  : "
-	   << limits[d][0].first << " " <<  limits[d][0].second 
+	   << found->second.first << " " <<  found->second.second 
 	   << "  Box reduced to " << box_->size() << " events." << endl;
     }
 
@@ -518,7 +533,7 @@ int SprBumpHunter::shrink(std::vector<SprCut>& limits,
 }
 
 
-int SprBumpHunter::expand(std::vector<SprCut>& limits, 
+int SprBumpHunter::expand(SprBox& limits, 
 			  unsigned& n0, unsigned& n1,
 			  double& w0, double& w1, double& fom0, int verbose)
 {
@@ -556,40 +571,49 @@ int SprBumpHunter::expand(std::vector<SprCut>& limits,
   // init
   unsigned dim = box_->dim();
   vector<double> fom(dim,SprUtils::min());
-  vector<SprCut> cut = limits;
+  SprBox savedBox = limits;
 
   // set limits
-  assert( limits.size() == dim );
   if( verbose > 1 ) {
     cout << "Limits:" << endl;
-    for( int d=0;d<limits.size();d++ ) {
-      cout << "Dimension " << d << "    " 
-	   << limits[d][0].first << " " << limits[d][0].second << endl;
+    for( SprBox::const_iterator d=limits.begin();d!=limits.end();d++ ) {
+      cout << "Dimension " << d->first << "    " 
+	   << d->second.first << " " << d->second.second << endl;
     }
   }
 
   // loop through dimensions
   for( int d=0;d<dim;d++ ) {
     // reset limits
-    box_->setCut(limits);
-    
+    box_->setBox(limits);
+
+    // check if any limits exist    
+    SprBox::iterator found = savedBox.find(d);
+    if( found == savedBox.end() ) {
+      if( verbose > 1 )
+	cout << "No cuts on dimension " << d << " imposed. " 
+	     << " will not attempt to expand."<< endl;
+      continue;
+    }
+
     // look at both sides of the box
     for( int side=-1;side<2;side+=2 ) {
 
       // compute starting weights
       if( verbose > 1 ) {
 	cout << "Resetting cuts on dimension " << d << " at "
-	     << "     Low=" << cut[d][0].first 
-	     << "    High=" << cut[d][0].second << endl;
+	     << "     Low=" << found->second.first 
+	     << "    High=" << found->second.second << endl;
       }
-      box_->setCut(d,cut[d]);
+      box_->setRange(d,found->second);
       if( !box_->filter() ) {
 	cerr << "Cannot filter box." << endl;
 	return -1;
       }
       if( box_->empty() ) {
 	cerr << "Box is empty after cutting on dimension " << d 
-	     << " at " << cut[d][0].first << " " << cut[d][0].second << endl;
+	     << " at " << found->second.first << " " 
+	     << found->second.second << endl;
 	return 1;
       }
 
@@ -608,12 +632,12 @@ int SprBumpHunter::expand(std::vector<SprCut>& limits,
       int n1d = box_->ptsInClass(cls1_);
 
       // invert cut on dimension d to accept events outside the box
-      SprCut outer(1);
+      SprInterval outer;
       if(      side < 0 )
-	outer[0] = pair<double,double>(SprUtils::min(),cut[d][0].first);
+	outer = SprInterval(SprUtils::min(),found->second.first);
       else if( side > 0 )
-	outer[0] = pair<double,double>(cut[d][0].second,SprUtils::max());
-      box_->setCut(d,outer);// invert cut on dimension d
+	outer = SprInterval(found->second.second,SprUtils::max());
+      box_->setRange(d,outer);// invert cut on dimension d
 
       // filter
       if( !box_->filter() ) {
@@ -743,18 +767,18 @@ int SprBumpHunter::expand(std::vector<SprCut>& limits,
 	fom[d] = maxfom;
 	if(      side < 0 ) {
 	  double z = division[d][k];
-	  if( cut[d][0].first > z ) cut[d][0].first = z;
+	  if( found->second.first > z ) found->second.first = z;
 	}
 	else if( side > 0 ) {
 	  double z = division[d][division[d].size()-1-k];
-	  if( cut[d][0].second < z ) cut[d][0].second = z;
+	  if( found->second.second < z ) found->second.second = z;
 	}
       }
     }// end side loop
     if( verbose > 1 ) {
       cout << "Found the best cut on dimension " << d << " at " 
-	   << "    Low=" << cut[d][0].first 
-	   << "   High=" << cut[d][0].second 
+	   << "    Low=" << found->second.first 
+	   << "   High=" << found->second.second 
 	   << "  with FOM=" << fom[d] << endl;
     }
   }// end dim loop
@@ -767,24 +791,29 @@ int SprBumpHunter::expand(std::vector<SprCut>& limits,
   if( *imax > fom0 ) {
     lexit = false;
     int d = imax - fom.begin();
-    SprCut z = cut[d];
+    SprBox::const_iterator imposed = savedBox.find(d);
+    assert( imposed != savedBox.end() );
+    SprInterval z = imposed->second;
     if( verbose > 0 ) {
       cout << "Making expansion " << nsplit_ 
 	   << " in dimension " << d << " with " 
 	   << n1 << " signal and " << n0 << " background events" 
 	   << "     FOM=" << *imax 
-	   << "    interval=" << z[0].first << " " << z[0].second << endl;
+	   << "    interval=" << z.first << " " << z.second << endl;
     }
 
     // update limits
-    if( limits[d][0].first > z[0].first )
-      limits[d][0].first = z[0].first;
-    if( limits[d][0].second < z[0].second )
-      limits[d][0].second = z[0].second;
-    assert( limits[d][0].first < limits[d][0].second );
+    SprBox::iterator found = limits.find(d);
+    if( found != limits.end() ) {
+      if( found->second.first > z.first )
+	found->second.first = z.first;
+      if( found->second.second < z.second )
+	found->second.second = z.second;
+      assert( found->second.first < found->second.second );
+    }
 
     // cut off tails
-    box_->setCut(limits);
+    box_->setBox(limits);
     if( !box_->filter() ) {
       cerr << "Cannot filter box." << endl;
       return -1;
@@ -801,7 +830,7 @@ int SprBumpHunter::expand(std::vector<SprCut>& limits,
   // see if time to exit
   if( lexit ) {
     // cut off tails
-    box_->setCut(limits);
+    box_->setBox(limits);
     if( !box_->filter() ) {
       cerr << "Cannot filter box." << endl;
       return -1;

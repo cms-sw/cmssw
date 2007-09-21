@@ -1,4 +1,4 @@
-//$Id: SprExploratoryAnalysisApp.cc,v 1.4 2006/11/26 02:04:31 narsky Exp $
+//$Id: SprExploratoryAnalysisApp.cc,v 1.5 2007/08/13 02:14:42 narsky Exp $
 /*
   This executable is intended for exploratory analysis of data.
 
@@ -17,6 +17,7 @@
 #include "PhysicsTools/StatPatternRecognition/interface/SprExperiment.hh"
 #include "PhysicsTools/StatPatternRecognition/interface/SprAbsFilter.hh"
 #include "PhysicsTools/StatPatternRecognition/interface/SprDefs.hh"
+#include "PhysicsTools/StatPatternRecognition/interface/SprUtils.hh"
 #include "PhysicsTools/StatPatternRecognition/interface/SprBumpHunter.hh"
 #include "PhysicsTools/StatPatternRecognition/interface/SprTrainedDecisionTree.hh"
 #include "PhysicsTools/StatPatternRecognition/interface/SprEmptyFilter.hh"
@@ -307,6 +308,18 @@ int main(int argc, char ** argv)
   SprSymMatrix cov;
   SprVector mean;
   SprDataMoments moms(filter.get());
+
+  // identify useless variables
+  if( !moms.covariance(cov,mean) ) {
+    cerr << "Unable to compute covariance matrix for entire data." << endl;
+    return 4;
+  }
+  cout << "Variables with zero variance:    ";
+  for( int i=0;i<vars.size();i++ ) {
+    if( cov[i][i] < SprUtils::eps() ) 
+      cout << vars[i].c_str() << ",";
+  }
+  cout << endl;
 
   // do background and signal
   for( int c=0;c<2;c++ ) {

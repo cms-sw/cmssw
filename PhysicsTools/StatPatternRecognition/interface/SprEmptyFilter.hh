@@ -1,6 +1,6 @@
 //------------------------------------------------------------------------
 // File and Version Information:
-//      $Id: SprEmptyFilter.hh,v 1.2 2006/10/19 21:27:52 narsky Exp $
+//      $Id: SprEmptyFilter.hh,v 1.3 2007/05/17 23:31:37 narsky Exp $
 //
 // Description:
 //      Class SprEmptyFilter :
@@ -21,7 +21,6 @@
 #define _SprEmptyFilter_HH
 
 #include "PhysicsTools/StatPatternRecognition/interface/SprAbsFilter.hh"
-#include "PhysicsTools/StatPatternRecognition/interface/SprDefs.hh"
 
 #include <vector>
 
@@ -60,10 +59,8 @@ public:
   SprEmptyFilter(const SprAbsFilter* filter)
     : SprAbsFilter(*filter) {}
 
-  // define cuts
-  bool setCut(const SprGrid& cuts) { return true; }
-  bool setCut(const std::vector<SprCut>& cuts) { return true; }
-  bool resetCut() { return true; }
+  // specific reset
+  bool reset() { return true; }
 
   // accept or reject a point
   bool pass(const SprPoint* p) const { return true; }

@@ -1,6 +1,6 @@
 //------------------------------------------------------------------------
 // File and Version Information:
-//      $Id: SprLoss.hh,v 1.2 2006/10/19 21:27:52 narsky Exp $
+//      $Id: SprLoss.hh,v 1.3 2007/08/13 02:14:42 narsky Exp $
 //
 // Description:
 //      Class SprLoss :
@@ -34,6 +34,10 @@ struct SprLoss
 
   static double purity_ratio(int y, double f) { 
     return ( y==0 ? f/(1.-f) : (1.-f)/f );
+  }
+
+  static double distance(int y, double f) {
+    return fabs(y-f);
   }
 };
 

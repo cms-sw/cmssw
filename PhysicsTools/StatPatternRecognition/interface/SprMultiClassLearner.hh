@@ -1,5 +1,5 @@
 // File and Version Information:
-//      $Id: SprMultiClassLearner.hh,v 1.3 2006/11/13 19:09:39 narsky Exp $
+//      $Id: SprMultiClassLearner.hh,v 1.4 2007/05/14 18:08:08 narsky Exp $
 //
 // Description:
 //      Class SprMultiClassLearner :
@@ -22,6 +22,8 @@
 #ifndef _SprMultiClassLearner_HH
 #define _SprMultiClassLearner_HH
 
+#include "PhysicsTools/StatPatternRecognition/interface/SprAbsMultiClassLearner.hh"
+#include "PhysicsTools/StatPatternRecognition/interface/SprTrainedMultiClassLearner.hh"
 #include "PhysicsTools/StatPatternRecognition/src/SprMatrix.hh"
 
 #include <vector>
@@ -30,12 +32,11 @@
 #include <cassert>
 
 class SprAbsFilter;
-class SprTrainedMultiClassLearner;
 class SprAbsClassifier;
 class SprAbsTrainedClassifier;
 
 
-class SprMultiClassLearner
+class SprMultiClassLearner : public SprAbsMultiClassLearner
 {
 public:
   enum MultiClassMode { User, OneVsAll, OneVsOne };
@@ -69,11 +70,6 @@ public:
   void print(std::ostream& os) const;
 
   /*
-    Store training results in a file.
-  */
-  bool store(const char* filename) const;
-
-  /*
     Make a trained classifier.
   */
   SprTrainedMultiClassLearner* makeTrained() const;
@@ -93,7 +89,6 @@ private:
   bool setClasses();
   void destroy();
 
-  SprAbsFilter* data_;
   MultiClassMode mode_;
   SprMatrix indicator_;
   std::vector<int> mapper_;

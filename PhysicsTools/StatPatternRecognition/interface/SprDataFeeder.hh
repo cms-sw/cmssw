@@ -1,5 +1,5 @@
 // File and Version Information:
-//      $Id: SprDataFeeder.hh,v 1.3 2006/11/13 19:09:39 narsky Exp $
+//      $Id: SprDataFeeder.hh,v 1.5 2007/05/23 21:18:58 narsky Exp $
 //
 // Description:
 //      Class SprDataFeeder :
@@ -38,7 +38,7 @@ class SprAbsFilter;
 class SprAbsTrainedClassifier;
 class SprTrainedMultiClassLearner;
 class SprAbsWriter;
-class CoordinateMapper;
+class SprCoordinateMapper;
 
 
 class SprDataFeeder
@@ -46,16 +46,28 @@ class SprDataFeeder
 public:
   virtual ~SprDataFeeder();
 
+  // Takes the default mapper used for all classifiers.
   SprDataFeeder(const SprAbsFilter* data,
 		SprAbsWriter* writer,
 		const std::vector<unsigned>& mapper=std::vector<unsigned>());
 
-  // add a new classifier
-  bool addClassifier(const SprAbsTrainedClassifier* c, const char* name);
+  // Add a new classifier.
+  // If a mapper is provided, it overrides the default mapper
+  // provided in the constructor.
+  bool addClassifier(const SprAbsTrainedClassifier* c, 
+		     const char* name,
+		     const std::vector<unsigned>& mapper);
+  bool addClassifier(const SprAbsTrainedClassifier* c, 
+		     const char* name,
+		     SprCoordinateMapper* mapper=0);
 
   // add a multi class learner
   bool addMultiClassLearner(const SprTrainedMultiClassLearner* c, 
-			    const char* name);
+			    const char* name,
+			    const std::vector<unsigned>& mapper);
+  bool addMultiClassLearner(const SprTrainedMultiClassLearner* c, 
+			    const char* name,
+			    SprCoordinateMapper* mapper=0);
 
   // Feed 1D classifier response and print out message every nout points.
   bool feed(int nout=0) const;
@@ -66,7 +78,9 @@ private:
   int mode_;// 1 for classifiers, 2 for multi class learners
   std::vector<const SprAbsTrainedClassifier*> classifiers_;
   std::vector<const SprTrainedMultiClassLearner*> multiclass_;
-  CoordinateMapper* mapper_;
+  SprCoordinateMapper* mapper_;
+  std::vector<SprCoordinateMapper*> specificMappers_;
+  std::vector<SprCoordinateMapper*> multiSpecificMappers_;
 };
 
 #endif

@@ -1,4 +1,4 @@
-//$Id: SprTrainedTopdownTree.cc,v 1.4 2007/02/05 21:49:46 narsky Exp $
+//$Id: SprTrainedTopdownTree.cc,v 1.6 2007/07/11 19:52:13 narsky Exp $
 
 #include "PhysicsTools/StatPatternRecognition/interface/SprExperiment.hh"
 #include "PhysicsTools/StatPatternRecognition/interface/SprTrainedTopdownTree.hh"
@@ -35,7 +35,7 @@ double SprTrainedTopdownTree::response(const std::vector<double>& v) const
 
 void SprTrainedTopdownTree::print(std::ostream& os) const
 {
-  os << "Trained TopdownTree" << endl;
+  os << "Trained TopdownTree " << SprVersion << endl;
   os << "Nodes: " << nodes_.size() << " nodes." << endl;
   for( int i=0;i<nodes_.size();i++ ) {
     const SprTrainedNode* node = nodes_[i];
@@ -96,3 +96,34 @@ bool SprTrainedTopdownTree::replicate(const std::vector<
   return true;
 }
 
+
+void SprTrainedTopdownTree::printFunction(std::ostream& os,
+					  const SprTrainedNode* currentNode,
+					  int indentLevel) const
+{
+  // Use root if no node given.
+  const SprTrainedNode* node; 
+  if( currentNode == 0 ) 
+    node = nodes_[0]; 
+  else 
+    node = currentNode; 
+ 
+  // Print this node. 
+  if( node->d_ >= 0 ) { 
+    for( int I=0;I<indentLevel;I++ ) os << " ";
+    os << "if( V[" << node->d_ << "] < " << node->cut_ << " ) {" << endl; 
+    this->printFunction(os,node->toDau1_,indentLevel+2); 
+    for( int I=0;I<indentLevel;I++ ) os << " ";
+    os << "}" << endl; 
+    for( int I=0;I<indentLevel;I++ ) os << " ";
+    os << "else /*if( V[" << node->d_ << "] >= " 
+       << node->cut_ << " )*/ {" << endl; 
+    this->printFunction(os,node->toDau2_,indentLevel+2); 
+    for( int I=0;I<indentLevel;I++ ) os << " ";
+    os << "}" << endl; 
+  } 
+  else { 
+    for( int I=0;I<indentLevel;I++ ) os << " ";
+    os << "R += " << node->score_ << ";" << endl; 
+  } 
+}

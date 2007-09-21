@@ -1,9 +1,11 @@
-//$Id: SprDecisionTreeApp.cc,v 1.5 2007/02/05 21:49:45 narsky Exp $
+//$Id: SprDecisionTreeApp.cc,v 1.8 2007/08/30 17:54:42 narsky Exp $
 
 #include "PhysicsTools/StatPatternRecognition/interface/SprExperiment.hh"
 #include "PhysicsTools/StatPatternRecognition/interface/SprAbsFilter.hh"
 #include "PhysicsTools/StatPatternRecognition/interface/SprDecisionTree.hh"
 #include "PhysicsTools/StatPatternRecognition/interface/SprTrainedDecisionTree.hh"
+#include "PhysicsTools/StatPatternRecognition/interface/SprTopdownTree.hh"
+#include "PhysicsTools/StatPatternRecognition/interface/SprTrainedTopdownTree.hh"
 #include "PhysicsTools/StatPatternRecognition/interface/SprEmptyFilter.hh"
 #include "PhysicsTools/StatPatternRecognition/interface/SprSimpleReader.hh"
 #include "PhysicsTools/StatPatternRecognition/interface/SprDataFeeder.hh"
@@ -20,6 +22,9 @@
 #include "PhysicsTools/StatPatternRecognition/interface/SprStringParser.hh"
 #include "PhysicsTools/StatPatternRecognition/interface/SprCrossValidator.hh"
 #include "PhysicsTools/StatPatternRecognition/interface/SprClass.hh"
+#include "PhysicsTools/StatPatternRecognition/interface/SprAverageLoss.hh"
+#include "PhysicsTools/StatPatternRecognition/interface/SprLoss.hh"
+#include "PhysicsTools/StatPatternRecognition/interface/SprTransformation.hh"
 
 #include <stdlib.h>
 #include <unistd.h>
@@ -46,6 +51,7 @@ void help(const char* prog)
   cout << "\t-m --- merge nodes after training (def = no merge) " << endl;
   cout << "\t-y list of input classes (see SprAbsFilter.hh)     " << endl;
   cout << "\t-v verbose level (0=silent default,1,2)            " << endl;
+  cout << "\t-T use Topdown tree with contonuous output         " << endl;
   cout << "\t-f store decision tree to file in human-readable format" << endl;
   cout << "\t-F store decision tree to file in machine-readable format"<< endl;
   cout << "\t-c criterion for optimization                      " << endl;
@@ -59,7 +65,14 @@ void help(const char* prog)
   cout << "\t\t 8 = discovery potential 2*(sqrt(s+b)-sqrt(b))   " << endl;
   cout << "\t\t 9 = Punzi's sensitivity s/(0.5*nSigma+sqrt(b))  " << endl;
   cout << "\t\t -P background normalization factor for Punzi FOM" << endl;
+  cout << "\t-g per-event loss for (cross-)validation           " << endl;
+  cout << "\t\t 1 - quadratic loss (y-f(x))^2                   " << endl;
+  cout << "\t\t 2 - exponential loss exp(-y*f(x))               " << endl;
+  cout << "\t\t 3 - misid fraction                              " << endl;
   cout << "\t-i count splits on input variables                 " << endl;
+  cout << "\t-K keep this fraction in training set and          " << endl;
+  cout << "\t\t put the rest into validation set                " << endl;
+  cout << "\t-D randomize training set split-up                 " << endl;
   cout << "\t-t read validation/test data from a file           " << endl;
   cout << "\t\t (must be in same format as input data!!!        " << endl;
   cout << "\t-p output file to store validation/test data       " << endl;
@@ -89,12 +102,14 @@ int main(int argc, char ** argv)
   int readMode = 1;
   unsigned nmin = 1;
   int verbose = 0;
+  bool useTopdown = false;
   string outHuman, outMachine;
   string resumeFile;
   int iCrit = 5;
   string valFile;
   string valHbkFile;
   bool doMerge = false;
+  int iLoss = 0;
   bool scaleWeights = false;
   double sW = 1.;
   bool countTreeSplits = false;
@@ -103,11 +118,14 @@ int main(int argc, char ** argv)
   string nodeValidationString;
   string inputClassesString;
   double bW = 1.;
+  bool split = false;
+  double splitFactor = 0;
+  bool splitRandomize = false;
 
   // decode command line
   int c;
   extern char* optarg;
-  while( (c = getopt(argc,argv,"ho:a:n:v:f:F:c:P:it:p:my:w:V:z:x:q:")) != EOF ) {
+  while( (c = getopt(argc,argv,"ho:a:n:v:f:TF:c:P:g:iK:Dt:p:my:w:V:z:x:q:")) != EOF ) {
     switch( c )
       {
       case 'h' :
@@ -125,6 +143,9 @@ int main(int argc, char ** argv)
       case 'v' :
 	verbose = (optarg==0 ? 0 : atoi(optarg));
 	break;
+      case 'T' :
+	useTopdown = true;
+	break;
       case 'f' :
 	outHuman = optarg;
 	break;
@@ -137,8 +158,18 @@ int main(int argc, char ** argv)
       case 'P' :
 	bW = (optarg==0 ? 1 : atof(optarg));
 	break;
+      case 'g' :
+        iLoss = (optarg==0 ? 0 : atoi(optarg));
+        break;
       case 'i' :
 	countTreeSplits = true;
+	break;
+      case 'K' :
+	split = true;
+	splitFactor = (optarg==0 ? 0 : atof(optarg));
+	break;
+      case 'D' :
+	splitRandomize = true;
 	break;
       case 't' :
         valFile = optarg;
@@ -179,6 +210,9 @@ int main(int argc, char ** argv)
     cerr << "No training file is specified." << endl;
     return 1;
   }
+
+  // cannot merge nodes in Topdown trees
+  if( doMerge ) useTopdown = false;
 
   // make reader
   SprSimpleReader reader(readMode);
@@ -263,6 +297,29 @@ int main(int argc, char ** argv)
 
   // read validation data from file
   auto_ptr<SprAbsFilter> valFilter;
+  if( split && !valFile.empty() ) {
+    cerr << "Unable to split training data and use validation data " 
+	 << "from a separate file." << endl;
+    return 2;
+  }
+  if( split ) {
+    cout << "Splitting training data with factor " << splitFactor << endl;
+    if( splitRandomize )
+      cout << "Will use randomized splitting." << endl;
+    vector<double> weights;
+    SprData* splitted = filter->split(splitFactor,weights,splitRandomize);
+    if( splitted == 0 ) {
+      cerr << "Unable to split training data." << endl;
+      return 2;
+    }
+    bool ownData = true;
+    valFilter.reset(new SprEmptyFilter(splitted,weights,ownData));
+    cout << "Training data re-filtered:" << endl;
+    for( int i=0;i<inputClasses.size();i++ ) {
+      cout << "Points in class " << inputClasses[i] << ":   " 
+	   << filter->ptsInClass(inputClasses[i]) << endl;
+    }
+  }
   if( !valFile.empty() ) {
     SprSimpleReader valReader(readMode);
     if( !includeSet.empty() ) {
@@ -365,6 +422,31 @@ int main(int argc, char ** argv)
       return 3;
     }
 
+  // make per-event loss
+  auto_ptr<SprAverageLoss> loss;
+  switch( iLoss )
+    {
+    case 1 :
+      loss.reset(new SprAverageLoss(&SprLoss::quadratic));
+      cout << "Per-event loss set to "
+           << "Quadratic loss (y-f(x))^2 " << endl;
+      break;
+    case 2 :
+      loss.reset(new SprAverageLoss(&SprLoss::purity_ratio));
+      cout << "Per-event loss set to "
+           << "Exponential loss exp(-y*f(x)) " << endl;
+      break;
+    case 3 :
+      loss.reset(new SprAverageLoss(&SprLoss::correct_id,
+				&SprTransformation::continuous01ToDiscrete01));
+      cout << "Per-event loss set to "
+	   << "Misid rate int(y==f(x)) " << endl;
+      break;
+    default :
+      cout << "No per-event loss is chosen. Will use the default." << endl;
+      break;
+    }
+
   // if cross-validation requested, cross-validate and exit
   if( nCross > 0 ) {
     // message
@@ -393,17 +475,24 @@ int main(int argc, char ** argv)
     // loop over nodes to prepare classifiers
     vector<SprAbsClassifier*> classifiers(nodeMinSize[0].size());
     for( int i=0;i<nodeMinSize[0].size();i++ ) {
-      SprDecisionTree* tree1 
-	= new SprDecisionTree(filter.get(),crit.get(),
-			      nodeMinSize[0][i],doMerge,
-			      true);
+      SprDecisionTree* tree1 = 0;
+      if( useTopdown ) {
+	bool discrete = false;
+	tree1 = new SprTopdownTree(filter.get(),crit.get(),
+				   nodeMinSize[0][i],discrete);
+      }
+      else {
+	bool discrete = true;
+	tree1 = new SprDecisionTree(filter.get(),crit.get(),
+				    nodeMinSize[0][i],doMerge,discrete);
+      }
       classifiers[i] = tree1;
     }
 
     // cross-validate
     vector<double> cvFom;
     SprCrossValidator cv(filter.get(),nCross);
-    if( !cv.validate(crit.get(),0,classifiers,0,1,
+    if( !cv.validate(crit.get(),loss.get(),classifiers,0,1,
 		     SprUtils::lowerBound(0.5),cvFom,verbose) ) {
       cerr << "Unable to cross-validate." << endl;
       for( int j=0;j<classifiers.size();j++ ) {
@@ -429,12 +518,20 @@ int main(int argc, char ** argv)
   }// end cross-validation
 
   // make decision tree
-  SprDecisionTree tree(filter.get(),crit.get(),nmin,doMerge,true);
-  if( countTreeSplits ) tree.startSplitCounter();
-  tree.setShowBackgroundNodes(true);
+  auto_ptr<SprDecisionTree> tree;
+  if( useTopdown ) {
+    bool discrete = false;
+    tree.reset(new SprTopdownTree(filter.get(),crit.get(),nmin,discrete));
+  }
+  else {
+    tree.reset( new SprDecisionTree(filter.get(),crit.get(),
+				    nmin,doMerge,true));
+    if( countTreeSplits ) tree->startSplitCounter();
+    tree->setShowBackgroundNodes(true);
+  }
 
   // train
-  if( !tree.train(verbose) ) {
+  if( !tree->train(verbose) ) {
     cerr << "Unable to train decision tree." << endl;
     return 4;
   }
@@ -442,7 +539,7 @@ int main(int argc, char ** argv)
 
   // save trained decision tree in human-readable format
   if( !outHuman.empty() ) {
-    if( !tree.store(outHuman.c_str()) ) {
+    if( !tree->store(outHuman.c_str()) ) {
       cerr << "Cannot store decision tree in file " 
 	   << outHuman.c_str() << endl;
       return 5;
@@ -450,52 +547,59 @@ int main(int argc, char ** argv)
   }
 
   // print out counted splits
-  if( countTreeSplits ) tree.printSplitCounter(cout);
+  if( countTreeSplits ) tree->printSplitCounter(cout);
 
   // make trained decision tree
-  auto_ptr<SprTrainedDecisionTree> trainedTree(tree.makeTrained());
+  auto_ptr<SprTrainedDecisionTree> trainedTree(tree->makeTrained());
 
   // save trained tree in machine-readable format
   if( !outMachine.empty() ) {
-    ofstream os(outMachine.c_str());
-    if( !os ) {
-      cerr << "Unable to open file " << outMachine.c_str() << endl;
+    if( !trainedTree->store(outMachine.c_str()) ) {
+      cerr << "Unable to save trained tree into " 
+	   << outMachine.c_str() << endl;
       return 5;
     }
-    trainedTree->print(os);
   }
 
   // compute FOM for the validation data
   if( valFilter.get() != 0 ) {
     double wcor0(0), wmis0(0), wcor1(0), wmis1(0);
     int ncor0(0), nmis0(0), ncor1(0), nmis1(0);
+    if( loss.get() != 0 ) loss->reset();
     for( int i=0;i<valFilter->size();i++ ) {
       const SprPoint* p = (*valFilter.get())[i];
       double w = valFilter->w(i);
+      double resp = trainedTree->response(p->x_);
       if( trainedTree->accept(p) ) {
 	if(      p->class_ == inputClasses[0] ) {
 	  wmis0 += w;
 	  nmis0++;
+	  if( loss.get() != 0 ) loss->update(0,resp,w);
 	}
 	else if( p->class_ == inputClasses[1] ) {
 	  wcor1 += w;
 	  ncor1++;
+	  if( loss.get() != 0 ) loss->update(1,resp,w);
 	}
       }
       else {
 	if(      p->class_ == inputClasses[0] ) {
 	  wcor0 += w;
 	  ncor0++;
+	  if( loss.get() != 0 ) loss->update(0,resp,w);
 	}
 	else if( p->class_ == inputClasses[1] ) {
 	  wmis1 += w;
 	  nmis1++;
+	  if( loss.get() != 0 ) loss->update(1,resp,w);
 	}
       }
     }
     double vFom = crit->fom(wcor0,wmis0,wcor1,wmis1);
+    double vLoss = 0;
+    if( loss.get() != 0 ) vLoss = loss->value();
     cout << "=====================================================" << endl;
-    cout << "Validation FOM=" << vFom << endl;
+    cout << "Validation FOM=" << vFom << "  Loss=" << vLoss << endl;
     cout << "Content of the signal region:"
 	 << "   W0=" << wmis0 << "  W1=" << wcor1 
 	 << "   N0=" << nmis0 << "  N1=" << ncor1 

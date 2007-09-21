@@ -1,5 +1,5 @@
 // File and Version Information:
-//      $Id: SprAbsTrainedClassifier.hh,v 1.4 2007/02/05 21:49:44 narsky Exp $
+//      $Id: SprAbsTrainedClassifier.hh,v 1.6 2007/07/11 19:52:09 narsky Exp $
 //
 // Description:
 //      Class SprAbsTrainedClassifier :
@@ -37,10 +37,10 @@ class SprAbsTrainedClassifier
 public:
   virtual ~SprAbsTrainedClassifier() {}
 
-  SprAbsTrainedClassifier() : cut_() {}
+  SprAbsTrainedClassifier() : cut_(), vars_() {}
 
   SprAbsTrainedClassifier(const SprAbsTrainedClassifier& other)
-    : cut_(other.cut_) {}
+    : cut_(other.cut_), vars_(other.vars_) {}
 
   /*
     Returns classifier name.
@@ -67,6 +67,12 @@ public:
   }
 
   /*
+    Generate code.
+  */
+  virtual bool generateCode(std::ostream& os) const = 0;
+  bool storeCode(const char* filename) const;
+
+  /*
     Classifier response. These methods set a cut on the classifier 1D output
     and accept a point if it satisfies these cuts.
   */
@@ -91,12 +97,27 @@ public:
   }
 
   /*
+    Variables used for these trained classifier.
+    The list of variables can be set optionally.
+    It is up to the user to figure out how s/he wants to use the list
+    of variables.
+    A typical application would be to read the trained classifier
+    configuration from a file and then look at the list of variables
+    to make sure they make sense.
+  */
+  void setVars(const std::vector<std::string>& vars) { vars_ = vars; }
+  void vars(std::vector<std::string>& vars) const { vars = vars_; }
+  unsigned dim() const { return vars_.size(); }
+
+  /*
     Print out.
   */
+  bool store(const char* filename) const;
   virtual void print(std::ostream& os) const = 0;
 
 protected:
   SprCut cut_;// cut imposed on the classifier output for accept()
+  std::vector<std::string> vars_;
 };
 
 #endif

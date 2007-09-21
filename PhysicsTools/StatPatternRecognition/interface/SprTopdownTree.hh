@@ -1,5 +1,5 @@
 // File and Version Information:
-//      $Id: SprTopdownTree.hh,v 1.3 2007/02/05 21:49:44 narsky Exp $
+//      $Id: SprTopdownTree.hh,v 1.4 2007/08/30 17:54:38 narsky Exp $
 //
 // Description:
 //      Class SprTopdownTree :
@@ -46,7 +46,7 @@ public:
 
   SprTopdownTree(SprAbsFilter* data, 
 		 const SprAbsTwoClassCriterion* crit,
-		 int nmin, bool doMerge, bool discrete,
+		 int nmin, bool discrete,
 		 SprIntegerBootstrap* bootstrap=0);
 
   /*

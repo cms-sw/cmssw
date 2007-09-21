@@ -1,4 +1,4 @@
-//$Id: SprOutputAnalyzerApp.cc,v 1.6 2007/02/05 21:49:46 narsky Exp $
+//$Id: SprOutputAnalyzerApp.cc,v 1.11 2007/08/30 17:54:42 narsky Exp $
 /*
   This executable for analysis of output ascii files produced by 
   a classifier. It lets the user quickly estimate fractions of 
@@ -67,9 +67,9 @@ Signal Eff   \  Classifiers  |                                          bag |
 
 #include "PhysicsTools/StatPatternRecognition/interface/SprExperiment.hh"
 #include "PhysicsTools/StatPatternRecognition/interface/SprClass.hh"
-#include "PhysicsTools/StatPatternRecognition/interface/SprUtils.hh"
 #include "PhysicsTools/StatPatternRecognition/interface/SprStringParser.hh"
 #include "PhysicsTools/StatPatternRecognition/interface/SprAbsFilter.hh"
+#include "PhysicsTools/StatPatternRecognition/interface/SprPlotter.hh"
 #include "PhysicsTools/StatPatternRecognition/interface/SprAbsTwoClassCriterion.hh"
 #include "PhysicsTools/StatPatternRecognition/interface/SprTwoClassSignalSignif.hh"
 #include "PhysicsTools/StatPatternRecognition/interface/SprTwoClassIDFraction.hh"
@@ -98,59 +98,9 @@ Signal Eff   \  Classifiers  |                                          bag |
 #include <memory>
 #include <iomanip>
 #include <algorithm>
-#include <functional>
 #include <cmath>
 
 using namespace std;
-
-
-struct SOAResponse {
-  int cls;
-  double weight;
-  map<string,double> response;
-
-  ~SOAResponse() {}
-
-  SOAResponse(int c, double w)
-    : cls(c), weight(w), response() {}
-
-  SOAResponse(const SOAResponse& other)
-    : cls(other.cls), weight(other.weight), response(other.response) {}
-
-  void set(const char* classifier, double r) {
-    map<string,double>::iterator found = response.find(classifier);
-    if( found == response.end() )
-      response.insert(pair<const string,double>(classifier,r));
-    else
-      found->second = r;
-  }
-};
-
-
-struct SOAFigureOfMerit {
-  double cut;
-  double bgrndW;
-  unsigned bgrndN;
-  double fom;
-
-  ~SOAFigureOfMerit() {}
-
-  SOAFigureOfMerit()
-    : cut(SprUtils::min()), bgrndW(0), bgrndN(0), fom(0) {}
-
-  SOAFigureOfMerit(double c, double w, unsigned n)
-    : cut(c), bgrndW(w), bgrndN(n), fom(0) {}
-
-  SOAFigureOfMerit(double c, double w, unsigned n, double f)
-    : cut(c), bgrndW(w), bgrndN(n), fom(f) {}
-
-  SOAFigureOfMerit(const SOAFigureOfMerit& other)
-    : cut(other.cut), 
-      bgrndW(other.bgrndW), 
-      bgrndN(other.bgrndN), 
-      fom(other.fom) 
-  {}
-};
 
 
 void help(const char* prog)
@@ -178,16 +128,6 @@ void help(const char* prog)
   cout << "\t-n do not show computed cut and FOM for more compact output" 
        << endl;
 }
-
-
-// sorts by greater, not less!!!
-struct SOACmpPairDDFirst
-  : public binary_function<pair<double,double>,pair<double,double>,bool> {
-  bool operator()(const pair<double,double>& l, const pair<double,double>& r)
-    const {
-    return (l.first > r.first);
-  }
-};
 
 
 bool answerYN(const char* question)
@@ -273,7 +213,7 @@ int main(int argc, char ** argv)
   vector<string> classifiers = getClassifiers[0];
 
   // Prepare class list.
-  pair<SprClass,SprClass> classes;
+  vector<SprClass> classes;
   if( !SprAbsFilter::decodeClassString(inputClassesString.c_str(),classes) ) {
     cerr << "Unable to decode classes from string " 
 	 << inputClassesString << endl;
@@ -397,7 +337,7 @@ int main(int argc, char ** argv)
   // read lines and fill out responses
   double wsig(0), wbgr(0);
   unsigned nsig(0), nbgr(0);
-  vector<SOAResponse> responses;
+  vector<SprPlotter::Response> responses;
   while( getline(file,line) ) {
     int index(0), icls(0);
     double weight(0);
@@ -405,22 +345,16 @@ int main(int argc, char ** argv)
     event >> index >> icls >> weight;
 
     // decode input class
-    int cls = 0;
-    if(      icls == classes.first ) {
+    int cls = -1;
+    if(      icls == classes[0] )
       cls = 0;
-      nbgr++;
-      wbgr += weight;
-    }
-    else if( icls == classes.second ) {
+    else if( icls == classes[1] )
       cls = 1;
-      nsig++;
-      wsig += weight;
-    }
     else
       continue;
 
     // fill out response
-    SOAResponse response(cls,weight);
+    SprPlotter::Response response(cls,weight);
     unsigned istart = 4;
     double fread = 0;
     for( int i=0;i<position.size();i++ ) {
@@ -437,15 +371,28 @@ int main(int argc, char ** argv)
   }
 
   // sanity check
-  assert( wsig>0 || wbgr>0 );
   if( responses.empty() ) {
     cerr << "Did not find any stored classifier responses." << endl;
     return 5;
   }
+
+  // supply input vectors to the plotter
+  SprPlotter plotter(responses);
+  if( useAbsolute ) plotter.useAbsolute();
+  if( !plotter.setScaleFactors(sW,bW) ) {
+    cerr << "Unable to set the scaling factors for the plotter." << endl;
+    return 7;
+  }
+  plotter.setCrit(crit.get());
+
+  // print-out
   cout << "Read " << responses.size() 
        << " points from input file "<< analyzeFile.c_str() 
-       << "   Bgrnd Weight=" << bW*wbgr
-       << "   Signal Weight=" << sW*wsig << endl;
+       << "   Bgrnd Nevents=" << plotter.bgrndNevts()
+       << "   Bgrnd Weight=" << plotter.bgrndWeight()
+       << "   Signal Nevents=" << plotter.signalNevts() 
+       << "   Signal Weight=" << plotter.signalWeight() 
+       << endl;
 
   // create vector of signal efficiencies
   vector<double> effS;
@@ -471,190 +418,131 @@ int main(int argc, char ** argv)
   //
   while( true ) {
 
-    if( wsig>0 && wbgr>0 ) {
-      // read efficiency values
-      if( useAbsolute ) {
-	cout << "Input signal weights for which background "
-	     << "will be estimated [ ";
-      }
-      else {
-	cout << "Input signal efficiency values for which background "
-	     << "will be estimated [ ";
-      }
-      for( int i=0;i<effS.size();i++ )
-	cout << effS[i] << " ";
-      cout << "] ";
-      string line;
-      getline(cin,line,'\n');
-      if( !line.empty() ) {
-	effS.clear();
-	istringstream str(line);
-	double dummy = 0;
-	while( str >> dummy ) effS.push_back(dummy);
-      }
-      if( effS.empty() ) {
-	cerr << "What, are you trying to be cute? Enter values." << endl;
-	return 6;
-      }
-      stable_sort(effS.begin(),effS.end());
+    // read efficiency values
+    if( useAbsolute ) {
+      cout << "Input signal weights for which background "
+	   << "will be estimated [ ";
+    }
+    else {
+      cout << "Input signal efficiency values for which background "
+	   << "will be estimated [ ";
+    }
+    for( int i=0;i<effS.size();i++ )
+      cout << effS[i] << " ";
+    cout << "] ";
+    string line;
+    getline(cin,line,'\n');
+    if( !line.empty() ) {
+      effS.clear();
+      istringstream str(line);
+      double dummy = 0;
+      while( str >> dummy ) effS.push_back(dummy);
+    }
+    if( effS.empty() ) {
+      cerr << "What, are you trying to be cute? Enter values." << endl;
+      return 6;
+    }
+    stable_sort(effS.begin(),effS.end());
+    
+    //
+    // Estimate background fractions for these signal efficiencies.
+    //
+    map<string,vector<SprPlotter::FigureOfMerit> > effB;
+    
+    for( int iclassifier=0;iclassifier<position.size();iclassifier++ ) {
+      const string classifier = position[iclassifier].second;
       
-      //
-      // Estimate background fractions for these signal efficiencies.
-      //
-      map<string,vector<SOAFigureOfMerit> > effB;
-      
-      for( int iclassifier=0;iclassifier<position.size();iclassifier++ ) {
-	const string classifier = position[iclassifier].second;
-	
-	// prepare vectors
-	vector<pair<double,double> > signal;
-	vector<pair<double,double> > bgrnd;
-	
-	// fill them
-	for( int i=0;i<responses.size();i++ ) {
-	  if(      responses[i].cls == 0 ) {
-	    bgrnd.push_back(pair<double,
-			    double>(responses[i].response[classifier],
-				    responses[i].weight));
-	  }
-	  else if( responses[i].cls == 1 ) {
-	    signal.push_back(pair<double,
-			     double>(responses[i].response[classifier],
-				     responses[i].weight));
-	  }
-	}
-	
-	// sort
-	stable_sort(bgrnd.begin(),bgrnd.end(),SOACmpPairDDFirst());
-	stable_sort(signal.begin(),signal.end(),SOACmpPairDDFirst());
-	
-	// find dividing point in classifier response
-	vector<double> cuts(effS.size());
-	double w = 0;
-	int divider = 0;
-	int i = 0;
-	while( i<signal.size() && divider<effS.size() ) {
-	  w += signal[i].second;
-	  if( (useAbsolute && sW*w>effS[divider]) 
-	      || (!useAbsolute && (w/wsig)>effS[divider]) ) {
-	    if( i == 0 )
-	      cuts[divider] = signal[0].first;
-	    else
-	      cuts[divider] = 0.5 * (signal[i].first + signal[i-1].first);
-	    divider++;
-	  }
-	  i++;
-	}
-	
-	// find background fractions
-	SOAFigureOfMerit defaultFOM(cuts[cuts.size()-1],
-				 (useAbsolute ? wbgr : 1),nbgr);
-	pair<map<string,vector<SOAFigureOfMerit> >::iterator,bool> 
-	  inserted = effB.insert(pair<const string,
-				 vector<SOAFigureOfMerit> >(classifier,
-				       vector<SOAFigureOfMerit>(effS.size(),
-								defaultFOM)));
-	assert( inserted.second );
-	w = 0;
-	divider = 0;
-	i = 0;
-	while( i<bgrnd.size() && divider<effS.size() ) {
-	  if( bgrnd[i].first < cuts[divider] ) {
-	    if( useAbsolute ) {
-	      inserted.first->second[divider] 
-		= SOAFigureOfMerit(cuts[divider],
-				   bW*w,i,( crit.get()==0 ? 0 
-					    : crit->fom(bW*(wbgr-w),bW*w,
-					effS[divider],sW*wsig-effS[divider])));
-	    }
-	    else {
-	      inserted.first->second[divider] = SOAFigureOfMerit(cuts[divider],
-								 w/wbgr,i);
-	    }
-	    divider++;
-	  }
-	  w += bgrnd[i].second;
-	  i++;
-	}
+      // insert into map
+      pair<map<string,vector<SprPlotter::FigureOfMerit> >::iterator,bool> 
+	inserted = effB.insert(pair<const string,
+			       vector<SprPlotter::FigureOfMerit> >(classifier,
+				      vector<SprPlotter::FigureOfMerit>()));
+      assert( inserted.second );
+    
+      // process
+      if( !plotter.backgroundCurve(effS,
+				   classifier.c_str(),
+				   inserted.first->second) ) {
+	cerr << "Unable to compute the efficiency curve " 
+	     << "for classifier " << classifier.c_str() << endl;
+	continue;
       }
-      
-      //
-      // make a table of signal and background efficiencies
-      //
-      cout << "===========================================" << endl;
-      cout << "Table of surviving background fractions"
-	   << " (* shows minimal value in a row; " 
-	   << "Cut on classifier output and FOM are shown in parentheses)" 
-	   << endl;
-      cout << "===========================================" << endl;
-      char s[200];
-      sprintf(s,"Signal Eff   \\  Classifiers  |");
+    }// end of loop over classifiers
+
+  
+    //
+    // make a table of signal and background efficiencies
+    //
+    cout << "===========================================" << endl;
+    cout << "Table of surviving background fractions"
+	 << " (* shows minimal value in a row; " 
+	 << "Cut on classifier output and FOM are shown in parentheses)" 
+	 << endl;
+    cout << "===========================================" << endl;
+    char s[200];
+    sprintf(s,"Signal Eff   \\  Classifiers  |");
+    cout << s;
+    string temp = "------------------------------";
+    for( map<string,vector<SprPlotter::FigureOfMerit> >::const_iterator
+	   iter=effB.begin();iter!=effB.end();iter++ ) {
+      if( showCutAndFOM )
+	sprintf(s," %65s |",iter->first.c_str());
+      else
+	sprintf(s," %29s |",iter->first.c_str());
       cout << s;
-      string temp = "------------------------------";
-      for( map<string,vector<SOAFigureOfMerit> >::const_iterator
+      if( showCutAndFOM )
+	temp += "--------------------------------------------------------------------";
+      else
+	temp += "--------------------------------";
+    }
+    cout << endl;
+    cout << temp.c_str() << endl;
+    for( int i=0;i<effS.size();i++ ) {
+      sprintf(s,"          %10.4f         |",effS[i]);
+      cout << s;
+      vector<string> names;
+      vector<double> cuts;
+      vector<double> values;
+      vector<double> errors;
+      vector<double> fom;
+      for( map<string,vector<SprPlotter::FigureOfMerit> >::const_iterator
 	     iter=effB.begin();iter!=effB.end();iter++ ) {
-	if( showCutAndFOM )
-	  sprintf(s," %65s |",iter->first.c_str());
-	else
-	  sprintf(s," %29s |",iter->first.c_str());
+	names.push_back(iter->first);
+	cuts.push_back(iter->second[i].lowerBound);
+	double value = iter->second[i].bgrWeight;
+	values.push_back(value);
+	unsigned nevts = iter->second[i].bgrNevts;
+	errors.push_back(( nevts>0 ? value/sqrt(double(nevts)) : 0 ));
+	fom.push_back(iter->second[i].fom);
+      }
+      int foundMin 
+	= min_element(values.begin(),values.end()) - values.begin();
+      for( int j=0;j<names.size();j++ ) {
+	if( showCutAndFOM ) {
+	  if( j == foundMin )
+	    sprintf(s," *%12.5f +- %12.5f (Cut=%12.5f FOM=%12.5f) |",
+		    values[j],errors[j],cuts[j],fom[j]);
+	  else
+	    sprintf(s,"  %12.5f +- %12.5f (Cut=%12.5f FOM=%12.5f) |",
+		    values[j],errors[j],cuts[j],fom[j]);
+	}
+	else {
+	  if( j == foundMin )
+	    sprintf(s," *%12.5f +- %12.5f |",values[j],errors[j]);
+	  else
+	    sprintf(s,"  %12.5f +- %12.5f |",values[j],errors[j]);
+	}
 	cout << s;
-	if( showCutAndFOM )
-	  temp += "--------------------------------------------------------------------";
-	else
-	  temp += "--------------------------------";
       }
       cout << endl;
-      cout << temp.c_str() << endl;
-      for( int i=0;i<effS.size();i++ ) {
-	sprintf(s,"          %10.4f         |",effS[i]);
-	cout << s;
-	vector<string> names;
-	vector<double> cuts;
-	vector<double> values;
-	vector<double> errors;
-	vector<double> fom;
-	for( map<string,vector<SOAFigureOfMerit> >::const_iterator
-	       iter=effB.begin();iter!=effB.end();iter++ ) {
-	  names.push_back(iter->first);
-	  cuts.push_back(iter->second[i].cut);
-	  double value = iter->second[i].bgrndW;
-	  values.push_back(value);
-	  unsigned nevts = iter->second[i].bgrndN;
-	  errors.push_back(( nevts>0 ? value/sqrt(double(nevts)) : 0 ));
-	  fom.push_back(iter->second[i].fom);
-	}
-	int foundMin = min_element(values.begin(),values.end()) - values.begin();
-	for( int j=0;j<names.size();j++ ) {
-	  if( showCutAndFOM ) {
-	    if( j == foundMin )
-	      sprintf(s," *%12.5f +- %12.5f (Cut=%12.5f FOM=%12.5f) |",
-		      values[j],errors[j],cuts[j],fom[j]);
-	    else
-	      sprintf(s,"  %12.5f +- %12.5f (Cut=%12.5f FOM=%12.5f) |",
-		      values[j],errors[j],cuts[j],fom[j]);
-	  }
-	  else {
-	    if( j == foundMin )
-	      sprintf(s," *%12.5f +- %12.5f |",values[j],errors[j]);
-	    else
-	      sprintf(s,"  %12.5f +- %12.5f |",values[j],errors[j]);
-	  }
-	  cout << s;
-	}
-	cout << endl;
-      }
-      cout << "===========================================" << endl;
-    }// end of wsig>0 && wbgr>0
-    else {
-      cout << "One of categories has no entries. "
-	   << "Cannot make a table of efficiencies." << endl;
     }
-
+    cout << "===========================================" << endl;
+  
     //
     // make a histogram for the requested classifier
     //
     if( answerYN("Histogram classifier output?") ) {
-
+      
       // user input
       cout << "Input classifier name, low and upper limits, and step: "
 	   << "(Example: bag 0 1 0.1) ----> ";
@@ -672,91 +560,16 @@ int main(int argc, char ** argv)
 	cerr << "Incorrect parameters given. Exit to main loop." << endl;
 	continue;
       }
-
-      // prepare vectors
-      vector<pair<double,double> > signal;
-      vector<pair<double,double> > bgrnd;
-
-      // fill them
-      for( int i=0;i<responses.size();i++ ) {
-	if(      responses[i].cls == 0 ) {
-	  bgrnd.push_back(pair<double,
-			  double>(responses[i].response[classifier],
-				  responses[i].weight));
-	}
-	else if( responses[i].cls == 1 ) {
-	  signal.push_back(pair<double,
-			   double>(responses[i].response[classifier],
-				   responses[i].weight));
-	}
+      
+      // make histograms
+      vector<pair<double,double> > shist, bhist;
+      int nbin = plotter.histogram(classifier.c_str(),xlo,xhi,dx,shist,bhist);
+      if( nbin < 1 ) {
+	cerr << "Unable to make histogram for classifier " 
+	     << classifier.c_str() << endl;
+	continue;
       }
-
-      // sort in ascending order
-      stable_sort(bgrnd.begin(),bgrnd.end(),not2(SOACmpPairDDFirst()));
-      stable_sort(signal.begin(),signal.end(),not2(SOACmpPairDDFirst()));
-
-      // book histos
-      unsigned nbin = unsigned(floor((xhi-xlo)/dx)) + 1;
-      vector<pair<double,double> > shist(nbin), bhist(nbin);
-
-      // fill out histos
-      int jsig(0), jbgr(0);
-      for( int i=0;i<nbin;i++ ) {
-	double xa = xlo + i*dx;
-	double xb = xa + dx;
-
-	// check starting indices
-	if( !signal.empty() ) {
-	  if( signal[jsig].first < xa ) {
-	    for( int j=jsig;j<signal.size();j++ ) {
-	      if( signal[j].first >= xa ) {
-		jsig = j;
-		break;
-	      }
-	    }
-	  }
-	}
-	if( !bgrnd.empty() ) {
-	  if( bgrnd[jbgr].first < xa ) {
-	    for( int j=jbgr;j<bgrnd.size();j++ ) {
-	      if( bgrnd[j].first >= xa ) {
-		jbgr = j;
-		break;
-	      }
-	    }
-	  }
-	}
-
-	// sum entries over this bin
-	double wsig = 0;
-	unsigned nsig = 0;
-	for( int j=jsig;j<signal.size();j++ ) {
-	  if( signal[j].first >= xb ) {
-	    double err = ( nsig>0 ? sW*wsig/sqrt(double(nsig)) : 0 );
-	    shist[i] = pair<double,double>(sW*wsig,err);
-	    jsig = j;
-	    break;
-	  }
-	  wsig += signal[j].second;
-	  nsig++;
-	}
-	double wbgr = 0;
-	unsigned nbgr = 0;
-	for( int j=jbgr;j<bgrnd.size();j++ ) {
-	  if( bgrnd[j].first >= xb ) {
-	    double err = ( nbgr>0 ? bW*wbgr/sqrt(double(nbgr)) : 0 );
-	    bhist[i] = pair<double,double>(bW*wbgr,err);
-	    jbgr = j;
-	    break;
-	  }
-	  wbgr += bgrnd[j].second;
-	  nbgr++;
-	}
-      }// end bin loop
-
-      // sanity check
-      assert( shist.size() == bhist.size() );
-
+      
       // print out
       cout << "===========================================" << endl;
       cout << "Histogram for output of classifier " 
@@ -768,19 +581,18 @@ int main(int argc, char ** argv)
       cout << s << endl;
       for( int i=0;i<nbin;i++ ) {
 	double x = xlo + (i+0.5)*dx;
-	sprintf(s," %12.5f   |   %12.5f +- %12.5f |   %12.5f +- %12.5f |",
-		x,
+	sprintf(s," %12.5f   |   %12.5f +- %12.5f |   %12.5f +- %12.5f |",x,
 		shist[i].first,shist[i].second,
 		bhist[i].first,bhist[i].second);
 	cout << s << endl;
       }
       cout << "===========================================" << endl;
     }// end histogram
-
+    
     // exit?
     if( !answerYN("Continue?") ) break;
   }
-
+    
   // exit
   return 0;
 }

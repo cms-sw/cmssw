@@ -1,4 +1,4 @@
-//$Id: SprBagger.hh,v 1.5 2007/02/05 21:49:44 narsky Exp $
+//$Id: SprBagger.hh,v 1.6 2007/02/12 23:13:58 narsky Exp $
 //
 // Description:
 //      Class SprBagger :

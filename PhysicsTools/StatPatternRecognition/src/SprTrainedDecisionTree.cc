@@ -1,4 +1,4 @@
-// $Id: SprTrainedDecisionTree.cc,v 1.4 2007/02/05 21:49:46 narsky Exp $
+// $Id: SprTrainedDecisionTree.cc,v 1.5 2007/05/14 18:08:08 narsky Exp $
 
 #include "PhysicsTools/StatPatternRecognition/interface/SprExperiment.hh"
 #include "PhysicsTools/StatPatternRecognition/interface/SprTrainedDecisionTree.hh"
@@ -51,7 +51,7 @@ int SprTrainedDecisionTree::nBox(const std::vector<double>& v) const
 
 void SprTrainedDecisionTree::print(std::ostream& os) const
 {
-  os << "Trained DecisionTree" << endl;
+  os << "Trained DecisionTree " << SprVersion << endl;
   os << "Nodes: " << nodes1_.size() << " nodes." << endl;
   for( int i=0;i<nodes1_.size();i++ ) {
     const SprBox& limits = nodes1_[i];

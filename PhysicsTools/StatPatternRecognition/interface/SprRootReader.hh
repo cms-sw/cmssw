@@ -1,6 +1,6 @@
 //------------------------------------------------------------------------
 // File and Version Information:
-//      $Id: SprRootReader.hh,v 1.3 2006/11/13 19:09:39 narsky Exp $
+//      $Id: SprRootReader.hh,v 1.4 2007/05/17 23:31:37 narsky Exp $
 //
 // Description:
 //      Class SprRootReader :
@@ -55,10 +55,13 @@
 #define SPRROOTREADER_HH
 
 #include "PhysicsTools/StatPatternRecognition/interface/SprAbsReader.hh"
+
+#include <set>
 #include <vector>
 #include <string>
 
 class SprAbsFilter;
+class SprPreFilter;
 
 struct FileInfo {
     std::string name;
@@ -81,7 +84,7 @@ private:
     std::vector<std::string> weightLeafNames_;
     
 public:
-    SprRootReader();
+    SprRootReader(SprPreFilter* filter=0);
     bool chooseVars(const std::set<std::string>& vars);
     bool chooseAllBut(const std::set<std::string>& vars);
     void chooseAll();

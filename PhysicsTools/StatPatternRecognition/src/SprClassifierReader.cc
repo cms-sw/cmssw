@@ -1,4 +1,4 @@
-//$Id: SprClassifierReader.cc,v 1.1 2007/02/05 21:49:45 narsky Exp $
+//$Id: SprClassifierReader.cc,v 1.8 2007/08/30 17:54:42 narsky Exp $
 
 #include "PhysicsTools/StatPatternRecognition/interface/SprExperiment.hh"
 #include "PhysicsTools/StatPatternRecognition/interface/SprClassifierReader.hh"
@@ -15,6 +15,7 @@
 #include "PhysicsTools/StatPatternRecognition/interface/SprTwoClassIDFraction.hh"
 #include "PhysicsTools/StatPatternRecognition/interface/SprTwoClassGiniIndex.hh"
 #include "PhysicsTools/StatPatternRecognition/interface/SprTwoClassCrossEntropy.hh"
+#include "PhysicsTools/StatPatternRecognition/interface/SprCoordinateMapper.hh"
 
 #include "PhysicsTools/StatPatternRecognition/interface/SprStdBackprop.hh"
 #include "PhysicsTools/StatPatternRecognition/interface/SprTrainedStdBackprop.hh"
@@ -34,11 +35,14 @@
 #include "PhysicsTools/StatPatternRecognition/interface/SprBagger.hh"
 #include "PhysicsTools/StatPatternRecognition/interface/SprArcE4.hh"
 #include "PhysicsTools/StatPatternRecognition/interface/SprTrainedBagger.hh"
+#include "PhysicsTools/StatPatternRecognition/interface/SprCombiner.hh"
+#include "PhysicsTools/StatPatternRecognition/interface/SprTrainedCombiner.hh"
 
 #include "PhysicsTools/StatPatternRecognition/src/SprVector.hh"
 #include "PhysicsTools/StatPatternRecognition/src/SprSymMatrix.hh"
 
 #include <iostream>
+#include <fstream>
 #include <sstream>
 #include <memory>
 #include <cassert>
@@ -48,6 +52,7 @@ using namespace std;
 //
 // Template declarations.
 //
+/*
 template SprTrainedStdBackprop* 
 SprClassifierReader::readTrained<SprTrainedStdBackprop>(const char* filename, 
 							const char* classifier,
@@ -80,8 +85,48 @@ template SprTrainedBagger*
 SprClassifierReader::readTrained<SprTrainedBagger>(const char* filename, 
 						   const char* classifier,
 						   int verbose);
+template SprTrainedCombiner* 
+SprClassifierReader::readTrained<SprTrainedCombiner>(const char* filename, 
+						     const char* classifier,
+						     int verbose);
 
-
+template SprTrainedStdBackprop* 
+SprClassifierReader::readTrained<SprTrainedStdBackprop>(std::istream& input, 
+							const char* classifier,
+							int verbose);
+template SprTrainedTopdownTree* 
+SprClassifierReader::readTrained<SprTrainedTopdownTree>(std::istream& input, 
+							const char* classifier,
+							int verbose);
+template SprTrainedDecisionTree* 
+SprClassifierReader::readTrained<SprTrainedDecisionTree>(std::istream& input, 
+						       const char* classifier,
+							 int verbose);
+template SprTrainedFisher* 
+SprClassifierReader::readTrained<SprTrainedFisher>(std::istream& input, 
+						   const char* classifier,
+						   int verbose);
+template SprTrainedLogitR* 
+SprClassifierReader::readTrained<SprTrainedLogitR>(std::istream& input, 
+						   const char* classifier,
+						   int verbose);
+template SprTrainedBinarySplit* 
+SprClassifierReader::readTrained<SprTrainedBinarySplit>(std::istream& input, 
+							const char* classifier,
+							int verbose);
+template SprTrainedAdaBoost* 
+SprClassifierReader::readTrained<SprTrainedAdaBoost>(std::istream& input, 
+						     const char* classifier,
+						     int verbose);
+template SprTrainedBagger* 
+SprClassifierReader::readTrained<SprTrainedBagger>(std::istream& input, 
+						   const char* classifier,
+						   int verbose);
+template SprTrainedCombiner* 
+SprClassifierReader::readTrained<SprTrainedCombiner>(std::istream& input, 
+						     const char* classifier,
+						     int verbose);
+*/
 
 
 bool SprClassifierReader::readTrainable(const char* filename, 
@@ -100,19 +145,26 @@ bool SprClassifierReader::readTrainable(const char* filename,
 	 << fname.c_str() << endl;
   }
 
+  // read
+  return SprClassifierReader::readTrainable(file,trainable,verbose);
+}
+
+
+bool SprClassifierReader::readTrainable(std::istream& input, 
+					SprAbsClassifier* trainable,
+					int verbose)
+{
   // set line counter
   unsigned nLine = 1;
 
   // read clasifier name
-  string found = SprClassifierReader::readClassifierName(file);
+  string found = SprClassifierReader::readClassifierName(input);
   if( found.empty() ) {
     cerr << "Unable to read classifier name on line " << nLine << endl;
     return false;
   }
-  if( verbose > 0 ) {
-    cout << "Classifier " << found.c_str() 
-	 << " from file " << fname.c_str() << endl;
-  }
+  if( verbose > 0 )
+    cout << "Found classifier " << found.c_str() << endl;
 
   // if requested classifier is supplied, make sure it matches
   string requested = trainable->name();
@@ -125,7 +177,7 @@ bool SprClassifierReader::readTrainable(const char* filename,
 
   // switch between classifier types
   if(      requested == "StdBackprop" ) {
-    if( !SprClassifierReader::readStdBackprop(file,
+    if( !SprClassifierReader::readStdBackprop(input,
 				   static_cast<SprStdBackprop*>(trainable),
 					      nLine) ) {
       cerr << "Unable to read classifier " << requested.c_str() << endl;
@@ -133,7 +185,7 @@ bool SprClassifierReader::readTrainable(const char* filename,
     }
   }
   else if( requested == "AdaBoost" ) {
-    if( !SprClassifierReader::readAdaBoost(file,
+    if( !SprClassifierReader::readAdaBoost(input,
 				   static_cast<SprAdaBoost*>(trainable),
 					   nLine) ) {
       cerr << "Unable to read classifier " << requested.c_str() << endl;
@@ -141,7 +193,7 @@ bool SprClassifierReader::readTrainable(const char* filename,
     }
   }
   else if( requested=="Bagger" || requested=="ArcE4" ) {
-    if( !SprClassifierReader::readBagger(file,
+    if( !SprClassifierReader::readBagger(input,
 				   static_cast<SprBagger*>(trainable),
 					 nLine) ) {
       cerr << "Unable to read classifier " << requested.c_str() << endl;
@@ -166,6 +218,10 @@ bool SprClassifierReader::readTrainable(const char* filename,
   }
    else if( requested == "BinarySplit" ) {
     cerr << "Readout of trainable BinarySplit not implemented." << endl;
+    return false;
+  }
+   else if( requested == "Combiner" ) {
+    cerr << "Readout of trainable Combiner not implemented." << endl;
     return false;
   }
  else {
@@ -194,6 +250,14 @@ SprAbsTrainedClassifier* SprClassifierReader::readTrained(
 	 << fname.c_str() << endl;
   }
 
+  // read
+  return SprClassifierReader::readTrained(file,verbose);
+}
+
+
+SprAbsTrainedClassifier* SprClassifierReader::readTrained(std::istream& input,
+							  int verbose)
+{
   // make empty classifier name
   string requested;
 
@@ -201,14 +265,27 @@ SprAbsTrainedClassifier* SprClassifierReader::readTrained(
   unsigned nLine = 0;
 
   // read
-  return SprClassifierReader::readTrainedFromFile(file,requested,nLine);
+  SprAbsTrainedClassifier* t 
+    = SprClassifierReader::readTrainedFromStream(input,requested,nLine);
+  if( t == 0 ) return 0;
+
+  // set vars
+  vector<string> vars;
+  if( !SprClassifierReader::readVars(input,vars,nLine) ) {
+    cerr << "Unable to read variables in SprClassifierReader::readTrained." 
+	 << endl;
+    return 0;
+  }
+  t->setVars(vars);
+
+  // exit
+  return t;
 }
 
 
-template<class T> T* SprClassifierReader::readTrained(
-					      const char* filename, 
-					      const char* classifier,
-					      int verbose)
+template<class T> T* SprClassifierReader::readTrained(const char* filename, 
+						      const char* classifier,
+						      int verbose)
 {
   // open file
   string fname = filename;
@@ -222,6 +299,15 @@ template<class T> T* SprClassifierReader::readTrained(
 	 << fname.c_str() << endl;
   }
 
+  // read
+  return SprClassifierReader::readTrained<T>(file,classifier,verbose);
+}
+
+
+template<class T> T* SprClassifierReader::readTrained(std::istream& input, 
+						      const char* classifier,
+						      int verbose)
+{
   // request a specific classifier
   string requested = classifier;
 
@@ -229,22 +315,32 @@ template<class T> T* SprClassifierReader::readTrained(
   unsigned nLine = 0;
 
   // read specific classifier
-  SprAbsTrainedClassifier* specific 
-    = SprClassifierReader::readTrainedFromFile(file,requested,nLine);
+  SprAbsTrainedClassifier* t
+    = SprClassifierReader::readTrainedFromStream(input,requested,nLine);
+  if( t == 0 ) return 0;
+
+  // set vars
+  vector<string> vars;
+  if( !SprClassifierReader::readVars(input,vars,nLine) ) {
+    cerr << "Unable to read variables in SprClassifierReader::readTrained." 
+	 << endl;
+    return 0;
+  }
+  t->setVars(vars);
 
   // exit
-  return static_cast<T*>(specific);
+  return static_cast<T*>(t);
 }
 
 
-SprAbsTrainedClassifier* SprClassifierReader::readTrainedFromFile(
-					       std::ifstream& file,
+SprAbsTrainedClassifier* SprClassifierReader::readTrainedFromStream(
+					       std::istream& input,
 					       const std::string& requested,
 					       unsigned& nLine)
 {
   // read clasifier name
   nLine++;
-  string found = SprClassifierReader::readClassifierName(file);
+  string found = SprClassifierReader::readClassifierName(input);
   if( found.empty() ) {
     cerr << "Unable to read classifier name on line " << nLine << endl;
     return 0;
@@ -259,16 +355,16 @@ SprAbsTrainedClassifier* SprClassifierReader::readTrainedFromFile(
   }
 
   // read specific classifier
-  return SprClassifierReader::readSelectedTrained(file,found,nLine);
+  return SprClassifierReader::readSelectedTrained(input,found,nLine);
 }
 
 
-std::string SprClassifierReader::readClassifierName(std::ifstream& file)
+std::string SprClassifierReader::readClassifierName(std::istream& input)
 {
   // read current line
   string line;
-  if( !getline(file,line) ) {
-    cerr << "Cannot read from file." << endl;
+  if( !getline(input,line) ) {
+    cerr << "Cannot read from input." << endl;
     return "";
   }
 
@@ -288,7 +384,7 @@ std::string SprClassifierReader::readClassifierName(std::ifstream& file)
 
 
 SprAbsTrainedClassifier* SprClassifierReader::readSelectedTrained(
-					       std::ifstream& file,
+					       std::istream& input,
 					       const std::string& requested,
 					       unsigned& nLine)
 {
@@ -300,7 +396,7 @@ SprAbsTrainedClassifier* SprClassifierReader::readSelectedTrained(
   // switch between classifier types
   if(      requested == "StdBackprop" ) {
     auto_ptr<SprStdBackprop> trainable(new SprStdBackprop(&filter));
-    if( !SprClassifierReader::readStdBackprop(file,trainable.get(),nLine) ) {
+    if( !SprClassifierReader::readStdBackprop(input,trainable.get(),nLine) ) {
       cerr << "Unable to read classifier " << requested.c_str() << endl;
       return 0;
     }
@@ -308,7 +404,7 @@ SprAbsTrainedClassifier* SprClassifierReader::readSelectedTrained(
   }
   else if( requested == "AdaBoost" ) {
     auto_ptr<SprAdaBoost> trainable(new SprAdaBoost(&filter));
-    if( !SprClassifierReader::readAdaBoost(file,trainable.get(),nLine) ) {
+    if( !SprClassifierReader::readAdaBoost(input,trainable.get(),nLine) ) {
       cerr << "Unable to read classifier " << requested.c_str() << endl;
       return 0;
     }
@@ -316,26 +412,29 @@ SprAbsTrainedClassifier* SprClassifierReader::readSelectedTrained(
   }
   else if( requested=="Bagger" || requested=="ArcE4" ) {
     auto_ptr<SprBagger> trainable(new SprBagger(&filter));
-    if( !SprClassifierReader::readBagger(file,trainable.get(),nLine) ) {
+    if( !SprClassifierReader::readBagger(input,trainable.get(),nLine) ) {
       cerr << "Unable to read classifier " << requested.c_str() << endl;
       return 0;
     }
     trained = trainable->makeTrained();
   }
   else if( requested == "TopdownTree" ) {
-    return SprClassifierReader::readTopdownTree(file,nLine);
+    return SprClassifierReader::readTopdownTree(input,nLine);
   }
   else if( requested == "DecisionTree" ) {
-    return SprClassifierReader::readDecisionTree(file,nLine);
+    return SprClassifierReader::readDecisionTree(input,nLine);
   }
   else if( requested == "Fisher" ) {
-    return SprClassifierReader::readFisher(file,nLine);
+    return SprClassifierReader::readFisher(input,nLine);
   }
   else if( requested == "LogitR" ) {
-    return SprClassifierReader::readLogitR(file,nLine);
+    return SprClassifierReader::readLogitR(input,nLine);
   }
   else if( requested == "BinarySplit" ) {
-    return SprClassifierReader::readBinarySplit(file,nLine);
+    return SprClassifierReader::readBinarySplit(input,nLine);
+  }
+  else if( requested == "Combiner" ) {
+    return SprClassifierReader::readCombiner(input,nLine);
   }
   else {
     cerr << "Unknown classifier requested." << endl;
@@ -347,7 +446,7 @@ SprAbsTrainedClassifier* SprClassifierReader::readSelectedTrained(
 }
 
 
-bool SprClassifierReader::readStdBackprop(std::ifstream& file, 
+bool SprClassifierReader::readStdBackprop(std::istream& input, 
 					  SprStdBackprop* trainable,
 					  unsigned& nLine)
 {
@@ -362,7 +461,7 @@ bool SprClassifierReader::readStdBackprop(std::ifstream& file,
   // read header
   string line;
   nLine++;
-  if( !getline(file,line) ) {
+  if( !getline(input,line) ) {
     cerr << "Unable to read line " << nLine << endl;
     return false;
   }
@@ -370,7 +469,7 @@ bool SprClassifierReader::readStdBackprop(std::ifstream& file,
   // read the cut
   string dummy;
   nLine++;
-  if( !getline(file,line) ) {
+  if( !getline(input,line) ) {
     cerr << "Unable to read line " << nLine << endl;
     return false;
   }
@@ -387,7 +486,7 @@ bool SprClassifierReader::readStdBackprop(std::ifstream& file,
 
   // read number of nodes
   nLine++;
-  if( !getline(file,line) ) {
+  if( !getline(input,line) ) {
     cerr << "Unable to read line " << nLine << endl;
     return false;
   }
@@ -412,7 +511,7 @@ bool SprClassifierReader::readStdBackprop(std::ifstream& file,
   // read nodes
   for( int node=0;node<nNodes;node++ ) {
     nLine++;
-    if( !getline(file,line) ) {
+    if( !getline(input,line) ) {
       cerr << "Unable to read line " << nLine << endl;
       return false;
     }
@@ -468,7 +567,7 @@ bool SprClassifierReader::readStdBackprop(std::ifstream& file,
   // read number of links
   int nLinks = 0;
   nLine++;
-  if( !getline(file,line) ) {
+  if( !getline(input,line) ) {
     cerr << "Unable to read line " << nLine << endl;
     return false;
   }
@@ -487,7 +586,7 @@ bool SprClassifierReader::readStdBackprop(std::ifstream& file,
   // read links
   for( int link=0;link<nLinks;link++ ) {
     nLine++;
-    if( !getline(file,line) ) {
+    if( !getline(input,line) ) {
       cerr << "Unable to read line " << nLine << endl;
       return false;
     }
@@ -527,7 +626,7 @@ bool SprClassifierReader::readStdBackprop(std::ifstream& file,
 }
 
 
-bool SprClassifierReader::readAdaBoost(std::ifstream& file, 
+bool SprClassifierReader::readAdaBoost(std::istream& input, 
 				       SprAdaBoost* trainable,
 				       unsigned& nLine)
 {
@@ -537,7 +636,7 @@ bool SprClassifierReader::readAdaBoost(std::ifstream& file,
   // read number of weak classifiers
   string line;
   nLine++;
-  if( !getline(file,line) ) {
+  if( !getline(input,line) ) {
     cerr << "Cannot read line " << nLine << endl;
     return false;
   }
@@ -557,7 +656,7 @@ bool SprClassifierReader::readAdaBoost(std::ifstream& file,
       
   // read AdaBoost mode
   nLine++;
-  if( !getline(file,line) ) {
+  if( !getline(input,line) ) {
     cerr << "Cannot read line " << nLine << endl;
     return false;
   }
@@ -606,7 +705,7 @@ bool SprClassifierReader::readAdaBoost(std::ifstream& file,
   unsigned index;
   for( int i=0;i<nClassifiers;i++ ) {
     nLine++;
-    if( !getline(file,line) ) {
+    if( !getline(input,line) ) {
       cerr << "Cannot read line " << nLine << endl;
       return false;
     }
@@ -630,7 +729,7 @@ bool SprClassifierReader::readAdaBoost(std::ifstream& file,
 
   // skip "Classifiers" line
   nLine++;
-  if( !getline(file,line) ) {
+  if( !getline(input,line) ) {
     cerr << "Cannot read line " << nLine << endl;
     return false;
   }  
@@ -640,7 +739,7 @@ bool SprClassifierReader::readAdaBoost(std::ifstream& file,
   for( int i=0;i<nClassifiers;i++ ) {
     // read index
     nLine++;
-    if( !getline(file,line) ) {
+    if( !getline(input,line) ) {
       cerr << "Cannot read from line " << nLine << endl;
       return false;
     }
@@ -658,17 +757,10 @@ bool SprClassifierReader::readAdaBoost(std::ifstream& file,
     // read classifier name
     string weakClassifier;
     istindex >> weakClassifier;
-    /*
-    size_t pos = weakClassifier.find('\"');
-    while( pos != string::npos ) {
-      weakClassifier.erase(pos,pos+1);
-      pos = weakClassifier.find('\"');
-    }
-    */
 
     // read trained classifier
     const SprAbsTrainedClassifier* trained
-      = SprClassifierReader::readTrainedFromFile(file,weakClassifier,nLine);
+      = SprClassifierReader::readTrainedFromStream(input,weakClassifier,nLine);
     if( trained == 0 ) {
       cerr << "Unable to read weak classifier " 
 	   << weakClassifier.c_str() << endl;
@@ -694,13 +786,13 @@ bool SprClassifierReader::readAdaBoost(std::ifstream& file,
 
 
 SprTrainedTopdownTree* SprClassifierReader::readTopdownTree(
-                                          std::ifstream& file, 
+                                          std::istream& input, 
 					  unsigned& nLine)
 {
   // read number of nodes
   nLine++;
   string line;
-  if( !getline(file,line) ) {
+  if( !getline(input,line) ) {
     cerr << "Cannot read from line " << nLine << endl;
     return 0;
   }
@@ -727,7 +819,7 @@ SprTrainedTopdownTree* SprClassifierReader::readTopdownTree(
 
     // read node index and dimensionality
     nLine++;
-    if( !getline(file,line) ) {
+    if( !getline(input,line) ) {
       cerr << "Cannot read from line " << nLine << endl;
       return 0;
     }
@@ -843,13 +935,13 @@ void SprClassifierReader::prepareTopdownTreeExit(
 
 
 SprTrainedDecisionTree* SprClassifierReader::readDecisionTree(
-					  std::ifstream& file, 
+					  std::istream& input, 
 					  unsigned& nLine)
 {
   // read number of nodes
   nLine++;
   string line;
-  if( !getline(file,line) ) {
+  if( !getline(input,line) ) {
     cerr << "Cannot read from line " << nLine << endl;
     return 0;
   }
@@ -874,7 +966,7 @@ SprTrainedDecisionTree* SprClassifierReader::readDecisionTree(
     dummy.clear();
     // read node index and dimensionality
     nLine++;
-    if( !getline(file,line) ) {
+    if( !getline(input,line) ) {
       cerr << "Cannot read from line " << nLine << endl;
       return 0;
     }
@@ -895,7 +987,7 @@ SprTrainedDecisionTree* SprClassifierReader::readDecisionTree(
     // read node bounds
     for( int k=0;k<dim;k++ ) {
       nLine++;
-      if( !getline(file,line) ) {
+      if( !getline(input,line) ) {
 	cerr << "Cannot read from line " << nLine << endl;
 	return 0;
       }
@@ -924,14 +1016,14 @@ SprTrainedDecisionTree* SprClassifierReader::readDecisionTree(
 }
 
 
-SprTrainedFisher* SprClassifierReader::readFisher(std::ifstream& file, 
+SprTrainedFisher* SprClassifierReader::readFisher(std::istream& input, 
 						  unsigned& nLine)
 {
   string line;
 
   // read dimensionality
   nLine++;
-  if( !getline(file,line) ) {
+  if( !getline(input,line) ) {
     cerr << "Cannot read from line " << nLine << endl;
     return 0;
   }
@@ -952,7 +1044,7 @@ SprTrainedFisher* SprClassifierReader::readFisher(std::ifstream& file,
   // skip 2 lines
   for( int i=0;i<2;i++ ) {
     nLine++;
-    if( !getline(file,line) ) {
+    if( !getline(input,line) ) {
       cerr << "Cannot read from line " << nLine << endl;
       return 0;
     }
@@ -960,7 +1052,7 @@ SprTrainedFisher* SprClassifierReader::readFisher(std::ifstream& file,
 
   // read order
   nLine++;
-  if( !getline(file,line) ) {
+  if( !getline(input,line) ) {
     cerr << "Cannot read from line " << nLine << endl;
     return 0;
   }
@@ -980,7 +1072,7 @@ SprTrainedFisher* SprClassifierReader::readFisher(std::ifstream& file,
 
   // read const term
   nLine++;
-  if( !getline(file,line) ) {
+  if( !getline(input,line) ) {
     cerr << "Cannot read from line " << nLine << endl;
     return 0;
   }
@@ -996,14 +1088,14 @@ SprTrainedFisher* SprClassifierReader::readFisher(std::ifstream& file,
 
   // skip 1 line
   nLine++;
-  if( !getline(file,line) ) {
+  if( !getline(input,line) ) {
     cerr << "Cannot read from line " << nLine << endl;
     return 0;
   }
 
   // read linear part
   nLine++;
-  if( !getline(file,line) ) {
+  if( !getline(input,line) ) {
     cerr << "Cannot read from line " << nLine << endl;
     return 0;
   }
@@ -1020,7 +1112,7 @@ SprTrainedFisher* SprClassifierReader::readFisher(std::ifstream& file,
   if( order == 2 ) {
     // skip one line
     nLine++;
-    if( !getline(file,line) ) {
+    if( !getline(input,line) ) {
       cerr << "Cannot read from line " << nLine << endl;
       return 0;
     }
@@ -1029,7 +1121,7 @@ SprTrainedFisher* SprClassifierReader::readFisher(std::ifstream& file,
     SprSymMatrix quadr(dim);
     for( int i=0;i<dim;i++ ) {
       nLine++;
-      if( !getline(file,line) ) {
+      if( !getline(input,line) ) {
 	cerr << "Cannot read from line " << nLine << endl;
 	return 0;
       }
@@ -1047,14 +1139,14 @@ SprTrainedFisher* SprClassifierReader::readFisher(std::ifstream& file,
 }
 
 
-SprTrainedLogitR* SprClassifierReader::readLogitR(std::ifstream& file, 
+SprTrainedLogitR* SprClassifierReader::readLogitR(std::istream& input, 
 						  unsigned& nLine)
 {
   string line;
 
   // read dimensionality
   nLine++;
-  if( !getline(file,line) ) {
+  if( !getline(input,line) ) {
     cerr << "Cannot read from line " << nLine << endl;
     return 0;
   }
@@ -1075,7 +1167,7 @@ SprTrainedLogitR* SprClassifierReader::readLogitR(std::ifstream& file,
   // skip 2 lines
   for( int i=0;i<2;i++ ) {
     nLine++;
-    if( !getline(file,line) ) {
+    if( !getline(input,line) ) {
       cerr << "Cannot read from line " << nLine << endl;
       return 0;
     }
@@ -1083,7 +1175,7 @@ SprTrainedLogitR* SprClassifierReader::readLogitR(std::ifstream& file,
 
   // read const term
   nLine++;
-  if( !getline(file,line) ) {
+  if( !getline(input,line) ) {
     cerr << "Cannot read from line " << nLine << endl;
     return 0;
   }
@@ -1099,14 +1191,14 @@ SprTrainedLogitR* SprClassifierReader::readLogitR(std::ifstream& file,
 
   // skip one line
   nLine++;
-  if( !getline(file,line) ) {
+  if( !getline(input,line) ) {
     cerr << "Cannot read from line " << nLine << endl;
     return 0;
   }
 
   // read beta coefficients  
   nLine++;
-  if( !getline(file,line) ) {
+  if( !getline(input,line) ) {
     cerr << "Cannot read from line " << nLine << endl;
     return 0;
   }
@@ -1119,7 +1211,7 @@ SprTrainedLogitR* SprClassifierReader::readLogitR(std::ifstream& file,
 }
 
 
-bool SprClassifierReader::readBagger(std::ifstream& file, 
+bool SprClassifierReader::readBagger(std::istream& input, 
 				     SprBagger* trainable,
 				     unsigned& nLine)
 {
@@ -1129,7 +1221,7 @@ bool SprClassifierReader::readBagger(std::ifstream& file,
   // read number of weak classifiers
   string line;
   nLine++;
-  if( !getline(file,line) ) {
+  if( !getline(input,line) ) {
     cerr << "Cannot read line " << nLine << endl;
     return false;
   }
@@ -1152,7 +1244,7 @@ bool SprClassifierReader::readBagger(std::ifstream& file,
   for( int i=0;i<nClassifiers;i++ ) {
     // read index
     nLine++;
-    if( !getline(file,line) ) {
+    if( !getline(input,line) ) {
       cerr << "Cannot read from line " << nLine << endl;
       return false;
     }
@@ -1173,7 +1265,7 @@ bool SprClassifierReader::readBagger(std::ifstream& file,
 
     // read trained classifier
     const SprAbsTrainedClassifier* trained
-      = SprClassifierReader::readTrainedFromFile(file,weakClassifier,nLine);
+      = SprClassifierReader::readTrainedFromStream(input,weakClassifier,nLine);
     if( trained == 0 ) {
       cerr << "Unable to read weak classifier " 
 	   << weakClassifier.c_str() << endl;
@@ -1197,14 +1289,14 @@ bool SprClassifierReader::readBagger(std::ifstream& file,
 
 
 SprTrainedBinarySplit* SprClassifierReader::readBinarySplit(
-				       std::ifstream& file, 
+				       std::istream& input, 
 				       unsigned& nLine)
 {
   string line;
 
   // read dimension
   nLine++;
-  if( !getline(file,line) ) {
+  if( !getline(input,line) ) {
     cerr << "Cannot read from line "<< nLine << endl;
     return 0;
   }
@@ -1220,7 +1312,7 @@ SprTrainedBinarySplit* SprClassifierReader::readBinarySplit(
 
   // read cut
   nLine++;
-  if( !getline(file,line) ) {
+  if( !getline(input,line) ) {
     cerr << "Cannot read from line " << nLine << endl;
     return 0;
   }
@@ -1236,7 +1328,7 @@ SprTrainedBinarySplit* SprClassifierReader::readBinarySplit(
   SprCut cut(nCut);
   for( int j=0;j<nCut;j++ ) {
     nLine++;
-    if( !getline(file,line) ) {
+    if( !getline(input,line) ) {
       cerr << "Cannot read from line " << nLine << endl;
       return 0;
     }
@@ -1251,11 +1343,199 @@ SprTrainedBinarySplit* SprClassifierReader::readBinarySplit(
 }
 
 
+SprTrainedCombiner* SprClassifierReader::readCombiner(std::istream& input,
+						      unsigned& nLine)
+{
+  // read the number of sub-classifiers
+  string line;
+  nLine++;
+  if( !getline(input,line) ) {
+    cerr << "Cannot read from line " << nLine << endl;
+    return 0;
+  }
+  istringstream istnsub(line);
+  string dummy;
+  unsigned nSub = 0;
+  istnsub >> dummy >> nSub;
+  if( nSub == 0 ) {
+    cerr << "No subclassifiers found on line " << nLine << endl;
+    return 0;
+  }
+
+  // init sub-classifiers containers
+  vector<pair<const SprAbsTrainedClassifier*,bool> > trained(nSub);
+  vector<string> labels(nSub);
+  vector<map<unsigned,SprCut> > constraints(nSub);
+  vector<SprCoordinateMapper*> inputDataMappers(nSub);
+  vector<double> defaultValues(nSub);
+
+  // read sub-classifiers
+  for( int is=0;is<nSub;is++ ) {
+    nLine++;
+    if( !getline(input,line) ) {
+      cerr << "Cannot read from line " << nLine << endl;
+      return 0;
+    }
+    istringstream istsub(line);
+    int index = -1;
+    istsub >> dummy >> index >> dummy 
+	   >> labels[is] >> dummy >> defaultValues[is];
+    if( index != is ) {
+      cerr << "Wrong classifier index on line " << nLine
+	   << " : " << index << " Expected: " << is << endl;
+      return 0;
+    }
+    if( labels[is].empty() ) {
+      cerr << "Cannot read classifier name on line " << nLine << endl;
+      return 0;
+    }
+
+    // read vars
+    nLine++;
+    if( !getline(input,line) ) {
+      cerr << "Cannot read from line " << nLine << endl;
+      return 0;
+    }
+    istringstream istnvar(line);
+    unsigned nVars = 0;
+    istnvar >> dummy >> nVars;
+    if( nVars == 0 ) {
+      cerr << "No variables found on line " << nLine << endl;
+      return 0;
+    }
+    nLine++;
+    if( !getline(input,line) ) {
+      cerr << "Cannot read from line " << nLine << endl;
+      return 0;
+    }
+    istringstream istvar(line);
+    vector<string> vars(nVars);
+    for( int iv=0;iv<nVars;iv++ ) {
+      istvar >> vars[iv];
+      if( vars[iv].empty() ) {
+	cerr << "Cannot read variable name " << iv 
+	     << " on line " << nLine << endl;
+      }
+    }
+
+    // read mappers
+    nLine++;
+    if( !getline(input,line) ) {
+      cerr << "Cannot read from line " << nLine << endl;
+      return 0;
+    }
+    istringstream istnmap(line);
+    unsigned nMap = 0;
+    istnmap >> dummy >> nMap;
+    nLine++;
+    if( !getline(input,line) ) {
+      cerr << "Cannot read from line " << nLine << endl;
+      return 0;
+    }
+    istringstream istmap(line);
+    vector<unsigned> mapper(nMap);
+    for( int im=0;im<nMap;im++ )
+      istmap >> mapper[im];
+    inputDataMappers[is] = SprCoordinateMapper::createMapper(mapper);
+    if( inputDataMappers[is] == 0 ) {
+      cerr << "Cannot read coordinate mapper." << endl;
+      return 0;
+    }
+
+    // read constraints
+    nLine++;
+    if( !getline(input,line) ) {
+      cerr << "Cannot read from line " << nLine << endl;
+      return 0;
+    }
+    istringstream istnconstr(line);
+    unsigned nConstr = 0;
+    istnconstr >> dummy >> nConstr;
+    for( int j=0;j<nConstr;j++ ) {
+      nLine++;
+      if( !getline(input,line) ) {
+	cerr << "Cannot read from line " << nLine << endl;
+	return 0;
+      }
+      istringstream istconstr(line);
+      int ivar = -1;
+      unsigned nCut = 0;
+      SprCut cut;
+      istconstr >> ivar >> nCut;
+      if( ivar<0 || ivar>=vars.size() ) {
+	cerr << "Wrong variable index on line " << nLine 
+	     << " : " << ivar << endl;
+	return 0;
+      }
+      double xa(0), xb(0);
+      for( int k=0;k<nCut;k++ ) {
+	istconstr >> xa >> xb;
+	cut.push_back(SprInterval(xa,xb));
+      }
+      constraints[is].insert(pair<const unsigned,SprCut>(ivar,cut));
+    }
+
+    // read trained classifier
+    string requested;
+    SprAbsTrainedClassifier* t =
+      SprClassifierReader::readTrainedFromStream(input,requested,nLine);
+    if( t == 0 ) {
+      cerr << "Unable to read trained classifier " << is << endl;
+      return 0;
+    }
+      
+    // add trained classifier
+    bool ownTrained = true;
+    trained[is] = pair<const SprAbsTrainedClassifier*,bool>(t,ownTrained);
+  }// end of sub-classifier loop
+
+  // read overall classifier
+  string requested;
+  SprAbsTrainedClassifier* overall = 
+    SprClassifierReader::readTrainedFromStream(input,requested,nLine);
+  if( overall == 0 ) {
+    cerr << "Unable to read overall trained classifier." << endl;
+    return 0;
+  }
+
+  // read features of the overall classifier
+  nLine++;
+  if( !getline(input,line) ) {
+    cerr << "Cannot read from line " << nLine << endl;
+    return 0;
+  }
+  istringstream istnfeat(line);
+  unsigned nFeat = 0;
+  istnfeat >> dummy >> nFeat;
+  if( nFeat == 0 ) {
+    cerr << "No features found on line " << nLine << endl;
+    return 0;
+  }
+  nLine++;
+  if( !getline(input,line) ) {
+    cerr << "Cannot read from line " << nLine << endl;
+    return 0;
+  }
+  istringstream istfeat(line);
+  vector<string> fVars(nFeat);
+  for( int d=0;d<nFeat;d++ )
+    istfeat >> fVars[d];
+  overall->setVars(fVars);
+
+  // make trained combiner
+  bool ownOverall = true;
+  return new SprTrainedCombiner(overall,trained,labels,constraints,
+				inputDataMappers,defaultValues,ownOverall);
+}
+
+
 bool SprClassifierReader::readTrainableConfig(
-			      std::ifstream& file,
+			      std::istream& input,
 			      unsigned& nLine,
 			      SprAbsFilter* data,
-			      bool discreteTree, bool mixedNodesTree,
+			      bool discreteTree, 
+			      bool mixedNodesTree,
+			      bool fastSortTree,
 			      std::vector<SprAbsTwoClassCriterion*>& criteria,
 			      std::vector<SprIntegerBootstrap*>& bstraps,
 			      std::vector<SprAbsClassifier*>& classifiers,
@@ -1264,7 +1544,7 @@ bool SprClassifierReader::readTrainableConfig(
 {
   // read classifier params
   string line;
-  while( getline(file,line) ) {
+  while( getline(input,line) ) {
     // update line counter
     nLine++;
 
@@ -1326,11 +1606,11 @@ bool SprClassifierReader::readTrainableConfig(
       }
       
       // make decision tree
-      bool doMerge = false;
       bool discrete = discreteTree;
       SprTopdownTree* tree = new SprTopdownTree(data,crit,
-						nLeaf,doMerge,discrete,boot);
-      if( mixedNodesTree) tree->forceMixedNodes();
+						nLeaf,discrete,boot);
+      if( mixedNodesTree ) tree->forceMixedNodes();
+      if( fastSortTree ) tree->useFastSort();
       classifiers.push_back(tree);
 
       // add decision tree
@@ -1391,10 +1671,11 @@ bool SprClassifierReader::readTrainableConfig(
       // collect trainable classifiers
       bool discrete = (mode!=SprTrainedAdaBoost::Real);
       bool mixedNodes = (mode==SprTrainedAdaBoost::Real);
+      bool fastSort = true;
       vector<SprCCPair> abTrainablePairs;
-      if( !SprClassifierReader::readTrainableConfig(file,nLine,data,
+      if( !SprClassifierReader::readTrainableConfig(input,nLine,data,
 						    discrete,mixedNodes,
-						    criteria,
+						    fastSort,criteria,
 						    bstraps,classifiers,
 						    abTrainablePairs,
 						    true) ) {
@@ -1445,10 +1726,11 @@ bool SprClassifierReader::readTrainableConfig(
 
       // collect trainable classifiers
       bool mixedNodes = false;
+      bool fastSort = true;
       vector<SprCCPair> baggerTrainablePairs;
-      if( !SprClassifierReader::readTrainableConfig(file,nLine,data,
+      if( !SprClassifierReader::readTrainableConfig(input,nLine,data,
 						    discrete,mixedNodes,
-						    criteria,
+						    fastSort,criteria,
 						    bstraps,classifiers,
 						    baggerTrainablePairs,
 						    true) ) {
@@ -1566,21 +1848,16 @@ bool SprClassifierReader::readTrainableConfig(
     // binary split
     //
     else if( classifierName == "BinarySplit" ) {
-      unsigned splitsPerDim = 0;
-      ist >> splitsPerDim;
-
       // make criterion
       SprTwoClassIDFraction* crit = new SprTwoClassIDFraction;
       criteria.push_back(crit);
 
       // make splits
-      for( int i=0;i<splitsPerDim;i++ ) {
-	for( int d=0;d<data->dim();d++ ) {
-	  SprBinarySplit* split = new SprBinarySplit(data,crit,d);
-	  classifiers.push_back(split);
-	  cout << "Adding binary split on dimension " << d << endl;
-	  ccPairs.push_back(SprCCPair(split,SprUtils::lowerBound(0.5)));
-	}
+      for( int d=0;d<data->dim();d++ ) {
+	SprBinarySplit* split = new SprBinarySplit(data,crit,d);
+	classifiers.push_back(split);
+	cout << "Adding binary split on dimension " << d << endl;
+	ccPairs.push_back(SprCCPair(split,SprUtils::lowerBound(0.5)));
       }
       if( readOneEntry ) return true;
     }
@@ -1591,9 +1868,57 @@ bool SprClassifierReader::readTrainableConfig(
       cerr << "Unknown classifier " << classifierName.c_str() << endl;
       return false;
     }
-  }// end of config file
+  }// end of config input
 
   // exit
   return true;
 }
 
+
+bool SprClassifierReader::readVars(std::istream& input, 
+				   std::vector<std::string>& vars,
+				   unsigned& nLine)
+{
+  // init
+  vars.clear();
+
+  // skip 2 lines
+  string line;
+  for( int i=0;i<2;i++ ) {
+    nLine++;
+    if( !getline(input,line) ) {
+      cerr << "Unable to read from line " << nLine << endl;
+      return false;
+    }
+  }
+
+  // read all lines skipping those that have nothing but =
+  while( getline(input,line) ) {
+    nLine++;
+
+    // get rid of spaces
+    line.erase( 0, line.find_first_not_of(' ') );
+    line.erase( line.find_last_not_of(' ')+1 );
+
+    // get rid of '='
+    line.erase( 0, line.find_first_not_of('=') );
+    line.erase( line.find_last_not_of('=')+1 );
+
+    // if empty, do nothing
+    if( line.empty() ) continue;
+
+    // add var
+    istringstream ist(line);
+    int index = -1;
+    string var;
+    ist >> index >> var;
+    if( index != vars.size() ) {
+      cerr << "Incorrect variable index on line " << nLine << endl;
+      return false;
+    }
+    vars.push_back(var);
+  }
+
+  // exit
+  return true;
+}

@@ -1,5 +1,5 @@
 // File and Version Information:
-//      $Id: SprTrainedBagger.hh,v 1.4 2007/02/05 21:49:45 narsky Exp $
+//      $Id: SprTrainedBagger.hh,v 1.5 2007/07/11 19:52:09 narsky Exp $
 //
 // Description:
 //      Class SprTrainedBagger :
@@ -32,6 +32,7 @@
 #include <vector>
 #include <utility>
 #include <string>
+#include <iostream>
 
 
 class SprTrainedBagger : public SprAbsTrainedClassifier
@@ -59,6 +60,11 @@ public:
     Works only for problems with two categories, e.g., signal and background.
   */
   double response(const std::vector<double>& v) const;
+
+  /*
+    Generate code.
+  */
+  bool generateCode(std::ostream& os) const;
 
   // print out
   void print(std::ostream& o) const;

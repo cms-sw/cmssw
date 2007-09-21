@@ -1,5 +1,5 @@
 // File and Version Information:
-//      $Id: SprTrainedDecisionTree.hh,v 1.4 2007/02/05 21:49:45 narsky Exp $
+//      $Id: SprTrainedDecisionTree.hh,v 1.5 2007/07/11 19:52:09 narsky Exp $
 //
 // Description:
 //      Class SprTrainedDecisionTree :
@@ -77,6 +77,13 @@ public:
     Classifier response for a data point. 
   */
   double response(const std::vector<double>& v) const;
+
+  /*
+    Generate code.
+  */
+  bool generateCode(std::ostream& os) const {
+    return false;
+  }
 
   /*
     Print out.

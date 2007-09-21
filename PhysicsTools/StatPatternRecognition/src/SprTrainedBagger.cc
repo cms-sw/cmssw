@@ -1,8 +1,9 @@
-//$Id: SprTrainedBagger.cc,v 1.4 2007/02/05 21:49:46 narsky Exp $
+//$Id: SprTrainedBagger.cc,v 1.6 2007/07/11 19:52:13 narsky Exp $
 
 #include "PhysicsTools/StatPatternRecognition/interface/SprExperiment.hh"
 #include "PhysicsTools/StatPatternRecognition/interface/SprTrainedBagger.hh"
 #include "PhysicsTools/StatPatternRecognition/interface/SprUtils.hh"
+#include "PhysicsTools/StatPatternRecognition/interface/SprDefs.hh"
 
 #include <stdio.h>
 #include <cassert>
@@ -71,7 +72,7 @@ void SprTrainedBagger::destroy()
 
 void SprTrainedBagger::print(std::ostream& os) const
 {
-  os << "Trained Bagger" << endl;
+  os << "Trained Bagger " << SprVersion << endl;
   os << "Classifiers: " << trained_.size() << endl;
   for( int i=0;i<trained_.size();i++ ) {
     os << "Classifier " << i 
@@ -79,3 +80,24 @@ void SprTrainedBagger::print(std::ostream& os) const
     trained_[i].first->print(os);
   }
 }
+
+
+bool SprTrainedBagger::generateCode(std::ostream& os) const 
+{ 
+  // generate weak classifiers
+  for( int i=0;i<trained_.size();i++ ) { 
+    string name = trained_[i].first->name();
+    os << " // Classifier " << i  
+       << " \"" << name.c_str() << "\"" << endl; 
+    if( !trained_[i].first->generateCode(os) ) {
+      cerr << "Unable to generate code for classifier " << name.c_str() 
+	   << endl;
+      return false;
+    }
+    if( i < trained_.size()-1 ) os << endl; 
+  }
+
+  // exit
+  return true; 
+} 
+

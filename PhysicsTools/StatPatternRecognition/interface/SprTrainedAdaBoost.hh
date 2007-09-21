@@ -1,5 +1,5 @@
 // File and Version Information:
-//      $Id: SprTrainedAdaBoost.hh,v 1.4 2006/11/26 22:47:41 narsky Exp $
+//      $Id: SprTrainedAdaBoost.hh,v 1.5 2007/07/11 19:52:09 narsky Exp $
 //
 // Description:
 //      Class SprTrainedAdaBoost :
@@ -35,6 +35,7 @@
 #include <vector>
 #include <utility>
 #include <string>
+#include <iostream>
 #include <cassert>
 
 
@@ -68,6 +69,11 @@ public:
     Works only for problems with two categories, e.g., signal and background.
   */
   double response(const std::vector<double>& v) const;
+
+  /*
+    Generate code.
+  */
+  bool generateCode(std::ostream& os) const;
 
   // print out
   void print(std::ostream& o) const;

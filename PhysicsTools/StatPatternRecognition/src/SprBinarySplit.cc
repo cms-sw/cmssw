@@ -1,4 +1,4 @@
-//$Id: SprBinarySplit.cc,v 1.5 2007/02/05 21:49:45 narsky Exp $
+//$Id: SprBinarySplit.cc,v 1.7 2007/05/25 17:59:17 narsky Exp $
 
 #include "PhysicsTools/StatPatternRecognition/interface/SprExperiment.hh"
 #include "PhysicsTools/StatPatternRecognition/interface/SprBinarySplit.hh"
@@ -69,6 +69,7 @@ bool SprBinarySplit::reset()
 
 bool SprBinarySplit::setData(SprAbsFilter* data)
 {
+  assert( data != 0 );
   data_ = data;
   sorted0_.clear();
   sorted1_.clear();
@@ -167,7 +168,7 @@ bool SprBinarySplit::train(int verbose)
 
 void SprBinarySplit::print(std::ostream& os) const
 {
-  os << "Trained BinarySplit" << endl;
+  os << "Trained BinarySplit " << SprVersion << endl;
   os << "Dimension: " << d_ << endl;
   os << "Cut: " << cut_.size() << endl;
   for( int i=0;i<cut_.size();i++ ) {
@@ -203,9 +204,9 @@ bool SprBinarySplit::sort()
   }
     
   // sort
-  SprSort(r.begin(),r.end(),less<double>());
-  SprSort(r0.begin(),r0.end(),SBSCmpPairFirst());
-  SprSort(r1.begin(),r1.end(),SBSCmpPairFirst());
+  stable_sort(r.begin(),r.end(),less<double>());
+  stable_sort(r0.begin(),r0.end(),SBSCmpPairFirst());
+  stable_sort(r1.begin(),r1.end(),SBSCmpPairFirst());
     
   // fill out sorted indices
   sorted0_.clear();

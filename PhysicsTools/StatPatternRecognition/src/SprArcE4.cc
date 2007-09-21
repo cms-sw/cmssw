@@ -1,4 +1,4 @@
-//$Id: SprArcE4.cc,v 1.4 2006/11/26 02:04:30 narsky Exp $
+//$Id: SprArcE4.cc,v 1.5 2007/02/12 23:13:58 narsky Exp $
 
 #include "PhysicsTools/StatPatternRecognition/interface/SprExperiment.hh"
 #include "PhysicsTools/StatPatternRecognition/interface/SprArcE4.hh"

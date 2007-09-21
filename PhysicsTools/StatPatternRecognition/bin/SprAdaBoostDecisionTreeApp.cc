@@ -1,4 +1,4 @@
-//$Id: SprAdaBoostDecisionTreeApp.cc,v 1.5 2007/02/05 21:49:45 narsky Exp $
+//$Id: SprAdaBoostDecisionTreeApp.cc,v 1.9 2007/08/30 17:54:38 narsky Exp $
 
 #include "PhysicsTools/StatPatternRecognition/interface/SprExperiment.hh"
 #include "PhysicsTools/StatPatternRecognition/interface/SprAbsFilter.hh"
@@ -61,6 +61,7 @@ void help(const char* prog)
   cout << "\t-g per-event loss for (cross-)validation           " << endl;
   cout << "\t\t 1 - quadratic loss (y-f(x))^2                   " << endl;
   cout << "\t\t 2 - exponential loss exp(-y*f(x))               " << endl;
+  cout << "\t\t 3 - misid fraction                              " << endl;
   cout << "\t-b max number of sampled features (def=0 no sampling)" << endl;
   cout << "\t-m replace data values below this cutoff with medians" << endl;
   cout << "\t-i count splits on input variables                 " << endl;
@@ -69,7 +70,11 @@ void help(const char* prog)
   cout << "\t-u store data with modified weights to file        " << endl;
   cout << "\t-v verbose level (0=silent default,1,2)            " << endl;
   cout << "\t-f store trained AdaBoost to file                  " << endl;
+  cout << "\t-F generate code for AdaBoost and store to file    " << endl;
   cout << "\t-r resume training for AdaBoost stored in file     " << endl;
+  cout << "\t-K keep this fraction in training set and          " << endl;
+  cout << "\t\t put the rest into validation set                " << endl;
+  cout << "\t-D randomize training set split-up                 " << endl;
   cout << "\t-t read validation/test data from a file           " << endl;
   cout << "\t\t (must be in same format as input data!!!        " << endl;
   cout << "\t-d frequency of print-outs for validation data     " << endl;
@@ -104,6 +109,7 @@ int main(int argc, char ** argv)
   int iCrit = 5;
   int verbose = 0;
   string outFile;
+  string codeFile;
   string resumeFile;
   string valFile;
   unsigned valPrint = 0;
@@ -126,12 +132,15 @@ int main(int argc, char ** argv)
   int iLoss = 0;
   string inputClassesString;
   string stringVarsDoNotFeed;
+  bool split = false;
+  double splitFactor = 0;
+  bool splitRandomize = false;
 
   // decode command line
   int c;
   extern char* optarg;
   //  extern int optind;
-  while((c = getopt(argc,argv,"hjM:E:o:a:n:l:y:c:g:b:m:iseu:v:f:r:t:d:w:V:z:Z:x:q:")) != EOF ) {
+  while((c = getopt(argc,argv,"hjM:E:o:a:n:l:y:c:g:b:m:iseu:v:f:F:r:K:Dt:d:w:V:z:Z:x:q:")) != EOF ) {
     switch( c )
       {
       case 'h' :
@@ -195,8 +204,18 @@ int main(int argc, char ** argv)
       case 'f' :
 	outFile = optarg;
 	break;
+      case 'F' :
+	codeFile = optarg;
+	break;
       case 'r' :
 	resumeFile = optarg;
+	break;
+      case 'K' :
+	split = true;
+	splitFactor = (optarg==0 ? 0 : atof(optarg));
+	break;
+      case 'D' :
+	splitRandomize = true;
 	break;
       case 't' :
 	valFile = optarg;
@@ -329,6 +348,29 @@ int main(int argc, char ** argv)
 
   // read validation data from file
   auto_ptr<SprAbsFilter> valFilter;
+  if( split && !valFile.empty() ) {
+    cerr << "Unable to split training data and use validation data " 
+	 << "from a separate file." << endl;
+    return 2;
+  }
+  if( split && valPrint!=0 ) {
+    cout << "Splitting training data with factor " << splitFactor << endl;
+    if( splitRandomize )
+      cout << "Will use randomized splitting." << endl;
+    vector<double> weights;
+    SprData* splitted = filter->split(splitFactor,weights,splitRandomize);
+    if( splitted == 0 ) {
+      cerr << "Unable to split training data." << endl;
+      return 2;
+    }
+    bool ownData = true;
+    valFilter.reset(new SprEmptyFilter(splitted,weights,ownData));
+    cout << "Training data re-filtered:" << endl;
+    for( int i=0;i<inputClasses.size();i++ ) {
+      cout << "Points in class " << inputClasses[i] << ":   " 
+	   << filter->ptsInClass(inputClasses[i]) << endl;
+    }
+  }
   if( !valFile.empty() && valPrint!=0 ) {
     SprSimpleReader valReader(readMode);
     if( !includeSet.empty() ) {
@@ -431,6 +473,13 @@ int main(int argc, char ** argv)
            << "Exponential loss exp(-y*f(x)) " << endl;
       useStandardAB = true;
       break;
+    case 3 :
+      loss.reset(new SprAverageLoss(&SprLoss::correct_id,
+			       &SprTransformation::inftyRangeToDiscrete01));
+      cout << "Per-event loss set to "
+	   << "Misid rate int(y==f(x)) " << endl;
+      useStandardAB = true;
+      break;
     default :
       cout << "No per-event loss is chosen. Will use the default." << endl;
       break;
@@ -473,12 +522,13 @@ int main(int argc, char ** argv)
   auto_ptr<SprDecisionTree> tree;
   if( useTopdown )
     tree.reset(new SprTopdownTree(filter.get(),crit.get(),
-				  nmin,doMerge,discrete,bootstrap.get()));
+				  nmin,discrete,bootstrap.get()));
   else
     tree.reset(new SprDecisionTree(filter.get(),crit.get(),
 				   nmin,doMerge,discrete,bootstrap.get()));
   if( countTreeSplits ) tree->startSplitCounter();
   if( abMode == SprTrainedAdaBoost::Real ) tree->forceMixedNodes();
+  tree->useFastSort();
 
   // if cross-validation requested, cross-validate and exit
   if( nCross > 0 ) {
@@ -516,7 +566,7 @@ int main(int argc, char ** argv)
       if( useTopdown )
 	tree1 = 
 	  new SprTopdownTree(filter.get(),crit.get(),
-			     nodeMinSize[0][i],doMerge,
+			     nodeMinSize[0][i],
 			     discrete,bootstrap.get());
       else
 	tree1 =
@@ -524,6 +574,7 @@ int main(int argc, char ** argv)
 			      nodeMinSize[0][i],doMerge,
 			      discrete,bootstrap.get());
       if( abMode == SprTrainedAdaBoost::Real ) tree1->forceMixedNodes();
+      tree1->useFastSort();
       SprAdaBoost* ab1 = new SprAdaBoost(filter.get(),cycles,
 					 useStandardAB,abMode,bagInput);
       cout << "Setting epsilon to " << epsilon << endl;
@@ -636,6 +687,14 @@ int main(int argc, char ** argv)
   if( trainedAda.get() == 0 ) {
     cerr << "Unable to get trained AdaBoost." << endl;
     return 7;
+  }
+
+  // store code into file
+  if( !codeFile.empty() ) {
+    if( !trainedAda->storeCode(codeFile.c_str()) ) {
+      cerr << "Unable to store code for trained AdaBoost." << endl;
+      return 8;
+    }
   }
 
   // make histogram if requested

@@ -1,6 +1,6 @@
 //------------------------------------------------------------------------
 // File and Version Information:
-//      $Id: SprClass.hh,v 1.3 2006/11/13 19:09:39 narsky Exp $
+//      $Id: SprClass.hh,v 1.5 2007/08/30 17:54:38 narsky Exp $
 //
 // Description:
 //      Class SprClass :
@@ -22,6 +22,7 @@
 
 #include <iostream>
 #include <vector>
+#include <string>
 #include <cassert>
 
 
@@ -49,6 +50,10 @@ public:
     negate_(other.negate_)
   {}
 
+  // Check for overlap.
+  // Return 0 if no overlap, 1 if overlap , and -1 if unknown (negation=true).
+  int overlap(const SprClass& other) const;
+
   // operators
   bool operator==(int cls) const;
   bool operator==(const SprClass& other) const;
@@ -66,6 +71,9 @@ public:
     classes = classes_;
     return negate_;
   }
+
+  // express class value as a string
+  std::string toString() const;
 
 private:
   bool checkClasses() const;// checks classes for absence of repetitions

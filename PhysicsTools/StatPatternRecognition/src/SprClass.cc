@@ -1,9 +1,10 @@
-//$Id: SprClass.cc,v 1.3 2006/11/13 19:09:41 narsky Exp $
+//$Id: SprClass.cc,v 1.5 2007/08/30 17:54:42 narsky Exp $
 
 #include "PhysicsTools/StatPatternRecognition/interface/SprExperiment.hh"
 #include "PhysicsTools/StatPatternRecognition/interface/SprClass.hh"
 
 #include <algorithm>
+#include <sstream>
 
 using namespace std;
 
@@ -50,4 +51,27 @@ bool SprClass::checkClasses() const
     }
   }
   return true;
+}
+
+
+int SprClass::overlap(const SprClass& other) const
+{
+  if( negate_ || other.negate_ ) return -1;
+  for( int i=0;i<classes_.size();i++ ) {
+    if( find(other.classes_.begin(),other.classes_.end(),classes_[i]) 
+	!= other.classes_.end() ) return 1;
+  }
+  for( int i=0;i<other.classes_.size();i++ ) {
+    if( find(classes_.begin(),classes_.end(),other.classes_[i]) 
+	!= classes_.end() ) return 1;
+  }
+  return 0;
+}
+
+
+std::string SprClass::toString() const
+{
+  ostringstream os;
+  os << *this;
+  return os.str();
 }

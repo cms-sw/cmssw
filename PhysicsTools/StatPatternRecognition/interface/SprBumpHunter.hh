@@ -1,5 +1,5 @@
 // File and Version Information:
-//      $Id: SprBumpHunter.hh,v 1.5 2007/02/05 21:49:44 narsky Exp $
+//      $Id: SprBumpHunter.hh,v 1.7 2007/05/25 17:59:17 narsky Exp $
 //
 // Description:
 //      Class SprBumpHunter :
@@ -102,12 +102,12 @@ private:
 	    std::vector<std::vector<double> >& division) const;
 
   // shrink the signal box
-  int shrink(std::vector<SprCut>& limits, 
+  int shrink(SprBox& limits, 
 	     unsigned& n0, unsigned& n1,
 	     double& w0, double& w1, double& fom0, int verbose);
 
   // expand the signal box
-  int expand(std::vector<SprCut>& limits, 
+  int expand(SprBox& limits, 
 	     unsigned& n0, unsigned& n1,
 	     double& w0, double& w1, double& fom0, int verbose);
 
@@ -116,7 +116,7 @@ private:
   int nmin_;
   double apeel_;
   SprBoxFilter* box_;
-  std::vector<std::vector<SprCut> > boxes_;
+  std::vector<SprBox> boxes_;
   std::vector<double> fom_;
   std::vector<unsigned> n0_;
   std::vector<unsigned> n1_;

@@ -1,9 +1,10 @@
-//$Id: SprTrainedAdaBoost.cc,v 1.6 2007/02/05 21:49:46 narsky Exp $
+//$Id: SprTrainedAdaBoost.cc,v 1.8 2007/07/11 19:52:13 narsky Exp $
 
 #include "PhysicsTools/StatPatternRecognition/interface/SprExperiment.hh"
 #include "PhysicsTools/StatPatternRecognition/interface/SprTrainedAdaBoost.hh"
 #include "PhysicsTools/StatPatternRecognition/interface/SprUtils.hh"
 #include "PhysicsTools/StatPatternRecognition/interface/SprTransformation.hh"
+#include "PhysicsTools/StatPatternRecognition/interface/SprDefs.hh"
 
 #include <stdio.h>
 #include <algorithm>
@@ -98,7 +99,7 @@ void SprTrainedAdaBoost::destroy()
 void SprTrainedAdaBoost::print(std::ostream& os) const
 {
   assert( beta_.size() == trained_.size() );
-  os << "Trained AdaBoost" << endl;
+  os << "Trained AdaBoost " << SprVersion << endl;
   os << "Classifiers: " << trained_.size() << endl;
   os << "Mode: " << int(mode_) << "   Epsilon: " << epsilon_ << endl;
   for( int i=0;i<trained_.size();i++ ) {
@@ -114,3 +115,23 @@ void SprTrainedAdaBoost::print(std::ostream& os) const
     trained_[i].first->print(os);
   }
 }
+
+
+bool SprTrainedAdaBoost::generateCode(std::ostream& os) const 
+{ 
+  // generate weak classifiers
+  for( int i=0;i<trained_.size();i++ ) { 
+    string name = trained_[i].first->name();
+    os << " // Classifier " << i  
+       << " \"" << name.c_str() << "\"" << endl; 
+    if( !trained_[i].first->generateCode(os) ) {
+      cerr << "Unable to generate code for classifier " << name.c_str() 
+	   << endl;
+      return false;
+    }
+    if( i < trained_.size()-1 ) os << endl; 
+  }
+
+  // exit
+  return true;
+} 

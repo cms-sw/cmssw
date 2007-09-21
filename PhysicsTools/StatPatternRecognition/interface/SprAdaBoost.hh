@@ -1,4 +1,4 @@
-//$Id: SprAdaBoost.hh,v 1.5 2007/02/05 21:49:44 narsky Exp $
+//$Id: SprAdaBoost.hh,v 1.6 2007/05/23 21:18:58 narsky Exp $
 //
 // Description:
 //      Class SprAdaBoost :
@@ -177,7 +177,7 @@ private:
   SprClass cls1_;
   unsigned cycles_;// number of cycles for training
   std::vector<std::pair<const SprAbsTrainedClassifier*,bool> > trained_;
-  std::vector<std::pair<SprAbsClassifier*,SprCut> > trainable_;
+  std::vector<SprCCPair> trainable_;
   std::vector<double> beta_;// beta coefficients for trained classifiers
   double epsilon_;// epsilon for Epsilon AdaBoosts
   const SprAbsFilter* valData_;// validation data

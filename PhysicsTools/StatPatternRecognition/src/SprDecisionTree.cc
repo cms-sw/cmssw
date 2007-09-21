@@ -1,4 +1,4 @@
-//$Id: SprDecisionTree.cc,v 1.5 2007/02/05 21:49:45 narsky Exp $
+//$Id: SprDecisionTree.cc,v 1.10 2007/08/11 22:08:10 narsky Exp $
 
 #include "PhysicsTools/StatPatternRecognition/interface/SprExperiment.hh"
 #include "PhysicsTools/StatPatternRecognition/interface/SprDecisionTree.hh"
@@ -7,11 +7,11 @@
 #include "PhysicsTools/StatPatternRecognition/interface/SprUtils.hh"
 #include "PhysicsTools/StatPatternRecognition/interface/SprDefs.hh"
 #include "PhysicsTools/StatPatternRecognition/interface/SprIntegerBootstrap.hh"
-#include "PhysicsTools/StatPatternRecognition/interface/SprClass.hh"
 
 #include <stdio.h>
 #include <functional>
 #include <algorithm>
+#include <cassert>
 
 using namespace std;
 
@@ -40,11 +40,14 @@ SprDecisionTree::SprDecisionTree(SprAbsFilter* data,
 				 SprIntegerBootstrap* bootstrap)
   :
   SprAbsClassifier(data),
+  cls0_(0),
+  cls1_(1),
   crit_(crit),
   nmin_(nmin),
   doMerge_(doMerge),
   discrete_(discrete),
   canHavePureNodes_(true),
+  fastSort_(false),
   showBackgroundNodes_(false),
   bootstrap_(bootstrap),
   root_(0),
@@ -81,8 +84,25 @@ SprDecisionTree::SprDecisionTree(SprAbsFilter* data,
   }
 
   // make root
-  root_ = new SprTreeNode(crit,data,doMerge,nmin_,discrete_,canHavePureNodes_,
-			  bootstrap_);
+  root_ = new SprTreeNode(crit,data,doMerge,nmin_,discrete_,
+			  canHavePureNodes_,fastSort_,bootstrap_);
+
+  // set classes
+  this->setClasses();
+  bool status = root_->setClasses(cls0_,cls1_);
+  assert ( status );
+}
+
+
+void SprDecisionTree::setClasses() 
+{
+  vector<SprClass> classes;
+  data_->classes(classes);
+  int size = classes.size();
+  if( size > 0 ) cls0_ = classes[0];
+  if( size > 1 ) cls1_ = classes[1];
+  //  cout << "Classes for decision tree are set to " 
+  //       << cls0_ << " " << cls1_ << endl;
 }
 
 
@@ -95,8 +115,16 @@ SprTrainedDecisionTree* SprDecisionTree::makeTrained() const
   for( int i=0;i<nodes1_.size();i++ )
     nodes1[i] = nodes1_[i]->limits_;
 
-  // make trained tree
-  return new SprTrainedDecisionTree(nodes1);
+  // make tree
+  SprTrainedDecisionTree* t =  new SprTrainedDecisionTree(nodes1);
+
+  // vars
+  vector<string> vars;
+  data_->vars(vars);
+  t->setVars(vars);
+
+  // exit
+  return t;
 }
 
 
@@ -176,7 +204,8 @@ bool SprDecisionTree::reset()
 {
   delete root_;
   root_ = new SprTreeNode(crit_,data_,doMerge_,nmin_,discrete_,
-			  canHavePureNodes_,bootstrap_);
+			  canHavePureNodes_,fastSort_,bootstrap_);
+  if( !root_->setClasses(cls0_,cls1_) ) return false;
   nodes1_.clear();
   nodes0_.clear();
   fullNodeList_.clear();
@@ -189,6 +218,7 @@ bool SprDecisionTree::reset()
 
 bool SprDecisionTree::setData(SprAbsFilter* data)
 {
+  assert( data != 0 );
   data_ = data;
   return this->reset();
 }
@@ -328,7 +358,7 @@ void SprDecisionTree::print(std::ostream& os) const
 {
   // header
   char s [200];
-  sprintf(s,"Trained Decision Tree: %-6i signal nodes.    Overall FOM=%-10g W0=%-10g W1=%-10g N0=%-10i N1=%-10i",nodes1_.size(),fom_,w0_,w1_,n0_,n1_);
+  sprintf(s,"Trained DecisionTree %-6i signal nodes.    Overall FOM=%-10g W0=%-10g W1=%-10g N0=%-10i N1=%-10i    Version=%s",nodes1_.size(),fom_,w0_,w1_,n0_,n1_,SprVersion.c_str());
   os << s << endl;
   os << "-------------------------------------------------------" << endl;
 
@@ -410,8 +440,9 @@ void SprDecisionTree::printSplitCounter(std::ostream& os) const
 
 bool SprDecisionTree::setClasses(const SprClass& cls0, const SprClass& cls1) 
 {
+  cls0_ = cls0;
+  cls1_ = cls1;
   if( root_ != 0 ) 
     return root_->setClasses(cls0,cls1);
-  cerr << "Decision tree has no root. Unable to reset classes." << endl;
-  return false;
+  return true;
 }

@@ -1,10 +1,11 @@
-// $Id: SprRootReader.cc,v 1.3 2006/11/13 19:09:43 narsky Exp $
+// $Id: SprRootReader.cc,v 1.7 2007/07/24 23:05:12 narsky Exp $
 
 #include "PhysicsTools/StatPatternRecognition/interface/SprExperiment.hh"
 #include "PhysicsTools/StatPatternRecognition/interface/SprRootReader.hh"
 #include "PhysicsTools/StatPatternRecognition/interface/SprData.hh"
 #include "PhysicsTools/StatPatternRecognition/interface/SprAbsFilter.hh"
 #include "PhysicsTools/StatPatternRecognition/interface/SprEmptyFilter.hh"
+#include "PhysicsTools/StatPatternRecognition/interface/SprPreFilter.hh"
 
 #include <TFile.h>
 #include <TTree.h>
@@ -20,9 +21,9 @@
 
 using namespace std;
 
-SprRootReader::SprRootReader()
+SprRootReader::SprRootReader(SprPreFilter* filter)
   : 
-  SprAbsReader(),
+  SprAbsReader(filter),
   treeName_(),
   leafNames_(),
   fileObjects_(),
@@ -141,8 +142,30 @@ SprAbsFilter* SprRootReader::readRootObjects(bool needToCalcWeights)
 {
     auto_ptr<SprData> data(new SprData);
     vector<double> weights;
-    // put names into data
-    data->setVars(leafNames_);
+
+    // set up pre-filter vars
+    if( filter_!=0 && !filter_->setVars(leafNames_) ) {
+      cerr << "Unable to apply pre-filter requirements." << endl;
+      return 0;
+    }
+
+    // get a new list of variables
+    vector<string> transformed;
+    if( filter_ != 0 ) {
+      if( !filter_->transformVars(leafNames_,transformed) ) {
+	cerr << "Pre-filter is unable to transform variables." << endl;
+	return 0;
+      }
+    }
+    if( transformed.empty() ) transformed = leafNames_; 
+
+    // set up data vars
+    if( !data->setVars(transformed) ) {
+      cerr << "Unable to set variable list for input data." << endl;
+      return 0;
+    }
+
+    // fill out data
     for(vector<FileInfo>::iterator fileIter = fileObjects_.begin()
             ; fileIter != fileObjects_.end()
             ; ++fileIter) {
@@ -208,7 +231,18 @@ SprAbsFilter* SprRootReader::readRootObjects(bool needToCalcWeights)
                 } 
             }
 
-	    data->insert(assignedClass, row);
+	    if( filter_!=0 && !filter_->pass(assignedClass,row) ) continue;
+	    if( filter_ != 0 ) {
+	      vector<double> vNew;
+	      if( filter_->transformCoords(row,vNew) ) {
+		data->insert(assignedClass,vNew);
+		weights.push_back(assignedWeight);
+		continue;
+	      }
+	      cerr << "Pre-filter is unable to transform coordinates." << endl;
+	      return 0;
+	    }
+	    data->insert(assignedClass,row);
             weights.push_back(assignedWeight);
         }
         f.Close();

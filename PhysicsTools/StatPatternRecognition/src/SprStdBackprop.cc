@@ -1,4 +1,4 @@
-//$Id: SprStdBackprop.cc,v 1.2 2007/02/05 21:49:46 narsky Exp $
+//$Id: SprStdBackprop.cc,v 1.6 2007/05/25 17:59:18 narsky Exp $
 
 #include "PhysicsTools/StatPatternRecognition/interface/SprExperiment.hh"
 #include "PhysicsTools/StatPatternRecognition/interface/SprStdBackprop.hh"
@@ -8,12 +8,14 @@
 #include "PhysicsTools/StatPatternRecognition/interface/SprStringParser.hh"
 #include "PhysicsTools/StatPatternRecognition/interface/SprTransformation.hh"
 #include "PhysicsTools/StatPatternRecognition/interface/SprUtils.hh"
+#include "PhysicsTools/StatPatternRecognition/interface/SprDefs.hh"
 
 #include <stdio.h>
 #include <cmath>
 #include <iomanip>
 #include <sstream>
 #include <utility>
+#include <cassert>
 
 using namespace std;
 
@@ -159,6 +161,13 @@ SprTrainedStdBackprop* SprStdBackprop::makeTrained() const
 						       linkSource_,nodeBias_,
 						       linkWeight_);
   t->setCut(cut_);
+
+  // vars
+  vector<string> vars;
+  data_->vars(vars);
+  t->setVars(vars);
+
+  // exit
   return t;
 }
 
@@ -271,7 +280,10 @@ bool SprStdBackprop::init(double eta, unsigned nPoints)
   if( initialized_ ) return true;
   initEta_ = eta;
   initPoints_ = nPoints;
+  unsigned valPrint = valPrint_;
+  valPrint_ = 0;
   initialized_ = this->doTrain(initPoints_,1,initEta_,true,1);
+  valPrint_ = valPrint;
   return initialized_;
 }
 
@@ -339,12 +351,20 @@ bool SprStdBackprop::doTrain(unsigned nPoints, unsigned nCycles,
     for( unsigned i=0;i<nPoints;i++ ) indices.push_back(i);
   }
 
+  // validate before training starts
+  if( valPrint_!=0 ) {
+    if( !this->printValidation(0) ) {
+      cerr << "Unable to print out validation data." << endl;
+      return this->prepareExit(false);
+    }
+  }
+
   // train
-  for( int ncycle=0;ncycle<nCycles;ncycle++ ) {
+  for( int ncycle=1;ncycle<=nCycles;ncycle++ ) {
     // message
     if( verbose > 0 ) {
-      if( (ncycle+1)%10 == 0 )
-	cout << "Training neural net at cycle " << ncycle+1 << endl;
+      if( ncycle%10 == 0 )
+	cout << "Training neural net at cycle " << ncycle << endl;
     }
 
     // do two passes of propagation
@@ -476,6 +496,7 @@ bool SprStdBackprop::reset()
 
 bool SprStdBackprop::setData(SprAbsFilter* data)
 {
+  assert( data != 0 );
   data_ = data;
   return this->reset();
 }
@@ -484,7 +505,7 @@ bool SprStdBackprop::setData(SprAbsFilter* data)
 void SprStdBackprop::print(std::ostream& os) const 
 {
   os << "Trained StdBackprop with configuration " 
-     << structure_.c_str() << endl; 
+     << structure_.c_str() << " " << SprVersion << endl; 
   os << "Activation functions: Identity=1, Logistic=2" << endl;
   os << "Cut: " << cut_.size();
   for( int i=0;i<cut_.size();i++ )
@@ -956,7 +977,7 @@ bool SprStdBackprop::resumeReadSPR(const char* netfile,
   double low(0), high(0);
   for( int i=0;i<nCut;i++ ) {
     istcut >> low >> high;
-    cut_.push_back(pair<double,double>(low,high));
+    cut_.push_back(SprInterval(low,high));
   }
 
   // read number of nodes

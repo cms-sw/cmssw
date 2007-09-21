@@ -1,9 +1,10 @@
-//$Id: SprTrainedStdBackprop.cc,v 1.5 2007/02/05 21:49:46 narsky Exp $
+//$Id: SprTrainedStdBackprop.cc,v 1.6 2007/05/14 18:08:08 narsky Exp $
 
 #include "PhysicsTools/StatPatternRecognition/interface/SprExperiment.hh"
 #include "PhysicsTools/StatPatternRecognition/interface/SprTrainedStdBackprop.hh"
 #include "PhysicsTools/StatPatternRecognition/interface/SprTransformation.hh"
 #include "PhysicsTools/StatPatternRecognition/interface/SprUtils.hh"
+#include "PhysicsTools/StatPatternRecognition/interface/SprDefs.hh"
 
 #include <cmath>
 #include <iomanip>
@@ -102,7 +103,7 @@ double SprTrainedStdBackprop::activate(double x, SprNNDefs::ActFun f) const
 void SprTrainedStdBackprop::print(std::ostream& os) const 
 {
   os << "Trained StdBackprop with configuration " 
-     << structure_.c_str() << endl; 
+     << structure_.c_str() << " " << SprVersion << endl; 
   os << "Activation functions: Identity=1, Logistic=2" << endl;
   os << "Cut: " << cut_.size();
   for( int i=0;i<cut_.size();i++ )
@@ -158,23 +159,13 @@ double SprTrainedStdBackprop::response(const std::vector<double>& v) const
   int d = 0;
   for( int i=0;i<nNodes_;i++ ) {
     if( nodeType_[i] == SprNNDefs::INPUT ) {
-      if( d >= v.size() ) {
-	cerr << "Input vector dimensionality does not match " 
-	     << "dimensionality of the network: " 
-	     << d << " " << v.size() << endl;
-	return -1;
-      }
+      assert( d < v.size() );
       nodeOut[i] = v[d++];
     }
     else
       break;
   }
-  if( d != v.size() ) {
-    cerr << "Input vector dimensionality does not match " 
-	 << "dimensionality of the network: " 
-	 << d << " " << v.size() << endl;
-    return -1;
-  }
+  assert( d == v.size() );
 
   // Process hidden and output nodes
   for( int i=0;i<nNodes_;i++ ) {

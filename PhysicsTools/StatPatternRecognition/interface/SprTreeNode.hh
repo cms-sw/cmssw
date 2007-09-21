@@ -1,5 +1,5 @@
 // File and Version Information:
-//      $Id: SprTreeNode.hh,v 1.5 2007/02/05 21:49:45 narsky Exp $
+//      $Id: SprTreeNode.hh,v 1.9 2007/08/11 22:08:10 narsky Exp $
 //
 // Description:
 //      Class SprTreeNode :
@@ -37,34 +37,6 @@ class SprTreeNode
 public:
   virtual ~SprTreeNode();
 
-  SprTreeNode(const SprAbsTwoClassCriterion* crit,
-	      const SprAbsFilter* data,
-	      bool allLeafsSignal,
-	      int nmin,
-	      bool discrete,
-	      bool canHavePureNodes,
-	      SprIntegerBootstrap* bootstrap=0);
-
-  SprTreeNode(const SprAbsTwoClassCriterion* crit,
-	      const SprBoxFilter& data,
-	      bool allLeafsSignal,
-	      int nmin,
-	      bool discrete,
-	      bool canHavePureNodes,
-	      const SprClass& cls0,
-	      const SprClass& cls1,
-	      const SprTreeNode* parent,
-	      int d,
-	      const SprCut& cut,
-	      const SprBox& limits,
-	      //	      double w0, double w1,
-	      //	      unsigned n0, unsigned n1,
-	      SprIntegerBootstrap* bootstrap=0);
-
-  bool split(std::vector<SprTreeNode*>& nodesToSplit, 
-	     std::vector<std::pair<int,double> >& countTreeSplits,
-	     int verbose=0);
-
   SprTrainedNode* makeTrained() const;
 
   double fom() const { return fom_; }
@@ -79,7 +51,7 @@ public:
     limits = limits_;
   }
 
-  std::pair<double,double> limits(int d) const;
+  SprInterval limits(int d) const;
 
   int id() const { return id_; }
 
@@ -89,10 +61,37 @@ private:
   friend class SprDecisionTree;
   friend class SprTopdownTree;
 
-  void setClasses();
+  SprTreeNode(const SprAbsTwoClassCriterion* crit,
+	      const SprAbsFilter* data,
+	      bool allLeafsSignal,
+	      int nmin,
+	      bool discrete,
+	      bool canHavePureNodes,
+	      bool fastSort,
+	      SprIntegerBootstrap* bootstrap=0);
+
+  SprTreeNode(const SprAbsTwoClassCriterion* crit,
+	      const SprBoxFilter& data,
+	      bool allLeafsSignal,
+	      int nmin,
+	      bool discrete,
+	      bool canHavePureNodes,
+	      bool fastSort,
+	      const SprClass& cls0,
+	      const SprClass& cls1,
+	      const SprTreeNode* parent,
+	      const SprBox& limits,
+	      SprIntegerBootstrap* bootstrap=0);
+
+  bool split(std::vector<SprTreeNode*>& nodesToSplit, 
+	     std::vector<std::pair<int,double> >& countTreeSplits,
+	     int verbose=0);
+
   bool setClasses(const SprClass& cls0, const SprClass& cls1);
+
   bool sort(unsigned d, std::vector<int>& sorted,
 	    std::vector<double>& division);
+
   bool prepareExit(bool status);
 
   const SprAbsTwoClassCriterion* crit_;
@@ -101,6 +100,7 @@ private:
   int nmin_;// minimal number of events per node
   bool discrete_;// type of node output: discrete (0 or 1) or continuous
   bool canHavePureNodes_;// true if allow nodes w/ only signal or bgrnd events
+  bool fastSort_;
   SprClass cls0_;
   SprClass cls1_;
   const SprTreeNode* parent_;

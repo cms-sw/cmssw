@@ -1,10 +1,12 @@
-//$Id: SprTrainedFisher.cc,v 1.5 2007/02/05 21:49:46 narsky Exp $
+//$Id: SprTrainedFisher.cc,v 1.7 2007/05/15 00:08:26 narsky Exp $
 
 #include "PhysicsTools/StatPatternRecognition/interface/SprExperiment.hh"
 #include "PhysicsTools/StatPatternRecognition/interface/SprTrainedFisher.hh"
 #include "PhysicsTools/StatPatternRecognition/interface/SprTransformation.hh"
+#include "PhysicsTools/StatPatternRecognition/interface/SprUtils.hh"
 
 #include <iomanip>
+#include <cassert>
 
 using namespace std;
 
@@ -13,11 +15,7 @@ double SprTrainedFisher::response(const std::vector<double>& v) const
 {
   // sanity check
   int size = v.size();
-  if( size != linear_.num_row() ) {
-    cerr << "Input vector and Fisher vector have unmatching dimensions! " 
-	 << size << " " << linear_.num_row() << endl;
-    return 0;
-  }
+  assert( size == linear_.num_row() );
 
   // compute linear contribution
   double d = 0;
@@ -27,11 +25,7 @@ double SprTrainedFisher::response(const std::vector<double>& v) const
 
   // compute quadratic contribution
   if( this->mode() == 2 ) {
-    if( size != quadr_.num_row() ) {
-      cerr << "Input vector and Fisher matrix have unmatching dimensions! " 
-	   << size << " " << quadr_.num_row() << endl;
-      return 0;
-    }
+    assert( size == quadr_.num_row() );
     double row = 0;
     for( int i=1;i<size;i++ ) {
       row = 0;
@@ -59,22 +53,14 @@ double SprTrainedFisher::response(const std::vector<double>& v) const
 double SprTrainedFisher::response(const SprVector& v) const
 {
   // sanity check
-  if( v.num_row() != linear_.num_row() ) {
-    cerr << "Input vector and Fisher vector have unmatching dimensions! " 
-	 << v.num_row() << " " << linear_.num_row() << endl;
-    return 0;
-  }
+  assert( v.num_row() == linear_.num_row() );
 
   // compute linear contribution
   double d = dot(v,linear_);
 
   // compute quadratic contribution
   if( this->mode() == 2 ) {
-    if( v.num_row() != quadr_.num_row() ) {
-      cerr << "Input vector and Fisher matrix have unmatching dimensions! " 
-	   << v.num_row() << " " << quadr_.num_row() << endl;
-      return 0;
-    }
+    assert( v.num_row() == quadr_.num_row() );
     d += dot(v,quadr_*v);
   }
 
@@ -92,7 +78,7 @@ double SprTrainedFisher::response(const SprVector& v) const
 
 void SprTrainedFisher::print(std::ostream& os) const
 {
-  os << "Trained Fisher" << endl;
+  os << "Trained Fisher " << SprVersion << endl;
   os << "Fisher dimensionality: " << linear_.num_row() << endl;
   os << "Fisher response: F = C + T(L)*X + T(X)*Q*X; T is transposition" 
      << endl;

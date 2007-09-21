@@ -1,4 +1,4 @@
-//$Id: SprCrossValidator.cc,v 1.3 2006/11/13 19:09:41 narsky Exp $
+//$Id: SprCrossValidator.cc,v 1.4 2007/08/30 17:54:42 narsky Exp $
 
 #include "PhysicsTools/StatPatternRecognition/interface/SprExperiment.hh"
 #include "PhysicsTools/StatPatternRecognition/interface/SprCrossValidator.hh"
@@ -134,6 +134,16 @@ bool SprCrossValidator::validate(const SprAbsTwoClassCriterion* crit,
       data.clear();
       data.remove(samples_[i]->data());
 
+      // print out
+      if( verbose > 0 ) {
+	cout << "Will train classifier " << c->name().c_str()
+	     << " on a sample: " << endl;
+	cout << "  W1=" << data.weightInClass(cls1)
+	     << "  W0=" << data.weightInClass(cls0)
+	     << "  N1=" << data.ptsInClass(cls1)
+	     << "  N0=" << data.ptsInClass(cls0) << endl;
+      }
+
       // reset classifier
       if( !c->setData(&data) ) {
 	cerr << "Cross-validator unable to set data for classifier " 
@@ -142,7 +152,7 @@ bool SprCrossValidator::validate(const SprAbsTwoClassCriterion* crit,
       }
 
       // train
-      if( !c->train(verbose) ) {
+      if( !c->train(verbose-1) ) {
 	cerr << "Unable to train classifier " << ic << endl;
 	continue;
       }

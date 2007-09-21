@@ -1,4 +1,4 @@
-//$Id: SprFisherLogitApp.cc,v 1.5 2007/02/05 21:49:45 narsky Exp $
+//$Id: SprFisherLogitApp.cc,v 1.6 2007/07/24 23:05:12 narsky Exp $
 
 #include "PhysicsTools/StatPatternRecognition/interface/SprExperiment.hh"
 #include "PhysicsTools/StatPatternRecognition/interface/SprFisher.hh"
@@ -48,6 +48,9 @@ void help(const char* prog)
   cout << "\t-a input ascii file mode (see SprSimpleReader.hh)  " << endl;
   cout << "\t-v verbose level (0=silent default,1,2)            " << endl;
   cout << "\t-f store classifier configuration to file          " << endl;
+  cout << "\t-K keep this fraction in training set and          " << endl;
+  cout << "\t\t put the rest into validation set                " << endl;
+  cout << "\t-D randomize training set split-up                 " << endl;
   cout << "\t-t read validation/test data from a file           " << endl;
   cout << "\t\t (must be in same format as input data!!!        " << endl;
   cout << "\t-p output file to store validation/test data       " << endl;
@@ -84,12 +87,15 @@ int main(int argc, char ** argv)
   string includeList, excludeList;
   string inputClassesString;
   bool useStandard = false;
+  bool split = false;
+  double splitFactor = 0;
+  bool splitRandomize = false;
   
   // decode command line
   int c;
   extern char* optarg;
   extern int optind;
-  while( (c = getopt(argc,argv,"hm:le:u:iy:o:sa:v:f:t:p:w:V:z:")) != EOF ) {
+  while( (c = getopt(argc,argv,"hm:le:u:iy:o:sa:v:f:K:Dt:p:w:V:z:")) != EOF ) {
     switch( c )
       {
       case 'h' :
@@ -127,6 +133,13 @@ int main(int argc, char ** argv)
 	break;
       case 'f' :
 	outFile = optarg;
+	break;
+      case 'K' :
+	split = true;
+	splitFactor = (optarg==0 ? 0 : atof(optarg));
+	break;
+      case 'D' :
+	splitRandomize = true;
 	break;
       case 't' :
 	valFile = optarg;
@@ -248,7 +261,29 @@ int main(int argc, char ** argv)
 
   // read validation data from file
   auto_ptr<SprAbsFilter> valFilter;
-  if( !valFile.empty() ) {
+  if( split && !valFile.empty() ) {
+    cerr << "Unable to split training data and use validation data " 
+	 << "from a separate file." << endl;
+    return 2;
+  }
+  if( split ) {
+    cout << "Splitting training data with factor " << splitFactor << endl;
+    if( splitRandomize )
+      cout << "Will use randomized splitting." << endl;
+    vector<double> weights;
+    SprData* splitted = filter->split(splitFactor,weights,splitRandomize);
+    if( splitted == 0 ) {
+      cerr << "Unable to split training data." << endl;
+      return 2;
+    }
+    bool ownData = true;
+    valFilter.reset(new SprEmptyFilter(splitted,weights,ownData));
+    cout << "Training data re-filtered:" << endl;
+    for( int i=0;i<inputClasses.size();i++ ) {
+      cout << "Points in class " << inputClasses[i] << ":   " 
+	   << filter->ptsInClass(inputClasses[i]) << endl;
+    }
+  }  if( !valFile.empty() ) {
     SprSimpleReader valReader(readMode);
     if( !includeSet.empty() ) {
       if( !valReader.chooseVars(includeSet) ) {

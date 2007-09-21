@@ -1,4 +1,4 @@
-//$Id: SprTrainedRBF.cc,v 1.5 2006/11/26 22:47:41 narsky Exp $
+//$Id: SprTrainedRBF.cc,v 1.6 2007/05/14 18:08:08 narsky Exp $
 
 #include "PhysicsTools/StatPatternRecognition/interface/SprExperiment.hh"
 #include "PhysicsTools/StatPatternRecognition/interface/SprTrainedRBF.hh"
@@ -380,12 +380,10 @@ double SprTrainedRBF::response(const std::vector<double>& v) const
   for( int i=0;i<nodes_.size();i++ ) {
     const Node* node = nodes_[i];
     if( node->type_ == SprNNDefs::HIDDEN ) {
-
       /*
       cout << node->index_ << endl;
       cout << node->incoming_.size() << " " << v.size() << endl;
       */
-
       assert( node->incoming_.size() == v.size() );
       double r2 = 0;// r squared
       for( int j=0;j<node->incoming_.size();j++ ) {

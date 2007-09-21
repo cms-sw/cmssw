@@ -1,5 +1,5 @@
 // File and Version Information:
-//      $Id: SprTrainedFisher.hh,v 1.5 2007/02/05 21:49:45 narsky Exp $
+//      $Id: SprTrainedFisher.hh,v 1.6 2007/07/11 19:52:09 narsky Exp $
 //
 // Description:
 //      Class SprTrainedFisher :
@@ -85,6 +85,9 @@ public:
   double response(const std::vector<double>& v) const;
   double response(const SprVector& v) const;
   void print(std::ostream& os) const;
+  bool generateCode(std::ostream& os) const {
+    return false;
+  }
 
   //
   // local methods

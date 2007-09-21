@@ -1,8 +1,11 @@
-//$Id: SprTrainedMultiClassLearner.cc,v 1.4 2006/11/26 02:04:31 narsky Exp $
+//$Id: SprTrainedMultiClassLearner.cc,v 1.6 2007/08/30 17:54:42 narsky Exp $
 
 #include "PhysicsTools/StatPatternRecognition/interface/SprExperiment.hh"
 #include "PhysicsTools/StatPatternRecognition/interface/SprTrainedMultiClassLearner.hh"
 #include "PhysicsTools/StatPatternRecognition/interface/SprAbsTrainedClassifier.hh"
+#include "PhysicsTools/StatPatternRecognition/interface/SprDefs.hh"
+#include "PhysicsTools/StatPatternRecognition/interface/SprLoss.hh"
+#include "PhysicsTools/StatPatternRecognition/interface/SprTransformation.hh"
 
 #include <algorithm>
 #include <functional>
@@ -28,6 +31,7 @@ SprTrainedMultiClassLearner::SprTrainedMultiClassLearner(
        const std::vector<std::pair<const SprAbsTrainedClassifier*,bool> >& 
        classifiers)
   :
+  SprAbsTrainedMultiClassLearner(),
   indicator_(indicator),
   mapper_(mapper),
   classifiers_(classifiers),
@@ -43,12 +47,18 @@ SprTrainedMultiClassLearner::SprTrainedMultiClassLearner(
     for( int i=0;i<n;i++ ) mapper_[i] = i;
   }
   assert( mapper_.size() == indicator_.num_row() );
+  // set default loss
+  this->setLoss(&SprLoss::quadratic,
+		&SprTransformation::zeroOneToMinusPlusOne);
+  cout << "Loss for trained multi-class learner by default set to "
+       << "quadratic." << endl;
 }
 
 
 SprTrainedMultiClassLearner::SprTrainedMultiClassLearner(
                              const SprTrainedMultiClassLearner& other)
   :
+  SprAbsTrainedMultiClassLearner(other),
   indicator_(other.indicator_),
   mapper_(other.mapper_),
   classifiers_(),
@@ -105,7 +115,7 @@ int SprTrainedMultiClassLearner::response(const std::vector<double>& input,
 
 void SprTrainedMultiClassLearner::print(std::ostream& os) const 
 {
-  os << "Trained Multi Class Learner" << endl;
+  os << "Trained MultiClassLearner " << SprVersion << endl;
 
   // print matrix
   this->printIndicatorMatrix(os);

@@ -6,6 +6,7 @@
   <bin file=SprBaggerDecisionTreeApp.cc></bin>
   <bin file=SprBoosterApp.cc></bin>
   <bin file=SprBumpHunterApp.cc></bin>
+  <bin file=SprCombinerApp.cc></bin>
   <bin file=SprDecisionTreeApp.cc></bin>
   <bin file=SprExploratoryAnalysisApp.cc></bin>
   <bin file=SprFisherLogitApp.cc></bin>
@@ -16,6 +17,6 @@
   <bin file=SprOutputWriterApp.cc></bin>
   <bin file=SprRBFNetApp.cc></bin>
   <bin file=SprStdBackpropApp.cc></bin>
-  <bin file=SprStdBackpropPlusAdaSplitApp.cc></bin>
+  <bin file=SprVariableImportanceApp.cc></bin>
 </environment>
 

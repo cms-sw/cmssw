@@ -1,10 +1,10 @@
-//$Id: SprBoxFilter.cc,v 1.3 2006/11/13 19:09:41 narsky Exp $
+//$Id: SprBoxFilter.cc,v 1.4 2007/05/17 23:31:37 narsky Exp $
 
 #include "PhysicsTools/StatPatternRecognition/interface/SprExperiment.hh"
 #include "PhysicsTools/StatPatternRecognition/interface/SprBoxFilter.hh"
 #include "PhysicsTools/StatPatternRecognition/interface/SprPoint.hh"
+#include "PhysicsTools/StatPatternRecognition/interface/SprUtils.hh"
 
-#include <utility>
 #include <iostream>
 #include <string>
 #include <algorithm>
@@ -14,81 +14,67 @@ using namespace std;
 
 bool SprBoxFilter::pass(const SprPoint* p) const
 {
-  bool passed = true;
-  for( SprGrid::const_iterator iter=cuts_.begin();
-       iter!=cuts_.end();iter++ ) {
+  assert( p != 0 );
+  for( SprBox::const_iterator iter=box_.begin();iter!=box_.end();iter++ ) {
     unsigned d = iter->first;
     if( d < p->dim() ) {
-      const SprCut& cut = iter->second;
-      if( !cut.empty() ) {
-	passed = false;
-	double r = (p->x_)[d];
-	for( int j=0;j<cut.size();j++ ) {
-	  if( r>cut[j].first && r<cut[j].second ) {
-	    passed = true;
-	    break;
-	  }
-	}
-	if( !passed ) return false;
-      }
+      const SprInterval& range = iter->second;
+      double r = (p->x_)[d];
+      if( r>range.first && r<range.second )
+        continue;
+      else
+        return false;
     }
   }
   return true;
 }
 
 
-bool SprBoxFilter::setCut(int i, const SprCut& cut)
+bool SprBoxFilter::setRange(int d, const SprInterval& range)
 {
   // sanity check
-  if( i<0 || i>=this->dim() ) {
-    cerr << "Index out of dimensionality range " << i 
-	 << " " << this->dim() << endl;
+  if( d < 0 ) {
+    cerr << "Index out of range for SprBoxFilter::setRange " << d << endl;
     return false;
   }
 
   // find out if a cut on this dimension exists already
-  SprGrid::iterator iter = cuts_.find(i);
-  if( iter == cuts_.end() ) {
-    cuts_.insert(pair<const unsigned,SprCut>(i,cut));
-  }
-  else {
-    iter->second = cut;
-  }
+  SprBox::iterator iter = box_.find(d);
+  if( iter == box_.end() )
+    box_.insert(pair<const unsigned,SprInterval>(d,range));
+  else
+    iter->second = range;
 
   // exit
   return true;
 }
 
 
-bool SprBoxFilter::setCut(const char* var, const SprCut& cut)
+SprInterval SprBoxFilter::range(int d) const
 {
-  // init
-  string svar = var;
+  // sanity check
+  if( d < 0 )
+    return SprInterval(SprUtils::min(),SprUtils::max());
 
-  // get a list of variables
-  vector<string> vars;
-  this->vars(vars);
+  // find the cut
+  SprBox::const_iterator iter = box_.find(d);
 
-  // find this one
-  vector<string>::const_iterator iter = ::find(vars.begin(),vars.end(),svar);
-
-  // set cut
-  if( iter != vars.end() ) {
-    int d = iter - vars.begin();
-    return this->setCut(d,cut);
-  }
+  // if not found, infty range
+  if( iter == box_.end() )
+    return SprInterval(SprUtils::min(),SprUtils::max());
 
   // exit
-  cerr << "Variable " << svar << " not found." << endl;
-  return false;
+  return iter->second;
 }
 
 
-bool SprBoxFilter::setCut(const std::vector<SprCut>& cuts)
+bool SprBoxFilter::setBox(const std::vector<SprInterval>& box)
 {
-  cuts_.clear();
-  for( int i=0;i<cuts.size();i++ )
-    cuts_.insert(pair<const unsigned,SprCut>(i,cuts[i]));
+  if( !this->reset() ) {
+    cerr << "Unable to reset SprBoxFilter." << endl;
+    return false;
+  }
+  for( int d=0;d<box.size();d++ )
+    box_.insert(pair<const unsigned,SprInterval>(d,box[d]));
   return true;
 }
-

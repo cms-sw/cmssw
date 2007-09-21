@@ -1,4 +1,4 @@
-//$Id: SprTopdownTree.cc,v 1.4 2007/02/05 21:49:46 narsky Exp $
+//$Id: SprTopdownTree.cc,v 1.6 2007/08/30 17:54:42 narsky Exp $
 
 #include "PhysicsTools/StatPatternRecognition/interface/SprExperiment.hh"
 #include "PhysicsTools/StatPatternRecognition/interface/SprTopdownTree.hh"
@@ -15,10 +15,10 @@ using namespace std;
 
 SprTopdownTree::SprTopdownTree(SprAbsFilter* data, 
 			       const SprAbsTwoClassCriterion* crit,
-			       int nmin, bool doMerge, bool discrete,
+			       int nmin, bool discrete,
 			       SprIntegerBootstrap* bootstrap)
   :
-  SprDecisionTree(data,crit,nmin,doMerge,discrete,bootstrap)
+  SprDecisionTree(data,crit,nmin,false,discrete,bootstrap)
 {
   cout << "Using a Topdown tree." << endl;
 }
@@ -26,12 +26,21 @@ SprTopdownTree::SprTopdownTree(SprAbsFilter* data,
 
 SprTrainedTopdownTree* SprTopdownTree::makeTrained() const
 {
+  // make
   vector<const SprTrainedNode*> nodes;
   if( !this->makeTrainedNodes(nodes) ) {
     cerr << "SprTrainedTopdownTree unable to make trained nodes." << endl;
     return 0;
   }
-  return new SprTrainedTopdownTree(nodes,true);
+  SprTrainedTopdownTree* t = new SprTrainedTopdownTree(nodes,true);
+
+  // vars
+  vector<string> vars;
+  data_->vars(vars);
+  t->setVars(vars);
+
+  // exit
+  return t;
 }
 
 

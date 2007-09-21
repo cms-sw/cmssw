@@ -1,6 +1,6 @@
 //------------------------------------------------------------------------
 // File and Version Information:
-//      $Id: SprBoxFilter.hh,v 1.3 2006/11/13 19:09:39 narsky Exp $
+//      $Id: SprBoxFilter.hh,v 1.4 2007/05/17 23:31:37 narsky Exp $
 //
 // Description:
 //      Class SprBoxFilter :
@@ -36,40 +36,46 @@ public:
   virtual ~SprBoxFilter() {}
 
   SprBoxFilter(const SprData* data) 
-    : SprAbsFilter(data), cuts_() {}
+    : SprAbsFilter(data), box_() {}
 
   SprBoxFilter(const SprBoxFilter& filter) 
-    : SprAbsFilter(filter), cuts_(filter.cuts_) {}
+    : SprAbsFilter(filter), box_(filter.box_) {}
 
   SprBoxFilter(const SprAbsFilter* filter)
-    : SprAbsFilter(*filter), cuts_() {}
+    : SprAbsFilter(*filter), box_() {}
 
-  // define cuts
-  bool setCut(const SprGrid& cuts) { 
-    cuts_ = cuts; 
-    return true;
-  }
-  bool setCut(const std::vector<SprCut>& cuts);
-  bool resetCut() {
-    cuts_.clear();
-    return true;
+  SprBoxFilter& operator=(const SprBoxFilter& other) {
+    box_ = other.box_;
+    return *this;
   }
 
   // accept or reject a point
   bool pass(const SprPoint* p) const;
 
-  //
-  // local methods
-  //
+  // specific reset
+  bool reset() {
+    box_.clear();
+    return true;
+  }
+
+  // define box
+  bool setBox(const SprBox& box) {
+    box_ = box;
+    return true;
+  }
 
   // set cut in a specific dimension
-  bool setCut(int i, const SprCut& cut);
+  bool setRange(int d, const SprInterval& range);
 
-  // set cut on a variable
-  bool setCut(const char* var, const SprCut& cut);
+  // set a full set of cuts on all dims
+  bool setBox(const std::vector<SprInterval>& box);
+
+  // access to box
+  void box(SprBox& box) const { box = box_; }
+  SprInterval range(int d) const;
 
 private:
-  SprGrid cuts_;
+  SprBox box_;
 };
 
 #endif

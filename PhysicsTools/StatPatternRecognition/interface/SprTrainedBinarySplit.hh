@@ -1,5 +1,5 @@
 // File and Version Information:
-//      $Id: SprTrainedBinarySplit.hh,v 1.3 2006/11/13 19:09:40 narsky Exp $
+//      $Id: SprTrainedBinarySplit.hh,v 1.4 2007/07/11 19:52:09 narsky Exp $
 //
 // Description:
 //      Class SprTrainedBinarySplit :
@@ -58,6 +58,13 @@ public:
     0 for background and 1 for signal.
   */
   double response(const std::vector<double>& v) const;
+
+  /*
+    Generate code.
+  */
+  bool generateCode(std::ostream& os) const {
+    return false;
+  }
 
   /*
     Print out.

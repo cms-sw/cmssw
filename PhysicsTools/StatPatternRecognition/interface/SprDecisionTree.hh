@@ -1,5 +1,5 @@
 // File and Version Information:
-//      $Id: SprDecisionTree.hh,v 1.4 2007/02/05 21:49:44 narsky Exp $
+//      $Id: SprDecisionTree.hh,v 1.6 2007/08/11 00:25:13 narsky Exp $
 //
 // Description:
 //      Class SprDecisionTree :
@@ -35,6 +35,7 @@
 #include "PhysicsTools/StatPatternRecognition/interface/SprAbsClassifier.hh"
 #include "PhysicsTools/StatPatternRecognition/interface/SprAbsFilter.hh"
 #include "PhysicsTools/StatPatternRecognition/interface/SprTrainedDecisionTree.hh"
+#include "PhysicsTools/StatPatternRecognition/interface/SprClass.hh"
 
 #include <string>
 #include <iostream>
@@ -100,6 +101,9 @@ public:
   void forceMixedNodes() { canHavePureNodes_ = false; }
   bool forcedMixedNodes() const { return !canHavePureNodes_; }
 
+  // Switch to fast sorting algorithm.
+  void useFastSort() { fastSort_ = true; }
+
   // Force the tree to count the number of splits on input variables.
   // This method has to be called before train().
   void startSplitCounter();
@@ -124,16 +128,20 @@ public:
   double fom() const { return fom_; }
 
 protected:
+  void setClasses();
   bool merge(int category, bool doMerge,
 	     std::vector<const SprTreeNode*>& nodes,
 	     double& fomtot, double& w0tot, double& w1tot, 
 	     unsigned& n0tot, unsigned& n1tot, int verbose) const;
 
+  SprClass cls0_;
+  SprClass cls1_;
   const SprAbsTwoClassCriterion* crit_;
   int nmin_;
   bool doMerge_;
   bool discrete_;
   bool canHavePureNodes_;
+  bool fastSort_;
   bool showBackgroundNodes_;
   SprIntegerBootstrap* bootstrap_;
   SprTreeNode* root_;

@@ -1,5 +1,5 @@
 // File and Version Information:
-//      $Id: SprAbsTrainedMultiClassLearner.hh,v 1.3 2006/11/13 19:09:38 narsky Exp $
+//      $Id: SprAbsTrainedMultiClassLearner.hh,v 1.4 2007/05/14 18:08:08 narsky Exp $
 //
 // Description:
 //      Class SprAbsTrainedMultiClassLearner :
@@ -22,7 +22,6 @@
 #include "PhysicsTools/StatPatternRecognition/interface/SprPoint.hh"
 
 #include <vector>
-#include <map>
 #include <iostream>
 #include <string>
 
@@ -37,7 +36,7 @@ public:
   SprAbsTrainedMultiClassLearner() {}
 
   SprAbsTrainedMultiClassLearner(const SprAbsTrainedMultiClassLearner& other)
-  {}
+    : vars_(other.vars_) {}
 
   /*
     Returns classifier name.
@@ -51,20 +50,23 @@ public:
 
   /*
     Classifier response for a data point. 
-    Computes loss values for registered classifiers; the map key
-    is the class and the value is the corresponding loss.
-    The returned integer is the class for which the loss is minimal.
+    Returns the integer label for the predicted class.
   */
-  virtual int response(const std::vector<double>& input,
-		       std::map<int,double>& output) const = 0;
-  int response(const SprPoint* input, std::map<int,double>& output) const {
-    return this->response(p->x_);
-  }
+  virtual int response(const std::vector<double>& input) const = 0;
+
+  // Access to the list of variables.
+  void setVars(const std::vector<std::string>& vars) { vars_ = vars; }
+  void vars(std::vector<std::string>& vars) const { vars = vars_; }
+  unsigned dim() const { return vars_.size(); }
 
   /*
     Print out.
   */
+  bool store(const char* filename) const;
   virtual void print(std::ostream& os) const = 0;
+
+protected:
+  std::vector<std::string> vars_;
 };
 
 #endif

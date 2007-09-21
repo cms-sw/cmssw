@@ -1,4 +1,4 @@
-//$Id: SprTrainedStdBackprop.hh,v 1.4 2006/11/26 02:04:30 narsky Exp $
+//$Id: SprTrainedStdBackprop.hh,v 1.5 2007/07/11 19:52:09 narsky Exp $
 //--------------------------------------------------------------------------
 //
 //      Class SprTrainedStdBackprop:
@@ -53,6 +53,10 @@ public:
   std::string name() const { return "StdBackprop"; }
 
   double response(const std::vector<double>& v) const;
+
+  bool generateCode(std::ostream& os) const {
+    return false;
+  }
 
   void print(std::ostream& os) const;
 

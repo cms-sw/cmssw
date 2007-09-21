@@ -1,5 +1,5 @@
 // File and Version Information:
-//      $Id: SprTrainedRBF.hh,v 1.5 2007/02/05 21:49:45 narsky Exp $
+//      $Id: SprTrainedRBF.hh,v 1.6 2007/07/11 19:52:09 narsky Exp $
 //
 // Description:
 //      Class SprTrainedRBF :
@@ -113,6 +113,10 @@ public:
   std::string name() const { return "RBF"; }
 
   double response(const std::vector<double>& v) const;
+
+  bool generateCode(std::ostream& os) const {
+    return false;
+  }
 
 private:
   void destroy();
