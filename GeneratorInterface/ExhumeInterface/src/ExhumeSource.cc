@@ -25,8 +25,12 @@ using namespace std;
 //#include "HepMC/CBhepevt.h"
 #include "HepMC/IO_HEPEVT.h"
 
-void call_pylist(int);
-void call_pystat(int);
+#define pylist pylist_
+extern "C" {
+        void pylist(int*);
+}
+void call_pylist( int mode ){ pylist( &mode ); }
+
 /*
 #define my_pythia_init my_pythia_init_
 extern "C" {
