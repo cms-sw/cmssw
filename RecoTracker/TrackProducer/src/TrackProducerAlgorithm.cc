@@ -69,8 +69,7 @@ void TrackProducerAlgorithm::runWithCandidate(const TrackingGeometry * theG,
 	if ((*i).isValid()){
 	  ndof = ndof + (i->dimension())*(i->weight());
 	}
-      }
-      
+      }    
       
       ndof = ndof - 5;
       
@@ -102,6 +101,7 @@ void TrackProducerAlgorithm::runWithTrack(const TrackingGeometry * theG,
 	PropagationDirection seedDir = theT->seedDirection();
 	//LogDebug("TrackProducer") << "theT->seedDirection()=" << seedDir;
 
+	//=====  the hits are ordered according to the seed direction
 	TransientTrackingRecHit::RecHitContainer hits = getHitVector(theT,seedDir,ndof,builder);
 
 	TrajectoryStateOnSurface theInitialStateForRefitting = getInitialState(theT,hits,theG,theMF);
@@ -112,7 +112,6 @@ void TrackProducerAlgorithm::runWithTrack(const TrackingGeometry * theG,
 	// =========================
 	//LogDebug("TrackProducer") << "seed.direction()=" << seed.direction();
 
-	//=====  the hits are in the same order as they were in the track::extra.        
 	bool ok = buildTrack(theFitter,thePropagator,algoResults, hits, theInitialStateForRefitting, seed, ndof);
 	if(ok) cont++;
       }catch ( CMSexception & e){
@@ -135,7 +134,8 @@ void TrackProducerAlgorithm::runWithMomentum(const TrackingGeometry * theG,
 					     const TransientTrackingRecHitBuilder* builder,
 					     AlgoProductCollection& algoResults){
 
-  edm::LogInfo("TrackProducer") << "Number of input Tracks: " << theTCollectionWithConstraint.size() << "\n";
+  edm::LogInfo("TrackProducer") << "TrackProducerAlgorithm::runWithMomentum - Number of input Tracks: " 
+				<< theTCollectionWithConstraint.size() << "\n";
   
   int cont = 0;
   for (TrackMomConstraintAssociationCollection::const_iterator i=theTCollectionWithConstraint.begin(); i!=theTCollectionWithConstraint.end();i++) {
@@ -172,7 +172,6 @@ void TrackProducerAlgorithm::runWithMomentum(const TrackingGeometry * theG,
 	// =========================
 	//LogDebug("TrackProducer") << "seed.direction()=" << seed.direction();
 	
-	//=====  the hits are in the same order as they were in the track::extra.        
 	bool ok = buildTrack(theFitter,thePropagator,algoResults, hits, theInitialStateForRefitting, seed, ndof);
 	if(ok) cont++;
       }catch ( CMSexception & e){
@@ -195,7 +194,8 @@ void TrackProducerAlgorithm::runWithVertex(const TrackingGeometry * theG,
 					     const TransientTrackingRecHitBuilder* builder,
 					     AlgoProductCollection& algoResults){
 
-  edm::LogInfo("TrackProducer") << "Number of input Tracks: " << theTCollectionWithConstraint.size() << "\n";
+  edm::LogInfo("TrackProducer") << "TrackProducerAlgorithm::runWithVertex - Number of input Tracks: " 
+				<< theTCollectionWithConstraint.size() << "\n";
   
   int cont = 0;
   for (TrackVtxConstraintAssociationCollection::const_iterator i=theTCollectionWithConstraint.begin(); i!=theTCollectionWithConstraint.end();i++) {
@@ -248,7 +248,6 @@ void TrackProducerAlgorithm::runWithVertex(const TrackingGeometry * theG,
 	// =========================
 	//LogDebug("TrackProducer") << "seed.direction()=" << seed.direction();
 
-	//=====  the hits are in the same order as they were in the track::extra.        
 	bool ok = buildTrack(theFitter,thePropagator,algoResults, hits, theInitialStateForRefitting, seed, ndof);
 	if(ok) cont++;
       }catch ( CMSexception & e){
@@ -293,8 +292,7 @@ bool TrackProducerAlgorithm::buildTrack (const TrajectoryFitter * theFitter,
     } else { 
       innertsos = theTraj->lastMeasurement().updatedState();
     }
-    
-    
+        
     TSCPBuilderNoMaterial tscpBuilder;
     LogDebug("TrackProducer") << "innertsos=" << innertsos ;
     TrajectoryStateClosestToPoint tscp = tscpBuilder(*(innertsos.freeState()),
@@ -304,7 +302,8 @@ bool TrackProducerAlgorithm::buildTrack (const TrajectoryFitter * theFitter,
     GlobalVector p = tscp.theState().momentum();
     math::XYZVector mom( p.x(), p.y(), p.z() );
 
-    LogDebug("TrackProducer") << "pos=" << v << " mom=" << p << " pt=" << p.perp() << " mag=" << p.mag();
+    LogDebug("TrackProducer") << "pos=" << v << " mom=" << p 
+			      << " pt=" << p.perp() << " mag=" << p.mag() << " chi2=" theTraj->chiSquared();
 
     theTrack = new reco::Track(theTraj->chiSquared(),
 			       int(ndof),//FIXME fix weight() in TrackingRecHit
@@ -313,9 +312,8 @@ bool TrackProducerAlgorithm::buildTrack (const TrajectoryFitter * theFitter,
 			       //			       theTraj->lostHits(),//FIXME to be fixed in Trajectory.h
 			       pos, mom, tscp.charge(), tscp.theState().curvilinearError());
     
-    LogDebug("TrackProducer") << "theTrack->pt()=" << theTrack->pt();
-
-    LogDebug("TrackProducer") <<"track done\n";
+    //LogDebug("TrackProducer") << "theTrack->pt()=" << theTrack->pt();
+    //LogDebug("TrackProducer") <<"track done\n";
 
     AlgoProduct aProduct(theTraj,std::make_pair(theTrack,seedDir));
     algoResults.push_back(aProduct);
@@ -371,7 +369,7 @@ TrackProducerAlgorithm::getHitVector(const reco::Track * theT,
       secondHit = builder->build(&**it);
       //LogDebug("TrackProducer") << "secondHit->globalPosition(): " << secondHit->globalPosition() << std::endl;
       break;
-    }else LogDebug("TrackProducer") << "==== debug:this hit of a reco::Track is not valid!! =======";
+    }else LogDebug("TrackProducer") << "==== debug: this hit of a reco::Track is not valid!! =======";
   }
   GlobalVector delta = secondHit->globalPosition() - firstHit->globalPosition() ;
   PropagationDirection trackHitsSort = ( (delta.dot(GlobalVector(theT->momentum().x(),theT->momentum().y(),theT->momentum().z()))
