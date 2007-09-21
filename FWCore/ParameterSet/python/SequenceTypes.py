@@ -54,6 +54,8 @@ class _ModuleSequenceType(_ConfigureComponent, _Labelable):
     def dumpConfig(self,indent,deltaIndent):
         return '{'+self._seq.dumpSequenceConfig()+'}\n'
     def dumpPython(self,indent,deltaIndent):
+        return repr(self)
+    def __repr__(self):
         return "cms."+type(self).__name__+'('+self._seq.dumpSequencePython()+')\n'
     def copy(self):
         returnValue =_ModuleSequenceType.__new__(type(self))
