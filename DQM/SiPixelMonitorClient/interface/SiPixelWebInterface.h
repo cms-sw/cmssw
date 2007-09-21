@@ -37,6 +37,10 @@ public:
   void handleCustomRequest(xgi::Input * in, 
                            xgi::Output * out ) 
 			   throw (xgi::exception::Exception);
+  void handleEDAnalyzerRequest(xgi::Input* in,
+                               xgi::Output* out, 
+			       int niter);  
+  
   void createAll();
 
   void configureCustomRequest(xgi::Input * in, 
@@ -51,6 +55,8 @@ public:
 			 int& message_limit,
 			 int& source_type);
   void setupQTests();
+
+  void setOutputFileName(std::string fname){fileName_ = fname;};
 
   SiPixelActionType getActionFlag() {return theActionFlag;}
   void setActionFlag(SiPixelActionType flag) {theActionFlag = flag;}
