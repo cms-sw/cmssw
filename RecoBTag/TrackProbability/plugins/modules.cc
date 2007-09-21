@@ -5,7 +5,6 @@
 #include "RecoBTag/TrackProbability/interface/JetProbabilityComputer.h"
 #include "RecoBTag/TrackProbability/interface/JetBProbabilityComputer.h"
 //#include "RecoBTag/TrackProbability/interface/JetMassProbabilityComputer.h"
-#include "RecoBTag/TrackProbability/interface/TrackProbability.h"
 
 
 //DEFINE_FWK_MODULE(TrackProbability);
