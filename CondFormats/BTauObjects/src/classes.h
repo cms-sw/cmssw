@@ -7,7 +7,6 @@
 
 namespace {
 
-CalibratedHistogram a;
 std::vector<float> b1;
 std::vector<float>::iterator b1i;
 std::vector<float>::const_iterator b1ic;

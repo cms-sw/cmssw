@@ -4,8 +4,10 @@
 <use name=FWCore/Utilities>
 <use name=boost>
 <use name=rootrflx>
+<use name=CondFormats/PhysicsToolsObjects>
 <export>
   <use name=boost>
+  <use name=CondFormats/PhysicsToolsObjects>
   <lib name=CondFormatsBTauObjects>
 </export>
 

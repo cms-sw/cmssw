@@ -1,7 +1,4 @@
      <lcgdict>
-        <class name="CalibratedHistogram"/>
-        <class name="std::vector<float>"/>
-
         <class name="TrackProbabilityCategoryData"/>      
         <class name="TrackProbabilityCalibration"/>
 	<class name="TrackProbabilityCalibration::Entry"/>
@@ -11,7 +8,6 @@
         <class name="CombinedSVCalibration"/>
 	<class name="CombinedSVCalibration::Entry"/>
 	<class name="std::vector<CombinedSVCalibration::Entry>"/>     
-        
         
         <class name="CombinedTauTagCategoryData"/>        
         <class name="CombinedTauTagCalibration"/>
