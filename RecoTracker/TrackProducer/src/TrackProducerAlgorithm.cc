@@ -303,7 +303,7 @@ bool TrackProducerAlgorithm::buildTrack (const TrajectoryFitter * theFitter,
     math::XYZVector mom( p.x(), p.y(), p.z() );
 
     LogDebug("TrackProducer") << "pos=" << v << " mom=" << p 
-			      << " pt=" << p.perp() << " mag=" << p.mag() << " chi2=" theTraj->chiSquared();
+			      << " pt=" << p.perp() << " mag=" << p.mag() << " chi2=" << theTraj->chiSquared();
 
     theTrack = new reco::Track(theTraj->chiSquared(),
 			       int(ndof),//FIXME fix weight() in TrackingRecHit
