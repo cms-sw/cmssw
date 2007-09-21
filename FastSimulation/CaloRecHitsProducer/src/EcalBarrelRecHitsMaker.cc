@@ -78,15 +78,14 @@ void EcalBarrelRecHitsMaker::loadEcalBarrelRecHits(edm::Event &iEvent,EBRecHitCo
       
       if(doDigis_)
 	{
-          ecalDigis.push_back( myDetId );
-	  EBDataFrame myDataFrame( ecalDigis.back() );
-	  // myDataFrame.setSize(1);  // now useless - by construction fixed at 1 frame - FIXME
+	  EBDataFrame myDataFrame(myDetId);
+	  myDataFrame.setSize(1);
 	  //  The real work is in the following line
 	  geVtoGainAdc(theCalorimeterHits_[icell],gain,adc);
 	  myDataFrame.setSample(0,EcalMGPASample(adc,gain));
 	  
 	  //      std::cout << "myDataFrame" << myDataFrame.sample(0).raw() << std::endl;
-	  //ecalDigis.push_back(myDataFrame);
+	  ecalDigis.push_back(myDataFrame);
 	}
       
       //      std::cout << " The Fired Cell " << icell << std::endl;
@@ -110,9 +109,9 @@ void EcalBarrelRecHitsMaker::loadEcalBarrelRecHits(edm::Event &iEvent,EBRecHitCo
 void EcalBarrelRecHitsMaker::loadPCaloHits(const edm::Event & iEvent)
 {
 
-  edm::Handle<CrossingFrame<PCaloHit> > cf;
-  iEvent.getByLabel("mix","EcalHitsEB",cf);
-  std::auto_ptr<MixCollection<PCaloHit> > colcalo(new MixCollection<PCaloHit>(cf.product(),std::pair<int,int>(0,0) ));
+  edm::Handle<CrossingFrame> cf;
+  iEvent.getByType(cf);
+  std::auto_ptr<MixCollection<PCaloHit> > colcalo(new MixCollection<PCaloHit>(cf.product(),"EcalHitsEB",std::pair<int,int>(0,0) ));
 
 
   theFiredCells_.reserve(colcalo->size());
