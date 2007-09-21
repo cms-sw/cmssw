@@ -336,23 +336,19 @@ class _IncludeNode(cms._ParameterTypeBase):
     def __init__(self,filename):
         self.filename = filename
     def pythonFileRoot(self):
-       # strip out the ".py"
-        import os.path
-        fileRoot = os.path.splitext(self.filename)[0]
-        # translate, e.g., "SimMuon/DT/data/mod.cfg" to "SimMuon.DT.mod"
-        return fileRoot.replace('/','.').replace('.data.','.')
+        # translate, e.g., "SimMuon/DT/data/mod.cfi" to "SimMuon/DT/data/mod_cfi"
+        return self.filename.replace('.','_')
     def pythonFileName(self):
-        import os.path
-        fileRoot = os.path.splitext(self.filename)[0]
-        return fileRoot.replace('/data/','/python/')+".py"
+        return self.pythonFileRoot().replace('/data/','/python/')+".py"
+    def pythonModuleName(self):
+        # we want something like "SimMuon.DT.mod_cfi"
+        return self.pythonFileRoot().replace('/','.').replace('.data.','.')
     def __repr__(self):
         return self.cfgRepr()
     def cfgRepr(self):
-        pythonRoot = self.pythonFileRoot()
-        #moduleName = os.path.split(pythonRoot)[1]
-        return "import "+pythonRoot+"\nprocess.extend("+pythonRoot+")\n"
+        return "import "+self.pythonModuleName()+"\nprocess.extend("+self.pythonModuleName()+")\n"
     def cffRepr(self):
-        return "from "+self.pythonFileRoot()+" import *"
+        return "from "+self.pythonModuleName()+" import *"
     def createIfNeeded(self):
         import os
         import os.path
@@ -590,12 +586,16 @@ class _LeafNode(object):
         if self.__isNot:
             v= ~v
         return v
+    def cfgRepr(self):
+        return "process."+str(self)
 class _AidsOp(object):
     def __init__(self,left,right):
         self.__left = left
         self.__right = right
     def __str__(self):
         return '('+str(self.__left)+','+str(self.__right)+')'
+    def cfgRepr(self):
+        return '('+self.__left.cfgRepr()+'*'+self.__right.cfgRepr()+')'
     def make(self,process):
         left = self.__left.make(process)
         right = self.__right.make(process)
@@ -606,6 +606,8 @@ class _FollowsOp(object):
         self.__right = right
     def __str__(self):
         return '('+str(self.__left)+'&'+str(self.__right)+')'
+    def cfgRepr(self):
+        return '('+self.__left.cfgRepr()+'+'+self.__right.cfgRepr()+')'
     def make(self,process):
         left = self.__left.make(process)
         right = self.__right.make(process)
@@ -657,12 +659,14 @@ class _ModuleSeries(object):
         return str(self.topNode)
     def __repr__(self):
         # extra parentheses never killed anyone
-        return "cms."+self.factory().__name__+"("+str(self)+")"
+        result = "cms."+self.factory().__name__+"("+str(self)+")"
+        # for whatever reason, str(self) sticks with old punctuation
+        return result.replace(',','*').replace('&','+')
     def dumpPython(self, indent, deltaindent):
         return repr(self)
     def cfgRepr(self, proc):
-        return repr(self)
-        #return self.make(process).dumpPython('','') 
+        return "cms."+self.factory().__name__+"("+self.topNode.cfgRepr()+")"
+
 
 class _Sequence(_ModuleSeries):
     def factory(self):
@@ -760,7 +764,15 @@ class _ReplaceNode(object):
     def __repr__(self):
         # translate true/false to True/False
         s = self.getValue()
-        return '.'.join(self.path)+" = "+repr(self.getValue())
+        if s == 'true':
+            s = True
+        if s == 'false':
+            s = False
+        # make sure numbers get their quotes stripped
+        noquotes = s.replace('\'','')
+        if noquotes.isdigit():
+            s = noquotes
+        return '.'.join(self.path)+" = "+repr(s)
 
 class _ReplaceSetter(object):
     """Used to 'set' an unknown type of value from a Replace node"""
@@ -1004,16 +1016,28 @@ def _finalizeProcessFragment(values,usingLabels):
 #==================================================================
 # Process
 #==================================================================
+def _getCompressedNodes(s,loc, values):
+    """Inlines the using statements, but not the Includes or Replaces"""
+    compressedValues = []
+    for l,v in values:
+        compressedValues.append((l,v))
+
+    try:
+        compressedValues = _validateLabelledList(compressedValues)
+        expandedValues = _findAndHandleProcessBlockIncludes(compressedValues)
+        expandedValues = _validateLabelledList(expandedValues)
+        _findAndHandleProcessUsingBlock(expandedValues)
+    except Exception, e:
+        raise pp.ParseFatalException(s,loc,"the process contains the error \n"+str(e))
+    return compressedValues
+
 def _dumpCfg(s,loc,toks):
     label = toks[0][0]
     p=cms.Process(label)
 
-    values = list(iter(toks[0][1]))
-    try:
-        values = _validateLabelledList(values)
-    except Exception, e:
-        raise pp.ParseFatalException(s,loc,"the process contains the error \n"+str(e))
-    result = "process = cms.Process(\""+label+"\")\n"
+    values = _getCompressedNodes(s, loc, list(iter(toks[0][1])) )
+
+    result = "import FWCore.ParameterSet.Config as cms\nprocess = cms.Process(\""+label+"\")\n"
     for key,value in values:
         if isinstance(value,_IncludeNode):
             value.createIfNeeded()
@@ -1033,7 +1057,6 @@ def _makeProcess(s,loc,toks):
     #print toks
     label = toks[0][0]
     p=cms.Process(label)
-
     values = list(iter(toks[0][1]))
     try:
         values = _validateLabelledList(values)
@@ -1041,6 +1064,8 @@ def _makeProcess(s,loc,toks):
         values = _validateLabelledList(values)
     except Exception, e:
         raise pp.ParseFatalException(s,loc,"the process contains the error \n"+str(e))
+
+
     #now deal with series
     d = dict(values)
     sequences={}
@@ -1123,7 +1148,7 @@ def _makeProcess(s,loc,toks):
         if schedule is not None:
             pathlist = []
             for label in schedule.labels:
-                pathlist.append( getattr(p,label))
+               pathlist.append( getattr(p,label))
             p.schedule = cms.Schedule(*pathlist)
     except Exception, e:
         raise pp.ParseFatalException(s,loc,"the process contains the error \n"+str(e))    
@@ -1167,15 +1192,28 @@ class _ConfigReturn(object):
     def __init__(self,d):
         for key,value in d.iteritems():
             setattr(self, key, value)
-    def dumpPython(self):
-         # make sure all the top-level Labelables are labelled
-         for key,value in self.__dict__.iteritems():
-             if isinstance(value, cms._Labelable):
-                 value.setLabel(key)
-         result = ''
-         for key,value in self.__dict__.iteritems():
-             result += key+" = "+value.dumpPython('','    ')
-         return result
+    def __repr__(self):
+        # make sure all the top-level Labelables are labelled
+        for key,value in self.__dict__.iteritems():
+            if isinstance(value, cms._Labelable):
+                value.setLabel(key)
+        result = 'import FWCore.ParameterSet.Config as cms\n'
+        # play it safe: includes first, then others, then replaces
+        includes = ''
+        replaces = ''
+        others = ''
+        sequences = ''
+        for key,value in self.__dict__.iteritems():
+            if isinstance(value,_IncludeNode):
+                value.createIfNeeded()
+                includes += value.cffRepr()+"\n"
+            elif isinstance(value,_ReplaceNode):
+                replaces += repr(value)+"\n"
+            elif isinstance(value,_ModuleSeries):
+                sequences += key+" = "+value.dumpPython('','    ')+"\n"
+            else:
+                others += key+" = "+value.dumpPython('','    ')+"\n"
+        return result+includes+others+sequences+replaces
 
 def parseCfgFile(fileName):
     """Read a .cfg file and create a Process object"""
@@ -1202,18 +1240,17 @@ def parseCffFile(fileName):
 
 def dumpCfg(fileName):
     cfgDumper.parseFile(_fileFactory(fileName))
-def dumpCff(fileName):
-    """Read a .cff file and return a dictionary"""
-    t=onlyFragment.parseFile(_fileFactory(fileName))
-    result = ''
-    for key,value in t:
-        if isinstance(value,_IncludeNode) or isinstance(value,_ReplaceNode):
-            result += value.cffRepr()+"\n"
-        else:
-            #result += "process."+str(key)+" ="+value.dumpPython('','    ')
-            result += key+" = "+value.dumpPython('','    ')+"\n"
-    return result
 
+
+def dumpCff(fileName):
+    # we need to process the Usings, but leave the Includes and Replaces
+    values = onlyFragment.parseFile(_fileFactory(fileName))
+    # copy from whatever got returned into a list
+    compressedValues = _getCompressedNodes(fileName, 0, values)
+    #now deal with series
+    #d = SortedKeysDict(compressedValues)
+    d = dict(compressedValues)
+    return repr(_ConfigReturn(d))
 
 
 def processFromString(configString):
@@ -2195,6 +2232,8 @@ process RECO = {
 #            print t[0][1]
             t=path.parseString('path p = {a,b}')
             self.assertEqual(str(t[0][1]),'(a,b)')            
+            self.assertEqual(repr(t[0][1]), 'cms.Path((a*b))')
+            self.assertEqual(t[0][1].cfgRepr(p), 'cms.Path((process.a*process.b))')
             pth = t[0][1].make(p)
             self.assertEqual(str(pth),'(a*b)')
             #print pth
