@@ -47,9 +47,9 @@
 // Original Author: Oliver Gutsche, gutsche@fnal.gov
 // Created:         Sat Jan 14 22:00:00 UTC 2006
 //
-// $Author: gutsche $
-// $Date: 2007/08/14 22:45:55 $
-// $Revision: 1.48 $
+// $Author: burkett $
+// $Date: 2007/08/30 14:59:12 $
+// $Revision: 1.51 $
 //
 
 #include <vector>
@@ -986,7 +986,7 @@ double RoadSearchCloudMakerAlgorithm::CheckXYIntersection(LocalPoint& inner1, Lo
     deltaX = 0;
   }
   else{
-    deltaX = min(fabs(xinter-inner1.x()),fabs(xinter-outer1.x()));
+    deltaX = min(fabs(inner1.x()-inner2.x()),fabs(outer1.x()-outer2.x()));
   }
   return deltaX;
 
