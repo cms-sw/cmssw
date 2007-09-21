@@ -136,6 +136,19 @@ std::vector<CSCCorrelatedLCTDigi> CSCTMBHeader::CorrelatedLCTDigis() const {
     break;
   }
   case 2007: {
+    /// for the zeroth MPC word:
+    CSCCorrelatedLCTDigi digi(1, header2007.MPC_Muon0_vpf_, header2007.MPC_Muon0_quality_,
+                              header2007.MPC_Muon0_wire_, header2007.MPC_Muon0_halfstrip_clct_pattern,
+                              header2007.MPC_Muon0_clct_pattern_, header2007.MPC_Muon0_bend_,
+                              header2007.MPC_Muon0_bx_);
+    result.push_back(digi);
+    /// for the first MPC word:
+    digi = CSCCorrelatedLCTDigi(2, header2007.MPC_Muon1_vpf_, header2007.MPC_Muon1_quality_,
+                                header2007.MPC_Muon1_wire_, header2007.MPC_Muon1_halfstrip_clct_pattern,
+                                header2007.MPC_Muon1_clct_pattern_, header2007.MPC_Muon1_bend_,
+                                header2007.MPC_Muon1_bx_);
+    result.push_back(digi);
+
     break;
   }
   default:

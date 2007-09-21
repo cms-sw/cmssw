@@ -156,12 +156,11 @@ struct CSCTMBHeader2007 {///this struct is for 2007 version of dataformat
   unsigned alct0Valid:1, alct0Quality:2, alct0Amu:2, alct0Key:7, reserved2:4, flag28:1;
   unsigned alct1Valid:1, alct1Quality:2, alct1Amu:2, alct1Key:7, reserved3:4, flag29:1;
   unsigned alctBXN:5, alctSeqStatus:2, alctSEUStatus:2, alctReserved:4, alctCfg:1, reserved4:1, flag30;
-
-  unsigned MPC0ALCTKeywire:7, MPC0CLCTPat:3, MPC0CLCTHsds:1, MPC0Quality:4, flag31:1;
-  unsigned MPC0CLCTCFEBKey:8, MPC0CLCTBend:1, MPC0SyncErr:1, MPC0bxn:1, MPC0bx0:1, MPC0CSCIdLow:3, flag32:1;
-  unsigned MPC1ALCTKeywire:7, MPC1CLCTPat:3, MPC1CLCTHsds:1, MPC1Quality:4, flag33:1;
-  unsigned MPC1CLCTCFEBKey:8, MPC1CLCTBend:1, MPC1SyncErr:1, MPC1bxn:1, MPC1bx0:1, MPC1CSCIdLow:3, flag34:1;
-  unsigned MPC0vpf:1, MPC0CSCIdBit4:1, MPC1vpf:1, MPC1CSCIdBit4:1, MPCDelay:4, MPCAccept:2, CFEBsEnabled:5, flag35:1;
+  unsigned MPC_Muon0_wire_:7, MPC_Muon0_clct_pattern_:4, MPC_Muon0_quality_:4, flag31:1;
+  unsigned MPC_Muon0_halfstrip_clct_pattern:8, MPC_Muon0_bend_:1, MPC_Muon0_SyncErr_:1, MPC_Muon0_bx_:1, MPC_Muon0_bc0_:1, MPC_Muon0_cscid_low:3, flag32:1;
+  unsigned MPC_Muon1_wire_: 7, MPC_Muon1_clct_pattern_:4, MPC_Muon1_quality_:4, flag33:1;
+  unsigned MPC_Muon1_halfstrip_clct_pattern:8, MPC_Muon1_bend_:1, MPC_Muon1_SyncErr_:1, MPC_Muon1_bx_:1, MPC_Muon1_bc0_:1, MPC_Muon1_cscid_low:3, flag34:1;
+  unsigned MPC_Muon0_vpf_:1, MPC_Muon0_cscid_bit4:1, MPC_Muon1_vpf_:1, MPC_Muon1_cscid_bit4:1, MPCDelay:4, MPCAccept:2, CFEBsEnabled:5, flag35:1;
   unsigned RPCExists:2, RPCList:2, NRPCs:2, RPCEnable:1, RPCMatch:8, flag36:1;
   unsigned addrPretrig:12, bufReady:1, reserved5:2, flag37:1;
   unsigned addrL1a:12, reserved6:3, flag38:1;
@@ -279,7 +278,7 @@ private:
   CSCTMBHeader2006 header2006;
   CSCTMBHeader2007 header2007;
 
-  unsigned short * theOriginalBuffer;
+  unsigned short int theOriginalBuffer[43];
   static bool debug;
   static unsigned short int firmwareVersion;
 };
