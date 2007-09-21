@@ -6,7 +6,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: LeafCandidate.h,v 1.12 2007/06/12 21:27:21 llista Exp $
+ * \version $Id: LeafCandidate.h,v 1.13 2007/09/14 09:53:42 llista Exp $
  *
  */
 #include "DataFormats/Candidate/interface/Candidate.h"
@@ -42,6 +42,10 @@ namespace reco {
     virtual size_t numberOfDaughters() const;
     /// return daughter at a given position (throws an exception)
     virtual const Candidate * daughter( size_type ) const;
+    /// number of mothers
+    virtual size_t numberOfMothers() const;
+    /// return mother at a given position (throws an exception)
+    virtual const Candidate * mother( size_type ) const;
     /// return daughter at a given position (throws an exception)
     virtual Candidate * daughter( size_type );
 
@@ -52,8 +56,6 @@ namespace reco {
     typedef candidate::iterator_imp_specific<daughters> iterator_imp_specific;
     /// check overlap with another Candidate
     virtual bool overlap( const Candidate & c ) const;
-    /// post-read fixup operation
-    virtual void doFixupMothers() const;
   };
 
 }

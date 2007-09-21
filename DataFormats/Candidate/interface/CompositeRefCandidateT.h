@@ -8,7 +8,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: CompositeRefCandidateT.h,v 1.1 2007/09/11 16:16:44 llista Exp $
+ * \version $Id: CompositeRefCandidateT.h,v 1.2 2007/09/14 09:53:42 llista Exp $
  *
  */
 #include "DataFormats/Candidate/interface/Candidate.h"
@@ -21,6 +21,8 @@ namespace reco {
   public:
     /// collection of references to daughters
     typedef D daughters;
+    /// collection of references to daughters
+    typedef D mothers;
     /// default constructor
     CompositeRefCandidateT() : Candidate() { }
     /// constructor from values
@@ -43,12 +45,18 @@ namespace reco {
     virtual iterator end();
     /// number of daughters
     virtual size_t numberOfDaughters() const;
+    /// number of mothers
+    virtual size_t numberOfMothers() const;
     /// return daughter at a given position, i = 0, ... numberOfDaughters() - 1 (read only mode)
     virtual const Candidate * daughter( size_type ) const;
+    /// return mother at a given position, i = 0, ... numberOfMothers() - 1 (read only mode)
+    virtual const Candidate * mother( size_type ) const;
     /// return daughter at a given position, i = 0, ... numberOfDaughters() - 1
     virtual Candidate * daughter( size_type );
     /// add a daughter via a reference
     void addDaughter( const typename daughters::value_type & );    
+    /// add a daughter via a reference
+    void addMother( const typename mothers::value_type & );    
     /// clear daughter references
     void clearDaughters() { dau.clear(); }
     /// reference to daughter at given position
@@ -65,15 +73,20 @@ namespace reco {
     typedef candidate::iterator_imp_specific_dummy<daughters> iterator_imp_specific;
     /// collection of references to daughters
     daughters dau;
+    /// collection of references to mothers
+    daughters mom;
     /// check overlap with another candidate
     virtual bool overlap( const Candidate & ) const;
-    /// post-read fixup operation
-    virtual void doFixupMothers() const;
   };
 
   template<typename D>
   inline void CompositeRefCandidateT<D>::addDaughter( const typename daughters::value_type & cand ) { 
     dau.push_back( cand ); 
+  }
+
+  template<typename D>
+  inline void CompositeRefCandidateT<D>::addMother( const typename daughters::value_type & cand ) { 
+    mom.push_back( cand ); 
   }
 
   template<typename D>
@@ -111,6 +124,11 @@ namespace reco {
   }
   
   template<typename D>
+  const Candidate * CompositeRefCandidateT<D>::mother( size_type i ) const { 
+    return ( i >= 0 && i < numberOfMothers() ) ? & * mom[ i ] : 0;
+  }
+  
+  template<typename D>
   Candidate * CompositeRefCandidateT<D>::daughter( size_type i ) { 
     return 0;
   }
@@ -121,22 +139,14 @@ namespace reco {
   }
   
   template<typename D>
+  size_t CompositeRefCandidateT<D>::numberOfMothers() const { 
+    return mom.size(); 
+  }
+  
+  template<typename D>
   bool CompositeRefCandidateT<D>::overlap( const Candidate & c2 ) const {
     throw cms::Exception( "Error" ) << "can't check overlap internally for CompositeRefCanddate";
   }
-
-  template<typename D>
-  void CompositeRefCandidateT<D>::doFixupMothers() const {
-    typedef typename D::collection_type Collection;
-    const Collection * cands = dau.product();
-    assert( cands != 0 );
-    for( typename Collection::const_iterator c = cands->begin(); 
-	 c != cands->end(); ++ c ) {
-      c->setMotherLinksToDaughters();
-      c->setFixed();
-    }
-  }
-
 }
 
 #endif

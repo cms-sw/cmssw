@@ -9,7 +9,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: CompositeCandidate.h,v 1.17 2007/09/11 16:16:42 llista Exp $
+ * \version $Id: CompositeCandidate.h,v 1.18 2007/09/14 09:53:42 llista Exp $
  *
  */
 
@@ -54,6 +54,11 @@ namespace reco {
     void addDaughter( std::auto_ptr<Candidate> );
     /// clear daughters
     void clearDaughters() { dau.clear(); }
+    /// number of mothers (zero or one in most of but not all the cases)
+    virtual unsigned int numberOfMothers() const;
+    /// return pointer to mother
+    virtual const Candidate * mother( size_t i = 0 ) const;
+
   private:
     // const iterator implementation
     typedef candidate::const_iterator_imp_specific<daughters> const_iterator_imp_specific;
@@ -63,8 +68,6 @@ namespace reco {
     daughters dau;
     /// check overlap with another daughter
     virtual bool overlap( const Candidate & ) const;
-    /// post-read fixup
-    virtual void doFixupMothers() const;
   };
 
   inline void CompositeCandidate::addDaughter( const Candidate & cand ) { 

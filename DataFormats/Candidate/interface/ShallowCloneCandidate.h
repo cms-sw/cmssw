@@ -7,7 +7,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: ShallowCloneCandidate.h,v 1.9 2007/06/13 16:31:37 llista Exp $
+ * \version $Id: ShallowCloneCandidate.h,v 1.10 2007/09/14 09:53:42 llista Exp $
  *
  */
 #include "DataFormats/Candidate/interface/Candidate.h"
@@ -45,8 +45,12 @@ namespace reco {
     virtual iterator end();
     /// number of daughters
     virtual size_t numberOfDaughters() const;
+    /// number of daughters
+    virtual size_t numberOfMothers() const;
     /// return daughter at a given position (throws an exception)
     virtual const Candidate * daughter( size_type i ) const;
+    /// return daughter at a given position (throws an exception)
+    virtual const Candidate * mother( size_type i ) const;
     /// return daughter at a given position (throws an exception)
     virtual Candidate * daughter( size_type i );
     /// has master clone
@@ -63,8 +67,6 @@ namespace reco {
     virtual bool overlap( const Candidate & c ) const { return masterClone_->overlap( c ); }
     /// CandidateBaseReference to master clone
     CandidateBaseRef masterClone_;
-    /// post-read fixup operation
-    virtual void doFixupMothers() const;
   };
 
 }

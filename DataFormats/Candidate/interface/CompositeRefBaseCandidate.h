@@ -9,7 +9,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: CompositeRefBaseCandidate.h,v 1.11 2007/06/12 21:27:21 llista Exp $
+ * \version $Id: CompositeRefBaseCandidate.h,v 1.12 2007/09/14 09:53:42 llista Exp $
  *
  */
 #include "DataFormats/Candidate/interface/iterator_imp_specific.h"
@@ -42,8 +42,12 @@ namespace reco {
     virtual iterator end();
     /// number of daughters
     virtual size_t numberOfDaughters() const;
+    /// number of mothers
+    virtual size_t numberOfMothers() const;
     /// return daughter at a given position, i = 0, ... numberOfDaughters() - 1 (read only mode)
     virtual const Candidate * daughter( size_type ) const;
+    /// return mother at a given position, i = 0, ... numberOfMothers() - 1 (read only mode)
+    virtual const Candidate * mother( size_type ) const;
     /// return daughter at a given position, i = 0, ... numberOfDaughters() - 1
     virtual Candidate * daughter( size_type );
     /// add a daughter via a reference
@@ -62,12 +66,6 @@ namespace reco {
     daughters dau;
     /// check overlap with another candidate
     virtual bool overlap( const Candidate & ) const;
-    /// post-read fixup operation
-    /// warning: no way to automatically set mother references
-    /// because no unique ProductID is stored here.
-    /// Mother links will not be automatically set up
-    /// for this class.
-    virtual void doFixupMothers() const;
   };
 
   inline void CompositeRefBaseCandidate::addDaughter( const CandidateBaseRef & cand ) { 

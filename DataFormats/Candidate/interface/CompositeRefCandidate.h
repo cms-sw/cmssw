@@ -9,7 +9,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: CompositeRefCandidate.h,v 1.15 2007/06/26 08:24:28 llista Exp $
+ * \version $Id: CompositeRefCandidate.h,v 1.16 2007/09/14 09:53:42 llista Exp $
  *
  */
 
@@ -21,6 +21,8 @@ namespace reco {
   public:
     /// collection of references to daughters
     typedef CandidateRefVector daughters;
+    /// collection of references to daughters
+    typedef CandidateRefVector mothers;
     /// default constructor
     CompositeRefCandidate() : Candidate() { }
     /// constructor from values
@@ -49,6 +51,8 @@ namespace reco {
     virtual Candidate * daughter( size_type );
     /// add a daughter via a reference
     void addDaughter( const CandidateRef & );    
+    /// add a daughter via a reference
+    void addMother( const CandidateRef & );    
     /// clear daughter references
     void clearDaughters() { dau.clear(); }
     /// reference to daughter at given position
@@ -57,6 +61,10 @@ namespace reco {
     const daughters & daughterRefVector() const { return dau; }
     /// set daughters product ID
     void resetDaughters( const edm::ProductID & id ) { dau = daughters( id ); }
+    /// number of mothers (zero or one in most of but not all the cases)
+    virtual size_t numberOfMothers() const;
+    /// return pointer to mother
+    virtual const Candidate * mother( unsigned int i = 0 ) const;
 
   private:
     /// const iterator implementation
@@ -65,14 +73,18 @@ namespace reco {
     typedef candidate::iterator_imp_specific_dummy<daughters> iterator_imp_specific;
     /// collection of references to daughters
     daughters dau;
+    /// collection of references to mothers
+    daughters mom;
     /// check overlap with another candidate
     virtual bool overlap( const Candidate & ) const;
-    /// post-read fixup operation
-    virtual void doFixupMothers() const;
   };
 
   inline void CompositeRefCandidate::addDaughter( const CandidateRef & cand ) { 
     dau.push_back( cand ); 
+  }
+
+  inline void CompositeRefCandidate::addMother( const CandidateRef & cand ) { 
+    mom.push_back( cand ); 
   }
 }
 

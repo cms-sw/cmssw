@@ -28,8 +28,16 @@ size_t ShallowCloneCandidate::numberOfDaughters() const {
   return masterClone_->numberOfDaughters(); 
 }
 
+size_t ShallowCloneCandidate::numberOfMothers() const { 
+  return masterClone_->numberOfMothers(); 
+}
+
 const Candidate * ShallowCloneCandidate::daughter( size_type i ) const { 
   return masterClone_->daughter( i ); 
+}
+
+const Candidate * ShallowCloneCandidate::mother( size_type i ) const { 
+  return masterClone_->mother( i ); 
 }
 
 Candidate * ShallowCloneCandidate::daughter( size_type i ) { 
@@ -42,7 +50,4 @@ bool ShallowCloneCandidate::hasMasterClone() const {
 
 const CandidateBaseRef & ShallowCloneCandidate::masterClone() const {
   return masterClone_;
-}
-
-void ShallowCloneCandidate::doFixupMothers() const {
 }
