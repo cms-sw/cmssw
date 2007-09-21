@@ -1,6 +1,6 @@
 // File: BasePilupSubtractionJetProducer.cc
 // Author: F.Ratnikov UMd Aug 22, 2006
-// $Id: BasePilupSubtractionJetProducer.cc,v 1.15 2007/08/20 17:53:34 fedor Exp $
+// $Id: BasePilupSubtractionJetProducer.cc,v 1.16 2007/09/20 21:05:04 fedor Exp $
 //--------------------------------------------
 #include <memory>
 #include "DataFormats/Common/interface/EDProduct.h"
@@ -163,7 +163,10 @@ namespace cms
     JetReco::InputCollection input;
     input.reserve (inputHandle->size());
     for (unsigned i = 0; i < inputHandle->size(); ++i) {
-      input.push_back (JetReco::InputItem (&((*inputHandle)[i]), i));
+      if ((mEtInputCut <= 0 || (*inputHandle)[i].et() > mEtInputCut) &&
+	  (mEInputCut <= 0 || (*inputHandle)[i].energy() > mEInputCut)) {
+	input.push_back (JetReco::InputItem (&((*inputHandle)[i]), i));
+      }
     }
     //
     // Create the initial vector for Candidates
