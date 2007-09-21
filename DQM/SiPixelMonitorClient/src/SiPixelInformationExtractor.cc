@@ -85,7 +85,7 @@ SiPixelInformationExtractor::~SiPixelInformationExtractor() {
 }
 
 //------------------------------------------------------------------------------
-/*! \brief Read Configurationn File
+/*! \brief Read Configuration File
  *
  */
 void SiPixelInformationExtractor::readConfiguration() {
@@ -93,7 +93,7 @@ void SiPixelInformationExtractor::readConfiguration() {
 
   // read layout configuration file
   // ------------------------------
-  string localPath = string("DQM/SiPixelMonitorClient/test/sipixel_plot_layout_config.xml");
+/*  string localPath = string("DQM/SiPixelMonitorClient/test/sipixel_plot_layout_config.xml");
   if (layoutParser_ == 0) {
     layoutParser_ = new SiPixelLayoutParser();
     layoutParser_->getDocument(edm::FileInPath(localPath).fullPath());
@@ -113,10 +113,10 @@ void SiPixelInformationExtractor::readConfiguration() {
   // -------------------------------------------------------------------
   createDummiesFromLayout();
 
-
+*/
   // read quality test configuration file
   // ------------------------------------
-  localPath = string("DQM/SiPixelMonitorClient/test/sipixel_qualitytest_config.xml");
+/*  localPath = string("DQM/SiPixelMonitorClient/test/sipixel_qualitytest_config.xml");
   if (qtestsParser_ == 0) {
     qtestsParser_ = new SiPixelQTestsParser();
     qtestsParser_->getDocument(edm::FileInPath(localPath).fullPath());
@@ -143,7 +143,7 @@ void SiPixelInformationExtractor::readConfiguration() {
   }
   if (qtestsParser_) delete qtestsParser_;
   
-  cout << "..leaving SiPixelInformationExtractor::readConfiguration" << endl;
+  cout << "..leaving SiPixelInformationExtractor::readConfiguration" << endl;*/
 }
 //------------------------------------------------------------------------------
 /*! \brief (Documentation under construction).
@@ -1415,11 +1415,11 @@ const ostringstream&  SiPixelInformationExtractor::getIMGCImage(DaqMonitorBEInte
  */
 const ostringstream&  SiPixelInformationExtractor::getNamedImage(std::string theName) 
 {
-//   cout << ACCyan << ACBold << ACReverse 
-//        << "[SiPixelInformationExtractor::getNamedImage()]"
-//        << ACPlain
-//        << " Requested " << theName
-//        << endl ;
+   cout << ACCyan << ACBold << ACReverse 
+	<< "[SiPixelInformationExtractor::getNamedImage()]"
+	<< ACPlain
+	<< " Requested " << theName
+	<< endl ;
   pictureBuffer_.str("") ;
   map<std::string, std::string>::iterator thisBuffer = namedPictureBuffer.find(theName) ; 
   if( thisBuffer == namedPictureBuffer.end() )
@@ -1450,19 +1450,19 @@ const ostringstream&  SiPixelInformationExtractor::getNamedImage(std::string the
     	 << ACPlain << endl ;
     return pictureBuffer_;
   } else {
-//    cout << ACCyan << ACBold << ACReverse 
-//         << "[SiPixelInformationExtractor::getNamedImage()] "
-//    	 << ACPlain 
-//	 << "Buffer containing picture found for "
-//	 << theName
-//	 << endl ;
+    cout << ACCyan << ACBold << ACReverse 
+	 << "[SiPixelInformationExtractor::getNamedImage()] "
+       << ACPlain 
+       << "Buffer containing picture found for "
+       << theName
+       << endl ;
   }
   pictureBuffer_ << thisBuffer->second ;
-//   cout << ACCyan << ACBold << ACReverse 
-//        << "[SiPixelInformationExtractor::getNamedImage()]"
-//        << ACPlain
-//        << " Returning " << theName
-//        << endl ;
+   cout << ACCyan << ACBold << ACReverse 
+	<< "[SiPixelInformationExtractor::getNamedImage()]"
+	<< ACPlain
+	<< " Returning " << theName
+	<< endl ;
   return pictureBuffer_;
 }
 
@@ -1796,9 +1796,9 @@ void SiPixelInformationExtractor::selectMEList(DaqMonitorBEInterface   * bei,
   //DaqMonitorBEInterface * bei = mui->getBEInterface();
   string currDir = bei->pwd();
    
-  //QRegExp rx("(\\w+)_siPixel") ;
+  QRegExp rx("(\\w+)_siPixel") ;
   //QRegExp rx2("(\\w+)_ctfWithMaterialTracks") ;
-  QRegExp rx("(\\w+)_3") ;
+  //QRegExp rx("(\\w+)_3") ;
   QString theME ;
    
   // Get ME from Collector/FU0/Tracker/PixelEndcap/HalfCylinder_pX/Disk_X/Blade_XX/Panel_XX/Module_XX
@@ -2034,9 +2034,9 @@ void SiPixelInformationExtractor::getMEList(DaqMonitorBEInterface    * bei,
 //        << currDir
 //        << endl ;
        
-//  QRegExp rx("(\\w+)_siPixel") ;
+  QRegExp rx("(\\w+)_siPixel") ;
   //QRegExp rx2("(\\w+)_ctfWithMaterialTracks") ;
-  QRegExp rx("(\\w+)_3") ;
+  //QRegExp rx("(\\w+)_3") ;
   QString theME ;
    
   // Get ME from Collector/FU0/Tracker/PixelEndcap/HalfCylinder_pX/Disk_X/Blade_XX/Panel_XX/Module_XX
@@ -2278,7 +2278,6 @@ void SiPixelInformationExtractor::plotHistosFromLayoutForSlideShow(DaqMonitorBEI
                                 ++im) { 
       string meName = (*im);
       string path_name = "Collector/Collated/Tracker/" + subDet + "/" + meName;
-      cout << "path_name: " << path_name << endl;
 
       if (path_name.size() == 0) continue;
 
@@ -2303,6 +2302,7 @@ void SiPixelInformationExtractor::plotHistosFromLayoutForSlideShow(DaqMonitorBEI
 	  string messageString = "";
 	  int    messageColor  = 1;
 	  string expThreshold;
+	  double channelFraction = 0.;
 
 	  dqm::qtests::QR_map qtestReportMap = me->getQReports();
 	  
@@ -2331,16 +2331,16 @@ void SiPixelInformationExtractor::plotHistosFromLayoutForSlideShow(DaqMonitorBEI
 		    switch(qtestReportStatus){
 		    case dqm::qstatus::STATUS_OK:
 		      messageString = " OK ";
-		      messageColor  = kGreen;
+		      messageColor  = 3;
 		      break;
 		    case dqm::qstatus::WARNING:
 		      messageString = " WARNING ";
-		      messageColor  = kRed;
+		      messageColor  = 5;
 		      expThreshold  = qtestParamsMap["warning"];
 		      break;
 		    case dqm::qstatus::ERROR:
 		      messageString = " ERROR ";
-		      messageColor  = kMagenta;
+		      messageColor  = 2;
 		      expThreshold  = qtestParamsMap["error"];
 		      break;
 		    case dqm::qstatus::INSUF_STAT:
@@ -2348,6 +2348,10 @@ void SiPixelInformationExtractor::plotHistosFromLayoutForSlideShow(DaqMonitorBEI
 		      messageColor  = kBlue;
 		      break;
 		    } // end of switch
+
+		    string qtestReportMessage = qtestReportMap[*meQTestNameListItr]->getMessage();
+		    channelFraction = atof(qtestReportMessage.substr(qtestReportMessage.find_last_of("=")+1).c_str());
+		    channelFraction = (1-channelFraction)*100;
 		  } // end of if(!qtestReportMap.empty())
 		  
 		} // end of if (test == qtestType) 
@@ -2376,11 +2380,22 @@ void SiPixelInformationExtractor::plotHistosFromLayoutForSlideShow(DaqMonitorBEI
 	      statusOnCanvas->SetTextFont(112);
 	      statusOnCanvas->SetNDC(kTRUE);
 	      statusOnCanvas->SetTextColor(messageColor);
-	      
+
 	      if(messageString.find("OK") ==  string::npos){
-		string textMessage = "input threshold: " + expThreshold + "%";
+		string textMessage = "fraction of channel failing:";
 		TText* messageOnCanvas = paveOnCanvas->AddText(textMessage.c_str());
-		messageOnCanvas->SetTextSize(0.04);
+		messageOnCanvas->SetTextSize(0.03);
+		//	  messageOnCanvas->SetTextFont(112);
+		messageOnCanvas->SetNDC(kTRUE);
+		char text[5];
+		sprintf(text,"%f\%%",channelFraction);
+		messageOnCanvas = paveOnCanvas->AddText(text);
+		messageOnCanvas->SetTextSize(0.035);
+		//	  messageOnCanvas->SetTextFont(112);
+		messageOnCanvas->SetNDC(kTRUE);
+		textMessage = "(input threshold: " + expThreshold + "%)";
+		messageOnCanvas = paveOnCanvas->AddText(textMessage.c_str());
+		messageOnCanvas->SetTextSize(0.025);
 		//	  messageOnCanvas->SetTextFont(112);
 		messageOnCanvas->SetNDC(kTRUE);
 	      }
@@ -2405,59 +2420,6 @@ void SiPixelInformationExtractor::plotHistosFromLayoutForSlideShow(DaqMonitorBEI
   //  cout << "leaving SiPixelInformationExtractor::plotHistosFromLayoutForSlideShow" << endl;
 }
 
-////
-//// Error encoding overview creation
-////
-void SiPixelInformationExtractor::plotErrorOverviewHistos(DaqMonitorBEInterface * bei
-					      //string                 module,
-					     // string               & source,
-					     // MonitorElement       * me,
-					     // string               & qtest,
-					     // int                    qtestStatus
-					                                        ){
-//  
-//  cout << "entering in SiPixelInformationExtractor::encodeError" << endl;
-//
-//  DaqMonitorBEInterface* bei = mui->getBEInterface();
-//
-//  int nbin;
-//  float xmin = 0;
-//  float xmax = float(nbin);
-//  TH1F* errorCode = new TH1F("errorCode","error code",nbin,xmin,xmax);
-//
-//
-//  string module_path_name = "Collector/FU0/Tracker/PixelBarrel"; 
-//  int qtestStatus = bei->getStatus(module_path_name);
-//
-//
-////  if(source.find("RAW") ) sourceCode = 1;
-////  if(source.find("DIGI")) sourceCode = 10;
-////  if(source.find("CLU") ) sourceCode = 100;
-////  if(source.find("TRK") ) sourceCode = 1000;
-////  if(source.find("REC") ) sourceCode = 10000;
-//
-//  int statusCode = -1;
-//  switch(qtestStatus){
-//  case dqm::qstatus::STATUS_OK:
-//    statusCode = 0;
-//    cout << " qtestStatus: OK " << endl;
-//    break;
-//  case dqm::qstatus::INSUF_STAT:
-//    statusCode = 1;
-//    cout << " qtestStatus: INSUF_STAT " << endl;
-//    break;
-//  case dqm::qstatus::WARNING:
-//    statusCode = 2;
-//    cout << " qtestStatus: WARNING " << endl;
-//    break;
-//  case dqm::qstatus::ERROR:
-//    statusCode = 3;
-//    cout << " qtestStatus: ERROR " << endl;
-//    break;
-//  } // end of switch
-//
-}
-
 //------------------------------------------------------------------------------
 //
 // -- Set Drawing Option
@@ -2469,7 +2431,6 @@ void SiPixelInformationExtractor::setDrawingOption(TH1   * hist,
 
   TAxis* xa = hist->GetXaxis();
   TAxis* ya = hist->GetYaxis();
-
 
   xa->SetTitleOffset(0.7);
   xa->SetTitleSize(0.06);
@@ -2485,7 +2446,6 @@ void SiPixelInformationExtractor::setDrawingOption(TH1   * hist,
     xa->SetRangeUser(xlow, xhigh);
   }
 }
-
 //------------------------------------------------------------------------------
 //
 // -- Set Axis Drawing Option for slide show plots
@@ -2523,15 +2483,439 @@ void SiPixelInformationExtractor::setSubDetAxisDrawing(TH1    * hist,
   subDet_pO->SetTitleOffset(0.4);
   subDet_pO->CenterTitle(kTRUE);
 
-  subDet_mI->Draw("same");
-  subDet_mO->Draw("same");
-  subDet_pI->Draw("same");
-  subDet_pO->Draw("same");
+  subDet_mI->DrawClone("same");
+  subDet_mO->DrawClone("same");
+  subDet_pI->DrawClone("same");
+  subDet_pO->DrawClone("same");
 
   delete subDet;
-//  delete subDet_mI;
-//  delete subDet_mO;
-//  delete subDet_pI;
-//  delete subDet_pO;
+  delete subDet_mI;
+  delete subDet_mO;
+  delete subDet_pI;
+  delete subDet_pO;
 
 }
+
+
+////
+//// Error encoding overview creation
+////
+void SiPixelInformationExtractor::plotErrorOverviewHistos(DaqMonitorBEInterface * bei){
+  //  cout << "entering in SiPixelInformationExtractor::plotErrorOverviewHistos" << endl;
+
+  gStyle->SetOptTitle(0);
+  gStyle->SetOptStat("e");
+  gStyle->SetStatFontSize(0.05);
+  canvas_->SetWindowSize(600,600);
+  canvas_->SetBorderMode(0);
+  canvas_->SetFillColor(0);
+  canvas_->Clear();
+
+  TPaveText* legendOnCanvas = new TPaveText(0.85,0.65,0.99,0.94,"NDCtr");
+  legendOnCanvas->SetFillColor(0);
+  legendOnCanvas->Clear();
+  fillPaveTextForErrorCode(legendOnCanvas);
+
+  TText tTitle;
+  tTitle.SetTextFont(64);
+  tTitle.SetTextSizePixels(20);
+
+  string subdet = "PixelBarrel";
+  vector<int> barrelHotModuleList;
+  int nbin=768;
+  float xmin = 0;
+  float xmax = float(nbin);
+  string title = subdet + " error overview";
+  TH1F* barrelErrorCodeHisto = new TH1F("barrelErrorCodeHisto",title.c_str(),nbin,xmin,xmax);
+  barrelErrorCodeHisto->GetXaxis()->SetTitle("modules");
+  barrelErrorCodeHisto->GetYaxis()->SetTitle("error code");
+  fillErrorOverviewHistos(bei,barrelErrorCodeHisto,subdet,barrelHotModuleList);
+  setDrawingOption(barrelErrorCodeHisto);
+  barrelErrorCodeHisto->DrawCopy();
+  coloredHotModules(barrelErrorCodeHisto,barrelHotModuleList,1,kMagenta);
+  tTitle.DrawTextNDC(0.1, 0.92, title.c_str());
+  setSubDetAxisDrawing(barrelErrorCodeHisto,subdet);
+  legendOnCanvas->Draw("same");
+  string fileName = "images/" + subdet + ".png";
+  string command  = "rm -f " + fileName;
+  gSystem->Exec(command.c_str());
+  canvas_->Print(fileName.c_str(),"png");
+  canvas_->Clear();
+
+
+  subdet = "PixelEndcap";
+  vector<int> endcapHotModuleList;
+  nbin=672;
+  xmin = 0;
+  xmax = float(nbin);
+  title = subdet + " error overview";
+  TH1F* endcapErrorCodeHisto = new TH1F("endcapErrorCodeHisto",title.c_str(),nbin,xmin,xmax);
+  endcapErrorCodeHisto->GetXaxis()->SetTitle("modules");
+  endcapErrorCodeHisto->GetYaxis()->SetTitle("error code");
+  fillErrorOverviewHistos(bei,endcapErrorCodeHisto,subdet,endcapHotModuleList);
+  setDrawingOption(endcapErrorCodeHisto);
+  tTitle.DrawTextNDC(0.1, 0.92, title.c_str());
+  endcapErrorCodeHisto->DrawCopy();
+  coloredHotModules(endcapErrorCodeHisto,endcapHotModuleList,1,kMagenta);
+  setSubDetAxisDrawing(endcapErrorCodeHisto,subdet);
+  legendOnCanvas->Draw("same");
+  fileName = "images/" + subdet + ".png";
+  command  = "rm -f " + fileName;
+  gSystem->Exec(command.c_str());
+  canvas_->Print(fileName.c_str(),"png");
+  canvas_->Clear();
+
+  delete barrelErrorCodeHisto;
+  delete endcapErrorCodeHisto;
+  delete legendOnCanvas;
+
+  //  cout << "leaving SiPixelInformationExtractor::plotErrorOverviewHistos" << endl;
+}
+//
+// Error encoding overview creation
+//
+void SiPixelInformationExtractor::fillErrorOverviewHistos(DaqMonitorBEInterface * bei,
+							  TH1F                  * errorHisto,
+							  string                & subDet,
+							  vector<int>           & hotModuleList){
+  //  cout << "entering in SiPixelInformationExtractor::fillErrorOverviewHistos" << endl;
+  if(!errorHisto) cout << "WARNING!! histo doesn't exist" << endl;
+  else{
+    flagHotModule_ = false;
+    string currDir = bei->pwd();
+    int bin = 0;
+    if ((currDir).find(subDet) != string::npos && (currDir).find("Module") != string::npos){
+      int   statusCode = computeErrorCode(bei,currDir);
+      float code = -1;
+      if (statusCode==dqm::qstatus::STATUS_OK) code = statusCode;
+      else code = computeCode(bei,currDir);
+      bin = computeHistoBin(currDir);
+      if(flagHotModule_==true) hotModuleList.push_back(bin);
+      errorHisto->SetBinContent(bin,code);
+
+    }
+    else{ 
+      vector<string> subdirs = bei->getSubdirs();
+      for (vector<string>::const_iterator it = subdirs.begin();
+	   it != subdirs.end(); it++) {
+	if((*it).find("FU")==0) break;
+	bei->cd(*it);
+	fillErrorOverviewHistos(bei,errorHisto,subDet,hotModuleList);
+	bei->goUp();
+      }  
+    }
+  }
+  
+  //  cout << "leaving SiPixelInformationExtractor::fillErrorOverviewHistos" << endl;
+}
+int SiPixelInformationExtractor::computeHistoBin(string & module_path){ 
+
+  //  cout << "entering in SiPixelInformationExtractor::computeHistoBin" << endl;
+
+  int module_bin = 0;
+
+  int module       = 0;
+  int shell        = 0;   
+  int layer	   = 0;  
+  int ladder	   = 0;  
+  int halfcylinder = 0;  
+  int disk	   = 0;  
+  int blade	   = 0;  
+  int panel        = 0;  
+
+  int nbinShell        = 192;
+  int nbinLayer	       = 0;  
+  int nbinLadder       = 4;
+
+  int nbinHalfcylinder = 168;  
+  int nbinDisk	       = 84;  
+  int nbinBlade	       = 7;  
+  int nbinPanel        = 0;  
+
+  vector<string> subDirVector;
+  SiPixelUtility::split(module_path,subDirVector,"/");
+
+  for (vector<string>::const_iterator it = subDirVector.begin();
+       it != subDirVector.end(); it++) {
+    if((*it).find("Collector") != string::npos ||
+       (*it).find("Collated") != string::npos ||
+       (*it).find("FU") != string::npos ||
+       (*it).find("Tracker") != string::npos ||
+       (*it).find("PixelBarrel") != string::npos ||
+       (*it).find("PixelEndcap") != string::npos) continue;
+    
+    if((*it).find("Module") != string::npos){
+      module = atoi((*it).substr((*it).find("_")+1).c_str());
+    }
+    
+    if((*it).find("Shell") != string::npos){
+      if((*it).find("mI") != string::npos) shell = 1;
+      if((*it).find("mO") != string::npos) shell = 2;
+      if((*it).find("pI") != string::npos) shell = 3;
+      if((*it).find("pO") != string::npos) shell = 4;
+    }
+    if((*it).find("Layer") != string::npos){
+      layer = atoi((*it).substr((*it).find("_")+1).c_str());
+      if(layer==1){
+	nbinLayer = 0;
+      }
+      if(layer==2){
+	nbinLayer = 40;
+      }
+      if(layer==3){
+	nbinLayer = 40+64;
+      }
+    }
+    if((*it).find("Ladder") != string::npos){
+      ladder = atoi((*it).substr((*it).find("_")+1,2).c_str()); 
+    }
+    if((*it).find("HalfCylinder") != string::npos){
+      if((*it).find("mI") != string::npos) halfcylinder = 1;
+      if((*it).find("mO") != string::npos) halfcylinder = 2;
+      if((*it).find("pI") != string::npos) halfcylinder = 3;
+      if((*it).find("pO") != string::npos) halfcylinder = 4;
+    }
+    if((*it).find("Disk") != string::npos){
+      disk = atoi((*it).substr((*it).find("_")+1).c_str());
+    }
+    if((*it).find("Blade") != string::npos){
+      blade = atoi((*it).substr((*it).find("_")+1,2).c_str()); 
+    }
+    if((*it).find("Panel") != string::npos){
+      panel = atoi((*it).substr((*it).find("_")+1).c_str()); 
+      if(panel==1) nbinPanel = 0;
+      if(panel==2) nbinPanel = 4;
+    }
+  }
+  if(module_path.find("PixelBarrel") != string::npos){
+    module_bin =  module + 
+      (ladder-1)*nbinLadder +
+      nbinLayer +
+      (shell -1)*nbinShell;
+  }
+  if(module_path.find("PixelEndcap") != string::npos){
+    module_bin =  module +
+      (panel       -1)*nbinPanel +
+      (blade       -1)*nbinBlade +
+      (disk        -1)*nbinDisk +
+      (halfcylinder-1)*nbinHalfcylinder;
+  }
+  
+  return module_bin;
+
+  //  cout << "leaving SiPixelInformationExtractor::computeHistoBin" << endl;
+}
+
+
+
+int SiPixelInformationExtractor::computeCode(DaqMonitorBEInterface * bei,
+					     string                & path){
+  int code=0;
+  vector<string> MEnames = bei->getMEs();    
+  map<int,int> errorCodePerSource;
+  map<int,int> errorCounterPerSource;
+  for(int itr=1;itr<5;itr++){
+    int sourceCode=0;
+    if(itr==1) sourceCode=1;
+    if(itr==2) sourceCode=10;
+    if(itr==3) sourceCode=100;
+    if(itr==4) sourceCode=1000;
+    if(itr==5) sourceCode=10000;
+    errorCounterPerSource[sourceCode]=0;
+  }
+  map<int,vector<string> > mapSourceCodeMEName;
+  for (vector<string>::const_iterator iMEname = MEnames.begin();
+       iMEname != MEnames.end(); iMEname++) {
+    int sourceCode=0;
+    if((*iMEname).find("Raw")     !=string::npos) sourceCode = 1;
+    if((*iMEname).find("Digis")   !=string::npos) sourceCode = 10;
+    if((*iMEname).find("Cluster") !=string::npos) sourceCode = 100;
+    if((*iMEname).find("residual")!=string::npos) sourceCode = 1000;
+    if((*iMEname).find("RecHits") !=string::npos) sourceCode = 10000;
+    string var_name = (*iMEname).substr(0,(*iMEname).find_last_of("_"));    
+    //    mapSourceCodeMEName[sourceCode].push_back(var_name);
+
+    string full_path = path + "/" + (*iMEname);
+    MonitorElement* me = bei->get(full_path);
+    if(!me) cout << "ME doesn't exist!!" << endl;
+    else{
+      dqm::qtests::QR_map qtestReportMap = me->getQReports();
+      for(dqm::qtests::QR_map::iterator qtestReportMapItr = qtestReportMap.begin();
+	  qtestReportMapItr != qtestReportMap.end();qtestReportMapItr++) 
+      if(!qtestReportMap.empty()){
+
+    mapSourceCodeMEName[sourceCode].push_back(var_name);
+	
+	for(map<string, vector<string> >::iterator meQTestsMapItr =  meQTestsMap.begin();
+                                                   meQTestsMapItr != meQTestsMap.end(); 
+                                                 ++meQTestsMapItr){
+	  if((meQTestsMapItr->first).find(var_name) == string::npos) continue;
+	  
+	  vector<string> meQTestNameList = meQTestsMapItr->second;
+	  if(meQTestNameList.size() > 0){
+	    for(vector<string>::iterator meQTestNameListItr = meQTestNameList.begin();
+		                         meQTestNameListItr != meQTestNameList.end(); 
+      		                       ++meQTestNameListItr){
+	      int qtestStatus = qtestReportMap[*meQTestNameListItr]->getStatus();
+	      if(qtestStatus!=dqm::qstatus::STATUS_OK){
+		if(qtestStatus > errorCodePerSource[sourceCode]) errorCodePerSource[sourceCode]=qtestStatus;
+		if(qtestStatus==dqm::qstatus::ERROR) errorCounterPerSource[sourceCode]++;
+	      } // end if qtestStatus!=dqm::qstatus::STATUS_OK
+
+	    } // end loop over meQTestNameListItr
+	  } // end if(meQTestNameList.size() > 0)
+	}
+      } // end if qtestReportMap!=0
+    } // end if me exists
+  } // end loop over MEnames per module
+  
+  for(map<int,vector<string> >::iterator sourceCodeItr =  mapSourceCodeMEName.begin();
+                                         sourceCodeItr != mapSourceCodeMEName.end();
+                                       ++sourceCodeItr){
+    int sourceCode=sourceCodeItr->first; 
+    int errorCode = 0;
+    if(errorCounterPerSource[sourceCode]==(sourceCodeItr->second).size()){
+      errorCode = 4;
+      flagHotModule_ = true;
+    }
+    else{
+      switch(errorCodePerSource[sourceCode]){
+      case dqm::qstatus::INSUF_STAT:
+	errorCode = 1;
+	break;
+      case dqm::qstatus::WARNING:
+	errorCode = 2;
+	break;
+      case dqm::qstatus::ERROR:
+	errorCode = 3;
+	break;
+      default:
+	errorCode = 0;
+	break;
+      } // end switch
+    } // end else
+    code += errorCode*sourceCode;
+
+  } //end loop over sourceCodeItr
+
+  return code;
+
+}
+
+//
+// Error encoding overview creation
+//
+int SiPixelInformationExtractor::computeErrorCode(DaqMonitorBEInterface * bei,
+						  string                & module_path){
+  //  cout << "entering in SiPixelInformationExtractor::computeErrorCode" << endl;
+
+  int qtestStatus = bei->getStatus(module_path);
+  
+  int qtestCode = -1;
+  switch(qtestStatus){
+  case dqm::qstatus::STATUS_OK:
+    qtestCode = 0;
+    //    cout << " qtestStatus: OK " << endl;
+    break;
+  case dqm::qstatus::INSUF_STAT:
+    qtestCode = 1;
+    //    cout << " qtestStatus: INSUF_STAT " << endl;
+    break;
+  case dqm::qstatus::WARNING:
+    qtestCode = 2;
+    //    cout << " qtestStatus: WARNING " << endl;
+    break;
+  case dqm::qstatus::ERROR:
+    qtestCode = 3;
+    //    cout << " qtestStatus: ERROR " << endl;
+    break;
+  } // end of switch
+  
+  return qtestCode;
+  
+  //  cout << "leaving SiPixelInformationExtractor::computeErrorCode" << endl;
+}
+
+void SiPixelInformationExtractor::fillPaveTextForErrorCode(TPaveText * pave){
+  string messageString;
+  TText* sourceCodeOnCanvas;
+  for(int iSource=0; iSource<5;iSource++){
+    string code;
+    string type;
+    switch(iSource){
+    case 0:
+      code = "    1";
+      type = "RAW";
+      break;
+    case 1:
+      code = "   10";
+      type = "DIG";
+      break;
+    case 2:
+      code = "  100";
+      type = "CLU";
+      break;
+    case 3:
+      code = " 1000";
+      type = "TRK";
+      break;
+    case 4:
+      code = "10000";
+      type = "REC";
+      break;
+    } // end of switch
+    messageString = type + ": " + code;
+    sourceCodeOnCanvas = pave->AddText(messageString.c_str());
+    sourceCodeOnCanvas->SetTextSize(0.03);
+    sourceCodeOnCanvas->SetTextFont(112);
+  }
+  for(int iStatus=1; iStatus<5;iStatus++){
+    string code;
+    string type;
+    int color = 1;
+    switch(iStatus){
+    case 1:
+      code = "1";
+      type = "INSUF_STAT";
+      color = kBlue;
+      break;
+    case 2:
+      code = "2";
+      type = "WARNING(S)";
+      color = 5;
+      break;
+    case 3:
+      code = "3";
+      type = "ERROR(S)";
+      color = 2;
+      break;
+    case 4:
+      code = "4";
+      type = "ERRORS";
+      color = kMagenta;
+      break;
+    } // end of switch
+    messageString = code + ": " + type;
+    sourceCodeOnCanvas = pave->AddText(messageString.c_str());
+    sourceCodeOnCanvas->SetTextSize(0.03);
+    sourceCodeOnCanvas->SetTextFont(112);
+    sourceCodeOnCanvas->SetTextColor(color);
+  }
+}
+
+void SiPixelInformationExtractor::coloredHotModules(TH1F        * histo,
+						    vector<int> & binList,
+						    int           range,
+						    int           color){
+  if(!histo) return;
+
+  for(vector<int>::iterator bin =  binList.begin();
+                            bin != binList.end(); 
+                            bin++){
+    histo->SetFillColor(color);
+    histo->GetXaxis()->SetRange(*bin,*bin+range);
+    histo->DrawCopy("same");
+  }
+
+}
+

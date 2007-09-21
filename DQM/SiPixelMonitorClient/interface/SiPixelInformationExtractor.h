@@ -179,6 +179,24 @@ class SiPixelInformationExtractor {
 				std::string                             & detector);
   void createDummiesFromLayout();  
   
+  void   fillErrorOverviewHistos(DaqMonitorBEInterface                  * bei,
+				 TH1F                                   * errorHisto,
+				 string                                 & subDet,
+				 vector<int>                            & hotModuleList);
+  int    computeCode(            DaqMonitorBEInterface                  * bei,
+				 string                                 & path);
+  int    computeErrorCode(       DaqMonitorBEInterface                  * bei,
+				 string                                 & module_path);
+  int    computeSourceCode(      string                                 & source);
+  int    computeHistoBin(        string                                 & module_path);
+  void   fillPaveTextForErrorCode(TPaveText                             * pave);
+  void   coloredHotModules(      TH1F                                   * histo,
+				 vector<int>                            & binList,
+				 int                                      range,
+				 int                                      color);
+  
+  
+  
   
   
   
@@ -210,5 +228,8 @@ class SiPixelInformationExtractor {
   bool  readQTestMap_;
   bool  readMeMap_;
   
+ private:
+
+  bool  flagHotModule_;
 };
 #endif

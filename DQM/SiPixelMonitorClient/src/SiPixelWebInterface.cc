@@ -282,6 +282,85 @@ void SiPixelWebInterface::configureCustomRequest(xgi::Input * in,
   //bei->addCallback(action);
 }
 
+//
+//____________________________________________________________________________________________________
+//
+void SiPixelWebInterface::handleEDAnalyzerRequest(xgi::Input* in,xgi::Output* out, int niter) {
+   DaqMonitorBEInterface* bei = (*mui_p)->getBEInterface();
+   // put the request information in a multimap...
+   //  std::multimap<std::string, std::string> requestMap_;
+   CgiReader reader(in);
+   reader.read_form(requestMap_);
+   std::string requestID = get_from_multimap(requestMap_, "RequestID");
+   // get the string that identifies the request:
+   cout << " requestID " << requestID << endl;
+   if (requestID == "IsReady") {
+     theActionFlag = NoAction;    
+     if (niter > 2) {
+     //  infoExtractor_->readLayoutNames(out);
+     } else {
+       returnReplyXml(out, "ReadyState", "wait");
+     }
+   }	
+   else if (requestID == "CheckQTResults") {
+     out->getHTTPResponseHeader().addHeader("Content-Type", "text/plain");
+     std::string infoType = get_from_multimap(requestMap_, "InfoType");
+     //if (infoType == "Lite") *out <<  actionExecutor_->getQTestSummaryLite(bei) << endl;
+     //else *out <<  actionExecutor_->getQTestSummary(bei) << endl;
+     theActionFlag = NoAction;
+   } 
+   else if (requestID == "OpenTkMap") {
+     std::string name = "TkMap";
+     std::string comment;
+     if (tkMapCreated) comment = "Successful";
+     else  comment = "Failed";
+     returnReplyXml(out, name, comment);
+     theActionFlag = NoAction;    
+   } 
+   else if (requestID == "SingleModuleHistoList") {
+     theActionFlag = NoAction;
+     
+     //infoExtractor_->readModuleAndHistoList(bei, out,
+	//		   actionExecutor_->getCollationFlag() );    
+   } 
+   else if (requestID == "SummaryHistoList") {
+     theActionFlag = NoAction;
+     string sname = get_from_multimap(requestMap_, "StructureName");
+    //infoExtractor_->readSummaryHistoTree(bei, sname, out,
+//			    actionExecutor_->getCollationFlag());    
+   } 
+   else if (requestID == "AlarmList") {
+     theActionFlag = NoAction;
+     string sname = get_from_multimap(requestMap_, "StructureName");
+    // infoExtractor_->readAlarmTree(bei, sname, out,
+//			    actionExecutor_->getCollationFlag());    
+   } 
+   else if (requestID == "ReadQTestStatus") {
+     theActionFlag = NoAction;
+     string path = get_from_multimap(requestMap_, "Path");
+   //  infoExtractor_->readStatusMessage(bei, path, out);
+   } 
+   else if (requestID == "PlotHistogramFromPath") {
+    //theActionFlag = PlotHistogramFromPath;
+   } 
+   else if (requestID == "PlotTkMapHistogram") {
+    // theActionFlag = PlotTkMapHistogram;
+   }
+   else if (requestID == "PlotHistogramFromLayout") {
+    // theActionFlag = PlotHistogramFromLayout;
+   } 
+   else if (requestID == "UpdatePlot") {
+     out->getHTTPResponseHeader().addHeader("Content-Type", "image/png");
+     out->getHTTPResponseHeader().addHeader("Pragma", "no-cache");   
+     out->getHTTPResponseHeader().addHeader("Cache-Control", "no-store, no-cache, must-revalidate,max-age=0");
+     out->getHTTPResponseHeader().addHeader("Expires","Mon, 26 Jul 1997 05:00:00 GMT");
+     *out << infoExtractor_->getImage().str();
+     theActionFlag = NoAction;    
+   }
+     
+   performAction();
+ }
+//
 //____________________________________________________________________________________________________
 //
 // -- Setup Quality Tests
