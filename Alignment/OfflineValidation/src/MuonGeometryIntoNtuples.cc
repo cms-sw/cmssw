@@ -13,7 +13,7 @@
 //
 // Original Author:  Jim Pivarski
 //         Created:  Mon Jul 16 16:56:34 CDT 2007
-// $Id$
+// $Id: MuonGeometryIntoNtuples.cc,v 1.1 2007/09/21 16:57:19 pivarski Exp $
 //
 //
 
@@ -171,14 +171,15 @@ MuonGeometryIntoNtuples::beginJob(const edm::EventSetup& iSetup)
    DTGeometryBuilderFromDDD DTGeometryBuilder;
    CSCGeometryBuilderFromDDD CSCGeometryBuilder;
 
-//   boost::shared_ptr<CSCGeometry> boost_cscGeometry;
+   // Before 1_7_X
+//    DTGeometry *dtGeometry = DTGeometryBuilder.build(&(*cpv), *mdc);
+//    CSCGeometry *cscGeometry = CSCGeometryBuilder.build(&(*cpv), *mdc);
 
+   // 1_7_X and later
    DTGeometry *dtGeometry = DTGeometryBuilder.build(&(*cpv), *mdc);
-   CSCGeometry *cscGeometry = CSCGeometryBuilder.build(&(*cpv), *mdc);
-
-//   CSCGeometryBuilder.build(boost_cscGeometry, &(*cpv), *mdc);
-
-//   CSCGeometry *cscGeometry = &(*boost_cscGeometry);
+   boost::shared_ptr<CSCGeometry> boost_cscGeometry;
+   CSCGeometryBuilder.build(boost_cscGeometry, &(*cpv), *mdc);
+   CSCGeometry *cscGeometry = &(*boost_cscGeometry);
 
    edm::LogWarning("MuonGeometryIntoNtuples") << "built ideal geometry";
 
