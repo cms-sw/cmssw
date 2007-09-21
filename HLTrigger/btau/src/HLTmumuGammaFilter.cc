@@ -11,13 +11,14 @@
 #include "DataFormats/HLTReco/interface/HLTFilterObject.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "DataFormats/Candidate/interface/CandidateFwd.h"
 #include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
+#include "DataFormats/Candidate/interface/CandidateFwd.h"
 #include "PhysicsTools/Utilities/interface/DeltaR.h"
 #include "DataFormats/Math/interface/LorentzVector.h"
 #include "DataFormats/Math/interface/Vector3D.h"
 #include "DataFormats/RecoCandidate/interface/RecoEcalCandidate.h"
+#include "DataFormats/RecoCandidate/interface/RecoEcalCandidateFwd.h"
 
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/TrackReco/interface/Track.h"
@@ -41,12 +42,12 @@ HLTmumuGammaFilter::HLTmumuGammaFilter(const edm::ParameterSet& iConfig)
 {
         //now do what ever initialization is needed
 
-  CandSrc_ = iConfig.getParameter<edm::InputTag>("CandSrc");
-  m_vertexSrc  = iConfig.getParameter<edm::InputTag>("TrigVertex");
-  deltaRCut = iConfig.getParameter<double>("MaxDeltaR");
-  ClusPtMin = iConfig.getParameter<double>("ClusterPtMin");
-  minInvMass = iConfig.getParameter<double>("MinInvMass");
-  maxInvMass = iConfig.getParameter<double>("MaxInvMass");
+  CandSrc_    = iConfig.getParameter<edm::InputTag>("CandSrc");
+  m_vertexSrc = iConfig.getParameter<edm::InputTag>("TrigVertex");
+  deltaRCut   = iConfig.getParameter<double>("MaxDeltaR");
+  ClusPtMin   = iConfig.getParameter<double>("ClusterPtMin");
+  minInvMass  = iConfig.getParameter<double>("MinInvMass");
+  maxInvMass  = iConfig.getParameter<double>("MaxInvMass");
 
 
   //register your products
