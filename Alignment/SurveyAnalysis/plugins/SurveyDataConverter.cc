@@ -2,6 +2,7 @@
 #include <string>
 
 // Framework
+#include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -217,3 +218,6 @@ void SurveyDataConverter::applyAPEs( TrackerAlignment& tr_align ) {
            { theModifier->addAlignmentPositionErrorLocal( *iter, TECerrors.at(3), 
 							  TECerrors.at(3), TECerrors.at(3) ); }   
 }
+
+DEFINE_FWK_MODULE(SurveyDataConverter);
+
