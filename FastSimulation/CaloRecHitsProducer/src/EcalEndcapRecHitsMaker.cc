@@ -78,12 +78,13 @@ void EcalEndcapRecHitsMaker::loadEcalEndcapRecHits(edm::Event &iEvent,EERecHitCo
       EEDetId myDetId(endcapRawId_[icell]);
       if(doDigis_)
 	{
-	   EEDataFrame myDataFrame(myDetId);
-	   myDataFrame.setSize(1);
+	   ecalDigis.push_back( myDetId );
+	   EEDataFrame myDataFrame( ecalDigis.back() );
+	   // myDataFrame.setSize(1); // now useless - by construction fixed at 1 frame - FIXME
 	   //  The real work is in the following line
 	   geVtoGainAdc(theCalorimeterHits_[icell],gain,adc);
 	   myDataFrame.setSample(0,EcalMGPASample(adc,gain));
-	   ecalDigis.push_back(myDataFrame);
+	   //ecalDigis.push_back(myDataFrame);
 	}
 
       // It is safer to update the orignal array in case this methods is called several times
@@ -101,9 +102,9 @@ void EcalEndcapRecHitsMaker::loadEcalEndcapRecHits(edm::Event &iEvent,EERecHitCo
 void EcalEndcapRecHitsMaker::loadPCaloHits(const edm::Event & iEvent)
 {
 
-  edm::Handle<CrossingFrame> cf;
-  iEvent.getByType(cf);
-  std::auto_ptr<MixCollection<PCaloHit> > colcalo(new MixCollection<PCaloHit>(cf.product(),"EcalHitsEE",std::pair<int,int>(0,0) ));
+  edm::Handle<CrossingFrame<PCaloHit> > cf;
+  iEvent.getByLabel("mix","EcalHitsEE",cf);
+  std::auto_ptr<MixCollection<PCaloHit> > colcalo(new MixCollection<PCaloHit>(cf.product(),std::pair<int,int>(0,0) ));
 
   theFiredCells_.reserve(colcalo->size());
 
