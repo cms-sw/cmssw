@@ -1,5 +1,5 @@
 //
-// $Id: TopMuonProducer.cc,v 1.13 2007/09/07 23:53:27 lowette Exp $
+// $Id: TopMuonProducer.cc,v 1.14 2007/09/20 18:07:41 lowette Exp $
 //
 
 #include "TopQuarkAnalysis/TopObjectProducers/interface/TopMuonProducer.h"
@@ -9,8 +9,9 @@
 #include "DataFormats/HepMCCandidate/interface/GenParticleCandidate.h"
 #include "PhysicsTools/Utilities/interface/DeltaR.h"
 
-#include "TopQuarkAnalysis/TopLeptonSelection/interface/TopLeptonLRCalc.h"
 #include "TopQuarkAnalysis/TopObjectResolutions/interface/TopObjectResolutionCalc.h"
+#include "TopQuarkAnalysis/TopLeptonSelection/interface/TopLeptonLRCalc.h"
+#include "RecoMuon/MuonIdentification/interface/IdGlobalFunctions.h"
 
 #include <vector>
 #include <memory>
@@ -30,6 +31,9 @@ TopMuonProducer::TopMuonProducer(const edm::ParameterSet & iConfig) {
   addResolutions_= iConfig.getParameter<bool>         ( "addResolutions" );
   useNNReso_     = iConfig.getParameter<bool>         ( "useNNResolution" );
   muonResoFile_  = iConfig.getParameter<std::string>  ( "muonResoFile" );
+  // muon ID configurables
+  addMuonID_     = iConfig.getParameter<bool>         ( "addMuonID" );
+//  muonIDSrc_     = iConfig.getParameter<edm::InputTag>( "muonIDSource" );
   // likelihood ratio configurables
   addLRValues_   = iConfig.getParameter<bool>         ( "addLRValues" );
   muonLRFile_    = iConfig.getParameter<std::string>  ( "muonLRFile" );
@@ -82,6 +86,10 @@ void TopMuonProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetu
     // add resolution info
     if (addResolutions_) {
       (*theResoCalc_)(aMuon);
+    }
+    // add muon ID info
+    if (addMuonID_) {
+      aMuon.setLeptonID(muonid::isGoodMuon(muons[m]));
     }
     // add lepton LR info
     if (addLRValues_) {
