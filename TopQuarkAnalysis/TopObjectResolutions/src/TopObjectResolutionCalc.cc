@@ -2,7 +2,7 @@
 // Author:  Jan Heyninck
 // Created: Tue Apr  3 17:33:23 PDT 2007
 //
-// $Id: TopObjectResolutionCalc.cc,v 1.5.2.2 2007/08/30 17:08:41 heyninck Exp $
+// $Id: TopObjectResolutionCalc.cc,v 1.8 2007/08/30 22:25:30 heyninck Exp $
 //
 #include "TopQuarkAnalysis/TopObjectResolutions/interface/TopObjectResolutionCalc.h"
 
@@ -20,7 +20,7 @@ TopObjectResolutionCalc::TopObjectResolutionCalc(TString resopath,bool useNNet =
     TString name = key->GetName();
     if(useNN) {
       for(Int_t ro=0; ro<8; ro++) {
-        TString obsName = obsName += resObsName[ro]; obsName += "_NN";
+        TString obsName resObsName[ro]; obsName += "_NN";
         if(name.Contains(obsName)){
 	  network[ro] = (TMultiLayerPerceptron*) resoFile->GetKey(name)->ReadObj();
 	}
