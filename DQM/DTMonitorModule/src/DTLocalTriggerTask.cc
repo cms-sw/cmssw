@@ -1,8 +1,8 @@
 /*
  * \file DTLocalTriggerTask.cc
  * 
- * $Date: 2007/09/19 13:36:08 $
- * $Revision: 1.12 $
+ * $Date: 2007/09/20 08:02:25 $
+ * $Revision: 1.13 $
  * \author M. Zanetti - INFN Padova
  *
 */
@@ -377,7 +377,7 @@ void DTLocalTriggerTask::analyze(const edm::Event& e, const edm::EventSetup& c){
     e.getByLabel(seg_label, all4DSegments);  
     DTRecSegment4DCollection::const_iterator track;
     // it tells whether there is a track in a station.
-    Bool_t track_flag[6][5][13]; 
+    Bool_t track_flag[6][5][15]; 
     memset(track_flag,false,450*sizeof(bool));
 
     // First loop useful to compute trigger efficiency
@@ -604,7 +604,7 @@ void DTLocalTriggerTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 	  }
 
 	  // compute plots to calculate theta efficiency using segments 
-	  if (trig_flag && fabs(y_angle)< Geom::pi()/4.5 && (*track).zSegment()->degreesOfFreedom()>1){
+	  if ((*track).hasZed() && trig_flag && fabs(y_angle)< Geom::pi()/4.5 && (*track).zSegment()->degreesOfFreedom()>1){
 	    
 	    // position of track for reconstruced tracks (denom. for trigger efficiency) along theta direction
 	    histoTag = "SEG_TrackThetaPos" + trigsrc;
