@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: checkdeps,v 1.1 2007/09/12 19:55:39 dlange Exp $
+# $Id: checkdeps,v 1.2 2007/09/12 22:08:46 dlange Exp $
 #
 # Created by: David Lange
 #             LLNL
@@ -15,6 +15,17 @@ use Cwd;
 #     find all packages that depend on those headers
 #     print that list.
 
+#if any argument, print help and exit 
+foreach my $arg (@ARGV) {
+    print "checkdeps:\n";
+    print "   Utility to check your local development area against the CMSSW release.\n";
+    print "   Any modified header files are found and the package dependencies of \n";
+    print "   these files will be returned. addpkg-ing these packages and rebuilding them\n";
+    print "   should provide a full and consistent build.\n";
+    print "\nUsage: No arguments are expected\n"; 
+    exit;
+}
+
 if ( $ENV{'LOCALRT'} eq "" ) {
     print "Please setup the scram runtime environment before running this script\n";
     exit;
@@ -22,6 +33,11 @@ if ( $ENV{'LOCALRT'} eq "" ) {
 
 if ( $ENV{'CMSSW_RELEASE_BASE'} eq "" ) {
     print "Please setup the scram runtime environment before running this script\n";
+    exit;
+}
+
+if ( $ENV{'CVSROOT'} eq "" ) {
+    print "Please setup the CVS environment before running this script (likely |project CMSSW|)\n";
     exit;
 }
 
@@ -81,7 +97,7 @@ foreach my $package (@packages) {
     my $diffs=`cvs -q -n update -r $reltag`;
     my @diffs=split('\n',$diffs);
     foreach my $diff (@diffs) {
-	if ( $diff =~/^M/ ) {
+	if ( ($diff =~/^M/) || ($diff =~/^U/) || ($diff =~/^R/) ) {
 	    my @sp2=split(' ', $diff);
 	    push(@changedFiles,"$package/$sp2[1]");
 	}
@@ -113,11 +129,14 @@ foreach my $file (@changedFiles) {
 }
 
 my @t=sort(@recompileList);
-my $len=length(@t);
+my $len=scalar(@t);
 print "Packages to check out and compile:\n";
+my $ii=0;
 if ( $len > 0 ) {
     foreach my $i (@t) {
+	$ii++;
 	print "$i\n";
+
     }
 }
 else{
