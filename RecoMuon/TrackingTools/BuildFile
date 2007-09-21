@@ -17,6 +17,7 @@
 <use name=RecoVertex/KalmanVertexFit>
 <use name=Utilities/Timing>
 <use name=CLHEP>
+<use name=root>
 
 <export>
    <lib name=RecoMuonTrackingTools>
