@@ -5,9 +5,6 @@
 // G. Giurgiu (ggiurgiu@pha.jhu.edu), 12/01/06, implemented the function: 
 // computeAnglesFromDetPosition(const SiPixelCluster & cl, 
 //			        const GeomDetUnit    & det ) const
-//                                    09/09/07, replaced assert statements with throw cms::Exception 
-//                                              and fix an invalid pointer check in setTheDet function 
-
 
 #include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
 #include "Geometry/TrackerTopology/interface/RectangularPixelTopology.h"
@@ -64,20 +61,16 @@ PixelCPEBase::PixelCPEBase(edm::ParameterSet const & conf, const MagneticField *
 void
 PixelCPEBase::setTheDet( const GeomDetUnit & det ) const 
 {
-  //--- This is a new det unit, so cache it
-  theDet = dynamic_cast<const PixelGeomDetUnit*>( &det );
-
-  if ( !theDet ) 
-    {
-      // &&& Fatal error!  TO DO: throw an exception!
-      
-      throw cms::Exception(" PixelCPEBase::setTheDet : ")
-            << " Wrong pointer to PixelGeomDetUnit object !!!";
-    }
-
   if ( theDet == &det )
     return;       // we have already seen this det unit
 
+  //--- This is a new det unit, so cache it
+  theDet = dynamic_cast<const PixelGeomDetUnit*>( &det );
+  if (! theDet) 
+    {
+      // &&& Fatal error!  TO DO: throw an exception!
+      assert(0);
+    }
   
   //--- theDet->type() returns a GeomDetType, which implements subDetector()
   thePart = theDet->type().subDetector();
@@ -90,8 +83,10 @@ PixelCPEBase::setTheDet( const GeomDetUnit & det ) const
       // A forward!  A forward!
       break;
     default:
-      throw cms::Exception("PixelCPEBase::setTheDet :")
-      	<< "PixelCPEBase: A non-pixel detector type in here?" ;
+      LogDebug("PixelCPEBase") 
+	<< "PixelCPEBase:: a non-pixel detector type in here?" ;
+      //  &&& Should throw an exception here!
+      assert(0);
     }
        
   //--- The location in of this DetUnit in a cyllindrical coord system (R,Z)
@@ -164,11 +159,11 @@ computeAnglesFromDetPosition(const SiPixelCluster & cl,
 {
   //--- This is a new det unit, so cache it
   theDet = dynamic_cast<const PixelGeomDetUnit*>( &det );
-  if ( ! theDet ) 
+  if (! theDet) 
     {
-      throw cms::Exception("PixelCPEBase::computeAngleFromDetPosition")
-	<< " Wrong pointer to pixel detector !!!" << endl;
-    
+      // &&& Fatal error!  TO DO: throw an exception!
+      cout << "---------------------------------------------- Not a pixel detector !!!!!!!!!!!!!!" << endl;
+      assert(0);
     }
 
   // get cluster center of gravity (of charge)
@@ -336,6 +331,8 @@ bool PixelCPEBase::isFlipped() const
   else return false;    
 }
 
+
+
 //-----------------------------------------------------------------------------
 // HALF OF the Lorentz shift (so for the full shift multiply by 2), and
 // in the units of pitch.  (So note these are neither local nor measurement
@@ -343,7 +340,30 @@ bool PixelCPEBase::isFlipped() const
 //-----------------------------------------------------------------------------
 float PixelCPEBase::lorentzShiftX() const 
 {
-  LocalVector dir = driftDirection(magfield_->inTesla(theDet->surface().position()) );
+  LocalVector dir;
+
+  Param & p = const_cast<PixelCPEBase*>(this)->m_Params[ theDet->geographicalId().rawId() ];
+  if ( p.topology ) 
+    {
+      //cout << "--------------- old ----------------------" << endl;
+      //cout << "p.topology = " << p.topology << endl;
+      dir = p.drift;
+      //cout << "same direction: dir = " << dir << endl;
+    }
+  else 
+    {
+      //cout << "--------------- new ----------------------" << endl;
+      //cout << "p.topology = " << p.topology << endl;
+      p.topology = (RectangularPixelTopology*)( & ( theDet->specificTopology() ) );    
+      p.drift = driftDirection(magfield_->inTesla(theDet->surface().position()) );
+      dir = p.drift;
+      //cout << "p.topology = " << p.topology << endl;
+      //cout << "new direction: dir = " << dir << endl;
+
+    }
+
+  //LocalVector dir = driftDirection(magfield_->inTesla(theDet->surface().position()) );
+  
   // max shift in cm 
   float xdrift = dir.x()/dir.z() * theThickness;  
   // express the shift in units of pitch, 
@@ -359,7 +379,30 @@ float PixelCPEBase::lorentzShiftX() const
 
 float PixelCPEBase::lorentzShiftY() const 
 {
-  LocalVector dir = driftDirection(magfield_->inTesla(theDet->surface().position()) );
+  LocalVector dir;
+
+  Param & p = const_cast<PixelCPEBase*>(this)->m_Params[ theDet->geographicalId().rawId() ];
+  if ( p.topology ) 
+    {
+      //cout << "--------------- old y ----------------------" << endl;
+      //cout << "p.topology y = " << p.topology << endl;
+      dir = p.drift;
+      //cout << "same direction y: dir = " << dir << endl;
+    }
+  else 
+    {
+      //cout << "--------------- new y ----------------------" << endl;
+      //cout << "p.topology y = " << p.topology << endl;
+      p.topology = (RectangularPixelTopology*)( & ( theDet->specificTopology() ) );    
+      p.drift = driftDirection(magfield_->inTesla(theDet->surface().position()) );
+      dir = p.drift;
+      //cout << "p.topology y = " << p.topology << endl;
+      //cout << "new direction y: dir = " << dir << endl;
+
+    }
+
+  //LocalVector dir = driftDirection(magfield_->inTesla(theDet->surface().position()) );
+  
   float ydrift = dir.y()/dir.z() * theThickness;
   float lshift = ydrift / thePitchY / 2.;
   return lshift;
