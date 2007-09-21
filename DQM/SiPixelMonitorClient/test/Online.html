@@ -44,13 +44,23 @@
      if (obj != null ) obj.disabled=option;
      obj = document.getElementById("create_tkmap");
      if (obj != null ) obj.disabled=option;
+     obj = document.getElementById("pixel_summary_overview_show");
+     if (obj != null ) obj.disabled=option;
      obj = document.getElementById("barrel_summary_overview_show");
      if (obj != null ) obj.disabled=option;
      obj = document.getElementById("endcap_summary_overview_show");
      if (obj != null ) obj.disabled=option;
      obj = document.getElementById("structure_for_overview");
      if (obj != null ) obj.disabled=option;
+     obj = document.getElementById("errorOverview_slideShow");
+     if (obj != null ) obj.disabled=option;
+     obj = document.getElementById("errorOverview_plot_creation");
+     if (obj != null ) obj.disabled=option;
+     obj = document.getElementById("errorOverview_plot_show");
+     if (obj != null ) obj.disabled=option;
      obj = document.getElementById("summary_plot_creation");
+     if (obj != null ) obj.disabled=option;
+     obj = document.getElementById("update_slideshow");
      if (obj != null ) obj.disabled=option;
      obj = document.getElementById("save_to_file");
      if (obj != null ) obj.disabled=option;
@@ -74,15 +84,23 @@
      if (obj != null ) obj.disabled=option;
      obj = document.getElementById("list_module");
      if (obj != null ) obj.disabled=option;
+     obj = document.getElementById("TKMapContentType");
+     if (obj != null ) obj.disabled=option;
      obj = document.getElementById("structure_for_module");
+     if (obj != null ) obj.disabled=option;
+     obj = document.getElementById("clearSingleModuleViewTree");
      if (obj != null ) obj.disabled=option;
      obj = document.getElementById("list_summary");
      if (obj != null ) obj.disabled=option;
      obj = document.getElementById("structure_name");
      if (obj != null ) obj.disabled=option;
+     obj = document.getElementById("clearSingleModuleViewTree");
+     if (obj != null ) obj.disabled=option;
      obj = document.getElementById("read_alarm");
      if (obj != null ) obj.disabled=option;
      obj = document.getElementById("structure_for_alarm");
+     if (obj != null ) obj.disabled=option;
+     obj = document.getElementById("clearAlarmViewTree");
      if (obj != null ) obj.disabled=option;
    }
    function ShowProgress (option) 
@@ -124,12 +142,16 @@
 
              for (var i = 0; i < hrows.length; i++) {
                var l_name  = hrows[i].childNodes[0].nodeValue;
-               var MErows = root.getElementsByTagName('LMEName');
+	       var slideName = l_name + ".png";
+               ErrorListFiles.push(slideName); 
+	       slideName = "Plot=" + slideName + "&Folder=" + l_name;
+               ErrorListTitles.push(slideName); 
 
+               var MErows = root.getElementsByTagName('LMEName');
                for (var j = 0; j < MErows.length; j++) {
                  var lME_name = MErows[j].childNodes[0].nodeValue;
                  if( lME_name.match(l_name) ){ 
-		   var slideName = lME_name + ".png";
+		   slideName = lME_name + ".png";
                    slideListFiles.push(slideName); 
 		   if(l_name.match("Barrel")) BarrelListFiles.push(slideName); 
 		   if(l_name.match("Endcap")) EndcapListFiles.push(slideName); 
@@ -164,7 +186,6 @@
      try{
        CloseUpperWindow();
        ShowProgress("visible","&nbsp Histograms from Collector");
-       ShowButtons(true);
        RequestReadyState();
      }catch(e){
        alert(e.message);
@@ -274,7 +295,7 @@
                id      = "oneXone"
                value   = "1x1">1x1
        </button>
-      </div>
+      </div> <!-- controls -->
       <p/>
 
       <!-- Where the ME provenance (folder and name) is displayed when the user moves the mouse around -->
@@ -283,23 +304,22 @@
               class = "inputText"
               type  = "text"
               value = ""/>
-      </div>
+      </div> <!-- imgTitleDiv -->
       <p/>
 
       <!-- The actual canvas where ME plots are displayed -->
       <div  id    = "canvasBorder">
        <div id    = "imageCanvas"
             style = "position: relative">
-       </div>
-      </div>
+       </div> <!-- imageCnavas -->
+      </div> <!-- canvasBorder -->      
       
-     </div>
+     </div> <!-- mainContainer -->
+    </fieldset> <!-- theCanvasField -->
+   </div> <!-- theCanvas -->
 
-    </fieldset>
-   </div>
 
-   <!-- The right frame: the DQM controls -->
-   
+   <!-- The right frame: the DQM controls -->   
    <div class = "dqmControls"
         id    = "dqmControls"
         style = "width:  30%   ; 
@@ -324,8 +344,6 @@
         <div class = "dhtmlgoodies_aTab">
          <div class = "bloc" 
               id    = "bloc2_2"
-              onmouseover = "ddrivetip('Different actions for the non-expert Client ', '#EAFFF9', 200);"
-              onmouseout  = "hideddrivetip()">
                <!-- These are the non-expert action buttons: -->
            <!-- <input name    = "summary"
             	  id	  = "create_summary"
@@ -395,6 +413,13 @@
            	  type    = "image"
            	  src	  = "images/player_end.png">
            </input>
+           <select name	  = "updateSlideShow"
+                   class  = "selector"
+                   id	  = "update_slideshow">
+              <option selected value =   "3000"> 3 sec</option>
+              <option          value =   "5000"> 5 sec</option>
+              <option          value =  "10000">10 sec</option>
+           </select>
 
 	   <!-- <p/>
            <label id	  = "summaryOverview_slideShow"
@@ -404,8 +429,7 @@
            <input name    = "SummaryPlotsCreation" 
                   id	  = "summary_plot_creation"
                   class   = "controlButton"
-                  value   = "Manual
-Update" 
+                  value   = "Manual Update" 
                   onClick = "ClientActions.RequestPlotFromLayout()"
                   type    = "submit">
            </input>
@@ -415,19 +439,26 @@ Update"
                   style   = "margin-left:2%">
                Status Summary:
            </label>
-           <input name    = "BarrelSummaryOverviewShow" 
-                  id	  = "barrel_summary_overview_show"
+           <input name    = "PixelSummaryOverviewShow" 
+                  id      = "pixel_summary_overview_show"
                   class   = "controlButton"
-                  value   = "Barrel" 
-                  onClick = "SlideShow.BarrelSummaryOverView()" 
+                  value   = "SiPixel" 
+                  onClick = "SlideShow.SummaryOverView('Pixel')" 
                   type    = "submit">
            </input>
-           <input name	  = "EndcapSummaryOverviewShow" 
-           	  id	  = "endcap_summary_overview_show"
-           	  class   = "controlButton"
-           	  value   = "Endcap" 
-           	  onClick = "SlideShow.EndcapSummaryOverView()" 
-           	  type    = "submit">
+           <input name    = "BarrelSummaryOverviewShow" 
+                  id      = "barrel_summary_overview_show"
+                  class   = "controlButton"
+                  value   = "Barrel" 
+                  onClick = "SlideShow.SummaryOverView('Barrel')" 
+                  type    = "submit">
+           </input>
+           <input name    = "EndcapSummaryOverviewShow" 
+                  id      = "endcap_summary_overview_show"
+                  class   = "controlButton"
+                  value   = "Endcap" 
+                  onClick = "SlideShow.SummaryOverView('Endcap')" 
+                  type    = "submit">
            </input>
 
 	   <p/>
@@ -436,26 +467,24 @@ Update"
                Error Overview Plots:
            </label>
            <input name    = "errorOverviewPlotsCreation" 
-           	  id	  = "errorOverview_plot_creation"
-           	  class   = "controlButton"
+                  id      = "errorOverview_plot_creation"
+                  class   = "controlButton"
                   value   = "Create" 
                   onClick = "ClientActions.RequestErrorOverviewPlot()"
                   type    = "submit">
            </input>
            <input name    = "ErrorOverviewShow" 
-           	  id	  = "errorOverview_plot_show"
-           	  class   = "controlButton"
-           	  value   = "Display" 
-           	  onClick = "SlideShow.ErrorOverview()" 
-           	  type    = "submit">
+                  id      = "errorOverview_plot_show"
+                  class   = "controlButton"
+                  value   = "Display" 
+                  onClick = "SlideShow.SummaryOverView('Error')" 
+                  type    = "submit">
            </input>
-         </div>
-        </div>
+          </div> <!-- bloc2_2: Different actions for the non-expert Client -->
+        </div>  <!-- dhtmlgoodies_aTab -->
         <div class = "dhtmlgoodies_aTab">
          <div class = "bloc" 
               id    = "bloc2_3"
-              onmouseover = "ddrivetip('Different actions for the expert Client ', '#EAFFF9', 200)"
-              onmouseout  = "hideddrivetip()">
           <!-- These are the expert action buttons: -->
           <input name	 = "subscribe"
            	 id	 = "subscribe_all"
