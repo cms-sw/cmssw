@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea Rizzi
 //         Created:  Wed Apr 12 11:12:49 CEST 2006
-// $Id: IPAnalyzer.cc,v 1.3 2007/06/28 17:27:57 fwyzard Exp $
+// $Id: IPAnalyzer.cc,v 1.4 2007/09/14 15:31:43 arizzi Exp $
 //
 //
 
@@ -44,7 +44,7 @@ using namespace std;
 // Math
 #include "Math/GenVector/VectorUtil.h"
 #include "Math/GenVector/PxPyPzE4D.h"
-
+#include "DataFormats/VertexReco/interface/Vertex.h"
 using namespace reco;
 
 //
@@ -100,7 +100,9 @@ IPAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       int n=selTracks.size();
       cout << "Sel tracks: " << n << endl; 
 // false      cout << " Pt  \t d len \t jet dist \t p3d \t p2d\t ip3d \t ip2d " << endl; 
-      for(int j=0;j< n;j++)
+               GlobalPoint pv(it->primaryVertex()->position().x(),it->primaryVertex()->position().y(),it->primaryVertex()->position().z());
+  cout << pv << " vs " << it->primaryVertex()->position()   << endl;
+   for(int j=0;j< n;j++)
       {
         TrackIPTagInfo::TrackIPData data = it->impactParameterData()[j];  
         cout << selTracks[j]->pt() << "\t";
@@ -108,6 +110,7 @@ IPAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
         cout << data.ip3d.significance() << "\t";
         cout << data.distanceToJetAxis << "\t";
         cout << data.closestToJetAxis << "\t";
+        cout << (data.closestToJetAxis -pv).mag() << "\t";
         cout << data.ip2d.value() << "\t";
         cout << data.ip2d.significance() <<  endl;     
       }

@@ -40,15 +40,17 @@ class TrackCountingComputer : public JetTagComputer
  protected:
      std::multiset<float> orderedSignificances(const reco::TrackIPTagInfo & tkip)   const  {
 
-
           const std::vector<reco::TrackIPTagInfo::TrackIPData> & impactParameters((tkip.impactParameterData()));
           const edm::RefVector<reco::TrackCollection> & tracks(tkip.selectedTracks());
           std::multiset<float> significances;
           int i=0;
-          GlobalPoint pv((const GlobalPoint &)tkip.primaryVertex()->position());
+          if(tkip.primaryVertex().isNull())  {  return std::multiset<float>();}
+
+          GlobalPoint pv(tkip.primaryVertex()->position().x(),tkip.primaryVertex()->position().y(),tkip.primaryVertex()->position().z());
+
           for(std::vector<reco::TrackIPTagInfo::TrackIPData>::const_iterator it = impactParameters.begin(); it!=impactParameters.end(); ++it, i++)
            {
-          if(   fabs(impactParameters[i].distanceToJetAxis) < m_cutMaxDistToAxis  &&        // distance to JetAxis
+           if(   fabs(impactParameters[i].distanceToJetAxis) < m_cutMaxDistToAxis  &&        // distance to JetAxis
                  (impactParameters[i].closestToJetAxis - pv).mag() < m_cutMaxDecayLen        // max decay len
              )
               {
@@ -58,7 +60,7 @@ class TrackCountingComputer : public JetTagComputer
                  significances.insert( ((m_ipType==0)?it->ip3d:it->ip2d).significance() );
               }
           }
-
+ 
          return significances;    
    }
 

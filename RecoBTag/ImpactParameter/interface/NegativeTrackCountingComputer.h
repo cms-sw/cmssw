@@ -1,4 +1,4 @@
-#include "RecoBTag/TrackCounting/interface/TrackCountingComputer.h"
+#include "RecoBTag/ImpactParameter/interface/TrackCountingComputer.h"
 
 
 class NegativeTrackCountingComputer : public TrackCountingComputer
