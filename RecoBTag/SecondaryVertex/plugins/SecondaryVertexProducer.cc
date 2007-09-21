@@ -28,6 +28,7 @@
 #include "DataFormats/BTauReco/interface/TrackIPTagInfo.h"
 #include "DataFormats/BTauReco/interface/SecondaryVertexTagInfo.h"
 
+#include "RecoVertex/VertexPrimitives/interface/VertexException.h"
 #include "RecoVertex/ConfigurableVertexReco/interface/ConfigurableVertexReconstructor.h"
 
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
@@ -242,11 +243,13 @@ void SecondaryVertexProducer::produce(edm::Event &event,
 			                    std::back_inserter(SVs),
 			                    SVFilter(vertexFilter,
 			                             pv, jetDir));
-		} catch(...) {
+		} catch(VertexException e) {
 			// most likely the following problem:
 			// fewer than two significant tracks (w > 0.001)
 			// note that if this catch is removed,
-			// CMSSW can fail on valid events, sorry pals...
+			// CMSSW can fail on valid events...
+			// validation can check if the the TagInfo collection
+			// contains anything at all
 		}
 
 		// identify most probable SV (closest to interaction point)
