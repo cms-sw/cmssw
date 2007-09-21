@@ -37,7 +37,8 @@ using namespace std;
 /* Constructor */
 TrackAssociatorByHits::TrackAssociatorByHits (const edm::ParameterSet& conf) :  
   conf_(conf),
-  theMinHitFraction(conf_.getParameter<double>("MinHitFraction"))
+  AbsoluteNumberOfHits(conf_.getParameter<bool>("AbsoluteNumberOfHits")),
+  theMinHitCut(conf_.getParameter<double>("MinHitCut"))
 {
 }
 
@@ -57,9 +58,8 @@ TrackAssociatorByHits::associateRecoToSim(edm::Handle<reco::TrackCollection>& tr
 					  edm::Handle<TrackingParticleCollection>&  TPCollectionH,     
 					  const edm::Event * e ) const{
 
-  const double minHitFraction = theMinHitFraction;
   int nshared =0;
-  float fraction=0;
+  float quality=0;//fraction or absolute number of shared hits
   //  std::vector<unsigned int> SimTrackIds;
   //  std::vector<unsigned int> matchedIds; 
   std::vector< SimHitIdpr> SimTrackIds;
@@ -113,7 +113,7 @@ TrackAssociatorByHits::associateRecoToSim(edm::Handle<reco::TrackCollection>& tr
 	    int tpindex =0;
 	    for (TrackingParticleCollection::const_iterator t = tPC.begin(); t != tPC.end(); ++t, ++tpindex) {
 	      nshared =0;
-	      fraction =0;
+	      quality =0;
 	      for (TrackingParticle::g4t_iterator g4T = t -> g4Track_begin();
 		   g4T !=  t -> g4Track_end(); ++g4T) {
 		if((*g4T).trackId() == matchedIds[j].first && t->eventId() == matchedIds[j].second){
@@ -126,21 +126,22 @@ TrackAssociatorByHits::associateRecoToSim(edm::Handle<reco::TrackCollection>& tr
 		  nshared += std::count(matchedIds.begin(), matchedIds.end(), matchedIds[j]);
 		}
 	      }
-	      if(ri!=0) fraction = (static_cast<double>(nshared)/static_cast<double>(ri));
+	      if (AbsoluteNumberOfHits) quality = static_cast<double>(nshared);
+	      else if(ri!=0) quality = (static_cast<double>(nshared)/static_cast<double>(ri));
 	      //for now save the number of shared hits between the reco and sim track
 	      //cut on the fraction
-	      if(fraction>minHitFraction){
-		if(fraction>1.) std::cout << " **** fraction >1 " << " nshared = " << nshared 
+	      if(quality > theMinHitCut){
+		if(!AbsoluteNumberOfHits && quality>1.) std::cout << " **** fraction > 1 " << " nshared = " << nshared 
 					  << "rechits = " << ri << " hit found " << track->found() <<  std::endl;
 		outputCollection.insert(reco::TrackRef(trackCollectionH,tindex), 
 					std::make_pair(edm::Ref<TrackingParticleCollection>(TPCollectionH, tpindex),
-						       fraction));
-		LogTrace("TrackAssociator") <<"reco::Track number " << tindex  << " associated with hit fraction =" << fraction;
+						       quality));
+		LogTrace("TrackAssociator") <<"reco::Track number " << tindex  << " associated with quality =" << quality;
 		LogTrace("TrackAssociator") <<"associated to TP (pdgId, nb segments, p) = " 
 						   << (*t).pdgId() << " " << (*t).g4Tracks().size() 
 						   << " " << (*t).momentum();
 	      } else {
-		LogTrace("TrackAssociator") <<"reco::Track number " << tindex << " NOT associated with hit fraction =" << fraction;
+		LogTrace("TrackAssociator") <<"reco::Track number " << tindex << " NOT associated with quality =" << quality;
 	      }
 	    }
 	  }
@@ -159,8 +160,7 @@ TrackAssociatorByHits::associateSimToReco(edm::Handle<reco::TrackCollection>& tr
 					  TPCollectionH, 
 					  const edm::Event * e ) const{
   
-  const double minHitFraction = theMinHitFraction;
-  float fraction=0;
+  float quality=0;//fraction or absolute number of shared hits
   int nshared = 0;
   //  std::vector<unsigned int> SimTrackIds;
   //  std::vector<unsigned int> matchedIds; 
@@ -217,7 +217,7 @@ TrackAssociatorByHits::associateSimToReco(edm::Handle<reco::TrackCollection>& tr
 	      nshared =0;
 	      int nsimhit = 0;
 	      float totsimhit = 0; 
-	      fraction=0;
+	      quality=0;
 	      for (TrackingParticle::g4t_iterator g4T = t -> g4Track_begin();
 		   g4T !=  t -> g4Track_end(); ++g4T) {
 		if((*g4T).trackId() == matchedIds[j].first && t->eventId() == matchedIds[j].second) {
@@ -264,16 +264,17 @@ TrackAssociatorByHits::associateSimToReco(edm::Handle<reco::TrackCollection>& tr
 		  totsimhit += totsimhitlay;
 		}
 	      }
-	      if(totsimhit!=0) fraction = ((double) nshared)/((double)totsimhit);
+	      if (AbsoluteNumberOfHits) quality = static_cast<double>(nshared);
+	      else if(totsimhit!=0) quality = ((double) nshared)/((double)totsimhit);
 	      LogTrace("TrackAssociator") << "Final count: nhit(TP) = " << nsimhit << " re-counted = " << totsimhit 
 						 << "re-count(lay) = " << totsimhit << " nshared = " << nshared << " nrechit = " << ri;
-	      if (fraction>minHitFraction) {
+	      if (quality>theMinHitCut) {
 		outputCollection.insert(edm::Ref<TrackingParticleCollection>(TPCollectionH, tpindex), 
-					std::make_pair(reco::TrackRef(trackCollectionH,tindex),fraction));
-		LogTrace("TrackAssociator") << "TrackingParticle number " << tpindex << " associated with hit fraction =" << fraction;
+					std::make_pair(reco::TrackRef(trackCollectionH,tindex),quality));
+		LogTrace("TrackAssociator") << "TrackingParticle number " << tpindex << " associated with quality =" << quality;
 	      }
 	      else {
-		LogTrace("TrackAssociator") << "TrackingParticle number " << tpindex << " NOT associated with fraction =" << fraction;
+		LogTrace("TrackAssociator") << "TrackingParticle number " << tpindex << " NOT associated with quality =" << quality;
 	      }
 	    }
 	  }
