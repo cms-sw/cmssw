@@ -51,6 +51,7 @@ void EcalTBHodoscopeGeometryLoaderFromDDD::makeGeometry(const DDCompactView* cpv
 {
 
    if( ebg->cornersMgr() == 0 ) ebg->allocateCorners( 256 ) ;
+   if( ebg->parMgr()     == 0 ) ebg->allocatePar( 10, 3 ) ;
   
   DDFilter* filter = getDDFilter();
 
@@ -97,7 +98,9 @@ void EcalTBHodoscopeGeometryLoaderFromDDD::makeGeometry(const DDCompactView* cpv
       const GlobalPoint refPoint ( ctr.x(), ctr.y(), ctr.z() ) ;
 
 
-      const float* pP ( CaloCellGeometry::getParmPtr( pv, 3, ebg->parVecVec() ) ) ;
+      const float* pP ( CaloCellGeometry::getParmPtr( pv, 
+						      ebg->parMgr(), 
+						      ebg->parVecVec() ) ) ;
 
       PreshowerStrip* cell ( new PreshowerStrip( refPoint,
 						 ebg->cornersMgr(),

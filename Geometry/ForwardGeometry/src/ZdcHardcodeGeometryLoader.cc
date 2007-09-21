@@ -59,6 +59,7 @@ void ZdcHardcodeGeometryLoader::fill(HcalZDCDetId::Section section, CaloSubdetec
     if(theTopology.valid(id)) zdcIds.push_back(id);
    }
   if( geom->cornersMgr() == 0 ) geom->allocateCorners( 1000 ) ;
+  if( geom->parMgr()     == 0 ) geom->allocatePar( 500, 3 ) ;
 
   edm::LogInfo("ZdcHardcodeGeometry") << "Number of ZDC DetIds made: " << section << " " << zdcIds.size();
  
@@ -130,7 +131,9 @@ ZdcHardcodeGeometryLoader::makeCell(const HcalZDCDetId & detId,
   return new calogeom::IdealZDCTrapezoid( 
      faceCenter, 
      geom->cornersMgr(),
-     CaloCellGeometry::getParmPtr( zz, 3, geom->parVecVec() ) );
+     CaloCellGeometry::getParmPtr( zz, 
+				   geom->parMgr(), 
+				   geom->parVecVec() ) );
 }
 
 

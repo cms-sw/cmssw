@@ -29,14 +29,14 @@ std::ostream& operator<<( std::ostream& s, const CaloCellGeometry& cell )
 
 const float* 
 CaloCellGeometry::getParmPtr(
-   const std::vector<double>& vd ,
-   const unsigned int         np ,
+   const std::vector<double>&   vd ,
+   CaloCellGeometry::ParMgr*    mgr ,
    CaloCellGeometry::ParVecVec& pvv  )
 {
    const float* pP ( 0 ) ;
 
-   ParVec vv ;
-   vv.reserve( np ) ;
+   std::vector<float> vv ;
+   vv.reserve( vd.size() ) ;
 
    for( unsigned int i ( 0 ) ; i != vd.size() ; ++i )
    {
@@ -45,10 +45,10 @@ CaloCellGeometry::getParmPtr(
    for( unsigned int ii ( 0 ) ; ii != pvv.size() ; ++ii )
    {
       const ParVec& v ( pvv[ii] ) ;
-      assert( v.size() == np ) ;
+      assert( v.size() == vd.size() ) ;
 
       bool same ( true ) ;
-      for( unsigned int j ( 0 ) ; j != np ; ++j )
+      for( unsigned int j ( 0 ) ; j != vd.size() ; ++j )
       {
 	 same = same && ( vv[j] == v[j] ) ;
 	 if( !same ) break ;
@@ -61,8 +61,13 @@ CaloCellGeometry::getParmPtr(
    }
    if( 0 == pP )
    {
-      pvv.push_back( vv ) ;
-      pP = &(*pvv.back().begin()) ;
+      pvv.push_back( ParVec( mgr ) ) ;
+      ParVec& back ( pvv.back() ) ;
+      for( unsigned int i ( 0 ) ; i != vd.size() ; ++i )
+      {
+	 back[i] = vv[i] ;
+      }
+      pP = &(*back.begin()) ;
    }
    return pP ;
 }

@@ -72,6 +72,7 @@ namespace calogeom {
 	    corners[ 5 ] = etaPhiZ( eta + wEta(), phi - wPhi(), z_far  ) ; // (+,-,far)
 	    corners[ 6 ] = etaPhiZ( eta - wEta(), phi - wPhi(), z_far  ) ; // (-,-,far)
 	    corners[ 7 ] = etaPhiZ( eta - wEta(), phi + wPhi(), z_far  ) ; // (-,+,far)
+
 	 }
       }
       return co ;

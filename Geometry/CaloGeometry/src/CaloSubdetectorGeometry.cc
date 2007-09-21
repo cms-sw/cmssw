@@ -10,6 +10,7 @@ CaloSubdetectorGeometry::~CaloSubdetectorGeometry()
    }
 
    delete m_cmgr ; // must delete after geometries!
+   delete m_parMgr ; 
 }
 
 void 
@@ -100,5 +101,13 @@ CaloSubdetectorGeometry::allocateCorners( CaloCellGeometry::CornersVec::size_typ
    assert( 0 == m_cmgr ) ;
    m_cmgr = new CaloCellGeometry::CornersMgr( n*( CaloCellGeometry::k_cornerSize ),
 					      CaloCellGeometry::k_cornerSize        ) ; 
+}
+
+void 
+CaloSubdetectorGeometry::allocatePar( ParVec::size_type n,
+				      unsigned int      m     )
+{
+   assert( 0 == m_parMgr ) ;
+   m_parMgr = new ParMgr( n*m, m ) ;
 }
 

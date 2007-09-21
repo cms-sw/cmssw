@@ -50,6 +50,7 @@ void HcalDDDGeometryLoader::fill(HcalSubdetector subdet,
 		       << hcalCells.size() << " cells for subdetector " 
 		       << subdet;
   if( geom->cornersMgr() == 0 ) geom->allocateCorners( 11000 ) ;
+  if( geom->parMgr()     == 0 ) geom->allocatePar( 500, 3 ) ;
 			 
   // Make the new HcalDetIds and the cells
   double deg = M_PI/180.;
@@ -151,7 +152,9 @@ HcalDDDGeometryLoader::makeCell(const HcalDetId& detId,
      return new calogeom::IdealZPrism( 
 	point, 
 	geom->cornersMgr(),
-	CaloCellGeometry::getParmPtr( hf, 3, geom->parVecVec() ) );
+	CaloCellGeometry::getParmPtr( hf, 
+				      geom->parMgr(), 
+				      geom->parVecVec() ) );
   } 
   else 
   { 
@@ -164,6 +167,8 @@ HcalDDDGeometryLoader::makeCell(const HcalDetId& detId,
      return new calogeom::IdealObliquePrism(
 	point,
 	geom->cornersMgr(),
-	CaloCellGeometry::getParmPtr( hh, 3, geom->parVecVec() ) );
+	CaloCellGeometry::getParmPtr( hh, 
+				      geom->parMgr(), 
+				      geom->parVecVec() ) );
  }
 }

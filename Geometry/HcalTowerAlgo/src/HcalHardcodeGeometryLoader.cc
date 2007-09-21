@@ -84,6 +84,7 @@ void HcalHardcodeGeometryLoader::fill(HcalSubdetector subdet, int firstEtaRing, 
     }
   }
   if( geom->cornersMgr() == 0 ) geom->allocateCorners( 10000 ) ;
+  if( geom->parMgr()     == 0 ) geom->allocatePar( 500, 3 ) ;
 
   edm::LogInfo("HcalHardcodeGeometry") << "Number of HCAL DetIds made: " << subdet << " " << hcalIds.size();
   // for each new HcalDetId, make a CaloCellGeometry
@@ -205,7 +206,9 @@ const CaloCellGeometry * HcalHardcodeGeometryLoader::makeCell(const HcalDetId & 
      return new calogeom::IdealZPrism( 
 	point, 
 	geom->cornersMgr(),
-	CaloCellGeometry::getParmPtr( hf, 3, geom->parVecVec() ) );
+	CaloCellGeometry::getParmPtr( hf, 
+				      geom->parMgr(), 
+				      geom->parVecVec() ) );
   } 
   else 
   { 
@@ -218,7 +221,9 @@ const CaloCellGeometry * HcalHardcodeGeometryLoader::makeCell(const HcalDetId & 
      return new calogeom::IdealObliquePrism(
 	point,
 	geom->cornersMgr(),
-	CaloCellGeometry::getParmPtr( hh, 3, geom->parVecVec() ) );
+	CaloCellGeometry::getParmPtr( hh, 
+				      geom->parMgr(), 
+				      geom->parVecVec() ) );
  }
 
 }
