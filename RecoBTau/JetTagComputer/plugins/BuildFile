@@ -1,16 +1,22 @@
 <use name=FWCore/Framework>
-<library file="module.cc" name=RecoBTauJetTagComputerPlugins>
-      <use name=RecoBTau/JetTagComputer>
-      <flags EDM_PLUGIN=1>
+<use name=FWCore/ParameterSet>
+
+<library file="JetTagProducer.cc GenericMVAJetTagESProducer.cc" name=RecoBTauJetTagComputerPlugins>
+  <use name=DataFormats/BTauReco>
+  <use name=DataFormats/Common>
+  <use name=DataFormats/TrackReco>
+  <use name=FWCore/ParameterSet>
+  <use name=RecoBTau/JetTagComputer>
+  <flags EDM_PLUGIN=1>
 </library>
 
 <library file="BTauFakeMVAJetTagConditions.cc" name=BTauFakeMVAJetTagConditions>
-      <use name=FWCore/ParameterSet>
-      <use name=FWCore/ServiceRegistry>
-      <use name=FWCore/Utilities>
-      <use name=CondFormats/DataRecord>
-      <use name=CondFormats/PhysicsToolsObjects>
-      <use name=rootcore>
-      <flags LDFLAGS="-lXMLIO">
-      <flags EDM_PLUGIN=1>
+  <use name=CondFormats/DataRecord>
+  <use name=CondFormats/PhysicsToolsObjects>
+  <use name=FWCore/MessageLogger>
+  <use name=FWCore/Utilities>
+  <use name=boost>
+  <use name=rootcore>
+  <flags LDFLAGS="-lXMLIO">
+  <flags EDM_PLUGIN=1>
 </library>
