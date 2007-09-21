@@ -1,5 +1,5 @@
 //
-// $Id: TopElectronProducer.cc,v 1.20 2007/09/07 23:53:27 lowette Exp $
+// $Id: TopElectronProducer.cc,v 1.21 2007/09/20 18:12:24 lowette Exp $
 //
 
 #include "TopQuarkAnalysis/TopObjectProducers/interface/TopElectronProducer.h"
@@ -11,8 +11,8 @@
 
 #include "TopQuarkAnalysis/TopLeptonSelection/interface/TopLeptonLRCalc.h"
 #include "TopQuarkAnalysis/TopObjectResolutions/interface/TopObjectResolutionCalc.h"
-#include "TopQuarkAnalysis/TopLeptonSelection/interface/TopLeptonTrackerIsolationPt.h"
-#include "TopQuarkAnalysis/TopLeptonSelection/interface/TopLeptonCaloIsolationEnergy.h"
+#include "TopQuarkAnalysis/TopLeptonSelection/interface/TrackerIsolationPt.h"
+#include "TopQuarkAnalysis/TopLeptonSelection/interface/CaloIsolationEnergy.h"
 
 #include <vector>
 #include <memory>
@@ -38,6 +38,7 @@ TopElectronProducer::TopElectronProducer(const edm::ParameterSet & iConfig) {
   doTrkIso_         = iConfig.getParameter<bool>         ( "doTrkIsolation" );
   tracksSrc_        = iConfig.getParameter<edm::InputTag>( "tracksSrc" );
   doCalIso_         = iConfig.getParameter<bool>         ( "doCalIsolation" );
+  towerSrc_         = iConfig.getParameter<edm::InputTag>( "towerSrc" );
   // electron ID configurables
   addElecID_        = iConfig.getParameter<bool>         ( "addElectronID" );
   elecIDSrc_        = iConfig.getParameter<edm::InputTag>( "electronIDSource" );
@@ -81,8 +82,21 @@ void TopElectronProducer::produce(edm::Event & iEvent, const edm::EventSetup & i
   }
 
   // prepare isolation calculation
-  if (doTrkIso_) trkIsolation_= new TopLeptonTrackerIsolationPt (iSetup, tracksSrc_);
-  if (doCalIso_) calIsolation_= new TopLeptonCaloIsolationEnergy(iSetup);
+  edm::Handle<reco::TrackCollection> trackHandle;
+  if (doTrkIso_) {
+    trkIsolation_= new TrackerIsolationPt();
+    iEvent.getByLabel(tracksSrc_, trackHandle);
+  }
+  std::vector<CaloTower> towers;
+  if (doCalIso_) {
+    calIsolation_= new CaloIsolationEnergy();
+    edm::Handle<CaloTowerCollection> towerHandle;
+    iEvent.getByLabel(towerSrc_, towerHandle);
+    CaloTowerCollection towerColl = *(towerHandle.product());
+    for (CaloTowerCollection::const_iterator itTower = towerColl.begin(); itTower != towerColl.end(); itTower++) {
+      towers.push_back(*itTower);
+    }
+  }
   
   // prepare ID extraction
   edm::Handle<reco::ElectronIDAssociationCollection> elecIDs;
@@ -107,11 +121,11 @@ void TopElectronProducer::produce(edm::Event & iEvent, const edm::EventSetup & i
     }
     // do tracker isolation
     if (doTrkIso_) {
-      anElectron.setTrackIso(trkIsolation_->calculate(anElectron, iEvent));
+      anElectron.setTrackIso(trkIsolation_->calculate(anElectron, *trackHandle));
     }
     // do calorimeter isolation
     if (doCalIso_) {
-      anElectron.setCaloIso(calIsolation_->calculate(anElectron, iEvent));
+      anElectron.setCaloIso(calIsolation_->calculate(anElectron, towers));
     }
     // add electron ID info
     if (addElecID_) {
