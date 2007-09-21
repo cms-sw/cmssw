@@ -9,7 +9,7 @@
 //
 // Original Author: Shan-Huei Chuang
 //         Created: Fri Mar 23 18:41:42 CET 2007
-// $Id: SiPixelResidualModule.cc,v 1.2 2007/06/11 18:23:40 schuang Exp $
+// $Id: SiPixelResidualModule.cc,v 1.3 2007/07/16 23:00:16 schuang Exp $
 
 
 #include <boost/cstdint.hpp>
@@ -46,10 +46,12 @@ void SiPixelResidualModule::book(const edm::ParameterSet& iConfig) {
 
   hisID = theHistogramId->setHistoId("residualX",id_);
   meResidualX_ = dbe->book1D(hisID,"Hit-to-Track Residual in X",500,-5.,5.);
+  meResidualX_->setAxisTitle("hit-to-track residual in x (cm)",1);
 
   hisID = theHistogramId->setHistoId("residualY",id_);
   meResidualY_ = dbe->book1D(hisID,"Hit-to-Track Residual in Y",500,-5.,5.);
-  
+  meResidualY_->setAxisTitle("hit-to-track residual in y (cm)",1);
+
   delete theHistogramId;
 }
 

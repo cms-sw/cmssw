@@ -11,7 +11,7 @@
  *         David Dagenhart
  *
  * \version   1st Version June 7 2007>
- * $Id$
+ * $Id: LumiDetails.h,v 1.2 2007/07/24 16:00:16 valerieh Exp $
  *
  ************************************************************/
  
@@ -27,9 +27,9 @@ class LumiDetails {
     LumiDetails() {}
 
     /// set default constructor
-    LumiDetails(const std::vector<double>& lumietsum,const std::vector<double>& lumietsumerr, 
-		const std::vector<double>& lumietsumqual, const std::vector<double>& lumiocc,
-		const std::vector<double>& lumioccerr,const std::vector<double>& lumioccqual):
+    LumiDetails(const std::vector<double>& lumietsum, const std::vector<double>& lumietsumerr, 
+		const std::vector<int>& lumietsumqual, const std::vector<double>& lumiocc,
+		const std::vector<double>& lumioccerr, const std::vector<int>& lumioccqual):
       lumietsum_(lumietsum), lumietsumerr_(lumietsumerr), lumietsumqual_(lumietsumqual),
       lumiocc_(lumiocc), lumioccerr_(lumioccerr), lumioccqual_(lumioccqual)
     { }
@@ -43,11 +43,11 @@ class LumiDetails {
 
     double lumiEtSum(int bx) const { return lumietsum_.at(bx); }
     double lumiEtSumErr(int bx) const { return lumietsumerr_.at(bx); }
-    double lumiEtSumQual(int bx) const { return lumietsumqual_.at(bx); }
+    int lumiEtSumQual(int bx) const { return lumietsumqual_.at(bx); }
 
     double lumiOcc(int bx) const { return lumiocc_.at(bx); }
     double lumiOccErr(int bx) const { return lumioccerr_.at(bx); }
-    double lumiOccQual(int bx) const { return lumioccqual_.at(bx); }
+    int lumiOccQual(int bx) const { return lumioccqual_.at(bx); }
 
     //get array of lumi values per BX based on EtSum method
     const std::vector<double>&  lumiEtSum() const {return lumietsum_;}
@@ -56,7 +56,7 @@ class LumiDetails {
     const std::vector<double>&  lumiEtSumErr() const {return lumietsumerr_;}
        
     //get array of lumi values quality per BX based on EtSum method
-    const std::vector<double>&  lumiEtSumQual() const {return lumietsumqual_;}
+    const std::vector<int>&  lumiEtSumQual() const {return lumietsumqual_;}
        
     //get array of lumi values per BX based on Occupancy method
     const std::vector<double>&  lumiOcc() const {return lumiocc_;}
@@ -65,17 +65,17 @@ class LumiDetails {
     const std::vector<double>&  lumiOccErr() const {return lumioccerr_;}
        
     //get array of lumi values errors per BX based on Occupancy method
-    const std::vector<double>&  lumiOccQual() const {return lumioccqual_;}
+    const std::vector<int>&  lumiOccQual() const {return lumioccqual_;}
 
   private :
 
     std::vector<double> lumietsum_;
     std::vector<double> lumietsumerr_;
-    std::vector<double> lumietsumqual_;
+    std::vector<int> lumietsumqual_;
 
     std::vector<double> lumiocc_;
     std::vector<double> lumioccerr_;
-    std::vector<double> lumioccqual_;
+    std::vector<int> lumioccqual_;
 }; 
 
 std::ostream& operator<<(std::ostream& s, const LumiDetails& lumiDetails);

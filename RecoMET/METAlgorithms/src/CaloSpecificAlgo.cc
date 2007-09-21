@@ -61,8 +61,6 @@ reco::CaloMET CaloSpecificAlgo::addInfo(const CandidateCollection *towers, Commo
       if( calotower->emEt()  > MaxTowerEm  ) MaxTowerEm  = calotower->emEt();
       if( calotower->hadEt() > MaxTowerHad ) MaxTowerHad = calotower->hadEt();
 
-      specific.HadEtInHO   += calotower->outerEt();
-
       bool hadIsDone = false;
       bool emIsDone = false;
       int cell = calotower->constituentsSize();

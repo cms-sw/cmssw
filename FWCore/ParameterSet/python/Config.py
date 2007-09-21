@@ -16,7 +16,6 @@ from SequenceTypes import _ModuleSequenceType  #extend needs it
 import DictTypes
 
 from ExceptionHandling import *
-
 def findProcess(module):
     """Look inside the module and find the Processes it contains"""
     class Temp(object):
@@ -58,6 +57,24 @@ class Process(object):
         self.__dict__['_Process__psets']={}
         self.__dict__['_Process__vpsets']={}
         self.__dict__['_cloneToObjectDict'] = {}
+
+    def __setstate__(self, pkldict):
+        """
+        Unpickling hook.
+
+        Since cloneToObjectDict stores a hash of objects by their
+        id() it needs to be updated when unpickling to use the
+        new object id values instantiated during the unpickle.
+        
+        """
+        self.__dict__.update(pkldict)
+        tmpDict = {}
+        for value in self._cloneToObjectDict.values():
+            tmpDict[id(value)] = value
+        self.__dict__['_cloneToObjectDict'] = tmpDict
+        
+
+        
     def filters_(self):
         """returns a dict of the filters which have been added to the Process"""
         return DictTypes.FixedKeysDict(self.__filters)
@@ -147,7 +164,11 @@ class Process(object):
         #clone the item
         newValue =value.copy()
 
-        self.__dict__[name]=newValue
+        #NOTE: for now, ESPrefer's are assigned the same label as the item to which they 'choose'
+        # however, only one of them can take the attribute name and it by rights should go to
+        # the module and not the ESPrefer
+        if not isinstance(value,ESPrefer):
+            self.__dict__[name]=newValue
         if isinstance(newValue,_Labelable):
             newValue.setLabel(name)
             self._cloneToObjectDict[id(value)] = newValue
@@ -328,28 +349,80 @@ class Process(object):
 #                                  indent)
         config += "}\n"
         return config
+    def _dumpPythonList(self,items):
+        indent = '    '
+        returnValue = ''
+        for name,item in items:
+            returnValue +='process.'+name+' = '+item.dumpPython('',indent)+'\n'
+        return returnValue
+    def dumpPython(self):
+        """return a string containing the equivalent process defined using the configuration language"""
+        result = "process = cms.Process(\""+self.__name+"\")\n\n"
+        indent = "    "
+        if self.source_():
+            result += "process.source = "+self.source_().dumpPython('', indent)
+        if self.looper_():
+            result += "process.looper = "+self.looper_().dumpPython('', indent)
+        result+=self._dumpPythonList(self.producers_().iteritems())
+        result+=self._dumpPythonList(self.filters_().iteritems())
+        result+=self._dumpPythonList(self.analyzers_().iteritems())
+        result+=self._dumpPythonList(self.outputModules_().iteritems())
+        result+=self._dumpPythonList(self.sequences_().iteritems())
+        result+=self._dumpPythonList(self.paths_().iteritems())
+        result+=self._dumpPythonList(self.endpaths_().iteritems())
+        result+=self._dumpPythonList(self.services_().iteritems())
+        result+=self._dumpPythonList(self.es_producers_().iteritems())
+        result+=self._dumpPythonList(self.es_sources_().iteritems())
+        result+=self._dumpPythonList(self.es_prefers_().iteritems())
+        result+=self._dumpPythonList(self.psets.iteritems())
+        result+=self._dumpPythonList(self.vpsets.iteritems())
+        if self.schedule:
+            pathNames = [p.label() for p in self.schedule]
+            result +=indent+'schedule = ('+','.join(pathNames)+')\n'
+        return result
 
-class FileInPath(_SimpleParameterTypeBase):
-    def __init__(self,value):
-        super(FileInPath,self).__init__(value)
-    @staticmethod
-    def _isValid(value):
-        return True
-    def configValue(self,indent,deltaIndent):
-        return string.formatValueForConfig(self.value())
-    @staticmethod
-    def formatValueForConfig(value):
-        return string.formatValueForConfig(value)
-    @staticmethod
-    def _valueFromString(value):
-        return FileInPath(value)
-
-
-class Looper(_ConfigureComponent,_TypedParameterizable):
-    def __init__(self,type_,*arg,**kargs):
-        super(Looper,self).__init__(type_,*arg,**kargs)
-    def _placeImpl(self,name,proc):
-        proc._placeLooper(name,self)
+    def insertOneInto(self, parameterSet, label, item):
+        vitems = []
+        if not item == None:
+            newlabel = item.nameInProcessDesc_(label)
+            vitems = [newlabel]
+            item.insertInto(parameterSet, newlabel)
+        parameterSet.addVString(True, label, vitems)
+    def insertManyInto(self, parameterSet, label, itemDict):
+        l = []
+        for name,value in itemDict.iteritems():
+          newLabel = value.nameInProcessDesc_(name)
+          l.append(newLabel)
+          value.insertInto(parameterSet, name)
+        parameterSet.addVString(True, label, l)
+    def insertServices(self, processDesc, itemDict):
+        for name,value in itemDict.iteritems():
+           value.insertInto(processDesc)
+    def insertTriggerPaths(self, processDesc):
+        p = processDesc.newPSet()
+        l = []
+        for name,value in self.paths_().iteritems():
+          l.append(name)
+          value.insertInto(processDesc, name)
+        p.addVString(True, "@trigger_paths", l)
+        processDesc.addPSet(False, "@trigger_paths", p)
+    def fillProcessDesc(self, processDesc, processPSet):
+        processPSet.addString(True, "@process_name", self.name_())
+        all_modules = self.producers_().copy()
+        all_modules.update(self.filters_())
+        all_modules.update(self.analyzers_())
+        all_modules.update(self.outputModules_())
+        self.insertManyInto(processPSet, "@all_modules", all_modules)
+        self.insertOneInto(processPSet,  "@all_sources", self.source_())
+        self.insertOneInto(processPSet,  "@all_loopers",   self.looper_())
+        self.insertManyInto(processPSet, "@all_esmodules", self.es_producers_())
+        self.insertManyInto(processPSet, "@all_essources", self.es_sources_())
+        self.insertManyInto(processPSet, "@all_esprefers", self.es_prefers_())
+        self.insertTriggerPaths(processPSet)
+        self.insertManyInto(processPSet, "@end_paths", self.endpaths_())
+        self.insertOneInto(processPSet,  "@paths", self.schedule_())
+        self.insertServices(processDesc, self.services_())
+        return processDesc
 
 def include(fileName):
     """Parse a configuration file language file and return a 'module like' object"""
@@ -458,6 +531,7 @@ if __name__=="__main__":
             self.assertEqual(str(p.c),'a')
             self.assertEqual(str(p.d),'a')
             p.dumpConfig()
+            p.dumpPython()
 
         def testProcessDumpConfig(self):
             p = Process("test")
@@ -466,7 +540,13 @@ if __name__=="__main__":
             p.s = Sequence(p.a)
             p.p2 = Path(p.s)
             p.dumpConfig()
+            p.dumpPython()
             
+        def testSecSource(self):
+            p = Process('test')
+            p.a = SecSource("MySecSource")
+            self.assertEqual(p.dumpConfig(),"process test = {\n  secsource a = MySecSource { \n  }\n}\n")
+
         def testSequence(self):
             p = Process('test')
             p.a = EDAnalyzer("MyAnalyzer")
@@ -496,7 +576,7 @@ if __name__=="__main__":
             path = Path(p.a*(p.b+p.c))
             self.assertEqual(str(path),'(a*(b+c))')
             path = Path(p.a*(p.b+~p.c)) 
-            self.assertEqual(str(path),'(a*(b+!c))')
+            self.assertEqual(str(path),'(a*(b+~c))')
             p.es = ESProducer("AnESProducer")
             self.assertRaises(TypeError,Path,p.es)
 
@@ -545,7 +625,7 @@ if __name__=="__main__":
             path = Path(p.a)
             path *= p.b
             path += p.c
-            print 'denpendencies'
+            print 'dependencies'
             deps= path.moduleDependencies()
             self.assertEqual(deps['a'],set())
             self.assertEqual(deps['b'],set(['a']))

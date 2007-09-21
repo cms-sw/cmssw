@@ -1,6 +1,6 @@
 /** \class HLTJetVBFFilter
  *
- * $Id: HLTJetVBFFilter.cc,v 1.1 2007/02/22 13:12:35 monicava Exp $
+ * $Id: HLTJetVBFFilter.cc,v 1.2 2007/03/08 22:46:25 apana Exp $
  *
  *  \author Monica Vazquez Acosta (CERN)
  *
@@ -15,7 +15,7 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "DataFormats/JetReco/interface/CaloJet.h"
+#include "DataFormats/JetReco/interface/CaloJetCollection.h"
 
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"

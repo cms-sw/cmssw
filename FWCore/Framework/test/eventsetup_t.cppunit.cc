@@ -29,7 +29,6 @@
 
 #include "FWCore/Framework/interface/HCMethods.icc"
 //#include "FWCore/Framework/interface/HCTypeTag.icc"
-#include "FWCore/Framework/interface/HCTypeTagTemplate.h"
 /*
 template<>
 const char*
@@ -38,7 +37,6 @@ edm::eventsetup::heterocontainer::HCTypeTagTemplate<DummyRecord, edm::eventsetup
 }
 */
 
-#include "DataFormats/Provenance/interface/Provenance.h"
 
 #include "FWCore/Framework/interface/EventSetupRecordProviderTemplate.h"
 #include "FWCore/Framework/interface/EventSetupRecordIntervalFinder.h"

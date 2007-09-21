@@ -33,7 +33,7 @@ public:
   /// Constructor for a composite with given rotation.
   /// Position is found from average of daughters' positions later.
   /// Default arguments for backward compatibility with empty constructor.
-  AlignableComposite( const DetId& = DetId(),
+  AlignableComposite( uint32_t id = 0,
 		      AlignableObjectIdType = AlignableObjectId::invalid,
 		      const RotationType& = RotationType() );
 
@@ -92,7 +92,8 @@ private:
 
   AlignableObjectIdType theStructureType;
 
-  Alignables theComponents; // direct daughters
+  Alignables theComponents;
+
 };
 
 #endif

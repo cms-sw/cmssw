@@ -24,7 +24,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Sat Jan  7 15:40:43 EST 2006
-// $Id: GenericHandle.h,v 1.9 2007/04/01 15:52:17 wmtan Exp $
+// $Id: GenericHandle.h,v 1.10 2007/05/29 21:22:03 wmtan Exp $
 //
 
 // system include files
@@ -146,6 +146,10 @@ void
 edm::DataViewImpl::getByLabel<GenericObject>(std::string const& label,
                                       const std::string& productInstanceName,
                                       Handle<GenericObject>& result) const;
+
+template <> 	 
+void 	 
+edm::DataViewImpl::getByLabel(edm::InputTag const& tag, Handle<GenericObject>& result) const; 	 
 
 }
 #endif

@@ -13,7 +13,7 @@
 //
 // Original Author:  Suchandra Dutta
 //         Created:  Fri June  1 17:00:00 CET 2007
-// $Id: SiStripMonitorRawData.cc,v 1.0 2007/06/01 17:00:00 CET dutta Exp $
+// $Id: SiStripMonitorRawData.cc,v 1.1 2007/06/01 17:19:26 dutta Exp $
 //
 //
 
@@ -98,10 +98,10 @@ void SiStripMonitorRawData::analyze(const edm::Event& iEvent, const edm::EventSe
 
   for (std::vector<uint32_t>::const_iterator idetid=SelectedDetIds.begin(), 
                                iEnd=SelectedDetIds.end();idetid!=iEnd;++idetid){
-     std::vector< edm::DetSet<SiStripRawDigi> >::const_iterator digis = digi_collection->find( (*idetid) );
-    if (digis->data.size() == 0 || 
-        digis->data.size() > 768 || 
-        digis == digi_collection->end() ) {
+    std::vector< edm::DetSet<SiStripRawDigi> >::const_iterator digis = digi_collection->find( (*idetid) );
+    if (digis == digi_collection->end() ||
+        digis->data.size() == 0 || 
+        digis->data.size() > 768 )  {
       std::vector<FedChannelConnection> fed_conns = detcabling->getConnections((*idetid));
       for (unsigned int  k = 0; k < fed_conns.size() ; k++) {
         float fed_id = fed_conns[k].fedId() + 0.01*fed_conns[k].fedCh();

@@ -11,8 +11,8 @@
  <class name="L1MuDTChambThContainer"/>
  <class name="L1MuDTTrackContainer"/>
 
- <class name="edm::Wrapper<L1MuDTChambPhContainer>"/>
- <class name="edm::Wrapper<L1MuDTChambThContainer>"/>
+ <class name="edm::Wrapper<L1MuDTChambPhContainer>" splitLevel="0"/>
+ <class name="edm::Wrapper<L1MuDTChambThContainer>" splitLevel="0"/>
  <class name="edm::Wrapper<L1MuDTTrackContainer>"/>
 
 </lcgdict>

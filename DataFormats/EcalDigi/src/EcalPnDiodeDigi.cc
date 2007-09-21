@@ -7,7 +7,7 @@ EcalPnDiodeDigi::EcalPnDiodeDigi(const EcalPnDiodeDetId& id) : id_(id),
 										   size_(0), data_(MAXSAMPLES) {
 }
   
-void EcalPnDiodeDigi::setSize(int size) {
+void EcalPnDiodeDigi::setSize(const int& size) {
   if (size<0) size_=0;
   else if (size>MAXSAMPLES) size_=MAXSAMPLES;
   else size_=size;

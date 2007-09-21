@@ -1,15 +1,15 @@
 /** \class SteppingHelixStateInfo
  *  Implementation part of the stepping helix propagator state data structure
  *
- *  $Date: 2007/05/11 04:51:11 $
- *  $Revision: 1.8 $
+ *  $Date: 2007/06/12 22:45:01 $
+ *  $Revision: 1.9 $
  *  \author Vyacheslav Krutelyov (slava77)
  */
 
 //
 // Original Author:  Vyacheslav Krutelyov
 //         Created:  Wed Jan  3 16:01:24 CST 2007
-// $Id: SteppingHelixStateInfo.cc,v 1.8 2007/05/11 04:51:11 slava77 Exp $
+// $Id: SteppingHelixStateInfo.cc,v 1.9 2007/06/12 22:45:01 slava77 Exp $
 //
 //
 
@@ -61,9 +61,7 @@ TrajectoryStateOnSurface SteppingHelixStateInfo::getStateOnSurface(const Surface
   CurvilinearTrajectoryError tCCov(ROOT::Math::Similarity(JacobianCartesianToCurvilinear(tPars).jacobian(), cov));
 
   FreeTrajectoryState fts(tPars, tCov, tCCov);
-  if (cov.kRows != 6) fts = FreeTrajectoryState(tPars);
-  //  if (fts.hasError()) fts.curvilinearError(); //call it so it gets created
-  //equivalent to  getFreeState(fts);
+  if (! hasErrorPropagated_) fts = FreeTrajectoryState(tPars);
 
   return TrajectoryStateOnSurface(fts, returnTangentPlane ? *surf.tangentPlane(fts.position()) : surf);
 }
@@ -76,7 +74,7 @@ void SteppingHelixStateInfo::getFreeState(FreeTrajectoryState& fts) const {
     GlobalTrajectoryParameters tPars(r3GP, p3GV, q, field);
     CartesianTrajectoryError tCov(cov);
     
-    fts = (cov.kRows == 6 ) 
+    fts = (hasErrorPropagated_ ) 
       ? FreeTrajectoryState(tPars, tCov) : FreeTrajectoryState(tPars);
     if (fts.hasError()) fts.curvilinearError(); //call it so it gets created
   }

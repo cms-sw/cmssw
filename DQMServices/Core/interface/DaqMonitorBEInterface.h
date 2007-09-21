@@ -100,6 +100,7 @@ class DaqMonitorBEInterface: public StringUtil
   virtual void cd(std::string subdir_path) = 0;
   /// name of global monitoring folder (containing all sources subdirectories)
   static const std::string monitorDirName;
+  static const std::string referenceDirName;
   // ---------------- Miscellaneous -----------------------------
   
   /// true if directory exists
@@ -116,10 +117,22 @@ class DaqMonitorBEInterface: public StringUtil
   /// open/read root file <filename>, and copy MonitorElements;
   /// if flag=true, overwrite identical MonitorElements (default: false);
   /// if directory != "", read only selected directory
-    virtual void open(std::string filename, bool overwrite = false,
-		      std::string directory="") = 0;
+  /// if prepend !="", prepend string to the path
+  virtual void open(std::string filename, bool overwrite = false,
+		    std::string directory="", std::string prepend="") = 0;
+
+  // ------------------- Reference ME -------------------------------
+  
+  virtual void readReferenceME(std::string filename) = 0 ;
+  virtual bool makeReferenceME(MonitorElement* me) = 0 ;
+  virtual bool isReferenceME(MonitorElement* me) const = 0 ;
+  virtual MonitorElement* getReferenceME(MonitorElement* me) const = 0 ;
+  virtual void deleteME(MonitorElement* me) = 0 ;
+
+  virtual std::string getFileReleaseVersion(std::string filename) = 0 ;
   /// cycle through all monitoring objects, draw one at time
   virtual void drawAll(void) = 0;
+  
   /// get list of subdirectories of current directory
   virtual std::vector<std::string> getSubdirs(void) const = 0;
   /// get list of (non-dir) MEs of current directory
@@ -188,9 +201,11 @@ class DaqMonitorBEInterface: public StringUtil
   /// same as above for tagged MonitorElements
   virtual std::vector<MonitorElement*> getAllContents(std::string pathname,
 						      unsigned int tag) 
-    const = 0;
+  const = 0;
+  
 
- protected:
+/// un-protected to enable full use of this service class, A.Meyer 070814
+// protected:
   
   // ------------------- Private "getters" ------------------------------
   
@@ -606,6 +621,14 @@ class DaqMonitorBEInterface: public StringUtil
   /// attach quality test <qc> to directory contents ==> FAST
   /// if tag != 0, this applies to tagged contents
   /// (need exact pathname without wildcards, e.g. A/B/C);
+  ///
+  void useQTest(std::string search_string, std::string qtname) const;
+  ///
+  void useQTest(unsigned int tag, std::string search_string, 
+              std::string qtname) const;
+  ///
+  void useQTest(unsigned int tag, std::string qtname) const;
+    
   /// use flag to specify whether subfolders (& their contents) should be included;
   void useQTest(unsigned int tag, std::string pathname, bool useSubfolds, 
 		const dqm::me_util::rootDir & Dir, QCriterion * qc) const;

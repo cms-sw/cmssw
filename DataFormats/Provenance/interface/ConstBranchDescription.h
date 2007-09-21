@@ -7,7 +7,7 @@ ConstBranchDescription: A class containing a constant shareable branch descripti
 that is inexpensive to copy.
 This class is not persistable.
 
-$Id: ConstBranchDescription.h,v 1.1 2007/03/04 04:48:08 wmtan Exp $
+$Id: ConstBranchDescription.h,v 1.1 2007/05/10 22:46:54 wmtan Exp $
 ----------------------------------------------------------------------*/
 #include <iosfwd>
 #include <string>
@@ -16,6 +16,8 @@ $Id: ConstBranchDescription.h,v 1.1 2007/03/04 04:48:08 wmtan Exp $
 #include "boost/shared_ptr.hpp"
 
 #include "DataFormats/Provenance/interface/BranchDescription.h"
+
+#include "Reflex/Type.h"
 
 /*
   ConstBranchDescription
@@ -43,6 +45,9 @@ namespace edm {
     bool const& present() const {return ptr_->present();}
     bool const& provenancePresent() const {return ptr_->provenancePresent();}
     bool const& transient() const {return ptr_->transient();}
+    ROOT::Reflex::Type const& type() const {return ptr_->type();}
+    int const& splitLevel() const {return ptr_->splitLevel();}
+    int const& basketSize() const {return ptr_->basketSize();}
 
     ModuleDescriptionID const& moduleDescriptionID() const {return ptr_->moduleDescriptionID();}
     std::set<ParameterSetID> const& psetIDs() const {return ptr_->psetIDs();}

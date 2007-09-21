@@ -1,5 +1,5 @@
 // ----------------------------------------------------------------------
-// $Id: ParameterSet.cc,v 1.32 2007/06/19 21:35:59 rpw Exp $
+// $Id: ParameterSet.cc,v 1.33 2007/07/09 00:48:53 lsexton Exp $
 //
 // definition of ParameterSet's function members
 // ----------------------------------------------------------------------
@@ -331,16 +331,24 @@ namespace edm {
   }
 
 
-  std::ostream & operator<<(std::ostream & os, const ParameterSet & pset)
+  std::string ParameterSet::dump() const
   {
-    ParameterSet::table::const_iterator i(pset.tbl_.begin()), e(pset.tbl_.end());
+    std::ostringstream os;
+    table::const_iterator i(tbl_.begin()), e(tbl_.end());
     os << "{" << std::endl;
-    for( ; i != e; ++i) 
+    for( ; i != e; ++i)
     {
       // indent a bit
       os << "  " << i->first << ": " << i->second << std::endl;
     }
     os << "}";
+    return os.str();
+  }
+
+
+  std::ostream & operator<<(std::ostream & os, const ParameterSet & pset)
+  {
+    os << pset.dump();
     return os;
   }
 

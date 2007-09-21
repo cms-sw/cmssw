@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2007/06/18 15:29:13 $
- *  $Revision: 1.3 $
+ *  $Date: 2007/01/30 10:59:48 $
+ *  $Revision: 1.1 $
  *  \author S. Bolognesi and G. Cerminara - INFN Torino
  */
 
@@ -127,7 +127,7 @@ void DTSegment2DSLPhiQuality::analyze(const Event & event, const EventSetup& eve
     int nMuSimHit = muSimHitPerWire.size();
     if(nMuSimHit == 0 || nMuSimHit == 1) {
       if(debug && nMuSimHit == 1)
-        cout << "[DTSegment2DSLPhiQuality] Only " << nMuSimHit << " mu SimHit in this chamber, skipping!" << endl;
+	cout << "[DTSegment2DSLPhiQuality] Only " << nMuSimHit << " mu SimHit in this chamber, skipping!" << endl;
       continue; // If no or only one mu SimHit is found skip this chamber
     } 
     if(debug)
@@ -175,73 +175,58 @@ void DTSegment2DSLPhiQuality::analyze(const Event & event, const EventSetup& eve
       const DTRecSegment2D* bestRecHit = 0;
       bool bestRecHitFound = false;
       double deltaAlpha = 99999;
-
+  
       // Loop over the recHits of this chamberId
       for (DTRecSegment4DCollection::const_iterator segment4D = range.first;
-           segment4D!=range.second;
-           ++segment4D){
-        // Check the dimension
-        if((*segment4D).dimension() != 4) {
-          if(debug) cout << "[DTSegment2DSLPhiQuality]***Error: This is not 4D segment!!!" << endl;
-          continue;
-        }
+	   segment4D!=range.second;
+	   ++segment4D){
+	// Check the dimension
+	if((*segment4D).dimension() != 4) {
+	  cout << "[DTSegment2DSLPhiQuality]***Error: This is not 4D segment!!!" << endl;
+	  continue;
+	}
+	
+	//Get 2D superPhi segments from 4D segments
+	const DTChamberRecSegment2D* phiSegment2D = (*segment4D).phiSegment();
+	if((*phiSegment2D).dimension() != 2) {
+	  cout << "[DTSegment2DQuality]***Error: This is not 2D segment!!!" << endl;
+	  abort();
+	}
 
-        //Get 2D superPhi segments from 4D segments
-        const DTChamberRecSegment2D* phiSegment2D = (*segment4D).phiSegment();
-        if((*phiSegment2D).dimension() != 2) {
-          if(debug) cout << "[DTSegment2DQuality]***Error: This is not 2D segment!!!" << endl;
-          abort();
-        }
-
-        // Segment Local Direction and position (in Chamber RF)
-        LocalVector recSegDirection = (*phiSegment2D).localDirection();
-
-        float recSegAlpha = DTHitQualityUtils::findSegmentAlphaAndBeta(recSegDirection).first;
-        if(debug)
-          cout << "  RecSegment direction: " << recSegDirection << endl
-            << "             position : " <<  (*phiSegment2D).localPosition() << endl
-            << "             alpha    : " << recSegAlpha << endl;
-
-        if(fabs(recSegAlpha - angleSimSeg) < deltaAlpha) {
-          deltaAlpha = fabs(recSegAlpha - angleSimSeg);
-          bestRecHit = &(*phiSegment2D);
-          bestRecHitFound = true;
-        }
+	// Segment Local Direction and position (in Chamber RF)
+	LocalVector recSegDirection = (*phiSegment2D).localDirection();
+      
+	float recSegAlpha = DTHitQualityUtils::findSegmentAlphaAndBeta(recSegDirection).first;
+	if(debug)
+	  cout << "  RecSegment direction: " << recSegDirection << endl
+	       << "             position : " <<  (*phiSegment2D).localPosition() << endl
+	       << "             alpha    : " << recSegAlpha << endl;
+      
+	if(fabs(recSegAlpha - angleSimSeg) < deltaAlpha) {
+	  deltaAlpha = fabs(recSegAlpha - angleSimSeg);
+	  bestRecHit = &(*phiSegment2D);
+	  bestRecHitFound = true;
+	}
       }  // End of Loop over all 4D RecHits of this chambers
 
       if(bestRecHitFound) {
-        // Best rechit direction and position in Chamber RF
-        LocalPoint bestRecHitLocalPos = bestRecHit->localPosition();
-        LocalVector bestRecHitLocalDir = bestRecHit->localDirection();
+	// Best rechit direction and position in Chamber RF
+	LocalPoint bestRecHitLocalPos = bestRecHit->localPosition();
+	LocalVector bestRecHitLocalDir = bestRecHit->localDirection();
 
-        LocalError bestRecHitLocalPosErr = bestRecHit->localPositionError();
-        LocalError bestRecHitLocalDirErr = bestRecHit->localDirectionError();
+	float angleBestRHit = DTHitQualityUtils::findSegmentAlphaAndBeta(bestRecHitLocalDir).first;
+	if(fabs(angleBestRHit - angleSimSeg) < 5*sigmaResAngle &&
+	   fabs(bestRecHitLocalPos.x() - posSimSeg) < 5*sigmaResPos) {
+	  recHitFound = true;
+	}
 
-        float angleBestRHit = DTHitQualityUtils::findSegmentAlphaAndBeta(bestRecHitLocalDir).first;
-        if(fabs(angleBestRHit - angleSimSeg) < 5*sigmaResAngle &&
-           fabs(bestRecHitLocalPos.x() - posSimSeg) < 5*sigmaResPos) {
-          recHitFound = true;
-        }
-
-        // Fill Residual histos
-        h2DHitSuperPhi->Fill(angleSimSeg,
-                            angleBestRHit,
-                            posSimSeg,
-                            bestRecHitLocalPos.x(),
-                            etaSimSeg,
-                            phiSimSeg,
-                            sqrt(bestRecHitLocalPosErr.xx()),
-                            sqrt(bestRecHitLocalDirErr.xx())
-                           );
+	// Fill Residual histos
+	h2DHitSuperPhi->Fill(angleSimSeg, angleBestRHit, posSimSeg, bestRecHitLocalPos.x(), etaSimSeg, phiSimSeg);
       }
     } //end of if(nsegm!=0)
 
       // Fill Efficiency plot
-    h2DHitEff_SuperPhi->Fill(etaSimSeg,
-                            phiSimSeg,
-                            posSimSeg,
-                            angleSimSeg,
-                            recHitFound);
+    h2DHitEff_SuperPhi->Fill(etaSimSeg, phiSimSeg, posSimSeg, angleSimSeg, recHitFound);
   } // End of loop over chambers
 }
 

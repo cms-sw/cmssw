@@ -69,6 +69,8 @@ void EcalEndcapRecHitsMaker::loadEcalEndcapRecHits(edm::Event &iEvent,EERecHitCo
 
   unsigned nhit=theFiredCells_.size();
   unsigned gain, adc;
+  ecalDigis.reserve(nhit);
+  ecalHits.reserve(nhit);
   for(unsigned ihit=0;ihit<nhit;++ihit)
     {      
       unsigned icell = theFiredCells_[ihit];

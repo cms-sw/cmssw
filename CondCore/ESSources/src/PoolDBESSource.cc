@@ -1,5 +1,7 @@
 // system include files
 #include "boost/shared_ptr.hpp"
+#include "boost/filesystem/path.hpp"
+#include "boost/filesystem/operations.hpp"
 // user include files
 #include "CondCore/ESSources/interface/PoolDBESSource.h"
 #include "CondCore/DBCommon/interface/DBSession.h"
@@ -29,6 +31,7 @@
 #include "FileCatalog/IFileCatalog.h"
 #include <sstream>
 #include <cstdlib>
+namespace fs = boost::filesystem;
 //
 // static data member definitions
 //
@@ -107,18 +110,31 @@ PoolDBESSource::PoolDBESSource( const edm::ParameterSet& iConfig ) :
   //std::cout<<"PoolDBESSource::PoolDBESSource"<<std::endl;
   /*parameter set parsing and pool environment setting
    */
-  std::string catconnect, mycatalog;
+  std::string catStr,catconnect, mycatalog;
   std::string connect;
+  bool usingDefaultCatalog=false;
   connect=iConfig.getParameter<std::string>("connect");
-  catconnect=iConfig.getUntrackedParameter<std::string>("catalog","");
+  catStr=iConfig.getUntrackedParameter<std::string>("catalog","");
   bool siteLocalConfig=iConfig.getUntrackedParameter<bool>("siteLocalConfig",false);
+  if( catStr.empty() ){
+    usingDefaultCatalog=true;
+    /*}else if( catStr.find(':')==std::string::npos ){
+    //if catalog string has no protocol,assuming local xml catalog with default name and search in FileInPath
+    std::cout<<"catStr 1 "<<catStr<<std::endl;
+    edm::FileInPath fip(catStr);
+    std::cout<<"catStr 2 "<<catStr<<std::endl;
+    std::string fullname=fip.fullPath();
+    std::cout<<"fullname "<<fullname<<std::endl;
+    catconnect=std::string("xmlcatalog_file://")+fullname;
+    std::cout<<"catconnect "<<catconnect<<std::endl;
+    */
+  }else{
+    catconnect=catStr;
+  }
+
   cond::DBCatalog mycat;
   std::pair<std::string,std::string> logicalService=mycat.logicalservice(connect);
   std::string logicalServiceName=logicalService.first;
-  bool usingDefaultCatalog=false;
-  if( catconnect.empty() ){
-    usingDefaultCatalog=true;
-  }
   if( !logicalServiceName.empty() ){
     if( usingDefaultCatalog ){
       if( logicalServiceName=="dev" ){
@@ -128,7 +144,17 @@ PoolDBESSource::PoolDBESSource( const edm::ParameterSet& iConfig ) :
       }else if( logicalServiceName=="offline" ){
 	catconnect=mycat.defaultOfflineCatalogName();
       }else if( logicalServiceName=="local" ){
-	catconnect=mycat.defaultLocalCatalogName();
+	//if catalog string empty, and service level is local assuming local xml catalog with default name and $CMSSW_DATA_PATH/data-CondCore-SQLiteData/1.0/data/localCondDBCatalog.xml
+	const char* datatop = getenv("CMSSW_DATA_PATH");
+	if(!datatop) throw cond::Exception("CMSSW_DATA_PATH is not set");
+	fs::path full_path(datatop);
+	full_path/=fs::path("data-CondCore-SQLiteData");
+	full_path/=fs::path("1.0");
+	full_path/=fs::path("data");
+	full_path/=fs::path("localCondDBCatalog.xml");
+	std::string fullname=full_path.string();
+	if( !fs::exists(full_path) ) throw cond::Exception(std::string("default catalog ")+fullname+" not found"); 
+	catconnect=std::string("xmlcatalog_file://")+fullname;
       }else{
 	throw cond::Exception(std::string("no default catalog found for ")+logicalServiceName);
       }

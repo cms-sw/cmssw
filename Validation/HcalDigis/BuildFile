@@ -1,25 +1,19 @@
-<use name=boost>
 <use name=FWCore/Framework>
 <use name=FWCore/ParameterSet>
+<use name=FWCore/MessageLogger>
 <use name=Geometry/CaloEventSetup>
 <use name=CalibFormats/HcalObjects>
 <use name=DQMServices/CoreROOT>
 <use name=root>
-<use name=SimDataFormats/HepMCProduct>
-<use name=clhep>
-<use name=hepmc>
+
 <flags EDM_PLUGIN=1>
 <export>
    <lib name=ValidationHcalDigis>
-    <use name=boost> 
     <use name=FWCore/Framework>
     <use name=FWCore/ParameterSet>
+    <use name=FWCore/MessageLogger>
     <use name=Geometry/CaloEventSetup>
     <use name=CalibFormats/HcalObjects>
     <use name=DQMServices/CoreROOT>
-    <use name=root>	 
-    <use name=SimDataFormats/HepMCProduct>
-    <use name=clhep>
-    <use name=hepmc>	
+    <use name=root>	 	
 </export>
-

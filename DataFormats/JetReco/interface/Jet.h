@@ -12,7 +12,7 @@
  *
  * \version   Original: April 22, 2005 by Fernando Varela Rodriguez.
  * \version   May 23, 2006 by F.R.
- * \version   $Id: Jet.h,v 1.15 2007/05/09 21:53:25 fedor Exp $
+ * \version   $Id: Jet.h,v 1.16 2007/05/30 22:06:42 fedor Exp $
  ************************************************************/
 #include <string>
 #include "DataFormats/Candidate/interface/CompositeRefCandidate.h"
@@ -77,6 +77,17 @@ namespace reco {
 
   /// Print object
     virtual std::string print () const;
+
+  /// temporary fix for cached valuse
+    double massUncached() const {return p4().M();}
+    double massSqrUncached() const {return p4().M2();}
+    double mtUncached() const {return p4().Mt();}
+    double mtSqrUncached() const {return p4().Mt2();}
+    double ptUncached() const {return p4().Pt();}
+    double phiUncached() const {return p4().Phi();}
+    double etaUncached() const {return p4().Eta();}
+    double rapidityUncached() const {return p4().Rapidity();}
+    double yUncached() const {return p4().Rapidity();}
 
   private:
     // disallow constituents modifications

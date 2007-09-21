@@ -1,8 +1,8 @@
 /*
  * \file EBTimingTask.cc
  *
- * $Date: 2007/05/21 11:45:10 $
- * $Revision: 1.16 $
+ * $Date: 2007/07/27 16:33:08 $
+ * $Revision: 1.19 $
  * \author G. Della Ricca
  *
 */
@@ -113,6 +113,8 @@ void EBTimingTask::endJob(void){
 
 void EBTimingTask::analyze(const Event& e, const EventSetup& c){
 
+  Numbers::initGeometry(c);
+
   if ( ! init_ ) this->setup();
 
   ievt_++;
@@ -148,7 +150,7 @@ void EBTimingTask::analyze(const Event& e, const EventSetup& c){
 
       float xval = hit.amplitude();
       if ( xval <= 0. ) xval = 0.0;
-      float yval = hit.jitter();
+      float yval = hit.jitter() + 6.0;
       if ( yval <= 0. ) yval = 0.0;
       float zval = hit.pedestal();
       if ( zval <= 0. ) zval = 0.0;

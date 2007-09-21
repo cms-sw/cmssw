@@ -1,7 +1,7 @@
 //----------------------------------------------------------------------
 // EdmFileUtil.cpp
 //
-// $Id: EdmFileUtil.cpp,v 1.9 2007/04/11 23:14:52 wmtan Exp $
+// $Id: EdmFileUtil.cpp,v 1.12 2007/08/07 23:14:19 wmtan Exp $
 //
 // Author: Chih-hsiang Cheng, LLNL
 //         Chih-Hsiang.Cheng@cern.ch
@@ -16,15 +16,10 @@
 #include <vector>
 #include <boost/program_options.hpp>
 #include "IOPool/Common/bin/CollUtil.h"
-#include "DataFormats/Provenance/interface/ParameterSetBlob.h"
 #include "FWCore/RootAutoLibraryLoader/interface/RootAutoLibraryLoader.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Catalog/interface/FileCatalog.h"
-#include "Cintex/Cintex.h"
+#include "FWCore/Catalog/interface/InputFileCatalog.h"
 #include "FWCore/Utilities/interface/Exception.h"
-#include "FWCore/PluginManager/interface/ProblemTracker.h"
-#include "FWCore/Utilities/interface/Presence.h"
-#include "FWCore/PluginManager/interface/PresenceFactory.h"
 #include "FWCore/ServiceRegistry/interface/ServiceRegistry.h"
 
 #include "FWCore/PluginManager/interface/standard.h"
@@ -57,7 +52,6 @@ int main(int argc, char* argv[]) {
   // What trees do we require for this to be a valid collection?
   std::vector<std::string> expectedTrees;
   expectedTrees.push_back("MetaData");
-  expectedTrees.push_back("##Params");
   expectedTrees.push_back("Events");
 
   boost::program_options::positional_options_description p;
@@ -206,11 +200,6 @@ int main(int argc, char* argv[]) {
       if ( vm.count("printBranchDetails") ) {
 	TTree *printTree=(TTree*)tfile->Get("Events");
 	edm::longBranchPrint(printTree);
-      }
-      
-      if ( vm.count("uuid") ) {
-	TTree *paramsTree=(TTree*)tfile->Get("##Params");
-	edm::printUuids(paramsTree);
       }
       
       // Print out event lists 

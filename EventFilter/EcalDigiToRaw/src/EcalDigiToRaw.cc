@@ -13,7 +13,7 @@
 //
 // Original Author:  Emmanuelle Perez
 //         Created:  Sat Nov 25 13:59:51 CET 2006
-// $Id: EcalDigiToRaw.cc,v 1.5 2007/04/10 23:08:06 wmtan Exp $
+// $Id: EcalDigiToRaw.cc,v 1.6 2007/06/05 14:48:54 eperez Exp $
 //
 //
 
@@ -68,6 +68,9 @@ EcalDigiToRaw::EcalDigiToRaw(const edm::ParameterSet& iConfig)
    instanceNameEE_ = iConfig.getParameter<string>("InstanceEE");
 
    labelTT_ = iConfig.getParameter<edm::InputTag>("labelTT");
+
+   labelEBSR_ = iConfig.getParameter<edm::InputTag>("labelEBSRFlags");
+   labelEESR_ = iConfig.getParameter<edm::InputTag>("labelEESRFlags");
 
    counter_ = 0;
    debug_ = iConfig.getUntrackedParameter<bool>("debug");
@@ -171,7 +174,8 @@ EcalDigiToRaw::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 	if (doBarrel_) {
 
-        iEvent.getByType(ebSrFlags);
+        // iEvent.getByType(ebSrFlags);
+	   iEvent.getByLabel(labelEBSR_, ebSrFlags);
                                                                                                                                                 
            for (EBSrFlagCollection::const_iterator it = ebSrFlags -> begin();
                         it != ebSrFlags -> end(); it++) {
@@ -193,7 +197,8 @@ EcalDigiToRaw::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 
 	if (doEndCap_) {
-	iEvent.getByType(eeSrFlags);
+	// iEvent.getByType(eeSrFlags);
+	iEvent.getByLabel(labelEESR_, eeSrFlags);
 
            for (EESrFlagCollection::const_iterator it = eeSrFlags -> begin();
                         it != eeSrFlags -> end(); it++) {

@@ -92,8 +92,8 @@ void SiLinearChargeDivider::fluctuateEloss(int pid, float particleMomentum,
   double particleMass = 139.57;              // Mass in MeV, Assume pion
   if(particle == 0)
     {
-      edm::LogWarning("SiLinearChargeDivider") << "Cannot find particle of type "<<pid
-					       << " in the PDT we assign to this particle the mass of the Pion";
+      LogDebug("SiLinearChargeDivider") << "Cannot find particle of type "<<pid
+					<< " in the PDT we assign to this particle the mass of the Pion";
     }
   else
     {
