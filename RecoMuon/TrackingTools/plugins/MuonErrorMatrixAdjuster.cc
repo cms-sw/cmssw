@@ -6,7 +6,7 @@
 #include <MagneticField/Engine/interface/MagneticField.h>
 
 #include <TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h>
-#include "RecoMuon/TrackingTools/plugins/MuonErrorMatrix.h"
+#include "RecoMuon/TrackingTools/interface/MuonErrorMatrix.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
