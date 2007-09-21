@@ -13,7 +13,7 @@
 //
 // Original Author:  Michael Weinberger
 //         Created:  Mon Mar 19 11:53:56 CDT 2007
-// $Id: HcalLuttoDB.cc,v 1.2 2007/09/18 10:01:00 mansj Exp $
+// $Id: HcalLuttoDB.cc,v 1.3 2007/09/20 11:45:45 mansj Exp $
 //
 //
 
@@ -80,6 +80,8 @@ private:
   std::ostream* openPerCrate(int crate);
   std::ostream* openPerLut1(HcalElectronicsId eid);
   std::ostream* openPerLut2(HcalElectronicsId eid);
+  std::ostream* openChecksums();
+  std::ostream* oc_;
 };      
       // ----------member data ---------------------------
  
@@ -106,6 +108,14 @@ HcalLuttoDB::~HcalLuttoDB()
 //
 // member functions
 //
+
+std::ostream* HcalLuttoDB::openChecksums() {
+  char fname[1024];
+  snprintf(fname,1024,"%s_checksums.xml",fileformat_.c_str());
+  std::ostream* os=new std::ofstream(fname);
+  (*os) << "<?xml version=\"1.0\"?>\n<CFGBrick>\n";
+  return os;
+}
 
 std::ostream* HcalLuttoDB::openPerCrate(int crate) {
   char fname[1024];
@@ -170,6 +180,15 @@ HcalLuttoDB::writeoutlut1(HcalDetId id, HcalElectronicsId eid, const std::vector
   for (int i=0; i<16; i++) os << std::hex << (((int)(digest[i]))&0xFF);
   os << "</Parameter>\n";
 
+  *oc_ << "  <Data crate='" << eid.readoutVMECrateId()
+       << "' slot='" << eid.htrSlot()
+       << "' fpga='" << eid.htrTopBottom()
+       << "' fiber='" << eid.fiberIndex()
+       << "' fiberchan='" << eid.fiberChanId()
+       << "' luttype='1' elements='1' encoding='hex'>";
+  for (int i=0; i<16; i++) *oc_ << std::hex << (((int)(digest[i]))&0xFF);    
+  *oc_ << "</Data>\n";
+
   os <<" <Data elements='128' encoding='hex'> "<<std::endl;
   os << std::hex;
   for(int initr2 = 0; initr2 < 128; initr2++){
@@ -214,6 +233,15 @@ HcalLuttoDB::writeoutlut2(HcalTrigTowerDetId id, HcalElectronicsId eid, const st
   os <<" <Parameter name='CHECKSUM' type='string'>";
   for (int i=0; i<16; i++) os << std::hex << (((int)(digest[i]))&0xFF);
   os << "</Parameter>\n";
+
+  *oc_ << "  <Data crate='" << eid.readoutVMECrateId()
+       << "' slot='" << eid.htrSlot()
+       << "' fpga='" << eid.htrTopBottom()
+       << "' slb='" << eid.slbSiteNumber()
+       << "' slbchan='" << eid.slbChannelIndex()
+       << "' luttype='2' elements='1' encoding='hex'>";
+  for (int i=0; i<16; i++) *oc_ << std::hex << (((int)(digest[i]))&0xFF);    
+  *oc_ << "</Data>\n";
 
   os <<" <Data elements='1024' encoding='hex'> "<<std::endl;
   os << std::hex;
@@ -260,6 +288,7 @@ HcalLuttoDB::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   std::vector<HcalElectronicsId>::iterator itreid;
 
   std::ostream* pfile=0;
+  oc_=openChecksums();
   
   for (int crate=0; crate<20; crate++) {
     edm::LogInfo("Hcal") << "Beginning crate " << crate;
@@ -294,6 +323,9 @@ HcalLuttoDB::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       pfile=0;
     }
   }
+  *oc_ << "</CFGBrick>\n";
+  delete oc_;
+
   outTranscoder->releaseSetup();
 }
 
