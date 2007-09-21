@@ -182,7 +182,7 @@ void HcalRecHitsMaker::loadHcalRecHits(edm::Event &iEvent,HBHERecHitCollection& 
   // HB
   std::map<uint32_t,std::pair<float,bool> >::const_iterator it=hbRecHits_.begin();
   std::map<uint32_t,std::pair<float,bool> >::const_iterator itend=hbRecHits_.end();
-  
+  static HcalQIESample zeroSample(0,0,0,0);
   for(;it!=itend;++it)
     {
       // Check if the hit has been killed
@@ -194,11 +194,12 @@ void HcalRecHitsMaker::loadHcalRecHits(edm::Event &iEvent,HBHERecHitCollection& 
       if(doDigis_)
 	{
 	  HBHEDataFrame myDataFrame(detid);
-	  myDataFrame.setSize(1);
+	  myDataFrame.setSize(2);
 	  double nfc=it->second.first/.177;
 	  int nadc=fCtoAdc(nfc);
 	  HcalQIESample qie(nadc, 0, 0, 0) ;
 	  myDataFrame.setSample(0,qie);
+	  myDataFrame.setSample(1,zeroSample);
 	  hbheDigis.push_back(myDataFrame);
 	}
     }
@@ -217,11 +218,12 @@ void HcalRecHitsMaker::loadHcalRecHits(edm::Event &iEvent,HBHERecHitCollection& 
       if(doDigis_)
 	{
 	  HBHEDataFrame myDataFrame(detid);
-	  myDataFrame.setSize(1);
+	  myDataFrame.setSize(2);
 	  double nfc=it->second.first/.269;
 	  int nadc=fCtoAdc(nfc);
 	  HcalQIESample qie(nadc, 0, 0, 0) ;
 	  myDataFrame.setSample(0,qie);
+	  myDataFrame.setSample(1,zeroSample);
 	  hbheDigis.push_back(myDataFrame);
 	}
     }
