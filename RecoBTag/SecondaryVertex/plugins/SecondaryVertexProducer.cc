@@ -282,11 +282,11 @@ void SecondaryVertexProducer::produce(edm::Event &event,
 
 		// mark tracks successfully used in vertex fit
 
-		for(track_iterator iter = bestSV->tracks_begin();
+		for(Vertex::trackRef_iterator iter = bestSV->tracks_begin();
 		    iter != bestSV->tracks_end(); iter++) {
 			TrackRefVector::const_iterator pos =
 				std::find(trackRefs.begin(), trackRefs.end(),
-				          *iter);
+				          iter->castTo<TrackRef>());
 			if (pos == trackRefs.end())
 				throw cms::Exception("TrackNotFound")
 					<< "Could not find track in secondary "

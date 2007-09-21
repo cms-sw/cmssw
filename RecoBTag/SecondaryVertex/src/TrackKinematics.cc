@@ -7,7 +7,6 @@
 #include "DataFormats/Math/interface/LorentzVector.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
-#include "DataFormats/VertexReco/interface/VertexFwd.h"
 
 #include "RecoBTag/SecondaryVertex/interface/ParticleMasses.h"
 #include "RecoBTag/SecondaryVertex/interface/TrackKinematics.h"
@@ -30,7 +29,7 @@ TrackKinematics::TrackKinematics(const std::vector<Track> &tracks) :
 TrackKinematics::TrackKinematics(const Vertex &vertex) :
 	n(0), sumWeights(0)
 {
-	for(track_iterator iter = vertex.tracks_begin();
+	for(Vertex::trackRef_iterator iter = vertex.tracks_begin();
 	    iter != vertex.tracks_end(); iter++)
 		add(**iter, vertex.trackWeight(*iter));
 }

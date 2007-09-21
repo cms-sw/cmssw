@@ -1,3 +1,4 @@
+#include <functional>
 #include <algorithm>
 #include <iterator>
 #include <set>
@@ -33,13 +34,14 @@ VertexFilter::VertexFilter(const edm::ParameterSet &params) :
 static unsigned int computeSharedTracks(const Vertex &pv, const Vertex &sv)
 {
 	std::set<TrackRef> pvTracks;
-	std::copy(pv.tracks_begin(), pv.tracks_end(),
-	          std::inserter(pvTracks, pvTracks.begin()));
+	std::transform(pv.tracks_begin(), pv.tracks_end(),
+	               std::inserter(pvTracks, pvTracks.begin()),
+	               std::mem_fun_ref(&TrackBaseRef::castTo<TrackRef>));
 
 	unsigned int count = 0;
-	for(track_iterator iter = sv.tracks_begin();
+	for(Vertex::trackRef_iterator iter = sv.tracks_begin();
 	    iter != sv.tracks_end(); iter++)
-		count += pvTracks.count(*iter);
+		count += pvTracks.count(iter->castTo<TrackRef>());
 
 	return count;
 }
