@@ -326,9 +326,9 @@ void SiPixelInformationExtractor::selectSingleModuleHistos(DaqMonitorBEInterface
 {  
   //DaqMonitorBEInterface * bei = mui->getBEInterface();
   string currDir = bei->pwd();
-  //QRegExp rx("(\\w+)_siPixel") ;
+  QRegExp rx("(\\w+)_siPixel") ;
   //QRegExp rx2("(\\w+)_ctfWithMaterialTracks") ;
-  QRegExp rx("(\\w+)_3") ;
+  //QRegExp rx("(\\w+)_3") ;
   QString theME ;
   if (currDir.find("Module_") != string::npos ||
       currDir.find("FED_") != string::npos)  

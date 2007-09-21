@@ -122,12 +122,12 @@ void SiPixelWebInterface::handleCustomRequest(xgi::Input  * in,
   } else if (requestID == "updateIMGCPlots") {	  // <-----------------
     theActionFlag = NoAction;	 
     std::string MEFolder = get_from_multimap(requestMap_, "MEFolder");
-    cout << ACYellow << ACBold
-         << "[SiPixelWebInterface::handleCustomRequest] "
-	 << ACPlain
-	 << "Collecting ME from folder " 
-	 << MEFolder
-	 << endl ;
+    //cout << ACYellow << ACBold
+    //     << "[SiPixelWebInterface::handleCustomRequest] "
+    //	 << ACPlain
+    //	 << "Collecting ME from folder " 
+    //	 << MEFolder
+    //	 << endl ;
     out->getHTTPResponseHeader().addHeader("Content-Type", "text/html");
     out->getHTTPResponseHeader().addHeader("Pragma", "no-cache");   
     out->getHTTPResponseHeader().addHeader("Cache-Control", "no-store, no-cache, must-revalidate,max-age=0");
