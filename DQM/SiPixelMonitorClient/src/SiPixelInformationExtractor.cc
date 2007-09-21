@@ -2388,7 +2388,7 @@ void SiPixelInformationExtractor::plotHistosFromLayoutForSlideShow(DaqMonitorBEI
 		//	  messageOnCanvas->SetTextFont(112);
 		messageOnCanvas->SetNDC(kTRUE);
 		char text[5];
-		sprintf(text,"%f\%%",channelFraction);
+		sprintf(text,"%.2f%%",channelFraction);
 		messageOnCanvas = paveOnCanvas->AddText(text);
 		messageOnCanvas->SetTextSize(0.035);
 		//	  messageOnCanvas->SetTextFont(112);
@@ -2713,7 +2713,7 @@ int SiPixelInformationExtractor::computeCode(DaqMonitorBEInterface * bei,
   int code=0;
   vector<string> MEnames = bei->getMEs();    
   map<int,int> errorCodePerSource;
-  map<int,int> errorCounterPerSource;
+  map<int,unsigned int> errorCounterPerSource;
   for(int itr=1;itr<5;itr++){
     int sourceCode=0;
     if(itr==1) sourceCode=1;
