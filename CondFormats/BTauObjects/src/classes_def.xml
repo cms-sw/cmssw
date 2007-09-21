@@ -6,12 +6,6 @@
         <class name="TrackProbabilityCalibration"/>
 	<class name="TrackProbabilityCalibration::Entry"/>
 	<class name="std::vector<TrackProbabilityCalibration::Entry>"/>     
-
-        <class name="CombinedSVCategoryData"/>      
-        <class name="CombinedSVCalibration"/>
-	<class name="CombinedSVCalibration::Entry"/>
-	<class name="std::vector<CombinedSVCalibration::Entry>"/>     
-        
         
         <class name="CombinedTauTagCategoryData"/>        
         <class name="CombinedTauTagCalibration"/>

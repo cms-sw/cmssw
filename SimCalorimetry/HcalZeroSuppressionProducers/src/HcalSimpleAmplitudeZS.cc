@@ -16,11 +16,7 @@ using namespace std;
 #include <iostream>
 
 HcalSimpleAmplitudeZS::HcalSimpleAmplitudeZS(edm::ParameterSet const& conf):
-  algo_(((conf.getParameter<bool>("triggerOR"))?(HcalZeroSuppressionAlgo::zs_TriggerTowerOR):(HcalZeroSuppressionAlgo::zs_SingleChannel)),
-	conf.getParameter<int>("level"),
-	conf.getParameter<int>("firstSample"),
-	conf.getParameter<int>("samplesToAdd"),
-	conf.getParameter<bool>("twoSided")),
+  algo_(conf.getParameter<int>("level"),conf.getParameter<int>("firstSample"),conf.getParameter<int>("samplesToAdd"),conf.getParameter<bool>("twoSided")),
   inputLabel_(conf.getParameter<edm::InputTag>("digiLabel"))
 {
   std::string subd=conf.getParameter<std::string>("Subdetector");
@@ -55,9 +51,6 @@ void HcalSimpleAmplitudeZS::produce(edm::Event& e, const edm::EventSetup& eventS
   edm::ESHandle<HcalDbService> conditions;
   eventSetup.get<HcalDbRecord>().get(conditions);
   
-
-  algo_.prepare(&(*conditions));
-
   if (subdets_.find(HcalBarrel)!=subdets_.end() ||
       subdets_.find(HcalEndcap)!=subdets_.end()) {
     edm::Handle<HBHEDigiCollection> digi;
@@ -67,7 +60,7 @@ void HcalSimpleAmplitudeZS::produce(edm::Event& e, const edm::EventSetup& eventS
     // create empty output
     std::auto_ptr<HBHEDigiCollection> zs(new HBHEDigiCollection);
     // run the algorithm
-    algo_.suppress(*(digi.product()),*zs);
+    algo_.suppress(*conditions,*(digi.product()),*zs);
     
     edm::LogInfo("HcalZeroSuppression") << "Suppression (HBHE) input " << digi->size() << " digis, output " << zs->size() << " digis";
     
@@ -81,7 +74,7 @@ void HcalSimpleAmplitudeZS::produce(edm::Event& e, const edm::EventSetup& eventS
     // create empty output
     std::auto_ptr<HODigiCollection> zs(new HODigiCollection);
     // run the algorithm
-    algo_.suppress(*(digi.product()),*zs);
+    algo_.suppress(*conditions,*(digi.product()),*zs);
 
     edm::LogInfo("HcalZeroSuppression") << "Suppression (HO) input " << digi->size() << " digis, output " << zs->size() << " digis";
 
@@ -95,12 +88,11 @@ void HcalSimpleAmplitudeZS::produce(edm::Event& e, const edm::EventSetup& eventS
     // create empty output
     std::auto_ptr<HFDigiCollection> zs(new HFDigiCollection);
     // run the algorithm
-    algo_.suppress(*(digi.product()),*zs);
+    algo_.suppress(*conditions,*(digi.product()),*zs);
 
     edm::LogInfo("HcalZeroSuppression") << "Suppression (HF) input " << digi->size() << " digis, output " << zs->size() << " digis";
 
     // return result
     e.put(zs);     
   }
-  algo_.done();
 }

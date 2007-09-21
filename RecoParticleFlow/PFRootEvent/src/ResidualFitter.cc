@@ -11,8 +11,11 @@ using namespace std;
 
 // TCanvas* ResidualFitter::canvasFit_ = 0;
 
+//ClassImp(ResidualFitter)
+
 int ResidualFitter::xCanvas_ = 600;
 int ResidualFitter::yCanvas_ = 600;
+
 
 ResidualFitter::ResidualFitter(const char* name, 
 		     const char* title, 
@@ -26,8 +29,11 @@ ResidualFitter::ResidualFitter(const char* name,
     fitFunction_( new TF1("gaus", "gaus") ), 
     canvasFit_(0),
     curBin_(0), 
-    autoRangeN_(0) {
+    autoRangeN_(0),
+    minN_(5) {
 
+  cout<<"creating residual fitter with name "<<name<<endl;
+  
   string meanname = name; meanname += "_mean";
   mean_ = new TH2D(meanname.c_str(), meanname.c_str(),
 		   nbinsx, xlow, xup, 
@@ -47,11 +53,13 @@ ResidualFitter::ResidualFitter(const char* name,
 		   nbinsy, ylow, yup);
   chi2_->SetStats(0);
 
-  string nseenname = name; nseenname += "_nseen";
-  nseen_ = new TH2D(nseenname.c_str(), nseenname.c_str(),
-		   nbinsx, xlow, xup, 
-		   nbinsy, ylow, yup);
-  nseen_->SetStats(0);
+//   string nseenname = name; nseenname += "_nseen";
+//   nseen_ = new TH2D(nseenname.c_str(), nseenname.c_str(),
+// 		   nbinsx, xlow, xup, 
+// 		   nbinsy, ylow, yup);
+//   nseen_->SetStats(0);
+
+  gDirectory->ls();
 
   CreateCanvas();
 }
@@ -64,14 +72,15 @@ ResidualFitter::~ResidualFitter() {
   delete mean_;
   delete sigma_;
   delete chi2_;
-  delete nseen_;
+//   delete nseen_;
 }
 
 void ResidualFitter::CreateCanvas() {
   string cname = "ResidualFitterCanvas_"; cname += GetName();
   canvas_ = new TCanvas(cname.c_str(), cname.c_str(),xCanvas_, yCanvas_);
   
-  canvas_ ->Connect("ProcessedEvent(Int_t,Int_t,Int_t,TObject*)", "ResidualFitter",
+  canvas_ ->Connect("ProcessedEvent(Int_t,Int_t,Int_t,TObject*)", 
+		    "ResidualFitter",
 		    this, "ExecuteEvent(Int_t,Int_t,Int_t,TObject*)");
 
   
@@ -96,7 +105,7 @@ void ResidualFitter::FitSlicesZ(TF1 *f1) {
   mean_->Reset();
   sigma_->Reset();
   chi2_->Reset();
-  nseen_->Reset();
+//   nseen_->Reset();
 
   cout<<"ResidualFitter::FitSlicesZ"<<endl;
   if(f1) SetFitFunction(f1);
@@ -112,6 +121,8 @@ void ResidualFitter::FitSlicesZ(TF1 *f1) {
   
 
 void ResidualFitter::ExecuteEvent(Int_t event, Int_t px, Int_t py, TObject *sel) {
+
+  if( event != kButton1Down ) return;
 
   TH2* histo2d = dynamic_cast<TH2*>(sel);
   if(!histo2d) return;
@@ -157,29 +168,40 @@ void ResidualFitter::Fit(int binx, int biny, const char* opt) {
   if(curBin_) delete curBin_;
   curBin_ = TH3::ProjectionZ("", binx, binx, biny, biny);  
 
+  if(curBin_->GetEntries() < minN_ ) {
+    TH1::AddDirectory(1);
+    return;
+  }
+
   string sopt = fitOptions_; sopt += opt;
 
   if( autoRangeN_ ) {
     double maxpos = curBin_->GetBinCenter( curBin_->GetMaximumBin() ); 
-    fitFunction_->SetRange( maxpos-curBin_->GetRMS()* autoRangeN_ , 
-			    maxpos+curBin_->GetRMS()* autoRangeN_ );
+    
+    double minrange = maxpos-curBin_->GetRMS()* autoRangeN_;
+    double maxrange = maxpos+curBin_->GetRMS()* autoRangeN_;
+
+    fitFunction_->SetRange( minrange, maxrange );
+    cout<<"range : "<<minrange<<" "<<maxrange<<endl;
   }
 
   curBin_->Fit(fitFunction_, sopt.c_str() );
 
-  mean_->SetBinContent(binx,biny, fitFunction_->GetParameter(1) );
-  sigma_->SetBinContent(binx,biny, fitFunction_->GetParameter(2) );
 
   double chi2overndf=0;
-  if(fitFunction_->GetNDF())
+  if(fitFunction_->GetNDF() ) {
     chi2overndf = fitFunction_->GetChisquare()/ fitFunction_->GetNDF();
-  
-  chi2_->SetBinContent(binx,biny,chi2overndf);
-
-  nseen_->SetBinContent(binx, biny, 
-			fitFunction_->Integral( fitFunction_->GetXmin(), 
-						fitFunction_->GetXmax())
-			/curBin_->GetBinWidth(1) );
+    mean_->SetBinContent(binx,biny, fitFunction_->GetParameter(1) );
+    mean_->SetBinError(binx,biny, fitFunction_->GetParError(1) );
+    sigma_->SetBinContent(binx,biny, fitFunction_->GetParameter(2) );
+    sigma_->SetBinError(binx,biny, fitFunction_->GetParError(2) );
+ 
+    chi2_->SetBinContent(binx,biny,chi2overndf);
+  }
+//   nseen_->SetBinContent(binx, biny, 
+// 			fitFunction_->Integral( fitFunction_->GetXmin(), 
+// 						fitFunction_->GetXmax())
+// 			/curBin_->GetBinWidth(1) );
 
   TH1::AddDirectory(1);
 }

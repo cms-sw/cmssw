@@ -8,13 +8,12 @@
 //
 // Author:      Chris Jones
 // Created:     Thu May 26 13:48:03 EDT 2005
-// $Id: LoadableDummyEventSetupRecordRetriever.cc,v 1.1 2006/04/11 01:52:09 chrjones Exp $
+// $Id: LoadableDummyEventSetupRecordRetriever.cc,v 1.2 2006/10/21 17:18:57 wmtan Exp $
 //
 
 // system include files
 
 // user include files
-#include "FWCore/Framework/test/DummyProxyProvider.h"
 
 #include "FWCore/Framework/test/DummyEventSetupRecordRetriever.h"
 #include "FWCore/Framework/interface/SourceFactory.h"

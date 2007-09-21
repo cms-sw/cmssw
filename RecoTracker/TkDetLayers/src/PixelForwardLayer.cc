@@ -69,11 +69,37 @@ PixelForwardLayer::~PixelForwardLayer(){
   }
 } 
 
-void
-PixelForwardLayer::groupedCompatibleDetsV( const TrajectoryStateOnSurface& tsos,
+  
+
+vector<DetWithState> 
+PixelForwardLayer::compatibleDets( const TrajectoryStateOnSurface& startingState,
+				   const Propagator& prop, 
+				   const MeasurementEstimator& est) const{
+
+  // standard implementation of compatibleDets() for class which have 
+  // groupedCompatibleDets implemented.
+  // This code should be moved in a common place intead of being 
+  // copied many times.
+  
+  vector<DetWithState> result;  
+  vector<DetGroup> vectorGroups = groupedCompatibleDets(startingState,prop,est);
+  for(vector<DetGroup>::const_iterator itDG=vectorGroups.begin();
+      itDG!=vectorGroups.end();itDG++){
+    for(vector<DetGroupElement>::const_iterator itDGE=itDG->begin();
+	itDGE!=itDG->end();itDGE++){
+      result.push_back(DetWithState(itDGE->det(),itDGE->trajectoryState()));
+    }
+  }
+  return result;  
+}
+
+
+vector<DetGroup> 
+PixelForwardLayer::groupedCompatibleDets( const TrajectoryStateOnSurface& tsos,
 					  const Propagator& prop,
-					   const MeasurementEstimator& est,
-					   std::vector<DetGroup> & result) const {
+					  const MeasurementEstimator& est) const
+{  
+  vector<DetGroup> result;  //to clean out
   vector<DetGroup> closestResult;
   SubTurbineCrossings  crossings; 
   try{
@@ -82,44 +108,48 @@ PixelForwardLayer::groupedCompatibleDetsV( const TrajectoryStateOnSurface& tsos,
   catch(DetLayerException& err){
     //edm::LogInfo(TkDetLayers) << "Aie, got a DetLayerException in PixelForwardLayer::groupedCompatibleDets:" 
     //	 << err.what() ;
-    return;
+    return closestResult;
   }
-  typedef CompatibleDetToGroupAdder Adder;
-  Adder::add( *theComps[theBinFinder.binIndex(crossings.closestIndex)], 
+  CompatibleDetToGroupAdder adder;
+  adder.add( *theComps[theBinFinder.binIndex(crossings.closestIndex)], 
 	     tsos, prop, est, closestResult);
 
   if(closestResult.empty()){
-    Adder::add( *theComps[theBinFinder.binIndex(crossings.nextIndex)], 
-	       tsos, prop, est, result);
-    return;
+    vector<DetGroup> nextResult;
+    adder.add( *theComps[theBinFinder.binIndex(crossings.nextIndex)], 
+	       tsos, prop, est, nextResult);
+    return nextResult;
   }      
 
   DetGroupElement closestGel( closestResult.front().front());
   float window = computeWindowSize( closestGel.det(), closestGel.trajectoryState(), est);
 
+  //vector<DetGroup> result;
   float detWidth = closestGel.det()->surface().bounds().width();
   if (crossings.nextDistance < detWidth + window) {
     vector<DetGroup> nextResult;
-    if (Adder::add( *theComps[theBinFinder.binIndex(crossings.nextIndex)], 
+    if (adder.add( *theComps[theBinFinder.binIndex(crossings.nextIndex)], 
 		   tsos, prop, est, nextResult)) {
       int crossingSide = LayerCrossingSide().endcapSide( tsos, prop);
+      DetGroupMerger merger;
       int theHelicity = computeHelicity(theComps[theBinFinder.binIndex(crossings.closestIndex)],
 					theComps[theBinFinder.binIndex(crossings.nextIndex)] );
-      DetGroupMerger::orderAndMergeTwoLevels( closestResult, nextResult, result, 
+      result = merger.orderAndMergeTwoLevels( closestResult, nextResult, 
 					      theHelicity, crossingSide);
     }
     else {
-      result.swap(closestResult);
+      result = closestResult;
     }
   }
   else {
-    result.swap(closestResult);
+    result = closestResult;
   }
 
   // only loop over neighbors (other than closest and next) if window is BIG
   if (window > 0.5*detWidth) {
     searchNeighbors( tsos, prop, est, crossings, window, result);
   } 
+  return result;  
 }
 
 
@@ -132,40 +162,33 @@ PixelForwardLayer::searchNeighbors( const TrajectoryStateOnSurface& tsos,
 				    float window, 
 				    vector<DetGroup>& result) const
 {
-   typedef CompatibleDetToGroupAdder Adder;
+  CompatibleDetToGroupAdder adder;
   int crossingSide = LayerCrossingSide().endcapSide( tsos, prop);
-  typedef DetGroupMerger Merger;
+  DetGroupMerger merger;
 
   int negStart = min( crossings.closestIndex, crossings.nextIndex) - 1;
   int posStart = max( crossings.closestIndex, crossings.nextIndex) + 1;
 
   int quarter = theComps.size()/4;
- 
-  vector<DetGroup> tmp;
-  vector<DetGroup> newResult;
   for (int idet=negStart; idet >= negStart - quarter+1; idet--) {
-    tmp.clear();
-    newResult.clear();
     const GeometricSearchDet* neighbor = theComps[theBinFinder.binIndex(idet)];
     // if (!overlap( gCrossingPos, *neighbor, window)) break; // mybe not needed?
     // maybe also add shallow crossing angle test here???
-    if (!Adder::add( *neighbor, tsos, prop, est, tmp)) break;
+    vector<DetGroup> tmp;
+    if (!adder.add( *neighbor, tsos, prop, est, tmp)) break;
     int theHelicity = computeHelicity(theComps[theBinFinder.binIndex(idet)],
 				      theComps[theBinFinder.binIndex(idet+1)] );
-    Merger::orderAndMergeTwoLevels( tmp, result, newResult, theHelicity, crossingSide);
-    result.swap(newResult);
+    result = merger.orderAndMergeTwoLevels( tmp, result, theHelicity, crossingSide);
   }
   for (int idet=posStart; idet < posStart + quarter-1; idet++) {
-    tmp.clear();
-    newResult.clear();
     const GeometricSearchDet* neighbor = theComps[theBinFinder.binIndex(idet)];
     // if (!overlap( gCrossingPos, *neighbor, window)) break; // mybe not needed?
     // maybe also add shallow crossing angle test here???
-    if (!Adder::add( *neighbor, tsos, prop, est, tmp)) break;
+    vector<DetGroup> tmp;
+    if (!adder.add( *neighbor, tsos, prop, est, tmp)) break;
     int theHelicity = computeHelicity(theComps[theBinFinder.binIndex(idet-1)],
 				      theComps[theBinFinder.binIndex(idet)] );
-    Merger::orderAndMergeTwoLevels( result, tmp, newResult, theHelicity, crossingSide);
-    result.swap(newResult);
+    result = merger.orderAndMergeTwoLevels( result, tmp, theHelicity, crossingSide);
   }
 }
 

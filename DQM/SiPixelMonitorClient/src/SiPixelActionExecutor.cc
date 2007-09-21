@@ -174,16 +174,13 @@ void SiPixelActionExecutor::fillBarrelSummary(MonitorUserInterface* mui,
 	     im != contents.end(); im++) {
           string sname = ((*isum)->getName());
 	  string tname = " ";
-	  if (sname.find("residual")!=string::npos){
-	    if(sname.find("_x")!=string::npos) tname = sname.substr(8,(sname.find("_x",8)-8))+"_x_";
-	    if (tname == " ") tname = sname.substr(8,(sname.find("_y",8)-8)) + "_y_";
-	  }else{
-            tname = sname.substr(8,(sname.find("_",8)-8)) + "_";
-	  }
+          tname = sname.substr(8,(sname.find("_",8)-8)) + "_";
+	  //cout<<"sname="<<sname<<" , tname="<<tname<<endl;
 	  if (((*im)).find(tname) == 0) {
 	    string fullpathname = mui->pwd() + "/" + (*im); 
 	    MonitorElement *  me = mui->get(fullpathname);
 	    if (me){ 
+	    //cout<<"sname="<<sname<<endl;
 	      if (sname.find("residual")!=string::npos && sname.find("_RMS_")!=string::npos){
 	        (*isum)->Fill(ndet, me->getRMS());
               }else{
@@ -266,12 +263,7 @@ void SiPixelActionExecutor::fillEndcapSummary(MonitorUserInterface* mui,
 	     im != contents.end(); im++) {
           string sname = ((*isum)->getName());
 	  string tname = " ";
-	  if (sname.find("residual")!=string::npos){
-	    if(sname.find("_x")!=string::npos) tname = sname.substr(8,(sname.find("_x",8)-8))+"_x_";
-	    if (tname == " ") tname = sname.substr(8,(sname.find("_y",8)-8)) + "_y_";
-	  }else{
-            tname = sname.substr(8,(sname.find("_",8)-8)) + "_";
-	  }
+          tname = sname.substr(8,(sname.find("_",8)-8)) + "_";
 	  if (((*im)).find(tname) == 0) {
 	    string fullpathname = mui->pwd() + "/" + (*im); 
 	    MonitorElement *  me = mui->get(fullpathname);
@@ -563,12 +555,12 @@ void SiPixelActionExecutor::setupQTests(MonitorUserInterface * mui) {
 // -- Check Status of Quality Tests
 //
 void SiPixelActionExecutor::checkQTestResults(MonitorUserInterface * mui) {
-cout<<"Entering SiPixelActionExecutor::checkQTestResults..."<<endl;
+//cout<<"Entering SiPixelActionExecutor::checkQTestResults..."<<endl;
   int messageCounter=0;
   string currDir = mui->pwd();
   vector<string> contentVec;
   mui->getContents(contentVec);
-  configParser_->getMessageLimitForQTests(message_limit_);  
+  configParser_->getMessageLimitForQTests(message_limit_); 
   for (vector<string>::iterator it = contentVec.begin();
        it != contentVec.end(); it++) {
     vector<string> contents;
@@ -584,9 +576,9 @@ cout<<"Entering SiPixelActionExecutor::checkQTestResults..."<<endl;
 	    wi != warnings.end(); ++wi) {
 	  messageCounter++;
 	  if(messageCounter<message_limit_) {
-	    edm::LogWarning("SiPixelQualityTester::checkTestResults") << 
-	      " *** Warning for " << me->getName() << 
-	      "," << (*wi)->getMessage() << "\n";
+	    //edm::LogWarning("SiPixelQualityTester::checkTestResults") << 
+	    //  " *** Warning for " << me->getName() << 
+	    //  "," << (*wi)->getMessage() << "\n";
 	  
 	    cout <<  " *** Warning for " << me->getName() << "," 
 	         << (*wi)->getMessage() << " " << me->getMean() 
@@ -594,15 +586,16 @@ cout<<"Entering SiPixelActionExecutor::checkQTestResults..."<<endl;
 	         << endl;
           }
 	}
+	warnings=vector<QReport*>();
 	// get all errors associated with me
 	vector<QReport *> errors = me->getQErrors();
 	for(vector<QReport *>::const_iterator ei = errors.begin();
 	    ei != errors.end(); ++ei) {
 	  messageCounter++;
 	  if(messageCounter<message_limit_) {
-	    edm::LogError("SiPixelQualityTester::checkTestResults") << 
-	      " *** Error for " << me->getName() << 
-	      "," << (*ei)->getMessage() << "\n";
+	    //edm::LogError("SiPixelQualityTester::checkTestResults") << 
+	    //  " *** Error for " << me->getName() << 
+	    //  "," << (*ei)->getMessage() << "\n";
 	  
 	    cout  <<   " *** Error for " << me->getName() << ","
 		  << (*ei)->getMessage() << " " << me->getMean() 
@@ -610,12 +603,17 @@ cout<<"Entering SiPixelActionExecutor::checkQTestResults..."<<endl;
 		  << endl;
 	  }
 	}
+	errors=vector<QReport*>();
       }
+      me=0;
     }
+    nval=int(); contents=vector<string>();
   }
+  cout<<"messageCounter: "<<messageCounter<<endl;
   if (messageCounter>=message_limit_)
     cout<<"WARNING: too many QTest failures! Giving up after "<<message_limit_<<" messages."<<endl;
-  cout<<"...leaving SiPixelActionExecutor::checkQTestResults!"<<endl;
+  contentVec=vector<string>(); currDir=string(); messageCounter=int();
+  //cout<<"...leaving SiPixelActionExecutor::checkQTestResults!"<<endl;
 }
 ////////////////////////////////////////////////////////////////////////////
 //

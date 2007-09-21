@@ -1,7 +1,7 @@
 
 //////////////////////////////////////////////////////////////////////
 //
-// $Id: EventStreamOutput.cc,v 1.28 2007/05/29 19:35:26 wmtan Exp $
+// $Id: EventStreamOutput.cc,v 1.29 2007/06/29 16:41:23 wmtan Exp $
 //
 // Class EventStreamOutput module
 //
@@ -9,7 +9,7 @@
 
 #include "DataFormats/Provenance/interface/Provenance.h"
 #include "DataFormats/Common/interface/BasicHandle.h"
-#include "DataFormats/Common/interface/Wrapper.h"
+#include "FWCore/Utilities/interface/WrappedClassName.h"
 #include "FWCore/Utilities/interface/DebugMacros.h"
 #include "DataFormats/Provenance/interface/BranchDescription.h"
 #include "IOPool/Streamer/interface/EventStreamOutput.h"

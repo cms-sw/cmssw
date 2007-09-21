@@ -4,12 +4,16 @@ from Mixins import _TypedParameterizable
 from SequenceTypes import _Sequenceable
 
 from ExceptionHandling import *
-
 class Service(_ConfigureComponent,_TypedParameterizable,_Unlabelable):
     def __init__(self,type_,*arg,**kargs):
         super(Service,self).__init__(type_,*arg,**kargs)
     def _placeImpl(self,name,proc):
         proc._placeService(self.type_(),self)
+    def insertInto(self, processDesc):
+        newpset = processDesc.newPSet()
+        newpset.addString(True, "@service_type", self.type_())
+        self.insertContentsInto(newpset)
+        processDesc.addService(newpset)
 
 
 class ESSource(_ConfigureComponent,_TypedParameterizable,_Unlabelable,_Labelable):
@@ -19,6 +23,14 @@ class ESSource(_ConfigureComponent,_TypedParameterizable,_Unlabelable,_Labelable
         if name == '':
             name=self.type_()
         proc._placeESSource(name,self)
+    def moduleLabel_(self,myname):
+       result = myname
+       if self.type_() == myname:
+           result = ""
+       return result
+    def nameInProcessDesc_(self, myname):
+       result = self.type_() + "@" + self.moduleLabel_(myname)
+       return result
 
 
 class ESProducer(_ConfigureComponent,_TypedParameterizable,_Unlabelable,_Labelable):
@@ -28,6 +40,14 @@ class ESProducer(_ConfigureComponent,_TypedParameterizable,_Unlabelable,_Labelab
         if name == '':
             name=self.type_()
         proc._placeESProducer(name,self)
+    def moduleLabel_(self,myname):
+       result = myname
+       if self.type_() == myname:
+           result = ''
+       return result
+    def nameInProcessDesc_(self, myname):
+       result = self.type_() + "@" + self.moduleLabel_(myname)
+       return result
 
 
 class ESPrefer(_ConfigureComponent,_TypedParameterizable,_Unlabelable,_Labelable):
@@ -37,7 +57,8 @@ class ESPrefer(_ConfigureComponent,_TypedParameterizable,_Unlabelable,_Labelable
         if name == '':
             name=self.type_()
         proc._placeESPrefer(name,self)
-
+    def nameInProcessDesc_(self, myname):
+       return "esprefer_" + self.type_() + "@" + myname
 
 class _Module(_ConfigureComponent,_TypedParameterizable,_Labelable,_Sequenceable):
     """base class for classes which denote framework event based 'modules'"""
@@ -86,6 +107,10 @@ class Source(_ConfigureComponent,_TypedParameterizable):
         super(Source,self).__init__(type_,*arg,**kargs)
     def _placeImpl(self,name,proc):
         proc._placeSource(name,self)
+    def moduleLabel_(self,myname):
+        return "@main_input"
+    def nameInProcessDesc_(self,myname):
+        return "@main_input"
 
 
 class Looper(_ConfigureComponent,_TypedParameterizable):
@@ -93,6 +118,11 @@ class Looper(_ConfigureComponent,_TypedParameterizable):
         super(Looper,self).__init__(type_,*arg,**kargs)
     def _placeImpl(self,name,proc):
         proc._placeLooper(name,self)
+    def moduleLabel_(self,myname):
+        return "@main_looper"
+    def nameInProcessDesc_(self, myname):
+        return "@main_looper"
+
 
 
 if __name__ == "__main__":

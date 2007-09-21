@@ -1,5 +1,5 @@
 ##
-## To create mapping descriptions, if not already defined here
+## To reate mapping descriptions, if not already defined here
 ##
 
 rm -f SiStripPedestals-mapping-default.xml
@@ -27,34 +27,6 @@ pool_build_object_relational_mapping -f mapping-template-SiStripFedCabling.xml -
 rm -f pippo.db
 
 cp SiStripFedCabling-mapping-default.xml SiStripFedCabling-mapping-custom.xml
-
-######################
-
-rm -f SiStripBadStrip-mapping-default.xml
-
-pool_build_object_relational_mapping -f mapping-template-SiStripBadStrip.xml -o SiStripBadStrip-mapping-default.xml -d CondFormatsSiStripObjects -c sqlite_file:pippo.db -b -u whoever -p whatever 
-
-rm -f pippo.db
-
-cp SiStripBadStrip-mapping-default.xml SiStripBadStrip-mapping-custom.xml
-
-######################
-
-rm -f SiStripModuleHV-mapping-default.xml
-
-pool_build_object_relational_mapping -f mapping-template-SiStripModuleHV.xml -o SiStripModuleHV-mapping-default.xml -d CondFormatsSiStripObjects -c sqlite_file:pippo.db -b -u whoever -p whatever 
-
-rm -f pippo.db
-
-cp SiStripModuleHV-mapping-default.xml SiStripModuleHV-mapping-custom.xml
-
-
-
-##################################
-# OBSOLETE PART
-
-
-
 
 ######################
 

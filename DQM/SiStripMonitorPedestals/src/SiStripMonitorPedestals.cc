@@ -13,7 +13,7 @@
 //
 // Original Author:  Simone Gennai and Suchandra Dutta
 //         Created:  Sat Feb  4 20:49:10 CET 2006
-// $Id: SiStripMonitorPedestals.cc,v 1.21 2007/05/15 19:22:17 dutta Exp $
+// $Id: SiStripMonitorPedestals.cc,v 1.22 2007/06/01 17:19:26 dutta Exp $
 //
 //
 
@@ -261,17 +261,21 @@ void SiStripMonitorPedestals::analyze(const edm::Event& iEvent, const edm::Event
     
     // get iterators for digis belonging to one DetId, it is an iterator, i.e. one element of the vector      
     std::vector< edm::DetSet<SiStripRawDigi> >::const_iterator digis = digi_collection->find( detid );
-    if (digis->data.size() == 0 || 
-        digis->data.size() > 768 || 
-        digis == digi_collection->end() ) {
-         std::cout <<  " Event " <<  nEvTot_ << " DetId " <<  detid << " # of Digis " << digis->data.size() ;
-	 std::vector<FedChannelConnection> fed_conns = detcabling->getConnections(detid);
-         for (unsigned int  k = 0; k < fed_conns.size() ; k++) {
-           if (k==0) std::cout <<  " Fed Id " << fed_conns[k].fedId() << " Channel " << fed_conns[k].fedCh();
-           else  std::cout <<  " Channel " << fed_conns[k].fedCh();
-         }
-         std::cout << std::endl;
-         continue;
+    if (digis == digi_collection->end() ||
+        digis->data.size() == 0 || 
+        digis->data.size() > 768) {
+      if (digis == digi_collection->end()) {
+        std::cout <<  " Event " <<  nEvTot_ << " DetId " <<  detid << " at the end of Digi Collection!!!"; 
+      } else {
+        std::cout <<  " Event " <<  nEvTot_ << " DetId " <<  detid << " # of Digis " << digis->data.size() ;
+      }
+      std::vector<FedChannelConnection> fed_conns = detcabling->getConnections(detid);
+      for (unsigned int  k = 0; k < fed_conns.size() ; k++) {
+	if (k==0) std::cout <<  " Fed Id " << fed_conns[k].fedId() << " Channel " << fed_conns[k].fedCh();
+	else  std::cout <<  " Channel " << fed_conns[k].fedCh();
+      }
+      std::cout << std::endl;
+      continue;
     }
 
     if ( digis->data.empty() ) { 

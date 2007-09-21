@@ -17,12 +17,12 @@ class GenericMVAComputer : public PhysicsTools::MVAComputer {
 	class TaggingVariableMapping;
 
 	GenericMVAComputer(const PhysicsTools::Calibration::MVAComputer *calib) :
-		PhysicsTools::MVAComputer(calib), mapping(getMapping()) {}
+		PhysicsTools::MVAComputer(calib) {}
 
 	// create wrapping iterator
 	template<typename Iter_t>
 	inline TaggingVariableIterator<Iter_t> iterator(Iter_t iter) const
-	{ return TaggingVariableIterator<Iter_t>(mapping, iter); }
+	{ return TaggingVariableIterator<Iter_t>(&mapping, iter); }
 
 	// overload eval method to work on containers of TaggingVariable
 	template<typename Iter_t>
@@ -143,17 +143,7 @@ class GenericMVAComputer : public PhysicsTools::MVAComputer {
 	};
 
     private:
-	TaggingVariableMapping	*mapping;
-
-	// get cached AtomicId <-> TaggingVariableName mapping
-	static TaggingVariableMapping *getMapping()
-	{
-		if (!mappingCache)
-			mappingCache = new TaggingVariableMapping();
-		return mappingCache;
-	}
-
-	static TaggingVariableMapping	*mappingCache;
+	static TaggingVariableMapping	mapping;
 };
 
 #endif // RecoBTau_BTauComputer_GenericMVAComputer_h

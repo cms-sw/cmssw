@@ -7,7 +7,7 @@
 #include "RecoParticleFlow/PFRootEvent/interface/GPFTrack.h"
 #include "RecoParticleFlow/PFRootEvent/interface/GPFPart.h"
 #include "RecoParticleFlow/PFRootEvent/interface/DialogFrame.h"
-#include "RecoParticleFlow/PFRootEvent/interface/JetPFRootEventManager.h"
+
 
 
 

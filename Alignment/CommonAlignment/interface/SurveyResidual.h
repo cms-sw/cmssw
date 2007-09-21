@@ -8,8 +8,8 @@
  *  For more info, please refer to
  *    http://www.pha.jhu.edu/~gritsan/cms/cms-note-survey.pdf
  *
- *  $Date: 2007/04/07 03:29:38 $
- *  $Revision: 1.2 $
+ *  $Date: 2007/03/23 14:45:36 $
+ *  $Revision: 1.1 $
  *  \author Chung Khim Lae
  */
 
@@ -21,7 +21,7 @@ class AlignableSurface;
 
 class SurveyResidual
 {
-  typedef AlignableObjectId::AlignableObjectIdType StructureType;
+  typedef AlignableObjectId::AlignableObjectIdType ObjectId;
 
   public:
 
@@ -31,7 +31,7 @@ class SurveyResidual
   /// Default is to find unbiased residuals.
   SurveyResidual(
 		 const Alignable&,
-		 StructureType,    // level at which residuals are found 
+		 ObjectId,         // level at which residuals are found 
 		 bool bias = false // true for biased residuals
 		 );
 
@@ -43,7 +43,7 @@ class SurveyResidual
   /// (current - nominal vectors).
   align::LocalVectors pointsResidual() const;
 
-  /// Get inverse of survey covariance wrt given structure type in constructor.
+  /// Get inverse of survey covariance wrt given ObjectId in constructor.
   AlgebraicSymMatrix inverseCovariance() const;
 
   private:
@@ -64,7 +64,7 @@ class SurveyResidual
 
   const AlignableSurface& theSurface; // current surface
 
-  const Alignable* theMother; // mother that matches the structure type
+  const Alignable* theMother; // mother that matches the type (ObjectId)
                               // given in constructor
 
   std::vector<const Alignable*> theSisters; // list of final daughters for

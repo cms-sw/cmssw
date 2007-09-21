@@ -8,7 +8,7 @@
  */
 class SiLinearChargeCollectionDrifter : public SiChargeCollectionDrifter{
  public:
-  SiLinearChargeCollectionDrifter(double,double,double,double,double);
+  SiLinearChargeCollectionDrifter(double,double,double,double);
   SiChargeCollectionDrifter::collection_type drift (const SiChargeCollectionDrifter::ionization_type, const LocalVector&,double,double);
 
  private:
@@ -19,7 +19,6 @@ class SiLinearChargeCollectionDrifter : public SiChargeCollectionDrifter{
   double moduleThickness;
   double timeNormalisation;
   double diffusionConstant;
-  double temperature;
   double chargeDistributionRMS;
   double depletionVoltage;
   double appliedVoltage;

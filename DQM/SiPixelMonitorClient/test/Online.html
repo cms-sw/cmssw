@@ -377,6 +377,7 @@
                          <option value = "Tracker"> ALL PIXELS                </option>
                          <option value = "Tracker/PixelBarrel" SELECTED> BPIX </option>
                          <option value = "Tracker/PixelEndcap"> FPIX          </option>
+                         <option value = "Tracker/PixelEndcap/HalfCylinder_pO/Disk_1/Blade_01/Panel_1"> FPIX/HalfCylinder_pO/Disk_2</option>
                       </select>
 		      <p />
                       <input name    = "listsummary"
@@ -386,8 +387,8 @@
                              onClick = "RequestHistos.RequestSummaryHistoList()"
                              type    = "submit">
                       </input>
-                      <input name    = "clearSingleModuleViewTree"
-                             id	     = "clearSingleModuleViewTree"
+                      <input name    = "clearSummaryViewTree"
+                             id	     = "clearSummaryViewTree"
                              class   = "controlButton"
                              value   = "Clear selection"
                              onClick = "javascript:IMGC.clearSelection()"
@@ -425,8 +426,8 @@
                              onClick = "RequestHistos.RequestAlarmList()"
                              type    = "submit">
                       </input>
-                      <input name    = "clearSingleModuleViewTree"
-                             id	     = "clearSingleModuleViewTree"
+                      <input name    = "clearAlarmViewTree"
+                             id	     = "clearAlarmViewTree"
                              class   = "controlButton"
                              value   = "Clear selection"
                              onClick = "javascript:IMGC.clearSelection()"

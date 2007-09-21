@@ -7,7 +7,7 @@
 // 
 //
 // Original Author:  Jim Kowalkowski
-// $Id: Memory.h,v 1.1 2006/01/30 05:09:24 jbk Exp $
+// $Id: Memory.h,v 1.2 2007/06/14 21:03:39 wmtan Exp $
 //
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -44,19 +44,31 @@ namespace edm {
       SimpleMemoryCheck(const ParameterSet&,ActivityRegistry&);
       ~SimpleMemoryCheck();
       
+      void preSourceConstruction(const ModuleDescription&);
+      void postSourceConstruction(const ModuleDescription&);
+      void postSource();
+
       void postBeginJob();
-      void postEndJob();
       
       void preEventProcessing(const edm::EventID&, const edm::Timestamp&);
       void postEventProcessing(const Event&, const EventSetup&);
       
+      void postModuleBeginJob(const ModuleDescription&);
+      void postModuleConstruction(const ModuleDescription&);
+
       void preModule(const ModuleDescription&);
       void postModule(const ModuleDescription&);
+
+      void postEndJob();
 
     private:
       procInfo fetch();
       double pageSize() const { return pg_size_; }
-	
+      void printSummary(const double& currentVsize, const double& maxVsize,
+                        const double& currentRSS, const double& maxRSS,
+                        const std::string& type,
+                        const std::string& mdlabel, const std::string& mdname);
+
       procInfo a_;
       procInfo b_;
       procInfo max_;

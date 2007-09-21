@@ -6,12 +6,11 @@
 // Implementation:
 //     Cache and make prescale factors available online.
 //
-// Current revision: $Revision: 1.2 $
-// On branch: $Name: V00-00-02 $
-// Latest change by $Author: wmtan $ on $Date: 2007/04/23 23:54:11 $ 
+// Current revision: $Revision: 1.7 $
+// On branch: $Name: V00-03-01 $
+// Latest change by $Author: gruen $ on $Date: 2007/08/14 19:20:29 $ 
 //
 
-#include "FWCore/Framework/interface/Event.h"
 
 #include "FWCore/PrescaleService/interface/PrescaleService.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -34,8 +33,22 @@ namespace edm {
       count_ = 0;
       fu_ = 0;
       lsold = 0;
- 
-      LogDebug("PrescaleService") << "PrescaleService::PrescaleService";
+      nops = 0; 
+      bcfg = 0;
+
+      //
+      const std::vector<std::string> InitialConfig(iPS.getParameter< std::vector<std::string> >("InitialConfig"));
+      for (unsigned int I=0; I!=InitialConfig.size(); ++I) {
+	const int i(putPrescale(InitialConfig[I]));
+	if (i-1!=I) LogDebug("PrescaleService")
+	  << "Invalid config string " << I << ": '"
+	  << InitialConfig[I] << "' - Ignored!";
+      }
+      //
+
+      LogDebug("PrescaleService") << "PrescaleService::PrescaleService: "
+				  << prescalers.size() << " of "
+				  << InitialConfig.size() << " initialised!";
 
       iReg.watchPostBeginJob(this,&PrescaleService::postBeginJob);
       iReg.watchPostEndJob(this,&PrescaleService::postEndJob);
@@ -115,6 +128,12 @@ namespace edm {
     {
     }
 
+    // Prepare indexed access without LS#
+    int PrescaleService::getPrescale(string module)
+    {
+      return getPrescale(0, module);
+    }
+
     int PrescaleService::getPrescale(unsigned int ls, string module)
     {
       boost::mutex::scoped_lock scoped_lock(mutex);
@@ -123,6 +142,11 @@ namespace edm {
 	glow++;
       } else {
 	lsgmax = ls;
+      }
+
+      if (prescalers.size()<=0) {
+        nops++;
+        return -1;
       }
 
       int j = prescalers.size()-1;
@@ -144,10 +168,10 @@ namespace edm {
       string a, b;
       istringstream iss(prescalers[i]);
       iss >> n;
-      while (!(iss.rdstate() & istringstream::goodbit)) {
+      while ( iss.rdstate()==0 ) {
 	iss >> a >> b >> m; 
 //	cout << "getPrescale " << n << "==" << ls << " a " << a << " b " << b << " m " << m << endl;
-	if (module == b) {
+	if ( (b=="*") || (b==module) ) { // allow wildcard after an explicit module list
             if (lsg == ls && lsc < n) {
 		bang++;
 		return -1;
@@ -218,7 +242,63 @@ namespace edm {
       return prescalers.size();
     }
 
+    void PrescaleService::getConfig(edm::ParameterSet params)
+    {
+      ostringstream oss;
+      unsigned int nss = 0;
+      string SEPARATOR = " ";
+      oss << "0";
 
+      try {
+
+	//        cout << "!!! PrescaleService::getConfig list @all_modules" << endl;
+        vector<string> pModules = params.getParameter<std::vector<std::string> >("@all_modules");
+        for(unsigned int i=0; i<pModules.size(); i++) {
+	  //          cout << "  index " << i << ", pModules " << pModules[i] << endl;
+        }
+
+	//        cout << "!!! PrescaleService::getConfig list @path" << endl;
+        vector<string> pPaths = params.getParameter<std::vector<std::string> >("@paths");
+        for(unsigned int i=0; i<pPaths.size(); i++) {
+	  //          cout << "  index " << i << ", pPaths " << pPaths[i] << endl;
+        }
+
+	//        cout << "!!! PrescaleService::getConfig link modules to paths" << endl;
+        for(unsigned int i=0; i<pModules.size(); i++) {
+	  edm::ParameterSet aa = params.getParameter<edm::ParameterSet>(pModules[i]);
+          string moduleLabel = aa.getParameter<string>("@module_label");
+          string moduleType = aa.getParameter<string>("@module_type");
+	  //          cout << "!!! label : " << moduleLabel << " type : "  << moduleType << endl;
+          if(moduleType == "HLTPrescaler") {
+	    unsigned int ps = aa.getParameter<unsigned int>("prescaleFactor");
+	    //	    cout << "!!! label : " << moduleLabel << " type : "  << moduleType << " ps : " << ps << endl;
+            for(unsigned int j=0; j<pPaths.size(); j++) {
+              vector<string> pPM = params.getParameter<std::vector<std::string> >(pPaths[j]);
+              for(unsigned int k=0; k<pPM.size(); k++) {
+                if(moduleLabel == pPM[k]) {
+		  //                  cout << "!!! path " << pPaths[j] << " module " << moduleLabel << " ps " << ps << endl;
+                  oss << SEPARATOR << pPaths[j] << SEPARATOR << moduleLabel << SEPARATOR << ps;
+                  nss++;
+                  break;
+                }
+              }
+            }
+          }
+        }
+        if (nss != 0) {
+	  //	  cout << "!!! PrescaleService::getConfig putPrescale:" << oss.str() << ":" << endl;
+	  putPrescale(oss.str());
+	  //          cout << "!!! PrescaleService::getConfig getStatus: " << getStatus() << endl;
+        }
+
+
+      }
+      catch (edm::Exception &e) {
+        bcfg++;
+	//        cout << "!!! PrescaleService::getConfig caught " << (string)e.what() << endl;
+      }
+
+    }
 
     void PrescaleService::putHandle(edm::EventProcessor *proc_)
     {
@@ -243,6 +323,7 @@ namespace edm {
       oss << SEPARATOR << triggers.size();
       oss << SEPARATOR << lspmax;
       oss << SEPARATOR << count_;
+      oss << SEPARATOR << nops;
       stsstr = oss.str();
       return stsstr;
     }
@@ -276,10 +357,89 @@ namespace edm {
       trgstr="";
       for(unsigned int i=0; i<triggers.size(); i++) {
         trgstr += triggers[i];
+      //for(unsigned int i=triggers.size(); i>0;) {
+      //  trgstr += triggers[--i];
         trgstr += " ";
       }
       return trgstr;
     }
+
+    string PrescaleService::getTr()
+    {
+      boost::mutex::scoped_lock scoped_lock(mutex);
+
+      trstr = " ";
+      if (fu_ != 0) {
+        fu_->getTriggerReport(tr_);
+
+        // Add an array length indicator so that the resulting string will have a
+        // little more readability.
+        string ARRAY_LEN = "_";
+        string SEPARATOR = " ";
+
+        ostringstream oss;
+
+        //TriggerReport::eventSummary
+        oss<<tr_.eventSummary.totalEvents<<SEPARATOR
+           <<tr_.eventSummary.totalEventsPassed<<SEPARATOR
+           <<tr_.eventSummary.totalEventsFailed<<SEPARATOR;
+
+        //TriggerReport::trigPathSummaries
+        oss<<ARRAY_LEN<<tr_.trigPathSummaries.size()<<SEPARATOR;
+        for(unsigned int i=0; i<tr_.trigPathSummaries.size(); i++) {
+          oss<<tr_.trigPathSummaries[i].bitPosition<<SEPARATOR
+             <<tr_.trigPathSummaries[i].timesRun<<SEPARATOR
+             <<tr_.trigPathSummaries[i].timesPassed<<SEPARATOR
+             <<tr_.trigPathSummaries[i].timesFailed<<SEPARATOR
+             <<tr_.trigPathSummaries[i].timesExcept<<SEPARATOR
+             <<tr_.trigPathSummaries[i].name<<SEPARATOR;
+          //TriggerReport::trigPathSummaries::moduleInPathSummaries
+          oss<<ARRAY_LEN<<tr_.trigPathSummaries[i].moduleInPathSummaries.size()<<SEPARATOR;
+          for(unsigned int j=0;j<tr_.trigPathSummaries[i].moduleInPathSummaries.size();j++) {
+            oss<<tr_.trigPathSummaries[i].moduleInPathSummaries[j].timesVisited<<SEPARATOR
+               <<tr_.trigPathSummaries[i].moduleInPathSummaries[j].timesPassed <<SEPARATOR
+               <<tr_.trigPathSummaries[i].moduleInPathSummaries[j].timesFailed <<SEPARATOR
+               <<tr_.trigPathSummaries[i].moduleInPathSummaries[j].timesExcept <<SEPARATOR
+               <<tr_.trigPathSummaries[i].moduleInPathSummaries[j].moduleLabel <<SEPARATOR;
+          }
+        }
+
+        //TriggerReport::endPathSummaries
+        oss<<ARRAY_LEN<<tr_.endPathSummaries.size()<<SEPARATOR;
+        for(unsigned int i=0; i<tr_.endPathSummaries.size(); i++) {
+          oss<<tr_.endPathSummaries[i].bitPosition<<SEPARATOR
+             <<tr_.endPathSummaries[i].timesRun<<SEPARATOR
+             <<tr_.endPathSummaries[i].timesPassed<<SEPARATOR
+             <<tr_.endPathSummaries[i].timesFailed<<SEPARATOR
+             <<tr_.endPathSummaries[i].timesExcept<<SEPARATOR
+             <<tr_.endPathSummaries[i].name<<SEPARATOR;
+          //TriggerReport::endPathSummaries::moduleInPathSummaries
+          oss<<ARRAY_LEN<<tr_.endPathSummaries[i].moduleInPathSummaries.size()<<SEPARATOR;
+          for(unsigned int j=0;j<tr_.endPathSummaries[i].moduleInPathSummaries.size();j++) {
+            oss<<tr_.endPathSummaries[i].moduleInPathSummaries[j].timesVisited<<SEPARATOR
+               <<tr_.endPathSummaries[i].moduleInPathSummaries[j].timesPassed <<SEPARATOR
+               <<tr_.endPathSummaries[i].moduleInPathSummaries[j].timesFailed <<SEPARATOR
+               <<tr_.endPathSummaries[i].moduleInPathSummaries[j].timesExcept <<SEPARATOR
+               <<tr_.endPathSummaries[i].moduleInPathSummaries[j].moduleLabel <<SEPARATOR;
+          }
+        }
+
+        //TriggerReport::workerSummaries
+        oss<<ARRAY_LEN<<tr_.workerSummaries.size()<<SEPARATOR;
+        for(unsigned int i=0; i<tr_.workerSummaries.size(); i++) {
+          oss<<tr_.workerSummaries[i].timesVisited<<SEPARATOR
+             <<tr_.workerSummaries[i].timesRun    <<SEPARATOR
+             <<tr_.workerSummaries[i].timesPassed <<SEPARATOR
+             <<tr_.workerSummaries[i].timesFailed <<SEPARATOR
+             <<tr_.workerSummaries[i].timesExcept <<SEPARATOR
+             <<tr_.workerSummaries[i].moduleLabel <<SEPARATOR;
+        }
+        trstr = oss.str();
+      }
+      return trstr;
+    }
+
+
 
   }
 }

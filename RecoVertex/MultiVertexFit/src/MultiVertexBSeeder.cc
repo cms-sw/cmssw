@@ -1,14 +1,13 @@
 #include "RecoVertex/MultiVertexFit/interface/MultiVertexBSeeder.h"
 // #include "RecoVertex/AdaptiveVertexFit/interface/AdaptiveVertexFitter.h"
 #include "RecoVertex/KalmanVertexFit/interface/KalmanVertexFitter.h"
-// #include "RecoVertex/VertexTools/interface/BeamSpot.h"
+// #include "RecoVertex/VertexPrimitives/interface/BeamSpot.h"
 #include "TrackingTools/PatternTools/interface/TwoTrackMinimumDistance.h"
 #include "RecoVertex/VertexTools/interface/FsmwModeFinder3d.h"
 #include "CommonTools/Clustering1D/interface/FsmwClusterizer1D.h"
-// #include "CommonTools/Clustering1D/interface/MultiClusterizer1D.h"
+#include "CommonTools/Clustering1D/interface/MultiClusterizer1D.h"
 #include "CommonTools/Clustering1D/interface/OutermostClusterizer1D.h"
 #include "DataFormats/GeometryCommonDetAlgo/interface/GlobalError.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 // #define MVBS_DEBUG
 #ifdef MVBS_DEBUG
@@ -158,23 +157,12 @@ namespace {
   }
 
   TransientVertex pseudoVertexFit ( const Cluster1D < reco::TransientTrack > & src,
-      bool ascending=false, bool kalmanfit=false )
+      bool ascending=false )
   {
-    // cout << "[MultiVertexBSeeder] debug: pseudoVertexFit with " << flush;
     vector < const reco::TransientTrack * > trkptrs=src.tracks();
     vector < reco::TransientTrack > trks = convert ( trkptrs );
-    // cout << trks.size() << " tracks.";
     GlobalPoint gp;
     GlobalError ge;
-    if ( kalmanfit )
-    {
-      try {
-        TransientVertex v = KalmanVertexFitter().vertex ( trks );
-        gp=v.position();
-      } catch ( ... ) {
-        edm::LogWarning("MultiVertexBSeeder") << "pseudo vtx fit failed.";
-      };
-    }
     TransientVertex ret = TransientVertex ( gp, ge, trks, -1. );
     TransientVertex::TransientTrackToFloatMap mp;
     float w=1.0; float r=0.5;
@@ -186,7 +174,6 @@ namespace {
       w*=r;
     }
     ret.weightMap ( mp );
-    // cout << "[MultiVertexBSeeder] debug: return pseudoVertexFit with " << endl;
     return ret;
   }
 
@@ -209,13 +196,6 @@ MultiVertexBSeeder * MultiVertexBSeeder::clone() const
 
 MultiVertexBSeeder::MultiVertexBSeeder ( double nsigma ) :
   theNSigma ( nsigma ) {}
-
-vector < TransientVertex > MultiVertexBSeeder::vertices (
-    const vector < reco::TransientTrack > & trks,
-    const reco::BeamSpot & s) const
-{
-  return vertices ( trks );
-}
 
 vector < TransientVertex > MultiVertexBSeeder::vertices (
     const vector < reco::TransientTrack > & trks ) const
@@ -244,8 +224,7 @@ vector < TransientVertex > MultiVertexBSeeder::vertices (
   for ( vector< Cluster1D < reco::TransientTrack > >::const_iterator i=res.first.begin(); 
         i!=res.first.end() ; ++i )
   {
-    ret.push_back ( pseudoVertexFit ( *i, i!=res.first.begin(), 
-                    /* kalman fit*/ true ) );
+    ret.push_back ( pseudoVertexFit ( *i, i!=res.first.begin() ) );
   }
   return ret;
 }

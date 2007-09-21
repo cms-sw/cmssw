@@ -24,11 +24,10 @@ class SimpleTECWedge : public TECWedge{
   compatible( const TrajectoryStateOnSurface& ts, const Propagator&, 
 	      const MeasurementEstimator&) const;
 
-  virtual void 
-  groupedCompatibleDetsV( const TrajectoryStateOnSurface& startingState,
+  virtual std::vector<DetGroup> 
+  groupedCompatibleDets( const TrajectoryStateOnSurface& startingState,
 			 const Propagator& prop,
-			 const MeasurementEstimator& est,
-                         std::vector<DetGroup> & result) const;
+			 const MeasurementEstimator& est) const;
 
  private:
   const GeomDet* theDet;

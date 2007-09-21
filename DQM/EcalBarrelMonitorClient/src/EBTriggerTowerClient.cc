@@ -1,8 +1,8 @@
 /*
  * \file EBTriggerTowerClient.cc
  *
- * $Date: 2007/07/09 15:23:37 $
- * $Revision: 1.42 $
+ * $Date: 2007/08/09 12:24:19 $
+ * $Revision: 1.46 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -13,6 +13,7 @@
 #include <fstream>
 #include <sstream>
 #include <iomanip>
+#include <bitset>
 
 #include "TStyle.h"
 
@@ -220,7 +221,7 @@ void EBTriggerTowerClient::cleanup(void) {
 
 }
 
-bool EBTriggerTowerClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV* moniov, int ism) {
+bool EBTriggerTowerClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV* moniov) {
 
   bool status = true;
 
@@ -628,16 +629,6 @@ void EBTriggerTowerClient::analyze(const char* nameext,
 
 }
 
-std::string binary( int i ) {
-  if ( i == 0 ) return( "0" );
-  std::string s;
-  while( i > 0 ) {
-    s = char( 48 + (i&1) ) + s;
-    i = i >> 1;
-  }
-  return s;
-}
-
 void EBTriggerTowerClient::htmlOutput(int run, string htmlDir, string htmlName){
 
   cout << "Preparing EBTriggerTowerClient html output ..." << std::endl;
@@ -693,7 +684,7 @@ void EBTriggerTowerClient::htmlOutput(int run, string htmlDir, string htmlName){
 
   string imgName[3], meName[3], imgMeName[3];
 
-  TCanvas* cMe1 = new TCanvas("cMe1", "Temp", 2*csize, csize);
+  TCanvas* cMe1 = new TCanvas("cMe1", "Temp", 3*csize, csize);
   //  TCanvas* cMe2 = new TCanvas("cMe2", "Temp", int(1.2*csize), int(0.4*csize));
   //  TCanvas* cMe3 = new TCanvas("cMe3", "Temp", int(0.4*csize), int(0.4*csize));
   TCanvas* cMe2 = new TCanvas("cMe2", "Temp", int(1.8*csize), int(0.9*csize));
@@ -895,7 +886,7 @@ void EBTriggerTowerClient::htmlOutput(int run, string htmlDir, string htmlName){
 	  else if(iemu==1) emustring = "Real Digis ";
 	  else if(iemu==2) emustring = "Emulated Digis ";
 	  if ( j < 7 ) {
-	    title << "EBTTT Flags " << emustring << Numbers::sEB(ism).c_str() << ", bit " << binary(j-1);
+	    title << "EBTTT Flags " << emustring << Numbers::sEB(ism).c_str() << ", bit " << bitset<3>(j-1);
 	  } else {
 	    title << "EBTTT Flags " << emustring << Numbers::sEB(ism).c_str() << " bits 110+111";
 	  }

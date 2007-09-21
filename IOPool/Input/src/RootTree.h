@@ -5,7 +5,7 @@
 
 RootTree.h // used by ROOT input sources
 
-$Id: RootTree.h,v 1.12 2007/05/10 22:46:56 wmtan Exp $
+$Id: RootTree.h,v 1.14 2007/08/17 22:54:17 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -16,13 +16,7 @@ $Id: RootTree.h,v 1.12 2007/05/10 22:46:56 wmtan Exp $
 
 #include "Inputfwd.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/ParameterSet/interface/Registry.h"
-#include "DataFormats/Provenance/interface/BranchDescription.h"
-#include "DataFormats/Provenance/interface/BranchEntryDescription.h"
-#include "DataFormats/Provenance/interface/BranchKey.h"
-#include "DataFormats/Provenance/interface/BranchType.h"
-#include "DataFormats/Provenance/interface/ConstBranchDescription.h"
-#include "DataFormats/Common/interface/Wrapper.h"
+#include "DataFormats/Provenance/interface/ProvenanceFwd.h"
 #include "TBranch.h"
 class TFile;
 class TTree;
@@ -49,7 +43,7 @@ namespace edm {
     void setEntryNumber(EntryNumber theEntryNumber) {entryNumber_ = theEntryNumber;}
     void resetEntryNumber() {entryNumber_ = origEntryNumber_;}
     void setOrigEntryNumber() {origEntryNumber_ = entryNumber_;}
-    std::vector<std::string> & branchNames() {return branchNames_;}
+    std::vector<std::string> const& branchNames() const {return branchNames_;}
     void fillGroups(Principal& item);
     boost::shared_ptr<DelayedReader> makeDelayedReader() const;
     //TBranch *auxBranch() {return auxBranch_;}

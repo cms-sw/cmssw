@@ -58,14 +58,6 @@ class SmartPropagator : public Propagator {
       return new SmartPropagator(getTkPropagator(),getGenPropagator(),magneticField());
     }
 
-    ///setting the direction fo both components
-    void setPropagationDirection (PropagationDirection dir)
-    {
-      getTkPropagator()->setPropagationDirection(dir);
-      getGenPropagator()->setPropagationDirection(dir);
-    }
-
-
     /* Operations as propagator*/ 
     TrajectoryStateOnSurface propagate(const FreeTrajectoryState& fts, 
                                        const Surface& surface) const;

@@ -8,7 +8,7 @@
 //
 // Original Author:  Werner Sun
 //         Created:  Mon Oct  2 22:45:32 EDT 2006
-// $Id: L1ExtraParticlesProd.cc,v 1.11 2007/04/30 20:04:16 wsun Exp $
+// $Id: L1ExtraParticlesProd.cc,v 1.12 2007/07/04 01:36:12 wsun Exp $
 //
 //
 
@@ -32,6 +32,8 @@
 #include "CondFormats/L1TObjects/interface/L1CaloEtScale.h"
 #include "CondFormats/DataRecord/interface/L1EmEtScaleRcd.h"
 #include "CondFormats/DataRecord/interface/L1JetEtScaleRcd.h"
+#include "CondFormats/L1TObjects/interface/L1GctJetEtCalibrationFunction.h"
+#include "CondFormats/DataRecord/interface/L1GctJetCalibFunRcd.h"
 
 #include "CondFormats/L1TObjects/interface/L1MuTriggerScales.h"
 #include "CondFormats/DataRecord/interface/L1MuTriggerScalesRcd.h"
@@ -402,6 +404,9 @@ L1ExtraParticlesProd::produce( edm::Event& iEvent,
 
       // ~~~~~~~~~~~~~~~~~~~~ Energy Sums ~~~~~~~~~~~~~~~~~~~~
 
+      ESHandle< L1GctJetEtCalibrationFunction > jetCalibFn ;
+      iSetup.get< L1GctJetCalibFunRcd >().get( jetCalibFn ) ;
+
       Handle< L1GctEtTotal > hwEtTot ;
       iEvent.getByLabel( etTotSource_, hwEtTot ) ;
 
@@ -412,6 +417,7 @@ L1ExtraParticlesProd::produce( edm::Event& iEvent,
       iEvent.getByLabel( etMissSource_, hwEtMiss ) ;
 
       double etSumLSB = jetScale->linearLsb() ;
+      double htSumLSB = jetCalibFn->getHtScaleLSB();
 //       double etSumLSB = 1. ;
 
 //       cout << "HW ET Sums " << endl
@@ -421,7 +427,7 @@ L1ExtraParticlesProd::produce( edm::Event& iEvent,
 
       // ET bin low edge
       double etTot = ( ( double ) hwEtTot->et() ) * etSumLSB ;
-      double etHad = ( ( double ) hwEtHad->et() ) * etSumLSB ;
+      double etHad = ( ( double ) hwEtHad->et() ) * htSumLSB ;
       double etMiss = ( ( double ) hwEtMiss->et() ) * etSumLSB + 1.e-6 ;
       // keep x and y components non-zero and protect against roundoff.
 

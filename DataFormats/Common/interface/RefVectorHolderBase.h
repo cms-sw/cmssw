@@ -149,7 +149,7 @@ namespace edm {
       virtual const_iterator begin() const = 0;
       virtual const_iterator end() const = 0;
       template <class T> RefToBase<T> getRef( size_t idx ) const;
-
+      virtual const void * product() const = 0;
     private:
       virtual boost::shared_ptr<reftobase::RefHolderBase> refBase(size_t idx) const = 0;
     };

@@ -1,19 +1,7 @@
 
 #include <iostream>
 
-#include "FWCore/Framework/interface/EDProducer.h"
-#include "FWCore/Framework/interface/Event.h"
-#include "DataFormats/Common/interface/Handle.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/Framework/interface/Actions.h"
-#include "DataFormats/Provenance/interface/ProductRegistry.h"
-#include "FWCore/Framework/src/Factory.h"
-#include "FWCore/Framework/src/WorkerParams.h"
 
-#include "FWCore/PluginManager/interface/PluginManager.h"
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/ParameterSet/interface/parse.h"
 #include "FWCore/ParameterSet/interface/Makers.h"
 
 #include <cppunit/extensions/HelperMacros.h>

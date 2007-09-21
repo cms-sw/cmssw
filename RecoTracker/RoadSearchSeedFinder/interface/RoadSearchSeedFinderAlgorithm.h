@@ -15,8 +15,8 @@
 // Created:         Sat Jan 14 22:00:00 UTC 2006
 //
 // $Author: gutsche $
-// $Date: 2007/06/13 14:26:47 $
-// $Revision: 1.16 $
+// $Date: 2007/06/29 23:49:57 $
+// $Revision: 1.17 $
 //
 
 #include <string>
@@ -101,7 +101,8 @@ class RoadSearchSeedFinderAlgorithm
  private:
 
   double       minPt_;
-  double       maxImpactParameter_;
+  double       maxBarrelImpactParameter_;
+  double       maxEndcapImpactParameter_;
   double       phiRangeDetIdLookup_;
 
   double       mergeSeedsCenterCut_;

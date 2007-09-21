@@ -4,6 +4,8 @@
 #include "Utilities/RFIOAdaptor/interface/RFIOFile.h"
 #include "Utilities/RFIOAdaptor/interface/RFIO.h"
 
+#include <cstdlib>
+
 //<<<<<< PRIVATE DEFINES                                                >>>>>>
 //<<<<<< PRIVATE CONSTANTS                                              >>>>>>
 //<<<<<< PRIVATE TYPES                                                  >>>>>>
@@ -58,17 +60,23 @@ namespace {
 RFIOStorageMaker::RFIOStorageMaker() {
 // init rfio MT
   Cthread_init();
+
+  // this was suggested by Olof at castor-operations
+  // It should help debugging CASTOR/rfio problems
+  // by forcing "control messages" to be moved out of the
+  // TCP buffer on clients faster.
+  putenv("RFIO_TCP_NODELAY=1");
 }
 
 seal::Storage *
-RFIOStorageMaker::open_ (const std::string & /* proto */,
+RFIOStorageMaker::doOpen (const std::string & /* proto */,
 		        const std::string &path,
 			int mode,
 		        const std::string & /* tmpdir */)
 { return new RFIOFile (normalizeURL(path), mode); }
 
 bool
-RFIOStorageMaker::check_ (const std::string &proto,
+RFIOStorageMaker::doCheck (const std::string &proto,
 		         const std::string &path,
 		         seal::IOOffset *size /* = 0 */)
 {

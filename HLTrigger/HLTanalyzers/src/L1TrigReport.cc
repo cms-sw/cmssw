@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2007/03/28 12:58:55 $
- *  $Revision: 1.1 $
+ *  $Date: 2007/03/28 20:33:07 $
+ *  $Revision: 1.2 $
  *
  *  \author Martin Grunewald
  *
@@ -116,7 +116,7 @@ L1TrigReport::endJob()
   using namespace std;
   const unsigned int n(l1extra::L1ParticleMap::kNumOfL1TriggerTypes);
 
-    cout << endl;
+    cout << dec << endl;
     cout << "L1T-Report " << "---------- Event  Summary ------------\n";
     cout << "L1T-Report"
 	 << " Events total = " << nEvents_

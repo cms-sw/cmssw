@@ -6,7 +6,7 @@
 RefVector: A template for a vector of interproduct references.
 	Each vector element is a reference to a member of the same product.
 
-$Id: RefVector.h,v 1.27 2007/07/09 07:28:50 llista Exp $
+$Id: RefVector.h,v 1.28 2007/07/13 08:49:32 llista Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -23,28 +23,12 @@ $Id: RefVector.h,v 1.27 2007/07/09 07:28:50 llista Exp $
 #include "DataFormats/Common/interface/traits.h"
 #include "FWCore/Utilities/interface/GCCPrerequisite.h"
 #include "DataFormats/Common/interface/RefTraits.h"
+#include "DataFormats/Common/interface/RefVectorTraits.h"
 
 namespace edm {
-  template<typename C, typename T, typename F>
-  class RefVector;
 
   template <typename T>
   T const * getProduct(RefCore const & ref);
-
-  namespace refhelper {
-    template<typename C, typename T, typename F>
-    struct RefVectorTrait {
-      typedef Ref<C, T, F> ref_type;
-      typedef RefVectorIterator<C, T, F> iterator_type;
-    };
-
-    template<typename C, typename T, typename F, typename T1, typename F1>
-     struct RefVectorTrait<RefVector<C, T, F>, T1, F1> {
-      typedef Ref<C, T, F> ref_type;
-      typedef RefVectorIterator<C, T, F> iterator_type;
-    };
-
-  }
 
   template <typename C, 
 	    typename T = typename refhelper::ValueTrait<C>::value, 

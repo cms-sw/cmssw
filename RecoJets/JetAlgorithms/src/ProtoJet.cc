@@ -48,28 +48,48 @@ namespace {
 
 }
 
+ProtoJet::ProtoJet()
+  : mOrdered (false) {}
+
 ProtoJet::ProtoJet(const Constituents& fConstituents) 
-  : mConstituents (fConstituents)
+  : mConstituents (fConstituents),
+    mOrdered (false)
 {
-  reorderTowers ();
   calculateLorentzVector(); 
 }//end of constructor
 
 ProtoJet::ProtoJet(const LorentzVector& fP4, const Constituents& fConstituents) 
-  : mP4 (fP4), mConstituents (fConstituents) 
-{
+  : mP4 (fP4), 
+    mConstituents (fConstituents),
+    mOrdered (false)
+{}
+
+const ProtoJet::Constituents& ProtoJet::getTowerList() {
   reorderTowers ();
+  return mConstituents;
+}
+  
+const ProtoJet::Constituents ProtoJet::getTowerList() const {
+  if (mOrdered) return mConstituents;
+
+  Constituents result = mConstituents;
+  CandidateRefGreaterByEt comparator;
+  std::sort (result.begin(), result.end(), comparator);
+  return result;
 }
 
 void ProtoJet::putTowers(const Constituents& towers) {
   mConstituents = towers; 
-  reorderTowers ();
+  mOrdered = false;
   calculateLorentzVector();
 }
 
 void ProtoJet::reorderTowers () {
-  CandidateRefGreaterByEt comparator;
-  std::sort (mConstituents.begin(), mConstituents.end(), comparator); 
+  if (!mOrdered) {
+    CandidateRefGreaterByEt comparator;
+    std::sort (mConstituents.begin(), mConstituents.end(), comparator); 
+    mOrdered = true;
+  }
 }
 
 void ProtoJet::calculateLorentzVectorERecombination() {

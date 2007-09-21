@@ -19,6 +19,7 @@
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 
+
 #include "FWCore/ParameterSet/interface/FileInPath.h"
 
 #include <set>
@@ -124,11 +125,13 @@ PFBlockProducer::PFBlockProducer(const edm::ParameterSet& iConfig) {
 
 //   energyResolution_ = new PFEnergyResolution();
 
+
 }
 
 
 
 PFBlockProducer::~PFBlockProducer() { }
+
 
 
 void PFBlockProducer::beginJob(const edm::EventSetup & es) { }
@@ -190,6 +193,7 @@ void PFBlockProducer::produce(Event& iEvent,
 			       <<endl;
   }
     
+
 
 
   //     Handle< reco::PFClusterCollection > clustersPS;

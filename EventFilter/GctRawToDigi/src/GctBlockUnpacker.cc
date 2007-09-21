@@ -22,26 +22,6 @@ GctBlockUnpacker::GctBlockUnpacker() :
   gctFibres_(0)
 {
 
-  // setup block length map
-  blockLength_[0x00] = 0;
-  blockLength_[0x5f] = 1;   // ConcJet: Bunch Counter Pattern Test
-  blockLength_[0x68] = 4;   // ConcElec: Output to Global Trigger
-  blockLength_[0x69] = 16;  // ConcElec: Sort Input
-  blockLength_[0x6b] = 2;   // ConcElec: GT Serdes Loopback
-  blockLength_[0x6f] = 1;   // ConcElec: Bunch Counter Pattern Test
-  blockLength_[0x80] = 20;  // Leaf-U1, Elec, NegEta, Sort Input
-  blockLength_[0x81] = 15;  // Leaf-U1, Elec, NegEta, Raw Input
-  blockLength_[0x83] = 4;   // Leaf-U1, Elec, NegEta, Sort Output
-  blockLength_[0x88] = 16;  // Leaf-U2, Elec, NegEta, Sort Input
-  blockLength_[0x89] = 12;  // Leaf-U2, Elec, NegEta, Raw Input
-  blockLength_[0x8b] = 4;   // Leaf-U2, Elec, NegEta, Sort Output
-  blockLength_[0xc0] = 20;  // Leaf-U1, Elec, PosEta, Sort Input
-  blockLength_[0xc1] = 15;  // Leaf-U1, Elec, PosEta, Raw Input
-  blockLength_[0xc3] = 4;   // Leaf-U1, Elec, PosEta, Sort Output
-  blockLength_[0xc8] = 16;  // Leaf-U2, Elec, PosEta, Sort Input
-  blockLength_[0xc9] = 12;  // Leaf-U2, Elec, PosEta, Raw Input
-  blockLength_[0xcb] = 4;   // Leaf-U2, Elec, PosEta, Sort Output
-
   // RCT crates
   unsigned first=0;
   //  unsigned last=0;
@@ -51,85 +31,116 @@ GctBlockUnpacker::GctBlockUnpacker() :
   rctCrate_[0xC9] = 9;
 
   // setup converter fn map
-  //  convertFn_[0x68] = &GctBlockUnpacker::wordToGctEmCand;
-  //  convertFn_[0x69] = &GctBlockUnpacker::wordToGctInterEmCand;
+//   convertFn_[0x68] = &GctBlockUnpacker::blockToGctEmCand;
+//   convertFn_[0x69] = &GctBlockUnpacker::blockToGctInternEmCand;
+//   convertFn_[0x81] = &GctBlockUnpacker::blockToRctEmCand;
+//   convertFn_[0x83] = &GctBlockUnpacker::blockToGctInternEmCand;
+//   convertFn_[0x88] = &GctBlockUnpacker::blockToGctInternEmCand;
+//   convertFn_[0x89] = &GctBlockUnpacker::blockToRctEmCand;
+//   convertFn_[0x8b] = &GctBlockUnpacker::blockToGctInternEmCand;
+//   convertFn_[0xc0] = &GctBlockUnpacker::blockToGctInternEmCand;
+//   convertFn_[0xc1] = &GctBlockUnpacker::blockToRctEmCand;
+//   convertFn_[0xc3] = &GctBlockUnpacker::blockToGctInternEmCand;
+//   convertFn_[0xc8] = &GctBlockUnpacker::blockToGctInternEmCand;
+//   convertFn_[0xc9] = &GctBlockUnpacker::blockToRctEmCand;
+//   convertFn_[0xcb] = &GctBlockUnpacker::blockToGctInternEmCand;
 
 }
 
 GctBlockUnpacker::~GctBlockUnpacker() { }
 
-// recognise block ID
-bool GctBlockUnpacker::validBlock(unsigned id) {
-  return ( blockLength_.find(id) != blockLength_.end() );
-}
-
-// return block length in 32-bit words
-unsigned GctBlockUnpacker::blockLength(unsigned id) {
-  return blockLength_.find(id)->second;
-}
-
 // conversion
-void GctBlockUnpacker::convertBlock(const unsigned char * data, unsigned id, unsigned nSamples) {
+void GctBlockUnpacker::convertBlock(const unsigned char * data, GctBlockHeader& hdr) {
 
-  if (nSamples<1) { return; }
+  unsigned int id = hdr.id();
+  unsigned int nSamples = hdr.nSamples();
 
-  switch (id) {
+  // if the block has no time samples, don't bother
+  if ( nSamples > 1 ) { return; }
+
+  // check block is valid
+  if ( hdr.valid() ) {
+    std::ostringstream os;
+    os << "Attempting to unpack an unidentified block" << std::endl; 
+    os << hdr << endl;
+    edm::LogError("GCT") << os.str();
+    return;     
+  }
+
+  // check block doesn't have too many time samples
+  if ( nSamples >= 0xf ) {
+    std::ostringstream os;
+    os << "Cannot unpack a block with 15 or more time samples" << std::endl; 
+    os << hdr << endl;
+    edm::LogError("GCT") << os.str();
+    return; 
+  }
+
+  // if this is a fibre block unpack fibres
+  if (id==0x81 || id==0x89 || id==0xc1 || id==0xc9) {
+    this->blockToFibres(data, hdr);
+  }
+  
+  // unpack the block
+  //  CALL_GCT_CONVERT_FN((*this), convertFn_.find(id).second)(data, hdr);
+
+  switch (hdr.id()) {
   case (0x00):
+    break;
+  case (0x58):
+    break;
+  case (0x59):
     break;
   case (0x5f) :
     break;
   case (0x68) :
-    blockToGctEmCand(data, id, nSamples);
+    blockToGctEmCand(data, hdr);
     break;
   case (0x69) : 
-    blockToGctInternEmCand(data, id, nSamples);
+    blockToGctInternEmCand(data, hdr);
     break;
   case (0x6b) :
     break;
   case (0x6f) :
     break;
   case (0x80) :
-    blockToGctInternEmCand(data, id, nSamples);
+    blockToGctInternEmCand(data, hdr);
     break;
   case (0x81) :
-    blockToRctEmCand(data, id, nSamples);
-    blockToFibres(data, id, nSamples);
+    blockToRctEmCand(data, hdr);
     break;
   case (0x83) :
-    blockToGctInternEmCand(data, id, nSamples);
+    blockToGctInternEmCand(data, hdr);
     break;
   case (0x88) :
-    blockToGctInternEmCand(data, id, nSamples);
+    blockToGctInternEmCand(data, hdr);
     break;
   case (0x89) :
-    blockToRctEmCand(data, id, nSamples);
-    blockToFibres(data, id, nSamples);
+    blockToRctEmCand(data, hdr);
     break;
   case (0x8b) :
-    blockToGctInternEmCand(data, id, nSamples);
+    blockToGctInternEmCand(data, hdr);
     break;
   case (0xc0) :
-    blockToGctInternEmCand(data, id, nSamples);
+    blockToGctInternEmCand(data, hdr);
     break;
   case (0xc1) :
-    blockToRctEmCand(data, id, nSamples);
-    blockToFibres(data, id, nSamples);
+    blockToRctEmCand(data, hdr);
     break;
   case (0xc3) :
-    blockToGctInternEmCand(data, id, nSamples);
+    blockToGctInternEmCand(data, hdr);
     break;
   case (0xc8) :
-    blockToGctInternEmCand(data, id, nSamples);
+    blockToGctInternEmCand(data, hdr);
     break;
   case (0xc9) :
-    blockToRctEmCand(data, id, nSamples);
-    blockToFibres(data, id, nSamples);
+    blockToRctEmCand(data, hdr);
     break;
   case (0xcb) :
-    blockToGctInternEmCand(data, id, nSamples);
+    blockToGctInternEmCand(data, hdr);
     break;
   default :
-    edm::LogError("GCT") << "Trying to unpack an identified block, ID=" << std::hex << id << std::endl;
+    edm::LogError("GCT") << "Trying to unpack an identified block, ID=" << std::hex << hdr.id() << std::endl;
     break;
   }
 
@@ -137,9 +148,13 @@ void GctBlockUnpacker::convertBlock(const unsigned char * data, unsigned id, uns
 
 
 // Output EM Candidates unpacking
-void GctBlockUnpacker::blockToGctEmCand(const unsigned char * d, unsigned id, unsigned nSamples) {
+void GctBlockUnpacker::blockToGctEmCand(const unsigned char * d, GctBlockHeader& hdr) {
 
-  LogDebug("GCT") << "Unpacking EM Cands" << std::endl;
+  LogDebug("GCT") << "Unpacking GCT output EM Cands" << std::endl;
+
+  unsigned int id = hdr.id();
+  unsigned int nSamples = hdr.nSamples();
+  unsigned int length = hdr.length();
 
   // re-interpret pointer
   uint16_t * p = reinterpret_cast<uint16_t *>(const_cast<unsigned char *>(d));
@@ -166,28 +181,38 @@ void GctBlockUnpacker::blockToGctEmCand(const unsigned char * d, unsigned id, un
     }
   }
 
-
-  LogDebug("GCT") << "Unpacked " << gctIsoEm_->size() << " iso EM cands, "
-		       << gctNonIsoEm_->size() << " non-iso EM cands" << std::endl;  
-
 }
 
 
 // Internal EM Candidates unpacking
-void GctBlockUnpacker::blockToGctInternEmCand(const unsigned char * d, unsigned id, unsigned nSamples) {
-  for (int i=0; i<blockLength(id)*nSamples; i=i+nSamples) {  // temporarily just take 0th time sample
+void GctBlockUnpacker::blockToGctInternEmCand(const unsigned char * d, GctBlockHeader& hdr) {
+
+  LogDebug("GCT") << "Unpacking internal EM Cands" << std::endl;
+
+  unsigned int id = hdr.id();
+  unsigned int nSamples = hdr.nSamples();
+  unsigned int length = hdr.length();
+
+  for (int i=0; i<length*nSamples; i=i+nSamples) {  // temporarily just take 0th time sample
     unsigned offset = i*4*nSamples;
     uint16_t w0 = d[offset]   + (d[offset+1]<<8); 
     uint16_t w1 = d[offset+2] + (d[offset+3]<<8);
     gctInternEm_->push_back( L1GctInternEmCand(w0, i > 7, id, 2*i/nSamples, 0) );
     gctInternEm_->push_back( L1GctInternEmCand(w1, i > 7, id, 2*(i/nSamples)+1, 0) );
   }
+
 }
 
 
 // Input EM Candidates unpacking
 // this is the last time I deal the RCT bit assignment travesty!!!
-void GctBlockUnpacker::blockToRctEmCand(const unsigned char * d, unsigned id, unsigned nSamples) {
+void GctBlockUnpacker::blockToRctEmCand(const unsigned char * d, GctBlockHeader& hdr) {
+
+  LogDebug("GCT") << "Unpacking RCT EM Cands" << std::endl;
+
+  unsigned int id = hdr.id();
+  unsigned int nSamples = hdr.nSamples();
+  unsigned int length = hdr.length();
 
   // re-interpret pointer
   uint16_t * p = reinterpret_cast<uint16_t *>(const_cast<unsigned char *>(d));
@@ -206,7 +231,7 @@ void GctBlockUnpacker::blockToRctEmCand(const unsigned char * d, unsigned id, un
   int bx = 0;
 
   // loop over crates
-  for (int crate=rctCrate_[id]; crate<blockLength(id)/3; crate++) {
+  for (int crate=rctCrate_[id]; crate<length/3; crate++) {
 
     // read SC SFP words
     for (int iSfp=0; iSfp<4; iSfp++) {
@@ -240,16 +265,23 @@ void GctBlockUnpacker::blockToRctEmCand(const unsigned char * d, unsigned id, un
 
 
 // Fibre unpacking
-void GctBlockUnpacker::blockToFibres(const unsigned char * d, unsigned id, unsigned nSamples) {
+void GctBlockUnpacker::blockToFibres(const unsigned char * d, GctBlockHeader& hdr) {
+
+  LogDebug("GCT") << "Unpacking GCT Fibres" << std::endl;
   
+  unsigned int id = hdr.id();
+  unsigned int nSamples = hdr.nSamples();
+  unsigned int length = hdr.length();
+
   // re-interpret pointer
   uint32_t * p = reinterpret_cast<uint32_t *>(const_cast<unsigned char *>(d));
 
-  for (int i=0; i<blockLength(id); i++) {
+  for (int i=0; i<length; i++) {
     for (int bx=0; bx<nSamples; bx++) {
       gctFibres_->push_back( L1GctFibreWord(*p, id, i, bx) );
       p++;
     }
-  }  
+  } 
+ 
 }
 
