@@ -5,7 +5,7 @@
 # language and the Python representation of the configuration
 # description that is used by the Data Management tools.
 #
-# $Id: complete.py,v 1.4 2007/08/29 23:26:43 rpw Exp $
+# $Id: complete.py,v 1.5 2007/08/31 21:32:49 rpw Exp $
 #
 #------------------------------------------------------------
 
@@ -62,8 +62,8 @@ process.b = cms.EDProducer("BProducer",
                   b = cms.bool(False) ), cms.PSet() ),
    e = cms.VPSet(),
    f = cms.VPSet(cms.PSet(inner = cms.VPSet()), cms.PSet() ),
-   tag = cms.InputTag("y:z"),
-   tags = cms.VInputTag(cms.InputTag("a:b"), cms.InputTag("c"), cms.InputTag("d:e"))
+   tag = cms.InputTag("y","z"),
+   tags = cms.VInputTag(cms.InputTag("a","b"), cms.InputTag("c"), cms.InputTag("d","e"))
   )
 
 
