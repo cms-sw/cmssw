@@ -5,3 +5,9 @@
 <library file=TrackMerger.cc>
   <use name=DataFormats/TrackReco>
 </library>
+<library file=BasicClusterMerger.cc>
+  <use name=DataFormats/EgammaReco>
+</library>
+<library file=SuperClusterMerger.cc>
+  <use name=DataFormats/EgammaReco>
+</library>
