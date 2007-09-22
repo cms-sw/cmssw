@@ -178,7 +178,9 @@ class InputTag(_ParameterTypeBase):
     def configValue(self,indent,deltaIndent):
         return self.__moduleLabel+':'+self.__productInstance+':'+self.__processName
     def pythonValue(self,indent,deltaIndent):
-        return "\""+self.configValue(indent,deltaIndent)+"\""
+        colonedValue = "\""+self.configValue(indent,deltaIndent)+"\""
+        # change label:instance:process to "label","instance","process"
+        return colonedValue.replace(":","\",\"")
     @staticmethod
     def _isValid(value):
         return True
@@ -199,6 +201,8 @@ class InputTag(_ParameterTypeBase):
     def _valueFromString(string):
         parts = string.split(":")
         return InputTag(*parts)
+    def setValue(self,v):
+        self = InputTag._valueFromString(v)
     # convert to the wrapper class for C++ InputTags
     def cppTag(self, parameterSet):
         return parameterSet.newInputTag(self.getModuleLabel(),
