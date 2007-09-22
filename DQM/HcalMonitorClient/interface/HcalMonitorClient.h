@@ -132,6 +132,9 @@ private:
   int timeoutThresh_;
   int serverPort_;
   int last_run_;
+  
+  bool runningStandalone_;
+  int diagnosticPrescale_;
 
   bool collateSources_;
   bool cloneME_;

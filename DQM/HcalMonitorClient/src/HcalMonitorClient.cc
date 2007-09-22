@@ -148,6 +148,10 @@ void HcalMonitorClient::initialize(const ParameterSet& ps){
   if( verbose_ ) cout << "-->verbose switch is ON" << endl;
   else cout << "-->verbose switch is OFF" << endl;
 
+  runningStandalone_ = ps.getUntrackedParameter<bool>("runningStandalone", false);
+
+  diagnosticPrescale_ = ps.getUntrackedParameter<int>("diagnosticPrescale", 1000);
+
   // mergeRuns switch
 
   mergeRuns_ = ps.getUntrackedParameter<bool>("mergeRuns", false);
@@ -247,8 +251,6 @@ void HcalMonitorClient::beginJob(const EventSetup& eventSetup){
   run_     = -1;
   evt_     = -1;
   runtype_ = -1;
-
-  //this->subscribe();
 
   if( dataformat_client_ ) dataformat_client_->beginJob();
   if( digi_client_ )       digi_client_->beginJob();
@@ -383,7 +385,7 @@ void HcalMonitorClient::report(bool doUpdate) {
 
 
 void HcalMonitorClient::endRun(void) {
-  if( verbose_ ) printf("HcalMonitorClient: endRun   updates: %d, events: %d\n",last_update_,mon_evt_);
+  if( verbose_ ) printf("HcalMonitorClient: endRun   events: %d\n",mon_evt_);
   begin_run_ = false;
   end_run_   = true;
 
@@ -565,17 +567,18 @@ void HcalMonitorClient::unsubscribe(void) {
 
 void HcalMonitorClient::analyze(const Event& e, const edm::EventSetup& eventSetup){
 
-  run_ = e.id().run();
-  evt_ = e.id().event();
-  
-  this->analyze();
+  run_ = e.id().run(); evt_ = e.id().event();
+
+  if ( runningStandalone_ && ((evt_% diagnosticPrescale_) != 0) ) return;
+  else this->analyze();
+
 }
 
 
 void HcalMonitorClient::analyze(){
   
   ievt_++;
-  
+
   printf("\nHcal Monitor Client heartbeat....\n");
   if(!mui_){
     printf("HcalMonitorClient:  MonitorUserInterface NULL!!\n");
@@ -586,31 +589,6 @@ void HcalMonitorClient::analyze(){
   MonitorElement* me =0;
   string s;  
 
-  bool force_update = false;
-  int updates = 1;
-  //mui_->getBEInterface()->runQTests();
-  /*
-  // # of full monitoring cycles processed
-  int updates = mui_->getNumUpdates();
-  cout << " updates = " << updates << endl;
-  printf("A2\n");
-  printf("A3\n");
-  mui_->doMonitoring();
-  mui_->getBEInterface()->runQTests();
-
-  printf("B\n");
-
-  if(nTimeouts_>=timeoutThresh_ || inputFile_.size()!=0){
-    if(verbose_) printf("\n\n\n\nHcalMonitorClient: Forcing update after timeout!\n\n\n\n");
-    force_update = true;
-    status_ = "end-of-run";
-  }
-  printf("C\n");
-
-  //if no collector updates, continue....unless we're forcing an update
-  if( updates != last_update_ || force_update) {
-  */
-  
   int lastRun = run_;
   
   sprintf(histo, "%sHcalMonitor/RUN NUMBER",process_.c_str());
@@ -646,25 +624,9 @@ void HcalMonitorClient::analyze(){
     if(mask&DO_HCAL_LASER_CALIBMON) runtype_ = "LASER RUN";
   }
   
-  if ( ! mergeRuns_ && run_ != last_run_ ) forced_update_ = true;
   
-  
-  if(!force_update){
-    status_="unknown";
-    sprintf(histo, "%sHcalMonitor/STATUS",process_.c_str());
-    me = mui_->getBEInterface()->get(histo);
-    if( me ) {
-      s = me->valueString();
-      status_ = "unknown";
-      if( s.substr(2,1) == "0" ) status_ = "begin-of-run";
-      if( s.substr(2,1) == "1" ) status_ = "running";
-      if( s.substr(2,1) == "2" ) status_ = "end-of-run";
-      if( verbose_ ) cout << "Found '" << histo << "'" << endl;
-    }
-  }
-  
-  if(verbose_) printf("HcalClient: run: %d, evts: %d, type: %s, status: %s, iter: %d, updates: %d\n",
-		      run_, mon_evt_, runtype_.c_str(),status_.c_str(),ievt_, updates);
+  if(verbose_) printf("HcalClient: run: %d, evts: %d, type: %s, status: %s, monitor evts: %d, client iterations: %d\n",
+		      run_, evt_, runtype_.c_str(),status_.c_str(),mon_evt_,ievt_);
   
   
   ///check status of monitor
@@ -703,27 +665,23 @@ void HcalMonitorClient::analyze(){
     last_mon_evt_ = mon_evt_;
   }
   
-  nTimeouts_=0;
-  //
-  //else nTimeouts_++;
   
-  last_update_ = updates;
   
-  ///histogram reset functions
-  if(resetUpdate_!=-1 && updates>0){ 
-    if((updates % resetUpdate_) == 0){
-      printf("-->Resetting histograms after %d updates!\n",updates);
-      this->resetAllME();
-    }
-  }
-  if(resetEvents_!=-1 && mon_evt_>0){ 
-    int nSeenEvts = mon_evt_ - last_reset_Evts_;
-    if(nSeenEvts>=resetEvents_){
-      printf("-->Resetting histograms after %d events!\n",mon_evt_);    
-      this->resetAllME();
-      last_reset_Evts_ = mon_evt_;
-    }
-  }
+  ///histogram reset functions ....FIX ME
+  //  if(resetUpdate_!=-1){ 
+  //      printf("-->Resetting histograms after %d updates!\n",updates);
+  //      this->resetAllME();
+  //}
+
+  //if(resetEvents_!=-1 && mon_evt_>0){  ....FIX ME
+  //  int nSeenEvts = mon_evt_ - last_reset_Evts_;
+  //  if(nSeenEvts>=resetEvents_){
+  //    printf("-->Resetting histograms after %d events!\n",mon_evt_);    
+  //    this->resetAllME();
+  //    last_reset_Evts_ = mon_evt_;
+  //  }
+  //}
+
   if(resetTime_!=-1){ 
     gettimeofday(&updateTime_,NULL);
     double deltaT=startTime_.tv_sec*1000.0+startTime_.tv_usec/1000.0;
