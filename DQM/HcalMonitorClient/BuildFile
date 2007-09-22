@@ -1,6 +1,8 @@
 <flags EDM_PLUGIN=1>
 <use name=boost>
 <use name=root> 
+<use name=rootcore>
+<use name=EventFilter/Utilities>
 <use name=FWCore/Framework>
 <use name=DQMServices/Core>
 <use name=DQMServices/CoreROOT>
@@ -15,7 +17,9 @@
  <lib name=DQMHcalMonitorClient>
  <use name=boost>
  <use name=root> 
+ <use name=rootcore>
  <use name=FWCore/Framework>
+ <use name=EventFilter/Utilities>
  <use name=DQMServices/CoreROOT>
  <use name=DQMServices/Core>
  <use name=DQMServices/NodeROOT>

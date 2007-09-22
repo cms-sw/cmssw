@@ -4,7 +4,10 @@
 
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/Run.h"
+#include "FWCore/Framework/interface/LuminosityBlock.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
+
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
@@ -16,7 +19,6 @@
 #include "CalibFormats/HcalObjects/interface/HcalDbService.h"
 #include "CalibFormats/HcalObjects/interface/HcalDbRecord.h"
           
-//#include <DQM/HcalMonitorClient/interface/HcalTBClient.h>
 #include <DQM/HcalMonitorClient/interface/HcalClientUtils.h>
 #include <DQM/HcalMonitorClient/interface/HcalDataFormatClient.h>
 #include <DQM/HcalMonitorClient/interface/HcalDigiClient.h>
@@ -62,19 +64,26 @@ public:
   void offlineSetup();
 
   /// Analyze
+  void analyze(void);
   void analyze(const Event& evt, const EventSetup& es);
   
   /// BeginJob
   void beginJob(const EventSetup& c);
-  
   /// EndJob
   void endJob(void);
   
   /// BeginRun
   void beginRun(void);
-  
+  void beginRun(const edm::Run & r, const edm::EventSetup & c);
   /// EndRun
   void endRun(void);
+  void endRun(const edm::Run & r, const edm::EventSetup & c);
+
+  /// BeginLumiBlock
+  void beginLuminosityBlock(const edm::LuminosityBlock & l, const edm::EventSetup & c);
+  /// EndLumiBlock
+  void endLuminosityBlock(const edm::LuminosityBlock & l, const edm::EventSetup & c);
+
   
   /// Setup
   void setup(void);
@@ -104,10 +113,11 @@ public:
 private:
   void removeAll();
   
-  DaqMonitorBEInterface* m_dbe;
   MonitorUserInterface* mui_;
+  DaqMonitorBEInterface* dbe_;
 
   int ievt_;
+  int evt_;
   int mon_evt_;
   int last_mon_evt_;
   int hostPort_;  
@@ -120,17 +130,22 @@ private:
   int resetTime_;
   int nUpdateEvents_;
   int timeoutThresh_;
+  int serverPort_;
+  int last_run_;
 
   bool collateSources_;
   bool cloneME_;
   bool offline_;
   bool subscribed_;
   bool verbose_;
-  bool begin_run_done_;
-  bool end_run_done_;
-  bool forced_begin_run_;
-  bool forced_end_run_;
+  bool begin_run_;
+  bool end_run_;
+  bool forced_status_;
+  bool forced_update_;
+  bool mergeRuns_;
   bool enableExit_;
+  bool enableMonitorDaemon_;
+  bool enableServer_;
 
   string clientName_;
   string hostName_;  
