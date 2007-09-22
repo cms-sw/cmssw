@@ -1,4 +1,4 @@
-//$Id: SprOutputWriterApp.cc,v 1.6 2007/08/11 22:08:10 narsky Exp $
+//$Id: SprOutputWriterApp.cc,v 1.2 2007/09/21 22:31:41 narsky Exp $
 
 
 #include "PhysicsTools/StatPatternRecognition/interface/SprExperiment.hh"
@@ -278,7 +278,7 @@ int main(int argc, char ** argv)
     }
   }
   else {
-    valFilter.reset(filter.get());
+    valFilter.reset(filter.release());
   }
  
   // read classifier configuration
