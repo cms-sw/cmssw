@@ -4,10 +4,9 @@
 #include "DataFormats/Common/interface/Handle.h"
 
 #include "DataFormats/TrackReco/interface/Track.h"
-#include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
 
-#include "RecoTracker/TkSeedGenerator/interface/SeedFromConsecutiveHits.h"
+#include "RecoTracker/TkSeedGenerator/interface/SeedFromProtoTrack.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <vector>
@@ -34,24 +33,8 @@ void SeedGeneratorFromProtoTracksEDProducer::produce(edm::Event& ev, const edm::
   for (TrackCollection::const_iterator it=protos.begin(); it!= protos.end(); ++it) {
     const Track & proto = (*it);
 
-    //
-    // temporary solution, reusing  SeedFromConsecutiveHits,
-    // should be replaced by dedicated seed buildr 
-    //
-    std::vector<const TrackingRecHit* > recHits;
-    for (unsigned int iHit = 0, nHits = proto.recHitsSize(); iHit < nHits; ++iHit) {  
-      TrackingRecHitRef refHit = proto.recHit(iHit);
-      recHits.push_back( &(*refHit) );
-    }
-    if (recHits.size() < 2) continue; 
-    GlobalPoint vtx(0.,0.,0.);
-    double originRBound = 0.2;
-    double originZBound = 15.9;
-    GlobalError vtxerr( sqr(originRBound), 0, sqr(originRBound),
-                                        0, 0, sqr(originZBound) );
-  
-    SeedFromConsecutiveHits seedfromhits( recHits[1], recHits[0], vtx, vtxerr, es, theConfig);
-    if (seedfromhits.isValid()) (*result).push_back( seedfromhits.TrajSeed() );
+    SeedFromProtoTrack seedFromProtoTrack( proto, es);
+    if (seedFromProtoTrack.isValid()) (*result).push_back( seedFromProtoTrack.trajectorySeed() );
   }
   ev.put(result);
 }
