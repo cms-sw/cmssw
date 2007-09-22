@@ -370,7 +370,7 @@ class _IncludeNode(cms._ParameterTypeBase):
                 f.write(dumpCff(self.filename))
                 f.close()
                 os.chdir(pythonDir)
-                os.system("scramv1 build") 
+                #os.system("scramv1 build") 
             os.chdir(cwd)
           
 
@@ -764,15 +764,18 @@ class _ReplaceNode(object):
     def __repr__(self):
         # translate true/false to True/False
         s = self.getValue()
-        if s == 'true':
-            s = True
-        if s == 'false':
-            s = False
-        # make sure numbers get their quotes stripped
-        noquotes = s.replace('\'','')
-        if noquotes.isdigit():
-            s = noquotes
-        return '.'.join(self.path)+" = "+repr(s)
+        #if it's a number, we don't want quotes
+        nodots = s.replace('.','')
+        if nodots.isdigit():
+            pass
+        elif s == 'true':
+            s = 'True'
+        elif s == 'false':
+            s = 'False'
+        else:
+            # need the quotes
+            s = repr(s)
+        return '.'.join(self.path)+" = "+s
 
 class _ReplaceSetter(object):
     """Used to 'set' an unknown type of value from a Replace node"""
