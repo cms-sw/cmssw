@@ -164,6 +164,40 @@ void HcalMonitorClient::initialize(const ParameterSet& ps){
   //  gStyle->SetOptStat(0);
   gStyle->SetPalette(1);
 
+
+  //mui_->getBEInterface() = edm::Service<DaqMonitorBEInterface>().operator->();
+  
+  //if ( verbose_ ) mui_->getBEInterface()->setVerbose(1);
+  //else mui_->getBEInterface()->setVerbose(0);
+  
+  if ( enableMonitorDaemon_ ) {
+    if ( enableServer_ ) {
+      mui_ = new MonitorUIRoot(hostName_, hostPort_, clientName_, 5, true);
+    } else {
+      mui_ = new MonitorUIRoot(hostName_, hostPort_, clientName_, 5, false);
+    }
+  } else {
+    mui_ = new MonitorUIRoot();
+    if ( enableServer_ ) {
+      mui_->actAsServer(serverPort_, clientName_);
+    }
+  }
+  
+  if ( verbose_ ) mui_->getBEInterface()->setVerbose(1);
+  else mui_->getBEInterface()->setVerbose(0);
+  
+  if( ! enableMonitorDaemon_ ) {  
+    if( inputFile_.size() != 0 && mui_->getBEInterface()!=NULL){
+      mui_->getBEInterface()->open(inputFile_);
+      mui_->getBEInterface()->showDirStructure();     
+    }
+  }
+
+  if(mui_) mui_->setMaxAttempts2Reconnect(99999);
+
+
+
+
   // clients' constructors
   if( ps.getUntrackedParameter<bool>("DataFormatClient", false) )
     dataformat_client_   = new HcalDataFormatClient(ps, mui_);
@@ -186,63 +220,35 @@ void HcalMonitorClient::initialize(const ParameterSet& ps){
 // remove all MonitorElements and directories
 void HcalMonitorClient::removeAll(){
 
-  if(dbe_==NULL) return;
+  if(mui_->getBEInterface()==NULL) return;
 
-  dbe_->setVerbose(0);
+  mui_->getBEInterface()->setVerbose(0);
 
 
   // go to top directory
-  dbe_->cd();
+  mui_->getBEInterface()->cd();
   // remove MEs at top directory
-  dbe_->removeContents(); 
+  mui_->getBEInterface()->removeContents(); 
   // remove directory (including subdirectories recursively)
-  if(dbe_->dirExists("Collector"))
-     dbe_->rmdir("Collector");
-  if(dbe_->dirExists("Summary"))
-  dbe_->rmdir("Summary");
+  if(mui_->getBEInterface()->dirExists("Collector"))
+     mui_->getBEInterface()->rmdir("Collector");
+  if(mui_->getBEInterface()->dirExists("Summary"))
+  mui_->getBEInterface()->rmdir("Summary");
 
-  dbe_->setVerbose(1);
+  mui_->getBEInterface()->setVerbose(1);
 }
 
 void HcalMonitorClient::beginJob(const EventSetup& eventSetup){
   
   if( verbose_ ) cout << "HcalMonitorClient: beginJob" << endl;
   
-  dbe_ = edm::Service<DaqMonitorBEInterface>().operator->();
-  
-  if ( verbose_ ) dbe_->setVerbose(1);
-  else dbe_->setVerbose(0);
-  
-  if ( enableMonitorDaemon_ ) {
-    if ( enableServer_ ) {
-      mui_ = new MonitorUIRoot(hostName_, hostPort_, clientName_, 5, true);
-    } else {
-      mui_ = new MonitorUIRoot(hostName_, hostPort_, clientName_, 5, false);
-    }
-  } else {
-    mui_ = new MonitorUIRoot();
-    if ( enableServer_ ) {
-      mui_->actAsServer(serverPort_, clientName_);
-    }
-  }
-  
-  
-  if( ! enableMonitorDaemon_ ) {  
-    if( inputFile_.size() != 0 && dbe_!=NULL){
-      dbe_->open(inputFile_);
-      dbe_->showDirStructure();     
-    }
-  }
-
-  if(mui_) mui_->setMaxAttempts2Reconnect(99999);
-
   ievt_ = 0;
   last_run_ = -1;
   run_     = -1;
   evt_     = -1;
   runtype_ = -1;
 
-  this->subscribe();
+  //this->subscribe();
 
   if( dataformat_client_ ) dataformat_client_->beginJob();
   if( digi_client_ )       digi_client_->beginJob();
@@ -325,9 +331,9 @@ void HcalMonitorClient::report(bool doUpdate) {
   
   if(doUpdate && status_!="unknown" && mui_){
     this->createTests();  
-    mui_->update();
-    mui_->doMonitoring();
-    dbe_->runQTests();
+    // mui_->update();
+    //  mui_->doMonitoring();
+    //  mui_->getBEInterface()->runQTests();
   }
 
   if( hot_client_ ) hot_client_->report();
@@ -341,7 +347,7 @@ void HcalMonitorClient::report(bool doUpdate) {
   if(doUpdate && mui_){
     mui_->update();
     mui_->doMonitoring();
-    dbe_->runQTests();
+    mui_->getBEInterface()->runQTests();
   }
   */
 
@@ -364,7 +370,7 @@ void HcalMonitorClient::report(bool doUpdate) {
     if(run_!=-1) sprintf(tmp,"%09d.root", run_);
     else sprintf(tmp,"%09d.root", 0);
     string fileName = outputFile_+tmp;
-    dbe_->save(fileName);
+    mui_->getBEInterface()->save(fileName);
     
   }
 
@@ -377,7 +383,7 @@ void HcalMonitorClient::report(bool doUpdate) {
 
 
 void HcalMonitorClient::endRun(void) {
-  if( verbose_ ) printf("HcalMonitorClient: endRun   updates: %d, events: %d",last_update_,mon_evt_);
+  if( verbose_ ) printf("HcalMonitorClient: endRun   updates: %d, events: %d\n",last_update_,mon_evt_);
   begin_run_ = false;
   end_run_   = true;
 
@@ -457,7 +463,7 @@ void HcalMonitorClient::endLuminosityBlock(const LuminosityBlock &l, const Event
         fileName.insert(i+9, tmp, 5);
       }
     }
-    dbe_->save(fileName);
+    mui_->getBEInterface()->save(fileName);
   }
 
 }
@@ -467,7 +473,7 @@ void HcalMonitorClient::setup(void) {
 }
 
 void HcalMonitorClient::cleanup(void) {  
-  this->unsubscribe();
+  //this->unsubscribe();
   return;
 }
 
@@ -475,33 +481,33 @@ void HcalMonitorClient::subscribe(void){
 
   if( verbose_ ) cout << "HcalMonitorClient: subscribe" << endl;
 
-  if(mui_){
+    if(mui_){
     Char_t histo[150];
-    mui_->subscribe("*/HcalMonitor/STATUS");
+    //mui_->subscribe("*/HcalMonitor/STATUS");
     sprintf(histo, "%sHcalMonitor/STATUS",process_.c_str());
-    MonitorElement* me = dbe_->get(histo);
+    MonitorElement* me = mui_->getBEInterface()->get(histo);
     if(!me) return;
   }
 
 
   // subscribe to monitorable matching pattern
   if(mui_){
-    mui_->subscribe("*/FU0_is_done");
-    mui_->subscribe("*/FU0_is_dead");
-    mui_->subscribe("*/HcalMonitor/STATUS");
-    mui_->subscribe("*/HcalMonitor/RUN NUMBER");
-    mui_->subscribe("*/HcalMonitor/EVT NUMBER");
-    mui_->subscribe("*/HcalMonitor/EVT MASK");
-    mui_->subscribe("*/HcalMonitor/RUN TYPE");
+    //mui_->subscribe("*/FU0_is_done");
+    //mui_->subscribe("*/FU0_is_dead");
+    //mui_->subscribe("*/HcalMonitor/STATUS");
+    //mui_->subscribe("*/HcalMonitor/RUN NUMBER");
+    //mui_->subscribe("*/HcalMonitor/EVT NUMBER");
+    //mui_->subscribe("*/HcalMonitor/EVT MASK");
+    //mui_->subscribe("*/HcalMonitor/RUN TYPE");
   }
-
+  /*
   if( hot_client_ ) hot_client_->subscribe();
   if( dataformat_client_ ) dataformat_client_->subscribe();
   if( digi_client_ ) digi_client_->subscribe();
   if( rechit_client_ ) rechit_client_->subscribe();
   if( pedestal_client_ ) pedestal_client_->subscribe();  
   if( led_client_ ) led_client_->subscribe();
-
+*/
   subscribed_ = true;
 
   return;
@@ -511,22 +517,22 @@ void HcalMonitorClient::subscribeNew(void){
 
   // subscribe to new monitorable matching pattern
   if(mui_){
-    mui_->subscribeNew("*/FU0_is_done");
-    mui_->subscribeNew("*/FU0_is_dead");
-    mui_->subscribeNew("*/HcalMonitor/STATUS");
-    mui_->subscribeNew("*/HcalMonitor/RUN NUMBER");
-    mui_->subscribeNew("*/HcalMonitor/EVT NUMBER");
-    mui_->subscribeNew("*/HcalMonitor/EVT MASK");
-    mui_->subscribeNew("*/HcalMonitor/RUN TYPE");
+    //mui_->subscribeNew("*/FU0_is_done");
+    //mui_->subscribeNew("*/FU0_is_dead");
+    //mui_->subscribeNew("*/HcalMonitor/STATUS");
+    //mui_->subscribeNew("*/HcalMonitor/RUN NUMBER");
+    //mui_->subscribeNew("*/HcalMonitor/EVT NUMBER");
+    //mui_->subscribeNew("*/HcalMonitor/EVT MASK");
+    //mui_->subscribeNew("*/HcalMonitor/RUN TYPE");
   }
-
+  /*
   if( dataformat_client_ ) dataformat_client_->subscribeNew();
   if( digi_client_ ) digi_client_->subscribeNew();
   if( rechit_client_ ) rechit_client_->subscribeNew();
   if( pedestal_client_ ) pedestal_client_->subscribeNew();  
   if( led_client_ ) led_client_->subscribeNew();
   if( hot_client_ ) hot_client_->subscribeNew();
-
+  */
   return;
 }
 
@@ -536,22 +542,22 @@ void HcalMonitorClient::unsubscribe(void) {
 
   // unsubscribe to all monitorable matching pattern
   if(mui_){
-    mui_->unsubscribe("*/FU0_is_done");
-    mui_->unsubscribe("*/FU0_is_dead");
-    mui_->unsubscribe("*/HcalMonitor/STATUS");
-    mui_->unsubscribe("*/HcalMonitor/RUN NUMBER");
-    mui_->unsubscribe("*/HcalMonitor/EVT NUMBER");
-    mui_->unsubscribe("*/HcalMonitor/EVT MASK");
-    mui_->unsubscribe("*/HcalMonitor/RUN TYPE");
+    //  mui_->unsubscribe("*/FU0_is_done");
+    //  mui_->unsubscribe("*/FU0_is_dead");
+    //  mui_->unsubscribe("*/HcalMonitor/STATUS");
+    //  mui_->unsubscribe("*/HcalMonitor/RUN NUMBER");
+    //  mui_->unsubscribe("*/HcalMonitor/EVT NUMBER");
+    //  mui_->unsubscribe("*/HcalMonitor/EVT MASK");
+    //  mui_->unsubscribe("*/HcalMonitor/RUN TYPE");
   }
-
+  /*
   if( hot_client_ ) hot_client_->unsubscribe();
   if( dataformat_client_ ) dataformat_client_->unsubscribe();
   if( digi_client_ ) digi_client_->unsubscribe();
   if( rechit_client_ ) rechit_client_->unsubscribe();
   if( pedestal_client_ ) pedestal_client_->unsubscribe();  
   if( led_client_ ) led_client_->unsubscribe();
-  
+  */
   subscribed_ = false;
 
   return;
@@ -570,124 +576,136 @@ void HcalMonitorClient::analyze(){
   
   ievt_++;
   
-  printf("\nClient heartbeat....\n");
+  printf("\nHcal Monitor Client heartbeat....\n");
   if(!mui_){
     printf("HcalMonitorClient:  MonitorUserInterface NULL!!\n");
     return;
   }
-  
+
   Char_t histo[150];
   MonitorElement* me =0;
   string s;  
-  
-  // # of full monitoring cycles processed
-  int updates = mui_->getNumUpdates();
-  mui_->doMonitoring();
 
   bool force_update = false;
+  int updates = 1;
+  //mui_->getBEInterface()->runQTests();
+  /*
+  // # of full monitoring cycles processed
+  int updates = mui_->getNumUpdates();
+  cout << " updates = " << updates << endl;
+  printf("A2\n");
+  printf("A3\n");
+  mui_->doMonitoring();
+  mui_->getBEInterface()->runQTests();
+
+  printf("B\n");
+
   if(nTimeouts_>=timeoutThresh_ || inputFile_.size()!=0){
     if(verbose_) printf("\n\n\n\nHcalMonitorClient: Forcing update after timeout!\n\n\n\n");
     force_update = true;
     status_ = "end-of-run";
   }
+  printf("C\n");
 
   //if no collector updates, continue....unless we're forcing an update
   if( updates != last_update_ || force_update) {
-    int lastRun = run_;
-    
-    sprintf(histo, "%sHcalMonitor/RUN NUMBER",process_.c_str());
-    me = dbe_->get(histo);    
+  */
+  
+  int lastRun = run_;
+  
+  sprintf(histo, "%sHcalMonitor/RUN NUMBER",process_.c_str());
+  me = mui_->getBEInterface()->get(histo);    
+  if( me ) {
+    s = me->valueString();
+    run_ = -1;
+    sscanf((s.substr(2,s.length()-2)).c_str(), "%d", &run_);
+    if( verbose_ ) cout << "Found '" << histo << "'" << endl;
+  }
+  
+  sprintf(histo, "%sHcalMonitor/EVT NUMBER",process_.c_str());
+  me = mui_->getBEInterface()->get(histo);
+  if( me ) {
+    s = me->valueString();
+    mon_evt_ = -1;
+    sscanf((s.substr(2,s.length()-2)).c_str(), "%d", &mon_evt_);
+    if( verbose_ ) cout << "Found '" << histo << "'" << endl;
+  }
+  
+  sprintf(histo, "%sHcalMonitor/EVT MASK",process_.c_str());
+  me = mui_->getBEInterface()->get(histo);
+  if( me ) {
+    s = me->valueString();
+    int mask = -1;
+    sscanf((s.substr(2,s.length()-2)).c_str(), "%d", &mask);
+    if( verbose_ ) cout << "Found '" << histo << "'" << endl;
+    if(mask&HCAL_BEAM_TRIGGER) runtype_ = "BEAM RUN";
+    if(mask&DO_HCAL_PED_CALIBMON){ runtype_ = "PEDESTAL RUN";
+    if(mask&HCAL_BEAM_TRIGGER) runtype_ = "BEAM AND PEDESTALS";
+    }
+    if(mask&DO_HCAL_LED_CALIBMON) runtype_ = "LED RUN";
+    if(mask&DO_HCAL_LASER_CALIBMON) runtype_ = "LASER RUN";
+  }
+  
+  if ( ! mergeRuns_ && run_ != last_run_ ) forced_update_ = true;
+  
+  
+  if(!force_update){
+    status_="unknown";
+    sprintf(histo, "%sHcalMonitor/STATUS",process_.c_str());
+    me = mui_->getBEInterface()->get(histo);
     if( me ) {
       s = me->valueString();
-      run_ = -1;
-      sscanf((s.substr(2,s.length()-2)).c_str(), "%d", &run_);
+      status_ = "unknown";
+      if( s.substr(2,1) == "0" ) status_ = "begin-of-run";
+      if( s.substr(2,1) == "1" ) status_ = "running";
+      if( s.substr(2,1) == "2" ) status_ = "end-of-run";
       if( verbose_ ) cout << "Found '" << histo << "'" << endl;
     }
-
-    sprintf(histo, "%sHcalMonitor/EVT NUMBER",process_.c_str());
-    me = dbe_->get(histo);
-    if( me ) {
-      s = me->valueString();
-      mon_evt_ = -1;
-      sscanf((s.substr(2,s.length()-2)).c_str(), "%d", &mon_evt_);
-      if( verbose_ ) cout << "Found '" << histo << "'" << endl;
+  }
+  
+  if(verbose_) printf("HcalClient: run: %d, evts: %d, type: %s, status: %s, iter: %d, updates: %d\n",
+		      run_, mon_evt_, runtype_.c_str(),status_.c_str(),ievt_, updates);
+  
+  
+  ///check status of monitor
+  if(status_=="begin-of-run") this->beginRun();
+  else if(status_=="running"){
+    if( dataformat_client_ ) dataformat_client_->analyze(); 	
+    if( digi_client_ )       digi_client_->analyze(); 
+    if( rechit_client_ )     rechit_client_->analyze(); 
+    if( pedestal_client_ )   pedestal_client_->analyze();      
+    if( led_client_ )        led_client_->analyze(); 
+    if( hot_client_ )         hot_client_->analyze(); 
+  }    
+  else if(status_ == "end-of-run") this->endRun();    
+  
+  if(status_!="unknown" && (ievt_%10)==0 ){
+    if((ievt_%nUpdateEvents_)!=0 || status_ == "begin-of-run"){ 
+      createTests();  
+      //    mui_->getBEInterface()->runQTests();
+      //    mui_->update();
     }
-    
-    sprintf(histo, "%sHcalMonitor/EVT MASK",process_.c_str());
-    me = dbe_->get(histo);
-    if( me ) {
-      s = me->valueString();
-      int mask = -1;
-      sscanf((s.substr(2,s.length()-2)).c_str(), "%d", &mask);
-      if( verbose_ ) cout << "Found '" << histo << "'" << endl;
-      if(mask&HCAL_BEAM_TRIGGER) runtype_ = "BEAM RUN";
-      if(mask&DO_HCAL_PED_CALIBMON){ runtype_ = "PEDESTAL RUN";
-	if(mask&HCAL_BEAM_TRIGGER) runtype_ = "BEAM AND PEDESTALS";
-      }
-      if(mask&DO_HCAL_LED_CALIBMON) runtype_ = "LED RUN";
-      if(mask&DO_HCAL_LASER_CALIBMON) runtype_ = "LASER RUN";
-    }
-    
-    if ( ! mergeRuns_ && run_ != last_run_ ) forced_update_ = true;
+  }
 
-
-    if(!force_update){
-      status_="unknown";
-      sprintf(histo, "%sHcalMonitor/STATUS",process_.c_str());
-      me = dbe_->get(histo);
-      if( me ) {
-	s = me->valueString();
-	status_ = "unknown";
-	if( s.substr(2,1) == "0" ) status_ = "begin-of-run";
-	if( s.substr(2,1) == "1" ) status_ = "running";
-	if( s.substr(2,1) == "2" ) status_ = "end-of-run";
-	if( verbose_ ) cout << "Found '" << histo << "'" << endl;
-      }
-    }
-    
-    if(verbose_) printf("HcalClient: run: %d, evts: %d, type: %s, status: %s, iter: %d, updates: %d\n",
-			run_, mon_evt_, runtype_.c_str(),status_.c_str(),ievt_, updates);
-    
-    
-    ///check status of monitor
-    if(status_=="begin-of-run") this->beginRun();
-    else if(status_=="running"){
-      if( dataformat_client_ ) dataformat_client_->analyze(); 	
-      if( digi_client_ )       digi_client_->analyze(); 
-      if( rechit_client_ )     rechit_client_->analyze(); 
-      if( pedestal_client_ )   pedestal_client_->analyze();      
-      if( led_client_ )        led_client_->analyze(); 
-      if( hot_client_ )         hot_client_->analyze(); 
-    }    
-    else if(status_ == "end-of-run") this->endRun();    
-
-    if(status_!="unknown" && (ievt_%10)==0 ){
-      if((ievt_%nUpdateEvents_)!=0 || status_ == "begin-of-run"){ 
-	createTests();  
-	mui_->update();
-      }
-    }
-
-
-    //report triggers
-    if(status_!="unknown"){
-      if(run_!=lastRun && lastRun!=0 && mon_evt_>1){
-	printf("-->Creating report after run transition\n");
-	this->report(false);    
-	last_mon_evt_ = mon_evt_;
-      }
-    }
-    
-    int addEvts = mon_evt_ - last_mon_evt_;
-    if(addEvts>=nUpdateEvents_){
-      printf("-->Creating report after %d events!\n",mon_evt_);
-      this->report(true);
+  //report triggers
+  if(status_!="unknown"){
+    if(run_!=lastRun && lastRun!=0 && mon_evt_>1){
+      printf("-->Creating report after run transition\n");
+      this->report(false);    
       last_mon_evt_ = mon_evt_;
     }
-
-    nTimeouts_=0;
   }
-  else nTimeouts_++;
+  
+  int addEvts = mon_evt_ - last_mon_evt_;
+  if(addEvts>=nUpdateEvents_){
+    printf("-->Creating report after %d events!\n",mon_evt_);
+    this->report(true);
+    last_mon_evt_ = mon_evt_;
+  }
+  
+  nTimeouts_=0;
+  //
+  //else nTimeouts_++;
   
   last_update_ = updates;
   
@@ -774,7 +792,7 @@ void HcalMonitorClient::analyze(){
   if ( status_ == "running" ) {
     if ( run_ != -1 && evt_ != -1 && runtype_ != -1 ) {      
       if ( begin_run_ && ! end_run_ ) {	
-        me = dbe_->get("Collector/FU0_is_done");
+        me = mui_->getBEInterface()->get("Collector/FU0_is_done");
         if ( me ) {
           cout << endl;
           cout << " Source FU0 is done, issuing endRun() ... " << endl;
@@ -791,7 +809,7 @@ void HcalMonitorClient::analyze(){
   if ( status_ == "running" ) {
     if ( run_ != -1 && evt_ != -1 && runtype_ != -1 ) {
       if ( begin_run_ && ! end_run_ ) {
-        me = dbe_->get("Collector/FU0_is_dead");
+        me = mui_->getBEInterface()->get("Collector/FU0_is_dead");
         if ( me ) {
           cout << endl;
           cout << " Source FU0 is dead, issuing endRun() ... " << endl;
@@ -804,9 +822,7 @@ void HcalMonitorClient::analyze(){
     }
   }
 
-
-  this->subscribeNew();
-  
+  //this->subscribeNew();
   return;
 }
 
@@ -937,15 +953,17 @@ void HcalMonitorClient::htmlOutput(void){
   }
   htmlFile << "</ul>" << endl;
 
+
   // html page footer
   htmlFile << "</body> " << endl;
   htmlFile << "</html> " << endl;
 
   htmlFile.close();
-
-  cout << endl;
-
+  cout << "HcalMonitorClient html output done..." << endl;
+  
+  return;
 }
+
 void HcalMonitorClient::offlineSetup(){
   //  cout << endl;
   //  cout << " *** Hcal Generic Monitor Client, for offline operation***" << endl;

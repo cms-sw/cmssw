@@ -50,7 +50,7 @@ void dumpHisto(TH1F* hist, vector<string> &names,
 	       vector<double> &meanX, vector<double> &meanY, 
 	       vector<double> &rmsX, vector<double> &rmsY){
   
-  names.push_back((string)hist->GetTitle());
+  names.push_back((string)hist->GetName());
   meanX.push_back(hist->GetMean(1));
   meanY.push_back(-123e10);
   rmsX.push_back(hist->GetRMS(1));
@@ -61,7 +61,7 @@ void dumpHisto2(TH2F* hist, vector<string> &names,
 	       vector<double> &meanX, vector<double> &meanY, 
 	       vector<double> &rmsX, vector<double> &rmsY){
   
-  names.push_back((string)hist->GetTitle());
+  names.push_back((string)hist->GetName());
   meanX.push_back(hist->GetMean(1));
   meanY.push_back(hist->GetMean(2));
   rmsX.push_back(hist->GetRMS(1));
@@ -95,12 +95,12 @@ string getIMG2(int runNo,TH2F* hist, int size, string htmlDir, const char* xlab,
     return "";
   }
 
-  string title = hist->GetTitle();
+  string name = hist->GetName();
   char dest[512];
-  if(runNo>-1) sprintf(dest,"%s - Run %d",hist->GetTitle(),runNo);
-  else sprintf(dest,"%s",hist->GetTitle());
+  if(runNo>-1) sprintf(dest,"%s - Run %d",name.c_str(),runNo);
+  else sprintf(dest,"%s",name.c_str());
   hist->SetTitle(dest);
-  hist->SetName(dest);
+  string title = dest;
 
   int xwid = 900; int ywid =540;
   if(size==1){
@@ -132,12 +132,12 @@ string getIMG(int runNo,TH1F* hist, int size, string htmlDir, const char* xlab, 
     return "";
   }
   
-  string title = hist->GetTitle();
+  string name = hist->GetName();
   char dest[512];
-  if(runNo>-1) sprintf(dest,"%s - Run %d",hist->GetTitle(),runNo);
-  else sprintf(dest,"%s",hist->GetTitle());
+  if(runNo>-1) sprintf(dest,"%s - Run %d",name.c_str(),runNo);
+  else sprintf(dest,"%s",name.c_str());
   hist->SetTitle(dest);
-  hist->SetName(dest);
+  string title = dest;
 
   int xwid = 900; int ywid =540;
   if(size==1){
