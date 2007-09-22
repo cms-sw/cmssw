@@ -13,7 +13,7 @@
 //
 // Original Author:  fwyzard
 //         Created:  Wed Oct 18 18:02:07 CEST 2006
-// $Id: SoftLepton.cc,v 1.4 2007/09/22 06:06:03 fwyzard Exp $
+// $Id: SoftLepton.cc,v 1.5 2007/09/22 14:47:42 fwyzard Exp $
 //
 
 
@@ -186,11 +186,17 @@ SoftLepton::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
     iEvent.get(leptons_id, h_muons);
     for (reco::MuonCollection::const_iterator muon = h_muons->begin(); muon != h_muons->end(); ++muon)
     {
-      if (! muon->combinedMuon().isNull() and muon->getCaloCompatibility() > m_quality)
-        leptons.push_back(edm::RefToBase<reco::Track>( muon->combinedMuon() ));
-      else 
-      if (! muon->track().isNull() and muon->getCaloCompatibility() > m_quality)
-        leptons.push_back(edm::RefToBase<reco::Track>( muon->track() ));
+      if (! muon->combinedMuon().isNull()) {
+        if (muon->getCaloCompatibility() > m_quality)
+          leptons.push_back(edm::RefToBase<reco::Track>( muon->combinedMuon() ));
+      } else 
+      if (! muon->track().isNull()) {
+        if (muon->getCaloCompatibility() > m_quality)
+          leptons.push_back(edm::RefToBase<reco::Track>( muon->track() ));
+      } else {
+        // FIXME
+        // invalid muon? or stanalone?
+      }
     }
   }
   else
