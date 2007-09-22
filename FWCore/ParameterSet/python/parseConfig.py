@@ -336,8 +336,8 @@ class _IncludeNode(cms._ParameterTypeBase):
     def __init__(self,filename):
         self.filename = filename
     def pythonFileRoot(self):
-        # translate, e.g., "SimMuon/DT/data/mod.cfi" to "SimMuon/DT/data/mod_cfi"
-        return self.filename.replace('.','_')
+        # translate, e.g., "SimMuon/DT/data/my-mod.cfi" to "SimMuon/DT/data/my_mod_cfi"
+        return self.filename.replace('.','_').replace('-','_')
     def pythonFileName(self):
         return self.pythonFileRoot().replace('/data/','/python/')+".py"
     def pythonModuleName(self):
@@ -370,7 +370,7 @@ class _IncludeNode(cms._ParameterTypeBase):
                 f.write(dumpCff(self.filename))
                 f.close()
                 os.chdir(pythonDir)
-                #os.system("scramv1 build") 
+                os.system("scramv1 build") 
             os.chdir(cwd)
           
 
