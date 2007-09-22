@@ -13,7 +13,7 @@
 //
 // Original Author:  fwyzard
 //         Created:  Wed Oct 18 18:02:07 CEST 2006
-// $Id: SoftLepton.cc,v 1.2 2007/08/28 01:38:22 ratnik Exp $
+// $Id: SoftLepton.cc,v 1.3 2007/08/28 16:57:20 fwyzard Exp $
 //
 
 
@@ -42,6 +42,8 @@
 #include "DataFormats/EgammaCandidates/interface/PixelMatchGsfElectron.h"
 #include "DataFormats/EgammaCandidates/interface/PixelMatchGsfElectronFwd.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
+#include "AnalysisDataFormats/Egamma/interface/ElectronID.h"
+#include "AnalysisDataFormats/Egamma/interface/ElectronIDAssociation.h"
 #include "DataFormats/BTauReco/interface/JetTracksAssociation.h"
 #include "DataFormats/BTauReco/interface/SoftLeptonTagInfo.h"
 
@@ -164,6 +166,16 @@ SoftLepton::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
     for (reco::PixelMatchGsfElectronCollection::const_iterator electron = h_electrons->begin(); electron != h_electrons->end(); ++electron)
       leptons.push_back(edm::RefToBase<reco::Track>( electron->gsfTrack() ));
   } 
+  else
+  // look for ElectronID collection
+  if (leptons_id = edm::findProductIDByLabel<reco::ElectronIDAssociationCollection>(iEvent, m_leptons), leptons_id.isValid())
+  {
+    Handle<reco::ElectronIDAssociationCollection> h_electrons;
+    iEvent.get(leptons_id, h_electrons);
+    for (reco::ElectronIDAssociationCollection::const_iterator electron = h_electrons->begin(); electron != h_electrons->end(); ++electron) {
+      // FIXME
+    }
+  }
   else
   // electrons not found, look for muons
   if (leptons_id = edm::findProductIDByLabel<reco::MuonCollection>(iEvent, m_leptons), leptons_id.isValid())
