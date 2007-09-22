@@ -1032,6 +1032,7 @@ def _getCompressedNodes(s,loc, values):
         _findAndHandleProcessUsingBlock(expandedValues)
     except Exception, e:
         raise pp.ParseFatalException(s,loc,"the process contains the error \n"+str(e))
+
     return compressedValues
 
 def _dumpCfg(s,loc,toks):
@@ -1195,7 +1196,7 @@ class _ConfigReturn(object):
     def __init__(self,d):
         for key,value in d.iteritems():
             setattr(self, key, value)
-    def __repr__(self):
+    def commentedOutRepr(self):
         # make sure all the top-level Labelables are labelled
         for key,value in self.__dict__.iteritems():
             if isinstance(value, cms._Labelable):
@@ -1250,10 +1251,28 @@ def dumpCff(fileName):
     values = onlyFragment.parseFile(_fileFactory(fileName))
     # copy from whatever got returned into a list
     compressedValues = _getCompressedNodes(fileName, 0, values)
-    #now deal with series
-    #d = SortedKeysDict(compressedValues)
-    d = dict(compressedValues)
-    return repr(_ConfigReturn(d))
+    # make sure all the top-level Labelables are labelled
+    for key,value in compressedValues:
+        if isinstance(value, cms._Labelable):
+            value.setLabel(key)
+    result = 'import FWCore.ParameterSet.Config as cms\n'
+    # play it safe: includes first, then others, then replaces
+    includes = ''
+    replaces = ''
+    others = ''
+    sequences = ''
+    for key,value in compressedValues:
+        if isinstance(value,_IncludeNode):
+            value.createIfNeeded()
+            includes += value.cffRepr()+"\n"
+        elif isinstance(value,_ReplaceNode):
+            replaces += repr(value)+"\n"
+        elif isinstance(value,_ModuleSeries):
+            sequences += key+" = "+value.dumpPython('','    ')+"\n"
+        else:
+            others += key+" = "+value.dumpPython('','    ')+"\n"
+    return result+includes+others+sequences+replaces
+
 
 
 def processFromString(configString):
