@@ -49,8 +49,8 @@ CSCCFEBData::CSCCFEBData(unsigned number, unsigned short * buf)
 	  else 
 	    {
 	      edm::LogError ("CSCCFEBData") << "CORRUPT CFEB DATA slice " << theNumberOfSamples << std::hex 
-					    << " " << *(buf+pos) << " " << *(buf+pos+1) << " " 
-					    << *(buf+pos+2) << std::dec;
+					    << " " << *(buf+pos+3) << " " << *(buf+pos+2) << " "  << *(buf+pos+1) << " "
+			<< *(buf+pos);
 	      return;
 	    }
 	}

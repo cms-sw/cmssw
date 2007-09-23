@@ -1,4 +1,6 @@
 #include "EventFilter/CSCRawToDigi/interface/CSCTMBTrailer.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
 
 CSCTMBTrailer::CSCTMBTrailer(int wordCount) 
 {
@@ -21,13 +23,24 @@ CSCTMBTrailer::CSCTMBTrailer(int wordCount)
 }
 
 
-CSCTMBTrailer::CSCTMBTrailer(unsigned short * buf) 
+CSCTMBTrailer::CSCTMBTrailer(unsigned short * buf, unsigned short int firmwareVersion) 
 {
   // take a little too much, maybe
   memcpy(theData, buf, 14);
-  // if there's padding, there'll be a de0f in the 6th word.
-  // If not, you'll be in CFEB-land, where they won't be de0f.
-  thePadding = (theData[5] == 0xde0f ? 2 : 0);
+  switch (firmwareVersion){
+  case 2006:
+    // if there's padding, there'll be a de0f in the 6th word.
+    // If not, you'll be in CFEB-land, where they won't be de0f.
+    thePadding = (theData[5] == 0xde0f ? 2 : 0);
+    break;
+  case 2007:
+    ///in 2007 format de0f line moved
+    thePadding = (theData[3] == 0xde0f ? 2 : 0);
+    break;
+  default: 
+    edm::LogError("CSCTMBTrailer")
+      <<"failed to contruct: firmware version is bad/not defined!";
+  }
 }
 
 int CSCTMBTrailer::crc22() const {return theData[1+thePadding] & 0x7fff + ((theData[2+thePadding] & 0x7fff) << 11);}

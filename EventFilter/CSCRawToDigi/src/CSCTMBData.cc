@@ -89,27 +89,35 @@ int CSCTMBData::TMBCRCcalc()
 
 int CSCTMBData::UnpackTMB(unsigned short *buf) {
   ///determine 2007 or 2006 version
-  unsigned short int firmwareVersion=2006;
+  unsigned short int firmwareVersion=0;
   int Ntbins = 0 ;
   int NHeaderFrames = 0;
   
-  int b0cLine = findLine(buf, 0xDB0C, 0, 10);
-  if ((b0cLine!=-1)&&((buf[b0cLine+1]&0xf000)==0xD000)&&((buf[b0cLine+2]&0xf000)==0xD000)
-      &&((buf[b0cLine+3]&0xf000)==0xD000)&&((buf[b0cLine+4]&0xf000)==0xD000)){
-    firmwareVersion=2007;
-    Ntbins = buf[b0cLine+19]&0xF8;
-    NHeaderFrames = buf[b0cLine+5]&0x3F;  
-  }
+  int b0cLine2006 = findLine(buf, 0x6B0C, 0, 10);
+  int b0cLine2007 = findLine(buf, 0xDB0C, 0, 10);
+  int b0cLine=-1;
 
-  if(b0cLine == -1) b0cLine = findLine(buf, 0x6B0C, 0, 10);
-  if(b0cLine != -1) {
+  if (b0cLine2006 !=-1) {
+    b0cLine =  b0cLine2006;
     firmwareVersion=2006;
     Ntbins =  buf[b0cLine+1]&0x1f ;
     NHeaderFrames = buf[b0cLine+4]&0x1f;
   }
-  else {
-    edm::LogError("CSCTMBData") << "+++ CSCTMBData warning: No b0c line!";
-    return 0;  
+
+  if (b0cLine2007 !=-1) {
+    b0cLine =  b0cLine2007;
+    firmwareVersion=2007;
+    Ntbins = buf[b0cLine+19]&0xF8;
+    NHeaderFrames = buf[b0cLine+5]&0x3F;
+  }
+
+  if(b0cLine == -1) {
+    edm::LogError("CSCTMBData") << "+++ CSCTMBData error: No b0c line!";
+  }
+
+  if (!((firmwareVersion==2007)&&((buf[b0cLine]&0xFFFF)==0xDB0C)&&((buf[b0cLine+1]&0xf000)==0xD000)
+	&&((buf[b0cLine+2]&0xf000)==0xD000)&&((buf[b0cLine+3]&0xf000)==0xD000))){
+    edm::LogError("CSCTMBData") << "+++ CSCTMBData warning: error in header in 2007 format!";
   }
 
   int TotTMBReadout = 27+Ntbins*6*5+1+Ntbins*2*4+2+8*256+8; //see tmb2004 manual (version v2p06) page54.
@@ -213,7 +221,7 @@ int CSCTMBData::UnpackTMB(unsigned short *buf) {
     } 
   else 
     {
-      theTMBTrailer = CSCTMBTrailer(buf+e0cLine);
+      theTMBTrailer = CSCTMBTrailer(buf+e0cLine, firmwareVersion);
     }
 
   checkSize();
