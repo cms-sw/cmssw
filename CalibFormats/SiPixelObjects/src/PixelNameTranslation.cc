@@ -248,10 +248,10 @@ const std::vector<PixelHdwAddress>* PixelNameTranslation::getHdwAddress(const Pi
 
     if (moduleTranslationtable_.find(aModule)==moduleTranslationtable_.end()){
       //std::cout<<"Could not look up module:"<<aModule<<std::endl;
-      std::map<PixelModuleName,std::vector<PixelHdwAddress> >::const_iterator it=moduleTranslationtable_.begin();
-      for(;it!=moduleTranslationtable_.end();++it){
-        std::cout << "Module name:"<<it->first<<std::endl;
-      }
+      //std::map<PixelModuleName,std::vector<PixelHdwAddress> >::const_iterator it=moduleTranslationtable_.begin();
+      //for(;it!=moduleTranslationtable_.end();++it){
+      //  std::cout << "Module name:"<<it->first<<std::endl;
+      //}
       return 0;
     }
     
