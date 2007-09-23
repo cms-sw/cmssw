@@ -193,6 +193,9 @@ class CSCTMBHeader {
     }
   }
 
+  CSCTMBHeader2007 tmbHeader2007()   const {return header2007;}
+  CSCTMBHeader2006 tmbHeader2006()   const {return header2006;}
+
   uint16_t NTBins() const {
     switch (firmwareVersion) {
     case 2006:
@@ -246,8 +249,10 @@ class CSCTMBHeader {
     switch (firmwareVersion) {
     case 2006:
       memcpy(theOriginalBuffer, &header2006, header2006.sizeInWords()*2);
+      break;
     case 2007:
-      memcpy(theOriginalBuffer, &header2006, header2006.sizeInWords()*2);
+      memcpy(theOriginalBuffer, &header2007, header2007.sizeInWords()*2);
+      break;
     default:
       edm::LogError("CSCTMBHeader")
         <<"coundn't access data: TMB firmware version is bad/not defined!";

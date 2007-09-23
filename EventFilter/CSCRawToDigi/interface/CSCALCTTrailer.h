@@ -7,39 +7,131 @@
 
 #include <string.h> // memcpy
 #include "DataFormats/CSCDigi/interface/CSCALCTStatusDigi.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
+struct CSCALCTTrailer2006 {
+  CSCALCTTrailer2006() {
+    bzero(this,  sizeInWords()*2); ///size of the trailer
+  }
+  short unsigned int sizeInWords() const { ///size of ALCT Header
+    return 4;
+  }
+  unsigned crc0:11, reserved_0:5;
+  unsigned crc1:11, reserved_1:5;
+  unsigned e0dLine:16;
+  unsigned frameCount:11, reserved_3:1, reserved_4:4;
+};
+
+struct CSCALCTTrailer2007 {
+  CSCALCTTrailer2007() {
+    bzero(this,  sizeInWords()*2); ///size of the trailer
+  }
+  short unsigned int sizeInWords() const { ///size of ALCT Header
+    return 4;
+  }
+  unsigned e0dLine:16;
+  unsigned crc0:11, reserved_0:5;
+  unsigned crc1:11, reserved_1:5;
+  unsigned frameCount:11, reserved_3:1, reserved_4:4;
+};
+
+
 
 class CSCALCTTrailer
 {
 public:
-  CSCALCTTrailer() { bzero(this, sizeInWords()*2);  e0dLine = 0xe0d; reserved_4=0xd;}
-  explicit CSCALCTTrailer(const unsigned short * buf) {
-    memcpy(this, buf, sizeInWords()*2);
+  ///needed for packing
+  CSCALCTTrailer();
+  CSCALCTTrailer(const unsigned short * buf);
+  CSCALCTTrailer(const CSCALCTStatusDigi & digi) {
+    CSCALCTTrailer(digi.trailer());
   }
 
-  CSCALCTTrailer(const CSCALCTStatusDigi & digi) 
-    {
-      memcpy(this, digi.trailer() , sizeInWords()*2);
-    }
+  static void setDebug(bool debugValue) {debug = debugValue;}
 
-  unsigned short * data() {return (unsigned short *) this;}
+  unsigned short * data() {
+    switch (firmwareVersion) {
+    case 2006:
+      memcpy(theOriginalBuffer, &trailer2006, trailer2007.sizeInWords()*2);
+      break;
+    case 2007:
+      memcpy(theOriginalBuffer, &trailer2007, trailer2007.sizeInWords()*2);
+      break;
+    default:
+      edm::LogError("CSCALCTTrailer")
+        <<"coundn't access data: ALCT firmware version is bad/not defined!";
+      break;
+    }
+    return theOriginalBuffer;
+  }
+
   /// in 16-bit frames
   static int sizeInWords() {return 4;}
 
   int getCRC() { 
-    //printf("crc1 %x crc0 %x \n",crc1,crc0);
-    return ((crc1&0x7ff)<<11) | (crc0&0x7ff) ; 
+    switch (firmwareVersion) {
+    case 2006:
+      return ((trailer2006.crc1&0x7ff)<<11) | (trailer2006.crc0&0x7ff);
+    case 2007:
+      return ((trailer2007.crc1&0x7ff)<<11) | (trailer2007.crc0&0x7ff);
+    default:
+      edm::LogError("CSCALCTTrailer")
+        <<"coundn't getCRC: ALCT firmware version is bad/not defined!";
+      return 0;
+    }
   }
 
-  bool check() const {return (e0dLine & 0xfff) == 0xe0d;}
-  int wordCount() { return frameCount; }
-  unsigned alctCRCCheck() const { return reserved_3; }
-  unsigned FrameCount() const { return frameCount; }
-private:
+  bool check() const {
+    switch (firmwareVersion) {
+    case 2006:
+      return (trailer2006.e0dLine & 0xfff) == 0xe0d;
+    case 2007:
+      return (trailer2007.e0dLine & 0xffff) == 0xde0d;
+    default:
+      edm::LogError("CSCALCTTrailer")
+	<<"coundn't check: ALCT firmware version is bad/not defined!";
+      return 0;
+    }
+  }
+  
+  int wordCount() const {
+    switch (firmwareVersion) {
+    case 2006:
+      return trailer2006.frameCount;
+    case 2007:
+      return trailer2007.frameCount;
+    default:
+      edm::LogError("CSCALCTTrailer")
+	<<"coundn't wordCount: ALCT firmware version is bad/not defined!";
+      return 0;
+    }
+  }
+  
+  unsigned alctCRCCheck() const { 
+    switch (firmwareVersion) {
+    case 2006:
+      return trailer2006.reserved_3;
+    case 2007:
+      return trailer2007.reserved_3;  
+    default:
+      edm::LogError("CSCALCTTrailer")
+	<<"coundn't CRCcheck: ALCT firmware version is bad/not defined!";
+      return 0;
+    }
+  }
+  
+  unsigned FrameCount() const { return wordCount(); }
 
-  unsigned crc0:11, reserved_0:5;
-  unsigned crc1:11, reserved_1:5;
-  unsigned e0dLine:12, reserved_2:4;
-  unsigned frameCount:11, reserved_3:1, reserved_4:4;
+  CSCALCTTrailer2006 alctTrailer2006() {return trailer2006;}
+  CSCALCTTrailer2007 alctTrailer2007() {return trailer2007;}
+
+private:
+  static bool debug;
+  static unsigned short int firmwareVersion;
+  CSCALCTTrailer2006 trailer2006;
+  CSCALCTTrailer2007 trailer2007;
+  unsigned short int theOriginalBuffer[4];
+
 };
 
 #endif

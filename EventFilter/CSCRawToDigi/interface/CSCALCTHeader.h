@@ -140,6 +140,26 @@ struct CSCALCTHeader2007 {
     return 8;
   }
 
+  unsigned flag1                : 16;///=0xDB0A
+
+  unsigned bxnL1A               : 12;
+  unsigned reserved1            : 4;
+
+  unsigned l1aCounter           : 12;
+  unsigned reserved2            : 4;
+
+  unsigned readoutCounter       : 12;
+  unsigned reserved3            : 4;
+
+  unsigned bxnCount             : 12;
+  unsigned rawOverflow          : 1;
+  unsigned lctOverflow          : 1;
+  unsigned configPresent        : 1;
+  unsigned flag3                : 1;
+
+  unsigned bxnBeforeReset       : 12;
+  unsigned flag2                : 4;
+
   unsigned boardType            : 3;
   unsigned backwardForward      : 1;
   unsigned negativePositive     : 1;
@@ -151,26 +171,6 @@ struct CSCALCTHeader2007 {
   unsigned reserved0            : 2;
   unsigned flag0                : 4;  
    
-  unsigned bxnL1A               : 12;
-  unsigned reserved1            : 4;
-
-  unsigned flag1                : 16;///=0xDB0A
- 
-  unsigned bxnBeforeReset       : 12;
-  unsigned flag2                : 4;
-  
-  unsigned bxnCount             : 12;
-  unsigned rawOverflow          : 1;
-  unsigned lctOverflow          : 1;
-  unsigned configPresent        : 1;
-  unsigned flag3                : 1;
-
-  unsigned l1aCounter           : 12;
-  unsigned reserved2            : 4;
- 
-  unsigned readoutCounter       : 12;
-  unsigned reserved3            : 4;
-
   unsigned rawBins              : 5;
   unsigned lctBins              : 4;
   unsigned firmwareVersion      : 6;

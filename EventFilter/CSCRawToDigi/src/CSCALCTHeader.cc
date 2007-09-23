@@ -36,7 +36,7 @@ CSCALCTHeader::CSCALCTHeader(const unsigned short * buf) {
 
 
   ///first determine the correct format  
-  if (buf[2]==0xDB0A) {
+  if (buf[0]==0xDB0A) {
     firmwareVersion=2007;
   }
   else if ( (buf[0]&0xF800)==0x6000 ) {
