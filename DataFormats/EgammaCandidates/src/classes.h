@@ -1,18 +1,42 @@
 //
-// $Id: classes.h,v 1.16 2007/06/08 13:47:58 llista Exp $
+// $Id: classes.h,v 1.17 2007/07/31 15:20:03 ratnik Exp $
 //
 #include "DataFormats/Common/interface/Wrapper.h"
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
+#include "Rtypes.h" 
+#include "Math/Cartesian3D.h" 
+#include "Math/Polar3D.h" 
+#include "Math/CylindricalEta3D.h" 
+#include "Math/PxPyPzE4D.h" 
+#include <boost/cstdint.hpp> 
+#include "DataFormats/EgammaCandidates/interface/PhotonFwd.h" 
 #include "DataFormats/EgammaCandidates/interface/Electron.h"
+#include "DataFormats/EgammaCandidates/interface/ElectronFwd.h" 
 #include "DataFormats/EgammaCandidates/interface/PixelMatchElectron.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h" 
+#include "DataFormats/TrackReco/interface/Track.h" 
+#include "DataFormats/Common/interface/RefProd.h" 
+#include "DataFormats/EgammaCandidates/interface/PixelMatchElectronFwd.h" 
 #include "DataFormats/EgammaCandidates/interface/PixelMatchGsfElectron.h"
+#include "DataFormats/GsfTrackReco/interface/GsfTrack.h" 
+#include "DataFormats/GsfTrackReco/interface/GsfTrackExtra.h" 
+#include "DataFormats/EgammaCandidates/interface/PixelMatchGsfElectronFwd.h" 
 #include "DataFormats/EgammaCandidates/interface/ConvertedPhoton.h"
+#include "DataFormats/EgammaReco/interface/SuperCluster.h" 
+#include "DataFormats/GeometryVector/interface/GlobalPoint.h" 
+#include "DataFormats/EgammaCandidates/interface/ConvertedPhotonFwd.h" 
 #include "DataFormats/EgammaCandidates/interface/SiStripElectron.h"
+#include "DataFormats/CLHEP/interface/Migration.h" 
+#include "DataFormats/GeometryVector/interface/LocalPoint.h" 
+#include "DataFormats/EgammaCandidates/interface/SiStripElectronFwd.h" 
+#include "DataFormats/TrackReco/interface/TrackFwd.h" 
+#include "DataFormats/TrackingRecHit/interface/TrackingRecHitFwd.h" 
 #include "DataFormats/EgammaCandidates/interface/PhotonIsolationAssociation.h"
 #include "DataFormats/EgammaCandidates/interface/ElectronIsolationAssociation.h"
 #include "DataFormats/EgammaCandidates/interface/PMGsfElectronIsoCollection.h"
 #include "DataFormats/EgammaCandidates/interface/PMGsfElectronIsoNumCollection.h"
 #include "DataFormats/EgammaCandidates/interface/PhotonPi0DiscriminatorAssociation.h"
+
 #include "DataFormats/Common/interface/RefToBase.h"
 #include "DataFormats/Common/interface/AssociationMap.h"
 
@@ -62,13 +86,12 @@ namespace {
     reco::ElectronIsolationMap v7;
     edm::Wrapper<reco::ElectronIsolationMap> w7;
     edm::helpers::Key<edm::RefProd<reco::ElectronCollection > > h7;
-
     reco::PMGsfElectronIsoCollectionBase b8;
     reco::PMGsfElectronIsoCollection v8;
     reco::PMGsfElectronIsoCollectionRef r8;
     reco::PMGsfElectronIsoCollectionRefProd rp8;
     reco::PMGsfElectronIsoCollectionRefVector rv8;
-    
+
     edm::Wrapper<reco::PMGsfElectronIsoCollection> w8;
 
     reco::PMGsfElectronIsoNumCollectionBase b9;
@@ -76,7 +99,7 @@ namespace {
     reco::PMGsfElectronIsoNumCollectionRef r9;
     reco::PMGsfElectronIsoNumCollectionRefProd rp9;
     reco::PMGsfElectronIsoNumCollectionRefVector rv9;
-    
+
     edm::Wrapper<reco::PMGsfElectronIsoNumCollection> w9;
 
     reco::PhotonPi0DiscriminatorAssociationMap v10;
