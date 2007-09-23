@@ -16,14 +16,14 @@
  *   
  * \author: Vasile Mihai Ghete - HEPHY Vienna
  * 
- * $Date:$
- * $Revision:$
+ * $Date$
+ * $Revision$
  *
  */
 
 // system include files
-#include<vector>
-#include<string>
+#include <string>
+#include <map>
 
 // user include files
 
@@ -31,7 +31,7 @@
 #include "HLTrigger/HLTcore/interface/HLTFilter.h"
 
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetupFwd.h"
-
+#include "FWCore/ParameterSet/interface/InputTag.h"
 
 // forward declarations
 
