@@ -147,15 +147,15 @@ struct CSCTMBHeader2007 {///this struct is for 2007 version of dataformat
   unsigned nCFEBs:3, nTBins:5, fifoPretrig:5, scopeExists:1, vmeExists:1, flag19:1;
   unsigned hitThresh:3, pidThresh:4, nphThresh:3, lyrThresh:3, layerTrigEnabled:1, staggerCSC:1, flag20:1;
   unsigned triadPersist:4, dmbThresh:3, alct_delay:4, clct_width:4, flag21:1;
-  unsigned trigSourceVect:8, r_nlayers_hit_vec:6, flag22:1;
+  unsigned trigSourceVect:9, r_nlayers_hit_vec:6, flag22:1;
   unsigned activeCFEBs:5, readCFEBs:5, pop_l1a_match_win:4, layerTriggered:1, flag23:1;
   unsigned tmbMatch:1, alctOnly:1, clctOnly:1, matchWin:4, noTMBTrig:1, noMPCFrame:1, noMPCResponse:1, reserved1:5, flag24:1;
   unsigned clct0_valid:1, clct0_quality:3, clct0_shape:4, clct0_bend:1, clct0_key:5, clct0_cfeb_low:1, flag25:1;
   unsigned clct1_valid:1, clct1_quality:3, clct1_shape:4, clct1_bend:1, clct1_key:5, clct1_cfeb_low:1, flag26:1;
   unsigned clct0_cfeb_high:2, clct0_bxn:2, clct0_sync_err:1, clct0_bx0_local:1, clct1_cfeb_high:2, clct1_bxn:2, clct1_sync_err:1, clct1_bx0_local:1, clct0Invalid:1, clct1Invalid:1, clct1Busy:1, flag27:1;
-  unsigned alct0Valid:1, alct0Quality:2, alct0Amu:2, alct0Key:7, reserved2:4, flag28:1;
-  unsigned alct1Valid:1, alct1Quality:2, alct1Amu:2, alct1Key:7, reserved3:4, flag29:1;
-  unsigned alctBXN:5, alctSeqStatus:2, alctSEUStatus:2, alctReserved:4, alctCfg:1, reserved4:1, flag30;
+  unsigned alct0Valid:1, alct0Quality:2, alct0Amu:1, alct0Key:7, reserved2:4, flag28:1;
+  unsigned alct1Valid:1, alct1Quality:2, alct1Amu:1, alct1Key:7, reserved3:4, flag29:1;
+  unsigned alctBXN:5, alctSeqStatus:2, alctSEUStatus:2, alctReserved:4, alctCfg:1, reserved4:1, flag30:1;
   unsigned MPC_Muon0_wire_:7, MPC_Muon0_clct_pattern_:4, MPC_Muon0_quality_:4, flag31:1;
   unsigned MPC_Muon0_halfstrip_clct_pattern:8, MPC_Muon0_bend_:1, MPC_Muon0_SyncErr_:1, MPC_Muon0_bx_:1, MPC_Muon0_bc0_:1, MPC_Muon0_cscid_low:3, flag32:1;
   unsigned MPC_Muon1_wire_: 7, MPC_Muon1_clct_pattern_:4, MPC_Muon1_quality_:4, flag33:1;
@@ -272,7 +272,7 @@ class CSCTMBHeader {
       return header2007.e0bline==0x6e0b;
     default:
       edm::LogError("CSCTMBHeader")
-        <<"checked and TMB firmware version is bad/not defined!";
+        <<"checked TMB firmware version to be  bad/not defined!";
       return false;
     }
   }
