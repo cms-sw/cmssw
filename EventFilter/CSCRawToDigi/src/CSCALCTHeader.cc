@@ -83,13 +83,13 @@ CSCALCTHeader::CSCALCTHeader(const unsigned short * buf) {
 	buf += hotChannelMasks[i].sizeInWords();
 	sizeInWords2007_ += hotChannelMasks[i].sizeInWords();
       }
+    }
 
-      alcts.resize(header2007.lctBins*2); ///2007 has LCTbins * 2 alct words
-      for (unsigned int i=0; i<header2007.lctBins*2; ++i) {
-	memcpy(&alcts[i], buf, alcts[i].sizeInWords()*2);
-	buf += alcts[i].sizeInWords(); 
-	sizeInWords2007_ += alcts[i].sizeInWords();
-      }
+    alcts.resize(header2007.lctBins*2); ///2007 has LCTbins * 2 alct words
+    for (unsigned int i=0; i<header2007.lctBins*2; ++i) {
+      memcpy(&alcts[i], buf, alcts[i].sizeInWords()*2);
+      buf += alcts[i].sizeInWords(); 
+      sizeInWords2007_ += alcts[i].sizeInWords();
     }
     break;
 
