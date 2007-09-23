@@ -7,7 +7,7 @@
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
 
 #include "RecoTracker/TkSeedGenerator/interface/SeedFromProtoTrack.h"
-
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <vector>
 
