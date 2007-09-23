@@ -67,5 +67,37 @@
   <class name="edm::Wrapper<edm::AssociationMap<edm::OneToValue<std::vector<reco::Electron>, float, unsigned int > > >" />
   <class name="edm::helpers::Key<edm::RefProd<std::vector<reco::Electron> > >" />
 
+
+  <class name="std::pair<reco::PixelMatchGsfElectronRef,double>"/>
+  <class name="std::vector<std::pair<reco::PixelMatchGsfElectronRef,double> >"/>
+
+  <class name="reco::PMGsfElectronIsoCollectionBase">
+    <field name="transientVector_" transient="true"/>
+    <field name="fixed_" transient="true"/>
+  </class>
+  <class name="reco::PMGsfElectronIsoCollection">
+    <field name="transientVector_" transient="true"/>
+    <field name="fixed_" transient="true"/>
+  </class>
+  <class name="reco::PMGsfElectronIsoCollectionRef"/>
+  <class name="reco::PMGsfElectronIsoCollectionRefProd"/>
+  <class name="reco::PMGsfElectronIsoCollectionRefVector"/>
+  <class name="edm::Wrapper<reco::PMGsfElectronIsoCollection>"/>
+
+  <class name="std::pair<reco::PixelMatchGsfElectronRef,int>"/>
+  <class name="std::vector<std::pair<reco::PixelMatchGsfElectronRef,int> >"/>
+
+  <class name="reco::PMGsfElectronIsoNumCollectionBase">
+    <field name="transientVector_" transient="true"/>
+    <field name="fixed_" transient="true"/>
+  </class>
+  <class name="reco::PMGsfElectronIsoNumCollection">
+    <field name="transientVector_" transient="true"/>
+    <field name="fixed_" transient="true"/>
+  </class>
+  <class name="reco::PMGsfElectronIsoNumCollectionRef"/>
+  <class name="reco::PMGsfElectronIsoNumCollectionRefProd"/>
+  <class name="reco::PMGsfElectronIsoNumCollectionRefVector"/>
+  <class name="edm::Wrapper<reco::PMGsfElectronIsoNumCollection>"/>
 </lcgdict>
 
