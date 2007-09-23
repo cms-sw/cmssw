@@ -1,90 +1,156 @@
-#ifndef SiPixelCalibConfiguration_h
-#define SiPixelCalibConfiguration_h
+#ifndef PixelCalib_h
+#define PixelCalib_h
 //
-// This class imnplement the steps
-// that are used in a calibration  such
-// as e.g. an S-curve
-// 
+// This class inplement the steps
+// that are used in a scan over
+// Threshold and CalDelay
 //
-// some additional functionality added by F.Blekman, dd April 18, 2007.
+//
+//
 //
 
 #include <vector>
+#include <set>
+#include <map>
 #include <string>
 #include <utility>
+#include "CalibFormats/SiPixelObjects/interface/PixelCalibBase.h"
+#include "CalibFormats/SiPixelObjects/interface/PixelNameTranslation.h"
+#include "CalibFormats/SiPixelObjects/interface/PixelDetectorConfig.h"
+#include "CalibFormats/SiPixelObjects/interface/PixelFEDConfig.h"
+#include "CalibFormats/SiPixelObjects/interface/PixelFECConfig.h"
+#include "CalibFormats/SiPixelObjects/interface/PixelTKFECConfig.h"
+#include "CalibFormats/SiPixelObjects/interface/PixelFECConfigInterface.h"
+#include "CalibFormats/SiPixelObjects/interface/PixelROCName.h"
+#include "CalibFormats/SiPixelObjects/interface/PixelModuleName.h"
 #include "CalibFormats/SiPixelObjects/interface/PixelConfigBase.h"
+#include "CalibFormats/SiPixelObjects/interface/PixelDACScanRange.h"
+#include "CalibFormats/SiPixelObjects/interface/PixelPortcardMap.h"
+#include "CalibFormats/SiPixelObjects/interface/PixelPortCardConfig.h"
 
 class PixelHdwAddress;
-class PixelFECInterface;
-class PixelDetectorConfig;
-class PixelNameTranslation;
-class PixelFEDConfig;
 
-class SiPixelCalibConfiguration: public PixelConfigBase {
+class SiPixelCalibConfiguration : public PixelCalibBase, public PixelConfigBase {
 
  public:
+
     SiPixelCalibConfiguration(std::string filename="");
 
-/*    void nextFECState(PixelFECConfigInterface* pixelFEC,
+    void nextFECState(PixelFECConfigInterface* pixelFEC,
 		      PixelDetectorConfig* detconfig,
 		      PixelNameTranslation* trans, 
-		      uint32_t state) const; 
-*/
-    //return vector of fed# and channels controlled by this
-    //fed supervisor
-    /*  std::vector<std::pair<uint32_t,std::vector<uint32_t> > >& fedCardsAndChannels(uint32_t crate,
-												   PixelNameTranslation* translation,
-												   PixelFEDConfig* fedconfig) const;*/
+		      unsigned int state) const; 
 
-    //void nextFEDStep(PixelFEDConfigInterface* pixelFEd) const; 
-
-    //void nextTTCStep(PixelFECConfigInterface* pixelFEd) const; 
-
-    uint32_t nPixelPatterns() const { return rows_.size()*cols_.size(); }
-    uint32_t nTriggersPerPattern() const { return ntrigger_; }
-    uint32_t vcal_first() {return vcal_first_;}
-    uint32_t vcal_last()  {return vcal_last_;}
-    uint32_t vcal_step() {return vcal_step_;}
-    double vcal_step2() {return vcal_step_;}
-    uint32_t nVcal() const { return (vcal_last_-vcal_first_)/vcal_step_+1; }    
-    uint32_t nConfigurations() const {return nPixelPatterns()*nVcal();}
-    uint32_t nTriggersTotal() const {return nConfigurations()*nTriggersPerPattern();}
-    uint32_t vcal(uint32_t state) const;
-    uint32_t vcal_fromeventno(uint32_t evtno) const;
+    //return vector of fed# and channels controlled by this fed supervisor
+    std::vector<std::pair<unsigned int,std::vector<unsigned int> > >& fedCardsAndChannels(unsigned int crate, PixelNameTranslation* translation, PixelFEDConfig* fedconfig) const;
+    std::map <unsigned int, std::set<unsigned int> > getFEDsAndChannels (PixelNameTranslation *translation);
     
-    uint32_t nTriggers() {return ntrigger_;}
-    const std::vector<std::string>& rocList(){return rocs_;}
+    // Returns a std::set of FED crates that are used by this Calib object
+    std::set <unsigned int> getFEDCrates(const PixelNameTranslation *translation, const PixelFEDConfig *fedconfig) const;
+    // Returns a std::set of FEC crates that are used by this Calib object
+    std::set <unsigned int> getFECCrates(const PixelNameTranslation *translation, const PixelFECConfig* fecconfig) const;
+    // Returns a std::set of TKFEC crates that are used by this Calib object
+    std::set <unsigned int> getTKFECCrates(const PixelPortcardMap *portcardmap, const std::map<std::string,PixelPortCardConfig*>& mapNamePortCard, const PixelTKFECConfig* tkfecconfig) const;
+
+    unsigned int nROC() const { return nROC_; }
+    unsigned int nPixelPatterns() const { return rows_.size()*cols_.size(); }
+    unsigned int nTriggersPerPattern() const { return ntrigger_; }
+    unsigned int nScanPoints(unsigned int iscan) const { return (dacs_[iscan].last()-dacs_[iscan].first())/dacs_[iscan].step()+1; }    
+    unsigned int nScanPoints(std::string dac) const { return nScanPoints(iScan(dac)); }    
+
+    unsigned int nScanPoints() const {unsigned int points=1;
+                for(unsigned int i=0;i<dacs_.size();i++) {
+		  points*=nScanPoints(i);
+		}
+		return points;
+    }
+    unsigned int nConfigurations() const {return nPixelPatterns()*nScanPoints()*nROC();}
+    unsigned int nTriggersTotal() const {return nConfigurations()*nTriggersPerPattern();}
+
+    unsigned int scanValue(unsigned int iscan, unsigned int state) const;
+    unsigned int scanValue(std::string dac, unsigned int state) const{
+      return scanValue(iScan(dac),state);
+    }
+
+    unsigned int scanCounter(unsigned int iscan, unsigned int state) const;
+    unsigned int scanCounter(std::string dac, unsigned int state) const{
+      return scanCounter(iScan(dac),state);
+    }
+
+    double scanValueMin(unsigned int iscan) const {return dacs_[iscan].first();}
+    double scanValueMin(std::string dac) const {return scanValueMin(iScan(dac));}
+    double scanValueMax(unsigned int iscan) const {return dacs_[iscan].first()+
+						 dacs_[iscan].step()*(nScanPoints(iscan)-1);}
+    double scanValueMax(std::string dac) const {return scanValueMax(iScan(dac));}
+    double scanValueStep(unsigned int iscan) const {return dacs_[iscan].step();}
+    double scanValueStep(std::string dac) const {return scanValueStep(iScan(dac));}
+
+    unsigned int iScan(std::string dac) const;
+
+    const std::vector<PixelROCName>& rocList() const {return rocs_;}
+    const std::set <PixelModuleName>& moduleList(){return modules_;}
+
+    virtual std::string mode() {return mode_;}
+
+    unsigned int nParameters() const {return parameters_.size();}
+    // get the value of parameter parameterName, or "" if parameterName is not in the list
+    std::string parameterValue(std::string parameterName) const;
 
     friend std::ostream& operator<<(std::ostream& s, const SiPixelCalibConfiguration& calib);
 
-    void getRowsAndCols(uint32_t state,
-			std::vector<uint32_t>& rows,
-			std::vector<uint32_t>& cols) const;
-
-    void print() const;
-
  private:
 
-    std::vector<std::vector<uint32_t> > rows_;
-    std::vector<std::vector<uint32_t> > cols_;
 
-    mutable std::vector<std::string> rocs_;
+    //Mode is one of the following: 
+    //  ThresholdCalDelay
+    //  FEDChannelOffsetDAC
+    //  FEDAddressLevelDAC
+    //  FEDChannelOffsetPixel
+    //  FEDAddressLevelPixel
+    //  GainCalibration
+    //  PixelAlive
+    //  SCurve
+    //  ClockPhaseCalibration
+
+    bool singleROC_;
+
+    std::vector<std::vector<unsigned int> > rows_;
+    std::vector<std::vector<unsigned int> > cols_;
+
+    mutable std::vector<PixelROCName> rocs_;
+    std::set <PixelModuleName> modules_;
+    std::map <PixelModuleName,unsigned int> countROC_;
     bool roclistfromconfig_;
 
+    mutable std::vector<std::pair<unsigned int, std::vector<unsigned int> > > fedCardsAndChannels_;
 
-    mutable std::vector<std::pair<uint32_t, std::vector<uint32_t> > > fedCardsAndChannels_;
-    
-    uint32_t vcal_first_;
-    uint32_t vcal_last_;
-    uint32_t vcal_step_;
-    uint32_t ntrigger_;
+    //unsigned int vcal_;
 
-/*    void enablePixels(PixelFECConfigInterface* pixelFEC,
-		      uint32_t irows, uint32_t icols,
-		      PixelHdwAddress theROC) const;*/
-    mutable int old_irows;
-    mutable int old_icols;
-    
+    std::vector<PixelDACScanRange> dacs_;
+
+    //std::vector<std::string> dacname_;
+    //std::vector<unsigned int> dacchannel_;
+    //std::vector<unsigned int> dac_first_;
+    //std::vector<unsigned int> dac_last_;
+    //std::vector<unsigned int> dac_step_;
+
+    unsigned int ntrigger_;
+    unsigned int nROC_; //This is the maximal #ROCs on a given TBM
+
+    bool highVCalRange_;
+
+    void enablePixels(PixelFECConfigInterface* pixelFEC,
+		      unsigned int irows, unsigned int icols,
+		      PixelHdwAddress theROC) const;
+    void disablePixels(PixelFECConfigInterface* pixelFEC,
+		      unsigned int irows, unsigned int icols,
+		      PixelHdwAddress theROC) const;
+    mutable std::vector<int> old_irows;
+    mutable std::vector<int> old_icols;
+
+    std::map<std::string, std::string> parameters_;
+    //       name         value
+
 };
 
 #endif

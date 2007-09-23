@@ -1,0 +1,207 @@
+//
+// This class provides the mapping between
+// portcards and the modules controlled by
+// the card
+//
+//
+//
+ 
+#include "CalibFormats/SiPixelObjects/interface/PixelPortcardMap.h"
+
+
+PixelPortcardMap::PixelPortcardMap(std::vector< std::vector < std::string> > &tableMat):PixelConfigBase(" "," "," "){
+
+std::vector< std::string > ins = tableMat[0];
+std::map<std::string , int > colM;
+std::vector<std::string > colNames;
+colNames.push_back("PORTCARD_NAME");//0
+colNames.push_back("AOH_CHAN");//1
+colNames.push_back("PANEL_NAME");//2
+
+for(unsigned int c = 0 ; c < ins.size() ; c++){
+   for(unsigned int n=0; n<colNames.size(); n++){
+     if(tableMat[0][c] == colNames[n]){
+       colM[colNames[n]] = c;
+       break;
+     }
+   }
+ }//end for
+ for(unsigned int n=0; n<colNames.size(); n++){
+   if(colM.find(colNames[n]) == colM.end()){
+     std::cerr << "[PixelPortcardMap::PixelPortcardMap()]\tCouldn't find in the database the column with name " << colNames[n] << std::endl;
+     assert(0);
+   }
+ }
+	
+	
+	
+std::string portcardname;
+std::string modulename;
+unsigned int aoh;
+std::string aohstring;
+	
+for(unsigned int r = 1 ; r < tableMat.size() ; r++){    //Goes to every row of the Matrix
+
+portcardname = tableMat[r][colM[colNames[0]]];
+modulename =   tableMat[r][colM[colNames[2]]];
+aohstring = tableMat[r][colM[colNames[1]]];
+//aohname.erase(0,20);  // Is going to be change when Umesh put a AOH Channel column in the view.
+aoh = (((unsigned int)atoi(aohstring.c_str()))+1);
+//std::cout<<aoh<<std::endl;
+PixelModuleName module(modulename);
+	    if (module.modulename()!=modulename){
+	      std::cout << "Modulename:"<<modulename<<std::endl;
+	      std::cout << "Parsed to:"<<module.modulename()<<std::endl;
+	      assert(0);
+	    }
+
+		std::string TBMChannel = "A"; assert(0); // add TBMChannel to the input, then remove assert
+		std::pair<PixelModuleName, std::string> moduleAndTBMChannel;
+		moduleAndTBMChannel.first = PixelModuleName(modulename);
+		moduleAndTBMChannel.second = TBMChannel;
+		std::pair<std::string, int> portcardAndAOH(portcardname, aoh);
+		map_[moduleAndTBMChannel] = portcardAndAOH;
+}//end for r
+
+
+}//end constructor
+//*****************************************************************************
+   
+PixelPortcardMap::PixelPortcardMap(std::string filename):
+  PixelConfigBase(" "," "," "){
+
+    std::ifstream in(filename.c_str());
+
+    if (!in.good()){
+	std::cout << "Could not open:"<<filename<<std::endl;
+	assert(0);
+    }
+    else {
+	std::cout << "Opened:"<<filename<<std::endl;
+    }
+
+    std::string dummy;
+
+    in >> dummy;
+    in >> dummy;
+    in >> dummy;
+    in >> dummy;
+    in >> dummy;
+
+    do {
+	
+	std::string portcardname;
+	std::string modulename;
+	std::string TBMChannel = "A";
+	std::string aoh_string;
+	unsigned int aoh;
+
+	in >> portcardname >> modulename >> aoh_string ;
+	if (aoh_string == "A" || aoh_string == "B") // Optionally, the TBM channel may be specified after the module name.  Check for this.
+	{
+		TBMChannel = aoh_string;
+		in >> aoh_string;
+	}
+	aoh = atoi(aoh_string.c_str());
+
+	if (!in.eof() ){
+	    PixelModuleName module(modulename);
+	    if (module.modulename()!=modulename){
+	      std::cout << "Modulename:"<<modulename<<std::endl;
+	      std::cout << "Parsed to:"<<module.modulename()<<std::endl;
+	      assert(0);
+	    }
+
+		std::pair<PixelModuleName, std::string> moduleAndTBMChannel;
+		moduleAndTBMChannel.first = PixelModuleName(modulename);
+		moduleAndTBMChannel.second = TBMChannel;
+		std::pair<std::string, int> portcardAndAOH(portcardname, aoh);
+		map_[moduleAndTBMChannel] = portcardAndAOH;
+	}
+	    
+
+    }while (!in.eof());
+}
+    
+/*const std::map<PixelModuleName, int>& PixelPortcardMap::modules(std::string portcard) const{
+
+  std::map<std::string,std::map<PixelModuleName, int> >::const_iterator theportcard=map_.find(portcard);
+
+  if (theportcard==map_.end()) {
+    std::cout << "Could not find portcard with name:"<<portcard<<std::endl;
+  }
+
+  return theportcard->second;
+
+}*/
+
+const std::set< std::pair< std::string, int > > PixelPortcardMap::PortCardAndAOHs(const PixelModuleName& aModule) const
+{
+	std::set< std::pair< std::string, int > > returnThis;
+	
+	// Loop over the entire map, searching for elements matching PixelModuleName.  Add matching elements to returnThis.
+	for( std::map< std::pair<PixelModuleName, std::string>, std::pair<std::string, int> >::const_iterator map_itr = map_.begin(); map_itr != map_.end(); ++map_itr )
+	{
+		if ( map_itr->first.first.modulename() == aModule.modulename() )
+		{
+			returnThis.insert(map_itr->second);
+		}
+	}
+	
+	return returnThis;
+}
+
+const std::set< std::string > PixelPortcardMap::portcards(const PixelModuleName& aModule) const
+{
+	std::set< std::string > returnThis;
+	const std::set< std::pair< std::string, int > > portCardAndAOHs = PortCardAndAOHs(aModule);
+	for ( std::set< std::pair< std::string, int > >::const_iterator portCardAndAOHs_itr = portCardAndAOHs.begin(); portCardAndAOHs_itr != portCardAndAOHs.end(); ++portCardAndAOHs_itr)
+	{
+		returnThis.insert( (*portCardAndAOHs_itr).first );
+	}
+	return returnThis;
+}
+
+const std::pair< std::string, int > PixelPortcardMap::PortCardAndAOH(const PixelModuleName& aModule, const std::string& TBMChannel) const
+{
+	// Loop over the entire map, searching for elements matching PixelModuleName and TBMChannel.
+	for( std::map< std::pair<PixelModuleName, std::string>, std::pair<std::string, int> >::const_iterator map_itr = map_.begin(); map_itr != map_.end(); ++map_itr )
+	{
+		if ( map_itr->first.first.modulename() == aModule.modulename() && map_itr->first.second == TBMChannel)
+		{
+			return map_itr->second;
+		}
+	}
+	
+	std::pair< std::string, int > returnThis("none", 0);
+	return returnThis;
+}
+
+std::set< PixelModuleName > PixelPortcardMap::modules(std::string portCardName) const
+{
+	std::set< PixelModuleName > returnThis;
+	
+	// Loop over the entire map, searching for elements matching portCardName.  Add matching elements to returnThis.
+	for( std::map< std::pair<PixelModuleName, std::string>, std::pair<std::string, int> >::const_iterator map_itr = map_.begin(); map_itr != map_.end(); ++map_itr )
+	{
+		if ( map_itr->second.first == portCardName )
+		{
+			returnThis.insert(map_itr->first.first);
+		}
+	}
+	
+	return returnThis;
+}
+
+std::set< std::string > PixelPortcardMap::portcards()
+{
+	std::set< std::string > returnThis;
+	
+	// Loop over the entire map, and add all port cards to returnThis.
+	for( std::map< std::pair<PixelModuleName, std::string>, std::pair<std::string, int> >::const_iterator map_itr = map_.begin(); map_itr != map_.end(); ++map_itr )
+	{
+		returnThis.insert(map_itr->second.first);
+	}
+	
+	return returnThis;
+}
