@@ -3,10 +3,27 @@
 
 /** \class SurveyInputDummy
  *
- *  For uploading some pseudo-dummy survey errors to DB.
+ *  For uploading some random survey values and pseudo-dummy errors to DB.
  *
- *  $Date: 2007/05/08 22:36:47 $
- *  $Revision: 1.2 $
+ *  Usage:
+ *    module FPix = SurveyInputDummy
+ *    {
+ *      VPSet errors =
+ *      {
+ *        { string level = "DetUnit" double value = 5e-4 },
+ *        { string level = "Panel"   double value = 5e-4 }
+ *      }
+ *    }
+ *
+ *  The survey value of a structure in a level is randomly selected from a
+ *  Gaussian distribution of mean given by the ideal geometry and width =
+ *  "value" (e.g. width = 5e-4 for a Panel).
+ *  
+ *  The covariance matrix for all structures of a level will be diagonal
+ *  given by value^2 * identity.
+ *
+ *  $Date: 2007/06/24 01:46:26 $
+ *  $Revision: 1.1 $
  *  \author Chung Khim Lae
  */
 

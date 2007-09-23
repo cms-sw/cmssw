@@ -1,3 +1,5 @@
+#include "TRandom3.h"
+
 #include "Alignment/CommonAlignment/interface/SurveyDet.h"
 #include "Alignment/TrackerAlignment/interface/AlignableTracker.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -27,10 +29,8 @@ SurveyInputDummy::SurveyInputDummy(const edm::ParameterSet& cfg)
 
 void SurveyInputDummy::beginJob(const edm::EventSetup& setup)
 {
-  edm::ESHandle<DDCompactView> view;
-  edm::ESHandle<GeometricDet>  geom;
+  edm::ESHandle<GeometricDet> geom;
 
-  setup.get<IdealGeometryRecord>().get(view);
   setup.get<IdealGeometryRecord>().get(geom);
 
   TrackerGeometry* tracker =
@@ -44,6 +44,8 @@ void SurveyInputDummy::beginJob(const edm::EventSetup& setup)
 
 void SurveyInputDummy::addSurveyInfo(Alignable* ali)
 {
+  static TRandom3 rand;
+
   const std::vector<Alignable*>& comp = ali->components();
 
   unsigned int nComp = comp.size();
@@ -56,8 +58,24 @@ void SurveyInputDummy::addSurveyInfo(Alignable* ali)
 
   if (theErrors.end() != e)
   {
+    double error =  e->second;
+
+    double x = rand.Gaus(0., error);
+    double y = rand.Gaus(0., error);
+    double z = rand.Gaus(0., error);
+    double a = rand.Gaus(0., error);
+    double b = rand.Gaus(0., error);
+    double g = rand.Gaus(0., error);
+
+    align::EulerAngles angles(3);
+
+    angles(1) = a; angles(2) = b; angles(3) = g;
+
+    ali->move( ali->surface().toGlobal( align::LocalVector(x, y, z) ) );
+    ali->rotateInLocalFrame( align::toMatrix(angles) );
+
     cov = ROOT::Math::SMatrixIdentity();
-    cov *= e->second * e->second;
+    cov *= error * error;
   }
 
   ali->setSurvey( new SurveyDet(ali->surface(), cov) );
