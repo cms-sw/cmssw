@@ -127,6 +127,12 @@ string MonitorElement::getPathname() const
   return pathname;
 }
 
+string MonitorElement::getFullname() const
+{
+string prefix = "";
+if(getPathname() != "." ) prefix = getPathname() + "/";
+return prefix +getName();
+}
  
 // run all quality tests
 void MonitorElement::runQTests(void)

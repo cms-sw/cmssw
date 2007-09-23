@@ -425,9 +425,6 @@ class DaqMonitorBEInterface: public StringUtil
 			  const dqm::me_util::rootDir & Dir) const = 0;
   /// check against null objects (true if object exists)
   bool checkElement(const MonitorElement * const me) const;
-  /// true if object <name> already belongs to directory <pathname>
-  virtual bool objectDefined(std::string name, std::string pathname) const 
-    = 0;
   
   /// true if directory (or any subfolder at any level below it) contains
   /// at least one valid (i.e. non-null) monitoring element

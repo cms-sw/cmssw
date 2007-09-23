@@ -19,20 +19,14 @@ Implementation:
 #include <TRandom.h> // this is just the random number generator
 
 using namespace std;
-
+using namespace edm;
 
 //
 // constructors and destructor
 //
-DQMSourceExample::DQMSourceExample( const edm::ParameterSet& iConfig )
-  : counter(0)
+DQMSourceExample::DQMSourceExample( const edm::ParameterSet& ps )
+  : DQMAnalyzer(ps)
 {
-  // get hold of back-end interface
-  dbe = edm::Service<DaqMonitorBEInterface>().operator->();
-  
-  //We put this here for the moment since there is no better place 
-  edm::Service<MonitorDaemon> daemon;
-  daemon.operator->();
 
 /// use this to read in reference histograms from file
 //  dbe->readReferenceME("ref_test.root");
@@ -45,24 +39,24 @@ DQMSourceExample::DQMSourceExample( const edm::ParameterSet& iConfig )
 /// use this to retrieve CMSSW version of file
 //  cout << dbe->getFileReleaseVersion("ref_test.root") << endl;
 
+
+/// book some histograms here
   const int NBINS = 50; XMIN = 0; XMAX = 50;
 
-  // book some histograms here
-
   // create and cd into new folder
-  dbe->setCurrentFolder("C1");
+  dbe->setCurrentFolder(PSrootFolder+"C1");
   h1 = dbe->book1D("histo", "Example 1D histogram.", NBINS, XMIN, XMAX);
   h2 = dbe->book2D("histo2", "Example 2 2D histogram.", NBINS, XMIN, XMAX, 
 		   NBINS, XMIN, XMAX);
   p1 = dbe->bookProfile("prof1","my profile",NBINS,XMIN,XMAX,NBINS,XMIN,XMAX,"");
   // create and cd into new folder
-  dbe->setCurrentFolder("C1/C2");
+  dbe->setCurrentFolder(PSrootFolder+"C1/C2");
   h3 = dbe->book1D("histo3", "Example 3 1D histogram.", NBINS, XMIN, XMAX);
   h4 = dbe->book1D("histo4", "Example 4 1D histogram.", NBINS, XMIN, XMAX);
   h5 = dbe->book1D("histo5", "Example 5 1D histogram.", NBINS, XMIN, XMAX);
   h6 = dbe->book1D("histo6", "Example 6 1D histogram.", NBINS, XMIN, XMAX);
   // create and cd into new folder
-  dbe->setCurrentFolder("C1/C3");
+  dbe->setCurrentFolder(PSrootFolder+"C1/C3");
   const int NBINS2 = 10;
   h7 = dbe->book1D("histo7", "Example 7 1D histogram.", NBINS2, XMIN, XMAX);
   char temp[1024];
@@ -84,7 +78,7 @@ DQMSourceExample::DQMSourceExample( const edm::ParameterSet& iConfig )
   dbe->tag(h2, detector_id);
   dbe->tag(h7, detector_id);
   // tag full directory
-  dbe->tagContents("C1/C3", detector_id);
+  dbe->tagContents(PSrootFolder+"C1/C3", detector_id);
 
   // assign tag to MEs h4 and h6
   const unsigned int detector_id2 = 25;
@@ -98,7 +92,7 @@ DQMSourceExample::DQMSourceExample( const edm::ParameterSet& iConfig )
   dbe->showDirStructure();
   
   
-  // test referenceME methods
+/// test referenceME methods
 //  cout << (dbe->makeReferenceME(h1)?1:0) << endl;
 //  MonitorElement* rh1 = dbe->getReferenceME(h1);
 //  cout << rh1->getPathname() << endl;
@@ -123,28 +117,47 @@ DQMSourceExample::~DQMSourceExample()
   
 }
 
-void DQMSourceExample::endJob(void)
-{
-  dbe->save("test.root");  
+
+//--------------------------------------------------------
+void DQMSourceExample::beginJob(const EventSetup& context){
+  // call DQMAnalyzer in the beginning 
+  DQMAnalyzer::beginJob(context);
+  // then do your thing
+
 }
 
+//--------------------------------------------------------
+void DQMSourceExample::beginRun(const EventSetup& context) {
+  // call DQMAnalyzer in the beginning 
+  DQMAnalyzer::beginRun(context);
+  // then do your thing
 
-//
-// member functions
-//
+}
 
-// ------------ method called to produce the data  ------------
-void DQMSourceExample::analyze(const edm::Event& iEvent, 
-			       const edm::EventSetup& iSetup )
-{   
+//--------------------------------------------------------
+void DQMSourceExample::beginLuminosityBlock(const LuminosityBlock& lumiSeg, 
+     const EventSetup& context) {
+  // call DQMAnalyzer in the beginning 
+  DQMAnalyzer::beginLuminosityBlock(lumiSeg,context);
+  // then do your thing
+  
+}
+
+// ----------------------------------------------------------
+void DQMSourceExample::analyze(const Event& iEvent, 
+			       const EventSetup& iSetup )
+{  
+  // call DQMAnalyzer some place
+  DQMAnalyzer::analyze(iEvent,iSetup); 
+  
   i1->Fill(4);
   f1->Fill(-3.14);
  
    // Filling the histogram with random data
   srand( 0 );
 
-  if(counter%1000 == 0)
-    cout << " # of cycles = " << counter << endl;
+  if(getNumEvents()%1000 == 0)
+    cout << " # of cycles = " << getNumEvents() << endl;
 
   for(int i = 0; i != 20; ++i ) 
     {
@@ -175,7 +188,31 @@ void DQMSourceExample::analyze(const edm::Event& iEvent,
   //      (*(*i1))++;
   usleep(100);
 
-  ++counter;
+}
+
+
+
+
+//--------------------------------------------------------
+void DQMSourceExample::endLuminosityBlock(const LuminosityBlock& lumiSeg, 
+                                          const EventSetup& context) {
+  // do your thing here
+
+  // call DQMAnalyzer at the end 
+  DQMAnalyzer::endLuminosityBlock(lumiSeg,context);
+}
+//--------------------------------------------------------
+void DQMSourceExample::endRun(const Run& r, const EventSetup& context){
+  // do your thing here
+  
+  // call DQMAnalyzer at the end
+  DQMAnalyzer::endRun(r,context); 
+}
+//--------------------------------------------------------
+void DQMSourceExample::endJob(){
+  // do your thing ... call DQMAnalyzer in the end
+  
+  DQMAnalyzer::endJob();
 }
 
 

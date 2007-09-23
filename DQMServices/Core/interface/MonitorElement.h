@@ -33,7 +33,7 @@ class MonitorElement
   /// get pathname of parent folder
   virtual std::string getPathname() const;
   /// get full name of ME including Pathname
-  std::string getFullname() const {return getPathname()+"/"+getName();}
+  virtual std::string getFullname() const;
   
   /// "Fill" ME methods:
   /// can be used with 1D histograms or scalars

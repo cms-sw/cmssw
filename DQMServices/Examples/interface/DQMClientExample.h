@@ -1,11 +1,11 @@
-#ifndef DQMSourceExample_H
-#define DQMSourceExample_H
+#ifndef DQMClientExample_H
+#define DQMClientExample_H
 
-/** \class DQMSourceExample
+/** \class DQMClientExample
  * *
  *  DQM Test Client
  *
- *  $Date: 2007/09/06 19:00:46 $
+ *  $Date: 2007/08/29 13:49:00 $
  *  $Revision: 1.2 $
  *  \author  M. Zanetti CERN
  *   
@@ -14,17 +14,26 @@
 
 #include "DQMServices/Components/interface/DQMAnalyzer.h"
 
-//
-// class declaration
-//
+#include <memory>
+#include <iostream>
+#include <fstream>
+#include <string>
+#include <vector>
+#include <map>
 
-class DQMSourceExample : public DQMAnalyzer {
+
+class DQMClientExample: public DQMAnalyzer{
+
 public:
-  DQMSourceExample( const edm::ParameterSet& );
-  ~DQMSourceExample();
+
+  /// Constructor
+  DQMClientExample(const edm::ParameterSet& ps);
+  
+  /// Destructor
+  virtual ~DQMClientExample();
 
 protected:
-   
+
   /// BeginJob
   void beginJob(const edm::EventSetup& c);
 
@@ -48,23 +57,11 @@ protected:
   void endJob();
 
 private:
-      // ----------member data ---------------------------
 
-  MonitorElement * h1;
-  MonitorElement * h2;
-  MonitorElement * h3;
-  MonitorElement * h4;
-  MonitorElement * h5;
-  MonitorElement * h6;
-  MonitorElement * h7;
-  MonitorElement * h8;
-  MonitorElement * h9;
-  MonitorElement * i1;
-  MonitorElement * f1;
-  MonitorElement * s1;
-  MonitorElement * p1;
-  float XMIN; float XMAX;
+  MonitorElement * clientHisto;
+
 };
 
 #endif
+
 
