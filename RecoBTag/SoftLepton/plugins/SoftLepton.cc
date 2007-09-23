@@ -13,7 +13,7 @@
 //
 // Original Author:  fwyzard
 //         Created:  Wed Oct 18 18:02:07 CEST 2006
-// $Id: SoftLepton.cc,v 1.5 2007/09/22 14:47:42 fwyzard Exp $
+// $Id: SoftLepton.cc,v 1.6 2007/09/22 14:51:58 fwyzard Exp $
 //
 
 
@@ -174,7 +174,9 @@ SoftLepton::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   {
     Handle<reco::ElectronIDAssociationCollection> h_electrons;
     iEvent.get(leptons_id, h_electrons);
-    for (reco::ElectronIDAssociationCollection::const_iterator electron = h_electrons->begin(); electron != h_electrons->end(); ++electron) {
+    for (reco::ElectronIDAssociationCollection::const_iterator association = h_electrons->begin(); association != h_electrons->end(); ++association) {
+      const reco::PixelMatchGsfElectronRef & electron = association->key;
+      const reco::ElectronID               & id       = association->val;
       // FIXME
     }
   }
