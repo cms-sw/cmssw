@@ -62,17 +62,18 @@ CSCAnodeData::CSCAnodeData(const CSCALCTHeader & header ,
 				    << nTimeBins_ << " nFrames = " << nFrames();  
       edm::LogInfo ("CSCAnodeData") << header << " HEADER CHECK " << header.check();
     }  
-  memcpy(theDataFrames, buf, sizeInWords()*2);
 
   switch(firmwareVersion) {
   case 2006:
     sizeInWords2007_=0;
+    memcpy(theDataFrames, buf, sizeInWords()*2);///dont memcpy if not 2006 or 2007
     break;
   case 2007:
     sizeInWords2007_=(1-header.alctHeader2007().rawOverflow)*6*
       header.alctHeader2007().rawBins*layerParts[header.alctHeader2007().boardType];
     layerParts_ = layerParts[header.alctHeader2007().boardType];
     maxWireGroups_ = wireGroups[header.alctHeader2007().boardType];
+    memcpy(theDataFrames, buf, sizeInWords()*2);///dont memcpy if not 2006 or 2007
     break;
   default:
     edm::LogError("CSCAnodeData")

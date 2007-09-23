@@ -115,8 +115,8 @@ int CSCTMBData::UnpackTMB(unsigned short *buf) {
     edm::LogError("CSCTMBData") << "+++ CSCTMBData error: No b0c line!";
   }
 
-  if (!((firmwareVersion==2007)&&((buf[b0cLine]&0xFFFF)==0xDB0C)&&((buf[b0cLine+1]&0xf000)==0xD000)
-	&&((buf[b0cLine+2]&0xf000)==0xD000)&&((buf[b0cLine+3]&0xf000)==0xD000))){
+  if ((firmwareVersion==2007)&&(!(((buf[b0cLine]&0xFFFF)==0xDB0C)&&((buf[b0cLine+1]&0xf000)==0xD000)
+	&&((buf[b0cLine+2]&0xf000)==0xD000)&&((buf[b0cLine+3]&0xf000)==0xD000)))){
     edm::LogError("CSCTMBData") << "+++ CSCTMBData warning: error in header in 2007 format!";
   }
 
