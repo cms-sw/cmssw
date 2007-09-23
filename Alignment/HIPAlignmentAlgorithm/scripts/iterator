@@ -26,7 +26,7 @@ replace "<PATH>" $PWD/CSA07 "<JOBS>" $jobs < test/collect.tpl > CSA07/main/colle
 
 replace "<PATH>" $PWD/CSA07 "<JOBS>" 0 < test/collect.tpl > CSA07/main/initial.cfg
 
-cmsRun CSA07/main/initial.cfg > CSA07/main/collect0
+cmsRun CSA07/main/initial.cfg >& CSA07/main/collect0
 
 ## Submit jobs and iterate
 
@@ -53,4 +53,4 @@ while ($i < $iter)
 	 -o CSA07/main/collect$i cmsRun $PWD/CSA07/main/collect.cfg
 end
 
-hadd CSA07/main/histograms.root CSA07/job*/histograms.root > CSA07/main/mergeHist
+hadd CSA07/main/histograms.root CSA07/job*/histograms.root >& CSA07/main/mergeHist
