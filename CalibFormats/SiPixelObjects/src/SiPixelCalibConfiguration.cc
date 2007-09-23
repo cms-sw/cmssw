@@ -2,7 +2,8 @@
 // This class is a first attempt at writting a configuration
 // object that will perform a calibration loop.
 //
-//
+// This code is shared between online and offline. Please
+// test this code on both platforms before committing!
 //
 
 #include "CalibFormats/SiPixelObjects/interface/SiPixelCalibConfiguration.h"
