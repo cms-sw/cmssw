@@ -67,8 +67,9 @@ PrimaryVertexProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
    try{
      iEvent.getByType(recoBeamSpotHandle);
      vertexBeamSpot = *recoBeamSpotHandle;
-     std::cout << "PrimaryVertexProducer: found BeamSpot" << std::endl;
-     std::cout << *recoBeamSpotHandle << std::endl;
+     edm::LogInfo("RecoVertex/PrimaryVertexProducer")
+		 << " found BeamSpot"
+		 << *recoBeamSpotHandle << "\n";
    }catch(const edm::Exception & err){
      if ( err.categoryCode() != edm::errors::ProductNotFound ) {
        edm::LogInfo("RecoVertex/PrimaryVertexProducer") 
