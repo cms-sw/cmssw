@@ -103,6 +103,13 @@ PoolDBESSource::PoolDBESSource( const edm::ParameterSet& iConfig ) :
   //std::cout<<"PoolDBESSource::PoolDBESSource"<<std::endl;
   /*parameter set parsing and pool environment setting
    */
+  std::string blobstreamerName("");
+  if( iConfig.exists("BlobStreamerName") ){
+    blobstreamerName=iConfig.getUntrackedParameter<std::string>("BlobStreamerName");
+    blobstreamerName.insert(0,"COND/Services/");
+    //std::cout<<"blobstreamerName "<<blobstreamerName<<std::endl;
+    m_session->configuration().setBlobStreamer(blobstreamerName);
+  }
   bool usetagDB=false;
   if( iConfig.exists("globaltag") ){
     std::cout<<"exists global tag parameter"<<std::endl;
