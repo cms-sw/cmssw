@@ -167,6 +167,10 @@ class MonitorElement
   /// whether ME contents should be accumulated over multiple monitoring periods
   bool isAccumulateEnabled() const{return accumulate_on;}  /// default: false
 
+  /// reset ME (ie. contents, errors, etc)
+  virtual void Reset()=0;
+
+
  private:
 
  protected:
@@ -174,8 +178,6 @@ class MonitorElement
   virtual ~MonitorElement();
 
   void update();
-  /// reset ME (ie. contents, errors, etc)
-  virtual void Reset()=0;
 
   // ------------ Operations for MEs that are normally never reset ---------
 
