@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea Rizzi
 //         Created:  Wed Apr 12 11:12:49 CEST 2006
-// $Id: CalibrationSkeleton.cc,v 1.5 2007/08/09 06:57:27 arizzi Exp $
+// $Id: CalibrationSkeleton.cc,v 1.6 2007/09/21 10:19:30 arizzi Exp $
 //
 //
 
@@ -41,7 +41,8 @@ using namespace std;
 #include "DataFormats/JetReco/interface/Jet.h"
 #include "DataFormats/JetReco/interface/CaloJet.h"
 #include "DataFormats/TrackReco/interface/Track.h"
-#include "DataFormats/BTauReco/interface/JetTracksAssociation.h"
+//#include "DataFormats/BTauReco/interface/JetTracksAssociation.h"
+#include "DataFormats/JetReco/interface/JetTracksAssociation.h"
 
 //#include "RecoBTag/TrackProbability/interface/TrackClassFilterCategory.h"
 

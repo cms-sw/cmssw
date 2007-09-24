@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea Rizzi
 //         Created:  Wed Apr 12 11:12:49 CEST 2006
-// $Id: TrackProbabilityXMLtoDB.cc,v 1.2 2007/02/16 09:46:51 arizzi Exp $
+// $Id: TrackProbabilityXMLtoDB.cc,v 1.3 2007/06/28 17:28:20 fwyzard Exp $
 //
 //
 
@@ -39,7 +39,8 @@ using namespace std;
 #include "DataFormats/JetReco/interface/Jet.h"
 #include "DataFormats/JetReco/interface/CaloJet.h"
 #include "DataFormats/TrackReco/interface/Track.h"
-#include "DataFormats/BTauReco/interface/JetTracksAssociation.h"
+//#include "DataFormats/BTauReco/interface/JetTracksAssociation.h"
+#include "DataFormats/JetReco/interface/JetTracksAssociation.h"
 
 //#include "RecoBTag/TrackProbability/interface/TrackClassFilterCategory.h"
 
