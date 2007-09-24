@@ -2,22 +2,20 @@
 #include <algorithm>
 #include <iterator>
 #include <cstddef>
-#include <limits>
 #include <iostream>
 #include <string>
 #include <vector>
-#include <map>
 
 #include <boost/iterator/transform_iterator.hpp>
 
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/ParameterSet/interface/InputTag.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/InputTag.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Utilities/interface/Exception.h"
 
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
@@ -38,6 +36,7 @@
 #include "RecoBTag/SecondaryVertex/interface/TrackSelector.h"
 #include "RecoBTag/SecondaryVertex/interface/SecondaryVertex.h"
 #include "RecoBTag/SecondaryVertex/interface/VertexFilter.h"
+#include "RecoBTag/SecondaryVertex/interface/VertexSelector.h"
 
 // #define DEBUG
 
@@ -57,7 +56,7 @@ class SecondaryVertexProducer : public edm::EDProducer {
 	edm::ParameterSet		vtxRecoPSet;
 	bool				withPVError;
 	VertexFilter			vertexFilter;
-	bool				vertex3dSorting;
+	VertexSelector			vertexSelector;
 };
 
 static TrackIPTagInfo::SortCriteria getSortCriterium(const std::string &name)
@@ -86,7 +85,7 @@ SecondaryVertexProducer::SecondaryVertexProducer(
 	vtxRecoPSet(params.getParameter<edm::ParameterSet>("vertexReco")),
 	withPVError(params.getParameter<bool>("usePVError")),
 	vertexFilter(params.getParameter<edm::ParameterSet>("vertexCuts")),
-	vertex3dSorting(params.getParameter<bool>("vertex3dSorting"))
+	vertexSelector(params.getParameter<edm::ParameterSet>("vertexSelection"))
 {
 	produces<SecondaryVertexTagInfoCollection>();
 }
@@ -252,31 +251,9 @@ void SecondaryVertexProducer::produce(edm::Event &event,
 			// contains anything at all
 		}
 
-		// identify most probable SV (closest to interaction point)
-		// FIXME: identify if this is the best strategy!
+		// identify most probable SV
 
-		const SecondaryVertex *bestSV = 0;
-		double bestValue = std::numeric_limits<double>::max();
-
-		for(std::vector<SecondaryVertex>::const_iterator iter =
-			SVs.begin(); iter != SVs.end(); iter++) {
-
-#ifdef DEBUG
-		std::cout << "dist3d = (" << iter->dist3d().value() << ", " << iter->dist3d().error() << ") -> " << iter->dist3d().significance() << std::endl;
-		std::cout << "dist2d = (" << iter->dist2d().value() << ", " << iter->dist2d().error() << ") -> " << iter->dist2d().significance() << std::endl;
-#endif
-			double value = std::abs(vertex3dSorting
-					? iter->dist3d().significance()
-					: iter->dist2d().significance());
-			if (value < bestValue) {
-#ifdef DEBUG
-			std::cout << "... is new best SV" << std::endl;
-#endif
-				bestValue = value;
-				bestSV = &*iter;
-			}
-		}
-
+		const SecondaryVertex *bestSV = vertexSelector(SVs);
 		if (!bestSV)
 			continue;
 
