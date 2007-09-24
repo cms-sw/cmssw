@@ -1,6 +1,7 @@
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/BTauReco/interface/TrackProbabilityTagInfo.h"
 #include "DataFormats/BTauReco/interface/TrackIPTagInfo.h"
+#include "DataFormats/VertexReco/interface/Vertex.h"
 #include "Math/GenVector/VectorUtil.h"
 #include "RecoBTau/JetTagComputer/interface/JetTagComputer.h"
 #include <algorithm>
@@ -14,6 +15,8 @@ class JetBProbabilityComputer : public JetTagComputer
      m_ipType           = parameters.getParameter<int>("impactParamterType");
      m_minTrackProb     = parameters.getParameter<double>("minimumProbability");
      m_deltaR           = parameters.getParameter<double>("deltaR");
+     m_cutMaxDecayLen   = parameters.getParameter<double>("maximumDecayLength");
+     m_cutMaxDistToAxis = parameters.getParameter<double>("maximumDistanceToJetAxis");
 
   }
  
@@ -23,12 +26,20 @@ class JetBProbabilityComputer : public JetTagComputer
       if(tkip!=0)  {
           const edm::RefVector<reco::TrackCollection> & tracks(tkip->selectedTracks());
           const std::vector<float> & allProbabilities((tkip->probabilities(m_ipType)));
+          const std::vector<reco::TrackIPTagInfo::TrackIPData> & impactParameters((tkip->impactParameterData()));
+          GlobalPoint pv(tkip->primaryVertex()->position().x(),tkip->primaryVertex()->position().y(),tkip->primaryVertex()->position().z());
+
+
           std::vector<float> probabilities;
           std::vector<float> probabilitiesB;
           int i=0;
           for(std::vector<float>::const_iterator it = allProbabilities.begin(); it!=allProbabilities.end(); ++it, i++)
            {
-              // Use only positive tracks for B
+            if(   fabs(impactParameters[i].distanceToJetAxis) < m_cutMaxDistToAxis  &&        // distance to JetAxis
+                 (impactParameters[i].closestToJetAxis - pv).mag() < m_cutMaxDecayLen        // max decay len
+             )
+            {
+    // Use only positive tracks for B
               if (*it >=0){probabilitiesB.push_back(*it);}
                
                float p=fabs(*it);
@@ -36,6 +47,7 @@ class JetBProbabilityComputer : public JetTagComputer
                if(m_deltaR > 0)   delta  = ROOT::Math::VectorUtil::DeltaR((*tkip->jet()).p4().Vect(), (*tracks[i]).momentum());
                if(delta < m_deltaR || m_deltaR < 0)
                    probabilities.push_back(p);
+             }
            }
 
           float all = jetProbability(probabilities); 
@@ -91,4 +103,7 @@ double jetProbability( const std::vector<float> & v ) const
    int m_ipType;
    double m_deltaR;
    int m_trackSign;
+   double  m_cutMaxDecayLen;
+   double m_cutMaxDistToAxis;
+
 };
