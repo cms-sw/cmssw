@@ -232,7 +232,7 @@ Value_t Histogram<Value_t, Axis_t>::normalization() const
 		totalValid = true;
 	}
 
-	return totalValid;
+	return total;
 }
 
 template<typename Value_t, typename Axis_t>
