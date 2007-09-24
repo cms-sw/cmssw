@@ -26,14 +26,14 @@ SiStripRawToClustersRoI::SiStripRawToClustersRoI( const edm::ParameterSet& conf 
   tauProduct_(conf.getUntrackedParameter<string>("TauProduct","")),
   bjetModule_(conf.getUntrackedParameter<string>("BjetModule","")),
   bjetProduct_(conf.getUntrackedParameter<string>("BjetProduct","")),
-  electrondeta_(conf.getUntrackedParameter<double>("ElectronDeta",0.2)),
-  electrondphi_(conf.getUntrackedParameter<double>("ElectronDphi",0.2)),
-  muondeta_(conf.getUntrackedParameter<double>("MuonDeta",0.2)),
-  muondphi_(conf.getUntrackedParameter<double>("MuonDphi",0.2)),
-  taudeta_(conf.getUntrackedParameter<double>("TauDeta",0.2)),
-  taudphi_(conf.getUntrackedParameter<double>("TauDphi",0.2)),
-  bjetdeta_(conf.getUntrackedParameter<double>("BjetDeta",0.2)),
-  bjetdphi_(conf.getUntrackedParameter<double>("BjetDphi",0.2))
+  electrondeta_(conf.getUntrackedParameter<double>("ElectronEtaWindow",0.2)),
+  electrondphi_(conf.getUntrackedParameter<double>("ElectronPhiWindow",0.2)),
+  muondeta_(conf.getUntrackedParameter<double>("MuonEtaWindow",0.2)),
+  muondphi_(conf.getUntrackedParameter<double>("MuonPhiWindow",0.2)),
+  taudeta_(conf.getUntrackedParameter<double>("TauEtaWindow",0.2)),
+  taudphi_(conf.getUntrackedParameter<double>("TauPhiWindow",0.2)),
+  bjetdeta_(conf.getUntrackedParameter<double>("BjetEtaWindow",0.2)),
+  bjetdphi_(conf.getUntrackedParameter<double>("BjetPhiWindow",0.2))
 {
   LogTrace(mlRawToCluster_)
     << "[SiStripRawToClustersRoI::" 
