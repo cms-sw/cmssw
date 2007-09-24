@@ -5,7 +5,7 @@
 #include "RecoBTau/JetTagComputer/interface/JetTagComputer.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 
-
+#include <iostream>
 class JetProbabilityComputer : public JetTagComputer
 {
  public:
@@ -38,6 +38,7 @@ class JetProbabilityComputer : public JetTagComputer
                  (impactParameters[i].closestToJetAxis - pv).mag() < m_cutMaxDecayLen        // max decay len
              )
             {
+              std::cout << *it <<std::endl;
               float p;
               if(m_trackSign ==0 )
               { 

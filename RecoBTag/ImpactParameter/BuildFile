@@ -1,6 +1,4 @@
 <use name=DataFormats/BTauReco>
-      <flags EDM_PLUGIN=1>
-
 <export>
   <use name=DataFormats/BTauReco>
   <lib name=RecoBTagImpactParameter>
