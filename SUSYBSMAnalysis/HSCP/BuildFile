@@ -2,6 +2,9 @@
 <use name=FWCore/PluginManager>
 <use name=FWCore/ParameterSet>
 <use name=DataFormats/TrackReco>
+<use name=PhysicsTools/UtilAlgos>
+<use name=FWCore/ServiceRegistry>
+
 <flags EDM_PLUGIN=1>
 <export>
    <lib name=SUSYBSMAnalysisHSCP>
@@ -9,4 +12,6 @@
    <use name=FWCore/PluginManager>
    <use name=FWCore/ParameterSet>
    <use name=DataFormats/TrackReco>
+<use name=PhysicsTools/UtilAlgos>
+<use name=FWCore/ServiceRegistry>
 </export>
