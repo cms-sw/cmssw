@@ -125,9 +125,9 @@
  <Polycone name="ETCS" startPhi="0*deg" deltaPhi="360*deg" >
   <ZSection z="2.70888*m"  rMin="[eecon:EBRMin]"  rMax="[eecon:EBRMin]" />
   <ZSection z="2.78000*m"  rMin="[eecon:EBRMin]"  rMax="1.28300*m" />
-  <ZSection z="3.05756*m"  rMin="1.364*m"          rMax="1.42445*m" />
-  <ZSection z="3.05756*m"  rMin="1.364*m"          rMax="[eecon:EBRMax]" />
-  <ZSection z="3.10606*m"  rMin="1.38807*m"        rMax="[eecon:EBRMax]" />
+  <ZSection z="3.05756*m"  rMin="1.405*m"          rMax="1.42445*m" />
+  <ZSection z="3.05756*m"  rMin="1.405*m"          rMax="[eecon:EBRMax]" />
+  <ZSection z="3.10606*m"  rMin="1.420*m"         rMax="[eecon:EBRMax]" />
   <ZSection z="3.10606*m"  rMin="1.7215*m"         rMax="[eecon:EBRMax]" />
   <ZSection z="3.2885*m"   rMin="1.7215*m"         rMax="[eecon:EBRMax]" />
  </Polycone> 
@@ -135,9 +135,9 @@
  <Polycone name="ETSU" startPhi="-5*deg" deltaPhi="10*deg" >
   <ZSection z="2.70888*m"  rMin="[eecon:EBRMin]"  rMax="[eecon:EBRMin]" />
   <ZSection z="2.78000*m"  rMin="[eecon:EBRMin]"  rMax="1.28300*m" />
-  <ZSection z="3.05756*m"  rMin="1.364*m"          rMax="1.42445*m" />
-  <ZSection z="3.05756*m"  rMin="1.364*m"          rMax="[eecon:EBRMax]" />
-  <ZSection z="3.10606*m"  rMin="1.38807*m"        rMax="[eecon:EBRMax]" />
+  <ZSection z="3.05756*m"  rMin="1.405*m"          rMax="1.42445*m" />
+  <ZSection z="3.05756*m"  rMin="1.405*m"          rMax="[eecon:EBRMax]" />
+  <ZSection z="3.10606*m"  rMin="1.420*m"         rMax="[eecon:EBRMax]" />
   <ZSection z="3.10606*m"  rMin="1.7215*m"         rMax="[eecon:EBRMax]" />
   <ZSection z="3.2885*m"   rMin="1.7215*m"         rMax="[eecon:EBRMax]" />
  </Polycone> 
@@ -147,8 +147,10 @@
   <ZSection z="[eecon:ESConeZ2]"  rMin="[eecon:ESConeI2]"  rMax="[eecon:ESConeO2]" />
   <ZSection z="[eecon:ESConeZ3]"  rMin="[eecon:ESConeI3]"  rMax="[eecon:ESConeO3]" />
   <ZSection z="[eecon:ESConeZ4]"  rMin="[eecon:ESConeI4]"  rMax="[eecon:ESConeO4]" />
+<!--
   <ZSection z="[eecon:ESConeZ5]"  rMin="[eecon:ESConeI5]"  rMax="[eecon:ESConeO5]" />
   <ZSection z="[eecon:ESConeZ6]"  rMin="[eecon:ESConeI6]"  rMax="[eecon:ESConeO6]" />
+-->
  </Polycone> 
 
 <!-- Cooling bar-related volumes -->
@@ -341,8 +343,7 @@
 
  <PosPart copyNumber="1"> <rParent name="eregalgo:EREG"/> <rChild name="eefixed:ESCONE"/>
       <Translation x="0*mm" y="0*mm" 
-       z="[esalgo:PRESH_Z_OFFSET] + [esalgo:PRESH_Z_TOTAL]/2 +
-          ( [eecon:ESConeZ6] - [eecon:ESConeZ1] )/2"/>
+       z="[esalgo:PRESH_Z_OFFSET] + [esalgo:PRESH_Z_TOTAL]/2 - [eecon:ESConeZ1]"/>
       <rRotation name="rotations:000D"/> </PosPart>
 
 <!-- Backplate and its cooling pipes -->

@@ -30,8 +30,6 @@
 
 <Constant name="EEFarZ"     value="3991.0*mm"/>
 <Constant name="EEFarZC"    value="[EEFarZ]  + [EEzMagF]"/>
-<Constant name="EEVFarZ"    value="[EEFarZ]  + 5*mm"/>
-<Constant name="EEVFarZC"   value="[EEVFarZ] + [EEzMagF]"/>
 <Constant name="EBRMin"     value="1238.0*mm"/>
 <Constant name="EBRMax"     value="1775.0*mm"/>
 
@@ -64,23 +62,34 @@
 
 <!-- Preshower support cone -->
 
+<!--
 <Constant name="ESConeZ6"   value=" 450.0*mm"/>
 <Constant name="ESConeZ5"   value=" 410.0*mm"/>
 <Constant name="ESConeZ4"   value=" 410.0*mm"/>
+-->
+<Constant name="ESConeZ4"   value=" 370.0*mm"/>
 <Constant name="ESConeZ3"   value="-434.0*mm"/>
 <Constant name="ESConeZ2"   value="-434.0*mm"/>
 <Constant name="ESConeZ1"   value="-450.0*mm"/>
 
+<!--
 <Constant name="ESConeI6"   value=" 375.0*mm"/>
 <Constant name="ESConeI5"   value=" 371.0*mm"/>
 <Constant name="ESConeI4"   value=" 371.0*mm"/>
+-->
+<Constant name="ESConeI4"   value="[ESConeI3] +
+                                   [EETanInnerAngle]*( [ESConeZ4] - [ESConeZ3] )"/>
 <Constant name="ESConeI3"   value=" 284.0*mm"/>
 <Constant name="ESConeI2"   value=" 260.0*mm"/>
 <Constant name="ESConeI1"   value=" 260.0*mm"/>
 
-<Constant name="ESConeO6"   value=" 436.0*mm"/>
-<Constant name="ESConeO5"   value=" 436.0*mm"/>
+<!--
+<Constant name="ESConeO6"   value=" 450.0*mm"/>
+<Constant name="ESConeO5"   value=" 450.0*mm"/>
 <Constant name="ESConeO4"   value=" 374.0*mm"/>
+-->
+<Constant name="ESConeO4"   value="[ESConeO3] +
+                                   [EETanInnerAngle]*( [ESConeZ4] - [ESConeZ3] )"/>
 <Constant name="ESConeO3"   value=" 287.0*mm"/>
 <Constant name="ESConeO2"   value=" 306.0*mm"/>
 <Constant name="ESConeO1"   value=" 306.0*mm"/>
@@ -94,26 +103,27 @@
 
 <!-- Global size specifications -->
 
-<Constant name="EREGEnvZES"     value="[EEVFarZ]  - [ESConeZ6] + [ESConeZ2]"/>
+<Constant name="ENCAEnvZES"     value="[esalgo:PRESH_Z_OFFSET] + [esalgo:PRESH_Z_TOTAL]/2 +
+                                       [ESConeZ2] - [ESConeZ1]"/>
 
-<Constant name="ECALEnvZES"     value="[EEVFarZC] - [ESConeZ6] + [ESConeZ2]"/>
+<Constant name="ENCAEnvRNeck"   value="[ESConeO3] +
+                                       [EETanInnerAngle]*( [EEzNeck] - [ENCAEnvZES] ) + 0.5*mm"/>
 
-<Constant name="ECALEnvRFar"    value="[ESConeI6] - [EETanInnerAngle]*([EEVFarZC] - [EEFarZC])"/>
+<Constant name="ENCAEnvRFront"  value="[ESConeO3] +
+                                       [EETanInnerAngle]*( [EEzFront] - [ENCAEnvZES] ) +0.5*mm"/>
 
-<Constant name="ECALEnvRNeck"   value="[ESConeI6] - [EETanInnerAngle]*([EEVFarZC] - [EEzNeckC])"/>
+<Constant name="ENCAEnvRBack"   value="[ESConeO3] +
+                                       [EETanInnerAngle]*( [EEzBack] - [ENCAEnvZES] ) + 0.5*mm"/>
 
-<Constant name="EREGEnvRBack"   value="[ESConeI6] - [EETanInnerAngle]*([EEVFarZ] - [EEzBack]) -5*mm"/>
+<Constant name="ENCAEnvRFar"    value="[ESConeO3] +
+                                       [EETanInnerAngle]*( [EEFarZ] - [ENCAEnvZES] ) + 0.5*mm"/>
 
-<Constant name="ENCAEnvZES"     value="[EEVFarZ]  - [ESConeZ6] + [ESConeZ5]"/>
+<Constant name="ECALEnvRFar"    value="[ENCAEnvRFar] - 5.0*mm"/>
 
-<Constant name="ENCAEnvRNeck"   value="[ESConeO4] -
-[EETanInnerAngle]*([ENCAEnvZES] - [EEzNeck]) + 0.5*mm"/>
+<Constant name="ECALEnvRNeck"   value="[ESConeO3] +
+                                       [EETanInnerAngle]*( [EEzNeck] - [ENCAEnvZES] ) - 5.0*mm"/>
 
-<Constant name="ENCAEnvRFront"  value="[ESConeO4] -
-[EETanInnerAngle]*([ENCAEnvZES] - [EEzFront]) +0.5*mm"/>
-
-<Constant name="ENCAEnvRBack"   value="[ESConeO4] -
-[EETanInnerAngle]*([ENCAEnvZES] - [EEzBack]) + 0.5*mm"/>
+<Constant name="EREGEnvRBack"   value="[ENCAEnvRBack] - 5.0*mm"/>
 
 <!-- Inner Moderator -->
 
@@ -266,6 +276,11 @@
 
 <Constant name="EEDeeFrontIR" value="[EEiEnvScrIR5] - 0.3*mm -
                                      ( [EEiEnvScrZ5] - [EEiEnvScrZ1] - [EEfEnvScrTh] )*[EETanInnerAngle] "/>
+
+<Constant name="EEFrontMidOR" value="[EEfEnvScrOR1] + ( [EEfEnvScrOR4] - [EEfEnvScrOR1] )*
+                                     ( [EEiEnvScrZ3] - [EEfEnvScrZ1] )/( [EEfEnvScrZ4] - [EEfEnvScrZ1] ) "/>
+
+<Constant name="EEFrontMidZ"  value="[EEzFront] + ( [EEiEnvScrZ3] - [EEfEnvScrZ1] ) "/>
 
 
 <!-- Slats for Support of Front Environmental Screen -->
