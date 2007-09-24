@@ -13,39 +13,35 @@
 //
 // Original Author:  Suchandra Dutta
 //      Created:  Thu Oct 19 09:02:32 CEST 2006
-// $Id: InvariantMass.cc,v 1.6 2007/05/10 18:14:24 dutta Exp $
+// $Id: InvariantMass.cc,v 1.7 2007/06/27 14:57:36 dutta Exp $
 //
 //
 
 
 // system include files
 #include <memory>
+#include <string>
+#include <utility>
+#include <boost/regex.hpp>
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "RecoTauTag/InvariantMass/interface/InvariantMass.h"
-
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "DataFormats/BTauReco/interface/JetTag.h"
-#include "DataFormats/TrackReco/interface/Track.h"
-#include "DataFormats/BTauReco/interface/IsolatedTauTagInfo.h"
-
-#include <DataFormats/VertexReco/interface/Vertex.h>
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-
-#include "FWCore/Framework/interface/EventSetup.h"
 #include "DataFormats/Common/interface/Handle.h"
-
+#include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/EgammaReco/interface/BasicCluster.h"
 #include "DataFormats/EgammaReco/interface/BasicClusterFwd.h"
-#include <boost/regex.hpp>
+#include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/BTauReco/interface/JetTag.h"
+#include "DataFormats/BTauReco/interface/IsolatedTauTagInfo.h"
 
-#include <string>
-#include <pair>
+#include "RecoTauTag/InvariantMass/interface/InvariantMass.h"
+
 using namespace std;
 
 //
