@@ -11,7 +11,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include <TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h>
-
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
 
 MuonErrorMatrixAdjuster::MuonErrorMatrixAdjuster(const edm::ParameterSet& iConfig)
 {
