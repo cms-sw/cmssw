@@ -13,7 +13,7 @@
 //
 // Original Author:  fwyzard
 //         Created:  Wed Oct 18 18:02:07 CEST 2006
-// $Id: SoftLepton.cc,v 1.6 2007/09/22 14:51:58 fwyzard Exp $
+// $Id: SoftLepton.cc,v 1.3 2007/08/28 16:57:20 fwyzard Exp $
 //
 
 
@@ -45,8 +45,6 @@
 #include "DataFormats/JetReco/interface/Jet.h"
 #include "DataFormats/JetReco/interface/CaloJet.h"
 #include "DataFormats/JetReco/interface/JetTracksAssociation.h"
-#include "AnalysisDataFormats/Egamma/interface/ElectronID.h"
-#include "AnalysisDataFormats/Egamma/interface/ElectronIDAssociation.h"
 #include "DataFormats/BTauReco/interface/SoftLeptonTagInfo.h"
 
 #include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
@@ -169,18 +167,6 @@ SoftLepton::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
       leptons.push_back(edm::RefToBase<reco::Track>( electron->gsfTrack() ));
   } 
   else
-  // look for ElectronID collection
-  if (leptons_id = edm::findProductIDByLabel<reco::ElectronIDAssociationCollection>(iEvent, m_leptons), leptons_id.isValid())
-  {
-    Handle<reco::ElectronIDAssociationCollection> h_electrons;
-    iEvent.get(leptons_id, h_electrons);
-    for (reco::ElectronIDAssociationCollection::const_iterator association = h_electrons->begin(); association != h_electrons->end(); ++association) {
-      const reco::PixelMatchGsfElectronRef & electron = association->key;
-      const reco::ElectronID               & id       = association->val;
-      // FIXME
-    }
-  }
-  else
   // electrons not found, look for muons
   if (leptons_id = edm::findProductIDByLabel<reco::MuonCollection>(iEvent, m_leptons), leptons_id.isValid())
   {
@@ -188,17 +174,11 @@ SoftLepton::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
     iEvent.get(leptons_id, h_muons);
     for (reco::MuonCollection::const_iterator muon = h_muons->begin(); muon != h_muons->end(); ++muon)
     {
-      if (! muon->combinedMuon().isNull()) {
-        if (muon->getCaloCompatibility() > m_quality)
-          leptons.push_back(edm::RefToBase<reco::Track>( muon->combinedMuon() ));
-      } else 
-      if (! muon->track().isNull()) {
-        if (muon->getCaloCompatibility() > m_quality)
-          leptons.push_back(edm::RefToBase<reco::Track>( muon->track() ));
-      } else {
-        // FIXME
-        // invalid muon? or stanalone?
-      }
+      if (! muon->combinedMuon().isNull() and muon->getCaloCompatibility() > m_quality)
+        leptons.push_back(edm::RefToBase<reco::Track>( muon->combinedMuon() ));
+      else 
+      if (! muon->track().isNull() and muon->getCaloCompatibility() > m_quality)
+        leptons.push_back(edm::RefToBase<reco::Track>( muon->track() ));
     }
   }
   else
