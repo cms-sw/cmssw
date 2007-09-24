@@ -19,7 +19,7 @@
 //
 // Original Author:  Andrea Perrotta
 //         Created:  Mon Oct 30 14:37:24 CET 2006
-// $Id: ParamL3MuonProducer.cc,v 1.5 2007/06/13 13:53:50 pjanot Exp $
+// $Id: ParamL3MuonProducer.cc,v 1.6 2007/06/18 15:42:47 pjanot Exp $
 //
 //
 
@@ -66,6 +66,7 @@
 #include "DataFormats/TrackerRecHit2D/interface/SiTrackerGSRecHit2D.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiTrackerGSRecHit2DCollection.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
+#include "DataFormats/MuonReco/interface/MuonFwd.h"
 
 
 // constants, enums and typedefs
