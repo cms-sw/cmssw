@@ -34,7 +34,7 @@ SiPixelCalibConfiguration::SiPixelCalibConfiguration(std::string filename):
 
     if (tmp=="Mode:"){
       in >> mode_;
-      std::cout << "PixelCalib mode="<<mode_
+      std::cout << "SiPixelCalibConfiguration mode="<<mode_
 		<< std::endl;
 
       assert(mode_=="FEDBaselineWithTestDACs"||
@@ -53,7 +53,7 @@ SiPixelCalibConfiguration::SiPixelCalibConfiguration(std::string filename):
       in >>tmp;
     } else {
       mode_="FEDChannelOffsetPixel";
-      std::cout << "PixelCalib mode not set"
+      std::cout << "SiPixelCalibCOnfiguration mode not set, is this an old file? "
 		<< std::endl;
       assert(0);
     }

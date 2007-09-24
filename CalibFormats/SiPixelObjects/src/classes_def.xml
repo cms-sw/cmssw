@@ -1,5 +1,13 @@
 <lcgdict>
   <class name="SiPixelCalibConfiguration"/>
+  <class name="PixelROCName"/>
+  <class name="std::vector<PixelROCName>"/>
+  <class name="PixelDACScanRange"/>
+  <class name="PixelModuleName"/>
+  <class name="std::set<PixelModuleName>"/>
+  <class name="std::map<PixelModuleName,uint32_t>"/>
+  <class name="std::vector<PixelDACScanRange>"/>
+  <class name="std::map<std::string,std::string>"/>
   <class name="uint32_t"/>
   <class name="std::vector<uint32_t>"/>
   <class name="std::string"/>

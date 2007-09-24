@@ -14,6 +14,7 @@ class PixelDACScanRange {
 
  public:
 
+  PixelDACScanRange(){;}
     PixelDACScanRange(std::string dacname, unsigned int first, 
 		      unsigned int last, unsigned int step,
 		      unsigned int index);
