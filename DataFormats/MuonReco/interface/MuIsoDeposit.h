@@ -25,6 +25,10 @@ namespace reco {
   class MuIsoDeposit {
   public:
 
+    /// the deposits identifed by relative position to center of cone and deposit value
+    typedef muonisolation::Direction::Distance Distance;
+    typedef std::multimap<Distance, float> DepositsMultimap;
+
     typedef muonisolation::Direction Direction;
     struct Veto { Direction vetoDir; float dR; 
       Veto() {}
@@ -95,6 +99,10 @@ namespace reco {
 
     std::string print() const;
 
+    /// give the whole map to a user for doing many more things with it
+    const std::multimap<muonisolation::Direction::Distance, float>&
+      depositsMap() const { return theDeposits; } 
+    
   private:
 
     /// type of deposit
@@ -109,9 +117,6 @@ namespace reco {
     /// float tagging muon, ment to be transverse energy or pT attached to muon,
     float theMuonTag; 
 
-    /// the deposits identifed by relative position to center of cone and deposit value
-    typedef muonisolation::Direction::Distance Distance;
-    typedef std::multimap<Distance, float> DepositsMultimap;
 //    struct Closer { bool operator()(const Distance&, const Distance& ) const; };
 //    typedef std::multimap<Distance, double, Closer> DepositsMultimap;
     DepositsMultimap theDeposits;
