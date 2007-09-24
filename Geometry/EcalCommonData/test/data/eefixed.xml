@@ -340,7 +340,9 @@
 <!-- Preshower Support Cone -->
 
  <PosPart copyNumber="1"> <rParent name="eregalgo:EREG"/> <rChild name="eefixed:ESCONE"/>
-      <Translation x="0*mm" y="0*mm" z="[eecon:EEVFarZ] + [eecon:ESConeZ1]"/>
+      <Translation x="0*mm" y="0*mm" 
+       z="[esalgo:PRESH_Z_OFFSET] + [esalgo:PRESH_Z_TOTAL]/2 +
+          ( [eecon:ESConeZ6] - [eecon:ESConeZ1] )/2"/>
       <rRotation name="rotations:000D"/> </PosPart>
 
 <!-- Backplate and its cooling pipes -->
