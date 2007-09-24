@@ -122,6 +122,7 @@ private:
   // input from .cfi file
   bool   debug;
   bool   preClustering;
+  bool   testSeg;
   bool   Pruning;
   int    minLayersApart;
   float  nSigmaFromSegment;
@@ -131,6 +132,7 @@ private:
   double dPhiFineMax;
   float tanPhiMax;
   float tanThetaMax;
+  float chi2Max;
 
   CSCSegAlgoPreClustering* preCluster_;
   CSCSegAlgoHitPruning* hitPruning_;

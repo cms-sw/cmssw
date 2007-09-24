@@ -32,19 +32,19 @@
 CSCSegAlgoDF::CSCSegAlgoDF(const edm::ParameterSet& ps) : CSCSegmentAlgorithm(ps), myName("CSCSegAlgoDF") {
 	
   debug                  = ps.getUntrackedParameter<bool>("CSCSegmentDebug");
-  minLayersApart         = ps.getUntrackedParameter<int>("minLayersApart");
-  nSigmaFromSegment      = ps.getUntrackedParameter<double>("nSigmaFromSegment");
-  minHitsPerSegment      = ps.getUntrackedParameter<int>("minHitsPerSegment");
-  dRPhiFineMax           = ps.getUntrackedParameter<double>("dRPhiFineMax");
-  dPhiFineMax            = ps.getUntrackedParameter<double>("dPhiFineMax");
-  tanThetaMax            = ps.getUntrackedParameter<double>("tanThetaMax");
-  tanPhiMax              = ps.getUntrackedParameter<double>("tanPhiMax");	
+  minLayersApart         = ps.getParameter<int>("minLayersApart");
+  nSigmaFromSegment      = ps.getParameter<double>("nSigmaFromSegment");
+  minHitsPerSegment      = ps.getParameter<int>("minHitsPerSegment");
+  dRPhiFineMax           = ps.getParameter<double>("dRPhiFineMax");
+  dPhiFineMax            = ps.getParameter<double>("dPhiFineMax");
+  tanThetaMax            = ps.getParameter<double>("tanThetaMax");
+  tanPhiMax              = ps.getParameter<double>("tanPhiMax");	
+  chi2Max                = ps.getParameter<double>("chi2Max");	
   preClustering          = ps.getUntrackedParameter<bool>("preClustering");
   Pruning                = ps.getUntrackedParameter<bool>("Pruning");
 
   preCluster_            = new CSCSegAlgoPreClustering( ps );
   hitPruning_            = new CSCSegAlgoHitPruning( ps );
-
 }
 
 
@@ -52,7 +52,6 @@ CSCSegAlgoDF::CSCSegAlgoDF(const edm::ParameterSet& ps) : CSCSegmentAlgorithm(ps
  *
  */
 CSCSegAlgoDF::~CSCSegAlgoDF() {
-
   delete preCluster_;
   delete hitPruning_;
 }
@@ -66,15 +65,17 @@ std::vector<CSCSegment> CSCSegAlgoDF::run(const CSCChamber* aChamber, ChamberHit
   // Store chamber info in temp memory
   theChamber = aChamber; 
 
+  int nHits = rechits.size();
+
   // Segments prior to pruning
   std::vector<CSCSegment> segments_temp;  
 
-  if ( preClustering ) {
+  if ( preClustering && nHits > 15 ) {
     // This is where the segment origin is in the chamber on avg.
     std::vector<CSCSegment> testSegments;
     std::vector<ChamberHitContainer> clusteredHits = preCluster_->clusterHits(theChamber, rechits, testSegments);
     // loop over the found clusters:
-    for(std::vector<ChamberHitContainer>::iterator subrechits = clusteredHits.begin(); subrechits !=  clusteredHits.end(); ++subrechits ) {
+    for (std::vector<ChamberHitContainer>::iterator subrechits = clusteredHits.begin(); subrechits != clusteredHits.end(); ++subrechits ) {
       // build the subset of segments:
       std::vector<CSCSegment> segs = buildSegments( (*subrechits) );
       // add the found subset of segments to the collection of all segments in this chamber:
@@ -85,6 +86,7 @@ std::vector<CSCSegment> CSCSegAlgoDF::run(const CSCChamber* aChamber, ChamberHit
     // add the found subset of segments to the collection of all segments in this chamber:
     segments_temp.insert( segments_temp.end(), segs.begin(), segs.end() ); 
   }
+
 
   // Prune bad hits off segments
   std::vector<CSCSegment> segments;  
@@ -196,13 +198,13 @@ std::vector<CSCSegment> CSCSegAlgoDF::buildSegments(ChamberHitContainer rechits)
       unsigned iadd = ( nHitInChamber > 20 )? iadd = 1 : 0;
       if (nHitInChamber > 30 ) iadd++;  
       if (protoSegment.size() < minHitsPerSegment+iadd) segok = false;
+  
+      // Check if segment satisfies chi2 requirement
+      if (protoChi2 > chi2Max) segok = false;
 
       if ( segok ) {
 
         // Fill segment properties
-
-        // Get final slopes & chi2
-        updateParameters();
 
         // Local direction
         double dz   = 1./sqrt(1. + protoSlope_u*protoSlope_u + protoSlope_v*protoSlope_v);
@@ -270,8 +272,9 @@ void CSCSegAlgoDF::tryAddingHitsToSegment( const ChamberHitContainer& rechits,
     }
   } 
 
-  // Test if need to continue further
-  if ( protoSegment.size() < 3 || closeHits.size() < 1) return;
+  if ( protoSegment.size() < 3) return;
+
+  // Fit segment and get chi2
   updateParameters();
 
   // 2nd pass to remove biases 
@@ -280,7 +283,6 @@ void CSCSegAlgoDF::tryAddingHitsToSegment( const ChamberHitContainer& rechits,
     int layer = (*i)->cscDetId().layer();     
     compareProtoSegment(h, layer); 
   } 
-
 }
 
 
