@@ -1,23 +1,35 @@
 #include <SimCalorimetry/EcalTrigPrimAlgos/interface/EcalFenixTcp.h>
 #include <SimCalorimetry/EcalTrigPrimAlgos/interface/EcalFenixTcpFormat.h>
-#include <CondFormats/L1TObjects/interface/EcalTPParameters.h>
-#include <iostream>
+
+#include "CondFormats/DataRecord/interface/EcalTPGFineGrainEBGroupRcd.h"
+#include "CondFormats/DataRecord/interface/EcalTPGLutGroupRcd.h"
+#include "CondFormats/DataRecord/interface/EcalTPGLutIdMapRcd.h"
+#include "CondFormats/DataRecord/interface/EcalTPGFineGrainEBIdMapRcd.h"
+#include "CondFormats/DataRecord/interface/EcalTPGFineGrainTowerEERcd.h"
+#include "CondFormats/EcalObjects/interface/EcalTPGFineGrainEBGroup.h"
+#include "CondFormats/EcalObjects/interface/EcalTPGLutGroup.h"
+#include "CondFormats/EcalObjects/interface/EcalTPGLutIdMap.h"
+#include "CondFormats/EcalObjects/interface/EcalTPGFineGrainEBIdMap.h"
+#include "CondFormats/EcalObjects/interface/EcalTPGFineGrainTowerEE.h"
+
+#include "FWCore/Framework/interface/ESHandle.h"
+
 #include <vector>
 //----------------------------------------------------------------------------------------
-EcalFenixTcp::EcalFenixTcp(const EcalTPParameters * ecaltpp,bool tcpFormat, bool debug,bool famos, int binOfMax, int maxNrSamples): debug_(debug)
+EcalFenixTcp::EcalFenixTcp(const edm::EventSetup& setup,bool tcpFormat, bool debug,bool famos, int binOfMax, int maxNrSamples, int nbMaxStrips): debug_(debug),nbMaxStrips_(nbMaxStrips)
  { 
-    bypasslin_.resize(EcalTPParameters::nbMaxStrips_);
-    for (int i=0;i<EcalTPParameters::nbMaxStrips_;i++) bypasslin_[i] = new EcalFenixBypassLin();
+    bypasslin_.resize(nbMaxStrips_);
+    for (int i=0;i<nbMaxStrips_;i++) bypasslin_[i] = new EcalFenixBypassLin();
     adder_= new EcalFenixEtTot();
-    maxOf2_=new EcalFenixMaxof2(maxNrSamples);
-    formatter_= new EcalFenixTcpFormat(ecaltpp, tcpFormat, debug_, famos, binOfMax);
-    fgvbEB_= new EcalFenixFgvbEB(ecaltpp);
-    fgvbEE_= new EcalFenixTcpFgvbEE(ecaltpp);
+    maxOf2_=new EcalFenixMaxof2(maxNrSamples,nbMaxStrips_);
+    formatter_= new EcalFenixTcpFormat(tcpFormat, debug_, famos, binOfMax);
+    fgvbEB_= new EcalFenixFgvbEB();
+    fgvbEE_= new EcalFenixTcpFgvbEE();
 
-    // permanenet data structures
-    bypasslin_out_.resize(EcalTPParameters::nbMaxStrips_);
+    // permanent data structures
+    bypasslin_out_.resize(nbMaxStrips_);
     std::vector<int> vec(maxNrSamples,0);
-    for (int i=0;i<EcalTPParameters::nbMaxStrips_;i++) bypasslin_out_[i]=vec;
+    for (int i=0;i<nbMaxStrips_;i++) bypasslin_out_[i]=vec;
     adder_out_.resize(maxNrSamples);
     maxOf2_out_.resize(maxNrSamples);
     fgvb_out_.resize(maxNrSamples);
@@ -25,7 +37,7 @@ EcalFenixTcp::EcalFenixTcp(const EcalTPParameters * ecaltpp,bool tcpFormat, bool
   }
 //-----------------------------------------------------------------------------------------  
   EcalFenixTcp::~EcalFenixTcp() {
-    for (int i=0;i<EcalTPParameters::nbMaxStrips_;i++) delete bypasslin_[i];
+    for (int i=0;i<nbMaxStrips_;i++) delete bypasslin_[i];
     delete adder_; 
     delete maxOf2_;
     delete formatter_;
@@ -33,29 +45,64 @@ EcalFenixTcp::EcalFenixTcp(const EcalTPParameters * ecaltpp,bool tcpFormat, bool
     delete fgvbEE_;
   }
 //-----------------------------------------------------------------------------------------  
-void EcalFenixTcp::process(std::vector <EBDataFrame> &,             //dummy argument for template call 
+
+void EcalFenixTcp::process(const edm::EventSetup& setup,
+                           std::vector <EBDataFrame> &bid,             //dummy argument for template call 
 			   std::vector<std::vector<int> > & tpframetow, int nStr,
 			   std::vector< EcalTriggerPrimitiveSample> & tptow,
 			   std::vector< EcalTriggerPrimitiveSample> & tptow2,
-			   int SM, int towerInSM)
+			   bool isInInnerRing, EcalTrigTowerDetId towid) 
 {
 	      
+  // first get parameter records for towers
+  edm::ESHandle<EcalTPGFineGrainEBGroup> theEcalTPGFineGrainEBGroup_handle;
+  setup.get<EcalTPGFineGrainEBGroupRcd>().get(theEcalTPGFineGrainEBGroup_handle);
+  const EcalTPGFineGrainEBGroup * ecaltpgFgEBGroup = theEcalTPGFineGrainEBGroup_handle.product();
+
+  edm::ESHandle<EcalTPGLutGroup> theEcalTPGLutGroup_handle;
+  setup.get<EcalTPGLutGroupRcd>().get(theEcalTPGLutGroup_handle);
+  const EcalTPGLutGroup * ecaltpgLutGroup = theEcalTPGLutGroup_handle.product();
+
+  edm::ESHandle<EcalTPGLutIdMap> theEcalTPGLutIdMap_handle;
+  setup.get<EcalTPGLutIdMapRcd>().get(theEcalTPGLutIdMap_handle);
+  const EcalTPGLutIdMap * ecaltpgLut = theEcalTPGLutIdMap_handle.product();
+
+  edm::ESHandle<EcalTPGFineGrainEBIdMap> theEcalTPGFineGrainEBIdMap_handle;
+  setup.get<EcalTPGFineGrainEBIdMapRcd>().get(theEcalTPGFineGrainEBIdMap_handle);
+  const EcalTPGFineGrainEBIdMap * ecaltpgFineGrainEB = theEcalTPGFineGrainEBIdMap_handle.product();
+
   int bitMask=12; //FIXME: to be verified
   process_part1(tpframetow,nStr,bitMask);
-  process_part2_barrel(nStr,SM,towerInSM,tptow,tptow2);
+
+  process_part2_barrel(nStr,ecaltpgFgEBGroup,ecaltpgLutGroup,ecaltpgLut,ecaltpgFineGrainEB,tptow,tptow2,towid);
 }
  
 //-----------------------------------------------------------------------------------------  
-void EcalFenixTcp::process(std::vector <EEDataFrame> &,  //dummy argument for template call 
+void EcalFenixTcp::process(const edm::EventSetup& setup,
+                           std::vector <EEDataFrame> &bid,  //dummy argument for template call 
 			   std::vector<std::vector<int> > & tpframetow, int nStr,
 			   std::vector< EcalTriggerPrimitiveSample> & tptow,
 			   std::vector< EcalTriggerPrimitiveSample> & tptow2,
-			   int SM, int towerInSM)
+			   bool isInInnerRing, EcalTrigTowerDetId towid) 
 {
 	      
+  // first get parameter records for towers
+
+  edm::ESHandle<EcalTPGLutGroup> theEcalTPGLutGroup_handle;
+  setup.get<EcalTPGLutGroupRcd>().get(theEcalTPGLutGroup_handle);
+  const EcalTPGLutGroup * ecaltpgLutGroup = theEcalTPGLutGroup_handle.product();
+
+  edm::ESHandle<EcalTPGLutIdMap> theEcalTPGLutIdMap_handle;
+  setup.get<EcalTPGLutIdMapRcd>().get(theEcalTPGLutIdMap_handle);
+  const EcalTPGLutIdMap * ecaltpgLut = theEcalTPGLutIdMap_handle.product();
+
+  edm::ESHandle<EcalTPGFineGrainTowerEE> theEcalTPGFineGrainTowerEE_handle;
+  setup.get<EcalTPGFineGrainTowerEERcd>().get(theEcalTPGFineGrainTowerEE_handle);
+  const EcalTPGFineGrainTowerEE * ecaltpgFineGrainTowerEE = theEcalTPGFineGrainTowerEE_handle.product();
+
   int bitMask=10;
   process_part1(tpframetow,nStr,bitMask);
-  process_part2_endcap(nStr,bitMask,SM,towerInSM,tptow,tptow2);
+  process_part2_endcap(nStr,bitMask,ecaltpgLutGroup,ecaltpgLut,ecaltpgFineGrainTowerEE,tptow,tptow2,isInInnerRing, towid);
 }
 //----------------------------------------------------------------------------------------- 
 void EcalFenixTcp::process_part1(std::vector<std::vector<int> > &tpframetow, int nStr, int bitMask)
@@ -75,6 +122,7 @@ void EcalFenixTcp::process_part1(std::vector<std::vector<int> > &tpframetow, int
 	std::cout<<std::endl;
       }
     }
+
     //call adder
     this->getAdder()->process(bypasslin_out_, nStr, bitMask,adder_out_);
     //this is a test:
@@ -91,9 +139,14 @@ void EcalFenixTcp::process_part1(std::vector<std::vector<int> > &tpframetow, int
     
 }
 //-----------------------------------------------------------------------------------------
-void EcalFenixTcp::process_part2_barrel(int nStr,int SM,int towerInSM,
+void EcalFenixTcp::process_part2_barrel(int nStr,
+                                        const EcalTPGFineGrainEBGroup *ecaltpgFgEBGroup,
+                                        const EcalTPGLutGroup *ecaltpgLutGroup,
+                                        const EcalTPGLutIdMap *ecaltpgLut,
+                                        const EcalTPGFineGrainEBIdMap *ecaltpgFineGrainEB,
 					std::vector< EcalTriggerPrimitiveSample> & tcp_out,
-                                        std::vector< EcalTriggerPrimitiveSample> & tcp_outTcc)
+                                        std::vector< EcalTriggerPrimitiveSample> & tcp_outTcc,
+					EcalTrigTowerDetId towid)
 {
   //call maxof2
   this->getMaxOf2()->process(bypasslin_out_,nStr,maxOf2_out_);
@@ -108,7 +161,8 @@ void EcalFenixTcp::process_part2_barrel(int nStr,int SM,int towerInSM,
   }
    
   //call fgvb
-  this->getFGVBEB()->setParameters(SM, towerInSM);
+
+  this->getFGVBEB()->setParameters(towid.rawId(),ecaltpgFgEBGroup,ecaltpgFineGrainEB );
   this->getFGVBEB()->process(adder_out_,maxOf2_out_,fgvb_out_);
   //this is a test:
   if (debug_) {
@@ -122,8 +176,9 @@ void EcalFenixTcp::process_part2_barrel(int nStr,int SM,int towerInSM,
 
   // call formatter
   int eTTotShift=2;
-  this->getFormatter()->setParameters(SM, towerInSM) ;
-  this->getFormatter()->process(adder_out_,fgvb_out_,eTTotShift,tcp_out,tcp_outTcc);
+ 
+  this->getFormatter()->setParameters(towid.rawId(),ecaltpgLutGroup,ecaltpgLut);
+  this->getFormatter()->process(adder_out_,fgvb_out_,eTTotShift,tcp_out,tcp_outTcc,false);
   //this is a test:
   if (debug_) {
     std::cout<< "output of TCP formatter Barrel is a vector of size: "<<std::dec<<tcp_out.size()<<std::endl; 
@@ -138,20 +193,23 @@ void EcalFenixTcp::process_part2_barrel(int nStr,int SM,int towerInSM,
 }
 //-----------------------------------------------------------------------------------------
 void EcalFenixTcp::process_part2_endcap(int nStr, int bitMask,
-                                        int SM,int towerInSM,
+                                        const EcalTPGLutGroup *ecaltpgLutGroup,
+                                        const EcalTPGLutIdMap *ecaltpgLut,
+                                        const EcalTPGFineGrainTowerEE *ecaltpgFineGrainTowerEE,
 					std::vector< EcalTriggerPrimitiveSample> & tcp_out,
-                                        std::vector< EcalTriggerPrimitiveSample> & tcp_outTcc)
+                                        std::vector< EcalTriggerPrimitiveSample> & tcp_outTcc,bool isInInnerRings,					EcalTrigTowerDetId towid)
+
 {
   //call fgvb
-  //  std::vector<int> fgvb_out;
-  this->getFGVBEE()->setParameters(SM, towerInSM);
-  //  fgvb_out = fgvbEE_->process(bypasslin_out,bitMask);
+  this->getFGVBEE()->setParameters(towid.rawId(),ecaltpgFineGrainTowerEE);
   fgvbEE_->process(bypasslin_out_,nStr,bitMask,fgvb_out_);
 
   //call formatter
   int eTTotShift=0;
-  this->getFormatter()->setParameters(SM, towerInSM) ;
-  this->getFormatter()->process(adder_out_,fgvb_out_,eTTotShift,tcp_out,tcp_outTcc);
+
+  this->getFormatter()->setParameters(towid.rawId(),ecaltpgLutGroup,ecaltpgLut);
+
+  this->getFormatter()->process(adder_out_,fgvb_out_,eTTotShift,tcp_out,tcp_outTcc,isInInnerRings);
   //this is a test:
   if (debug_) {
     std::cout<< "output of TCP formatter(endcap) is a vector of size: "<<std::dec<<tcp_out.size()<<std::endl; 

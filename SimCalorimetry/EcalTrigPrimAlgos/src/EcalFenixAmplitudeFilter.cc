@@ -1,13 +1,16 @@
 #include <SimCalorimetry/EcalTrigPrimAlgos/interface/EcalFenixAmplitudeFilter.h>
-#include "CondFormats/L1TObjects/interface/EcalTPParameters.h"
+#include "CondFormats/EcalObjects/interface/EcalTPGWeightIdMap.h"
+#include "CondFormats/EcalObjects/interface/EcalTPGWeightGroup.h"
+#include "CondFormats/EcalObjects/interface/EcalTPGGroups.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include <iostream>
 
-EcalFenixAmplitudeFilter::EcalFenixAmplitudeFilter(const EcalTPParameters * ecaltpp)
-  :ecaltpp_(ecaltpp), inputsAlreadyIn_(0), shift_(6) {
+EcalFenixAmplitudeFilter::EcalFenixAmplitudeFilter()
+  :inputsAlreadyIn_(0), shift_(6) {
   }
 
 EcalFenixAmplitudeFilter::~EcalFenixAmplitudeFilter(){
 }
-
 
 int EcalFenixAmplitudeFilter::setInput(int input)
 {
@@ -28,6 +31,7 @@ int EcalFenixAmplitudeFilter::setInput(int input)
     }
   return 1;
 }
+
 void EcalFenixAmplitudeFilter::process(std::vector<int> &addout,std::vector<int> &output)
 {
   // test
@@ -63,11 +67,23 @@ int EcalFenixAmplitudeFilter::process()
   return output;
 }
 
-void EcalFenixAmplitudeFilter::setParameters(int SM, int towerInSM, int stripInTower)
+void EcalFenixAmplitudeFilter::setParameters(uint32_t raw,const EcalTPGWeightIdMap * ecaltpgWeightMap,const EcalTPGWeightGroup * ecaltpgWeightGroup)
 {
- std::vector<unsigned int> const *params;
- params = ecaltpp_->getStripParameters(SM, towerInSM, stripInTower) ;  
- for (int i=0 ; i<5 ; i++) weights_[i] = (*params)[i+1] ; //FIXME:5
+  uint32_t params_[5];
+  const EcalTPGGroups::EcalTPGGroupsMap & groupmap = ecaltpgWeightGroup -> getMap();
+  EcalTPGGroups::EcalTPGGroupsMapItr it = groupmap.find(raw);
+  if (it!=groupmap.end()) {
+    uint32_t weightid =(*it).second;
+    const EcalTPGWeightIdMap::EcalTPGWeightMap & weightmap = ecaltpgWeightMap -> getMap();
+    EcalTPGWeightIdMap::EcalTPGWeightMapItr itw = weightmap.find(weightid);
+    (*itw).second.getValues(params_[0],params_[1],params_[2],params_[3],params_[4]);
+    // we have to transform negative coded in 7 bits into negative coded in 32 bits
+    // maybe this should go into the getValue method??
+    for (int i=0;i<5;++i){
+      weights_[i] = (params_[i] & 0x40) ?    (int)( params_[i] | 0xffffffc0) : (int)(params_[i]);
+    }
+  }
+  else edm::LogWarning("EcalTPG")<<" could not find EcalTPGGroupsMap entry for "<<raw;
 }
 
 

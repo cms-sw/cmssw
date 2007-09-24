@@ -4,13 +4,14 @@
  *
  * EcalTrigPrimFunctionalAlgo is the main algorithm class for TPG
  * It coordinates all the aother algorithms
- * Structi=ure is very close to electronics
+ * Structure is as close as possible to electronics
  *
  *
  * \author Ursula Berthon, Stephanie Baffioni,  LLR Palaiseau
  *
  * \version   1st Version may 2006
  * \version   2nd Version jul 2006
+ * \version   3rd Version sep 2007  introducing new Records closer to the db
 
  *
  ************************************************************/
@@ -37,7 +38,6 @@
 /** Main Algo for Ecal trigger primitives. */
 
 
-class TTree;
 class EcalTrigTowerDetId;
 class ETPCoherenceTest;
 class EcalTriggerPrimitiveSample;
@@ -51,36 +51,32 @@ class EcalTrigPrimFunctionalAlgo
 {  
  public:
   
-  explicit EcalTrigPrimFunctionalAlgo(const edm::EventSetup & setup,int binofmax, bool tcpFormat, bool barrelOnly, bool debug, bool famos);
+  explicit EcalTrigPrimFunctionalAlgo(const edm::EventSetup & setup, int binofmax, bool tcpFormat, bool barrelOnly, bool debug, bool famos);
 
   virtual ~EcalTrigPrimFunctionalAlgo();
 
   /** this actually calculates the trigger primitives (from Digis) */
 
-  void run(const EBDigiCollection * col, EcalTrigPrimDigiCollection & result, EcalTrigPrimDigiCollection & resultTcp);
-  void run(const EEDigiCollection * col, EcalTrigPrimDigiCollection & result, EcalTrigPrimDigiCollection & resultTcp);
+  void run(const edm::EventSetup &, const EBDigiCollection *col, EcalTrigPrimDigiCollection & result, EcalTrigPrimDigiCollection & resultTcp);
+  void run(const edm::EventSetup&,  const EEDigiCollection *col, EcalTrigPrimDigiCollection & result, EcalTrigPrimDigiCollection & resultTcp);
   void run_part1_EB(EBDigiCollection const * col);
   void run_part1_EE(EEDigiCollection const * col);
   template <class Coll> 
-  void run_part2(Coll const * col, 
-		 std::vector<std::vector<std::pair<int,std::vector<typename Coll::Digi> > > > &towerMap,
-		 EcalTrigPrimDigiCollection & result,
-		 EcalTrigPrimDigiCollection & resultTcp);
+    void run_part2(const edm::EventSetup &, Coll const * col, 
+		   std::vector<std::vector<std::pair<int,std::vector<typename Coll::Digi> > > > &towerMap,
+		   EcalTrigPrimDigiCollection & result,
+		   EcalTrigPrimDigiCollection & resultTcp);
   void updateESRecord(double ttfLowEB, double ttfHighEB, double ttfLowEE, double ttfHighEE);
 
  private:
 
-  void init(const edm::EventSetup & setup);
+  void init(const edm::EventSetup&);
   template <class T>  
-  void initStructures(std::vector<std::vector<std::pair<int,std::vector<T> > > > & towMap);
+    void initStructures(std::vector<std::vector<std::pair<int,std::vector<T> > > > & towMap);
   template <class T> 
-  void clean(std::vector<std::vector<std::pair<int,std::vector<T> > > > &towerMap);
+    void clean(std::vector<std::vector<std::pair<int,std::vector<T> > > > &towerMap);
   template <class Coll> 
-  void fillMap(Coll const * col, 
-	       std::vector<std::vector<std::pair<int,std::vector<typename Coll::Digi> > > > &towerMap);
-
-  int findTccNr(const EcalTrigTowerDetId &id);
-  int findTowerNrInTcc(const EcalTrigTowerDetId &id);
+    void fillMap(Coll const * col, std::vector<std::vector<std::pair<int,std::vector<typename Coll::Digi> > > > &towerMap);
   int findStripNr(const EBDetId &id);
   int findStripNr(const EEDetId &id);
 
@@ -110,7 +106,7 @@ class EcalTrigPrimFunctionalAlgo
   bool debug_;  
   bool famos_;  
 
-  const EcalTPParameters *ecaltpp_;
+  //    const EcalTPParameters *ecaltpp_;
 
   static const unsigned int nrSamples_; //nr samples to write, should not be changed since by convention the size means that it is coming from simulation
   static const unsigned int maxNrSamplesOut_; //to be placed in the intermediate samples
@@ -118,6 +114,7 @@ class EcalTrigPrimFunctionalAlgo
   static const unsigned int maxNrTPs_; //FIXME: calculate from EcalTPParameters?
 
   int nrTowers_;   // nr of towers found by fillmap method
+
   // data structures kept during the whole run
   std::vector<std::vector<int> > striptp_;
   std::vector<std::vector<std::pair<int,std::vector<EBDataFrame> > > > towerMapEB_;
@@ -125,19 +122,22 @@ class EcalTrigPrimFunctionalAlgo
   std::vector<std::pair<int,EcalTrigTowerDetId> > hitTowers_;
   std::vector<EcalTriggerPrimitiveSample> towtp_;
   std::vector<EcalTriggerPrimitiveSample> towtp2_;
- };
+
+  enum {nbMaxStrips_=5};
+  enum {nbMaxXtals_=5};
+};
 
 //=================================== implementations =============================================
 
 template <class Coll> 
-void  EcalTrigPrimFunctionalAlgo::run_part2(Coll const * col, 
-					    std::vector<std::vector<std::pair<int,std::vector<typename Coll::Digi> > > > &towerMap,
-					    EcalTrigPrimDigiCollection & result,
-					    EcalTrigPrimDigiCollection & resultTcp)
+void EcalTrigPrimFunctionalAlgo::run_part2(const edm::EventSetup &setup,Coll const * col, std::vector<std::vector<std::pair<int,std::vector<typename Coll::Digi> > > > &towerMap,
+					   EcalTrigPrimDigiCollection & result,
+					   EcalTrigPrimDigiCollection & resultTcp)
 {
   typedef typename Coll::Digi Digi;
+ 
   // prepare writing of TP-s
-  
+
   int firstSample = binOfMaximum_-1 -nrSamples_/2;
   int lastSample = binOfMaximum_-1 +nrSamples_/2;
   int nrTP=0;
@@ -147,8 +147,6 @@ void  EcalTrigPrimFunctionalAlgo::run_part2(Coll const * col,
 
       int index=hitTowers_[itow].first;
       const EcalTrigTowerDetId thisTower=hitTowers_[itow].second;
-      int towNr=findTowerNrInTcc(thisTower);
-      int sectorNr= findTccNr(thisTower);
 
       // loop over all strips assigned to this trigger tower
       int nstr=0;
@@ -157,19 +155,21 @@ void  EcalTrigPrimFunctionalAlgo::run_part2(Coll const * col,
 	  std::vector<Digi> df = (towerMap[index])[i].second;//vector of dataframes for this strip, size; nr of crystals/strip
 
 	  if ((towerMap[index])[i].first > 0) {  
-           estrip_->process(df,(towerMap[index])[i].first,i+1,towNr,sectorNr,striptp_[nstr++]);
+	    estrip_->process(setup,df,(towerMap[index])[i].first,striptp_[nstr++]);
 	  }
 	}//loop over strips in one tower
 
-      std::vector<Digi> dummy;
-      etcp_->process(dummy,striptp_,nstr,towtp_,towtp2_,sectorNr,towNr);
+      bool isInInnerRings=false;
+      if (thisTower.subDet()==EcalEndcap && (thisTower.ietaAbs()==27 || thisTower.ietaAbs()==28 )) isInInnerRings=true;
+      std::vector<typename Coll::Digi> dummy;
+      etcp_->process(setup,dummy,striptp_,nstr,towtp_,towtp2_,isInInnerRings,thisTower);
 
       // prepare TP-s
       // special treatment for 2 inner endcap rings
       int nrTowers;
       EcalTriggerPrimitiveDigi tptow[2];
       EcalTriggerPrimitiveDigi tptowTcp[2];
-      if (thisTower.subDet()==EcalEndcap && (thisTower.ietaAbs()==27 || thisTower.ietaAbs()==28 ))
+      if (isInInnerRings)
         {
           nrTowers=2;
           int phi=2*((thisTower.iphi()-1)/2);
@@ -196,7 +196,7 @@ void  EcalTrigPrimFunctionalAlgo::run_part2(Coll const * col,
         for (int i=firstSample;i<=lastSample;++i) {
           if (nrTowers<=1)  tptow[nrt].setSample(isam++,EcalTriggerPrimitiveSample(towtp_[i]));
           else {
-            float et=towtp_[i].compressedEt()/2.;
+            int et=towtp_[i].compressedEt()/2;
             tptow[nrt].setSample(isam++,EcalTriggerPrimitiveSample(et,towtp_[i].fineGrain(),towtp_[i].ttFlag()));
           }
         }
@@ -217,14 +217,14 @@ void  EcalTrigPrimFunctionalAlgo::run_part2(Coll const * col,
 	  for (int i=firstSample;i<=lastSample;++i) {
 	    if (nrTowers<=1)  tptowTcp[nrt].setSample(isam++,EcalTriggerPrimitiveSample(towtp2_[i]));
 	    else {
-	      float et=towtp2_[i].compressedEt()/2.;
+	      int et=towtp2_[i].compressedEt()/2;
 	      tptowTcp[nrt].setSample(isam++,EcalTriggerPrimitiveSample(et,towtp2_[i].fineGrain(),towtp2_[i].ttFlag()));
 	    }
 	  }
 	  resultTcp.push_back(tptowTcp[nrt]);
 	}
       }
-     } 
+    } 
   return;
 }
 
@@ -232,8 +232,8 @@ template <class Coll>
 void EcalTrigPrimFunctionalAlgo::fillMap(Coll const * col, 
 					 std::vector<std::vector<std::pair<int,std::vector<typename Coll::Digi> > > > &towerMap)
 {
-
   typedef typename Coll::Digi Digi;
+
   // implementation for Barrel and Endcap
 
   if (col) {
@@ -253,16 +253,16 @@ void EcalTrigPrimFunctionalAlgo::fillMap(Coll const * col,
 
       //FIXME: temporary protection
       int ncryst=towerMap[index][stripnr-1].first;
-       if (ncryst>=EcalTPParameters::nbMaxXtals_ ) {
+      if (ncryst>=nbMaxXtals_ ) {
         std::cout <<" !!!!!!!!!!!!! Too many xtals for TT "<<coarser<<" stripnr "<<stripnr<<" xtalid "<<samples.id()<<std::endl;
 	continue;
       }
-       ((towerMap[index])[stripnr-1].second)[ncryst]=samples;
-       (towerMap[index])[stripnr-1].first++;
+      ((towerMap[index])[stripnr-1].second)[ncryst]=samples;
+      (towerMap[index])[stripnr-1].first++;
     }
   
     LogDebug("EcalTPG")<<"fillMap"<<"[EcalTrigPrimFunctionalAlgo] (found " 
-		       << col->size() << " frames in "<< towerMap.size() << " towers ";
+		       << col->size() << " frames in "<< towerMap.size() << " towers) ";
   }
   else {
     LogDebug("EcalTPG")<<"FillMap - FillMap Collection size=0 !!!!";
@@ -273,24 +273,24 @@ template <class T>
 void EcalTrigPrimFunctionalAlgo::clean( std::vector<std::vector<std::pair<int,std::vector<T> > > > & towMap) {  
   // clean internal data structures
   for (unsigned int i=0;i<maxNrTowers_;++i) 
-    for (int j=0;j<EcalTPParameters::nbMaxStrips_ ;++j) (towMap[i])[j].first=0;
+    for (int j=0;j<nbMaxStrips_ ;++j) (towMap[i])[j].first=0;
   
-  return;
+  re turn;
 }
  
 template <class T> 
 void EcalTrigPrimFunctionalAlgo::initStructures( std::vector<std::vector<std::pair<int,std::vector<T> > > > & towMap) {  
   //initialise internal data structures
-  std::vector <T> vec0(EcalTPParameters::nbMaxXtals_ );
-  std::vector<std::pair<int,std::vector<T> > > vec1(EcalTPParameters::nbMaxStrips_);
-  for (int i=0;i<EcalTPParameters::nbMaxStrips_ ;++i) 
-    vec1[i]=std::pair<int,std::vector<T> >(0,vec0);
+
+  std::vector <T> vec0(nbMaxXtals_ );
+  std::vector<std::pair<int,std::vector<T> > > vec1(nbMaxStrips_);
+  for (int i=0;i<nbMaxStrips_ ;++i) vec1[i]=std::pair<int,std::vector<T> >(0,vec0);
   towMap.resize(maxNrTowers_); 
   for (unsigned int i=0;i<maxNrTowers_;++i) towMap[i]=vec1;
   
   std::vector<int> vecint(maxNrSamples_);
-  striptp_.resize(EcalTPParameters::nbMaxStrips_);
-  for (int i=0;i<EcalTPParameters::nbMaxStrips_;++i) striptp_[i]=vecint;
+  striptp_.resize(nbMaxStrips_);
+  for (int i=0;i<nbMaxStrips_;++i) striptp_[i]=vecint;
   
 }
 

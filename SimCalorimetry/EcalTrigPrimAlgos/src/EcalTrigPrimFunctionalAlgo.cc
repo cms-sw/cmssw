@@ -29,14 +29,14 @@
 #include "SimCalorimetry/EcalTrigPrimAlgos/interface/EcalFenixStrip.h"
 #include "SimCalorimetry/EcalTrigPrimAlgos/interface/EcalFenixTcp.h"
 
-//#include "DataFormats/EcalDigi/interface/EcalTriggerPrimitiveDigi.h"
 #include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
 #include "DataFormats/EcalDigi/interface/EBDataFrame.h"
 #include "DataFormats/EcalDigi/interface/EEDataFrame.h"
 #include "DataFormats/EcalDetId/interface/EcalTrigTowerDetId.h"
 #include "DataFormats/EcalDetId/interface/EcalTriggerElectronicsId.h"
 
-#include "CondFormats/DataRecord/interface/EcalTPParametersRcd.h"
+#include "CondFormats/EcalObjects/interface/EcalTPGPedestals.h"
+#include "CondFormats/DataRecord/interface/EcalTPGPedestalsRcd.h"
 
 #include <TTree.h>
 #include <TMath.h>
@@ -48,11 +48,11 @@ const unsigned int EcalTrigPrimFunctionalAlgo::maxNrTPs_=2448; //FIXME??
 
 //----------------------------------------------------------------------
 
-EcalTrigPrimFunctionalAlgo::EcalTrigPrimFunctionalAlgo(const edm::EventSetup & setup,int binofmax,bool tcpFormat, bool barrelOnly,bool debug,bool famos):
-  binOfMaximum_(binofmax),
+EcalTrigPrimFunctionalAlgo::EcalTrigPrimFunctionalAlgo(const edm::EventSetup & setup,int binofmax,bool tcpFormat, bool barrelOnly,bool debug,bool famos): binOfMaximum_(binofmax),
   tcpFormat_(tcpFormat), barrelOnly_(barrelOnly), debug_(debug), famos_(famos)
 
-{if (famos_) maxNrSamples_=1;  //get from input??
+{
+ if (famos_) maxNrSamples_=1;  //get from input??
  else maxNrSamples_=10;
  this->init(setup);
 }
@@ -67,19 +67,14 @@ void EcalTrigPrimFunctionalAlgo::init(const edm::EventSetup & setup) {
     theEndcapGeometry = &(*theEndcapGeometry_handle);
     setup.get<IdealGeometryRecord>().get(eTTmap_);
   }
-  edm::ESHandle<EcalTPParameters> theEcalTPParameters_handle;
-  setup.get<EcalTPParametersRcd>().get(theEcalTPParameters_handle);
-  ecaltpp_=theEcalTPParameters_handle.product();
-
-
   // endcap mapping
   edm::ESHandle< EcalElectronicsMapping > ecalmapping;
   setup.get< EcalMappingRcd >().get(ecalmapping);
   theMapping_ = ecalmapping.product();
 
   //create main sub algos
-  estrip_= new EcalFenixStrip(ecaltpp_,theMapping_,debug_,famos_,maxNrSamples_);
-  etcp_ = new EcalFenixTcp(ecaltpp_,tcpFormat_,debug_,famos_,binOfMaximum_,maxNrSamples_) ;
+  estrip_= new EcalFenixStrip(setup,theMapping_,debug_,famos_,maxNrSamples_,nbMaxXtals_);
+  etcp_ = new EcalFenixTcp(setup,tcpFormat_,debug_,famos_,binOfMaximum_,maxNrSamples_,nbMaxStrips_) ;
 
   // initialise data structures
   initStructures(towerMapEB_);
@@ -100,67 +95,53 @@ EcalTrigPrimFunctionalAlgo::~EcalTrigPrimFunctionalAlgo()
 //----------------------------------------------------------------------
 void EcalTrigPrimFunctionalAlgo::updateESRecord(double ttfLowEB, double ttfHighEB, double ttfLowEE, double ttfHighEE)
 {
-  const_cast <EcalTPParameters *> (ecaltpp_)->changeThresholds(ttfLowEB, ttfHighEB, ttfLowEE, ttfHighEE);
+  //FIXME!!!   const_cast <EcalTPParameters *> (ecaltpp_)->changeThresholds(ttfLowEB, ttfHighEB, ttfLowEE, ttfHighEE);
 }
 //----------------------------------------------------------------------
+<<<<<<< EcalTrigPrimFunctionalAlgo.cc
+void EcalTrigPrimFunctionalAlgo::run(const edm::EventSetup & setup, EBDigiCollection const * col,                                                        EcalTrigPrimDigiCollection & result,
+							EcalTrigPrimDigiCollection & resultTcp)
+=======
 void EcalTrigPrimFunctionalAlgo::run(EBDigiCollection const * col,
 				     EcalTrigPrimDigiCollection & result,
 				     EcalTrigPrimDigiCollection & resultTcp)
+>>>>>>> 1.30
 {
   run_part1_EB(col);
-  run_part2(col,towerMapEB_,result,resultTcp);
+  run_part2(setup,col,towerMapEB_,result,resultTcp);
 }
 
 //----------------------------------------------------------------------
+<<<<<<< EcalTrigPrimFunctionalAlgo.cc
+void EcalTrigPrimFunctionalAlgo::run(const edm::EventSetup & setup,EEDigiCollection const * col,
+                                                        EcalTrigPrimDigiCollection & result,
+							EcalTrigPrimDigiCollection & resultTcp)
+=======
 void EcalTrigPrimFunctionalAlgo::run(EEDigiCollection const * col,
 				     EcalTrigPrimDigiCollection & result,
 				     EcalTrigPrimDigiCollection & resultTcp)
+>>>>>>> 1.30
 {
+
   run_part1_EE(col);
-  run_part2(col,towerMapEE_,result,resultTcp);
+  run_part2(setup, col,towerMapEE_,result,resultTcp);
 }
-//----------------------------------------------------------------------
-int EcalTrigPrimFunctionalAlgo::findTowerNrInTcc(const EcalTrigTowerDetId &id)
-{
-  if (id.subDet()== EcalBarrel) { // finds tower nr in TCC   
-   const int nrphis=4;
-   int ieta=id.ietaAbs();
-    int iphi=id.iphi();
-    int basenr=(ieta-1)*nrphis +1;
-    int towernr=basenr+(iphi-1)%nrphis;
-    return  towernr;
-  } 
-  else if (id.subDet()==EcalEndcap) {
-    return theMapping_->iTT(id);
-  }
-  else {
-    LogDebug("EcalTPG")<<"Wrong EcalTrigTowerDetId ";
-    return 0;
-  }
-}
-//----------------------------------------------------------------------
-int EcalTrigPrimFunctionalAlgo::findTccNr(const EcalTrigTowerDetId &id)
-{
-// finds Tcc Nr
-  if (id.subDet()== EcalBarrel) { 
-    return EcalTPParameters::nrMinTccEB_; //FIXME
-  }
-  else if (id.subDet()==EcalEndcap) {
-    return theMapping_->TCCid(id);
-  }
-  else {
-    LogDebug("EcalTPG")<<"Wrong EcalTrigTowerDetId ";
-    return 0;
-  }     
-} 
 //----------------------------------------------------------------------
 int  EcalTrigPrimFunctionalAlgo::findStripNr(const EBDetId &id){
+<<<<<<< EcalTrigPrimFunctionalAlgo.cc
+  int stripnr;
+  int n=((id.ic()-1)%100)/20; //20 corresponds to 4 * ecal_barrel_crystals_per_strip FIXME!!
+  if (id.ieta()<0) stripnr = n+1;
+  else stripnr =nbMaxStrips_ - n; 
+  return stripnr;
+=======
   int stripnr;
   int n=((id.ic()-1)%100)/20; //20 corresponds to 4 * ecal_barrel_crystals_per_strip FIXME!!
   if (id.ieta()<0) stripnr = n+1;
   //      else stripnr =ecal_barrel_strips_per_trigger_tower - n; 
   else stripnr =EcalTPParameters::nbMaxStrips_ - n; 
   return stripnr;
+>>>>>>> 1.30
 }
 //----------------------------------------------------------------------
 int  EcalTrigPrimFunctionalAlgo::findStripNr(const EEDetId &id){

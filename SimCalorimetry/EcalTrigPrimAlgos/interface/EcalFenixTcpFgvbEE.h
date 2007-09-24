@@ -1,14 +1,9 @@
 #ifndef ECAL_FENIXTCP_FGVB_EE_H
 #define ECAL_FENIXTCP_FGVB_EE_H
 
-//#include <SimCalorimetry/EcalTrigPrimAlgos/interface/EcalVFgvb.h>
 #include <vector>
 
-class EcalTPParameters;
-
-// global type definitions for header defined by Tag entries in ArgoUML
-// Result: typedef <typedef_global_header> <tag_value>;
-
+class EcalTPGFineGrainTowerEE;
 
 /** 
     \class EcalFenixTcpFgvbEE
@@ -27,16 +22,13 @@ class EcalTPParameters;
 class EcalFenixTcpFgvbEE  {
 
  private:
-   const EcalTPParameters * ecaltpp_ ;
-   std::vector<unsigned int> const * params_ ;
-    
+   uint32_t fgee_lut_;
+
  public:
-   EcalFenixTcpFgvbEE(const EcalTPParameters * ecaltpp);
+   EcalFenixTcpFgvbEE();
    virtual ~EcalFenixTcpFgvbEE();
-   void setParameters(int SM, int towNum);
+   void setParameters(uint32_t towid, const EcalTPGFineGrainTowerEE *ecaltpgFineGrainTowerEE);
 
    void process( std::vector <std::vector<int> > &bypasslin_out,int nStr, int bitMask, std::vector<int> & output);
 };
-
-
 #endif

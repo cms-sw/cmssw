@@ -1,12 +1,13 @@
 #include <SimCalorimetry/EcalTrigPrimAlgos/interface/EcalFenixStripFormatEE.h>
-#include "CondFormats/L1TObjects/interface/EcalTPParameters.h"
+#include <CondFormats/EcalObjects/interface/EcalTPGSlidingWindow.h>
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include <iostream>
 
 
 //-----------------------------------------------------------------------------------------
-EcalFenixStripFormatEE::EcalFenixStripFormatEE(const EcalTPParameters * ecaltpp) 
-  : ecaltpp_(ecaltpp), shift_(0)
+EcalFenixStripFormatEE::EcalFenixStripFormatEE() 
+  : shift_(0)
 {
 }
 //------------------------------------------------------------------------------------------
@@ -52,9 +53,11 @@ void EcalFenixStripFormatEE::process(std::vector<int> &fgvbout,std::vector<int> 
 }
 //-----------------------------------------------------------------------------------------
 
-void EcalFenixStripFormatEE::setParameters(int sector, int towerInSector, int stripInTower){
-  std::vector<unsigned int> const *params;
-  params= ecaltpp_->getStripParameters(sector, towerInSector, stripInTower) ;
-  shift_ = (*params)[0] ;
+void EcalFenixStripFormatEE::setParameters(uint32_t id,const EcalTPGSlidingWindow*& slWin){
+
+  const EcalTPGSlidingWindowMap &slwinmap = slWin -> getMap();
+  EcalTPGSlidingWindowMapIterator it=slwinmap.find(id);
+  if (it!=slwinmap.end()) shift_=(*it).second;
+  else edm::LogWarning("EcalTPG")<<" could not find EcalTPGSlidingWindowMap entry for "<<id;
 }
 //-----------------------------------------------------------------------------------------

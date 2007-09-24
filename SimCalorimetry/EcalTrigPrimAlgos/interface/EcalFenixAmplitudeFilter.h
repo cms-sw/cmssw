@@ -1,16 +1,10 @@
 #ifndef ECAL_FENIX_AMPLITUDE_FILTER_H
 #define ECAL_FENIX_AMPLITUDE_FILTER_H
 
-#include <SimCalorimetry/EcalTrigPrimAlgos/interface/EcalVAmplitudeFilter.h>
-#include <stdio.h>
-#include <iostream>
+#include <vector>
 
-class EcalVAmplitudeFilter;
-class EcalTPParameters;
-
-// global type definitions for header defined by Tag entries in ArgoUML
-// Result: typedef <typedef_global_header> <tag_value>;
-
+class EcalTPGWeightIdMap;
+class EcalTPGWeightGroup;
 
   /** 
    \ class EcalFenixAmplitudeFilter
@@ -19,11 +13,11 @@ class EcalTPParameters;
    *  output: 18 bits
    *  
    */
-class EcalFenixAmplitudeFilter : public EcalVAmplitudeFilter {
+class EcalFenixAmplitudeFilter {
 
 
  private:
-  const EcalTPParameters *ecaltpp_ ;
+
   int inputsAlreadyIn_;
   int buffer_[5];
   int weights_[5];
@@ -34,11 +28,10 @@ class EcalFenixAmplitudeFilter : public EcalVAmplitudeFilter {
 
 
  public:
-  EcalFenixAmplitudeFilter(const EcalTPParameters * db);
+  EcalFenixAmplitudeFilter();
   virtual ~EcalFenixAmplitudeFilter();
   virtual void process(std::vector<int> & addout, std::vector<int> & output);
-  void setParameters(int SM, int towerInSM, int stripInTower);
-
+  void setParameters(uint32_t raw,const EcalTPGWeightIdMap * ecaltpgWeightMap,const EcalTPGWeightGroup * ecaltpgWeightGroup);
   
 };
 

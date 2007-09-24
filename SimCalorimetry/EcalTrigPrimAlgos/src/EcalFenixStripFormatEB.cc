@@ -1,9 +1,9 @@
 #include <SimCalorimetry/EcalTrigPrimAlgos/interface/EcalFenixStripFormatEB.h>
-#include "CondFormats/L1TObjects/interface/EcalTPParameters.h"
+#include <CondFormats/EcalObjects/interface/EcalTPGSlidingWindow.h>
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-  EcalFenixStripFormatEB::EcalFenixStripFormatEB(const EcalTPParameters * ecaltpp) 
-    : ecaltpp_(ecaltpp), shift_(0)
+  EcalFenixStripFormatEB::EcalFenixStripFormatEB() 
+    : shift_(0)
 {
 }
 
@@ -40,9 +40,11 @@ void EcalFenixStripFormatEB::process(std::vector<int> &peakout, std::vector<int>
   return;
 }
 
-void EcalFenixStripFormatEB::setParameters(int SM, int towerInSM, int stripInTower)
+void EcalFenixStripFormatEB::setParameters(uint32_t& id, const EcalTPGSlidingWindow*& slWin)
 {
-  std::vector<unsigned int> const *params;
-  params=ecaltpp_->getStripParameters(SM, towerInSM, stripInTower) ;
-  shift_ = (*params)[0] ;
+
+  const EcalTPGSlidingWindowMap &slwinmap = slWin -> getMap();
+  EcalTPGSlidingWindowMapIterator it=slwinmap.find(id);
+  if (it!=slwinmap.end()) shift_=(*it).second;
+  else edm::LogWarning("EcalTPG")<<" could not find EcalTPGSlidingWindowMap entry for "<<id;
 }

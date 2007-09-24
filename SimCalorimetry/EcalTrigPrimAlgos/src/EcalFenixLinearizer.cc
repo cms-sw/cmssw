@@ -1,23 +1,29 @@
 #include <SimCalorimetry/EcalTrigPrimAlgos/interface/EcalFenixLinearizer.h>
 
-#include <CondFormats/L1TObjects/interface/EcalTPParameters.h>
+#include <CondFormats/EcalObjects/interface/EcalTPGLinearizationConst.h>
+#include <CondFormats/EcalObjects/interface/EcalTPGPedestals.h>
 
-#include <DataFormats/EcalDetId/interface/EBDetId.h>
-//#include "RecoCaloTools/Navigation/interface/EcalBarrelNavigator.h"
-#include "FWCore/ParameterSet/interface/FileInPath.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-EcalFenixLinearizer::EcalFenixLinearizer(const EcalTPParameters *ecaltpp, bool famos)
-  : ecaltpp_(ecaltpp),famos_(famos)
+EcalFenixLinearizer::EcalFenixLinearizer(bool famos)
+  : famos_(famos)
 {
 }
 
 EcalFenixLinearizer::~EcalFenixLinearizer(){
 }
 
-void EcalFenixLinearizer::setParameters(int SM, int towNum, int stripNum,int XtalNumberInStrip)
+void EcalFenixLinearizer::setParameters(uint32_t raw, const EcalTPGPedestals * ecaltpPed, const EcalTPGLinearizationConst * ecaltpLin)
 {
-  params_ = ecaltpp_->getXtalParameters(SM, towNum, stripNum, XtalNumberInStrip,false);
+  const EcalTPGLinearizationConstMap & linMap = ecaltpLin->getMap() ; 
+
+  EcalTPGLinearizationConstMapIterator it=linMap.find(raw);
+  if (it!=linMap.end()) linConsts_=&(*it).second;
+  else edm::LogWarning("EcalTPG")<<" could not find EcalTPGLinearizationConstMap entry for "<<raw;
+  const EcalTPGPedestalsMap & pedMap = ecaltpPed->getMap() ; 
+  EcalTPGPedestalsMapIterator itped=pedMap.find(raw);
+  if (itped!=pedMap.end())   peds_=&(*itped).second;
+  else edm::LogWarning("EcalTPG")<<" could not find EcalTPGPedestalsMap entry for "<<raw;
 }
 
 int EcalFenixLinearizer::process()
@@ -39,11 +45,26 @@ int EcalFenixLinearizer::setInput(const EcalMGPASample &RawSam)
   uncorrectedSample_=RawSam.adc(); //uncorrectedSample_ is coded in the 12 LSB
   gainID_=RawSam.gainId();       //uncorrectedSample_ is coded in the 2 next bits!
   if (gainID_==0)    gainID_=3;
-  gainID_ -- ; 
+
+  if (gainID_==1) {
+    base_ = peds_ -> mean_x12; 
+    mult_ = linConsts_ -> mult_x12;
+    shift_ = linConsts_ -> shift_x12;
+  }
+  else if (gainID_==2) {
+    base_ = peds_ -> mean_x6;
+    mult_ = linConsts_ -> mult_x6;
+    shift_ = linConsts_ -> shift_x6;  
+  }
+  else if (gainID_==3){
+    base_ = peds_-> mean_x1;
+    mult_ = linConsts_ -> mult_x1;
+    shift_ = linConsts_ -> shift_x1; 
+  }
+
   if (famos_) base_=200; //FIXME by preparing a correct TPG.txt for Famos
-  else base_ = (*params_)[3*gainID_] ;
-  mult_ = (*params_)[3*gainID_+1] ;
-  shift_ = (*params_)[3*gainID_+2] ;
+ 
+  base_=150;    //FIXME, just for tests
   return 1;
 }
 

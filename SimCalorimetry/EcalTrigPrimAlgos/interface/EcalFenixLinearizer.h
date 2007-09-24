@@ -2,14 +2,9 @@
 #define ECAL_FENIX_LINEARIZER_H
 
 #include <DataFormats/EcalDigi/interface/EcalMGPASample.h>
+#include <CondFormats/EcalObjects/interface/EcalTPGPedestals.h>
+#include <CondFormats/EcalObjects/interface/EcalTPGLinearizationConst.h>
 #include <vector> 
-#include <iostream>
-
-class EcalTPParameters;
-
-// global type definitions for header defined by Tag entries in ArgoUML
-// Result: typedef <typedef_global_header> <tag_value>;
-
 
   /** 
    \class EcalFenixLinearizer
@@ -23,7 +18,6 @@ class EcalTPParameters;
 
 
   private:
-    const EcalTPParameters * ecaltpp_ ;
     bool famos_;
     int uncorrectedSample_;
     int gainID_;
@@ -31,24 +25,28 @@ class EcalTPParameters;
     int mult_;
     int shift_;
     int strip_;
-    std::vector<unsigned int> const * params_ ;
+
+    const EcalTPGLinearizationConst::Item *linConsts_;
+    const EcalTPGPedestals::Item *peds_;
 
     int setInput(const EcalMGPASample &RawSam) ;
     int process() ;
 
 
   public:
-    EcalFenixLinearizer(const EcalTPParameters *,bool famos);
+    EcalFenixLinearizer(bool famos);
     virtual ~EcalFenixLinearizer();
 
-    template <class T>  void process(const T &, std::vector<int>&); 
-    void setParameters(int SM, int towNum, int stripNum,int XtalNumberInStrip) ;
-  };
+    template <class T>  
+      void process(const T &, std::vector<int>&); 
+    void setParameters(uint32_t raw, const EcalTPGPedestals * ecaltpPed,const EcalTPGLinearizationConst * ecaltpLin) ;
+};
 
-    template <class T> void EcalFenixLinearizer::process(const T&df, std::vector<int> & output_percry)
+template <class T> 
+void EcalFenixLinearizer::process(const T&df, std::vector<int> & output_percry)
 {
 
-//We know a tower numbering is:
+  //We know a tower numbering is:
 // S1 S2 S3 S4 S5
 //
 // 4  5  14 15 24

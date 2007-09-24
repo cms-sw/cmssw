@@ -1,11 +1,9 @@
 #include <SimCalorimetry/EcalTrigPrimAlgos/interface/EcalFenixStripFgvbEE.h>
-#include "SimCalorimetry/EcalTrigPrimAlgos/interface/EcalFenixChip.h"
-#include "CondFormats/L1TObjects/interface/EcalTPParameters.h"
 #include <DataFormats/EcalDigi/interface/EEDataFrame.h>
-#include <iostream>
+#include <CondFormats/EcalObjects/interface/EcalTPGFineGrainStripEE.h>
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-EcalFenixStripFgvbEE::EcalFenixStripFgvbEE(const EcalTPParameters * ecaltpp)
-  : ecaltpp_(ecaltpp)
+EcalFenixStripFgvbEE::EcalFenixStripFgvbEE()
 {
 }
 
@@ -16,8 +14,12 @@ void EcalFenixStripFgvbEE::process( std::vector<std::vector<int> > &linout ,std:
 {
   unsigned int maskFgvb[]={1,2,4,8,0x10};
 
-  int threshold_fg = (*params_)[6];
-  int lut_fg = (*params_)[7];
+  //  int threshold_fg = (*params_)[6];
+  //  int lut_fg = (*params_)[7];
+
+  int threshold_fg = fgparams_->threshold ;
+  int lut_fg = fgparams_->lut ;
+
   
   std::vector<int> indexLut(output.size());
 
@@ -36,7 +38,13 @@ void EcalFenixStripFgvbEE::process( std::vector<std::vector<int> > &linout ,std:
   return;
 }  
 
-void EcalFenixStripFgvbEE::setParameters(int sectorNb, int towNum, int stripNr)
+void EcalFenixStripFgvbEE::setParameters(uint32_t id,const EcalTPGFineGrainStripEE * ecaltpgFgStripEE)
 {
-   params_ = ecaltpp_->getStripParameters(sectorNb,towNum,stripNr);
+  const EcalTPGFineGrainStripEEMap &fgmap = ecaltpgFgStripEE -> getMap();
+  EcalTPGFineGrainStripEEMapIterator it=fgmap.find(id);
+  if (it!=fgmap.end()) fgparams_=&(*it).second;
+  else edm::LogWarning("EcalTPG")<<" could not find EcalTPGFineGrainStripEEMap entry for "<<id;
+   
+    
+
 }

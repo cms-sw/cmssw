@@ -1,16 +1,9 @@
 #ifndef ECAL_FENIX_STRIP_FORMAT_EB_H
 #define ECAL_FENIX_STRIP_FORMAT_EB_H
 
-//#include <SimCalorimetry/EcalTrigPrimAlgos/interface/EcalVFormatter.h>
 #include <vector>
-#include <iostream>
 
-//class EcalVFormatter;
-class EcalTPParameters;
-
-// global type definitions for header defined by Tag entries in ArgoUML
-// Result: typedef <typedef_global_header> <tag_value>;
-
+class EcalTPGSlidingWindow;
 
   /** 
     \class EcalFenixStripFormatEB
@@ -21,30 +14,22 @@ class EcalTPParameters;
    *  --- not really a calodataframe no?
    */
    
-//ENDCAP:MODIF   
-//   class EcalFenixStripFormatEB : public EcalVFormatter {
 
  class EcalFenixStripFormatEB {
   
  private:
-  const EcalTPParameters * ecaltpp_ ;
   int inputPeak_;
   int input_;
-  int shift_;
+  uint32_t shift_;
   int buffer_;
 
   int setInput(int input, int inputPeak);
   int process();
 
  public:
-  EcalFenixStripFormatEB(const EcalTPParameters * ecaltpp);
+  EcalFenixStripFormatEB();
   virtual ~EcalFenixStripFormatEB();
-  //  virtual std::vector<int> process(std::vector<int> &, std::vector<int> &) ;
   virtual void  process(std::vector<int> &, std::vector<int> &, std::vector<int> &) ;
-  void setParameters(int SM, int towerInSM, int stripInTower);
-
- 
+  void setParameters(uint32_t&, const EcalTPGSlidingWindow*&);
 };
-
-
 #endif

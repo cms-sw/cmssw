@@ -1,6 +1,7 @@
 <use name=DataFormats/EcalDigi>
 <use name=DataFormats/EcalDetId>
 <use name=CondFormats/L1TObjects>
+<use name=CondFormats/EcalObjects>
 <use name=CondFormats/DataRecord>
 <use name=Geometry/CaloTopology>
 <use name=Geometry/CaloGeometry>
@@ -15,6 +16,7 @@
  <use name=DataFormats/EcalDigi>
  <use name=DataFormats/EcalDetId>
  <use name=CondFormats/L1TObjects>
+ <use name=CondFormats/EcalObjects>
  <use name=CondFormats/DataRecord>
  <use name=Geometry/CaloTopology>
  <use name=Geometry/CaloGeometry>

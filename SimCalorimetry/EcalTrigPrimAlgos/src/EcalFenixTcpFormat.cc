@@ -1,12 +1,13 @@
 #include <SimCalorimetry/EcalTrigPrimAlgos/interface/EcalFenixTcpFormat.h>
-#include "CondFormats/L1TObjects/interface/EcalTPParameters.h"
-
+#include "CondFormats/EcalObjects/interface/EcalTPGLutGroup.h"
+#include "CondFormats/EcalObjects/interface/EcalTPGLutIdMap.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <iostream>
 
 using  namespace std;
 
-EcalFenixTcpFormat::EcalFenixTcpFormat(const EcalTPParameters *ecaltpp, bool tcpFormat, bool debug, bool famos,int binOfMax)
-  : ecaltpp_(ecaltpp),tcpFormat_(tcpFormat),debug_(debug),famos_(famos),binOfMax_(binOfMax)
+EcalFenixTcpFormat::EcalFenixTcpFormat(bool tcpFormat, bool debug, bool famos,int binOfMax)
+  : tcpFormat_(tcpFormat),debug_(debug),famos_(famos),binOfMax_(binOfMax)
 {
 }
  
@@ -16,7 +17,7 @@ EcalFenixTcpFormat::~EcalFenixTcpFormat() {
  
 void EcalFenixTcpFormat::process(std::vector<int> &Et, std::vector<int> &fgvb, int eTTotShift,
 				 std::vector<EcalTriggerPrimitiveSample> & out,
-				 std::vector<EcalTriggerPrimitiveSample> & out2){
+				 std::vector<EcalTriggerPrimitiveSample> & out2, bool isInInnerRings){
   // put TP-s in the output
   // on request also in TcpFormat    
   // for famos version we have to write dummies except for the middle
@@ -37,7 +38,7 @@ void EcalFenixTcpFormat::process(std::vector<int> &Et, std::vector<int> &fgvb, i
 
     myEt=myEt>>eTTotShift;
     if (myEt>0x3ff) myEt=0x3ff ;
-    int lut_out = (*lut_)[myEt] ;
+    int lut_out = (lut_)[myEt] ;
     int ttFlag = (lut_out & 0x700) >> 8 ;
     if (tcpFormat_)  {
       out2[i]=EcalTriggerPrimitiveSample( ((ttFlag&0x7)<<11) | ((myFgvb & 0x1)<<10) |  (myEt & 0x3ff));
@@ -47,8 +48,19 @@ void EcalFenixTcpFormat::process(std::vector<int> &Et, std::vector<int> &fgvb, i
   }
 }
 
-void EcalFenixTcpFormat::setParameters(int SM, int towerInSM) 
+void EcalFenixTcpFormat::setParameters(uint32_t towid,const EcalTPGLutGroup *ecaltpgLutGroup, const EcalTPGLutIdMap *ecaltpgLut)
 {
-    lut_ = ecaltpp_->getTowerParameters(SM, towerInSM,debug_) ;
+  const EcalTPGGroups::EcalTPGGroupsMap & groupmap = ecaltpgLutGroup -> getMap();
+  EcalTPGGroups::EcalTPGGroupsMapItr it=groupmap.find(towid);
+  if (it!=groupmap.end()) {
+    uint32_t lutid=(*it).second;
+    const EcalTPGLutIdMap::EcalTPGLutMap &lutmap = ecaltpgLut-> getMap();
+    EcalTPGLutIdMap::EcalTPGLutMapItr itl=lutmap.find(lutid);
+    if (itl!=lutmap.end()) {
+      lut_=(*itl).second.getLut();
+    }  else edm::LogWarning("EcalTPG")<<" could not find EcalTPGLutMap for "<<lutid;
+
+  }
+  else edm::LogWarning("EcalTPG")<<" could not find EcalTPGFineGrainTowerEEMap for "<<towid;
 }
 
