@@ -195,7 +195,7 @@ std::vector<CSCSegment> CSCSegAlgoDF::buildSegments(ChamberHitContainer rechits)
 	
       // Check no. of hits on segment to see if segment is large enough
       bool segok = true;
-      unsigned iadd = ( nHitInChamber > 20 )? iadd = 1 : 0;
+      unsigned iadd = ( nHitInChamber > 9 )? iadd = 1 : 0;
       if (nHitInChamber > 30 ) iadd++;  
       if (protoSegment.size() < minHitsPerSegment+iadd) segok = false;
   
