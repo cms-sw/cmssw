@@ -1,5 +1,5 @@
 <use name=SimDataFormats/Vertex>
-<use name=DataFormats/BTauReco>
+<use name=DataFormats/JetReco>
 <use name=DataFormats/Math>
 <use name=DataFormats/TauReco>
 <use name=DataFormats/VertexReco>
@@ -20,7 +20,6 @@
 <flags EDM_PLUGIN=1>
 <export>
   <use name=SimDataFormats/Vertex>
-  <use name=DataFormats/BTauReco>
   <use name=DataFormats/TauReco>
   <use name=DataFormats/VertexReco>
   <use name=FWCore/Framework>
