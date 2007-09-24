@@ -33,7 +33,6 @@ CSCSegAlgoDF::CSCSegAlgoDF(const edm::ParameterSet& ps) : CSCSegmentAlgorithm(ps
 	
   debug                  = ps.getUntrackedParameter<bool>("CSCSegmentDebug");
   minLayersApart         = ps.getParameter<int>("minLayersApart");
-  nSigmaFromSegment      = ps.getParameter<double>("nSigmaFromSegment");
   minHitsPerSegment      = ps.getParameter<int>("minHitsPerSegment");
   dRPhiFineMax           = ps.getParameter<double>("dRPhiFineMax");
   dPhiFineMax            = ps.getParameter<double>("dPhiFineMax");
