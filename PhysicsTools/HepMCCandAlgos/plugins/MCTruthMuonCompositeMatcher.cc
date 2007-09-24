@@ -5,6 +5,7 @@
  */
 #include "PhysicsTools/HepMCCandAlgos/interface/MCTruthCompositeMatcher.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
+#include "DataFormats/MuonReco/interface/MuonFwd.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 namespace reco {

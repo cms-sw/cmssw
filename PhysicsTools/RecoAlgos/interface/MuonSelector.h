@@ -8,12 +8,13 @@
  * 
  * \author Javier Fernandez, IFCA
  *
- * \version $Revision: 1.5 $
+ * \version $Revision: 1.6 $
  *
- * $Id: MuonSelector.h,v 1.5 2007/08/02 13:58:30 rahatlou Exp $
+ * $Id: MuonSelector.h,v 1.6 2007/09/20 18:48:28 llista Exp $
  *
  */
 #include "DataFormats/MuonReco/interface/Muon.h"
+#include "DataFormats/MuonReco/interface/MuonFwd.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackExtra.h"
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"

@@ -8,6 +8,7 @@
 #include "PhysicsTools/IsolationAlgos/interface/CalIsolationExtrapolate.h"
 
 #include "DataFormats/MuonReco/interface/Muon.h"
+#include "DataFormats/MuonReco/interface/MuonFwd.h"
 #include "DataFormats/CaloTowers/interface/CaloTowerCollection.h"
 
 typedef IsolationProducer<reco::MuonCollection, CaloTowerCollection,
