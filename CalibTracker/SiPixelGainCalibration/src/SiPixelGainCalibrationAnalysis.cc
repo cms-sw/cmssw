@@ -13,7 +13,7 @@
 //
 // Original Author:  Freya Blekman
 //         Created:  Mon May  7 14:22:37 CEST 2007
-// $Id: SiPixelGainCalibrationAnalysis.cc,v 1.11 2007/09/17 13:24:47 fblekman Exp $
+// $Id: SiPixelGainCalibrationAnalysis.cc,v 1.12 2007/09/17 16:33:12 fblekman Exp $
 //
 //
 
@@ -75,22 +75,21 @@ SiPixelGainCalibrationAnalysis::SiPixelGainCalibrationAnalysis(const edm::Parame
   inputconfigfile_( iConfig.getUntrackedParameter<std::string>( "inputFileName","/afs/cern.ch/cms/Tracker/Pixel/forward/ryd/calib_070106d.dat" ) ),
   vcal_fitmin_(256),
   vcal_fitmax_(0),
-  vcal_fitmax_fixed_( iConfig.getUntrackedParameter<uint32_t>( "cutoffVCalFit",100)),
+  vcal_fitmax_fixed_( iConfig.getUntrackedParameter<uint32_t>( "cutoffVCalFit",255)),
   maximum_ped_(iConfig.getUntrackedParameter<double>("maximumPedestal",120.)),
   maximum_gain_(iConfig.getUntrackedParameter<double>("maximumGain",5.)),
   minimum_ped_(iConfig.getUntrackedParameter<double>("minimumPedestal",120.)),
   minimum_gain_(iConfig.getUntrackedParameter<double>("minimumGain",5.)),
   save_histos_(iConfig.getUntrackedParameter<bool>("saveAllHistos",false)),
   test_(iConfig.getUntrackedParameter<bool>("dummyData",false)),
-  fitfuncrootformulaGain_(iConfig.getUntrackedParameter<std::string>("rootFunctionForFitGain","pol1")),
-  fitfuncrootformulaSCurve_(iConfig.getUntrackedParameter<std::string>("rootFunctionForFitSCurve", "0.5*[2]*(1+TMath::Erf((x-[0])/([1]*sqrt(2))))")),
+  fitfuncrootformula_(iConfig.getUntrackedParameter<std::string>("rootFunctionForFit","pol1")),
   only_one_detid_(iConfig.getUntrackedParameter<bool>("onlyOneDetID",false)),
   usethisdetid_(0),
   do_scurveinstead_(iConfig.getUntrackedParameter<bool>("doSCurve",false)),
   fast_no_plots_(iConfig.getUntrackedParameter<bool>("runOnlineConfiguration",false)),
   saveAllGainCurvesForGivenPlaquettes_(iConfig.getUntrackedParameter<bool>("saveAllGainCurvesForGivenPlaquettes", false)),
   saveGainCurvesWithBadChi2_(iConfig.getUntrackedParameter<bool>("saveGainCurvesWithBadChi2", false)),
-  maximumChi2overNDF_(iConfig.getUntrackedParameter<double>("maximumChi2", 4)),
+  minimumChi2prob_(iConfig.getUntrackedParameter<double>("minimumChi2prob", 0.1)),
   dropLowVcalOutliersForCurvesWithBadChi2_(iConfig.getUntrackedParameter<bool>("dropLowVcalOutliersForCurvesWithBadChi2", false)),
   useFirstNonZeroBinForFitMin_(iConfig.getUntrackedParameter<bool>("useFirstNonZeroBinForFitMin", false))
 
@@ -175,7 +174,17 @@ bool SiPixelGainCalibrationAnalysis::doFits(){
 	float error = calibPixels_[detid][ipixel].geterror(ipoint,1);
 	if(do_scurveinstead_){
 	  response = calibPixels_[detid][ipixel].getefficiency(ipoint,calib_.nTriggers());
-	  error = calibPixels_[detid][ipixel].geterroreff(ipoint,calib_.nTriggers());
+	  //error = calibPixels_[detid][ipixel].geterroreff(ipoint,calib_.nTriggers());
+	  double responseForErrorCalc = response;
+	  if (response >= 1) {
+	     response = 1;
+	     responseForErrorCalc = 1.0 - 0.5/calib_.nTriggers();
+	     edm::LogInfo("INFO") << "WARNING: Efficiency greater than one for " << histname.Data() << std::endl;
+	  } else if (response <= 0) {
+	     response = 0;
+	     responseForErrorCalc = 0.5/calib_.nTriggers();
+	  }
+	  error = TMath::Sqrt(responseForErrorCalc*(1-responseForErrorCalc))/calib_.nTriggers();
 	}
 	gr.SetBinContent(ipoint,response);
 	gr.SetBinError(ipoint,error);
@@ -211,129 +220,89 @@ bool SiPixelGainCalibrationAnalysis::doFits(){
 	func->SetRange(vcal_fitmin_, plateaustart);
       else if (!do_scurveinstead_)
 	continue;
-      // copy to a new object that is saved in the file service:
 
-
-      // The following is an algorithm to drop outlying points in the lowVcal range
-      // Do not use unless you are sure you know why the points are bad in the first place!
-      bool redoFit = false;
-      gr.Fit(func, "RQ");
-      //std::cout << "***********************************************************************************EK**********************" << std::endl;
-      //std::cout << "fit 0 " << func->GetParameter(0) << "   fit 1 " << func->GetParameter(1) << std::endl;
-  
-      chi2prob = func->GetProb();
-      chi2=func->GetChisquare()/func->GetNDF();
-      ped = 255;
-      gain = 255;
-      plat = -1;
-
-      if (!do_scurveinstead_ &&  chi2 > maximumChi2overNDF_ && dropLowVcalOutliersForCurvesWithBadChi2_ ) { 
-	 //std::cout << "Found bad fit in " << detidname << "[" << colrowpairs_[detid][ipixel].first << "],[" << colrowpairs_[detid][ipixel].second << "] with a chi-square of " << func->GetChisquare() << std::endl;
-	 int testPoint = firstNonZeroBin+1;
-	 bool doneWithOutlierCheck = false;
-	 float lastDiff = 0;
-	 while (!doneWithOutlierCheck)
-	 {
-	    int nEntriesLeft = 0;
-	    int nEntriesRight = 0;
-	    float sumLeft = 0;
-	    float sumRight = 0;
-	    //compute the average difference between successive bins on the left and right side of testPoint
-	    for (int iBin = firstNonZeroBin; iBin < plateauStartBin; iBin++){
-	       float diff = gr.GetBinContent(iBin + 1) - gr.GetBinContent(iBin);
-	       if (iBin < testPoint) {
-		  sumLeft += diff;
-		  nEntriesLeft++;
-	       } else {
-		  sumRight += diff;
-		  nEntriesRight++;
-	       }
-	    }
-	    if (nEntriesLeft > 0 && nEntriesRight > 0) {
-	       sumLeft /= nEntriesLeft;
-	       sumRight /= nEntriesRight;
-	    }
-	    //std::cout << "Test point: " << testPoint << " AvgL: " << sumLeft << " AvgR: " << sumRight << endl << "Diff: " << sumRight - sumLeft << endl;
-	    // maximize the difference between left and right slows
-	    float diffLR = fabs(sumRight - sumLeft);
-	    if (diffLR < lastDiff && diffLR / sumLeft > 0.05) {
-	       doneWithOutlierCheck = true;
-	       redoFit = true;
-	       func->SetRange(gr.GetBinLowEdge(testPoint - 1), plateaustart);
-	       //std::cout << "Cutting off at low edge of bin " << testPoint - 1 << endl;
-	       //mark the cut off bins with a large error (only for validating algorithm)
-	       //gr.SetBinError(testPoint - 2, gr.GetBinContent(testPoint - 2));
-
-	    }
-	    lastDiff = fabs(sumRight - sumLeft);
-	    testPoint++;
-	    if (testPoint >= plateauStartBin)
-	       doneWithOutlierCheck = true;
-	 }
-      }
-      
-      //check if this is a plaquette that we want to save all gain curves for
-      bool thisDetIdinSaveList = false;
-      for (std::vector<std::string>::const_iterator plaquetteToSave = plaquettesToSave_.begin(); plaquetteToSave != plaquettesToSave_.end(); ++plaquetteToSave)
+      // seed fitter (algorithm from Jason Kellers code) - not necessary for linear fit
+      // roughly estimate parameters of scurve
+      if (do_scurveinstead_)
       {
-	 if ( (*plaquetteToSave) == detidname )
+	 int lastLowBin = -1;
+	 int firstHighBin = -1;
+	 for (int i = 1; i < gr.GetNbinsX(); i++) {
+	    if (gr.GetBinContent(i) < 0.05)
+	       lastLowBin = i;
+	    else if (gr.GetBinContent(i) > 0.95 && lastLowBin > 0)
+	    {
+	       firstHighBin = i;
+	       break;
+	    }
+	 }
+	 double roughWidth = gr.GetBinLowEdge(firstHighBin) - gr.GetBinLowEdge(lastLowBin);
+	 double roughThreshold = gr.GetBinLowEdge(lastLowBin) + 0.5*roughWidth;
+	 func->SetParameters(roughThreshold, roughWidth*0.682, 1);
+      }
+
+      ped = 255;
+      gain = -1;
+      plat = -1;
+      chi2prob = -1;
+      chi2 = -1;
+
+      if (firstNonZeroBin > 0) { //only do fits if we there is a least one filled bin!
+	 int fitResult;
+	 fitResult = gr.Fit(func, "RQ");
+
+	 chi2prob = func->GetProb();
+	 chi2=func->GetChisquare()/func->GetNDF();
+
+	 //check if this is a plaquette that we want to save all gain curves for
+	 bool thisDetIdinSaveList = false;
+	 for (std::vector<std::string>::const_iterator plaquetteToSave = plaquettesToSave_.begin(); plaquetteToSave != plaquettesToSave_.end(); ++plaquetteToSave)
 	 {
-	    thisDetIdinSaveList = true;
-	    break;
+	    if ( (*plaquetteToSave) == detidname )
+	    {
+	       thisDetIdinSaveList = true;
+	       break;
+	    }
 	 }
-      }
 
-      //save the histogrames using a perverse application of De Morgan's law
-      if(!save_histos_  && !(saveAllGainCurvesForGivenPlaquettes_ && thisDetIdinSaveList) ){
-	 //only refit if we dropped points - this should only run if dropLowVcalOutliersForCurvesWithBadChi2_ is set
-	 if (redoFit)
-	   gr.Fit(func,"RQ");
-      }
-      else{
-	 TH1F *gr2 = thisdir.make<TH1F>(histname.Data(),histname.Data(),calib_.nVcal(),calib_.vcal_first(),calib_.vcal_last());
-	 gr2->Sumw2();
-	 gr2->SetMarkerStyle(22);
-	 gr2->SetMarkerSize(0.5*gr2->GetMarkerSize());
-	 for(int ibin=-1; ibin<=gr.GetNbinsX(); ibin++){
-	    gr2->SetBinContent(ibin,gr.GetBinContent(ibin));
-	    gr2->SetBinError(ibin,gr.GetBinError(ibin));
+	 //save individual histogram if necessary
+	 if(save_histos_  || (saveAllGainCurvesForGivenPlaquettes_ && thisDetIdinSaveList) ){
+	    TH1F *gr2 = thisdir.make<TH1F>(histname.Data(),histname.Data(),calib_.nVcal(),calib_.vcal_first(),calib_.vcal_last());
+	    gr2->Sumw2();
+	    gr2->SetMarkerStyle(22);
+	    gr2->SetMarkerSize(0.5*gr2->GetMarkerSize());
+	    for(int ibin=-1; ibin<=gr.GetNbinsX(); ibin++){
+	       gr2->SetBinContent(ibin,gr.GetBinContent(ibin));
+	       gr2->SetBinError(ibin,gr.GetBinError(ibin));
+	    }
+	    gr2->Fit(func, "QR");
 	 }
-	 gr2->Fit(func,"QR");
-      }
 
-      //save the gain curves that had to be refit to a seperate directory
-      if (redoFit || (!do_scurveinstead_ && saveGainCurvesWithBadChi2_ && func->GetChisquare()/func->GetNDF() > maximumChi2overNDF_)) {
-	 assert(errordir_);
-	 TFileDirectory workerrordir = errordir_->mkdir(detnames_[detid].Data(),detnames_[detid].Data());
-	 TH1F *gr3 = workerrordir.make<TH1F>(histname.Data(),histname.Data(),calib_.nVcal(),calib_.vcal_first(),calib_.vcal_last());
-	 gr3->Sumw2();
-	 gr3->SetMarkerStyle(22);
-	 gr3->SetMarkerSize(0.5*gr3->GetMarkerSize());
-	 for(int ibin=-1; ibin<=gr.GetNbinsX(); ibin++){
-	    gr3->SetBinContent(ibin,gr.GetBinContent(ibin));
-	    gr3->SetBinError(ibin,gr.GetBinError(ibin));
+	 //save the gain curves that had to be refit to a seperate directory
+	 if (saveGainCurvesWithBadChi2_ && chi2prob < minimumChi2prob_) {
+	    assert(errordir_);
+	    TFileDirectory workerrordir = errordir_->mkdir(detnames_[detid].Data(),detnames_[detid].Data());
+	    TH1F *gr3 = workerrordir.make<TH1F>(histname.Data(),histname.Data(),calib_.nVcal(),calib_.vcal_first(),calib_.vcal_last());
+	    gr3->Sumw2();
+	    gr3->SetMarkerStyle(22);
+	    gr3->SetMarkerSize(0.5*gr3->GetMarkerSize());
+	    for(int ibin=-1; ibin<=gr.GetNbinsX(); ibin++){
+	       gr3->SetBinContent(ibin,gr.GetBinContent(ibin));
+	       gr3->SetBinError(ibin,gr.GetBinError(ibin));
+	    }
+	    gr3->Fit(func, "QR");
 	 }
-	 //is there a way to draw the fit without recomputing it?
-	 gr3->Fit(func,"QR");
-      }
 
-      ped =func->GetParameter(0);
-      gain = func->GetParameter(1);
-      chi2 = func->GetChisquare()/func->GetNDF();
-      chi2prob = func->GetProb();
+	 ped =func->GetParameter(0);
+	 gain = func->GetParameter(1);
+	 chi2 = func->GetChisquare()/func->GetNDF();
+	 chi2prob = func->GetProb();
+      }
       if(gain==0){// check that the summaries are already filled, do not fill histograms if so.
-	if(summaries_gain_[detid]->GetBinContent(colrowpairs_[detid][ipixel].second,colrowpairs_[detid][ipixel].first)>0.0001)
+	 if(summaries_gain_[detid]->GetBinContent(colrowpairs_[detid][ipixel].second,colrowpairs_[detid][ipixel].first)>0.0001)
 	  continue;
       }
-      //DEBUG
-      /*
-      if (thisDetIdinSaveList && colrowpairs_[detid][ipixel].first == 0 && colrowpairs_[detid][ipixel].second == 201) {
-	for(uint32_t ipoint=0; ipoint<calibPixels_[detid][ipixel].npoints(); ipoint++){
-	    std::cout << "getPoint: " << calibPixels_[detid][ipixel].getpoint(ipoint, 0) << " Nentries: " 
-	       << calibPixels_[detid][ipixel].getentries(ipoint) << "   " << calibPixels_[detid][ipixel].geterror(ipoint, 1) << std::endl;
-	 }
-      }
-      */
+    
       summaries1D_pedestal_[detid]->Fill(ped);
       summaries1D_gain_[detid]->Fill(gain);
       summaries1D_plat_[detid]->Fill(plat);
@@ -453,23 +422,31 @@ SiPixelGainCalibrationAnalysis::analyze(const edm::Event& iEvent, const edm::Eve
        colrowpairs_[detid]=colrowpairs;
        calibPixels_[detid]=pixels;
        TString titleped1d = detstring;
-       titleped1d+=" pedestals in all pixels";
+       // name the histograms correctly - for scurves, ped = threshhold; gain = sigma
        TString titlegain1d = detstring;
-       titlegain1d+=" gain in all pixels";
        TString titleplat1d = detstring;
+       TString titleped2d = detstring;
+       TString titlegain2d = detstring;
+       TString titleplat2d = detstring;
+       if (do_scurveinstead_) {
+	  titleped1d += " threshold in all pixels";
+	  titlegain1d += " sigma in all pixels";
+	  titleped2d += " thresholds";
+	  titlegain2d += " sigmas";
+       } else {
+	  titleped1d+=" pedestals in all pixels";
+	  titlegain1d+=" gain in all pixels";
+	  titleped2d+=" pedestals";
+	  titlegain2d+=" gains";
+       }
        titleplat1d+=" plateau in all pixels";
+       titleplat2d+=" plateau";
        TString titlechi21d = detstring;
        titlechi21d+=" #chi^{2} / NDOF in all pixels";
        TString titlechi2prob1d = detstring;
        titlechi2prob1d+=" #chi^{2} probability [P(#chi^{2],NDOF) ] in all pixels";
-       TString titleped2d = detstring;
-       titleped2d+=" pedestals";
-       TString titlegain2d = detstring;
-       titlegain2d+=" gains";
        TString titlechi22d = detstring;
        titlechi22d+=" #chi^{2} / NDOF";
-       TString titleplat2d = detstring;
-       titleplat2d+=" plateau";
        summaries1D_pedestal_[detid]=therootfileservice_->make<TH1F>(titleped1d.Data(),titleped1d.Data(),256,0,256);
        summaries1D_gain_[detid]=therootfileservice_->make<TH1F>(titlegain1d.Data(),titlegain1d.Data(),100,0,10);
        summaries_pedestal_[detid]=therootfileservice_->make<TH2F>(titleped2d.Data(),titleped2d.Data(),maxcol,0,maxcol,maxrow,0,maxrow);
@@ -477,9 +454,9 @@ SiPixelGainCalibrationAnalysis::analyze(const edm::Event& iEvent, const edm::Eve
        if(fast_no_plots_)
 	 break;
        summaries1D_chi2_[detid]=therootfileservice_->make<TH1F>(titlechi21d.Data(),titlechi21d.Data(),100,0,20);
+       summaries_chi2_[detid]=therootfileservice_->make<TH2F>(titlechi22d.Data(),titlechi22d.Data(),maxcol,0,maxcol,maxrow,0,maxrow);
        summaries1D_chi2prob_[detid]=therootfileservice_->make<TH1F>(titlechi2prob1d.Data(),titlechi2prob1d.Data(),100,0,1);
        summaries1D_plat_[detid]=therootfileservice_->make<TH1F>(titleplat1d.Data(),titleplat1d.Data(),256,0,256);
-       summaries_chi2_[detid]=therootfileservice_->make<TH2F>(titlechi22d.Data(),titlechi22d.Data(),maxcol,0,maxcol,maxrow,0,maxrow);
        summaries_plat_[detid]=therootfileservice_->make<TH2F>(titleplat2d.Data(),titleplat2d.Data(),maxcol,0,maxcol,maxrow,0,maxrow);
        //       std::cout << detIDmap_.size() << " " << detnames_.size() << " " << colrowpairs_.size() << " " << calibPixels_.size() << std::endl;
      }
@@ -552,12 +529,19 @@ void SiPixelGainCalibrationAnalysis::beginJob(const edm::EventSetup&)
   if(vcal_fitmax_>vcal_fitmax_fixed_)
     vcal_fitmax_=vcal_fitmax_fixed_;
   if(vcal_fitmin_>vcal_fitmax_)
-    vcal_fitmin_=0;
-  if (!do_scurveinstead_)
-     func = new TF1("func",fitfuncrootformulaGain_.c_str(),vcal_fitmin_,vcal_fitmax_);
-  else
-     func = new TF1("func",fitfuncrootformulaSCurve_.c_str(),vcal_fitmin_,vcal_fitmax_);
-
+     vcal_fitmin_=0;
+  func = new TF1("func",fitfuncrootformula_.c_str(),vcal_fitmin_,vcal_fitmax_);
+  //provide limits on the  parameters for the fit function
+  std::cout << "setting parameter limits" << std::endl;
+  if (do_scurveinstead_) {
+     func->SetParLimits(0, 0, 255); //threshold
+     func->SetParLimits(1, 0, 255); //sigma
+     func->SetParLimits(2, 0, 1.1); //amplitude of Erf
+  } else {
+     func->SetParLimits(0, 0, 255); //pedestal 
+     func->SetParLimits(1, 0, 10);  //gain
+  }
+  std::cout << "done setting parameter limits" << std::endl;
 }
 
 // ------------ method called once each job just after ending the event loop  ------------

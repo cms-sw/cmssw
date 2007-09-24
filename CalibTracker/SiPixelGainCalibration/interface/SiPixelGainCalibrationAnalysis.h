@@ -15,7 +15,7 @@
 //
 // Original Author:  Freya Blekman
 //         Created:  Mon May  7 14:22:37 CEST 2007
-// $Id: SiPixelGainCalibrationAnalysis.h,v 1.11 2007/09/17 13:24:46 fblekman Exp $
+// $Id: SiPixelGainCalibrationAnalysis.h,v 1.12 2007/09/17 16:33:07 fblekman Exp $
 //
 //
 
@@ -97,7 +97,7 @@ class SiPixelGainCalibrationAnalysis : public edm::EDAnalyzer {
       bool saveAllGainCurvesForGivenPlaquettes_;
       std::vector<std::string> plaquettesToSave_;
       bool saveGainCurvesWithBadChi2_;
-      double maximumChi2overNDF_;
+      double minimumChi2prob_;
       bool dropLowVcalOutliersForCurvesWithBadChi2_;
       bool useFirstNonZeroBinForFitMin_;
 
@@ -127,8 +127,7 @@ class SiPixelGainCalibrationAnalysis : public edm::EDAnalyzer {
       edm::Service < TFileService >  therootfileservice_; // for saving into root files
       TFileDirectory * errordir_; // directory to store bad gain curves
      
-      std::string fitfuncrootformulaGain_;
-      std::string fitfuncrootformulaSCurve_; /// TO BE REMOVED. ONLY ONE FIT FUNCTION per module is necessary.
+      std::string fitfuncrootformula_;
 };
 
 #endif
