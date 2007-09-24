@@ -13,13 +13,14 @@
 //
 // Original Author: Manuel Giffels <Manuel.Giffels@physik.rwth-aachen.de> 
 //         Created:  Mon Jul 23 10:19:11 CEST 2007
-// $Id$
+// $Id: Tau3MuSkim.cc,v 1.1 2007/08/21 08:44:38 starodum Exp $
 //
 //
 //
 
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
+#include "DataFormats/MuonReco/interface/MuonFwd.h"
 
 #include "HeavyFlavorAnalysis/Skimming/interface/Tau3MuReco.h"
 #include "HeavyFlavorAnalysis/Skimming/plugins/Tau3MuSkim.h"
