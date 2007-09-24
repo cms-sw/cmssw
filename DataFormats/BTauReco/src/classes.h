@@ -17,7 +17,6 @@
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 #include "DataFormats/EgammaReco/interface/BasicCluster.h"
 #include "DataFormats/EgammaReco/interface/BasicClusterFwd.h" 
-#include "DataFormats/BTauReco/interface/JetTracksAssociation.h"
 #include "DataFormats/BTauReco/interface/JetCrystalsAssociation.h"
 #include "DataFormats/BTauReco/interface/JetTag.h"
 #include "DataFormats/BTauReco/interface/TaggingVariable.h"
@@ -44,8 +43,6 @@ namespace reco {
     typedef TrackTauImpactParameterAssociationCollection::ref_type          TrackTauImpactParameterAssociationRefType;
     typedef TauMassTagInfo::ClusterTrackAssociationCollection::map_type     TauMassTagInfo_ClusterTrackAssociationMapType;
     typedef TauMassTagInfo::ClusterTrackAssociationCollection::ref_type     TauMassTagInfo_ClusterTrackAssociationRefType;
-//  typedef JetTracksIPDataAssociationCollection::map_type                  JetTracksIPDataAssociationMapType;
-//  typedef JetTracksIPDataAssociationCollection::ref_type                  JetTracksIPDataAssociationRefType;
 }
 
 namespace {
@@ -167,12 +164,6 @@ namespace {
     reco::TrackProbabilityTagInfoRefVector                              tp_rv;
     edm::Wrapper<reco::TrackProbabilityTagInfoCollection>               tp_wc;
 
-    reco::JetTracksAssociation                                          jta;
-    reco::JetTracksAssociationCollection                                jta_c;
-    reco::JetTracksAssociationRef                                       jta_r;
-    reco::JetTracksAssociationRefProd                                   jta_rp;
-    reco::JetTracksAssociationRefVector                                 jta_rv;
-    edm::Wrapper<reco::JetTracksAssociationCollection>                  jta_wc;
 
     reco::JetCrystalsAssociation                                        jca;
     reco::JetCrystalsAssociation::base_class                            jca_base;
@@ -189,16 +180,6 @@ namespace {
     reco::JetEisolAssociationRefVector                                  jea_rv;
     edm::Wrapper<reco::JetEisolAssociationCollection>                   jea_wc;
 
-    /*
-    reco::JetTracksIPDataAssociation                                    jtip;
-    reco::JetTracksIPDataAssociationCollection                          jtip_c;
-    reco::JetTracksIPDataAssociationMapType                             jtip_cm;
-    reco::JetTracksIPDataAssociationRefType                             jtip_cr;
-    reco::JetTracksIPDataAssociationRef                                 jtip_r;
-    reco::JetTracksIPDataAssociationRefProd                             jtip_rp;
-    reco::JetTracksIPDataAssociationRefVector                           jtip_rv;
-    edm::Wrapper<reco::JetTracksIPDataAssociationCollection>            jtip_wc;
-    */
 
 
     reco::TrackIPTagInfo                                                tcip;

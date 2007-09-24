@@ -2,7 +2,8 @@
 #define DataFormats_BTauReco_BJetTagTrackCounting_h
 
 #include "DataFormats/BTauReco/interface/RefMacros.h"
-#include "DataFormats/BTauReco/interface/JetTracksAssociation.h" 
+#include "DataFormats/JetReco/interface/JetTracksAssociation.h"
+
 #include "DataFormats/BTauReco/interface/JTATagInfo.h"
 
 namespace reco {

@@ -5,7 +5,7 @@
 #include "DataFormats/GeometryCommonDetAlgo/interface/Measurement1D.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
-#include "DataFormats/BTauReco/interface/JetTracksAssociation.h"
+#include "DataFormats/JetReco/interface/JetTracksAssociation.h"
 #include "DataFormats/BTauReco/interface/JTATagInfo.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 

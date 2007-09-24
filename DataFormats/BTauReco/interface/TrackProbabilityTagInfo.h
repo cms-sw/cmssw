@@ -3,8 +3,8 @@
 
 #include "DataFormats/BTauReco/interface/RefMacros.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
-#include "DataFormats/BTauReco/interface/JetTracksAssociation.h" 
 #include "DataFormats/BTauReco/interface/JTATagInfo.h"
+#include "DataFormats/JetReco/interface/JetTracksAssociation.h"
 
 namespace reco {
  

@@ -140,12 +140,6 @@
   <class name="reco::TrackProbabilityTagInfoRefVector"/>
   <class name="edm::Wrapper<reco::TrackProbabilityTagInfoCollection>"/>
 
-  <class name="reco::JetTracksAssociation"/>
-  <class name="reco::JetTracksAssociationCollection"/>
-  <class name="reco::JetTracksAssociationRef"/>
-  <class name="reco::JetTracksAssociationRefProd"/>
-  <class name="reco::JetTracksAssociationRefVector"/>
-  <class name="edm::Wrapper<reco::JetTracksAssociationCollection>"/>
 
   <class name="reco::JetCrystalsAssociation"/>
   <class name="reco::JetCrystalsAssociation::base_class"/>
@@ -162,18 +156,6 @@
   <class name="reco::JetEisolAssociationRefVector"/>
   <class name="edm::Wrapper<reco::JetEisolAssociationCollection>"/>
 
-  <!--
-  <class name="reco::JetTracksIPDataAssociation"/>
-  <class name="edm::AssociationMap<edm::OneToValue<reco::JetTracksAssociationCollection, reco::TracksInJetData, unsigned int> >">
-    <field name="transientMap_" transient="true"/>
-  </class>
-  <class name="reco::JetTracksIPDataAssociationMapType"/>
-  <class name="reco::JetTracksIPDataAssociationRefType"/>
-  <class name="reco::JetTracksIPDataAssociationRef"/>
-  <class name="reco::JetTracksIPDataAssociationRefProd"/>
-  <class name="reco::JetTracksIPDataAssociationRefVector"/>
-  <class name="edm::Wrapper<reco::JetTracksIPDataAssociationCollection>"/>
-  -->
 
   <class name="reco::TrackIPTagInfo"/>
   <class name="reco::TrackIPTagInfo::TrackIPData"/>

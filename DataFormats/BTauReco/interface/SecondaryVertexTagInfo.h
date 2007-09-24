@@ -10,7 +10,7 @@
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "DataFormats/GeometryVector/interface/GlobalVector.h"
-#include "DataFormats/BTauReco/interface/JetTracksAssociation.h"
+#include "DataFormats/JetReco/interface/JetTracksAssociation.h"
 #include "DataFormats/BTauReco/interface/JTATagInfo.h"
 #include "DataFormats/BTauReco/interface/TrackIPTagInfo.h"
 

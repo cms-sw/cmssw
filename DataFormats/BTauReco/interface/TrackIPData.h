@@ -6,7 +6,7 @@
 #include "DataFormats/GeometryVector/interface/GlobalVector.h"
 #include "DataFormats/GeometryCommonDetAlgo/interface/Measurement1D.h"
 
-#include "DataFormats/BTauReco/interface/JetTracksAssociation.h"
+#include "DataFormats/JetReco/interface/JetTracksAssociation.h"
 
 namespace reco {
 
