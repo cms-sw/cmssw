@@ -137,12 +137,12 @@ EcalTrigPrimProducer::produce(edm::Event& e, const edm::EventSetup&  iSetup)
   const EEDigiCollection *eedc=NULL;
   if (barrel) {
     ebdc=ebDigis.product();
-    algo_->run(ebdc,*pOut,*pOutTcp);
+    algo_->run(iSetup,ebdc,*pOut,*pOutTcp);
   }
 
   if (endcap) {
     eedc=eeDigis.product();
-    algo_->run(eedc,*pOut,*pOutTcp);
+    algo_->run(iSetup,eedc,*pOut,*pOutTcp);
   }
 
   edm::LogInfo("produce") <<"For Barrel + Endcap, "<<pOut->size()<<" TP  Digis were produced";

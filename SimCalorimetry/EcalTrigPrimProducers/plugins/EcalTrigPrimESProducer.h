@@ -8,8 +8,31 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "CondFormats/L1TObjects/interface/EcalTPParameters.h"
-#include "CondFormats/DataRecord/interface/EcalTPParametersRcd.h"
+#include "CondFormats/EcalObjects/interface/EcalTPGPedestals.h"
+#include "CondFormats/EcalObjects/interface/EcalTPGLinearizationConst.h"
+#include "CondFormats/EcalObjects/interface/EcalTPGSlidingWindow.h"
+#include "CondFormats/EcalObjects/interface/EcalTPGFineGrainEBIdMap.h"
+#include "CondFormats/EcalObjects/interface/EcalTPGFineGrainStripEE.h"
+#include "CondFormats/EcalObjects/interface/EcalTPGFineGrainTowerEE.h"
+#include "CondFormats/EcalObjects/interface/EcalTPGLutIdMap.h"
+#include "CondFormats/EcalObjects/interface/EcalTPGWeightIdMap.h"
+#include "CondFormats/EcalObjects/interface/EcalTPGWeightGroup.h"
+#include "CondFormats/EcalObjects/interface/EcalTPGLutGroup.h"
+#include "CondFormats/EcalObjects/interface/EcalTPGFineGrainEBGroup.h"
+#include "CondFormats/EcalObjects/interface/EcalTPGPhysicsConst.h"
+#include "CondFormats/DataRecord/interface/EcalTPGPedestalsRcd.h"
+#include "CondFormats/DataRecord/interface/EcalTPGLinearizationConstRcd.h"
+#include "CondFormats/DataRecord/interface/EcalTPGSlidingWindowRcd.h"
+#include "CondFormats/DataRecord/interface/EcalTPGFineGrainEBIdMapRcd.h"
+#include "CondFormats/DataRecord/interface/EcalTPGFineGrainStripEERcd.h"
+#include "CondFormats/DataRecord/interface/EcalTPGFineGrainTowerEERcd.h"
+#include "CondFormats/DataRecord/interface/EcalTPGLutIdMapRcd.h"
+#include "CondFormats/DataRecord/interface/EcalTPGWeightIdMapRcd.h"
+#include "CondFormats/DataRecord/interface/EcalTPGWeightGroupRcd.h"
+#include "CondFormats/DataRecord/interface/EcalTPGLutGroupRcd.h"
+#include "CondFormats/DataRecord/interface/EcalTPGFineGrainEBGroupRcd.h"
+#include "CondFormats/DataRecord/interface/EcalTPGPhysicsConstRcd.h"
+
 
 //
 // class declaration
@@ -20,42 +43,37 @@ class EcalTrigPrimESProducer : public edm::ESProducer {
   EcalTrigPrimESProducer(const edm::ParameterSet&);
   ~EcalTrigPrimESProducer();
 
-  typedef std::auto_ptr<EcalTPParameters> ReturnType;
-
-  ReturnType produce(const EcalTPParametersRcd&);
-
-  // these constants are put here in order to stay independent from geometry
-  // this makes us be fast in case of barrelonly
-
-  static const int MIN_TCC_EB;
-  static const int MAX_TCC_EB;
-  static const int MIN_TCC_EE_PLUS;
-  static const int MAX_TCC_EE_PLUS;
-  static const int MIN_TCC_EE_MINUS;
-  static const int MAX_TCC_EE_MINUS;
-  static const int MIN_TT_EB;
-  static const int MAX_TT_EB;
-  static const int MIN_TT_EE; 
-  static const int MAX_TT_EE; //This is a maximum from outer (=16) and inner (=24 without 4 virtual ones)
-  static const int MIN_STRIP_EB;
-  static const int MAX_STRIP_EB;
-  static const int MIN_STRIP_EE;
-  static const int MAX_STRIP_EE;
-  static const int MIN_XTAL_EB;
-  static const int MAX_XTAL_EB;
-  static const int MIN_XTAL_EE;
-  static const int MAX_XTAL_EE;
+  std::auto_ptr<EcalTPGPedestals> producePedestals(const EcalTPGPedestalsRcd &) ;
+  std::auto_ptr<EcalTPGLinearizationConst> produceLinearizationConst(const EcalTPGLinearizationConstRcd &) ;
+  std::auto_ptr<EcalTPGSlidingWindow> produceSlidingWindow(const EcalTPGSlidingWindowRcd &) ;
+  std::auto_ptr<EcalTPGFineGrainEBIdMap> produceFineGrainEB(const EcalTPGFineGrainEBIdMapRcd &) ;
+  std::auto_ptr<EcalTPGFineGrainStripEE> produceFineGrainEEstrip(const EcalTPGFineGrainStripEERcd &) ;
+  std::auto_ptr<EcalTPGFineGrainTowerEE> produceFineGrainEEtower(const EcalTPGFineGrainTowerEERcd &) ;
+  std::auto_ptr<EcalTPGLutIdMap> produceLUT(const EcalTPGLutIdMapRcd &) ;
+  std::auto_ptr<EcalTPGWeightIdMap> produceWeight(const EcalTPGWeightIdMapRcd &) ;
+  std::auto_ptr<EcalTPGWeightGroup> produceWeightGroup(const EcalTPGWeightGroupRcd &) ;
+  std::auto_ptr<EcalTPGLutGroup> produceLutGroup(const EcalTPGLutGroupRcd &) ;
+  std::auto_ptr<EcalTPGFineGrainEBGroup> produceFineGrainEBGroup(const EcalTPGFineGrainEBGroupRcd &) ;
+  std::auto_ptr<EcalTPGPhysicsConst> producePhysicsConst(const EcalTPGPhysicsConstRcd &) ;
 
  private:
 
-  void parseTextFile(EcalTPParameters &);
-
+  void parseTextFile() ;
   std::vector<int> getRange(int subdet, int smNb, int towerNbInSm, int stripNbInTower=0, int xtalNbInStrip=0) ;
 
   // ----------member data ---------------------------
   std::string dbFilenameEB_;
   std::string dbFilenameEE_;
+  std::map<uint32_t, std::vector<uint32_t> > mapXtal_[2] ;
+  std::map<uint32_t, std::vector<uint32_t> > mapStrip_[2] ;
+  std::map<uint32_t, std::vector<uint32_t> > mapTower_[2] ;
+  std::map<uint32_t, std::vector<uint32_t> > mapSliding_[2] ;
+  std::map<uint32_t, std::vector<uint32_t> > mapWeight_[2] ;
+  std::map<uint32_t, std::vector<uint32_t> > mapFg_[2] ;
+  std::map<uint32_t, std::vector<uint32_t> > mapLut_[2] ;
+  std::map<uint32_t, std::vector<float> > mapPhys_[2] ;
 
 };
+
 
 #endif

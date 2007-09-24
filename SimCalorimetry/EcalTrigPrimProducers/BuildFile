@@ -8,6 +8,7 @@
 <use name=DataFormats/EcalDigi>
 <use name=DataFormats/EcalDetId>
 <use name=CondFormats/L1TObjects>
+<use name=CondFormats/EcalObjects>
 <use name=CondFormats/DataRecord>
 <export>
 <use name=root>
@@ -19,5 +20,6 @@
 <use name=DataFormats/EcalDigi>
 <use name=DataFormats/EcalDetId>
 <use name=CondFormats/L1TObjects>
+<use name=CondFormats/EcalObjects>
 <use name=CondFormats/DataRecord>
 </export>
