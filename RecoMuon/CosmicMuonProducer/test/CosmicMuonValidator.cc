@@ -4,8 +4,8 @@
  *
  *  the validator assumes single muon events
  *
- *  $Date: 2007/01/09 17:24:54 $
- *  $Revision: 1.2 $
+ *  $Date: 2007/08/19 00:46:32 $
+ *  $Revision: 1.3 $
  *  \author Chang Liu   -  Purdue University <Chang.Liu@cern.ch>
  */
 
@@ -231,7 +231,7 @@ void CosmicMuonValidator::analyze(const edm::Event& iEvent, const edm::EventSetu
    if ( n4D < 2 ) nNoSignal++;
 
    if (muons->empty())  return;
-   reco::Track muon = bestTrack(*muons);;
+   reco::Track muon = bestTrack(*muons);
 
    cout << "cosmic Muon Track: " 
         << " mom: (" << muon.px() << "," << muon.py() << "," << muon.pz()
@@ -408,23 +408,23 @@ void CosmicMuonValidator::endJob() {
   h_outerPosEP->SetMarkerColor(2);
   h_outerPosEP->SetMarkerStyle(24);
 
-  h_res->SetXTitle("(q^{reco}/P^{reco}_{T}-q^{simTrack}/P^{simTrack}_{T})/(q^{simTrack}/P^{simTrack}_{T})");;
+  h_res->SetXTitle("(q^{reco}/P^{reco}_{T}-q^{simTrack}/P^{simTrack}_{T})/(q^{simTrack}/P^{simTrack}_{T})");
   h_res->SetLineWidth(2);
   h_res->SetLineColor(2);
   h_res->SetLineStyle(1);
 
-  h_theta->SetXTitle("#theta^{reco}-#theta^{simTrack}");;
+  h_theta->SetXTitle("#theta^{reco}-#theta^{simTrack}");
   h_theta->SetLineWidth(2);
   h_theta->SetLineColor(2);
   h_theta->SetLineStyle(1);
 
-  h_phi->SetXTitle("#phi^{reco}-#phi^{simTrack}");;
+  h_phi->SetXTitle("#phi^{reco}-#phi^{simTrack}");
   h_phi->SetLineWidth(2);
   h_phi->SetLineColor(2);
   h_phi->SetLineStyle(1);
 
 
-  h_pt_rec_sim->SetXTitle("P^{simHit}_{T}-P^{reco}_{T}");;
+  h_pt_rec_sim->SetXTitle("P^{simHit}_{T}-P^{reco}_{T}");
   h_pt_rec_sim->SetLineWidth(2);
   h_pt_rec_sim->SetLineColor(2);
   h_pt_rec_sim->SetLineStyle(1);
@@ -439,17 +439,17 @@ void CosmicMuonValidator::endJob() {
   h_theta_rec_sim->SetLineColor(2);
   h_theta_rec_sim->SetLineStyle(1);
 
-  h_Pres_inv_sim->SetXTitle("(q^{reco}/P^{reco}_{T}-q^{simHit}/P^{simHit}_{T})/(q^{simHit}/P^{simHit}_{T})");;
+  h_Pres_inv_sim->SetXTitle("(q^{reco}/P^{reco}_{T}-q^{simHit}/P^{simHit}_{T})/(q^{simHit}/P^{simHit}_{T})");
   h_Pres_inv_sim->SetLineWidth(2);
   h_Pres_inv_sim->SetLineColor(2);
   h_Pres_inv_sim->SetLineStyle(1);
 
-  hnhit->SetXTitle("N_{RecHits}");;
+  hnhit->SetXTitle("N_{RecHits}");
   hnhit->SetLineWidth(2);
   hnhit->SetLineColor(2);
   hnhit->SetLineStyle(1);
 
-  h_pt_sim->SetXTitle("P_{t}");;
+  h_pt_sim->SetXTitle("P_{t}");
   h_pt_sim->SetLineWidth(2);
   h_pt_sim->SetLineColor(4);
   h_pt_rec->SetLineWidth(2);
