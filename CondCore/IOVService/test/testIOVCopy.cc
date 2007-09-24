@@ -12,14 +12,13 @@
 int main(){
   std::string sourceConnect("sqlite_file:source.db");
   std::string destConnect("sqlite_file:dest.db");
-  std::string catalog("file:mycatalog.xml");
   try{
     cond::DBSession* session=new cond::DBSession;
     session->configuration().setMessageLevel(cond::Error);
     session->configuration().setAuthenticationMethod(cond::XML);
     static cond::ConnectionHandler& conHandler=cond::ConnectionHandler::Instance();
-    conHandler.registerConnection("mysource","sqlite_file:source.db","file:mycatalog.xml",0);
-    conHandler.registerConnection("mydest","sqlite_file:dest.db","file:mycatalog.xml",0);
+    conHandler.registerConnection("mysource","sqlite_file:source.db",0);
+    conHandler.registerConnection("mydest","sqlite_file:dest.db",0);
     session->open();
     
     cond::PoolTransaction& sourcedb=conHandler.getConnection("mysource")->poolTransaction(false);

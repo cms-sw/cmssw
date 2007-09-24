@@ -16,7 +16,7 @@ int main(){
     session->configuration().setMessageLevel(cond::Error);
     session->configuration().setAuthenticationMethod(cond::XML);
     static cond::ConnectionHandler& conHandler=cond::ConnectionHandler::Instance();
-    conHandler.registerConnection("mytest","sqlite_file:testqueryc.db","file:mycatalog.xml",0);
+    conHandler.registerConnection("mytest","sqlite_file:testqueryc.db",0);
     session->open();
     conHandler.connect(session);
     testPayloadObj* myobj=new testPayloadObj;
