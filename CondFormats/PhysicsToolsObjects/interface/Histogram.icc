@@ -268,6 +268,8 @@ Value_t Histogram<Value_t, Axis_t>::integral(Axis_t hBound, Axis_t lBound,
 	    case 0:
 		break;
 	    case 1:
+		lBound = clamp(lBinRange.min, lBound, lBinRange.max);
+		hBound = clamp(hBinRange.min, hBound, hBinRange.max);
 		sum += binValues[lBin] * (lBinRange.max - lBound)
 		                       / lBinRange.width();
 		sum += binValues[hBin] * (hBound - hBinRange.min)
