@@ -1,0 +1,20 @@
+<use name=root>
+<use name=SimTracker/TrackHistory>
+<library file="RecoTOA.cc" name=RecoTOA>
+  <flags EDM_PLUGIN=1>
+</library>
+<library file="OptTOA.cc" name=OptTOA>
+  <flags EDM_PLUGIN=1>
+</library>
+<library file="TruthTOA.cc" name=TruthTOA>
+  <flags EDM_PLUGIN=1>
+</library>
+<library file="IpsTOA.cc" name=IpsTOA>
+  <flags EDM_PLUGIN=1>
+</library>
+<library file="VertexTHA.cc" name=VertexTHA>
+  <flags EDM_PLUGIN=1>
+</library>
+<library file="SimpleTHA.cc" name=VertexTHA>
+  <flags EDM_PLUGIN=1>
+</library>
