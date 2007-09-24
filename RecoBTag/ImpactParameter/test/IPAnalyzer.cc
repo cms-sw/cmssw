@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea Rizzi
 //         Created:  Wed Apr 12 11:12:49 CEST 2006
-// $Id: IPAnalyzer.cc,v 1.5 2007/09/21 10:06:15 arizzi Exp $
+// $Id: IPAnalyzer.cc,v 1.6 2007/09/24 13:31:23 arizzi Exp $
 //
 //
 
@@ -35,9 +35,8 @@ using namespace std;
 #include "DataFormats/Common/interface/Ref.h"
 #include "DataFormats/JetReco/interface/Jet.h"
 #include "DataFormats/JetReco/interface/CaloJet.h"
-#include "DataFormats/TrackReco/interface/Track.h"
-//#include "DataFormats/BTauReco/interface/JetTracksAssociation.h"
 #include "DataFormats/JetReco/interface/JetTracksAssociation.h"
+#include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/BTauReco/interface/TrackIPTagInfo.h"
 
 #include "DataFormats/Math/interface/Vector3D.h"
