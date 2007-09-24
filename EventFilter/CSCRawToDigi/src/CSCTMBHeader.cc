@@ -125,13 +125,15 @@ std::vector<CSCCorrelatedLCTDigi> CSCTMBHeader::CorrelatedLCTDigis() const {
     CSCCorrelatedLCTDigi digi(1, header2006.MPC_Muon0_vpf_, header2006.MPC_Muon0_quality_, 
 			      header2006.MPC_Muon0_wire_, header2006.MPC_Muon0_halfstrip_clct_pattern, 
 			      header2006.MPC_Muon0_clct_pattern_, header2006.MPC_Muon0_bend_, 
-			      header2006.MPC_Muon0_bx_);
+			      header2006.MPC_Muon0_bx_, 0, header2006.MPC_Muon0_bc0_, header2006.MPC_Muon0_SyncErr_, 
+			      header2006.MPC_Muon0_cscid_low | (header2006.MPC_Muon0_cscid_bit4<<3) );
     result.push_back(digi);  
     /// for the first MPC word:
     digi = CSCCorrelatedLCTDigi(2, header2006.MPC_Muon1_vpf_, header2006.MPC_Muon1_quality_, 
 				header2006.MPC_Muon1_wire_, header2006.MPC_Muon1_halfstrip_clct_pattern,
 				header2006.MPC_Muon1_clct_pattern_, header2006.MPC_Muon1_bend_, 
-				header2006.MPC_Muon1_bx_);
+				header2006.MPC_Muon1_bx_, 0, header2006.MPC_Muon1_bc0_, header2006.MPC_Muon1_SyncErr_,
+				header2006.MPC_Muon1_cscid_low | (header2006.MPC_Muon1_cscid_bit4<<3) ); 
     result.push_back(digi);
     break;
   }
@@ -140,13 +142,15 @@ std::vector<CSCCorrelatedLCTDigi> CSCTMBHeader::CorrelatedLCTDigis() const {
     CSCCorrelatedLCTDigi digi(1, header2007.MPC_Muon0_vpf_, header2007.MPC_Muon0_quality_,
                               header2007.MPC_Muon0_wire_, header2007.MPC_Muon0_halfstrip_clct_pattern,
                               header2007.MPC_Muon0_clct_pattern_, header2007.MPC_Muon0_bend_,
-                              header2007.MPC_Muon0_bx_);
+                              header2007.MPC_Muon0_bx_, 0, header2007.MPC_Muon0_bc0_, header2007.MPC_Muon0_SyncErr_,
+                              header2007.MPC_Muon0_cscid_low | (header2007.MPC_Muon0_cscid_bit4<<3));
     result.push_back(digi);
     /// for the first MPC word:
     digi = CSCCorrelatedLCTDigi(2, header2007.MPC_Muon1_vpf_, header2007.MPC_Muon1_quality_,
                                 header2007.MPC_Muon1_wire_, header2007.MPC_Muon1_halfstrip_clct_pattern,
                                 header2007.MPC_Muon1_clct_pattern_, header2007.MPC_Muon1_bend_,
-                                header2007.MPC_Muon1_bx_);
+                                header2007.MPC_Muon1_bx_, 0, header2007.MPC_Muon1_bc0_, header2007.MPC_Muon1_SyncErr_,
+                                header2007.MPC_Muon1_cscid_low | (header2007.MPC_Muon1_cscid_bit4<<3));
     result.push_back(digi);
 
     break;

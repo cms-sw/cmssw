@@ -5,8 +5,8 @@
  *
  * Digi for Correlated LCT trigger primitives. 
  *
- * $Date: 2006/12/04 19:35:45 $
- * $Revision: 1.10 $
+ * $Date: 2007/06/06 15:19:00 $
+ * $Revision: 1.11 $
  *
  * \author L. Gray, UF
  */
@@ -20,8 +20,8 @@ class CSCCorrelatedLCTDigi
   /// Constructors
   CSCCorrelatedLCTDigi(const int trknmb, const int valid, const int quality,       /// from values
 		       const int keywire, const int strip, const int clct_pattern, /// clct pattern is 4 bit pattern! 
-		       const int bend, const int bx, const int& mpclink = 0);      /// (pattern) | (strip_type << 3) 
-
+		       const int bend, const int bx, const int& mpclink = 0,       /// (pattern) | (strip_type << 3) 
+		       const uint16_t & bx0=0, const uint16_t & syncErr = 0, const uint16_t & cscID=0);
   CSCCorrelatedLCTDigi();                               /// default
 
   /// clear this LCT
@@ -60,6 +60,10 @@ class CSCCorrelatedLCTDigi
   /// return MPC link number, 0 means not sorted, 1-3 give MPC sorting rank
   int getMPCLink() const { return mpclink; }
 
+  uint16_t getCSCID()   const {return cscID;}
+  uint16_t getBX0()     const {return bx0;}
+  uint16_t getSyncErr() const {return syncErr;}
+
   /// Set track number (1,2) after sorting LCTs.
   void setTrknmb(const uint16_t number) {trknmb = number;}
 
@@ -78,7 +82,7 @@ class CSCCorrelatedLCTDigi
   void setWireGroup(unsigned int wiregroup) {keywire= wiregroup;}
 
  private:
-
+  uint16_t trknmb;
   uint16_t valid;
   uint16_t quality;
   uint16_t keywire;
@@ -86,8 +90,10 @@ class CSCCorrelatedLCTDigi
   uint16_t pattern;
   uint16_t bend;
   uint16_t bx;
-  uint16_t trknmb;
   uint16_t mpclink;
+  uint16_t bx0; 
+  uint16_t syncErr;
+  uint16_t cscID;
 };
 
 #include<iostream>
@@ -102,6 +108,9 @@ inline std::ostream & operator<<(std::ostream & o,
 	   << " Bend = "    << ((digi.getBend() == 0) ? 'L' : 'R')
 	   << " Pattern = " << digi.getCLCTPattern() << "\n"
  	   <<"    anode info: Key wire = " << digi.getKeyWG()
-	   << " BX = "      << digi.getBX() << "\n";
+	   << " BX = "      << digi.getBX() 
+	   << " bx0= "      << digi.getBX0()
+	   << " syncErr = " << digi.getSyncErr()
+	   << " cscID= "    << digi.getCSCID() << "\n";
 }
 #endif

@@ -2,8 +2,8 @@
  *
  * Digi for Correlated LCT trigger primitives.
  *
- * $Date: 2006/06/23 14:29:57 $
- * $Revision: 1.9 $
+ * $Date: 2007/07/23 12:08:20 $
+ * $Revision: 1.10 $
  *
  * \author L.Gray, UF
  */
@@ -16,17 +16,22 @@ CSCCorrelatedLCTDigi::CSCCorrelatedLCTDigi(const int itrknmb, const int ivalid,
 					   const int ikeywire,
 					   const int istrip,
 					   const int ipattern, const int ibend,
-					   const int ibx, const int& impclink) {
-  trknmb  = itrknmb;
-  valid   = ivalid;
-  quality = iquality;
-  keywire = ikeywire;
-  strip   = istrip;
-  pattern = ipattern;
-  bend    = ibend;
-  bx      = ibx;
-  mpclink = impclink;
-}
+					   const int ibx, const int& impclink, 
+					   const uint16_t& ibx0,  const uint16_t& isyncErr, 
+					   const uint16_t& icscID):
+  trknmb(itrknmb),
+  valid(ivalid),
+  quality(iquality),
+  keywire(ikeywire),
+  strip(istrip),
+  pattern(ipattern),
+  bend(ibend),
+  bx(ibx),
+  mpclink(impclink),
+  bx0(ibx0),
+  syncErr(isyncErr),
+  cscID(icscID)
+{}
 
 /// Default
 CSCCorrelatedLCTDigi::CSCCorrelatedLCTDigi() {
