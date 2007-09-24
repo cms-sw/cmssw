@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2007/08/28 01:14:42 $
- *  $Revision: 1.39 $
+ *  $Date: 2007/09/20 00:13:43 $
+ *  $Revision: 1.40 $
  *
  *  \author Martin Grunewald
  *
@@ -21,6 +21,7 @@
 #include "DataFormats/EgammaCandidates/interface/Electron.h"
 #include "DataFormats/EgammaCandidates/interface/ElectronFwd.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
+#include "DataFormats/MuonReco/interface/MuonFwd.h"
 
 #include "DataFormats/JetReco/interface/CaloJetCollection.h"
 #include "DataFormats/METReco/interface/CaloMET.h"
