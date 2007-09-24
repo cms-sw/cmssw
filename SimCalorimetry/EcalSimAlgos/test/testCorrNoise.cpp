@@ -1,7 +1,7 @@
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
 #include "SimCalorimetry/EcalSimAlgos/interface/EcalCorrelatedNoiseMatrix.h"
 #include "CalibFormats/CaloObjects/interface/CaloSamples.h"
-#include "SimCalorimetry/CaloSimAlgos/interface/CaloCorrelatedNoisifier.h"
+#include "SimGeneral/NoiseGenerators/interface/CorrelatedNoisifier.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include<iostream>
 #include<iomanip>
@@ -23,10 +23,10 @@ int main() {
   EcalCorrelatedNoiseMatrix theNoiseMatrix(readoutFrameSize);
   HepSymMatrix thisMatrix(readoutFrameSize,1);
   theNoiseMatrix.getMatrix(thisMatrix);
-  CaloCorrelatedNoisifier theCorrNoise(thisMatrix);
+  CorrelatedNoisifier theCorrNoise(thisMatrix);
 
   HepSymMatrix thisTrivialMatrix(readoutFrameSize,1);
-  CaloCorrelatedNoisifier theUncorrNoise(thisTrivialMatrix);
+  CorrelatedNoisifier theUncorrNoise(thisTrivialMatrix);
 
   std::cout << "Using the correlation matrix: " << thisMatrix << std::cout;
 
