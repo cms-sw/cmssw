@@ -85,22 +85,3 @@ void  EcalFenixStrip::process_part2_endcap(uint32_t stripid,const EcalTPGSliding
 
    return;
 }
-<<<<<<< EcalFenixStrip.cc
-=======
-//------------------------------------------------------------------------------------
-int EcalFenixStrip::getCrystalNumberInStrip(const EBDataFrame & frame,int crystalPos)  {
-  int crystalNumberInStrip=((frame.id()).ic()-1)%EcalTPParameters::nbMaxXtals_;
-  if ((frame.id()).ieta()<0) crystalNumberInStrip=EcalTPParameters::nbMaxXtals_ - crystalNumberInStrip - 1;
-  crystalNumberInStrip++;
-  return crystalNumberInStrip;
-}
-//--------------------------------------------------------------------------------------
-
-int EcalFenixStrip::getCrystalNumberInStrip(const EEDataFrame & frame,int crystalPos) {
-  const EcalTriggerElectronicsId elId = theMapping_->getTriggerElectronicsId(frame.id());
-  return elId.channelId();
-}
-
-//----------------------------------------------------------------------------------------
-
->>>>>>> 1.4

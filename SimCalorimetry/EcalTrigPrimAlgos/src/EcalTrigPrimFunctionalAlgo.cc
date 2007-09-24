@@ -98,29 +98,18 @@ void EcalTrigPrimFunctionalAlgo::updateESRecord(double ttfLowEB, double ttfHighE
   //FIXME!!!   const_cast <EcalTPParameters *> (ecaltpp_)->changeThresholds(ttfLowEB, ttfHighEB, ttfLowEE, ttfHighEE);
 }
 //----------------------------------------------------------------------
-<<<<<<< EcalTrigPrimFunctionalAlgo.cc
-void EcalTrigPrimFunctionalAlgo::run(const edm::EventSetup & setup, EBDigiCollection const * col,                                                        EcalTrigPrimDigiCollection & result,
-							EcalTrigPrimDigiCollection & resultTcp)
-=======
-void EcalTrigPrimFunctionalAlgo::run(EBDigiCollection const * col,
+void EcalTrigPrimFunctionalAlgo::run(const edm::EventSetup & setup, EBDigiCollection const * col,
 				     EcalTrigPrimDigiCollection & result,
 				     EcalTrigPrimDigiCollection & resultTcp)
->>>>>>> 1.30
 {
   run_part1_EB(col);
   run_part2(setup,col,towerMapEB_,result,resultTcp);
 }
 
 //----------------------------------------------------------------------
-<<<<<<< EcalTrigPrimFunctionalAlgo.cc
-void EcalTrigPrimFunctionalAlgo::run(const edm::EventSetup & setup,EEDigiCollection const * col,
+void EcalTrigPrimFunctionalAlgo::run(const edm::EventSetup & setup, EEDigiCollection const * col,
                                                         EcalTrigPrimDigiCollection & result,
 							EcalTrigPrimDigiCollection & resultTcp)
-=======
-void EcalTrigPrimFunctionalAlgo::run(EEDigiCollection const * col,
-				     EcalTrigPrimDigiCollection & result,
-				     EcalTrigPrimDigiCollection & resultTcp)
->>>>>>> 1.30
 {
 
   run_part1_EE(col);
@@ -128,20 +117,11 @@ void EcalTrigPrimFunctionalAlgo::run(EEDigiCollection const * col,
 }
 //----------------------------------------------------------------------
 int  EcalTrigPrimFunctionalAlgo::findStripNr(const EBDetId &id){
-<<<<<<< EcalTrigPrimFunctionalAlgo.cc
   int stripnr;
   int n=((id.ic()-1)%100)/20; //20 corresponds to 4 * ecal_barrel_crystals_per_strip FIXME!!
   if (id.ieta()<0) stripnr = n+1;
   else stripnr =nbMaxStrips_ - n; 
   return stripnr;
-=======
-  int stripnr;
-  int n=((id.ic()-1)%100)/20; //20 corresponds to 4 * ecal_barrel_crystals_per_strip FIXME!!
-  if (id.ieta()<0) stripnr = n+1;
-  //      else stripnr =ecal_barrel_strips_per_trigger_tower - n; 
-  else stripnr =EcalTPParameters::nbMaxStrips_ - n; 
-  return stripnr;
->>>>>>> 1.30
 }
 //----------------------------------------------------------------------
 int  EcalTrigPrimFunctionalAlgo::findStripNr(const EEDetId &id){

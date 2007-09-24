@@ -274,8 +274,7 @@ void EcalTrigPrimFunctionalAlgo::clean( std::vector<std::vector<std::pair<int,st
   // clean internal data structures
   for (unsigned int i=0;i<maxNrTowers_;++i) 
     for (int j=0;j<nbMaxStrips_ ;++j) (towMap[i])[j].first=0;
-  
-  re turn;
+  return;
 }
  
 template <class T> 
