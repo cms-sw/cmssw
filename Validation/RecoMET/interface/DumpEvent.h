@@ -47,6 +47,7 @@
 #include "DataFormats/DetId/interface/DetId.h"
 
 #include "DataFormats/MuonReco/interface/Muon.h"
+#include "DataFormats/MuonReco/interface/MuonFwd.h"
 
 
 //--egamma Reco stuff--//
