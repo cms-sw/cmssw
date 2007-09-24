@@ -13,7 +13,6 @@ cond::ConfigSessionFromParameterSet::ConfigSessionFromParameterSet(
   bool enableConnectionSharing=connectionPset.getUntrackedParameter<bool>("enableConnectionSharing",true);
   int connectionTimeOut=connectionPset.getUntrackedParameter<int>("connectionTimeOut",600);
   bool enableReadOnlySessionOnUpdateConnection=connectionPset.getUntrackedParameter<bool>("enableReadOnlySessionOnUpdateConnection",true);
-  bool loadBlobStreamer=connectionPset.getUntrackedParameter<bool>("loadBlobStreamer",false);
   int connectionRetrialPeriod=connectionPset.getUntrackedParameter<int>("connectionRetrialPeriod",30);
   int connectionRetrialTimeOut=connectionPset.getUntrackedParameter<int>("connectionRetrialTimeOut",180);
   bool enablePoolAutomaticCleanUp=connectionPset.getUntrackedParameter<bool>("enablePoolAutomaticCleanUp",false);
@@ -54,9 +53,6 @@ cond::ConfigSessionFromParameterSet::ConfigSessionFromParameterSet(
     session.configuration().connectionConfiguration()->enablePoolAutomaticCleanUp();
   }else{
     session.configuration().connectionConfiguration()->disablePoolAutomaticCleanUp();
-  }
-  if(loadBlobStreamer){
-    session.configuration().setBlobStreamer("");
   }
   session.configuration().connectionConfiguration()->setConnectionRetrialPeriod(connectionRetrialPeriod);
   session.configuration().connectionConfiguration()->setConnectionRetrialTimeOut(connectionRetrialTimeOut);
