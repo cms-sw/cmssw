@@ -272,7 +272,7 @@ void CSCSegAlgoDF::tryAddingHitsToSegment( const ChamberHitContainer& rechits,
     }
   } 
 
-  if ( protoSegment.size() < 3) return;
+  if ( int(protoSegment.size()) < minHitsPerSegment) return;
 
   // Fit segment and get chi2
   updateParameters();
