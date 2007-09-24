@@ -14,6 +14,7 @@
 #include "FWCore/ParameterSet/interface/InputTag.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
+#include "DataFormats/MuonReco/interface/MuonFwd.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
 #include "SimTracker/TrackAssociation/interface/TrackAssociatorBase.h"
 #include "SimTracker/Records/interface/TrackAssociatorRecord.h"

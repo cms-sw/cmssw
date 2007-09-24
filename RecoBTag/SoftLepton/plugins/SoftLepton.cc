@@ -13,7 +13,7 @@
 //
 // Original Author:  fwyzard
 //         Created:  Wed Oct 18 18:02:07 CEST 2006
-// $Id: SoftLepton.cc,v 1.3 2007/08/28 16:57:20 fwyzard Exp $
+// $Id: SoftLepton.cc,v 1.8 2007/09/24 12:31:17 fwyzard Exp $
 //
 
 
@@ -35,6 +35,7 @@
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
+#include "DataFormats/MuonReco/interface/MuonFwd.h"
 #include "DataFormats/EgammaCandidates/interface/Electron.h"
 #include "DataFormats/EgammaCandidates/interface/ElectronFwd.h"
 #include "DataFormats/EgammaCandidates/interface/PixelMatchElectron.h"
