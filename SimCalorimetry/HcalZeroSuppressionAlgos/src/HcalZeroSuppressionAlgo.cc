@@ -10,7 +10,7 @@ void HcalZeroSuppressionAlgo::suppress(const HBHEDigiCollection& input, HBHEDigi
   if (m_mode==zs_SingleChannel) {
     for (i=input.begin(); i!=input.end(); ++i) 
       if (shouldKeep(*i)) output.push_back(*i);
-  } else if (m_mode==zs_TriggerTowerOR) {
+  } else if (m_mode==zs_TriggerTowerOR || m_mode==zs_AllDepthsOR) {
     HcalTrigTowerGeometry ttg;
     std::set<HcalTrigTowerDetId> passed;
     // get list of above-threshold trigger tower ids
@@ -46,11 +46,24 @@ void HcalZeroSuppressionAlgo::suppress(const HFDigiCollection& input, HFDigiColl
       std::vector<HcalTrigTowerDetId> tids=ttg.towerIds(i->id());
       if (!tids.empty() && passed.find(tids[0])!=passed.end()) output.push_back(*i);
     }
+  } else if (m_mode==zs_AllDepthsOR) {
+    std::set<HcalDetId> passed;
+    // get list of above-threshold trigger tower ids
+    for (i=input.begin(); i!=input.end(); ++i) 
+      if (shouldKeep(*i)) {
+	passed.insert(i->id()); 
+      }
+    // loop over digis again, checking to see if trig tower had passed
+    for (i=input.begin(); i!=input.end(); ++i) {
+      HcalDetId a(HcalForward,i->id().ieta(),i->id().iphi(),1); // depth 1
+      HcalDetId b(HcalForward,i->id().ieta(),i->id().iphi(),2); // depth 2
+      if (passed.find(a)!=passed.end() || passed.find(b)!=passed.end()) output.push_back(*i);
+    }
   }  
 }
 
 void HcalZeroSuppressionAlgo::suppress(const HODigiCollection& input, HODigiCollection& output) {
-  if (m_mode==zs_SingleChannel || m_mode==zs_TriggerTowerOR) {
+  if (m_mode==zs_SingleChannel || m_mode==zs_TriggerTowerOR || m_mode==zs_AllDepthsOR) {
     HODigiCollection::const_iterator i;
     for (i=input.begin(); i!=input.end(); ++i) 
       if (shouldKeep(*i)) output.push_back(*i);

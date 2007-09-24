@@ -5,13 +5,13 @@
 
 /** \class HcalZeroSuppessionAlgo
   *  
-  * $Date: $
-  * $Revision: $
+  * $Date: 2007/07/12 19:33:49 $
+  * $Revision: 1.1 $
   * \author J. Mans - Minnesota
   */
 class HcalZeroSuppressionAlgo {
 public:
-  enum ZSMode { zs_SingleChannel=0, zs_TriggerTowerOR=1 };
+  enum ZSMode { zs_SingleChannel=0, zs_TriggerTowerOR=1, zs_AllDepthsOR=2 };
   void suppress(const HBHEDigiCollection& input, HBHEDigiCollection& output);
   void suppress(const HODigiCollection& input, HODigiCollection& output);
   void suppress(const HFDigiCollection& input, HFDigiCollection& output);

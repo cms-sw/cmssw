@@ -40,12 +40,13 @@ namespace ZSEnergy_impl {
       pedsum+=pedave;
     }
     //    int presum=sum;
-    sum-=(int)(pedsum+0.5);
+    sum-=(int)(pedsum);
 
     if (sum>=threshold) keepIt=true;
     else if (sum<=(-threshold) && twosided) keepIt=true;
     /*
-      else std::cout << inp.id() << " " << sum << ":" << presum << " " << threshold 
+      else
+     std::cout << inp.id() << " " << sum << ":" << presum << " " << threshold 
       << " " << pedsum << " " << pedave
       << " " << offset << " " << slope 
       << std::endl;
