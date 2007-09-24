@@ -12,15 +12,16 @@
 #include "CondCore/IOVService/interface/IOVEditor.h"
 #include "CondCore/IOVService/interface/IOVNames.h"
 #include "CondCore/DBCommon/interface/AuthenticationMethod.h"
-#include "CondCore/DBCommon/interface/ConnectMode.h"
+//#include "CondCore/DBCommon/interface/ConnectMode.h"
 #include "CondCore/DBCommon/interface/MessageLevel.h"
 #include "CondCore/DBCommon/interface/Exception.h"
 #include "CondCore/DBCommon/interface/ConfigSessionFromParameterSet.h"
+#include "CondCore/DBCommon/interface/SessionConfiguration.h"
 #include "CondCore/DBOutputService/interface/Exception.h"
 #include "CondCore/DBCommon/interface/ObjectRelationalMappingUtility.h"
 #include "CondCore/DBCommon/interface/DBSession.h"
 //POOL include
-#include "FileCatalog/IFileCatalog.h"
+//#include "FileCatalog/IFileCatalog.h"
 #include "serviceCallbackToken.h"
 //#include <iostream>
 #include <vector>
@@ -32,11 +33,17 @@ cond::service::PoolDBOutputService::PoolDBOutputService(const edm::ParameterSet 
   std::string connect=iConfig.getParameter<std::string>("connect");
   m_session=new cond::DBSession;  
   m_timetype=iConfig.getParameter< std::string >("timetype");
+  std::string blobstreamerName("");
+  if( iConfig.exists("BlobStreamerName") ){
+    blobstreamerName=iConfig.getUntrackedParameter<std::string>("BlobStreamerName");
+    blobstreamerName.insert(0,"COND/Services/");
+    m_session->configuration().setBlobStreamer(blobstreamerName);
+  }
   edm::ParameterSet connectionPset = iConfig.getParameter<edm::ParameterSet>("DBParameters"); 
   ConfigSessionFromParameterSet configConnection(*m_session,connectionPset);
   static cond::ConnectionHandler& conHandler=cond::ConnectionHandler::Instance();
-  std::string catconnect("pfncatalog_memory://POOL_RDBMS?");
-  catconnect.append(connect);
+  //std::string catconnect("pfncatalog_memory://POOL_RDBMS?");
+  //catconnect.append(connect);
   conHandler.registerConnection("outputdb",connect,0);
   m_session->open();
   conHandler.connect(m_session);
@@ -153,7 +160,7 @@ cond::service::PoolDBOutputService::createNewIOV( const std::string& firstPayloa
     pooldb.start();
     iovToken=this->insertIOV(pooldb,myrecord,firstPayloadToken,firstTillTime);
     pooldb.commit();
-  }catch(...){
+  }catch(std::exception& er){
     pooldb.rollback();
     throw cond::Exception("PoolDBOutputService::createNewIOV error in commit");
   }
