@@ -1,6 +1,6 @@
 // Associate jets with tracks by simple "dR" criteria
 // Fedor Ratnikov (UMd), Aug. 28, 2007
-// $Id: JetTracksAssociationDRCalo.cc,v 1.2 2007/09/11 23:59:19 fedor Exp $
+// $Id: JetTracksAssociationDRCalo.cc,v 1.3 2007/09/19 18:02:40 fedor Exp $
 
 #include "RecoJets/JetAssociationAlgorithms/interface/JetTracksAssociationDRCalo.h"
 
@@ -141,4 +141,12 @@ void JetTracksAssociationDRCalo::produce (reco::JetTracksAssociation::Container*
     }
     reco::JetTracksAssociation::setValue (fAssociation, fJets[j], assoTracks);
   }
+}
+
+math::XYZPoint JetTracksAssociationDRCalo::propagateTrackToCalorimeter (const reco::Track& fTrack,
+								   const MagneticField& fField,
+								   const Propagator& fPropagator)
+{
+  GlobalPoint result (propagateTrackToCalo (fTrack, fField, fPropagator));
+  return math::XYZPoint (result.x(), result.y(), result.z()); 
 }

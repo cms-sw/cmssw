@@ -1,12 +1,13 @@
 // \class JetTracksAssociationDRCalo
 // Associate jets with tracks by simple "delta R" criteria
 // Fedor Ratnikov (UMd), Aug. 28, 2007
-// $Id: JetTracksAssociationDRCalo.h,v 1.2 2007/09/11 23:59:19 fedor Exp $
+// $Id: JetTracksAssociationDRCalo.h,v 1.3 2007/09/19 18:02:39 fedor Exp $
 
 #ifndef JetTracksAssociationDRCalo_h
 #define JetTracksAssociationDRCalo_h
 
 #include "DataFormats/JetReco/interface/JetTracksAssociation.h"
+#include "DataFormats/Math/interface/Point3D.h"
 
 class MagneticField;
 class Propagator;
@@ -21,6 +22,11 @@ class JetTracksAssociationDRCalo {
 		const std::vector <reco::TrackRef>& fTracks,
 		const MagneticField& fField,
 		const Propagator& fPropagator) const;
+
+  /// propagating the track to the Calorimeter
+  static math::XYZPoint propagateTrackToCalorimeter (const reco::Track& fTrack,
+						     const MagneticField& fField,
+						     const Propagator& fPropagator);
  private:
   /// fidutial dR between track in the vertex and jet's reference direction
   double mDeltaR2Threshold;
