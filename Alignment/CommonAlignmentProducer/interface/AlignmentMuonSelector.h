@@ -11,12 +11,13 @@
  *
  * \version $Revision: 1.1 $
  *
- * $Id: AlignmentMuonSelector.h,v 1.0 2007/03/22 12:22:11 jfernan2 Exp $
+ * $Id: AlignmentMuonSelector.h,v 1.1 2007/04/11 11:44:54 jfernan2 Exp $
  *
  */
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
+#include "DataFormats/MuonReco/interface/MuonFwd.h"
 #include "PhysicsTools/RecoAlgos/interface/MuonSelector.h"
 #include <vector>
 
