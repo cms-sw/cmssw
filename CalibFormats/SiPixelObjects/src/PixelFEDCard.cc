@@ -13,8 +13,8 @@ using namespace std;
 // Read the configuration parameters from file
 PixelFEDCard::PixelFEDCard(string fileName) {
 
-  //const bool DEBUG = true;
-  const bool DEBUG = false;
+  //const bool localDEBUG = true;
+  const bool localDEBUG = false;
 
   cout<<" Get setup parameters from file "<<fileName<<endl;
   FILE *infile = fopen((fileName.c_str()),"r");
@@ -38,7 +38,7 @@ PixelFEDCard::PixelFEDCard(string fileName) {
   for(int i=0;i<36;i++){
   ijx=i+1;
     fscanf(infile,"Number of ROCs Chnl %d:%d \n",&ijx,&NRocs[i]);
-    if(DEBUG)printf("Number of ROCs per Chnl %d:%d \n",ijx,NRocs[i]);
+    if(localDEBUG)printf("Number of ROCs per Chnl %d:%d \n",ijx,NRocs[i]);
   }
 
   //Settable optical input parameters
@@ -52,7 +52,7 @@ PixelFEDCard::PixelFEDCard(string fileName) {
   fscanf(infile,"Optical reciever 2 Output Offset (0-3)   :%d\n",&opt_ouadj[1]);
   fscanf(infile,"Optical reciever 3 Output Offset (0-3)   :%d\n",&opt_ouadj[2]);
   
-  if(DEBUG) {
+  if(localDEBUG) {
     printf("Optical reciever 1  Capacitor Adjust(0-3):%d\n",opt_cap[0]);
     printf("Optical reciever 2  Capacitor Adjust(0-3):%d\n",opt_cap[1]);
     printf("Optical reciever 3  Capacitor Adjust(0-3):%d\n",opt_cap[2]);
@@ -67,7 +67,7 @@ PixelFEDCard::PixelFEDCard(string fileName) {
   //input offset dac
   for(int i=0;i<36;i++) {
     fscanf(infile,"Offset DAC channel %d:%d\n",&ijx,&offs_dac[i]);
-    if(DEBUG) printf("Offset DAC channel %d:%d\n",i+1,offs_dac[i]);
+    if(localDEBUG) printf("Offset DAC channel %d:%d\n",i+1,offs_dac[i]);
   }
   
   //clock phases
@@ -75,25 +75,25 @@ PixelFEDCard::PixelFEDCard(string fileName) {
   fscanf(infile,"Clock Phase Bits ch 10-18:%x\n",&clkphs10_18);
   fscanf(infile,"Clock Phase Bits ch 19-27:%x\n",&clkphs19_27);
   fscanf(infile,"Clock Phase Bits ch 28-36:%x\n",&clkphs28_36);
-  if(DEBUG)printf("Clock Phase Bits ch    1-9:%x\n",clkphs1_9 );
-  if(DEBUG)printf("Clock Phase Bits ch  10-18:%x\n",clkphs10_18 );
-  if(DEBUG)printf("Clock Phase Bits ch  19-27:%x\n",clkphs19_27 );
-  if(DEBUG)printf("Clock Phase Bits ch  28-36:%x\n",clkphs28_36 );
+  if(localDEBUG)printf("Clock Phase Bits ch    1-9:%x\n",clkphs1_9 );
+  if(localDEBUG)printf("Clock Phase Bits ch  10-18:%x\n",clkphs10_18 );
+  if(localDEBUG)printf("Clock Phase Bits ch  19-27:%x\n",clkphs19_27 );
+  if(localDEBUG)printf("Clock Phase Bits ch  28-36:%x\n",clkphs28_36 );
   
   //Blacks 
   for(int i=0;i<36;i++){
     fscanf(infile,"Black HiThold ch %d:%d \n",&ijx,&BlackHi[i]);
     fscanf(infile,"Black LoThold ch %d:%d \n",&ijx,&BlackLo[i]);
     fscanf(infile,"ULblack Thold ch %d:%d \n",&ijx, &Ublack[i]);
-    if(DEBUG)printf("Black HiThold ch %d:%d\n",ijx,BlackHi[i]);
-    if(DEBUG)printf("Black LoThold ch %d:%d\n",ijx,BlackLo[i]);
-    if(DEBUG)printf("ULblack Thold ch %d:%d\n",ijx, Ublack[i]);
+    if(localDEBUG)printf("Black HiThold ch %d:%d\n",ijx,BlackHi[i]);
+    if(localDEBUG)printf("Black LoThold ch %d:%d\n",ijx,BlackLo[i]);
+    if(localDEBUG)printf("ULblack Thold ch %d:%d\n",ijx, Ublack[i]);
   }
   
   //Channel delays
   for(int i=0;i<36;i++) {
     fscanf(infile,"Delay channel %d(0-15):%d\n",&ijx,&DelayCh[i]);
-    if(DEBUG) 
+    if(localDEBUG) 
       printf("Delay channel %d(0-15):%d\n",i+1,DelayCh[i]);
   }
   
@@ -104,11 +104,11 @@ PixelFEDCard::PixelFEDCard(string fileName) {
     fscanf(infile,"TBM level 2 Channel  %d:%d\n",&ijx,&TBM_L2[i]);
     fscanf(infile,"TBM level 3 Channel  %d:%d\n",&ijx,&TBM_L3[i]);
     fscanf(infile,"TBM level 4 Channel  %d:%d\n",&ijx,&TBM_L4[i]);
-    if(DEBUG)printf("TBM level 0 Channel  %d:%d\n",ijx,TBM_L0[i]);
-    if(DEBUG)printf("TBM level 1 Channel  %d:%d\n",ijx,TBM_L1[i]);
-    if(DEBUG)printf("TBM level 2 Channel  %d:%d\n",ijx,TBM_L2[i]);
-    if(DEBUG)printf("TBM level 3 Channel  %d:%d\n",ijx,TBM_L3[i]);
-    if(DEBUG)printf("TBM level 4 Channel  %d:%d\n",ijx,TBM_L4[i]);
+    if(localDEBUG)printf("TBM level 0 Channel  %d:%d\n",ijx,TBM_L0[i]);
+    if(localDEBUG)printf("TBM level 1 Channel  %d:%d\n",ijx,TBM_L1[i]);
+    if(localDEBUG)printf("TBM level 2 Channel  %d:%d\n",ijx,TBM_L2[i]);
+    if(localDEBUG)printf("TBM level 3 Channel  %d:%d\n",ijx,TBM_L3[i]);
+    if(localDEBUG)printf("TBM level 4 Channel  %d:%d\n",ijx,TBM_L4[i]);
     
     int ijy=0;
     for(int j=0;j<NRocs[i];j++) {
@@ -122,15 +122,15 @@ PixelFEDCard::PixelFEDCard(string fileName) {
 	     &ijy,&ijx,&ROC_L3[i][j]);
       fscanf(infile,"ROC%d level 4 Channel  %d :%d\n",
 	     &ijy,&ijx,&ROC_L4[i][j]);
-      if(DEBUG)
+      if(localDEBUG)
 	printf("ROC%d level 0 Channel  %d :%d\n",ijy,ijx,ROC_L0[i][j]);
-      if(DEBUG)
+      if(localDEBUG)
 	printf("ROC%d level 1 Channel  %d :%d\n",ijy,ijx,ROC_L1[i][j]);
-      if(DEBUG)
+      if(localDEBUG)
 	printf("ROC%d level 2 Channel  %d :%d\n",ijy,ijx,ROC_L2[i][j]);
-      if(DEBUG)
+      if(localDEBUG)
 	printf("ROC%d level 3 Channel  %d :%d\n",ijy,ijx,ROC_L3[i][j]);
-      if(DEBUG)
+      if(localDEBUG)
 	printf("ROC%d level 4 Channel  %d :%d\n",ijy,ijx,ROC_L4[i][j]);
     }
       
@@ -139,11 +139,11 @@ PixelFEDCard::PixelFEDCard(string fileName) {
     fscanf(infile,"TRLR level 2 Channel %d:%d\n",&ijx,&TRL_L2[i]);
     fscanf(infile,"TRLR level 3 Channel %d:%d\n",&ijx,&TRL_L3[i]);
     fscanf(infile,"TRLR level 4 Channel %d:%d\n",&ijx,&TRL_L4[i]);
-    if(DEBUG)printf("TRLR level 0 Channel %d:%d\n",ijx,TRL_L0[i]);
-    if(DEBUG)printf("TRLR level 1 Channel %d:%d\n",ijx,TRL_L1[i]);
-    if(DEBUG)printf("TRLR level 2 Channel %d:%d\n",ijx,TRL_L2[i]);
-    if(DEBUG)printf("TRLR level 3 Channel %d:%d\n",ijx,TRL_L3[i]);
-    if(DEBUG)printf("TRLR level 4 Channel %d:%d\n",ijx,TRL_L4[i]);
+    if(localDEBUG)printf("TRLR level 0 Channel %d:%d\n",ijx,TRL_L0[i]);
+    if(localDEBUG)printf("TRLR level 1 Channel %d:%d\n",ijx,TRL_L1[i]);
+    if(localDEBUG)printf("TRLR level 2 Channel %d:%d\n",ijx,TRL_L2[i]);
+    if(localDEBUG)printf("TRLR level 3 Channel %d:%d\n",ijx,TRL_L3[i]);
+    if(localDEBUG)printf("TRLR level 4 Channel %d:%d\n",ijx,TRL_L4[i]);
   }
   
   
@@ -156,22 +156,22 @@ PixelFEDCard::PixelFEDCard(string fileName) {
 	 &SCcntrl);
   fscanf(infile,"Channel Enbable bits chnls 28-36(on = 0):%x\n",
 	 &Scntrl);
-  if(DEBUG)
+  if(localDEBUG)
     printf("Channel Enbable bits chnls 1-9  (on = 0):%x\n",Ncntrl);
-  if(DEBUG)
+  if(localDEBUG)
     printf("Channel Enbable bits chnls 10-18(on = 0):%x\n",NCcntrl);
-  if(DEBUG)
+  if(localDEBUG)
     printf("Channel Enbable bits chnls 19-27(on = 0):%x\n",SCcntrl);
-  if(DEBUG)
+  if(localDEBUG)
     printf("Channel Enbable bits chnls 28-36(on = 0):%x\n",Scntrl);
   
   //These are delays to the TTCrx
   fscanf(infile,"TTCrx Coarse Delay Register 2:%d\n",&CoarseDel);
   fscanf(infile,"TTCrc      ClkDes2 Register 3:%x\n",&ClkDes2);
   fscanf(infile,"TTCrc Fine Dlay ClkDes2 Reg 1:%d\n",&FineDes2Del);
-  if(DEBUG)printf("TTCrx Coarse Delay Register 2:%d\n",CoarseDel);
-  if(DEBUG)printf("TTCrc	   ClkDes2 Register 3:%x\n",ClkDes2);
-  if(DEBUG)printf("TTCrc Fine Dlay ClkDes2 Reg 1:%d\n",FineDes2Del);
+  if(localDEBUG)printf("TTCrx Coarse Delay Register 2:%d\n",CoarseDel);
+  if(localDEBUG)printf("TTCrc	   ClkDes2 Register 3:%x\n",ClkDes2);
+  if(localDEBUG)printf("TTCrc Fine Dlay ClkDes2 Reg 1:%d\n",FineDes2Del);
   
   // Control register
   fscanf(infile,"Center Chip Control Reg:%x\n",&Ccntrl);
@@ -188,13 +188,13 @@ PixelFEDCard::PixelFEDCard(string fileName) {
 	 &SCadcg);
   fscanf(infile,"Channel ADC Gain bits chnls 29-36(1Vpp = 0):%x\n",
 	 &Sadcg);
-  if(DEBUG)
+  if(localDEBUG)
     printf("Channel ADC Gain bits chnls  1-12(1Vpp = 0):%x\n",Nadcg);
-  if(DEBUG)
+  if(localDEBUG)
     printf("Channel ADC Gain bits chnls 13-20(1Vpp = 0):%x\n",NCadcg);
-  if(DEBUG)
+  if(localDEBUG)
     printf("Channel ADC Gain bits chnls 21-28(1Vpp = 0):%x\n",SCadcg);
-  if(DEBUG)
+  if(localDEBUG)
     printf("Channel ADC Gain bits chnls 29-36(1Vpp = 0):%x\n",Sadcg);
 
        //These bits set Baseline adjustment value (common by FPGA)//can turn on by channel 
@@ -206,13 +206,13 @@ PixelFEDCard::PixelFEDCard(string fileName) {
          &SCbaseln);
   fscanf(infile,"Channel Baseline Enbable chnls 28-36(on = (0x1ff<<16)+):%x\n",
          &Sbaseln);
-  if(DEBUG)
+  if(localDEBUG)
     printf("Channel Baseline Enbable chnls 1-9  (on = (0x1ff<<16)+):%x\n",Nbaseln);
-  if(DEBUG)
+  if(localDEBUG)
     printf("Channel Baseline Enbable chnls 10-18(on = (0x1ff<<16)+):%x\n",NCbaseln);
-  if(DEBUG)
+  if(localDEBUG)
     printf("Channel Baseline Enbable chnls 19-27(on = (0x1ff<<16)+):%x\n",SCbaseln);
-  if(DEBUG)
+  if(localDEBUG)
     printf("Channel Baseline Enbable chnls 28-36(on = (0x1ff<<16)+):%x\n",Sbaseln);
 
        //These bits set TBM trailer mask (common by FPGA) 
@@ -224,13 +224,13 @@ PixelFEDCard::PixelFEDCard(string fileName) {
          &SC_TBMmask);
   fscanf(infile,"TBM trailer mask chnls 28-36(0xff = all masked):%x\n",
          &S_TBMmask);
-  if(DEBUG)
+  if(localDEBUG)
     printf("TBM trailer mask chnls 1-9  (0xff = all masked):%x\n",N_TBMmask);
-  if(DEBUG)
+  if(localDEBUG)
     printf("TBM trailer mask chnls 10-18(0xff = all masked):%x\n",NC_TBMmask);
-  if(DEBUG)
+  if(localDEBUG)
     printf("TBM trailer mask chnls 19-27(0xff = all masked):%x\n",SC_TBMmask);
-  if(DEBUG)
+  if(localDEBUG)
     printf("TBM trailer mask chnls 28-36(0xff = all masked):%x\n",S_TBMmask);
 
        //These bits set the Private fill/gap word value (common by FPGA) 
@@ -242,19 +242,19 @@ PixelFEDCard::PixelFEDCard(string fileName) {
          &SC_Pword);
   fscanf(infile,"Private 8 bit word chnls 28-36:%x\n",
          &S_Pword);
-  if(DEBUG)
+  if(localDEBUG)
     printf("Private 8 bit word chnls 1-9  :%x\n",N_Pword);
-  if(DEBUG)
+  if(localDEBUG)
     printf("Private 8 bit word chnls 10-18:%x\n",NC_Pword);
-  if(DEBUG)
+  if(localDEBUG)
     printf("Private 8 bit word chnls 19-27:%x\n",SC_Pword);
-  if(DEBUG)
+  if(localDEBUG)
     printf("Private 8 bit word chnls 28-36:%x\n",S_Pword);
 
        //These bit sets the special dac mode for random triggers 
   fscanf(infile,"Special Random testDAC mode (on = 0x1, off=0x0):%x\n",
          &SpecialDac);
-  if(DEBUG)
+  if(localDEBUG)
     printf("Special Random testDAC mode (on = 0x1, off=0x0):%x\n",SpecialDac);
 
 
