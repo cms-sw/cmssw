@@ -40,47 +40,20 @@ void DDTIBLayerAlgo::initialize(const DDNumericArguments & nArgs,
 
   detectorTilt = nArgs["DetectorTilt"];
   layerL       = nArgs["LayerL"];
-  detectorTol  = nArgs["LayerTolerance"];
-  detectorW    = nArgs["DetectorWidth"];
-  detectorT    = nArgs["DetectorThickness"];
-  coolTubeW    = nArgs["CoolTubeWidth"];
-  coolTubeT    = nArgs["CoolTubeThickness"];
-  LogDebug("TIBGeom") << "DDTIBLayerAlgo debug: Tilt Angle " 
-		      << detectorTilt/deg << " Layer Length/tolerance " 
-		      << layerL << " " << detectorTol 
-		      << " Detector layer Width/Thick " << detectorW 
-		      << ", " << detectorT << " Cooling Tube/Cable layer "
-		      << "Width/Thick " << coolTubeW << ", " << coolTubeT;
 
   radiusLo     = nArgs["RadiusLo"];
-  phioffLo     = nArgs["PhiOffsetLo"];
   stringsLo    = int(nArgs["StringsLo"]);
   detectorLo   = sArgs["StringDetLoName"];
-  roffDetLo    = nArgs["ROffsetDetLo"];
-  coolCableLo  = sArgs["StringCabLoName"];
-  // roffCableLo no more used!!!
-  roffCableLo  = nArgs["ROffsetCabLo"];
   LogDebug("TIBGeom") << "DDTIBLayerAlgo debug: Lower layer Radius " 
-		      << radiusLo << " Phi offset " << phioffLo/deg 
-		      << " Number " << stringsLo << " String "
-		      << detectorLo << " at offset " << roffDetLo
-		      << " String " << coolCableLo << " at offset "
-		      << roffCableLo;
+		      << radiusLo << " Number " << stringsLo << " String "
+		      << detectorLo;
 
   radiusUp     = nArgs["RadiusUp"];
-  phioffUp     = nArgs["PhiOffsetUp"];
   stringsUp    = int(nArgs["StringsUp"]);
   detectorUp   = sArgs["StringDetUpName"];
-  roffDetUp    = nArgs["ROffsetDetUp"];
-  coolCableUp  = sArgs["StringCabUpName"];
-  // roffCableUp no more used!!!
-  roffCableUp  = nArgs["ROffsetCabUp"];
   LogDebug("TIBGeom") << "DDTIBLayerAlgo debug: Upper layer Radius "
-		      << radiusUp << " Phi offset " << phioffUp/deg 
-		      << " Number " << stringsUp << " String "
-		      << detectorUp << " at offset " << roffDetUp 
-		      << " String " << coolCableUp << " at offset " 
-		      << roffCableUp;
+		      << radiusUp << " Number " << stringsUp << " String "
+		      << detectorUp;
 
   cylinderT    = nArgs["CylinderThickness"];
   cylinderInR  = nArgs["CylinderInnerRadius"];
@@ -109,50 +82,33 @@ void DDTIBLayerAlgo::initialize(const DDNumericArguments & nArgs,
     LogDebug("TIBGeom") << "\tribW[" << i << "] = " <<  ribW[i] 
 			<< "\tribPhi[" << i << "] = " << ribPhi[i]/deg;
   
-  dohmN               = int(nArgs["DOHMPhiNumber"]);
-  dohmCarrierW        = nArgs["DOHMCarrierWidth"];
-  dohmCarrierT        = nArgs["DOHMCarrierThickness"];
-  dohmCarrierR        = nArgs["DOHMCarrierRadialHeight"];
+  dohmCarrierPhiOff   = nArgs["DOHMCarrierPhiOffset"];
+
+  dohmtoMF            = nArgs["DOHMtoMFDist"];
+
+  dohmPrimName         = sArgs["StringDOHMPrimName"];
+  dohmAuxName          = sArgs["StringDOHMAuxName"];
+
   dohmCarrierMaterial = sArgs["DOHMCarrierMaterial"];
   dohmCableMaterial   = sArgs["DOHMCableMaterial"];
-  dohmPrimW           = nArgs["DOHMPRIMWidth"];
   dohmPrimL           = nArgs["DOHMPRIMLength"];
-  dohmPrimT           = nArgs["DOHMPRIMThickness"];
   dohmPrimMaterial    = sArgs["DOHMPRIMMaterial"];
-  dohmAuxW            = nArgs["DOHMAUXWidth"];
   dohmAuxL            = nArgs["DOHMAUXLength"];
-  dohmAuxT            = nArgs["DOHMAUXThickness"];
   dohmAuxMaterial     = sArgs["DOHMAUXMaterial"];
-  dohmList            = vArgs["DOHMList"];
-  dohmRotPlus         = sArgs["DOHMRotstrPlus"];
-  dohmRotMinus        = sArgs["DOHMRotstrMinus"];
-  LogDebug("TIBGeom") << "DDTIBLayerAlgo debug: DOHM PRIMary " << dohmN
-		      << " Material " << dohmPrimMaterial << " Width "
-		      << dohmPrimW << " Length " << dohmPrimL 
-		      << " Thickness " << dohmPrimT << " at:";
-  for (int i=0; i<(int)(dohmList.size()); i++) {
-    if ((int)dohmList[i]>0) LogDebug("TIBGeom") << "Position " << i+1;
+  dohmListFW          = vArgs["DOHMListFW"];
+  dohmListBW          = vArgs["DOHMListBW"];
+  LogDebug("TIBGeom") << "DDTIBLayerAlgo debug: DOHM Primary "
+		      << " Material " << dohmPrimMaterial << " Length " << dohmPrimL;
+  LogDebug("TIBGeom") << "DDTIBLayerAlgo debug: DOHM Aux     "
+		      << " Material " << dohmAuxMaterial << " Length " << dohmAuxL;
+  for (int i=0; i<dohmListFW.size(); i++) {
+    if (dohmListFW[i]>0.) LogDebug("TIBGeom") << "DOHM Primary at FW Position " << dohmListFW[i];
+    if (dohmListFW[i]<0.) LogDebug("TIBGeom") << "DOHM Aux     at FW Position " << -dohmListFW[i];
   }
-  LogDebug("TIBGeom") << "DDTIBLayerAlgo debug: DOHM AUXiliary "
-		      << " Material " << dohmAuxMaterial << " Width "
-		      << dohmAuxW << " Length " << dohmAuxL 
-		      << " Thickness " << dohmAuxT << " at:";
-  for (int i=0; i<(int)(dohmList.size()); i++) {
-    if ((int)dohmList[i]==2) LogDebug("TIBGeom") << "Position " << i+1;
+  for (int i=0; i<dohmListBW.size(); i++) {
+    if (dohmListBW[i]>0.) LogDebug("TIBGeom") << "DOHM Primary at BW Position " << dohmListBW[i];
+    if (dohmListBW[i]<0.) LogDebug("TIBGeom") << "DOHM Aux     at BW Position " << -dohmListBW[i];
   }
-  LogDebug("TIBGeom") << " in Carrier Width/Thickness/Radius " 
-		      << dohmCarrierW << " " << dohmCarrierT << " "
-		      << dohmCarrierR << " Carrier Material " 
-		      << dohmCarrierMaterial <<"\n"
-		      << " with cables and connectors Material "
-		      << dohmCableMaterial << "\n"
-		      << "DDTIBLayer debug: no DOHM at:";
-  for (int i=0; i<(int)(dohmList.size()); i++) {
-    if ((int)dohmList[i]==0) LogDebug("TIBGeom") << "Position " << i+1;
-  }
-  LogDebug("TIBGeom") << "DDTIBLayerAlgo debug: DOHM placed in TIB+ with "
-		      << "rotation " << dohmRotPlus << " and in TIB- with"
-		      << " rotation " << dohmRotMinus;
   
 }
 
@@ -160,38 +116,26 @@ void DDTIBLayerAlgo::execute() {
 
   LogDebug("TIBGeom") << "==>> Constructing DDTIBLayerAlgo...";
 
-  //Parameters for the tilt of the layer
-  double rotsi  = detectorTilt;
-  if (rotsi < 0.) rotsi = -rotsi;
-  double redgd1 = 0.5*(detectorW*sin(rotsi)+detectorT*cos(rotsi));
-  double redgd2 = 0.5*(detectorW*cos(rotsi)-detectorT*sin(rotsi));
-  double redgc1 = 0.5*(coolTubeW*sin(rotsi)+coolTubeT*cos(rotsi));
-  double redgc2 = 0.5*(coolTubeW*cos(rotsi)-coolTubeT*sin(rotsi));
-  LogDebug("TIBGeom") << "DDTIBLayerAlgo test DeltaR (Detector Tilt) "
-			  << redgd1 << ", " << redgd2 <<" DeltaR (Cable+Cool) "
-			  << redgc1 << ", " << redgc2;
-
   DDName  parentName = parent().name(); 
   std::string idName = DDSplit(parentName).first;
-  //double rmin = radiusLo + roffDetLo - redgd1 - detectorTol;
+
   double rmin = MFRingInR;
-  //  double rmax = sqrt((radiusUp+roffDetUp+redgd1)*(radiusUp+roffDetUp+redgd1)+
-  //		     redgd2*redgd2) + detectorTol;
   double rmax = MFRingOutR;
-  //  double rmaxTube = rmax + 2*(dohmCarrierT+dohmAuxT);
-  double rmaxTube = rmax;
+
   DDSolid solid = DDSolidFactory::tubs(DDName(idName, idNameSpace), 0.5*layerL,
-				       rmin, rmaxTube, 0, twopi);
+				       rmin, rmax, 0, twopi);
+
   LogDebug("TIBGeom") << "DDTIBLayerAlgo test: "  
 		      << DDName(idName,idNameSpace) << " Tubs made of " 
 		      << genMat << " from 0 to " << twopi/deg 
 		      << " with Rin " << rmin << " Rout " << rmax 
 		      << " ZHalf " << 0.5*layerL;
+
   DDName matname(DDSplit(genMat).first, DDSplit(genMat).second);
   DDMaterial matter(matname);
   DDLogicalPart layer(solid.ddname(), matter, solid);
 
-  //Lower part first
+  //Internal layer first
   double rin  = rmin+MFRingT;
   //  double rout = 0.5*(radiusLo+radiusUp-cylinderT);
   double rout = cylinderInR;
@@ -209,14 +153,10 @@ void DDTIBLayerAlgo::execute() {
 		      << " number 1 positioned in " << layer.name()
 		      << " at (0,0,0) with no rotation";
 
-  double rposdet = radiusLo + roffDetLo;
-  roffCableLo = detectorT/2. + coolTubeT/2.; 
-  double rposcab = rposdet + roffCableLo;
+  double rposdet = radiusLo;
   double dphi    = twopi/stringsLo;
   DDName detIn(DDSplit(detectorLo).first, DDSplit(detectorLo).second);
-  DDName cabIn(DDSplit(coolCableLo).first, DDSplit(coolCableLo).second);
   for (int n = 0; n < stringsLo; n++) {
-//    double phi    = phioffLo + n*dphi;
     double phi    = (n+0.5)*dphi;
     double phix   = phi - detectorTilt + 90*deg;
     double phideg = phix/deg;
@@ -240,15 +180,9 @@ void DDTIBLayerAlgo::execute() {
 			<< " number " << n+1 << " positioned in " 
 			<< layerIn.name() << " at " << trdet << " with "
 			<< rotation;
-    DDTranslation trcab(rposcab*cos(phi), rposcab*sin(phi), 0);
-    //    DDpos (cabIn, layerIn, n+1, trcab, rotation);
-    LogDebug("TIBGeom") << "DDTIBLayerAlgo test " << cabIn.name() 
-			<< " number " << n+1 << " positioned in " 
-			<< layerIn.name() << " at " << trcab << " with "
-			<< rotation;
   }
 
-  //Now the upper part
+  //Now the external layer
   rin  = cylinderInR + cylinderT;
   rout = rmax-MFRingT;
   name = idName + "Up";
@@ -265,14 +199,10 @@ void DDTIBLayerAlgo::execute() {
 		      << " number 1 positioned in " << layer.name() 
 		      << " at (0,0,0) with no rotation";
 
-  rposdet = radiusUp + roffDetUp;
-  roffCableUp = - detectorT/2. - coolTubeT/2.; 
-  rposcab = rposdet + roffCableUp;
+  rposdet = radiusUp;
   dphi    = twopi/stringsUp;
   DDName detOut(DDSplit(detectorUp).first, DDSplit(detectorUp).second);
-  DDName cabOut(DDSplit(coolCableUp).first, DDSplit(coolCableUp).second);
   for (int n = 0; n < stringsUp; n++) {
-//    double phi    = phioffUp + n*dphi;
     double phi    = (n+0.5)*dphi;
     double phix   = phi - detectorTilt - 90*deg;
     double phideg = phix/deg;
@@ -295,12 +225,6 @@ void DDTIBLayerAlgo::execute() {
     LogDebug("TIBGeom") << "DDTIBLayerAlgo test " << detOut.name() 
 			<< " number " << n+1 << " positioned in " 
 			<< layerOut.name() << " at " << trdet << " with "
-			<< rotation;
-    DDTranslation trcab(rposcab*cos(phi), rposcab*sin(phi), 0);
-    //    DDpos (cabOut, layerOut, n+1, trcab, rotation);
-    LogDebug("TIBGeom") << "DDTIBLayerAlgo test " << cabOut.name() 
-			<< " number " << n+1 << " positioned in " 
-			<< layerOut.name() << " at " << trcab << " with "
 			<< rotation;
   }
 
@@ -466,364 +390,149 @@ void DDTIBLayerAlgo::execute() {
 		      << " positioned in " << layer.name()
 		      << " at (0,0," << centZ << ") with no rotation";
 
-  // DOHM + carrier (portadohm)
-  double dz_dohm    = 0.5*dohmCarrierW;
-  double dphi_dohm  = twopi/((double)dohmN);
-  //  double rout_dohm  = 0.5*(radiusLo+radiusUp+cylinderT)+dohmCarrierR;
-  // double rout_dohm = rmax;  
-  double rout_dohm = MFRingOutR - 2*dohmCarrierT - 2*dohmAuxT;
-  double Z_dohm = 0.5*layerL-2.*MFRingDz-dz_dohm;
-  
-  // DOHM Carrier TIB+ & TIB-
-  // lower
-  name = idName + "DOHMCarrier_lo";
-  double rin_lo  = rout_dohm;
-  double rout_lo = rin_lo + dohmCarrierT + dohmAuxT;
-  solid = DDSolidFactory::tubs(DDName(name, idNameSpace), dz_dohm, 
-			       rin_lo, rout_lo, 
-			       -0.5*dphi_dohm, dphi_dohm);
+  ////// DOHM
+  //
+  // Preparing DOHM Carrier solid
+
+  name = idName + "DOHMCarrier";
+
+  double dohmCarrierRin   = MFRingOutR - MFRingT;
+  double dohmCarrierRout  = MFRingOutR;
+  double dohmCarrierDz    = 0.5*(dohmPrimL+dohmtoMF);
+  double dohmCarrierZ     = 0.5*layerL-2.*MFRingDz-dohmCarrierDz;
+
+  solid = DDSolidFactory::tubs(DDName(name, idNameSpace), dohmCarrierDz, 
+			       dohmCarrierRin, dohmCarrierRout, 
+			       dohmCarrierPhiOff, 180.*deg-dohmCarrierPhiOff);
   LogDebug("TIBGeom") << "DDTIBLayerAlgo test: " 
 		      << DDName(name, idNameSpace) << " Tubs made of "
 		      << dohmCarrierMaterial << " from "
-		      << -0.5*(dphi_dohm)/deg << " to " 
-		      << -0.5*(dphi_dohm)/deg+dphi_dohm/deg << " with Rin "
-		      << rin_lo << " Rout " << rout_lo << " ZHalf "  
-		      << dz_dohm;
-  // create different name objects for only PRIMary DOHMs and PRIMary+AUXiliary DOHM Carriers
-  std::string name_lo_r = name + "_PRIM_AUX" + "_lo" + "_r";
-  std::string name_lo_l = name + "_PRIM_AUX" + "_lo" + "_l";
-  DDLogicalPart dohmCarrierPrimAux_lo_r(name_lo_r,
-					DDMaterial(dohmCarrierMaterial),solid);
-  DDLogicalPart dohmCarrierPrimAux_lo_l(name_lo_l,
-					DDMaterial(dohmCarrierMaterial),solid);
-  name_lo_r = name + "_PRIM" + "_lo" + "_r";
-  name_lo_l = name + "_PRIM" + "_lo" + "_l";
-  DDLogicalPart dohmCarrierPrim_lo_r(name_lo_r,DDMaterial(dohmCarrierMaterial),
-				     solid);
-  DDLogicalPart dohmCarrierPrim_lo_l(name_lo_l,DDMaterial(dohmCarrierMaterial),
-				     solid);
-  // upper
-  name = idName + "DOHMCarrier_up";
-  double rin_up  = rout_lo;
-  double rout_up = rin_up + dohmCarrierT + dohmAuxT;
-  solid = DDSolidFactory::tubs(DDName(name, idNameSpace), dz_dohm, 
-			       rin_up, rout_up, 
-			       -0.5*dphi_dohm, dphi_dohm);
-  LogDebug("TIBGeom") << "DDTIBLayerAlgo test: " 
-		      << DDName(name, idNameSpace) << " Tubs made of "
-		      << dohmCarrierMaterial << " from " 
-		      << -0.5*(dphi_dohm)/deg << " to " 
-		      << -0.5*(dphi_dohm)/deg+dphi_dohm/deg 
-		      << " with Rin " << rin_up << " Rout " << rout_up
-		      << " ZHalf "  << dz_dohm;
-  // create different name objects for only PRIMary DOHMs and PRIMary+AUXiliary DOHM Carriers
-  std::string name_up_r = name + "_PRIM_AUX" + "_up" + "_r";
-  std::string name_up_l = name + "_PRIM_AUX" + "_up" + "_l";
-  DDLogicalPart dohmCarrierPrimAux_up_r(name_up_r,
-					DDMaterial(dohmCarrierMaterial),solid);
-  DDLogicalPart dohmCarrierPrimAux_up_l(name_up_l, 
-					DDMaterial(dohmCarrierMaterial),solid);
-  name_up_r = name + "_PRIM" + "_up" + "_r";
-  name_up_l = name + "_PRIM" + "_up" + "_l";
-  DDLogicalPart dohmCarrierPrim_up_r(name_up_r, 
-				     DDMaterial(dohmCarrierMaterial), solid);
-  DDLogicalPart dohmCarrierPrim_up_l(name_up_l,
-				     DDMaterial(dohmCarrierMaterial), solid);
-  //
-  for (int i = 0; i < dohmN; i++) {
-    DDLogicalPart dohmCarrier_lo_r;
-    DDLogicalPart dohmCarrier_lo_l;
-    DDLogicalPart dohmCarrier_up_r;
-    DDLogicalPart dohmCarrier_up_l;
-    // create different name objects for only PRIMary DOHMs and PRIMary+AUXiliary DOHMs
-    bool prim = false;
-    bool aux  = false;
-    if((unsigned int)dohmList[i]==2) {
-      prim = true;
-      aux  = true;
-    } else if((unsigned int)dohmList[i]==1) {
-      prim = true;
-      aux  = false;
-    } else {
-      prim = false;
-      aux  = false;      
+		      << dohmCarrierPhiOff << " to " 
+		      << 180.*deg-dohmCarrierPhiOff << " with Rin "
+		      << dohmCarrierRin << " Rout " << MFRingOutR << " ZHalf "  
+		      << dohmCarrierDz;
+
+
+  // Define FW and BW carrier logical volume and
+  // place DOHM Primary and auxiliary modules inside it
+
+  dphi = twopi/stringsUp;
+
+  DDRotation dohmRotation;
+
+  double dohmR = 0.5*(dohmCarrierRin+dohmCarrierRout);
+
+
+  for (int j = 0; j<4; j++) {
+
+    std::vector<double> dohmList;
+    DDTranslation tran;
+    std::string rotstr;
+    DDRotation rotation;
+    int dohmCarrierReplica=0;
+    int placeDohm = 0;
+
+    switch (j){
+    case 0:
+      name = idName + "DOHMCarrierFW";
+      dohmList = dohmListFW;
+      tran = DDTranslation(0., 0., dohmCarrierZ);
+      rotstr = idName + "FwUp";
+      rotation = DDRotation();
+      dohmCarrierReplica = 1;
+      placeDohm=1;
+      break;
+    case 1:
+      name = idName + "DOHMCarrierFW";
+      dohmList = dohmListFW;
+      tran = DDTranslation(0., 0., dohmCarrierZ);
+      rotstr = idName + "FwDown";
+      rotation = DDrot(DDName(rotstr, idNameSpace), 90.*deg, 180.*deg, 
+		       90.*deg, 270.*deg, 0.*deg, 0.*deg);
+      dohmCarrierReplica = 2;
+      placeDohm=0;
+      break;
+    case 2:
+      name = idName + "DOHMCarrierBW";
+      dohmList = dohmListBW;
+      tran = DDTranslation(0., 0., -dohmCarrierZ);
+      rotstr = idName + "BwUp";
+      rotation = DDrot(DDName(rotstr, idNameSpace), 90.*deg, 180.*deg, 
+		       90.*deg, 90.*deg, 180.*deg, 0.*deg);
+      dohmCarrierReplica = 1;
+      placeDohm=1;
+      break;
+    case 3:
+      name = idName + "DOHMCarrierBW";
+      dohmList = dohmListBW;
+      tran = DDTranslation(0., 0., -dohmCarrierZ);
+      rotstr = idName + "BwDown";
+      rotation = DDrot(DDName(rotstr, idNameSpace), 90.*deg, 0.*deg, 
+		       90.*deg, 270.*deg, 180.*deg, 0.*deg);
+      dohmCarrierReplica = 2;
+      placeDohm=0;
+      break;
     }
-    
-    if(prim) {
-      dohmCarrier_lo_r = dohmCarrierPrim_lo_r;
-      dohmCarrier_lo_l = dohmCarrierPrim_lo_l;
-      dohmCarrier_up_r = dohmCarrierPrim_up_r;
-      dohmCarrier_up_l = dohmCarrierPrim_up_l;
-    }
-    if(prim && aux) {
-      dohmCarrier_lo_r = dohmCarrierPrimAux_lo_r;
-      dohmCarrier_lo_l = dohmCarrierPrimAux_lo_l;
-      dohmCarrier_up_r = dohmCarrierPrimAux_up_r;
-      dohmCarrier_up_l = dohmCarrierPrimAux_up_l;
-    }
-    //
-    
-    if(prim) {
-      double phix   = ((double)i+0.5)*dphi_dohm;
+
+    DDLogicalPart dohmCarrier(name,DDMaterial(dohmCarrierMaterial),solid);
+
+    int primReplica = 0;
+    int auxReplica = 0;
+
+    for (int i = 0; i < placeDohm*dohmList.size(); i++) {
+
+      double phi    = (abs(dohmList[i])+0.5-1.)*dphi;
+      double phix   = phi + 90*deg;
       double phideg = phix/deg;
-      //    if( phideg>=phiMin/deg && phideg<phiMax/deg ) { // phi range
-      DDRotation rotation;
       if (phideg != 0) {
 	double theta  = 90*deg;
 	double phiy   = phix + 90.*deg;
-	std::string rotstr = idName + dbl_to_string(phideg*10.);
-	rotation = DDRotation(DDName(rotstr, idNameSpace));
-	if (!rotation) {
+	std::string   rotstr = idName + dbl_to_string(abs(dohmList[i])-1.);
+	dohmRotation = DDRotation(DDName(rotstr, idNameSpace));
+	if (!dohmRotation) {
 	  LogDebug("TIBGeom") << "DDTIBLayerAlgo test: Creating a new "
-			      << "rotation: " << rotstr << "\t90., " 
-			      << phix/deg << ", 90.," << phiy/deg 
-			      << ", 0, 0";
-	  rotation = DDrot(DDName(rotstr, idNameSpace), theta, phix, theta, 
-			   phiy, 0., 0.);
+			      << "rotation: "	<< rotstr << "\t" << theta << ", " 
+			      << phix/deg << ", " << theta << ", " << phiy/deg <<", 0, 0";
+	  dohmRotation = DDrot(DDName(rotstr, idNameSpace), theta, phix, theta, phiy,
+			       0., 0.);
 	}
       }
-      // TIB+ DOHM Carrier - lower
-      DDTranslation tran(0, 0, Z_dohm);
-      DDpos (dohmCarrier_lo_r, parent(), i+1, tran, rotation );
-      LogDebug("TIBGeom") << "DDTIBLayerAlgo test "
-			  << dohmCarrier_lo_r.name() << " z+ number " <<i+1
-			  << " positioned in " << parent().name() << " at "
-			  << tran << " with " << rotation;
-      // TIB+ DOHM Carrier - upper
-      DDpos (dohmCarrier_up_r, parent(), i+1+dohmN, tran,
-	     rotation );
-      LogDebug("TIBGeom") << "DDTIBLayerAlgo test " 
-			  << dohmCarrier_up_r.name() << " z+ number " <<i+1
-			  << " positioned in " << parent().name() << " at "
-			  << tran << " with " << rotation;
-      // TIB- DOHM Carrier - lower
-      tran = DDTranslation(0, 0, -Z_dohm);
-      DDpos (dohmCarrier_lo_l, parent(), i+1, tran, rotation);
-      LogDebug("TIBGeom") << "DDTIBLayerAlgo test "
-			  << dohmCarrier_lo_l.name() << " z- number " <<i+1
-			  << " positioned in " << parent().name() << " at "
-			  << tran << " with " << rotation;
-      // TIB- DOHM Carrier - upper
-      DDpos (dohmCarrier_up_l, parent(), i+1, tran, rotation);
-      LogDebug("TIBGeom") << "DDTIBLayerAlgo test "
-			  << dohmCarrier_up_l.name() << " z- number " <<i+1
-			  << " positioned in " << parent().name() << " at "
-			  << tran << " with " << rotation;
+      
+      std::string dohmName;
+      int dohmReplica = 0.;
+      double dohmZ = 0.;
+      
+      if(dohmList[i]<0.) {
+	// Place a Auxiliary DOHM
+	dohmName = dohmAuxName;
+	dohmZ = dohmCarrierDz - 0.5*dohmAuxL - dohmtoMF;
+	primReplica++;
+	dohmReplica = primReplica;
+	
+      } else {
+	// Place a Primary DOHM
+	dohmName = dohmPrimName;
+	dohmZ = dohmCarrierDz - 0.5*dohmPrimL - dohmtoMF;
+	auxReplica++;
+	dohmReplica = auxReplica;
+      }
+      
+      DDName dohm(DDSplit(dohmName).first, DDSplit(dohmName).second);
+      DDTranslation dohmTrasl(dohmR*cos(phi), dohmR*sin(phi), dohmZ);
+      DDpos (dohm, dohmCarrier, dohmReplica, dohmTrasl, dohmRotation);
+      LogDebug("TIBGeom") << "DDTIBLayerAlgo test " << dohm.name() 
+			  << " replica " << dohmReplica << " positioned in " 
+			  << dohmCarrier.name() << " at " << dohmTrasl << " with "
+			  << dohmRotation;
+      
     }
     
-    //    } // phi range
+    
+    DDpos (dohmCarrier, parent(), dohmCarrierReplica, tran, rotation );
+    LogDebug("TIBGeom") << "DDTIBLayerAlgo test "
+			<< dohmCarrier.name() << " positioned in " << parent().name() << " at "
+			<< tran << " with " << rotation;
+    
   }
-  
-  // DOHM PRIMary + Auxiliary
-  dphi = std::atan2(dohmPrimW, rout_dohm+0.5*dohmPrimT);
-  name = idName + "DOHM_PRIM";
-  solid = DDSolidFactory::tubs(DDName(name, idNameSpace), 0.5*dohmPrimL, 
-			       rout_dohm, rout_dohm+dohmPrimT,
-			       -0.5*dphi, dphi);
-  DDLogicalPart dohmPrim(solid.ddname(), DDMaterial(dohmPrimMaterial), solid);
-  LogDebug("TIBGeom") << "DDTIBLayerAlgo test: " << solid.ddname()
-		      << " Tubs made of " << dohmPrimMaterial 
-		      << " of dimensions " << 0.5*dohmPrimL << ", "
-		      << rout_dohm << ", " << rout_dohm+dohmPrimT << ", "
-		      << -0.5*dphi/deg << ", " << dphi/deg;
 
-  double dphi_cable = std::atan2(0.8*dohmPrimW, rout_dohm+0.5*dohmPrimT);
-  name = idName + "DOHM_PRIM_Cable";
-  solid = DDSolidFactory::tubs(DDName(name, idNameSpace), 0.5*dohmPrimL,
-			       rout_dohm, rout_dohm+0.5*dohmPrimT,
-			       -0.5*dphi_cable, dphi_cable);
-  DDLogicalPart dohmCablePrim(solid.ddname(), DDMaterial(dohmCableMaterial), 
-			      solid);
-  LogDebug("TIBGeom") << "DDTIBLayerAlgo test: " << solid.ddname()
-		      << " Tubs made of " << dohmCableMaterial 
-		      << " of dimensions " << 0.5*dohmPrimL << ", "
-		      << rout_dohm << ", " << rout_dohm+0.5*dohmPrimT << ", "
-		      << -0.5*dphi_cable/deg << ", " << dphi_cable/deg;
-
-  dphi = std::atan2(dohmAuxW, rout_dohm+dohmCarrierT+0.5*dohmAuxT);
-  name = idName + "DOHM_AUX";
-  solid = DDSolidFactory::tubs(DDName(name, idNameSpace), 0.5*dohmAuxL, 
-			       rout_dohm+dohmCarrierT, rout_dohm+dohmCarrierT+dohmAuxT,
-			       -0.5*dphi, dphi);
-  DDLogicalPart dohmAux(solid.ddname(), DDMaterial(dohmAuxMaterial), solid);
-  LogDebug("TIBGeom") << "DDTIBLayerAlgo test: " << solid.ddname()
-		      << " Tubs made of " << dohmAuxMaterial 
-		      << " of dimensions " << 0.5*dohmAuxL << ", "
-		      << rout_dohm+dohmCarrierT << ", " 
-		      << rout_dohm+dohmCarrierT+dohmAuxT << ", "
-		      << -0.5*dphi/deg << ", " << dphi/deg;
-
-  dphi_cable = std::atan2(0.8*dohmPrimW, rout_dohm+dohmCarrierT+0.5*dohmPrimT);
-  name = idName + "DOHM_AUX_Cable";
-  solid = DDSolidFactory::tubs(DDName(name, idNameSpace), 0.5*dohmPrimL,
-			       rout_dohm+dohmCarrierT, rout_dohm+dohmCarrierT+0.5*dohmPrimT,
-			       -0.5*dphi_cable, dphi_cable);
-  DDLogicalPart dohmCableAux(solid.ddname(), DDMaterial(dohmCableMaterial),
-			     solid);
-  LogDebug("TIBGeom") << "DDTIBLayerAlgo test: "  << solid.ddname()
-		      << " Tubs made of " << dohmCableMaterial 
-		      << " of dimensions " << 0.5*dohmPrimL << ", "
-		      << rout_dohm+dohmCarrierT << ", " 
-		      << rout_dohm+dohmCarrierT+0.5*dohmPrimT << ", "
-		      << -0.5*dphi_cable/deg << ", " << dphi_cable/deg;
-
-  DDRotation rotation_r, rotation_l;
-  double phix   =  0.5*(std::atan2(dohmPrimW, rout_dohm+0.5*dohmPrimT)+std::atan2(0.8*dohmPrimW, rout_dohm+0.5*dohmPrimT));
-  double phideg = phix/deg;
-  if (phideg != 0) {
-    double theta  = 90*deg;
-    double phiy   = phix + 90.*deg;
-    std::string rotstr = idName + dbl_to_string(phideg*10.);
-    rotation_r = DDRotation(DDName(rotstr, idNameSpace));
-    if (!rotation_r) {
-      LogDebug("TIBGeom") << "DDTIBLayerAlgo test: Creating a new "
-			  << "rotation: " << rotstr << "\t90., " 
-			  << phix/deg << ", 90.," << phiy/deg 
-			  << ", 0, 0";
-      rotation_r = DDrot(DDName(rotstr, idNameSpace), theta, phix, theta, 
-			 phiy, 0., 0.);
-    }
-  }
-  phix   = -phix;
-  phideg = phix/deg;
-  if (phideg != 0) {
-    double theta  = 90*deg;
-    double phiy   = phix + 90.*deg;
-    std::string rotstr = idName + dbl_to_string(phideg*10.);
-    rotation_l = DDRotation(DDName(rotstr, idNameSpace));
-    if (!rotation_l) {
-      LogDebug("TIBGeom") << "DDTIBLayerAlgo test: Creating a new "
-			  << "rotation: " << rotstr << "\t90., " 
-			  << phix/deg << ", 90.," << phiy/deg 
-			  << ", 0, 0";
-      rotation_l = DDrot(DDName(rotstr, idNameSpace), theta, phix, theta, 
-			 phiy, 0., 0.);
-    }
-  }
-  
-  // TIB+ DOHM (Primary Only)
-  DDTranslation tran;
-  DDpos (dohmPrim, dohmCarrierPrim_lo_r, 1, tran, DDRotation());
-  LogDebug("TIBGeom") << "DDTIBLayerAlgo test " << dohmPrim.name()
-		      << " z+ number " << 1	<< " positioned in " 
-		      << dohmCarrierPrim_lo_r.name() << " at " << tran
-		      << " with no rotation";
-  DDpos (dohmCablePrim, dohmCarrierPrim_lo_r, 1, tran, rotation_r);
-  LogDebug("TIBGeom") << "DDTIBLayerAlgo test " << dohmCablePrim.name()
-		      << " copy number 1 positioned in " 
-		      << dohmCarrierPrim_lo_r.name() << " at " << tran 
-		      << " with " << rotation_r;
-  DDpos (dohmCablePrim, dohmCarrierPrim_lo_r, 2, tran, rotation_l);
-  LogDebug("TIBGeom") << "DDTIBLayerAlgo test " << dohmCablePrim.name()
-		      << " copy number 2 positioned in " 
-		      << dohmCarrierPrim_lo_r.name() << " at " << tran 
-		      << " with " << rotation_l;
-  // TIB- DOHM (Primary Only)
-  DDpos (dohmPrim, dohmCarrierPrim_lo_l, 1, tran, DDRotation());
-  LogDebug("TIBGeom") << "DDTIBLayerAlgo test " << dohmPrim.name() 
-		      << " z+ number 1 positioned in " 
-		      << dohmCarrierPrim_lo_l.name() << " at " << tran 
-		      << " with no rotation";
-  DDpos (dohmCablePrim, dohmCarrierPrim_lo_l, 1, tran, rotation_r);
-  LogDebug("TIBGeom") << "DDTIBLayerAlgo test " << dohmCablePrim.name()
-		      << " copy number 1 positioned in " 
-		      << dohmCarrierPrim_lo_l.name() << " at " << tran 
-		      << " with " << rotation_r;
-  DDpos (dohmCablePrim, dohmCarrierPrim_lo_l, 2, tran, rotation_l);
-  LogDebug("TIBGeom") << "DDTIBLayerAlgo test " << dohmCablePrim.name()
-		      << " copy number 2 positioned in " 
-		      << dohmCarrierPrim_lo_l.name() << " at " << tran
-		      << " with " << rotation_l;
-  
-  // DOHM PRIMary + AUXiliary
-  // TIB+ DOHM
-  DDpos (dohmPrim, dohmCarrierPrimAux_lo_r, 1, tran, DDRotation());
-  LogDebug("TIBGeom") << "DDTIBLayerAlgo test " << dohmAux.name() 
-		      << " z+ number 1 positioned in " 
-		      << dohmCarrierPrimAux_lo_r.name() << " at " << tran 
-		      << " with no rotation";
-  DDpos (dohmCablePrim, dohmCarrierPrimAux_lo_r, 1, tran, rotation_r);
-  LogDebug("TIBGeom") << "DDTIBLayerAlgo test " << dohmCablePrim.name()
-		      << " copy number 1 positioned in " 
-		      << dohmCarrierPrimAux_lo_r.name() << " at " << tran 
-		      << " with " << rotation_r;
-  DDpos (dohmCablePrim, dohmCarrierPrimAux_lo_r, 2, tran, rotation_l);
-  LogDebug("TIBGeom") << "DDTIBLayerAlgo test " << dohmCablePrim.name()
-		      << " copy number 2 positioned in " 
-		      << dohmCarrierPrimAux_lo_r.name() << " at " << tran 
-		      << " with " << rotation_l;
-  DDpos (dohmAux, dohmCarrierPrimAux_lo_r, 1, tran, DDRotation());
-  LogDebug("TIBGeom") << "DDTIBLayerAlgo test " << dohmAux.name() 
-		      << " z+ number 1 positioned in " 
-		      << dohmCarrierPrimAux_lo_r.name()
-		      << " at " << tran << " with no rotation";
-  phix   = 0.5*(std::atan2(dohmAuxW, rout_dohm+dohmCarrierT+0.5*dohmAuxT)+
-		std::atan2(0.8*dohmPrimW, rout_dohm+dohmCarrierT+0.5*dohmPrimT));
-  phideg = phix/deg;
-  DDRotation rotation_1;
-  if (phideg != 0) {
-    double theta  = 90*deg;
-    double phiy   = phix + 90.*deg;
-    std::string rotstr = idName + dbl_to_string(phideg*10.);
-    rotation_1 = DDRotation(DDName(rotstr, idNameSpace));
-    if (!rotation_1) {
-      LogDebug("TIBGeom") << "DDTIBLayerAlgo test: Creating a new "
-			  << "rotation: " << rotstr << "\t90., " 
-			  << phix/deg << ", 90.," << phiy/deg 
-			  << ", 0, 0";
-      rotation_1 = DDrot(DDName(rotstr, idNameSpace), theta, phix, theta, 
-			 phiy, 0., 0.);
-    }
-  }
-  DDpos (dohmCableAux, dohmCarrierPrimAux_lo_r, 1, tran, rotation_1);
-  LogDebug("TIBGeom") << "DDTIBLayerAlgo test " << dohmCableAux.name()
-		      << " copy number 1 positioned in " 
-		      << dohmCarrierPrimAux_lo_r.name() << " at " << tran
-		      << " with " << rotation_1;
-
-  // TIB- DOHM
-  DDpos (dohmPrim, dohmCarrierPrimAux_lo_l, 1, tran, DDRotation());
-  LogDebug("TIBGeom") << "DDTIBLayerAlgo test " << dohmPrim.name() 
-		      << " z+ number 1 positioned in " 
-		      << dohmCarrierPrimAux_lo_l.name() << " at "<< tran
-		      << " with no rotation";
-  DDpos (dohmCablePrim, dohmCarrierPrimAux_lo_l, 1, tran, rotation_r);
-  LogDebug("TIBGeom") << "DDTIBLayerAlgo test " << dohmCablePrim.name()
-		      << " copy number 1 positioned in " 
-		      << dohmCarrierPrimAux_lo_l.name() << " at " << tran 
-		      << " with " << rotation_r;
-  DDpos (dohmCablePrim, dohmCarrierPrimAux_lo_l, 2, tran, rotation_l);
-  LogDebug("TIBGeom") << "DDTIBLayerAlgo test " << dohmCablePrim.name()
-		      << " copy number 2 positioned in " 
-		      << dohmCarrierPrimAux_lo_l.name() << " at " << tran 
-		      << " with " << rotation_l;
-  DDpos (dohmAux, dohmCarrierPrimAux_lo_l, 1, tran, DDRotation());
-  LogDebug("TIBGeom") << "DDTIBLayerAlgo test " << dohmAux.name() 
-		      << " z+ number " << 1	<< " positioned in "
-		      << dohmCarrierPrimAux_lo_l.name()
-		      << " at " << tran << " with no rotation";
-  phix   =-0.5*(std::atan2(dohmAuxW, rout_dohm+dohmCarrierT+0.5*dohmAuxT)+
-		std::atan2(0.8*dohmPrimW, rout_dohm+dohmCarrierT+0.5*dohmPrimT));
-  phideg = phix/deg;
-  DDRotation rotation_2;
-  if (phideg != 0) {
-    double theta  = 90*deg;
-    double phiy   = phix + 90.*deg;
-    std::string rotstr = idName + dbl_to_string(phideg*10.);
-    rotation_2 = DDRotation(DDName(rotstr, idNameSpace));
-    if (!rotation_2) {
-      LogDebug("TIBGeom") << "DDTIBLayerAlgo test: Creating a new "
-			  << "rotation: " << rotstr << "\t90., " 
-			  << phix/deg << ", 90.," << phiy/deg 
-			  << ", 0, 0";
-      rotation_2 = DDrot(DDName(rotstr, idNameSpace), theta, phix, theta, 
-			 phiy, 0., 0.);
-    }
-  }
-  DDpos (dohmCableAux, dohmCarrierPrimAux_lo_l, 1, tran, rotation_2);
-  LogDebug("TIBGeom") << "DDTIBLayerAlgo test " << dohmCableAux.name()
-		      << " copy number 1 positioned in " 
-		      << dohmCarrierPrimAux_lo_l.name() << " at " << tran
-		      << " with " << rotation_2;
-  
 }

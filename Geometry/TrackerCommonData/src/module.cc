@@ -9,7 +9,6 @@
 #include "Geometry/TrackerCommonData/interface/DDTECPhiAlgo.h"
 #include "Geometry/TrackerCommonData/interface/DDTECPhiAltAlgo.h"
 #include "Geometry/TrackerCommonData/interface/DDTIBLayerAlgo.h"
-#include "Geometry/TrackerCommonData/interface/DDTIBRadCableAlgo.h"
 #include "Geometry/TrackerCommonData/interface/DDTIDAxialCableAlgo.h"
 #include "Geometry/TrackerCommonData/interface/DDTIDModuleAlgo.h"
 #include "Geometry/TrackerCommonData/interface/DDTIDModulePosAlgo.h"
@@ -35,7 +34,6 @@ DEFINE_EDM_PLUGIN (DDAlgorithmFactory, DDTECOptoHybAlgo,    "track:DDTECOptoHybA
 DEFINE_EDM_PLUGIN (DDAlgorithmFactory, DDTECPhiAlgo,        "track:DDTECPhiAlgo");
 DEFINE_EDM_PLUGIN (DDAlgorithmFactory, DDTECPhiAltAlgo,     "track:DDTECPhiAltAlgo");
 DEFINE_EDM_PLUGIN (DDAlgorithmFactory, DDTIBLayerAlgo,      "track:DDTIBLayerAlgo");
-DEFINE_EDM_PLUGIN (DDAlgorithmFactory, DDTIBRadCableAlgo,   "track:DDTIBRadCableAlgo");
 DEFINE_EDM_PLUGIN (DDAlgorithmFactory, DDTIDAxialCableAlgo, "track:DDTIDAxialCableAlgo");
 DEFINE_EDM_PLUGIN (DDAlgorithmFactory, DDTIDModuleAlgo,     "track:DDTIDModuleAlgo");
 DEFINE_EDM_PLUGIN (DDAlgorithmFactory, DDTIDModulePosAlgo,  "track:DDTIDModulePosAlgo");

@@ -27,27 +27,16 @@ private:
   std::string              genMat;         //General material name
   double                   detectorTilt;   //Detector Tilt
   double                   layerL;         //Length of the layer
-  double                   detectorTol;    //Tolerance 
-  double                   detectorW;      //Width     of detector layer
-  double                   detectorT;      //Thickness       .........
-  double                   coolTubeW;      //Width     of layer with cable+cool
-  double                   coolTubeT;      //Thickness       .........
 
   double                   radiusLo;       //Radius for detector at lower level
   double                   phioffLo;       //Phi offset             ......
   int                      stringsLo;      //Number of strings      ......
   std::string              detectorLo;     //Detector string name   ......
-  double                   roffDetLo;      //Radial offset          ......
-  std::string              coolCableLo;    //Cable+Cool name        ......
-  double                   roffCableLo;    //Radial offset          ......
 
   double                   radiusUp;       //Radius for detector at upper level
   double                   phioffUp;       //Phi offset             ......
   int                      stringsUp;      //Number of strings      ......
   std::string              detectorUp;     //Detector string name   ......
-  double                   roffDetUp;      //Radial offset          ......
-  std::string              coolCableUp;    //Cable+Cool name        ......
-  double                   roffCableUp;    //Radial offset          ......
 
   double                   cylinderT;      //Cylinder thickness
   double                   cylinderInR;    //Cylinder inner radius
@@ -69,23 +58,20 @@ private:
   std::vector<double>      ribW;           //Rib width
   std::vector<double>      ribPhi;         //Rib Phi position
 
-  int                      dohmN;              //Number of phi sectors for DOHMs
-  std::vector<double>      dohmList;           //List of DOHMs
-  double                   dohmCarrierW;       //DOHM Carrier Width
-  double                   dohmCarrierT;       //DOHM Carrier Thickness
-  double                   dohmCarrierR;       //DOHM Carrier Radial Height
+  std::vector<double>      dohmListFW;         //DOHM/AUX positions in #strings FW
+  std::vector<double>      dohmListBW;         //DOHM/AUX positions in #strings BW
+
+  double                   dohmtoMF;           //DOHM Distance to MF
+  double                   dohmCarrierPhiOff;  //DOHM Carrier Phi offset wrt horizontal
+  std::string              dohmPrimName;       //DOHM Primary Logical Volume name
+  std::string              dohmAuxName;        //DOHM Auxiliary Logical Volume name
+
   std::string              dohmCarrierMaterial;//DOHM Carrier Material
   std::string              dohmCableMaterial;  //DOHM Cable Material
-  double                   dohmPrimW;          //DOHM PRIMary Width
   double                   dohmPrimL;          //DOHM PRIMary Length
-  double                   dohmPrimT;          //DOHM PRIMary Thickness
   std::string              dohmPrimMaterial;   //DOHM PRIMary Material
-  double                   dohmAuxW;           //DOHM AUXiliary Width
   double                   dohmAuxL;           //DOHM AUXiliary Length
-  double                   dohmAuxT;           //DOHM AUXiliary Thickness
   std::string              dohmAuxMaterial;    //DOHM AUXiliary Material
-  std::string              dohmRotPlus;        //DOHM Rotation matrix for TIB+
-  std::string              dohmRotMinus;       //DOHM Rotation matrix for TIB-
 
 };
 
