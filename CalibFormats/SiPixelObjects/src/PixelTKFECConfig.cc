@@ -123,7 +123,16 @@ PixelTKFECConfig::PixelTKFECConfig(std::string filename):
 	std::string type;
 	unsigned int address;
 
-	in >> TKFECID >> std::dec >> crate >> type >> std::hex>> address >>std::dec ;
+	in >> TKFECID >> std::dec >> crate >> type;
+	if (type=="VME" || type=="PCI")
+	{
+		in >> std::hex>> address >>std::dec ;
+	}
+	else // type not specified, default to "VME"
+	{
+		address = strtoul(type.c_str(), 0, 16); // convert string to integer using base 16
+		type = "VME";
+	}
 
 	if (!in.eof() ){
 	    //std::cout << TKFECID <<" "<< crate << " "  
