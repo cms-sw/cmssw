@@ -10,7 +10,7 @@
 */
 //
 // Original Author:  Ingo Bloch
-// $Id: MuonCaloCompatibility.cc,v 1.2 2007/05/01 19:43:23 ibloch Exp $
+// $Id: MuonCaloCompatibility.cc,v 1.1 2007/05/12 22:14:39 dmytro Exp $
 //
 //
 #include "RecoMuon/MuonIdentification/interface/MuonCaloCompatibility.h"
@@ -121,6 +121,13 @@ double MuonCaloCompatibility::evaluate( const reco::Muon& amuon ) {
   if( !use_corrected_hcal ) { // old eta regions, uncorrected energy
     eta = amuon.track().get()->eta();
     p   = amuon.track().get()->p(); 
+
+    // new 070904: Set lookup momentum to 1999.9 if larger than 2 TeV. 
+    // Though the templates were produced with p<2TeV, we believe that
+    // this approximation should be roughly valid. A special treatment
+    // for >1 TeV muons is advisable anyway :)
+    if( p>=2000. ) p = 1999.9;
+
     //    p   = 10./sin(amuon.track().get()->theta()); // use this for templates < 1_5
     if( use_em_special ) {
       if( amuon.getCalEnergy().em == 0. )    em  = -5.;
@@ -135,7 +142,14 @@ double MuonCaloCompatibility::evaluate( const reco::Muon& amuon ) {
   else {
     eta = amuon.track().get()->eta();
     p   = amuon.track().get()->p();
-   //    p   = 10./sin(amuon.track().get()->theta());  // use this for templates < 1_5
+    
+    // new 070904: Set lookup momentum to 1999.9 if larger than 2 TeV. 
+    // Though the templates were produced with p<2TeV, we believe that
+    // this approximation should be roughly valid. A special treatment
+    // for >1 TeV muons is advisable anyway :)
+    if( p>=2000. ) p = 1999.9;
+
+    //    p   = 10./sin(amuon.track().get()->theta());  // use this for templates < 1_5
     // hcal energy is now done where we get the template histograms (to use corrected cal energy)!
     //     had = amuon.getCalEnergy().had;
     if( use_em_special ) {
@@ -150,9 +164,9 @@ double MuonCaloCompatibility::evaluate( const reco::Muon& amuon ) {
 
 
   // Skip everyting and return "I don't know" (i.e. 0.5) for uncovered regions:
-  if( p < 0. || p > 500.) return 0.5;
-  if( fabs(eta) >  2.5 ) return 0.5; // for the 070410 evening job (w norm and w corr) i had abs here which seems to take and return int!!
-
+  //  if( p < 0. || p > 500.) return 0.5; // removed 500 GeV cutoff 070817 after updating the tempates (v2_0) to have valid entried beyond 500 GeV
+  if( p < 0. ) return 0.5; // return "unknown" for unphysical momentum input.
+  if( fabs(eta) >  2.5 ) return 0.5; 
 
   //  std::cout<<std::endl<<"Input values are: "<<eta <<" "<< p <<" "<< em <<" "<< had <<" "<< ho;
 
@@ -319,7 +333,7 @@ double MuonCaloCompatibility::evaluate( const reco::Muon& amuon ) {
       pbz = 1.;
       psz = 1.;
       LogTrace("MuonIdentification")<<"            // Message: trying to access overflow bin in MuonCompatibility template for ho   - defaulting signal and background  ";
-      LogTrace("MuonIdentification")<<"            // template value to 1. "<<pion_template_em->GetName()<<" e: "<<em<<" p: "<<p; 
+      LogTrace("MuonIdentification")<<"            // template value to 1. "<<pion_template_ho->GetName()<<" e: "<<em<<" p: "<<p; 
     }
     else pbz =  pion_template_ho->GetBinContent(  pion_template_ho->GetXaxis()->FindBin(p), pion_template_ho->GetYaxis()->FindBin(ho) );
   }
@@ -347,8 +361,8 @@ double MuonCaloCompatibility::evaluate( const reco::Muon& amuon ) {
     if( accessing_overflow( muon_template_ho, p, ho ) ) {
       psz = 1.;
       pbz = 1.;
-      LogTrace("MuonIdentification")<<"            // Message: trying to access overflow bin in MuonCompatibility template for ho   - defaulting signal and background  ";
-      LogTrace("MuonIdentification")<<"            // template value to 1. "<<muon_template_em->GetName()<<" e: "<<ho<<" p: "<<p;
+       LogTrace("MuonIdentification")<<"            // Message: trying to access overflow bin in MuonCompatibility template for ho   - defaulting signal and background  ";
+       LogTrace("MuonIdentification")<<"            // template value to 1. "<<muon_template_ho->GetName()<<" e: "<<ho<<" p: "<<p;
     }
     else psz =  muon_template_ho->GetBinContent(  muon_template_ho->GetXaxis()->FindBin(p), muon_template_ho->GetYaxis()->FindBin(ho) );
   }
@@ -371,7 +385,23 @@ double MuonCaloCompatibility::evaluate( const reco::Muon& amuon ) {
     psz = 1.;
     pbz = 1.;
   }
- 
+
+  // There are two classes of events that deliver 0 for the hcal or ho energy:
+  // 1) the track momentum is so low that the extrapolation tells us it should not have reached the cal
+  // 2) the crossed cell had an reading below the readout cuts.
+  // The 2nd case discriminates between muons and hadrons, the 1st not. Thus for the time being, 
+  // we set the returned ps and pb to 0 for these cases.
+  // We need to have a return value different from 0 for the 1st case in the long run.
+  if ( had == 0.0 ) {
+    psy = 1.;
+    pby = 1.;
+  } 
+  if ( ho == 0.0 ) {
+    psz = 1.;
+    pbz = 1.;
+  }
+  
+
   // Set em to neutral if no energy in em or negative energy measured. 
   // (These cases might indicate problems in the ecal association or readout?! The only 
   // hint so far: for critical eta region (eta in [1.52, 1.64]) have negative em values.)
