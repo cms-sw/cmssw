@@ -3,9 +3,9 @@
 /** \class ConvertedPhotonProducer
  **  
  **
- **  $Id: ConvertedPhotonProducer.h,v 1.8 2007/05/09 16:00:50 nancy Exp $ 
- **  $Date: 2007/05/09 16:00:50 $ 
- **  $Revision: 1.8 $
+ **  $Id: ConvertedPhotonProducer.h,v 1.9 2007/07/12 14:50:14 nancy Exp $ 
+ **  $Date: 2007/07/12 14:50:14 $ 
+ **  $Revision: 1.9 $
  **  \author Nancy Marinelli, U. of Notre Dame, US
  **
  ***/
@@ -79,13 +79,17 @@ class ConvertedPhotonProducer : public edm::EDProducer {
   edm::ESHandle<GeometricSearchTracker>       theGeomSearchTracker_;
  
   const MeasurementTracker*     theMeasurementTracker_;
-  const NavigationSchool*       theNavigationSchool_;
+  
+
 
   ConversionTrackPairFinder*      theTrackPairFinder_;
   ConversionVertexFinder*         theVertexFinder_;
+  const LayerMeasurements*      theLayerMeasurements_;
+  const NavigationSchool*       theNavigationSchool_;
+
   ConversionTrackEcalImpactPoint* theEcalImpactPositionFinder_;
 
-  const LayerMeasurements*      theLayerMeasurements_;
+
  
   
   bool isInitialized;
