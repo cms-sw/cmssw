@@ -11,7 +11,7 @@ PFRecoTauTagInfoAlgorithm::PFRecoTauTagInfoAlgorithm(const ParameterSet& paramet
   NeutrHadrCand_HcalclusminE_         = parameters.getParameter<double>("NeutrHadrCand_HcalclusminE");
   // parameters of the considered gamma PFCandidates, based on their rec. ECAL clus. properties :
   GammaCand_EcalclusminE_             = parameters.getParameter<double>("GammaCand_EcalclusminE");
-  // parameters of the considered rec. Tracks (these ones catched through a JetTracksAssociator object, not through the charged hadr. PFCandidates inside the PFJet ; the motivation for considering them is the need for checking that a selection by the charged hadr. PFCandidates is equivalent to a selection by the rec. Tracks.) :
+  // parameters of the considered rec. Tracks (these ones catched through a JetTracksAssociation object, not through the charged hadr. PFCandidates inside the PFJet ; the motivation for considering them is the need for checking that a selection by the charged hadr. PFCandidates is equivalent to a selection by the rec. Tracks.) :
   tkminPt_                            = parameters.getParameter<double>("tkminPt");
   tkminPixelHitsn_                    = parameters.getParameter<int>("tkminPixelHitsn");
   tkminTrackerHitsn_                  = parameters.getParameter<int>("tkminTrackerHitsn");
