@@ -20,7 +20,7 @@
 */
 //
 // Original Author:  Dmytro Kovalskyi
-// $Id: MuonIdProducer.h,v 1.2 2007/05/15 18:31:05 jribnik Exp $
+// $Id: MuonIdProducer.h,v 1.3 2007/09/06 00:54:25 dmytro Exp $
 //
 //
 
@@ -49,7 +49,8 @@
 
 class MuonIdProducer : public edm::EDProducer {
  public:
-   enum InputMode {TrackCollection=0, MuonCollection=1, LinkCollection=2};
+   enum TrackType { InnerTrack, OuterTrack, CombinedTrack };
+	
    explicit MuonIdProducer(const edm::ParameterSet&);
    
    virtual ~MuonIdProducer();
@@ -57,21 +58,31 @@ class MuonIdProducer : public edm::EDProducer {
    virtual void produce(edm::Event&, const edm::EventSetup&);
 
  private:
-   void          fillMuonId( edm::Event&, const edm::EventSetup&, reco::Muon& aMuon );
+   bool          fillMuonId( edm::Event&, const edm::EventSetup&, reco::Muon& aMuon );
    void          fillArbitrationInfo( reco::MuonCollection* );
    void          fillMuonIsolation( edm::Event&, const edm::EventSetup&, reco::Muon& aMuon );
    void          init( edm::Event&, const edm::EventSetup& );
-   reco::Muon*   nextMuon( edm::Event& iEvent, const edm::EventSetup& iSetup );
-   reco::Muon*   makeMuon( const reco::Track& track );
+   
+   // make a muon based on a track ref
+   reco::Muon    makeMuon( edm::Event& iEvent, const edm::EventSetup& iSetup, 
+			   const reco::TrackRef& track, TrackType type);
+   // make a global muon based on the links object
+   reco::Muon    makeMuon( const reco::MuonTrackLinks& links );
+   // make a muon based on track (p4)
+   reco::Muon    makeMuon( const reco::Track& track );
+
+   // check if a silicon track satisfies the trackerMuon requirements
+   bool          isGoodTrack( const reco::Track& track );
+   // check number of common DetIds for a given trackerMuon and a stand alone
+   // muon track
+   int           overlap(const reco::Muon& muon, const reco::Track& track);
+
    
    TrackDetectorAssociator trackAssociator_;
    TrackAssociatorParameters parameters_;
    
-   edm::InputTag inputTrackCollectionLabel_;
-   edm::InputTag inputMuonCollectionLabel_;
-   edm::InputTag inputLinkCollectionLabel_;
-   std::string branchAlias_;
-   InputMode mode_;
+   std::vector<edm::InputTag> inputCollectionLabels_;
+   std::vector<std::string>   inputCollectionTypes_;
 
    // selections
    double minPt_;
@@ -96,13 +107,10 @@ class MuonIdProducer : public edm::EDProducer {
    
    bool debugWithTruthMatching_;
 
-   edm::Handle<reco::TrackCollection>             trackCollectionHandle_;
+   edm::Handle<reco::TrackCollection>             innerTrackCollectionHandle_;
+   edm::Handle<reco::TrackCollection>             outerTrackCollectionHandle_;
    edm::Handle<reco::MuonCollection>              muonCollectionHandle_;
    edm::Handle<reco::MuonTrackLinksCollection>    linkCollectionHandle_;
-   reco::TrackCollection::const_iterator          trackCollectionIter_;
-   reco::MuonCollection::const_iterator           muonCollectionIter_;
-   reco::MuonTrackLinksCollection::const_iterator linkCollectionIter_;
-   int index_;
    
    MuonCaloCompatibility muonCaloCompatibility_;
    muonisolation::MuIsoExtractor* muIsoExtractorCalo_;
