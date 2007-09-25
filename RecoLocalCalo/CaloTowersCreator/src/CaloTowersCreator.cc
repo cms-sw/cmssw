@@ -4,6 +4,28 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "RecoLocalCalo/CaloTowersCreator/interface/EScales.h"
 
+
+const std::vector<double>& 
+CaloTowersCreator::getGridValues()
+{
+  static std::vector<double> retval;
+  
+  if (retval.size() == 0)
+    {
+      retval.push_back(0.);
+      retval.push_back(10.);
+      retval.push_back(20.);
+      retval.push_back(30.);
+      retval.push_back(40.);
+      retval.push_back(50.);
+      retval.push_back(100.);
+      retval.push_back(1000.); 
+    }
+
+  return retval;
+}
+
+
 CaloTowersCreator::CaloTowersCreator(const edm::ParameterSet& conf) : 
   algo_(conf.getParameter<double>("EBThreshold"),
 	conf.getParameter<double>("EEThreshold"),
@@ -14,22 +36,22 @@ CaloTowersCreator::CaloTowersCreator(const edm::ParameterSet& conf) :
 	conf.getParameter<double>("HOThreshold"),
 	conf.getParameter<double>("HF1Threshold"),
 	conf.getParameter<double>("HF2Threshold"),
-        conf.getUntrackedParameter<std::vector<double> >("EBGrid",std::vector<double>(10,0.)),
-        conf.getUntrackedParameter<std::vector<double> >("EBWeights",std::vector<double>(10,0.)),
-        conf.getUntrackedParameter<std::vector<double> >("EEGrid",std::vector<double>(10,0.)),
-        conf.getUntrackedParameter<std::vector<double> >("EEWeights",std::vector<double>(10,0.)),
-        conf.getUntrackedParameter<std::vector<double> >("HBGrid",std::vector<double>(10,0.)),
-        conf.getUntrackedParameter<std::vector<double> >("HBWeights",std::vector<double>(10,0.)),
-        conf.getUntrackedParameter<std::vector<double> >("HESGrid",std::vector<double>(10,0.)),
-        conf.getUntrackedParameter<std::vector<double> >("HESWeights",std::vector<double>(10,0.)),
-        conf.getUntrackedParameter<std::vector<double> >("HEDGrid",std::vector<double>(10,0.)),
-        conf.getUntrackedParameter<std::vector<double> >("HEDWeights",std::vector<double>(10,0.)),
-        conf.getUntrackedParameter<std::vector<double> >("HOGrid",std::vector<double>(10,0.)),
-        conf.getUntrackedParameter<std::vector<double> >("HOWeights",std::vector<double>(10,0.)),
-        conf.getUntrackedParameter<std::vector<double> >("HF1Grid",std::vector<double>(10,0.)),
-        conf.getUntrackedParameter<std::vector<double> >("HF1Weights",std::vector<double>(10,0.)),
-        conf.getUntrackedParameter<std::vector<double> >("HF2Grid",std::vector<double>(10,0.)),
-        conf.getUntrackedParameter<std::vector<double> >("HF2Weights",std::vector<double>(10,0.)),
+        conf.getUntrackedParameter<std::vector<double> >("EBGrid",getGridValues() ),
+        conf.getUntrackedParameter<std::vector<double> >("EBWeights",std::vector<double>(getGridValues().size(),1.) ),
+        conf.getUntrackedParameter<std::vector<double> >("EEGrid",getGridValues() ),
+        conf.getUntrackedParameter<std::vector<double> >("EEWeights",std::vector<double>(getGridValues().size(),1.) ),
+        conf.getUntrackedParameter<std::vector<double> >("HBGrid",getGridValues() ),
+        conf.getUntrackedParameter<std::vector<double> >("HBWeights",std::vector<double>(getGridValues().size(),1.) ),
+        conf.getUntrackedParameter<std::vector<double> >("HESGrid",getGridValues() ),
+        conf.getUntrackedParameter<std::vector<double> >("HESWeights",std::vector<double>(getGridValues().size(),1.) ),
+        conf.getUntrackedParameter<std::vector<double> >("HEDGrid",getGridValues() ),
+        conf.getUntrackedParameter<std::vector<double> >("HEDWeights",std::vector<double>(getGridValues().size(),1.) ),
+        conf.getUntrackedParameter<std::vector<double> >("HOGrid",getGridValues() ),
+        conf.getUntrackedParameter<std::vector<double> >("HOWeights",std::vector<double>(getGridValues().size(),1.) ),
+        conf.getUntrackedParameter<std::vector<double> >("HF1Grid",getGridValues() ),
+        conf.getUntrackedParameter<std::vector<double> >("HF1Weights",std::vector<double>(getGridValues().size(),1.) ),
+        conf.getUntrackedParameter<std::vector<double> >("HF2Grid",getGridValues() ),
+        conf.getUntrackedParameter<std::vector<double> >("HF2Weights",std::vector<double>(getGridValues().size(),1.) ),
 	conf.getParameter<double>("EBWeight"),
 	conf.getParameter<double>("EEWeight"),
 	conf.getParameter<double>("HBWeight"),
