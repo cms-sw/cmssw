@@ -1,13 +1,9 @@
-//_________________________________________________________
-//
-//  CSCTMBData 9/18/03  B.Mohr                             
-//  Unpacks and collects all TMB data
-//_________________________________________________________
-//
-//THere are serious problems with this class!!!
-//findline() gets confused with random data looking like the markers
-//need to fix A.Tumanov 
-//
+/** \class CSCTMBData
+ *
+ *  $Date: 2007/9/25 20:15:25 $
+ *  $Revision: 1.1 $
+ *  \author A. Tumanov - Rice
+ */
 
 #include "EventFilter/CSCRawToDigi/interface/CSCTMBData.h"
 #include "EventFilter/CSCRawToDigi/interface/CSCTMBScope.h"
@@ -23,68 +19,48 @@ bool CSCTMBData::debug =false;
 
 CSCTMBData::CSCTMBData() 
   : theOriginalBuffer(0), theTMBScopeIsPresent(false), theTMBScope(0),
-theRPCDataIsPresent(false) 
-{
-}
+theRPCDataIsPresent(false) {}
 
 
 CSCTMBData::CSCTMBData(unsigned short *buf) 
-  : theOriginalBuffer(buf), theTMBScopeIsPresent(false), theTMBScope(0), theRPCDataIsPresent(false)
-{
+  : theOriginalBuffer(buf), theTMBScopeIsPresent(false), theTMBScope(0), theRPCDataIsPresent(false){
   size_ = UnpackTMB(buf);
-} //CSCTMBData
+} 
 
-CSCTMBData::~CSCTMBData()
-{
-  if (theTMBScopeIsPresent) 
-    {
-      delete theTMBScope;
-      theTMBScopeIsPresent = false;
-    }
+CSCTMBData::~CSCTMBData(){
+  if (theTMBScopeIsPresent) {
+    delete theTMBScope;
+    theTMBScopeIsPresent = false;
+  }
 }
 
-// returns -1 if not found
-//
-//
-int findLine(unsigned short *buf, unsigned short marker,int first,  int maxToDo) 
-{
- 
-  for(int i = first; i < maxToDo; ++i) 
-    { 
-      if(buf[i] == marker) 
-	{
-	  return i;
-	}
+/// returns -1 if not found
+/// obsolete
+int findLine(unsigned short *buf, unsigned short marker,int first,  int maxToDo) {
+  for(int i = first; i < maxToDo; ++i) { 
+    if(buf[i] == marker) {
+      return i;
     }
-
+  }
   return -1;
-
 }
   
-int CSCTMBData::TMBCRCcalc() 
-{
-
+int CSCTMBData::TMBCRCcalc() {
   std::vector<std::bitset<16> > theTotalTMBData(theE0FLine+1-theB0CLine);
-
   unsigned i = 0;
-  for (unsigned int line=theB0CLine; line<theE0FLine+1;++line) 
-    {
-      theTotalTMBData[i] = std::bitset<16>(theOriginalBuffer[line]);
-      ++i;
-    }
-
-
-  if ( theTotalTMBData.size() > 0 ) 
-    {
-      std::bitset<22> CRC=calCRC22(theTotalTMBData);
-      edm::LogInfo("CSCTMBData") << " Test here " << CRC.to_ulong();
-      return CRC.to_ulong();
-    } 
-  else 
-    {
-      edm::LogInfo("CSCTMBData") << "theTotalTMBData doesn't exist";
-      return 0;
-    }
+  for (unsigned int line=theB0CLine; line<theE0FLine+1;++line) {
+    theTotalTMBData[i] = std::bitset<16>(theOriginalBuffer[line]);
+    ++i;
+  }
+  if ( theTotalTMBData.size() > 0 )   {
+    std::bitset<22> CRC=calCRC22(theTotalTMBData);
+    edm::LogInfo("CSCTMBData") << " Test here " << CRC.to_ulong();
+    return CRC.to_ulong();
+  } 
+  else {
+    edm::LogInfo("CSCTMBData") << "theTotalTMBData doesn't exist";
+    return 0;
+  }
 }
 
 int CSCTMBData::UnpackTMB(unsigned short *buf) {
@@ -93,26 +69,23 @@ int CSCTMBData::UnpackTMB(unsigned short *buf) {
   int Ntbins = 0 ;
   int NHeaderFrames = 0;
   
-  int b0cLine2006 = findLine(buf, 0x6B0C, 0, 10);
-  int b0cLine2007 = findLine(buf, 0xDB0C, 0, 10);
-  int b0cLine=-1;
+  int b0cLine=0;///assumes that buf starts at the tmb data
+                ///this is not true if something is wrong in the data 
+                ///before TMB - then we skip the whole event
 
-  if (b0cLine2006 !=-1) {
-    b0cLine =  b0cLine2006;
-    firmwareVersion=2006;
-    Ntbins =  buf[b0cLine+1]&0x1f ;
-    NHeaderFrames = buf[b0cLine+4]&0x1f;
-  }
 
-  if (b0cLine2007 !=-1) {
-    b0cLine =  b0cLine2007;
+  if (buf[b0cLine]==0xdb0c) {
     firmwareVersion=2007;
     Ntbins = buf[b0cLine+19]&0xF8;
     NHeaderFrames = buf[b0cLine+5]&0x3F;
-  }
-
-  if(b0cLine == -1) {
-    edm::LogError("CSCTMBData") << "+++ CSCTMBData error: No b0c line!";
+  } 
+  else if (buf[b0cLine]==0x6b0c) {
+    firmwareVersion=2006;
+    Ntbins =  buf[b0cLine+1]&0x1f ;
+    NHeaderFrames = buf[b0cLine+4]&0x1f;
+  } 
+  else {
+    edm::LogError("CSCTMBData") << "+++ Can't find b0C flag";
   }
 
   if ((firmwareVersion==2007)&&(!(((buf[b0cLine]&0xFFFF)==0xDB0C)&&((buf[b0cLine+1]&0xf000)==0xD000)
@@ -120,17 +93,19 @@ int CSCTMBData::UnpackTMB(unsigned short *buf) {
     edm::LogError("CSCTMBData") << "+++ CSCTMBData warning: error in header in 2007 format!";
   }
 
-  int TotTMBReadout = 27+Ntbins*6*5+1+Ntbins*2*4+2+8*256+8; //see tmb2004 manual (version v2p06) page54.
   int MaxSizeRPC = 1+Ntbins*2*4+1;
   int MaxSizeScope = 5;
-  int e0bLine = findLine(buf, 0x6e0b, 0, TotTMBReadout);
-  
-  if(e0bLine == -1) 
-    {
-      edm::LogError("CSCTMBData") << "+++ CSCTMBData warning: No e0b line!";
-      edm::LogError("CSCTMBData") << "+++ Corrupt header!";
-      return 0;
-    } 
+  int e0bLine =-1;
+  switch (firmwareVersion) {
+  case 2007:
+    e0bLine = 42; //last word of header2007
+    break;
+  case 2006:
+    e0bLine = 26; //last word of header in 2006 format
+    break;
+  default:
+    edm::LogError("CSCTMBData") << "+++ undetermined firmware format - cant find e0bLine";
+  }
 
   theTMBHeader=CSCTMBHeader(buf);
   
@@ -139,63 +114,64 @@ int CSCTMBData::UnpackTMB(unsigned short *buf) {
     return 0;
   }
 
-  int afterHeader = theTMBHeader.sizeInWords();
+  int currentPosition = theTMBHeader.sizeInWords();
 
   theCLCTData = CSCCLCTData(theTMBHeader.NCFEBs(), theTMBHeader.NTBins(), buf+e0bLine+1);
 
-  if(!theCLCTData.check()) 
-    {
-      edm::LogError("CSCTMBData") << "+++ CSCTMBData warning: Bad CLCT data";
-    }
-  else
-    {
-      afterHeader+=theCLCTData.sizeInWords();
-    }
+  if(!theCLCTData.check())   {
+    edm::LogError("CSCTMBData") << "+++ CSCTMBData warning: Bad CLCT data";
+  }
+  else {
+    currentPosition+=theCLCTData.sizeInWords();
+  }
+
+  //int i = currentPosition-1;
+  //printf ( "%04x %04x %04x %04x\n",buf[i+3],buf[i+2],buf[i+1],buf[i] ) ;
+ 
 
   // look for RPC
-  int b04Line = findLine(buf, 0x6b04, afterHeader, afterHeader+MaxSizeRPC);
-  if(b04Line != -1 ) 
-    {
-      // we need an e04 line to calculate the size
-      int e04Line = findLine(buf, 0x6e04, afterHeader, afterHeader+MaxSizeRPC);
-      if(e04Line != -1) 
-	{
-	  if (e04Line < b04Line )
-	    {
-	      edm::LogError("CSCTMBData") << "RPC data is corrupt! e04Line < b04Line ";
-	      return 0;
-	    }
-	  else 
-	    {
-	      theRPCDataIsPresent = true;
-	      theRPCData = CSCRPCData(buf+b04Line, e04Line-b04Line+1);
-	      afterHeader+=theRPCData.sizeInWords();
-	    }
-	} 
-      else 
-	{
-	  edm::LogError("CSCTMBData") << "CSCTMBData::corrupt RPC data! Failed to find end! ";
-	  return 0;
-	}
-    }
+  int b04Line = currentPosition;
   
- 
-  // look for scope.  Should there be a 6?
-  int b05Line = findLine(buf, 0x6b05, afterHeader, MaxSizeScope);
-  if(b05Line != -1)
-    {
-      edm::LogInfo("CSCTMBData") <<"found scope!!!!!!!!!!!!!"; 
-      int e05Line = findLine(buf, 0x6e05, afterHeader, TotTMBReadout-afterHeader);
-      if(e05Line != -1)
-	{     
-	  theTMBScopeIsPresent = true;
-	  theTMBScope = new CSCTMBScope(buf,b05Line, e05Line);
-	  afterHeader+=theTMBScope->sizeInWords();
-	}
-
+  if(buf[b04Line]==0x6b04) {
+    // we need an e04 line to calculate the size
+    int e04Line = findLine(buf, 0x6e04, currentPosition, currentPosition+MaxSizeRPC);
+    if(e04Line != -1) {
+      theRPCDataIsPresent = true;
+      theRPCData = CSCRPCData(buf+b04Line, e04Line-b04Line+1);
+      currentPosition+=theRPCData.sizeInWords();
     }
+    else {
+      edm::LogError("CSCTMBData") << "CSCTMBData::corrupt RPC data! Failed to find end! ";
+      return 0;
+    }
+  }
+  
 
-  int maxLine = findLine(buf, 0xde0f, afterHeader, TotTMBReadout-afterHeader);
+  int TotTMBReadout=0;
+  switch (firmwareVersion) {
+  case 2007:
+    TotTMBReadout= 43+Ntbins*6*5+1+Ntbins*2*4+2+8*256+8;
+    break;
+  case 2006:
+    TotTMBReadout= 27+Ntbins*6*5+1+Ntbins*2*4+2+8*256+8; //see tmb2004 manual (version v2p06) page54.
+    break;
+  default:
+    edm::LogError("CSCTMBData") << "can't find TotTMBReadout - unknown firmware version!";
+    break;
+  }
+
+  if (buf[currentPosition]==0x6b05) {
+    int b05Line = currentPosition;
+    edm::LogInfo("CSCTMBData") <<"found scope!!!!!!!!!!!!!";
+    int e05Line = findLine(buf, 0x6e05, currentPosition, TotTMBReadout-currentPosition);
+    if(e05Line != -1){     
+      theTMBScopeIsPresent = true;
+      theTMBScope = new CSCTMBScope(buf,b05Line, e05Line);
+      currentPosition+=theTMBScope->sizeInWords();
+    }
+  }
+  
+  int maxLine = findLine(buf, 0xde0f, currentPosition, TotTMBReadout-currentPosition);
   if(maxLine == -1) 
     {
       edm::LogError("CSCTMBData") << "+++ CSCTMBData warning: No e0f line!";
@@ -214,7 +190,7 @@ int CSCTMBData::UnpackTMB(unsigned short *buf) {
   CRCCnt = (CRChigh<<11) | (CRClow);
   
   // finally, the trailer
-  int e0cLine = findLine(buf, 0x6e0c, afterHeader, maxLine);
+  int e0cLine = findLine(buf, 0x6e0c, currentPosition, maxLine);
   if (e0cLine == -1)
     {
       edm::LogError("CSCTMBData") << "+++ CSCTMBData warning: No e0c line!";
