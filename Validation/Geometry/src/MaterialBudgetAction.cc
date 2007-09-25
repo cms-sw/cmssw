@@ -8,6 +8,7 @@
 #include "SimG4Core/Notification/interface/BeginOfRun.h"
 #include "SimG4Core/Notification/interface/BeginOfTrack.h"
 #include "SimG4Core/Notification/interface/EndOfTrack.h"
+#include "SimG4Core/Notification/interface/EndOfEvent.h"
 
 #include "G4Step.hh"
 #include "G4Track.hh"
@@ -113,10 +114,11 @@ MaterialBudgetAction::MaterialBudgetAction(const edm::ParameterSet& iPSet) :
   // if their kinetic energy is greater than  Ekin
   storeDecay = m_Anal.getUntrackedParameter<bool>("storeDecay",false);  
   Ekin       = m_Anal.getUntrackedParameter<double>("EminDecayProd",1000.0); // MeV
-  std::cout << "TestGeometry: decay products steps are stored " << storeDecay
-	    << " if their kinetic energy is greater than " << Ekin << " MeV"
-	    << std::endl;
-}
+  std::cout << "TestGeometry: decay products steps are stored " << storeDecay;
+  if(storeDecay) std::cout << " if their kinetic energy is greater than " << Ekin << " MeV";
+  std::cout << std::endl;
+  firstParticle = false;
+  }
 
 
 //-------------------------------------------------------------------------
@@ -194,30 +196,37 @@ void MaterialBudgetAction::update(const BeginOfRun* trk)
 void MaterialBudgetAction::update(const BeginOfTrack* trk)
 {
   const G4Track * aTrack = (*trk)(); // recover G4 pointer if wanted
-
-// that was a temporary action while we're sorting out
-// about # of secondaries (produced if CutsPerRegion=true)
-//
-  std::cout << "Track parent ID " << aTrack->GetParentID() 
+  
+  // that was a temporary action while we're sorting out
+  // about # of secondaries (produced if CutsPerRegion=true)
+  //
+  std::cout << "Track ID " << aTrack->GetTrackID() << " Track parent ID " << aTrack->GetParentID() 
 	    << " Ekin = " << aTrack->GetKineticEnergy() << " MeV" << std::endl;
   if( aTrack->GetCreatorProcess() ) std::cout << " produced through " << aTrack->GetCreatorProcess()->GetProcessType() << std::endl;
   
-  if( 
-     storeDecay // if record of the decay is requested
-     &&
-     aTrack->GetCreatorProcess()
-     &&
-     (
-      aTrack->GetParentID() == 1
-      &&
-      aTrack->GetCreatorProcess()->GetProcessType() == 6
-      &&
-      aTrack->GetKineticEnergy() > Ekin
-      )
-     ) {
-    return;
-  } // particles produced from a decay (type=6) of the main particle (ID=1) with Kinetic Energy [MeV] > Ekin
-  else { // kill all the other particles (take only the main one until it disappears)
+  if(aTrack->GetTrackID() == 1) {
+    firstParticle = true;
+  } else {
+    firstParticle = false;
+  }
+  
+  if( storeDecay ) { // if record of the decay is requested
+    if( aTrack->GetCreatorProcess() ) {
+      if (
+	  aTrack->GetParentID() == 1
+	  &&
+	  aTrack->GetCreatorProcess()->GetProcessType() == 6
+	  &&
+	  aTrack->GetKineticEnergy() > Ekin
+	  ) {
+	// continue
+      } else {
+	G4Track * aTracknc = const_cast<G4Track*>(aTrack);
+	aTracknc->SetTrackStatus(fStopAndKill);
+	return;
+      }
+    } // particles produced from a decay (type=6) of the main particle (ID=1) with Kinetic Energy [MeV] > Ekin
+  } else { // kill all the other particles (take only the main one until it disappears) if decay not stored
     if( aTrack->GetParentID() != 0) {
       G4Track * aTracknc = const_cast<G4Track*>(aTrack);
       aTracknc->SetTrackStatus(fStopAndKill);
@@ -225,11 +234,15 @@ void MaterialBudgetAction::update(const BeginOfTrack* trk)
     }
   }
   
-  //--------- start of track
-  theData->dataStartTrack( aTrack );
-  if (saveToTree) theTree->fillStartTrack();
-  if (saveToHistos) theHistos->fillStartTrack();
-  if (saveToTxt) theTxt->fillStartTrack();
+  
+  if(firstParticle) {
+    //--------- start of track
+    std::cout << " Data Start Track " << std::endl;
+    theData->dataStartTrack( aTrack );
+    if (saveToTree) theTree->fillStartTrack();
+    if (saveToHistos) theHistos->fillStartTrack();
+    if (saveToTxt) theTxt->fillStartTrack();
+  }
 }
  
 
@@ -301,12 +314,17 @@ void MaterialBudgetAction::update(const EndOfTrack* trk)
   //  if( aTrack->GetParentID() != 0 ) return;
   
   //---------- end of track (OutOfWorld)
+  std::cout << " Data End Track " << std::endl;
   theData->dataEndTrack( aTrack );
-  if (saveToTree) theTree->fillEndTrack();
-  if (saveToHistos) theHistos->fillEndTrack();
-  if (saveToTxt) theTxt->fillEndTrack();
 }
 
+void MaterialBudgetAction::update(const EndOfEvent* evt)
+{
+  std::cout << " Data End Event " << std::endl;
+  if (saveToTree) theTree->fillEndTrack();
+  if (saveToHistos) theHistos->fillEndTrack();
+  if (saveToTxt) theTxt->fillEndTrack();  
+}
 
 //-------------------------------------------------------------------------
 void MaterialBudgetAction::endRun()

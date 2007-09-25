@@ -22,6 +22,7 @@ class BeginOfTrack;
 class BeginOfRun;
 class G4Step;
 class EndOfTrack;
+class EndOfEvent;
 class G4StepPoint;
 class G4VTouchable;
 
@@ -29,7 +30,8 @@ class MaterialBudgetAction : public SimProducer,
 			     public Observer<const BeginOfRun*>,
 			     public Observer<const BeginOfTrack*>,
 			     public Observer<const G4Step*>,
-			     public Observer<const EndOfTrack*>
+			     public Observer<const EndOfTrack*>,
+			     public Observer<const EndOfEvent *>
 {
  public:
   MaterialBudgetAction(const edm::ParameterSet&);
@@ -47,6 +49,7 @@ class MaterialBudgetAction : public SimProducer,
   void update(const BeginOfTrack*);
   void update(const G4Step*);
   void update(const EndOfTrack*);
+  void update(const EndOfEvent*);
   
   void initRun();
   void processEvent( uint nEv );
@@ -67,6 +70,7 @@ class MaterialBudgetAction : public SimProducer,
   bool saveToTxt, saveToTree, saveToHistos;
   bool storeDecay;
   double Ekin;
+  bool firstParticle;
   
   std::vector<G4String> theVolumeList; 
   G4String theProcessToStop;

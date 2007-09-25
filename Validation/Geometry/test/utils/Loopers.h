@@ -33,6 +33,7 @@ TH1F* hist_energyLossPerTurn;
 TH1F* hist_trackLength;
 TH1F* hist_trackLengthPerTurn;
 TH1F* hist_lastInteraction;
+TH1F* hist_bx;
 //
 
 // logfile
@@ -40,6 +41,8 @@ ofstream theLogFile;
 //
 
 const double pi = 3.14159265;
+const double c  = 299792458; // m/s;
+const double bx = 25; // ns
 
 class Loopers {
 public :
@@ -101,6 +104,9 @@ private:
   //
   // directory to store images
   TString theDirName;
+  // decay
+  Bool_t isDecay;
+  Int_t actualParticleID;
 };
 
 #endif
@@ -132,6 +138,9 @@ Loopers::Loopers(TString fileName)
   Book();
   //
   helpfulCommands();
+  //
+  isDecay = false;
+  actualParticleID = 0;
 }
 
 Loopers::~Loopers()
@@ -257,6 +266,9 @@ void Loopers::Book(){
   hist_lastInteraction = new TH1F("hist_lastInteraction",
 				  "Last Geant4 Process;Process Type;Events/bin",
 				  11,-0.5,10.5);
+  hist_bx = new TH1F("hist_bx",
+		     "Bunch Crossing [25 ns];Bunch Crossing [25 ns];Events/bin",
+		     21,-0.25,10.25);
 }
 
 void Loopers::MakePlots(TString suffix);

@@ -61,6 +61,21 @@ void Loopers::Loop()
     //    theLogFile << " Steps " << Nsteps << endl;
     theLogFile << "Event " << jentry+1 << " Steps = " << Nsteps << endl;
     for(Int_t iStep=0; iStep<Nsteps; iStep++) {
+      
+      // find decay
+      if(iStep==0) actualParticleID = ParticleStepID[iStep];
+      if(actualParticleID != ParticleStepID[iStep]) {
+	theLogFile << "\t\t DECAY at " << iStep
+		   << " from " << actualParticleID << " to " << ParticleStepID[iStep] << endl;
+	actualParticleID = ParticleStepID[iStep];	
+      }
+      
+      // select particles: only pi/mu/e
+      if( fabs(ParticleStepID[iStep])!=211 && fabs(ParticleStepID[iStep])!=13 && fabs(ParticleStepID[iStep])!=11) {
+	theLogFile << "Skip particle " << ParticleStepID[iStep] << " step " << iStep << endl;
+	continue;
+      }
+      
       // middle-point
       double xStep = (FinalX[iStep]+InitialX[iStep])/2;
       double yStep = (FinalY[iStep]+InitialY[iStep])/2;
@@ -94,6 +109,7 @@ void Loopers::Loop()
 	theLogFile << "################################" << endl;
       */
       phi_last = phi_i;
+	
     } // step loop
     
     double phiTurns = phiSum/(2*pi);
@@ -102,6 +118,8 @@ void Loopers::Loop()
     if(Nsteps!=0) {
       // average density: Sum(x_i x rho_i) / Sum(x_i)
       double averageDensity = normDensSum / pathSum;
+      double time = (pathSum/1000.) / c; // time: [s] ; pathSum: [mm]->[m] ; c: [m/s]
+      double bunchCrossings = (time * 1E9) / bx; // time: [s]-->[ns] ; bx: [ns]
       //
       if(
 	 (
@@ -109,7 +127,7 @@ void Loopers::Loop()
 	  &&
 	  FinalZ[Nsteps-1] < 2500 // only if not at the end of the Tracker (along z)
 	  ) 
-	 ) { 
+	 ) {
 	theLogFile << "################################"                                      << endl;
 	theLogFile << "Event " << jentry+1                                                    << endl;
 	theLogFile << "\t Steps = " << Nsteps                                                 << endl;
@@ -128,6 +146,8 @@ void Loopers::Loop()
 	theLogFile << "\t Sum(x_i x rho_i) = " << normDensSum    << " mm x g/cm3"             << endl;
 	theLogFile << "\t <rho> = "            << averageDensity << " g/cm3"                  << endl;
 	theLogFile << "\t path length per turn = " << pathSum / phiTurns << " mm"             << endl;
+	theLogFile << "\t time spent = " << time << " s"                                      << endl;
+	theLogFile << "\t bunch crossings = " << bunchCrossings                               << endl;
 	theLogFile << "################################"                                      << endl;
       }
       // else { // The particle must disappear with pT=0 GeV
@@ -142,6 +162,7 @@ void Loopers::Loop()
       hist_trackLength->Fill(pathSum);
       hist_trackLengthPerTurn->Fill(pathSum / phiTurns);
       hist_lastInteraction->Fill(ParticleStepPostInteraction[Nsteps-1]);
+      hist_bx->Fill(bunchCrossings);
       //      } // sanity check final pT=0
       
     } // steps!=0
@@ -379,6 +400,28 @@ void Loopers::MakePlots(TString suffix) {
   can_Gigi.Update();
   can_Gigi.SaveAs( Form("%s/Loopers_lastInteraction_%s.eps",  theDirName.Data(), suffix.Data() ) );
   can_Gigi.SaveAs( Form("%s/Loopers_lastInteraction_%s.gif",  theDirName.Data(), suffix.Data() ) );
+  // 
+  
+  // Draw
+  can_Gigi.cd();
+  hist_bx->SetLineColor(kBlue);
+  hist_bx->SetFillColor(kWhite);
+  hist_bx->Draw();
+  //  
+  // Print
+  theLogFile << endl << "--------"     << endl;
+  theLogFile << hist_bx->GetTitle() << endl;
+  theLogFile << "\t Mean = " << hist_bx->GetMean()  << endl;
+  theLogFile << "\t  RMS = " << hist_bx->GetRMS()   << endl;
+  for(unsigned int iBin = 0; iBin<= hist_bx->GetNbinsX(); iBin++)
+    theLogFile << "\t\t bx " << hist_bx->GetBinCenter(iBin) << " : " << hist_bx->GetBinContent(iBin)
+	       << " integral > " << hist_bx->GetBinCenter(iBin)
+	       << " : " << hist_bx->Integral(iBin+1,hist_bx->GetNbinsX()+1) << std::endl;
+  //
+  // Store
+  can_Gigi.Update();
+  can_Gigi.SaveAs( Form("%s/Loopers_bx_%s.eps",  theDirName.Data(), suffix.Data() ) );
+  can_Gigi.SaveAs( Form("%s/Loopers_bx_%s.gif",  theDirName.Data(), suffix.Data() ) );
   // 
   
 }
