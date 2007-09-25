@@ -1,0 +1,12 @@
+<use name=FWCore/FWLite>
+<use name=rootcore>
+<use name=rootinteractive>
+<use name=FWCore/Framework>
+<use name=FWCore/MessageLogger>
+<use name=FWCore/ParameterSet>
+<use name=root>
+<export>
+  <use name=FWCore/Framework>
+</export>
+
+
