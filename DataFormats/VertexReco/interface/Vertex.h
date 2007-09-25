@@ -3,11 +3,19 @@
 /** \class reco::Vertex
  *  
  * A reconstructed Vertex providing position, error, chi2, ndof 
- * and reconstrudted tracks
+ * and reconstrudted tracks.
+ * The vertex can be valid, fake, or invalid.
+ * A valid vertex is one which has been obtained from a vertex fit of tracks, 
+ * and all data is meaningful
+ * A fake vertex is a vertex which was not made out of a proper fit with
+ * tracks, but still has a position and error (chi2 and ndof are null). 
+ * For a primary vertex, it could simply be the beam line.
+ * A fake vertex is considered valid.
+ * An invalid vertex has no meaningful data.
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: Vertex.h,v 1.30 2007/09/13 16:05:24 speer Exp $
+ * \version $Id: Vertex.h,v 1.31 2007/09/18 14:01:02 speer Exp $
  *
  */
 #include <Rtypes.h>
@@ -42,10 +50,16 @@ namespace reco {
     /// chi2, ndof will have random entries, and the vectors of tracks will be empty
     /// Use the isValid method to check that your vertex is valid. 
     Vertex() { validity_ = false;}
-    /// constructor from values
+    /// Constructor for a fake vertex.
+    Vertex( const Point &, const Error &);
+    /// constructor for a valid vertex, with all data
     Vertex( const Point &, const Error &, double chi2, double ndof, size_t size );
     /// Tells whether the vertex is valid.
     bool isValid() const {return validity_;}
+    /// Tells whether a Vertex is fake, i.e. not a vertex made out of a proper
+    /// fit with tracks.
+    /// For a primary vertex, it could simply be the beam line.
+    bool isFake() const {return (chi2_==0 && ndof_==0 && tracks_.empty());}
     /// add a reference to a Track
     void add( const TrackBaseRef & r, float w=1.0 );
     /// add the original a Track(reference) and the smoothed Track
