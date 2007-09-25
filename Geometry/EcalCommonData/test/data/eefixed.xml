@@ -142,16 +142,17 @@
   <ZSection z="3.2885*m"   rMin="1.7215*m"         rMax="[eecon:EBRMax]" />
  </Polycone> 
 
- <Polycone name="ESCONE" startPhi="0*deg" deltaPhi="360*deg" >
+ <Polycone name="ESCone" startPhi="0*deg" deltaPhi="360*deg" >
   <ZSection z="[eecon:ESConeZ1]"  rMin="[eecon:ESConeI1]"  rMax="[eecon:ESConeO1]" />
   <ZSection z="[eecon:ESConeZ2]"  rMin="[eecon:ESConeI2]"  rMax="[eecon:ESConeO2]" />
   <ZSection z="[eecon:ESConeZ3]"  rMin="[eecon:ESConeI3]"  rMax="[eecon:ESConeO3]" />
   <ZSection z="[eecon:ESConeZ4]"  rMin="[eecon:ESConeI4]"  rMax="[eecon:ESConeO4]" />
-<!--
   <ZSection z="[eecon:ESConeZ5]"  rMin="[eecon:ESConeI5]"  rMax="[eecon:ESConeO5]" />
   <ZSection z="[eecon:ESConeZ6]"  rMin="[eecon:ESConeI6]"  rMax="[eecon:ESConeO6]" />
--->
  </Polycone> 
+
+ <Tubs name="ESRing" rMin="[eecon:ESRingIR]" rMax="[eecon:ESRingOR]"
+           dz="[eecon:ESRingZThick]/2"  startPhi="0*deg" deltaPhi="360*deg"/>
 
 <!-- Cooling bar-related volumes -->
 
@@ -287,8 +288,10 @@
       <rSolid name="ETCS"/> <rMaterial  name="materials:Tk_Cable_1"/> </LogicalPart>
  <LogicalPart name="ETSU" category="unspecified">
       <rSolid name="ETSU"/> <rMaterial  name="materials:Aluminium"/> </LogicalPart>
- <LogicalPart name="ESCONE" category="unspecified">
-      <rSolid name="ESCONE"/> <rMaterial  name="materials:Aluminium"/> </LogicalPart>
+ <LogicalPart name="ESCone" category="unspecified">
+      <rSolid name="ESCone"/> <rMaterial  name="materials:Aluminium"/> </LogicalPart>
+ <LogicalPart name="ESRing" category="unspecified">
+      <rSolid name="ESRing"/> <rMaterial  name="materials:Aluminium"/> </LogicalPart>
  <LogicalPart name="EECoolBox" category="unspecified">
       <rSolid name="EECoolBox"/> <rMaterial  name="materials:Aluminium"/> </LogicalPart>
  <LogicalPart name="EECoolIns" category="unspecified">
@@ -339,12 +342,18 @@
 
 <PosPartSection label="eefixed.xml">
 
+<!-- Preshower Ring -->
+
+ <PosPart copyNumber="1"> <rParent name="eregalgo:EREG"/> <rChild name="eefixed:ESRing"/>
+      <Translation x="0*mm" y="0*mm"  z="[eecon:ESRingZFront] + [eecon:ESRingZThick]/2"/>
+      </PosPart>
+
 <!-- Preshower Support Cone -->
 
- <PosPart copyNumber="1"> <rParent name="eregalgo:EREG"/> <rChild name="eefixed:ESCONE"/>
+ <PosPart copyNumber="1"> <rParent name="eregalgo:EREG"/> <rChild name="eefixed:ESCone"/>
       <Translation x="0*mm" y="0*mm" 
-       z="[esalgo:PRESH_Z_OFFSET] + [esalgo:PRESH_Z_TOTAL]/2 - [eecon:ESConeZ1]"/>
-      <rRotation name="rotations:000D"/> </PosPart>
+       z="[eecon:ESRingZFront] + [eecon:ESRingZThick] - [eecon:ESConeZ1]"/>
+      </PosPart>
 
 <!-- Backplate and its cooling pipes -->
 

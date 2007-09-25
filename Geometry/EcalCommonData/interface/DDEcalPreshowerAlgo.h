@@ -5,7 +5,6 @@
 #include <string>
 
 #include "DetectorDescription/Algorithm/interface/DDAlgorithm.h"
-#include "DetectorDescription/Core/interface/DDName.h"
 #include "DetectorDescription/Core/interface/DDMaterial.h"
 
 using namespace std;
@@ -36,9 +35,9 @@ class DDEcalPreshowerAlgo : public DDAlgorithm
   int nmat_;                       // number of preshower layers
   double thickness_;               // overall thickness of the preshower envelope
   vector<string> materials_;       // materials of the presh-layers
-  vector<string> layName_;    // names of the presh-layers
-  vector<string> ladPfx_ ;  // name prefix for ladders
-  string LaddMaterial_;    // ladd material - air
+  vector<string> layName_;         // names of the presh-layers
+  vector<string> ladPfx_ ;         // name prefix for ladders
+  string LaddMaterial_;            // ladd material - air
   vector<double> thickLayers_; 
   vector<double> abs1stx;
   vector<double> abs1sty;
@@ -59,9 +58,9 @@ class DDEcalPreshowerAlgo : public DDAlgorithm
   vector<string> typeOfLaddRow3;
 
   double zlead1_, zlead2_, zfoam1_, zfoam2_;
-  double waf_intra_col_sep, waf_inter_col_sep, waf_active, wedge_length, wedge_offset, zwedge_ceramic_diff, ywedge_ceramic_diff, wedge_angle;
+  double waf_intra_col_sep, waf_inter_col_sep, waf_active, wedge_length, wedge_offset, zwedge_ceramic_diff, ywedge_ceramic_diff, wedge_angle, box_thick;
   double ladder_thick, yladder_1stwedge_diff, ladder_width, ladder_length, micromodule_length;
-  double subtr_thick, subtr_length, subtr_width, box_thick, ysubtr1_ladder_diff, zsubtr1_ladder_diff, ysubtr2_ladder_diff, zsubtr2_ladder_diff ;
+  double LdrBck_Length, LdrFrnt_Length,LdrFrnt_Offset,LdrBck_Offset, ceramic_length, wedge_back_thick;
   
 };
 

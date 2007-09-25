@@ -54,25 +54,23 @@ void DDEcalPreshowerAlgo::initialize(const DDNumericArguments & nArgs,
   wedge_offset = double(nArgs["wedge_offset"]);
   zwedge_ceramic_diff = double(nArgs["zwedge_ceramic_diff"]);
   ywedge_ceramic_diff = double(nArgs["ywedge_ceramic_diff"]);
+  ceramic_length = double(nArgs["ceramic_length"]);
   wedge_angle = double(nArgs["wedge_angle"]);
+  wedge_back_thick = double(nArgs["wedge_back_thick"]);
   ladder_thick = double(nArgs["ladder_thick"]);
-  yladder_1stwedge_diff = double(nArgs["yladder_1stwedge_diff"]);
   ladder_width = double(nArgs["ladder_width"]);
   micromodule_length = double(nArgs["micromodule_length"]);
-  subtr_length = double(nArgs["subtr_length"]);
-  subtr_width = double(nArgs["subtr_width"]);
-  subtr_thick = double(nArgs["subtr_thick"]);
   box_thick = double(nArgs["box_thick"]);
-  ysubtr1_ladder_diff = double(nArgs["ysubtr1_ladder_diff"]);
-  zsubtr1_ladder_diff = double(nArgs["zsubtr1_ladder_diff"]);
-  ysubtr2_ladder_diff = double(nArgs["ysubtr2_ladder_diff"]);
-  zsubtr2_ladder_diff = double(nArgs["zsubtr2_ladder_diff"]);
   abs1stx = vArgs["1ST_ABSX"];
   abs1sty = vArgs["1ST_ABSY"];
   abs2ndx = vArgs["2ND_ABSX"];
   abs2ndy = vArgs["2ND_ABSY"];
   ladPfx_ = vsArgs["LadPrefix"];
   LaddMaterial_ =  sArgs["LadderMaterial"];
+  LdrFrnt_Length = double(nArgs["LdrFrnt_Length"]);
+  LdrFrnt_Offset = double(nArgs["LdrFrnt_Offset"]);
+  LdrBck_Length = double(nArgs["LdrBck_Length"]);
+  LdrBck_Offset = double(nArgs["LdrBck_Offset"]);
 }
 
 void DDEcalPreshowerAlgo::execute()
@@ -200,120 +198,300 @@ void DDEcalPreshowerAlgo::doLadders() {
   double xpos(0), ypos(0), zpos(0), sdx(0), sdy(0), sdz(0);
   double prev_length_(0), ladder_new_length_(0), ladd_shift_(0), ladder_length (0);
   int enb(0); double sdxe[50] = {0}, sdye[50] = {0}, sdze[50] = {0};
+  double sdxe2[50] = {0}, sdye2[50] = {0}, sdze2[50] = {0}, sdxe3[50] = {0}, sdye3[50] = {0}, sdze3[50] = {0};
   
   for (int M=0; M<int(types_l5_.size() + types_l4_.size()); M++) {
-    int scopy(0);
-
+    int scopy(0); double boxax(0), boxay(0), boxaz(0);
+    int ladd_not_plain(0), ladd_subtr_no(0), ladd_upper(0), ladd_side(0);
+    
+    DDSolid solid_lfront = DDSolidFactory::trap(DDName("LDRFRNT","esalgo"),
+						LdrFrnt_Length/2,   // pDz
+						-wedge_angle,     // pTheta
+						0,		// pPhi
+						ladder_width/2,	// pDy1
+						ladder_thick/2,  // pDx1
+						ladder_thick/2,   //     pDx2
+						0,		//pAlp1
+						ladder_width/2,   //pDy2
+						(ladder_thick-ceramic_length*sin(wedge_angle*2))/2,   // pDx3
+						(ladder_thick-ceramic_length*sin(wedge_angle*2))/2,   // pDx4
+						0 );
+    
+    
+    DDSolid solid_lbck = DDSolidFactory::trap(DDName("LDRBCK","esalgo"),
+					      LdrBck_Length/2,   // pDz
+					      -wedge_angle,     // pTheta
+					      0,		// pPhi
+					      ladder_width/2,	// pDy1
+					      (box_thick/cos(wedge_angle*2))/2,  // pDx1
+					      (box_thick/cos(wedge_angle*2))/2,   //     pDx2
+					      0,		//pAlp1
+					      ladder_width/2,   //pDy2
+					      (ladder_thick-wedge_back_thick)/2,   // pDx3
+					      (ladder_thick-wedge_back_thick)/2,   // pDx4
+					      0 );
+    
+    DDSolid solid_lfhalf = DDSolidFactory::trap(DDName("LDRFHALF","esalgo"),
+						LdrFrnt_Length/2,   // pDz
+						-wedge_angle,     // pTheta
+						0,		// pPhi
+						(ladder_width/2)/2,	// pDy1
+						ladder_thick/2,  // pDx1
+						ladder_thick/2,   //     pDx2
+						0,		//pAlp1
+						(ladder_width/2)/2,   //pDy2
+						(ladder_thick-ceramic_length*sin(wedge_angle*2))/2,   // pDx3
+						(ladder_thick-ceramic_length*sin(wedge_angle*2))/2,   // pDx4
+						0 );
+    
+    DDSolid solid_lbhalf = DDSolidFactory::trap(DDName("LDRBHALF","esalgo"),
+						LdrBck_Length/2,   // pDz
+						-wedge_angle,     // pTheta
+						0,		// pPhi
+						(ladder_width/2)/2,	// pDy1
+						(box_thick/cos(wedge_angle*2))/2,  // pDx1
+						(box_thick/cos(wedge_angle*2))/2,   //     pDx2
+						0,		//pAlp1
+						(ladder_width/2)/2,   //pDy2
+						(ladder_thick-wedge_back_thick)/2,   // pDx3
+						(ladder_thick-wedge_back_thick)/2,   // pDx4
+						0 );
+    
+    DDSolid solid_lfhtrunc = DDSolidFactory::trap(DDName("LDRFHTR","esalgo"),
+						  (LdrFrnt_Length-waf_active)/2,   // pDz
+						  -wedge_angle,     // pTheta
+						  0,		// pPhi
+						  (ladder_width/2)/2,	// pDy1
+						  ladder_thick/2,  // pDx1
+						  ladder_thick/2,   //     pDx2
+						  0,		//pAlp1
+						  (ladder_width/2)/2,   //pDy2
+						  (ladder_thick-(ceramic_length-waf_active)*sin(wedge_angle*2))/2,   // pDx3
+						  (ladder_thick-(ceramic_length-waf_active)*sin(wedge_angle*2))/2,   // pDx4
+						  0 );
+    
     if(M<int(types_l5_.size())) {
-      DDName ddname(getLadPrefix(0)+types_l5_[M],"esalgo");
-      ladder_length = micromodule_length + 4*waf_active;
       
-      DDName dd_tmp_name_5a(getLadPrefix(2),"esalgo");
-      DDName dd_tmp_name_5b(getLadPrefix(3),"esalgo");
-      DDName dd_tmp_name_5c(getLadPrefix(4),"esalgo");
-      DDName dd_tmp_name_5e(getLadPrefix(6),"esalgo");
       
-      DDSolid solid_5a = DDSolidFactory::box(dd_tmp_name_5a,ladder_width/2,ladder_length/2,ladder_thick/2.);
-      DDSolid solid_5b = DDSolidFactory::box(dd_tmp_name_5b,ladder_width/2+0.1*mm,subtr_length/2,subtr_thick/2.);
-      sdx = 0; sdy= -ladder_length/2 + ysubtr1_ladder_diff; sdz = zsubtr1_ladder_diff;
-      DDSolid solid_5c = DDSolidFactory::subtraction(dd_tmp_name_5c,solid_5a,solid_5b,DDTranslation(sdx,sdy,sdz),DDRotation("esalgo:RM1298"));
-      
-      int change =0; 
-      DDSolid solid_5e = DDSolidFactory::box(dd_tmp_name_5e,ladder_width/4+0.01*mm,waf_active/2+0.01*mm,ladder_thick/2+0.1*mm);
-      
-      for (int i=0; i<=1; i++) {
-	for (int j=0; j<=4; j++) {
-	  if(ladd_l5_map_[(i+j*2+M*10)]!=1 ){  
-	    enb++; 
-	    ostringstream  tmp_name_5c, tmp_name_5d, tmp_name_5e ;
-	    if(change==0) tmp_name_5c << getLadPrefix(4);
-	    if(change==1) tmp_name_5c <<getLadPrefix(5)<< enb-1;
-	    DDName dd_tmp_name_5c(tmp_name_5c.str(),"esalgo");	    
-	    tmp_name_5d << getLadPrefix(5) << enb;
-	    DDName dd_tmp_name_5d(tmp_name_5d.str(),"esalgo");
-	    tmp_name_5e << getLadPrefix(6) << enb;
-	    DDName dd_tmp_name_5e(tmp_name_5e.str(),"esalgo");	    
-	    change=1;
-	    sdxe[enb] = i*(ladder_width/2.) - ladder_width/4.; 
-	    sdye[enb] = - ladder_length/2. + j*waf_active + waf_active/2. - 0.2*mm; 
-	    if(j>1) sdye[enb] = ladder_length/2. - (3-j)*waf_active - waf_active/4. + 0.2*mm; 
-	    sdze[enb] = 0.;
-	    DDSolid solid_5c = DDSolid(dd_tmp_name_5c);
-	    DDSolid solid_5d = DDSolidFactory::subtraction(dd_tmp_name_5d,solid_5c,solid_5e,DDTranslation(sdxe[enb],sdye[enb],sdze[enb]),DDRotation());	    
-	  }
-	}
-      }            
-      ostringstream  tmp_name_5d;
-      if(change==0) tmp_name_5d << getLadPrefix(4);      
-      if(change==1) tmp_name_5d << getLadPrefix(5) << enb;
-      DDName dd_tmp_name_5d(tmp_name_5d.str(),"esalgo");
-      DDSolid solid_5d = DDSolid(dd_tmp_name_5d);
-      sdx = 0; sdy = ladder_length/2 + ysubtr2_ladder_diff; sdz = zsubtr2_ladder_diff;      
-      DDSolid solid = DDSolidFactory::subtraction(ddname,solid_5d,solid_5b,DDTranslation(sdx,sdy,sdz),DDRotation("esalgo:RM1298"));      
-      DDLogicalPart ladder = DDLogicalPart(ddname,getLaddMaterial(),solid);      
-      DDName ddname2(getLadPrefix(1)+types_l5_[M],"esalgo");      
-      DDLogicalPart ladder2 = DDLogicalPart(ddname2,getLaddMaterial(),solid);      
-    }
-    if( M >= int(types_l5_.size()) ) {
-      int d = M - types_l5_.size();
-      DDName ddname(getLadPrefix(0)+types_l4_[d],"esalgo");      
-      ladder_length = micromodule_length + 3*waf_active;      
-      DDName dd_tmp_name_a(getLadPrefix(7),"esalgo");
-      DDName dd_tmp_name_b(getLadPrefix(8),"esalgo");
-      DDName dd_tmp_name_c(getLadPrefix(9),"esalgo");      
-      DDName dd_tmp_name_e(getLadPrefix(11),"esalgo");           
-      DDSolid solid_a = DDSolidFactory::box(dd_tmp_name_a,ladder_width/2,ladder_length/2,ladder_thick/2.);
-      DDSolid solid_b = DDSolidFactory::box(dd_tmp_name_b,ladder_width/2+0.1*mm,subtr_length/2,subtr_thick/2.);
-      sdx = 0; sdy= -ladder_length/2 + ysubtr1_ladder_diff; sdz = zsubtr1_ladder_diff;
-      DDSolid solid_c = DDSolidFactory::subtraction(dd_tmp_name_c,solid_a,solid_b,DDTranslation(sdx,sdy,sdz),DDRotation("esalgo:RM1298"));
-      double sdxe[20] = {0}, sdye[20] = {0}, sdze[20] = {0};
-      int change =0; 
-      DDSolid solid_e = DDSolidFactory::box(dd_tmp_name_e,ladder_width/4+0.01*mm,waf_active/2+0.01*mm,ladder_thick/2+0.01*mm);
       for (int i=0; i<=1; i++) {
 	for (int j=0; j<=3; j++) {
-	  if(ladd_l4_map_[(i+j*2+(M-types_l5_.size())*8)]!=1 ){  
-	    ostringstream  tmp_name_c, tmp_name_d, tmp_name_e ;
-	    enb++; 
-	    if(change==0) tmp_name_c << getLadPrefix(9);
-	    if(change==1) tmp_name_c <<getLadPrefix(10) << enb-1;
-	    DDName dd_tmp_name_c(tmp_name_c.str(),"esalgo");	    
-	    tmp_name_d << getLadPrefix(10) << enb;
-	    DDName dd_tmp_name_d(tmp_name_d.str(),"esalgo");
-	    tmp_name_e << getLadPrefix(11) << enb;
-	    DDName dd_tmp_name_e(tmp_name_e.str(),"esalgo");
-	    change=1;
-	    sdxe[enb] = i*(ladder_width/2.) - ladder_width/4.; 
-	    sdye[enb] = - ladder_length/2. + j*waf_active + waf_active/2.; 
-	    if(j>1) sdye[enb] = ladder_length/2. - (3-j)*waf_active - waf_active/4.; 
-	    sdze[enb] = 0.;
-	    DDSolid solid_c = DDSolid(dd_tmp_name_c);
-	    DDSolid solid_d = DDSolidFactory::subtraction(dd_tmp_name_d,solid_c,solid_e,DDTranslation(sdxe[enb],sdye[enb],sdze[enb]),DDRotation());
+	  if(ladd_l5_map_[(i+j*2+M*10)]!=1){
+	    ladd_not_plain=1; ladd_subtr_no++; if(j>1) ladd_upper=1; ladd_side=i;
 	  }
 	}
       }
-      ostringstream tmp_name_d;   
-      if(change==0) tmp_name_d << getLadPrefix(9);
-      if(change==1) tmp_name_d <<getLadPrefix(10) << enb;
-      DDName dd_tmp_name_d(tmp_name_d.str(),"esalgo");	    
-      DDSolid solid_d = DDSolid(dd_tmp_name_d);
-      sdx = 0; sdy = ladder_length/2 + ysubtr2_ladder_diff; sdz = zsubtr2_ladder_diff;
-      DDSolid solid = DDSolidFactory::subtraction(ddname,solid_d,solid_b,DDTranslation(sdx,sdy,sdz),DDRotation("esalgo:RM1298"));
-      DDLogicalPart ladder = DDLogicalPart(ddname,getLaddMaterial(),solid);
-      DDName ddname2(getLadPrefix(1)+types_l4_[d],"esalgo"); 
-      DDLogicalPart ladder2 = DDLogicalPart(ddname2,getLaddMaterial(),solid);
+      
+      DDName ddname(getLadPrefix(0)+types_l5_[M],"esalgo");
+      ladder_length = micromodule_length + 4*waf_active;
+      
+      
+      if(ladd_not_plain) {   
+	std::cout <<"plain "<<ladd_not_plain<<" no "<<ladd_subtr_no<<" upper "<< ladd_upper<<" side "<<ladd_side<<std::endl;
+	//   	    enb++; 
+	ostringstream tmp_name_5b, tmp_name_5c, tmp_name_5d;
+	if(ladd_upper) {
+	  
+	  
+	}//upper
+	else {
+	  enb++; 
+	  ostringstream tmp_name_5b, tmp_name_5c, tmp_name_5d;
+	  DDName dd_tmp_name_5a(getLadPrefix(2),"esalgo");
+	  tmp_name_5b <<getLadPrefix(3)<< enb;
+	  DDName dd_tmp_name_5b(tmp_name_5b.str(),"esalgo");	    
+	  tmp_name_5c <<getLadPrefix(4)<< enb;
+	  DDName dd_tmp_name_5c(tmp_name_5c.str(),"esalgo");	    
+	  tmp_name_5d << getLadPrefix(5) << enb;
+	  DDName dd_tmp_name_5d(tmp_name_5d.str(),"esalgo");
+	  
+	  DDName dd_tmp_name_5e(getLadPrefix(6),"esalgo");
+	  
+	  boxay =  ladder_length-LdrFrnt_Length-LdrBck_Length; boxax = ladder_width; boxaz = ladder_thick;
+	  
+	  DDSolid solid_5a = DDSolidFactory::box(dd_tmp_name_5a,boxax/2,boxay/2,boxaz/2.);
+	  if(ladd_side==0) sdxe[enb] = ladder_width/4; sdye[enb]= -boxay/2 - LdrFrnt_Length/2; sdze[enb] = -ladder_thick/2. + LdrFrnt_Offset;
+	  if(ladd_side==1) sdxe[enb] = -ladder_width/4;
+	  
+	  DDSolid solid_5b = DDSolidFactory::unionSolid(dd_tmp_name_5b,solid_5a,solid_lfhalf,DDTranslation(sdxe[enb],sdye[enb],sdze[enb]),DDRotation("esalgo:RM1299"));
+	  
+	  if(ladd_side==0) sdxe2[enb] = -ladder_width/4; sdye2[enb]= -boxay/2 - LdrFrnt_Length/2 + waf_active/2;
+	  sdze2[enb] = -ladder_thick/2. + LdrFrnt_Offset + (waf_active*sin(wedge_angle*2))/4;
+	  if(ladd_side==1) sdxe2[enb] = ladder_width/4;
+	  
+	  DDSolid solid_5c = DDSolidFactory::unionSolid(dd_tmp_name_5c,solid_5b,solid_lfhtrunc,DDTranslation(sdxe2[enb],sdye2[enb],sdze2[enb]),DDRotation("esalgo:RM1299"));
+	  
+	  sdxe3[enb] = 0; sdye3[enb] = boxay/2 + LdrBck_Length/2; sdze3[enb] = -ladder_thick/2. + LdrBck_Offset;
+          DDSolid solid = DDSolidFactory::unionSolid(ddname,solid_5c,solid_lbck,DDTranslation(sdxe3[enb],sdye3[enb],sdze3[enb]),DDRotation("esalgo:RM1299"));      
+	  
+	  DDLogicalPart ladder = DDLogicalPart(ddname,getLaddMaterial(),solid); 
+	  DDName ddname2(getLadPrefix(1)+types_l5_[M],"esalgo");      
+	  DDLogicalPart ladder2 = DDLogicalPart(ddname2,getLaddMaterial(),solid);  
+	  
+	}
+	
+      } //not_plain
+      else {
+	
+	
+	
+	DDName dd_tmp_name_5pa(getLadPrefix(2)+"5p","esalgo");
+	DDName dd_tmp_name_5pb(getLadPrefix(3)+"5p","esalgo");
+	
+	boxay = ladder_length-LdrFrnt_Length-LdrBck_Length; boxax = ladder_width; boxaz = ladder_thick;
+	
+	DDSolid solid_5pa = DDSolidFactory::box(dd_tmp_name_5pa,boxax/2,boxay/2,boxaz/2.);
+	sdx = 0; sdy= -boxay/2 - LdrFrnt_Length/2; sdz = -ladder_thick/2. + LdrFrnt_Offset;
+	
+	DDSolid solid_5pb = DDSolidFactory::unionSolid(dd_tmp_name_5pb,solid_5pa,solid_lfront,DDTranslation(sdx,sdy,sdz),DDRotation("esalgo:RM1299"));
+	
+	sdx = 0; sdy= boxay/2 + LdrBck_Length/2; sdz = -ladder_thick/2. + LdrBck_Offset;
+	
+	DDSolid solid = DDSolidFactory::unionSolid(ddname,solid_5pb,solid_lbck,DDTranslation(sdx,sdy,sdz),DDRotation("esalgo:RM1299"));
+	
+	DDLogicalPart ladder = DDLogicalPart(ddname,getLaddMaterial(),solid); 
+	DDName ddname2(getLadPrefix(1)+types_l5_[M],"esalgo");      
+	DDLogicalPart ladder2 = DDLogicalPart(ddname2,getLaddMaterial(),solid);  
+	
+      }
     }
+
+    if( M >= int(types_l5_.size()) ) {
+      int d = M - types_l5_.size();
+           
+      for (int i=0; i<=1; i++) {
+	for (int j=0; j<=3; j++) {
+	  if(ladd_l4_map_[(i+j*2+(M-types_l5_.size())*8)]!=1 ){
+	    ladd_not_plain=1; ladd_subtr_no++; if(j>1) ladd_upper=1; ladd_side=i;
+	  }
+	}
+      }
+      
+      DDName ddname(getLadPrefix(0)+types_l4_[d],"esalgo");      
+      ladder_length = micromodule_length + 3*waf_active;      
+      
+      if(ladd_not_plain) {        
+	ostringstream tmp_name_b, tmp_name_c, tmp_name_d;
+	if(ladd_upper) {
+	  enb++; 
+	  
+	  DDName dd_tmp_name_a(getLadPrefix(7),"esalgo");
+	  tmp_name_b <<getLadPrefix(8)<< enb;
+	  DDName dd_tmp_name_b(tmp_name_b.str(),"esalgo");	
+	  tmp_name_c <<getLadPrefix(9)<< enb;
+	  DDName dd_tmp_name_c(tmp_name_c.str(),"esalgo");	    
+	  tmp_name_d << getLadPrefix(10) << enb;
+	  DDName dd_tmp_name_d(tmp_name_d.str(),"esalgo");
+	  DDName dd_tmp_name_e(getLadPrefix(11),"esalgo");           
+	  
+	  boxay =  ladder_length-LdrFrnt_Length-LdrBck_Length; boxax = ladder_width; boxaz = ladder_thick;
+	  DDSolid solid_a = DDSolidFactory::box(dd_tmp_name_a,boxax/2,boxay/2,boxaz/2.);
+	  
+	  sdxe[enb] = 0; sdye[enb]= -boxay/2 - LdrFrnt_Length/2; sdze[enb] = -ladder_thick/2. + LdrFrnt_Offset;
+	  DDSolid solid_b = DDSolidFactory::unionSolid(dd_tmp_name_b,solid_a,solid_lfront,DDTranslation(sdxe[enb],sdye[enb],sdze[enb]),DDRotation("esalgo:RM1299"));
+	  
+	  if(ladd_side==0) sdxe2[enb] = ladder_width/4; sdye2[enb] = boxay/2 + LdrBck_Length/2; sdze2[enb] = -ladder_thick/2. + LdrBck_Offset;
+	  if(ladd_side==1) sdxe2[enb] = -ladder_width/4; 
+          DDSolid solid = DDSolidFactory::unionSolid(ddname,solid_b,solid_lbhalf,DDTranslation(sdxe2[enb],sdye2[enb],sdze2[enb]),DDRotation("esalgo:RM1299"));      
+	  
+	  DDLogicalPart ladder = DDLogicalPart(ddname,getLaddMaterial(),solid);
+	  DDName ddname2(getLadPrefix(1)+types_l4_[d],"esalgo"); 
+	  DDLogicalPart ladder2 = DDLogicalPart(ddname2,getLaddMaterial(),solid);   
+	  
+	}//upper
+	else {
+	  if(ladd_subtr_no>1) {
+   	    enb++; 
+	    
+	    DDName dd_tmp_name_a(getLadPrefix(7),"esalgo");
+      	    tmp_name_b <<getLadPrefix(8)<< enb;
+	    DDName dd_tmp_name_b(tmp_name_b.str(),"esalgo");	
+ 	    tmp_name_c <<getLadPrefix(9)<< enb;
+	    DDName dd_tmp_name_c(tmp_name_c.str(),"esalgo");	    
+	    tmp_name_d << getLadPrefix(10) << enb;
+	    DDName dd_tmp_name_d(tmp_name_d.str(),"esalgo");
+	    DDName dd_tmp_name_e(getLadPrefix(11),"esalgo");           
+	    
+	    boxay =  ladder_length-LdrFrnt_Length-LdrBck_Length; boxax = ladder_width; boxaz = ladder_thick;
+
+	    DDSolid solid_a = DDSolidFactory::box(dd_tmp_name_a,boxax/2,boxay/2,boxaz/2.);
+	    if(ladd_side==0) sdxe[enb] = ladder_width/4; sdye[enb]= -boxay/2 - LdrFrnt_Length/2; sdze[enb] = -ladder_thick/2. + LdrFrnt_Offset;
+	    if(ladd_side==1) sdxe[enb] = -ladder_width/4;
+	    
+	    DDSolid solid_b = DDSolidFactory::unionSolid(dd_tmp_name_b,solid_a,solid_lfhalf,DDTranslation(sdxe[enb],sdye[enb],sdze[enb]),DDRotation("esalgo:RM1299"));
+	    
+	    sdxe2[enb] = 0; sdye2[enb] = boxay/2 + LdrBck_Length/2; sdze2[enb] = -ladder_thick/2. + LdrBck_Offset;
+	    
+	    DDSolid solid = DDSolidFactory::unionSolid(ddname,solid_b,solid_lbck,DDTranslation(sdxe2[enb],sdye2[enb],sdze2[enb]),DDRotation("esalgo:RM1299"));      
+	    
+	    DDLogicalPart ladder = DDLogicalPart(ddname,getLaddMaterial(),solid);
+	    DDName ddname2(getLadPrefix(1)+types_l4_[d],"esalgo"); 
+	    DDLogicalPart ladder2 = DDLogicalPart(ddname2,getLaddMaterial(),solid);
+	  } else {
+    	    enb++; 
+	    DDName dd_tmp_name_a(getLadPrefix(7),"esalgo");
+      	    tmp_name_b <<getLadPrefix(8)<< enb;
+	    DDName dd_tmp_name_b(tmp_name_b.str(),"esalgo");	
+ 	    tmp_name_c <<getLadPrefix(9)<< enb;
+	    DDName dd_tmp_name_c(tmp_name_c.str(),"esalgo");	    
+	    tmp_name_d << getLadPrefix(10) << enb;
+	    DDName dd_tmp_name_d(tmp_name_d.str(),"esalgo");
+	    DDName dd_tmp_name_e(getLadPrefix(11),"esalgo");           
+	    
+	    boxay =  ladder_length-LdrFrnt_Length-LdrBck_Length; boxax = ladder_width; boxaz = ladder_thick;
+	    DDSolid solid_a = DDSolidFactory::box(dd_tmp_name_a,boxax/2,boxay/2,boxaz/2.);
+	    if(ladd_side==0) sdxe[enb] = ladder_width/4; sdye[enb]= -boxay/2 - LdrFrnt_Length/2; sdze[enb] = -ladder_thick/2. + LdrFrnt_Offset;
+	    if(ladd_side==1) sdxe[enb] = -ladder_width/4;
+	    
+	    DDSolid solid_b = DDSolidFactory::unionSolid(dd_tmp_name_b,solid_a,solid_lfhalf,DDTranslation(sdxe[enb],sdye[enb],sdze[enb]),DDRotation("esalgo:RM1299"));
+	    
+	    if(ladd_side==0) sdxe2[enb] = -ladder_width/4; sdye2[enb]= -boxay/2 - LdrFrnt_Length/2 + waf_active/2;
+	    sdze2[enb] = -ladder_thick/2. + LdrFrnt_Offset + (waf_active*sin(wedge_angle*2))/4;
+	    if(ladd_side==1) sdxe2[enb] = ladder_width/4;
+	    
+	    DDSolid solid_c = DDSolidFactory::unionSolid(dd_tmp_name_c,solid_b,solid_lfhtrunc,DDTranslation(sdxe2[enb],sdye2[enb],sdze2[enb]),DDRotation("esalgo:RM1299"));
+	    
+	    sdxe3[enb] = 0; sdye3[enb] = boxay/2 + LdrBck_Length/2; sdze3[enb] = -ladder_thick/2. + LdrBck_Offset;
+	    DDSolid solid = DDSolidFactory::unionSolid(ddname,solid_c,solid_lbck,DDTranslation(sdxe3[enb],sdye3[enb],sdze3[enb]),DDRotation("esalgo:RM1299"));      
+	    
+	    DDLogicalPart ladder = DDLogicalPart(ddname,getLaddMaterial(),solid);
+	    DDName ddname2(getLadPrefix(1)+types_l4_[d],"esalgo"); 
+	    DDLogicalPart ladder2 = DDLogicalPart(ddname2,getLaddMaterial(),solid);
+	    
+	  }     
+	}
+	
+      } //not_plain
+      else {
+	DDName dd_tmp_name_pa(getLadPrefix(2)+"p","esalgo");
+	DDName dd_tmp_name_pb(getLadPrefix(3)+"p","esalgo");
+	
+	boxay = ladder_length-LdrFrnt_Length-LdrBck_Length; boxax = ladder_width; boxaz = ladder_thick;
+	
+	DDSolid solid_pa = DDSolidFactory::box(dd_tmp_name_pa,boxax/2,boxay/2,boxaz/2.);
+	sdx = 0; sdy= -boxay/2 - LdrFrnt_Length/2; sdz = -ladder_thick/2. + LdrFrnt_Offset;
+	
+	DDSolid solid_pb = DDSolidFactory::unionSolid(dd_tmp_name_pb,solid_pa,solid_lfront,DDTranslation(sdx,sdy,sdz),DDRotation("esalgo:RM1299"));
+	
+	sdx = 0; sdy= boxay/2 + LdrBck_Length/2; sdz = -ladder_thick/2. + LdrBck_Offset;
+	DDSolid solid = DDSolidFactory::unionSolid(ddname,solid_pb,solid_lbck,DDTranslation(sdx,sdy,sdz),DDRotation("esalgo:RM1299"));          
+	DDLogicalPart ladder = DDLogicalPart(ddname,getLaddMaterial(),solid);
+	DDName ddname2(getLadPrefix(1)+types_l4_[d],"esalgo"); 
+	DDLogicalPart ladder2 = DDLogicalPart(ddname2,getLaddMaterial(),solid);
+      }
+    }
+    
     if(M<int(types_l5_.size())) {
       DDName ddname(getLadPrefix(0)+types_l5_[M],"esalgo");
       DDName ddname2(getLadPrefix(1)+types_l5_[M],"esalgo"); 
       for (int i=0; i<=1; i++) {
 	for (int j=0; j<=4; j++) {
-	  xpos = (i*2-1)*waf_intra_col_sep/2.; ypos = -ladder_length/2. + wedge_length/2. + j*waf_active;
+	  xpos = (i*2-1)*waf_intra_col_sep/2.; ypos = -ladder_length/2.-(LdrFrnt_Length-LdrBck_Length)/2 + wedge_length/2. + j*waf_active;
 	  zpos = -ladder_thick/2. + wedge_offset;
 	  if(ladd_l5_map_[(i+j*2+M*10)]==1) {
 	    scopy ++;
 	    DDpos(DDLogicalPart("esalgo:SWED"), ddname, scopy, DDTranslation(xpos,ypos,zpos), DDRotation("esalgo:RM1299"));
 	    DDpos(DDLogicalPart("esalgo:SWED"), ddname2, scopy, DDTranslation(xpos,ypos,zpos), DDRotation("esalgo:RM1299"));
-
+	    
 	    ypos = ypos + ywedge_ceramic_diff; zpos = -ladder_thick/2. + zwedge_ceramic_diff;
 	    DDpos(DDLogicalPart("esalgo:SFBX"), ddname, scopy, DDTranslation(xpos,ypos,zpos), DDRotation("esalgo:RM1298"));
 	    DDpos(DDLogicalPart("esalgo:SFBY"), ddname2, scopy, DDTranslation(xpos,ypos,zpos), DDRotation("esalgo:RM1300A")); 
@@ -328,7 +506,8 @@ void DDEcalPreshowerAlgo::doLadders() {
 	DDName ddname2(getLadPrefix(1)+types_l4_[d],"esalgo"); 	
 	for (int i=0; i<=1; i++) {
 	  for (int j=0; j<=3; j++) {
-	    xpos = (i*2-1)*waf_intra_col_sep/2.; ypos = -ladder_length/2. + wedge_length/2. + j*waf_active;
+	 //   xpos = (i*2-1)*waf_intra_col_sep/2.; ypos = -ladder_length/2. + wedge_length/2. + j*waf_active;
+	    xpos = (i*2-1)*waf_intra_col_sep/2.; ypos = -ladder_length/2. - (LdrFrnt_Length-LdrBck_Length)/2 + wedge_length/2. + j*waf_active;
 	    zpos = -ladder_thick/2. + wedge_offset;
 	    if(ladd_l4_map_[(i+j*2+(M-types_l5_.size())*8)]==1) {
 	      scopy ++;
@@ -370,17 +549,17 @@ void DDEcalPreshowerAlgo::doLadders() {
       
       xpos = I*(2*waf_intra_col_sep + waf_inter_col_sep);
       int sz = 20;    
-      ypos = (sz-int(startOfFirstLadd_[J]))*waf_active - ladder_new_length_/2. + micromodule_length + 0.05*cm - prev_length_;
+      ypos = (sz-int(startOfFirstLadd_[J]))*waf_active - ladder_new_length_/2. + (LdrFrnt_Length-LdrBck_Length)/2 + micromodule_length + 0.05*cm - prev_length_;
       prev_length_ += ladd_shift_;        
       
       zpos = zlead1_ + ladder_thick/2.;
       icopy[j] +=1;
       DDName ddname(getLadPrefix(0)+type,"esalgo"); 
       
-      DDpos(DDLogicalPart(ddname), DDName("SF","esalgo"), icopy[j], DDTranslation(xpos,ypos,zpos), DDRotation());
+  DDpos(DDLogicalPart(ddname), DDName("SF","esalgo"), icopy[j], DDTranslation(xpos,ypos,zpos), DDRotation());
       DDName ddname2(getLadPrefix(1)+type,"esalgo"); 
       
-      DDpos(DDLogicalPart(ddname2), DDName("SF","esalgo"), icopy[j], DDTranslation(ypos,-xpos,zpos-zlead1_+zlead2_), DDRotation("esalgo:R270"));	
+     DDpos(DDLogicalPart(ddname2), DDName("SF","esalgo"), icopy[j], DDTranslation(ypos,-xpos,zpos-zlead1_+zlead2_), DDRotation("esalgo:R270"));	
       
       int changed = 0;
       for(int t=0;t<int(types_l5_.size());t++) if(type == types_l5_[t]) {j = t; if(asym_ladd_[t] == 2 && !changed) { j = j - 1; changed = 1;} if(asym_ladd_[t] == 1 && !changed) { j = j + 1; changed = 1;}  type = types_l5_[j];} 
@@ -388,9 +567,9 @@ void DDEcalPreshowerAlgo::doLadders() {
       
       icopy[j] +=1;
       DDName ddname3(getLadPrefix(0)+type,"esalgo");       
-      DDpos(DDLogicalPart(ddname3), DDName("SF","esalgo"), icopy[j], DDTranslation(xpos,-ypos,zpos), DDRotation("esalgo:R180"));
+    DDpos(DDLogicalPart(ddname3), DDName("SF","esalgo"), icopy[j], DDTranslation(xpos,-ypos,zpos), DDRotation("esalgo:R180"));
       DDName ddname4(getLadPrefix(1)+type,"esalgo"); 
-      DDpos(DDLogicalPart(ddname4), DDName("SF","esalgo"), icopy[j], DDTranslation(-ypos,-xpos,zpos-zlead1_+zlead2_), DDRotation("esalgo:R090"));
+   DDpos(DDLogicalPart(ddname4), DDName("SF","esalgo"), icopy[j], DDTranslation(-ypos,-xpos,zpos-zlead1_+zlead2_), DDRotation("esalgo:R090"));
     }
   } 
 }

@@ -22,7 +22,9 @@
   <ZSection z="[eecon:EEzBack]"    rMin="[eecon:ENCAEnvRBack]"  rMax="[eecon:EBRMax]" />
   <ZSection z="[eecon:EEzNeck]"    rMin="[eecon:ENCAEnvRNeck]"  rMax="[eecon:EBRMax]" />
   <ZSection z="[eecon:EEzNeck]"    rMin="[eecon:ENCAEnvRNeck]"  rMax="[eecon:EErNeck]" />
-  <ZSection z="[eecon:EEFarZ]"     rMin="[eecon:ENCAEnvRFar]"   rMax="[eecon:EErNeck]" />
+  <ZSection z="[eecon:EEBConeZ]"   rMin="[eecon:ENCAEnvRBCone]" rMax="[eecon:EErNeck]" />
+  <ZSection z="[eecon:EEBConeZ]"   rMin="[eecon:EEBConeIR]"     rMax="[eecon:EErNeck]" />
+  <ZSection z="[eecon:EEFarZ]"     rMin="[eecon:EEBConeIR]"     rMax="[eecon:EErNeck]" />
  </Polycone>
 
  <Polycone name="EEDee" startPhi="-90*deg" deltaPhi="180*deg" >
@@ -32,21 +34,27 @@
   <ZSection z="[eecon:EEzBack]"    rMin="[eecon:ENCAEnvRBack]"  rMax="[eecon:EBRMax]" />
   <ZSection z="[eecon:EEzNeck]"    rMin="[eecon:ENCAEnvRNeck]"  rMax="[eecon:EBRMax]" />
   <ZSection z="[eecon:EEzNeck]"    rMin="[eecon:ENCAEnvRNeck]"  rMax="[eecon:EErNeck]" />
-  <ZSection z="[eecon:EEFarZ]"     rMin="[eecon:ENCAEnvRFar]"   rMax="[eecon:EErNeck]" />
+  <ZSection z="[eecon:EEBConeZ]"   rMin="[eecon:ENCAEnvRBCone]" rMax="[eecon:EErNeck]" />
+  <ZSection z="[eecon:EEBConeZ]"   rMin="[eecon:EEBConeIR]"     rMax="[eecon:EErNeck]" />
+  <ZSection z="[eecon:EEFarZ]"     rMin="[eecon:EEBConeIR]"     rMax="[eecon:EErNeck]" />
  </Polycone>
 
  <Polycone name="EEBackDee" startPhi="-90*deg" deltaPhi="180*deg" >
   <ZSection z="[eecon:EEzBack]"    rMin="[eecon:ENCAEnvRBack]"  rMax="[eecon:EBRMax]" />
   <ZSection z="[eecon:EEzNeck]"    rMin="[eecon:ENCAEnvRNeck]"  rMax="[eecon:EBRMax]" />
   <ZSection z="[eecon:EEzNeck]"    rMin="[eecon:ENCAEnvRNeck]"  rMax="[eecon:EErNeck]" />
-  <ZSection z="[eecon:EEFarZ]"     rMin="[eecon:ENCAEnvRFar]"   rMax="[eecon:EErNeck]" />
+  <ZSection z="[eecon:EEBConeZ]"   rMin="[eecon:ENCAEnvRBCone]" rMax="[eecon:EErNeck]" />
+  <ZSection z="[eecon:EEBConeZ]"   rMin="[eecon:EEBConeIR]"     rMax="[eecon:EErNeck]" />
+  <ZSection z="[eecon:EEFarZ]"     rMin="[eecon:EEBConeIR]"     rMax="[eecon:EErNeck]" />
  </Polycone>
 
  <Polycone name="EEBackQuad" startPhi="0*deg" deltaPhi="90*deg" >
   <ZSection z="[eecon:EEzBack]"    rMin="[eecon:ENCAEnvRBack]"  rMax="[eecon:EBRMax]" />
   <ZSection z="[eecon:EEzNeck]"    rMin="[eecon:ENCAEnvRNeck]"  rMax="[eecon:EBRMax]" />
   <ZSection z="[eecon:EEzNeck]"    rMin="[eecon:ENCAEnvRNeck]"  rMax="[eecon:EErNeck]" />
-  <ZSection z="[eecon:EEFarZ]"     rMin="[eecon:ENCAEnvRFar]"   rMax="[eecon:EErNeck]" />
+  <ZSection z="[eecon:EEBConeZ]"   rMin="[eecon:ENCAEnvRBCone]" rMax="[eecon:EErNeck]" />
+  <ZSection z="[eecon:EEBConeZ]"   rMin="[eecon:EEBConeIR]"     rMax="[eecon:EErNeck]" />
+  <ZSection z="[eecon:EEFarZ]"     rMin="[eecon:EEBConeIR]"     rMax="[eecon:EErNeck]" />
  </Polycone>
 
  <Polycone name="EEFrontDee" startPhi="-90*deg" deltaPhi="180*deg" >

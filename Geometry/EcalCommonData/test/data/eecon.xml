@@ -62,34 +62,40 @@
 
 <!-- Preshower support cone -->
 
-<!--
 <Constant name="ESConeZ6"   value=" 450.0*mm"/>
 <Constant name="ESConeZ5"   value=" 410.0*mm"/>
 <Constant name="ESConeZ4"   value=" 410.0*mm"/>
--->
+<!--
 <Constant name="ESConeZ4"   value=" 370.0*mm"/>
+-->
 <Constant name="ESConeZ3"   value="-434.0*mm"/>
 <Constant name="ESConeZ2"   value="-434.0*mm"/>
 <Constant name="ESConeZ1"   value="-450.0*mm"/>
 
-<!--
 <Constant name="ESConeI6"   value=" 375.0*mm"/>
 <Constant name="ESConeI5"   value=" 371.0*mm"/>
 <Constant name="ESConeI4"   value=" 371.0*mm"/>
--->
+<!--
 <Constant name="ESConeI4"   value="[ESConeI3] +
                                    [EETanInnerAngle]*( [ESConeZ4] - [ESConeZ3] )"/>
+-->
 <Constant name="ESConeI3"   value=" 284.0*mm"/>
 <Constant name="ESConeI2"   value=" 260.0*mm"/>
 <Constant name="ESConeI1"   value=" 260.0*mm"/>
 
 <!--
 <Constant name="ESConeO6"   value=" 450.0*mm"/>
-<Constant name="ESConeO5"   value=" 450.0*mm"/>
-<Constant name="ESConeO4"   value=" 374.0*mm"/>
+
+make cone not as big because it does not fit into inner moderator
 -->
+
+<Constant name="ESConeO6"   value="[EEIModI5]"/>
+<Constant name="ESConeO5"   value="[ESConeO6]"/>
+<Constant name="ESConeO4"   value=" 374.0*mm"/>
+<!--
 <Constant name="ESConeO4"   value="[ESConeO3] +
                                    [EETanInnerAngle]*( [ESConeZ4] - [ESConeZ3] )"/>
+-->
 <Constant name="ESConeO3"   value=" 287.0*mm"/>
 <Constant name="ESConeO2"   value=" 306.0*mm"/>
 <Constant name="ESConeO1"   value=" 306.0*mm"/>
@@ -99,24 +105,33 @@
 <Constant name="ESConeO5Plus"   value="[ESConeO5] + [ESPlus]"/>
 <Constant name="ESConeO4Plus"   value="[ESConeO4] + [ESPlus]"/>
 
+<Constant name="ESRingZFront"   value="3074*mm"/>
+<Constant name="ESRingZThick"   value="  14*mm"/>
+<Constant name="ESRingIR"       value=" 288*mm"/>
+<Constant name="ESRingOR"       value=" 311*mm"/>
+
+<Constant name="EEBConeZ"       value="[EEFarZ] - [EEIModZA] + [EEIModZ5]"/>
+<Constant name="EEBConeIR"      value="[EEIModI5]"/>
 
 
 <!-- Global size specifications -->
 
-<Constant name="ENCAEnvZES"     value="[esalgo:PRESH_Z_OFFSET] + [esalgo:PRESH_Z_TOTAL]/2 +
-                                       [ESConeZ2] - [ESConeZ1]"/>
+<Constant name="ENCAEnvZES"     value="[ESRingZFront] + [ESRingZThick] + [ESConeZ2] - [ESConeZ1]"/>
 
 <Constant name="ENCAEnvRNeck"   value="[ESConeO3] +
-                                       [EETanInnerAngle]*( [EEzNeck] - [ENCAEnvZES] ) + 0.5*mm"/>
+                                       [EETanInnerAngle]*( [EEzNeck] - [ENCAEnvZES] ) + 5*mm"/>
+
+<Constant name="ENCAEnvRBCone"  value="[ESConeO3] +
+                                       [EETanInnerAngle]*( [EEBConeZ] - [ENCAEnvZES] ) + 5*mm"/>
 
 <Constant name="ENCAEnvRFront"  value="[ESConeO3] +
-                                       [EETanInnerAngle]*( [EEzFront] - [ENCAEnvZES] ) +0.5*mm"/>
+                                       [EETanInnerAngle]*( [EEzFront] - [ENCAEnvZES] ) +5*mm"/>
 
 <Constant name="ENCAEnvRBack"   value="[ESConeO3] +
-                                       [EETanInnerAngle]*( [EEzBack] - [ENCAEnvZES] ) + 0.5*mm"/>
+                                       [EETanInnerAngle]*( [EEzBack] - [ENCAEnvZES] ) + 5*mm"/>
 
 <Constant name="ENCAEnvRFar"    value="[ESConeO3] +
-                                       [EETanInnerAngle]*( [EEFarZ] - [ENCAEnvZES] ) + 0.5*mm"/>
+                                       [EETanInnerAngle]*( [EEFarZ] - [ENCAEnvZES] ) + 5*mm"/>
 
 <Constant name="ECALEnvRFar"    value="[ENCAEnvRFar] - 5.0*mm"/>
 
