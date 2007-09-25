@@ -122,7 +122,9 @@ void OptOCOPS::makeMeasurement( LightRay& lightray, Measurement& meas )
   if(ALIUtils::debug>= 3) std::cout << std::endl << "***** RIGHT CCD *****" << std::endl 
                             << "*********************" << std::endl<< std::endl ;
   eexists = findExtraEntryValueIfExists("rightCCDXtoDowel2", posX);
-  if(!eexists) posX = -CCDlength - 0.004;
+  if(!eexists) posX = - 0.004; // samir changed in order to adjust the
+position of 1 st pixel.
+ //if(!eexists) posX = -CCDlength - 0.004;
   posY = findExtraEntryValue("rightCCDYtoDowel2");
   posxy = CLHEP::Hep3Vector( posX, posY, 0);
   if(ALIUtils::debug>= 3) std::cout << "   right ccd in local RF " << posxy << std::endl; 
