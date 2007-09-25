@@ -211,3 +211,17 @@ unsigned int PixelFEDConfig::VMEBaseAddressFromFEDNumber(unsigned int fednumber)
 
 }
 
+unsigned int PixelFEDConfig::FEDNumberFromCrateAndVMEBaseAddress(unsigned int crate, unsigned int vmebaseaddress) const {
+
+  for(unsigned int i=0;i<fedconfig_.size();i++){
+    if (fedconfig_[i].getCrate()==crate&&
+        fedconfig_[i].getVMEBaseAddress()==vmebaseaddress) return fedconfig_[i].getFEDNumber();
+  }
+
+  std::cout << "Could not find FED crate and address:"<<crate<<", "<<vmebaseaddress<<std::endl;
+
+  assert(0);
+
+  return 0;
+
+}
