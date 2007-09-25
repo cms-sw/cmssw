@@ -1,3 +1,10 @@
+2007-09-25  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
+
+	* tag V00-04-01
+	* remove some unnecessary functions from FUShmBuffer
+	* accomodate the allocation of several FURecoCells for one single
+	event
+
 2007-05-24  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
 
 	* tag V00-04-00

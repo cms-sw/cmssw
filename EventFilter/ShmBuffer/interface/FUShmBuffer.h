@@ -183,12 +183,11 @@ namespace evf {
     
     unsigned int   indexForEvtNumber(unsigned int evtNumber);
     unsigned int   evtNumber(unsigned int index);
-    unsigned int   evtRecoId(unsigned int index);
     
     bool           setEvtState(unsigned int index,evt::State_t state);
     bool           setEvtDiscard(unsigned int index,unsigned int discard);
+    int            incEvtDiscard(unsigned int index);
     bool           setEvtNumber(unsigned int index,unsigned int evtNumber);
-    bool           setRecoCellId(unsigned int index,unsigned int recoCellId);
     bool           setDqmState(unsigned int index,dqm::State_t state);
     
     FUShmRawCell*  rawCell(unsigned int iCell);
@@ -259,7 +258,6 @@ namespace evf {
     unsigned int evtStateOffset_;
     unsigned int evtDiscardOffset_;
     unsigned int evtNumberOffset_;
-    unsigned int evtRecoIdOffset_;
     unsigned int dqmStateOffset_;
     
     unsigned int nRawCells_;
