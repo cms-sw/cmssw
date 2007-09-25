@@ -97,6 +97,7 @@ FUResourceBroker::FUResourceBroker(xdaq::ApplicationStub *s)
   , smClassName_("StorageManager")
   , smInstance_(0)
   , monSleepSec_(1)
+  , reasonForFailed_("")
   , nbAllocateSent_(0)
   , nbTakeReceived_(0)
   , nbDataDiscardReceived_(0)
@@ -195,7 +196,8 @@ bool FUResourceBroker::configuring(toolbox::task::WorkLoop* wl)
     fsm_.fireEvent("ConfigureDone",this);
   }
   catch (xcept::Exception &e) {
-    std::string msg = "configuring FAILED: " + (string)e.what();
+    std::string msg  = "configuring FAILED: " + (string)e.what();
+    reasonForFailed_ = e.what();
     fsm_.fireFailed(msg,this);
   }
   
@@ -218,7 +220,8 @@ bool FUResourceBroker::enabling(toolbox::task::WorkLoop* wl)
     fsm_.fireEvent("EnableDone",this);
   }
   catch (xcept::Exception &e) {
-    std::string msg="enabling FAILED: "+xcept::stdformat_exception_history(e);
+    std::string msg  = "enabling FAILED: "+xcept::stdformat_exception_history(e);
+    reasonForFailed_ = e.what();
     fsm_.fireFailed(msg,this);
   }
   
@@ -249,12 +252,14 @@ bool FUResourceBroker::stopping(toolbox::task::WorkLoop* wl)
       fsm_.fireEvent("StopDone",this);
     }
     else {
-      std::string msg = "stopping FAILED: ResourceTable shutdown timed out.";
+      std::string msg  = "stopping FAILED: ResourceTable shutdown timed out.";
+      reasonForFailed_ = "RESOURCETABLE SHUTDOWN TIMED OUT.";
       fsm_.fireFailed(msg,this);
     }
   }
   catch (xcept::Exception &e) {
-    std::string msg = "stopping FAILED: "+xcept::stdformat_exception_history(e);
+    std::string msg  = "stopping FAILED: "+xcept::stdformat_exception_history(e);
+    reasonForFailed_ = e.what();
     fsm_.fireFailed(msg,this);
   }
   
@@ -293,12 +298,14 @@ bool FUResourceBroker::halting(toolbox::task::WorkLoop* wl)
       fsm_.fireEvent("HaltDone",this);
     }
     else {
-      std::string msg = "halting FAILED: ResourceTable shutdown timed out.";
+      std::string msg  = "halting FAILED: ResourceTable shutdown timed out.";
+      reasonForFailed_ = "RESOURCETABLE SHUTDOWN TIMED OUT";
       fsm_.fireFailed(msg,this);
     }
   }
   catch (xcept::Exception &e) {
-    std::string msg = "halting FAILED: "+xcept::stdformat_exception_history(e);
+    std::string msg  = "halting FAILED: "+xcept::stdformat_exception_history(e);
+    reasonForFailed_ = e.what();
     fsm_.fireFailed(msg,this);
   }
   
@@ -605,7 +612,8 @@ void FUResourceBroker::exportParameters()
   gui_->addStandardParam("smInstance",              &smInstance_);
   gui_->addStandardParam("monSleepSec",             &monSleepSec_);
   gui_->addStandardParam("foundRcmsStateListener",   fsm_.foundRcmsStateListener());
-
+  gui_->addStandardParam("reasonForFailed",         &reasonForFailed_);
+  
   gui_->addDebugCounter("nbAllocateSent",           &nbAllocateSent_);
   gui_->addDebugCounter("nbTakeReceived",           &nbTakeReceived_);
   gui_->addDebugCounter("nbDataDiscardReceived",    &nbDataDiscardReceived_);

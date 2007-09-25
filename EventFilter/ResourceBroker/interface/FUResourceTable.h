@@ -31,7 +31,7 @@ namespace evf {
 		    UInt_t nbRawCells, UInt_t nbRecoCells, UInt_t nbDqmCells,
 		    UInt_t rawCellSize,UInt_t recoCellSize,UInt_t dqmCellSize,
 		    BUProxy* bu,SMProxy* sm,
-		    log4cplus::Logger logger);
+		    log4cplus::Logger logger) throw (evf::Exception);
     virtual ~FUResourceTable();
     
     
@@ -42,7 +42,8 @@ namespace evf {
     // initialization of the resource queue
     void   initialize(bool   segmentationMode,
 		      UInt_t nbRawCells, UInt_t nbRecoCells, UInt_t nbDqmCells,
-		      UInt_t rawCellSize,UInt_t recoCellSize,UInt_t dqmCellSize);
+		      UInt_t rawCellSize,UInt_t recoCellSize,UInt_t dqmCellSize)
+      throw (evf::Exception);
     
     // work loop to send data events to storage manager
     void   startSendDataWorkLoop() throw (evf::Exception);

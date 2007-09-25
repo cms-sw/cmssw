@@ -187,6 +187,8 @@ namespace evf {
     
     xdata::UnsignedInteger32 monSleepSec_;
     
+    xdata::String            reasonForFailed_;
+    
 
     // debug parameters
     xdata::UnsignedInteger32 nbAllocateSent_;

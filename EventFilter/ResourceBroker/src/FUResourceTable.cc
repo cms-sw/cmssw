@@ -38,6 +38,7 @@ FUResourceTable::FUResourceTable(bool              segmentationMode,
 				 BUProxy          *bu,
 				 SMProxy          *sm,
 				 log4cplus::Logger logger)
+  throw (evf::Exception)
   : bu_(bu)
   , sm_(sm)
   , log_(logger)
@@ -84,6 +85,7 @@ void FUResourceTable::initialize(bool   segmentationMode,
 				 UInt_t rawCellSize,
 				 UInt_t recoCellSize,
 				 UInt_t dqmCellSize)
+  throw (evf::Exception)
 {
   clear();
   
@@ -91,8 +93,9 @@ void FUResourceTable::initialize(bool   segmentationMode,
 					  nbRawCells,nbRecoCells,nbDqmCells,
 					  rawCellSize,recoCellSize,dqmCellSize);
   if (0==shmBuffer_) {
-    LOG4CPLUS_FATAL(log_,"CREATION OF SHARED MEMORY SEGMENT FAILED!");
-    return;
+    string msg = "CREATION OF SHARED MEMORY SEGMENT FAILED!";
+    LOG4CPLUS_FATAL(log_,msg);
+    XCEPT_RAISE(evf::Exception,msg);
   }
   
   for (UInt_t i=0;i<nbRawCells;i++) {
