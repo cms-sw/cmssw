@@ -38,6 +38,8 @@ void EcalFenixTcpFormat::process(std::vector<int> &Et, std::vector<int> &fgvb, i
 
     myEt=myEt>>eTTotShift;
     if (myEt>0x3ff) myEt=0x3ff ;
+    if (isInInnerRings) myEt = myEt /2 ;
+    
     int lut_out = (lut_)[myEt] ;
     int ttFlag = (lut_out & 0x700) >> 8 ;
     if (tcpFormat_)  {

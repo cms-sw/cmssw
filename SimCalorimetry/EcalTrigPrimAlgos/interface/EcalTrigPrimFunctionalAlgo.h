@@ -194,11 +194,13 @@ void EcalTrigPrimFunctionalAlgo::run_part2(const edm::EventSetup &setup,Coll con
         }
         int isam=0;
         for (int i=firstSample;i<=lastSample;++i) {
-          if (nrTowers<=1)  tptow[nrt].setSample(isam++,EcalTriggerPrimitiveSample(towtp_[i]));
-          else {
-            int et=towtp_[i].compressedEt()/2;
-            tptow[nrt].setSample(isam++,EcalTriggerPrimitiveSample(et,towtp_[i].fineGrain(),towtp_[i].ttFlag()));
-          }
+	  // if (nrTowers<=1)  
+	  tptow[nrt].setSample(isam++,EcalTriggerPrimitiveSample(towtp_[i]));
+	  // else {
+	    // int et=towtp_[i].compressedEt()/2;
+	    //    tptow[nrt].setSample(isam++,EcalTriggerPrimitiveSample(et,towtp_[i].fineGrain(),towtp_[i].ttFlag()));
+	  //    tptow[nrt].setSample(isam++,EcalTriggerPrimitiveSample(towtp_[i]));
+	  //  }
         }
  	nrTP++;
         LogDebug("EcalTPG") <<" For tower "<<itow<<" created TP nr "<<nrTP<<" with Et "<<tptow[nrt].compressedEt();
