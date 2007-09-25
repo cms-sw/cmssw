@@ -39,37 +39,26 @@ TransientVertex  ConversionVertexFinder::run(std::vector<reco::TransientTrack>  
   //}
 
 
-  //reco::Vertex theVertex;  
-  KalmanVertexFitter fitter;
-  CachingVertex cachingVertex;
+  reco::Vertex theVertex;  
+  KalmanVertexFitter fitter(true);
   TransientVertex transientVtx;
 
   const string metname =  "ConversionVertexFinder| ConversionVertexFinder";
   try{
-    cachingVertex = fitter.vertex(pair); 
+
+    transientVtx = fitter.vertex(pair); 
 
   }  catch ( cms::Exception& e ) {
-    // std::cout << " cms::Exception caught in ConversionVertexFinder::run " << "\n" ;
+
+
     edm::LogWarning(metname) << "cms::Exception caught in ConversionVertexFinder::run\n"
 			     << e.explainSelf();
     
   }
   
 
-  if ( cachingVertex.isValid() ) {
-    transientVtx = cachingVertex; 
-    //theVertex = transientVtx;
-
-    //    std::cout << "  ConversionVertexFinder VALID " << "\n";
-    //std::cout << "  ConversionVertexFinder caching vertex position " << cachingVertex.position() << " tran vertex position " << transientVtx.position() << "\n"; 
-    // std::cout << "  ConversionVertexFinder reco vertex position " << theVertex.position() << "\n"; 
-  } else {
-    LogDebug("ConversionVertexFinder") << "  ConversionVertexFinder NOT VALID " << "\n";
-  }
-
-
-  //  std::cout << " ConversionVertexFinder before return " << std::endl;
   return transientVtx;
+
     
     
 }
