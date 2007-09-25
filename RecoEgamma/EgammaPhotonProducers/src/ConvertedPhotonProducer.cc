@@ -317,8 +317,6 @@ void ConvertedPhotonProducer::produce(edm::Event& theEvent, const edm::EventSetu
     
     
     ///// Find the +/- pairs
-    //    std::map<std::vector<reco::TransientTrack>, reco::SuperCluster> allPairs;
-    
     std::map<std::vector<reco::TransientTrack>, reco::SuperCluster> allPairs = theTrackPairFinder_->run(t_outInTrkBarrel, outInTrkBarrelHandle, outInTrkSCBarrelAssocHandle, t_inOutTrkBarrel, inOutTrkBarrelHandle, inOutTrkSCBarrelAssocHandle  );
     
     
@@ -346,18 +344,13 @@ void ConvertedPhotonProducer::produce(edm::Event& theEvent, const edm::EventSetu
 	       (  fabs(  (iPair->second).eta()     - aClus->eta()     ) < 0.001 )      &&
 	       (  fabs(  (iPair->second).phi()     -  aClus->phi()    ) < 0.001  ) ) )   continue;
 	
-	
-	
-	//CachingVertex theConversionVertex;
 
 	const string metname = "ConvertedPhotons|ConvertedPhotonProducer";
 	if ( (iPair->first).size()  > 1 ) {
 	  try{
 
 	    TransientVertex trVtx=theVertexFinder_->run(iPair->first); 
-	   
 	    theConversionVertex= trVtx;
-	   
 	    
 	  }
 	  catch ( cms::Exception& e ) {
@@ -370,20 +363,6 @@ void ConvertedPhotonProducer::produce(edm::Event& theEvent, const edm::EventSetu
 	}
 	
 
-	/*		
-		if ( theConversionVertex !=0  ) {	
-		std::cout << "  ConvertedPhotonProducer vertex refitted tracks size " <<  theConversionVertex->refittedTracks().size() << std::endl;
-		//convVtx.SetXYZ( theConversionVertex.position().x(), theConversionVertex.position().y(),  theConversionVertex.position().z() );
-		//	  recoConvVtx = reco::Vertex();    
-		std::cout << " ConvertedPhotonProducer conversion vertex position " << theConversionVertex->position() << "\n";
-
-		} else {
-		std::cout << "  ConvertedPhotonProducer conversion vertex is not valid set the position to (0,0,0) " << "\n";
-		}
-	*/
-	
-
-	//	trkPositionAtEcal.clear();
         
 	std::vector<math::XYZPoint> trkPositionAtEcal = theEcalImpactPositionFinder_->find(  iPair->first, bcBarrelHandle );
 	matchingBC = theEcalImpactPositionFinder_->matchingBC();
@@ -503,13 +482,11 @@ void ConvertedPhotonProducer::produce(edm::Event& theEvent, const edm::EventSetu
 	       (  fabs(  (iPair->second).eta()     - aClus->eta()     ) < 0.001 )      &&
 	       (  fabs(  (iPair->second).phi()     -  aClus->phi()    ) < 0.001  ) ) )   continue;
 	
-	
-	//CachingVertex theConversionVertex;
+
 	const string metname = "ConvertedPhotons|ConvertedPhotonProducer";
 	if ( (iPair->first).size()  > 1 ) {
 	  try{
 	    TransientVertex trVtx=theVertexFinder_->run(iPair->first); 
-	    
 	    theConversionVertex= trVtx;
 	    
 	  }
@@ -523,14 +500,6 @@ void ConvertedPhotonProducer::produce(edm::Event& theEvent, const edm::EventSetu
 	}
 
 	
-	/*	
-	  if ( theConversionVertex!=0 ) {	
-	  //	  convVtx.SetXYZ( theConversionVertex.position().x(), theConversionVertex.position().y(),  theConversionVertex.position().z() );
-	  std::cout << " ConvertedPhotonProducer conversion vertex position " << theConversionVertex->position() << "\n";
-	  } else {
-	  std::cout << " ConvertedPhotonProducer conversion vertex is not valid " << "\n";
-	  }
-	*/
 
 
 
