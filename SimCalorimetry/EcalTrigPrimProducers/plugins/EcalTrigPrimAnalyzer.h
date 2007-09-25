@@ -10,7 +10,7 @@
 //
 // Original Author:  Ursula Berthon
 //         Created:  Thu Jul 4 11:38:38 CEST 2005
-// $Id: EcalTrigPrimAnalyzer.h,v 1.2 2007/04/20 12:08:43 uberthon Exp $
+// $Id: EcalTrigPrimAnalyzer.h,v 1.3 2007/06/14 17:00:44 uberthon Exp $
 //
 //
 
@@ -27,7 +27,7 @@
 #include <string>
 #include <TH1I.h>
 #include <TFile.h>
-
+#include <TTree.h>
 #include <TH2F.h>
 #include <TH1F.h>
 
@@ -53,6 +53,10 @@ class EcalTrigPrimAnalyzer : public edm::EDAnalyzer {
   TFile *histfile_;
   TH2F *hTPvsRechit_;
   TH1F *hTPoverRechit_;
+  TTree *tree_ ;
+
+  int iphi_, ieta_ , tpgADC_, ttf_, fg_ ;
+  float eRec_, tpgGeV_ ;
 
   std::string label_;
   std::string producer_;

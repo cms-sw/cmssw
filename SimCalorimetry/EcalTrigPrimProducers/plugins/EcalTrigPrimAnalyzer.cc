@@ -9,9 +9,9 @@
 */
 //
 //
-// Original Author:  Ursula Berthon, Stephanie Baffioni
+// Original Author:  Ursula Berthon, Stephanie Baffioni, Pascal Paganini
 //         Created:  Thu Jul 4 11:38:38 CEST 2005
-// $Id: EcalTrigPrimAnalyzer.cc,v 1.3 2007/04/27 12:55:39 uberthon Exp $
+// $Id: EcalTrigPrimAnalyzer.cc,v 1.4 2007/06/14 17:00:44 uberthon Exp $
 //
 //
 
@@ -40,6 +40,9 @@
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
+
+#include "CalibCalorimetry/EcalTPGTools/interface/EcalTPGScale.h"
+
 #include "EcalTrigPrimAnalyzer.h"
 
 #include <TMath.h>
@@ -54,6 +57,14 @@ EcalTrigPrimAnalyzer::EcalTrigPrimAnalyzer(const edm::ParameterSet&  iConfig)
   ecal_parts_.push_back("Endcap");
 
   histfile_=new TFile("histos.root","RECREATE");
+  tree_ = new TTree("TPGtree","TPGtree");
+  tree_->Branch("iphi",&iphi_,"iphi/I");
+  tree_->Branch("ieta",&ieta_,"ieta/I");
+  tree_->Branch("eRec",&eRec_,"eRec/F");
+  tree_->Branch("tpgADC",&tpgADC_,"tpgADC/I");
+  tree_->Branch("tpgGeV",&tpgGeV_,"tpgGeV/F");
+  tree_->Branch("ttf",&ttf_,"ttf/I");
+  tree_->Branch("fg",&fg_,"fg/I");
   for (unsigned int i=0;i<2;++i) {
     ecal_et_[i]=new TH1I(ecal_parts_[i].c_str(),"Et",255,0,255);
     char title[30];
@@ -198,27 +209,28 @@ EcalTrigPrimAnalyzer::analyze(const edm::Event& iEvent, const  edm::EventSetup &
     mapTow_Et.insert(pair<EcalTrigTowerDetId,float>(towid1, Etsum));
   }
 
+
+  EcalTPGScale ecalScale ;
   for (unsigned int i=0;i<tp.product()->size();i++) {
     EcalTriggerPrimitiveDigi d=(*(tp.product()))[i];
     const EcalTrigTowerDetId TPtowid= d.id();
     map<EcalTrigTowerDetId, float>::iterator it=  mapTow_Et.find(TPtowid);
     if (it!= mapTow_Et.end()) {
-      int subdet=d.id().subDet()-1;
-      float Et=d.compressedEt();
-      Et*=0.469;  //FIXME: should use EcalTPParameters
+      float Et = ecalScale.getTPGInGeV(iSetup, d) ; 
       if (d.id().ietaAbs()==27 || d.id().ietaAbs()==28)    Et*=2;
       hTPvsRechit_->Fill(it->second,Et);
       hTPoverRechit_->Fill(Et/it->second);
-
-      if( (Et< (0.9* it->second) || Et> (1.1* it->second))  && (  (subdet==0 && (it->second >0.4)) || (subdet==1 && (it->second >0.5)))){
-      }
-
-      if (Et/(it->second)>1.03 && Et/(it->second)<1.07){
-      }
+      iphi_ = TPtowid.iphi() ;
+      ieta_ = TPtowid.ieta() ;
+      eRec_ = it->second ;
+      tpgADC_ = d.compressedEt() ;
+      tpgGeV_ = Et ;
+      ttf_ = d.ttFlag() ;
+      fg_ = d.fineGrain() ;
+      tree_->Fill() ;
     }
-
-
   }
+
 
 }
 

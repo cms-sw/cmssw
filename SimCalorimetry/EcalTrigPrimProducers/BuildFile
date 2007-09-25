@@ -10,6 +10,7 @@
 <use name=CondFormats/L1TObjects>
 <use name=CondFormats/EcalObjects>
 <use name=CondFormats/DataRecord>
+<use name=CalibCalorimetry/EcalTPGTools>
 <export>
 <use name=root>
 <use name=boost>
@@ -22,4 +23,5 @@
 <use name=CondFormats/L1TObjects>
 <use name=CondFormats/EcalObjects>
 <use name=CondFormats/DataRecord>
+<use name=CalibCalorimetry/EcalTPGTools>
 </export>
