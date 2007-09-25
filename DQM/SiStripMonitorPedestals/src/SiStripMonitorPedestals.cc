@@ -13,7 +13,7 @@
 //
 // Original Author:  Simone Gennai and Suchandra Dutta
 //         Created:  Sat Feb  4 20:49:10 CET 2006
-// $Id: SiStripMonitorPedestals.cc,v 1.23 2007/07/25 15:41:57 dutta Exp $
+// $Id: SiStripMonitorPedestals.cc,v 1.24 2007/08/24 19:58:37 dutta Exp $
 //
 //
 
@@ -325,7 +325,7 @@ void SiStripMonitorPedestals::analyze(const edm::Event& iEvent, const edm::Event
     }
       
     //asking for the status
-    if((nEvTot_ - theEventInitNumber_)%theEventIterNumber_ == 1)
+    if((nEvTot_ - theEventInitNumber_ - theEventIterNumber_)%theEventIterNumber_ == 1)
       {
 	      
 	std::vector<float> tmp;
