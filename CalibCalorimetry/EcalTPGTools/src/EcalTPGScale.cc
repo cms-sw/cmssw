@@ -47,10 +47,10 @@ double EcalTPGScale::getTPGInGeV(const edm::EventSetup & evtSetup, int ADC, cons
   edm::ESHandle<EcalTPGLutGroup> lutGrpHandle;
   evtSetup.get<EcalTPGLutGroupRcd>().get( lutGrpHandle );
   const EcalTPGGroups::EcalTPGGroupsMap & lutGrpMap = lutGrpHandle.product()->getMap() ;  
-  EcalTPGGroups::EcalTPGGroupsMapItr itgrp = lutGrpMap.find(towerId) ;
-  uint32_t lutGrp = 0 ;
+  EcalTPGGroups::EcalTPGGroupsMapItr itgrp = lutGrpMap.find(towerId.rawId()) ;
+  uint32_t lutGrp = 999 ;
   if (itgrp != lutGrpMap.end()) lutGrp = itgrp->second ;
-  
+
   edm::ESHandle<EcalTPGLutIdMap> lutMapHandle;
   evtSetup.get<EcalTPGLutIdMapRcd>().get( lutMapHandle );
   const EcalTPGLutIdMap::EcalTPGLutMap & lutMap = lutMapHandle.product()->getMap() ;  
@@ -58,7 +58,7 @@ double EcalTPGScale::getTPGInGeV(const edm::EventSetup & evtSetup, int ADC, cons
   if (itLut != lutMap.end()) {
     const unsigned int * lut = (itLut->second).getLut() ;
     for (uint i=0 ; i<1024 ; i++)
-      if (ADC == lut[i]) {
+      if (ADC == (0xff & lut[i])) {
 	tpgInGev = i*lsb10bits ;
 	break ;
       }
@@ -103,7 +103,7 @@ int EcalTPGScale::getTPGInADC(const edm::EventSetup & evtSetup, double energy, c
     const unsigned int * lut = (itLut->second).getLut() ;
     if (lsb10bits>0) {
       int tpgADC10b = int(energy/lsb10bits+0.5) ;
-      if (tpgADC10b>=0 && tpgADC10b<1024) tpgADC = lut[tpgADC10b] ;
+      if (tpgADC10b>=0 && tpgADC10b<1024) tpgADC = (0xff & lut[tpgADC10b]) ;
       if (tpgADC10b>=1024) tpgADC = 0xff ;
     }
   }

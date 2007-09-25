@@ -18,8 +18,6 @@
 #include "CondFormats/EcalObjects/interface/EcalMGPAGainRatio.h"
 #include "CondFormats/DataRecord/interface/EcalGainRatiosRcd.h"
 #include "CondFormats/DataRecord/interface/EcalPedestalsRcd.h"
-#include "CondFormats/L1TObjects/interface/EcalTPParameters.h"
-#include "CondFormats/DataRecord/interface/EcalTPParametersRcd.h"
 
 #include "SimCalorimetry/EcalSimAlgos/interface/EcalSimParameterMap.h"
 
@@ -125,9 +123,9 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
   xtal_LSB_EE_ = ADCToGeV->getEEValue() ;
 
   // Previous TPG parameters
-  ESHandle<EcalTPParameters> pEcalTPParameters ;
-  evtSetup.get<EcalTPParametersRcd>().get(pEcalTPParameters) ;
-  const EcalTPParameters * ecaltpp = pEcalTPParameters.product() ;
+//   ESHandle<EcalTPParameters> pEcalTPParameters ;
+//   evtSetup.get<EcalTPParametersRcd>().get(pEcalTPParameters) ;
+//   const EcalTPParameters * ecaltpp = pEcalTPParameters.product() ;
 
 
   /////////////////////////////////////////
@@ -160,16 +158,16 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
     getCoeff(coeff, calibMap, gainMap, pedMap, id.rawId()) ;
 
     // compute and fill linearization parameters
-    const std::vector<unsigned int> * xtalParam = ecaltpp->getXtalParameters(tccNb, towerInTCC, stripInTower, xtalInStrip) ;
+    //const std::vector<unsigned int> * xtalParam = ecaltpp->getXtalParameters(tccNb, towerInTCC, stripInTower, xtalInStrip) ;
     for (int i=0 ; i<3 ; i++) {
       int mult, shift ;
       bool ok = computeLinearizerParam(theta, coeff.gainRatio_[i], coeff.calibCoeff_, "EB", mult , shift) ;
-      if ((*xtalParam)[3*i] != coeff.pedestals_[i] || (*xtalParam)[3*i+1] != mult || (*xtalParam)[3*i+2] != shift) {
-	(*diffFile_)<<"Cyrstal ("<<dec<<id.rawId()<<": "<<tccNb<<", "<<towerInTCC<<", "<<stripInTower<<", "<<xtalInStrip
-		    <<", gainId="<<i<<") :"<<endl ;
-	(*diffFile_)<<"previous: ped = "<<hex<<(*xtalParam)[3*i]<<" mult = "<<(*xtalParam)[3*i+1]<<" shift = "<<(*xtalParam)[3*i+2]<<endl ;
-	(*diffFile_)<<"new:      ped = "<<hex<<coeff.pedestals_[i]<<" mult = "<<mult<<" shift = "<<shift<<endl ;
-      }
+//       if ((*xtalParam)[3*i] != coeff.pedestals_[i] || (*xtalParam)[3*i+1] != mult || (*xtalParam)[3*i+2] != shift) {
+// 	(*diffFile_)<<"Cyrstal ("<<dec<<id.rawId()<<": "<<tccNb<<", "<<towerInTCC<<", "<<stripInTower<<", "<<xtalInStrip
+// 		    <<", gainId="<<i<<") :"<<endl ;
+// 	(*diffFile_)<<"previous: ped = "<<hex<<(*xtalParam)[3*i]<<" mult = "<<(*xtalParam)[3*i+1]<<" shift = "<<(*xtalParam)[3*i+2]<<endl ;
+// 	(*diffFile_)<<"new:      ped = "<<hex<<coeff.pedestals_[i]<<" mult = "<<mult<<" shift = "<<shift<<endl ;
+//       }
       if (ok) (*out_fileEB_) << hex <<" 0x"<<coeff.pedestals_[i]<<" 0x"<<mult<<" 0x"<<shift<<std::endl; 
       else (*out_fileEB_) << "unable to compute the parameters"<<std::endl ; 
     }
@@ -202,16 +200,16 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
     getCoeff(coeff, calibMap, gainMap, pedMap, id.rawId()) ;
 
     // compute and fill linearization parameters
-    const std::vector<unsigned int> * xtalParam = ecaltpp->getXtalParameters(tccNb, towerInTCC, stripInTower, xtalInStrip) ;
+    //const std::vector<unsigned int> * xtalParam = ecaltpp->getXtalParameters(tccNb, towerInTCC, stripInTower, xtalInStrip) ;
     for (int i=0 ; i<3 ; i++) {
       int mult, shift ;
       bool ok = computeLinearizerParam(theta, coeff.gainRatio_[i], coeff.calibCoeff_, "EE", mult , shift) ;
-      if ((*xtalParam)[3*i] != coeff.pedestals_[i] || (*xtalParam)[3*i+1] != mult || (*xtalParam)[3*i+2] != shift) {
-	(*diffFile_)<<"Cyrstal ("<<dec<<id.rawId()<<": "<<tccNb<<", "<<towerInTCC<<", "<<stripInTower<<", "<<xtalInStrip
-		    <<", gainId="<<i<<") :"<<endl ;
-	(*diffFile_)<<"previous: ped = "<<hex<<(*xtalParam)[3*i]<<" mult = "<<(*xtalParam)[3*i+1]<<" shift = "<<(*xtalParam)[3*i+2]<<endl ;
-	(*diffFile_)<<"new:      ped = "<<hex<<coeff.pedestals_[i]<<" mult = "<<mult<<" shift = "<<shift<<endl ;
-      }
+//       if ((*xtalParam)[3*i] != coeff.pedestals_[i] || (*xtalParam)[3*i+1] != mult || (*xtalParam)[3*i+2] != shift) {
+// 	(*diffFile_)<<"Cyrstal ("<<dec<<id.rawId()<<": "<<tccNb<<", "<<towerInTCC<<", "<<stripInTower<<", "<<xtalInStrip
+// 		    <<", gainId="<<i<<") :"<<endl ;
+// 	(*diffFile_)<<"previous: ped = "<<hex<<(*xtalParam)[3*i]<<" mult = "<<(*xtalParam)[3*i+1]<<" shift = "<<(*xtalParam)[3*i+2]<<endl ;
+// 	(*diffFile_)<<"new:      ped = "<<hex<<coeff.pedestals_[i]<<" mult = "<<mult<<" shift = "<<shift<<endl ;
+//       }
       if (ok) (*out_fileEE_) << hex <<" 0x"<<coeff.pedestals_[i]<<" 0x"<<mult<<" 0x"<<shift<<std::endl; 
       else (*out_fileEE_) << "unable to compute the parameters"<<std::endl ; 
     }

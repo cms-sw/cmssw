@@ -23,4 +23,5 @@
  <use name=SimCalorimetry/EcalSimAlgos>
  <use name=FWCore/Framework>
  <use name=FWCore/Utilities>
+ <lib name=CalibCalorimetryEcalTPGTools>
 </export>
