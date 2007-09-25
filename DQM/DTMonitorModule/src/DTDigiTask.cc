@@ -1,8 +1,8 @@
  /*
  * \file DTDigiTask.cc
  * 
- * $Date: 2007/08/27 14:16:05 $
- * $Revision: 1.27 $
+ * $Date: 2007/09/20 07:18:46 $
+ * $Revision: 1.28 $
  * \author M. Zanetti - INFN Padova
  *
  */
@@ -59,8 +59,11 @@ DTDigiTask::DTDigiTask(const edm::ParameterSet& ps){
   
   dbe = edm::Service<DaqMonitorBEInterface>().operator->();
 
-  edm::Service<MonitorDaemon> daemon; 	 
-  daemon.operator->();
+  if (ps.getUntrackedParameter<bool>("enableMonitorDaemon", "false")) {
+    edm::Service<MonitorDaemon> daemon; 	 
+    daemon.operator->();
+  }
+
 
   dbe->setVerbose(1);
 

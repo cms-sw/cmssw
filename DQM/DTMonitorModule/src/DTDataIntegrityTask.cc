@@ -1,8 +1,8 @@
 /*
  * \file DTDataIntegrityTask.cc
  * 
- * $Date: 2007/05/23 17:37:34 $
- * $Revision: 1.28 $
+ * $Date: 2007/08/09 13:25:33 $
+ * $Revision: 1.29 $
  * \author M. Zanetti (INFN Padova), S. Bolognesi (INFN Torino)
  *
  */
@@ -46,8 +46,11 @@ DTDataIntegrityTask::DTDataIntegrityTask(const edm::ParameterSet& ps,edm::Activi
   parameters = ps;
 
   dbe = edm::Service<DaqMonitorBEInterface>().operator->();  
-  edm::Service<MonitorDaemon> daemon;
-  daemon.operator->();
+  
+  if (ps.getUntrackedParameter<bool>("enableMonitorDaemon", false)) {
+    edm::Service<MonitorDaemon> daemon;
+    daemon.operator->();
+  }
 
 }
 
