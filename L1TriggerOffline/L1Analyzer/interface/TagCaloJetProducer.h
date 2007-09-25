@@ -14,7 +14,7 @@
 //
 // Original Author:  Alex Tapper
 //         Created:  Fri Jan 19 14:30:35 CET 2007
-// $Id: TagCaloJetProducer.h,v 1.4 2007/05/10 16:49:29 tapper Exp $
+// $Id: TagCaloJetProducer.h,v 1.1 2007/07/06 19:52:57 tapper Exp $
 //
 //
 
@@ -30,6 +30,7 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "DataFormats/JetReco/interface/CaloJetCollection.h"
 
 //
 // class declaration

@@ -14,6 +14,7 @@
 #include "DataFormats/BTauReco/interface/JetTag.h"
 //#include "DataFormats/BTauReco/interface/JetTagFwd.h"
 #include "DataFormats/JetReco/interface/Jet.h"
+#include "DataFormats/JetReco/interface/CaloJetCollection.h"
 
 #include <iostream>
 
