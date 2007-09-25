@@ -88,20 +88,20 @@ void PixelPortCardConfig::fillNameToAddress()
 {
 	if ( nameToAddress_.size() != 0 ) return;
 	
-	nameToAddress_[PortCardSettingNames::k_Delay25_GCR] = 0x35;
-	nameToAddress_[PortCardSettingNames::k_Delay25_SCL] = 0x34;
-	nameToAddress_[PortCardSettingNames::k_Delay25_TRG] = 0x33;
-	nameToAddress_[PortCardSettingNames::k_Delay25_SDA] = 0x32;
-	nameToAddress_[PortCardSettingNames::k_Delay25_RCL] = 0x31;
-	nameToAddress_[PortCardSettingNames::k_Delay25_RDA] = 0x30;
-	nameToAddress_[PortCardSettingNames::k_AOH_Bias1] = 0x10;
-	nameToAddress_[PortCardSettingNames::k_AOH_Bias2] = 0x11;
-	nameToAddress_[PortCardSettingNames::k_AOH_Bias3] = 0x12;
-	nameToAddress_[PortCardSettingNames::k_AOH_Bias4] = 0x14;
-	nameToAddress_[PortCardSettingNames::k_AOH_Bias5] = 0x15;
-	nameToAddress_[PortCardSettingNames::k_AOH_Bias6] = 0x16;
-	nameToAddress_[PortCardSettingNames::k_AOH_Gain123] = 0x13;
-	nameToAddress_[PortCardSettingNames::k_AOH_Gain456] = 0x17;
+	nameToAddress_[PortCardSettingNames::k_Delay25_GCR] = PortCardSettingNames::k_Delay25_GCR_address;
+	nameToAddress_[PortCardSettingNames::k_Delay25_SCL] = PortCardSettingNames::k_Delay25_SCL_address;
+	nameToAddress_[PortCardSettingNames::k_Delay25_TRG] = PortCardSettingNames::k_Delay25_TRG_address;
+	nameToAddress_[PortCardSettingNames::k_Delay25_SDA] = PortCardSettingNames::k_Delay25_SDA_address;
+	nameToAddress_[PortCardSettingNames::k_Delay25_RCL] = PortCardSettingNames::k_Delay25_RCL_address;
+	nameToAddress_[PortCardSettingNames::k_Delay25_RDA] = PortCardSettingNames::k_Delay25_RDA_address;
+	nameToAddress_[PortCardSettingNames::k_AOH_Bias1] = PortCardSettingNames::k_AOH_Bias1_address;
+	nameToAddress_[PortCardSettingNames::k_AOH_Bias2] = PortCardSettingNames::k_AOH_Bias2_address;
+	nameToAddress_[PortCardSettingNames::k_AOH_Bias3] = PortCardSettingNames::k_AOH_Bias3_address;
+	nameToAddress_[PortCardSettingNames::k_AOH_Bias4] = PortCardSettingNames::k_AOH_Bias4_address;
+	nameToAddress_[PortCardSettingNames::k_AOH_Bias5] = PortCardSettingNames::k_AOH_Bias5_address;
+	nameToAddress_[PortCardSettingNames::k_AOH_Bias6] = PortCardSettingNames::k_AOH_Bias6_address;
+	nameToAddress_[PortCardSettingNames::k_AOH_Gain123] = PortCardSettingNames::k_AOH_Gain123_address;
+	nameToAddress_[PortCardSettingNames::k_AOH_Gain456] = PortCardSettingNames::k_AOH_Gain456_address;
 	
 	return;
 }
