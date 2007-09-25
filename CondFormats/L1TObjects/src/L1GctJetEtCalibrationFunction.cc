@@ -48,6 +48,9 @@ std::ostream& operator << (std::ostream& os, const L1GctJetEtCalibrationFunction
       case L1GctJetEtCalibrationFunction::ORCA_STYLE_CORRECTION:
         os << "ORCA-style energy correction for jets is enabled" << std::endl;
         break;
+      case L1GctJetEtCalibrationFunction::PIECEWISE_CUBIC_CORRECTION:
+        os << "Piecewise 3rd-order polynomial energy correction for jets is enabled" << std::endl;
+        break;
       default:
         os << "Unrecognised calibration function type" << std::endl;
         break; 
@@ -116,6 +119,9 @@ double L1GctJetEtCalibrationFunction::findCorrectedEt(const double Et, const std
     case ORCA_STYLE_CORRECTION:
       result = orcaStyleCorrect(Et, coeffs);
       break;
+    case PIECEWISE_CUBIC_CORRECTION:
+      result = piecewiseCubicCorrect(Et, coeffs);
+      break;
     default:
       result = Et;      
   }
@@ -150,8 +156,36 @@ double L1GctJetEtCalibrationFunction::orcaStyleCorrect(const double Et, const st
   return Et;
 }
 
+double L1GctJetEtCalibrationFunction::piecewiseCubicCorrect(const double Et, const std::vector<double>& coeffs) const
+{
+  // The correction fuction is a set of 3rd order polynomials
+  //    Et_out = Et_in + (p0 + p1*Et_in + p2*Et_in^2 + p3*Et_in^3)
+  // with different coefficients for different energy ranges.
+  // The parameters are arranged in groups of five.
+  // The first in each group is a threshold value of input Et,
+  // followed by the four coefficients for the cubic function.
+  double etOut = Et;
+  std::vector<double>::const_iterator next_coeff=coeffs.begin();
+  while (next_coeff != coeffs.end()) {
 
-/// Convert the corrected Et value to a linear Et for Ht summing
+    // Read the coefficients from the vector
+    double threshold = *next_coeff++;
+    double A = *next_coeff++; //p0
+    double B = *next_coeff++; //p1
+    double C = *next_coeff++; //p2
+    double D = *next_coeff++; //p3
+
+    // Check we are in the right energy range and make correction
+    if (Et>threshold) {
+      etOut += (A + etOut*(B + etOut*(C + etOut*D))) ;
+      break;
+    }
+
+  }
+  return etOut;
+}
+
+/// Convert the corrected Et value to an integer Et for Ht summing
 uint16_t L1GctJetEtCalibrationFunction::calibratedEt(const double correctedEt) const
 {
   double scaledEt = correctedEt / m_htScaleLSB;

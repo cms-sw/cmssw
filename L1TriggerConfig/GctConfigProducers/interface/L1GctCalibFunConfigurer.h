@@ -63,6 +63,10 @@ class L1GctCalibFunConfigurer {
   void setOrcaStyleParams();
   void setOrcaStyleParamsForBin(std::vector<double>& paramsForBin);
 
+  /// member functions to set up the piecewise cubic calibrations (if needed)
+  void setPiecewiseCubicParams();
+  void setPiecewiseCubicParamsForBin(std::vector<double>& paramsForBin);
+
 };
 
 #endif

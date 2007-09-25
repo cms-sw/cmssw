@@ -40,8 +40,13 @@ L1GctCalibFunConfigurer::L1GctCalibFunConfigurer(const edm::ParameterSet& iConfi
     m_corrFunType = L1GctJetEtCalibrationFunction::ORCA_STYLE_CORRECTION;
     calibCoeffs = iConfig.getParameter<edm::ParameterSet>("OrcaStyleCoefficients");
   }
+  
+  if (CalibStyle == "PiecewiseCubic") {
+    m_corrFunType = L1GctJetEtCalibrationFunction::PIECEWISE_CUBIC_CORRECTION;
+    calibCoeffs = iConfig.getParameter<edm::ParameterSet>("PiecewiseCubicCoefficients");
+  }
 
-  if ((CalibStyle == "PowerSeries") || (CalibStyle == "ORCAStyle")) {
+  if ((CalibStyle == "PowerSeries") || (CalibStyle == "ORCAStyle") || (CalibStyle == "PiecewiseCubic")) {
 
     // Read the coefficients from file
     // coefficients for non-tau jet corrections
@@ -63,6 +68,9 @@ L1GctCalibFunConfigurer::L1GctCalibFunConfigurer(const edm::ParameterSet& iConfi
 
     if (m_corrFunType==L1GctJetEtCalibrationFunction::ORCA_STYLE_CORRECTION)
       { setOrcaStyleParams(); }
+
+    if (m_corrFunType==L1GctJetEtCalibrationFunction::PIECEWISE_CUBIC_CORRECTION)
+      { setPiecewiseCubicParams(); }
 
   } else {
     // No corrections to be applied
@@ -166,4 +174,96 @@ void L1GctCalibFunConfigurer::setOrcaStyleParamsForBin(std::vector<double>& para
   paramsForBin.push_back(B);
   paramsForBin.push_back(C);
 
+}
+
+//--------------------------------------------------------------------------
+//
+// For ORCA-style calibration, we extend the calibration function downwards
+// in energy in an automated way here.
+void L1GctCalibFunConfigurer::setPiecewiseCubicParams()
+{
+  for (unsigned i=0; i<m_jetCalibFunc.size(); ++i) {
+    setPiecewiseCubicParamsForBin(m_jetCalibFunc.at(i));
+  }
+  for (unsigned i=0; i<m_tauCalibFunc.size(); ++i) {
+    setPiecewiseCubicParamsForBin(m_tauCalibFunc.at(i));
+  }
+}
+
+// The piecewise cubic parametrisation is a series of third-order polynomials. 
+// Each polynomial gives a correction to be ADDED to the raw jet Et, so that
+//    Et_out = Et_in + poly(Et_in, {params} )
+// Each polynomial also has an associated range of validity, specified
+// in terms of a threshold value of Et_in.
+//
+// This assumes that the first parameter in the list is a maximum Et_in, above
+// which the calibration hasn't been studied. The second is the minimum Et_in for
+// the first set of polynomial coefficients. For Et values above the maximum, we
+// set the function to perform a linear extrapolation. 
+//
+// We also perform checks here on the continuity of the parametrisation
+//
+void L1GctCalibFunConfigurer::setPiecewiseCubicParamsForBin(std::vector<double>& paramsForBin)
+{
+  unsigned numberOfPars   = paramsForBin.size();
+  unsigned numberOfPieces = (numberOfPars-1)/5;
+  // Check that we have a sensible number of parameters
+  if ( ((numberOfPars-1) % 5) == 0) {
+    std::vector<double>::const_iterator par = paramsForBin.begin();
+    double etMax = *par++;
+
+    // Check the parameters read from file.
+    // Copy them into vectors for the five different parameter types.
+    // The vectors are initialised with a size of 1, to hold the
+    // coefficients for the extrapolation above etMax.
+    std::vector<double> threshold(1), p0(1), p1(1), p2(1), p3(1);
+    while (par != paramsForBin.end()) {
+      threshold.push_back(*par++);
+      p0.push_back(*par++);
+      p1.push_back(*par++);
+      p2.push_back(*par++);
+      p3.push_back(*par++);
+    }
+
+    // Here's the extrapolation above etMax
+    double etMaxCorr = p0.at(1) + etMax*(p1.at(1) + etMax*(p2.at(1) + etMax*p3.at(1)));
+    p0.at(0) = 0.0;
+    p1.at(0) = etMaxCorr/etMax;
+    p2.at(0) = 0.0;
+    p3.at(0) = 0.0;
+
+    // Here's the continuity check
+    for (unsigned piece=1; piece<(numberOfPieces-1); piece++) {
+      double et = threshold.at(piece);
+      double A  = p0.at(piece) - p0.at(piece+1);
+      double B  = p1.at(piece) - p1.at(piece+1);
+      double C  = p2.at(piece) - p2.at(piece+1);
+      double D  = p3.at(piece) - p3.at(piece+1);
+      // Find the difference between the two pieces of the function
+      // above and below the threshold
+      double check = A + et*(B + et*(C + et*D));
+      // How much discontinuity to allow? Try this ...
+      if (fabs(check)>0.1) {
+        edm::LogError ("L1GctConfig") << "Error reading parameters from file for piecewise cubic calibration.\n"
+                                      << "The function is discontinuous at threshold no. " << piece
+                                      << ", et value " << et << " GeV, by an amount " << check << " GeV"; 
+      }
+    }
+
+    // Put the parameters back into the vector, with
+    // the high-Et extrapolation at the beginning
+    paramsForBin.clear();
+    for (unsigned piece=0; piece<numberOfPieces; piece++) {
+      paramsForBin.push_back(threshold.at(piece));
+      paramsForBin.push_back(p0.at(piece));
+      paramsForBin.push_back(p1.at(piece));
+      paramsForBin.push_back(p2.at(piece));
+      paramsForBin.push_back(p3.at(piece));
+    }
+  } else {
+    // The number of parameters is wrong
+    edm::LogError ("L1GctConfig") << "Error reading parameters from file for piecewise cubic calibration.\n"
+                                  << "The number of parameters is "
+                                  << numberOfPars << ", but we need five parameters per piece, plus one";
+  }
 }

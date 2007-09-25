@@ -36,6 +36,7 @@ class L1GctJetEtCalibrationFunction
 public:
   enum CorrectionFunctionType { POWER_SERIES_CORRECTION,
                                 ORCA_STYLE_CORRECTION,
+                                PIECEWISE_CUBIC_CORRECTION,
                                 NO_CORRECTION };
 
   static const unsigned NUMBER_ETA_VALUES;     ///< Number of eta bins used in correction
@@ -57,6 +58,7 @@ public:
   friend std::ostream& operator << (std::ostream& os, const L1GctJetEtCalibrationFunction& fn);
   
   /// apply jet Et correction
+  /// Eta takes a value from 0-10, corresponding to jet regions running from eta=0.0 to eta=5.0
   double correctedEt(const double et, const unsigned eta, const bool tauVeto) const;
   
   /// Convert the corrected Et value to a linear Et for Ht summing
@@ -75,10 +77,10 @@ private:
 
   // CONVERSION FUNCTIONS
   /// Find the corrected Et value for this jet
-  /*! Eta takes a value from 0-10, corresponding to jet regions running from eta=0.0 to eta=5.0 */
-  double findCorrectedEt   (const double Et, const std::vector<double>& coeffs) const;
-  double powerSeriesCorrect(const double Et, const std::vector<double>& coeffs) const;
-  double orcaStyleCorrect  (const double Et, const std::vector<double>& coeffs) const;
+  double findCorrectedEt       (const double Et, const std::vector<double>& coeffs) const;
+  double powerSeriesCorrect    (const double Et, const std::vector<double>& coeffs) const;
+  double orcaStyleCorrect      (const double Et, const std::vector<double>& coeffs) const;
+  double piecewiseCubicCorrect (const double Et, const std::vector<double>& coeffs) const;
   
   /// Convert the corrected Et value to a non-linear jet rank for sorting
   uint16_t rank(const double Et) const;
