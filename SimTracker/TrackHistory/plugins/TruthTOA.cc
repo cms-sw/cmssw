@@ -255,7 +255,7 @@ TruthTOA::endJob()
     std::ostringstream hName, hTitle;
 
     hTitle << "Track origins for the whole track collection";
-    hName  << "recoTrackCollection";
+    hName  << "TrackingParticleCollection";
     
     for(std::size_t v=0; v < vetoList_[cid].size(); v++)
     {
@@ -343,4 +343,7 @@ void TruthTOA::UpdateCounter()
     }
   }
 }
+
+//define this as a plug-in
+DEFINE_ANOTHER_FWK_MODULE(TruthTOA);
 

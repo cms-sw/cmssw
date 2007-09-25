@@ -320,3 +320,7 @@ void VertexTHA::Count(const std::string & vDescription)
 
   totalTracks_++;
 }
+
+DEFINE_ANOTHER_FWK_MODULE(VertexTHA);
+
+
