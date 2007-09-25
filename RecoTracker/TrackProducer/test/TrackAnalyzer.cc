@@ -47,8 +47,8 @@ class TrackAnalyzer : public edm::EDAnalyzer {
     std::cout << "\nEvent ID = "<< event.id() << std::endl ;
 
     edm::Handle<reco::TrackCollection> trackCollection;
-    //    event.getByLabel("trackp", trackCollection);
-    event.getByType(trackCollection);
+        event.getByLabel("ctfWithMaterialTracks", trackCollection);
+	//event.getByType(trackCollection);
     
     const reco::TrackCollection tC = *(trackCollection.product());
 
