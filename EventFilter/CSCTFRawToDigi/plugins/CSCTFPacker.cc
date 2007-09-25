@@ -25,8 +25,8 @@ CSCTFPacker::CSCTFPacker(const edm::ParameterSet &conf):edm::EDProducer(){
 	// Configuration that controls CMSSW specific stuff
 	putBufferToEvent       = conf.getUntrackedParameter<bool>("putBufferToEvent");
 	std::string outputFile = conf.getUntrackedParameter<std::string>("outputFile","");
-	lctProducer            = conf.getUntrackedParameter<edm::InputTag>("lctProducer",edm::InputTag("csctfunpacker","MuonCSCTFCorrelatedLCTDigi"));
-	trackProducer          = conf.getUntrackedParameter<edm::InputTag>("trackProducer",edm::InputTag("csctfunpacker","MuonL1CSCTrackCollection"));
+	lctProducer            = conf.getUntrackedParameter<edm::InputTag>("lctProducer",edm::InputTag("csctfunpacker"));
+	trackProducer          = conf.getUntrackedParameter<edm::InputTag>("trackProducer",edm::InputTag("csctfunpacker"));
 
 	file = 0;
 	if( outputFile.length() && (file = fopen(outputFile.c_str(),"wt"))==NULL )

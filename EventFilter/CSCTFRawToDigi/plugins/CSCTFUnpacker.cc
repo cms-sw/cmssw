@@ -88,9 +88,9 @@ CSCTFUnpacker::CSCTFUnpacker(const edm::ParameterSet& pset):edm::EDProducer(),ma
 
 	producer = pset.getUntrackedParameter<edm::InputTag>("producer",edm::InputTag("source"));
 
-	produces<CSCCorrelatedLCTDigiCollection>("MuonCSCTFCorrelatedLCTDigi");
-	produces<L1CSCTrackCollection>          ("MuonL1CSCTrackCollection");
-	produces<L1CSCStatusDigiCollection>     ("MuonL1CSCStatusDigiCollection");
+	produces<CSCCorrelatedLCTDigiCollection>();
+	produces<L1CSCTrackCollection>();
+	produces<L1CSCStatusDigiCollection>();
 
 	LogDebug("CSCTFUnpacker|ctor") << "... and finished";
 }
@@ -216,7 +216,7 @@ void CSCTFUnpacker::produce(edm::Event& e, const edm::EventSetup& c){
 						}
 						track.first.setFineHaloPacked(iter->halo());
 
-						track.first.m_winner = iter->MS_id()&(1<<trkNumber);
+//						track.first.m_winner = iter->MS_id()&(1<<trkNumber);
 
 						std::vector<CSCSP_MEblock> lcts = iter->LCTs();
 
@@ -246,7 +246,7 @@ void CSCTFUnpacker::produce(edm::Event& e, const edm::EventSetup& c){
 		statusProduct->first  = unpacking_status;
 
 	} //end of fed cycle
-	e.put(LCTProduct,"MuonCSCTFCorrelatedLCTDigi"); // put processed lcts into the event.
-	e.put(trackProduct,"MuonL1CSCTrackCollection");
-	e.put(statusProduct,"MuonL1CSCStatusDigiCollection");
+	e.put(LCTProduct); // put processed lcts into the event.
+	e.put(trackProduct);
+	e.put(statusProduct);
 }
