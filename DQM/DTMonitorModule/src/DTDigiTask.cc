@@ -1,8 +1,8 @@
  /*
  * \file DTDigiTask.cc
  * 
- * $Date: 2007/09/20 07:18:46 $
- * $Revision: 1.28 $
+ * $Date: 2007/09/25 17:24:57 $
+ * $Revision: 1.29 $
  * \author M. Zanetti - INFN Padova
  *
  */
@@ -222,6 +222,7 @@ void DTDigiTask::bookHistos(const DTChamberId& dtCh, string folder, string histo
     std::vector<const DTSuperLayer*>::const_iterator sulyend = dtSupLylist.end();
     
     int nWires = 0;
+    int firstWire = 0;
     int nWires_max = 0;
     
     while(suly != sulyend) {
@@ -232,16 +233,17 @@ void DTDigiTask::bookHistos(const DTChamberId& dtCh, string folder, string histo
       
       while(ly != lyend) {
 	nWires = muonGeom->layer((*ly)->id())->specificTopology().channels();
+	firstWire = muonGeom->layer((*ly)->id())->specificTopology().firstChannel();
 	stringstream layer; layer << (*ly)->id().layer();
 	string histoName_layer = histoName + "_SL" + superLayer.str()  + "_L" + layer.str();
 	if(histoTag == "OccupancyAllHits_perL" 
 	   || histoTag == "OccupancyNoise_perL"
 	   || histoTag == "OccupancyInTimeHits_perL")
-	  (digiHistos[histoTag])[(*ly)->id().rawId()] = dbe->book1D(histoName_layer,histoName_layer,nWires,1,nWires+1);
+	  (digiHistos[histoTag])[(*ly)->id().rawId()] = dbe->book1D(histoName_layer,histoName_layer,nWires,firstWire,nWires+firstWire);
 	if(histoTag == "DigiPerEvent")
-	  (digiHistos[histoTag])[(*ly)->id().rawId()] = dbe->book2D(histoName_layer,histoName_layer,nWires,1,nWires+1,10,-0.5,9.5);
+	  (digiHistos[histoTag])[(*ly)->id().rawId()] = dbe->book2D(histoName_layer,histoName_layer,nWires,firstWire,nWires+firstWire,10,-0.5,9.5);
 	++ly;
-	if(nWires > nWires_max) nWires_max = nWires;
+	if((nWires+firstWire) > nWires_max) nWires_max = (nWires+firstWire);
 	
       }
       ++suly;
