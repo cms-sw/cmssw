@@ -1,8 +1,8 @@
 /*
  * \file EcalSelectiveReadoutValidation.cc
  *
- * $Date: 2007/05/21 20:26:13 $
- * $Revision: 1.3 $
+ * $Date: 2007/08/08 08:05:56 $
+ * $Revision: 1.4 $
  *
  */
 
@@ -30,6 +30,8 @@
 #include "CondFormats/L1TObjects/interface/EcalTPParameters.h"
 #include "CondFormats/DataRecord/interface/EcalTPParametersRcd.h"
 
+#include "CalibCalorimetry/EcalTPGTools/interface/EcalTPGScale.h"
+
 #include <string.h>
 
 using namespace cms;
@@ -53,7 +55,6 @@ EcalSelectiveReadoutValidation::EcalSelectiveReadoutValidation(const ParameterSe
   ebRecHits_(ps.getParameter<edm::InputTag>("EbRecHitCollection"), false),
   eeRecHits_(ps.getParameter<edm::InputTag>("EeRecHitCollection"), false),
   triggerTowerMap_(0),
-  tpParam_(0),
   localReco_(ps.getParameter<bool>("LocalReco")),
   weights_(ps.getParameter<vector<double> >("weights")),
   ievt_(0){
@@ -579,11 +580,6 @@ void EcalSelectiveReadoutValidation::beginJob(const EventSetup& setup){
   ESHandle< EcalElectronicsMapping > ecalmapping;
   setup.get< EcalMappingRcd >().get(ecalmapping);
   elecMap_ = ecalmapping.product();
-  
-  //trigger primitive parameters:
-  edm::ESHandle<EcalTPParameters> hTpParam;
-  setup.get<EcalTPParametersRcd>().get(hTpParam);
-  tpParam_=hTpParam.product();
 }
 
 void EcalSelectiveReadoutValidation::endJob(){
@@ -591,14 +587,13 @@ void EcalSelectiveReadoutValidation::endJob(){
 
 void
 EcalSelectiveReadoutValidation::analyzeTP(const edm::Event& event,
-					  const edm::EventSetup& es){  
+					  const edm::EventSetup& es){
+  EcalTPGScale ecalScale;
   for(EcalTrigPrimDigiCollection::const_iterator it = tps_->begin();
       it != tps_->end(); ++it){
     const int iTcc = elecMap_->TCCid(it->id());
     const int iTT = elecMap_->iTT(it->id());
-    const double tpEt = tpParam_->getTPGinGeVEB(iTcc, iTT,
-						it->compressedEt());
-        
+    const double tpEt = ecalScale.getTPGInGeV(es, *it) ;
     const int iEta0 = iTTEta2cIndex(it->id().ieta());
     const int iPhi0 = iTTEta2cIndex(it->id().iphi());
     const double etSum = ttEtSums[iEta0][iPhi0];
