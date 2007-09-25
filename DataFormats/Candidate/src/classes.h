@@ -23,6 +23,7 @@ namespace {
     edm::Wrapper<std::vector<reco::Particle> > w2;
     reco::CandidateRef r1;
     reco::CandidateBaseRef r2;
+    std::vector<reco::CandidateBaseRef> rv2;
     edm::reftobase::IndirectHolder<reco::Candidate> rbih1;
     edm::reftobase::RefHolder<reco::CandidateRef> rh1;
     edm::reftobase::IndirectVectorHolder<reco::Candidate> rbih2;
