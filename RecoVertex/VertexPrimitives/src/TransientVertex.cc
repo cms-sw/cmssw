@@ -218,6 +218,9 @@ TransientTrack TransientVertex::refittedTrack(const TransientTrack & track) cons
 
 TransientVertex::operator reco::Vertex() const
 {
+   //If the vertex is invalid, return an invalid TV !
+  if (!isValid()) return Vertex();
+
   Vertex vertex(Vertex::Point(theVertexState.position()),
 	RecoVertex::convertError(theVertexState.error()), 
 	totalChiSquared(), degreesOfFreedom(), theOriginalTracks.size() );
