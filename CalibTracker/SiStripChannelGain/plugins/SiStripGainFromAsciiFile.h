@@ -1,6 +1,7 @@
 #ifndef CalibTracker_SiStripChannelGain_SiStripGainFromAsciiFile_h
 #define CalibTracker_SiStripChannelGain_SiStripGainFromAsciiFile_h
 
+#include "FWCore/ParameterSet/interface/FileInPath.h"
 
 #include "CommonTools/ConditionDBWriter/interface/ConditionDBWriter.h"
 #include "CondFormats/SiStripObjects/interface/SiStripApvGain.h"
@@ -33,11 +34,10 @@ private:
 
   std::string Asciifilename_;
   float referenceValue_;
+  edm::FileInPath fp_;
 
   SiStripApvGain * obj;
-
-  std::vector< std::pair<uint32_t, unsigned short> > detid_apvs_;
-    
+      
   __gnu_cxx::hash_map< unsigned int,FibersGain>  GainsMap;
   //std::map< unsigned int,FibersGain>  GainsMap;
 
