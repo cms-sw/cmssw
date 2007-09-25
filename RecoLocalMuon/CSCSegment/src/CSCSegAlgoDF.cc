@@ -19,6 +19,8 @@
 
 #include "CSCSegAlgoPreClustering.h"
 #include "CSCSegAlgoHitPruning.h"
+#include "CSCSegAlgoShowering.h"
+
 
 #include <algorithm>
 #include <cmath>
@@ -40,10 +42,13 @@ CSCSegAlgoDF::CSCSegAlgoDF(const edm::ParameterSet& ps) : CSCSegmentAlgorithm(ps
   tanPhiMax              = ps.getParameter<double>("tanPhiMax");	
   chi2Max                = ps.getParameter<double>("chi2Max");	
   preClustering          = ps.getUntrackedParameter<bool>("preClustering");
+  minHitsForPreClustering= ps.getParameter<int>("minHitsForPreClustering");
+  nHitsPerClusterIsShower= ps.getParameter<int>("nHitsPerClusterIsShower");
   Pruning                = ps.getUntrackedParameter<bool>("Pruning");
 
   preCluster_            = new CSCSegAlgoPreClustering( ps );
   hitPruning_            = new CSCSegAlgoHitPruning( ps );
+  showering_             = new CSCSegAlgoShowering( ps );
 }
 
 
@@ -53,6 +58,7 @@ CSCSegAlgoDF::CSCSegAlgoDF(const edm::ParameterSet& ps) : CSCSegmentAlgorithm(ps
 CSCSegAlgoDF::~CSCSegAlgoDF() {
   delete preCluster_;
   delete hitPruning_;
+  delete showering_;
 }
 
 
@@ -69,7 +75,7 @@ std::vector<CSCSegment> CSCSegAlgoDF::run(const CSCChamber* aChamber, ChamberHit
   // Segments prior to pruning
   std::vector<CSCSegment> segments_temp;  
 
-  if ( preClustering && nHits > 15 ) {
+  if ( preClustering && nHits > minHitsForPreClustering ) {
     // This is where the segment origin is in the chamber on avg.
     std::vector<CSCSegment> testSegments;
     std::vector<ChamberHitContainer> clusteredHits = preCluster_->clusterHits(theChamber, rechits, testSegments);
@@ -140,6 +146,14 @@ std::vector<CSCSegment> CSCSegAlgoDF::buildSegments(ChamberHitContainer rechits)
       reverse( rechits.begin(),    rechits.end() );
     }    
   }
+
+  // Showering muon
+  if ( preClustering && int(nHitInChamber) > nHitsPerClusterIsShower ) {
+    CSCSegment segShower = showering_->showerSeg(theChamber, rechits);
+    segmentInChamber.push_back(segShower);
+    return segmentInChamber;
+  }
+
 
   // Initialize flags that a given hit has been allocated to a segment
   BoolContainer used_ini(rechits.size(), false);

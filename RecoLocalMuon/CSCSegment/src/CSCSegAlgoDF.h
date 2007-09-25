@@ -43,6 +43,7 @@
 
 class CSCSegAlgoPreClustering;
 class CSCSegAlgoHitPruning;
+class CSCSegAlgoShowering;
 
 class CSCSegAlgoDF : public CSCSegmentAlgorithm {
 
@@ -122,9 +123,11 @@ private:
   // input from .cfi file
   bool   debug;
   bool   preClustering;
+  int    minHitsForPreClustering;
   bool   testSeg;
   bool   Pruning;
   int    minLayersApart;
+  int    nHitsPerClusterIsShower;
   float  nSigmaFromSegment;
   int    minHitsPerSegment;
   int    muonsPerChamberMax;
@@ -136,6 +139,7 @@ private:
 
   CSCSegAlgoPreClustering* preCluster_;
   CSCSegAlgoHitPruning* hitPruning_;
+  CSCSegAlgoShowering* showering_;
 
 };
 
