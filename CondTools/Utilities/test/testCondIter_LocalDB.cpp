@@ -2,8 +2,6 @@
 //---- access to database on local machine ----
 //name of the database:
 //ecalped.db
-//local catalog:
-//localCondDBCatalog.xml
 //tag:
 //EcalPedestals_from_online
 //-----------------------------------------------
@@ -22,7 +20,7 @@ int testCondIter_LocalDB(){
     //remove (if present) the previous database
     gSystem->Exec("rm ecalped.db");
     //download the database in local machine
-    gSystem->Exec("cmscond_export_iov -s oracle://cms_orcoff/CMS_COND_ECAL -d sqlite_file:ecalped.db  -D CondFormatsEcalObjects -i relationalcatalog_oracle://cms_orcoff/CMS_COND_GENERAL -o file:localCondDBCatalog.xml -t EcalPedestals_from_online -n EcalPedestals -p /afs/cern.ch/cms/DB/conddb");
+    gSystem->Exec("cmscond_export_iov -s oracle://cms_orcoff/CMS_COND_ECAL -d sqlite_file:ecalped.db  -D CondFormatsEcalObjects -t EcalPedestals_from_online -n EcalPedestals -p /afs/cern.ch/cms/DB/conddb");
     
     
     
@@ -30,11 +28,6 @@ int testCondIter_LocalDB(){
     std::cout << "Name of DB = ";
 // std::cin >> NameDB;
     NameDB = "sqlite_file:ecalped.db";
-
-    std::string FileXml;
-    std::cout << "File .xml = ";
-// std::cin >> FileXml;
-    FileXml = "localCondDBCatalog.xml";
 
     std::string FileData;
     std::cout << "FileData = ";
@@ -44,7 +37,7 @@ int testCondIter_LocalDB(){
 
   
     CondCachedIter <EcalPedestals> Iterator;
-    Iterator.create (NameDB,FileXml,FileData);
+    Iterator.create (NameDB,FileData);
 
     Iterator.setMax(1000);
 
