@@ -2,6 +2,7 @@
 <use name=FWCore/ParameterSet>
 <use name=FWCore/MessageLogger>
 <use name=Geometry/CaloEventSetup>
+<use name=SimDataFormats/GlobalValidation>
 <use name=SimDataFormats/HepMCProduct>
 <use name=DataFormats/DetId>
 <use name=DataFormats/Common>
@@ -23,6 +24,7 @@
  <use name=FWCore/ParameterSet>
  <use name=FWCore/MessageLogger>
  <use name=Geometry/CaloEventSetup>
+ <use name=SimDataFormats/GlobalValidation>
  <use name=SimDataFormats/HepMCProduct>
  <use name=DataFormats/DetId>
  <use name=DataFormats/Common>

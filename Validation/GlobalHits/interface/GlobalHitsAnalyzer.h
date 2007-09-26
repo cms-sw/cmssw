@@ -1,19 +1,17 @@
-#ifndef GlobalHitsProducer_h
-#define GlobalHitsProducer_h
+#ifndef GlobalHitsAnalyzer_h
+#define GlobalHitsAnalyzer_h
 
-/** \class GlobalHitsProducer
+/** \class GlobalHitsAnalyzer
  *  
- *  Class to fill PGlobalSimHit object to be inserted into data stream 
- *  containing information about various sub-systems in global coordinates 
- *  with full geometry
+ *  Class to fill dqm monitor elements from existing EDM file
  *
- *  $Date: 2007/04/30 19:38:17 $
- *  $Revision: 1.6 $
+ *  $Date: 2007/08/24 23:37:49 $
+ *  $Revision: 1.7 $
  *  \author M. Strang SUNY-Buffalo
  */
 
 // framework & common header files
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -25,6 +23,11 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
 #include "DataFormats/DetId/interface/DetId.h"
+
+//DQM services
+#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
+#include "DQMServices/Daemon/interface/MonitorDaemon.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
 
 // tracker info
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
@@ -50,14 +53,11 @@
 #include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
 
 // data in edm::event
-#include "SimDataFormats/GlobalValidation/interface/PGlobalSimHit.h"
 #include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
 #include "SimDataFormats/Vertex/interface/SimVertexContainer.h"
 #include "SimDataFormats/Track/interface/SimTrackContainer.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
 #include "SimDataFormats/CaloHit/interface/PCaloHitContainer.h"
-//#include "SimDataFormats/CrossingFrame/interface/CrossingFrame.h"
-//#include "SimDataFormats/CrossingFrame/interface/MixCollection.h"
 
 // helper files
 #include <CLHEP/Vector/LorentzVector.h>
@@ -71,39 +71,28 @@
 
 #include "TString.h"
 
-class PGlobalSimHit;
-  
-class GlobalHitsProducer : public edm::EDProducer
+class GlobalHitsAnalyzer : public edm::EDAnalyzer
 {
   
  public:
 
-  typedef std::vector<float> FloatVector;
+  //typedef std::vector<float> FloatVector;
 
-  explicit GlobalHitsProducer(const edm::ParameterSet&);
-  virtual ~GlobalHitsProducer();
+  explicit GlobalHitsAnalyzer(const edm::ParameterSet&);
+  virtual ~GlobalHitsAnalyzer();
   virtual void beginJob(const edm::EventSetup&);
   virtual void endJob();  
-  virtual void produce(edm::Event&, const edm::EventSetup&);
+  virtual void analyze(const edm::Event&, const edm::EventSetup&);
   
  private:
 
-  //GlobalValidation(const GlobalValidation&);   
-  //const GlobalValidation& operator=(const GlobalValidation&);
-
   // production related methods
-  void fillG4MC(edm::Event&);
-  void storeG4MC(PGlobalSimHit&);
-  void fillTrk(edm::Event&, const edm::EventSetup&);
-  void storeTrk(PGlobalSimHit&);
-  void fillMuon(edm::Event&, const edm::EventSetup&);
-  void storeMuon(PGlobalSimHit&);
-  void fillECal(edm::Event&, const edm::EventSetup&);
-  void storeECal(PGlobalSimHit&);
-  void fillHCal(edm::Event&, const edm::EventSetup&);
-  void storeHCal(PGlobalSimHit&);
+  void fillG4MC(const edm::Event&);
+  void fillTrk(const edm::Event&, const edm::EventSetup&);
+  void fillMuon(const edm::Event&, const edm::EventSetup&);
+  void fillECal(const edm::Event&, const edm::EventSetup&);
+  void fillHCal(const edm::Event&, const edm::EventSetup&);
 
-  void clear();
 
  private:
 
@@ -116,62 +105,71 @@ class GlobalHitsProducer : public edm::EDProducer
   bool getAllProvenances;
   bool printProvenanceInfo;
 
+  DaqMonitorBEInterface *dbe;
+  std::string outputfile;
+
   // G4MC info
-  int nRawGenPart;
-  FloatVector G4VtxX; 
-  FloatVector G4VtxY; 
-  FloatVector G4VtxZ; 
-  FloatVector G4TrkPt; 
-  FloatVector G4TrkE;
+  MonitorElement *meMCRGP[2];
+  MonitorElement *meMCG4Vtx[2];
+  MonitorElement *meGeantVtxX[2];
+  MonitorElement *meGeantVtxY[2];  
+  MonitorElement *meGeantVtxZ[2];  
+  MonitorElement *meMCG4Trk[2];
+  MonitorElement *meGeantTrkPt;
+  MonitorElement *meGeantTrkE;
+  int nRawGenPart;  
 
   // Electromagnetic info
   // ECal info
-  FloatVector ECalE; 
-  FloatVector ECalToF; 
-  FloatVector ECalPhi; 
-  FloatVector ECalEta;
+  MonitorElement *meCaloEcal[2];
+  MonitorElement *meCaloEcalE[2];
+  MonitorElement *meCaloEcalToF[2];
+  MonitorElement *meCaloEcalPhi;
+  MonitorElement *meCaloEcalEta;  
   edm::InputTag ECalEBSrc_;
   edm::InputTag ECalEESrc_;
 
   // Preshower info
-  FloatVector PreShE; 
-  FloatVector PreShToF; 
-  FloatVector PreShPhi; 
-  FloatVector PreShEta;
+  MonitorElement *meCaloPreSh[2];
+  MonitorElement *meCaloPreShE[2];
+  MonitorElement *meCaloPreShToF[2];
+  MonitorElement *meCaloPreShPhi;
+  MonitorElement *meCaloPreShEta;
   edm::InputTag ECalESSrc_;
 
   // Hadronic info
   // HCal info
-  FloatVector HCalE; 
-  FloatVector HCalToF; 
-  FloatVector HCalPhi; 
-  FloatVector HCalEta;
+  MonitorElement *meCaloHcal[2];
+  MonitorElement *meCaloHcalE[2];
+  MonitorElement *meCaloHcalToF[2];
+  MonitorElement *meCaloHcalPhi;
+  MonitorElement *meCaloHcalEta;  
   edm::InputTag HCalSrc_;
 
   // Tracker info
   // Pixel info
-  FloatVector PxlBrlToF; 
-  FloatVector PxlBrlR; 
-  FloatVector PxlBrlPhi; 
-  FloatVector PxlBrlEta; 
-  FloatVector PxlFwdToF; 
-  FloatVector PxlFwdZ;
-  FloatVector PxlFwdPhi; 
-  FloatVector PxlFwdEta;
+  int nPxlHits;
+  MonitorElement *meTrackerPx[2];
+  MonitorElement *meTrackerPxPhi;
+  MonitorElement *meTrackerPxEta;
+  MonitorElement *meTrackerPxBToF;
+  MonitorElement *meTrackerPxBR;
+  MonitorElement *meTrackerPxFToF;
+  MonitorElement *meTrackerPxFZ;
   edm::InputTag PxlBrlLowSrc_;
   edm::InputTag PxlBrlHighSrc_;
   edm::InputTag PxlFwdLowSrc_;
   edm::InputTag PxlFwdHighSrc_;
 
   // Strip info
-  FloatVector SiBrlToF; 
-  FloatVector SiBrlR; 
-  FloatVector SiBrlPhi; 
-  FloatVector SiBrlEta;  
-  FloatVector SiFwdToF; 
-  FloatVector SiFwdZ;
-  FloatVector SiFwdPhi; 
-  FloatVector SiFwdEta;
+  int nSiHits;
+  MonitorElement *meTrackerSi[2];
+  MonitorElement *meTrackerSiPhi;
+  MonitorElement *meTrackerSiEta;
+  MonitorElement *meTrackerSiBToF;
+  MonitorElement *meTrackerSiBR;
+  MonitorElement *meTrackerSiFToF;
+  MonitorElement *meTrackerSiFZ;
   edm::InputTag SiTIBLowSrc_;
   edm::InputTag SiTIBHighSrc_;
   edm::InputTag SiTOBLowSrc_;
@@ -182,36 +180,33 @@ class GlobalHitsProducer : public edm::EDProducer
   edm::InputTag SiTECHighSrc_;
 
   // Muon info
+  MonitorElement *meMuon[2];
+  MonitorElement *meMuonPhi;
+  MonitorElement *meMuonEta;
+  int nMuonHits;
+
   // DT info
-  FloatVector MuonDtToF; 
-  FloatVector MuonDtR;
-  FloatVector MuonDtPhi;
-  FloatVector MuonDtEta;
+  MonitorElement *meMuonDtToF[2];
+  MonitorElement *meMuonDtR;
   edm::InputTag MuonDtSrc_;
   // CSC info
-  FloatVector MuonCscToF; 
-  FloatVector MuonCscZ;
-  FloatVector MuonCscPhi;
-  FloatVector MuonCscEta;
+  MonitorElement *meMuonCscToF[2];
+  MonitorElement *meMuonCscZ;
   edm::InputTag MuonCscSrc_;
   // RPC info
-  FloatVector MuonRpcBrlToF; 
-  FloatVector MuonRpcBrlR;
-  FloatVector MuonRpcBrlPhi;
-  FloatVector MuonRpcBrlEta;
-  FloatVector MuonRpcFwdToF; 
-  FloatVector MuonRpcFwdZ;
-  FloatVector MuonRpcFwdPhi;
-  FloatVector MuonRpcFwdEta;
+  MonitorElement *meMuonRpcFToF[2];
+  MonitorElement *meMuonRpcFZ;
+  MonitorElement *meMuonRpcBToF[2];
+  MonitorElement *meMuonRpcBR;
   edm::InputTag MuonRpcSrc_;
 
   // private statistics information
   unsigned int count;
 
 }; // end class declaration
- 
+  
 #endif
- 
+
 #ifndef GlobalHitMap
 #define GlobalHitMap
 // geometry mapping
