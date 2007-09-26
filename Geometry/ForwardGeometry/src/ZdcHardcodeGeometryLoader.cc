@@ -123,7 +123,7 @@ ZdcHardcodeGeometryLoader::makeCell(const HcalZDCDetId & detId,
   }
   GlobalPoint faceCenter(xfaceCenter, yfaceCenter, zfaceCenter);
 
-  std::vector<double> zz ;
+  std::vector<float> zz ;
   zz.reserve(3) ;
   zz.push_back( dx ) ;
   zz.push_back( dy ) ;
