@@ -9,9 +9,11 @@
 /** \class HcalDetId
  *  Cell identifier class for the HCAL subdetectors, precision readout cells only
  *
- *  $Date: 2006/08/08 16:13:48 $
- *  $Revision: 1.9 $
+ *  $Date: 2007/07/31 15:20:09 $
+ *  $Revision: 1.10 $
  *  \author J. Mans - Minnesota
+ *
+ *  Rev.1.11: A.Kubik,R.Ofierzynski: add the hashed_index
  */
 class HcalDetId : public DetId {
 public:
@@ -46,6 +48,9 @@ public:
   int crystal_iphi_low() const; 
   /// get the largest crystal_iphi of the crystal in front of this tower (HB and HE tower 17 only)
   int crystal_iphi_high() const;
+
+  // get the hashed index
+  int hashed_index() const;
 
   static const HcalDetId Undefined;
 
