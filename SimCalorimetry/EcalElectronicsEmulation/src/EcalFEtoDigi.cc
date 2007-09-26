@@ -1,4 +1,7 @@
-
+#include "CondFormats/EcalObjects/interface/EcalTPGLutIdMap.h"
+#include "CondFormats/EcalObjects/interface/EcalTPGLutGroup.h"
+#include "CondFormats/DataRecord/interface/EcalTPGLutIdMapRcd.h"
+#include "CondFormats/DataRecord/interface/EcalTPGLutGroupRcd.h"
 #include "SimCalorimetry/EcalElectronicsEmulation/interface/EcalFEtoDigi.h"
 
 EcalFEtoDigi::EcalFEtoDigi(const edm::ParameterSet& iConfig) {
@@ -35,10 +38,6 @@ EcalFEtoDigi::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   std::auto_ptr<EcalTrigPrimDigiCollection>  
     e_tpdigisTcp (new EcalTrigPrimDigiCollection);
 
-  edm::ESHandle<EcalTPParameters> theEcalTPParameters_handle;
-  iSetup.get<EcalTPParametersRcd>().get(theEcalTPParameters_handle);
-  ecaltpp_ = theEcalTPParameters_handle.product();
-
   std::vector<TCCinput>::const_iterator it;
 
   for(int i=0; i<N_SM; i++) {
@@ -74,8 +73,8 @@ EcalFEtoDigi::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
       EcalTriggerPrimitiveDigi *e_digiTcp = new EcalTriggerPrimitiveDigi(e_id);
       
       /// create EcalTriggerPrimitiveSample
-      EcalTriggerPrimitiveSample e_sample = create_TPSample(*it);
-      EcalTriggerPrimitiveSample e_sampleTcp = create_TPSampleTcp(*it);
+      EcalTriggerPrimitiveSample e_sample = create_TPSample(*it, iSetup);
+      EcalTriggerPrimitiveSample e_sampleTcp = create_TPSampleTcp(*it, iSetup);
 
       /// set sample
       e_digi->setSize(1); //set sampleOfInterest to 0
@@ -235,9 +234,9 @@ EcalFEtoDigi::create_TTDetId(TCCinput data) {
 
 /// create EcalTriggerPrimitiveSample from input data (line)
 EcalTriggerPrimitiveSample 
-EcalFEtoDigi::create_TPSample(TCCinput data) {
+EcalFEtoDigi::create_TPSample(TCCinput data, const edm::EventSetup& evtSetup) {
 
-  int tower      = data.tower;
+  int tower      = create_TTDetId(data).rawId() ; 
   int  Et        = data.get_energy();
   bool tt_fg     = data.get_fg();
   //unsigned input = data.input;
@@ -245,20 +244,18 @@ EcalFEtoDigi::create_TPSample(TCCinput data) {
   //bool tt_fg = input & 0x400; //get bit number 10
 
   /// setup look up table
-  std::vector<unsigned int> lut_ ;
-  if(!useIdentityLUT_) {
-    lut_ = *ecaltpp_->getTowerParameters(SMidToTCCid(sm_), tower);
-    //lut_ = ecaltpp_->getTowerParameters(SMidToTCCid(sm_), tower, debug_);
-  }
+  unsigned int lut_[1024] ;
+  if(!useIdentityLUT_)
+    getLUT(lut_, tower, evtSetup) ;
   else
-    for(int i=0; i<1024; i++) lut_.push_back(i); //identity lut!
+    for(int i=0; i<1024; i++) lut_[i] = i ; //identity lut!
   
   /// compress energy 10 -> 8  bit
   int lut_out = lut_[Et];
   int ttFlag  = (lut_out & 0x700) >> 8;
   int cEt     = (lut_out & 0xff );
 
-  ///create sample
+  ///crate sample
   if(debug_&&data.get_energy()!=0)
     printf("[EcalFEtoDigi] Creating sample; input:0x%X (Et:0x%x) cEt:0x%x fg:%d ttflag:0x%x \n",
 	   data.input, Et, cEt, tt_fg, ttFlag);
@@ -270,18 +267,18 @@ EcalFEtoDigi::create_TPSample(TCCinput data) {
 
 /// create EcalTriggerPrimitiveSample in tcp format (uncomrpessed energy)
 EcalTriggerPrimitiveSample 
-EcalFEtoDigi::create_TPSampleTcp(TCCinput data) {
+EcalFEtoDigi::create_TPSampleTcp(TCCinput data, const edm::EventSetup& evtSetup) {
 
-  int tower      = data.tower;
+  int tower      = create_TTDetId(data).rawId() ; 
   int  Et        = data.get_energy();
   bool tt_fg     = data.get_fg();
 
   /// setup look up table
-  std::vector<unsigned int> lut_ ;
+  unsigned int lut_[1024] ;
   if(!useIdentityLUT_)
-    lut_ = *ecaltpp_->getTowerParameters(SMidToTCCid(sm_), tower) ;
+    getLUT(lut_, tower, evtSetup) ;
   else
-    for(int i=0; i<1024; i++) lut_.push_back(i); //identity lut!
+    for(int i=0; i<1024; i++) lut_[i] = i ; //identity lut!
   
   int lut_out = lut_[Et];
   int ttFlag  = (lut_out & 0x700) >> 8;
@@ -325,4 +322,24 @@ EcalFEtoDigi::SMidToTCCid( const int smid ) const {
 
   return (smid<=18) ? smid+55-1 : smid+37-19;
 
+}
+
+/// return the LUT from eventSetup
+void EcalFEtoDigi::getLUT(unsigned int * lut, const int towerId,  const edm::EventSetup& evtSetup) const 
+{
+  edm::ESHandle<EcalTPGLutGroup> lutGrpHandle;
+  evtSetup.get<EcalTPGLutGroupRcd>().get( lutGrpHandle );
+  const EcalTPGGroups::EcalTPGGroupsMap & lutGrpMap = lutGrpHandle.product()->getMap() ;  
+  EcalTPGGroups::EcalTPGGroupsMapItr itgrp = lutGrpMap.find(towerId) ;
+  uint32_t lutGrp = 999 ;
+  if (itgrp != lutGrpMap.end()) lutGrp = itgrp->second ;
+  
+  edm::ESHandle<EcalTPGLutIdMap> lutMapHandle;
+  evtSetup.get<EcalTPGLutIdMapRcd>().get( lutMapHandle );
+  const EcalTPGLutIdMap::EcalTPGLutMap & lutMap = lutMapHandle.product()->getMap() ;  
+  EcalTPGLutIdMap::EcalTPGLutMapItr itLut = lutMap.find(lutGrp) ;
+  if (itLut != lutMap.end()) {
+    const unsigned int * theLut = (itLut->second).getLut() ;
+    for (unsigned int i=0 ; i<1024 ; i++) lut[i] = theLut[i] ;
+  }
 }

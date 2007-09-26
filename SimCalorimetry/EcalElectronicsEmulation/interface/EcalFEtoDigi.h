@@ -19,8 +19,6 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
-#include "CondFormats/L1TObjects/interface/EcalTPParameters.h"
-#include "CondFormats/DataRecord/interface/EcalTPParametersRcd.h"
 //#include "Geometry/EcalMapping/interface/EcalElectronicsMapping.h" 
 
 #include <memory>
@@ -33,7 +31,6 @@
 
 struct TCCinput; 
 typedef std::vector<TCCinput> TCCInputData;
-class EcalTPParameters;
 const int N_SM = 36; //number of ecal barrel supermodules
 
 class EcalFEtoDigi : public edm::EDProducer {
@@ -51,11 +48,11 @@ private:
 
   void readInput();
   EcalTrigTowerDetId         create_TTDetId (TCCinput);
-  EcalTriggerPrimitiveSample create_TPSample(TCCinput);
-  EcalTriggerPrimitiveSample create_TPSampleTcp(TCCinput);
+  EcalTriggerPrimitiveSample create_TPSample(TCCinput, const edm::EventSetup&);
+  EcalTriggerPrimitiveSample create_TPSampleTcp(TCCinput, const edm::EventSetup&);
   int SMidToTCCid(const int) const;
+  void getLUT(unsigned int * lut, const int towerId,  const edm::EventSetup&) const ;
 
-  const EcalTPParameters *ecaltpp_;
   TCCInputData inputdata_[N_SM];
 
   std::string basename_;
