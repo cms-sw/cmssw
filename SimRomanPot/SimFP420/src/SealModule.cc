@@ -10,7 +10,7 @@
 #include "SimRomanPot/SimFP420/interface/DigitizerFP420.h"
 #include "SimRomanPot/SimFP420/interface/DigFP420Test.h"
 #include "SimG4Core/Watcher/interface/SimWatcherFactory.h"
-#include "PluginManager/ModuleDef.h"
+//#include "FWCore/PluginManager/ModuleDef.h"
   
 DEFINE_SEAL_MODULE ();
 //typedef FP420SD FP420SensitiveDetector;

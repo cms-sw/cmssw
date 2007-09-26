@@ -47,12 +47,18 @@
 #include "CLHEP/Random/RandPoisson.h"
 #include "CLHEP/Random/RandFlat.h"
 
+#include <stdio.h>
+#include <gsl/gsl_fit.h>
+#include <cmath>
+#include<vector>
+
 //#include "Randomize.hh"
 //#include "G4Poisson.hh"
 //#include "G4Step.hh"
 //#include "G4Material.hh"
 //#include "G4DynamicParticle.hh"
 //#include "G4ParticleDefinition.hh"
+using namespace std;
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo....
 // The constructor setups various constants pluc eloss parameters
