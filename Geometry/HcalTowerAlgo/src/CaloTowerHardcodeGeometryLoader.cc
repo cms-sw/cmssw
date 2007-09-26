@@ -92,7 +92,7 @@ const CaloCellGeometry* CaloTowerHardcodeGeometryLoader::makeCell(int ieta, int 
   GlobalPoint point(x,y,z);
 
   const double mysign ( !alongZ ? 1 : -1 ) ;
-  std::vector<double> hh ;
+  std::vector<float> hh ;
   hh.reserve(3) ;
   hh.push_back( deta ) ;
   hh.push_back( dphi_half*2 ) ;
