@@ -1,5 +1,7 @@
 <use name=RecoTracker/TkNavigation>
 <use name=FWCore/PluginManager>
+<use name=RecoTracker/Record>
+
  <library file="*.cc" name=RecoTrackerTkNavigationPlugins>
    <flags EDM_PLUGIN=1>
 </library>

@@ -11,3 +11,6 @@ DEFINE_SEAL_MODULE();
 DEFINE_EDM_PLUGIN(NavigationSchoolFactory, SimpleNavigationSchool, "SimpleNavigationSchool");
 DEFINE_EDM_PLUGIN(NavigationSchoolFactory, CosmicNavigationSchool, "CosmicNavigationSchool");
 DEFINE_EDM_PLUGIN(NavigationSchoolFactory, BeamHaloNavigationSchool, "BeamHaloNavigationSchool");
+
+#include "RecoTracker/TkNavigation/plugins/NavigationSchoolESProducer.h"
+DEFINE_FWK_EVENTSETUP_MODULE(NavigationSchoolESProducer);
