@@ -175,16 +175,16 @@ void TrackProducerBase::putInEvt(edm::Event& evt,
     delete theTraj;
   }
 
-  LogTrace("TrackProducer") << "========== TrackProducer Info ===================";
-  LogTrace("TrackProducer") << "number of finalTracks: " << selTracks->size();
+  LogTrace("TrackingRegressionTest") << "========== TrackProducer Info ===================";
+  LogTrace("TrackingRegressionTest") << "number of finalTracks: " << selTracks->size();
   for (reco::TrackCollection::const_iterator it = selTracks->begin(); it != selTracks->end(); it++) {
-    LogTrace("TrackProducer") << "track's n valid and invalid hit, chi2, pt : " 
-				      << it->found() << " , " 
-				      << it->lost()  <<" , " 
-				      << it->normalizedChi2() << " , "
-				      << it->pt();
+    LogTrace("TrackingRegressionTest") << "track's n valid and invalid hit, chi2, pt : " 
+				       << it->found() << " , " 
+				       << it->lost()  <<" , " 
+				       << it->normalizedChi2() << " , "
+				       << it->pt();
   }
-  LogTrace("TrackProducer") << "=================================================";
+  LogTrace("TrackingRegressionTest") << "=================================================";
   
   rTracks_ = evt.put( selTracks );
   evt.put( selTrackExtras );
