@@ -1,5 +1,5 @@
 <use name=SimDataFormats/CrossingFrame>
-<use name=Foundation/PluginManager>
+<use name=FWCore/PluginManager>
 <use name=FWCore/ParameterSet>
 <use name=SimG4Core/Watcher>
 <use name=SimG4Core/SensitiveDetector>
@@ -26,7 +26,7 @@
 <export>
  <lib name=SimRomanPotSimFP420>
  <use name=SimDataFormats/CrossingFrame>
- <use name=Foundation/PluginManager>
+ <use name=FWCore/PluginManager>
  <use name=FWCore/ParameterSet>
  <use name=SimG4Core/Watcher>
  <use name=SimG4Core/SensitiveDetector>
