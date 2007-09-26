@@ -6,6 +6,7 @@ RCTMonitor::RCTMonitor( const edm::ParameterSet& iConfig ):
   m_nevts(0),
   m_dbe(edm::Service<DaqMonitorBEInterface>().operator->()),
   m_enableMonitorDaemon(iConfig.getUntrackedParameter<bool>("EnableMonitorDaemon")),
+  m_rctSource(iConfig.getUntrackedParameter<edm::InputTag>("rctSource")),
   m_writeOutputFile(iConfig.getUntrackedParameter<bool>("WriteOutputFile")),
   m_outputFileName(iConfig.getUntrackedParameter<std::string>("OutputFileName"))
 {
@@ -49,7 +50,7 @@ void RCTMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
   // Fill histograms
 
  
-   FillRCT(iEvent) ;
+   FillRCT(iEvent,iSetup) ;
 
    
   // Increment number of events
@@ -68,27 +69,30 @@ float DynamicScale(int EtaStamp)
 }
 
 
-   void RCTMonitor::FillRCT(const edm::Event& iEvent)
+   void RCTMonitor::FillRCT(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
 
   // Get the RCT digis
   edm::Handle<L1CaloEmCollection> em;
-  edm::Handle<L1CaloRegionCollection> rgn;
+ //  edm::Handle<L1CaloRegionCollection> rgn;
 
-  iEvent.getByType(em);
-  iEvent.getByType(rgn);
+ // iEvent.getByType(em);
+ // iEvent.getByType(rgn);
+  
+   iEvent.getByLabel(m_rctSource,em);
+
 
 
   // Regions
-  for (L1CaloRegionCollection::const_iterator ireg=rgn->begin(); ireg!=rgn->end(); ireg++) {
+//  for (L1CaloRegionCollection::const_iterator ireg=rgn->begin(); ireg!=rgn->end(); ireg++) {
 
-  if(ireg->et()>7){
-    m_rctRegionsOccEtaPhi->Fill(ireg->gctPhi(),ireg->gctEta(),DynamicScale(ireg->gctEta()));
-    m_rctRegionsEtEtaPhi->Fill(ireg->gctPhi(),ireg->gctEta(),ireg->et());
-    m_rctRegionEt->Fill(ireg->et());
-    m_rctTauVetoEtaPhi->Fill(ireg->gctPhi(),ireg->gctEta(),ireg->tauVeto());
-   }
-  }
+//  if(ireg->et()>7){
+//    m_rctRegionsOccEtaPhi->Fill(ireg->gctPhi(),ireg->gctEta(),DynamicScale(ireg->gctEta()));
+//    m_rctRegionsEtEtaPhi->Fill(ireg->gctPhi(),ireg->gctEta(),ireg->et());
+//    m_rctRegionEt->Fill(ireg->et());
+//    m_rctTauVetoEtaPhi->Fill(ireg->gctPhi(),ireg->gctEta(),ireg->tauVeto());
+//   }
+//  }
 
   //Isolated and non-isolated EM with cut at >1 GeV
   for (L1CaloEmCollection::const_iterator iem=em->begin(); iem!=em->end(); iem++) {

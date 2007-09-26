@@ -83,7 +83,7 @@ class RCTMonitor : public edm::EDAnalyzer {
   virtual void endJob(void);
 
   void BookRCT() ;
-  void FillRCT(const edm::Event&) ;
+  void FillRCT(const edm::Event&, const edm::EventSetup&) ;
 
 
  private:
@@ -145,9 +145,15 @@ class RCTMonitor : public edm::EDAnalyzer {
   // Enable the daemon
   bool m_enableMonitorDaemon;
 
+  // Input digi labels
+
+  edm::InputTag m_rctSource;
+
   // Write events to an output file named in parameters
   bool m_writeOutputFile;
   std::string m_outputFileName;
+
+
   
 };
 
