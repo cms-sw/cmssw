@@ -440,10 +440,14 @@ void FamosRecHitAnalysis::analyze(const edm::Event& event, const edm::EventSetup
   //
 
   // Get PSimHit's of the Event
-  edm::Handle<CrossingFrame> cf;
-  event.getByType(cf);
-  std::auto_ptr<MixCollection<PSimHit> > allTrackerHits(new MixCollection<PSimHit>(cf.product(),trackerContainers));
-  //
+  
+  edm::Handle<CrossingFrame<PSimHit> > cf_simhit; 
+  std::vector<const CrossingFrame<PSimHit> *> cf_simhitvec;
+  for(uint32_t i=0; i<trackerContainers.size(); i++){
+    event.getByLabel("mix",trackerContainers[i], cf_simhit);
+    cf_simhitvec.push_back(cf_simhit.product());
+  }
+  std::auto_ptr<MixCollection<PSimHit> > allTrackerHits(new MixCollection<PSimHit>(cf_simhitvec));
   
   // RecHits
 #ifdef rrDEBUG

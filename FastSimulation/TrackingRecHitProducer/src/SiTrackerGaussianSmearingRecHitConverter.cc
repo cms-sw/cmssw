@@ -443,17 +443,22 @@ void SiTrackerGaussianSmearingRecHitConverter::produce(edm::Event& e, const edm:
 {
 
   // Step A: Get Inputs (PSimHit's)
-  edm::Handle<CrossingFrame> cf; 
-  e.getByType(cf);
-  MixCollection<PSimHit> allTrackerHits(cf.product(),trackerContainers);
+  edm::Handle<CrossingFrame<PSimHit> > cf_simhit; 
+  std::vector<const CrossingFrame<PSimHit> *> cf_simhitvec;
+  for(uint32_t i=0; i<trackerContainers.size(); i++){
+    e.getByLabel("mix",trackerContainers[i], cf_simhit);
+    cf_simhitvec.push_back(cf_simhit.product());
+  }
+  std::auto_ptr<MixCollection<PSimHit> > allTrackerHits(new MixCollection<PSimHit>(cf_simhitvec));
+
 
   // Step B: create temporary RecHit collection and fill it with Gaussian smeared RecHit's
   std::map<unsigned, edm::OwnVector<SiTrackerGSRecHit2D> > temporaryRecHits;
-  smearHits( allTrackerHits, temporaryRecHits);
+  smearHits( *allTrackerHits, temporaryRecHits);
   
  // Step C: match rechits on stereo layers
   std::map<unsigned, edm::OwnVector<SiTrackerGSRecHit2D> > temporaryMatchedRecHits ;
-  if(doMatching)  matchHits(  temporaryRecHits,  temporaryMatchedRecHits, allTrackerHits);
+  if(doMatching)  matchHits(  temporaryRecHits,  temporaryMatchedRecHits, *allTrackerHits);
 
   // Step D: from the temporary RecHit collection, create the real one.
   std::auto_ptr<SiTrackerGSRecHit2DCollection> 
@@ -470,8 +475,8 @@ void SiTrackerGaussianSmearingRecHitConverter::produce(edm::Event& e, const edm:
 
 
 void SiTrackerGaussianSmearingRecHitConverter::smearHits(
-  MixCollection<PSimHit>& input,
-  std::map<unsigned, edm::OwnVector<SiTrackerGSRecHit2D> >& temporaryRecHits)
+							 MixCollection<PSimHit>& input,
+							 std::map<unsigned, edm::OwnVector<SiTrackerGSRecHit2D> >& temporaryRecHits)
 {
   
   int numberOfPSimHits = 0;
