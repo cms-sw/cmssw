@@ -60,6 +60,7 @@ void Loopers::Loop()
     // loop on steps
     //    theLogFile << " Steps " << Nsteps << endl;
     theLogFile << "Event " << jentry+1 << " Steps = " << Nsteps << endl;
+    Int_t lastStep = 0;
     for(Int_t iStep=0; iStep<Nsteps; iStep++) {
       
       // find decay
@@ -74,6 +75,8 @@ void Loopers::Loop()
       if( fabs(ParticleStepID[iStep])!=211 && fabs(ParticleStepID[iStep])!=13 && fabs(ParticleStepID[iStep])!=11) {
 	theLogFile << "Skip particle " << ParticleStepID[iStep] << " step " << iStep << endl;
 	continue;
+      } else {
+	lastStep = iStep;
       }
       
       // middle-point
@@ -115,6 +118,7 @@ void Loopers::Loop()
     double phiTurns = phiSum/(2*pi);
     phiTurns += (float)n_loops;
     
+    theLogFile << "  Last Step = " << lastStep << endl;
     if(Nsteps!=0) {
       // average density: Sum(x_i x rho_i) / Sum(x_i)
       double averageDensity = normDensSum / pathSum;
@@ -123,25 +127,26 @@ void Loopers::Loop()
       //
       if(
 	 (
-	  ParticleStepFinalPt[Nsteps-1] > 10 // The particle must disappear with pT=0 GeV
+	  ParticleStepFinalPt[lastStep] > 10 // The particle must disappear with pT=0 GeV
 	  &&
-	  FinalZ[Nsteps-1] < 2500 // only if not at the end of the Tracker (along z)
+	  FinalZ[lastStep] < 2500 // only if not at the end of the Tracker (along z)
 	  ) 
 	 ) {
 	theLogFile << "################################"                                      << endl;
 	theLogFile << "Event " << jentry+1                                                    << endl;
 	theLogFile << "\t Steps = " << Nsteps                                                 << endl;
+	theLogFile << "\t Last Step = " << lastStep                                           << endl;
 	theLogFile << "\t Sum(phi_i) = "  << phiSum                                           << endl;
 	theLogFile << "\t Turns = "       << phiTurns                                         << endl;
 	theLogFile << "\t Energy Init = " << InitialE[0]                                      << endl;
-	theLogFile << "\t Energy End = "  << FinalE[Nsteps-1]                                 << endl;
-	theLogFile << "\t Final Z = "  << FinalZ[Nsteps-1]                                    << endl;
+	theLogFile << "\t Energy End = "  << FinalE[lastStep]                                 << endl;
+	theLogFile << "\t Final Z = "  << FinalZ[lastStep]                                    << endl;
 	theLogFile << "\t Particle Mass = " << ParticleMass                                   << endl;
 	theLogFile << "\t pT Init = " << ParticleStepInitialPt[0]                             << endl;
-	theLogFile << "\t pT End = "  << ParticleStepFinalPt[Nsteps-1]                        << endl;
-	theLogFile << "\t Last particle = " << ParticleStepID[Nsteps-1]                       << endl;
-	theLogFile << "\t Final Pre Interaction  = " << ParticleStepPreInteraction[Nsteps-1]  << endl;
-	theLogFile << "\t Final Post Interaction = " << ParticleStepPostInteraction[Nsteps-1] << endl;
+	theLogFile << "\t pT End = "  << ParticleStepFinalPt[lastStep]                        << endl;
+	theLogFile << "\t Last particle = " << ParticleStepID[lastStep]                       << endl;
+	theLogFile << "\t Final Pre Interaction  = " << ParticleStepPreInteraction[lastStep]  << endl;
+	theLogFile << "\t Final Post Interaction = " << ParticleStepPostInteraction[lastStep] << endl;
 	theLogFile << "\t Sum(x_i) = "         << pathSum        << " mm"                     << endl;
 	theLogFile << "\t Sum(x_i x rho_i) = " << normDensSum    << " mm x g/cm3"             << endl;
 	theLogFile << "\t <rho> = "            << averageDensity << " g/cm3"                  << endl;
@@ -153,15 +158,15 @@ void Loopers::Loop()
       // else { // The particle must disappear with pT=0 GeV
       hist_loops->Fill(phiTurns);
       hist_energy_init->Fill(InitialE[0]);
-      hist_energy_end->Fill(FinalE[Nsteps-1]);
+      hist_energy_end->Fill(FinalE[lastStep]);
       hist_density->Fill(averageDensity);
       hist_density_vs_loops->Fill(phiTurns,averageDensity);
       hist_pT_init->Fill(ParticleStepInitialPt[0]);
-      hist_pT_end->Fill(ParticleStepFinalPt[Nsteps-1]);
-      hist_energyLossPerTurn->Fill( (InitialE[0]-FinalE[Nsteps-1]) / phiTurns ); // Energy = Kinetics + Mass (Final Energy=Mass)
+      hist_pT_end->Fill(ParticleStepFinalPt[lastStep]);
+      hist_energyLossPerTurn->Fill( (InitialE[0]-FinalE[lastStep]) / phiTurns ); // Energy = Kinetics + Mass (Final Energy=Mass)
       hist_trackLength->Fill(pathSum);
       hist_trackLengthPerTurn->Fill(pathSum / phiTurns);
-      hist_lastInteraction->Fill(ParticleStepPostInteraction[Nsteps-1]);
+      hist_lastInteraction->Fill(ParticleStepPostInteraction[lastStep]);
       hist_bx->Fill(bunchCrossings);
       //      } // sanity check final pT=0
       
@@ -395,6 +400,10 @@ void Loopers::MakePlots(TString suffix) {
   theLogFile << hist_lastInteraction->GetTitle() << endl;
   theLogFile << "\t Mean = " << hist_lastInteraction->GetMean()  << endl;
   theLogFile << "\t  RMS = " << hist_lastInteraction->GetRMS()   << endl;
+  for(unsigned int iBin = 0; iBin<= hist_lastInteraction->GetNbinsX(); iBin++)
+    theLogFile << "\t\t" << hist_lastInteraction->GetXaxis()->GetBinLabel(iBin) << " : "
+	       << hist_lastInteraction->GetBinContent(iBin) / hist_lastInteraction->GetEntries()
+	       << std::endl;
   //
   // Store
   can_Gigi.Update();
@@ -416,7 +425,8 @@ void Loopers::MakePlots(TString suffix) {
   for(unsigned int iBin = 0; iBin<= hist_bx->GetNbinsX(); iBin++)
     theLogFile << "\t\t bx " << hist_bx->GetBinCenter(iBin) << " : " << hist_bx->GetBinContent(iBin)
 	       << " integral > " << hist_bx->GetBinCenter(iBin)
-	       << " : " << hist_bx->Integral(iBin+1,hist_bx->GetNbinsX()+1) << std::endl;
+	       << " : " << hist_bx->Integral(iBin+1,hist_bx->GetNbinsX()+1) / hist_bx->Integral()
+	       << std::endl;
   //
   // Store
   can_Gigi.Update();
