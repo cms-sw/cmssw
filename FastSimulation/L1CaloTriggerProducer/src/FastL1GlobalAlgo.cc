@@ -13,7 +13,7 @@
 //
 // Original Author:  Chi Nhan Nguyen
 //         Created:  Mon Feb 19 13:25:24 CST 2007
-// $Id: FastL1GlobalAlgo.cc,v 1.18 2007/09/07 19:38:07 smaruyam Exp $
+// $Id: FastL1GlobalAlgo.cc,v 1.19 2007/09/07 23:01:21 smaruyam Exp $
 //
 
 // No BitInfos for release versions
@@ -158,13 +158,9 @@ FastL1GlobalAlgo::findJets() {
   m_CenJets.clear();
   m_ForJets.clear();
 
-  // only barrel right now!
-  // barrel: 7-14 with 22 ieta
-  //for (int i=0; i<396 ; i++) {
   for (int i=0; i<396; i++) {
-    // barrel/endcap part only right now
+    // barrel/endcap part only:
     //if ((i%22)>3 && (i%22)<18) {
-    // Test HF!!!
   std::pair<double, double> p = m_RMap->getRegionCenterEtaPhi(i);
 
   double eta   = p.first;
@@ -176,7 +172,7 @@ FastL1GlobalAlgo::findJets() {
 
     if (m_Regions.at(i).SumEt()>m_L1Config.JetSeedEtThreshold) {
       if (isMaxEtRgn_Window33(i)) {
-	if (isTauJet(i)) {
+	if (isTauJet(i) && (i%22)>3 && (i%22)<18 ) {
 	  addJet(i,true);    
 	} else {
   if (m_DoBitInfo) m_Regions[i].BitInfo.setIsolationVeto ( true);
@@ -206,7 +202,7 @@ FastL1GlobalAlgo::addJet(int iRgn, bool taubit) {
   double phi   = p.second;
 
   /*
-  if (et>0.) {
+  if (std::abs(eta)>4.4) {
     std::cout<<">>> "<<et<<" "<<eta<<" "<<phi<<std::endl;
   }
   */
@@ -245,7 +241,7 @@ m_Regions[iRgn].BitInfo.setEnergy ( e);
   //  std::cout << "reg lv et, eta, phi: "<< tjet.et()<<" "<< tjet.eta()<<" "<< tjet.phi()<<" " << std::endl;
   //}
 
-  if (et>=2.) { // set from 5. by hands
+  if (et>=1.) { // set from 5. by hands
     if ((taubit || et>m_L1Config.noTauVetoLevel) && (std::abs(eta)<3.0) ) {
       m_TauJets.push_back(tjet);
       // sort by et 
@@ -547,8 +543,15 @@ FastL1GlobalAlgo::FillL1RegionsTP(edm::Event const& e, const edm::EventSetup& s)
     
     int rgnid = 999;
     int twrid = 999;
+
     rgnid  = m_RMap->getRegionIndex(htwrid.ieta(),htwrid.iphi());
     twrid = m_RMap->getRegionTowerIndex(htwrid.ieta(),htwrid.iphi());
+
+    /*
+    if (std::abs(htwrid.ieta())>28) {
+      std::cout<<htwrid.ieta()<<" "<<htwrid.iphi()<<" "<<rgnid<<" "<<twrid<<" "<<std::endl;
+    }
+    */
 
     /*
     if (hTP->SOI_compressedEt()>0) {
@@ -1121,7 +1124,7 @@ FastL1GlobalAlgo::isMaxEtRgn_Window33(int crgn) {
 
   //Use 3x2 window at eta borders!
   // east border:
-  if ((crgn%22)==17) { 
+  if ((crgn%22)==21) { 
     
     if (nwid==999 || nid==999 || swid==999 || sid==999 || wid==999 ) { 
       return false;
@@ -1135,8 +1138,8 @@ FastL1GlobalAlgo::isMaxEtRgn_Window33(int crgn) {
     double soet = m_Regions[sid].SumEt();
     
     if ( cenet > nwet &&  cenet > noet &&
-	 cenet > weet &&  cenet > soet &&
-	 cenet > swet ) 
+	 cenet >= weet &&  cenet >= soet &&
+	 cenet >= swet ) 
       {
 
 	double cene = m_Regions.at(crgn).SumE();
@@ -1165,7 +1168,7 @@ FastL1GlobalAlgo::isMaxEtRgn_Window33(int crgn) {
 
 
   // west border:
-  if ((crgn%22)==4) { 
+  if ((crgn%22)==0) { 
     
     if (neid==999 || nid==999 || seid==999 || sid==999 || eid==999 ) { 
       return false;
@@ -1179,8 +1182,8 @@ FastL1GlobalAlgo::isMaxEtRgn_Window33(int crgn) {
     double soet = m_Regions[sid].SumEt();
     
     if ( cenet > neet &&  cenet > noet &&
-	 cenet > eaet &&  cenet > soet &&
-	 cenet > seet ) 
+	 cenet >= eaet &&  cenet >= soet &&
+	 cenet >= seet ) 
       {
 
 	double cene = m_Regions.at(crgn).SumE();
@@ -1227,9 +1230,9 @@ FastL1GlobalAlgo::isMaxEtRgn_Window33(int crgn) {
   double seet = m_Regions[seid].SumEt();
 
   if ( cenet > nwet &&  cenet > noet &&
-       cenet > neet &&  cenet > eaet &&
-       cenet > weet &&  cenet > soet &&
-       cenet > swet &&  cenet > seet ) 
+       cenet > neet &&  cenet >= eaet &&
+       cenet > weet &&  cenet >= soet &&
+       cenet >= swet &&  cenet >= seet ) 
     {
 
       double cene = m_Regions.at(crgn).SumE();

@@ -13,7 +13,7 @@
 //
 // Original Author:  Chi Nhan Nguyen
 //         Created:  Mon Feb 19 13:25:24 CST 2007
-// $Id: FastL1RegionMap.cc,v 1.6 2007/08/15 13:42:23 chinhan Exp $
+// $Id: FastL1RegionMap.cc,v 1.7 2007/08/22 18:28:09 chinhan Exp $
 //
 
 
@@ -103,6 +103,39 @@ FastL1RegionMap::getRegionEtaPhiIndex(std::pair<int, int> EtaPhi)
   if (abs(iTwrEta)>=29 && abs(iTwrEta)<=41) {
     iphi = ((iTwrPhi + 1) / 4) % 18;
 
+    if (iTwrEta == 29) {
+      ieta = 18;
+    } 
+
+    if (iTwrEta == 30) {
+      ieta = 19;
+    } 
+
+    if (iTwrEta == 31) {
+      ieta = 20;
+    } 
+
+    if (iTwrEta == 32) {
+      ieta = 21;
+    } 
+
+    if (iTwrEta == -29) {
+      ieta = 3;
+    } 
+
+    if (iTwrEta == -30) {
+      ieta = 2;
+    } 
+
+    if (iTwrEta == -31) {
+      ieta = 1;
+    } 
+
+    if (iTwrEta == -32) {
+      ieta = 0;
+    } 
+
+    /*
     if (iTwrEta >= 29 && iTwrEta <= 32) {
       ieta = 18;
     } 
@@ -128,7 +161,7 @@ FastL1RegionMap::getRegionEtaPhiIndex(std::pair<int, int> EtaPhi)
     if (iTwrEta <= -39 && iTwrEta >= -41) {
       ieta = 0;
     } 
-
+    */
   }
 
   return std::pair<int, int>(ieta, iphi);
