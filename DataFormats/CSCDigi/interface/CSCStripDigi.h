@@ -5,8 +5,8 @@
  *
  * Digi for CSC Cathode Strips.
  *  
- *  $Date: 2007/05/03 23:27:44 $
- *  $Revision: 1.15 $
+ *  $Date: 2007/07/23 12:08:19 $
+ *  $Revision: 1.16 $
  *
  * \author M. Schmitt, Northwestern
  *
@@ -52,6 +52,10 @@ public:
 
   // Print content of digi
   void print() const;
+
+  ///methods for calibrations
+  float pedestal() const {return 0.5*(ADCCounts[0]+ADCCounts[1]);}
+  float amplitude() const {return ADCCounts[4]-pedestal();}
 
 private:
   
