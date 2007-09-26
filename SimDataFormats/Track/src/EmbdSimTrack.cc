@@ -2,10 +2,16 @@
 
 EmbdSimTrack::EmbdSimTrack() {}
  
-EmbdSimTrack::EmbdSimTrack(int ipart, const HepLorentzVector & p) :
+EmbdSimTrack::EmbdSimTrack(int ipart, const HepLorentzVector& p) :
+    Core(ipart, p), ivert(-1), igenpart(-1) {}
+
+EmbdSimTrack::EmbdSimTrack(int ipart, const math::XYZTLorentzVectorD& p) :
     Core(ipart, p), ivert(-1), igenpart(-1) {}
  
-EmbdSimTrack::EmbdSimTrack(int ipart, const HepLorentzVector & p, int iv, int ig) :
+EmbdSimTrack::EmbdSimTrack(int ipart, const HepLorentzVector& p, int iv, int ig) :
+    Core(ipart, p), ivert(iv), igenpart(ig) {}
+
+EmbdSimTrack::EmbdSimTrack(int ipart, const math::XYZTLorentzVectorD& p, int iv, int ig) :
     Core(ipart, p), ivert(iv), igenpart(ig) {}
  
 EmbdSimTrack::EmbdSimTrack(const CoreSimTrack & t, int iv, int ig) :
