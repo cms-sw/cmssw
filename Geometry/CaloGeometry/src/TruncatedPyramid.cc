@@ -21,16 +21,16 @@ TruncatedPyramid::createCorners( const std::vector<double>&    pv ,
    static const float kf ( CaloCellGeometry::k_ScaleFromDDDtoGeant ) ;
 
    const double dz ( kf*pv[0] ) ;
-   const double th ( kf*pv[1] ) ;
-   const double ph ( kf*pv[2] ) ;
+   const double th (    pv[1] ) ;
+   const double ph (    pv[2] ) ;
    const double h1 ( kf*pv[3] ) ;
    const double b1 ( kf*pv[4] ) ;
    const double t1 ( kf*pv[5] ) ;
-   const double a1 ( kf*pv[6] ) ;
+   const double a1 (    pv[6] ) ;
    const double h2 ( kf*pv[7] ) ;
    const double b2 ( kf*pv[8] ) ;
    const double t2 ( kf*pv[9] ) ;
-   const double a2 ( kf*pv[10]) ;
+   const double a2 (    pv[10]) ;
 
    std::vector<HepPoint3D> to ( 8, HepPoint3D(0,0,0) ) ;
    std::vector<HepPoint3D> ko ( 8, HepPoint3D(0,0,0) ) ;
@@ -46,12 +46,12 @@ TruncatedPyramid::createCorners( const std::vector<double>&    pv ,
 
    to[0+off] = HepPoint3D( -dz*tthcp - h1*ta1 - b1, -dz*tthsp - h1 , -dz ); // (-,-,-)
    to[1+off] = HepPoint3D( -dz*tthcp + h1*ta1 - t1, -dz*tthsp + h1 , -dz ); // (-,+,-)
-   to[2+off] = HepPoint3D( -dz*tthcp + h1*ta1 + t1, to[1].y()      , -dz ); // (+,+,-)
-   to[3+off] = HepPoint3D( -dz*tthcp - h1*ta1 + b1, to[0].y()      , -dz ); // (+,-,-)
-   to[4-off] = HepPoint3D(  dz*tthcp - h2*ta2 - b2, -dz*tthsp - h2 ,  dz ); // (-,-,+)
-   to[5-off] = HepPoint3D(  dz*tthcp + h2*ta2 - t2, -dz*tthsp + h2 ,  dz ); // (-,+,+)
-   to[6-off] = HepPoint3D(  dz*tthcp + h2*ta2 + t2, to[5].y()      ,  dz ); // (+,+,+)
-   to[7-off] = HepPoint3D(  dz*tthcp - h2*ta2 + b2, to[4].y()      ,  dz ); // (+,-,+)
+   to[2+off] = HepPoint3D( -dz*tthcp + h1*ta1 + t1, -dz*tthsp + h1 , -dz ); // (+,+,-)
+   to[3+off] = HepPoint3D( -dz*tthcp - h1*ta1 + b1, -dz*tthsp - h1 , -dz ); // (+,-,-)
+   to[4-off] = HepPoint3D(  dz*tthcp - h2*ta2 - b2,  dz*tthsp - h2 ,  dz ); // (-,-,+)
+   to[5-off] = HepPoint3D(  dz*tthcp + h2*ta2 - t2,  dz*tthsp + h2 ,  dz ); // (-,+,+)
+   to[6-off] = HepPoint3D(  dz*tthcp + h2*ta2 + t2,  dz*tthsp + h2 ,  dz ); // (+,+,+)
+   to[7-off] = HepPoint3D(  dz*tthcp - h2*ta2 + b2,  dz*tthsp - h2 ,  dz ); // (+,-,+)
 
    for( unsigned int i ( 0 ) ; i != 8 ; ++i )
    {
