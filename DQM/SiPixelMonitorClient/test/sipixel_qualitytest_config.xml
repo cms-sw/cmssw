@@ -250,100 +250,100 @@
 
 
 
-<LINK name="*Summary_adc_in_PixelBarrel*"> 
+<LINK name="*SUMDIG_adc_PixelBarrel*"> 
   <TestName activate="true">YrangeWithin:85-105</TestName> 
 </LINK>
-<LINK name="*Summary_ndigis_in_PixelBarrel*"> 
+<LINK name="*SUMDIG_ndigis_PixelBarrel*"> 
   <TestName activate="true">YrangeWithin:2.5-12</TestName> 
 </LINK>
-<LINK name="*Summary_adc_in_Shell*"> 
+<LINK name="*SUMDIG_adc_Shell*"> 
   <TestName activate="true">YrangeWithin:85-105</TestName> 
 </LINK>
-<LINK name="*Summary_ndigis_in_Shell*"> 
+<LINK name="*SUMDIG_ndigis_Shell*"> 
   <TestName activate="true">YrangeWithin:2.5-12</TestName> 
 </LINK>
-<LINK name="*Summary_adc_in_Layer_1*"> 
+<LINK name="*SUMDIG_adc_Layer_1*"> 
   <TestName activate="true">YrangeWithin:90-103</TestName> 
 </LINK>
-<LINK name="*Summary_ndigis_in_Layer_1*"> 
+<LINK name="*SUMDIG_ndigis_Layer_1*"> 
   <TestName activate="true">YrangeWithin:2.5-13</TestName> 
 </LINK>
-<LINK name="*Summary_adc_in_Layer_2*"> 
+<LINK name="*SUMDIG_adc_Layer_2*"> 
   <TestName activate="true">YrangeWithin:89-104</TestName> 
 </LINK>
-<LINK name="*Summary_ndigis_in_Layer_2*"> 
+<LINK name="*SUMDIG_ndigis_Layer_2*"> 
   <TestName activate="true">YrangeWithin:2-9</TestName> 
 </LINK>
-<LINK name="*Summary_adc_in_Layer_3*"> 
+<LINK name="*SUMDIG_adc_Layer_3*"> 
   <TestName activate="true">YrangeWithin:83-108</TestName> 
 </LINK>
-<LINK name="*Summary_ndigis_in_Layer_3*"> 
+<LINK name="*SUMDIG_ndigis_Layer_3*"> 
   <TestName activate="true">YrangeWithin:2-8</TestName> 
 </LINK>
-<LINK name="*Layer_1/Summary_adc_in_Ladder*"> 
+<LINK name="*Layer_1/SUMDIG_adc_Ladder*"> 
   <TestName activate="true">YrangeWithin:88-105</TestName> 
 </LINK>
-<LINK name="*Layer_1/Summary_ndigis_in_Ladder*"> 
+<LINK name="*Layer_1/SUMDIG_ndigis_Ladder*"> 
   <TestName activate="true">YrangeWithin:2-13.5</TestName> 
 </LINK>
-<LINK name="*Layer_2/Summary_adc_in_Ladder*"> 
+<LINK name="*Layer_2/SUMDIG_adc_Ladder*"> 
   <TestName activate="true">YrangeWithin:87-106</TestName> 
 </LINK>
-<LINK name="*Layer_2/Summary_ndigis_in_Ladder*"> 
+<LINK name="*Layer_2/SUMDIG_ndigis_Ladder*"> 
   <TestName activate="true">YrangeWithin:1.5-9.5</TestName> 
 </LINK>
-<LINK name="*Layer_3/Summary_adc_in_Ladder*"> 
+<LINK name="*Layer_3/SUMDIG_adc_Ladder*"> 
   <TestName activate="true">YrangeWithin:81-110</TestName> 
 </LINK>
-<LINK name="*Layer_3/Summary_ndigis_in_Ladder*"> 
+<LINK name="*Layer_3/SUMDIG_ndigis_Ladder*"> 
   <TestName activate="true">YrangeWithin:1.5-8.5</TestName> 
 </LINK>
-<LINK name="*Summary_adc_in_PixelEndcap*"> 
+<LINK name="*SUMDIG_adc_PixelEndcap*"> 
   <TestName activate="true">YrangeWithin:75-130</TestName> 
 </LINK>
-<LINK name="*Summary_ndigis_in_PixelEndcap*"> 
+<LINK name="*SUMDIG_ndigis_PixelEndcap*"> 
   <TestName activate="true">YrangeWithin:1.4-4</TestName> 
 </LINK>
-<LINK name="*Summary_adc_in_HalfCylinder*"> 
+<LINK name="*SUMDIG_adc_HalfCylinder*"> 
   <TestName activate="true">YrangeWithin:80-130</TestName> 
 </LINK>
-<LINK name="*Summary_ndigis_in_HalfCylinder*"> 
+<LINK name="*SUMDIG_ndigis_HalfCylinder*"> 
   <TestName activate="true">YrangeWithin:1.4-3.4</TestName> 
 </LINK>
-<LINK name="*Summary_adc_in_Disk_1*"> 
+<LINK name="*SUMDIG_adc_Disk_1*"> 
   <TestName activate="true">YrangeWithin:85-120</TestName> 
 </LINK>
-<LINK name="*Summary_ndigis_in_Disk_1*"> 
+<LINK name="*SUMDIG_ndigis_Disk_1*"> 
   <TestName activate="true">YrangeWithin:1.8-3.3</TestName> 
 </LINK>
-<LINK name="*Summary_adc_in_Disk_2*"> 
+<LINK name="*SUMDIG_adc_Disk_2*"> 
   <TestName activate="true">YrangeWithin:85-125</TestName> 
 </LINK>
-<LINK name="*Summary_ndigis_in_Disk_2*"> 
+<LINK name="*SUMDIG_ndigis_Disk_2*"> 
   <TestName activate="true">YrangeWithin:1.6-3.2</TestName> 
 </LINK>
-<LINK name="*Disk_1/Summary_adc_in_Blade*"> 
+<LINK name="*Disk_1/SUMDIG_adc_Blade*"> 
   <TestName activate="true">YrangeWithin:83-122</TestName> 
 </LINK>
-<LINK name="*Disk_1/Summary_ndigis_in_Blade*"> 
+<LINK name="*Disk_1/SUMDIG_ndigis_Blade*"> 
   <TestName activate="true">YrangeWithin:1.6-3.5</TestName> 
 </LINK>
-<LINK name="*Disk_2/Summary_adc_in_Blade*"> 
+<LINK name="*Disk_2/SUMDIG_adc_Blade*"> 
   <TestName activate="true">YrangeWithin:83-127</TestName> 
 </LINK>
-<LINK name="*Disk_2/Summary_ndigis_in_Blade*"> 
+<LINK name="*Disk_2/SUMDIG_ndigis_Blade*"> 
   <TestName activate="true">YrangeWithin:1.4-3.4</TestName> 
 </LINK>
-<LINK name="*Disk_1/Blade*/Summary_adc_in_Panel*"> 
+<LINK name="*Disk_1/Blade*/SUMDIG_adc_Panel*"> 
   <TestName activate="true">YrangeWithin:83-122</TestName> 
 </LINK>
-<LINK name="*Disk_1/Blade*/Summary_ndigis_in_Panel*"> 
+<LINK name="*Disk_1/Blade*/SUMDIG_ndigis_Panel*"> 
   <TestName activate="true">YrangeWithin:1.6-3.5</TestName> 
 </LINK>
-<LINK name="*Disk_2/Blade*/Summary_adc_in_Panel*"> 
+<LINK name="*Disk_2/Blade*/SUMDIG_adc_Panel*"> 
   <TestName activate="true">YrangeWithin:83-127</TestName> 
 </LINK>
-<LINK name="*Disk_2/Blade*/Summary_ndigis_in_Panel*"> 
+<LINK name="*Disk_2/Blade*/SUMDIG_ndigis_Panel*"> 
   <TestName activate="true">YrangeWithin:1.4-3.4</TestName> 
 </LINK>
 </TESTSCONFIGURATION>

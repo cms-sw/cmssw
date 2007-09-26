@@ -195,8 +195,7 @@
  </head>
  
  <body onresize = "IMGC.repaintUponResize()"
-       onload   = "Onload()">
-<!--       onload   = "CloseUpperWindow()"> -->
+       onload   = "Onload(); CloseUpperWindow()">
   <form id     = "theWholeForm"
   	action = "javascript:void%200">
 
@@ -207,117 +206,7 @@
   	style = "width:  70%  ; 
 	         height: 100% ; 
 		 float:  left ;">
-    <fieldset id    = "theCanvasField"
-              style = "background: #225587;
-	               width:      95%;
-		       height:     100%;">
-     <legend id    = "theLegend"
-             style = "background: #225587;
-	              font-family: Verdana, Arial;
-		      font-size:  12px;
-		      color:      #ffb400;">
-      &nbsp; Drawing Canvas &nbsp;
-     </legend>
-     <div id	= "mainContainer"
-          align = "center">
-
-      <!-- The canvas control buttons -->
-      <div  id    = "controls">
-       <button type    = "submit"
-               class   = "controlButton"
-               id      = "normalSize"
-               value   = "=">=
-       </button>
-       <span> | </span>
-       <button type    = "submit"
-               class   = "controlButton"
-               id      = "smallerSize"
-               value   = "-">-
-       </button>
-       <span> | </span>
-       <button type    = "submit"
-               class   = "controlButton"
-               id      = "firstPage"
-               value   = "<<">&lt;&lt;
-       </button>
-       <span> | </span>
-       <button type    = "submit"
-               class   = "controlButton"
-               id      = "previousPage"
-               value   = "<">&lt;
-       </button>
-       <span> | </span>
-       <button type    = "submit"
-               class   = "controlButton"
-               id      = "nextPage"
-               alt     = "Next page"
-               value   = ">">&gt;
-       </button>
-       <span> | </span>
-       <button type    = "submit"
-               class   = "controlButton"
-               id      = "lastPage"
-               value   = ">>">&gt;&gt;
-       </button>
-       <span> | </span>
-       <button type    = "submit"
-               class   = "controlButton"
-               id      = "largerSize"
-               value   = "+">+
-       </button>
-       <span> | </span>
-       <button type    = "submit"
-               class   = "controlButton"
-               id      = "maximizeSize"
-               value   = "M">M
-       </button>
-       <span> | </span>
-       <button type    = "submit"
-               class   = "controlButton"
-               id      = "fourXfour"
-               value   = "4x4">4x4
-       </button>
-       <span> | </span>
-       <button type    = "submit"
-               class   = "controlButton"
-               id      = "twoXtwo"
-               value   = "2x2">2x2
-       </button>
-       <span> | </span>
-       <button type    = "submit"
-               class   = "controlButton"
-               id      = "twoXone"
-               value   = "2x1">2x1
-       </button>
-       <span> | </span>
-       <button type    = "submit"
-               class   = "controlButton"
-               id      = "oneXone"
-               value   = "1x1">1x1
-       </button>
-      </div> <!-- controls -->
-      <p/>
-
-      <!-- Where the ME provenance (folder and name) is displayed when the user moves the mouse around -->
-      <div id	= "imgTitleDiv">
-       <input id    = "imgTitle"
-              class = "inputText"
-              type  = "text"
-              value = ""/>
-      </div> <!-- imgTitleDiv -->
-      <p/>
-
-      <!-- The actual canvas where ME plots are displayed -->
-      <div  id    = "canvasBorder">
-       <div id    = "imageCanvas"
-            style = "position: relative">
-       </div> <!-- imageCnavas -->
-      </div> <!-- canvasBorder -->      
-      
-     </div> <!-- mainContainer -->
-    </fieldset> <!-- theCanvasField -->
-   </div> <!-- theCanvas -->
-
+   </div> <
 
    <!-- The right frame: the DQM controls -->   
    <div class = "dqmControls"

@@ -528,10 +528,12 @@ void SiPixelInformationExtractor::plotHisto(MonitorElement * theMe,
 //        << endl ;
   QString cW = canvasW ;
   QString cH = canvasH ;
+  int icW = cW.toInt() ;
+  int icH = cH.toInt() ;
   TCanvas * theCanvas = new TCanvas("TrackerMapPlotsCanvas", 
                                     "TrackerMapPlotsCanvas",
-				    cW.toInt(),
-				    cH.toInt());
+				    icW,
+				    icH);
   gROOT->Reset(); 
   gStyle->SetPalette(1,0);
 
