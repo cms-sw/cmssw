@@ -5,7 +5,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 
-#include "RecoTracker/CkfPattern/interface/TrackerTrajectoryBuilder.h"
+#include "RecoTracker/CkfPattern/interface/BaseCkfTrajectoryBuilder.h"
 #include "DataFormats/TrajectorySeed/interface/PropagationDirection.h"
 
 #include "RecoTracker/CkfPattern/interface/TempTrajectory.h"
@@ -20,7 +20,7 @@
  *  and provides efficient ways of trimming the combinatorial tree.
  */
 
-class GroupedCkfTrajectoryBuilder : public TrackerTrajectoryBuilder {
+class GroupedCkfTrajectoryBuilder : public BaseCkfTrajectoryBuilder {
   
  public:
   /// constructor from ParameterSet

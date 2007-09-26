@@ -1,4 +1,4 @@
-#include "RecoTracker/CkfPattern/interface/CkfTrajectoryBuilderESProducer.h"
+#include "RecoTracker/CkfPattern/plugins/CkfTrajectoryBuilderESProducer.h"
 #include "RecoTracker/CkfPattern/interface/CkfTrajectoryBuilder.h"
 
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -10,7 +10,6 @@
 #include "TrackingTools/GeomPropagators/interface/Propagator.h"
 #include "TrackingTools/PatternTools/interface/TrajectoryStateUpdator.h"
 #include "TrackingTools/KalmanUpdators/interface/Chi2MeasurementEstimatorBase.h"
-//#include "TrackingTools/PatternTools/interface/MeasurementEstimator.h"
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHitBuilder.h"
 #include "RecoTracker/MeasurementDet/interface/MeasurementTracker.h"
 
@@ -32,7 +31,7 @@ CkfTrajectoryBuilderESProducer::CkfTrajectoryBuilderESProducer(const edm::Parame
 
 CkfTrajectoryBuilderESProducer::~CkfTrajectoryBuilderESProducer() {}
 
-boost::shared_ptr<TrackerTrajectoryBuilder> 
+boost::shared_ptr<TrajectoryBuilder> 
 CkfTrajectoryBuilderESProducer::produce(const CkfComponentsRecord& iRecord)
 { 
   std::string updatorName            = pset_.getParameter<std::string>("updator");   
@@ -57,13 +56,13 @@ CkfTrajectoryBuilderESProducer::produce(const CkfComponentsRecord& iRecord)
   iRecord.get(measurementTrackerName, measurementTrackerHandle);  
     
   _trajectoryBuilder  = 
-    boost::shared_ptr<TrackerTrajectoryBuilder>(new CkfTrajectoryBuilder(pset_,
-									 updatorHandle.product(),
-									 propagatorAlongHandle.product(),
-									 propagatorOppositeHandle.product(),
-									 estimatorHandle.product(),
-									 recHitBuilderHandle.product(),
-									 measurementTrackerHandle.product()) );  
+    boost::shared_ptr<TrajectoryBuilder>(new CkfTrajectoryBuilder(pset_,
+								  updatorHandle.product(),
+								  propagatorAlongHandle.product(),
+								  propagatorOppositeHandle.product(),
+								  estimatorHandle.product(),
+								  recHitBuilderHandle.product(),
+								  measurementTrackerHandle.product()) );  
   return _trajectoryBuilder;
 }
 

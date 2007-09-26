@@ -7,7 +7,6 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "DataFormats/Common/interface/OwnVector.h"
-//view #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
 #include "DataFormats/TrackCandidate/interface/TrackCandidateCollection.h"
 #include "DataFormats/Common/interface/View.h"
 
@@ -77,7 +76,7 @@ namespace cms{
 
     // set the TrajectoryBuilder
     std::string trajectoryBuilderName = conf_.getParameter<std::string>("TrajectoryBuilder");
-    edm::ESHandle<TrackerTrajectoryBuilder> theTrajectoryBuilderHandle;
+    edm::ESHandle<TrajectoryBuilder> theTrajectoryBuilderHandle;
     es.get<CkfComponentsRecord>().get(trajectoryBuilderName,theTrajectoryBuilderHandle);
     theTrajectoryBuilder = theTrajectoryBuilderHandle.product();    
     
@@ -211,10 +210,10 @@ namespace cms{
       
       
       
-      LogTrace("CkfPattern") << "========== CkfTrackCandidateMaker Info ==========";
+      LogTrace("TrackingRegressionTest") << "========== CkfTrackCandidateMaker Info ==========";
       edm::ESHandle<TrackerGeometry> tracker;
       es.get<TrackerDigiGeometryRecord>().get(tracker);
-      LogTrace("CkfPattern") << "number of Seed: " << collseed->size();
+      LogTrace("TrackingRegressionTest") << "number of Seed: " << collseed->size();
       
       /*
       for(iseed=theSeedColl.begin();iseed!=theSeedColl.end();iseed++){
@@ -222,23 +221,23 @@ namespace cms{
 	const GeomDet* tmpDet  = tracker->idToDet( tmpId );
 	GlobalVector gv = tmpDet->surface().toGlobal( iseed->startingState().parameters().momentum() );
 	
-	LogTrace("CkfPattern") << "seed perp,phi,eta : " 
-				       << gv.perp() << " , " 
-				       << gv.phi() << " , " 
-				       << gv.eta() ;
+	LogTrace("TrackingRegressionTest") << "seed perp,phi,eta : " 
+	                                   << gv.perp() << " , " 
+				           << gv.phi() << " , " 
+				           << gv.eta() ;
       }
       */
       
-      LogTrace("CkfPattern") << "number of finalTrajectories: " << unsmoothedResult.size();
+      LogTrace("TrackingRegressionTest") << "number of finalTrajectories: " << unsmoothedResult.size();
       for (vector<Trajectory>::const_iterator it = unsmoothedResult.begin();
 	   it != unsmoothedResult.end(); it++) {
-	LogTrace("CkfPattern") << "candidate's n valid and invalid hit, chi2, pt : " 
+	LogTrace("TrackingRegressionTest") << "candidate's n valid and invalid hit, chi2, pt : " 
 				       << it->foundHits() << " , " 
 				       << it->lostHits() <<" , " 
 				       <<it->chiSquared() << " , "
 				       <<it->lastMeasurement().predictedState().globalMomentum().perp();
       }
-      LogTrace("CkfPattern") << "=================================================";
+      LogTrace("TrackingRegressionTest") << "=================================================";
           
     }
     

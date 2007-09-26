@@ -3,12 +3,10 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "RecoTracker/CkfPattern/interface/CkfTrackCandidateMaker.h"
-#include "RecoTracker/CkfPattern/interface/TrackerTrajectoryBuilder.h"
 #include "RecoTracker/CkfPattern/interface/CkfTrajectoryBuilderESProducer.h"
 #include "RecoTracker/CkfPattern/interface/GroupedCkfTrajectoryBuilderESProducer.h"
 
-//#include "FWCore/Framework/interface/EventSetup.h"
-//#include "FWCore/Framework/interface/ESHandle.h"
+
 #include "FWCore/Framework/interface/ModuleFactory.h"
 #include "FWCore/Framework/interface/ESProducer.h"
 #include "FWCore/Framework/interface/eventsetupdata_registration_macro.h"

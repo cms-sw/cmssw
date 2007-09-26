@@ -9,8 +9,6 @@
 #include "DataFormats/Common/interface/EDProduct.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "RecoTracker/CkfPattern/interface/TrackerTrajectoryBuilder.h"
-
 #include "TrackingTools/TrajectoryCleaning/interface/TrajectoryCleaner.h"
 
 #include "MagneticField/Engine/interface/MagneticField.h"

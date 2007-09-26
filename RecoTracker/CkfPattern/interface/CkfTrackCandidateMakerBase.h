@@ -7,7 +7,7 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "RecoTracker/CkfPattern/interface/TrackerTrajectoryBuilder.h"
+#include "TrackingTools/PatternTools/interface/TrajectoryBuilder.h"
 
 #include "TrackingTools/TrajectoryCleaning/interface/TrajectoryCleaner.h"
 
@@ -37,7 +37,7 @@ namespace cms
 
   protected:
     edm::ParameterSet conf_;
-    const TrackerTrajectoryBuilder*  theTrajectoryBuilder;
+    const TrajectoryBuilder*  theTrajectoryBuilder;
     TrajectoryCleaner*               theTrajectoryCleaner;
     TransientInitialStateEstimator*  theInitialState;
     

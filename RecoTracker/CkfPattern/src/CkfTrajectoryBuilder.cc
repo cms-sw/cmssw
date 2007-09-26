@@ -34,7 +34,7 @@ CkfTrajectoryBuilder::
 		       const TransientTrackingRecHitBuilder* recHitBuilder,
 		       const MeasurementTracker*             measurementTracker):
 
-    TrackerTrajectoryBuilder(conf.getParameter<edm::ParameterSet>("TrackerTrajectoryBuilderParameters"),
+    BaseCkfTrajectoryBuilder(conf.getParameter<edm::ParameterSet>("BaseCkfTrajectoryBuilderParameters"),
 			     updator, propagatorAlong,propagatorOpposite,
 			     estimator, recHitBuilder, measurementTracker)
 {

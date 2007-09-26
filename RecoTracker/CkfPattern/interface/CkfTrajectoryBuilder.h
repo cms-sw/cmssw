@@ -19,7 +19,7 @@ class TrajectoryFilter;
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
 #include "DataFormats/TrackCandidate/interface/TrackCandidateCollection.h"
 
-#include "RecoTracker/CkfPattern/interface/TrackerTrajectoryBuilder.h"
+#include "RecoTracker/CkfPattern/interface/BaseCkfTrajectoryBuilder.h"
 
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
 #include "TrackingTools/PatternTools/interface/TrajectoryMeasurement.h"
@@ -30,7 +30,7 @@ class TrajectoryFilter;
 class TransientTrackingRecHitBuilder;
 
 
-class CkfTrajectoryBuilder :public TrackerTrajectoryBuilder {
+class CkfTrajectoryBuilder :public BaseCkfTrajectoryBuilder {
 
 public:
 
