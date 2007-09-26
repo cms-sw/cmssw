@@ -5,8 +5,6 @@
 //-----------------------------------------------
 //name of the database:
 //test.db
-//local catalog:
-//mycatalog.xml
 //tag:
 //Pedestals
 //-----------------------------------------------
@@ -29,7 +27,6 @@ std::cout <<std::endl<< "---- Test Performance Program ----"<<std::endl;
 
   
   gSystem->Exec("rm test.db");
-  gSystem->Exec("rm mycatalog.xml");
   FILE *FileDB;
         
   for (int i=0; i<nDiv; i++) {
@@ -43,7 +40,6 @@ std::cout <<std::endl<< "---- Test Performance Program ----"<<std::endl;
               process TEST = {
                   include \"CondCore/DBCommon/data/CondDBCommon.cfi\"
                           replace CondDBCommon.connect = \"sqlite_file:test.db\"
-                          replace CondDBCommon.catalog = \"file:mycatalog.xml\"
                           source = EmptyIOVSource {
                       string timetype = \"runnumber\"
                               untracked uint32 firstRun = %d
@@ -86,10 +82,6 @@ std::cout <<std::endl<< "---- Test Performance Program ----"<<std::endl;
   std::cout << "Name of DB = ";
   NameDB = "sqlite_file:test.db";
 
-  std::string FileXml;
-  std::cout << "File .xml = ";
-  FileXml = "mycatalog.xml";
-
   std::string TagData;
   std::cout << "TagData = ";
   TagData = "mytest";
@@ -131,7 +123,7 @@ std::cout <<std::endl<< "---- Test Performance Program ----"<<std::endl;
 
       CondCachedIter<Pedestals> *Iterator = new CondCachedIter<Pedestals>;
       
-      Iterator->create(NameDB,FileXml,TagData);
+      Iterator->create(NameDB,TagData);
       end = clock();
 
       std::vector<double> Run;
@@ -314,7 +306,7 @@ std::cout <<std::endl<< "---- Test Performance Program ----"<<std::endl;
       
       start = clock();   
       CondIter <Pedestals> *IteratorIter = new CondIter<Pedestals>;
-      IteratorIter->create(NameDB,FileXml,TagData);
+      IteratorIter->create(NameDB,TagData);
       end = clock();
       
       std::cout <<"Time Creation link with Database Iter = " <<  ((double) (end - start)) << " (a.u.)" <<std::endl;
@@ -369,7 +361,7 @@ std::cout <<std::endl<< "---- Test Performance Program ----"<<std::endl;
   maximum = X[nDiv-1];
   
   CondIter<Pedestals> *IteratorPlot = new CondIter<Pedestals>;
-  IteratorPlot->create(NameDB,FileXml,TagData);
+  IteratorPlot->create(NameDB,TagData);
   IteratorPlot->setRange(minimum,maximum);
   
   std::cout << "--------------------------" << std::endl << std::endl;
