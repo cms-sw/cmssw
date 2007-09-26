@@ -1,9 +1,10 @@
+<flags EDM_PLUGIN=1>
 <use name=FWCore/Framework>
 <use name=FWCore/PluginManager>
 <use name=FWCore/ParameterSet>
 <use name=CondFormats/L1TObjects>
 <use name=CondFormats/DataRecord>
-<flags EDM_PLUGIN=1>
+<use name=xerces-c>
 <export>
    <lib name=L1TriggerConfigL1GtConfigProducers>
    <use name=FWCore/Framework>
@@ -11,4 +12,5 @@
    <use name=FWCore/ParameterSet>
    <use name=CondFormats/L1TObjects>
    <use name=CondFormats/DataRecord>
+   <use name=xerces-c>
 </export>
