@@ -7,6 +7,7 @@ Toy EDProducers and EDProducts for testing purposes only.
 #include <stdexcept>
 #include <string>
 #include <iostream>
+#include <fstream>
 #include <map>
 #include <vector>
 #include "FWCore/Framework/interface/EDAnalyzer.h"
@@ -21,6 +22,7 @@ Toy EDProducers and EDProducts for testing purposes only.
 #include "CondFormats/DataRecord/interface/CSCDBPedestalsRcd.h"
 
 using namespace std;
+std::ofstream DBPedestalFile("dbpedestal.dat",std::ios::out);
 
 namespace edmtest
 {
@@ -50,7 +52,8 @@ namespace edmtest
     std::vector<CSCDBPedestals::Item>::const_iterator it;
     
     for( it=myped->pedestals.begin();it!=myped->pedestals.end(); ++it ){
-      std::cout <<"ped:  "<<it->ped<<" rms: "<<it->rms<<std::endl;
+      //std::cout <<"ped:  "<<it->ped<<" rms: "<<it->rms<<std::endl;
+      DBPedestalFile<<it->ped<<"  "<<it->rms<<std::endl;
     }
   }
   DEFINE_FWK_MODULE(CSCPedestalDBReadAnalyzer);
