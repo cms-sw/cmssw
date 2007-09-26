@@ -218,6 +218,8 @@ void DDHCalBarrelAlgo::constructGeneralVolume() {
   double zmax   = getZoff(3);
   double zstep5 = getZoff(4);
   double zstep4 =(getZoff(1) + getRmax(1)*getTanTheta(1));
+  if ((getZoff(2)+getRmax(1)*getTanTheta(2)) > zstep4)
+    zstep4 = (getZoff(2)+getRmax(1)*getTanTheta(2));
   double zstep3 =(getZoff(1) + getRmax(0)*getTanTheta(1));
   double zstep2 =(getZoff(0) + getRmax(0)*getTanTheta(0));
   double zstep1 =(getZoff(0) + getRin()  *getTanTheta(0));
@@ -459,7 +461,6 @@ void DDHCalBarrelAlgo::constructInsideSector(DDLogicalPart sector) {
     //!!!!!!!!!!!!!!!!!Should be zero. And removed as soon as
     //vertical walls are allowed in SolidPolyhedra
     double deltaz = 0;
-    
     int    nsec=2;
     vector<double> pgonZ, pgonRmin, pgonRmax;
     // index 0

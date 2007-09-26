@@ -79,6 +79,7 @@ void DDHCalEndcapAlgo::initialize(const DDNumericArguments & nArgs,
 
   int i,j;
   genMaterial   = sArgs["MaterialName"];
+  rotation      = sArgs["Rotation"];
   nsectors      = int (nArgs["Sector"]);
   nsectortot    = int (nArgs["SectorTot"]);
   nEndcap       = int (nArgs["Endcap"]);
@@ -132,7 +133,7 @@ void DDHCalEndcapAlgo::initialize(const DDNumericArguments & nArgs,
 		       <<"\tSlope " << slope << "\tDzShift " << dzShift
 		       << "\n\tz1Beam " << z1Beam << "\tziKink" << ziKink
 		       << "\triKink " << riKink << "\triDip " << riDip 
-		       << "\troDip " << roDip;
+		       << "\n\troDip " << roDip << "\tRotation " << rotation;
 
   ///////////////////////////////////////////////////////////////
   //Modules
@@ -296,6 +297,11 @@ void DDHCalEndcapAlgo::initialize(const DDNumericArguments & nArgs,
   LogDebug("HCalGeom") << "DDHCalEndcapAlgo debug: Parent " << parentName 
 		       << " idName " << idName << " NameSpace " << idNameSpace
 		       << " Offset " << idOffset;
+
+  tolPos      = nArgs["TolPos"];
+  tolAbs      = nArgs["TolAbs"];
+  LogDebug("HCalGeom") << "DDHCalEndcapAlgo debug: Tolerances - Positioning "
+		       << tolPos << " Absorber " << tolAbs;
 }
 
 ////////////////////////////////////////////////////////////////////
@@ -315,7 +321,12 @@ void DDHCalEndcapAlgo::constructGeneralVolume() {
   
   LogDebug("HCalGeom") << "DDHCalEndcapAlgo test: General volume...";
 
-  DDRotation    rot = DDRotation();
+  DDRotation    rot;
+  if (DDSplit(getRotation()).first == "NULL") rot = DDRotation();
+  else rot = DDRotation(DDName(DDSplit(getRotation()).first,DDSplit(getRotation()).second));
+  LogDebug("HCalGeom") << " First " << DDSplit(getRotation()).first
+		       << " Second " << DDSplit(getRotation()).second 
+		       << " Rotation " << rot;
   DDTranslation r0(0,0,0);
   double alpha = pi/getNsectors();
   double dphi  = getNsectortot()*twopi/getNsectors();
@@ -570,6 +581,9 @@ void DDHCalEndcapAlgo::parameterLayer0(int mod, int layer, int iphi,
   //Given module and layer number compute parameters of trapezoid
   //and positioning parameters
   double alpha = pi/getNsectors();
+  LogDebug("HCalGeom") << "Input " << iphi << " " << layer << " " << iphi
+		       << " Alpha " << alpha/deg;
+
   double zi, zo;
   if (iphi == 0) {
     zi = getZminBlock(mod);
@@ -601,6 +615,9 @@ void DDHCalEndcapAlgo::parameterLayer0(int mod, int layer, int iphi,
   } else {
     alp  = -alp;
   }
+  LogDebug("HCalGeom") << "Output Dimensions " << yh << " " << bl << " "
+		       << tl << " " << alp/deg << " Position " << xpos << " " 
+		       << ypos << " " << zpos;
 }
 
 
@@ -615,6 +632,10 @@ void DDHCalEndcapAlgo::parameterLayer(int iphi, double rinF, double routF,
   //Given rin, rout compute parameters of the trapezoid and 
   //position of the trapezoid for a standrd layer
   double alpha = pi/getNsectors();
+  LogDebug("HCalGeom") << "Input " << iphi << " Front " << rinF << " " << routF
+		       << " " << zi << " Back " << rinB << " " << routB << " "
+		       << zo << " Alpha " << alpha/deg;
+
   yh1 = 0.5 * (routF - rinF);
   bl1 = 0.5 * rinF  * tan(alpha);
   tl1 = 0.5 * routF * tan(alpha);
@@ -627,6 +648,7 @@ void DDHCalEndcapAlgo::parameterLayer(int iphi, double rinF, double routF,
   ypos = 0.25*(bl2+tl2+bl1+tl1);
   zpos = 0.5*(zi+zo);
   alp  = 0.5 * alpha;
+  ypos-= getTolPos();
   if (iphi == 0) {
     ypos  = -ypos;
   } else {
@@ -636,6 +658,11 @@ void DDHCalEndcapAlgo::parameterLayer(int iphi, double rinF, double routF,
   double r   = sqrt (dx*dx + dy*dy);
   theta= atan (r/(zo-zi));
   phi  = atan2 (dy, dx);
+  LogDebug("HCalGeom") << "Output Dimensions " << yh1 << " " << bl1 << " "
+		       << tl1 << " " << yh2 << " " << bl2 << " " << tl2
+		       << " " << alp/deg << " " << theta/deg << " "
+		       << phi/deg << " Position " << xpos << " " << ypos
+		       << " " << zpos;
 }
 
 
@@ -705,16 +732,14 @@ void DDHCalEndcapAlgo::constructInsideModule0(DDLogicalPart module, int mod) {
   double yh1, bl1, tl1, yh2, bl2, tl2, theta, phi, alp;
   parameterLayer(0, rinF, routF, rinB, routB, zi, zo, yh1, bl1, tl1, yh2, bl2, 
                  tl2, alp, theta, phi, xpos, ypos, zpos);
-  double fact= 1.0 - getTrim(mod,0)/yh1;
+  double fact = getTolAbs();
   LogDebug("HCalGeom") << "DDHCalEndcapAlgo test: Trim " << fact << " Param "
 		       << yh1 << ", " << bl1 << ", " << tl1 << ", " << yh2
 		       << ", " << bl2 << ", " << tl2;
-  yh1 *= fact;
-  bl1 *= fact;
-  tl1 *= fact;
-  yh2 *= fact;
-  bl2 *= fact;
-  tl2 *= fact;
+  bl1 -= fact;
+  tl1 -= fact;
+  bl2 -= fact;
+  tl2 -= fact;
 
   name = module.name().name()+"Absorber";
   solid = DDSolidFactory::trap(DDName(name, idNameSpace), 

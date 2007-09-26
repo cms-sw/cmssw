@@ -15,6 +15,7 @@ class DDHCalEndcapAlgo : public DDAlgorithm {
   
   //Get Methods
   std::string getGenMat()                  const {return genMaterial;}
+  std::string getRotation()                const {return rotation;}
   int         getNsectors()                const {return nsectors;}
   int         getNsectortot()              const {return nsectortot;}
   int         getEndcaps()                 const {return nEndcap;}
@@ -71,6 +72,8 @@ class DDHCalEndcapAlgo : public DDAlgorithm {
   std::string getPlastMat()                const {return plastMat;}
   std::string getScintMat()                const {return scintMat;}
   std::string getRotMat()                  const {return rotmat;}
+  double      getTolPos()                  const {return tolPos;}
+  double      getTolAbs()                  const {return tolAbs;}
 
   void initialize(const DDNumericArguments & nArgs,
 		  const DDVectorArguments & vArgs,
@@ -107,6 +110,7 @@ private:
   int                      nNose;         //Nose to be present (?)
   std::string              rotHalf;       //Rotation matrix for half
   std::string              rotns;         //Name space for rotation
+  std::string              rotation;      //Rotation matrix to place in mother
 
   double                   zFront;        //Z of the front section
   double                   zEnd;          //Outer Z of the HE
@@ -170,6 +174,8 @@ private:
   std::string              idName;        //Name of the "parent" volume.  
   std::string              idNameSpace;   //Namespace of this and ALL sub-parts
   int                      idOffset;      // Geant4 ID's...    = 4000;
+
+  double                   tolPos, tolAbs; //Tolerances
 };
 
 #endif
