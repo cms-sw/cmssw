@@ -11,8 +11,8 @@
 
 Abstract base class for an individual cell's geometry.
     
-$Date: 2007/09/13 00:14:06 $
-$Revision: 1.11 $
+$Date: 2007/09/21 06:08:05 $
+$Revision: 1.12 $
 \author J. Mans, P. Meridiani
 */
 
@@ -45,9 +45,9 @@ class CaloCellGeometry
       bool emptyCorners() const { return m_corners.empty() ; }
 
 
-      static const float* getParmPtr( const std::vector<double>& vd ,
-				      ParMgr*                    mgr ,
-				      ParVecVec&                 pvv ) ;
+      static const float* getParmPtr( const std::vector<float>& vd  ,
+				      ParMgr*                   mgr ,
+				      ParVecVec&                pvv ) ;
 
    protected:
 
