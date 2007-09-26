@@ -2,6 +2,7 @@
 #include "CommonTools/TrackerMap/interface/TmModule.h"
 #include <fstream>
 #include <iostream>
+#include <sstream>
 using namespace std;
 
 /**********************************************************
@@ -185,9 +186,11 @@ if(!print_total)mod->value=mod->value*mod->count;//restore mod->value
 //print in svg format tracker map
 //print_total = true represent in color the total stored in the module
 //print_total = false represent in color the average  
-void TrackerMap::print(bool print_total, float minval, float maxval){
+void TrackerMap::print(bool print_total, float minval, float maxval, string outputfilename){
+  ostringstream outs;
   minvalue=minval; maxvalue=maxval;
-  svgfile = new ofstream("svgmap.xml",ios::out);
+  outs << outputfilename << ".xml";
+  svgfile = new ofstream(outs.str().c_str(),ios::out);
   jsfile = new ifstream("trackermap.txt",ios::in);
 
   //copy javascript interface from trackermap.txt file

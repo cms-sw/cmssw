@@ -17,7 +17,7 @@ class TrackerMap {
   
   void build();
   void drawModule(TmModule * mod, int key, int layer, bool total);
-  void print(bool print_total=true,float minval=0., float maxval=0.);
+  void print(bool print_total=true,float minval=0., float maxval=0.,std::string s="svgmap");
   void fill_current_val(int idmod, float current_val );
   void fill(int layer , int ring, int nmod, float x );
   void fill(int idmod, float qty );
