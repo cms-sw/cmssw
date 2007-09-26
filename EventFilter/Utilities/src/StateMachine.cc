@@ -161,7 +161,7 @@ void StateMachine::stateChanged(toolbox::fsm::FiniteStateMachine & fsm)
       LOG4CPLUS_ERROR(logger_,xcept::stdformat_exception_history(e));
     }
   }
-  else if (state=="Halted"||state=="Ready"||state=="Enabled") {
+  else if (state=="Halted"||state=="Ready"||state=="Enabled"||state=="Failed") {
     try {
       rcmsStateNotifier_.stateChanged(state,appNameAndInstance_+
 				      " has reached target state " +

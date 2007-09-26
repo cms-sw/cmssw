@@ -1,3 +1,9 @@
+2007-09-26  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
+
+	* tag V00-13-09
+	* Statemachine.cc: add missing soap callback if target state is
+	'FAILED'.
+
 2007-08-29  Philipp Schieferdecker  <philipp.schieferdecker@cern.ch>
 
 	* tag V00-13-08
