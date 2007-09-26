@@ -1,8 +1,8 @@
 /*
  * \file L1TRPCTF.cc
  *
- * $Date: 2007/02/22 19:43:53 $
- * $Revision: 1.3 $
+ * $Date: 2007/08/27 16:39:18 $
+ * $Revision: 1.5 $
  * \author J. Berryhill
  *
  */
@@ -13,9 +13,8 @@ using namespace std;
 using namespace edm;
 
 L1TRPCTF::L1TRPCTF(const ParameterSet& ps)
-  : rpctfbSource_( ps.getParameter< InputTag >("rpctfbSource") ),
-  rpctffSource_( ps.getParameter< InputTag >("rpctffSource") )
-{
+  : rpctfSource_( ps.getParameter< InputTag >("rpctfSource") )
+ {
 
   // verbosity switch
   verbose_ = ps.getUntrackedParameter<bool>("verbose", false);
@@ -82,35 +81,40 @@ void L1TRPCTF::beginJob(const EventSetup& c)
   {
     dbe->setCurrentFolder("L1TMonitor/L1TRPCTF");
     
-    rpctfbetavalue = dbe->book1D("RPC TF barrel eta value", 
-       "RPC TF barrel eta value", 100, -2.5, 2.5 ) ;
-    rpctfbphivalue = dbe->book1D("RPC TF barrel phi value", 
-       "RPC TF barrel phi value", 100, 0.0, 6.2832 ) ;
-    rpctfbptvalue = dbe->book1D("RPC TF barrel pt value", 
-       "RPC TF barrel pt value", 160, -0.5, 159.5 ) ;
-    rpctfbptpacked = dbe->book1D("RPC TF barrel pt_packed", 
-       "RPC TF barrel pt_packed", 160, -0.5, 159.5 ) ;
-    rpctfbquality = dbe->book1D("RPC TF barrel quality", 
-       "RPC TF barrel quality", 20, -0.5, 19.5 ) ;
-    rpctfbchargevalue = dbe->book1D("RPC TF barrel charge value", 
-       "RPC TF barrel charge value", 2, -1.5, 1.5 ) ;
-    rpctfbntrack = dbe->book1D("RPC TF barrel ntrack", 
-       "RPC TF barrel ntrack", 20, -0.5, 19.5 ) ;
-
-    rpctffetavalue = dbe->book1D("RPC TF forward eta value", 
-       "RPC TF forward eta value", 100, -2.5, 2.5 ) ;
-    rpctffphivalue = dbe->book1D("RPC TF forward phi value", 
-       "RPC TF forward phi value", 100, 0.0, 6.2832 ) ;
-    rpctffptvalue = dbe->book1D("RPC TF forward pt value", 
-       "RPC TF forward pt value", 160, -0.5, 159.5 ) ;
-    rpctffptpacked = dbe->book1D("RPC TF forward pt_packed", 
-       "RPC TF forward pt_packed", 160, -0.5, 159.5 ) ;
-    rpctffquality = dbe->book1D("RPC TF forward quality", 
-       "RPC TF forward quality", 20, -0.5, 19.5 ) ;
-    rpctffchargevalue = dbe->book1D("RPC TF forward charge value", 
-       "RPC TF forward charge value", 2, -1.5, 1.5 ) ;
-    rpctffntrack = dbe->book1D("RPC TF forward ntrack", 
-       "RPC TF forward ntrack", 20, -0.5, 19.5 ) ;
+    rpctfetavalue[1] = dbe->book1D("RPCTF_eta_value", 
+       "RPCTF eta value", 100, -2.5, 2.5 ) ;
+    rpctfetavalue[2] = dbe->book1D("RPCTF_eta_value_+1", 
+       "RPCTF eta value bx +1", 100, -2.5, 2.5 ) ;
+    rpctfetavalue[0] = dbe->book1D("RPCTF_eta_value_-1", 
+       "RPCTF eta value bx -1", 100, -2.5, 2.5 ) ;
+    rpctfphivalue[1] = dbe->book1D("RPCTF_phi_value", 
+       "RPCTF phi value", 100, 0.0, 6.2832 ) ;
+    rpctfphivalue[2] = dbe->book1D("RPCTF_phi_value_+1", 
+       "RPCTF phi value bx +1", 100, 0.0, 6.2832 ) ;
+    rpctfphivalue[0] = dbe->book1D("RPCTF_phi_value_-1", 
+       "RPCTF phi value bx -1", 100, 0.0, 6.2832 ) ;
+    rpctfptvalue[1] = dbe->book1D("RPCTF_pt_value", 
+       "RPCTF pt value", 160, -0.5, 159.5 ) ;
+    rpctfptvalue[2] = dbe->book1D("RPCTF_pt_value_+1", 
+       "RPCTF pt value bx +1", 160, -0.5, 159.5 ) ;
+    rpctfptvalue[0] = dbe->book1D("RPCTF_pt_value_-1", 
+       "RPCTF pt value bx -1", 160, -0.5, 159.5 ) ;
+    rpctfchargevalue[1] = dbe->book1D("RPCTF_charge_value", 
+       "RPCTF charge value", 3, -1.5, 1.5 ) ;
+    rpctfchargevalue[2] = dbe->book1D("RPCTF_charge_value_+1", 
+       "RPCTF charge value bx +1", 3, -1.5, 1.5 ) ;
+    rpctfchargevalue[0] = dbe->book1D("RPCTF_charge_value_-1", 
+       "RPCTF charge value bx -1", 3, -1.5, 1.5 ) ;
+    rpctfquality[1] = dbe->book1D("RPCTF_quality", 
+       "RPCTF quality", 20, -0.5, 19.5 ) ;
+    rpctfquality[2] = dbe->book1D("RPCTF_quality_+1", 
+       "RPCTF quality bx +1", 20, -0.5, 19.5 ) ;
+    rpctfquality[0] = dbe->book1D("RPCTF_quality_-1", 
+       "RPCTF quality bx -1", 20, -0.5, 19.5 ) ;
+    rpctfntrack = dbe->book1D("RPCTF_ntrack", 
+       "RPCTF ntrack", 20, -0.5, 19.5 ) ;
+    rpctfbx = dbe->book1D("RPCTF_bx", 
+       "RPCTF bx", 3, -1.5, 1.5 ) ;
   }  
 }
 
@@ -130,143 +134,107 @@ void L1TRPCTF::analyze(const Event& e, const EventSetup& c)
   nev_++; 
   if(verbose_) cout << "L1TRPCTF: analyze...." << endl;
 
-  int nrpctfbtrack = 0;
 
-  edm::Handle<std::vector<L1MuRegionalCand> > pRPCTFbtracks;  
+  edm::Handle<L1MuGMTReadoutCollection> pCollection;
+
+
   try {
-  e.getByLabel(rpctfbSource_,pRPCTFbtracks);
+  e.getByLabel(rpctfSource_,pCollection);
   }
   catch (...) {
-    edm::LogInfo("L1RPCTF") << "can't find L1MuRegionalCand with label "
-			       << rpctfbSource_.label() ;
+    edm::LogInfo("L1TRPCTF") << "can't find L1MuGMTReadoutCollection with label "
+			       << rpctfSource_.label() ;
     return;
-  } 
+  }
 
-   for( vector<L1MuRegionalCand>::const_iterator 
-        RPCTFItr =  pRPCTFbtracks->begin() ;
-        RPCTFItr != pRPCTFbtracks->end() ;
-        ++RPCTFItr ) 
-   {
-      nrpctfbtrack++;
+  L1MuGMTReadoutCollection const* gmtrc = pCollection.product();
+  vector<L1MuGMTReadoutRecord> gmt_records = gmtrc->getRecords();
+  vector<L1MuGMTReadoutRecord>::const_iterator RRItr;
 
-     rpctfbetavalue->Fill(RPCTFItr->etaValue());     
-     if (verbose_)
-       {
-     std::cout << "RPC TF barrel etavalue " << RPCTFItr->etaValue()  
-   	    << std::endl;
-       }
+  int nrpctftrack = 0;
+  for( RRItr = gmt_records.begin() ;
+       RRItr != gmt_records.end() ;
+       RRItr++ ) 
+  {
 
-     rpctfbphivalue->Fill(RPCTFItr->phiValue());     
-     if (verbose_)
-       {
-     std::cout << "RPC TF barrel phivalue " << RPCTFItr->phiValue()  
-   	    << std::endl;
-       }
-
-     rpctfbptvalue->Fill(RPCTFItr->ptValue());     
-     if (verbose_)
-       {
-     std::cout << "RPC TF barrel ptvalue " << RPCTFItr->ptValue()  
-   	    << std::endl;
-       }
-
-     rpctfbptpacked->Fill(RPCTFItr->pt_packed());     
-     if (verbose_)
-       {
-     std::cout << "RPC TF barrel pt_packed " << RPCTFItr->pt_packed()  
-   	    << std::endl;
-       }
-
-     rpctfbquality->Fill(RPCTFItr->quality());     
-     if (verbose_)
-       {
-     std::cout << "RPC TF barrel quality " << RPCTFItr->quality()  
-   	    << std::endl;
-       }
-
-     rpctfbchargevalue->Fill(RPCTFItr->chargeValue());     
-     if (verbose_)
-       {
-     std::cout << "RPC TF barrel charge value " << RPCTFItr->chargeValue()  
-   	    << std::endl;
-       }
-
-    }
-     rpctfbntrack->Fill(nrpctfbtrack);     
-     if (verbose_)
-       {
-     std::cout << "RPC TF barrel ntrack " << nrpctfbtrack  
-   	    << std::endl;
-       }
-
-  edm::Handle<std::vector<L1MuRegionalCand> > pRPCTFftracks;  
+    if (verbose_)
+    {
+     cout << "Readout Record " << RRItr->getBxInEvent()
+   	    << endl;
+   }
  
- try {
-  e.getByLabel(rpctffSource_,pRPCTFftracks);
-  }
-  catch (...) {
-    edm::LogInfo("L1RPCTF") << "can't find L1MuRegionalCand with label "
-			       << rpctffSource_.label() ;
-    return;
-  } 
+   vector<L1MuRegionalCand> RPCTFCands = RRItr->getBrlRPCCands();
+ 
 
-  int nrpctfftrack = 0;
-  for( vector<L1MuRegionalCand>::const_iterator 
-        RPCTFItr =  pRPCTFftracks->begin() ;
-        RPCTFItr != pRPCTFftracks->end() ;
-        ++RPCTFItr ) 
-   {
-      nrpctfftrack++;
+   if (verbose_) 
+    {
+     cout << "RPCTFCands " << RPCTFCands.size()
+   	    << endl;
+    }
 
-     rpctffetavalue->Fill(RPCTFItr->etaValue());     
-     if (verbose_)
-       {
-     std::cout << "RPC TF forward etavalue " << RPCTFItr->etaValue()  
-   	    << std::endl;
-       }
+    for( vector<L1MuRegionalCand>::const_iterator 
+         ECItr = RPCTFCands.begin() ;
+         ECItr != RPCTFCands.end() ;
+         ++ECItr ) 
+    {
 
-     rpctffphivalue->Fill(RPCTFItr->phiValue());     
-     if (verbose_)
-       {
-     std::cout << "RPC TF forward phivalue " << RPCTFItr->phiValue()  
-   	    << std::endl;
-       }
+      int bxindex = ECItr->bx() + 1;
+      nrpctftrack++;
 
-     rpctffptvalue->Fill(RPCTFItr->ptValue());     
-     if (verbose_)
-       {
-     std::cout << "RPC TF forward ptvalue " << RPCTFItr->ptValue()  
-   	    << std::endl;
-       }
+      if (verbose_)
+	{  
+     cout << "RPCTFCand bx " << ECItr->bx()
+   	    << endl;
+	}
+     rpctfbx->Fill(ECItr->bx());
 
-     rpctffptpacked->Fill(RPCTFItr->pt_packed());     
-     if (verbose_)
-       {
-     std::cout << "RPC TF forward pt_packed " << RPCTFItr->pt_packed()  
-   	    << std::endl;
-       }
+      rpctfetavalue[bxindex]->Fill(ECItr->etaValue());
+      if (verbose_)
+	{     
+     cout << "\tRPCTFCand eta value " << ECItr->etaValue()
+   	    << endl;
+	}
 
-     rpctffquality->Fill(RPCTFItr->quality());     
-     if (verbose_)
-       {
-     std::cout << "RPC TF forward quality " << RPCTFItr->quality()  
-   	    << std::endl;
-       }
+      rpctfphivalue[bxindex]->Fill(ECItr->phiValue());
+      if (verbose_)
+	{     
+     cout << "\tRPCTFCand phi value " << ECItr->phiValue()
+   	    << endl;
+	}
 
-     rpctffchargevalue->Fill(RPCTFItr->chargeValue());     
-     if (verbose_)
-       {
-     std::cout << "RPC TF forward charge value " << RPCTFItr->chargeValue()  
-   	    << std::endl;
-       }
+      rpctfptvalue[bxindex]->Fill(ECItr->ptValue());
+      if (verbose_)
+	{     
+     cout << "\tRPCTFCand pt value " << ECItr->ptValue()
+   	    << endl;
+	}
+
+
+      rpctfchargevalue[bxindex]->Fill(ECItr->chargeValue());
+      if (verbose_)
+	{     
+     cout << "\tRPCTFCand charge value " << ECItr->chargeValue()
+   	    << endl;
+	}
+
+      rpctfquality[bxindex]->Fill(ECItr->quality());
+      if (verbose_)
+	{     
+     cout << "\tRPCTFCand quality " << ECItr->quality()
+   	    << endl;
+	}
+
 
     }
 
-     rpctffntrack->Fill(nrpctfftrack);     
-     if (verbose_)
-       {
-     std::cout << "RPC TF forward ntrack " << nrpctfftrack  
-   	    << std::endl;
-       }
+
+  }
+
+      rpctfntrack->Fill(nrpctftrack);
+      if (verbose_)
+	{     
+     cout << "\tRPCTFCand ntrack " << nrpctftrack
+   	    << endl;
+	}
 }
 
