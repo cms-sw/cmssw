@@ -7,6 +7,7 @@ Toy EDProducers and EDProducts for testing purposes only.
 #include <stdexcept>
 #include <string>
 #include <iostream>
+#include <fstream>
 #include <map>
 #include <vector>
 #include "FWCore/Framework/interface/EDAnalyzer.h"
@@ -21,6 +22,7 @@ Toy EDProducers and EDProducts for testing purposes only.
 #include "CondFormats/DataRecord/interface/CSCDBGainsRcd.h"
 
 using namespace std;
+std::ofstream DBGainsFile("dbgains.dat",std::ios::out);
 
 namespace edmtest
 {
@@ -50,7 +52,8 @@ namespace edmtest
     std::vector<CSCDBGains::Item>::const_iterator it;
     
     for( it=mygains->gains.begin();it!=mygains->gains.end(); ++it ){
-      std::cout <<"gains: "<<it->gain_slope<<" intercept: "<<it->gain_intercept<<std::endl;
+      //std::cout <<"gains: "<<it->gain_slope<<" intercept: "<<it->gain_intercept<<std::endl;
+      DBGainsFile<<it->gain_slope<<"  "<<it->gain_intercept<<"  "<<it->gain_chi2<<std::endl;
     }
   }
   DEFINE_FWK_MODULE(CSCGainsDBReadAnalyzer);
