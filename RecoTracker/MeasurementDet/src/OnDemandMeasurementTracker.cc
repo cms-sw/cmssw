@@ -224,8 +224,8 @@ std::string OnDemandMeasurementTracker::dumpRegion(std::pair<uint,uint> indexes,
   //  dumpRegion is a printout of all the clusters in a region defined on the RefGetter. returns a string
   std::stringstream ss;
   ss<<"cluster between: "<<indexes.first<<" and: "<<indexes.second<<"\n";
-  for (uint iRegion = indexes.first; iRegion != indexes.second; ++iRegion){
-    SiStripRegionCabling::Region reg = SiStripRegionCabling::region((theGetter)[iRegion].region());
+  for (uint iRegion = indexes.first; iRegion != indexes.second; ++iRegion){    
+    uint32_t reg = SiStripRegionCabling::region((theGetter)[iRegion].region());
     SiStripRegionCabling::Position pos = theStripRegionCabling->position(reg);
     SiStripRegionCabling::PositionIndex posI = theStripRegionCabling->positionIndex(reg);
     
