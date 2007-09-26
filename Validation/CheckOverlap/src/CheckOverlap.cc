@@ -5,6 +5,7 @@
 
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 
 #include "G4Run.hh"
@@ -20,22 +21,23 @@
 CheckOverlap::CheckOverlap(const edm::ParameterSet &p) : topLV(0) {
   nodeName = p.getUntrackedParameter<std::string>("NodeName", "");
   nPoints  = p.getUntrackedParameter<int>("Resolution", 1000);
-  std::cout << "CheckOverlap:: initialised with Node Name " << " " << nodeName
-	    << " and Resolution " << nPoints << std::endl;
+  edm::LogInfo("G4cout") << "CheckOverlap:: initialised with Node Name "
+			 << " " << nodeName << " and Resolution " 
+			 << nPoints;
 }
  
 CheckOverlap::~CheckOverlap() {}
   
 void CheckOverlap::update(const BeginOfRun * run) {
   
-  std::cout << "Node Name " << nodeName << std::endl;
+  edm::LogInfo("G4cout") << "Node Name " << nodeName;
   if (nodeName != "") {
     const G4PhysicalVolumeStore * pvs = G4PhysicalVolumeStore::GetInstance();
     std::vector<G4VPhysicalVolume *>::const_iterator pvcite;
     int i = 0;
     for (pvcite = pvs->begin(); pvcite != pvs->end(); pvcite++) {
-      std::cout << "Name of node " << (++i) << " : " << (*pvcite)->GetName()
-		<< std::endl;
+      edm::LogInfo("G4cout") << "Name of node " << (++i) << " : " 
+			     << (*pvcite)->GetName();
       if ((*pvcite)->GetName() == (G4String)(nodeName)) {
 	topLV = (*pvcite)->GetLogicalVolume();
 	break;
@@ -45,9 +47,8 @@ void CheckOverlap::update(const BeginOfRun * run) {
     G4VPhysicalVolume * theTopPV = getTopPV();
     topLV = theTopPV->GetLogicalVolume();
   }
-  std::cout << "Top LV " << topLV;
-  if (topLV != 0) std::cout << " Name " << topLV->GetName();
-  std::cout << std::endl;
+  if (topLV != 0) edm::LogInfo("G4cout") << "Top LV Name " << topLV->GetName();
+  else            edm::LogInfo("G4cout") << "No Top LV Found";
   //---------- Check all PV's
   if (topLV) 
     checkHierarchyLeafPVLV(topLV, 0);
@@ -89,13 +90,18 @@ void CheckOverlap::checkPV(G4VPhysicalVolume * pv, uint leafDepth) {
   if (!pv->IsReplicated()) {
     G4PVPlacement* pvplace = dynamic_cast<G4PVPlacement* >(pv);
     G4bool ok = pvplace->CheckOverlaps(nPoints);
-    std::cout << "Placed PV " << pvplace->GetName() << " Number "
-	      << pvplace->GetCopyNo() << " in mother " << mother 
-	      << " at depth " << leafDepth << " Status " << ok << std::endl;
+    edm::LogInfo("G4cout") << "Placed PV " << pvplace->GetName() 
+			   << " Number " << pvplace->GetCopyNo() 
+			   << " in mother " << mother << " at depth " 
+			   << leafDepth << " Status " << ok;
     if (ok) {
-      std::cout << "Translation " << pv->GetTranslation();
-      if(pv->GetRotation() == 0) std::cout << " with no rotation" << std::endl;
-      else std::cout << " with rotation " << *(pv->GetRotation()) << std::endl;
+      if(pv->GetRotation() == 0) {
+	edm::LogInfo("G4cout") << "Translation " << pv->GetTranslation()
+			       << " and with no rotation";
+      } else {
+	edm::LogInfo("G4cout") << "Translation " << pv->GetTranslation()
+			       << " and with rotation "<< *(pv->GetRotation());
+      }
       G4LogicalVolume* lv = pv->GetLogicalVolume();
       dumpLV(lv, "Self");
       if (pv->GetMotherLogical()) {
@@ -107,9 +113,9 @@ void CheckOverlap::checkPV(G4VPhysicalVolume * pv, uint leafDepth) {
     if (pv->GetParameterisation() != 0) {
       G4PVParameterised* pvparam = dynamic_cast<G4PVParameterised* >(pv);
       G4bool ok = pvparam->CheckOverlaps(nPoints);
-      std::cout << "Parametrized PV " << pvparam->GetName() << " in mother "
-		<< mother << " at depth " << leafDepth << " Status "	<< ok 
-		<< std::endl;
+      edm::LogInfo("G4cout") << "Parametrized PV " << pvparam->GetName()
+			     << " in mother " << mother << " at depth "
+			     << leafDepth << " Status "	<< ok;
     }
   }
 #endif
@@ -121,9 +127,10 @@ G4VPhysicalVolume * CheckOverlap::getTopPV() {
 }
 
 void CheckOverlap::dumpLV(G4LogicalVolume* lv, std::string str) {
-  std::cout << "Dump of " << str << " Logical Volume " << lv->GetName()
-            << "  Solid: " << lv->GetSolid()->GetName() << "  Material: "
-            << lv->GetMaterial()->GetName() << std::endl;
-  std::cout << *(lv->GetSolid()) << std::endl;
+  edm::LogInfo("G4cout") << "Dump of " << str << " Logical Volume " 
+			 << lv->GetName() << "  Solid: " 
+			 << lv->GetSolid()->GetName() << "  Material: "
+			 << lv->GetMaterial()->GetName();
+  edm::LogInfo("G4cout") << *(lv->GetSolid());
 }
 
