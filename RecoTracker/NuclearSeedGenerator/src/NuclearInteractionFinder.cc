@@ -52,6 +52,8 @@ checkCompletedTrack(iConfig.getParameter<bool>("checkCompletedTrack"))
    nuclTester = new NuclearTester(maxHits, theEstimator, theTrackerGeom.product() );
 
    currentSeed = new SeedFromNuclearInteraction(thePropagator, theTrackerGeom.product(), iConfig) ;
+
+   thePrimaryHelix = new TangentHelix();
 }
 //----------------------------------------------------------------------
 void NuclearInteractionFinder::setEvent(const edm::Event& event) const
@@ -137,6 +139,7 @@ void NuclearInteractionFinder::definePrimaryHelix(std::vector<TrajectoryMeasurem
        pt[i] = (it_meas->updatedState()).globalParameters().position();
        it_meas++;
     }
+    delete thePrimaryHelix;
     thePrimaryHelix = new TangentHelix( pt[0], pt[1], pt[2] );
 }
 //----------------------------------------------------------------------

@@ -5,22 +5,20 @@
 
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
 #include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
-#include "TrackingTools/Records/interface/TransientRecHitRecord.h"
 #include "TrackingTools/KalmanUpdators/interface/KFUpdator.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#define RESCALE_FACTOR 20
-
 
 SeedFromNuclearInteraction::SeedFromNuclearInteraction(const Propagator* prop, const TrackerGeometry* geom, const edm::ParameterSet& iConfig):
-    rescaleDirectionFactor(iConfig.getParameter<double>("rescaleDirectionFactor")),
-    rescalePositionFactor(iConfig.getParameter<double>("rescalePositionFactor")),
-    rescaleCurvatureFactor(iConfig.getParameter<double>("rescaleCurvatureFactor")),
     ptMin(iConfig.getParameter<double>("ptMin")),
     thePropagator(prop), theTrackerGeom(geom)
     {
          isValid_=true;
+         initialTSOS_ = boost::shared_ptr<TrajectoryStateOnSurface>(new TrajectoryStateOnSurface());
+         updatedTSOS_ = boost::shared_ptr<TrajectoryStateOnSurface>(new TrajectoryStateOnSurface());
+         freeTS_ = boost::shared_ptr<FreeTrajectoryState>(new FreeTrajectoryState());
+         pTraj = boost::shared_ptr<PTrajectoryStateOnDet>(new PTrajectoryStateOnDet());
     }
 
 //----------------------------------------------------------------------
@@ -65,9 +63,7 @@ void SeedFromNuclearInteraction::setMeasurements(TangentHelix& thePrimaryHelix, 
        theHits.push_back( innerHit_ );
        theHits.push_back( outerHit_ );
 
-       TSOS rescaled_TSOS = inner_TSOS;
-       rescaled_TSOS.rescaleError(1.0/((double)(RESCALE_FACTOR)));
-       initialTSOS_.reset( new TrajectoryStateOnSurface(rescaled_TSOS) );
+       initialTSOS_.reset( new TrajectoryStateOnSurface(inner_TSOS) );
 
        // calculate the initial FreeTrajectoryState from the inner and outer TM assuming that the helix equation is already known.
        freeTS_.reset(stateWithError(helix));
@@ -101,56 +97,28 @@ FreeTrajectoryState* SeedFromNuclearInteraction::stateWithError(TangentHelix& he
    GlobalTrajectoryParameters gtp(helix.vertexPoint(), dirAtVtx , helix.charge(mag.inTesla(helix.vertexPoint()).z())/helix.rho(), 0, &mag);
 
    // Error matrix in a frame where z is in the direction of the track at the vertex
-   //AlgebraicSymMatrix55 m = ROOT::Math::SMatrixIdentity();
-   AlgebraicSymMatrix55 m(initialTSOS_->curvilinearError().matrix());
-   double curvatureError = helix.curvatureError();
-   m(0,0)=curvatureError*curvatureError;
-   m(1,1)=m(1,1)*rescaleDirectionFactor*rescaleDirectionFactor;
-   m(2,2)=m(2,2)*rescaleDirectionFactor*rescaleDirectionFactor;
-   m(3,3)=m(3,3)*rescalePositionFactor*rescalePositionFactor;
-   m(4,4)=m(4,4)*rescalePositionFactor*rescalePositionFactor;
+   AlgebraicSymMatrix66 primaryError( initialTSOS_->cartesianError().matrix() );
+   double p_max = initialTSOS_->globalParameters().momentum().mag();
+   AlgebraicMatrix33 rot = this->rotationMatrix( dirAtVtx );
 
-/*
-   //rotation around the z-axis by  -phi
-   Rotation tmpRotz ( cos(dirAtVtx.phi()), -sin(dirAtVtx.phi()), 0.,
-                        sin(dirAtVtx.phi()), cos(dirAtVtx.phi()), 0.,
-                         0.,              0.,              1. );
+   AlgebraicMatrix66 globalRotation;
+   globalRotation.Place_at(rot,0,0);
+   globalRotation.Place_at(rot,3,3);
+   AlgebraicSymMatrix66 primaryErrorInNewFrame = ROOT::Math::Similarity(globalRotation, primaryError);
 
-   //rotation around y-axis by -theta
-   Rotation tmpRoty ( cos(dirAtVtx.theta()), 0.,sin(dirAtVtx.theta()),
-                               0.,              1.,              0.,
-                              -sin(dirAtVtx.theta()), 0., cos(dirAtVtx.theta()) );
+   AlgebraicSymMatrix66 secondaryErrorInNewFrame = AlgebraicMatrixID();
+   double p_perp_max = 2; // energy max of a secondary track emited perpendicularly to the 
+                          // primary track is +/- 2 GeV
+   secondaryErrorInNewFrame(0,0) = primaryErrorInNewFrame(0,0)+helix.vertexError()*p_perp_max/p_max;
+   secondaryErrorInNewFrame(1,1) = primaryErrorInNewFrame(1,1)+helix.vertexError()*p_perp_max/p_max;
+   secondaryErrorInNewFrame(2,2) = helix.vertexError() * helix.vertexError();
+   secondaryErrorInNewFrame(3,3) = p_perp_max*p_perp_max;  
+   secondaryErrorInNewFrame(4,4) = p_perp_max*p_perp_max; 
+   secondaryErrorInNewFrame(5,5) = p_max*p_max/4;
 
-   Rotation position(m(0,0), 0, 0, 0, m(1,1), 0, 0, 0, m(2,2) );
-   Rotation momentum(m(3,3), 0, 0, 0, m(4,4), 0, 0, 0, m(5,5) );
+   AlgebraicSymMatrix66 secondaryError = ROOT::Math::SimilarityT(globalRotation, secondaryErrorInNewFrame);
 
-   // position = position * tmpRoty * tmpRotz
-   // momentum = momentum * tmpRoty * tmpRotz
-   position *= tmpRoty;   momentum *= tmpRoty;
-   position *= tmpRotz;   momentum *= tmpRotz;
-
-   m(0,0) = position.xx();
-   m(1,0) = position.yx();
-   m(2,0) = position.zx();
-   m(0,1) = position.xy();
-   m(1,1) = position.yy();
-   m(2,1) = position.zy();
-   m(0,2) = position.xz();
-   m(1,2) = position.yz();
-   m(2,2) = position.zz();
-   m(3,3) = momentum.xx();
-   m(4,3) = momentum.yx();
-   m(5,3) = momentum.zx();
-   m(3,4) = momentum.xy();
-   m(4,4) = momentum.yy();
-   m(5,4) = momentum.zy();
-   m(3,5) = momentum.xz();
-   m(4,5) = momentum.yz();
-   m(5,5) = momentum.zz();
- */
-
-
-   return new FreeTrajectoryState( gtp, CurvilinearTrajectoryError(m) );
+   return new FreeTrajectoryState( gtp, CartesianTrajectoryError(secondaryError) );
 }
 
 //----------------------------------------------------------------------
@@ -160,6 +128,8 @@ bool SeedFromNuclearInteraction::construct() {
    KFUpdator                 theUpdator;
 
    const TrackingRecHit* hit = 0;
+
+   LogDebug("NuclearSeedGenerator") << "Seed ** initial state " << freeTS_->cartesianError().matrix();
 
    for ( unsigned int iHit = 0; iHit < theHits.size(); iHit++) {
      hit = theHits[iHit]->hit();
@@ -176,7 +146,7 @@ bool SeedFromNuclearInteraction::construct() {
 
    TrajectoryStateTransform transformer;
 
-   updatedTSOS_->rescaleError(RESCALE_FACTOR);
+   LogDebug("NuclearSeedGenerator") << "Seed ** updated state " << updatedTSOS_->cartesianError().matrix();
 
    pTraj = boost::shared_ptr<PTrajectoryStateOnDet>( transformer.persistentState(*updatedTSOS_, outerHitDetId().rawId()) );
    return true;
@@ -190,3 +160,36 @@ edm::OwnVector<TrackingRecHit>  SeedFromNuclearInteraction::hits() const {
     }
     return _hits;
 }
+//----------------------------------------------------------------------
+AlgebraicMatrix33 SeedFromNuclearInteraction::rotationMatrix(const GlobalVector& perp) const {
+
+   AlgebraicMatrix33 result;
+
+   // z axis coincides with perp
+   GlobalVector zAxis = perp.unit();
+
+   // x axis has no global Z component
+   GlobalVector xAxis;
+   if ( zAxis.x() != 0 || zAxis.y() != 0) {
+     // precision is not an issue here, just protect against divizion by zero
+     xAxis = GlobalVector( -zAxis.y(), zAxis.x(), 0).unit();
+   }
+   else { // perp coincides with global Z
+     xAxis = GlobalVector( 1, 0, 0);
+   }
+
+   // y axis obtained by cross product
+   GlobalVector yAxis( zAxis.cross( xAxis));
+
+  result(0,0) = xAxis.x();
+  result(0,1) = xAxis.y();
+  result(0,2) = xAxis.z();
+  result(1,0) = yAxis.x();
+  result(1,1) = yAxis.y();
+  result(1,2) = yAxis.z();
+  result(2,0) = zAxis.x();
+  result(2,1) = zAxis.y();
+  result(2,2) = zAxis.z();
+  return result;
+}
+

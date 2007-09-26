@@ -10,11 +10,15 @@ NuclearTester::NuclearTester(unsigned int max_hits, const MeasurementEstimator* 
 bool NuclearTester::isNuclearInteraction( ) {
 // TODO : if energy of primary track is below a threshold don't use checkWithMultiplicity but only checkwith compatible_hits.front
 
-        // 1. we require at least 3 TM vectors to check if nuclear interactions occurs
+        // 1. if momentum of the primary track is below 5 GeV and if the number of compatible hits >0
+        //    assume that a nuclear interaction occured at the end of the track
+        if( allTM.front().first.updatedState().globalMomentum().mag() < 5.0 && compatible_hits.front()>0) { NuclearIndex=1; return true; } 
+
+        // 2. else to use multiplicity we require at least 3 TM vectors to check if nuclear interactions occurs
         if(nHitsChecked()<3) return false;
 
         // 2. check with multiplicity :
-	   if( checkWithMultiplicity() == true ) return true;
+	if( checkWithMultiplicity() == true ) return true;
     	else  {
                // 3. last case : uncompleted track with at least 1 compatible hits in the last layer
                if( nHitsChecked() >= maxHits && compatible_hits.front()>0) {NuclearIndex=1; return true; }

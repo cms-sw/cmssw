@@ -29,6 +29,8 @@ private :
 public :
   SeedFromNuclearInteraction(const Propagator* prop, const TrackerGeometry* geom, const edm::ParameterSet& iConfig);
 
+  virtual ~SeedFromNuclearInteraction(){}
+
   /// Fill all data members from 2 TM's where the first one is supposed to be at the interaction point
   void setMeasurements(const TSOS& tsosAtInteractionPoint, ConstRecHitPointer ihit, ConstRecHitPointer ohit);
 
@@ -61,6 +63,10 @@ public :
 
   ConstRecHitPointer outerHit() const { return outerHit_; }
 
+  /// Return the rotation matrix to be applied to get parameters in 
+  /// a framework where the z direction is along perp
+  AlgebraicMatrix33  rotationMatrix(const GlobalVector& perp) const;
+
 private :
   bool                                     isValid_;        /**< check if the seed is valid */
 
@@ -80,10 +86,6 @@ private :
 
 
   // input parameters
-
-  double rescaleDirectionFactor; /**< Rescale the direction error */
-  double rescalePositionFactor;  /**< Rescale the position error */
-  double rescaleCurvatureFactor; /**< Rescale the curvature error */
 
   double ptMin;                  /**< Minimum transverse momentum of the seed */
 

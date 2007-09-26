@@ -30,7 +30,7 @@ TangentCircle::TangentCircle(const GlobalVector& direction, const GlobalPoint& i
    theCharge = 0;
    theRho = fabs(theRho);
 
-   theVertexError = (theInnerPoint-theOuterPoint).mag()/2;
+   theVertexError = (theInnerPoint-theOuterPoint).mag();
 }
 
 TangentCircle::TangentCircle(const GlobalPoint& outerPoint, const GlobalPoint& innerPoint, const GlobalPoint& vertexPoint) : 
