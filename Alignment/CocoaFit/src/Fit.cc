@@ -148,8 +148,6 @@ ALIbool Fit::fitNextEvent( ALIuint& nEvent )
   
   //----- Check if there are more data sets
   ALIbool moreDataSets = 1;
-
-  //  std::cout << "Fit call CocoaDaqReader::GetDaqReader() " << CocoaDaqReader::GetDaqReader() << std::endl;
   if(CocoaDaqReader::GetDaqReader() != 0) moreDataSets = CocoaDaqReader::GetDaqReader()->ReadNextEvent();
   
   if(ALIUtils::debug >= 2)  std::cout << CocoaDaqReader::GetDaqReader() << "$$$$$$$$$$$$$$$ moreData Sets " << moreDataSets << std::endl;
@@ -191,12 +189,12 @@ ALIbool Fit::fitNextEvent( ALIuint& nEvent )
 	//--- Print entries in all ancestor frames
 	ALIdouble go;	
 	gomgr->getGlobalOptionValue("dumpInAllFrames", go );
-	if(go >= 1) dumpFittedValuesInAllAncestorFrames( ALIFileOut::getInstance( Model::ReportFName() ), TRUE, FALSE );
+	if(go >= 1) dumpFittedValuesInAllAncestorFrames( ALIFileOut::getInstance( Model::ReportFName() ), FALSE, FALSE );
 
 	break;  // No more iterations
       } else if( fq == FQbigDistanceToMinimum ) {
 	addDaMatrixToEntries();
-	if(ALIUtils::report >= 1 && gomgr->GlobalOptions()["reportEachIteration"] > 0) dumpFittedValues( ALIFileOut::getInstance( Model::ReportFName() ), TRUE, TRUE );
+	if(ALIUtils::report >= 1) dumpFittedValues( ALIFileOut::getInstance( Model::ReportFName() ), TRUE, TRUE );
 
 	//----- Next iteration (if not too many already)
 	theNoFitIterations++;
@@ -247,10 +245,9 @@ ALIbool Fit::fitNextEvent( ALIuint& nEvent )
        FittedEntriesManager::getInstance()->AddFittedEntriesSet( new FittedEntriesSet( AtWAMatrix ) );
     }
     
-    //--- Print chi2 with final parameter values
-    getSChi2(1);
-
-    
+     //--- Print chi2 with final parameter values
+    GetSChi2(1);
+ 
     //- only if not stopped in worsening quality state        if(ALIUtils::report >= 0) dumpFittedValues( ALIFileOut::getInstance( Model::ReportFName() ));
     
     /*-      std::vector< OpticalObject* >::iterator voite;
@@ -349,7 +346,7 @@ FitQuality Fit::fitParameters( const double daFactor )
 
   //---- Get chi2 of first iteration
   if( Model::getCocoaStatus() == COCOA_FirstIterationInEvent ) {
-    thePreviousIterationFitQuality = getSChi2( 0 );
+    thePreviousIterationFitQuality = GetSChi2( 0 );
 
     GlobalOptionMgr* gomgr = GlobalOptionMgr::getInstance();
     if (gomgr->GlobalOptions()[ ALIstring("stopAfter1stIteration") ] == 1) {
@@ -844,7 +841,7 @@ void Fit::multiplyMatrices()
 FitQuality Fit::getFitQuality( const ALIbool canBeGood ) 
 {
 
-  double fit_quality = getSChi2(1);
+  double fit_quality = GetSChi2(1);
 
   double fit_quality_cut = thePreviousIterationFitQuality - fit_quality;
 
@@ -898,7 +895,7 @@ FitQuality Fit::getFitQuality( const ALIbool canBeGood )
 }
 
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-ALIdouble Fit::getSChi2( ALIbool useDa )
+ALIdouble Fit::GetSChi2( ALIbool useDa )
 {
   ALIMatrix* SMat = 0;
   if( useDa ){
@@ -949,7 +946,7 @@ ALIdouble Fit::getSChi2( ALIbool useDa )
   }
   ALIdouble fit_quality = (*SMat)(0,0);
   delete SMat;
-  if(ALIUtils::debug >= 5) std::cout << " getSChi2 " << useDa << " = " << fit_quality << std::endl;
+  if(ALIUtils::debug >= 5) std::cout << " GetSChi2 " << useDa << " = " << fit_quality << std::endl;
 
   PrintChi2( fit_quality, !useDa );
 
@@ -1139,65 +1136,15 @@ void Fit::dumpFittedValuesInAllAncestorFrames( ALIFileOut& fileout, ALIbool prin
 
     //----- Dump entry centre coordinates (centre in current coordinates of parent frame <> summ of displacements, as each displacement is done with a different rotation of parent frame)
     OpticalObject* opto = *vocite;
-    const OpticalObject* optoAncestor = opto->parent();
+    const OpticalObject* optoParent = opto->parent();
     do {
-      fileout << " %% IN FRAME : " << optoAncestor->longName() << std::endl;
-      printCentreInOptOFrame( opto, optoAncestor, fileout, printErrors, printOrig );
+      fileout << " %% IN FRAME : " << optoParent->longName() << std::endl;
+      printCentreInOptOFrame( opto, optoParent, fileout, printErrors, printOrig );
 
       //----- Dump entry angles coordinates
-      printRotationAnglesInOptOFrame( opto, optoAncestor, fileout, printErrors, printOrig );
-
-      //print errors 
-      if( printErrors ){
-	HepRotation rmAncestor;
-	rmAncestor = optoAncestor->rmGlob();
-	
-	std::map<ALIint,ALIdouble> errorm;
-	for( uint ii = 0; ii < 3; ii++ ){
-	  for( uint jj = 0; jj < 3; jj++ ){
-	    if ( entries[ii]->quality() >= theMinimumEntryQuality && entries[jj]->quality() >= theMinimumEntryQuality ) {
-	      errorm[ii*10+jj] = (AtWAMatrix->Mat()->me[entries[ii]->fitPos()][entries[jj]->fitPos()])/entries[ii]->OutputSigmaDimensionFactor();
-	      //  / dims
-	    } else {
-	      errorm[ii*10+jj] = 0.;
-	    }
-	  }
-	}
-	CLHEP::HepRep3x3 rottempc(errorm[00],errorm[01],errorm[02],
-				  errorm[10],errorm[11],errorm[12],
-				  errorm[20],errorm[12],errorm[22]);
-	HepRotation centErrors(rottempc);
-
-	if( optoAncestor != 0 ) {
-	  centErrors = rmAncestor*centErrors*rmAncestor.inverse();
-	}
-	ALIUtils::dumprm(centErrors,"Centre Errors (square)  ", fileout);
-	
-	for( uint ii = 3; ii < 6; ii++ ){
-	  for( uint jj = 3; jj < 6; jj++ ){
-	    if ( entries[ii]->quality() >= theMinimumEntryQuality && entries[jj]->quality() >= theMinimumEntryQuality ) {
-	      errorm[ii*10+jj] = (AtWAMatrix->Mat()->me[entries[ii]->fitPos()][entries[jj]->fitPos()])/entries[ii]->OutputSigmaDimensionFactor();
-	      //  / dims
-	    } else {
-	      errorm[ii*10+jj] = 0.;
-	    }
-	  }
-	}
-	CLHEP::HepRep3x3 rottempa(errorm[33],errorm[34],errorm[35],
-				  errorm[43],errorm[44],errorm[45],
-				  errorm[53],errorm[45],errorm[55]);
-	HepRotation angErrors(rottempa);
-	if( optoAncestor != 0 ) {
- 	  ALIUtils::dumprm(rmAncestor,"rm ancestor ", fileout);  
-	  ALIUtils::dumprm(angErrors,"Angle Errors before", fileout);
-	  angErrors = rmAncestor*angErrors*rmAncestor.inverse();
-	}
-	ALIUtils::dumprm(angErrors,"Angle Errors (square) ", fileout);
-      }
-
-      optoAncestor = optoAncestor->parent();     
-
-    }while( optoAncestor );
+      printRotationAnglesInOptOFrame( opto, optoParent, fileout, printErrors, printOrig );
+      optoParent = optoParent->parent();
+    }while( optoParent );
   }
 
 }
@@ -1214,7 +1161,7 @@ void Fit::printCentreInOptOFrame( const OpticalObject* opto, const OpticalObject
     centreLocal = parentRmGlobInv * centreLocal;
   }
   if(ALIUtils::debug >= 2 ) {
-     std::cout << "CENTRE LOCAL "<< opto->name() << " " << centreLocal << " GLOBL " << opto->centreGlob() << " parent GLOB " << optoAncestor->centreGlob() << std::endl;
+    std::cout << "CENTRE LOCAL "<< opto->name() << " " << centreLocal << " GLOBL " << opto->centreGlob() << " parent GLOB " << optoAncestor->centreGlob() << std::endl;
     ALIUtils::dumprm( optoAncestor->rmGlob(), " parent rm " );
   }
   std::vector< Entry* > entries = opto->CoordinateEntryList();  
@@ -1612,7 +1559,7 @@ int Fit::CheckIfMeasIsProportionalToAnother( uint measNo )
 
 
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-std::string Fit::getMeasurementName( int imeas )
+std::string Fit::GetMeasurementName( int imeas )
 {
   std::string measname = " ";
   
