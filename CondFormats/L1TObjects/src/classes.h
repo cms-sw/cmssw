@@ -27,8 +27,12 @@
 #include "CondFormats/L1TObjects/interface/L1TriggerKey.h"
 #include "CondFormats/L1TObjects/interface/L1RCTParameters.h"
 
+#include "CondFormats/L1TObjects/interface/L1GtStableParameters.h"
+#include "CondFormats/L1TObjects/interface/L1GtParameters.h"
 #include "CondFormats/L1TObjects/interface/L1GtPrescaleFactors.h"
 #include "CondFormats/L1TObjects/interface/L1GtTriggerMask.h"
-#include "CondFormats/L1TObjects/interface/L1GtParameters.h"
 #include "CondFormats/L1TObjects/interface/L1GtBoard.h"
 #include "CondFormats/L1TObjects/interface/L1GtBoardMaps.h"
+#include "CondFormats/L1TObjects/interface/L1GtCondition.h"
+#include "CondFormats/L1TObjects/interface/L1GtAlgorithm.h"
+#include "CondFormats/L1TObjects/interface/L1GtTriggerMenu.h"
