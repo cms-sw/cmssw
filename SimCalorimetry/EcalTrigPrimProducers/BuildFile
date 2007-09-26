@@ -1,4 +1,5 @@
 <use name=FWCore/PluginManager>
+<use name=hepmc>
 <use name=root>
 <use name=boost>
 <use name=FWCore/ParameterSet>
@@ -11,7 +12,9 @@
 <use name=CondFormats/EcalObjects>
 <use name=CondFormats/DataRecord>
 <use name=CalibCalorimetry/EcalTPGTools>
+<use name=SimDataFormats/HepMCProduct>
 <export>
+<use name=hepmc>
 <use name=root>
 <use name=boost>
 <use name=FWCore/ParameterSet>
@@ -24,4 +27,5 @@
 <use name=CondFormats/EcalObjects>
 <use name=CondFormats/DataRecord>
 <use name=CalibCalorimetry/EcalTPGTools>
+<use name=SimDataFormats/HepMCProduct>
 </export>
