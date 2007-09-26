@@ -79,7 +79,7 @@ GflashEMShowerModel::~GflashEMShowerModel()
 G4bool GflashEMShowerModel::IsApplicable(const G4ParticleDefinition& particleType)
 { 
 	isapp++;  
-	std::cout << "isapp =   " << isapp  <<std::endl;
+	//	std::cout << "isapp =   " << isapp  <<std::endl;
 	return 
 	&particleType == G4Electron::ElectronDefinition() ||
 	&particleType == G4Positron::PositronDefinition(); 
@@ -92,7 +92,7 @@ G4bool GflashEMShowerModel::IsApplicable(const G4ParticleDefinition& particleTyp
 G4bool GflashEMShowerModel::ModelTrigger(const G4FastTrack & fastTrack )
 {       
 	model_trigger++;  
-	std::cout << " model_trigger =   " << model_trigger<< "  " << fastTrack.GetPrimaryTrack()->GetKineticEnergy() /GeV  << std::endl;
+	//	std::cout << " model_trigger =   " << model_trigger<< "  " << fastTrack.GetPrimaryTrack()->GetKineticEnergy() /GeV  << std::endl;
 	G4bool select = false;
 	if(FlagParamType != 0)                  
 	{  	test = fastTrack.GetPrimaryTrack()->GetMomentumDirection();
@@ -104,6 +104,9 @@ G4bool GflashEMShowerModel::ModelTrigger(const G4FastTrack & fastTrack )
 		G4ParticleDefinition &ParticleType = *(fastTrack.GetPrimaryTrack()->GetDefinition());
 		EnergyStop= PBound->GetEneToKill(ParticleType);	
 		//	if ((ParticleEnergy /GeV < 0.02) &&   (HMaker->check(&fastTrack)))  return true;
+
+		// Let's initialize constants here - dwjang
+		Parameterisation->GenerateLongitudinalProfile(ParticleEnergy); // performance to be optimized @@@@@@@
 		
 		if(ParticleEnergy > PBound->GetMinEneToParametrise(ParticleType) &&
 		ParticleEnergy < PBound->GetMaxEneToParametrise(ParticleType) )		{	
@@ -111,7 +114,12 @@ G4bool GflashEMShowerModel::ModelTrigger(const G4FastTrack & fastTrack )
 			if (select ) {
 				if ( HMaker->check(&fastTrack)) {		 //sensitive detector ?        
 					///check conditions depending on particle flavour
-					Parameterisation->GenerateLongitudinalProfile(ParticleEnergy); // performance to be optimized @@@@@@@
+
+				  // We do not need to do this here
+				  // Constants are initialized here but some of them are used
+				  // in the above function, CheckParticleDefAndContainment
+				  // So, we need to do this before that function - dwjang
+				  //					Parameterisation->GenerateLongitudinalProfile(ParticleEnergy); // performance to be optimized @@@@@@@
 					EnergyStop= PBound->GetEneToKill(ParticleType);
 				} //sens
 				else select = false;
@@ -173,8 +181,12 @@ G4bool GflashEMShowerModel::CheckContainment(const G4FastTrack& fastTrack)
 		Z*DirectionShower           +
 		R*CosPhi[i]*OrthoShower     +
 		R*SinPhi[i]*CrossShower     ;		
-		if(SolidCalo->Inside(Position) != kOutside)
-			NlateralInside=NlateralInside++;
+		if(SolidCalo->Inside(Position) != kOutside){
+		  // This is a bug. The post-increment operator returns value first and then increments.
+		  // That's why NlateralInside is always 0 and the condition was never met. - dwjang
+		  //			NlateralInside=NlateralInside++;
+		  NlateralInside++;
+		}
 	}
 	
 	//chose to parametrise or flag when all inetc...
@@ -206,7 +218,7 @@ void GflashEMShowerModel::ElectronDoIt(const G4FastTrack& fastTrack,  G4FastStep
 	//     }
 	//   ///***********
 	
-	std::cout<<"--- GflashEMShowerModel: ElectronDoit ---"<< " "<< fastTrack.GetPrimaryTrack()->GetKineticEnergy()/GeV << std::endl;
+	//	std::cout<<"--- GflashEMShowerModel: ElectronDoit ---"<< " "<< fastTrack.GetPrimaryTrack()->GetKineticEnergy()/GeV << std::endl;
 	if (test != fastTrack.GetPrimaryTrack()->GetMomentumDirection()) {
 		//	std::cout<< fastTrack.GetPrimaryTrack() << std::endl;
 		//	std::cout<< " !!!!!!!!!!!!  ERROR  FOUND !!!!!!!!!  test ="  << test << " eledoit "<< fastTrack.GetPrimaryTrack()->GetMomentumDirection()  << std::endl;   
@@ -293,7 +305,11 @@ void GflashEMShowerModel::ElectronDoIt(const G4FastTrack& fastTrack,  G4FastStep
 		//generate spots & hits:
 		for (int i = 0; i < DNsp; i++)
 		{ 
-			NSpotDeposited=NSpotDeposited++;		      						
+		  // Again, this post-increment is a bug, but it doesn't do anything later.
+		  // Anyway, let's fix. - dwjang
+		  //			NSpotDeposited=NSpotDeposited++;
+		  NSpotDeposited++;		      						
+
 			//Spot energy: the same for all spots
 			Spot.SetEnergy( DEne / DNsp );
 			G4double PhiSpot = Parameterisation->GeneratePhi(); // phi of spot
@@ -322,7 +338,7 @@ void GflashEMShowerModel::ElectronDoIt(const G4FastTrack& fastTrack,  G4FastStep
 	//---------------
 	/// End Loop
 	//------------- 	
-	std::cout <<"SYJUN  Energy Lost " <<  ene/GeV  << std::endl;;	
+	//	std::cout <<"SYJUN  Energy Lost " <<  ene/GeV  << std::endl;;	
 }
 // -----------------------------------------------------------------------------------
 
