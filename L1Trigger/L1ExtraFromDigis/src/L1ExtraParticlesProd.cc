@@ -8,7 +8,7 @@
 //
 // Original Author:  Werner Sun
 //         Created:  Mon Oct  2 22:45:32 EDT 2006
-// $Id: L1ExtraParticlesProd.cc,v 1.12 2007/07/04 01:36:12 wsun Exp $
+// $Id: L1ExtraParticlesProd.cc,v 1.13 2007/08/01 18:26:22 jbrooke Exp $
 //
 //
 
@@ -401,7 +401,6 @@ L1ExtraParticlesProd::produce( edm::Event& iEvent,
       OrphanHandle< L1JetParticleCollection > tauJetHandle =
 	 iEvent.put( tauJetColl, "Tau" ) ;
 
-
       // ~~~~~~~~~~~~~~~~~~~~ Energy Sums ~~~~~~~~~~~~~~~~~~~~
 
       ESHandle< L1GctJetEtCalibrationFunction > jetCalibFn ;
@@ -426,9 +425,15 @@ L1ExtraParticlesProd::produce( edm::Event& iEvent,
 // 	   << endl ;
 
       // ET bin low edge
-      double etTot = ( ( double ) hwEtTot->et() ) * etSumLSB ;
-      double etHad = ( ( double ) hwEtHad->et() ) * htSumLSB ;
-      double etMiss = ( ( double ) hwEtMiss->et() ) * etSumLSB + 1.e-6 ;
+      double etTot = ( hwEtTot->overFlow() ?
+		       ( double ) L1GctEtTotal::kEtTotalMaxValue :
+		       ( double ) hwEtTot->et() ) * etSumLSB + 1.e-6 ;
+      double etHad = ( hwEtHad->overFlow() ?
+		       ( double ) L1GctEtHad::kEtHadMaxValue :
+		       ( double ) hwEtHad->et() ) * htSumLSB + 1.e-6 ;
+      double etMiss = ( hwEtMiss->overFlow() ?
+			( double ) L1GctEtMiss::kEtMissMaxValue :
+			( double ) hwEtMiss->et() ) * etSumLSB + 1.e-6 ;
       // keep x and y components non-zero and protect against roundoff.
 
       double phi = caloGeom->etSumPhiBinCenter( hwEtMiss->phi() ) ;
