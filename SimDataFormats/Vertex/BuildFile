@@ -1,10 +1,12 @@
 <use name=DataFormats/Common>
+<use name=DataFormat/Math>
 <use name=DataFormats/CLHEP>
 <use name=SimDataFormats/EncodedEventId>
 <use name=clhep>
 <use name=rootrflx>
 <export>
   <use name=DataFormats/Common>
+  <use name=DataFormat/Math>
   <use name=SimDataFormats/EncodedEventId>
   <use name=clhep>
   <lib name=SimDataFormatsVertex>
