@@ -83,7 +83,10 @@ void G4SimEvent::load(edm::SimVertexContainer & c) const
 	//
 	// starting 1_1_0_pre3, SimVertex stores in cm !!!
 	// 
-	Hep3Vector v3       = (vtx->vertexPosition())/cm;
+	// Hep3Vector v3       = (vtx->vertexPosition())/cm;
+	math::XYZVectorD v3( vtx->vertexPosition().x()/cm, 
+	                     vtx->vertexPosition().y()/cm,
+			     vtx->vertexPosition().z()/cm ) ;
 	// Hep3Vector v3       = (vtx->vertexPosition());
 	float t             = vtx->vertexGlobalTime()/second;
 	int iv              = vtx->parentIndex();

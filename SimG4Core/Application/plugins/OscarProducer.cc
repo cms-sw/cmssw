@@ -138,7 +138,8 @@ void OscarProducer::produce(edm::Event & e, const edm::EventSetup & es)
     std::auto_ptr<edm::SimVertexContainer> p2(new edm::SimVertexContainer);
     G4SimEvent * evt = m_runManager->simEvent();
     evt->load(*p1);
-    evt->load(*p2);
+    evt->load(*p2);   
+
     e.put(p1);
     e.put(p2);
 
