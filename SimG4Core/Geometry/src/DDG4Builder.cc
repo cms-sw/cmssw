@@ -1,5 +1,7 @@
 #include "DetectorDescription/Core/interface/DDSpecifics.h"
 
+#include "FWCore/Utilities/interface/Exception.h"
+
 #include "SimG4Core/Geometry/interface/DDG4Builder.h"
 #include "SimG4Core/Geometry/interface/DDG4SolidConverter.h"
 #include "SimG4Core/Geometry/interface/DDG4SensitiveConverter.h"
@@ -73,8 +75,8 @@ G4Material * DDG4Builder::convertMaterial(const DDMaterial & material) {
       return result; }
   } else {
     // only if it's NOT a valid DDD-material
-    LogDebug("SimG4CoreGeometry") << "  material is not valid (in the DDD sense!)";
-    throw material; //return dummy;
+    edm::LogError("SimG4CoreGeometry") << "DDG4Builder::  material " << material.toString() << " is not valid (in the DDD sense!)";
+    throw cms::Exception("SimG4CoreGeometry", " material is not valid from the Detector Description: " + material.toString()); 
   }    
   int c = 0;
   if ((c = material.noOfConstituents())) {
@@ -115,6 +117,10 @@ DDGeometryReturnType DDG4Builder::BuildGeometry() {
   graph_type::index_type i=0;
   for (; git != gend; ++git) {
     const DDLogicalPart & ddLP = gra.nodeData(git);
+    if ( !(ddLP.isDefined().second) ) {
+      edm::LogError("SimG4CoreGeometry") << "DDG4Builder::BuildGeometry() has encountered an undefined DDLogicalPart named " << ddLP.toString();
+      throw cms::Exception("SimG4CoreGeometry", " DDG4Builder::BuildGeometry() has encountered an undefined DDLogicalPart named " + ddLP.toString());
+    }
     G4LogicalVolume * g4LV = convertLV(ddLP);
     ++i;	
     if (git->size()) {
@@ -124,6 +130,12 @@ DDGeometryReturnType DDG4Builder::BuildGeometry() {
       for (; cit != cend; ++cit) {
 	// fetch specific data
 	const DDLogicalPart & ddcurLP = gra.nodeData(cit->first);
+	if ( !ddcurLP.isDefined().second ) {
+	  std::string err = " DDG4Builder::BuildGeometry() in processing \"children\" has ";
+	  err += "encountered an undefined DDLogicalPart named " + ddLP.toString();
+	  edm::LogError("SimG4CoreGeometry") << err;
+	  throw cms::Exception("SimG4CoreGeometry", err) ;
+	}
 	int offset = getInt("CopyNoOffset",ddcurLP);
 	int tag = getInt("CopyNoTag",ddcurLP);				
 	DDRotationMatrix rm(gra.edgeData(cit->second)->rot());
@@ -138,7 +150,7 @@ DDGeometryReturnType DDG4Builder::BuildGeometry() {
 	G4Translate3D transl = tempTran;
 	HepRep3x3 temp( x.X(), x.Y(), x.Z(), y.X(), y.Y(), y.Z(), z.X(), z.Y(), z.Z() ); //matrix representation
 	HepRotation hr ( temp );
-
+	    
 	// G3 convention of defining rot-matrices ...
 	G4Transform3D trfrm  = transl * G4Rotate3D(hr.inverse());//.inverse();
 

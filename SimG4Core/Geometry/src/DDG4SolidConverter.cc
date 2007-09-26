@@ -2,6 +2,8 @@
 #include "SimG4Core/Geometry/interface/DDG4SolidConverter.h"
 #include "G4VSolid.hh"
 
+#include "FWCore/Utilities/interface/Exception.h"
+
 #include "DetectorDescription/Base/interface/DDException.h"
 #include "DetectorDescription/Core/interface/DDSolid.h"
 
@@ -38,6 +40,10 @@ DDG4SolidConverter::~DDG4SolidConverter() { }
 
 G4VSolid * DDG4SolidConverter::convert(const DDSolid & s)
 {
+  if ( !s ) {
+    edm::LogError("SimG4CoreGeometry") <<" DDG4SolidConverter::convert(..) found an undefined DDSolid " << s.toString();
+    throw cms::Exception("SimG4CoreGeometry", "DDG4SolidConverter::convert(..) found an undefined DDSolid " + s.toString());
+  }
    G4VSolid * result = 0;
    par_ = &(s.parameters());
    map<DDSolidShape,FNPTR>::iterator it = convDispatch_.find(s.shape());
