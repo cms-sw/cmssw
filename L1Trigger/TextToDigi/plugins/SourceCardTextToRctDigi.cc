@@ -11,7 +11,7 @@ Description: Input text file to be loaded into the source cards and output RCT d
 //
 // Original Author:  Alex Tapper
 //         Created:  Fri Mar  9 19:11:51 CET 2007
-// $Id: SourceCardTextToRctDigi.cc,v 1.3 2007/07/10 13:32:50 tapper Exp $
+// $Id: SourceCardTextToRctDigi.cc,v 1.4 2007/08/07 00:09:33 nuno Exp $
 //
 //
 
@@ -193,8 +193,8 @@ void SourceCardTextToRctDigi::produce(edm::Event& iEvent, const edm::EventSetup&
 
     // Make EM collections
     for (int i=0; i<4; i++){
-      em->push_back(L1CaloEmCand(eIsoRank[crate][i],eIsoRegionId[crate][i],eIsoCardId[crate][i],crate,true,i,eventNumber));
-      em->push_back(L1CaloEmCand(eNonIsoRank[crate][i],eNonIsoRegionId[crate][i],eNonIsoCardId[crate][i],crate,false,i,eventNumber));
+      em->push_back(L1CaloEmCand(eIsoRank[crate][i],eIsoRegionId[crate][i],eIsoCardId[crate][i],crate,true,i,0));
+      em->push_back(L1CaloEmCand(eNonIsoRank[crate][i],eNonIsoRegionId[crate][i],eNonIsoCardId[crate][i],crate,false,i,0));
     }
     
     // Make region collections
