@@ -31,17 +31,16 @@
  <class name="CSCDBCrosstalk::Item"/>
  <class name="std::vector<CSCDBCrosstalk::Item>"/>
  
+ <class name="CSCMapItem"/>
+ <class name="CSCMapItem::MapItem"/>
+
  <class name="CSCChamberMap"/>
- <class name="CSCChamberMap::MapItem"/>
 
  <class name="CSCChamberIndex"/>
- <class name="CSCChamberIndex::MapItem"/>
 
  <class name="CSCCrateMap"/>
- <class name="CSCCrateMap::MapItem"/>
 
  <class name="CSCDDUMap"/>
- <class name="CSCDDUMap::MapItem"/>
  
  <class name="CSCIdentifier" id="DC949595-1360-DA11-86C4-000E0C4DE689"/>
  <class name="CSCIdentifier::Item"/>

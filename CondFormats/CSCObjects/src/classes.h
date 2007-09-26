@@ -32,19 +32,19 @@ namespace{
 }
 #include "CondFormats/CSCObjects/interface/CSCChamberMap.h"
 namespace{
-  std::map< int, CSCChamberMap::MapItem > chmap;
+  std::map< int, CSCMapItem::MapItem > chmap;
 }
 #include "CondFormats/CSCObjects/interface/CSCCrateMap.h"
 namespace{
-  std::map< int, CSCCrateMap::MapItem > cratemap;
+  std::map< int, CSCMapItem::MapItem > cratemap;
 }
 #include "CondFormats/CSCObjects/interface/CSCDDUMap.h"
 namespace{
-  std::map< int, CSCDDUMap::MapItem > ddumap;
+  std::map< int, CSCMapItem::MapItem > ddumap;
 }
 #include "CondFormats/CSCObjects/interface/CSCChamberIndex.h"
 namespace{
-  std::map< int, CSCChamberIndex::MapItem > indexmap;
+  std::map< int, CSCMapItem::MapItem > indexmap;
 }
 
 #include "CondFormats/CSCObjects/interface/CSCIdentifier.h"
