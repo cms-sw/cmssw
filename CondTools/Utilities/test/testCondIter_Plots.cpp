@@ -6,8 +6,6 @@
 //-----------------------------------------------
 //name of the database:
 //oracle://cms_orcoff_int2r/CMS_COND_ECAL
-//local catalog:
-//devCondDBCatalog.xml
 //tag:
 //EcalPedestals_test
 //-----------------------------------------------
@@ -28,11 +26,6 @@ std::cout << "Name of DB = ";
 // std::cin >> NameDB;
 NameDB = "oracle://cms_orcoff_int2r/CMS_COND_ECAL";
 
-std::string FileXml;
-std::cout << "File .xml = ";
-// std::cin >> FileXml;
-FileXml = "devCondDBCatalog.xml";
-
 std::string TagData;
 std::cout << "TagData = ";
 // std::cin >> TagData;
@@ -51,7 +44,7 @@ std::cin >> Password;
 std::cout << std::endl;
 
 CondCachedIter<EcalPedestals> Iterator;
-Iterator.create(NameDB,FileXml,TagData,User,Password);
+Iterator.create(NameDB,TagData,User,Password);
 
 
 

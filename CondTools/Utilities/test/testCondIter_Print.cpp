@@ -6,8 +6,6 @@
 //-----------------------------------------------
 //name of the database:
 //sqlite_file:///afs/cern.ch/cms/data/CMSSW/HLTrigger/Configuration/SiStrip/152/sistripfedcabling.db
-//local catalog:
-//afs/cern.ch/cms/data/CMSSW/HLTrigger/Configuration/SiStrip/152/SiStripFedCablingCatalog.xml
 //tag:
 //SiStripFedCabling_v1
 //-----------------------------------------------
@@ -15,8 +13,6 @@
 //-----------------------------------------------
 //name of the database:
 //frontier://cmsfrontier.cern.ch:8000/FrontierDev/CMS_COND_STRIP
-//local catalog:
-//calibcatalog.xml
 //tag:
 //CSA07_SiStripFedCabling
 //-----------------------------------------------
@@ -31,24 +27,19 @@ void testCondIter_Print(){
     std::string NameDB;
     NameDB ="sqlite_file:///afs/cern.ch/cms/data/CMSSW/HLTrigger/Configuration/SiStrip/152/sistripfedcabling.db";
 
-    std::string FileXml;
-    FileXml = "///afs/cern.ch/cms/data/CMSSW/HLTrigger/Configuration/SiStrip/152/SiStripFedCablingCatalog.xml";
-
     std::string TagData;
     TagData = "SiStripFedCabling_v1";
 
 //---- I create the CondCachedIter<>
     CondCachedIter <SiStripFedCabling> *Iterator = new CondCachedIter<SiStripFedCabling>;
 //---- CondCachedIter<> now works
-    Iterator->create (NameDB,FileXml,TagData);
+    Iterator->create (NameDB,TagData);
     
     
     //----Second set of Data ----
     
     std::string NameDB_2;
     NameDB_2 ="frontier://cmsfrontier.cern.ch:8000/FrontierDev/CMS_COND_STRIP";
-    std::string FileXml_2;
-    FileXml_2 = "calibcatalog.xml";
 
     std::string TagData_2;
     TagData_2 = "CSA07_SiStripFedCabling";
@@ -56,7 +47,7 @@ void testCondIter_Print(){
 //---- I create the CondCachedIter<>
     CondCachedIter <SiStripFedCabling> *Iterator_2 = new CondCachedIter<SiStripFedCabling>;
 //---- CondCachedIter<> now works
-    Iterator_2->create (NameDB_2,FileXml_2,TagData_2);
+    Iterator_2->create (NameDB_2,TagData_2);
 
     
     //---- Dumping

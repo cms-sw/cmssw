@@ -5,8 +5,6 @@
 //-----------------------------------------------
 //name of the database:
 //oracle://cms_orcoff_int2r/CMS_COND_ECAL
-//local catalog:
-//devCondDBCatalog.xml
 //tag:
 //EcalPedestals
 //-----------------------------------------------
@@ -33,10 +31,6 @@ std::cout <<std::endl<< "---- Test Performance Program ----"<<std::endl;
   std::string NameDB;
   std::cout << "Name of DB = ";
   NameDB = "oracle://cms_orcoff_int2r/CMS_COND_ECAL";
-
-  std::string FileXml;
-  std::cout << "File .xml = ";
-  FileXml = "devCondDBCatalog.xml";
 
   std::string TagData;
   std::cout << "TagData = ";
@@ -92,7 +86,7 @@ std::cout <<std::endl<< "---- Test Performance Program ----"<<std::endl;
 
       CondCachedIter<EcalPedestals> *Iterator = new CondCachedIter<EcalPedestals>;
       
-      Iterator->create(NameDB,FileXml,TagData,User,Password);
+      Iterator->create(NameDB,TagData,User,Password);
       end = clock();
 
       std::vector<double> Run;
@@ -277,7 +271,7 @@ std::cout <<std::endl<< "---- Test Performance Program ----"<<std::endl;
       
       start = clock();   
       CondIter <EcalPedestals> *IteratorIter = new CondIter<EcalPedestals>;
-      IteratorIter->create(NameDB,FileXml,TagData,User,Password);
+      IteratorIter->create(NameDB,TagData,User,Password);
       end = clock();
       
       std::cout <<"Time Creation link with Database Iter = " <<  ((double) (end - start)) << " (a.u.)" <<std::endl;
@@ -333,7 +327,7 @@ std::cout <<std::endl<< "---- Test Performance Program ----"<<std::endl;
   maximum = X[nDiv-1];
   
   CondIter<EcalPedestals> *IteratorPlot = new CondIter<EcalPedestals>;
-  IteratorPlot->create(NameDB,FileXml,TagData,User,Password);
+  IteratorPlot->create(NameDB,TagData,User,Password);
   IteratorPlot->setRange(minimum,maximum);
   
   std::cout << "--------------------------" << std::endl << std::endl;

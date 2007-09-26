@@ -6,8 +6,6 @@
 //-----------------------------------------------
 //name of the database:
 //frontier://cmsfrontier.cern.ch:8000/FrontierDev/CMS_COND_STRIP
-//local catalog:
-//calibcatalog.xml
 //tag:
 //CSA07_SiStripFedCabling
 //-----------------------------------------------
@@ -21,16 +19,13 @@ void testCondIter_PrintB(){
     std::string NameDB;
     NameDB ="frontier://cmsfrontier.cern.ch:8000/FrontierDev/CMS_COND_STRIP";
 
-    std::string FileXml;
-    FileXml = "calibcatalog.xml";
-
     std::string TagData;
     TagData = "CSA07_SiStripFedCabling";
 
 //---- I create the CondCachedIter<>
     CondCachedIter <SiStripFedCabling> *Iterator = new CondCachedIter<SiStripFedCabling>;
 //---- CondCachedIter<> now works
-    Iterator->create (NameDB,FileXml,TagData);
+    Iterator->create (NameDB,TagData);
 
    std::string NameFile = "DataB.txt";
    
