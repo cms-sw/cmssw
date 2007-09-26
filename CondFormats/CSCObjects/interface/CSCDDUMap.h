@@ -1,7 +1,7 @@
 #ifndef CSCDDUMap_h
 #define CSCDDUMap_h
 
-#include "OnlineDB/CSCCondDB/interface/CSCMapItem.h"
+#include "CondFormats/CSCObjects/interface/CSCMapItem.h"
 #include <map>
 
 class CSCDDUMap{

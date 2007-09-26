@@ -1,7 +1,7 @@
 #ifndef CSCChamberIndex_h
 #define CSCChamberIndex_h
 
-#include "OnlineDB/CSCCondDB/interface/CSCMapItem.h"
+#include "CondFormats/CSCObjects/interface/CSCMapItem.h"
 #include <vector>
 
 class CSCChamberIndex{

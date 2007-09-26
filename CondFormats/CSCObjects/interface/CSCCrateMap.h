@@ -1,7 +1,7 @@
 #ifndef CSCCrateMap_h
 #define CSCCrateMap_h
 
-#include "OnlineDB/CSCCondDB/interface/CSCMapItem.h"
+#include "CondFormats/CSCObjects/interface/CSCMapItem.h"
 #include <map>
 
 class CSCCrateMap{
