@@ -111,8 +111,8 @@ testEvent::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
   for ( unsigned ievt=0; ievt<2; ++ievt ) {
 
     if ( isGeant || ievt == 1 ) { 
-      //if ( isGeant ) std::cout << "Event number " << ievt << std::endl;
-      //mySimEvent[ievt]->print();
+      if ( isGeant ) std::cout << "Event number " << ievt << std::endl;
+      mySimEvent[ievt]->print();
 
 
       for ( unsigned fsimi=0; fsimi < mySimEvent[ievt]->nTracks(); ++fsimi ) {
