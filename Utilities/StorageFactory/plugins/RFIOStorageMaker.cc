@@ -45,7 +45,7 @@ namespace {
         c = path.find("/dpm/");
         if (c==e-1) {
 	  p = c;
-	  ret = "rfio:///?path=";
+	  ret = "rfio://";
         }
       }
     }
