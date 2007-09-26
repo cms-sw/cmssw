@@ -87,7 +87,7 @@ void GctBlockUnpacker::convertBlock(const unsigned char * data, GctBlockHeader& 
   // The header validity check above will protect against 
   // the map::find() method returning the end of the map,
   // assuming the GctBlockHeader definitions are up-to-date.
-  (this->*blockUnpackFn_.find(id)->second)(data, hdr);
+  (this->*blockUnpackFn_.find(id)->second)(data, hdr);  // Calls the correct unpack function, based on block ID.
 
 }
 
@@ -179,7 +179,7 @@ void GctBlockUnpacker::blockToRctEmCand(const unsigned char * d, const GctBlockH
   unsigned int bx = 0;
 
   // loop over crates
-  for (unsigned int crate=rctCrate_[id]; crate<length/3; ++crate) {
+  for (unsigned int crate=rctCrate_[id]; crate<rctCrate_[id]+length/3; ++crate) {
 
     // read SC SFP words
     for (unsigned short iSfp=0 ; iSfp<4 ; ++iSfp) {
