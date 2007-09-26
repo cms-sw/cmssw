@@ -27,6 +27,7 @@
    -->
     <String name="MotherName"   value="HE"/>
     <String name="MaterialName" value="materials:Air"/>
+    <String name="Rotation"     value="hcalrotations:NULL"/>
     <Numeric name="Sector"      value="18"/>
     <Numeric name="SectorTot"   value="18"/>
     <Numeric name="Endcap"      value="2"/>
@@ -51,6 +52,8 @@
     <Numeric name="Etamin"      value="1.566"/>
     <Numeric name="AngBot"      value="5.7*deg"/>
     <Numeric name="AngGap"      value="53.0*deg"/>
+    <Numeric name="TolPos"      value="0.90*mm"/>
+    <Numeric name="TolAbs"      value="0.75*mm"/>
 
 <!--
 #. Modules

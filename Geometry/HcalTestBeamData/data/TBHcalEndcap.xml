@@ -1,6 +1,11 @@
 <?xml version="1.0"?>
 <DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../DetectorDescription/Schema/DDLSchema.xsd">
 
+<RotationSection label="TBHcalEndcap.xml">
+ <Rotation name="R2" phiX="10*deg"   thetaX="90*deg" phiY="100*deg" 
+                     thetaY="90*deg" phiZ="0*deg"    thetaZ="0*deg" />
+</RotationSection>
+
 <Algorithm name="hcal:DDHCalEndcapAlgo">
   <rParent name="TBHcal:HCal"/>
   <Numeric name="IdOffset" value="4000"/>
@@ -27,8 +32,9 @@
    -->
     <String name="MotherName"   value="HE"/>
     <String name="MaterialName" value="materials:Air"/>
+    <String name="Rotation"     value="TBHcalEndcap:R2"/>
     <Numeric name="Sector"      value="18"/>
-    <Numeric name="SectorTot"   value="2"/>
+    <Numeric name="SectorTot"   value="1"/>
     <Numeric name="Endcap"      value="1"/>
     <Numeric name="Nose"        value="0"/>
     <String name="RotHalf"      value="180D"/>
@@ -51,6 +57,8 @@
     <Numeric name="Etamin"      value="1.566"/>
     <Numeric name="AngBot"      value="5.7*deg"/>
     <Numeric name="AngGap"      value="53.0*deg"/>
+    <Numeric name="TolPos"      value="0.90*mm"/>
+    <Numeric name="TolAbs"      value="0.75*mm"/>
 
 <!--
 #. Modules
@@ -125,7 +133,7 @@
        7.0*mm, 7.0*mm, 7.0*mm, 7.0*mm, 7.0*mm, 7.0*mm, 7.0*mm
     </Vector>
     <Vector name="ScintT"     type="numeric" nEntries="19">
-       9.0*mm, 4.0*mm, 4.0*mm, 4.0*mm, 4.0*mm, 4.0*mm,
+       4.0*mm, 4.0*mm, 4.0*mm, 4.0*mm, 4.0*mm, 4.0*mm,
        4.0*mm, 4.0*mm, 4.0*mm, 4.0*mm, 4.0*mm, 4.0*mm,
        4.0*mm, 4.0*mm, 4.0*mm, 4.0*mm, 4.0*mm, 4.0*mm, 4.0*mm
     </Vector>
