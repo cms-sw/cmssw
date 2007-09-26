@@ -47,6 +47,7 @@ G4ProcessTypeEnumerator::G4ProcessTypeEnumerator(){
   mapProcesses["SigmaPlusInelastic"] = "Hadronic";
   mapProcesses["XiZeroInelastic"] = "Hadronic";
   mapProcesses["AntiXiMinusInelastic"] = "Hadronic";
+  mapProcesses["AlphaInelastic"] = "Hadronic";
 
   // ionizations
   mapProcesses["eIoni"] = "EIoni";
