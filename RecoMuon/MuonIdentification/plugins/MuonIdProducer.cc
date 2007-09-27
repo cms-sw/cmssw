@@ -5,7 +5,7 @@
 // 
 //
 // Original Author:  Dmytro Kovalskyi
-// $Id: MuonIdProducer.cc,v 1.9 2007/08/07 11:21:28 meijer Exp $
+// $Id: MuonIdProducer.cc,v 1.10 2007/09/25 19:14:51 dmytro Exp $
 //
 //
 
@@ -40,6 +40,11 @@
 
 #include <algorithm>
 
+#include "DataFormats/MuonDetId/interface/MuonSubdetId.h"
+#include "DataFormats/MuonDetId/interface/DTChamberId.h"
+#include "DataFormats/MuonDetId/interface/CSCDetId.h"
+#include "DataFormats/MuonDetId/interface/RPCDetId.h"
+
 MuonIdProducer::MuonIdProducer(const edm::ParameterSet& iConfig):
 muIsoExtractorCalo_(0),muIsoExtractorTrack_(0)
 {
@@ -48,9 +53,6 @@ muIsoExtractorCalo_(0),muIsoExtractorTrack_(0)
    minPt_                   = iConfig.getParameter<double>("minPt");
    minP_                    = iConfig.getParameter<double>("minP");
    minNumberOfMatches_      = iConfig.getParameter<int>("minNumberOfMatches");
-   stiffMinPt_              = iConfig.getParameter<double>("stiffMinPt");
-   stiffMinP_               = iConfig.getParameter<double>("stiffMinP");
-   stiffMinNumberOfMatches_ = iConfig.getParameter<int>("stiffMinNumberOfMatches");
    maxAbsEta_               = iConfig.getParameter<double>("maxAbsEta");
    maxAbsDx_                = iConfig.getParameter<double>("maxAbsDx");
    maxAbsPullX_             = iConfig.getParameter<double>("maxAbsPullX");
@@ -206,6 +208,33 @@ bool MuonIdProducer::isGoodTrack( const reco::Track& track )
    return true;
 }
    
+unsigned int MuonIdProducer::getChamberId( const DetId& id )
+{
+   switch ( id.det() ) {
+    case DetId::Muon:
+      switch ( id.subdetId() ) {
+       case MuonSubdetId::DT:
+	   { 
+	      DTChamberId detId(id.rawId());
+	      return detId.rawId();
+	   }
+	 break;
+       case MuonSubdetId::CSC:
+	   {
+	      CSCDetId detId(id.rawId());
+	      return detId.chamberId().rawId();
+	   }
+	 break;
+       default:
+	 return 0;
+      }
+    default:
+      return 0;
+   }
+   return 0;
+}
+
+
 int MuonIdProducer::overlap(const reco::Muon& muon, const reco::Track& track)
 {
    int numberOfCommonDetIds = 0;
@@ -218,10 +247,15 @@ int MuonIdProducer::overlap(const reco::Muon& muon, const reco::Track& track)
      {
 	if ( match->segmentMatches.empty() ) continue;
 	bool foundCommonDetId = false;
-	for ( TrackingRecHitRefVector::const_iterator hit = track.extra()->recHits().begin();
-	      hit != track.extra()->recHits().end(); ++hit )
+	
+	for ( TrackingRecHitRefVector::const_iterator hit = track.extra()->recHitsBegin();
+	      hit != track.extra()->recHitsEnd(); ++hit )
 	  {
-	     if ( hit->get()->geographicalId() == match->id ) {
+	     // LogTrace("MuonIdentification") << "hit DetId: " << std::hex << hit->get()->geographicalId().rawId() <<
+	     //  "\t hit chamber DetId: " << getChamberId(hit->get()->geographicalId()) <<
+	     //  "\t segment DetId: " << match->id.rawId() << std::dec;
+	     
+	     if ( getChamberId(hit->get()->geographicalId()) == match->id.rawId() ) {
 		foundCommonDetId = true;
 		break;
 	     }
@@ -253,7 +287,7 @@ void MuonIdProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	   muon !=  muonCollectionHandle_->end(); ++muon )
        outputMuons->push_back(*muon);
    
-   // links second
+   // links second ( assume global muon type )
    if ( linkCollectionHandle_.isValid() )
      for ( reco::MuonTrackLinksCollection::const_iterator links = linkCollectionHandle_->begin();
 	   links != linkCollectionHandle_->end(); ++links )
@@ -266,78 +300,94 @@ void MuonIdProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 		  muon->standAloneMuon() == links->standAloneTrack() &&
 		  muon->combinedMuon() == links->globalTrack() )
 	      newMuon = false;
-	  if ( newMuon ) outputMuons->push_back( makeMuon( *links ) );
+	  if ( newMuon ) {
+	     outputMuons->push_back( makeMuon( *links ) );
+	     outputMuons->back().setType(reco::Muon::GlobalMuon | reco::Muon::StandAloneMuon);
+	  }
        }
    
    // tracker muon is next
-   if ( innerTrackCollectionHandle_.isValid() )
-     for ( unsigned int i = 0; i < innerTrackCollectionHandle_->size(); ++i )
-       {
-	  if ( ! isGoodTrack( innerTrackCollectionHandle_->at(i) ) ) continue;
+   if ( innerTrackCollectionHandle_.isValid() ) {
+      LogTrace("MuonIdentification") << "Creating tracker muons";
+      for ( unsigned int i = 0; i < innerTrackCollectionHandle_->size(); ++i )
+	{
+	   if ( ! isGoodTrack( innerTrackCollectionHandle_->at(i) ) ) continue;
+	   
+	   // make muon
+	   timers.push("MuonIdProducer::produce::fillMuonId");
+	   reco::Muon trackerMuon( makeMuon(iEvent, iSetup, reco::TrackRef( innerTrackCollectionHandle_, i ), InnerTrack ) );
+	   trackerMuon.setType( reco::Muon::TrackerMuon );
+	   if ( ! fillMuonId(iEvent, iSetup, trackerMuon) ) {
+	      LogTrace("MuonIdentification") << "track failed minimal number of muon matches requirement";
+	      continue;
+	   }
+	   timers.pop();
 	  
-	  // make muon
-	  timers.push("MuonIdProducer::produce::fillMuonId");
-	  reco::Muon trackerMuon( makeMuon(iEvent, iSetup, reco::TrackRef( innerTrackCollectionHandle_, i ), InnerTrack ) );
-	  if ( ! fillMuonId(iEvent, iSetup, trackerMuon) ) {
-	     LogTrace("MuonIdentification") << "track failed minimal number of muon matches requirement";
-	     continue;
-	  }
-	  timers.pop();
+	   if ( debugWithTruthMatching_ ) {
+	      // add MC hits to a list of matched segments. 
+	      // Since it's debugging mode - code is slow
+	      MuonIdTruthInfo::truthMatchMuon(iEvent, iSetup, trackerMuon);
+	   }
 	  
-	  if ( debugWithTruthMatching_ ) {
-	     // add MC hits to a list of matched segments. 
-	     // Since it's debugging mode - code is slow
-	     MuonIdTruthInfo::truthMatchMuon(iEvent, iSetup, trackerMuon);
-	  }
-	  
-	  // check if this muon is already in the list
-	  bool newMuon = true;
-	  for ( reco::MuonCollection::iterator muon = outputMuons->begin();
-		muon !=  outputMuons->end(); ++muon )
+	   // check if this muon is already in the list
+	   bool newMuon = true;
+	   for ( reco::MuonCollection::iterator muon = outputMuons->begin();
+		 muon !=  outputMuons->end(); ++muon )
 	     if ( muon->track().get() == trackerMuon.track().get() ) {
 		newMuon = false;
 		muon->setMatches( trackerMuon.getMatches() );
 		muon->setCalEnergy( trackerMuon.getCalEnergy() );
+		muon->setType( muon->getType() | reco::Muon::TrackerMuon );
 		LogTrace("MuonIdentification") << "Found a corresponding global muon. Set energy, matches and move on";
 		break;
 	     }
-	  if ( newMuon ) outputMuons->push_back( trackerMuon );
-       }
+	   if ( newMuon ) outputMuons->push_back( trackerMuon );
+	}
+   }
    
    // and at last the stand alone muons
-   if ( outerTrackCollectionHandle_.isValid() )
-     for ( unsigned int i = 0; i < outerTrackCollectionHandle_->size(); ++i )
-       {
-	  // check if this muon is already in the list of global muons
-	  bool newMuon = true;
-	  for ( reco::MuonCollection::iterator muon = outputMuons->begin();
-		muon !=  outputMuons->end(); ++muon ) 
-	    {
-	       if ( ! muon->standAloneMuon().isNull() ) {
-		  // global muon
-		  if ( muon->standAloneMuon().get() ==  &(outerTrackCollectionHandle_->at(i)) ) {
-		     newMuon = false;
-		     break;
-		  }
-	       } else {
-		  // tracker muon - no direct links to the standalone muon
-		  // since we have only a few real muons in an event, matching 
-		  // the stand alone muon to the tracker muon by DetIds should 
-		  // be good enough for association. At the end it's up to a 
-		  // user to redefine the association and what it means. Here 
-		  // we would like to avoid obvious double counting and we 
-		  // tolerate a potential miss association
-	       	  if ( overlap(*muon,outerTrackCollectionHandle_->at(i))>0 ) {
-		     newMuon = false;
-		     muon->setStandAlone( reco::TrackRef( outerTrackCollectionHandle_, i ) );
-		     break;
-		  }
-	       }
-	    }
-	  if ( newMuon ) outputMuons->push_back( makeMuon(iEvent, iSetup, 
-							  reco::TrackRef( outerTrackCollectionHandle_, i ), OuterTrack ) );
-       }
+   if ( outerTrackCollectionHandle_.isValid() ) {
+      LogTrace("MuonIdentification") << "Looking for new muons among stand alone muon tracks";
+      for ( unsigned int i = 0; i < outerTrackCollectionHandle_->size(); ++i )
+	{
+	   // check if this muon is already in the list of global muons
+	   bool newMuon = true;
+	   for ( reco::MuonCollection::iterator muon = outputMuons->begin();
+		 muon !=  outputMuons->end(); ++muon ) 
+	     {
+		if ( ! muon->standAloneMuon().isNull() ) {
+		   // global muon
+		   if ( muon->standAloneMuon().get() ==  &(outerTrackCollectionHandle_->at(i)) ) {
+		      newMuon = false;
+		      break;
+		   }
+		} else {
+		   // tracker muon - no direct links to the standalone muon
+		   // since we have only a few real muons in an event, matching 
+		   // the stand alone muon to the tracker muon by DetIds should 
+		   // be good enough for association. At the end it's up to a 
+		   // user to redefine the association and what it means. Here 
+		   // we would like to avoid obvious double counting and we 
+		   // tolerate a potential miss association
+		   if ( overlap(*muon,outerTrackCollectionHandle_->at(i))>0 ) {
+		      LogTrace("MuonIdentification") << "Found associated tracker muon. Set a reference and move on";
+		      newMuon = false;
+		      muon->setStandAlone( reco::TrackRef( outerTrackCollectionHandle_, i ) );
+		      muon->setType( muon->getType() | reco::Muon::StandAloneMuon );
+		      break;
+		   }
+		}
+	     }
+	   if ( newMuon ) {
+	      LogTrace("MuonIdentification") << "No associated stand alone track is found. Making a muon";
+	      outputMuons->push_back( makeMuon(iEvent, iSetup, 
+					       reco::TrackRef( outerTrackCollectionHandle_, i ), OuterTrack ) );
+	      outputMuons->back().setType( reco::Muon::StandAloneMuon );
+	   }
+	}
+   }
    
+   LogTrace("MuonIdentification") << "Dress up muons if it's necessary";
    // Fill various information
    for ( reco::MuonCollection::iterator muon = outputMuons->begin(); muon != outputMuons->end(); ++muon )
      {
@@ -348,7 +398,8 @@ void MuonIdProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	timers.pop();
 	
 	timers.push("MuonIdProducer::produce::fillCaloCompatibility");
-	if ( fillCaloCompatibility_ ) muon->setCaloCompatibility( muonCaloCompatibility_.evaluate(*muon) );
+	if ( fillCaloCompatibility_ && 
+	     ( muon->isGlobalMuon() || muon->isTrackerMuon() ) ) muon->setCaloCompatibility( muonCaloCompatibility_.evaluate(*muon) );
 	timers.pop();
 	
 	timers.push("MuonIdProducer::produce::fillIsolation");
@@ -367,7 +418,18 @@ bool MuonIdProducer::fillMuonId(edm::Event& iEvent, const edm::EventSetup& iSetu
 				reco::Muon& aMuon)
 {
    // perform track - detector association
-   TrackDetMatchInfo info = trackAssociator_.associate(iEvent, iSetup, *(aMuon.track().get()), parameters_);
+   const reco::Track* track = 0;
+   if ( ! aMuon.track().isNull() )
+     track = aMuon.track().get();
+   else 
+     {
+	if ( ! aMuon.standAloneMuon().isNull() )
+	  track = aMuon.standAloneMuon().get();
+	else
+	  throw cms::Exception("FatalError") << "Failed to fill muon id information for a muon with undefined references to tracks"; 
+     }
+
+     TrackDetMatchInfo info = trackAssociator_.associate(iEvent, iSetup, *track, parameters_);
    
    if ( fillEnergy_ ) {
       reco::MuonEnergy muonEnergy;
@@ -379,7 +441,7 @@ bool MuonIdProducer::fillMuonId(edm::Event& iEvent, const edm::EventSetup& iSetu
       muonEnergy.hoS9  = info.nXnEnergy(TrackDetMatchInfo::HORecHits,1);   // 3x3 energy
       aMuon.setCalEnergy( muonEnergy );
    }
-   if ( ! fillMatching_ ) return true;
+   if ( ! fillMatching_ || aMuon.isStandAloneMuon() ) return true;
    
    // fill muon match info
    std::vector<reco::MuonChamberMatch> muonChamberMatches;
@@ -583,9 +645,20 @@ void MuonIdProducer::fillArbitrationInfo( reco::MuonCollection* pOutputMuons )
 void MuonIdProducer::fillMuonIsolation(edm::Event& iEvent, const edm::EventSetup& iSetup, reco::Muon& aMuon)
 {
    reco::MuonIsolation isoR03, isoR05;
+   const reco::Track* track = 0;
+   if ( ! aMuon.track().isNull() )
+     track = aMuon.track().get();
+   else 
+     {
+	if ( ! aMuon.standAloneMuon().isNull() )
+	  track = aMuon.standAloneMuon().get();
+	else
+	  throw cms::Exception("FatalError") << "Failed to compute muon isolation information for a muon with undefined references to tracks"; 
+     }
+
    // get deposits
-   reco::MuIsoDeposit depTrk = muIsoExtractorTrack_->deposit(iEvent, iSetup, *(aMuon.track()));
-   std::vector<reco::MuIsoDeposit> caloDeps = muIsoExtractorCalo_->deposits(iEvent, iSetup, *(aMuon.track()));
+   reco::MuIsoDeposit depTrk = muIsoExtractorTrack_->deposit(iEvent, iSetup, *track );
+   std::vector<reco::MuIsoDeposit> caloDeps = muIsoExtractorCalo_->deposits(iEvent, iSetup, *track);
 
    if(caloDeps.size()!=3) {
       LogTrace("MuonIdentification") << "Failed to fill vector of calorimeter isolation deposits!";

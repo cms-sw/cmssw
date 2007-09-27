@@ -20,7 +20,7 @@
 */
 //
 // Original Author:  Dmytro Kovalskyi
-// $Id: MuonIdProducer.h,v 1.3 2007/09/06 00:54:25 dmytro Exp $
+// $Id: MuonIdProducer.h,v 1.4 2007/09/25 19:14:51 dmytro Exp $
 //
 //
 
@@ -68,16 +68,19 @@ class MuonIdProducer : public edm::EDProducer {
 			   const reco::TrackRef& track, TrackType type);
    // make a global muon based on the links object
    reco::Muon    makeMuon( const reco::MuonTrackLinks& links );
+   
    // make a muon based on track (p4)
    reco::Muon    makeMuon( const reco::Track& track );
 
    // check if a silicon track satisfies the trackerMuon requirements
    bool          isGoodTrack( const reco::Track& track );
+   
    // check number of common DetIds for a given trackerMuon and a stand alone
    // muon track
    int           overlap(const reco::Muon& muon, const reco::Track& track);
 
-   
+   unsigned int  getChamberId(const DetId&);
+     
    TrackDetectorAssociator trackAssociator_;
    TrackAssociatorParameters parameters_;
    
@@ -88,9 +91,6 @@ class MuonIdProducer : public edm::EDProducer {
    double minPt_;
    double minP_;
    int    minNumberOfMatches_;
-   double stiffMinPt_;
-   double stiffMinP_;
-   int    stiffMinNumberOfMatches_;
    double maxAbsEta_;
    
    // matching
