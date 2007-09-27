@@ -61,7 +61,7 @@ TrackerMap::TrackerMap(string s,int xsize1,int ysize1) {
 TrackerMap::~TrackerMap() {
 }
 
-void TrackerMap::drawModule(TmModule * mod, int key,int nlay, bool print_total){
+void TrackerMap::drawModule(TmModule * mod, int key,int nlay, bool print_total, ofstream * svgfile){
   //int x,y;
   double phi,r,dx,dy, dy1;
   double xp[4],yp[4],xp1,yp1;
@@ -196,6 +196,104 @@ if(!print_total)mod->value=mod->value*mod->count;//restore mod->value
   
 }
 
+
+//export  tracker map
+//print_total = true represent in color the total stored in the module
+//print_total = false represent in color the average  
+void TrackerMap::save(bool print_total, float minval, float maxval, string outputfilename,int width, int height, string filetype){
+  ostringstream outs;
+  minvalue=minval; maxvalue=maxval;
+  outs << outputfilename << ".svg";
+  savefile = new ofstream(outs.str().c_str(),ios::out);
+ if(!print_total){
+  for (int layer=1; layer < 44; layer++){
+    for (int ring=firstRing[layer-1]; ring < ntotRing[layer-1]+firstRing[layer-1];ring++){
+      for (int module=1;module<200;module++) {
+        int key=layer*100000+ring*1000+module;
+        TmModule * mod = smoduleMap[key];
+        if(mod !=0 && !mod->notInUse()){
+          mod->value = mod->value / mod->count;
+        }
+      }
+    }
+  }
+  }
+  if(minvalue>=maxvalue){
+  minvalue=9999999.;
+  maxvalue=-9999999.;
+  for (int layer=1; layer < 44; layer++){
+    for (int ring=firstRing[layer-1]; ring < ntotRing[layer-1]+firstRing[layer-1];ring++){
+      for (int module=1;module<200;module++) {
+        int key=layer*100000+ring*1000+module;
+        TmModule * mod = smoduleMap[key];
+        if(mod !=0 && !mod->notInUse()){
+          if (minvalue > mod->value)minvalue=mod->value;
+          if (maxvalue < mod->value)maxvalue=mod->value;
+        }
+      }
+    }
+  }
+}
+  *savefile << "<?xml version=\"1.0\"  standalone=\"no\" ?>"<<endl;
+  *savefile << "<svg  xmlns=\"http://www.w3.org/2000/svg\""<<endl;
+  *savefile << "xmlns:svg=\"http://www.w3.org/2000/svg\" "<<endl;
+  *savefile << "xmlns:xlink=\"http://www.w3.org/1999/xlink\">"<<endl;
+  *savefile << "<svg:svg id=\"mainMap\" x=\"0\" y=\"0\" viewBox=\"0 0 3000 1600"<<"\" width=\""<<width<<"\" height=\""<<height<<"\">"<<endl;
+  *savefile << "<svg:rect fill=\"lightblue\" stroke=\"none\" x=\"0\" y=\"0\" width=\"3000\" height=\"1600\" /> "<<endl;
+  *savefile << "<svg:g id=\"tracker\" transform=\"translate(10,1500) rotate(270)\" style=\"fill:none;stroke:black;stroke-width:0;\"> "<<endl;
+  for (int layer=1; layer < 44; layer++){
+    nlay=layer;
+    defwindow(nlay);
+    for (int ring=firstRing[layer-1]; ring < ntotRing[layer-1]+firstRing[layer-1];ring++){
+      for (int module=1;module<200;module++) {
+        int key=layer*100000+ring*1000+module;
+        TmModule * mod = smoduleMap[key];
+	if(mod !=0 && !mod->notInUse()){
+          drawModule(mod,key,layer,print_total,savefile);
+        }
+      }
+    }
+  }
+  *savefile << "</svg:g>"<<endl;
+  *savefile << " <svg:text id=\"Title\" class=\"normalText\"  x=\"100\" y=\"0\">"<<title<<"</svg:text>"<<endl;
+  *savefile << "</svg:svg>"<<endl;
+  *savefile << "</svg>"<<endl;
+  savefile->close(); 
+
+ string tempfilename = outputfilename + ".svg";
+ const char * command1;
+ if(filetype=="png"){
+ ostringstream commands;
+ commands << "java -Xmx256m  -jar batik/batik-rasterizer.jar -w "<<width<<" -h "<< height << " " <<tempfilename; 
+ command1=commands.str().c_str();
+ cout << "Executing " << command1 << endl;
+ system(command1);
+  }
+ if(filetype=="jpg"){
+ ostringstream commands;
+ commands << "java -Xmx256m  -jar batik/batik-rasterizer.jar -w "<<width<<" -h "<< height << " " <<tempfilename <<" -m image/jpeg -q 0.8 "; 
+ command1=commands.str().c_str();
+ cout << "Executing " << command1 << endl;
+ system(command1);
+  }
+ if(filetype=="png"){
+ ostringstream commands;
+ commands << "java -Xmx256m  -jar batik/batik-rasterizer.jar -w "<<width<<" -h "<< height << " " <<tempfilename<<" -m application/pdf"; 
+ command1=commands.str().c_str();
+ cout << "Executing " << command1 << endl;
+ system(command1);
+  }
+ if(filetype!="svg"){
+ string command = "rm "+tempfilename;
+ command1=command.c_str();
+ cout << "Executing " << command1 << endl;
+ system(command1);
+  }
+
+
+}
+
+
 //print in svg format tracker map
 //print_total = true represent in color the total stored in the module
 //print_total = false represent in color the average  
@@ -250,7 +348,7 @@ void TrackerMap::print(bool print_total, float minval, float maxval, string outp
         int key=layer*100000+ring*1000+module;
         TmModule * mod = smoduleMap[key];
 	if(mod !=0 && !mod->notInUse()){
-          drawModule(mod,key,layer,print_total);
+          drawModule(mod,key,layer,print_total,svgfile);
         }
       }
     }
@@ -258,8 +356,6 @@ void TrackerMap::print(bool print_total, float minval, float maxval, string outp
   *svgfile << "</svg:g></svg:svg>"<<endl;
   *svgfile << " <svg:text id=\"Title\" class=\"normalText\"  x=\"100\" y=\"0\">"<<title<<"</svg:text>"<<endl;
   *svgfile << "</svg:svg>"<<endl;
-  *svgfile << "<br />"<<endl;
-  *svgfile << "<em>Please fon't click in yellow areas: for same reason, doing so freezes Firefox </em>"<<endl;
   *svgfile << "</body></html>"<<endl;
 
 }

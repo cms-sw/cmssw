@@ -17,8 +17,9 @@ class TrackerMap {
   ~TrackerMap();  //!< default destructor
   
   void build();
-  void drawModule(TmModule * mod, int key, int layer, bool total);
+  void drawModule(TmModule * mod, int key, int layer, bool total, std::ofstream * file);
   void print(bool print_total=true,float minval=0., float maxval=0.,std::string s="svgmap");
+  void save(bool print_total=true,float minval=0., float maxval=0.,std::string s="svgmap",int width=1500, int height=800, std::string filetype="svg");
   void fill_current_val(int idmod, float current_val );
   void fill(int layer , int ring, int nmod, float x );
   void fill(int idmod, float qty );
@@ -266,6 +267,7 @@ void defwindow(int num_lay){
   bool posrel;
   bool firstcall;
   std::ofstream * svgfile;
+  std::ofstream * savefile;
   std::ifstream * jsfile;
   float minvalue,maxvalue;
   int number_modules;
