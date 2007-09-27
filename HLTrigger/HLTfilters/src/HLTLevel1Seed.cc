@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2007/08/02 23:30:46 $
- *  $Revision: 1.5 $
+ *  $Date: 2007/08/15 14:40:28 $
+ *  $Revision: 1.6 $
  *
  *  \author Martin Grunewald
  *
@@ -15,7 +15,15 @@
 
 #include "DataFormats/Common/interface/RefToBase.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
+
+#include "DataFormats/L1Trigger/interface/L1EmParticle.h"  
+#include "DataFormats/L1Trigger/interface/L1EmParticleFwd.h"  
+#include "DataFormats/L1Trigger/interface/L1JetParticle.h"  
+#include "DataFormats/L1Trigger/interface/L1JetParticleFwd.h"  
+#include "DataFormats/L1Trigger/interface/L1MuonParticle.h"  
+#include "DataFormats/L1Trigger/interface/L1MuonParticleFwd.h"  
 #include "DataFormats/L1Trigger/interface/L1ParticleMap.h"
+#include "DataFormats/L1Trigger/interface/L1ParticleMapFwd.h"
 #include "DataFormats/HLTReco/interface/HLTFilterObject.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"

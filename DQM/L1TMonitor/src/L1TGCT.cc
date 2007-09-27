@@ -1,11 +1,14 @@
 /*
  * \file L1TGCT.cc
  *
- * $Date: 2007/09/26 15:26:23 $
- * $Revision: 1.12 $
+ * $Date: 2007/09/27 16:56:26 $
+ * $Revision: 1.13 $
  * \author J. Berryhill
  *
  * $Log: L1TGCT.cc,v $
+ * Revision 1.13  2007/09/27 16:56:26  wittich
+ * verbosity fixes
+ *
  * Revision 1.12  2007/09/26 15:26:23  berryhil
  *
  *
@@ -49,8 +52,11 @@
 
 // L1Extra
 #include "DataFormats/L1Trigger/interface/L1EmParticle.h"
+#include "DataFormats/L1Trigger/interface/L1EmParticleFwd.h"
 #include "DataFormats/L1Trigger/interface/L1JetParticle.h"
+#include "DataFormats/L1Trigger/interface/L1JetParticleFwd.h"
 #include "DataFormats/L1Trigger/interface/L1EtMissParticle.h"
+#include "DataFormats/L1Trigger/interface/L1EtMissParticleFwd.h"
 
 
 using namespace edm;

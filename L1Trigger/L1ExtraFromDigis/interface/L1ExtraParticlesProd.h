@@ -13,7 +13,7 @@
 //
 // Original Author:  
 //         Created:  Tue Oct 17 00:13:51 EDT 2006
-// $Id: L1ExtraParticlesProd.h,v 1.2 2007/04/02 08:03:14 wsun Exp $
+// $Id: L1ExtraParticlesProd.h,v 1.3 2007/07/04 01:36:11 wsun Exp $
 //
 
 // system include files
@@ -26,8 +26,11 @@
 #include "FWCore/ParameterSet/interface/InputTag.h"
 
 #include "DataFormats/L1Trigger/interface/L1EmParticle.h"
+#include "DataFormats/L1Trigger/interface/L1EmParticleFwd.h"
 #include "DataFormats/L1Trigger/interface/L1JetParticle.h"
+#include "DataFormats/L1Trigger/interface/L1JetParticleFwd.h"
 #include "DataFormats/L1Trigger/interface/L1MuonParticle.h"
+#include "DataFormats/L1Trigger/interface/L1MuonParticleFwd.h"
 #include "DataFormats/L1Trigger/interface/L1EtMissParticle.h"
 
 // forward declarations

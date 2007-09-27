@@ -1,9 +1,14 @@
 /*
  * \file L1TCompare.cc
- * $Id: L1TCompare.cc,v 1.3 2007/06/13 11:33:39 wittich Exp $
+ * $Id: L1TCompare.cc,v 1.4 2007/07/19 18:05:06 berryhil Exp $
  * \author P. Wittich
  * \brief Compare different parts of the trigger chain (e.g., RCT-GCT )
  * $Log: L1TCompare.cc,v $
+ * Revision 1.4  2007/07/19 18:05:06  berryhil
+ *
+ *
+ * L1CaloRegionDetId dataformat migration for L1TCompare
+ *
  * Revision 1.3  2007/06/13 11:33:39  wittich
  * add axis titles
  *
@@ -26,7 +31,9 @@
 
 // L1Extra
 #include "DataFormats/L1Trigger/interface/L1EmParticle.h"
+#include "DataFormats/L1Trigger/interface/L1EmParticleFwd.h"
 #include "DataFormats/L1Trigger/interface/L1JetParticle.h"
+#include "DataFormats/L1Trigger/interface/L1JetParticleFwd.h"
 #include "DataFormats/L1Trigger/interface/L1EtMissParticle.h"
 
 // Ecal
