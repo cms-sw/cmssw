@@ -1,5 +1,5 @@
 //
-// $Id: EcalTrivialObjectAnalyzer.cc,v 1.12 2007/09/09 12:54:12 torimoto Exp $
+// $Id: EcalTrivialObjectAnalyzer.cc,v 1.13 2007/09/27 10:00:26 ferriff Exp $
 // Created: 2 Mar 2006
 //          Shahram Rahatlou, University of Rome & INFN
 //
@@ -249,6 +249,7 @@ void EcalTrivialObjectAnalyzer::analyze(const edm::Event& e, const edm::EventSet
    }
 
    // laser timestamps
+   EcalLaserAPDPNRatios::EcalLaserTimeStamp ltimestamp;
    EcalLaserAPDPNRatios::EcalLaserTimeStampMap::const_iterator ltimeit;
    for (int i=1; i<=92; i++) {     
      ltimestamp = lratio->getTimeMap()[i];
