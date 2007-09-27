@@ -6,11 +6,12 @@
  * A simulated Vertex with links to TrackingParticles
  * for analysis of track and vertex reconstruction
  *
- * \version $Id: TrackingVertex.h,v 1.18 2007/02/01 16:49:16 ewv Exp $
+ * \version $Id: TrackingVertex.h,v 1.19 2007/03/07 16:12:30 ewv Exp $
  *
  */
 
 #include "DataFormats/Common/interface/RefVector.h"
+#include "DataFormats/Math/interface/LorentzVector.h"
 #include "DataFormats/Math/interface/Point3D.h"
 
 #include "SimDataFormats/EncodedEventId/interface/EncodedEventId.h"
@@ -25,14 +26,14 @@ class TrackingVertex {
 
   typedef edm::RefVector<edm::HepMCProduct, HepMC::GenVertex > GenVertexRefVector;
   typedef edm::Ref<edm::HepMCProduct, HepMC::GenVertex >       GenVertexRef;
-
-  typedef        GenVertexRefVector::iterator genv_iterator;
-  typedef    std::vector<SimVertex>::const_iterator  g4v_iterator;
-  typedef TrackingParticleRefVector::iterator   tp_iterator;
+  typedef math::XYZTLorentzVectorD                             LorentzVector;
+  typedef        GenVertexRefVector::iterator                  genv_iterator;
+  typedef    std::vector<SimVertex>::const_iterator            g4v_iterator;
+  typedef TrackingParticleRefVector::iterator                  tp_iterator;
 
 // Default constructor and constructor from values
   TrackingVertex();
-  TrackingVertex(const HepLorentzVector &position, const bool inVolume,
+  TrackingVertex(const LorentzVector &position, const bool inVolume,
                  const EncodedEventId e = EncodedEventId(0));
 
 // Setters
@@ -67,15 +68,15 @@ class TrackingVertex {
   const TrackingParticleRefVector daughterTracks() const;
 
 // Getters for other info
-  const HepLorentzVector& position() const { return position_; };
-  const EncodedEventId     eventId() const { return eId_;      };
-  const bool              inVolume() const { return inVolume_; };
+  const LorentzVector& position() const { return position_; };
+  const EncodedEventId eventId() const { return eId_;      };
+  const bool           inVolume() const { return inVolume_; };
 
  private:
 
-  HepLorentzVector position_; // Vertex position and time
-  bool             inVolume_; // Is it inside tracker volume?
-  EncodedEventId   eId_;
+  LorentzVector  position_; // Vertex position and time
+  bool           inVolume_; // Is it inside tracker volume?
+  EncodedEventId eId_;
 
 // References to G4 and generator vertices and TrackingParticles
 

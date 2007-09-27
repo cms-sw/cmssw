@@ -10,7 +10,7 @@ TrackingVertex::TrackingVertex() : position_(HepLorentzVector(0,0,0,0)), eId_(0)
 //  daughterTracks_.clear();
 }
 
-TrackingVertex::TrackingVertex(const HepLorentzVector &p, const bool inVolume, const EncodedEventId eId) :
+TrackingVertex::TrackingVertex(const LorentzVector &p, const bool inVolume, const EncodedEventId eId) :
     position_(p), inVolume_(inVolume), eId_(eId) {
 //  daughterTracks_.clear();
 }
