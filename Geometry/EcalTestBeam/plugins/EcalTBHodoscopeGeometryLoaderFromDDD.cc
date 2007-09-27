@@ -98,7 +98,13 @@ void EcalTBHodoscopeGeometryLoaderFromDDD::makeGeometry(const DDCompactView* cpv
       const GlobalPoint refPoint ( ctr.x(), ctr.y(), ctr.z() ) ;
 
 
-      const float* pP ( CaloCellGeometry::getParmPtr( pv, 
+      std::vector<float> vv ;
+      vv.reserve( pv.size() ) ;
+      for( unsigned int i ( 0 ) ; i != pv.size() ; ++i )
+      {
+	 vv.push_back( CaloCellGeometry::k_ScaleFromDDDtoGeant*pv[i] ) ;
+      }
+      const float* pP ( CaloCellGeometry::getParmPtr( vv, 
 						      ebg->parMgr(), 
 						      ebg->parVecVec() ) ) ;
 
