@@ -4,8 +4,8 @@
 /** \class L3MuonTrajectoryBuilder
  *  class to build muon trajectory
  *
- *  $Date:  $
- *  $Revision:  $
+ *  $Date: 2007/08/22 17:44:32 $
+ *  $Revision: 1.1 $
  *
  *  \author N. Neumeister 	 Purdue University
  *  \author C. Liu 		 Purdue University
@@ -13,8 +13,7 @@
  */
 
 #include "RecoMuon/GlobalTrackingTools/interface/GlobalTrajectoryBuilderBase.h"
-//#include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
-#include "RecoTracker/CkfPattern/interface/TrackerTrajectoryBuilder.h"
+#include "TrackingTools/PatternTools/interface/TrajectoryBuilder.h"
 
 #include "TrackingTools/DetLayers/interface/NavigationSchool.h"
 
@@ -58,7 +57,7 @@ class L3MuonTrajectoryBuilder : public GlobalTrajectoryBuilderBase {
     TrajectoryCleaner* theTrajectoryCleaner;
 
     std::string theTkBuilderName;
-    edm::ESHandle<TrackerTrajectoryBuilder> theTkBuilder;
+    edm::ESHandle<TrajectoryBuilder> theTkBuilder;
 
     NavigationSchool*  theNavigationSchool;
     unsigned long long theCacheId_DG;

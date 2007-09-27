@@ -5,6 +5,9 @@
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
 #include "RecoTracker/TkDetLayers/interface/GeometricSearchTracker.h"
 #include "TrackingTools/PatternTools/interface/TrajMeasLessEstim.h"
+#include "RecoTracker/MeasurementDet/interface/MeasurementTracker.h"
+#include "TrackingTools/MeasurementDet/interface/LayerMeasurements.h"
+#include "TrackingTools/KalmanUpdators/interface/Chi2MeasurementEstimatorBase.h"
 
 #include <sstream>
 

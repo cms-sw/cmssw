@@ -3,7 +3,7 @@
 
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/Framework/interface/ModuleFactory.h"
+//#include "FWCore/Framework/interface/ModuleFactory.h"
 #include "FWCore/Framework/interface/ESProducer.h"
 
 #include "TrackingTools/KalmanUpdators/interface/KFUpdator.h"
@@ -16,7 +16,6 @@
 
 #include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
 #include "TrackingTools/Records/interface/TransientRecHitRecord.h"
-#include "RecoTracker/Record/interface/CkfComponentsRecord.h"
 
 #include <string>
 #include <memory>
@@ -32,7 +31,7 @@ MuonCkfTrajectoryBuilderESProducer::MuonCkfTrajectoryBuilderESProducer(const edm
 
 MuonCkfTrajectoryBuilderESProducer::~MuonCkfTrajectoryBuilderESProducer() {}
 
-boost::shared_ptr<TrackerTrajectoryBuilder> 
+boost::shared_ptr<TrajectoryBuilder> 
 MuonCkfTrajectoryBuilderESProducer::produce(const CkfComponentsRecord& iRecord)
 { 
   std::string updatorName            = pset_.getParameter<std::string>("updator");   
@@ -59,14 +58,14 @@ MuonCkfTrajectoryBuilderESProducer::produce(const CkfComponentsRecord& iRecord)
   iRecord.get(measurementTrackerHandle);  
     
   _trajectoryBuilder  = 
-    boost::shared_ptr<TrackerTrajectoryBuilder>(new MuonCkfTrajectoryBuilder(pset_,
-									 updatorHandle.product(),
-									 propagatorAlongHandle.product(),
-									 propagatorOppositeHandle.product(),
-									 propagatorProximityHandle.product(),
-									 estimatorHandle.product(),
-									 recHitBuilderHandle.product(),
-									 measurementTrackerHandle.product()) );  
+    boost::shared_ptr<TrajectoryBuilder>(new MuonCkfTrajectoryBuilder(pset_,
+								      updatorHandle.product(),
+								      propagatorAlongHandle.product(),
+								      propagatorOppositeHandle.product(),
+								      propagatorProximityHandle.product(),
+								      estimatorHandle.product(),
+								      recHitBuilderHandle.product(),
+								      measurementTrackerHandle.product()) );  
   return _trajectoryBuilder;
 }
 

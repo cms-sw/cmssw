@@ -6,7 +6,7 @@
  *  inner layer of the tracker detector, no RecHit is required on the TrajectorySeed.
  *  Combinatorics between RecHits is made. RecHits are accessed via the MeasurementTracker
  *  
- *  $Date: 2007/06/25 16:36:49 $
+ *  $Date: 2007/08/21 18:10:20 $
  *  $Revision: 1.1 $
  *  \author Adam Evertt, Jean-Roch Vlimant
  */
@@ -46,13 +46,13 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/Event.h"
 
-#include "RecoTracker/CkfPattern/interface/TrackerTrajectoryBuilder.h"
+#include "TrackingTools/PatternTools/interface/TrajectoryBuilder.h"
 #include "TrackingTools/GeomPropagators/interface/Propagator.h"
 
 
 #include <vector>
 
-class MuonRoadTrajectoryBuilder :public TrackerTrajectoryBuilder {
+class MuonRoadTrajectoryBuilder :public TrajectoryBuilder {
  public:
   ///constructor from PSet and things from record
    MuonRoadTrajectoryBuilder(const edm::ParameterSet & par,const MeasurementTracker * mt,const MagneticField * f,const Propagator * p);

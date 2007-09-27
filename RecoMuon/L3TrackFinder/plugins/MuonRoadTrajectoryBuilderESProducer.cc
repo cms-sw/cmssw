@@ -1,5 +1,8 @@
 #include "RecoMuon/L3TrackFinder/interface/MuonRoadTrajectoryBuilderESProducer.h"
-#include "RecoMuon/L3TrackFinder/interface/MuonRoadTrajectoryBuilder.h"
+
+#include <RecoTracker/MeasurementDet/interface/MeasurementTracker.h>
+#include <TrackingTools/GeomPropagators/interface/Propagator.h>
+#include "FWCore/Framework/interface/ESHandle.h"
 
 MuonRoadTrajectoryBuilderESProducer::MuonRoadTrajectoryBuilderESProducer(const edm::ParameterSet& iConfig)
 {
@@ -18,7 +21,7 @@ MuonRoadTrajectoryBuilderESProducer::~MuonRoadTrajectoryBuilderESProducer()
 
 }
 
-boost::shared_ptr<TrackerTrajectoryBuilder>
+boost::shared_ptr<TrajectoryBuilder>
 MuonRoadTrajectoryBuilderESProducer::produce(const CkfComponentsRecord& iRecord)
 {
    using namespace edm::es;
@@ -29,10 +32,10 @@ MuonRoadTrajectoryBuilderESProducer::produce(const CkfComponentsRecord& iRecord)
    iRecord.get(measurementTrackerName,measurementTrackerHandle);
    iRecord.getRecord<TrackingComponentsRecord>().get(propagatorName,propagatorHandle);
    
-   _trajectorybuilder = boost::shared_ptr<TrackerTrajectoryBuilder>(new  MuonRoadTrajectoryBuilder(pset_,
-												measurementTrackerHandle.product(),
-												propagatorHandle->magneticField(),
-												propagatorHandle.product())
+   _trajectorybuilder = boost::shared_ptr<TrajectoryBuilder>(new  MuonRoadTrajectoryBuilder(pset_,
+											    measurementTrackerHandle.product(),
+											    propagatorHandle->magneticField(),
+											    propagatorHandle.product())
 								   );
    return _trajectorybuilder;
 }
