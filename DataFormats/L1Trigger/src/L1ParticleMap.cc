@@ -8,16 +8,16 @@
 //
 // Original Author:  Werner Sun
 //         Created:  Wed Jul 26 14:42:56 EDT 2006
-// $Id: L1ParticleMap.cc,v 1.25 2007/08/07 01:18:16 wsun Exp $
+// $Id: L1ParticleMap.cc,v 1.26 2007/08/08 03:49:04 wsun Exp $
 //
 
 // system include files
 
 // user include files
 #include "DataFormats/L1Trigger/interface/L1ParticleMap.h"
-// #include "DataFormats/L1Trigger/interface/L1EmParticle.h" 
-// #include "DataFormats/L1Trigger/interface/L1JetParticle.h" 
-// #include "DataFormats/L1Trigger/interface/L1MuonParticle.h" 
+#include "DataFormats/L1Trigger/interface/L1EmParticle.h"  
+#include "DataFormats/L1Trigger/interface/L1JetParticle.h"  
+#include "DataFormats/L1Trigger/interface/L1MuonParticle.h"  
 
 using namespace l1extra ;
 

@@ -12,8 +12,11 @@
 //
 // Original Author:  Werner Sun
 //         Created:  Fri Jul 14 19:46:30 EDT 2006
-// $Id: L1ParticleMap.h,v 1.27 2007/08/07 01:18:15 wsun Exp $
+// $Id: L1ParticleMap.h,v 1.28 2007/08/08 03:49:03 wsun Exp $
 // $Log: L1ParticleMap.h,v $
+// Revision 1.28  2007/08/08 03:49:03  wsun
+// Diffractive trigger threshold update from X. Rouby.
+//
 // Revision 1.27  2007/08/07 01:18:15  wsun
 // Added JetMET calibration triggers from Len.
 //
@@ -101,15 +104,11 @@
 #include <string>
 
 // user include files
-#include "DataFormats/L1Trigger/interface/L1EmParticle.h" 
-#include "DataFormats/L1Trigger/interface/L1JetParticle.h" 
-#include "DataFormats/L1Trigger/interface/L1MuonParticle.h" 
-/* #include "DataFormats/L1Trigger/interface/L1EmParticleFwd.h"  */
-/* #include "DataFormats/L1Trigger/interface/L1JetParticleFwd.h"  */
-/* #include "DataFormats/L1Trigger/interface/L1MuonParticleFwd.h"  */
+#include "DataFormats/L1Trigger/interface/L1EmParticleFwd.h" 
+#include "DataFormats/L1Trigger/interface/L1JetParticleFwd.h" 
+#include "DataFormats/L1Trigger/interface/L1MuonParticleFwd.h" 
 #include "DataFormats/L1Trigger/interface/L1EtMissParticle.h"
-/* #include "DataFormats/L1Trigger/interface/L1EtMissParticleFwd.h"  */
-#include "DataFormats/L1Trigger/interface/L1ParticleMapFwd.h" 
+#include "DataFormats/L1Trigger/interface/L1EtMissParticleFwd.h" 
 
 // forward declarations
 
