@@ -8,11 +8,12 @@
  *  \author Aaron Dominguez (UNL)
  */
 #include "RecoTracker/TkSeedingLayers/interface/SeedingHitSet.h"
+namespace edm { class EventSetup; }
 
 class SeedComparitor {
  public:
   virtual ~SeedComparitor() {}
-  virtual bool compatible(const SeedingHitSet &hits) = 0;
+  virtual bool compatible(const SeedingHitSet &hits, const edm::EventSetup & es) = 0;
 };
 
 #endif
