@@ -128,9 +128,9 @@
        7.0*mm, 7.0*mm, 7.0*mm, 7.0*mm, 7.0*mm, 7.0*mm, 7.0*mm
     </Vector>
     <Vector name="ScintT"     type="numeric" nEntries="19">
-       9.0*mm, 4.0*mm, 4.0*mm, 4.0*mm, 4.0*mm, 4.0*mm,
-       4.0*mm, 4.0*mm, 4.0*mm, 4.0*mm, 4.0*mm, 4.0*mm,
-       4.0*mm, 4.0*mm, 4.0*mm, 4.0*mm, 4.0*mm, 4.0*mm, 4.0*mm
+       9.0*mm, 3.7*mm, 3.7*mm, 3.7*mm, 3.7*mm, 3.7*mm,
+       3.7*mm, 3.7*mm, 3.7*mm, 3.7*mm, 3.7*mm, 3.7*mm,
+       3.7*mm, 3.7*mm, 3.7*mm, 3.7*mm, 3.7*mm, 3.7*mm, 3.7*mm
     </Vector>
     <String name="ScintMat" value="materials:Scintillator"/>
     <String name="PlastMat" value="materials:Polyethylene"/>
