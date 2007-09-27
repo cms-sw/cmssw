@@ -1,8 +1,8 @@
 /*
  * \file L1TRCT.cc
  *
- * $Date: 2007/09/03 15:14:43 $
- * $Revision: 1.4 $
+ * $Date: 2007/09/04 02:54:19 $
+ * $Revision: 1.5 $
  * \author P. Wittich
  *
  */
@@ -204,15 +204,8 @@ void L1TRCT::analyze(const Event & e, const EventSetup & c)
   edm::Handle < L1CaloRegionCollection > rgn;
 
   // need to change to getByLabel
- 
-  try {
-    e.getByLabel(rctSource_,em);
-  }
-  catch (...) {
-    edm::LogInfo("L1TRCT") << "can't find L1CaloEmCollection with label "
-			       << rctSource_.label() ;
-    return;
-  }
+  bool doEm = true; 
+  bool doHd = true;
 
   try {
     e.getByLabel(rctSource_,rgn);
@@ -220,31 +213,42 @@ void L1TRCT::analyze(const Event & e, const EventSetup & c)
   catch (...) {
     edm::LogInfo("L1TRCT") << "can't find L1CaloRegionCollection with label "
 			       << rctSource_.label() ;
-    return;
+    doHd = false;
   }
 
+  if ( doHd ) {
+    // Fill the RCT histograms
 
-  // Fill the RCT histograms
+    // Regions
+    for (L1CaloRegionCollection::const_iterator ireg = rgn->begin();
+	 ireg != rgn->end(); ireg++) {
+      rctRegionsOccEtaPhi_->Fill(ireg->gctPhi(), ireg->gctEta());
+      rctRegionsEtEtaPhi_->Fill(ireg->gctPhi(), ireg->gctEta(), ireg->et());
+      rctRegionRank_->Fill(ireg->et());
+      rctTauVetoEtaPhi_->Fill(ireg->gctPhi(), ireg->gctEta(),
+			      ireg->tauVeto());
 
-  // Regions
-  for (L1CaloRegionCollection::const_iterator ireg = rgn->begin();
-       ireg != rgn->end(); ireg++) {
-    rctRegionsOccEtaPhi_->Fill(ireg->gctPhi(), ireg->gctEta());
-    rctRegionsEtEtaPhi_->Fill(ireg->gctPhi(), ireg->gctEta(), ireg->et());
-    rctRegionRank_->Fill(ireg->et());
-    rctTauVetoEtaPhi_->Fill(ireg->gctPhi(), ireg->gctEta(),
-			    ireg->tauVeto());
-
-    // now do local coordinate eta and phi
-    rctRegionsLocalOccEtaPhi_->Fill(ireg->rctPhi(), ireg->rctEta());
-    rctRegionsLocalEtEtaPhi_->Fill(ireg->rctPhi(), ireg->rctEta(), ireg->et());
-    rctTauVetoLocalEtaPhi_->Fill(ireg->rctPhi(), ireg->rctEta(),
-			    ireg->tauVeto());
+      // now do local coordinate eta and phi
+      rctRegionsLocalOccEtaPhi_->Fill(ireg->rctPhi(), ireg->rctEta());
+      rctRegionsLocalEtEtaPhi_->Fill(ireg->rctPhi(), ireg->rctEta(), 
+				     ireg->et());
+      rctTauVetoLocalEtaPhi_->Fill(ireg->rctPhi(), ireg->rctEta(),
+				   ireg->tauVeto());
     
-    rctRegionBx_->Fill(ireg->bx());
+      rctRegionBx_->Fill(ireg->bx());
     
+    }
   }
 
+  try {
+    e.getByLabel(rctSource_,em);
+  }
+  catch (...) {
+    edm::LogInfo("L1TRCT") << "can't find L1CaloEmCollection with label "
+			       << rctSource_.label() ;
+    doEm = false;
+  }
+  if ( ! doEm ) return;
   // Isolated and non-isolated EM
   for (L1CaloEmCollection::const_iterator iem = em->begin();
        iem != em->end(); iem++) {
