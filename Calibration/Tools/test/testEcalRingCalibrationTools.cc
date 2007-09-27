@@ -201,13 +201,12 @@ testEcalRingCalibrationTools::analyze( const edm::Event& iEvent, const edm::Even
    
    std::cout << "Here I am " << std::endl;
 
-   edm::ESHandle<CaloGeometry> pG;
-   iSetup.get<IdealGeometryRecord>().get(pG);     
-   EcalRingCalibrationTools::setCaloGeometry(&(*pG));
-   //
    // get the ecal & hcal geometry
    //
-   if (pass_==0) {
+   if (pass_==1) {
+     edm::ESHandle<CaloGeometry> pG;
+     iSetup.get<IdealGeometryRecord>().get(pG);     
+     EcalRingCalibrationTools::setCaloGeometry(&(*pG));
      build(*pG,DetId::Ecal,EcalBarrel,"eb.ringDump");
      build(*pG,DetId::Ecal,EcalEndcap,"ee.ringDump");
    }
