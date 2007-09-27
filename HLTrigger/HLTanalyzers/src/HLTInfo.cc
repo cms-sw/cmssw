@@ -56,6 +56,7 @@ void HLTInfo::setup(const edm::ParameterSet& pSet, TTree* HltTree) {
   l1extmumip = new int[kMaxL1ExtMu];
   l1extmufor = new int[kMaxL1ExtMu];
   l1extmurpc = new int[kMaxL1ExtMu];
+  l1extmuqul = new int[kMaxL1ExtMu];
   const int kMaxL1ExtJtC = 10000;
   l1extjtcet = new float[kMaxL1ExtJtC];
   l1extjtce = new float[kMaxL1ExtJtC];
@@ -73,9 +74,9 @@ void HLTInfo::setup(const edm::ParameterSet& pSet, TTree* HltTree) {
   l1exttauphi = new float[kMaxL1ExtTau];
 
   // HLT-specific branches of the tree 
-  HltTree->Branch("NHltPart",&nhltpart,"NHltPart/I");
-  HltTree->Branch("HLTPartPt",hltppt,"HLTPartPt[NHltPart]/F");
-  HltTree->Branch("HLTPartEta",hltpeta,"HLTPartEta[NHltPart]/F");
+//   HltTree->Branch("NHltPart",&nhltpart,"NHltPart/I");
+//   HltTree->Branch("HLTPartPt",hltppt,"HLTPartPt[NHltPart]/F");
+//   HltTree->Branch("HLTPartEta",hltpeta,"HLTPartEta[NHltPart]/F");
 
   HltTree->Branch("NL1IsolEm",&nl1extiem,"NL1IsolEm/I");
   HltTree->Branch("L1IsolEmEt",l1extiemet,"L1IsolEmEt[NL1IsolEm]/F");
@@ -96,6 +97,7 @@ void HLTInfo::setup(const edm::ParameterSet& pSet, TTree* HltTree) {
   HltTree->Branch("L1MuMip",l1extmumip,"L1MuMip[NL1Mu]/I");
   HltTree->Branch("L1MuFor",l1extmufor,"L1MuFor[NL1Mu]/I");
   HltTree->Branch("L1MuRPC",l1extmurpc,"L1MuRPC[NL1Mu]/I");
+  HltTree->Branch("L1MuQal",l1extmuqul,"L1MuQal[NL1Mu]/I");
   HltTree->Branch("NL1CenJet",&nl1extjetc,"NL1CenJet/I");
   HltTree->Branch("L1CenJetEt",l1extjtcet,"L1CenJetEt[NL1CenJet]/F");
   HltTree->Branch("L1CenJetE",l1extjtce,"L1CenJetE[NL1CenJet]/F");
@@ -119,7 +121,7 @@ void HLTInfo::setup(const edm::ParameterSet& pSet, TTree* HltTree) {
 }
 
 /* **Analyze the event** */
-void HLTInfo::analyze(const HLTFilterObjectWithRefs& hltobj,
+void HLTInfo::analyze(/*const HLTFilterObjectWithRefs& hltobj,*/
 		      const edm::TriggerResults& hltresults,
 		      const l1extra::L1EmParticleCollection& L1ExtEmIsol,
 		      const l1extra::L1EmParticleCollection& L1ExtEmNIsol,
@@ -171,28 +173,28 @@ void HLTInfo::analyze(const HLTFilterObjectWithRefs& hltobj,
 
   /////////// Analyzing HLT Objects (HLTFilterObjectsWithRefs) //////////
  
-  int mod=-1,path=-1,npart=-1;
+//   int mod=-1,path=-1,npart=-1;
 
-  if (&hltobj) {
-    mod = hltobj.module();
-    path = hltobj.path();
-    npart = hltobj.size();
-    nhltpart = npart;
-    for (int ipart = 0; ipart != npart; ++ipart){
-      const edm::RefToBase<Candidate> ref_ = hltobj.getParticleRef(ipart);
-      hltppt[ipart] = ref_->pt();
-      hltpeta[ipart] = ref_->eta();
-    }
+//   if (&hltobj) {
+//     mod = hltobj.module();
+//     path = hltobj.path();
+//     npart = hltobj.size();
+//     nhltpart = npart;
+//     for (int ipart = 0; ipart != npart; ++ipart){
+//       const edm::RefToBase<Candidate> ref_ = hltobj.getParticleRef(ipart);
+//       hltppt[ipart] = ref_->pt();
+//       hltpeta[ipart] = ref_->eta();
+//     }
 
-    if (_Debug){
-      std::cout << "%HLTInfo --  HLTobj module: " << mod << "   path: " << path << "   Npart:" << npart << std::endl;
-    }
+//     if (_Debug){
+//       std::cout << "%HLTInfo --  HLTobj module: " << mod << "   path: " << path << "   Npart:" << npart << std::endl;
+//     }
 
-  }
-  else {
-    nhltpart = 0;
-    if (_Debug) std::cout << "%HLTInfo -- No HLT Object" << std::endl;
-  }
+//   }
+//   else {
+//     nhltpart = 0;
+//     if (_Debug) std::cout << "%HLTInfo -- No HLT Object" << std::endl;
+//   }
 
   /////////// Analyzing L1Extra objects //////////
 
@@ -248,6 +250,8 @@ void HLTInfo::analyze(const HLTFilterObjectWithRefs& hltobj,
       l1extmumip[il1exmu] = muItr->isMip(); // = 1 for Mip ?
       l1extmufor[il1exmu] = muItr->isForward();
       l1extmurpc[il1exmu] = muItr->isRPC();
+      L1MuGMTExtendedCand gmtCand = muItr->gmtMuonCand();
+      l1extmuqul[il1exmu] = gmtCand.quality(); // Muon quality as defined in the GT
       il1exmu++;
     }
   }
