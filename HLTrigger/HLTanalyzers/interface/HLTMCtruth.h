@@ -32,12 +32,13 @@ public:
 
   /** Analyze the Data */
   void analyze(const CandidateCollection& mctruth,
+/*             const HepMC::GenEvent hepmc, */
 	       TTree* tree);
 
 private:
 
   // Tree variables
-  float *mcvx, *mcvy, *mcvz, *mcpt;
+  float *mcvx, *mcvy, *mcvz, *mcpt, *mceta, *mcphi;
   int *mcpid;
   int nmcpart,nmu3,nab,nbb;
   float pthat;
