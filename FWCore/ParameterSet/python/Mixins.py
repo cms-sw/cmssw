@@ -194,6 +194,8 @@ class _ParameterTypeBase(object):
         return 'cms.untracked.'+type(self).__name__
     def dumpPython(self,indent,deltaIndent):
         return self.pythonTypeName()+"("+self.pythonValue(indent,deltaIndent)+")"
+    def __repr__(self):
+        return self.dumpPython('','    ')
     def isTracked(self):
         return self.__isTracked
     def setIsTracked(self,trackness):
