@@ -10,7 +10,7 @@
 #include "HepMC/GenParticle.h"
 #include "HepMC/ParticleDataTable.h"
 
-#include "CLHEP/Vector/LorentzVector.h"
+#include "DataFormats/Math/interface/LorentzVector.h"
 
 #include <vector>
 #include <map>
@@ -29,11 +29,11 @@ public:
     void HepMC2G4(const HepMC::GenEvent * g,G4Event * e);
     void nonBeamEvent2G4(const HepMC::GenEvent * g,G4Event * e);
     virtual const HepMC::GenEvent*  genEvent() const { return evt_; }
-    virtual const HepLorentzVector* genVertex() const { return vtx_; }
+    virtual const math::XYZTLorentzVector* genVertex() const { return vtx_; }
     virtual const double eventWeight() const { return weight_; }
 private:
     bool particlePassesPrimaryCuts(const G4PrimaryParticle * p) const;
-    bool particlePassesPrimaryCuts( const HepLorentzVector& mom ) const ;
+    bool particlePassesPrimaryCuts( const math::XYZTLorentzVector& mom ) const ;
     void particleAssignDaughters(G4PrimaryParticle * p, HepMC::GenParticle * hp, double length);
     void setGenId(G4PrimaryParticle* p, int id) const 
       {p->SetUserInformation(new GenParticleInfo(id));}
@@ -51,7 +51,7 @@ private:
     double theDecLenCut;
     int verbose;
     HepMC::GenEvent*  evt_;
-    HepLorentzVector* vtx_;
+    math::XYZTLorentzVector* vtx_;
     double weight_;    
 };
 
