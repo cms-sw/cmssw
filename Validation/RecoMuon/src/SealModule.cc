@@ -5,8 +5,10 @@
 #include "Validation/RecoMuon/src/MuonTrackAnalyzer.h"
 #include "Validation/RecoMuon/src/MuonTrackResidualAnalyzer.h"
 #include "Validation/RecoMuon/src/RecoMuonValidator.h"
+#include "Validation/RecoMuon/src/MuonSeedTrack.h"
 
 DEFINE_SEAL_MODULE();
 DEFINE_FWK_MODULE(MuonTrackAnalyzer);
 DEFINE_FWK_MODULE(MuonTrackResidualAnalyzer);
 DEFINE_FWK_MODULE(RecoMuonValidator);
+DEFINE_FWK_MODULE(MuonSeedTrack);
