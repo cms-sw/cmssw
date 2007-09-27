@@ -37,14 +37,18 @@ void HLTMCtruth::setup(const edm::ParameterSet& pSet, TTree* HltTree) {
   mcvy = new float[kMaxMcTruth];
   mcvz = new float[kMaxMcTruth];
   mcpt = new float[kMaxMcTruth];
+  mceta = new float[kMaxMcTruth];
+  mcphi = new float[kMaxMcTruth];
 
   // MCtruth-specific branches of the tree 
-  HltTree->Branch("NMCPart",&nmcpart,"NMCPart/I");
-  HltTree->Branch("MCPid",mcpid,"MCPid[NMCPart]/I");
-  HltTree->Branch("MCVtxX",mcvx,"MCVtxX[NMCPart]/F");
-  HltTree->Branch("MCVtxY",mcvy,"MCVtxY[NMCPart]/F");
-  HltTree->Branch("MCVtxZ",mcvz,"MCVtxZ[NMCPart]/F");
-  HltTree->Branch("MCPt",mcpt,"MCPt[NMCPart]/F");
+  HltTree->Branch("NMCpart",&nmcpart,"NMCpart/I");
+  HltTree->Branch("MCpid",mcpid,"MCpid[NMCpart]/I");
+  HltTree->Branch("MCvtxX",mcvx,"MCvtxX[NMCpart]/F");
+  HltTree->Branch("MCvtxY",mcvy,"MCvtxY[NMCpart]/F");
+  HltTree->Branch("MCvtxZ",mcvz,"MCvtxZ[NMCpart]/F");
+  HltTree->Branch("MCpt",mcpt,"MCpt[NMCpart]/F");
+  HltTree->Branch("MCeta",mceta,"MCeta[NMCpart]/F");
+  HltTree->Branch("MCphi",mcphi,"MCphi[NMCpart]/F");
   HltTree->Branch("MCPtHat",&pthat,"MCPtHat/F");
   HltTree->Branch("MCmu3",&nmu3,"MCmu3/I");
   HltTree->Branch("MCbb",&nbb,"MCbb/I");
@@ -54,6 +58,7 @@ void HLTMCtruth::setup(const edm::ParameterSet& pSet, TTree* HltTree) {
 
 /* **Analyze the event** */
 void HLTMCtruth::analyze(const CandidateCollection& mctruth,
+//                       const HepMC::GenEvent hepmc,
 			 TTree* HltTree) {
 
   //std::cout << " Beginning HLTMCtruth " << std::endl;
@@ -64,19 +69,22 @@ void HLTMCtruth::analyze(const CandidateCollection& mctruth,
     int mab = 0;
     int mbb = 0;
 
-    if (&mctruth){
-      //pthat = mctruth.event_scale(); // Pt-hat of the event
+//     if (&hepmc){
+//       pthat = hepmc.event_scale(); // Pt-hat of the event
+//     }
+
+     if (&mctruth){
 
       for (size_t i = 0; i < mctruth.size(); ++ i) {
 	const Candidate & p = (mctruth)[i];
 	mcpid[nmc] = p.pdgId();
 	mcpt[nmc] = p.pt();
-// 	= p.eta();
-// 	= p.phi();
+	mceta[nmc] = p.eta();
+	mcphi[nmc] = p.phi();
 // 	= p.mass();
 	mcvx[nmc] = p.vx();
 	mcvy[nmc] = p.vy();
-	mcpt[nmc] = p.vz();
+	mcvz[nmc] = p.vz();
 	if (((mcpid[nmc]==13)||(mcpid[nmc]==-13))&&(mcpt[nmc]>3.)) {mu3 += 1;} // Flag for muons with pT > 3 GeV/c
 	if (mcpid[nmc]==-5) {mab += 1;} // Flag for bbar
 	if (mcpid[nmc]==5) {mbb += 1;} // Flag for b
@@ -85,6 +93,7 @@ void HLTMCtruth::analyze(const CandidateCollection& mctruth,
 
     }
     else {std::cout << "%HLTMCtruth -- No MC truth information" << std::endl;}
+
     nmcpart = nmc;
     nmu3 = mu3;
     nbb = mbb;
