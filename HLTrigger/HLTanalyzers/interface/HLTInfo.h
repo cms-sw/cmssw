@@ -19,6 +19,7 @@
 #include "DataFormats/L1Trigger/interface/L1JetParticle.h"
 #include "DataFormats/L1Trigger/interface/L1EtMissParticle.h"
 #include "DataFormats/L1Trigger/interface/L1ParticleMap.h"
+#include "DataFormats/L1GlobalMuonTrigger/interface/L1MuGMTExtendedCand.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
 
 #include "HLTrigger/HLTanalyzers/interface/JetUtil.h"
@@ -40,7 +41,7 @@ public:
   void setup(const edm::ParameterSet& pSet, TTree* tree);
 
   /** Analyze the Data */
-  void analyze(const HLTFilterObjectWithRefs& hltobj,
+  void analyze(/*const HLTFilterObjectWithRefs& hltobj,*/
 	       const edm::TriggerResults& hltresults,
 	       const l1extra::L1EmParticleCollection& l1extemi,
 	       const l1extra::L1EmParticleCollection& l1extemn,
@@ -64,7 +65,7 @@ private:
   float *l1exttauet, *l1exttaue, *l1exttaueta, *l1exttauphi;
   float met, metphi, mettot, methad;
   int L1EvtCnt,HltEvtCnt,nhltpart,nl1extiem,nl1extnem,nl1extmu,nl1extjetc,nl1extjetf,nl1extjt,nl1exttau;
-  int *trigflag, *l1flag, *l1extmuiso, *l1extmumip, *l1extmufor, *l1extmurpc;
+  int *trigflag, *l1flag, *l1extmuiso, *l1extmumip, *l1extmufor, *l1extmurpc, *l1extmuqul;
 
   // input variables
   bool _Debug;
