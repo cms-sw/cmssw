@@ -1,18 +1,9 @@
 <lcgdict>
   <class name="SiPixelCalibConfiguration"/>
-  <class name="PixelROCName"/>
-  <class name="std::vector<PixelROCName>"/>
-  <class name="PixelDACScanRange"/>
-  <class name="PixelModuleName"/>
-  <class name="std::set<PixelModuleName>"/>
-  <class name="std::map<PixelModuleName,uint32_t>"/>
-  <class name="std::vector<PixelDACScanRange>"/>
-  <class name="std::map<std::string,std::string>"/>
-  <class name="uint32_t"/>
-  <class name="std::vector<uint32_t>"/>
-  <class name="std::string"/>
-  <class name="std::vector<std::pair<uint32_t, std::vector<uint32_t> > > "/>
-  <class name="std::pair<uint32_t,std::vector<uint32_t> >"/>
+  <class name="SiPixelCalibConfiguration::ColPatternStruct"/>
+  <class name="SiPixelCalibConfiguration::RowPatternStruct"/>
+  <class name="std::vector<SiPixelCalibConfiguration::ColPatternStruct>"/>
+  <class name="std::vector<SiPixelCalibConfiguration::RowPatternStruct>"/>
+  <class name="std::vector<short>"/>
   <class name="std::vector<std::string>"/>
-  <class name="std::vector<std::vector<uint32_t> >"/>
 </lcgdict>

@@ -25,7 +25,7 @@
 #include "CalibFormats/SiPixelObjects/interface/PixelDetectorConfig.h"
 #include "CalibFormats/SiPixelObjects/interface/PixelNameTranslation.h"
 #include "CalibFormats/SiPixelObjects/interface/PixelFEDCard.h"
-#include "CalibFormats/SiPixelObjects/interface/SiPixelCalibConfiguration.h"
+#include "CalibFormats/SiPixelObjects/interface/PixelCalibConfiguration.h"
 #include "CalibFormats/SiPixelObjects/interface/PixelPortCardConfig.h"
 #include "CalibFormats/SiPixelObjects/interface/PixelPortcardMap.h"
 #include "CalibFormats/SiPixelObjects/interface/PixelDelay25Calib.h"
@@ -250,7 +250,7 @@ class PixelConfigFile {
       //std::cout << "Looking for file " << calibfile << std::endl;
       std::ifstream calibin(calibfile.c_str());
       if(calibin.good()){
-	data = (T*) new SiPixelCalibConfiguration(calibfile);
+	data = (T*) new PixelCalibConfiguration(calibfile);
       }else{
 	calibfile=fullpath+"delay25.dat";
 	//std::cout << "Now looking for file " << calibfile << std::endl;
