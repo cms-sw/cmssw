@@ -353,7 +353,7 @@ class Process(object):
         indent = '    '
         returnValue = ''
         for name,item in items:
-            returnValue +='process.'+name+' = '+item.dumpPython('',indent)+'\n'
+            returnValue +='process.'+name+' = '+item.dumpPython('',indent)+'\n\n'
         return returnValue
     def dumpPython(self):
         """return a string containing the equivalent process defined using the configuration language"""
