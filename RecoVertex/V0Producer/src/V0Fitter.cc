@@ -13,7 +13,7 @@
 //
 // Original Author:  Brian Drell
 //         Created:  Fri May 18 22:57:40 CEST 2007
-// $Id: V0Fitter.cc,v 1.8 2007/09/19 05:34:54 drell Exp $
+// $Id: V0Fitter.cc,v 1.9 2007/09/19 20:32:57 drell Exp $
 //
 //
 
@@ -48,7 +48,16 @@ V0Fitter::V0Fitter(const edm::Event& iEvent, const edm::EventSetup& iSetup,
   kShortMassCut = kShortMassCut_;
   lambdaMassCut = lambdaMassCut_;
 
+  // FOR DEBUG:
+  initFileOutput();
+  //--------------------
+
   fitAll(iEvent, iSetup);
+
+  // FOR DEBUG:
+  cleanupFileOutput();
+  //--------------------
+
 }
 
 V0Fitter::~V0Fitter() {
@@ -193,6 +202,7 @@ void V0Fitter::fitAll(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
       double mass = sqrt( totalESq - totalPSq);
 
       //std::cout << "Calculated m-pi-pi: " << mass << std::endl;
+      mPiPiMassOut << mass << std::endl;
 
       //----->> Finished making cuts.
 
@@ -208,11 +218,17 @@ void V0Fitter::fitAll(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
       // Create the vertex fitter object
       KalmanVertexFitter theFitter(useRefTrax == 0 ? false : true);
+      //KalmanVertexFitter theFitter(false);
+
+      std::cout << "Right before vertexing." << std::endl;
+      std::cout << "transTracks.size()=" << transTracks.size() << std::endl;
 
       // Vertex the tracks
       //CachingVertex theRecoVertex;
       TransientVertex theRecoVertex;
       theRecoVertex = theFitter.vertex(transTracks);
+
+      std::cout << "Right after vertexing." << std::endl;
 
       bool continue_ = true;
       
@@ -326,20 +342,20 @@ void V0Fitter::fitAll(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
 	
 	// Store track info in reco::Vertex object.  If the option is set,
 	//  store the refitted ones as well.
-	/*float one_ = 1.;
-	if(storeRefTrax) {
-	  for( ; traxIter != traxEnd; traxIter++) {
-	    if( traxIter->track().charge() > 0. ) {
-	      theVtx.add( positiveTrackRef, traxIter->track(), one_ ); 
-	      thePositiveRefTrack = new TransientTrack(*traxIter);
-	    }
-	    else if (traxIter->track().charge() < 0.) {
-	      theVtx.add( negativeTrackRef, traxIter->track(), one_);
-	      theNegativeRefTrack = new TransientTrack(*traxIter);
-	    }
+	//float one_ = 1.;
+	//if(storeRefTrax) {
+	for( ; traxIter != traxEnd; traxIter++) {
+	  if( traxIter->track().charge() > 0. ) {
+	    //theVtx.add( positiveTrackRef, traxIter->track(), one_ ); 
+	    thePositiveRefTrack = new TransientTrack(*traxIter);
+	  }
+	  else if (traxIter->track().charge() < 0.) {
+	    //theVtx.add( negativeTrackRef, traxIter->track(), one_);
+	    theNegativeRefTrack = new TransientTrack(*traxIter);
 	  }
 	}
-	else {
+	//}
+	/*else {
 	  theVtx.add( positiveTrackRef );
 	  theVtx.add( negativeTrackRef );
 	  }*/
@@ -373,6 +389,11 @@ void V0Fitter::fitAll(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
 	}
 
+	std::cout << "Didn't segfault on accessing TSCP.." << std::endl;
+
+
+
+
 	//  Just fixed this to make candidates for all 3 V0 particle types.
 	// 
 	//   We'll also need to make sure we're not writing candidates
@@ -390,6 +411,7 @@ void V0Fitter::fitAll(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
 	delete thePositiveRefTrack;
 	delete theNegativeRefTrack;
 	thePositiveRefTrack = theNegativeRefTrack = 0;
+	std::cout << "Next, no segfault" << std::endl;
 
 	// calculate total energy of V0 3 ways:
 	//  Assume it's a kShort, a Lambda, or a LambdaBar.
@@ -427,17 +449,23 @@ void V0Fitter::fitAll(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
 					 lambdaBarEtot);
 	Particle::Point vtx(theVtx.x(), theVtx.y(), theVtx.z());
 
+	std::cout << "Created momentum vectors for the V0Cands" << std::endl;
+
 	// Create the V0Candidate object that will be stored in the Event
 	V0Candidate theKshort(0, kShortP4, Particle::Point(0,0,0));
 	V0Candidate theLambda(0, lambdaP4, Particle::Point(0,0,0));
 	V0Candidate theLambdaBar(0, lambdaBarP4, Particle::Point(0,0,0));
 	// The above lines are hardcoded for the origin.  Need to fix.
 
+	std::cout << "Created cands, setting vertexes" << std::endl;
+
 	// Set the V0Candidates' vertex to the one we found above
 	//  (and loaded with track info)
 	theKshort.setVertex(theVtx);
 	theLambda.setVertex(theVtx);
 	theLambdaBar.setVertex(theVtx);
+
+	std::cout << "V0Candidates created, about to add daughters." << std::endl;
 
 
 	// Create daughter candidates for the V0Candidates
@@ -483,9 +511,14 @@ void V0Fitter::fitAll(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
 	preCutCands.push_back(theKshort);
 	preCutCands.push_back(theLambda);
 	preCutCands.push_back(theLambdaBar);
+	std::cout << "Added cands" << std::endl;
       }
+      std::cout << "Outside continue" << std::endl;
     }
+    std::cout << "Outside inner loop." << std::endl;
   }
+
+  std::cout << "Done with main loop." << std::endl;
 
   if( preCutCands.size() )
     applyPostFitCuts();
