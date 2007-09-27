@@ -273,7 +273,8 @@ FastL1GlobalAlgo::FillEgammasTP(edm::Event const& e) {
     CaloTowerCollection towers = m_Regions[i].GetCaloTowers();
 
     for (CaloTowerCollection::const_iterator cnd=towers.begin(); cnd!=towers.end(); cnd++) {
-      if (cnd->emEt()<0.1 && cnd->hadEt()<0.1) continue;
+      if (cnd->emEt()<0.01 && cnd->hadEt()<0.01) continue;
+      //if (cnd->emEt()<0.01) continue;
 
       reco::Particle::LorentzVector rp4(0.,0.,0.,0.);
       l1extra::L1EmParticle* ph = new l1extra::L1EmParticle(rp4);
@@ -889,7 +890,8 @@ FastL1GlobalAlgo::isEMCand(CaloTowerDetId cid, l1extra::L1EmParticle* ph,const e
   if (crgn>395 || crgn < 0 || ctwr > 15 || ctwr < 0) return 0;
 
   CaloTowerCollection c = m_Regions.at(crgn).GetCaloTowers();
-  double cenEt = c[ctwr].emEt();
+  //double cenEt = c[ctwr].et();
+  double cenEt = RCTEnergyTrunc(c[ctwr].et(),0.5,64);
   //double cenE = c[ctwr].emEnergy();
   
   // Using region position rather than tower position
@@ -919,14 +921,14 @@ FastL1GlobalAlgo::isEMCand(CaloTowerDetId cid, l1extra::L1EmParticle* ph,const e
   std::pair<int, int> ne = m_RMap->GetTowerNEEtaPhi(cid.ieta(),cid.iphi()); 
   std::pair<int, int> sw = m_RMap->GetTowerSWEtaPhi(cid.ieta(),cid.iphi()); 
   std::pair<int, int> se = m_RMap->GetTowerSEEtaPhi(cid.ieta(),cid.iphi()); 
-  if (no.first>28 || no.first<-28 || no.second>72 || no.second<0) return 0;
-  if (so.first>28 || so.first<-28 || so.second>72 || so.second<0) return 0;
-  if (we.first>28 || we.first<-28 || we.second>72 || we.second<0) return 0;
-  if (ea.first>28 || ea.first<-28 || ea.second>72 || ea.second<0) return 0;
-  if (nw.first>28 || nw.first<-28 || nw.second>72 || nw.second<0) return 0;
-  if (ne.first>28 || ne.first<-28 || ne.second>72 || ne.second<0) return 0;
-  if (sw.first>28 || sw.first<-28 || sw.second>72 || sw.second<0) return 0;
-  if (se.first>28 || se.first<-28 || se.second>72 || se.second<0) return 0;
+  if (no.first>29 || no.first<-29 || no.second>72 || no.second<0) return 0;
+  if (so.first>29 || so.first<-29 || so.second>72 || so.second<0) return 0;
+  if (we.first>29 || we.first<-29 || we.second>72 || we.second<0) return 0;
+  if (ea.first>29 || ea.first<-29 || ea.second>72 || ea.second<0) return 0;
+  if (nw.first>29 || nw.first<-29 || nw.second>72 || nw.second<0) return 0;
+  if (ne.first>29 || ne.first<-29 || ne.second>72 || ne.second<0) return 0;
+  if (sw.first>29 || sw.first<-29 || sw.second>72 || sw.second<0) return 0;
+  if (se.first>29 || se.first<-29 || se.second>72 || se.second<0) return 0;
 
   int notwr = m_RMap->getRegionTowerIndex(no);
   int norgn = m_RMap->getRegionIndex(no.first,no.second);
@@ -948,8 +950,9 @@ FastL1GlobalAlgo::isEMCand(CaloTowerDetId cid, l1extra::L1EmParticle* ph,const e
   //
   if (norgn>395 || norgn < 0 || notwr > 15 || notwr < 0) return 0;
   c = m_Regions[norgn].GetCaloTowers();
-  double noEt = c[notwr].emEt();
-  //double noE = c[notwr].emEnergy();
+  //double noEt = c[notwr].et();
+  double noEt = RCTEnergyTrunc(c[notwr].et(),0.5,64);
+   //double noE = c[notwr].emEnergy();
   // check fine grain bit
   bool noFGbit = m_Regions[norgn].GetFGBit(notwr);
   // check H/E bit
@@ -958,7 +961,8 @@ FastL1GlobalAlgo::isEMCand(CaloTowerDetId cid, l1extra::L1EmParticle* ph,const e
   //
   if (sorgn>395 || sorgn < 0 || sotwr > 15 || sotwr < 0) return 0;
   c = m_Regions[sorgn].GetCaloTowers();
-  double soEt = c[sotwr].emEt();
+  //double soEt = c[sotwr].et();
+  double soEt = RCTEnergyTrunc(c[sotwr].et(),0.5,64);
   //double soE = c[sotwr].emEnergy();
   // check fine grain bit
   bool soFGbit = m_Regions[sorgn].GetFGBit(sotwr);
@@ -968,7 +972,8 @@ FastL1GlobalAlgo::isEMCand(CaloTowerDetId cid, l1extra::L1EmParticle* ph,const e
   //
   if (wergn>395 || wergn < 0 || wetwr > 15 || wetwr < 0) return 0;
   c = m_Regions[wergn].GetCaloTowers();
-  double weEt = c[wetwr].emEt();
+  //double weEt = c[wetwr].et();
+  double weEt = RCTEnergyTrunc(c[wetwr].et(),0.5,64);
   //double weE = c[wetwr].emEnergy();
   // check fine grain bit
   bool weFGbit = m_Regions[wergn].GetFGBit(wetwr);
@@ -978,7 +983,8 @@ FastL1GlobalAlgo::isEMCand(CaloTowerDetId cid, l1extra::L1EmParticle* ph,const e
   //
   if (eargn>395 || eargn < 0 || eatwr > 15 || eatwr < 0) return 0;
   c = m_Regions[eargn].GetCaloTowers();
-  double eaEt = c[eatwr].emEt();
+  //double eaEt = c[eatwr].et();
+  double eaEt = RCTEnergyTrunc(c[eatwr].et(),0.5,64);
   //double eaE = c[eatwr].emEnergy();
   // check fine grain bit
   bool eaFGbit = m_Regions[eargn].GetFGBit(eatwr);
@@ -988,7 +994,8 @@ FastL1GlobalAlgo::isEMCand(CaloTowerDetId cid, l1extra::L1EmParticle* ph,const e
   //
   if (nwrgn>395 || nwrgn < 0 || nwtwr > 15 || nwtwr < 0) return 0;
   c = m_Regions[nwrgn].GetCaloTowers();
-  double nwEt = c[nwtwr].emEt();
+  //double nwEt = c[nwtwr].et();
+  double nwEt = RCTEnergyTrunc(c[nwtwr].et(),0.5,64);
   //double nwE = c[nwtwr].emEnergy();
   // check fine grain bit
   bool nwFGbit = m_Regions[nwrgn].GetFGBit(nwtwr);
@@ -998,7 +1005,8 @@ FastL1GlobalAlgo::isEMCand(CaloTowerDetId cid, l1extra::L1EmParticle* ph,const e
   //
   if (nergn>395 || nergn < 0 || netwr > 15 || netwr < 0) return 0;
   c = m_Regions[nergn].GetCaloTowers();
-  double neEt = c[netwr].emEt();
+  //double neEt = c[netwr].et();
+  double neEt = RCTEnergyTrunc(c[netwr].et(),0.5,64);
   //double neE = c[netwr].emEnergy();
   // check fine grain bit
   bool neFGbit = m_Regions[nergn].GetFGBit(netwr);
@@ -1008,7 +1016,8 @@ FastL1GlobalAlgo::isEMCand(CaloTowerDetId cid, l1extra::L1EmParticle* ph,const e
   //
   if (swrgn>395 || swrgn < 0 || swtwr > 15 || swtwr < 0) return 0;
   c = m_Regions[swrgn].GetCaloTowers();
-  double swEt = c[swtwr].emEt();
+  //double swEt = c[swtwr].et();
+  double swEt = RCTEnergyTrunc(c[swtwr].et(),0.5,64);
   //double swE = c[swtwr].emEnergy();
   // check fine grain bit
   bool swFGbit = m_Regions[swrgn].GetFGBit(swtwr);
@@ -1018,7 +1027,8 @@ FastL1GlobalAlgo::isEMCand(CaloTowerDetId cid, l1extra::L1EmParticle* ph,const e
   //
   if (sergn>395 || sergn < 0 || setwr > 15 || setwr < 0) return 0;
   c = m_Regions[sergn].GetCaloTowers();
-  double seEt = c[setwr].emEt();
+  //double seEt = c[setwr].et();
+  double seEt = RCTEnergyTrunc(c[setwr].et(),0.5,64);
   //double seE = c[setwr].emEnergy();
   // check fine grain bit
   bool seFGbit = m_Regions[sergn].GetFGBit(setwr);
@@ -1028,9 +1038,9 @@ FastL1GlobalAlgo::isEMCand(CaloTowerDetId cid, l1extra::L1EmParticle* ph,const e
   
   // check if highest et tower
   bool isHit = false;
-  if ( cenEt > noEt && cenEt > soEt && cenEt > weEt &&
-       cenEt > eaEt && cenEt > nwEt && cenEt > neEt &&
-       cenEt > swEt && cenEt > seEt ) isHit = true;
+  if ( cenEt > noEt && cenEt >= soEt && cenEt > weEt &&
+       cenEt >= eaEt && cenEt > nwEt && cenEt > neEt &&
+       cenEt >= swEt && cenEt >= seEt ) isHit = true;
   else 
     return 0;
 

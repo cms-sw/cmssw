@@ -923,9 +923,10 @@ RCTEnergyTrunc(double et, double LSB, double thres) {
 double 
 GCTEnergyTrunc(double et, double LSB, bool doEM) {
 
-  double L1CaloEmEtScaleLSB = LSB;
-  double L1CaloRegionEtScaleLSB = LSB;
+  //double L1CaloEmEtScaleLSB = LSB;
+  //double L1CaloRegionEtScaleLSB = LSB;
 
+  //if (et>0.) et += LSB/2.; // round up
 
   double L1CaloEmThresholds[64] = { 
     0.,     1.,     2.,     3.,     4.,     5.,     6.,     7.,     8.,     9., 
