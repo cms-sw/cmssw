@@ -738,6 +738,9 @@ class _ReplaceNode(object):
         self.setter = setter
         self.forErrorMessage =(s,loc)
         self.multiplesAllowed = setter.multiplesAllowed
+    def setPrefix(self, prefix):
+        """Used to add the word 'process' to included nodes"""
+        self.setter.prefix = prefix
     def getValue(self):
         return self.setter.value
     value = property(fget = getValue,
@@ -772,6 +775,7 @@ class _ReplaceSetter(object):
         self.value = value
         #one one replace of this type is allowed per configuration
         self.multiplesAllowed = False
+        self.prefix = ""
     def setValue(self,obj,attr):
         theAt = getattr(obj,attr)
         #want to change the value, not the actual parameter
@@ -817,7 +821,6 @@ class _ReplaceSetter(object):
         else:
             # need the quotes
             result = repr(result)
-        print "PYTHON " + str(type(value))+" RES "+result
         return result
 
  
@@ -920,10 +923,13 @@ class _IncrementFromVariableSetter(_ReplaceSetter):
             raise RuntimeError("replacing with "+self.oldValue+" failed because\n"+str(e))
     def __repr__(self):
         v = str(self.value)
+        # assume variables ending in s are plural
         if v[0] == '[':
            return ".extend("+v+")"
+        elif v.endswith('s'):
+           return ".extend("+self.prefix+v+")"
         else:
-           return ".append("+v+")"
+           return ".append("+self.prefix+v+")"
 
         
 
@@ -1101,6 +1107,7 @@ def _dumpCfg(s,loc,toks):
             value.createIfNeeded()
             result += repr(value)+"\n"
         elif isinstance(value,_ReplaceNode):
+            value.setPrefix("process.")
             result += "process."+ repr(value)+"\n"
         elif isinstance(value,_ModuleSeries):
             result += "process."+key+" = "+value.cfgRepr(p)+"\n"
@@ -1246,6 +1253,25 @@ cfgDumper.ignore(pp.cppStyleComment)
 cfgDumper.ignore(pp.pythonStyleComment)
 
 
+def dumpDict(d):
+    result = 'import FWCore.ParameterSet.Config as cms\n'
+    # play it safe: includes first, then others, then replaces
+    includes = ''
+    replaces = ''
+    others = ''
+    sequences = ''
+    for key,value in d:
+        if isinstance(value,_IncludeNode):
+            value.createIfNeeded()
+            includes += value.cffRepr()+"\n"
+        elif isinstance(value,_ReplaceNode):
+            replaces += repr(value)+"\n"
+        elif isinstance(value,_ModuleSeries):
+            sequences += key+" = "+value.dumpPython('','    ')+"\n"
+        else:
+            others += key+" = "+value.dumpPython('','    ')+"\n"
+    return result+includes+"\n"+others+"\n"+sequences+"\n"+replaces
+
 class _ConfigReturn(object):
     def __init__(self,d):
         for key,value in d.iteritems():
@@ -1257,21 +1283,7 @@ class _ConfigReturn(object):
                 value.setLabel(key)
         result = 'import FWCore.ParameterSet.Config as cms\n'
         # play it safe: includes first, then others, then replaces
-        includes = ''
-        replaces = ''
-        others = ''
-        sequences = ''
-        for key,value in self.__dict__.iteritems():
-            if isinstance(value,_IncludeNode):
-                value.createIfNeeded()
-                includes += value.cffRepr()+"\n"
-            elif isinstance(value,_ReplaceNode):
-                replaces += repr(value)+"\n"
-            elif isinstance(value,_ModuleSeries):
-                sequences += key+" = "+value.dumpPython('','    ')+"\n"
-            else:
-                others += key+" = "+value.dumpPython('','    ')+"\n"
-        return result+includes+"\n"+others+"\n"+sequences+"\n"+replaces
+        return dumpDict(self.__dict__.iteritems())
 
 def parseCfgFile(fileName):
     """Read a .cfg file and create a Process object"""
@@ -1309,24 +1321,7 @@ def dumpCff(fileName):
     for key,value in compressedValues:
         if isinstance(value, cms._Labelable):
             value.setLabel(key)
-    result = 'import FWCore.ParameterSet.Config as cms\n'
-    # play it safe: includes first, then others, then replaces
-    includes = ''
-    replaces = ''
-    others = ''
-    sequences = ''
-    for key,value in compressedValues:
-        if isinstance(value,_IncludeNode):
-            value.createIfNeeded()
-            includes += value.cffRepr()+"\n"
-        elif isinstance(value,_ReplaceNode):
-            replaces += repr(value)+"\n"
-        elif isinstance(value,_ModuleSeries):
-            sequences += key+" = "+value.dumpPython('','    ')+"\n"
-        else:
-            others += key+" = "+value.dumpPython('','    ')+"\n"
-    return result+includes+others+sequences+replaces
-
+    return dumpDict(compressedValues)
 
 
 def processFromString(configString):
