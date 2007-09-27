@@ -7,7 +7,7 @@
  ********************************************/
 
 #include "Calibration/Tools/interface/ZIterativeAlgorithmWithFit.h"
-//#include "Calibration/Tools/interface/EcalCalibMap.h"
+#include "Calibration/Tools/interface/EcalRingCalibrationTools.h"
 
 #include "DataFormats/EgammaCandidates/interface/Electron.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
@@ -66,7 +66,7 @@ ZIterativeAlgorithmWithFit::ZIterativeAlgorithmWithFit(const edm::ParameterSet& 
   massMethod = ps.getUntrackedParameter<std::string>("ZCalib_InvMass","SCMass");
   calibType_= ps.getUntrackedParameter<std::string>("ZCalib_CalibType","RING"); 
   if (calibType_ == "RING")
-    channels_=170;
+    channels_=EcalRingCalibrationTools::N_RING_TOTAL;
   else if (calibType_ == "MODULE")
     channels_=144;  
 

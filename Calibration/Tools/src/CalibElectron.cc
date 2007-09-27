@@ -3,16 +3,13 @@
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
 #include "DataFormats/EgammaCandidates/interface/Electron.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
-
+#include "Calibration/Tools/interface/EcalRingCalibrationTools.h"
 //#include <TMath.h>
 #include <iostream>
 
 using namespace calib;
 using namespace std;
 
-#define NXTAL_ETA_BAR 170
-#define NXTAL_PHI_BAR 360
-#define NMOD_BAR 144
 
 CalibElectron::CalibElectron() : theElectron_(0), theHits_(0)
 {
@@ -24,32 +21,32 @@ std::vector< std::pair<int,float> > CalibElectron::getCalibModulesWeights(TStrin
   std::vector< std::pair<int,float> > theWeights;
   if (calibtype == "RING")
     {
-      float w_ring[NXTAL_ETA_BAR];
+      float w_ring[EcalRingCalibrationTools::N_RING_TOTAL];
 
-      for (int i=0;i<NXTAL_ETA_BAR;i++)
+      for (int i=0;i<EcalRingCalibrationTools::N_RING_TOTAL;++i)
 	w_ring[i]=0.;
       
       std::vector<DetId> scDetIds = theElectron_->superCluster()->getHitsByDetId();
 
       
-      for(std::vector<DetId>::const_iterator idIt=scDetIds.begin(); idIt!=scDetIds.end(); idIt++){
+      for(std::vector<DetId>::const_iterator idIt=scDetIds.begin(); idIt!=scDetIds.end(); ++idIt){
     
 	//my eta index goes from 0 to 169
 	
-	int etaIndex(0);
+// 	int etaIndex(0);
 	
-	if(EBDetId(*idIt).ieta()<0) 
-	  etaIndex = EBDetId(*idIt).ieta() + 85; 
-	else 
-	  etaIndex = EBDetId(*idIt).ieta() + 84; 
+// 	if(EBDetId(*idIt).ieta()<0) 
+// 	  etaIndex = EBDetId(*idIt).ieta() + 85; 
+// 	else 
+// 	  etaIndex = EBDetId(*idIt).ieta() + 84; 
 	
 	const EcalRecHit* rh = &*(theHits_->find(*idIt));
-
-	w_ring[etaIndex]+=rh->energy();
+	
+	w_ring[EcalRingCalibrationTools::getRingIndex(*idIt)]+=rh->energy();
 	
       }
 
-      for (int i=0;i<NXTAL_ETA_BAR;i++)
+      for (int i=0;i<EcalRingCalibrationTools::N_RING_TOTAL;++i)
 	if (w_ring[i]!=0.) 
 	  theWeights.push_back(std::pair<int,float>(i,w_ring[i]));
 	  // cout << " ring " << i << " - energy sum " << w_ring[i] << endl;
