@@ -30,6 +30,7 @@ using CLHEP::HepLorentzVector;
 
 typedef edm::Ref<edm::HepMCProduct, HepMC::GenParticle > GenParticleRef;
 typedef edm::Ref<edm::HepMCProduct, HepMC::GenVertex >   GenVertexRef;
+typedef math::XYZTLorentzVectorD    LorentzVector;
 
 string MessageCategory = "TrackingTruthProducer";
 
@@ -137,7 +138,7 @@ void TrackingTruthProducer::produce(Event &event, const EventSetup &) {
   for (MixCollection<SimTrack>::MixItr itP = trackCollection->begin();
        itP !=  trackCollection->end(); ++itP){
     int                       q = (int)(itP -> charge()); // Check this
-    CLHEP::HepLorentzVector   p = itP -> momentum();
+    LorentzVector             p = itP -> momentum();
     unsigned int     simtrackId = itP -> trackId();
     int                 genPart = itP -> genpartIndex(); // The HepMC particle number
     int                 genVert = itP -> vertIndex();    // The SimVertex #
@@ -155,7 +156,7 @@ void TrackingTruthProducer::produce(Event &event, const EventSetup &) {
       gp = genEvent -> barcode_to_particle(genPart);  // Pointer to the generating particle.
       if (gp != 0) {
         pdgId = gp -> pdg_id();
-      }		
+      }
     }
 
     math::XYZPoint theVertex;
@@ -179,7 +180,7 @@ void TrackingTruthProducer::produce(Event &event, const EventSetup &) {
     for (hitItr iHit  = simTrack_hit.lower_bound(trackId);
                 iHit != simTrack_hit.upper_bound(trackId); ++iHit) {
       PSimHit hit = iHit->second;
-      float pratio = hit.pabs()/(itP->momentum().v().mag());
+      float pratio = hit.pabs()/(itP->momentum().mag());
 
 // Discard hits from delta rays if requested
 
@@ -219,8 +220,8 @@ void TrackingTruthProducer::produce(Event &event, const EventSetup &) {
   for (MixCollection<SimVertex>::MixItr itV = vertexCollection->begin();
        itV != vertexCollection->end(); ++itV) {
 
-    CLHEP::HepLorentzVector position = itV -> position();  // Get position of ESV
-    bool inVolume = (position.perp() < volumeRadius_ && abs(position.z()) < volumeZ_); // In or out of Tracker
+    LorentzVector position = itV -> position();  // Get position of ESV
+    bool inVolume = (position.Pt() < volumeRadius_ && abs(position.z()) < volumeZ_); // In or out of Tracker
     if (!inVolume && discardOutVolume_) { continue; }        // Skip if desired
 
     EncodedEventId vertEvtId = itV -> eventId();
@@ -261,7 +262,7 @@ void TrackingTruthProducer::produce(Event &event, const EventSetup &) {
 
     int tmpTV = 0;
     for (TrackingVertexCollection::iterator iTrkVtx = tVC -> begin(); iTrkVtx != tVC ->end(); ++iTrkVtx, ++tmpTV) {
-      double distance = HepLorentzVector(iTrkVtx -> position() - position).v().mag();
+      double distance = (iTrkVtx -> position() - position).mag();
       if (distance <= closest && vertEvtId == iTrkVtx -> eventId()) { // flag which one so we can associate them
         closest = distance;
         nearestVertex = iTrkVtx;
@@ -294,7 +295,7 @@ void TrackingTruthProducer::produce(Event &event, const EventSetup &) {
           int indexTP = simTrack_tP[mapTrackId];
           (*nearestVertex).addDaughterTrack(TrackingParticleRef(refTPC,indexTP));
           (tPC->at(indexTP)).setParentVertex(TrackingVertexRef(refTVC,indexTV));
-          const CLHEP::HepLorentzVector &v = (*nearestVertex).position();
+          const LorentzVector  &v = (*nearestVertex).position();
           math::XYZPoint xyz = math::XYZPoint(v.x(), v.y(), v.z());
           double t = v.t();
           (tPC->at(indexTP)).setVertex(xyz,t);

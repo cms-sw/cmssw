@@ -71,9 +71,9 @@ void testVertexAssociator::beginJob(const EventSetup & setup) {
   sr_nTrue = new TH1F("sr_ntrue","# of tracks, Simulated",    101,-0.5,100.5);
   sr_nReco = new TH1F("sr_nreco","# of tracks, Reconstructed",101,-0.5,100.5);
 
-  rs_qual = new TH1F("rs_qual","Quality of Match",51,-0.01,1.01);  
-  sr_qual = new TH1F("sr_qual","Quality of Match",51,-0.01,1.01);  
-      
+  rs_qual = new TH1F("rs_qual","Quality of Match",51,-0.01,1.01);
+  sr_qual = new TH1F("sr_qual","Quality of Match",51,-0.01,1.01);
+
 }
 
 void testVertexAssociator::endJob() {
@@ -137,7 +137,7 @@ void testVertexAssociator::analyze(const edm::Event& event, const edm::EventSetu
     for (std::vector<std::pair<TrackingVertexRef, double> >::const_iterator
         iMatch = vVR.begin(); iMatch != vVR.end(); ++iMatch) {
         TrackingVertexRef trueV =  iMatch->first;
-        HepLorentzVector simVec = (iMatch->first)->position();
+        math::XYZTLorentzVectorD simVec = (iMatch->first)->position();
         double ntrue = trueV->daughterTracks().size();
         math::XYZPoint simPos = math::XYZPoint(simVec.x(),simVec.y(),simVec.z());
         double qual  = iMatch->second;
@@ -166,7 +166,7 @@ void testVertexAssociator::analyze(const edm::Event& event, const edm::EventSetu
        iS2R != vS2R.end(); ++iS2R) {
 
     TrackingVertexRef simVertex = (iS2R -> key);
-    HepLorentzVector simVec = simVertex->position();
+    math::XYZTLorentzVectorD simVec = simVertex->position();
     math::XYZPoint   simPos = math::XYZPoint(simVec.x(),simVec.y(),simVec.z());
         double ntrue = simVertex->daughterTracks().size();
 //    double ntrue = simVertex->nDaughterTracks();

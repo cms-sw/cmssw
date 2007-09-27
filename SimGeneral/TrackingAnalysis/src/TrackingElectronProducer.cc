@@ -3,10 +3,10 @@
 #include "DataFormats/SiPixelDetId/interface/PXFDetId.h"
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
-#include "DataFormats/SiStripDetId/interface/TECDetId.h" 
-#include "DataFormats/SiStripDetId/interface/TIBDetId.h" 
+#include "DataFormats/SiStripDetId/interface/TECDetId.h"
+#include "DataFormats/SiStripDetId/interface/TIBDetId.h"
 #include "DataFormats/SiStripDetId/interface/TIDDetId.h"
-#include "DataFormats/SiStripDetId/interface/TOBDetId.h" 
+#include "DataFormats/SiStripDetId/interface/TOBDetId.h"
 #include "DataFormats/Common/interface/Handle.h"
 
 
@@ -27,10 +27,11 @@
 #include <map>
 
 using namespace edm;
-using namespace std; 
+using namespace std;
 using CLHEP::HepLorentzVector;
 
 typedef TkNavigableSimElectronAssembler::VertexPtr VertexPtr;
+typedef math::XYZTLorentzVectorD LorentzVector;
 
 TrackingElectronProducer::TrackingElectronProducer(const edm::ParameterSet &conf) {
   produces<TrackingParticleCollection>("ElectronTrackTruth");
@@ -52,11 +53,11 @@ void TrackingElectronProducer::produce(Event &event, const EventSetup &) {
 //  std::cout << " TrackingElectronProducer produce 1 " << std::endl;
 
   edm::Handle<TrackingParticleCollection>  TruthTrackContainer ;
-  //  event.getByLabel("trackingtruthprod","TrackingTruthProducer", 
-  //		   trackingParticleHandle);
+  //  event.getByLabel("trackingtruthprod","TrackingTruthProducer",
+  //               trackingParticleHandle);
   event.getByType(TruthTrackContainer );
 //  std::cout << " TrackingElectronProducer produce 1.5 " << std::endl;
-  
+
   const TrackingParticleCollection *etPC   = TruthTrackContainer.product();
 //  std::cout << " TrackingElectronProducer produce 2 " << std::endl;
 
@@ -64,7 +65,7 @@ void TrackingElectronProducer::produce(Event &event, const EventSetup &) {
   listElectrons(*etPC);
 
 //  std::cout << " TrackingElectronProducer produce 3 " << std::endl;
-  // now calling electron assembler and dumping assembled electrons 
+  // now calling electron assembler and dumping assembled electrons
 //  cout << "TrackingElectronProducer::now assembling electrons..." << endl;
   TkNavigableSimElectronAssembler assembler;
   std::vector<TrackingParticle*> particles;
@@ -72,7 +73,7 @@ void TrackingElectronProducer::produce(Event &event, const EventSetup &) {
     particles.push_back(const_cast<TrackingParticle*>(&(*t)));
   }
 
-  TkNavigableSimElectronAssembler::ElectronList 
+  TkNavigableSimElectronAssembler::ElectronList
     electrons = assembler.assemble(particles);
 
 //  std::cout << "Electron segments found, now linking them " << std::endl;
@@ -94,25 +95,25 @@ void TrackingElectronProducer::produce(Event &event, const EventSetup &) {
   //
 //  cout << "now creating tracking particles" << endl;
   // loop over electrons
-  for ( TkNavigableSimElectronAssembler::ElectronList::const_iterator ie 
-	  = electrons.begin(); ie != electrons.end(); ie++ ) {
+  for ( TkNavigableSimElectronAssembler::ElectronList::const_iterator ie
+          = electrons.begin(); ie != electrons.end(); ie++ ) {
 
-    // create TrackingParticle from first track segment 
+    // create TrackingParticle from first track segment
     TrackingParticle * tk = (*ie).front();
-    CLHEP::HepLorentzVector hep4Pos = (*(*tk).parentVertex()).position();
+    LorentzVector hep4Pos = (*(*tk).parentVertex()).position();
     TrackingParticle::Point pos(hep4Pos.x(), hep4Pos.y(), hep4Pos.z());
-    TrackingParticle tkp( (*tk).charge(), (*tk).p4(), pos, hep4Pos.t(), 
-			  (*tk).pdgId(), (*tk).eventId() );
+    TrackingParticle tkp( (*tk).charge(), (*tk).p4(), pos, hep4Pos.t(),
+                          (*tk).pdgId(), (*tk).eventId() );
 
     // add G4 tracks and hits of all segments
     int ngenp = 0;
-    for ( TkNavigableSimElectronAssembler::TrackList::const_iterator it 
-	    = (*ie).begin(); it != (*ie).end(); it++ ) {
+    for ( TkNavigableSimElectronAssembler::TrackList::const_iterator it
+            = (*ie).begin(); it != (*ie).end(); it++ ) {
 
       for (TrackingParticle::genp_iterator uz=(*it)->genParticle_begin();
-	   uz!=(*it)->genParticle_end();uz++) {
-	tkp.addGenParticle(*uz);
-	ngenp++;
+           uz!=(*it)->genParticle_end();uz++) {
+        tkp.addGenParticle(*uz);
+        ngenp++;
       }
       addG4Track(tkp, *it);
 
@@ -127,18 +128,18 @@ void TrackingElectronProducer::produce(Event &event, const EventSetup &) {
     int newlay = 0;
     int olddet = 0;
     int newdet = 0;
-    for ( std::vector<PSimHit>::const_iterator ih = hits.begin(); 
-	  ih != hits.end(); ih++ ) {
+    for ( std::vector<PSimHit>::const_iterator ih = hits.begin();
+          ih != hits.end(); ih++ ) {
       unsigned int detid = (*ih).detUnitId();
       DetId detId = DetId(detid);
       oldlay = newlay;
       olddet = newdet;
       newlay = layerFromDetid(detid);
       newdet = detId.subdetId();
-      
+
       // Count hits using layers for glued detectors
       if (oldlay != newlay || (oldlay==newlay && olddet!=newdet) ) {
-	totsimhit++;
+        totsimhit++;
       }
     }
     */
@@ -161,7 +162,7 @@ void TrackingElectronProducer::produce(Event &event, const EventSetup &) {
       tkp.addDecayVertex(decayV);
     }
 
-    // 
+    //
     // put particle in transient store
     //
     (*trackingParticles).push_back(tkp);
@@ -172,56 +173,56 @@ void TrackingElectronProducer::produce(Event &event, const EventSetup &) {
 //  cout << "Storing electron tracks" << endl;
   event.put(trackingParticles,"ElectronTrackTruth");
 
-} 
+}
 
 
 void TrackingElectronProducer::listElectrons(
   const TrackingParticleCollection & tPC) const
 {
-//  cout << "TrackingElectronProducer::printing electrons before assembly..." 
+//  cout << "TrackingElectronProducer::printing electrons before assembly..."
 //       << endl;
   for (TrackingParticleCollection::const_iterator it = tPC.begin();
        it != tPC.end(); it++) {
     if (abs((*it).pdgId()) == 11) {
-//      cout << "Electron: sim tk " << (*it).g4Tracks().front().trackId() 
-//	   << endl;
-      
+//      cout << "Electron: sim tk " << (*it).g4Tracks().front().trackId()
+//         << endl;
+
       TrackingVertexRef parentV = (*it).parentVertex();
 //      if (parentV.isNull()) {
-//	cout << " No parent vertex" << endl;
-//      } else {  
-//	cout << " Parent  vtx position " << parentV -> position() << endl;
-//      }  
-      
+//      cout << " No parent vertex" << endl;
+//      } else {
+//      cout << " Parent  vtx position " << parentV -> position() << endl;
+//      }
+
       TrackingVertexRefVector decayVertices = (*it).decayVertices();
 //      if ( decayVertices.empty() ) {
-//	cout << " No decay vertex" << endl;
-//      } else {  
-//	cout << " Decay vtx position " 
-//	     << decayVertices.at(0) -> position() << endl;
-//      } 
+//      cout << " No decay vertex" << endl;
+//      } else {
+//      cout << " Decay vtx position "
+//           << decayVertices.at(0) -> position() << endl;
+//      }
     }
   }
 }
 
 
-void 
-TrackingElectronProducer::addG4Track(TrackingParticle& e, 
-				     const TrackingParticle * s) const
+void
+TrackingElectronProducer::addG4Track(TrackingParticle& e,
+                                     const TrackingParticle * s) const
 {
 
   // add G4 tracks
   std::vector<SimTrack> g4Tracks = (*s).g4Tracks();
-  for ( std::vector<SimTrack>::const_iterator ig4 = g4Tracks.begin(); 
-	ig4 != g4Tracks.end(); ig4++ ) {
+  for ( std::vector<SimTrack>::const_iterator ig4 = g4Tracks.begin();
+        ig4 != g4Tracks.end(); ig4++ ) {
     e.addG4Track(*ig4);
   }
 
-  // add hits 
+  // add hits
   // FIXME configurable for dropping delta-ray hits
   std::vector< PSimHit > hits = (*s).trackPSimHit();
-  for ( std::vector<PSimHit>::const_iterator ih = hits.begin(); 
-	ih != hits.end(); ih++ ) {
+  for ( std::vector<PSimHit>::const_iterator ih = hits.begin();
+        ih != hits.end(); ih++ ) {
     e.addPSimHit(*ih);
   }
 }
