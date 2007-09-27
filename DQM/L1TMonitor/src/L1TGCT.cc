@@ -1,11 +1,16 @@
 /*
  * \file L1TGCT.cc
  *
- * $Date: 2007/09/05 22:31:36 $
- * $Revision: 1.10 $
+ * $Date: 2007/09/26 15:26:23 $
+ * $Revision: 1.12 $
  * \author J. Berryhill
  *
  * $Log: L1TGCT.cc,v $
+ * Revision 1.12  2007/09/26 15:26:23  berryhil
+ *
+ *
+ * restored L1TGCT.cc
+ *
  * Revision 1.10  2007/09/05 22:31:36  wittich
  * - Factorize getByLabels to approximate my understanding of what the
  *   HW can do.
@@ -268,7 +273,7 @@ void L1TGCT::analyze(const edm::Event & e, const edm::EventSetup & c)
   if (verbose_) {
     std::cout << "L1TGCT: analyze...." << std::endl;
   }
-
+  
   // update to those generated in GctRawToDigi
   edm::Handle < L1GctEmCandCollection > l1IsoEm;
   edm::Handle < L1GctEmCandCollection > l1NonIsoEm;
@@ -295,21 +300,27 @@ void L1TGCT::analyze(const edm::Event & e, const edm::EventSetup & c)
    }
    catch (...) {
      edm::LogInfo("L1TGCT") << " Could not find one of the requested data JET"
-       "elements, label was " << gctSource_.label() ;
+       " elements, label was " << gctSource_.label() ;
      doJet = false;
    }
-
+  
   // EM data
   try {
-      e.getByLabel(gctSource_.label(), "isoEm", l1IsoEm);
-      e.getByLabel(gctSource_.label(), "nonIsoEm", l1NonIsoEm);
-   }
-   catch (...) {
-     edm::LogInfo("L1TGCT") << " Could not find one of the requested EM data "
-       "elements, label was " << gctSource_.label() ;
-     doEm = false;
-   }
-
+    e.getByLabel(gctSource_.label(), "isoEm", l1IsoEm);
+    e.getByLabel(gctSource_.label(), "nonIsoEm", l1NonIsoEm);
+  }
+  catch (...) {
+    edm::LogInfo("L1TGCT") << " Could not find one of the requested EM data "
+      " elements, label was " << gctSource_.label() ;
+    doEm = false;
+  }
+  if ( (! doEm) && (! doJet) ) {
+    if (  verbose_ )
+      std::cout << "L1TGCT: Bailing, didn't find squat."<<std::endl;
+    return;
+  }
+  
+  
   // Fill the histograms for the jets
   if ( doJet ) {
     // Central jets
