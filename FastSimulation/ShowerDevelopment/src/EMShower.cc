@@ -281,15 +281,19 @@ EMShower::compute() {
     for ( unsigned int i=0; i<nPart; ++i ) {
       realTotalEnergy += depositedEnergy[iStep][i]*E[i];
     }
-    // If the amount of energy is less than 1 MeV, do nothing
 
 //    std::cout << " Step " << tt << std::endl;
 //    std::cout << "ecal " << ecal << " hcal "  << hcal <<std::endl;
 
     // If the amount of energy is greater than 1 MeV, make a new grid
     // otherwise put in the previous one.    
+    bool usePreviousGrid=(realTotalEnergy<0.001);   
 
-    bool usePreviousGrid=(realTotalEnergy<0.001);
+    // If the amount of energy is greater than 1 MeV, make a new grid
+    // otherwise put in the previous one.    
+
+    // If less than 1 kEV. Just skip
+    if(iStep>2&&realTotalEnergy<0.000001) continue;
 
     if (ecal && !usePreviousGrid) 
       {
@@ -315,6 +319,9 @@ EMShower::compute() {
 
      //  integration of the shower profile between t-dt and t
       double dE = (!hcal)? depositedEnergy[iStep][i]:1.-deposit(a[i],b[i],t-dt);
+
+       // no need to do the full machinery if there is ~nothing to distribute)
+      if(dE*E[i]<0.000001) continue;
 
       if(detailedShowerTail)
 	{
