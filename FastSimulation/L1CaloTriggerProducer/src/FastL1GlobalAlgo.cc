@@ -468,7 +468,7 @@ FastL1GlobalAlgo::FillMET() {
 
     //sum_et += et;
     //sum_et += RCTEnergyTrunc(et,0.5,2048);
-    sum_et += et;
+    //sum_et += et;
     //sum_ex += RCTEnergyTrunc(et*cos(phi),0.5,2048);
     //sum_ey += RCTEnergyTrunc(et*sin(phi),0.5,2048); 
     sum_ex += et*cos(phi);
@@ -478,12 +478,15 @@ FastL1GlobalAlgo::FillMET() {
     //sum_e += e;
     //sum_e += RCTEnergyTrunc(et/sin(theta),0.5,2048);
     //sum_ez += RCTEnergyTrunc(et*cos(theta)/sin(theta),0.5,2048);
-    sum_e += et/sin(theta);
-    sum_ez += et*cos(theta)/sin(theta);
+    //sum_e += et/sin(theta);
+    //sum_ez += et*cos(theta)/sin(theta);
     //sum_ez += e*cos(theta);
     //sum_et += e*sin(theta);
   }
   
+  //sum_et = RCTEnergyTrunc(std::sqrt(sum_ex*sum_ex + sum_ey*sum_ey),0.5,2048);
+  sum_et = std::sqrt(sum_ex*sum_ex + sum_ey*sum_ey);
+    
   //reco::Particle::LorentzVector rp4(-sum_ex,-sum_ey,-sum_ez,sum_e);
   reco::Particle::LorentzVector rp4(-sum_ex,-sum_ey,0.,std::sqrt(sum_ex*sum_ex + sum_ey*sum_ey));
   //edm::LogInfo("********** FastL1GlobalAlgo::FillMET()")<<rp4.mass()<<std::endl; 

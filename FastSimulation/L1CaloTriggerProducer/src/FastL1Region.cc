@@ -914,7 +914,8 @@ RCTEnergyTrunc(double et, double LSB, double thres) {
 
   et += LSB/2.;
   //double ret = (int)(et / LSB) * LSB + LSB;
-  double ret = (int)(et / LSB) * LSB;
+  int iEt = (int)(et / LSB);
+  double ret =  (double)iEt * LSB;
 
   return ret;
 }
