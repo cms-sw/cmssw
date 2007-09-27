@@ -94,7 +94,7 @@ public:
 
   TempTrajectory createStartingTrajectory( const TrajectorySeed& seed) const;
 
-  bool toBeContinued( const TempTrajectory& traj) const;
+  bool toBeContinued( TempTrajectory& traj) const;
 
   bool qualityFilter( const TempTrajectory& traj) const;
   
@@ -126,6 +126,7 @@ public:
   int theMaxConsecLostHit;      /**< Maximum number of consecutive lost hits 
                                      per trajectory candidate. */
   int theMinimumNumberOfHits;   /**< Minimum number of hits for a trajectory to be returned.*/
+  float theChargeSignificance;  /**< Value to declare (q/p)/sig(q/p) significant. Negative: ignore. */
 
   TrajectoryFilter*              theMinPtCondition;
   TrajectoryFilter*              theMaxHitsCondition;

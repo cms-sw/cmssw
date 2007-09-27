@@ -38,8 +38,9 @@ BaseCkfTrajectoryBuilder(const edm::ParameterSet&              conf,
   theMaxLostHit(conf.getParameter<int>("maxLostHit")),
   theMaxConsecLostHit(conf.getParameter<int>("maxConsecLostHit")),
   theMinimumNumberOfHits(conf.getParameter<int>("minimumNumberOfHits")),
+  theChargeSignificance(conf.getParameter<double>("chargeSignificance")),
   theMinPtCondition(new MinPtTrajectoryFilter(conf.getParameter<double>("ptCut"))),
-  theMaxHitsCondition(new MaxHitsTrajectoryFilter(conf.getParameter<int>("maxNumberOfHits"))) 
+  theMaxHitsCondition(new MaxHitsTrajectoryFilter(conf.getParameter<int>("maxNumberOfHits")))
 {}
  
 BaseCkfTrajectoryBuilder::~BaseCkfTrajectoryBuilder(){
@@ -120,8 +121,45 @@ createStartingTrajectory( const TrajectorySeed& seed) const
 }
 
 
-bool BaseCkfTrajectoryBuilder::toBeContinued (const TempTrajectory& traj) const
+bool BaseCkfTrajectoryBuilder::toBeContinued (TempTrajectory& traj) const
 {
+  //
+  // check on sign flip (needs to be done first since trajectory
+  // will be invalidated)
+  //
+  const TempTrajectory::DataContainer & tms = traj.measurements();
+  // Check flip in q-significance. The loop over all TMs could be 
+  // avoided by storing the current significant q in the trajectory
+  if ( theChargeSignificance>0. ) {
+    int qSig(0);
+    // skip first two hits (don't rely on significance of q/p)
+    for( TempTrajectory::DataContainer::size_type itm=2; itm<tms.size(); ++itm ) {
+      TrajectoryStateOnSurface tsos = tms[itm].updatedState();
+      if ( !tsos.isValid() )  continue;
+      double significance = tsos.localParameters().vector()(0) /
+	sqrt(tsos.localError().matrix()(0,0));
+      // don't deal with measurements compatible with 0
+      if ( fabs(significance)<theChargeSignificance )  continue;
+      //
+      // if charge not yet defined: store first significant Q
+      //
+      if ( qSig==0 ) {
+	qSig = significance>0 ? 1 : -1;
+      }
+      //
+      // else: invalidate and terminate in case of a change of sign
+      //
+      else {
+	if ( (significance<0.&&qSig>0) || (significance>0.&&qSig<0) ) {
+	  traj.invalidate();
+	  return false;
+	}
+      }
+    }
+  }
+  // 
+  // check on number of lost hits
+  //
   if ( traj.lostHits() > theMaxLostHit) return false;
 
   // check for conscutive lost hits only at the end 
@@ -131,7 +169,7 @@ bool BaseCkfTrajectoryBuilder::toBeContinued (const TempTrajectory& traj) const
 
   int consecLostHit = 0;
 
-  const TempTrajectory::DataContainer & tms = traj.measurements();
+//   const TempTrajectory::DataContainer & tms = traj.measurements();
   //for( TempTrajectory::DataContainer::const_iterator itm=tms.end()-1; itm>=tms.begin(); itm--) {
   for( TempTrajectory::DataContainer::const_iterator itm=tms.rbegin(), itb = tms.rend(); itm != itb; --itm) {
     if (itm->recHit()->isValid()) break;
@@ -154,6 +192,9 @@ bool BaseCkfTrajectoryBuilder::toBeContinued (const TempTrajectory& traj) const
 
  bool BaseCkfTrajectoryBuilder::qualityFilter( const TempTrajectory& traj) const
 {
+  // check validity (might have been set to false 
+  // in charge significance check)
+  if ( !traj.isValid() )  return false;
 
 //    cout << "qualityFilter called for trajectory with " 
 //         << traj.foundHits() << " found hits and Chi2 = "
