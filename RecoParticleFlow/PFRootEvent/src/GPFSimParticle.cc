@@ -1,4 +1,4 @@
-#include "RecoParticleFlow/PFRootEvent/interface/GPFPart.h"
+#include "RecoParticleFlow/PFRootEvent/interface/GPFSimParticle.h"
 #include "TPad.h"
 #include "TObject.h"
 #include "TGraph.h"
@@ -6,16 +6,19 @@
 
 
 //_______________________________________________________________________
-GPFPart::GPFPart() : part_(new reco::PFSimParticle())
+GPFSimParticle::GPFSimParticle() : part_(new reco::PFSimParticle())
 {}
 //________________________________________________________________________
-GPFPart::GPFPart(const reco::PFSimParticle *ptc, int size, double *x, double *y,
-                 int linestyle, int markerstyle, double markersize, int color,
-                 std::string option)
-		: TGraph(size,x,y), part_(ptc), option_(option) 
+GPFSimParticle::GPFSimParticle(const reco::PFSimParticle *ptc, int size, double *x, double *y,
+                 double pt,int markerstyle, std::string option)
+		: TGraph(size,x,y), part_(ptc), pt_(pt), option_(option) 
 {
     
   ResetBit(kCanDelete);
+  
+  int    color = 4;
+  int    linestyle = 2;
+  double markersize = 0.8;
   
   SetLineColor(color);
   SetLineStyle(linestyle);
@@ -25,15 +28,15 @@ GPFPart::GPFPart(const reco::PFSimParticle *ptc, int size, double *x, double *y,
   
 }		     
 //____________________________________________________________________________________________________________
-void GPFPart::Print()
+void GPFSimParticle::Print()
 {
   std::cout<<*part_<<std::endl;
 }
 //_______________________________________________________________________________    
-void GPFPart::ExecuteEvent(Int_t event, Int_t px, Int_t py)
+void GPFSimParticle::ExecuteEvent(Int_t event, Int_t px, Int_t py)
 {
  // Execute action corresponding to a left mouse button click 
- //on a GPFPart object in the window
+ //on a GPFSimParticle object in the window
 
  gPad->SetCursor(kHand);
  switch (event) {
@@ -45,7 +48,7 @@ void GPFPart::ExecuteEvent(Int_t event, Int_t px, Int_t py)
      
 }
 //______________________________________________________________________________
-void GPFPart::Draw()
+void GPFSimParticle::Draw()
 {
  TGraph::Draw(option_.data());
 }

@@ -7,6 +7,7 @@
 */  
  
 #include "DataFormats/ParticleFlowReco/interface/PFRecHit.h"
+#include "DataFormats/ParticleFlowReco/interface/PFRecTrack.h"
 #include "TGraph.h"
 #include <string>
 
@@ -15,15 +16,14 @@ class GPFTrack : public TGraph {
   public:
     GPFTrack() ;
     GPFTrack(reco::PFRecTrack *tra, int size, double *x, double *y,
-             int linestyle, int markerstyle, double markersize, int color,
-	     std::string option);
-	     
+             double pt,int linestyle,std::string option);	     
     virtual ~GPFTrack() {;}
     
     //override ROOT method
     virtual void     Print();     // *MENU*
     virtual void     ExecuteEvent(Int_t event, Int_t px, Int_t py);
     virtual void     Draw();
+    double           getPt() { return pt_;}
     
     const GPFTrack& operator=( const GPFTrack& other ) {
       track_ = other.track_;
@@ -33,6 +33,7 @@ class GPFTrack : public TGraph {
   private:
     //draw option
     reco::PFRecTrack*  track_;
+    double             pt_;
     std::string        option_;
     
       

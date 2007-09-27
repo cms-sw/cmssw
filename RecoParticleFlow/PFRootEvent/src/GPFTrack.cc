@@ -10,13 +10,16 @@
 GPFTrack::GPFTrack() : track_(new reco::PFRecTrack())  {}
 //________________________________________________________________________
 GPFTrack::GPFTrack(reco::PFRecTrack *tra, int size, double *x, double *y,
-                     int linestyle, int markerstyle, double markersize, int color,
-                     std::string option)
-		     : TGraph(size,x,y), track_(tra), option_(option) 
+                     double pt,int linestyle, std::string option)
+		     : TGraph(size,x,y), track_(tra),pt_(pt), option_(option) 
 {
     
   ResetBit(kCanDelete);
   
+  int    markerstyle = 8;
+  double markersize = 0.8;
+  int    color = 103;
+
   SetLineColor(color);
   SetLineStyle(linestyle);
   SetMarkerStyle(markerstyle);

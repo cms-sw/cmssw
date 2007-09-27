@@ -16,6 +16,7 @@ class GPFCluster : public TMarker {
     GPFCluster(const reco::PFCluster* clus,
 	       double x,double y,int color);
     virtual ~GPFCluster() {;}
+    double  getEnergy() {return en_;}
     
     //override ROOT method 
     virtual void     Print();     // *MENU*
@@ -28,6 +29,7 @@ class GPFCluster : public TMarker {
 
   private:
     const reco::PFCluster*   clus_;
+    double                   en_;
     
 };  
 #endif

@@ -6,8 +6,10 @@
 #include "RecoParticleFlow/PFRootEvent/interface/GPFRecHit.h"
 #include "RecoParticleFlow/PFRootEvent/interface/GPFCluster.h"
 #include "RecoParticleFlow/PFRootEvent/interface/GPFTrack.h"
-#include "RecoParticleFlow/PFRootEvent/interface/GPFPart.h"
+#include "RecoParticleFlow/PFRootEvent/interface/GPFSimParticle.h"
 #include "RecoParticleFlow/PFRootEvent/interface/DialogFrame.h"
+#include "RecoParticleFlow/PFRootEvent/interface/DisplayManager.h"
+#include "RecoParticleFlow/PFRootEvent/interface/DisplayCommon.h"
 
 
 
@@ -22,8 +24,8 @@ namespace {
      std::vector<std::vector<GPFCluster> > dummy4;
      GPFTrack dummy5;
      std::vector<std::vector<GPFTrack> > dummy6;
-     GPFPart dummy7;
-     std::vector<std::vector<GPFPart> > dummy8;
+     GPFSimParticle dummy7;
+     std::vector<std::vector<GPFSimParticle> > dummy8;
      
   }
 }

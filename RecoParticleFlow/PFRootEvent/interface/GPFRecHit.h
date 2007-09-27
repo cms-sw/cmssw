@@ -22,9 +22,12 @@ class GPFRecHit : public TGraph {
     virtual void     Print();     // *MENU*
     virtual void     ExecuteEvent(Int_t event, Int_t px, Int_t py);
     virtual void     Draw();
+    double           getEnergy() { return en_;}
+    std::string      getOption() { return option_;}
     
   private:
     reco::PFRecHit *recHit_;
+    double          en_;
     // Draw option
     std::string     option_;
 };  

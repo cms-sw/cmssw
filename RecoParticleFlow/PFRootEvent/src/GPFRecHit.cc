@@ -15,7 +15,7 @@ GPFRecHit::GPFRecHit(reco::PFRecHit *rechit,int size,
                      double *x, double *y, int color, std::string option)
 		     : TGraph(size,x,y), recHit_(rechit), option_(option)
 {
-    
+  en_=recHit_->energy();  
   ResetBit(kCanDelete);
     
   SetLineColor(color);

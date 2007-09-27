@@ -11,6 +11,7 @@ GPFCluster::GPFCluster() : clus_(0) {}
 GPFCluster::GPFCluster(const reco::PFCluster* clus,double x,double y,int color)
 		       :TMarker(x,y,20),clus_(clus)
 {
+ en_=clus_->energy();
  SetMarkerColor(color);
 }                       
 //_________________________________________________________________

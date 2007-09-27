@@ -1,10 +1,8 @@
 
-
-// #include "FWCore/Framework/interface/OrphanHandle.h"
+//#include "FWCore/Framework/interface/OrphanHandle.h"
 #include "DataFormats/Common/interface/OrphanHandle.h"
-// #include "DataFormats/Common/interface/ProductID.h"
+//#include "DataFormats/Common/interface/ProductID.h"
 #include "DataFormats/Provenance/interface/ProductID.h"
-
 
 #include "DataFormats/Math/interface/Point3D.h"
 
@@ -31,26 +29,10 @@
 
 #include "FWCore/FWLite/interface/AutoLibraryLoader.h"
 
-#include "RecoParticleFlow/PFRootEvent/interface/GPFRecHit.h"
-#include "RecoParticleFlow/PFRootEvent/interface/GPFCluster.h"
-#include "RecoParticleFlow/PFRootEvent/interface/GPFTrack.h"
-#include "RecoParticleFlow/PFRootEvent/interface/GPFPart.h"
-
-
 #include <TFile.h>
 #include <TTree.h>
-#include <TCanvas.h>
-#include <TPad.h>
-#include <TMarker.h>
-#include <TH1F.h>
-#include <TH2F.h>
+#include <TBranch.h>
 #include <TCutG.h>
-#include <TPolyLine.h>
-#include <TColor.h>
-#include <TGraph.h>
-#include <TMath.h>
-#include <TLine.h>
-#include <TLatex.h>
 #include <TVector3.h>
 // #include <TDatabasePDG.h>
 
@@ -81,10 +63,7 @@ PFRootEventManager::PFRootEventManager(const char* file)
   clustersPS_(new reco::PFClusterCollection),
   pfBlocks_(new reco::PFBlockCollection),
   pfCandidates_(new reco::PFCandidateCollection),
-  outFile_(0),
-  maxERecHitEcal_(-1),
-  maxERecHitHcal_(-1)
-//   ,pdgTable_( new TDatabasePDG) 
+  outFile_(0)
 {
   
 //   options_ = 0;
@@ -104,18 +83,6 @@ PFRootEventManager::PFRootEventManager(const char* file)
 	       ,500,-50,50);
 
   readOptions(file, true, true);
-
-  displayView_.resize(NViews);
-  displayHist_.resize(NViews);
-  for (unsigned iView = 0; iView < NViews; iView++) {
-    displayView_[iView] = 0;
-    displayHist_[iView] = 0;
-  }
-  
-  vectGHits_.resize(NViews);
-  vectGClus_.resize(NViews);
-  vectGTracks_.resize(NViews);
-  vectGParts_.resize(NViews);
  
        
 //   maxERecHitEcal_ = -1;
@@ -126,9 +93,6 @@ PFRootEventManager::PFRootEventManager(const char* file)
 }
 
 void PFRootEventManager::reset() { 
-  maxERecHitEcal_ = -1;
-  maxERecHitHcal_ = -1;  
-
 
   if(outEvent_) {
     outEvent_->reset();
@@ -142,10 +106,11 @@ void PFRootEventManager::reset() {
 void PFRootEventManager::readOptions(const char* file, 
 				     bool refresh, 
 				     bool reconnect) {
-
+				     
   readSpecificOptions(file);
   
-  cout<<"calling PFRootEventManager::readOptions"<<endl; 
+  cout<<"calling PFRootEventManager::readOptions"<<endl;
+   
 
   reset();
   
@@ -237,7 +202,7 @@ void PFRootEventManager::readOptions(const char* file,
     viewSizeEtaPhi_.push_back(350); 
   }
 
-  viewSize_.clear();
+ viewSize_.clear();
   options_->GetOpt("display", "viewsize_xy", viewSize_);
   if(viewSize_.size() != 2) {
     cerr<<"PFRootEventManager::ReadOptions, bad display/viewsize_xy tag...using 700/350"
@@ -262,6 +227,12 @@ void PFRootEventManager::readOptions(const char* file,
  
   displayColorClusters_ = false;
   options_->GetOpt("display", "color_clusters", displayColorClusters_);
+  
+  displayRecHits_= true;
+  options_->GetOpt("display", "rechits",displayRecHits_);
+  
+  displayClusters_ = true;
+  options_->GetOpt("display", "clusters",displayClusters_);
  
   displayRecTracks_ = true;
   options_->GetOpt("display", "rectracks", displayRecTracks_);
@@ -282,11 +253,11 @@ void PFRootEventManager::readOptions(const char* file,
   displayRecTracksPtMin_ = -1;
   options_->GetOpt("display", "rectracks_ptmin", displayRecTracksPtMin_);
   
-  displayRecHitsPtMin_ = -1;
-  options_->GetOpt("display","rechits_ptmin",displayRecHitsPtMin_);
+  displayRecHitsEnMin_ = -1;
+  options_->GetOpt("display","rechits_enmin",displayRecHitsEnMin_);
   
-  displayClustersPtMin_ = -1;
-  options_->GetOpt("display","clusters_ptmin",displayClustersPtMin_);
+  displayClustersEnMin_ = -1;
+  options_->GetOpt("display","clusters_enmin",displayClustersEnMin_);
   
 
   // filter --------------------------------------------------------------
@@ -307,7 +278,7 @@ void PFRootEventManager::readOptions(const char* file,
     filterTaus_.clear();
   }
   
-
+  
   // clustering parameters -----------------------------------------------
 
   double threshEcalBarrel = 0.1;
@@ -550,13 +521,13 @@ void PFRootEventManager::readOptions(const char* file,
   double nSigmaHCAL = 99999;
   options_->GetOpt("particle_flow", "nsigma_HCAL", nSigmaHCAL);
 
+
   double mvaCut = 999999;
   options_->GetOpt("particle_flow", "mergedPhotons_mvaCut", mvaCut);
     
   
   pfAlgo_.setParameters( eCalibP0, eCalibP1, nSigmaECAL, nSigmaHCAL,
 			 mvaCut );
-
 
   // print flags -------------
 
@@ -766,7 +737,7 @@ void PFRootEventManager::connect( const char* infilename ) {
     cerr<<"PFRootEventManager::ReadOptions : stdTracks_branch not found : "
 	<<stdTracksbranchname<< endl;
   }
-
+  
 
   string trueParticlesbranchname;
   options_->GetOpt("root","trueParticles_branch", trueParticlesbranchname);
@@ -776,7 +747,6 @@ void PFRootEventManager::connect( const char* infilename ) {
     cerr<<"PFRootEventManager::ReadOptions : trueParticles_branch not found : "
 	<<trueParticlesbranchname<< endl;
   }
- 
 
   string MCTruthbranchname;
   options_->GetOpt("root","MCTruth_branch", MCTruthbranchname);
@@ -795,7 +765,7 @@ void PFRootEventManager::connect( const char* infilename ) {
     if(!caloTowersBranch_) {
       cerr<<"PFRootEventManager::ReadOptions : caloTowers_branch not found : "
 	  <<caloTowersBranchName<< endl;
-    }   
+    }
   }    
 
   setAddresses();
@@ -830,11 +800,6 @@ PFRootEventManager::~PFRootEventManager() {
 
   if(outEvent_) delete outEvent_;
 
-
-
-  for( unsigned i=0; i<displayView_.size(); i++) {
-    if(displayView_[i]) delete displayView_[i];
-  }
 
   delete options_;
   
@@ -915,14 +880,14 @@ bool PFRootEventManager::processEntry(int entry) {
   
  
   if( deltaEt>0.5 ) {
-    cout<<"Delta E_T = "<<deltaEt<<endl;
+    cout<<"delta E_t ="<<deltaEt<<endl;
     return true;
-  }
+  }  
   else return false;
 //   //  if(trueParticles_.size() != 1 ) return false;
 //   else 
 //     return false;
-
+  
 //   return goodevent;
 
 }
@@ -996,7 +961,7 @@ bool PFRootEventManager::readFromSimulation(int entry) {
 	   <<filterTaus_[0]<<","<<filterTaus_[1]<<endl;
       goodevent =  false;      
     } 
-
+    
     if(goodevent)
       fillOutEventWithSimParticles( trueParticles_ );
 
@@ -1006,7 +971,7 @@ bool PFRootEventManager::readFromSimulation(int entry) {
 //     if(goodevent)
 //       fillOutEventWithCaloTowers( caloTowers_ );
 //   } 
-  
+
   if(rechitsECALBranch_) {
     PreprocessRecHits( rechitsECAL_ , findRecHitNeighbours_);
   }
@@ -1031,7 +996,6 @@ bool PFRootEventManager::readFromSimulation(int entry) {
 
   return goodevent;
 }
-
 
 
 bool PFRootEventManager::isHadronicTau() const {
@@ -1111,7 +1075,7 @@ bool PFRootEventManager::countChargedAndPhotons() const {
 //     if(charge) 
 //       nCharged++;
 //     else 
-//       nPhoton++;
+//       nNeutral++;
 //   }
   
   if( nCharged == filterTaus_[0] && 
@@ -1315,7 +1279,7 @@ PFRootEventManager::fillOutEventWithClusters(const reco::PFClusterCollection&
     cluster.layer = clusters[i].layer();
     cluster.type = 1;
 
-    reco::PFTrajectoryPoint::LayerType tpLayer = 
+   reco::PFTrajectoryPoint::LayerType tpLayer = 
       reco::PFTrajectoryPoint::NLayers;
     switch( clusters[i].layer() ) {
     case PFLayer::ECAL_BARREL:
@@ -1358,7 +1322,6 @@ PFRootEventManager::fillOutEventWithClusters(const reco::PFClusterCollection&
 }
 
 
-
 void 
 PFRootEventManager::fillOutEventWithSimParticles(const reco::PFSimParticleCollection& trueParticles ) {
 
@@ -1386,18 +1349,18 @@ PFRootEventManager::fillOutEventWithSimParticles(const reco::PFSimParticleCollec
 
       const reco::PFTrajectoryPoint& tpatecal 
 	= ptc.extrapolatedPoint( ecalEntrance );
-            
+        
       EventColin::Particle outptc;
       outptc.eta = tpatecal.positionXYZ().Eta();
       outptc.phi = tpatecal.positionXYZ().Phi();    
       outptc.e = tpatecal.momentum().E();
       outptc.pdgCode = ptc.pdgCode();
-
+    
       outEvent_->addParticle(outptc);
-    }
+    }  
   }   
-}
-      
+}      
+
 
 void 
 PFRootEventManager::fillOutEventWithCaloTowers( const CaloTowerCollection& cts ){
@@ -1436,7 +1399,6 @@ PFRootEventManager::fillOutEventWithBlocks( const reco::PFBlockCollection&
 
 
 
-
 void PFRootEventManager::particleFlow() {
   
   if( debug_) {
@@ -1447,6 +1409,7 @@ void PFRootEventManager::particleFlow() {
 
   edm::OrphanHandle< reco::PFRecTrackCollection > trackh( &recTracks_, 
 							  edm::ProductID(1) );  
+  
   edm::OrphanHandle< reco::PFClusterCollection > ecalh( clustersECAL_.get(), 
 							edm::ProductID(2) );  
   
@@ -1460,9 +1423,8 @@ void PFRootEventManager::particleFlow() {
   fillClusterMask( ecalMask, *clustersECAL_ );
   vector<bool> hcalMask;
   fillClusterMask( hcalMask, *clustersHCAL_ );
-  
-
-  pfBlockAlgo_.setInput( trackh, ecalh, hcalh, 
+ 
+  pfBlockAlgo_.setInput( trackh, ecalh, hcalh,
 			 trackMask, ecalMask, hcalMask );
   pfBlockAlgo_.findBlocks();
   
@@ -1480,8 +1442,6 @@ void PFRootEventManager::particleFlow() {
  
   if( debug_) cout<<"PFRootEventManager::particleFlow stop"<<endl;
 }
-
-
 
 double PFRootEventManager::makeJets() {
   //std::cout << "building jets from MC particles," 
@@ -1621,14 +1581,14 @@ double PFRootEventManager::makeJets() {
     double jetcalo_pt = sqrt(jetmom.Px()*jetmom.Px()+jetmom.Py()*jetmom.Py());
     double jetcalo_et = jetmom.Et();
 
-    
+
 
     EventColin::Jet jet;
     jet.eta = jetmom.Eta();
     jet.phi = jetmom.Phi();
     jet.et  = jetmom.Et();
     jet.e   = jetmom.E();
-      
+    
     const vector<int>& indexes = caloTjets[i].GetIndexes();
     for( unsigned ii=0; ii<indexes.size(); ii++){
       jet.ee   +=  caloTowers_[ indexes[ii] ].emEnergy();
@@ -1636,8 +1596,8 @@ double PFRootEventManager::makeJets() {
       jet.ete   +=  caloTowers_[ indexes[ii] ].emEt();
       jet.eth   +=  caloTowers_[ indexes[ii] ].hadEt();
     }
-  
-    if(outEvent_) outEvent_->addJetEHT( jet );  
+    
+    if(outEvent_) outEvent_->addJetEHT( jet );
 
     if ( jetsDebug_) {
       cout << " ECAL+HCAL jet : " << caloTjets[i] << endl;
@@ -1729,996 +1689,25 @@ double PFRootEventManager::makeJets() {
   }//loop PF jets
 
   //fill histos
-  
+
   double deltaEtEHT = JetEHTETmax - partTOTMC.Et();
   h_deltaETvisible_MCEHT_->Fill(deltaEtEHT);
-
+  
   double deltaEt = JetPFETmax - partTOTMC.Et();
   h_deltaETvisible_MCPF_ ->Fill(deltaEt);
 
   if (verbosity_ == VERBOSE ) {
     cout << "makeJets E_T(PF) - E_T(true) = " << deltaEt << endl;
   }
-  
+
   return deltaEt/partTOTMC.Et();
 }//Makejets
 
 
 
-void PFRootEventManager::display(int ientry) {
-  processEntry(ientry);
-  display();
-}
 
 
-
-void PFRootEventManager::displayNext(bool init) {
-
-  static int ientry=0;
-  if( init ) ientry=0; // restarting from 0
-
-  bool ok = false;
-  while(!ok && ientry<tree_->GetEntries() ) {
-    ok = processEntry(ientry);
-    // iCurrentEntry_=ientry;
-    ientry++;
-  }
-  
-  if( ok )
-    display();
-  else 
-    cerr<<"PFRootEventManager::displayNext : no event matching criteria"<<endl;
-}
-
-
-void PFRootEventManager::display() {
-  resetGraphicContainers();
-  if(displayRZ_) displayView(RZ);
-  if(displayXY_) displayView(XY);
-  if(displayEtaPhi_) { 
-    displayView(EPE);
-    displayView(EPH);
-  } 
-}
-
-
-void PFRootEventManager::displayView(unsigned viewType) {
-  
-
-  // display or clear canvas
-  if(!displayView_[viewType] 
-     || !gROOT->GetListOfCanvases()->FindObject(displayView_[viewType]) ) {
-    assert(viewSize_.size() == 2);
-    switch(viewType) {
-    case XY:
-      displayView_[viewType] = new TCanvas("displayXY_", "XY view",
-					   viewSize_[0], viewSize_[1]);
-      break;
-    case RZ:
-      displayView_[viewType] = new TCanvas("displayRZ_", "RZ view",
-					   viewSize_[0], viewSize_[1]);
-      break;
-    case EPE:
-      displayView_[viewType] = new TCanvas("displayEPE_", "eta/phi view, ECAL",
-					   viewSize_[0], viewSize_[1]);
-      break;
-    case EPH:
-      displayView_[viewType] = new TCanvas("displayEPH_", "eta/phi view, HCAL",
-					   viewSize_[0], viewSize_[1]);
-      break;
-    }
-    displayView_[viewType]->SetGrid(0, 0);
-    displayView_[viewType]->SetLeftMargin(0.12);
-    displayView_[viewType]->SetBottomMargin(0.12);
-    displayView_[viewType]->Draw();  
-    displayView_[viewType]->ToggleToolBar();
-  } else 
-    displayView_[viewType]->Clear();
-  displayView_[viewType]->cd();
-  
-  // Draw support histogram
-  double zLow = -500.;
-  double zUp  = +500.;
-  double rLow = -300.;
-  double rUp  = +300.;
-  if(!displayHist_[viewType]) {
-    switch(viewType) {
-    case XY:
-      displayHist_[viewType] = new TH2F("hdisplayHist_XY", "", 
-					500, rLow, rUp, 500, rLow, rUp);
-      displayHist_[viewType]->SetXTitle("X");
-      displayHist_[viewType]->SetYTitle("Y");
-      break;
-    case RZ:
-      displayHist_[viewType] = new TH2F("hdisplayHist_RZ", "", 
-					500, zLow, zUp, 500, rLow, rUp);
-      displayHist_[viewType]->SetXTitle("Z");
-      displayHist_[viewType]->SetYTitle("R");
-      break;      
-    case EPE:
-    case EPH:
-      if(! displayHist_[EPE] ) {
-	displayHist_[EPE] = new TH2F("hdisplayHist_EP", "", 
-				     500, -5, 5, 500, -3.5, 3.5);
-	displayHist_[EPE]->SetXTitle("#eta");
-	displayHist_[EPE]->SetYTitle("#phi");
-      }
-      displayHist_[EPH] = displayHist_[EPE];
-      break;
-    default:
-      std::cerr << "This kind of view is not implemented" << std::endl;
-      break;
-    }
-    displayHist_[viewType]->SetStats(kFALSE);
-  }
-  displayHist_[viewType]->Draw();
-
-  switch(viewType) {
-  case XY:
-    { 
-      // Draw ECAL front face
-      frontFaceECALXY_.SetX1(0);
-      frontFaceECALXY_.SetY1(0);
-      frontFaceECALXY_.SetR1(PFGeometry::innerRadius(PFGeometry::ECALBarrel));
-      frontFaceECALXY_.SetR2(PFGeometry::innerRadius(PFGeometry::ECALBarrel));
-      frontFaceECALXY_.SetFillStyle(0);
-      frontFaceECALXY_.Draw();
-      
-      // Draw HCAL front face
-      frontFaceHCALXY_.SetX1(0);
-      frontFaceHCALXY_.SetY1(0);
-      frontFaceHCALXY_.SetR1(PFGeometry::innerRadius(PFGeometry::HCALBarrel));
-      frontFaceHCALXY_.SetR2(PFGeometry::innerRadius(PFGeometry::HCALBarrel));
-      frontFaceHCALXY_.SetFillStyle(0);
-      frontFaceHCALXY_.Draw();
-      break;
-    }
-  case RZ:
-    {
-      // Draw lines at different etas
-      TLine l;
-      l.SetLineColor(1);
-      l.SetLineStyle(3);
-      TLatex etaLeg;
-      etaLeg.SetTextSize(0.02);
-      float etaMin = -3.;
-      float etaMax = +3.;
-      float etaBin = 0.2;
-      int nEtas = int((etaMax - etaMin)/0.2) + 1;
-      for (int iEta = 0; iEta <= nEtas; iEta++) {
-	float eta = etaMin + iEta*etaBin;
-	float r = 0.9*rUp;
-	TVector3 etaImpact;
-	etaImpact.SetPtEtaPhi(r, eta, 0.);
-	etaLeg.SetTextAlign(21);
-	if (eta <= -1.39) {
-	  etaImpact.SetXYZ(0.,0.85*zLow*tan(etaImpact.Theta()),0.85*zLow);
-	  etaLeg.SetTextAlign(31);
-	} else if (eta >= 1.39) {
-	  etaImpact.SetXYZ(0.,0.85*zUp*tan(etaImpact.Theta()),0.85*zUp);
-	  etaLeg.SetTextAlign(11);
-	}
-	l.DrawLine(0., 0., etaImpact.Z(), etaImpact.Perp());
-	etaLeg.DrawLatex(etaImpact.Z(), etaImpact.Perp(), Form("%2.1f", eta));
-      }
-      
-      frontFaceECALRZ_.SetX1(-1.*PFGeometry::innerZ(PFGeometry::ECALEndcap));
-      frontFaceECALRZ_.SetY1(-1.*PFGeometry::innerRadius(PFGeometry::ECALBarrel));
-      frontFaceECALRZ_.SetX2(PFGeometry::innerZ(PFGeometry::ECALEndcap));
-      frontFaceECALRZ_.SetY2(PFGeometry::innerRadius(PFGeometry::ECALBarrel));
-      frontFaceECALRZ_.SetFillStyle(0);
-      frontFaceECALRZ_.Draw();
-      break;
-    }
-  default:
-    // do nothing for other views
-    break;
-  }
-
-  double phi0 = 0.;
-
-  // display reconstructed objects
-  displayView_[viewType]->cd();
-  displayRecHits(viewType, phi0);
-  displayClusters(viewType, phi0);
-  if(displayRecTracks_) displayRecTracks(viewType, phi0);
-  if(displayTrueParticles_) displayTrueParticles(viewType, phi0);
-  displayView_[viewType]->Update();
-}
-
-
-
-void PFRootEventManager::displayRecHits(unsigned viewType, double phi0) {
-  double maxee = getMaxEEcal();
-  double maxeh = getMaxEHcal();
-  double maxe = maxee>maxeh ? maxee : maxeh;
-  
-  int color = TColor::GetColor(210,210,210);
-  int seedcolor = TColor::GetColor(145,145,145);
-  int specialcolor = TColor::GetColor(255,140,0);
-  
-  unsigned recHitSize=(rechitsECAL_.size()+rechitsHCAL_.size()+rechitsPS_.size())*2;
-  vectGHits_[viewType].reserve(recHitSize);
-
-  for(unsigned i=0; i<rechitsECAL_.size(); i++) { 
-    int rhcolor = color;
-    if( unsigned col = clusterAlgoECAL_.color(i) ) {
-      switch(col) {
-      case PFClusterAlgo::SEED: rhcolor = seedcolor; break;
-      case PFClusterAlgo::SPECIAL: rhcolor = specialcolor; break;
-      default:
-	cerr<<"PFRootEventManager::displayRecHits: unknown color"<<endl;
-      }
-    }
-    displayRecHit(rechitsECAL_[i], viewType, maxe, phi0, rhcolor);
-  }
-  for(unsigned i=0; i<rechitsHCAL_.size(); i++) { 
-    int rhcolor = color;
-    if( unsigned col = clusterAlgoHCAL_.color(i) ) {
-      switch(col) {
-      case PFClusterAlgo::SEED: rhcolor = seedcolor; break;
-      case PFClusterAlgo::SPECIAL: rhcolor = specialcolor; break;
-      default:
-	cerr<<"PFRootEventManager::displayRecHits: unknown color"<<endl;
-      }
-    }
-    displayRecHit(rechitsHCAL_[i], viewType, maxe, phi0, rhcolor);
-  }
-  
-  for(unsigned i=0; i<rechitsPS_.size(); i++) { 
-    int rhcolor = color;
-    if( unsigned col = clusterAlgoPS_.color(i) ) {
-      switch(col) {
-      case PFClusterAlgo::SEED: rhcolor = seedcolor; break;
-      case PFClusterAlgo::SPECIAL: rhcolor = specialcolor; break;
-      default:
-	cerr<<"PFRootEventManager::displayRecHits: unknown color"<<endl;
-      }
-    }
-    displayRecHit(rechitsPS_[i], viewType, maxe, phi0, rhcolor);
-  } 
-  drawRecHits(viewType);
-  
-}
-
-
-void PFRootEventManager::displayRecHit(reco::PFRecHit& rh,
- 
-				       unsigned viewType,
-				       double maxe, 
-				       double phi0, 
-				       int color) {
-  double me = maxe;
-  double thresh = 0;
-  int layer = rh.layer();
-
-  switch(layer) {
-  case PFLayer::ECAL_BARREL:
-    thresh = clusterAlgoECAL_.threshBarrel();
-    break;     
-  case PFLayer::ECAL_ENDCAP:
-    thresh = clusterAlgoECAL_.threshEndcap();
-    break;     
-  case PFLayer::HCAL_BARREL1:
-  case PFLayer::HCAL_BARREL2:
-    thresh = clusterAlgoHCAL_.threshBarrel();
-    break;           
-  case PFLayer::HCAL_ENDCAP:
-    thresh = clusterAlgoHCAL_.threshEndcap();
-    break;           
-  case PFLayer::PS1:
-  case PFLayer::PS2:
-    me = -1;
-    thresh = clusterAlgoPS_.threshBarrel();
-    break;
-  default:
-    cerr<<"PFRootEventManager::displayRecHit : manage other layers."
-	<<" Rechit not drawn."<<endl;
-    return;
-  }
-  
-  if( rh.energy() < thresh ) return;
-
-
-  // on EPH view, draw only HCAL
-  if(  viewType == EPH && 
-       ! (layer == PFLayer::HCAL_BARREL1 || 
-	  layer == PFLayer::HCAL_BARREL2 || 
-	  layer == PFLayer::HCAL_ENDCAP ) ) return;
-  
-  // on EPE view, draw only HCAL and preshower
-  if(  viewType == EPE && 
-       (layer == PFLayer::HCAL_BARREL1 || 
-	layer == PFLayer::HCAL_BARREL2 || 
-	layer == PFLayer::HCAL_ENDCAP ) ) return;
-    
-
-  double rheta = rh.positionREP().Eta();
-  double rhphi = rh.positionREP().Phi();
-
-  double sign = 1.;
-  if (cos(phi0 - rhphi) < 0.) sign = -1.;
-
-
-  double etaSize[4];
-  double phiSize[4];
-  double x[5];
-  double y[5];
-  double z[5];
-  double r[5];
-  double eta[5];
-  double phi[5];
-  double xprop[5];
-  double yprop[5];
-  double etaprop[5];
-  double phiprop[5];
-
-  
-  const std::vector< math::XYZPoint >& corners = rh.getCornersXYZ();
-  
-  assert(corners.size() == 4);
-
-  
-  double propfact = 0.95; // so that the cells don't overlap ? 
-  
-  double ampl=0;
-  if(me>0) ampl = (log(rh.energy() + 1.)/log(me + 1.));
-
-  for ( unsigned jc=0; jc<4; ++jc ) { 
-
-    // cout<<"corner "<<jc<<" "<<corners[jc].Eta()<<" "<<corners[jc].Phi()<<endl;
-
-    phiSize[jc] = rhphi-corners[jc].Phi();
-    etaSize[jc] = rheta-corners[jc].Eta();
-    if ( phiSize[jc] > 1. ) phiSize[jc] -= 2.*TMath::Pi();  // this is strange...
-    if ( phiSize[jc] < -1. ) phiSize[jc]+= 2.*TMath::Pi();
-    phiSize[jc] *= propfact;
-    etaSize[jc] *= propfact;
-
-    math::XYZPoint cornerposxyz = corners[jc];
-
-    x[jc] = cornerposxyz.X();
-    y[jc] = cornerposxyz.Y();
-    z[jc] = cornerposxyz.Z();
-    r[jc] = sign*cornerposxyz.Rho();
-    eta[jc] = rheta - etaSize[jc];
-    phi[jc] = rhphi - phiSize[jc];
-    
-
-    // cell area is prop to log(E)
-    // not drawn for preshower. 
-    // otherwise, drawn for eta/phi view, and for endcaps in xy view
-    if( layer != PFLayer::PS1 && 
-	layer != PFLayer::PS2 && 
-	( viewType == EPE || 
-	  viewType == EPH || 
-	  ( viewType == XY &&  
-	    ( layer == PFLayer::ECAL_ENDCAP || 
-	      layer == PFLayer::HCAL_ENDCAP ) ) ) ) {
-      
-      
-      math::XYZPoint centreXYZrot = rh.positionXYZ();
-
-      math::XYZPoint centertocorner(x[jc] - centreXYZrot.X(), 
-				    y[jc] - centreXYZrot.Y(),
-				    0 );
-
-      math::XYZPoint centertocornerep(eta[jc] - centreXYZrot.Eta(), 
-				      phi[jc] - centreXYZrot.Phi(),
-				      0 );
-      
-
-      // centertocorner -= centreXYZrot;
-      xprop[jc] = centreXYZrot.X() + centertocorner.X()*ampl;
-      yprop[jc] = centreXYZrot.Y() + centertocorner.Y()*ampl;
-
-      etaprop[jc] = centreXYZrot.Eta() + centertocornerep.X()*ampl;
-      phiprop[jc] = centreXYZrot.Phi() + centertocornerep.Y()*ampl;
-    }
-  }
-
-  if(layer == PFLayer::ECAL_BARREL  || 
-     layer == PFLayer::HCAL_BARREL1 || 
-     layer == PFLayer::HCAL_BARREL2 || viewType == RZ) {
-
-    // we are in the barrel. Determining which corners to shift 
-    // away from the center to represent the cell energy
-    
-    int i1 = -1;
-    int i2 = -1;
-
-    if(fabs(phiSize[1]-phiSize[0]) > 0.0001) {
-      if (viewType == XY) {
-	i1 = 2;
-	i2 = 3;
-      } else if (viewType == RZ) {
-	i1 = 1;
-	i2 = 2;
-      }
-    } else {
-      if (viewType == XY) {
-	i1 = 1;
-	i2 = 2;
-      } else if (viewType == RZ) {
-	i1 = 2;
-	i2 = 3;
-      }
-    }
-
-    x[i1] *= 1+ampl/2.;
-    x[i2] *= 1+ampl/2.;
-    y[i1] *= 1+ampl/2.;
-    y[i2] *= 1+ampl/2.;
-    z[i1] *= 1+ampl/2.;
-    z[i2] *= 1+ampl/2.;
-    r[i1] *= 1+ampl/2.;
-    r[i2] *= 1+ampl/2.;
-  }
-
-  
-  x[4]=x[0];
-  y[4]=y[0]; // closing the polycell
-  z[4]=z[0];
-  r[4]=r[0]; // closing the polycell
-  eta[4]=eta[0];
-  phi[4]=phi[0]; // closing the polycell
-  
-
-
-  int npoints=5;
-  
-  switch( viewType ) {
-  case  XY:
-    {
-      if(layer == PFLayer::ECAL_BARREL || 
-	 layer == PFLayer::HCAL_BARREL1 || 
-	 layer == PFLayer::HCAL_BARREL2) {
-	vectGHits_[viewType].push_back(GPFRecHit(&rh,npoints,x,y,color,"f"));
-      } else {
-	vectGHits_[viewType].push_back(GPFRecHit(&rh,npoints,x,y,color,"l"));
-	if( ampl>0 ) { // not for preshower
-	  xprop[4]=xprop[0];
-	  yprop[4]=yprop[0]; // closing the polycell    
-          vectGHits_[viewType].push_back(GPFRecHit(&rh,npoints,xprop,yprop,color,"f"));
-	}
-      }
-      break;
-    }
-  case RZ:
-    {
-      vectGHits_[viewType].push_back(GPFRecHit(&rh,npoints,z,r,color,"f"));
-      break;
-    }
-  case EPE:
-    {
-       vectGHits_[viewType].push_back(GPFRecHit(&rh,npoints,eta,phi,color,"l"));
-       
-      if( ampl>0 ) { // not for preshower
-	etaprop[4]=etaprop[0];
-	phiprop[4]=phiprop[0]; // closing the polycell    
-        vectGHits_[viewType].push_back(GPFRecHit(&rh,npoints,etaprop,phiprop,color,"f"));
-      }
-      break;
-    }
-    
-  case EPH:
-    {      
-      vectGHits_[viewType].push_back(GPFRecHit(&rh,npoints,eta,phi,color,"l"));
-      
-      if( ampl>0 ) { // not for preshower
-	etaprop[4]=etaprop[0];
-	phiprop[4]=phiprop[0]; // closing the polycell    
-        vectGHits_[viewType].push_back(GPFRecHit(&rh,npoints,etaprop,phiprop,color,"f"));
-      }
-      break;
-    }
-  default:
-    break;
-    
-  }
-}
-//_______________________________________________________________________________________________
-void PFRootEventManager::drawRecHits(unsigned viewType)
-{
-  int size=vectGHits_[viewType].size();
-  //std::cout<<"size of vectGHit_["<<viewType<<"] size="<<size<<std::flush<<std::endl;
-  if (size)
-    for (int i=0;i<size;i++) 
-      (vectGHits_[viewType])[i].Draw();
-   
-  
-}
-//_______________________________________________________________________________________________
-void PFRootEventManager::drawClusters(unsigned viewType)
-{
-  int size=vectGClus_[viewType].size();
-  //std::cout<<"size of vectGClus_["<<viewType<<"] size="<<size<<std::flush<<std::endl;
-  if (size)
-    for (int i=0;i<size;i++) 
-      (vectGClus_[viewType])[i].Draw();
-}
-//_______________________________________________________________________________________________
-void PFRootEventManager::drawTracks(unsigned viewType)
-{
-  int size=vectGTracks_[viewType].size();
-  //std::cout<<"size of vectGTracks_["<<viewType<<"] size="<<size<<std::flush<<std::endl;
-  if (size)
-    for (int i=0;i<size;i++) 
-      (vectGTracks_[viewType])[i].Draw();
-}
-//_______________________________________________________________________________________________
-void PFRootEventManager::drawParts(unsigned viewType)
-{
-  int size=vectGParts_[viewType].size();
-  //std::cout<<"size of vectGParts_["<<viewType<<"] size="<<size<<std::flush<<std::endl;
-  if (size)
-    for (int i=0;i<size;i++) 
-      (vectGParts_[viewType])[i].Draw();
-}
-//_______________________________________________________________________________________________
-void PFRootEventManager::resetGraphicContainers()
-{
- for (int i=0;i<NViews;i++) {
-   vectGHits_[i].clear();
-   vectGClus_[i].clear();
-   vectGTracks_[i].clear();
-   vectGParts_[i].clear();
- }  
-}
-//________________________________________________________________________________________________
-
-void PFRootEventManager::displayClusters(unsigned viewType, double phi0) {
-  
-  // std::vector<reco::PFCluster>::iterator itCluster;
-  // for(itCluster = clusters_->begin(); itCluster != clusters_->end(); 
-  //     itCluster++) {
-  unsigned clusterSize=clustersECAL_->size()+clustersHCAL_->size()+clustersPS_->size();
-  vectGClus_[viewType].reserve(clusterSize);
-  
-  for(unsigned i=0; i<clustersECAL_->size(); i++) 
-    displayCluster( (*clustersECAL_)[i], viewType, phi0);
-  for(unsigned i=0; i<clustersHCAL_->size(); i++) 
-    displayCluster( (*clustersHCAL_)[i], viewType, phi0);
-  for(unsigned i=0; i<clustersPS_->size(); i++) 
-    displayCluster( (*clustersPS_)[i], viewType, phi0);
-
-  for(unsigned i=0; i<clustersIslandBarrel_.size(); i++) {
-    int layer = PFLayer::ECAL_BARREL;
-    reco::PFCluster cluster( layer, 
-			     clustersIslandBarrel_[i].energy(), 
-			     clustersIslandBarrel_[i].x(),
-			     clustersIslandBarrel_[i].y(),
-			     clustersIslandBarrel_[i].z() ); 
-    displayCluster( cluster, viewType, phi0);
-  }
-  drawClusters(viewType);  
-}
-
-
-
-void PFRootEventManager::displayCluster(const reco::PFCluster& cluster,
-					unsigned viewType, double phi0) {
-  
-
-  double eta = cluster.positionXYZ().Eta();
-  double phi = cluster.positionXYZ().Phi();
-  
-
-//   int type = cluster.type();
-//   if(algosToDisplay_.find(type) == algosToDisplay_.end() )
-//     return;
-  
-//   TCutG* cutg = (TCutG*) gROOT->FindObject("CUTG");  
-//   if( cutg && !cutg->IsInside( eta, phi ) ) return;
-
-
-  int color = 4;
-  if( displayColorClusters_ ) 
-//     color = cluster.type();
-    color = 2;
-
-  const math::XYZPoint& xyzPos = cluster.positionXYZ();
-
-  switch(viewType) {
-  case XY:
-    vectGClus_[viewType].push_back( GPFCluster(&cluster,xyzPos.X(),xyzPos.Y(),color));
-    break;
-  case RZ:
-    {
-      double sign = 1.;
-      if (cos(phi0 - phi) < 0.)
-	sign = -1.;
-      vectGClus_[viewType].push_back(GPFCluster(&cluster,xyzPos.z(),sign*xyzPos.Rho(),color));
-      break;
-    }
-  case EPE:
-    {
-     if( cluster.layer()<0 ) {
-       vectGClus_[viewType].push_back(GPFCluster(&cluster,eta,phi,color));
-       if( displayClusterLines_ ) displayClusterLines(cluster);
-     }
-     break;
-    }
-  case EPH:
-    {
-     if( cluster.layer()>0 ) {
-       vectGClus_[viewType].push_back(GPFCluster(&cluster,eta,phi,color));
-       if( displayClusterLines_ ) displayClusterLines(cluster);
-     }
-     break;
-    } 
-  }      
-}
-
-
-void PFRootEventManager::displayClusterLines(const reco::PFCluster& cluster) {
-  
-
-  const math::XYZPoint& xyzPos = cluster.positionXYZ();
-  double eta = xyzPos.Eta(); 
-  double phi = xyzPos.Phi(); 
-  
-  const std::vector< reco::PFRecHitFraction >& rhfracs = 
-    cluster.recHitFractions();
-
-  TLine l;
-//   int color = cluster.type();
-  int color = 2;
-  l.SetLineColor( color );
-  
-//   PFClusterAlgo* algo=0;
-//   switch( cluster.layer() ) {
-//   case PFLayer::ECAL_BARREL:
-//   case PFLayer::ECAL_ENDCAP:
-//     algo = clusterAlgoECAL_;
-//     break;       
-//   case PFLayer::HCAL_BARREL1:
-//   case PFLayer::HCAL_BARREL2:
-//   case PFLayer::HCAL_ENDCAP:
-//     algo = clusterAlgoHCAL_;
-//     break;                     
-//   case PFLayer::PS1:
-//   case PFLayer::PS2:
-//     algo = clusterAlgoPS_;
-//     break;
-//   default:
-//     assert(0);
-//     return;
-//   }
-
-
-  // draw a line from the cluster to each of the rechits
-  for(unsigned i=0; i<rhfracs.size(); i++) {
-
-    // rechit index 
-    // unsigned rhi = rhfracs[i].recHitIndex();
-
-    const reco::PFRecHit& rh = *(rhfracs[i].recHitRef());
-
-
-    double rheta = rh.positionXYZ().Eta();
-    double rhphi = rh.positionXYZ().Phi();
-    l.DrawLine(eta,phi,rheta,rhphi);
-  }
-}
-
-
-
-void PFRootEventManager::displayRecTracks(unsigned viewType, double phi0) {
-  
-  unsigned recTrackSize=recTracks_.size();
-  vectGTracks_[viewType].reserve(recTrackSize);
-
-  std::vector<reco::PFRecTrack>::iterator itRecTrack;
-  for (itRecTrack = recTracks_.begin(); itRecTrack != recTracks_.end();
-       itRecTrack++) {
-
-    double sign = 1.;
-
-    const reco::PFTrajectoryPoint& tpinitial 
-      = itRecTrack->extrapolatedPoint(reco::PFTrajectoryPoint::ClosestApproach);
-    double pt = tpinitial.momentum().Pt();
-    if( pt<displayRecTracksPtMin_ ) continue;
-
-    const reco::PFTrajectoryPoint& tpatecal 
-      = itRecTrack->trajectoryPoint(itRecTrack->nTrajectoryMeasurements() +
-				    reco::PFTrajectoryPoint::ECALEntrance );
-    
-    if ( cos(phi0 - tpatecal.momentum().Phi()) < 0.)
-      sign = -1.;
-
-    const std::vector<reco::PFTrajectoryPoint>& points = 
-      itRecTrack->trajectoryPoints();
-
-    int    linestyle = itRecTrack->algoType(); 
-    int    markerstyle = 8;
-    double markersize = 0.8;
-    int    color = 103;
-    
-    displayTrack(*itRecTrack,points, viewType, phi0, sign, false,
-		  linestyle, markerstyle, markersize, color );
-  }
-  drawTracks(viewType);
-}
-
-
-
-void PFRootEventManager::displayTrueParticles(unsigned viewType, double phi0) {
-
-  unsigned trueParticlesSize = trueParticles_.size();
-  vectGParts_[viewType].reserve(trueParticlesSize);
-
-  for(unsigned i=0; i<trueParticlesSize; i++) {
-    
-    const reco::PFSimParticle& ptc = trueParticles_[i];
-    
-    const reco::PFTrajectoryPoint& tpinitial 
-      = ptc.extrapolatedPoint( reco::PFTrajectoryPoint::ClosestApproach );
-    
-    double pt = tpinitial.momentum().Pt();
-    if( pt<displayTrueParticlesPtMin_ ) continue;
-
-    double sign = 1.;
-    
-    const reco::PFTrajectoryPoint& tpatecal 
-      = ptc.trajectoryPoint(ptc.nTrajectoryMeasurements() +
-			    reco::PFTrajectoryPoint::ECALEntrance );
-    
-    if ( cos(phi0 - tpatecal.momentum().Phi()) < 0.)
-      sign = -1.;
-
-    const std::vector<reco::PFTrajectoryPoint>& points = 
-      ptc.trajectoryPoints();
-      
-    int markerstyle;
-    switch( abs(ptc.pdgCode() ) ) {
-    case 22:   markerstyle = 3 ;   break; // photons
-    case 11:   markerstyle = 5 ;   break; // electrons 
-    case 13:   markerstyle = 2 ;   break; // muons 
-    case 130:  
-    case 321:  markerstyle = 24;  break; // K
-    case 211:  markerstyle = 25;  break; // pi+/pi-
-    case 2212: markerstyle = 26;  break; // protons
-    case 2112: markerstyle = 27;  break; // neutrons  
-    default:   markerstyle = 30;  break; 
-    }
-   
-    int    color = 4;
-    int    linestyle = 2;
-    double markersize = 0.8;
-    bool displayInitial=true;
-    if( ptc.motherId() < 0 ) displayInitial=false;
-    
-
-    displayPart(ptc,points, viewType, phi0,
-		sign, displayInitial,	       
-		linestyle, markerstyle, markersize,
-		color );
-  }
-  drawParts(viewType);
-}
-
-void PFRootEventManager::displayPart( const reco::PFSimParticle &ptc,
-                                      const std::vector<reco::PFTrajectoryPoint>& points, 
-                                      unsigned viewType, double phi0, double sign, bool displayInitial,
-                                      int linestyle, 
-                                      int markerstyle, double markersize, 
-                                      int color
-				    )
-{
-
-  // reserving space. nb not all trajectory points are valid
-
-  vector<double> xPos;
-  xPos.reserve( points.size() );
-  vector<double> yPos;
-  yPos.reserve( points.size() );
-
-    
-  bool inside = false; 
-  TCutG* cutg = (TCutG*) gROOT->FindObject("CUTG");
-
-  for(unsigned i=0; i<points.size(); i++) {
-    
-    if( !points[i].isValid() ) continue;
-	
-    const math::XYZPoint& xyzPos = points[i].positionXYZ();      
-
-    double eta = xyzPos.Eta();
-    double phi = xyzPos.Phi();
-    
-    if( !displayInitial && 
-	points[i].layer() == reco::PFTrajectoryPoint::ClosestApproach ) {
-      const math::XYZTLorentzVector& mom = points[i].momentum();
-      eta = mom.Eta();
-      phi = mom.Phi();
-    }
-    
-    if( !cutg || cutg->IsInside( eta, phi ) ) 
-      inside = true;
-    
-
-    switch(viewType) {
-    case XY:
-      xPos.push_back(xyzPos.X());
-      yPos.push_back(xyzPos.Y());
-      break;
-    case RZ:
-      xPos.push_back(xyzPos.Z());
-      yPos.push_back(sign*xyzPos.Rho());
-      break;
-    case EPE:
-    case EPH:
-      xPos.push_back( eta );
-      yPos.push_back( phi );
-      
-      break;
-    }
-  }  
-
-  /// no point inside graphical cut.
-  if( !inside ) return;
-
-  vectGParts_[viewType].push_back(GPFPart(&ptc,xPos.size(),&xPos[0],&yPos[0],linestyle,markerstyle,markersize,color,"pl"));
-
-}
-
-
-
-void PFRootEventManager::displayTrack( reco::PFRecTrack &tr,
-                                        const std::vector<reco::PFTrajectoryPoint>& points, 
-                                        unsigned viewType, double phi0, double sign, bool displayInitial,
-                                        int linestyle, 
-                                        int markerstyle, double markersize, 
-                                        int color)
-{
-  
-  // reserving space. nb not all trajectory points are valid
-
-  vector<double> xPos;
-  xPos.reserve( points.size() );
-  vector<double> yPos;
-  yPos.reserve( points.size() );
-
-    
-  bool inside = false; 
-  TCutG* cutg = (TCutG*) gROOT->FindObject("CUTG");
-
-  for(unsigned i=0; i<points.size(); i++) {
-    
-    if( !points[i].isValid() ) continue;
-	
-    const math::XYZPoint& xyzPos = points[i].positionXYZ();      
-
-    double eta = xyzPos.Eta();
-    double phi = xyzPos.Phi();
-    
-    if( !displayInitial && 
-	points[i].layer() == reco::PFTrajectoryPoint::ClosestApproach ) {
-      const math::XYZTLorentzVector& mom = points[i].momentum();
-      eta = mom.Eta();
-      phi = mom.Phi();
-    }
-    
-    if( !cutg || cutg->IsInside( eta, phi ) ) 
-      inside = true;
-    
-
-    switch(viewType) {
-    case XY:
-      xPos.push_back(xyzPos.X());
-      yPos.push_back(xyzPos.Y());
-      break;
-    case RZ:
-      xPos.push_back(xyzPos.Z());
-      yPos.push_back(sign*xyzPos.Rho());
-      break;
-    case EPE:
-    case EPH:
-      xPos.push_back( eta );
-      yPos.push_back( phi );
-      
-      // closest approach is meaningless in eta/phi     
-//       if(!displayInitial && 
-// 	 points[i].layer() == reco::PFTrajectoryPoint::ClosestApproach ) {
-// 	const math::XYZTLorentzVector& mom = points[i].momentum();
-// 	xPos.push_back(mom.Eta());
-// 	yPos.push_back(mom.Phi());	  
-//       }	  
-//       else {
-// 	xPos.push_back(xyzPos.Eta());
-// 	yPos.push_back(xyzPos.Phi());
-//       }
-      break;
-    }
-  }  
-
-  /// no point inside graphical cut.
-  if( !inside ) return;
-  //fill vector with graphic objects
-  vectGTracks_[viewType].push_back(GPFTrack(&tr,xPos.size(),&xPos[0],&yPos[0],linestyle,markerstyle,markersize,color,"pl"));
-}
-
-
-void PFRootEventManager::unZoom() {
-
-  for( unsigned i=0; i<displayHist_.size(); i++) {
-
-    // the corresponding view was not requested
-    if( ! displayHist_[i] ) continue;
-
-    displayHist_[i]->GetXaxis()->UnZoom();
-    displayHist_[i]->GetYaxis()->UnZoom();
-  }
-
-  updateDisplay();
-}
-
-
-
-void PFRootEventManager::updateDisplay() {
-
-  for( unsigned i=0; i<displayView_.size(); i++) {
-    if( gROOT->GetListOfCanvases()->FindObject(displayView_[i]) )
-    displayView_[i]->Modified();
-  }
-}
-
-
-void PFRootEventManager::lookForMaxRecHit(bool ecal) {
-
-  // look for the rechit with max e in ecal or hcal
-  double maxe = -999;
-  reco::PFRecHit* maxrh = 0;
-
-  reco::PFRecHitCollection* rechits = 0;
-  if(ecal) rechits = &rechitsECAL_;
-  else rechits = &rechitsHCAL_;
-  assert(rechits);
-
-  for(unsigned i=0; i<(*rechits).size(); i++) {
-
-    double energy = (*rechits)[i].energy();
-
-    if(energy > maxe ) {
-      maxe = energy;
-      maxrh = &((*rechits)[i]);
-    }      
-  }
-  
-  if(!maxrh) return;
-
-  // center view on this rechit
-
-
-  // get the cell size to set the eta and phi width 
-  // of the display window from one of the cells
-  
-  double phisize = -1;
-  double etasize = -1;
-  maxrh->size(phisize, etasize);
-   
-  double etagate = displayZoomFactor_ * etasize;
-  double phigate = displayZoomFactor_ * phisize;
-  
-  double eta =  maxrh->positionREP().Eta();
-  double phi =  maxrh->positionREP().Phi();
-  
-
-  if(displayHist_[EPE]) {
-    displayHist_[EPE]->GetXaxis()->SetRangeUser(eta-etagate, eta+etagate);
-    displayHist_[EPE]->GetYaxis()->SetRangeUser(phi-phigate, phi+phigate);
-  }
-  if(displayHist_[EPH]) {
-    displayHist_[EPH]->GetXaxis()->SetRangeUser(eta-etagate, eta+etagate);
-    displayHist_[EPH]->GetYaxis()->SetRangeUser(phi-phigate, phi+phigate);
-  }
-  
-  updateDisplay();
-}  
-
-
-
+/*
 
 void PFRootEventManager::lookForGenParticle(unsigned barcode) {
   
@@ -2760,71 +1749,9 @@ void PFRootEventManager::lookForGenParticle(unsigned barcode) {
   updateDisplay();
 
 }
+*/
 
 
-
-
-
-double PFRootEventManager::getMaxE(int layer) const {
-
-  double maxe = -9999;
-
-  // in which vector should we look for these rechits ?
-
-  const reco::PFRecHitCollection* vec = 0;
-  switch(layer) {
-  case PFLayer::ECAL_ENDCAP:
-  case PFLayer::ECAL_BARREL:
-    vec = &rechitsECAL_;
-    break;
-  case PFLayer::HCAL_ENDCAP:
-  case PFLayer::HCAL_BARREL1:
-  case PFLayer::HCAL_BARREL2:
-    vec = &rechitsHCAL_;
-    break;
-  case PFLayer::PS1:
-  case PFLayer::PS2:
-    vec = &rechitsPS_;
-    break;
-  default:
-    cerr<<"PFRootEventManager::getMaxE : manage other layers"<<endl;
-    return maxe;
-  }
-
-  for( unsigned i=0; i<vec->size(); i++) {
-    if( (*vec)[i].layer() != layer ) continue;
-    if( (*vec)[i].energy() > maxe)
-      maxe = (*vec)[i].energy();
-  }
-
-  return maxe;
-}
-
-
-
-double PFRootEventManager::getMaxEEcal() {
-  
-  if( maxERecHitEcal_<0 ) {
-    double maxeec = getMaxE( PFLayer::ECAL_ENDCAP );
-    double maxeb =  getMaxE( PFLayer::ECAL_BARREL );
-    maxERecHitEcal_ = maxeec > maxeb ? maxeec:maxeb; 
-    // max of both barrel and endcap
-  }
-  return  maxERecHitEcal_;
-}
-
-
-
-
-double PFRootEventManager::getMaxEHcal() {
-
-  if(maxERecHitHcal_ < 0) {
-    double maxeec = getMaxE( PFLayer::HCAL_ENDCAP );
-    double maxeb =  getMaxE( PFLayer::HCAL_BARREL1 );
-    maxERecHitHcal_ =  maxeec>maxeb  ?  maxeec:maxeb;
-  }
-  return maxERecHitHcal_;
-}
 
 void PFRootEventManager::getMap(string& map) {
 
@@ -2931,11 +1858,13 @@ void  PFRootEventManager::print(ostream& out) const {
   if( printTrueParticles_ ) {
     out<<"True Particles  ==========================================="<<endl;
     for(unsigned i=0; i<trueParticles_.size(); i++) {
-       if( trackInsideGCut( trueParticles_[i] ) )
+       if( trackInsideGCut( trueParticles_[i]) ) 
 	 out<<"\t"<<trueParticles_[i]<<endl;
      }    
  
   }
+
+  
   if ( printMCtruth_ ) { 
     out<<"MC truth  ==========================================="<<endl;
     printMCTruth(out);
@@ -2943,56 +1872,10 @@ void  PFRootEventManager::print(ostream& out) const {
 }
 
 
-void  PFRootEventManager::printDisplay(  const char* sdirectory ) const {
-
-
-  string directory = sdirectory;
-  if( directory.empty() ) {   
-    directory = "Event_";
-  }
-  char num[10];
-  sprintf(num,"%d", iEvent_);
-  directory += num;
-
-  string mkdir = "mkdir "; mkdir += directory;
-  int code = system( mkdir.c_str() );
-
-  if( code ) {
-    cerr<<"cannot create directory "<<directory<<endl;
-    return;
-  }
-
-  cout<<"Event display printed in directory "<<directory<<endl;
-
-  directory += "/";
-  
-  for(unsigned iView=0; iView<displayView_.size(); iView++) {
-    if( !displayView_[iView] ) continue;
-    
-    string name = directory;
-    name += displayView_[iView]->GetName();
-
-    cout<<displayView_[iView]->GetName()<<endl;
-
-    string eps = name; eps += ".eps";
-    displayView_[iView]->SaveAs( eps.c_str() );
-    
-    string png = name; png += ".png";
-    displayView_[iView]->SaveAs( png.c_str() );
-  }
-  
-  string txt = directory;
-  txt += "event.txt";
-  ofstream out( txt.c_str() );
-  if( !out ) 
-    cerr<<"cannot open "<<txt<<endl;
-  print( out );
-}
-
 void
 PFRootEventManager::printMCTruth(std::ostream& out,
-				 int maxNLines) const {
-  
+                                 int maxNLines) const {
+
   const HepMC::GenEvent* myGenEvent = MCTruth_.GetEvent();
   if(!myGenEvent) return;
 
@@ -3006,12 +1889,12 @@ PFRootEventManager::printMCTruth(std::ostream& out,
 	  piter  = myGenEvent->particles_begin();
 	piter != myGenEvent->particles_end(); 
 	++piter ) {
-
+    
     if( nLines == maxNLines) break;
     nLines++;
     
     HepMC::GenParticle* p = *piter;
-    /* */
+     /* */
     int partId = p->pdg_id();
     std::string name;
 
@@ -3228,7 +2111,7 @@ void
 PFRootEventManager::fillRecHitMask( vector<bool>& mask, 
 				    const reco::PFRecHitCollection& rechits ) 
   const {
-  
+
   TCutG* cutg = (TCutG*) gROOT->FindObject("CUTG");
   if(!cutg) return;
 
@@ -3245,7 +2128,6 @@ PFRootEventManager::fillRecHitMask( vector<bool>& mask,
       mask.push_back( false );   
   }
 }
-
 
 void  
 PFRootEventManager::fillClusterMask(vector<bool>& mask, 
@@ -3335,5 +2217,6 @@ PFRootEventManager::closestParticle( reco::PFTrajectoryPoint::LayerType layer,
 
   return trueParticles_[iClosest];
 }
+
 
 
