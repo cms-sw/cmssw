@@ -4,9 +4,9 @@
 /** \class InOutConversionSeedFinder
  **  
  **
- **  $Id: InOutConversionSeedFinder.h,v 1.7 2007/03/26 22:16:46 nancy Exp $ 
- **  $Date: 2007/03/26 22:16:46 $ 
- **  $Revision: 1.7 $
+ **  $Id: InOutConversionSeedFinder.h,v 1.8 2007/05/23 17:38:05 nancy Exp $ 
+ **  $Date: 2007/05/23 17:38:05 $ 
+ **  $Revision: 1.8 $
  **  \author Nancy Marinelli, U. of Notre Dame, US
  **
  ***/
@@ -20,7 +20,6 @@
 
 #include "RecoTracker/TkDetLayers/interface/GeometricSearchTracker.h"
 #include "RecoTracker/MeasurementDet/interface/MeasurementTracker.h"
-#include "RecoTracker/TkNavigation/interface/SimpleNavigationSchool.h"
 #include "TrackingTools/PatternTools/interface/MeasurementEstimator.h"
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
 #include "TrackingTools/MeasurementDet/interface/LayerMeasurements.h"
@@ -58,7 +57,7 @@ class InOutConversionSeedFinder : public ConversionSeedFinder {
   virtual void  makeSeeds( const reco::BasicClusterCollection& allBc) const;
  
 
-  //  void setTracks(std::vector<Trajectory> in) { inputTracks_.clear(); inputTracks_ = in;}
+
   void setTracks(std::vector<Trajectory> in) { theOutInTracks_.clear(); theOutInTracks_ = in;}
  
 
