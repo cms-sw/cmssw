@@ -6,7 +6,7 @@
 
  Original Author:  Jim Kowalkowski 26-01-06
 
- $Id: TriggerNamesService.h,v 1.8 2007/06/15 18:41:46 wdd Exp $
+ $Id: TriggerNamesService.h,v 1.9 2007/07/16 21:30:03 wdd Exp $
 
  This service makes the trigger names available.  They are provided
  in the same order that the pass/fail status of these triggers is
@@ -46,14 +46,18 @@ namespace edm {
 
       typedef std::vector<std::string> Strings;
       typedef std::map<std::string, unsigned int> PosMap;
+      typedef PosMap::size_type size_type;
 
-      TriggerNamesService(ParameterSet const& proc_pset);
-      ~TriggerNamesService();
+      explicit TriggerNamesService(ParameterSet const& proc_pset);
+      // Default copy, copy assignment, d'tor all do the right thing.
 
       // trigger names for the current process
+
+      // Return the number of trigger paths in the current process.
+      size_type size() const { return trignames_.size(); }
       Strings const& getTrigPaths() const { return trignames_; }
-      std::string const&  getTrigPath(unsigned int const i) const { return trignames_.at(i);}
-      unsigned int  findTrigPath(std::string const& name) const { return find(trigpos_,name);}
+      std::string const&  getTrigPath(size_type const i) const { return trignames_.at(i);}
+      size_type  findTrigPath(std::string const& name) const { return find(trigpos_,name);}
 
       // Get the ordered vector of trigger names that corresponds to the bits
       // in the TriggerResults object.  Unlike the other functions in this class,
@@ -74,23 +78,23 @@ namespace edm {
                         bool& fromPSetRegistry);
 
       Strings const& getEndPaths() const { return end_names_; }
-      std::string const&  getEndPath(unsigned int const i) const { return end_names_.at(i);}
-      unsigned int  findEndPath(std::string const& name) const { return find(end_pos_,name);}
+      std::string const&  getEndPath(size_type const i) const { return end_names_.at(i);}
+      size_type  findEndPath(std::string const& name) const { return find(end_pos_,name);}
 
       Strings const& getTrigPathModules(std::string const& name) const {
 	return modulenames_.at(find(trigpos_,name));
       }
-      Strings const& getTrigPathModules(unsigned int const i) const {
+      Strings const& getTrigPathModules(size_type const i) const {
 	return modulenames_.at(i);
       }
-      std::string const&  getTrigPathModule (std::string const& name, unsigned int const j) const {
+      std::string const&  getTrigPathModule (std::string const& name, size_type const j) const {
 	return (modulenames_.at(find(trigpos_,name))).at(j);
       }
-      std::string const&  getTrigPathModule (unsigned int const i, unsigned int const j) const {
+      std::string const&  getTrigPathModule (size_type const i, size_type const j) const {
 	return (modulenames_.at(i)).at(j);
       }
 
-      unsigned int find (PosMap const& posmap, std::string const& name) const {
+      size_type find (PosMap const& posmap, std::string const& name) const {
 	PosMap::const_iterator const pos(posmap.find(name));
         if (pos == posmap.end()) {
 	  return posmap.size();
@@ -100,8 +104,8 @@ namespace edm {
       }
 
       void loadPosMap(PosMap& posmap, Strings const& names) {
-        unsigned int const n(names.size());
-	for (unsigned int i = 0; i != n; ++i) {
+        size_type const n(names.size());
+	for (size_type i = 0; i != n; ++i) {
 	  posmap[names[i]] = i;
 	}
       }

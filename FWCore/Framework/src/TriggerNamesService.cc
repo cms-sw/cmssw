@@ -3,7 +3,7 @@
 // Implementation:
 //
 // Original Author:  Jim Kowalkowski
-// $Id: TriggerNamesService.cc,v 1.9 2007/06/15 18:41:47 wdd Exp $
+// $Id: TriggerNamesService.cc,v 1.10 2007/07/16 21:30:04 wdd Exp $
 //
 
 #include "FWCore/Framework/interface/TriggerNamesService.h"
@@ -39,10 +39,6 @@ namespace edm {
       for(unsigned int i=0;i!=n;++i) {
         modulenames_.push_back(pset.getParameter<Strings>(trignames_[i]));
       }
-    }
-
-    TriggerNamesService::~TriggerNamesService()
-    {
     }
 
     bool
