@@ -15,7 +15,7 @@ TmTestWidget::TmTestWidget(QWidget *parent, const char *wname)
      i=0;
      cout << "Be patient: I have to process around 17,000 histograms!" << endl;
      map<const int,TmModule*>::iterator imod;
-    for (imod=IdModuleMap::imoduleMap.begin();imod != IdModuleMap::imoduleMap.end(); imod++){
+    for (imod=tm->imoduleMap.begin();imod != tm->imoduleMap.end(); imod++){
      i++;if(i%100==0)cout << i << endl;
      sprintf(name,"%d",imod->second->idex);
      TH1F *h = (TH1F*)f->Get(name);

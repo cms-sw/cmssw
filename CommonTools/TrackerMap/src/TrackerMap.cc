@@ -41,13 +41,13 @@ TrackerMap::TrackerMap(string s,int xsize1,int ysize1) {
           for(int module=1; module < nmodules+1; module++){//loop on modules
             smodule = new TmModule(module,ring,layer_g);
 	    key=layer_g*100000+ring*1000+module;//key identifying module
-	    SvgModuleMap::smoduleMap[key]=smodule;
+	    smoduleMap[key]=smodule;
 	    ntotmod++;
 	  }
 	  if(isRingStereo(key))for(int module=1; module < nmodules+1; module++){//loop on stereo modules
             smodule = new TmModule(module+100,ring,layer_g);
 	    int key=layer_g*100000+ring*1000+module+100;
-	    SvgModuleMap::smoduleMap[key]=smodule;
+	    smoduleMap[key]=smodule;
 	    ntotmod++;
 	  }
 	}
@@ -205,7 +205,7 @@ void TrackerMap::print(bool print_total, float minval, float maxval, string outp
     for (int ring=firstRing[layer-1]; ring < ntotRing[layer-1]+firstRing[layer-1];ring++){
       for (int module=1;module<200;module++) {
         int key=layer*100000+ring*1000+module;
-        TmModule * mod = SvgModuleMap::smoduleMap[key];
+        TmModule * mod = smoduleMap[key];
         if(mod !=0 && !mod->notInUse()){
           mod->value = mod->value / mod->count;
         }
@@ -220,7 +220,7 @@ void TrackerMap::print(bool print_total, float minval, float maxval, string outp
     for (int ring=firstRing[layer-1]; ring < ntotRing[layer-1]+firstRing[layer-1];ring++){
       for (int module=1;module<200;module++) {
         int key=layer*100000+ring*1000+module;
-        TmModule * mod = SvgModuleMap::smoduleMap[key];
+        TmModule * mod = smoduleMap[key];
         if(mod !=0 && !mod->notInUse()){
           if (minvalue > mod->value)minvalue=mod->value;
           if (maxvalue < mod->value)maxvalue=mod->value;
@@ -235,7 +235,7 @@ void TrackerMap::print(bool print_total, float minval, float maxval, string outp
     for (int ring=firstRing[layer-1]; ring < ntotRing[layer-1]+firstRing[layer-1];ring++){
       for (int module=1;module<200;module++) {
         int key=layer*100000+ring*1000+module;
-        TmModule * mod = SvgModuleMap::smoduleMap[key];
+        TmModule * mod = smoduleMap[key];
 	if(mod !=0 && !mod->notInUse()){
           drawModule(mod,key,layer,print_total);
         }
@@ -253,7 +253,7 @@ void TrackerMap::print(bool print_total, float minval, float maxval, string outp
 
 void TrackerMap::fillc(int idmod, int red, int green, int blue  ){
 
-  TmModule * mod = IdModuleMap::imoduleMap[idmod];
+  TmModule * mod = imoduleMap[idmod];
   if(mod!=0){
      mod->red=red; mod->green=green; mod->blue=blue;
     return;
@@ -263,7 +263,7 @@ void TrackerMap::fillc(int idmod, int red, int green, int blue  ){
 void TrackerMap::fillc(int layer, int ring, int nmod, int red, int green, int blue  ){
   
   int key = layer*10000+ring*1000+nmod;
-  TmModule * mod = SvgModuleMap::smoduleMap[key];
+  TmModule * mod = smoduleMap[key];
 
   if(mod!=0){
      mod->red=red; mod->green=green; mod->blue=blue;
@@ -274,14 +274,14 @@ void TrackerMap::fillc(int layer, int ring, int nmod, int red, int green, int bl
 
 void TrackerMap::fill_current_val(int idmod, float current_val ){
 
-  TmModule * mod = IdModuleMap::imoduleMap[idmod];
+  TmModule * mod = imoduleMap[idmod];
   if(mod!=0)  mod->value=current_val;
   else cout << "**error in fill_current_val method ***";
 }
 
 void TrackerMap::fill(int idmod, float qty ){
 
-  TmModule * mod = IdModuleMap::imoduleMap[idmod];
+  TmModule * mod = imoduleMap[idmod];
   if(mod!=0){
     mod->value=mod->value+qty;
     mod->count++;
@@ -293,7 +293,7 @@ void TrackerMap::fill(int idmod, float qty ){
 void TrackerMap::fill(int layer, int ring, int nmod,  float qty){
 
   int key = layer*100000+ring*1000+nmod;
-  TmModule * mod = SvgModuleMap::smoduleMap[key];
+  TmModule * mod = smoduleMap[key];
   if(mod!=0){
      mod->value=mod->value+qty;
      mod->count++;
@@ -303,7 +303,7 @@ void TrackerMap::fill(int layer, int ring, int nmod,  float qty){
 
 void TrackerMap::setText(int idmod, string s){
 
-  TmModule * mod = IdModuleMap::imoduleMap[idmod];
+  TmModule * mod = imoduleMap[idmod];
   if(mod!=0){
      mod->text=s;
   }
@@ -314,7 +314,7 @@ void TrackerMap::setText(int idmod, string s){
 void TrackerMap::setText(int layer, int ring, int nmod, string s){
 
   int key = layer*100000+ring*1000+nmod;
-  TmModule * mod = SvgModuleMap::smoduleMap[key];
+  TmModule * mod = smoduleMap[key];
   if(mod!=0){
      mod->text=s;
   }
@@ -342,9 +342,9 @@ void TrackerMap::build(){
     iModule++;
     ntotMod++;
     int key=layer*100000+ring*1000+nmod;
-    TmModule * mod = SvgModuleMap::smoduleMap[key];
+    TmModule * mod = smoduleMap[key];
     
-    IdModuleMap::imoduleMap[idex]=mod;
+    imoduleMap[idex]=mod;
 
     if(mod==0) cout << "error in module "<<key <<endl;
     else

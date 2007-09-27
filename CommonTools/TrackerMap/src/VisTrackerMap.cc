@@ -29,7 +29,7 @@ VisTrackerMap::VisTrackerMap( QWidget *parent, const char *name, QLabel* labelin
     for (int ring=tk->firstRing[layer-1]; ring < tk->ntotRing[layer-1]+tk->firstRing[layer-1];ring++){
       for (int module=1;module<200;module++) {
         int key=layer*100000+ring*1000+module;
-        TmModule * mod = SvgModuleMap::smoduleMap[key];
+        TmModule * mod = tk->smoduleMap[key];
         if(mod !=0 && !mod->notInUse()){
 	  reg_mod[count] =  QPointArray(4);
 	  mod->setQPointArray(count);
@@ -63,7 +63,7 @@ void VisTrackerMap::paintEvent( QPaintEvent * )
       for (int ring=tk->firstRing[layer-1]; ring < tk->ntotRing[layer-1]+tk->firstRing[layer-1];ring++){
         for (int module=1;module<200;module++) {
           int key=layer*100000+ring*1000+module;
-          TmModule * mod = SvgModuleMap::smoduleMap[key];
+          TmModule * mod = tk->smoduleMap[key];
           if(mod !=0 && !mod->notInUse()){
             mod->value = mod->value / mod->count;
           }
@@ -78,7 +78,7 @@ void VisTrackerMap::paintEvent( QPaintEvent * )
       for (int ring=tk->firstRing[layer-1]; ring < tk->ntotRing[layer-1]+tk->firstRing[layer-1];ring++){
         for (int module=1;module<200;module++) {
           int key=layer*100000+ring*1000+module;
-          TmModule * mod = SvgModuleMap::smoduleMap[key];
+          TmModule * mod = tk->smoduleMap[key];
           if(mod !=0 && !mod->notInUse()){
             if (minval > mod->value)minval=mod->value;
             if (maxval < mod->value)maxval=mod->value;
@@ -93,7 +93,7 @@ void VisTrackerMap::paintEvent( QPaintEvent * )
     for (int ring=tk->firstRing[layer-1]; ring < tk->ntotRing[layer-1]+tk->firstRing[layer-1];ring++){
       for (int module=1;module<200;module++) {
         int key=layer*100000+ring*1000+module;
-        TmModule * mod = SvgModuleMap::smoduleMap[key];
+        TmModule * mod = tk->smoduleMap[key];
         if(mod !=0 && !mod->notInUse()){
 	  computeColor(mod, print_total, p);
 	  p->drawPolygon(reg_mod[mod->getQPointArray()]);
@@ -113,7 +113,7 @@ void VisTrackerMap::mousePressEvent(QMouseEvent *e)
   for (int ring=tk->firstRing[layer-1]; ring < tk->ntotRing[layer-1]+tk->firstRing[layer-1];ring++){
     for (int module=1;module<200;module++) {
       int key=layer*100000+ring*1000+module;
-      mod = SvgModuleMap::smoduleMap[key];
+      mod = tk->smoduleMap[key];
       if(mod !=0 && !mod->notInUse()){
 
 	QRegion q(reg_mod[mod->getQPointArray()],false);

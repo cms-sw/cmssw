@@ -3,12 +3,6 @@
 using namespace std;
 
 
-map< const int  , TmModule *>
-SvgModuleMap::smoduleMap=map<const int  , TmModule *>();
-
-map< const int  , TmModule *>
-IdModuleMap::imoduleMap=map<const int  , TmModule *>();
-
 
 TmModule::TmModule(int idc, int ring, int layer){
   idModule = idc;

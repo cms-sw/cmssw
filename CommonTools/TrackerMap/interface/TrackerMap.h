@@ -3,6 +3,7 @@
 #include <fstream>
 #include <sstream>
 #include <cmath>
+#include <map>
 
 class TmModule;
 class EventSetup;
@@ -28,6 +29,10 @@ class TrackerMap {
   int getxsize(){return xsize;};
   int getysize(){return ysize;};
   int getNumMod(){return number_modules;};
+  typedef std::map<const int  , TmModule *> SmoduleMap;
+  SmoduleMap smoduleMap;
+  typedef std::map<const int  , TmModule *> ImoduleMap;
+  ImoduleMap imoduleMap;
   int ndet; //number of detectors 
   int npart; //number of detectors parts 
   string title;

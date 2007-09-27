@@ -15,7 +15,7 @@ FedTrackerMap::FedTrackerMap( edm::ESHandle<SiStripFedCabling> tkFed)
     const std::vector<FedChannelConnection> theconn = tkFed->connections( *ifed );
     int num_conn=0;
     for(std::vector<FedChannelConnection>::const_iterator iconn = theconn.begin();iconn<theconn.end();iconn++){
-      TmModule *imod = IdModuleMap::imoduleMap[iconn->detId()];
+      TmModule *imod = imoduleMap[iconn->detId()];
       int key = iconn->fedId()*1000+iconn->fedCh();
       TmApvPair* apvpair = SvgApvPair::apvMap[key];
       if(apvpair!=0)cout << "Fed "<< iconn->fedId() << " channel " << iconn->fedCh() << " seem to be already loaded!"<<endl;

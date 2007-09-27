@@ -28,15 +28,5 @@ class TmModule  {
   int getQPointArray(){return histNumber;};
 };
 
-class SvgModuleMap {
- public:
-  static std::map<const int  , TmModule *> smoduleMap;
- };
-
-
-class IdModuleMap {
- public:
-  static std::map<const int  , TmModule *> imoduleMap;
- };
 
 
