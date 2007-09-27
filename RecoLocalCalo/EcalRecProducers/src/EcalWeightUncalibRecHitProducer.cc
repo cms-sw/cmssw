@@ -1,9 +1,9 @@
 /** \class EcalWeightUncalibRecHitProducer
  *   produce ECAL uncalibrated rechits from dataframes
  *
-  *  $Id: EcalWeightUncalibRecHitProducer.cc,v 1.23 2007/08/06 14:27:18 innocent Exp $
-  *  $Date: 2007/08/06 14:27:18 $
-  *  $Revision: 1.23 $
+  *  $Id: EcalWeightUncalibRecHitProducer.cc,v 1.24 2007/08/06 15:03:39 innocent Exp $
+  *  $Date: 2007/08/06 15:03:39 $
+  *  $Revision: 1.24 $
   *  \author Shahram Rahatlou, University of Rome & INFN, Sept 2005
   *
   */
@@ -92,13 +92,11 @@ EcalWeightUncalibRecHitProducer::produce(edm::Event& evt, const edm::EventSetup&
     edm::ESHandle<EcalWeightXtalGroups> pGrp;
     es.get<EcalWeightXtalGroupsRcd>().get(pGrp);
     const EcalWeightXtalGroups & grps = *pGrp.product();
-    grps.update();
 
    // Gain Ratios
    edm::ESHandle<EcalGainRatios> pRatio;
    es.get<EcalGainRatiosRcd>().get(pRatio);
    const EcalGainRatios& gains = *pRatio.product(); // gain ratios
-   gains.update(); 
 
    // fetch TB weights
 #ifdef DEBUG
@@ -119,7 +117,6 @@ EcalWeightUncalibRecHitProducer::produce(edm::Event& evt, const edm::EventSetup&
    edm::ESHandle<EcalPedestals> pedHandle;
    es.get<EcalPedestalsRcd>().get( pedHandle );
    const EcalPedestals & peds = *pedHandle.product(); // pedestals
-   peds.update(); // fill vectors...
 #ifdef DEBUG
    LogDebug("EcalUncalibRecHitDebug") << "done." ;
 #endif

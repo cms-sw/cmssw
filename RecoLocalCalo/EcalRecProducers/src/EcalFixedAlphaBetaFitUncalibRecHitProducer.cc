@@ -133,14 +133,14 @@ EcalFixedAlphaBetaFitUncalibRecHitProducer::produce(edm::Event& evt, const edm::
    LogDebug("EcalUncalibRecHitDebug") << "fetching gainRatios....";
    edm::ESHandle<EcalGainRatios> pRatio;
    es.get<EcalGainRatiosRcd>().get(pRatio);
-   const EcalGainRatios::EcalGainRatioMap& gainMap = pRatio.product()->getMap(); // map of gain ratios
+   const EcalGainRatioMap& gainMap = pRatio.product()->getMap(); // map of gain ratios
 
 
    // fetch the pedestals from the cond DB via EventSetup
    LogDebug("EcalUncalibRecHitDebug") << "fetching pedestals....";
    edm::ESHandle<EcalPedestals> pedHandle;
    es.get<EcalPedestalsRcd>().get( pedHandle );
-   const EcalPedestalsMap& pedMap = pedHandle.product()->m_pedestals; // map of pedestals
+   const EcalPedestalsMap & pedMap = pedHandle.product()->getMap(); // map of pedestals
    LogDebug("EcalUncalibRecHitDebug") << "done." ;
 
    // EE and EB collections of reco'ed ampltudes to put in the event
@@ -153,7 +153,7 @@ EcalFixedAlphaBetaFitUncalibRecHitProducer::produce(edm::Event& evt, const edm::
    EcalPedestalsMapIterator pedIter; // pedestal iterator
    EcalPedestals::Item aped; // pedestal object for a single xtal
 
-   EcalGainRatios::EcalGainRatioMap::const_iterator gainIter; // gain iterator
+   EcalGainRatioMap::const_iterator gainIter; // gain iterator
    EcalMGPAGainRatio aGain; // gain object for a single xtal
 
    //loop over EB digis
@@ -164,7 +164,7 @@ EcalFixedAlphaBetaFitUncalibRecHitProducer::produce(edm::Event& evt, const edm::
        LogDebug("EcalUncalibRecHitDebug") << "looking up pedestal for crystal: " << EBDetId(itdg->id()) ;
        pedIter = pedMap.find(itdg->id());
        if( pedIter != pedMap.end() ) {
-	 aped = pedIter->second;
+	 aped = (*pedIter);
        } else {
 	 edm::LogError("EcalUncalibRecHitError") << "error!! could not find pedestals for channel: " << EBDetId(itdg->id()) 
 						 << "\n  no uncalib rechit will be made for this digi!"
@@ -178,7 +178,7 @@ EcalFixedAlphaBetaFitUncalibRecHitProducer::produce(edm::Event& evt, const edm::
        LogDebug("EcalUncalibRecHitDebug") << "looking up gainRatios for crystal: " << EBDetId(itdg->id()) ;
        gainIter = gainMap.find(itdg->id());
        if( gainIter != gainMap.end() ) {
-	 aGain = gainIter->second;
+	 aGain = (*gainIter);
        } else {
 	 edm::LogError("EcalUncalibRecHitError") << "error!! could not find gain ratios for channel: " << EBDetId(itdg->id())
 						 << "\n  no uncalib rechit will be made for this digi!"
@@ -234,7 +234,7 @@ EcalFixedAlphaBetaFitUncalibRecHitProducer::produce(edm::Event& evt, const edm::
        LogDebug("EcalUncalibRecHitDebug") << "looking up pedestal for crystal: " << EEDetId(itdg->id()) ;
        pedIter = pedMap.find(itdg->id());
        if( pedIter != pedMap.end() ) {
-	 aped = pedIter->second;
+	 aped = (*pedIter);
        } else {
 	 edm::LogError("EcalUncalibRecHitError") << "error!! could not find pedestals for channel: " << EEDetId(itdg->id()) 
 						 << "\n  no uncalib rechit will be made for this digi!"
@@ -248,7 +248,7 @@ EcalFixedAlphaBetaFitUncalibRecHitProducer::produce(edm::Event& evt, const edm::
        LogDebug("EcalUncalibRecHitDebug") << "looking up gainRatios for crystal: " << EEDetId(itdg->id()) ;
        gainIter = gainMap.find(itdg->id());
        if( gainIter != gainMap.end() ) {
-	 aGain = gainIter->second;
+	 aGain = (*gainIter);
        } else {
 	 edm::LogError("EcalUncalibRecHitError") << "error!! could not find gain ratios for channel: " << EEDetId(itdg->id())
 						 << "\n  no uncalib rechit will be made for this digi!"
