@@ -19,6 +19,7 @@ TrackerMap::TrackerMap(string s,int xsize1,int ysize1) {
   minvalue=0.; maxvalue=minvalue;
   title=s;
   posrel=true;
+  palette = 1;
 
   ndet = 3; // number of detectors: pixel, inner silicon, outer silicon
   npart = 3; // number of detector parts: endcap -z, barrel, endcap +z
@@ -68,6 +69,8 @@ void TrackerMap::drawModule(TmModule * mod, int key,int nlay, bool print_total){
   double rmedio[]={0.041,0.0701,0.0988,0.255,0.340,0.430,0.520,0.610,0.696,0.782,0.868,0.965,1.080};
   double xt1,yt1,xs1=0.,ys1=0.,xt2,yt2,xs2,ys2,pv1,pv2;
   int green = 0;
+  int red = 0;
+  int blue = 0;
   double xd[4],yd[4];
   int np = 4;
   //int numrec=0;
@@ -157,13 +160,23 @@ void TrackerMap::drawModule(TmModule * mod, int key,int nlay, bool print_total){
    sprintf(buffer,"%X",mod->idex);
 
  if(mod->red < 0){ //use count to compute color
-     green = (int)((mod->value-minvalue)/(maxvalue-minvalue)*256.); 
+   if(palette==1){//palette1 1 - raibow
+   float delta=(maxvalue-minvalue);
+   float x =(mod->value-minvalue);
+   green= (int) ( x<delta/4 ? x : ( x > 3/4*delta ?  -255/(delta/4) * x + 4 * 255 : 255 ) );
+   blue = (int) ( x<delta/2 ? 0 : ( x > 3/4*delta ?  255 : 255/(delta/4) * x - 510 ) );
+   red = (int) ( x<delta/4 ? 255 : ( x > 1/2*delta ?  0 : -255/(delta/4) * x + 510 ) );
+     }
+     if (palette==2){//palette 2 yellow-green
+     green = (int)((mod->value-minvalue)/(maxvalue-minvalue)*256.);
+         if (green > 255) green=255;
+         red = 255; blue=0;green=255-green;  
+        } 
 
-   if (green > 255) green=255;
 if(!print_total)mod->value=mod->value*mod->count;//restore mod->value
   
   if(mod->count > 0)
-    *svgfile <<"<svg:polygon detid=\""<<mod->idex<<"\" count=\""<<mod->count <<"\" value=\""<<mod->value<<"\" id=\""<<key<<"\" onclick=\"showData(evt);\" onmouseover=\"showData(evt);\" onmouseout=\"showData(evt);\" MESSAGE=\""<<mod->text<<"\" POS=\""<<mod->name<<" Id "<<mod->idex<<" \" fill=\"rgb(255,"<<255-green<<",0)\" points=\"";
+    *svgfile <<"<svg:polygon detid=\""<<mod->idex<<"\" count=\""<<mod->count <<"\" value=\""<<mod->value<<"\" id=\""<<key<<"\" onclick=\"showData(evt);\" onmouseover=\"showData(evt);\" onmouseout=\"showData(evt);\" MESSAGE=\""<<mod->text<<"\" POS=\""<<mod->name<<" Id "<<mod->idex<<" \" fill=\"rgb("<<red<<","<<green<<","<<blue<<")\" points=\"";
   else
     *svgfile <<"<svg:polygon detid=\""<<mod->idex<<"\" count=\""<<mod->count <<"\" value=\""<<mod->value<<"\" id=\""<<key<<"\"  onclick=\"showData(evt);\" onmouseover=\"showData(evt);\" onmouseout=\"showData(evt);\" MESSAGE=\""<<mod->text<<"\" POS=\""<<mod->name<<" Id "<<mod->idex<<" \" fill=\"white\" points=\"";
   for(int k=0;k<np;k++){
