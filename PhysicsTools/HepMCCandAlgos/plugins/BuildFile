@@ -3,7 +3,7 @@
 <use name=PhysicsTools/UtilAlgos>
 <use name=DataFormats/HepMCCandidate>
 
-<library file=GenEventWeightProducer.cc>
+<library file=GenEventRunInfoProducer.cc>
   <use name=SimDataFormats/HepMCProduct>
 </library>
 
