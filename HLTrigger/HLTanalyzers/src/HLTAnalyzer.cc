@@ -2,8 +2,6 @@
 // Description:  Example of Analysis driver originally from Jeremy Mans,
 // Date:  13-October-2006
 
-#include "DataFormats/EgammaCandidates/interface/ElectronFwd.h"
-#include "DataFormats/EgammaCandidates/interface/PhotonFwd.h"
 #include "HLTrigger/HLTanalyzers/interface/HLTAnalyzer.h"
 
 // Boiler-plate constructor definition of an analyzer module:
@@ -32,7 +30,7 @@ HLTAnalyzer::HLTAnalyzer(edm::ParameterSet const& conf) {
   muon_    = conf.getParameter< std::string > ("muon");
 
   mctruth_   = conf.getParameter< std::string > ("mctruth");
-  hltobj_    = conf.getParameter< std::string > ("hltobj");
+//   hltobj_    = conf.getParameter< std::string > ("hltobj");
 
   l1extramc_ = conf.getParameter< std::string > ("l1extramc");
 
@@ -90,12 +88,12 @@ void HLTAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetu
   edm::Handle<CaloMETCollection> recmet;
   edm::Handle<GenMETCollection> genmet;
   edm::Handle<METCollection> ht;
-//   edm::Handle<edm::HepMCProduct> mctruthHandle;
+//   edm::Handle<edm::HepMCProduct> hepmcHandle;
   edm::Handle<CandidateCollection> mctruth;
   edm::Handle<ElectronCollection> Electron;
   edm::Handle<PhotonCollection> Photon;
   edm::Handle<MuonCollection> muon;
-  edm::Handle<HLTFilterObjectWithRefs> hltobj;
+//   edm::Handle<HLTFilterObjectWithRefs> hltobj;
   edm::Handle<edm::TriggerResults> hltresults;
   edm::Handle<l1extra::L1EmParticleCollection> l1extemi,l1extemn;
   edm::Handle<l1extra::L1MuonParticleCollection> l1extmu;
@@ -116,7 +114,7 @@ void HLTAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetu
   try {iEvent.getByLabel(Electron_,Electron);} catch (...) { errMsg=errMsg + "  -- No Candidate Electrons";}
   try {iEvent.getByLabel(Photon_,Photon);} catch (...) { errMsg=errMsg + "  -- No Candidate Photons";}
   try {iEvent.getByLabel(muon_,muon);} catch (...) { errMsg=errMsg + "  -- No Candidate Muons";}
-  try {iEvent.getByLabel(hltobj_,hltobj);} catch (...) { errMsg=errMsg + "  -- No HLTOBJ";}
+//   try {iEvent.getByLabel(hltobj_,hltobj);} catch (...) { errMsg=errMsg + "  -- No HLTOBJ";}
   try {iEvent.getByType(hltresults);} catch (...) { errMsg=errMsg + "  -- No HLTRESULTS";}
   try {iEvent.getByLabel(l1extramc_,l1extemi);} catch (...) { errMsg=errMsg + "  -- No Isol. L1Em objects";}
   try {iEvent.getByLabel(l1extramc_,l1extemn);} catch (...) { errMsg=errMsg + "  -- No Non-isol. L1Em objects";}
@@ -129,29 +127,29 @@ void HLTAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetu
 
   try {iEvent.getByLabel(mctruth_,mctruth);} catch (...) { errMsg=errMsg + "  -- No Gen Particles";}
 
-//   HepMC::GenEvent mctruth;
+//   HepMC::GenEvent hepmc;
 //   try {
-//     //iEvent.getByLabel("VtxSmeared", "", mctruthHandle);
-//     iEvent.getByLabel(mctruth_, "", mctruthHandle);
-//     mctruth = mctruthHandle->getHepMCData(); 
+//     //iEvent.getByLabel("VtxSmeared", "", hepmcHandle);
+//     iEvent.getByLabel(hepmc_, "", hepmcHandle);
+//     hepmc = hepmcHandle->getHepMCData(); 
 //   } catch (...) { errMsg=errMsg + "  -- No MC truth"; }
 
-//   if ((errMsg != "") && (errCnt < errMax())){
-//     errCnt=errCnt+1;
-//     errMsg=errMsg + ".";
-//     std::cout << "%HLTAnalyzer-Warning" << errMsg << std::endl;
-//     if (errCnt == errMax()){
-//       errMsg="%HLTAnalyzer-Warning -- Maximum error count reached -- No more messages will be printed.";
-//       std::cout << errMsg << std::endl;    
-//     }
-//   }
+  if ((errMsg != "") && (errCnt < errMax())){
+    errCnt=errCnt+1;
+    errMsg=errMsg + ".";
+    std::cout << "%HLTAnalyzer-Warning" << errMsg << std::endl;
+    if (errCnt == errMax()){
+      errMsg="%HLTAnalyzer-Warning -- Maximum error count reached -- No more messages will be printed.";
+      std::cout << errMsg << std::endl;    
+    }
+  }
 
   // run the analysis, passing required event fragments
   jet_analysis_.analyze(*recjets,*genjets, *recmet,*genmet, *ht, *caloTowers, *geometry, HltTree);
   elm_analysis_.analyze(*Electron, *Photon, *geometry, HltTree);
   muon_analysis_.analyze(*muon, *geometry, HltTree);
-  mct_analysis_.analyze(*mctruth,HltTree);
-  hlt_analysis_.analyze(*hltobj,*hltresults,*l1extemi,*l1extemn,*l1extmu,*l1extjetc,*l1extjetf,*l1exttaujet,*l1extmet,*l1mapcoll,HltTree);
+  mct_analysis_.analyze(*mctruth,/*hepmc,*/HltTree);
+  hlt_analysis_.analyze(/**hltobj,*/*hltresults,*l1extemi,*l1extemn,*l1extmu,*l1extjetc,*l1extjetf,*l1exttaujet,*l1extmet,*l1mapcoll,HltTree);
 
   // After analysis, fill the variables tree
   HltTree->Fill();
