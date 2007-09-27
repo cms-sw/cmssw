@@ -40,6 +40,7 @@ MuonCkfTrajectoryBuilderESProducer::produce(const CkfComponentsRecord& iRecord)
   std::string propagatorProximityName = pset_.getParameter<std::string>("propagatorProximity");   
   std::string estimatorName          = pset_.getParameter<std::string>("estimator"); 
   std::string recHitBuilderName      = pset_.getParameter<std::string>("TTRHBuilder");     
+  std::string measurementTrackerName = pset_.getParameter<std::string>("MeasurementTrackerName");
 
   edm::ESHandle<TrajectoryStateUpdator> updatorHandle;
   edm::ESHandle<Propagator>             propagatorAlongHandle;
@@ -55,7 +56,7 @@ MuonCkfTrajectoryBuilderESProducer::produce(const CkfComponentsRecord& iRecord)
   iRecord.getRecord<TrackingComponentsRecord>().get(propagatorProximityName,propagatorProximityHandle);
   iRecord.getRecord<TrackingComponentsRecord>().get(estimatorName,estimatorHandle);  
   iRecord.getRecord<TransientRecHitRecord>().get(recHitBuilderName,recHitBuilderHandle);  
-  iRecord.get(measurementTrackerHandle);  
+  iRecord.get(measurementTrackerName, measurementTrackerHandle);  
     
   _trajectoryBuilder  = 
     boost::shared_ptr<TrajectoryBuilder>(new MuonCkfTrajectoryBuilder(pset_,
