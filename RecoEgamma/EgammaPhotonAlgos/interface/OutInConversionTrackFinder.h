@@ -3,9 +3,9 @@
 /** \class OutInConversionTrackFinder
  **  
  **
- **  $Id: OutInConversionTrackFinder.h,v 1.5 2006/12/19 17:35:31 nancy Exp $ 
- **  $Date: 2006/12/19 17:35:31 $ 
- **  $Revision: 1.5 $
+ **  $Id: OutInConversionTrackFinder.h,v 1.6 2007/06/25 16:39:42 nancy Exp $ 
+ **  $Date: 2007/06/25 16:39:42 $ 
+ **  $Revision: 1.6 $
  **  \author Nancy Marinelli, U. of Notre Dame, US
  **
  ***/
@@ -14,7 +14,6 @@
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
 #include "DataFormats/TrackCandidate/interface/TrackCandidateCollection.h"
-//#include "DataFormats/TrackCandidate/interface/TrackCandidateSuperClusterAssociation.h"
 //
 #include "TrackingTools/PatternTools/interface/TrajectoryMeasurement.h"
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
@@ -30,7 +29,7 @@
 //
 
 class MagneticField;
-class TrackerTrajectoryBuilder;
+class TrajectoryBuilder;
 class KFUpdator;
 class TrajectoryCleanerBySharedHits;
 class TransientInitialStateEstimator;
@@ -45,28 +44,14 @@ class OutInConversionTrackFinder : public ConversionTrackFinder {
   
   
   virtual ~OutInConversionTrackFinder();
-   
-  //  virtual std::vector<Trajectory> tracks(const TrajectorySeedCollection seeds, TrackCandidateCollection &candidates, reco::TrackCandidateSuperClusterAssociationCollection& outAssoc, int iSC ) const;
   
- virtual std::vector<Trajectory> tracks(const TrajectorySeedCollection seeds, TrackCandidateCollection &candidates ) const;
-  
-
-
-  // virtual std::vector<const Trajectory*> tracks(const TrajectorySeedCollection seeds ) const ;
-  //  virtual std::vector<Trajectory> tracks(const TrajectorySeedCollection seeds ) const;
-  // virtual TrackCandidateCollection tracks(const TrajectorySeedCollection seeds ) const;
-  //virtual  std::auto_ptr<TrackCandidateCollection>  tracks(const TrajectorySeedCollection seeds ) const;
-
-  
-  
-  
-  
+  virtual std::vector<Trajectory> tracks(const TrajectorySeedCollection seeds, TrackCandidateCollection &candidates ) const;
 
  private: 
 
 
   edm::ParameterSet                         conf_;
-  const TrackerTrajectoryBuilder*  theCkfTrajectoryBuilder_;
+  const TrajectoryBuilder*  theCkfTrajectoryBuilder_;
   KFUpdator*                          theUpdator_;
   TrajectoryCleanerBySharedHits* theTrajectoryCleaner_;
  

@@ -1,7 +1,6 @@
 #include "RecoEgamma/EgammaPhotonAlgos/interface/OutInConversionTrackFinder.h"
 //
 #include "RecoTracker/Record/interface/CkfComponentsRecord.h"
-#include "RecoTracker/CkfPattern/interface/TrackerTrajectoryBuilder.h"
 #include "RecoTracker/CkfPattern/interface/TransientInitialStateEstimator.h"
 #include "RecoTracker/CkfPattern/interface/GroupedTrajCandLess.h"
 #include "RecoTracker/CkfPattern/interface/SeedCleanerByHitPosition.h"
@@ -10,6 +9,7 @@
 //
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 //
+#include "TrackingTools/PatternTools/interface/TrajectoryBuilder.h"
 #include "TrackingTools/KalmanUpdators/interface/KFUpdator.h"
 #include "TrackingTools/TrajectoryCleaning/interface/TrajectoryCleanerBySharedHits.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
@@ -32,7 +32,7 @@ OutInConversionTrackFinder::OutInConversionTrackFinder(const edm::EventSetup& es
   
   // Get the TrajectoryBuilder  
   std::string trajectoryBuilderName = conf_.getParameter<std::string>("TrajectoryBuilder");
-  edm::ESHandle<TrackerTrajectoryBuilder> theTrajectoryBuilderHandle;
+  edm::ESHandle<TrajectoryBuilder> theTrajectoryBuilderHandle;
   es.get<CkfComponentsRecord>().get(trajectoryBuilderName,theTrajectoryBuilderHandle);
   theCkfTrajectoryBuilder_ = theTrajectoryBuilderHandle.product();
   //
