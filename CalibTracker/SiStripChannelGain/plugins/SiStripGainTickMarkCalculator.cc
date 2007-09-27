@@ -3,7 +3,7 @@
 // Class:      SiStripGainTickMarkCalculator
 // Original Author:  G. Bruno
 //         Created:  Mon May 20 10:04:31 CET 2007
-// $Id: SiStripGainTickMarkCalculator.cc,v 1.2 2007/07/30 13:41:48 gbruno Exp $
+// $Id: SiStripGainTickMarkCalculator.cc,v 1.3 2007/09/04 16:19:24 gbruno Exp $
 
 #include "CalibTracker/SiStripChannelGain/plugins/SiStripGainTickMarkCalculator.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -94,7 +94,7 @@ SiStripApvGain * SiStripGainTickMarkCalculator::getNewObject() {
   std::vector<std::string> contents;
 
   //had to comment because method is protected
-  mui_->getContents( contents ); 
+  // mui_->getContents( contents ); 
 
   histos_ = new OptoScanHistograms( mui_ );
 
