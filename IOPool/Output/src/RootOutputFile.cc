@@ -1,4 +1,4 @@
-// $Id: RootOutputFile.cc,v 1.15 2007/09/13 16:29:50 paterno Exp $
+// $Id: RootOutputFile.cc,v 1.16 2007/09/13 20:16:27 paterno Exp $
 
 #include "RootOutputFile.h"
 #include "PoolOutputModule.h"
@@ -44,7 +44,7 @@ namespace edm {
       eventCount_(0),
       fileSizeCheckEvent_(100),
       om_(om),
-      filePtr_(TFile::Open(file_.c_str(), "update", "", om_->compressionLevel())),
+      filePtr_(TFile::Open(file_.c_str(), "recreate", "", om_->compressionLevel())),
       fid_(),
       metaDataTree_(0),
       eventAux_(),
