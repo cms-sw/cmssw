@@ -13,7 +13,7 @@
 //
 // Original Author:  Chi Nhan Nguyen
 //         Created:  Mon Feb 19 13:25:24 CST 2007
-// $Id: FastL1GlobalAlgo.cc,v 1.19 2007/09/07 23:01:21 smaruyam Exp $
+// $Id: FastL1GlobalAlgo.cc,v 1.20 2007/09/26 23:41:50 chinhan Exp $
 //
 
 // No BitInfos for release versions
@@ -466,12 +466,17 @@ FastL1GlobalAlgo::FillMET() {
     //double e = m_Regions[i].SumE();
 
     //sum_et += et;
-    sum_et += RCTEnergyTrunc(et,1.0,1024);
+    //sum_et += RCTEnergyTrunc(et,0.5,2048);
+    sum_et += et;
+    //sum_ex += RCTEnergyTrunc(et*cos(phi),0.5,2048);
+    //sum_ey += RCTEnergyTrunc(et*sin(phi),0.5,2048); 
     sum_ex += et*cos(phi);
     sum_ey += et*sin(phi); 
     //sum_ex += e*sin(theta)*cos(phi);
     //sum_ey += e*sin(theta)*sin(phi); 
     //sum_e += e;
+    //sum_e += RCTEnergyTrunc(et/sin(theta),0.5,2048);
+    //sum_ez += RCTEnergyTrunc(et*cos(theta)/sin(theta),0.5,2048);
     sum_e += et/sin(theta);
     sum_ez += et*cos(theta)/sin(theta);
     //sum_ez += e*cos(theta);
@@ -625,7 +630,9 @@ m_Regions[i].BitInfo.hcal.push_back(0);
  	double emEt = ((double) emEtV[i][j]) * m_L1Config.EMLSB;
 	//double hadEt = ((double )hEtV[i][j]) * m_L1Config.JetLSB * cos(2.*atan(exp(-hiEtaV[i][j])));
 	int iAbsTwrEta = std::abs(hiEtaV[i][j]);
-	double hadEt = ((double )hcaletValue(iAbsTwrEta, hEtV[i][j])) * m_L1Config.JetLSB;
+	//double hadEt = ((double )hcaletValue(iAbsTwrEta, hEtV[i][j])) * m_L1Config.JetLSB;
+	double hadEt = ((double )hcaletValue(iAbsTwrEta, hEtV[i][j]));
+	//double hadEt = hEtV[i][j] * m_L1Config.JetLSB;
    
 	if (m_L1Config.DoEMCorr) {
 	  emEt = corrEmEt(emEt,emEtaV[i][j]);
@@ -648,7 +655,8 @@ m_Regions[i].BitInfo.hcal[j] = hadEt;
 				emEt, hadEt, 
 				0., 0, 0);
     
-	m_Regions[i].FillTower_Scaled(t,j,false);
+	//m_Regions[i].FillTower_Scaled(t,j,false);
+	m_Regions[i].FillTower_Scaled(t,j,true);
     
 	/*
 	if (et>0) {
@@ -1291,5 +1299,5 @@ FastL1GlobalAlgo::checkMapping() {
 double
 FastL1GlobalAlgo::hcaletValue(const int ieta,const int compET) {
   double etvalue = m_hcaluncomp[ieta][compET];//*cos(eta_ave);
-  return(etvalue);
+  return etvalue;
 }

@@ -13,7 +13,7 @@
 //
 // Original Author:  Chi Nhan Nguyen
 //         Created:  Mon Feb 19 13:25:24 CST 2007
-// $Id: FastL1RegionMap.cc,v 1.7 2007/08/22 18:28:09 chinhan Exp $
+// $Id: FastL1RegionMap.cc,v 1.8 2007/09/26 23:42:07 chinhan Exp $
 //
 
 
@@ -100,7 +100,7 @@ FastL1RegionMap::getRegionEtaPhiIndex(std::pair<int, int> EtaPhi)
   }
 
   // Test HF!!!
-  if (abs(iTwrEta)>=29 && abs(iTwrEta)<=41) {
+  if (abs(iTwrEta)>=29 && abs(iTwrEta)<=32) {
     iphi = ((iTwrPhi + 1) / 4) % 18;
 
     if (iTwrEta == 29) {
@@ -358,7 +358,7 @@ FastL1RegionMap::GetTowerWestEtaPhi(int ieta, int iphi)
 { 
   if (ieta == 1) return std::pair<int, int>(-1, iphi);
 
-  if (ieta > -28) 
+  if (ieta > -32) 
     return std::pair<int, int>(ieta-1, iphi); 
   else 
     return std::pair<int, int>(999, iphi); 
@@ -369,7 +369,7 @@ FastL1RegionMap::GetTowerEastEtaPhi(int ieta, int iphi)
 { 
   if (ieta == -1) return std::pair<int, int>(1, iphi);
 
-  if (ieta < 28) 
+  if (ieta < 32) 
     return std::pair<int, int>(ieta+1, iphi); 
   else 
     return std::pair<int, int>(999, iphi); 
@@ -380,7 +380,7 @@ FastL1RegionMap::GetTowerNWEtaPhi(int ieta, int iphi)
 { 
   int iEta = ieta - 1;
   int iPhi = iphi + 1;
-  if (ieta <= -28) 
+  if (ieta <= -32) 
     iEta = 999;
   if (ieta == 1) 
     iEta = -1;
@@ -395,7 +395,7 @@ FastL1RegionMap::GetTowerNEEtaPhi(int ieta, int iphi)
 { 
   int iEta = ieta + 1;
   int iPhi = iphi + 1;
-  if (ieta >= 28) 
+  if (ieta >= 32) 
     iEta = 999;
   if (ieta == -1) 
     iEta = 1;
@@ -412,7 +412,7 @@ FastL1RegionMap::GetTowerSWEtaPhi(int ieta, int iphi)
 { 
   int iEta = ieta - 1;
   int iPhi = iphi - 1;
-  if (ieta <= -28) 
+  if (ieta <= -32) 
     iEta = 999;
   if (ieta == 1) 
     iEta = -1;
@@ -427,7 +427,7 @@ FastL1RegionMap::GetTowerSEEtaPhi(int ieta, int iphi)
 { 
   int iEta = ieta + 1;
   int iPhi = iphi - 1;
-  if (ieta >= 28) 
+  if (ieta >= 32) 
     iEta = 999;
   if (ieta == -1) 
     iEta = 1;

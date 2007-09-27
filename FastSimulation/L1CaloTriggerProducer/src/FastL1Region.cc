@@ -13,7 +13,7 @@
 //
 // Original Author:  Chi Nhan Nguyen
 //         Created:  Mon Feb 19 13:25:24 CST 2007
-// $Id: FastL1Region.cc,v 1.12 2007/08/23 04:48:42 chinhan Exp $
+// $Id: FastL1Region.cc,v 1.13 2007/09/07 23:01:35 smaruyam Exp $
 //
 
 // No BitInfos for release versions
@@ -912,9 +912,9 @@ RCTEnergyTrunc(double et, double LSB, double thres) {
 
   if (et>=thres) return thres;
 
-  double ret = (int)(et / LSB) * LSB + LSB;
-  //double ret = (int)(et / LSB) * LSB;
-
+  et += LSB/2.;
+  //double ret = (int)(et / LSB) * LSB + LSB;
+  double ret = (int)(et / LSB) * LSB;
 
   return ret;
 }
