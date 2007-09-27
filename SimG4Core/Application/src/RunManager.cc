@@ -251,8 +251,12 @@ void RunManager::produce(edm::Event& inpevt, const edm::EventSetup & es)
     m_simEvent->hepEvent(m_generator->genEvent());
     m_simEvent->weight(m_generator->eventWeight());
     if (m_generator->genVertex()!=0) 
-    m_simEvent->collisionPoint(HepLorentzVector(m_generator->genVertex()->vect()/centimeter,
-                                                m_generator->genVertex()->t()/second));
+    //m_simEvent->collisionPoint(HepLorentzVector(m_generator->genVertex()->vect()/centimeter,
+    //                                            m_generator->genVertex()->t()/second));
+    m_simEvent->collisionPoint(math::XYZTLorentzVectorD(m_generator->genVertex()->x()/centimeter,
+                                                        m_generator->genVertex()->y()/centimeter,
+							m_generator->genVertex()->z()/centimeter,
+                                                        m_generator->genVertex()->t()/second));
  
     if (m_currentEvent->GetNumberOfPrimaryVertex()==0)
     {

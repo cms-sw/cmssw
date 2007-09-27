@@ -1,7 +1,8 @@
 #include "SimG4Core/Application/interface/G4SimEvent.h"
 #include "SimDataFormats/EncodedEventId/interface/EncodedEventId.h"
 
-#include "CLHEP/Units/SystemOfUnits.h"
+// #include "CLHEP/Units/SystemOfUnits.h"
+#include "G4SystemOfUnits.hh"
 
 class IdSort{
 public:
@@ -11,7 +12,9 @@ public:
 };
 
 
-G4SimEvent::G4SimEvent() : hepMCEvent(0),weight_(0),collisionPoint_(0),
+G4SimEvent::G4SimEvent() : hepMCEvent(0),
+                           weight_(0),
+                           collisionPoint_(math::XYZTLorentzVectorD(0.,0.,0.,0.)),
 			   nparam_(0),param_(0) {}
 
 G4SimEvent::~G4SimEvent() 
@@ -56,23 +59,23 @@ void G4SimEvent::load(edm::SimTrackContainer & c) const
     {
 	G4SimTrack * trk    = g4tracks[i];
 	int ip              = trk->part();
-	HepLorentzVector p  = HepLorentzVector(trk->momentum()/GeV,trk->energy()/GeV);
-//	math::XYZTLorentzVectorD p = math::XYZTLorentzVectorD( trk->momentum().x()/GeV,
-//	                                                       trk->momentum().y()/GeV,
-//							       trk->momentum().z()/GeV,
-//							       trk->energy()/GeV ) ;
+	// HepLorentzVector p  = HepLorentzVector(trk->momentum()/GeV,trk->energy()/GeV);
+	math::XYZTLorentzVectorD p( trk->momentum().x()/GeV,
+	                            trk->momentum().y()/GeV,
+                                    trk->momentum().z()/GeV,
+			            trk->energy()/GeV ) ;
 	int iv              = trk->ivert();
 	int ig              = trk->igenpart();
 	int id              = trk->id();
-	Hep3Vector tkpos    = trk->trackerSurfacePosition();
-//	math::XYZVectorD tkpos = math::XYZVectorD( trk->trackerSurfacePosition().x(),
-//	                                           trk->trackerSurfacePosition().y(),
-//						   trk->trackerSurfacePosition().z() ) ;
-	HepLorentzVector tkmom  = trk->trackerSurfaceMomentum();
-//	math::XYZTLorentzVectorD tkmom = math::XYZTLorentzVectorD( trk->trackerSurfaceMomentum().x(),
-//	                                                           trk->trackerSurfaceMomentum().y(),
-//								   trk->trackerSurfaceMomentum().z(),
-//								   trk->trackerSurfaceMomentum().e() ) ;
+	// Hep3Vector tkpos    = trk->trackerSurfacePosition();
+	math::XYZVectorD tkpos( trk->trackerSurfacePosition().x(),
+	                        trk->trackerSurfacePosition().y(),
+			        trk->trackerSurfacePosition().z() ) ;
+	// HepLorentzVector tkmom  = trk->trackerSurfaceMomentum();
+	math::XYZTLorentzVectorD tkmom( trk->trackerSurfaceMomentum().x(),
+	                                trk->trackerSurfaceMomentum().y(),
+	                                trk->trackerSurfaceMomentum().z(),
+				        trk->trackerSurfaceMomentum().e() ) ;
 	// ip = particle ID as PDG
 	// pp = 4-momentum
 	// iv = corresponding G4SimVertex index
