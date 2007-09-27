@@ -764,18 +764,7 @@ class _ReplaceNode(object):
     def __repr__(self):
         # translate true/false to True/False
         s = self.getValue()
-        #if it's a number, we don't want quotes
-        nodots = s.replace('.','')
-        if nodots.isdigit():
-            pass
-        elif s == 'true':
-            s = 'True'
-        elif s == 'false':
-            s = 'False'
-        else:
-            # need the quotes
-            s = repr(s)
-        return '.'.join(self.path)+" = "+s
+        return '.'.join(self.path)+repr(self.setter)
 
 class _ReplaceSetter(object):
     """Used to 'set' an unknown type of value from a Replace node"""
@@ -792,11 +781,54 @@ class _ReplaceSetter(object):
         v=theAt._valueFromString(self.value)
         v.setIsTracked(theAt.isTracked())
         setattr(obj,attr,v)
+    def __repr__(self):
+       # FIXME not really a repr, because of the = sign
+       return " = "+self._pythonValue(self.value)
+    @staticmethod
+    def _pythonValue(value):
+        #if it's a number, we don't want quotes
+        result = str(value)
+        nodots = result.replace('.','')
+        if nodots.isdigit():
+            pass
+        elif result == 'true':
+            result = 'True'
+        elif result == 'false':
+            result = 'False'
+        elif result[0] == '[':
+            l = eval(result)
+            first = True
+            isVInputTag = False
+            result = ''
+            for x in l:
+                if not first:
+                    result += ", "
+                element = _ReplaceSetter._pythonValue(x) 
+                if element.find('InputTag') != -1:
+                   isVInputTag = True
+                result += element
+                first = False
+            if isVInputTag:
+               result = "cms.VInputTag("+result+")"
+            else:
+               result = "["+result+"]"
+        elif result.find(':') != -1:
+            result = repr(cms.InputTag._valueFromString(result))
+        else:
+            # need the quotes
+            result = repr(result)
+        print "PYTHON " + str(type(value))+" RES "+result
+        return result
+
+ 
 
 class _ParameterReplaceSetter(_ReplaceSetter):
     """Base used to 'set' a PSet or VPSet replace node""" 
     def setValue(self,obj,attr):
         setattr(obj,attr,self.value)
+    @staticmethod
+    def _pythonValue(value):
+        return repr(value)
 
 class _VPSetReplaceSetter(_ParameterReplaceSetter):
     """Used to 'set' a VPSet replace node"""
@@ -815,6 +847,9 @@ class _SimpleListTypeExtendSetter(_ReplaceSetter):
     def setValue(self,obj,attr):
         theAt=getattr(obj,attr)
         theAt.extend(theAt._valueFromString(self.value))
+    def __repr__(self):
+        return ".extend("+self._pythonValue(self.value)+")"
+
 
 class _SimpleListTypeAppendSetter(_ReplaceSetter):
     """replace command to append to a list"""
@@ -824,6 +859,10 @@ class _SimpleListTypeAppendSetter(_ReplaceSetter):
     def setValue(self,obj,attr):
         theAt=getattr(obj,attr)
         theAt.append(theAt._valueFromString([self.value])[0])
+    def __repr__(self):
+        return ".append("+self._pythonValue(self.value)+")"
+
+
 
 class _VPSetExtendSetter(_VPSetReplaceSetter):
     """replace command to extend a VPSet"""
@@ -833,6 +872,10 @@ class _VPSetExtendSetter(_VPSetReplaceSetter):
     def setValue(self,obj,attr):
         theAt=getattr(obj,attr)
         theAt.extend(self.value)
+    def __repr__(self):
+        return ".extend("+self._pythonValue(self.value)+")"
+
+
 
 class _VPSetAppendSetter(_PSetReplaceSetter):
     """replace command to append a PSet to a VPSet"""
@@ -842,6 +885,10 @@ class _VPSetAppendSetter(_PSetReplaceSetter):
     def setValue(self,obj,attr):
         theAt=getattr(obj,attr)
         theAt.append(self.value)
+    def __repr__(self):
+        return ".append("+self._pythonValue(self.value)+")"
+
+
 
 class _IncrementFromVariableSetter(_ReplaceSetter):
     """replace command which gets its value from another parameter"""
@@ -871,6 +918,13 @@ class _IncrementFromVariableSetter(_ReplaceSetter):
                 theAt.append(self.value.value())
         except Exception, e:
             raise RuntimeError("replacing with "+self.oldValue+" failed because\n"+str(e))
+    def __repr__(self):
+        v = str(self.value)
+        if v[0] == '[':
+           return ".extend("+v+")"
+        else:
+           return ".append("+v+")"
+
         
 
 class _MakeSetter(object):
@@ -1217,7 +1271,7 @@ class _ConfigReturn(object):
                 sequences += key+" = "+value.dumpPython('','    ')+"\n"
             else:
                 others += key+" = "+value.dumpPython('','    ')+"\n"
-        return result+includes+others+sequences+replaces
+        return result+includes+"\n"+others+"\n"+sequences+"\n"+replaces
 
 def parseCfgFile(fileName):
     """Read a .cfg file and create a Process object"""
@@ -2254,7 +2308,7 @@ process RECO = {
 #            print t[0][1]
             t=path.parseString('path p = {a,b}')
             self.assertEqual(str(t[0][1]),'(a,b)')            
-            self.assertEqual(repr(t[0][1]), 'cms.Path((a*b))')
+            self.checkRepr(t[0][1], 'cms.Path((a*b))')
             self.assertEqual(t[0][1].cfgRepr(p), 'cms.Path((process.a*process.b))')
             pth = t[0][1].make(p)
             self.assertEqual(str(pth),'(a*b)')
@@ -2320,6 +2374,15 @@ process RECO = {
             self.assertEqual(str(t[0][1]),'((!a&!b)&!c)')
             pth = t[0][1].make(p)
             self.assertEqual(str(pth),'((~a+~b)+~c)')
+        @staticmethod
+        def strip(value):
+            """strip out whitespace & newlines"""
+            return  value.replace(' ','').replace('\n','')
+        def checkRepr(self, obj, expected):
+            # strip out whitespace & newlines
+            observe = self.strip(repr(obj))
+            expect = self.strip(expected)    
+            self.assertEqual(observe, expect)
         def testReplace(self):
             process = cms.Process("Test")
             process.a = cms.EDProducer('FooProd', b=cms.uint32(2))
@@ -2327,6 +2390,7 @@ process RECO = {
             self.assertEqual(t[0][0],'a.b')
             self.assertEqual(t[0][1].path, ['a','b'])
             self.assertEqual(t[0][1].value,'1')
+            self.checkRepr(t[0][1], "a.b = 1")
             t[0][1].do(process)
             self.assertEqual(process.a.b.value(),1)
             #print t
@@ -2335,6 +2399,7 @@ process RECO = {
             self.assertEqual(t[0][0],'a.b.c')
             self.assertEqual(t[0][1].path, ['a','b','c'])
             self.assertEqual(t[0][1].value,'1')
+            self.checkRepr(t[0][1], "a.b.c = 1")
             t[0][1].do(process)
             self.assertEqual(type(process.a.b),cms.PSet)
             self.assertEqual(process.a.b.c.value(),1.0)
@@ -2343,6 +2408,7 @@ process RECO = {
             self.assertEqual(t[0][0],'a.b.c')
             self.assertEqual(t[0][1].path, ['a','b','c'])
             self.assertEqual(t[0][1].value,'1.359')
+            self.checkRepr(t[0][1], "a.b.c = 1.359")
             t[0][1].do(process)
             self.assertEqual(type(process.a.b),cms.PSet)
             self.assertEqual(process.a.b.c.value(),1.359)
@@ -2351,6 +2417,7 @@ process RECO = {
             self.assertEqual(process.a.b.c.value(),2.0)
             self.assertEqual(process.a.b.c.isTracked(),False)
             t=replace.parseString('replace a.b.c = 1')
+            self.checkRepr(t[0][1], "a.b.c = 1")
             t[0][1].do(process)
             self.assertEqual(type(process.a.b),cms.PSet)
             self.assertEqual(process.a.b.c.value(),1.0)
@@ -2361,6 +2428,7 @@ process RECO = {
             self.assertEqual(t[0][1].path, ['a','b'])
             self.assertEqual(t[0][1].value,'all that')
             process.a = cms.EDProducer('FooProd', b=cms.string('thing'))
+            self.checkRepr(t[0][1], "a.b = \'all that\'")
             t[0][1].do(process)
             self.assertEqual(process.a.b.value(),'all that')            #print t
 
@@ -2368,12 +2436,16 @@ process RECO = {
             self.assertEqual(t[0][0],'a.b')
             self.assertEqual(t[0][1].path, ['a','b'])
             self.assertEqual(t[0][1].value,[])
+            self.checkRepr(t[0][1], "a.b = []")
+
             #print t
             t=replace.parseString('replace a.b = {1, 3, 6}')
             self.assertEqual(t[0][0],'a.b')
             self.assertEqual(t[0][1].path, ['a','b'])
             self.assertEqual(t[0][1].value,['1','3','6'])
             process.a = cms.EDProducer('FooProd', b=cms.vint32())
+            self.checkRepr(t[0][1], "a.b = [1, 3, 6]")
+
             t[0][1].do(process)
             self.assertEqual(len(process.a.b),3)
             #print t
@@ -2381,7 +2453,7 @@ process RECO = {
             self.assertEqual(t[0][0],'a.b')
             self.assertEqual(t[0][1].path, ['a','b'])
             self.assertEqual(t[0][1].value,['all','that'])
-
+            self.checkRepr(t[0][1], "a.b = [\'all\', \'that\']")
             t=replace.parseString('replace a.b = {"all that"}')
             self.assertEqual(t[0][0],'a.b')
             self.assertEqual(t[0][1].path, ['a','b'])
@@ -2390,9 +2462,9 @@ process RECO = {
             t=replace.parseString('replace a.b = { int32 i = 1 }')
             self.assertEqual(t[0][0],'a.b')
             self.assertEqual(t[0][1].path, ['a','b'])
-            print t[0][1].value
             self.assertEqual(type(t[0][1].value),cms.PSet)
             self.assertEqual(t[0][1].value.i.value(), 1) 
+            self.checkRepr(t[0][1], "a.b = cms.PSet(i=cms.int32(1))")
             process.a = cms.EDProducer('FooProd', b=cms.PSet(j=cms.uint32(5)))
             t[0][1].do(process)
             self.assertEqual(process.a.b.i.value(),1)
@@ -2404,6 +2476,7 @@ process RECO = {
             self.assertEqual(t[0][1].path, ['a','b'])
             self.assertEqual(type(t[0][1].value),cms.VPSet)
             self.assertEqual(t[0][1].value[0].i.value(), 1) 
+            self.checkRepr(t[0][1], "a.b = cms.VPSet(cms.PSet(i=cms.int32(1)))")
             process.a = cms.EDProducer('FooProd', b=cms.VPSet((cms.PSet(j=cms.uint32(5)))))
             t[0][1].do(process)
             self.assertEqual(process.a.b[0].i.value(),1)
@@ -2413,6 +2486,7 @@ process RECO = {
             self.assertEqual(t[0][0],'a.b')
             self.assertEqual(t[0][1].path, ['a','b'])
             self.assertEqual(t[0][1].value,'1')
+            self.checkRepr(t[0][1], "a.b.append(1)")
             t[0][1].do(process)
             self.assertEqual(list(process.a.b),[2,1])
 
@@ -2421,6 +2495,7 @@ process RECO = {
             self.assertEqual(t[0][0],'a.b')
             self.assertEqual(t[0][1].path, ['a','b'])
             self.assertEqual(t[0][1].value,['1','3'])
+            self.checkRepr(t[0][1], "a.b.extend([1,3])")
             t[0][1].do(process)
             self.assertEqual(list(process.a.b),[2,1,3])
             
@@ -2428,6 +2503,7 @@ process RECO = {
             self.assertEqual(t[0][0],'a.b')
             self.assertEqual(t[0][1].path, ['a','b'])
             self.assertEqual(t[0][1].value,'all that')
+            self.checkRepr(t[0][1], "a.b.append(\'all that\')")
             process.a = cms.EDProducer('FooProd', b=cms.vstring('thing'))
             t[0][1].do(process)
             self.assertEqual(list(process.a.b),['thing','all that'])
@@ -2436,6 +2512,7 @@ process RECO = {
             self.assertEqual(t[0][0],'a.b')
             self.assertEqual(t[0][1].path, ['a','b'])
             self.assertEqual(t[0][1].value,['all that','and more'])
+            self.checkRepr(t[0][1], "a.b.extend([\'all that\', \'and more\'])")
             process.a = cms.EDProducer('FooProd', b=cms.vstring('thing'))
             t[0][1].do(process)
             self.assertEqual(list(process.a.b),['thing','all that','and more'])
@@ -2445,6 +2522,7 @@ process RECO = {
             self.assertEqual(t[0][1].path, ['a','b'])
             self.assertEqual(type(t[0][1].value),cms.PSet)
             self.assertEqual(t[0][1].value.i.value(), 1) 
+            self.checkRepr(t[0][1], "a.b.append(cms.PSet(i=cms.int32(1)))")
             process.a = cms.EDProducer('FooProd',
                                        b=cms.VPSet((cms.PSet(j=cms.uint32(5)))))
             t[0][1].do(process)
@@ -2456,6 +2534,7 @@ process RECO = {
             self.assertEqual(t[0][1].path, ['a','b'])
             self.assertEqual(type(t[0][1].value),cms.VPSet)
             self.assertEqual(t[0][1].value[0].i.value(), 1) 
+            self.checkRepr(t[0][1], "a.b.extend(cms.VPSet(cms.PSet(i=cms.int32(1))))")
             process.a = cms.EDProducer('FooProd', b=cms.VPSet((cms.PSet(j=cms.uint32(5)))))
             t[0][1].do(process)
             self.assertEqual(len(process.a.b),2)
@@ -2466,6 +2545,7 @@ process RECO = {
             self.assertEqual(t[0][0],'a.b')
             self.assertEqual(t[0][1].path, ['a','b'])
             self.assertEqual(t[0][1].value,'a.c')
+            self.checkRepr(t[0][1], "a.b.append(a.c)")
             t[0][1].do(process)
             self.assertEqual(list(process.a.b),[2,1])
             
@@ -2474,22 +2554,27 @@ process RECO = {
             self.assertEqual(t[0][0],'a.b')
             self.assertEqual(t[0][1].path, ['a','b'])
             self.assertEqual(t[0][1].value,'a.c')
+            self.checkRepr(t[0][1], "a.b.append(a.c)")
             t[0][1].do(process)
             self.assertEqual(list(process.a.b),[2,1])
 
-            process.a = cms.EDProducer('FooProd', b=cms.InputTag("bar:"))
+            foobar = "cms.InputTag(\"foobar\",\"\",\"\")"
+            process.a = cms.EDProducer('FooProd', b=cms.InputTag("bar"))
             t = replace.parseString('replace a.b = foobar:')
+            self.checkRepr(t[0][1], "a.b = "+foobar)
             t[0][1].do(process)
             self.assertEqual(process.a.b.configValue('',''),'foobar::')                        
 
             process.a = cms.EDProducer('FooProd', b=cms.VInputTag((cms.InputTag("bar"))))
             t = replace.parseString('replace a.b = {foobar:}')
+            self.checkRepr(t[0][1], "a.b = cms.VInputTag("+foobar+")")
             t[0][1].do(process)
             #self.assertEqual(process.a.b.configValue('',''),'{\nfoobar::\n}\n')                        
             self.assertEqual(list(process.a.b),[cms.InputTag('foobar')])                        
 
             process.a = cms.EDProducer('FooProd', b=cms.VInputTag((cms.InputTag("bar"))))
             t = replace.parseString('replace a.b += {foobar:}')
+            self.checkRepr(t[0][1], "a.b.extend(cms.VInputTag("+foobar+"))")
             t[0][1].do(process)
             #self.assertEqual(process.a.b.configValue('',''),'{\nfoobar::\n}\n')                        
             self.assertEqual(list(process.a.b),[cms.InputTag("bar"),cms.InputTag('foobar')])                        
