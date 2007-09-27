@@ -44,7 +44,10 @@ namespace popcon
 					m_popcon_db = pset.getParameter<std::string> ("PopConDBSchema");
 					//MANDATORY 
 					m_offline_connection = pset.getParameter<std::string> ("OfflineDBSchema");
-					m_catalog = pset.getParameter<std::string> ("catalog");
+					
+  					m_catalog = "pfncatalog_memory://POOL_RDBMS?";
+  					m_catalog.append(m_offline_connection);
+					
 					sinceAppend = pset.getParameter<bool> ("SinceAppendMode");
 					m_handler_object = 0;
 				}
