@@ -1,5 +1,5 @@
 //
-// $Id: EcalTrivialConditionRetriever.cc,v 1.19 2007/08/01 10:04:45 meridian Exp $
+// $Id: EcalTrivialConditionRetriever.cc,v 1.20 2007/09/09 12:54:02 torimoto Exp $
 // Created: 2 Mar 2006
 //          Shahram Rahatlou, University of Rome & INFN
 //
@@ -211,7 +211,7 @@ EcalTrivialConditionRetriever::produceEcalPedestals( const EcalPedestalsRcd& ) {
       if (EBDetId::validDetId(iEta,iPhi))
 	{
 	  EBDetId ebdetid(iEta,iPhi);
-	  peds->m_pedestals.insert(std::make_pair(ebdetid.rawId(),EBitem));
+	  peds->insert(std::make_pair(ebdetid.rawId(),EBitem));
 	}
     }
   }
@@ -222,12 +222,12 @@ EcalTrivialConditionRetriever::produceEcalPedestals( const EcalPedestalsRcd& ) {
       if (EEDetId::validDetId(iX,iY,1))
 	{
 	  EEDetId eedetidpos(iX,iY,1);
-	  peds->m_pedestals.insert(std::make_pair(eedetidpos.rawId(),EEitem));
+	  peds->insert(std::make_pair(eedetidpos.rawId(),EEitem));
 	}
       if(EEDetId::validDetId(iX,iY,-1))
 	{
 	  EEDetId eedetidneg(iX,iY,-1);
-	  peds->m_pedestals.insert(std::make_pair(eedetidneg.rawId(),EEitem));
+	  peds->insert(std::make_pair(eedetidneg.rawId(),EEitem));
 	}
     }
   }

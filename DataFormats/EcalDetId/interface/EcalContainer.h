@@ -1,128 +1,99 @@
 #ifndef ECALDETID_ECALCONTAINER_H
 #define ECALDETID_ECALCONTAINER_H
 
-#include "DataFormats/EcalDetId/interface/EBDetId.h"
-#include "DataFormats/EcalDetId/interface/EEDetId.h"
+#include "DataFormats/DetId/interface/DetId.h"
 #include <vector>
 #include <utility>
 #include <algorithm>
 
 
 /* a generic container for ecal items
- * stores them in two vectors: one for barrel, one for endcap
  * provides access by hashedIndex and by DetId...
  */
 
-namespace detailsEcalContainer{
-  template<typename DetId, typename Item>
-  class SingleInserter {
-  public:
-    SingleInserter(std::vector<Item> & iv) : v(iv){}
-    
-    void operator()(std::pair<uint32_t, const Item> const & p) {
-      DetId id(p.first);
-      if (id.null() || id.det()!=DetId::Ecal || id.subdetId()!=DetId::Subdet ) 
-	return;
-      v.at(id.hashedIndex()) = p.second;
-    }
-    
-    std::vector<Item> & v;
-  };
-  
-  template<typename Item>
-  class Inserter {
-  public:
-    Inserter(std::vector<Item> & ib, std::vector<Item> & ie ) : b(ib),e(ie){}
-
-    void operator()(std::pair<uint32_t, const Item> const & p) {
-      ::DetId id(p.first);
-      if (id.null() || id.det()!=::DetId::Ecal) return;
-      switch (id.subdetId()) {
-      case EcalBarrel :
-	{ 
-	  EBDetId ib(p.first);
-	  b.at(ib.hashedIndex()) = p.second;
-	}
-	break;
-      case EcalEndcap :
-	{ 
-	  EEDetId ie(p.first);
-	  e.at(ie.hashedIndex()) = p.second;
-	}
-        break;
-      default:
-        return;
-      }
-    }
-
-    std::vector<Item> & b;
-    std::vector<Item> & e;
-  };
-}
-
-
-
-template<typename T>
+template<typename DetId, typename T>
 class EcalContainer {
-public:
-  typedef EcalContainer<T> self;
-  typedef T Item;
-  typedef Item value_type;
-  
-//  template<typename Iter>
-//    void load(Iter b, Iter e) const {
-//    const_cast<self&>(*this).load(b,e);
-//  }
-  
-  template<typename Iter>
-    void load(Iter b, Iter e) {
-    if (m_barrel.empty()) {
-      m_barrel.resize(EBDetId::SIZE_HASH);
-      m_endcap.resize(EEDetId::SIZE_HASH);     
-      std::for_each(b,e,
-		    detailsEcalContainer::Inserter<Item>(m_barrel,m_endcap)
-		    );
-    }
-  }
-  
-  Item const & barrel(size_t hashid) const {
-    return m_barrel[hashid];
-  }
-  Item const & endcap(size_t hashid) const {
-    return m_endcap[hashid];
-  }
 
-  Item const & operator()(::DetId id) const {
-    static Item dummy;
-    switch (id.subdetId()) {
-    case EcalBarrel :
-      { 
-	EBDetId ib(id.rawId());
-	return m_barrel[ib.hashedIndex()];
-      }
-      break;
-    case EcalEndcap :
-      { 
-	EEDetId ie(id.rawId());
-	return m_endcap[ie.hashedIndex()];
-      }
-      break;
-    default:
-      // FIXME (add throw)
-      return dummy;
-    }
-    // make compiler happy
-    return dummy;
-  }
+        public:
 
+                typedef EcalContainer<DetId, T> self;
+                typedef T Item;
+                typedef Item value_type;
+                typedef typename std::vector<Item> Items; 
+                typedef typename std::vector<Item>::const_iterator const_iterator;
+                typedef typename std::vector<Item>::iterator iterator;
 
- private:
+                void insert(std::pair<uint32_t, Item> const &a) {
+                        (*this)[a.first] = a.second;
+                }
 
-  std::vector<Item> m_barrel;
-  std::vector<Item> m_endcap;
+                inline const Item & item(size_t hashid) const {
+                        return m_items[hashid];
+                }
 
+                inline const Items & items() const {
+                        return m_items;
+                }
+
+                inline Item & operator[](::DetId id) {
+                        if (m_items.empty()) {
+                                m_items.resize(DetId::SIZE_HASH);
+                        }
+                        static Item dummy;
+                        DetId ib(id.rawId());
+                        if ( !isValidId(ib) ) return dummy;
+                        return m_items[ib.hashedIndex()];
+                }
+
+                inline Item const & operator[](::DetId id) const {
+                        static Item dummy;
+                        DetId ib(id.rawId());
+                        if ( !isValidId(ib) ) return dummy;
+                        return m_items[ib.hashedIndex()];
+                }
+
+                inline Item & operator[](uint32_t rawId) {
+                        if (m_items.empty()) {
+                                m_items.resize(DetId::SIZE_HASH);
+                        }
+                        static Item dummy;
+                        DetId id(rawId);
+                        if ( !isValidId(id) ) return dummy;
+                        return m_items[id.hashedIndex()];
+                }
+
+                inline Item const & operator[](uint32_t rawId) const {
+                        static Item dummy;
+                        DetId id(rawId);
+                        if ( !isValidId(id) ) return dummy;
+                        return m_items[id.hashedIndex()];
+                }
+
+                inline const_iterator find(uint32_t rawId) const {
+                        DetId ib(rawId);
+                        if ( !isValidId(ib) ) return m_items.end();
+                        return m_items.begin() + ib.hashedIndex();
+                }
+
+                inline const_iterator begin() const {
+                        return m_items.begin();
+                }
+
+                inline const_iterator end() const {
+                        return m_items.end();
+                }
+
+        private:
+
+                // not protected on EB <--> EE swap -- FIXME?
+                inline bool isValidId(const DetId id) const {
+                        return id.det() == ::DetId::Ecal;
+                };
+
+                std::vector<Item> m_items;
 
 };
+
 
 
 #endif // ECALCONTAINER
