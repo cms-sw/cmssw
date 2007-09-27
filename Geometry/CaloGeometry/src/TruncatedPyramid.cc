@@ -63,19 +63,34 @@ TruncatedPyramid::createCorners( const std::vector<double>&    pv ,
    static const HepVector3D y ( 0, 1, 0 ) ;
    static const HepVector3D z ( 0, 0, 1 ) ;
    const bool refl ( ( ( tr*x ).cross( tr*y ) ).dot( tr*z ) < 0 ) ; // has reflection!
+
    if( refl || 
        h1>h2  )
    {
       if( 11.2 < dz ) //barrel
       {
-	 to[0] = ko[3] ;
-	 to[1] = ko[2] ;
-	 to[2] = ko[1] ;
-	 to[3] = ko[0] ;
-	 to[4] = ko[7] ;
-	 to[5] = ko[6] ;
-	 to[6] = ko[5] ;      
-	 to[7] = ko[4] ;      
+	 if( !refl )
+	 {
+	    to[0] = ko[3] ;
+	    to[1] = ko[2] ;
+	    to[2] = ko[1] ;
+	    to[3] = ko[0] ;
+	    to[4] = ko[7] ;
+	    to[5] = ko[6] ;
+	    to[6] = ko[5] ;      
+	    to[7] = ko[4] ;      
+	 }
+	 else
+	 {
+	    to[0] = ko[0] ;
+	    to[1] = ko[1] ;
+	    to[2] = ko[2] ;
+	    to[3] = ko[3] ;
+	    to[4] = ko[4] ;
+	    to[5] = ko[5] ;
+	    to[6] = ko[6] ;      
+	    to[7] = ko[7] ;      
+	 }
       }
       else //endcap
       {
