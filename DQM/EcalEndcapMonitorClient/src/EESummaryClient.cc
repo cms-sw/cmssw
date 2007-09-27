@@ -1,8 +1,8 @@
 /*
  * \file EESummaryClient.cc
  *
- * $Date: 2007/09/08 05:15:35 $
- * $Revision: 1.30 $
+ * $Date: 2007/09/08 15:01:21 $
+ * $Revision: 1.31 $
  * \author G. Della Ricca
  *
 */
@@ -564,9 +564,9 @@ void EESummaryClient::subscribe(void){
   sprintf(histo, "EcalEndcap/EESummaryClient/EEIT EE + integrity quality summary");
   if ( qtg01_[1] ) dbe_->useQTest(histo, qtg01_[1]->getName());
   sprintf(histo, "EcalEndcap/EESummaryClient/EEOT EE - occupancy summary");
-  if ( qtg02_[0] ) dbe_->useQTest(histo, qtg02_[0]->getName());
+//  if ( qtg02_[0] ) dbe_->useQTest(histo, qtg02_[0]->getName());
   sprintf(histo, "EcalEndcap/EESummaryClient/EEOT EE + occupancy summary");
-  if ( qtg02_[1] ) dbe_->useQTest(histo, qtg02_[1]->getName());
+//  if ( qtg02_[1] ) dbe_->useQTest(histo, qtg02_[1]->getName());
   sprintf(histo, "EcalEndcap/EESummaryClient/EEPOT EE - pedestal quality summary G12");
   if ( qtg03_[0] ) dbe_->useQTest(histo, qtg03_[0]->getName());
   sprintf(histo, "EcalEndcap/EESummaryClient/EEPOT EE + pedestal quality summary G12");

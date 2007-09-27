@@ -1,8 +1,8 @@
 /*
  * \file EBSummaryClient.cc
  *
- * $Date: 2007/09/08 05:15:34 $
- * $Revision: 1.55 $
+ * $Date: 2007/09/08 15:01:15 $
+ * $Revision: 1.56 $
  * \author G. Della Ricca
  *
 */
@@ -334,7 +334,7 @@ void EBSummaryClient::subscribe(void){
   sprintf(histo, "EcalBarrel/EBSummaryClient/EBIT integrity quality summary");
   if ( qtg01_ ) dbe_->useQTest(histo, qtg01_->getName());
   sprintf(histo, "EcalBarrel/EBSummaryClient/EBOT occupancy summary");
-  if ( qtg02_ ) dbe_->useQTest(histo, qtg02_->getName());
+//  if ( qtg02_ ) dbe_->useQTest(histo, qtg02_->getName());
   sprintf(histo, "EcalBarrel/EBSummaryClient/EBPOT pedestal quality summary G12");
   if ( qtg03_ ) dbe_->useQTest(histo, qtg03_->getName());
   sprintf(histo, "EcalBarrel/EBSummaryClient/EBLT laser quality summary L1");
