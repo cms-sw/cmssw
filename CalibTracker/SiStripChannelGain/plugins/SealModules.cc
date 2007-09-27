@@ -5,12 +5,14 @@
 //#include "FWCore/Framework/interface/eventsetupdata_registration_macro.h"
 
 #include "CalibTracker/SiStripChannelGain/plugins/SiStripGainRandomCalculator.h"
-#include "CalibTracker/SiStripChannelGain/plugins/SiStripGainTickMarkCalculator.h"
+//#include "CalibTracker/SiStripChannelGain/plugins/SiStripGainTickMarkCalculator.h"
 #include "CalibTracker/SiStripChannelGain/plugins/SiStripGainCosmicCalculator.h"
+#include "CalibTracker/SiStripChannelGain/plugins/SiStripGainFromAsciiFile.h"
 
 DEFINE_SEAL_MODULE();
 DEFINE_ANOTHER_FWK_MODULE(SiStripGainRandomCalculator);
-DEFINE_ANOTHER_FWK_MODULE(SiStripGainTickMarkCalculator);
+//DEFINE_ANOTHER_FWK_MODULE(SiStripGainTickMarkCalculator);
 DEFINE_ANOTHER_FWK_MODULE(SiStripGainCosmicCalculator);
+DEFINE_ANOTHER_FWK_MODULE(SiStripGainFromAsciiFile);
 
 

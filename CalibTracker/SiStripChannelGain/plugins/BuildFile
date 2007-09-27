@@ -10,6 +10,7 @@
 <use name=CalibTracker/Records>
 <use name=CalibFormats/SiStripObjects>
 <use name=Geometry/TrackerGeometryBuilder>
+<use name=CalibTracker/SiStripCommon>
 <library file="*.cc" name=CalibTrackerSiStripChannelGainPlugins>
 <flags EDM_PLUGIN=1>
 </library>
