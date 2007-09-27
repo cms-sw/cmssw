@@ -1,8 +1,8 @@
 /*
  * \file SiStripAnalyser.cc
  * 
- * $Date: 2007/09/03 20:51:11 $
- * $Revision: 1.9 $
+ * $Date: 2007/09/19 14:25:54 $
+ * $Revision: 1.10 $
  * \author  S. Dutta INFN-Pisa
  *
  */
@@ -10,21 +10,13 @@
 
 #include "DQM/SiStripMonitorClient/interface/SiStripAnalyser.h"
 
-// Framework
-#include "FWCore/Framework/interface/Event.h"
-#include "DataFormats/Common/interface/Handle.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/Framework/interface/EventSetup.h"
 
-#include "DQMServices/Core/interface/MonitorElement.h"
 #include "DQMServices/UI/interface/MonitorUIRoot.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "DQMServices/WebComponents/interface/Button.h"
-#include "DQMServices/WebComponents/interface/CgiWriter.h"
-#include "DQMServices/WebComponents/interface/CgiReader.h"
-#include "DQMServices/WebComponents/interface/ConfigBox.h"
-#include "DQMServices/WebComponents/interface/WebPage.h"
+
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/LuminosityBlock.h"
+
 
 #include "CondFormats/DataRecord/interface/SiStripFedCablingRcd.h"
 #include "CondFormats/SiStripObjects/interface/SiStripFedCabling.h"
@@ -54,12 +46,10 @@ using namespace std;
 // -- Constructor
 //
 SiStripAnalyser::SiStripAnalyser(const edm::ParameterSet& ps) :
+  DQMAnalyzer(ps),
   ModuleWeb("SiStripAnalyser"){
   
-  edm::LogInfo("SiStripAnalyser") <<  " Creating SiStripAnalyser " << "\n" ;
-  parameters = ps;
-  
-  dbe = edm::Service<DaqMonitorBEInterface>().operator->();
+  edm::LogInfo("SiStripAnalyser") << " SiStripAnalyser::Creating SiStripAnalyser ";
 
   tkMapFrequency_   = -1;
   summaryFrequency_ = -1;
@@ -78,7 +68,7 @@ SiStripAnalyser::SiStripAnalyser(const edm::ParameterSet& ps) :
 //
 SiStripAnalyser::~SiStripAnalyser(){
 
-  edm::LogInfo("SiStripAnalyser") <<  " Deleting SiStripAnalyser " << "\n" ;
+  edm::LogInfo("SiStripAnalyser") << "SiStripAnalyser::Deleting SiStripAnalyser ";
 //  if (sistripWebInterface_) {
 //     delete sistripWebInterface_;
 //     sistripWebInterface_ = 0;
@@ -90,17 +80,12 @@ SiStripAnalyser::~SiStripAnalyser(){
 
 }
 //
-// -- End Job
-//
-void SiStripAnalyser::endJob(){
-
-}
-//
 // -- Begin Job
 //
 void SiStripAnalyser::beginJob(const edm::EventSetup& eSetup){
 
-  nLumiBlock = 0;
+  // call DQMAnalyzer in the beginning 
+  DQMAnalyzer::beginJob(eSetup);
 
   sistripWebInterface_->readConfiguration(summaryFrequency_);
   edm::LogInfo("SiStripAnalyser") << " Configuration files read out correctly" 
@@ -119,42 +104,56 @@ void SiStripAnalyser::beginJob(const edm::EventSetup& eSetup){
   }
 }
 //
+// -- Begin Run
+//
+void SiStripAnalyser::beginRun(const edm::EventSetup& eSetup) {
+  // call DQMAnalyzer in the beginning 
+  DQMAnalyzer::beginRun(eSetup);
+
+  // then do your thing
+  edm::LogInfo ("SiStripAnalyser") <<"SiStripAnalyser:: Begining of Run";
+}
+//
+// -- Begin Luminosity Block
+//
+void SiStripAnalyser::beginLuminosityBlock(const edm::LuminosityBlock& lumiSeg, const edm::EventSetup& eSetup) {
+  // call DQMAnalyzer in the beginning 
+  DQMAnalyzer::beginLuminosityBlock(lumiSeg,eSetup);
+
+  edm::LogInfo("SiStripAnalyser") <<"SiStripAnalyser:: Begin of LS transition";
+}
+//
 //  -- Analyze 
 //
 void SiStripAnalyser::analyze(const edm::Event& e, const edm::EventSetup& eSetup){
-
-}
-//
-// -- Begin  Luminosity Block
-//
-void SiStripAnalyser::beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& context) {
-  
-  edm::LogVerbatim ("SiStripAnalyser") <<"[SiStripAnalyser]: Begin of LS transition";
-
+  // call DQMAnalyzer some place
+  DQMAnalyzer::analyze(e,eSetup);
 }
 //
 // -- End Luminosity Block
 //
 void SiStripAnalyser::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& eSetup) {
 
-  edm::LogVerbatim ("SiStripAnalyser") <<"[SiStripAnalyser]: End of LS transition, performing the DQM client operation";
+  edm::LogInfo ("SiStripAnalyser") <<"SiStripAnalyser:: End of LS transition, performing the DQM client operation";
 
-  nLumiBlock++;
+  int nLumiSecs = DQMAnalyzer::getNumLumiSecs();
+
+  if ( nLumiSecs%PSprescale != 0 ) return;
 
   eSetup.get<SiStripFedCablingRcd>().get(fedCabling_);
  
   cout << "====================================================== " << endl;
-  cout << " ===> Iteration # " << nLumiBlock << " " 
+  cout << " ===> Iteration # " << nLumiSecs << " " 
                                << lumiSeg.luminosityBlock() << endl;
   cout << "====================================================== " << endl;
   // -- Create summary monitor elements according to the frequency
-  if (summaryFrequency_ != -1 && nLumiBlock%summaryFrequency_ == 1) {
+  if (summaryFrequency_ != -1 && nLumiSecs%summaryFrequency_ == 1) {
     cout << " Creating Summary " << endl;
     sistripWebInterface_->setActionFlag(SiStripWebInterface::Summary);
     sistripWebInterface_->performAction();
   }
   // -- Create TrackerMap  according to the frequency
-  if (tkMapFrequency_ != -1 && nLumiBlock%tkMapFrequency_ == 1) {
+  if (tkMapFrequency_ != -1 && nLumiSecs%tkMapFrequency_ == 1) {
     cout << " Creating Tracker Map " << endl;
     //    trackerMapCreator_->create(dbe);
     trackerMapCreator_->create(fedCabling_, dbe);
@@ -162,40 +161,37 @@ void SiStripAnalyser::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, ed
 
   }
   // Create predefined plots
-  if (nLumiBlock%staticUpdateFrequency_  == 1) {
+  if (nLumiSecs%staticUpdateFrequency_  == 1) {
     cout << " Creating predefined plots " << endl;
     sistripWebInterface_->setActionFlag(SiStripWebInterface::PlotHistogramFromLayout);
     sistripWebInterface_->performAction();
   }
 
-  if ((nLumiBlock % fileSaveFrequency_) == 0) {
-    int iRun = lumiSeg.run();
-    int iLumi  = lumiSeg.luminosityBlock();
-    saveAll(iRun, iLumi);
-  }
+  // Save MEs in a file
+  if ((nLumiSecs % fileSaveFrequency_) == 0) DQMAnalyzer::save();
+  
+
+  // call endLuminosityBlock at the end 
+  DQMAnalyzer::endLuminosityBlock(lumiSeg,eSetup);
 }
+
 //
 // -- End Run
 //
 void SiStripAnalyser::endRun(edm::Run const& run, edm::EventSetup const& eSetup){
-  edm::LogVerbatim ("SiStripAnalyser") <<"[SiStripAnalyser]: End of Run, saving  DQM output ";
-  int iRun = run.run();
-  saveAll(iRun, -1);
+  edm::LogInfo ("SiStripAnalyser") <<"SiStripAnalyser:: End of Run";
+  //  DQMAnalyzer::endRun);
+  DQMAnalyzer::save("endRun");
 }
 //
-// -- Save file
+// -- End Job
 //
-void SiStripAnalyser::saveAll(int irun, int ilumi) {
-  ostringstream fname;
-  if (ilumi != -1) {
-    fname << outputFilePath_ << "/" << "SiStrip." << irun << "."<< ilumi << ".root";
-  } else {
-    fname << outputFilePath_ << "/" << "SiStrip." << irun << ".root";
-  }
+void SiStripAnalyser::endJob(){
+  // do your thing here
+  edm::LogInfo("SiStripAnalyser") <<"SiStripAnalyser:: endjob called!";
 
-  sistripWebInterface_->setOutputFileName(fname.str());
-  sistripWebInterface_->setActionFlag(SiStripWebInterface::SaveData);
-  sistripWebInterface_->performAction();
+  // call DQMAnalyzer in the end
+   DQMAnalyzer::endJob();
 }
 //
 // -- Create default web page
@@ -222,6 +218,6 @@ void SiStripAnalyser::defaultWebPage(xgi::Input *in, xgi::Output *out)
   }
   
   // Handles all HTTP requests of the form
-  sistripWebInterface_->handleAnalyserRequest(in, out,nLumiBlock);
+  sistripWebInterface_->handleAnalyserRequest(in, out,DQMAnalyzer::getNumLumiSecs());
 
 }

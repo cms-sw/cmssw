@@ -4,22 +4,14 @@
 /** \class SiStripAnalyser
  * *
  *  SiStrip SiStripAnalyser
- *  $Date: 2007/09/03 20:51:09 $
- *  $Revision: 1.7 $
+ *  $Date: 2007/09/19 14:25:52 $
+ *  $Revision: 1.8 $
  *  \author  S. Dutta INFN-Pisa
  *   
  */
 
-#include "FWCore/Framework/interface/EDAnalyzer.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-
+#include "DQMServices/Components/interface/DQMAnalyzer.h"
 #include "EventFilter/Utilities/interface/ModuleWeb.h"
-
-#include "DQMServices/Daemon/interface/MonitorDaemon.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/Framework/interface/LuminosityBlock.h"
-#include "FWCore/Framework/interface/Run.h"
 
 #include <iostream>
 #include <fstream>
@@ -33,7 +25,7 @@ class SiStripWebInterface;
 class SiStripFedCabling;
 class TrackerMapCreator;
  
-class SiStripAnalyser: public edm::EDAnalyzer, public evf::ModuleWeb{
+class SiStripAnalyser: public DQMAnalyzer, public evf::ModuleWeb{
 
 public:
 
@@ -42,8 +34,6 @@ public:
   
   /// Destructor
   virtual ~SiStripAnalyser();
-  /// Analyze
-  void analyze(const edm::Event& e, const edm::EventSetup& eSetup);
 
   void defaultWebPage(xgi::Input *in, xgi::Output *out); 
   void publish(xdata::InfoSpace *){};
@@ -54,18 +44,25 @@ protected:
   /// BeginJob
   void beginJob(const edm::EventSetup& eSetup);
 
+  /// BeginRun
+  void beginRun(const edm::EventSetup& eSetup);
+
+  /// Analyze
+  void analyze(const edm::Event& e, const edm::EventSetup& eSetup);
+
+  /// Begin Luminosity Block
+  void beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& eSetup) ;
+
+  /// End Luminosity Block
+  
+  void endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& eSetup);
 
   /// EndRun
-
   void endRun(edm::Run const& run, edm::EventSetup const& eSetup);
 
   /// Endjob
   void endJob();
 
-  void beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& context) ;
-
-  /// DQM Client Diagnostic
-  void endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& c);
 
   /// Save histograms to a root file
 
@@ -75,12 +72,8 @@ private:
 
   void createFedTrackerMap();
 
-  int nLumiBlock;
-
-  DaqMonitorBEInterface* dbe;
   MonitorUserInterface* mui_;
 
-  edm::ParameterSet parameters;
   SiStripWebInterface* sistripWebInterface_;
 
   int tkMapFrequency_;

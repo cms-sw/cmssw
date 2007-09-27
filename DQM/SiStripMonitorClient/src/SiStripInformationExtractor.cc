@@ -756,9 +756,9 @@ bool SiStripInformationExtractor::goToDir(DaqMonitorBEInterface* bei, string& sn
 	bei->cd(*it);
       }
       if (goToDir(bei, sname, flg)) return true;
-      else   return false;
-      bei->goUp();
+      else bei->goUp();
     }
+    return false;
   }  
 }
 //

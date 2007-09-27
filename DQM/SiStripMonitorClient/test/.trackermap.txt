@@ -1,4 +1,4 @@
-<?xml version="1.0"  standalone="no" ?>
+5~<?xml version="1.0"  standalone="no" ?>
 <html xmlns="http://www.w3.org/1999/xhtml"
 xmlns:svg="http://www.w3.org/2000/svg" 
 xmlns:xlink="http://www.w3.org/1999/xlink"
@@ -467,6 +467,12 @@ function pausecomp(millis)
 </div>
 <br />
 <svg:svg width="100%" height="100%" viewBox="0 0 1400 700"  >
+<svg:rect x      = "-500"
+         y        = "-500"
+         width    = "6000"
+        overflow = "hidden"
+         height   = "8000"
+        style    = "fill:#d5e6fc;stroke:red;stroke-width:1px;" />
 <svg:defs>
    <svg:symbol id="magnifyer" overflow="visible" style="fill:white;stroke:darkcyan;stroke-width:2;" >
     <svg:circle r="12" />
