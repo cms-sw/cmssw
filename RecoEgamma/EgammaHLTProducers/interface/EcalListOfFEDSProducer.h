@@ -24,8 +24,9 @@ public:
 	void produce(edm::Event & e, const edm::EventSetup& c);
 	void beginJob(const edm::EventSetup& c);
 	void endJob(void);
-	std::vector<int> Egamma(edm::Event& e, const edm::EventSetup& es);
-	std::vector<int> Muon(edm::Event& e, const edm::EventSetup& es);
+	std::vector<int> Egamma(edm::Event& e, const edm::EventSetup& es, std::vector<int>& done);
+	std::vector<int> Muon(edm::Event& e, const edm::EventSetup& es, std::vector<int>& done);
+	std::vector<int> Jets(edm::Event& e, const edm::EventSetup& es, std::vector<int>& done);
 
 private:
 	bool EGamma_;
@@ -43,6 +44,17 @@ private:
 	double MUregionPhiMargin_;
 	double Ptmin_muon_ ;
 	edm::InputTag MuonSource_ ;
+
+	bool Jets_ ;
+	bool JETSdoCentral_ ;
+	bool JETSdoForward_ ;
+	bool JETSdoTau_ ;
+	double JETSregionEtaMargin_;
+	double JETSregionPhiMargin_;
+	double Ptmin_jets_ ;
+	edm::InputTag CentralSource_;
+        edm::InputTag ForwardSource_;
+	edm::InputTag TauSource_;
 
 	std::string OutputLabel_;
 	EcalElectronicsMapping* TheMapping;

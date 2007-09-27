@@ -1,6 +1,5 @@
 
-//For160 #include <FWCore/Framework/interface/Handle.h>
-#include "DataFormats/Common/interface/Handle.h" //For160
+//#include <FWCore/Framework/interface/Handle.h>
 #include <FWCore/Framework/interface/Event.h>
 #include <FWCore/Framework/interface/EventSetup.h>
 #include <FWCore/Framework/interface/ESHandle.h>
@@ -31,6 +30,9 @@
 #include "DataFormats/L1Trigger/interface/L1MuonParticle.h"
 #include "DataFormats/L1Trigger/interface/L1MuonParticleFwd.h"
 
+// Jets stuff
+#include "DataFormats/L1Trigger/interface/L1JetParticle.h"
+
 #include <vector>
 
 using namespace l1extra;
@@ -41,8 +43,9 @@ EcalListOfFEDSProducer::EcalListOfFEDSProducer(const edm::ParameterSet& pset) {
  debug_ = pset.getUntrackedParameter<bool>("debug");
 
 
- EGamma_ = pset.getUntrackedParameter<bool>("EGamma");
- Muon_ = pset.getUntrackedParameter<bool>("Muon");
+ EGamma_ = pset.getUntrackedParameter<bool>("EGamma",false);
+ Muon_ = pset.getUntrackedParameter<bool>("Muon",false);
+ Jets_ = pset.getUntrackedParameter<bool>("Jets",false);
 
  if (EGamma_ && Muon_) {
   throw cms::Exception("EcalListOfFEDSProducer") << 
@@ -68,6 +71,19 @@ EcalListOfFEDSProducer::EcalListOfFEDSProducer(const edm::ParameterSet& pset) {
  	Ptmin_muon_ = pset.getUntrackedParameter<double>("Ptmin_muon",0.);
 	MuonSource_ = pset.getUntrackedParameter<edm::InputTag>("MuonSource");
  }
+
+ if (Jets_) {
+	JETSregionEtaMargin_ = pset.getUntrackedParameter<double>("JETS_regionEtaMargin",1.0);
+	JETSregionPhiMargin_ = pset.getUntrackedParameter<double>("JETS_regionPhiMargin",1.0);
+	Ptmin_jets_ = pset.getUntrackedParameter<double>("Ptmin_jets",0.);
+	CentralSource_ = pset.getUntrackedParameter<edm::InputTag>("CentralSource");
+        ForwardSource_ = pset.getUntrackedParameter<edm::InputTag>("ForwardSource");
+        TauSource_ = pset.getUntrackedParameter<edm::InputTag>("TauSource");
+	JETSdoCentral_ = pset.getUntrackedParameter<bool>("JETS_doCentral",true);
+        JETSdoForward_ = pset.getUntrackedParameter<bool>("JETS_doForward",true);
+	JETSdoTau_ = pset.getUntrackedParameter<bool>("JETS_doTau",true);
+ }
+
 
  OutputLabel_ = pset.getUntrackedParameter<std::string>("OutputLabel");
 
@@ -105,18 +121,40 @@ void EcalListOfFEDSProducer::produce(edm::Event & e, const edm::EventSetup& iSet
 
  std::auto_ptr<EcalListOfFEDS> productAddress(new EcalListOfFEDS);
 
- std::vector<int> feds;
+ std::vector<int> feds;		// the list of FEDS produced by this module
+
+
+ // ---- First, get the list of ECAL FEDs which have already been unpacked
+
+ std::vector< edm::Handle<EcalListOfFEDS> > FEDs_Done;
+ std::vector<int> Done;
+ e.getManyByType(FEDs_Done);
+ unsigned int nDone = FEDs_Done.size();
+ if (debug_) std::cout << " ECAL unpacking module has already run " << nDone << " times. " << std::endl;
+ for (unsigned int id=0; id < nDone; id++) {
+   std::vector<int> done = FEDs_Done[id]-> GetList();
+   for (int jd=0; jd < (int)done.size(); jd++) {
+ 	Done.push_back(done[jd] -first_fed );
+   }
+ }
+ if (debug_) std::cout << " For this event, " << Done.size() << " ECAL FEDs have already been unpacked." << std::endl;
+
 
  if (EGamma_) {
-  feds = Egamma(e, iSetup);
+  feds = Egamma(e, iSetup, Done);
  }
 
  else if (Muon_) {
-   feds = Muon(e, iSetup);
+   feds = Muon(e, iSetup, Done);
+ }
+
+ else if (Jets_) {
+   feds = Jets(e, iSetup, Done);
  }
 
  else {
    for (int i=1; i <= 54; i++) {
+      if ( std::find(Done.begin(), Done.end(), i) == Done.end())
       feds.push_back(i);
    }
  }
@@ -124,15 +162,19 @@ void EcalListOfFEDSProducer::produce(edm::Event & e, const edm::EventSetup& iSet
  int nf = (int)feds.size();
  for (int i=0; i <nf; i++) {
   feds[i] += first_fed;
-  // std::cout << "Will unpack FED " << feds[i] << std::endl;
+  if (debug_) std::cout << "Will unpack FED " << feds[i] << std::endl;
  }
+
+ if (debug_ && nf < 1 ) 
+    std::cout << " Warning : no ECAL FED to unpack for Run " << e.id().run() << "  Event " << e.id().event() << std::endl;
+
 
  productAddress.get() -> SetList(feds);
  e.put(productAddress,OutputLabel_);
 }
 
 
-std::vector<int> EcalListOfFEDSProducer::Egamma(edm::Event& e, const edm::EventSetup& es) {
+std::vector<int> EcalListOfFEDSProducer::Egamma(edm::Event& e, const edm::EventSetup& es, std::vector<int>& done) {
 
  std::vector<int> FEDs;
 
@@ -171,7 +213,8 @@ std::vector<int> EcalListOfFEDSProducer::Egamma(edm::Event& e, const edm::EventS
 
 	std::vector<int> feds = ListOfFEDS(etaLow, etaHigh, phiLow, phiHigh, EMregionEtaMargin_, EMregionPhiMargin_);
 	for (int i=0; i < (int)feds.size(); i++) {
-		if (std::find(FEDs.begin(), FEDs.end(), feds[i]) == FEDs.end()) FEDs.push_back(feds[i]);
+		if ( std::find(FEDs.begin(), FEDs.end(), feds[i]) == FEDs.end() &&
+		     std::find(done.begin(), done.end(), feds[i]) == done.end() ) FEDs.push_back(feds[i]);
 	}
 
     } // end loop on L1EmParticleCollection
@@ -199,7 +242,9 @@ std::vector<int> EcalListOfFEDSProducer::Egamma(edm::Event& e, const edm::EventS
 
 	std::vector<int> feds = ListOfFEDS(etaLow, etaHigh, phiLow, phiHigh, EMregionEtaMargin_, EMregionPhiMargin_);
         for (int i=0; i < (int)feds.size(); i++) {
-                if (std::find(FEDs.begin(), FEDs.end(), feds[i]) == FEDs.end()) FEDs.push_back(feds[i]);
+                if ( std::find(FEDs.begin(), FEDs.end(), feds[i]) == FEDs.end() &&
+                     std::find(done.begin(), done.end(), feds[i]) == done.end() ) FEDs.push_back(feds[i]);
+
         }
 
     } // end loop on L1EmParticleCollection
@@ -210,7 +255,7 @@ std::vector<int> EcalListOfFEDSProducer::Egamma(edm::Event& e, const edm::EventS
  if (debug_) {
 	std::cout << std::endl;
 	for (int i=0; i < (int)FEDs.size(); i++) {
-	  std::cout << "unpack FED " << FEDs[i] << std::endl;
+	  std::cout << "Egamma: unpack FED " << FEDs[i] << std::endl;
 	}
 	std::cout << "Number of FEDS is " << FEDs.size() << std::endl;
  }
@@ -220,7 +265,7 @@ std::vector<int> EcalListOfFEDSProducer::Egamma(edm::Event& e, const edm::EventS
 }
 
 
-std::vector<int> EcalListOfFEDSProducer::Muon(edm::Event& e, const edm::EventSetup& es) {
+std::vector<int> EcalListOfFEDSProducer::Muon(edm::Event& e, const edm::EventSetup& es, std::vector<int>& done) {
 
  std::vector<int> FEDs;
 
@@ -246,14 +291,15 @@ std::vector<int> EcalListOfFEDSProducer::Muon(edm::Event& e, const edm::EventSet
         std::vector<int> feds = ListOfFEDS(eta, eta, phi-epsilon, phi+epsilon, MUregionEtaMargin_, MUregionPhiMargin_);
 
         for (int i=0; i < (int)feds.size(); i++) {
-                if (std::find(FEDs.begin(), FEDs.end(), feds[i]) == FEDs.end()) FEDs.push_back(feds[i]);
+                if ( std::find(FEDs.begin(), FEDs.end(), feds[i]) == FEDs.end() &&
+                     std::find(done.begin(), done.end(), feds[i]) == done.end() ) FEDs.push_back(feds[i]);
         }
   }
                                                                                                                        
  if (debug_) {
         std::cout << std::endl;
         for (int i=0; i < (int)FEDs.size(); i++) {
-          std::cout << "unpack FED " << FEDs[i] << std::endl;
+          std::cout << "Muons: unpack FED " << FEDs[i] << std::endl;
         }
         std::cout << "Number of FEDS is " << FEDs.size() << std::endl;
  }
@@ -263,6 +309,113 @@ std::vector<int> EcalListOfFEDSProducer::Muon(edm::Event& e, const edm::EventSet
 
 }
 
+
+
+std::vector<int> EcalListOfFEDSProducer::Jets(edm::Event& e, const edm::EventSetup& es, std::vector<int>& done) {
+
+ std::vector<int> FEDs;
+
+ if (debug_) std::cout << std::endl << std::endl << " enter in EcalListOfFEDSProducer::Jets" << std::endl;
+ double epsilon = 0.01;
+
+  // Get the CaloGeometry
+  // edm::ESHandle<L1CaloGeometry> l1CaloGeom ;
+  // es.get<L1CaloGeometryRecord>().get(l1CaloGeom) ;
+
+  if (JETSdoCentral_) {
+
+  	edm::Handle<L1JetParticleCollection> jetColl;
+  	e.getByLabel(CentralSource_,jetColl);
+
+  	for (L1JetParticleCollection::const_iterator it=jetColl->begin(); it != jetColl->end(); it++) {
+
+        	double pt    =  it -> pt();
+        	double eta   =  it -> eta();
+        	double phi   =  it -> phi();
+
+        	if (debug_) std::cout << " here is a L1 CentralJet Seed  with (eta,phi) = " <<
+                	eta << " " << phi << " and pt " << pt << std::endl;
+                // int etaIndex = it->gctJetCand()->etaIndex() ;
+                // int phiIndex = it->gctJetCand()->phiIndex() ;
+                // double etaLow  = l1CaloGeom->etaBinLowEdge( etaIndex ) ;
+                // double etaHigh = l1CaloGeom->etaBinHighEdge( etaIndex ) ;
+                // double phiLow  = l1CaloGeom->emJetPhiBinLowEdge( phiIndex ) ;
+                // double phiHigh = l1CaloGeom->emJetPhiBinHighEdge( phiIndex ) ;
+                // if (debug_) cout << " etaLow .. " << etaLow << " " << etaHigh << " " << phiLow << " " << phiHigh << endl;
+
+        	if (pt < Ptmin_jets_ ) continue;
+
+        	std::vector<int> feds = ListOfFEDS(eta, eta, phi-epsilon, phi+epsilon, JETSregionEtaMargin_, JETSregionPhiMargin_);
+	
+        	for (int i=0; i < (int)feds.size(); i++) {
+                	if ( std::find(FEDs.begin(), FEDs.end(), feds[i]) == FEDs.end() &&
+                             std::find(done.begin(), done.end(), feds[i]) == done.end() ) FEDs.push_back(feds[i]);
+        	}
+  	}
+  }
+
+  if (JETSdoForward_) {
+
+        edm::Handle<L1JetParticleCollection> jetColl;
+        e.getByLabel(ForwardSource_,jetColl);
+
+        for (L1JetParticleCollection::const_iterator it=jetColl->begin(); it != jetColl->end(); it++) {
+
+                double pt    =  it -> pt();
+                double eta   =  it -> eta();
+                double phi   =  it -> phi();
+
+                if (debug_) std::cout << " here is a L1 ForwardJet Seed  with (eta,phi) = " <<
+                        eta << " " << phi << " and pt " << pt << std::endl;
+                if (pt < Ptmin_jets_ ) continue;
+
+                std::vector<int> feds = ListOfFEDS(eta, eta, phi-epsilon, phi+epsilon, JETSregionEtaMargin_, JETSregionPhiMargin_);
+
+                for (int i=0; i < (int)feds.size(); i++) {
+                        if ( std::find(FEDs.begin(), FEDs.end(), feds[i]) == FEDs.end() &&
+                             std::find(done.begin(), done.end(), feds[i]) == done.end() ) FEDs.push_back(feds[i]);
+                }
+        }
+   }
+
+  if (JETSdoTau_) {
+
+        edm::Handle<L1JetParticleCollection> jetColl;
+        e.getByLabel(TauSource_,jetColl);
+
+        for (L1JetParticleCollection::const_iterator it=jetColl->begin(); it != jetColl->end(); it++) {
+
+                double pt    =  it -> pt();
+                double eta   =  it -> eta();
+                double phi   =  it -> phi();
+
+                if (debug_) std::cout << " here is a L1 TauJet Seed  with (eta,phi) = " <<
+                        eta << " " << phi << " and pt " << pt << std::endl;
+                if (pt < Ptmin_jets_ ) continue;
+
+                std::vector<int> feds = ListOfFEDS(eta, eta, phi-epsilon, phi+epsilon, JETSregionEtaMargin_, JETSregionPhiMargin_);
+
+                for (int i=0; i < (int)feds.size(); i++) {
+                        if ( std::find(FEDs.begin(), FEDs.end(), feds[i]) == FEDs.end() &&
+                             std::find(done.begin(), done.end(), feds[i]) == done.end() ) FEDs.push_back(feds[i]);
+                }
+        }
+   }
+
+
+
+ if (debug_) {
+        std::cout << std::endl;
+        for (int i=0; i < (int)FEDs.size(); i++) {
+          std::cout << "Jets: unpack FED " << FEDs[i] << std::endl;
+        }
+        std::cout << "Number of FEDS is " << FEDs.size() << std::endl;
+ }
+
+
+ return FEDs;
+
+}
 
 
 std::vector<int> EcalListOfFEDSProducer::ListOfFEDS(double etaLow, double etaHigh, double phiLow, 
@@ -320,12 +473,14 @@ std::vector<int> EcalListOfFEDSProducer::ListOfFEDS(double etaLow, double etaHig
 
         FEDs = TheMapping -> GetListofFEDs(ecalregion);
 
+/*
 	if (debug_) {
            int nn = (int)FEDs.size();
            for (int ii=0; ii < nn; ii++) {
                    std::cout << "unpack fed " << FEDs[ii] << std::endl;
            }
    	   }
+*/
 
         return FEDs;
 
