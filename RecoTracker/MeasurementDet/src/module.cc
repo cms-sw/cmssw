@@ -1,5 +1,4 @@
 #include "RecoTracker/MeasurementDet/interface/MeasurementTracker.h"
-#include "RecoTracker/MeasurementDet/interface/MeasurementTrackerESProducer.h"
 
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
