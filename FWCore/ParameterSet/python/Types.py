@@ -394,7 +394,7 @@ class VInputTag(_ValidatingParameterListBase):
     def configValueForItem(self,item,indent,deltaIndent):
         return InputTag.formatValueForConfig(item)
     def pythonValueForItem(self,item,indent,deltaIndent):
-        return "\""+self.configValueForItem(item,indent,deltaIndent)+"\""
+        return "\""+item.dumpPython(indent,deltaIndent)+"\""
     @staticmethod
     def _valueFromString(value):
         return VInputTag(*_ValidatingParameterListBase._itemsFromStrings(value,InputTag._valueFromString))
@@ -429,6 +429,8 @@ class VPSet(_ValidatingParameterListBase,_ConfigureComponent,_Labelable):
             pset.insertContentsInto(newparameterset)
             parametersets.append(newparameterset)
         parameterSet.addVPSet(self.isTracked(), myname, parametersets)
+    def __repr__(self):
+        return self.dumpPython('','    ')
 
 
 if __name__ == "__main__":
