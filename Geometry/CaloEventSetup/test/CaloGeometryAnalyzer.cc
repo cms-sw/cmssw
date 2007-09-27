@@ -40,6 +40,7 @@
 #include "DataFormats/EcalDetId/interface/EEDetId.h"
 #include "DataFormats/EcalDetId/interface/ESDetId.h"
 #include <fstream>
+#include <iomanip>
 
 //
 // class decleration
@@ -107,6 +108,29 @@ void CaloGeometryAnalyzer::build(const CaloGeometry& cg, DetId::Detector det, in
       {
 	if (subdetn == EcalBarrel)
 	  {
+	     const EBDetId did ( *i ) ;
+	     const int iea ( did.ietaAbs() ) ;
+	     const int ie  ( did.ieta() ) ;
+	     const int ip  ( did.iphi() ) ;
+	     if( ( iea == 1 || iea == 85 ) &&
+		 ( ip  == 1 || ip  == 20 )  )
+	     {
+		const CaloCellGeometry::CornersVec& co ( cell->getCorners() ) ;
+		std::cout << "ieta="<<ie<<", iphi="<<ip
+			  <<", "<<std::fixed<<std::setw(8)<<std::setprecision(3)
+			  << " ("
+			  <<cell->getPosition().x()<<","
+			  <<cell->getPosition().y()<<"," 
+			  <<cell->getPosition().z()<<")" ;
+		for( unsigned int j ( 0 ) ; j != co.size() ; ++j )
+		{
+		   std::cout<<" ("
+			    <<co[j].x()<<","
+			    <<co[j].y()<<","
+			    <<co[j].z()<<")";
+		}
+		std::cout<<std::endl;
+	     }
 	    f << "  // " << EBDetId(*i) << std::endl;
 	    
 	    f << "  // Checking getClosestCell for position " << dynamic_cast<const TruncatedPyramid*>(cell)->getPosition(0.) << std::endl;
@@ -116,6 +140,31 @@ void CaloGeometryAnalyzer::build(const CaloGeometry& cg, DetId::Detector det, in
 	  }
 	if (subdetn == EcalEndcap)
 	  {
+	     const EEDetId did ( *i ) ;
+	     const int ix ( did.ix() ) ;
+	     const int iy ( did.iy() ) ;
+	     if( ( ( ix == 50 || ix == 51 ) &&
+		   ( iy ==  5 || iy == 95 )  ) ||
+		 ( ( iy == 50 || iy == 51 ) &&
+		   ( ix ==  5 || ix == 95 )  )    )
+
+	     {
+		const CaloCellGeometry::CornersVec& co ( cell->getCorners() ) ;
+		std::cout << "ix="<<ix<<", iy="<<iy
+			  <<", "<<std::fixed<<std::setw(8)<<std::setprecision(3)
+			  << " ("
+			  <<cell->getPosition().x()<<","
+			  <<cell->getPosition().y()<<"," 
+			  <<cell->getPosition().z()<<")" ;
+		for( unsigned int j ( 0 ) ; j != co.size() ; ++j )
+		{
+		   std::cout<<" ("
+			    <<co[j].x()<<","
+			    <<co[j].y()<<","
+			    <<co[j].z()<<")";
+		}
+		std::cout<<std::endl;
+	     }
 	    f << "  // " << EEDetId(*i) << std::endl;
 	    f << "  // Checking getClosestCell for position " << dynamic_cast<const TruncatedPyramid*>(cell)->getPosition(0.) << std::endl;
 	    EEDetId closestCell= EEDetId(geom->getClosestCell(dynamic_cast<const TruncatedPyramid*>(cell)->getPosition(0.)));
