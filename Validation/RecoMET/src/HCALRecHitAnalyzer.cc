@@ -401,10 +401,10 @@ void HCALRecHitAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup
   // Fill Histograms!
   // ==========================================================
                                                    
-  TLorentzVector vHBHEMET_EtaRing[83][3];
-  int HBHEActiveRing[83][3];
-  int HBHENActiveCells[83][3];
-  double HBHESET_EtaRing[83][3];
+  TLorentzVector vHBHEMET_EtaRing[83][4];
+  int HBHEActiveRing[83][4];
+  int HBHENActiveCells[83][4];
+  double HBHESET_EtaRing[83][4];
 
   for (int i = 0; i < 83; i++) {
     for (int j = 0; j < 4; j++) {
@@ -430,7 +430,7 @@ void HCALRecHitAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup
     int EtaRing = 41 + ieta; // this counts from 0    
     double eta = me["hHCAL_ieta_iphi_etaMap"]->getBinContent(EtaRing+1,iphi);
     double phi = me["hHCAL_ieta_iphi_phiMap"]->getBinContent(EtaRing+1,iphi);
-    double theta = 2*TMath::ATan(-1*eta);
+    double theta = 2*TMath::ATan(exp(-1*eta));
     double ET = Energy*TMath::Sin(theta);
     HcalSubdetector HcalNum = det.subdet();
     TLorentzVector v_;
@@ -538,7 +538,7 @@ void HCALRecHitAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup
     int EtaRing = 41+ieta; // this counts from 0    
     double eta = me["hHCAL_ieta_iphi_etaMap"]->getBinContent(EtaRing+1,iphi);
     double phi = me["hHCAL_ieta_iphi_phiMap"]->getBinContent(EtaRing+1,iphi);
-    double theta = 2*TMath::ATan(-1*eta);
+    double theta = 2*TMath::ATan(exp(-1*eta));
     double ET = Energy*TMath::Sin(theta);
 
     me["hHCAL_D4_energy_ieta_iphi"]->Fill(ieta,iphi,Energy);
@@ -603,7 +603,7 @@ void HCALRecHitAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup
     int EtaRing = 41+ieta; // this counts from 0    
     double eta = me["hHCAL_ieta_iphi_etaMap"]->getBinContent(EtaRing+1,iphi);
     double phi = me["hHCAL_ieta_iphi_phiMap"]->getBinContent(EtaRing+1,iphi);
-    double theta = 2*TMath::ATan(-1*eta);
+    double theta = 2*TMath::ATan(exp(-1*eta));
     double ET = Energy*TMath::Sin(theta);
 
     TLorentzVector v_;
