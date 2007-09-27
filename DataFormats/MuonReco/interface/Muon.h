@@ -10,7 +10,7 @@
  *
  * \author Luca Lista, Claudio Campagnari, Dmytro Kovalskyi, Jake Ribnik
  *
- * \version $Id: Muon.h,v 1.34 2007/07/12 19:16:18 dmytro Exp $
+ * \version $Id: Muon.h,v 1.35 2007/07/31 15:20:19 ratnik Exp $
  *
  */
 #include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
@@ -85,7 +85,17 @@ namespace reco {
     /// same as above for given number of sigmas
     unsigned int stationGapMaskPull( float sigmaCut = 3. ) const;
      
-     
+    /// muon type - type of the algorithm that reconstructed this muon
+    /// multiple algorithms can reconstruct the same muon
+    static const unsigned int GlobalMuon     =  1<<1;
+    static const unsigned int TrackerMuon    =  1<<2;
+    static const unsigned int StandAloneMuon =  1<<3;
+    void setType( unsigned int type ) { type_ = type; }
+    unsigned int getType() const { return type_; }
+    bool isGlobalMuon()     const { return type_ & GlobalMuon; }
+    bool isTrackerMuon()    const { return type_ & TrackerMuon; }
+    bool isStandAloneMuon() const { return type_ & StandAloneMuon; }
+    
   private:
     /// check overlap with another candidate
     virtual bool overlap( const Candidate & ) const;
@@ -110,7 +120,9 @@ namespace reco {
     /// Isolation information for two cones with dR=0.3 and dR=0.5
     MuonIsolation isolationR03_;
     MuonIsolation isolationR05_;
-     
+    /// muon type mask
+    unsigned int type_;
+
     // FixMe: Still missing trigger information
 
     /// get vector of muon chambers for given station and detector
