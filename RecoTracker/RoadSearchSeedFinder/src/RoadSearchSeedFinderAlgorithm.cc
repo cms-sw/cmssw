@@ -12,8 +12,8 @@
 // Created:         Sat Jan 14 22:00:00 UTC 2006
 //
 // $Author: gutsche $
-// $Date: 2007/06/13 14:26:48 $
-// $Revision: 1.27 $
+// $Date: 2007/06/29 23:49:57 $
+// $Revision: 1.28 $
 //
 
 #include <vector>
@@ -57,7 +57,8 @@ RoadSearchSeedFinderAlgorithm::RoadSearchSeedFinderAlgorithm(const edm::Paramete
 
 
   minPt_                      = conf.getParameter<double>("MinimalReconstructedTransverseMomentum");
-  maxImpactParameter_         = conf.getParameter<double>("MaximalImpactParameter");
+  maxBarrelImpactParameter_   = conf.getParameter<double>("MaximalBarrelImpactParameter");
+  maxEndcapImpactParameter_   = conf.getParameter<double>("MaximalEndcapImpactParameter");
   phiRangeDetIdLookup_        = conf.getParameter<double>("PhiRangeForDetIdLookupInRings");
   mergeSeedsCenterCut_A_      = conf.getParameter<double>("MergeSeedsCenterCut_A");
   mergeSeedsRadiusCut_A_      = conf.getParameter<double>("MergeSeedsRadiusCut_A");
@@ -617,7 +618,10 @@ bool RoadSearchSeedFinderAlgorithm::calculateCircleSeedsFromHits(std::vector<Roa
 	addCircle = true;
       } else {
 	if ( (circle.Radius() > minRadius_) &&
-	     (circle.ImpactParameter() < maxImpactParameter_) ) {
+	     ((circle.InBarrel() &&
+	       circle.ImpactParameter() < maxBarrelImpactParameter_) ||
+	      (!circle.InBarrel() &&
+	       circle.ImpactParameter() < maxEndcapImpactParameter_)) ) {
 	  addCircle = true;
 	
 	  // check if circle compatible with previous circles, if not, add

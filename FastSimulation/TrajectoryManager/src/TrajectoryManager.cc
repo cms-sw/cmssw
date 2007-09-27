@@ -542,7 +542,7 @@ TrajectoryManager::makeSinglePSimHit( const GeomDetUnit& det,
     // Total thickness is in radiation lengths, 1 radlen = 9.36 cm
     // Sensitive module thickness is about 30 microns larger than 
     // the module thickness itself
-    el *= (2.* halfThick - 0.003) / (9.36 * thick);
+    eloss *= (2.* halfThick - 0.003) / (9.36 * thick);
   }
   // The entry and exit points, and the time of flight
   float pZ = lmom.z();

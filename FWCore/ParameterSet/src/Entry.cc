@@ -1,5 +1,5 @@
 // ----------------------------------------------------------------------
-// $Id: Entry.cc,v 1.24 2007/06/01 13:16:41 rpw Exp $
+// $Id: Entry.cc,v 1.25 2007/06/14 04:56:00 wmtan Exp $
 //
 // definition of Entry's function members
 // ----------------------------------------------------------------------
@@ -16,7 +16,6 @@
 
 #include <map>
 #include <sstream>
-#include <string>
 #include <ostream>
 
 

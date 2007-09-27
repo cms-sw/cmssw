@@ -75,6 +75,7 @@ class PFTrackTransformer{
 						     TSOS,
 						     int) const;
 
+  std::pair<float,float> showerDimension(float ,math::XYZPoint ,bool)const;
  private:
 
   ///Forward analytical Propagator

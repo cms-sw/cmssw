@@ -243,7 +243,7 @@ void NuclearInteractionSimulator::compute(ParticlePropagator& Particle)
 
 	  //	  hinel->Fill(pHadron);
 	  //	  std::cout << "INELASTIC INTERACTION ! " 
-	  //		    << pHadron << " " << theInelasticLength << " "
+	  //	  	    << pHadron << " " << theInelasticLength << " "
 	  //		    << inelastic * theInelasticLength << std::endl;
 	  // Choice of the file to read according the the log10(ecm) distance
 	  unsigned file;
@@ -337,6 +337,12 @@ void NuclearInteractionSimulator::compute(ParticlePropagator& Particle)
 	  // Increment for next time
 	  ++theCurrentInteraction[file];
 	  
+	// Simulate a stopping hadron (low momentum)
+	} else if ( pHadron < 4. ) { 
+	  // A fake particle with 0 momentum as a daughter!
+	  _theUpdatedState.resize(1);
+	  _theUpdatedState[0].SetXYZT(0.,0.,0.,0.);
+	  _theUpdatedState[0].setID(22);
 	}
 
       }

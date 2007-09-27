@@ -3,8 +3,8 @@
 /** \class TrackerSeedGeneratorBC
  *  Generate seed from muon trajectory.
  *
- *  $Date: 2007/05/10 18:34:48 $
- *  $Revision: 1.2 $
+ *  $Date: 2007/04/18 17:19:16 $
+ *  $Revision: 1.1 $
  *  \author Norbert Neumeister - Purdue University
  *  \porting author Chang Liu - Purdue University
  */
@@ -150,23 +150,14 @@ void TrackerSeedGeneratorBC::setEvent(const edm::Event &event)
 }
 
 //
-/*
-  TrackerSeedGeneratorBC::BTSeedCollection 
-  TrackerSeedGeneratorBC::trackerSeeds(const TrackCand& muon, const TrackingRegion& region) {
-  const RectangularEtaPhiTrackingRegion& rectRegion =
-  dynamic_cast< const RectangularEtaPhiTrackingRegion& > (region);
-  theSeeds.clear();
+TrackerSeedGeneratorBC::BTSeedCollection 
+TrackerSeedGeneratorBC::trackerSeeds(const TrackCand& muon, const TrackingRegion& region) {
+   const RectangularEtaPhiTrackingRegion& rectRegion =
+     dynamic_cast< const RectangularEtaPhiTrackingRegion& > (region);
+   theSeeds.clear();
    findSeeds(muon,rectRegion);
    return BTSeedCollection(theSeeds);
 
-   }*/
-
- void TrackerSeedGeneratorBC::trackerSeeds(const TrackCand& muon, const TrackingRegion& region,  TrackerSeedGeneratorBC::BTSeedCollection & result) {
-  const RectangularEtaPhiTrackingRegion& rectRegion =
-  dynamic_cast< const RectangularEtaPhiTrackingRegion& > (region);
-  theSeeds.clear();
-   findSeeds(muon,rectRegion);
-   result.swap(theSeeds);
 }
 //
 void TrackerSeedGeneratorBC::findSeeds(const TrackCand& muon, const RectangularEtaPhiTrackingRegion& rectRegion) {
@@ -555,7 +546,7 @@ void TrackerSeedGeneratorBC::pixelSeeds(const Trajectory& muon,
   */
 }
 
-void  TrackerSeedGeneratorBC::rsSeeds(const reco::Track& muon) {
+std::vector<TrajectorySeed> TrackerSeedGeneratorBC::rsSeeds(const reco::Track& muon) {
   const string category = "TrackerSeedGeneratorBC";
 
   //default result
@@ -570,7 +561,7 @@ void  TrackerSeedGeneratorBC::rsSeeds(const reco::Track& muon) {
   TrajectoryStateOnSurface inner = theService->propagator(theOutPropagator)->propagate(cIPFTS,blc[0]->surface());
   if ( !inner.isValid() ) {
     LogDebug(category) <<"inner state is not valid"; 
-    return ;
+    return result;
   }
   
   double z = inner.globalPosition().z();
@@ -601,7 +592,7 @@ void  TrackerSeedGeneratorBC::rsSeeds(const reco::Track& muon) {
     case PixelSubdetector::PixelEndcap:
     case StripSubdetector::TOB:
     case StripSubdetector::TEC:
-      return ;
+      return result;
       break;
     case StripSubdetector::TIB:
       inLayer = ( z < 0 ) ? ntidc[0] : ptidc[0] ;
@@ -639,5 +630,7 @@ void  TrackerSeedGeneratorBC::rsSeeds(const reco::Track& muon) {
       nseeds++;
     }
   }
-  return ;
+
+  return result;
+
 }

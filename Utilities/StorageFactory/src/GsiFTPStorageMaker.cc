@@ -17,7 +17,7 @@
 //<<<<<< MEMBER FUNCTION DEFINITIONS                                    >>>>>>
 
 seal::Storage *
-GsiFTPStorageMaker::open_ (const std::string &proto,
+GsiFTPStorageMaker::doOpen (const std::string &proto,
 		          const std::string &path,
 			  int mode,
 		          const std::string &tmpdir)

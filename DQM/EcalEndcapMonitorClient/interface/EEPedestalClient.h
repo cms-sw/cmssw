@@ -4,8 +4,8 @@
 /*
  * \file EEPedestalClient.h
  *
- * $Date: 2007/05/12 09:39:05 $
- * $Revision: 1.2 $
+ * $Date: 2007/06/11 19:07:32 $
+ * $Revision: 1.3 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -74,7 +74,7 @@ void cleanup(void);
 void htmlOutput(int run, string htmlDir, string htmlName);
 
 // WriteDB
-bool writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV* moniov, int ism);
+bool writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV* moniov);
 
 /// Get Functions
 inline int getEvtPerJob() { return ievt_; }
@@ -173,6 +173,14 @@ float RMSThreshold_[3];
 float expectedMeanPn_[2];
 float discrepancyMeanPn_[2];
 float RMSThresholdPn_[2];
+
+MEContentsTH2FWithinRangeROOT* qtg01_[36];
+MEContentsTH2FWithinRangeROOT* qtg02_[36];
+MEContentsTH2FWithinRangeROOT* qtg03_[36];
+
+MEContentsTH2FWithinRangeROOT* qtg04_[36];
+MEContentsTH2FWithinRangeROOT* qtg05_[36];
+
 };
 
 #endif

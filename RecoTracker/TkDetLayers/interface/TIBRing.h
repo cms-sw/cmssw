@@ -9,7 +9,7 @@
 /** A concrete implementation for TIB rings 
  */
 
-class TIBRing : public GeometricSearchDetWithGroups{
+class TIBRing : public GeometricSearchDet{
  public:
   TIBRing(std::vector<const GeomDet*>& theGeomDets);
   ~TIBRing();
@@ -26,13 +26,18 @@ class TIBRing : public GeometricSearchDetWithGroups{
   compatible( const TrajectoryStateOnSurface& ts, const Propagator&, 
 	      const MeasurementEstimator&) const;
 
-  
-  virtual void 
-  groupedCompatibleDetsV( const TrajectoryStateOnSurface& startingState,
-			  const Propagator& prop,
-			  const MeasurementEstimator& est,
-			  std::vector<DetGroup> & result) const;
+  virtual std::vector<DetWithState> 
+  compatibleDets( const TrajectoryStateOnSurface& startingState,
+		  const Propagator& prop, 
+		  const MeasurementEstimator& est) const;
 
+  virtual std::vector<DetGroup> 
+  groupedCompatibleDets( const TrajectoryStateOnSurface& startingState,
+			 const Propagator& prop,
+			 const MeasurementEstimator& est) const;
+
+
+  virtual bool hasGroups() const {return true;}
  
   //--- Extension of the interface
   

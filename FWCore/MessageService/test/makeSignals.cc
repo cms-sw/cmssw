@@ -6,8 +6,6 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "TROOT.h"
-#include "TSystem.h"
-#include "TUnixSystem.h"
 
 #include <iostream>
 #include <string>

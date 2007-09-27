@@ -28,19 +28,25 @@ public:
   , SUMMARIZE      // SUM
   , JOBREPORT      // JOB
   , JOBMODE        // MOD
+  , SHUT_UP        // SHT
+  , FLUSH_LOG_Q    // FLS
+  , GROUP_STATS    // GRP
   };  // OpCode
 
   // ---  birth via a surrogate:
   static  MessageLoggerQ *  instance();
 
   // ---  post a message to the queue:
-  static  void  END();
-  static  void  LOG( ErrorObj * p );
-  static  void  CFG( ParameterSet * p );
-  static  void  EXT( service::NamedDestination* p );
-  static  void  SUM();
-  static  void  JOB( std::string * j );
-  static  void  MOD( std::string * jm );
+  static  void  MLqEND();
+  static  void  MLqLOG( ErrorObj * p );
+  static  void  MLqCFG( ParameterSet * p );
+  static  void  MLqEXT( service::NamedDestination* p );
+  static  void  MLqSUM();
+  static  void  MLqJOB( std::string * j );
+  static  void  MLqMOD( std::string * jm );
+  static  void  MLqSHT();
+  static  void  MLqFLS();
+  static  void  MLqGRP(std::string * cat_p);
 
   // ---  obtain a message from the queue:
   static  void  consume( OpCode & opcode, void * & operand );

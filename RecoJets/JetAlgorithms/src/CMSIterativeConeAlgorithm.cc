@@ -1,11 +1,12 @@
 // Original author: A. Ulyanov
-// $Id: CMSIterativeConeAlgorithm.cc,v 1.6 2007/02/08 01:46:10 fedor Exp $
+// $Id: CMSIterativeConeAlgorithm.cc,v 1.7 2007/03/26 20:42:26 fedor Exp $
 
 #include "RecoJets/JetAlgorithms/interface/CMSIterativeConeAlgorithm.h"
 
 #include <list>
 
 #include "DataFormats/Candidate/interface/Candidate.h"
+#include "DataFormats/Math/interface/deltaR.h"
 #include "RecoJets/JetAlgorithms/interface/JetAlgoHelper.h"
 using namespace std;
 using namespace reco;

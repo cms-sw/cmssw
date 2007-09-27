@@ -4,6 +4,8 @@
 <use name=FWCore/MessageLogger>
 <use name=DataFormats/TrackReco>
 <use name=DataFormats/RecoCandidate>
+<use name=DataFormats/MuonReco>
+<use name=DataFormats/Common>
 <use name=RecoMuon/TrackingTools>
 <use name=RecoMuon/GlobalTrackFinder>
 

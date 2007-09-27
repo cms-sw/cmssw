@@ -1,9 +1,9 @@
 #ifndef FWCore_Services_SiteLocalConfigService_H
-# define FWCore_Services_SiteLocalConfigService_H
+#define FWCore_Services_SiteLocalConfigService_H
 
 //<<<<<< INCLUDES                                                       >>>>>>
-# include <string>
-# include <list>
+#include <string>
+#include <list>
 #include "FWCore/Catalog/interface/SiteLocalConfig.h"
 //<<<<<< PUBLIC DEFINES                                                 >>>>>>
 //<<<<<< PUBLIC CONSTANTS                                               >>>>>>
@@ -47,7 +47,7 @@ namespace edm
 	};
     }
 }
-    
+
 //<<<<<< INLINE PUBLIC FUNCTIONS                                        >>>>>>
 //<<<<<< INLINE MEMBER FUNCTIONS                                        >>>>>>
 

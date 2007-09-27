@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea GIAMMANCO
 //         Created:  Thu Sep 22 14:23:22 CEST 2005
-// $Id: SiStripDigitizer.cc,v 1.2 2007/05/10 16:20:34 gbruno Exp $
+// $Id: SiStripDigitizer.cc,v 1.3 2007/07/12 13:14:39 fambrogl Exp $
 //
 //
 
@@ -96,11 +96,14 @@ SiStripDigitizer::SiStripDigitizer(const edm::ParameterSet& conf) :
   
   rndEngine       = &(rng->getEngine());
   zeroSuppression = conf_.getParameter<bool>("ZeroSuppression");
+  theDigiAlgo = new SiStripDigitizerAlgorithm(conf_,(*rndEngine));
 
 }
 
 // Virtual destructor needed.
-SiStripDigitizer::~SiStripDigitizer() { }  
+SiStripDigitizer::~SiStripDigitizer() { 
+  delete theDigiAlgo;
+}  
 
 // Functions that gets called by framework every event
 void SiStripDigitizer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
@@ -140,8 +143,7 @@ void SiStripDigitizer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
   iSetup.get<SiStripNoisesRcd>().get(noiseHandle);
   iSetup.get<SiStripPedestalsRcd>().get(pedestalsHandle);
 
-  //Define the digitizer algorithm
-  SiStripDigitizerAlgorithm * theDigiAlgo = new SiStripDigitizerAlgorithm(conf_,(*rndEngine));
+
   theDigiAlgo->setParticleDataTable(&*pdt);
 
   // Step B: LOOP on StripGeomDetUnit //
@@ -217,6 +219,4 @@ void SiStripDigitizer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
     iEvent.put(output_virginraw,"VirginRaw");
     iEvent.put(output_processedraw,"ProcessedRaw");
   }
-
-  delete theDigiAlgo;
 }

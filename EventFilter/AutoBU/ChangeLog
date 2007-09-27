@@ -1,3 +1,19 @@
+2007-08-28  Philipp Schieferdecker  <philipp.schieferdecker@cern.ch>
+
+	* tag V00-05-06
+	* adjust to new XMAS-ready version of Utilities/WebGUI
+
+2007-08-27  Philipp Schieferdecker  <philipp.schieferdecker@cern.ch>
+
+	* tag V00-05-05
+	* fix initialize script, make respective parameters in *.cfg files
+	untracked.
+	
+2007-08-21  Emilio Meschi  <emilio.meschi@cern.ch>
+		
+	* tag V00-05-03
+	* adjust the initialize script for changes in DaqSource and StorageManager
+
 2007-07-19  Philipp Schieferdecker  <philipp.schieferdecker@cern.ch>
 
 	* tag V00-05-02

@@ -18,7 +18,6 @@
 
 #include "DataFormats/L1DTTrackFinder/interface/L1MuDTChambPhContainer.h"
 #include "DataFormats/L1DTTrackFinder/interface/L1MuDTChambThContainer.h"
-#include "DataFormats/L1DTTrackFinder/interface/L1MuDTTrackContainer.h"
 
 #include <FWCore/Framework/interface/EDProducer.h>
 #include <FWCore/ParameterSet/interface/ParameterSet.h>
@@ -41,8 +40,7 @@ class DTTFFEDReader : public edm::EDProducer {
   /// Generate and fill FED raw data for a full event
   bool fillRawData(edm::Event& e,
 		   L1MuDTChambPhContainer::Phi_Container& phi_data,
-		   L1MuDTChambThContainer::The_Container& the_data,
-		   L1MuDTTrackContainer::TrackContainer&  tra_data);
+		   L1MuDTChambThContainer::The_Container& the_data);
 
  private:
   
@@ -52,8 +50,6 @@ class DTTFFEDReader : public edm::EDProducer {
   const L1MuDTChambPhContainer::Phi_Container& p_data();
 
   const L1MuDTChambThContainer::The_Container& t_data();
-
-  const L1MuDTTrackContainer::TrackContainer&  k_data();
 
   // Process one event
   void analyse(edm::Event& e);
@@ -68,8 +64,6 @@ class DTTFFEDReader : public edm::EDProducer {
   L1MuDTChambPhContainer::Phi_Container phiSegments;
 
   L1MuDTChambThContainer::The_Container theSegments;
-
-  L1MuDTTrackContainer::TrackContainer  dtTracks;
 
   // utilities
   int channel(int wheel, int sector, int bx);

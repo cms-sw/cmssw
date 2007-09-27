@@ -7,11 +7,10 @@
 //     <Notes on implementation>
 //
 // Original Author:  David Dagenhart
-// $Id$
+// $Id: DummyServiceE0.cc,v 1.1 2007/02/14 20:45:13 wdd Exp $
 
 #include "FWCore/ServiceRegistry/test/stubs/DummyServiceE0.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "FWCore/Utilities/interface/EDMException.h"
 
 #include <iostream>
 

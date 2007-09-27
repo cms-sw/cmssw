@@ -1,5 +1,5 @@
 // ----------------------------------------------------------------------
-// $Id: FileInPath.cc,v 1.19 2007/06/14 04:56:00 wmtan Exp $
+// $Id: FileInPath.cc,v 1.20 2007/07/16 21:10:04 wmtan Exp $
 //
 // ----------------------------------------------------------------------
 
@@ -10,9 +10,7 @@
 // for the "official" directory is CMSSW_RELEASE_BASE or CMSSW_DATA_PATH.
 
 #include <cstdlib>
-#include <string>
 #include <vector>
-#include <iosfwd>
 #include "boost/filesystem/path.hpp"
 #include "boost/filesystem/operations.hpp"
 

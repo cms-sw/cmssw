@@ -5,8 +5,8 @@
  *  Basic analyzer class which accesses 1D DTRecHits
  *  and plot resolution comparing reconstructed and simulated quantities
  *
- *  $Date: 2007/06/08 14:57:32 $
- *  $Revision: 1.3 $
+ *  $Date: 2006/08/04 10:34:57 $
+ *  $Revision: 1.2 $
  *  \author G. Cerminara - INFN Torino
  */
 
@@ -74,28 +74,18 @@ private:
 
   // Return a map between DTRecHit1DPair and wireId
   std::map<DTWireId, std::vector<DTRecHit1DPair> >
-    map1DRecHitsPerWire(const DTRecHitCollection* dt1DRecHitPairs);
+  map1DRecHitsPerWire(const DTRecHitCollection* dt1DRecHitPairs);
 
   // Return a map between DTRecHit1D and wireId
   std::map<DTWireId, std::vector<DTRecHit1D> >
-    map1DRecHitsPerWire(const DTRecSegment2DCollection* segment2Ds);
+  map1DRecHitsPerWire(const DTRecSegment2DCollection* segment2Ds);
 
   // Return a map between DTRecHit1D and wireId
   std::map<DTWireId, std::vector<DTRecHit1D> >
-    map1DRecHitsPerWire(const DTRecSegment4DCollection* segment4Ds);
+  map1DRecHitsPerWire(const DTRecSegment4DCollection* segment4Ds);
 
   // Compute SimHit distance from wire (cm)
   float simHitDistFromWire(const DTLayer* layer,
-                           DTWireId wireId,
-                           const PSimHit& hit);
-
-  // Compute SimHit impact angle (in direction perp to wire)
-  float simHitImpactAngle(const DTLayer* layer,
-			   DTWireId wireId,
-			   const PSimHit& hit);
-
-  // Compute SimHit distance from FrontEnd
-  float simHitDistFromFE(const DTLayer* layer,
 			   DTWireId wireId,
 			   const PSimHit& hit);
 

@@ -5,7 +5,7 @@
   
 RefCoreGet: Free function to get the pointer to a referenced product.
 
-$Id: RefCoreGet.h,v 1.1 2007/05/15 17:10:24 wmtan Exp $
+$Id: RefCoreGet.h,v 1.2 2007/05/16 22:31:59 paterno Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -24,6 +24,13 @@ namespace edm {
       //if (isNull()) throwInvalidReference();
 
       EDProduct const* product = ref.productGetter()->getIt(ref.id());      
+      if (product == 0) {
+	throw edm::Exception(errors::ProductNotFound)
+	  << "RefCore: A request to resolve a reference to a product of type: "
+	  << typeid(T).name()
+	  << "\ncan not be satisfied because the product cannot be found."
+	  << "\nProbably the branch containing the product is not stored in the input file.\n";
+      }
       Wrapper<T> const* wrapper = dynamic_cast<Wrapper<T> const*>(product);
 
       if (wrapper == 0) { 

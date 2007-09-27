@@ -1,12 +1,19 @@
-<use name=FWCore/Framework>
-<use name=FWCore/PluginManager>
-<use name=FWCore/ParameterSet>
-<use name=CondFormats/EcalObjects>
 <use name=CondFormats/DataRecord>
+<use name=CondFormats/EcalObjects>
+<use name=DataFormats/DetId>
 <use name=DataFormats/EcalDetId>
-<use name=FWCore/Utilities>
+<use name=DataFormats/Provenance>
+<use name=FWCore/Framework>
+<use name=FWCore/MessageLogger>
+<use name=Geometry/EcalMapping>
 <use name=boost>
-<flags EDM_PLUGIN=1>
 <export>
-   <lib name=CalibCalorimetryEcalLaserCorrection>
+  <use name=CondFormats/DataRecord>
+  <use name=DataFormats/DetId>
+  <use name=DataFormats/EcalDetId>
+  <use name=DataFormats/Provenance>
+  <use name=FWCore/Framework>
+  <use name=boost>
+  <lib name=CalibCalorimetryEcalLaserCorrection>
 </export>
+

@@ -74,6 +74,7 @@ void SiStripDigitizerAlgorithm::run(edm::DetSet<SiStripDigi>& outdigi,
   // We will work on ONE copy of the map only,
   //  and pass references where it is needed.
   signal_map_type theSignal;
+  signal_map_type theSignal_forLink;
 
   //
   // First: loop on the SimHits
@@ -82,36 +83,38 @@ void SiStripDigitizerAlgorithm::run(edm::DetSet<SiStripDigi>& outdigi,
   std::vector<PSimHit>::const_iterator simHitIterEnd = input.end();
   for (;simHitIter != simHitIterEnd; ++simHitIter) {
     
-    const PSimHit& ihit = *simHitIter;
+    const PSimHit & ihit = *simHitIter;
     
     if ( std::fabs(ihit.tof()) < tofCut && ihit.energyLoss()>0) {
-      theSiHitDigitizer->processHit(ihit,*det,bfield,langle, theSignal);
-      theSiPileUpSignals->add(theSignal, ihit);
+      theSiHitDigitizer->processHit(ihit,*det,bfield,langle, theSignal,theSignal_forLink);
+      theSiPileUpSignals->add(theSignal_forLink, ihit);
     }
+    theSignal_forLink.clear();
   }
   
   SiPileUpSignals::HitToDigisMapType theLink = theSiPileUpSignals->dumpLink();  
-
+  
   numStrips = (det->specificTopology()).nstrips();
   strip = int(numStrips/2.);
   noiseRMS = noiseHandle->getNoise(strip,detNoiseRange);
 
   if(zeroSuppression){
-    DigitalVecType digis;
     if(noise) 
       theSiNoiseAdder->addNoise(theSignal,numStrips,noiseRMS*theElectronPerADC);
+    digis.clear();
     theSiZeroSuppress->suppress(theSiDigitalConverter->convert(theSignal, gainHandle, detID), digis, detID,noiseHandle,pedestalsHandle);
     push_link(digis, theLink, theSignal,detID);
     outdigi.data = digis;
   }
-
+  
   if(!zeroSuppression){
     if(noise){
       theSiNoiseAdder->createRaw(theSignal,numStrips,noiseRMS*theElectronPerADC);
     }else{
       edm::LogWarning("SiStripDigitizer")<<"You are running the digitizer without Noise generation and without applying Zero Suppression. ARE YOU SURE???";
     }
-    DigitalRawVecType rawdigis = theSiDigitalConverter->convertRaw(theSignal, gainHandle, detID);
+    rawdigis.clear();
+    rawdigis = theSiDigitalConverter->convertRaw(theSignal, gainHandle, detID);
     push_link_raw(rawdigis, theLink, theSignal,detID);
     outrawdigi.data = rawdigis;
   }

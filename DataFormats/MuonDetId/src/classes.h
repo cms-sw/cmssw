@@ -4,6 +4,3 @@
 #include "DataFormats/MuonDetId/interface/DTWireId.h"
 #include "DataFormats/MuonDetId/interface/CSCDetId.h"
 #include "DataFormats/MuonDetId/interface/RPCDetId.h"
-#include "DataFormats/MuonDetId/interface/DTBtiId.h"
-#include "DataFormats/MuonDetId/interface/DTTracoId.h"
-#include "DataFormats/MuonDetId/interface/DTSectCollId.h"

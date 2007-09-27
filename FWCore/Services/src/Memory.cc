@@ -6,7 +6,7 @@
 // Implementation:
 //
 // Original Author:  Jim Kowalkowski
-// $Id: Memory.cc,v 1.8 2007/03/04 05:55:26 wmtan Exp $
+// $Id: Memory.cc,v 1.9 2007/06/14 21:03:39 wmtan Exp $
 //
 
 #include "FWCore/Services/src/Memory.h"
@@ -159,8 +159,15 @@ namespace edm {
 	    << "Memory checker server: Failed to open " << ost.str() << std::endl;
 	}
 #endif
+      iReg.watchPreSourceConstruction(this,&SimpleMemoryCheck::preSourceConstruction);
+      iReg.watchPostSourceConstruction(this,&SimpleMemoryCheck::postSourceConstruction);
+      iReg.watchPostSource(this,&SimpleMemoryCheck::postSource);
+
       iReg.watchPostBeginJob(this,&SimpleMemoryCheck::postBeginJob);
       iReg.watchPostEndJob(this,&SimpleMemoryCheck::postEndJob);
+
+      iReg.watchPostModuleConstruction(this,&SimpleMemoryCheck::postModuleConstruction);
+      iReg.watchPostModuleBeginJob(this,&SimpleMemoryCheck::postModuleBeginJob);
       
       iReg.watchPreProcessEvent(this,&SimpleMemoryCheck::preEventProcessing);
       iReg.watchPostProcessEvent(this,&SimpleMemoryCheck::postEventProcessing);
@@ -179,6 +186,85 @@ namespace edm {
     void SimpleMemoryCheck::postBeginJob()
     {
     }
+
+    void SimpleMemoryCheck::preSourceConstruction(const ModuleDescription& md) {
+      std::swap(current_,previous_);
+      *current_ = fetch();
+
+      if(*current_ > max_)
+	{
+	  if(count_ >= num_to_skip_)
+            printSummary(current_->vsize, max_.vsize,
+                         current_->rss, max_.rss,
+                         "pre-ctor",
+                         md.moduleLabel_, md.moduleLabel_);
+	  max_ = *current_;
+	}
+    }
+
+
+    void SimpleMemoryCheck::postSourceConstruction(const ModuleDescription& md) {
+      std::swap(current_,previous_);
+      *current_ = fetch();
+
+      if(*current_ > max_)
+	{
+	  if(count_ >= num_to_skip_)
+            printSummary(current_->vsize, max_.vsize,
+                         current_->rss, max_.rss,
+                         "ctor",
+                         md.moduleLabel_, md.moduleLabel_);
+	  max_ = *current_;
+	}
+    }
+
+    void SimpleMemoryCheck::postSource()
+    {
+      std::swap(current_,previous_);
+      *current_ = fetch();
+
+      if(*current_ > max_)
+	{
+	  if(count_ >= num_to_skip_) {
+            printSummary(current_->vsize, max_.vsize,
+                         current_->rss, max_.rss,
+                         "module",
+                         "source", "source");
+	  } 
+	  max_ = *current_;
+	}
+    }
+
+    void SimpleMemoryCheck::postModuleConstruction(const ModuleDescription& md) {
+      std::swap(current_,previous_);
+      *current_ = fetch();
+
+      if(*current_ > max_)
+	{
+	  if(count_ >= num_to_skip_)
+            printSummary(current_->vsize, max_.vsize,
+                         current_->rss, max_.rss,
+                         "ctor",
+                         md.moduleLabel_, md.moduleLabel_);
+	  max_ = *current_;
+	}
+    }
+
+    void SimpleMemoryCheck::postModuleBeginJob(const ModuleDescription& md) {
+      std::swap(current_,previous_);
+      *current_ = fetch();
+
+      if(*current_ > max_)
+	{
+	  if(count_ >= num_to_skip_)
+            printSummary(current_->vsize, max_.vsize,
+                         current_->rss, max_.rss,
+                         "beginJob",
+                         md.moduleLabel_, md.moduleLabel_);
+	  max_ = *current_;
+	}
+    }
+
 
     void SimpleMemoryCheck::postEndJob()
     {
@@ -205,21 +291,32 @@ namespace edm {
 
       if(*current_ > max_)
 	{
-	  if(count_ >= num_to_skip_)
-	  LogWarning("MemoryIncrease")
-	    << "Memory increased from "
-	    << "VSIZE=" << max_.vsize << "MB "
-	    << "and RSS=" << max_.rss << "MB "
-	    << "to VSIZE=" << current_->vsize << "MB"
-	    << " and RSS=" << current_->rss << "MB\n"
-	    << "after module "
-	    << md.moduleLabel_ << "/"
-	    << md.moduleName_ << "\n";
-	  
+	  if(count_ >= num_to_skip_) 
+            printSummary(current_->vsize, max_.vsize,
+                         current_->rss, max_.rss,
+                         "module",
+                         md.moduleLabel_, md.moduleLabel_);
 	  max_ = *current_;
 	}
 
     }
+    void SimpleMemoryCheck::printSummary(
+                    const double& currentVsize, const double& maxVsize,
+                    const double& currentRSS, const double& maxRSS,
+                    const std::string& type, 
+                    const std::string& mdlabel, const std::string& mdname) 
+    {
+       double deltaVSIZE = currentVsize - maxVsize;
+       double deltaRSS   = currentRSS - maxRSS;
+       LogWarning("MemoryIncrease")
+       << "MemoryIncrease: " << type << " "
+       << mdlabel << "/"
+       << mdname 
+       << " VSIZE " << currentVsize << " " << deltaVSIZE
+       << " RSS " << currentRSS << " " << deltaRSS
+       << "\n";
+    }
 
   }
 }
+

@@ -118,8 +118,8 @@ PFSimParticleProducer::beginJob(const edm::EventSetup & es)
 {
   
   // init Particle data table (from Pythia)
-//   edm::ESHandle < HepPDT::ParticleDataTable > pdt;
-  edm::ESHandle < DefaultConfig::ParticleDataTable > pdt;
+  edm::ESHandle < HepPDT::ParticleDataTable > pdt;
+  //  edm::ESHandle < DefaultConfig::ParticleDataTable > pdt;
   es.getData(pdt);
   if ( !ParticleTable::instance() ) ParticleTable::instance(&(*pdt));
   mySimEvent->initializePdt(&(*pdt));
@@ -175,13 +175,13 @@ void PFSimParticleProducer::produce(Event& iEvent,
       if(verbose_) 
 	mySimEvent->print();
 
-      const std::vector<FSimTrack>& fsimTracks = *(mySimEvent->tracks() );
-      for(unsigned i=0; i<fsimTracks.size(); i++) {
+      // const std::vector<FSimTrack>& fsimTracks = *(mySimEvent->tracks() );
+      for(unsigned i=0; i<mySimEvent->nTracks(); i++) {
     
-	const FSimTrack& fst = fsimTracks[i];
+	const FSimTrack& fst = mySimEvent->track(i);
 
 	int motherId = -1;
-	if( ! fst.noMother() ) 
+	if( ! fst.noMother() ) // a mother exist
 	  motherId = fst.mother().id();
 
 	reco::PFSimParticle particle(  fst.charge(), 
@@ -205,6 +205,8 @@ void PFSimParticleProducer::produce(Event& iEvent,
 	  pointOrig(-1, 
 		    reco::PFTrajectoryPoint::ClosestApproach,
 		    posOrig, momOrig);
+
+	// point 0 is origin vertex
 	particle.addPoint(pointOrig);
     
 
@@ -221,10 +223,15 @@ void PFSimParticleProducer::produce(Event& iEvent,
 	  math::XYZTLorentzVector momEnd;
 	
 	  reco::PFTrajectoryPoint 
-	    pointEnd( 1, -1,
+	    pointEnd( -1, 
+		      reco::PFTrajectoryPoint::BeamPipeOrEndVertex,
 		      posEnd, momEnd);
 	
 	  particle.addPoint(pointEnd);
+	}
+	else { // add a dummy point
+	  reco::PFTrajectoryPoint dummy;
+	  particle.addPoint(dummy); 
 	}
 
 
@@ -240,6 +247,11 @@ void PFSimParticleProducer::produce(Event& iEvent,
 
 	  // extrapolate to cluster depth
 	}
+	else { // add a dummy point
+	  reco::PFTrajectoryPoint dummy;
+	  particle.addPoint(dummy); 
+	}
+
 	if( fst.onLayer2() ) { // PS layer2
 	  const RawParticle& rp = fst.layer2Entrance();
       
@@ -252,6 +264,11 @@ void PFSimParticleProducer::produce(Event& iEvent,
 
 	  // extrapolate to cluster depth
 	}
+	else { // add a dummy point
+	  reco::PFTrajectoryPoint dummy;
+	  particle.addPoint(dummy); 
+	}
+
 	if( fst.onEcal() ) {
 	  const RawParticle& rp = fst.ecalEntrance();
 	
@@ -265,6 +282,15 @@ void PFSimParticleProducer::produce(Event& iEvent,
 
 	  // extrapolate to cluster depth
 	}
+	else { // add a dummy point
+	  reco::PFTrajectoryPoint dummy;
+	  particle.addPoint(dummy); 
+	}
+	
+	// add a dummy point for ECAL Shower max
+	reco::PFTrajectoryPoint dummy;
+	particle.addPoint(dummy); 
+
 	if( fst.onHcal() ) {
 
 	  const RawParticle& rpin = fst.hcalEntrance();
@@ -289,6 +315,10 @@ void PFSimParticleProducer::produce(Event& iEvent,
 	  // 		    posHCAL, momHCAL);
 	
 	  // 	particle.addPoint( hcalPtout ); 	
+	}
+	else { // add a dummy point
+	  reco::PFTrajectoryPoint dummy;
+	  particle.addPoint(dummy); 
 	}
           
 	pOutputPFSimParticleCollection->push_back( particle );
@@ -390,7 +420,7 @@ PFSimParticleProducer::processRecTracks(auto_ptr< reco::PFRecTrackCollection >&
       Trajectory*  theTraj  = (*itTrack).first;
       vector<TrajectoryMeasurement> measurements = theTraj->measurements();
 
-      reco::Track* theTrack = (*itTrack).second;
+      reco::Track* theTrack = (*itTrack).second.first;
 
       reco::PFRecTrack track(theTrack->charge(), 
 			     reco::PFRecTrack::KF);
@@ -436,7 +466,7 @@ PFSimParticleProducer::processRecTracks(auto_ptr< reco::PFRecTrackCollection >&
 					    pBeamPipe.z(), 
 					    pBeamPipe.mag());
 	reco::PFTrajectoryPoint beamPipePt(-1, 
-					   reco::PFTrajectoryPoint::BeamPipe, 
+					   reco::PFTrajectoryPoint::BeamPipeOrEndVertex, 
 					   posBeamPipe, momBeamPipe);
 	
 	track.addPoint(beamPipePt);

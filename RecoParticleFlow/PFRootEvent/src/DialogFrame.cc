@@ -4,12 +4,11 @@
 #include <iostream>
 
 DialogFrame::DialogFrame(PFRootEventManager *evman,const TGWindow *p,UInt_t w,UInt_t h)
-                         :TGMainFrame(p, w, h)
+                         :TGMainFrame(p, w, h),eventNb_(0)
 {
   evMan_=evman;
   mainFrame_= new TGCompositeFrame(this,200,300);
   maxEvents_=evMan_->tree_->GetEntries();
-  eventNb_=evMan_->iEvent_;
   
   //create object selection buttons
   TGGroupFrame *gr1= new TGGroupFrame(mainFrame_,"Draw Selection",kVerticalFrame); 
@@ -113,13 +112,13 @@ void DialogFrame::CloseWindow()
 void DialogFrame::doModifyOptions(unsigned objNb)
 {
  // hits and clusters are always drawn !
- eventNb_=evMan_->iEvent_;
  switch (objNb) {
    case 0: selectObject[0]->SetState(kButtonDown); break;
    case 1: selectObject[1]->SetState(kButtonDown); break;
    case 2:
      evMan_->displayRecTracks_ = (selectObject[2]->IsDown()) ?true :false;
      evMan_->display(eventNb_);
+     //doDraw();
      break;
    case 3: 
      evMan_->displayTrueParticles_ = (selectObject[3]->IsDown()) ?true :false;
@@ -148,13 +147,12 @@ void DialogFrame::doModifyPtThreshold(unsigned objNb,long pt)
    case 3: evMan_->displayTrueParticlesPtMin_=(double)pt;break;
    default:break;
  }  
- eventNb_=evMan_->iEvent_;
  evMan_->display(eventNb_);
+ //doDraw();
 }
 //_________________________________________________________________________________
 void DialogFrame::doNextEvent()
 {
- eventNb_=evMan_->iEvent_;
  if (eventNb_<maxEvents_) {
     ++eventNb_;
     evMan_->display(eventNb_);
@@ -163,7 +161,6 @@ void DialogFrame::doNextEvent()
 //_________________________________________________________________________________
 void DialogFrame::doPreviousEvent()
 {
- eventNb_=evMan_->iEvent_;
  if (eventNb_>0) {
    --eventNb_;
    evMan_->display(eventNb_);
@@ -179,11 +176,11 @@ Bool_t DialogFrame::ProcessMessage(Long_t msg, Long_t parm1, Long_t parm2)
          switch (parm1) {
 	   case EN :case EN+1: case EN+2: case EN+3:
 	      {
-	       eventNb_=evMan_->iEvent_;
 	       long val=threshEntry[parm1-EN]->GetIntNumber();
 	       thresholdS[parm1-EN]->SetPosition(val);
 	       doModifyPtThreshold(parm1-EN,val);
 	       evMan_->display(eventNb_);
+	       //doDraw();
                break;
 	      }
 	   default:break;
@@ -194,6 +191,7 @@ Bool_t DialogFrame::ProcessMessage(Long_t msg, Long_t parm1, Long_t parm2)
      break;
    case kC_HSLIDER:
      switch (GET_SUBMSG(msg)) {
+       std::cout<<"parm2:"<<parm2<<std::flush<<std::endl;
        case kSL_POS:
          switch (parm1) {
 	   case ENER: case ENER+1: case ENER+2: case ENER+3:

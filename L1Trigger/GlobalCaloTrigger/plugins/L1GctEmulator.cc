@@ -77,7 +77,6 @@ L1GctEmulator::~L1GctEmulator() {
 
 void L1GctEmulator::beginJob(const edm::EventSetup& c)
 {
-  configureGct(c);
 }
 
 void L1GctEmulator::endJob()
@@ -93,6 +92,8 @@ void L1GctEmulator::configureGct(const edm::EventSetup& c)
   c.get< L1GctJetFinderParamsRcd >().get( jfPars ) ; // which record?
   edm::ESHandle< L1GctJetEtCalibrationFunction > calibFun ;
   c.get< L1GctJetCalibFunRcd >().get( calibFun ) ; // which record?
+  edm::ESHandle< L1CaloEtScale > etScale ;
+  c.get< L1JetEtScaleRcd >().get( etScale ) ; // which record?
 
   if (jfPars.product() == 0) {
     throw cms::Exception("L1GctConfigError")
@@ -110,11 +111,15 @@ void L1GctEmulator::configureGct(const edm::EventSetup& c)
 
   // tell the jet Et Lut about the scales
   m_jetEtCalibLut->setFunction(calibFun.product());
+  m_jetEtCalibLut->setOutputEtScale(etScale.product());
   m_gct->setJetEtCalibrationLut(m_jetEtCalibLut);
   
 }
 
 void L1GctEmulator::produce(edm::Event& e, const edm::EventSetup& c) {
+
+  // get config data from EventSetup
+  configureGct(c);
 
   // get the RCT data
   edm::Handle<L1CaloEmCollection> em;

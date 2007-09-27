@@ -1,6 +1,6 @@
 #include "DataFormats/EcalDigi/interface/EcalFEMSample.h"
 
-EcalFEMSample::EcalFEMSample(int adc, int gainId) {
+EcalFEMSample::EcalFEMSample(const int& adc, const int& gainId) {
   theSample=(adc&0xFFF) | ((gainId&0x3)<<12);
 }
 
