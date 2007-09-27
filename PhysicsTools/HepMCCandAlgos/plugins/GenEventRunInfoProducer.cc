@@ -36,7 +36,9 @@ using namespace HepMC;
 
 GenEventRunInfoProducer::GenEventRunInfoProducer( const ParameterSet & p ) :
   src_( p.getParameter<InputTag>( "src" ) ) {
-  produces<double>();
+  produces<double>("AutoCrossSection");
+  produces<double>("PreCalculatedCrossSection");
+  produces<double>("FilterEfficiency");
 }
 
 
