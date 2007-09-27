@@ -20,6 +20,9 @@ private:
 	unsigned short link_status[15]; // Optical receiver status ORed for all tbins
 	unsigned short mpc_link_id; // MPC_id and link# from MEx Data Record ORed for all tbins
 
+	unsigned long track_cnt;
+	unsigned long orbit_cnt;
+
 	friend class CSCTFUnpacker;
 
 public:
@@ -33,6 +36,9 @@ public:
 	unsigned long  AFs (void) const throw() { return af; }
 	unsigned long  VPs (void) const throw() { return vp; }
 	unsigned short link(int link) const throw() { return link_status[link]; }
+
+	unsigned long track_counter(void){ return track_cnt; }
+	unsigned long orbit_counter(void){ return orbit_cnt; }
 
 	L1CSCSPStatusDigi(void){ bzero(this,sizeof(L1CSCSPStatusDigi)); }
 	~L1CSCSPStatusDigi(void){}
