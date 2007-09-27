@@ -3,11 +3,11 @@
 /**
  *Author: Vladlen Timciuc, Caltech
  * Created: 10 July 2007
- * $Id: EcalLaserAPDPNRatios.h,v 1.3 2007/07/27 13:56:53 xiezhen Exp $
+ * $Id: EcalLaserAPDPNRatios.h,v 1.4 2007/09/09 12:51:14 torimoto Exp $
  **/
-#include <vector>
-#include <boost/cstdint.hpp>
+#include "CondFormats/EcalObjects/interface/EcalCondObjectContainer.h"
 #include "DataFormats/Provenance/interface/Timestamp.h"
+#include <vector>
 
 class EcalLaserAPDPNRatios {
  public:
@@ -20,13 +20,13 @@ class EcalLaserAPDPNRatios {
     edm::Timestamp t2;
   };
   
-  typedef std::vector<EcalLaserAPDPNpair> EcalLaserAPDPNRatiosMap;
+  typedef EcalCondObjectContainer<EcalLaserAPDPNpair> EcalLaserAPDPNRatiosMap;
   typedef std::vector<EcalLaserTimeStamp> EcalLaserTimeStampMap;
 
-  EcalLaserAPDPNRatios();
-  ~EcalLaserAPDPNRatios();
+  EcalLaserAPDPNRatios() : time_map(92) {}; // FIXME
+  ~EcalLaserAPDPNRatios() {};
    
-  void  setValue(int hashedIndex, const EcalLaserAPDPNpair& value) { laser_map[hashedIndex] = value; };
+  void  setValue(uint32_t rawId, const EcalLaserAPDPNpair& value) { laser_map[rawId] = value; };
   const EcalLaserAPDPNRatiosMap& getLaserMap() const { return laser_map; }
   
   void setTime(int hashedIndex, const EcalLaserTimeStamp& value) { time_map[hashedIndex] = value; };

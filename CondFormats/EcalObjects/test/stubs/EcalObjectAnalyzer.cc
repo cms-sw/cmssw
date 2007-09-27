@@ -78,14 +78,25 @@ EcalObjectAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& context)
   std::cout << "Global ADC->GeV scale: EB " << agc->getEBValue() << " GeV/ADC count" 
 	    << " EE " << agc->getEEValue() << " GeV/ADC count" <<std::endl; 
 
-  const EcalPedestals* myped=pPeds.product();
-  for(std::map<const unsigned int,EcalPedestals::Item>::const_iterator it=myped->m_pedestals.begin(); it!=myped->m_pedestals.end(); it++)
+  const EcalPedestals* myped = pPeds.product();
+  // Barrel loop
+  int cnt=0;
+  for( EcalPedestals::const_iterator it = myped->barrelItems().begin(); it != myped->barrelItems().end(); ++it)
     {
-      
-      std::cout << "EcalPedestal: " << it->first
-		<< "  mean_x1:  " <<it->second.mean_x1 << " rms_x1: " << it->second.rms_x1
-		<< "  mean_x6:  " <<it->second.mean_x6 << " rms_x6: " << it->second.rms_x6
-		<< "  mean_x12: " <<it->second.mean_x12 << " rms_x12: " << it->second.rms_x12
+      std::cout << "EcalPedestal: " << " BARREL " << cnt << " " 
+		<< "  mean_x1:  " <<(*it).mean_x1 << " rms_x1: " << (*it).rms_x1
+		<< "  mean_x6:  " <<(*it).mean_x6 << " rms_x6: " << (*it).rms_x6
+		<< "  mean_x12: " <<(*it).mean_x12 << " rms_x12: " << (*it).rms_x12
+		<< std::endl;
+            ++cnt;
+    } 
+  // Endcap loop
+  for( EcalPedestals::const_iterator it = myped->endcapItems().begin(); it != myped->endcapItems().end(); ++it)
+    {
+      std::cout << "EcalPedestal: " << " ENDCAP "
+		<< "  mean_x1:  " <<(*it).mean_x1 << " rms_x1: " << (*it).rms_x1
+		<< "  mean_x6:  " <<(*it).mean_x6 << " rms_x6: " << (*it).rms_x6
+		<< "  mean_x12: " <<(*it).mean_x12 << " rms_x12: " << (*it).rms_x12
 		<< std::endl;
     } 
 
@@ -93,57 +104,58 @@ EcalObjectAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& context)
   edm::ESHandle<EcalWeightXtalGroups> pGrp;
   context.get<EcalWeightXtalGroupsRcd>().get(pGrp);
   const EcalWeightXtalGroups* grp = pGrp.product();
-  
-  for (EcalWeightXtalGroups::EcalXtalGroupsMap::const_iterator git = grp->getMap().begin(); git!= grp->getMap().end() ;git++)
-    {
-      EcalXtalGroupId gid;
-      if( git != grp->getMap().end() ) {
-	std::cout << "XtalGroupId " << git->first << " gid: "  
-		  << git->second.id() << std:: endl;
-      }
-    }
+  EcalXtalGroupsMap::const_iterator git;
+  // Barrel loop
+  for (git = grp->barrelItems().begin(); git != grp->barrelItems().end(); ++git) {
+	std::cout << "XtalGroupId  gid: "  << (*git).id() << std:: endl;
+  }
+  // Endcap loop
+  for (git = grp->endcapItems().begin(); git!= grp->endcapItems().end(); ++git) {
+	std::cout << "XtalGroupId  gid: "  << (*git).id() << std:: endl;
+  }
   
   // Gain Ratios
   edm::ESHandle<EcalGainRatios> pRatio;
   context.get<EcalGainRatiosRcd>().get(pRatio);
   const EcalGainRatios* gr = pRatio.product();
-
-  for (EcalGainRatios::EcalGainRatioMap::const_iterator grit=gr->getMap().begin(); grit!= gr->getMap().end() ; grit++)
-    {
+  EcalGainRatioMap::const_iterator grit;
+  // Barrel loop
+  for (grit = gr->barrelItems().begin(); grit != gr->barrelItems().end(); ++grit) {
       EcalMGPAGainRatio mgpa;
-      mgpa = grit->second;
-      std::cout << "EcalMGPAGainRatio: " << grit->first  
-		<< " gain 12/6:  " << mgpa.gain12Over6() << " gain 6/1: " << mgpa.gain6Over1()
-		<< std::endl;
-    } 
+      mgpa = (*grit);
+      std::cout << "EcalMGPAGainRatio: gain 12/6:  " << mgpa.gain12Over6() << " gain 6/1: " << mgpa.gain6Over1() << std::endl;
+  } 
+  // Endcap loop
+  for (grit = gr->endcapItems().begin(); grit != gr->endcapItems().end(); ++grit) {
+      EcalMGPAGainRatio mgpa;
+      mgpa = (*grit);
+      std::cout << "EcalMGPAGainRatio: gain 12/6:  " << mgpa.gain12Over6() << " gain 6/1: " << mgpa.gain6Over1() << std::endl;
+  } 
 
   // Intercalib constants
   edm::ESHandle<EcalIntercalibConstants> pIcal;
   context.get<EcalIntercalibConstantsRcd>().get(pIcal);
   const EcalIntercalibConstants* ical = pIcal.product();
+  EcalIntercalibConstantMap::const_iterator icalit;
+  // Barrel loop
+  for(icalit = ical->barrelItems().begin(); icalit != ical->barrelItems().end(); ++icalit) {
+      std::cout << "EcalIntercalibConstant:  icalconst: " << (*icalit) << std::endl;
+  } 
+  // Endcap loop
+  for(icalit = ical->endcapItems().begin(); icalit != ical->endcapItems().end(); ++icalit) {
+      std::cout << "EcalIntercalibConstant:  icalconst: " << (*icalit) << std::endl;
+  } 
 
-  for(EcalIntercalibConstants::EcalIntercalibConstantMap::const_iterator icalit=ical->getMap().begin();icalit!=ical->getMap().end();icalit++)
-    {
-      EcalIntercalibConstants::EcalIntercalibConstant icalconst;
-      icalconst = icalit->second;
-      std::cout << "EcalIntercalibConstant: " << icalit->first
-		<< " icalconst: " << icalconst
-		<< std::endl;
-    } 
-
-//   // fetch TB weights
-//   std::cout <<"Fetching EcalTBWeights from DB " << std::endl;
-   edm::ESHandle<EcalTBWeights> pWgts;
-   context.get<EcalTBWeightsRcd>().get(pWgts);
-   const EcalTBWeights* wgts = pWgts.product();
-   std::cout << "EcalTBWeightMap.size(): " << wgts->getMap().size() << std::endl;
+  // fetch TB weights
+  edm::ESHandle<EcalTBWeights> pWgts;
+  context.get<EcalTBWeightsRcd>().get(pWgts);
+  const EcalTBWeights* wgts = pWgts.product();
+  std::cout << "EcalTBWeightMap.size(): " << wgts->getMap().size() << std::endl;
 
 //   // look up the correct weights for this  xtal
 //   //EcalXtalGroupId gid( git->second );
 //   EcalTBWeights::EcalTDCId tdcid(1);
-
-//   std::cout << "Lookup EcalWeightSet for groupid: " << gid.id() << " and TDC id " << tdcid << std::endl;
-   for (EcalTBWeights::EcalTBWeightMap::const_iterator wit = wgts->getMap().begin(); wit != wgts->getMap().end() ; wit++)
+   for (EcalTBWeights::EcalTBWeightMap::const_iterator wit = wgts->getMap().begin(); wit != wgts->getMap().end() ; ++wit)
      {
        std::cout << "EcalWeights " << wit->first.first.id() << "," << wit->first.second << std::endl;
        wit->second.print(std::cout);

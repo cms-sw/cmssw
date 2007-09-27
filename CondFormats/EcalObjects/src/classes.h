@@ -1,5 +1,7 @@
 #include <boost/cstdint.hpp>
 
+#include "CondFormats/EcalObjects/interface/EcalCondObjectContainer.h"
+
 namespace{
   namespace{
     uint32_t i32;
@@ -7,15 +9,16 @@ namespace{
 }
 #include "CondFormats/EcalObjects/interface/EcalPedestals.h"
 namespace {
-  std::map< uint32_t, EcalPedestals::Item > pedmap;
+  EcalPedestals pedmap;
+  std::vector<EcalPedestal> v_ped;
 }
 
 #include "CondFormats/EcalObjects/interface/EcalWeightXtalGroups.h"
 #include "CondFormats/EcalObjects/interface/EcalXtalGroupId.h"
 namespace {
   namespace {
-    EcalWeightXtalGroups  gg;
-    std::map<uint32_t, EcalXtalGroupId> groupmap;
+    EcalWeightXtalGroups gg;
+    std::vector<EcalXtalGroupId> groupmap;
   }
 }
 
@@ -42,7 +45,7 @@ namespace {
 namespace {
   namespace {
     EcalGainRatios gainratios;
-    std::map<uint32_t, EcalMGPAGainRatio> ratiomap;
+    std::vector<EcalMGPAGainRatio> ratiomap;
   }
 }
 
@@ -50,7 +53,7 @@ namespace {
 namespace {
   namespace {
     EcalIntercalibConstants intercalib;
-    std::map<uint32_t, EcalIntercalibConstants::EcalIntercalibConstant> intermap;
+    std::vector<EcalIntercalibConstant> intermap;
   }
 }
 
@@ -75,15 +78,7 @@ namespace {
 namespace {
   namespace {
     EcalChannelStatus channelStatus;
-    std::map<uint32_t, EcalChannelStatusCode> statusMap;
-  }
-}
-
-#include "CondFormats/EcalObjects/interface/EcalMonitoringCorrections.h"
-namespace {
-  namespace {
-    EcalMonitoringCorrections monitorCorrections;
-    std::map<uint32_t, EcalMonitoringCorrections::EcalMonitoringCorrection> monCorrectionMap;
+    std::vector<EcalChannelStatusCode> statusMap;
   }
 }
 
@@ -91,7 +86,7 @@ namespace {
 namespace {
   namespace {
     EcalLaserAlphas laserAplhas;
-    std::vector<EcalLaserAlphas::EcalLaserAlpha> laserAlphaMap;
+    std::vector<EcalLaserAlpha> laserAlphaMap;
   }
 }
 
@@ -107,7 +102,7 @@ namespace {
 namespace {
   namespace {
     EcalLaserAPDPNRatiosRef laserAPDPNRatiosRef;
-    std::vector<EcalLaserAPDPNRatiosRef::EcalLaserAPDPNref> laserAPDPNRatiosRefMap;
+    std::vector<EcalLaserAPDPNref> laserAPDPNRatiosRefMap;
   }
 }
 
@@ -172,7 +167,7 @@ namespace {
 #include "CondFormats/EcalObjects/interface/EcalTPGSlidingWindow.h"
 namespace {
   namespace {   
-   std::map<uint32_t, uint32_t>                 EcalTPGSlidingWindowMap;
+   std::map<uint32_t, uint32_t> EcalTPGSlidingWindowMap;
   }
 }
 

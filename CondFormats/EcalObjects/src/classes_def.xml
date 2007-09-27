@@ -1,25 +1,16 @@
 <lcgdict>
 
- <class name="EcalPedestals">
-  <field name="m_hashedCont" transient="true"/>
- </class>
+ <class name="EcalPedestals"/>
  
- <class name="EcalPedestals::Item"/>
-
  <class name="EcalWeightSet"/>
 
-
- <class name="EcalWeightXtalGroups">
-  <field name="m_hashedCont" transient="true"/>
- </class>
+ <class name="EcalWeightXtalGroups"/>
  <class name="EcalXtalGroupId"/>
  <class name="EcalTBWeights"/>
 
  <class name="EcalADCToGeVConstant"/>
 
- <class name="EcalGainRatios">
-  <field name="m_hashedCont" transient="true"/>
- </class>
+ <class name="EcalGainRatios"/>
 
  <class name="EcalMGPAGainRatio"/>
  <class name="EcalIntercalibConstants"/>
@@ -29,8 +20,6 @@
 
  <class name="EcalChannelStatus"/>
  <class name="EcalChannelStatusCode"/>
-
- <class name="EcalMonitoringCorrections"/>
 
  <class name="EcalLaserAPDPNRatios"/>
 
