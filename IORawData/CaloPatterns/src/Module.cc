@@ -4,6 +4,5 @@
 #include "FWCore/Framework/interface/InputSourceMacros.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
-DEFINE_SEAL_MODULE();
-DEFINE_ANOTHER_FWK_INPUT_SOURCE(HcalPatternSource);
-DEFINE_ANOTHER_FWK_MODULE(HtrXmlPattern);
+DEFINE_FWK_INPUT_SOURCE(HcalPatternSource);
+DEFINE_FWK_MODULE(HtrXmlPattern);
