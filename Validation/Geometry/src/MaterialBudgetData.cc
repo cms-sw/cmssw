@@ -80,6 +80,7 @@ void MaterialBudgetData::SetAllStepsToTree()
   theStepInitialPz      = new float[MAXNUMBERSTEPS];
   theStepInitialBeta    = new float[MAXNUMBERSTEPS];
   theStepInitialGamma   = new float[MAXNUMBERSTEPS];
+  theStepInitialMass    = new float[MAXNUMBERSTEPS];
   theStepFinalPt        = new float[MAXNUMBERSTEPS];
   theStepFinalEta       = new float[MAXNUMBERSTEPS];
   theStepFinalPhi       = new float[MAXNUMBERSTEPS];
@@ -89,6 +90,7 @@ void MaterialBudgetData::SetAllStepsToTree()
   theStepFinalPz        = new float[MAXNUMBERSTEPS];
   theStepFinalBeta      = new float[MAXNUMBERSTEPS];
   theStepFinalGamma     = new float[MAXNUMBERSTEPS];
+  theStepFinalMass      = new float[MAXNUMBERSTEPS];
   theStepPreProcess     = new int[MAXNUMBERSTEPS];
   theStepPostProcess    = new int[MAXNUMBERSTEPS];
   // rr
@@ -307,6 +309,7 @@ void MaterialBudgetData::dataPerStep( const G4Step* aStep )
     theStepInitialPz[theStepN]      = prePoint->GetMomentum().z();
     theStepInitialBeta[theStepN]    = prePoint->GetBeta();
     theStepInitialGamma[theStepN]   = prePoint->GetGamma();
+    theStepInitialMass[theStepN]    = prePoint->GetMass();
     theStepFinalPt[theStepN]        = postPoint->GetMomentum().perp();
     theStepFinalEta[theStepN]       = postPoint->GetMomentum().eta();
     theStepFinalPhi[theStepN]       = postPoint->GetMomentum().phi();
@@ -316,6 +319,7 @@ void MaterialBudgetData::dataPerStep( const G4Step* aStep )
     theStepFinalPz[theStepN]        = postPoint->GetMomentum().z();
     theStepFinalBeta[theStepN]      = postPoint->GetBeta();
     theStepFinalGamma[theStepN]     = postPoint->GetGamma();
+    theStepFinalMass[theStepN]      = postPoint->GetMass();
     int preProcType  = -99;
     int postProcType = -99;
     if (interactionPre) preProcType = interactionPre->GetProcessType();
@@ -381,6 +385,7 @@ void MaterialBudgetData::dataPerStep( const G4Step* aStep )
 	      << " eta = "        << theStepInitialEta[theStepN]
 	      << " phi = "        << theStepInitialPhi[theStepN]
 	      << " Energy = "     << theStepInitialEnergy[theStepN] << " MeV"
+	      << " Mass = "       << theStepInitialMass[theStepN]   << " MeV/c2"
 	      << " Beta = "       << theStepInitialBeta[theStepN]
 	      << " Gamma = "      << theStepInitialGamma[theStepN]
 	      << std::endl
@@ -389,6 +394,7 @@ void MaterialBudgetData::dataPerStep( const G4Step* aStep )
 	      << " eta = "        << theStepFinalEta[theStepN]
 	      << " phi = "        << theStepFinalPhi[theStepN]
 	      << " Energy = "     << theStepFinalEnergy[theStepN]   << " MeV"
+	      << " Mass = "       << theStepFinalMass[theStepN]     << " MeV/c2"
 	      << " Beta = "       << theStepFinalBeta[theStepN]
 	      << " Gamma = "      << theStepFinalGamma[theStepN]
 	      << std::endl;

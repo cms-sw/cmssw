@@ -92,6 +92,7 @@ void MaterialBudgetTree::book()
     theTree->Branch("Particle Step Initial Pz",       t_ParticleStepInitialPz,       "Step_Initial_Pz[Nsteps]/F");
     theTree->Branch("Particle Step Initial Beta",     t_ParticleStepInitialBeta,     "Step_Initial_Beta[Nsteps]/F");
     theTree->Branch("Particle Step Initial Gamma",    t_ParticleStepInitialGamma,    "Step_Initial_Gamma[Nsteps]/F");
+    theTree->Branch("Particle Step Initial Mass",     t_ParticleStepInitialMass,     "Step_Initial_Mass[Nsteps]/F");
     theTree->Branch("Particle Step Final Pt",         t_ParticleStepFinalPt,         "Step_Final_Pt[Nsteps]/F");
     theTree->Branch("Particle Step Final Eta",        t_ParticleStepFinalEta,        "Step_Final_Eta[Nsteps]/F");
     theTree->Branch("Particle Step Final Phi",        t_ParticleStepFinalPhi,        "Step_Final_Phi[Nsteps]/F");
@@ -101,6 +102,7 @@ void MaterialBudgetTree::book()
     theTree->Branch("Particle Step Final Pz",         t_ParticleStepFinalPz,         "Step_Final_Pz[Nsteps]/F");
     theTree->Branch("Particle Step Final Beta",       t_ParticleStepFinalBeta,       "Step_Final_Beta[Nsteps]/F");
     theTree->Branch("Particle Step Final Gamma",      t_ParticleStepFinalGamma,      "Step_Final_Gamma[Nsteps]/F");
+    theTree->Branch("Particle Step Final Mass",       t_ParticleStepFinalMass,       "Step_Final_Mass[Nsteps]/F");
     theTree->Branch("Particle Step Pre Interaction",  t_ParticleStepPreInteraction,  "Step_PreInteraction[Nsteps]/I");
     theTree->Branch("Particle Step Post Interaction", t_ParticleStepPostInteraction, "Step_PostInteraction[Nsteps]/I");
     // rr
@@ -201,6 +203,7 @@ void MaterialBudgetTree::fillEndTrack()
       t_ParticleStepInitialPz[ii]       = theData->getStepInitialPz(ii);
       t_ParticleStepInitialBeta[ii]     = theData->getStepInitialBeta(ii);
       t_ParticleStepInitialGamma[ii]    = theData->getStepInitialGamma(ii);
+      t_ParticleStepInitialMass[ii]     = theData->getStepInitialMass(ii);
       t_ParticleStepFinalPt[ii]         = theData->getStepFinalPt(ii);
       t_ParticleStepFinalEta[ii]        = theData->getStepFinalEta(ii);
       t_ParticleStepFinalPhi[ii]        = theData->getStepFinalPhi(ii);
@@ -210,6 +213,7 @@ void MaterialBudgetTree::fillEndTrack()
       t_ParticleStepFinalPz[ii]         = theData->getStepFinalPz(ii);
       t_ParticleStepFinalBeta[ii]       = theData->getStepFinalBeta(ii);
       t_ParticleStepFinalGamma[ii]      = theData->getStepFinalGamma(ii);
+      t_ParticleStepFinalMass[ii]       = theData->getStepFinalMass(ii);
       t_ParticleStepPreInteraction[ii]  = theData->getStepPreProcess(ii);
       t_ParticleStepPostInteraction[ii] = theData->getStepPostProcess(ii);
       

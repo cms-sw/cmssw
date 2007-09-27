@@ -202,6 +202,9 @@ public:
   float getStepInitialGamma( int is) {
     return theStepInitialGamma[is];
   }
+  float getStepInitialMass( int is) {
+    return theStepInitialMass[is];
+  }
   float getStepFinalPt( int is) {
     return theStepFinalPt[is];
   }
@@ -228,6 +231,9 @@ public:
   }
   float getStepFinalGamma( int is) {
     return theStepFinalGamma[is];
+  }
+  float getStepFinalMass( int is) {
+    return theStepFinalMass[is];
   }
   int getStepPreProcess( int is) {
     return theStepPreProcess[is];
@@ -339,6 +345,7 @@ public:
   float* theStepInitialPz;
   float* theStepInitialBeta;
   float* theStepInitialGamma;
+  float* theStepInitialMass;
   float* theStepFinalPt;
   float* theStepFinalEta;
   float* theStepFinalPhi;
@@ -348,6 +355,7 @@ public:
   float* theStepFinalPz;
   float* theStepFinalBeta;
   float* theStepFinalGamma;
+  float* theStepFinalMass;
   int*   theStepPreProcess;
   int*   theStepPostProcess;
   // rr

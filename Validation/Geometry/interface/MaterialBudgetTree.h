@@ -97,6 +97,7 @@ private:
   float t_ParticleStepInitialPz[MAXSTEPS];  
   float t_ParticleStepInitialBeta[MAXSTEPS];  
   float t_ParticleStepInitialGamma[MAXSTEPS];  
+  float t_ParticleStepInitialMass[MAXSTEPS];  
   float t_ParticleStepFinalPt[MAXSTEPS];  
   float t_ParticleStepFinalEta[MAXSTEPS];  
   float t_ParticleStepFinalPhi[MAXSTEPS];  
@@ -106,6 +107,7 @@ private:
   float t_ParticleStepFinalPz[MAXSTEPS];  
   float t_ParticleStepFinalBeta[MAXSTEPS];  
   float t_ParticleStepFinalGamma[MAXSTEPS];  
+  float t_ParticleStepFinalMass[MAXSTEPS];  
   int   t_ParticleStepPreInteraction[MAXSTEPS];  
   int   t_ParticleStepPostInteraction[MAXSTEPS];  
   // rr

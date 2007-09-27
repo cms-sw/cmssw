@@ -56,6 +56,14 @@ void Loopers::Loop()
     // Density
     double pathSum     = 0.0; // x_i
     double normDensSum = 0.0; // rho_i x x_i
+    // Lambda0
+    double nuclSum     = 0.0; // x_i / l0_i
+    // Hadronic Interactions
+    unsigned int iHadronicInteractions = 0;
+    double energyLossHad = 0.0;
+    // Secondaries
+    int    iParticle    = -1;
+    double particleMass = -1;
     
     // loop on steps
     //    theLogFile << " Steps " << Nsteps << endl;
@@ -63,21 +71,74 @@ void Loopers::Loop()
     Int_t lastStep = 0;
     for(Int_t iStep=0; iStep<Nsteps; iStep++) {
       
+      // hadronic interactions
+      if(ParticleStepPostInteraction[iStep] == 4) {
+	iHadronicInteractions++;
+	energyLossHad += (InitialE[iStep] - FinalE[iStep]);
+      }
+      
       // find decay
       if(iStep==0) actualParticleID = ParticleStepID[iStep];
+      if(iStep!=0) {
+	if(FinalZ[iStep-1] != InitialZ[iStep]) {
+	  theLogFile << "\t\t EMISSION at " << iStep
+		     << " from " << actualParticleID << " of a " << ParticleStepID[iStep] << endl;
+	  actualParticleID = ParticleStepID[iStep];	
+	}
+      }
       if(actualParticleID != ParticleStepID[iStep]) {
 	theLogFile << "\t\t DECAY at " << iStep
 		   << " from " << actualParticleID << " to " << ParticleStepID[iStep] << endl;
 	actualParticleID = ParticleStepID[iStep];	
       }
       
-      // select particles: only pi/mu/e
-      if( fabs(ParticleStepID[iStep])!=211 && fabs(ParticleStepID[iStep])!=13 && fabs(ParticleStepID[iStep])!=11) {
+      // select secondary/decay particles: only pi/mu/e/p
+      if( fabs(ParticleStepID[iStep])!=211
+	  &&
+	  fabs(ParticleStepID[iStep])!=13
+	  &&
+	  fabs(ParticleStepID[iStep])!=11
+	  &&
+	  fabs(ParticleStepID[iStep])!=2212
+	  ) {
 	theLogFile << "Skip particle " << ParticleStepID[iStep] << " step " << iStep << endl;
-	continue;
+	break;
       } else {
 	lastStep = iStep;
+	switch (fabs(ParticleStepID[iStep])) {
+	case 211: // pi+-
+	  {
+	    iParticle = 1;
+	    break;
+	  }
+	case 13: // mu+-
+	  {
+	    iParticle = 2;
+	    break;
+	  }
+	case 13: // e+-
+	  {
+	    iParticle = 3;
+	    break;
+	  }
+	case 2212: // p+-
+	  {
+	    iParticle = 4;
+	    break;
+	  }
+	default:
+	  iParticle = -1; // underflow
+	}
+	hist_productionEnergy_vs_secondaryParticle->Fill((float)iParticle,(InitialE[iStep]-InitialM[iStep]));
       }
+      
+      // energy threshold
+      if( FinalE[iStep] < E_threshold ) {
+	theLogFile << "Set final step to " << iStep << " final E " << FinalE[iStep] << " MeV" << endl;
+	lastStep = iStep;
+	break;
+      }
+      
       
       // middle-point
       double xStep = (FinalX[iStep]+InitialX[iStep])/2;
@@ -101,6 +162,10 @@ void Loopers::Loop()
       double rho_i = MaterialDensity[iStep];
       pathSum     += x_i;
       normDensSum += (rho_i * x_i);
+      // Lambda0
+      double l0_i = MaterialLambda0[iStep];
+      nuclSum += (x_i / l0_i);      
+      
       /*
 	theLogFile << "################################" << endl;
 	theLogFile << "\t step " << iStep                << endl;
@@ -119,9 +184,10 @@ void Loopers::Loop()
     phiTurns += (float)n_loops;
     
     theLogFile << "  Last Step = " << lastStep << endl;
-    if(Nsteps!=0) {
+    if(lastStep!=0) {
       // average density: Sum(x_i x rho_i) / Sum(x_i)
       double averageDensity = normDensSum / pathSum;
+      double averageLambda0 = pathSum / nuclSum;
       double time = (pathSum/1000.) / c; // time: [s] ; pathSum: [mm]->[m] ; c: [m/s]
       double bunchCrossings = (time * 1E9) / bx; // time: [s]-->[ns] ; bx: [ns]
       //
@@ -130,7 +196,11 @@ void Loopers::Loop()
 	  ParticleStepFinalPt[lastStep] > 10 // The particle must disappear with pT=0 GeV
 	  &&
 	  FinalZ[lastStep] < 2500 // only if not at the end of the Tracker (along z)
-	  ) 
+	  )
+	 ||
+	 (
+	  ParticleStepPostInteraction[lastStep] == 0
+	  )
 	 ) {
 	theLogFile << "################################"                                      << endl;
 	theLogFile << "Event " << jentry+1                                                    << endl;
@@ -150,6 +220,7 @@ void Loopers::Loop()
 	theLogFile << "\t Sum(x_i) = "         << pathSum        << " mm"                     << endl;
 	theLogFile << "\t Sum(x_i x rho_i) = " << normDensSum    << " mm x g/cm3"             << endl;
 	theLogFile << "\t <rho> = "            << averageDensity << " g/cm3"                  << endl;
+	theLogFile << "\t <lambda0> = "        << averageLambda0 << " mm"                     << endl;
 	theLogFile << "\t path length per turn = " << pathSum / phiTurns << " mm"             << endl;
 	theLogFile << "\t time spent = " << time << " s"                                      << endl;
 	theLogFile << "\t bunch crossings = " << bunchCrossings                               << endl;
@@ -159,7 +230,9 @@ void Loopers::Loop()
       hist_loops->Fill(phiTurns);
       hist_energy_init->Fill(InitialE[0]);
       hist_energy_end->Fill(FinalE[lastStep]);
+      hist_energy_beforeend->Fill(InitialE[lastStep]);
       hist_density->Fill(averageDensity);
+      hist_lambda0->Fill(averageLambda0);
       hist_density_vs_loops->Fill(phiTurns,averageDensity);
       hist_pT_init->Fill(ParticleStepInitialPt[0]);
       hist_pT_end->Fill(ParticleStepFinalPt[lastStep]);
@@ -168,6 +241,11 @@ void Loopers::Loop()
       hist_trackLengthPerTurn->Fill(pathSum / phiTurns);
       hist_lastInteraction->Fill(ParticleStepPostInteraction[lastStep]);
       hist_bx->Fill(bunchCrossings);
+      hist_energybeforeend_vs_lastInteraction->Fill(ParticleStepPostInteraction[lastStep],InitialE[lastStep]);
+      hist_trackLength_vs_lastInteraction->Fill(ParticleStepPostInteraction[lastStep],pathSum);
+      hist_hadronicInteractions->Fill((float)iHadronicInteractions);
+      hist_hadronicInteractions_vs_lastInteraction->Fill(ParticleStepPostInteraction[lastStep],(float)iHadronicInteractions);
+      hist_energyLossHadronicInteractions->Fill(energyLossHad);
       //      } // sanity check final pT=0
       
     } // steps!=0
@@ -251,6 +329,24 @@ void Loopers::MakePlots(TString suffix) {
 
   // Draw
   can_Gigi.cd();
+  hist_energy_beforeend->SetLineColor(kBlue);
+  hist_energy_beforeend->SetFillColor(kWhite);
+  hist_energy_beforeend->Draw();
+  //  
+  // Print
+  theLogFile << endl << "--------"     << endl;
+  theLogFile << hist_energy_beforeend->GetTitle() << endl;
+  theLogFile << "\t Mean = " << hist_energy_beforeend->GetMean()  << endl;
+  theLogFile << "\t  RMS = " << hist_energy_beforeend->GetRMS()   << endl;
+  //
+  // Store
+  can_Gigi.Update();
+  can_Gigi.SaveAs( Form("%s/Loopers_Energy_BeforeEnd_%s.eps",  theDirName.Data(), suffix.Data() ) );
+  can_Gigi.SaveAs( Form("%s/Loopers_Energy_BeforeEnd_%s.gif",  theDirName.Data(), suffix.Data() ) );
+  // 
+
+  // Draw
+  can_Gigi.cd();
   hist_density->SetLineColor(kBlue);
   hist_density->SetFillColor(kWhite);
   hist_density->Draw();
@@ -265,6 +361,24 @@ void Loopers::MakePlots(TString suffix) {
   can_Gigi.Update();
   can_Gigi.SaveAs( Form("%s/Loopers_Density_%s.eps",  theDirName.Data(), suffix.Data() ) );
   can_Gigi.SaveAs( Form("%s/Loopers_Density_%s.gif",  theDirName.Data(), suffix.Data() ) );
+  // 
+
+  // Draw
+  can_Gigi.cd();
+  hist_lambda0->SetLineColor(kBlue);
+  hist_lambda0->SetFillColor(kWhite);
+  hist_lambda0->Draw();
+  //  
+  // Print
+  theLogFile << endl << "--------"     << endl;
+  theLogFile << hist_lambda0->GetTitle() << endl;
+  theLogFile << "\t Mean = " << hist_lambda0->GetMean()  << endl;
+  theLogFile << "\t  RMS = " << hist_lambda0->GetRMS()   << endl;
+  //
+  // Store
+  can_Gigi.Update();
+  can_Gigi.SaveAs( Form("%s/Loopers_Lambda0_%s.eps",  theDirName.Data(), suffix.Data() ) );
+  can_Gigi.SaveAs( Form("%s/Loopers_Lambda0_%s.gif",  theDirName.Data(), suffix.Data() ) );
   // 
 
   // Draw
@@ -434,6 +548,157 @@ void Loopers::MakePlots(TString suffix) {
   can_Gigi.SaveAs( Form("%s/Loopers_bx_%s.gif",  theDirName.Data(), suffix.Data() ) );
   // 
   
+  // Prepare Axes Labels
+  hist_energybeforeend_vs_lastInteraction->GetXaxis()->SetBinLabel( 1,"Not Defined");
+  hist_energybeforeend_vs_lastInteraction->GetXaxis()->SetBinLabel( 2,"Transportation");
+  hist_energybeforeend_vs_lastInteraction->GetXaxis()->SetBinLabel( 3,"Electromagnetic");
+  hist_energybeforeend_vs_lastInteraction->GetXaxis()->SetBinLabel( 4,"Optical");
+  hist_energybeforeend_vs_lastInteraction->GetXaxis()->SetBinLabel( 5,"Hadronic");
+  hist_energybeforeend_vs_lastInteraction->GetXaxis()->SetBinLabel( 6,"Photolepton Hadron");
+  hist_energybeforeend_vs_lastInteraction->GetXaxis()->SetBinLabel( 7,"Decay");
+  hist_energybeforeend_vs_lastInteraction->GetXaxis()->SetBinLabel( 8,"General");
+  hist_energybeforeend_vs_lastInteraction->GetXaxis()->SetBinLabel( 9,"Parameterisation");
+  hist_energybeforeend_vs_lastInteraction->GetXaxis()->SetBinLabel(10,"User Defined");
+  hist_energybeforeend_vs_lastInteraction->GetXaxis()->SetBinLabel(11,"Other");
+  hist_energybeforeend_vs_lastInteraction->GetXaxis()->SetTitle("");
+  // Draw
+  can_Gigi.cd();
+  hist_energybeforeend_vs_lastInteraction->SetLineColor(kBlue);
+  hist_energybeforeend_vs_lastInteraction->SetFillColor(kBlue);
+  hist_energybeforeend_vs_lastInteraction->Draw("BOX");
+  //  
+  // Print
+  theLogFile << endl << "--------"     << endl;
+  theLogFile << hist_energybeforeend_vs_lastInteraction->GetTitle() << endl;
+  theLogFile << "\t Mean = " << hist_energybeforeend_vs_lastInteraction->GetMean()  << endl;
+  theLogFile << "\t  RMS = " << hist_energybeforeend_vs_lastInteraction->GetRMS()   << endl;
+  //
+  // Store
+  can_Gigi.Update();
+  can_Gigi.SaveAs( Form("%s/Loopers_EnergyBeforeEnd_vs_lastInteraction_%s.eps",  theDirName.Data(), suffix.Data() ) );
+  can_Gigi.SaveAs( Form("%s/Loopers_EnergyBeforeEnd_vs_lastInteraction_%s.gif",  theDirName.Data(), suffix.Data() ) );
+  // 
+
+  // Prepare Axes Labels
+  hist_trackLength_vs_lastInteraction->GetXaxis()->SetBinLabel( 1,"Not Defined");
+  hist_trackLength_vs_lastInteraction->GetXaxis()->SetBinLabel( 2,"Transportation");
+  hist_trackLength_vs_lastInteraction->GetXaxis()->SetBinLabel( 3,"Electromagnetic");
+  hist_trackLength_vs_lastInteraction->GetXaxis()->SetBinLabel( 4,"Optical");
+  hist_trackLength_vs_lastInteraction->GetXaxis()->SetBinLabel( 5,"Hadronic");
+  hist_trackLength_vs_lastInteraction->GetXaxis()->SetBinLabel( 6,"Photolepton Hadron");
+  hist_trackLength_vs_lastInteraction->GetXaxis()->SetBinLabel( 7,"Decay");
+  hist_trackLength_vs_lastInteraction->GetXaxis()->SetBinLabel( 8,"General");
+  hist_trackLength_vs_lastInteraction->GetXaxis()->SetBinLabel( 9,"Parameterisation");
+  hist_trackLength_vs_lastInteraction->GetXaxis()->SetBinLabel(10,"User Defined");
+  hist_trackLength_vs_lastInteraction->GetXaxis()->SetBinLabel(11,"Other");
+  hist_trackLength_vs_lastInteraction->GetXaxis()->SetTitle("");
+  // Draw
+  can_Gigi.cd();
+  hist_trackLength_vs_lastInteraction->SetLineColor(kBlue);
+  hist_trackLength_vs_lastInteraction->SetFillColor(kBlue);
+  hist_trackLength_vs_lastInteraction->Draw("BOX");
+  //  
+  // Print
+  theLogFile << endl << "--------"     << endl;
+  theLogFile << hist_trackLength_vs_lastInteraction->GetTitle() << endl;
+  theLogFile << "\t Mean = " << hist_trackLength_vs_lastInteraction->GetMean()  << endl;
+  theLogFile << "\t  RMS = " << hist_trackLength_vs_lastInteraction->GetRMS()   << endl;
+  //
+  // Store
+  can_Gigi.Update();
+  can_Gigi.SaveAs( Form("%s/Loopers_trackLength_vs_lastInteraction_%s.eps",  theDirName.Data(), suffix.Data() ) );
+  can_Gigi.SaveAs( Form("%s/Loopers_trackLength_vs_lastInteraction_%s.gif",  theDirName.Data(), suffix.Data() ) );
+  // 
+
+  // Draw
+  can_Gigi.cd();
+  hist_hadronicInteractions->SetLineColor(kBlue);
+  hist_hadronicInteractions->SetFillColor(kWhite);
+  hist_hadronicInteractions->Draw();
+  //  
+  // Print
+  theLogFile << endl << "--------"     << endl;
+  theLogFile << hist_hadronicInteractions->GetTitle() << endl;
+  theLogFile << "\t Mean = " << hist_hadronicInteractions->GetMean()  << endl;
+  theLogFile << "\t  RMS = " << hist_hadronicInteractions->GetRMS()   << endl;
+  //
+  // Store
+  can_Gigi.Update();
+  can_Gigi.SaveAs( Form("%s/Loopers_HadronicInteractions_%s.eps",  theDirName.Data(), suffix.Data() ) );
+  can_Gigi.SaveAs( Form("%s/Loopers_HadronicInteractions_%s.gif",  theDirName.Data(), suffix.Data() ) );
+  // 
+  
+  // Prepare Axes Labels
+  hist_hadronicInteractions_vs_lastInteraction->GetXaxis()->SetBinLabel( 1,"Not Defined");
+  hist_hadronicInteractions_vs_lastInteraction->GetXaxis()->SetBinLabel( 2,"Transportation");
+  hist_hadronicInteractions_vs_lastInteraction->GetXaxis()->SetBinLabel( 3,"Electromagnetic");
+  hist_hadronicInteractions_vs_lastInteraction->GetXaxis()->SetBinLabel( 4,"Optical");
+  hist_hadronicInteractions_vs_lastInteraction->GetXaxis()->SetBinLabel( 5,"Hadronic");
+  hist_hadronicInteractions_vs_lastInteraction->GetXaxis()->SetBinLabel( 6,"Photolepton Hadron");
+  hist_hadronicInteractions_vs_lastInteraction->GetXaxis()->SetBinLabel( 7,"Decay");
+  hist_hadronicInteractions_vs_lastInteraction->GetXaxis()->SetBinLabel( 8,"General");
+  hist_hadronicInteractions_vs_lastInteraction->GetXaxis()->SetBinLabel( 9,"Parameterisation");
+  hist_hadronicInteractions_vs_lastInteraction->GetXaxis()->SetBinLabel(10,"User Defined");
+  hist_hadronicInteractions_vs_lastInteraction->GetXaxis()->SetBinLabel(11,"Other");
+  hist_hadronicInteractions_vs_lastInteraction->GetXaxis()->SetTitle("");
+  // Draw
+  can_Gigi.cd();
+  hist_hadronicInteractions_vs_lastInteraction->SetLineColor(kBlue);
+  hist_hadronicInteractions_vs_lastInteraction->SetFillColor(kBlue);
+  hist_hadronicInteractions_vs_lastInteraction->Draw("BOX");
+  //  
+  // Print
+  theLogFile << endl << "--------"     << endl;
+  theLogFile << hist_hadronicInteractions_vs_lastInteraction->GetTitle() << endl;
+  //  theLogFile << "\t Mean = " << hist_hadronicInteractions_vs_lastInteraction->GetMean()  << endl;
+  //  theLogFile << "\t  RMS = " << hist_hadronicInteractions_vs_lastInteraction->GetRMS()   << endl;
+  //
+  // Store
+  can_Gigi.Update();
+  can_Gigi.SaveAs( Form("%s/Loopers_HadronicInteractions_vs_lastInteraction_%s.eps",  theDirName.Data(), suffix.Data() ) );
+  can_Gigi.SaveAs( Form("%s/Loopers_Hadronicinteractions_vs_lastInteraction_%s.gif",  theDirName.Data(), suffix.Data() ) );
+  // 
+
+  // Draw
+  can_Gigi.cd();
+  hist_energyLossHadronicInteractions->SetLineColor(kBlue);
+  hist_energyLossHadronicInteractions->SetFillColor(kWhite);
+  hist_energyLossHadronicInteractions->Draw();
+  //  
+  // Print
+  theLogFile << endl << "--------"     << endl;
+  theLogFile << hist_energyLossHadronicInteractions->GetTitle() << endl;
+  theLogFile << "\t Mean = " << hist_energyLossHadronicInteractions->GetMean()  << endl;
+  theLogFile << "\t  RMS = " << hist_energyLossHadronicInteractions->GetRMS()   << endl;
+  //
+  // Store
+  can_Gigi.Update();
+  can_Gigi.SaveAs( Form("%s/Loopers_EnergyLossHadronicInteractions_%s.eps",  theDirName.Data(), suffix.Data() ) );
+  can_Gigi.SaveAs( Form("%s/Loopers_EnergyLossHadronicInteractions_%s.gif",  theDirName.Data(), suffix.Data() ) );
+  // 
+
+  // Prepare Axes Labels
+  hist_productionEnergy_vs_secondaryParticle->GetXaxis()->SetBinLabel( 1,"#pi^{#pm}");
+  hist_productionEnergy_vs_secondaryParticle->GetXaxis()->SetBinLabel( 2,"#mu^{#pm}");
+  hist_productionEnergy_vs_secondaryParticle->GetXaxis()->SetBinLabel( 3,"e^{#pm}");
+  hist_productionEnergy_vs_secondaryParticle->GetXaxis()->SetBinLabel( 4,"p/#bar{p}");
+  // Draw
+  can_Gigi.cd();
+  hist_productionEnergy_vs_secondaryParticle->SetLineColor(kBlue);
+  hist_productionEnergy_vs_secondaryParticle->SetFillColor(kBlue);
+  hist_productionEnergy_vs_secondaryParticle->Draw("BOX");
+  //  
+  // Print
+  theLogFile << endl << "--------"     << endl;
+  theLogFile << hist_productionEnergy_vs_secondaryParticle->GetTitle() << endl;
+  //  theLogFile << "\t Mean = " << hist_productionEnergy_vs_secondaryParticle->GetMean()  << endl;
+  //  theLogFile << "\t  RMS = " << hist_productionEnergy_vs_secondaryParticle->GetRMS()   << endl;
+  //
+  // Store
+  can_Gigi.Update();
+  can_Gigi.SaveAs( Form("%s/Loopers_ProductionEnergy_vs_SecondaryParticle_%s.eps",  theDirName.Data(), suffix.Data() ) );
+  can_Gigi.SaveAs( Form("%s/Loopers_ProductionEnergy_vs_SecondaryParticle_%s.gif",  theDirName.Data(), suffix.Data() ) );
+  //
 }
 
 void Loopers::helpfulCommands() {

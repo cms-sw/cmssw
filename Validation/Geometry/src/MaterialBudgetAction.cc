@@ -201,6 +201,7 @@ void MaterialBudgetAction::update(const BeginOfTrack* trk)
   // about # of secondaries (produced if CutsPerRegion=true)
   //
   std::cout << "Track ID " << aTrack->GetTrackID() << " Track parent ID " << aTrack->GetParentID() 
+	    << " PDG Id. = " << aTrack->GetDefinition()->GetPDGEncoding()
 	    << " Ekin = " << aTrack->GetKineticEnergy() << " MeV" << std::endl;
   if( aTrack->GetCreatorProcess() ) std::cout << " produced through " << aTrack->GetCreatorProcess()->GetProcessType() << std::endl;
   
@@ -215,8 +216,8 @@ void MaterialBudgetAction::update(const BeginOfTrack* trk)
       if (
 	  aTrack->GetParentID() == 1
 	  &&
-	  aTrack->GetCreatorProcess()->GetProcessType() == 6
-	  &&
+	  //	  aTrack->GetCreatorProcess()->GetProcessType() == 6
+	  //	  &&
 	  aTrack->GetKineticEnergy() > Ekin
 	  ) {
 	// continue
