@@ -125,6 +125,8 @@ void CSCTFUnpacker::produce(edm::Event& e, const edm::EventSetup& c){
 				status.sp_slot    = sp->header().slot();
 				status.l1a_bxn    = sp->header().BXN();
 				status.fmm_status = sp->header().status();
+				status.track_cnt  = sp->counters().track_counter();
+				status.orbit_cnt  = sp->counters().orbit_counter();
 
 				// Finds central LCT BX
 				// assumes window is odd number of bins
