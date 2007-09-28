@@ -1,4 +1,4 @@
-#include "CondTools/L1Trigger/src/DataManager.h"
+#include "CondTools/L1Trigger/interface/DataManager.h"
 
 #include "CondCore/DBCommon/interface/SessionConfiguration.h"
 #include "CondCore/DBCommon/interface/ConnectionConfiguration.h"

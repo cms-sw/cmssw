@@ -8,7 +8,7 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 
-#include "CondTools/L1Trigger/src/DataWriter.h"
+#include "CondTools/L1Trigger/interface/DataWriter.h"
 
 namespace l1t
 {

@@ -15,12 +15,12 @@
 #include "CondFormats/L1TObjects/interface/L1CSCTPParameters.h"
 #include "CondFormats/L1TObjects/interface/L1TriggerKey.h"
 
-#include "CondTools/L1Trigger/src/Interval.h"
-#include "CondTools/L1Trigger/src/DataReader.h"
+#include "CondTools/L1Trigger/interface/Interval.h"
+#include "CondTools/L1Trigger/interface/DataReader.h"
 
 // Original Author:  Giedrius Bacevicius
 //         Created:  Thu Jul 19 13:14:44 CEST 2007
-// $Id: L1TDBESSource.h,v 1.1 2007/08/20 16:25:17 giedrius Exp $
+// $Id: L1TDBESSource.h,v 1.2 2007/08/22 15:07:35 giedrius Exp $
 namespace l1t
 {
 /* Class that will load data from PoolDB and stores it into EventSetup.

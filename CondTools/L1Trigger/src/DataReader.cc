@@ -1,4 +1,4 @@
-#include "CondTools/L1Trigger/src/DataReader.h"
+#include "CondTools/L1Trigger/interface/DataReader.h"
 
 #include "CondCore/PluginSystem/interface/DataProxy.h"
 #include "CondCore/PluginSystem/interface/ProxyFactory.h"
