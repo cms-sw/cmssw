@@ -3,7 +3,7 @@
 // Class:      SiStripGainCosmicCalculator
 // Original Author:  G. Bruno, D. Kcira
 //         Created:  Mon May 20 10:04:31 CET 2007
-// $Id: SiStripGainCosmicCalculator.cc,v 1.1 2007/07/09 11:13:08 gbruno Exp $
+// $Id: SiStripGainCosmicCalculator.cc,v 1.2 2007/09/13 20:02:52 dkcira Exp $
 #include "CalibTracker/SiStripChannelGain/plugins/SiStripGainCosmicCalculator.h"
 #include "CalibTracker/Records/interface/SiStripDetCablingRcd.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripDetCabling.h"
@@ -28,6 +28,7 @@
 #include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetType.h"
 #include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
 #include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2D.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2D.h"
 #include "DataFormats/SiStripDetId/interface/SiStripSubStructure.h"
