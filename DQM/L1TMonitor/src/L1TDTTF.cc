@@ -1,8 +1,8 @@
 /*
  * \file L1TDTTF.cc
  *
- * $Date: 2007/07/26 08:56:53 $
- * $Revision: 1.6 $
+ * $Date: 2007/08/27 16:39:18 $
+ * $Revision: 1.5 $
  * \author J. Berryhill
  *
  */
@@ -179,6 +179,9 @@ void L1TDTTF::analyze(const Event& e, const EventSetup& c)
     {
 
       int bxindex = ECItr->bx() + 1;
+
+      if (ECItr->quality() > 0 )
+     {
       ndttftrack++;
 
       if (verbose_)
@@ -224,7 +227,7 @@ void L1TDTTF::analyze(const Event& e, const EventSetup& c)
    	    << endl;
 	}
 
-
+     }
     }
 
 
