@@ -1,0 +1,174 @@
+<?xml version="1.0"?>
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Schema/DDLSchema.xsd">
+
+<ConstantsSection label="hcalforwardshower.xml" eval="true">
+ <Constant name="worldDx"     value="5.0*m" />
+ <Constant name="worldDz"     value="5.0*m" />
+ <Constant name="chamberDx"   value="2.501*m" />
+ <Constant name="chamberDz"   value="0.1*cm" />
+ <Constant name="chamberZ"    value="99.89*cm" />
+ <Constant name="wirePlaneDz" value="0.10*mm" />
+ <Constant name="wirePlaneZ"  value="0.89*mm" />
+ <Constant name="shiftSF"     value="11.0*cm"/>
+ <Constant name="dzHF"        value="82.5*cm"/>
+ <Constant name="cellDx"      value="0.50*cm" />
+ <Constant name="cellDy"      value="0.50*cm" />
+ <Constant name="cellX"       value="25" />
+ <Constant name="cellY"       value="25" />
+ <Constant name="wedgeDx"     value="[cellDx]*[cellX]" />
+ <Constant name="wedgeDy"     value="[cellDy]*[cellY]" />
+ <Constant name="wedgeX"      value="20" />
+ <Constant name="wedgeY"      value="20" />
+ <Constant name="wedgeZ"      value="182.5*cm" />
+ <Constant name="startY"      value="(-[dyHF]+1.25*cm)" />
+ <Constant name="holeDx"      value="0.50*mm" />
+ <Constant name="holeX"       value="0.25*cm" />
+ <Constant name="claddingR"   value="0.45*mm" />
+ <Constant name="fibreR"      value="0.30*mm" />
+ <Constant name="fibreLongL"  value="164.98*cm" />
+ <Constant name="fibreShortL" value="([fibreLongL]-2*[shiftSF])" />
+ <Constant name="fibreLongZ"  value="[fibreLongL]/2-[dzHF]" />
+ <Constant name="fibreShortZ" value="[fibreShortL]/2-[dzHF]" />
+</ConstantsSection>
+
+<SolidSection label="hcalforwardshower.xml">
+ <Box name="World"      dx="[worldDx]"    dy="[worldDx]"   dz="[worldDz]"/>
+ <Box name="Chamber"    dx="[chamberDx]"  dy="[chamberDx]" dz="[chamberDz]"/>
+ <Box name="WirePlane"  dx="[chamberDx]"  dy="[chamberDx]" dz="[wirePlaneDz]"/>
+ <Box name="Wedge"      dx="[wedgeDx]"    dy="[wedgeDy]"   dz="[dzHF]"/>
+ <Box name="HFBox"      dx="[cellDx]"     dy="[cellDy]"    dz="[dzHF]"/>
+ <Box name="HFHoleS"    dx="[holeDx]"     dy="[holeDx]"    dz="[dzHF]"/>
+ <Box name="HFHoleL"    dx="[holeDx]"     dy="[holeDx]"    dz="[dzHF]"/>
+ <Tubs name="HFCladS"   rMin="0*fm"       rMax="[claddingR]"
+       dz="[fibreShortL]/2" startPhi="0*deg" deltaPhi="360*deg"/>
+ <Tubs name="HFCladL"   rMin="0*fm"       rMax="[claddingR]"
+       dz="[fibreLongL]/2"  startPhi="0*deg" deltaPhi="360*deg"/>
+ <Tubs name="HFFibreS"  rMin="0*fm"       rMax="[fibreR]"
+       dz="[fibreShortL]/2" startPhi="0*deg" deltaPhi="360*deg"/>
+ <Tubs name="HFFibreL"  rMin="0*fm"       rMax="[fibreR]"
+       dz="[fibreLongL]/2"  startPhi="0*deg" deltaPhi="360*deg"/>
+</SolidSection>
+
+<LogicalPartSection label="hcalforwardshower.xml">
+ <LogicalPart name="World" category="unspecified">
+  <rSolid name="World"/>
+  <rMaterial name="materials:Air"/>
+ </LogicalPart>
+ <LogicalPart name="Chamber" category="unspecified">
+  <rSolid name="Chamber"/>
+  <rMaterial name="materials:Air"/>
+ </LogicalPart>
+ <LogicalPart name="WirePlane" category="unspecified">
+  <rSolid name="WirePlane"/>
+  <rMaterial name="materials:Air"/>
+ </LogicalPart>
+ <LogicalPart name="Wedge" category="unspecified">
+  <rSolid name="Wedge"/>
+  <rMaterial name="materials:Iron"/>
+ </LogicalPart>
+ <LogicalPart name="HFBox" category="unspecified">
+  <rSolid name="HFBox"/>
+  <rMaterial name="materials:Iron"/>
+ </LogicalPart>
+ <LogicalPart name="HFHoleS" category="unspecified">
+  <rSolid name="HFHoleS"/>
+  <rMaterial name="materials:Air"/>
+ </LogicalPart>
+ <LogicalPart name="HFHoleL" category="unspecified">
+  <rSolid name="HFHoleL"/>
+  <rMaterial name="materials:Air"/>
+ </LogicalPart>
+ <LogicalPart name="HFCladS" category="unspecified">
+  <rSolid name="HFCladS"/>
+  <rMaterial name="hcalforwardmaterial:Plastic"/>
+ </LogicalPart>
+ <LogicalPart name="HFCladL" category="unspecified">
+  <rSolid name="HFCladL"/>
+  <rMaterial name="hcalforwardmaterial:Plastic"/>
+ </LogicalPart>
+ <LogicalPart name="HFFibreS" category="unspecified">
+  <rSolid name="HFFibreS"/>
+  <rMaterial name="hcalforwardmaterial:Quartz"/>
+ </LogicalPart>
+ <LogicalPart name="HFFibreL" category="unspecified">
+  <rSolid name="HFFibreL"/>
+  <rMaterial name="hcalforwardmaterial:Quartz"/>
+ </LogicalPart>
+</LogicalPartSection>
+
+<PosPartSection label="hcalforwardshower.xml">
+ <PosPart copyNumber="1">
+   <rParent name="hcalforwardshower:World"/>
+   <rChild name="hcalforwardshower:Chamber"/>
+  <Translation x="0*fm" y="0*fm" z="[chamberZ]" />
+ </PosPart>
+ <PosPart copyNumber="1">
+   <rParent name="hcalforwardshower:Chamber"/>
+   <rChild name="hcalforwardshower:WirePlane"/>
+  <Translation x="0*fm" y="0*fm" z="[wirePlaneZ]"/>
+ </PosPart>
+ <PosPart copyNumber="1">
+   <rParent name="hcalforwardshower:HFCladL"/>
+   <rChild name="hcalforwardshower:HFFibreL"/>
+ </PosPart>
+ <PosPart copyNumber="2">
+   <rParent name="hcalforwardshower:HFCladS"/>
+   <rChild name="hcalforwardshower:HFFibreS"/>
+ </PosPart>
+ <PosPart copyNumber="5001">
+   <rParent name="hcalforwardshower:HFHoleL"/>
+   <rChild name="hcalforwardshower:HFCladL"/>
+  <Translation x="0*fm" y="0*fm" z="[fibreLongZ]" />
+ </PosPart>
+ <PosPart copyNumber="5002">
+   <rParent name="hcalforwardshower:HFHoleS"/>
+   <rChild name="hcalforwardshower:HFCladS"/>
+  <Translation x="0*fm" y="0*fm" z="[fibreShortZ]" />
+ </PosPart>
+ <PosPart copyNumber="1">
+   <rParent name="hcalforwardshower:HFBox"/>
+   <rChild name="hcalforwardshower:HFHoleS"/>
+  <Translation x="-[holeX]" y="[holeX]" z="0*fm" />
+ </PosPart>
+ <PosPart copyNumber="2">
+   <rParent name="hcalforwardshower:HFBox"/>
+   <rChild name="hcalforwardshower:HFHoleS"/>
+  <Translation x="[holeX]" y="-[holeX]" z="0*fm" />
+ </PosPart>
+ <PosPart copyNumber="3">
+   <rParent name="hcalforwardshower:HFBox"/>
+   <rChild name="hcalforwardshower:HFHoleL"/>
+  <Translation x="-[holeX]" y="-[holeX]" z="0*fm" />
+ </PosPart>
+ <PosPart copyNumber="4">
+   <rParent name="hcalforwardshower:HFBox"/>
+   <rChild name="hcalforwardshower:HFHoleL"/>
+  <Translation x="[holeX]" y="[holeX]" z="0*fm" />
+ </PosPart>
+</PosPartSection>
+
+<Algorithm name="hcal:DDHCalLinearXY">
+   <rParent name="hcalforwardshower:World"/>
+   <String  name="ChildName"    value="hcalforwardshower:Wedge"/>
+   <Numeric name="DeltaX"       value="2*[wedgeDx]"/>
+   <Numeric name="DeltaY"       value="2*[wedgeDy]"/>
+   <Numeric name="NumberX"      value="[wedgeX]"/>
+   <Numeric name="NumberY"      value="[wedgeY]"/>
+   <Vector name="Center" type="numeric" nEntries="3">
+     0., 0., 182.5*cm
+   </Vector>
+</Algorithm>
+
+<Algorithm name="hcal:DDHCalLinearXY">
+   <rParent name="hcalforwardshower:Wedge"/>
+   <String  name="ChildName"    value="hcalforwardshower:HFBox"/>
+   <Numeric name="DeltaX"       value="2*[cellDx]"/>
+   <Numeric name="DeltaY"       value="2*[cellDy]"/>
+   <Numeric name="NumberX"      value="[cellX]"/>
+   <Numeric name="NumberY"      value="[cellY]"/>
+   <Vector name="Center" type="numeric" nEntries="3">
+     0., 0., 0.
+   </Vector>
+</Algorithm>
+
+</DDDefinition>
