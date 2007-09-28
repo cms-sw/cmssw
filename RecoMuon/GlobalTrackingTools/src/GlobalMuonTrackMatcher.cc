@@ -2,8 +2,8 @@
  *  Class: GlobalMuonTrackMatcher
  *
  * 
- *  $Date: $
- *  $Revision: $
+ *  $Date: 2007/08/15 15:18:31 $
+ *  $Revision: 1.1 $
  *
  *  Authors :
  *  \author Chang Liu  - Purdue University
@@ -306,7 +306,7 @@ GlobalMuonTrackMatcher::matchPosAtSurface(const TrajectoryStateOnSurface& tsos1,
   double eta2 = tsos2.globalPosition().eta();
   double deta(fabs(eta1-eta2));
 
-  bool good = ( (dphi < theDeltaPhi) || (deta < theDeltaEta) ) ? true : false;
+  bool good = ( (dphi < theDeltaPhi) && (deta < theDeltaEta) ) ? true : false;
   LogDebug(category) << "dphi " << dphi << " deta " << deta;
 
   return good;
@@ -326,7 +326,7 @@ GlobalMuonTrackMatcher::matchMomAtIP(const TrackCand& staCand,
   const string category = "GlobalMuonTrackMatcher";
 
   TrackCand returnVal;
-  float deltaR = 1000.0;
+  float deltaR = 1.0;
   
   for (vector<TrackCand>::const_iterator is = tkTs.begin(); is != tkTs.end(); ++is) {
     double eta1 = staCand.second->eta();
