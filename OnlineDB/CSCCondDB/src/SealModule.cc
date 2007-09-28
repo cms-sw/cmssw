@@ -6,10 +6,6 @@
 #include "OnlineDB/CSCCondDB/interface/CSCCrossTalkAnalyzer.h"
 #include "OnlineDB/CSCCondDB/interface/CSCOldCrossTalkAnalyzer.h"
 #include "OnlineDB/CSCCondDB/interface/CSCGainAnalyzer.h"
-<<<<<<< SealModule.cc
-//#include "OnlineDB/CSCCondDB/interface/CSCOldGainAnalyzer.h"
-=======
->>>>>>> 1.6
 #include "OnlineDB/CSCCondDB/interface/CSCNoiseMatrixAnalyzer.h"
 #include "OnlineDB/CSCCondDB/interface/CSCscaAnalyzer.h"
 #include "OnlineDB/CSCCondDB/interface/CSCCFEBConnectivityAnalyzer.h"
@@ -22,10 +18,6 @@ DEFINE_ANOTHER_FWK_MODULE(CSCCompThreshAnalyzer);
 DEFINE_ANOTHER_FWK_MODULE(CSCCrossTalkAnalyzer);
 DEFINE_ANOTHER_FWK_MODULE(CSCOldCrossTalkAnalyzer);
 DEFINE_ANOTHER_FWK_MODULE(CSCGainAnalyzer);
-<<<<<<< SealModule.cc
-//DEFINE_ANOTHER_FWK_MODULE(CSCOldGainAnalyzer);
-=======
->>>>>>> 1.6
 DEFINE_ANOTHER_FWK_MODULE(CSCNoiseMatrixAnalyzer);
 DEFINE_ANOTHER_FWK_MODULE(CSCscaAnalyzer);
 DEFINE_ANOTHER_FWK_MODULE(CSCCFEBConnectivityAnalyzer);
