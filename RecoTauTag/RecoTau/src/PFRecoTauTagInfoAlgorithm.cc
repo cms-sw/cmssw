@@ -45,11 +45,6 @@ PFTauTagInfo PFRecoTauTagInfoAlgorithm::buildPFTauTagInfo(const PFJetRef& thePFJ
   resultExtended.setPFNeutrHadrCands(TauTagTools::filteredPFNeutrHadrCands(thePFCands,NeutrHadrCand_HcalclusminE_));
   resultExtended.setPFGammaCands(TauTagTools::filteredPFGammaCands(thePFCands,GammaCand_EcalclusminE_));
   
-  math::XYZTLorentzVector alternatLorentzVect(0.,0.,0.,0.);
-  for (PFCandidateRefVector::const_iterator iGammaCand=resultExtended.PFGammaCands().begin();iGammaCand!=resultExtended.PFGammaCands().end();iGammaCand++) alternatLorentzVect+=(**iGammaCand).p4();
-  for (PFCandidateRefVector::const_iterator iChargedHadrCand=resultExtended.PFChargedHadrCands().begin();iChargedHadrCand!=resultExtended.PFChargedHadrCands().end();iChargedHadrCand++) alternatLorentzVect+=(**iChargedHadrCand).p4();  
-  resultExtended.setalternatLorentzVect(alternatLorentzVect);
-
   TrackRefVector theFilteredTracks;
   if (UsePVconstraint_) theFilteredTracks=TauTagTools::filteredTracks(theTracks,tkminPt_,tkminPixelHitsn_,tkminTrackerHitsn_,tkmaxipt_,tkmaxChi2_,tkPVmaxDZ_,thePV.z());
   else theFilteredTracks=TauTagTools::filteredTracks(theTracks,tkminPt_,tkminPixelHitsn_,tkminTrackerHitsn_,tkmaxipt_,tkmaxChi2_);

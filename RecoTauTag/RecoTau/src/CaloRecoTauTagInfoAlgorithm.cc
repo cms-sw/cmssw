@@ -1,6 +1,6 @@
 #include "RecoTauTag/RecoTau/interface/CaloRecoTauTagInfoAlgorithm.h"
 
-CaloRecoTauTagInfoAlgorithm::CaloRecoTauTagInfoAlgorithm(const ParameterSet& parameters) : chargedpi_mass_(0.13957018){
+CaloRecoTauTagInfoAlgorithm::CaloRecoTauTagInfoAlgorithm(const ParameterSet& parameters){
   // parameters of the considered rec. Tracks (catched through a JetTracksAssociation object) :
   tkminPt_                            = parameters.getParameter<double>("tkminPt");
   tkminPixelHitsn_                    = parameters.getParameter<int>("tkminPixelHitsn");
@@ -30,26 +30,6 @@ CaloTauTagInfo CaloRecoTauTagInfoAlgorithm::buildCaloTauTagInfo(Event& theEvent,
   BasicClusterRefVector theNeutralEcalBasicClusters=getNeutralEcalBasicClusters(theEvent,theEventSetup,theCaloJet,theFilteredTracks,ECALBasicClustersAroundCaloJet_DRConeSize_,ECALBasicClusterminE_,ECALBasicClusterpropagTrack_matchingDRConeSize_);
   resultExtended.setneutralECALBasicClusters(theNeutralEcalBasicClusters);
   
-  math::XYZTLorentzVector alternatLorentzVect;
-  alternatLorentzVect.SetPx(0.);
-  alternatLorentzVect.SetPy(0.);
-  alternatLorentzVect.SetPz(0.);
-  alternatLorentzVect.SetE(0.);
-  for(TrackRefVector::iterator iTrack=theFilteredTracks.begin();iTrack!=theFilteredTracks.end();iTrack++) {
-    // build a charged pion candidate Lorentz vector from a Track
-    math::XYZTLorentzVector iChargedPionCand_XYZTLorentzVect((**iTrack).momentum().x(),(**iTrack).momentum().y(),(**iTrack).momentum().z(),sqrt(pow((double)(**iTrack).momentum().r(),2)+pow(chargedpi_mass_,2)));
-    alternatLorentzVect+=iChargedPionCand_XYZTLorentzVect;
-  }
-  for(BasicClusterRefVector::iterator iBasicCluster=theNeutralEcalBasicClusters.begin();iBasicCluster!=theNeutralEcalBasicClusters.end();iBasicCluster++) {
-    // build a gamma candidate Lorentz vector from a neutral ECAL BasicCluster
-    double iGammaCand_px=(**iBasicCluster).energy()*sin((**iBasicCluster).position().theta())*cos((**iBasicCluster).position().phi());
-    double iGammaCand_py=(**iBasicCluster).energy()*sin((**iBasicCluster).position().theta())*sin((**iBasicCluster).position().phi());
-    double iGammaCand_pz=(**iBasicCluster).energy()*cos((**iBasicCluster).position().theta());
-    math::XYZTLorentzVector iGammaCand_XYZTLorentzVect(iGammaCand_px,iGammaCand_py,iGammaCand_pz,(**iBasicCluster).energy());
-    alternatLorentzVect+=iGammaCand_XYZTLorentzVect;
-  }
-  resultExtended.setalternatLorentzVect(alternatLorentzVect);
-  
   return resultExtended; 
 }
 
@@ -60,17 +40,18 @@ vector<pair<math::XYZPoint,float> > CaloRecoTauTagInfoAlgorithm::getPositionAndE
   theEventSetup.get<IdealGeometryRecord>().get(theCaloGeometry);
   const CaloSubdetectorGeometry* theCaloSubdetectorGeometry;  
   Handle<EBRecHitCollection> EBRecHits;
-  Handle<EERecHitCollection> EERecHits;     
+  Handle<EERecHitCollection> EERecHits; 
+  Handle<ESRecHitCollection> ESRecHits; 
   theEvent.getByLabel("ecalRecHit","EcalRecHitsEB",EBRecHits);
   theEvent.getByLabel("ecalRecHit","EcalRecHitsEE",EERecHits);
+  theEvent.getByLabel("ecalPreshowerRecHit","EcalRecHitsES",ESRecHits);
   for(vector<CaloTowerRef>::const_iterator i_Tower=theCaloTowers.begin();i_Tower!=theCaloTowers.end();i_Tower++){
     size_t numRecHits = (**i_Tower).constituentsSize();
     for(size_t j=0;j<numRecHits;j++) {
       DetId RecHitDetID=(**i_Tower).constituent(j);
       DetId::Detector DetNum=RecHitDetID.det();     
       if(DetNum==DetId::Ecal){
-	int EcalNum=RecHitDetID.subdetId();
-	if(EcalNum==1){
+	if((EcalSubdetector)RecHitDetID.subdetId()==EcalBarrel){
 	  theCaloSubdetectorGeometry = theCaloGeometry->getSubdetectorGeometry(DetId::Ecal,EcalBarrel);
 	  EBDetId EcalID=RecHitDetID;
 	  EBRecHitCollection::const_iterator theRecHit=EBRecHits->find(EcalID);
@@ -78,7 +59,7 @@ vector<pair<math::XYZPoint,float> > CaloRecoTauTagInfoAlgorithm::getPositionAndE
 	  math::XYZPoint theRecHitCell_XYZPoint(theRecHitCell->getPosition().x(),theRecHitCell->getPosition().y(),theRecHitCell->getPosition().z());
 	  pair<math::XYZPoint,float> thePositionAndEnergyEcalRecHit(theRecHitCell_XYZPoint,theRecHit->energy());
 	  thePositionAndEnergyEcalRecHits.push_back(thePositionAndEnergyEcalRecHit);
-	}else if(EcalNum==2){
+	}else if((EcalSubdetector)RecHitDetID.subdetId()==EcalEndcap){
 	  theCaloSubdetectorGeometry = theCaloGeometry->getSubdetectorGeometry(DetId::Ecal,EcalEndcap);
 	  EEDetId EcalID = RecHitDetID;
 	  EERecHitCollection::const_iterator theRecHit=EERecHits->find(EcalID);	    
@@ -86,7 +67,15 @@ vector<pair<math::XYZPoint,float> > CaloRecoTauTagInfoAlgorithm::getPositionAndE
 	  math::XYZPoint theRecHitCell_XYZPoint(theRecHitCell->getPosition().x(),theRecHitCell->getPosition().y(),theRecHitCell->getPosition().z());
 	  pair<math::XYZPoint,float> thePositionAndEnergyEcalRecHit(theRecHitCell_XYZPoint,theRecHit->energy());
 	  thePositionAndEnergyEcalRecHits.push_back(thePositionAndEnergyEcalRecHit);
-	}
+	}else if((EcalSubdetector)RecHitDetID.subdetId()==EcalPreshower){
+	  theCaloSubdetectorGeometry = theCaloGeometry->getSubdetectorGeometry(DetId::Ecal,EcalPreshower);
+	  ESDetId EcalID = RecHitDetID;
+	  ESRecHitCollection::const_iterator theRecHit=ESRecHits->find(EcalID);	    
+	  const CaloCellGeometry* theRecHitCell=theCaloSubdetectorGeometry->getGeometry(RecHitDetID);
+	  math::XYZPoint theRecHitCell_XYZPoint(theRecHitCell->getPosition().x(),theRecHitCell->getPosition().y(),theRecHitCell->getPosition().z());
+	  pair<math::XYZPoint,float> thePositionAndEnergyEcalRecHit(theRecHitCell_XYZPoint,theRecHit->energy());
+	  thePositionAndEnergyEcalRecHits.push_back(thePositionAndEnergyEcalRecHit);
+	}	 
       }	
     }
   }

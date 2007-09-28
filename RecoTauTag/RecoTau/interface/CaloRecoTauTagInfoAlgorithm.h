@@ -4,6 +4,7 @@
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
 #include "DataFormats/EcalDetId/interface/EEDetId.h"
+#include "DataFormats/EcalDetId/interface/ESDetId.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 #include "DataFormats/EgammaReco/interface/BasicCluster.h" 
 #include "DataFormats/EgammaReco/interface/BasicClusterFwd.h" 
@@ -32,7 +33,7 @@ using namespace edm;
 
 class  CaloRecoTauTagInfoAlgorithm  {
  public:
-  CaloRecoTauTagInfoAlgorithm() : chargedpi_mass_(0.13957018){}  
+  CaloRecoTauTagInfoAlgorithm(){}  
   CaloRecoTauTagInfoAlgorithm(const ParameterSet& parameters);
   ~CaloRecoTauTagInfoAlgorithm(){}
   CaloTauTagInfo buildCaloTauTagInfo(Event&,const EventSetup&,const CaloJetRef&,const TrackRefVector&,const Vertex&); 
@@ -52,8 +53,6 @@ class  CaloRecoTauTagInfoAlgorithm  {
   double ECALBasicClustersAroundCaloJet_DRConeSize_;
   double ECALBasicClusterminE_;
   double ECALBasicClusterpropagTrack_matchingDRConeSize_;
-  //
-  const double chargedpi_mass_;
 };
 #endif 
 

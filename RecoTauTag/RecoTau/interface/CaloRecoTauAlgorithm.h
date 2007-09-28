@@ -4,6 +4,8 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/Event.h"
 
+#include "DataFormats/EgammaReco/interface/BasicCluster.h" 
+#include "DataFormats/EgammaReco/interface/BasicClusterFwd.h" 
 #include "DataFormats/TauReco/interface/CaloTau.h"
 #include "DataFormats/TauReco/interface/CaloTauTagInfo.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
