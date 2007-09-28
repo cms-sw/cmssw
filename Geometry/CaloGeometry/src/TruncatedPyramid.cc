@@ -127,18 +127,19 @@ TruncatedPyramid::inside( const GlobalPoint& point ) const
 
    const HepPlane3D AA ( co[0], co[1], co[2] ) ; // z<0
    const HepPlane3D BB ( co[6], co[5], co[4] ) ; // z>0
-   if( ( p - AA.point(p) ).dot( p - BB.point(p) ) <= 0 )
+
+   if( AA.distance(p)*BB.distance(p) >= 0 )
    {
-      const HepPlane3D CC ( co[0], co[4], co[5] ) ; // x<0
-      const HepPlane3D DD ( co[2], co[6], co[7] ) ; // x>0
-      if( ( p - CC.point(p) ).dot( p - DD.point(p) ) <= 0 )
-      {
-	 const HepPlane3D EE ( co[0], co[3], co[7] ) ; // y<0
-	 const HepPlane3D FF ( co[1], co[5], co[6] ) ; // y>0
-	 if( ( p - EE.point(p) ).dot( p - FF.point(p) ) <= 0 )
-	 {
-	    ans = true ;
-	 }
+     const HepPlane3D CC ( co[0], co[4], co[5] ) ; // x<0
+     const HepPlane3D DD ( co[2], co[6], co[7] ) ; // x>0
+     if( CC.distance(p)*DD.distance(p) >= 0 )
+     {
+       const HepPlane3D EE ( co[3], co[7], co[4] ) ; // y<0
+       const HepPlane3D FF ( co[1], co[5], co[6] ) ; // y>0
+       if( EE.distance(p)*FF.distance(p) >= 0 )
+       {
+	   ans = true ;
+       }
       }
    }
    return ans ;
