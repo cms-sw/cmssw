@@ -33,8 +33,6 @@
 #include "EcalTPInputAnalyzer.h"
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
 #include "DataFormats/EcalDigi/interface/EcalTriggerPrimitiveDigi.h"
-#include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
-#include "HepMC/GenEvent.h"
 
 using namespace edm;
 
@@ -83,10 +81,47 @@ EcalTPInputAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
 {
   using namespace edm;
   using namespace std;
-   edm::Handle<edm::HepMCProduct> hepmc;
-   iEvent.getByLabel("source",hepmc);
-   const HepMC::GenEvent * p=hepmc.product()->GetEvent();
-   printf("pointer genevent %p\n",p);fflush(stdout);
+
+  bool barrel=true;
+  edm::Handle<EBDigiCollection> ebDigis;
+  edm::Handle<EEDigiCollection> eeDigis;
+  try{iEvent.getByLabel(producer_,ebLabel_,ebDigis);}
+  catch(cms::Exception &e) {
+    barrel=false;
+    edm::LogWarning("EcalTPG") <<" Couldnt find Barrel dataframes with Producer:"<<producer_<<" and label: "<<ebLabel_;
+  }
+  bool endcap=true;
+  try{iEvent.getByLabel(producer_,eeLabel_,eeDigis);}
+  catch(cms::Exception &e) {
+    endcap=false;
+    edm::LogWarning("EcalTPG") <<" Couldnt find Endcap dataframes with Producer:"<<producer_<<" and label: "<<eeLabel_;
+  }
+  //barrel
+  if (barrel) {
+    const EBDigiCollection *ebdb=ebDigis.product();
+    for (unsigned int i=0;i<ebDigis->size();++i) {
+      EBDataFrame ebdf=(*ebdb)[i];
+      int nrSamples=ebdf.size();
+      //unsigned int nrSamples=(ebDigis.product())[i].size();
+      for (int is=0;is<nrSamples;++is) {
+	//	EcalMGPASample sam=((ebDigis.product())[i])[is];
+	EcalMGPASample sam=ebdf[is];
+	histBar->Fill(sam.adc());
+      }
+    }
+  }
+  //endcap
+  if (endcap) {
+    const EEDigiCollection *eedb=eeDigis.product();
+    for (unsigned int i=0;i<eeDigis->size();++i) {
+      EEDataFrame eedf=(*eedb)[i];
+      int nrSamples=eedf.size();
+      for (int is=0;is<nrSamples;++is) {
+	EcalMGPASample sam=eedf[is];
+	histEndc->Fill(sam.adc());
+      }
+    }
+  }
 //   // Get input
 //   edm::Handle<EcalTrigPrimDigiCollection> tp;
 //   iEvent.getByLabel(label_,producer_,tp);
