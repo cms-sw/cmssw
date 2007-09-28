@@ -170,28 +170,34 @@ namespace edm {
       }
 
       ParameterSet opts(pset_.getUntrackedParameter<ParameterSet>("options", ParameterSet()));
+      bool hasPath = false;
 
-      int trig_bitpos=0;
+      int trig_bitpos = 0;
       for (vstring::const_iterator i = trig_name_list_.begin(),
-	     e = trig_name_list_.end();
+	   e = trig_name_list_.end();
 	   i != e;
 	   ++i) {
 	fillTrigPath(trig_bitpos,*i, results_);
 	++trig_bitpos;
+	hasPath = true;
       }
 
+      if (hasPath) {
       // the results inserter stands alone
-      results_inserter_=makeInserter(pset_, tns.getTriggerPSet(), 
-				     processName_,
-				     preg, actions, results_);
-      all_workers_.insert(results_inserter_.get());
+	results_inserter_ = makeInserter(pset_, tns.getTriggerPSet(), 
+					 processName_,
+					 preg, actions, results_);
+	all_workers_.insert(results_inserter_.get());
+      }
 
       TrigResPtr epptr(new HLTGlobalStatus(end_path_name_list_.size()));
       endpath_results_ = epptr;
 
       // fill normal endpaths
       vstring::iterator eib(end_path_name_list_.begin()),eie(end_path_name_list_.end());
-      for(int bitpos = 0; eib != eie; ++eib, ++bitpos) fillEndPath(bitpos, *eib);
+      for(int bitpos = 0; eib != eie; ++eib, ++bitpos) {
+	fillEndPath(bitpos, *eib);
+      }
 
       //See if all modules were used
       std::set<std::string> usedWorkerLabels;
@@ -309,7 +315,7 @@ namespace edm {
 
       // Sanity check: make sure nobody has added a worker after we've
       // already relied on all_workers_ being full.
-      assert (all_workers_count = all_workers_.size());
+      assert (all_workers_count == all_workers_.size());
       
     } // Schedule::Schedule
 
@@ -375,7 +381,7 @@ namespace edm {
       for(PathWorkers::iterator wi(tmpworkers.begin()),
 	    we(tmpworkers.end()); wi != we; ++wi) {
 	Worker* tworker = wi->getWorker();
-	if(dynamic_cast<OutputWorker*>(tworker)!=0) {
+	if(dynamic_cast<OutputWorker*>(tworker) != 0) {
           throw edm::Exception(edm::errors::Configuration)
 	    << "\nOutputModule "
 	    << tworker->description().moduleLabel_
@@ -394,7 +400,6 @@ namespace edm {
 	trig_paths_.push_back(p);
       }
       all_workers_.insert(holder.begin(),holder.end());
-      return;
     }
 
     void Schedule::fillEndPath(int bitpos, std::string const& name) {
@@ -406,19 +411,21 @@ namespace edm {
       for(PathWorkers::iterator wi(tmpworkers.begin()),
 	    we(tmpworkers.end()); wi != we; ++wi) {
 	Worker* tworker = wi->getWorker();
-	if(dynamic_cast<ProducerWorker*>(tworker)!=0) {
-          throw edm::Exception(edm::errors::Configuration)
-	    << "\nProducer "
-	    << tworker->description().moduleLabel_
-	    << " appears in endpath " << name << ".\n"
-	    << "A producer is not allowed in an endpath.\n";
-	}
-	if(dynamic_cast<FilterWorker*>(tworker)!=0) {
+	if(dynamic_cast<FilterWorker*>(tworker) != 0) {
           throw edm::Exception(edm::errors::Configuration)
 	    << "\nFilter "
 	    << tworker->description().moduleLabel_
 	    << " appears in endpath " << name << ".\n"
 	    << "A filter is not allowed in an endpath.\n";
+	}
+	if(dynamic_cast<ProducerWorker*>(tworker) != 0) {
+	  LogWarning("Producer on endpath")
+          // throw edm::Exception(edm::errors::Configuration)
+	    << "\nProducer "
+	    << tworker->description().moduleLabel_
+	    << " appears in endpath " << name << ".\n"
+	    // << "A producer is not allowed in an endpath.\n";
+	    << "A producer should not be in an endpath.\n";
 	}
 	holder.push_back(tworker);
       }
