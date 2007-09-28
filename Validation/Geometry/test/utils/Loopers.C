@@ -56,6 +56,10 @@ void Loopers::Loop()
     // Density
     double pathSum     = 0.0; // x_i
     double normDensSum = 0.0; // rho_i x x_i
+    double pathSum_211  = 0.0; // x_i
+    double pathSum_13   = 0.0; // x_i
+    double pathSum_11   = 0.0; // x_i
+    double pathSum_2212 = 0.0; // x_i
     // Lambda0
     double nuclSum     = 0.0; // x_i / l0_i
     // Hadronic Interactions
@@ -71,26 +75,64 @@ void Loopers::Loop()
     Int_t lastStep = 0;
     for(Int_t iStep=0; iStep<Nsteps; iStep++) {
       
+      // x_i
+      double x_i = sqrt(
+			(FinalX[iStep]-InitialX[iStep]) * (FinalX[iStep]-InitialX[iStep])
+			+
+			(FinalY[iStep]-InitialY[iStep]) * (FinalY[iStep]-InitialY[iStep])
+			+
+			(FinalZ[iStep]-InitialZ[iStep]) * (FinalZ[iStep]-InitialZ[iStep])
+			);
+      
       // hadronic interactions
       if(ParticleStepPostInteraction[iStep] == 4) {
 	iHadronicInteractions++;
 	energyLossHad += (InitialE[iStep] - FinalE[iStep]);
       }
       
-      // find decay
+      // find emission
       if(iStep==0) actualParticleID = ParticleStepID[iStep];
       if(iStep!=0) {
 	if(FinalZ[iStep-1] != InitialZ[iStep]) {
 	  theLogFile << "\t\t EMISSION at " << iStep
 		     << " from " << actualParticleID << " of a " << ParticleStepID[iStep] << endl;
-	  actualParticleID = ParticleStepID[iStep];	
 	}
       }
+      
+      // find decay
       if(actualParticleID != ParticleStepID[iStep]) {
 	theLogFile << "\t\t DECAY at " << iStep
 		   << " from " << actualParticleID << " to " << ParticleStepID[iStep] << endl;
 	actualParticleID = ParticleStepID[iStep];	
+	if (fabs(ParticleStepID[iStep]) == 211) { // pi+-
+	  iParticle = 1;
+	}
+	if (fabs(ParticleStepID[iStep]) == 13) {  // mu+-
+	  iParticle = 2;
+	}
+	if (fabs(ParticleStepID[iStep]) == 11) {  // e+-
+	  iParticle = 3;
+	}
+	if (fabs(ParticleStepID[iStep]) == 2212) { // p+-
+	  iParticle = 4;
+	}	
+	hist_productionEnergy_vs_secondaryParticle->Fill((float)iParticle,(InitialE[iStep]-InitialM[iStep]));
       }
+      
+      // path sum
+      if (fabs(ParticleStepID[iStep]) == 211) { // pi+-
+	pathSum_211+=x_i;
+      }
+      if (fabs(ParticleStepID[iStep]) == 13) {  // mu+-
+	pathSum_13+=x_i;
+      }
+      if (fabs(ParticleStepID[iStep]) == 11) {  // e+-
+	pathSum_11+=x_i;
+      }
+      if (fabs(ParticleStepID[iStep]) == 2212) { // p+-
+	pathSum_2212+=x_i;
+      }
+      
       
       // select secondary/decay particles: only pi/mu/e/p
       if( fabs(ParticleStepID[iStep])!=211
@@ -101,42 +143,26 @@ void Loopers::Loop()
 	  &&
 	  fabs(ParticleStepID[iStep])!=2212
 	  ) {
-	theLogFile << "Skip particle " << ParticleStepID[iStep] << " step " << iStep << endl;
-	break;
+	//	theLogFile << "Skip particle " << ParticleStepID[iStep] << " step " << iStep << endl;
+	continue;
       } else {
-	lastStep = iStep;
-	switch (fabs(ParticleStepID[iStep])) {
-	case 211: // pi+-
-	  {
-	    iParticle = 1;
-	    break;
-	  }
-	case 13: // mu+-
-	  {
-	    iParticle = 2;
-	    break;
-	  }
-	case 13: // e+-
-	  {
-	    iParticle = 3;
-	    break;
-	  }
-	case 2212: // p+-
-	  {
-	    iParticle = 4;
-	    break;
-	  }
-	default:
-	  iParticle = -1; // underflow
-	}
-	hist_productionEnergy_vs_secondaryParticle->Fill((float)iParticle,(InitialE[iStep]-InitialM[iStep]));
+	// go on
       }
       
       // energy threshold
-      if( FinalE[iStep] < E_threshold ) {
-	theLogFile << "Set final step to " << iStep << " final E " << FinalE[iStep] << " MeV" << endl;
-	lastStep = iStep;
-	break;
+      if( ( ParticleStepID[0] == ParticleID )
+	  &&
+	  (
+	   ( (FinalE[iStep]-InitialM[iStep]) < Ekin_threshold ) // lower energy
+	   ||
+	   ( ParticleStepPostInteraction[iStep] == 6 ) // decay
+	   )
+	  ) {
+	if(lastStep == 0) {
+	  theLogFile << "Set final step to " << iStep << " final E " << FinalE[iStep] << " MeV" << endl;
+	  lastStep = iStep;
+	}
+	continue;
       }
       
       
@@ -150,14 +176,6 @@ void Loopers::Loop()
       phiSum += deltaPhi;
       //
       // Density
-      // x_i
-      double x_i = sqrt(
-			(FinalX[iStep]-InitialX[iStep]) * (FinalX[iStep]-InitialX[iStep])
-			+
-			(FinalY[iStep]-InitialY[iStep]) * (FinalY[iStep]-InitialY[iStep])
-			+
-			(FinalZ[iStep]-InitialZ[iStep]) * (FinalZ[iStep]-InitialZ[iStep])
-			);
       // rho_i
       double rho_i = MaterialDensity[iStep];
       pathSum     += x_i;
@@ -211,7 +229,7 @@ void Loopers::Loop()
 	theLogFile << "\t Energy Init = " << InitialE[0]                                      << endl;
 	theLogFile << "\t Energy End = "  << FinalE[lastStep]                                 << endl;
 	theLogFile << "\t Final Z = "  << FinalZ[lastStep]                                    << endl;
-	theLogFile << "\t Particle Mass = " << ParticleMass                                   << endl;
+	theLogFile << "\t Particle Mass = " << InitialM[0]                                    << endl;
 	theLogFile << "\t pT Init = " << ParticleStepInitialPt[0]                             << endl;
 	theLogFile << "\t pT End = "  << ParticleStepFinalPt[lastStep]                        << endl;
 	theLogFile << "\t Last particle = " << ParticleStepID[lastStep]                       << endl;
@@ -246,6 +264,23 @@ void Loopers::Loop()
       hist_hadronicInteractions->Fill((float)iHadronicInteractions);
       hist_hadronicInteractions_vs_lastInteraction->Fill(ParticleStepPostInteraction[lastStep],(float)iHadronicInteractions);
       hist_energyLossHadronicInteractions->Fill(energyLossHad);
+
+      // Secondaries
+      // cut away zeroes
+      //      if(pathSum_211  == 0) pathSum_211  = -10.;
+      //      if(pathSum_13   == 0) pathSum_13   = -10.;
+      if( !(pathSum_11   > 0) ) pathSum_11   = -10000.;
+      if( !(pathSum_2212 > 0) ) pathSum_2212 = -10000.;
+      //
+      if(pathSum_13 > 0){
+	hist_bx_vs_secondaryParticle->Fill(1,-10.);
+	hist_bx_vs_secondaryParticle->Fill(2,((pathSum_211+pathSum_13)/1000)/c*1E9/bx);
+      } else {
+	hist_bx_vs_secondaryParticle->Fill(1,(pathSum_211/1000)/c*1E9/bx);
+	hist_bx_vs_secondaryParticle->Fill(2,-10.);
+      }
+      hist_bx_vs_secondaryParticle->Fill(3,(pathSum_11/1000)/c*1E9/bx);
+      hist_bx_vs_secondaryParticle->Fill(4,(pathSum_2212/1000)/c*1E9/bx);
       //      } // sanity check final pT=0
       
     } // steps!=0
@@ -398,7 +433,7 @@ void Loopers::MakePlots(TString suffix) {
   can_Gigi.SaveAs( Form("%s/Loopers_Density_vs_Turns_%s.eps",  theDirName.Data(), suffix.Data() ) );
   can_Gigi.SaveAs( Form("%s/Loopers_Density_vs_Turns_%s.gif",  theDirName.Data(), suffix.Data() ) );
   // 
-
+  
   // Draw
   can_Gigi.cd();
   hist_pT_init->SetLineColor(kBlue);
@@ -536,11 +571,12 @@ void Loopers::MakePlots(TString suffix) {
   theLogFile << hist_bx->GetTitle() << endl;
   theLogFile << "\t Mean = " << hist_bx->GetMean()  << endl;
   theLogFile << "\t  RMS = " << hist_bx->GetRMS()   << endl;
-  for(unsigned int iBin = 0; iBin<= hist_bx->GetNbinsX(); iBin++)
+  for(unsigned int iBin = 0; iBin<= hist_bx->GetNbinsX(); iBin++) {
     theLogFile << "\t\t bx " << hist_bx->GetBinCenter(iBin) << " : " << hist_bx->GetBinContent(iBin)
 	       << " integral > " << hist_bx->GetBinCenter(iBin)
 	       << " : " << hist_bx->Integral(iBin+1,hist_bx->GetNbinsX()+1) / hist_bx->Integral()
 	       << std::endl;
+  }
   //
   // Store
   can_Gigi.Update();
@@ -699,6 +735,30 @@ void Loopers::MakePlots(TString suffix) {
   can_Gigi.SaveAs( Form("%s/Loopers_ProductionEnergy_vs_SecondaryParticle_%s.eps",  theDirName.Data(), suffix.Data() ) );
   can_Gigi.SaveAs( Form("%s/Loopers_ProductionEnergy_vs_SecondaryParticle_%s.gif",  theDirName.Data(), suffix.Data() ) );
   //
+  
+  // Prepare Axes Labels
+  hist_bx_vs_secondaryParticle->GetXaxis()->SetBinLabel( 1,"#pi^{#pm}");
+  hist_bx_vs_secondaryParticle->GetXaxis()->SetBinLabel( 2,"#mu^{#pm}");
+  hist_bx_vs_secondaryParticle->GetXaxis()->SetBinLabel( 3,"e^{#pm}");
+  hist_bx_vs_secondaryParticle->GetXaxis()->SetBinLabel( 4,"p/#bar{p}");
+  // Draw
+  can_Gigi.cd();
+  hist_bx_vs_secondaryParticle->SetLineColor(kBlue);
+  hist_bx_vs_secondaryParticle->SetFillColor(kBlue);
+  hist_bx_vs_secondaryParticle->Draw("BOX");
+  //  
+  // Print
+  theLogFile << endl << "--------"     << endl;
+  theLogFile << hist_bx_vs_secondaryParticle->GetTitle() << endl;
+  //  theLogFile << "\t Mean = " << hist_bx_vs_secondaryParticle->GetMean()  << endl;
+  //  theLogFile << "\t  RMS = " << hist_bx_vs_secondaryParticle->GetRMS()   << endl;
+  //
+  // Store
+  can_Gigi.Update();
+  can_Gigi.SaveAs( Form("%s/Loopers_bx_vs_SecondaryParticle_%s.eps",  theDirName.Data(), suffix.Data() ) );
+  can_Gigi.SaveAs( Form("%s/Loopers_bx_vs_SecondaryParticle_%s.gif",  theDirName.Data(), suffix.Data() ) );
+  //
+  
 }
 
 void Loopers::helpfulCommands() {

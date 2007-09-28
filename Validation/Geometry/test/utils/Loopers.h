@@ -42,6 +42,7 @@ TH1F* hist_hadronicInteractions;
 TH2F* hist_hadronicInteractions_vs_lastInteraction;
 TH1F* hist_energyLossHadronicInteractions;
 TH2F* hist_productionEnergy_vs_secondaryParticle;
+TH2F* hist_bx_vs_secondaryParticle;
 //
 
 // logfile
@@ -51,7 +52,7 @@ ofstream theLogFile;
 const double pi = 3.14159265;
 const double c  = 299792458; // m/s;
 const double bx = 25; // ns
-const double E_threshold = 150; // MeV
+const double Ekin_threshold = 20; // MeV
 
 class Loopers {
 public :
@@ -59,8 +60,7 @@ public :
   Int_t           fCurrent; //!current Tree number in a TChain
   
   // Declaration of leave types
-  Float_t         ParticleEta;
-  Float_t         ParticleMass;
+  Int_t           ParticleID;
   Int_t           Nsteps;
   Double_t        InitialX[10000];   //[Nsteps]
   Double_t        InitialY[10000];   //[Nsteps]
@@ -71,7 +71,6 @@ public :
   Float_t         InitialE[10000];   //[Nsteps]
   Float_t         FinalE[10000];   //[Nsteps]
   Float_t         InitialM[10000];   //[Nsteps]
-  Float_t         FinalM[10000];   //[Nsteps]
   Int_t           ParticleStepID[10000];   //[Nsteps]
   Int_t           ParticleStepPreInteraction[10000];   //[Nsteps]
   Int_t           ParticleStepPostInteraction[10000];   //[Nsteps]
@@ -81,8 +80,7 @@ public :
   Float_t         ParticleStepFinalPt[10000];   //[Nsteps]
   
   // List of branches
-  TBranch        *b_ParticleEta;   //!
-  TBranch        *b_ParticleMass;   //!
+  TBranch        *b_ParticleID;   //!
   TBranch        *b_Nsteps;   //!
   TBranch        *b_InitialX;   //!
   TBranch        *b_InitialY;   //!
@@ -93,7 +91,6 @@ public :
   TBranch        *b_FinalE;   //!
   TBranch        *b_InitialE;   //!
   TBranch        *b_InitialM;   //!
-  TBranch        *b_FinalM;   //!
   TBranch        *b_ParticleStepID;   //!
   TBranch        *b_ParticleStepPreInteraction;   //!
   TBranch        *b_ParticleStepPostInteraction;   //!
@@ -201,8 +198,7 @@ void Loopers::Init(TTree *tree)
   fCurrent = -1;
   fChain->SetMakeClass(1);
   
-  fChain->SetBranchAddress("Particle Eta", &ParticleEta, &b_ParticleEta);
-  fChain->SetBranchAddress("Particle Mass", &ParticleMass, &b_ParticleMass);
+  fChain->SetBranchAddress("Particle ID", &ParticleID, &b_ParticleID);
   fChain->SetBranchAddress("Nsteps", &Nsteps, &b_Nsteps);
   fChain->SetBranchAddress("Initial X", InitialX, &b_InitialX);
   fChain->SetBranchAddress("Initial Y", InitialY, &b_InitialY);
@@ -213,7 +209,6 @@ void Loopers::Init(TTree *tree)
   fChain->SetBranchAddress("Particle Step Initial Energy", InitialE, &b_InitialE);
   fChain->SetBranchAddress("Particle Step Final Energy", FinalE, &b_FinalE);
   fChain->SetBranchAddress("Particle Step Initial Mass", InitialM, &b_InitialM);
-  fChain->SetBranchAddress("Particle Step Final Mass", FinalM, &b_FinalM);
   fChain->SetBranchAddress("Particle Step ID", ParticleStepID, &b_ParticleStepID);
   fChain->SetBranchAddress("Particle Step Pre Interaction", ParticleStepPreInteraction, &b_ParticleStepPreInteraction);
   fChain->SetBranchAddress("Particle Step Post Interaction", ParticleStepPostInteraction, &b_ParticleStepPostInteraction);
@@ -272,6 +267,7 @@ void Loopers::Book(){
   hist_density_vs_loops = new TH2F("hist_density_vs_loops",
 				   "Average Density vs Number of Turns;Turns [2#pi];#bar{#rho} [g/cm^{3}];Events/bin",
 				   80,0,20,30,0.0,0.3);
+  
   hist_pT_init = new TH1F("hist_pT_init",
 			  "Transverse Momentum at starting point;p_{T} [MeV/c];Events/bin",
 			  100,0.0,1000.0);
@@ -291,7 +287,7 @@ void Loopers::Book(){
 				  "Last Geant4 Process;Process Type;Events/bin",
 				  11,-0.5,10.5);
   hist_bx = new TH1F("hist_bx",
-		     "Bunch Crossing [25 ns];Bunch Crossing [25 ns];Events/bin",
+		     "Bunch Crossings [25 ns];Bunch Crossing [25 ns];Events/bin",
 		     21,-0.25,10.25);
   hist_energybeforeend_vs_lastInteraction = new TH2F("hist_energybeforeend_vs_lastInteraction",
 						     "Energy before stopping point vs Last Geant4 Process;Process Type;Energy [MeV];Events/bin",
@@ -300,18 +296,22 @@ void Loopers::Book(){
 						 "Track Length vs Last Geant4 Process;Process Type;Length [mm];Events/bin",
 						 11,-0.5,10.5,30,0.0,30000.0);
   hist_hadronicInteractions = new TH1F("hist_hadronicInteractions",
-				       "Number of Hadronic Interactions;Interactions;Events/bin",
+				       "Number of Hadronic Interactions;Hadronic Interactions;Events/bin",
 				       7,-0.5,6.5);
   hist_hadronicInteractions_vs_lastInteraction = new TH2F("hist_hadronicInteractions_vs_lastInteraction",
-							  "Number of Hadronic Interactions vs Last Geant4 Process;Process Type;Interactions;Events/bin",
+							  "Number of Hadronic Interactions vs Last Geant4 Process;Process Type;Hadronic Interactions;Events/bin",
 							  11,-0.5,10.5,7,-0.5,6.5);
   hist_energyLossHadronicInteractions = new TH1F("hist_energyLossHadronicInteractions",
 						 "Energy Loss in Hadronic Interactions;Energy [MeV];Events/bin",
 						 100,0.0,1000.0);
 
   hist_productionEnergy_vs_secondaryParticle = new TH2F("hist_productionEnergy_vs_secondaryParticle",
-							"Kinetic Energy at Production vs Seconday Particle;Secondary Particle;Energy [MeV];Events/bin",
-							4,0.5,4.5,10,0.0,100.0);
+  "Kinetic Energy at Production vs Secondary Particle;Secondary Particle;Energy [MeV];Events/bin",
+  4,0.5,4.5,100,0.0,1000.0);
+  
+  hist_bx_vs_secondaryParticle = new TH2F("hist_bx_vs_secondaryParticle",
+					  "Bunch Crossings [25 ns] vs Secondary Particle;Secondary Particle;Bunch Crossing [25 ns];Events/bin",
+					  4,0.5,4.5,21,-0.25,10.25);
   
 }
 
