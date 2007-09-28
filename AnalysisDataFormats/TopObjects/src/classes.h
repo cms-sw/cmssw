@@ -51,6 +51,8 @@ namespace {
     TopObject<TopJetType>                                 to_jet;
     TopObject<TopMETType>                                 to_met;
     TopObject<TopParticleType>                            to_part;
+    TopLepton<TopElectronType>                            tl_el;
+    TopLepton<TopMuonType>                                tl_mu;
     TopElectron                                           el; 
     TopTau                                                tau; 
     TopMuon                                               mu; 
