@@ -22,7 +22,6 @@ private:
   int iquad_min[40];
   int Ntot[40];
   int Ncols[40];
-  int LXV[154];
 
 };
 
