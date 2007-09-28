@@ -26,6 +26,7 @@ TSiStripMatchedRecHit::clone( const TrajectoryStateOnSurface& ts) const
       const SiStripMatchedRecHit2D* better;
 
       if(!orig->monoHit()->cluster().isNull()){
+	/*
 	const SiStripCluster& monoclust   = *orig->monoHit()->cluster();  
 	const SiStripCluster& stereoclust = *orig->stereoHit()->cluster();
 	StripClusterParameterEstimator::LocalValues lvMono = 
@@ -41,6 +42,10 @@ TSiStripMatchedRecHit::clone( const TrajectoryStateOnSurface& ts) const
 				     gdet->stereoDet()->geographicalId(),
 				     orig->stereoHit()->cluster());
 	better =  theMatcher->match(&monoHit,&stereoHit,gdet,tkDir);
+	*/
+	better =  theMatcher->match(orig->monoHit()->clone(),
+				    orig->stereoHit()->clone(),
+				    gdet,tkDir);
       }else{
       	const SiStripCluster& monoclust   = *orig->monoHit()->cluster_regional();  
 	const SiStripCluster& stereoclust = *orig->stereoHit()->cluster_regional();
