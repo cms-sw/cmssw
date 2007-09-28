@@ -9,11 +9,14 @@ ROOT::Cintex::Cintex::Enable();
 
 // create a PFRootEventManager
 PFRootEventManager em("tauBenchmark.opt");
+// create a DisplayManager
 DisplayManager dm(&em);
+
 int i=0;
 dm.display(i++);
 // look for ECAL rechit with maximum energy
 //dm.lookForMaxRecHit(true);
-//if you want a dialogFrame:
+
+//create a dialogFrame:
 // DialogFrame *win = new DialogFrame(&em,&dm,gClient->GetRoot(), 200,220);
 }

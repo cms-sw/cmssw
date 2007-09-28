@@ -11,10 +11,18 @@ ROOT::Cintex::Cintex::Enable();
 PFRootEventManager em("pfRootEvent.opt");
 // create a JetPFRootEventManager to make FWLiteJets
 //JetPFRootEventManager em("pfRootEvent.opt");
+
+//create a DisplayManager
+DisplayManager dm(&em);
+
 // display first entry
 int i=0;
-em.display(i++);
+dm.display(i++);
 
 // look for ECAL rechit with maximum energy
-em.lookForMaxRecHit(true);
+dm.lookForMaxRecHit(true);
+
+// create a dialogFrame:
+// DialogFrame *win = new DialogFrame(&em,&dm,gClient->GetRoot(), 200,220);
+
 }
