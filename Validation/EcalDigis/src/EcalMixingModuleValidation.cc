@@ -1,8 +1,8 @@
 /*
  * \file EcalMixingModuleValidation.cc
  *
- * $Date: 2007/08/08 08:05:56 $
- * $Revision: 1.11 $
+ * $Date: 2007/09/06 14:08:58 $
+ * $Revision: 1.12 $
  * \author F. Cossutti
  *
 */
@@ -669,12 +669,12 @@ void EcalMixingModuleValidation::checkPedestals(const edm::EventSetup & eventSet
 void EcalMixingModuleValidation::findPedestal(const DetId & detId, int gainId, double & ped) const
 {
   EcalPedestalsMapIterator mapItr 
-    = thePedestals->m_pedestals.find(detId.rawId());
+    = thePedestals->getMap().find(detId);
   // should I care if it doesn't get found?
-  if(mapItr == thePedestals->m_pedestals.end()) {
-    edm::LogError("EcalMMValid") << "Could not find pedestal for " << detId.rawId() << " among the " << thePedestals->m_pedestals.size();
+  if(mapItr == thePedestals->getMap().end()) {
+    edm::LogError("EcalMMValid") << "Could not find pedestal for " << detId.rawId() << " among the " << thePedestals->getMap().size();
   } else {
-    EcalPedestals::Item item = mapItr->second;
+    EcalPedestals::Item item = (*mapItr);
 
     switch(gainId) {
     case 0:
