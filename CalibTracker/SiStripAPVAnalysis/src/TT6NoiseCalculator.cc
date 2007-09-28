@@ -100,9 +100,13 @@ void TT6NoiseCalculator::updateNoise(ApvAnalysis::PedestalType& in){
           ? theNoiseSum[i]/(theEventPerStrip[i]):0.0;
         double sqAvVal = (theEventPerStrip[i]) 
           ? theNoiseSqSum[i]/(theEventPerStrip[i]):0.0;
-        double rmsVal  =  sqrt(sqAvVal - avVal*avVal);
+        double corr_fac = (theEventPerStrip[i] > 1) 
+          ? (theEventPerStrip[i]/(theEventPerStrip[i]-1)) : 1.0;
+        double rmsVal  =  (sqAvVal - avVal*avVal > 0.0) 
+          ? sqrt(corr_fac * (sqAvVal - avVal*avVal)) : 0.0;	
       
         theCMPSubtractedSignal.push_back(static_cast<float>(avVal));
+
         theNoise.push_back(static_cast<float>(rmsVal));
   
         if (0) cout << " TT6NoiseCalculator::updateNoise " 

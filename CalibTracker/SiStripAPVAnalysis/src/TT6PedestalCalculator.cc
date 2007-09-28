@@ -96,8 +96,10 @@ void TT6PedestalCalculator::initializePedestal(ApvAnalysis::RawSignalType& in) {
 	? thePedSum[ii]/theEventPerStrip[ii]:0.0;
       double sqAvVal = (theEventPerStrip[ii]) 
 	? thePedSqSum[ii]/theEventPerStrip[ii]:0.0;
+      double corr_fac = (theEventPerStrip[ii] > 1) 
+	? (theEventPerStrip[ii]/(theEventPerStrip[ii]-1)) : 1.0;
       double rmsVal  =  (sqAvVal - avVal*avVal > 0.0) 
-           ? sqrt(sqAvVal - avVal*avVal) : 0.0;	
+           ? sqrt(corr_fac * (sqAvVal - avVal*avVal)) : 0.0;	
       thePedestal.push_back(static_cast<float>(avVal));
       theRawNoise.push_back(static_cast<float>(rmsVal));
       ii++;
