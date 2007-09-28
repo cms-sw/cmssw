@@ -11,6 +11,7 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include <stdint.h>
 #include "CalibFormats/SiPixelObjects/interface/PixelCalibConfiguration.h"
 
 class SiPixelCalibConfiguration
