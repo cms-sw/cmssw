@@ -28,8 +28,10 @@ public:
   void fillDigiMinusPedfC(double value) {fillElement(meDigiMinusPedfC, value);}
   void fillPhiMC(double value) {fillElement(mePhiMC, value);}
   void fillEtaMC(double value) {fillElement(meEtaMC, value);}  
-void fillNTowersGt10(double value) {fillElement(meNTowersGt10, value);}  
+  void fillNTowersGt10(double value) {fillElement(meNTowersGt10, value);}  
   void fillTimeSlice(double v1, double v2) {fillElements(meTimeSlice, v1,v2);}
+  void fill10slices(double slice, double value) 
+  { fillElements(me10slices,slice,value);}
 private:
   void fillElement(MonitorElement* me, double value)
   {
@@ -78,6 +80,7 @@ private:
   MonitorElement* mePhiMC; 
   MonitorElement* meNTowersGt10;
   MonitorElement* meTimeSlice;
+  MonitorElement* me10slices;
 };
 
 #endif

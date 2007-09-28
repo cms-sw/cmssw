@@ -109,9 +109,14 @@ void HcalDigiTester::reco(const edm::Event& iEvent, const edm::EventSetup& iSetu
 	    {
 	      int capid = (*ihbhe)[ii].capid();
 	      amplfC+=(tool[ii]-calibrations.pedestal(capid));
-	      if ( fabs(feta_mc-fEta) < 0.087/2. && acos(cos(fphi_mc-fPhi))<0.087/2.  ) 
-		                            monitor()->fillTimeSlice( ii , tool[ii]);
- 	       
+	      if ( fabs(feta_mc-fEta) < 0.087/2. && acos(cos(fphi_mc-fPhi))<0.087/2.  ) {
+
+		// std::cout << " === MC-Digi match " << std::endl;    
+
+		monitor()->fillTimeSlice( ii , tool[ii]);
+		monitor()->fill10slices(double(ii),(tool[ii]-calibrations.pedestal(capid)));
+	      }
+	      
 	      if (hcalselector_ != "HF" && ii>=4 && ii<=7)
 		{
 		  amplRecHitfC+=(tool[ii]-calibrations.pedestal(capid));	   
@@ -123,6 +128,7 @@ void HcalDigiTester::reco(const edm::Event& iEvent, const edm::EventSetup& iSetu
 		  amplRecHitfC+=(tool[3]-calibrations.pedestal(capid));
 		  monitor()->fillPedestalfC(calibrations.pedestal(capid));
 		  monitor()->fillDigiMinusPedfC(tool[3]-calibrations.pedestal(capid));
+
 		}
 	    }
 
