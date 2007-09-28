@@ -17,7 +17,7 @@
                 Manager or specify a maximum number of events for
                 the client to read through a maxEvents parameter.
 
-  $Id: EventStreamHttpReader.cc,v 1.21 2007/07/30 04:50:42 wmtan Exp $
+  $Id: EventStreamHttpReader.cc,v 1.22 2007/09/14 13:18:31 hcheung Exp $
 */
 
 #include "EventFilter/StorageManager/src/EventStreamHttpReader.h"
@@ -51,8 +51,16 @@ namespace edm
     events_read_(0),
     endRunAlreadyNotified_(true),
     runEnded_(false),
-    alreadySaidHalted_(false)
+    alreadySaidHalted_(false),
+    maxConnectTries_(DEFAULT_MAX_CONNECT_TRIES),
+    connectTrySleepTime_(DEFAULT_CONNECT_TRY_SLEEP_TIME)
   {
+    // Retry connection params (wb)
+    maxConnectTries_ = ps.getUntrackedParameter<int>("maxConnectTries",
+					       DEFAULT_MAX_CONNECT_TRIES);
+    connectTrySleepTime_ = ps.getUntrackedParameter<int>("connectTrySleepTime",
+					       DEFAULT_CONNECT_TRY_SLEEP_TIME);
+
     std::string evturl = sourceurl_ + "/geteventdata";
     int stlen = evturl.length();
     for (int i=0; i<stlen; i++) eventurl_[i]=evturl[i];
@@ -387,17 +395,38 @@ namespace edm
       stor::setopt(han, CURLOPT_HTTPHEADER, headers);
 
       // send the HTTP POST, read the reply, and cleanup before going on
-      CURLcode messageStatus = curl_easy_perform(han);
+      CURLcode messageStatus = (CURLcode)-1;
+      int tries = 0;
+      while (messageStatus!=0)
+      {
+	tries++;
+	messageStatus = curl_easy_perform(han);
+	if ( messageStatus != 0 )
+	{
+	  if ( tries >= maxConnectTries_ )
+	  {
+	    std::cerr << "Giving up waiting for connection after " << tries 
+		      << " tries"  << std::endl;
+	    curl_slist_free_all(headers);
+	    curl_easy_cleanup(han);
+	    cerr << "curl perform failed for registration" << endl;
+	    throw cms::Exception("registerWithEventServer","EventStreamHttpReader")
+	      << "Could not register: probably XDAQ not running on Storage Manager "
+	      << "\n";
+	  }
+	  else
+	  {
+	    std::cout << "Waiting for connection to StorageManager... " 
+		      << tries << "/" << maxConnectTries_
+		      << std::endl;
+	    sleep(connectTrySleepTime_);
+	  }
+	}
+      }
+
       curl_slist_free_all(headers);
       curl_easy_cleanup(han);
 
-      if(messageStatus!=0)
-      {
-        cerr << "curl perform failed for registration" << endl;
-        throw cms::Exception("registerWithEventServer","EventStreamHttpReader")
-          << "Could not register: probably XDAQ not running on Storage Manager "
-          << "\n";
-      }
       registrationStatus = ConsRegResponseBuilder::ES_NOT_READY;
       if(data.d_.length() > 0)
       {

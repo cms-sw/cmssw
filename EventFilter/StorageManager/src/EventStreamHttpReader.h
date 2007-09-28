@@ -1,7 +1,7 @@
 #ifndef STREAMER_EVENTSTREAMHTTPREADER_H
 #define STREAMER_EVENTSTREAMHTTPREADER_H
 
-// $Id: EventStreamHttpReader.h,v 1.14 2007/07/30 04:50:43 wmtan Exp $
+// $Id: EventStreamHttpReader.h,v 1.15 2007/09/14 13:18:31 hcheung Exp $
 
 #include "IOPool/Streamer/interface/EventBuffer.h"
 #include "IOPool/Streamer/interface/StreamerInputSource.h"
@@ -51,6 +51,13 @@ namespace edm
     bool endRunAlreadyNotified_;
     bool runEnded_;
     bool alreadySaidHalted_;
+    enum
+    {
+      DEFAULT_MAX_CONNECT_TRIES = 360,
+      DEFAULT_CONNECT_TRY_SLEEP_TIME = 10
+    };
+    int maxConnectTries_;
+    int connectTrySleepTime_;
   };
 
 }
