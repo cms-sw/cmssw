@@ -10,6 +10,7 @@
 #include "OnlineDB/CSCCondDB/interface/CSCscaAnalyzer.h"
 #include "OnlineDB/CSCCondDB/interface/CSCCFEBConnectivityAnalyzer.h"
 #include "OnlineDB/CSCCondDB/interface/CSCSaturationAnalyzer.h"
+#include "OnlineDB/CSCCondDB/interface/CSCChamberMapValues.h"
 #include "OnlineDB/CSCCondDB/interface/CSCCrateMapValues.h"
 #include "OnlineDB/CSCCondDB/interface/CSCDDUMapValues.h"
 
