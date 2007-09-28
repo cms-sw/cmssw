@@ -32,10 +32,11 @@ namespace reco {
     
     const PFCandidateRef& leadPFChargedHadrCand()const; 
     void setleadPFChargedHadrCand(const PFCandidateRef&);
-    //  the signed transverse impact parameter significance of the Track constituting the leading charged hadron PFCandidate 
+    // signed transverse impact parameter significance of the Track constituting the leading charged hadron PFCandidate 
     float leadPFChargedHadrCandsignedSipt()const;
     void setleadPFChargedHadrCandsignedSipt(const float&);
     
+    // XXX PFCandidates which passed quality cuts and are inside a tracker/ECAL/HCAL signal cone around leading charged hadron PFCandidate
     const PFCandidateRefVector& signalPFCands()const;
     void setsignalPFCands(const PFCandidateRefVector&);
     const PFCandidateRefVector& signalPFChargedHadrCands()const;
@@ -45,6 +46,7 @@ namespace reco {
     const PFCandidateRefVector& signalPFGammaCands()const;
     void setsignalPFGammaCands(const PFCandidateRefVector&);
     
+    // XXX PFCandidates which passed quality cuts and are inside a tracker/ECAL/HCAL isolation annulus around leading charged hadron PFCandidate
     const PFCandidateRefVector& isolationPFCands()const;
     void setisolationPFCands(const PFCandidateRefVector&);
     const PFCandidateRefVector& isolationPFChargedHadrCands()const;
@@ -54,11 +56,11 @@ namespace reco {
     const PFCandidateRefVector& isolationPFGammaCands()const;
     void setisolationPFGammaCands(const PFCandidateRefVector&);
 
-    // sum of Pt of the isolation annulus charged hadr. PFCandidates
+    // sum of Pt of the charged hadr. PFCandidates inside a tracker isolation annulus around leading charged hadron PFCandidate ; NaN if no leading charged hadron PFCandidate
     float isolationPFChargedHadrCandsPtSum()const;
     void setisolationPFChargedHadrCandsPtSum(const float&);
    
-    // sum of Et of the isolation annulus gamma PFCandidates 
+    // sum of Et of the gamma PFCandidates inside an ECAL isolation annulus around leading charged hadron PFCandidate ; NaN if no leading charged hadron PFCandidate 
     float isolationPFGammaCandsEtSum()const;
     void setisolationPFGammaCandsEtSum(const float&);
     

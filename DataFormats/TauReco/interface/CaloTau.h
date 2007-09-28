@@ -6,7 +6,7 @@
  *                          is a hadronic tau-jet candidate -built from a calo. jet- that analysts manipulate;
  * authors: Simone Gennai (simone.gennai@cern.ch), Ludovic Houchu (Ludovic.Houchu@cern.ch)
  * created: Jun 21 2007,
- * revised: Sep 12 2007
+ * revised: Sep 28 2007
  */
 #include "DataFormats/Math/interface/LorentzVector.h"
 #include "DataFormats/TauReco/interface/BaseTau.h"
@@ -28,23 +28,23 @@ namespace reco {
     const CaloTauTagInfoRef& caloTauTagInfoRef()const;
     void setcaloTauTagInfoRef(const CaloTauTagInfoRef);
     
-    // signed transverse impact parameter significance of the leading Track
+    // signed transverse impact parameter significance of leading Track ; NaN if no leading Track
     float leadTracksignedSipt()const;
     void setleadTracksignedSipt(const float&);
     
-    // invariant mass of the signal Tracks system
+    // invariant mass of the system of Tracks inside a signal cone around leading Track ; NaN if no leading Track
     float signalTracksInvariantMass()const;
     void setsignalTracksInvariantMass(const float&);
     
-    // invariant mass of the Tracks system
+    // invariant mass of the system of Tracks ; NaN if no Track
     float TracksInvariantMass()const;
     void setTracksInvariantMass(const float&);
 
-    // sum of Pt of the isolation annulus Tracks
+    // sum of Pt of the Tracks inside a tracker isolation annulus around leading Track ; NaN if no leading Track
     float isolationTracksPtSum()const;
     void setisolationTracksPtSum(const float&);
    
-    // sum of Et of the isolation annulus ECAL RecHits
+    // sum of Et of ECAL RecHits inside an ECAL isolation annulus around leading Track ; NaN if no leading Track 
     float isolationECALhitsEtSum()const;
     void setisolationECALhitsEtSum(const float&);
   
