@@ -1,5 +1,5 @@
 //
-// $Id: TopJetProducer.cc,v 1.21 2007/09/17 22:37:39 jandrea Exp $
+// $Id: TopJetProducer.cc,v 1.22 2007/09/28 13:50:57 lowette Exp $
 //
 
 #include "TopQuarkAnalysis/TopObjectProducers/interface/TopJetProducer.h"
@@ -14,7 +14,7 @@
 #include "DataFormats/BTauReco/interface/TrackCountingTagInfoFwd.h"
 #include "DataFormats/BTauReco/interface/SoftLeptonTagInfo.h"
 #include "DataFormats/BTauReco/interface/SoftLeptonTagInfoFwd.h"
-#include "RecoBTag/MCTools/interface/JetFlavourIdentifier.h"
+#include "DataFormats/Candidate/interface/CandMatchMap.h"
 #include "PhysicsTools/Utilities/interface/DeltaR.h"
 
 #include "TopQuarkAnalysis/TopObjectResolutions/interface/TopObjectResolutionCalc.h"
@@ -32,11 +32,12 @@ TopJetProducer::TopJetProducer(const edm::ParameterSet& iConfig) {
   recJetsLabel_                  = iConfig.getParameter<edm::InputTag> ("recJetInput");
   caliJetsLabel_                 = iConfig.getParameter<edm::InputTag> ("caliJetInput");
   // TEMP Jet cleaning from electrons
-  topElectronsLabel_           = iConfig.getParameter<edm::InputTag> ("topElectronsInput");
-  topMuonsLabel_               = iConfig.getParameter<edm::InputTag> ("topMuonsInput");
-  doJetCleaning_               = iConfig.getParameter<bool> 	       ("doJetCleaning");
+  topElectronsLabel_             = iConfig.getParameter<edm::InputTag> ("topElectronsInput");
+  topMuonsLabel_                 = iConfig.getParameter<edm::InputTag> ("topMuonsInput");
+  doJetCleaning_                 = iConfig.getParameter<bool> 	       ("doJetCleaning");
   // TEMP End
   getJetMCFlavour_               = iConfig.getParameter<bool>          ("getJetMCFlavour");
+  jetPartonMapSource_            = iConfig.getParameter<edm::InputTag> ("JetPartonMapSource");
   doGenPartonMatch_              = iConfig.getParameter<bool>          ("doGenPartonMatch");
   genPartonSrc_                  = iConfig.getParameter<edm::InputTag> ("genPartonSrc");
   doGenJetMatch_                 = iConfig.getParameter<bool>          ("doGenJetMatch");
@@ -64,8 +65,6 @@ TopJetProducer::TopJetProducer(const edm::ParameterSet& iConfig) {
   MUISOCUT_=0.1;//cut on muon isolation for jet cleaning
   // TEMP End
     
-  // construct the jet flavour identifier
-  if (getJetMCFlavour_) jetFlavId_ = new JetFlavourIdentifier(iConfig.getParameter<edm::ParameterSet>("jetIdParameters"));
   // construct resolution calculator
   if (addResolutions_) theResoCalc_ = new TopObjectResolutionCalc(edm::FileInPath(caliJetResoFile_).fullPath(), iConfig.getParameter<bool>("useNNresolution"));
 
@@ -73,8 +72,10 @@ TopJetProducer::TopJetProducer(const edm::ParameterSet& iConfig) {
   trackAssociationPSet_     = iConfig.getParameter<edm::ParameterSet>("trackAssociation");
   simpleJetTrackAssociator_ = reco::helper::SimpleJetTrackAssociator(trackAssociationPSet_);      
   // construct Jet Charge Computer
-  jetChargePSet_ = iConfig.getParameter<edm::ParameterSet>("jetCharge");
-  jetCharge_     = new JetCharge(jetChargePSet_);
+  if (computeJetCharge_) {
+    jetChargePSet_ = iConfig.getParameter<edm::ParameterSet>("jetCharge");
+    jetCharge_     = new JetCharge(jetChargePSet_);
+  }
  
   // produces vector of jets
   produces<std::vector<TopJet> >();
@@ -82,9 +83,8 @@ TopJetProducer::TopJetProducer(const edm::ParameterSet& iConfig) {
 
 
 TopJetProducer::~TopJetProducer() {
-  if (addResolutions_) delete theResoCalc_;
-  if (getJetMCFlavour_) delete jetFlavId_;
-  delete jetCharge_;
+  if (addResolutions_)   delete theResoCalc_;
+  if (computeJetCharge_) delete jetCharge_;
 }
 
 
@@ -118,7 +118,8 @@ void TopJetProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
   }
 
   // for jet flavour
-  if (getJetMCFlavour_) jetFlavId_->readEvent(iEvent);
+  edm::Handle<reco::CandMatchMap> JetPartonMap;
+  if (getJetMCFlavour_) iEvent.getByLabel (jetPartonMapSource_, JetPartonMap);
 
   // Get the vector of generated particles from the event if needed
   edm::Handle<reco::CandidateCollection> particles;
@@ -142,7 +143,7 @@ void TopJetProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
 
   // tracks Jet Track Association, by hand in CMSSW_1_3_X
   edm::Handle<reco::TrackCollection> hTracks;
-  iEvent.getByLabel(trackAssociationPSet_.getParameter<edm::InputTag>("tracks"), hTracks);
+  iEvent.getByLabel(trackAssociationPSet_.getParameter<edm::InputTag>("tracksSource"), hTracks);
 
 
   // loop over jets
@@ -185,8 +186,15 @@ void TopJetProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
 
       // get the MC flavour information for this jet
       if (getJetMCFlavour_) {
-        JetFlavour jetFlavour = jetFlavId_->identifyBasedOnPartons((*recjets)[j]);
-        ajet.setPartonFlavour(jetFlavour.flavour());
+        for (reco::CandMatchMap::const_iterator f = JetPartonMap->begin(); f != JetPartonMap->end(); f++) {
+          const reco::Candidate * jetClone = f->key->masterClone().get();
+          // if (jetClone == &((*recjets)[j])) { // comparison by address doesn't work
+          if (fabs(jetClone->pt()  - (*recjets)[j].pt()) < 0.001 &&
+              fabs(jetClone->eta() - (*recjets)[j].eta()) < 0.001 &&
+              fabs(jetClone->phi() - (*recjets)[j].phi()) < 0.001) {
+            ajet.setPartonFlavour(f->val->pdgId());
+          }
+        }
       }
       // do the parton matching
       if (doGenPartonMatch_) {

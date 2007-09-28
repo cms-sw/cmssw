@@ -1,5 +1,5 @@
 //
-// $Id: TopJetProducer.h,v 1.18 2007/09/20 18:12:24 lowette Exp $
+// $Id: TopJetProducer.h,v 1.19 2007/09/28 13:50:56 lowette Exp $
 //
 
 #ifndef TopObjectProducers_TopJetProducer_h
@@ -13,7 +13,7 @@
    with possible adding of resolutions and more things to come
 
   \author   Jan Heyninck
-  \version  $Id: TopJetProducer.h,v 1.18 2007/09/20 18:12:24 lowette Exp $
+  \version  $Id: TopJetProducer.h,v 1.19 2007/09/28 13:50:56 lowette Exp $
 */
 
 
@@ -65,6 +65,7 @@ class TopJetProducer : public edm::EDProducer {
     float MUISOCUT_;
     // TEMP End
     bool          getJetMCFlavour_;
+    edm::InputTag jetPartonMapSource_;
     bool          doGenPartonMatch_;
     edm::InputTag genPartonSrc_;
     bool          doGenJetMatch_;
@@ -90,9 +91,8 @@ class TopJetProducer : public edm::EDProducer {
 
     // tools
     TopObjectResolutionCalc *   theResoCalc_;
-    JetFlavourIdentifier *      jetFlavId_;
-    GreaterByEt<TopJet>         eTComparator_;
     JetCharge *                 jetCharge_;
+    GreaterByEt<TopJet>         eTComparator_;
     reco::helper::SimpleJetTrackAssociator    simpleJetTrackAssociator_;
 
 };
