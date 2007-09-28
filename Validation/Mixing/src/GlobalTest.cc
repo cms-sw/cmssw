@@ -10,7 +10,7 @@
 //
 // Original Author:  Ursula Berthon
 //         Created:  Fri Sep 23 11:38:38 CEST 2005
-// $Id: GlobalTest.cc,v 1.3 2007/03/09 10:23:35 uberthon Exp $
+// $Id: GlobalTest.cc,v 1.4 2007/09/10 12:31:38 uberthon Exp $
 //
 //
 
@@ -31,6 +31,9 @@
 #include "SimDataFormats/CrossingFrame/interface/CrossingFrame.h"
 #include "SimDataFormats/CrossingFrame/interface/MixCollection.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHit.h"
+
+#include "SimDataFormats/CaloHit/interface/PCaloHitContainer.h"
+#include "SimDataFormats/Track/interface/SimTrackContainer.h"
 
 #include "Validation/Mixing/interface/GlobalTest.h"
 #include "TFile.h"

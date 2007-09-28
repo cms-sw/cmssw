@@ -44,6 +44,7 @@
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/CommonDetUnit/interface/GeomDetType.h"
 #include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
+#include "SimDataFormats/Track/interface/SimTrackContainer.h"
 
 #include <TTree.h>
 #include <TFile.h>

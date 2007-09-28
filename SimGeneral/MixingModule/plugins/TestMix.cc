@@ -10,7 +10,7 @@
 //
 // Original Author:  Ursula Berthon
 //         Created:  Fri Sep 23 11:38:38 CEST 2005
-// $Id: TestMix.cc,v 1.3 2007/08/03 13:09:03 uberthon Exp $
+// $Id: TestMix.cc,v 1.4 2007/09/28 09:25:25 uberthon Exp $
 //
 //
 
@@ -34,6 +34,12 @@
 #include "SimDataFormats/TrackingHit/interface/PSimHit.h"
 
 #include "TestMix.h"
+
+#include "SimDataFormats/CaloHit/interface/PCaloHitContainer.h"
+#include "SimDataFormats/Track/interface/SimTrackContainer.h"
+#include "SimDataFormats/Vertex/interface/SimVertexContainer.h"
+#include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
+
 
 using namespace edm;
 
