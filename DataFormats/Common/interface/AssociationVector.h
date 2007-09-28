@@ -9,7 +9,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Revision: 1.23 $
+ * \version $Revision: 1.24 $
  */
 
 #include "FWCore/Utilities/interface/EDMException.h"
@@ -78,8 +78,8 @@ namespace edm {
     size_type size() const;
     bool empty() const;
     const_reference operator[](size_type n) const;
-    const typename CVal::value_type & operator[](const KeyRef & k) const;
-    typename CVal::value_type & operator[](const KeyRef & k);
+    typename CVal::const_reference operator[](const KeyRef & k) const;
+    typename CVal::reference operator[](const KeyRef & k);
     
     self & operator=(const self & );
     
@@ -87,7 +87,7 @@ namespace edm {
     void swap(self & other);
     const KeyRefProd & keyProduct() const { return ref_; }
     KeyRef key(size_type i) const { return KeyRef(ref_, i); }
-    const typename CVal::value_type & value(size_type i) const { return data_[ i ]; }
+    const typename CVal::value_type value(size_type i) const { return data_[ i ]; }
     void setValue(size_type i, const typename CVal::value_type & val );
     void fillView(ProductID const& id,
 		  std::vector<void const*>& pointers,
@@ -130,7 +130,7 @@ namespace edm {
   }
   
   template<typename KeyRefProd, typename CVal, typename KeyRef, typename SizeType, typename KeyReferenceHelper>
-  inline const typename CVal::value_type &
+  inline typename CVal::const_reference
   AssociationVector<KeyRefProd, CVal, KeyRef, SizeType, KeyReferenceHelper>::operator[]( const KeyRef & k ) const {
     KeyRef keyRef = KeyReferenceHelper::get( k, ref_.id() );
     if ( keyRef.id() == ref_.id() ) 
@@ -142,7 +142,7 @@ namespace edm {
   }
 
   template<typename KeyRefProd, typename CVal, typename KeyRef, typename SizeType, typename KeyReferenceHelper>
-  inline typename CVal::value_type &
+  inline typename CVal::reference
   AssociationVector<KeyRefProd, CVal, KeyRef, SizeType, KeyReferenceHelper>::operator[]( const KeyRef & k ) {
     KeyRef keyRef = KeyReferenceHelper::get( k, ref_.id() );
     fixed_ = false;
