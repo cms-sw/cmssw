@@ -35,23 +35,6 @@ class EcalContainer {
                         return m_items;
                 }
 
-                inline Item & operator[](::DetId id) {
-                        if (m_items.empty()) {
-                                m_items.resize(DetId::SIZE_HASH);
-                        }
-                        static Item dummy;
-                        DetId ib(id.rawId());
-                        if ( !isValidId(ib) ) return dummy;
-                        return m_items[ib.hashedIndex()];
-                }
-
-                inline Item const & operator[](::DetId id) const {
-                        static Item dummy;
-                        DetId ib(id.rawId());
-                        if ( !isValidId(ib) ) return dummy;
-                        return m_items[ib.hashedIndex()];
-                }
-
                 inline Item & operator[](uint32_t rawId) {
                         if (m_items.empty()) {
                                 m_items.resize(DetId::SIZE_HASH);
@@ -81,6 +64,10 @@ class EcalContainer {
 
                 inline const_iterator end() const {
                         return m_items.end();
+                }
+
+                inline size_t size() const {
+                        return m_items.size();
                 }
 
         private:
