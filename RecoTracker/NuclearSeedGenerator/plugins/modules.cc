@@ -4,3 +4,9 @@ DEFINE_FWK_MODULE(NuclearSeedsEDProducer);
 
 #include "RecoTracker/NuclearSeedGenerator/interface/NuclearSeedsToTrackAssociationEDProducer.h"
 DEFINE_ANOTHER_FWK_MODULE(NuclearSeedsToTrackAssociationEDProducer);
+
+#include "RecoTracker/NuclearSeedGenerator/interface/NuclearTrackCorrector.h"
+DEFINE_ANOTHER_FWK_MODULE(NuclearTrackCorrector);
+
+
+
