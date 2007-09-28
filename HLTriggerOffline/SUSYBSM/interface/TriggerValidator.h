@@ -6,7 +6,7 @@
 // Package:    TriggerValidator
 // Class:      TriggerValidator
 // 
-/**\class TriggerValidator TriggerValidator.cc SusyBsmTriggerPerformance/TriggerValidator/src/TriggerValidator.cc
+/**\class TriggerValidator TriggerValidator.cc HLTriggerOffline/SUSYBSM/src/TriggerValidator.cc
 
  Description: Class to validate the Trigger Performance of the SUSYBSM group
 
@@ -66,10 +66,6 @@ class TriggerValidator : public edm::EDAnalyzer {
       std::vector<std::string> l1Names_;    
       // name of each hlt algorithm
       std::vector<std::string>  hlNames_;  
-
-/*       //TList with the names of the bits */
-/*       TList* lL1Names; */
-/*       TList* lHLTNames; */
 
 
       //Counters for L1 and HLT

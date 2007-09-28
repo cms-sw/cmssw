@@ -3,7 +3,7 @@
 // Package:    TriggerValidator
 // Class:      TriggerValidator
 // 
-/**\class TriggerValidator TriggerValidator.cc SusyBsmTriggerPerformance/TriggerValidator/src/TriggerValidator.cc
+/**\class TriggerValidator TriggerValidator.cc HLTriggerOffline/SUSYBSM/src/TriggerValidator.cc
 
  Description: Class to validate the Trigger Performance of the SUSYBSM group
 
@@ -193,7 +193,7 @@ TriggerValidator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
   }
 
 
-  for(int iL1=0; iL1<nL1size; iL1++) {
+  for(unsigned int iL1=0; iL1<nL1size; iL1++) {
     for(unsigned int iHLT=0; iHLT<(*(trhv[iRefHlt])).size(); iHLT++) {
       if(l1bits[iL1] && hltbits[iHLT]) hL1HltMap->Fill(iL1,iHLT);
     }
@@ -222,6 +222,7 @@ TriggerValidator::beginJob(const edm::EventSetup&)
   // Initialize ROOT output file
    theHistoFile = new TFile(HistoFileName.c_str(), "RECREATE");
    theHistoFile->mkdir("TriggerBits");
+   theHistoFile->mkdir("Selection");
    TDirectory* dirL1Jets = theHistoFile->mkdir("L1Jets");
    TDirectory* dirL1JetsCentral = dirL1Jets->mkdir("Central");
    TDirectory* dirL1JetsForward = dirL1Jets->mkdir("Forward");
@@ -264,6 +265,10 @@ TriggerValidator::beginJob(const edm::EventSetup&)
    dirRecoMuons->mkdir("General");
    dirRecoMuons->mkdir("L1");
    dirRecoMuons->mkdir("HLT");
+   TDirectory* dirRecoPhotons = theHistoFile->mkdir("RecoPhotons");
+   dirRecoPhotons->mkdir("General");
+   dirRecoPhotons->mkdir("L1");
+   dirRecoPhotons->mkdir("HLT");
    TDirectory* dirRecoMET = theHistoFile->mkdir("RecoMET");
    dirRecoMET->mkdir("General");
    dirRecoMET->mkdir("L1");
@@ -271,11 +276,12 @@ TriggerValidator::beginJob(const edm::EventSetup&)
   
 
    theHistoFile->cd("/TriggerBits");   
-   hL1BitsBeforeCuts  = new TH1D("L1BitsBeforeCuts", "L1 Trigger Bits Before Cuts",1, 0, 1);
-   hHltBitsBeforeCuts = new TH1D("HltBitsBeforeCuts","HL Trigger Bits Before Cuts",1, 0, 1);
-   hL1BitsAfterCuts  = new TH1D("L1BitsAfterCuts", "L1 Trigger Bits After Cuts",1, 0, 1);
-   hHltBitsAfterCuts = new TH1D("HltBitsAfterCuts","HL Trigger Bits After Cuts",1, 0, 1);
+   hL1BitsBeforeCuts  = new TH1D("L1Bits", "L1 Trigger Bits",1, 0, 1);
+   hHltBitsBeforeCuts = new TH1D("HltBits","HL Trigger Bits",1, 0, 1);
    hL1HltMap         = new TH2D("L1HltMap", "Map of L1 and HLT bits", 1, 0, 1, 1, 0, 1);
+   theHistoFile->cd("/Selection");   
+   hL1BitsAfterCuts  = new TH1D("L1Bits", "L1 Trigger Bits",1, 0, 1);
+   hHltBitsAfterCuts = new TH1D("HltBits","HL Trigger Bits",1, 0, 1);
    theHistoFile->cd();   
 
 //    lL1Names = new TList();
@@ -288,26 +294,29 @@ void
 TriggerValidator::endJob() {
 
   theHistoFile->cd("/TriggerBits");
+  hL1PathsBeforeCuts  = (TH1D*) hL1BitsBeforeCuts ->Clone("L1Paths");
+  hHltPathsBeforeCuts = (TH1D*) hHltBitsBeforeCuts->Clone("HltPaths");	
+
+  theHistoFile->cd("/Selection");
+  hL1PathsAfterCuts   = (TH1D*) hL1BitsAfterCuts  ->Clone("L1Paths");
+  hHltPathsAfterCuts  = (TH1D*) hHltBitsAfterCuts ->Clone("HltPaths"); 
+
   
-  hL1PathsBeforeCuts  = (TH1D*) hL1BitsBeforeCuts ->Clone("L1PathsBeforeCuts ");
-  hHltPathsBeforeCuts = (TH1D*) hHltBitsBeforeCuts->Clone("HltPathsBeforeCuts");	
-  hL1PathsAfterCuts   = (TH1D*) hL1BitsAfterCuts  ->Clone("L1PathsAfterCuts  ");
-  hHltPathsAfterCuts  = (TH1D*) hHltBitsAfterCuts ->Clone("HltPathsAfterCuts "); 
-  
-  for(unsigned int i=0; i<l1Names_.size(); ++i) {
+  for(int i=0; i<l1Names_.size(); ++i) {
     hL1PathsBeforeCuts->GetXaxis()->SetBinLabel(i+1,l1Names_[i].c_str());
     hL1PathsAfterCuts->GetXaxis()->SetBinLabel(i+1,l1Names_[i].c_str());
   }
-  
-  for (unsigned int i=0; i<hlNames_.size(); ++i) {
+  for (int i=0; i<hlNames_.size(); ++i) {
     hHltPathsBeforeCuts->GetXaxis()->SetBinLabel(i+1,hlNames_[i].c_str());
     hHltPathsAfterCuts->GetXaxis()->SetBinLabel(i+1,hlNames_[i].c_str());
   }
 
+
+  theHistoFile->cd("/TriggerBits");
   double normContent = 0;
   hL1HltMapNorm = (TH2D*) hL1HltMap->Clone("L1HltMapNorm");
-  for(int iL1=1; iL1<hL1BitsBeforeCuts->GetNbinsX()+1; iL1++) {
-    for(int iHLT=1; iHLT<hHltBitsBeforeCuts->GetNbinsX()+1; iHLT++) {
+  for(unsigned int iL1=1; iL1<hL1BitsBeforeCuts->GetNbinsX()+1; iL1++) {
+    for(unsigned int iHLT=1; iHLT<hHltBitsBeforeCuts->GetNbinsX()+1; iHLT++) {
       if(hL1HltMap->GetBinContent(iL1,iHLT) == 0 && hHltBitsBeforeCuts->GetBinContent(iHLT) == 0) {
 	normContent = 0;
       } else {
@@ -317,33 +326,9 @@ TriggerValidator::endJob() {
     }
   }
   
-
   theHistoFile->cd();
   
   
-//   cout << "l1Names_.size() = " << l1Names_.size() << endl;
-//   TObjString l1BitName;
-//   for (int i=0; i<l1Names_.size(); ++i) {
-//     l1BitName.String() = l1Names_[i];
-//     cout << "l1BitName " << l1BitName.String() << endl;
-//     lL1Names->Add(&l1BitName);
-//   }
-  
-//   cout << "hlNames_.size() = " << hlNames_.size() << endl;
-//   TObjString hltBitName;
-//   for (int i=0; i<hlNames_.size(); ++i) {
-//     hltBitName.String() = hlNames_[i];
-//     cout << "hltBitName " <<  hltBitName.String() << endl;
-//     lHLTNames->Add(&hltBitName);
-//   }
-  
-//   lL1Names->Write("L1Names",1);
-//   lHLTNames->Write("HLTNames",1);
-  
-//   gDirectory->Write(numTotL1BitsBeforeCuts, "numTotL1BitsBeforeCuts");
-//   gDirectory->Write(l1Names_, "l1Names");
-  
-
   theHistoFile->Write();
   theHistoFile->Close() ;
 

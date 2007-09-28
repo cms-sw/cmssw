@@ -58,17 +58,23 @@ class PlotMaker {
   std::string m_jetsSrc;
   std::string m_photonSrc;
   std::string m_calometSrc;
-  
-  const reco::PixelMatchGsfElectronCollection* theElectronCollection;  
-  const reco::MuonCollection*                  theMuonCollection    ;
-  const reco::PhotonCollection*                thePhotonCollection  ;
-  const reco::CaloJetCollection*               theCaloJetCollection ;
-  const reco::CaloMETCollection*               theCaloMETCollection ;
 
-  const l1extra::L1EmParticleCollection *theL1EmIsoCollection, *theL1EmNotIsoCollection;
-  const l1extra::L1MuonParticleCollection* theL1MuonCollection;
-  const l1extra::L1JetParticleCollection *theL1CentralJetCollection, *theL1ForwardJetCollection, *theL1TauJetCollection;
-  const l1extra::L1EtMissParticle* theL1METCollection;
+
+  double def_electronPtMin; 
+  double def_muonPtMin    ; 
+  double def_jetPtMin     ; 
+  double def_photonPtMin  ; 
+  
+  reco::PixelMatchGsfElectronCollection theElectronCollection;
+  reco::MuonCollection                  theMuonCollection    ;
+  reco::PhotonCollection                thePhotonCollection  ;
+  reco::CaloJetCollection               theCaloJetCollection ;
+  reco::CaloMETCollection               theCaloMETCollection ;
+
+  l1extra::L1EmParticleCollection theL1EmIsoCollection, theL1EmNotIsoCollection;
+  l1extra::L1MuonParticleCollection theL1MuonCollection;
+  l1extra::L1JetParticleCollection theL1CentralJetCollection, theL1ForwardJetCollection, theL1TauJetCollection;
+  l1extra::L1EtMissParticle theL1METCollection;
 
   //histos
 
@@ -212,6 +218,26 @@ class PlotMaker {
   std::vector<TH1D*> hL1Muon2EtaAfterHLT;
   std::vector<TH1D*> hMuon2EtaAfterL1;
   std::vector<TH1D*> hMuon2EtaAfterHLT;
+
+
+  //Photons
+  TH1D* hPhotonMult;
+  std::vector<TH1D*> hPhotonMultAfterL1;
+  std::vector<TH1D*> hPhotonMultAfterHLT;
+  TH1D* hPhoton1Pt;
+  std::vector<TH1D*> hPhoton1PtAfterL1;
+  std::vector<TH1D*> hPhoton1PtAfterHLT;
+  TH1D* hPhoton2Pt;
+  std::vector<TH1D*> hPhoton2PtAfterL1;
+  std::vector<TH1D*> hPhoton2PtAfterHLT;
+  TH1D* hPhoton1Eta;
+  std::vector<TH1D*> hPhoton1EtaAfterL1;
+  std::vector<TH1D*> hPhoton1EtaAfterHLT;
+  TH1D* hPhoton2Eta;
+  std::vector<TH1D*> hPhoton2EtaAfterL1;
+  std::vector<TH1D*> hPhoton2EtaAfterHLT;
+  
+
   
   //MET
   TH1D* hL1MET;
