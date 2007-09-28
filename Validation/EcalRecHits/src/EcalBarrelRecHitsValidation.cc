@@ -1,7 +1,7 @@
 /*
  * \file EcalBarrelRecHitsValidation.cc
  *
- * $Date: 2006/10/26 08:33:11 $
+ * $Date: 2007/08/08 16:20:40 $
  * \author C. Rovelli
  *
  */
@@ -223,10 +223,10 @@ void EcalBarrelRecHitsValidation::analyze(const Event& e, const EventSetup& c){
 	
 	  // ratio uncalibratedRecHit amplitude + ped / max energy digi  
 	  const EcalPedestals* myped = ecalPeds.product();
-	  std::map<const unsigned int,EcalPedestals::Item>::const_iterator it=myped->m_pedestals.find(EBid.rawId());
-	  if( it != myped->m_pedestals.end() ){
+	  EcalPedestalsMap::const_iterator it=myped->getMap().find( EBid );
+	  if( it != myped->getMap().end() ){
 
-	    if (eMax > it->second.mean_x1 + 5 * it->second.rms_x1 ) {//only real signal RecHit
+	    if (eMax > (*it).mean_x1 + 5 * (*it).rms_x1 ) {//only real signal RecHit
 
 	      if ( meEBUncalibRecHitMaxSampleRatio_ ) meEBUncalibRecHitMaxSampleRatio_->Fill( (uncalibRecHit->amplitude()+uncalibRecHit->pedestal())/eMax);
 	      if ( meEBUncalibRecHitMaxSampleRatioGt100adc_ && (uncalibRecHit->amplitude()>100) ) meEBUncalibRecHitMaxSampleRatioGt100adc_->Fill( (uncalibRecHit->amplitude()+uncalibRecHit->pedestal())/eMax);
