@@ -28,6 +28,8 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
+#include "SimDataFormats/CaloHit/interface/PCaloHitContainer.h"
+
 EcalLocalRecoTask::EcalLocalRecoTask(const ParameterSet& ps)
 {
   
@@ -270,7 +272,7 @@ void EcalLocalRecoTask::analyze(const Event& e, const EventSetup& c)
 
       if (myDigi != EBDigi->end())
 	{
-	  for (unsigned int sample = 0 ; sample < myDigi->size () ; ++sample)
+	  for (int sample = 0 ; sample < myDigi->size () ; ++sample)
 	    {
 	      double analogSample=EcalMGPASample((*myDigi)[sample]).adc() ;
 	      if ( eMax < analogSample )
@@ -284,10 +286,10 @@ void EcalLocalRecoTask::analyze(const Event& e, const EventSetup& c)
 	continue;
       
       const EcalPedestals* myped=pPeds.product();
-      EcalPedestals::const_iterator it = myped->getMap().find( EBid );
-      if( it!=myped->getMap().end() )
+      std::map<const unsigned int,EcalPedestals::Item>::const_iterator it=myped->m_pedestals.find(EBid.rawId());
+      if( it!=myped->m_pedestals.end() )
 	{
-	  if (eMax> (*it).mean_x1 + 5 * (*it).rms_x1 ) //only real signal RecHit
+	  if (eMax> it->second.mean_x1 + 5 * it->second.rms_x1 ) //only real signal RecHit
 	    {
 	      if (meEBUncalibRecHitMaxSampleRatio_) meEBUncalibRecHitMaxSampleRatio_->Fill( (uncalibRecHit->amplitude()+uncalibRecHit->pedestal()) /eMax);
 	      LogInfo("EcalLocalRecoTaskInfo") << " eMax = " << eMax << " Amplitude = " << uncalibRecHit->amplitude()+uncalibRecHit->pedestal();  
