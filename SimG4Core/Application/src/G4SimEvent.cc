@@ -68,14 +68,14 @@ void G4SimEvent::load(edm::SimTrackContainer & c) const
 	int ig              = trk->igenpart();
 	int id              = trk->id();
 	// Hep3Vector tkpos    = trk->trackerSurfacePosition();
-	math::XYZVectorD tkpos( trk->trackerSurfacePosition().x(),
-	                        trk->trackerSurfacePosition().y(),
-			        trk->trackerSurfacePosition().z() ) ;
+	math::XYZVectorD tkpos( trk->trackerSurfacePosition().x()/cm,
+	                        trk->trackerSurfacePosition().y()/cm,
+			        trk->trackerSurfacePosition().z()/cm ) ;
 	// HepLorentzVector tkmom  = trk->trackerSurfaceMomentum();
-	math::XYZTLorentzVectorD tkmom( trk->trackerSurfaceMomentum().x(),
-	                                trk->trackerSurfaceMomentum().y(),
-	                                trk->trackerSurfaceMomentum().z(),
-				        trk->trackerSurfaceMomentum().e() ) ;
+	math::XYZTLorentzVectorD tkmom( trk->trackerSurfaceMomentum().x()/GeV,
+	                                trk->trackerSurfaceMomentum().y()/GeV,
+	                                trk->trackerSurfaceMomentum().z()/GeV,
+				        trk->trackerSurfaceMomentum().e()/GeV ) ;
 	// ip = particle ID as PDG
 	// pp = 4-momentum
 	// iv = corresponding G4SimVertex index

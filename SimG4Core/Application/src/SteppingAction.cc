@@ -85,8 +85,8 @@ void SteppingAction::catchLowEnergyInVacuumNext(const G4Step * aStep)
 void SteppingAction::storeTkCaloStateInfo(const G4Step * aStep)
 {
   Hep3Vector pos = aStep->GetPreStepPoint()->GetPosition();
-  HepLorentzVector mom = HepLorentzVector(aStep->GetPreStepPoint()->GetMomentum()/GeV,
-					       aStep->GetPreStepPoint()->GetTotalEnergy()/GeV);
+  HepLorentzVector mom = HepLorentzVector(aStep->GetPreStepPoint()->GetMomentum(),
+					       aStep->GetPreStepPoint()->GetTotalEnergy());
   uint32_t id = aStep->GetTrack()->GetTrackID();
 
   if((aStep->GetPreStepPoint()->GetPhysicalVolume()->GetLogicalVolume()->GetName()=="Tracker"&& 
