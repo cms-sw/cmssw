@@ -1,10 +1,11 @@
 //
-// $Id: TopMuonProducer.cc,v 1.14 2007/09/20 18:07:41 lowette Exp $
+// $Id: TopMuonProducer.cc,v 1.15 2007/09/21 01:01:04 lowette Exp $
 //
 
 #include "TopQuarkAnalysis/TopObjectProducers/interface/TopMuonProducer.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/FileInPath.h"
 
 #include "DataFormats/HepMCCandidate/interface/GenParticleCandidate.h"
 #include "PhysicsTools/Utilities/interface/DeltaR.h"
@@ -37,11 +38,10 @@ TopMuonProducer::TopMuonProducer(const edm::ParameterSet & iConfig) {
   // likelihood ratio configurables
   addLRValues_   = iConfig.getParameter<bool>         ( "addLRValues" );
   muonLRFile_    = iConfig.getParameter<std::string>  ( "muonLRFile" );
-  tracksSrc_     = iConfig.getParameter<edm::InputTag>( "tracksSrc" );
 
   // construct resolution calculator
   if (addResolutions_) {
-    theResoCalc_ = new TopObjectResolutionCalc(muonResoFile_, useNNReso_);
+    theResoCalc_ = new TopObjectResolutionCalc(edm::FileInPath(muonResoFile_).fullPath(), useNNReso_);
   }
 
   // produces vector of muons
@@ -71,7 +71,7 @@ void TopMuonProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetu
 
   // prepare LR calculation
   if (addLRValues_) {
-    theLeptonLRCalc_ = new TopLeptonLRCalc(iSetup, "", muonLRFile_, "", tracksSrc_);
+    theLeptonLRCalc_ = new TopLeptonLRCalc(iSetup, "", edm::FileInPath(muonLRFile_).fullPath(), "");
   }
 
   // loop over muons
