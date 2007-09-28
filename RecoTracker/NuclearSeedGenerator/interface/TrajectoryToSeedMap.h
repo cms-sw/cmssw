@@ -12,6 +12,7 @@
 
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackBase.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
 
     typedef std::vector<Trajectory> TrajectoryCollection;
 
