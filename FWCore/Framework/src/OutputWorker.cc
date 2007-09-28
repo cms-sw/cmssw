@@ -1,6 +1,6 @@
 
 /*----------------------------------------------------------------------
-$Id: OutputWorker.cc,v 1.25 2007/09/04 19:39:37 paterno Exp $
+$Id: OutputWorker.cc,v 1.26 2007/09/11 21:57:19 paterno Exp $
 ----------------------------------------------------------------------*/
 
 #include "FWCore/Framework/interface/OutputModule.h"
@@ -89,4 +89,6 @@ namespace edm {
   int OutputWorker::eventCount() const {
     return mod_->eventCount();
   }
+
+  bool OutputWorker::wantAllEvents() const {return mod_->wantAllEvents();}
 }

@@ -6,7 +6,7 @@
 OutputModule: The base class of all "modules" that write Events to an
 output stream.
 
-$Id: OutputModule.h,v 1.54 2007/09/13 20:16:25 paterno Exp $
+$Id: OutputModule.h,v 1.55 2007/09/18 18:06:46 chrjones Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -75,7 +75,7 @@ namespace edm {
     boost::array<bool, NumBranchTypes> const& hasNewlyDroppedBranch() const {return hasNewlyDroppedBranch_;}
 
     static void fillDescription(edm::ParameterSetDescription&);
-    bool const& wantAllEvents() const {return wantAllEvents_;}
+    bool wantAllEvents() const {return wantAllEvents_;}
 
   protected:
     //const Trig& getTriggerResults(Event const& ep) const;
