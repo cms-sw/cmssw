@@ -23,7 +23,10 @@ CSCDigiValidation::CSCDigiValidation(const edm::ParameterSet & ps)
 
   theStripDigiValidation = new CSCStripDigiValidation(dbe_, ps.getParameter<edm::InputTag>("stripDigiTag"), doSim);
   theWireDigiValidation  = new CSCWireDigiValidation(dbe_, ps.getParameter<edm::InputTag>("wireDigiTag"), doSim);
-  theComparatorDigiValidation  = new CSCComparatorDigiValidation(dbe_, ps.getParameter<edm::InputTag>("comparatorDigiTag"));
+  theComparatorDigiValidation  = new CSCComparatorDigiValidation(dbe_, 
+              ps.getParameter<edm::InputTag>("comparatorDigiTag"),
+              ps.getParameter<edm::InputTag>("stripDigiTag"));
+
 
   if(doSim)
   {
