@@ -1,10 +1,11 @@
 //
-// $Id: TopElectronProducer.cc,v 1.21 2007/09/20 18:12:24 lowette Exp $
+// $Id: TopElectronProducer.cc,v 1.22 2007/09/21 00:28:15 lowette Exp $
 //
 
 #include "TopQuarkAnalysis/TopObjectProducers/interface/TopElectronProducer.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/FileInPath.h"
 
 #include "DataFormats/HepMCCandidate/interface/GenParticleCandidate.h"
 #include "PhysicsTools/Utilities/interface/DeltaR.h"
@@ -36,9 +37,9 @@ TopElectronProducer::TopElectronProducer(const edm::ParameterSet & iConfig) {
   electronResoFile_ = iConfig.getParameter<std::string>  ( "electronResoFile" );
   // isolation configurables
   doTrkIso_         = iConfig.getParameter<bool>         ( "doTrkIsolation" );
-  tracksSrc_        = iConfig.getParameter<edm::InputTag>( "tracksSrc" );
+  tracksSrc_        = iConfig.getParameter<edm::InputTag>( "tracksSource" );
   doCalIso_         = iConfig.getParameter<bool>         ( "doCalIsolation" );
-  towerSrc_         = iConfig.getParameter<edm::InputTag>( "towerSrc" );
+  towerSrc_         = iConfig.getParameter<edm::InputTag>( "towerSource" );
   // electron ID configurables
   addElecID_        = iConfig.getParameter<bool>         ( "addElectronID" );
   elecIDSrc_        = iConfig.getParameter<edm::InputTag>( "electronIDSource" );
@@ -48,7 +49,7 @@ TopElectronProducer::TopElectronProducer(const edm::ParameterSet & iConfig) {
 
   // construct resolution calculator
   if(addResolutions_){
-    theResoCalc_= new TopObjectResolutionCalc(electronResoFile_, useNNReso_);
+    theResoCalc_= new TopObjectResolutionCalc(edm::FileInPath(electronResoFile_).fullPath(), useNNReso_);
   }
 
   // produces vector of muons
@@ -104,7 +105,7 @@ void TopElectronProducer::produce(edm::Event & iEvent, const edm::EventSetup & i
   
   // prepare LR calculation
   if(addLRValues_) {
-    theLeptonLRCalc_= new TopLeptonLRCalc(iSetup, electronLRFile_, "", "", tracksSrc_);
+    theLeptonLRCalc_= new TopLeptonLRCalc(iSetup, edm::FileInPath(electronLRFile_).fullPath(), "", "");
   }
 
   std::vector<TopElectron> * topElectrons = new std::vector<TopElectron>();
