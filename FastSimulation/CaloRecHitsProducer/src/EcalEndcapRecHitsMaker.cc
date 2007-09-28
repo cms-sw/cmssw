@@ -154,19 +154,24 @@ void EcalEndcapRecHitsMaker::init(const edm::EventSetup &es,bool doDigis,bool do
       edm::ESHandle<EcalIntercalibConstants> pIcal;
       es.get<EcalIntercalibConstantsRcd>().get(pIcal);
       const EcalIntercalibConstants* ical = pIcal.product();
-      const EcalIntercalibConstants::EcalIntercalibConstantMap& icalMap=ical->getMap();
-      EcalIntercalibConstants::EcalIntercalibConstantMap::const_iterator icalMapit=icalMap.begin();
-      EcalIntercalibConstants::EcalIntercalibConstantMap::const_iterator icalMapitend=icalMap.end();
-      for(;icalMapit!=icalMapitend;++icalMapit)
-	{
-	  DetId myDetId(icalMapit->first);
-	  if(myDetId.subdetId()==EcalEndcap)
-	    {
-	      theCalibConstants_[EEDetId(myDetId).hashedIndex()]=icalMapit->second;
-	      rms+=fabs(icalMapit->second-1.);
+//      const EcalIntercalibConstants::EcalIntercalibConstantMap& icalMap=ical->getMap();
+//      EcalIntercalibConstants::EcalIntercalibConstantMap::const_iterator icalMapit=icalMap.begin();
+//      EcalIntercalibConstants::EcalIntercalibConstantMap::const_iterator icalMapitend=icalMap.end();
+//      for(;icalMapit!=icalMapitend;++icalMapit)
+//	{
+//	  DetId myDetId(icalMapit->first);
+//	  if(myDetId.subdetId()==EcalEndcap)
+//	    {
+//	      theCalibConstants_[EEDetId(myDetId).hashedIndex()]=icalMapit->second;
+//	      rms+=fabs(icalMapit->second-1.);
+//	      ++ncells;
+//	    }
+//	}
+      theCalibConstants_ = ical->endcapItems();
+      for ( std::vector<float>::const_iterator it = theCalibConstants_.begin(); it != theCalibConstants_.end(); ++it ) {
+	      rms+=fabs(*it-1.);
 	      ++ncells;
-	    }
-	}
+      }
       rms/=(float)ncells;
       std::cout << " Found " << ncells << " cells in the endcap calibration map. RMS is " << rms << std::endl;
     }  
