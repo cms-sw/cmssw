@@ -3,6 +3,12 @@
 #include "SimDataFormats/Track/interface/SimTrack.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
 
+#include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
+#include "SimDataFormats/CaloHit/interface/PCaloHitContainer.h"
+#include "SimDataFormats/Track/interface/SimTrackContainer.h"
+#include "SimDataFormats/Vertex/interface/SimVertexContainer.h"
+#include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
+
 //using namespace std;
 using namespace edm;
 
