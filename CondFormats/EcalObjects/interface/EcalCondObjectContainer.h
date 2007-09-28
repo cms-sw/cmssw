@@ -88,12 +88,16 @@ class EcalCondObjectContainer {
                         (*this)[id] = item;
                 }
 
+                inline
                 const self & getMap() const {
                         return *this;
                 }
 
+                inline
+                size_t size() const {
+                        return eb_.size() + ee_.size();
+                }
                 // add coherent operator++, not needed now -- FIXME
-                
 
                 inline
                 Item & operator[]( uint32_t rawId ) {
@@ -117,26 +121,6 @@ class EcalCondObjectContainer {
                 }
                 
                 inline
-                Item & operator[]( ::DetId id ) {
-                        static Item dummy;
-                        switch (id.subdetId()) {
-                                case EcalBarrel :
-                                        { 
-                                                return eb_[id];
-                                        }
-                                        break;
-                                case EcalEndcap :
-                                        { 
-                                                return ee_[id];
-                                        }
-                                        break;
-                                default:
-                                        // FIXME (add throw)
-                                        return dummy;
-                        }
-                }
-                
-                inline
                 Item const & operator[]( uint32_t rawId ) const {
                         DetId id(rawId);
                         static Item dummy;
@@ -149,26 +133,6 @@ class EcalCondObjectContainer {
                                 case EcalEndcap :
                                         { 
                                                 return ee_[rawId];
-                                        }
-                                        break;
-                                default:
-                                        // FIXME (add throw)
-                                        return dummy;
-                        }
-                }
-                
-                inline
-                Item const & operator[]( ::DetId id ) const {
-                        static Item dummy;
-                        switch (id.subdetId()) {
-                                case EcalBarrel :
-                                        { 
-                                                return eb_[id];
-                                        }
-                                        break;
-                                case EcalEndcap :
-                                        { 
-                                                return ee_[id];
                                         }
                                         break;
                                 default:
