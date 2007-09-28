@@ -4,8 +4,8 @@
 /*
  * \file EcalZeroSuppressor.h
  *
- * $Date: 2006/10/26 07:48:27 $
- * $Revision: 1.2 $
+ * $Date: 2007/03/07 10:12:43 $
+ * $Revision: 1.3 $
  * \author F. Cossutti
  *
 */
@@ -27,8 +27,6 @@
 #include "SimCalorimetry/EcalZeroSuppressionAlgos/interface/TrivialAmplitudeAlgo.h"
 
 #include <vector>
-
-class EcalPedestals;
 
 template<class C> class EcalZeroSuppressor 
 {
