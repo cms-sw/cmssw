@@ -1,7 +1,8 @@
 ///////////////////////////////////////////////////////////////////////////////
 // File: DDTIDRingAlgo.cc
 // Description: Position n copies of detectors in alternate positions and
-//              also associated ICC's and cool inserts
+//              also associated ICC's 
+// Em 17Sep07: Cool inserts moved to DDTIDModulePosAlgo.h 
 ///////////////////////////////////////////////////////////////////////////////
 
 #include <cmath>
@@ -32,57 +33,25 @@ void DDTIDRingAlgo::initialize(const DDNumericArguments & nArgs,
   idNameSpace        = DDCurrentNamespace::ns();
   moduleName         = vsArgs["ModuleName"]; 
   iccName            = sArgs["ICCName"]; 
-  coolName           = sArgs["CoolName"]; 
   DDName parentName = parent().name();
   LogDebug("TIDGeom") << "DDTIDRingAlgo debug: Parent " << parentName 
 		      << "\tModule " << moduleName[0] << ", "
-		      << moduleName[1] << "\tICC " << iccName << "\tCool "
-		      << coolName << "\tNameSpace " << idNameSpace;
+		      << moduleName[1] << "\tICC " << iccName 
+                      << "\tNameSpace " << idNameSpace;
 
   number            = int (nArgs["Number"]);
   startAngle        = nArgs["StartAngle"];
   rModule           = nArgs["ModuleR"];
   zModule           = vArgs["ModuleZ"];
   rICC              = nArgs["ICCR"];
+  sICC              = nArgs["ICCShift"];
   zICC              = vArgs["ICCZ"];
-  rCool             = vArgs["CoolR"];
-  zCool             = vArgs["CoolZ"];
 
   LogDebug("TIDGeom") <<"DDTIDRingAlgo debug: Parameters for positioning--"
 		      << " StartAngle " << startAngle/deg<<" Copy Numbers "
 		      << number << " Modules at R " << rModule << " Z " 
 		      << zModule[0] << ", " << zModule[1] << " ICCs at R "
-		      << rICC << " Z " << zICC[0] << ", " << zICC[1] 
-		      << " Cools at R " << rCool[0] << ", " << rCool[1]
-		      << " Z " << zCool[0] << ", " << zCool[1];
-
-  fullHeight        = nArgs["FullHeight"];
-  dlTop             = nArgs["DlTop"];
-  dlBottom          = nArgs["DlBottom"];
-  dlHybrid          = nArgs["DlHybrid"];
-
-  LogDebug("TIDGeom") << "DDTIDRingAlgo debug: Height " << fullHeight 
-		      << " dl(Top) " << dlTop << " dl(Bottom) " << dlBottom
-		      << " dl(Hybrid) " << dlHybrid;
-
-  topFrameHeight    = nArgs["TopFrameHeight"];
-  bottomFrameHeight = nArgs["BottomFrameHeight"];
-  bottomFrameOver   = nArgs["BottomFrameOver"];
-  sideFrameWidth    = nArgs["SideFrameWidth"];
-  sideFrameOver     = nArgs["SideFrameOver"];
-  LogDebug("TIDGeom") << "DDTIDRingAlgo debug: Top Frame Height " 
-		      << topFrameHeight	<< " Extra Height at Bottom "
-		      << bottomFrameHeight << " Overlap " <<bottomFrameOver
-		      << " Side Frame Width " << sideFrameWidth
-		      << " Overlap " << sideFrameOver;
-
-  hybridHeight      = nArgs["HybridHeight"];
-  hybridWidth       = nArgs["HybridWidth"];
-  coolWidth         = nArgs["CoolWidth"];
-  coolSide          = int(nArgs["CoolSide"]);
-  LogDebug("TIDGeom") << "DDTIDRingAlgo debug: Hybrid Height " 
-		      << hybridHeight << " Width " << hybridWidth <<" Cool"
-		      << " Width " << coolWidth << " on sides " <<coolSide;
+		      << rICC << " Z " << zICC[0] << ", " << zICC[1]; 
 }
 
 void DDTIDRingAlgo::execute() {
@@ -94,41 +63,8 @@ void DDTIDRingAlgo::execute() {
   DDName mother = parent().name();
   DDName module;
   DDName icc(DDSplit(iccName).first, DDSplit(iccName).second);
-  DDName cool(DDSplit(coolName).first, DDSplit(coolName).second);
-
-  //R and Phi values for cooling pieces
-  double rr[3], dy[3], fi[3];
-  double dzdif = fullHeight + topFrameHeight;
-  double topfr = bottomFrameHeight - bottomFrameOver;
-  double dxbot, dxtop;
-  if (dlHybrid > dlTop) {
-    dxbot = 0.5*dlBottom + sideFrameWidth - sideFrameOver;
-    dxtop = 0.5*dlHybrid + sideFrameWidth - sideFrameOver;
-    dxbot = dxtop - (dxtop-dxbot)*(topfr+dzdif)/dzdif;
-    rr[0] = rModule + 0.5*(dzdif+topfr) - 0.5*hybridHeight;
-  } else {
-    dxbot = 0.5*dlHybrid + sideFrameWidth - sideFrameOver;
-    dxtop = 0.5*dlTop    + sideFrameWidth - sideFrameOver;
-    dxtop = dxbot + (dxtop-dxbot)*(topfr+dzdif)/dzdif;
-    rr[0] = rModule - 0.5*(dzdif+topfr) + 0.5*hybridHeight;
-  }
-  dy[0] = 0.5*(hybridWidth+coolWidth);
-  fi[0] = 0;
-  for (int i=0; i<2; i++) {
-    rr[i+1] = rCool[i];
-    dy[i+1] = 0.5*(dxbot+dxtop)-0.5*(sideFrameWidth-sideFrameOver)+
-      (rr[i+1]-rModule)*(dxtop-dxbot)/(dzdif+topfr);
-    fi[i+1] = atan((dlTop-dlBottom)/(2.*fullHeight));
-  }
-  LogDebug("TIDGeom") << "DDTIDRingAlgo:: dy Calc " << dxbot << " " <<dxtop
-		      << " " << sideFrameWidth << " " << sideFrameOver
-		      << " " << (dxtop-dxbot) << " " << dzdif << " " 
-		      << topfr << " " << rModule << " R " << rr[0] << " "
-		      << rr[1] << " " << rr[2] << " Phi " << fi[0]/deg 
-		      << " " << fi[1]/deg << " " << fi[2]/deg;
 
   //Loop over modules
-  int copy = 0;
   for (int i=0; i<number; i++) {
 
     //First the module
@@ -175,51 +111,20 @@ void DDTIDRingAlgo::execute() {
 			<< trmod << " with " << rotation;
 
     //Now the ICC
-    xpos = rICC*cos(phiz);
-    ypos = rICC*sin(phiz);
-    if (i%2 == 0) zpos = zICC[0];
-    else          zpos = zICC[1];
+    if (i%2 == 0 ) {
+      zpos = zICC[0];
+      xpos = rICC*cos(phiz) + sICC*sin(phiz);
+      ypos = rICC*sin(phiz) - sICC*cos(phiz);
+    } else {
+      zpos = zICC[1];
+      xpos = rICC*cos(phiz) - sICC*sin(phiz);
+      ypos = rICC*sin(phiz) + sICC*cos(phiz);
+    }
     DDTranslation tricc(xpos, ypos, zpos);
     DDpos (icc, mother, i+1, tricc, rotation);
     LogDebug("TIDGeom") << "DDTIDRingAlgo test: " << icc << " number " 
 			<< i+1 << " positioned in " << mother << " at "
 			<< tricc << " with " << rotation;
 
-    //and the Cooling inserts
-    if (i%2 == 0) zpos = zCool[0];
-    else          zpos = zCool[1];
-    for (int j = 0; j < 2; j++) {
-      int l0 = 2;
-      if (j != 0)            l0 = 0;
-      else if (coolSide > 1) l0 = 0;
-      for (int l = l0; l < 2; l++) {
-	double yy   = dy[j];
-	if (l == 0) yy = -yy;
-	double phi2 = phiz + (2*l-1)*fi[j];
-        xpos = rr[j]*cos(phiz)-yy*sin(phiz);
-	ypos = rr[j]*sin(phiz)+yy*cos(phiz);
-
-	DDTranslation trcool(xpos, ypos, zpos);
-	phideg = phi2/deg;
-	DDRotation rotcool;
-	if (phideg != 0) {
-	  std::string rot = DDSplit(coolName).first+dbl_to_string(phideg*1000);
-	  rotcool = DDRotation(DDName(rot, idNameSpace));
-	  if (!rotcool) {
-	    LogDebug("TIDGeom") << "DDTIDRingAlgo test: Creating a new "
-				<< "rotation: " << rot << "\t90., " 
-				<< phideg << ", 90.," << 90.+phideg 
-				<< ", 0, 0";
-	    rotcool = DDrot(DDName(rot, idNameSpace), 90.*deg, phi2, 
-			    90.*deg, 90.*deg+phi2, 0., 0.);
-	  }
-	}
-	copy++;
-	DDpos (cool, mother, copy, trcool, rotcool);
-	LogDebug("TIDGeom") << "DDTIDRingAlgo test: " << cool << " number "
-			    << copy << " positioned in " << mother 
-			    << " at " << trcool << " with " << rotcool;
-      }
-    }
   }
 }
