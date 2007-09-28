@@ -1,7 +1,7 @@
 /*
  * \file EcalLocalReco.cc
  *
- * $Id: EcalLocalRecoTask.cc,v 1.4 2007/08/06 14:44:56 innocent Exp $
+ * $Id: EcalLocalRecoTask.cc,v 1.5 2007/09/11 09:03:42 fabiocos Exp $
  *
 */
 
@@ -270,7 +270,7 @@ void EcalLocalRecoTask::analyze(const Event& e, const EventSetup& c)
 
       if (myDigi != EBDigi->end())
 	{
-	  for (int sample = 0 ; sample < myDigi->size () ; ++sample)
+	  for (unsigned int sample = 0 ; sample < myDigi->size () ; ++sample)
 	    {
 	      double analogSample=EcalMGPASample((*myDigi)[sample]).adc() ;
 	      if ( eMax < analogSample )
@@ -284,10 +284,10 @@ void EcalLocalRecoTask::analyze(const Event& e, const EventSetup& c)
 	continue;
       
       const EcalPedestals* myped=pPeds.product();
-      std::map<const unsigned int,EcalPedestals::Item>::const_iterator it=myped->m_pedestals.find(EBid.rawId());
-      if( it!=myped->m_pedestals.end() )
+      EcalPedestals::const_iterator it = myped->getMap().find( EBid );
+      if( it!=myped->getMap().end() )
 	{
-	  if (eMax> it->second.mean_x1 + 5 * it->second.rms_x1 ) //only real signal RecHit
+	  if (eMax> (*it).mean_x1 + 5 * (*it).rms_x1 ) //only real signal RecHit
 	    {
 	      if (meEBUncalibRecHitMaxSampleRatio_) meEBUncalibRecHitMaxSampleRatio_->Fill( (uncalibRecHit->amplitude()+uncalibRecHit->pedestal()) /eMax);
 	      LogInfo("EcalLocalRecoTaskInfo") << " eMax = " << eMax << " Amplitude = " << uncalibRecHit->amplitude()+uncalibRecHit->pedestal();  
