@@ -828,6 +828,9 @@ class _ReplaceSetter(object):
 class _ParameterReplaceSetter(_ReplaceSetter):
     """Base used to 'set' a PSet or VPSet replace node""" 
     def setValue(self,obj,attr):
+        #need to preserve 'trackiness'
+        theAt = getattr(obj,attr)
+        self.value.setIsTracked(theAt.isTracked())
         setattr(obj,attr,self.value)
     @staticmethod
     def _pythonValue(value):
@@ -2408,6 +2411,15 @@ process RECO = {
             self.assertEqual(type(process.a.b),cms.PSet)
             self.assertEqual(process.a.b.c.value(),1.359)
             #print t
+            process.a = cms.EDProducer('FooProd', b=cms.untracked.PSet())
+            self.assertEqual(process.a.b.isTracked(),False)
+            t=replace.parseString('replace a.b = {untracked string threshold ="DEBUG"}')
+            t[0][1].do(process)
+            self.assertEqual(type(process.a.b),cms.PSet)
+            self.assertEqual(process.a.b.isTracked(),False)
+            self.assertEqual(process.a.b.threshold.value(),"DEBUG")
+            self.assertEqual(process.a.b.threshold.isTracked(),False)
+            #print t
             process.a = cms.EDProducer('FooProd', b=cms.PSet(c=cms.untracked.double(2)))
             self.assertEqual(process.a.b.c.value(),2.0)
             self.assertEqual(process.a.b.c.isTracked(),False)
@@ -2553,8 +2565,8 @@ process RECO = {
             t[0][1].do(process)
             self.assertEqual(list(process.a.b),[2,1])
 
-            foobar = "cms.InputTag(\"foobar\",\"\",\"\")"
-            process.a = cms.EDProducer('FooProd', b=cms.InputTag("bar"))
+            foobar = 'cms.InputTag("foobar","","")'
+            process.a = cms.EDProducer('FooProd', b=cms.InputTag("bar",""))
             t = replace.parseString('replace a.b = foobar:')
             self.checkRepr(t[0][1], "a.b = "+foobar)
             t[0][1].do(process)
