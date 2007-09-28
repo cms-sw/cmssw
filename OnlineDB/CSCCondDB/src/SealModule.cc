@@ -11,6 +11,8 @@
 #include "OnlineDB/CSCCondDB/interface/CSCCFEBConnectivityAnalyzer.h"
 #include "OnlineDB/CSCCondDB/interface/CSCSaturationAnalyzer.h"
 #include "OnlineDB/CSCCondDB/interface/CSCChamberMapValues.h"
+#include "OnlineDB/CSCCondDB/interface/WriteChamberMapValuesToDB.h"
+
 #include "OnlineDB/CSCCondDB/interface/CSCCrateMapValues.h"
 #include "OnlineDB/CSCCondDB/interface/CSCDDUMapValues.h"
 
@@ -25,5 +27,6 @@ DEFINE_ANOTHER_FWK_MODULE(CSCscaAnalyzer);
 DEFINE_ANOTHER_FWK_MODULE(CSCCFEBConnectivityAnalyzer);
 DEFINE_ANOTHER_FWK_MODULE(CSCSaturationAnalyzer);
 DEFINE_ANOTHER_FWK_EVENTSETUP_SOURCE(CSCChamberMapValues);
+DEFINE_ANOTHER_FWK_MODULE(WriteChamberMapValuesToDB);
 DEFINE_ANOTHER_FWK_EVENTSETUP_SOURCE(CSCCrateMapValues);
 DEFINE_ANOTHER_FWK_EVENTSETUP_SOURCE(CSCDDUMapValues);
