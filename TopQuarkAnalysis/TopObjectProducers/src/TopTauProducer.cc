@@ -2,12 +2,13 @@
 // Author:  Christophe Delaere
 // Created: Thu Jul  26 11:08:00 CEST 2007
 //
-// $Id: TopTauProducer.cc,v 1.4 2007/08/24 15:47:07 delaer Exp $
+// $Id: TopTauProducer.cc,v 1.5 2007/08/27 11:04:34 tsirig Exp $
 //
 
 #include "TopQuarkAnalysis/TopObjectProducers/interface/TopTauProducer.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/FileInPath.h"
 
 #include "DataFormats/HepMCCandidate/interface/GenParticleCandidate.h"
 #include "PhysicsTools/Utilities/interface/DeltaR.h"
@@ -29,7 +30,6 @@ TopTauProducer::TopTauProducer(const edm::ParameterSet & iConfig) {
   addResolutions_   = iConfig.getParameter<bool>         ("addResolutions");
   addLRValues_      = iConfig.getParameter<bool>         ("addLRValues");
   genPartSrc_       = iConfig.getParameter<edm::InputTag>("genParticleSource");
-  tracksTag_ = iConfig.getParameter<edm::InputTag>("tracks");
   tauResoFile_      = iConfig.getParameter<std::string>  ("tauResoFile");
   tauLRFile_        = iConfig.getParameter<std::string>  ("tauLRFile");
   redoDiscriminant_ = iConfig.getParameter<bool>         ("redoDiscriminant");
@@ -43,7 +43,7 @@ TopTauProducer::TopTauProducer(const edm::ParameterSet & iConfig) {
 
   // construct resolution calculator
   if (addResolutions_) {
-    theResoCalc_ = new TopObjectResolutionCalc(tauResoFile_,iConfig.getParameter<bool>("useNNresolution"));
+    theResoCalc_ = new TopObjectResolutionCalc(edm::FileInPath(tauResoFile_).fullPath(), iConfig.getParameter<bool>("useNNresolution"));
   }
 
   // produces vector of taus
@@ -74,7 +74,7 @@ void TopTauProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
 
   // prepare LR calculation if required
   if (addLRValues_) {
-    theLeptonLRCalc_ = new TopLeptonLRCalc(iSetup, "", "", tauLRFile_, tracksTag_);
+    theLeptonLRCalc_ = new TopLeptonLRCalc(iSetup, "", "", edm::FileInPath(tauLRFile_).fullPath());
   }
 
   // loop over taus
