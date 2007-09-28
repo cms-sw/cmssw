@@ -86,7 +86,6 @@ namespace edm {
 
     // Add signals 
     addSignals(e);
-
     // Read the PileUp
     std::vector<EventPrincipalVector> pileup;
     if ( input_ )
@@ -97,14 +96,14 @@ namespace edm {
     // Do the merging
     if ( input_ )
       {
-	if (input_->doPileup()) LogDebug("PileUp") <<"Adding pileup for event "<<e.id();
+	if (input_->doPileup()) LogDebug("MixingModule") <<"Adding pileup for event "<<e.id();
 	int bunchCrossing = input_->minBunch();
 	for (std::vector<EventPrincipalVector>::const_iterator it = pileup.begin();
 	     it != pileup.end(); ++it, ++bunchCrossing) {
-	  merge(bunchCrossing, *it);
+	  setBcrOffset();
+          merge(bunchCrossing, *it);
 	}
       }
-
     // Put output into event
     put(e);
 
@@ -115,11 +114,11 @@ namespace edm {
     // main loop: loop over events and merge 
     //
     eventId_=0;
-    LogDebug("merge") <<"For bunchcrossing "<<bcr<<", "<<vec.size()<< " events will be merged";
+    LogDebug("MixingModule") <<"For bunchcrossing "<<bcr<<", "<<vec.size()<< " events will be merged";
     vertexoffset=0;
     for (EventPrincipalVector::const_iterator it = vec.begin(); it != vec.end(); ++it) {
       Event e(**it, md_);
-      LogDebug("merge") <<" merging Event:  id " << e.id();
+      LogDebug("MixingModule") <<" merging Event:  id " << e.id();
       addPileups(bcr, &e, ++eventId_);
     }// end main loop
   }

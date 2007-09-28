@@ -54,6 +54,7 @@ namespace edm {
       void merge(const int bcr, const EventPrincipalVector& vec);
       virtual void addSignals(const edm::Event &e) {;}
       virtual void addPileups(const int bcr, edm::Event*, unsigned int eventId) {;}
+      virtual void setBcrOffset () {std::cout << "BMixingModule::setBcrOffset must be overwritten!" << std::endl;}
       virtual void put(edm::Event &e) {;}
 
     protected:
