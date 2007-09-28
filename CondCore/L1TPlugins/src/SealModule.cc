@@ -1,5 +1,5 @@
 #include "CondCore/PluginSystem/interface/registration_macros.h"
-#include "CondTools/L1Trigger/src/WriterProxy.h"
+#include "CondTools/L1Trigger/interface/WriterProxy.h"
 
 #include "CondFormats/DataRecord/interface/L1CSCTPParametersRcd.h"
 #include "CondFormats/L1TObjects/interface/L1CSCTPParameters.h"
