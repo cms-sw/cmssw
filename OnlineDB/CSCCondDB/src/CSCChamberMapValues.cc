@@ -5,7 +5,7 @@
 #include "CondFormats/CSCObjects/interface/CSCChamberMap.h"
 #include "CondFormats/DataRecord/interface/CSCChamberMapRcd.h"
 #include "OnlineDB/CSCCondDB/interface/CSCChamberMapValues.h"
-#include "OnlineDB/CSCCondDB/interface/cscmap1.h"
+#include "OnlineDB/CSCCondDB/interface/CSCMap1.h"
 
 void CSCChamberMapValues::fillChamberMap()
 {
@@ -29,29 +29,12 @@ void CSCChamberMapValues::fillChamberMap()
         for(l=1;l<=c;++l){
          chamberid=i*100000+j*10000+k*1000+l*10;
          map->chamber(chamberid,&item);
-	 //         mapobj->ch_map[chamberid].chamberLabel=item.chamberLabel;
          mapobj->ch_map[chamberid]=item;
          count=count+1;
-         //std::cout<<count<<") ";
-	 //std::cout<<i<<" "<<j<<" "<<k<<" "<<l<<" "<<r<<" "<<c<<"  ";
-	 //std::cout<<chamberid<<"  ";
-	 //std::cout<<item.chamberId<<"  ";
-	 //std::cout<<item.chamberLabel<<"  ";
-	 //std::cout<<item.cscIndex<<"  ";
-	 //std::cout<<item.crateid<<"  ";
-	 //std::cout<<item.strips<<"  ";
-	 //std::cout<<item.sector<<"  ";
-	 //std::cout<<item.ddu<<"-"<<item.ddu_input;
-         //std::cout<<std::endl;
         }
       }
     }
-    //std::cout<<"Print\n";
   }
-  //std::cout<<232350<<"  ";
-  //std::cout<<mapobj->ch_map[232350].chamberLabel<<"  ";
-  //std::cout<<mapobj->ch_map[232350].cscIndex<<"  ";
-  //std::cout<<std::endl;
 }
   
 
