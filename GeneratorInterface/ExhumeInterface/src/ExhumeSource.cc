@@ -67,13 +67,7 @@ ExhumeSource::ExhumeSource( const ParameterSet & pset,
   maxEventsToPrint_ (pset.getUntrackedParameter<int>("maxEventsToPrint",1)),
   comenergy(pset.getUntrackedParameter<double>("comEnergy",14000.)),
   extCrossSect(pset.getUntrackedParameter<double>("crossSection", -1.)),
-  extFilterEff(pset.getUntrackedParameter<double>("filterEfficiency", -1.)),
-  ProcessType(pset.getParameter<string>("ProcessType")),
-  HiggsDecay(pset.getParameter<int>("HiggsDecay")),
-  QuarkType(pset.getParameter<int>("QuarkType")),
-  ThetaMin(pset.getParameter<double>("ThetaMin")),
-  MassRangeLow(pset.getParameter<double>("MassRangeLow")),
-  MassRangeHigh(pset.getParameter<double>("MassRangeHigh"))		
+  extFilterEff(pset.getUntrackedParameter<double>("filterEfficiency", -1.))
 {
   std::ostringstream header_str;
 
@@ -93,17 +87,30 @@ ExhumeSource::ExhumeSource( const ParameterSet & pset,
   header_str << "Number of events to be printed = " << maxEventsToPrint_ << "\n";
 
   //Exhume Initialization
+  ParameterSet process_pset = pset.getParameter<ParameterSet>("ExhumeProcess") ;
+  ProcessType = process_pset.getParameter<string>("ProcessType");
   if(ProcessType == "Higgs"){
 	ExhumeProcess = new Exhume::Higgs(pset);
+	HiggsDecay = process_pset.getParameter<int>("HiggsDecay");
+	double m_higgs = pset.getUntrackedParameter<double>("HiggsMass",120.);
+	MassRangeLow = process_pset.getUntrackedParameter<double>("MassRangeLow",(m_higgs - 5.));
+	MassRangeHigh = process_pset.getUntrackedParameter<double>("MassRangeHigh",(m_higgs + 5.));
 	((Exhume::Higgs*)ExhumeProcess)->SetHiggsDecay(HiggsDecay);
 	sigID = 100 + HiggsDecay;
   } else if(ProcessType == "QQ"){	
 	ExhumeProcess = new Exhume::QQ(pset);
+	QuarkType = process_pset.getParameter<int>("QuarkType");
+	ThetaMin = process_pset.getUntrackedParameter<double>("ThetaMin");
+	MassRangeLow = process_pset.getUntrackedParameter<double>("MassRangeLow",10.);
+        MassRangeHigh = process_pset.getUntrackedParameter<double>("MassRangeHigh",200.);
 	((Exhume::QQ*)ExhumeProcess)->SetQuarkType(QuarkType);
 	((Exhume::QQ*)ExhumeProcess)->SetThetaMin(ThetaMin);
 	sigID = 200 + QuarkType;
   } else if(ProcessType == "GG"){
 	ExhumeProcess = new Exhume::GG(pset);
+	ThetaMin = process_pset.getUntrackedParameter<double>("ThetaMin");
+	MassRangeLow = process_pset.getUntrackedParameter<double>("MassRangeLow",10.);
+        MassRangeHigh = process_pset.getUntrackedParameter<double>("MassRangeHigh",200.);
 	((Exhume::GG*)ExhumeProcess)->SetThetaMin(ThetaMin);
 	sigID = 300;
   } else{
