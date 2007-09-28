@@ -1,7 +1,7 @@
 /*
  * \file L1TRPCTF.cc
  *
- * $Date: 2007/08/27 16:39:18 $
+ * $Date: 2007/09/26 14:18:04 $
  * $Revision: 1.5 $
  * \author J. Berryhill
  *
@@ -179,6 +179,7 @@ void L1TRPCTF::analyze(const Event& e, const EventSetup& c)
     {
 
       int bxindex = ECItr->bx() + 1;
+      if (ECItr->quality() > 0 ) {
       nrpctftrack++;
 
       if (verbose_)
@@ -224,7 +225,7 @@ void L1TRPCTF::analyze(const Event& e, const EventSetup& c)
    	    << endl;
 	}
 
-
+      }
     }
 
 

@@ -1,8 +1,8 @@
 /*
  * \file L1TCSCTF.cc
  *
- * $Date: 2007/08/27 16:39:18 $
- * $Revision: 1.5 $
+ * $Date: 2007/09/28 07:50:41 $
+ * $Revision: 1.7 $
  * \author J. Berryhill
  *
  */
@@ -163,7 +163,7 @@ void L1TCSCTF::analyze(const Event& e, const EventSetup& c)
    	    << endl;
    }
  
-   vector<L1MuRegionalCand> CSCTFCands = RRItr->getDTBXCands();
+   vector<L1MuRegionalCand> CSCTFCands = RRItr->getCSCCands();
  
 
    if (verbose_) 
