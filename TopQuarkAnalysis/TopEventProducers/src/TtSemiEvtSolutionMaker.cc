@@ -1,5 +1,5 @@
 //
-// $Id: TtSemiEvtSolutionMaker.cc,v 1.21 2007/08/20 20:57:19 lowette Exp $
+// $Id: TtSemiEvtSolutionMaker.cc,v 1.22 2007/08/21 12:03:11 lowette Exp $
 //
 
 #include "TopQuarkAnalysis/TopEventProducers/interface/TtSemiEvtSolutionMaker.h"
@@ -52,10 +52,10 @@ TtSemiEvtSolutionMaker::TtSemiEvtSolutionMaker(const edm::ParameterSet & iConfig
   mySimpleBestJetComb                    = new TtSemiSimpleBestJetComb();
   myLRSignalSelObservables               = new TtSemiLRSignalSelObservables();
   myLRJetCombObservables                 = new TtSemiLRJetCombObservables();
-  if (addLRJetComb_)   myLRJetCombCalc   = new TtSemiLRJetCombCalc(lrJetCombFile_, lrJetCombObs_);
+  if (addLRJetComb_)   myLRJetCombCalc   = new TtSemiLRJetCombCalc(edm::FileInPath(lrJetCombFile_).fullPath(), lrJetCombObs_);
 
   // instantiate signal selection calculator
-  if (addLRSignalSel_) myLRSignalSelCalc = new TtSemiLRSignalSelCalc(lrSignalSelFile_, lrSignalSelObs_);
+  if (addLRSignalSel_) myLRSignalSelCalc = new TtSemiLRSignalSelCalc(edm::FileInPath(lrSignalSelFile_).fullPath(), lrSignalSelObs_);
 
   // define what will be produced
   produces<std::vector<TtSemiEvtSolution> >();
