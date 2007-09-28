@@ -4,6 +4,7 @@
 //#include <memory>
 #include <string>
 #include <map>
+#include <vector>
 // user include files
 #include "FWCore/Framework/interface/DataProxyProvider.h"
 #include "FWCore/Framework/interface/EventSetupRecordIntervalFinder.h"
@@ -18,6 +19,9 @@ namespace cond{
   struct IOVInfo{
     std::string tag; 
     std::string token;
+    std::string label;
+    std::string pfn;
+    std::string timetype;
   };
 }
 class PoolDBESSource : public edm::eventsetup::DataProxyProvider,
@@ -36,19 +40,17 @@ class PoolDBESSource : public edm::eventsetup::DataProxyProvider,
   // ----------member data ---------------------------
   typedef std::multimap< std::string, std::string > RecordToTypes;
   RecordToTypes m_recordToTypes; 
-  typedef std::map< std::string, cond::IOVInfo > RecordToIOVInfo;
-  RecordToIOVInfo m_recordToIOVInfo;
+  typedef std::map< std::string, std::vector<cond::IOVInfo> > ProxyToIOVInfo;
+  ProxyToIOVInfo m_proxyToIOVInfo;
   typedef std::map< std::string, cond::TagMetadata > TagCollection;
   TagCollection m_tagCollection;
-  typedef std::map<std::string, std::string > ProxyToToken;
-  ProxyToToken m_proxyToToken;
+  typedef std::map<std::string, std::string > DatumToToken;
+  DatumToToken m_datumToToken;
   cond::DBSession* m_session;
  private:
   void fillRecordToIOVInfo();
   void fillTagCollectionFromDB( cond::CoralTransaction& coraldb,
 				const std::string& roottag );
-  std::string buildRecordTagKey( const std::string& recordName, 
-				 const std::string& tagName );  
   std::string setupFrontier(const std::string& frontierconnect);
 };
 #endif

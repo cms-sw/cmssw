@@ -57,7 +57,23 @@ int main(){
     pooldb.commit();
     //pooldb.disconnect();
     delete ioveditor;
- 
+    pooldb.start();
+    ioveditor=iovmanager.newIOVEditor();
+    Pedestals* p=new Pedestals;
+    for(int ichannel=1; ichannel<=2; ++ichannel){
+      Pedestals::Item item;
+      item.m_mean=4.11*ichannel;
+      item.m_variance=5.82*ichannel;
+      p->m_pedestals.push_back(item);
+    }
+    cond::TypedRef<Pedestals> m(pooldb,p);
+    m.markWrite("PedestalsRcd");
+    std::string payloadToken2=m.token();
+    ioveditor->insert(9999,payloadToken2);
+    std::string pediovtoken=ioveditor->token();
+    std::cout<<"iov token "<<pediovtoken<<std::endl;
+    pooldb.commit();
+    delete ioveditor;
     //
     ///I write different pedestals in another record
     //
@@ -83,6 +99,7 @@ int main(){
     cond::MetaData metadata(coraldb);
     coraldb.start();
     metadata.addMapping("mytest",iovtoken);
+    metadata.addMapping("pedtag",pediovtoken);
     metadata.addMapping("anothermytest",anotheriovtoken);
     coraldb.commit();
     delete session;
