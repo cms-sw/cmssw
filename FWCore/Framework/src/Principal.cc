@@ -1,5 +1,5 @@
 /**----------------------------------------------------------------------
-  $Id: Principal.cc,v 1.12 2007/07/09 07:29:51 llista Exp $
+  $Id: Principal.cc,v 1.13 2007/08/02 16:23:08 wmtan Exp $
   ----------------------------------------------------------------------*/
 
 #include <algorithm>
@@ -416,7 +416,18 @@ namespace edm {
 			bool stopIfProcessHasMatch) const {
     assert(results.empty());
 
-    TypeLookup::const_iterator i = typeLookup.find(typeID.friendlyClassName());
+    TypeLookup::const_iterator i;
+    try
+      {
+	i = typeLookup.find(typeID.friendlyClassName());
+      }
+    catch (edm::Exception const& x)
+      {
+	if (x.categoryCode() == edm::errors::ProductNotFound)
+	  i = typeLookup.end();
+	else
+	  throw;	
+      }
 
     if (i == typeLookup.end()) return 0;
 

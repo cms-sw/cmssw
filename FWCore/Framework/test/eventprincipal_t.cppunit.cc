@@ -2,7 +2,7 @@
 
 Test of the EventPrincipal class.
 
-$Id: eventprincipal_t.cppunit.cc,v 1.45 2007/08/08 21:51:28 wmtan Exp $
+$Id: eventprincipal_t.cppunit.cc,v 1.46 2007/09/27 17:48:49 paterno Exp $
 
 ----------------------------------------------------------------------*/  
 #include <map>
@@ -251,8 +251,8 @@ void test_ep::failgetManyTest()
 
   edm::ProcessNameSelector sel("PROD");
   std::vector<edm::BasicHandle> handles;
-  CPPUNIT_ASSERT_THROW(pEvent_->getMany(tid, sel, handles),
-		       edm::Exception);
+  pEvent_->getMany(tid, sel, handles);
+  CPPUNIT_ASSERT(handles.empty());
 }
 
 void test_ep::failgetbyTypeTest() 
@@ -268,11 +268,9 @@ void test_ep::failgetManybyTypeTest()
   edm::TypeID tid(*pEvent_);
   std::vector<edm::BasicHandle> handles;
 
-  // TODO: Why does this throw? The design was for getManyByType NOT
-  // to throw if no matches were found -- it can just return an empty
-  // collection!
-  CPPUNIT_ASSERT_THROW(pEvent_->getManyByType(tid, handles),
-		       edm::Exception);
+  
+  pEvent_->getManyByType(tid, handles);
+  CPPUNIT_ASSERT(handles.empty());
 }
 
 void test_ep::failgetbyInvalidIdTest() 
