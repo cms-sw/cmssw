@@ -1,10 +1,11 @@
 //
-// $Id: TopJetProducer.cc,v 1.20 2007/08/27 11:04:33 tsirig Exp $
+// $Id: TopJetProducer.cc,v 1.21 2007/09/17 22:37:39 jandrea Exp $
 //
 
 #include "TopQuarkAnalysis/TopObjectProducers/interface/TopJetProducer.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/FileInPath.h"
 
 #include "DataFormats/BTauReco/interface/JetTag.h"
 #include "DataFormats/BTauReco/interface/TrackProbabilityTagInfo.h"
@@ -17,7 +18,6 @@
 #include "PhysicsTools/Utilities/interface/DeltaR.h"
 
 #include "TopQuarkAnalysis/TopObjectResolutions/interface/TopObjectResolutionCalc.h"
-#include "TopQuarkAnalysis/TopLeptonSelection/interface/TopLeptonTrackerIsolationPt.h"
 
 #include <vector>
 #include <memory>
@@ -31,7 +31,6 @@ TopJetProducer::TopJetProducer(const edm::ParameterSet& iConfig) {
   // initialize the configurables
   recJetsLabel_                  = iConfig.getParameter<edm::InputTag> ("recJetInput");
   caliJetsLabel_                 = iConfig.getParameter<edm::InputTag> ("caliJetInput");
-  tracksTag_ = iConfig.getParameter<edm::InputTag>("tracks");
   // TEMP Jet cleaning from electrons
   topElectronsLabel_           = iConfig.getParameter<edm::InputTag> ("topElectronsInput");
   topMuonsLabel_               = iConfig.getParameter<edm::InputTag> ("topMuonsInput");
@@ -68,7 +67,7 @@ TopJetProducer::TopJetProducer(const edm::ParameterSet& iConfig) {
   // construct the jet flavour identifier
   if (getJetMCFlavour_) jetFlavId_ = new JetFlavourIdentifier(iConfig.getParameter<edm::ParameterSet>("jetIdParameters"));
   // construct resolution calculator
-  if (addResolutions_) theResoCalc_ = new TopObjectResolutionCalc(caliJetResoFile_,iConfig.getParameter<bool>("useNNresolution"));
+  if (addResolutions_) theResoCalc_ = new TopObjectResolutionCalc(edm::FileInPath(caliJetResoFile_).fullPath(), iConfig.getParameter<bool>("useNNresolution"));
 
   // construct Jet Track Associator
   trackAssociationPSet_     = iConfig.getParameter<edm::ParameterSet>("trackAssociation");
@@ -113,8 +112,8 @@ void TopJetProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
   if (doJetCleaning_) {
     // TEMP Jet cleaning from electrons
     //select isolated leptons to remove from jets collection
-    electrons=selectIsolated(electrons,ELEISOCUT_,iSetup,iEvent);
-    muons=selectIsolated(muons,MUISOCUT_,iSetup,iEvent);
+    electrons=selectIsolated(electrons,ELEISOCUT_);
+    muons=selectIsolated(muons,MUISOCUT_);
     // TEMP End
   }
 
@@ -324,22 +323,14 @@ void TopJetProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
 
 // TEMP Jet cleaning from electrons
 //takes a vector of electrons and returns a vector that only contains the ones that are isolated
-//isolation is calculated by TopLeptonTrackerIsolationPt.  The second argument is the isolation cut
-//to use
-std::vector<TopElectron> TopJetProducer::selectIsolated(const std::vector<TopElectron> &electrons, float isoCut,
-							const edm::EventSetup &iSetup, const edm::Event &iEvent) {
-  
-
-  TopLeptonTrackerIsolationPt tkIsoPtCalc(iSetup, tracksTag_);
+//The second argument is the isolation cut to use
+std::vector<TopElectron> TopJetProducer::selectIsolated(const std::vector<TopElectron> &electrons, float isoCut) {
   std::vector<TopElectron> output;
   for (size_t ie=0; ie<electrons.size(); ie++) {
-    
-    if (tkIsoPtCalc.calculate(electrons[ie],iEvent) < isoCut) {
+    if (electrons[ie].getTrackIso() < isoCut) {
       output.push_back(electrons[ie]);
     }
-
   }
-  
   return output;
 }
 // TEMP End
@@ -347,23 +338,15 @@ std::vector<TopElectron> TopJetProducer::selectIsolated(const std::vector<TopEle
 
 // TEMP Jet cleaning from electrons
 //takes a vector of muons and returns a vector that only contains the ones that are isolated
-//isolation is calculated by TopLeptonTrackerIsolationPt.  The second argument is the isolation cut
-//to use
+//The second argument is the isolation cut to use
 //FIXME I could combine this with the one for electrons using templates?
-std::vector<TopMuon> TopJetProducer::selectIsolated(const std::vector<TopMuon> &muons, float isoCut,
-							const edm::EventSetup &iSetup, const edm::Event &iEvent) {
-  
-
-  TopLeptonTrackerIsolationPt tkIsoPtCalc(iSetup, tracksTag_);
+std::vector<TopMuon> TopJetProducer::selectIsolated(const std::vector<TopMuon> &muons, float isoCut) {
   std::vector<TopMuon> output;
   for (size_t iu=0; iu<muons.size(); iu++) {
-    
-    if (tkIsoPtCalc.calculate(muons[iu],iEvent) < isoCut) {
+    if (muons[iu].getTrackIso() < isoCut) {
       output.push_back(muons[iu]);
     }
-    
   }
-  
   return output;
 }
 // TEMP End

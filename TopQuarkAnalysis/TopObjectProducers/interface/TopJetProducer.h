@@ -1,5 +1,5 @@
 //
-// $Id: TopJetProducer.h,v 1.17 2007/08/27 11:04:31 tsirig Exp $
+// $Id: TopJetProducer.h,v 1.18 2007/09/20 18:12:24 lowette Exp $
 //
 
 #ifndef TopObjectProducers_TopJetProducer_h
@@ -13,7 +13,7 @@
    with possible adding of resolutions and more things to come
 
   \author   Jan Heyninck
-  \version  $Id: TopJetProducer.h,v 1.17 2007/08/27 11:04:31 tsirig Exp $
+  \version  $Id: TopJetProducer.h,v 1.18 2007/09/20 18:12:24 lowette Exp $
 */
 
 
@@ -48,11 +48,8 @@ class TopJetProducer : public edm::EDProducer {
   private:
 
     // TEMP Jet cleaning from electrons
-    std::vector<TopElectron> selectIsolated(const std::vector<TopElectron> &electrons, float isoCut,
-    							    const edm::EventSetup &iSetup, const edm::Event &iEvent);
-    std::vector<TopMuon> selectIsolated(const std::vector<TopMuon> &muons, float isoCut,
-    							    const edm::EventSetup &iSetup, const edm::Event &iEvent);
-
+    std::vector<TopElectron> selectIsolated(const std::vector<TopElectron> & electrons, float isoCut);
+    std::vector<TopMuon>     selectIsolated(const std::vector<TopMuon> & muons,         float isoCut);
     // TEMP End
 
     // configurables
