@@ -17,7 +17,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Apr  4 12:24:44 EDT 2007
-// $Id: PluginFactoryBase.h,v 1.3 2007/04/27 12:09:42 chrjones Exp $
+// $Id: PluginFactoryBase.h,v 1.4 2007/08/17 21:01:41 elmer Exp $
 //
 
 // system include files
@@ -64,6 +64,7 @@ class PluginFactoryBase
 
       //since each inheriting class has its own Container type to hold their PMakers
       // this function allows them to share the same code when doing the lookup
+      // this routine will throw an exception if iName is unknown therefore the return value is always valid
       template<typename Plugins>
       typename Plugins::const_iterator findPMaker(const std::string& iName,
                                                    const Plugins& iPlugins) const {
@@ -77,21 +78,34 @@ class PluginFactoryBase
             <<lib<<"'\n but was not there.  This means the plugin cache is incorrect.  Please run 'EdmPluginRefresh "<<lib<<"'";
           }
         } else {
-          //should check to see if this is from the proper loadable if it
-          // was not statically linked
-          if (itFound->second.front().second != PluginManager::staticallyLinkedLoadingFileName() &&
-              PluginManager::isAvailable()) {
-            if( itFound->second.front().second != PluginManager::get()->loadableFor(category(),iName).native_file_string() ) {
-              throw cms::Exception("WrongPluginLoaded")<<"The plugin '"<<iName<<"' should have been loaded from\n '"
-              <<PluginManager::get()->loadableFor(category(),iName).native_file_string()
-              <<"'\n but instead it was already loaded from\n '"
-              <<itFound->second.front().second<<"'\n because some other plugin was loaded from the latter loadables.\n"
-              "To work around the problem the plugin '"<<iName<<"' should only be defined in one of these loadables.";
-            }
-          }
+          checkProperLoadable(iName,itFound->second.front().second);
         }
         return itFound;
       }
+
+      //similar to findPMaker but will return 'end()' if iName is known
+      template<typename Plugins>
+        typename Plugins::const_iterator tryToFindPMaker(const std::string& iName,
+                                                         const Plugins& iPlugins) const 
+      {
+        //do we already have it?
+        typename Plugins::const_iterator itFound = iPlugins.find(iName);
+        if(itFound == iPlugins.end()) {
+          const SharedLibrary* slib = PluginManager::get()->tryToLoad(this->category(),iName);
+          if(0!=slib) {
+            std::string lib = slib->path().native_file_string();
+            itFound = iPlugins.find(iName);
+            if(itFound == iPlugins.end()) {
+              throw cms::Exception("PluginCacheError")<<"The plugin '"<<iName<<"' should have been in loadable\n '"
+              <<lib<<"'\n but was not there.  This means the plugin cache is incorrect.  Please run 'EdmPluginRefresh "<<lib<<"'";
+            }
+          }
+        } else {
+          checkProperLoadable(iName,itFound->second.front().second);
+        }
+        return itFound;
+      }
+      
       
       template<typename MakersItr>
         static void fillInfo(MakersItr iBegin, MakersItr iEnd,
@@ -124,6 +138,20 @@ class PluginFactoryBase
 
       const PluginFactoryBase& operator=(const PluginFactoryBase&); // stop default
 
+      void checkProperLoadable(const std::string& iName, const std::string& iLoadedFrom) const {
+        //should check to see if this is from the proper loadable if it
+        // was not statically linked
+        if (iLoadedFrom != PluginManager::staticallyLinkedLoadingFileName() &&
+            PluginManager::isAvailable()) {
+          if( iLoadedFrom != PluginManager::get()->loadableFor(category(),iName).native_file_string() ) {
+            throw cms::Exception("WrongPluginLoaded")<<"The plugin '"<<iName<<"' should have been loaded from\n '"
+            <<PluginManager::get()->loadableFor(category(),iName).native_file_string()
+            <<"'\n but instead it was already loaded from\n '"
+            <<iLoadedFrom<<"'\n because some other plugin was loaded from the latter loadables.\n"
+            "To work around the problem the plugin '"<<iName<<"' should only be defined in one of these loadables.";
+          }
+        }
+      }
       // ---------- member data --------------------------------
 
 };

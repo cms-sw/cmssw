@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Apr  5 12:10:23 EDT 2007
-// $Id: PluginFactory.h,v 1.4 2007/04/17 22:15:45 wmtan Exp $
+// $Id: PluginFactory.h,v 1.5 2007/05/21 16:47:16 chrjones Exp $
 //
 
 // system include files
@@ -67,6 +67,15 @@ class PluginFactory<R * (void)> : public PluginFactoryBase
       
       R* create(const std::string& iName) const {
         return PluginFactoryBase::findPMaker(iName,m_plugins)->second.front().first->create();
+      }
+
+      ///like above but returns 0 if iName is unknown
+      R* tryToCreate(const std::string& iName) const {
+        typename Plugins::const_iterator itFound = PluginFactoryBase::tryToFindPMaker(iName,m_plugins);
+        if(itFound ==m_plugins.end() ) {
+          return 0;
+        }
+        return itFound->second.front().first->create();
       }
       // ---------- static member functions --------------------
 
@@ -125,6 +134,14 @@ public:
   R* create(const std::string& iName, Arg iArg) const {
     return PluginFactoryBase::findPMaker(iName,m_plugins)->second.front().first->create(iArg);
   }
+  ///like above but returns 0 if iName is unknown
+  R* tryToCreate(const std::string& iName, Arg iArg) const {
+    typename Plugins::const_iterator itFound = PluginFactoryBase::tryToFindPMaker(iName,m_plugins);
+    if(itFound ==m_plugins.end() ) {
+      return 0;
+    }
+    return itFound->second.front().first->create(iArg);
+  }
   // ---------- static member functions --------------------
   
   static PluginFactory<R*(Arg)>* get();
@@ -182,6 +199,15 @@ public:
   R* create(const std::string& iName, Arg1 iArg1, Arg2 iArg2) const {
     return PluginFactoryBase::findPMaker(iName,m_plugins)->second.front().first->create(iArg1, iArg2);
   }
+  ///like above but returns 0 if iName is unknown
+  R* tryToCreate(const std::string& iName, Arg1 iArg1, Arg2 iArg2) const {
+    typename Plugins::const_iterator itFound = PluginFactoryBase::tryToFindPMaker(iName,m_plugins);
+    if(itFound ==m_plugins.end() ) {
+      return 0;
+    }
+    return itFound->second.front().first->create(iArg1,iArg2);
+  }
+
   // ---------- static member functions --------------------
   
   static PluginFactory<R*(Arg1,Arg2)>* get();
