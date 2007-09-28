@@ -27,12 +27,10 @@ EcalCoder::EcalCoder(bool addNoise, CorrelatedNoisifier * theCorrNoise)
 
 void  EcalCoder::setPedestals(const EcalPedestals * pedestals) {
   thePedestals = pedestals;
-  (*thePedestals).update();
 }
 
 void  EcalCoder::setGainRatios(const EcalGainRatios * gainRatios) {
   theGainRatios = gainRatios; 
-  (*theGainRatios).update();   
 }
 
 
@@ -194,32 +192,20 @@ void EcalCoder::findPedestal(const DetId & detId, int gainId,
     } else {
     EcalPedestals::Item item = mapItr->second;
   */
-  
+
   /*   
     EcalPedestals::Item const & item = (*thePedestals)(detId);
     ped = item.mean(gainId);
     width = item.rms(gainId);
   */
-  
-  unsigned int hashedIndex;
-  if ( detId.subdetId() == EcalBarrel ) {
-    hashedIndex = EBDetId(detId).hashedIndex(); 
-    EcalPedestals::Item const & item = (*thePedestals).barrel(hashedIndex);
-    ped   = item.mean(gainId);
-    width = item.rms(gainId);
-  }
-  
-  if ( detId.subdetId() == EcalEndcap ) {
-    hashedIndex = EEDetId(detId).hashedIndex(); 
-    EcalPedestals::Item const & item = (*thePedestals).endcap(hashedIndex);
-    ped   = item.mean(gainId);
-    width = item.rms(gainId);
-  }
+
+  EcalPedestalsMap::const_iterator itped = thePedestals->getMap().find( detId );
+  ped   = (*itped).mean(gainId);
+  width = (*itped).rms(gainId);
   
   if ( (detId.subdetId() != EcalBarrel) && (detId.subdetId() != EcalEndcap) ) { 
-    edm::LogError("EcalCoder") << "Could not find pedestal for " << detId.rawId() << " among the " << thePedestals->m_pedestals.size();
+    edm::LogError("EcalCoder") << "Could not find pedestal for " << detId.rawId() << " among the " << thePedestals->getMap().size();
   } 
-
 
   /*
     switch(gainId) {
@@ -265,26 +251,12 @@ void EcalCoder::findGains(const DetId & detId, double Gains[]) const
     }
   */
 
-  unsigned int hashedIndex;
-  if ( detId.subdetId() == EcalBarrel ) {
-    hashedIndex = EBDetId(detId).hashedIndex(); 
-    EcalGainRatios::Item const & item = (*theGainRatios).barrel(hashedIndex);    
-    Gains[0] = 0.;
-    Gains[3] = 1.;
-    Gains[2] = item.gain6Over1();
-    Gains[1] = Gains[2]*(item.gain12Over6());   
-  }
+  EcalGainRatioMap::const_iterator grit = theGainRatios->getMap().find( detId );
+  Gains[0] = 0.;
+  Gains[3] = 1.;
+  Gains[2] = (*grit).gain6Over1();
+  Gains[1] = Gains[2]*( (*grit).gain12Over6() );   
 
-  if ( detId.subdetId() == EcalEndcap ) {
-    hashedIndex = EEDetId(detId).hashedIndex(); 
-    EcalGainRatios::Item const & item = (*theGainRatios).endcap(hashedIndex);    
-    Gains[0] = 0.;
-    Gains[3] = 1.;
-    //Gains[2] = item.gain12Over6();
-    //Gains[1] = item.gain6Over1()*item.gain12Over6();   
-    Gains[2] = item.gain6Over1();
-    Gains[1] = Gains[2]*(item.gain12Over6());   
-  }
   
   if ( (detId.subdetId() != EcalBarrel) && (detId.subdetId() != EcalEndcap) ) { 
     edm::LogError("EcalCoder") << "Could not find gain ratios for " << detId.rawId() << " among the " << theGainRatios->getMap().size();

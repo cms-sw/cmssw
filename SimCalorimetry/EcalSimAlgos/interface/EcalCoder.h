@@ -17,7 +17,6 @@
 
 
 class EcalMGPASample;
-class EcalPedestals;
 class EBDataFrame;
 class EEDataFrame;
 class DetId;
