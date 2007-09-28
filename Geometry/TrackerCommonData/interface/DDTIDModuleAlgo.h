@@ -33,19 +33,31 @@ private:
   double                   dlHybrid;          //Width at the hybrid end
   bool                     doComponents;      //Components to be made
 
-  std::string              topFrameName;      //Top frame     name
-  std::string              topFrameMat;       //              material
-  double                   topFrameHeight;    //              height
-  double                   topFrameThick;     //              thickness
-  double                   topFrameWidth;     //              extra width
+  std::string              boxFrameName;      //Top frame     name
+  std::string              boxFrameMat;       //              material
+  double                   boxFrameHeight;    //              height  
+  double                   boxFrameThick;     //              thickness
+  double                   boxFrameWidth;     //              extra width
   double                   bottomFrameHeight; //Bottom of the frame
   double                   bottomFrameOver;   //              overlap
-  std::string              sideFrameName;     //Side frame    name
+  double                   topFrameHeight;    //Top    of the frame
+  double                   topFrameOver;      //              overlap
+  std::vector<std::string> sideFrameName;     //Side frame    name
   std::string              sideFrameMat;      //              material
   double                   sideFrameWidth;    //              width
   double                   sideFrameThick;    //              thickness
-  double                   sideFrameOver;     //              overlap
-  std::string              dumyFrameName;     //Dummy frame   name
+  double                   sideFrameOver;     //              overlap (wrt wafer)
+  std::vector<std::string> holeFrameName;     //Hole in the frame   name
+  std::vector<std::string> holeFrameRot;      //              Rotation matrix
+
+  std::vector<std::string> kaptonName;        //Kapton circuit name
+  std::string              kaptonMat;         //               material
+  //  double                   kaptonWidth;   //               width -> computed internally from sideFrameWidth and kaptonOver
+  double                   kaptonThick;       //               thickness
+  double                   kaptonOver;        //               overlap (wrt Wafer)
+  std::vector<std::string> holeKaptonName;    //Hole in the kapton circuit name
+  std::vector<std::string> holeKaptonRot;     //              Rotation matrix
+
   std::vector<std::string> waferName;         //Wafer         name
   std::string              waferMat;          //              material
   double                   sideWidthTop;      //              width on the side Top
@@ -65,6 +77,13 @@ private:
   std::string              pitchMat;          //              material
   double                   pitchHeight;       //              height
   double                   pitchThick;        //              thickness
+  double                   pitchStereoTol;        //              tolerance in dimensions of the stereo 
+  std::string              coolName;         // Cool insert name
+  std::string              coolMat;          //              material
+  double                   coolHeight;       //              height
+  double                   coolThick;        //              thickness
+  double                   coolWidth;        //              width
+
 };
 
 #endif
