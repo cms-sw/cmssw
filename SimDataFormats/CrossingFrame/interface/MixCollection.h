@@ -111,8 +111,11 @@ MixCollection<T>::MixCollection(const CrossingFrame<T> *cf,const std::pair<int,i
 {
   nrDets_=1;
   inRegistry_=true;
-  crossingFrames_.push_back(cf);
-  init(bunchRange);
+  if (cf) {
+    crossingFrames_.push_back(cf);
+    init(bunchRange);
+  }
+  else std::cout <<"Could not construct MixCollection for "<<typeid(T).name() <<", pointer to CrossingFrame invalid!"<<std::endl;
 } 
 
 template <class T> 
@@ -156,8 +159,7 @@ template <class T>  int  MixCollection<T>::sizePileup() const {
   int s=0;
   for (int i=0;i<nrDets_;++i) {
     s+=crossingFrames_[i]->getNrPileups();
-  }
-  return s;
+  }  return s;
 }
 
 template <class T>  int  MixCollection<T>::sizeSignal() const {

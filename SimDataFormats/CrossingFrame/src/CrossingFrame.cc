@@ -9,8 +9,9 @@ using namespace edm;
 
 template <> const int  CrossingFrame<PSimHit>::lowTrackTof = -36;
 template <> const int  CrossingFrame<PSimHit>::highTrackTof = 36;
-template <> void CrossingFrame<SimTrack>::addPileups(const int bcr, const std::vector<SimTrack> *simtracks, unsigned int evtNr, int vertexoffset,bool checkTof) { 
-  pileupOffsets_.push_back(pileups_.size());
+
+template <> 
+void CrossingFrame<SimTrack>::addPileups(const int bcr, const std::vector<SimTrack> *simtracks, unsigned int evtNr, int vertexoffset,bool checkTof) { 
 
   EncodedEventId id(bcr,evtNr);
   for (unsigned int i=0;i<simtracks->size();++i)
@@ -27,23 +28,19 @@ template <> void CrossingFrame<SimTrack>::addPileups(const int bcr, const std::v
     }
 }
 
-template <> void CrossingFrame<SimVertex>::addPileups(const int bcr, const std::vector<SimVertex> *simvertices, unsigned int evtNr, int vertexoffset,bool checkTof) { 
-  pileupOffsets_.push_back(pileups_.size());
+template <> 
+void CrossingFrame<SimVertex>::addPileups(const int bcr, const std::vector<SimVertex> *simvertices, unsigned int evtNr, int vertexoffset,bool checkTof) { 
 
   EncodedEventId id(bcr,evtNr);
   for (unsigned int i=0;i<simvertices->size();++i) {
-    // SimVertex vertex((*simvertices)[i].position(),((*simvertices)[i].position())[3]+bcr*bunchSpace_,(*simvertices)[i].parentIndex());
-    SimVertex vertex( math::XYZVectorD((*simvertices)[i].position().x(),
-                                       (*simvertices)[i].position().y(),
-				       (*simvertices)[i].position().z()),
-                     ((*simvertices)[i].position()).t()+bcr*bunchSpace_,
-		     (*simvertices)[i].parentIndex());
+    SimVertex vertex((*simvertices)[i].position(),((*simvertices)[i].position())[3]+bcr*bunchSpace_,(*simvertices)[i].parentIndex());
     vertex.setEventId(EncodedEventId(bcr,evtNr));
     pileups_.push_back(vertex);
   }
 }
 
-template <> void CrossingFrame<PSimHit>::addPileups(const int bcr, const std::vector<PSimHit> *simhits, unsigned int evtNr, int vertexoffset,bool checkTof) { 
+template <> 
+void CrossingFrame<PSimHit>::addPileups(const int bcr, const std::vector<PSimHit> *simhits, unsigned int evtNr, int vertexoffset,bool checkTof) { 
 
   EncodedEventId id(bcr,evtNr);
 
@@ -66,11 +63,10 @@ template <> void CrossingFrame<PSimHit>::addPileups(const int bcr, const std::ve
       count++;
     }  
   }
-  pileupOffsets_.push_back(count);
 }
 
-template <> void CrossingFrame<PCaloHit>::addPileups(const int bcr, const std::vector<PCaloHit> *calohits, unsigned int evtNr, int vertexoffset,bool checkTof) { 
-  pileupOffsets_.push_back(pileups_.size());
+template <> 
+void CrossingFrame<PCaloHit>::addPileups(const int bcr, const std::vector<PCaloHit> *calohits, unsigned int evtNr, int vertexoffset,bool checkTof) { 
 
   EncodedEventId id(bcr,evtNr);
   for (unsigned int i=0;i<calohits->size();++i) {
@@ -80,5 +76,10 @@ template <> void CrossingFrame<PCaloHit>::addPileups(const int bcr, const std::v
   }
 }
 
+template <> 
+void CrossingFrame<edm::HepMCProduct>::addPileups(const int bcr, const std::vector<edm::HepMCProduct> *mcps, unsigned int evtNr, int vertexoffset,bool checkTof) { 
+  for (unsigned int i=0;i<mcps->size();++i) {
+    pileups_.push_back((*mcps)[i]);
+  }
+}
 
- 

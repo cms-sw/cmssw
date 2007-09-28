@@ -12,6 +12,8 @@
 <use name=SimDataFormats/Track>
 <use name=SimDataFormats/TrackingHit>
 <use name=SimDataFormats/Vertex>
+<use name=SimDataFormats/HepMCProduct>
+<use name=clhep>
 <export>
   <use name=DataFormats/Common>
   <use name=DataFormats/Provenance>
@@ -19,5 +21,6 @@
   <use name=FWCore/ParameterSet>
   <use name=Mixing/Base>
   <use name=SimDataFormats/CrossingFrame>
+  <use name=SimDataFormats/HepMCProduct>
 </export>
 

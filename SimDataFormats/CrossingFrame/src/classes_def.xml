@@ -4,13 +4,16 @@
   <class name="std::vector<PCaloHit> "/>
   <class name="std::vector<SimTrack> "/>
   <class name="std::vector<SimVertex> "/>
+  <class name="std::vector<edm::HepMCProduct> "/>
   <class name="CrossingFrame<PSimHit> "/>
   <class name="CrossingFrame<PCaloHit> "/>
   <class name="CrossingFrame<SimTrack> "/>
   <class name="CrossingFrame<SimVertex> "/>
+  <class name="CrossingFrame<edm::HepMCProduct> "/>
   <class name="edm::Wrapper<CrossingFrame<PSimHit> >"/>
   <class name="edm::Wrapper<CrossingFrame<PCaloHit> >"/>
   <class name="edm::Wrapper<CrossingFrame<SimTrack> >"/>
   <class name="edm::Wrapper<CrossingFrame<SimVertex> >"/>
+  <class name="edm::Wrapper<CrossingFrame<edm::HepMCProduct> >"/>
 </lcgdict>
 

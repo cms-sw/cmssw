@@ -10,7 +10,7 @@
 //
 // Original Author:  Ursula Berthon
 //         Created:  Fri Sep 23 11:38:38 CEST 2005
-// $Id: TestMix.cc,v 1.1 2007/04/19 14:51:54 uberthon Exp $
+// $Id: TestMix.cc,v 1.3 2007/08/03 13:09:03 uberthon Exp $
 //
 //
 
@@ -104,7 +104,6 @@ TestMix::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     count++;
   }
 
-
   // test access to CaloHits
   const std::string subdetcalo("EcalHitsEB");
   edm::Handle<CrossingFrame<PCaloHit> > cf_calo;
@@ -133,7 +132,7 @@ TestMix::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     count2++; 
   }
 
-  // test access to SimVerticess
+  // test access to SimVertices
   std::cout<<"\n=================== Starting SimVertex access ==================="<<std::endl;
   edm::Handle<CrossingFrame<SimVertex> > cf_simvtx;
   iEvent.getByLabel("mix",cf_simvtx);
@@ -181,6 +180,20 @@ TestMix::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     std::cout<<" Hit "<<ii2<<" of all hits has tof "<<it2->timeOfFlight()<<" trackid "<<it2->trackId() <<" bunchcr "<<it2.bunch()<<" trigger "<<it2.getTrigger()<<", bcr from Id: "<<it2->eventId().bunchCrossing() <<" evtnr in id "<<it2->eventId().event()<<std::endl;
     ii2++;
   }
+
+  //test MixCollection for HepMCProducts
+  //------------------------------------
+  edm::Handle<CrossingFrame<edm::HepMCProduct> > cf_hepmc;
+  iEvent.getByLabel("mix",cf_hepmc);
+  std::auto_ptr<MixCollection<edm::HepMCProduct> > colhepmc(new MixCollection<edm::HepMCProduct>(cf_hepmc.product()));
+  MixCollection<edm::HepMCProduct>::iterator cfihepmc;
+  int counthepmc=0;
+  std::cout <<" \nWe got "<<colhepmc->sizeSignal()<<" signal hepmc products and "<<colhepmc->sizePileup()<<" pileup hepmcs, total: "<<colhepmc->size()<<std::endl;
+  for (cfihepmc=colhepmc->begin(); cfihepmc!=colhepmc->end();cfihepmc++) {
+    std::cout<<" edm::HepMCProduct "<<counthepmc<<" has event number "<<cfihepmc->GetEvent()->event_number()<<", "<< cfihepmc->GetEvent()->particles_size()<<" particles and "<<cfihepmc->GetEvent()->vertices_size()<<" vertices,  bunchcr= "<<cfihepmc.bunch()<<" trigger= "<<cfihepmc.getTrigger() <<std::endl;
+    counthepmc++;
+  }
+
   //----------------------------------------------------------------------------
   //  testing special situations
   //----------------------------------------------------------------------------

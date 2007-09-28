@@ -25,6 +25,7 @@
 #include "SimDataFormats/CaloHit/interface/PCaloHitContainer.h"
 #include "SimDataFormats/Track/interface/SimTrackContainer.h"
 #include "SimDataFormats/Vertex/interface/SimVertexContainer.h"
+#include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
 
 #include "DataFormats/Provenance/interface/ProductID.h"
 #include "DataFormats/Common/interface/Handle.h"
@@ -57,6 +58,7 @@ namespace edm
       virtual void createnewEDProduct();
       virtual void addSignals(const edm::Event &e); 
       virtual void addPileups(const int bcr, edm::Event*,unsigned int EventId);
+      virtual void setBcrOffset();
       virtual void getSubdetectorNames();
 
       // internally used information : subdetectors present in input
@@ -72,6 +74,7 @@ namespace edm
       std::map<std::string,CrossingFrame<PCaloHit> * > cfCaloHits_;
       CrossingFrame<SimTrack> *cfTracks_;
       CrossingFrame<SimVertex> *cfVertices_;
+      CrossingFrame<HepMCProduct> *cfHepMC_;
 
       //      unsigned int eventId_; //=0 for signal, from 1-n for pileup events
 

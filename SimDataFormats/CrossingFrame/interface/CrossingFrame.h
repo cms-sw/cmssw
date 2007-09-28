@@ -16,13 +16,14 @@
 #include "SimDataFormats/CaloHit/interface/PCaloHitContainer.h"
 #include "SimDataFormats/Track/interface/SimTrackContainer.h"
 #include "SimDataFormats/Vertex/interface/SimVertexContainer.h"
+#include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
 
 #include "DataFormats/Provenance/interface/EventID.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include <vector>
 #include <string>
-#include <map>
+#include <iostream>
 #include <utility>
 
 template <class T> 
@@ -35,15 +36,15 @@ class CrossingFrame
   CrossingFrame():  firstCrossing_(0), lastCrossing_(0), bunchSpace_(75) {;}
   CrossingFrame(int minb, int maxb, int bunchsp, std::string subdet );
 
-  ~CrossingFrame();
-  void clear();
+  ~CrossingFrame() {;}
 
   void addSignals(const std::vector<T> * vec,edm::EventID id);
 
   void addPileups(const int bcr,const std::vector<T> * vec, unsigned int evtId,int vertexoffset=0,bool checkTof=false);
+  
   void print(int level=0) const ;
   void setBcrOffset() {
-    pileupOffsetsBcr_.push_back(pileups_.size()); 
+    pileupOffsetsBcr_.push_back(pileups_.size());
   }
 
   //getters
@@ -87,39 +88,32 @@ class CrossingFrame
   std::vector<T>  signals_; 
   //pileup
   std::vector<T>  pileups_;  
-  std::vector<unsigned int> pileupOffsets_;  //is this one really necessary????
   std::vector<unsigned int> pileupOffsetsBcr_;
 };
 
 //==============================================================================
 //                              implementations
 //==============================================================================
-template <class T> CrossingFrame<T>::CrossingFrame(int minb, int maxb, int bunchsp, std::string subdet ):firstCrossing_(minb), lastCrossing_(maxb), bunchSpace_(bunchsp),subdet_(subdet) {
+template <class T> 
+CrossingFrame<T>::CrossingFrame(int minb, int maxb, int bunchsp, std::string subdet ):firstCrossing_(minb), lastCrossing_(maxb), bunchSpace_(bunchsp),subdet_(subdet) {
   //FIXME: should we force around 0 or so??
   pileupOffsetsBcr_.reserve(-firstCrossing_+lastCrossing_+1);
 }
-template <class T> void CrossingFrame<T>::addSignals(const std::vector<T> * vec,edm::EventID id){
+
+template <class T> 
+void CrossingFrame<T>::addSignals(const std::vector<T> * vec,edm::EventID id){
   id_=id;
   signals_=*vec;
 }
 
-template <class T>  CrossingFrame<T>::~CrossingFrame () {
-  this->clear();
-}
-
-template <class T>  void  CrossingFrame<T>::getPileups(typename std::vector<T>::const_iterator &first,typename std::vector<T>::const_iterator &last) const {
+template <class T>  
+void  CrossingFrame<T>::getPileups(typename std::vector<T>::const_iterator &first,typename std::vector<T>::const_iterator &last) const {
   first=pileups_.begin();
   last=pileups_.end();
 }
 
-template <class T> void CrossingFrame<T>::clear() {
-  // clear things up
-  signals_.clear();
-  pileups_.clear();
-  pileupOffsets_.clear();
-  pileupOffsetsBcr_.clear();
-}
-template <class T> void CrossingFrame<T>::print(int level) const {
+template <class T> 
+void CrossingFrame<T>::print(int level) const {
 }
 
 #include<iosfwd>
