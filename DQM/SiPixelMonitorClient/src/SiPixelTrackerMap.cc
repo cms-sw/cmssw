@@ -16,7 +16,7 @@
 //
 // Original Author:  Dario Menasce
 //         Created:  
-// $Id: SiPixelTrackerMap.cc,v 1.4 2007/07/18 16:40:14 menasce Exp $
+// $Id: SiPixelTrackerMap.cc,v 1.5 2007/07/25 11:38:49 menasce Exp $
 //
 //
 #include "DQM/SiPixelMonitorClient/interface/ANSIColors.h"
@@ -255,7 +255,7 @@ void SiPixelTrackerMap::print(bool print_total, string TKType, float minval, flo
     for (int module=1;module<200;module++) 
     {
      int key=layer*100000+ring*1000+module;
-     TmModule * mod = SvgModuleMap::smoduleMap[key];
+     TmModule * mod = smoduleMap[key];
      if(mod !=0 && !mod->notInUse())
      {
        mod->value = mod->value / mod->count;
@@ -276,7 +276,7 @@ void SiPixelTrackerMap::print(bool print_total, string TKType, float minval, flo
     for (int module=1;module<200;module++) 
     {
      int key=layer*100000+ring*1000+module;
-     TmModule * mod = SvgModuleMap::smoduleMap[key];
+     TmModule * mod = smoduleMap[key];
      if(mod !=0 && !mod->notInUse())
      {
        if (minvalue > mod->value)minvalue=mod->value;
@@ -296,7 +296,7 @@ void SiPixelTrackerMap::print(bool print_total, string TKType, float minval, flo
    for (int module=1;module<200;module++) 
    {
     int key=layer*100000+ring*1000+module;
-    TmModule * mod = SvgModuleMap::smoduleMap[key];
+    TmModule * mod = smoduleMap[key];
     if(mod !=0 && !mod->notInUse())
     {
       drawModule(mod,key,layer,print_total);
