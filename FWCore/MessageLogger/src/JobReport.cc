@@ -6,7 +6,7 @@
 // 
 //
 // Original Author:  Marc Paterno
-// $Id: JobReport.cc,v 1.21 2007/06/12 17:09:46 evansde Exp $
+// $Id: JobReport.cc,v 1.22 2007/06/14 02:25:49 wmtan Exp $
 //
 
 
@@ -52,7 +52,10 @@ namespace edm
       os << "\n<DataType>" 
 			<< f.dataType 
 			<< "</DataType>\n";
-
+      os << "\n<BranchHash>" 
+			<< f.branchHash 
+			<< "</BranchHash>\n";
+      
       return os;      
     }
 
@@ -373,6 +376,7 @@ namespace edm
 				string const& moduleLabel,
 				string const& guid,
 				string const& dataType,
+				string const& branchHash,
 				vector<string> const& branchNames)
     {
       impl_->outputFiles_.push_back(JobReport::OutputFile());
@@ -385,6 +389,7 @@ namespace edm
       r.moduleLabel           = moduleLabel;
       r.guid           = guid;
       r.dataType = dataType;
+      r.branchHash = branchHash;
       // r.runsSeen is not modified
       r.numEventsWritten      = 0;
       r.branchNames           = branchNames;
@@ -396,6 +401,28 @@ namespace edm
       return impl_->outputFiles_.size()-1;
     }
 
+    JobReport::Token 
+    JobReport::outputFileOpened(string const& physicalFileName,
+				string const& logicalFileName,
+				string const& catalog,
+				string const& outputModuleClassName,
+				string const& moduleLabel,
+				string const& guid,
+				string const& dataType,
+				vector<string> const& branchNames)
+    {
+      return this->outputFileOpened(physicalFileName,
+				    logicalFileName,
+				    catalog,
+				    outputModuleClassName,
+				    moduleLabel,
+				    guid,
+				    "",
+				    "NO_BRANCH_HASH",
+				    branchNames);
+      
+      
+    }
   
     JobReport::Token 
     JobReport::outputFileOpened(string const& physicalFileName,
@@ -581,6 +608,58 @@ namespace edm
     
     impl_->addGeneratorInfo(name, value);
   }
+
+  void
+  JobReport::reportPSetHash(std::string hashValue)
+  {
+    std::ostringstream msg;
+    msg << "<PSetHash>"
+        <<  hashValue 
+	<<  "</PSetHash>\n";
+    LogInfo("FwkJob") << msg.str();    
+  }
+
+
+  void 
+  JobReport::reportPerformanceSummary(std::string metricClass,
+				      std::map<std::string, std::string> & metrics)
+  {
+    std::ostringstream msg;
+    msg << "<PerformanceReport>\n"
+        << "  <PerformanceSummary Metric=\"" << metricClass << "\">\n";
+    
+    std::map<std::string, std::string>::iterator iter;
+    for( iter = metrics.begin(); iter != metrics.end(); ++iter ) {
+      msg << "    <Metric Name=\"" << iter->first << "\" " 
+	  <<"Value=\"" << iter->second << "\"/>\n";
+    }
+
+    msg << "  </PerformanceSummary>\n"
+	<< "</PerformanceReport>\n";
+    LogInfo("FwkJob") << msg.str();    
+  }
+      
+  void 
+  JobReport::reportPerformanceForModule(std::string  metricClass,
+					std::string  moduleName,
+					std::map<std::string, std::string> & metrics)
+  {
+    std::ostringstream msg;
+    msg << "<PerformanceReport>\n"
+        << "  <PerformanceModule Metric=\"" << metricClass << "\" "
+	<< " Module=\""<< moduleName << "\" >\n";
+    
+    std::map<std::string, std::string>::iterator iter;
+    for( iter = metrics.begin(); iter != metrics.end(); ++iter ) {
+      msg << "    <Metric Name=\"" << iter->first << "\" " 
+	  <<"Value=\"" << iter->second << "\"/>\n";
+    }
+
+    msg << "  </PerformanceModule>\n"
+	<< "</PerformanceReport>\n";
+    LogInfo("FwkJob") << msg.str();    
+  }
+  
 
   std::string
   JobReport::dumpFiles(void){

@@ -19,7 +19,7 @@ through the MessageLogger.
 
 //
 // Original Author:  Marc Paterno
-// $Id: JobReport.h,v 1.16 2007/06/12 17:09:45 evansde Exp $
+// $Id: JobReport.h,v 1.17 2007/06/14 02:25:48 wmtan Exp $
 //
 
 #include <cstddef>
@@ -107,6 +107,7 @@ namespace edm {
         std::string     moduleLabel;   // name of class instance
         std::string     guid;
         std::string     dataType; 
+	std::string     branchHash;
         RunNumberCollection runsSeen;
         size_t          numEventsWritten;
         StringVector    branchNames;
@@ -244,6 +245,16 @@ namespace edm {
 			     std::string const& moduleLabel,
 			     std::string const& guid,
 			     std::string const& dataType,
+			     std::string const& branchHash,
+			     std::vector<std::string> const& branchNames);
+
+      Token outputFileOpened(std::string const& physicalFileName,
+			     std::string const& logicalFileName,
+			     std::string const& catalog,
+			     std::string const& outputModuleClassName,
+			     std::string const& moduleLabel,
+			     std::string const& guid,
+			     std::string const& dataType,
 			     std::vector<std::string> const& branchNames);
       
       /*      Token outputFileOpened(std::string const& physicalFileName,
@@ -345,6 +356,31 @@ namespace edm {
       /// No special chars in the value string. 
       void reportGeneratorInfo(std::string  name, std::string  value);
       
+
+
+      ///
+      /// Report PSetHash
+      ///
+      ///
+      void reportPSetHash(std::string hashValue);
+      
+
+      ///
+      /// Performance Reports
+      ///
+      /// Two categories:  Summary for entire job and module
+      /// for a specific module
+      /// Each one requires a performance metric class such 
+      /// as Timing, Memory, CPU, Trigger etc.
+      void reportPerformanceSummary(std::string  metricClass,
+				    std::map<std::string, std::string> & metrics);
+      
+      void reportPerformanceForModule(std::string  metricClass,
+				      std::string  moduleName,
+				      std::map<std::string, std::string> & metrics);
+
+      
+
       /// debug/test util
       std::string dumpFiles(void);
 
