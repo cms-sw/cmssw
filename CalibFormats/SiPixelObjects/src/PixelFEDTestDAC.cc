@@ -30,8 +30,9 @@ PixelFEDTestDAC::PixelFEDTestDAC(std::string filename){
 
   getline(fin, line);
   mode_=line;
-  assert(mode_=="EmulatedPhysics");
-	
+  assert(mode_=="EmulatedPhysics"||
+         mode_=="FEDBaselineWithTestDACs");
+
   while (!fin.eof())
     {
       getline(fin, line);
