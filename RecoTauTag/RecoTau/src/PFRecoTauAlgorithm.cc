@@ -96,7 +96,7 @@ PFTau PFRecoTauAlgorithm::buildPFTau(const PFTauTagInfoRef& myPFTauTagInfoRef,co
 	TrackRef iPFChargedHadrCand_track;
 	if ((**iPFCand).block()->elements().size()!=0){
 	  for (OwnVector<PFBlockElement>::const_iterator iPFBlock=(**iPFCand).block()->elements().begin();iPFBlock!=(**iPFCand).block()->elements().end();iPFBlock++){
-	    if ((*iPFBlock).type()==PFBlockElement::TRACK) iPFChargedHadrCand_track=(*iPFBlock).trackRef();
+	    if ((*iPFBlock).type()==PFBlockElement::TRACK && ROOT::Math::VectorUtil::DeltaR((**iPFCand).momentum(),(*iPFBlock).trackRef()->momentum())<0.001) iPFChargedHadrCand_track=(*iPFBlock).trackRef();
 	  }
 	}else continue;
 	if (!iPFChargedHadrCand_track)continue;

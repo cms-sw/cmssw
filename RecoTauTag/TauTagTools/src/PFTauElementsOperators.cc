@@ -48,7 +48,7 @@ PFCandidateRefVector PFTauElementsOperators::PFChargedHadrCandsInCone(const math
     TrackRef PFChargedHadrCand_track;
     if ((**iPFCand).block()->elements().size()!=0){
       for (OwnVector<PFBlockElement>::const_iterator iPFBlock=(**iPFCand).block()->elements().begin();iPFBlock!=(**iPFCand).block()->elements().end();iPFBlock++){
-	if ((*iPFBlock).type()==PFBlockElement::TRACK){
+	if ((*iPFBlock).type()==PFBlockElement::TRACK && ROOT::Math::VectorUtil::DeltaR((**iPFCand).momentum(),(*iPFBlock).trackRef()->momentum())<0.001){
 	  PFChargedHadrCand_track=(*iPFBlock).trackRef();
 	}
       }
@@ -133,7 +133,7 @@ PFCandidateRefVector PFTauElementsOperators::PFChargedHadrCandsInAnnulus(const m
     TrackRef PFChargedHadrCand_track;
     if ((**iPFCand).block()->elements().size()!=0){
       for (OwnVector<PFBlockElement>::const_iterator iPFBlock=(**iPFCand).block()->elements().begin();iPFBlock!=(**iPFCand).block()->elements().end();iPFBlock++){
-	if ((*iPFBlock).type()==PFBlockElement::TRACK){
+	if ((*iPFBlock).type()==PFBlockElement::TRACK && ROOT::Math::VectorUtil::DeltaR((**iPFCand).momentum(),(*iPFBlock).trackRef()->momentum())<0.001){
 	  PFChargedHadrCand_track=(*iPFBlock).trackRef();
 	}
       }
