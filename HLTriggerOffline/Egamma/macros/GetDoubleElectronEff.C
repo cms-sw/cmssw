@@ -13,7 +13,7 @@ Double_t EoverpBarrelCut = 15000.;       // E/p Cut for electrons in barrel
 Double_t EoverpEndcapCut = 24500.;      // "   "   "   "         "  endcap
 Double_t ItrackCut = 0.4;            // Track Isolation (Sum of track pt's for tracks in dR < 0.15, not matching the electron's track)
 
-TFile *file = new TFile("../test/ZEE-HLTEgamma.root");
+TFile *file = new TFile("../test/ZEE-HLTVars.root");
 TTree *allEvents = Events->CloneTree();
 
 TString MCEtPTCutString = "ElecHLTCutVarsPreTracks_hltCutVars_DoubleElecsPT_EGAMMAHLT.obj.mcEt > ";
