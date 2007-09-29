@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.24 2007/09/22 16:47:05 stroiney Exp $
+# $Id: Makefile,v 1.1 2007/09/23 13:44:13 aryd Exp $
 
 #########################################################################
 # XDAQ Components for Distributed Data Acquisition                      #
@@ -19,7 +19,7 @@ include $(XDAQ_ROOT)/config/mfDefs.$(XDAQ_OS)
 Project=pixel
 Package=CalibFormats/SiPixelObjects
 
-Sources = SiPixelCalibConfiguration.cc PixelROCDACSettings.cc PixelMaskAllPixels.cc PixelTrimAllPixels.cc PixelMaskBase.cc PixelConfigBase.cc PixelCalibBase.cc PixelROCMaskBits.cc PixelTrimBase.cc PixelROCTrimBits.cc PixelDACSettings.cc PixelROCName.cc PixelNameTranslation.cc PixelHdwAddress.cc PixelDetectorConfig.cc PixelFEDCard.cc PixelFECConfig.cc PixelFEDConfig.cc PixelTBMSettings.cc PixelModuleName.cc PixelTrimCommon.cc PixelPortCardConfig.cc PixelDelay25Calib.cc PixelPortcardMap.cc PixelDACScanRange.cc PixelTTCciConfig.cc PixelFECParameters.cc PixelFEDParameters.cc PixelLTCConfig.cc PixelFEDTestDAC.cc PixelTKFECConfig.cc PixelTKFECParameters.cc
+Sources = PixelCalibConfiguration.cc PixelROCDACSettings.cc PixelMaskAllPixels.cc PixelTrimAllPixels.cc PixelMaskBase.cc PixelConfigBase.cc PixelCalibBase.cc PixelROCMaskBits.cc PixelTrimBase.cc PixelROCTrimBits.cc PixelDACSettings.cc PixelROCName.cc PixelNameTranslation.cc PixelHdwAddress.cc PixelDetectorConfig.cc PixelFEDCard.cc PixelFECConfig.cc PixelFEDConfig.cc PixelTBMSettings.cc PixelModuleName.cc PixelTrimCommon.cc PixelPortCardConfig.cc PixelDelay25Calib.cc PixelPortcardMap.cc PixelDACScanRange.cc PixelTTCciConfig.cc PixelFECParameters.cc PixelFEDParameters.cc PixelLTCConfig.cc PixelFEDTestDAC.cc PixelTKFECConfig.cc PixelTKFECParameters.cc
 
 IncludeDirs = \
         $(BUILD_HOME)/$(Project) \
