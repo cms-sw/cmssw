@@ -26,6 +26,8 @@ namespace edm
     virtual ~SiteLocalConfig() {}
     
     virtual const std::string dataCatalog (void) const = 0;
+    virtual const std::string calibCatalog (void) const = 0;
+    virtual const std::string calibLogicalServer (void) const = 0;
     virtual const std::string lookupCalibConnect (const std::string& input) const = 0;
     virtual const std::string rfioType (void) const = 0;
     
