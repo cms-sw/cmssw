@@ -1,6 +1,6 @@
 /*----------------------------------------------------------------------
   
-$Id: TypeID.cc,v 1.1 2007/03/04 04:40:19 wmtan Exp $
+$Id: TypeID.cc,v 1.2 2007/06/28 23:28:58 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 #include <ostream>
@@ -16,7 +16,7 @@ namespace edm {
     os << className();
   }
 
-  static 
+  static
   std::string typeToClassName(const std::type_info& iType) {
     ROOT::Reflex::Type t = ROOT::Reflex::Type::ByTypeInfo(iType);
     if (!bool(t)) {
@@ -88,6 +88,11 @@ namespace edm {
       theName = theName.substr(idx);
     }
     return ret;
+  }
+
+  bool
+  TypeID::hasDictionary() const {
+    return bool(ROOT::Reflex::Type::ByTypeInfo(typeInfo()));
   }
 
   std::ostream&
