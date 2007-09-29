@@ -1,5 +1,5 @@
 /**----------------------------------------------------------------------
-  $Id: Principal.cc,v 1.13 2007/08/02 16:23:08 wmtan Exp $
+  $Id: Principal.cc,v 1.14 2007/09/28 21:29:50 paterno Exp $
   ----------------------------------------------------------------------*/
 
 #include <algorithm>
@@ -416,20 +416,19 @@ namespace edm {
 			bool stopIfProcessHasMatch) const {
     assert(results.empty());
 
-    TypeLookup::const_iterator i;
-    try
-      {
-	i = typeLookup.find(typeID.friendlyClassName());
-      }
-    catch (edm::Exception const& x)
-      {
-	if (x.categoryCode() == edm::errors::ProductNotFound)
-	  i = typeLookup.end();
-	else
-	  throw;	
-      }
+    // A class without a dictionary cannot be in an Event/Lumi/Run.
+    // First, we check if the class has a dictionary.  If it does not,
+    // we return immediately.  This is necessary to avoid an exception
+    // being thrown inside TypeID::friendlyClassName().
+    if (!typeID.hasDictionary()) {
+      return 0;
+    }
 
-    if (i == typeLookup.end()) return 0;
+    TypeLookup::const_iterator i = typeLookup.find(typeID.friendlyClassName());
+
+    if (i == typeLookup.end()) {
+      return 0;
+    }
 
     const ProcessLookup& processLookup = i->second;
 
