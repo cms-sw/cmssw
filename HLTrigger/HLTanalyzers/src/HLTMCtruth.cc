@@ -85,7 +85,7 @@ void HLTMCtruth::analyze(const CandidateCollection& mctruth,
 	mcvx[nmc] = p.vx();
 	mcvy[nmc] = p.vy();
 	mcvz[nmc] = p.vz();
-	if (((mcpid[nmc]==13)||(mcpid[nmc]==-13))&&(mcpt[nmc]>3.)) {mu3 += 1;} // Flag for muons with pT > 3 GeV/c
+	if (((mcpid[nmc]==13)||(mcpid[nmc]==-13))&&(mcpt[nmc]>2.5)) {mu3 += 1;} // Flag for muons with pT > 2.5 GeV/c
 	if (mcpid[nmc]==-5) {mab += 1;} // Flag for bbar
 	if (mcpid[nmc]==5) {mbb += 1;} // Flag for b
 	nmc++;
