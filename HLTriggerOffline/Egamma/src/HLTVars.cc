@@ -13,7 +13,7 @@
 //
 // Original Author:  Joshua Berger
 //         Created:  Wed Aug 22 20:56:48 CEST 2007
-// $Id: HLTVars.cc,v 1.1 2007/09/14 19:05:49 jberger Exp $
+// $Id: HLTVars.cc,v 1.2 2007/09/17 21:49:32 jberger Exp $
 //
 //
 
@@ -104,6 +104,8 @@ class HLTVars : public edm::EDProducer {
       double region_phi_size_;
       double barrel_end_;
       double endcap_end_;
+      bool do_elec_eta_filter_;
+      bool do_phot_eta_filter_;
 };
 
 //
@@ -153,6 +155,8 @@ HLTVars::HLTVars(const edm::ParameterSet& iConfig)
    region_phi_size_      = iConfig.getParameter<double> ("region_phi_size");
    barrel_end_           = iConfig.getParameter<double> ("barrel_end");
    endcap_end_           = iConfig.getParameter<double> ("endcap_end");
+   do_elec_eta_filter_   = iConfig.getParameter<bool> ("do_elec_eta_filter");
+   do_phot_eta_filter_   = iConfig.getParameter<bool> ("do_phot_eta_filter");
 }
 
 
@@ -500,13 +504,15 @@ HLTVars::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
        pixMatchIsoTime += hltTimes->time(i);
        EoverpIsoTime += hltTimes->time(i);
        ElecItrackIsoTime += hltTimes->time(i);
+       IEcalIsoTime += hltTimes->time(i);
        l1MatchNonIsoTime += hltTimes->time(i);
        EtNonIsoTime += hltTimes->time(i);
        ElecIHcalNonIsoTime += hltTimes->time(i);
        pixMatchNonIsoTime += hltTimes->time(i);
        EoverpNonIsoTime += hltTimes->time(i);
-       ElecItrackNonIsoTime += hltTimes->time(i);
-     }
+       ElecItrackNonIsoTime += hltTimes->time(i); 
+       IEcalNonIsoTime += hltTimes->time(i);
+    }
      if (hltTimes->name(i) == "hltIslandBasicClustersEndcapL1NonIsolated" ||
          hltTimes->name(i) == "hltIslandBasicClustersBarrelL1NonIsolated" ||
          hltTimes->name(i) == "hltHybridSuperClustersL1NonIsolated" ||
@@ -523,6 +529,7 @@ HLTVars::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
        pixMatchNonIsoTime += hltTimes->time(i);
        EoverpNonIsoTime += hltTimes->time(i);
        ElecItrackNonIsoTime += hltTimes->time(i);
+       IEcalNonIsoTime += hltTimes->time(i);
      }
      if (hltTimes->name(i) == "hcalZeroSuppressedDigis" ||
          hltTimes->name(i) == "hbhereco" ||
@@ -752,25 +759,25 @@ struct HLTTiming NonIsoTimingTemp = {l1MatchNonIsoTime, EtNonIsoTime, ElecIHcalN
      }
    }
 
-   if (nMCElecs >= 1 && L1IsoSingleEG) iEvent.put(SingleElecsPT, "SingleElecsPT"); 
-   if (nMCElecs >= 1 && L1NonIsoSingleEG) iEvent.put(RelaxedSingleElecsPT, "RelaxedSingleElecsPT"); 
-   if (nMCElecs >= 2 && L1IsoDoubleEG) iEvent.put(DoubleElecsPT, "DoubleElecsPT"); 
-   if (nMCElecs >= 2 && L1NonIsoDoubleEG) iEvent.put(RelaxedDoubleElecsPT, "RelaxedDoubleElecsPT"); 
+   if (((do_elec_eta_filter_ && nMCElecs >= 1) || !do_elec_eta_filter_) && L1IsoSingleEG) iEvent.put(SingleElecsPT, "SingleElecsPT"); 
+   if (((do_elec_eta_filter_ && nMCElecs >= 1) || !do_elec_eta_filter_) && L1NonIsoSingleEG) iEvent.put(RelaxedSingleElecsPT, "RelaxedSingleElecsPT"); 
+   if (((do_elec_eta_filter_ && nMCElecs >= 2) || !do_elec_eta_filter_) && L1IsoDoubleEG) iEvent.put(DoubleElecsPT, "DoubleElecsPT"); 
+   if (((do_elec_eta_filter_ && nMCElecs >= 2) || !do_elec_eta_filter_) && L1NonIsoDoubleEG) iEvent.put(RelaxedDoubleElecsPT, "RelaxedDoubleElecsPT"); 
 
-   if (nMCElecs >= 1 && L1IsoSingleEG) iEvent.put(SingleElecs, "SingleElecs"); 
-   if (nMCElecs >= 1 && L1NonIsoSingleEG) iEvent.put(RelaxedSingleElecs, "RelaxedSingleElecs"); 
-   if (nMCElecs >= 2 && L1IsoDoubleEG) iEvent.put(DoubleElecs, "DoubleElecs"); 
-   if (nMCElecs >= 2 && L1NonIsoDoubleEG) iEvent.put(RelaxedDoubleElecs, "RelaxedDoubleElecs"); 
+   if (((do_elec_eta_filter_ && nMCElecs >= 1) || !do_elec_eta_filter_) && L1IsoSingleEG) iEvent.put(SingleElecs, "SingleElecs"); 
+   if (((do_elec_eta_filter_ && nMCElecs >= 1) || !do_elec_eta_filter_) && L1NonIsoSingleEG) iEvent.put(RelaxedSingleElecs, "RelaxedSingleElecs"); 
+   if (((do_elec_eta_filter_ && nMCElecs >= 2) || !do_elec_eta_filter_) && L1IsoDoubleEG) iEvent.put(DoubleElecs, "DoubleElecs"); 
+   if (((do_elec_eta_filter_ && nMCElecs >= 2) || !do_elec_eta_filter_) && L1NonIsoDoubleEG) iEvent.put(RelaxedDoubleElecs, "RelaxedDoubleElecs"); 
 
-   if (nMCParts >= 1 && L1IsoSingleEG) iEvent.put(SinglePhots, "SinglePhots"); 
-   if (nMCParts >= 1 && L1NonIsoSingleEG) iEvent.put(RelaxedSinglePhots, "RelaxedSinglePhots"); 
-   if (nMCParts >= 2 && L1IsoDoubleEG) iEvent.put(DoublePhots, "DoublePhots"); 
-   if (nMCParts >= 2 && L1NonIsoDoubleEG) iEvent.put(RelaxedDoublePhots, "RelaxedDoublePhots"); 
+   if (((do_phot_eta_filter_ && nMCPhots >= 1) || !do_phot_eta_filter_) && L1IsoSingleEG) iEvent.put(SinglePhots, "SinglePhots"); 
+   if (((do_phot_eta_filter_ && nMCPhots >= 1) || !do_phot_eta_filter_) && L1NonIsoSingleEG) iEvent.put(RelaxedSinglePhots, "RelaxedSinglePhots"); 
+   if (((do_phot_eta_filter_ && nMCPhots >= 2) || !do_phot_eta_filter_) && L1IsoDoubleEG) iEvent.put(DoublePhots, "DoublePhots"); 
+   if (((do_phot_eta_filter_ && nMCPhots >= 2) || !do_phot_eta_filter_) && L1NonIsoDoubleEG) iEvent.put(RelaxedDoublePhots, "RelaxedDoublePhots"); 
 
-   if (nMCElecs >= 1) iEvent.put(mcSingleElecs, "mcSingleElecs");
-   if (nMCElecs >= 2) iEvent.put(mcDoubleElecs, "mcDoubleElecs");
-   if (nMCPhots >= 1) iEvent.put(mcSinglePhots, "mcSinglePhots");
-   if (nMCPhots >= 2) iEvent.put(mcDoublePhots, "mcDoublePhots");
+   if ((do_elec_eta_filter_ && nMCElecs >= 1) || !do_elec_eta_filter_) iEvent.put(mcSingleElecs, "mcSingleElecs");
+   if ((do_elec_eta_filter_ && nMCElecs >= 2) || !do_elec_eta_filter_) iEvent.put(mcDoubleElecs, "mcDoubleElecs");
+   if ((do_phot_eta_filter_ && nMCPhots >= 1) || !do_phot_eta_filter_) iEvent.put(mcSinglePhots, "mcSinglePhots");
+   if ((do_phot_eta_filter_ && nMCPhots >= 2) || !do_phot_eta_filter_) iEvent.put(mcDoublePhots, "mcDoublePhots");
 
    iEvent.put(IsoTiming, "IsoTiming");
    iEvent.put(NonIsoTiming, "NonIsoTiming");

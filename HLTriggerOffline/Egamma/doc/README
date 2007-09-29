@@ -46,12 +46,13 @@ For Optimization:
    and 6.  Then do:
 
 		> root.exe // in macros directory
-		[] .L GetEntriesMulti.C
-		[] .x GetOptimization.C
+		[] .L GetOptimization.C++;
+		[] GetOptimization();
 
-  The output will be a graph of Efficiency vs. Background for each trigger path filter eventually;
-  currently only for the Et filter in electrons.
+  The output will be a graph of Efficiency vs. Background for each e/gamma trigger path filter and graphs 
+  of timing vs. filter for the isolated streams in both electrons and photons.
 
 Bugs:
-- Completely untested in 1_6_0 due to lack of background samples.
-- Only does one filter for now, but can easily be scaled up after testing.
+- If no signal events or background events pass any of the cuts imposed, an error will be produced
+- No error bars yet
+- Code is messy for now and difficult to modify; should be changed very soon.
