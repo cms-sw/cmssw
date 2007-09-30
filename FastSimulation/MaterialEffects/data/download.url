@@ -14,6 +14,7 @@ http://cmsdoc.cern.ch/cms/data/CMSSW/FastSimulation/MaterialEffects/data/Nuclear
 http://cmsdoc.cern.ch/cms/data/CMSSW/FastSimulation/MaterialEffects/data/NuclearInteractions_piplus_E200.root
 http://cmsdoc.cern.ch/cms/data/CMSSW/FastSimulation/MaterialEffects/data/NuclearInteractions_piplus_E300.root
 http://cmsdoc.cern.ch/cms/data/CMSSW/FastSimulation/MaterialEffects/data/NuclearInteractions_piplus_E500.root
+http://cmsdoc.cern.ch/cms/data/CMSSW/FastSimulation/MaterialEffects/data/NuclearInteractions_piplus_E700.root
 http://cmsdoc.cern.ch/cms/data/CMSSW/FastSimulation/MaterialEffects/data/NuclearInteractions_piplus_E1000.root
 http://cmsdoc.cern.ch/cms/data/CMSSW/FastSimulation/MaterialEffects/data/NuclearInteractions_piminus_E1.root
 http://cmsdoc.cern.ch/cms/data/CMSSW/FastSimulation/MaterialEffects/data/NuclearInteractions_piminus_E2.root
@@ -31,6 +32,7 @@ http://cmsdoc.cern.ch/cms/data/CMSSW/FastSimulation/MaterialEffects/data/Nuclear
 http://cmsdoc.cern.ch/cms/data/CMSSW/FastSimulation/MaterialEffects/data/NuclearInteractions_piminus_E200.root
 http://cmsdoc.cern.ch/cms/data/CMSSW/FastSimulation/MaterialEffects/data/NuclearInteractions_piminus_E300.root
 http://cmsdoc.cern.ch/cms/data/CMSSW/FastSimulation/MaterialEffects/data/NuclearInteractions_piminus_E500.root
+http://cmsdoc.cern.ch/cms/data/CMSSW/FastSimulation/MaterialEffects/data/NuclearInteractions_piminus_E700.root
 http://cmsdoc.cern.ch/cms/data/CMSSW/FastSimulation/MaterialEffects/data/NuclearInteractions_piminus_E1000.root
 http://cmsdoc.cern.ch/cms/data/CMSSW/FastSimulation/MaterialEffects/data/NuclearInteractions_K0L_E1.root
 http://cmsdoc.cern.ch/cms/data/CMSSW/FastSimulation/MaterialEffects/data/NuclearInteractions_K0L_E2.root
@@ -48,6 +50,7 @@ http://cmsdoc.cern.ch/cms/data/CMSSW/FastSimulation/MaterialEffects/data/Nuclear
 http://cmsdoc.cern.ch/cms/data/CMSSW/FastSimulation/MaterialEffects/data/NuclearInteractions_K0L_E200.root
 http://cmsdoc.cern.ch/cms/data/CMSSW/FastSimulation/MaterialEffects/data/NuclearInteractions_K0L_E300.root
 http://cmsdoc.cern.ch/cms/data/CMSSW/FastSimulation/MaterialEffects/data/NuclearInteractions_K0L_E500.root
+http://cmsdoc.cern.ch/cms/data/CMSSW/FastSimulation/MaterialEffects/data/NuclearInteractions_K0L_E700.root
 http://cmsdoc.cern.ch/cms/data/CMSSW/FastSimulation/MaterialEffects/data/NuclearInteractions_K0L_E1000.root
 http://cmsdoc.cern.ch/cms/data/CMSSW/FastSimulation/MaterialEffects/data/NuclearInteractions_Kplus_E1.root
 http://cmsdoc.cern.ch/cms/data/CMSSW/FastSimulation/MaterialEffects/data/NuclearInteractions_Kplus_E2.root
@@ -65,6 +68,7 @@ http://cmsdoc.cern.ch/cms/data/CMSSW/FastSimulation/MaterialEffects/data/Nuclear
 http://cmsdoc.cern.ch/cms/data/CMSSW/FastSimulation/MaterialEffects/data/NuclearInteractions_Kplus_E200.root
 http://cmsdoc.cern.ch/cms/data/CMSSW/FastSimulation/MaterialEffects/data/NuclearInteractions_Kplus_E300.root
 http://cmsdoc.cern.ch/cms/data/CMSSW/FastSimulation/MaterialEffects/data/NuclearInteractions_Kplus_E500.root
+http://cmsdoc.cern.ch/cms/data/CMSSW/FastSimulation/MaterialEffects/data/NuclearInteractions_Kplus_E700.root
 http://cmsdoc.cern.ch/cms/data/CMSSW/FastSimulation/MaterialEffects/data/NuclearInteractions_Kplus_E1000.root
 http://cmsdoc.cern.ch/cms/data/CMSSW/FastSimulation/MaterialEffects/data/NuclearInteractions_Kminus_E1.root
 http://cmsdoc.cern.ch/cms/data/CMSSW/FastSimulation/MaterialEffects/data/NuclearInteractions_Kminus_E2.root
@@ -82,6 +86,7 @@ http://cmsdoc.cern.ch/cms/data/CMSSW/FastSimulation/MaterialEffects/data/Nuclear
 http://cmsdoc.cern.ch/cms/data/CMSSW/FastSimulation/MaterialEffects/data/NuclearInteractions_Kminus_E200.root
 http://cmsdoc.cern.ch/cms/data/CMSSW/FastSimulation/MaterialEffects/data/NuclearInteractions_Kminus_E300.root
 http://cmsdoc.cern.ch/cms/data/CMSSW/FastSimulation/MaterialEffects/data/NuclearInteractions_Kminus_E500.root
+http://cmsdoc.cern.ch/cms/data/CMSSW/FastSimulation/MaterialEffects/data/NuclearInteractions_Kminus_E700.root
 http://cmsdoc.cern.ch/cms/data/CMSSW/FastSimulation/MaterialEffects/data/NuclearInteractions_Kminus_E1000.root
 http://cmsdoc.cern.ch/cms/data/CMSSW/FastSimulation/MaterialEffects/data/NuclearInteractions_p_E1.root
 http://cmsdoc.cern.ch/cms/data/CMSSW/FastSimulation/MaterialEffects/data/NuclearInteractions_p_E2.root
@@ -99,6 +104,7 @@ http://cmsdoc.cern.ch/cms/data/CMSSW/FastSimulation/MaterialEffects/data/Nuclear
 http://cmsdoc.cern.ch/cms/data/CMSSW/FastSimulation/MaterialEffects/data/NuclearInteractions_p_E200.root
 http://cmsdoc.cern.ch/cms/data/CMSSW/FastSimulation/MaterialEffects/data/NuclearInteractions_p_E300.root
 http://cmsdoc.cern.ch/cms/data/CMSSW/FastSimulation/MaterialEffects/data/NuclearInteractions_p_E500.root
+http://cmsdoc.cern.ch/cms/data/CMSSW/FastSimulation/MaterialEffects/data/NuclearInteractions_p_E700.root
 http://cmsdoc.cern.ch/cms/data/CMSSW/FastSimulation/MaterialEffects/data/NuclearInteractions_p_E1000.root
 http://cmsdoc.cern.ch/cms/data/CMSSW/FastSimulation/MaterialEffects/data/NuclearInteractions_pbar_E1.root
 http://cmsdoc.cern.ch/cms/data/CMSSW/FastSimulation/MaterialEffects/data/NuclearInteractions_pbar_E2.root
@@ -116,6 +122,7 @@ http://cmsdoc.cern.ch/cms/data/CMSSW/FastSimulation/MaterialEffects/data/Nuclear
 http://cmsdoc.cern.ch/cms/data/CMSSW/FastSimulation/MaterialEffects/data/NuclearInteractions_pbar_E200.root
 http://cmsdoc.cern.ch/cms/data/CMSSW/FastSimulation/MaterialEffects/data/NuclearInteractions_pbar_E300.root
 http://cmsdoc.cern.ch/cms/data/CMSSW/FastSimulation/MaterialEffects/data/NuclearInteractions_pbar_E500.root
+http://cmsdoc.cern.ch/cms/data/CMSSW/FastSimulation/MaterialEffects/data/NuclearInteractions_pbar_E700.root
 http://cmsdoc.cern.ch/cms/data/CMSSW/FastSimulation/MaterialEffects/data/NuclearInteractions_pbar_E1000.root
 http://cmsdoc.cern.ch/cms/data/CMSSW/FastSimulation/MaterialEffects/data/NuclearInteractions_n_E1.root
 http://cmsdoc.cern.ch/cms/data/CMSSW/FastSimulation/MaterialEffects/data/NuclearInteractions_n_E2.root
@@ -133,6 +140,7 @@ http://cmsdoc.cern.ch/cms/data/CMSSW/FastSimulation/MaterialEffects/data/Nuclear
 http://cmsdoc.cern.ch/cms/data/CMSSW/FastSimulation/MaterialEffects/data/NuclearInteractions_n_E200.root
 http://cmsdoc.cern.ch/cms/data/CMSSW/FastSimulation/MaterialEffects/data/NuclearInteractions_n_E300.root
 http://cmsdoc.cern.ch/cms/data/CMSSW/FastSimulation/MaterialEffects/data/NuclearInteractions_n_E500.root
+http://cmsdoc.cern.ch/cms/data/CMSSW/FastSimulation/MaterialEffects/data/NuclearInteractions_n_E700.root
 http://cmsdoc.cern.ch/cms/data/CMSSW/FastSimulation/MaterialEffects/data/NuclearInteractions_n_E1000.root
 http://cmsdoc.cern.ch/cms/data/CMSSW/FastSimulation/MaterialEffects/data/NuclearInteractions_nbar_E1.root
 http://cmsdoc.cern.ch/cms/data/CMSSW/FastSimulation/MaterialEffects/data/NuclearInteractions_nbar_E2.root
@@ -150,4 +158,5 @@ http://cmsdoc.cern.ch/cms/data/CMSSW/FastSimulation/MaterialEffects/data/Nuclear
 http://cmsdoc.cern.ch/cms/data/CMSSW/FastSimulation/MaterialEffects/data/NuclearInteractions_nbar_E200.root
 http://cmsdoc.cern.ch/cms/data/CMSSW/FastSimulation/MaterialEffects/data/NuclearInteractions_nbar_E300.root
 http://cmsdoc.cern.ch/cms/data/CMSSW/FastSimulation/MaterialEffects/data/NuclearInteractions_nbar_E500.root
+http://cmsdoc.cern.ch/cms/data/CMSSW/FastSimulation/MaterialEffects/data/NuclearInteractions_nbar_E700.root
 http://cmsdoc.cern.ch/cms/data/CMSSW/FastSimulation/MaterialEffects/data/NuclearInteractions_nbar_E1000.root
