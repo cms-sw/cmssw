@@ -26,7 +26,7 @@ void makeTauPlotTree(const char* pattern,
   double max = 1;
   string title = "Tau Benchmark, (E_{T}(rec)-E_{T}(true))/E_{T}(true); #DeltaE_{T}/E_{T}";
   if(!relative) {
-    double absmax = 100;
+    double absmax = 50;
     min = -absmax;
     max = absmax;
     title = "Tau Benchmark, E_{T}(rec)-E_{T}(true); #DeltaE_{T} (GeV)";
