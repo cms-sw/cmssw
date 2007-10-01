@@ -1,8 +1,8 @@
 // -----------------------------------------------------------------------------
 //  Prototype for a particle class
 // -----------------------------------------------------------------------------
-//  $Date: 2007/05/25 12:37:56 $
-//  $Revision: 1.12 $
+//  $Date: 2007/09/07 16:46:22 $
+//  $Revision: 1.13 $
 // -----------------------------------------------------------------------------
 //  Author: Stephan Wynhoff - RWTH-Aachen (Email: Stephan.Wynhoff@cern.ch)
 // -----------------------------------------------------------------------------
@@ -269,7 +269,7 @@ RawParticle::PDGcTau() const {
 
     // Get it from the width (apparently Gamma/c!)
     double w = myInfo->totalWidth().value();
-    if ( w != 0. ) { 
+    if ( w != 0. && myId != 1000022 ) { 
       ct = 6.582119e-25 / w / 10.;   // ctau in cm 
     } else {
     // Temporary fix of a bug in the particle data table
@@ -279,6 +279,8 @@ RawParticle::PDGcTau() const {
 	   amyId != 10 &&    // nu_e
 	   amyId != 12 &&    // nu_mu
 	   amyId != 14 &&    // nu_tau
+	   amyId != 1000022 && // Neutralino
+	   amyId != 1000039 && // Gravitino
 	   amyId != 2112 &&  // neutron/anti-neutron
 	   amyId != 2212 &&  // proton/anti-proton
 	   amyId != 101 &&   // Deutreron etc..
