@@ -267,35 +267,63 @@ void CSCSegAlgoDF::tryAddingHitsToSegment( const ChamberHitContainer& rechits,
   
   ChamberHitContainerCIt ib = rechits.begin();
   ChamberHitContainerCIt ie = rechits.end();
-  closeHits.clear();
 
   for ( ChamberHitContainerCIt i = ib; i != ie; ++i ) {
 
-    if (i == i1 || i == i2 ) continue;   
+    if (i == i1 || i == i2 ) continue;
     if ( usedHits[i-ib] ) continue;   // Don't use hits already part of a segment.
 
-    const CSCRecHit2D* h = *i;      
+    const CSCRecHit2D* h = *i;
     int layer = (*i)->cscDetId().layer();
+
+    // Low multiplicity case
+    if (rechits.size() < 7) {
+      if ( isHitNearSegment( h ) ) {
+        if ( !hasHitOnLayer(layer) ) {
+          addHit(h, layer);
+        } else {
+          updateParameters();
+          compareProtoSegment(h, layer);
+        }
+      }
+    // High multiplicity case
+    } else { 
+      if ( isHitNearSegment( h ) ) {
+        if ( !hasHitOnLayer(layer) ) {
+          addHit(h, layer);
+          updateParameters();
+        } else {
+          compareProtoSegment(h, layer);
+        }
+      }
+    }
+  }
+ 
+  if ( int(protoSegment.size()) < 3) return;
+
+
+  // 2nd pass to remove biases 
+  // This time, also consider changing the endpoints
+
+  closeHits.clear();
+
+  for ( ChamberHitContainerCIt i = ib; i != ie; ++i ) {
+    if ( usedHits[i-ib] ) continue;   
+    const CSCRecHit2D* h = *i;      
+    int layer = (*i)->cscDetId().layer();     
     if ( isHitNearSegment( h ) ) {
       if ( !hasHitOnLayer(layer) ) {
-        addHit(h, layer);  
+        addHit(h, layer);
+        updateParameters();
       } else {
+        compareProtoSegment(h, layer);
+// Interesting to mark off hits which are very close to track to remove duplicated segments...
+// Need to create a class for this
         closeHits.push_back(h);
       }
     }
   } 
 
-  if ( int(protoSegment.size()) < minHitsPerSegment) return;
-
-  // Fit segment and get chi2
-  updateParameters();
-
-  // 2nd pass to remove biases 
-  for ( ChamberHitContainerCIt i = closeHits.begin() ; i != closeHits.end(); ++i ) {      
-    const CSCRecHit2D* h = *i;      
-    int layer = (*i)->cscDetId().layer();     
-    compareProtoSegment(h, layer); 
-  } 
 }
 
 
@@ -537,7 +565,7 @@ void CSCSegAlgoDF::flagHitsAsUsed(const ChamberHitContainer& rechitsInChamber) {
       if (*hi == *iu) usedHits[iu-ib] = true;
     }
   }
-//  if (closeHits.size() < 20) return;  
+  if (closeHits.size() > 0) return;  
   // This is to deal with muon showering (not combinatorial problems)
   for ( hi = closeHits.begin(); hi != closeHits.end(); ++hi ) {
     for ( iu = ib; iu != rechitsInChamber.end(); ++iu ) {
