@@ -1,20 +1,20 @@
+<use name=FWCore/Framework>
+<use name=FWCore/PluginManager>
+<use name=CondCore/DBCommon>
+<use name=CondCore/PluginSystem>
+<use name=CondTools/L1Trigger>
 <use name=CondFormats/L1TObjects>
 <use name=CondFormats/DataRecord>
-<use name=CondCore/DBCommon>
-<use name=Foundation/PluginManager>
-<use name=CondCore/PluginSystem>
-<use name=FWCore/Framework>
-<use name=CondTools/L1Trigger>
 
 <flags EDM_PLUGIN=1>
 <export>
-   <lib name=CondCoreL1TriggerPlugin>
+   <lib name=CondCoreL1TPlugins>
+   <use name=FWCore/Framework>
+   <use name=FWCore/PluginManager>
+   <use name=CondCore/DBCommon>
+   <use name=CondCore/PluginSystem>
+   <use name=CondTools/L1Trigger>
    <use name=CondFormats/L1TObjects>
    <use name=CondFormats/DataRecord>
-   <use name=CondCore/DBCommon>
-   <use name=Foundation/PluginManager>
-   <use name=CondCore/PluginSystem>
-   <use name=FWCore/Framework>
-   <use name=CondTools/L1Trigger>
 </export>
 
