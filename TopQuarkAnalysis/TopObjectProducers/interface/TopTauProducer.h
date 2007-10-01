@@ -2,7 +2,7 @@
 // Author:  Christophe Delaere
 // Created: Thu Jul  26 10:34:00 CEST 2007
 //
-// $Id: TopTauProducer.h,v 1.4 2007/09/20 18:12:24 lowette Exp $
+// $Id: TopTauProducer.h,v 1.5 2007/09/28 13:17:37 lowette Exp $
 //
 
 #ifndef TopObjectProducers_TopTauProducer_h
@@ -17,7 +17,7 @@
    calculation of a lepton likelihood ratio
 
   \author   Christophe Delaere
-  \version  $Id: TopTauProducer.h,v 1.4 2007/09/20 18:12:24 lowette Exp $
+  \version  $Id: TopTauProducer.h,v 1.5 2007/09/28 13:17:37 lowette Exp $
 */
 
 
@@ -59,8 +59,7 @@ class TopTauProducer : public edm::EDProducer {
     // tools
     TopObjectResolutionCalc *    theResoCalc_;
     TopLeptonLRCalc *            theLeptonLRCalc_;
-    //    PtInverseComparator<TopTau>  pTTauComparator_;
-    GreaterByPt<TopTau>  pTTauComparator_;
+    GreaterByPt<TopTau>          pTTauComparator_;
 };
 
 
