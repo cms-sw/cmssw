@@ -59,7 +59,7 @@ template <>
 void 
 EcalEGL::extraStuff( EcalEndcapGeometry* geom )
 {
-   geom->makeGridMap();
+   geom->initialize();
 }
 
 template <>
