@@ -63,6 +63,8 @@ private:
 	bool fDMB_Trailer;
 	bool fALCT_Header;
 	bool fTMB_Header;
+	bool fTMB_Format2007;
+	bool fALCT_Format2007;
 
 	bool uniqueALCT, uniqueTMB; // Do not merge two DMBs if Trailer of the first and Header of the second are lost
 
@@ -103,7 +105,7 @@ private:
 	unsigned long TMB_CRC;
 	bool checkCrcCFEB;
 	unsigned long CFEB_CRC;
-        
+
         bool modeDDUonly;
 
 	//int headerDAV_Active; // Obsolete since 16.09.05

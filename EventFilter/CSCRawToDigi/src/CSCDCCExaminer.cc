@@ -125,6 +125,8 @@ CSCDCCExaminer::CSCDCCExaminer(void):nERRORS(27),nWARNINGS(5),sERROR(nERRORS),sW
   fDMB_Trailer = false;
   fALCT_Header = false;
   fTMB_Header  = false;
+  fALCT_Format2007 = false;
+  fTMB_Format2007  = false;
 
   cntDDU_Headers  = 0;
   cntDDU_Trailers = 0;
@@ -158,7 +160,7 @@ CSCDCCExaminer::CSCDCCExaminer(void):nERRORS(27),nWARNINGS(5),sERROR(nERRORS),sW
   checkCrcALCT = false; ALCT_CRC=0;
   checkCrcTMB  = false; TMB_CRC=0;
   checkCrcCFEB = false; CFEB_CRC=0;
-  
+
   modeDDUonly = false;
 
   //headerDAV_Active = -1; // Trailer vs. Header check // Obsolete since 16.09.05
@@ -218,7 +220,7 @@ long CSCDCCExaminer::check(const unsigned short* &buffer, long length){
     // increment counter of 16-bit words since last of DMB Header, ALCT Trailer, TMB Trailer,
     // CFEB Sample Trailer, CFEB B-word; this counter is reset by all these conditions
     if ( fDMB_Header ) { CFEB_SampleWordCount = CFEB_SampleWordCount + 4; }
-		
+
     if (!modeDDUonly) {
       // DCC Header 1 && DCC Header 2
       if( (buf0[3]&0xF000) == 0x5000 && (buf0[0]&0x00FF) == 0x005F &&
@@ -242,8 +244,8 @@ long CSCDCCExaminer::check(const unsigned short* &buffer, long length){
 	  bzero(tmpbuf,sizeof(unsigned short)*16);
 	  return length+12;
 	}
-      }
-    }
+
+
     fDCC_Header  = true;
     bzero(fERROR,   sizeof(bool)*nERRORS);
     bzero(fWARNING, sizeof(bool)*nWARNINGS);
@@ -252,7 +254,8 @@ long CSCDCCExaminer::check(const unsigned short* &buffer, long length){
     for(int wrn=0; wrn<nWARNINGS; ++wrn) fCHAMB_WRN[wrn].clear();
     bCHAMB_ERR.clear();
     bCHAMB_WRN.clear();
-
+	  }
+	}
     // == Check for Format Control Words, set proper flags, perform self-consistency checks
 
     // C-words anywhere besides DDU Header
@@ -344,7 +347,9 @@ long CSCDCCExaminer::check(const unsigned short* &buffer, long length){
       fDMB_Header   = false;
       fDMB_Trailer  = false;
       fALCT_Header  = false;
+      fALCT_Format2007= false;
       fTMB_Header   = false;
+      fTMB_Format2007= false;
       uniqueALCT    = true;
       uniqueTMB     = true;
       ALCT_WordsSinceLastHeader = 0;
@@ -365,7 +370,6 @@ long CSCDCCExaminer::check(const unsigned short* &buffer, long length){
       cout<<"\n----------------------------------------------------------"<<endl;
       cout<<"DDU  Header Occurrence "<<cntDDU_Headers<< " L1A = " << ( ((buf_1[2]&0xFFFF) + ((buf_1[3]&0x00FF) << 16)) ) <<endl;
     }
-
 
     // == DMB Header found
     if( (buf0[0]&0xF000)==0xA000 && (buf0[1]&0xF000)==0xA000 && (buf0[2]&0xF000)==0xA000 && (buf0[3]&0xF000)==0xA000 ){
@@ -402,7 +406,9 @@ long CSCDCCExaminer::check(const unsigned short* &buffer, long length){
       ++cntCHAMB_Headers[currentChamber];
 
       fALCT_Header = false;
+      fALCT_Format2007= false;
       fTMB_Header  = false;
+      fTMB_Format2007= false;
       uniqueALCT   = true;
       uniqueTMB    = true;
       ALCT_WordsSinceLastHeader = 0;
@@ -441,58 +447,130 @@ long CSCDCCExaminer::check(const unsigned short* &buffer, long length){
     }
 
 
-    // == ALCT Header found right after DMB Header
-    //   (check for all currently reserved/fixed bits in ALCT first 4 words)
-    // if( ( (buf0 [0]&0xF800)==0x6000 && (buf0 [1]&0xFF80)==0x0080 && (buf0 [2]&0xF000)==0x0000 && (buf0 [3]&0xc000)==0x0000 )
-    if( ( (buf0 [0]&0xF800)==0x6000 && (buf0 [1]&0x8F80)==0x0080 && (buf0 [2]&0x8000)==0x0000 && (buf0 [3]&0xc000)==0x0000 )
-	&&
-	( (buf_1[0]&0xF000)==0xA000 && (buf_1[1]&0xF000)==0xA000 && (buf_1[2]&0xF000)==0xA000 && (buf_1[3]&0xF000)==0xA000 ) ){
-      fALCT_Header              = true;
-      ALCT_CRC                  = 0;
-      ALCT_WordsSinceLastHeader = 4;
+    // New ALCT data format:
+    if( buf0[0]==0xDB0A && (buf0[1]&0xF000)==0xD000 && (buf0[2]&0xF000)==0xD000 && (buf0[3]&0xF000)==0xD000){
+        fALCT_Header              = true;
+        fALCT_Format2007          = true;
+        ALCT_CRC                  = 0;
+        ALCT_WordsSinceLastHeader = 4;
 
-      // Calculate expected number of ALCT words
-      if( (buf0[3]&0x0003)==0 ){ ALCT_WordsExpected = 12; }  	// Short Readout
+        // Calculate expected number of ALCT words
+        ALCT_WordsExpected = 12; // header and trailer always exists
 
-      if( (buf0[1]&0x0003)==1 ){ 					// Full Readout
-	ALCT_WordsExpected = ((buf0[1]&0x007c) >> 2) *
-	  (	((buf0[3]&0x0001)   )+((buf0[3]&0x0002)>>1)+
-		((buf0[3]&0x0004)>>2)+((buf0[3]&0x0008)>>3)+
-		((buf0[3]&0x0010)>>4)+((buf0[3]&0x0020)>>5)+
-		((buf0[3]&0x0040)>>6) ) * 12 + 12;
-      }
-      cout<<" <A";
+        //  Aauxilary variables
+        //   number of wire groups per layer:
+        int  nWGs_per_layer = ( (buf1[2]&0x0007) + 1 ) * 16 ;
+        int  nWG_round_up   = int(nWGs_per_layer/12)+(nWGs_per_layer%3?1:0);
+        //   configuration present:
+        bool config_present =  buf1[0]&0x4000;
+        //   lct overflow:
+        bool lct_overflow   =  buf1[0]&0x2000;
+        //   raw overflow:
+        bool raw_overflow   =  buf1[0]&0x1000;
+        //   l1a_window:
+        int  lct_tbins      = (buf1[3]&0x01E0)>>5;
+        //   fifo_tbins:
+        int  raw_tbins      = (buf1[3]&0x001F);
+
+        //  Data block sizes:
+        //   3 words of Vertex ID register + 5 words of config. register bits:
+        int config_size    = ( config_present ? 3 + 5 : 0 );
+        //   collision mask register:
+        int colreg_size    = ( config_present ? nWGs_per_layer/4 : 0 );
+        //   hot channel mask:
+        int hot_ch_size    = ( config_present ? nWG_round_up*6 : 0 );
+        //   ALCT0,1 (best tracks):
+        int alct_0_1_size  = ( !lct_overflow ? 2*lct_tbins : 0 );
+        //   raw hit dump size:
+        int raw_hit_dump_size=(!raw_overflow ? nWG_round_up*6*raw_tbins : 0 );
+
+        ALCT_WordsExpected += config_size + colreg_size + hot_ch_size + alct_0_1_size + raw_hit_dump_size;
+
+        cout<<" <A";
+    } else {
+        // Old ALCT data format
+
+        // == ALCT Header found right after DMB Header
+        //   (check for all currently reserved/fixed bits in ALCT first 4 words)
+        // if( ( (buf0 [0]&0xF800)==0x6000 && (buf0 [1]&0xFF80)==0x0080 && (buf0 [2]&0xF000)==0x0000 && (buf0 [3]&0xc000)==0x0000 )
+        if( ( (buf0 [0]&0xF800)==0x6000 && (buf0 [1]&0x8F80)==0x0080 && (buf0 [2]&0x8000)==0x0000 && (buf0 [3]&0xc000)==0x0000 )
+            &&
+            ( (buf_1[0]&0xF000)==0xA000 && (buf_1[1]&0xF000)==0xA000 && (buf_1[2]&0xF000)==0xA000 && (buf_1[3]&0xF000)==0xA000 ) ){
+              fALCT_Header              = true;
+              fALCT_Format2007          = false;
+              ALCT_CRC                  = 0;
+              ALCT_WordsSinceLastHeader = 4;
+
+              // Calculate expected number of ALCT words
+              if( (buf0[3]&0x0003)==0 ){ ALCT_WordsExpected = 12; }  	// Short Readout
+
+              if( (buf0[1]&0x0003)==1 ){ 					// Full Readout
+        	       ALCT_WordsExpected = ((buf0[1]&0x007c) >> 2) *
+                        ( ((buf0[3]&0x0001)   )+((buf0[3]&0x0002)>>1)+
+                        ((buf0[3]&0x0004)>>2)+((buf0[3]&0x0008)>>3)+
+                        ((buf0[3]&0x0010)>>4)+((buf0[3]&0x0020)>>5)+
+                        ((buf0[3]&0x0040)>>6) ) * 12 + 12;
+              }
+              cout<<" <A";
+        }
     }
 
-    // == TMB Header found right after DMB Header or right after ALCT Trailer
-    if(   (buf0 [0]&0xFFFF)==0x6B0C && (
-					( (buf_1[0]&0xF000)==0xA000 && (buf_1[1]&0xF000)==0xA000 && (buf_1[2]&0xF000)==0xA000 && (buf_1[3]&0xF000)==0xA000 )
-					||
-					( (buf_1[0]&0x0800)==0x0000 && (buf_1[1]&0xF800)==0xD000 && (buf_1[2]&0xFFFF)==0xDE0D && (buf_1[3]&0xF000)==0xD000 )
-					// should've been (buf_1[0]&0xF800)==0xD000 - see comments for sERROR[11]
-					) )
-      {
-	//if( (buf_1[2]&0xFFFF)==0xDE0D && (buf_1[3]&0xFC00)!=0xD000 && summer2004 ) ???
+	// New TMB format
+    if( (buf0[0]&0xFFFF)==0xDB0C ){
+        fTMB_Header              = true;
+        fTMB_Format2007          = true;
+        TMB_CRC                  = 0;
+        TMB_WordsSinceLastHeader = 4;
+        TMB_WordsExpected = 0;
 
-	fTMB_Header              = true;
-	TMB_CRC                  = 0;
-	TMB_WordsSinceLastHeader = 4;
+        // Calculate expected number of TMB words (whether RPC included will be known later)
+        if ( (buf1[1]&0x3000) == 0x3000) { TMB_WordsExpected = 12; }  // Short Header Only
+        if ( (buf1[1]&0x3000) == 0x0000) { TMB_WordsExpected = 48; }  // Long Header Only
 
-	// Calculate expected number of TMB words (whether RPC included will be known later)
-	if ( (buf0[1]&0x3000) == 0x3000) { TMB_WordsExpected = 8; }   // Short Header Only
-	if ( (buf0[1]&0x3000) == 0x0000) { TMB_WordsExpected = 32; }  // Long Header Only
+        cout << " <T";
+    } else {
+        // == TMB Header found right after DMB Header or right after ALCT Trailer
+        if(   (buf0 [0]&0xFFFF)==0x6B0C && (
+    					( (buf_1[0]&0xF000)==0xA000 && (buf_1[1]&0xF000)==0xA000 && (buf_1[2]&0xF000)==0xA000 && (buf_1[3]&0xF000)==0xA000 )
+    					||
+    					( (buf_1[0]&0x0800)==0x0000 && (buf_1[1]&0xF800)==0xD000 && (buf_1[2]&0xFFFF)==0xDE0D && (buf_1[3]&0xF000)==0xD000 )
+    					// should've been (buf_1[0]&0xF800)==0xD000 - see comments for sERROR[11]
+    					) )
+        {
+    	//if( (buf_1[2]&0xFFFF)==0xDE0D && (buf_1[3]&0xFC00)!=0xD000 && summer2004 ) ???
 
-	if ( (buf0[1]&0x3000) == 0x1000) {
-	  // Full Readout   = 28 + (#Tbins * #CFEBs * 6)
-	  TMB_Tbins=(buf0[1]&0x001F);
-	  TMB_WordsExpected = 28 + TMB_Tbins * ((buf1[0]&0x00E0)>>5) * 6;
+            fTMB_Header              = true;
+            fTMB_Format2007          = false;
+            TMB_CRC                  = 0;
+            TMB_WordsSinceLastHeader = 4;
+
+            // Calculate expected number of TMB words (whether RPC included will be known later)
+            if ( (buf0[1]&0x3000) == 0x3000) { TMB_WordsExpected = 8; }   // Short Header Only
+            if ( (buf0[1]&0x3000) == 0x0000) { TMB_WordsExpected = 32; }  // Long Header Only
+
+            if ( (buf0[1]&0x3000) == 0x1000) {
+                // Full Readout   = 28 + (#Tbins * #CFEBs * 6)
+                TMB_Tbins=(buf0[1]&0x001F);
+                TMB_WordsExpected = 28 + TMB_Tbins * ((buf1[0]&0x00E0)>>5) * 6;
+            }
+
+			cout << " <T";
+		}
 	}
-
-	cout << " <T";
-      }
+    // New TMB format => very long header
+    if ( fTMB_Header && fTMB_Format2007 && TMB_WordsSinceLastHeader==20 ) {
+        // Full Readout   = 44 + (#Tbins * #CFEBs * 6)
+        TMB_Tbins=(buf0[3]&0x00F8)>>3;
+        TMB_WordsExpected = 44 + TMB_Tbins * (buf0[3]&0x0007) * 6;
+    }
 
     // == ALCT Trailer found
-    if( (buf0[0]&0x0800)==0x0000 && (buf0[1]&0xF800)==0xD000 && (buf0[2]&0xFFFF)==0xDE0D && (buf0[3]&0xF000)==0xD000 ){
+	if(
+        // New ALCT data format:
+        ( buf0[0]==0xDE0D && (buf0[1]&0xF800)==0xD000 && (buf0[2]&0xF800)==0xD000 && (buf0[3]&0xF800)==0xD000 ) ||
+        // Old ALCT data format:
+        ( (buf0[0]&0x0800)==0x0000 && (buf0[1]&0xF800)==0xD000 && (buf0[2]&0xFFFF)==0xDE0D && (buf0[3]&0xF000)==0xD000 )
+    ){
       // should've been (buf0[0]&0xF800)==0xD000 - see comments for sERROR[11]
 
       // Second ALCT -> Lost both previous DMB Trailer and current DMB Header
@@ -509,7 +587,7 @@ long CSCDCCExaminer::check(const unsigned short* &buffer, long length){
 	bCHAMB_ERR[currentChamber] |= 0x1;
       } // ALCT Header is missing
 
-      if( (buf0[0]&0xF800)!=0xD000 ){
+      if( !fALCT_Format2007 && (buf0[0]&0xF800)!=0xD000 ){
 	fERROR[11] = true;
 	bERROR    |= 0x800;
 	fCHAMB_ERR[11].insert(currentChamber);
@@ -520,8 +598,8 @@ long CSCDCCExaminer::check(const unsigned short* &buffer, long length){
 
       // Check calculated CRC sum against reported
       if( checkCrcALCT ){
-	unsigned long crc = buf0[0] & 0x7ff;
-	crc |= ((unsigned long)(buf0[1] & 0x7ff)) << 11;
+    unsigned long crc = ( fALCT_Format2007 ? buf0[1] : buf0[0] ) & 0x7ff;
+    crc |= ((uint32_t)( ( fALCT_Format2007 ? buf0[2] : buf0[1] ) & 0x7ff)) << 11;
 	if( ALCT_CRC != crc ){
 	  fERROR[10] = true;
 	  bERROR   |= 0x400;
@@ -560,11 +638,15 @@ long CSCDCCExaminer::check(const unsigned short* &buffer, long length){
     if( fTMB_Header && ((buf0[2]&0xFFFF)==0x6E0B) )  {
       TMB_WordsExpectedCorrection =  2 +   // header/trailer for block of RPC raw hits
 	//				((buf_1[2]&0x0800)>>11) * ((buf_1[2]&0x0700)>>8) * TMB_Tbins * 2;  // RPC raw hits
-	((buf_1[2]&0x0040)>>6) * ((buf_1[2]&0x0030)>>4) * TMB_Tbins * 2;  // RPC raw hits
+                ( fTMB_Format2007 ?
+                ((buf_1[0]&0x0040)>>6) * ((buf_1[0]&0x0030)>>4) * TMB_Tbins * 2 :   // RPC raw hits
+                ((buf_1[2]&0x0040)>>6) * ((buf_1[2]&0x0030)>>4) * TMB_Tbins * 2 );  // RPC raw hits
     }
 
     // == TMB Trailer found
-    if( (buf0[0]&0xF000)==0xD000 && (buf0[1]&0xF000)==0xD000 && (buf0[2]&0xFFFF)==0xDE0F && (buf0[3]&0xF000)==0xD000 ){
+    if(((buf0[0]&0xF000)==0xD000 && (buf0[1]&0xF000)==0xD000 && (buf0[2]&0xFFFF)==0xDE0F && (buf0[3]&0xF000)==0xD000 ) ||
+       ( buf0[0]==        0xDE0F && (buf0[1]&0xF000)==0xD000 && (buf0[2]&0xF000)==0xD000 && (buf0[3]&0xF000)==0xD000 )
+    ){
 
       // Second TMB -> Lost both previous DMB Trailer and current DMB Header
       if( !uniqueTMB ) currentChamber = -1;
@@ -582,8 +664,8 @@ long CSCDCCExaminer::check(const unsigned short* &buffer, long length){
 
       // Check calculated CRC sum against reported
       if( checkCrcTMB ){
-	unsigned long crc = buf0[0] & 0x7ff;
-	crc |= ((unsigned long)(buf0[1] & 0x7ff)) << 11;
+    unsigned long crc = ( fTMB_Format2007 ? buf0[1]&0x7ff : buf0[0]&0x7ff );
+    crc |= ((uint32_t)( ( fTMB_Format2007 ? buf0[2]&0x7ff : buf0[1] & 0x7ff ) )) << 11;
 	if( TMB_CRC != crc ){
 	  fERROR[15] = true;
 	  bERROR    |= 0x8000;
@@ -883,7 +965,6 @@ long CSCDCCExaminer::check(const unsigned short* &buffer, long length){
 	   << TMB_WordsExpected
 	   << endl;
     }
-
 
     // == DDU Trailer found
     if( buf0[0]==0x8000 && buf0[1]==0x8000 && buf0[2]==0xFFFF && buf0[3]==0x8000 ){
