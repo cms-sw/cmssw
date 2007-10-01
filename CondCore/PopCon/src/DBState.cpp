@@ -5,44 +5,27 @@ bool popcon::operator==(const DBState& a, const DBState& b)
 	return a.payload_size == b.payload_size ? true : false;
 }
 
-popcon::DBState::DBState (std::string oname, std::string sname, int ps ) : name(oname), schema(sname), payload_size(ps) {}
+popcon::DBState::DBState (std::string oname, int ps ) : name(oname),  payload_size(ps) {}
 
 
 popcon::DBState::DBState (coral::AttributeList lst) {
-	//name = lst["N"].data<std::string>();
-	//schema = lst["S"].data<std::string>();
-	//payload_table = lst["PT"].data<std::string>();
-	//payload_size = lst["PS"].data<std::string>();
-	//last_iov = lst["LIOV"].data<int>();
-	//except_description = lst["ED"].data<std::string>();
-	//manual_override = lst["MO"].data<std::string>();
 	name = lst[0].data<std::string>();
-	schema = lst[1].data<std::string>();
-	payload_size = lst[2].data<int>();
-	except_description = lst[3].data<std::string>();
-	manual_override = lst[4].data<std::string>();
+	payload_size = lst[1].data<int>();
+	except_description = lst[2].data<std::string>();
+	manual_override = lst[3].data<std::string>();
 }
 
 void popcon::DBState::set_state (coral::AttributeList lst){
-	//name = lst["N"].data<std::string>();
-	//schema = lst["S"].data<std::string>();
-	//payload_table = lst["PT"].data<std::string>();
-	//payload_size = lst["PS"].data<std::string>();
-	//last_iov = lst["LIOV"].data<int>();
-	//except_description = lst["ED"].data<std::string>();
-	//manual_override = lst["MO"].data<std::string>();
 	name = lst[0].data<std::string>();
-	schema = lst[1].data<std::string>();
-	payload_size = lst[2].data<int>();
-	except_description = lst[3].data<std::string>();
-	manual_override = lst[4].data<std::string>();
+	payload_size = lst[1].data<int>();
+	except_description = lst[2].data<std::string>();
+	manual_override = lst[3].data<std::string>();
 }
 
 
 coral::AttributeList popcon::DBState::update_helper(std::string& updateAction, std::string& updateCondition)
 {	
 
-	//FIXME impossible to update with join!
 	coral::AttributeList udata;
 	udata.extend<int>("PS");
 	udata.extend<std::string>("ED");

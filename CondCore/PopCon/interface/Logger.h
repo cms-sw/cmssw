@@ -1,6 +1,5 @@
-#ifndef LOGGER_H
-#define LOGGER_H
-
+#ifndef POPCON_LOGGER_H
+#define POPCON_LOGGER_H
 
 #include "CondCore/DBCommon/interface/RelationalStorageManager.h"
 #include "CondCore/DBCommon/interface/AuthenticationMethod.h"
@@ -40,6 +39,7 @@ namespace popcon
 			std::string m_obj_name;
 			std::string m_connect;
 			std::string m_offline;
+			
 			bool m_debug;
 			bool m_established;
 			bool m_sqlite;
@@ -51,7 +51,6 @@ namespace popcon
 
 			cond::DBSession* session;
 			cond::RelationalStorageManager* m_coraldb;
-			coral::ISessionProxy* m_proxy;
 	};
 
 }

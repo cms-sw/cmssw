@@ -29,37 +29,36 @@ namespace popcon{
 			bool checkAndCompareState();
 			bool previousExceptions(bool& fix);
 			void setException(std::string ex);
+			void generateStatusData();
+			void storeStatusData();
 
-			//TODO uncomment the following
-			//private:
+		private:
 			void getStoredStatusData();
 			void getPoolTableName();
-			void storeStatusData();
 			bool compareStatusData();
-			void generateStatusData();
 	
 			void initialize();
 			void disconnect();
-		private:
-
+			
+			//flag to indicate we're dealing with sqlite destination
 			bool m_sqlite;
 			
-			//name of the schema (to be determined by object name)
 			DBInfo nfo;
 			DBState m_saved_state;
 			DBState m_current_state;
 
+			//popcon metadata connestion string
 			std::string m_connect;
+			//payload destintion connect string
 			std::string m_offline;
+			
 			bool m_debug;
+
+			//Name of the payload class 
 			std::string m_obj_name;
 			
 			cond::DBSession* session;
-
-			cond::DBSession* condsession;
-			
 			cond::RelationalStorageManager* m_coraldb;
-			coral::ISessionProxy* m_proxy;
 
 
 	};

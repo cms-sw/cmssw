@@ -32,21 +32,14 @@ popcon::StateCreator::StateCreator(std::string connectionString, std::string off
 	if( loc == std::string::npos ) {
 		m_sqlite = false;
 
-		//m_connect="oracle://rls1/CMSTHUSER";
 		session=new cond::DBSession();
-		condsession=new cond::DBSession();
 
 		session->sessionConfiguration().setAuthenticationMethod( cond::XML );
 		if (m_debug)
 			session->sessionConfiguration().setMessageLevel( cond::Debug );
 		else
 			session->sessionConfiguration().setMessageLevel( cond::Error );
-
-		condsession->sessionConfiguration().setAuthenticationMethod( cond::XML );
-		if (m_debug)
-			condsession->sessionConfiguration().setMessageLevel( cond::Debug );
-		else
-			condsession->sessionConfiguration().setMessageLevel( cond::Error );
+		
 		session->connectionConfiguration().setConnectionRetrialTimeOut(60);
 		session->connectionConfiguration().enableConnectionSharing();
 		//session->connectionConfiguration().enableReadOnlySessionOnUpdateConnections();
@@ -61,7 +54,6 @@ popcon::StateCreator::~StateCreator()
 	if (!m_sqlite){
 		delete m_coraldb;
 		delete session;
-		delete condsession;
 	}
 }
 
@@ -74,7 +66,6 @@ void  popcon::StateCreator::initialize()
 	try{
 
 		session->open();
-		condsession->open();
 		m_coraldb = new cond::RelationalStorageManager(m_connect,session);
 		m_coraldb->connect(cond::ReadWrite);
 
@@ -111,15 +102,15 @@ void popcon::StateCreator::storeStatusData()
 		return;
 	try{	
 		m_coraldb->startTransaction(false);
-		coral::ITable& mytable=m_coraldb->sessionProxy().nominalSchema().tableHandle("O2O_PAYLOAD_STATE");
+		coral::ITable& mytable=m_coraldb->sessionProxy().nominalSchema().tableHandle("POPCON_PAYLOAD_STATE");
 		coral::ITableDataEditor& editor = mytable.dataEditor();
+		
 		coral::AttributeList rowBuffer;
-		//return rowbuffer from object
 		std::string ua;
 		std::string uc;
-
+		
+		//return rowbuffer from object
 		rowBuffer = m_current_state.update_helper(ua,uc);
-
 
 		int rowsUpdated = editor.updateRows( ua, uc, rowBuffer );
 		if ( rowsUpdated != 1 ) {
@@ -136,7 +127,6 @@ void popcon::StateCreator::storeStatusData()
 
 void popcon::StateCreator::generateStatusData()
 {
-	//FIXME using m_info_vector rather than parameter 
 	if (m_debug)
 		std::cerr<< "State creator: " << " generate status data\n";	
 	if (m_sqlite)
@@ -146,8 +136,6 @@ void popcon::StateCreator::generateStatusData()
 		cond::RelationalStorageManager status_db(m_offline, /*cond*/session);
 		status_db.connect(cond::ReadOnly);
 
-		//if (nfo.schema == "")
-		//	getStoredStatusData();
 		if (nfo.top_level_table == "")
 			getPoolTableName();
 
@@ -167,7 +155,7 @@ void popcon::StateCreator::generateStatusData()
 		if (cursor->next() ){
 			if (m_debug)
 				std::cerr << "generateStatusData()for " << nfo.object_name << " , size is:  " <<  rowBuffer[0].data<int>() << std::endl;
-			m_current_state = DBState(nfo.object_name, nfo.schema, rowBuffer[0].data<int>());
+			m_current_state = DBState(nfo.object_name, rowBuffer[0].data<int>());
 		}	
 
 		//status_db.commit();
@@ -269,43 +257,35 @@ void popcon::StateCreator::getStoredStatusData()
 	if (m_sqlite)
 		return;
 	try{
-		//TODO Some error checking with exceptions
-		//
 		m_coraldb->startTransaction(false);
 		coral::ISchema& schema = m_coraldb->sessionProxy().nominalSchema();
 		coral::AttributeList rowBuffer;
 		rowBuffer.extend<std::string>( "N" );
-		rowBuffer.extend<std::string>( "S" );
 		rowBuffer.extend<int>( "PS" );
 		rowBuffer.extend<std::string>( "ED" );
 		rowBuffer.extend<std::string>( "MO" );
 		coral::IQuery* query = schema.newQuery();
-		query->addToOutputList( "O2O_PAYLOAD_STATE.NAME","N");
-		query->addToOutputList( "O2O_SUBDETECTOR.SCHEMA","S");
-		query->addToOutputList( "O2O_PAYLOAD_STATE.PAYLOAD_SIZE","PS");
-		query->addToOutputList( "O2O_PAYLOAD_STATE.EXCEPT_DESCRIPTION","ED");
-		query->addToOutputList( "O2O_PAYLOAD_STATE.MANUAL_OVERRIDE","MO");
-		query->addToTableList("O2O_SUBDETECTOR","");
-		query->addToTableList("O2O_PAYLOAD_STATE","");
+		query->addToOutputList( "POPCON_PAYLOAD_STATE.NAME","N");
+		query->addToOutputList( "POPCON_PAYLOAD_STATE.PAYLOAD_SIZE","PS");
+		query->addToOutputList( "POPCON_PAYLOAD_STATE.EXCEPT_DESCRIPTION","ED");
+		query->addToOutputList( "POPCON_PAYLOAD_STATE.MANUAL_OVERRIDE","MO");
+		query->addToTableList("POPCON_PAYLOAD_STATE","");
 		coral::AttributeList conditionData;
 		conditionData.extend<std::string>( "oname" );
 		conditionData[0].data<std::string>() = nfo.object_name;
-		std::string condition = "O2O_SUBDETECTOR.SUBDET_ID = O2O_PAYLOAD_STATE.SUBDET_ID AND O2O_PAYLOAD_STATE.NAME = :oname";
+		std::string condition = "POPCON_PAYLOAD_STATE.NAME = :oname";
 		query->setCondition(condition, conditionData);
-		query->setMemoryCacheSize( 5 );
+		query->setMemoryCacheSize( 100 );
 		query->defineOutput( rowBuffer );
 		coral::ICursor& cursor4 = query->execute();
 		unsigned short count=0;
 		while ( cursor4.next() ) {
 			m_saved_state=DBState(rowBuffer);
-			nfo.schema = m_saved_state.schema;
 			count ++;
 		}
 
 		m_coraldb->commit();	
 		delete query;
-
-
 
 		if (count != 1){
 			throw std::runtime_error("cannot find ObjectName in the database");

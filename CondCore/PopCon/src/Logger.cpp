@@ -1,12 +1,10 @@
 #include "CondCore/PopCon/interface/Logger.h"
 
 #include "RelationalAccess/ISessionProxy.h"
-//#include "RelationalAccess/ITransaction.h"
 #include "RelationalAccess/ISchema.h"
 #include "RelationalAccess/ITable.h"
 #include "RelationalAccess/TableDescription.h"
 #include "RelationalAccess/ITablePrivilegeManager.h"
-//#include "RelationalAccess/IPrimaryKey.h"
 #include "RelationalAccess/ICursor.h"
 #include "RelationalAccess/IQuery.h"
 #include "RelationalAccess/ITableDataEditor.h"
@@ -24,7 +22,7 @@ popcon::Logger::Logger (std::string connectionString, std::string offlineString,
 m_offline(offlineString), m_debug(dbg), m_established(false)  {
 
 	//W A R N I N G - session has to be alive throughout object lifetime
-	//otherwiese there will be problems with currvals of the sequences
+	//otherwise there will be problems with currvals of the sequences
 
 	std::string::size_type loc = m_offline.find( "sqlite_file", 0 );
 	if( loc == std::string::npos ) {
@@ -98,13 +96,10 @@ void popcon::Logger::disconnect()
 
 void popcon::Logger::payloadIDMap()
 {
-	//FIXME uneffective, insert with join or subquery instead
-	//fill m_id_map
 	if (m_debug)
 		std::cerr << "PayloadIDMap\n";
 	try{
-		//m_coraldb->startTransaction(false);
-		coral::ITable& mytable=m_coraldb->sessionProxy().nominalSchema().tableHandle("O2O_PAYLOAD_STATE");
+		coral::ITable& mytable=m_coraldb->sessionProxy().nominalSchema().tableHandle("POPCON_PAYLOAD_STATE");
 		std::auto_ptr< coral::IQuery > query(mytable.newQuery());
 		query->addToOutputList("NAME");
 		query->addToOutputList("OBJ_ID");
@@ -115,7 +110,6 @@ void popcon::Logger::payloadIDMap()
 			m_id_map.insert(std::make_pair(row["NAME"].data<std::string>(), row["OBJ_ID"].data<int>()));
 		}
 		cursor.close();
-		//m_coraldb->commit();	
 	}
 	catch(std::exception& er){
 		std::cerr << er.what();
@@ -130,16 +124,15 @@ void popcon::Logger::lock()
 	if (!m_established)
 		throw popcon::Exception("Logger::lock exception ");
 	try{
-		//m_coraldb->startTransaction(false);
-		coral::ITable& mytable=m_coraldb->sessionProxy().nominalSchema().tableHandle("O2O_LOCK");
+		coral::ITable& mytable=m_coraldb->sessionProxy().nominalSchema().tableHandle("POPCON_LOCK");
 		coral::AttributeList inputData;
 		coral::ITableDataEditor& dataEditor = mytable.dataEditor();
 		inputData.extend<int>("id");
 		inputData.extend<std::string>("name");
 		inputData[0].data<int>() = 69;
 		inputData[1].data<std::string>() = m_obj_name;
-		std::string setClause("LOCK_COL = :id");
-		std::string condition("NAME = :name");
+		std::string setClause("LOCK_ID = :id");
+		std::string condition("OBJECT_NAME = :name");
 		dataEditor.updateRows( setClause, condition, inputData );
 		//DO NOT COMMIT - DBMS holds the row exclusive lock till commit
 	}
@@ -163,8 +156,7 @@ void popcon::Logger::updateExecID()
 {
 
 	try{
-		//m_coraldb->startTransaction(false);
-		coral::ITable& mytable=m_coraldb->sessionProxy().nominalSchema().tableHandle("O2O_EXECUTION");
+		coral::ITable& mytable=m_coraldb->sessionProxy().nominalSchema().tableHandle("POPCON_EXECUTION");
 		std::auto_ptr< coral::IQuery > query(mytable.newQuery());
 		query->addToOutputList("max(EXEC_ID)");
 		query->setMemoryCacheSize( 100 );
@@ -174,7 +166,6 @@ void popcon::Logger::updateExecID()
 			m_exec_id = (int) row[0].data<double>();
 		}
 		cursor.close();
-		//m_coraldb->commit();
 	}
 	catch(std::exception& er){
 		std::cerr << er.what();
@@ -186,8 +177,7 @@ void popcon::Logger::updatePayloadID()
 	if (m_debug)
 		std::cerr << "Logger::updatePayloadID\n";
 	try{
-		//m_coraldb->startTransaction(false);
-		coral::ITable& mytable=m_coraldb->sessionProxy().nominalSchema().tableHandle("O2O_EXECUTION_PAYLOAD");
+		coral::ITable& mytable=m_coraldb->sessionProxy().nominalSchema().tableHandle("POPCON_EXECUTION_PAYLOAD");
 		std::auto_ptr< coral::IQuery > query(mytable.newQuery());
 		query->addToOutputList("max(PL_ID)");
 		query->setMemoryCacheSize( 100 );
@@ -197,7 +187,6 @@ void popcon::Logger::updatePayloadID()
 			m_payload_id = (int) row[0].data<double>();
 		}
 		cursor.close();
-		//m_coraldb->commit();
 	}
 	catch(std::exception& er){
 		std::cerr << er.what();
@@ -213,8 +202,7 @@ void popcon::Logger::newExecution()
 	if (!m_established)
 		throw popcon::Exception("Logger::newExecution log exception ");
 	try{
-		//m_coraldb->startTransaction(false);
-		coral::ITable& mytable=m_coraldb->sessionProxy().nominalSchema().tableHandle("O2O_EXECUTION");
+		coral::ITable& mytable=m_coraldb->sessionProxy().nominalSchema().tableHandle("POPCON_EXECUTION");
 		coral::AttributeList rowBuffer;
 		coral::ITableDataEditor& dataEditor = mytable.dataEditor();
 		dataEditor.rowBuffer( rowBuffer );
@@ -222,7 +210,6 @@ void popcon::Logger::newExecution()
 		rowBuffer["EXEC_ID"].data<int>()= -1;
 		rowBuffer["EXEC_START"].data<coral::TimeStamp>() = coral::TimeStamp::now();
 		dataEditor.insertRow( rowBuffer );
-		//m_coraldb->commit();	
 	}
 	catch(coral::Exception& er)
 	{
@@ -240,8 +227,7 @@ void popcon::Logger::newPayload()
 		return;
 	if (m_debug)
 		std::cerr << "Logger::newPayload\n";
-	//m_coraldb->startTransaction(false);
-	coral::ITable& mytable=m_coraldb->sessionProxy().nominalSchema().tableHandle("O2O_EXECUTION_PAYLOAD");
+	coral::ITable& mytable=m_coraldb->sessionProxy().nominalSchema().tableHandle("POPCON_EXECUTION_PAYLOAD");
 	coral::AttributeList rowBuffer;
 	coral::ITableDataEditor& dataEditor = mytable.dataEditor();
 	dataEditor.rowBuffer( rowBuffer );
@@ -249,9 +235,6 @@ void popcon::Logger::newPayload()
 	rowBuffer["PL_ID"].data<int>()= -1; 
 	rowBuffer["EXEC_ID"].data<int>()= -1;
 	dataEditor.insertRow( rowBuffer );
-
-	//m_coraldb->commit();	
-
 }
 
 
@@ -268,8 +251,7 @@ void popcon::Logger::finalizeExecution(std::string ok)
 	}
 	updateExecID();
 	try{
-		//m_coraldb->startTransaction(false);
-		coral::ITable& mytable=m_coraldb->sessionProxy().nominalSchema().tableHandle("O2O_EXECUTION");
+		coral::ITable& mytable=m_coraldb->sessionProxy().nominalSchema().tableHandle("POPCON_EXECUTION");
 		coral::AttributeList inputData;
 		coral::ITableDataEditor& dataEditor = mytable.dataEditor();
 		inputData.extend<coral::TimeStamp>("newEnd");
@@ -281,7 +263,6 @@ void popcon::Logger::finalizeExecution(std::string ok)
 		std::string setClause("EXEC_END = :newEnd ,status = :newStatus" );
 		std::string condition("EXEC_ID = :last_id" );
 		dataEditor.updateRows( setClause, condition, inputData );
-		//m_coraldb->commit();	
 	}
 	catch(std::exception& er){
 		std::cerr << er.what();
@@ -295,8 +276,7 @@ void popcon::Logger::finalizePayload(std::string ok)
 		std::cerr << "Logger::finalizePayload\n";
 	updatePayloadID();
 	try{
-		//m_coraldb->startTransaction(false);
-		coral::ITable& mytable=m_coraldb->sessionProxy().nominalSchema().tableHandle("O2O_EXECUTION_PAYLOAD");
+		coral::ITable& mytable=m_coraldb->sessionProxy().nominalSchema().tableHandle("POPCON_EXECUTION_PAYLOAD");
 		coral::AttributeList inputData;
 		coral::ITableDataEditor& dataEditor = mytable.dataEditor();
 		inputData.extend<coral::TimeStamp>("newEnd");
@@ -310,7 +290,6 @@ void popcon::Logger::finalizePayload(std::string ok)
 		std::string setClause("WRITTEN = :newEnd, EXCEPT_DESCRIPTION = :newStatus" );
 		std::string condition("PL_ID = :last_id" );
 		dataEditor.updateRows( setClause, condition, inputData );
-		//m_coraldb->commit();	
 	}
 	catch(std::exception& er){
 		std::cerr << er.what();

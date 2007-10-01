@@ -13,7 +13,6 @@ namespace popcon
 
 	struct DBInfo
 	{
-		std::string schema;
 		std::string top_level_table;
 		std::string object_name;
 	};
@@ -23,13 +22,12 @@ namespace popcon
 		public:
 			DBState(){};
 			DBState(coral::AttributeList);
-			DBState(std::string,std::string,int);
+			DBState(std::string,int);
 			~DBState(){}
 			void set_state(coral::AttributeList);
 			coral::AttributeList update_helper(std::string& updateAction, std::string& updateCondition);
 		public:
 			std::string name;
-			std::string schema;
 			int payload_size;
 			std::string except_description;
 			std::string manual_override;
