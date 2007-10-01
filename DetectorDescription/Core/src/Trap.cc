@@ -41,7 +41,7 @@ void DDI::Trap::stream(std::ostream & os) const
      << " dy2=" << p_[7]/cm
      << " dx3=" << p_[8]/cm
      << " dx4=" << p_[9]/cm
-     << " alpha2=" << p_[10]/cm;
+     << " alpha2=" << p_[10]/deg;
 }
 
 double DDI::Trap::volume() const
