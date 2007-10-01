@@ -158,7 +158,7 @@ void OnDemandMeasurementTracker::define( const edm::Handle< LazyGetter> & theLaz
     region_range.second = theGetter->size();
 
     LogDebug(category_)<<"between index: "<<region_range.first<<" "<<region_range.second
-		       <<"\n"<<dumpRegion(region_range,*theGetterH,StayUnpacked_);
+		       <<"\n"<<dumpRegion(region_range,*theGetter,StayUnpacked_);
     
     //now assign to each measurement det for that element index
     for (std::vector<DetODContainer::iterator>::iterator dIt=eIt->second.begin();
