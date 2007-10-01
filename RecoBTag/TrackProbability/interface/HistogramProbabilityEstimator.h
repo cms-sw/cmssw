@@ -6,10 +6,6 @@
 #include "DataFormats/VertexReco/interface/Vertex.h"
 
 #include "CondFormats/BTauObjects/interface/CalibratedHistogram.h"
-#include "RecoBTag/XMLCalibration/interface/CalibratedHistogramXML.h"
-//#include "RecoBTag/TrackProbability/interface/CalibrationInterface.h"
-#include "CondFormats/BTauObjects/interface/CalibrationInterface.h"
-#include "RecoBTag/TrackProbability/interface/TrackClassFilterCategory.h"
 #include "CondFormats/BTauObjects/interface/TrackProbabilityCalibration.h"
 
 // #include "RecoBTag/XMLCalibration/interface/AlgorithmCalibration.h"

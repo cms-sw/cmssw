@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea Rizzi
 //         Created:  Wed Apr 12 11:12:49 CEST 2006
-// $Id: IPAnalyzer.cc,v 1.6 2007/09/24 13:31:23 arizzi Exp $
+// $Id: IPAnalyzer.cc,v 1.7 2007/09/24 21:20:47 fwyzard Exp $
 //
 //
 
@@ -106,6 +106,8 @@ IPAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       {
         TrackIPTagInfo::TrackIPData data = it->impactParameterData()[j];  
         cout << selTracks[j]->pt() << "\t";
+        cout << it->probabilities(0)[j] << "\t";
+        cout << it->probabilities(1)[j] << "\t";
         cout << data.ip3d.value() << "\t";
         cout << data.ip3d.significance() << "\t";
         cout << data.distanceToJetAxis << "\t";
