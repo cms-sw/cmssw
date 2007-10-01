@@ -1,0 +1,98 @@
+#include "Geometry/CaloGeometry/interface/PreshowerStrip.h"
+
+#include "DataFormats/EcalDetId/interface/ESDetId.h"
+#include "Geometry/EcalAlgo/interface/EcalPreshowerGeometry.h"
+
+#include "Geometry/CaloGeometry/interface/CaloGeometryLoader.h"
+#include "Geometry/CaloGeometry/interface/CaloGeometryLoader.icc"
+
+template class CaloGeometryLoader< EcalPreshowerGeometry > ;
+
+#include "DetectorDescription/Core/interface/DDCompactView.h"
+#include "DetectorDescription/Core/interface/DDFilteredView.h"
+#include "DetectorDescription/Core/interface/DDFilter.h"
+#include "DetectorDescription/Core/interface/DDCurrentNamespace.h"
+#include "DetectorDescription/Core/interface/DDLogicalPart.h"
+#include "DetectorDescription/Core/interface/DDSolid.h"
+#include "DetectorDescription/Core/interface/DDMaterial.h"
+#include "DetectorDescription/Core/interface/DDTransform.h"
+#include "DetectorDescription/Core/interface/DDCompactView.h"
+#include "DetectorDescription/Core/interface/DDExpandedView.h"
+#include "DetectorDescription/Core/interface/DDNodes.h"
+#include "DetectorDescription/Core/interface/DDSpecifics.h"
+#include "DetectorDescription/Core/interface/DDName.h"
+//#include "DetectorDescription/Core/interface/DDInit.h"
+#include "DetectorDescription/Core/interface/DDScope.h"
+#include "DetectorDescription/Core/interface/DDFilter.h"
+#include "DetectorDescription/Core/interface/DDQuery.h"
+#include "DetectorDescription/Core/interface/DDFilteredView.h"
+#include "DetectorDescription/ExprAlgo/interface/ExprEvalSingleton.h"
+
+#include "CLHEP/Units/SystemOfUnits.h"
+
+#include <iostream>
+#include <vector>
+
+using namespace std;
+
+typedef CaloGeometryLoader< EcalPreshowerGeometry > EcalPGL ;
+
+template <>
+void 
+EcalPGL::fillGeom( EcalPreshowerGeometry*  geom ,
+		   const EcalPGL::ParmVec& pv ,
+		   const HepTransform3D&   tr ,
+		   const DetId&            id     )
+{
+   if( geom->parMgr()     == 0 ) geom->allocatePar( 10, pv.size() ) ;
+
+
+   std::vector<float> vv ;
+   vv.reserve( pv.size() ) ;
+   for( unsigned int i ( 0 ) ; i != pv.size() ; ++i )
+   {
+      vv.push_back( CaloCellGeometry::k_ScaleFromDDDtoGeant*pv[i] ) ;
+   }
+   const float* pP ( CaloCellGeometry::getParmPtr( vv, 
+						   geom->parMgr(), 
+						   geom->parVecVec() ) ) ;
+   
+   const HepPoint3D ctr ( tr*HepPoint3D(0,0,0) ) ;
+
+   const GlobalPoint refPoint ( ctr.x(), ctr.y(), ctr.z() ) ;
+
+   PreshowerStrip* cell ( new PreshowerStrip( refPoint,
+					      geom->cornersMgr(),
+					      pP ) ) ;
+
+   geom->addCell( id, cell );
+}
+
+
+template <>
+void 
+EcalPGL::extraStuff( EcalPreshowerGeometry* geom )
+{
+   typedef CaloSubdetectorGeometry::CellCont Cont ;
+   float z1 ( 0 ) ;
+   float z2 ( 0 ) ;
+   const Cont& con ( geom->cellGeometries() ) ;
+   for( Cont::const_iterator i ( con.begin() ) ; i != con.end() ; ++i )
+   {
+      const ESDetId esid ( i->first ) ;
+      if( 0 == z1 && 1 == esid.plane() ) z1 = fabs( i->second->getPosition().z() ) ;
+      if( 0 == z2 && 2 == esid.plane() ) z2 = fabs( i->second->getPosition().z() ) ;
+      if( 0 != z1 && 0 != z2 ) break ;
+   }
+   assert( 0 != z1 && 0 != z2 ) ;
+   geom->setzPlanes( z1, z2 ) ;
+}
+
+template <>
+void 
+EcalPGL::fillNamedParams( DDFilteredView         fv   ,
+						     EcalPreshowerGeometry* geom  )
+{
+   // nothing yet for preshower
+}
+
