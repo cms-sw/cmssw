@@ -24,7 +24,10 @@
 #include "CondFormats/DataRecord/interface/BTagTrackProbability3DRcd.h"
 #include "RecoBTag/TrackProbability/interface/HistogramProbabilityEstimator.h"
 
-using namespace PhysicsTools::Calibration;
+
+#include "CondFormats/BTauObjects/interface/TrackProbabilityCalibration.h"
+
+//using namespace PhysicsTools::Calibration;
 
 class TrackProbabilityFakeCondES : public edm::ESProducer, public edm::EventSetupRecordIntervalFinder {
     public:
