@@ -58,9 +58,9 @@ void MultiTrackValidator::beginJob( const EventSetup & setup) {
   
       double step=(max-min)/nint;
       ostringstream title,name;
-      etaintervalsv.push_back(0);
+      etaintervalsv.push_back(min);
       for (int k=1;k<nint+1;k++) {
-	double d=k*step;
+	double d=min+k*step;
 	etaintervalsv.push_back(d);
 	totSIMveta.push_back(0);
 	totASSveta.push_back(0);
@@ -75,9 +75,9 @@ void MultiTrackValidator::beginJob( const EventSetup & setup) {
       totRECeta.push_back(totRECveta);
 
       double steppT = (maxpT-minpT)/nintpT;
-      pTintervalsv.push_back(0);
+      pTintervalsv.push_back(minpT);
       for (int k=1;k<nintpT+1;k++) {
-        double d=k*steppT;
+        double d=minpT+k*steppT;
         pTintervalsv.push_back(d);
         totSIMvpT.push_back(0);
         totASSvpT.push_back(0);
@@ -262,8 +262,8 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
 	h_etaSIM[w]->Fill(tp->momentum().eta());
 	h_vertposSIM[w]->Fill(sqrt(tp->vertex().perp2()));
 	for (unsigned int f=0; f<etaintervals[w].size()-1; f++){
-	  if (fabs(tp->momentum().eta())>etaintervals[w][f]&&
-	      fabs(tp->momentum().eta())<etaintervals[w][f+1]) {
+	  if (getEta(tp->momentum().eta())>etaintervals[w][f]&&
+	      getEta(tp->momentum().eta())<etaintervals[w][f+1]) {
 	    totSIMeta[w][f]++;
 	    std::vector<std::pair<reco::TrackRef, double> > rt;
 	    if(simRecColl.find(tp) != simRecColl.end()){
@@ -319,8 +319,8 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
 	std::vector<std::pair<TrackingParticleRef, double> > tp;
 	//Compute fake rate vs eta
 	for (unsigned int f=0; f<etaintervals[w].size()-1; f++){
-	  if (fabs(track->momentum().eta())>etaintervals[w][f]&&
-	      fabs(track->momentum().eta())<etaintervals[w][f+1]) {
+	  if (getEta(track->momentum().eta())>etaintervals[w][f]&&
+	      getEta(track->momentum().eta())<etaintervals[w][f+1]) {
 	    totRECeta[w][f]++; 
 	    if(recSimColl.find(track) != recSimColl.end()){
 	      tp = recSimColl[track];
@@ -457,19 +457,19 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
 	  double ptError =  track->ptError();
 	  h_pt[w]->Fill(ptres/ptError);
 	  h_eta[w]->Fill(etares);
-	  etares_vs_eta[w]->Fill(fabs(track->eta()),etares);
+	  etares_vs_eta[w]->Fill(getEta(track->eta()),etares);
 
 	  //chi2 and #hit vs eta: fill 2D histos
-	  chi2_vs_eta[w]->Fill(fabs(track->eta()),track->normalizedChi2());
-	  nhits_vs_eta[w]->Fill(fabs(track->eta()),track->numberOfValidHits());
-	  nlosthits_vs_eta[w]->Fill(fabs(track->eta()),track->numberOfLostHits());
+	  chi2_vs_eta[w]->Fill(getEta(track->eta()),track->normalizedChi2());
+	  nhits_vs_eta[w]->Fill(getEta(track->eta()),track->numberOfValidHits());
+	  nlosthits_vs_eta[w]->Fill(getEta(track->eta()),track->numberOfLostHits());
 
 	  //resolution of track params: fill 2D histos
-	  d0res_vs_eta[w]->Fill(fabs(track->eta()),track->d0()-d0Sim);
-	  ptres_vs_eta[w]->Fill(fabs(track->eta()),(track->pt()-assocTrack->momentum().perp())/track->pt());
-	  z0res_vs_eta[w]->Fill(fabs(track->eta()),track->dz()-dzSim);
-	  phires_vs_eta[w]->Fill(fabs(track->eta()),track->phi()-phiSim);
-	  cotThetares_vs_eta[w]->Fill(fabs(track->eta()),1/tan(1.570796326794896558-track->lambda())-1/tan(1.570796326794896558-lambdaSim));         
+	  d0res_vs_eta[w]->Fill(getEta(track->eta()),track->d0()-d0Sim);
+	  ptres_vs_eta[w]->Fill(getEta(track->eta()),(track->pt()-assocTrack->momentum().perp())/track->pt());
+	  z0res_vs_eta[w]->Fill(getEta(track->eta()),track->dz()-dzSim);
+	  phires_vs_eta[w]->Fill(getEta(track->eta()),track->phi()-phiSim);
+	  cotThetares_vs_eta[w]->Fill(getEta(track->eta()),1/tan(1.570796326794896558-track->lambda())-1/tan(1.570796326794896558-lambdaSim));         
 
 	  //same as before but vs pT
 	  d0res_vs_pt[w]->Fill(track->pt(),track->d0()-d0Sim);
@@ -480,11 +480,11 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
   	 
   	 
 	  //pulls of track params vs eta: fill 2D histos
-	  d0pull_vs_eta[w]->Fill(fabs(track->eta()),d0Pull);
-	  ptpull_vs_eta[w]->Fill(fabs(track->eta()),ptres/ptError);
-	  z0pull_vs_eta[w]->Fill(fabs(track->eta()),dzPull);
-	  phipull_vs_eta[w]->Fill(fabs(track->eta()),phi0Pull);
-	  thetapull_vs_eta[w]->Fill(fabs(track->eta()),thetaPull);
+	  d0pull_vs_eta[w]->Fill(getEta(track->eta()),d0Pull);
+	  ptpull_vs_eta[w]->Fill(getEta(track->eta()),ptres/ptError);
+	  z0pull_vs_eta[w]->Fill(getEta(track->eta()),dzPull);
+	  phipull_vs_eta[w]->Fill(getEta(track->eta()),phi0Pull);
+	  thetapull_vs_eta[w]->Fill(getEta(track->eta()),thetaPull);
 
 	} catch (cms::Exception e){
 	  edm::LogError("TrackValidator") << "exception found: " << e.what() << "\n";

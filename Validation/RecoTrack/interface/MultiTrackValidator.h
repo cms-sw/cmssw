@@ -4,8 +4,8 @@
 /** \class MultiTrackValidator
  *  Class that prodecs histrograms to validate Track Reconstruction performances
  *
- *  $Date: 2007/06/29 15:47:59 $
- *  $Revision: 1.30 $
+ *  $Date: 2007/08/02 17:57:02 $
+ *  $Revision: 1.31 $
  *  \author cerati
  */
 
@@ -48,6 +48,7 @@ class MultiTrackValidator : public edm::EDAnalyzer {
     min(pset.getParameter<double>("min")),
     max(pset.getParameter<double>("max")),
     nint(pset.getParameter<int>("nint")),
+    useFabs(pset.getParameter<bool>("useFabsEta")),
     minpT(pset.getParameter<double>("minpT")),
     maxpT(pset.getParameter<double>("maxpT")),
     nintpT(pset.getParameter<int>("nintpT"))
@@ -77,6 +78,7 @@ class MultiTrackValidator : public edm::EDAnalyzer {
   std::string out;
   double  min, max;
   int nint;
+  bool useFabs;
   double minpT, maxpT;
   int nintpT;
   
@@ -140,7 +142,11 @@ class MultiTrackValidator : public edm::EDAnalyzer {
     if (!h)    {throw cms::Exception("MultiTrackValidator") << "no cast to h2"; }
     doProfileX(h, me);
   }
- 
+
+  double getEta(double eta){
+    if (useFabs) return fabs(eta);
+    else return eta;
+  }
 };
 
 
