@@ -5,8 +5,8 @@
 //   Description: L1 Global Muon Trigger
 //
 //
-//   $Date: 2007/08/07 13:48:16 $
-//   $Revision: 1.8 $
+//   $Date: 2007/09/06 13:50:37 $
+//   $Revision: 1.9 $
 //
 //   Author :
 //   Norbert Neumeister              CERN EP
@@ -269,8 +269,6 @@ void L1MuGlobalMuonTrigger::produce(edm::Event& e, const edm::EventSetup& es) {
 
       // reset GMT
       reset();
-      // delete registers and LUTs
-      m_config->clear();
 
     }
   }
@@ -286,6 +284,8 @@ void L1MuGlobalMuonTrigger::produce(edm::Event& e, const edm::EventSetup& es) {
   std::auto_ptr<L1MuGMTReadoutCollection> GMTRRC(getReadoutCollection());
   e.put(GMTRRC);
   
+// delete registers and LUTs
+  m_config->clear();
 }
 
 //
