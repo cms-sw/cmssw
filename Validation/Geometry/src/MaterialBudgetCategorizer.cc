@@ -114,6 +114,8 @@ void MaterialBudgetCategorizer::buildMaps()
 	 << " OTH " << theL0Map[ (*matTable)[ii]->GetName() ][5]
 	 << " AIR " << theL0Map[ (*matTable)[ii]->GetName() ][6]
 	 << endl;
+    if( theX0Map[ (*matTable)[ii]->GetName() ][5] == 1 || theL0Map[ (*matTable)[ii]->GetName() ][5] == 1 )
+      std::cout << "WARNING: material with no category: " << (*matTable)[ii]->GetName() << std::endl;
   }
   //
   // rr
