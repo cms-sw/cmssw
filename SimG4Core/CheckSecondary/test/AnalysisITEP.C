@@ -1,4 +1,26 @@
-void analyse(char element[2], char list[10], char ene[6], int scan=1, char plot='Y') {
+#include <iostream>
+#include <fstream>
+#include <iomanip>
+#include <string>
+#include <list>
+
+#include <math.h>
+#include <vector>
+
+#include "Rtypes.h"
+#include "TROOT.h"
+#include "TRint.h"
+#include "TObject.h"
+#include "TFile.h"
+#include "TTree.h"
+#include "TH1F.h"
+#include "TCanvas.h"
+#include "TApplication.h"
+#include "TRefArray.h"
+#include "TStyle.h"
+#include "TGraph.h"
+
+void AnalyseITEP(char element[2], char list[10], char ene[6], int scan=1, char plot='Y') {
 
   static double massP = 938.272;
   static double pi  = 3.1415926;
@@ -139,7 +161,7 @@ void analyse(char element[2], char list[10], char ene[6], int scan=1, char plot=
 	      << " mb (" << ninter << " events)\n"
 	      << "Elastic   " << sigmaEl<< " +- " << dsigmaEl
 	      << " mb (" << ninter << " events)\n"
-	      << "Inelasric " << sigmaInel << " +- " << dsigmaInel
+	      << "Inelastic " << sigmaInel << " +- " << dsigmaInel
 	      << " mb (" << ninter << " events)\n";
   }
 
@@ -291,6 +313,7 @@ std::vector<double> angleScan(int scan) {
     tmp.push_back(29.5*deg);
     tmp.push_back(34.6*deg);
     tmp.push_back(39.6*deg);
+    tmp.push_back(44.3*deg);
     tmp.push_back(49.3*deg);
     tmp.push_back(54.2*deg);
     tmp.push_back(59.1*deg);

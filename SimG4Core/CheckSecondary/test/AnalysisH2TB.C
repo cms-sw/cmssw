@@ -1,76 +1,143 @@
-void analyse(char element[6], char list[10], char ene[6]) {
+#include <iostream> 
+#include <fstream>
+#include <iomanip>
+#include <string>
+#include <list>
+
+#include <math.h>
+#include <vector>
+
+#include "Rtypes.h"
+#include "TROOT.h"
+#include "TRint.h"
+#include "TObject.h"
+#include "TFile.h"
+#include "TTree.h"
+#include "TH1F.h"
+#include "TH1I.h"
+#include "TCanvas.h"
+#include "TApplication.h"
+#include "TRefArray.h"
+#include "TStyle.h"
+#include "TGraph.h"
+
+void AnalyseH2TB(char element[6], char list[10], char ene[6], int sav=0, int nMax=-1, bool debug=false) {
 
   char fname[40];
   sprintf (fname, "%s%s%sGeV.root", element, list, ene);
+  char ofile[50];
+  sprintf (ofile, "histo_%s", fname);
+
   double rhol = rhoL(element);
   double atwt = atomicWt(element);
-  std::vector<double> masses = massScan();
-  cout << fname << " rhoL " << rhol << " atomic weight " << atwt << "\n";
-
-  TH1F *hiKE0[15], *hiKE1[15], *hiKE2[15], *hiCT0[15], *hiCT1[15], *hiCT2[15];
+  std::vector<std::string> types = types();
+  std::cout << fname << " rhoL " << rhol << " atomic weight " << atwt << "\n";
+  
+  TFile *fout = new TFile(ofile, "recreate");
+  TH1F *hiKE0[20], *hiKE1[20], *hiKE2[20], *hiCT0[20], *hiCT1[20], *hiCT2[20];
+  TH1I *hiMulti[20];
+  TH1F *hiParticle[5][20];
+  TH1F *baryon1, *baryon2;
   char name[60], title[160], ctype[20], ytitle[20];
   double xbin;
-  for (unsigned int ii=0; ii<=(masses.size())+1; ii++) {
+
+  for (unsigned int ii=0; ii<=(types.size()); ii++) {
     if      (ii == 0) sprintf (ctype, "All Particles");
-    else if (ii == 1) sprintf (ctype, "Photons");
-    else if (ii == 2) sprintf (ctype, "Electrons/Positrons");
-    else if (ii == 3) sprintf (ctype, "Neutral Pions");
-    else if (ii == 4) sprintf (ctype, "Charged Pions");
-    else if (ii == 5) sprintf (ctype, "Charged Kaons");
-    else if (ii == 6) sprintf (ctype, "Neutral Kaons");
-    else if (ii == 7) sprintf (ctype, "Protons/Antiportons");
-    else if (ii == 8) sprintf (ctype, "Neutrons");
-    else if (ii == 9) sprintf (ctype, "Heavy hadrons");
-    else              sprintf (ctype, "Ions");
+    else              sprintf (ctype, "%s", types[ii-1].c_str());
+    
+    for (unsigned int jj=0; jj<5; jj++) {
+      sprintf (title, "Particle %i : %s in %s at %s GeV (%s)",jj, ctype, element, ene, list);
+      sprintf (name, "Particle%i_KE%s%s%sGeV(%s)",jj,element, list, ene, ctype);
+      if (ii==14) hiParticle[jj][ii] = new TH1F (name, title, 50000, 0., 10.);
+      else        hiParticle[jj][ii] = new TH1F (name, title, 15000, 0., 300.);
+      if (debug) std::cout << "hiParticle[" << jj << "][" << ii << "] = " << hiParticle[jj][ii] << " " <<  name << " Particle KE Energy  " << title << "\n"; 
+    }
+    if (debug) std::cout << "Ctype " << ctype << "\n";
 
     sprintf (title, "%s in %s at %s GeV (%s)", ctype, element, ene, list);
     sprintf (name, "KE0%s%s%sGeV(%s)", element, list, ene, ctype);
-    hiKE0[ii] = new TH1F (name, title, 1000, 0., 100.);
+    hiKE0[ii] = new TH1F (name, title, 5000, 0., 100.);
     hiKE0[ii]->GetXaxis()->SetTitle("Kinetic Energy (GeV)");
     xbin = hiKE0[ii]->GetBinWidth(1);
     sprintf (ytitle, "Events/%6.3f GeV", xbin);
     hiKE0[ii]->GetYaxis()->SetTitle(ytitle);
-    //std::cout << "hiKE0[" << ii << "] = " << hiKE0[ii] << " " <<  name << " KE Energy  " << title << "\n";
+    if (debug) std::cout << "hiKE0[" << ii << "] = " << hiKE0[ii] << " " <<  name << " KE Energy  " << title << "\n";
+
     sprintf (name, "CT0%s%s%sGeV(%s)", element, list, ene, ctype);
     hiCT0[ii] = new TH1F (name, title, 100, -1.0, 1.0.);
     hiCT0[ii]->GetXaxis()->SetTitle("cos (#theta)");
     xbin = hiCT0[ii]->GetBinWidth(1);
     sprintf (ytitle, "Events/%6.3f", xbin);
     hiCT0[ii]->GetYaxis()->SetTitle(ytitle);
-    //std::cout << "hiCT0[" << ii << "] = " << hiCT0[ii] << " " <<  name << " cos(T#eta) " << title << "\n";
+    if (debug) std::cout << "hiCT0[" << ii << "] = " << hiCT0[ii] << " " <<  name << " cos(T#eta) " << title << "\n";
 
     sprintf (title, "%s (Elastic) in %s at %s GeV (%s)", ctype, element, ene, list);
     sprintf (name, "KE1%s%s%sGeV(%s)", element, list, ene, ctype);
-    hiKE1[ii] = new TH1F (name, title, 1000, 0., 100.);
+    hiKE1[ii] = new TH1F (name, title, 5000, 0., 100.);
     hiKE1[ii]->GetXaxis()->SetTitle("Kinetic Energy (GeV)");
     xbin = hiKE1[ii]->GetBinWidth(1);
     sprintf (ytitle, "Events/%6.3f GeV", xbin);
     hiKE1[ii]->GetYaxis()->SetTitle(ytitle);
-    //std::cout << "hiKE1[" << ii << "] = " << hiKE1[ii] << " " <<  name << " KE Energy  " << title << "\n";
+    if (debug) std::cout << "hiKE1[" << ii << "] = " << hiKE1[ii] << " " <<  name << " KE Energy  " << title << "\n";
+
     sprintf (name, "CT1%s%s%sGeV(%s)", element, list, ene, ctype);
     hiCT1[ii] = new TH1F (name, title, 100, -1.0, 1.0.);
     hiCT1[ii]->GetXaxis()->SetTitle("cos (#theta)");
     xbin = hiCT1[ii]->GetBinWidth(1);
     sprintf (ytitle, "Events/%6.3f", xbin);
     hiCT1[ii]->GetYaxis()->SetTitle(ytitle);
-    //std::cout << "hiCT1[" << ii << "] = " << hiCT1[ii] << " " <<  name << " cos(T#eta) " << title << "\n";
+    if (debug) std::cout << "hiCT1[" << ii << "] = " << hiCT1[ii] << " " <<  name << " cos(T#eta) " << title << "\n";
 
     sprintf (title, "%s (InElastic) in %s at %s GeV (%s)", ctype, element, ene, list);
     sprintf (name, "KE2%s%s%sGeV(%s)", element, list, ene, ctype);
-    hiKE2[ii] = new TH1F (name, title, 1000, 0., 100.);
+    hiKE2[ii] = new TH1F (name, title, 5000, 0., 100.);
     hiKE2[ii]->GetXaxis()->SetTitle("Kinetic Energy (GeV)");
     xbin = hiKE2[ii]->GetBinWidth(1);
     sprintf (ytitle, "Events/%6.3f GeV", xbin);
     hiKE2[ii]->GetYaxis()->SetTitle(ytitle);
-    //std::cout << "hiKE2[" << ii << "] = " << hiKE2[ii] << " " <<  name << " KE Energy  " << title << "\n";
+    if (debug) std::cout << "hiKE2[" << ii << "] = " << hiKE2[ii] << " " <<  name << " KE Energy  " << title << "\n";
+
     sprintf (name, "CT2%s%s%sGeV(%s)", element, list, ene, ctype);
     hiCT2[ii] = new TH1F (name, title, 100, -1.0, 1.0.);
     hiCT2[ii]->GetXaxis()->SetTitle("cos (#theta)");
     xbin = hiCT2[ii]->GetBinWidth(1);
     sprintf (ytitle, "Events/%6.3f", xbin);
     hiCT2[ii]->GetYaxis()->SetTitle(ytitle);
-    //std::cout << "hiCT2[" << ii << "] = " << hiCT2[ii] << " " <<  name << " cos(T#eta) " << title << "\n";
+    if (debug) std::cout << "hiCT2[" << ii << "] = " << hiCT2[ii] << " " <<  name << " cos(T#eta) " << title << "\n";
+
+    sprintf (name, "Multi%s%s%sGeV(%s)", element, list, ene, ctype);
+    hiMulti[ii] = new TH1I (name, title, 101, -1, 100);
+    hiMulti[ii]->GetXaxis()->SetTitle("multiplicity");
+    if (debug) std::cout << "hiMulti[" << ii << "] = " << hiMulti[ii] << " " <<  name << " Multiplicity " << "\n";
   }
+
+  TH1F *hProton[2], *hNeutron[2], *hHeavy[2], *hIon[2], *hBaryon[2];
+  for (int i=0; i<2; i++) {
+    sprintf(title, "proton%i_%s%s%sGeV(%s)", i, element, list, ene, ctype);
+    hProton[i] = new TH1F(title, title, 15000, 0., 300.);
+    hProton[i]->GetXaxis()->SetTitle("Kinetic Energy (GeV)");
+
+    sprintf(title, "neutron%i_%s%s%sGeV(%s)", i, element, list, ene, ctype);
+    hNeutron[i] = new TH1F(title, title, 15000, 0., 300.);
+    hNeutron[i]->GetXaxis()->SetTitle("Kinetic Energy (GeV)");
+
+    sprintf(title, "heavy%i_%s%s%sGeV(%s)", i, element, list, ene, ctype);
+    hHeavy[i] = new TH1F(title, title, 15000, 0., 300.);
+    hHeavy[i]->GetXaxis()->SetTitle("Kinetic Energy (GeV)");
+
+    sprintf(title, "ion%i_%s%s%sGeV(%s)", i, element, list, ene, ctype);
+    hIon[i] = new TH1F(title, title, 50000, 0., 10.);
+    hIon[i]->GetXaxis()->SetTitle("Kinetic Energy (GeV)");
+
+    sprintf(title, "baryon%i_%s%s%sGeV(%s)", i, element, list, ene, ctype);
+    hBaryon[i] = new TH1F(title, title, 15000, 0., 300.);
+    hBaryon[i]->GetXaxis()->SetTitle("Kinetic Energy (GeV)");
+  }
+
+  sprintf(title, "baryonX_%s%s%sGeV", element, list, ene);
+  baryon1 = new TH1F("baryon1", title, 15000, 0., 300.);
+  sprintf(title, "baryonY_%s%s%sGeV", element, list, ene);
+  baryon2 = new TH1F("baryon2", title, 15000, 0., 300.);
 
   TFile *file = new TFile(fname);
   TTree *tree = (TTree *) file->Get("T1");
@@ -81,6 +148,8 @@ void analyse(char element[6], char list[10], char ene[6]) {
     std::cout << "Tree T1 found with " << tree->GetEntries() << " entries\n";
     int nentry = tree->GetEntries();
     int ninter=0, elastic=0, inelastic=0;
+    if (nMax > 0 && nMax < nentry) nentry = nMax;
+
     for (int i=0; i<nentry; i++) {
       if (i%1000 == 0) std::cout << "Start processing event " << i << "\n";
       std::vector<int>                     *nsec, *procids;
@@ -94,7 +163,11 @@ void analyse(char element[6], char list[10], char ene[6]) {
       tree->SetBranchAddress("SecondaryPz",       &pz);
       tree->SetBranchAddress("SecondaryMass",     &mass);
       tree->GetEntry(i);
+
+      
       if ((*nsec).size() > 0) {
+
+	if (debug) std::cout << "Entry " << i << " no. of secondaries " << (*nsec)[0] << "\n";
 	ninter++;
 	bool isItElastic = false;
 	if ((*procids)[0] == 17) {elastic++; isItElastic = true;}
@@ -107,37 +180,193 @@ void analyse(char element[6], char list[10], char ene[6]) {
 	    std::cout << " Secondary " << k << " Px " << (*px)[k] << " Py " << (*py)[k] << " Pz " << (*pz)[k] << " Mass " << (*mass)[k] << "\n";
 	}
 	
+	//	std::vector<double> pProton, pNeutron, pIon, pHeavy;
+	std::list<double> pProton, pNeutron, pIon, pHeavy;
+	int counter[15];
+	for(int nct=0; nct<15; nct++) counter[nct] = 0;
+
+	int num = (*nsec)[0];
+	if (debug) std::cout << "Secondaries: " << num << "\n";
+	std::vector<double> partEne(num,0.0); 
+	std::vector<int>    partType(num,999);
+	double              kBaryon=0;
+
 	for (int k=0; k<(*nsec)[0]; k++) {
-	  int type = 0;
-	  for (unsigned int it=0; it<masses.size(); it++) 
-	    if (abs((*mass)[k]) > masses[it]) type = it+1;
-	  double m  = abs((*mass)[k]);
+	  int type = type((*mass)[k]);
+	  double m  = (((*mass)[k]) >=0 ? ((*mass)[k]): -((*mass)[k]));
 	  double pl = (*py)[k];
 	  double pt = ((*px)[k])*((*px)[k])+((*pz)[k])*((*pz)[k]);
 	  double pp = (pt+pl*pl);
 	  double ke = (sqrt (pp + m*m) - m)/1000.;
 	  pp        = sqrt (pp);
 	  double cth= (pp == 0. ? -2. : (pl/pp));
-	  //std::cout << "Entry " << i << " Secondary " << k << " Mass " << (*mass)[k] << " Type " << type << " Cth " << cth << " KE " << ke << "\n";
+	  if      (type == 11) pProton.push_back(ke);
+	  else if (type == 12) pNeutron.push_back(ke);
+	  else if (type == 13) pHeavy.push_back(ke);
+	  else if (type == 14) pIon.push_back(ke);
+	  if (type == 11 || type == 12 || type == 13) kBaryon += ke;
+
+	  partEne[k] = ke; partType[k] = type;
+
+	  if (debug) std::cout << "Entry " << i << " Secondary " << k << " Mass " << (*mass)[k] << " Type " << type << " Cth " << cth << " KE " << ke << "\n";
 	  hiKE0[0]->Fill(ke);
 	  hiCT0[0]->Fill(cth);
-	  hiKE0[type+1]->Fill(ke);
-	  hiCT0[type+1]->Fill(cth);
+	  hiKE0[type]->Fill(ke);
+	  hiCT0[type]->Fill(cth);
 	  if (isItElastic) {
 	    hiKE1[0]->Fill(ke);
 	    hiCT1[0]->Fill(cth);
-	    hiKE1[type+1]->Fill(ke);
-	    hiCT1[type+1]->Fill(cth);
+	    hiKE1[type]->Fill(ke);
+	    hiCT1[type]->Fill(cth);
 	  } else {
 	    hiKE2[0]->Fill(ke);
 	    hiCT2[0]->Fill(cth);
-	    hiKE2[type+1]->Fill(ke);
-	    hiCT2[type+1]->Fill(cth);
+	    hiKE2[type]->Fill(ke);
+	    hiCT2[type]->Fill(cth);
+	    counter[0] += 1;
+	    counter[type] += 1;
 	  }
+	} // loop over particles
+	
+	if (debug) {
+	  std::cout << "Entry " << i << "  ::";
+	  for (int nct=0; nct<15; nct++) 
+	    std::cout << "  [" << nct <<"]:" << counter[nct];
+	  std::cout << "\n";
 	}
+
+	if( !isItElastic ) {
+	  
+	  for (int nct=0; nct<15 && nct<=(types.size()); nct++) 
+	    hiMulti[nct]->Fill(counter[nct]);
+	  
+	  list<double>::iterator iter;
+	  double kMaxB=0;
+	  if (pProton.size() > 0) {
+	    pProton.sort();
+	    iter = pProton.end(); iter--;
+	    double pMax = *iter;
+	    kMaxB = pMax;
+	    hProton[0]->Fill(pMax);
+	    double pNext= 0;
+	    if (pProton.size() > 1) {
+	      iter--; pNext = *iter;
+	      hProton[1]->Fill(pNext);
+	    }
+	    if (debug) std::cout << "Proton " << pProton.size() << " " << pMax << " " << pNext << "\n";
+	  }
+
+	  if (pNeutron.size() > 0) {
+	    pNeutron.sort();
+	    iter = pNeutron.end(); iter--;
+	    double pMax = *iter;
+	    if (pMax > kMaxB) kMaxB = pMax;
+	    hNeutron[0]->Fill(pMax);
+	    double pNext= 0;
+	    if (pNeutron.size() > 1) {
+	      iter--; pNext = *iter;
+	      hNeutron[1]->Fill(pNext);
+	    }
+	    if (debug) std::cout << "Neutron " << pNeutron.size() << " " << pMax << " " << pNext << "\n";
+	  }
+
+	  if (pHeavy.size() > 0) {
+	    pHeavy.sort();
+	    iter = pHeavy.end(); iter--;
+	    double pMax = *iter;
+	    if (pMax > kMaxB) kMaxB = pMax;
+	    hHeavy[0]->Fill(pMax);
+	    double pNext= 0;
+	    if (pHeavy.size() > 1) {
+	      iter--; pNext = *iter;
+	      hHeavy[1]->Fill(pNext);
+	    }
+	  }
+
+	  if (kMaxB > 0) {
+	    hBaryon[0]->Fill(kMaxB);
+	    hBaryon[1]->Fill(kBaryon-kMaxB);
+	    if (debug) std::cout << "Baryon " << kMaxB << " " << kBaryon-kMaxB << "\n";
+	  }
+
+	  if (pIon.size() > 0) {
+	    pIon.sort();
+	    iter = pIon.end(); iter--;
+	    double pMax = *iter;
+	    hIon[0]->Fill(pMax);
+	    double pNext= 0;
+	    if (pIon.size() > 1) {
+	      iter--; pNext = *iter;
+	      hIon[1]->Fill(pNext);
+	    }
+	  }
+	  
+	  for(int ipart=0; ipart<partEne.size(); ipart++){
+	    for(int jpart=ipart+1; jpart<partEne.size(); jpart++){
+	      if(partEne[ipart] < partEne[jpart]){
+		double tempE = partEne[ipart];    int tempI       = partType[ipart];
+		partEne[ipart] = partEne[jpart];  partType[ipart] = partType[jpart];
+		partEne[jpart] = tempE;           partType[jpart] = tempI;
+	      }
+	    }
+	  }
+
+	  int nPart[20]; for(unsigned int ii=0; ii<20; ii++) nPart[ii]=0;
+	  int nbaryon=0; 
+	  bool firstBaryon  = false;
+	  bool secondBaryon = false;
+	  bool first = true;
+	  for(int unsigned ii=0; ii<partEne.size(); ii++){
+	    nPart[partType[ii]] += 1;
+	    if(partType[ii]==11 || partType[ii]==12){
+	      if (first)     baryon1->Fill(partEne[ii]);
+	      else           baryon2->Fill(partEne[ii]);
+	      first = false;
+	    }
+
+	    if(partType[ii]==10 || partType[ii]==11 || partType[ii]==12 || partType[ii]==13 || partType[ii]==14){
+	      nbaryon++;
+	      if(nbaryon == 1) firstBaryon  = true;
+	      if(nbaryon == 2) secondBaryon = true;
+	    }
+
+	    if(firstBaryon) {
+	      if (debug && partEne[ii]>200) std::cout << "nbaryon " << nbaryon << " ii " << ii << "  partType " << partType[ii] << " " << partEne[ii] << "\n";
+	      if (partType[ii] == 10){		
+		if(nPart[10]==1) hiParticle[0][10]->Fill(partEne[ii]);
+	      }	else if (partType[ii] == 11){
+		if(nPart[11]==1) hiParticle[0][11]->Fill(partEne[ii]);
+	      } else if(partType[ii] == 12) {
+		if(nPart[12]==1) hiParticle[0][12]->Fill(partEne[ii]);
+	      } else if(partType[ii] == 13) {
+		if(nPart[13]==1) hiParticle[0][13]->Fill(partEne[ii]);
+	      } else if(partType[ii] == 14){
+		if(nPart[14]==1) hiParticle[0][14]->Fill(partEne[ii]);
+	      }
+	    }
+
+	    firstBaryon = false;
+	    if(secondBaryon){
+	      if (debug && partEne[ii]>200) std::cout << "nbaryon " << nbaryon << " ii " << ii << "  partType " << partType[ii] << " " << partEne[ii] << "\n";
+	      if (partType[ii] == 10){
+		if(nPart[10]==2) hiParticle[1][10]->Fill(partEne[ii]);
+	      } else if (partType[ii] == 11){
+		if(nPart[11]==2) hiParticle[1][11]->Fill(partEne[ii]);
+	      } else if(partType[ii] == 12) {
+		if(nPart[12]==2) hiParticle[1][12]->Fill(partEne[ii]);
+	      } else if(partType[ii] == 13) {
+		if(nPart[13]==2) hiParticle[1][13]->Fill(partEne[ii]);
+	      } else if(partType[ii] == 14){
+		if(nPart[14]==2) hiParticle[1][14]->Fill(partEne[ii]);
+	      }
+	    }
+	    secondBaryon = false;
+	  } 
+
+	} // ifInElastic
       }
-    }
-    
+    } // loop over entries
+
     std::cout << ninter << " interactions seen in " << nentry << " trials\n";
     double sigma = atwt*10000.*log((double)(nentry)/(double)(nentry-ninter))/(rhol*6.023);
     double dsigma    = sigma/sqrt(double(ninter));
@@ -159,33 +388,62 @@ void analyse(char element[6], char list[10], char ene[6]) {
   gStyle->SetFrameFillStyle(0);   gStyle->SetFrameLineColor(1);
   gStyle->SetFrameLineStyle(1);   gStyle->SetFrameLineWidth(1);
   gStyle->SetOptLogy(1);          gStyle->SetTitleOffset(1.2,"Y");
-  TCanvas *cc1[15], *cc2[15];
-  for (unsigned int iia=0; iia<=(masses.size())+1; iia++) {
-    if      (iia == 0) sprintf (ctype, "All Particles");
-    else if (iia == 1) sprintf (ctype, "Photons");
-    else if (iia == 2) sprintf (ctype, "Electrons/Positrons");
-    else if (iia == 3) sprintf (ctype, "Neutral Pions");
-    else if (iia == 4) sprintf (ctype, "Charged Pions");
-    else if (iia == 5) sprintf (ctype, "Charged Kaons");
-    else if (iia == 6) sprintf (ctype, "Neutral Kaons");
-    else if (iia == 7) sprintf (ctype, "Protons/Antiportons");
-    else if (iia == 8) sprintf (ctype, "Neutrons");
-    else if (iia == 9) sprintf (ctype, "Heavy hadrons");
-    else               sprintf (ctype, "Ions");
 
-    sprintf (title, "%s in %s at %s GeV (%s)", ctype, element, ene, list);
-    sprintf(name, "C-KE%i", iia);
-    cc1[iia] = new TCanvas(name,title,800,600); cc1[iia]->Divide(2,2);
-    cc1[iia]->cd(1); if (hiKE0[iia]->GetEntries() > 0) hiKE0[iia]->Draw(); 
-    cc1[iia]->cd(3); if (hiKE1[iia]->GetEntries() > 0) hiKE1[iia]->Draw();
-    cc1[iia]->cd(4); if (hiKE2[iia]->GetEntries() > 0) hiKE2[iia]->Draw(); 
-    sprintf(name, "C-CT%i", iia);
-    cc2[iia] = new TCanvas(name,title,800,600); cc2[iia]->Divide(2,2);
-    cc2[iia]->cd(1); if (hiCT0[iia]->GetEntries() > 0) hiCT0[iia]->Draw(); 
-    cc2[iia]->cd(3); if (hiCT1[iia]->GetEntries() > 0) hiCT1[iia]->Draw();
-    cc2[iia]->cd(4); if (hiCT2[iia]->GetEntries() > 0) hiCT2[iia]->Draw(); 
+  if (sav < 0) {
+    TCanvas *cc1[15], *cc2[15], *cc3; 
+    cc3 = new TCanvas("c_multiplicity", "c_multiplicity", 800, 800);
+    TLegend *leg = new TLegend(0.5, 0.5, 0.8, 0.8);
+    for (unsigned int iia=0; iia<=(types.size()); iia++) {
+      if      (iia == 0) sprintf (ctype, "All Particles");
+      else               sprintf (ctype, "%s", types[iia-1].c_str());
+
+      sprintf (title, "%s in %s at %s GeV (%s)", ctype, element, ene, list);
+      sprintf(name, "C-KE%i", iia);
+      cc1[iia] = new TCanvas(name,title,800,600); cc1[iia]->Divide(2,2);
+      cc1[iia]->cd(1); if (hiKE0[iia]->GetEntries() > 0) hiKE0[iia]->Draw(); 
+      cc1[iia]->cd(3); if (hiKE1[iia]->GetEntries() > 0) hiKE1[iia]->Draw();
+      cc1[iia]->cd(4); if (hiKE2[iia]->GetEntries() > 0) hiKE2[iia]->Draw(); 
+      sprintf(name, "C-CT%i", iia);
+      cc2[iia] = new TCanvas(name,title,800,600); cc2[iia]->Divide(2,2);
+      cc2[iia]->cd(1); if (hiCT0[iia]->GetEntries() > 0) hiCT0[iia]->Draw(); 
+      cc2[iia]->cd(3); if (hiCT1[iia]->GetEntries() > 0) hiCT1[iia]->Draw();
+      cc2[iia]->cd(4); if (hiCT2[iia]->GetEntries() > 0) hiCT2[iia]->Draw(); 
+      cc3->cd();
+      hiMulti[iia]->SetLineColor(iia+1);
+      if(iia>=9) hiMulti[iia]->SetLineColor(iia+2);
+      if(iia==0) hiMulti[iia]->Draw();
+      else       hiMulti[iia]->Draw("sames");
+      leg->AddEntry(hiMulti[iia], title, "l");
+    }
+    cc3->cd();
+    leg->Draw("same");
+
+    TCanvas *cc4 = new TCanvas("c_Nucleon", "c_Nucleon", 800, 800);
+    cc4->Divide(2,2);
+    cc4->cd(1); hProton[0]->Draw();
+    cc4->cd(2); hProton[1]->Draw();
+    cc4->cd(3); hNeutron[0]->Draw();
+    cc4->cd(4); hNeutron[1]->Draw();
+
+    TCanvas *cc5 = new TCanvas("c_Ion", "c_Ion", 800, 800);
+    cc5->Divide(2,2);
+    cc5->cd(1); hHeavy[0]->Draw();
+    cc5->cd(2); hHeavy[1]->Draw();
+    cc5->cd(3); hIon[0]->Draw();
+    cc5->cd(4); hIon[1]->Draw();
+
+    TCanvas *cc6 = new TCanvas("c_Baryon", "c_Baryon", 800, 400);
+    cc6->Divide(2,1);
+    cc6->cd(1); hBaryon[0]->Draw();
+    cc6->cd(2); hBaryon[1]->Draw();
+
+  } else {
+
+    std::cout << "Writing histograms to " << ofile << "\n";
+    fout->cd();
+    fout->Write();
   }
-}
+} //end analysis()
 
 double rhoL(char element[6]) {
   
@@ -203,23 +461,41 @@ double atomicWt(char element[6]) {
   return tmp;
 }
 
-std::vector<double> massScan() {
+int type(double mass) {
 
-  std::vector<double> tmp;
-  tmp.push_back(0.01);
-  tmp.push_back(1.00);
-  tmp.push_back(135.0);
-  tmp.push_back(140.0);
-  tmp.push_back(495.0);
-  tmp.push_back(500.0);
-  tmp.push_back(938.5);
-  tmp.push_back(940.0);
-  tmp.push_back(1850.0);
-  std::cout << tmp.size() << " Mass regions for prtaicles: ";
-  for (unsigned int i=0; i<tmp.size(); i++) {
-    std::cout << tmp[i];
-    if (i == tmp.size()-1) std::cout << " MeV\n";
-    else                   std::cout << ", ";
-  }
+  double m  = (mass >=0 ? mass: -mass);
+  int    tmp=0;
+  if      (m < 0.01)   {tmp = 1;}
+  else if (m < 1.00)   {if (mass < 0) tmp = 2; else tmp = 3;}
+  else if (m < 135.00) tmp = 4;
+  else if (m < 140.00) {if (mass < 0) tmp = 5; else tmp = 6;}
+  else if (m < 495.00) {if (mass < 0) tmp = 7; else tmp = 8;}
+  else if (m < 500.00) tmp = 9;
+  else if (m < 938.50) {if (mass < 0) tmp = 10; else tmp = 11;}
+  else if (m < 940.00) tmp = 12;
+  else if (m < 1850.0) {tmp = 13;}
+  else                 {tmp = 14;}
+  //  std::cout << "Mass " << mass << " type " << tmp << "\n";
+  return tmp;
+}
+
+std::vector<std::string> types() {
+
+  std::vector<string> tmp;
+  tmp.push_back("Photon/Neutrino");
+  tmp.push_back("Electron");
+  tmp.push_back("Positron");
+  tmp.push_back("Pizero");
+  tmp.push_back("Piminus");
+  tmp.push_back("Piplus");
+  tmp.push_back("Kminus");
+  tmp.push_back("Kiplus");
+  tmp.push_back("Kzero");
+  tmp.push_back("AntiProton");
+  tmp.push_back("Proton");
+  tmp.push_back("Neutron/AntiNeutron");
+  tmp.push_back("Heavy Hadrons");
+  tmp.push_back("Ions");
+
   return tmp;
 }
