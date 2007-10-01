@@ -1,0 +1,36 @@
+<use name=CondFormats/BTauObjects>
+<use name=CondFormats/DataRecord>
+<use name=DataFormats/BTauReco>
+<use name=DataFormats/TrackReco>
+<use name=FWCore/Framework>
+<use name=FWCore/ParameterSet>
+<use name=RecoBTag/TrackProbability>
+<use name=RecoBTag/XMLCalibration>
+<use name=TrackingTools/IPTools>
+<use name=TrackingTools/Records>
+<use name=TrackingTools/TransientTrack>
+<use name=RecoBTau/JetTagComputer>
+
+<library file="TrackProbabilityFakeCondES.cc" name=BTauTrackProbabilityFakeCond>
+<use name=CondFormats/BTauObjects>
+<use name=CondFormats/DataRecord>
+<use name=DataFormats/BTauReco>
+<use name=DataFormats/TrackReco>
+<use name=FWCore/Framework>
+<use name=FWCore/ParameterSet>
+<use name=RecoBTag/TrackProbability>
+<use name=RecoBTag/XMLCalibration>
+<use name=TrackingTools/IPTools>
+<use name=TrackingTools/Records>
+<use name=TrackingTools/TransientTrack>
+<use name=RecoBTau/JetTagComputer>
+
+  <use name=CondFormats/DataRecord>
+  <use name=CondFormats/PhysicsToolsObjects>
+  <use name=FWCore/MessageLogger>
+  <use name=FWCore/Utilities>
+  <use name=boost>
+  <use name=rootcore>
+  <flags LDFLAGS="-lXMLIO">
+  <flags EDM_PLUGIN=1>
+</library>
