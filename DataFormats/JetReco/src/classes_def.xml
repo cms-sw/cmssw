@@ -77,8 +77,10 @@
   <function name="reco::JetTracksAssociation::hasJet"/>
 
   <class name="reco::JetExtendedAssociation::JetExtendedData"/>
-  <class name="reco::JetExtendedAssociation::Object"/>
+  <class name="reco::JetExtendedAssociation::Values"/>
   <class name="reco::JetExtendedAssociation::Container"/>
+  <class name="std::pair<edm::RefToBase<reco::Jet>,reco::JetExtendedAssociation::JetExtendedData>"/>
+  <class name="std::vector<std::pair<edm::RefToBase<reco::Jet>, reco::JetExtendedAssociation::JetExtendedData> >"/>
   <class name="reco::JetExtendedAssociation::Ref"/>
   <class name="reco::JetExtendedAssociation::RefProd"/>
   <class name="reco::JetExtendedAssociation::RefVector"/>
@@ -91,7 +93,10 @@
   <function name="reco::JetExtendedAssociation::getValue"/>
   <function name="reco::JetExtendedAssociation::allJets"/>
   <function name="reco::JetExtendedAssociation::hasJet"/>
-
+  <function name="reco::JetExtendedAssociation::getByLabel"/>
+  
+  <class name="std::auto_ptr<edm::View<reco::Jet> >" />
+  <class name="edm::RefToBaseProd<reco::Jet>" />
   <class name="edm::RefToBase<reco::Jet>" />
   <class name="edm::reftobase::BaseHolder<reco::Jet>" />
   <class name="edm::reftobase::IndirectHolder<reco::Jet>" />

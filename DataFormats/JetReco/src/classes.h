@@ -2,7 +2,6 @@
 #define JetObjects_classes_h
 
 #include "DataFormats/JetReco/interface/BasicJetCollection.h"
-#include "DataFormats/Common/interface/RefProd.h" 
 #include "DataFormats/JetReco/interface/BasicJet.h" 
 #include "Rtypes.h" 
 #include "Math/Cartesian3D.h" 
@@ -21,10 +20,11 @@
 #include "DataFormats/JetReco/interface/JetExtendedAssociation.h"
 #include "DataFormats/Common/interface/Wrapper.h"
 
+#include "DataFormats/Common/interface/RefProd.h" 
 #include "DataFormats/Common/interface/RefToBase.h"
 #include "DataFormats/Common/interface/RefHolder.h"
 #include "DataFormats/Common/interface/Holder.h"
- 	 
+ 
 using namespace reco;
 
 namespace {
@@ -86,11 +86,17 @@ namespace {
     edm::Wrapper<JetTracksAssociation::Container>  jt_c_w;
 
     JetExtendedAssociation::Container       jea_c;
-    JetExtendedAssociation::Object          jea_o;
+    //    JetExtendedAssociation::Object          jea_o;
     JetExtendedAssociation::Ref             jea_r;
     JetExtendedAssociation::RefProd         jea_rp;
     JetExtendedAssociation::RefVector       jea_rv;
     edm::Wrapper<JetExtendedAssociation::Container>  jea_c_w;
+
+    // Jet stuff
+    edm::View<reco::Jet>  jv;
+    edm::RefToBaseProd<reco::Jet> jrtbp;
+    edm::RefToBase<reco::Jet> jrtb;
+    
 
     // RefToBase Holders for Jets
     edm::RefToBase<reco::Jet>  rtbj;

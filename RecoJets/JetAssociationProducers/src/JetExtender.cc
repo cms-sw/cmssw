@@ -3,7 +3,7 @@
 // Combines different Jet associations into single compact object
 // which extends basic Jet information
 // Fedor Ratnikov Sep. 10, 2007
-// $Id: JetExtender.cc,v 1.2 2007/09/19 18:29:59 fedor Exp $
+// $Id: JetExtender.cc,v 1.3 2007/09/20 22:32:41 fedor Exp $
 //
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -35,7 +35,8 @@ void JetExtender::produce(edm::Event& fEvent, const edm::EventSetup& fSetup) {
   edm::Handle <reco::JetTracksAssociation::Container> j2tCALO_h;
   if (!(mJet2TracksAtCALO.label().empty())) fEvent.getByLabel (mJet2TracksAtCALO, j2tCALO_h);
   
-  std::auto_ptr<reco::JetExtendedAssociation::Container> jetExtender (new reco::JetExtendedAssociation::Container);
+  std::auto_ptr<reco::JetExtendedAssociation::Container> 
+    jetExtender (new reco::JetExtendedAssociation::Container (reco::JetRefBaseProd(jets_h)));
   
   // loop over jets (make sure jets in associations are the same as in collection
 

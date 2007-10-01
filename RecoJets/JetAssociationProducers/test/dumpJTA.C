@@ -9,14 +9,24 @@
           ! ev.atEnd();
           ++ev) {
      std::cout << "=================== event begin ====================" << std::endl;
+     std::cout << "=================== test 1 ====================" << std::endl;
      fwlite::Handle<reco::CaloJetCollection> jets;
      jets.getByLabel(ev,"iterativeCone5CaloJets");
+     std::cout << "=================== test 2 ====================" << std::endl;
      fwlite::Handle<std::vector <std::pair <edm::RefToBase<reco::Jet>, reco::TrackRefVector> > > jet2tracksVX;
      jet2tracksVX.getByLabel(ev,"ic5JetTracksAssociatorAtVertex");
+     std::cout << "=================== test 3 ====================" << std::endl;
      fwlite::Handle<std::vector <std::pair <edm::RefToBase<reco::Jet>, reco::TrackRefVector> > > jet2tracksCALO;
      jet2tracksCALO.getByLabel(ev,"ic5JetTracksAssociatorAtCaloFace");
-     fwlite::Handle<std::vector <std::pair <edm::RefToBase<reco::Jet>, reco::JetExtendedAssociation::JetExtendedData> > > jetExtend;
-     jetExtend.getByLabel(ev,"ic5JetExtender");
+     std::cout << "=================== test 4 ====================" << std::endl;
+     reco::JetExtendedAssociation::Container testCont;
+     std::cout << "=================== test 4.1 ====================" << std::endl;
+     reco::JetExtendedAssociation::Container a;
+     const reco::JetExtendedAssociation::Container* jetExtend = reco::JetExtendedAssociation::getByLabel(ev,"ic5JetExtender", 0, 0);
+     std::cout << "container: " << (const void*) jetExtend << std::endl;
+//      fwlite::Handle<edm::AssociationVector<edm::RefToBaseProd<reco::Jet>,std::vector<reco::JetExtendedAssociation::JetExtendedData>,edm::RefToBase<reco::Jet>,unsigned int,edm::helper::AssociationIdenticalKeyReference> > jetExtend;
+     std::cout << "=================== test 4.2 ====================" << std::endl;
+     std::cout << "=================== test 5 ====================" << std::endl;
      //now can access data
      std::cout << "Total jets: " << jets->size() << std::endl;
      for (unsigned j = 0; j < jets->size(); ++j) {

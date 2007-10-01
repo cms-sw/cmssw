@@ -1,31 +1,19 @@
 #include "FWCore/Utilities/interface/Exception.h"
+#include "DataFormats/FWLite/interface/Handle.h"
 
 #include "DataFormats/JetReco/interface/JetExtendedAssociation.h"
 
 namespace {
-  reco::JetExtendedAssociation::Container::const_iterator findRef (const reco::JetExtendedAssociation::Container& fContainer,
-								  const edm::RefToBase<reco::Jet>& fJet) {
-    reco::JetExtendedAssociation::Container::const_iterator i = fContainer.begin();
-    for (; i != fContainer.end(); ++i) {
-      if (i->first == fJet) return i;
+  inline unsigned findJet (const reco::JetExtendedAssociation::Container& fContainer,
+			   const reco::Jet& fJet) {
+    std::cout << "findJet-> " << std::endl;
+    std::cout << "findJet-> size: " <<  fContainer.size () << '/' << fContainer.keyProduct().id() << std::endl;
+    for (unsigned i = 0; i < fContainer.size (); ++i) {
+      std::cout << "findJet-> " << i << '/' << &fJet << '/' << fContainer.key (i).id() << '/' <<  fContainer.key (i).key() << std::endl;
+      if (&*(fContainer.key (i)) == &fJet) return i;
     }
-    return fContainer.end();
-  }
-  reco::JetExtendedAssociation::Container::iterator findRef (reco::JetExtendedAssociation::Container* fContainer,
-								  const edm::RefToBase<reco::Jet>& fJet) {
-    reco::JetExtendedAssociation::Container::iterator i = fContainer->begin();
-    for (; i != fContainer->end(); ++i) {
-      if (i->first == fJet) return i;
-    }
-    return fContainer->end();
-  }
-  reco::JetExtendedAssociation::Container::const_iterator findJet (const reco::JetExtendedAssociation::Container& fContainer,
-								  const reco::Jet& fJet) {
-    reco::JetExtendedAssociation::Container::const_iterator i = fContainer.begin();
-    for (; i != fContainer.end(); ++i) {
-      if (&*(i->first) == &fJet) return i;
-    }
-    return fContainer.end();
+    throw cms::Exception("Invalid jet") 
+         << "JetExtendedAssociation-> inquire association with jet which is not available in the original jet collection";
   }
 }
 
@@ -66,8 +54,7 @@ bool reco::JetExtendedAssociation::setValue (Container* fContainer,
 					    const edm::RefToBase<reco::Jet>& fJet, 
 					    const reco::JetExtendedAssociation::JetExtendedData& fValue) {
   if (!fContainer) return false;
-  if (findRef (*fContainer, fJet) != fContainer->end ()) return false;
-  fContainer->push_back (Container::value_type (fJet, fValue));
+  fContainer->setValue (fJet.key(), fValue);
   return true;
 }
 
@@ -80,40 +67,48 @@ bool reco::JetExtendedAssociation::setValue (Container& fContainer,
 const reco::JetExtendedAssociation::JetExtendedData& 
 reco::JetExtendedAssociation::getValue (const Container& fContainer, 
 					const edm::RefToBase<reco::Jet>& fJet) {
-  reco::JetExtendedAssociation::Container::const_iterator i = findRef (fContainer, fJet);
-  if (i != fContainer.end ()) return i->second;
-  throw cms::Exception("No Association") << " in reco::JetExtendedAssociation::getValue";
+  return fContainer[fJet];
 }
 
 const reco::JetExtendedAssociation::JetExtendedData& 
 reco::JetExtendedAssociation::getValue (const Container& fContainer, 
 					const reco::Jet& fJet) {
-  reco::JetExtendedAssociation::Container::const_iterator i = findJet (fContainer, fJet);
-  if (i != fContainer.end ()) return i->second;
-  throw cms::Exception("No Association") << " in reco::JetExtendedAssociation::getValue";
-}
-
-reco::JetExtendedAssociation::JetExtendedData*
-reco::JetExtendedAssociation::getValue (Container* fContainer, 
-					const edm::RefToBase<reco::Jet>& fJet) {
-  reco::JetExtendedAssociation::Container::iterator i = findRef (fContainer, fJet);
-  if (i != fContainer->end ()) return &(i->second);
-  return 0;
+  unsigned i = findJet (fContainer, fJet);
+  return fContainer[i].second;
 }
 
 std::vector<edm::RefToBase<reco::Jet> > reco::JetExtendedAssociation::allJets (const Container& fContainer) {
   std::vector<edm::RefToBase<reco::Jet> > result;
-  reco::JetExtendedAssociation::Container::const_iterator i = fContainer.begin();
-  for (; i != fContainer.end(); ++i) {
-    result.push_back (i->first);
+  for (unsigned i = 0; i < fContainer.size(); ++i) {
+    result.push_back (fContainer.key (i));
   }
   return result;
 }
   
 bool reco::JetExtendedAssociation::hasJet (const Container& fContainer, 
 					  const edm::RefToBase<reco::Jet>& fJet) {
-  return findRef (fContainer, fJet) != fContainer.end();
+  try {
+    fContainer [fJet];
+    return true;
+  }
+  catch (cms::Exception e) { // jet not found
+    return false;
+  }
 }
+
+const reco::JetExtendedAssociation::Container* reco::JetExtendedAssociation::getByLabel (const fwlite::Event& fEvent, 
+											 const char* fModuleLabel,
+											 const char* fProductInstanceLabel,
+											 const char* fProcessLabel) {
+  fwlite::Handle<reco::JetExtendedAssociation::Container> handle;
+  handle.getByLabel (fEvent, fModuleLabel, fProductInstanceLabel, fProcessLabel);
+  std::cout << "reco::JetExtendedAssociation::getByLabel->" 
+	    << " size: " << handle->size()
+	    << ", product ID: " << handle->keyProduct().id()
+	    << std::endl;
+  return &*handle;
+}
+
 
 reco::JetExtendedAssociation::JetExtendedData::JetExtendedData () 
   : mTracksAtVertexNumber (0),

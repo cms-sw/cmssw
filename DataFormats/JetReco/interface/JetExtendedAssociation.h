@@ -7,21 +7,26 @@
  *
  * \author Fedor Ratnikov, Sept. 9, 2007
  *
- * \version   $Id: JetExtendedAssociation.h,v 1.1 2007/09/11 23:54:17 fedor Exp $
+ * \version   $Id: JetExtendedAssociation.h,v 1.2 2007/09/20 22:32:38 fedor Exp $
  ************************************************************/
 
-#include "DataFormats/JetReco/interface/Jet.h"
+#include "DataFormats/Common/interface/AssociationVector.h"
+#include "DataFormats/JetReco/interface/JetCollection.h"
 #include "DataFormats/Common/interface/Ref.h"
 #include "DataFormats/Common/interface/RefToBase.h"
 #include "DataFormats/Common/interface/RefVector.h"
 #include "DataFormats/Math/interface/LorentzVector.h"
 
+namespace fwlite {
+  class Event;
+}
+
 namespace reco {
   namespace JetExtendedAssociation {
     class JetExtendedData;
     typedef math::PtEtaPhiELorentzVectorF LorentzVector;
-    typedef std::pair <edm::RefToBase<reco::Jet>, reco::JetExtendedAssociation::JetExtendedData> Object;
-    typedef std::vector <Object> Container;
+    typedef std::vector<reco::JetExtendedAssociation::JetExtendedData> Values;
+    typedef edm::AssociationVector<reco::JetRefBaseProd, reco::JetExtendedAssociation::Values> Container;
     typedef edm::Ref <Container> Ref;
     typedef edm::RefProd <Container> RefProd;
     typedef edm::RefVector <Container> RefVector;
@@ -46,12 +51,16 @@ namespace reco {
     /// get value for the association. Throw exception if no association found
     const JetExtendedData& getValue (const Container&, const edm::RefToBase<reco::Jet>&);
     const JetExtendedData& getValue (const Container&, const reco::Jet&);
-    /// get editable value for the association. Return 0 if no association found
-    JetExtendedData* getValue (Container*, const edm::RefToBase<reco::Jet>&);
     /// fill list of all jets associated with values. Return # of jets in the list
     std::vector<edm::RefToBase<reco::Jet> > allJets (const Container&);
     /// check if jet is associated
     bool hasJet (const Container&, const edm::RefToBase<reco::Jet>&);
+
+    /// Hide underlaying container from CINT in FWLite
+    const Container* getByLabel (const fwlite::Event& fEvent, const char* fModuleLabel,
+				 const char* fProductInstanceLabel = 0,
+				 const char* fProcessLabel=0);
+  
 
     class JetExtendedData {
     public:
