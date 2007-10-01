@@ -27,7 +27,6 @@ JetPlusTrackCorrector::JetPlusTrackCorrector(const edm::ParameterSet& iConfig)
 			  theRcalo = iConfig.getParameter<double>("rcalo");
 			  theRvert = iConfig.getParameter<double>("rvert");
 			  theResponseAlgo = iConfig.getParameter<int>("respalgo");
-                          theZeroSuppressionCorr = iConfig.getParameter<int>("zspcurve");
 // If theZeroSuppressionCorr = -1 (no correction for ZSP)
        m_inputTrackLabel = iConfig.getUntrackedParameter<std::string>("inputTrackLabel","ctfWithMaterialTracks");
 
@@ -77,22 +76,6 @@ double JetPlusTrackCorrector::correction(const reco::Jet& fJet,
    reco::VertexCollection::const_iterator pv = primary_vertices->begin();
 
    double NewResponse = fJet.energy();
-
-   if(theZeroSuppressionCorr > 0.)
-   {
-     double OldResponse =  NewResponse;
-     double theta = fJet.theta();
-     double et = fJet.energy()*sin(theta);
-     float myfunc = 1.;
-     if(fabs(fJet.eta())<0.5) myfunc = 1. - 2.32401e-02 - 2.81192e+03/((et+90.)*(et+90.));
-     if(fabs(fJet.eta())>0.5&&fabs(fJet.eta())<1.0) myfunc = 1. - 2.05604e-02 - 2.77028e+03/((et+90.)*(et+90.));
-     if(fabs(fJet.eta())>1.0&&fabs(fJet.eta())<1.5) myfunc = 1. - 2.79727e-02 - 3.12238e+03/((et+90.)*(et+90.));
-     if(fabs(fJet.eta())>1.5&&fabs(fJet.eta())<2.0) myfunc = 1. - 2.93144e-02 - 3.43492e+03/((et+90.)*(et+90.));
-     if(fabs(fJet.eta())>2.0&&fabs(fJet.eta())<2.5) myfunc = 1. - 1.60337e-02 - 9.9769e+02/((et+50.)*(et+50.));
-     if(fabs(fJet.eta())>2.5&&fabs(fJet.eta())<3.0) myfunc = 1. - 9.28562e-03 - 5.32833e+02/((et+40.)*(et+40.));
-     NewResponse = OldResponse/myfunc;
-
-   }
 
    if(fabs(fJet.eta())>2.1) {return NewResponse/fJet.energy();}
 

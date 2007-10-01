@@ -38,7 +38,6 @@ public:
    
 private:
   int theResponseAlgo;
-  int theZeroSuppressionCorr;
   double theRcalo;
   double theRvert;  
 
