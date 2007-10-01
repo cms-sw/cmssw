@@ -71,7 +71,7 @@ namespace edm {
       data_iterator data;
       };
 
-
+    typedef Iter const_iterator;
 
 
     range emptyRange() const { return range(m_data.end(),m_data.end());}
@@ -122,6 +122,13 @@ namespace edm {
       return range(b,e);
     }
     
+    const_iterator begin() const {
+      return const_iterator(m_keys.begin(),m_offsets.begin(),m_data);
+    }
+
+    const_iterator end() const {
+      return const_iterator(m_keys.end(),m_offsets.begin()+m_keys().size(),m_data);
+    }
 
 
   private:
