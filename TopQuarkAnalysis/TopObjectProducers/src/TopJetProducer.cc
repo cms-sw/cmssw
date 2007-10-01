@@ -1,5 +1,5 @@
 //
-// $Id: TopJetProducer.cc,v 1.22 2007/09/28 13:50:57 lowette Exp $
+// $Id: TopJetProducer.cc,v 1.23 2007/09/28 17:18:58 lowette Exp $
 //
 
 #include "TopQuarkAnalysis/TopObjectProducers/interface/TopJetProducer.h"
@@ -72,10 +72,8 @@ TopJetProducer::TopJetProducer(const edm::ParameterSet& iConfig) {
   trackAssociationPSet_     = iConfig.getParameter<edm::ParameterSet>("trackAssociation");
   simpleJetTrackAssociator_ = reco::helper::SimpleJetTrackAssociator(trackAssociationPSet_);      
   // construct Jet Charge Computer
-  if (computeJetCharge_) {
-    jetChargePSet_ = iConfig.getParameter<edm::ParameterSet>("jetCharge");
-    jetCharge_     = new JetCharge(jetChargePSet_);
-  }
+  jetChargePSet_ = iConfig.getParameter<edm::ParameterSet>("jetCharge");
+  if (computeJetCharge_) jetCharge_ = new JetCharge(jetChargePSet_);
  
   // produces vector of jets
   produces<std::vector<TopJet> >();
@@ -212,8 +210,8 @@ void TopJetProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
               bestDR = currDR;
             }
           }
-          ajet.setGenParton(bestParton);
         }
+        ajet.setGenParton(bestParton);
       }
       // do the GenJet matching
       if (doGenJetMatch_) {
