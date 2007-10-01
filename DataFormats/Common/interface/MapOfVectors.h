@@ -127,7 +127,7 @@ namespace edm {
     }
 
     const_iterator end() const {
-      return const_iterator(m_keys.end(),m_offsets.begin()+m_keys().size(),m_data);
+      return const_iterator(m_keys.end(),m_offsets.begin()+m_keys.size(),m_data);
     }
 
 

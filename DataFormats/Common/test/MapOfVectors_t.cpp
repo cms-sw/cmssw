@@ -85,5 +85,5 @@ void TestMapOfVectors::find(){
 void TestMapOfVectors::iterator(){
   MII m(om);
  for(MII::const_iterator p=m.begin(); p!=m.end();++p) {
- 
+ }
 }
