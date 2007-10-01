@@ -5,63 +5,34 @@
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/JetReco/interface/Jet.h"
 #include "CondFormats/BTauObjects/interface/TrackProbabilityCategoryData.h"
+#include "CondFormats/BTauObjects/interface/TrackProbabilityCalibration.h"
 
   /**  filter to define the belonging of a track to a TrackClass
    */ 
-class TrackClassFilter : public TrackProbabilityCategoryData
+class TrackClassFilter 
 {
  public:
 
-  /**  constructor from the range on p(Gev), eta, and number of
-   *   hits and pixel hits
-   */ 
  TrackClassFilter() {}
 
-   TrackClassFilter(const TrackProbabilityCategoryData & data ) : TrackProbabilityCategoryData(data) {}
-   
-   TrackClassFilter(double  pmin,double  pmax, 
-		 double  etamin,  double  etamax,
-		  int  nhitmin,  int  nhitmax, 
-		 int  npixelhitsmin, int  npixelhitsmax,
-                  double cmin, double cmax, int withFirst)
-  { 
-  pMin=pmin;
-  pMax=pmax;
-  etaMin=etamin;
-  etaMax=etamax; 
-  nHitsMin=nhitmin;
-  nHitsMax=nhitmax; 
-  nPixelHitsMin=npixelhitsmin;
-  nPixelHitsMax=npixelhitsmax;
-  chiMin=cmin;
-  chiMax=cmax; 
-  withFirstPixel=withFirst;
- } 
+ class Input
+ {
+ public:
+  Input(const reco::Track & t,const reco::Jet &j, const reco::Vertex & v) :
+                       track(t), jet(j), vertex(v) {}
 
-  void set(const double & pmin, const double & pmax, 
-		 const double & etamin, const double & etamax,
-		 int nhitmin, int nhitmax, 
-		 int npixelhitsmin,int npixelhitsmax,
-		 double cmin, double cmax,int withFirst)
-  {
-  pMin=pmin;
-  pMax=pmax;
-  etaMin=etamin;
-  etaMax=etamax; 
-  nHitsMin=nhitmin;
-  nHitsMax=nhitmax; 
-  nPixelHitsMin=npixelhitsmin;
-  nPixelHitsMax=npixelhitsmax;
-  chiMin=cmin;
-  chiMax=cmax;
-  withFirstPixel=withFirst;
-  }
+  const reco::Track & track;
+  const reco::Jet & jet;
+  const reco::Vertex & vertex;
+ };
 
- virtual ~TrackClassFilter(){}
+ typedef Input first_argument_type;
+ typedef TrackProbabilityCalibration::Entry second_argument_type;
+ typedef bool result_type;
 
-  bool apply(const reco::Track &, const reco::Jet & , const reco::Vertex &) const;
+ bool operator()(const first_argument_type & , const second_argument_type &) const;
 
-  void dump() const;
+//  void dump() const;
 
 };
 

@@ -8,11 +8,11 @@
 #include "CondFormats/BTauObjects/interface/CalibratedHistogram.h"
 #include "RecoBTag/XMLCalibration/interface/CalibratedHistogramXML.h"
 //#include "RecoBTag/TrackProbability/interface/CalibrationInterface.h"
-#include "RecoBTag/XMLCalibration/interface/CalibrationInterface.h"
+#include "CondFormats/BTauObjects/interface/CalibrationInterface.h"
 #include "RecoBTag/TrackProbability/interface/TrackClassFilterCategory.h"
+#include "CondFormats/BTauObjects/interface/TrackProbabilityCalibration.h"
 
-
- #include "RecoBTag/XMLCalibration/interface/AlgorithmCalibration.h"
+// #include "RecoBTag/XMLCalibration/interface/AlgorithmCalibration.h"
 
   /** provides the track probability to come from the primary vertex
    *  for a given track
@@ -24,29 +24,31 @@ class HistogramProbabilityEstimator {
  public:
 
 
-  HistogramProbabilityEstimator( CalibrationInterface<TrackClassFilterCategory,CalibratedHistogramXML>  * calib3D,
-                                CalibrationInterface<TrackClassFilterCategory,CalibratedHistogramXML> * calib2D) 
-   :   m_calibration3D(calib3D),m_calibrationTransverse(calib2D)
+  HistogramProbabilityEstimator( const  TrackProbabilityCalibration  * calib3D,
+                                const TrackProbabilityCalibration * calib2D) 
+   :   m_calibration3D(calib3D),m_calibration2D(calib2D)
     {}
 
-   HistogramProbabilityEstimator( AlgorithmCalibration<TrackClassFilterCategory,CalibratedHistogramXML>  * calib3D,
+/*   HistogramProbabilityEstimator( AlgorithmCalibration<TrackClassFilterCategory,CalibratedHistogramXML>  * calib3D,
                                  AlgorithmCalibration<TrackClassFilterCategory,CalibratedHistogramXML> * calib2D)
     :   m_calibration3D(calib3D),m_calibrationTransverse(calib2D)
 
   {
   }
+*/
 
  ~HistogramProbabilityEstimator()
  {
 
-  if(m_calibration3D!=0) delete m_calibration3D;
-  if(m_calibrationTransverse!=0) delete m_calibrationTransverse;
+//  if(m_calibration3D!=0) delete m_calibration3D;
+//  if(m_calibration2D!=0) delete m_calibration2D;
  }
   std::pair<bool,double> probability(int ipType, float significance, const reco::Track&, const reco::Jet &, const reco::Vertex &) const;
 
  private:
-   CalibrationInterface<TrackClassFilterCategory,CalibratedHistogramXML> *  m_calibration3D;
-   CalibrationInterface<TrackClassFilterCategory,CalibratedHistogramXML> *  m_calibrationTransverse;
+  const TrackProbabilityCalibration * m_calibration3D;
+ const TrackProbabilityCalibration * m_calibration2D;
+   
 };
 
 #endif

@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea Rizzi
 //         Created:  Thu Apr  6 09:56:23 CEST 2006
-// $Id: TrackIPProducer.cc,v 1.2 2007/09/24 13:31:23 arizzi Exp $
+// $Id: TrackIPProducer.cc,v 1.3 2007/09/24 21:20:47 fwyzard Exp $
 //
 //
 
@@ -53,14 +53,6 @@ using namespace edm;
 TrackIPProducer::TrackIPProducer(const edm::ParameterSet& iConfig) : 
   m_config(iConfig),m_probabilityEstimator(0)  {
 
-  m_useDB=iConfig.getParameter<bool>("useDB");
-  if(!m_useDB)
-  {
-   edm::FileInPath f2d("RecoBTag/TrackProbability/data/2DHisto.xml");
-   edm::FileInPath f3d("RecoBTag/TrackProbability/data/3DHisto.xml");
-   m_probabilityEstimator=new HistogramProbabilityEstimator( new AlgorithmCalibration<TrackClassFilterCategory,CalibratedHistogramXML>((f3d.fullPath()).c_str()),
-               new AlgorithmCalibration<TrackClassFilterCategory,CalibratedHistogramXML>((f2d.fullPath()).c_str())) ;
-  }
   m_calibrationCacheId3D= 0;
   m_calibrationCacheId2D= 0;
   
@@ -98,7 +90,7 @@ TrackIPProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
    using namespace edm;
    
-   if(m_computeProbabilities && m_useDB) checkEventSetup(iSetup); //Update probability estimator if event setup is changed
+   if(m_computeProbabilities ) checkEventSetup(iSetup); //Update probability estimator if event setup is changed
  
   //input objects 
    Handle<reco::JetTracksAssociationCollection> jetTracksAssociation;
@@ -247,21 +239,8 @@ using namespace edm::eventsetup;
      const TrackProbabilityCalibration *  ca2D= calib2DHandle.product();
      const TrackProbabilityCalibration *  ca3D= calib3DHandle.product();
 
-     CalibrationInterface<TrackClassFilterCategory,CalibratedHistogramXML> * calib3d =  new CalibrationInterface<TrackClassFilterCategory,CalibratedHistogramXML>;
-     CalibrationInterface<TrackClassFilterCategory,CalibratedHistogramXML> * calib2d =  new CalibrationInterface<TrackClassFilterCategory,CalibratedHistogramXML>;
-
-     for(size_t i=0;i<ca3D->data.size(); i++)    
-     {
-        calib3d->addEntry(TrackClassFilterCategory(ca3D->data[i].category),ca3D->data[i].histogram); // convert category data to filtering category
-     }
-    
-     for(size_t i=0;i<ca2D->data.size(); i++)    
-     {
-        calib2d->addEntry(TrackClassFilterCategory(ca2D->data[i].category),ca2D->data[i].histogram); // convert category data to filtering category
-     }
-  
-     if(m_probabilityEstimator) delete m_probabilityEstimator;  //this should delete also old calib via estimator destructor
-     m_probabilityEstimator=new HistogramProbabilityEstimator(calib3d,calib2d);
+     if(m_probabilityEstimator) delete m_probabilityEstimator;  
+     m_probabilityEstimator=new HistogramProbabilityEstimator(ca2D,ca3D);
 
    }
    m_calibrationCacheId3D=cacheId3D;
