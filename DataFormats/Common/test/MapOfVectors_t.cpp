@@ -24,6 +24,7 @@ class TestMapOfVectors: public CppUnit::TestFixture
   CPPUNIT_TEST_SUITE_END();
   
 public:
+
   TestMapOfVectors(); 
   ~TestMapOfVectors();
   void setUp() {}
@@ -41,7 +42,8 @@ public:
 
 CPPUNIT_TEST_SUITE_REGISTRATION(TestDetSet);
 
-TestMapOfVectors::TestMapOfVectors(){} 
+TestMapOfVectors::TestMapOfVectors()  {}
+ 
 TestMapOfVectors::~TestMapOfVectors() {}
 
   
