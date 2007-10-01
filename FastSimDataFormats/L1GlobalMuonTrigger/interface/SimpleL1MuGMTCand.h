@@ -1,7 +1,7 @@
 #ifndef SIMPLEL1MU_GMT_CAND_H
 #define SIMPLEL1MU_GMT_CAND_H
 
-#include <DataFormats/L1GlobalMuonTrigger/interface/L1MuGMTCand.h>
+#include <DataFormats/L1GlobalMuonTrigger/interface/L1MuGMTExtendedCand.h>
 
 #include "DataFormats/Math/interface/LorentzVector.h"
 
@@ -21,7 +21,7 @@ namespace HepMC {
  *   Author:      Andrea Perrotta     05/09/2006
  */
 
-class SimpleL1MuGMTCand : public L1MuGMTCand {
+class SimpleL1MuGMTCand : public L1MuGMTExtendedCand {
 
   public:
 
@@ -36,7 +36,7 @@ class SimpleL1MuGMTCand : public L1MuGMTCand {
     /// copy constructor from pointer
     SimpleL1MuGMTCand(const SimpleL1MuGMTCand*);
     
-    /// convert a FSimTrack into a SimpleL1MuGMTCand
+    /// convert a FSimTrack into a SimpleL1MuGMTCand (L1MuGMTExtendedCand)
     SimpleL1MuGMTCand(const SimTrack*);
 
     /// destructor
