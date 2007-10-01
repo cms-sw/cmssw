@@ -51,7 +51,11 @@ void DDLTubs::processElement (const std::string& name, const std::string& nmspac
 
   ExprEvalInterface & ev = ExprEvalSingleton::instance();
   DDXMLAttribute atts = getAttributeSet();
+  bool cutInside(false);
 
+  if (atts.find("cutInside") != atts.end()) {
+    cutInside = (atts.find("cutInside")->second == "true") ? true : false;
+  }
 
   if (name == "Tubs")
     {
@@ -83,7 +87,7 @@ void DDLTubs::processElement (const std::string& name, const std::string& nmspac
 						, ev.eval(nmspace, atts.find("deltaPhi")->second)
 						, ev.eval(nmspace, atts.find("cutAtStart")->second)
 						, ev.eval(nmspace, atts.find("cutAtDelta")->second)
-						, false); // cutInside
+						, cutInside); // cutInside
     }
   else
     {
