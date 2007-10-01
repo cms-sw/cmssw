@@ -36,7 +36,7 @@ CaloRecHitsProducer::CaloRecHitsProducer(edm::ParameterSet const & p)
   random = new RandomEngine(&(*rng));
 
   edm::ParameterSet RecHitsParameters = p.getParameter<edm::ParameterSet>("RecHitsFactory");
-  edm::ParameterSet CalibParameters = p.getParameter<edm::ParameterSet>("ecal_notCont_sim"); 
+  edm::ParameterSet CalibParameters = p.getParameter<edm::ParameterSet>("ContFact"); 
 
   EBrechitCollection_ = RecHitsParameters.getParameter<std::string>("EBrechitCollection");
   EErechitCollection_ = RecHitsParameters.getParameter<std::string>("EErechitCollection");
