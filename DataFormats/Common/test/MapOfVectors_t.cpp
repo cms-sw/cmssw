@@ -40,7 +40,7 @@ public:
 
 };
 
-CPPUNIT_TEST_SUITE_REGISTRATION(TestDetSet);
+CPPUNIT_TEST_SUITE_REGISTRATION(TestMapOfVector);
 
 TestMapOfVectors::TestMapOfVectors()  {}
  
