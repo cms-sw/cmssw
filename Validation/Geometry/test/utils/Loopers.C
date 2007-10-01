@@ -259,6 +259,7 @@ void Loopers::Loop()
       hist_trackLengthPerTurn->Fill(pathSum / phiTurns);
       hist_lastInteraction->Fill(ParticleStepPostInteraction[lastStep]);
       hist_bx->Fill(bunchCrossings);
+      hist_bx_finer->Fill(bunchCrossings);
       hist_energybeforeend_vs_lastInteraction->Fill(ParticleStepPostInteraction[lastStep],InitialE[lastStep]);
       hist_trackLength_vs_lastInteraction->Fill(ParticleStepPostInteraction[lastStep],pathSum);
       hist_hadronicInteractions->Fill((float)iHadronicInteractions);
@@ -582,6 +583,30 @@ void Loopers::MakePlots(TString suffix) {
   can_Gigi.Update();
   can_Gigi.SaveAs( Form("%s/Loopers_bx_%s.eps",  theDirName.Data(), suffix.Data() ) );
   can_Gigi.SaveAs( Form("%s/Loopers_bx_%s.gif",  theDirName.Data(), suffix.Data() ) );
+  // 
+  
+  // Draw
+  can_Gigi.cd();
+  hist_bx_finer->SetLineColor(kBlue);
+  hist_bx_finer->SetFillColor(kWhite);
+  hist_bx_finer->Draw();
+  //  
+  // Print
+  theLogFile << endl << "--------"     << endl;
+  theLogFile << hist_bx_finer->GetTitle() << endl;
+  theLogFile << "\t Mean = " << hist_bx_finer->GetMean()  << endl;
+  theLogFile << "\t  RMS = " << hist_bx_finer->GetRMS()   << endl;
+  for(unsigned int iBin = 0; iBin<= hist_bx_finer->GetNbinsX(); iBin++) {
+    theLogFile << "\t\t bx_finer " << hist_bx_finer->GetBinCenter(iBin) << " : " << hist_bx_finer->GetBinContent(iBin)
+	       << " integral > " << hist_bx_finer->GetBinCenter(iBin)
+	       << " : " << hist_bx_finer->Integral(iBin+1,hist_bx_finer->GetNbinsX()+1) / hist_bx_finer->Integral()
+	       << std::endl;
+  }
+  //
+  // Store
+  can_Gigi.Update();
+  can_Gigi.SaveAs( Form("%s/Loopers_bx_finer_%s.eps",  theDirName.Data(), suffix.Data() ) );
+  can_Gigi.SaveAs( Form("%s/Loopers_bx_finer_%s.gif",  theDirName.Data(), suffix.Data() ) );
   // 
   
   // Prepare Axes Labels

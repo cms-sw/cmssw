@@ -36,6 +36,7 @@ TH1F* hist_trackLength;
 TH1F* hist_trackLengthPerTurn;
 TH1F* hist_lastInteraction;
 TH1F* hist_bx;
+TH1F* hist_bx_finer;
 TH2F* hist_energy_beforeend_vs_lastInteraction;
 TH2F* hist_trackLength_vs_lastInteraction;
 TH1F* hist_hadronicInteractions;
@@ -289,6 +290,11 @@ void Loopers::Book(){
   hist_bx = new TH1F("hist_bx",
 		     "Bunch Crossings [25 ns];Bunch Crossing [25 ns];Events/bin",
 		     21,-0.25,10.25);
+  
+  hist_bx_finer = new TH1F("hist_bx_finer",
+			   "Bunch Crossings [25 ns];Bunch Crossing [25 ns];Events/bin",
+			   100,0,10);
+  
   hist_energybeforeend_vs_lastInteraction = new TH2F("hist_energybeforeend_vs_lastInteraction",
 						     "Energy before stopping point vs Last Geant4 Process;Process Type;Energy [MeV];Events/bin",
 						     11,-0.5,10.5,100,0.0,1000.0);
