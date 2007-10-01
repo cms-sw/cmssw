@@ -5,7 +5,7 @@
 // 
 //
 // Original Author:  Dmytro Kovalskyi
-// $Id: MuonIdProducer.cc,v 1.10 2007/09/25 19:14:51 dmytro Exp $
+// $Id: MuonIdProducer.cc,v 1.11 2007/09/27 22:39:39 dmytro Exp $
 //
 //
 
@@ -188,15 +188,10 @@ reco::Muon MuonIdProducer::makeMuon( const reco::MuonTrackLinks& links )
 
 bool MuonIdProducer::isGoodTrack( const reco::Track& track )
 {
-   // Pt requirement
-   if (track.pt() < minPt_){ 
-      LogTrace("MuonIdentification") << "Skipped low Pt track (Pt: " << track.pt() << " GeV)";
-      return false;
-   }
-	
-   // Absolute momentum requirement
-   if (track.p() < minP_){
-      LogTrace("MuonIdentification") << "Skipped low P track (P: " << track.p() << " GeV)";
+   // Pt and absolute momentum requirement
+   if (track.pt() < minPt_ && track.p() < minP_){ 
+      LogTrace("MuonIdentification") << "Skipped low momentum track (Pt,P): " << track.pt() <<
+	", " << track.p() << " GeV";
       return false;
    }
 	
