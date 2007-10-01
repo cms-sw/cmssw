@@ -12,7 +12,7 @@
 //
 // Original Author:  Werner Sun
 //         Created:  Sat Jul 15 12:41:07 EDT 2006
-// $Id: L1EtMissParticle.h,v 1.7 2007/04/02 08:03:13 wsun Exp $
+// $Id: L1EtMissParticle.h,v 1.8 2007/07/31 15:20:14 ratnik Exp $
 //
 
 // system include files
@@ -43,7 +43,7 @@ namespace l1extra {
 			   const edm::RefProd< L1GctEtHad >& aEtHadRef =
 			      edm::RefProd< L1GctEtHad >() ) ;
 
-	 virtual ~L1EtMissParticle();
+	 virtual ~L1EtMissParticle() {}
 
 	 // ---------- const member functions ---------------------
 	 double etMiss() const

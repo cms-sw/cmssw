@@ -12,7 +12,7 @@
 //
 // Original Author:  Werner Sun
 //         Created:  Sat Jul 15 12:41:07 EDT 2006
-// $Id: L1EmParticle.h,v 1.6 2007/04/02 08:03:13 wsun Exp $
+// $Id: L1EmParticle.h,v 1.7 2007/07/31 15:20:14 ratnik Exp $
 //
 
 // system include files
@@ -47,7 +47,7 @@ namespace l1extra {
          L1EmParticle( const LorentzVector& p4,
                        EmType type = kUndefined ) ;
 
-	 virtual ~L1EmParticle();
+	 virtual ~L1EmParticle() {}
 
 	 // ---------- const member functions ---------------------
          EmType type() const

@@ -8,7 +8,7 @@
 //
 // Original Author:  Werner Sun
 //         Created:  Tue Jul 25 17:51:21 EDT 2006
-// $Id: L1MuonParticle.cc,v 1.5 2006/11/13 00:18:09 wsun Exp $
+// $Id: L1MuonParticle.cc,v 1.6 2007/04/02 08:03:14 wsun Exp $
 //
 
 // system include files
@@ -67,9 +67,9 @@ L1MuonParticle::L1MuonParticle( Charge q,
 //    // do actual copying here;
 // }
 
-L1MuonParticle::~L1MuonParticle()
-{
-}
+// L1MuonParticle::~L1MuonParticle()
+// {
+// }
 
 //
 // assignment operators

@@ -12,7 +12,7 @@
 //
 // Original Author:  Werner Sun
 //         Created:  Sat Jul 15 12:41:07 EDT 2006
-// $Id: L1MuonParticle.h,v 1.8 2007/04/02 08:03:13 wsun Exp $
+// $Id: L1MuonParticle.h,v 1.9 2007/07/31 15:20:14 ratnik Exp $
 //
 
 // system include files
@@ -48,7 +48,7 @@ namespace l1extra {
 			 bool rpc = false,
 			 unsigned int detector = 0 ) ;
 
-	 virtual ~L1MuonParticle();
+	 virtual ~L1MuonParticle() {}
 
 	 // ---------- const member functions ---------------------
          bool isIsolated() const

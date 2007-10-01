@@ -8,7 +8,7 @@
 //
 // Original Author:  Werner Sun
 //         Created:  Tue Jul 25 18:22:52 EDT 2006
-// $Id: L1EtMissParticle.cc,v 1.3 2006/08/10 18:47:42 wsun Exp $
+// $Id: L1EtMissParticle.cc,v 1.4 2007/04/02 08:03:14 wsun Exp $
 //
 
 // system include files
@@ -55,9 +55,9 @@ L1EtMissParticle::L1EtMissParticle(
 //    // do actual copying here;
 // }
 
-L1EtMissParticle::~L1EtMissParticle()
-{
-}
+// L1EtMissParticle::~L1EtMissParticle()
+// {
+// }
 
 //
 // assignment operators
