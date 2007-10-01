@@ -15,7 +15,7 @@
 //
 //  Author:  Andrea Perrotta
 // Created:  Wed May 02 12:37:24 CET 2007
-// $Id: ParamL3MuonProducer.h,v 1.3 2007/06/12 15:22:21 pjanot Exp $
+// $Id: ParamL3MuonProducer.h,v 1.4 2007/06/13 13:53:50 pjanot Exp $
 //
 
 
@@ -49,6 +49,8 @@ namespace edm {
 
 // Data Formats
 #include "DataFormats/L1GlobalMuonTrigger/interface/L1MuGMTCand.h"
+#include "DataFormats/L1Trigger/interface/L1MuonParticle.h"
+#include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
 
 //
@@ -66,24 +68,27 @@ class ParamL3MuonProducer : public edm::EDProducer {
       const RandomEngine * random;
 
       typedef std::vector<SimpleL1MuGMTCand*> FML1Muons;
-      typedef std::vector<L1MuGMTCand> L1MuonsContainer;
+      typedef std::vector<L1MuGMTCand> L1MuonCollection;
+      typedef std::vector<l1extra::L1MuonParticle> L1ExtraCollection;
 
       virtual void beginJob(const edm::EventSetup&) ;
       virtual void produce(edm::Event&, const edm::EventSetup&);
       virtual void endJob() ;
       void readParameters(const edm::ParameterSet&, const edm::ParameterSet& );
       void reconstruct();
-      void loadL1Muons(L1MuonsContainer & c) const;
+      void loadL1Muons(L1MuonCollection & c, L1ExtraCollection & d) const;
       void loadL3Muons(reco::MuonCollection & c) const;
       void loadGLMuons(reco::MuonCollection & c) const;
     
   // ---------- member data ---------------------------
 
       FML1Muons  mySimpleL1MuonCands;
+      L1ExtraCollection mySimpleL1MuonExtraCands;
       FML1EfficiencyHandler * myL1EfficiencyHandler;
       FML1PtSmearer * myL1PtSmearer;
 
       reco::MuonCollection  mySimpleL3MuonCands;
+      FML1Muons  mySimpleL3MuonSeeds;
       FML3EfficiencyHandler * myL3EfficiencyHandler;
       FML3PtSmearer * myL3PtSmearer;
 
@@ -101,6 +106,9 @@ class ParamL3MuonProducer : public edm::EDProducer {
       double minEta_ ,  maxEta_;
   // ----------- counters ------------------------------
       int   nMuonTot , nL1MuonTot , nL3MuonTot , nGLMuonTot;
+
+      static double muonMassGeV_ ;
+
 };
 
 #endif
