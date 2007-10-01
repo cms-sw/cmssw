@@ -15,7 +15,7 @@ CSCDbStripConditions::CSCDbStripConditions()
   thePedestals(0),
   theCrosstalk(0),
   theCapacitiveCrosstalk(76.2),
-  theGainsConstant(0.33)
+  theGainsConstant(0.27)
 {
 //  theCapacitiveCrosstalk = = 1/maxslope/maxsignal) = 1/ (0.00231/0.143);
 // Howoever, need a bit more.  Maybe the slope gets smeared?
