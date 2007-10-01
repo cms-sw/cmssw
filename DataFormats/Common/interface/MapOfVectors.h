@@ -16,17 +16,20 @@ namespace edm {
   template<typename K, typename T>
   class MapOfVectors {
   public:
+
     typedef MapOfVectors<K,T> self;
     typedef std::map<K,std::vector<T> > TheMap;
+
+    typedef unsigned int size_type;
 
     typedef std::vector<K> Keys;
     typedef std::vector<size_type> Offsets;
     typedef std::vector<T> Data;
+
     typedef Keys::const_iterator key_iterator;
     typedef Offsets::const_iterator offset_iterator;
     typedef Data::const_iterator data_iterator;
    
-    typedef unsigned int size_type;
     typedef boost::iterator_range<data_iterator> range;
 
     typedef std::pair<K const, range> Pair;
