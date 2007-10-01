@@ -57,8 +57,8 @@ class EcalTPGParamBuilder : public edm::EDAnalyzer {
   std::vector<unsigned int> computeWeights(EcalShape & shape) ;
   void computeLUT(int * lut, std::string det="EB")  ;
   void getCoeff(coeffStruc & coeff,
-		const EcalIntercalibConstants::EcalIntercalibConstantMap & calibMap, 
-		const EcalGainRatios::EcalGainRatioMap & gainMap, 
+		const EcalIntercalibConstantMap & calibMap, 
+		const EcalGainRatioMap & gainMap, 
 		const EcalPedestalsMap & pedMap,
 		uint rawId) ;
   void computeFineGrainEBParameters(uint & lowRatio, uint & highRatio,

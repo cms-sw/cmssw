@@ -44,13 +44,13 @@ float EcalLaserDbService::getLaserCorrection (DetId const & xid, edm::Timestamp 
 
   const EcalLaserAPDPNRatios::EcalLaserAPDPNRatiosMap& laserRatiosMap =  mAPDPNRatios_->getLaserMap();
   const EcalLaserAPDPNRatios::EcalLaserTimeStampMap& laserTimeMap =  mAPDPNRatios_->getTimeMap();
-  const EcalLaserAPDPNRatiosRef::EcalLaserAPDPNRatiosRefMap& laserRefMap =  mAPDPNRatiosRef_->getMap();
-  const EcalLaserAlphas::EcalLaserAlphaMap& laserAlphaMap =  mAlphas_->getMap();
+  const EcalLaserAPDPNRatiosRefMap& laserRefMap =  mAPDPNRatiosRef_->getMap();
+  const EcalLaserAlphaMap& laserAlphaMap =  mAlphas_->getMap();
 
   EcalLaserAPDPNRatios::EcalLaserAPDPNpair apdpnpair;
   EcalLaserAPDPNRatios::EcalLaserTimeStamp timestamp;
-  EcalLaserAPDPNRatiosRef::EcalLaserAPDPNref apdpnref;
-  EcalLaserAlphas::EcalLaserAlpha alpha;
+  EcalLaserAPDPNref apdpnref;
+  EcalLaserAlpha alpha;
 
   if (xid.det()==DetId::Ecal) {
     //    std::cout << " XID is in Ecal : ";
@@ -60,28 +60,29 @@ float EcalLaserDbService::getLaserCorrection (DetId const & xid, edm::Timestamp 
     return correctionFactor;
   } 
 
-  int hi = -1;
-  if (xid.subdetId()==EcalBarrel) {
-    //    std::cout << "EcalBarrel" << std::endl;
-    //    std::cout << "--> rawId() = " << xid.rawId() << "   id() = " << EBDetId( xid ).hashedIndex() << std::endl;
-    hi = EBDetId( xid ).hashedIndex();
-  } else if (xid.subdetId()==EcalEndcap) {
-    //    std::cout << "EcalEndcap" << std::endl;
-    hi = EEDetId( xid ).hashedIndex() + EBDetId::MAX_HASH + 1;
-
-  } else {
-    //    std::cout << "NOT EcalBarrel or EcalEndCap" << std::endl;
-    edm::LogError("EcalLaserDbService") << " DetId is NOT in ECAL Barrel or Endcap" << endl;
-    return correctionFactor;
-  }
+//  int hi = -1;
+//  if (xid.subdetId()==EcalBarrel) {
+//    //    std::cout << "EcalBarrel" << std::endl;
+//    //    std::cout << "--> rawId() = " << xid.rawId() << "   id() = " << EBDetId( xid ).hashedIndex() << std::endl;
+//    hi = EBDetId( xid ).hashedIndex();
+//  } else if (xid.subdetId()==EcalEndcap) {
+//    //    std::cout << "EcalEndcap" << std::endl;
+//    hi = EEDetId( xid ).hashedIndex() + EBDetId::MAX_HASH + 1;
+//
+//  } else {
+//    //    std::cout << "NOT EcalBarrel or EcalEndCap" << std::endl;
+//    edm::LogError("EcalLaserDbService") << " DetId is NOT in ECAL Barrel or Endcap" << endl;
+//    return correctionFactor;
+//  }
 
   int iLM = getLMNumber(xid);
   //  std::cout << " LM num ====> " << iLM << endl;
 
   // get alpha, apd/pn ref, apd/pn pairs and timestamps for interpolation
 
-  if (hi< (int)laserRatiosMap.size()) {
-    apdpnpair = laserRatiosMap[hi];
+  EcalLaserAPDPNRatios::EcalLaserAPDPNRatiosMap::const_iterator itratio = laserRatiosMap.find(xid);
+  if (itratio != laserRatiosMap.end()) {
+    apdpnpair = (*itratio);
   } else {
     edm::LogError("EcalLaserDbService") << "error with laserRatiosMap!" << endl;     
     return correctionFactor;
@@ -94,15 +95,17 @@ float EcalLaserDbService::getLaserCorrection (DetId const & xid, edm::Timestamp 
     return correctionFactor;
   }
 
-  if (hi< (int)laserRefMap.size()) {
-    apdpnref = laserRefMap[hi];
+  EcalLaserAPDPNRatiosRefMap::const_iterator itref = laserRefMap.find(xid);
+  if ( itref != laserRefMap.end() ) {
+    apdpnref = (*itref);
   } else { 
     edm::LogError("EcalLaserDbService") << "error with laserRefMap!" << endl;     
     return correctionFactor;
   }
 
-  if (hi< (int)laserAlphaMap.size()) {
-    alpha = laserAlphaMap[hi];
+  EcalLaserAlphaMap::const_iterator italpha = laserAlphaMap.find(xid);
+  if ( italpha != laserAlphaMap.end() ) {
+    alpha = (*italpha);
   } else {
     edm::LogError("EcalLaserDbService") << "error with laserAlphaMap!" << endl;     
     return correctionFactor;

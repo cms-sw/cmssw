@@ -76,11 +76,11 @@ EcalRecHitRecalib::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
       for (itb=EBRecHits->begin(); itb!=EBRecHits->end(); itb++) {
 	
 	// find intercalib constant for this xtal
-	EcalIntercalibConstants::EcalIntercalibConstantMap::const_iterator icalit=ical->getMap().find(itb->id().rawId());
-	EcalIntercalibConstants::EcalIntercalibConstant icalconst;
+	EcalIntercalibConstantMap::const_iterator icalit=ical->getMap().find(itb->id().rawId());
+	EcalIntercalibConstant icalconst = -1;
 
 	if( icalit!=ical->getMap().end() ){
-	  icalconst = icalit->second;
+	  icalconst = (*icalit);
 	  // edm::LogDebug("EcalRecHitRecalib") << "Found intercalib for xtal " << EBDetId(itb->id()) << " " << icalconst ;
 
 	} else {
@@ -104,11 +104,11 @@ EcalRecHitRecalib::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
       for (ite=EERecHits->begin(); ite!=EERecHits->end(); ite++) {
 	
 	// find intercalib constant for this xtal
-	EcalIntercalibConstants::EcalIntercalibConstantMap::const_iterator icalit=ical->getMap().find(ite->id().rawId());
-	EcalIntercalibConstants::EcalIntercalibConstant icalconst;
+	EcalIntercalibConstantMap::const_iterator icalit=ical->getMap().find(ite->id().rawId());
+	EcalIntercalibConstant icalconst = -1;
 
 	if( icalit!=ical->getMap().end() ){
-	  icalconst = icalit->second;
+	  icalconst = (*icalit);
 	  // edm:: LogDebug("EcalRecHitRecalib") << "Found intercalib for xtal " << EEDetId(ite->id()) << " " << icalconst ;
           } else {
             edm::LogError("EcalRecHitRecalib") << "No intercalib const found for xtal " << EEDetId(ite->id()) << "! something wrong with EcalIntercalibConstants in your DB? "

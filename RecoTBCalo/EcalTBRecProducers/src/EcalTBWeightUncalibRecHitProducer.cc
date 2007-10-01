@@ -1,13 +1,13 @@
 /** \class EcalTBWeightUncalibRecHitProducer
  *   produce ECAL uncalibrated rechits from dataframes
  *
-  *  $Id: EcalTBWeightUncalibRecHitProducer.cc,v 1.9 2007/04/19 16:23:15 meridian Exp $
-  *  $Date: 2007/04/19 16:23:15 $
-  *  $Revision: 1.9 $
+  *  $Id: EcalTBWeightUncalibRecHitProducer.cc,v 1.10 2007/08/09 09:21:34 innocent Exp $
+  *  $Date: 2007/08/09 09:21:34 $
+  *  $Revision: 1.10 $
   *
   *  $Alex Zabi$
-  *  $Date: 2007/04/19 16:23:15 $
-  *  $Revision: 1.9 $
+  *  $Date: 2007/08/09 09:21:34 $
+  *  $Revision: 1.10 $
   *  Modification to detect first sample to switch gain.
   *  used for amplitude recontruction at high energy
   *  Add TDC convention option (P. Meridiani)
@@ -106,13 +106,13 @@ EcalTBWeightUncalibRecHitProducer::produce(edm::Event& evt, const edm::EventSetu
    if (!grp)
      return;
 
-   const EcalWeightXtalGroups::EcalXtalGroupsMap& grpMap = grp->getMap();
+   const EcalXtalGroupsMap& grpMap = grp->getMap();
    
    
    // Gain Ratios
    edm::ESHandle<EcalGainRatios> pRatio;
    es.get<EcalGainRatiosRcd>().get(pRatio);
-   const EcalGainRatios::EcalGainRatioMap& gainMap = pRatio.product()->getMap(); // map of gain ratios
+   const EcalGainRatioMap& gainMap = pRatio.product()->getMap(); // map of gain ratios
 
 
    // fetch TB weights
@@ -136,7 +136,7 @@ EcalTBWeightUncalibRecHitProducer::produce(edm::Event& evt, const edm::EventSetu
 #endif
    edm::ESHandle<EcalPedestals> pedHandle;
    es.get<EcalPedestalsRcd>().get( pedHandle );
-   const EcalPedestalsMap& pedMap = pedHandle.product()->m_pedestals; // map of pedestals
+   const EcalPedestalsMap& pedMap = pedHandle.product()->getMap(); // map of pedestals
 #ifdef DEBUG
    LogDebug("EcalUncalibRecHitDebug") << "done." ;
 #endif
@@ -146,9 +146,9 @@ EcalTBWeightUncalibRecHitProducer::produce(edm::Event& evt, const edm::EventSetu
 
    EcalPedestalsMapIterator pedIter; // pedestal iterator
 
-   EcalGainRatios::EcalGainRatioMap::const_iterator gainIter; // gain iterator
+   EcalGainRatioMap::const_iterator gainIter; // gain iterator
 
-   EcalWeightXtalGroups::EcalXtalGroupsMap::const_iterator git; // group iterator
+   EcalXtalGroupsMap::const_iterator git; // group iterator
 
    EcalTBWeights::EcalTBWeightMap::const_iterator wit; //weights iterator 
    // loop over EB digis
@@ -181,7 +181,7 @@ EcalTBWeightUncalibRecHitProducer::produce(edm::Event& evt, const edm::EventSetu
 	     ;
 	   continue;
 	 }
-	 const EcalPedestals::Item& aped = pedIter->second;
+	 const EcalPedestals::Item& aped = (*pedIter);
 	 double pedVec[3];
 	 pedVec[0]=aped.mean_x12;pedVec[1]=aped.mean_x6;pedVec[2]=aped.mean_x1;
 
@@ -196,7 +196,7 @@ EcalTBWeightUncalibRecHitProducer::produce(edm::Event& evt, const edm::EventSetu
 	     ;
 	   continue;
 	 }
-	 const EcalMGPAGainRatio& aGain = gainIter->second;
+	 const EcalMGPAGainRatio& aGain = (*gainIter);
 	 double gainRatios[3];
 	 gainRatios[0]=1.;gainRatios[1]=aGain.gain12Over6();gainRatios[2]=aGain.gain6Over1()*aGain.gain12Over6();
 	 
@@ -210,7 +210,7 @@ EcalTBWeightUncalibRecHitProducer::produce(edm::Event& evt, const edm::EventSetu
 	     ;
 	   continue;
 	 }
-	 const EcalXtalGroupId& gid = git->second;	 
+	 const EcalXtalGroupId& gid = (*git);
 
 
      //GAIN SWITCHING DETECTION ///////////////////////////////////////////////////////////////////////////////////////////////////     

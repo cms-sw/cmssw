@@ -16,13 +16,9 @@
 #include "FWCore/Framework/interface/ModuleFactory.h"
 #include "FWCore/Framework/interface/ESProducer.h"
 
-//#include "CondFormats/EcalObjects/interface/EcalLaserAlphas.h"
-//#include "CondFormats/EcalObjects/interface/EcalLaserAPDPNRatiosRef.h"
-//#include "CondFormats/EcalObjects/interface/EcalLaserAPDPNRatios.h"
-
-class EcalLaserAlphas;
-class EcalLaserAPDPNRatiosRef;
-class EcalLaserAPDPNRatios;
+#include "CondFormats/EcalObjects/interface/EcalLaserAlphas.h"
+#include "CondFormats/EcalObjects/interface/EcalLaserAPDPNRatiosRef.h"
+#include "CondFormats/EcalObjects/interface/EcalLaserAPDPNRatios.h"
 
 
 class EcalLaserDbService {
@@ -35,9 +31,9 @@ class EcalLaserDbService {
   const EcalLaserAPDPNRatios* getAPDPNRatios () const;
   float getLaserCorrection (DetId const & xid, edm::Timestamp const & iTime) const;
 
-  void setData (const EcalLaserAlphas* fItem) {mAlphas_ = fItem;}
-  void setData (const EcalLaserAPDPNRatiosRef* fItem) {mAPDPNRatiosRef_ = fItem;}
-  void setData (const EcalLaserAPDPNRatios* fItem) {mAPDPNRatios_ = fItem;}
+  void setAlphaData (const EcalLaserAlphas* fItem) {mAlphas_ = fItem;}
+  void setAPDPNRefData (const EcalLaserAPDPNRatiosRef* fItem) {mAPDPNRatiosRef_ = fItem;}
+  void setAPDPNData (const EcalLaserAPDPNRatios* fItem) {mAPDPNRatios_ = fItem;}
 
  private:
 

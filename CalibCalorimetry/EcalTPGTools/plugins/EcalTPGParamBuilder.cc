@@ -102,18 +102,18 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
   // Pedestals
   ESHandle<EcalPedestals> pedHandle;
   evtSetup.get<EcalPedestalsRcd>().get( pedHandle );
-  const EcalPedestalsMap & pedMap = pedHandle.product()->m_pedestals ;
+  const EcalPedestalsMap & pedMap = pedHandle.product()->getMap() ;
  
   // Intercalib constants
   ESHandle<EcalIntercalibConstants> pIntercalib ;
   evtSetup.get<EcalIntercalibConstantsRcd>().get(pIntercalib) ;
   const EcalIntercalibConstants * intercalib = pIntercalib.product() ;
-  const EcalIntercalibConstants::EcalIntercalibConstantMap & calibMap = intercalib->getMap() ;
+  const EcalIntercalibConstantMap & calibMap = intercalib->getMap() ;
 
    // Gain Ratios
    ESHandle<EcalGainRatios> pRatio;
    evtSetup.get<EcalGainRatiosRcd>().get(pRatio);
-   const EcalGainRatios::EcalGainRatioMap & gainMap = pRatio.product()->getMap();
+   const EcalGainRatioMap & gainMap = pRatio.product()->getMap();
 
   // ADCtoGeV
   ESHandle<EcalADCToGeVConstant> pADCToGeV ;
@@ -643,26 +643,25 @@ void EcalTPGParamBuilder::computeLUT(int * lut, std::string det)
 
 
 void EcalTPGParamBuilder::getCoeff(coeffStruc & coeff,
-				   const EcalIntercalibConstants::EcalIntercalibConstantMap & calibMap, 
-				   const EcalGainRatios::EcalGainRatioMap & gainMap, 
+				   const EcalIntercalibConstantMap & calibMap, 
+				   const EcalGainRatioMap & gainMap, 
 				   const EcalPedestalsMap & pedMap,
 				   uint rawId)
 {
   // get current intercalibration coeff
   coeff.calibCoeff_ = 1. ;
-  EcalIntercalibConstants::EcalIntercalibConstantMap::const_iterator icalit = calibMap.find(rawId);
+  EcalIntercalibConstantMap::const_iterator icalit = calibMap.find(rawId);
   if( icalit != calibMap.end() ){
-    EcalIntercalibConstants::EcalIntercalibConstant icalibConst = icalit->second;
-    coeff.calibCoeff_ = icalibConst ;
+    coeff.calibCoeff_ = (*icalit) ;
   }
   
   // get current gain ratio
   coeff.gainRatio_[0]  = 1. ;
   coeff.gainRatio_[1]  = 2. ;
   coeff.gainRatio_[2]  = 12. ;
-  EcalGainRatios::EcalGainRatioMap::const_iterator gainIter = gainMap.find(rawId);
+  EcalGainRatioMap::const_iterator gainIter = gainMap.find(rawId);
   if (gainIter != gainMap.end()) {
-    const EcalMGPAGainRatio & aGain = gainIter->second ;
+    const EcalMGPAGainRatio & aGain = (*gainIter) ;
     coeff.gainRatio_[1] = aGain.gain12Over6() ;
     coeff.gainRatio_[2] = aGain.gain6Over1() * aGain.gain12Over6() ;
   }
@@ -672,7 +671,7 @@ void EcalTPGParamBuilder::getCoeff(coeffStruc & coeff,
   coeff.pedestals_[2] = 0 ;
   EcalPedestalsMapIterator pedIter = pedMap.find(rawId);
   if (pedIter != pedMap.end()) {
-    EcalPedestals::Item aped = pedIter->second ;
+    EcalPedestals::Item aped = (*pedIter);
     coeff.pedestals_[0] = int(aped.mean_x12 + 0.5) ; 
     coeff.pedestals_[1] = int(aped.mean_x6 + 0.5) ;
     coeff.pedestals_[2] = int(aped.mean_x1 + 0.5) ;

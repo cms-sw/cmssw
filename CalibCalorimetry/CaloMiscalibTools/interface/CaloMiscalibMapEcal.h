@@ -65,10 +65,10 @@ map_.setValue(cell.rawId(),scaling_factor);
 void print()
  {
  
- std::map<uint32_t,float>::const_iterator it;
- 
-   for(it=map_.getMap().begin();it!=map_.getMap().end();it++){
-   }
+// std::map<uint32_t,float>::const_iterator it;
+// 
+//   for(it=map_.getMap().begin();it!=map_.getMap().end();it++){
+//   }
  
 }
 
