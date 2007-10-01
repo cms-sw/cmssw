@@ -26,20 +26,20 @@ namespace edm {
     typedef std::vector<size_type> Offsets;
     typedef std::vector<T> Data;
 
-    typedef Keys::const_iterator key_iterator;
+    typedef typename Keys::const_iterator key_iterator;
     typedef Offsets::const_iterator offset_iterator;
-    typedef Data::const_iterator data_iterator;
+    typedef typename Data::const_iterator data_iterator;
    
     typedef boost::iterator_range<data_iterator> range;
 
     typedef std::pair<K const, range> Pair;
 
     class Iter
-    : public boost::iterator_facade<Iter,
-                                    Pair const, 
-                                    boost::forward_traversal_tag >
+      : public boost::iterator_facade<Iter,
+				      Pair const, 
+				      boost::forward_traversal_tag >
     {
-    
+      
     public:
       typedef Iter self;
       Iter() {}
@@ -52,26 +52,24 @@ namespace edm {
       
     private:
       friend class boost::iterator_core_access;
-    
+      
       void increment() {
 	++key; ++off; 
       }
       
-      bool equal(self const& other) const
-      {
+      bool equal(self const& other) const {
 	return this->key == other.key;
       }
       
       Pair dereference() const {
-	
-	return Pair(*k, range(data+(*off),data+(*(off+1)) };
+	return Pair(*key, range(data+(*off),data+(*(off+1)) ) );
       }
-
-      
-      key_iterator key;
+	  
+	  
+	  key_iterator key;
       offset_iterator off;
       data_iterator data;
-  };
+      };
 
 
 
@@ -85,10 +83,10 @@ namespace edm {
       m_offsets.reserve(it.size()+1);
       m_offsets.push_back(0);
       size_type tot=0;
-      for(TheMap::const_iterator p=it.begin(); p!=it.end();++p)
+      for(typename TheMap::const_iterator p=it.begin(); p!=it.end();++p)
 	tot += (*p).second.size();
       m_data.reserve(tot);
-      for(TheMap::const_iterator p=it.begin(); p!=it.end();++p)
+      for(typename TheMap::const_iterator p=it.begin(); p!=it.end();++p)
 	loadNext((*p).first,(*p).second);
 
     }
@@ -121,7 +119,7 @@ namespace edm {
       size_type loc = p-m_keys.begin();
       data_iterator b = m_data.begin()+m_offsets[loc];
       data_iterator e = m_data.begin()+m_offsets[loc+1];
-      retrun range(b,e);
+      return range(b,e);
     }
     
 

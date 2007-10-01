@@ -25,7 +25,7 @@ class TestMapOfVectors: public CppUnit::TestFixture
   
 public:
   TestMapOfVectors(); 
-  ~TestMapOfVectors() 
+  ~TestMapOfVectors();
   void setUp() {}
   void tearDown() {}
   
