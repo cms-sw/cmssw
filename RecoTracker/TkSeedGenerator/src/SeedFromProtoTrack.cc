@@ -16,10 +16,31 @@
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 
-
+SeedFromProtoTrack::SeedFromProtoTrack(const reco::Track & proto,  
+  const std::vector<ctfseeding::SeedingHit> & hits, const edm::EventSetup& es)
+  : theValid(true)
+{
+  for (unsigned int i= 0, n = hits.size(); i< n; ++i) {
+    const TrackingRecHit * trh = hits[i];
+   theHits.push_back( trh->clone() ); 
+  }
+  init(proto, es);
+}
 
 SeedFromProtoTrack::SeedFromProtoTrack(const reco::Track & proto,  const edm::EventSetup& es)
   : theValid(true)
+{
+  const TrackingRecHit* hit = 0;
+  for (unsigned int iHit = 0, nHits = proto.recHitsSize(); iHit < nHits; ++iHit) {
+    TrackingRecHitRef refHit = proto.recHit(iHit);
+    hit = &(*refHit);
+    theHits.push_back( hit->clone() );
+  }
+  init(proto,es);
+}
+
+
+void SeedFromProtoTrack::init(const reco::Track & proto, const edm::EventSetup& es)
 {
   edm::ESHandle<TrackerGeometry> tracker;
   es.get<TrackerDigiGeometryRecord>().get(tracker);
@@ -30,13 +51,6 @@ SeedFromProtoTrack::SeedFromProtoTrack(const reco::Track & proto,  const edm::Ev
 
   edm::ESHandle<MagneticField> field;
   es.get<IdealMagneticFieldRecord>().get(field);
-
-  const TrackingRecHit* hit = 0;
-  for (unsigned int iHit = 0, nHits = proto.recHitsSize(); iHit < nHits; ++iHit) {
-    TrackingRecHitRef refHit = proto.recHit(iHit);
-    hit = &(*refHit);
-    theHits.push_back( hit->clone() );
-  }
 
   reco::TrackBase::Point  vtx = proto.referencePoint();
   reco::TrackBase::Vector mom = proto.momentum();
@@ -49,12 +63,14 @@ SeedFromProtoTrack::SeedFromProtoTrack(const reco::Track & proto,  const edm::Ev
 
   FreeTrajectoryState fts( gtp, err);
 
+  const TrackingRecHit & lastHit = theHits.back();
+
   TrajectoryStateOnSurface outerState =
-      propagator->propagate(fts, tracker->idToDet(hit->geographicalId())->surface());
+      propagator->propagate(fts, tracker->idToDet(lastHit.geographicalId())->surface());
 
   TrajectoryStateTransform transformer;
   thePTraj = boost::shared_ptr<PTrajectoryStateOnDet>(
-      transformer.persistentState(outerState, hit->geographicalId().rawId()) );
+      transformer.persistentState(outerState, lastHit.geographicalId().rawId()) );
 
 
 }
