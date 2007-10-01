@@ -6,7 +6,7 @@
 Worker: this is a basic scheduling unit - an abstract base class to
 something that is really a producer or filter.
 
-$Id: Worker.h,v 1.27 2007/09/13 19:11:20 wmtan Exp $
+$Id: Worker.h,v 1.28 2007/09/14 23:12:28 wmtan Exp $
 
 A worker will not actually call through to the module unless it is
 in a Ready state.  After a module is actually run, the state will not
@@ -213,7 +213,7 @@ namespace edm {
 	actions::ActionCodes action = actions_->find(e.rootCause());
 	// If we are processing an endpath, treat SkipEvent or FailPath
 	// as FailModule, so any subsequent OutputModules are still run.
-	if (cpc->isEndPath()) {
+	if (cpc && cpc->isEndPath()) {
 	  if (action == actions::SkipEvent || action == actions::FailPath) action = actions::FailModule;
 	}
 	switch(action) {
