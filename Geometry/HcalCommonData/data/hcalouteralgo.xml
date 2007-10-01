@@ -681,7 +681,7 @@
    <Numeric name="incrCopyNo"   value="1" />
    <Numeric name="rangeAngle"   value="360*deg"/>
    <Numeric name="startAngle"   value="270*deg"/>
-   <Numeric name="shiftY"       value="3.945*m"/>
+   <Numeric name="shiftY"       value="3.9425*m"/>
    <Numeric name="shiftX"       value="-34.5763*cm"/>
    <Numeric name="zoffset"      value="0*fm"/>
 </Algorithm>
