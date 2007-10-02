@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea Rizzi
 //         Created:  Thu Apr  6 09:56:23 CEST 2006
-// $Id: TrackIPProducer.cc,v 1.3 2007/09/24 21:20:47 fwyzard Exp $
+// $Id: TrackIPProducer.cc,v 1.4 2007/10/01 07:17:14 arizzi Exp $
 //
 //
 
@@ -240,7 +240,7 @@ using namespace edm::eventsetup;
      const TrackProbabilityCalibration *  ca3D= calib3DHandle.product();
 
      if(m_probabilityEstimator) delete m_probabilityEstimator;  
-     m_probabilityEstimator=new HistogramProbabilityEstimator(ca2D,ca3D);
+     m_probabilityEstimator=new HistogramProbabilityEstimator(ca3D,ca2D);
 
    }
    m_calibrationCacheId3D=cacheId3D;
