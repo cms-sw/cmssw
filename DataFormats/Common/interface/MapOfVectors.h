@@ -76,7 +76,7 @@ namespace edm {
 
     range emptyRange() const { return range(m_data.end(),m_data.end());}
 
-    MapOfVectors(){}
+    MapOfVectors() :  m_offsets(1,0) {}
 
     MapOfVectors(TheMap const & it) {
       m_keys.reserve(it.size());

@@ -62,6 +62,11 @@ void TestMapOfVectors::default_ctor(){
   MII m;
   CPPUNIT_ASSERT(m.size()==0);
   CPPUNIT_ASSERT(m.empty());
+  CPPUNIT_ASSERT(m.m_keys.size()==0);
+  CPPUNIT_ASSERT(m.m_offsets.size()==1);
+  CPPUNIT_ASSERT(m.m_offsets[0]==0);
+  CPPUNIT_ASSERT(m.m_data.size()==0);
+
 }
 
 void TestMapOfVectors::filling(){
@@ -70,6 +75,8 @@ void TestMapOfVectors::filling(){
   CPPUNIT_ASSERT(!m.empty());
   CPPUNIT_ASSERT(m.m_keys.size()==om.size());
   CPPUNIT_ASSERT(m.m_offsets.size()==om.size()+1);
+  CPPUNIT_ASSERT(m.m_offsets[0]==0);
+  CPPUNIT_ASSERT(m.m_offsets[m.size()]==tot);
   CPPUNIT_ASSERT(m.m_data.size()==tot);
 }
 
@@ -77,13 +84,21 @@ void TestMapOfVectors::find(){
   MII m(om);
   CPPUNIT_ASSERT(m.find(-1)==m.emptyRange());
   for(TheMap::const_iterator p=om.begin(); p!=om.end();++p) {
-    MII::range r = m.find((*p).first); 
+    MII::range r = m.find((*p).first);
+    CPPUNIT_ASSERT(r.size()==(*p).first);
     CPPUNIT_ASSERT(std::equal((*p).second.begin(), (*p).second.end(),r.begin()));
   }
 }
 
 void TestMapOfVectors::iterator(){
   MII m(om);
- for(MII::const_iterator p=m.begin(); p!=m.end();++p) {
- }
+  TheMap::const_iterator op=om.begin();
+  unsigned int lt=0;
+  for(MII::const_iterator p=m.begin(); p!=m.end();++p) {
+    CPPUNIT_ASSERT((*p).first==(*op).first);
+    CPPUNIT_ASSERT(std::equal((*p).second.begin(), (*p).second.end(),(*op).second.begin()));
+    lt+=(*p).second.size();
+    ++op;
+  }
+  CPPUNIT_ASSERT(lt==tot);
 }
