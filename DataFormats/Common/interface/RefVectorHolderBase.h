@@ -8,6 +8,7 @@ namespace edm {
   namespace reftobase {
     class RefVectorHolderBase {
     public:
+      virtual ~RefVectorHolderBase() {}
       typedef size_t size_type;
       typedef RefHolderBase value_type;
       virtual bool empty() const = 0;
