@@ -41,9 +41,9 @@ namespace popcon
 					//TODO set the policy (cfg or global configuration?)
 					//Policy if corrupted data found
 					m_debug = pset.getParameter< bool > ("debug");
-					m_popcon_db = pset.getParameter<std::string> ("PopConDBSchema");
+					m_popcon_db = pset.getParameter<std::string> ("popConDBSchema");
 					//MANDATORY 
-					m_offline_connection = pset.getParameter<std::string> ("OfflineDBSchema");
+					m_offline_connection = pset.getParameter<std::string> ("connect");
 					
   					m_catalog = "pfncatalog_memory://POOL_RDBMS?";
   					m_catalog.append(m_offline_connection);
