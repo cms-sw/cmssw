@@ -14,7 +14,7 @@ EDProduct that is a sequence.
 //
 // Original Author:  
 //         Created:  Mon Dec 18 09:48:30 CST 2006
-// $Id: View.h,v 1.2 2007/07/25 15:33:00 llista Exp $
+// $Id: View.h,v 1.3 2007/09/20 09:52:59 llista Exp $
 //
 
 #include <vector>
@@ -179,7 +179,8 @@ namespace edm
       for (std::vector<void const*>::size_type i = 0; i < pointers.size(); ++i) {
 	items_.push_back(static_cast<pointer>(pointers[i]));
       }
-      refs_ = RefToBaseVector<T>( helpers );
+      RefToBaseVector<T> temp( helpers );
+      refs_.swap(temp); 
     }
   }
 
