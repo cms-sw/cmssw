@@ -40,7 +40,7 @@ public:
   /// log category
   std::string category_;
   /// internal flag to avoid unpacking things with LogDebug on
-  bool StayUnpacked_;
+  bool StayPacked_;
 
   /// internal flag to do strip on demand (not configurable) true by default
   bool StripOnDemand_;
