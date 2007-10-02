@@ -72,7 +72,7 @@ namespace edm {
       key_iterator key;
       offset_iterator off;
       data_iterator data;
-      Pair cache;
+      mutable Pair cache;
       };
 
     typedef Iter const_iterator;
