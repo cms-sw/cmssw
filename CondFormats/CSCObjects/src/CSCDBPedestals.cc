@@ -8,6 +8,6 @@ CSCDBPedestals::~CSCDBPedestals(){}
 const CSCDBPedestals::Item & CSCDBPedestals::item(const CSCDetId & cscId, int strip) const
 {
   CSCIndexer indexer;
-  return pedestals.at( indexer.stripChannelIndex(cscId, strip) );
+  return pedestals.at( indexer.stripChannelIndex(cscId, strip)-1 );
 }
 

@@ -8,7 +8,7 @@ CSCDBGains::~CSCDBGains(){}
 const CSCDBGains::Item & CSCDBGains::item(const CSCDetId & cscId, int strip) const
 {
   CSCIndexer indexer;
-  return gains.at( indexer.stripChannelIndex(cscId, strip) );
+  return gains.at( indexer.stripChannelIndex(cscId, strip)-1 );
 }
 
 std::ostream & operator<<(std::ostream & os, const CSCDBGains & cscDbGains)

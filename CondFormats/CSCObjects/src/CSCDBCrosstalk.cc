@@ -5,6 +5,6 @@
 const CSCDBCrosstalk::Item & CSCDBCrosstalk::item(const CSCDetId & cscId, int strip) const
 {
   CSCIndexer indexer;
-  return crosstalk.at( indexer.stripChannelIndex(cscId, strip) );
+  return crosstalk.at( indexer.stripChannelIndex(cscId, strip)-1 );
 }
 

@@ -2,13 +2,14 @@
 #include "DataFormats/MuonDetId/interface/CSCIndexer.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
+#include <iostream>
 CSCDBNoiseMatrix::CSCDBNoiseMatrix(){}
 CSCDBNoiseMatrix::~CSCDBNoiseMatrix(){}
 
 const CSCDBNoiseMatrix::Item & CSCDBNoiseMatrix::item(const CSCDetId & cscId, int strip) const
 {
   CSCIndexer indexer;
-  return matrix.at( indexer.stripChannelIndex(cscId, strip) );
+  return matrix.at( indexer.stripChannelIndex(cscId, strip)-1 );
 }
 
 
