@@ -353,14 +353,16 @@ bool HLTLevel1GTSeed::filter(edm::Event& iEvent, const edm::EventSetup& evSetup)
                             break;
                     }
 
+                    iObj++;
+
                 }
 
-                iObj++;
             }
+
+            iCond++;
 
         }
 
-        iCond++;
     }
 
     // eliminate duplicates
