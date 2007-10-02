@@ -63,7 +63,9 @@ namespace edm {
       
       Pair const & dereference() const {
 	// FIXME can be optimized...
-	return cache = Pair(*key, range(data+(*off),data+(*(off+1)) ) );
+	cache.first = *k;
+	cache.second = range(data+(*off),data+(*(off+1)));
+	return cache;
       }
 	  
 	  
