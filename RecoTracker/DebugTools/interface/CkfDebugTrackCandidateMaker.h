@@ -1,3 +1,4 @@
+
 #ifndef CkfDebugTrackCandidateMaker_h
 #define CkfDebugTrackCandidateMaker_h
 
@@ -27,10 +28,10 @@ namespace cms {
 
     void initDebugger(edm::EventSetup const & es){
       dbg = new CkfDebugger(es);
-/*       myTrajectoryBuilder = dynamic_cast<const CkfDebugTrajectoryBuilder*>(theTrajectoryBuilder); */
-/*       if (myTrajectoryBuilder) myTrajectoryBuilder->setDebugger( dbg); */
-/* 	else */
-	  theTrajectoryBuilder->setDebugger( dbg);
+      myTrajectoryBuilder = dynamic_cast<const CkfDebugTrajectoryBuilder*>(theTrajectoryBuilder);
+      if (myTrajectoryBuilder) myTrajectoryBuilder->setDebugger( dbg);
+      else throw cms::Exception("CkfDebugger") << "please use CkfDebugTrajectoryBuilder";
+	//theTrajectoryBuilder->setDebugger( dbg);
     };
     
     void printHitsDebugger(edm::Event& e){dbg->printSimHits(e);};
@@ -38,7 +39,7 @@ namespace cms {
     void deleteAssocDebugger(){dbg->deleteHitAssociator();};
     void deleteDebugger(){delete dbg;};
     CkfDebugger *  dbg;
-/*     const CkfDebugTrajectoryBuilder* myTrajectoryBuilder; */
+    const CkfDebugTrajectoryBuilder* myTrajectoryBuilder;
   };
 }
 

@@ -31,7 +31,7 @@ CkfDebugTrajectoryBuilderESProducer::CkfDebugTrajectoryBuilderESProducer(const e
 
 CkfDebugTrajectoryBuilderESProducer::~CkfDebugTrajectoryBuilderESProducer() {}
 
-boost::shared_ptr<TrackerTrajectoryBuilder> 
+boost::shared_ptr<TrajectoryBuilder> 
 CkfDebugTrajectoryBuilderESProducer::produce(const CkfComponentsRecord& iRecord)
 { 
   std::string updatorName            = pset_.getParameter<std::string>("updator");   
@@ -55,14 +55,14 @@ CkfDebugTrajectoryBuilderESProducer::produce(const CkfComponentsRecord& iRecord)
   iRecord.get(measurementTrackerHandle);  
   
   _trajectoryBuilder  = 
-    boost::shared_ptr<TrackerTrajectoryBuilder>(new CkfDebugTrajectoryBuilder(pset_,
-									      updatorHandle.product(),
-									      propagatorAlongHandle.product(),
-									      propagatorOppositeHandle.product(),
-									      estimatorHandle.product(),
-									      recHitBuilderHandle.product(),
-									      measurementTrackerHandle.product()) );  
- //  CkfDebugger dbg( es, theMeasurementTracker);
-//   _trajectoryBuilder->setDebugger( dbg);
+    boost::shared_ptr<TrajectoryBuilder>(new CkfDebugTrajectoryBuilder(pset_,
+								       updatorHandle.product(),
+								       propagatorAlongHandle.product(),
+								       propagatorOppositeHandle.product(),
+								       estimatorHandle.product(),
+								       recHitBuilderHandle.product(),
+								       measurementTrackerHandle.product()) );  
+  //  CkfDebugger dbg( es, theMeasurementTracker);
+  //   _trajectoryBuilder->setDebugger( dbg);
   return _trajectoryBuilder;
 }

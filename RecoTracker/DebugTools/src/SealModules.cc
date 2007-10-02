@@ -1,7 +1,7 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
  
-#include "RecoTracker/CkfPattern/interface/TrackerTrajectoryBuilder.h"
+#include "TrackingTools/PatternTools/interface/TrajectoryBuilder.h"
 
 #include "FWCore/Framework/interface/eventsetupdata_registration_macro.h"
 
-EVENTSETUP_DATA_REG(TrackerTrajectoryBuilder);
+EVENTSETUP_DATA_REG(TrajectoryBuilder);
