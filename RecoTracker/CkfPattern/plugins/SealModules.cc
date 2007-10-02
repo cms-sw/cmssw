@@ -3,8 +3,8 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "RecoTracker/CkfPattern/interface/CkfTrackCandidateMaker.h"
-#include "RecoTracker/CkfPattern/interface/CkfTrajectoryBuilderESProducer.h"
-#include "RecoTracker/CkfPattern/interface/GroupedCkfTrajectoryBuilderESProducer.h"
+#include "RecoTracker/CkfPattern/plugins/CkfTrajectoryBuilderESProducer.h"
+#include "RecoTracker/CkfPattern/plugins/GroupedCkfTrajectoryBuilderESProducer.h"
 
 
 #include "FWCore/Framework/interface/ModuleFactory.h"
