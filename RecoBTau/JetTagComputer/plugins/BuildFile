@@ -9,14 +9,3 @@
   <use name=RecoBTau/JetTagComputer>
   <flags EDM_PLUGIN=1>
 </library>
-
-<library file="BTauFakeMVAJetTagConditions.cc" name=BTauFakeMVAJetTagConditions>
-  <use name=CondFormats/DataRecord>
-  <use name=CondFormats/PhysicsToolsObjects>
-  <use name=FWCore/MessageLogger>
-  <use name=FWCore/Utilities>
-  <use name=boost>
-  <use name=rootcore>
-  <flags LDFLAGS="-lXMLIO">
-  <flags EDM_PLUGIN=1>
-</library>
