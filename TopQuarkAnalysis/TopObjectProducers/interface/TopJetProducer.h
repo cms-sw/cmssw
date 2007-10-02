@@ -1,5 +1,5 @@
 //
-// $Id: TopJetProducer.h,v 1.21 2007/10/02 15:34:59 lowette Exp $
+// $Id: TopJetProducer.h,v 1.22 2007/10/02 15:59:56 lowette Exp $
 //
 
 #ifndef TopObjectProducers_TopJetProducer_h
@@ -13,7 +13,7 @@
    with possible adding of resolutions and more things to come
 
   \author   Jan Heyninck
-  \version  $Id: TopJetProducer.h,v 1.21 2007/10/02 15:34:59 lowette Exp $
+  \version  $Id: TopJetProducer.h,v 1.22 2007/10/02 15:59:56 lowette Exp $
 */
 
 
@@ -53,9 +53,8 @@ class TopJetProducer : public edm::EDProducer {
     // TEMP End
 
     // configurables
-    edm::InputTag            recJetsLabel_;
-    edm::InputTag            caliJetsLabel_;
-    edm::InputTag            tracksTag_;
+    edm::InputTag            caliJetsSrc_;
+    edm::InputTag            recJetsSrc_;
     // TEMP Jet cleaning from electrons
     bool                     doJetCleaning_;
     edm::InputTag            topElectronsLabel_;

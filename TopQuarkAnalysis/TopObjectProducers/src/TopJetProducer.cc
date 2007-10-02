@@ -1,5 +1,5 @@
 //
-// $Id: TopJetProducer.cc,v 1.24 2007/10/01 20:58:41 lowette Exp $
+// $Id: TopJetProducer.cc,v 1.25 2007/10/02 15:35:00 lowette Exp $
 //
 
 #include "TopQuarkAnalysis/TopObjectProducers/interface/TopJetProducer.h"
@@ -29,8 +29,8 @@
 
 TopJetProducer::TopJetProducer(const edm::ParameterSet& iConfig) {
   // initialize the configurables
-  recJetsLabel_            = iConfig.getParameter<edm::InputTag>            ( "recJetInput" );
-  caliJetsLabel_           = iConfig.getParameter<edm::InputTag>            ( "caliJetInput" );
+  caliJetsSrc_             = iConfig.getParameter<edm::InputTag>            ( "caliJetSource" );
+  recJetsSrc_              = iConfig.getParameter<edm::InputTag>            ( "recJetSource" );
   // TEMP Jet cleaning from electrons
   doJetCleaning_           = iConfig.getParameter<bool>                     ( "doJetCleaning" );
   topElectronsLabel_       = iConfig.getParameter<edm::InputTag>            ( "topElectronsInput" );
@@ -90,10 +90,10 @@ void TopJetProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
 
   // Get the vector of non-calibrated jets
   edm::Handle<std::vector<TopJetType> > recjets;
-  iEvent.getByLabel(recJetsLabel_, recjets);
+  iEvent.getByLabel(recJetsSrc_, recjets);
   // Get the vector of calibrated jets
   edm::Handle<std::vector<TopJetType> > calijets;
-  iEvent.getByLabel(caliJetsLabel_, calijets);
+  iEvent.getByLabel(caliJetsSrc_, calijets);
   // TEMP Jet cleaning from electrons
   edm::Handle<std::vector<TopElectron> > electronsHandle;
   iEvent.getByLabel(topElectronsLabel_, electronsHandle);
