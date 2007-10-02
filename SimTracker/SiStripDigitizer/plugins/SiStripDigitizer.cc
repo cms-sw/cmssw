@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea GIAMMANCO
 //         Created:  Thu Sep 22 14:23:22 CEST 2005
-// $Id: SiStripDigitizer.cc,v 1.4 2007/07/24 17:36:07 fambrogl Exp $
+// $Id: SiStripDigitizer.cc,v 1.5 2007/09/03 10:10:57 fambrogl Exp $
 //
 //
 
@@ -67,6 +67,8 @@
 #include "CondFormats/SiStripObjects/interface/SiStripNoises.h"
 #include "CondFormats/SiStripObjects/interface/SiStripPedestals.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripGain.h"
+#include "CalibTracker/Records/interface/SiStripDetCablingRcd.h"
+#include "CalibFormats/SiStripObjects/interface/SiStripDetCabling.h"
 
 //Random Number
 #include "FWCore/ServiceRegistry/interface/Service.h"
@@ -85,7 +87,7 @@ SiStripDigitizer::SiStripDigitizer(const edm::ParameterSet& conf) :
   produces<edm::DetSetVector<SiStripRawDigi> >("ProcessedRaw").setBranchAlias( alias + "ProcessedRaw");
   trackerContainers.clear();
   trackerContainers = conf.getParameter<std::vector<std::string> >("ROUList");
-
+  useConfFromDB = conf.getParameter<bool>("TrackerConfigurationFromDB");
   edm::Service<edm::RandomNumberGenerator> rng;
   if ( ! rng.isAvailable()) {
     throw cms::Exception("Configuration")
@@ -113,6 +115,12 @@ void SiStripDigitizer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
   edm::ESHandle < ParticleDataTable > pdt;
   iSetup.getData( pdt );
 
+  if(useConfFromDB){
+    edm::ESHandle<SiStripDetCabling> detCabling;
+    iSetup.get<SiStripDetCablingRcd>().get( detCabling );
+    detCabling->addConnected(theDetIdList);
+  }
+
   edm::Handle<CrossingFrame<PSimHit> > cf_simhit;
   std::vector<const CrossingFrame<PSimHit> *> cf_simhitvec;
   for(uint32_t i = 0; i< trackerContainers.size();i++){
@@ -125,8 +133,10 @@ void SiStripDigitizer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
   //Loop on PSimHit
   SimHitMap.clear();
   
-  MixCollection<PSimHit>::iterator isim;
-  for (isim=allTrackerHits->begin(); isim!= allTrackerHits->end();isim++) {
+  std::vector<PSimHit> trackerHits = SimHitSelectorFromDB_.getSimHit(allTrackerHits,theDetIdList);
+
+  std::vector<PSimHit>::iterator isim;
+  for (isim=trackerHits.begin(); isim!= trackerHits.end();isim++) {
     SimHitMap[(*isim).detUnitId()].push_back((*isim));
   }
 

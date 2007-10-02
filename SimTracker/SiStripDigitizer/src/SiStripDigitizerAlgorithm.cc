@@ -26,14 +26,17 @@ SiStripDigitizerAlgorithm::SiStripDigitizerAlgorithm(const edm::ParameterSet& co
   peakMode          = conf_.getParameter<bool>("APVpeakmode");
   noise             = conf_.getParameter<bool>("Noise");
   zeroSuppression   = conf_.getParameter<bool>("ZeroSuppression");
+  theTOFCutForPeak          = conf_.getParameter<double>("TOFCutForPeak");
+  theTOFCutForDeconvolution = conf_.getParameter<double>("TOFCutForDeconvolution");
+  cosmicShift               = conf_.getUntrackedParameter<double>("CosmicDelayShift");
  
   if (peakMode) {
-    tofCut=100;
+    tofCut=theTOFCutForPeak;
     if ( conf_.getUntrackedParameter<int>("VerbosityLevel") > 0 ) {
       edm::LogInfo("StripDigiInfo")<<"APVs running in peak mode (poor time resolution)";
     }
   } else {
-    tofCut=50;
+    tofCut=theTOFCutForDeconvolution;
     if ( conf_.getUntrackedParameter<int>("VerbosityLevel") > 0 ) {
       edm::LogInfo("StripDigiInfo")<<"APVs running in deconvolution mode (good time resolution)";
     }
@@ -82,10 +85,11 @@ void SiStripDigitizerAlgorithm::run(edm::DetSet<SiStripDigi>& outdigi,
   std::vector<PSimHit>::const_iterator simHitIter = input.begin();
   std::vector<PSimHit>::const_iterator simHitIterEnd = input.end();
   for (;simHitIter != simHitIterEnd; ++simHitIter) {
-    
     const PSimHit & ihit = *simHitIter;
-    
-    if ( std::fabs(ihit.tof()) < tofCut && ihit.energyLoss()>0) {
+    float dist = det->surface().toGlobal(ihit.localPosition()).mag();
+    float t0 = dist/30.;  // light velocity = 30 cm/ns      
+
+    if ( std::fabs( ihit.tof() - cosmicShift - t0) < tofCut && ihit.energyLoss()>0) {
       theSiHitDigitizer->processHit(ihit,*det,bfield,langle, theSignal,theSignal_forLink);
       theSiPileUpSignals->add(theSignal_forLink, ihit);
     }
