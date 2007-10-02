@@ -39,11 +39,9 @@
  <class name="EcalTPGFineGrainTowerEE"/>
  <class name="EcalTPGGroups"/>
  <class name="EcalTPGLinearizationConst"/>
- <class name="EcalTPGLinearizationConst::Item"/>
  <class name="EcalTPGLut"/>
  <class name="EcalTPGLutIdMap"/>
  <class name="EcalTPGPedestals"/>
- <class name="EcalTPGPedestals::Item"/>
  <class name="EcalTPGSlidingWindow"/>
  <class name="EcalTPGWeightIdMap"/>
  <class name="EcalTPGWeights"/>

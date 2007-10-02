@@ -137,8 +137,9 @@ namespace {
 
 #include "CondFormats/EcalObjects/interface/EcalTPGLinearizationConst.h"
 namespace {
-  namespace {   
-    std::map< uint32_t, EcalTPGLinearizationConst::Item > EcalTPGLinearizationConstMap;
+  namespace {
+    EcalTPGLinearizationConst tpglinconstmap;
+    std::vector<EcalTPGLinearizationConstant> v_tpglinconst;
   }
 }
 
@@ -152,15 +153,17 @@ namespace {
 
 #include "CondFormats/EcalObjects/interface/EcalTPGPedestals.h"
 namespace {
-  std::map< uint32_t, EcalTPGPedestals::Item > EcalTPGPedestalsMap;
+  EcalTPGPedestals tpgpedmap;
+  std::vector<EcalTPGPedestal> v_tpgped;
 }
+
 
 
 #include "CondFormats/EcalObjects/interface/EcalTPGWeightIdMap.h"
 namespace {
   namespace {   
     EcalTPGWeights weights;
-   std::map<uint32_t, EcalTPGWeights::EcalTPGWeights> EcalTPGWeightMap;
+    std::map<uint32_t, EcalTPGWeights::EcalTPGWeights> EcalTPGWeightMap;
   }
 }
 
