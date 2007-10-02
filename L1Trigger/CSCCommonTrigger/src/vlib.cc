@@ -1,5 +1,6 @@
 // Copyright (c) 2002 Alexander Madorsky, University of Florida/Physics. All rights reserved.
 
+
 #include <L1Trigger/CSCCommonTrigger/interface/vlib.h>
 
 globcontrol glc;
@@ -174,7 +175,7 @@ rval rval::operator<<(rval arg)
 		t = 0;
 	else
 	{
-		for (unsigned i = 0; i < arg.r[0]; i++) 
+		for (int i = 0; i < arg.r[0]; i++) 
 			t.lsh();
 	}
 
@@ -190,7 +191,7 @@ rval rval::operator>>(rval arg)
 		t = 0;
 	else
 	{
-		for (unsigned i = 0; i < arg.r[0]; i++) 
+		for (int i = 0; i < arg.r[0]; i++) 
 			t.rsh();
 	}
 
@@ -271,8 +272,7 @@ Signal::Signal(const char* sval)
 	create();
 	mode = mnum;
 	string val = sval;
-	int bits;
-	unsigned i;
+	int bits, i;
 	char radix;
 	rval value = 0;
 	int dig;
@@ -435,7 +435,7 @@ Signal::~Signal ()
 void Signal::makemask(int hpar, int lpar) 
 {
 	int i;
-	unsigned lng = hpar - lpar + 1;
+	int lng = hpar - lpar + 1;
 	if (lng < Sizeofrval * 8) 
 	{
 		int wc = lng / (sizeof(unsigned)*8);
@@ -576,7 +576,7 @@ Signal Signal::op (Signal arg) \
 	int ln  = h - l; \
 	int aln = arg.h - arg.l; \
 	t.init((ln > aln) ? ln : aln, 0, ""); \
-	t.r = (getval() cop arg.getval()); \
+	t.r = t.mask & (getval() cop arg.getval()); \
 	return t; \
 }
 #endif
@@ -783,7 +783,7 @@ Signal Signal::asgn(Signal other)
 
 #ifdef VGEN
 	t.name = lb + name + rb + " = " + other.getcatname();
-	if (glc.printassign()) cout << glc.getmargin() << t.name << ";\n";	
+	if (glc.printassign()) cout << glc.getmargin() << t.name << ";\n" << flush;
 //	if (glc.printassign()) t.printable = 1;
 #endif
 	rval hr, portionr, portionmask, otr;
@@ -1053,8 +1053,8 @@ void Signal::reg(int high, int low, const char* rname)
 {
 	initreg(high, low, rname);
 #ifdef VGEN
-	if (h == l)	cout << glc.getmargin() << obname << name << ";\n";
-	else cout << glc.getmargin() << obname << "[" << dec << h << ":" << l << "] "<< name << ";\n";
+	if (h == l)	cout << glc.getmargin() << obname << name << ";\n" << flush;
+	else cout << glc.getmargin() << obname << "[" << dec << h << ":" << l << "] "<< name << ";\n" << flush;
 #endif
 }
 
@@ -1093,7 +1093,7 @@ void parameter::init (int h, int l, const char* rname)
 	change = pedge = nedge = 0;
 
 #ifdef VGEN
-	cout << glc.getmargin() << obname << name;
+	cout << glc.getmargin() << obname << name << flush;
 #endif
 }
 
@@ -1101,7 +1101,7 @@ void parameter::operator= (Signal arg)
 {
 	r = arg.getr();
 #ifdef VGEN
-	cout << " = " << arg.getname() << ";\n";
+	cout << " = " << arg.getname() << ";\n" << flush;
 #endif
 }
 
@@ -1124,8 +1124,8 @@ void Signal::wire(int high, int low, const char* rname)
 	r = rc;
 #ifdef VGEN
 	obname = obnames[mode];
-	if (h == l)	cout << glc.getmargin() << obname << name << ";\n";
-	else cout << glc.getmargin() << obname << "[" << dec << h << ":" << l << "] "<< name << ";\n";
+	if (h == l)	cout << glc.getmargin() << obname << name << ";\n" << flush;
+	else cout << glc.getmargin() << obname << "[" << dec << h << ":" << l << "] "<< name << ";\n" << flush;
 #endif
 }
 
@@ -1175,8 +1175,8 @@ void memory::reg (int high, int low, int nup, int ndown, const char* rname)
 	}
 #ifdef VGEN
 	name = rname;
-	if (high == low) cout << glc.getmargin() << "reg " << name << " [" << dec << up << ":" << down << "]" << ";\n";
-	else cout << glc.getmargin() << "reg " << "[" << dec << high << ":" << low << "] "<< name << " [" << dec << up << ":" << down << "]" << ";\n";
+	if (high == low) cout << glc.getmargin() << "reg " << name << " [" << dec << up << ":" << down << "]" << ";\n" << flush;
+	else cout << glc.getmargin() << "reg " << "[" << dec << high << ":" << low << "] "<< name << " [" << dec << up << ":" << down << "]" << ";\n" << flush;
 #endif
 }
 
@@ -1217,7 +1217,7 @@ Signal& memory::operator[] (Signal i)
 
 void module::create()
 {
-	for (unsigned i = 0; i < sizeof(outreg)/sizeof(Signal*); i++) outreg[i] = NULL;
+	for (int i = 0; i < sizeof(outreg)/sizeof(Signal*); i++) outreg[i] = NULL;
 	outregn = 0;
 	runperiod = NULL;
 }
@@ -1229,7 +1229,7 @@ module::module()
 
 module::~module()
 {
-	for (unsigned i = 0; i < sizeof(outreg)/sizeof(Signal*); i++)
+	for (int i = 0; i < sizeof(outreg)/sizeof(Signal*); i++)
 	{
 		if (outreg[i] != NULL)
 			delete outreg[i];
@@ -1274,15 +1274,18 @@ void module::PrintHeader()
 	time( &aclock );                
 	newtime = localtime( &aclock ); 
 	username = getenv("USER");
-	if (username == NULL) username = getenv("USERNAME");
-	cout << "// This  Verilog HDL  source  file  is  automatically generated" << endl;
+	if (username == NULL || strlen(username) < 2) username = getenv("USERNAME");
+	if (username == NULL || strlen(username) < 2) username = getenv("LOGNAME");
+	cout << "// This  Verilog HDL  source  file was  automatically generated" << endl;
 	cout << "// by C++ model based on VPP library. Modification of this file" << endl;
 	cout << "// is possible, but if you want to keep it in sync with the C++" << endl;
-	cout << "// model,  please  modify  the model and re-generate this file." << endl << endl;
+	cout << "// model,  please  modify  the model and re-generate this file." << endl;
+	cout << "// VPP library web-page: http://www.phys.ufl.edu/~madorsky/vpp/" << endl; 
+	cout << endl;
 	if (username != NULL)
 		cout << "// Author    : " << username << endl;
 	cout << "// File name : " << name << ".v" << endl;
-	cout << "// Timestamp : " << asctime(newtime) << endl;
+	cout << "// Timestamp : " << asctime(newtime) << endl << flush;
 
 }
 #endif
@@ -1291,7 +1294,9 @@ void module::vbeginmodule()
 {
 #ifdef VGEN
 	string filename = name + ".v";
-	cout << glc.getmargin() << name << " " << instname << " (" << glc.PrintIO().c_str() << ");\n";
+	cout << glc.getmargin() << name << " " << instname << endl << flush;
+	cout << glc.getmargin() << "(" << glc.PrintIO(true).c_str() << endl << flush;
+	cout << glc.getmargin() << ");\n" << flush;
     vfile.open (filename.c_str());
     outbuf = cout.rdbuf(vfile.rdbuf());
 	OuterIndPos = glc.getpos();
@@ -1299,7 +1304,7 @@ void module::vbeginmodule()
 	glc.enablemargin(1);
 	glc.setpos(0);
 	PrintHeader();
-	cout << glc.getmargin() << "module " << name << " (";
+	cout << glc.getmargin() << "module " << name << endl << glc.getmargin() << "(" << flush;
 	glc.setfunction(0);
 	glc.Print();
 	glc.setFileOpen(1);
@@ -1311,7 +1316,7 @@ void module::vendmodule()
 {
 #ifdef VGEN
 	glc.Outdent();
-	cout << glc.getmargin() << "endmodule\n";
+	cout << glc.getmargin() << "endmodule\n" << flush;
 	glc.setpos(OuterIndPos);
 	cout.rdbuf(outbuf);
 	vfile.close();
@@ -1390,7 +1395,7 @@ Signal module::ifelse(Signal condition, Signal iftrue, Signal iffalse)
 void function::makemask(int hpar, int lpar) 
 {
 	int i;
-	unsigned lng = hpar - lpar + 1;
+	int lng = hpar - lpar + 1;
 	if (lng < Sizeofrval * 8) 
 	{
 		int wc = lng / (sizeof(unsigned)*8);
@@ -1413,7 +1418,7 @@ void function::init(int high, int low, const char* rname)
 {
 #ifdef VGEN
 	name = rname;
-	cout << "`include " << '"' <<name << ".v" << '"' << "\n";
+	cout << "`include " << '"' <<name << ".v" << '"' << "\n" << flush;
 #endif
 	if (high >= low)
 	{
@@ -1432,7 +1437,7 @@ void function::vbeginfunction()
 {
 #ifdef VGEN
 	string filename = name + ".v";
-	retname = name + "(" + glc.PrintIO() + ")";
+	retname = name + "(" + glc.PrintIO(false) + ")";
     vfile.open (filename.c_str());
     outbuf = cout.rdbuf(vfile.rdbuf());
 	OuterIndPos = glc.getpos();
@@ -1440,7 +1445,7 @@ void function::vbeginfunction()
 	glc.enablemargin(1);
 	glc.setpos(0);
 	PrintHeader();
-	cout << glc.getmargin() << "function [" << dec << h << ":" << l << "] " << name << ";\n";
+	cout << glc.getmargin() << "function [" << dec << h << ":" << l << "] " << name << ";\n" << flush;
 	glc.setfunction(1);
 	glc.Print();
 	glc.setFileOpen(1);
@@ -1459,7 +1464,7 @@ void function::vendfunction()
 	glc.setchange(OldChange);
 #ifdef VGEN
 	glc.Outdent();
-	cout << glc.getmargin() << "endfunction\n";
+	cout << glc.getmargin() << "endfunction\n" << flush;
 	glc.setpos(OuterIndPos);
 	cout.rdbuf(outbuf);
 	result.setname(retname);
@@ -1497,12 +1502,16 @@ void globcontrol::Print()
 
 	if (functiondecl == 0)
 	{
+		Indent();
 		for (i = 0; i < npar; i++)
 		{
+			cout << endl;
+			cout << getmargin();
 			cout << pars[i];
-			if (i != npar-1) cout << ", ";
+			if (i != npar-1) cout << ",";
 		}
-		cout << ");\n";
+		Outdent();
+		cout << endl << getmargin() << ");\n";
 	}
 	Indent();
 	cout << "\n";
@@ -1512,25 +1521,32 @@ void globcontrol::Print()
 		cout << glc.getmargin() << decls[i];
 	}
 	npar = ndecl = 0;
-	cout << "\n";
+	cout << "\n" << flush;
 
 }
 
 
-string& globcontrol::PrintIO()
+string& globcontrol::PrintIO(bool col)
 {
 	int i;
 
+	if (col) Indent();
 	outln = "";
 	if (ndio > 0)
 	{
 		for (i = 0; i < ndio; i++)
 		{
+			if (col) 
+			{
+				outln += "\n";
+				outln += getmargin();
+			}
 			outln += dios[i];
-			if (i < ndio - 1) outln += ", ";
+			if (i < ndio - 1) outln += ",";
 		}
 	}
 	ndio = 0;
+	if (col) Outdent();
 	return outln;
 }
 
@@ -1550,7 +1566,7 @@ void globcontrol::AddIO(string ln)
 {
 	dios[ndio] = ln;
 	ndio++;
-};
+}
 #endif
 
 void globcontrol::setchange(int i)
@@ -1558,3 +1574,14 @@ void globcontrol::setchange(int i)
 	change = i;
 }
 
+char* globcontrol::constant(int bits, char* value)
+{
+	sprintf(constring, "%d%s", bits, value);
+	return constring;
+}
+
+char* globcontrol::constant(int bits, int value)
+{
+	sprintf(constring, "%d'd%d", bits, value);
+	return constring;
+}

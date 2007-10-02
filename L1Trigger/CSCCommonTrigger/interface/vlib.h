@@ -332,7 +332,7 @@ public:
 	void AddComment(string ln){ln += "\n"; decls[ndecl] = ln; ndecl++;};
 	void AddIO(string ln);
 	void Print ();
-	string& PrintIO();
+	string& PrintIO(bool col);
 	void Indent(){indpos++; PrepMargin();};
 	void Outdent(){indpos--; PrepMargin();};
 	string& getmargin(){int t = nomargin; nomargin = 0; return (t) ? zeromargin : margin;};
@@ -359,6 +359,8 @@ public:
 	int  getfunction(){int t = functiondecl; functiondecl = 0; return t;};
 	int getce(){return ce;};
 	int setce(int c){ce = c; return 1;};
+	char* constant(int bits, char* val);
+	char* constant(int bits, int val);
 
 protected:
 #ifdef VGEN
@@ -389,6 +391,7 @@ protected:
 
 	int VFileOpen; // shows if the comments can be written into the file, or they need to be added to declarators
 	int ce; // clock can be processed
+	char constring[RVALS*32+32]; // string for text variables
 
 };
 

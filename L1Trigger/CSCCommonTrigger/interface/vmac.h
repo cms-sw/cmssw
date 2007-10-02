@@ -10,68 +10,65 @@ Verilog++ SP.
 
 extern globcontrol glc;
 
-#define _BXAON
-
-
 #ifdef VGEN
-	#define For(par1, par2, par3)  glc.setprintassign(0); cout << glc.getmargin() << "for ("; cout << (par1).getname() << "; "; glc.setprintassign(0); cout << (par2).getname() << "; "; glc.setprintassign(0); cout << (par3).getname(); cout << ") "; glc.setprintassign(1); glc.enablemargin(0);
+	#define For(par1, par2, par3)  glc.setprintassign(0); cout << glc.getmargin() << "for (" << flush; cout << (par1).getname() << "; " << flush; glc.setprintassign(0); cout << (par2).getname() << "; " << flush; glc.setprintassign(0); cout << (par3).getname(); cout << ") " << flush; glc.setprintassign(1); glc.enablemargin(0);
 #else
 	#define For(par1, par2, par3) for ((par1); ((par2).getbool()); (par3))
 #endif
 
 #ifdef VGEN
-	#define If(par) glc.setprintassign(0); cout << glc.getmargin() << "if ("; cout << (par).getname(); cout << ") "; glc.setprintassign(1);  glc.enablemargin(0);
+	#define If(par) glc.setprintassign(0); cout << glc.getmargin() << "if (" << flush; cout << (par).getname(); cout << ") " << flush; glc.setprintassign(1);  glc.enablemargin(0);
 #else
 	#define If(par) if ((par).getbool())
 #endif
 
 #ifdef VGEN
-	#define Else cout << glc.getmargin() << "else ";  glc.enablemargin(0);
+	#define Else cout << glc.getmargin() << "else " << flush;  glc.enablemargin(0);
 #else
 	#define Else else
 #endif
 
 #define begin vbegin()
 #ifdef VGEN
-	#define vbegin() glc.enablemargin(1); cout << "\n" << glc.getmargin() << "begin\n"; glc.Indent();
+	#define vbegin() glc.enablemargin(1); cout << "\n" << glc.getmargin() << "begin\n" << flush; glc.Indent();
 #else
 	#define vbegin() { glc.alwayspush();
 #endif
 
 #define end vend()
 #ifdef VGEN
-	#define vend() glc.Outdent(); cout << glc.getmargin() << "end\n";
+	#define vend() glc.Outdent(); cout << glc.getmargin() << "end\n" << flush;
 #else
 	#define vend() glc.alwayspop(); }
 #endif
 
 #ifdef VGEN
-	#define always(par) cout << glc.getmargin() << "always @(" << (par).getorname() << ") ";  glc.enablemargin(0);
+	#define always(par) cout << glc.getmargin() << "always @(" << (par).getorname() << ") " << flush;  glc.enablemargin(0);
 #else
 	#define always(par) glc.alwaysstart(); if ((par).getchange())
 #endif
 
 #ifdef VGEN
-	#define assign cout << glc.getmargin() << "assign "; glc.enablemargin(0);
+	#define assign cout << glc.getmargin() << "assign " << flush; glc.enablemargin(0);
 #else
 	#define assign
 #endif
 
 #ifdef VGEN
-	#define deassign(par) cout << glc.getmargin() << "deassign "; cout << (par).getname() << ";\n"; glc.enablemargin(1);
+	#define deassign(par) cout << glc.getmargin() << "deassign " << flush; cout << (par).getname() << ";\n" << flush; glc.enablemargin(1);
 #else
 	#define deassign(par) ;
 #endif
 
 #ifdef VGEN
-	#define begincase(par) glc.setprintassign(0); cout << glc.getmargin() << "case ("; cout << (par).getcatname(); cout << ")\n"; glc.setprintassign(1); glc.Indent();
+	#define begincase(par) glc.setprintassign(0); cout << glc.getmargin() << "case (" << flush; cout << (par).getcatname() << flush; cout << ")\n" << flush; glc.setprintassign(1); glc.Indent();
 #else
 #define begincase(par) pushswitch((par)); if (0) {}
 #endif
 
 #define endcase vendcase()
 #ifdef VGEN
-	#define vendcase() glc.Outdent(); cout << glc.getmargin() << "endcase\n";
+	#define vendcase() glc.Outdent(); cout << glc.getmargin() << "endcase\n" << flush;
 #else
 	#define vendcase() popswitch();
 #endif
@@ -80,7 +77,7 @@ extern globcontrol glc;
 	#define case1(par)	 \
 						cout << glc.getmargin(); \
 						glc.setprintassign(0); cout << ((Signal)(par)).getcatname(); \
-						cout << " : "; glc.setprintassign(1);  glc.enablemargin(0);
+						cout << " : " << flush; glc.setprintassign(1);  glc.enablemargin(0);
 #else
 	#define case1(par) else if ((getswitch() == (par)).getbool())
 #endif
@@ -91,7 +88,7 @@ extern globcontrol glc;
 						cout << glc.getmargin(); \
 						glc.setprintassign(0); cout << ((Signal)(par1)).getcatname(); cout << ", "; \
 						glc.setprintassign(0); cout << ((Signal)(par2)).getcatname();\
-						cout << " : "; glc.setprintassign(1);  glc.enablemargin(0);
+						cout << " : " << flush; glc.setprintassign(1);  glc.enablemargin(0);
 #else
 	#define case2(par1, par2) else if ( (getswitch() == (par1)).getbool() || (getswitch() == (par2)).getbool())
 #endif
@@ -103,7 +100,7 @@ extern globcontrol glc;
 						glc.setprintassign(0); cout << ((Signal)(par1)).getcatname(); cout << ", "; \
 						glc.setprintassign(0); cout << ((Signal)(par2)).getcatname(); cout << ", "; \
 						glc.setprintassign(0); cout << ((Signal)(par3)).getcatname(); \
-						cout << " : "; glc.setprintassign(1);  glc.enablemargin(0);
+						cout << " : " << flush; glc.setprintassign(1);  glc.enablemargin(0);
 #else
 	#define case3(par1, par2, par3) else if ( (getswitch() == (par1)).getbool() || (getswitch() == (par2)).getbool() || (getswitch() == (par3)).getbool())
 #endif
@@ -111,7 +108,7 @@ extern globcontrol glc;
 
 #define Default vdefault()
 #ifdef VGEN
-	#define vdefault() cout << glc.getmargin(); cout << "default : ";  glc.enablemargin(0);
+	#define vdefault() cout << glc.getmargin(); cout << "default : " << flush;  glc.enablemargin(0);
 #else
 	#define vdefault() else
 #endif
@@ -130,13 +127,13 @@ extern globcontrol glc;
 #define endperiod glc.ResetEvents();
 
 #ifdef VGEN
-	#define comment(par) if (glc.getFileOpen()) {cout << glc.getmargin(); cout << (par) << "\n";} else glc.AddComment((string)(par));
+	#define comment(par) if (glc.getFileOpen()) {cout << glc.getmargin(); cout << (par) << "\n" << flush;} else glc.AddComment((string)(par));
 #else
 	#define comment(par)
 #endif
 
 #ifdef VGEN
-	#define printv(par) cout << (par);
+	#define printv(par) cout << (par) << flush;
 #else
 	#define printv(par)
 #endif
@@ -157,7 +154,6 @@ extern globcontrol glc;
 
 #define Wire(cl)               cl.wire(#cl)
 #define Wire_(cl, h, l)        cl.wire(h, l, #cl)
-//#define Wire__(cl, h, l, i)    cl[i].wire(h, l, #cl, i)
 #define Wire__(cl, h, l, t, b)    for (int __wi__ = b; __wi__ <= t; __wi__++) cl[__wi__].wire(h, l, #cl, __wi__)
 
 #define Input(cl)              cl.input(#cl)
@@ -172,5 +168,10 @@ extern globcontrol glc;
 #define Inout(cl)              cl.inout(#cl)
 #define Inout_(cl, h, l)       cl.inout(h, l, #cl)
 
+#define Module(md)			   md.init(#md, #md)
+#define Module_(md, fn)		   md.init(#md, #fn)
+
+#define cns(b,v) glc.constant(b,v)
 
 #endif
+
