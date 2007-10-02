@@ -12,13 +12,14 @@
  *   
  * \author: Vasile Mihai Ghete - HEPHY Vienna
  * 
- * $Date:$
- * $Revision:$
+ * $Date$
+ * $Revision$
  *
  */
 
 // system include files
 #include <memory>
+#include <string>
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -72,8 +73,19 @@ private:
 
     static const edm::ParameterSet* m_pSet;
 
-    // input tags for GT DAQ record
+    /// input tags for GT DAQ record
     edm::InputTag m_daqGtInputTag;
+
+    /// input tags for GT object map collection
+    edm::InputTag m_gtObjectMapTag;
+
+    // input tag for muon collection from GMT
+    edm::InputTag m_muGmtInputTag;
+
+    /// an algorithm and a condition in that algorithm to test the object maps
+    std::string m_algoName;
+    std::string m_condName;
+
 
 };
 

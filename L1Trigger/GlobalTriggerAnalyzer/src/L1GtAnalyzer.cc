@@ -60,17 +60,43 @@
 
 
 // constructor(s)
-L1GtAnalyzer::L1GtAnalyzer(const edm::ParameterSet& iConfig)
+L1GtAnalyzer::L1GtAnalyzer(const edm::ParameterSet& parSet)
 {
-    m_pSet = &iConfig;
 
     // input tag for GT DAQ record
-    m_daqGtInputTag = m_pSet->getUntrackedParameter<edm::InputTag>(
-                          "GtInputTag", edm::InputTag("L1GtEmul"));
+    m_daqGtInputTag = parSet.getUntrackedParameter<edm::InputTag>(
+                          "DaqGtInputTag", edm::InputTag("L1GtEmulDigis"));
 
     LogDebug("L1GtAnalyzer")
     << "\nInput tag for GT DAQ record: "
     << m_daqGtInputTag.label() << " \n"
+    << std::endl;
+
+    // input tag for GT object map collection
+    m_gtObjectMapTag = parSet.getUntrackedParameter<edm::InputTag>(
+                           "GtObjectMapTag", edm::InputTag("L1GtEmulDigis"));
+
+    LogDebug("L1GtAnalyzer")
+    << "\nInput tag for GT object map collection: "
+    << m_gtObjectMapTag.label() << " \n"
+    << std::endl;
+
+    // input tag for muon collection from GMT
+    m_muGmtInputTag = parSet.getUntrackedParameter<edm::InputTag>(
+                          "GmtInputTag", edm::InputTag("L1GmtEmulDigis"));
+
+    LogDebug("L1GtAnalyzer")
+    << "\nInput tag for muon collection from GMT: "
+    << m_muGmtInputTag.label() << " \n"
+    << std::endl;
+
+    /// an algorithm and a condition in that algorithm to test the object maps
+    m_algoName = parSet.getParameter<std::string>("AlgorithmName");
+    m_condName = parSet.getParameter<std::string>("ConditionName");
+
+    LogDebug("L1GtAnalyzer")
+    << "\nObject map example for algorithm: " << m_algoName
+    << " and condition" << m_condName << " \n"
     << std::endl;
 
 }
@@ -279,7 +305,8 @@ void L1GtAnalyzer::analyzeMuons(const edm::Event& iEvent, const edm::EventSetup&
         for (std::vector<L1MuGMTReadoutRecord>::const_iterator itMu = muRecords.begin();
                 itMu < muRecords.end(); ++itMu) {
 
-            std::vector<L1MuGMTExtendedCand> exc = itMu->getGMTCands();
+            std::vector<L1MuGMTExtendedCand>
+            exc = itMu->getGMTCands();
             for(std::vector<L1MuGMTExtendedCand>::const_iterator gmt_iter = exc.begin();
                     gmt_iter != exc.end(); gmt_iter++) {
 
@@ -329,11 +356,11 @@ void L1GtAnalyzer::analyzeObjectMap(const edm::Event& iEvent, const edm::EventSe
     // get a handle to the object map record
     // the record can come only from emulator - no hardware ObjectMapRecord
     edm::Handle<L1GlobalTriggerObjectMapRecord> gtObjectMapRecord;
-    iEvent.getByLabel(m_daqGtInputTag.label(), gtObjectMapRecord);
+    iEvent.getByLabel(m_gtObjectMapTag.label(), gtObjectMapRecord);
 
     // get all object maps
-    const std::vector<L1GlobalTriggerObjectMap>&
-    objMapVec = gtObjectMapRecord->gtObjectMap();
+    const std::vector<L1GlobalTriggerObjectMap>& objMapVec =
+        gtObjectMapRecord->gtObjectMap();
 
     // print every object map via the implemented print
     for (std::vector<L1GlobalTriggerObjectMap>::const_iterator it = objMapVec.begin();
@@ -342,29 +369,23 @@ void L1GtAnalyzer::analyzeObjectMap(const edm::Event& iEvent, const edm::EventSe
         (*it).print(myCoutStream);
     }
 
-    // TODO read them from cfg file?
-    std::string algoNameVal = "Egamma_and_Muon";
-    std::string condNameVal = "Muon_7";
-
-    //    std::string algoNameVal = "Algo_ComplexSyntax";
-    //    std::string condNameVal = "Mu_60";
     //
-    const CombinationsInCond*
-    comb = gtObjectMapRecord->getCombinationsInCond(algoNameVal, condNameVal);
+    const CombinationsInCond* comb =
+        gtObjectMapRecord->getCombinationsInCond(m_algoName, m_condName);
 
     // number of combinations
     if (comb != 0) {
         myCoutStream << "\n  Number of combinations passing ("
-        << algoNameVal << ", " << condNameVal << "): "
+        << m_algoName << ", " << m_condName << "): "
         << comb->size()
         << std::endl;
     }
 
     // condition result
-    const bool result = gtObjectMapRecord->getConditionResult(algoNameVal, condNameVal);
+    const bool result = gtObjectMapRecord->getConditionResult(m_algoName, m_condName);
 
-    myCoutStream << "\n  Result for condition " << condNameVal
-    << " in algorithm " << algoNameVal << ": " << result
+    myCoutStream << "\n  Result for condition " << m_condName
+    << " in algorithm " << m_algoName << ": " << result
     << std::endl;
 
     // print all the stuff if at LogDebug level
@@ -377,8 +398,7 @@ void L1GtAnalyzer::analyzeObjectMap(const edm::Event& iEvent, const edm::EventSe
 }
 
 // analyze: seed muon HLT using the object map record
-void L1GtAnalyzer::analyzeObjectMapMuons(
-    const edm::Event& iEvent,
+void L1GtAnalyzer::analyzeObjectMapMuons(const edm::Event& iEvent,
     const edm::EventSetup& iSetup)
 {
 
@@ -393,54 +413,46 @@ void L1GtAnalyzer::analyzeObjectMapMuons(
     // get a handle to the object map record
     // the record can come only from emulator - no hardware ObjectMapRecord
     edm::Handle<L1GlobalTriggerObjectMapRecord> gtObjectMapRecord;
-    iEvent.getByLabel(m_daqGtInputTag.label(), gtObjectMapRecord);
+    iEvent.getByLabel(m_gtObjectMapTag.label(), gtObjectMapRecord);
 
-    // algorithm and condition names to be read from cfg file?
     // after the trigger menu will be implemented as event setup, it should be
     // possible to search the menu for all algorithms containing muon conditions
     // and for the requirements imposed in each condition
 
-    std::string algoNameVal = "Egamma_and_Muon";
-    std::string condNameVal = "Muon_7";
-
-    //    std::string algoNameVal = "Algo_ComplexSyntax";
-    //    std::string condNameVal = "Mu_60";
-    //
-
     // condition result
-    const bool result = gtObjectMapRecord->getConditionResult(algoNameVal, condNameVal);
+    const bool result = gtObjectMapRecord->getConditionResult(m_algoName, m_condName);
 
-    myCoutStream << "\n  Result for condition " << condNameVal
-    << " in algorithm " << algoNameVal << ": " << result
+    myCoutStream << "\n  Result for condition " << m_condName
+    << " in algorithm " << m_algoName << ": " << result
     << std::endl;
 
     // getCombinationsInCond returns all the combinations passing the requirements
-    // imposed in condition condNameVal from algorithm with name algoNameVal
+    // imposed in condition m_condName from algorithm with name m_algoName
     // if the result is false/zero, no combinations are returned
 
     // TODO ask HLT people about "NOT condition" case
 
     if (result) {
 
-        const CombinationsInCond*
-        comb = gtObjectMapRecord->getCombinationsInCond(algoNameVal, condNameVal);
+        const CombinationsInCond* comb =
+            gtObjectMapRecord->getCombinationsInCond(m_algoName, m_condName);
 
         // number of combinations must be tested if one not tests the condition
         // result, the pointer can have zero value!
         if (comb != 0) {
             myCoutStream << "\n  Number of combinations passing ("
-            << algoNameVal << ", " << condNameVal << "): "
+            << m_algoName << ", " << m_condName << "): "
             << comb->size()
             << std::endl;
         } else {
             myCoutStream << "\n  No combinations passing ("
-            << algoNameVal << ", " << condNameVal << ")"
+            << m_algoName << ", " << m_condName << ")"
             << std::endl;
 
             // print all the stuff if at LogDebug level
             LogDebug("L1GtAnalyzer")
             << "\nTest muon seeds coming from ("
-            << algoNameVal << ", " << condNameVal << ")\n"
+            << m_algoName << ", " << m_condName << ")\n"
             << myCoutStream.str() << "\n\n"
             << std::endl;
             myCoutStream.str("");
@@ -451,23 +463,20 @@ void L1GtAnalyzer::analyzeObjectMapMuons(
 
         // get data from Global Muon Trigger record
 
-        // TODO FIXME get the InputTag from provenence of object map record
-        edm::InputTag muGmtInputTag("gmt");
-
         myCoutStream
         << "\n  L1GtAnalyzer receiving muon data from GMT record with input tag "
-        << muGmtInputTag.label()
+        << m_muGmtInputTag.label()
         << std::endl;
 
         edm::Handle<L1MuGMTReadoutCollection> muonData;
-        iEvent.getByLabel(muGmtInputTag.label(), muonData);
+        iEvent.getByLabel(m_muGmtInputTag.label(), muonData);
 
         // object maps are saved for iBxInEvent = 0
         int iBxInEvent = 0;
 
         myCoutStream
         << "\n  Muon seeds from ("
-        << algoNameVal << ", " << condNameVal << "):"
+        << m_algoName << ", " << m_condName << "):"
         << std::endl;
 
         // loop over combinations
@@ -512,7 +521,7 @@ void L1GtAnalyzer::analyzeObjectMapMuons(
     // print all the stuff if at LogDebug level
     LogDebug("L1GtAnalyzer")
     << "\nTest muon seeds coming from ("
-    << algoNameVal << ", " << condNameVal << ")\n"
+    << m_algoName << ", " << m_condName << ")\n"
     << myCoutStream.str() << "\n\n"
     << std::endl;
     myCoutStream.str("");
@@ -544,16 +553,11 @@ void L1GtAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
     // test muon part in L1GlobalTriggerReadoutRecord
     analyzeMuons(iEvent, iSetup);
 
-    // object map available only in emulator
-    if (m_daqGtInputTag.label() == "L1GtEmul") {
+    // analyze: object map record
+    analyzeObjectMap(iEvent, iSetup);
 
-        // analyze: object map record
-        analyzeObjectMap(iEvent, iSetup);
-
-        // analyze: seed muon HLT using the object map record
-        analyzeObjectMapMuons(iEvent, iSetup);
-
-    }
+    // analyze: seed muon HLT using the object map record
+    analyzeObjectMapMuons(iEvent, iSetup);
 
 
 }
@@ -561,12 +565,17 @@ void L1GtAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
 
 // method called once each job just before starting event loop
 void L1GtAnalyzer::beginJob(const edm::EventSetup&)
-{}
+{
+
+    // empty
+
+}
 
 // method called once each job just after ending the event loop
 void L1GtAnalyzer::endJob()
-{}
+{
 
-// static data members
-const edm::ParameterSet* L1GtAnalyzer::m_pSet = 0;
+    // empty
+
+}
 
