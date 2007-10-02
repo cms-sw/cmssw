@@ -5,7 +5,7 @@
 
 RootTree.h // used by ROOT input sources
 
-$Id: RootTree.h,v 1.14 2007/08/17 22:54:17 wmtan Exp $
+$Id: RootTree.h,v 1.15 2007/08/23 23:25:25 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -31,6 +31,7 @@ namespace edm {
     ~RootTree() {}
     
     bool isValid() const;
+    bool isIndexValid() const;
     void addBranch(BranchKey const& key,
 		   BranchDescription const& prod,
 		   std::string const& oldBranchName);

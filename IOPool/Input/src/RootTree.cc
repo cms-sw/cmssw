@@ -7,6 +7,8 @@
 #include "DataFormats/Provenance/interface/ConstBranchDescription.h"
 #include "TTree.h"
 #include "TFile.h"
+#include "TVirtualIndex.h"
+#include "TTreeIndex.h"
 class TBranch;
 
 #include <iostream>
@@ -32,7 +34,16 @@ namespace edm {
     origEntryNumber_(),
     branchNames_(),
     branches_(new BranchMap)
-  {}
+  {
+    if (!isIndexValid()) {
+      if (BranchTypeToMinorIndexName(branchType).empty()) {
+        tree_->BuildIndex(BranchTypeToMajorIndexName(branchType).c_str());
+      } else {
+        tree_->BuildIndex(BranchTypeToMajorIndexName(branchType).c_str(),
+                         BranchTypeToMinorIndexName(branchType).c_str());
+      }
+    }
+  }
 
   bool
   RootTree::isValid() const {
@@ -98,5 +109,19 @@ namespace edm {
     EntryNumber index = tree_->GetEntryNumberWithIndex(major, minor);
     if (index < 0) index = -1;
     return index;
+  }
+
+  bool
+  RootTree::isIndexValid() const {
+    // If the ROOT index on the tree is trashed, one of these tests will probably fail.
+    if (tree_->GetEntryNumberWithBestIndex(0, 0) != -1) {
+      return false;
+    }
+    TTreeIndex *ip = dynamic_cast<TTreeIndex *>(tree_->GetTreeIndex());
+    Long64_t indexForEntryZero = ip->GetIndexValues()[0];
+    unsigned int major = static_cast<unsigned int>(indexForEntryZero >> 31);
+    unsigned int minor = static_cast<unsigned int>(indexForEntryZero & 0x7fffffff);
+    EntryNumber index = tree_->GetEntryNumberWithIndex(major, minor);
+    return (index == 0);
   }
 }
