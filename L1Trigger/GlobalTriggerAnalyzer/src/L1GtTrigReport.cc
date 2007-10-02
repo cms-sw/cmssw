@@ -270,7 +270,8 @@ void L1GtTrigReport::endJob()
     myCout << "L1T-Report end!" << std::endl;
     myCout << std::endl;
 
-    edm::LogVerbatim("L1GtTrigReport")
+//    edm::LogVerbatim("L1GtTrigReport")
+    std::cout
     << myCout.str()
     << std::endl;
 
