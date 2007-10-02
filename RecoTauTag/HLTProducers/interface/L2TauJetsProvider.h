@@ -12,9 +12,8 @@
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/L1Trigger/interface/L1JetParticle.h"
 #include "DataFormats/L1Trigger/interface/L1JetParticleFwd.h"
-#include "DataFormats/L1Trigger/interface/L1ParticleMap.h"
-#include "DataFormats/L1Trigger/interface/L1ParticleMapFwd.h"
 #include "DataFormats/JetReco/interface/CaloJetCollection.h"
+#include "DataFormats/HLTReco/interface/HLTFilterObject.h"
 #include <map>
 #include <vector>
 
@@ -27,13 +26,9 @@ class L2TauJetsProvider: public edm::EDProducer {
  private:
   typedef std::vector<edm::InputTag> vtag;
   vtag jetSrc;
-  edm::InputTag l1ParticleMap;
   edm::InputTag l1Particles;
-  std::string singleTauTrigger,doubleTauTrigger,electronTauTrigger,muonTauTrigger,singleTauMETTrigger;
-  double mEt_ExtraTau;
-  double mEt_LeptonTau;
+  std::string tauTrigger;
   double mEt_Min;
   std::map<int, const reco::CaloJet> myL2L1JetsMap; //first is # L1Tau , second is L2 jets
-
 };
 #endif
