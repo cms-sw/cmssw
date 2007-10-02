@@ -292,8 +292,21 @@ std::vector<SimHitIdpr>  TrackerHitAssociator::associateSimpleRecHit(const SiStr
     //link_detset is a structure, link_detset.data is a std::vector<StripDigiSimLink>
     edm::DetSet<StripDigiSimLink> link_detset = (*stripdigisimlink)[detID];
     
-    const edm::Ref<edm::DetSetVector<SiStripCluster>, SiStripCluster, edm::refhelper::FindForDetSetVector<SiStripCluster> > clust=simplerechit->cluster();
-
+    //Modification for regional clustering from Jean-Roch Vlimant
+    const SiStripCluster* clust; 
+    if(simplerechit->cluster().isNonnull())
+    {
+      clust=&(*simplerechit->cluster());
+    }else if(simplerechit->cluster_regional().isNonnull())
+       {
+	 clust=&(*simplerechit->cluster_regional());
+       } 
+    else 
+      {
+	edm::LogError("TrackerHitAssociator")<<"no cluster reference attached";
+      }
+  //    const edm::Ref<edm::DetSetVector<SiStripCluster>, SiStripCluster, edm::refhelper::FindForDetSetVector<SiStripCluster> > clust=simplerechit->cluster();
+  
     //float chg;
     int clusiz = clust->amplitudes().size();
     int first  = clust->firstStrip();     
