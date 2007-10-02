@@ -27,7 +27,7 @@ HcalDigiClient::HcalDigiClient(const ParameterSet& ps, MonitorUserInterface* mui
     sub_err_elec_[i][1]=0;
     sub_err_elec_[i][2]=0;
     qie_adc_[i]=0;  num_digi_[i]=0;
-    qie_capid_[i]=0; 
+    qie_capid_[i]=0; qie_dverr_[i]=0;
   }
 
   // cloneME switch
@@ -77,7 +77,7 @@ HcalDigiClient::HcalDigiClient(){
     sub_err_elec_[i][1]=0;
     sub_err_elec_[i][2]=0;
     qie_adc_[i]=0;  num_digi_[i]=0;
-    qie_capid_[i]=0; 
+    qie_capid_[i]=0; qie_dverr_[i]=0;
   }
   ievt_ = 0;
   jevt_ = 0;
@@ -169,6 +169,7 @@ void HcalDigiClient::cleanup(void) {
 
       if(qie_adc_[i]) delete qie_adc_[i];
       if(qie_capid_[i]) delete qie_capid_[i];
+      if(qie_dverr_[i]) delete qie_dverr_[i];
       if(num_digi_[i]) delete num_digi_[i];      
     }    
   }
@@ -193,7 +194,7 @@ void HcalDigiClient::cleanup(void) {
     sub_err_elec_[i][1]=0;
     sub_err_elec_[i][2]=0;
     qie_adc_[i]=0;  num_digi_[i]=0;
-    qie_capid_[i]=0; 
+    qie_capid_[i]=0; qie_dverr_[i]=0;
   }
 
   dqmReportMapErr_.clear(); dqmReportMapWarn_.clear(); dqmReportMapOther_.clear();
@@ -247,7 +248,7 @@ void HcalDigiClient::errorOutput(){
     string testName = testsMap->first;
     string meName = testsMap->second;
     MonitorElement* me = 0;
-    if(mui_) me = mui_->getBEInterface()->get(meName);
+    if(mui_) me = mui_->get(meName);
     if(me){
       if (me->hasError()){
 	vector<QReport*> report =  me->getQErrors();
@@ -294,7 +295,7 @@ void HcalDigiClient::report(){
   char name[256];
   sprintf(name, "%sHcalMonitor/DigiMonitor/Digi Task Event Number",process_.c_str());
   MonitorElement* me = 0;
-  if(mui_) me = mui_->getBEInterface()->get(name);
+  if(mui_) me = mui_->get(name);
   if ( me ) {
     string s = me->valueString();
     ievt_ = -1;
@@ -417,6 +418,10 @@ void HcalDigiClient::getHistograms(){
 
     sprintf(name,"DigiMonitor/%s/%s QIE Cap-ID",type.c_str(),type.c_str());
     qie_capid_[i] = getHisto(name, process_, mui_,verbose_,cloneME_);
+
+    sprintf(name,"DigiMonitor/%s/%s QIE Data Valid Err Bits",type.c_str(),type.c_str());
+    qie_dverr_[i] = getHisto(name, process_, mui_,verbose_,cloneME_);
+
   }
   return;
 }
@@ -471,7 +476,7 @@ void HcalDigiClient::resetAllME(){
     resetME(name,mui_);
     sprintf(name,"%sHcalMonitor/DigiMonitor/%s/%s QIE ADC Value",process_.c_str(),type.c_str(),type.c_str());
     resetME(name,mui_);
-    sprintf(name,"%sHcalMonitor/DigiMonitor/%s/%s QIE Data Value",process_.c_str(),type.c_str(),type.c_str());
+    sprintf(name,"%sHcalMonitor/DigiMonitor/%s/%s QIE Data Valid Err Bits",process_.c_str(),type.c_str(),type.c_str());
     resetME(name,mui_);
     sprintf(name,"%sHcalMonitor/DigiMonitor/%s/%s Digi Geo Error Map",process_.c_str(),type.c_str(),type.c_str());
     resetME(name,mui_);
@@ -556,7 +561,7 @@ void HcalDigiClient::htmlOutput(int runNo, string htmlDir, string htmlName){
 
   htmlFile << "<tr align=\"left\">" << endl;
   histoHTML2(runNo,gl_err_geo_,"iEta","iPhi", 92, htmlFile,htmlDir);
-  histoHTML2(runNo,gl_err_elec_[0],"VME Crate ID","HTR Slot", 100, htmlFile,htmlDir);
+  histoHTML2(runNo,gl_err_elec_[0],"HTR Slot","VME Crate ID", 100, htmlFile,htmlDir);
   htmlFile << "</tr>" << endl;
 
   htmlFile << "<tr align=\"left\">" << endl;
@@ -591,7 +596,7 @@ void HcalDigiClient::htmlOutput(int runNo, string htmlDir, string htmlName){
 
     htmlFile << "<tr align=\"left\">" << endl;
     histoHTML2(runNo,sub_err_geo_[i],"iEta","iPhi", 92, htmlFile,htmlDir);
-    histoHTML2(runNo,sub_err_elec_[i][0],"VME Crate ID","HTR Slot", 100, htmlFile,htmlDir);
+    histoHTML2(runNo,sub_err_elec_[i][0],"HTR Slot","VME Crate ID", 100, htmlFile,htmlDir);
     htmlFile << "</tr>" << endl;
     
     htmlFile << "<tr align=\"left\">" << endl;
@@ -621,7 +626,7 @@ void HcalDigiClient::htmlOutput(int runNo, string htmlDir, string htmlName){
     htmlFile << "</tr>" << endl;
 
     htmlFile << "<tr align=\"left\">" << endl;	
-    histoHTML2(runNo,sub_occ_elec_[i][0],"VME Crate ID","HTR Slot", 92, htmlFile,htmlDir);
+    histoHTML2(runNo,sub_occ_elec_[i][0],"HTR Slot", "VME Crate ID", 92, htmlFile,htmlDir);
     histoHTML2(runNo,sub_occ_elec_[i][1],"Fiber Channel","Fiber", 100, htmlFile,htmlDir);
     htmlFile << "</tr>" << endl;
 
@@ -630,11 +635,12 @@ void HcalDigiClient::htmlOutput(int runNo, string htmlDir, string htmlName){
     htmlFile << "</tr>" << endl;
     
     htmlFile << "<tr align=\"left\">" << endl;	
-    histoHTML(runNo,qie_adc_[i],"QIE ADC Value","Events", 92, htmlFile,htmlDir);
+    histoHTML(runNo,qie_dverr_[i],"QIE Data Valid and Err Bits","Events", 92, htmlFile,htmlDir);	
     histoHTML(runNo,qie_capid_[i],"QIE CAPID Value","Events", 100, htmlFile,htmlDir);
     htmlFile << "</tr>" << endl;
     
-    htmlFile << "<tr align=\"left\">" << endl;	
+    htmlFile << "<tr align=\"left\">" << endl;
+    histoHTML(runNo,qie_adc_[i],"QIE ADC Value","Events", 92, htmlFile,htmlDir);	
     histoHTML(runNo,num_digi_[i],"Number of Digis","Events", 100, htmlFile,htmlDir);
     htmlFile << "</tr>" << endl;
 	
@@ -672,7 +678,7 @@ void HcalDigiClient::createTests(){
     sprintf(meTitle,"%sHcalMonitor/DigiMonitor/%s/%s Digi Geo Error Map",process_.c_str(),type.c_str(),type.c_str());
     sprintf(name,"%s Digi Errors by Geo_metry",type.c_str());
     if(dqmQtests_.find(name) == dqmQtests_.end()){	
-      MonitorElement* me = mui_->getBEInterface()->get(meTitle);
+      MonitorElement* me = mui_->get(meTitle);
       if(me){
 	dqmQtests_[name]=meTitle;	  
 	params.clear();
@@ -686,15 +692,18 @@ void HcalDigiClient::createTests(){
     sprintf(meTitle,"%sHcalMonitor/DigiMonitor/%s/%s # of Digis",process_.c_str(),type.c_str(),type.c_str());
     sprintf(name,"%s # of Digis",type.c_str());
     if(dqmQtests_.find(name) == dqmQtests_.end()){	
-      MonitorElement* me = mui_->getBEInterface()->get(meTitle);
+      MonitorElement* me = mui_->get(meTitle);
       if(me){	
 	dqmQtests_[name]=meTitle;	  
 	params.clear();
 	params.push_back(meTitle); params.push_back(name);  //hist and test titles
 	params.push_back("1.0"); params.push_back("0.975");  //warn, err probs
 	char high[20];	char low[20];
+	//Window below has problems with bin edge effects; should fix this.
 	sprintf(low,"%.2f\n", me->getMean());
 	sprintf(high,"%.2f\n", me->getMean()+1);
+
+	cout << "low, high:  " << low << " " << high << endl;
 	params.push_back(low); params.push_back(high);  //xmin, xmax
 	createXRangeTest(mui_, params);
       }
@@ -703,13 +712,27 @@ void HcalDigiClient::createTests(){
     sprintf(meTitle,"%sHcalMonitor/DigiMonitor/%s/%s QIE Cap-ID",process_.c_str(),type.c_str(),type.c_str());
     sprintf(name,"%s QIE CapID",type.c_str());
     if(dqmQtests_.find(name) == dqmQtests_.end()){	
-      MonitorElement* me = mui_->getBEInterface()->get(meTitle);
+      MonitorElement* me = mui_->get(meTitle);
       if(me){	
 	dqmQtests_[name]=meTitle;	  
 	params.clear();
 	params.push_back(meTitle); params.push_back(name);  //hist and test titles
 	params.push_back("1.0"); params.push_back("0.975");  //warn, err probs
 	params.push_back("0"); params.push_back("3");  //xmin, xmax
+	createXRangeTest(mui_, params);
+      }
+    }
+
+    sprintf(meTitle,"%sHcalMonitor/DigiMonitor/%s/%s QIE Data Valid Err Bits",process_.c_str(),type.c_str(),type.c_str());
+    sprintf(name,"%s DVErr",type.c_str());
+    if(dqmQtests_.find(name) == dqmQtests_.end()){	
+      MonitorElement* me = mui_->get(meTitle);
+      if(me){	
+	dqmQtests_[name]=meTitle;	  
+	params.clear();
+	params.push_back(meTitle); params.push_back(name);  //hist and test titles
+	params.push_back("1.0"); params.push_back("0.975");  //warn, err probs
+	params.push_back("0.9"); params.push_back("1.1");  //xmin, xmax
 	createXRangeTest(mui_, params);
       }
     }
@@ -824,6 +847,9 @@ void HcalDigiClient::loadHistograms(TFile* infile){
 
     sprintf(name,"DQMData/HcalMonitor/DigiMonitor/%s/%s QIE Cap-ID",type.c_str(),type.c_str());
     qie_capid_[i] = (TH1F*)infile->Get(name);
+
+    sprintf(name,"DQMData/HcalMonitor/DigiMonitor/%s/%s QIE Data Valid Err Bits",type.c_str(),type.c_str());
+    qie_dverr_[i] = (TH1F*)infile->Get(name);
   }
   return;
 }

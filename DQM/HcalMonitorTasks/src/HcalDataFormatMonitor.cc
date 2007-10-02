@@ -1,4 +1,5 @@
 #include "DQM/HcalMonitorTasks/interface/HcalDataFormatMonitor.h"
+#include "DataFormats/FEDRawData/interface/FEDNumbering.h"
 
 HcalDataFormatMonitor::HcalDataFormatMonitor() {}
 
@@ -18,13 +19,12 @@ void HcalDataFormatMonitor::setup(const edm::ParameterSet& ps,
   HcalBaseMonitor::setup(ps,dbe);
   
   ievt_=0;
-  fedUnpackList_ = ps.getParameter<vector<int> >("FEDs");
-  firstFED_ = ps.getParameter<int>("HcalFirstFED");
-  cout << "HcalDataFormatMonitor::setup  Will unpack FED Crates  ";
-  for (unsigned int i=0; i<fedUnpackList_.size(); i++)
-    cout << fedUnpackList_[i] << " ";
-  cout << endl;
-  
+
+  firstFED_ = FEDNumbering::getHcalFEDIds().first;
+  for (int i=FEDNumbering::getHcalFEDIds().first; i<=FEDNumbering::getHcalFEDIds().second; i++)
+    fedUnpackList_.push_back(i);
+
+
   if ( m_dbe ) {
     m_dbe->setCurrentFolder("HcalMonitor/DataFormatMonitor");
     
@@ -170,11 +170,13 @@ void HcalDataFormatMonitor::unpack(const FEDRawData& raw, const
     meBCN_->Fill(htrBCN);
     unsigned int htrFWVer = htr.getFirmwareRevision() & 0xFF;
     meFWVersion_->Fill(htrFWVer,cratenum);
+
     ///check that all HTRs have the same L1A number
     if(lastEvtN_==-1) lastEvtN_ = htr.getL1ANumber();  ///the first one will be the reference
     else{
       if(htr.getL1ANumber()!=lastEvtN_) meEvtNumberSynch_->Fill(slotnum,cratenum);
     }
+
     ///check that all HTRs have the same BCN
     if(lastBCN_==-1) lastBCN_ = htr.getBunchNumber();  ///the first one will be the reference
     else{
@@ -217,7 +219,7 @@ void HcalDataFormatMonitor::unpack(const FEDRawData& raw, const
      if(tmpErr!=NULL){
        for(int i=0; i<16; i++){
 	 int errbit = errWord&(0x01<<i);
-   // Bit 15 should always be 1; consider it an error if it isn't.
+	 // Bit 15 should always be 1; consider it an error if it isn't.
 	 if (i==15) errbit = errbit - 0x8000;
 	 if (errbit !=0){
 	   tmpErr->Fill(i);

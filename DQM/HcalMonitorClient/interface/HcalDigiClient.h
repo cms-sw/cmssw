@@ -113,6 +113,7 @@ private:
   TH1F* qie_adc_[4];
   TH1F* num_digi_[4];
   TH1F* qie_capid_[4];
+  TH1F* qie_dverr_[4];
 
   // Quality criteria for data integrity
   map<string, vector<QReport*> > dqmReportMapErr_;

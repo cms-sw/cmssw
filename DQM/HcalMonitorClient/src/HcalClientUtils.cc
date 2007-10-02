@@ -72,11 +72,17 @@ void dumpHisto2(TH2F* hist, vector<string> &names,
 void parseString(string& title){
   
   for ( unsigned int i = 0; i < title.size(); i++ ) {
-    if ( title.substr(i, 1) == " " )  {
+    if ( title.substr(i, 1) == " " ){
       title.replace(i, 1, "_");
     }
-    if ( title.substr(i, 1) == "#" )  {
+    if ( title.substr(i, 1) == "#" ){
       title.replace(i, 1, "N");
+    }
+    if ( title.substr(i, 1) == "/" ){
+      title.replace(i, 1, "-");
+    }    
+    if ( title.substr(i, 1) == "&" ){
+      title.replace(i, 1, "_and_");
     }
     if ( title.substr(i, 1) == "(" 
 	 || title.substr(i, 1) == ")" 

@@ -78,7 +78,8 @@ namespace HcalDigiMap{
 			 MonitorElement* mapFIB, MonitorElement* mapDCC){
     if(digiErr(digi)){
       mapGEO->Fill(digi.id().ieta(),digi.id().iphi());
-      mapVME->Fill(digi.elecId().readoutVMECrateId(),digi.elecId().htrSlot());
+      float slotnum = digi.elecId().htrSlot() + 0.5*digi.elecId().htrTopBottom();
+      mapVME->Fill(slotnum,digi.elecId().readoutVMECrateId());
       mapFIB->Fill(digi.elecId().fiberChanId(),digi.elecId().fiberIndex());
       mapDCC->Fill(digi.elecId().spigot(),digi.elecId().dccid());
     }
@@ -96,7 +97,8 @@ namespace HcalDigiMap{
       if(digi.id().depth()==2) mapG2->Fill(digi.id().ieta(),digi.id().iphi());
       if(digi.id().depth()==3) mapG3->Fill(digi.id().ieta(),digi.id().iphi());
       if(digi.id().depth()==4) mapG4->Fill(digi.id().ieta(),digi.id().iphi());
-      mapVME->Fill(digi.elecId().readoutVMECrateId(),digi.elecId().htrSlot());
+      float slotnum = digi.elecId().htrSlot() + 0.5*digi.elecId().htrTopBottom();
+      mapVME->Fill(slotnum,digi.elecId().readoutVMECrateId());
       mapFIB->Fill(digi.elecId().fiberChanId(),digi.elecId().fiberIndex());
       mapDCC->Fill(digi.elecId().spigot(),digi.elecId().dccid());
       mapEta->Fill(digi.id().ieta());
@@ -108,9 +110,12 @@ namespace HcalDigiMap{
   template<class Digi>
   static bool digiErr(const Digi& digi){
     int last = -1;
-    for (int i=0; i<digi.size(); i++) { 
-      if(bitUpset(last,digi.sample(i).capid())) return true;
+    for (int i=0; i<digi.size(); i++) {
+      int thisCapid = digi.sample(i).capid();
+      if(bitUpset(last,thisCapid)) return true;
+      last = thisCapid;
       if(digi.sample(i).er()) return true;
+      if(!digi.sample(i).dv()) return true;
     }
     return false;
   }
@@ -132,9 +137,6 @@ void HcalDigiMonitor::setup(const edm::ParameterSet& ps, DaqMonitorBEInterface* 
   cout << "Digi occupancy threshold set to " << occThresh_ << endl;
 
   if ( ps.getUntrackedParameter<bool>("DigisPerChannel", false) ) doPerChannel_ = true;  
-
-  fedUnpackList_ = ps.getParameter<vector<int> >("FEDs");
-  firstFED_ = ps.getParameter<int>("HcalFirstFED");
 
   etaMax_ = ps.getUntrackedParameter<double>("MaxEta", 29.5);
   etaMin_ = ps.getUntrackedParameter<double>("MinEta", -29.5);
@@ -161,17 +163,17 @@ void HcalDigiMonitor::setup(const edm::ParameterSet& ps, DaqMonitorBEInterface* 
     OCC_ETA = m_dbe->book1D("Digi Eta Occupancy Map","Digi Eta Occupancy Map",etaBins_,etaMin_,etaMax_);
     OCC_PHI = m_dbe->book1D("Digi Phi Occupancy Map","Digi Phi Occupancy Map",phiBins_,phiMin_,phiMax_);
 
-    OCC_ELEC_VME = m_dbe->book2D("Digi VME Occupancy Map","Digi VME Occupancy Map",21,-0.5,20.5,21,-0.5,20.5);
-    OCC_ELEC_FIB = m_dbe->book2D("Digi Fiber Occupancy Map","Digi Fiber Occupancy Map",3,-0.5,2.5,9,-0.5,8.5);
+    OCC_ELEC_VME = m_dbe->book2D("Digi VME Occupancy Map","Digi VME Occupancy Map",40,-0.25,19.75,18,-0.5,17.5);
+    OCC_ELEC_FIB = m_dbe->book2D("Digi Fiber Occupancy Map","Digi Fiber Occupancy Map",3,-0.5,2.5,8,0.5,8.5);
     OCC_ELEC_DCC = m_dbe->book2D("Digi Spigot Occupancy Map","Digi Spigot Occupancy Map",
-					HcalDCCHeader::SPIGOT_COUNT,0,HcalDCCHeader::SPIGOT_COUNT-1,
-					fedUnpackList_.size(),0,fedUnpackList_.size());
+					HcalDCCHeader::SPIGOT_COUNT,-0.5,HcalDCCHeader::SPIGOT_COUNT-0.5,
+					36,-0.5,35.5);
     ERR_MAP_GEO = m_dbe->book2D("Digi Geo Error Map","Digi Geo Error Map",etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
-    ERR_MAP_VME = m_dbe->book2D("Digi VME Error Map","Digi VME Error Map",21,-0.5,20.5,21,-0.5,20.5);
-    ERR_MAP_FIB = m_dbe->book2D("Digi Fiber Error Map","Digi Fiber Error Map",3,-0.5,2.5,9,-0.5,8.5);
+    ERR_MAP_VME = m_dbe->book2D("Digi VME Error Map","Digi VME Error Map",40,-0.25,19.75,18,-0.5,17.5);
+    ERR_MAP_FIB = m_dbe->book2D("Digi Fiber Error Map","Digi Fiber Error Map",3,-0.5,2.5,8,0.5,8.5);
     ERR_MAP_DCC = m_dbe->book2D("Digi Spigot Error Map","Digi Spigot Error Map",
-					HcalDCCHeader::SPIGOT_COUNT,0,HcalDCCHeader::SPIGOT_COUNT-1,
-					fedUnpackList_.size(),0,fedUnpackList_.size());
+					HcalDCCHeader::SPIGOT_COUNT,-0.5,HcalDCCHeader::SPIGOT_COUNT-0.5,
+					36,-0.5,35.5);
 
 
     m_dbe->setCurrentFolder("HcalMonitor/DigiMonitor/HB");
@@ -182,14 +184,14 @@ void HcalDigiMonitor::setup(const edm::ParameterSet& ps, DaqMonitorBEInterface* 
     hbHists.DIGI_PRESAMPLE =  m_dbe->book1D("HB Digi Presamples","HB Digi Presamples",50,0,50);
     hbHists.QIE_CAPID =  m_dbe->book1D("HB QIE Cap-ID","HB QIE Cap-ID",6,-0.5,5.5);
     hbHists.QIE_ADC = m_dbe->book1D("HB QIE ADC Value","HB QIE ADC Value",100,0,200);
-    hbHists.QIE_DV = m_dbe->book1D("HB QIE Data Value","HB QIE Data Value",2,-0.5,1.5);
+    hbHists.QIE_DV = m_dbe->book1D("HB QIE Data Valid Err Bits","HB QIE Data Valid Err Bits",4,-0.5,3.5);
     
     hbHists.ERR_MAP_GEO = m_dbe->book2D("HB Digi Geo Error Map","HB Digi Geo Error Map",etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
-    hbHists.ERR_MAP_VME = m_dbe->book2D("HB Digi VME Error Map","HB Digi VME Error Map",21,-0.5,20.5,21,-0.5,20.5);
-    hbHists.ERR_MAP_FIB = m_dbe->book2D("HB Digi Fiber Error Map","HB Digi Fiber Error Map",3,-0.5,2.5,9,-0.5,8.5);
+    hbHists.ERR_MAP_VME = m_dbe->book2D("HB Digi VME Error Map","HB Digi VME Error Map",40,-0.25,19.75,18,-0.5,17.5);
+    hbHists.ERR_MAP_FIB = m_dbe->book2D("HB Digi Fiber Error Map","HB Digi Fiber Error Map",3,-0.5,2.5,8,0.5,8.5);
     hbHists.ERR_MAP_DCC = m_dbe->book2D("HB Digi Spigot Error Map","HB Digi Spigot Error Map",
-					HcalDCCHeader::SPIGOT_COUNT,0,HcalDCCHeader::SPIGOT_COUNT-1,
-					fedUnpackList_.size(),0,fedUnpackList_.size());
+					HcalDCCHeader::SPIGOT_COUNT,-0.5,HcalDCCHeader::SPIGOT_COUNT-0.5,
+					36,-0.5,35.5);
 
     hbHists.OCC_MAP_GEO1 = m_dbe->book2D("HB Digi Depth 1 Occupancy Map","HB Digi Depth 1 Occupancy Map",etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
     hbHists.OCC_MAP_GEO2 = m_dbe->book2D("HB Digi Depth 2 Occupancy Map","HB Digi Depth 2 Occupancy Map",etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
@@ -198,11 +200,11 @@ void HcalDigiMonitor::setup(const edm::ParameterSet& ps, DaqMonitorBEInterface* 
     hbHists.OCC_ETA = m_dbe->book1D("HB Digi Eta Occupancy Map","HB Digi Eta Occupancy Map",etaBins_,etaMin_,etaMax_);
     hbHists.OCC_PHI = m_dbe->book1D("HB Digi Phi Occupancy Map","HB Digi Phi Occupancy Map",phiBins_,phiMin_,phiMax_);
 
-    hbHists.OCC_MAP_VME = m_dbe->book2D("HB Digi VME Occupancy Map","HB Digi VME Occupancy Map",21,-0.5,20.5,21,-0.5,20.5);
-    hbHists.OCC_MAP_FIB = m_dbe->book2D("HB Digi Fiber Occupancy Map","HB Digi Fiber Occupancy Map",3,-0.5,2.5,9,-0.5,8.5);
+    hbHists.OCC_MAP_VME = m_dbe->book2D("HB Digi VME Occupancy Map","HB Digi VME Occupancy Map",40,-0.25,19.75,18,-0.5,17.5);
+    hbHists.OCC_MAP_FIB = m_dbe->book2D("HB Digi Fiber Occupancy Map","HB Digi Fiber Occupancy Map",3,-0.5,2.5,8,0.5,8.5);
     hbHists.OCC_MAP_DCC = m_dbe->book2D("HB Digi Spigot Occupancy Map","HB Digi Spigot Occupancy Map",
-					HcalDCCHeader::SPIGOT_COUNT,0,HcalDCCHeader::SPIGOT_COUNT-1,
-					fedUnpackList_.size(),0,fedUnpackList_.size());
+					HcalDCCHeader::SPIGOT_COUNT,-0.5,HcalDCCHeader::SPIGOT_COUNT-0.5,
+					36,-0.5,35.5);
     
     m_dbe->setCurrentFolder("HcalMonitor/DigiMonitor/HE");
     heHists.SHAPE_tot =  m_dbe->book1D("HE Digi Shape","HE Digi Shape",11,-0.5,10.5);
@@ -212,14 +214,14 @@ void HcalDigiMonitor::setup(const edm::ParameterSet& ps, DaqMonitorBEInterface* 
     heHists.DIGI_PRESAMPLE =  m_dbe->book1D("HE Digi Presamples","HE Digi Presamples",50,0,50);
     heHists.QIE_CAPID =  m_dbe->book1D("HE QIE Cap-ID","HE QIE Cap-ID",6,-0.5,5.5);
     heHists.QIE_ADC = m_dbe->book1D("HE QIE ADC Value","HE QIE ADC Value",100,0,200);
-    heHists.QIE_DV = m_dbe->book1D("HE QIE Data Value","HE QIE Data Value",2,-0.5,1.5);
+    heHists.QIE_DV = m_dbe->book1D("HE QIE Data Valid Err Bits","HE QIE Data Valid Err Bits",4,-0.5,3.5);
 
     heHists.ERR_MAP_GEO = m_dbe->book2D("HE Digi Geo Error Map","HE Digi Geo Error Map",etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
-    heHists.ERR_MAP_VME = m_dbe->book2D("HE Digi VME Error Map","HE Digi VME Error Map",21,-0.5,20.5,21,-0.5,20.5);
-    heHists.ERR_MAP_FIB = m_dbe->book2D("HE Digi Fiber Error Map","HE Digi Fiber Error Map",3,-0.5,2.5,9,-0.5,8.5);
+    heHists.ERR_MAP_VME = m_dbe->book2D("HE Digi VME Error Map","HE Digi VME Error Map",40,-0.25,19.75,18,-0.5,17.5);
+    heHists.ERR_MAP_FIB = m_dbe->book2D("HE Digi Fiber Error Map","HE Digi Fiber Error Map",3,-0.5,2.5,8,0.5,8.5);
     heHists.ERR_MAP_DCC = m_dbe->book2D("HE Digi Spigot Error Map","HE Digi Spigot Error Map",
-					HcalDCCHeader::SPIGOT_COUNT,0,HcalDCCHeader::SPIGOT_COUNT-1,
-					fedUnpackList_.size(),0,fedUnpackList_.size());
+					HcalDCCHeader::SPIGOT_COUNT,-0.5,HcalDCCHeader::SPIGOT_COUNT-0.5,
+					36,-0.5,35.5);
 
     heHists.OCC_MAP_GEO1 = m_dbe->book2D("HE Digi Depth 1 Occupancy Map","HE Digi Depth 1 Occupancy Map",etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
     heHists.OCC_MAP_GEO2 = m_dbe->book2D("HE Digi Depth 2 Occupancy Map","HE Digi Depth 2 Occupancy Map",etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
@@ -228,11 +230,11 @@ void HcalDigiMonitor::setup(const edm::ParameterSet& ps, DaqMonitorBEInterface* 
     heHists.OCC_ETA = m_dbe->book1D("HE Digi Eta Occupancy Map","HE Digi Eta Occupancy Map",etaBins_,etaMin_,etaMax_);
     heHists.OCC_PHI = m_dbe->book1D("HE Digi Phi Occupancy Map","HE Digi Phi Occupancy Map",phiBins_,phiMin_,phiMax_);
 
-    heHists.OCC_MAP_VME = m_dbe->book2D("HE Digi VME Occupancy Map","HE Digi VME Occupancy Map",21,-0.5,20.5,21,-0.5,20.5);
-    heHists.OCC_MAP_FIB = m_dbe->book2D("HE Digi Fiber Occupancy Map","HE Digi Fiber Occupancy Map",3,-0.5,2.5,9,-0.5,8.5);
+    heHists.OCC_MAP_VME = m_dbe->book2D("HE Digi VME Occupancy Map","HE Digi VME Occupancy Map",40,-0.25,19.75,18,-0.5,17.5);
+    heHists.OCC_MAP_FIB = m_dbe->book2D("HE Digi Fiber Occupancy Map","HE Digi Fiber Occupancy Map",3,-0.5,2.5,8,0.5,8.5);
     heHists.OCC_MAP_DCC = m_dbe->book2D("HE Digi Spigot Occupancy Map","HE Digi Spigot Occupancy Map",
-					HcalDCCHeader::SPIGOT_COUNT,0,HcalDCCHeader::SPIGOT_COUNT-1,
-					fedUnpackList_.size(),0,fedUnpackList_.size());
+					HcalDCCHeader::SPIGOT_COUNT,-0.5,HcalDCCHeader::SPIGOT_COUNT-0.5,
+					36,-0.5,35.5);
 
     m_dbe->setCurrentFolder("HcalMonitor/DigiMonitor/HF");
     hfHists.SHAPE_tot =  m_dbe->book1D("HF Digi Shape","HF Digi Shape",11,-0.5,10.5);
@@ -242,14 +244,14 @@ void HcalDigiMonitor::setup(const edm::ParameterSet& ps, DaqMonitorBEInterface* 
     hfHists.DIGI_PRESAMPLE =  m_dbe->book1D("HF Digi Presamples","HF Digi Presamples",50,0,50);
     hfHists.QIE_CAPID =  m_dbe->book1D("HF QIE Cap-ID","HF QIE Cap-ID",6,-0.5,5.5);
     hfHists.QIE_ADC = m_dbe->book1D("HF QIE ADC Value","HF QIE ADC Value",100,0,200);
-    hfHists.QIE_DV = m_dbe->book1D("HF QIE Data Value","HF QIE Data Value",2,-0.5,1.5);
+    hfHists.QIE_DV = m_dbe->book1D("HF QIE Data Valid Err Bits","HF QIE Data Valid Err Bits",4,-0.5,3.5);
 
     hfHists.ERR_MAP_GEO = m_dbe->book2D("HF Digi Geo Error Map","HF Digi Geo Error Map",etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
-    hfHists.ERR_MAP_VME = m_dbe->book2D("HF Digi VME Error Map","HF Digi VME Error Map",21,-0.5,20.5,21,-0.5,20.5);
-    hfHists.ERR_MAP_FIB = m_dbe->book2D("HF Digi Fiber Error Map","HF Digi Fiber Error Map",3,-0.5,2.5,9,-0.5,8.5);
+    hfHists.ERR_MAP_VME = m_dbe->book2D("HF Digi VME Error Map","HF Digi VME Error Map",40,-0.25,19.75,18,-0.5,17.5);
+    hfHists.ERR_MAP_FIB = m_dbe->book2D("HF Digi Fiber Error Map","HF Digi Fiber Error Map",3,-0.5,2.5,8,0.5,8.5);
     hfHists.ERR_MAP_DCC = m_dbe->book2D("HF Digi Spigot Error Map","HF Digi Spigot Error Map",
-					HcalDCCHeader::SPIGOT_COUNT,0,HcalDCCHeader::SPIGOT_COUNT-1,
-					fedUnpackList_.size(),0,fedUnpackList_.size());
+					HcalDCCHeader::SPIGOT_COUNT,-0.5,HcalDCCHeader::SPIGOT_COUNT-0.5,
+					36,-0.5,35.5);
 
     hfHists.OCC_MAP_GEO1 = m_dbe->book2D("HF Digi Depth 1 Occupancy Map","HF Digi Depth 1 Occupancy Map",etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
     hfHists.OCC_MAP_GEO2 = m_dbe->book2D("HF Digi Depth 2 Occupancy Map","HF Digi Depth 2 Occupancy Map",etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
@@ -258,11 +260,11 @@ void HcalDigiMonitor::setup(const edm::ParameterSet& ps, DaqMonitorBEInterface* 
     hfHists.OCC_ETA = m_dbe->book1D("HF Digi Eta Occupancy Map","HF Digi Eta Occupancy Map",etaBins_,etaMin_,etaMax_);
     hfHists.OCC_PHI = m_dbe->book1D("HF Digi Phi Occupancy Map","HF Digi Phi Occupancy Map",phiBins_,phiMin_,phiMax_);
 
-    hfHists.OCC_MAP_VME = m_dbe->book2D("HF Digi VME Occupancy Map","HF Digi VME Occupancy Map",21,-0.5,20.5,21,-0.5,20.5);
-    hfHists.OCC_MAP_FIB = m_dbe->book2D("HF Digi Fiber Occupancy Map","HF Digi Fiber Occupancy Map",3,-0.5,2.5,9,-0.5,8.5);
+    hfHists.OCC_MAP_VME = m_dbe->book2D("HF Digi VME Occupancy Map","HF Digi VME Occupancy Map",40,-0.25,19.75,18,-0.5,17.5);
+    hfHists.OCC_MAP_FIB = m_dbe->book2D("HF Digi Fiber Occupancy Map","HF Digi Fiber Occupancy Map",3,-0.5,2.5,8,0.5,8.5);
     hfHists.OCC_MAP_DCC = m_dbe->book2D("HF Digi Spigot Occupancy Map","HF Digi Spigot Occupancy Map",
-					HcalDCCHeader::SPIGOT_COUNT,0,HcalDCCHeader::SPIGOT_COUNT-1,
-					fedUnpackList_.size(),0,fedUnpackList_.size());
+					HcalDCCHeader::SPIGOT_COUNT,-0.5,HcalDCCHeader::SPIGOT_COUNT-0.5,
+					36,-0.5,35.5);
 
     m_dbe->setCurrentFolder("HcalMonitor/DigiMonitor/HO");
     hoHists.SHAPE_tot =  m_dbe->book1D("HO Digi Shape","HO Digi Shape",11,-0.5,10.5);
@@ -272,14 +274,14 @@ void HcalDigiMonitor::setup(const edm::ParameterSet& ps, DaqMonitorBEInterface* 
     hoHists.DIGI_PRESAMPLE =  m_dbe->book1D("HO Digi Presamples","HO Digi Presamples",50,0,50);
     hoHists.QIE_CAPID =  m_dbe->book1D("HO QIE Cap-ID","HO QIE Cap-ID",6,-0.5,5.5);
     hoHists.QIE_ADC = m_dbe->book1D("HO QIE ADC Value","HO QIE ADC Value",100,0,200);
-    hoHists.QIE_DV = m_dbe->book1D("HO QIE Data Value","HO QIE Data Value",2,-0.5,1.5);
+    hoHists.QIE_DV = m_dbe->book1D("HO QIE Data Valid Err Bits","HO QIE Data Valid Err Bits",4,-0.5,3.5);
 
     hoHists.ERR_MAP_GEO = m_dbe->book2D("HO Digi Geo Error Map","HO Digi Geo Error Map",etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
-    hoHists.ERR_MAP_VME = m_dbe->book2D("HO Digi VME Error Map","HO Digi VME Error Map",21,-0.5,20.5,21,-0.5,20.5);
-    hoHists.ERR_MAP_FIB = m_dbe->book2D("HO Digi Fiber Error Map","HO Digi Fiber Error Map",3,-0.5,2.5,9,-0.5,8.5);
+    hoHists.ERR_MAP_VME = m_dbe->book2D("HO Digi VME Error Map","HO Digi VME Error Map",40,-0.25,19.75,18,-0.5,17.5);
+    hoHists.ERR_MAP_FIB = m_dbe->book2D("HO Digi Fiber Error Map","HO Digi Fiber Error Map",3,-0.5,2.5,8,0.5,8.5);
     hoHists.ERR_MAP_DCC = m_dbe->book2D("HO Digi Spigot Error Map","HO Digi Spigot Error Map",
-					HcalDCCHeader::SPIGOT_COUNT,0,HcalDCCHeader::SPIGOT_COUNT-1,
-					fedUnpackList_.size(),0,fedUnpackList_.size());
+					HcalDCCHeader::SPIGOT_COUNT,-0.5,HcalDCCHeader::SPIGOT_COUNT-0.5,
+					36,-0.5,35.5);
 
     hoHists.OCC_MAP_GEO1 = m_dbe->book2D("HO Digi Depth 1 Occupancy Map","HO Digi Depth 1 Occupancy Map",etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
     hoHists.OCC_MAP_GEO2 = m_dbe->book2D("HO Digi Depth 2 Occupancy Map","HO Digi Depth 2 Occupancy Map",etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
@@ -288,11 +290,11 @@ void HcalDigiMonitor::setup(const edm::ParameterSet& ps, DaqMonitorBEInterface* 
     hoHists.OCC_ETA = m_dbe->book1D("HO Digi Eta Occupancy Map","HO Digi Eta Occupancy Map",etaBins_,etaMin_,etaMax_);
     hoHists.OCC_PHI = m_dbe->book1D("HO Digi Phi Occupancy Map","HO Digi Phi Occupancy Map",phiBins_,phiMin_,phiMax_);
 
-    hoHists.OCC_MAP_VME = m_dbe->book2D("HO Digi VME Occupancy Map","HO Digi VME Occupancy Map",21,-0.5,20.5,21,-0.5,20.5);
-    hoHists.OCC_MAP_FIB = m_dbe->book2D("HO Digi Fiber Occupancy Map","HO Digi Fiber Occupancy Map",3,-0.5,2.5,9,-0.5,8.5);
+    hoHists.OCC_MAP_VME = m_dbe->book2D("HO Digi VME Occupancy Map","HO Digi VME Occupancy Map",40,-0.25,19.75,18,-0.5,17.5);
+    hoHists.OCC_MAP_FIB = m_dbe->book2D("HO Digi Fiber Occupancy Map","HO Digi Fiber Occupancy Map",3,-0.5,2.5,8,0.5,8.5);
     hoHists.OCC_MAP_DCC = m_dbe->book2D("HO Digi Spigot Occupancy Map","HO Digi Spigot Occupancy Map",
-					HcalDCCHeader::SPIGOT_COUNT,0,HcalDCCHeader::SPIGOT_COUNT-1,
-					fedUnpackList_.size(),0,fedUnpackList_.size());
+					HcalDCCHeader::SPIGOT_COUNT,-0.5,HcalDCCHeader::SPIGOT_COUNT-0.5,
+					36,-0.5,35.5);
     
 }
 
@@ -347,8 +349,10 @@ void HcalDigiMonitor::processEvent(const HBHEDigiCollection& hbhe,
 	  hbHists.QIE_ADC->Fill(adc);
 	  hbHists.QIE_CAPID->Fill(5,bitUpset(last,capid));
 	  last = capid;
-	  hbHists.QIE_DV->Fill(0,digi.sample(i).dv());
-	  hbHists.QIE_DV->Fill(1,digi.sample(i).er());
+	  int dver = 2*digi.sample(i).er() + digi.sample(i).dv();
+	  hbHists.QIE_DV->Fill(dver);
+	  //	  hbHists.QIE_DV->Fill(0,digi.sample(i).dv());
+	  //	  hbHists.QIE_DV->Fill(1,digi.sample(i).er());
 	}    
 	
 	if(doPerChannel_){	  
@@ -388,8 +392,10 @@ void HcalDigiMonitor::processEvent(const HBHEDigiCollection& hbhe,
 	  heHists.QIE_ADC->Fill(adc);
 	  heHists.QIE_CAPID->Fill(5,bitUpset(last,capid));
 	  last = capid;
-	  heHists.QIE_DV->Fill(0,digi.sample(i).dv());
-	  heHists.QIE_DV->Fill(1,digi.sample(i).er());
+	  int dver = 2*digi.sample(i).er() + digi.sample(i).dv();
+	  heHists.QIE_DV->Fill(dver);
+	  //heHists.QIE_DV->Fill(0,digi.sample(i).dv());
+	  //heHists.QIE_DV->Fill(1,digi.sample(i).er());
 	}    
 	
 	if(doPerChannel_){	  
@@ -438,8 +444,10 @@ void HcalDigiMonitor::processEvent(const HBHEDigiCollection& hbhe,
 	hoHists.QIE_ADC->Fill(adc);
 	hoHists.QIE_CAPID->Fill(5,bitUpset(last,capid));
 	last = capid;
-	hoHists.QIE_DV->Fill(0,digi.sample(i).dv());
-	hoHists.QIE_DV->Fill(1,digi.sample(i).er());
+	int dver = 2*digi.sample(i).er() + digi.sample(i).dv();
+	hoHists.QIE_DV->Fill(dver);
+	//hoHists.QIE_DV->Fill(0,digi.sample(i).dv());
+	//hoHists.QIE_DV->Fill(1,digi.sample(i).er());
       }    
       
       if(doPerChannel_){	  
@@ -483,10 +491,12 @@ void HcalDigiMonitor::processEvent(const HBHEDigiCollection& hbhe,
 	if(maxa>occThresh_) hfHists.SHAPE_THR_tot->Fill(i,adc-calibs_.pedestal(capid));
 	hfHists.QIE_CAPID->Fill(capid);
 	hfHists.QIE_ADC->Fill(adc);
-	hfHists.QIE_CAPID->Fill(5,bitUpset(last,capid));
+	if (bitUpset(last,capid))hfHists.QIE_CAPID->Fill(5);
 	last = capid;
-	hfHists.QIE_DV->Fill(0,digi.sample(i).dv());
-	hfHists.QIE_DV->Fill(1,digi.sample(i).er());
+	int dver = 2*digi.sample(i).er() + digi.sample(i).dv();
+	hfHists.QIE_DV->Fill(dver);
+	//hfHists.QIE_DV->Fill(0,digi.sample(i).dv());
+	//hfHists.QIE_DV->Fill(1,digi.sample(i).er());
       }    
       
       if(doPerChannel_){	  

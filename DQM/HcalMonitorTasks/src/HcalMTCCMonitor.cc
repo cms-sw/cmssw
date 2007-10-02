@@ -88,23 +88,18 @@ void HcalMTCCMonitor::processEvent(const HBHEDigiCollection& hbhe,
   
   // get conditions
   if(!shape_) shape_ = cond.getHcalShape(); // this one is generic  
-  
   dumpDigi(hbhe, ho, cond);
 
+
+  if(ltc.size()<1) return;        
   LTCDigi trig; 
-  try{      
-    if(ltc.size()<1) return;        
-  }catch (...) {      
-    printf("HcalMTCCMonitor::processEvent  No LTC Digi.\n"); return;
-  }
   LTCDigiCollection::const_iterator digiItr = ltc.begin();    
   trig = *digiItr;
 
   if ( m_dbe !=NULL ) {
     
-    for(int t = 0; t<6; t++){
-      if(trig.HasTriggered(t)) meTrig_->Fill(t);
-    }
+    for(int t = 0; t<6; t++) if(trig.HasTriggered(t)) meTrig_->Fill(t);
+
     try{      
       for (HBHEDigiCollection::const_iterator j=hbhe.begin(); j!=hbhe.end(); j++){
 	const HBHEDataFrame digi = (const HBHEDataFrame)(*j);	
@@ -159,7 +154,7 @@ void HcalMTCCMonitor::processEvent(const HBHEDigiCollection& hbhe,
 	  }
 	}
       }//loop over digis
-    }catch (...) {      
+    }catch (exception& ex) {      
       printf("HcalMTCCMonitor::processEvent  No HBHE Digis.\n");
     }
     
