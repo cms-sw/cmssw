@@ -275,7 +275,8 @@ void DDTECModuleAlgo::execute() {
   std::string tag("Rphi");
   if (isStereo) tag = "Stereo";
   char buf[5]; //for string operations
-
+  //usefull constants
+  const double topFrameEndZ = 0.5 * (-waferPosition + fullHeight) + pitchHeight + hybridHeight - topFrameHeight;
   DDName  parentName = parent().name(); 
   idName = DDSplit(parentName).first;
   LogDebug("TECGeom") << "==>> " << idName << " parent " << parentName << " namespace " << idNameSpace;
@@ -318,9 +319,9 @@ void DDTECModuleAlgo::execute() {
 		      << ", 0";
   DDLogicalPart sideFrameLeft(solid.ddname(), matter, solid);
   //translate
-  xpos = - 0.5*topFrameBotWidth +bl1+ tan(fabs(thet)) * dz;
+  xpos = - 0.5*topFrameBotWidth +bl2+ tan(fabs(thet)) * dz;
   ypos = sideFrameZ;
-  zpos = 0.5 * (-waferPosition + fullHeight) -dz + pitchHeight + hybridHeight - topFrameHeight;
+  zpos = topFrameEndZ -dz;
   //flip ring 6
   if (isRing6){
     zpos *= -1;
@@ -328,8 +329,9 @@ void DDTECModuleAlgo::execute() {
   }
   //the stereo modules are on the back of the normal ones...
   if(isStereo) {
+    xpos = - 0.5*topFrameBotWidth + bl2*cos(detTilt) + dz*sin(fabs(thet)+detTilt)/cos(fabs(thet));
     xpos = -xpos;
-    zpos += -topFrame2LHeight-tan(detTilt)*(fabs(xpos)-0.5*topFrame2Width)- noOverlapShift;
+    zpos = topFrameEndZ -topFrame2LHeight- 0.5*sin(detTilt)*(topFrameBotWidth - topFrame2Width)-dz*cos(detTilt+fabs(thet))/cos(fabs(thet))+bl2*sin(detTilt)-0.1*mm;
   }
   //position
   doPos(sideFrameLeft,xpos,ypos,zpos,waferRot);
@@ -353,16 +355,17 @@ void DDTECModuleAlgo::execute() {
 		      << ", 0";
   DDLogicalPart sideFrameRight(solid.ddname(), matter, solid);
   //translate
-  xpos =  0.5*topFrameBotWidth -bl1- tan(fabs(thet)) * dz;
+  xpos =  0.5*topFrameBotWidth -bl2- tan(fabs(thet)) * dz;
   ypos = sideFrameZ;
-  zpos = 0.5 * (-waferPosition + fullHeight) -dz + pitchHeight + hybridHeight - topFrameHeight;        
+  zpos = topFrameEndZ -dz ;        
   if (isRing6){
     zpos *= -1;
     xpos += 2*tan(fabs(thet)) * dz; // because of the flip the tan(..) has to be in the other direction
   }
   if(isStereo){
+    xpos = 0.5*topFrameBotWidth - bl2*cos(detTilt) - dz*sin(fabs(detTilt-fabs(thet)))/cos(fabs(thet));
     xpos = -xpos;
-    zpos += -topFrame2RHeight+tan(detTilt)*(fabs(xpos)-0.5*topFrame2Width)-2*noOverlapShift;
+    zpos = topFrameEndZ -topFrame2RHeight+ 0.5*sin(detTilt)*(topFrameBotWidth - topFrame2Width)-dz*cos(detTilt-fabs(thet))/cos(fabs(thet))-bl2*sin(detTilt);
   }
   //position it
   doPos(sideFrameRight,xpos,ypos,zpos,waferRot);
@@ -379,7 +382,7 @@ void DDTECModuleAlgo::execute() {
     dz = 0.5 * siFrSuppBoxHeight[i];
     bl1 = bl2 = 0.5 * siFrSuppBoxWidth[i];
     thet = sideFrameRtheta;
-    if(isStereo) thet = -(atan((sideFrameRWidthLow-sideFrameRWidth)/(2*sideFrameRHeight)+tan(fabs(thet))));
+    if(isStereo) thet = -atan(fabs(sideFrameRWidthLow-sideFrameRWidth)/(2*sideFrameRHeight)-tan(fabs(thet)));
                    // ^-- this calculates the lower left angel of the tipped trapezoid, which is the SideFframe...
 
     solid = DDSolidFactory::trap(DDName(name,idNameSpace), dz, thet, 0, h1, bl1, 
@@ -391,15 +394,17 @@ void DDTECModuleAlgo::execute() {
 			<< ", 0";
     DDLogicalPart siFrSuppBox(solid.ddname(), matter, solid);
     //translate
-    xpos =  0.5*topFrameBotWidth  -sideFrameRWidth - bl1-fabs(tan(thet) * siFrSuppBoxYPos[i])-2*noOverlapShift;
+    xpos =  0.5*topFrameBotWidth  -sideFrameRWidth - bl1-siFrSuppBoxYPos[i]*tan(fabs(thet));
     ypos = sideFrameZ*(0.5+(siFrSuppBoxThick/sideFrameThick)); //via * so I do not have to worry about the sign of sideFrameZ
-    zpos = 0.5* (-waferPosition +fullHeight) -siFrSuppBoxYPos[i];        
+    zpos = topFrameEndZ - siFrSuppBoxYPos[i];        
     if (isRing6){ 
       xpos += 2*fabs(tan(thet))*  siFrSuppBoxYPos[i]; // the flipped issue again
       zpos *= -1;
     }
     if(isStereo){ 
-      zpos = 0.5* (-waferPosition +fullHeight)-topFrame2RHeight-sin(detTilt)*(sideFrameRWidth+bl1)-siFrSuppBoxYPos[i];
+      xpos = 0.5*topFrameBotWidth - (sideFrameRWidth+bl1)*cos(detTilt) -sin(fabs(detTilt-fabs(thet)))*(siFrSuppBoxYPos[i]+dz*(1/cos(thet)- cos(detTilt))+bl1*sin(detTilt));
+      xpos =-xpos;
+      zpos = topFrameEndZ - topFrame2RHeight - 0.5*sin(detTilt)*(topFrameBotWidth - topFrame2Width) - siFrSuppBoxYPos[i]-sin(detTilt)*sideFrameRWidth;
     }
     //position it;
     doPos(siFrSuppBox,xpos,ypos,zpos,waferRot);
@@ -611,14 +616,15 @@ void DDTECModuleAlgo::execute() {
     //translate
     xpos =0 ;
     ypos =  sideFrameZ;
-    zpos = 0.5 * (-waferPosition + fullHeight- siReenforceHeight[i]) + pitchHeight + hybridHeight - topFrameHeight -siReenforceYPos[i];
+    zpos = topFrameEndZ -dz -siReenforceYPos[i];
 	
     if (isRing6)  zpos *= -1;
     if(isStereo){ 
 	  xpos = (-siReenforceYPos[i]+0.5*fullHeight)*sin(detTilt);
-	  thet = detTilt;
-	  if(topFrame2RHeight > topFrame2LHeight) thet *= -1;
-	    zpos -= topFrame2RHeight + sin(thet)*(sideFrameRWidth + 0.5*dlTop);
+	//  thet = detTilt;
+	//  if(topFrame2RHeight > topFrame2LHeight) thet *= -1;
+	//    zpos -= topFrame2RHeight + sin(thet)*(sideFrameRWidth + 0.5*dlTop);
+	  zpos -= topFrame2RHeight + sin (fabs(detTilt))* 0.5*topFrame2Width;
     }
     doPos(siReenforce,xpos,ypos,zpos,waferRot);
   }
