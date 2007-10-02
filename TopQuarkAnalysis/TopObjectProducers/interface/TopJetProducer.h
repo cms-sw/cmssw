@@ -1,5 +1,5 @@
 //
-// $Id: TopJetProducer.h,v 1.19 2007/09/28 13:50:56 lowette Exp $
+// $Id: TopJetProducer.h,v 1.20 2007/09/28 17:18:57 lowette Exp $
 //
 
 #ifndef TopObjectProducers_TopJetProducer_h
@@ -13,7 +13,7 @@
    with possible adding of resolutions and more things to come
 
   \author   Jan Heyninck
-  \version  $Id: TopJetProducer.h,v 1.19 2007/09/28 13:50:56 lowette Exp $
+  \version  $Id: TopJetProducer.h,v 1.20 2007/09/28 17:18:57 lowette Exp $
 */
 
 
@@ -66,24 +66,25 @@ class TopJetProducer : public edm::EDProducer {
     // TEMP End
     bool          getJetMCFlavour_;
     edm::InputTag jetPartonMapSource_;
-    bool          doGenPartonMatch_;
+    bool          addGenPartonMatch_;
     edm::InputTag genPartonSrc_;
-    bool          doGenJetMatch_;
+    bool          addGenJetMatch_;
     edm::InputTag genJetSrc_;
-    bool          doPartonJetMatch_;
+    bool          addPartonJetMatch_;
     edm::InputTag partonJetSrc_;
     bool          addResolutions_;
+    bool          useNNReso_;
     std::string   caliJetResoFile_;
-    bool          storeBTagInfo_;
+    bool          addBTagInfo_;
     bool          ignoreTrackCountingFromAOD_;
     bool          ignoreTrackProbabilityFromAOD_;
     bool          ignoreSoftMuonFromAOD_;      
     bool          ignoreSoftElectronFromAOD_; 
-    bool          keepDiscriminators_; 
-    bool          keepJetTagRefs_;
-    bool          storeAssociatedTracks_;
+    bool          addDiscriminators_; 
+    bool          addJetTagRefs_;
+    bool          addAssociatedTracks_;
     edm::ParameterSet trackAssociationPSet_;
-    bool          computeJetCharge_;
+    bool          addJetCharge_;
     edm::ParameterSet jetChargePSet_;
 
     std::vector<std::string> tagModuleLabelsToIgnore_;

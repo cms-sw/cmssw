@@ -1,5 +1,5 @@
 //
-// $Id: TopJetProducer.cc,v 1.23 2007/09/28 17:18:58 lowette Exp $
+// $Id: TopJetProducer.cc,v 1.24 2007/10/01 20:58:41 lowette Exp $
 //
 
 #include "TopQuarkAnalysis/TopObjectProducers/interface/TopJetProducer.h"
@@ -29,35 +29,33 @@
 
 TopJetProducer::TopJetProducer(const edm::ParameterSet& iConfig) {
   // initialize the configurables
-  recJetsLabel_                  = iConfig.getParameter<edm::InputTag> ("recJetInput");
-  caliJetsLabel_                 = iConfig.getParameter<edm::InputTag> ("caliJetInput");
+  recJetsLabel_            = iConfig.getParameter<edm::InputTag>            ( "recJetInput" );
+  caliJetsLabel_           = iConfig.getParameter<edm::InputTag>            ( "caliJetInput" );
   // TEMP Jet cleaning from electrons
-  topElectronsLabel_             = iConfig.getParameter<edm::InputTag> ("topElectronsInput");
-  topMuonsLabel_                 = iConfig.getParameter<edm::InputTag> ("topMuonsInput");
-  doJetCleaning_                 = iConfig.getParameter<bool> 	       ("doJetCleaning");
+  doJetCleaning_           = iConfig.getParameter<bool>                     ( "doJetCleaning" );
+  topElectronsLabel_       = iConfig.getParameter<edm::InputTag>            ( "topElectronsInput" );
+  topMuonsLabel_           = iConfig.getParameter<edm::InputTag>            ( "topMuonsInput" );
   // TEMP End
-  getJetMCFlavour_               = iConfig.getParameter<bool>          ("getJetMCFlavour");
-  jetPartonMapSource_            = iConfig.getParameter<edm::InputTag> ("JetPartonMapSource");
-  doGenPartonMatch_              = iConfig.getParameter<bool>          ("doGenPartonMatch");
-  genPartonSrc_                  = iConfig.getParameter<edm::InputTag> ("genPartonSrc");
-  doGenJetMatch_                 = iConfig.getParameter<bool>          ("doGenJetMatch");
-  genJetSrc_                     = iConfig.getParameter<edm::InputTag> ("genJetSrc");
-  doPartonJetMatch_              = iConfig.getParameter<bool>          ("doPartonJetMatch");
-  partonJetSrc_                  = iConfig.getParameter<edm::InputTag> ("partonJetSrc");
-  addResolutions_             	 = iConfig.getParameter<bool>          ("addResolutions");
-  caliJetResoFile_               = iConfig.getParameter<std::string>   ("caliJetResoFile");
-  storeBTagInfo_                 = iConfig.getParameter<bool>          ("storeBTagInfo");
-  ignoreTrackCountingFromAOD_    = iConfig.getParameter<bool>          ("ignoreTrackCountingFromAOD");
-  ignoreTrackProbabilityFromAOD_ = iConfig.getParameter<bool>          ("ignoreTrackProbabilityFromAOD");
-  ignoreSoftMuonFromAOD_         = iConfig.getParameter<bool>          ("ignoreSoftMuonFromAOD");
-  ignoreSoftElectronFromAOD_     = iConfig.getParameter<bool>          ("ignoreSoftElectronFromAOD");
-  keepDiscriminators_            = iConfig.getParameter<bool>          ("keepDiscriminators");
-  keepJetTagRefs_                = iConfig.getParameter<bool>          ("keepJetTagRefs");
-  computeJetCharge_              = iConfig.getParameter<bool>          ("computeJetCharge"); 
-  storeAssociatedTracks_         = iConfig.getParameter<bool>          ("storeAssociatedTracks"); 
-
-  tagModuleLabelsToIgnore_       = iConfig.getParameter< std::vector<std::string> >("tagModuleLabelsToIgnore");
-  bTaggingTagInfoNames_          = iConfig.getParameter< std::vector<std::string> >("bTagInfoNames");
+  getJetMCFlavour_         = iConfig.getParameter<bool>                     ( "getJetMCFlavour" );
+  jetPartonMapSource_      = iConfig.getParameter<edm::InputTag>            ( "JetPartonMapSource" );
+  addGenPartonMatch_       = iConfig.getParameter<bool>                     ( "addGenPartonMatch" );
+  genPartonSrc_            = iConfig.getParameter<edm::InputTag>            ( "genPartonSource" );
+  addGenJetMatch_          = iConfig.getParameter<bool>                     ( "addGenJetMatch" );
+  genJetSrc_               = iConfig.getParameter<edm::InputTag>            ( "genJetSource" );
+  addPartonJetMatch_       = iConfig.getParameter<bool>                     ( "addPartonJetMatch" );
+  partonJetSrc_            = iConfig.getParameter<edm::InputTag>            ( "partonJetSource" );
+  addResolutions_          = iConfig.getParameter<bool>                     ( "addResolutions" );
+  useNNReso_               = iConfig.getParameter<bool>                     ( "useNNResolutions" );
+  caliJetResoFile_         = iConfig.getParameter<std::string>              ( "caliJetResoFile" );
+  addBTagInfo_             = iConfig.getParameter<bool>                     ( "addBTagInfo" );
+  addDiscriminators_       = iConfig.getParameter<bool>                     ( "addDiscriminators" );
+  addJetTagRefs_           = iConfig.getParameter<bool>                     ( "addJetTagRefs" );
+  bTaggingTagInfoNames_    = iConfig.getParameter<std::vector<std::string> >( "bTagInfoNames" );
+  tagModuleLabelsToIgnore_ = iConfig.getParameter<std::vector<std::string> >( "tagModuleLabelsToIgnore" );
+  addAssociatedTracks_     = iConfig.getParameter<bool>                     ( "addAssociatedTracks" ); 
+  trackAssociationPSet_    = iConfig.getParameter<edm::ParameterSet>        ( "trackAssociation" );
+  addJetCharge_            = iConfig.getParameter<bool>                     ( "addJetCharge" ); 
+  jetChargePSet_           = iConfig.getParameter<edm::ParameterSet>        ( "jetCharge" );
 
   // TEMP Jet cleaning from electrons
   LEPJETDR_=0.3;//deltaR cut used to associate a jet to an electron for jet cleaning.  Make it configurable?
@@ -66,14 +64,12 @@ TopJetProducer::TopJetProducer(const edm::ParameterSet& iConfig) {
   // TEMP End
     
   // construct resolution calculator
-  if (addResolutions_) theResoCalc_ = new TopObjectResolutionCalc(edm::FileInPath(caliJetResoFile_).fullPath(), iConfig.getParameter<bool>("useNNresolution"));
+  if (addResolutions_) theResoCalc_ = new TopObjectResolutionCalc(edm::FileInPath(caliJetResoFile_).fullPath(), useNNReso_);
 
   // construct Jet Track Associator
-  trackAssociationPSet_     = iConfig.getParameter<edm::ParameterSet>("trackAssociation");
   simpleJetTrackAssociator_ = reco::helper::SimpleJetTrackAssociator(trackAssociationPSet_);      
   // construct Jet Charge Computer
-  jetChargePSet_ = iConfig.getParameter<edm::ParameterSet>("jetCharge");
-  if (computeJetCharge_) jetCharge_ = new JetCharge(jetChargePSet_);
+  if (addJetCharge_) jetCharge_ = new JetCharge(jetChargePSet_);
  
   // produces vector of jets
   produces<std::vector<TopJet> >();
@@ -81,8 +77,8 @@ TopJetProducer::TopJetProducer(const edm::ParameterSet& iConfig) {
 
 
 TopJetProducer::~TopJetProducer() {
-  if (addResolutions_)   delete theResoCalc_;
-  if (computeJetCharge_) delete jetCharge_;
+  if (addResolutions_) delete theResoCalc_;
+  if (addJetCharge_) delete jetCharge_;
 }
 
 
@@ -121,14 +117,14 @@ void TopJetProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
 
   // Get the vector of generated particles from the event if needed
   edm::Handle<reco::CandidateCollection> particles;
-  if (doGenPartonMatch_) iEvent.getByLabel(genPartonSrc_, particles);
+  if (addGenPartonMatch_) iEvent.getByLabel(genPartonSrc_, particles);
   // Get the vector of GenJets from the event if needed
   edm::Handle<reco::GenJetCollection> genJets;
-  if (doGenJetMatch_) iEvent.getByLabel(genJetSrc_, genJets);
+  if (addGenJetMatch_) iEvent.getByLabel(genJetSrc_, genJets);
 /* TO BE IMPLEMENTED FOR >= 1_5_X
   // Get the vector of PartonJets from the event if needed
   edm::Handle<reco::SomePartonJetType> particles;
-  if (doPartonJetMatch_) iEvent.getByLabel(partonJetSrc_, partonJets);
+  if (addPartonJetMatch_) iEvent.getByLabel(partonJetSrc_, partonJets);
 */
 
   // Get the vector of jet tags with b-tagging info
@@ -195,7 +191,7 @@ void TopJetProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
         }
       }
       // do the parton matching
-      if (doGenPartonMatch_) {
+      if (addGenPartonMatch_) {
         // initialize best match as null
         reco::GenParticleCandidate bestParton(0, reco::Particle::LorentzVector(0, 0, 0, 0), reco::Particle::Point(0,0,0), 0, 0, true);
         float bestDR = 0;
@@ -214,7 +210,7 @@ void TopJetProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
         ajet.setGenParton(bestParton);
       }
       // do the GenJet matching
-      if (doGenJetMatch_) {
+      if (addGenJetMatch_) {
         // initialize best match as null
 //NEED TO INITIALIZE TO ZERO
         reco::GenJet bestGenJet;//0, reco::Particle::LorentzVector(0, 0, 0, 0), reco::Particle::Point(0,0,0), 0, 0);
@@ -232,11 +228,16 @@ void TopJetProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
         ajet.setGenJet(bestGenJet);
       }
       // TO BE IMPLEMENTED FOR >=1_5_X: do the PartonJet matching
-      if (doPartonJetMatch_) {
+      if (addPartonJetMatch_) {
+      }
+
+      // add resolution info if demanded
+      if (addResolutions_) {
+        (*theResoCalc_)(ajet);
       }
 
       // add b-tag info if available & required
-      if (storeBTagInfo_) {
+      if (addBTagInfo_) {
         for (size_t k=0; k<jetTags_testManyByType.size(); k++) {
           edm::Handle<std::vector<reco::JetTag> > jetTags = jetTags_testManyByType[k];
 
@@ -250,40 +251,29 @@ void TopJetProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
             if (moduleLabel == tagModuleLabelsToIgnore_[i]) { tagShouldBeIgnored = true; }
           }
           if (tagShouldBeIgnored) continue;
-          /*
-          if(  (moduleLabel == "trackCountingJetTags"    && ignoreTrackCountingFromAOD_    == true ) ) continue;
-          if(  (moduleLabel == "trackProbabilityJetTags" && ignoreTrackProbabilityFromAOD_ == true ) ) continue;
-          if(  (moduleLabel == "softMuonJetTags"         && ignoreSoftMuonFromAOD_         == true ) ) continue;
-          if(  (moduleLabel == "softElectronJetTags    " && ignoreSoftElectronFromAOD_     == true ) ) continue;
-          */
 
           for (size_t t = 0; t < jetTags->size(); t++) {
             edm::RefToBase<reco::Jet> jet_p = (*jetTags)[t].jet();
-            if (jet_p.isNull()) { /*std::cout << "-----------> JetTag::jet() returned null reference" << std::endl; */continue; }
-
-            // FIXME: is this 0.0001 matching fullproof?
+            if (jet_p.isNull()) {
+              /*std::cout << "-----------> JetTag::jet() returned null reference" << std::endl; */
+              continue;
+            }
             if (DeltaR<reco::Candidate>()( (*recjets)[j], *jet_p ) < 0.00001) {
-
-              //FIXME add combined tagger
               //********store discriminators*********
-              if (keepDiscriminators_) {
+              if (addDiscriminators_) {
                 std::pair<std::string, double> pairDiscri;
                 pairDiscri.first = moduleLabel;
                 pairDiscri.second = (*jetTags)[t].discriminator();
                 //drop TauTag!!!
                 for (unsigned int i = 0; i < bTaggingTagInfoNames_.size(); ++i) {
-                  if (moduleTagInfoName == bTaggingTagInfoNames_[i]) { ajet.addBDiscriminatorPair(pairDiscri); }
+                  if (moduleTagInfoName == bTaggingTagInfoNames_[i]) {
+                    ajet.addBDiscriminatorPair(pairDiscri);
+                    continue;
+                  }
                 }
-                /*
-                if(moduleTagInfoName == "TrackProbability" || moduleTagInfoName == "TrackCounting" || moduleTagInfoName == "SoftLepton" ) {
-                  ajet.addBDiscriminatorPair(pairDiscri);
-                }
-                */
               }
-
-              //FIXME add combined tagger
               //********store jetTagRef*********
-              if (keepJetTagRefs_) {
+              if (addJetTagRefs_) {
                 std::pair<std::string, reco::JetTagRef> pairjettagref;
                 pairjettagref.first = moduleLabel;
                 pairjettagref.second = reco::JetTagRef(jetTags, t);
@@ -294,25 +284,20 @@ void TopJetProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
         }
       }
 
-      // add resolution info if demanded
-      if (addResolutions_) {
-        (*theResoCalc_)(ajet);
-      }
-
     } else {
       std::cout << "no cal jet found " << std::endl;
     }
-    
+
     // Associate tracks with jet (at least temporary)
     simpleJetTrackAssociator_.associate(ajet.momentum(), hTracks, ajet.associatedTracks_);
            
     // PUT HERE EVERYTHING WHICH NEEDS TRACKS
-    if (computeJetCharge_) {
+    if (addJetCharge_) {
       ajet.jetCharge_ = static_cast<float>(jetCharge_->charge(ajet.p4(), ajet.associatedTracks_));
     }
     
     // drop jet track association if the user does not want it
-    if (!storeAssociatedTracks_) ajet.associatedTracks_.clear();
+    if (!addAssociatedTracks_) ajet.associatedTracks_.clear();
     
     // end of TopObjectProducer loop
     topJets->push_back(ajet);

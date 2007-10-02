@@ -2,7 +2,7 @@
 // Author:  Jan Heyninck, Steven Lowette
 // Created: Tue Apr  10 12:01:49 CEST 2007
 //
-// $Id: TopMETProducer.cc,v 1.6 2007/08/24 15:47:07 delaer Exp $
+// $Id: TopMETProducer.cc,v 1.7 2007/09/28 13:04:28 lowette Exp $
 //
 
 #include "TopQuarkAnalysis/TopObjectProducers/interface/TopMETProducer.h"
@@ -24,17 +24,16 @@
 TopMETProducer::TopMETProducer(const edm::ParameterSet & iConfig) {
   // initialize the configurables
   metSrc_         = iConfig.getParameter<edm::InputTag>("metSource");
-  calcGenMET_     = iConfig.getParameter<bool>         ("calcGenMET");
-  addResolutions_ = iConfig.getParameter<bool>         ("addResolutions");
-  addMuonCorr_    = iConfig.getParameter<bool>         ("addMuonCorrections");
+  addGenMET_      = iConfig.getParameter<bool>         ("addGenMET");
   genPartSrc_     = iConfig.getParameter<edm::InputTag>("genParticleSource");
+  addResolutions_ = iConfig.getParameter<bool>         ("addResolutions");
+  useNNReso_      = iConfig.getParameter<bool>         ("useNNResolutions");
   metResoFile_    = iConfig.getParameter<std::string>  ("metResoFile");
+  addMuonCorr_    = iConfig.getParameter<bool>         ("addMuonCorrections");
   muonSrc_        = iConfig.getParameter<edm::InputTag>("muonSource");   
   
   // construct resolution calculator
-  if(addResolutions_){
-    metResoCalc_ = new TopObjectResolutionCalc(edm::FileInPath(metResoFile_).fullPath(), iConfig.getParameter<bool>("useNNresolution"));
-  }
+  if (addResolutions_) metResoCalc_ = new TopObjectResolutionCalc(edm::FileInPath(metResoFile_).fullPath(), useNNReso_);
   
   // produces vector of mets
   produces<std::vector<TopMET> >();
@@ -58,7 +57,7 @@ void TopMETProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
 
   // Get the vector of generated particles from the event if needed
   edm::Handle<reco::CandidateCollection> particles;
-  if (calcGenMET_) {
+  if (addGenMET_) {
     iEvent.getByLabel(genPartSrc_, particles);
   }
 
@@ -74,7 +73,7 @@ void TopMETProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
     // construct the TopMET
     TopMET amet((*mets)[j]);
     // calculate the generated MET (just sum of neutrinos)
-    if (calcGenMET_) {
+    if (addGenMET_) {
       reco::Particle theGenMET(0, reco::Particle::LorentzVector(0, 0, 0, 0), reco::Particle::Point(0,0,0));
       for(reco::CandidateCollection::const_iterator itGenPart = particles->begin(); itGenPart != particles->end(); ++itGenPart) {
         reco::Candidate * aTmpGenPart = const_cast<reco::Candidate *>(&*itGenPart);

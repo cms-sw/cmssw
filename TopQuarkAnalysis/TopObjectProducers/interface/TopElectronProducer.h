@@ -1,5 +1,5 @@
 //
-// $Id: TopElectronProducer.h,v 1.15 2007/09/20 18:12:24 lowette Exp $
+// $Id: TopElectronProducer.h,v 1.16 2007/09/21 00:28:12 lowette Exp $
 //
 
 #ifndef TopObjectProducers_TopElectronProducer_h
@@ -14,7 +14,7 @@
    and calculation of a lepton likelihood ratio
 
   \author   Jan Heyninck, Steven Lowette
-  \version  $Id: TopElectronProducer.h,v 1.15 2007/09/20 18:12:24 lowette Exp $
+  \version  $Id: TopElectronProducer.h,v 1.16 2007/09/21 00:28:12 lowette Exp $
 */
 
 
@@ -61,7 +61,7 @@ class TopElectronProducer : public edm::EDProducer {
     // configurables
     edm::InputTag electronSrc_;
     bool          doGhostRemoval_;
-    bool          doGenMatch_;
+    bool          addGenMatch_;
     edm::InputTag genPartSrc_;
     double        maxDeltaR_;
     double        minRecoOnGenEt_;
@@ -69,9 +69,9 @@ class TopElectronProducer : public edm::EDProducer {
     bool          addResolutions_;
     bool          useNNReso_;
     std::string   electronResoFile_;
-    bool          doTrkIso_;
+    bool          addTrkIso_;
     edm::InputTag tracksSrc_;
-    bool          doCalIso_;
+    bool          addCalIso_;
     edm::InputTag towerSrc_;
     bool          addElecID_;
     edm::InputTag elecIDSrc_;

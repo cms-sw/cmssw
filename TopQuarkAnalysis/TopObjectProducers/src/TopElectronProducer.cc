@@ -1,5 +1,5 @@
 //
-// $Id: TopElectronProducer.cc,v 1.22 2007/09/21 00:28:15 lowette Exp $
+// $Id: TopElectronProducer.cc,v 1.23 2007/09/28 12:43:51 lowette Exp $
 //
 
 #include "TopQuarkAnalysis/TopObjectProducers/interface/TopElectronProducer.h"
@@ -26,19 +26,19 @@ TopElectronProducer::TopElectronProducer(const edm::ParameterSet & iConfig) {
   // ghost removal configurable
   doGhostRemoval_   = iConfig.getParameter<bool>         ( "removeDuplicates" );
   // MC matching configurables
-  doGenMatch_       = iConfig.getParameter<bool>         ( "doGenMatch" );
+  addGenMatch_      = iConfig.getParameter<bool>         ( "addGenMatch" );
   genPartSrc_       = iConfig.getParameter<edm::InputTag>( "genParticleSource" );
   maxDeltaR_        = iConfig.getParameter<double>       ( "maxDeltaR" );
   minRecoOnGenEt_   = iConfig.getParameter<double>       ( "minRecoOnGenEt" );
   maxRecoOnGenEt_   = iConfig.getParameter<double>       ( "maxRecoOnGenEt" );
   // resolution configurables
   addResolutions_   = iConfig.getParameter<bool>         ( "addResolutions" );
-  useNNReso_        = iConfig.getParameter<bool>         ( "useNNResolution" );
+  useNNReso_        = iConfig.getParameter<bool>         ( "useNNResolutions" );
   electronResoFile_ = iConfig.getParameter<std::string>  ( "electronResoFile" );
   // isolation configurables
-  doTrkIso_         = iConfig.getParameter<bool>         ( "doTrkIsolation" );
+  addTrkIso_        = iConfig.getParameter<bool>         ( "addTrkIsolation" );
   tracksSrc_        = iConfig.getParameter<edm::InputTag>( "tracksSource" );
-  doCalIso_         = iConfig.getParameter<bool>         ( "doCalIsolation" );
+  addCalIso_        = iConfig.getParameter<bool>         ( "addCalIsolation" );
   towerSrc_         = iConfig.getParameter<edm::InputTag>( "towerSource" );
   // electron ID configurables
   addElecID_        = iConfig.getParameter<bool>         ( "addElectronID" );
@@ -77,19 +77,19 @@ void TopElectronProducer::produce(edm::Event & iEvent, const edm::EventSetup & i
 
   // prepare the MC matching
   edm::Handle<reco::CandidateCollection> particles;
-  if (doGenMatch_) {
+  if (addGenMatch_) {
     iEvent.getByLabel(genPartSrc_, particles);
     matchTruth(*particles, electrons) ;
   }
 
   // prepare isolation calculation
   edm::Handle<reco::TrackCollection> trackHandle;
-  if (doTrkIso_) {
+  if (addTrkIso_) {
     trkIsolation_= new TrackerIsolationPt();
     iEvent.getByLabel(tracksSrc_, trackHandle);
   }
   std::vector<CaloTower> towers;
-  if (doCalIso_) {
+  if (addCalIso_) {
     calIsolation_= new CaloIsolationEnergy();
     edm::Handle<CaloTowerCollection> towerHandle;
     iEvent.getByLabel(towerSrc_, towerHandle);
@@ -113,7 +113,7 @@ void TopElectronProducer::produce(edm::Event & iEvent, const edm::EventSetup & i
     // construct the TopElectron
     TopElectron anElectron(electrons[e]);
     // match to generated final state electrons
-    if (doGenMatch_) {
+    if (addGenMatch_) {
       anElectron.setGenLepton(findTruth(*particles, electrons[e]));
     }
     // add resolution info
@@ -121,11 +121,11 @@ void TopElectronProducer::produce(edm::Event & iEvent, const edm::EventSetup & i
       (*theResoCalc_)(anElectron);
     }
     // do tracker isolation
-    if (doTrkIso_) {
+    if (addTrkIso_) {
       anElectron.setTrackIso(trkIsolation_->calculate(anElectron, *trackHandle));
     }
     // do calorimeter isolation
-    if (doCalIso_) {
+    if (addCalIso_) {
       anElectron.setCaloIso(calIsolation_->calculate(anElectron, towers));
     }
     // add electron ID info
@@ -148,8 +148,8 @@ void TopElectronProducer::produce(edm::Event & iEvent, const edm::EventSetup & i
   iEvent.put(ptr);
 
   // clean up
-  if (doTrkIso_) delete trkIsolation_;
-  if (doCalIso_) delete calIsolation_;
+  if (addTrkIso_) delete trkIsolation_;
+  if (addCalIso_) delete calIsolation_;
   if (addLRValues_) delete theLeptonLRCalc_;
 
 }

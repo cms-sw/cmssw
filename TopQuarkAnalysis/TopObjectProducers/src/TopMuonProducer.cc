@@ -1,5 +1,5 @@
 //
-// $Id: TopMuonProducer.cc,v 1.15 2007/09/21 01:01:04 lowette Exp $
+// $Id: TopMuonProducer.cc,v 1.16 2007/09/28 13:09:17 lowette Exp $
 //
 
 #include "TopQuarkAnalysis/TopObjectProducers/interface/TopMuonProducer.h"
@@ -23,14 +23,14 @@ TopMuonProducer::TopMuonProducer(const edm::ParameterSet & iConfig) {
   // general configurables
   muonSrc_       = iConfig.getParameter<edm::InputTag>( "muonSource" );
   // MC matching configurables
-  doGenMatch_    = iConfig.getParameter<bool>         ( "doGenMatch" );
+  addGenMatch_    = iConfig.getParameter<bool>        ( "addGenMatch" );
   genPartSrc_    = iConfig.getParameter<edm::InputTag>( "genParticleSource" );
   maxDeltaR_     = iConfig.getParameter<double>       ( "maxDeltaR" );
   minRecoOnGenEt_= iConfig.getParameter<double>       ( "minRecoOnGenEt" );
   maxRecoOnGenEt_= iConfig.getParameter<double>       ( "maxRecoOnGenEt" );
   // resolution configurables
   addResolutions_= iConfig.getParameter<bool>         ( "addResolutions" );
-  useNNReso_     = iConfig.getParameter<bool>         ( "useNNResolution" );
+  useNNReso_     = iConfig.getParameter<bool>         ( "useNNResolutions" );
   muonResoFile_  = iConfig.getParameter<std::string>  ( "muonResoFile" );
   // muon ID configurables
   addMuonID_     = iConfig.getParameter<bool>         ( "addMuonID" );
@@ -64,7 +64,7 @@ void TopMuonProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetu
 
   // prepare the MC matching
   edm::Handle<reco::CandidateCollection> particles;
-  if (doGenMatch_) {
+  if (addGenMatch_) {
     iEvent.getByLabel(genPartSrc_, particles);
     matchTruth(*particles, muons);
   }
@@ -80,7 +80,7 @@ void TopMuonProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetu
     // construct the TopMuon
     TopMuon aMuon(muons[m]);
     // match to generated final state muons
-    if (doGenMatch_) {
+    if (addGenMatch_) {
       aMuon.setGenLepton(findTruth(*particles, muons[m]));
     }
     // add resolution info

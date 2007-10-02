@@ -1,5 +1,5 @@
 //
-// $Id: TopMuonProducer.h,v 1.12 2007/09/21 01:00:53 lowette Exp $
+// $Id: TopMuonProducer.h,v 1.13 2007/09/28 13:55:07 lowette Exp $
 //
 
 #ifndef TopObjectProducers_TopMuonProducer_h
@@ -14,7 +14,7 @@
    calculation of a lepton likelihood ratio
 
   \author   Jan Heyninck, Steven Lowette
-  \version  $Id: TopMuonProducer.h,v 1.12 2007/09/21 01:00:53 lowette Exp $
+  \version  $Id: TopMuonProducer.h,v 1.13 2007/09/28 13:55:07 lowette Exp $
 */
 
 
@@ -52,7 +52,7 @@ class TopMuonProducer : public edm::EDProducer {
   
     // configurables
     edm::InputTag muonSrc_;
-    bool          doGenMatch_;
+    bool          addGenMatch_;
     edm::InputTag genPartSrc_;
     double        maxDeltaR_;
     double        minRecoOnGenEt_;
