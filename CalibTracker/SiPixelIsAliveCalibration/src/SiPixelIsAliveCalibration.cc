@@ -13,7 +13,7 @@
 //
 // Original Author:  Freya Blekman
 //         Created:  Thu Jun 14 18:06:29 CEST 2007
-// $Id: SiPixelIsAliveCalibration.cc,v 1.5 2007/08/16 14:56:52 fblekman Exp $
+// $Id: SiPixelIsAliveCalibration.cc,v 1.6 2007/09/17 16:17:37 fblekman Exp $
 //
 //
 
@@ -22,6 +22,7 @@
 #include <memory>
 
 // user include files
+#include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 
@@ -46,6 +47,7 @@
 
 #include "PhysicsTools/UtilAlgos/interface/TFileDirectory.h"
 #include "PhysicsTools/UtilAlgos/interface/TFileService.h"
+#include "CondFormats/DataRecord/interface/SiPixelCalibConfigurationRcd.h"
 
 #include "TH2F.h"
 #include "TStyle.h"
@@ -69,14 +71,12 @@
 //
 // constructors and destructor
 //
-SiPixelIsAliveCalibration::SiPixelIsAliveCalibration(const edm::ParameterSet& iConfig):use_calib_(iConfig.getUntrackedParameter<bool>("useCalibFile",false)),
-								 inputconfigfile_( iConfig.getUntrackedParameter<std::string>( "inputFileName","/afs/cern.ch/cms/Tracker/Pixel/forward/ryd/calib_070106d.dat" ) ),eventno_counter(0),
+SiPixelIsAliveCalibration::SiPixelIsAliveCalibration(const edm::ParameterSet& iConfig):use_calib_(iConfig.getUntrackedParameter<bool>("useCalibDb",false)),
+								eventno_counter(0),
   src_( iConfig.getUntrackedParameter<std::string>("src","source"))
 {
    //now do what ever initialization is needed
   theHistos_=new TObjArray();
-  if(use_calib_)
-    calib_ = new SiPixelCalibConfiguration(inputconfigfile_);
 }
 
 
@@ -106,7 +106,7 @@ SiPixelIsAliveCalibration::analyze(const edm::Event& iEvent, const edm::EventSet
    edm::LogInfo("DEBUG") << "SiPixelGainCalibrationAnalysis:found " << pixelDigis->size() << " digi hits..." << std::endl;
    int ntriggers = 1;
    if(use_calib_)
-     ntriggers = calib_->nTriggersPerPattern();
+     ntriggers = calib_->nTriggers();
    //   std::cout << "ntriggeers = " << ntriggers << std::endl;
    for (digiIter = pixelDigis->begin() ; digiIter != pixelDigis->end(); digiIter++){// loop over detector units...
      unsigned int detid = digiIter->id; 
@@ -158,8 +158,9 @@ void SiPixelIsAliveCalibration::writeOutRootMacro(void){
 
 // ------------ method called once each job just before starting event loop  ------------
 void 
-SiPixelIsAliveCalibration::beginJob(const edm::EventSetup&)
+SiPixelIsAliveCalibration::beginJob(const edm::EventSetup& iSetup)
 {
+  iSetup.get<SiPixelCalibConfigurationRcd>().get(calib_);
 }
 //------------------------------------------
 // function that adds data to histograms.

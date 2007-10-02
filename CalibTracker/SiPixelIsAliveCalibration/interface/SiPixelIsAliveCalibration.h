@@ -46,11 +46,11 @@ class SiPixelIsAliveCalibration : public edm::EDAnalyzer {
       bool use_calib_;
       std::string src_;
       unsigned int eventno_counter;
-      std::string inputconfigfile_;
+
       void fill(unsigned int detid, unsigned int adc, unsigned int icol, unsigned int irow, unsigned int ntimes);
       void init(unsigned detid);
       TObjArray *theHistos_;
-      SiPixelCalibConfiguration *calib_;
+      edm::ESHandle<SiPixelCalibConfiguration> calib_; // keeps track of the calibration constants
       TString makeHistName(unsigned int detid);
       edm::Service<TFileService> therootfileservice_;
       edm::ESHandle<TrackerGeometry> geom_;

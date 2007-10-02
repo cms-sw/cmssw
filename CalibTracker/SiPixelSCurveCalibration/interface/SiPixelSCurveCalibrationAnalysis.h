@@ -52,12 +52,11 @@ class SiPixelSCurveCalibrationAnalysis : public edm::EDAnalyzer
     edm::ESHandle<SiPixelFedCablingMap> map_;
     std::string pixsrc_; 
     unsigned int evtnum_;
-    std::string inputcalibfile_;
     std::string outputtxtfile_;
     unsigned int fedid_; 
     unsigned int histoNum_;
     bool printHistos_; 
-    SiPixelCalibConfiguration* calib_;
+    edm::ESHandle<SiPixelCalibConfiguration> calib_;
     unsigned int vcalmin_;
     unsigned int vcalmax_;
     unsigned int vcalstep_; 

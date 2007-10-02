@@ -13,7 +13,7 @@ Implementation:
 //
 // Original Author:  Freya Blekman
 //         Created:  Thu Apr 26 10:38:32 CEST 2007
-// $Id: SiPixelGainCalibrationUnpackLocal.cc,v 1.2 2007/06/26 14:03:33 fblekman Exp $
+// $Id: SiPixelGainCalibrationUnpackLocal.cc,v 1.3 2007/09/18 09:35:22 fblekman Exp $
 //
 //
 
@@ -23,6 +23,7 @@ Implementation:
 #include <iostream>
 
 // user include files
+#include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 
@@ -40,11 +41,43 @@ Implementation:
 #include "CalibTracker/SiPixelGainCalibration/interface/PixelROCGainCalibHists.h"
 #include "CalibTracker/SiPixelGainCalibration/interface/PixelSLinkDataHit.h"
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
+#include "CondFormats/DataRecord/interface/SiPixelCalibConfigurationRcd.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "PhysicsTools/UtilAlgos/interface/TFileDirectory.h"
+#include "PhysicsTools/UtilAlgos/interface/TFileService.h"
+
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+// other classes
+#include "DataFormats/SiPixelDigi/interface/PixelDigi.h"
+#include "DataFormats/DetId/interface/DetId.h"
+#include "DataFormats/SiPixelDigi/interface/PixelDigiCollection.h"
+#include "DataFormats/Common/interface/DetSetVector.h"
+#include "CalibTracker/SiPixelGainCalibration/interface/SiPixelGainCalibrationAnalysis.h"
+#include "DataFormats/FEDRawData/interface/FEDRawData.h"
+#include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
+#include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
+#include "DataFormats/SiPixelDetId/interface/PXBDetId.h"
+#include "DataFormats/SiPixelDetId/interface/PXFDetId.h"
+#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h" 
+#include "Geometry/TrackerTopology/interface/RectangularPixelTopology.h"
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+#include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
+#include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetType.h"
+#include "DataFormats/SiPixelDetId/interface/PixelModuleName.h"
+#include "DataFormats/SiPixelDetId/interface/PixelEndcapName.h"
+#include "DataFormats/SiPixelDetId/interface/PixelBarrelName.h"
+#include "CondFormats/DataRecord/interface/SiPixelCalibConfigurationRcd.h"
 #include <string>
 #include <vector>
 #include <iostream>
 #include "TFile.h"
 #include "TF1.h"
+#include "CondFormats/DataRecord/interface/SiPixelCalibConfigurationRcd.h"
 #include "CalibTracker/SiPixelGainCalibration/interface/SiPixelGainCalibrationUnpackLocal.h"
 
 //
@@ -60,9 +93,7 @@ Implementation:
 //
 SiPixelGainCalibrationUnpackLocal::SiPixelGainCalibrationUnpackLocal(const edm::ParameterSet& iConfig) 
   : eventno_counter(0),
-    inputfile_( iConfig.getUntrackedParameter<std::string>( "inputFileName","/afs/cern.ch/cms/Tracker/Pixel/forward/ryd/calib_070106d.dat" ) ), 
     outputfilename_( iConfig.getUntrackedParameter<std::string>( "outputRootFileName","histograms_for_monitoring.root" ) ), 
-    calib_(0),
     nrowsmax_( iConfig.getUntrackedParameter<unsigned int>( "numberOfPixelRows",80)),
     ncolsmax_( iConfig.getUntrackedParameter<unsigned int>( "numberOfPixelColumns",52)),
     nrocsmax_( iConfig.getUntrackedParameter<unsigned int>( "numberOfPixelROCs",24)),
@@ -114,7 +145,7 @@ SiPixelGainCalibrationUnpackLocal::analyze(const edm::Event& iEvent, const edm::
   using namespace edm;
     
   
-  unsigned int vcal = calib_->vcal_fromeventno(eventno_counter);
+  unsigned int vcal = calib_->vcalForEvent(eventno_counter);
   eventno_counter++;
   Handle<FEDRawDataCollection> fedRawDataCollection;
   iEvent.getByType(fedRawDataCollection);// nasty, we should do a label check.... TO BE FIXED
@@ -169,18 +200,18 @@ SiPixelGainCalibrationUnpackLocal::analyze(const edm::Event& iEvent, const edm::
 
 // ------------ method called once each job just before starting event loop  ------------
 void 
-SiPixelGainCalibrationUnpackLocal::beginJob(const edm::EventSetup&)
+SiPixelGainCalibrationUnpackLocal::beginJob(const edm::EventSetup& iSetup)
 {
 
   edm::LogVerbatim("") << "In SiPixelGainCalibrationUnpackLocal::beginJob" << std::endl;
-  edm::LogVerbatim("") << "Reading in SiPixelCalibConfiguration file: " << inputfile_ << std::endl;
-  calib_=new SiPixelCalibConfiguration(inputfile_);
+
+  iSetup.get<SiPixelCalibConfigurationRcd>().get(calib_);
 
   int nvcal=calib_->nVcal();	
   edm::LogVerbatim("") << calib_->vcal_first() << " " << calib_->vcal_last() << " " << calib_->vcal_step() << std::endl;
   edm::LogVerbatim("") << "number of calibrations: " << nvcal << std::endl;
-  edm::LogVerbatim("")<< "number of triggers : " << calib_->nTriggersPerPattern() << std::endl;
-  edm::LogVerbatim("") << "number of triggers (total): " << calib_->nTriggersTotal() << std::endl;
+  edm::LogVerbatim("")<< "number of triggers : " << calib_->patternSize() << std::endl;
+  edm::LogVerbatim("") << "number of triggers (total): " << calib_->expectedTotalEvents() << std::endl;
   for(unsigned int linkid=0;linkid<nchannelsmax_;linkid++){
     for(unsigned int rocid=0;rocid<nrocsmax_;rocid++){
       rocgain_[linkid][rocid]. init(linkid,rocid,nvcal);
@@ -283,6 +314,5 @@ SiPixelGainCalibrationUnpackLocal::endJob() {
 //     }
 //   }
 
-  if (calib_!=0) delete calib_; calib_=0;
   edm::LogVerbatim("") << "***********************************" << std::endl;
 }

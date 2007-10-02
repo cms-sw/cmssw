@@ -13,7 +13,7 @@
 //
 // Original Author:  Freya Blekman
 //         Created:  Mon May  7 14:22:37 CEST 2007
-// $Id: SiPixelGainCalibrationAnalysis.cc,v 1.12 2007/09/17 16:33:12 fblekman Exp $
+// $Id: SiPixelGainCalibrationAnalysis.cc,v 1.13 2007/09/24 10:09:05 friis Exp $
 //
 //
 
@@ -49,8 +49,10 @@
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
 #include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetType.h"
+#include "DataFormats/SiPixelDetId/interface/PixelModuleName.h"
 #include "DataFormats/SiPixelDetId/interface/PixelEndcapName.h"
 #include "DataFormats/SiPixelDetId/interface/PixelBarrelName.h"
+#include "CondFormats/DataRecord/interface/SiPixelCalibConfigurationRcd.h"
 // root classes
 #include "TF1.h"
 #include "TRandom.h"
@@ -72,7 +74,6 @@ SiPixelGainCalibrationAnalysis::SiPixelGainCalibrationAnalysis(const edm::Parame
   eventno_counter_(0),
   src_( iConfig.getUntrackedParameter<std::string>("src","source")),
   instance_ (iConfig.getUntrackedParameter<std::string>("InputInstance","")),
-  inputconfigfile_( iConfig.getUntrackedParameter<std::string>( "inputFileName","/afs/cern.ch/cms/Tracker/Pixel/forward/ryd/calib_070106d.dat" ) ),
   vcal_fitmin_(256),
   vcal_fitmax_(0),
   vcal_fitmax_fixed_( iConfig.getUntrackedParameter<uint32_t>( "cutoffVCalFit",255)),
@@ -92,16 +93,14 @@ SiPixelGainCalibrationAnalysis::SiPixelGainCalibrationAnalysis(const edm::Parame
   minimumChi2prob_(iConfig.getUntrackedParameter<double>("minimumChi2prob", 0.1)),
   dropLowVcalOutliersForCurvesWithBadChi2_(iConfig.getUntrackedParameter<bool>("dropLowVcalOutliersForCurvesWithBadChi2", false)),
   useFirstNonZeroBinForFitMin_(iConfig.getUntrackedParameter<bool>("useFirstNonZeroBinForFitMin", false))
-
+  
 {
    //now do what ever initialization is needed
   if(test_)
     save_histos_=true;
   
   // std::auto_ptr <SiPixelCalibConfiguration> bla( new SiPixelCalibConfiguration(inputconfigfile_));
-  SiPixelCalibConfiguration tempcalib(inputconfigfile_);
-  calib_ =tempcalib;
-
+ 
   //intiatialize list of plaquettes to save (default empty)
   std::vector<std::string> defaultEmptyVString;
   plaquettesToSave_ = iConfig.getUntrackedParameter< std::vector<std::string> >("plaquettesToSave", defaultEmptyVString );
@@ -132,7 +131,7 @@ SiPixelGainCalibrationAnalysis::~SiPixelGainCalibrationAnalysis()
 //
 
 bool SiPixelGainCalibrationAnalysis::doFits(){
-  TH1F gr("temporary","temporary",calib_.nVcal(),calib_.vcal_first(),calib_.vcal_last());
+  TH1F gr("temporary","temporary",calib_->nVcal(),calib_->vcal_first(),calib_->vcal_last());
     
   for(std::map<uint32_t,uint32_t>::iterator imap = detIDmap_.begin(); imap!=detIDmap_.end(); ++imap){
     uint32_t detid= imap->first;
@@ -173,18 +172,18 @@ bool SiPixelGainCalibrationAnalysis::doFits(){
 	float response = calibPixels_[detid][ipixel].getpoint(ipoint,0);
 	float error = calibPixels_[detid][ipixel].geterror(ipoint,1);
 	if(do_scurveinstead_){
-	  response = calibPixels_[detid][ipixel].getefficiency(ipoint,calib_.nTriggers());
-	  //error = calibPixels_[detid][ipixel].geterroreff(ipoint,calib_.nTriggers());
+	  response = calibPixels_[detid][ipixel].getefficiency(ipoint,calib_->nTriggers());
+	  //error = calibPixels_[detid][ipixel].geterroreff(ipoint,calib_->nTriggers());
 	  double responseForErrorCalc = response;
 	  if (response >= 1) {
 	     response = 1;
-	     responseForErrorCalc = 1.0 - 0.5/calib_.nTriggers();
+	     responseForErrorCalc = 1.0 - 0.5/calib_->nTriggers();
 	     edm::LogInfo("INFO") << "WARNING: Efficiency greater than one for " << histname.Data() << std::endl;
 	  } else if (response <= 0) {
 	     response = 0;
-	     responseForErrorCalc = 0.5/calib_.nTriggers();
+	     responseForErrorCalc = 0.5/calib_->nTriggers();
 	  }
-	  error = TMath::Sqrt(responseForErrorCalc*(1-responseForErrorCalc))/calib_.nTriggers();
+	  error = TMath::Sqrt(responseForErrorCalc*(1-responseForErrorCalc))/calib_->nTriggers();
 	}
 	gr.SetBinContent(ipoint,response);
 	gr.SetBinError(ipoint,error);
@@ -267,7 +266,7 @@ bool SiPixelGainCalibrationAnalysis::doFits(){
 
 	 //save individual histogram if necessary
 	 if(save_histos_  || (saveAllGainCurvesForGivenPlaquettes_ && thisDetIdinSaveList) ){
-	    TH1F *gr2 = thisdir.make<TH1F>(histname.Data(),histname.Data(),calib_.nVcal(),calib_.vcal_first(),calib_.vcal_last());
+	    TH1F *gr2 = thisdir.make<TH1F>(histname.Data(),histname.Data(),calib_->nVcal(),calib_->vcal_first(),calib_->vcal_last());
 	    gr2->Sumw2();
 	    gr2->SetMarkerStyle(22);
 	    gr2->SetMarkerSize(0.5*gr2->GetMarkerSize());
@@ -282,7 +281,7 @@ bool SiPixelGainCalibrationAnalysis::doFits(){
 	 if (saveGainCurvesWithBadChi2_ && chi2prob < minimumChi2prob_) {
 	    assert(errordir_);
 	    TFileDirectory workerrordir = errordir_->mkdir(detnames_[detid].Data(),detnames_[detid].Data());
-	    TH1F *gr3 = workerrordir.make<TH1F>(histname.Data(),histname.Data(),calib_.nVcal(),calib_.vcal_first(),calib_.vcal_last());
+	    TH1F *gr3 = workerrordir.make<TH1F>(histname.Data(),histname.Data(),calib_->nVcal(),calib_->vcal_first(),calib_->vcal_last());
 	    gr3->Sumw2();
 	    gr3->SetMarkerStyle(22);
 	    gr3->SetMarkerSize(0.5*gr3->GetMarkerSize());
@@ -325,16 +324,14 @@ void
 SiPixelGainCalibrationAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
   
-  
-   uint32_t state = eventno_counter_ / calib_.nTriggers();  
-   uint32_t ivcal = state % calib_.nVcal();
-   uint32_t vcal = calib_.vcal(state);
+  uint32_t ivcal = (uint32_t) calib_->vcalIndexForEvent(eventno_counter_);
+   uint32_t vcal = (uint32_t) calib_->vcalForEvent(eventno_counter_);
    
-   uint32_t nextswitch = (eventno_counter_)/(calib_.nTriggers()*calib_.nVcal());
+   uint32_t nextswitch = (eventno_counter_)/(calib_->nTriggers()*calib_->nVcal());
    nextswitch ++;
-   nextswitch *= calib_.nTriggers()*calib_.nVcal();
+   nextswitch *= calib_->nTriggers()*calib_->nVcal();
    //   std::cout << state << " " << eventno_counter_ << " " << ivcal << " " << nextswitch << std::endl;
-   if(eventno_counter_%(calib_.nTriggers()*calib_.nVcal())==0){
+   if(eventno_counter_%(calib_->nTriggers()*calib_->nVcal())==0){
      new_configuration_=true;
      if(eventno_counter_!=0){
        doFits();    
@@ -351,7 +348,7 @@ SiPixelGainCalibrationAnalysis::analyze(const edm::Event& iEvent, const edm::Eve
    else
      new_configuration_=false;
    if(new_configuration_)
-     edm::LogInfo("INFO") << "now using config: VCAL="<< vcal << " VCALSTATE=" << calib_.vcal(state) << " NTRIGGERS=" << calib_.nTriggers() << " NVCAL=" << calib_.nVcal() << " VCALSTEP=" << calib_.vcal_step() << " VCALFIRST=" << calib_.vcal_first() << " NTRIGGERSTOTAL=" << calib_.nTriggersTotal() << std::endl;
+     edm::LogInfo("INFO") << "now using config: VCAL="<< vcal << " NTRIGGERS=" << calib_->nTriggers() << " NVCAL=" << calib_->nVcal() << " VCALSTEP=" << calib_->vcal_step() << " VCALFIRST=" << calib_->vcal_first() << " NTRIGGERSTOTAL=" << calib_->expectedTotalEvents() << std::endl;
 
    // do loop over 
    iSetup.get<TrackerDigiGeometryRecord>().get( geom_ );
@@ -380,7 +377,7 @@ SiPixelGainCalibrationAnalysis::analyze(const edm::Event& iEvent, const edm::Eve
      int maxcol = 0;
      int maxrow = 0;
      TString detstring = "unknown";
-     if(detsubId==2){// FPIX
+     if(detsubId==2){ // FPIX
        PXFDetId pdetId = PXFDetId(detid);
        const PixelGeomDetUnit *theGeomDet = dynamic_cast<const PixelGeomDetUnit*> ( theTracker.idToDet(detId) );   
        maxcol = theGeomDet->specificTopology().ncolumns();
@@ -410,9 +407,9 @@ SiPixelGainCalibrationAnalysis::analyze(const edm::Event& iEvent, const edm::Eve
      }
      if(new_det){ 
        std::vector<std::pair<uint32_t, uint32_t> > colrowpairs(0);
-       std::vector<PixelROCGainCalibPixel> pixels(0,PixelROCGainCalibPixel(calib_.nVcal()));
+       std::vector<PixelROCGainCalibPixel> pixels(0,PixelROCGainCalibPixel(calib_->nVcal()));
        if(vcalvalues_.size()==0){
-	 for(uint32_t ivcal=calib_.vcal_first();ivcal<=calib_.vcal_last(); ivcal+=calib_.vcal_step()){
+	 for(uint32_t ivcal=calib_->vcal_first();ivcal<=calib_->vcal_last(); ivcal+=calib_->vcal_step()){
 	   vcalvalues_.push_back(ivcal);
 	 }
        }
@@ -486,8 +483,8 @@ SiPixelGainCalibrationAnalysis::analyze(const edm::Event& iEvent, const edm::Eve
 	 pairindex==colrowpairs_[detid].size()-1;
 	 foundpair=true;
 	 while(colrowpairs_[detid].size()>calibPixels_[detid].size()){// colrowpairs_ gets reset, only expaind calibPixels_ when really necessary
-	   //	   PixelROCGainSiSiPixelCalibConfigurationConfiguration bla(calib_.nVcal());
-	   calibPixels_[detid].push_back(PixelROCGainCalibPixel(calib_.nVcal()));
+	   //	   PixelROCGainSiSiPixelCalibConfigurationConfiguration bla(calib_->nVcal());
+	   calibPixels_[detid].push_back(PixelROCGainCalibPixel(calib_->nVcal()));
 	 }
 	 if(!new_configuration_){
 	   TString listofpairs="for this det id the following ";
@@ -506,7 +503,7 @@ SiPixelGainCalibrationAnalysis::analyze(const edm::Event& iEvent, const edm::Eve
        if(foundpair ){ 
 	 //	 std::cout << "filling pixel detid " << detid << " pair " << pairindex << " " << colrowpairs_[detid][pairindex].first <<","<< colrowpairs_[detid][pairindex].second << ", vcal point " << ivcal << std::endl; 
 	 if(calibPixels_[detid][pairindex].npoints()<ivcal){
-	   edm::LogInfo("ERROR")<< "WARNING, number of VCal points is " <<calibPixels_[detid][pairindex].npoints() << ", expected " << calib_.nVcal() << ", trying to fill point " << ivcal << std::endl;
+	   edm::LogInfo("ERROR")<< "WARNING, number of VCal points is " <<calibPixels_[detid][pairindex].npoints() << ", expected " << calib_->nVcal() << ", trying to fill point " << ivcal << std::endl;
 	   continue;
 	 }
 	 //	 std::cout << "before fill: " << calibPixels_[detid][pairindex].getpoint(ivcal,1)<< " " << calibPixels_[detid][pairindex].npoints() << std::endl;
@@ -521,11 +518,13 @@ SiPixelGainCalibrationAnalysis::analyze(const edm::Event& iEvent, const edm::Eve
 }
 
 
-void SiPixelGainCalibrationAnalysis::beginJob(const edm::EventSetup&)
-{
+void SiPixelGainCalibrationAnalysis::beginJob(const edm::EventSetup& iSetup)
+{ 
+  iSetup.get<SiPixelCalibConfigurationRcd>().get(calib_);
+
   //  edm::LogInfo("SiPixelGainCalibrationAnalysis") <<"beginjob: " << nrowsmax_ << " " << ncolsmax_ << " " << nrocsmax_ << " " << nchannelsmax_ << std::endl;
-  vcal_fitmin_ =  calib_.vcal_first();
-  vcal_fitmax_ =  calib_.vcal_last();
+  vcal_fitmin_ =  calib_->vcal_first();
+  vcal_fitmax_ =  calib_->vcal_last();
   if(vcal_fitmax_>vcal_fitmax_fixed_)
     vcal_fitmax_=vcal_fitmax_fixed_;
   if(vcal_fitmin_>vcal_fitmax_)

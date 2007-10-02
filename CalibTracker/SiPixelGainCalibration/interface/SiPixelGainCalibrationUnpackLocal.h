@@ -13,7 +13,7 @@ Implementation:
 //
 // Original Author:  Freya Blekman
 //         Created:  Thu Apr 26 10:38:32 CEST 2007
-// $Id: SiPixelGainCalibrationUnpackLocal.h,v 1.3 2007/06/26 14:03:33 fblekman Exp $
+// $Id: SiPixelGainCalibrationUnpackLocal.h,v 1.4 2007/09/18 09:35:21 fblekman Exp $
 //
 //
 // system include files
@@ -21,6 +21,7 @@ Implementation:
 #include <iostream>
 
 // user include files
+#include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 
@@ -34,6 +35,11 @@ Implementation:
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
+#include "CondFormats/DataRecord/interface/SiPixelFedCablingMapRcd.h"
+
+
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "CalibFormats/SiPixelObjects/interface/SiPixelCalibConfiguration.h"
 #include "CalibFormats/SiPixelObjects/interface/SiPixelCalibConfiguration.h"
 #include "CalibTracker/SiPixelGainCalibration/interface/PixelROCGainCalibHists.h"
 #include "CalibTracker/SiPixelGainCalibration/interface/PixelSLinkDataHit.h"
@@ -64,9 +70,10 @@ class SiPixelGainCalibrationUnpackLocal : public edm::EDAnalyzer {
   // ----------member data ---------------------------
   
   unsigned int eventno_counter;
-  std::string inputfile_;  
+
   std::string outputfilename_;
-  SiPixelCalibConfiguration* calib_;
+  edm::ESHandle<SiPixelCalibConfiguration> calib_; // keeps track of the calibration constants
+
   //for now assume only on fed_id!
   PixelROCGainCalibHists rocgain_[40][24];
   bool rocgainused_[40][24];

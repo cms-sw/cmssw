@@ -1,10 +1,11 @@
 // File: SiPixelSCurveCalibrationAnalysis.cc
 // Description:  see SiPixelSCurveCalibrationAnalysis.h
 // Author: Jason Keller (University of Nebraska)
-// Modifications to include new naming conventions for calibration objects by Freya Blekman
+// Modifications to include database access to calibration objects by Freya Blekman
 //--------------------------------------------
 
 
+#include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CalibTracker/SiPixelSCurveCalibration/interface/SiPixelSCurveCalibrationAnalysis.h"
 #include "DataFormats/Common/interface/DetSetVector.h"
 #include "DataFormats/SiPixelDigi/interface/PixelDigi.h" 
@@ -18,6 +19,7 @@
 #include "DataFormats/SiPixelDetId/interface/PixelEndcapName.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "CondFormats/DataRecord/interface/SiPixelFedCablingMapRcd.h"
+#include "CondFormats/DataRecord/interface/SiPixelCalibConfigurationRcd.h"
 #include "CondFormats/SiPixelObjects/interface/SiPixelFrameConverter.h"
 #include "CondFormats/SiPixelObjects/interface/ElectronicIndex.h"
 #include "CondFormats/SiPixelObjects/interface/DetectorIndex.h"
@@ -32,24 +34,21 @@ SiPixelSCurveCalibrationAnalysis::SiPixelSCurveCalibrationAnalysis(const edm::Pa
   conf_(conf),
   pixsrc_(conf.getUntrackedParameter<std::string>("src", "source")),
   evtnum_(0),
-  inputcalibfile_(conf.getParameter<std::string>("inputCalibFile")),
   outputtxtfile_(conf.getParameter<std::string>("OutputTxtFile")),
   fedid_(conf.getUntrackedParameter<unsigned int>("fedid", 33)),
   histoNum_(0),
   printHistos_(conf.getParameter<bool>("PrintPixelHistos"))
   {
-    calib_ = new SiPixelCalibConfiguration(inputcalibfile_);
     vcalmin_ = calib_->vcal_first();
     vcalmax_ = calib_->vcal_last();
     vcalstep_ = calib_->vcal_step();
     fitfunc_ = new TF1("fit", "0.5*[0]*(1+TMath::Erf((x-[1])/([2]*sqrt(2))))", vcalmin_, vcalmax_);
-    meanhistos_ = new TObjArray(calib_->rocList().size());
-    sigmahistos_ = new TObjArray(calib_->rocList().size());
+    meanhistos_ = new TObjArray(calib_->ROCIds().size());
+    sigmahistos_ = new TObjArray(calib_->ROCIds().size());
   }
 
 SiPixelSCurveCalibrationAnalysis::~SiPixelSCurveCalibrationAnalysis()
 {
-  delete calib_;
 }
 
 void SiPixelSCurveCalibrationAnalysis::beginJob(const edm::EventSetup& iSetup)
@@ -58,14 +57,15 @@ void SiPixelSCurveCalibrationAnalysis::beginJob(const edm::EventSetup& iSetup)
   LogInfo("SCurve Calibration") << "The starting Vcal value is " << vcalmin_;
   LogInfo("SCurve Calibration") << "The ending Vcal value is " << vcalmax_;
   LogInfo("SCurve Calibration") << "Vcal will be incremented in steps of " << vcalstep_;
-  LogInfo("SCurve Calibration") << "The number of triggers is " << calib_->nTriggersPerPattern(); 
+  LogInfo("SCurve Calibration") << "The number of triggers is " << calib_->nTriggers(); 
   iSetup.get<SiPixelFedCablingMapRcd>().get(map_);
+  iSetup.get<SiPixelCalibConfigurationRcd>().get(calib_);
 }
 
 void SiPixelSCurveCalibrationAnalysis::analyze(const edm::Event& e, const edm::EventSetup& es)
 {
   using namespace edm;
-  unsigned int vcal = calib_->vcal_fromeventno(evtnum_);
+  unsigned int vcal = calib_->vcalForEvent(evtnum_);
   ++evtnum_;
 
   Handle<DetSetVector<PixelDigi> > pixelDigis;
@@ -85,7 +85,7 @@ void SiPixelSCurveCalibrationAnalysis::analyze(const edm::Event& e, const edm::E
       unsigned int rows = theGeomDet->specificTopology().nrows();
       unsigned int cols = theGeomDet->specificTopology().ncolumns();
       histoNum_ += rows * cols;
-      SCurveContainer temp(vcalmax_, calib_->nTriggersPerPattern(), rows, cols, detid);
+      SCurveContainer temp(vcalmax_, calib_->patternSize(), rows, cols, detid);
       detIdMap_.insert(std::make_pair(detid, temp));
     }
 

@@ -15,7 +15,7 @@
 //
 // Original Author:  Freya Blekman
 //         Created:  Mon May  7 14:22:37 CEST 2007
-// $Id: SiPixelGainCalibrationAnalysis.h,v 1.12 2007/09/17 16:33:07 fblekman Exp $
+// $Id: SiPixelGainCalibrationAnalysis.h,v 1.13 2007/09/24 10:09:04 friis Exp $
 //
 //
 
@@ -39,8 +39,8 @@
 #include "CondFormats/DataRecord/interface/SiPixelFedCablingMapRcd.h"
 
 
+#include "FWCore/Framework/interface/ESHandle.h"
 #include "CalibFormats/SiPixelObjects/interface/SiPixelCalibConfiguration.h"
-#include "CalibTracker/SiPixelGainCalibration/interface/PixelROCGainCalib.h"
 #include "CalibTracker/SiPixelGainCalibration/interface/PixelROCGainCalibPixel.h"
 
 #include "CondTools/SiPixel/interface/SiPixelGainCalibrationService.h"
@@ -48,6 +48,8 @@
 #include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
 #include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetType.h"
 #include "TF1.h"
+#include "TH2F.h"
+
 //
 // class decleration
 //
@@ -67,14 +69,12 @@ class SiPixelGainCalibrationAnalysis : public edm::EDAnalyzer {
       // ----------member data ---------------------------
       // internal class for storing parameters
 
-      SiPixelCalibConfiguration calib_; // keeps track of the calibration constants
+      edm::ESHandle<SiPixelCalibConfiguration> calib_; // keeps track of the calibration constants
 
       std::string recordName_;
       uint32_t eventno_counter_;
       std::string src_;
       std::string instance_;
-      
-      std::string inputconfigfile_;
       
       uint32_t vcal_fitmin_;
       uint32_t vcal_fitmax_;
