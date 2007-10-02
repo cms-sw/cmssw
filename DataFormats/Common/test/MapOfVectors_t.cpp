@@ -85,7 +85,7 @@ void TestMapOfVectors::find(){
   CPPUNIT_ASSERT(m.find(-1)==m.emptyRange());
   for(TheMap::const_iterator p=om.begin(); p!=om.end();++p) {
     MII::range r = m.find((*p).first);
-    CPPUNIT_ASSERT(r.size()==(*p).first);
+    CPPUNIT_ASSERT(int(r.size())==(*p).first);
     CPPUNIT_ASSERT(std::equal((*p).second.begin(), (*p).second.end(),r.begin()));
   }
 }
