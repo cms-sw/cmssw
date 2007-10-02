@@ -44,9 +44,9 @@ private:
   void makeCluster(const HcalDetId& seedid,
 		   const HFRecHitCollection& hf, 
 		   const CaloGeometry& geom,
-		   HFEMClusterShape& clusShp,
-		   BasicCluster& Bclus,
-		   SuperCluster& SClus);
+		   reco::HFEMClusterShape& clusShp,
+		   reco::BasicCluster& Bclus,
+		   reco::SuperCluster& SClus);
 };
 
 #endif 
