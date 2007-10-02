@@ -1,4 +1,4 @@
-// $Id: RootOutputFile.cc,v 1.17 2007/09/27 18:20:05 wmtan Exp $
+// $Id: RootOutputFile.cc,v 1.19 2007/09/27 18:47:53 wmtan Exp $
 
 #include "RootOutputFile.h"
 #include "PoolOutputModule.h"
@@ -293,15 +293,11 @@ namespace edm {
     pLumiAux_ = &lumiAux_;
     pRunAux_ = &runAux_;
 
-    std::string const aux = BranchTypeToAuxiliaryBranchName(branchType);
-    std::string const majorID = aux + ".id_.run_";
-    std::string const minorID = (branchType == InEvent ? aux + ".id_.event_" :
-				(branchType == InLumi ? aux + ".id_.luminosityBlock_" : std::string()));
-    
-    if (minorID.empty()) {
-      tree->BuildIndex(majorID.c_str());
+    if (BranchTypeToMinorIndexName(branchType).empty()) {
+      tree->BuildIndex(BranchTypeToMajorIndexName(branchType).c_str());
     } else {
-      tree->BuildIndex(majorID.c_str(), minorID.c_str());
+      tree->BuildIndex(BranchTypeToMajorIndexName(branchType).c_str(),
+	 	       BranchTypeToMinorIndexName(branchType).c_str());
     }
   }
   
