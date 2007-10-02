@@ -4,7 +4,7 @@
  *
  * \author Luca Lista, INFN
  *
- * $Id: RefToBaseVector.h,v 1.12 2007/07/25 15:33:00 llista Exp $
+ * $Id: RefToBaseVector.h,v 1.14 2007/09/20 11:28:20 llista Exp $
  *
  */
 
@@ -122,8 +122,8 @@ namespace edm {
   template <class T>
   inline
   RefToBaseVector<T>::RefToBaseVector(boost::shared_ptr<reftobase::RefVectorHolderBase> p) : 
-    holder_(new reftobase::IndirectVectorHolder<T>(p))
-  { }
+    holder_(new reftobase::IndirectVectorHolder<T>(p)) {
+  }
 
   template <class T>
   inline

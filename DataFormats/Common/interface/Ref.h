@@ -5,7 +5,7 @@
   
 Ref: A template for a interproduct reference to a member of a product.
 
-$Id: Ref.h,v 1.30 2007/07/13 08:49:31 llista Exp $
+$Id: Ref.h,v 1.31 2007/09/17 14:15:21 llista Exp $
 
 ----------------------------------------------------------------------*/
 /**
@@ -204,8 +204,9 @@ namespace edm {
 	Event. The given ProductID must be the id of the collection in
 	the Event. */
     
-    Ref(ProductID const& productID, T const* item, key_type item_key) :
-      ref_(productID, 0, item_key, item, 0) { }
+    Ref(ProductID const& productID, T const* item, key_type item_key, const C * product ) :
+      ref_(productID, product, item_key, item, 0) { 
+      }
 
     /** Constructor that creates an invalid ("null") Ref that is
 	associated with a given product (denoted by that product's
