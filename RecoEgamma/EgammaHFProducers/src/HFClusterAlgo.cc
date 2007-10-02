@@ -5,7 +5,7 @@
 #include <list> 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 using namespace std;
-
+using namespace reco;
 /** \class HFClusterAlgo
  *
  *  \author Kevin Klapoetke (Minnesota)
