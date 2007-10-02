@@ -12,7 +12,7 @@
 #include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
 #include <map>
 #include <list>
-using namespace reco;
+
 /** \class HFClusterAlgo
  
   * \author K. Klapoetke -- Minnesota
