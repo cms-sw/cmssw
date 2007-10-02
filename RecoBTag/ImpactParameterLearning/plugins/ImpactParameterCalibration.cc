@@ -13,63 +13,11 @@
 //
 // Original Author:  Jeremy Andrea/Andrea Rizzi
 //         Created:  Mon Aug  6 16:10:38 CEST 2007
-// $Id$
+// $Id: ImpactParameterCalibration.cc,v 1.1 2007/10/01 15:53:24 arizzi Exp $
 //
 //
 // system include files
-#include <memory>
-#include <string>
-#include <iostream>
-using namespace std;
 
-// user include files
-/*#include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/ParameterSet/interface/InputTag.h"
-
-#include "DataFormats/VertexReco/interface/Vertex.h"
-#include "DataFormats/Math/interface/Vector3D.h"
-#include "DataFormats/Common/interface/Ref.h"
-#include "DataFormats/JetReco/interface/Jet.h"
-#include "DataFormats/JetReco/interface/CaloJet.h"
-#include "DataFormats/TrackReco/interface/Track.h"
-#include "DataFormats/BTauReco/interface/JetTracksAssociation.h"
-
-//#include "RecoBTag/TrackProbability/interface/TrackClassFilterCategory.h"
-
-#include "TrackingTools/Records/interface/TransientTrackRecord.h"
-#include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
-//#include "TrackProbabilityCalibratedHistogram.h"
-
-#include "RecoBTag/BTagTools/interface/SignedTransverseImpactParameter.h"
-#include "RecoBTag/BTagTools/interface/SignedImpactParameter3D.h"
-#include "RecoBTag/BTagTools/interface/SignedDecayLength3D.h"
-
-//CondFormats
-#include "CondFormats/BTauObjects/interface/TrackProbabilityCalibration.h"
-
-#include "FWCore/Framework/interface/IOVSyncValue.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
-// Math
-#include "Math/GenVector/VectorUtil.h"
-#include "Math/GenVector/PxPyPzE4D.h"
-
-#include "RecoBTag/XMLCalibration/interface/AlgorithmCalibration.h"
-#include "RecoBTag/XMLCalibration/interface/CalibratedHistogramXML.h"
-#include "RecoBTag/TrackProbability/interface/TrackClassFilterCategory.h"
-#include "TrackingTools/IPTools/interface/IPTools.h"
-
-//#include "TH1F.h"
-//#include "TFile.h"
-
-
-#include <fstream>
-#include <iostream>
-*/
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -78,6 +26,7 @@ using namespace std;
 #include "FWCore/ParameterSet/interface/InputTag.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "Utilities/General/interface/FileInPath.h"
 
 #include "FWCore/Framework/interface/IOVSyncValue.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
@@ -122,6 +71,8 @@ class ImpactParameterCalibration : public edm::EDAnalyzer {
       virtual void analyze(const edm::Event&, const edm::EventSetup&);
       virtual void endJob() ;
       edm::ParameterSet config;
+
+   TrackProbabilityCalibration * fromXml(edm::FileInPath xmlCalibration);
 
    static TrackProbabilityCategoryData createCategory(double  pmin,double  pmax,
                  double  etamin,  double  etamax,
@@ -174,7 +125,7 @@ ImpactParameterCalibration::analyze(const edm::Event& iEvent, const edm::EventSe
   iEvent.getByLabel(m_iptaginfo, ipHandle);
   const TrackIPTagInfoCollection & ip = *(ipHandle.product());
 
-  cout << "Found " << ip.size() << " TagInfo" << endl;
+//  cout << "Found " << ip.size() << " TagInfo" << endl;
 
   Handle<reco::VertexCollection> primaryVertex;
   iEvent.getByLabel(m_pv,primaryVertex);
@@ -189,8 +140,12 @@ ImpactParameterCalibration::analyze(const edm::Event& iEvent, const edm::EventSe
      {
       TrackRefVector selTracks=it->selectedTracks();
 //      if(it->primaryVertex().isNull()) continue;
-      if(primaryVertex.product()->size() == 0) continue;
-      const Vertex & pv = *(primaryVertex.product()->begin());
+      if(primaryVertex.product()->size() == 0) 
+       {
+       std::cout << "No PV in the event!!" << std::endl;
+         continue;
+        }
+       const Vertex & pv = *(primaryVertex.product()->begin());
            
       for(int i=0; i < 2;i++)
       { 
@@ -204,7 +159,7 @@ ImpactParameterCalibration::analyze(const edm::Event& iEvent, const edm::EventSe
           if(ip[j].significance() < 0) 
            {
             found = std::find_if(it_begin,it_end,bind1st(TrackClassMatch(),input));
-
+//            std::cout << ip[j].significance() << std::endl; 
             if(found!=it_end) 
               found->histogram.fill(-ip[j].significance());
             else
@@ -231,18 +186,9 @@ ImpactParameterCalibration::analyze(const edm::Event& iEvent, const edm::EventSe
 void 
 ImpactParameterCalibration::beginJob(const edm::EventSetup & iSetup)
 {
- using namespace edm;
-   m_calibration[0] =   new TrackProbabilityCalibration();
-   m_calibration[1] =   new TrackProbabilityCalibration();
-
-/*        m_xmlfilename3D = iConfig.getParameter<std::string>("xmlfilename3D");
-        m_xmlfilename2D = iConfig.getParameter<std::string>("xmlfilename2D");
-        m_assoc         = iConfig.getParameter<edm::InputTag>("JetTrackTag");
-        m_primaryVertexProducer = iConfig.getParameter<edm::InputTag>("primaryVertexProducer");
-        m_resetData     = iConfig.getParameter<bool>("resetData");
-        m_newBinning    = iConfig.getParameter<bool>("newBinning");
- */
-
+  using namespace edm;
+  m_calibration[0] =   new TrackProbabilityCalibration();
+  m_calibration[1] =   new TrackProbabilityCalibration();
 
   CalibratedHistogram hist(config.getParameter<int>("nBins"),0,config.getParameter<double>("maxSignificance"));
 
@@ -271,7 +217,31 @@ ImpactParameterCalibration::beginJob(const edm::EventSetup & iSetup)
     }
 
   }
+  if(categories == "RootXML")
+  {
+    bool resetHistogram = config.getParameter<bool>("resetHistograms");
+    const TrackProbabilityCalibration * ca[2];
+    ca[0]  = fromXml(config.getParameter<edm::FileInPath>("calibFile3d"));
+    ca[1]  = fromXml(config.getParameter<edm::FileInPath>("calibFile2d"));
+  
+    for(int i=0;i <2 ;i++)
+     for(int j=0;j<ca[i]->data.size() ; j++)
+     {
+      TrackProbabilityCalibration::Entry e;
+      e.category=ca[i]->data[j].category;
 
+      if(resetHistogram)
+       e.histogram=hist;
+      else
+       e.histogram=ca[i]->data[j].histogram;
+
+      m_calibration[i]->data.push_back(e);
+     }
+
+   delete ca[0];
+   delete ca[1];
+
+   }
   if(categories == "EventSetup")
    {
     bool resetHistogram = config.getParameter<bool>("resetHistograms");
@@ -329,6 +299,39 @@ ImpactParameterCalibration::beginJob(const edm::EventSetup & iSetup)
 
 
 }
+
+TrackProbabilityCalibration * ImpactParameterCalibration::fromXml(edm::FileInPath xmlCalibration)   
+{
+     std::ifstream xmlFile(xmlCalibration.fullPath().c_str());
+        if (!xmlFile.good())
+                throw cms::Exception("BTauFakeMVAJetTagConditions")
+                        << "File \"" << xmlCalibration.fullPath()
+                        << "\" could not be opened for reading."
+                        << std::endl;
+        std::ostringstream ss;
+        ss << xmlFile.rdbuf();
+        xmlFile.close();
+        TClass *classType = 0;
+        void *ptr = TBufferXML(TBuffer::kRead).ConvertFromXMLAny(
+                                ss.str().c_str(), &classType, kTRUE, kFALSE);
+        if (!ptr)
+                throw cms::Exception("ImpactParameterCalibration")
+                        << "Unknown error parsing XML serialization"
+                        << std::endl;
+
+        if (std::strcmp(classType->GetName(),
+                "TrackProbabilityCalibration")) {
+                classType->Destructor(ptr);
+                throw cms::Exception("ImpactParameterCalibration")
+                        << "Serialized object has wrong C++ type."
+                        << std::endl;
+        }
+
+        return static_cast<TrackProbabilityCalibration*>(ptr);
+}
+
+
+
 
 // ------------ method called once each job just after ending the event loop  ------------
 void 
