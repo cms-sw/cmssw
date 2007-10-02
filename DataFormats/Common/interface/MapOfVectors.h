@@ -61,14 +61,16 @@ namespace edm {
 	return this->key == other.key;
       }
       
-      Pair dereference() const {
-	return Pair(*key, range(data+(*off),data+(*(off+1)) ) );
+      Pair const & dereference() const {
+	// FIXME can be optimized...
+	return cache = Pair(*key, range(data+(*off),data+(*(off+1)) ) );
       }
 	  
 	  
-	  key_iterator key;
+      key_iterator key;
       offset_iterator off;
       data_iterator data;
+      Pair cache;
       };
 
     typedef Iter const_iterator;
