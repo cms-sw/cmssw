@@ -32,7 +32,7 @@ namespace edm {
    
     typedef boost::iterator_range<data_iterator> range;
 
-    typedef std::pair<K const, range> Pair;
+    typedef std::pair<K , range> Pair;
 
     class Iter
       : public boost::iterator_facade<Iter,
