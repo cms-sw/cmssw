@@ -1,5 +1,5 @@
 //
-// $Id: TopJetProducer.cc,v 1.25 2007/10/02 15:35:00 lowette Exp $
+// $Id: TopJetProducer.cc,v 1.26 2007/10/02 16:34:23 lowette Exp $
 //
 
 #include "TopQuarkAnalysis/TopObjectProducers/interface/TopJetProducer.h"
@@ -67,7 +67,7 @@ TopJetProducer::TopJetProducer(const edm::ParameterSet& iConfig) {
   if (addResolutions_) theResoCalc_ = new TopObjectResolutionCalc(edm::FileInPath(caliJetResoFile_).fullPath(), useNNReso_);
 
   // construct Jet Track Associator
-  simpleJetTrackAssociator_ = reco::helper::SimpleJetTrackAssociator(trackAssociationPSet_);      
+  simpleJetTrackAssociator_ = reco::helper::SimpleJetTrackAssociator(trackAssociationPSet_);
   // construct Jet Charge Computer
   if (addJetCharge_) jetCharge_ = new JetCharge(jetChargePSet_);
  
@@ -283,32 +283,32 @@ void TopJetProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
           }
         }
       }
-
     } else {
       std::cout << "no cal jet found " << std::endl;
     }
 
     // Associate tracks with jet (at least temporary)
     simpleJetTrackAssociator_.associate(ajet.momentum(), hTracks, ajet.associatedTracks_);
-           
+
     // PUT HERE EVERYTHING WHICH NEEDS TRACKS
     if (addJetCharge_) {
       ajet.jetCharge_ = static_cast<float>(jetCharge_->charge(ajet.p4(), ajet.associatedTracks_));
     }
-    
+
     // drop jet track association if the user does not want it
     if (!addAssociatedTracks_) ajet.associatedTracks_.clear();
-    
+
     // end of TopObjectProducer loop
     topJets->push_back(ajet);
   }
 
   // sort jets in ET
   std::sort(topJets->begin(), topJets->end(), eTComparator_);
-  
+
   // put genEvt  in Event
   std::auto_ptr<std::vector<TopJet> > myTopJetProducer(topJets);
   iEvent.put(myTopJetProducer);
+
 }
 
 

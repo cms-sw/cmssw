@@ -1,5 +1,5 @@
 //
-// $Id: TopMuonProducer.h,v 1.13 2007/09/28 13:55:07 lowette Exp $
+// $Id: TopMuonProducer.h,v 1.14 2007/10/02 15:34:59 lowette Exp $
 //
 
 #ifndef TopObjectProducers_TopMuonProducer_h
@@ -14,7 +14,7 @@
    calculation of a lepton likelihood ratio
 
   \author   Jan Heyninck, Steven Lowette
-  \version  $Id: TopMuonProducer.h,v 1.13 2007/09/28 13:55:07 lowette Exp $
+  \version  $Id: TopMuonProducer.h,v 1.14 2007/10/02 15:34:59 lowette Exp $
 */
 
 
@@ -65,9 +65,9 @@ class TopMuonProducer : public edm::EDProducer {
     bool          addLRValues_;
     std::string   muonLRFile_;
     // tools
-    TopObjectResolutionCalc      * theResoCalc_;
-    TopLeptonLRCalc              * theLeptonLRCalc_;
-    GreaterByPt<TopMuon>           pTComparator_;
+    TopObjectResolutionCalc * theResoCalc_;
+    TopLeptonLRCalc         * theLeptonLRCalc_;
+    GreaterByPt<TopMuon>      pTComparator_;
     // other
     std::vector<std::pair<const reco::Candidate *, TopMuonType *> > pairGenRecoMuonsVector_;
 
