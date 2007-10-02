@@ -4,16 +4,16 @@
 #include "FWCore/Framework/interface/ESProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "RecoTracker/Record/interface/CkfComponentsRecord.h"
-#include "RecoTracker/CkfPattern/interface/TrackerTrajectoryBuilder.h"
+#include "TrackingTools/PatternTools/interface/TrajectoryBuilder.h"
 #include <boost/shared_ptr.hpp>
 
 class  CkfTrajectoryBuilderWithSeedAssocESProducer: public edm::ESProducer{
  public:
   CkfTrajectoryBuilderWithSeedAssocESProducer(const edm::ParameterSet & p);
   virtual ~CkfTrajectoryBuilderWithSeedAssocESProducer(); 
-  boost::shared_ptr<TrackerTrajectoryBuilder> produce(const CkfComponentsRecord &);
+  boost::shared_ptr<TrajectoryBuilder> produce(const CkfComponentsRecord &);
  private:
-  boost::shared_ptr<TrackerTrajectoryBuilder> _trajectoryBuilder;
+  boost::shared_ptr<TrajectoryBuilder> _trajectoryBuilder;
   edm::ParameterSet pset_;
 };
 

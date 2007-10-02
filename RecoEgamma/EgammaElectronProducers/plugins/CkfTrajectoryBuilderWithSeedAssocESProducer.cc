@@ -32,7 +32,7 @@ CkfTrajectoryBuilderWithSeedAssocESProducer::CkfTrajectoryBuilderWithSeedAssocES
 
 CkfTrajectoryBuilderWithSeedAssocESProducer::~CkfTrajectoryBuilderWithSeedAssocESProducer() {}
 
-boost::shared_ptr<TrackerTrajectoryBuilder> 
+boost::shared_ptr<TrajectoryBuilder> 
 CkfTrajectoryBuilderWithSeedAssocESProducer::produce(const CkfComponentsRecord& iRecord)
 { 
   std::string updatorName            = pset_.getParameter<std::string>("updator");   
@@ -40,6 +40,7 @@ CkfTrajectoryBuilderWithSeedAssocESProducer::produce(const CkfComponentsRecord& 
   std::string propagatorOppositeName = pset_.getParameter<std::string>("propagatorOpposite");   
   std::string estimatorName          = pset_.getParameter<std::string>("estimator"); 
   std::string recHitBuilderName      = pset_.getParameter<std::string>("TTRHBuilder");     
+  std::string measurementTrackerName = pset_.getParameter<std::string>("MeasurementTrackerName");    
 
   edm::ESHandle<TrajectoryStateUpdator> updatorHandle;
   edm::ESHandle<Propagator>             propagatorAlongHandle;
@@ -53,9 +54,9 @@ CkfTrajectoryBuilderWithSeedAssocESProducer::produce(const CkfComponentsRecord& 
   iRecord.getRecord<TrackingComponentsRecord>().get(propagatorOppositeName,propagatorOppositeHandle);
   iRecord.getRecord<TrackingComponentsRecord>().get(estimatorName,estimatorHandle);  
   iRecord.getRecord<TransientRecHitRecord>().get(recHitBuilderName,recHitBuilderHandle);  
-  iRecord.get(measurementTrackerHandle);  
+  iRecord.get(measurementTrackerName, measurementTrackerHandle);  
   _trajectoryBuilder  = 
-    boost::shared_ptr<TrackerTrajectoryBuilder> (new CkfTrajectoryBuilderWithSeedAssoc(pset_,
+    boost::shared_ptr<TrajectoryBuilder> (new CkfTrajectoryBuilderWithSeedAssoc(pset_,
 									 updatorHandle.product(),
 									 propagatorAlongHandle.product(),
 									 propagatorOppositeHandle.product(),

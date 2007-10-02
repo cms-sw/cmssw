@@ -19,22 +19,24 @@ class TrajectoryFilter;
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
 #include "DataFormats/TrackCandidate/interface/TrackCandidateCollection.h"
 
-#include "RecoTracker/CkfPattern/interface/TrackerTrajectoryBuilder.h"
+#include "RecoTracker/CkfPattern/interface/BaseCkfTrajectoryBuilder.h"
 
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
 #include "TrackingTools/PatternTools/interface/TrajectoryMeasurement.h"
-#include "TrackingTools/MeasurementDet/interface/LayerMeasurements.h"
-#include "TrackingTools/KalmanUpdators/interface/Chi2MeasurementEstimator.h"
-#include "RecoTracker/MeasurementDet/interface/MeasurementTracker.h"
-#include "TrackingTools/MeasurementDet/interface/LayerMeasurements.h"
+//#include "TrackingTools/MeasurementDet/interface/LayerMeasurements.h"
+//#include "TrackingTools/KalmanUpdators/interface/Chi2MeasurementEstimator.h"
+//#include "RecoTracker/MeasurementDet/interface/MeasurementTracker.h"
+//#include "TrackingTools/MeasurementDet/interface/LayerMeasurements.h"
 
+#include "RecoTracker/CkfPattern/interface/TempTrajectory.h"
 
 
 class TransientTrackingRecHitBuilder;
 
 
-class CkfTrajectoryBuilderWithSeedAssoc :public TrackerTrajectoryBuilder {
+class CkfTrajectoryBuilderWithSeedAssoc :public BaseCkfTrajectoryBuilder {
 protected:
+  //UB?
 // short names
   typedef TrajectoryStateOnSurface TSOS;
   typedef TrajectoryMeasurement TM;
@@ -42,6 +44,8 @@ protected:
 public:
 
   typedef std::vector<Trajectory>     TrajectoryContainer;
+  
+  typedef std::vector<TempTrajectory>     TempTrajectoryContainer;
 
   //CkfTrajectoryBuilder( const edm::ParameterSet& conf,
   //			const edm::EventSetup& es,
@@ -62,49 +66,52 @@ public:
   /// set Event for the internal MeasurementTracker data member
   virtual void setEvent(const edm::Event& event) const;
 
-private:
-  const TrajectoryStateUpdator*         theUpdator;
-  const Propagator*                     thePropagatorAlong;
-  const Propagator*                     thePropagatorOpposite;
-  const Chi2MeasurementEstimatorBase*   theEstimator;
-  const TransientTrackingRecHitBuilder* theTTRHBuilder;
-  const MeasurementTracker*             theMeasurementTracker;
-  const LayerMeasurements*              theLayerMeasurements;
+  //private:
+/*   const TrajectoryStateUpdator*         theUpdator; */
+/*   const Propagator*                     thePropagatorAlong; */
+/*   const Propagator*                     thePropagatorOpposite; */
+/*   const Chi2MeasurementEstimatorBase*   theEstimator; */
+/*   const TransientTrackingRecHitBuilder* theTTRHBuilder; */
+/*   const MeasurementTracker*             theMeasurementTracker; */
+/*   const LayerMeasurements*              theLayerMeasurements; */
 
-  // these may change from seed to seed
-  mutable const Propagator*             theForwardPropagator;
-  mutable const Propagator*             theBackwardPropagator;
+/*   // these may change from seed to seed */
+/*   mutable const Propagator*             theForwardPropagator; */
+/*   mutable const Propagator*             theBackwardPropagator; */
   
-  TrajectoryFilter*              theMinPtCondition;
-  TrajectoryFilter*              theMaxHitsCondition;
+/*   TrajectoryFilter*              theMinPtCondition; */
+/*   TrajectoryFilter*              theMaxHitsCondition; */
 
+protected:
   int theMaxCand;               /**< Maximum number of trajectory candidates 
 		                     to propagate to the next layer. */
-  int theMaxLostHit;            /**< Maximum number of lost hits per trajectory candidate.*/
-  int theMaxConsecLostHit;      /**< Maximum number of consecutive lost hits 
-                                     per trajectory candidate. */
+  //  int theMaxLostHit;            /**< Maximum number of lost hits per trajectory candidate.*/
+  //  int theMaxConsecLostHit;      /**< Maximum number of consecutive lost hits 
+  //                                     per trajectory candidate. */
   float theLostHitPenalty;      /**< Chi**2 Penalty for each lost hit. */
   bool theIntermediateCleaning;	/**< Tells whether an intermediary cleaning stage 
                                      should take place during TB. */
-  int theMinimumNumberOfHits;   /**< Minimum number of hits for a trajectory to be returned.*/
+  //  int theMinimumNumberOfHits;   /**< Minimum number of hits for a trajectory to be returned.*/
   bool theAlwaysUseInvalidHits;
 
 
-  Trajectory createStartingTrajectory( const TrajectorySeed& seed) const;
+  //  Trajectory createStartingTrajectory( const TrajectorySeed& seed) const;
 
   std::vector<TrajectoryMeasurement> seedMeasurements(const TrajectorySeed& seed) const;
 
-  void limitedCandidates( Trajectory& startingTraj, TrajectoryContainer& result) const;
+protected:
+  void limitedCandidates( TempTrajectory& startingTraj, TrajectoryContainer& result) const;
 
-  std::vector<TrajectoryMeasurement> findCompatibleMeasurements( const Trajectory& traj) const;
+  virtual void findCompatibleMeasurements( const TempTrajectory& traj, std::vector<TrajectoryMeasurement> & result) const;
+  //  std::vector<TrajectoryMeasurement> findCompatibleMeasurements( const Trajectory& traj) const;
 
-  bool qualityFilter( const Trajectory& traj) const;
+  //  bool qualityFilter( const Trajectory& traj) const;
 
-  void addToResult( Trajectory& traj, TrajectoryContainer& result) const; 
+  //  void addToResult( Trajectory& traj, TrajectoryContainer& result) const; 
   
-  void updateTrajectory( Trajectory& traj, const TM& tm) const;
+  void updateTrajectory( TempTrajectory& traj, const TM& tm) const;
 
-  bool toBeContinued( const Trajectory& traj) const;
+  //  bool toBeContinued( const Trajectory& traj) const;
 
 };
 
