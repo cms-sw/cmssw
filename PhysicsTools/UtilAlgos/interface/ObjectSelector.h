@@ -6,9 +6,9 @@
  * 
  * \author Luca Lista, INFN
  *
- * \version $Revision: 1.21 $
+ * \version $Revision: 1.22 $
  *
- * $Id: ObjectSelector.h,v 1.21 2007/07/09 08:54:14 llista Exp $
+ * $Id: ObjectSelector.h,v 1.22 2007/09/20 11:29:41 llista Exp $
  *
  */
 
@@ -29,11 +29,11 @@
 #include <algorithm>
 
 template<typename Selector, 
-         typename OutputCollection = typename helper::SelectedOutputCollectionTrait<typename Selector::collection>::type,
+         typename OutputCollection = typename ::helper::SelectedOutputCollectionTrait<typename Selector::collection>::type,
 	 typename SizeSelector = NonNullNumberSelector,
-	 typename PostProcessor = helper::NullPostProcessor<OutputCollection>,
-	 typename StoreManager = typename helper::StoreManagerTrait<OutputCollection>::type,
-	 typename Base = typename helper::StoreManagerTrait<OutputCollection>::base,
+	 typename PostProcessor = ::helper::NullPostProcessor<OutputCollection>,
+	 typename StoreManager = typename ::helper::StoreManagerTrait<OutputCollection>::type,
+	 typename Base = typename ::helper::StoreManagerTrait<OutputCollection>::base,
 	 typename Init = typename ::reco::modules::EventSetupInit<Selector>::type
 	 >
 class ObjectSelector : public Base {
