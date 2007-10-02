@@ -1,6 +1,6 @@
 #ifndef Common_OwnVector_h
 #define Common_OwnVector_h
-// $Id: OwnVector.h,v 1.32 2007/08/01 08:45:08 llista Exp $
+// $Id: OwnVector.h,v 1.33 2007/09/12 13:42:59 llista Exp $
 
 #include <algorithm>
 #include <functional>
@@ -411,7 +411,7 @@ namespace edm {
       }
       else {
 	pointers.push_back(*i);
-	holder_type h(ref_type(id, *i, key));
+	holder_type h(ref_type(id, *i, key,this));
 	helpers.push_back(&h);
       }
     }
