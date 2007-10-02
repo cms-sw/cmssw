@@ -4,7 +4,6 @@
 </library>
 
 <use name=Geometry/TrackerNumberingBuilder>
-<use name=CondFormats/DataRecord>
 <use name=CondFormats/IdealGeometryObjects>
 <use name=DetectorDescription/Core>
 <use name=Geometry/Records>

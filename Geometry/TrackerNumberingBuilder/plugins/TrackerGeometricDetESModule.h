@@ -5,7 +5,7 @@
 #include "FWCore/Framework/interface/EventSetupRecordIntervalFinder.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
-#include "CondFormats/DataRecord/interface/PGeometricDetRcd.h"
+#include "Geometry/Records/interface/PGeometricDetRcd.h"
 #include "Geometry/TrackerNumberingBuilder/interface/GeometricDet.h"
 
 class  TrackerGeometricDetESModule: public edm::ESProducer,
