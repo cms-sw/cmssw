@@ -8,8 +8,8 @@ using namespace std;
 
 PixelFEDTestDAC::PixelFEDTestDAC(std::string filename){
 
-  const unsigned long int UB=100;
-  const unsigned long int B=332;
+  const unsigned long int UB=400;
+  const unsigned long int B=500;
   const unsigned long int offset=0;
   vector <unsigned int> pulseTrain(256), pixelDCol(1), pixelPxl(2), pixelTBMHeader(3), pixelTBMTrailer(3);
   unsigned int DCol, LorR, start=5;
@@ -116,12 +116,12 @@ unsigned int PixelFEDTestDAC::levelEncoder(int level){
   
   switch (level)
     {
-    case 0: pulse=250; break;
-    case 1: pulse=412; break;
-    case 2: pulse=518; break;
-    case 3: pulse=612; break;
-    case 4: pulse=705; break;
-    case 5: pulse=850; break;
+    case 0: pulse=480; break;
+    case 1: pulse=500; break;
+    case 2: pulse=520; break;
+    case 3: pulse=540; break;
+    case 4: pulse=560; break;
+    case 5: pulse=580; break;
     default: pulse=0; break;
     }
   
