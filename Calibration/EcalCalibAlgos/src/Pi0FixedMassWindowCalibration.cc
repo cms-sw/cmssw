@@ -154,7 +154,7 @@ void Pi0FixedMassWindowCalibration::beginOfJob( const edm::EventSetup& iSetup )
   // get initial constants out of DB
 
   edm::ESHandle<EcalIntercalibConstants> pIcal;
-  EcalIntercalibConstants::EcalIntercalibConstantMap imap;
+  EcalIntercalibConstantMap imap;
 
   try {
     iSetup.get<EcalIntercalibConstantsRcd>().get(pIcal);
@@ -178,7 +178,11 @@ void Pi0FixedMassWindowCalibration::beginOfJob( const edm::EventSetup& iSetup )
     EBDetId eb(*barrelIt);
 
     // get the initial calibration constants
-    EcalIntercalibConstants::EcalIntercalibConstant calib = (imap.find(eb.rawId()))->second;
+    EcalIntercalibConstantMap::const_iterator itcalib = imap.find(eb.rawId());
+    if ( itcalib == imap.end() ) {
+            // FIXME -- throw error
+    }
+    EcalIntercalibConstant calib = (*itcalib);
     int sign = eb.zside()>0 ? 1 : 0;
     oldCalibs_barl[abs(eb.ieta())-1][eb.iphi()-1][sign] = calib;
     if (eb.iphi()==1) std::cout << "Read old constant for crystal "

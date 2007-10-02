@@ -100,7 +100,7 @@ void PhiSymmetryCalibration::beginJob( const edm::EventSetup& iSetup )
   }
 
   // get initial constants out of DB
-  EcalIntercalibConstants::EcalIntercalibConstantMap imap;
+  EcalIntercalibConstantMap imap;
   if (eventSet_==0) {
     edm::ESHandle<EcalIntercalibConstants> pIcal;
     try {
@@ -129,7 +129,11 @@ void PhiSymmetryCalibration::beginJob( const edm::EventSetup& iSetup )
 
     if (eventSet_==0) {
       // get the initial calibration constants
-      EcalIntercalibConstants::EcalIntercalibConstant calib = (imap.find(eb.rawId()))->second;
+      EcalIntercalibConstantMap::const_iterator itcalib = imap.find(eb.rawId());
+      if ( itcalib == imap.end() ) {
+              // FIXME -- throw error
+      }
+      EcalIntercalibConstant calib = (*itcalib);
       int sign = eb.zside()>0 ? 1 : 0;
       oldCalibs_barl[abs(eb.ieta())-1][eb.iphi()-1][sign] = calib;
       if (eb.iphi()==1) std::cout << "Read old constant for crystal "
@@ -155,7 +159,11 @@ void PhiSymmetryCalibration::beginJob( const edm::EventSetup& iSetup )
 
     if (eventSet_==0) {
       // get the initial calibration constants
-      EcalIntercalibConstants::EcalIntercalibConstant calib = (imap.find(ee.rawId()))->second;
+      EcalIntercalibConstantMap::const_iterator itcalib = imap.find(ee.rawId());
+      if ( itcalib == imap.end() ) {
+              // FIXME -- throw error
+      }
+      EcalIntercalibConstant calib = (*itcalib);
       int sign = ee.zside()>0 ? 1 : 0;
       oldCalibs_endc[ix][iy][sign] = calib;
       if (ix==49) std::cout << "Read old constant for crystal "

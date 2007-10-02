@@ -140,7 +140,11 @@ void ZeeCalibration::beginOfJob( const edm::EventSetup& iSetup )
 	      try
 		{
 		  EBDetId ebid(etaIndex,iphi);
-		  float miscalib=miscalibMap->get().getMap().find(ebid.rawId())->second;
+                  EcalIntercalibConstantMap::const_iterator itcalib = miscalibMap->get().getMap().find(ebid.rawId());
+                  if ( itcalib == miscalibMap->get().getMap().end() ) {
+                          // FIXME -- miscalib not found, add error
+                  }
+		  float miscalib = (*itcalib);
 		  initCalibCoeff[k]+=miscalib;
 		  xtalsInPhi++;
 		}
@@ -266,7 +270,11 @@ ZeeCalibration::endOfJob() {
       try
 	{
 	  EBDetId ebid(ieta,iphi);
-	  barrelWriter.writeLine(ebid,ical->getMap().find(ebid.rawId())->second);
+          EcalIntercalibConstantMap::const_iterator itcalib = ical->getMap().find(ebid.rawId());
+          if ( itcalib == ical->getMap().end() ) {
+                  // FIXME -- coefficient not found, throw error
+          }
+	  barrelWriter.writeLine(ebid,*itcalib);
 	}
       catch (...)
 	{
@@ -577,12 +585,16 @@ ZeeCalibration::endOfLoop(const edm::EventSetup& iSetup, unsigned int iLoop)
 	  try
 	    {
 	      EBDetId ebid(etaIndex,iphi);
+              EcalIntercalibConstantMap::const_iterator itcalib = ical->getMap().find(ebid.rawId());
+              if ( itcalib == ical->getMap().end() ) {
+                      // FIXME -- coefficient not found, throw error
+              }
 #ifdef DEBUG
-	      std::cout << "Before " << ical->getMap().find(ebid.rawId())->second << " " ;
+	      std::cout << "Before " << (*itcalib) << " " ;
 #endif
-	      ical->setValue( ebid.rawId(), ical->getMap().find(ebid.rawId())->second * optimizedCoefficients[ieta] );
+	      ical->setValue( ebid.rawId(), (*itcalib) * optimizedCoefficients[ieta] );
 #ifdef DEBUG
-	      std::cout << "After " << ical->getMap().find(ebid.rawId())->second << std::endl;
+	      std::cout << "After " << (*itcalib) << std::endl;
 #endif
 	    }
 	  catch (...)
