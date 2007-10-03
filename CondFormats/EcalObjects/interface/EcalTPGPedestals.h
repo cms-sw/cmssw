@@ -5,12 +5,9 @@
 
 struct EcalTPGPedestal
 {
-  struct Item 
-  {
-    uint32_t mean_x12 ;
-    uint32_t mean_x6 ;
-    uint32_t mean_x1 ;
-  };
+   uint32_t mean_x12 ;
+   uint32_t mean_x6 ;
+   uint32_t mean_x1 ;
 };
 
 typedef EcalCondObjectContainer<EcalTPGPedestal> EcalTPGPedestalsMap;
