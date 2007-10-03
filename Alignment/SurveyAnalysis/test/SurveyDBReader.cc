@@ -7,8 +7,8 @@
 
 #include "CondFormats/Alignment/interface/Alignments.h"
 #include "CondFormats/Alignment/interface/SurveyErrors.h"
-#include "CondFormats/DataRecord/interface/TrackerSurveyRcd.h"
-#include "CondFormats/DataRecord/interface/TrackerSurveyErrorRcd.h"
+#include "CondFormats/AlignmentRecord/interface/TrackerSurveyRcd.h"
+#include "CondFormats/AlignmentRecord/interface/TrackerSurveyErrorRcd.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
