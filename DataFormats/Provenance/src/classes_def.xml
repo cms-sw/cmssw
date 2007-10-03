@@ -3,6 +3,7 @@
  <class name="edm::EventID"/>
  <class name="edm::LuminosityBlockID"/>
  <class name="edm::RunID"/>
+ <class name="edm::FileID"/>
  <class name="edm::Timestamp"/>
  <class name="std::basic_string<char>"/>
  <class name="std::vector<std::basic_string<char> >"/>
