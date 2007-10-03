@@ -36,10 +36,12 @@ class SiStripRegionCabling {
   typedef std::vector< RegionCabling > Cabling;
 
   /** Position typedefs */
+
   typedef std::pair<double,double> Position;
   typedef std::pair<uint32_t,uint32_t> PositionIndex;
 
   /** Encoded information typedefs */
+
   typedef uint32_t ElementIndex;
 
   SiStripRegionCabling(const uint32_t,const uint32_t, const double);
@@ -201,21 +203,23 @@ void SiStripRegionCabling::updateSiStripRefGetter(edm::SiStripRefGetter<T>& refg
 }
 
 template <class T>
-void SiStripRegionCabling::updateSiStripRefGetter(edm::SiStripRefGetter<T>& refgetter, const edm::Handle< edm::SiStripLazyGetter<T> >& lazygetter, const SiStripRegionCabling::Position pos, const double deltaeta, const double deltaphi, const SubDet subdet, const uint32_t layer) const {
+void SiStripRegionCabling::updateSiStripRefGetter(edm::SiStripRefGetter<T>& refgetter, const edm::Handle< edm::SiStripLazyGetter<T> >& lazygetter, const SiStripRegionCabling::Position pos, const double deltaeta, const double deltaphi, const SubDet sub, const uint32_t layer) const {
 
   PositionIndex index = positionIndex(pos);
   Position center = position(index);
-  Position offset(pos.first-center.first,pos.second-center.second);
-  double regionseta = deltaeta/regionDimensions().first;
-  double regionsphi = deltaphi/regionDimensions().second; 
-  uint32_t pluseta = static_cast<uint32_t>(offset.first+.5+regionseta);
-  uint32_t plusphi = static_cast<uint32_t>(offset.second+.5+regionsphi);
-  uint32_t minuseta = static_cast<uint32_t>(-offset.first+.5+regionseta);
-  uint32_t minusphi = static_cast<uint32_t>(-offset.second+.5+regionsphi);
+  double offeta = pos.first-center.first;
+  double offphi = pos.second-center.second;
+  double toteta = deltaeta/regionDimensions().first;
+  double totphi = deltaphi/regionDimensions().second; 
+  uint32_t plueta = static_cast<uint32_t>(offeta+.5+toteta);
+  uint32_t pluphi = static_cast<uint32_t>(offphi+.5+totphi);
+  uint32_t mineta = static_cast<uint32_t>(-offeta+.5+toteta);
+  uint32_t minphi = static_cast<uint32_t>(-offphi+.5+totphi);
  
-  for (uint32_t ieta = 0; ieta < minuseta+pluseta + 1; ieta++) {
-    for (uint32_t iphi = 0; iphi < minusphi+plusphi + 1; iphi++) {
-      updateSiStripRefGetter<T>(refgetter,lazygetter,elementIndex(increment(index,-minuseta+ieta,-minusphi+iphi),subdet,layer));
+  for (uint32_t i=0;i<mineta+plueta+1;i++) {
+    for (uint32_t j=0;j<minphi+pluphi+1;j++) {
+      const uint32_t k=elementIndex(increment(index,i-mineta,j-minphi),sub,layer);
+      if (!refgetter.find(k)) updateSiStripRefGetter<T>(refgetter,lazygetter,k);
     }
   } 
 }
