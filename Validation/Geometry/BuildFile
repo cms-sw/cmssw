@@ -7,6 +7,8 @@
  <use name=FWCore/MessageLogger>
  <use name=SimG4Core/Notification>
  <use name=SimG4Core/Watcher>
+ <use name=DQMServices/CoreROOT>
+ <use name=FWCore/Framework>
 </export>
 
 <use name=root>
@@ -16,6 +18,7 @@
 <use name=FWCore/MessageLogger>
 <use name=SimG4Core/Notification>
 <use name=SimG4Core/Watcher>
-
+<use name=DQMServices/CoreROOT>
+<use name=FWCore/Framework>
 
 <Flags EDM_PLUGIN=1>
