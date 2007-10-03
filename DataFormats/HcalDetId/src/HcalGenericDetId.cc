@@ -1,13 +1,14 @@
 /** \class HcalGenericDetId
     \author F.Ratnikov, UMd
    Generic HCAL detector ID suitable for all Hcal subdetectors
-   $Id: HcalGenericDetId.cc,v 1.2 2007/07/15 20:36:37 mansj Exp $
+   $Id: HcalGenericDetId.cc,v 1.3 2007/09/20 16:24:07 katsas Exp $
 */
 
 #include "DataFormats/HcalDetId/interface/HcalGenericDetId.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
 #include "DataFormats/HcalDetId/interface/HcalTrigTowerDetId.h"
 #include "DataFormats/HcalDetId/interface/HcalZDCDetId.h"
+#include "DataFormats/HcalDetId/interface/HcalCastorDetId.h"
 #include "DataFormats/HcalDetId/interface/HcalCalibDetId.h"
 
 HcalOtherSubdetector HcalGenericDetId::otherSubdet () const {
@@ -21,6 +22,7 @@ HcalGenericDetId::HcalGenericSubdetector HcalGenericDetId::genericSubdet () cons
   case Calo : 
     switch (subdetId()) {
     case HcalZDCDetId::SubdetectorId : return HcalGenZDC;
+    case HcalCastorDetId::SubdetectorId : return HcalGenCastor;
     default: return HcalGenUnknown;
     } 
   case Hcal :
@@ -63,6 +65,11 @@ bool HcalGenericDetId::isHcalZDCDetId () const {
   return subdet == HcalGenZDC;
 }
 
+bool HcalGenericDetId::isHcalCastorDetId () const {
+  HcalGenericSubdetector subdet = genericSubdet ();
+  return subdet == HcalGenCastor;
+}
+
 std::ostream& operator<<(std::ostream& s,const HcalGenericDetId& id) {
   if (id.null()) s << "(Null Id)";
   else 
@@ -73,6 +80,7 @@ std::ostream& operator<<(std::ostream& s,const HcalGenericDetId& id) {
     case HcalGenericDetId::HcalGenForward: s << HcalDetId(id); break;
     case HcalGenericDetId::HcalGenTriggerTower: s << HcalTrigTowerDetId(id); break;
     case HcalGenericDetId::HcalGenZDC: s << HcalZDCDetId(id); break;
+    case HcalGenericDetId::HcalGenCastor: s << HcalCastorDetId(id); break;
     case HcalGenericDetId::HcalGenCalibration: s << HcalCalibDetId(id); break;
     default: s << "(Hcal Unknown Id: 0x" << std::hex << id.rawId() << std::dec << ')';
     }
