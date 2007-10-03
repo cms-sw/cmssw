@@ -228,7 +228,7 @@ void GctBlockUnpacker::blockToFibres(const unsigned char * d, const GctBlockHead
 }
 
 void GctBlockUnpacker::blockToFibresAndToRctEmCand(const unsigned char * d, const GctBlockHeader& hdr) {
-  this->blockToFibres(d, hdr);
   this->blockToRctEmCand(d, hdr);
+  this->blockToFibres(d, hdr);
 }
 
