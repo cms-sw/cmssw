@@ -243,10 +243,8 @@ void DDErrorDetection::report(ostream & o)
   o << "E) LogicalParts affected by Solids of C):" << endl;
   o << so_lp() << endl;
   
-  o << "F) Parent-Child positionings affected by Rotations that have missing definitions:"  << endl;
-  
-  o << "E) " << endl;
-  
+  // Did this ever exist?
+  //  o << "F) Parent-Child positionings affected by Rotations that have missing definitions:"  << endl;
   o << endl;
   //nix();
 }
