@@ -37,6 +37,7 @@ class TrackAssociatorByHits : public TrackAssociatorBase {
   reco::SimToRecoCollection associateSimToReco (edm::Handle<reco::TrackCollection>&, 
 						edm::Handle<TrackingParticleCollection>&, 
 						const edm::Event * event = 0) const;
+
  
  private:
   // ----- member data
