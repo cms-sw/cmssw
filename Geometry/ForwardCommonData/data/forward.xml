@@ -8,7 +8,7 @@
  <Constant name="TotemT1Rout1" value="74.60*cm"/>
  <Constant name="TotemT1Rout2" value="79.10*cm"/>
  <Constant name="TotemT1Rout3" value="1.0111*m"/>
- <Constant name="TotemT2Z1"    value="14.225*m"/>
+ <Constant name="TotemT2Z1"    value="14.340*m"/>
  <Constant name="CastorL1"     value="1.6165*m"/>
  <Constant name="CastorL2"     value="1.334*m"/>
  <Constant name="CastorZ1"     value="[cms:ForwdDetsZ1]-[CastorL1]"/>
