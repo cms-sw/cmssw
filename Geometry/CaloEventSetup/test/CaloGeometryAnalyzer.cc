@@ -124,7 +124,12 @@ CaloGeometryAnalyzer::build( const CaloGeometry& cg,
 			     int subdetn, 
 			     const char* name) 
 {
-   std::fstream f(name,std::ios_base::out);
+   const std::string fnameCtr  ( std::string( name ) + ".ctr" ) ;
+   const std::string fnameCor  ( std::string( name ) + ".cor" ) ;
+   const std::string fnameRoot ( std::string( name ) + ".C" ) ;
+   std::fstream fCtr(fnameCtr.c_str() ,std::ios_base::out);
+   std::fstream fCor(fnameCor.c_str() ,std::ios_base::out);
+   std::fstream f   (fnameRoot.c_str(),std::ios_base::out);
    const CaloSubdetectorGeometry* geom=cg.getSubdetectorGeometry(det,subdetn);
 
    f << "{" << std::endl;
@@ -144,27 +149,36 @@ CaloGeometryAnalyzer::build( const CaloGeometry& cg,
 	 if (subdetn == EcalBarrel)
 	 {
 	    const EBDetId did ( *i ) ;
-	    const int iea ( did.ietaAbs() ) ;
+	    //const int iea ( did.ietaAbs() ) ;
 	    const int ie  ( did.ieta() ) ;
 	    const int ip  ( did.iphi() ) ;
-	    if( ( iea == 1 || iea == 85 ) &&
-		( ip  == 1 || ip  == 20 )  )
+//	    const int ism ( did.ism() ) ;
+//	    if( 1==ism || 35==ism )
 	    {
+	       fCtr << std::setw(4) << ie
+		    << std::setw(4) << ip
+		    << std::fixed << std::setw(12) << std::setprecision(4)
+		    << cell->getPosition().x()
+		    << std::fixed << std::setw(12) << std::setprecision(4)
+		    << cell->getPosition().y()
+		    << std::fixed << std::setw(12) << std::setprecision(4)
+		    << cell->getPosition().z()
+		    << std::endl ;
+
 	       const CaloCellGeometry::CornersVec& co ( cell->getCorners() ) ;
-	       std::cout << "ieta="<<ie<<", iphi="<<ip
-			 <<", "<<std::fixed<<std::setw(8)<<std::setprecision(3)
-			 << " ("
-			 <<cell->getPosition().x()<<","
-			 <<cell->getPosition().y()<<"," 
-			 <<cell->getPosition().z()<<")" ;
-	       for( unsigned int j ( 0 ) ; j != co.size() ; ++j )
+	       fCor << std::setw(4) << ie
+		    << std::setw(4) << ip ;
+
+	       for( unsigned int j ( 0 ) ; j < co.size() ; ++(++(++j)) )
 	       {
-		  std::cout<<" ("
-			   <<co[j].x()<<","
-			   <<co[j].y()<<","
-			   <<co[j].z()<<")";
-		}
-	       std::cout<<std::endl;
+		  fCor << std::fixed << std::setw(10) << std::setprecision(4)
+		       << co[j].x()
+		       << std::fixed << std::setw(10) << std::setprecision(4)
+		       << co[j].y()
+		       << std::fixed << std::setw(10) << std::setprecision(4)
+		       << co[j].z() ;
+	       }
+	       fCor << std::endl ;
 	    }
 	    f << "  // " << EBDetId(*i) << std::endl;
 	    
@@ -180,28 +194,37 @@ CaloGeometryAnalyzer::build( const CaloGeometry& cg,
 	    const int ix ( did.ix() ) ;
 	    const int iy ( did.iy() ) ;
 	    const int iz ( did.zside() ) ;
-	    if( ( ( ix == 50 || ix == 51 ) &&
-		  ( iy ==  5 || iy == 95 )  ) ||
-		( ( iy == 50 || iy == 51 ) &&
-		  ( ix ==  5 || ix == 95 )  )    )
+//	    if( ( ( ix == 50 || ix == 51 ) &&
+//		  ( iy ==  5 || iy == 95 )  ) ||
+//		( ( iy == 50 || iy == 51 ) &&
+//		  ( ix ==  5 || ix == 95 )  )    )
 	    {
+	       fCtr << std::setw(4) << ix
+		    << std::setw(4) << iy
+		    << std::fixed << std::setw(12) << std::setprecision(4)
+		    << cell->getPosition().x()
+		    << std::fixed << std::setw(12) << std::setprecision(4)
+		    << cell->getPosition().y()
+		    << std::fixed << std::setw(12) << std::setprecision(4)
+		    << cell->getPosition().z()      
+		    << std::endl ;
+
 	       const CaloCellGeometry::CornersVec& co ( cell->getCorners() ) ;
-	       std::cout << "ix="<<ix<<", iy="<<iy
-			 <<", "<<std::fixed<<std::setw(8)<<std::setprecision(3)
-			 << " ("
-			 <<cell->getPosition().x()<<","
-			 <<cell->getPosition().y()<<"," 
-			 <<cell->getPosition().z()<<")" ;
-	       for( unsigned int j ( 0 ) ; j != co.size() ; ++j )
+
+	       fCor << std::setw(4) << ix
+		    << std::setw(4) << iy ;
+
+	       for( unsigned int j ( 0 ) ; j < co.size() ; ++(++(++j)) )
 	       {
-		  std::cout<<" ("
-			   <<co[j].x()<<","
-			   <<co[j].y()<<","
-			   <<co[j].z()<<")";
+		  fCor << std::fixed << std::setw(10) << std::setprecision(4)
+		       << co[j].x()
+		       << std::fixed << std::setw(10) << std::setprecision(4)
+		       << co[j].y()
+		       << std::fixed << std::setw(10) << std::setprecision(4)
+		       << co[j].z() ;
 	       }
-	       std::cout<<std::endl;
+	       fCor << std::endl ;
 	    }
-	    f << "  // " << did << std::endl;
 	    f << "  // Checking getClosestCell for position " << tp->getPosition(0.) << std::endl;
 
 	    const EEDetId closestCell ( geom->getClosestCell( tp->getPosition(0.) ) ) ;
@@ -283,10 +306,10 @@ CaloGeometryAnalyzer::build( const CaloGeometry& cg,
 	    f << "  // Return position is " << closestCell << std::endl;
 	    //sanity checks
             int o_zside = ESDetId(*i).zside();
-            int o_plane = ESDetId(*i).plane();
+            //int o_plane = ESDetId(*i).plane();
             int o_six   = ESDetId(*i).six();
             int o_siy   = ESDetId(*i).siy();
-            int o_strip = ESDetId(*i).strip();
+            //int o_strip = ESDetId(*i).strip();
 
             assert ((o_six <= 20 && cell->getPosition().x() < 0.) || (o_six > 20 && cell->getPosition().x() > 0.));
             assert ((o_siy <= 20 && cell->getPosition().y() < 0.) || (o_siy > 20 && cell->getPosition().y() > 0.));
@@ -311,6 +334,8 @@ CaloGeometryAnalyzer::build( const CaloGeometry& cg,
    f << "world->Voxelize(\"\"); // now the new geometry is valid for tracking, so you can do \n // even raytracing \n //  if (!canvas) { \n    TCanvas* canvas=new TCanvas(\"EvtDisp\",\"EvtDisp\",500,500); \n //  } \n  canvas->Modified(); \n  canvas->Update();      \n  world->Draw(); \n";
    f << "}" << std::endl;
    f.close();
+   fCtr.close();
+   fCor.close();
 }
 
 //
@@ -322,8 +347,6 @@ void
 CaloGeometryAnalyzer::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
 {
    using namespace edm;
-   
-   std::cout << "Here I am " << std::endl;
 
    edm::ESHandle<CaloGeometry> pG;
    iSetup.get<IdealGeometryRecord>().get(pG);     
@@ -331,16 +354,16 @@ CaloGeometryAnalyzer::analyze( const edm::Event& iEvent, const edm::EventSetup& 
    // get the ecal & hcal geometry
    //
    if (pass_==0) {
-     build(*pG,DetId::Ecal,EcalBarrel,"eb.C");
-     build(*pG,DetId::Ecal,EcalEndcap,"ee.C");
+     build(*pG,DetId::Ecal,EcalBarrel,"eb");
+     build(*pG,DetId::Ecal,EcalEndcap,"ee");
      //Test eeGetClosestCell in Florian Point
      std::cout << "Checking getClosestCell for position" << GlobalPoint(-38.9692,-27.5548,-317) << std::endl;
      std::cout << "Position of Closest Cell in EE " << dynamic_cast<const TruncatedPyramid*>(pG->getGeometry(EEDetId((*pG).getSubdetectorGeometry(DetId::Ecal,EcalEndcap)->getClosestCell(GlobalPoint(-38.9692,-27.5548,-317)))))->getPosition(0.) << std::endl;
-     build(*pG,DetId::Ecal,EcalPreshower,"es.C");
-     build(*pG,DetId::Hcal,HcalBarrel,"hb.C");
-     build(*pG,DetId::Hcal,HcalEndcap,"he.C");
-     build(*pG,DetId::Hcal,HcalOuter,"ho.C");
-     build(*pG,DetId::Hcal,HcalForward,"hf.C");
+     build(*pG,DetId::Ecal,EcalPreshower,"es");
+     build(*pG,DetId::Hcal,HcalBarrel,"hb");
+     build(*pG,DetId::Hcal,HcalEndcap,"he");
+     build(*pG,DetId::Hcal,HcalOuter,"ho");
+     build(*pG,DetId::Hcal,HcalForward,"hf");
      
    }
 
