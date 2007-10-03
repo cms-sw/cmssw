@@ -54,12 +54,10 @@ uint32_t DBSpecToDetUnit::operator()(const ChamberLocationSpec & ch,
          (   sector==1 || sector==2 || sector==3 
                        || sector==5 || sector==6   
           || sector==7 || sector==8 
-          || sector==10)
+          || sector==10             || sector==12)
           && (ch.subsector=="+")) {
          subsector = 2;
     }
-
-    if (station==4 && sector==12 && (ch.subsector=="-")) subsector = 2;
 
     if (station==4 && sector==4) {
       if (ch.subsector=="--") subsector=1;
