@@ -487,17 +487,17 @@ G4VSolid * DDG4SolidConverter::trunctubs(const DDSolid & s)
       throw DDException(s);
     }
     if (rIn >= rOut) {
-      string s = "PseudoTrap " + string(tt.name()) + ": rIn<rOut violated!";
+      string s = "TruncTubs " + string(tt.name()) + ": rIn<rOut violated!";
       throw DDException(s);
     }
     if (startPhi != 0.) {
       string s= "TruncTubs " + string(tt.name()) + ": startPhi != 0 not supported!";
       throw DDException(s);
     }
-    if (cutInside != false) {
-      string s = "TruncTubs " + string(tt.name()) + " cutInside == true not supported!";
-      throw DDException(s);
-    }
+//     if (cutInside != false) {
+//       string s = "TruncTubs " + string(tt.name()) + " cutInside == true not supported!";
+//       throw DDException(s);
+//     }
 
     startPhi=0.;
     double r(cutAtStart), R(cutAtDelta);
@@ -532,7 +532,13 @@ G4VSolid * DDG4SolidConverter::trunctubs(const DDSolid & s)
     LogDebug("SimG4CoreGeometry") << (*rot);
 
     // center point of the box
-    double xBox(r+boxY/sin(abs(alpha)));
+    double xBox;
+    if (!cutInside) {
+      xBox = r+boxY/sin(abs(alpha));
+    } else {
+      xBox = -(boxY/sin(abs(alpha))-r);
+    }
+
     G4ThreeVector trans(xBox,0.,0.);
     LogDebug("SimG4CoreGeometry") << "trans=" << trans;
 
