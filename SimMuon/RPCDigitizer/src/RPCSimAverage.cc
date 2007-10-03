@@ -75,7 +75,7 @@ RPCSimAverage::RPCSimAverage(const edm::ParameterSet& config) :
     std::cout <<"Link Board Gate Width     = "<<lbGate<<" ns"<<std::endl;
   }
 
-  string ifile="../data/ClSizeTot.dat";
+  string ifile="SimMuon/RPCDigitizer/data/ClSizeTot.dat";
 
   infile = new ifstream(ifile.c_str(), ios::in);
   if(! *infile) {
@@ -270,11 +270,19 @@ void RPCSimAverage::simulateNoise(const RPCRoll* roll)
   N_hits = RandPoissonQ::shoot(ave);
   for (int i = 0; i < N_hits; i++ ){
       int strip = RandFlat::shootInt(nstrips);
+      int time_hit;
 
-      int sign = 0;
-      if(RandFlat::shoot() > 0. && RandFlat::shoot() < 0.5) sign = 1;
-      else if(RandFlat::shoot() > 0.5 && RandFlat::shoot() < 1.) sign = -1;
-      int time_hit = sign*(static_cast<int>(RandFlat::shoot((nbxing*gate))/gate));
+      //      int sign = 0;
+//       if(RandFlat::shoot() > 0. && RandFlat::shoot() < 0.5)
+// 	time_hit = static_cast<int>(RandFlat::shoot(-(nbxing*gate),0.)/gate);
+//       else if(RandFlat::shoot() > 0.5 && RandFlat::shoot() < 1.)
+      time_hit = (static_cast<int>(RandFlat::shoot(nbxing*gate)/gate)) - nbxing/2;
+      //      else if(RandFlat::shoot() > 0.5 && RandFlat::shoot() <= 1.) sign = -1;
+      //      int time_hit = sign*(static_cast<int>(RandFlat::shoot((nbxing*gate))/gate));
+      //      int time_hit = static_cast<int>(RandFlat::shoot(-(nbxing*gate),(nbxing*gate))/gate);
+
+
+      
       std::pair<int, int> digi(strip,time_hit);
       strips.insert(digi);
   }
