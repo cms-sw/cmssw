@@ -15,3 +15,8 @@
   <use name=RecoVertex/ConfigurableVertexReco>
   <flags EDM_PLUGIN=1>
 </library>
+<library file="JetTagESProducers.cc" name=RecoBTagSecondaryVertexESProducers>
+  <use name=FWCore/Framework>
+  <use name=RecoBTau/JetTagComputer>
+  <flags EDM_PLUGIN=1>
+</library>

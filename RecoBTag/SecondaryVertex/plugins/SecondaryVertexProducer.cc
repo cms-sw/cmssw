@@ -2,7 +2,6 @@
 #include <algorithm>
 #include <iterator>
 #include <cstddef>
-#include <iostream>
 #include <string>
 #include <vector>
 
@@ -37,8 +36,6 @@
 #include "RecoBTag/SecondaryVertex/interface/SecondaryVertex.h"
 #include "RecoBTag/SecondaryVertex/interface/VertexFilter.h"
 #include "RecoBTag/SecondaryVertex/interface/VertexSelector.h"
-
-// #define DEBUG
 
 using namespace reco;
 
@@ -150,10 +147,6 @@ void SecondaryVertexProducer::produce(edm::Event &event,
 	Vertex beamSpotPV(beamSpot.position(), beamSpot.covariance3D(),
 	                  -1, -1, 0);
 
-#ifdef DEBUG
-	std::cout << "Found " << trackIPTagInfos->size() << " trackIPTagInfos" << std::endl;
-#endif
-
 	for(TrackIPTagInfoCollection::const_iterator iterJets =
 		trackIPTagInfos->begin(); iterJets != trackIPTagInfos->end();
 		++iterJets) {
@@ -179,10 +172,6 @@ void SecondaryVertexProducer::produce(edm::Event &event,
 		const std::vector<TrackIPTagInfo::TrackIPData> &ipData =
 					iterJets->impactParameterData();
 
-#ifdef DEBUG
-		std::cout << "Has " << indices.size() << " tracks." << std::endl;
-#endif
-
 		// build transient tracks
 
 		std::vector<TransientTrack> tracks;
@@ -203,9 +192,6 @@ void SecondaryVertexProducer::produce(edm::Event &event,
 					? SecondaryVertexTagInfo::TrackData::trackUsedForVertexFit
 					: SecondaryVertexTagInfo::TrackData::trackSelected;
 		}
-#ifdef DEBUG
-		std::cout << "Have " << tracks.size() << " selected tracks." << std::endl;
-#endif
 
 		// try to fit vertex
 
@@ -220,17 +206,10 @@ void SecondaryVertexProducer::produce(edm::Event &event,
 				if (trackData[i].second.usedForVertexFit())
 					fitTracks.push_back(tracks[i]);
 
-#ifdef DEBUG
-			std::cout << "Having " << fitTracks.size() << " selected tracks." << std::endl;
-#endif
-
 			// perform fit
 
 			std::vector<TransientVertex> fittedSVs;
 			fittedSVs = vertexReco.vertices(fitTracks);
-#ifdef DEBUG
-			std::cout << "Found " << fittedSVs.size() << " vertices." << std::endl;
-#endif
 
 			// build combined SV information and filter
 
@@ -254,37 +233,43 @@ void SecondaryVertexProducer::produce(edm::Event &event,
 		// identify most probable SV
 
 		const SecondaryVertex *bestSV = vertexSelector(SVs);
-		if (!bestSV)
-			continue;
 
-		// mark tracks successfully used in vertex fit
+		std::vector<SecondaryVertexTagInfo::VertexData> svData;
 
-		for(Vertex::trackRef_iterator iter = bestSV->tracks_begin();
-		    iter != bestSV->tracks_end(); iter++) {
-			TrackRefVector::const_iterator pos =
-				std::find(trackRefs.begin(), trackRefs.end(),
-				          iter->castTo<TrackRef>());
-			if (pos == trackRefs.end())
-				throw cms::Exception("TrackNotFound")
-					<< "Could not find track in secondary "
-					   "vertex in origina tracks."
-					<< std::endl;
+		if (bestSV) {
+			svData.resize(1);
+			svData.back().vertex = *bestSV;
+			svData.back().dist2d = bestSV->dist2d();
+			svData.back().dist3d = bestSV->dist3d();
+			svData.back().direction =
+				GlobalVector(bestSV->x() - pv.x(),
+				             bestSV->y() - pv.y(),
+				             bestSV->z() - pv.z());
 
-			unsigned int index = pos - trackRefs.begin();
-			trackData[index].second.svStatus = 
-				SecondaryVertexTagInfo::TrackData::trackAssociatedToVertex;
+			// mark tracks successfully used in vertex fit
+
+			for(Vertex::trackRef_iterator iter = bestSV->tracks_begin();
+			    iter != bestSV->tracks_end(); iter++) {
+				TrackRefVector::const_iterator pos =
+					std::find(trackRefs.begin(), trackRefs.end(),
+					          iter->castTo<TrackRef>());
+				if (pos == trackRefs.end())
+					throw cms::Exception("TrackNotFound")
+						<< "Could not find track in secondary "
+						   "vertex in origina tracks."
+						<< std::endl;
+
+				unsigned int index = pos - trackRefs.begin();
+				trackData[index].second.svStatus = 
+					SecondaryVertexTagInfo::TrackData::trackAssociatedToVertex;
+			}
 		}
 
 		// fill result into tag infos
 
-#ifdef DEBUG
-		std::cout << "saving as tag info" << std::endl;
-#endif
 		tagInfos->push_back(
 			SecondaryVertexTagInfo(
-				trackData, *bestSV,
-				bestSV->dist2d(), bestSV->dist3d(),
-				SVs.size(), jetDir,
+				trackData, svData, SVs.size(),
 				TrackIPTagInfoRef(trackIPTagInfos,
 					iterJets - trackIPTagInfos->begin())));
 	}

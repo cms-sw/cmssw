@@ -1,5 +1,5 @@
-#ifndef RecoBTag_ParticleMasses_ParticleMasses_h
-#define RecoBTag_ParticleMasses_ParticleMasses_h
+#ifndef RecoBTag_SecondaryVertex_ParticleMasses_h
+#define RecoBTag_SecondaryVertex_ParticleMasses_h
 
 namespace ParticleMasses {
 	extern double k0;
@@ -7,4 +7,4 @@ namespace ParticleMasses {
 	extern double piPlus;
 }
 
-#endif // RecoBTag_ParticleMasses_ParticleMasses_h
+#endif // RecoBTag_SecondaryVertex_ParticleMasses_h

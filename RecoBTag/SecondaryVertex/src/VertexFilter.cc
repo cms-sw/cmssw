@@ -6,6 +6,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "DataFormats/GeometryVector/interface/GlobalVector.h"
+#include "DataFormats/GeometryVector/interface/VectorUtil.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 
 #include "RecoBTag/SecondaryVertex/interface/SecondaryVertex.h"
@@ -65,6 +66,13 @@ bool VertexFilter::operator () (const Vertex &pv,
 	    sv.dist2d().significance() > distSig2dMax ||
 	    sv.dist3d().significance() < distSig3dMin ||
 	    sv.dist3d().significance() > distSig3dMax)
+		return false;
+
+	// SV direction filter
+
+	if (Geom::deltaR(sv.position() - pv.position(),
+	                 (maxDeltaRToJetAxis > 0) ? direction : -direction)
+							> maxDeltaRToJetAxis)
 		return false;
 
 	// compute fourvector sum of tracks as vertex and cut on inv. mass
