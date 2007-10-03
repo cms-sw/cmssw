@@ -1,9 +1,11 @@
 /*----------------------------------------------------------------------
-$Id: RootFile.cc,v 1.82 2007/09/19 19:35:51 wmtan Exp $
+$Id: RootFile.cc,v 1.83 2007/09/19 20:25:12 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "RootFile.h"
 
+
+#include "IOPool/Common/interface/FileIdentifier.h"
 #include "DataFormats/Provenance/interface/BranchDescription.h"
 #include "DataFormats/Provenance/interface/BranchType.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
@@ -71,6 +73,7 @@ namespace edm {
     ProcessHistoryMap *pHistMapPtr = &pHistMap;
     ModuleDescriptionMap *mdMapPtr = &mdMap;
     FileFormatVersion *fftPtr = &fileFormatVersion_;
+    FileID *fidPtr = &fid_;
 
     // Read the metadata tree.
     TTree *metaDataTree = dynamic_cast<TTree *>(filePtr_->Get(poolNames::metaDataTreeName().c_str()));
@@ -81,6 +84,9 @@ namespace edm {
     metaDataTree->SetBranchAddress(poolNames::processHistoryMapBranchName().c_str(), &pHistMapPtr);
     metaDataTree->SetBranchAddress(poolNames::moduleDescriptionMapBranchName().c_str(), &mdMapPtr);
     metaDataTree->SetBranchAddress(poolNames::fileFormatVersionBranchName().c_str(), &fftPtr);
+    if (metaDataTree->FindBranch(poolNames::fileIdentifierBranchName().c_str()) != 0) {
+      metaDataTree->SetBranchAddress(poolNames::fileIdentifierBranchName().c_str(), &fidPtr);
+    }
 
     metaDataTree->GetEntry(0);
 
@@ -141,6 +147,9 @@ namespace edm {
   void RootFile::validateFile() {
     if (!fileFormatVersion_.isValid()) {
       fileFormatVersion_.value_ = 0;
+    }
+    if (!fid_.isValid()) {
+      fid_ = FileID(createFileIdentifier());
     }
     assert(eventTree().isValid());
 //  if (fileFormatVersion_.value_ >= 3) {

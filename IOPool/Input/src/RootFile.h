@@ -5,7 +5,7 @@
 
 RootFile.h // used by ROOT input sources
 
-$Id: RootFile.h,v 1.33 2007/09/19 19:35:51 wmtan Exp $
+$Id: RootFile.h,v 1.34 2007/09/19 20:25:12 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -21,6 +21,7 @@ $Id: RootFile.h,v 1.33 2007/09/19 19:35:51 wmtan Exp $
 #include "DataFormats/Provenance/interface/LuminosityBlockAuxiliary.h"
 #include "DataFormats/Provenance/interface/RunAuxiliary.h"
 #include "DataFormats/Provenance/interface/FileFormatVersion.h"
+#include "DataFormats/Provenance/interface/FileID.h"
 #include "DataFormats/Provenance/interface/ProvenanceFwd.h"
 #include "FWCore/MessageLogger/interface/JobReport.h"
 class TFile;
@@ -72,6 +73,7 @@ namespace edm {
     ProcessConfiguration const& processConfiguration_;
     boost::shared_ptr<TFile> filePtr_;
     FileFormatVersion fileFormatVersion_;
+    FileID fid_;
     JobReport::Token reportToken_;
     EventAuxiliary eventAux_;
     LuminosityBlockAuxiliary lumiAux_;
