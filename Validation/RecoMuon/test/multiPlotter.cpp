@@ -12,8 +12,8 @@
  *  which had a problem with directories more than one level deep.
  *  (see macro hadd_old.C for this previous implementation).
  *
- *  $Date: 2007/07/31 21:41:01 $
- *  $Revision: 1.2 $
+ *  $Date: 2007/08/02 18:59:58 $
+ *  $Revision: 1.3 $
  *
  *  Authors:
  *  A. Everett Purdue University
@@ -35,6 +35,7 @@
 #include "TCanvas.h"
 #include <TPDF.h>
 #include <TLegend.h>
+#include <TGraph.h>
 
 #include <boost/program_options.hpp>
 #include <iostream>
@@ -242,7 +243,6 @@ void drawLoop( TDirectory *target, TList *sourcelist, TCanvas *c1 )
       }
     }
     else if ( obj->IsA()->InheritsFrom( "TH2" ) ) {
-      
       // descendant of TH2 -> merge it
       gLegend = new TLegend(.85,.15,1.0,.30,"");
       gLegend->SetHeader(gDirectory->GetName());
@@ -282,6 +282,48 @@ void drawLoop( TDirectory *target, TList *sourcelist, TCanvas *c1 )
         nextsource = (TFile*)sourcelist->After( nextsource );
       }
     }
+    else if ( obj->IsA()->InheritsFrom( "TGraph" ) ) {
+      obj->IsA()->Print();
+      gLegend = new TLegend(.7,.15,.95,.4,"");
+      gLegend->SetHeader(gDirectory->GetName());
+      Color_t color = 1;
+      Style_t style = 22;
+      TGraph *h1 =(TGraph*)obj;
+      h1->SetLineColor(color);
+      h1->SetMarkerStyle(style);
+      h1->SetMarkerColor(color);
+      h1->GetHistogram()->Draw();
+      h1->Draw();
+      TString tmpName(first_source->GetName());
+      gLegend->AddEntry(h1,tmpName.Remove(tmpName.Length()-5,5),"LP");
+      c1->Update();
+
+      // loop over all source files and add the content of the
+      // correspondant histogram to the one pointed to by "h1"
+      TFile *nextsource = (TFile*)sourcelist->After( first_source );
+      while ( nextsource ) {
+        
+        // make sure we are at the correct directory level by cd'ing to path
+        nextsource->cd( path );
+        TKey *key2 = (TKey*)gDirectory->GetListOfKeys()->FindObject(h1->GetName());
+        if (key2) {
+           TGraph *h2 = (TGraph*)key2->ReadObj();
+	   color++;
+	   style++;
+	   h2->SetLineColor(color);
+	   h2->SetMarkerStyle(style);
+	   h2->SetMarkerColor(color);
+           h2->Draw("same");
+	   TString tmpName(nextsource->GetName());
+	   gLegend->AddEntry(h2,tmpName.Remove(tmpName.Length()-5,5),"LP");
+	   gLegend->Draw("same");
+	   c1->Update();
+           //- delete h2;
+        }
+
+        nextsource = (TFile*)sourcelist->After( nextsource );
+      }
+    }
     else if ( obj->IsA()->InheritsFrom( "TTree" ) ) {
       cout << "I don't draw trees" << endl;
     } else if ( obj->IsA()->InheritsFrom( "TDirectory" ) ) {
@@ -314,7 +356,7 @@ void drawLoop( TDirectory *target, TList *sourcelist, TCanvas *c1 )
     if ( obj ) {
       target->cd();
 
-	if ( obj->IsA()->InheritsFrom( "TH1") ) {
+	if ( obj->IsA()->InheritsFrom( "TH1") || obj->IsA()->InheritsFrom("TGraph")) {
 	  //	 && !obj->IsA()->InheritsFrom("TH2") ) {
 	  TString newName(obj->GetName());
 	  newName.ReplaceAll("(",1,"_",1);
