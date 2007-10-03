@@ -1,11 +1,12 @@
-// $Id: RootOutputFile.cc,v 1.19 2007/09/27 18:47:53 wmtan Exp $
+// $Id: RootOutputFile.cc,v 1.20 2007/10/02 02:53:33 wmtan Exp $
 
 #include "RootOutputFile.h"
 #include "PoolOutputModule.h"
 
-#include "DataFormats/Provenance/interface/EventAuxiliary.h" 
+#include "IOPool/Common/interface/FileIdentifier.h"
 #include "IOPool/Common/interface/RootChains.h"
 
+#include "DataFormats/Provenance/interface/EventAuxiliary.h" 
 #include "DataFormats/Provenance/interface/FileFormatVersion.h"
 #include "FWCore/Utilities/interface/GetFileFormatVersion.h"
 #include "FWCore/Utilities/interface/EDMException.h"
@@ -24,8 +25,6 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/Registry.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-
-#include "POOLCore/Guid.h"
 
 #include "TTree.h"
 #include "TFile.h"
@@ -93,10 +92,7 @@ namespace edm {
     // Don't split metadata tree.
     metaDataTree_ = RootOutputTree::makeTree(filePtr_.get(), poolNames::metaDataTreeName(), 0, 0);
 
-    pool::Guid guid;
-    pool::Guid::create(guid);
-
-    fid_ = guid.toString();
+    fid_ = FileID(createFileIdentifier());
 
     // Register the output file with the JobReport service
     // and get back the token for it.
@@ -107,7 +103,7 @@ namespace edm {
 		      om_->catalog_,  // catalog
 		      moduleName,   // module class name
 		      om_->moduleLabel_,  // module label
-		      fid_, // file id (guid)
+		      fid_.fid(), // file id (guid)
 		      eventTree_.branchNames()); // branch names being written
   }
 
@@ -154,6 +150,13 @@ namespace edm {
     FileFormatVersion fileFormatVersion(edm::getFileFormatVersion());
     FileFormatVersion * pFileFmtVsn = &fileFormatVersion;
     TBranch* b = metaDataTree_->Branch(poolNames::fileFormatVersionBranchName().c_str(), &pFileFmtVsn, om_->basketSize(), 0);
+    assert(b);
+    b->Fill();
+  }
+
+  void RootOutputFile::writeFileIdentifier() {
+    FileID *fidPtr = &fid_;
+    TBranch* b = metaDataTree_->Branch(poolNames::fileIdentifierBranchName().c_str(), &fidPtr, om_->basketSize(), 0);
     assert(b);
     b->Fill();
   }

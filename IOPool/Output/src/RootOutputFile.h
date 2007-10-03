@@ -3,7 +3,7 @@
 
 //////////////////////////////////////////////////////////////////////
 //
-// $Id: RootOutputFile.h,v 1.9 2007/09/10 20:27:09 wmtan Exp $
+// $Id: RootOutputFile.h,v 1.10 2007/09/13 16:29:50 paterno Exp $
 //
 // Class PoolOutputModule. Output module to POOL file
 //
@@ -23,6 +23,7 @@
 #include "FWCore/MessageLogger/interface/JobReport.h"
 #include "DataFormats/Provenance/interface/BranchType.h"
 #include "DataFormats/Provenance/interface/EventAuxiliary.h"
+#include "DataFormats/Provenance/interface/FileID.h"
 #include "DataFormats/Provenance/interface/LuminosityBlockAuxiliary.h"
 #include "DataFormats/Provenance/interface/RunAuxiliary.h"
 #include "DataFormats/Provenance/interface/Selections.h"
@@ -47,6 +48,7 @@ namespace edm {
     bool writeRun(RunPrincipal const& r);
 
     void writeFileFormatVersion();
+    void writeFileIdentifier();
     void writeProcessConfigurationRegistry();
     void writeProcessHistoryRegistry();
     void writeModuleDescriptionRegistry();
@@ -85,7 +87,7 @@ namespace edm {
     unsigned int fileSizeCheckEvent_;
     PoolOutputModule const* om_;
     boost::shared_ptr<TFile> filePtr_;
-    std::string fid_;
+    FileID fid_;
     TTree * metaDataTree_;
     EventAuxiliary eventAux_;
     LuminosityBlockAuxiliary lumiAux_;

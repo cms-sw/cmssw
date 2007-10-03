@@ -7,7 +7,6 @@
 <use name=FWCore/MessageLogger>
 <use name=FWCore/ParameterSet>
 <use name=IOPool/Common>
-<use name=POOLCore>
 <use name=boost>
 <use name=rootcore>
 <use name=root>
