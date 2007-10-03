@@ -1,12 +1,8 @@
 #include "EventFilter/SiStripRawToDigi/plugins/SiStripRawToClusters.h"
-
-//FWCore
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-
-//Data Formats
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
 
@@ -14,16 +10,14 @@ using namespace std;
 using namespace sistrip;
 
 // -----------------------------------------------------------------------------
-//
+
 SiStripRawToClusters::SiStripRawToClusters( const edm::ParameterSet& conf ) :
 
   allregions_(),
   productLabel_(conf.getUntrackedParameter<string>("ProductLabel","source")),
   productInstance_(conf.getUntrackedParameter<string>("ProductInstance","")),
   cabling_(),
-  clusterizer_(0),
-  dumpFrequency_(conf.getUntrackedParameter<int>("FedBufferDumpFreq",0)),
-  triggerFedId_(conf.getUntrackedParameter<int>("TriggerFedId",0))
+  clusterizer_(0)
   
 {
   LogTrace(mlRawToDigi_)
@@ -38,7 +32,7 @@ SiStripRawToClusters::SiStripRawToClusters( const edm::ParameterSet& conf ) :
 }
 
 // -----------------------------------------------------------------------------
-/** */
+
 SiStripRawToClusters::~SiStripRawToClusters() {
 
   if (clusterizer_) delete clusterizer_;
@@ -51,31 +45,17 @@ SiStripRawToClusters::~SiStripRawToClusters() {
 }
 
 // -----------------------------------------------------------------------------
+
 void SiStripRawToClusters::beginJob( const edm::EventSetup& setup) {
 
-  //Fill cabling
   setup.get<SiStripRegionCablingRcd>().get(cabling_);
-
-  //Configure clusterizer factory
   clusterizer_->eventSetup(setup);
 
-  //Fill allregions_ record
-  uint32_t nregions = cabling_->getRegionCabling().size();
-  allregions_.reserve(nregions);
-  
-  for (uint32_t iregion = 0;
-       iregion < nregions;
-       iregion++) {
-    
-    for (uint32_t isubdet = 0; 
-	 isubdet < cabling_->getRegionCabling()[iregion].size(); 
-	 isubdet++) {
-      
-      for (uint32_t ilayer = 0; 
-	   ilayer < cabling_->getRegionCabling()[iregion][isubdet].size(); 
-	   ilayer++) {
-	
-	uint32_t index = SiStripRegionCabling::elementIndex(iregion,static_cast<SiStripRegionCabling::SubDet>(isubdet),ilayer);
+  allregions_.reserve(cabling_->getRegionCabling().size());
+  for (uint32_t iregion=0;iregion<cabling_->getRegionCabling().size();iregion++) {
+    for (uint32_t isubdet=0;isubdet<cabling_->getRegionCabling()[iregion].size();isubdet++) {
+      for (uint32_t ilayer=0;ilayer<cabling_->getRegionCabling()[iregion][isubdet].size();ilayer++) {
+	uint32_t index = SiStripRegionCabling::elementIndex(iregion,static_cast<SubDet>(isubdet),ilayer);
 	allregions_.push_back(index);
       }
     }
@@ -87,13 +67,12 @@ void SiStripRawToClusters::beginJob( const edm::EventSetup& setup) {
 void SiStripRawToClusters::endJob() {;}
 
 // -----------------------------------------------------------------------------
-/** 
-*/
+
 void SiStripRawToClusters::produce( edm::Event& event, 
 				    const edm::EventSetup& setup ) {
 
 
-  //Retrieve FED raw data (by label, which is "source" by default)
+  //Retrieve FED raw data
   edm::Handle<FEDRawDataCollection> buffers;
   event.getByLabel( productLabel_, productInstance_, buffers ); 
   

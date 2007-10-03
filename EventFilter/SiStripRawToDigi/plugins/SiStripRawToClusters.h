@@ -1,22 +1,12 @@
 #ifndef EventFilter_SiStripRawToDigi_SiStripRawToClusters_H
 #define EventFilter_SiStripRawToDigi_SiStripRawToClusters_H
 
-#include "EventFilter/SiStripRawToDigi/interface/SiStripRawToClustersLazyUnpacker.h"
-
-//FWCore
 #include "FWCore/Framework/interface/EDProducer.h"
-
-//Data Formats
+#include "CalibFormats/SiStripObjects/interface/SiStripRegionCabling.h"
+#include "CalibTracker/Records/interface/SiStripRegionCablingRcd.h"
 #include "DataFormats/SiStripCommon/interface/SiStripLazyGetter.h"
 #include "DataFormats/SiStripCommon/interface/SiStripRefGetter.h"
-
-//CalibFormats
-#include "CalibFormats/SiStripObjects/interface/SiStripRegionCabling.h"
-
-//CalibTracker
-#include "CalibTracker/Records/interface/SiStripRegionCablingRcd.h"
-
-//stl
+#include "EventFilter/SiStripRawToDigi/interface/SiStripRawToClustersLazyUnpacker.h"
 #include <string>
 #include <memory>
 #include "boost/bind.hpp"
@@ -35,6 +25,7 @@ class SiStripRawToClusters : public edm::EDProducer {
   typedef edm::SiStripLazyGetter<SiStripCluster> LazyGetter;
   typedef edm::SiStripRefGetter<SiStripCluster> RefGetter;
   typedef SiStripRawToClustersLazyUnpacker LazyUnpacker;
+  typedef SiStripRegionCabling::SubDet SubDet;
 
   SiStripRawToClusters( const edm::ParameterSet& );
   ~SiStripRawToClusters();
@@ -45,22 +36,18 @@ class SiStripRawToClusters : public edm::EDProducer {
   
  private: 
 
-  //Record of all region numbers
+  /** Record of all region numbers */
   std::vector<uint32_t> allregions_;
 
-  //Raw data labels
+  /** Raw data labels */
   std::string productLabel_;
   std::string productInstance_;
 
-  //Cabling
+  /** Cabling */
   edm::ESHandle<SiStripRegionCabling> cabling_;
 
-  //Clusterizer Factory
+  /** Clusterizer Factory */
   SiStripClusterizerFactory* clusterizer_;
-
-  //Fed
-  int16_t dumpFrequency_;
-  int16_t triggerFedId_;
 };
 
 #endif //  EventFilter_SiStripRawToDigi_SiStripRawToClusters_H
