@@ -1,5 +1,5 @@
 //
-// $Id: TtDilepEvtSolutionMaker.cc,v 1.5 2007/07/20 06:52:09 lowette Exp $
+// $Id: TtDilepEvtSolutionMaker.cc,v 1.6 2007/07/23 10:27:09 vizan Exp $
 //
 
 #include "TopQuarkAnalysis/TopEventProducers/interface/TtDilepEvtSolutionMaker.h"
@@ -188,9 +188,11 @@ void TtDilepEvtSolutionMaker::produce(edm::Event & iEvent, const edm::EventSetup
       if (calcTopMass_) {
         Handle<TtGenEvent> genEvent;
         iEvent.getByLabel ("genEvt",genEvent);
+  if (genEvent->isFullLeptonic()) {   // FIXME: temporary solution to avoid crash in JetPartonMatching for non semi-leptonic events
         asol.setGenEvt(genEvent);
         TtDilepKinSolver solver(tmassbegin_, tmassend_, tmassstep_, xconstraint, yconstraint);
         asol = solver.addKinSolInfo(&asol);
+  }
       }
       
       evtsols->push_back(asol);
@@ -200,6 +202,7 @@ void TtDilepEvtSolutionMaker::produce(edm::Event & iEvent, const edm::EventSetup
     if(matchToGenEvt_){
       Handle<TtGenEvent> genEvt;
       iEvent.getByLabel ("genEvt",genEvt);
+  if (genEvt->isFullLeptonic()) {   // FIXME: temporary solution to avoid crash in JetPartonMatching for non semi-leptonic events
       double bestSolDR = 9999.;
       int bestSol = 0;
       for(size_t s=0; s<evtsols->size(); s++) {
@@ -210,6 +213,7 @@ void TtDilepEvtSolutionMaker::produce(edm::Event & iEvent, const edm::EventSetup
         if (dRBB + dRBbarBbar < bestSolDR) { bestSolDR = dRBB + dRBbarBbar; bestSol = s; }
       }
       (*evtsols)[bestSol].setBestSol(true);
+  }
     }
     
     std::auto_ptr<std::vector<TtDilepEvtSolution> > pOut(evtsols);
