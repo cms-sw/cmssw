@@ -9,7 +9,7 @@
 #include "TrackingTools/PatternTools/interface/TSCPBuilderNoMaterial.h"
 #include "TrackingTools/TrackFitters/interface/TrajectoryStateCombiner.h"
 #include <TDirectory.h>
-
+#include "Geometry/TrackerGeometryBuilder/interface/GluedGeomDet.h"
 
 typedef TrajectoryStateOnSurface TSOS;
 typedef TransientTrackingRecHit::ConstRecHitPointer CTTRHp;
@@ -259,7 +259,7 @@ void TestSmoothHits::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
       vector<PSimHit> assSimHits = hitAssociator->associateHit(*(rhit->hit()));
       if (assSimHits.size()==0) continue;
       PSimHit shit=*(assSimHits.begin());
- 
+
       TSOS currentState = combiner(tm->backwardPredictedState(), tm->forwardPredictedState());
       TSOS updatedState = tm->updatedState();
  
@@ -282,9 +282,56 @@ void TestSmoothHits::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
       //#if 0    
       //test hits
       const Surface * surf = &( (rhit)->det()->surface() );
-      LocalVector shitLMom = shit.momentumAtEntry();
+      LocalVector shitLMom;
+      LocalPoint shitLPos;
+      if (dynamic_cast<const SiStripMatchedRecHit2D*>((rhit)->hit())) {
+	double rechitmatchedx = rhit->localPosition().x();
+	double rechitmatchedy = rhit->localPosition().y();
+	double mindist = 999999;
+	double distx, disty;
+	std::pair<LocalPoint,LocalVector> closestPair;
+	const StripGeomDetUnit* stripDet =(StripGeomDetUnit*) ((const GluedGeomDet *)(rhit)->det())->stereoDet();
+	const BoundPlane& plane = (rhit)->det()->surface();
+	for(vector<PSimHit>::const_iterator m=assSimHits.begin(); m<assSimHits.end(); m++){
+	  const PSimHit& hit = *m;
+	  const StripTopology& topol = stripDet->specificTopology();
+	  GlobalPoint globalpos = stripDet->surface().toGlobal(hit.localPosition());
+	  LocalPoint localHit = plane.toLocal(globalpos);
+	  //track direction
+	  LocalVector locdir=hit.localDirection();
+	  //rotate track in new frame
+	  
+	  GlobalVector globaldir= stripDet->surface().toGlobal(locdir);
+	  LocalVector dir=plane.toLocal(globaldir);
+	  float scale = -localHit.z() / dir.z();
+	  
+	  LocalPoint projectedPos = localHit + scale*dir;
+	  
+	  //  std::cout << "projectedPos " << projectedPos << std::endl;
+	  
+	  float selfAngle = topol.stripAngle( topol.strip( hit.localPosition()));
+	  
+	  LocalVector stripDir( sin(selfAngle), cos(selfAngle), 0); // vector along strip in hit frame
+	  
+	  LocalVector localStripDir = LocalVector( plane.toLocal(stripDet->surface().toGlobal( stripDir)));
+
+	  std::pair<LocalPoint,LocalVector> hitPair( projectedPos, localStripDir);
+
+	  distx = fabs(rechitmatchedx - hitPair.first.x());
+	  disty = fabs(rechitmatchedy - hitPair.first.y());
+	  double dist = distx*distx+disty*disty;
+	  if(sqrt(dist)<mindist){
+	    mindist = dist;
+	    closestPair = hitPair;
+	  }
+	}
+	shitLPos = closestPair.first;
+	shitLMom = closestPair.second;
+      } else {
+	shitLPos = shit.localPosition();	
+	shitLMom = shit.momentumAtEntry();
+      }
       GlobalVector shitGMom = surf->toGlobal(shitLMom);
-      LocalPoint shitLPos = shit.localPosition();
       GlobalPoint shitGPos = surf->toGlobal(shitLPos);
 
       GlobalVector tsosGMom = currentState.globalMomentum();
