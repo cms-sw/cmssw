@@ -165,7 +165,7 @@ void TtSemiLRSignalSelObservables::operator() (TtSemiEvtSolution &TS)
 	// for the lepton
 	pjets += TS.getRecLept().p4();
 	// for the ~"neutrino"	
-	double MET = TS.getMET().et();
+	double MET = TS.getNeutrino().et();
 
 	double MT = sqrt(pow(pjets.mass(),2)+pow(MET,2))+MET;
 	

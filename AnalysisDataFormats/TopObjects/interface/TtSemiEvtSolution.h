@@ -1,5 +1,5 @@
 //
-// $Id: TtSemiEvtSolution.h,v 1.18 2007/08/20 20:34:51 lowette Exp $
+// $Id: TtSemiEvtSolution.h,v 1.19 2007/09/20 18:12:22 lowette Exp $
 //
 
 #ifndef TopObjects_TtSemiEvtSolution_h
@@ -44,7 +44,7 @@ class TtSemiEvtSolution {
     TopJet                    getLepb() const;
     TopMuon                   getMuon() const;
     TopElectron               getElectron() const;
-    TopMET                    getMET() const;
+    TopMET                    getNeutrino() const;
     // methods to get the MC matched particles
     const TtGenEvent &        getGenEvent() const { return *theGenEvt_; }
     const reco::Candidate *   getGenHadt() const;
@@ -103,9 +103,9 @@ class TtSemiEvtSolution {
     double                    getMCBestAngleLepb() const       { return angleLepb_; };
     int                       getMCChangeWQ() const            { return changeWQ_; };     
     // methods to get the selected kinfit parametrisations of each type of object 
-    int                       getJetParametrisation() const    { return jetParam_; }
-    int                       getLeptonParametrisation() const { return lepParam_; }
-    int                       getMETParametrisation() const    { return metParam_; }
+    int                       getJetParametrisation() const      { return jetParam_; }
+    int                       getLeptonParametrisation() const   { return leptonParam_; }
+    int                       getNeutrinoParametrisation() const { return neutrinoParam_; }
     // method to get the prob. of the chi2 value resulting from the kinematic fit
     double                    getProbChi2() const              { return probChi2_; }
     // methods to get info on the outcome of the signal selection LR
@@ -131,7 +131,7 @@ class TtSemiEvtSolution {
     void                      setLepb(const edm::Handle<std::vector<TopJet> > & jh, int i);
     void                      setMuon(const edm::Handle<std::vector<TopMuon> > & mh, int i);
     void                      setElectron(const edm::Handle<std::vector<TopElectron> > & eh, int i);
-    void                      setMET(const edm::Handle<std::vector<TopMET> > & nh, int i);
+    void                      setNeutrino(const edm::Handle<std::vector<TopMET> > & nh, int i);
     // methods to set the fitted objects 
     void                      setFitHadb(const TopParticle & aFitHadb);
     void                      setFitHadp(const TopParticle & aFitHadp);
@@ -149,7 +149,7 @@ class TtSemiEvtSolution {
     // methods to set the kinfit parametrisations of each type of object 
     void                      setJetParametrisation(int jp);
     void                      setLeptonParametrisation(int lp);
-    void                      setMETParametrisation(int mp);
+    void                      setNeutrinoParametrisation(int mp);
     // method to set the prob. of the chi2 value resulting from the kinematic fit 
     void                      setProbChi2(double c);
     // methods to set the outcome of the different jet combination methods
@@ -171,14 +171,14 @@ class TtSemiEvtSolution {
     edm::Ref<std::vector<TopJet> >      hadb_, hadp_, hadq_, lepb_;
     edm::Ref<std::vector<TopMuon> >     muon_;
     edm::Ref<std::vector<TopElectron> > electron_;
-    edm::Ref<std::vector<TopMET> >      met_;
+    edm::Ref<std::vector<TopMET> >      neutrino_;
     std::vector<TopParticle>            fitHadb_, fitHadp_, fitHadq_;
     std::vector<TopParticle>            fitLepb_, fitLepl_, fitLepn_;
     // miscellaneous
     std::string               decay_;
     double                    sumAnglejp_, angleHadp_, angleHadq_, angleHadb_, angleLepb_;
     int                       changeWQ_;
-    int                       jetParam_, lepParam_, metParam_;
+    int                       jetParam_, leptonParam_, neutrinoParam_;
     double                    probChi2_;
     int                       mcBestJetComb_, simpleBestJetComb_, lrBestJetComb_;
     double                    lrJetCombLRval_, lrJetCombProb_;

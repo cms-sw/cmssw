@@ -1,5 +1,5 @@
 //
-// $Id: TtSemiEvtSolution.cc,v 1.16 2007/07/26 08:42:46 lowette Exp $
+// $Id: TtSemiEvtSolution.cc,v 1.17 2007/08/20 20:34:52 lowette Exp $
 //
 
 #include "AnalysisDataFormats/TopObjects/interface/TtSemiEvtSolution.h"
@@ -38,7 +38,7 @@ TopJet      TtSemiEvtSolution::getHadq() const     { return *hadq_; }
 TopJet      TtSemiEvtSolution::getLepb() const     { return *lepb_; }
 TopMuon     TtSemiEvtSolution::getMuon() const     { return *muon_; }
 TopElectron TtSemiEvtSolution::getElectron() const { return *electron_; }
-TopMET      TtSemiEvtSolution::getMET() const      { return *met_; }
+TopMET      TtSemiEvtSolution::getNeutrino() const { return *neutrino_; }
 
 
 // methods to get the MC matched particles
@@ -84,7 +84,7 @@ reco::Particle TtSemiEvtSolution::getRecLepW() const {
 TopJetType     TtSemiEvtSolution::getRecLepb() const { return this->getLepb().getRecJet(); }
 TopMuon        TtSemiEvtSolution::getRecLepm() const { return this->getMuon(); }
 TopElectron    TtSemiEvtSolution::getRecLepe() const { return this->getElectron(); }
-TopMET         TtSemiEvtSolution::getRecLepn() const { return this->getMET();  }
+TopMET         TtSemiEvtSolution::getRecLepn() const { return this->getNeutrino(); }
 
 
 // FIXME: Why these functions??? Not needed!
@@ -109,7 +109,7 @@ reco::Particle TtSemiEvtSolution::getCalLepW() const {
 TopJet         TtSemiEvtSolution::getCalLepb() const { return this->getLepb(); }
 TopMuon        TtSemiEvtSolution::getCalLepm() const { return this->getMuon(); }
 TopElectron    TtSemiEvtSolution::getCalLepe() const { return this->getElectron(); }
-TopMET         TtSemiEvtSolution::getCalLepn() const { return this->getMET();  }
+TopMET         TtSemiEvtSolution::getCalLepn() const { return this->getNeutrino(); }
 
 
 // return functions for fitted fourvectors
@@ -172,7 +172,7 @@ void TtSemiEvtSolution::setHadq(const edm::Handle<std::vector<TopJet> > & jh, in
 void TtSemiEvtSolution::setLepb(const edm::Handle<std::vector<TopJet> > & jh, int i)          { lepb_ = edm::Ref<std::vector<TopJet> >(jh, i); }
 void TtSemiEvtSolution::setMuon(const edm::Handle<std::vector<TopMuon> > & mh, int i)         { muon_ = edm::Ref<std::vector<TopMuon> >(mh, i); decay_ = "muon"; }
 void TtSemiEvtSolution::setElectron(const edm::Handle<std::vector<TopElectron> > & eh, int i) { electron_ = edm::Ref<std::vector<TopElectron> >(eh, i); decay_ = "electron"; }
-void TtSemiEvtSolution::setMET(const edm::Handle<std::vector<TopMET> > & nh, int i)           { met_ = edm::Ref<std::vector<TopMET> >(nh, i); }
+void TtSemiEvtSolution::setNeutrino(const edm::Handle<std::vector<TopMET> > & nh, int i)      { neutrino_ = edm::Ref<std::vector<TopMET> >(nh, i); }
 
 
 // methods to set the fitted particles
@@ -194,9 +194,9 @@ void TtSemiEvtSolution::setMCChangeWQ(int wq)          { changeWQ_ = wq; }
 
 
 // methods to set the kinfit parametrisations of each type of object
-void TtSemiEvtSolution::setJetParametrisation(int jp)    { jetParam_ = jp; }
-void TtSemiEvtSolution::setLeptonParametrisation(int lp) { lepParam_ = lp; }
-void TtSemiEvtSolution::setMETParametrisation(int mp)    { metParam_ = mp; }
+void TtSemiEvtSolution::setJetParametrisation(int jp)      { jetParam_ = jp; }
+void TtSemiEvtSolution::setLeptonParametrisation(int lp)   { leptonParam_ = lp; }
+void TtSemiEvtSolution::setNeutrinoParametrisation(int mp) { neutrinoParam_ = mp; }
 
 
 // method to set the prob. of the chi2 value resulting from the kinematic fit 
