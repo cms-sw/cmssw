@@ -51,16 +51,16 @@ public:
   unsigned etaIndex() const { return (m_data>>6) & 0xf; }
 
   /// get eta sign (1 for -ve Z, 0 for +ve Z)
-  unsigned etaSign() const { return (m_data>>9) & 0x1; }
+  unsigned etaSign() const { return (m_data>>10) & 0x1; } // Changed from 9 to 10 3rd Oct 07
 
   /// get phi index (0-17)
-  unsigned phiIndex() const { return (m_data>>10) & 0x1f; }
+  unsigned phiIndex() const { return (m_data>>11) & 0x1f; } // Changed from 10 to 11 3rd Oct 07
 
   /// which stream did this come from
   bool isolated() const { return m_iso; }
 
   /// which capture block did this come from
-  unsigned capBlock() const { return (m_source>>9) & 0x7f; }
+  unsigned capBlock() const { return (m_source>>9) & 0xff; } // 
 
   /// what index within capture block
   unsigned capIndex() const { return m_source&0x1ff; }

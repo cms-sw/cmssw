@@ -61,19 +61,19 @@ public:
   unsigned rank() const { return m_data & 0x3f; }
 
   /// get eta index -6 to -0, +0 to +6 (bit 3 is sign, 1 for -ve Z, 0 for +ve Z)
-  unsigned etaIndex() const { return (m_data>>6) & 0xf; }
+  unsigned etaIndex() const { return (m_data>>6) & 0x7; } // Changed to 3 bits 3rd Oct 07
 
-  /// get eta sign (1 for -ve Z, 0 for +ve Z)
-  unsigned etaSign() const { return (m_data>>9) & 0x1; }
+  /// get eta sign (1 for -ve Z, 0 for +ve Z) 
+  unsigned etaSign() const { return (m_data>>9) & 0x1; } 
 
   /// get phi index (0-17)
-  unsigned phiIndex() const { return (m_data>>10) & 0x1f; }
+  unsigned phiIndex() const { return (m_data>>10) & 0x1f; } 
 
   /// which stream did this come from
   bool isolated() const { return m_iso; }
 
   /// which capture block did this come from
-  unsigned capBlock() const { return (m_source>>9) & 0x7f; }
+  unsigned capBlock() const { return (m_source>>9) & 0xff; }
 
   /// what index within capture block
   unsigned capIndex() const { return m_source&0x1ff; }
