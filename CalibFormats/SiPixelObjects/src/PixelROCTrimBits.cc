@@ -13,6 +13,8 @@
 #include <assert.h>
 
 
+using namespace pos;
+
 PixelROCTrimBits::PixelROCTrimBits()
 {
 }
@@ -158,7 +160,7 @@ void PixelROCTrimBits::setTrim(unsigned int col, unsigned int row, unsigned int 
 
 
 
-std::ostream& operator<<(std::ostream& s, const PixelROCTrimBits& mask){
+std::ostream& pos::operator<<(std::ostream& s, const PixelROCTrimBits& mask){
 
   s << "Dumping ROC masks" <<std::endl; 
 

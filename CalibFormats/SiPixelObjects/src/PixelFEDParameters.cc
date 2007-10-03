@@ -5,6 +5,8 @@
 #include <vector>
 
 
+using namespace pos;
+
 PixelFEDParameters::PixelFEDParameters()
 {
 fednumber_=0;
@@ -69,7 +71,7 @@ vmebaseaddress_=vmebaseaddress;
 
 }
 
-std::ostream&  operator <<(std::ostream& s ,const PixelFEDParameters &pFEDp){
+std::ostream&  pos::operator <<(std::ostream& s ,const PixelFEDParameters &pFEDp){
 
 s <<"FED Number:"<<pFEDp.fednumber_<<std::endl;
 s <<"Crate Number:"<<pFEDp.crate_<<std::endl;

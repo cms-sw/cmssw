@@ -6,6 +6,8 @@
  
 #include "CalibFormats/SiPixelObjects/interface/PixelLTCConfig.h"
    
+using namespace pos;
+
 PixelLTCConfig::PixelLTCConfig(std::string filename):
   PixelConfigBase(" "," "," "){
 

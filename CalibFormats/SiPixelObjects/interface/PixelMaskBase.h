@@ -19,9 +19,10 @@
 #include <string>
 #include <iostream>
 
-class PixelMaskBase: public PixelConfigBase {
+namespace pos{
+  class PixelMaskBase: public PixelConfigBase {
 
- public:
+  public:
 
     PixelMaskBase(std::string description, 
 		  std::string creator,
@@ -42,12 +43,12 @@ class PixelMaskBase: public PixelConfigBase {
 
     friend std::ostream& operator<<(std::ostream& s, const PixelMaskBase& mask);
 
- private:
+  private:
 
     //Hold pointer to the mask override information.
     PixelMaskOverrideBase* maskOverride_;
 
 
-};
-
+  };
+}
 #endif

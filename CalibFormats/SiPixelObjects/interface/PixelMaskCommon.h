@@ -11,9 +11,10 @@
 #include "CalibFormats/SiPixelObjects/interface/PixelMaskBase.h"
 #include "CalibFormats/SiPixelObjects/interface/PixelROCName.h"
 
-class PixelMaskAllPixels: public PixelMaskBase {
+namespace pos{
+  class PixelMaskAllPixels: public PixelMaskBase {
 
- public:
+  public:
 
     PixelMaskCommon(std::string filename);
 
@@ -21,11 +22,11 @@ class PixelMaskAllPixels: public PixelMaskBase {
 
     void writeASCII(std::string filename) const;
 
- private:
+  private:
 
     std::vector<PixeROCName> rocname_;  
     std::vector<bool> maskbits_;  
  
-};
-
+  };
+}
 #endif

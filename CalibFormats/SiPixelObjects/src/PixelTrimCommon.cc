@@ -17,6 +17,7 @@
 #include "CalibFormats/SiPixelObjects/interface/PixelMaskBase.h"
 #include "CalibFormats/SiPixelObjects/interface/PixelROCName.h"
 
+using namespace pos;
 
 PixelTrimCommon::PixelTrimCommon(std::string filename):
   PixelTrimBase("","",""){

@@ -13,6 +13,8 @@
 #include <assert.h>
 #include <stdlib.h>
 
+using namespace pos;
+
 
 PixelCalibConfiguration::PixelCalibConfiguration(std::string filename):
   PixelCalibBase(), PixelConfigBase("","","") {
@@ -603,9 +605,8 @@ std::set <unsigned int> PixelCalibConfiguration::getTKFECCrates(const PixelPortc
 	return tkfeccrates;
 }
 
-std::ostream& operator<<(std::ostream& s, const PixelCalibConfiguration& calib){
-
-    if (!calib.parameters_.empty())
+std::ostream& pos::operator<<(std::ostream& s, const PixelCalibConfiguration& calib){
+     if (!calib.parameters_.empty())
     {
        s<< "Parameters:"<<std::endl;
        for ( std::map<std::string, std::string>::const_iterator paramItr = calib.parameters_.begin(); paramItr != calib.parameters_.end(); ++paramItr )
@@ -625,7 +626,7 @@ std::ostream& operator<<(std::ostream& s, const PixelCalibConfiguration& calib){
     s<< "Cols:"<<std::endl;
     for (unsigned int i=0;i<calib.cols_.size();i++){
 	for (unsigned int j=0;j<calib.cols_[i].size();j++){
-	    s<<calib.cols_[i][j]<<" "<<std::endl;
+	  s<<calib.cols_[i][j]<<" "<<std::endl;
 	}
 	s<< "|"<<std::endl;
     }

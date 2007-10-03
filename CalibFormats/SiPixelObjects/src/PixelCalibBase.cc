@@ -8,6 +8,8 @@
 
 using namespace std;
 
+using namespace pos;
+
 PixelCalibBase::PixelCalibBase() {
   mode_ = "Default";
 }

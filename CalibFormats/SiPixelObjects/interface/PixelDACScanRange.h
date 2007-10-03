@@ -10,11 +10,12 @@
 
 #include <string>
 
-class PixelDACScanRange {
+namespace pos{
+  class PixelDACScanRange {
 
- public:
+  public:
 
-  PixelDACScanRange(){;}
+    PixelDACScanRange(){;}
     PixelDACScanRange(std::string dacname, unsigned int first, 
 		      unsigned int last, unsigned int step,
 		      unsigned int index);
@@ -27,7 +28,7 @@ class PixelDACScanRange {
     unsigned int index() const { return index_; }
     unsigned int getNPoints() const { return (last_-first_)/step_+1; }
 
- private:
+  private:
 
     std::string name_;
     unsigned int dacchannel_;
@@ -37,6 +38,6 @@ class PixelDACScanRange {
     unsigned int index_;
 
 
-};
-
+  };
+}
 #endif

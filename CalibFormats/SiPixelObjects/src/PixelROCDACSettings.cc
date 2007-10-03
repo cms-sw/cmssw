@@ -10,6 +10,8 @@
 #include <fstream>
 #include <iostream>
 
+using namespace pos;
+
 PixelROCDACSettings::PixelROCDACSettings(){}
 
 
@@ -242,7 +244,7 @@ std::string PixelROCDACSettings::getConfigCommand(){
 
 }
 
-std::ostream& operator<<(std::ostream& s, const PixelROCDACSettings& dacs){
+std::ostream& pos::operator<<(std::ostream& s, const PixelROCDACSettings& dacs){
   
   s << "Vdd          :" << (unsigned int)dacs.Vdd_ << std::endl;
   s << "Vana         :" << (unsigned int)dacs.Vana_ << std::endl;

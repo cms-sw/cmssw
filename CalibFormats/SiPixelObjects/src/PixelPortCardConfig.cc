@@ -16,6 +16,8 @@
 
 using namespace std;
 
+using namespace pos;
+
 //added by Umesh
 PixelPortCardConfig::PixelPortCardConfig(vector < vector< string> >  &tableMat):PixelConfigBase(" "," "," ")
 {

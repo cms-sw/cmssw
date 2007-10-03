@@ -12,6 +12,8 @@
 
 #include <assert.h>
 
+using namespace pos;
+
 
 PixelModuleName::PixelModuleName():
     id_(0)
@@ -241,7 +243,7 @@ std::string PixelModuleName::modulename() const{
 
 
 
-std::ostream& operator<<(std::ostream& s, const PixelModuleName& pixelroc){
+std::ostream& pos::operator<<(std::ostream& s, const PixelModuleName& pixelroc){
 
 
     // FPix_BpR_D1_BLD1_PNL1_PLQ1_ROC1

@@ -16,9 +16,10 @@
 #include "CalibFormats/SiPixelObjects/interface/PixelMaskBase.h"
 #include "CalibFormats/SiPixelObjects/interface/PixelROCMaskBits.h"
 
-class PixelMaskAllPixels: public PixelMaskBase {
+namespace pos{
+  class PixelMaskAllPixels: public PixelMaskBase {
 
- public:
+  public:
 
     PixelMaskAllPixels(std::string filename);
     PixelMaskAllPixels(std::vector< std::vector<std::string> >& tableMat);
@@ -32,10 +33,10 @@ class PixelMaskAllPixels: public PixelMaskBase {
 
     PixelROCMaskBits* getMaskBits(PixelROCName name);
 
- private:
+  private:
 
     std::vector<PixelROCMaskBits> maskbits_;  
  
-};
-
+  };
+}
 #endif

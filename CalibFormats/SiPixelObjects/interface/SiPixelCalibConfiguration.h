@@ -30,7 +30,7 @@ class SiPixelCalibConfiguration
   };
 
   SiPixelCalibConfiguration() {;}
-  SiPixelCalibConfiguration(const PixelCalibConfiguration &fancyConfig);
+  SiPixelCalibConfiguration(const pos::PixelCalibConfiguration &fancyConfig);
 
   virtual ~SiPixelCalibConfiguration(){;}
 
@@ -52,15 +52,21 @@ class SiPixelCalibConfiguration
   void  setVCalValues(const std::vector< short> & in) { fVCalValues = in; }
   
   // interface with calibration analyzers:
-  
-  short vcalForEvent(uint32_t eventnumber);
-  short vcalIndexForEvent(uint32_t eventnumber);
-  ColPatternStruct columnPatternForEvent(uint32_t eventnumber);
-  RowPatternStruct rowPatternForEvent(uint32_t eventnumber);
-  uint32_t nextPatternChangeForEvent(uint32_t eventnumber);
-  uint32_t expectedTotalEvents();
-  uint32_t patternSize() {return fNTriggers*fVCalValues.size();}
-  uint32_t nPatterns() {return fColumnPattern.size()*fRowPattern.size();}
+  // old access methods
+  uint32_t nVcal() const {return fVCalValues.size();}
+  uint32_t vcal_first() const {return (uint32_t) fVCalValues[0];}
+  uint32_t vcal_last() const {return (uint32_t) fVCalValues[fVCalValues.size()-1];}
+  uint32_t vcal_step() const {return (uint32_t) (vcal_last()- vcal_first())/nVcal();}
+  uint32_t nTriggers() const {return (uint32_t) NTriggers();}
+  // new access methods
+  short vcalForEvent(const uint32_t & eventnumber) const;
+  short vcalIndexForEvent(const uint32_t & eventnumber) const;
+  ColPatternStruct columnPatternForEvent(const uint32_t & eventnumber) const;
+  RowPatternStruct rowPatternForEvent(const uint32_t & eventnumber) const;
+  uint32_t nextPatternChangeForEvent(const uint32_t & eventnumber) const;
+  uint32_t expectedTotalEvents () const;
+  uint32_t  patternSize() const {return fNTriggers*fVCalValues.size();}
+  uint32_t nPatterns() const {return fColumnPattern.size()*fRowPattern.size();}
 
  private :
 

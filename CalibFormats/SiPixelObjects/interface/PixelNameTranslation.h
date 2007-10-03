@@ -20,9 +20,11 @@
 #include "CalibFormats/SiPixelObjects/interface/PixelModuleName.h"
 #include "CalibFormats/SiPixelObjects/interface/PixelHdwAddress.h"
 
-class PixelNameTranslation: public PixelConfigBase {
 
- public:
+namespace pos{
+  class PixelNameTranslation: public PixelConfigBase {
+
+  public:
  
     PixelNameTranslation(std::vector< std::vector<std::string> > &tableMat);
     PixelNameTranslation(std::string filename);
@@ -49,7 +51,7 @@ class PixelNameTranslation: public PixelConfigBase {
 
     void writeASCII();
     
- private:
+  private:
         
     std::map<PixelROCName,PixelHdwAddress> translationtable_;  
 
@@ -61,6 +63,6 @@ class PixelNameTranslation: public PixelConfigBase {
     //to accommodate the barrel. (Will use a vector to list them..)
     std::map<PixelModuleName,std::vector<PixelHdwAddress> > moduleTranslationtable_;  
     
-};
-
+  };
+}
 #endif

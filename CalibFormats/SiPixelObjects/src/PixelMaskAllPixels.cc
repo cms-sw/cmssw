@@ -17,6 +17,8 @@
 #include <iostream>
 #include <assert.h>
 
+using namespace pos;
+
 PixelMaskAllPixels::PixelMaskAllPixels(std::vector< std::vector<std::string> >& tableMat) : PixelMaskBase("","","")
 {
 

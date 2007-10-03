@@ -6,19 +6,21 @@
 
 #include <string>
 
-class PixelCalibBase {
 
- public:
+namespace pos{
+  class PixelCalibBase {
+
+  public:
 
     PixelCalibBase();
     virtual ~PixelCalibBase();
     virtual std::string mode() = 0;
 
- protected:
+  protected:
 
     std::string mode_;
 
-};
-
+  };
+}
 
 #endif

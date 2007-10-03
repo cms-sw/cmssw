@@ -11,6 +11,9 @@
 #include <vector>
 #include <assert.h>
 
+using namespace pos;
+
+
 PixelNameTranslation::PixelNameTranslation(std::vector< std::vector<std::string> > &tableMat):PixelConfigBase(" "," "," "){
  std::vector< std::string > ins = tableMat[0];
  std::map<std::string , int > colM;

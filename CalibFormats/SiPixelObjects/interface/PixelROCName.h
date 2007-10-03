@@ -11,9 +11,10 @@
 #include <string>
 #include <assert.h>
 
-class PixelROCName {
+namespace pos{
+  class PixelROCName {
 
- public:
+  public:
 
     PixelROCName();
 
@@ -43,20 +44,20 @@ class PixelROCName {
     int module() const {assert((id_&0x80000000)!=0); return ((id_>>4)&0x3)+1;}    
 
 
-    friend std::ostream& operator<<(std::ostream& s, const PixelROCName& pixelroc);
+    friend std::ostream& pos::operator<<(std::ostream& s, const PixelROCName& pixelroc);
 
 
     const PixelROCName& operator=(const PixelROCName& aROC);
 
     const bool operator<(const PixelROCName& aROC) const{
-	return id_<aROC.id_;
+      return id_<aROC.id_;
     }
 
     const bool operator==(const PixelROCName& aROC) const{
-	return id_==aROC.id_;
+      return id_==aROC.id_;
     }
 
- private:
+  private:
 
     void parsename(std::string name);
 
@@ -98,6 +99,6 @@ class PixelROCName {
 
     unsigned int id_;
     
-};
-
+  };
+}
 #endif

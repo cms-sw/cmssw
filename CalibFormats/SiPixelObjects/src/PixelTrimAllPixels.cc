@@ -22,6 +22,8 @@
 #include "CalibFormats/SiPixelObjects/interface/PixelMaskBase.h"
 #include "CalibFormats/SiPixelObjects/interface/PixelROCName.h"
 
+using namespace pos;
+
 PixelTrimAllPixels::PixelTrimAllPixels( std::vector <std::vector<std::string> >& tableMat):
   PixelTrimBase("","",""){
 

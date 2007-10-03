@@ -21,9 +21,10 @@
 #include "CalibFormats/SiPixelObjects/interface/PixelROCName.h"
 #include "CalibFormats/SiPixelObjects/interface/PixelNameTranslation.h"
 
-class PixelTrimAllPixels: public PixelTrimBase {
+namespace pos{
+  class PixelTrimAllPixels: public PixelTrimBase {
 
- public:
+  public:
 
     PixelTrimAllPixels(std::string filename);
     PixelTrimAllPixels(std::vector<std::vector<std::string> > &tableMat);  
@@ -44,11 +45,11 @@ class PixelTrimAllPixels: public PixelTrimBase {
     PixelROCTrimBits* getTrimBits(PixelROCName name);
 
 
- private:
+  private:
 
     std::vector<std::string> rocname_;
     std::vector<PixelROCTrimBits> trimbits_;
 
-};
-
+  };
+}
 #endif

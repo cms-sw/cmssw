@@ -15,13 +15,14 @@
 #include "CalibFormats/SiPixelObjects/interface/PixelConfigBase.h"
 #include "CalibFormats/SiPixelObjects/interface/PixelFEDParameters.h"
 
-class PixelFEDConfig: public PixelConfigBase {
+namespace pos{
+  class PixelFEDConfig: public PixelConfigBase {
 
- public:
+  public:
 
-   PixelFEDConfig(std::string filename);  //  <---- Modified for the conversion from parallel vectors to object that contain the configuration
+    PixelFEDConfig(std::string filename);  //  <---- Modified for the conversion from parallel vectors to object that contain the configuration
    
-   PixelFEDConfig(std::vector<std::vector<std::string> >& tableMat ); 
+    PixelFEDConfig(std::vector<std::vector<std::string> >& tableMat ); 
 
     unsigned int getNFEDBoards() const;
 
@@ -35,16 +36,16 @@ class PixelFEDConfig: public PixelConfigBase {
 
     //friend std::ostream& operator<<(std::ostream& s, const PixelDetectorconfig& config);
 
- private:
+  private:
 
     //Already fixed from parallel vectors to vector of objects .... the object that contains the FED config is PixelFEDParameters 
     
-//    std::vector<unsigned int> fednumber_; 
-//    std::vector<unsigned int> crate_;
-//    std::vector<unsigned int> vmebaseaddress_;
+    //    std::vector<unsigned int> fednumber_; 
+    //    std::vector<unsigned int> crate_;
+    //    std::vector<unsigned int> vmebaseaddress_;
     
-     std::vector< PixelFEDParameters > fedconfig_;
+    std::vector< PixelFEDParameters > fedconfig_;
  
-};
-
+  };
+}
 #endif

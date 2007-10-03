@@ -15,13 +15,14 @@
 #include "CalibFormats/SiPixelObjects/interface/PixelConfigBase.h"
 #include "CalibFormats/SiPixelObjects/interface/PixelFECParameters.h"
 
-class PixelFECConfig: public PixelConfigBase {
+namespace pos{
+  class PixelFECConfig: public PixelConfigBase {
 
- public:
+  public:
 
- PixelFECConfig(std::string filename);  //  <---- Modified for the conversion from parallel vectors to object that contain the configuration
+    PixelFECConfig(std::string filename);  //  <---- Modified for the conversion from parallel vectors to object that contain the configuration
    
- PixelFECConfig(std::vector<std::vector<std::string> >& tableMat ); 
+    PixelFECConfig(std::vector<std::vector<std::string> >& tableMat ); 
 
     unsigned int getNFECBoards() const;
 
@@ -35,23 +36,23 @@ class PixelFECConfig: public PixelConfigBase {
 
     void writeASCII();
 
-//friend std::ostream& operator<<(std::ostream& s, const PixelDetectorconfig& config);
+    //friend std::ostream& operator<<(std::ostream& s, const PixelDetectorconfig& config);
 
- private:
+  private:
 
-	// VMEBaseAddress = (FEC slot)x(0x8000000)
-	unsigned int FECSlotFromVMEBaseAddress(unsigned int VMEBaseAddress) {assert(VMEBaseAddress%0x8000000 == 0); return VMEBaseAddress/0x8000000;}
+    // VMEBaseAddress = (FEC slot)x(0x8000000)
+    unsigned int FECSlotFromVMEBaseAddress(unsigned int VMEBaseAddress) {assert(VMEBaseAddress%0x8000000 == 0); return VMEBaseAddress/0x8000000;}
 
-  //Already fixed from parallel vectors to vector of objects .... the object that contains the FEC config is PixelFECParameters 	
+    //Already fixed from parallel vectors to vector of objects .... the object that contains the FEC config is PixelFECParameters 	
    
-//    std::vector<unsigned int> fecnumber_;   
-//    std::vector<unsigned int> crate_;   
-//    std::vector<unsigned int> vmebaseaddress_;
+    //    std::vector<unsigned int> fecnumber_;   
+    //    std::vector<unsigned int> crate_;   
+    //    std::vector<unsigned int> vmebaseaddress_;
     
     std::vector< PixelFECParameters > fecconfig_;
     
     
  
-};
-
+  };
+}
 #endif

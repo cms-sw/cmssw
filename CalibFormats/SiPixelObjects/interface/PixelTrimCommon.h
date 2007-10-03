@@ -19,9 +19,10 @@
 #include "CalibFormats/SiPixelObjects/interface/PixelROCTrimBits.h"
 #include "CalibFormats/SiPixelObjects/interface/PixelNameTranslation.h"
 
-class PixelTrimCommon: public PixelTrimBase {
+namespace pos{
+  class PixelTrimCommon: public PixelTrimBase {
 
- public:
+  public:
 
     PixelTrimCommon(std::string filename);
 
@@ -37,11 +38,11 @@ class PixelTrimCommon: public PixelTrimBase {
     void writeASCII(std::string filename) const;
 
 
- private:
+  private:
 
     std::vector<PixelROCName> rocname_;
     std::vector<unsigned int> trimbits_;
 
-};
-
+  };
+}
 #endif

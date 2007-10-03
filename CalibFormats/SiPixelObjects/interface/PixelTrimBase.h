@@ -22,9 +22,10 @@
 #include "CalibFormats/SiPixelObjects/interface/PixelFECConfigInterface.h"
 
 
-class PixelTrimBase: public PixelConfigBase {
+namespace pos{
+  class PixelTrimBase: public PixelConfigBase {
 
- public:
+  public:
 
     PixelTrimBase(std::string description, 
 		  std::string creator,
@@ -51,10 +52,10 @@ class PixelTrimBase: public PixelConfigBase {
     friend std::ostream& operator<<(std::ostream& s, const PixelTrimBase& mask);
 
 
- private:
+  private:
 
     PixelTrimOverrideBase* trimOverride_;
 
-};
-
+  };
+}
 #endif

@@ -11,6 +11,8 @@
 #include <ios>
 #include <assert.h>
 
+using namespace pos;
+
 
 PixelDetectorConfig::PixelDetectorConfig(std::vector< std::vector < std::string> > &tableMat):PixelConfigBase("","",""){
 

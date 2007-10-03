@@ -15,6 +15,8 @@
 #include <map>
 #include <sstream>
 
+using namespace pos;
+
 PixelDACSettings::PixelDACSettings(std::string filename):
   PixelConfigBase("","",""){
 

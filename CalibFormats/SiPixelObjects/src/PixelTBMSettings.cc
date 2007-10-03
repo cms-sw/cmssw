@@ -14,6 +14,8 @@
 
 
 
+using namespace pos;
+
 
 PixelTBMSettings::PixelTBMSettings(std::vector < std::vector< std::string> > &tableMat):PixelConfigBase("","",""){
  std::vector< std::string > ins = tableMat[0];
@@ -283,7 +285,7 @@ void PixelTBMSettings::generateConfiguration(PixelFECConfigInterface* pixelFEC,
 } 
 
 
-std::ostream& operator<<(std::ostream& s, const PixelTBMSettings& tbm){
+std::ostream& pos::operator<<(std::ostream& s, const PixelTBMSettings& tbm){
 
     s << "Module          :"<<tbm.rocid_.rocname() <<std::endl; 
     s << "analogInputBias :"<<tbm.analogInputBias_<<std::endl;

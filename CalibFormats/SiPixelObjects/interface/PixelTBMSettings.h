@@ -14,9 +14,10 @@
 #include "CalibFormats/SiPixelObjects/interface/PixelFECConfigInterface.h"
 #include "CalibFormats/SiPixelObjects/interface/PixelNameTranslation.h"
 
-class PixelTBMSettings: public PixelConfigBase {
+namespace pos{
+  class PixelTBMSettings: public PixelConfigBase {
 
- public:
+  public:
 
     PixelTBMSettings(std::vector < std::vector< std::string> > &tableMat);
     PixelTBMSettings(std::string filename);
@@ -40,7 +41,7 @@ class PixelTBMSettings: public PixelConfigBase {
     unsigned char getAnalogOutputGain() {return analogOutputGain_;}
     void setAnalogOutputGain(unsigned char analogOutputGain) {analogOutputGain_=analogOutputGain;}
 
- private:
+  private:
 
     PixelROCName rocid_;
 
@@ -49,6 +50,6 @@ class PixelTBMSettings: public PixelConfigBase {
     unsigned char analogOutputGain_;
     bool singlemode_;
 
-};
-
+  };
+}
 #endif

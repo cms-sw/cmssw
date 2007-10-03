@@ -28,11 +28,13 @@
 #include "CalibFormats/SiPixelObjects/interface/PixelPortcardMap.h"
 #include "CalibFormats/SiPixelObjects/interface/PixelPortCardConfig.h"
 
-class PixelHdwAddress;
 
-class PixelCalibConfiguration : public PixelCalibBase, public PixelConfigBase {
+namespace pos{
+  class PixelHdwAddress;
 
- public:
+  class PixelCalibConfiguration : public PixelCalibBase, public PixelConfigBase {
+
+  public:
 
     PixelCalibConfiguration(std::string filename="");
 
@@ -59,10 +61,10 @@ class PixelCalibConfiguration : public PixelCalibBase, public PixelConfigBase {
     unsigned int nScanPoints(std::string dac) const { return nScanPoints(iScan(dac)); }    
 
     unsigned int nScanPoints() const {unsigned int points=1;
-                for(unsigned int i=0;i<dacs_.size();i++) {
-		  points*=nScanPoints(i);
-		}
-		return points;
+      for(unsigned int i=0;i<dacs_.size();i++) {
+	points*=nScanPoints(i);
+      }
+      return points;
     }
     unsigned int nConfigurations() const {return nPixelPatterns()*nScanPoints()*nROC();}
     unsigned int nTriggersTotal() const {return nConfigurations()*nTriggersPerPattern();}
@@ -80,7 +82,7 @@ class PixelCalibConfiguration : public PixelCalibBase, public PixelConfigBase {
     double scanValueMin(unsigned int iscan) const {return dacs_[iscan].first();}
     double scanValueMin(std::string dac) const {return scanValueMin(iScan(dac));}
     double scanValueMax(unsigned int iscan) const {return dacs_[iscan].first()+
-						 dacs_[iscan].step()*(nScanPoints(iscan)-1);}
+	dacs_[iscan].step()*(nScanPoints(iscan)-1);}
     double scanValueMax(std::string dac) const {return scanValueMax(iScan(dac));}
     double scanValueStep(unsigned int iscan) const {return dacs_[iscan].step();}
     double scanValueStep(std::string dac) const {return scanValueStep(iScan(dac));}
@@ -98,9 +100,9 @@ class PixelCalibConfiguration : public PixelCalibBase, public PixelConfigBase {
     // get the value of parameter parameterName, or "" if parameterName is not in the list
     std::string parameterValue(std::string parameterName) const;
 
-    friend std::ostream& operator<<(std::ostream& s, const PixelCalibConfiguration& calib);
+    friend std::ostream& pos::operator<<(std::ostream& s, const PixelCalibConfiguration& calib);
 
- private:
+  private:
 
 
     //Mode is one of the following: 
@@ -145,14 +147,14 @@ class PixelCalibConfiguration : public PixelCalibBase, public PixelConfigBase {
 		      unsigned int irows, unsigned int icols,
 		      PixelHdwAddress theROC) const;
     void disablePixels(PixelFECConfigInterface* pixelFEC,
-		      unsigned int irows, unsigned int icols,
-		      PixelHdwAddress theROC) const;
+		       unsigned int irows, unsigned int icols,
+		       PixelHdwAddress theROC) const;
     mutable std::vector<int> old_irows;
     mutable std::vector<int> old_icols;
 
     std::map<std::string, std::string> parameters_;
     //       name         value
 
-};
-
+  };
+}
 #endif

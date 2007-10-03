@@ -17,9 +17,10 @@
 #include "CalibFormats/SiPixelObjects/interface/PixelMaskBase.h"
 #include "CalibFormats/SiPixelObjects/interface/PixelConfigBase.h"
 
-class PixelTrimOverrideBase: public PixelConfigBase {
+namespace pos{
+  class PixelTrimOverrideBase: public PixelConfigBase {
 
- public:
+  public:
 
     PixelTrimOverrideBase(std::string description, 
 			  std::string creator,
@@ -31,9 +32,9 @@ class PixelTrimOverrideBase: public PixelConfigBase {
     //Need to use the mask bits also for this
     virtual std::string getConfigCommand(PixelMaskBase& pixelMask)=0;
 
- private:
+  private:
 
-};
+  };
 
-
+}
 #endif

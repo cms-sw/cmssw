@@ -17,9 +17,10 @@
 #include "CalibFormats/SiPixelObjects/interface/PixelROCName.h"
 #include "CalibFormats/SiPixelObjects/interface/PixelNameTranslation.h"
 
-class PixelDACSettings: public PixelConfigBase {
+namespace pos{
+  class PixelDACSettings: public PixelConfigBase {
 
- public:
+  public:
 
     PixelDACSettings(std::string filename);
     //Added by Umesh
@@ -40,10 +41,10 @@ class PixelDACSettings: public PixelConfigBase {
 
     friend std::ostream& operator<<(std::ostream& s, const PixelDACSettings& mask);
 
- private:
+  private:
 
     std::vector<PixelROCDACSettings> dacsettings_;
 
-};
-
+  };
+}
 #endif

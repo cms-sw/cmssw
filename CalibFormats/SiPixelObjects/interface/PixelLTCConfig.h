@@ -14,17 +14,18 @@
 #include "CalibFormats/SiPixelObjects/interface/PixelConfigBase.h"
 
 
-class PixelLTCConfig: public PixelConfigBase{
+namespace pos{
+  class PixelLTCConfig: public PixelConfigBase{
  
- public:
+  public:
    
-  PixelLTCConfig(std::string filename);
-  std::string getLTCConfigPath();
+    PixelLTCConfig(std::string filename);
+    std::string getLTCConfigPath();
  
- private:
+  private:
  
-  std::string ltcConfigPath_;
+    std::string ltcConfigPath_;
 
-};
-
+  };
+}
 #endif

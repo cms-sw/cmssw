@@ -5,6 +5,8 @@
 #include <vector>
 
 
+using namespace pos;
+
 PixelFECParameters::PixelFECParameters()
 {
 fecnumber_=0;
@@ -69,7 +71,7 @@ vmebaseaddress_=vmebaseaddress;
 
 }
 
-std::ostream&  operator <<(std::ostream& s ,const PixelFECParameters &pFECp){
+std::ostream&  pos::operator <<(std::ostream& s ,const PixelFECParameters &pFECp){
 
 s <<"FEC Number:"<<pFECp.fecnumber_<<std::endl;
 s <<"Crate Number:"<<pFECp.crate_<<std::endl;

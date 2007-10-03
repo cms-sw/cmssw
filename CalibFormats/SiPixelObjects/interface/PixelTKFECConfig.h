@@ -15,13 +15,14 @@
 #include "CalibFormats/SiPixelObjects/interface/PixelConfigBase.h"
 #include "CalibFormats/SiPixelObjects/interface/PixelTKFECParameters.h"
 
-class PixelTKFECConfig: public PixelConfigBase {
+namespace pos{
+  class PixelTKFECConfig: public PixelConfigBase {
 
- public:
+  public:
 
- PixelTKFECConfig(std::string filename);  //  <---- Modified for the conversion from parallel vectors to object that contain the configuration
+    PixelTKFECConfig(std::string filename);  //  <---- Modified for the conversion from parallel vectors to object that contain the configuration
    
- PixelTKFECConfig(std::vector<std::vector<std::string> >& tableMat ); 
+    PixelTKFECConfig(std::vector<std::vector<std::string> >& tableMat ); 
 
     unsigned int getNTKFECBoards() const;
 
@@ -33,8 +34,8 @@ class PixelTKFECConfig: public PixelConfigBase {
     std::string  typeFromTKFECID(std::string TKFECID) const;
     unsigned int addressFromTKFECID(std::string TKFECID) const;
     
- private:
+  private:
     std::vector< PixelTKFECParameters > TKFECconfig_;
-};
-
+  };
+}
 #endif

@@ -19,9 +19,10 @@
 #include "CalibFormats/SiPixelObjects/interface/PixelHdwAddress.h"
 #include "CalibFormats/SiPixelObjects/interface/PixelNameTranslation.h"
 
-class PixelDetectorConfig: public PixelConfigBase {
+namespace pos{
+  class PixelDetectorConfig: public PixelConfigBase {
 
- public:
+  public:
 
     PixelDetectorConfig(std::vector< std::vector < std::string> > &tableMat);
     PixelDetectorConfig(std::string filename);
@@ -39,10 +40,10 @@ class PixelDetectorConfig: public PixelConfigBase {
 
     //friend std::ostream& operator<<(std::ostream& s, const PixelDetectorconfig& config);
 
- private:
+  private:
 
     std::vector<PixelModuleName> modules_;   
  
-};
-
+  };
+}
 #endif

@@ -10,6 +10,8 @@
 #include <assert.h>
 
 
+using namespace pos;
+
 PixelHdwAddress::PixelHdwAddress():
     mfec_(0),
     mfecchannel_(0),
@@ -42,7 +44,7 @@ PixelHdwAddress::PixelHdwAddress(int fecnumber, int mfec, int mfecchannel,
 
 
 
-std::ostream& operator<<(std::ostream& s, const PixelHdwAddress& pixelroc){
+std::ostream& pos::operator<<(std::ostream& s, const PixelHdwAddress& pixelroc){
 
 
     s<< "fecnumber   :"<<pixelroc.fecnumber_<<std::endl;

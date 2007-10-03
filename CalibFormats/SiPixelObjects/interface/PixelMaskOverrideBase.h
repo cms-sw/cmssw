@@ -15,9 +15,10 @@
 #include "CalibFormats/SiPixelObjects/interface/PixelROCMaskBits.h"
 #include "CalibFormats/SiPixelObjects/interface/PixelConfigBase.h"
 
-class PixelMaskOverrideBase: public PixelConfigBase {
+namespace pos{
+  class PixelMaskOverrideBase: public PixelConfigBase {
 
- public:
+  public:
 
     PixelMaskOverrideBase(std::string description, 
 			  std::string creator,
@@ -27,8 +28,8 @@ class PixelMaskOverrideBase: public PixelConfigBase {
 
     virtual PixelROCMaskBits getMaskBits(int ROCId)=0;
 
- private:
+  private:
 
-};
-
+  };
+}
 #endif

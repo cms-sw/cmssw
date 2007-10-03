@@ -13,6 +13,8 @@
 #include <vector>
 #include <assert.h>
 
+using namespace pos;
+
 using namespace std;
 
 PixelDelay25Calib::PixelDelay25Calib(std::string filename) : PixelCalibBase() {

@@ -3,45 +3,45 @@
 #include "CalibFormats/SiPixelObjects/interface/PixelCalibConfiguration.h"
 #include "CalibFormats/SiPixelObjects/interface/PixelROCName.h"
 
-short SiPixelCalibConfiguration::vcalIndexForEvent(uint32_t eventnumber){
+short SiPixelCalibConfiguration::vcalIndexForEvent(const uint32_t & eventnumber) const{
   uint32_t relative_event = eventnumber%patternSize();
   short relative_pattern = relative_event/NTriggers();
   return relative_pattern; 
 }
-short SiPixelCalibConfiguration::vcalForEvent(uint32_t eventnumber){
+short SiPixelCalibConfiguration::vcalForEvent(const uint32_t & eventnumber) const{
   short result = fVCalValues[vcalIndexForEvent(eventnumber)];
   return result;
 }
-SiPixelCalibConfiguration::ColPatternStruct SiPixelCalibConfiguration::columnPatternForEvent(uint32_t eventnumber){
-  uint32_t relative_event = eventnumber%patternSize(); // TO BE CHECKED: ASSUMES LOOP OF ROWS OUTSIDE LOOP OF COLUMNS
+SiPixelCalibConfiguration::ColPatternStruct SiPixelCalibConfiguration::columnPatternForEvent(const uint32_t & eventnumber) const{
+  uint32_t relative_event = eventnumber%patternSize(); //  ASSUMES LOOP OF ROWS OUTSIDE LOOP OF COLUMNS
   relative_event/=fRowPattern.size();
   return fColumnPattern[relative_event];
 }
 
-SiPixelCalibConfiguration::RowPatternStruct SiPixelCalibConfiguration::rowPatternForEvent(uint32_t eventnumber){
-  uint32_t relative_event = eventnumber/patternSize();// TO BE CHECKED: ASSUMES LOOP OF ROWS OUTSIDE LOOP OF COLUMNS
+SiPixelCalibConfiguration::RowPatternStruct SiPixelCalibConfiguration::rowPatternForEvent(const uint32_t & eventnumber) const {
+  uint32_t relative_event = eventnumber/patternSize();// ASSUMES LOOP OF ROWS OUTSIDE LOOP OF COLUMNS
   return fRowPattern[relative_event];
 }
-uint32_t SiPixelCalibConfiguration::nextPatternChangeForEvent(uint32_t eventnumber){
+uint32_t SiPixelCalibConfiguration::nextPatternChangeForEvent(const uint32_t & eventnumber) const {
   uint32_t relative_event = eventnumber/patternSize();
   relative_event+=1;
   return relative_event*patternSize();
 }
-uint32_t SiPixelCalibConfiguration::expectedTotalEvents(){
+uint32_t SiPixelCalibConfiguration::expectedTotalEvents() const {
   return patternSize()*nPatterns();
 }
 
-SiPixelCalibConfiguration::SiPixelCalibConfiguration(const PixelCalibConfiguration &fancyConfig):
+SiPixelCalibConfiguration::SiPixelCalibConfiguration(const pos::PixelCalibConfiguration &fancyConfig):
   fNTriggers(0),
-  fVCalValues(std::vector<short>(0)),
+  fROCIds(std::vector<std::string>(0)),
   fRowPattern(std::vector<RowPatternStruct>(0)),
   fColumnPattern(std::vector<ColPatternStruct>(0)),
-  fROCIds(std::vector<std::string>(0))
+  fVCalValues(std::vector<short>(0))
 { // copy constructor that uses the complex object
   fNTriggers = fancyConfig.nTriggersPerPattern();
   std::vector<int> vcalpoints(0);
-  for(int vcalvalue = fancyConfig.scanValueMin(0); vcalvalue<=fancyConfig.scanValueMax(0); vcalvalue+=fancyConfig.scanValueStep(0)){
-    int vcalinput = vcalvalue;
+  for(short vcalvalue = (short) fancyConfig.scanValueMin(0); vcalvalue<=fancyConfig.scanValueMax(0); vcalvalue+=(short)fancyConfig.scanValueStep(0)){
+    short vcalinput = vcalvalue;
     fVCalValues.push_back(vcalinput);
   }
   // copy row and column patterns
@@ -65,8 +65,9 @@ SiPixelCalibConfiguration::SiPixelCalibConfiguration(const PixelCalibConfigurati
     fRowPattern.push_back(tempstruct);
   }
   // copy roc names
-  std::vector<PixelROCName> rocnames = fancyConfig.rocList();
-  for(std::vector<PixelROCName>::iterator iname = rocnames.begin(); iname!=rocnames.end(); ++iname){
+  // CURRENTLY THERE IS A CLASS NAME CONFLICT, PixelROCName enherits from PixelModuleName which already exists as DataFormats/SiPixelDetId/interface/PixelModuleName.h. Temporary place in xdaq namespace
+  std::vector<pos::PixelROCName> rocnames = fancyConfig.rocList();
+  for(std::vector<pos::PixelROCName>::iterator iname = rocnames.begin(); iname!=rocnames.end(); ++iname){
     std::string tempname=iname->rocname();
     fROCIds.push_back(tempname);
   }

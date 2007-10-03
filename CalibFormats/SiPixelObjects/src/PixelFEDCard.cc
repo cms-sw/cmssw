@@ -9,6 +9,8 @@
 
 using namespace std;
 
+using namespace pos;
+
 
 // Read the configuration parameters from file
 PixelFEDCard::PixelFEDCard(string fileName) {

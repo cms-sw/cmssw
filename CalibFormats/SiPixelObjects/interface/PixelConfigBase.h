@@ -10,9 +10,11 @@
 
 #include <string>
 
-class PixelConfigBase {
 
- public:
+namespace pos{
+  class PixelConfigBase {
+
+  public:
 
     //A few things that you should provide
     //description : purpose of this object
@@ -27,14 +29,14 @@ class PixelConfigBase {
     std::string creator();
     std::string date();
 
- private:
+  private:
 
     std::string description_;
     std::string creator_;
     std::string date_;
      
 
-};
+  };
 
-
+}
 #endif

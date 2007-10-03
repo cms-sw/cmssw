@@ -12,6 +12,8 @@
 #include <vector>
 #include <assert.h>
 
+using namespace pos;
+
 PixelFEDConfig::PixelFEDConfig(std::vector<std::vector<std::string> >& tableMat ) : PixelConfigBase(" "," "," "){
   std::vector< std::string > ins = tableMat[0];
   std::map<std::string , int > colM;

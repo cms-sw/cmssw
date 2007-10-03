@@ -13,6 +13,8 @@
 #include <assert.h>
 
 
+using namespace pos;
+
 PixelROCName::PixelROCName():
     id_(0)
 {}
@@ -291,7 +293,7 @@ std::string PixelROCName::rocname() const{
 
 
 
-std::ostream& operator<<(std::ostream& s, const PixelROCName& pixelroc){
+std::ostream& pos::operator<<(std::ostream& s, const PixelROCName& pixelroc){
 
 
     // FPix_BpR_D1_BLD1_PNL1_PLQ1_ROC1

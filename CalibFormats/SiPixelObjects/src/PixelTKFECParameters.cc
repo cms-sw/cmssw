@@ -5,6 +5,8 @@
 #include <vector>
 
 
+using namespace pos;
+
 PixelTKFECParameters::PixelTKFECParameters()
 {
 TKFECID_="";
@@ -69,7 +71,7 @@ address_=address;
 
 }
 
-std::ostream&  operator <<(std::ostream& s ,const PixelTKFECParameters &pTKFECp){
+std::ostream&  pos::operator <<(std::ostream& s ,const PixelTKFECParameters &pTKFECp){
 
 s <<"TKFEC ID:"<<pTKFECp.TKFECID_<<std::endl;
 s <<"Crate Number:"<<pTKFECp.crate_<<std::endl;

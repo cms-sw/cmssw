@@ -8,9 +8,10 @@
 #include "CalibFormats/SiPixelObjects/interface/PixelROCName.h"
 #include <string>
 
-class PixelROCTrimBits {
+namespace pos{
+  class PixelROCTrimBits {
 
- public:
+  public:
 
     PixelROCTrimBits();
 
@@ -32,13 +33,13 @@ class PixelROCTrimBits {
 
     PixelROCName name() const {return rocid_;}
 
- private:
+  private:
 
     unsigned char bits_[2080];
     PixelROCName rocid_;
 
 
-};
+  };
 
-
+}
 #endif

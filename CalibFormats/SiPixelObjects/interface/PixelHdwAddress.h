@@ -8,9 +8,10 @@
 #include <fstream>
 #include <string>
 
-class PixelHdwAddress {
+namespace pos{
+  class PixelHdwAddress {
 
- public:
+  public:
 
     PixelHdwAddress();
 
@@ -30,12 +31,12 @@ class PixelHdwAddress {
     unsigned int fedrocnumber() const { return fedrocnumber_; }
 
 
-    friend std::ostream& operator<<(std::ostream& s, const PixelHdwAddress& pixelroc);
+    friend std::ostream& pos::operator<<(std::ostream& s, const PixelHdwAddress& pixelroc);
 
 
     const PixelHdwAddress& operator=(const PixelHdwAddress& aROC);
 
- private:
+  private:
 
 
     unsigned int fecnumber_;  
@@ -49,6 +50,6 @@ class PixelHdwAddress {
     unsigned int fedrocnumber_;  
 
     
-};
-
+  };
+}
 #endif

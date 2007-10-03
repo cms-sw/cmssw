@@ -13,6 +13,8 @@
 #include <assert.h>
 
 
+using namespace pos;
+
 PixelROCMaskBits::PixelROCMaskBits(){
 }
 
@@ -143,7 +145,7 @@ void PixelROCMaskBits::setMask(unsigned int col, unsigned int row, unsigned int 
 }
 
 
-std::ostream& operator<<(std::ostream& s, const PixelROCMaskBits& mask){
+std::ostream& pos::operator<<(std::ostream& s, const PixelROCMaskBits& mask){
 
   s << "Dumping ROC masks" <<std::endl; 
 

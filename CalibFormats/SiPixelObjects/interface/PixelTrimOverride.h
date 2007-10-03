@@ -16,9 +16,10 @@
 #include "PixelTrimBase.h"
 #include "PixelMaskBase.h"
 
-class PixelTrimOverride: public PixelTrimOverrideBase {
+namespace pos{
+  class PixelTrimOverride: public PixelTrimOverrideBase {
 
- public:
+  public:
 
     PixelTrimOverride(std::string filename);
 
@@ -26,10 +27,10 @@ class PixelTrimOverride: public PixelTrimOverrideBase {
     //Need to use the mask bits also for this
     std::string getConfigCommand(PixelMaskBase& pixelMask);
 
- private:
+  private:
 
     //need to store the private data here...
 
-};
-
+  };
+}
 #endif

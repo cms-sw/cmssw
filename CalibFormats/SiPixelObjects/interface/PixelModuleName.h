@@ -1,5 +1,5 @@
-#ifndef PixelModuleName_h
-#define PixelModuleName_h
+#ifndef PixelModuleNameOnline_h
+#define PixelModuleNameOnline_h
 //
 // This class stores the name and related
 // hardware mapings for a ROC
@@ -11,9 +11,10 @@
 #include <string>
 #include <assert.h>
 
-class PixelModuleName {
+namespace pos{
+  class PixelModuleName {
 
- public:
+  public:
 
     PixelModuleName();
 
@@ -48,10 +49,10 @@ class PixelModuleName {
     const PixelModuleName& operator=(const PixelModuleName& aROC);
 
     const bool operator<(const PixelModuleName& aROC) const{
-	return id_<aROC.id_;
+      return id_<aROC.id_;
     }
 
- private:
+  private:
 
     void parsename(std::string name);
 
@@ -90,6 +91,6 @@ class PixelModuleName {
 
     unsigned int id_;
     
-};
-
+  };
+}
 #endif

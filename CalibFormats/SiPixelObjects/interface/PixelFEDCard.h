@@ -5,6 +5,7 @@
 
 #include <string>
 
+namespace pos{
   class PixelFEDCard {
 
   public:
@@ -78,5 +79,5 @@
 
 
   }; // end class PixelFEDCard
-
+}
 #endif // ifdef include

@@ -13,6 +13,8 @@
 #include <assert.h>
 
 
+using namespace pos;
+
 
 PixelTKFECConfig::PixelTKFECConfig(std::vector<std::vector<std::string> >& tableMat ) : PixelConfigBase(" "," "," "){
 

@@ -6,6 +6,8 @@
 
 using namespace std;
 
+using namespace pos;
+
 PixelFEDTestDAC::PixelFEDTestDAC(std::string filename){
 
   const unsigned long int UB=400;

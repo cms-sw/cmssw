@@ -17,6 +17,8 @@
 #include <vector>
 #include <iostream>
 
+using namespace pos;
+
 PixelMaskBase::PixelMaskBase(std::string description, 
 			     std::string creator,
 			     std::string date):

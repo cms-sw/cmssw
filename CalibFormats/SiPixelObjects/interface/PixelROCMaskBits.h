@@ -8,9 +8,10 @@
 #include <string>
 #include "CalibFormats/SiPixelObjects/interface/PixelROCName.h"
 
-class PixelROCMaskBits {
+namespace pos{
+  class PixelROCMaskBits {
 
- public:
+  public:
 
     PixelROCMaskBits();
     
@@ -32,13 +33,13 @@ class PixelROCMaskBits {
 
     friend std::ostream& operator<<(std::ostream& s, const PixelROCMaskBits& maskbits);
 
- private:
+  private:
 
     PixelROCName rocid_;
     unsigned char bits_[520];
 
 
-};
-
+  };
+}
 
 #endif

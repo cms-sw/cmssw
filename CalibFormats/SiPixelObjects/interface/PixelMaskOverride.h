@@ -15,18 +15,19 @@
 #include <string>
 #include "PixelROCMaskBits.h"
 
-class PixelMaskOverride: public PixelMaskOverrideBase {
+namespace pos{
+  class PixelMaskOverride: public PixelMaskOverrideBase {
 
- public:
+  public:
 
     PixelMaskOverride(std::string filename);
 
     PixelROCMaskBits getMaskBits(int ROCId );
 
- private:
+  private:
 
     //need to store the input here....
 
-};
-
+  };
+}
 #endif

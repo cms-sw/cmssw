@@ -5,7 +5,9 @@
 //
  
 #include "CalibFormats/SiPixelObjects/interface/PixelTTCciConfig.h"
-   
+  
+using namespace pos;
+ 
 PixelTTCciConfig::PixelTTCciConfig(std::string filename):
   PixelConfigBase(" "," "," "){
 

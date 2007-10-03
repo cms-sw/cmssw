@@ -13,12 +13,13 @@
 #include <vector>
 #include "CalibFormats/SiPixelObjects/interface/PixelROCName.h"
 
-typedef unsigned char bits8;
-typedef unsigned char bits4;
+namespace pos{
+  typedef unsigned char bits8;
+  typedef unsigned char bits4;
 
-class PixelROCDACSettings{
+  class PixelROCDACSettings{
 
- public:
+  public:
 
     PixelROCDACSettings();
 
@@ -129,7 +130,7 @@ class PixelROCDACSettings{
 
     friend std::ostream& operator<<(std::ostream& s, const PixelROCDACSettings& dacs);
 
- private:
+  private:
 
     PixelROCName rocid_;
 
@@ -166,6 +167,6 @@ class PixelROCDACSettings{
     bits8 ChipContReg_;      //addr 253
     
 
-};
-
+  };
+}
 #endif

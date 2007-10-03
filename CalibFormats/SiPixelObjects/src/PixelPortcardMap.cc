@@ -9,6 +9,8 @@
 #include "CalibFormats/SiPixelObjects/interface/PixelPortcardMap.h"
 
 
+using namespace pos;
+
 PixelPortcardMap::PixelPortcardMap(std::vector< std::vector < std::string> > &tableMat):PixelConfigBase(" "," "," "){
 
 std::vector< std::string > ins = tableMat[0];

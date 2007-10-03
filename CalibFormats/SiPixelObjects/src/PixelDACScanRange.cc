@@ -11,6 +11,8 @@
 #include <iostream>
 #include <assert.h>
 
+using namespace pos;
+
 PixelDACScanRange::PixelDACScanRange(std::string name, unsigned int first, 
                                      unsigned int last, unsigned int step,
                                      unsigned int index){
