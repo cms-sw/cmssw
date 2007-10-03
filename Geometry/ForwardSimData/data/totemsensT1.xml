@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../DetectorDescription/Schema/DDLSchema.xsd">
+
+<SpecParSection label="totemsensT1.xml">
+ <SpecPar name="ROUHitsTotemT1">
+  <PartSelector path="//Internal_CSC.*" />  
+  <Parameter name="SensitiveDetector" value="TotemSensitiveDetector" eval="false" />
+  <Parameter name="ReadOutName" value="TotemHitsT1" eval="false"/>
+ </SpecPar>
+        
+
+</SpecParSection>
+
+</DDDefinition>
+
