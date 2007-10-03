@@ -29,6 +29,8 @@
 
   <class name="reco::SecondaryVertexTagInfo"/>
   <class name="reco::SecondaryVertexTagInfo::TrackData"/>
+  <class name="reco::SecondaryVertexTagInfo::VertexData"/>
+  <class name="std::vector<reco::SecondaryVertexTagInfo::VertexData>"/>
   <class name="reco::SecondaryVertexTagInfo::IndexedTrackData"/>
   <class name="std::vector<reco::SecondaryVertexTagInfo::IndexedTrackData>"/>
   <class name="reco::SecondaryVertexTagInfoCollection"/>

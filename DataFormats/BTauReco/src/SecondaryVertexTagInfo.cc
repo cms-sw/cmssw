@@ -6,6 +6,8 @@
 
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "DataFormats/GeometryCommonDetAlgo/interface/Measurement1D.h"
+#include "DataFormats/GeometryVector/interface/GlobalVector.h"
+#include "DataFormats/GeometryVector/interface/VectorUtil.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/BTauReco/interface/TaggingVariable.h"
 #include "DataFormats/JetReco/interface/JetTracksAssociation.h"
@@ -33,19 +35,26 @@ namespace {
 		bool operator () (const SecondaryVertexTagInfo::IndexedTrackData &idt)
 		{ return idt.second.associatedToVertex(); }
 	};
+
+	struct IndexedVertexTrackSelector {
+		IndexedVertexTrackSelector(unsigned int index) :
+			index(index) {}
+
+		bool operator () (const SecondaryVertexTagInfo::IndexedTrackData &idt)
+		{ return idt.second.associatedToVertex(index); }
+
+		unsigned int index;
+	};
 }
 
 SecondaryVertexTagInfo::SecondaryVertexTagInfo(
                 const std::vector<IndexedTrackData> &trackData,
-		const Vertex &secondaryVertex,
-		Measurement1D dist2d, Measurement1D dist3d,
-		unsigned int vertexCount, GlobalVector direction,
+		const std::vector<VertexData> &svData,
+		unsigned int vertexCandidates,
 		const TrackIPTagInfoRef &trackIPTagInfoRef) :
 	m_trackData(trackData),
-	m_secondaryVertex(secondaryVertex),
-	m_vertexCount(vertexCount),
-	m_dist2d(dist2d), m_dist3d(dist3d),
-	m_direction(direction),
+	m_svData(svData),
+	m_vertexCandidates(vertexCandidates),
 	m_trackIPTagInfoRef(trackIPTagInfoRef)
 {
 }
@@ -54,6 +63,12 @@ unsigned int SecondaryVertexTagInfo::nVertexTracks() const
 {
 	return std::count_if(m_trackData.begin(), m_trackData.end(),
 	                     VertexTrackSelector());
+}
+
+unsigned int SecondaryVertexTagInfo::nVertexTracks(unsigned int index) const
+{
+	return std::count_if(m_trackData.begin(), m_trackData.end(),
+	                     IndexedVertexTrackSelector(index));
 }
 
 TrackRefVector SecondaryVertexTagInfo::selectedTracks() const
@@ -80,6 +95,21 @@ TrackRefVector SecondaryVertexTagInfo::vertexTracks() const
 		m_trackData.begin(); iter != m_trackData.end(); iter++)
 
 		if (iter->second.associatedToVertex())
+			trackRefs.push_back(trackIPTrackRefs[iter->first]);
+
+	return trackRefs;
+}  
+
+TrackRefVector SecondaryVertexTagInfo::vertexTracks(unsigned int index) const
+{
+	TrackRefVector trackRefs;
+	const TrackRefVector &trackIPTrackRefs =
+				m_trackIPTagInfoRef->selectedTracks();
+
+	for(std::vector<IndexedTrackData>::const_iterator iter =
+		m_trackData.begin(); iter != m_trackData.end(); iter++)
+
+		if (iter->second.associatedToVertex(index))
 			trackRefs.push_back(trackIPTrackRefs[iter->first]);
 
 	return trackRefs;
@@ -130,19 +160,40 @@ SecondaryVertexTagInfo::trackIPData(const TrackRef &track) const
 	return trackIPData(findTrack(track));
 }
 
-float SecondaryVertexTagInfo::trackWeight(const TrackRef &track) const
+float SecondaryVertexTagInfo::trackWeight(unsigned int svIndex,
+                                          const TrackRef &track) const
 {
-	return m_secondaryVertex.trackWeight(track);
+	return m_svData[svIndex].vertex.trackWeight(track);
 }
 
-float SecondaryVertexTagInfo::trackWeight(unsigned int index) const
+float SecondaryVertexTagInfo::trackWeight(unsigned int svIndex,
+                                          unsigned int trackIndex) const
 {
-	return trackWeight(track(index));
+	return trackWeight(svIndex, track(trackIndex));
 }
 
 TaggingVariableList SecondaryVertexTagInfo::taggingVariables() const
 {
 	TaggingVariableList vars;
 
+	for(std::vector<VertexData>::const_iterator iter = m_svData.begin();
+	    iter != m_svData.end(); iter++) {
+		vars.insert(btau::flightDistance2dVal,
+					iter->dist2d.value(), true);
+		vars.insert(btau::flightDistance2dSig,
+					iter->dist2d.significance(), true);
+		vars.insert(btau::flightDistance3dVal,
+					iter->dist3d.value(), true);
+		vars.insert(btau::flightDistance3dSig,
+					iter->dist3d.significance(), true);
+
+		vars.insert(btau::vertexJetDeltaR,
+			Geom::deltaR(iter->direction, jet()->momentum()), true);
+	}
+
+	vars.insert(btau::jetNSecondaryVertices, m_vertexCandidates, true);
+	vars.insert(btau::vertexNTracks, nVertexTracks(), true);
+
+	vars.finalize();
 	return vars;
 }

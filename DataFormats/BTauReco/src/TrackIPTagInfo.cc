@@ -12,16 +12,17 @@ TaggingVariableList TrackIPTagInfo::taggingVariables(void) const {
       it != indexes.end(); ++it)
    {
      const TrackIPData *data = &m_data[*it];
-     vars.insert(TaggingVariable(reco::btau::trackSip3dVal, data->ip3d.value()));
-     vars.insert(TaggingVariable(reco::btau::trackSip3dSig, data->ip3d.significance()));
-     vars.insert(TaggingVariable(reco::btau::trackSip2dVal, data->ip2d.value()));
-     vars.insert(TaggingVariable(reco::btau::trackSip2dSig, data->ip2d.significance()));
-//     vars.insert(TaggingVariable(reco::btau::trackDecayLenVal, data->));
-//     vars.insert(TaggingVariable(reco::btau::trackDecayLenSig, data->));
-     vars.insert(TaggingVariable(reco::btau::trackJetDist, data->distanceToJetAxis));
-     vars.insert(TaggingVariable(reco::btau::trackFirstTrackDist, data->distanceToFirstTrack));
+     vars.insert(TaggingVariable(btau::trackSip3dVal, data->ip3d.value()), true);
+     vars.insert(TaggingVariable(btau::trackSip3dSig, data->ip3d.significance()), true);
+     vars.insert(TaggingVariable(btau::trackSip2dVal, data->ip2d.value()), true);
+     vars.insert(TaggingVariable(btau::trackSip2dSig, data->ip2d.significance()), true);
+//     vars.insert(TaggingVariable(btau::trackDecayLenVal, data->), true);
+//     vars.insert(TaggingVariable(btau::trackDecayLenSig, data->), true);
+     vars.insert(TaggingVariable(btau::trackJetDist, data->distanceToJetAxis), true);
+     vars.insert(TaggingVariable(btau::trackFirstTrackDist, data->distanceToFirstTrack), true);
    } 
- return vars;
+  vars.finalize();
+  return vars;
 }
 
 TrackRefVector TrackIPTagInfo::sortedTracks(std::vector<size_t> indexes) const

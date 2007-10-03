@@ -56,6 +56,8 @@ namespace {
     edm::Wrapper<reco::JetTagCollection>                                jt_wc;
 
     reco::SecondaryVertexTagInfo::TrackData                             sv_td;
+    reco::SecondaryVertexTagInfo::VertexData                            sv_vd;
+    std::vector<reco::SecondaryVertexTagInfo::VertexData>               sv_vdv;
     reco::SecondaryVertexTagInfo::IndexedTrackData                      sv_itd;
     std::vector<reco::SecondaryVertexTagInfo::IndexedTrackData>         sv_itdv;
     reco::SecondaryVertexTagInfo                                        sv;
