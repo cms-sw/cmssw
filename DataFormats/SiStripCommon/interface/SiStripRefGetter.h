@@ -5,15 +5,12 @@
 #include <vector>
 #include <iostream>
 #include <utility>
-
 #include "boost/concept_check.hpp"
 #include "boost/iterator/indirect_iterator.hpp"
-
 #include "DataFormats/Common/interface/traits.h"
 #include "DataFormats/Common/interface/DetSet.h"
 #include "DataFormats/Common/interface/Ref.h"
 #include "DataFormats/SiStripCommon/interface/SiStripLazyGetter.h"
-
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/Utilities/interface/GCCPrerequisite.h"
 
@@ -58,18 +55,21 @@ namespace edm {
     template <typename THandle>
       SiStripRefGetter(const THandle& iHandle, const std::vector<uint32_t>& iRegions) : sets_() {
         sets_.reserve(iRegions.size());
+	regions_.reserve(iRegions.size());
         for (std::vector<uint32_t>::const_iterator iRegion = iRegions.begin();
 	    iRegion != iRegions.end();
             ++iRegion) {
           //the last 'false' says to not get the data right now
           sets_.push_back(region_ref(iHandle, *iRegion, false));
         }
+	regions_ = iRegions;
       }
 
     /// Add a new region to the end of the collection.
     template <typename THandle>
       void push_back(const THandle& iHandle, const uint32_t& iRegion) {
       sets_.push_back(region_ref(iHandle, iRegion, false));
+      regions_.push_back(iRegion);
     }
 
     /// Reserve memory for sets_ collection.
@@ -101,10 +101,13 @@ namespace edm {
     /// Return the off-the-end iterator.
     const_iterator end() const;
 
+    /// Returns true if region already defined. 
+    bool find(uint32_t) const;
+
   private:
 
     collection_type   sets_;
-
+    std::vector<uint32_t> regions_;
   };
   
   template <class T>
@@ -182,6 +185,14 @@ namespace edm {
       return sets_.end();
     }
   
+  template <class T>
+    inline
+    bool 
+    SiStripRefGetter<T>::find(uint32_t index) const
+    {
+      return std::find(regions_.begin(),regions_.end(),index)!=regions_.end();
+    }
+
   template <class T>
     inline
     void
