@@ -138,7 +138,8 @@ void TrackingTruthProducer::produce(Event &event, const EventSetup &) {
   for (MixCollection<SimTrack>::MixItr itP = trackCollection->begin();
        itP !=  trackCollection->end(); ++itP){
     int                       q = (int)(itP -> charge()); // Check this
-    LorentzVector             p = itP -> momentum();
+    // LorentzVector             p = itP -> momentum();
+    LorentzVector p(itP->momentum().x(),itP->momentum().y(),itP->momentum().z(),itP->momentum().e());
     unsigned int     simtrackId = itP -> trackId();
     int                 genPart = itP -> genpartIndex(); // The HepMC particle number
     int                 genVert = itP -> vertIndex();    // The SimVertex #
@@ -220,7 +221,8 @@ void TrackingTruthProducer::produce(Event &event, const EventSetup &) {
   for (MixCollection<SimVertex>::MixItr itV = vertexCollection->begin();
        itV != vertexCollection->end(); ++itV) {
 
-    LorentzVector position = itV -> position();  // Get position of ESV
+    // LorentzVector position = itV -> position();  // Get position of ESV
+    LorentzVector position(itV->position().x(),itV->position().y(),itV->position().z(),itV->position().t());
     bool inVolume = (position.Pt() < volumeRadius_ && abs(position.z()) < volumeZ_); // In or out of Tracker
     if (!inVolume && discardOutVolume_) { continue; }        // Skip if desired
 
