@@ -9,20 +9,17 @@
 #include <DataFormats/L1CSCTrackFinder/interface/CSCTriggerContainer.h>
 #include <L1Trigger/CSCTrackFinder/interface/CSCTFSectorProcessor.h>
 
-///KK
 void CSCTFTrackBuilder::initialize(const edm::EventSetup& c)
 {
- // my_dtrc->initialize(c);
-  for(int e = CSCDetId::minEndcapId(); e <= CSCDetId::maxEndcapId(); ++e)
-    {
-      for(int s = CSCTriggerNumbering::minTriggerSectorId();
-	  s <= CSCTriggerNumbering::maxTriggerSectorId(); ++s)
+ //my_dtrc->initialize(c);
+ 	for(int e = CSCDetId::minEndcapId(); e <= CSCDetId::maxEndcapId(); ++e)
 	{
-	  my_SPs[e-1][s-1]->initialize(c);
+		for(int s = CSCTriggerNumbering::minTriggerSectorId(); s <= CSCTriggerNumbering::maxTriggerSectorId(); ++s)
+		{
+			my_SPs[e-1][s-1]->initialize(c);
+		}
 	}
-    }
 }
-///
 
 CSCTFTrackBuilder::CSCTFTrackBuilder(const edm::ParameterSet& pset)
 {
@@ -30,7 +27,7 @@ CSCTFTrackBuilder::CSCTFTrackBuilder(const edm::ParameterSet& pset)
 
   for(int e = CSCDetId::minEndcapId(); e <= CSCDetId::maxEndcapId(); ++e)
     {
-      for(int s = CSCTriggerNumbering::minTriggerSectorId();
+      for(int s = CSCTriggerNumbering::minTriggerSectorId(); 
 	  s <= CSCTriggerNumbering::maxTriggerSectorId(); ++s)
 	{
 	  my_SPs[e-1][s-1] = new CSCTFSectorProcessor(e, s, pset);
@@ -45,7 +42,7 @@ CSCTFTrackBuilder::~CSCTFTrackBuilder()
 
   for(int e = CSCDetId::minEndcapId(); e <= CSCDetId::maxEndcapId(); ++e)
     {
-      for(int s = CSCTriggerNumbering::minTriggerSectorId();
+      for(int s = CSCTriggerNumbering::minTriggerSectorId(); 
 	  s <= CSCTriggerNumbering::maxTriggerSectorId(); ++s)
 	{
 	  delete my_SPs[e-1][s-1];
@@ -70,9 +67,9 @@ void CSCTFTrackBuilder::buildTracks(const CSCCorrelatedLCTDigiCollection* lcts, 
       for(; Diter != Dend; Diter++)
 	{
 	  csctf::TrackStub theStub((*Diter),(*Citer).first);
-	  stub_list.push_back(theStub);
-	}
-    }
+	  stub_list.push_back(theStub);	  
+	}     
+    }   
 
   // Now we append the track stubs the the DT Sector Collector
   // after processing from the DT Receiver.
@@ -80,9 +77,9 @@ void CSCTFTrackBuilder::buildTracks(const CSCCorrelatedLCTDigiCollection* lcts, 
 
 
   // run each sector processor in the TF
-  for(int e = CSCDetId::minEndcapId(); e <= CSCDetId::maxEndcapId(); ++e)
-    {
-      for(int s = CSCTriggerNumbering::minTriggerSectorId();
+  for(int e = CSCDetId::minEndcapId(); e <= CSCDetId::maxEndcapId(); ++e)  
+	{
+      for(int s = CSCTriggerNumbering::minTriggerSectorId(); 
 	  s <= CSCTriggerNumbering::maxTriggerSectorId(); ++s)
 	{
 	  CSCTriggerContainer<csctf::TrackStub> current_e_s = stub_list.get(e, s);
@@ -90,19 +87,21 @@ void CSCTFTrackBuilder::buildTracks(const CSCCorrelatedLCTDigiCollection* lcts, 
 	    {
 	      std::vector<csc::L1Track> theTracks = my_SPs[e-1][s-1]->tracks().get();
 	      trks.insert(trks.end(), theTracks.begin(), theTracks.end());
-
+	      
 	    }
-	  stubs_to_dt->push_many(my_SPs[e-1][s-1]->dtStubs()); // send stubs whether or not we find a track!!!
+	  //stubs_to_dt->push_many(my_SPs[e-1][s-1]->dtStubs()); // send stubs whether or not we find a track!!!
 	}
     }
-
+  
+  stubs_to_dt->push_many(stub_list);
+  
   // Now to combine tracks with their track stubs and send them off.
   trkcoll->resize(trks.size());
   std::vector<csc::L1Track>::const_iterator titr = trks.begin();
   L1CSCTrackCollection::iterator tcitr = trkcoll->begin();
 
   for(; titr != trks.end(); titr++)
-    {
+    {      
       tcitr->first = (*titr);
 
       std::vector<csctf::TrackStub> possible_stubs = stub_list.get(titr->endcap(), titr->sector());

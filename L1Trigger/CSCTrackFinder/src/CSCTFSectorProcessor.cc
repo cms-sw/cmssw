@@ -15,7 +15,7 @@ CSCTFSectorProcessor::CSCTFSectorProcessor(const unsigned& endcap,
   m_sector = sector;
   m_bxa_on = pset.getUntrackedParameter<bool>("UseBXA",true);
   m_extend_length = pset.getUntrackedParameter<unsigned>("BXAExtendLength",1);
-  m_latency = pset.getUntrackedParameter<unsigned>("CoreLatency",6);
+  m_latency = pset.getUntrackedParameter<unsigned>("CoreLatency",8);
   m_minBX = pset.getUntrackedParameter<int>("MinBX",-3);
   m_maxBX = pset.getUntrackedParameter<int>("MaxBX",3);
 
