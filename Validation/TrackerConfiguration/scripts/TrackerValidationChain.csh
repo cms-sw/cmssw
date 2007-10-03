@@ -17,13 +17,17 @@ cvs co -r $CMSSW_VERSION Validation/TrackerHits
 cvs co -r $CMSSW_VERSION Validation/TrackerDigis
 cvs co -r $CMSSW_VERSION Validation/TrackerRecHits
 cvs co -r $CMSSW_VERSION Validation/RecoTrack
+#Add also co of CalibTracker for test o Lite version of Geometry
+cvs co -r $CMSSW_VERSION CalibTracker/SiStripCommon
 #
 # Geometry Validation
 #
+if ('${2}' == 'GEOMETRY' ) then
 cd ${DATADIR}/Validation/Geometry/test
 ./TrackerGeometryValidation.sh ${1}
 chmod a+x copyWWWTrackerGeometry.sh    
 ./copyWWWTrackerGeometry.sh
+endif
 #
 # Run validation chain
 #
@@ -95,3 +99,11 @@ source copyWWWPixel.csh
 
 root -b -p -q SiStripTrackingRecHitsCompare.C 
 source copyWWWStrip.csh
+
+#Check on the fly in order to check the correctness of LiteGeometry
+cd ${DATADIR}/CalibTracker/SiStripCommon/test
+cp ${REFDIR}/LiteGeometry/* oldgeometrylite.txt
+cmsRun writeFile.cfg
+diff myfile.txt oldgeometrylite.txt > ! litegeometryDIFF.txt
+mkdir /afs/cern.ch/cms/performance/tracker/activities/validation/${1}/LiteGeometry
+cp litegeometryDIFF.txt  /afs/cern.ch/cms/performance/tracker/activities/validation/${1}/LiteGeometry
