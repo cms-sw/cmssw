@@ -5,6 +5,7 @@
 <use name=Alignment/TrackerAlignment>
 <use name=CondCore/DBOutputService>
 <use name=CondFormats/Alignment>
+<use name=CondFormats/AlignmentRecord>
 <use name=CondFormats/DataRecord>
 <use name=DataFormats/DetId>
 <use name=DataFormats/MuonReco>

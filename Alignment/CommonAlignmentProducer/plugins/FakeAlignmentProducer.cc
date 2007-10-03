@@ -13,7 +13,7 @@ The alignement objects are filled with dummy data (not useable by the reconstruc
 //
 // Original Author:  Frederic Ronga
 //         Created:  Fri Feb  9 19:24:38 CET 2007
-// $Id$
+// $Id: FakeAlignmentProducer.cc,v 1.1 2007/02/13 08:42:44 fronga Exp $
 //
 //
 
@@ -33,12 +33,12 @@ The alignement objects are filled with dummy data (not useable by the reconstruc
 // Alignment
 #include "CondFormats/Alignment/interface/Alignments.h"
 #include "CondFormats/Alignment/interface/AlignmentErrors.h"
-#include "CondFormats/DataRecord/interface/TrackerAlignmentRcd.h"
-#include "CondFormats/DataRecord/interface/DTAlignmentRcd.h"
-#include "CondFormats/DataRecord/interface/CSCAlignmentRcd.h"
-#include "CondFormats/DataRecord/interface/TrackerAlignmentErrorRcd.h"
-#include "CondFormats/DataRecord/interface/DTAlignmentErrorRcd.h"
-#include "CondFormats/DataRecord/interface/CSCAlignmentErrorRcd.h"
+#include "CondFormats/AlignmentRecord/interface/TrackerAlignmentRcd.h"
+#include "CondFormats/AlignmentRecord/interface/DTAlignmentRcd.h"
+#include "CondFormats/AlignmentRecord/interface/CSCAlignmentRcd.h"
+#include "CondFormats/AlignmentRecord/interface/TrackerAlignmentErrorRcd.h"
+#include "CondFormats/AlignmentRecord/interface/DTAlignmentErrorRcd.h"
+#include "CondFormats/AlignmentRecord/interface/CSCAlignmentErrorRcd.h"
 
 class FakeAlignmentProducer : public edm::ESProducer {
 public:
