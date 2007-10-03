@@ -8,7 +8,7 @@
  * authors: Ludovic Houchu
  */
 
-#include "DataFormats/JetReco/interface/JetTracksAssociation.h"
+#include "DataFormats/BTauReco/interface/JetTracksAssociation.h"
 #include "DataFormats/TauReco/interface/PFTauTagInfo.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"

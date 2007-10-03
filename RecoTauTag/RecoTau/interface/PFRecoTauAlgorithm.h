@@ -8,12 +8,13 @@
 #include "DataFormats/TauReco/interface/PFTauTagInfo.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 
+#include "RecoBTag/BTagTools/interface/SignedTransverseImpactParameter.h"
+
 #include "RecoTauTag/TauTagTools/interface/PFTauElementsOperators.h"
 #include "RecoTauTag/TauTagTools/interface/CaloTauElementsOperators.h"
 
 #include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
-#include "TrackingTools/IPTools/interface/IPTools.h"
 
 using namespace std;
 using namespace reco;

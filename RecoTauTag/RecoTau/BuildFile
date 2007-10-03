@@ -14,7 +14,7 @@
 <use name=Geometry/CommonDetUnit>
 <use name=TrackingTools/Records>
 <use name=TrackingTools/TransientTrack>
-<use name=TrackingTools/IPTools>
+<use name=RecoBTag/BTagTools>
 <use name=RecoJets/JetAlgorithms>
 <use name=RecoTauTag/TauTagTools>
 <flags EDM_PLUGIN=1>
