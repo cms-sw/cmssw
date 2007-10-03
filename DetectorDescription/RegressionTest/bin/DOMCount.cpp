@@ -55,7 +55,7 @@
  */
 
 /*
- * $Id: DOMCount.cpp,v 1.1 2006/03/20 10:49:52 case Exp $
+ * $Id: DOMCount.cpp,v 1.2 2007/02/02 04:01:39 wmtan Exp $
  */
 
 // ---------------------------------------------------------------------------
@@ -435,8 +435,7 @@ int main(int argC, char* argV[])
             }
 
             // Print out the stats that we collected and time taken.
-            cout << xmlFile << ": " << duration << " ms ("
-                 << elementCount << " elems)." << endl;
+            cout << xmlFile << ": " << elementCount << " elems." << endl;
         }
     }
 
