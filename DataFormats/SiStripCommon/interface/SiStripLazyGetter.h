@@ -185,6 +185,10 @@ namespace edm {
     /// Returns the off-the-end iterator for a given region.
     const_iterator end() const;
 
+    /// Returns boolean describing unpacking status of a given region.
+    /// WARNING: NO UNPACKING IS PERFORMED.
+    bool unpacked(uint32_t) const;
+
   private:
     boost::shared_ptr< SiStripLazyUnpacker<T> > unpacker_;
   };
@@ -272,6 +276,14 @@ namespace edm {
       return boost::make_transform_iterator(unpacker_->register_.end(),adapter);
     }
   
+  template <class T>
+    inline
+    bool 
+    SiStripLazyGetter<T>::unpacked(uint32_t index) const
+    {
+      return (index < unpacker_->register_.size()) ? unpacker_->register_[index].unpacked() : false;
+    }
+
   template <class T>
     inline
     void
