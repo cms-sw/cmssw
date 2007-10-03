@@ -49,13 +49,13 @@ DataManager::~DataManager ()
 
 edm::eventsetup::TypeTag DataManager::findType (const std::string & type) const
 {
-     static edm::eventsetup::TypeTag defaultType;
-     edm::eventsetup::TypeTag typeTag = edm::eventsetup::TypeTag::findType (type);
-
-     if (typeTag == defaultType)
-        throw cond::Exception ("DataReader::findType") << "Type " << type << " was not found";
-
-     return typeTag;
+  static edm::eventsetup::TypeTag defaultType;
+  edm::eventsetup::TypeTag typeTag = edm::eventsetup::TypeTag::findType (type);
+  
+  //     if (typeTag == defaultType)
+  //        throw cond::Exception ("l1t::DataManager::findType") << "Type " << type << " was not found";
+  
+  return typeTag;
 }
 
 
