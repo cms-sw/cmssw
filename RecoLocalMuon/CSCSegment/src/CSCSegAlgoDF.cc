@@ -78,7 +78,7 @@ std::vector<CSCSegment> CSCSegAlgoDF::run(const CSCChamber* aChamber, ChamberHit
   if ( preClustering && nHits > minHitsForPreClustering ) {
     // This is where the segment origin is in the chamber on avg.
     std::vector<CSCSegment> testSegments;
-    std::vector<ChamberHitContainer> clusteredHits = preCluster_->clusterHits(theChamber, rechits, testSegments);
+    std::vector<ChamberHitContainer> clusteredHits = preCluster_->clusterHits(theChamber, rechits);
     // loop over the found clusters:
     for (std::vector<ChamberHitContainer>::iterator subrechits = clusteredHits.begin(); subrechits != clusteredHits.end(); ++subrechits ) {
       // build the subset of segments:
@@ -204,7 +204,7 @@ std::vector<CSCSegment> CSCSegAlgoDF::buildSegments(ChamberHitContainer rechits)
       protoSegment.push_back(h2);
 	
       // Try adding hits to proto segment
-      tryAddingHitsToSegment(rechits, i1, i2); 
+      tryAddingHitsToSegment(rechits, i1, i2, layerIndex); 
 	
       // Check no. of hits on segment to see if segment is large enough
       bool segok = true;
@@ -256,7 +256,8 @@ std::vector<CSCSegment> CSCSegAlgoDF::buildSegments(ChamberHitContainer rechits)
  */
 void CSCSegAlgoDF::tryAddingHitsToSegment( const ChamberHitContainer& rechits, 
                                            const ChamberHitContainerCIt i1, 
-                                           const ChamberHitContainerCIt i2) {
+                                           const ChamberHitContainerCIt i2,
+                                           LayerIndex layerIndex ) {
   
 /* Iterate over the layers with hits in the chamber
  * Skip the layers containing the segment endpoints on first pass, but then
@@ -267,6 +268,7 @@ void CSCSegAlgoDF::tryAddingHitsToSegment( const ChamberHitContainer& rechits,
   
   ChamberHitContainerCIt ib = rechits.begin();
   ChamberHitContainerCIt ie = rechits.end();
+  closeHits.clear();
 
   for ( ChamberHitContainerCIt i = ib; i != ie; ++i ) {
 
@@ -274,26 +276,30 @@ void CSCSegAlgoDF::tryAddingHitsToSegment( const ChamberHitContainer& rechits,
     if ( usedHits[i-ib] ) continue;   // Don't use hits already part of a segment.
 
     const CSCRecHit2D* h = *i;
-    int layer = (*i)->cscDetId().layer();
+    int layer = layerIndex[i-ib];
+    int layer1 = layerIndex[i1-ib];
+    int layer2 = layerIndex[i2-ib];
 
     // Low multiplicity case
-    if (rechits.size() < 7) {
+    if (rechits.size() < 9) {
       if ( isHitNearSegment( h ) ) {
         if ( !hasHitOnLayer(layer) ) {
           addHit(h, layer);
         } else {
-          updateParameters();
-          compareProtoSegment(h, layer);
+          closeHits.push_back(h);
         }
       }
+
     // High multiplicity case
     } else { 
       if ( isHitNearSegment( h ) ) {
         if ( !hasHitOnLayer(layer) ) {
           addHit(h, layer);
           updateParameters();
+        // Don't change the starting points at this stage !!!
         } else {
-          compareProtoSegment(h, layer);
+          closeHits.push_back(h);
+          if (layer != layer1 && layer != layer2 ) compareProtoSegment(h, layer);
         }
       }
     }
@@ -301,27 +307,14 @@ void CSCSegAlgoDF::tryAddingHitsToSegment( const ChamberHitContainer& rechits,
  
   if ( int(protoSegment.size()) < 3) return;
 
+  updateParameters();
 
   // 2nd pass to remove biases 
   // This time, also consider changing the endpoints
-
-  closeHits.clear();
-
-  for ( ChamberHitContainerCIt i = ib; i != ie; ++i ) {
-    if ( usedHits[i-ib] ) continue;   
+  for ( ChamberHitContainerCIt i = closeHits.begin() ; i != closeHits.end(); ++i ) {      
     const CSCRecHit2D* h = *i;      
     int layer = (*i)->cscDetId().layer();     
-    if ( isHitNearSegment( h ) ) {
-      if ( !hasHitOnLayer(layer) ) {
-        addHit(h, layer);
-        updateParameters();
-      } else {
-        compareProtoSegment(h, layer);
-// Interesting to mark off hits which are very close to track to remove duplicated segments...
-// Need to create a class for this
-        closeHits.push_back(h);
-      }
-    }
+    compareProtoSegment(h, layer); 
   } 
 
 }
@@ -565,8 +558,10 @@ void CSCSegAlgoDF::flagHitsAsUsed(const ChamberHitContainer& rechitsInChamber) {
       if (*hi == *iu) usedHits[iu-ib] = true;
     }
   }
+  // Don't reject hits marked as "nearby" for now.
+  // So this is bypassed at all times for now !!!
+  // Perhaps add back to speed up algorithm some more
   if (closeHits.size() > 0) return;  
-  // This is to deal with muon showering (not combinatorial problems)
   for ( hi = closeHits.begin(); hi != closeHits.end(); ++hi ) {
     for ( iu = ib; iu != rechitsInChamber.end(); ++iu ) {
       if (*hi == *iu) usedHits[iu-ib] = true;

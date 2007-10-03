@@ -91,7 +91,9 @@ private:
    *    - if not, copy the segment, add the hit if it's within a certain range.         <BR>
    */
   void tryAddingHitsToSegment( const ChamberHitContainer& rechitsInChamber,
-                               const ChamberHitContainerCIt i1, const ChamberHitContainerCIt i2);
+                               const ChamberHitContainerCIt i1, 
+                               const ChamberHitContainerCIt i2,
+                               LayerIndex layerIndex);
 
   /**
    * Flag hits on segment as used

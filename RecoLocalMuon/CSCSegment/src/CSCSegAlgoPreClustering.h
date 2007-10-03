@@ -6,7 +6,6 @@
  *  \authors: S. Stoynev  - NU
  *            I. Bloch    - FNAL
  *            E. James    - FNAL
- *            D. Fortin   - UC Riverside
  *
  * See header file for description.
  */
@@ -31,11 +30,8 @@ class CSCSegAlgoPreClustering {
   ~CSCSegAlgoPreClustering();
 
   /// clusterize
-  std::vector< std::vector<const CSCRecHit2D*> > clusterHits( const CSCChamber* aChamber, ChamberHitContainer rechits,
-                                                              std::vector<CSCSegment> testSegments );
+  std::vector< std::vector<const CSCRecHit2D*> > clusterHits( const CSCChamber* aChamber, ChamberHitContainer rechits);
  private:
-
-  CSCSegment leastSquares(ChamberHitContainer proto_segment);
 
   bool    debug;
   double  dXclusBoxMax;
