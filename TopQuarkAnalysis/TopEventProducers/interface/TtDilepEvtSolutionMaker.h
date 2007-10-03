@@ -35,6 +35,7 @@ class TtDilepEvtSolutionMaker : public edm::EDProducer {
     edm::InputTag muonSource_;
     edm::InputTag metSource_;
     edm::InputTag jetSource_;
+    unsigned int nrCombJets_;
     bool matchToGenEvt_, calcTopMass_;
     bool eeChannel_, emuChannel_, mumuChannel_;
     double tmassbegin_, tmassend_, tmassstep_;

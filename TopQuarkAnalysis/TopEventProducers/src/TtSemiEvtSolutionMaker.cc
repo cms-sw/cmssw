@@ -1,5 +1,5 @@
 //
-// $Id: TtSemiEvtSolutionMaker.cc,v 1.22 2007/08/21 12:03:11 lowette Exp $
+// $Id: TtSemiEvtSolutionMaker.cc,v 1.23 2007/09/28 15:46:18 lowette Exp $
 //
 
 #include "TopQuarkAnalysis/TopEventProducers/interface/TtSemiEvtSolutionMaker.h"
@@ -29,6 +29,7 @@ TtSemiEvtSolutionMaker::TtSemiEvtSolutionMaker(const edm::ParameterSet & iConfig
   lJetSrc_         = iConfig.getParameter<edm::InputTag>    ("lJetSource");
   bJetSrc_         = iConfig.getParameter<edm::InputTag>    ("bJetSource");
   leptonFlavour_   = iConfig.getParameter<std::string>      ("leptonFlavour");
+  nrCombJets_      = iConfig.getParameter<unsigned int>     ("nrCombJets");
   doKinFit_        = iConfig.getParameter<bool>             ("doKinFit");
   addLRSignalSel_  = iConfig.getParameter<bool>             ("addLRSignalSel");
   lrSignalSelObs_  = iConfig.getParameter<std::vector<int> >("lrSignalSelObs");
@@ -109,15 +110,18 @@ void TtSemiEvtSolutionMaker::produce(edm::Event & iEvent, const edm::EventSetup 
   //
   // Build Event solutions according to the ambiguity in the jet combination
   //
-  
+
   std::vector<TtSemiEvtSolution> * evtsols = new std::vector<TtSemiEvtSolution>();
   if(leptonFound && metFound && jetsFound){
-    //std::cout<<"constructing solutions"<<std::endl;
-    for (unsigned int p=0; p<4; p++) {
-      for (unsigned int q=0; q<4; q++) {
-        for (unsigned int bh=0; bh<4; bh++) {
+    // protect against reading beyond array boundaries
+    unsigned int nrCombJets = nrCombJets_; // do not overwrite nrCombJets_
+    if (lJets->size() < nrCombJets) nrCombJets = lJets->size();
+    // loop over all jets
+    for (unsigned int p=0; p<nrCombJets; p++) {
+      for (unsigned int q=0; q<nrCombJets; q++) {
+        for (unsigned int bh=0; bh<nrCombJets; bh++) {
           if (q>p && !(bh==p || bh==q)) {
-            for (unsigned int bl=0; bl<4; bl++) {
+            for (unsigned int bl=0; bl<nrCombJets; bl++) {
               if (!(bl==p || bl==q || bl==bh)) {
                 TtSemiEvtSolution asol;
                 if(leptonFlavour_ == "muon")     asol.setMuon(muons, 0);

@@ -1,5 +1,5 @@
 //
-// $Id: TtDilepEvtSolutionMaker.cc,v 1.6 2007/07/23 10:27:09 vizan Exp $
+// $Id: TtDilepEvtSolutionMaker.cc,v 1.7 2007/10/03 10:00:05 lowette Exp $
 //
 
 #include "TopQuarkAnalysis/TopEventProducers/interface/TtDilepEvtSolutionMaker.h"
@@ -21,6 +21,7 @@ TtDilepEvtSolutionMaker::TtDilepEvtSolutionMaker(const edm::ParameterSet & iConf
   muonSource_     = iConfig.getParameter<edm::InputTag>("muonSource");
   metSource_      = iConfig.getParameter<edm::InputTag>("metSource");
   jetSource_      = iConfig.getParameter<edm::InputTag>("jetSource");
+  nrCombJets_     = iConfig.getParameter<unsigned int> ("nrCombJets");
   matchToGenEvt_  = iConfig.getParameter<bool>         ("matchToGenEvt");
   calcTopMass_    = iConfig.getParameter<bool>         ("calcTopMass"); 
   eeChannel_      = iConfig.getParameter<bool>         ("eeChannel"); 
@@ -149,10 +150,13 @@ void TtDilepEvtSolutionMaker::produce(edm::Event & iEvent, const edm::EventSetup
                        
   std::vector<TtDilepEvtSolution> * evtsols = new std::vector<TtDilepEvtSolution>();
   if(correctLepton && METFound && jetsFound){
-    //cout<<"constructing solutions"<<endl;
-    
+
+    // protect against reading beyond array boundaries
+    unsigned int nrCombJets = nrCombJets_; // do not overwrite nrCombJets_
+    if (jets->size() < nrCombJets) nrCombJets = jets->size();
+
     //SaveSolution for both jet-lep pairings
-    for (unsigned int ib = 0; ib < 2; ib++) {
+    for (unsigned int ib = 0; ib < nrCombJets; ib++) {
       TtDilepEvtSolution asol;
       
       double xconstraint = 0, yconstraint = 0;
