@@ -39,11 +39,12 @@ public:
     //    const HepPDT::ParticleData * particleInfo() const;
 
     /// four momentum
-    HepLorentzVector momentum() { return HepLorentzVector( theMomentum.px(),
+    HepLorentzVector momentum() const { return HepLorentzVector( theMomentum.px(),
                                                            theMomentum.py(),
 							   theMomentum.pz(),
 						           theMomentum.e()  ) ; }
-    const math::XYZTLorentzVectorD& momentum() const { return theMomentum; }
+    // const math::XYZTLorentzVectorD& momentum() const { return theMomentum; }
+    math::XYZTLorentzVectorD& momentum() { return theMomentum; }
 
     /// particle type (HEP PDT convension)
     int type() const { return thePID;}

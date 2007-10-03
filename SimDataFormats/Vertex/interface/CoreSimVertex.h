@@ -37,12 +37,13 @@ public:
     // bad trick, the compaler complains...
     // but seems to work so far (will re-check later)
     //
-    HepLorentzVector position() { return HepLorentzVector(theVertex.x(),
+    HepLorentzVector position() const { return HepLorentzVector(theVertex.x(),
                                                           theVertex.y(),
 						          theVertex.z(),
 							  theVertex.t()); }
 
-     const math::XYZTLorentzVectorD& position() const { return theVertex; }
+     // const math::XYZTLorentzVectorD& position() const { return theVertex; }
+     math::XYZTLorentzVectorD& position() { return theVertex; }
     
 
     void setEventId(EncodedEventId e) {eId=e;}
