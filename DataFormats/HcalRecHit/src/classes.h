@@ -21,12 +21,14 @@ namespace {
     std::vector<HORecHit> vHO_;
     std::vector<HFRecHit> vHF_;
     std::vector<ZDCRecHit> vZDC_;
+    std::vector<CastorRecHit> vCastor_;
     std::vector<HcalCalibRecHit> vcal_;
 
     HBHERecHitCollection theHBHE_;
     HORecHitCollection theHO_;
     HFRecHitCollection theHF_;
     ZDCRecHitCollection theZDC_;
+    CastorRecHitCollection theCastor_;
     HcalCalibRecHitCollection thecalib_;
     HcalSourcePositionData theSPD_;
 
@@ -34,6 +36,7 @@ namespace {
     edm::Wrapper<HORecHitCollection> theHOw_;
     edm::Wrapper<HFRecHitCollection> theHFw_;
     edm::Wrapper<ZDCRecHitCollection> theZDCw_;
+    edm::Wrapper<CastorRecHitCollection> theCastorw_;
     edm::Wrapper<HcalCalibRecHitCollection> theCalibw_;
     edm::Wrapper<HcalSourcePositionData> theSPDw_;
 
@@ -41,18 +44,21 @@ namespace {
     edm::Ref<HORecHitCollection> theHOr_;
     edm::Ref<HFRecHitCollection> theHFr_;
     edm::Ref<ZDCRecHitCollection> theZDCr_;
+    edm::Ref<CastorRecHitCollection> theCastorr_;
     edm::Ref<HcalCalibRecHitCollection> theCalibr_;
 
     edm::RefProd<HBHERecHitCollection> theHBHErp_;
     edm::RefProd<HORecHitCollection> theHOrp_;
     edm::RefProd<HFRecHitCollection> theHFrp_;
     edm::RefProd<ZDCRecHitCollection> theZDCrp_;
+    edm::RefProd<CastorRecHitCollection> theCastorrp_;
     edm::RefProd<HcalCalibRecHitCollection> theCalibrp_;
 
     edm::RefVector<HBHERecHitCollection> theHBHErv_;
     edm::RefVector<HORecHitCollection> theHOrv_;
     edm::RefVector<HFRecHitCollection> theHFrv_;
     edm::RefVector<ZDCRecHitCollection> theZDCrv_;
+    edm::RefVector<CastorRecHitCollection> theCastorrv_;
     edm::RefVector<HcalCalibRecHitCollection> theCalibrv_;
   }
 }

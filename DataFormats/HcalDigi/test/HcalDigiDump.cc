@@ -12,8 +12,8 @@ using namespace std;
 
 /** \class HcalDigiDump
       
-$Date: 2007/03/07 16:42:28 $
-$Revision: 1.10 $
+$Date: 2007/04/10 23:07:29 $
+$Revision: 1.11 $
 \author J. Mans - Minnesota
 */
 class HcalDigiDump : public edm::EDAnalyzer {
@@ -31,6 +31,7 @@ void HcalDigiDump::analyze(edm::Event const& e, edm::EventSetup const& c) {
   std::vector<edm::Handle<HODigiCollection> > ho;
   std::vector<edm::Handle<HFDigiCollection> > hf;
   std::vector<edm::Handle<ZDCDigiCollection> > zdc;
+  std::vector<edm::Handle<CastorDigiCollection> > castor;
   std::vector<edm::Handle<HcalCalibDigiCollection> > hc;
   std::vector<edm::Handle<HcalTrigPrimDigiCollection> > htp;
   std::vector<edm::Handle<HcalHistogramDigiCollection> > hh;  
@@ -108,6 +109,18 @@ void HcalDigiDump::analyze(edm::Event const& e, edm::EventSetup const& c) {
       const ZDCDigiCollection& c=*(*i);
       
       for (ZDCDigiCollection::const_iterator j=c.begin(); j!=c.end(); j++)
+	cout << *j << std::endl;
+    }
+  } catch (...) {
+  }
+
+  try {
+    e.getManyByType(castor);
+    std::vector<edm::Handle<CastorDigiCollection> >::iterator i;
+    for (i=castor.begin(); i!=castor.end(); i++) {
+      const CastorDigiCollection& c=*(*i);
+      
+      for (CastorDigiCollection::const_iterator j=c.begin(); j!=c.end(); j++)
 	cout << *j << std::endl;
     }
   } catch (...) {

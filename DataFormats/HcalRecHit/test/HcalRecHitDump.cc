@@ -11,8 +11,8 @@ namespace cms {
 
   /** \class HcalRecHitDump
       
-  $Date: 2007/04/10 23:07:30 $
-  $Revision: 1.8 $
+  $Date: 2007/07/31 15:20:12 $
+  $Revision: 1.9 $
   \author J. Mans - Minnesota
   */
   class HcalRecHitDump : public edm::EDAnalyzer {
@@ -25,8 +25,6 @@ namespace cms {
   }
   
   void HcalRecHitDump::analyze(edm::Event const& e, edm::EventSetup const& c) {
-    std::vector<edm::Handle<HORecHitCollection> > ho;
-    std::vector<edm::Handle<HFRecHitCollection> > hf;
     edm::Handle<HcalSourcePositionData> spd;
 
     try {
@@ -87,6 +85,18 @@ namespace cms {
       }
     } catch (...) {
       //      cout << "No ZDC RecHits." << endl;
+    }
+
+    try {
+      std::vector<edm::Handle<CastorRecHitCollection> > colls;
+      e.getManyByType(colls);
+      std::vector<edm::Handle<CastorRecHitCollection> >::iterator i;
+      for (i=colls.begin(); i!=colls.end(); i++) {
+	for (CastorRecHitCollection::const_iterator j=(*i)->begin(); j!=(*i)->end(); j++) 
+	  cout << *j << std::endl;
+      }
+    } catch (...) {
+      //      cout << "No Castor RecHits." << endl;
     }
 
 
