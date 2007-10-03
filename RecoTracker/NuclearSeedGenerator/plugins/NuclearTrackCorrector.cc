@@ -13,7 +13,7 @@
 //
 // Original Author:  Loic QUERTENMONT
 //         Created:  Tue Sep 18 14:22:48 CEST 2007
-// $Id$
+// $Id: NuclearTrackCorrector.cc,v 1.1 2007/09/28 14:43:39 roberfro Exp $
 //
 //
 
@@ -49,10 +49,11 @@ theInitialState(0)
      produces< TrackCandidateCollection >();
      produces< TrackCandidateToTrajectoryMap >();
 
-     produces< reco::TrackCollection >();
+     produces< reco::TrackExtraCollection >();
+     produces< reco::TrackCollection >();       
      produces< TrackToTrajectoryMap >();
 
-     produces< TrackToTracksMap >();
+     produces< TrackToTrackMap >();
 }
 
 
@@ -71,10 +72,11 @@ NuclearTrackCorrector::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
   std::auto_ptr<TrackCandidateCollection>       Output_trackCand     ( new TrackCandidateCollection );
   std::auto_ptr<TrackCandidateToTrajectoryMap>  Output_trackCandmap  ( new TrackCandidateToTrajectoryMap );
 
+  std::auto_ptr<reco::TrackExtraCollection>	Output_trackextra    ( new reco::TrackExtraCollection );
   std::auto_ptr<reco::TrackCollection>          Output_track         ( new reco::TrackCollection );
   std::auto_ptr<TrackToTrajectoryMap>           Output_trackmap      ( new TrackToTrajectoryMap );
 
-  std::auto_ptr<TrackToTracksMap>  	        Output_tracktrackmap ( new TrackToTracksMap );
+  std::auto_ptr<TrackToTrackMap>  	        Output_tracktrackmap ( new TrackToTrackMap );
 
 
 
@@ -92,8 +94,7 @@ NuclearTrackCorrector::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
 
   iSetup.get<TrackerDigiGeometryRecord>().get(pDD);
 
-
-
+  reco::TrackExtraRefProd rTrackExtras = iEvent.getRefBeforePut<reco::TrackExtraCollection>();
 
 
   // Load Inputs
@@ -255,13 +256,55 @@ NuclearTrackCorrector::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
 	bool IsOK = theAlgo->buildTrack(theFitter.product(),thePropagator.product(),algoResults,hits,initState.first,it->seed(),ndof);
 
 	if(IsOK==1){
+                reco::TrackExtraRef teref= reco::TrackExtraRef ( rTrackExtras, i );
+		(algoResults[0].second.first)->setExtra( teref );
 		Output_track->push_back(*algoResults[0].second.first);
+
+
+
+		// Create the reco::TrackExtra
+
+	        Trajectory* theTraj          = algoResults[0].first;
+                PropagationDirection seedDir = algoResults[0].second.second;
+
+    		TrajectoryStateOnSurface outertsos;
+		TrajectoryStateOnSurface innertsos;		
+		unsigned int innerId, outerId;
+    		if (theTraj->direction() == alongMomentum) {
+      		  outertsos = theTraj->lastMeasurement().updatedState();
+      		  innertsos = theTraj->firstMeasurement().updatedState();
+      		  outerId   = theTraj->lastMeasurement().recHit()->geographicalId().rawId();
+      		  innerId   = theTraj->firstMeasurement().recHit()->geographicalId().rawId();
+    		} else { 
+      		  outertsos = theTraj->firstMeasurement().updatedState();
+      		  innertsos = theTraj->lastMeasurement().updatedState();
+      		  outerId   = theTraj->firstMeasurement().recHit()->geographicalId().rawId();
+      		  innerId   = theTraj->lastMeasurement().recHit()->geographicalId().rawId();
+   		}
+
+    
+    		GlobalPoint v = outertsos.globalParameters().position();
+    		GlobalVector p = outertsos.globalParameters().momentum();
+    		math::XYZVector outmom( p.x(), p.y(), p.z() );
+    		math::XYZPoint  outpos( v.x(), v.y(), v.z() );
+    		v = innertsos.globalParameters().position();
+    		p = innertsos.globalParameters().momentum();
+    		math::XYZVector inmom( p.x(), p.y(), p.z() );
+    		math::XYZPoint  inpos( v.x(), v.y(), v.z() );
+
+		Output_trackextra->push_back( reco::TrackExtra (outpos, outmom, true, inpos, inmom, true,
+                                        outertsos.curvilinearError(), outerId,
+					innertsos.curvilinearError(), innerId, seedDir));
+
+
+		// Remove the element from algoResults, so we only have 1 or 0 elements inside!
                 algoResults.pop_back();
 	}else{
 	        printf("ERROR during the Trajectory to reco::Track conversion !\n" );
 	}
   }
   const edm::OrphanHandle<reco::TrackCollection> Handle_tracks = iEvent.put(Output_track);
+  iEvent.put(Output_trackextra);
 
 
 
