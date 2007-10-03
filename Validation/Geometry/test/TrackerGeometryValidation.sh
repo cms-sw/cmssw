@@ -229,6 +229,15 @@ fi
 cmsRun $CMSSW_RELEASE_BASE/src/Validation/CheckOverlap/test/data/runTracker.cfg > trackerOverlap.log
 grep -A4 'WARNING - ' trackerOverlap.log | tee -a $reportFile
 echo "...done" | tee -a $reportFile
+
+#
+echo "Run dddreport..." | tee -a $reportFile
+$CMSSW_RELEASE_BASE/src/DetectorDescription/RegressionTest/scripts/dddreport.sh > dddreport.log
+echo "...done" | tee -a $reportFile
+#
+echo "Run domcount..." | tee -a $reportFile
+$CMSSW_RELEASE_BASE/src/DetectorDescription/RegressionTest/scripts/domcount.sh > domcount.log
+echo "...done" | tee -a $reportFile
 #
 
 echo "TRACKER GEOMETRY VALIDATION ENDED... LOOK AT THE RESULTS" | tee -a $reportFile
