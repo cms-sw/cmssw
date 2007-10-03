@@ -34,13 +34,13 @@ CaloTopologyBuilder::produce(const CaloTopologyRecord& iRecord)
 {
   edm::ESHandle<CaloGeometry> theGeometry;
   std::auto_ptr<CaloTopology> pCaloTopology(new CaloTopology());
-  try 
-    {
+//  try 
+//    {
       iRecord.getRecord<IdealGeometryRecord>().get( theGeometry );
-    }
-  catch (...) {
-    edm::LogWarning("MissingInput") << "No CaloGeometry Found found";
-  }
+//    }
+//  catch (...) {
+//    edm::LogWarning("MissingInput") << "No CaloGeometry Found found";
+//  }
 
   //ECAL parts      
   pCaloTopology->setSubdetTopology(DetId::Ecal,EcalBarrel,new EcalBarrelTopology(theGeometry));

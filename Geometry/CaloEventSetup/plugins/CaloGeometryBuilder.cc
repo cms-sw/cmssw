@@ -13,7 +13,7 @@
 //
 // Original Author:  Jeremiah Mans
 //         Created:  Mon Oct  3 11:35:27 CDT 2005
-// $Id: CaloGeometryBuilder.cc,v 1.2 2007/04/17 16:15:28 case Exp $
+// $Id: CaloGeometryBuilder.cc,v 1.3 2007/08/28 18:13:41 sunanda Exp $
 //
 //
 
@@ -62,50 +62,50 @@ CaloGeometryBuilder::produce(const IdealGeometryRecord& iRecord)
 
    // assume 'HCAL' for all of HCAL.  
    // TODO: Eventually change to looking for "HO" and "HF" separately and fallback to HCAL
-   try {
+//   try {
      iRecord.get("HCAL", pG); 
      pCaloGeom->setSubdetGeometry(DetId::Hcal,HcalBarrel,pG.product());
      pCaloGeom->setSubdetGeometry(DetId::Hcal,HcalEndcap,pG.product());
      pCaloGeom->setSubdetGeometry(DetId::Hcal,HcalOuter,pG.product());
      pCaloGeom->setSubdetGeometry(DetId::Hcal,HcalForward,pG.product());
-   } catch (...) {
-     edm::LogWarning("MissingInput") << "No HCAL Geometry found";
-   }
+//   } catch (...) {
+//     edm::LogWarning("MissingInput") << "No HCAL Geometry found";
+//   }
    // look for zdc parts
-   try {
+//   try {
      iRecord.get("ZDC", pG);
      pCaloGeom->setSubdetGeometry(DetId::Calo, HcalZDCDetId::SubdetectorId,pG.product());
-   } catch(...) {
-     edm::LogWarning("MissingInput") << "No ZDC Geometry found";
-   }
+//   } catch(...) {
+//     edm::LogWarning("MissingInput") << "No ZDC Geometry found";
+//   }
      
    // TODO: Look for ECAL parts
-   try {
+//   try {
      iRecord.get("EcalBarrel", pG); 
      pCaloGeom->setSubdetGeometry(DetId::Ecal,EcalBarrel,pG.product());
-   } catch (...) {
-     edm::LogWarning("MissingInput") << "No Ecal Barrel Geometry found";     
-   }
-   try {
+//   } catch (...) {
+//     edm::LogWarning("MissingInput") << "No Ecal Barrel Geometry found";     
+//   }
+//   try {
      iRecord.get("EcalEndcap", pG); 
      pCaloGeom->setSubdetGeometry(DetId::Ecal,EcalEndcap,pG.product());
-   } catch (...) {
-     edm::LogWarning("MissingInput") << "No Ecal Endcap Geometry found";     
-   }
-   try {
+//   } catch (...) {
+//     edm::LogWarning("MissingInput") << "No Ecal Endcap Geometry found";     
+//   }
+//   try {
      iRecord.get("EcalPreshower", pG); 
      pCaloGeom->setSubdetGeometry(DetId::Ecal,EcalPreshower,pG.product());
-   } catch (...) {
-     edm::LogWarning("MissingInput") << "No Ecal Preshower Geometry found";     
-   }
+//   } catch (...) {
+//     edm::LogWarning("MissingInput") << "No Ecal Preshower Geometry found";     
+//   }
 
    // look for TOWER parts
-   try {
+//   try {
      iRecord.get("TOWER",pG);
      pCaloGeom->setSubdetGeometry(DetId::Calo,1,pG.product());
-   } catch (...) {
-     edm::LogWarning("MissingInput") << "No CaloTowers Geometry found";         
-   }   
+//   } catch (...) {
+//     edm::LogWarning("MissingInput") << "No CaloTowers Geometry found";         
+//   }   
 
    return pCaloGeom;
 }
