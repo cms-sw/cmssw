@@ -237,7 +237,7 @@ EcalTestDevDB::generateEcalPedestals() {
       item.rms_x12  = 12.*( (double)std::rand()/(double(RAND_MAX)+double(1)) );
 
       EBDetId ebdetid(iEta,iPhi);
-      peds->m_pedestals.insert(std::make_pair(ebdetid.rawId(),item));
+      peds->insert(std::make_pair(ebdetid.rawId(),item));
     }
   }
   return peds;
@@ -521,7 +521,7 @@ EcalTestDevDB::generateEcalLaserAPDPNRatiosRef() {
 
   EcalLaserAPDPNRatiosRef* laser = new EcalLaserAPDPNRatiosRef();
 
-  EcalLaserAPDPNRatiosRef::EcalLaserAPDPNref APDPNref;
+  EcalLaserAPDPNref APDPNref;
  
  
   for(int iEta=-EBDetId::MAX_IETA; iEta<=EBDetId::MAX_IETA ;++iEta) {
@@ -578,7 +578,7 @@ EcalTestDevDB::generateEcalLaserAlphas() {
 
   EcalLaserAlphas* laser = new EcalLaserAlphas();
 
-  EcalLaserAlphas::EcalLaserAlpha Alpha;
+  EcalLaserAlpha Alpha;
  
   for(int iEta=-EBDetId::MAX_IETA; iEta<=EBDetId::MAX_IETA ;++iEta) {
     if(iEta==0) continue;

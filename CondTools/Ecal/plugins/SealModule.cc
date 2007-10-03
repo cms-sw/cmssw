@@ -5,4 +5,3 @@
 
 DEFINE_SEAL_MODULE();
 DEFINE_ANOTHER_FWK_MODULE(StoreEcalCondition);
-DEFINE_ANOTHER_FWK_MODULE(ReprocessEcalPedestals);

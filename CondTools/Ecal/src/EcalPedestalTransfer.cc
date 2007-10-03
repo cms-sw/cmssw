@@ -183,7 +183,7 @@ void EcalPedestalTransfer::analyze( const edm::Event& evt, const edm::EventSetup
 	  // get from offline DB the last valid pedestal set 
 	  edm::ESHandle<EcalPedestals> handle;
 	  evtSetup.get<EcalPedestalsRcd>().get(handle);
-	  const EcalPedestalsMap& pedMap= handle.product()->m_pedestals; // map of pedestals
+	  const EcalPedestalsMap& pedMap= handle.product()->getMap(); // map of pedestals
 
 	  EcalPedestalsMapIterator pedIter; // pedestal iterator
 	  EcalPedestals::Item aped; // pedestal object for a single xtal
@@ -195,24 +195,24 @@ void EcalPedestalTransfer::analyze( const edm::Event& evt, const edm::EventSetup
 		
 		EBDetId ebdetid(iEta,iPhi);
 		
-		pedIter = pedMap.find(ebdetid.rawId());
+		pedIter = pedMap.find(ebdetid);
 		
 		if( pedIter != pedMap.end() ) {
-		  aped = pedIter->second;
+		  aped = (*pedIter);
 		} else {
 		  edm::LogError("EcalPedestalTransfer") 
 		    << "error!! could not find pedestals for channel: Eta/Phi" << iEta <<"/"<< iPhi  << "\n ";
 		  continue;
 		}
-		
+
 		item.mean_x1  = aped.mean_x1;
 		item.rms_x1   = aped.rms_x1;
 		item.mean_x6  = aped.mean_x6;
 		item.rms_x6   =  aped.rms_x6;
 		item.mean_x12 = aped.mean_x12;
 		item.rms_x12  =  aped.rms_x12;
-		
-		peds->m_pedestals.insert(std::make_pair(ebdetid.rawId(),item));
+
+		peds->insert(std::make_pair(ebdetid,item));
 	      }
 	    }
 
@@ -271,11 +271,11 @@ void EcalPedestalTransfer::analyze( const edm::Event& evt, const edm::EventSetup
 	    item.rms_x12  =rd_ped.getPedRMSG12();
 	    
 	    EBDetId ebdetid(iEta,iPhi);
-	    peds->m_pedestals.insert(std::make_pair(ebdetid.rawId(),item));
+	    peds->insert(std::make_pair(ebdetid.rawId(),item));
 	    
 	  }
 	    
-	  cout <<"Done creating the peds object : pedestal size is: "<< peds->m_pedestals.size() << endl;
+	  cout <<"Done creating the peds object : pedestal size is: "<< peds->getMap().size() << endl;
 	 
 	  cout << "Starting offline DB Transaction for run " << irun << "..." << flush;
 	  

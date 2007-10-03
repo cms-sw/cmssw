@@ -11,7 +11,7 @@
 //
 // Original Author:  Vladlen Timciuc
 //         Created:  Wed Jul  4 13:55:56 CEST 2007
-// $Id$
+// $Id: EcalGetLaserData.cc,v 1.1 2007/09/09 12:59:18 torimoto Exp $
 //
 //
 
@@ -188,8 +188,8 @@ EcalGetLaserData::analyze(const edm::Event& evt, const edm::EventSetup& evtSetup
       edm::ESHandle<EcalLaserAPDPNRatiosRef> handle;
       evtSetup.get<EcalLaserAPDPNRatiosRefRcd>().get(handle);
 
-      EcalLaserAPDPNRatiosRef::EcalLaserAPDPNref apdpnref;      
-      const EcalLaserAPDPNRatiosRef::EcalLaserAPDPNRatiosRefMap& laserRefMap = handle.product()->getMap(); 
+      EcalLaserAPDPNref apdpnref;      
+      const EcalLaserAPDPNRatiosRefMap& laserRefMap = handle.product()->getMap(); 
       
       // first barrel
       for(int iEta=-EBDetId::MAX_IETA; iEta<=EBDetId::MAX_IETA ;++iEta) {
@@ -251,8 +251,8 @@ EcalGetLaserData::analyze(const edm::Event& evt, const edm::EventSetup& evtSetup
       evtSetup.get<EcalLaserAlphasRcd>().get(handle);
 
       // this is the offline object 
-      EcalLaserAlphas::EcalLaserAlpha alpha;     
-      const EcalLaserAlphas::EcalLaserAlphaMap& laserAlphaMap = handle.product()->getMap(); // map of apdpns
+      EcalLaserAlpha alpha;     
+      const EcalLaserAlphaMap& laserAlphaMap = handle.product()->getMap(); // map of apdpns
 
       // first barrel
       for(int iEta=-EBDetId::MAX_IETA; iEta<=EBDetId::MAX_IETA ;++iEta) {
