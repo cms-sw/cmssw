@@ -50,7 +50,7 @@ std::auto_ptr<EcalTPGPedestals> EcalTrigPrimESProducer::producePedestals(const E
   for (int subdet=0 ; subdet<2 ; subdet++) {
     std::map<uint32_t, std::vector<uint32_t> >::const_iterator it ;
     for (it = mapXtal_[subdet].begin() ; it != mapXtal_[subdet].end() ; it++) {
-      EcalTPGPedestals::Item item ;
+      EcalTPGPedestal item ;
       item.mean_x12 = (it->second)[0] ;
       item.mean_x6  = (it->second)[3] ;
       item.mean_x1  = (it->second)[6] ;
@@ -67,7 +67,7 @@ std::auto_ptr<EcalTPGLinearizationConst> EcalTrigPrimESProducer::produceLineariz
   for (int subdet=0 ; subdet<2 ; subdet++) {
    std::map<uint32_t, std::vector<uint32_t> >::const_iterator it ;
     for (it = mapXtal_[subdet].begin() ; it != mapXtal_[subdet].end() ; it++) {
-      EcalTPGLinearizationConst::Item item ;
+      EcalTPGLinearizationConstant item ;
       item.mult_x12 = (it->second)[1] ;
       item.mult_x6  = (it->second)[4] ;
       item.mult_x1  = (it->second)[7] ;

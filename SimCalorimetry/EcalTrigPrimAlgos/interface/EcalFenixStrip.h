@@ -31,7 +31,6 @@
 
 class EBDataFrame;
 class EcalTriggerPrimitiveSample;
-class EcalTPGPedestals;
 class EcalTPGSlidingWindow;
 class EcalTPGFineGrainStripEE;
 class EcalFenixStripFgvbEE;

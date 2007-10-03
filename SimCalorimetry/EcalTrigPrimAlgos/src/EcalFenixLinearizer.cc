@@ -18,11 +18,13 @@ void EcalFenixLinearizer::setParameters(uint32_t raw, const EcalTPGPedestals * e
   const EcalTPGLinearizationConstMap & linMap = ecaltpLin->getMap() ; 
 
   EcalTPGLinearizationConstMapIterator it=linMap.find(raw);
-  if (it!=linMap.end()) linConsts_=&(*it).second;
+  if (it!=linMap.end()) {
+    linConsts_=&(*it);
+  }
   else edm::LogWarning("EcalTPG")<<" could not find EcalTPGLinearizationConstMap entry for "<<raw;
   const EcalTPGPedestalsMap & pedMap = ecaltpPed->getMap() ; 
   EcalTPGPedestalsMapIterator itped=pedMap.find(raw);
-  if (itped!=pedMap.end())   peds_=&(*itped).second;
+  if (itped!=pedMap.end())   peds_=&(*itped);
   else edm::LogWarning("EcalTPG")<<" could not find EcalTPGPedestalsMap entry for "<<raw;
 }
 
@@ -64,7 +66,6 @@ int EcalFenixLinearizer::setInput(const EcalMGPASample &RawSam)
 
   if (famos_) base_=200; //FIXME by preparing a correct TPG.txt for Famos
  
-  base_=150;    //FIXME, just for tests
   return 1;
 }
 

@@ -26,8 +26,8 @@
     int shift_;
     int strip_;
 
-    const EcalTPGLinearizationConst::Item *linConsts_;
-    const EcalTPGPedestals::Item *peds_;
+    const EcalTPGLinearizationConstant  *linConsts_;
+    const EcalTPGPedestal *peds_;
 
     int setInput(const EcalMGPASample &RawSam) ;
     int process() ;
