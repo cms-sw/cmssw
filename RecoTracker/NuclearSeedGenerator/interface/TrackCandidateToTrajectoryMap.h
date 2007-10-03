@@ -67,6 +67,19 @@ typedef edm::RefProd<TrackToTrajectoryMap> TrackToTrajectoryMapRefProd;
 typedef edm::RefVector<TrackToTrajectoryMap> TrackToTrajectoryMapRefVector;
 
 
+/// association map
+   typedef edm::AssociationMap<edm::OneToOne<reco::TrackCollection, reco::TrackCollection> > TrackToTrackMap;
+   typedef  TrackToTrackMap::value_type TrackToTrack;
+
+   /// reference to an object in a collection of SeedMap objects
+  typedef edm::Ref<TrackToTrackMap> TrackToTrackMapRef;
+
+  /// reference to a collection of SeedMap object
+  typedef edm::RefProd<TrackToTrackMap> TrackToTrackMapRefProd;
+
+  /// vector of references to objects in the same colletion of SeedMap objects
+  typedef edm::RefVector<TrackToTrackMap> TrackToTrackMapRefVector;
+
 
 
   
