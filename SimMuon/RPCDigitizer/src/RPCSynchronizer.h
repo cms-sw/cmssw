@@ -33,7 +33,7 @@ class RPCSynchronizer
 {
  public:
   RPCSynchronizer(const edm::ParameterSet& config);
-  ~RPCSynchronizer(){}
+  ~RPCSynchronizer();
   float getReadOutTime(const RPCDetId& rpcDetId);
   void setReadOutTime(const RPCGeometry*);
   int getSimHitBx(const PSimHit*);

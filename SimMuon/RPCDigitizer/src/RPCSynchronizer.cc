@@ -92,7 +92,7 @@ void RPCSynchronizer::setReadOutTime(const RPCGeometry* geo){
 	for(std::vector<const RPCRoll*>::iterator r = rollsRaf.begin();
 	    r != rollsRaf.end(); ++r){
 	  
-	  if((*r)->id().region() == 0){
+	  //	  if((*r)->id().region() == 0){
 	  
 	  const BoundPlane & RPCSurface = (*r)->surface(); 
 	  GlobalPoint CenterPointRollGlobal = RPCSurface.toGlobal(LocalPoint(0,0,0));
@@ -101,7 +101,7 @@ void RPCSynchronizer::setReadOutTime(const RPCGeometry* geo){
 	  
 	  _bxmap[(*r)->id()] = time*1e+9;
 	  
-	  }
+	  //	  }
 	}
       }
     }
@@ -139,13 +139,16 @@ int RPCSynchronizer::getSimHitBx(const PSimHit* simhit)
       std::vector< const RPCRoll*> rollsRaf = (ch->rolls());
       for(std::vector<const RPCRoll*>::iterator r = rollsRaf.begin();
 	  r != rollsRaf.end(); ++r){
+
+	//	if((*r)->id().region() == 0){
 	
 	  if((*r)->id() == SimDetId) {
 	    SimRoll = &(*(*r));
 	    const BoundPlane & RPCSurface = (*r)->surface(); 
 	    GlobalPoint CenterPointRollGlobal = RPCSurface.toGlobal(LocalPoint(0,0,0));
 	    break;
-	  }	  
+	  }
+	  //	}	  
       }
     }
   }
@@ -175,7 +178,7 @@ int RPCSynchronizer::getSimHitBx(const PSimHit* simhit)
     if(cosmics){
       time_differ = total_time/37.62 - ( this->getReadOutTime(RPCDetId(simhit->detUnitId())) + ((stripL/(2*sspeed*3e+10) ) + timOff)/37.62);
     }
-    else{
+    else if(!cosmics){
       time_differ = total_time - ( this->getReadOutTime(RPCDetId(simhit->detUnitId())) + ( stripL/(2*sspeed*3e+10) ) + timOff);
     }
 
@@ -187,7 +190,7 @@ int RPCSynchronizer::getSimHitBx(const PSimHit* simhit)
 	inf_time = -lbGate/(2*37.62) + n*lbGate/37.62;
 	sup_time = lbGate/(2*37.62) + n*lbGate/37.62;
       }
-      else{
+      else if(!cosmics){
 	inf_time = -lbGate/2 + n*lbGate;
 	sup_time = lbGate/2 + n*lbGate;
       }
@@ -282,6 +285,8 @@ int RPCSynchronizer::getDigiBx(const PSimHit* simhit, int centralstrip, int stri
   return bx;
 }
 
-
+RPCSynchronizer::~RPCSynchronizer(){
+  delete infile;
+}
 
 
