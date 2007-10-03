@@ -98,6 +98,7 @@ MuonErrorMatrix::MuonErrorMatrix(const edm::ParameterSet & iConfig){
 	  pf = (TProfile3D *)theF->Get(pfname);
 	  //	  pf = new TProfile3D(*pf); //make a copy of it
 	  theData[Pindex(i,j)]=pf;
+	  theData_fast[i][j]=pf;	  theData_fast[j][i]=pf;
 	}
 	else{
 	  //	  curvilinear coordinate system
@@ -121,6 +122,7 @@ MuonErrorMatrix::MuonErrorMatrix(const edm::ParameterSet & iConfig){
 	}
 	LogDebug(theCategory)<<" index "<<i<<":"<<j<<" -> "<<Pindex(i,j);
 	theData[Pindex(i,j)]=pf;
+	theData_fast[i][j]=pf;	  theData_fast[j][i]=pf;
 	if (!pf){
 	  edm::LogError(theCategory)<<" profile "<<pfname<<" in file "<<fileName<<" is not valid. exiting.";
 	  exit(1);
@@ -155,6 +157,43 @@ CurvilinearTrajectoryError MuonErrorMatrix::get(GlobalVector momentum)  {
   for (int i=0;i!=5;i++){for (int j=i;j!=5;j++){
       V(i,j) = Value(momentum,i,j);}}
   return CurvilinearTrajectoryError(V);}
+
+CurvilinearTrajectoryError MuonErrorMatrix::getFast(GlobalVector momentum) {
+  //will be faster but make assumptions that could be broken at some point
+  //  same bining for all TProfile
+  AlgebraicSymMatrix55 V;
+
+  double pT = momentum.perp();
+  double eta = fabs(momentum.eta());
+  double phi = momentum.phi();
+
+  //assume all the same axis in X,Y,Z
+  int iBin_x= findBin(theData_fast[0][0]->GetXaxis(),pT);
+  int iBin_y= findBin(theData_fast[0][0]->GetYaxis(),eta);
+  int iBin_z= findBin(theData_fast[0][0]->GetZaxis(),phi);
+
+  //retreive values
+  double values[5][5]; //sigma_i and rho_ij
+  for (int i=0;i!=5;i++){for (int j=i;j!=5;j++){
+      values[i][j]=theData_fast[i][j]->GetBinContent(iBin_x, iBin_y, iBin_z);
+    }}
+
+  for (int i=0;i!=5;i++){for (int j=i;j!=5;j++){
+      if (i==j){
+        //sigma_i * sigma_i
+        V(i,j) = values[i][j];
+        V(i,j)*=V(i,j);
+      }
+      else{
+        //sigma_i * sigma_j * rho_ij
+        V(i,j) = values[i][i] * values[j][j] * values[i][j];
+      }
+    }}
+
+  return CurvilinearTrajectoryError(V);}
+
+
+
 
 /*CurvilinearTrajectoryError MuonErrorMatrix::get_random(GlobalVector momentum)  { 
   static TRandom2 rand;
@@ -208,15 +247,13 @@ double MuonErrorMatrix::Value(GlobalVector & momentum, int i, int j)  {
     int iBin_j_z = findBin(jj->GetZaxis(),phi);
 
     double corr = ij->GetBinContent(iBin_x,iBin_y,iBin_z);
-    double sigma2_1 = (ii->GetBinContent(iBin_i_x,iBin_i_y,iBin_i_z));
-    double sigma2_2 = (jj->GetBinContent(iBin_j_x,iBin_j_y,iBin_j_z));
-    double sigma_1 = sqrt(sigma2_1);
-    double sigma_2 = sqrt(sigma2_2);
+    double sigma_1 = (ii->GetBinContent(iBin_i_x,iBin_i_y,iBin_i_z));
+    double sigma_2 = (jj->GetBinContent(iBin_j_x,iBin_j_y,iBin_j_z));
 
     LogDebug(theCategory)<<"for: (pT,eta,phi)=("<<pT<<", "<<eta<<", "<<phi<<") nterms are"
 		       <<"\nrho["<<i<<","<<j<<"]: "<<corr<<" ["<< iBin_x<<", "<<iBin_y<<", "<<iBin_z<<"]"
-		       <<"\nsigma^2["<<i<<","<<i<<"]: "<< sigma2_1<<" ["<< iBin_i_x<<", "<<iBin_i_y<<", "<<iBin_i_z<<"]"
-		       <<"\nsigma^2["<<j<<","<<j<<"]: "<< sigma2_2<<" ["<< iBin_i_x<<", "<<iBin_i_y<<", "<<iBin_i_z<<"]"
+      //		       <<"\nsigma^2["<<i<<","<<i<<"]: "<< sigma2_1<<" ["<< iBin_i_x<<", "<<iBin_i_y<<", "<<iBin_i_z<<"]"
+      //		       <<"\nsigma^2["<<j<<","<<j<<"]: "<< sigma2_2<<" ["<< iBin_i_x<<", "<<iBin_i_y<<", "<<iBin_i_z<<"]"
 		       <<"\nsigma["<<i<<","<<i<<"]: "<< sigma_1
 		       <<"\nsigma["<<j<<","<<j<<"]: "<< sigma_2;
     
@@ -228,6 +265,7 @@ double MuonErrorMatrix::Value(GlobalVector & momentum, int i, int j)  {
     //return the variance = sigma_1 **2
     //    result=ij->GetBinContent(iBin);
     result=ij->GetBinContent(iBin_x,iBin_y,iBin_z);
+    result*=result;
     LogDebug(theCategory)<<"for: (pT,eta,phi)=("<<pT<<", "<<eta<<", "<<phi<<") sigma^2["<<i<<","<<j<<"] is: "<<result;
     return result;
   }
