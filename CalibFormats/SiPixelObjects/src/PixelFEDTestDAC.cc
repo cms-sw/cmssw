@@ -14,7 +14,7 @@ PixelFEDTestDAC::PixelFEDTestDAC(std::string filename){
   const unsigned long int B=500;
   const unsigned long int offset=0;
   vector <unsigned int> pulseTrain(256), pixelDCol(1), pixelPxl(2), pixelTBMHeader(3), pixelTBMTrailer(3);
-  unsigned int DCol, LorR, start=5;
+  unsigned int DCol, LorR, start=10;
   std::string line;
   std::string::size_type loc1, loc2, loc3, loc4;
   unsigned long int npos=std::string::npos;
@@ -33,7 +33,8 @@ PixelFEDTestDAC::PixelFEDTestDAC(std::string filename){
   getline(fin, line);
   mode_=line;
   assert(mode_=="EmulatedPhysics"||
-         mode_=="FEDBaselineWithTestDACs");
+         mode_=="FEDBaselineWithTestDACs"||
+         mode_=="FEDAddressLevelCalibrationWithTestDACs");
 
   while (!fin.eof())
     {
@@ -50,7 +51,8 @@ PixelFEDTestDAC::PixelFEDTestDAC(std::string filename){
 	  pulseTrain[i]=UB;++i;
 	  pulseTrain[i]=B;++i;
 	  
-	  pixelTBMHeader=decimalToBaseX(TBMHeader, 6, 4);
+	  pixelTBMHeader=decimalToBaseX(TBMHeader, 4, 4);
+
 	  pulseTrain[i]=levelEncoder(pixelTBMHeader[3]);++i;
 	  pulseTrain[i]=levelEncoder(pixelTBMHeader[2]);++i;
 	  pulseTrain[i]=levelEncoder(pixelTBMHeader[1]);++i;
