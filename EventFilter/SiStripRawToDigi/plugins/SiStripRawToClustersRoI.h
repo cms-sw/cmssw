@@ -33,6 +33,8 @@ class SiStripRawToClustersRoI : public edm::EDProducer {
 
   typedef edm::SiStripLazyGetter<SiStripCluster> LazyGetter;
   typedef edm::SiStripRefGetter<SiStripCluster> RefGetter;
+  typedef SiStripRegionCabling::Position Position;
+  typedef SiStripRegionCabling::SubDet SubDet;
 
   SiStripRawToClustersRoI( const edm::ParameterSet& );
   ~SiStripRawToClustersRoI();
@@ -44,7 +46,7 @@ class SiStripRawToClustersRoI : public edm::EDProducer {
  private: 
 
   /** Defines allowed physical layer numbers */
-  bool physicalLayer(SiStripRegionCabling::SubDet&, uint32_t&) const;
+  bool physicalLayer(SubDet&, uint32_t&) const;
 
   /** Defines regions of interest randomly */
   void random(RefGetter&, edm::Handle<LazyGetter>&) const;
@@ -53,19 +55,22 @@ class SiStripRawToClustersRoI : public edm::EDProducer {
   void global(RefGetter&, edm::Handle<LazyGetter>&) const;
   
   /** Defines regions of interest by superclusters */
-  void superclusters(const reco::SuperClusterCollection&, RefGetter&, edm::Handle<LazyGetter>&) const;
+  void electrons(const reco::SuperClusterCollection&, RefGetter&, edm::Handle<LazyGetter>&) const;
 
   /** Defines regions of interest by muons */
   void muons(const reco::TrackCollection&, RefGetter&, edm::Handle<LazyGetter>&) const;
 
-  /** Defines regions of interest by taus */
-  void taus(const reco::CaloJetCollection&, RefGetter&, edm::Handle<LazyGetter>&) const;
+  /** Defines regions of interest by taujets */
+  void taujets(const reco::CaloJetCollection&, RefGetter&, edm::Handle<LazyGetter>&) const;
 
   /** Defines regions of interest by bjets */
   void bjets(const reco::CaloJetCollection&, RefGetter&, edm::Handle<LazyGetter>&) const;
 
   /** Cabling */
   edm::ESHandle<SiStripRegionCabling> cabling_;
+
+  /** Record of all region numbers */
+  std::vector<uint32_t> allregions_;
 
   /** Input module label of SiStripLazyGetter */
   std::string inputModuleLabel_;
@@ -78,28 +83,23 @@ class SiStripRawToClustersRoI : public edm::EDProducer {
   bool random_;
   bool electrons_;
   bool muons_;
-  bool taus_;
+  bool taujets_;
   bool bjets_;
 
   /** reco module labels to define regions of interest */
-  std::string electronBarrelModule_;
-  std::string electronBarrelProduct_;
-  std::string electronEndcapModule_;
-  std::string electronEndcapProduct_;
-  std::string muonModule_;
-  std::string muonProduct_;
-  std::string tauModule_;
-  std::string tauProduct_;
-  std::string bjetModule_;
-  std::string bjetProduct_;
+  edm::InputTag electronBarrelL2_;
+  edm::InputTag electronEndcapL2_;
+  edm::InputTag muonL2_;
+  edm::InputTag taujetL2_;
+  edm::InputTag bjetL2_;
 
   /** deta/dphi to define regions of interest around physics objects */
   double electrondeta_;
   double electrondphi_;
   double muondeta_;
   double muondphi_;
-  double taudeta_;
-  double taudphi_;
+  double taujetdeta_;
+  double taujetdphi_;
   double bjetdeta_;
   double bjetdphi_;
 };
