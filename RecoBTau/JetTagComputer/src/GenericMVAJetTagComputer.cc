@@ -57,9 +57,9 @@ void GenericMVAJetTagComputer::setEventSetup(const edm::EventSetup &es) const
 	computerCache.update(calib);
 }
 
-float GenericMVAJetTagComputer::discriminator(const BaseTagInfo &baseTag) const
+float GenericMVAJetTagComputer::discriminator(const TagInfoHelper &info) const
 {
-	TaggingVariableList variables = baseTag.taggingVariables();
+	TaggingVariableList variables = taggingVariables(info);
 
 	// retrieve index of computer in case categories are used
 	int index = 0;
@@ -77,10 +77,24 @@ float GenericMVAJetTagComputer::discriminator(const BaseTagInfo &baseTag) const
 			<< categorySelector->getCategoryLabels()[index]
 			<< "\"." << std::endl;
 
+	return computer->eval(variables);
+}
+
+TaggingVariableList
+GenericMVAJetTagComputer::taggingVariables(const BaseTagInfo &baseTag) const
+{
+	TaggingVariableList variables = baseTag.taggingVariables();
+
 	// add jet pt and jet eta variables (ordering irrelevant)
 	edm::RefToBase<Jet> jet = baseTag.jet();
 	variables.push_back(TaggingVariable(btau::jetPt, jet->pt()));
 	variables.push_back(TaggingVariable(btau::jetEta, jet->eta()));
 
-	return computer->eval(variables);
+	return variables;
+}
+
+TaggingVariableList
+GenericMVAJetTagComputer::taggingVariables(const TagInfoHelper &info) const
+{
+	return taggingVariables(info.getBase(0));
 }
