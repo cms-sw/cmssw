@@ -542,8 +542,9 @@ void HCALRecHitAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup
     double ET = Energy*TMath::Sin(theta);
 
     me["hHCAL_D4_energy_ieta_iphi"]->Fill(ieta,iphi,Energy);
+    me["hHCAL_D4_energyvsieta"]->Fill(ieta,Energy);     
     me["hHCAL_D4_Occ_ieta_iphi"]->Fill(ieta,iphi);
-   
+
     TLorentzVector v_; 
     if (Energy>0) // zero suppress
       {
@@ -559,7 +560,7 @@ void HCALRecHitAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup
   // Fill eta-ring MET quantities
   for (int iEtaRing=0; iEtaRing<83; iEtaRing++) {
 
-    if (HBHEActiveRing[iEtaRing]) {
+    if (HOActiveRing[iEtaRing]) {
 
       me["hHCAL_D4_METPhivsieta"]->Fill(iEtaRing-41, vHOMET_EtaRing[iEtaRing].Phi());
       me["hHCAL_D4_MExvsieta"]->Fill(iEtaRing-41, vHOMET_EtaRing[iEtaRing].Px());
