@@ -3,48 +3,260 @@
 #include "TH2F.h"
 #include "TCanvas.h"
 #include "TStyle.h"
+#include "TRegexp.h"
+#include "TGraphErrors.h"
 #include "iostream"
 #include "vector"
 #include "map"
 #include "TTreeFormula.h"
+#include "GetOptimization.h"
+
+struct filter {
+  TString name;
+  Int_t pathNum;
+  Int_t direction; // -1: <, 0: bool, 1: >
+  Double_t hltCut;
+  Double_t maxCut;
+};
+
+struct path {
+  std::vector<TString> names;
+  Int_t nCandsCut;
+  std::vector<filter> filters;
+};
 
 void GetOptimization() {
-  Int_t i = 0, j = 0;
+  struct path thisPath;
+  std::vector<path> paths;
+  std::vector<TString> pathNames;
+  struct filter thisFilter;
+  std::vector<filter> filters;
+  std::vector<std::pair<std::vector<TString>,Double_t> > xSections;
+  std::vector<TString> filenamesBkg;
+  std::vector<TString> filenamesSig;
+  /* Parameters */
+  Int_t nCuts = 120;
+
+  Double_t luminosity = 2.0E33; // in cm^-2 s^-1
+
+  // Cross-sections in mb
+  filenamesBkg.push_back("../test/QCD-HLTVars-1.root");
+  // filenamesBkg.push_back("sameXSection");
+  xSections.push_back(make_pair(filenamesBkg, 2.16E-2));
+  filenamesBkg.clear();
+  // filenamesBkg.push_back("newXSection.root");
+  // ...
+  // xSections.push_back(make_pair(filenamesBkg, xSection));
+  // filenamesBkg.clear();
+  filenamesSig.push_back("../test/ZEE-HLTVars.root");
+
+  // Filters
+  thisFilter.name = "l1Match";
+  thisFilter.pathNum = 0;
+  thisFilter.direction =  0;
+  thisFilter.hltCut = 0.;
+  thisFilter.maxCut = 0.;
+  filters.push_back(thisFilter);
+  thisFilter.name = "Et";
+  thisFilter.pathNum = 0;
+  thisFilter.direction = 1;
+  thisFilter.hltCut = 15.;
+  thisFilter.maxCut = 60.;
+  filters.push_back(thisFilter);
+  thisFilter.name = "IHcal";
+  thisFilter.pathNum = 0;
+  thisFilter.direction = -1;
+  thisFilter.hltCut = 3.;
+  thisFilter.maxCut = 6.;
+  filters.push_back(thisFilter);
+  thisFilter.name = "pixMatch";
+  thisFilter.pathNum = 0;
+  thisFilter.direction = 1;
+  thisFilter.hltCut = 0;
+  thisFilter.maxCut = 0;
+  filters.push_back(thisFilter);
+  thisFilter.name = "Eoverp";
+  thisFilter.pathNum = 1;
+  thisFilter.direction = -1;
+  thisFilter.hltCut = 2.45;
+  thisFilter.maxCut = 5.;
+  filters.push_back(thisFilter);
+  thisFilter.name = "Itrack";
+  thisFilter.pathNum = 1;
+  thisFilter.direction = -1;
+  thisFilter.hltCut = 0.06;
+  thisFilter.maxCut = 0.24;
+  filters.push_back(thisFilter);
+  pathNames.push_back("ElecHLTCutVarsPreTracks_hltCutVars_SingleElecsPT_EGAMMAHLT.obj.");
+  pathNames.push_back("ElecHLTCutVarss_hltCutVars_SingleElecs_EGAMMAHLT.obj.");
+  thisPath.names = pathNames;
+  thisPath.nCandsCut = 1;
+  thisPath.filters = filters;
+  paths.push_back(thisPath);
+  pathNames.clear(); 
+  pathNames.push_back("ElecHLTCutVarsPreTracks_hltCutVars_RelaxedSingleElecsPT_EGAMMAHLT.obj.");
+  pathNames.push_back("ElecHLTCutVarss_hltCutVars_RelaxedSingleElecs_EGAMMAHLT.obj.");
+  thisPath.names = pathNames;
+  thisPath.nCandsCut = 1;
+  thisPath.filters = filters;
+  paths.push_back(thisPath);
+  pathNames.clear();
+  filters.clear();
+
+  thisFilter.name = "l1Match";
+  thisFilter.pathNum = 0;
+  thisFilter.direction =  0;
+  thisFilter.hltCut = 0.;
+  thisFilter.maxCut = 0.;
+  filters.push_back(thisFilter);
+  thisFilter.name = "Et";
+  thisFilter.pathNum = 0;
+  thisFilter.direction = 1;
+  thisFilter.hltCut = 10.;
+  thisFilter.maxCut = 40.;
+  filters.push_back(thisFilter);
+  thisFilter.name = "IHcal";
+  thisFilter.pathNum = 0;
+  thisFilter.direction = -1;
+  thisFilter.hltCut = 9.;
+  thisFilter.maxCut = 18.;
+  filters.push_back(thisFilter);
+  thisFilter.name = "pixMatch";
+  thisFilter.pathNum = 0;
+  thisFilter.direction = 1;
+  thisFilter.hltCut = 0;
+  thisFilter.maxCut = 0;
+  filters.push_back(thisFilter);
+  thisFilter.name = "Eoverp";
+  thisFilter.pathNum = 1;
+  thisFilter.direction = -1;
+  thisFilter.hltCut = 24500;
+  thisFilter.maxCut = 5.;
+  filters.push_back(thisFilter);
+  thisFilter.name = "Itrack";
+  thisFilter.pathNum = 1;
+  thisFilter.direction = -1;
+  thisFilter.hltCut = 0.4;
+  thisFilter.maxCut = 0.12;
+  filters.push_back(thisFilter);
+  pathNames.push_back("ElecHLTCutVarsPreTracks_hltCutVars_DoubleElecsPT_EGAMMAHLT.obj.");
+  pathNames.push_back("ElecHLTCutVarss_hltCutVars_DoubleElecs_EGAMMAHLT.obj.");
+  thisPath.names = pathNames;
+  thisPath.nCandsCut = 2;
+  thisPath.filters = filters;
+  paths.push_back(thisPath);
+  pathNames.clear(); 
+  pathNames.push_back("ElecHLTCutVarsPreTracks_hltCutVars_RelaxedDoubleElecsPT_EGAMMAHLT.obj.");
+  pathNames.push_back("ElecHLTCutVarss_hltCutVars_RelaxedDoubleElecs_EGAMMAHLT.obj.");
+  thisPath.names = pathNames;
+  thisPath.nCandsCut = 2;
+  thisPath.filters = filters;
+  paths.push_back(thisPath);
+  pathNames.clear();
+  filters.clear();
+
+  thisFilter.name = "l1Match";
+  thisFilter.pathNum = 0;
+  thisFilter.direction =  0;
+  thisFilter.hltCut = 0.;
+  thisFilter.maxCut = 0.;
+  filters.push_back(thisFilter);
+  thisFilter.name = "Et";
+  thisFilter.pathNum = 0;
+  thisFilter.direction = 1;
+  thisFilter.hltCut = 30.;
+  thisFilter.maxCut = 60.;
+  filters.push_back(thisFilter);
+  thisFilter.name = "IEcal";
+  thisFilter.pathNum = 0;
+  thisFilter.direction = -1;
+  thisFilter.hltCut = 1.5;
+  thisFilter.maxCut = 6.;
+  filters.push_back(thisFilter);
+  thisFilter.name = "IHcal";
+  thisFilter.pathNum = 0;
+  thisFilter.direction = -1;
+  thisFilter.hltCut = 6.;
+  thisFilter.maxCut = 12.;
+  filters.push_back(thisFilter);
+  thisFilter.name = "Itrack";
+  thisFilter.pathNum = 0;
+  thisFilter.direction = -1;
+  thisFilter.hltCut = 1;
+  thisFilter.maxCut = 5;
+  filters.push_back(thisFilter);
+  pathNames.push_back("PhotHLTCutVarss_hltCutVars_SinglePhots_EGAMMAHLT.obj.");
+  thisPath.names = pathNames;
+  thisPath.nCandsCut = 1;
+  thisPath.filters = filters;
+  paths.push_back(thisPath);
+  pathNames.clear(); 
+  pathNames.push_back("PhotHLTCutVarss_hltCutVars_RelaxedSinglePhots_EGAMMAHLT.obj.");
+  thisPath.names = pathNames;
+  thisPath.nCandsCut = 1;
+  thisPath.filters = filters;
+  paths.push_back(thisPath);
+  pathNames.clear();
+  filters.clear();
+
+  thisFilter.name = "l1Match";
+  thisFilter.pathNum = 0;
+  thisFilter.direction =  0;
+  thisFilter.hltCut = 0.;
+  thisFilter.maxCut = 0.;
+  filters.push_back(thisFilter);
+  thisFilter.name = "Et";
+  thisFilter.pathNum = 0;
+  thisFilter.direction = 1;
+  thisFilter.hltCut = 20.;
+  thisFilter.maxCut = 40.;
+  filters.push_back(thisFilter);
+  thisFilter.name = "IEcal";
+  thisFilter.pathNum = 0;
+  thisFilter.direction = -1;
+  thisFilter.hltCut = 2.5;
+  thisFilter.maxCut = 5.;
+  filters.push_back(thisFilter);
+  thisFilter.name = "IHcal";
+  thisFilter.pathNum = 0;
+  thisFilter.direction = -1;
+  thisFilter.hltCut = 8.;
+  thisFilter.maxCut = 24.;
+  filters.push_back(thisFilter);
+  thisFilter.name = "Itrack";
+  thisFilter.pathNum = 0;
+  thisFilter.direction = -1;
+  thisFilter.hltCut = 3;
+  thisFilter.maxCut = 6;
+  filters.push_back(thisFilter);
+  pathNames.push_back("PhotHLTCutVarss_hltCutVars_DoublePhots_EGAMMAHLT.obj.");
+  thisPath.names = pathNames;
+  thisPath.nCandsCut = 2;
+  thisPath.filters = filters;
+  paths.push_back(thisPath);
+  pathNames.clear(); 
+  pathNames.push_back("PhotHLTCutVarss_hltCutVars_RelaxedDoublePhots_EGAMMAHLT.obj.");
+  thisPath.names = pathNames;
+  thisPath.nCandsCut = 2;
+  thisPath.filters = filters;
+  paths.push_back(thisPath);
+  pathNames.clear();
+  filters.clear();
+
+  /* *********** */
+
+  Int_t cutNum = 0, pathNum = 0, filterNum = 0, oldFilterNum = 0, fileNum = 0, xSecNum = 0;
   Double_t cut = 0.;
-  Long64_t pass = 0, total = 0;
-  Double_t rate = 0., eff = 0., err = 0.;
-  Double_t xSection = 2.16E-2, lumi = 2.0E33, conversion = 1.0E-27;
+  Long64_t passSig = 0, totalSig = 0;
+  Long64_t passBkg = 0, totalBkg = 0;
+  Double_t effSig = 0., errSig = 0.;
+  Double_t effBkg = 0., errBkg = 0., rateTotBkg = 0., errTotBkg = 0.;
+  Double_t conversion = 1.0E-27;
   std::vector<std::pair<Double_t,Double_t> > sigPass;
   std::vector<std::pair<Double_t,Double_t> > bkgPass;
 
-  std::vector<Double_t> sSigMin;
-  std::vector<Double_t> rsSigMin;
-  std::vector<Double_t> dSigMin;
-  std::vector<Double_t> rdSigMin;
-  std::vector<Double_t> sBkgMin;
-  std::vector<Double_t> rsBkgMin;
-  std::vector<Double_t> dBkgMin;
-  std::vector<Double_t> rdBkgMin;
-
-  std::vector<Double_t> sSigMax;
-  std::vector<Double_t> rsSigMax;
-  std::vector<Double_t> dSigMax;
-  std::vector<Double_t> rdSigMax;
-  std::vector<Double_t> sBkgMax;
-  std::vector<Double_t> rsBkgMax;
-  std::vector<Double_t> dBkgMax;
-  std::vector<Double_t> rdBkgMax;
-
-  std::vector<std::vector<std::pair<Double_t,Double_t> > > sSigEff;
-  std::vector<std::vector<std::pair<Double_t,Double_t> > > rsSigEff;
-  std::vector<std::vector<std::pair<Double_t,Double_t> > > dSigEff;
-  std::vector<std::vector<std::pair<Double_t,Double_t> > > rdSigEff;
-  std::vector<std::vector<std::pair<Double_t,Double_t> > > sBkgRate;
-  std::vector<std::vector<std::pair<Double_t,Double_t> > > rsBkgRate;
-  std::vector<std::vector<std::pair<Double_t,Double_t> > > dBkgRate;
-  std::vector<std::vector<std::pair<Double_t,Double_t> > > rdBkgRate;
-
   TString cutText;
+  TString baseCutText;
   TString cutBasePT1;
   TString cutBasePT2;
   TString cutBase1;
@@ -54,29 +266,176 @@ void GetOptimization() {
   cutBase1 = "ElecHLTCutVarss_hltCutVars_";
   cutBase2 = "Elecs_EGAMMAHLT.obj.";
 
-  TChain *bkgEvents = new TChain("Events");
-  bkgEvents->Add("../test/QCD-HLTVars-1.root");
-  //  bkgEvents->Add("../test/QCD-HLTVars-2.root");
-  //  bkgEvents->Add("../test/QCD-HLTVars-3.root");
-  //  bkgEvents->Add("../test/QCD-HLTVars-4.root");
-  //  bkgEvents->Add("../test/QCD-HLTVars-5.root");
-  //  bkgEvents->Add("../test/QCD-HLTVars-6.root");
-  //  bkgEvents->Add("../test/QCD-HLTVars-7.root");
-  //  bkgEvents->Add("../test/QCD-HLTVars-8.root");
-  //  bkgEvents->Add("../test/QCD-HLTVars-9.root");
-  TChain *sigEvents = new TChain("Events");
-  sigEvents->Add("../test/ZEE-HLTVars.root");
-  for (i = 0; i < 120; i++) {
-    cout<<"Cut "<<i<<endl;
-    bkgPass.clear();
-    sigPass.clear();
+  std::vector<std::vector<TGraphErrors> > EffVBkg;
+  std::vector<TGraphErrors> pathEffVBkgs;
+  TGraphErrors filterEffVBkgs(nCuts);
+  for (pathNum = 0; pathNum < paths.size(); pathNum++) {
+    for (filterNum = 0; filterNum < (paths[pathNum].filters).size(); filterNum++) {
+      //      filterEffVBkgs = new TGraphErrors(nCuts);
+      pathEffVBkgs.push_back(filterEffVBkgs);
+    }
+    EffVBkg.push_back(pathEffVBkgs);
+  }
 
+  std::vector<std::pair<TChain*,Double_t> > bkgEvents;
+  for (xSecNum = 0; xSecNum < xSections.size(); xSecNum++) {
+    TChain *bkgProc = new TChain("Events");
+    for (fileNum = 0; fileNum < (xSections[xSecNum].first).size(); fileNum++) {
+      bkgProc->Add((xSections[xSecNum].first)[fileNum]);
+    }
+    bkgEvents.push_back(make_pair(bkgProc,xSections[xSecNum].second));
+  }
+
+  TChain *sigEvents = new TChain("Events");
+  for (fileNum = 0; fileNum < filenamesSig.size(); fileNum++) {
+    sigEvents->Add(filenamesSig[fileNum]);
+  }
+
+  Double_t testX, testY, testdX, testdY;
+  for (cutNum = 0; cutNum < nCuts; cutNum++) {
+    cout<<"Cut "<<cutNum<<endl;
+  
+    for (pathNum = 0; pathNum < paths.size(); pathNum++) {
+      for (filterNum = 0; filterNum < (paths[pathNum].filters).size(); filterNum++) {
+	if ((paths[pathNum].filters)[filterNum].maxCut != 0.) {
+	  cutText = "(Sum$(";
+	  for (oldFilterNum = 0; oldFilterNum < filterNum; oldFilterNum++) { 
+	    cutText += (paths[pathNum].names)[(paths[pathNum].filters)[filterNum].pathNum];
+	    cutText += (paths[pathNum].filters)[oldFilterNum].name;
+	    switch ((paths[pathNum].filters)[oldFilterNum].direction) {
+	    case -1:
+	      cutText += " < ";
+	      cutText += (paths[pathNum].filters)[oldFilterNum].hltCut;
+	      break;
+	    case 0:
+	      break;
+	    case 1:
+	      cutText += " > ";
+	      cutText += (paths[pathNum].filters)[oldFilterNum].hltCut;
+	      break;
+	    default:
+	      cout<<"Invalid value of direction in "<<paths[pathNum].names[(paths[pathNum].filters)[filterNum].pathNum]<<(paths[pathNum].filters)[oldFilterNum].name<<endl;
+	      break;
+	    }
+	    if (oldFilterNum != filterNum - 1) cutText += " && ";
+	  }
+	  baseCutText = cutText;
+	  baseCutText += ") >= ";
+	  baseCutText += paths[pathNum].nCandsCut;
+	  baseCutText += ")";
+	  cutText += " && ";
+	  cutText += paths[pathNum].names[(paths[pathNum].filters)[filterNum].pathNum];
+	  cutText += (paths[pathNum].filters)[filterNum].name;
+	  cut = (Double_t)cutNum / (Double_t)nCuts * (paths[pathNum].filters)[oldFilterNum].maxCut;
+	  switch ((paths[pathNum].filters)[filterNum].direction) {
+	  case -1:
+	    cutText += " < ";
+	    cutText += cut;
+	    break;
+	  case 0:
+	    break;
+	  case 1:
+	    cutText += " > ";
+	    cutText += cut;
+	    break;
+	  default:
+	    cout<<"Invalid value of direction in "<<paths[pathNum].names[(paths[pathNum].filters)[filterNum].pathNum]<<(paths[pathNum].filters)[oldFilterNum].name<<endl;
+	    break;
+	  }
+	  cutText += ") >= ";
+	  cutText += paths[pathNum].nCandsCut;
+	  cutText += ")";
+	  //	  cout<<cutText<<endl;
+	  //	  cout<<baseCutText<<endl;
+	  passSig = sigEvents->Draw("",cutText);
+	  totalSig = sigEvents->Draw("",baseCutText);
+	  if (totalSig != 0) {
+	    effSig = (Double_t)passSig / (Double_t)totalSig;
+	    errSig = sqrt(effSig * (1. - effSig) / (Double_t)totalSig);
+	  }
+	  else {
+	    effSig = 0.;
+	    errSig = 0.;
+	  }
+	  rateTotBkg = 0.;
+	  errTotBkg = 0.;
+	  for (xSecNum = 0; xSecNum < bkgEvents.size(); xSecNum++) {
+	    passBkg = bkgEvents[xSecNum].first->Draw("",cutText);
+	    totalBkg = bkgEvents[xSecNum].first->Draw("","");
+	    if (totalBkg != 0) {
+	      effBkg = (Double_t)passBkg / (Double_t)totalBkg;
+	      errBkg = sqrt(effBkg * (1. - effBkg) / (Double_t)totalBkg);
+	    }
+	    else {
+	      effBkg = 0.;
+	      errBkg = 0.;
+	    }
+	    rateTotBkg += effBkg * bkgEvents[xSecNum].second * luminosity * conversion;
+	    errTotBkg = sqrt(errTotBkg * errTotBkg + errBkg * errBkg * bkgEvents[xSecNum].second * luminosity * conversion * bkgEvents[xSecNum].second * luminosity * conversion);
+	  }
+	  if (cutNum == 6) {
+	    cout<<cutText<<endl;
+            cout<<rateTotBkg<<" +- "<<errTotBkg<<", "<<effSig<<" +- "<<errSig<<endl;;
+	  }
+	  EffVBkg[pathNum][filterNum].SetPoint(cutNum, rateTotBkg, effSig);
+	  EffVBkg[pathNum][filterNum].SetPointError(cutNum, errTotBkg, errSig);
+	  if (cutNum == 6) {
+            EffVBkg[pathNum][filterNum].GetPoint(cutNum, testX, testY);
+	    cout<<testX<<", "<<testY<<endl;
+	  }
+	}
+      }
+    }
+  }
+  TCanvas *myCanvas;
+  TString tempPathName, canvasTitle, graphTitle, outFilename;
+  Int_t n;
+  Int_t nGraphs, curGraph;
+  for (pathNum = 0; pathNum < paths.size(); pathNum++) {
+    canvasTitle = "Efficiency vs. Background for ";
+    tempPathName = paths[pathNum].names[paths[pathNum].filters[(paths[pathNum].filters).size()-1].pathNum];
+    tempPathName.Replace(0, tempPathName.Index("_", 1, 0, TString::kExact), "", 0);
+    tempPathName.Remove(TString::kLeading, '_');
+    tempPathName.Replace(0, tempPathName.Index("_", 1, 0, TString::kExact), "", 0);
+    tempPathName.Remove(TString::kLeading, '_');
+    tempPathName.Resize(tempPathName.Index("_", 1, 0, TString::kExact));
+    outFilename = "./images/";
+    outFilename += tempPathName;
+    outFilename += "EffVBkg.gif";
+    n = 0;
+    while (tempPathName.Contains(TRegexp("[a-z][A-Z]")) && n < 10) {
+      tempPathName.Insert(tempPathName.Index(TRegexp("[a-z][A-Z]"))+1, " ");
+      n++;
+    }
+    canvasTitle += tempPathName;
+    nGraphs = 0;
+    for (filterNum = 0; filterNum < (paths[pathNum].filters).size(); filterNum++) {
+      if ((paths[pathNum].filters)[filterNum].maxCut != 0) nGraphs++;
+    }
+    myCanvas = new TCanvas("myCanvas", canvasTitle, 0, 0, 1000, 500*(nGraphs / 2 + 1));
+    myCanvas->Divide(2,nGraphs / 2 + 1);
+    curGraph = 0;
+    for (filterNum = 0; filterNum < (paths[pathNum].filters).size(); filterNum++) {
+      if ((paths[pathNum].filters)[filterNum].maxCut != 0.) {
+        myCanvas->cd(curGraph+1);
+	curGraph++;
+        graphTitle = "Efficiency vs. Background for ";
+	graphTitle += (paths[pathNum].filters)[filterNum].name;
+	graphTitle += " Filter;Background Rate (Hz);Signal Eff.";
+	EffVBkg[pathNum][filterNum].SetTitle(graphTitle);
+	EffVBkg[pathNum][filterNum].Draw("AP");
+      }
+    }
+    myCanvas->Print(outFilename);
+  }
+}
+    /*
     cut = (Double_t)i / 120. * 60.;
     cutText = "(Sum$(ElecHLTCutVarsPreTracks_hltCutVars_SingleElecsPT_EGAMMAHLT.obj.l1Match && ElecHLTCutVarsPreTracks_hltCutVars_SingleElecsPT_EGAMMAHLT.obj.Et > ";
     cutText += cut;
     cutText += ") >= 1)";
     pass = bkgEvents->Draw("",cutText);
-    total = bkgEvents->Draw("","(Sum$(ElecHLTCutVarsPreTracks_hltCutVars_SingleElecsPT_EGAMMAHLT.obj.l1Match) >= 1)");
+    total = bkgEvents->Draw("","");
     if (total != 0) {
       eff = (Double_t)pass / (Double_t)total;
       rate = eff * xSection * lumi * conversion;
@@ -87,6 +446,7 @@ void GetOptimization() {
       err = 0.;
     }
     bkgPass.push_back(make_pair(rate, err));
+    cout<<rate<<", "<<err<<", ";
     pass = sigEvents->Draw("",cutText);
     total = sigEvents->Draw("","(Sum$(ElecHLTCutVarsPreTracks_hltCutVars_SingleElecsPT_EGAMMAHLT.obj.l1Match) >= 1)");
     if (total != 0) {
@@ -98,13 +458,14 @@ void GetOptimization() {
       err = 0.;
     }
     sigPass.push_back(make_pair(eff, err));
+    cout<<eff<<", "<<err<<endl;
 
     cut = (Double_t)i / 120. * 12.;
     cutText = "(Sum$(ElecHLTCutVarsPreTracks_hltCutVars_SingleElecsPT_EGAMMAHLT.obj.l1Match && ElecHLTCutVarsPreTracks_hltCutVars_SingleElecsPT_EGAMMAHLT.obj.Et > 15. && ElecHLTCutVarsPreTracks_hltCutVars_SingleElecsPT_EGAMMAHLT.obj.IHcal < ";
     cutText += cut;
     cutText += ") >= 1)";
     pass = bkgEvents->Draw("",cutText);
-    total = bkgEvents->Draw("","(Sum$(ElecHLTCutVarsPreTracks_hltCutVars_SingleElecsPT_EGAMMAHLT.obj.l1Match && ElecHLTCutVarsPreTracks_hltCutVars_SingleElecsPT_EGAMMAHLT.obj.Et > 15.) >= 1)");
+    total = bkgEvents->Draw("","");
     if (total != 0) {
       eff = (Double_t)pass / (Double_t)total;
       rate = eff * xSection * lumi * conversion;
@@ -132,7 +493,7 @@ void GetOptimization() {
     cutText += cut;
     cutText += ") >= 1)";
     pass = bkgEvents->Draw("",cutText); 
-    total = bkgEvents->Draw("","(Sum$(ElecHLTCutVarss_hltCutVars_SingleElecs_EGAMMAHLT.obj.l1Match && ElecHLTCutVarss_hltCutVars_SingleElecs_EGAMMAHLT.obj.Et > 15. &&  ElecHLTCutVarss_hltCutVars_SingleElecs_EGAMMAHLT.obj.IHcal < 3. && ElecHLTCutVarss_hltCutVars_SingleElecs_EGAMMAHLT.obj.pixMatch >= 1) >= 1)");
+    total = bkgEvents->Draw("","");
     if (total != 0) { 
       eff = (Double_t)pass / (Double_t)total;
       rate = eff * xSection * lumi * conversion;
@@ -160,7 +521,7 @@ void GetOptimization() {
     cutText += cut;
     cutText += ") >= 1)";
     pass = bkgEvents->Draw("",cutText); 
-    total = bkgEvents->Draw("","(Sum$(ElecHLTCutVarss_hltCutVars_SingleElecs_EGAMMAHLT.obj.l1Match && ElecHLTCutVarss_hltCutVars_SingleElecs_EGAMMAHLT.obj.Et > 15. &&  ElecHLTCutVarss_hltCutVars_SingleElecs_EGAMMAHLT.obj.IHcal < 3. && ElecHLTCutVarss_hltCutVars_SingleElecs_EGAMMAHLT.obj.pixMatch >= 1 && ElecHLTCutVarss_hltCutVars_SingleElecs_EGAMMAHLT.obj.Eoverp < 2.45) >= 1)");
+    total = bkgEvents->Draw("","");
     if (total != 0) { 
       eff = (Double_t)pass / (Double_t)total;
       rate = eff * xSection * lumi * conversion;
@@ -188,7 +549,7 @@ void GetOptimization() {
     cutText += cut;
     cutText += ") >= 1)";
     pass = bkgEvents->Draw("",cutText); 
-    total = bkgEvents->Draw("","(Sum$(PhotHLTCutVarss_hltCutVars_SinglePhots_EGAMMAHLT.obj.l1Match) >= 1)");
+    total = bkgEvents->Draw("","");
     if (total != 0) { 
       eff = (Double_t)pass / (Double_t)total;
       rate = eff * xSection * lumi * conversion;
@@ -216,7 +577,7 @@ void GetOptimization() {
     cutText += cut;
     cutText += ") >= 1)";
     pass = bkgEvents->Draw("",cutText); 
-    total = bkgEvents->Draw("","(Sum$(PhotHLTCutVarss_hltCutVars_SinglePhots_EGAMMAHLT.obj.l1Match && PhotHLTCutVarss_hltCutVars_SinglePhots_EGAMMAHLT.obj.Et > 30.) >= 1)");
+    total = bkgEvents->Draw("","");
     if (total != 0) { 
       eff = (Double_t)pass / (Double_t)total;
       rate = eff * xSection * lumi * conversion;
@@ -244,7 +605,7 @@ void GetOptimization() {
     cutText += cut;
     cutText += ") >= 1)";
     pass = bkgEvents->Draw("",cutText); 
-    total = bkgEvents->Draw("","(Sum$(PhotHLTCutVarss_hltCutVars_SinglePhots_EGAMMAHLT.obj.l1Match && PhotHLTCutVarss_hltCutVars_SinglePhots_EGAMMAHLT.obj.Et > 30. && PhotHLTCutVarss_hltCutVars_SinglePhots_EGAMMAHLT.obj.IEcal < 1.5) >= 1)");
+    total = bkgEvents->Draw("","");
     if (total != 0) { 
       eff = (Double_t)pass / (Double_t)total;
       rate = eff * xSection * lumi * conversion;
@@ -294,7 +655,7 @@ void GetOptimization() {
     cutText += cut;
     cutText += ") >= 1)";
     pass = bkgEvents->Draw("",cutText);
-    total = bkgEvents->Draw("","(Sum$(ElecHLTCutVarsPreTracks_hltCutVars_RelaxedSingleElecsPT_EGAMMAHLT.obj.l1Match) >= 1)");
+    total = bkgEvents->Draw("","");
     if (total != 0) {
       eff = (Double_t)pass / (Double_t)total;
       rate = eff * xSection * lumi * conversion;
@@ -321,7 +682,7 @@ void GetOptimization() {
     cutText += cut;
     cutText += ") >= 1)";
     pass = bkgEvents->Draw("",cutText);
-    total = bkgEvents->Draw("","(Sum$(ElecHLTCutVarsPreTracks_hltCutVars_RelaxedSingleElecsPT_EGAMMAHLT.obj.l1Match && ElecHLTCutVarsPreTracks_hltCutVars_RelaxedSingleElecsPT_EGAMMAHLT.obj.Et > 15.) >= 1)");
+    total = bkgEvents->Draw("","");
    if (total != 0) {
       eff = (Double_t)pass / (Double_t)total;
       rate = eff * xSection * lumi * conversion;
@@ -348,7 +709,7 @@ void GetOptimization() {
     cutText += cut;
     cutText += ") >= 1)";
     pass = bkgEvents->Draw("",cutText);
-    total = bkgEvents->Draw("", "(Sum$(ElecHLTCutVarss_hltCutVars_RelaxedSingleElecs_EGAMMAHLT.obj.l1Match && ElecHLTCutVarss_hltCutVars_RelaxedSingleElecs_EGAMMAHLT.obj.Et > 15. && ElecHLTCutVarss_hltCutVars_RelaxedSingleElecs_EGAMMAHLT.obj.IHcal < 3. && ElecHLTCutVarss_hltCutVars_RelaxedSingleElecs_EGAMMAHLT.obj.pixMatch >= 1) >= 1)");
+    total = bkgEvents->Draw("","");
     if (total != 0) {
       eff = (Double_t)pass / (Double_t)total;
       rate = eff * xSection * lumi * conversion;
@@ -375,7 +736,7 @@ void GetOptimization() {
     cutText += cut;
     cutText += ") >= 1)";
     pass = bkgEvents->Draw("",cutText);
-    total = bkgEvents->Draw("","(Sum$(ElecHLTCutVarss_hltCutVars_RelaxedSingleElecs_EGAMMAHLT.obj.l1Match && ElecHLTCutVarss_hltCutVars_RelaxedSingleElecs_EGAMMAHLT.obj.Et > 15. &&  ElecHLTCutVarss_hltCutVars_RelaxedSingleElecs_EGAMMAHLT.obj.IHcal < 3. && ElecHLTCutVarss_hltCutVars_RelaxedSingleElecs_EGAMMAHLT.obj.pixMatch >= 1 && ElecHLTCutVarss_hltCutVars_RelaxedSingleElecs_EGAMMAHLT.obj.Eoverp < 2.45) >= 1)");
+    total = bkgEvents->Draw("","");
     if (total != 0) {
       eff = (Double_t)pass / (Double_t)total;
       rate = eff * xSection * lumi * conversion;
@@ -403,7 +764,7 @@ void GetOptimization() {
     cutText += cut;
     cutText += ") >= 1)";
     pass = bkgEvents->Draw("",cutText); 
-    total = bkgEvents->Draw("","(Sum$(PhotHLTCutVarss_hltCutVars_RelaxedSinglePhots_EGAMMAHLT.obj.l1Match) >= 1)");
+    total = bkgEvents->Draw("","");
     if (total != 0) { 
       eff = (Double_t)pass / (Double_t)total;
       rate = eff * xSection * lumi * conversion;
@@ -431,7 +792,7 @@ void GetOptimization() {
     cutText += cut;
     cutText += ") >= 1)";
     pass = bkgEvents->Draw("",cutText); 
-    total = bkgEvents->Draw("","(Sum$(PhotHLTCutVarss_hltCutVars_RelaxedSinglePhots_EGAMMAHLT.obj.l1Match && PhotHLTCutVarss_hltCutVars_RelaxedSinglePhots_EGAMMAHLT.obj.Et > 20.) >= 1)");
+    total = bkgEvents->Draw("","");
     if (total != 0) { 
       eff = (Double_t)pass / (Double_t)total;
       rate = eff * xSection * lumi * conversion;
@@ -459,7 +820,7 @@ void GetOptimization() {
     cutText += cut;
     cutText += ") >= 1)";
     pass = bkgEvents->Draw("",cutText); 
-    total = bkgEvents->Draw("","(Sum$(PhotHLTCutVarss_hltCutVars_RelaxedSinglePhots_EGAMMAHLT.obj.l1Match && PhotHLTCutVarss_hltCutVars_RelaxedSinglePhots_EGAMMAHLT.obj.Et > 20. && PhotHLTCutVarss_hltCutVars_RelaxedSinglePhots_EGAMMAHLT.obj.IEcal < 1.5) >= 1)");
+    total = bkgEvents->Draw("","");
     if (total != 0) { 
       eff = (Double_t)pass / (Double_t)total;
       rate = eff * xSection * lumi * conversion;
@@ -509,8 +870,8 @@ void GetOptimization() {
     cutText = "(Sum$(ElecHLTCutVarsPreTracks_hltCutVars_DoubleElecsPT_EGAMMAHLT.obj.l1Match && ElecHLTCutVarsPreTracks_hltCutVars_DoubleElecsPT_EGAMMAHLT.obj.Et > ";
     cutText += cut;
     cutText += ") >= 2)";
-    pass = bkgEvents->Draw("",cutText);
-    total = bkgEvents->Draw("","(Sum$(ElecHLTCutVarsPreTracks_hltCutVars_DoubleElecsPT_EGAMMAHLT.obj.l1Match) >= 2)");
+    pass = bkgEvents->Draw("",cutText); 
+    total = bkgEvents->Draw("","");
     if (total != 0) {
       eff = (Double_t)pass / (Double_t)total;
       rate = eff * xSection * lumi * conversion;
@@ -538,7 +899,7 @@ void GetOptimization() {
     cutText += cut;
     cutText += ") >= 2)";
     pass = bkgEvents->Draw("",cutText);
-    total = bkgEvents->Draw("","(Sum$(ElecHLTCutVarsPreTracks_hltCutVars_DoubleElecsPT_EGAMMAHLT.obj.l1Match && ElecHLTCutVarsPreTracks_hltCutVars_DoubleElecsPT_EGAMMAHLT.obj.Et > 10.) >= 2)");
+    total = bkgEvents->Draw("","");
     if (total != 0) {
       eff = (Double_t)pass / (Double_t)total;
       rate = eff * xSection * lumi * conversion;
@@ -566,7 +927,7 @@ void GetOptimization() {
     cutText += cut;
     cutText += ") >= 2)";
     pass = bkgEvents->Draw("",cutText);
-    total = bkgEvents->Draw("","(Sum$(ElecHLTCutVarss_hltCutVars_DoubleElecs_EGAMMAHLT.obj.l1Match && ElecHLTCutVarss_hltCutVars_DoubleElecs_EGAMMAHLT.obj.Et > 10. && ElecHLTCutVarss_hltCutVars_DoubleElecs_EGAMMAHLT.obj.IHcal < 9. && ElecHLTCutVarss_hltCutVars_DoubleElecs_EGAMMAHLT.obj.pixMatch >= 1) >= 2)");
+    total = bkgEvents->Draw("","");
     if (total != 0) {
       eff = (Double_t)pass / (Double_t)total;
       rate = eff * xSection * lumi * conversion;
@@ -594,7 +955,7 @@ void GetOptimization() {
     cutText += cut;
     cutText += ") >= 2)";
     pass = bkgEvents->Draw("",cutText);
-    total = bkgEvents->Draw("","(Sum$(ElecHLTCutVarss_hltCutVars_DoubleElecs_EGAMMAHLT.obj.l1Match && ElecHLTCutVarss_hltCutVars_DoubleElecs_EGAMMAHLT.obj.Et > 10. && ElecHLTCutVarss_hltCutVars_DoubleElecs_EGAMMAHLT.obj.IHcal < 9. && ElecHLTCutVarss_hltCutVars_DoubleElecs_EGAMMAHLT.obj.pixMatch >= 1 && ElecHLTCutVarss_hltCutVars_DoubleElecs_EGAMMAHLT.obj.Eoverp < 24500.) >= 2)");
+    total = bkgEvents->Draw("","");
     if (total != 0) {
       eff = (Double_t)pass / (Double_t)total;
       rate = eff * xSection * lumi * conversion;
@@ -622,7 +983,7 @@ void GetOptimization() {
     cutText += cut;
     cutText += ") >= 1)";
     pass = bkgEvents->Draw("",cutText); 
-    total = bkgEvents->Draw("","(Sum$(PhotHLTCutVarss_hltCutVars_DoublePhots_EGAMMAHLT.obj.l1Match) >= 1)");
+    total = bkgEvents->Draw("","");
     if (total != 0) { 
       eff = (Double_t)pass / (Double_t)total;
       rate = eff * xSection * lumi * conversion;
@@ -634,7 +995,7 @@ void GetOptimization() {
     }
     bkgPass.push_back(make_pair(rate, err));
     pass = sigEvents->Draw("",cutText);
-    total = sigEvents->Draw("","(Sum$(PhotHLTCutVarss_hltCutVars_DoublePhots_EGAMMAHLT.obj.l1Match) >= 1)");
+    total = bkgEvents->Draw("","");
     if (total != 0) {
       eff = (Double_t)pass / (Double_t)total;
       err = sqrt(eff*(1.-eff) / (Double_t)total);
@@ -650,7 +1011,7 @@ void GetOptimization() {
     cutText += cut;
     cutText += ") >= 1)";
     pass = bkgEvents->Draw("",cutText); 
-    total = bkgEvents->Draw("","(Sum$(PhotHLTCutVarss_hltCutVars_DoublePhots_EGAMMAHLT.obj.l1Match && PhotHLTCutVarss_hltCutVars_DoublePhots_EGAMMAHLT.obj.Et > 20.) >= 1)");
+    total = bkgEvents->Draw("","");
     if (total != 0) { 
       eff = (Double_t)pass / (Double_t)total;
       rate = eff * xSection * lumi * conversion;
@@ -678,7 +1039,7 @@ void GetOptimization() {
     cutText += cut;
     cutText += ") >= 1)";
     pass = bkgEvents->Draw("",cutText); 
-    total = bkgEvents->Draw("","(Sum$(PhotHLTCutVarss_hltCutVars_DoublePhots_EGAMMAHLT.obj.l1Match && PhotHLTCutVarss_hltCutVars_DoublePhots_EGAMMAHLT.obj.Et > 20. && PhotHLTCutVarss_hltCutVars_DoublePhots_EGAMMAHLT.obj.IEcal < 2.5) >= 2)");
+    total = bkgEvents->Draw("","");
     if (total != 0) { 
       eff = (Double_t)pass / (Double_t)total;
       rate = eff * xSection * lumi * conversion;
@@ -729,7 +1090,7 @@ void GetOptimization() {
     cutText += cut;
     cutText += ") >= 2)";
     pass = bkgEvents->Draw("",cutText);
-    total = bkgEvents->Draw("","(Sum$(ElecHLTCutVarsPreTracks_hltCutVars_RelaxedDoubleElecsPT_EGAMMAHLT.obj.l1Match) >= 2)");
+    total = bkgEvents->Draw("","");
     if (total != 0) {
       eff = (Double_t)pass / (Double_t)total;
       rate = eff * xSection * lumi * conversion;
@@ -757,7 +1118,7 @@ void GetOptimization() {
     cutText += cut;
     cutText += ") >= 2)";
     pass = bkgEvents->Draw("",cutText);
-    total = bkgEvents->Draw("","(Sum$(ElecHLTCutVarsPreTracks_hltCutVars_RelaxedDoubleElecsPT_EGAMMAHLT.obj.l1Match && ElecHLTCutVarsPreTracks_hltCutVars_RelaxedDoubleElecsPT_EGAMMAHLT.obj.Et > 10.) >= 2)");
+    total = bkgEvents->Draw("","");
     if (total != 0) {
       eff = (Double_t)pass / (Double_t)total;
       rate = eff * xSection * lumi * conversion;
@@ -785,7 +1146,7 @@ void GetOptimization() {
     cutText += cut;
     cutText += ") >= 2)";
     pass = bkgEvents->Draw("",cutText);
-    total = bkgEvents->Draw("","(Sum$(ElecHLTCutVarss_hltCutVars_RelaxedDoubleElecs_EGAMMAHLT.obj.l1Match && ElecHLTCutVarss_hltCutVars_RelaxedDoubleElecs_EGAMMAHLT.obj.Et > 10. && ElecHLTCutVarss_hltCutVars_RelaxedDoubleElecs_EGAMMAHLT.obj.IHcal < 9. && ElecHLTCutVarss_hltCutVars_RelaxedDoubleElecs_EGAMMAHLT.obj.pixMatch >= 1) >= 2)");
+    total = bkgEvents->Draw("","");
     if (total != 0) {
       eff = (Double_t)pass / (Double_t)total;
       rate = eff * xSection * lumi * conversion;
@@ -813,7 +1174,7 @@ void GetOptimization() {
     cutText += cut;
     cutText += ") >= 2)";
     pass = bkgEvents->Draw("",cutText);
-    total = bkgEvents->Draw("","(Sum$(ElecHLTCutVarss_hltCutVars_RelaxedDoubleElecs_EGAMMAHLT.obj.l1Match && ElecHLTCutVarss_hltCutVars_RelaxedDoubleElecs_EGAMMAHLT.obj.Et > 10. && ElecHLTCutVarss_hltCutVars_RelaxedDoubleElecs_EGAMMAHLT.obj.IHcal < 9. && ElecHLTCutVarss_hltCutVars_RelaxedDoubleElecs_EGAMMAHLT.obj.pixMatch >= 1 && ElecHLTCutVarss_hltCutVars_RelaxedDoubleElecs_EGAMMAHLT.obj.Eoverp < 24500.) >= 2)");
+    total = bkgEvents->Draw("","");
     if (total != 0) {
       eff = (Double_t)pass / (Double_t)total;
       rate = eff * xSection * lumi * conversion;
@@ -841,7 +1202,7 @@ void GetOptimization() {
     cutText += cut;
     cutText += ") >= 2)";
     pass = bkgEvents->Draw("",cutText); 
-    total = bkgEvents->Draw("","(Sum$(PhotHLTCutVarss_hltCutVars_RelaxedDoublePhots_EGAMMAHLT.obj.l1Match) >= 2)");
+    total = bkgEvents->Draw("","");
     if (total != 0) { 
       eff = (Double_t)pass / (Double_t)total;
       rate = eff * xSection * lumi * conversion;
@@ -869,7 +1230,7 @@ void GetOptimization() {
     cutText += cut;
     cutText += ") >= 2)";
     pass = bkgEvents->Draw("",cutText); 
-    total = bkgEvents->Draw("","(Sum$(PhotHLTCutVarss_hltCutVars_RelaxedDoublePhots_EGAMMAHLT.obj.l1Match && PhotHLTCutVarss_hltCutVars_RelaxedDoublePhots_EGAMMAHLT.obj.Et > 30.) >= 2)");
+    total = bkgEvents->Draw("","");
     if (total != 0) { 
       eff = (Double_t)pass / (Double_t)total;
       rate = eff * xSection * lumi * conversion;
@@ -897,7 +1258,7 @@ void GetOptimization() {
     cutText += cut;
     cutText += ") >= 2)";
     pass = bkgEvents->Draw("",cutText); 
-    total = bkgEvents->Draw("","(Sum$(PhotHLTCutVarss_hltCutVars_RelaxedDoublePhots_EGAMMAHLT.obj.l1Match && PhotHLTCutVarss_hltCutVars_RelaxedDoublePhots_EGAMMAHLT.obj.Et > 30. && PhotHLTCutVarss_hltCutVars_RelaxedDoublePhots_EGAMMAHLT.obj.IEcal < 2.5) >= 2)");
+    total = bkgEvents->Draw("","");
     if (total != 0) { 
       eff = (Double_t)pass / (Double_t)total;
       rate = eff * xSection * lumi * conversion;
@@ -940,6 +1301,10 @@ void GetOptimization() {
     rdBkgRate.push_back(bkgPass);
     rdSigEff.push_back(sigPass);
     
+  }
+  for (i = 0; i < 120; i++) {
+    sEffVBkgEt->SetPoint(i, sBkgRate[i][0].first, sSigEff[i][0].first);
+    sEffVBkgEt->SetPointError(i, sBkgRate[i][0].second, sSigEff[i][0].second);
   }
   TH2F *sEffVBkgEt = new TH2F("sEffVBkgEt", "Efficiency vs. Background in Single Electron Stream", 1000, sBkgMin[0], sBkgMax[0], 1000, sSigMin[0], sSigMax[0]);
   TH2F *rsEffVBkgEt = new TH2F("rsEffVBkgEt", "Efficiency vs. Background in Relaxed Single Electron Stream", 1000, rsBkgMin[0], rsBkgMax[0], 1000, rsSigMin[0], rsSigMax[0]);
@@ -1189,7 +1554,6 @@ void GetOptimization() {
       if (dBkgMaxP < dBkgRateP[i].first) dBkgMaxP = dBkgRateP[i].first;
       if (rdBkgMaxP < rdBkgRateP[i].first) rdBkgMaxP = rdBkgRateP[i].first;
     }
-  }
 
   TH2F *sEffVBkgItrackPhot = new TH2F("sEffVBkgItrackPhot", "Efficiency vs. Background in Single Photon Stream", 1000, sBkgMinP, sBkgMaxP, 1000, sSigMinP, sSigMaxP);
   TH2F *rsEffVBkgItrackPhot = new TH2F("rsEffVBkgItrackPhot", "Efficiency vs. Background in Relaxed Single Photon Stream", 1000, rsBkgMinP, rsBkgMaxP, 1000, rsSigMinP, rsSigMaxP);
@@ -1426,4 +1790,4 @@ void GetOptimization() {
   myCanvas->cd(2);
   timingBkg->Draw();
   myCanvas->Print("images/TimingIsoPhot.gif");
-}
+    */
