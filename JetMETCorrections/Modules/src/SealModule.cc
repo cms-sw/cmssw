@@ -19,7 +19,7 @@ DEFINE_ANOTHER_FWK_MODULE(PlotJetCorrections);
 #include "JetCorrectionService.icc"
 #include "JetMETCorrections/Objects/interface/SimpleJetCorrector.h"
 DEFINE_JET_CORRECTION_SERVICE (SimpleJetCorrector, SimpleJetCorrectionService);
-#include "JetMETCorrections/MCJet/interface/MCJetCorrector.h"
+#include "JetMETCorrections/Algorithms/interface/MCJetCorrector.h"
 DEFINE_JET_CORRECTION_SERVICE (MCJetCorrector, MCJetCorrectionService);
 #include "JetMETCorrections/GammaJet/interface/GammaJetCorrector.h"
 DEFINE_JET_CORRECTION_SERVICE (GammaJetCorrector, GammaJetCorrectionService);
