@@ -5,4 +5,5 @@
   <class name="HcalCalibDetId"/>
   <class name="HcalOtherDetId"/>
   <class name="HcalZDCDetId"/>
+  <class name="HcalCastorDetId"/>
 </lcgdict>
