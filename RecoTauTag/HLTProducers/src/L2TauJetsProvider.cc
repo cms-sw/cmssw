@@ -1,5 +1,9 @@
 #include "RecoTauTag/HLTProducers/interface/L2TauJetsProvider.h"
 #include "Math/GenVector/VectorUtil.h"
+#include "DataFormats/L1Trigger/interface/L1JetParticle.h"
+#include "DataFormats/L1Trigger/interface/L1JetParticleFwd.h"
+
+
 //
 // class decleration
 //
@@ -95,6 +99,8 @@ void L2TauJetsProvider::produce(edm::Event& iEvent, const edm::EventSetup& iES)
   for( unsigned int i=0; i <l1TriggeredTaus->size();i++)
     {  
       tauCandRef = l1TriggeredTaus->getParticleRef(i);
+      //Avoid taking other from taujets in combined triggers
+      if(typeid(*tauCandRef) != typeid(L1JetParticle)) continue;
 
       for(int iJet=0;iJet<myL1Tau.size();iJet++)
 	{

@@ -1,5 +1,4 @@
 #include "RecoTauTag/HLTProducers/interface/IsolatedTauJetsSelector.h"
-#include "DataFormats/BTauReco/interface/JetTracksAssociation.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "Math/GenVector/VectorUtil.h"
@@ -82,7 +81,6 @@ void IsolatedTauJetsSelector::produce(edm::Event& iEvent, const edm::EventSetup&
 	if(deltaZLeadTrackVertex <dZ_vertex)
 	  {
 	    JetTracksAssociationRef     jetTracks = myIsolJet->jtaRef();
-	    JetTag myTag(1.);
 	    taggedJets++;
 	    const CaloJet* pippo = dynamic_cast<const CaloJet*>(myIsolJet->jet().get());
 	    myJetCollection->push_back(*pippo);
