@@ -113,7 +113,7 @@ SiPixelRawDataErrorSource::analyze(const edm::Event& iEvent, const edm::EventSet
   }
 
   // slow down...
-  usleep(100000);
+  //usleep(100000);
   
 }
 
