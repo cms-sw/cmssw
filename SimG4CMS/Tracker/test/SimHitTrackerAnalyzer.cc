@@ -13,7 +13,7 @@
 //
 // Original Author:  Tommaso Boccali
 //         Created:  Tue Jul 26 08:47:57 CEST 2005
-// $Id: SimHitTrackerAnalyzer.cc,v 1.11 2006/08/02 16:32:08 fambrogl Exp $
+// $Id: SimHitTrackerAnalyzer.cc,v 1.12 2006/10/24 12:54:41 fambrogl Exp $
 //
 //
 
@@ -175,7 +175,7 @@ SimHitTrackerAnalyzer::analyze( const edm::Event& iEvent, const edm::EventSetup&
    for (std::vector<SimTrack>::iterator isimtk = theSimTracks.begin();
 	isimtk != theSimTracks.end(); ++isimtk){
      edm::LogInfo("TrackerSimInfoAnalyzer")<<" Track momentum  x = "<<isimtk->momentum().x() <<" y = "<<isimtk->momentum().y() <<" z = "<< isimtk->momentum().z();
-     edm::LogInfo("TrackerSimInfoAnalyzer")<<" Track momentum Ptx = "<<isimtk->momentum().perp() ;
+     edm::LogInfo("TrackerSimInfoAnalyzer")<<" Track momentum Ptx = "<<isimtk->momentum().pt();
    }
 
    for (std::vector<SimVertex>::iterator isimvtx = theSimVertexes.begin();
