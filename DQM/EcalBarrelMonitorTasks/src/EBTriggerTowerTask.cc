@@ -1,8 +1,8 @@
 /*
  * \file EBTriggerTowerTask.cc
  *
- * $Date: 2007/10/04 08:38:31 $
- * $Revision: 1.41 $
+ * $Date: 2007/10/04 11:24:16 $
+ * $Revision: 1.42 $
  * \author G. Della Ricca
  *
 */
@@ -331,8 +331,17 @@ EBTriggerTowerTask::processDigis( const Handle<EcalTrigPrimDigiCollection>&
 
     if ( idt.subDet() != EcalBarrel ) continue;
 
-    int iet = idt.ieta();
+    int iet = abs(idt.ieta());
     int ipt = idt.iphi();
+
+    // phi_tower: change the range from global to SM-local
+    // phi==0 is in the middle of a SM
+    ipt = ipt + 2;
+    if ( ipt > 72 ) ipt = ipt - 72;
+    ipt = (ipt-1)%4 + 1;
+
+    // phi_tower: SM-local phi runs opposite to global in EB+
+    if ( idt.zside() > 0 ) ipt = 5 - ipt;
 
     int ismt = Numbers::iSM( idt );
 
@@ -341,7 +350,7 @@ EBTriggerTowerTask::processDigis( const Handle<EcalTrigPrimDigiCollection>&
     float xiet = iet+0.5;
     float xipt = ipt+0.5;
 
-cout << " sm, eta, phi "<<ismt<<" "<<itt<<" "<<iet<<" "<<ipt<<endl;
+//cout << " sm, tt, eta, phi "<<ismt<<" "<<itt<<" "<<iet<<" "<<ipt<<endl;
 
     str<<"det id = "<<idt.rawId()<<" "
        <<idt<<" sm, tt, eta, phi "<<ismt<<" "<<itt<<" "<<iet<<" "<<ipt<<endl;
