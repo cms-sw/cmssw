@@ -1,8 +1,8 @@
 /*
  * \file EBTriggerTowerTask.cc
  *
- * $Date: 2007/07/25 07:02:46 $
- * $Revision: 1.39 $
+ * $Date: 2007/08/14 17:43:06 $
+ * $Revision: 1.40 $
  * \author G. Della Ricca
  *
 */
@@ -327,28 +327,22 @@ EBTriggerTowerTask::processDigis( const Handle<EcalTrigPrimDigiCollection>&
 	tpdigiItr != digis->end(); ++tpdigiItr ) {
 
     EcalTriggerPrimitiveDigi data = (*tpdigiItr);
-    EcalTrigTowerDetId id = data.id();
+    EcalTrigTowerDetId idt = data.id();
 
-    int iet = id.ieta();
-    int ipt = id.iphi();
+    if ( idt.subDet() != EcalBarrel ) continue;
 
-    // phi_tower: change the range from global to SM-local
-    // ipt     = ( (ipt-1) % nTTPhi) +1;
+    int iet = idt.ieta();
+    int ipt = idt.iphi();
 
-    // phi_tower: range matters too
-    //    if ( id.zside() >0)
-    //      { ipt = 5 - ipt;      }
+    int ismt = Numbers::iSM( idt );
 
-    int ismt = Numbers::iSM( id );
-
-    //     int itt = nTTPhi*(iet-1)+(ipt-1)+1;
-    int itt = id.iTT();
+    int itt = Numbers::iTT( idt );
 
     float xiet = iet+0.5;
     float xipt = ipt+0.5;
 
-    str<<"det id = "<<id.rawId()<<" "
-       <<id<<" sm, eta, phi "<<ismt<<" "<<itt<<" "<<iet<<" "<<ipt<<endl;
+    str<<"det id = "<<idt.rawId()<<" "
+       <<idt<<" sm, eta, phi "<<ismt<<" "<<itt<<" "<<iet<<" "<<ipt<<endl;
 
     float xval;
 
@@ -368,7 +362,7 @@ EBTriggerTowerTask::processDigis( const Handle<EcalTrigPrimDigiCollection>&
 
 
     if( compDigis.isValid() ) {
-      ID compDigiItr = compDigis->find( id.rawId() );
+      ID compDigiItr = compDigis->find( idt.rawId() );
 
       bool good = true;
       bool goodFlag = true;
