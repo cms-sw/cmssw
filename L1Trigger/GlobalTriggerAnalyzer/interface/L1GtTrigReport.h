@@ -65,6 +65,13 @@ private:
     /// inputTag for L1 Global Trigger object maps
     edm::InputTag m_l1GtObjectMapTag;
 
+    /// print verbosity
+    int m_printVerbosity;
+
+    /// print output
+    int m_printOutput;
+
+
     /// counters
 
     /// number of events processed
@@ -76,8 +83,6 @@ private:
     /// number of events accepted by any of the L1 algorithm
     int  m_globalAccepts;
 
-    // temporary TODO change after trigger menu available as EventSetup
-
     /// number of events accepted by each L1 algorithm
     /// map<algorithm name, count>
     std::map<std::string, int> m_nAlgoAccepts;
@@ -86,9 +91,6 @@ private:
     /// map<algorithm name, count>
     std::map<std::string, int> m_nAlgoRejects;
 
-    std::map<int, std::string> m_algoBitToName;
-    bool m_algoMap;
-
     /// prescale factor
     /// map<algorithm name, factor>
     std::map<std::string, int> m_prescaleFactor;
@@ -96,6 +98,11 @@ private:
     /// trigger mask
     /// map<algorithm name, mask>
     std::map<std::string, unsigned int> m_triggerMask;
+
+    // temporary TODO change after trigger menu available as EventSetup
+
+    std::map<int, std::string> m_algoBitToName;
+    bool m_algoMap;
 
 };
 

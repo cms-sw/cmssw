@@ -61,8 +61,7 @@ L1GtTrigReport::L1GtTrigReport(const edm::ParameterSet& pSet)
 {
 
     // input tag for GT DAQ record
-    m_l1GtDaqInputTag = pSet.getUntrackedParameter<edm::InputTag>(
-                            "L1GtDaqInputTag", edm::InputTag("L1GtEmulDigi"));
+    m_l1GtDaqInputTag = pSet.getParameter<edm::InputTag>("L1GtDaqInputTag");
 
     LogDebug("L1GtTrigReport")
     << "\nInput tag for L1 GT DAQ record: "
@@ -70,13 +69,29 @@ L1GtTrigReport::L1GtTrigReport(const edm::ParameterSet& pSet)
     << std::endl;
 
     // inputTag for L1 Global Trigger object maps
-    m_l1GtObjectMapTag = pSet.getUntrackedParameter<edm::InputTag>(
-                             "L1GtObjectMapTag", edm::InputTag("L1GtEmulDigi"));
+    m_l1GtObjectMapTag = pSet.getParameter<edm::InputTag>("L1GtObjectMapTag");
 
     LogDebug("L1GtTrigReport")
     << "\nInput tag for L1 GT object maps: "
     << m_l1GtObjectMapTag.label() << " \n"
     << std::endl;
+
+    // print verbosity
+    m_printVerbosity = pSet.getUntrackedParameter<int>("PrintVerbosity", 0);
+
+    LogDebug("L1GtTrigReport")
+    << "\nPrint verbosity level: "
+    << m_printVerbosity << " \n"
+    << std::endl;
+
+    // print output
+    m_printOutput = pSet.getUntrackedParameter<int>("PrintOutput", 0);
+
+    LogDebug("L1GtTrigReport")
+    << "\nPrint output: "
+    << m_printOutput << " \n"
+    << std::endl;
+
 
     // initialize counters
 
@@ -232,48 +247,132 @@ void L1GtTrigReport::endJob()
 
     myCout << std::endl;
     myCout << "L1T-Report " << "---------- L1 Trigger Global Summary ----------\n\n";
-    myCout
-    << std::right << std::setw(20) << "Trigger Menu Key"
-    << std::right << std::setw(25) << "Algorithm Key" << " "
-    << std::right << std::setw(5)  << "Bit #" << " "
-    << std::right << std::setw(10) << "Prescale" << " "
-    << std::right << std::setw(5)  << "Mask" << " "
-    << std::right << std::setw(10) << "Passed" << " "
-    << std::right << std::setw(10) << "Rejected" << " "
-    << "\n";
 
-    std::string dummyMenuKey = "dummyKey";
+    switch (m_printVerbosity) {
+        case 0: {
 
-    for (std::map<int, std::string>::const_iterator
-            it = m_algoBitToName.begin(); it != m_algoBitToName.end(); ++it) {
+                myCout
+                << std::right << std::setw(20) << "Trigger Menu Key"
+                << std::right << std::setw(30) << "Algorithm Key" << " "
+                << std::right << std::setw(5)  << "Bit #" << " "
+                << std::right << std::setw(10) << "Passed" << " "
+                << std::right << std::setw(10) << "Rejected" << " "
+                << "\n";
 
-        std::string dummyAlgoKey =  it->second;
+                std::string dummyMenuKey = "dummyKey";
 
-        myCout
-        << std::right << std::setw(20) << dummyMenuKey
-        << std::right << std::setw(25) << dummyAlgoKey << " "
-        << std::right << std::setw(5)  << it->first << " "
-        << std::right << std::setw(10) << m_prescaleFactor[it->second] << " "
-        << std::right << std::setw(5)  << m_triggerMask[it->second] << " "
-        << std::right << std::setw(10) << m_nAlgoAccepts[it->second] << " "
-        << std::right << std::setw(10) << m_nAlgoRejects[it->second] << " "
-        << "\n";
+                for (std::map<int, std::string>::const_iterator
+                        it = m_algoBitToName.begin(); it != m_algoBitToName.end(); ++it) {
 
+                    std::string dummyAlgoKey =  it->second;
+
+                    myCout
+                    << std::right << std::setw(20) << dummyMenuKey
+                    << std::right << std::setw(30) << dummyAlgoKey << " "
+                    << std::right << std::setw(5)  << it->first << " "
+                    << std::right << std::setw(10) << m_nAlgoAccepts[it->second] << " "
+                    << std::right << std::setw(10) << m_nAlgoRejects[it->second] << " "
+                    << "\n";
+
+                }
+
+            }
+
+            break;
+        case 1: {
+
+                myCout
+                << std::right << std::setw(20) << "Trigger Menu Key"
+                << std::right << std::setw(30) << "Algorithm Key" << " "
+                << std::right << std::setw(5)  << "Bit #" << " "
+                << std::right << std::setw(10) << "Prescale" << " "
+                << std::right << std::setw(5)  << "Mask" << " "
+                << std::right << std::setw(10) << "Passed" << " "
+                << std::right << std::setw(10) << "Rejected" << " "
+                << "\n";
+
+                std::string dummyMenuKey = "dummyKey";
+
+                for (std::map<int, std::string>::const_iterator
+                        it = m_algoBitToName.begin(); it != m_algoBitToName.end(); ++it) {
+
+                    std::string dummyAlgoKey =  it->second;
+
+                    myCout
+                    << std::right << std::setw(20) << dummyMenuKey
+                    << std::right << std::setw(30) << dummyAlgoKey << " "
+                    << std::right << std::setw(5)  << it->first << " "
+                    << std::right << std::setw(10) << m_prescaleFactor[it->second] << " "
+                    << std::right << std::setw(5)  << m_triggerMask[it->second] << " "
+                    << std::right << std::setw(10) << m_nAlgoAccepts[it->second] << " "
+                    << std::right << std::setw(10) << m_nAlgoRejects[it->second] << " "
+                    << "\n";
+
+                }
+
+            }
+
+            break;
+        default: {
+                myCout << "\n\nL1GtTrigReport: Error - no print verbosity level = "
+                << m_printVerbosity 
+                << " defined! \nCheck available values in the cfi file."
+                << "\n";
+            }
+
+            break;
     }
 
-    // print the trigger menu, the prescale factors and the trigger mask
 
-    //TODO
+    // TODO for other verbosity levels
+    // print the trigger menu, the prescale factors and the trigger mask, etc
+
 
 
     myCout << std::endl;
     myCout << "L1T-Report end!" << std::endl;
     myCout << std::endl;
 
-//    edm::LogVerbatim("L1GtTrigReport")
-    std::cout
-    << myCout.str()
-    << std::endl;
+    switch (m_printOutput) {
+        case 0: {
+
+                std::cout
+                << myCout.str()
+                << std::endl;
+
+            }
+
+            break;
+        case 1: {
+
+                LogTrace("L1GtTrigReport")
+                << myCout.str()
+                << std::endl;
+
+            }
+            break;
+
+        case 2: {
+
+                edm::LogVerbatim("L1GtTrigReport")
+                << myCout.str()
+                << std::endl;
+
+            }
+
+            break;
+        default: {
+                std::cout << "\n\nL1GtTrigReport: Error - no print output = "
+                << m_printOutput
+                << " defined! \nCheck available values in the cfi file."
+                << "\n"
+                << std::endl;
+
+            }
+            break;
+    }
+
+
 
 }
 
