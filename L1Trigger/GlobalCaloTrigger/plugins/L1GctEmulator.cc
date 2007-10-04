@@ -58,11 +58,18 @@ L1GctEmulator::L1GctEmulator(const edm::ParameterSet& ps) :
   produces<L1GctJetCounts>();
 
   // get the input label
-  edm::InputTag inputTag = ps.getParameter<edm::InputTag>("inputLabel");
+  edm::InputTag inputTag  = ps.getParameter<edm::InputTag>("inputLabel");
   m_inputLabel = inputTag.label();
 
-  // instantiate the GCT
-  m_gct = new L1GlobalCaloTrigger(L1GctJetLeafCard::tdrJetFinder);
+  // instantiate the GCT. Argument selects the type of jetFinder to be used.
+  L1GctJetLeafCard::jetFinderType jfType=L1GctJetLeafCard::hardwareJetFinder;
+  std::string jfTypeStr = ps.getParameter<std::string>("jetFinderType");
+  if (jfTypeStr == "tdrJetFinder") { jfType = L1GctJetLeafCard::tdrJetFinder; }
+  else if (jfTypeStr != "hardwareJetFinder") {
+    edm::LogWarning ("L1GctEmulatorSetup") << "Unrecognised jetFinder option " << jfTypeStr
+                                           << "\nHardware jetFinder will be used";
+  }
+  m_gct = new L1GlobalCaloTrigger(jfType);
 
   // set verbosity (not implemented yet!)
   //  m_gct->setVerbose(m_verbose);
@@ -70,6 +77,7 @@ L1GctEmulator::L1GctEmulator(const edm::ParameterSet& ps) :
   // print debug info?
   if (m_verbose) {
     m_gct->print();
+
   }
 }
 
@@ -165,7 +173,8 @@ void L1GctEmulator::produce(edm::Event& e, const edm::EventSetup& c) {
   // create the energy sum digis
   std::auto_ptr<L1GctEtTotal> etTotResult(new L1GctEtTotal(m_gct->getEtSum().value(), m_gct->getEtSum().overFlow() ) );
   std::auto_ptr<L1GctEtHad> etHadResult(new L1GctEtHad(m_gct->getEtHad().value(), m_gct->getEtHad().overFlow() ) );
-  std::auto_ptr<L1GctEtMiss> etMissResult(new L1GctEtMiss(m_gct->getEtMiss().value(), m_gct->getEtMissPhi().value(), m_gct->getEtMiss().overFlow() ) );
+  std::auto_ptr<L1GctEtMiss> etMissResult(new L1GctEtMiss(m_gct->getEtMiss().value(),
+                           m_gct->getEtMissPhi().value(), m_gct->getEtMiss().overFlow() ) );
 
   // create the jet counts digis
   std::auto_ptr<L1GctJetCounts> jetCountResult(new L1GctJetCounts(m_gct->getJetCountValues() ) );
