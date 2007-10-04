@@ -7,8 +7,8 @@
  *  containing information about various sub-systems in global coordinates 
  *  with full geometry
  *
- *  $Date: 2007/04/30 19:38:17 $
- *  $Revision: 1.6 $
+ *  $Date: 2007/09/26 22:22:29 $
+ *  $Revision: 1.8 $
  *  \author M. Strang SUNY-Buffalo
  */
 
@@ -50,7 +50,7 @@
 #include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
 
 // data in edm::event
-#include "SimDataFormats/GlobalValidation/interface/PGlobalSimHit.h"
+#include "SimDataFormats/ValidationFormats/interface/PValidationFormats.h"
 #include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
 #include "SimDataFormats/Vertex/interface/SimVertexContainer.h"
 #include "SimDataFormats/Track/interface/SimTrackContainer.h"

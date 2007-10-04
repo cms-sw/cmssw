@@ -7,8 +7,8 @@
  *  containing information about various sub-systems in global coordinates 
  *  with full geometry
  *
- *  $Date: 2007/04/30 13:49:00 $
- *  $Revision: 1.3 $
+ *  $Date: 2007/04/30 19:47:36 $
+ *  $Revision: 1.10 $
  *  \author M. Strang SUNY-Buffalo
  */
 
@@ -83,7 +83,7 @@
 #include "DataFormats/CSCDigi/interface/CSCWireDigiCollection.h"
 
 // event info
-#include "SimDataFormats/GlobalDigiValidation/interface/PGlobalDigi.h"
+#include "SimDataFormats/ValidationFormats/interface/PValidationFormats.h"
 #include "SimDataFormats/CrossingFrame/interface/CrossingFrame.h"
 #include "SimDataFormats/CrossingFrame/interface/MixCollection.h"
 #include "SimDataFormats/CaloHit/interface/PCaloHit.h"

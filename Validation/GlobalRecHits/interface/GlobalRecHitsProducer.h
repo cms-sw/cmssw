@@ -7,8 +7,8 @@
  *  containing information about various sub-systems in global coordinates 
  *  with full geometry
  *
- *  $Date: 2007/04/30 13:49:00 $
- *  $Revision: 1.3 $
+ *  $Date: 2007/04/30 19:52:10 $
+ *  $Revision: 1.10 $
  *  \author M. Strang SUNY-Buffalo
  */
 
@@ -120,7 +120,7 @@
 #include "Geometry/RPCGeometry/interface/RPCRoll.h"
 
 // event info
-#include "SimDataFormats/GlobalRecHitValidation/interface/PGlobalRecHit.h"
+#include "SimDataFormats/ValidationFormats/interface/PValidationFormats.h"
 #include "SimDataFormats/CrossingFrame/interface/CrossingFrame.h"
 #include "SimDataFormats/CrossingFrame/interface/MixCollection.h"
 #include "SimDataFormats/CaloHit/interface/PCaloHit.h"

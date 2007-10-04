@@ -16,7 +16,7 @@
 <use name=DataFormats/DTDigi>
 <use name=DataFormats/MuonDetId>
 <use name=DataFormats/CSCDigi>
-<use name=SimDataFormats/GlobalDigiValidation>
+<use name=SimDataFormats/ValidationFormats>
 <use name=SimDataFormats/CrossingFrame>
 <use name=SimDataFormats/CaloHit>
 <use name=root>
@@ -44,7 +44,7 @@
  <use name=DataFormats/DTDigi>
  <use name=DataFormats/MuonDetId>
  <use name=DataFormats/CSCDigi>
- <use name=SimDataFormats/GlobalDigiValidation>
+ <use name=SimDataFormats/ValidationFormats>
  <use name=SimDataFormats/CrossingFrame>
  <use name=SimDataFormats/CaloHit>
  <use name=root>
