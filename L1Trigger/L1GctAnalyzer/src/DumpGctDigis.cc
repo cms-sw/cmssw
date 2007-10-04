@@ -104,13 +104,19 @@ void DumpGctDigis::doEM(const edm::Event& iEvent, edm::InputTag label) {
 
   outFile_ << "Iso EM :" << " from : " << label.label() << endl;
   for (ie=isoEm->begin(); ie!=isoEm->end(); ie++) {
-    outFile_ << (*ie) << endl;
+    outFile_ << (*ie) 
+             << " ieta(detID)=" << ie->regionId().ieta()
+             << " iphi(detID)=" << ie->regionId().iphi()
+             << endl;
   } 
   outFile_ << endl;
   
   outFile_ << "Non-iso EM :" << " from : " << label.label() << endl;
   for (ne=nonIsoEm->begin(); ne!=nonIsoEm->end(); ne++) {
-    outFile_ << (*ne) << endl;
+    outFile_ << (*ne) 
+             << " ieta(detID)=" << ne->regionId().ieta()
+             << " iphi(detID)=" << ne->regionId().iphi()
+             << endl;
   } 
   outFile_ << endl;
 
@@ -129,7 +135,10 @@ void DumpGctDigis::doRctEM(const edm::Event& iEvent, edm::InputTag label) {
   outFile_ << "RCT EM :" << " from : " << label.label() << endl;
   for (e=em->begin(); e!=em->end(); e++) {
     if (e->rank() >= rctEmMinRank_) {
-      outFile_ << (*e) << endl;
+      outFile_ << (*e) 
+               << " ieta(detID)=" << e->regionId().ieta()
+               << " iphi(detID)=" << e->regionId().iphi()
+               << endl;
     }
   } 
   outFile_ << endl;
@@ -206,7 +215,10 @@ void DumpGctDigis::doInternEM(const edm::Event& iEvent, edm::InputTag label) {
 
   outFile_ << "Internal EM :" << " from : " << label.label() << endl;
   for (e=em->begin(); e!=em->end(); e++) {
-    outFile_ << (*e) << endl;
+    outFile_ << (*e) 
+             << " ieta(detID)=" << e->regionId().ieta()
+             << " iphi(detID)=" << e->regionId().iphi()
+             << endl;
   } 
   outFile_ << endl;
   
@@ -225,7 +237,7 @@ void DumpGctDigis::doFibres(const edm::Event& iEvent, edm::InputTag label) {
 
   outFile_ << "Fibres :" << " from : " << label.label() << endl;
   for (f=fibres->begin(); f!=fibres->end(); f++) {
-    outFile_ << std::hex << f->data() << std::dec << endl;
+    outFile_ << (*f) << endl;
   } 
   outFile_ << endl;
   
