@@ -1,11 +1,11 @@
-// $Id: Numbers.h,v 1.9 2007/08/16 14:26:06 dellaric Exp $
+// $Id: Numbers.h,v 1.10 2007/10/04 08:38:11 dellaric Exp $
 
 /*!
   \file Numbers.h
   \brief Some "id" conversions
   \author B. Gobbo 
-  \version $Revision: 1.9 $
-  \date $Date: 2007/08/16 14:26:06 $
+  \version $Revision: 1.10 $
+  \date $Date: 2007/10/04 08:38:11 $
 */
 
 #ifndef Numbers_H
@@ -15,21 +15,22 @@
 #include <stdexcept>
 #include <vector>
 
-#include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "Geometry/EcalMapping/interface/EcalElectronicsMapping.h"
-#include "Geometry/EcalMapping/interface/EcalMappingRcd.h"
-
 #include "DataFormats/DetId/interface/DetId.h"
+#include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
 
 #include <DataFormats/EcalDetId/interface/EBDetId.h>
 #include <DataFormats/EcalDetId/interface/EEDetId.h>
+
 #include <DataFormats/EcalDetId/interface/EcalTrigTowerDetId.h>
 #include <DataFormats/EcalDetId/interface/EcalElectronicsId.h>
 #include <DataFormats/EcalDetId/interface/EcalPnDiodeDetId.h>
 #include <DataFormats/EcalRawData/interface/EcalDCCHeaderBlock.h>
+
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "Geometry/EcalMapping/interface/EcalElectronicsMapping.h"
+#include "Geometry/EcalMapping/interface/EcalMappingRcd.h"
 
 class Numbers {
 
