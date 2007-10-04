@@ -22,14 +22,11 @@ using namespace std;
 
 /* Constructor */
 VertexAssociatorByTracks::VertexAssociatorByTracks (const edm::ParameterSet& conf) :
-  conf_(conf)//,
-//  theMinHitFraction(conf_.getParameter<double>("MinHitFraction"))
-{}
+  conf_(conf) {}
 
 
 /* Destructor */
-VertexAssociatorByTracks::~VertexAssociatorByTracks()
-{
+VertexAssociatorByTracks::~VertexAssociatorByTracks() {
   //do cleanup here
 }
 
@@ -41,8 +38,7 @@ VertexRecoToSimCollection VertexAssociatorByTracks::associateRecoToSim(
     edm::Handle<reco::VertexCollection>& vertexCollectionH,
     edm::Handle<TrackingVertexCollection>&  TVCollectionH,
     const edm::Event& event,
-    reco::RecoToSimCollection& trackAssocResult)
-{
+    reco::RecoToSimCollection& trackAssocResult) const {
 
 //  const double minHitFraction = theMinHitFraction;
 //  int nshared =0;
@@ -78,7 +74,7 @@ VertexRecoToSimCollection VertexAssociatorByTracks::associateRecoToSim(
          recoDaughter != vertex->tracks_end(); ++recoDaughter) {
       try {
         TrackRef tr = recoDaughter->castTo<TrackRef>();
-	if (trackAssocResult[tr].size() > 0) {
+        if (trackAssocResult[tr].size() > 0) {
           std::vector<std::pair<TrackingParticleRef, double> > tpV = trackAssocResult[tr];
 
           // Loop over TrackingParticles associated with reco::Track
@@ -91,11 +87,11 @@ VertexRecoToSimCollection VertexAssociatorByTracks::associateRecoToSim(
             TrackingVertexRef   tv = tp->parentVertex();
             ++tVCount[tv]; // Count matches to this reco:Vertex for this TrackingVertex
           }
-	}
+        }
       } catch ( edm::Exception& e ) {
-        edm::LogWarning("SimTracker/VertexAssociation") 
-	  << "Exception while comparing reco::Vertex/TrackingVertex tracks: "
-	  << e.what() << endl;
+        edm::LogWarning("SimTracker/VertexAssociation")
+          << "Exception while comparing reco::Vertex/TrackingVertex tracks: "
+          << e.what() << endl;
       }
     }
 
@@ -117,7 +113,7 @@ VertexSimToRecoCollection VertexAssociatorByTracks::associateSimToReco(
     edm::Handle<reco::VertexCollection>&   vertexCollectionH,
     edm::Handle<TrackingVertexCollection>& TVCollectionH,
     const edm::Event& e,
-    reco::SimToRecoCollection& trackAssocResult) {
+    reco::SimToRecoCollection& trackAssocResult) const {
 
   const TrackingVertexCollection tVC = *(TVCollectionH.product());
   const   reco::VertexCollection  vC = *(vertexCollectionH.product());

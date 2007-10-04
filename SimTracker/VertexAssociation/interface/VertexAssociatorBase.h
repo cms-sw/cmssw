@@ -31,13 +31,13 @@ class VertexAssociatorBase {
     associateRecoToSim (edm::Handle<reco::VertexCollection>& vc,
                         edm::Handle<TrackingVertexCollection>& tvc,
                         const edm::Event&    event,
-                        reco::RecoToSimCollection& trackAssocResult) = 0;
+                        reco::RecoToSimCollection& trackAssocResult) const = 0;
 
   virtual reco::VertexSimToRecoCollection
     associateSimToReco (edm::Handle<reco::VertexCollection>& vc,
                         edm::Handle<TrackingVertexCollection>& tvc ,
                         const edm::Event& event,
-                        reco::SimToRecoCollection& trackAssocResult) = 0;
+                        reco::SimToRecoCollection& trackAssocResult) const = 0;
 };
 
 #endif
