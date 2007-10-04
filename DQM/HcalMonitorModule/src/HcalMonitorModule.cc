@@ -3,8 +3,8 @@
 /*
  * \file HcalMonitorModule.cc
  * 
- * $Date: 2007/08/09 00:33:06 $
- * $Revision: 1.36 $
+ * $Date: 2007/10/02 22:16:03 $
+ * $Revision: 1.37 $
  * \author W Fisher
  *
 */
@@ -50,7 +50,7 @@ HcalMonitorModule::HcalMonitorModule(const edm::ParameterSet& ps){
   m_runNum = 0; m_meStatus=0;
   m_meRunNum=0; m_meRunType=0;
   m_meEvtNum=0; m_meEvtMask=0;
-  
+  m_meFEDS=0;
   if ( m_dbe != NULL ){
     m_dbe->setCurrentFolder("HcalMonitor");
     m_meStatus  = m_dbe->bookInt("STATUS");
@@ -58,8 +58,8 @@ HcalMonitorModule::HcalMonitorModule(const edm::ParameterSet& ps){
     m_meRunType = m_dbe->bookInt("RUN TYPE");
     m_meEvtNum  = m_dbe->bookInt("EVT NUMBER");
     m_meEvtMask = m_dbe->bookInt("EVT MASK");
-    m_meBeamE   = m_dbe->bookInt("BEAM ENERGY");
-    
+    m_meBeamE   = m_dbe->bookInt("BEAM ENERGY"); 
+    m_meFEDS    = m_dbe->book1D("FEDs Unpacked","FEDs Unpacked",100,700,799);
     m_meTrigger = m_dbe->book1D("TB Trigger Type","TB Trigger Type",6,0,5);
 
     m_meStatus->Fill(-1);
@@ -71,10 +71,10 @@ HcalMonitorModule::HcalMonitorModule(const edm::ParameterSet& ps){
   }
 
   m_evtSel = new HcalMonitorSelector(ps);
-  m_digiMon = NULL; m_dfMon = NULL; 
-  m_rhMon = NULL;   m_pedMon = NULL; 
-  m_ledMon = NULL;  m_mtccMon = NULL;
-  m_hotMon = NULL;  m_tempAnalysis = NULL;
+  m_digiMon = NULL;   m_dfMon = NULL; 
+  m_rhMon = NULL;     m_pedMon = NULL; 
+  m_ledMon = NULL;    m_mtccMon = NULL;
+  m_hotMon = NULL;    m_tempAnalysis = NULL;
   m_commisMon = NULL; m_tpMon = NULL;
 
   if ( ps.getUntrackedParameter<bool>("DataFormatMonitor", false) ) {
@@ -234,30 +234,53 @@ void HcalMonitorModule::endJob(void) {
   return;
 }
 
+void HcalMonitorModule::reset(){
+
+  if(m_verbose) cout << "HcalMonitorModule: reset...." << endl;
+
+  if(m_rhMon!=NULL)   m_rhMon->reset();
+  if(m_tpMon!=NULL)   m_tpMon->reset();
+  if(m_digiMon!=NULL) m_digiMon->reset();
+  if(m_dfMon!=NULL)   m_dfMon->reset();
+  if(m_pedMon!=NULL)  m_pedMon->reset();
+  if(m_ledMon!=NULL)  m_ledMon->reset();
+  if(m_hotMon!=NULL)  m_hotMon->reset();
+  if(m_commisMon!=NULL) m_commisMon->reset();
+  if(m_mtccMon!=NULL)   m_mtccMon->reset();
+  if(m_tempAnalysis!=NULL) m_tempAnalysis->reset();
+}
+
 void HcalMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& eventSetup){
 
   if(m_verbose) cout << "HcalMonitorModule: analyze...." << endl;
 
   // Do default setup...
   m_ievt++;
-  int evtMask=DO_HCAL_DIGIMON|DO_HCAL_DFMON|DO_HCAL_RECHITMON|DO_HCAL_PED_CALIBMON;
+  
+  m_lastRun = m_runNum;
+  edm::EventID id_ = e.id();
+  m_runNum = (int)(id_.run());
+
+  if(m_runNum != m_lastRun){
+    m_fedsListed = false;
+    m_ievt = 0;
+  }
+
+  int evtMask=DO_HCAL_DIGIMON|DO_HCAL_DFMON|DO_HCAL_RECHITMON|DO_HCAL_PED_CALIBMON|DO_HCAL_LED_CALIBMON;
 
   int trigMask=0;
   if(m_mtccMon==NULL){
     m_evtSel->processEvent(e);
     evtMask = m_evtSel->getEventMask();
     trigMask =  m_evtSel->getTriggerMask();
-
-    if(trigMask&0x01) m_meTrigger->Fill(1);
-    if(trigMask&0x02) m_meTrigger->Fill(2);
-    if(trigMask&0x04) m_meTrigger->Fill(3);
-    if(trigMask&0x08) m_meTrigger->Fill(4);
-    if(trigMask&0x10) m_meTrigger->Fill(5);
+    if(m_dbe){
+      if(trigMask&0x01) m_meTrigger->Fill(1);
+      if(trigMask&0x02) m_meTrigger->Fill(2);
+      if(trigMask&0x04) m_meTrigger->Fill(3);
+      if(trigMask&0x08) m_meTrigger->Fill(4);
+      if(trigMask&0x10) m_meTrigger->Fill(5);
+    }
   }
-
-  edm::EventID id_ = e.id();
-  m_runNum = (int)(id_.run());
-
   if ( m_dbe ){ 
     m_meStatus->Fill(1);
     m_meRunNum->Fill(m_runNum);
@@ -265,6 +288,7 @@ void HcalMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& even
     m_meEvtMask->Fill(evtMask);
   }
   
+  ///See if our products are in the event...
   bool rawOK_    = true;
   bool digiOK_   = true;
   bool rechitOK_ = true;
@@ -275,8 +299,15 @@ void HcalMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& even
   edm::Handle<FEDRawDataCollection> rawraw;  
   try{e.getByType(rawraw);} catch(exception& ex){ rawOK_=false;};           
   edm::Handle<HcalUnpackerReport> report;  
-  try{e.getByType(report);} catch(exception& ex){ rawOK_=false;};
-
+  try{
+    e.getByType(report);
+    if(!m_fedsListed){
+      const std::vector<int> feds =  (*report).getFedsUnpacked();    
+      for(unsigned int f=0; f<feds.size(); f++) m_meFEDS->Fill(feds[f]);    
+      m_fedsListed = true;
+    }
+  } catch(exception& ex){ rawOK_=false;};
+  
   // try to get digis
   edm::Handle<HBHEDigiCollection> hbhe_digi;
   edm::Handle<HODigiCollection> ho_digi;
@@ -300,7 +331,10 @@ void HcalMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& even
   try{ e.getByType(ltc); } catch(exception& ex){ltcOK_=false;};         
 
 
-  /// Run the configured tasks
+  /// Run the configured tasks, protect against missing products
+
+  //did we have a run transition?
+  if(m_runNum != m_lastRun) this->reset();
 
   // Data Format monitor task
   if((m_dfMon != NULL) && (evtMask&DO_HCAL_DFMON) && rawOK_) 
@@ -315,9 +349,8 @@ void HcalMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& even
     m_pedMon->processEvent(*hbhe_digi,*ho_digi,*hf_digi,*m_conditions);
 
   // LED monitor task
-  //  if((m_ledMon!=NULL) && (evtMask&DO_HCAL_LED_CALIBMON)) m_ledMon->processEvent(*hbhe_digi,*ho_digi,*hf_digi);
-  if(m_ledMon!=NULL && digiOK_) 
-    m_ledMon->processEvent(*hbhe_digi,*ho_digi,*hf_digi,*m_conditions, *report);
+  if((m_ledMon!=NULL) && (evtMask&DO_HCAL_LED_CALIBMON) && digiOK_)
+    m_ledMon->processEvent(*hbhe_digi,*ho_digi,*hf_digi,*m_conditions);
   
   // Rec Hit monitor task
   if((m_rhMon != NULL) && (evtMask&DO_HCAL_RECHITMON) && rechitOK_) 
@@ -335,10 +368,12 @@ void HcalMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& even
   if(m_mtccMon != NULL && digiOK_ && ltcOK_) m_mtccMon->processEvent(*hbhe_digi,*ho_digi, *ltc,*m_conditions);
 
 
-  if(m_commisMon != NULL && digiOK_ && ltcOK_ && rechitOK_) m_commisMon->processEvent(*hbhe_digi,*ho_digi, *hf_digi,
-						    *hb_hits,*ho_hits,*hf_hits,
-						    *ltc,*m_conditions);
-
+  // Temporary or development tasks...
+  if(m_commisMon != NULL && digiOK_ && ltcOK_ && rechitOK_) 
+    m_commisMon->processEvent(*hbhe_digi,*ho_digi, *hf_digi,
+			      *hb_hits,*ho_hits,*hf_hits,
+			      *ltc,*m_conditions);
+  
   if(m_tempAnalysis != NULL && digiOK_ && ltcOK_ && rechitOK_) 
     m_tempAnalysis->processEvent(*hbhe_digi,*ho_digi, *hf_digi,
 				 *hb_hits,*ho_hits,*hf_hits,

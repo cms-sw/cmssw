@@ -78,9 +78,9 @@ void parseString(string& title){
     if ( title.substr(i, 1) == "#" ){
       title.replace(i, 1, "N");
     }
-    if ( title.substr(i, 1) == "/" ){
-      title.replace(i, 1, "-");
-    }    
+    //    if ( title.substr(i, 1) == "/" ){
+    //      title.replace(i, 1, "-");
+    //    }    
     if ( title.substr(i, 1) == "&" ){
       title.replace(i, 1, "_and_");
     }
@@ -161,7 +161,7 @@ string getIMG(int runNo,TH1F* hist, int size, string htmlDir, const char* xlab, 
 
   can->SaveAs(saveName.c_str());  
   delete can;
- 
+
   return outName;
 }
 
@@ -194,7 +194,6 @@ TH2F* getHisto2(string name, string process, MonitorUserInterface* mui_, bool ve
 }
 
 TH1F* getHisto(string name, string process, MonitorUserInterface* mui_, bool verb, bool clone){
-
   if(!mui_) return NULL;
 
   char title[150];  
@@ -202,7 +201,7 @@ TH1F* getHisto(string name, string process, MonitorUserInterface* mui_, bool ver
   TH1F* out = NULL;
 
   const MonitorElement* me = mui_->getBEInterface()->get(title);
-  if ( me ) {      
+  if (me){      
     if ( verb ) cout << "Found '" << title << "'" << endl;
     //    MonitorElementT<TNamed>* ob = dynamic_cast<MonitorElementT<TNamed>*> (me);
     MonitorElementT<TNamed>* ob = dynamic_cast<MonitorElementT<TNamed>*>( const_cast<MonitorElement*>(me) );
@@ -216,6 +215,7 @@ TH1F* getHisto(string name, string process, MonitorUserInterface* mui_, bool ver
       }
     }
   }
+
   return out;
 }
 
@@ -269,6 +269,7 @@ void histoHTML(int runNo, TH1F* hist, const char* xlab, const char* ylab, int wi
     imgNameTMB = getIMG(runNo,hist,1,htmlDir,xlab,ylab); 
     string imgName = "";   
     imgName = getIMG(runNo,hist,2,htmlDir,xlab,ylab);  
+
     if (imgName.size() != 0 )
       htmlFile << "<td><a href=\"" <<  imgName << "\"><img src=\"" <<  imgNameTMB << "\"></a></td>" << endl;
     else

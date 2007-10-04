@@ -7,6 +7,8 @@ HcalTrigPrimMonitor::HcalTrigPrimMonitor() {
 HcalTrigPrimMonitor::~HcalTrigPrimMonitor() {
 }
 
+void HcalTrigPrimMonitor::reset(){}
+
 void HcalTrigPrimMonitor::clearME(){
 
   if(m_dbe){
@@ -35,7 +37,19 @@ void HcalTrigPrimMonitor::setup(const edm::ParameterSet& ps, DaqMonitorBEInterfa
   if ( m_dbe !=NULL ) {    
 
     m_dbe->setCurrentFolder("HcalMonitor/TrigPrimMonitor");
-    meEVT_ = m_dbe->bookInt("TrigPrim Event Number");    
+    meEVT_ = m_dbe->bookInt("TrigPrim Event Number");  
+
+    OCC_ETA = m_dbe->book1D("TrigPrim Eta Occupancy Map","TrigPrim Eta Occupancy Map",etaBins_,etaMin_,etaMax_);
+    OCC_PHI = m_dbe->book1D("TrigPrim Phi Occupancy Map","TrigPrim Phi Occupancy Map",phiBins_,phiMin_,phiMax_);
+
+    OCC_ELEC_VME = m_dbe->book2D("TrigPrim VME Occupancy Map","TrigPrim VME Occupancy Map",
+				 40,-0.25,19.75,18,-0.5,17.5);
+    OCC_ELEC_DCC = m_dbe->book2D("TrigPrim Spigot Occupancy Map","TrigPrim Spigot Occupancy Map",
+				 HcalDCCHeader::SPIGOT_COUNT,-0.5,HcalDCCHeader::SPIGOT_COUNT-0.5,
+				 36,-0.5,35.5);
+    OCC_MAP_GEO = m_dbe->book2D("TrigPrim Geo Error Map","TrigPrim Geo Error Map",
+				etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
+  
     meEVT_->Fill(ievt_);
   }
 
@@ -56,7 +70,18 @@ void HcalTrigPrimMonitor::processEvent(const HBHERecHitCollection& hbHits,
    try{
     for (HcalTrigPrimDigiCollection::const_iterator j=tpDigis.begin(); j!=tpDigis.end(); j++){
       const HcalTriggerPrimitiveDigi digi = (const HcalTriggerPrimitiveDigi)(*j);
+
+      OCC_ETA->Fill(digi.id().ieta());
+      OCC_PHI->Fill(digi.id().iphi());
+      OCC_MAP_GEO->Fill(digi.id().ieta(), digi.id().iphi());
+      /*
+      float slotnum = digi.elecId().htrSlot() + 0.5*digi.elecId().htrTopBottom();
+
+      OCC_ELEC_VME->Fill(slotnum,digi.elecId().readoutVMECrateId());
+      OCC_ELEC_DCC->Fill(digi.elecId().spigot(),digi.elecId().dccid());
+      */
       if(digi.SOI_compressedEt()>0){
+
         std::cout << "size  " <<  digi.size() << std::endl;
 	std::cout << "iphi  " <<  digi.id().iphi() << std::endl;
 	std::cout << "ieta  " <<  digi.id().ieta() << std::endl;
@@ -70,6 +95,7 @@ void HcalTrigPrimMonitor::processEvent(const HBHERecHitCollection& hbHits,
 	std::cout << "raw slb " <<  digi.t0().slb() << std::endl;
 	std::cout << "raw slbChan " <<  digi.t0().slbChan() << std::endl;
 	std::cout << "raw slbAndChan " <<  digi.t0().slbAndChan() << std::endl;
+
       }
     }
    } catch (...) {    

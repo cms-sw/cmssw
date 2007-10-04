@@ -5,7 +5,6 @@ HcalLEDMonitor::HcalLEDMonitor() {
   doPerChannel_ = false;
   sigS0_=0;
   sigS1_=9;
-
 }
 
 HcalLEDMonitor::~HcalLEDMonitor() {}
@@ -69,7 +68,6 @@ void HcalLEDMonitor::setup(const edm::ParameterSet& ps, DaqMonitorBEInterface* d
     m_dbe->setCurrentFolder("HcalMonitor/LEDMonitor");
     meEVT_ = m_dbe->bookInt("LED Task Event Number");    
     meEVT_->Fill(ievt_);
-    FED_UNPACKED  = m_dbe->book1D("FEDs Unpacked","FEDs Unpacked",100,700,799);
 
     MEAN_MAP_TIME_L1= m_dbe->book2D("LED Mean Time Depth 1","LED Mean Time Depth 1",etaBins_,etaMin_,etaMax_,
 			       phiBins_,phiMin_,phiMax_);
@@ -226,42 +224,31 @@ void HcalLEDMonitor::createFEDmap(unsigned int fed){
     MonitorElement* rms_energy = m_dbe->book2D(name,name,24,0.5,24.5,15,0.5,15.5);
     MEAN_MAP_ENERGY_DCC[fed] = mean_energy;
     RMS_MAP_ENERGY_DCC[fed] = rms_energy;
-
   }   
 }
+
+void HcalLEDMonitor::reset(){
+  
+  MonitorElement* unpackedFEDS = m_dbe->get("HcalMonitor/FEDs Unpacked");
+  if(unpackedFEDS){
+    for(int b=1; b<=unpackedFEDS->getNbinsX(); b++){
+      if(unpackedFEDS->getBinContent(b)>0){
+	createFEDmap(700+(b-1));  
+      }
+    }
+  }
+  else{
+    printf("BARF!!\n");
+  }
+}
+
 void HcalLEDMonitor::processEvent(const HBHEDigiCollection& hbhe,
 				  const HODigiCollection& ho,
 				  const HFDigiCollection& hf,
-				  const HcalDbService& cond,
-				  const HcalUnpackerReport& report){
+				  const HcalDbService& cond){
 
   ievt_++;
   meEVT_->Fill(ievt_);
-
-  const std::vector<int> feds =  report.getFedsUnpacked();
-
-  for(unsigned int f=0; f<feds.size(); f++){    
-    FED_UNPACKED->Fill(feds[f]);    
-    createFEDmap(feds[f]-700);
-  }
-
-  //would be better to put this outside eventlopp..
-
-  // and this is just a very dumb way of doing the adc->fc conversion in the
-  // full range (and is the same for all channels and cap-ids)
-  static const float adc2fc[128]={-0.5, 0.5, 1.5, 2.5, 3.5, 4.5, 5.5, 6.5, 7.5,
-				  8.5,  9.5, 10.5, 11.5, 12.5, 13.5, 15., 17., 19., 21., 23., 25., 27., 29.5,
-				  32.5, 35.5, 38.5, 42., 46., 50., 54.5, 59.5, 64.5, 59.5, 64.5, 69.5, 74.5,
-				  79.5, 84.5, 89.5, 94.5, 99.5, 104.5, 109.5, 114.5, 119.5, 124.5, 129.5, 137.,
-				  147., 157., 167., 177., 187., 197., 209.5, 224.5, 239.5, 254.5, 272., 292.,
-				  312., 334.5, 359.5, 384.5, 359.5, 384.5, 409.5, 434.5, 459.5, 484.5, 509.5,
-				  534.5, 559.5, 584.5, 609.5, 634.5, 659.5, 684.5, 709.5, 747., 797., 847.,
-				  897.,  947., 997., 1047., 1109.5, 1184.5, 1259.5, 1334.5, 1422., 1522., 1622.,
-				  1734.5, 1859.5, 1984.5, 1859.5, 1984.5, 2109.5, 2234.5, 2359.5, 2484.5,
-				  2609.5, 2734.5, 2859.5, 2984.5, 3109.5, 3234.5, 3359.5, 3484.5, 3609.5, 3797.,
-				  4047., 4297., 4547., 4797., 5047., 5297., 5609.5, 5984.5, 6359.5, 6734.5,
-				  7172., 7672., 8172., 8734.5, 9359.5, 9984.5};
-
 
   if(!m_dbe) { printf("HcalLEDMonitor::processEvent   DaqMonitorBEInterface not instantiated!!!\n");  return; }
   float vals[10];
@@ -280,7 +267,7 @@ void HcalLEDMonitor::processEvent(const HBHEDigiCollection& hbhe,
       for(int i=sigS0_; i<=sigS1_; i++){	  
 	float tmp1 =0;   
         int j1=digi.sample(i).adc();
-        tmp1 = (adc2fc[j1]+0.5);   	  
+        tmp1 = (LedMonAdc2fc[j1]+0.5);   	  
 	en += tmp1-calibs_.pedestal(digi.sample(i).capid());
 	if(i>=(maxi-1) && i<=maxi+1){
 	  ts += i*(tmp1-calibs_.pedestal(digi.sample(i).capid()));
@@ -294,7 +281,7 @@ void HcalLEDMonitor::processEvent(const HBHEDigiCollection& hbhe,
 	for (int i=0; i<digi.size(); i++) {
 	  float tmp =0;
 	  int j=digi.sample(i).adc();
-	  tmp = (adc2fc[j]+0.5);
+	  tmp = (LedMonAdc2fc[j]+0.5);
 	  hbHists.shapeALL->Fill(i,tmp);
 	  hbHists.shapePED->Fill(i,tmp-calibs_.pedestal(digi.sample(i).capid()));
 	  vals[i] = tmp-calibs_.pedestal(digi.sample(i).capid());
@@ -307,14 +294,13 @@ void HcalLEDMonitor::processEvent(const HBHEDigiCollection& hbhe,
 	for (int i=0; i<digi.size(); i++) {
 	  float tmp =0;
 	  int j=digi.sample(i).adc();
-	  tmp = (adc2fc[j]+0.5);
+	  tmp = (LedMonAdc2fc[j]+0.5);
 	  heHists.shapeALL->Fill(i,tmp);
 	  heHists.shapePED->Fill(i,tmp-calibs_.pedestal(digi.sample(i).capid()));
 	  vals[i] = tmp-calibs_.pedestal(digi.sample(i).capid());
 	}
 	if(doPerChannel_) perChanHists(1,digi.id(),vals,heHists.shape, heHists.time, heHists.energy);
       }
-
     }
   } catch (...) {
     printf("HcalLEDMonitor::processEvent  No HBHE Digis.\n");
@@ -333,7 +319,7 @@ void HcalLEDMonitor::processEvent(const HBHEDigiCollection& hbhe,
       for(int i=sigS0_; i<=sigS1_; i++){	  
 	float tmp1 =0;   
         int j1=digi.sample(i).adc();
-        tmp1 = (adc2fc[j1]+0.5);   	  
+        tmp1 = (LedMonAdc2fc[j1]+0.5);   	  
 	en += tmp1-calibs_.pedestal(digi.sample(i).capid());
 	if(i>=(maxi-1) && i<=maxi+1){
 	  ts += i*(tmp1-calibs_.pedestal(digi.sample(i).capid()));
@@ -346,7 +332,7 @@ void HcalLEDMonitor::processEvent(const HBHEDigiCollection& hbhe,
       for (int i=0; i<digi.size(); i++) {
 	float tmp =0;
         int j=digi.sample(i).adc();
-        tmp = (adc2fc[j]+0.5);
+        tmp = (LedMonAdc2fc[j]+0.5);
         hoHists.shapeALL->Fill(i,tmp);
         hoHists.shapePED->Fill(i,tmp-calibs_.pedestal(digi.sample(i).capid()));
 	vals[i] = tmp-calibs_.pedestal(digi.sample(i).capid());
@@ -370,7 +356,7 @@ void HcalLEDMonitor::processEvent(const HBHEDigiCollection& hbhe,
       for(int i=sigS0_; i<=sigS1_; i++){	  
 	float tmp1 =0;   
         int j1=digi.sample(i).adc();
-        tmp1 = (adc2fc[j1]+0.5);   	  
+        tmp1 = (LedMonAdc2fc[j1]+0.5);   	  
 	en += tmp1-calibs_.pedestal(digi.sample(i).capid());
 	if(i>=(maxi-1) && i<=maxi+1){
 	  ts += i*(tmp1-calibs_.pedestal(digi.sample(i).capid()));
@@ -383,7 +369,7 @@ void HcalLEDMonitor::processEvent(const HBHEDigiCollection& hbhe,
       for (int i=0; i<digi.size(); i++) {
         float tmp =0;
         int j=digi.sample(i).adc();
-        tmp = (adc2fc[j]+0.5);
+        tmp = (LedMonAdc2fc[j]+0.5);
         hfHists.shapeALL->Fill(i,tmp);
         hfHists.shapePED->Fill(i,tmp-calibs_.pedestal(digi.sample(i).capid()));
 	vals[i] = tmp-calibs_.pedestal(digi.sample(i).capid());

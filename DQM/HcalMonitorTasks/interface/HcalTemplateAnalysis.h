@@ -8,8 +8,8 @@
 
 /** \class HcalTemplateAnalysis
   *  
-  * $Date: 2006/12/12 19:10:27 $
-  * $Revision: 1.11 $
+  * $Date: 2007/04/02 13:23:14 $
+  * $Revision: 1.1 $
   * \author W. Fisher - FNAL
   */
 
@@ -30,8 +30,9 @@ public:
 		    const LTCDigiCollection& ltc,
 		    const HcalDbService& cond);
   void done();
-  
-private:  
+  void reset();
+
+ private:  
   
   string outputFile_;
   double etaMax_, etaMin_, phiMax_, phiMin_;

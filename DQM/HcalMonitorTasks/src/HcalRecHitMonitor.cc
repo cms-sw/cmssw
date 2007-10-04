@@ -9,6 +9,8 @@ HcalRecHitMonitor::HcalRecHitMonitor() {
 HcalRecHitMonitor::~HcalRecHitMonitor() {
 }
 
+void HcalRecHitMonitor::reset(){}
+
 void HcalRecHitMonitor::clearME(){
 
   if(m_dbe){
@@ -73,7 +75,10 @@ void HcalRecHitMonitor::clearME(){
 
 namespace HcalRecHitPerChan{
   template<class RecHit>
-  inline void perChanHists(int id, const RecHit& rhit, std::map<HcalDetId, MonitorElement*> &toolE, std::map<HcalDetId, MonitorElement*> &toolT, DaqMonitorBEInterface* dbe) {
+  inline void perChanHists(int id, const RecHit& rhit, 
+			   std::map<HcalDetId, MonitorElement*> &toolE, 
+			   std::map<HcalDetId, MonitorElement*> &toolT,
+			   DaqMonitorBEInterface* dbe) {
     
     std::map<HcalDetId,MonitorElement*>::iterator _mei;
     string type = "HB";
@@ -206,7 +211,10 @@ void HcalRecHitMonitor::processEvent(const HBHERecHitCollection& hbHits,
 				     const HORecHitCollection& hoHits, 
 				     const HFRecHitCollection& hfHits){
 
-  if(!m_dbe) { printf("HcalRecHitMonitor::processEvent   DaqMonitorBEInterface not instantiated!!!\n");  return; }
+  if(!m_dbe) { 
+    printf("HcalRecHitMonitor::processEvent   DaqMonitorBEInterface not instantiated!!!\n");  
+    return; 
+  }
 
   ievt_++;
   meEVT_->Fill(ievt_);
@@ -219,74 +227,79 @@ void HcalRecHitMonitor::processEvent(const HBHERecHitCollection& hbHits,
   try{
     if(hbHits.size()>0){    
       for (_ib=hbHits.begin(); _ib!=hbHits.end(); _ib++) { // loop over all hits
-	const HBHERecHit rec = (const HBHERecHit)(*_ib);
-	
-	if(rec.energy()>0.0){
-	  if((HcalSubdetector)(rec.id().subdet())==HcalBarrel){
-	    hbHists.meRECHIT_E_all->Fill(rec.energy());
-	    hbHists.meRECHIT_E_low->Fill(rec.energy());
-	    hbHists.meRECHIT_T_tot->Fill(rec.time());
+	float en = _ib->energy();
+	float ti = _ib->time();
+	float ieta = _ib->id().ieta();
+	float iphi = _ib->id().iphi();
+	float depth = _ib->id().depth();
+	if(en>0.0){
+	  if((HcalSubdetector)(_ib->id().subdet())==HcalBarrel){
+	    hbHists.meRECHIT_E_all->Fill(en);
+	    hbHists.meRECHIT_E_low->Fill(en);
+	    hbHists.meRECHIT_T_tot->Fill(ti);
 	    
-	    tot += rec.energy();
-	    if(rec.energy()>occThresh_){
-	      hbHists.meOCC_MAP_GEO->Fill(rec.id().ieta(),rec.id().iphi());
-	      meOCC_MAP_ETA->Fill(rec.id().ieta());
-	      meOCC_MAP_PHI->Fill(rec.id().iphi());
+	    tot += en;
+	    if(en>occThresh_){
+	      hbHists.meOCC_MAP_GEO->Fill(ieta,iphi);
+	      meOCC_MAP_ETA->Fill(ieta);
+	      meOCC_MAP_PHI->Fill(iphi);
 	      
-	      meOCC_MAP_ETA_E->Fill(rec.id().ieta(),rec.energy());
-	      meOCC_MAP_PHI_E->Fill(rec.id().iphi(),rec.energy());
+	      meOCC_MAP_ETA_E->Fill(ieta,en);
+	      meOCC_MAP_PHI_E->Fill(iphi,en);
 	      
-	      if(rec.id().depth()==1){ 
-		meOCC_MAP_L1->Fill(rec.id().ieta(),rec.id().iphi());
-		meOCC_MAP_L1_E->Fill(rec.id().ieta(),rec.id().iphi(), rec.energy());
+	      if(depth==1){ 
+		meOCC_MAP_L1->Fill(ieta,iphi);
+		meOCC_MAP_L1_E->Fill(ieta,iphi, en);
 	      }
-	      else if(rec.id().depth()==2){ 
-		meOCC_MAP_L2->Fill(rec.id().ieta(),rec.id().iphi());
-		meOCC_MAP_L2_E->Fill(rec.id().ieta(),rec.id().iphi(), rec.energy());
+	      else if(depth==2){ 
+		meOCC_MAP_L2->Fill(ieta,iphi);
+		meOCC_MAP_L2_E->Fill(ieta,iphi, en);
 	      }
-	      else if(rec.id().depth()==3){ 
-		meOCC_MAP_L3->Fill(rec.id().ieta(),rec.id().iphi());
-		meOCC_MAP_L3_E->Fill(rec.id().ieta(),rec.id().iphi(), rec.energy());
+	      else if(depth==3){ 
+		meOCC_MAP_L3->Fill(ieta,iphi);
+		meOCC_MAP_L3_E->Fill(ieta,iphi, en);
 	      }
-	      if(rec.id().depth()==4){ 
-		meOCC_MAP_L4->Fill(rec.id().ieta(),rec.id().iphi());
-		meOCC_MAP_L4_E->Fill(rec.id().ieta(),rec.id().iphi(), rec.energy());
+	      if(depth==4){ 
+		meOCC_MAP_L4->Fill(ieta,iphi);
+		meOCC_MAP_L4_E->Fill(ieta,iphi, en);
 	      }
 	    }      
-	    if(doPerChannel_) HcalRecHitPerChan::perChanHists<HBHERecHit>(0,*_ib,hbHists.meRECHIT_E,hbHists.meRECHIT_T,m_dbe);
+	    if(doPerChannel_) 
+	      HcalRecHitPerChan::perChanHists<HBHERecHit>(0,*_ib,hbHists.meRECHIT_E,hbHists.meRECHIT_T,m_dbe);
 	  }
-	  else if((HcalSubdetector)(rec.id().subdet())==HcalEndcap){
-	    heHists.meRECHIT_E_all->Fill(rec.energy());
-	    heHists.meRECHIT_E_low->Fill(rec.energy());
-	    heHists.meRECHIT_T_tot->Fill(rec.time());
+	  else if((HcalSubdetector)(_ib->id().subdet())==HcalEndcap){
+	    heHists.meRECHIT_E_all->Fill(en);
+	    heHists.meRECHIT_E_low->Fill(en);
+	    heHists.meRECHIT_T_tot->Fill(ti);
 	    
-	    tot2 += rec.energy();
-	    if(rec.energy()>occThresh_){
-	      meOCC_MAP_ETA->Fill(rec.id().ieta());
-	      meOCC_MAP_PHI->Fill(rec.id().iphi());
-	      meOCC_MAP_ETA_E->Fill(rec.id().ieta(),rec.energy());
-	      meOCC_MAP_PHI_E->Fill(rec.id().iphi(),rec.energy());
+	    tot2 += en;
+	    if(en>occThresh_){
+	      meOCC_MAP_ETA->Fill(ieta);
+	      meOCC_MAP_PHI->Fill(iphi);
+	      meOCC_MAP_ETA_E->Fill(ieta,en);
+	      meOCC_MAP_PHI_E->Fill(iphi,en);
 	      
 	      
-	      heHists.meOCC_MAP_GEO->Fill(rec.id().ieta(),rec.id().iphi());
-	      if(rec.id().depth()==1){ 
-		meOCC_MAP_L1->Fill(rec.id().ieta(),rec.id().iphi());
-		meOCC_MAP_L1_E->Fill(rec.id().ieta(),rec.id().iphi(), rec.energy());
+	      heHists.meOCC_MAP_GEO->Fill(ieta,iphi);
+	      if(depth==1){ 
+		meOCC_MAP_L1->Fill(ieta,iphi);
+		meOCC_MAP_L1_E->Fill(ieta,iphi, en);
 	      }
-	      else if(rec.id().depth()==2){ 
-		meOCC_MAP_L2->Fill(rec.id().ieta(),rec.id().iphi());
-		meOCC_MAP_L2_E->Fill(rec.id().ieta(),rec.id().iphi(), rec.energy());
+	      else if(depth==2){ 
+		meOCC_MAP_L2->Fill(ieta,iphi);
+		meOCC_MAP_L2_E->Fill(ieta,iphi, en);
 	      }
-	      else if(rec.id().depth()==3){ 
-		meOCC_MAP_L3->Fill(rec.id().ieta(),rec.id().iphi());
-		meOCC_MAP_L3_E->Fill(rec.id().ieta(),rec.id().iphi(), rec.energy());
+	      else if(depth==3){ 
+		meOCC_MAP_L3->Fill(ieta,iphi);
+		meOCC_MAP_L3_E->Fill(ieta,iphi, en);
 	      }
-	      if(rec.id().depth()==4){ 
-		meOCC_MAP_L4->Fill(rec.id().ieta(),rec.id().iphi());
-		meOCC_MAP_L4_E->Fill(rec.id().ieta(),rec.id().iphi(), rec.energy());
+	      if(depth==4){ 
+		meOCC_MAP_L4->Fill(ieta,iphi);
+		meOCC_MAP_L4_E->Fill(ieta,iphi, en);
 	      }
 	    }      
-	    if(doPerChannel_) HcalRecHitPerChan::perChanHists<HBHERecHit>(1,*_ib,heHists.meRECHIT_E,heHists.meRECHIT_T,m_dbe);
+	    if(doPerChannel_) 
+	      HcalRecHitPerChan::perChanHists<HBHERecHit>(1,*_ib,heHists.meRECHIT_E,heHists.meRECHIT_T,m_dbe);
 	  }
 	}
 	

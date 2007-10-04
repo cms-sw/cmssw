@@ -7,8 +7,8 @@
 
 /** \class HcalCommisioningMonitor
   *  
-  * $Date: 2007/03/21 23:01:29 $
-  * $Revision: 1.7 $
+  * $Date: 2007/04/02 13:23:14 $
+  * $Revision: 1.1 $
   * \author W. Fisher - FNAL
   */
 class HcalCommissioningMonitor: public HcalBaseMonitor {
@@ -28,6 +28,7 @@ class HcalCommissioningMonitor: public HcalBaseMonitor {
 		    const HcalDbService& cond);
   
   void clearME();
+  void reset();
 
  private: 
   int ievt_;

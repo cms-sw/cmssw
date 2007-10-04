@@ -332,7 +332,7 @@ void HcalLEDClient::getHistograms(){
   map<unsigned int,MonitorElement*> meRMSshapeElec;
   map<unsigned int,MonitorElement*> meMEANshapeElec;
 
-  sprintf(name,"%sHcalMonitor/LEDMonitor/FEDs Unpacked",process_.c_str());
+  sprintf(name,"%sHcalMonitor/FEDs Unpacked",process_.c_str());
   meFEDunpacked = mui_->getBEInterface()->get(name);
   if(meFEDunpacked){
     for(int b=1; b<=meFEDunpacked->getNbinsX(); b++){

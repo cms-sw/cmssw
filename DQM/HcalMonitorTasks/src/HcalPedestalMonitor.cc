@@ -7,6 +7,8 @@ HcalPedestalMonitor::HcalPedestalMonitor() {m_doPerChannel = false;}
 
 HcalPedestalMonitor::~HcalPedestalMonitor() {}
 
+void HcalPedestalMonitor::reset(){}
+
 void HcalPedestalMonitor::clearME(){
   
   if ( m_dbe ) {
@@ -83,7 +85,7 @@ void HcalPedestalMonitor::setup(const edm::ParameterSet& ps, DaqMonitorBEInterfa
     m_dbe->setCurrentFolder("HcalMonitor/PedestalMonitor/HB");
     hbHists.ALLPEDS =  m_dbe->book1D("HB All Pedestal Values","HB All Pedestal Values",50,0,50);
     hbHists.PEDRMS  =  m_dbe->book1D("HB Pedestal RMS Values","HB Pedestal RMS Values",100,0,3);
-    hbHists.PEDMEAN =  m_dbe->book1D("HB Pedestal Mean Values","HB Pedestal Mean Values",100,0,9);
+    hbHists.PEDMEAN =  m_dbe->book1D("HB Pedestal Mean Values","HB Pedestal Mean Values",100,0,15);
     hbHists.NSIGMA  =  m_dbe->book1D("HB Normalized RMS Values","HB Normalized RMS Values",100,0,5);
     hbHists.SUBMEAN =  m_dbe->book1D("HB Subtracted Mean Values","HB Subtracted Mean Values",100,-2.5,2.5);
     hbHists.CAPIDRMS  =  m_dbe->book1D("HB CapID RMS Variance","HB CapID RMS Variance",50,0,0.5);
@@ -93,14 +95,14 @@ void HcalPedestalMonitor::setup(const edm::ParameterSet& ps, DaqMonitorBEInterfa
     hbHists.ERRGEO =  m_dbe->book2D("HB Pedestal Geo Error Map","HB Pedestal Geo Error Map",etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
     hbHists.ERRELEC =  m_dbe->book2D("HB Pedestal Elec Error Map","HB Pedestal Elec Error Map",21,-0.5,20.5,21,-0.5,20.5);
     type = "HB Pedestal Mean Reference Values";
-    hbHists.PEDESTAL_REFS = m_dbe->book1D(type,type,100,0,20);
+    hbHists.PEDESTAL_REFS = m_dbe->book1D(type,type,100,0,15);
     type = "HB Pedestal RMS Reference Values";
-    hbHists.WIDTH_REFS = m_dbe->book1D(type,type,50,0,10);
+    hbHists.WIDTH_REFS = m_dbe->book1D(type,type,50,0,3);
 
     m_dbe->setCurrentFolder("HcalMonitor/PedestalMonitor/HE");
     heHists.ALLPEDS =  m_dbe->book1D("HE All Pedestal Values","HE All Pedestal Values",50,0,50);
     heHists.PEDRMS  =  m_dbe->book1D("HE Pedestal RMS Values","HE Pedestal RMS Values",100,0,3);
-    heHists.PEDMEAN =  m_dbe->book1D("HE Pedestal Mean Values","HE Pedestal Mean Values",100,0,9);
+    heHists.PEDMEAN =  m_dbe->book1D("HE Pedestal Mean Values","HE Pedestal Mean Values",100,0,15);
     heHists.NSIGMA  =  m_dbe->book1D("HE Normalized RMS Values","HE Normalized RMS Values",100,0,5);
     heHists.SUBMEAN =  m_dbe->book1D("HE Subtracted Mean Values","HE Subtracted Mean Values",100,-2.5,2.5);
     heHists.CAPIDRMS  =  m_dbe->book1D("HE CapID RMS Variance","HE CapID RMS Variance",50,0,0.5);
@@ -110,16 +112,16 @@ void HcalPedestalMonitor::setup(const edm::ParameterSet& ps, DaqMonitorBEInterfa
     heHists.ERRGEO =  m_dbe->book2D("HE Pedestal Geo Error Map","HE Pedestal Geo Error Map",etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
     heHists.ERRELEC =  m_dbe->book2D("HE Pedestal Elec Error Map","HE Pedestal Elec Error Map",21,-0.5,20.5,21,-0.5,20.5);
     type = "HE Pedestal Mean Reference Values";
-    heHists.PEDESTAL_REFS = m_dbe->book1D(type,type,100,0,20);
+    heHists.PEDESTAL_REFS = m_dbe->book1D(type,type,100,0,15);
     type = "HE Pedestal RMS Reference Values";
-    heHists.WIDTH_REFS = m_dbe->book1D(type,type,50,0,10);
+    heHists.WIDTH_REFS = m_dbe->book1D(type,type,50,0,3);
 
     m_dbe->setCurrentFolder("HcalMonitor/PedestalMonitor/HF");
     hfHists.ALLPEDS =  m_dbe->book1D("HF All Pedestal Values","HF All Pedestal Values",50,0,50);
     hfHists.PEDRMS  =  m_dbe->book1D("HF Pedestal RMS Values","HF Pedestal RMS Values",100,0,3);
     hfHists.NSIGMA  =  m_dbe->book1D("HF Normalized RMS Values","HF Normalized RMS Values",100,0,5);
     hfHists.SUBMEAN =  m_dbe->book1D("HF Subtracted Mean Values","HF Subtracted Mean Values",100,-2.5,2.5);
-    hfHists.PEDMEAN =  m_dbe->book1D("HF Pedestal Mean Values","HF Pedestal Mean Values",100,0,9);
+    hfHists.PEDMEAN =  m_dbe->book1D("HF Pedestal Mean Values","HF Pedestal Mean Values",100,0,15);
     hfHists.CAPIDRMS  =  m_dbe->book1D("HF CapID RMS Variance","HF CapID RMS Variance",50,0,0.5);
     hfHists.CAPIDMEAN =  m_dbe->book1D("HF CapID Mean Variance","HF CapID Mean Variance",50,0,3);
     hfHists.QIERMS  =  m_dbe->book1D("HF QIE RMS Values","HF QIE RMS Values",50,0,3);
@@ -127,14 +129,14 @@ void HcalPedestalMonitor::setup(const edm::ParameterSet& ps, DaqMonitorBEInterfa
     hfHists.ERRGEO =  m_dbe->book2D("HF Pedestal Geo Error Map","HF Pedestal Geo Error Map",etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
     hfHists.ERRELEC =  m_dbe->book2D("HF Pedestal Elec Error Map","HF Pedestal Elec Error Map",21,-0.5,20.5,21,-0.5,20.5);
     type = "HF Pedestal Mean Reference Values";
-    hfHists.PEDESTAL_REFS = m_dbe->book1D(type,type,100,0,20);
+    hfHists.PEDESTAL_REFS = m_dbe->book1D(type,type,100,0,15);
     type = "HF Pedestal RMS Reference Values";
-    hfHists.WIDTH_REFS = m_dbe->book1D(type,type,50,0,10);
+    hfHists.WIDTH_REFS = m_dbe->book1D(type,type,50,0,3);
 
     m_dbe->setCurrentFolder("HcalMonitor/PedestalMonitor/HO");
     hoHists.ALLPEDS =  m_dbe->book1D("HO All Pedestal Values","HO All Pedestal Values",50,0,50);
     hoHists.PEDRMS  =  m_dbe->book1D("HO Pedestal RMS Values","HO Pedestal RMS Values",100,0,3);
-    hoHists.PEDMEAN =  m_dbe->book1D("HO Pedestal Mean Values","HO Pedestal Mean Values",100,0,9);
+    hoHists.PEDMEAN =  m_dbe->book1D("HO Pedestal Mean Values","HO Pedestal Mean Values",100,0,15);
     hoHists.NSIGMA  =  m_dbe->book1D("HO Normalized RMS Values","HO Normalized RMS Values",100,0,5);
     hoHists.SUBMEAN =  m_dbe->book1D("HO Subtracted Mean Values","HO Subtracted Mean Values",100,-2.5,2.5);
     hoHists.CAPIDRMS  =  m_dbe->book1D("HO CapID RMS Variance","HO CapID RMS Variance",50,0,0.5);
@@ -144,9 +146,9 @@ void HcalPedestalMonitor::setup(const edm::ParameterSet& ps, DaqMonitorBEInterfa
     hoHists.ERRGEO =  m_dbe->book2D("HO Pedestal Geo Error Map","HO Pedestal Geo Error Map",etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
     hoHists.ERRELEC =  m_dbe->book2D("HO Pedestal Elec Error Map","HO Pedestal Elec Error Map",21,-0.5,20.5,21,-0.5,20.5);
     type = "HO Pedestal Mean Reference Values";
-    hoHists.PEDESTAL_REFS = m_dbe->book1D(type,type,100,0,20);
+    hoHists.PEDESTAL_REFS = m_dbe->book1D(type,type,100,0,15);
     type = "HO Pedestal RMS Reference Values";
-    hoHists.WIDTH_REFS = m_dbe->book1D(type,type,50,0,10);
+    hoHists.WIDTH_REFS = m_dbe->book1D(type,type,50,0,3);
 
 }
 
@@ -318,12 +320,14 @@ void HcalPedestalMonitor::perChanHists(int id, const HcalDetId detid, const Hcal
     if(m_dbe){
       map<int,MonitorElement*> insertP;
       map<int,MonitorElement*> insertS;
-      //      float hi = 9; float lo = 0;
+      float hi = 9.5; float lo = -0.5;
+      hi /=0.92; lo /= 0.92;
+
       for(int i=0; i<4; i++){
 	char name[1024];
 	sprintf(name,"%s Pedestal Value (ADC) ieta=%d iphi=%d depth=%d CAPID=%d",
 		type.c_str(),detid.ieta(),detid.iphi(),detid.depth(),i);      
-	insertP[i] =  m_dbe->book1D(name,name,bins,-0.5,9.5);
+	insertP[i] =  m_dbe->book1D(name,name,bins,lo,hi);
 	
 	sprintf(name,"%s Pedestal Value (Subtracted) ieta=%d iphi=%d depth=%d CAPID=%d",
 		type.c_str(),detid.ieta(),detid.iphi(),detid.depth(),i);      

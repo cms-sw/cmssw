@@ -93,6 +93,7 @@ void HcalHotCellMonitor::clearME(){
 
 }
 
+void HcalHotCellMonitor::reset(){}
 
 void HcalHotCellMonitor::setup(const edm::ParameterSet& ps, DaqMonitorBEInterface* dbe){
 

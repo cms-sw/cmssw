@@ -8,6 +8,8 @@ HcalMTCCMonitor::HcalMTCCMonitor() {
 
 HcalMTCCMonitor::~HcalMTCCMonitor() {}
 
+void HcalMTCCMonitor::reset(){}
+
 void HcalMTCCMonitor::clearME(){
    if(m_dbe){
     m_dbe->setCurrentFolder("HcalMonitor/MTCCMonitor");

@@ -6,6 +6,9 @@ HcalCommissioningMonitor::HcalCommissioningMonitor() {
 
 HcalCommissioningMonitor::~HcalCommissioningMonitor() {}
 
+
+void HcalCommissioningMonitor::reset(){}
+
 void HcalCommissioningMonitor::clearME(){
    if(m_dbe){
     m_dbe->setCurrentFolder("HcalMonitor/CommissioingMonitor");

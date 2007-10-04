@@ -8,8 +8,8 @@
 
 /** \class Hcaldataformatmonitor
  *
- * $Date: 2007/06/09 21:12:35 $
- * $Revision: 1.13 $
+ * $Date: 2007/08/08 18:46:04 $
+ * $Revision: 1.15 $
  * \author W. Fisher - FNAL
  */
 class HcalDataFormatMonitor: public HcalBaseMonitor {
@@ -23,7 +23,8 @@ class HcalDataFormatMonitor: public HcalBaseMonitor {
 		    HcalUnpackerReport& report, const HcalElectronicsMap& emap);
   void unpack(const FEDRawData& raw, const HcalElectronicsMap& emap);
   void clearME();
-  
+  void reset();
+
  private: // Data accessors
    vector<int> fedUnpackList_;
    vector<int> dccCrate_;

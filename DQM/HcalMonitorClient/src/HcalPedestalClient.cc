@@ -388,29 +388,32 @@ void HcalPedestalClient::getHistograms(){
 	    capmeanS[capid]=0; caprmsS[capid]=0; 
 	    sprintf(name,"%sHcalMonitor/PedestalMonitor/%s/%s Pedestal Value (ADC) ieta=%d iphi=%d depth=%d CAPID=%d",process_.c_str(),
 		    type.c_str(),type.c_str(),ieta,iphi,depth,capid);  
-	    MonitorElement* meP = mui_->getBEInterface()->get(name);
+	    MonitorElement* mePed = mui_->getBEInterface()->get(name);
 	    sprintf(name,"%sHcalMonitor/PedestalMonitor/%s/%s Pedestal Value (Subtracted) ieta=%d iphi=%d depth=%d CAPID=%d",process_.c_str(),
 		    type.c_str(),type.c_str(),ieta,iphi,depth,capid);  
-	    MonitorElement* meS = mui_->getBEInterface()->get(name);
+	    MonitorElement* meSub = mui_->getBEInterface()->get(name);
 
-	    if(meP!=NULL){
-	      if(meP->getEntries()>0 || true){
-		capmeanP[capid] = meP->getMean();
-		caprmsP[capid] = meP->getRMS();
-		capmeanS[capid] = meS->getMean();
-		caprmsS[capid] = meS->getRMS();
-		mePedRMS->Fill(meP->getRMS());
-		mePedMean->Fill(meP->getMean());
+	    if(mePed!=NULL){
+	      if(mePed->getEntries()>0 || true){
+		capmeanP[capid] = mePed->getMean();
+		caprmsP[capid] = mePed->getRMS();
+
+		capmeanS[capid] = meSub->getMean();
+		caprmsS[capid] = meSub->getRMS();
+
+		mePedMean->Fill(capmeanP[capid]);
+		mePedRMS->Fill(caprmsP[capid]);
+
 
 		double width=1.0;
 		if(readoutMap_){
 		  const HcalPedestalWidth* pedw = (*conditions_).getPedestalWidth(id);
 		  if(pedw) width = pedw->getWidth(capid);
-		  if(width>0) meSubRMS->Fill(meS->getRMS()/width);
+		  if(width>0) meSubRMS->Fill(caprmsS[capid]/width);
 		}
-		meSubMean->Fill(meS->getMean());
+		meSubMean->Fill(capmeanS[capid]);
 
-		if(meS->getRMS()>pedrms_thresh_ || fabs(meS->getMean())>pedmean_thresh_) {
+		if(meSub->getRMS()>pedrms_thresh_ || fabs(meSub->getMean())>pedmean_thresh_) {
 		  meGeoErr->Fill(ieta,iphi);
 		  meElecErr->Fill(eid.readoutVMECrateId(),eid.htrSlot());
 		}
@@ -988,28 +991,28 @@ void HcalPedestalClient::loadHistograms(TFile* infile){
 	    capmeanS[capid]=0; caprmsS[capid]=0; 
 	    capmeanP[capid]=0; caprmsP[capid]=0; 
 	    sprintf(name,"DQMData/HcalMonitor/PedestalMonitor/%s/%s Pedestal Value (ADC) ieta=%d iphi=%d depth=%d CAPID=%d", type.c_str(),type.c_str(),ieta,iphi,depth,capid);  
-	    TH1F* meP = (TH1F*)infile->Get(name);
+	    TH1F* mePed = (TH1F*)infile->Get(name);
 	    
 	    sprintf(name,"DQMData/HcalMonitor/PedestalMonitor/%s/%s Pedestal Value (Subtracted) ieta=%d iphi=%d depth=%d CAPID=%d", type.c_str(),type.c_str(),ieta,iphi,depth,capid);  
-	    TH1F* meS = (TH1F*)infile->Get(name);
+	    TH1F* meSub = (TH1F*)infile->Get(name);
 	    
-	    if(meP!=NULL){
+	    if(mePed!=NULL){
 	      if(readoutMap_) eid = readoutMap_->lookup(id);	      
-	      capmeanP[capid] = meP->GetMean();
-	      caprmsP[capid] = meP->GetRMS();
-	      capmeanS[capid] = meS->GetMean();
-	      caprmsS[capid] = meS->GetRMS();
-	      if(ped_rms_[i]) ped_rms_[i]->Fill(meP->GetRMS());
-	      if(ped_mean_[i]) ped_mean_[i]->Fill(meP->GetMean());
+	      capmeanP[capid] = mePed->GetMean();
+	      caprmsP[capid] = mePed->GetRMS();
+	      capmeanS[capid] = meSub->GetMean();
+	      caprmsS[capid] = meSub->GetRMS();
+	      if(ped_rms_[i]) ped_rms_[i]->Fill(mePed->GetRMS());
+	      if(ped_mean_[i]) ped_mean_[i]->Fill(mePed->GetMean());
 	      
 	      double width=1.0;
 	      if(readoutMap_){
 		const HcalPedestalWidth* pedw = (*conditions_).getPedestalWidth(id);
 		if(pedw) width = pedw->getWidth(capid);
-		if(width!=0) sub_rms_[i]->Fill(meS->GetRMS()/width);
+		if(width!=0) sub_rms_[i]->Fill(meSub->GetRMS()/width);
 	      }
-	      sub_mean_[i]->Fill(meS->GetMean());
-	      if(meS->GetRMS()>pedrms_thresh_ || fabs(meS->GetMean())>pedmean_thresh_) {
+	      sub_mean_[i]->Fill(meSub->GetMean());
+	      if(meSub->GetRMS()>pedrms_thresh_ || fabs(meSub->GetMean())>pedmean_thresh_) {
 		if(err_map_geo_[i])err_map_geo_[i]->Fill(ieta,iphi);
 		if(readoutMap_ && err_map_elec_[i]) err_map_elec_[i]->Fill(eid.readoutVMECrateId(),eid.htrSlot());
 	      }

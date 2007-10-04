@@ -305,10 +305,10 @@ void HcalMonitorClient::endJob(void) {
 
   this->cleanup();
 
-  if( hot_client_ ) hot_client_->endJob();
   if( dataformat_client_ ) dataformat_client_->endJob();
   if( digi_client_ )  digi_client_->endJob();
   if( rechit_client_ )  rechit_client_->endJob();
+  if( hot_client_ ) hot_client_->endJob();
   if( pedestal_client_ ) pedestal_client_->endJob();
   if( led_client_ ) led_client_->endJob();
 
@@ -338,12 +338,13 @@ void HcalMonitorClient::report(bool doUpdate) {
     //  mui_->getBEInterface()->runQTests();
   }
 
-  if( hot_client_ ) hot_client_->report();
+
+  if( dataformat_client_ ) dataformat_client_->report();
+  if( digi_client_ ) digi_client_->report();
   if( led_client_ ) led_client_->report();
   if( pedestal_client_ ) pedestal_client_->report();
-  if( digi_client_ ) digi_client_->report();
   if( rechit_client_ ) rechit_client_->report();
-  if( dataformat_client_ ) dataformat_client_->report();
+  if( hot_client_ ) hot_client_->report();
   
   /*
   if(doUpdate && mui_){
@@ -429,17 +430,20 @@ void HcalMonitorClient::endRun(const Run& r, const EventSetup& c) {
   cout << endl;
   cout << "Standard endRun() for run " << r.id().run() << endl;
   cout << endl;
-
-  if ( run_ != -1 && evt_ != -1 && runtype_ != -1 ) {
+  this->endRun();
+  /*
+    if ( run_ != -1 && evt_ != -1 && runtype_ != -1 ) {
     if ( ! mergeRuns_ ) {
-      forced_update_ = true;
-      this->analyze();
-      if ( begin_run_ && ! end_run_ ) {
-        forced_status_ = false;
-        this->endRun();
-      }
+    forced_update_ = true;
+    this->analyze();
+    if ( begin_run_ && ! end_run_ ) {
+    forced_status_ = false;
+    this->endRun();
     }
-  }
+    }
+    }
+  */
+
 }
 
 void HcalMonitorClient::beginLuminosityBlock(const LuminosityBlock &l, const EventSetup &c) {

@@ -4,8 +4,8 @@
 /*
  * \file HcalMonitorModule.h
  *
- * $Date: 2007/06/07 22:12:45 $
- * $Revision: 1.15 $
+ * $Date: 2007/10/02 22:16:03 $
+ * $Revision: 1.16 $
  * \author W. Fisher
  *
 */
@@ -68,11 +68,16 @@ void beginJob(const edm::EventSetup& c);
 // EndJob
 void endJob(void);
 
+// Reset
+ void reset(void);
+
 private:
 
   int m_ievt;
   int m_runNum;
+  int m_lastRun;
   bool m_verbose;
+  bool m_fedsListed;
   DaqMonitorBEInterface* m_dbe;
   
   edm::InputTag inputLabelDigi_;
@@ -80,6 +85,7 @@ private:
   edm::InputTag inputLabelRecHitHF_;
   edm::InputTag inputLabelRecHitHO_;
 
+  MonitorElement* m_meFEDS;
   MonitorElement* m_meStatus;
   MonitorElement* m_meRunNum;
   MonitorElement* m_meRunType;

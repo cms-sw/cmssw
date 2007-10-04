@@ -7,8 +7,8 @@
 
 /** \class HcalMtccmonitor2
   *  
-  * $Date: 2007/03/21 23:01:29 $
-  * $Revision: 1.7 $
+  * $Date: 2007/04/02 13:19:38 $
+  * $Revision: 1.8 $
   * \author W. Fisher - FNAL
   */
 class HcalMTCCMonitor: public HcalBaseMonitor {
@@ -24,6 +24,7 @@ class HcalMTCCMonitor: public HcalBaseMonitor {
 		    const HcalDbService& cond);
   
   void clearME();
+  void reset();
 
 private: 
 

@@ -317,6 +317,8 @@ void HcalDataFormatClient::analyze(void){
 }
 
 void HcalDataFormatClient::getHistograms(){
+  if(!mui_) return;
+  
   char name[150];     
   sprintf(name,"DataFormatMonitor/Spigot Format Errors");
   spigotErrs_ = getHisto(name, process_, mui_, verbose_,cloneME_);
@@ -429,13 +431,6 @@ void HcalDataFormatClient::getHistograms(){
     sprintf(name,"DataFormatMonitor/%s Data Format Error Word", type.c_str());
     dferr_[i] = getHisto(name, process_, mui_, verbose_,cloneME_);    
     labelxBits(dferr_[i]);
-    /*    
-    sprintf(name,"DataFormatMonitor/%s Data Format Crate Error Map", type.c_str());
-    crateErrMap_[i] = getHisto2(name, process_, mui_, verbose_,cloneME_);
-
-    sprintf(name,"DataFormatMonitor/%s Data Format Spigot Error Map", type.c_str());
-    spigotErrMap_[i] = getHisto2(name, process_, mui_, verbose_,cloneME_);
-    */
   }
   return;
 }

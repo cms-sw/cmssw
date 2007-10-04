@@ -248,7 +248,7 @@ void HcalDigiClient::errorOutput(){
     string testName = testsMap->first;
     string meName = testsMap->second;
     MonitorElement* me = 0;
-    if(mui_) me = mui_->get(meName);
+    if(mui_) me = mui_->getBEInterface()->get(meName);
     if(me){
       if (me->hasError()){
 	vector<QReport*> report =  me->getQErrors();
@@ -295,7 +295,7 @@ void HcalDigiClient::report(){
   char name[256];
   sprintf(name, "%sHcalMonitor/DigiMonitor/Digi Task Event Number",process_.c_str());
   MonitorElement* me = 0;
-  if(mui_) me = mui_->get(name);
+  if(mui_) me = mui_->getBEInterface()->get(name);
   if ( me ) {
     string s = me->valueString();
     ievt_ = -1;
@@ -678,7 +678,7 @@ void HcalDigiClient::createTests(){
     sprintf(meTitle,"%sHcalMonitor/DigiMonitor/%s/%s Digi Geo Error Map",process_.c_str(),type.c_str(),type.c_str());
     sprintf(name,"%s Digi Errors by Geo_metry",type.c_str());
     if(dqmQtests_.find(name) == dqmQtests_.end()){	
-      MonitorElement* me = mui_->get(meTitle);
+      MonitorElement* me = mui_->getBEInterface()->get(meTitle);
       if(me){
 	dqmQtests_[name]=meTitle;	  
 	params.clear();
@@ -692,7 +692,7 @@ void HcalDigiClient::createTests(){
     sprintf(meTitle,"%sHcalMonitor/DigiMonitor/%s/%s # of Digis",process_.c_str(),type.c_str(),type.c_str());
     sprintf(name,"%s # of Digis",type.c_str());
     if(dqmQtests_.find(name) == dqmQtests_.end()){	
-      MonitorElement* me = mui_->get(meTitle);
+      MonitorElement* me = mui_->getBEInterface()->get(meTitle);
       if(me){	
 	dqmQtests_[name]=meTitle;	  
 	params.clear();
@@ -712,7 +712,7 @@ void HcalDigiClient::createTests(){
     sprintf(meTitle,"%sHcalMonitor/DigiMonitor/%s/%s QIE Cap-ID",process_.c_str(),type.c_str(),type.c_str());
     sprintf(name,"%s QIE CapID",type.c_str());
     if(dqmQtests_.find(name) == dqmQtests_.end()){	
-      MonitorElement* me = mui_->get(meTitle);
+      MonitorElement* me = mui_->getBEInterface()->get(meTitle);
       if(me){	
 	dqmQtests_[name]=meTitle;	  
 	params.clear();
@@ -726,7 +726,7 @@ void HcalDigiClient::createTests(){
     sprintf(meTitle,"%sHcalMonitor/DigiMonitor/%s/%s QIE Data Valid Err Bits",process_.c_str(),type.c_str(),type.c_str());
     sprintf(name,"%s DVErr",type.c_str());
     if(dqmQtests_.find(name) == dqmQtests_.end()){	
-      MonitorElement* me = mui_->get(meTitle);
+      MonitorElement* me = mui_->getBEInterface()->get(meTitle);
       if(me){	
 	dqmQtests_[name]=meTitle;	  
 	params.clear();
