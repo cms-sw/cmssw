@@ -18,7 +18,7 @@ void CSCChamberIndexValues::fillChamberIndex()
   int r,c;     //r - number of rings, c - number of chambers.
   int count=0;
 
-  mapobj->ch_index.resize(469);
+  mapobj->ch_index.resize(468);
   for(i=1;i<=2;++i){
     for(j=1;j<=4;++j){
       if(j==1) r=3;
@@ -30,7 +30,7 @@ void CSCChamberIndexValues::fillChamberIndex()
         for(l=1;l<=c;++l){
          chamberid=i*100000+j*10000+k*1000+l*10;
          map->chamber(chamberid,&item);
-         mapobj->ch_index[item.cscIndex]=item;
+         mapobj->ch_index[item.cscIndex-1]=item;
          count=count+1;
         }
       }
