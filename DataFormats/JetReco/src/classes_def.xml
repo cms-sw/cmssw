@@ -96,7 +96,9 @@
   <function name="reco::JetExtendedAssociation::getByLabel"/>
   
   <class name="std::auto_ptr<edm::View<reco::Jet> >" />
-  <class name="edm::RefToBaseProd<reco::Jet>" />
+  <class name="edm::RefToBaseProd<reco::Jet>" >
+     <field name="view_" transient="true" />
+  </class>
   <class name="edm::RefToBase<reco::Jet>" />
   <class name="edm::reftobase::BaseHolder<reco::Jet>" />
   <class name="edm::reftobase::IndirectHolder<reco::Jet>" />
