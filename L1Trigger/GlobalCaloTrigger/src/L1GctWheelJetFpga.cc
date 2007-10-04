@@ -4,6 +4,7 @@
 
 #include "CondFormats/L1TObjects/interface/L1GctJetCounterSetup.h"
 
+#include "L1Trigger/GlobalCaloTrigger/interface/L1GctJetFinderBase.h"
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctJetLeafCard.h"
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctJetCounter.h"
 

@@ -2,6 +2,7 @@
 
 #include "DataFormats/L1GlobalCaloTrigger/interface/L1GctJetCand.h"
 
+#include "L1Trigger/GlobalCaloTrigger/interface/L1GctJetFinderBase.h"
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctJetEtCalibrationLut.h"
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctTdrJetFinder.h"
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctHardwareJetFinder.h"
@@ -158,6 +159,19 @@ void L1GctJetLeafCard::process() {
     m_jetFinderB->getHt() +
     m_jetFinderC->getHt();
 }
+
+bool L1GctJetLeafCard::setupOk() const {
+  return (m_jetFinderA->setupOk() &&
+          m_jetFinderB->setupOk() &&
+	  m_jetFinderC->setupOk()); }
+
+// get the jet output
+L1GctJetFinderBase::JetVector
+L1GctJetLeafCard::getOutputJetsA() const { return m_jetFinderA->getJets(); }  ///< Output jetfinder A jets (lowest jetFinder in phi)
+L1GctJetFinderBase::JetVector
+L1GctJetLeafCard::getOutputJetsB() const { return m_jetFinderB->getJets(); }  ///< Output jetfinder B jets (middle jetFinder in phi)
+L1GctJetFinderBase::JetVector
+L1GctJetLeafCard::getOutputJetsC() const { return m_jetFinderC->getJets(); }  ///< Ouptut jetfinder C jets (highest jetFinder in phi)
 
 // PRIVATE MEMBER FUNCTIONS
 // Given a strip Et sum, perform rotations by sine and cosine

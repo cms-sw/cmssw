@@ -5,13 +5,13 @@
 
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctJetEtCalibrationLut.h"
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctEmLeafCard.h"
+#include "L1Trigger/GlobalCaloTrigger/interface/L1GctJetFinderBase.h"
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctWheelJetFpga.h"
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctWheelEnergyFpga.h"
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctJetFinalStage.h"
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctGlobalEnergyAlgos.h"
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctElectronFinalSort.h"
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctJetCounter.h"
-//#include "L1Trigger/GlobalCaloTrigger/interface/L1GctJetCounterLut.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Exception.h"
