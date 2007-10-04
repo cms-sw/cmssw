@@ -59,6 +59,7 @@ RPCSimAverage::RPCSimAverage(const edm::ParameterSet& config) :
   sspeed = config.getParameter<double>("signalPropagationSpeed");
   lbGate = config.getParameter<double>("linkGateWidth");
   rpcdigiprint = config.getParameter<bool>("printOutDigitizer");
+  ifile = config.getParameter<string>("fileClusterSize");
 
   rate=config.getParameter<double>("Rate");
   nbxing=config.getParameter<int>("Nbxing");
@@ -75,7 +76,7 @@ RPCSimAverage::RPCSimAverage(const edm::ParameterSet& config) :
     std::cout <<"Link Board Gate Width     = "<<lbGate<<" ns"<<std::endl;
   }
 
-  string ifile="SimMuon/RPCDigitizer/data/ClSizeTot.dat";
+  //  string ifile="SimMuon/RPCDigitizer/data/ClSizeTot.dat";
 
   infile = new ifstream(ifile.c_str(), ios::in);
   if(! *infile) {

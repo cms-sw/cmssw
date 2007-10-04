@@ -56,6 +56,8 @@ class RPCSimAverage : public RPCSim
   double rate;
   double gate;
 
+  std::string ifile;
+
   std::map< int, std::vector<double> > clsMap;
   std::vector<double> sum_clsize;
   std::ifstream *infile;
