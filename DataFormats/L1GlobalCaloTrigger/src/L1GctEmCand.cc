@@ -32,7 +32,7 @@ L1GctEmCand::L1GctEmCand(uint16_t data, bool iso) :
  L1GctEmCand::L1GctEmCand(uint16_t data, bool iso, uint16_t block, uint16_t index, int16_t bx) :
    m_data(data),
    m_iso(iso),
-   m_source( ((block&0xff)<<9) + (index&0x1ff) ),
+   m_source( ((block&0xff)<<8) | (index&0xff) ),
    m_bx(bx)
  {
 
@@ -55,7 +55,7 @@ L1GctEmCand::L1GctEmCand(unsigned rank, unsigned eta, unsigned phi, bool iso) :
 L1GctEmCand::L1GctEmCand(unsigned rank, unsigned eta, unsigned phi, bool iso, uint16_t block, uint16_t index, int16_t bx) : 
   m_data(0), // override below
   m_iso(iso),
-  m_source( ((block&0xff)<<9) + (index&0x1ff) ),
+  m_source( ((block&0xff)<<8) | (index&0xff) ),
   m_bx(bx)
 {
   construct(rank, eta, phi);

@@ -73,10 +73,10 @@ public:
   bool isolated() const { return m_iso; }
 
   /// which capture block did this come from
-  unsigned capBlock() const { return (m_source>>9) & 0xff; }
+  unsigned capBlock() const { return (m_source >> 8) & 0xff; }
 
   /// what index within capture block
-  unsigned capIndex() const { return m_source&0x1ff; }
+  unsigned capIndex() const { return m_source & 0xff; }
 
   /// get bunch-crossing index
   int bx() const { return m_bx; }

@@ -33,7 +33,7 @@ L1GctJetCand::L1GctJetCand(uint16_t data, bool isTau, bool isFor, uint16_t block
   m_data(data),
   m_isTau(isTau),
   m_isFor(isFor),
-  m_source( ((block&0x7f)<<9) + (index&0x1ff) ),
+  m_source( ((block&0xff)<<8) | (index&0xff) ),
   m_bx(bx)
 {
 }
@@ -56,7 +56,7 @@ L1GctJetCand::L1GctJetCand(unsigned rank, unsigned phi, unsigned eta, bool isTau
   m_data(0), // overridden below
   m_isTau(isTau),
   m_isFor(isFor),
-  m_source( ((block&0x7f)<<9) + (index&0x1ff) ),
+  m_source( ((block&0xff)<<8) | (index&0xff) ),
   m_bx(bx)
 { 
   m_data = (rank & 0x3f) + ((eta & 0xf)<<6) + ((phi & 0x1f)<<10); 
