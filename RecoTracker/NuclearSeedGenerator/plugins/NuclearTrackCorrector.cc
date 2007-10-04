@@ -46,9 +46,6 @@ theInitialState(0)
      produces< TrajectoryCollection >();
      produces< TrajectoryToTrajectoryMap >();
 
-     produces< TrackCandidateCollection >();
-     produces< TrackCandidateToTrajectoryMap >();
-
      produces< reco::TrackExtraCollection >();
      produces< reco::TrackCollection >();       
      produces< TrackToTrajectoryMap >();
@@ -69,9 +66,6 @@ NuclearTrackCorrector::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
   std::auto_ptr<TrajectoryCollection>           Output_traj          ( new TrajectoryCollection );
   std::auto_ptr<TrajectoryToTrajectoryMap>      Output_trajmap       ( new TrajectoryToTrajectoryMap );
 
-  std::auto_ptr<TrackCandidateCollection>       Output_trackCand     ( new TrackCandidateCollection );
-  std::auto_ptr<TrackCandidateToTrajectoryMap>  Output_trackCandmap  ( new TrackCandidateToTrajectoryMap );
-
   std::auto_ptr<reco::TrackExtraCollection>	Output_trackextra    ( new reco::TrackExtraCollection );
   std::auto_ptr<reco::TrackCollection>          Output_track         ( new reco::TrackCollection );
   std::auto_ptr<TrackToTrajectoryMap>           Output_trackmap      ( new TrackToTrajectoryMap );
@@ -84,18 +78,17 @@ NuclearTrackCorrector::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
 
   // Load Reccord
   // --------------------------------------------------------------------------------------------------
-  edm::ESHandle<TrajectoryFitter> theFitter;
   std::string fitterName = conf_.getParameter<std::string>("Fitter");   
   iSetup.get<TrackingComponentsRecord>().get(fitterName,theFitter);
 
-  edm::ESHandle<Propagator> thePropagator;
   std::string propagatorName = conf_.getParameter<std::string>("Propagator");   
   iSetup.get<TrackingComponentsRecord>().get(propagatorName,thePropagator);
 
-  iSetup.get<TrackerDigiGeometryRecord>().get(pDD);
+  iSetup.get<TrackerDigiGeometryRecord>().get(theG);
 
   reco::TrackExtraRefProd rTrackExtras = iEvent.getRefBeforePut<reco::TrackExtraCollection>();
 
+   iSetup.get<IdealMagneticFieldRecord>().get(theMF); 
 
   // Load Inputs
   // --------------------------------------------------------------------------------------------------
@@ -113,7 +106,7 @@ NuclearTrackCorrector::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
 
   edm::Handle< TrajTrackAssociationCollection > h_TrajToTrackCollection;
   iEvent.getByLabel( str_Input_Trajectory.c_str(), h_TrajToTrackCollection );
-  const TrajTrackAssociationCollection m_TrajToTrackCollection = *(h_TrajToTrackCollection.product());
+  m_TrajToTrackCollection = h_TrajToTrackCollection.product();
 
 
 
@@ -138,184 +131,33 @@ NuclearTrackCorrector::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
 	       	seedRef = m_TrajectoryToSeedsMap [ trajRef ];
 	}
 	catch(edm::Exception event){}
+ 
+        Trajectory newTraj;
+        if( newTrajNeeded(newTraj, trajRef, seedRef) ) {
 
-	// Find radius of the inner seed
-	double min_seed_radius = 999;
-	for(unsigned int k=0;k<seedRef.size();k++)
-	{
-		BasicTrajectorySeed::range seed_RecHits = seedRef[k]->recHits();
-		
-		if(seedRef[k]->nHits()==0) continue;
-  
-		GlobalPoint pos = pDD->idToDet(seed_RecHits.first->geographicalId())->surface().toGlobal(seed_RecHits.first->localPosition());
-		double seed_radius = sqrt( pow(pos.x(),2) + pow(pos.y(),2) );
-		if(seed_radius<min_seed_radius) min_seed_radius = seed_radius;
-	}
-        if(verbosity>=2) printf("Min Seed Radius = %f\n",min_seed_radius );
+          AlgoProductCollection  algoResults; 
+          bool isOK = getTrackFromTrajectory( newTraj , trajRef, algoResults);
+          if( isOK ) {
+                reco::TrackExtraRef teref= reco::TrackExtraRef ( rTrackExtras, i );
+                reco::TrackExtra newTrackExtra = getNewTrackExtra(algoResults);
+                (algoResults[0].second.first)->setExtra( teref );   // is it correct ? we should maybe introduce here a ref of newTrackExtra ?
 
+                Output_track->push_back(*algoResults[0].second.first);        
+                Output_trackextra->push_back( newTrackExtra );
+	        Output_traj->push_back(newTraj);
+          }
+        }
 
-        Trajectory     newtrajectory (trajRef->seed());
-
-        // Look all the Hits of the trajectory and keep only Hits before seeds
-	Trajectory::DataContainer Measurements = trajRef->measurements();
-	if(verbosity>=2)printf("Size of Measurements  = %i\n",Measurements.size() );
-        for(unsigned int m=Measurements.size()-1 ;m!=(unsigned int)-1 ; m--){
-
-		if(!Measurements[m].recHit()->isValid() )continue;
-                GlobalPoint pos = pDD->idToDet(Measurements[m].recHit()->geographicalId())->surface().toGlobal(Measurements[m].recHit()->localPosition());
-                double hit_radius = sqrt( pow(pos.x(),2) + pow(pos.y(),2) );
-                if(verbosity>=2)printf("Hit Radius = %f",hit_radius );
-                if(hit_radius>min_seed_radius-int_Input_Hit_Distance){
-			 if(verbosity>=2)printf(" X ");
-		}else{
-			newtrajectory.push(Measurements[m]);
-		}
-                if(verbosity>=2)printf("\n");
-	}
-
-	Output_traj->push_back(newtrajectory);
   }
   const edm::OrphanHandle<TrajectoryCollection>     Handle_traj = iEvent.put(Output_traj);
-
-
-
-
-  //  Convert Trajectory to TrackCandidates
-  // --------------------------------------------------------------------------------------------------
-  TrajectoryCollection Trajectories1 = *(Handle_traj.product());
-  for(unsigned int i = 0 ; i < Trajectories1.size() ; i++)
-  {
-        Trajectory*  it = &Trajectories1[i];
-
-	Trajectory::RecHitContainer thits;
-	it->recHitsV(thits);
-
-	OwnVector<TrackingRecHit> recHits;
-	recHits.reserve(thits.size());
-
-	for (Trajectory::RecHitContainer::const_iterator hitIt = thits.begin(); hitIt != thits.end(); hitIt++)
-	{
-  	    recHits.push_back( (**hitIt).hit()->clone());
-	}
-
-	edm::ParameterSet tise_params = conf_.getParameter<edm::ParameterSet>("TransientInitialStateEstimatorParameters") ;
-	theInitialState = new TransientInitialStateEstimator( iSetup,  tise_params);
-	
-	std::pair<TrajectoryStateOnSurface, const GeomDet*> initState = theInitialState->innerState( *it);
-      
-	// temporary protection againt invalid initial states
-	if (! initState.first.isValid() || initState.second == 0)
-	{
-           cout << "invalid innerState, will not make TrackCandidate" << endl;
-           continue;
-        }
-
-	PTrajectoryStateOnDet* state = TrajectoryStateTransform().persistentState( initState.first, initState.second->geographicalId().rawId());
-	
-	Output_trackCand->push_back(TrackCandidate(recHits,it->seed(),*state));
-	delete state;
-  }       
-  const edm::OrphanHandle<TrackCandidateCollection> Handle_trackCand       = iEvent.put(Output_trackCand);
-
-
-
-
-  //  Convert Trajectory to reco::Track
-  // --------------------------------------------------------------------------------------------------
-  AlgoProductCollection algoResults;
-  TrajectoryCollection Trajectories = *(Handle_traj.product());
-  for(unsigned int i = 0 ; i < Trajectories.size() ; i++)
-  { 
-        Trajectory*  it = &Trajectories[i];
-
-      	TransientTrackingRecHit::RecHitContainer hits;
-	it->recHitsV( hits  );      
-      	float ndof=0;     
-	for(unsigned int h=0 ; h<hits.size() ; h++)
-	{
-	    if( hits[h]->isValid() )
-	    {
-		ndof = ndof + hits[h]->dimension() * hits[h]->weight();
-	    }
-      	}      
-      	ndof = ndof - 5;
-
-
-        edm::ParameterSet tise_params = conf_.getParameter<edm::ParameterSet>("TransientInitialStateEstimatorParameters") ;
-        theInitialState = new TransientInitialStateEstimator( iSetup,  tise_params);
-
-        std::pair<TrajectoryStateOnSurface, const GeomDet*> initState = theInitialState->innerState( *it);
-
-        // temporary protection againt invalid initial states
-        if (! initState.first.isValid() || initState.second == 0)
-        {
-           cout << "invalid innerState, will not make TrackCandidate" << endl;
-           continue;
-        }
-
-	bool IsOK = theAlgo->buildTrack(theFitter.product(),thePropagator.product(),algoResults,hits,initState.first,it->seed(),ndof);
-
-	if(IsOK==1){
-                reco::TrackExtraRef teref= reco::TrackExtraRef ( rTrackExtras, i );
-		(algoResults[0].second.first)->setExtra( teref );
-		Output_track->push_back(*algoResults[0].second.first);
-
-
-
-		// Create the reco::TrackExtra
-
-	        Trajectory* theTraj          = algoResults[0].first;
-                PropagationDirection seedDir = algoResults[0].second.second;
-
-    		TrajectoryStateOnSurface outertsos;
-		TrajectoryStateOnSurface innertsos;		
-		unsigned int innerId, outerId;
-    		if (theTraj->direction() == alongMomentum) {
-      		  outertsos = theTraj->lastMeasurement().updatedState();
-      		  innertsos = theTraj->firstMeasurement().updatedState();
-      		  outerId   = theTraj->lastMeasurement().recHit()->geographicalId().rawId();
-      		  innerId   = theTraj->firstMeasurement().recHit()->geographicalId().rawId();
-    		} else { 
-      		  outertsos = theTraj->firstMeasurement().updatedState();
-      		  innertsos = theTraj->lastMeasurement().updatedState();
-      		  outerId   = theTraj->firstMeasurement().recHit()->geographicalId().rawId();
-      		  innerId   = theTraj->lastMeasurement().recHit()->geographicalId().rawId();
-   		}
-
-    
-    		GlobalPoint v = outertsos.globalParameters().position();
-    		GlobalVector p = outertsos.globalParameters().momentum();
-    		math::XYZVector outmom( p.x(), p.y(), p.z() );
-    		math::XYZPoint  outpos( v.x(), v.y(), v.z() );
-    		v = innertsos.globalParameters().position();
-    		p = innertsos.globalParameters().momentum();
-    		math::XYZVector inmom( p.x(), p.y(), p.z() );
-    		math::XYZPoint  inpos( v.x(), v.y(), v.z() );
-
-		Output_trackextra->push_back( reco::TrackExtra (outpos, outmom, true, inpos, inmom, true,
-                                        outertsos.curvilinearError(), outerId,
-					innertsos.curvilinearError(), innerId, seedDir));
-
-
-		// Remove the element from algoResults, so we only have 1 or 0 elements inside!
-                algoResults.pop_back();
-	}else{
-	        printf("ERROR during the Trajectory to reco::Track conversion !\n" );
-	}
-  }
   const edm::OrphanHandle<reco::TrackCollection> Handle_tracks = iEvent.put(Output_track);
   iEvent.put(Output_trackextra);
 
-
-
-
-
-
   // Make Maps between elements
   // --------------------------------------------------------------------------------------------------
-  if(Handle_tracks->size() != Handle_traj->size() || Handle_trackCand->size() != Handle_traj->size() )
+  if(Handle_tracks->size() != Handle_traj->size() )
   {
-     printf("ERROR Handle_tracks->size() != Handle_traj->size() || Handle_trackCand->size() != Handle_traj->size() \n");
+     printf("ERROR Handle_tracks->size() != Handle_traj->size() \n");
      return;
   }
 
@@ -324,20 +166,17 @@ NuclearTrackCorrector::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
         TrajectoryRef      InTrajRef    ( temp_m_TrajectoryCollection, i );
         TrajectoryRef      OutTrajRef   ( Handle_traj, i );
         reco::TrackRef     TrackRef     ( Handle_tracks, i );
-	TrackCandidateRef  TrackCandRef ( Handle_trackCand, i);
 
         Output_trajmap ->insert(OutTrajRef,InTrajRef);
-	Output_trackCandmap->insert(TrackCandRef,InTrajRef);
         Output_trackmap->insert(TrackRef,InTrajRef);
 
         try{
-                reco::TrackRef  PrimaryTrackRef     = m_TrajToTrackCollection[ InTrajRef ];
+                reco::TrackRef  PrimaryTrackRef     = m_TrajToTrackCollection->operator[]( InTrajRef );
 	        Output_tracktrackmap->insert(TrackRef,PrimaryTrackRef);
         }catch(edm::Exception event){printf("@@@@@@@@@@@   ERROR for getting references @@@@@@@@@@@\n");}
 	
   }
   iEvent.put(Output_trajmap);
-  iEvent.put(Output_trackCandmap);
   iEvent.put(Output_trackmap);
   iEvent.put(Output_tracktrackmap);
 
@@ -355,5 +194,132 @@ NuclearTrackCorrector::beginJob(const edm::EventSetup& iSetup)
 void 
 NuclearTrackCorrector::endJob() {
 }
+//----------------------------------------------------------------------------------------
+bool NuclearTrackCorrector::newTrajNeeded(Trajectory& newtrajectory, const TrajectoryRef& trajRef, const TrajectorySeedRefVector& seedRef) {
+
+ // Find radius of the inner seed
+        double min_seed_radius = 999;
+        bool needNewTraj=false;
+        for(unsigned int k=0;k<seedRef.size();k++)
+        {
+                BasicTrajectorySeed::range seed_RecHits = seedRef[k]->recHits();
+
+                if(seedRef[k]->nHits()==0) continue;
+
+                GlobalPoint pos = theG->idToDet(seed_RecHits.first->geographicalId())->surface().toGlobal(seed_RecHits.first->localPosition());
+                double seed_radius = sqrt( pow(pos.x(),2) + pow(pos.y(),2) );
+                if(seed_radius<min_seed_radius) min_seed_radius = seed_radius;
+        }
+        if(verbosity>=2) printf("Min Seed Radius = %f\n",min_seed_radius );
 
 
+        newtrajectory = Trajectory(trajRef->seed(), alongMomentum);
+
+        // Look all the Hits of the trajectory and keep only Hits before seeds
+        Trajectory::DataContainer Measurements = trajRef->measurements();
+        if(verbosity>=2)printf("Size of Measurements  = %i\n",Measurements.size() );
+        for(unsigned int m=Measurements.size()-1 ;m!=(unsigned int)-1 ; m--){
+
+                if(!Measurements[m].recHit()->isValid() )continue;
+                GlobalPoint pos = theG->idToDet(Measurements[m].recHit()->geographicalId())->surface().toGlobal(Measurements[m].recHit()->localPosition());
+                double hit_radius = sqrt( pow(pos.x(),2) + pow(pos.y(),2) );
+                if(verbosity>=2)printf("Hit Radius = %f",hit_radius );
+                if(hit_radius>min_seed_radius-int_Input_Hit_Distance){
+                         if(verbosity>=2)printf(" X ");
+                         needNewTraj=true;
+                }else{
+                        newtrajectory.push(Measurements[m]);
+                }
+                if(verbosity>=2)printf("\n");
+        }
+        return needNewTraj;
+}
+
+//----------------------------------------------------------------------------------------
+bool NuclearTrackCorrector::getTrackFromTrajectory(const Trajectory& newTraj , const TrajectoryRef& initialTrajRef, AlgoProductCollection& algoResults) {
+        const Trajectory*  it = &newTraj;
+
+        TransientTrackingRecHit::RecHitContainer hits;
+        it->validRecHits( hits  );
+        float ndof=0;
+        for(unsigned int h=0 ; h<hits.size() ; h++)
+        {
+            if( hits[h]->isValid() )
+            {
+                ndof = ndof + hits[h]->dimension() * hits[h]->weight();
+            }
+            else {
+                 LogDebug("NuclearSeedGenerator") << " HIT IS INVALID ???";
+            }
+        }
+        ndof = ndof - 5;
+        reco::TrackRef  theT     = m_TrajToTrackCollection->operator[]( initialTrajRef );
+        LogDebug("NuclearSeedGenerator") << " TrackCorrector - number of valid hits" << hits.size() << "\n"
+                                         << "                - number of hits from Track " << theT->recHitsSize() << "\n"
+                                         << "                - number of valid hits from initial track " << theT->numberOfValidHits();
+
+        TrajectoryStateOnSurface theInitialStateForRefitting = getInitialState(&(*theT),hits,theG.product(),theMF.product());
+
+        if(  hits.size() > 1)
+           return theAlgo->buildTrack(theFitter.product(), thePropagator.product(), algoResults, hits, theInitialStateForRefitting ,it->seed(), ndof);
+         else return false;
+}
+//----------------------------------------------------------------------------------------
+reco::TrackExtra NuclearTrackCorrector::getNewTrackExtra(const AlgoProductCollection& algoResults) {
+                Trajectory* theTraj          = algoResults[0].first;
+                PropagationDirection seedDir = algoResults[0].second.second;
+
+                TrajectoryStateOnSurface outertsos;
+                TrajectoryStateOnSurface innertsos;
+                unsigned int innerId, outerId;
+                if (theTraj->direction() == alongMomentum) {
+                  outertsos = theTraj->lastMeasurement().updatedState();
+                  innertsos = theTraj->firstMeasurement().updatedState();
+                  outerId   = theTraj->lastMeasurement().recHit()->geographicalId().rawId();
+                  innerId   = theTraj->firstMeasurement().recHit()->geographicalId().rawId();
+                } else {
+                  outertsos = theTraj->firstMeasurement().updatedState();
+                  innertsos = theTraj->lastMeasurement().updatedState();
+                  outerId   = theTraj->firstMeasurement().recHit()->geographicalId().rawId();
+                  innerId   = theTraj->lastMeasurement().recHit()->geographicalId().rawId();
+                }
+
+                GlobalPoint v = outertsos.globalParameters().position();
+                GlobalVector p = outertsos.globalParameters().momentum();
+                math::XYZVector outmom( p.x(), p.y(), p.z() );
+                math::XYZPoint  outpos( v.x(), v.y(), v.z() );
+                v = innertsos.globalParameters().position();
+                p = innertsos.globalParameters().momentum();
+                math::XYZVector inmom( p.x(), p.y(), p.z() );
+                math::XYZPoint  inpos( v.x(), v.y(), v.z() );
+
+                return reco::TrackExtra (outpos, outmom, true, inpos, inmom, true,
+                                        outertsos.curvilinearError(), outerId,
+                                        innertsos.curvilinearError(), innerId, seedDir);
+
+}
+//----------------------------------------------------------------------------------------
+TrajectoryStateOnSurface NuclearTrackCorrector::getInitialState(const reco::Track * theT,
+                                                                 TransientTrackingRecHit::RecHitContainer& hits,
+                                                                 const TrackingGeometry * theG,
+                                                                 const MagneticField * theMF){
+
+  TrajectoryStateOnSurface theInitialStateForRefitting;
+  //the starting state is the state closest to the first hit along seedDirection.
+  TrajectoryStateTransform transformer;
+  //avoiding to use transientTrack, it should be faster;
+  TrajectoryStateOnSurface innerStateFromTrack=transformer.innerStateOnSurface(*theT,*theG,theMF);
+  TrajectoryStateOnSurface outerStateFromTrack=transformer.outerStateOnSurface(*theT,*theG,theMF);
+  TrajectoryStateOnSurface initialStateFromTrack = 
+    ( (innerStateFromTrack.globalPosition()-hits.front()->globalPosition()).mag2() <
+      (outerStateFromTrack.globalPosition()-hits.front()->globalPosition()).mag2() ) ? 
+    innerStateFromTrack: outerStateFromTrack;       
+  
+  // error is rescaled, but correlation are kept.
+  initialStateFromTrack.rescaleError(100);
+  theInitialStateForRefitting = TrajectoryStateOnSurface(initialStateFromTrack.localParameters(),
+                                                         initialStateFromTrack.localError(),                  
+                                                         initialStateFromTrack.surface(),
+                                                         theMF); 
+  return theInitialStateForRefitting;
+}

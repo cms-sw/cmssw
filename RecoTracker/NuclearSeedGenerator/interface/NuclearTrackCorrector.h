@@ -86,6 +86,21 @@ class NuclearTrackCorrector :  public edm::EDProducer {
       virtual void beginJob(const edm::EventSetup&) ;
       virtual void produce(edm::Event&, const edm::EventSetup&);
       virtual void endJob() ;
+
+      /// check if the trajectory has to be refitted and get the new trajectory
+      bool newTrajNeeded(Trajectory& newtrajectory, const TrajectoryRef& trajRef, const TrajectorySeedRefVector& seedRef);
+
+      /// get a new TrackExtra from an AlgoProductCollection
+      reco::TrackExtra getNewTrackExtra(const AlgoProductCollection& algoresults);
+
+      /// Get the refitted track from the Trajectory
+      bool getTrackFromTrajectory(const Trajectory& newTraj , const TrajectoryRef& initialTrajRef, AlgoProductCollection& algoResults);
+
+      /// Calculate the inital state to be used to buil the track
+      TrajectoryStateOnSurface getInitialState(const reco::Track * theT,
+                                            TransientTrackingRecHit::RecHitContainer& hits,
+                                            const TrackingGeometry * theG,
+                                            const MagneticField * theMF);
       
       // ----------member data ---------------------------
 
@@ -97,15 +112,15 @@ class NuclearTrackCorrector :  public edm::EDProducer {
       int    verbosity;
 
       
-      edm::ESHandle<TrackerGeometry> pDD;
+      edm::ESHandle<TrackerGeometry> theG;
+      edm::ESHandle<MagneticField> theMF;
+      edm::ESHandle<TrajectoryFitter> theFitter;
+      edm::ESHandle<Propagator> thePropagator;
       edm::ParameterSet conf_;
       TransientInitialStateEstimator*  theInitialState;
 
       TrackProducerAlgorithm* theAlgo;
+      const TrajTrackAssociationCollection* m_TrajToTrackCollection;
 };
 
 #endif
-
-
-
-
