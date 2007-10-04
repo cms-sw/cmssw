@@ -1,6 +1,6 @@
 #include "RecoTauTag/HLTProducers/interface/EMIsolatedTauJetsSelector.h"
-#include "DataFormats/BTauReco/interface/JetTracksAssociation.h"
-#include <DataFormats/VertexReco/interface/Vertex.h>
+#include "DataFormats/JetReco/interface/JetTracksAssociation.h"
+#include "DataFormats/VertexReco/interface/Vertex.h"
 #include "Math/GenVector/VectorUtil.h"
 //
 // class decleration
