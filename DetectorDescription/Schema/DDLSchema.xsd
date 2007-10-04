@@ -920,7 +920,7 @@
     <xsd:attribute name="deltaPhi" use="required" type="angleT"/>
     <xsd:attribute name="cutAtStart" use="required" type="lengthT"/>
     <xsd:attribute name="cutAtDelta" use="required" type="lengthT"/>
-    <!--xsd:attribute name="cutInside" use="required" type="xsd:boolean"/-->
+    <xsd:attribute name="cutInside" use="required" type="xsd:boolean"/>
     <xsd:attribute name="lengthUnit" use="optional" type="lengthUnitT"/>
     <xsd:attribute name="angleUnit" use="optional" type="angleUnitT"/>
   </xsd:attributeGroup>
