@@ -1,5 +1,5 @@
 //
-// $Id: TopMuonProducer.cc,v 1.16 2007/09/28 13:09:17 lowette Exp $
+// $Id: TopMuonProducer.cc,v 1.17 2007/10/02 15:35:00 lowette Exp $
 //
 
 #include "TopQuarkAnalysis/TopObjectProducers/interface/TopMuonProducer.h"
@@ -13,6 +13,8 @@
 #include "TopQuarkAnalysis/TopObjectResolutions/interface/TopObjectResolutionCalc.h"
 #include "TopQuarkAnalysis/TopLeptonSelection/interface/TopLeptonLRCalc.h"
 #include "RecoMuon/MuonIdentification/interface/IdGlobalFunctions.h"
+
+#include "TMath.h"
 
 #include <vector>
 #include <memory>
@@ -37,6 +39,7 @@ TopMuonProducer::TopMuonProducer(const edm::ParameterSet & iConfig) {
 //  muonIDSrc_     = iConfig.getParameter<edm::InputTag>( "muonIDSource" );
   // likelihood ratio configurables
   addLRValues_   = iConfig.getParameter<bool>         ( "addLRValues" );
+  tracksSrc_     = iConfig.getParameter<edm::InputTag>( "tracksSource" );
   muonLRFile_    = iConfig.getParameter<std::string>  ( "muonLRFile" );
 
   // construct resolution calculator
@@ -70,7 +73,9 @@ void TopMuonProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetu
   }
 
   // prepare LR calculation
+  edm::Handle<reco::TrackCollection> trackHandle;
   if (addLRValues_) {
+    iEvent.getByLabel(tracksSrc_, trackHandle);
     theLeptonLRCalc_ = new TopLeptonLRCalc(iSetup, "", edm::FileInPath(muonLRFile_).fullPath(), "");
   }
 
@@ -89,11 +94,13 @@ void TopMuonProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetu
     }
     // add muon ID info
     if (addMuonID_) {
-      aMuon.setLeptonID(muonid::isGoodMuon(muons[m]));
+//      aMuon.setLeptonID((double) TMath::Prob((Double_t) muons[m].combinedMuon()->chi2(), (Int_t) muons[m].combinedMuon()->ndof()));
+// no combinedMuon in fastsim
+      aMuon.setLeptonID((double) TMath::Prob((Double_t) muons[m].track()->chi2(), (Int_t) muons[m].track()->ndof()));
     }
     // add lepton LR info
     if (addLRValues_) {
-      theLeptonLRCalc_->calcLikelihood(aMuon, iEvent);
+      theLeptonLRCalc_->calcLikelihood(aMuon, trackHandle, iEvent);
     }
     // add sel to selected
     topMuons->push_back(TopMuon(aMuon));
