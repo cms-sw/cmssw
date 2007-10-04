@@ -61,7 +61,7 @@ void RPCSynchronizer::setReadOutTime(const RPCGeometry* geo){
   theGeometry = geo;
 
   if(file){
-    int detUnit = 0.;
+    int detUnit = 0;
     float timing = 0.;
 
     infile = new fstream(filename.c_str(),std::ios::in);
@@ -92,8 +92,6 @@ void RPCSynchronizer::setReadOutTime(const RPCGeometry* geo){
 	for(std::vector<const RPCRoll*>::iterator r = rollsRaf.begin();
 	    r != rollsRaf.end(); ++r){
 	  
-	  //	  if((*r)->id().region() == 0){
-	  
 	  const BoundPlane & RPCSurface = (*r)->surface(); 
 	  GlobalPoint CenterPointRollGlobal = RPCSurface.toGlobal(LocalPoint(0,0,0));
 	  float space = sqrt(pow(CenterPointRollGlobal.x(),2)+pow(CenterPointRollGlobal.y(),2)+pow(CenterPointRollGlobal.z(),2));
@@ -101,7 +99,6 @@ void RPCSynchronizer::setReadOutTime(const RPCGeometry* geo){
 	  
 	  _bxmap[(*r)->id()] = time*1e+9;
 	  
-	  //	  }
 	}
       }
     }
@@ -116,9 +113,6 @@ float RPCSynchronizer::getReadOutTime(const RPCDetId& rpcDetId)
 
 int RPCSynchronizer::getSimHitBx(const PSimHit* simhit)
 {
-  int PartId = simhit->particleType();
-  float enloss = simhit->energyLoss();
-  float mom = simhit->pabs();
 
   int bx = -999;
   LocalPoint simHitPos = simhit->localPosition();
@@ -140,15 +134,12 @@ int RPCSynchronizer::getSimHitBx(const PSimHit* simhit)
       for(std::vector<const RPCRoll*>::iterator r = rollsRaf.begin();
 	  r != rollsRaf.end(); ++r){
 
-	//	if((*r)->id().region() == 0){
-	
 	  if((*r)->id() == SimDetId) {
 	    SimRoll = &(*(*r));
 	    const BoundPlane & RPCSurface = (*r)->surface(); 
 	    GlobalPoint CenterPointRollGlobal = RPCSurface.toGlobal(LocalPoint(0,0,0));
 	    break;
 	  }
-	  //	}	  
       }
     }
   }
@@ -196,8 +187,6 @@ int RPCSynchronizer::getSimHitBx(const PSimHit* simhit)
       }
 
       if(inf_time < time_differ && time_differ < sup_time) {
-	// 	std::cout<<"BXXXXXXX"<<"Region: "<<SimRoll->id().region()<<"  "<<"Sector: "<<SimRoll->id().sector()<<"  "<<"Station: "<<SimRoll->id().station()<<" "<<"PartID: "<<PartId<<"  "<<"MomAbs: "<<mom<<"  "<<"EnLoss: "<<enloss<<"  "<<"TOF: "<<tof<<"  "<<"Time Differ: "<<time_differ<<"  "<<"INFTIME: "<<inf_time<<"  "<<"SUPTIME "<<sup_time<<"  "<<"Bx: "<<n<<std::endl;
-	// 	if(time_differ < 0)  std::cout<<"TIMENEGATIVE"<<" "<<"Time Differ: "<<time_differ<<"  "<<"INFTIME: "<<inf_time<<"  "<<"SUPTIME "<<sup_time<<"  "<<"Bx: "<<n<<std::endl;
 	bx = n;
 	break;
       }
@@ -214,7 +203,7 @@ int RPCSynchronizer::getDigiBx(const PSimHit* simhit, int centralstrip, int stri
 
   float csdt_tot = 0.;
   if(diffstrip > 0){
-    for(int n = 0; n < diffstrip; ++n){
+    for(unsigned int n = 0; n < diffstrip; ++n){
       float rr_dt = RandFlat::shoot();
       if (rr_dt <= 1.e-10) rr_dt = 1.e-10 ;
       float dif_time = -(dtimCs)*log(rr_dt);
@@ -271,11 +260,7 @@ int RPCSynchronizer::getDigiBx(const PSimHit* simhit, int centralstrip, int stri
       float inf_time = -lbGate/2 + n*lbGate;
       float sup_time = lbGate/2 + n*lbGate;
 
-       std::cout<<"Time Differ: "<<time_differ<<"  "<<"INFTIME: "<<inf_time<<"  "<<"SUPTIME "<<sup_time<<"  "<<"Bx: "<<n<<std::endl;
       if(inf_time < time_differ && time_differ < sup_time) {
- 	if(n != 0)  std::cout<<"BXXXXXXX"<<" "<<"Time Differ: "<<time_differ<<"  "<<"INFTIME: "<<inf_time<<"  "<<"SUPTIME "<<sup_time<<"  "<<"Bx: "<<n<<std::endl;
- 	if(time_differ < 0)  std::cout<<"TIMENEGATIVE"<<" "<<"Time Differ: "<<time_differ<<"  "<<"INFTIME: "<<inf_time<<"  "<<"SUPTIME "<<sup_time<<"  "<<"Bx: "<<n<<std::endl;
-
 	bx = n;
 	break;
       }
