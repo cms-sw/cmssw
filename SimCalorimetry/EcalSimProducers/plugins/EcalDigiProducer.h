@@ -16,8 +16,10 @@
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
 #include "SimCalorimetry/EcalSimAlgos/interface/EcalCoder.h"
 #include "SimCalorimetry/EcalSimAlgos/interface/EcalElectronicsSim.h"
+#include "SimCalorimetry/EcalSimAlgos/interface/ESElectronicsSimFast.h"
 #include "SimCalorimetry/EcalSimAlgos/interface/ESElectronicsSim.h"
 #include "SimCalorimetry/EcalSimAlgos/interface/EcalDigitizerTraits.h"
+#include "SimCalorimetry/EcalSimAlgos/interface/ESFastTDigitizer.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 
 class EcalDigiProducer : public edm::EDProducer
@@ -49,6 +51,7 @@ private:
   EBDigitizer * theBarrelDigitizer;
   EEDigitizer * theEndcapDigitizer;
   ESDigitizer * theESDigitizer;
+  ESFastTDigitizer * theESDigitizerFast;
 
   const EcalSimParameterMap * theParameterMap;
   const CaloVShape * theEcalShape;
@@ -62,6 +65,7 @@ private:
 
   EcalElectronicsSim * theElectronicsSim;
   ESElectronicsSim * theESElectronicsSim;
+  ESElectronicsSimFast * theESElectronicsSimFast;
   EcalCoder * theCoder;
 
   const CaloGeometry * theGeometry;
@@ -75,6 +79,8 @@ private:
 
   double EBs25notCont;
   double EEs25notCont;
+
+  bool doFast; 
 };
 
 #endif 
