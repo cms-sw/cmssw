@@ -1,8 +1,8 @@
 /*
  * \file EETriggerTowerTask.cc
  *
- * $Date: 2007/08/14 17:43:06 $
- * $Revision: 1.40 $
+ * $Date: 2007/10/04 08:39:55 $
+ * $Revision: 1.8 $
  * \author G. Della Ricca
  *
 */
@@ -350,7 +350,7 @@ EETriggerTowerTask::processDigis( const Handle<EcalTrigPrimDigiCollection>&
     float xiy = iy+0.5;
 
     str<<"det id = "<<id.rawId()<<" "
-       <<id<<" sm, x, y "<<ismt<<" "<<itt<<" "<<ix<<" "<<iy<<endl;
+       <<id<<" sm, tt, x, y "<<ismt<<" "<<itt<<" "<<ix<<" "<<iy<<endl;
 
     float xval;
 
