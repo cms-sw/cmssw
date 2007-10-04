@@ -286,7 +286,7 @@ int RPCSynchronizer::getDigiBx(const PSimHit* simhit, int centralstrip, int stri
 }
 
 RPCSynchronizer::~RPCSynchronizer(){
-  delete infile;
+ if(infile != 0) delete infile;
 }
 
 
