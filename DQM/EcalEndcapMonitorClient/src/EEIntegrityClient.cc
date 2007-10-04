@@ -2,8 +2,8 @@
 /*
  * \file EEIntegrityClient.cc
  *
- * $Date: 2007/09/06 18:59:06 $
- * $Revision: 1.24 $
+ * $Date: 2007/09/07 22:30:06 $
+ * $Revision: 1.25 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -1619,21 +1619,11 @@ void EEIntegrityClient::htmlOutput(int run, string htmlDir, string htmlName){
         obj2f->SetMinimum(0.0);
         obj2f->Draw("colz");
         cMe->SetBit(TGraph::kClipFrame);
-        if ( iCanvas > 4 ) {
-          TLine l;
-          l.SetLineWidth(1);
-          for ( int i=0; i<201; i=i+1){
-            if ( (Numbers::ixSectorsEE[i]!=0 || Numbers::iySectorsEE[i]!=0) && (Numbers::ixSectorsEE[i+1]!=0 || Numbers::iySectorsEE[i+1]!=0) ) {
-              l.DrawLine(Numbers::ixSectorsEE[i]/5, Numbers::iySectorsEE[i]/5, Numbers::ixSectorsEE[i+1]/5, Numbers::iySectorsEE[i+1]/5);
-            }
-          }
-        } else {
-          TLine l;
-          l.SetLineWidth(1);
-          for ( int i=0; i<201; i=i+1){
-            if ( (Numbers::ixSectorsEE[i]!=0 || Numbers::iySectorsEE[i]!=0) && (Numbers::ixSectorsEE[i+1]!=0 || Numbers::iySectorsEE[i+1]!=0) ) {
-              l.DrawLine(Numbers::ixSectorsEE[i], Numbers::iySectorsEE[i], Numbers::ixSectorsEE[i+1], Numbers::iySectorsEE[i+1]);
-            }
+        TLine l;
+        l.SetLineWidth(1);
+        for ( int i=0; i<201; i=i+1){
+          if ( (Numbers::ixSectorsEE[i]!=0 || Numbers::iySectorsEE[i]!=0) && (Numbers::ixSectorsEE[i+1]!=0 || Numbers::iySectorsEE[i+1]!=0) ) {
+            l.DrawLine(Numbers::ixSectorsEE[i], Numbers::iySectorsEE[i], Numbers::ixSectorsEE[i+1], Numbers::iySectorsEE[i+1]);
           }
         }
         cMe->Update();
