@@ -1,8 +1,8 @@
 /*
  * \file EEIntegrityTask.cc
  *
- * $Date: 2007/05/24 13:26:12 $
- * $Revision: 1.10 $
+ * $Date: 2007/08/14 17:44:47 $
+ * $Revision: 1.11 $
  * \author G. Della Ricca
  *
  */
@@ -418,6 +418,8 @@ void EEIntegrityTask::analyze(const Event& e, const EventSetup& c){
 
       EcalTrigTowerDetId id = (*idItr);
 
+      if ( id.subDet() != EcalEndcap ) continue;
+
       int iet = id.ieta();
       int ipt = id.iphi();
 
@@ -451,6 +453,8 @@ void EEIntegrityTask::analyze(const Event& e, const EventSetup& c){
     for ( EcalTrigTowerDetIdCollection::const_iterator idItr = ids6->begin(); idItr != ids6->end(); ++ idItr ) {
 
       EcalTrigTowerDetId id = (*idItr);
+
+      if ( id.subDet() != EcalEndcap ) continue;
 
       int iet = id.ieta();
       int ipt = id.iphi();

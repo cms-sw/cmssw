@@ -1,8 +1,8 @@
 /*
  * \file EBIntegrityTask.cc
  *
- * $Date: 2007/08/19 13:09:41 $
- * $Revision: 1.44 $
+ * $Date: 2007/10/04 09:12:22 $
+ * $Revision: 1.45 $
  * \author G. Della Ricca
  *
  */
@@ -420,6 +420,8 @@ void EBIntegrityTask::analyze(const Event& e, const EventSetup& c){
 
       EcalTrigTowerDetId id = (*idItr);
 
+      if ( id.subDet() != EcalBarrel ) continue;
+
       int iet = abs(id.ieta());
       int ipt = id.iphi();
 
@@ -455,6 +457,8 @@ void EBIntegrityTask::analyze(const Event& e, const EventSetup& c){
     for ( EcalTrigTowerDetIdCollection::const_iterator idItr = ids6->begin(); idItr != ids6->end(); ++ idItr ) {
 
       EcalTrigTowerDetId id = (*idItr);
+
+      if ( id.subDet() != EcalBarrel ) continue;
 
       int iet = abs(id.ieta());
       int ipt = id.iphi();
