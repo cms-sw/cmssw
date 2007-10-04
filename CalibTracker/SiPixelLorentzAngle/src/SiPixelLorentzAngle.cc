@@ -57,6 +57,7 @@ SiPixelLorentzAngle::SiPixelLorentzAngle(edm::ParameterSet const& conf) :
 	min_drift_ = -200.;
 	max_drift_ = 400.;
 	event_counter_ = 0;
+	hits_layer1_module7_ = 0;
 }
 
 // Virtual destructor needed.
@@ -64,6 +65,7 @@ SiPixelLorentzAngle::~SiPixelLorentzAngle() {  }
 
 void SiPixelLorentzAngle::beginJob(const edm::EventSetup& c)
 {
+	ntracks = 200;
   	hFile_ = new TFile (filename_.c_str(), "RECREATE" );
 	int bufsize = 64000;
 	// create tree structure
@@ -107,6 +109,14 @@ void SiPixelLorentzAngle::beginJob(const edm::EventSetup& c)
 			_h_mean_[i_module + (i_layer -1) * 8] = new TH1F(name,name,hist_depth_, min_depth_, max_depth_);
 		}
 	}
+	
+	// just for some expaining plots
+	h_cluster_shape_adc_  = new TH2F("h_cluster_shape_adc","cluster shape with adc weight", hist_x_, min_x_, max_x_, hist_y_, min_y_, max_y_);
+	h_cluster_shape_noadc_  = new TH2F("h_cluster_shape_noadc","cluster shape without adc weight", hist_x_, min_x_, max_x_, hist_y_, min_y_, max_y_);
+	h_cluster_shape_  = new TH2F("h_cluster_shape","cluster shape", hist_x_, min_x_, max_x_, hist_y_, min_y_, max_y_);
+	h_cluster_shape_adc_rot_  = new TH2F("h_cluster_shape_adc_rot","cluster shape with adc weight", hist_x_, min_x_, max_x_, hist_y_, -max_y_, -min_y_);
+	h_cluster_shape_noadc_rot_  = new TH2F("h_cluster_shape_noadc_rot","cluster shape without adc weight", hist_x_, min_x_, max_x_, hist_y_, -max_y_, -min_y_);
+	h_cluster_shape_rot_  = new TH2F("h_cluster_shape_rot","cluster shape", hist_x_, min_x_, max_x_, hist_y_, -max_y_, -min_y_);
 	
 	eventcounter_ = 0;
 	eventnumber_ = -1;
@@ -251,6 +261,11 @@ void SiPixelLorentzAngle::analyze(const edm::Event& e, const edm::EventSetup& es
 					}
 
 					// "good hit?"
+					// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+					// remove cut on number of hits !!!!!!!!!!!!!!!!!!
+					// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+// 					if( !large_pix && (chi2_/ndof_) < 2. && (cluster->charge())/1000. < 120. && cluster->sizeY() >= 4 && hits_layer1_module7_ < ntracks){
+// 					if( !large_pix && (chi2_/ndof_) < 10. && (cluster->charge())/1000. < 200. && cluster->sizeY() >= 4){
 					if( !large_pix && (chi2_/ndof_) < 2. && (cluster->charge())/1000. < 120. && cluster->sizeY() >= 4){
 						SiPixelLorentzAngleTree_->Fill();
 						// iterate over pixels in hit
@@ -262,8 +277,18 @@ void SiPixelLorentzAngle::analyze(const edm::Event& e, const edm::EventSetup& es
 							float drift = dx - dy * tan(trackhit_.gamma);
 							_h_drift_depth_adc_[module_ + (layer_ -1) * 8]->Fill(drift, depth, pixinfo_.adc[j]);
 							_h_drift_depth_adc2_[module_ + (layer_ -1) * 8]->Fill(drift, depth, pixinfo_.adc[j]*pixinfo_.adc[j]);
-							_h_drift_depth_noadc_[module_ + (layer_ -1) * 8]->Fill(drift, depth);						
+							_h_drift_depth_noadc_[module_ + (layer_ -1) * 8]->Fill(drift, depth);		
+// 							if( layer_ == 1 && module_==7 && !isflipped_){
+// 								float dx_rot = dx * TMath::Cos(trackhit_.gamma) + dy * TMath::Sin(trackhit_.gamma);
+// 								float dy_rot = dy * TMath::Cos(trackhit_.gamma) - dx * TMath::Sin(trackhit_.gamma) ;
+// 								h_cluster_shape_adc_->Fill(dx, dy, pixinfo_.adc[j]);
+// 								h_cluster_shape_noadc_->Fill(dx, dy);
+// 								h_cluster_shape_adc_rot_->Fill(dx_rot, dy_rot, pixinfo_.adc[j]);
+// 								h_cluster_shape_noadc_rot_->Fill(dx_rot, dy_rot);
+// 							}				
 						} // end iteration over pixels in hit
+// 						if( layer_ == 1 && module_==7) hits_layer1_module7_++;
+// 						if(hits_layer1_module7_ == ntracks) events_needed_ = event_counter_;
 					} // end "good hit?"
 				} // end "Pixel Barrel only"
 				// delete pointer ro rechit created in TrackLocalAngle::findPixelParameters
@@ -313,6 +338,7 @@ void SiPixelLorentzAngle::endJob()
 	hFile_->Write();
 	hFile_->Close();
 	cout << "events: " << event_counter_ << endl;
+// 	cout << "events used for " << ntracks << " tracks: " << events_needed_ << endl;
 }
 
 void SiPixelLorentzAngle::fillPix(const SiPixelCluster & LocPix, const RectangularPixelTopology * topol)
@@ -339,14 +365,15 @@ void SiPixelLorentzAngle::findMean(int i, int i_ring)
 	// determine sigma and sigma^2 of the adc counts and average adc counts
 		//loop over bins in drift width
 	for( int j = 1; j<= hist_drift_; j++){
-		double adc_error2 = (_h_drift_depth_adc2_[i_ring]->GetBinContent(j,i) - _h_drift_depth_adc_[i_ring]->GetBinContent(j,i)*_h_drift_depth_adc_[i_ring]->GetBinContent(j, i) / _h_drift_depth_noadc_[i_ring]->GetBinContent(j, i)) /  _h_drift_depth_noadc_[i_ring]->GetBinContent(j, i);
-		_h_drift_depth_adc_[i_ring]->SetBinError(j, i, sqrt(adc_error2));
-		if(_h_drift_depth_noadc_[i_ring]->GetBinContent(j, i) > 1){
+		if(_h_drift_depth_noadc_[i_ring]->GetBinContent(j, i) >= 1){
+			double adc_error2 = (_h_drift_depth_adc2_[i_ring]->GetBinContent(j,i) - _h_drift_depth_adc_[i_ring]->GetBinContent(j,i)*_h_drift_depth_adc_[i_ring]->GetBinContent(j, i) / _h_drift_depth_noadc_[i_ring]->GetBinContent(j, i)) /  _h_drift_depth_noadc_[i_ring]->GetBinContent(j, i);
+			_h_drift_depth_adc_[i_ring]->SetBinError(j, i, sqrt(adc_error2));
 			double error2 = adc_error2 / (_h_drift_depth_noadc_[i_ring]->GetBinContent(j,i) - 1.);
 			_h_drift_depth_[i_ring]->SetBinError(j,i,sqrt(error2));
 		} 
 		else{
 			_h_drift_depth_[i_ring]->SetBinError(j,i,0);
+			_h_drift_depth_adc_[i_ring]->SetBinError(j, i, 0);
 		}
 		h_drift_depth_adc_slice_->SetBinContent(j, _h_drift_depth_adc_[i_ring]->GetBinContent(j,i));
 		h_drift_depth_adc_slice_->SetBinError(j, _h_drift_depth_adc_[i_ring]->GetBinError(j,i));

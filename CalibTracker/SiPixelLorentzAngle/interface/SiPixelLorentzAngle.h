@@ -147,6 +147,12 @@ class SiPixelLorentzAngle : public edm::EDAnalyzer
 	std::map<int, TH2F*> _h_drift_depth_;
 	TH1F* h_drift_depth_adc_slice_;
 	std::map<int, TH1F*> _h_mean_;
+	TH2F *h_cluster_shape_adc_;
+	TH2F *h_cluster_shape_noadc_;
+	TH2F *h_cluster_shape_;
+	TH2F *h_cluster_shape_adc_rot_;
+	TH2F *h_cluster_shape_noadc_rot_;
+	TH2F *h_cluster_shape_rot_;
 	
 	bool seed_plus_;
   	PropagatorWithMaterial  *thePropagator;
@@ -159,6 +165,10 @@ class SiPixelLorentzAngle : public edm::EDAnalyzer
   	const TrackerGeometry * tracker;
   	const MagneticField * magfield;
   	TrajectoryStateTransform tsTransform;
+	
+	int hits_layer1_module7_;
+	int events_needed_;
+	int ntracks;
   
 };
 
