@@ -33,20 +33,23 @@ class SimpleSecondaryVertexComputer : public JetTagComputer {
 		double gamma;
 		if (unBoost) {
 			TrackKinematics kinematics(info->secondaryVertex(0));
-			gamma = kinematics.vectorSum().M()
-			      / kinematics.vectorSum().mag();
+			gamma = kinematics.vectorSum().Gamma();
 		} else
 			gamma = 1.0;
 
 		double value;
-		if (useSig) {
+		if (useSig)
 			value = info->flightDistance(0, use2d).significance();
-			value = (value > 0) ? +std::log(1 + value)
-			                    : -std::log(1 - value);
-		} else
+		else
 			value = info->flightDistance(0, use2d).value();
 
-		return value / gamma;
+		value /= gamma;
+
+		if (useSig)
+			value = (value > 0) ? +std::log(1 + value)
+			                    : -std::log(1 - value);
+
+		return value;
 	}
 
     private:
