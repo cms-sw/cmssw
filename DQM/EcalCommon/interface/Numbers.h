@@ -1,11 +1,11 @@
-// $Id: Numbers.h,v 1.8 2007/08/14 17:42:22 dellaric Exp $
+// $Id: Numbers.h,v 1.9 2007/08/16 14:26:06 dellaric Exp $
 
 /*!
   \file Numbers.h
   \brief Some "id" conversions
   \author B. Gobbo 
-  \version $Revision: 1.8 $
-  \date $Date: 2007/08/14 17:42:22 $
+  \version $Revision: 1.9 $
+  \date $Date: 2007/08/16 14:26:06 $
 */
 
 #ifndef Numbers_H
@@ -13,6 +13,7 @@
 
 #include <string>
 #include <stdexcept>
+#include <vector>
 
 #include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -20,6 +21,8 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "Geometry/EcalMapping/interface/EcalElectronicsMapping.h"
 #include "Geometry/EcalMapping/interface/EcalMappingRcd.h"
+
+#include "DataFormats/DetId/interface/DetId.h"
 
 #include <DataFormats/EcalDetId/interface/EBDetId.h>
 #include <DataFormats/EcalDetId/interface/EEDetId.h>
@@ -48,13 +51,17 @@ class Numbers {
 
   static int         iSM( const EEDetId& id ) throw( std::runtime_error );
 
-  static int         iSM( const EcalTrigTowerDetId& id );
+  static int         iSM( const EcalTrigTowerDetId& id ) throw( std::runtime_error );
 
   static int         iSM( const EcalElectronicsId&  id );
 
   static int         iSM( const EcalPnDiodeDetId&   id );
 
   static int         iSM( const EcalDCCHeaderBlock& id, const int subdet );
+
+  static int         iTT( const EcalTrigTowerDetId& id ) throw( std::runtime_error );
+
+  static std::vector<DetId> ttCrystals( const EcalTrigTowerDetId& id ) throw( std::runtime_error );
 
   static int ix0EE( const int ism );
 
