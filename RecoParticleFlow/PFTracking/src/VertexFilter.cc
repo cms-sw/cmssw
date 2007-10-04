@@ -115,7 +115,8 @@ VertexFilter::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     for (ivxc= vxC.begin();ivxc!=vxC.end();ivxc++){
       math::XYZPoint  gp2=(*ivxc).position();
       math::XYZVector dgp=gp2-gp1;
-      if ((dgp.Rho()<distrho)       && 
+       
+     if ((gp1.Rho()<distrho) &&
 	  (fabs(dgp.Z())<distz)     &&
 	  ((*itc).found()>=minhits) &&
 	  ((*itc).chi2()<chi_cut)) hasAVertex=true;
@@ -126,7 +127,7 @@ VertexFilter::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     if((vxC.size()==0)&&(tC.size()>0)){
       math::XYZPoint  gp2=(*tC.begin()).vertex();
       math::XYZVector dgp=gp2-gp1;
-      if ((dgp.Rho()<distrho)       && 
+      if ((gp1.Rho()<distrho) &&	
 	  (fabs(dgp.Z())<distz)     &&
 	  ((*itc).found()>=minhits) &&
 	  ((*itc).chi2()<chi_cut)) hasAVertex=true;
