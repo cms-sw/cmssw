@@ -6,6 +6,11 @@
 #include <DataFormats/Common/interface/Handle.h>
 #include <FWCore/Framework/interface/Event.h>
 
+#include <DataFormats/FEDRawData/interface/FEDHeader.h>
+#include <DataFormats/FEDRawData/interface/FEDTrailer.h>
+#include "EventFilter/Utilities/interface/Crc.h"
+
+
 
 #include <CondFormats/DataRecord/interface/DTReadOutMappingRcd.h>
 #include <FWCore/Framework/interface/EventSetup.h>
@@ -70,10 +75,17 @@ void DTDigiToRawModule::produce(Event & e, const EventSetup& iSetup) {
     
     packer->SetdduID(id);
     FEDRawData* rawData = packer->createFedBuffers(*digis, map);
-    
+
     FEDRawData& fedRawData = fed_buffers->FEDData(id);
     fedRawData = *rawData;
     delete rawData;
+
+    FEDHeader dtFEDHeader(fedRawData.data());
+    dtFEDHeader.set(fedRawData.data(), 0, e.id().event(), 0, id);
+    
+    FEDTrailer dtFEDTrailer(fedRawData.data()+(fedRawData.size()-8));
+    dtFEDTrailer.set(fedRawData.data()+(fedRawData.size()-8), fedRawData.size()/8, evf::compute_crc(fedRawData.data(),fedRawData.size()), 0, 0);
+
   }
   // Put the raw data to the event
   e.put(fed_buffers);
