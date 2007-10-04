@@ -28,7 +28,7 @@ L1GctHardwareJetFinder::L1GctHardwareJetFinder(int id):
 	ieta = (L1CaloRegionDetId::N_ETA/2-1+row);
 	iphi = ((L1CaloRegionDetId::N_PHI - m_id)*2 + 4)%L1CaloRegionDetId::N_PHI + (1-column);
       }
-      L1CaloRegion temp(0, ieta, iphi, 0);
+      L1GctRegion temp(0, false, false, ieta, iphi);
       m_protoJetRegions.at(column*COL_OFFSET+row) = temp;
     }
   }
@@ -195,7 +195,7 @@ void L1GctHardwareJetFinder::findProtoClusters()
     unsigned eta = m_localMaxima.at(j).gctEta();
     unsigned phi = m_localMaxima.at(j).gctPhi();
 
-    L1CaloRegion temp(etCluster, ovrFlowOr, tauVetoOr, false, false, eta, phi);
+    L1GctRegion temp(etCluster, ovrFlowOr, tauVetoOr, eta, phi);
     if (localPhi==0) {
     // Store "top edge" jets
       topJets.at(numberOfTopJets) = temp;
@@ -292,7 +292,7 @@ void L1GctHardwareJetFinder::findFinalClusters()
 			unsigned eta = m_rcvdProtoJets.at(j).gctEta();
 			unsigned phi = m_rcvdProtoJets.at(j).gctPhi();
 
-			L1CaloRegion temp(etCluster, ovrFlowOr, tauVetoOr, false, false, eta, phi);
+			L1GctRegion temp(etCluster, ovrFlowOr, tauVetoOr, eta, phi);
 			m_clusters.at(j) = temp;
 
 		}

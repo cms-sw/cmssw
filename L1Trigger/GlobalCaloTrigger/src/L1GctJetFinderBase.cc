@@ -1,6 +1,8 @@
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctJetFinderBase.h"
 
 #include "CondFormats/L1TObjects/interface/L1GctJetFinderParams.h"
+#include "DataFormats/L1CaloTrigger/interface/L1CaloRegion.h"
+
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctJetEtCalibrationLut.h"
 
 #include "FWCore/Utilities/interface/Exception.h"  
@@ -129,7 +131,7 @@ void L1GctJetFinderBase::reset()
 }
 
 // This is how the regions from the RCT get into the GCT for processing 
-void L1GctJetFinderBase::setInputRegion(L1CaloRegion region)
+void L1GctJetFinderBase::setInputRegion(const L1CaloRegion& region)
 {
   static const unsigned NPHI = L1CaloRegionDetId::N_PHI;
   unsigned crate = region.rctCrate();
@@ -148,7 +150,8 @@ void L1GctJetFinderBase::setInputRegion(L1CaloRegion region)
       // Accept neighbouring regions from the other wheel
       if (region.rctEta() == 0) {
 	unsigned i = colRelative*COL_OFFSET;
-	m_inputRegions.at(i) = region;
+        L1GctRegion temp(region);
+	m_inputRegions.at(i) = temp;
       }
     }
   }
