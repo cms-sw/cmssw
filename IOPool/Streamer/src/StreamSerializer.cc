@@ -17,6 +17,7 @@
 
 #include "zlib.h"
 #include <cstdlib>
+#include <list>
 
 namespace edm
 {
@@ -121,7 +122,10 @@ namespace edm
   int StreamSerializer::serializeEvent(EventPrincipal const& eventPrincipal,
                                        bool use_compression, 
 				       int compression_level)
+
   {
+    std::list<Provenance> dummyProvenances;
+    
     SendEvent se(eventPrincipal.id(),eventPrincipal.time());
 
     Selections::const_iterator i(selections_->begin()),ie(selections_->end());
@@ -137,23 +141,26 @@ namespace edm
       }
       BasicHandle const bh = eventPrincipal.getForOutput(id, true);
       if (bh.provenance() == 0) {
-        std::string const& name = desc.className();
-        std::string const className = wrappedClassName(name);
-        TClass *cp = gROOT->GetClass(className.c_str());
-        if (cp == 0) {
-          throw Exception(errors::ProductNotFound,"NoMatch")
-            << "TypeID::className: No dictionary for class " << className << '\n'
-            << "Add an entry for this class\n"
-            << "to the appropriate 'classes_def.xml' and 'classes.h' files." << '\n';
-        }
-
-
-        EDProduct *p = static_cast<EDProduct *>(cp->New());
-        se.prods_.push_back(ProdPair(p, bh.provenance()));
+	// No group with this ID is in the event.
+	// Create and write the provenance.
+	if (desc.produced_) {
+          BranchEntryDescription provenance;
+	  provenance.moduleDescriptionID_ = desc.moduleDescriptionID_;
+	  provenance.productID_ = id;
+	  provenance.status_ = BranchEntryDescription::CreatorNotRun;
+	  provenance.isPresent_ = false;
+	  provenance.cid_ = 0;
+          dummyProvenances.push_front(Provenance(desc, provenance));
+          se.prods_.push_back(ProdPair(0, &*dummyProvenances.begin()));
+	} else {
+	    throw edm::Exception(errors::ProductNotFound,"NoMatch")
+	      << "PoolOutputModule: Unexpected internal error.  Contact the framework group.\n"
+	      << "No group for branch" << desc.branchName_ << '\n';
+	}
       } else {
         se.prods_.push_back(ProdPair(bh.wrapper(), bh.provenance()));
       }
-     }
+    }
 
     //TBuffer rootbuf(TBuffer::kWrite,eventMessage.bufferSize(),
     //                eventMessage.eventAddr(),kFALSE);

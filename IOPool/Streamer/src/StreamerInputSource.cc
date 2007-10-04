@@ -332,14 +332,6 @@ namespace edm {
              << " " << spi->prov()->productID_
              << std::endl;
 
-        if(spi->prod()==0) {
-            FDEBUG(10) << "Product is null" << std::endl;
-            continue;
-            throw cms::Exception("StreamTranslation","EmptyProduct");
-        }
-
-        std::auto_ptr<EDProduct>
-          aprod(const_cast<EDProduct*>(spi->prod()));
         std::auto_ptr<BranchEntryDescription>
           aedesc(const_cast<BranchEntryDescription*>(spi->prov()));
         std::auto_ptr<BranchDescription>
@@ -347,11 +339,21 @@ namespace edm {
 
         std::auto_ptr<Provenance> aprov(new Provenance(*(adesc.get()), *(aedesc.get())));
         if(aprov->isPresent()) {
+          if(spi->prod() == 0) {
+            FDEBUG(10) << "Product is null" << std::endl;
+            throw cms::Exception("StreamTranslation","EmptyProduct");
+          }
+          std::auto_ptr<EDProduct>
+            aprod(const_cast<EDProduct*>(spi->prod()));
           FDEBUG(10) << "addgroup next " << aprov->productID() << std::endl;
           FDEBUG(10) << "addgroup next " << aprov->event().productID_ << std::endl;
           ep->addGroup(aprod, aprov);
           FDEBUG(10) << "addgroup done" << std::endl;
         } else {
+          if(spi->prod() != 0) {
+            FDEBUG(10) << "Product not null but is marked as not present" << std::endl;
+            throw cms::Exception("StreamTranslation","NonEmptyProductMarkedAsNotPresent");
+          }
           FDEBUG(10) << "addgroup empty next " << aprov->productID() << std::endl;
           FDEBUG(10) << "addgroup empty next " << aprov->event().productID_ 
                                                << std::endl;
