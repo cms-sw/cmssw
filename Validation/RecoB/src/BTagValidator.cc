@@ -6,7 +6,7 @@
  author: Victor Bazterra, UIC
          Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
 
- version $Id: BTagValidator.cc,v 1.11 2007/08/04 09:05:25 elmer Exp $
+ version $Id: BTagValidator.cc,v 1.12 2007/09/05 21:36:45 yumiceva Exp $
 
 ________________________________________________________________**/
 
@@ -139,6 +139,10 @@ BTagValidator::endJob()
 				histogram->GetXaxis()->GetXmax()
 				);
 
+			monElement->setAxisTitle( std::string ( histogram->GetXaxis()->GetTitle()) , 1);
+			monElement->setAxisTitle( std::string ( histogram->GetYaxis()->GetTitle()) , 2);
+
+
 			for(Int_t x=0; x<histogram->GetXaxis()->GetNbins(); x++) {
 			  monElement->setBinContent ( x, histogram->GetBinContent( x ) ) ;
 			  monElement->setBinError ( x, histogram->GetBinError( x ) ) ;
@@ -175,6 +179,9 @@ BTagValidator::endJob()
 				histogram->GetYaxis()->GetXmax()	  
 				);
 
+			monElement->setAxisTitle( std::string ( histogram->GetXaxis()->GetTitle()) , 1);
+			monElement->setAxisTitle( std::string ( histogram->GetYaxis()->GetTitle()) , 2);
+			
 			for(Int_t x=0; x<histogram->GetXaxis()->GetNbins(); x++)
 				for(Int_t y=0; y<histogram->GetYaxis()->GetNbins(); y++) {
 					monElement->setBinContent ( x, y, histogram->GetBinContent( x, y ) ) ;                 
@@ -199,6 +206,9 @@ BTagValidator::endJob()
 				histogram->GetZaxis()->GetXmax()	  
 				);
 
+			monElement->setAxisTitle( std::string ( histogram->GetXaxis()->GetTitle()) , 1);
+			monElement->setAxisTitle( std::string ( histogram->GetYaxis()->GetTitle()) , 2);
+			
 			for(Int_t x=0; x<histogram->GetXaxis()->GetNbins(); x++)
 				for(Int_t y=0; y<histogram->GetYaxis()->GetNbins(); y++)
 					for(Int_t z=0; z<histogram->GetZaxis()->GetNbins(); z++) {
