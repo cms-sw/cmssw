@@ -1,8 +1,8 @@
 /*
  * \file EBIntegrityTask.cc
  *
- * $Date: 2007/08/18 22:21:41 $
- * $Revision: 1.43 $
+ * $Date: 2007/08/19 13:09:41 $
+ * $Revision: 1.44 $
  * \author G. Della Ricca
  *
  */
@@ -18,6 +18,8 @@
 
 #include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
 #include "DQMServices/Daemon/interface/MonitorDaemon.h"
+
+#include "DataFormats/EcalDetId/interface/EBDetId.h"
 
 #include "DataFormats/EcalRawData/interface/EcalRawDataCollections.h"
 #include "DataFormats/EcalDetId/interface/EcalDetIdCollections.h"
