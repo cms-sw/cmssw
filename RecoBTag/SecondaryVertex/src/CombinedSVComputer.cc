@@ -54,34 +54,45 @@ CombinedSVComputer::operator () (const TrackIPTagInfo &ipInfo,
 {
 	btag::Vertices::VertexType vtxType = btag::Vertices::NoVertex;
 
-	TaggingVariableList variables; // = ipInfo.taggingVariables();
+	TaggingVariableList vars; // = ipInfo.taggingVariables();
 
 #if 0
-	std::vector<std::size_t> indices = ipinfo->sortedIndexes(); // FIXME
+	std::vector<std::size_t> indices = ipInfo->sortedIndexes(); // FIXME
+	const edm::RefVector<TrackCollection> &tracks =
+						ipInfo->selectedTracks();
 	for(std::vector<size_t>::const_iterator iter = indices.begin();
 	    iter != indices.end(); ++iter) {
 		const TrackIPTagInfo::TrackIPData *data = &m_data[*it];
-     vars.insert(TaggingVariable(reco::btau::trackSip3dVal, data->ip3d.value()));
-     vars.insert(TaggingVariable(reco::btau::trackSip3dSig, data->ip3d.significance()));
-     vars.insert(TaggingVariable(reco::btau::trackSip2dVal, data->ip2d.value()));
-     vars.insert(TaggingVariable(reco::btau::trackSip2dSig, data->ip2d.significance()));
-//     vars.insert(TaggingVariable(reco::btau::trackDecayLenVal, data->));
-//     vars.insert(TaggingVariable(reco::btau::trackDecayLenSig, data->));
-     vars.insert(TaggingVariable(reco::btau::trackJetDist, data->distanceToJetAxis));
-     vars.insert(TaggingVariable(reco::btau::trackFirstTrackDist, data->distanceToFirstTrack));
-   } 
+		const TrackRef track = tracks[*it];
+
+		vars.insert(btau::trackSip3dVal, data->ip3d.value(), true);
+		vars.insert(btau::trackSip3dSig, data->ip3d.significance(), true);
+		vars.insert(btau::trackSip2dVal, data->ip2d.value(), true);
+		vars.insert(btau::trackSip2dSig, data->ip2d.significance(), true);
+		vars.insert(btau::trackJetDist, data->distanceToJetAxis, true);
+		vars.insert(btau::trackFirstTrackDist, data->distanceToFirstTrack, true);
+
+		vars.insert(btau::trackMomentum, data->p(), true);
+		vars.insert(btau::trackEta, data->eta(), true);
+		vars.insert(btau::trackEtaRel, data->, true);
+		vars.insert(btau::trackPtRel, data->, true);
+		vars.insert(btau::trackPPar, data->, true);
+		vars.insert(btau::trackDeltaR, data->, true);
+		vars.insert(btau::trackPtRatio, data->, true);
+		vars.insert(btau::trackPParRatio, data->, true);
+	} 
 #endif
 
 	if (svInfo.nVertices() > 0) {
 		vtxType = btag::Vertices::RecoVertex;
-		variables.insert(svInfo.taggingVariables());
+		vars.insert(svInfo.taggingVariables());
 	}
 
-	variables.insert(btau::vertexCategory, vtxType, true);
-	variables.insert(btau::trackSip3dSigAboveCharm, threshTrack(ipInfo,
+	vars.insert(btau::vertexCategory, vtxType, true);
+	vars.insert(btau::trackSip3dSigAboveCharm, threshTrack(ipInfo,
 			TrackIPTagInfo::IP3DSig).ip3d.significance(), true);
-	variables.insert(btau::trackSip2dSigAboveCharm, threshTrack(ipInfo,
+	vars.insert(btau::trackSip2dSigAboveCharm, threshTrack(ipInfo,
 			TrackIPTagInfo::IP2DSig).ip2d.significance(), true);
 
-	return variables;
+	return vars;
 }

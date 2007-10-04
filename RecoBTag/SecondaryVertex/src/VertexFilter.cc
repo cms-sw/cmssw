@@ -7,6 +7,7 @@
 
 #include "DataFormats/GeometryVector/interface/GlobalVector.h"
 #include "DataFormats/GeometryVector/interface/VectorUtil.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 
 #include "RecoBTag/SecondaryVertex/interface/SecondaryVertex.h"
