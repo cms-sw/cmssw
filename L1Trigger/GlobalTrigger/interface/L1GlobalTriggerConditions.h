@@ -156,17 +156,20 @@ template<class Type1, class Type2>
         return (value >= threshold);
         
     } else {
-        LogTrace("L1GlobalTriggerConditions") 
+        if ( value > 0 ) {
+            LogTrace("L1GlobalTriggerConditions") 
             << "  p threshold check:" 
             << "\n    hex: " << std::hex << "threshold = " << threshold << " value = " << value 
             << "\n    dec: " << std::dec << "threshold = " << threshold << " value = " << value
             << std::endl;
-        if ( value > threshold ) {
-            LogTrace("L1GlobalTriggerConditions") << "    p: value > threshold" 
+        }
+        
+        if ( value == threshold ) {
+            LogTrace("L1GlobalTriggerConditions") << "    p: value = threshold" 
                 << std::endl;
         }
         
-        return (value > threshold);
+        return (value == threshold);
     } 
 }
 

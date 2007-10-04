@@ -225,8 +225,7 @@ void L1GlobalTriggerPSB::receiveData(edm::Event& iEvent,
     iEvent.getByLabel(caloGctInputTag.label(), totalEt);
     iEvent.getByLabel(caloGctInputTag.label(), totalHt);
   
-    // TODO FIXME un-comment when the "jet counts" collection is written     
-//    iEvent.getByLabel(caloGctInputTag.label(), jetCounts);
+    iEvent.getByLabel(caloGctInputTag.label(), jetCounts);
     
     // electrons
     for ( unsigned int i = 0; i < L1GlobalTriggerReadoutSetup::NumberL1Electrons; i++ ) {
@@ -355,10 +354,7 @@ void L1GlobalTriggerPSB::receiveData(edm::Event& iEvent,
     glt_totalEtList   = new L1GctEtTotal( (*totalEt).raw() ); 
     glt_totalHtList   = new L1GctEtHad(   (*totalHt).raw() ); 
     
-    
-// TODO FIXME comment empty constructor and un-comment next when jet counts are written 
-     glt_jetCountsList = new L1GctJetCounts();
-//    glt_jetCountsList = new L1GctJetCounts( (*jetCounts) ); 
+    glt_jetCountsList = new L1GctJetCounts( (*jetCounts) ); 
     
     printGctData();    
 
@@ -491,7 +487,7 @@ void L1GlobalTriggerPSB::printGctData() const {
 
     LogTrace("L1GlobalTriggerPSB") << "   GCT Jet Counts " << std::endl;
     if ( glt_jetCountsList ) {
-        LogTrace("L1GlobalTriggerPSB") << "To  be done" << std::endl; // TODO fix it when jet counts are available    
+        LogTrace("L1GlobalTriggerPSB") << (*glt_jetCountsList) << std::endl;    
     }
 
 

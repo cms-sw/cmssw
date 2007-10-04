@@ -10,8 +10,8 @@
  * \author: M.Eder               - HEPHY Vienna - ORCA version 
  * \author: Vasile Mihai Ghete   - HEPHY Vienna - CMSSW version 
  * 
- * $Date:$
- * $Revision:$
+ * $Date$
+ * $Revision$
  *
  */
 
@@ -104,7 +104,23 @@ void L1GlobalTriggerJetCountsTemplate::setConditionParameter(
 
 const bool L1GlobalTriggerJetCountsTemplate::blockCondition() const {
 
+    // store for completness the indices of the calorimeter objects
+    // from the combination evaluated in the condition
+    SingleCombInCond objectsInComb;
+
+    // clear the p_combinationsInCond vector
+    (*p_combinationsInCond).clear();
+
+    // clear the p_objectsInCond vector
+    (*p_objectsInCond).clear();
+
+    ObjectTypeInCond typeInCond;
+
+    // get jet counts and set the type
     L1GctJetCounts* jetNr = m_GT.gtPSB()->getJetCountsList();
+
+    typeInCond.push_back(JetCounts);
+    (*p_objectsInCond) = typeInCond;
 
     const unsigned int nJetCounts = L1GlobalTriggerReadoutSetup::NumberL1JetCounts;
      
@@ -113,13 +129,40 @@ const bool L1GlobalTriggerJetCountsTemplate::blockCondition() const {
         jetCount[i] = jetNr->count(i);      		
 	}    
 
-// TODO ????
-
     if (p_conditionparameter.type < nJetCounts) {
         if (!checkThreshold(p_conditionparameter.et_threshold, jetCount[p_conditionparameter.type])) { 
             return false;
         }
     }
+
+    // condition matches
+
+    // index is always zero, as jet counts is a global quantity (there is only one object)
+    int indexJetCounts = 0;
+
+    objectsInComb.push_back(indexJetCounts);
+    (*p_combinationsInCond).push_back(objectsInComb);
+
+    CombinationsInCond::const_iterator itVV;
+    std::ostringstream myCout1;
+
+    for(itVV  = (*p_combinationsInCond).begin();
+            itVV != (*p_combinationsInCond).end(); itVV++) {
+
+        myCout1 << "( ";
+
+        std::copy((*itVV).begin(), (*itVV).end(),
+                  std::ostream_iterator<int> (myCout1, " "));
+
+        myCout1 << "); ";
+
+    }
+
+    LogTrace("L1GlobalTriggerJetCountsTemplate")
+    << "\n  List of combinations passing all requirements for this condition: \n  "
+    <<  myCout1.str()
+    << " \n"
+    << std::endl;
 
     return true;
 }
