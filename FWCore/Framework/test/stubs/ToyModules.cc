@@ -37,8 +37,9 @@ namespace edmtest {
 
   //--------------------------------------------------------------------
   //
-  // Produces no product; every call to FailingProducer::produce
   // throws an exception.
+  // Announces an IntProduct but does not produce one;
+  // every call to FailingProducer::produce throws a cms exception
   //
   class FailingProducer : public edm::EDProducer {
   public:
@@ -53,6 +54,24 @@ namespace edmtest {
   FailingProducer::produce(edm::Event&, edm::EventSetup const&) {
     // We throw an edm exception with a configurable action.
     throw edm::Exception(edm::errors::NotFound) << "Intentional 'NotFound' exception for testing purposes\n";
+  }
+
+  //--------------------------------------------------------------------
+  //
+  // Announces an IntProduct but does not produce one;
+  // every call to NonProducer::produce does nothing.
+  //
+  class NonProducer : public edm::EDProducer {
+  public:
+    explicit NonProducer(edm::ParameterSet const& /*p*/) {
+      produces<IntProduct>();
+    }
+    virtual ~NonProducer() { }
+    virtual void produce(edm::Event& e, edm::EventSetup const& c);
+  };
+
+  void
+  NonProducer::produce(edm::Event&, edm::EventSetup const&) {
   }
 
   //--------------------------------------------------------------------
@@ -855,6 +874,7 @@ namespace edmtest {
 }
 
 using edmtest::FailingProducer;
+using edmtest::NonProducer;
 using edmtest::IntProducer;
 using edmtest::DoubleProducer;
 using edmtest::SCSimpleProducer;
@@ -874,6 +894,7 @@ using edmtest::IntSetProducer;
 using edmtest::IntVecRefVectorProducer;
 using edmtest::IntVecRefToBaseVectorProducer;
 DEFINE_FWK_MODULE(FailingProducer);
+DEFINE_FWK_MODULE(NonProducer);
 DEFINE_FWK_MODULE(IntProducer);
 DEFINE_FWK_MODULE(DoubleProducer);
 DEFINE_FWK_MODULE(SCSimpleProducer);
