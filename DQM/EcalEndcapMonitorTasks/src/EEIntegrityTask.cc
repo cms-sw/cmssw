@@ -1,8 +1,8 @@
 /*
  * \file EEIntegrityTask.cc
  *
- * $Date: 2007/08/14 17:44:47 $
- * $Revision: 1.11 $
+ * $Date: 2007/10/04 10:13:24 $
+ * $Revision: 1.12 $
  * \author G. Della Ricca
  *
  */
@@ -18,6 +18,8 @@
 
 #include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
 #include "DQMServices/Daemon/interface/MonitorDaemon.h"
+
+#include "DataFormats/EcalDetId/interface/EEDetId.h"
 
 #include "DataFormats/EcalRawData/interface/EcalRawDataCollections.h"
 #include "DataFormats/EcalDetId/interface/EcalDetIdCollections.h"
@@ -39,11 +41,11 @@ EEIntegrityTask::EEIntegrityTask(const ParameterSet& ps){
 
   enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", true);
 
-  EBDetIdCollection0_ =  ps.getParameter<edm::InputTag>("EBDetIdCollection0");
-  EBDetIdCollection1_ =  ps.getParameter<edm::InputTag>("EBDetIdCollection1");
-  EBDetIdCollection2_ =  ps.getParameter<edm::InputTag>("EBDetIdCollection2");
-  EBDetIdCollection3_ =  ps.getParameter<edm::InputTag>("EBDetIdCollection3");
-  EBDetIdCollection4_ =  ps.getParameter<edm::InputTag>("EBDetIdCollection4");
+  EEDetIdCollection0_ =  ps.getParameter<edm::InputTag>("EEDetIdCollection0");
+  EEDetIdCollection1_ =  ps.getParameter<edm::InputTag>("EEDetIdCollection1");
+  EEDetIdCollection2_ =  ps.getParameter<edm::InputTag>("EEDetIdCollection2");
+  EEDetIdCollection3_ =  ps.getParameter<edm::InputTag>("EEDetIdCollection3");
+  EEDetIdCollection4_ =  ps.getParameter<edm::InputTag>("EEDetIdCollection4");
   EcalTrigTowerDetIdCollection1_ = ps.getParameter<edm::InputTag>("EcalTrigTowerDetIdCollection1");
   EcalTrigTowerDetIdCollection2_ = ps.getParameter<edm::InputTag>("EcalTrigTowerDetIdCollection2");
   EcalElectronicsIdCollection1_ = ps.getParameter<edm::InputTag>("EcalElectronicsIdCollection1");
@@ -276,12 +278,12 @@ void EEIntegrityTask::analyze(const Event& e, const EventSetup& c){
 
   try {
 
-    Handle<EBDetIdCollection> ids0;
-    e.getByLabel(EBDetIdCollection0_, ids0);
+    Handle<EEDetIdCollection> ids0;
+    e.getByLabel(EEDetIdCollection0_, ids0);
 
-    for ( EBDetIdCollection::const_iterator idItr = ids0->begin(); idItr != ids0->end(); ++ idItr ) {
+    for ( EEDetIdCollection::const_iterator idItr = ids0->begin(); idItr != ids0->end(); ++ idItr ) {
 
-      EBDetId id = (*idItr);
+      EEDetId id = (*idItr);
 
       int ism = Numbers::iSM( id );
 
@@ -293,119 +295,123 @@ void EEIntegrityTask::analyze(const Event& e, const EventSetup& c){
 
   } catch ( exception& ex) {
 
-    LogWarning("EEIntegrityTask") << EBDetIdCollection0_ << " not available";
+    LogWarning("EEIntegrityTask") << EEDetIdCollection0_ << " not available";
 
   }
 
   try {
 
-    Handle<EBDetIdCollection> ids1;
-    e.getByLabel(EBDetIdCollection1_, ids1);
+    Handle<EEDetIdCollection> ids1;
+    e.getByLabel(EEDetIdCollection1_, ids1);
 
-    for ( EBDetIdCollection::const_iterator idItr = ids1->begin(); idItr != ids1->end(); ++ idItr ) {
+    for ( EEDetIdCollection::const_iterator idItr = ids1->begin(); idItr != ids1->end(); ++ idItr ) {
 
-      EBDetId id = (*idItr);
+      EEDetId id = (*idItr);
 
-      int ic = id.ic();
-      int ie = (ic-1)/20 + 1;
-      int ip = (ic-1)%20 + 1;
+      int ix = id.ix();
+      int iy = id.iy();
 
       int ism = Numbers::iSM( id );
 
-      float xie = ie - 0.5;
-      float xip = ip - 0.5;
+      if ( ism >= 1 && ism <= 9 ) ix = 101 - ix;
 
-      if ( meIntegrityGain[ism-1] ) meIntegrityGain[ism-1]->Fill(xie, xip);
+      float xix = ix - 0.5;
+      float xiy = iy - 0.5;
+
+      if ( meIntegrityGain[ism-1] ) meIntegrityGain[ism-1]->Fill(xix, xiy);
 
     }
 
   } catch ( exception& ex) {
 
-    LogWarning("EEIntegrityTask") << EBDetIdCollection1_ << " not available";
+    LogWarning("EEIntegrityTask") << EEDetIdCollection1_ << " not available";
 
   }
 
   try {
 
-    Handle<EBDetIdCollection> ids2;
-    e.getByLabel(EBDetIdCollection2_, ids2);
+    Handle<EEDetIdCollection> ids2;
+    e.getByLabel(EEDetIdCollection2_, ids2);
 
-    for ( EBDetIdCollection::const_iterator idItr = ids2->begin(); idItr != ids2->end(); ++ idItr ) {
+    for ( EEDetIdCollection::const_iterator idItr = ids2->begin(); idItr != ids2->end(); ++ idItr ) {
 
-      EBDetId id = (*idItr);
+      EEDetId id = (*idItr);
 
-      int ic = id.ic();
-      int ie = (ic-1)/20 + 1;
-      int ip = (ic-1)%20 + 1;
+      int ix = id.ix();
+      int iy = id.iy();
 
       int ism = Numbers::iSM( id );
 
-      float xie = ie - 0.5;
-      float xip = ip - 0.5;
+      if ( ism >= 1 && ism <= 9 ) ix = 101 - ix;
 
-      if ( meIntegrityChId[ism-1] ) meIntegrityChId[ism-1]->Fill(xie, xip);
+      float xix = ix - 0.5;
+      float xiy = iy - 0.5;
+
+      if ( meIntegrityChId[ism-1] ) meIntegrityChId[ism-1]->Fill(xix, xiy);
 
     }
 
   } catch ( exception& ex) {
 
-    LogWarning("EEIntegrityTask") << EBDetIdCollection2_ << " not available";
+    LogWarning("EEIntegrityTask") << EEDetIdCollection2_ << " not available";
 
   }
 
   try {
 
-    Handle<EBDetIdCollection> ids3;
-    e.getByLabel(EBDetIdCollection3_, ids3);
+    Handle<EEDetIdCollection> ids3;
+    e.getByLabel(EEDetIdCollection3_, ids3);
 
-    for ( EBDetIdCollection::const_iterator idItr = ids3->begin(); idItr != ids3->end(); ++ idItr ) {
+    for ( EEDetIdCollection::const_iterator idItr = ids3->begin(); idItr != ids3->end(); ++ idItr ) {
 
-      EBDetId id = (*idItr);
+      EEDetId id = (*idItr);
 
-      int ic = id.ic();
-      int ie = (ic-1)/20 + 1;
-      int ip = (ic-1)%20 + 1;
+      int ix = id.ix();
+      int iy = id.iy();
 
       int ism = Numbers::iSM( id );
 
-      float xie = ie - 0.5;
-      float xip = ip - 0.5;
+      if ( ism >= 1 && ism <= 9 ) ix = 101 - ix;
 
-      if ( meIntegrityGainSwitch[ism-1] ) meIntegrityGainSwitch[ism-1]->Fill(xie, xip);
+      float xix = ix - 0.5;
+      float xiy = iy - 0.5;
+
+      if ( meIntegrityGainSwitch[ism-1] ) meIntegrityGainSwitch[ism-1]->Fill(xix, xiy);
 
     }
 
   } catch ( exception& ex) {
 
-    LogWarning("EEIntegrityTask") << EBDetIdCollection3_ << " not available";
+    LogWarning("EEIntegrityTask") << EEDetIdCollection3_ << " not available";
 
   }
 
   try {
 
-    Handle<EBDetIdCollection> ids4;
-    e.getByLabel(EBDetIdCollection4_, ids4);
+    Handle<EEDetIdCollection> ids4;
+    e.getByLabel(EEDetIdCollection4_, ids4);
 
-    for ( EBDetIdCollection::const_iterator idItr = ids4->begin(); idItr != ids4->end(); ++ idItr ) {
+    for ( EEDetIdCollection::const_iterator idItr = ids4->begin(); idItr != ids4->end(); ++ idItr ) {
 
-      EBDetId id = (*idItr);
+      EEDetId id = (*idItr);
 
-      int ic = id.ic();
-      int ie = (ic-1)/20 + 1;
-      int ip = (ic-1)%20 + 1;
+      int ix = id.ix();
+      int iy = id.iy();
 
       int ism = Numbers::iSM( id );
 
-      float xie = ie - 0.5;
-      float xip = ip - 0.5;
+      if ( ism >= 1 && ism <= 9 ) ix = 101 - ix;
 
-      if ( meIntegrityGainSwitchStay[ism-1] ) meIntegrityGainSwitchStay[ism-1]->Fill(xie, xip);
+      float xix = ix - 0.5;
+      float xiy = iy - 0.5;
+
+      if ( meIntegrityGainSwitchStay[ism-1] ) meIntegrityGainSwitchStay[ism-1]->Fill(xix, xiy);
 
     }
 
   } catch ( exception& ex) {
 
-    LogWarning("EEIntegrityTask") << EBDetIdCollection4_ << " not available";
+    LogWarning("EEIntegrityTask") << EEDetIdCollection4_ << " not available";
 
   }
 
@@ -432,10 +438,10 @@ void EEIntegrityTask::analyze(const Event& e, const EventSetup& c){
 
       int ismt = Numbers::iSM( id );
 
-      float xiet = iet - 0.5;
-      float xipt = ipt - 0.5;
+      float xixt = iet - 0.5;
+      float xiyt = ipt - 0.5;
 
-      if ( meIntegrityTTId[ismt-1] ) meIntegrityTTId[ismt-1]->Fill(xiet, xipt);
+      if ( meIntegrityTTId[ismt-1] ) meIntegrityTTId[ismt-1]->Fill(xixt, xiyt);
 
     }
 
@@ -468,10 +474,10 @@ void EEIntegrityTask::analyze(const Event& e, const EventSetup& c){
 
       int ismt = Numbers::iSM( id );
 
-      float xiet = iet - 0.5;
-      float xipt = ipt - 0.5;
+      float xixt = iet - 0.5;
+      float xiyt = ipt - 0.5;
 
-      if ( meIntegrityTTBlockSize[ismt-1] ) meIntegrityTTBlockSize[ismt-1]->Fill(xiet, xipt);
+      if ( meIntegrityTTBlockSize[ismt-1] ) meIntegrityTTBlockSize[ismt-1]->Fill(xixt, xiyt);
 
     }
 
@@ -547,10 +553,10 @@ void EEIntegrityTask::analyze(const Event& e, const EventSetup& c){
       int iTt = id.towerId();
       ie += (iTt-69)*5;
 
-      float xie = ie - 0.5;
-      float xip = ip - 0.5;
+      float xix = ie - 0.5;
+      float xiy = ip - 0.5;
 
-      if ( meIntegrityMemChId[ism-1] ) meIntegrityMemChId[ism-1]->Fill(xie,xip);
+      if ( meIntegrityMemChId[ism-1] ) meIntegrityMemChId[ism-1]->Fill(xix,xiy);
 
     }
 
@@ -578,10 +584,10 @@ void EEIntegrityTask::analyze(const Event& e, const EventSetup& c){
       int iTt = id.towerId();
       ie += (iTt-69)*5;
 
-      float xie = ie - 0.5;
-      float xip = ip - 0.5;
+      float xix = ie - 0.5;
+      float xiy = ip - 0.5;
 
-      if ( meIntegrityMemGain[ism-1] ) meIntegrityMemGain[ism-1]->Fill(xie,xip);
+      if ( meIntegrityMemGain[ism-1] ) meIntegrityMemGain[ism-1]->Fill(xix,xiy);
 
     }
 

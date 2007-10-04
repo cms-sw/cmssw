@@ -4,8 +4,8 @@
 /*
  * \file EEIntegrityTask.h
  *
- * $Date: 2007/04/05 14:54:03 $
- * $Revision: 1.3 $
+ * $Date: 2007/05/12 09:28:32 $
+ * $Revision: 1.4 $
  * \author G. Della Ricca
  *
  */
@@ -51,11 +51,11 @@ DaqMonitorBEInterface* dbe_;
 
 bool enableCleanup_;
 
-edm::InputTag EBDetIdCollection0_;
-edm::InputTag EBDetIdCollection1_;
-edm::InputTag EBDetIdCollection2_;
-edm::InputTag EBDetIdCollection3_;
-edm::InputTag EBDetIdCollection4_;
+edm::InputTag EEDetIdCollection0_;
+edm::InputTag EEDetIdCollection1_;
+edm::InputTag EEDetIdCollection2_;
+edm::InputTag EEDetIdCollection3_;
+edm::InputTag EEDetIdCollection4_;
 edm::InputTag EcalTrigTowerDetIdCollection1_;
 edm::InputTag EcalTrigTowerDetIdCollection2_;
 edm::InputTag EcalElectronicsIdCollection1_;
