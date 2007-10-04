@@ -5,21 +5,21 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
  
 StackingAction::StackingAction(const edm::ParameterSet & p) {
+  trackNeutrino  = p.getParameter<bool>("TrackNeutrino");
+  killHeavy      = p.getParameter<bool>("KillHeavy");
+  kmaxIon        = p.getParameter<double>("IonThreshold")*MeV;
+  kmaxProton     = p.getParameter<double>("ProtonThreshold")*MeV;
+  kmaxNeutron    = p.getParameter<double>("NeutronThreshold")*MeV;
   savePrimaryDecayProductsAndConversions = p.getUntrackedParameter<bool>("SavePrimaryDecayProductsAndConversions",false);
-  trackNeutrino = p.getUntrackedParameter<bool>("TrackNeutrino", false);
-  suppressHeavy = p.getUntrackedParameter<bool>("SuppressHeavy", false);
-  pmaxIon       = p.getUntrackedParameter<double>("IonThreshold", 50.0)*MeV;
-  pmaxProton    = p.getUntrackedParameter<double>("ProtonThreshold", 50.0)*MeV;
-  pmaxNeutron   = p.getUntrackedParameter<double>("NeutronThreshold", 50.0)*MeV;
   edm::LogInfo("SimG4CoreApplication") << "StackingAction initiated with"
 				       << " flag for saving decay products: "
 				       <<savePrimaryDecayProductsAndConversions
 				       << " Flag for tracking neutrino: "
-				       << trackNeutrino << " Suppression Flag "
-				       << suppressHeavy << " protons below " 
-				       <<pmaxProton <<" MeV/c, neutrons below "
-				       << pmaxNeutron << " MeV/c and ions"
-				       << " below " << pmaxIon << " MeV/c\n";
+				       << trackNeutrino << " Killing Flag "
+				       << killHeavy << " protons below " 
+				       << kmaxProton <<" MeV, neutrons below "
+				       << kmaxNeutron << " MeV and ions"
+				       << " below " << kmaxIon << " MeV\n";
 
 }
 
@@ -36,13 +36,13 @@ G4ClassificationOfNewTrack StackingAction::ClassifyNewTrack(const G4Track * aTra
   else {
     const G4Track * mother = CurrentG4Track::track();
     newTA.secondary(aTrack, *mother);
-    if (suppressHeavy) {
+    if (killHeavy) {
       int    pdg = aTrack->GetDefinition()->GetPDGEncoding();
-      double pp  = aTrack->GetMomentum().mag()/MeV;
+      double ke  = aTrack->GetKineticEnergy()/MeV;
       if (((pdg/1000000000 == 1) && (((pdg/10000)%100) > 0) && 
-	   (((pdg/10)%100) > 0) && (pp<pmaxIon)) || 
-	  ((pdg == 2212) && (pp < pmaxProton)) ||
-	  ((pdg == 2112) && (pp < pmaxNeutron))) classification = fKill;
+	   (((pdg/10)%100) > 0) && (ke<kmaxIon)) || 
+	  ((pdg == 2212) && (ke < kmaxProton)) ||
+	  ((pdg == 2112) && (ke < kmaxNeutron))) classification = fKill;
     }
     if (!trackNeutrino) {
       int    pdg = std::abs(aTrack->GetDefinition()->GetPDGEncoding());
@@ -53,8 +53,8 @@ G4ClassificationOfNewTrack StackingAction::ClassifyNewTrack(const G4Track * aTra
 				     << aTrack->GetTrackID() << " Parent " 
 				     << aTrack->GetParentID() << " Type "
 				     << aTrack->GetDefinition()->GetParticleName() 
-				     << " Momentum " << aTrack->GetMomentum().mag()/MeV
-				     << " MeV/c as " << classification;
+				     << " K.E. " << aTrack->GetKineticEnergy()/MeV
+				     << " MeV as " << classification;
   }
   return classification;
 }
