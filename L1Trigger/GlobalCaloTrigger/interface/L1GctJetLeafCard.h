@@ -5,7 +5,7 @@
 #include "DataFormats/L1GlobalCaloTrigger/interface/L1GctEtHad.h"
 #include "DataFormats/L1GlobalCaloTrigger/interface/L1GctEtMiss.h"
 
-#include "L1Trigger/GlobalCaloTrigger/interface/L1GctJetFinderBase.h"
+#include "L1Trigger/GlobalCaloTrigger/interface/L1GctProcessor.h"
 #include "L1Trigger/GlobalCaloTrigger/src/L1GctTwosComplement.h"
 #include "L1Trigger/GlobalCaloTrigger/src/L1GctUnsignedInt.h"
 
@@ -21,6 +21,9 @@
  * date: 20/2/2006
  * 
  */
+
+class L1GctJetCand;
+class L1GctJetFinderBase;
 
 class L1GctJetLeafCard : L1GctProcessor
 {
@@ -47,9 +50,7 @@ public:
   void setNeighbourLeafCards(std::vector<L1GctJetLeafCard*> neighbours);
 
   /// Check setup is Ok
-  bool setupOk() const { return (m_jetFinderA->setupOk() &&
-				 m_jetFinderB->setupOk() &&
-				 m_jetFinderC->setupOk()); }
+  bool setupOk() const;
 
   /// Overload << operator
   friend std::ostream& operator << (std::ostream& os, const L1GctJetLeafCard& card);
@@ -69,9 +70,9 @@ public:
   L1GctJetFinderBase* getJetFinderC() const { return m_jetFinderC; }
 
   // get the jet output
-  std::vector<L1GctJetCand> getOutputJetsA() const { return m_jetFinderA->getJets(); }  ///< Output jetfinder A jets (lowest jetFinder in phi)
-  std::vector<L1GctJetCand> getOutputJetsB() const { return m_jetFinderB->getJets(); }  ///< Output jetfinder B jets (middle jetFinder in phi)
-  std::vector<L1GctJetCand> getOutputJetsC() const { return m_jetFinderC->getJets(); }  ///< Ouptut jetfinder C jets (highest jetFinder in phi)
+  std::vector<L1GctJetCand> getOutputJetsA() const;  ///< Output jetfinder A jets (lowest jetFinder in phi)
+  std::vector<L1GctJetCand> getOutputJetsB() const;  ///< Output jetfinder B jets (middle jetFinder in phi)
+  std::vector<L1GctJetCand> getOutputJetsC() const;  ///< Ouptut jetfinder C jets (highest jetFinder in phi)
     
   /// get the Ex output
   etComponentType getOutputEx() const { return m_exSum; }

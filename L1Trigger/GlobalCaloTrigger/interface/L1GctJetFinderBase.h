@@ -1,12 +1,12 @@
 #ifndef L1GCTJETFINDERBASE_H_
 #define L1GCTJETFINDERBASE_H_
 
-#include "DataFormats/L1CaloTrigger/interface/L1CaloRegion.h"
 #include "DataFormats/L1GlobalCaloTrigger/interface/L1GctJetCand.h"
 #include "DataFormats/L1GlobalCaloTrigger/interface/L1GctEtTotal.h"
 #include "DataFormats/L1GlobalCaloTrigger/interface/L1GctEtHad.h"
 
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctProcessor.h"
+#include "L1Trigger/GlobalCaloTrigger/interface/L1GctRegion.h"
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctJet.h"
 
 #include "L1Trigger/GlobalCaloTrigger/src/L1GctUnsignedInt.h"
@@ -16,6 +16,7 @@
 
 class L1GctJetFinderParams;
 class L1GctJetEtCalibrationLut;
+class L1CaloRegion;
 
 
 /*! \class L1GctJetFinderBase
@@ -49,7 +50,7 @@ public:
   //Typedefs
   typedef unsigned long int ULong;
   typedef unsigned short int UShort;
-  typedef std::vector<L1CaloRegion> RegionsVector;
+  typedef std::vector<L1GctRegion>  RegionsVector;
   typedef std::vector<L1GctJet>     RawJetVector;
   typedef std::vector<L1GctJetCand> JetVector;
   typedef L1GctUnsignedInt<L1GctEtTotal::kEtTotalNBits> etTotalType;
@@ -92,7 +93,7 @@ public:
   virtual void process() = 0;
 
   /// Set input data
-  void setInputRegion(L1CaloRegion region);
+  void setInputRegion(const L1CaloRegion& region);
     
   /// Return input data   
   RegionsVector getInputRegions() const { return m_inputRegions; }
