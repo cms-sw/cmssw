@@ -4,6 +4,7 @@
 
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GlobalCaloTrigger.h"
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctGlobalEnergyAlgos.h"
+#include "L1Trigger/GlobalCaloTrigger/interface/L1GctJetFinderBase.h"
 
 #include <math.h>
 #include <iostream>
@@ -35,7 +36,7 @@ void gctTestEnergyAlgos::loadEvent(L1GlobalCaloTrigger* &gct, const bool simpleE
   // same region several times.
   for (unsigned i=0; i<(simpleEvent ? 1 : L1CaloRegionDetId::N_ETA); i++) {
     etmiss_vec etVector=randomMissingEtVector();
-//     cout << "Region et " << etVector.mag << " phi " << etVector.phi << endl;
+//      cout << "Region et " << etVector.mag << " phi " << etVector.phi << endl;
     // Set a single region input
     unsigned etaRegion = i;
     unsigned phiRegion = etVector.phi/4;

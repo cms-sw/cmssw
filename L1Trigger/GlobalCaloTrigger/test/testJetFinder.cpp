@@ -34,8 +34,8 @@ using namespace std;
 
 
 //Typedefs for the vector templates and other types used
-typedef vector<L1CaloRegion> RegionsVector;
-typedef vector<L1GctJet> RawJetsVector;
+typedef vector<L1GctRegion>  RegionsVector;
+typedef vector<L1GctJet>  RawJetsVector;
 typedef vector<L1GctJetCand> JetsVector;
 typedef unsigned long int ULong;
 
@@ -122,13 +122,13 @@ void classTest(L1GctTdrJetFinder *myJetFinder)
   
   // Vectors for reading in test data from the text file.
   RegionsVector inputRegions;  //Size?
-  RawJetsVector trueJets;      //Size?
+  RawJetsVector    trueJets;      //Size?
   ULong trueHt;
   ULong stripSum0, stripSum1;
   
   // Vectors for receiving the output from the object under test.
   RegionsVector outputRegions; //Size?
-  RawJetsVector outputJets;    //Size?
+  RawJetsVector    outputJets;    //Size?
   ULong outputHt;
   ULong sumOfJetHt;
   //Jet Counts to be added at some point
@@ -218,7 +218,7 @@ void classTest(L1GctTdrJetFinder *myJetFinder)
   stripSum1 = myJetFinder->getEtStrip1().value();
   
   //an empty regions vector for reset comparison
-  vector<L1CaloRegion> blankRegionsVec(numInputRegions);
+  vector<L1GctRegion> blankRegionsVec(numInputRegions);
   vector<L1GctJet> blankJetsVec(numOutputJets);
   
   //Test that all the vectors/values are empty/zero
@@ -356,7 +356,7 @@ L1CaloRegion readSingleRegion(ifstream &fin)
 			  static_cast<bool>(regionComponents[5]),
 			  ieta, iphi);
   
-  return tempRegion;
+  return L1GctRegion(tempRegion);
 }
 
 //Reads jets from file and pushes the specified number into a vector of jets
