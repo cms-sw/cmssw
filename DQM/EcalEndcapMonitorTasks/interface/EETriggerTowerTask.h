@@ -4,66 +4,131 @@
 /*
  * \file EETriggerTowerTask.h
  *
- * $Date: 2007/04/05 14:54:03 $
- * $Revision: 1.3 $
- * \author G. Della Ricca
+ * $Date: 2007/07/19 11:48:49 $
+ * $Revision: 1.9 $
+ * \author C. Bernet
  *
 */
 
+#include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
+
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "DataFormats/Common/interface/Handle.h"
 
-class EETriggerTowerTask: public edm::EDAnalyzer{
+#include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
 
-public:
+// #include "boost/multi_array.hpp"
 
-/// Constructor
-EETriggerTowerTask(const edm::ParameterSet& ps);
+// #include <iostream>
+// #include <fstream>
+#include <vector>
 
-/// Destructor
-virtual ~EETriggerTowerTask();
 
-protected:
+class MonitorElement;
+class DaqMonitorBEInterface;
 
-/// Analyze
-void analyze(const edm::Event& e, const edm::EventSetup& c);
+class EETriggerTowerTask : public edm::EDAnalyzer {
 
-/// BeginJob
-void beginJob(const edm::EventSetup& c);
+ public:
 
-/// EndJob
-void endJob(void);
+  /// Constructor
+  EETriggerTowerTask(const edm::ParameterSet& ps);
 
-/// Setup
-void setup(void);
+  /// Destructor
+  virtual ~EETriggerTowerTask();
 
-/// Cleanup
-void cleanup(void);
+  /// number of trigger towers in eta
+  static const int nTTEta; 
 
-private:
+  /// number of trigger towers in phi
+  static const int nTTPhi; 
 
-int ievt_;
+  /// number of supermodules
+  static const int nSM; 
 
-DaqMonitorBEInterface* dbe_;
+ protected:
 
-bool enableCleanup_;
+  /// Analyze
+  void analyze(const edm::Event& e, 
+	       const edm::EventSetup& c);
 
-edm::InputTag EcalTrigPrimDigiCollection_;
-edm::InputTag EcalUncalibratedRecHitCollection_;
+  /// BeginJob
+  void beginJob(const edm::EventSetup& c);
 
-MonitorElement* meEtMap_[18];
+  /// EndJob
+  void endJob(void);
 
-MonitorElement* meVeto_[18];
+  /// Setup
+  void setup(void);
 
-MonitorElement* meFlags_[18];
+  /// Cleanup
+  void cleanup(void);
 
-MonitorElement* meEtMapT_[18][68];
-MonitorElement* meEtMapR_[18][68];
+ private:
+  
+  /// 1D array
+  typedef std::vector<MonitorElement*> array1;
 
-bool init_;
+  /// reserve an array to hold one histogram per supermodule
+  void reserveArray( array1& array );
 
+  /// process a collection of digis, either real or emulated
+  void processDigis( const edm::Handle<EcalTrigPrimDigiCollection>& digis, 
+		     array1& meEtMap,
+		     array1& meVeto,
+		     array1& meFlags,
+		     const edm::Handle<EcalTrigPrimDigiCollection>& digis
+		     = edm::Handle<EcalTrigPrimDigiCollection>());
+
+
+  /// book monitor elements for real, or emulated digis
+  void setup( DaqMonitorBEInterface* dbe,
+	      const char* nameext,
+	      const char* folder, 
+	      bool emulated);
+  
+
+  /// local event counter
+  int ievt_;
+
+  /// Et vs ix vs iy, for each SM 
+  array1 meEtMapReal_;
+
+  /// fine grain veto vs ix vs iy, for each SM 
+  array1 meVetoReal_;
+
+  /// flag vs ix vs iy, for each SM   
+  array1 meFlagsReal_;
+  
+  /// Emulated Et vs ix vs iy, for each SM 
+  array1 meEtMapEmul_;
+
+  /// Emulated fine grain veto vs ix vs iy, for each SM 
+  array1 meVetoEmul_;
+
+  /// Emulated flag vs ix vs iy, for each SM   
+  array1 meFlagsEmul_;
+  
+  /// error flag vs ix vs iy, for each SM
+  /// the error flag is set to true in case of a discrepancy between 
+  /// the emulator and the real data
+  array1 meEmulError_;
+  array1 meVetoEmulError_;
+  array1 meFlagEmulError_;
+
+  /// not sure this is necessary
+  bool init_;
+
+  /// to find the input collection of real digis 
+  edm::InputTag  realCollection_;
+
+  /// to find the input collection of emulated digis
+  edm::InputTag  emulCollection_;
+  
+  /// debug output root file. if empty, no output file created.
+  std::string   outputFile_;
 };
 
 #endif

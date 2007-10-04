@@ -4,8 +4,8 @@
 /*
  * \file EETriggerTowerClient.h
  *
- * $Date: 2007/08/17 09:05:11 $
- * $Revision: 1.5 $
+ * $Date: 2007/09/07 22:30:03 $
+ * $Revision: 1.17 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -86,6 +86,11 @@ inline int getEvtPerRun() { return jevt_; }
 
 private:
 
+ void subscribe(const char* nameext, const char* folder, bool emulated);
+ void subscribeNew(const char* nameext, const char* folder, bool emulated);
+ void unsubscribe(const char* nameext, const char* folder, bool emulated);
+ void analyze(const char* nameext, const char* folder, bool emulated);
+
 int ievt_;
 int jevt_;
 
@@ -106,16 +111,28 @@ DaqMonitorBEInterface* dbe_;
 MonitorElement* meh01_[18];
 MonitorElement* mei01_[18];
 MonitorElement* mej01_[18];
+MonitorElement* mel01_[18];
+MonitorElement* mem01_[18];
+MonitorElement* men01_[18];
+MonitorElement* meh02_[18];
+MonitorElement* mei02_[18];
+MonitorElement* mej02_[18];
 
-TProfile2D* h01_[18];
+TH3F* h01_[18];
 TH3F* i01_[18];
 TH3F* j01_[18];
+TH2F* l01_[18];
+TH3F* m01_[18];
+TH3F* n01_[18];
+TH3F* h02_[18];
+TH3F* i02_[18];
+TH3F* j02_[18];
 
-MonitorElement* mek01_[18][68];
-MonitorElement* mek02_[18][68];
+MonitorElement* mek01_[18][34];
+MonitorElement* mek02_[18][34];
 
-TH1F* k01_[18][68];
-TH1F* k02_[18][68];
+TH1F* k01_[18][34];
+TH1F* k02_[18][34];
 
 };
 

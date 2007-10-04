@@ -1,8 +1,8 @@
 /*
  * \file EcalEndcapMonitorClient.cc
  *
- * $Date: 2007/09/16 15:57:19 $
- * $Revision: 1.67 $
+ * $Date: 2007/09/17 09:47:33 $
+ * $Revision: 1.68 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -519,6 +519,9 @@ void EcalEndcapMonitorClient::initialize(const ParameterSet& ps){
     chb_.insert( EECIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::PHYSICS_GLOBAL ));
     chb_.insert( EECIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::COSMICS_LOCAL ));
     chb_.insert( EECIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::PHYSICS_LOCAL ));
+
+// TEST TEST TEST
+    chb_.insert( EECIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::LASER_STD ));
 
   }
 
