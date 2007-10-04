@@ -56,15 +56,11 @@ ECalSD::ECalSD(G4String name, const DDCompactView & cpv,
 			   << birk1 << ", C2 = " << birk2 << "\n"
 			   << "         Slope for Light yield is set to "
 			   << slopeLY;
-  suppress    = m_EC.getUntrackedParameter<bool>("SuppressHeavy", false);
-  pmaxIon     = m_EC.getUntrackedParameter<double>("IonThreshold", 50.0)*MeV;
-  pmaxProton  = m_EC.getUntrackedParameter<double>("ProtonThreshold", 50.0)*MeV;
-  pmaxNeutron = m_EC.getUntrackedParameter<double>("NeutronThreshold",50.0)*MeV;
 
-  edm::LogInfo("EcalSim") << "ECalSD:: Suppression Flag " << suppress
-			  << " protons below " << pmaxProton << " MeV/c,"
-			  << " neutrons below " << pmaxNeutron << " and ions"
-			  << " below " << pmaxIon << " MeV/c";
+  edm::LogInfo("EcalSim") << "ECalSD:: Suppression Flag " << suppressHeavy
+			  << " protons below " << kmaxProton << " MeV,"
+			  << " neutrons below " << kmaxNeutron << " MeV and"
+			  << " ions below " << kmaxIon << " MeV";
 
   if (useWeight) initMap(name,cpv);
 
@@ -84,21 +80,21 @@ double ECalSD::getEnergyDeposit(G4Step * aStep) {
 
     // take into account light collection curve for crystals
     double weight = 1.;
-    if (suppress) {
+    if (suppressHeavy) {
       G4Track* theTrack = aStep->GetTrack();
       TrackInformation * trkInfo = (TrackInformation *)(theTrack->GetUserInformation());
       if (trkInfo) {
 	int pdg = theTrack->GetDefinition()->GetPDGEncoding();
 	if (!(trkInfo->isPrimary())) { // Only secondary particles
-	  double pp = theTrack->GetMomentum().mag()/MeV;
+	  double ke = theTrack->GetKineticEnergy()/MeV;
 	  if (((pdg/1000000000 == 1 && ((pdg/10000)%100) > 0 &&
-		((pdg/10)%100) > 0)) && (pp<pmaxIon)) weight = 0;
-	  if ((pdg == 2212) && (pp < pmaxProton))     weight = 0;
-	  if ((pdg == 2112) && (pp < pmaxNeutron))    weight = 0;
+		((pdg/10)%100) > 0)) && (ke<kmaxIon)) weight = 0;
+	  if ((pdg == 2212) && (ke < kmaxProton))     weight = 0;
+	  if ((pdg == 2112) && (ke < kmaxNeutron))    weight = 0;
 	  if (weight == 0) {
 	    LogDebug("EcalSim") << "Ignore Track " << theTrack->GetTrackID()
 				<< " Type " << theTrack->GetDefinition()->GetParticleName()
-				<< " Momentum " << pp << " MeV/c";
+				<< " Kinetic Energy " << ke << " MeV";
 	  }
 	}
       }

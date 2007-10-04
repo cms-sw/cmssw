@@ -54,15 +54,10 @@ HCalSD::HCalSD(G4String name, const DDCompactView & cpv,
 			  << useBirk << "  with the two constants C1 = "
 			  << birk1 << ", C2 = " << birk2;
   
-  suppress    = m_HC.getUntrackedParameter<bool>("SuppressHeavy", false);
-  pmaxIon     = m_HC.getUntrackedParameter<double>("IonThreshold", 50.0)*MeV;
-  pmaxProton  = m_HC.getUntrackedParameter<double>("ProtonThreshold", 50.0)*MeV;
-  pmaxNeutron = m_HC.getUntrackedParameter<double>("NeutronThreshold",50.0)*MeV;
-
-  edm::LogInfo("HcalSim") << "HCalSD:: Suppression Flag " << suppress
-			  << " protons below " << pmaxProton << " MeV/c,"
-			  << " neutrons below " << pmaxNeutron << " and ions"
-			  << " below " << pmaxIon << " MeV/c";
+  edm::LogInfo("HcalSim") << "HCalSD:: Suppression Flag " << suppressHeavy
+			  << " protons below " << kmaxProton << " MeV,"
+			  << " neutrons below " << kmaxNeutron << " MeV and"
+			  << " ions below " << kmaxIon << " MeV";
 
   numberingFromDDD = new HcalNumberingFromDDD(name, cpv);
   HcalNumberingScheme* scheme;
@@ -193,21 +188,21 @@ double HCalSD::getEnergyDeposit(G4Step* aStep) {
   int det   = ((touch->GetReplicaNumber(1))/1000)-3;
   if (depth==0 && (det==0 || det==1)) weight = layer0wt[det];
 
-  if (suppress) {
+  if (suppressHeavy) {
     G4Track* theTrack = aStep->GetTrack();
     TrackInformation * trkInfo = (TrackInformation *)(theTrack->GetUserInformation());
     if (trkInfo) {
       int pdg = theTrack->GetDefinition()->GetPDGEncoding();
       if (!(trkInfo->isPrimary())) { // Only secondary particles
-	double pp = theTrack->GetMomentum().mag()/MeV;
+	double ke = theTrack->GetKineticEnergy()/MeV;
 	if (((pdg/1000000000 == 1 && ((pdg/10000)%100) > 0 &&
-	      ((pdg/10)%100) > 0)) && (pp<pmaxIon)) weight = 0;
-	if ((pdg == 2212) && (pp < pmaxProton))     weight = 0;
-	if ((pdg == 2112) && (pp < pmaxNeutron))    weight = 0;
+	      ((pdg/10)%100) > 0)) && (ke<kmaxIon)) weight = 0;
+	if ((pdg == 2212) && (ke < kmaxProton))     weight = 0;
+	if ((pdg == 2112) && (ke < kmaxNeutron))    weight = 0;
 	if (weight == 0) {
-	  LogDebug("HcalSim") << "Ignore Track " << theTrack->GetTrackID()
+	  LogDebug("EcalSim") << "Ignore Track " << theTrack->GetTrackID()
 			      << " Type " << theTrack->GetDefinition()->GetParticleName()
-			      << " Momentum " << pp << " MeV/c";
+			      << " Kinetic Energy " << ke << " MeV";
 	}
       }
     }

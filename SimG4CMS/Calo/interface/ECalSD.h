@@ -41,8 +41,6 @@ private:
   double               birk1, birk2;
   double               slopeLY;
   std::map<G4String,double> lengthMap;
-  bool                 suppress;
-  double               pmaxIon, pmaxNeutron, pmaxProton;
 };
 
 #endif // ECalSD_h

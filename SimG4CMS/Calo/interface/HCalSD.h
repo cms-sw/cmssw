@@ -56,8 +56,6 @@ private:
   std::vector<G4String> hfNames;
   std::vector<G4String> fibreNames;
   std::vector<G4String> matNames;
-  bool                  suppress;
-  double                pmaxIon, pmaxNeutron, pmaxProton;
 
 };
 

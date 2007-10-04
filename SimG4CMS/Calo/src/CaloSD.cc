@@ -31,14 +31,18 @@ CaloSD::CaloSD(G4String name, const DDCompactView & cpv,
   //   static SimpleConfigurable<int>   pcheckHit(25,"CaloSD:CheckHits");
   //   static SimpleConfigurable<bool>  pUseMap(false,"CaloSD:UseMap");
   edm::ParameterSet m_CaloSD = p.getParameter<edm::ParameterSet>("CaloSD");
-  energyCut = m_CaloSD.getParameter<double>("EminTrack")*GeV;
-  checkHits = m_CaloSD.getUntrackedParameter<int>("CheckHits", 25);
-  useMap    = m_CaloSD.getUntrackedParameter<bool>("UseMap", true);
-  int verbn = m_CaloSD.getUntrackedParameter<int>("Verbosity", 0);
-  bool on   = m_CaloSD.getUntrackedParameter<bool>("DetailedTiming");
-  corrTOFBeam = m_CaloSD.getUntrackedParameter<bool>("CorrectTOFBeam", false);
-  double beamZ= m_CaloSD.getUntrackedParameter<double>("BeamPosition",0.0)*cm;
-  correctT    = beamZ/c_light/nanosecond;
+  energyCut    = m_CaloSD.getParameter<double>("EminTrack")*GeV;
+  suppressHeavy= m_CaloSD.getParameter<bool>("SuppressHeavy");
+  kmaxIon      = m_CaloSD.getParameter<double>("IonThreshold")*MeV;
+  kmaxProton   = m_CaloSD.getParameter<double>("ProtonThreshold")*MeV;
+  kmaxNeutron  = m_CaloSD.getParameter<double>("NeutronThreshold")*MeV;
+  checkHits    = m_CaloSD.getUntrackedParameter<int>("CheckHits", 25);
+  useMap       = m_CaloSD.getUntrackedParameter<bool>("UseMap", true);
+  int verbn    = m_CaloSD.getUntrackedParameter<int>("Verbosity", 0);
+  bool on      = m_CaloSD.getUntrackedParameter<bool>("DetailedTiming");
+  corrTOFBeam  = m_CaloSD.getUntrackedParameter<bool>("CorrectTOFBeam", false);
+  double beamZ = m_CaloSD.getUntrackedParameter<double>("BeamPosition",0.0)*cm;
+  correctT     = beamZ/c_light/nanosecond;
 
   SetVerboseLevel(verbn);
   LogDebug("CaloSim") << "***************************************************" 

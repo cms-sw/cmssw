@@ -110,8 +110,9 @@ protected:
   CaloG4Hit*             currentHit;
 //  TimerProxy           theHitTimer;
 
-  bool                   corrTOFBeam;
+  bool                   corrTOFBeam, suppressHeavy;
   double                 correctT;
+  double                 kmaxIon, kmaxNeutron, kmaxProton;
 
 private:
 
