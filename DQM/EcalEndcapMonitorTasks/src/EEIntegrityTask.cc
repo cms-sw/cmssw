@@ -1,8 +1,8 @@
 /*
  * \file EEIntegrityTask.cc
  *
- * $Date: 2007/10/04 10:13:24 $
- * $Revision: 1.12 $
+ * $Date: 2007/10/04 10:37:50 $
+ * $Revision: 1.13 $
  * \author G. Della Ricca
  *
  */
@@ -134,7 +134,7 @@ void EEIntegrityTask::setup(void){
     dbe_->setCurrentFolder("EcalEndcap/EEIntegrityTask/TTId");
     for (int i = 0; i < 18 ; i++) {
       sprintf(histo, "EEIT TTId %s", Numbers::sEE(i+1).c_str());
-      meIntegrityTTId[i] = dbe_->book2D(histo, histo, 10, Numbers::ix0EE(i+1)/5+0., Numbers::ix0EE(i+1)/5+10., 10, Numbers::iy0EE(i+1)/5+0., Numbers::iy0EE(i+1)/5+10.);
+      meIntegrityTTId[i] = dbe_->book2D(histo, histo, 50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50., 50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50.);
       dbe_->tag(meIntegrityTTId[i], i+1);
     }
 
@@ -142,7 +142,7 @@ void EEIntegrityTask::setup(void){
     dbe_->setCurrentFolder("EcalEndcap/EEIntegrityTask/TTBlockSize");
     for (int i = 0; i < 18 ; i++) {
       sprintf(histo, "EEIT TTBlockSize %s", Numbers::sEE(i+1).c_str());
-      meIntegrityTTBlockSize[i] = dbe_->book2D(histo, histo, 10, Numbers::ix0EE(i+1)/5+0., Numbers::ix0EE(i+1)/5+10., 10, Numbers::iy0EE(i+1)/5+0., Numbers::iy0EE(i+1)/5+10.);
+      meIntegrityTTBlockSize[i] = dbe_->book2D(histo, histo, 50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50., 50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50.);
       dbe_->tag(meIntegrityTTBlockSize[i], i+1);
     }
 
@@ -422,26 +422,29 @@ void EEIntegrityTask::analyze(const Event& e, const EventSetup& c){
 
     for ( EcalTrigTowerDetIdCollection::const_iterator idItr = ids5->begin(); idItr != ids5->end(); ++ idItr ) {
 
-      EcalTrigTowerDetId id = (*idItr);
+      EcalTrigTowerDetId idt = (*idItr);
 
-      if ( id.subDet() != EcalEndcap ) continue;
+      if ( idt.subDet() != EcalEndcap ) continue;
 
-      int iet = id.ieta();
-      int ipt = id.iphi();
+      int ismt = Numbers::iSM( idt );
 
-      // phi_tower: change the range from global to SM-local
-      ipt     = ( (ipt-1) % 4) +1;
+      vector<DetId> crystals = Numbers::ttCrystals( idt );
 
-      // phi_tower: range matters too
-      //    if ( id.zside() >0)
-      //      { ipt = 5 - ipt;      }
+      for ( unsigned int i=0; i<crystals.size(); i++ ) {
 
-      int ismt = Numbers::iSM( id );
+      EEDetId id = crystals[i];
 
-      float xixt = iet - 0.5;
-      float xiyt = ipt - 0.5;
+      int ix = id.ix();
+      int iy = id.iy();
 
-      if ( meIntegrityTTId[ismt-1] ) meIntegrityTTId[ismt-1]->Fill(xixt, xiyt);
+      if ( ismt >= 1 && ismt <= 9 ) ix = 101 - ix;
+
+      float xix = ix+0.5;
+      float xiy = iy+0.5;
+
+      if ( meIntegrityTTId[ismt-1] ) meIntegrityTTId[ismt-1]->Fill(xix, xiy);
+
+      }
 
     }
 
@@ -458,26 +461,29 @@ void EEIntegrityTask::analyze(const Event& e, const EventSetup& c){
 
     for ( EcalTrigTowerDetIdCollection::const_iterator idItr = ids6->begin(); idItr != ids6->end(); ++ idItr ) {
 
-      EcalTrigTowerDetId id = (*idItr);
+      EcalTrigTowerDetId idt = (*idItr);
 
-      if ( id.subDet() != EcalEndcap ) continue;
+      if ( idt.subDet() != EcalEndcap ) continue;
 
-      int iet = id.ieta();
-      int ipt = id.iphi();
+      int ismt = Numbers::iSM( idt );
 
-      // phi_tower: change the range from global to SM-local
-      ipt     = ( (ipt-1) % 4) +1;
+      vector<DetId> crystals = Numbers::ttCrystals( idt );
 
-      // phi_tower: range matters too
-      //    if ( id.zside() >0)
-      //      { ipt = 5 - ipt;      }
+      for ( unsigned int i=0; i<crystals.size(); i++ ) {
 
-      int ismt = Numbers::iSM( id );
+      EEDetId id = crystals[i];
 
-      float xixt = iet - 0.5;
-      float xiyt = ipt - 0.5;
+      int ix = id.ix();
+      int iy = id.iy();
 
-      if ( meIntegrityTTBlockSize[ismt-1] ) meIntegrityTTBlockSize[ismt-1]->Fill(xixt, xiyt);
+      if ( ismt >= 1 && ismt <= 9 ) ix = 101 - ix;
+
+      float xix = ix+0.5;
+      float xiy = iy+0.5;
+
+      if ( meIntegrityTTBlockSize[ismt-1] ) meIntegrityTTBlockSize[ismt-1]->Fill(xix, xiy);
+
+      }
 
     }
 
