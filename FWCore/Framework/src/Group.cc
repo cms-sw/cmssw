@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: Group.cc,v 1.26 2007/06/02 19:00:08 wmtan Exp $
+$Id: Group.cc,v 1.27 2007/06/14 17:52:18 wmtan Exp $
 ----------------------------------------------------------------------*/
 #include <string>
 #include "DataFormats/Common/interface/BasicHandle.h"
@@ -18,10 +18,10 @@ namespace edm {
     unavailable_(false),
     onDemand_(onDemand) {
     if (onDemand) return;
-    if (!prov->product().present()) {
+    if (!provenance_->product().present()) {
       unavailable_ = true;
-    } else if (prov->branchEntryDescription() != 0) {
-      unavailable_ = !prov->isPresent();
+    } else if (provenance_->branchEntryDescription() != 0) {
+      unavailable_ = !provenance_->isPresent();
     }
   }
 
