@@ -1,5 +1,5 @@
 //
-// $Id: TopElectronProducer.cc,v 1.23 2007/09/28 12:43:51 lowette Exp $
+// $Id: TopElectronProducer.cc,v 1.24 2007/10/02 15:35:00 lowette Exp $
 //
 
 #include "TopQuarkAnalysis/TopObjectProducers/interface/TopElectronProducer.h"
@@ -65,7 +65,7 @@ TopElectronProducer::~TopElectronProducer() {
 
 void TopElectronProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup) {
 
-  // Get the collection of muons from the event
+  // Get the collection of electrons from the event
   edm::Handle<std::vector<TopElectronType> > electronsHandle;
   iEvent.getByLabel(electronSrc_, electronsHandle);
   std::vector<TopElectronType> electrons = *electronsHandle;
@@ -134,7 +134,7 @@ void TopElectronProducer::produce(edm::Event & iEvent, const edm::EventSetup & i
     }
     // add lepton LR info
     if (addLRValues_) {
-      theLeptonLRCalc_->calcLikelihood(anElectron, iEvent);
+      theLeptonLRCalc_->calcLikelihood(anElectron, trackHandle, iEvent);
     }
     // add sel to selected
     topElectrons->push_back(TopElectron(anElectron));
@@ -182,7 +182,6 @@ reco::GenParticleCandidate TopElectronProducer::findTruth(const reco::CandidateC
     std::pair<const reco::Candidate*, TopElectronType*> pairGenRecoElectrons;
     pairGenRecoElectrons = pairGenRecoElectronsVector_[i];
     if(   fabs(elec.pt() - (pairGenRecoElectrons.second)->pt()) < 0.00001   ) {
-      //cout << "elec.pt()  " << elec.pt()  << "   pairGenRecoElectrons.second->pt " << (pairGenRecoElectrons.second)->pt() << endl;
       reco::GenParticleCandidate aGenElectron = *(dynamic_cast<reco::GenParticleCandidate *>(const_cast<reco::Candidate *>(pairGenRecoElectrons.first)));
       theGenElectron = aGenElectron;
     }
