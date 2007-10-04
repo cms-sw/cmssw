@@ -8,7 +8,6 @@
 #include "HLTriggerOffline/SUSYBSM/interface/PlotMaker.h"
 
 
-//#include "PhysicsTools/Utilities/interface/PtComparator.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "TDirectory.h"
 
@@ -67,97 +66,225 @@ void PlotMaker::fillPlots(const edm::Event& iEvent)
   
 
   hL1CentralJetMult->Fill(theL1CentralJetCollection.size());
-  if(theL1CentralJetCollection.size()>0) hL1CentralJet1Pt->Fill(theL1CentralJetCollection[0].pt());
-  if(theL1CentralJetCollection.size()>1) hL1CentralJet2Pt->Fill(theL1CentralJetCollection[1].pt());
+  if(theL1CentralJetCollection.size()>0) {
+    hL1CentralJet1Pt->Fill(theL1CentralJetCollection[0].pt());
+    hL1CentralJet1Eta->Fill(theL1CentralJetCollection[0].eta());
+    hL1CentralJet1Phi->Fill(theL1CentralJetCollection[0].phi());
+  }
+  if(theL1CentralJetCollection.size()>1) {
+    hL1CentralJet2Pt->Fill(theL1CentralJetCollection[1].pt());
+    hL1CentralJet2Eta->Fill(theL1CentralJetCollection[1].eta());
+    hL1CentralJet2Phi->Fill(theL1CentralJetCollection[1].phi());
+  }
   for(unsigned int i=0; i<l1bits_->size(); i++) {
     if(l1bits_->at(i)) {
       hL1CentralJetMultAfterL1[i]->Fill(theL1CentralJetCollection.size());
-      if(theL1CentralJetCollection.size()>0) hL1CentralJet1PtAfterL1[i]->Fill(theL1CentralJetCollection[0].pt());
-      if(theL1CentralJetCollection.size()>1) hL1CentralJet2PtAfterL1[i]->Fill(theL1CentralJetCollection[1].pt());
+      if(theL1CentralJetCollection.size()>0) {
+	hL1CentralJet1PtAfterL1[i]->Fill(theL1CentralJetCollection[0].pt());
+	hL1CentralJet1EtaAfterL1[i]->Fill(theL1CentralJetCollection[0].eta());
+	hL1CentralJet1PhiAfterL1[i]->Fill(theL1CentralJetCollection[0].phi());
+      }
+      if(theL1CentralJetCollection.size()>1) {
+	hL1CentralJet2PtAfterL1[i]->Fill(theL1CentralJetCollection[1].pt());
+	hL1CentralJet2EtaAfterL1[i]->Fill(theL1CentralJetCollection[1].eta());
+	hL1CentralJet2PhiAfterL1[i]->Fill(theL1CentralJetCollection[1].phi());
+      }
     }
   }
   for(unsigned int i=0; i<hltbits_->size(); i++) {
     if(hltbits_->at(i)) {
       hL1CentralJetMultAfterHLT[i]->Fill(theL1CentralJetCollection.size());
-      if(theL1CentralJetCollection.size()>0) hL1CentralJet1PtAfterHLT[i]->Fill(theL1CentralJetCollection[0].pt());
-      if(theL1CentralJetCollection.size()>1) hL1CentralJet2PtAfterHLT[i]->Fill(theL1CentralJetCollection[1].pt());
+      if(theL1CentralJetCollection.size()>0) {
+	hL1CentralJet1PtAfterHLT[i]->Fill(theL1CentralJetCollection[0].pt());
+	hL1CentralJet1EtaAfterHLT[i]->Fill(theL1CentralJetCollection[0].eta());
+	hL1CentralJet1PhiAfterHLT[i]->Fill(theL1CentralJetCollection[0].phi());
+      }
+      if(theL1CentralJetCollection.size()>1) {
+	hL1CentralJet2PtAfterHLT[i]->Fill(theL1CentralJetCollection[1].pt());
+	hL1CentralJet2EtaAfterHLT[i]->Fill(theL1CentralJetCollection[1].eta());
+	hL1CentralJet2PhiAfterHLT[i]->Fill(theL1CentralJetCollection[1].phi());
+      }
     }
   }
 
 
 
+
+
   hL1ForwardJetMult->Fill(theL1ForwardJetCollection.size());
-  if(theL1ForwardJetCollection.size()>0) hL1ForwardJet1Pt->Fill(theL1ForwardJetCollection[0].pt());
-  if(theL1ForwardJetCollection.size()>1) hL1ForwardJet2Pt->Fill(theL1ForwardJetCollection[1].pt());
+  if(theL1ForwardJetCollection.size()>0) {
+    hL1ForwardJet1Pt->Fill(theL1ForwardJetCollection[0].pt());
+    hL1ForwardJet1Eta->Fill(theL1ForwardJetCollection[0].eta());
+    hL1ForwardJet1Phi->Fill(theL1ForwardJetCollection[0].phi());
+  }
+  if(theL1ForwardJetCollection.size()>1) {
+    hL1ForwardJet2Pt->Fill(theL1ForwardJetCollection[1].pt());
+    hL1ForwardJet2Eta->Fill(theL1ForwardJetCollection[1].eta());
+    hL1ForwardJet2Phi->Fill(theL1ForwardJetCollection[1].phi());
+  }
   for(unsigned int i=0; i<l1bits_->size(); i++) {
     if(l1bits_->at(i)) {
       hL1ForwardJetMultAfterL1[i]->Fill(theL1ForwardJetCollection.size());
-      if(theL1ForwardJetCollection.size()>0) hL1ForwardJet1PtAfterL1[i]->Fill(theL1ForwardJetCollection[0].pt());
-      if(theL1ForwardJetCollection.size()>1) hL1ForwardJet2PtAfterL1[i]->Fill(theL1ForwardJetCollection[1].pt());
+      if(theL1ForwardJetCollection.size()>0) {
+	hL1ForwardJet1PtAfterL1[i]->Fill(theL1ForwardJetCollection[0].pt());
+	hL1ForwardJet1EtaAfterL1[i]->Fill(theL1ForwardJetCollection[0].eta());
+	hL1ForwardJet1PhiAfterL1[i]->Fill(theL1ForwardJetCollection[0].phi());
+      }
+      if(theL1ForwardJetCollection.size()>1) {
+	hL1ForwardJet2PtAfterL1[i]->Fill(theL1ForwardJetCollection[1].pt());
+	hL1ForwardJet2EtaAfterL1[i]->Fill(theL1ForwardJetCollection[1].eta());
+	hL1ForwardJet2PhiAfterL1[i]->Fill(theL1ForwardJetCollection[1].phi());
+      }
     }
   }
   for(unsigned int i=0; i<hltbits_->size(); i++) {
     if(hltbits_->at(i)) {
       hL1ForwardJetMultAfterHLT[i]->Fill(theL1ForwardJetCollection.size());
-      if(theL1ForwardJetCollection.size()>0) hL1ForwardJet1PtAfterHLT[i]->Fill(theL1ForwardJetCollection[0].pt());
-      if(theL1ForwardJetCollection.size()>1) hL1ForwardJet2PtAfterHLT[i]->Fill(theL1ForwardJetCollection[1].pt());
+      if(theL1ForwardJetCollection.size()>0) {
+	hL1ForwardJet1PtAfterHLT[i]->Fill(theL1ForwardJetCollection[0].pt());
+	hL1ForwardJet1EtaAfterHLT[i]->Fill(theL1ForwardJetCollection[0].eta());
+	hL1ForwardJet1PhiAfterHLT[i]->Fill(theL1ForwardJetCollection[0].phi());
+      }
+      if(theL1ForwardJetCollection.size()>1) {
+	hL1ForwardJet2PtAfterHLT[i]->Fill(theL1ForwardJetCollection[1].pt());
+	hL1ForwardJet2EtaAfterHLT[i]->Fill(theL1ForwardJetCollection[1].eta());
+	hL1ForwardJet2PhiAfterHLT[i]->Fill(theL1ForwardJetCollection[1].phi());
+      }
     }
   }
 
 
 
+
+
   hL1TauJetMult->Fill(theL1TauJetCollection.size());
-  if(theL1TauJetCollection.size()>0) hL1TauJet1Pt->Fill(theL1TauJetCollection[0].pt());
-  if(theL1TauJetCollection.size()>1) hL1TauJet2Pt->Fill(theL1TauJetCollection[1].pt());
+  if(theL1TauJetCollection.size()>0) {
+    hL1TauJet1Pt->Fill(theL1TauJetCollection[0].pt());
+    hL1TauJet1Eta->Fill(theL1TauJetCollection[0].eta());
+    hL1TauJet1Phi->Fill(theL1TauJetCollection[0].phi());
+  }
+  if(theL1TauJetCollection.size()>1) {
+    hL1TauJet2Pt->Fill(theL1TauJetCollection[1].pt());
+    hL1TauJet2Eta->Fill(theL1TauJetCollection[1].eta());
+    hL1TauJet2Phi->Fill(theL1TauJetCollection[1].phi());
+  }
   for(unsigned int i=0; i<l1bits_->size(); i++) {
     if(l1bits_->at(i)) {
       hL1TauJetMultAfterL1[i]->Fill(theL1TauJetCollection.size());
-      if(theL1TauJetCollection.size()>0) hL1TauJet1PtAfterL1[i]->Fill(theL1TauJetCollection[0].pt());
-      if(theL1TauJetCollection.size()>1) hL1TauJet2PtAfterL1[i]->Fill(theL1TauJetCollection[1].pt());
+      if(theL1TauJetCollection.size()>0) {
+	hL1TauJet1PtAfterL1[i]->Fill(theL1TauJetCollection[0].pt());
+	hL1TauJet1EtaAfterL1[i]->Fill(theL1TauJetCollection[0].eta());
+	hL1TauJet1PhiAfterL1[i]->Fill(theL1TauJetCollection[0].phi());
+      }
+      if(theL1TauJetCollection.size()>1) {
+	hL1TauJet2PtAfterL1[i]->Fill(theL1TauJetCollection[1].pt());
+	hL1TauJet2EtaAfterL1[i]->Fill(theL1TauJetCollection[1].eta());
+	hL1TauJet2PhiAfterL1[i]->Fill(theL1TauJetCollection[1].phi());
+      }
     }
   }
   for(unsigned int i=0; i<hltbits_->size(); i++) {
     if(hltbits_->at(i)) {
       hL1TauJetMultAfterHLT[i]->Fill(theL1TauJetCollection.size());
-      if(theL1TauJetCollection.size()>0) hL1TauJet1PtAfterHLT[i]->Fill(theL1TauJetCollection[0].pt());
-      if(theL1TauJetCollection.size()>1) hL1TauJet2PtAfterHLT[i]->Fill(theL1TauJetCollection[1].pt());
+      if(theL1TauJetCollection.size()>0) {
+	hL1TauJet1PtAfterHLT[i]->Fill(theL1TauJetCollection[0].pt());
+	hL1TauJet1EtaAfterHLT[i]->Fill(theL1TauJetCollection[0].eta());
+	hL1TauJet1PhiAfterHLT[i]->Fill(theL1TauJetCollection[0].phi());
+      }
+      if(theL1TauJetCollection.size()>1) {
+	hL1TauJet2PtAfterHLT[i]->Fill(theL1TauJetCollection[1].pt());
+	hL1TauJet2EtaAfterHLT[i]->Fill(theL1TauJetCollection[1].eta());
+	hL1TauJet2PhiAfterHLT[i]->Fill(theL1TauJetCollection[1].phi());
+      }
     }
   }
 
 
+
+
   hL1EmIsoMult->Fill(theL1EmIsoCollection.size());
-  if(theL1EmIsoCollection.size()>0) hL1EmIso1Pt->Fill(theL1EmIsoCollection[0].pt());
-  if(theL1EmIsoCollection.size()>1) hL1EmIso2Pt->Fill(theL1EmIsoCollection[1].pt());
+  if(theL1EmIsoCollection.size()>0) {
+    hL1EmIso1Pt->Fill(theL1EmIsoCollection[0].pt());
+    hL1EmIso1Eta->Fill(theL1EmIsoCollection[0].eta());
+    hL1EmIso1Phi->Fill(theL1EmIsoCollection[0].phi());
+  }
+  if(theL1EmIsoCollection.size()>1) {
+    hL1EmIso2Pt->Fill(theL1EmIsoCollection[1].pt());
+    hL1EmIso2Eta->Fill(theL1EmIsoCollection[1].eta());
+    hL1EmIso2Phi->Fill(theL1EmIsoCollection[1].phi());
+  }
   for(unsigned int i=0; i<l1bits_->size(); i++) {
     if(l1bits_->at(i)) {
       hL1EmIsoMultAfterL1[i]->Fill(theL1EmIsoCollection.size());
-      if(theL1EmIsoCollection.size()>0) hL1EmIso1PtAfterL1[i]->Fill(theL1EmIsoCollection[0].pt());
-      if(theL1EmIsoCollection.size()>1) hL1EmIso2PtAfterL1[i]->Fill(theL1EmIsoCollection[1].pt());
+      if(theL1EmIsoCollection.size()>0) {
+	hL1EmIso1PtAfterL1[i]->Fill(theL1EmIsoCollection[0].pt());
+	hL1EmIso1EtaAfterL1[i]->Fill(theL1EmIsoCollection[0].eta());
+	hL1EmIso1PhiAfterL1[i]->Fill(theL1EmIsoCollection[0].phi());
+      }
+      if(theL1EmIsoCollection.size()>1) {
+	hL1EmIso2PtAfterL1[i]->Fill(theL1EmIsoCollection[1].pt());
+	hL1EmIso2EtaAfterL1[i]->Fill(theL1EmIsoCollection[1].eta());
+	hL1EmIso2PhiAfterL1[i]->Fill(theL1EmIsoCollection[1].phi());
+      }
     }
   }
   for(unsigned int i=0; i<hltbits_->size(); i++) {
     if(hltbits_->at(i)) {
       hL1EmIsoMultAfterHLT[i]->Fill(theL1EmIsoCollection.size());
-      if(theL1EmIsoCollection.size()>0) hL1EmIso1PtAfterHLT[i]->Fill(theL1EmIsoCollection[0].pt());
-      if(theL1EmIsoCollection.size()>1) hL1EmIso2PtAfterHLT[i]->Fill(theL1EmIsoCollection[1].pt());
+      if(theL1EmIsoCollection.size()>0) {
+	hL1EmIso1PtAfterHLT[i]->Fill(theL1EmIsoCollection[0].pt());
+	hL1EmIso1EtaAfterHLT[i]->Fill(theL1EmIsoCollection[0].eta());
+	hL1EmIso1PhiAfterHLT[i]->Fill(theL1EmIsoCollection[0].phi());
+      }
+      if(theL1EmIsoCollection.size()>1) {
+	hL1EmIso2PtAfterHLT[i]->Fill(theL1EmIsoCollection[1].pt());
+	hL1EmIso2EtaAfterHLT[i]->Fill(theL1EmIsoCollection[1].eta());
+	hL1EmIso2PhiAfterHLT[i]->Fill(theL1EmIsoCollection[1].phi());
+      }
     }
   }
 
+
+
   hL1EmNotIsoMult->Fill(theL1EmNotIsoCollection.size());
-  if(theL1EmNotIsoCollection.size()>0) hL1EmNotIso1Pt->Fill(theL1EmNotIsoCollection[0].pt());
-  if(theL1EmNotIsoCollection.size()>1) hL1EmNotIso2Pt->Fill(theL1EmNotIsoCollection[1].pt());
+  if(theL1EmNotIsoCollection.size()>0) {
+    hL1EmNotIso1Pt->Fill(theL1EmNotIsoCollection[0].pt());
+    hL1EmNotIso1Eta->Fill(theL1EmNotIsoCollection[0].eta());
+    hL1EmNotIso1Phi->Fill(theL1EmNotIsoCollection[0].phi());
+  }
+  if(theL1EmNotIsoCollection.size()>1) {
+    hL1EmNotIso2Pt->Fill(theL1EmNotIsoCollection[1].pt());
+    hL1EmNotIso2Eta->Fill(theL1EmNotIsoCollection[1].eta());
+    hL1EmNotIso2Phi->Fill(theL1EmNotIsoCollection[1].phi());
+  }
   for(unsigned int i=0; i<l1bits_->size(); i++) {
     if(l1bits_->at(i)) {
       hL1EmNotIsoMultAfterL1[i]->Fill(theL1EmNotIsoCollection.size());
-      if(theL1EmNotIsoCollection.size()>0) hL1EmNotIso1PtAfterL1[i]->Fill(theL1EmNotIsoCollection[0].pt());
-      if(theL1EmNotIsoCollection.size()>1) hL1EmNotIso2PtAfterL1[i]->Fill(theL1EmNotIsoCollection[1].pt());
+      if(theL1EmNotIsoCollection.size()>0) {
+	hL1EmNotIso1PtAfterL1[i]->Fill(theL1EmNotIsoCollection[0].pt());
+	hL1EmNotIso1EtaAfterL1[i]->Fill(theL1EmNotIsoCollection[0].eta());
+	hL1EmNotIso1PhiAfterL1[i]->Fill(theL1EmNotIsoCollection[0].phi());
+      }
+      if(theL1EmNotIsoCollection.size()>1) {
+	hL1EmNotIso2PtAfterL1[i]->Fill(theL1EmNotIsoCollection[1].pt());
+	hL1EmNotIso2EtaAfterL1[i]->Fill(theL1EmNotIsoCollection[1].eta());
+	hL1EmNotIso2PhiAfterL1[i]->Fill(theL1EmNotIsoCollection[1].phi());
+      }
     }
   }
   for(unsigned int i=0; i<hltbits_->size(); i++) {
     if(hltbits_->at(i)) {
       hL1EmNotIsoMultAfterHLT[i]->Fill(theL1EmNotIsoCollection.size());
-      if(theL1EmNotIsoCollection.size()>0) hL1EmNotIso1PtAfterHLT[i]->Fill(theL1EmNotIsoCollection[0].pt());
-      if(theL1EmNotIsoCollection.size()>1) hL1EmNotIso2PtAfterHLT[i]->Fill(theL1EmNotIsoCollection[1].pt());
+      if(theL1EmNotIsoCollection.size()>0) {
+	hL1EmNotIso1PtAfterHLT[i]->Fill(theL1EmNotIsoCollection[0].pt());
+	hL1EmNotIso1EtaAfterHLT[i]->Fill(theL1EmNotIsoCollection[0].eta());
+	hL1EmNotIso1PhiAfterHLT[i]->Fill(theL1EmNotIsoCollection[0].phi());
+      }
+      if(theL1EmNotIsoCollection.size()>1) {
+	hL1EmNotIso2PtAfterHLT[i]->Fill(theL1EmNotIsoCollection[1].pt());
+	hL1EmNotIso2EtaAfterHLT[i]->Fill(theL1EmNotIsoCollection[1].eta());
+	hL1EmNotIso2PhiAfterHLT[i]->Fill(theL1EmNotIsoCollection[1].phi());
+      }
     }
   }
 
@@ -169,20 +296,44 @@ void PlotMaker::fillPlots(const edm::Event& iEvent)
   //**********************
   
   hL1MuonMult->Fill(theL1MuonCollection.size());
-  if(theL1MuonCollection.size()>0) hL1Muon1Pt->Fill(theL1MuonCollection[0].pt());
-  if(theL1MuonCollection.size()>1) hL1Muon2Pt->Fill(theL1MuonCollection[1].pt());
+  if(theL1MuonCollection.size()>0) {
+    hL1Muon1Pt->Fill(theL1MuonCollection[0].pt());
+    hL1Muon1Eta->Fill(theL1MuonCollection[0].eta());
+    hL1Muon1Phi->Fill(theL1MuonCollection[0].phi());
+  }
+  if(theL1MuonCollection.size()>1) {
+    hL1Muon2Pt->Fill(theL1MuonCollection[1].pt());
+    hL1Muon2Eta->Fill(theL1MuonCollection[1].eta());
+    hL1Muon2Phi->Fill(theL1MuonCollection[1].phi());
+  }
   for(unsigned int i=0; i<l1bits_->size(); i++) {
     if(l1bits_->at(i)) {
       hL1MuonMultAfterL1[i]->Fill(theL1MuonCollection.size());
-      if(theL1MuonCollection.size()>0) hL1Muon1PtAfterL1[i]->Fill(theL1MuonCollection[0].pt());
-      if(theL1MuonCollection.size()>1) hL1Muon2PtAfterL1[i]->Fill(theL1MuonCollection[1].pt());
+      if(theL1MuonCollection.size()>0) {
+	hL1Muon1PtAfterL1[i]->Fill(theL1MuonCollection[0].pt());
+	hL1Muon1EtaAfterL1[i]->Fill(theL1MuonCollection[0].eta());
+	hL1Muon1PhiAfterL1[i]->Fill(theL1MuonCollection[0].phi());
+      }
+      if(theL1MuonCollection.size()>1) {
+	hL1Muon2PtAfterL1[i]->Fill(theL1MuonCollection[1].pt());
+	hL1Muon2EtaAfterL1[i]->Fill(theL1MuonCollection[1].eta());
+	hL1Muon2PhiAfterL1[i]->Fill(theL1MuonCollection[1].phi());
+      }
     }
   }
   for(unsigned int i=0; i<hltbits_->size(); i++) {
     if(hltbits_->at(i)) {
       hL1MuonMultAfterHLT[i]->Fill(theL1MuonCollection.size());
-      if(theL1MuonCollection.size()>0) hL1Muon1PtAfterHLT[i]->Fill(theL1MuonCollection[0].pt());
-      if(theL1MuonCollection.size()>1) hL1Muon2PtAfterHLT[i]->Fill(theL1MuonCollection[1].pt());
+      if(theL1MuonCollection.size()>0) {
+	hL1Muon1PtAfterHLT[i]->Fill(theL1MuonCollection[0].pt());
+	hL1Muon1EtaAfterHLT[i]->Fill(theL1MuonCollection[0].eta());
+	hL1Muon1PhiAfterHLT[i]->Fill(theL1MuonCollection[0].phi());
+      }
+      if(theL1MuonCollection.size()>1) {
+	hL1Muon2PtAfterHLT[i]->Fill(theL1MuonCollection[1].pt());
+	hL1Muon2EtaAfterHLT[i]->Fill(theL1MuonCollection[1].eta());
+	hL1Muon2PhiAfterHLT[i]->Fill(theL1MuonCollection[1].phi());
+      }
     }
   }
 
@@ -211,21 +362,45 @@ void PlotMaker::fillPlots(const edm::Event& iEvent)
   } 
 
   hJetMult->Fill(nJets);
-  if(theCaloJetCollection.size()>0) hJet1Pt->Fill(theCaloJetCollection[0].pt());
-  if(theCaloJetCollection.size()>1) hJet2Pt->Fill(theCaloJetCollection[1].pt());
+  if(theCaloJetCollection.size()>0) {
+    hJet1Pt->Fill(theCaloJetCollection[0].pt());
+    hJet1Eta->Fill(theCaloJetCollection[0].eta());
+    hJet1Phi->Fill(theCaloJetCollection[0].phi());
+  }
+  if(theCaloJetCollection.size()>1) {
+    hJet2Pt->Fill(theCaloJetCollection[1].pt());
+    hJet2Eta->Fill(theCaloJetCollection[1].eta());
+    hJet2Phi->Fill(theCaloJetCollection[1].phi());
+  }
   //  for(int i=0; i<theCaloJetCollection.size(); i++) cout << "theCaloJetCollection)[0].pt = " << theCaloJetCollection[i].pt() << endl;
   for(unsigned int i=0; i<l1bits_->size(); i++) {
     if(l1bits_->at(i)) {
       hJetMultAfterL1[i]->Fill(nJets);
-      if(theCaloJetCollection.size()>0) hJet1PtAfterL1[i]->Fill(theCaloJetCollection[0].pt());
-      if(theCaloJetCollection.size()>1) hJet2PtAfterL1[i]->Fill(theCaloJetCollection[1].pt());
+      if(theCaloJetCollection.size()>0) {
+	hJet1PtAfterL1[i]->Fill(theCaloJetCollection[0].pt());
+	hJet1EtaAfterL1[i]->Fill(theCaloJetCollection[0].eta());
+	hJet1PhiAfterL1[i]->Fill(theCaloJetCollection[0].phi());
+      }
+      if(theCaloJetCollection.size()>1) {
+	hJet2PtAfterL1[i]->Fill(theCaloJetCollection[1].pt());
+	hJet2EtaAfterL1[i]->Fill(theCaloJetCollection[1].eta());
+	hJet2PhiAfterL1[i]->Fill(theCaloJetCollection[1].phi());
+      }
     }
   }
   for(unsigned int i=0; i<hltbits_->size(); i++) {
     if(hltbits_->at(i)) {
       hJetMultAfterHLT[i]->Fill(nJets);
-      if(theCaloJetCollection.size()>0) hJet1PtAfterHLT[i]->Fill(theCaloJetCollection[0].pt());
-      if(theCaloJetCollection.size()>1) hJet2PtAfterHLT[i]->Fill(theCaloJetCollection[1].pt());
+      if(theCaloJetCollection.size()>0) {
+	hJet1PtAfterHLT[i]->Fill(theCaloJetCollection[0].pt());
+	hJet1EtaAfterHLT[i]->Fill(theCaloJetCollection[0].eta());
+	hJet1PhiAfterHLT[i]->Fill(theCaloJetCollection[0].phi());
+      }
+      if(theCaloJetCollection.size()>1) {
+	hJet2PtAfterHLT[i]->Fill(theCaloJetCollection[1].pt());
+	hJet2EtaAfterHLT[i]->Fill(theCaloJetCollection[1].eta());
+	hJet2PhiAfterHLT[i]->Fill(theCaloJetCollection[1].phi());
+      }
     }
   }
 
@@ -240,21 +415,45 @@ void PlotMaker::fillPlots(const edm::Event& iEvent)
   } 
 
   hElecMult->Fill(nElectrons);
-  if(theElectronCollection.size()>0) hElec1Pt->Fill(theElectronCollection[0].pt());
-  if(theElectronCollection.size()>1) hElec2Pt->Fill(theElectronCollection[1].pt());
+  if(theElectronCollection.size()>0) {
+    hElec1Pt->Fill(theElectronCollection[0].pt());
+    hElec1Eta->Fill(theElectronCollection[0].eta());
+    hElec1Phi->Fill(theElectronCollection[0].phi());
+  }
+  if(theElectronCollection.size()>1) {
+    hElec2Pt->Fill(theElectronCollection[1].pt());
+    hElec2Eta->Fill(theElectronCollection[1].eta());
+    hElec2Phi->Fill(theElectronCollection[1].phi());
+  }
   //  for(int i=0; i<theElectronCollection.size(); i++) cout << "(*)theElectronCollection[0].pt = " << theElectronCollection[i].pt() << endl;
   for(unsigned int i=0; i<l1bits_->size(); i++) {
     if(l1bits_->at(i)) {
       hElecMultAfterL1[i]->Fill(nElectrons);
-      if(theElectronCollection.size()>0) hElec1PtAfterL1[i]->Fill(theElectronCollection[0].pt());
-      if(theElectronCollection.size()>1) hElec2PtAfterL1[i]->Fill(theElectronCollection[1].pt());
+      if(theElectronCollection.size()>0) {
+	hElec1PtAfterL1[i]->Fill(theElectronCollection[0].pt());
+	hElec1EtaAfterL1[i]->Fill(theElectronCollection[0].eta());
+	hElec1PhiAfterL1[i]->Fill(theElectronCollection[0].phi());
+      }
+      if(theElectronCollection.size()>1) {
+	hElec2PtAfterL1[i]->Fill(theElectronCollection[1].pt());
+	hElec2EtaAfterL1[i]->Fill(theElectronCollection[1].eta());
+	hElec2PhiAfterL1[i]->Fill(theElectronCollection[1].phi());
+      }
     }
   }
   for(unsigned int i=0; i<hltbits_->size(); i++) {
     if(hltbits_->at(i)) {
       hElecMultAfterHLT[i]->Fill(nElectrons);
-      if(theElectronCollection.size()>0) hElec1PtAfterHLT[i]->Fill(theElectronCollection[0].pt());
-      if(theElectronCollection.size()>1) hElec2PtAfterHLT[i]->Fill(theElectronCollection[1].pt());
+      if(theElectronCollection.size()>0) {
+	hElec1PtAfterHLT[i]->Fill(theElectronCollection[0].pt());
+	hElec1EtaAfterHLT[i]->Fill(theElectronCollection[0].eta());
+	hElec1PhiAfterHLT[i]->Fill(theElectronCollection[0].phi());
+      }
+      if(theElectronCollection.size()>1) {
+	hElec2PtAfterHLT[i]->Fill(theElectronCollection[1].pt());
+	hElec2EtaAfterHLT[i]->Fill(theElectronCollection[1].eta());
+	hElec2PhiAfterHLT[i]->Fill(theElectronCollection[1].phi());
+      }
     }
   }
 
@@ -269,21 +468,45 @@ void PlotMaker::fillPlots(const edm::Event& iEvent)
   } 
 
   hMuonMult->Fill(nMuons);
-  if(theMuonCollection.size()>0) hMuon1Pt->Fill(theMuonCollection[0].pt());
-  if(theMuonCollection.size()>1) hMuon2Pt->Fill(theMuonCollection[1].pt());
+  if(theMuonCollection.size()>0) {
+    hMuon1Pt->Fill(theMuonCollection[0].pt());
+    hMuon1Eta->Fill(theMuonCollection[0].eta());
+    hMuon1Phi->Fill(theMuonCollection[0].phi());
+  }
+  if(theMuonCollection.size()>1) {
+    hMuon2Pt->Fill(theMuonCollection[1].pt());
+    hMuon2Eta->Fill(theMuonCollection[1].eta());
+    hMuon2Phi->Fill(theMuonCollection[1].phi());
+  }
   //  for(int i=0; i<theMuonCollection.size(); i++) cout << "theMuonCollection)[0].pt = " << theMuonCollection[i].pt() << endl;
   for(unsigned int i=0; i<l1bits_->size(); i++) {
     if(l1bits_->at(i)) {
       hMuonMultAfterL1[i]->Fill(nMuons);
-      if(theMuonCollection.size()>0) hMuon1PtAfterL1[i]->Fill(theMuonCollection[0].pt());
-      if(theMuonCollection.size()>1) hMuon2PtAfterL1[i]->Fill(theMuonCollection[1].pt());
+      if(theMuonCollection.size()>0) {
+	hMuon1PtAfterL1[i]->Fill(theMuonCollection[0].pt());
+	hMuon1EtaAfterL1[i]->Fill(theMuonCollection[0].eta());
+	hMuon1PhiAfterL1[i]->Fill(theMuonCollection[0].phi());
+      }
+      if(theMuonCollection.size()>1) {
+	hMuon2PtAfterL1[i]->Fill(theMuonCollection[1].pt());
+	hMuon2EtaAfterL1[i]->Fill(theMuonCollection[1].eta());
+	hMuon2PhiAfterL1[i]->Fill(theMuonCollection[1].phi());
+      }
     }
   }
   for(unsigned int i=0; i<hltbits_->size(); i++) {
     if(hltbits_->at(i)) {
       hMuonMultAfterHLT[i]->Fill(nMuons);
-      if(theMuonCollection.size()>0) hMuon1PtAfterHLT[i]->Fill(theMuonCollection[0].pt());
-      if(theMuonCollection.size()>1) hMuon2PtAfterHLT[i]->Fill(theMuonCollection[1].pt());
+      if(theMuonCollection.size()>0) {
+	hMuon1PtAfterHLT[i]->Fill(theMuonCollection[0].pt());
+	hMuon1EtaAfterHLT[i]->Fill(theMuonCollection[0].eta());
+ 	hMuon1PhiAfterHLT[i]->Fill(theMuonCollection[0].phi());
+      }
+      if(theMuonCollection.size()>1) {
+	hMuon2PtAfterHLT[i]->Fill(theMuonCollection[1].pt());
+	hMuon2EtaAfterHLT[i]->Fill(theMuonCollection[1].eta());
+	hMuon2PhiAfterHLT[i]->Fill(theMuonCollection[1].phi());
+      }
     }
   }
 
@@ -297,21 +520,44 @@ void PlotMaker::fillPlots(const edm::Event& iEvent)
   } 
 
   hPhotonMult->Fill(nPhotons);
-  if(thePhotonCollection.size()>0) hPhoton1Pt->Fill(thePhotonCollection[0].et());
-  if(thePhotonCollection.size()>1) hPhoton2Pt->Fill(thePhotonCollection[1].et());
-  //  for(int i=0; i<thePhotonCollection.size(); i++) cout << "thePhotonCollection)[0].pt = " << thePhotonCollection[i].pt() << endl;
+  if(thePhotonCollection.size()>0) {
+    hPhoton1Pt->Fill(thePhotonCollection[0].et());
+    hPhoton1Eta->Fill(thePhotonCollection[0].eta());
+    hPhoton1Phi->Fill(thePhotonCollection[0].phi());
+  }
+  if(thePhotonCollection.size()>1) {
+    hPhoton2Pt->Fill(thePhotonCollection[1].et());
+    hPhoton2Eta->Fill(thePhotonCollection[1].eta());
+    hPhoton2Phi->Fill(thePhotonCollection[1].phi());
+  }
   for(unsigned int i=0; i<l1bits_->size(); i++) {
     if(l1bits_->at(i)) {
       hPhotonMultAfterL1[i]->Fill(nPhotons);
-      if(thePhotonCollection.size()>0) hPhoton1PtAfterL1[i]->Fill(thePhotonCollection[0].et());
-      if(thePhotonCollection.size()>1) hPhoton2PtAfterL1[i]->Fill(thePhotonCollection[1].et());
+      if(thePhotonCollection.size()>0) {
+	hPhoton1PtAfterL1[i]->Fill(thePhotonCollection[0].et());
+	hPhoton1EtaAfterL1[i]->Fill(thePhotonCollection[0].eta());
+	hPhoton1PhiAfterL1[i]->Fill(thePhotonCollection[0].phi());
+      }
+      if(thePhotonCollection.size()>1) {
+	hPhoton2PtAfterL1[i]->Fill(thePhotonCollection[1].et());
+	hPhoton2EtaAfterL1[i]->Fill(thePhotonCollection[1].eta());
+	hPhoton2PhiAfterL1[i]->Fill(thePhotonCollection[1].phi());
+      }
     }
   }
   for(unsigned int i=0; i<hltbits_->size(); i++) {
     if(hltbits_->at(i)) {
       hPhotonMultAfterHLT[i]->Fill(nPhotons);
-      if(thePhotonCollection.size()>0) hPhoton1PtAfterHLT[i]->Fill(thePhotonCollection[0].et());
-      if(thePhotonCollection.size()>1) hPhoton2PtAfterHLT[i]->Fill(thePhotonCollection[1].et());
+      if(thePhotonCollection.size()>0) {
+	hPhoton1PtAfterHLT[i]->Fill(thePhotonCollection[0].et());
+	hPhoton1EtaAfterHLT[i]->Fill(thePhotonCollection[0].eta());
+	hPhoton1PhiAfterHLT[i]->Fill(thePhotonCollection[0].phi());
+      }
+      if(thePhotonCollection.size()>1) {
+	hPhoton2PtAfterHLT[i]->Fill(thePhotonCollection[1].et());
+	hPhoton2EtaAfterHLT[i]->Fill(thePhotonCollection[1].eta());
+ 	hPhoton2PhiAfterHLT[i]->Fill(thePhotonCollection[1].phi());
+     }
     }
   }
 
@@ -321,11 +567,21 @@ void PlotMaker::fillPlots(const edm::Event& iEvent)
   //**********************
   
   hMET->Fill((theCaloMETCollection.front()).pt());
+  hMETphi->Fill((theCaloMETCollection.front()).phi());
+  hSumEt->Fill((theCaloMETCollection.front()).sumEt());
   for(unsigned int i=0; i<l1bits_->size(); i++) {
-    if(l1bits_->at(i)) hMETAfterL1[i]->Fill((theCaloMETCollection.front()).pt());
+    if(l1bits_->at(i)) {
+      hMETAfterL1[i]->Fill((theCaloMETCollection.front()).pt());
+      hMETphiAfterL1[i]->Fill((theCaloMETCollection.front()).phi());
+      hSumEtAfterL1[i]->Fill((theCaloMETCollection.front()).sumEt());
+    }
   }
   for(unsigned int i=0; i<hltbits_->size(); i++) {
-    if(hltbits_->at(i)) hMETAfterHLT[i]->Fill((theCaloMETCollection.front()).pt());
+    if(hltbits_->at(i)) {
+      hMETAfterHLT[i]->Fill((theCaloMETCollection.front()).pt());
+      hMETphiAfterHLT[i]->Fill((theCaloMETCollection.front()).phi());
+      hSumEtAfterHLT[i]->Fill((theCaloMETCollection.front()).sumEt());
+    }
   }
 
 
@@ -355,6 +611,8 @@ void PlotMaker::bookHistos(std::vector<int>* l1bits, std::vector<int>* hltbits,
   hL1CentralJet2Pt  = new TH1D("Jet2Pt",  "Jet 2 Pt ",        100, 0, 1000);
   hL1CentralJet1Eta  = new TH1D("Jet1Eta",  "Jet 1 Eta ",     100, -3, 3);
   hL1CentralJet2Eta  = new TH1D("Jet2Eta",  "Jet 2 Eta ",     100, -3, 3);
+  hL1CentralJet1Phi  = new TH1D("Jet1Phi",  "Jet 1 Phi ",     100, -3.2, 3.2);
+  hL1CentralJet2Phi  = new TH1D("Jet2Phi",  "Jet 2 Phi ",     100, -3.2, 3.2);
 
   gDirectory->cd("/L1Jets/Central/L1");
   for(unsigned int i=0; i<l1bits_->size(); i++){
@@ -373,6 +631,12 @@ void PlotMaker::bookHistos(std::vector<int>* l1bits, std::vector<int>* hltbits,
     myHistoName = "Jet2Eta_" + (*l1Names_)[i];
     myHistoTitle = "Jet 2 Eta for L1 path " + (*l1Names_)[i];
     hL1CentralJet2EtaAfterL1.push_back(new TH1D(myHistoName.c_str(), myHistoTitle.c_str() , 100, -3, 3));
+    myHistoName = "Jet1Phi_" + (*l1Names_)[i];
+    myHistoTitle = "Jet 1 Phi for L1 path " + (*l1Names_)[i];
+    hL1CentralJet1PhiAfterL1.push_back(new TH1D(myHistoName.c_str(), myHistoTitle.c_str() , 100, -3.2, 3.2));
+    myHistoName = "Jet2Phi_" + (*l1Names_)[i];
+    myHistoTitle = "Jet 2 Phi for L1 path " + (*l1Names_)[i];
+    hL1CentralJet2PhiAfterL1.push_back(new TH1D(myHistoName.c_str(), myHistoTitle.c_str() , 100, -3.2, 3.2));
   }
 
   gDirectory->cd("/L1Jets/Central/HLT");
@@ -392,6 +656,12 @@ void PlotMaker::bookHistos(std::vector<int>* l1bits, std::vector<int>* hltbits,
     myHistoName = "Jet2Eta_" + (*hlNames_)[i];
     myHistoTitle = "Jet 2 Eta for HLT path " + (*hlNames_)[i];
     hL1CentralJet2EtaAfterHLT.push_back(new TH1D(myHistoName.c_str(), myHistoTitle.c_str() , 100, -3, 3));
+    myHistoName = "Jet1Phi_" + (*hlNames_)[i];
+    myHistoTitle = "Jet 1 Phi for HLT path " + (*hlNames_)[i];
+    hL1CentralJet1PhiAfterHLT.push_back(new TH1D(myHistoName.c_str(), myHistoTitle.c_str() , 100, -3.2, 3.2));
+    myHistoName = "Jet2Phi_" + (*hlNames_)[i];
+    myHistoTitle = "Jet 2 Phi for HLT path " + (*hlNames_)[i];
+    hL1CentralJet2PhiAfterHLT.push_back(new TH1D(myHistoName.c_str(), myHistoTitle.c_str() , 100, -3.2, 3.2));
   }
 
   gDirectory->cd("/L1Jets/Forward/General");
@@ -400,6 +670,8 @@ void PlotMaker::bookHistos(std::vector<int>* l1bits, std::vector<int>* hltbits,
   hL1ForwardJet2Pt  = new TH1D("Jet2Pt",  "Jet 2 Pt ",        100, 0, 1000);
   hL1ForwardJet1Eta  = new TH1D("Jet1Eta",  "Jet 1 Eta ",        100, -3, 3);
   hL1ForwardJet2Eta  = new TH1D("Jet2Eta",  "Jet 2 Eta ",        100, -3, 3);
+  hL1ForwardJet1Phi  = new TH1D("Jet1Phi",  "Jet 1 Phi ",        100, -3.2, 3.2);
+  hL1ForwardJet2Phi  = new TH1D("Jet2Phi",  "Jet 2 Phi ",        100, -3.2, 3.2);
 
   gDirectory->cd("/L1Jets/Forward/L1");
   for(unsigned int i=0; i<l1bits_->size(); i++){
@@ -418,6 +690,12 @@ void PlotMaker::bookHistos(std::vector<int>* l1bits, std::vector<int>* hltbits,
     myHistoName = "Jet2Eta_" + (*l1Names_)[i];
     myHistoTitle = "Jet 2 Eta for L1 path " + (*l1Names_)[i];
     hL1ForwardJet2EtaAfterL1.push_back(new TH1D(myHistoName.c_str(), myHistoTitle.c_str() , 100, -3, 3));
+    myHistoName = "Jet1Phi_" + (*l1Names_)[i];
+    myHistoTitle = "Jet 1 Phi for L1 path " + (*l1Names_)[i];
+    hL1ForwardJet1PhiAfterL1.push_back(new TH1D(myHistoName.c_str(), myHistoTitle.c_str() , 100, -3.2, 3.2));
+    myHistoName = "Jet2Phi_" + (*l1Names_)[i];
+    myHistoTitle = "Jet 2 Phi for L1 path " + (*l1Names_)[i];
+    hL1ForwardJet2PhiAfterL1.push_back(new TH1D(myHistoName.c_str(), myHistoTitle.c_str() , 100, -3.2, 3.2));
   }
 
   gDirectory->cd("/L1Jets/Forward/HLT");
@@ -437,6 +715,12 @@ void PlotMaker::bookHistos(std::vector<int>* l1bits, std::vector<int>* hltbits,
     myHistoName = "Jet2Eta_" + (*hlNames_)[i];
     myHistoTitle = "Jet 2 Eta for HLT path " + (*hlNames_)[i];
     hL1ForwardJet2EtaAfterHLT.push_back(new TH1D(myHistoName.c_str(), myHistoTitle.c_str() , 100, -3, 3));
+    myHistoName = "Jet1Phi_" + (*hlNames_)[i];
+    myHistoTitle = "Jet 1 Phi for HLT path " + (*hlNames_)[i];
+    hL1ForwardJet1PhiAfterHLT.push_back(new TH1D(myHistoName.c_str(), myHistoTitle.c_str() , 100, -3.2, 3.2));
+    myHistoName = "Jet2Phi_" + (*hlNames_)[i];
+    myHistoTitle = "Jet 2 Phi for HLT path " + (*hlNames_)[i];
+    hL1ForwardJet2PhiAfterHLT.push_back(new TH1D(myHistoName.c_str(), myHistoTitle.c_str() , 100, -3.2, 3.2));
   }
 
   gDirectory->cd("/L1Jets/Tau/General");
@@ -445,6 +729,8 @@ void PlotMaker::bookHistos(std::vector<int>* l1bits, std::vector<int>* hltbits,
   hL1TauJet2Pt  = new TH1D("Jet2Pt",  "Jet 2 Pt ",        100, 0, 1000);
   hL1TauJet1Eta  = new TH1D("Jet1Eta",  "Jet 1 Eta ",        100, -3, -3);
   hL1TauJet2Eta  = new TH1D("Jet2Eta",  "Jet 2 Eta ",        100, -3, -3);
+  hL1TauJet1Phi  = new TH1D("Jet1Phi",  "Jet 1 Phi ",        100, -3.2, -3.2);
+  hL1TauJet2Phi  = new TH1D("Jet2Phi",  "Jet 2 Phi ",        100, -3.2, -3.2);
 
   gDirectory->cd("/L1Jets/Tau/L1");
   for(unsigned int i=0; i<l1bits_->size(); i++){
@@ -463,6 +749,12 @@ void PlotMaker::bookHistos(std::vector<int>* l1bits, std::vector<int>* hltbits,
     myHistoName = "Jet2Eta_" + (*l1Names_)[i];
     myHistoTitle = "Jet 2 Eta for L1 path " + (*l1Names_)[i];
     hL1TauJet2EtaAfterL1.push_back(new TH1D(myHistoName.c_str(), myHistoTitle.c_str() , 100, -3, 3));
+    myHistoName = "Jet1Phi_" + (*l1Names_)[i];
+    myHistoTitle = "Jet 1 Phi for L1 path " + (*l1Names_)[i];
+    hL1TauJet1PhiAfterL1.push_back(new TH1D(myHistoName.c_str(), myHistoTitle.c_str() , 100, -3.2, 3.2));
+    myHistoName = "Jet2Phi_" + (*l1Names_)[i];
+    myHistoTitle = "Jet 2 Phi for L1 path " + (*l1Names_)[i];
+    hL1TauJet2PhiAfterL1.push_back(new TH1D(myHistoName.c_str(), myHistoTitle.c_str() , 100, -3.2, 3.2));
   }
 
   gDirectory->cd("/L1Jets/Tau/HLT");
@@ -482,6 +774,12 @@ void PlotMaker::bookHistos(std::vector<int>* l1bits, std::vector<int>* hltbits,
     myHistoName = "Jet2Eta_" + (*hlNames_)[i];
     myHistoTitle = "Jet 2 Eta for HLT path " + (*l1Names_)[i];
     hL1TauJet2EtaAfterHLT.push_back(new TH1D(myHistoName.c_str(), myHistoTitle.c_str() , 100, -3, 3));
+    myHistoName = "Jet1Phi_" + (*hlNames_)[i];
+    myHistoTitle = "Jet 1 Phi for HLT path " + (*l1Names_)[i];
+    hL1TauJet1PhiAfterHLT.push_back(new TH1D(myHistoName.c_str(), myHistoTitle.c_str() , 100, -3.2, 3.2));
+    myHistoName = "Jet2Phi_" + (*hlNames_)[i];
+    myHistoTitle = "Jet 2 Phi for HLT path " + (*l1Names_)[i];
+    hL1TauJet2PhiAfterHLT.push_back(new TH1D(myHistoName.c_str(), myHistoTitle.c_str() , 100, -3.2, 3.2));
   }
 
 
@@ -492,6 +790,8 @@ void PlotMaker::bookHistos(std::vector<int>* l1bits, std::vector<int>* hltbits,
   hL1EmIso2Pt  = new TH1D("Elec2Pt",  "Elec 2 Pt ",        100, 0, 100);
   hL1EmIso1Eta  = new TH1D("Elec1Eta",  "Elec 1 Eta ",        100, -3, 3);
   hL1EmIso2Eta  = new TH1D("Elec2Eta",  "Elec 2 Eta ",        100, -3, 3);
+  hL1EmIso1Phi  = new TH1D("Elec1Phi",  "Elec 1 Phi ",        100, -3.2, 3.2);
+  hL1EmIso2Phi  = new TH1D("Elec2Phi",  "Elec 2 Phi ",        100, -3.2, 3.2);
   
   gDirectory->cd("/L1Em/Isolated/L1");
   for(unsigned int i=0; i<l1bits_->size(); i++){
@@ -510,6 +810,12 @@ void PlotMaker::bookHistos(std::vector<int>* l1bits, std::vector<int>* hltbits,
     myHistoName = "Elec2Eta_" + (*l1Names_)[i];
     myHistoTitle = "Elec 2 Eta for L1 path " + (*l1Names_)[i];
     hL1EmIso2EtaAfterL1.push_back(new TH1D(myHistoName.c_str(), myHistoTitle.c_str() , 100, -3, 3));
+    myHistoName = "Elec1Phi_" + (*l1Names_)[i];
+    myHistoTitle = "Elec 1 Phi for L1 path " + (*l1Names_)[i];
+    hL1EmIso1PhiAfterL1.push_back(new TH1D(myHistoName.c_str(), myHistoTitle.c_str() , 100, -3.2, 3.2));
+    myHistoName = "Elec2Phi_" + (*l1Names_)[i];
+    myHistoTitle = "Elec 2 Phi for L1 path " + (*l1Names_)[i];
+    hL1EmIso2PhiAfterL1.push_back(new TH1D(myHistoName.c_str(), myHistoTitle.c_str() , 100, -3.2, 3.2));
   }
 
   gDirectory->cd("/L1Em/Isolated/HLT");
@@ -529,6 +835,12 @@ void PlotMaker::bookHistos(std::vector<int>* l1bits, std::vector<int>* hltbits,
     myHistoName = "Elec2Eta_" + (*hlNames_)[i];
     myHistoTitle = "Elec 2 Eta for HLT path " + (*hlNames_)[i];
     hL1EmIso2EtaAfterHLT.push_back(new TH1D(myHistoName.c_str(), myHistoTitle.c_str() , 100, -3, 3));
+    myHistoName = "Elec1Phi_" + (*hlNames_)[i];
+    myHistoTitle = "Elec 1 Phi for HLT path " + (*hlNames_)[i];
+    hL1EmIso1PhiAfterHLT.push_back(new TH1D(myHistoName.c_str(), myHistoTitle.c_str() , 100, -3.2, 3.2));
+    myHistoName = "Elec2Phi_" + (*hlNames_)[i];
+    myHistoTitle = "Elec 2 Phi for HLT path " + (*hlNames_)[i];
+    hL1EmIso2PhiAfterHLT.push_back(new TH1D(myHistoName.c_str(), myHistoTitle.c_str() , 100, -3.2, 3.2));
   }
   gDirectory->cd();
 
@@ -540,6 +852,8 @@ void PlotMaker::bookHistos(std::vector<int>* l1bits, std::vector<int>* hltbits,
   hL1EmNotIso2Pt  = new TH1D("Elec2Pt",  "Elec 2 Pt ",        100, 0, 100);
   hL1EmNotIso1Eta  = new TH1D("Elec1Eta",  "Elec 1 Eta ",        100, -3, 3);
   hL1EmNotIso2Eta  = new TH1D("Elec2Eta",  "Elec 2 Eta ",        100, -3, 3);
+  hL1EmNotIso1Phi  = new TH1D("Elec1Phi",  "Elec 1 Phi ",        100, -3.2, 3.2);
+  hL1EmNotIso2Phi  = new TH1D("Elec2Phi",  "Elec 2 Phi ",        100, -3.2, 3.2);
   
   gDirectory->cd("/L1Em/NotIsolated/L1");
   for(unsigned int i=0; i<l1bits_->size(); i++){
@@ -558,6 +872,12 @@ void PlotMaker::bookHistos(std::vector<int>* l1bits, std::vector<int>* hltbits,
     myHistoName = "Elec2Eta_" + (*l1Names_)[i];
     myHistoTitle = "Elec 2 Eta for L1 path " + (*l1Names_)[i];
     hL1EmNotIso2EtaAfterL1.push_back(new TH1D(myHistoName.c_str(), myHistoTitle.c_str() , 100, -3, 3));
+    myHistoName = "Elec1Phi_" + (*l1Names_)[i];
+    myHistoTitle = "Elec 1 Phi for L1 path " + (*l1Names_)[i];
+    hL1EmNotIso1PhiAfterL1.push_back(new TH1D(myHistoName.c_str(), myHistoTitle.c_str() , 100, -3.2, 3.2));
+    myHistoName = "Elec2Phi_" + (*l1Names_)[i];
+    myHistoTitle = "Elec 2 Phi for L1 path " + (*l1Names_)[i];
+    hL1EmNotIso2PhiAfterL1.push_back(new TH1D(myHistoName.c_str(), myHistoTitle.c_str() , 100, -3.2, 3.2));
    }
 
   gDirectory->cd("/L1Em/NotIsolated/HLT");
@@ -577,6 +897,12 @@ void PlotMaker::bookHistos(std::vector<int>* l1bits, std::vector<int>* hltbits,
     myHistoName = "Elec2Eta_" + (*hlNames_)[i];
     myHistoTitle = "Elec 2 Eta for HLT path " + (*hlNames_)[i];
     hL1EmNotIso2EtaAfterHLT.push_back(new TH1D(myHistoName.c_str(), myHistoTitle.c_str() , 100, -3, 3));
+    myHistoName = "Elec1Phi_" + (*hlNames_)[i];
+    myHistoTitle = "Elec 1 Phi for HLT path " + (*hlNames_)[i];
+    hL1EmNotIso1PhiAfterHLT.push_back(new TH1D(myHistoName.c_str(), myHistoTitle.c_str() , 100, -3.2, 3.2));
+    myHistoName = "Elec2Phi_" + (*hlNames_)[i];
+    myHistoTitle = "Elec 2 Phi for HLT path " + (*hlNames_)[i];
+    hL1EmNotIso2PhiAfterHLT.push_back(new TH1D(myHistoName.c_str(), myHistoTitle.c_str() , 100, -3.2, 3.2));
   }
   gDirectory->cd();
 
@@ -590,6 +916,8 @@ void PlotMaker::bookHistos(std::vector<int>* l1bits, std::vector<int>* hltbits,
   hL1Muon2Pt  = new TH1D("Muon2Pt",  "Muon 2 Pt ",        100, 0, 100);
   hL1Muon1Eta  = new TH1D("Muon1Eta",  "Muon 1 Eta ",        100, -3, 3);
   hL1Muon2Eta  = new TH1D("Muon2Eta",  "Muon 2 Eta ",        100, -3, 3);
+  hL1Muon1Phi  = new TH1D("Muon1Phi",  "Muon 1 Phi ",        100, -3.2, 3.2);
+  hL1Muon2Phi  = new TH1D("Muon2Phi",  "Muon 2 Phi ",        100, -3.2, 3.2);
   
   gDirectory->cd("/L1Muons/L1");
   for(unsigned int i=0; i<l1bits_->size(); i++){
@@ -608,6 +936,12 @@ void PlotMaker::bookHistos(std::vector<int>* l1bits, std::vector<int>* hltbits,
     myHistoName = "Muon2Eta_" + (*l1Names_)[i];
     myHistoTitle = "Muon 2 Eta for L1 path " + (*l1Names_)[i];
     hL1Muon2EtaAfterL1.push_back(new TH1D(myHistoName.c_str(), myHistoTitle.c_str() , 100, -3, 3));
+    myHistoName = "Muon1Phi_" + (*l1Names_)[i];
+    myHistoTitle = "Muon 1 Phi for L1 path " + (*l1Names_)[i];
+    hL1Muon1PhiAfterL1.push_back(new TH1D(myHistoName.c_str(), myHistoTitle.c_str() , 100, -3.2, 3.2));
+    myHistoName = "Muon2Phi_" + (*l1Names_)[i];
+    myHistoTitle = "Muon 2 Phi for L1 path " + (*l1Names_)[i];
+    hL1Muon2PhiAfterL1.push_back(new TH1D(myHistoName.c_str(), myHistoTitle.c_str() , 100, -3.2, 3.2));
   }
 
   gDirectory->cd("/L1Muons/HLT");
@@ -627,6 +961,12 @@ void PlotMaker::bookHistos(std::vector<int>* l1bits, std::vector<int>* hltbits,
     myHistoName = "Muon2Eta_" + (*hlNames_)[i];
     myHistoTitle = "Muon 2 Eta for HLT path " + (*hlNames_)[i];
     hL1Muon2EtaAfterHLT.push_back(new TH1D(myHistoName.c_str(), myHistoTitle.c_str() , 100, -3, 3));
+    myHistoName = "Muon1Phi_" + (*hlNames_)[i];
+    myHistoTitle = "Muon 1 Phi for HLT path " + (*hlNames_)[i];
+    hL1Muon1PhiAfterHLT.push_back(new TH1D(myHistoName.c_str(), myHistoTitle.c_str() , 100, -3.2, 3.2));
+    myHistoName = "Muon2Phi_" + (*hlNames_)[i];
+    myHistoTitle = "Muon 2 Phi for HLT path " + (*hlNames_)[i];
+    hL1Muon2PhiAfterHLT.push_back(new TH1D(myHistoName.c_str(), myHistoTitle.c_str() , 100, -3.2, 3.2));
   }
   gDirectory->cd();
 
@@ -638,11 +978,19 @@ void PlotMaker::bookHistos(std::vector<int>* l1bits, std::vector<int>* hltbits,
   
   gDirectory->cd("/L1MET/General");
   hL1MET = new TH1D("MET", "MET", 35, 0, 1050);
+  hL1METphi = new TH1D("METphi", "METphi", 100, -3.2, 3.2);
+  hL1SumEt  = new TH1D("SumEt", "SumEt", 35, 0, 1050);
   gDirectory->cd("/L1MET/L1");
   for(unsigned int i=0; i<l1bits_->size(); i++){
     myHistoName = "MET_" + (*l1Names_)[i];
     myHistoTitle = "MET for L1 path " + (*l1Names_)[i];
     hL1METAfterL1.push_back(new TH1D(myHistoName.c_str(), myHistoTitle.c_str() , 35, 0, 1050));
+    myHistoName = "METphi_" + (*l1Names_)[i];
+    myHistoTitle = "METphi for L1 path " + (*l1Names_)[i];
+    hL1METphiAfterL1.push_back(new TH1D(myHistoName.c_str(), myHistoTitle.c_str() , 100, -3.2, 3.2));
+    myHistoName = "SumEt_" + (*l1Names_)[i];
+    myHistoTitle = "SumEt for L1 path " + (*l1Names_)[i];
+    hL1SumEtAfterL1.push_back(new TH1D(myHistoName.c_str(), myHistoTitle.c_str() , 35, 0, 1050));
   }
 
   gDirectory->cd("/L1MET/HLT");
@@ -650,6 +998,12 @@ void PlotMaker::bookHistos(std::vector<int>* l1bits, std::vector<int>* hltbits,
     myHistoName = "MET_" + (*hlNames_)[i];
     myHistoTitle = "MET for HLT path " + (*hlNames_)[i];    
     hL1METAfterHLT.push_back(new TH1D(myHistoName.c_str(), myHistoTitle.c_str() , 35, 0, 1050));
+    myHistoName = "METphi_" + (*hlNames_)[i];
+    myHistoTitle = "METphi for HLT path " + (*hlNames_)[i];    
+    hL1METphiAfterHLT.push_back(new TH1D(myHistoName.c_str(), myHistoTitle.c_str() , 100, -3.2, 3.2));
+    myHistoName = "SumEt_" + (*hlNames_)[i];
+    myHistoTitle = "SumEt for HLT path " + (*hlNames_)[i];    
+    hL1SumEtAfterHLT.push_back(new TH1D(myHistoName.c_str(), myHistoTitle.c_str() , 35, 0, 1050));
   }
   gDirectory->cd();
 
@@ -670,8 +1024,10 @@ void PlotMaker::bookHistos(std::vector<int>* l1bits, std::vector<int>* hltbits,
   hJetMult = new TH1D("JetMult", "Jet Multiplicity", 10, 0, 10);
   hJet1Pt  = new TH1D("Jet1Pt",  "Jet 1 Pt ",        100, 0, 1000);
   hJet2Pt  = new TH1D("Jet2Pt",  "Jet 2 Pt ",        100, 0, 1000);
-  hJet1Eta  = new TH1D("Jet1Eta",  "Jet 1 Eta ",        100, 0, 1000);
-  hJet2Eta  = new TH1D("Jet2Eta",  "Jet 2 Eta ",        100, 0, 1000);
+  hJet1Eta  = new TH1D("Jet1Eta",  "Jet 1 Eta ",        100, -3   , 3   );
+  hJet2Eta  = new TH1D("Jet2Eta",  "Jet 2 Eta ",        100, -3   , 3   );
+  hJet1Phi  = new TH1D("Jet1Phi",  "Jet 1 Phi ",        100, -3.2 , 3.2 );
+  hJet2Phi  = new TH1D("Jet2Phi",  "Jet 2 Phi ",        100, -3.2 , 3.2 );
   
   gDirectory->cd("/RecoJets/L1");
   for(unsigned int i=0; i<l1bits_->size(); i++){
@@ -690,6 +1046,12 @@ void PlotMaker::bookHistos(std::vector<int>* l1bits, std::vector<int>* hltbits,
     myHistoName = "Jet2Eta_" + (*l1Names_)[i];
     myHistoTitle = "Jet 2 Eta for L1 path " + (*l1Names_)[i];
     hJet2EtaAfterL1.push_back(new TH1D(myHistoName.c_str(), myHistoTitle.c_str() , 100, -3, 3));
+    myHistoName = "Jet1Phi_" + (*l1Names_)[i];
+    myHistoTitle = "Jet 1 Phi for L1 path " + (*l1Names_)[i];
+    hJet1PhiAfterL1.push_back(new TH1D(myHistoName.c_str(), myHistoTitle.c_str() , 100, -3.2, 3.2));
+    myHistoName = "Jet2Phi_" + (*l1Names_)[i];
+    myHistoTitle = "Jet 2 Phi for L1 path " + (*l1Names_)[i];
+    hJet2PhiAfterL1.push_back(new TH1D(myHistoName.c_str(), myHistoTitle.c_str() , 100, -3.2, 3.2));
   }
 
   gDirectory->cd("/RecoJets/HLT");
@@ -709,6 +1071,12 @@ void PlotMaker::bookHistos(std::vector<int>* l1bits, std::vector<int>* hltbits,
     myHistoName = "Jet2Eta_" + (*hlNames_)[i];
     myHistoTitle = "Jet 2 Eta for HLT path " + (*hlNames_)[i];
     hJet2EtaAfterHLT.push_back(new TH1D(myHistoName.c_str(), myHistoTitle.c_str() , 100, -3, 3));
+    myHistoName = "Jet1Phi_" + (*hlNames_)[i];
+    myHistoTitle = "Jet 1 Phi for HLT path " + (*hlNames_)[i];
+    hJet1PhiAfterHLT.push_back(new TH1D(myHistoName.c_str(), myHistoTitle.c_str() , 100, -3.2, 3.2));
+    myHistoName = "Jet2Phi_" + (*hlNames_)[i];
+    myHistoTitle = "Jet 2 Phi for HLT path " + (*hlNames_)[i];
+    hJet2PhiAfterHLT.push_back(new TH1D(myHistoName.c_str(), myHistoTitle.c_str() , 100, -3.2, 3.2));
   }
   gDirectory->cd();
 
@@ -725,6 +1093,8 @@ void PlotMaker::bookHistos(std::vector<int>* l1bits, std::vector<int>* hltbits,
   hElec2Pt  = new TH1D("Elec2Pt",  "Elec 2 Pt ",        100, 0, 100);
   hElec1Eta  = new TH1D("Elec1Eta",  "Elec 1 Eta ",        100, -3, 3);
   hElec2Eta  = new TH1D("Elec2Eta",  "Elec 2 Eta ",        100, -3, 3);
+  hElec1Phi  = new TH1D("Elec1Phi",  "Elec 1 Phi ",        100, -3.2, 3.2);
+  hElec2Phi  = new TH1D("Elec2Phi",  "Elec 2 Phi ",        100, -3.2, 3.2);
   
   gDirectory->cd("/RecoElectrons/L1");
   for(unsigned int i=0; i<l1bits_->size(); i++){
@@ -743,6 +1113,12 @@ void PlotMaker::bookHistos(std::vector<int>* l1bits, std::vector<int>* hltbits,
     myHistoName = "Elec2Eta_" + (*l1Names_)[i];
     myHistoTitle = "Elec 2 Eta for L1 path " + (*l1Names_)[i];
     hElec2EtaAfterL1.push_back(new TH1D(myHistoName.c_str(), myHistoTitle.c_str() , 100, -3, 3));
+    myHistoName = "Elec1Phi_" + (*l1Names_)[i];
+    myHistoTitle = "Elec 1 Phi for L1 path " + (*l1Names_)[i];
+    hElec1PhiAfterL1.push_back(new TH1D(myHistoName.c_str(), myHistoTitle.c_str() , 100, -3.2, 3.2));
+    myHistoName = "Elec2Phi_" + (*l1Names_)[i];
+    myHistoTitle = "Elec 2 Phi for L1 path " + (*l1Names_)[i];
+    hElec2PhiAfterL1.push_back(new TH1D(myHistoName.c_str(), myHistoTitle.c_str() , 100, -3.2, 3.2));
   }
 
   gDirectory->cd("/RecoElectrons/HLT");
@@ -762,6 +1138,12 @@ void PlotMaker::bookHistos(std::vector<int>* l1bits, std::vector<int>* hltbits,
     myHistoName = "Elec2Eta_" + (*hlNames_)[i];
     myHistoTitle = "Elec 2 Eta for HLT path " + (*hlNames_)[i];
     hElec2EtaAfterHLT.push_back(new TH1D(myHistoName.c_str(), myHistoTitle.c_str() , 100, -3, 3));
+    myHistoName = "Elec1Phi_" + (*hlNames_)[i];
+    myHistoTitle = "Elec 1 Phi for HLT path " + (*hlNames_)[i];
+    hElec1PhiAfterHLT.push_back(new TH1D(myHistoName.c_str(), myHistoTitle.c_str() , 100, -3.2, 3.2));
+    myHistoName = "Elec2Phi_" + (*hlNames_)[i];
+    myHistoTitle = "Elec 2 Phi for HLT path " + (*hlNames_)[i];
+    hElec2PhiAfterHLT.push_back(new TH1D(myHistoName.c_str(), myHistoTitle.c_str() , 100, -3.2, 3.2));
   }
   gDirectory->cd();
 
@@ -776,6 +1158,8 @@ void PlotMaker::bookHistos(std::vector<int>* l1bits, std::vector<int>* hltbits,
   hMuon2Pt  = new TH1D("Muon2Pt",  "Muon 2 Pt ",        100, 0, 100);
   hMuon1Eta  = new TH1D("Muon1Eta",  "Muon 1 Eta ",        100, -3, 3);
   hMuon2Eta  = new TH1D("Muon2Eta",  "Muon 2 Eta ",        100, -3, 3);
+  hMuon1Phi  = new TH1D("Muon1Phi",  "Muon 1 Phi ",        100, -3.2, 3.2);
+  hMuon2Phi  = new TH1D("Muon2Phi",  "Muon 2 Phi ",        100, -3.2, 3.2);
   
   gDirectory->cd("/RecoMuons/L1");
   for(unsigned int i=0; i<l1bits_->size(); i++){
@@ -794,6 +1178,12 @@ void PlotMaker::bookHistos(std::vector<int>* l1bits, std::vector<int>* hltbits,
     myHistoName = "Muon2Eta_" + (*l1Names_)[i];
     myHistoTitle = "Muon 2 Eta for L1 path " + (*l1Names_)[i];
     hMuon2EtaAfterL1.push_back(new TH1D(myHistoName.c_str(), myHistoTitle.c_str() , 100, -3, 3));
+    myHistoName = "Muon1Phi_" + (*l1Names_)[i];
+    myHistoTitle = "Muon 1 Phi for L1 path " + (*l1Names_)[i];
+    hMuon1PhiAfterL1.push_back(new TH1D(myHistoName.c_str(), myHistoTitle.c_str() , 100, -3.2, 3.2));
+    myHistoName = "Muon2Phi_" + (*l1Names_)[i];
+    myHistoTitle = "Muon 2 Phi for L1 path " + (*l1Names_)[i];
+    hMuon2PhiAfterL1.push_back(new TH1D(myHistoName.c_str(), myHistoTitle.c_str() , 100, -3.2, 3.2));
   }
 
   gDirectory->cd("/RecoMuons/HLT");
@@ -813,6 +1203,12 @@ void PlotMaker::bookHistos(std::vector<int>* l1bits, std::vector<int>* hltbits,
     myHistoName = "Muon2Eta_" + (*hlNames_)[i];
     myHistoTitle = "Muon 2 Eta for HLT path " + (*hlNames_)[i];
     hMuon2EtaAfterHLT.push_back(new TH1D(myHistoName.c_str(), myHistoTitle.c_str() , 100, -3, 3));
+    myHistoName = "Muon1Phi_" + (*hlNames_)[i];
+    myHistoTitle = "Muon 1 Phi for HLT path " + (*hlNames_)[i];
+    hMuon1PhiAfterHLT.push_back(new TH1D(myHistoName.c_str(), myHistoTitle.c_str() , 100, -3.2, 3.2));
+    myHistoName = "Muon2Phi_" + (*hlNames_)[i];
+    myHistoTitle = "Muon 2 Phi for HLT path " + (*hlNames_)[i];
+    hMuon2PhiAfterHLT.push_back(new TH1D(myHistoName.c_str(), myHistoTitle.c_str() , 100, -3.2, 3.2));
   }
   gDirectory->cd();
 
@@ -828,6 +1224,8 @@ void PlotMaker::bookHistos(std::vector<int>* l1bits, std::vector<int>* hltbits,
   hPhoton2Pt  = new TH1D("Photon2Pt",  "Photon 2 Pt ",        100, 0, 100);
   hPhoton1Eta  = new TH1D("Photon1Eta",  "Photon 1 Eta ",        100, -3, 3);
   hPhoton2Eta  = new TH1D("Photon2Eta",  "Photon 2 Eta ",        100, -3, 3);
+  hPhoton1Phi  = new TH1D("Photon1Phi",  "Photon 1 Phi ",        100, -3.2, 3.2);
+  hPhoton2Phi  = new TH1D("Photon2Phi",  "Photon 2 Phi ",        100, -3.2, 3.2);
   
   gDirectory->cd("/RecoPhotons/L1");
   for(unsigned int i=0; i<l1bits_->size(); i++){
@@ -846,6 +1244,12 @@ void PlotMaker::bookHistos(std::vector<int>* l1bits, std::vector<int>* hltbits,
     myHistoName = "Photon2Eta_" + (*l1Names_)[i];
     myHistoTitle = "Photon 2 Eta for L1 path " + (*l1Names_)[i];
     hPhoton2EtaAfterL1.push_back(new TH1D(myHistoName.c_str(), myHistoTitle.c_str() , 100, -3, 3));
+    myHistoName = "Photon1Phi_" + (*l1Names_)[i];
+    myHistoTitle = "Photon 1 Phi for L1 path " + (*l1Names_)[i];
+    hPhoton1PhiAfterL1.push_back(new TH1D(myHistoName.c_str(), myHistoTitle.c_str() , 100, -3.2, 3.2));
+    myHistoName = "Photon2Phi_" + (*l1Names_)[i];
+    myHistoTitle = "Photon 2 Phi for L1 path " + (*l1Names_)[i];
+    hPhoton2PhiAfterL1.push_back(new TH1D(myHistoName.c_str(), myHistoTitle.c_str() , 100, -3.2, 3.2));
   }
 
   gDirectory->cd("/RecoPhotons/HLT");
@@ -865,6 +1269,12 @@ void PlotMaker::bookHistos(std::vector<int>* l1bits, std::vector<int>* hltbits,
     myHistoName = "Photon2Eta_" + (*hlNames_)[i];
     myHistoTitle = "Photon 2 Eta for HLT path " + (*hlNames_)[i];
     hPhoton2EtaAfterHLT.push_back(new TH1D(myHistoName.c_str(), myHistoTitle.c_str() , 100, -3, 3));
+    myHistoName = "Photon1Phi_" + (*hlNames_)[i];
+    myHistoTitle = "Photon 1 Phi for HLT path " + (*hlNames_)[i];
+    hPhoton1PhiAfterHLT.push_back(new TH1D(myHistoName.c_str(), myHistoTitle.c_str() , 100, -3.2, 3.2));
+    myHistoName = "Photon2Phi_" + (*hlNames_)[i];
+    myHistoTitle = "Photon 2 Phi for HLT path " + (*hlNames_)[i];
+    hPhoton2PhiAfterHLT.push_back(new TH1D(myHistoName.c_str(), myHistoTitle.c_str() , 100, -3.2, 3.2));
   }
   gDirectory->cd();
 
@@ -876,11 +1286,19 @@ void PlotMaker::bookHistos(std::vector<int>* l1bits, std::vector<int>* hltbits,
   
   gDirectory->cd("/RecoMET/General");
   hMET = new TH1D("MET", "MET", 35, 0, 1050);
+  hMETphi = new TH1D("METphi", "METphi", 100, -3.2, 3.2);
+  hSumEt  = new TH1D("SumEt" , "SumEt",  35, 0, 1050);
   gDirectory->cd("/RecoMET/L1");
   for(unsigned int i=0; i<l1bits_->size(); i++){
     myHistoName = "MET_" + (*l1Names_)[i];
     myHistoTitle = "MET for L1 path " + (*l1Names_)[i];
     hMETAfterL1.push_back(new TH1D(myHistoName.c_str(), myHistoTitle.c_str() , 35, 0, 1050));
+    myHistoName = "METPhi_" + (*l1Names_)[i];
+    myHistoTitle = "METPhi for L1 path " + (*l1Names_)[i];
+    hMETphiAfterL1.push_back(new TH1D(myHistoName.c_str(), myHistoTitle.c_str() , 100, -3.2, 3.2));
+    myHistoName = "SumEt_" + (*l1Names_)[i];
+    myHistoTitle = "SumEt for L1 path " + (*l1Names_)[i];
+    hSumEtAfterL1.push_back(new TH1D(myHistoName.c_str(), myHistoTitle.c_str() , 35, 0, 1050));
   }
 
   gDirectory->cd("/RecoMET/HLT");
@@ -888,6 +1306,12 @@ void PlotMaker::bookHistos(std::vector<int>* l1bits, std::vector<int>* hltbits,
     myHistoName = "MET_" + (*hlNames_)[i];
     myHistoTitle = "MET for HLT path " + (*hlNames_)[i];    
     hMETAfterHLT.push_back(new TH1D(myHistoName.c_str(), myHistoTitle.c_str() , 35, 0, 1050));
+    myHistoName = "METPhi_" + (*hlNames_)[i];
+    myHistoTitle = "METPhi for HLT path " + (*hlNames_)[i];    
+    hMETphiAfterHLT.push_back(new TH1D(myHistoName.c_str(), myHistoTitle.c_str() , 100, -3.2, 3.2 ));
+    myHistoName = "SumEt_" + (*hlNames_)[i];
+    myHistoTitle = "SumEt for HLT path " + (*hlNames_)[i];    
+    hSumEtAfterHLT.push_back(new TH1D(myHistoName.c_str(), myHistoTitle.c_str() , 35, 0, 1050));
   }
   gDirectory->cd();
 

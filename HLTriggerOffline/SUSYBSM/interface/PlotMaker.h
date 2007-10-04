@@ -139,6 +139,30 @@ class PlotMaker {
   std::vector<TH1D*> hL1TauJet2EtaAfterHLT;
   std::vector<TH1D*> hJet2EtaAfterL1;
   std::vector<TH1D*> hJet2EtaAfterHLT;
+  TH1D* hL1CentralJet1Phi;
+  TH1D* hL1ForwardJet1Phi;
+  TH1D* hL1TauJet1Phi;
+  TH1D* hJet1Phi;
+  std::vector<TH1D*> hL1CentralJet1PhiAfterL1;
+  std::vector<TH1D*> hL1CentralJet1PhiAfterHLT;
+  std::vector<TH1D*> hL1ForwardJet1PhiAfterL1;
+  std::vector<TH1D*> hL1ForwardJet1PhiAfterHLT;
+  std::vector<TH1D*> hL1TauJet1PhiAfterL1;
+  std::vector<TH1D*> hL1TauJet1PhiAfterHLT;
+  std::vector<TH1D*> hJet1PhiAfterL1;
+  std::vector<TH1D*> hJet1PhiAfterHLT;
+  TH1D* hL1CentralJet2Phi;
+  TH1D* hL1ForwardJet2Phi;
+  TH1D* hL1TauJet2Phi;
+  TH1D* hJet2Phi;
+  std::vector<TH1D*> hL1CentralJet2PhiAfterL1;
+  std::vector<TH1D*> hL1CentralJet2PhiAfterHLT;
+  std::vector<TH1D*> hL1ForwardJet2PhiAfterL1;
+  std::vector<TH1D*> hL1ForwardJet2PhiAfterHLT;
+  std::vector<TH1D*> hL1TauJet2PhiAfterL1;
+  std::vector<TH1D*> hL1TauJet2PhiAfterHLT;
+  std::vector<TH1D*> hJet2PhiAfterL1;
+  std::vector<TH1D*> hJet2PhiAfterHLT;
 
   //Electrons
   TH1D* hL1EmIsoMult;
@@ -186,6 +210,24 @@ class PlotMaker {
   std::vector<TH1D*> hL1EmNotIso2EtaAfterHLT;
   std::vector<TH1D*> hElec2EtaAfterL1;
   std::vector<TH1D*> hElec2EtaAfterHLT;
+  TH1D* hL1EmIso1Phi;
+  TH1D* hL1EmNotIso1Phi;
+  TH1D* hElec1Phi;
+  std::vector<TH1D*> hL1EmIso1PhiAfterL1;
+  std::vector<TH1D*> hL1EmIso1PhiAfterHLT;
+  std::vector<TH1D*> hL1EmNotIso1PhiAfterL1;
+  std::vector<TH1D*> hL1EmNotIso1PhiAfterHLT;
+  std::vector<TH1D*> hElec1PhiAfterL1;
+  std::vector<TH1D*> hElec1PhiAfterHLT;
+  TH1D* hL1EmIso2Phi;
+  TH1D* hL1EmNotIso2Phi;
+  TH1D* hElec2Phi;
+  std::vector<TH1D*> hL1EmIso2PhiAfterL1;
+  std::vector<TH1D*> hL1EmIso2PhiAfterHLT;
+  std::vector<TH1D*> hL1EmNotIso2PhiAfterL1;
+  std::vector<TH1D*> hL1EmNotIso2PhiAfterHLT;
+  std::vector<TH1D*> hElec2PhiAfterL1;
+  std::vector<TH1D*> hElec2PhiAfterHLT;
   
   //Muons
   TH1D* hL1MuonMult;
@@ -218,6 +260,18 @@ class PlotMaker {
   std::vector<TH1D*> hL1Muon2EtaAfterHLT;
   std::vector<TH1D*> hMuon2EtaAfterL1;
   std::vector<TH1D*> hMuon2EtaAfterHLT;
+  TH1D* hL1Muon1Phi;
+  TH1D* hMuon1Phi;
+  std::vector<TH1D*> hL1Muon1PhiAfterL1;
+  std::vector<TH1D*> hL1Muon1PhiAfterHLT;
+  std::vector<TH1D*> hMuon1PhiAfterL1;
+  std::vector<TH1D*> hMuon1PhiAfterHLT;
+  TH1D* hL1Muon2Phi;
+  TH1D* hMuon2Phi;
+  std::vector<TH1D*> hL1Muon2PhiAfterL1;
+  std::vector<TH1D*> hL1Muon2PhiAfterHLT;
+  std::vector<TH1D*> hMuon2PhiAfterL1;
+  std::vector<TH1D*> hMuon2PhiAfterHLT;
 
 
   //Photons
@@ -236,16 +290,34 @@ class PlotMaker {
   TH1D* hPhoton2Eta;
   std::vector<TH1D*> hPhoton2EtaAfterL1;
   std::vector<TH1D*> hPhoton2EtaAfterHLT;
+  TH1D* hPhoton1Phi;
+  std::vector<TH1D*> hPhoton1PhiAfterL1;
+  std::vector<TH1D*> hPhoton1PhiAfterHLT;
+  TH1D* hPhoton2Phi;
+  std::vector<TH1D*> hPhoton2PhiAfterL1;
+  std::vector<TH1D*> hPhoton2PhiAfterHLT;
   
 
   
   //MET
   TH1D* hL1MET;
   TH1D* hMET;
+  TH1D* hL1METphi;
+  TH1D* hMETphi;
+  TH1D* hL1SumEt;
+  TH1D* hSumEt;
   std::vector<TH1D*> hL1METAfterL1;
   std::vector<TH1D*> hL1METAfterHLT;
   std::vector<TH1D*> hMETAfterL1;
   std::vector<TH1D*> hMETAfterHLT;
+  std::vector<TH1D*> hL1METphiAfterL1;
+  std::vector<TH1D*> hL1METphiAfterHLT;
+  std::vector<TH1D*> hMETphiAfterL1;
+  std::vector<TH1D*> hMETphiAfterHLT;
+  std::vector<TH1D*> hL1SumEtAfterL1;
+  std::vector<TH1D*> hL1SumEtAfterHLT;
+  std::vector<TH1D*> hSumEtAfterL1;
+  std::vector<TH1D*> hSumEtAfterHLT;
 
 
 

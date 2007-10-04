@@ -80,11 +80,6 @@ bool CutSelector::isSelected(const edm::Event& iEvent)
 
 
   bool JetCutPassed = false;  
-  for(unsigned int i=0; i<theCaloJetCollection->size(); i++) {
-    Jet jet = (*theCaloJetCollection)[i];
-    float jetpt = jet.pt();
-    //    cout << "jetpt = " << jetpt << endl;
-  }
   if(theCaloJetCollection->size()>1) {
     if((*theCaloJetCollection)[0].pt() > user_ptJet1Min &&
        (*theCaloJetCollection)[1].pt() > user_ptJet2Min ) JetCutPassed = true;
