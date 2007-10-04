@@ -20,3 +20,4 @@
 <use name=geant4>
 <use name=clhep>
 <use name=boost>
+<use name=root>

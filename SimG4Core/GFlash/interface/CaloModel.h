@@ -24,8 +24,8 @@ public:
 private:
   void build();  
   GFlashHomoShowerParameterisation *theParameterisation;
-  edm::ParameterSet m_pCaloModel;
   G4LogicalVolumeToDDLogicalPartMap map_;
+  edm::ParameterSet m_pCaloModel;
   GFlashHitMaker *theHMaker;
   GFlashParticleBounds *theParticleBounds;
   GflashEMShowerModel *theShowerModel;

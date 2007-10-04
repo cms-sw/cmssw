@@ -191,8 +191,8 @@ void GflashHadronShowerProfile::hadronicParameterization(const G4FastTrack& fast
     if ( totalNumberOfSpots+numSpotInStep > maxNumberOfSpots ) {
       numSpotInStep = maxNumberOfSpots - totalNumberOfSpots;
       if ( numSpotInStep <= 1 ) {
-        G4cout << "GflashHadronShowerProfile::Parameterization : Too Many Spots " << G4endl;
-        G4cout << "                           break to regenerate numSpotInStep " << G4endl;
+        std::cout << "GflashHadronShowerProfile::Parameterization : Too Many Spots " << std::endl;
+        std::cout << "                           break to regenerate numSpotInStep " << std::endl;
         break;        
       }
     }
@@ -355,7 +355,7 @@ void GflashHadronShowerProfile::loadParameters(G4double einc)
   G4double aSigm[Gflash::NXN];
 
   aMean[0] = fracEnergyDeposit;
-  aSigm[0] = aMean[1] *(Gflash::FLUHAD[0][jcalor]/std::sqrt(einc)
+  aSigm[0] = aMean[0] *(Gflash::FLUHAD[0][jcalor]/std::sqrt(einc)
 		      + Gflash::FLUHAD[1][jcalor]/einc + Gflash::FLUHAD[2][jcalor] );
   aMean[3] =  std::max(0.1,std::log(-1.59+2.249*std::pow(std::max(logEinc,.6),0.55)));
   aSigm[3] =  std::min( 2., .385 + 1.58*std::exp(-.863*logEinc) );

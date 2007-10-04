@@ -44,6 +44,6 @@ void ParametrisedPhysics::addParametrisation()
     {
 	G4ParticleDefinition * particle = theParticleIterator->value();
 	G4ProcessManager * pmanager = particle->GetProcessManager();
-	pmanager->AddProcess(theFastSimulationManagerProcess, -1, 1, 1);
+	pmanager->AddProcess(theFastSimulationManagerProcess, -1, -1, 1);
     }
 }

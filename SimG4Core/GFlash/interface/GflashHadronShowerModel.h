@@ -5,6 +5,9 @@
 #include "G4Step.hh"
 #include "G4TouchableHandle.hh"
 
+#include "TFile.h"
+#include "TH1.h"
+
 class GflashHadronShowerProfile;
 class GFlashHitMaker;
 
@@ -25,8 +28,6 @@ public:
   G4bool ModelTrigger(const G4FastTrack &);
   void DoIt(const G4FastTrack&, G4FastStep&);
 
-  static G4StepPoint* tmpStepPoint;
-
 private:
   G4bool isFirstInelasticInteraction(const G4FastTrack& fastTrack);
   G4bool excludeDetectorRegion(const G4FastTrack& fastTrack);
@@ -34,6 +35,21 @@ private:
 private:  
   GflashHadronShowerProfile *theProfile;
   GFlashHitMaker *theHitMaker;
+
+  //debugging histograms
+ 
+  TFile* f;
+
+  TH1F*    h_enormal;
+  TH1F*    h_ewrapper;
+  
+  TH1F*    h_energy;
+  TH1F*    h_esum;
+  TH1F*    h_elos;
+  TH1F*    h_ssp;
+  TH1F*    h_ratio;
+  TH1F*    h_dout;
+
 };
 
 #endif

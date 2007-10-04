@@ -73,7 +73,8 @@ GflashEMShowerModel::GflashEMShowerModel(G4String modelName)
 
 GflashEMShowerModel::~GflashEMShowerModel()
 {
-	Messenger       = new GflashEMShowerModelMessenger(this);
+  //	Messenger       = new GflashEMShowerModelMessenger(this);
+  delete Messenger;
 }
 
 G4bool GflashEMShowerModel::IsApplicable(const G4ParticleDefinition& particleType)

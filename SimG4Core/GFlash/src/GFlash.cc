@@ -11,8 +11,8 @@
 #include "G4HadronElasticPhysics.hh" 
 #include "G4NeutronTrackingCut.hh"
 
+#include "SimG4Core/GFlash/interface/HadronPhysicsQGSP_WP.h"
 #include "G4DataQuestionaire.hh"
-#include "HadronPhysicsQGSP.hh"
 
 GFlash::GFlash(G4LogicalVolumeToDDLogicalPartMap& map,
 	       const edm::ParameterSet & p) : PhysicsList(map, p), 
@@ -41,7 +41,7 @@ GFlash::GFlash(G4LogicalVolumeToDDLogicalPartMap& map,
 
   // Hadron Physics
   G4bool quasiElastic=true;
-  RegisterPhysics(new HadronPhysicsQGSP("hadron",quasiElastic));
+  RegisterPhysics(new HadronPhysicsQGSP_WP("hadron",quasiElastic));
   //RegisterPhysics(new HadronPhysicsQGSP("hadron"));
 
   // Stopping Physics
