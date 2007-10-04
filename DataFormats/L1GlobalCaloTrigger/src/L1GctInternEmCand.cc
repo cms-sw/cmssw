@@ -22,7 +22,7 @@ L1GctInternEmCand::L1GctInternEmCand() :
 // construct from raw data (for use in unpacking)
 L1GctInternEmCand::L1GctInternEmCand(uint16_t data, bool iso, unsigned block, unsigned index, int16_t bx) :
    m_data(data),
-   m_source( ((block&0xff)<<9) + (index&0x1ff) ),
+   m_source( ((block&0xff)<<8) | (index&0xff) ),
    m_iso(iso),
    m_bx(bx)
  {
@@ -32,7 +32,7 @@ L1GctInternEmCand::L1GctInternEmCand(uint16_t data, bool iso, unsigned block, un
 // construct from eta/phi etc
 L1GctInternEmCand::L1GctInternEmCand(unsigned rank, unsigned eta, unsigned etaSgn, unsigned phi, bool iso, unsigned block, unsigned index, int16_t bx) :
   m_data(0), // Over-ridden in construct()
-  m_source( ((block&0xff)<<9) + (index&0x1ff) ),
+  m_source( ((block&0xff)<<8) | (index&0xff) ),
   m_iso(iso),
   m_bx(bx)
 {
