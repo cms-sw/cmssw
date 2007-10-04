@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2007/04/12 17:02:29 $
- *  $Revision: 1.12 $
+ *  $Date: 2007/07/11 12:21:01 $
+ *  $Revision: 1.1 $
  *  \author M. Giunta
  */
 
@@ -188,36 +188,45 @@ void DTVDriftCalibration::analyze(const Event & event, const EventSetup& eventSe
       if(chiSquare > theMaxChi2) continue;
 
      // get the Phi 2D segment and plot the angle in the chamber RF
-      const DTChamberRecSegment2D* phiSeg = (*segment).phiSegment();  // phiSeg lives in the chamber RF
-      LocalPoint phiSeg2DPosInCham = phiSeg->localPosition();  
-      LocalVector phiSeg2DDirInCham = phiSeg->localDirection();
+      if(!((*segment).phiSegment())){
+	cout<<"No phi segment"<<endl;
+      }
+      LocalPoint phiSeg2DPosInCham;  
+      LocalVector phiSeg2DDirInCham;
 
       bool segmNoisy = false;
-      vector<DTRecHit1D> phiHits = phiSeg->specificRecHits();
       map<DTSuperLayerId,vector<DTRecHit1D> > hitsBySLMap; 
-      for(vector<DTRecHit1D>::const_iterator hit = phiHits.begin();
-	  hit != phiHits.end(); ++hit) {
-	DTWireId wireId = (*hit).wireId();
-	DTSuperLayerId slId =  wireId.superlayerId();
-	hitsBySLMap[slId].push_back(*hit); 
-
-	// Check for noisy channels to skip them
-	if(checkNoisyChannels) {
-	  bool isNoisy = false;
-	  bool isFEMasked = false;
-	  bool isTDCMasked = false;
-	  bool isTrigMask = false;
-	  bool isDead = false;
-	  bool isNohv = false;
-	  statusMap->cellStatus(wireId, isNoisy, isFEMasked, isTDCMasked, isTrigMask, isDead, isNohv);
-	  if(isNoisy) {
-	    if(debug)
-	      cout << "Wire: " << wireId << " is noisy, skipping!" << endl;
-	    segmNoisy = true;
-	  }      
+      
+      if((*segment).hasPhi()){
+	const DTChamberRecSegment2D* phiSeg = (*segment).phiSegment();  // phiSeg lives in the chamber RF
+	phiSeg2DPosInCham = phiSeg->localPosition();  
+	phiSeg2DDirInCham = phiSeg->localDirection();
+      
+	vector<DTRecHit1D> phiHits = phiSeg->specificRecHits();
+	for(vector<DTRecHit1D>::const_iterator hit = phiHits.begin();
+	    hit != phiHits.end(); ++hit) {
+	  DTWireId wireId = (*hit).wireId();
+	  DTSuperLayerId slId =  wireId.superlayerId();
+	  hitsBySLMap[slId].push_back(*hit); 
+	  
+	  // Check for noisy channels to skip them
+	  if(checkNoisyChannels) {
+	    bool isNoisy = false;
+	    bool isFEMasked = false;
+	    bool isTDCMasked = false;
+	    bool isTrigMask = false;
+	    bool isDead = false;
+	    bool isNohv = false;
+	    statusMap->cellStatus(wireId, isNoisy, isFEMasked, isTDCMasked, isTrigMask, isDead, isNohv);
+	    if(isNoisy) {
+	      if(debug)
+		cout << "Wire: " << wireId << " is noisy, skipping!" << endl;
+	      segmNoisy = true;
+	    }      
+	  }
 	}
       }
-
+ 
       // get the Theta 2D segment and plot the angle in the chamber RF
       LocalVector zSeg2DDirInCham;
       LocalPoint zSeg2DPosInCham;
@@ -249,29 +258,37 @@ void DTVDriftCalibration::analyze(const Event & event, const EventSetup& eventSe
 	  }
 	}
        } 
-
-      if (segmNoisy) continue;
-    
-      LocalPoint segment4DLocalPos = (*segment).localPosition();
-      LocalVector segment4DLocalDir = (*segment).localDirection();
-      if(fabs(atan(segment4DLocalDir.y()/segment4DLocalDir.z())* 180./Geom::pi()) > theMaxZAngle) continue; // cut on the angle
-      if(fabs(atan(segment4DLocalDir.x()/segment4DLocalDir.z())* 180./Geom::pi()) > theMaxPhiAngle) continue; // cut on the angle
-    
-      hChi2->Fill(chiSquare);
-      h2DSegmRPhi->Fill(phiSeg2DPosInCham.x(), phiSeg2DDirInCham.x()/phiSeg2DDirInCham.z());
-      if((*segment).hasZed())
-	  h2DSegmRZ->Fill(zSeg2DPosInCham.y(), zSeg2DDirInCham.y()/zSeg2DDirInCham.z());
-
-      if((*segment).hasZed()) 
+      
+     if (segmNoisy) continue;
+     
+     LocalPoint segment4DLocalPos = (*segment).localPosition();
+     LocalVector segment4DLocalDir = (*segment).localDirection();
+     if(fabs(atan(segment4DLocalDir.y()/segment4DLocalDir.z())* 180./Geom::pi()) > theMaxZAngle) continue; // cut on the angle
+     if(fabs(atan(segment4DLocalDir.x()/segment4DLocalDir.z())* 180./Geom::pi()) > theMaxPhiAngle) continue; // cut on the angle
+     
+     hChi2->Fill(chiSquare);
+     if((*segment).hasPhi())
+       h2DSegmRPhi->Fill(phiSeg2DPosInCham.x(), phiSeg2DDirInCham.x()/phiSeg2DDirInCham.z());
+     if((*segment).hasZed())
+       h2DSegmRZ->Fill(zSeg2DPosInCham.y(), zSeg2DDirInCham.y()/zSeg2DDirInCham.z());
+     
+     if((*segment).hasZed() && (*segment).hasPhi()) 
        h4DSegmAllCh->Fill(segment4DLocalPos.x(), 
 			  segment4DLocalPos.y(),
 			  atan(segment4DLocalDir.x()/segment4DLocalDir.z())* 180./Geom::pi(),
 			  atan(segment4DLocalDir.y()/segment4DLocalDir.z())* 180./Geom::pi(),
 			  180 - segment4DLocalDir.theta()* 180./Geom::pi());
-     else h4DSegmAllCh->Fill(segment4DLocalPos.x(), 
-			     atan(segment4DLocalDir.x()/segment4DLocalDir.z())* 180./Geom::pi());
-
-      //loop over the segments 
+     else if((*segment).hasPhi())
+       h4DSegmAllCh->Fill(segment4DLocalPos.x(), 
+			  atan(segment4DLocalDir.x()/segment4DLocalDir.z())* 180./Geom::pi());
+     else if((*segment).hasZed())
+       cout<<"4d segment with only Z"<<endl;
+     else{
+       cout<<"ERROR: 4D segment without Z and Phi. Aborting!"<<endl;
+       abort();
+     }
+      
+   //loop over the segments 
       for(map<DTSuperLayerId,vector<DTRecHit1D> >::const_iterator slIdAndHits = hitsBySLMap.begin(); slIdAndHits != hitsBySLMap.end();  ++slIdAndHits) {
 	if (slIdAndHits->second.size() < 3) continue;
 	DTSuperLayerId slId =  slIdAndHits->first;
