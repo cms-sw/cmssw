@@ -119,6 +119,8 @@ TtDecayChannelSelector::checkTauDecay(const reco::Candidate& tau) const
 {
   bool leptonic = false;
   unsigned int nch = 0;
+  // if no daughter, accept the tau (it means we are running on stripped MC content as in GenEvt)
+  if(!tau.numberOfDaughters()) return true;
   // loop on tau decays, check for an electron or muon and count charged particles
   for(reco::Candidate::const_iterator daughter=tau.begin();daughter!=tau.end(); ++daughter){
     // if the tau daughter is a tau, it means the particle has still to be propagated.
@@ -129,7 +131,6 @@ TtDecayChannelSelector::checkTauDecay(const reco::Candidate& tau) const
     // count charged particles
     nch += countChargedParticles(*daughter);
   }
-  
   return ( (tauDecay_[Leptonic] && leptonic)            ||
            (tauDecay_[OneProng] && !leptonic && nch==1) ||
            (tauDecay_[ThreeProng] && !leptonic && nch>1)    );

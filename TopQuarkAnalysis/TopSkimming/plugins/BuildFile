@@ -27,3 +27,10 @@
   <use name=rootmath>
 </library> 
 
+<library file=TtDecayChannelFilter.cc name=TtDecayChannelFilter>
+  <use name=FWCore/Framework>
+  <use name=FWCore/ParameterSet>
+  <use name=TopQuarkAnalysis/TopSkimming>
+  <use name=rootmath>
+</library>
+

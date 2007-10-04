@@ -3,7 +3,7 @@
 #include "DataFormats/Math/interface/Vector3D.h"
 #include "DataFormats/Common/interface/Handle.h"
 
-namespace reco { namespace helper {
+namespace helper {
 class SimpleJetTrackAssociator {
         public:
                 SimpleJetTrackAssociator() ;
@@ -14,5 +14,5 @@ class SimpleJetTrackAssociator {
                 int    nHits_;
                 double chi2nMax_;
 };
-} }
+}
 

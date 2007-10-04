@@ -1,5 +1,5 @@
 //
-// $Id: TopJetProducer.h,v 1.22 2007/10/02 15:59:56 lowette Exp $
+// $Id: TopJetProducer.h,v 1.23 2007/10/02 16:34:23 lowette Exp $
 //
 
 #ifndef TopObjectProducers_TopJetProducer_h
@@ -13,7 +13,7 @@
    with possible adding of resolutions and more things to come
 
   \author   Jan Heyninck
-  \version  $Id: TopJetProducer.h,v 1.22 2007/10/02 15:59:56 lowette Exp $
+  \version  $Id: TopJetProducer.h,v 1.23 2007/10/02 16:34:23 lowette Exp $
 */
 
 
@@ -84,11 +84,10 @@ class TopJetProducer : public edm::EDProducer {
     bool                     addJetCharge_;
     edm::ParameterSet        jetChargePSet_;
     // tools
-    TopObjectResolutionCalc                * theResoCalc_;
-    reco::helper::SimpleJetTrackAssociator   simpleJetTrackAssociator_;
-    JetCharge                              * jetCharge_;
-    GreaterByEt<TopJet>                      eTComparator_;
-
+    TopObjectResolutionCalc            * theResoCalc_;
+    helper::SimpleJetTrackAssociator   simpleJetTrackAssociator_;
+    JetCharge                          * jetCharge_;
+    GreaterByEt<TopJet>                eTComparator_;
 };
 
 

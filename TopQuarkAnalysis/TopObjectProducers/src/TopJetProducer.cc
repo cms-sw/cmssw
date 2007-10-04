@@ -1,5 +1,5 @@
 //
-// $Id: TopJetProducer.cc,v 1.26 2007/10/02 16:34:23 lowette Exp $
+// $Id: TopJetProducer.cc,v 1.27 2007/10/02 16:52:52 lowette Exp $
 //
 
 #include "TopQuarkAnalysis/TopObjectProducers/interface/TopJetProducer.h"
@@ -67,7 +67,7 @@ TopJetProducer::TopJetProducer(const edm::ParameterSet& iConfig) {
   if (addResolutions_) theResoCalc_ = new TopObjectResolutionCalc(edm::FileInPath(caliJetResoFile_).fullPath(), useNNReso_);
 
   // construct Jet Track Associator
-  simpleJetTrackAssociator_ = reco::helper::SimpleJetTrackAssociator(trackAssociationPSet_);
+  simpleJetTrackAssociator_ = helper::SimpleJetTrackAssociator(trackAssociationPSet_);
   // construct Jet Charge Computer
   if (addJetCharge_) jetCharge_ = new JetCharge(jetChargePSet_);
  

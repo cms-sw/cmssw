@@ -2,7 +2,7 @@
 // Author:  Christophe Delaere
 // Created: Thu Jul  26 11:08:00 CEST 2007
 //
-// $Id: TopTauProducer.cc,v 1.6 2007/09/28 13:15:09 lowette Exp $
+// $Id: TopTauProducer.cc,v 1.7 2007/10/02 15:35:00 lowette Exp $
 //
 
 #include "TopQuarkAnalysis/TopObjectProducers/interface/TopTauProducer.h"
@@ -16,6 +16,11 @@
 #include "TopQuarkAnalysis/TopLeptonSelection/interface/TopLeptonLRCalc.h"
 #include "TopQuarkAnalysis/TopObjectResolutions/interface/TopObjectResolutionCalc.h"
 
+#include <DataFormats/TauReco/interface/PFTau.h>
+#include <DataFormats/TauReco/interface/PFTauDiscriminatorByIsolation.h>
+#include <DataFormats/TauReco/interface/CaloTau.h>
+#include <DataFormats/TauReco/interface/CaloTauDiscriminatorByIsolation.h>
+
 #include <vector>
 #include <memory>
 
@@ -25,22 +30,15 @@
 
 TopTauProducer::TopTauProducer(const edm::ParameterSet & iConfig) {
   // initialize the configurables
-  tauSrc_           = iConfig.getParameter<edm::InputTag>( "tauSource" );
-  addGenMatch_      = iConfig.getParameter<bool>         ( "addGenMatch" );
-  addResolutions_   = iConfig.getParameter<bool>         ( "addResolutions" );
-  useNNReso_        = iConfig.getParameter<bool>         ( "useNNResolutions" );
-  addLRValues_      = iConfig.getParameter<bool>         ( "addLRValues" );
-  genPartSrc_       = iConfig.getParameter<edm::InputTag>( "genParticleSource" );
-  tauResoFile_      = iConfig.getParameter<std::string>  ( "tauResoFile" );
-  tauLRFile_        = iConfig.getParameter<std::string>  ( "tauLRFile" );
-  redoDiscriminant_ = iConfig.getParameter<bool>         ( "redoDiscriminant" );
-  if (redoDiscriminant_) {
-    Rmatch_         = iConfig.getParameter<double>       ( "Rmatch" );
-    Rsig_           = iConfig.getParameter<double>       ( "Rsig" );
-    Riso_           = iConfig.getParameter<double>       ( "Riso" );
-    pT_LT_          = iConfig.getParameter<double>       ( "pT_LT" );
-    pT_min_         = iConfig.getParameter<double>       ( "pT_min" );
-  }
+  tauSrc_         = iConfig.getParameter<edm::InputTag>( "tauSource" );
+  tauDiscSrc_     = iConfig.getParameter<edm::InputTag>( "tauDiscriminatorSource");
+  addGenMatch_    = iConfig.getParameter<bool>         ( "addGenMatch" );
+  addResolutions_ = iConfig.getParameter<bool>         ( "addResolutions" );
+  useNNReso_      = iConfig.getParameter<bool>         ( "useNNResolutions" );
+  addLRValues_    = iConfig.getParameter<bool>         ( "addLRValues" );
+  genPartSrc_     = iConfig.getParameter<edm::InputTag>( "genParticleSource" );
+  tauResoFile_    = iConfig.getParameter<std::string>  ( "tauResoFile" );
+  tauLRFile_      = iConfig.getParameter<std::string>  ( "tauLRFile" );
 
   // construct resolution calculator
   if (addResolutions_) {
@@ -64,8 +62,28 @@ TopTauProducer::~TopTauProducer() {
 void TopTauProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup) {     
  
   // Get the collection of taus from the event
-  edm::Handle<std::vector<TopTauType> > taus;
-  iEvent.getByLabel(tauSrc_, taus);
+  edm::Handle<PFTauCollection> PFtaus;
+  edm::Handle<PFTauDiscriminatorByIsolation> PFtauIsolator;
+  edm::Handle<CaloTauCollection> Calotaus; 
+  edm::Handle<CaloTauDiscriminatorByIsolation> CalotauIsolator;
+  bool hasPFtaus = false;
+  bool hasCalotaus = false;
+  try {
+    iEvent.getByLabel(tauSrc_, PFtaus);
+    iEvent.getByLabel(tauDiscSrc_, PFtauIsolator);
+    hasPFtaus = true;
+  } catch( const edm::Exception &roEX) { }
+  try {
+    iEvent.getByLabel(tauSrc_, Calotaus);
+    iEvent.getByLabel(tauDiscSrc_, CalotauIsolator);
+    hasCalotaus = true;
+  } catch( const edm::Exception &roEX) { }
+  if(!hasCalotaus && !hasPFtaus) {
+    edm::LogError("DataSource") << "No Tau collection found.";
+  }
+  if(hasCalotaus && hasPFtaus) {
+    edm::LogError("DataSource") << "Ambiguous datasource. Taus can be both CaloTaus or PF taus.";
+  }
 
   // Get the vector of generated particles from the event if needed
   edm::Handle<reco::CandidateCollection> particles;
@@ -78,20 +96,36 @@ void TopTauProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
     theLeptonLRCalc_ = new TopLeptonLRCalc(iSetup, "", "", edm::FileInPath(tauLRFile_).fullPath());
   }
 
-  // loop over taus
+  // collection of produced objects
   std::vector<TopTau> * topTaus = new std::vector<TopTau>(); 
-  for (std::vector<TopTauType>::const_iterator tau = taus->begin();
-       tau != taus->end(); ++tau) {
 
-    // check the discriminant ******WILL NOT WORK WITH NEW TAU OBJECTS - SET TO TRUE FOR NOW
-    //bool disc = redoDiscriminant_ ? tau->discriminator(Rmatch_,Rsig_,Riso_,pT_LT_,pT_min_) : tau->discriminator();
-    // the status of the tau candidate has to be followed, since the discriminator should be reintroduced soon.
-    // right now, no selection on the tau candidate is applied 
-    bool disc = true;
+  // loop over taus and prepare TopTaus
+  if(hasPFtaus) {
+    for (PFTauCollection::size_type iPFTau=0;iPFTau<PFtaus->size();iPFTau++) {
+      // check the discriminant
+      PFTauRef thePFTau(PFtaus,iPFTau);
+      bool disc = (*PFtauIsolator)[thePFTau];
+      if(!disc) continue;
+      // construct the TopTau
+      TopTau aTau(*thePFTau);
+      // add the tau to the vector of TopTaus
+      topTaus->push_back(TopTau(aTau));
+    }
+  } else if(hasCalotaus) {
+    for (CaloTauCollection::size_type iCaloTau=0;iCaloTau<Calotaus->size();iCaloTau++) {
+      // check the discriminant
+      CaloTauRef theCaloTau(Calotaus,iCaloTau);
+      bool disc = (*CalotauIsolator)[theCaloTau];
+      if(!disc) continue;
+      // construct the TopTau
+      TopTau aTau(*theCaloTau);
+      // add the tau to the vector of TopTaus
+      topTaus->push_back(TopTau(aTau));
+    }
+  }
 
-    if(!disc) continue;
-    // construct the TopTau
-    TopTau aTau(*tau);
+  // loop on the resulting collection of TopTaus, and set other informations
+  for(std::vector<TopTau>::iterator aTau = topTaus->begin();aTau<topTaus->end(); ++aTau) {
     // match to generated final state taus
     if (addGenMatch_) {
       // initialize best match as null
@@ -101,25 +135,23 @@ void TopTauProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
       for (reco::CandidateCollection::const_iterator itGenTau = particles->begin(); itGenTau != particles->end(); ++itGenTau) {
         reco::GenParticleCandidate aGenTau = *(dynamic_cast<reco::GenParticleCandidate *>(const_cast<reco::Candidate *>(&*itGenTau)));
         if (abs(aGenTau.pdgId())==15 && aGenTau.status()==2) {
-	  float currDR = DeltaR<reco::Candidate>()(aGenTau, aTau);
+	  float currDR = DeltaR<reco::Candidate>()(aGenTau, *aTau);
           if (bestDR == 0 || currDR < bestDR) {
             bestGenTau = aGenTau;
             bestDR = currDR;
           }
         }
       }
-      aTau.setGenLepton(bestGenTau);
+      aTau->setGenLepton(bestGenTau);
     }
     // add resolution info if demanded
     if (addResolutions_) {
-      (*theResoCalc_)(aTau);
+      (*theResoCalc_)(*aTau);
     }
     // add top lepton id LR info if requested
     if (addLRValues_) {
-      theLeptonLRCalc_->calcLikelihood(aTau, iEvent);
+      theLeptonLRCalc_->calcLikelihood(*aTau, iEvent);
     }
-    // add the tau to the vector of TopTaus
-    topTaus->push_back(TopTau(aTau));
   }
 
   // sort taus in pT
