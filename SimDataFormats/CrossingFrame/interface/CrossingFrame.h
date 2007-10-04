@@ -28,7 +28,7 @@ class CrossingFrame
  public:
   // con- and destructors
 
-  CrossingFrame():  firstCrossing_(0), lastCrossing_(0), bunchSpace_(75) {;}
+  CrossingFrame():  firstCrossing_(0), lastCrossing_(0), bunchSpace_(75),subdet_(""),idFirstPileup_(0,0),pileupFileNr_(0) {;}
   CrossingFrame(int minb, int maxb, int bunchsp, std::string subdet );
 
   ~CrossingFrame() {;}
@@ -71,16 +71,20 @@ class CrossingFrame
   static const int limHighLowTof;
 					    
  private:
-
+  // general information
   int firstCrossing_;
   int lastCrossing_;
   int bunchSpace_;  //in nsec
-  std::string subdet_;
-  edm::EventID id_;
- 
+  std::string subdet_;  // for PSimHits/PCaloHits
+  edm::EventID id_; // event id of the signal event
+
+  // for playback option
+  edm::EventID idFirstPileup_;   // EventId fof the first pileup event used for this signal event
+  unsigned int pileupFileNr_;    // ordinal number of the pileup file this event was in
 
   // signal
   std::vector<T>  signals_; 
+
   //pileup
   std::vector<T>  pileups_;  
   std::vector<unsigned int> pileupOffsetsBcr_;
@@ -90,7 +94,7 @@ class CrossingFrame
 //                              implementations
 //==============================================================================
 template <class T> 
-CrossingFrame<T>::CrossingFrame(int minb, int maxb, int bunchsp, std::string subdet ):firstCrossing_(minb), lastCrossing_(maxb), bunchSpace_(bunchsp),subdet_(subdet) {
+CrossingFrame<T>::CrossingFrame(int minb, int maxb, int bunchsp, std::string subdet ):firstCrossing_(minb), lastCrossing_(maxb), bunchSpace_(bunchsp),subdet_(subdet),idFirstPileup_(0,0),pileupFileNr_(0) {
   //FIXME: should we force around 0 or so??
   pileupOffsetsBcr_.reserve(-firstCrossing_+lastCrossing_+1);
 }
