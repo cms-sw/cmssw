@@ -14,6 +14,7 @@ L1GctJetCounterLut::L1GctJetCounterLut(const L1GctJetCounterSetup::cutsListForJe
   for (unsigned i=0; i<cuts.size(); i++) {
     checkCut(cuts.at(i));
   }
+  m_setupOk = true;
 }
 
 L1GctJetCounterLut::L1GctJetCounterLut(const L1GctJetCounterSetup::cutDescription& cut) :
@@ -21,18 +22,21 @@ L1GctJetCounterLut::L1GctJetCounterLut(const L1GctJetCounterSetup::cutDescriptio
   m_cutList(1, cut)
 {
   checkCut(cut);
+  m_setupOk = true;
 }
 
 L1GctJetCounterLut::L1GctJetCounterLut() :
   L1GctLut<NAddress,1>(),
   m_cutList(1)
 {
+  m_setupOk = true;
 }
 
 L1GctJetCounterLut::L1GctJetCounterLut(const L1GctJetCounterLut& lut) :
   L1GctLut<NAddress,1>(),
   m_cutList(lut.cutList())
 {
+  m_setupOk = true;
 }
 
 L1GctJetCounterLut::~L1GctJetCounterLut()
