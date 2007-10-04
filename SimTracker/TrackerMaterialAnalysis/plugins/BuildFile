@@ -1,0 +1,18 @@
+<library file="*.cc" name=SimTrackerTrackerMaterialAnalysis>
+  <use name=DataFormats/GeometrySurface>
+  <use name=DataFormats/GeometryVector>
+  <use name=FWCore/Framework>
+  <use name=FWCore/ParameterSet>
+  <use name=FWCore/PluginManager>
+  <use name=Geometry/CommonDetUnit>
+  <use name=RecoTracker/Record>
+  <use name=RecoTracker/TkDetLayers>
+  <use name=SimDataFormats/ValidationFormats>
+  <use name=SimG4Core/Notification>
+  <use name=SimG4Core/Watcher>
+  <use name=TrackingTools/DetLayers>
+  <use name=boost>
+  <use name=geant4>
+  <use name=root>
+  <flags EDM_PLUGIN=1>
+</library>
