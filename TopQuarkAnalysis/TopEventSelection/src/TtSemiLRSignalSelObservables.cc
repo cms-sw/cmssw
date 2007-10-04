@@ -163,7 +163,11 @@ void TtSemiLRSignalSelObservables::operator() (TtSemiEvtSolution &TS)
 		pjets += TopJets[i].getRecJet().p4();
 	}
 	// for the lepton
-	pjets += TS.getRecLept().p4();
+        if (TS.getDecay() == "muon") {
+          pjets += TS.getRecLepm().p4();
+        } else if (TS.getDecay() == "electron") {
+          pjets += TS.getRecLepe().p4();
+        }
 	// for the ~"neutrino"	
 	double MET = TS.getNeutrino().et();
 
