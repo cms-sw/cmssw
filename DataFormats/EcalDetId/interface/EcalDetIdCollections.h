@@ -11,6 +11,7 @@
 
 
 typedef edm::EDCollection<EBDetId> EBDetIdCollection;
+typedef edm::EDCollection<EEDetId> EEDetIdCollection;
 typedef edm::EDCollection<EcalElectronicsId> EcalElectronicsIdCollection;
 typedef edm::EDCollection<EcalTriggerElectronicsId> EcalTriggerElectronicsIdCollection;
 typedef edm::EDCollection<EcalTrigTowerDetId> EcalTrigTowerDetIdCollection;
