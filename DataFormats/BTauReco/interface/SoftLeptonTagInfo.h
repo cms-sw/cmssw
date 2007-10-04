@@ -26,7 +26,7 @@ public:
     float etaRel;                           // (pseudo)rapidity along jet axis
     float deltaR;                           // pseudoangular distance to jet axis
     float ratio;                            // momentum over jet energy
-    float ratioRel;                         // momentum parallet to jet axis over jet energy
+    float ratioRel;                         // momentum paraller to jet axis over jet energy
 };
 
 class SoftLeptonTagInfo : public JetTagInfo {
