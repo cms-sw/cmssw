@@ -1,16 +1,18 @@
-// $Id: RootOutputFile.cc,v 1.18 2007/09/27 18:44:47 wmtan Exp $
+// $Id: RootOutputFile.cc,v 1.21 2007/10/03 22:26:42 wmtan Exp $
 
-#include "IOPool/Output/src/PoolOutputModule.h"
+#include "RootOutputFile.h"
+#include "PoolOutputModule.h"
+
+#include "IOPool/Common/interface/FileIdentifier.h"
+#include "IOPool/Common/interface/RootChains.h"
+
 #include "DataFormats/Provenance/interface/EventAuxiliary.h" 
-#include "IOPool/Output/src/RootOutputFile.h"
-
 #include "DataFormats/Provenance/interface/FileFormatVersion.h"
 #include "FWCore/Utilities/interface/GetFileFormatVersion.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/Framework/interface/LuminosityBlockPrincipal.h"
 #include "FWCore/Framework/interface/RunPrincipal.h"
-#include "FWCore/Catalog/interface/FileCatalog.h"
 #include "DataFormats/Provenance/interface/BranchDescription.h"
 #include "DataFormats/Provenance/interface/ModuleDescriptionRegistry.h"
 #include "DataFormats/Provenance/interface/ParameterSetBlob.h"
@@ -33,6 +35,7 @@
 
 namespace edm {
   RootOutputFile::RootOutputFile(PoolOutputModule *om, std::string const& fileName, std::string const& logicalFileName) :
+      chains_(om->wantAllEvents() && om->fastCloning() ? RootChains::instance() : RootChains()),
       outputItemList_(), 
       file_(fileName),
       logicalFile_(logicalFileName),
@@ -41,6 +44,7 @@ namespace edm {
       fileSizeCheckEvent_(100),
       om_(om),
       filePtr_(TFile::Open(file_.c_str(), "recreate", "", om_->compressionLevel())),
+      fid_(),
       metaDataTree_(0),
       eventAux_(),
       lumiAux_(),
@@ -48,9 +52,12 @@ namespace edm {
       pEventAux_(&eventAux_),
       pLumiAux_(&lumiAux_),
       pRunAux_(&runAux_),
-      eventTree_(filePtr_, InEvent, pEventAux_, om_->basketSize(), om_->splitLevel()),
-      lumiTree_(filePtr_, InLumi, pLumiAux_, om_->basketSize(), om_->splitLevel()),
-      runTree_(filePtr_, InRun, pRunAux_, om_->basketSize(), om_->splitLevel()),
+      eventTree_(filePtr_, InEvent, pEventAux_, om_->basketSize(), om_->splitLevel(),
+		  chains_.event_.get(), chains_.eventMeta_.get(), om_->keptPriorProducts()[InEvent]),
+      lumiTree_(filePtr_, InLumi, pLumiAux_, om_->basketSize(), om_->splitLevel(),
+		 chains_.lumi_.get(), chains_.lumiMeta_.get(), om_->keptPriorProducts()[InLumi]),
+      runTree_(filePtr_, InRun, pRunAux_, om_->basketSize(), om_->splitLevel(),
+		chains_.run_.get(), chains_.runMeta_.get(), om_->keptPriorProducts()[InRun]),
       treePointers_(),
       provenances_(),
       newFileAtEndOfRun_(false) {
@@ -59,11 +66,15 @@ namespace edm {
     treePointers_[InRun]   = &runTree_;
     TTree::SetMaxTreeSize(kMaxLong64);
 
-    for (int i = InEvent; i < EndBranchType; ++i) {
+    for (int i = InEvent; i < NumBranchTypes; ++i) {
       BranchType branchType = static_cast<BranchType>(i);
       OutputItemList & outputItemList = outputItemList_[branchType];
-      Selections const& descVector = om_->descVec()[branchType];
-      Selections const& droppedVector = om_->droppedVec()[branchType];
+
+      bool fastCloning = treePointers_[branchType]->fastCloning();
+      Selections const& descVector =
+	 (fastCloning ? om_->keptProducedProducts()[branchType] : om_->keptProducts()[branchType]);
+      Selections const& droppedVector =
+	 (fastCloning ? om_->droppedProducedProducts()[branchType] : om_->droppedProducts()[branchType]);
       
       for (Selections::const_iterator it = descVector.begin(), itEnd = descVector.end(); it != itEnd; ++it) {
         BranchDescription const& prod = **it;
@@ -79,9 +90,9 @@ namespace edm {
     }
 
     // Don't split metadata tree.
-    metaDataTree_ = RootOutputTree::makeTree(filePtr_.get(), poolNames::metaDataTreeName(), 0);
+    metaDataTree_ = RootOutputTree::makeTree(filePtr_.get(), poolNames::metaDataTreeName(), 0, 0);
 
-    pool::FileCatalog::FileID fid = om_->catalog_.registerFile(file_, logicalFile_);
+    fid_ = FileID(createFileIdentifier());
 
     // Register the output file with the JobReport service
     // and get back the token for it.
@@ -89,10 +100,10 @@ namespace edm {
     Service<JobReport> reportSvc;
     reportToken_ = reportSvc->outputFileOpened(
 		      file_, logicalFile_,  // PFN and LFN
-		      om_->catalog_.url(),  // catalog
+		      om_->catalog_,  // catalog
 		      moduleName,   // module class name
 		      om_->moduleLabel_,  // module label
-		      fid, // file id (guid)
+		      fid_.fid(), // file id (guid)
 		      eventTree_.branchNames()); // branch names being written
   }
 
@@ -135,7 +146,82 @@ namespace edm {
     return newFileAtEndOfRun_;
   }
 
-  void RootOutputFile::fillBranches(BranchType const& branchType, Principal const& principal) const {
+  void RootOutputFile::writeFileFormatVersion() {
+    FileFormatVersion fileFormatVersion(edm::getFileFormatVersion());
+    FileFormatVersion * pFileFmtVsn = &fileFormatVersion;
+    TBranch* b = metaDataTree_->Branch(poolNames::fileFormatVersionBranchName().c_str(), &pFileFmtVsn, om_->basketSize(), 0);
+    assert(b);
+    b->Fill();
+  }
+
+  void RootOutputFile::writeFileIdentifier() {
+    FileID *fidPtr = &fid_;
+    TBranch* b = metaDataTree_->Branch(poolNames::fileIdentifierBranchName().c_str(), &fidPtr, om_->basketSize(), 0);
+    assert(b);
+    b->Fill();
+  }
+
+  void RootOutputFile::writeProcessConfigurationRegistry() {
+    // We don't do this yet; currently we're storing a slightly bloated ProcessHistoryRegistry.
+  }
+
+  void RootOutputFile::writeProcessHistoryRegistry() { 
+    ProcessHistoryMap *pProcHistMap = &ProcessHistoryRegistry::instance()->data();
+    TBranch* b = metaDataTree_->Branch(poolNames::processHistoryMapBranchName().c_str(), &pProcHistMap, om_->basketSize(), 0);
+    assert(b);
+    b->Fill();
+  }
+
+  void RootOutputFile::writeModuleDescriptionRegistry() { 
+    ModuleDescriptionMap *pModDescMap = &ModuleDescriptionRegistry::instance()->data();
+    TBranch* b = metaDataTree_->Branch(poolNames::moduleDescriptionMapBranchName().c_str(), &pModDescMap, om_->basketSize(), 0);
+    assert(b);
+    b->Fill();
+  }
+
+  void RootOutputFile::writeParameterSetRegistry() { 
+    typedef std::map<ParameterSetID, ParameterSetBlob> ParameterSetMap;
+    ParameterSetMap psetMap;
+    pset::Registry const* psetRegistry = pset::Registry::instance();    
+    for (pset::Registry::const_iterator it = psetRegistry->begin(), itEnd = psetRegistry->end(); it != itEnd; ++it) {
+      psetMap.insert(std::make_pair(it->first, ParameterSetBlob(it->second.toStringOfTracked())));
+    }
+    ParameterSetMap *pPsetMap = &psetMap;
+    TBranch* b = metaDataTree_->Branch(poolNames::parameterSetMapBranchName().c_str(), &pPsetMap, om_->basketSize(), 0);
+    assert(b);
+    b->Fill();
+  }
+
+  void RootOutputFile::writeProductDescriptionRegistry() { 
+    Service<ConstProductRegistry> reg;
+    ProductRegistry pReg = reg->productRegistry();
+    ProductRegistry * ppReg = &pReg;
+    TBranch* b = metaDataTree_->Branch(poolNames::productDescriptionBranchName().c_str(), &ppReg, om_->basketSize(), 0);
+    assert(b);
+    b->Fill();
+  }
+
+  void RootOutputFile::finishEndFile() { 
+    metaDataTree_->SetEntries(-1);
+    RootOutputTree::writeTTree(metaDataTree_);
+    for (int i = InEvent; i < NumBranchTypes; ++i) {
+      BranchType branchType = static_cast<BranchType>(i);
+      buildIndex(treePointers_[branchType]->tree(), branchType);
+      setBranchAliases(treePointers_[branchType]->tree(), om_->keptProducts()[branchType]);
+      treePointers_[branchType]->writeTree();
+    }
+
+    // close the file -- mfp
+    filePtr_->Close();
+    filePtr_.reset();
+
+    // report that file has been closed
+    Service<JobReport> reportSvc;
+    reportSvc->outputFileClosed(reportToken_);
+
+  }
+
+  void RootOutputFile::RootOutputFile::fillBranches(BranchType const& branchType, Principal const& principal) const {
 
     // Clear the provenance cache for the previous event/lumi/run
     provenances_.clear();
@@ -198,51 +284,13 @@ namespace edm {
     treePointers_[branchType]->fillTree();
   }
 
-  void RootOutputFile::endFile() {
-    FileFormatVersion fileFormatVersion(edm::getFileFormatVersion());
-    FileFormatVersion * pFileFmtVsn = &fileFormatVersion;
-    metaDataTree_->Branch(poolNames::fileFormatVersionBranchName().c_str(), &pFileFmtVsn, om_->basketSize(), 0);
-
-    ModuleDescriptionMap *pModDescMap = &ModuleDescriptionRegistry::instance()->data();
-    metaDataTree_->Branch(poolNames::moduleDescriptionMapBranchName().c_str(), &pModDescMap, om_->basketSize(), 0);
-
-    ProcessHistoryMap *pProcHistMap = &ProcessHistoryRegistry::instance()->data();
-    metaDataTree_->Branch(poolNames::processHistoryMapBranchName().c_str(), &pProcHistMap, om_->basketSize(), 0);
-
-    typedef std::map<ParameterSetID, ParameterSetBlob> ParameterSetMap;
-    ParameterSetMap psetMap;
-    pset::Registry const* psetRegistry = pset::Registry::instance();    
-    for (pset::Registry::const_iterator it = psetRegistry->begin(), itEnd = psetRegistry->end(); it != itEnd; ++it) {
-      psetMap.insert(std::make_pair(it->first, ParameterSetBlob(it->second.toStringOfTracked())));
-    }
-    ParameterSetMap *pPsetMap = &psetMap;
-    metaDataTree_->Branch(poolNames::parameterSetMapBranchName().c_str(), &pPsetMap, om_->basketSize(), 0);
-
-    Service<ConstProductRegistry> reg;
-    ProductRegistry pReg = reg->productRegistry();
-    ProductRegistry * ppReg = &pReg;
-    metaDataTree_->Branch(poolNames::productDescriptionBranchName().c_str(), &ppReg, om_->basketSize(), 0);
-
-    metaDataTree_->Fill();
-
-    RootOutputTree::writeTTree(metaDataTree_);
-    for (int i = InEvent; i < EndBranchType; ++i) {
-      BranchType branchType = static_cast<BranchType>(i);
-      buildIndex(treePointers_[branchType]->tree(), branchType);
-      setBranchAliases(treePointers_[branchType]->tree(), om_->descVec()[branchType]);
-      treePointers_[branchType]->writeTree();
-    }
-
-    om_->catalog_.commitCatalog();
-    // report that file has been closed
-    Service<JobReport> reportSvc;
-    reportSvc->outputFileClosed(reportToken_);
-  }
 
 
   void
   RootOutputFile::buildIndex(TTree * tree, BranchType const& branchType) {
 
+    if (tree->GetNbranches() == 0) return;
+    tree->SetEntries(-1);
     if (tree->GetEntries() == 0) return;
 
     // BuildIndex must read the auxiliary branch, so the
@@ -251,21 +299,17 @@ namespace edm {
     pLumiAux_ = &lumiAux_;
     pRunAux_ = &runAux_;
 
-    std::string const aux = BranchTypeToAuxiliaryBranchName(branchType);
-    std::string const majorID = aux + ".id_.run_";
-    std::string const minorID = (branchType == InEvent ? aux + ".id_.event_" :
-				(branchType == InLumi ? aux + ".id_.luminosityBlock_" : std::string()));
-    
-    if (minorID.empty()) {
-      tree->BuildIndex(majorID.c_str());
+    if (BranchTypeToMinorIndexName(branchType).empty()) {
+      tree->BuildIndex(BranchTypeToMajorIndexName(branchType).c_str());
     } else {
-      tree->BuildIndex(majorID.c_str(), minorID.c_str());
+      tree->BuildIndex(BranchTypeToMajorIndexName(branchType).c_str(),
+	 	       BranchTypeToMinorIndexName(branchType).c_str());
     }
   }
   
   void
   RootOutputFile::setBranchAliases(TTree *tree, Selections const& branches) const {
-    if (tree) {
+    if (tree && tree->GetNbranches() != 0) {
       for (Selections::const_iterator i = branches.begin(), iEnd = branches.end();
 	  i != iEnd; ++i) {
 	BranchDescription const& pd = **i;
