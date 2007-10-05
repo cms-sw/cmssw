@@ -88,7 +88,7 @@ bool L1GctEmCand::empty() const {
 // return region object
 L1CaloRegionDetId L1GctEmCand::regionId() const {
   // get global eta
-  unsigned eta = ( etaSign()==1 ? (10-etaIndex()&0x7) : 11+(etaIndex()&0x7) );
+  unsigned eta = ( etaSign()==1 ? 10-(etaIndex()&0x7) : 11+(etaIndex()&0x7) );
   return L1CaloRegionDetId(eta, phiIndex());
 }
 
