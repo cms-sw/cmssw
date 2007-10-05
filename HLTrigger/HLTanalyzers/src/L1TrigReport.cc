@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2007/10/05 17:32:09 $
- *  $Revision: 1.5 $
+ *  $Date: 2007/10/05 17:49:09 $
+ *  $Revision: 1.6 $
  *
  *  \author Martin Grunewald
  *
@@ -68,7 +68,7 @@ L1TrigReport::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     nErrors_++;
     return;
   }
-  const unsigned int n(L1GTRR->decisionWord.size());
+  const unsigned int n(L1GTRR->decisionWord().size());
 
   // initialisation - check for L1T table change
   if ( (!init_) || (nSize_!=n) ) {
