@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Mar 30 15:48:37 EST 2006
-// $Id: GenericHandle.cc,v 1.4 2006/10/27 20:55:14 wmtan Exp $
+// $Id: GenericHandle.cc,v 1.5 2007/08/08 03:40:17 chrjones Exp $
 //
 
 // system include files
@@ -21,6 +21,10 @@ void convert_handle(BasicHandle const& orig,
                     Handle<GenericObject>& result)
 {
   using namespace ROOT::Reflex;
+  if(orig.failedToGet()) {
+    result.setWhyFailed(orig.whyFailed());
+    return;
+  }
   EDProduct const* originalWrap = orig.wrapper();
   if (originalWrap == 0)
     throw edm::Exception(edm::errors::InvalidReference,"NullPointer")
@@ -59,28 +63,36 @@ void convert_handle(BasicHandle const& orig,
 
 ///Specialize the getByLabel method to work with a Handle<GenericObject>
 template<>
-void
+bool
 edm::DataViewImpl::getByLabel<GenericObject>(std::string const& label,
                                       const std::string& productInstanceName,
                                       Handle<GenericObject>& result) const
 {
   BasicHandle bh = this->getByLabel_(TypeID(result.type().TypeInfo()), label, productInstanceName);
-  gotProductIDs_.push_back(bh.id());
   convert_handle(bh, result);  // throws on conversion error
+  if(!bh.failedToGet()) {
+    gotProductIDs_.push_back(bh.id());
+    return true;
+  }
+  return false;
 }
 
 template<>
-void
+bool
 edm::DataViewImpl::getByLabel<GenericObject>(edm::InputTag const& tag,
                                              Handle<GenericObject>& result) const
 {
   if (tag.process().empty()) {
-    this->getByLabel(tag.label(), tag.instance(), result);
+    return this->getByLabel(tag.label(), tag.instance(), result);
   } else {
     BasicHandle bh = this->getByLabel_(TypeID(result.type().TypeInfo()), tag.label(), tag.instance(),tag.process());
-    gotProductIDs_.push_back(bh.id());
     convert_handle(bh, result);  // throws on conversion error
+    if(!bh.failedToGet()) {
+      gotProductIDs_.push_back(bh.id());
+      return true;
+    }
   }
+  return false;
 }
 
 }

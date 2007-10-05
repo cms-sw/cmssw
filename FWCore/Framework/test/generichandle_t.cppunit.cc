@@ -2,10 +2,11 @@
 
 Test of the EventPrincipal class.
 
-$Id: generichandle_t.cppunit.cc,v 1.22 2007/06/21 16:52:43 wmtan Exp $
+$Id: generichandle_t.cppunit.cc,v 1.23 2007/08/08 21:51:28 wmtan Exp $
 
 ----------------------------------------------------------------------*/  
 #include <string>
+#include <iostream>
 
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/Utilities/interface/GetPassID.h"
@@ -48,7 +49,7 @@ void testGenericHandle::failWrongType() {
       edm::GenericHandle h("edmtest::DmmyProduct");
       CPPUNIT_ASSERT("Failed to thow"==0);
    }
-   catch (edm::Exception& x) {
+   catch (cms::Exception& x) {
       // nothing to do
    }
    catch (...) {
@@ -65,6 +66,7 @@ void testGenericHandle::failgetbyLabelTest() {
   boost::shared_ptr<edm::LuminosityBlockPrincipal>lbp(new edm::LuminosityBlockPrincipal(1, time, time, preg, rp, pc));
   edm::EventPrincipal ep(id, time, preg, lbp, pc, true);
   edm::GenericHandle h("edmtest::DummyProduct");
+  bool didThrow=true;
   try {
      edm::ModuleDescription modDesc;
      modDesc.moduleName_="Blah";
@@ -73,15 +75,23 @@ void testGenericHandle::failgetbyLabelTest() {
      
      std::string label("this does not exist");
      event.getByLabel(label,h);
-    CPPUNIT_ASSERT("Failed to throw required exception" == 0);      
+     *h;
+     didThrow=false;
   }
-  catch (edm::Exception& x) {
+  catch (cms::Exception& x) {
     // nothing to do
+  }
+  catch (std::exception& x) {
+    std::cout <<"caught std exception "<<x.what()<<std::endl;
+    CPPUNIT_ASSERT("Threw std::exception!"==0);
   }
   catch (...) {
     CPPUNIT_ASSERT("Threw wrong kind of exception" == 0);
   }
- 
+  if( !didThrow) {
+    CPPUNIT_ASSERT("Failed to throw required exception" == 0);      
+  }
+  
 }
 
 void testGenericHandle::getbyLabelTest() {

@@ -24,7 +24,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Sat Jan  7 15:40:43 EST 2006
-// $Id: GenericHandle.h,v 1.10 2007/05/29 21:22:03 wmtan Exp $
+// $Id: GenericHandle.h,v 1.11 2007/08/08 03:40:16 chrjones Exp $
 //
 
 // system include files
@@ -77,7 +77,8 @@ public:
    type_(h.type_),
    prod_(h.prod_),
    prov_(h.prov_),
-   id_(h.id_)
+   id_(h.id_),
+   whyFailed_(h.whyFailed_)
    { }
    
    Handle(ROOT::Reflex::Object const& prod, Provenance const* prov):
@@ -90,7 +91,6 @@ public:
       assert(id_ != ProductID());
    }
    
-      
       //~Handle();
       
    void swap(Handle<GenericObject>& other)
@@ -101,6 +101,7 @@ public:
       std::swap(prod_, other.prod_);
       swap(prov_, other.prov_);
       swap(id_, other.id_);
+      swap(whyFailed_, other.whyFailed_);
    }
    
    
@@ -114,23 +115,37 @@ public:
    bool isValid() const {
       return prod_ && 0!= prov_;
    }
-      
-   ROOT::Reflex::Object const* product() const {return &prod_;}
-   ROOT::Reflex::Object const* operator->() const {return &prod_;}
-   ROOT::Reflex::Object const& operator*() const {return prod_;}
+
+   bool failedToGet() const {
+     return 0 != whyFailed_.get();
+   }
+   ROOT::Reflex::Object const* product() const { 
+     if(this->failedToGet()) { 
+       throw *whyFailed_;
+     } 
+     return &prod_;
+   }
+   ROOT::Reflex::Object const* operator->() const {return this->product();}
+   ROOT::Reflex::Object const& operator*() const {return *(this->product());}
    
    ROOT::Reflex::Type const& type() const {return type_;}
    Provenance const* provenance() const {return prov_;}
    
    ProductID id() const {return id_;}
 
-  void clear() { prov_ = 0; id_ = ProductID(); }
+   void clear() { prov_ = 0; id_ = ProductID(); 
+   whyFailed_.reset();}
       
+   void setWhyFailed(const boost::shared_ptr<cms::Exception>& iWhyFailed) {
+    whyFailed_=iWhyFailed;
+  }
 private:
    ROOT::Reflex::Type type_;
    ROOT::Reflex::Object prod_;
    Provenance const* prov_;    
    ProductID id_;
+   boost::shared_ptr<cms::Exception> whyFailed_;
+
 };
 
 typedef Handle<GenericObject> GenericHandle;
@@ -142,13 +157,13 @@ void convert_handle(BasicHandle const& orig,
 
 ///Specialize the Event's getByLabel method to work with a Handle<GenericObject>
 template<>
-void
+bool
 edm::DataViewImpl::getByLabel<GenericObject>(std::string const& label,
                                       const std::string& productInstanceName,
                                       Handle<GenericObject>& result) const;
 
 template <> 	 
-void 	 
+bool 	 
 edm::DataViewImpl::getByLabel(edm::InputTag const& tag, Handle<GenericObject>& result) const; 	 
 
 }
