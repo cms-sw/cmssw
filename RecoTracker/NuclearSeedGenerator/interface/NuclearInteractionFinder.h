@@ -81,6 +81,8 @@ public:
   /// Improve the seeds with a third RecHit
   void  improveSeeds();
 
+  TrajectoryStateOnSurface rescaleError(float rescale, const TSOS& state) const;
+
 private:
 
   const Propagator*               thePropagator;

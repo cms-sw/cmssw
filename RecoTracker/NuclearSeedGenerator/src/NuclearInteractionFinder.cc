@@ -75,6 +75,8 @@ bool  NuclearInteractionFinder::run(const Trajectory& traj) {
 
         if(traj.empty() || !traj.isValid()) return false;
 
+        LogDebug("NuclearSeedGenerator") << "Analyzis of a new trajectory with a numlber of valid hits = " << traj.foundHits();
+
         std::vector<TrajectoryMeasurement> measurements = traj.measurements();
 
         // initialization
@@ -116,10 +118,6 @@ bool  NuclearInteractionFinder::run(const Trajectory& traj) {
         if(NIfound) {
             LogDebug("NuclearSeedGenerator") << "NUCLEAR INTERACTION FOUND at index : " << nuclTester->nuclearIndex()  << "\n";
 
-
-	    if(nuclTester->nHitsChecked() < 3)
-		    LogDebug("NuclearSeedGenerator") << "PROBLEM in NuclearTester : nuclTester->nHitsChecked() = " <<  nuclTester->nHitsChecked() << "  < 3\n";
-
             // Get correct parametrization of the helix of the primary track at the interaction point (to be used by improveCurrentSeed)
             definePrimaryHelix(measurements.begin()+nuclTester->nuclearIndex()-1);
 
@@ -149,10 +147,9 @@ NuclearInteractionFinder::findCompatibleMeasurements(const TM& lastMeas, double 
   TSOS currentState = lastMeas.updatedState();
   LogDebug("NuclearSeedGenerator") << "currentState :" << currentState << "\n";
 
-  currentState.rescaleError(rescale);
-  return findMeasurementsFromTSOS(currentState, lastMeas.recHit()->geographicalId());
+  TSOS newState = rescaleError(rescale, currentState);
+  return findMeasurementsFromTSOS(newState, lastMeas.recHit()->geographicalId());
 }
-
 //----------------------------------------------------------------------
 std::vector<TrajectoryMeasurement>
 NuclearInteractionFinder::findMeasurementsFromTSOS(const TSOS& currentState, DetId detid) const {
@@ -249,4 +246,24 @@ void NuclearInteractionFinder::improveSeeds() {
        }
        allSeeds.clear();
        allSeeds = newSeedCollection;
+}
+//----------------------------------------------------------------------
+TrajectoryStateOnSurface NuclearInteractionFinder::rescaleError(float rescale, const TSOS& state) const {
+
+     AlgebraicSymMatrix55 m(state.localError().matrix());
+     AlgebraicSymMatrix55 mr;
+     LocalTrajectoryParameters ltp = state.localParameters();
+
+     // we assume that the error on q/p is equal to 0.2% of q/p * rescale 
+     mr(0,0) = (ltp.signedInverseMomentum()*0.002*rescale)*(ltp.signedInverseMomentum()*0.002*rescale);
+
+     // the error on dx/z and dy/dz is fixed to 0.001 * rescale
+     mr(1,1) = 1E-6*rescale*rescale;
+     mr(2,2) = 1E-6*rescale*rescale;
+
+     // the error on the local x and y positions are not modified.
+     mr(3,3) = m(3,3);
+     mr(4,4) = m(4,4);
+
+     return TSOS(ltp, mr, state.surface(), &(state.globalParameters().magneticField()), state.surfaceSide());
 }
