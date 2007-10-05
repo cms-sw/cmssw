@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2007/06/18 15:29:13 $
- *  $Revision: 1.6 $
+ *  $Date: 2006/08/04 10:35:03 $
+ *  $Revision: 1.4 $
  *  \author G. Cerminara - INFN Torino
  */
 
@@ -28,10 +28,6 @@
 using namespace std;
 using namespace edm;
 
-
-
-
-
 // Constructor
 DTRecHitQuality::DTRecHitQuality(const ParameterSet& pset){
   // Get the debug parameter for verbose output
@@ -45,7 +41,7 @@ DTRecHitQuality::DTRecHitQuality(const ParameterSet& pset){
   segment2DLabel = pset.getUntrackedParameter<string>("segment2DLabel");
   // the name of the 4D rec hit collection
   segment4DLabel = pset.getUntrackedParameter<string>("segment4DLabel");
-
+    
   // Switches for analysis at various steps
   doStep1 = pset.getUntrackedParameter<bool>("doStep1", false);
   doStep2 = pset.getUntrackedParameter<bool>("doStep2", false);
@@ -104,10 +100,10 @@ DTRecHitQuality::DTRecHitQuality(const ParameterSet& pset){
 
 
 // Destructor
-  DTRecHitQuality::~DTRecHitQuality(){
-    if(debug) 
-      cout << "[DTRecHitQuality] Destructor called" << endl;
-  }
+DTRecHitQuality::~DTRecHitQuality(){
+  if(debug) 
+    cout << "[DTRecHitQuality] Destructor called" << endl;
+}
 
 
 
@@ -181,81 +177,81 @@ void DTRecHitQuality::endJob() {
 }
 
 // The real analysis
-  void DTRecHitQuality::analyze(const Event & event, const EventSetup& eventSetup){
+void DTRecHitQuality::analyze(const Event & event, const EventSetup& eventSetup){
+  if(debug)
+    cout << "--- [DTRecHitQuality] Analysing Event: #Run: " << event.id().run()
+	 << " #Event: " << event.id().event() << endl;
+  theFile->cd();
+  // Get the DT Geometry
+  ESHandle<DTGeometry> dtGeom;
+  eventSetup.get<MuonGeometryRecord>().get(dtGeom);
+
+
+  // Get the SimHit collection from the event
+  Handle<PSimHitContainer> simHits;
+  event.getByLabel(simHitLabel, "MuonDTHits", simHits);
+
+  // Map simhits per wire
+  map<DTWireId, PSimHitContainer > simHitsPerWire =
+    DTHitQualityUtils::mapSimHitsPerWire(*(simHits.product()));
+
+ 
+
+
+  //=======================================================================================
+  // RecHit analysis at Step 1
+  if(doStep1) {
     if(debug)
-      cout << "--- [DTRecHitQuality] Analysing Event: #Run: " << event.id().run()
-        << " #Event: " << event.id().event() << endl;
-    theFile->cd();
-    // Get the DT Geometry
-    ESHandle<DTGeometry> dtGeom;
-    eventSetup.get<MuonGeometryRecord>().get(dtGeom);
+      cout << "  -- DTRecHit S1: begin analysis:" << endl;
+    // Get the rechit collection from the event
+    Handle<DTRecHitCollection> dtRecHits;
+    event.getByLabel(recHitLabel, dtRecHits);
+    
+    // Map rechits per wire
+    map<DTWireId,vector<DTRecHit1DPair> > recHitsPerWire = 
+      map1DRecHitsPerWire(dtRecHits.product());
 
-
-    // Get the SimHit collection from the event
-    Handle<PSimHitContainer> simHits;
-    event.getByLabel(simHitLabel, "MuonDTHits", simHits);
-
-    // Map simhits per wire
-    map<DTWireId, PSimHitContainer > simHitsPerWire =
-      DTHitQualityUtils::mapSimHitsPerWire(*(simHits.product()));
-
-
-
-
-    //=======================================================================================
-    // RecHit analysis at Step 1
-    if(doStep1) {
-      if(debug)
-        cout << "  -- DTRecHit S1: begin analysis:" << endl;
-      // Get the rechit collection from the event
-      Handle<DTRecHitCollection> dtRecHits;
-      event.getByLabel(recHitLabel, dtRecHits);
-
-      // Map rechits per wire
-      map<DTWireId,vector<DTRecHit1DPair> > recHitsPerWire = 
-        map1DRecHitsPerWire(dtRecHits.product());
-
-      compute(dtGeom.product(), simHitsPerWire, recHitsPerWire, 1);
-    }
-
-
-
-    //=======================================================================================
-    // RecHit analysis at Step 2
-    if(doStep2) {
-      if(debug)
-        cout << "  -- DTRecHit S2: begin analysis:" << endl;
-
-      // Get the 2D rechits from the event
-      Handle<DTRecSegment2DCollection> segment2Ds;
-      event.getByLabel(segment2DLabel, segment2Ds);
-
-      // Map rechits per wire
-      map<DTWireId,vector<DTRecHit1D> > recHitsPerWire = 
-        map1DRecHitsPerWire(segment2Ds.product());
-
-      compute(dtGeom.product(), simHitsPerWire, recHitsPerWire, 2);
-    }
-
-
-    //=======================================================================================
-    // RecHit analysis at Step 3
-    if(doStep3) {
-      if(debug)
-        cout << "  -- DTRecHit S3: begin analysis:" << endl;
-
-      // Get the 4D rechits from the event
-      Handle<DTRecSegment4DCollection> segment4Ds;
-      event.getByLabel(segment4DLabel, segment4Ds);
-
-      // Map rechits per wire
-      map<DTWireId,vector<DTRecHit1D> > recHitsPerWire = 
-        map1DRecHitsPerWire(segment4Ds.product());
-
-      compute(dtGeom.product(), simHitsPerWire, recHitsPerWire, 3);
-    }
-
+    compute(dtGeom.product(), simHitsPerWire, recHitsPerWire, 1);
   }
+
+  
+
+  //=======================================================================================
+  // RecHit analysis at Step 2
+  if(doStep2) {
+    if(debug)
+      cout << "  -- DTRecHit S2: begin analysis:" << endl;
+ 
+   // Get the 2D rechits from the event
+    Handle<DTRecSegment2DCollection> segment2Ds;
+    event.getByLabel(segment2DLabel, segment2Ds);
+
+    // Map rechits per wire
+    map<DTWireId,vector<DTRecHit1D> > recHitsPerWire = 
+      map1DRecHitsPerWire(segment2Ds.product());
+
+    compute(dtGeom.product(), simHitsPerWire, recHitsPerWire, 2);
+  }
+
+
+  //=======================================================================================
+  // RecHit analysis at Step 3
+  if(doStep3) {
+    if(debug)
+      cout << "  -- DTRecHit S3: begin analysis:" << endl;
+
+    // Get the 4D rechits from the event
+    Handle<DTRecSegment4DCollection> segment4Ds;
+    event.getByLabel(segment4DLabel, segment4Ds);
+
+    // Map rechits per wire
+    map<DTWireId,vector<DTRecHit1D> > recHitsPerWire = 
+      map1DRecHitsPerWire(segment4Ds.product());
+
+    compute(dtGeom.product(), simHitsPerWire, recHitsPerWire, 3);
+  }
+
+}
 
 
 
@@ -263,7 +259,7 @@ void DTRecHitQuality::endJob() {
 map<DTWireId, vector<DTRecHit1DPair> >
 DTRecHitQuality::map1DRecHitsPerWire(const DTRecHitCollection* dt1DRecHitPairs) {
   map<DTWireId, vector<DTRecHit1DPair> > ret;
-
+  
   for(DTRecHitCollection::const_iterator rechit = dt1DRecHitPairs->begin();
       rechit != dt1DRecHitPairs->end(); rechit++) {
     ret[(*rechit).wireId()].push_back(*rechit);
@@ -277,7 +273,7 @@ DTRecHitQuality::map1DRecHitsPerWire(const DTRecHitCollection* dt1DRecHitPairs) 
 map<DTWireId, vector<DTRecHit1D> >
 DTRecHitQuality::map1DRecHitsPerWire(const DTRecSegment2DCollection* segment2Ds) {
   map<DTWireId, vector<DTRecHit1D> > ret;
-
+  
   // Loop over all 2D segments
   for(DTRecSegment2DCollection::const_iterator segment = segment2Ds->begin();
       segment != segment2Ds->end();
@@ -285,8 +281,8 @@ DTRecHitQuality::map1DRecHitsPerWire(const DTRecSegment2DCollection* segment2Ds)
     vector<DTRecHit1D> component1DHits= (*segment).specificRecHits();
     // Loop over all component 1D hits
     for(vector<DTRecHit1D>::const_iterator hit = component1DHits.begin();
-        hit != component1DHits.end();
-        hit++) {
+	hit != component1DHits.end();
+	hit++) {
       ret[(*hit).wireId()].push_back(*hit);
     }
   }
@@ -298,35 +294,35 @@ DTRecHitQuality::map1DRecHitsPerWire(const DTRecSegment2DCollection* segment2Ds)
 // Return a map between DTRecHit1D at S3 and wireId
 map<DTWireId, std::vector<DTRecHit1D> >
 DTRecHitQuality::map1DRecHitsPerWire(const DTRecSegment4DCollection* segment4Ds) {
-  map<DTWireId, vector<DTRecHit1D> > ret;
-  // Loop over all 4D segments
-  for(DTRecSegment4DCollection::const_iterator segment = segment4Ds->begin();
-      segment != segment4Ds->end();
-      segment++) {
-    // Get component 2D segments
-    vector<const TrackingRecHit*> segment2Ds = (*segment).recHits();
-    // Loop over 2D segments:
-    for(vector<const TrackingRecHit*>::const_iterator segment2D = segment2Ds.begin();
-        segment2D != segment2Ds.end();
-        segment2D++) {
-      // Get 1D component rechits
-      vector<const TrackingRecHit*> hits = (*segment2D)->recHits();
-      // Loop over them
-      for(vector<const TrackingRecHit*>::const_iterator hit = hits.begin();
-          hit != hits.end(); hit++) {
-        const DTRecHit1D* hit1D = dynamic_cast<const DTRecHit1D*>(*hit);
-        ret[hit1D->wireId()].push_back(*hit1D);
-      }
-    }
-  }
+   map<DTWireId, vector<DTRecHit1D> > ret;
+   // Loop over all 4D segments
+   for(DTRecSegment4DCollection::const_iterator segment = segment4Ds->begin();
+       segment != segment4Ds->end();
+       segment++) {
+     // Get component 2D segments
+     vector<const TrackingRecHit*> segment2Ds = (*segment).recHits();
+     // Loop over 2D segments:
+     for(vector<const TrackingRecHit*>::const_iterator segment2D = segment2Ds.begin();
+      segment2D != segment2Ds.end();
+      segment2D++) {
+       // Get 1D component rechits
+       vector<const TrackingRecHit*> hits = (*segment2D)->recHits();
+       // Loop over them
+       for(vector<const TrackingRecHit*>::const_iterator hit = hits.begin();
+	   hit != hits.end(); hit++) {
+	 const DTRecHit1D* hit1D = dynamic_cast<const DTRecHit1D*>(*hit);
+	 ret[hit1D->wireId()].push_back(*hit1D);
+       }
+     }
+   }
 
-  return ret;
+   return ret;
 }
 
 // Compute SimHit distance from wire (cm)
 float DTRecHitQuality::simHitDistFromWire(const DTLayer* layer,
-                                          DTWireId wireId,
-                                          const PSimHit& hit) {
+					  DTWireId wireId,
+					  const PSimHit& hit) {
   float xwire = layer->specificTopology().wirePosition(wireId.wire());
   LocalPoint entryP = hit.entryPoint();
   LocalPoint exitP = hit.exitPoint();
@@ -336,34 +332,14 @@ float DTRecHitQuality::simHitDistFromWire(const DTLayer* layer,
   return fabs(xEntry - (entryP.z()*(xExit-xEntry))/(exitP.z()-entryP.z()));//FIXME: check...
 }
 
-// Compute SimHit impact angle (in direction perp to wire)
-float DTRecHitQuality::simHitImpactAngle(const DTLayer* layer,
-                                         DTWireId wireId,
-                                         const PSimHit& hit) {
-  LocalPoint entryP = hit.entryPoint();
-  LocalPoint exitP = hit.exitPoint();
-  float theta=(exitP.x()-entryP.x())/(exitP.z()-entryP.z());
-  return atan(theta);
-}
-
-// Compute SimHit distance from FrontEnd
-float DTRecHitQuality::simHitDistFromFE(const DTLayer* layer,
-                                        DTWireId wireId,
-                                        const PSimHit& hit) {
-  LocalPoint entryP = hit.entryPoint();
-  LocalPoint exitP = hit.exitPoint();
-  float wireLenght=layer->specificTopology().cellLenght();
-  return (entryP.y()+exitP.y())/2.+wireLenght;
-}
-
 
 // Find the RecHit closest to the muon SimHit
 template  <typename type>
 const type* 
 DTRecHitQuality::findBestRecHit(const DTLayer* layer,
-                                DTWireId wireId,
-                                const vector<type>& recHits,
-                                const float simHitDist) {
+				DTWireId wireId,
+				const vector<type>& recHits,
+				const float simHitDist) {
   float res = 99999;
   const type* theBestRecHit = 0;
   // Loop over RecHits within the cell
@@ -386,7 +362,7 @@ float
 DTRecHitQuality::recHitDistFromWire(const DTRecHit1DPair& hitPair, const DTLayer* layer) {
   // Compute the rechit distance from wire
   return fabs(hitPair.localPosition(DTEnums::Left).x() -
-              hitPair.localPosition(DTEnums::Right).x())/2.;
+	      hitPair.localPosition(DTEnums::Right).x())/2.;
 }
 
 
@@ -400,9 +376,9 @@ DTRecHitQuality::recHitDistFromWire(const DTRecHit1D& recHit, const DTLayer* lay
 
 template  <typename type>
 void DTRecHitQuality::compute(const DTGeometry *dtGeom,
-                              std::map<DTWireId, std::vector<PSimHit> > simHitsPerWire,
-                              std::map<DTWireId, std::vector<type> > recHitsPerWire,
-                              int step) {
+			      std::map<DTWireId, std::vector<PSimHit> > simHitsPerWire,
+			      std::map<DTWireId, std::vector<type> > recHitsPerWire,
+			      int step) {
   // Loop over cells with a muon SimHit
   for(map<DTWireId, vector<PSimHit> >::const_iterator wireAndSHits = simHitsPerWire.begin();
       wireAndSHits != simHitsPerWire.end();
@@ -417,7 +393,7 @@ void DTRecHitQuality::compute(const DTGeometry *dtGeom,
     const PSimHit* muSimHit = DTHitQualityUtils::findMuSimHit(simHitsInCell);
     if (muSimHit==0) {
       if (debug) 
-        cout << "   No mu SimHit in channel: " << wireId << ", skipping! " << endl;
+	cout << "   No mu SimHit in channel: " << wireId << ", skipping! " << endl;
       continue; // Skip this cell
     }
 
@@ -425,42 +401,33 @@ void DTRecHitQuality::compute(const DTGeometry *dtGeom,
     float simHitWireDist = simHitDistFromWire(layer, wireId, *muSimHit);
     // Skip simhits out of the cell
     if(simHitWireDist>2.1) {
-      if(debug) 
-        cout << "  [DTRecHitQuality]###Warning: The mu SimHit in out of the cell, skipping!" << endl;
+      cout << "  [DTRecHitQuality]###Warning: The mu SimHit in out of the cell, skipping!" << endl;
       continue; // Skip this cell
     }
     GlobalPoint simHitGlobalPos = layer->toGlobal(muSimHit->localPosition());
-
-    // find SH impact angle
-    float simHitTheta = simHitImpactAngle(layer, wireId, *muSimHit);
-
-    // find SH distance from FE
-    float simHitFEDist = simHitDistFromFE(layer, wireId, *muSimHit);
-
+      
     bool recHitReconstructed = false;
 
     // Look for RecHits in the same cell
     if(recHitsPerWire.find(wireId) == recHitsPerWire.end()) {
       // No RecHit found in this cell
       if(debug)
-        cout << "   No RecHit found at Step: " << step << " in cell: " << wireId << endl;
+	cout << "   No RecHit found at Step: " << step << " in cell: " << wireId << endl;
     } else {
       recHitReconstructed = true;
       // vector<type> recHits = (*wireAndRecHits).second;
       vector<type> recHits = recHitsPerWire[wireId];
       if(debug)
-        cout << "   " << recHits.size() << " RecHits, Step " << step << " in channel: " << wireId << endl;
-
+	cout << "   " << recHits.size() << " RecHits, Step " << step << " in channel: " << wireId << endl;
+	 
       // Find the best RecHit
       const type* theBestRecHit = findBestRecHit(layer, wireId, recHits, simHitWireDist);
 
-
+	 
       float recHitWireDist =  recHitDistFromWire(*theBestRecHit, layer);
       if(debug)
-        cout << "    SimHit distance from wire: " << simHitWireDist << endl
-          << "    SimHit distance from FE: " << simHitFEDist << endl
-          << "    SimHit distance angle " << simHitTheta << endl
-          << "    RecHit distance from wire: " << recHitWireDist << endl;
+	cout << "    SimHit distance from wire: " << simHitWireDist << endl
+	     << "    RecHit distance from wire: " << recHitWireDist << endl;
       float recHitErr = recHitPositionError(*theBestRecHit);
 
       HRes1DHit *hRes = 0;
@@ -469,101 +436,100 @@ void DTRecHitQuality::compute(const DTGeometry *dtGeom,
       // Fill residuals and pulls
       // Select the histo to be filled
       if(step == 1) {
-        // Step 1
-        if(wireId.superLayer() != 2) {
-          hRes = hRes_S1RPhi;
-        } else {
-          hResTot = hRes_S1RZ;
-          if(wireId.wheel() == 0)
-            hRes = hRes_S1RZ_W0;
-          if(abs(wireId.wheel()) == 1)
-            hRes = hRes_S1RZ_W1;
-          if(abs(wireId.wheel()) == 2)
-            hRes = hRes_S1RZ_W2;
-        }
+	// Step 1
+	if(wireId.superLayer() != 2) {
+	  hRes = hRes_S1RPhi;
+	} else {
+	  hResTot = hRes_S1RZ;
+	  if(wireId.wheel() == 0)
+	    hRes = hRes_S1RZ_W0;
+	  if(abs(wireId.wheel()) == 1)
+	    hRes = hRes_S1RZ_W1;
+	  if(abs(wireId.wheel()) == 2)
+	    hRes = hRes_S1RZ_W2;
+	}
 
       } else if(step == 2) {
-        // Step 2
-        if(wireId.superlayer() != 2) {
-          hRes = hRes_S2RPhi;
-        } else {
-          hResTot = hRes_S2RZ;
-          if(wireId.wheel() == 0)
-            hRes = hRes_S2RZ_W0;
-          if(abs(wireId.wheel()) == 1)
-            hRes = hRes_S2RZ_W1;
-          if(abs(wireId.wheel()) == 2)
-            hRes = hRes_S2RZ_W2;
-        }
+	// Step 2
+	if(wireId.superlayer() != 2) {
+	  hRes = hRes_S2RPhi;
+	} else {
+	  hResTot = hRes_S2RZ;
+	  if(wireId.wheel() == 0)
+	    hRes = hRes_S2RZ_W0;
+	  if(abs(wireId.wheel()) == 1)
+	    hRes = hRes_S2RZ_W1;
+	  if(abs(wireId.wheel()) == 2)
+	    hRes = hRes_S2RZ_W2;
+	}
 
       } else if(step == 3) {
-        // Step 3
-        if(wireId.superlayer() != 2) {
-          hRes = hRes_S3RPhi;
-        } else {
-          hResTot = hRes_S3RZ;
-          if(wireId.wheel() == 0)
-            hRes = hRes_S3RZ_W0;
-          if(abs(wireId.wheel()) == 1)
-            hRes = hRes_S3RZ_W1;
-          if(abs(wireId.wheel()) == 2)
-            hRes = hRes_S3RZ_W2;
-        }
+	// Step 3
+	if(wireId.superlayer() != 2) {
+	  hRes = hRes_S3RPhi;
+	} else {
+	  hResTot = hRes_S3RZ;
+	  if(wireId.wheel() == 0)
+	    hRes = hRes_S3RZ_W0;
+	  if(abs(wireId.wheel()) == 1)
+	    hRes = hRes_S3RZ_W1;
+	  if(abs(wireId.wheel()) == 2)
+	    hRes = hRes_S3RZ_W2;
+	}
 
       }
       // Fill
-      hRes->Fill(simHitWireDist, simHitTheta, simHitFEDist, recHitWireDist, simHitGlobalPos.eta(),
-                 simHitGlobalPos.phi(),recHitErr);
+      hRes->Fill(simHitWireDist, recHitWireDist, simHitGlobalPos.eta(),
+		 simHitGlobalPos.phi(),recHitErr);
       if(hResTot != 0)
-        hResTot->Fill(simHitWireDist, simHitTheta, simHitFEDist, recHitWireDist, simHitGlobalPos.eta(),
-                      simHitGlobalPos.phi(),recHitErr);
-
+	hResTot->Fill(simHitWireDist, recHitWireDist, simHitGlobalPos.eta(),
+		      simHitGlobalPos.phi(),recHitErr);
     }
 
     // Fill Efficiencies
     HEff1DHit *hEff = 0;
     HEff1DHit *hEffTot = 0;
-
+    
     if(step == 1) {
       // Step 1
       if(wireId.superlayer() != 2) {
-        hEff = hEff_S1RPhi;
+	hEff = hEff_S1RPhi;
       } else {
-        hEffTot = hEff_S1RZ;
-        if(wireId.wheel() == 0)
-          hEff = hEff_S1RZ_W0;
-        if(abs(wireId.wheel()) == 1)
-          hEff = hEff_S1RZ_W1;
-        if(abs(wireId.wheel()) == 2)
-          hEff = hEff_S1RZ_W2;
+	hEffTot = hEff_S1RZ;
+	if(wireId.wheel() == 0)
+	  hEff = hEff_S1RZ_W0;
+	if(abs(wireId.wheel()) == 1)
+	  hEff = hEff_S1RZ_W1;
+	if(abs(wireId.wheel()) == 2)
+	  hEff = hEff_S1RZ_W2;
       }
 
     } else if(step == 2) {
       // Step 2
       if(wireId.superlayer() != 2) {
-        hEff = hEff_S2RPhi;
+	hEff = hEff_S2RPhi;
       } else {
-        hEffTot = hEff_S2RZ;
-        if(wireId.wheel() == 0)
-          hEff = hEff_S2RZ_W0;
-        if(abs(wireId.wheel()) == 1)
-          hEff = hEff_S2RZ_W1;
-        if(abs(wireId.wheel()) == 2)
-          hEff = hEff_S2RZ_W2;
+	hEffTot = hEff_S2RZ;
+	if(wireId.wheel() == 0)
+	  hEff = hEff_S2RZ_W0;
+	if(abs(wireId.wheel()) == 1)
+	  hEff = hEff_S2RZ_W1;
+	if(abs(wireId.wheel()) == 2)
+	  hEff = hEff_S2RZ_W2;
       }
 
     } else if(step == 3) {
       // Step 3
       if(wireId.superlayer() != 2) {
-        hEff = hEff_S3RPhi;
+	hEff = hEff_S3RPhi;
       } else {
-        hEffTot = hEff_S3RZ;
-        if(wireId.wheel() == 0)
-          hEff = hEff_S3RZ_W0;
-        if(abs(wireId.wheel()) == 1)
-          hEff = hEff_S3RZ_W1;
-        if(abs(wireId.wheel()) == 2)
-          hEff = hEff_S3RZ_W2;
+	hEffTot = hEff_S3RZ;
+	if(wireId.wheel() == 0)
+	  hEff = hEff_S3RZ_W0;
+	if(abs(wireId.wheel()) == 1)
+	  hEff = hEff_S3RZ_W1;
+	if(abs(wireId.wheel()) == 2)
+	  hEff = hEff_S3RZ_W2;
       }
 
     }
@@ -572,6 +538,7 @@ void DTRecHitQuality::compute(const DTGeometry *dtGeom,
     if(hEffTot != 0)
       hEffTot->Fill(simHitWireDist, simHitGlobalPos.eta(), simHitGlobalPos.phi(), recHitReconstructed);
   }
+
 }
 
 // Return the error on the measured (cm) coordinate

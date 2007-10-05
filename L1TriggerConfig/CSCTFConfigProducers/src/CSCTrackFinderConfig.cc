@@ -95,16 +95,18 @@ void CSCTFConfigProducer::readLUT(std::string path, unsigned short* lut, unsigne
 		std::ifstream file(path.c_str(), std::ios::binary);
 		file.read((char*)lut,length*sizeof(unsigned short));
 		if( file.fail() )
-			throw cms::Exception("Reading error")<<"CSCTFConfigProducer cannot read "<<length<<" words from "<<path<<" (errno="<<errno<<")";
+			throw cms::Exception("Reading error")<<"CSCTFConfigProducer cannot read "<<length<<" words from "<<path<<" (errno="<<errno<<")"<<std::endl;
 		if( (unsigned int)file.gcount() != length*sizeof(unsigned short) )
-			throw cms::Exception("Incorrect LUT size")<<"CSCTFConfigProducer read "<<(file.gcount()/sizeof(unsigned short))<<" words from "<<path<<" instead of "<<length<<" (errno="<<errno<<")";
+			throw cms::Exception("Incorrect LUT size")<<"CSCTFConfigProducer read "<<(file.gcount()/sizeof(unsigned short))<<" words from "<<path<<" instead of "<<length<<" (errno="<<errno<<")"<<std::endl;
 		file.close();
 	} else {
 		std::ifstream file(path.c_str());
+		if( file.fail() )
+			throw cms::Exception("Cannot open file")<<"CSCTFConfigProducer cannot open "<<path<<" (errno="<<errno<<")"<<std::endl;
 		unsigned int address=0;
 		for(address=0; !file.eof() && address<length; address++)
 			file >> lut[address]; // Warning: this may throw non-cms like exception
-		if( address!=length ) throw cms::Exception("Incorrect LUT size")<<"CSCTFConfigProducer read "<<address<<" words from "<<path<<" instead of "<<length;
+		if( address!=length ) throw cms::Exception("Incorrect LUT size")<<"CSCTFConfigProducer read "<<address<<" words from "<<path<<" instead of "<<length<<std::endl;
 		file.close();
 	}
 	LogDebug("CSCTFConfigProducer::readLUT")<<" read from "<<path<<" "<<length<<" words"<<std::endl;

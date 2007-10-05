@@ -35,6 +35,11 @@ class MuonDTSeedFromRecHits : public MuonSeedFromRecHits
   void computePtWithoutVtx(double* pt, double* spt) const;
   void computeBestPt(double* pt, double* spt, float& ptmean, float& sptmean) const;
 
+  // picks the segment that's nearest in eta to the most other segments
+  float bestEta() const;
+  void computeMean(const double* pt, const double * weights, int sz,
+                   bool tossOutlyers, float& ptmean, float & sptmean) const;
+
 };
 
 #endif

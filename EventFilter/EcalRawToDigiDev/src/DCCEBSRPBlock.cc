@@ -4,8 +4,6 @@
 #include "EventFilter/EcalRawToDigiDev/interface/DCCEventBlock.h"
 #include "EventFilter/EcalRawToDigiDev/interface/DCCDataUnpacker.h"
 #include "EventFilter/EcalRawToDigiDev/interface/DCCEventBlock.h"
-#include "EventFilter/EcalRawToDigiDev/interface/ECALUnpackerException.h"
-
 #include "EventFilter/EcalRawToDigiDev/interface/EcalElectronicsMapper.h"
 
 
@@ -52,21 +50,19 @@ void DCCEBSRPBlock::addSRFlagToCollection(){
 
 
 
-void DCCEBSRPBlock::checkSrpIdAndNumbSRFlags(){
+bool DCCEBSRPBlock::checkSrpIdAndNumbSRFlags(){
 
    //todo : check srp id based on sm...
 
-
   // Check number of SR flags
   if( nSRFlags_ != expNumbSrFlags_ ){
-    std::ostringstream output;
-    output<<"EcalRawToDigi@SUB=DCCSRPBlock::unpack"
+    edm::LogWarning("EcalRawToDigi@SUB=DCCSRPBlock::unpack")
       <<"\nUnable to unpack SRP block for event "<<event_->l1A()<<" in dcc <<"<<mapper_->getActiveDCC()
       <<"\nNumber of flags "<<nSRFlags_<<" is different from expected "<<expNumbSrFlags_;
     //Note : add to error collection ?		 
-    throw ECALUnpackerException(output.str());
+    return false;
   }
-
+  return true;
 
 } 
 

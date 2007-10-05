@@ -1,8 +1,8 @@
 /*
  * \file EBBeamHodoTask.cc
  *
- * $Date: 2007/05/11 15:05:05 $
- * $Revision: 1.38 $
+ * $Date: 2007/05/14 11:46:44 $
+ * $Revision: 1.39 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -267,9 +267,9 @@ void EBBeamHodoTask::endJob(void){
 
 void EBBeamHodoTask::analyze(const Event& e, const EventSetup& c){
 
+  Numbers::initGeometry(c);
+
   bool enable = false;
-
-
   Handle<EcalTBEventHeader> pHeader;
   const EcalTBEventHeader * Header =0;
   try{

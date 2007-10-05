@@ -36,6 +36,7 @@ public:
   void setRawsum(uint16_t rawsum) { m_rawsum = rawsum; }
   void setDetId(L1CaloRegionDetId detId) { m_id = detId; }
   void setTauVeto(bool tauVeto) { m_tauVeto = tauVeto; }
+  void setForward(bool forward) { m_forwardJet = forward; }
   
   // get rawsum and position bits
   uint16_t rawsum()const { return m_rawsum; }

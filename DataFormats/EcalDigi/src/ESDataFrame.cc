@@ -13,7 +13,7 @@ ESDataFrame::ESDataFrame(const ESDetId& id) :
 {
 }
 
-void ESDataFrame::setSize(int size) {
+void ESDataFrame::setSize(const int& size) {
   if (size > MAXSAMPLES) size_ = MAXSAMPLES;
   else if (size <= 0) size_=0;
   else size_ = size;

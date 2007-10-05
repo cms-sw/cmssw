@@ -2,6 +2,8 @@
 #include <iostream>
 
 #include "IOPool/Streamer/test/StreamThingAnalyzer.h"
+#include "FWCore/Framework/interface/Selector.h" 
+#include "FWCore/ParameterSet/interface/ParameterSet.h" 
 
 #if 1
 #include "DataFormats/TestObjects/interface/StreamTestThing.h"

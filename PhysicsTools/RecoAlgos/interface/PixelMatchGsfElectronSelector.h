@@ -7,9 +7,9 @@
  * 
  * \author Luca Lista, INFN
  *
- * \version $Revision: 1.8 $
+ * \version $Revision: 1.1 $
  *
- * $Id: PixelMatchGsfElectronSelector.h,v 1.8 2006/12/07 11:28:31 llista Exp $
+ * $Id: PixelMatchGsfElectronSelector.h,v 1.1 2007/06/14 09:28:27 meridian Exp $
  *
  */
 
@@ -54,7 +54,8 @@ namespace helper {
 	  selTrackExtras_->push_back( TrackExtra( trk.outerPosition(), trk.outerMomentum(), trk.outerOk(),
 						  trk.innerPosition(), trk.innerMomentum(), trk.innerOk(),
 						  trk.outerStateCovariance(), trk.outerDetId(),
-						  trk.innerStateCovariance(), trk.innerDetId() ) );
+						  trk.innerStateCovariance(), trk.innerDetId(),
+						  trk.seedDirection() ) );
 	  selGsfTrackExtras_->push_back( GsfTrackExtra( *(trk.gsfExtra()) ) );
   	  TrackExtra & tx = selTrackExtras_->back();
 	  for( trackingRecHit_iterator hit = trk.recHitsBegin(); hit != trk.recHitsEnd(); ++ hit ) {

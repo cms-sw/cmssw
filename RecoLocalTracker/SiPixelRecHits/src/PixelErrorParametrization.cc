@@ -7,6 +7,8 @@
 //                                               from ../data/residuals.dat produced by CalibTracker/SiPixelErrorEstimation
 //                                             - boolean switch "UseNewParametrization" in ../data/PixelCPEParmError.cfi 
 //                                               decides between new or old error parameterization  
+//                                    07/31/07 - replace range boundary from "<" to "<=" for safety
+//                                             - remove cout and assert statements 
 
 #include "RecoLocalTracker/SiPixelRecHits/interface/PixelErrorParametrization.h"
 
@@ -65,9 +67,8 @@ PixelErrorParametrization::PixelErrorParametrization(edm::ParameterSet const& co
     {
       if (verbose)
 	{
-	  cout << endl;
-	  cout << "-------------------- Will do OLD pixel hit error parameterization !!! --------------------------------- " << endl;
-	  cout << endl;
+	  LogDebug ("PixelErrorParametrization::PixelErrorParametrization") 
+	    << " Using OLD pixel hit error parameterization !!!" ;
 	}
       
       ////////////////////////////////////////////////////////
@@ -144,9 +145,8 @@ PixelErrorParametrization::PixelErrorParametrization(edm::ParameterSet const& co
     {
       if (verbose)
 	{
-	  cout << endl;
-	  cout << "-------------------- Will do NEW pixel hit error parameterization !!! --------------------------------- " << endl;
-	  cout << endl;
+	  LogDebug ("PixelErrorParametrization::PixelErrorParametrization") 
+	    << " Using NEW pixel hit error parameterization !!!" ;
 	}
       
       a_min = 1.37078;
@@ -202,13 +202,15 @@ PixelErrorParametrization::PixelErrorParametrization(edm::ParameterSet const& co
 	  if ( useSigma )
 	    {
 	      if (verbose)
-		cout << "-------------------------- Use    error = sigma     ------------------------- " << endl; 
+		LogDebug ("PixelErrorParametrization::PixelErrorParametrization") 
+		  << " Use error = Gaussian sigma" ;
 	      error = sigma;
 	    }
 	  else 
 	    {
 	      if (verbose)
-		cout << "-------------------------- Use    error = rms     ------------------------- " << endl; 
+		LogDebug ("PixelErrorParametrization::PixelErrorParametrization") 
+		  << " Use error = RMS" ;
 	      error = rms;
 	    }
 		  
@@ -222,43 +224,40 @@ PixelErrorParametrization::PixelErrorParametrization(edm::ParameterSet const& co
 	    vec_error_XF.push_back( error );
 	  else 
 	    {
-	      cout << " PixelErrorParametrization::PixelErrorParametrization: Wrong ID !!!" << endl;
-	      assert(0);
+	      throw cms::Exception("PixelErrorParametrization::PixelErrorParametrization")
+		<< " Wrong ID !!!";
 	    }
 	}
       
       int n_entries_yb = 240; // number of Y barrel constants to be read from the residuals.dat file
       if ( (int)vec_error_YB.size() != n_entries_yb )
 	{
-	  cout << " PixelErrorParametrization::PixelErrorParametrization: " << endl;
-	  cout << " Number of Y barrel constants read different than expected !!!" << endl;
-	  cout << " Expected " << n_entries_yb << " and found " << (int)vec_error_YB.size() <<  endl;
-	  assert(0);
+	  throw cms::Exception(" PixelErrorParametrization::PixelErrorParametrization: ") 
+	    << " Number of Y barrel constants read different than expected !!!" 
+	    << " Expected " << n_entries_yb << " and found " << (int)vec_error_YB.size();
 	}
       int n_entries_xb = 120; // number of X barrel constants to be read from the residuals.dat file
       if ( (int)vec_error_XB.size() != n_entries_xb )
 	{
-	  cout << " PixelErrorParametrization::PixelErrorParametrization: " << endl;
-	  cout << " Number of X barrel constants read different than expected !!!" << endl;
-	  cout << " Expected " << n_entries_xb << " and found " << (int)vec_error_XB.size() <<  endl;
-	  assert(0);
+	  throw cms::Exception(" PixelErrorParametrization::PixelErrorParametrization: ")
+	    << " Number of X barrel constants read different than expected !!!"
+	    << " Expected " << n_entries_xb << " and found " << (int)vec_error_XB.size();
 	}
       int n_entries_yf = 20; // number of Y forward constants to be read from the residuals.dat file
       if ( (int)vec_error_YF.size() != n_entries_yf )
 	{
-	  cout << " PixelErrorParametrization::PixelErrorParametrization: " << endl;
-	  cout << " Number of Y forward constants read different than expected !!!" << endl;
-	  cout << " Expected " << n_entries_yf << " and found " << (int)vec_error_YF.size() <<  endl;
-	  assert(0);
+	  throw cms::Exception(" PixelErrorParametrization::PixelErrorParametrization: ")
+	    << " Number of Y forward constants read different than expected !!!"
+	    << " Expected " << n_entries_yf << " and found " << (int)vec_error_YF.size();
 	}
       int n_entries_xf = 20; // number of X barrel constants to be read from the residuals.dat file
       if ( (int)vec_error_XF.size() != n_entries_xf )
 	{
-	  cout << " PixelErrorParametrization::PixelErrorParametrization: " << endl;
-	  cout << " Number of X forward constants read different than expected !!!" << endl;
-	  cout << " Expected " << n_entries_xf << " and found " << (int)vec_error_XF.size() <<  endl;
-	  assert(0);
+	  throw cms::Exception(" PixelErrorParametrization::PixelErrorParametrization: ")
+	    << " Number of X forward constants read different than expected !!!"
+	    << " Expected " << n_entries_xf << " and found " << (int)vec_error_XF.size();
 	}
+  
     }
   
 }
@@ -305,10 +304,8 @@ PixelErrorParametrization::getError( GeomDetType::SubDetector pixelPart,
 				   error_YF(sizey, alpha, beta, bigInY));
       break;
     default:
-      LogDebug ("PixelErrorParametrization::getError") 
-	<< "PixelErrorParametrization:: a non-pixel detector type in here?" ;
-      //  &&& Should throw an exception here!
-      assert(0);
+      throw cms::Exception("PixelErrorParametrization::getError") 
+	<< "Non-pixel detector type !!!" ;
     }
   
   LogDebug ("PixelErrorParametrization::getError") << " ErrorMatrix gives error: " 
@@ -343,15 +340,17 @@ float PixelErrorParametrization::error_XB(int sizex, float alpha, float beta, bo
     {
       float error_xb = -999.9;
       
-      if ( verbose )
+      /*
+	if ( verbose )
 	{
-	  cout << " ---------- 2 ) error_XB: " << endl;
-	  cout << " sizex = "  << sizex  << endl;
-	  cout << " alpha = "  << alpha  << endl;
-	  cout << " beta  = "  << beta   << endl;
-	  cout << " bigInX = " << bigInX << endl;
+	cout << " ---------- 2 ) error_XB: " << endl;
+	cout << " sizex = "  << sizex  << endl;
+	cout << " alpha = "  << alpha  << endl;
+	cout << " beta  = "  << beta   << endl;
+	cout << " bigInX = " << bigInX << endl;
 	}
-      
+      */
+
       if ( bigInX && sizex == 1 )
 	{
 	  //error_xb = pitch_x/sqrt(12.0);
@@ -376,38 +375,38 @@ float PixelErrorParametrization::error_XB(int sizex, float alpha, float beta, bo
 	  else if ( 1.2 <= betap_rad                     ) ind_beta = 3;
 	  else 
 	    {
-	      cout << " Wrong betap_rad = " << betap_rad << " !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! " << endl;
-	      assert(0);
+	      throw cms::Exception("PixelErrorParametrization::error_XB") << " Wrong betap_rad = " << betap_rad;
 	    }
 
 	  if      ( alpha_rad <= aa_min[ind_sizex] ) ind_alpha = 0;
 	  else if ( alpha_rad >= aa_max[ind_sizex] ) ind_alpha = 9;
 	  else
 	    ind_alpha = (int) ( ( alpha_rad - aa_min[ind_sizex] ) / ( ( aa_max[ind_sizex] - aa_min[ind_sizex] ) / 10.0 ) );  
-	  
-	  if ( verbose )
+
+	  /*
+	    if ( verbose )
 	    {
-	      cout << "ind_sizex = " << ind_sizex << endl;
-	      cout << "ind_alpha = " << ind_alpha << endl;
-	      cout << "ind_beta  = " << ind_beta  << endl;
+	    cout << "ind_sizex = " << ind_sizex << endl;
+	    cout << "ind_alpha = " << ind_alpha << endl;
+	    cout << "ind_beta  = " << ind_beta  << endl;
 	    }
-	  
+	  */
+
 	  // There are 4 beta bins with 10 alpha bins  for each sizex
 	  int index = 40*ind_sizex + 10*ind_beta + ind_alpha;
 	  
 	  if ( index < 0 || index >= 120  )
 	    {
-	      cout << " Wrong index !!!" << endl;
-	      assert(0);
+	      throw cms::Exception(" PixelErrorParametrization::error_XB") << " Wrong index !!!";
 	    }
 	  
 	  error_xb = vec_error_XB[index];
 	  
 	}
       
-      if ( verbose )
-	cout << "error_xb = " << error_xb << endl;
-      
+      //if ( verbose )
+      //cout << "error_xb = " << error_xb << endl;
+	
       return error_xb;
     }
   
@@ -442,15 +441,17 @@ float PixelErrorParametrization::error_XF(int sizex, float alpha, float beta, bo
     {
       float error_xf = -999.9;
       
-      if ( verbose )
+      /*
+	if ( verbose )
 	{
-	  cout << " ---------- 4 ) error_XF:" << endl;
-	  cout << " sizex = "  << sizex  << endl;
-	  cout << " alpha = "  << alpha  << endl;
-	  cout << " beta  = "  << beta   << endl;
-	  cout << " bigInX = " << bigInX << endl;
+	cout << " ---------- 4 ) error_XF:" << endl;
+	cout << " sizex = "  << sizex  << endl;
+	cout << " alpha = "  << alpha  << endl;
+	cout << " beta  = "  << beta   << endl;
+	cout << " bigInX = " << bigInX << endl;
 	}
-      
+      */
+
       if ( bigInX && sizex == 1 )
 	{
 	  //error_xf = pitch_x/sqrt(12.0);
@@ -470,39 +471,40 @@ float PixelErrorParametrization::error_XF(int sizex, float alpha, float beta, bo
 	  
 	  if ( sizex == 1 )
 	    {
-	      if      ( alphap_rad < 0.15 ) ind_alpha = 0;
-	      else if ( alphap_rad > 0.30 ) ind_alpha = 9;
+	      if      ( alphap_rad <= 0.15 ) ind_alpha = 0;
+	      else if ( alphap_rad >= 0.30 ) ind_alpha = 9;
 	      else 
 		ind_alpha = (int) ( ( alphap_rad - 0.15 ) / ( ( 0.30 - 0.15 ) / 10.0 ) );  
 	    }
 	  if ( sizex > 1 )
 	    {
-	      if      ( alphap_rad < 0.15 ) ind_alpha = 0;
-	      else if ( alphap_rad > 0.50 ) ind_alpha = 9;
+	      if      ( alphap_rad <= 0.15 ) ind_alpha = 0;
+	      else if ( alphap_rad >= 0.50 ) ind_alpha = 9;
 	      else 
 		ind_alpha = (int) ( ( alphap_rad - 0.15 ) / ( ( 0.50 - 0.15 ) / 10.0 ) );  
 	    }
 	  
-	  if ( verbose )
+	  /*
+	    if ( verbose )
 	    {
-	      cout << "ind_sizex = " << ind_sizex << endl;
-	      cout << "ind_alpha = " << ind_alpha << endl;
+	    cout << "ind_sizex = " << ind_sizex << endl;
+	    cout << "ind_alpha = " << ind_alpha << endl;
 	    }
-	  
+	  */
+
 	  int index = 10*ind_sizex + ind_alpha;
 	  
 	  if ( index < 0 || index >= 20  )
 	    {
-	      cout << " Wrong index !!!" << endl;
-	      assert(0);
+	      throw cms::Exception(" PixelErrorParametrization::error_XF") << " Wrong index !!!";
 	    }
 	  
 	  error_xf = vec_error_XF[index];
 	  
 	}
       
-      if ( verbose )
-	cout << "error_xf = " << error_xf << endl;
+      //if ( verbose )
+      //cout << "error_xf = " << error_xf << endl;
       
       return error_xf;
     }
@@ -582,15 +584,17 @@ float PixelErrorParametrization::error_YB(int sizey, float alpha, float beta, bo
     {
       float error_yb = -999.9;
       
-      if ( verbose )
+      /*
+	if ( verbose )
 	{
-	  cout << " ---------- 1 ) error_YB:" << endl;
-	  cout << " sizey = "  << sizey  << endl;
-	  cout << " alpha = "  << alpha  << endl;
-	  cout << " beta  = "  << beta   << endl;
-	  cout << " bigInY = " << bigInY << endl; 
+	cout << " ---------- 1 ) error_YB:" << endl;
+	cout << " sizey = "  << sizey  << endl;
+	cout << " alpha = "  << alpha  << endl;
+	cout << " beta  = "  << beta   << endl;
+	cout << " bigInY = " << bigInY << endl; 
 	}
-      
+      */
+
       if ( bigInY && sizey == 1 )
 	{
 	  //error_yb = pitch_y/sqrt(12.0);
@@ -619,8 +623,8 @@ float PixelErrorParametrization::error_YB(int sizey, float alpha, float beta, bo
 	    }		
 	  else
 	    {
-	      cout << " Wrong alpha_rad = " << alpha_rad << endl << endl;
-	      assert(0);
+	      throw cms::Exception(" PixelErrorParametrization::error_YB") << " Wrong alpha_rad = " << alpha_rad;
+	      
 	    }
 
 	  if      ( betap_rad <= ys_bl[sizey-1] ) ind_beta = 0;
@@ -633,31 +637,31 @@ float PixelErrorParametrization::error_YB(int sizey, float alpha, float beta, bo
 	    }		
 	  else 
 	    {
-	      cout << " Wrong betap_rad = " << betap_rad << endl << endl;
-	      assert(0);
+	      throw cms::Exception(" PixelErrorParametrization::error_YB") << " Wrong betap_rad = " << betap_rad;
 	    }
 
-	  if ( verbose )
+	  /*
+	    if ( verbose )
 	    {
-	      cout << "ind_sizey = " << ind_sizey << endl;
-	      cout << "ind_alpha = " << ind_alpha << endl;
-	      cout << "ind_beta  = " << ind_beta  << endl;
+	    cout << "ind_sizey = " << ind_sizey << endl;
+	    cout << "ind_alpha = " << ind_alpha << endl;
+	    cout << "ind_beta  = " << ind_beta  << endl;
 	    }
-	  
+	  */
+
 	  int index = 40*ind_sizey + 10*ind_alpha + ind_beta;
 	  
 	  if ( index < 0 || index >= 240  )
 	    {
-	      cout << " Wrong index !!!" << endl;
-	      assert(0);
+	      throw cms::Exception(" PixelErrorParametrization::error_YB") << " Wrong index !!!";
 	    }
 	  
 	  error_yb = vec_error_YB[index];
 	  
 	}
       
-      if ( verbose )
-	cout << "error_yb = " << error_yb << endl;
+      //if ( verbose )
+      //cout << "error_yb = " << error_yb << endl;
       
       return error_yb; 
     }
@@ -700,15 +704,17 @@ float PixelErrorParametrization::error_YF(int sizey, float alpha, float beta, bo
     {
       float error_yf = -999.9;
       
-      if ( verbose )
+      /*
+	if ( verbose )
 	{
-	  cout << " ---------- 3 ) error_YF:" << endl;
-	  cout << " sizey = "  << sizey  << endl;
-	  cout << " alpha = "  << alpha  << endl;
-	  cout << " beta  = "  << beta   << endl;
-	  cout << " bigInY = " << bigInY << endl;
+	cout << " ---------- 3 ) error_YF:" << endl;
+	cout << " sizey = "  << sizey  << endl;
+	cout << " alpha = "  << alpha  << endl;
+	cout << " beta  = "  << beta   << endl;
+	cout << " bigInY = " << bigInY << endl;
 	}
-      
+      */
+
       if ( bigInY && sizey == 1 )
 	{
 	  //error_yf = pitch_y/sqrt(12.0);
@@ -726,31 +732,32 @@ float PixelErrorParametrization::error_YF(int sizey, float alpha, float beta, bo
 	  int ind_sizey = sizey - 1;
 	  int ind_beta  = -9999; 
 	  
-	  if      ( betap_rad < 0.3 ) ind_beta = 0;
-	  else if ( betap_rad > 0.4 ) ind_beta = 9;
+	  if      ( betap_rad <= 0.3 ) ind_beta = 0;
+	  else if ( betap_rad >= 0.4 ) ind_beta = 9;
 	  else 
 	    ind_beta = (int) ( ( betap_rad - 0.3 ) / ( ( 0.4 - 0.3 ) / 10.0 ) );  
 	  
-	  if ( verbose )
+	  /*
+	    if ( verbose )
 	    {
-	      cout << "ind_sizey = " << ind_sizey << endl;
-	      cout << "ind_beta  = " << ind_beta  << endl;
+	    cout << "ind_sizey = " << ind_sizey << endl;
+	    cout << "ind_beta  = " << ind_beta  << endl;
 	    }
-	  
+	  */
+
 	  int index = 10*ind_sizey + ind_beta;
 	  
 	  if ( index < 0 || index >= 20  )
 	    {
-	      cout << " Wrong index !!!" << endl;
-	      assert(0);
+	      throw cms::Exception(" PixelErrorParametrization::error_YF") << " Wrong index !!!";
 	    }
 	  
 	  error_yf = vec_error_YF[index];
 	  
 	}
       
-      if ( verbose )
-	cout << "error_yf = " << error_yf << endl;
+      //if ( verbose )
+      //cout << "error_yf = " << error_yf << endl;
       
       return error_yf; 
     }

@@ -7,8 +7,10 @@
 // Trigger configuration includes
 #include "CondFormats/L1TObjects/interface/L1GctJetFinderParams.h"
 #include "CondFormats/L1TObjects/interface/L1GctJetEtCalibrationFunction.h"
+#include "CondFormats/L1TObjects/interface/L1CaloEtScale.h"
 #include "CondFormats/DataRecord/interface/L1GctJetCalibFunRcd.h"
 #include "CondFormats/DataRecord/interface/L1GctJetFinderParamsRcd.h"
+#include "CondFormats/DataRecord/interface/L1JetEtScaleRcd.h"
 
 // GCT include files
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctJetEtCalibrationLut.h"
@@ -157,6 +159,8 @@ L1GctTest::configureGct(const edm::EventSetup& c)
   c.get< L1GctJetFinderParamsRcd >().get( jfPars ) ; // which record?
   edm::ESHandle< L1GctJetEtCalibrationFunction > calibFun ;
   c.get< L1GctJetCalibFunRcd >().get( calibFun ) ; // which record?
+  edm::ESHandle< L1CaloEtScale > etScale ;
+  c.get< L1JetEtScaleRcd >().get( etScale ) ; // which record?
 
   if (calibFun.product() == 0) {
     throw cms::Exception("L1GctConfigError")
@@ -167,7 +171,11 @@ L1GctTest::configureGct(const edm::EventSetup& c)
   m_gct->setJetFinderParams(jfPars.product());
 
   // make a jet Et Lut and tell it about the scales
-  m_jetEtCalibLut = new L1GctJetEtCalibrationLut(calibFun.product());
+  m_jetEtCalibLut = new L1GctJetEtCalibrationLut();
+
+  m_jetEtCalibLut->setFunction(calibFun.product());
+  m_jetEtCalibLut->setOutputEtScale(etScale.product());
+
   m_gct->setJetEtCalibrationLut(m_jetEtCalibLut);
 
 }

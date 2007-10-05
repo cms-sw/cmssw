@@ -4,8 +4,8 @@
 /*
  * \file EcalEndcapMonitorClient.h
  *
- * $Date: 2007/06/24 18:12:10 $
- * $Revision: 1.17 $
+ * $Date: 2007/07/04 12:35:00 $
+ * $Revision: 1.18 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -26,6 +26,9 @@
 #include "OnlineDB/EcalCondDB/interface/MonRunIOV.h"
 
 #include <DQM/EcalEndcapMonitorClient/interface/EEClient.h>
+
+#include "DQMServices/Core/interface/QTestStatus.h"
+#include "DQMServices/QualityTests/interface/QCriterionRoot.h"
 
 #include <DQM/EcalEndcapMonitorClient/interface/EESummaryClient.h>
 

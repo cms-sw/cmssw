@@ -4,7 +4,7 @@
 <use name=hepmc> 
 <use name=clhep> 
 <use name=pythia6>
-<flags SEAL_PLUGIN_NAME="GeneratorInterfacePythia6Interface">
+<flags EDM_PLUGIN=1>
 <export>
  <use name=boost>
  <use name=FWCore/Framework>

@@ -1,8 +1,8 @@
 /*
  * \file EBPedestalTask.cc
  *
- * $Date: 2007/06/12 18:18:06 $
- * $Revision: 1.61 $
+ * $Date: 2007/08/14 17:43:06 $
+ * $Revision: 1.63 $
  * \author G. Della Ricca
  *
 */
@@ -213,6 +213,8 @@ void EBPedestalTask::endJob(void){
 
 void EBPedestalTask::analyze(const Event& e, const EventSetup& c){
 
+  Numbers::initGeometry(c);
+
   bool enable = false;
   map<int, EcalDCCHeaderBlock> dccMap;
 
@@ -225,7 +227,7 @@ void EBPedestalTask::analyze(const Event& e, const EventSetup& c){
 
       EcalDCCHeaderBlock dcch = (*dcchItr);
 
-      int ism = Numbers::iSM( dcch );
+      int ism = Numbers::iSM( dcch, EcalBarrel );
 
       map<int, EcalDCCHeaderBlock>::iterator i = dccMap.find( ism );
       if ( i != dccMap.end() ) continue;

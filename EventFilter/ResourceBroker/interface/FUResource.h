@@ -99,6 +99,9 @@ namespace evf {
     
     evf::FUShmRawCell* shmCell_;
     
+    static unsigned int gtpDaqId_;
+    static unsigned int gtpEvmId_;
+
   };
   
   //

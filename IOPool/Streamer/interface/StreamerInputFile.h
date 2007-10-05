@@ -80,6 +80,8 @@ class StreamerInputIndexFile;
     bool newHeader_;
 
     boost::shared_ptr<seal::Storage> storage_;
+
+    bool endOfFile_;
   };
 
 

@@ -192,7 +192,7 @@ void GsfTrackProducerWithSeedAssoc::produce(edm::Event& theEvent, const edm::Eve
 
 
 //   for (AlgoProductCollection::iterator prod=algoResults.begin();prod!=algoResults.end(); prod++){
-//     ttks.push_back( reco::TransientTrack(*((*prod).second),thePropagator.product()->magneticField() ));
+//     ttks.push_back( reco::TransientTrack(*(((*prod).second).first),thePropagator.product()->magneticField() ));
 //   }
 
 //   LogDebug("GsfTrackProducerWithSeedAssoc") << "end" << "\n";
@@ -228,7 +228,7 @@ void GsfTrackProducerWithSeedAssoc::produce(edm::Event& theEvent, const edm::Eve
     if(myTrajectoryInEvent_) selTrajectories->push_back(*theTraj);
     const TrajectoryFitter::RecHitContainer& transHits = theTraj->recHits();
 
-    reco::GsfTrack * theTrack = (*i).second;
+    reco::GsfTrack * theTrack = ((*i).second).first;
     
     //     if( ) {
     reco::GsfTrack t = * theTrack;
@@ -261,17 +261,18 @@ void GsfTrackProducerWithSeedAssoc::produce(edm::Event& theEvent, const edm::Eve
     reco::TrackExtraRef teref= reco::TrackExtraRef ( rTrackExtras, idx ++ );
     reco::GsfTrack & track = selTracks->back();
     track.setExtra( teref );
+    PropagationDirection dir = theTraj->direction();
     selTrackExtras->push_back( reco::TrackExtra (outpos, outmom, true,
 						 inpos, inmom, true,
 						 outertsos.curvilinearError(), outerId, 
-						 innertsos.curvilinearError(), innerId));
+						 innertsos.curvilinearError(), innerId, dir));
 
      reco::TrackExtra & tx = selTrackExtras->back();
-    size_t i = 0;
+    size_t k = 0;
     for( TrajectoryFitter::RecHitContainer::const_iterator j = transHits.begin();
 	 j != transHits.end(); j ++ ) {
       TrackingRecHit * hit = (**j).hit()->clone();
-      track.setHitPattern( * hit, i ++ );
+      track.setHitPattern( * hit, k ++ );
       selHits->push_back( hit );
       tx.add( TrackingRecHitRef( rHits, hidx ++ ) );
     }

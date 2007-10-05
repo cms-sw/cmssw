@@ -15,6 +15,7 @@
 // user include files
 #include "FWCore/Framework/interface/DataProxyProvider.h"
 #include "FWCore/Framework/interface/DataProxy.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 namespace edm {
    namespace eventsetup {
@@ -83,6 +84,18 @@ DataProxyProvider::resetProxies(const EventSetupRecordKey& iRecordKey)
   invalidateProxies(iRecordKey);
 }
 
+void
+DataProxyProvider::setAppendToDataLabel(const edm::ParameterSet& iToAppend)
+{
+  std::string oldValue( appendToDataLabel_);
+  //this can only be changed once and the default value is the empty string
+  assert(0 == oldValue.size());
+  
+  const std::string kParamName("appendToDataLabel");
+  if(iToAppend.exists(kParamName) ) {    
+    appendToDataLabel_ = iToAppend.getParameter<std::string>(kParamName);
+  }
+}
 //
 // const member functions
 //
@@ -117,10 +130,21 @@ DataProxyProvider::keyedProxies(const EventSetupRecordKey& iRecordKey) const
       KeyedProxies& proxies = const_cast<KeyedProxies&>(itFind->second);
       const_cast<DataProxyProvider*>(this)->registerProxies(iRecordKey,
                                                             proxies);
+
+      bool mustChangeLabels = (0 != appendToDataLabel_.size());
       for(KeyedProxies::iterator itProxy = proxies.begin(), itProxyEnd = proxies.end();
           itProxy != itProxyEnd;
           ++itProxy) {
         itProxy->second->setProviderDescription(&description());
+        if( mustChangeLabels ) {
+          //Using swap is fine since
+          // 1) the data structure is not a map and so we have not sorted on the keys
+          // 2) this is the first time filling this so no outside agency has yet seen
+          //   the label and therefore can not be dependent upon its value
+          std::string temp(std::string(itProxy->first.name().value())+appendToDataLabel_);
+          DataKey newKey(itProxy->first.type(),temp.c_str());
+          swap(itProxy->first,newKey);
+        }
       }
    }
    

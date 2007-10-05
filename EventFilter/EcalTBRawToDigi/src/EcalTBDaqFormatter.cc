@@ -1,7 +1,7 @@
 /*  
  *
- *  $Date: 2007/04/28 21:47:55 $
- *  $Revision: 1.52 $
+ *  $Date: 2007/08/16 23:11:36 $
+ *  $Revision: 1.56 $
  *  \author  N. Marinelli IASA 
  *  \author G. Della Ricca
  *  \author G. Franzoni
@@ -100,7 +100,7 @@ void EcalTBDaqFormatter::interpretRawData(const FEDRawData & fedData ,
     // getting the fields of the DCC header
     EcalDCCHeaderBlock theDCCheader;
 
-    theDCCheader.setId(1);                                                      // tb unpacker: forced to 1 to get first geom slot in EB
+    theDCCheader.setId(28);                                                     // tb unpacker: forced to 28 to get first geom slot in EB
     int fedId = (*itEventBlock)->getDataField("FED/DCC ID");
     theDCCheader.setFedId( fedId );                                             // fed id as found in raw data (0... 35 at tb )
 
@@ -157,6 +157,10 @@ void EcalTBDaqFormatter::interpretRawData(const FEDRawData & fedData ,
 		
 		int etaTT = (i)  / kTowersInPhi +1;
 		int phiTT = (i) % kTowersInPhi +1;
+
+		// follow HB convention in iphi
+		phiTT=3-phiTT;
+		if(phiTT<=0)phiTT=phiTT+72;
 
 		EcalTriggerPrimitiveSample theSample(TpSamples[i].first, TpSamples[i].second, TpFlags[i]);
 		
@@ -267,6 +271,9 @@ void EcalTBDaqFormatter::interpretRawData(const FEDRawData & fedData ,
       int etaTT = (_ExpectedTowers[_expTowersIndex]-1)  / kTowersInPhi +1;
       int phiTT = (_ExpectedTowers[_expTowersIndex]-1) % kTowersInPhi +1;
 
+      // follow HB convention in iphi
+      phiTT=3-phiTT;
+      if(phiTT<=0)phiTT=phiTT+72;
 
       EcalTrigTowerDetId idtt(1, EcalBarrel, etaTT, phiTT, 0);
     

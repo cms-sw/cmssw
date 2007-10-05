@@ -1,12 +1,11 @@
 //<<<<<< INCLUDES                                                       >>>>>>
 
-#include "Utilities/StorageFactory/interface/HttpStorageMaker.h"
-#include "Utilities/StorageFactory/interface/GsiFTPStorageMaker.h"
-#include "Utilities/StorageFactory/interface/LocalStorageMaker.h"
-#include "Utilities/StorageFactory/interface/ZipMemberStorageMaker.h"
-#include "Utilities/StorageFactory/interface/DCacheStorageMaker.h"
-#include "Utilities/StorageFactory/interface/RFIOStorageMaker.h"
-#include "Utilities/StorageFactory/interface/RedirectStorageMaker.h"
+#include "Utilities/StorageFactory/plugins/HttpStorageMaker.h"
+#include "Utilities/StorageFactory/plugins/GsiFTPStorageMaker.h"
+#include "Utilities/StorageFactory/plugins/LocalStorageMaker.h"
+#include "Utilities/StorageFactory/plugins/ZipMemberStorageMaker.h"
+#include "Utilities/StorageFactory/plugins/DCacheStorageMaker.h"
+#include "Utilities/StorageFactory/plugins/RedirectStorageMaker.h"
 #include "Utilities/StorageFactory/interface/StorageMakerFactory.h"
 
 //<<<<<< PRIVATE DEFINES                                                >>>>>>
@@ -30,5 +29,4 @@ DEFINE_EDM_PLUGIN (StorageMakerFactory, ZipMemberStorageMaker, "zip-member");
 DEFINE_EDM_PLUGIN (StorageMakerFactory, DCacheStorageMaker, "dcache");
 DEFINE_EDM_PLUGIN (StorageMakerFactory, DCacheStorageMaker, "dcap");
 DEFINE_EDM_PLUGIN (StorageMakerFactory, DCacheStorageMaker, "gsidcap");
-DEFINE_EDM_PLUGIN (StorageMakerFactory, RFIOStorageMaker, "rfio");
 DEFINE_EDM_PLUGIN (StorageMakerFactory, RedirectStorageMaker, "redirect");

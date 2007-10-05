@@ -1,5 +1,5 @@
 
-// $Id$
+// $Id: LumiDetails.cc,v 1.1 2007/07/13 20:13:03 wdd Exp $
 
 #include "DataFormats/Luminosity/interface/LumiDetails.h"
 
@@ -11,10 +11,10 @@ std::ostream& operator<<(std::ostream& s, const LumiDetails& lumiDetails) {
 
   const std::vector<double>& lumietsum     = lumiDetails.lumiEtSum();
   const std::vector<double>& lumietsumerr  = lumiDetails.lumiEtSumErr();
-  const std::vector<double>& lumietsumqual = lumiDetails.lumiEtSumQual();
+  const std::vector<int>& lumietsumqual = lumiDetails.lumiEtSumQual();
   const std::vector<double>& lumiocc       = lumiDetails.lumiOcc();
   const std::vector<double>& lumioccerr    = lumiDetails.lumiOccErr();
-  const std::vector<double>& lumioccqual   = lumiDetails.lumiOccQual();
+  const std::vector<int>& lumioccqual   = lumiDetails.lumiOccQual();
 
   unsigned int maxSize = lumietsum.size();
   if (lumietsumerr.size() > maxSize) maxSize = lumietsumerr.size();

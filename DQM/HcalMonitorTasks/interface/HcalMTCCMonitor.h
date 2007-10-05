@@ -3,12 +3,22 @@
 
 #include "DQM/HcalMonitorTasks/interface/HcalBaseMonitor.h"
 #include "DataFormats/LTCDigi/interface/LTCDigi.h"
+#include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
+#include "DQMServices/CoreROOT/interface/MonitorElementRootT.h"
+//#include "CondFormats/HcalObjects/interface/HcalElectronicsMap.h"
+#include "CalibFormats/HcalObjects/interface/HcalCoder.h"
+#include "CalibFormats/HcalObjects/interface/HcalCalibrations.h"
+#include "CalibFormats/HcalObjects/interface/HcalCoderDb.h"
+#include "CalibFormats/HcalObjects/interface/HcalDbService.h"
+#include "CalibFormats/HcalObjects/interface/HcalDbRecord.h"
+#include "CondFormats/HcalObjects/interface/HcalQIECoder.h"
+#include "TH1F.h"
 
 
 /** \class HcalMtccmonitor2
   *  
-  * $Date: 2007/03/21 23:01:29 $
-  * $Revision: 1.7 $
+  * $Date: 2006/10/23 19:31:56 $
+  * $Revision: 1.5 $
   * \author W. Fisher - FNAL
   */
 class HcalMTCCMonitor: public HcalBaseMonitor {
@@ -22,7 +32,7 @@ class HcalMTCCMonitor: public HcalBaseMonitor {
 		    const HODigiCollection& ho,
 		    const LTCDigiCollection& ltc,
 		    const HcalDbService& cond);
-  
+
   void clearME();
 
 private: 
@@ -37,8 +47,8 @@ private:
   HcalCalibrations calibs_;
 
   double dumpThresh_;
-  int dumpEtaLo_, dumpEtaHi_;
-  int dumpPhiLo_, dumpPhiHi_;
+  double dumpEtaLo_, dumpEtaHi_;
+  double dumpPhiLo_, dumpPhiHi_;
 
 private:  ///Monitoring elements
 

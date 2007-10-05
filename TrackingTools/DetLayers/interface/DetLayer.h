@@ -11,8 +11,8 @@
  *  NavigationSchool and activated with a NavigationSetter before they 
  *  can be used.
  *
- *  $Date: 2007/03/07 16:28:39 $
- *  $Revision: 1.9 $
+ *  $Date:  $
+ *  $Revision: $
  */
 
 #include "TrackingTools/DetLayers/interface/GeometricSearchDet.h"
@@ -24,7 +24,7 @@
 
 #include <vector>
 
-class DetLayer : public  virtual GeometricSearchDet {  
+class DetLayer : public GeometricSearchDet {  
  public:
 
   typedef GeomDetEnumerators::SubDetector SubDetector;

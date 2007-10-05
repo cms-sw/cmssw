@@ -4,8 +4,6 @@
 #include "EventFilter/EcalRawToDigiDev/interface/DCCEventBlock.h"
 #include "EventFilter/EcalRawToDigiDev/interface/DCCDataUnpacker.h"
 #include "EventFilter/EcalRawToDigiDev/interface/DCCEventBlock.h"
-#include "EventFilter/EcalRawToDigiDev/interface/ECALUnpackerException.h"
-
 #include "EventFilter/EcalRawToDigiDev/interface/EcalElectronicsMapper.h"
 
 
@@ -46,11 +44,12 @@ void DCCEESRPBlock::addSRFlagToCollection(){
    
 }
 
-void DCCEESRPBlock::checkSrpIdAndNumbSRFlags(){
+bool DCCEESRPBlock::checkSrpIdAndNumbSRFlags(){
 
   expNumbSrFlags_=36;//to be corrected
-   //todo :  to be implemented...
+  //todo :  to be implemented...
 
+  return true;
 
 } 
 

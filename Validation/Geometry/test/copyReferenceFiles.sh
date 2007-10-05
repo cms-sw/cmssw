@@ -17,17 +17,18 @@ if [ ! -d $geomDir ]; then
 fi
 
 # Copy Reference Root files
-cp matbdg_BeamPipe.root    $geomDir/.
-cp matbdg_PixBar.root      $geomDir/.
-cp matbdg_PixFwdMinus.root $geomDir/.
-cp matbdg_PixFwdPlus.root  $geomDir/.
-cp matbdg_TEC.root         $geomDir/.
-cp matbdg_TIB.root         $geomDir/.
-cp matbdg_TIDB.root        $geomDir/.
-cp matbdg_TIDF.root        $geomDir/.
-cp matbdg_TkStrct.root     $geomDir/.
-cp matbdg_TOB.root         $geomDir/.
-cp matbdg_Tracker.root     $geomDir/.
+cp matbdg_BeamPipe.root      $geomDir/.
+cp matbdg_PixBar.root        $geomDir/.
+cp matbdg_PixFwdMinus.root   $geomDir/.
+cp matbdg_PixFwdPlus.root    $geomDir/.
+cp matbdg_TEC.root           $geomDir/.
+cp matbdg_InnerServices.root $geomDir/.
+cp matbdg_TIB.root           $geomDir/.
+cp matbdg_TIDB.root          $geomDir/.
+cp matbdg_TIDF.root          $geomDir/.
+cp matbdg_TkStrct.root       $geomDir/.
+cp matbdg_TOB.root           $geomDir/.
+cp matbdg_Tracker.root       $geomDir/.
 
 # Copy Reference Text Files
 cp ModuleInfo.log      $geomDir/.

@@ -1,18 +1,14 @@
+<flags EDM_PLUGIN=1>
 <use name=FWCore/Framework>
-<use name=FWCore/PluginManager>
-<use name=FWCore/ParameterSet>
 <use name=DQMServices/CoreROOT>
 <use name=DataFormats/FEDRawData>
 <use name=DQM/HcalMonitorTasks>
 <use name=Geometry/CaloGeometry>
 <use name=Geometry/CaloEventSetup>
 <use name=Geometry/Records>
-<flags SEALPLUGIN=1>
 <export>
  <lib name=DQMHcalMonitorModule>
  <use name=FWCore/Framework>
- <use name=FWCore/PluginManager>
- <use name=FWCore/ParameterSet>
  <use name=DQMServices/CoreROOT>
  <use name=DataFormats/FEDRawData>	
  <use name=DQM/HcalMonitorTasks>

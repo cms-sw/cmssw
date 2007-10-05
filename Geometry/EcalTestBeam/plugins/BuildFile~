@@ -1,0 +1,31 @@
+<use name=DetectorDescription/Algorithm>
+<use name=DetectorDescription/Base>
+<use name=DetectorDescription/Core>
+<use name=DetectorDescription/ExprAlgo>
+<use name=FWCore/Framework>
+<use name=FWCore/MessageLogger>
+<use name=FWCore/Utilities>
+<use name=FWCore/PluginManager>
+<use name=Geometry/CaloEventSetup>
+<use name=Geometry/CaloGeometry>
+<use name=Geometry/EcalCommonData>
+<use name=Geometry/Records>
+<use name=SimDataFormats/EcalTestBeam>
+<use name=boost>
+<use name=clhep>
+<export>
+  <use name=DetectorDescription/Algorithm>
+  <use name=DetectorDescription/Base>
+  <use name=DetectorDescription/Core>
+  <use name=FWCore/Framework>
+  <use name=FWCore/MessageLogger>
+  <use name=FWCore/Utilities>
+  <use name=Geometry/CaloEventSetup>
+  <use name=Geometry/CaloGeometry>
+  <use name=Geometry/EcalCommonData>
+  <use name=Geometry/Records>
+  <use name=boost>
+  <lib name=GeometryEcalTestBeam>
+</export>
+ 
+<Flags EDM_PLUGIN=1>

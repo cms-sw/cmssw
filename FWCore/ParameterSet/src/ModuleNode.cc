@@ -97,7 +97,7 @@ namespace edm {
       if(type() == "service")
       {
         pset->addParameter("@service_type", class_);
-        procDesc.getServicesPSets()->push_back(*pset);
+        procDesc.addService(*pset);
       }
       else
       {
