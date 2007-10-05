@@ -13,7 +13,7 @@
 //
 // Original Author:  Camilo Carrillo (Uniandes)
 //         Created:  Tue Oct  2 16:57:49 CEST 2007
-// $Id: MuonSegmentEff.cc,v 1.1 2007/10/04 10:42:11 mmaggi Exp $
+// $Id: MuonSegmentEff.cc,v 1.2 2007/10/05 08:48:59 mmaggi Exp $
 //
 //
 
@@ -111,7 +111,6 @@ private:
 };
 
 
-
 MuonSegmentEff::MuonSegmentEff(const edm::ParameterSet& iConfig)
 {
   std::map<RPCDetId, int> buff;
@@ -126,6 +125,15 @@ MuonSegmentEff::MuonSegmentEff(const edm::ParameterSet& iConfig)
   totalcounter[1]=0;
   totalcounter[2]=0;
   ofrej.open("rejected.txt");
+
+  incldt=iConfig.getParameter<bool>("incldt");
+  inclcsc=iConfig.getParameter<bool>("inclcsc");
+  widestrip=iConfig.getParameter<int>("widestrip");
+  muonRPCDigis=iConfig.getParameter<std::string>("muonRPCDigis");
+  cscSegments=iConfig.getParameter<std::string>("cscSegments");
+  dt4DSegments=iConfig.getParameter<std::string>("dt4DSegments");
+
+
 }
 
 
@@ -140,7 +148,7 @@ void MuonSegmentEff::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
   
   std::map<RPCDetId, int> buff;
 
-  float dx=0.,dy=0.,dz=0.,Xo=0.,Yo=0.,X=0.,Y=0.,Z=0.,widestrip=5.;
+  float dx=0.,dy=0.,dz=0.,Xo=0.,Yo=0.,X=0.,Y=0.,Z=0.;
   
   std::cout<<"New Event "<<iEvent.id().event()<<std::endl;
   
@@ -158,15 +166,15 @@ void MuonSegmentEff::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
   
   std::cout <<"\t Getting the RPC Digis"<<std::endl;
   edm::Handle<RPCDigiCollection> rpcDigis;
-  iEvent.getByLabel("muonRPCDigis", rpcDigis);
+  iEvent.getByLabel(muonRPCDigis, rpcDigis);
 
   std::cout <<"\t Getting the CSC Segments"<<std::endl;
   edm::Handle<CSCSegmentCollection> allCSCSegments;
-  iEvent.getByLabel("cscSegments", allCSCSegments);
+  iEvent.getByLabel(cscSegments, allCSCSegments);
 
   std::cout <<"\t Getting the DT Segments"<<std::endl;
   edm::Handle<DTRecSegment4DCollection> all4DSegments;
-  iEvent.getByLabel("dt4DSegments", all4DSegments);
+  iEvent.getByLabel(dt4DSegments, all4DSegments);
   
   std::map<DTStationIndex,std::set<RPCDetId> > rollstoreDT;
   std::map<CSCStationIndex,std::set<RPCDetId> > rollstoreCSC;
@@ -205,8 +213,13 @@ void MuonSegmentEff::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
     }
   }
 
+  if(incldt){
 #include "dtpart.inl"
+  }
+  
+  if(inclcsc){
 #include "cscpart.inl"
+  }
   
 }
 
