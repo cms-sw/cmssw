@@ -17,7 +17,7 @@
 //
 // Original Author:  Loic QUERTENMONT
 //         Created:  Tue Sep 18 14:22:48 CEST 2007
-// $Id$
+// $Id: NuclearTrackCorrector.h,v 1.2 2007/10/04 16:17:19 roberfro Exp $
 //
 //
 
@@ -110,6 +110,9 @@ class NuclearTrackCorrector :  public edm::EDProducer {
       int    int_Input_Hit_Distance;
 
       int    verbosity;
+      int    KeepOnlyCorrectedTracks;
+
+      std::vector< pair<unsigned int, unsigned int> > Indice_Map;
 
       
       edm::ESHandle<TrackerGeometry> theG;
