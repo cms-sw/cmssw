@@ -13,7 +13,7 @@
 //
 // Original Author:  Grigory Safronov
 //         Created:    1 17:08:06 MSD 2007
-// $Id$
+// $Id: RegionalEcalClusterProducer.cc,v 1.1 2007/07/12 21:09:34 safronov Exp $
 //
 //
 
@@ -46,7 +46,6 @@
 #include "DataFormats/L1Trigger/interface/L1MuonParticle.h"
 #include "DataFormats/L1Trigger/interface/L1JetParticle.h"
 #include "DataFormats/L1Trigger/interface/L1EtMissParticle.h"
-#include "DataFormats/L1Trigger/interface/L1ParticleMap.h"
 
 
 

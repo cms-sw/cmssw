@@ -18,11 +18,8 @@
 // L1Extra
 #include "DataFormats/L1Trigger/interface/L1EmParticle.h"
 #include "DataFormats/L1Trigger/interface/L1JetParticle.h"
-#include "DataFormats/L1Trigger/interface/L1ParticleMap.h"
-
+///
 #include "DataFormats/HLTReco/interface/HLTFilterObject.h"
-
-
 
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetupFwd.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
@@ -120,35 +117,6 @@ void IsolatedPixelTrackCandidateProducer::produce(edm::Event& theEvent, const ed
 		}
 	}
 
-
-//  double ptTriggered=0;
-//  double phiTriggered=-100;
-
-  
-
-  /*
-  Handle< l1extra::L1ParticleMapCollection > mapColl ;
-  theEvent.getByLabel( particleMapSource_, mapColl ) ;
-  const l1extra::L1ParticleMap& singleJetMap = ( *mapColl )[ l1extra::L1ParticleMap::kSingleJet100 ];
-  const l1extra::L1JetParticleVectorRef& triggeredJets = singleJetMap.jetParticles() ;
-
-//  std::cout<<"EVENT Beg"<<std::endl;
-  // Loop over successful jets.
-  int jetCounter = 0 ;
-  std::cout.precision(20);
-  double ptTriggered=0;
-  double phiTriggered=-100;
-  for( l1extra::L1JetParticleVectorRef::const_iterator jetItr = triggeredJets.begin() ; jetItr != triggeredJets.end() ; ++jetItr )
-    {
-      jetCounter++;
-      std::cout<< "Jet #" << jetCounter<< ": " << "   phi: "<<jetItr->get()->phi()<< "   pt: "<<jetItr->get()->pt()<<std::endl;
-      if (jetItr->get()->pt()>ptTriggered) 
-	{
-	  ptTriggered=jetItr->get()->pt();
-	  phiTriggered=jetItr->get()->phi();
-	}
-    }
-  */
 //  std::cout<<"phiTriggered: "<<phiTriggered<<"     etaTriggered: "<<etaTriggered<<"     ptTriggered: 
 //"<<ptTriggered<<std::endl;
 
