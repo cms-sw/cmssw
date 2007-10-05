@@ -3,6 +3,8 @@
 #include "EventFilter/HcalRawToDigi/interface/HcalDCCHeader.h"
 #include "DataFormats/HcalDetId/interface/HcalGenericDetId.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "DataFormats/FEDRawData/interface/FEDTrailer.h"
+#include "EventFilter/Utilities/interface/Crc.h"
 
 HcalPacker::Collections::Collections() {
   hbhe=0;
@@ -196,4 +198,9 @@ void HcalPacker::pack(int fedid, int dccnumber,
     if (spigots[spigot].getRawLength()>0)
       dcc->copySpigotData(spigot,spigots[spigot],true,0);
   }
+  // trailer
+  FEDTrailer fedTrailer(output.data()+(output.size()-8));
+  fedTrailer.set(output.data()+(output.size()-8),
+    output.size()/8,
+    evf::compute_crc(output.data(),output.size()), 0, 0);
 }
