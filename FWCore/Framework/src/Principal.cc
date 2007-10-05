@@ -1,5 +1,5 @@
 /**----------------------------------------------------------------------
-  $Id: Principal.cc,v 1.14 2007/09/28 21:29:50 paterno Exp $
+  $Id: Principal.cc,v 1.15 2007/09/29 03:50:43 wmtan Exp $
   ----------------------------------------------------------------------*/
 
 #include <algorithm>
@@ -173,16 +173,20 @@ namespace edm {
         throw edm::Exception(edm::errors::ProductNotFound,"InvalidID")
 	  << "get by product ID: invalid ProductID supplied\n";
       }
-      throw edm::Exception(edm::errors::ProductNotFound,"InvalidID")
+      boost::shared_ptr<cms::Exception> whyFailed( new edm::Exception(edm::errors::ProductNotFound,"InvalidID") );
+      *whyFailed
 	<< "get by product ID: no product with given id: "<< oid << "\n";
+      return BasicHandle(whyFailed);
     }
 
     // Check for case where we tried on demand production and
     // it failed to produce the object
     if (g->onDemand()) {
-      throw edm::Exception(edm::errors::ProductNotFound,"InvalidID")
+      boost::shared_ptr<cms::Exception> whyFailed( new edm::Exception(edm::errors::ProductNotFound,"InvalidID") );
+      *whyFailed
 	<< "get by product ID: no product with given id: " << oid << "\n"
         << "onDemand production failed to produce it.\n";
+      return BasicHandle(whyFailed);
     }
     return BasicHandle(g->product(), &g->provenance());
   }
@@ -213,13 +217,15 @@ namespace edm {
                             true);
 
     if (nFound == 0) {
-      throw edm::Exception(edm::errors::ProductNotFound)
+      boost::shared_ptr<cms::Exception> whyFailed( new edm::Exception(edm::errors::ProductNotFound) );
+      *whyFailed
 	<< "getBySelector: Found zero products matching all criteria\n"
 	<< "Looking for type: " << productType << "\n";
+      return BasicHandle(whyFailed);
     }
     if (nFound > 1) {
       throw edm::Exception(edm::errors::ProductNotFound)
-        << "getBySelector: Found more than one product matching all criteria\n"
+        << "getBySelector: Found "<<nFound<<" products rather than one which match all criteria\n"
 	<< "Looking for type: " << productType << "\n";
     }
     return results[0];
@@ -241,15 +247,17 @@ namespace edm {
                             true);
 
     if (nFound == 0) {
-      throw edm::Exception(edm::errors::ProductNotFound)
+      boost::shared_ptr<cms::Exception> whyFailed( new edm::Exception(edm::errors::ProductNotFound) );
+      *whyFailed
 	<< "getByLabel: Found zero products matching all criteria\n"
 	<< "Looking for type: " << productType << "\n"
 	<< "Looking for module label: " << label << "\n"
 	<< "Looking for productInstanceName: " << productInstanceName << "\n";
+      return BasicHandle(whyFailed);
     }
     if (nFound > 1) {
       throw edm::Exception(edm::errors::ProductNotFound)
-        << "getByLabel: Found more than one product matching all criteria\n"
+        << "getByLabel: Found "<<nFound<<" products rather than one which match all criteria\n"
 	<< "Looking for type: " << productType << "\n"
 	<< "Looking for module label: " << label << "\n"
 	<< "Looking for productInstanceName: " << productInstanceName << "\n";
@@ -277,16 +285,18 @@ namespace edm {
                             true);
 
     if (nFound == 0) {
-      throw edm::Exception(edm::errors::ProductNotFound)
+      boost::shared_ptr<cms::Exception> whyFailed( new edm::Exception(edm::errors::ProductNotFound) );
+      *whyFailed
 	<< "getByLabel: Found zero products matching all criteria\n"
 	<< "Looking for type: " << productType << "\n"
 	<< "Looking for module label: " << label << "\n"
 	<< "Looking for productInstanceName: " << productInstanceName << "\n"
 	<< "Looking for process: " << processName << "\n";
+      return BasicHandle(whyFailed);
     }
     if (nFound > 1) {
       throw edm::Exception(edm::errors::ProductNotFound)
-        << "getByLabel: Found more than one product matching all criteria\n"
+        << "getByLabel: Found "<<nFound<<" products rather than one which match all criteria\n"
 	<< "Looking for type: " << productType << "\n"
 	<< "Looking for module label: " << label << "\n"
 	<< "Looking for productInstanceName: " << productInstanceName << "\n"
@@ -324,13 +334,15 @@ namespace edm {
                             true);
 
     if (nFound == 0) {
-      throw edm::Exception(edm::errors::ProductNotFound)
+      boost::shared_ptr<cms::Exception> whyFailed( new edm::Exception(edm::errors::ProductNotFound) );
+      *whyFailed
 	<< "getByType: Found zero products matching all criteria\n"
 	<< "Looking for type: " << productType << "\n";
+      return BasicHandle(whyFailed);
     }
     if (nFound > 1) {
       throw edm::Exception(edm::errors::ProductNotFound)
-        << "getByType: Found more than one product matching all criteria\n"
+        << "getByType: Found "<<nFound <<" products rather than one which match all criteria\n"
 	<< "Looking for type: " << productType << "\n";
     }
     return results[0];
