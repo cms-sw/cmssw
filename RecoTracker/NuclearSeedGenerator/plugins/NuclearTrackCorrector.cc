@@ -207,10 +207,10 @@ bool NuclearTrackCorrector::newTrajNeeded(Trajectory& newtrajectory, const Traje
                 if(seedRef[k]->nHits()==0) continue;
 
                 GlobalPoint pos = theG->idToDet(seed_RecHits.first->geographicalId())->surface().toGlobal(seed_RecHits.first->localPosition());
-                double seed_radius = sqrt( pow(pos.x(),2) + pow(pos.y(),2) );
+                double seed_radius = sqrt( pos.x()*pos.x() + pos.y()*pos.y() );
+                if(verbosity>=2) printf("seed %d with Radius = %f\n",k, seed_radius );
                 if(seed_radius<min_seed_radius) min_seed_radius = seed_radius;
         }
-        if(verbosity>=2) printf("Min Seed Radius = %f\n",min_seed_radius );
 
 
         newtrajectory = Trajectory(trajRef->seed(), alongMomentum);
@@ -221,8 +221,8 @@ bool NuclearTrackCorrector::newTrajNeeded(Trajectory& newtrajectory, const Traje
         for(unsigned int m=Measurements.size()-1 ;m!=(unsigned int)-1 ; m--){
 
                 if(!Measurements[m].recHit()->isValid() )continue;
-                GlobalPoint pos = theG->idToDet(Measurements[m].recHit()->geographicalId())->surface().toGlobal(Measurements[m].recHit()->localPosition());
-                double hit_radius = sqrt( pow(pos.x(),2) + pow(pos.y(),2) );
+                GlobalPoint pos = Measurements[m].recHit()->globalPosition();
+                double hit_radius = sqrt( pos.x()*pos.x() + pos.y()*pos.y() );
                 if(verbosity>=2)printf("Hit Radius = %f",hit_radius );
                 if(hit_radius>min_seed_radius-int_Input_Hit_Distance){
                          if(verbosity>=2)printf(" X ");
