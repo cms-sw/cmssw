@@ -21,11 +21,13 @@ class CandOneToOneDeltaRMatcher : public edm::EDProducer {
  private:
   void produce( edm::Event&, const edm::EventSetup& );
   double lenght( std::vector<int> );
+  std::vector<int> AlgoBruteForce(int, int);
+  std::vector<int> AlgoSwitchMethod(int,int);
   
   edm::InputTag source_;
   edm::InputTag matched_;
   std::vector < std::vector<float> > AllDist;
-  bool printdebug_;
+  int algoMethod_;
 
 };
 
@@ -57,7 +59,7 @@ using namespace stdcomb;
 CandOneToOneDeltaRMatcher::CandOneToOneDeltaRMatcher( const ParameterSet & cfg ) :
   source_( cfg.getParameter<InputTag>( "src" ) ),
   matched_( cfg.getParameter<InputTag>( "matched" ) ),
-  printdebug_( cfg.getUntrackedParameter<bool>("printDebug", false) ) {
+  algoMethod_( cfg.getUntrackedParameter<int>("algoMethod", false) ) {
   produces<CandMatchMap>();
 }
 
@@ -71,25 +73,23 @@ void CandOneToOneDeltaRMatcher::produce( Event& evt, const EventSetup& es ) {
   evt.getByLabel( source_, source ) ;
   evt.getByLabel( matched_, matched ) ;
  
-  if (printdebug_) {
-    for( CandidateCollection::const_iterator c = source->begin(); c != source->end(); ++c ) {
-      cout << "[CandOneToOneDeltaRMatcher] Et source  " << c->et() << endl;
-    }    
-    for( CandidateCollection::const_iterator c = matched->begin(); c != matched->end(); ++c ) {
-      cout << "[CandOneToOneDeltaRMatcher] Et matched " << c->et() << endl;
-    } 
-  }
- 
-  if( matched->size() > 9 || matched->size() <= 0 ) return;
-  if( source->size()  > 9 || source->size()  <= 0 ) return;
+  edm::LogVerbatim("CandOneToOneDeltaRMatcher") << "======== Source Collection =======";
+  for( CandidateCollection::const_iterator c = source->begin(); c != source->end(); ++c ) {
+    edm::LogVerbatim("CandOneToOneDeltaRMatcher") << " Et source  " << c->et();
+  }    
+  edm::LogVerbatim("CandOneToOneDeltaRMatcher") << "======== Matched Collection =======";
+  for( CandidateCollection::const_iterator c = matched->begin(); c != matched->end(); ++c ) {
+    edm::LogVerbatim("CandOneToOneDeltaRMatcher") << " Et matched " << c->et() << endl;
+  } 
 
-  float totalDeltaR=0;
-  float BestTotalDeltaR=100;
+
+  const int nSrc = source->size();
+  const int nMtc = matched->size();
 
   const int nMin = min( source->size() , matched->size() );
   const int nMax = max( source->size() , matched->size() );
 
-  if( source->size() <= matched->size() ) {
+  if( nSrc <= nMtc ) {
     for(CandidateCollection::const_iterator iSr  = source->begin();
 	iSr != source->end();
 	iSr++) {
@@ -117,42 +117,43 @@ void CandOneToOneDeltaRMatcher::produce( Event& evt, const EventSetup& es ) {
     } 
   }
   
-  if (printdebug_) {
-    for(int m0=0; m0<nMin; m0++) {
-      for(int m1=0; m1<nMax; m1++) {
-	printf("%5.3f ",AllDist[m0][m1]);
-      }
-      cout << endl;
-    }
+  /*
+  edm::LogVerbatim("CandOneToOneDeltaRMatcher") << "======== The DeltaR Matrix =======";
+  for(int m0=0; m0<nMin; m0++) {
+    //    for(int m1=0; m1<nMax; m1++) {
+      edm::LogVerbatim("CandOneToOneDeltaRMatcher") << setprecision(2) << fixed << (m1 AllDist[m0][m1] ;
+    //}
+    edm::LogVerbatim("CandOneToOneDeltaRMatcher") << "\n"; 
   }
+  */
   
-  vector<int> ca;
-  vector<int> cb;
+  // Loop size if Brute Force
+  int nLoopToDo = (int) ( TMath::Factorial(nMax) / TMath::Factorial(nMax - nMin) );
+  edm::LogVerbatim("CandOneToOneDeltaRMatcher") << "nLoop:" << nLoopToDo << endl;
   vector<int> bestCB;
 
-  for(int i1=0; i1<nMax; i1++) ca.push_back(i1);
-  for(int i1=0; i1<nMin; i1++) cb.push_back(i1);
+  // Algo is Brute Force
+  if( algoMethod_ == 0) {
 
-  do
-  {
-    //do your processing on the new combination here
-    for(int cnt=0;cnt<TMath::Factorial(nMin); cnt++)
-    {
-       totalDeltaR = lenght(cb);
-       if ( totalDeltaR < BestTotalDeltaR ) {
-         BestTotalDeltaR = totalDeltaR;
-         bestCB=cb;
-       }
-       next_permutation( cb.begin() , cb.end() );
-    }
+    bestCB = AlgoBruteForce(nMin,nMax);
+
+  // Algo is Switch Method
+  } else if( algoMethod_ == 1 ) {
+
+    bestCB = AlgoSwitchMethod(nMin,nMax);
+
+  // Algo is Brute Force if nLoop < 10000
+  } else if( algoMethod_ == 2 ) {
+
+    if( nLoopToDo < 10000 ) {
+      bestCB = AlgoBruteForce(nMin,nMax);
+    } else { 
+      bestCB = AlgoSwitchMethod(nMin,nMax);
+    } 
+
   }
-  while(next_combination( ca.begin() , ca.end() , cb.begin() , cb.end() ));
-  
-  if (printdebug_) {
-    cout << "[CandOneToOneDeltaRMatcher] Best DeltaR=" << BestTotalDeltaR << " ";
-    for(vector<int>::iterator it=bestCB.begin(); it!=bestCB.end(); it++ ) cout << *it;
-    cout << endl;
-  }
+
+  for(int i1=0; i1<nMin; i1++) edm::LogVerbatim("CandOneToOneDeltaRMatcher") << "min: " << i1 << " " << bestCB[i1] << " " << AllDist[i1][bestCB[i1]];
 
   auto_ptr<CandMatchMap> matchMap( new CandMatchMap( CandMatchMap::ref_type( CandidateRefProd( source  ),
                                                                              CandidateRefProd( matched )  ) ) );
@@ -179,6 +180,80 @@ double CandOneToOneDeltaRMatcher::lenght(vector<int> best) {
     row++;
   }
   return myLenght;
+}
+
+vector<int> CandOneToOneDeltaRMatcher::AlgoBruteForce( int nMin, int nMax ) {
+
+  vector<int> ca;
+  vector<int> cb;
+  vector<int> bestCB;
+  float totalDeltaR=0;
+  float BestTotalDeltaR=1000;
+
+  for(int i1=0; i1<nMax; i1++) ca.push_back(i1);
+  for(int i1=0; i1<nMin; i1++) cb.push_back(i1);
+
+  do
+    {
+      //do your processing on the new combination here
+      for(int cnt=0;cnt<TMath::Factorial(nMin); cnt++)
+	{
+	  totalDeltaR = lenght(cb);
+	  if ( totalDeltaR < BestTotalDeltaR ) {
+	    BestTotalDeltaR = totalDeltaR;
+	    bestCB=cb;
+	  }
+	  next_permutation( cb.begin() , cb.end() );
+	}
+    }
+  while(next_combination( ca.begin() , ca.end() , cb.begin() , cb.end() ));
+  
+  //  cout << "[CandOneToOneDeltaRMatcher] Best DeltaR=" << BestTotalDeltaR << " ";
+  //  for(vector<int>::iterator it=bestCB.begin(); it!=bestCB.end(); it++ ) cout << *it;
+  //  cout << endl;
+
+  return bestCB;
+}
+
+vector<int> CandOneToOneDeltaRMatcher::AlgoSwitchMethod( int nMin, int nMax ) {
+
+  vector<int> bestCB;
+  for(int i1=0; i1<nMin; i1++) {
+    int minInd=0;
+    for(int i2=1; i2<nMax; i2++) if( AllDist[i1][i2] < AllDist[i1][minInd] ) minInd = i2; 
+    bestCB.push_back(minInd);
+    cout << "min:" << bestCB[i1] << endl;
+  }
+
+  bool inside = true;
+  while( inside ) {
+    inside = false;
+    for(int i1=0;i1<nMin;i1++){
+      for(int i2=i1+1;i2<nMin;i2++){
+	if ( bestCB[i1] == bestCB[i2] ) {
+	  inside = true;
+	  if ( AllDist[i1][(bestCB[i1])] <= AllDist[i2][(bestCB[i2])]) {
+	    AllDist[i2][(bestCB[i2])]= 1000;
+	    int minInd=0;
+	    for(int i3=1; i3<nMax; i3++) if( AllDist[i2][i3] < AllDist[i2][minInd] ) minInd = i3; 
+	    bestCB[i2]= minInd;
+	  }  else {
+	    AllDist[i1][(bestCB[i1])]= 1000;
+	    int minInd=0;
+	    for(int i3=1; i3<nMax; i3++) if( AllDist[i1][i3] < AllDist[i1][minInd] ) minInd = i3; 
+	    bestCB[i1]= minInd;
+	  }
+	} // End if
+      } 
+    }
+  } // End while
+
+  //  cout << "[CandOneToOneDeltaRMatcher] Best DeltaR=" << lenght(bestCB) << " ";
+  //  for(vector<int>::iterator it=bestCB.begin(); it!=bestCB.end(); it++ ) cout << *it;
+  //  cout << endl;
+
+  return bestCB;
+
 }
 
 #include "FWCore/PluginManager/interface/ModuleDef.h"
