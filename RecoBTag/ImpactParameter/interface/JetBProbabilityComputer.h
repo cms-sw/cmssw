@@ -15,6 +15,8 @@ class JetBProbabilityComputer : public JetTagComputer
      m_ipType           = parameters.getParameter<int>("impactParamterType");
      m_minTrackProb     = parameters.getParameter<double>("minimumProbability");
      m_deltaR           = parameters.getParameter<double>("deltaR");
+     m_trackSign        = parameters.getParameter<int>("trackIpSign");
+     m_nbTracks         = parameters.getParameter<int>("numberOfBTracks");
      m_cutMaxDecayLen   = parameters.getParameter<double>("maximumDecayLength");
      m_cutMaxDistToAxis = parameters.getParameter<double>("maximumDistanceToJetAxis");
 
@@ -42,20 +44,25 @@ class JetBProbabilityComputer : public JetTagComputer
                  (impactParameters[i].closestToJetAxis - pv).mag() < m_cutMaxDecayLen        // max decay len
              )
             {
-    // Use only positive tracks for B
-              if (*it >=0){probabilitiesB.push_back(*it);}
+    // Use only positive(or negative) tracks for B
                
                float p=fabs(*it);
                double delta = -2;
                if(m_deltaR > 0)   delta  = ROOT::Math::VectorUtil::DeltaR((*tkip->jet()).p4().Vect(), (*tracks[i]).momentum());
                if(delta < m_deltaR || m_deltaR < 0)
-                   probabilities.push_back(p);
+                 {
+                   if(m_trackSign>0 || *it >0 ) probabilities.push_back(p); //Use all tracks for positive tagger and only negative for negative tagger
+
+                   if(m_trackSign>0 && *it >=0){probabilitiesB.push_back(*it);} //Use only positive tracks for positive tagger
+                   if(m_trackSign<0 && *it <=0){probabilitiesB.push_back(- *it);} //Use only negative tracks for negative tagger 
+
+                 }
              }
            }
 
           float all = jetProbability(probabilities); 
           std::sort(probabilitiesB.begin(), probabilitiesB.end());
-          if(probabilitiesB.size() > 4 )  probabilitiesB.resize(4);
+          if(probabilitiesB.size() > nbTracks )  probabilitiesB.resize(nbTracks);
           float b = jetProbability(probabilitiesB);
         
 	  return -log(b)/4-log(all)/4; ///log(all);
@@ -106,6 +113,7 @@ double jetProbability( const std::vector<float> & v ) const
    int m_ipType;
    double m_deltaR;
    int m_trackSign;
+   int m_nbTracks;
    double  m_cutMaxDecayLen;
    double m_cutMaxDistToAxis;
 

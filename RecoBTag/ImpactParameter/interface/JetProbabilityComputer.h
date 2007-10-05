@@ -14,7 +14,7 @@ class JetProbabilityComputer : public JetTagComputer
      m_ipType           = parameters.getParameter<int>("impactParamterType");
      m_minTrackProb     = parameters.getParameter<double>("minimumProbability");
      m_deltaR           = parameters.getParameter<double>("deltaR");
-     m_trackSign        = parameters.getParameter<int>("TrackIpSign");
+     m_trackSign        = parameters.getParameter<int>("trackIpSign");
      m_cutMaxDecayLen   = parameters.getParameter<double>("maximumDecayLength"); 
      m_cutMaxDistToAxis = parameters.getParameter<double>("maximumDistanceToJetAxis"); 
 
