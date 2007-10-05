@@ -48,3 +48,53 @@ process TESTRECO = {
 !
 cmsRun --parameter-set ${LOCAL_TMP_DIR}/PoolInputTest.cfg || die 'Failure using PoolInputTest.cfg' $?
 
+#
+# Test storing OtherThing as well
+#
+
+rm -f ${LOCAL_TMP_DIR}/PoolInputTest.root ${LOCAL_TMP_DIR}/PoolInputOtherThing.root
+rm -f ${LOCAL_TMP_DIR}/PrePoolInputTest2.cfg ${LOCAL_TMP_DIR}/PoolInputTest2.cfg
+
+cat > ${LOCAL_TMP_DIR}/PrePoolInputTest2.cfg << !
+# Configuration file for PrePoolInputTest 
+process TESTPROD = {
+	untracked PSet maxEvents = {untracked int32 input = 11}
+	include "FWCore/Framework/test/cmsExceptionsFatal.cff"
+	path p = {Thing,OtherThing}
+	module Thing = ThingProducer {untracked int32 debugLevel = 1}
+	module output = PoolOutputModule {
+		untracked string fileName = '${LOCAL_TMP_DIR}/PoolInputTest.root'
+		untracked int32 maxSize = 100000
+	}
+	module OtherThing = OtherThingProducer {untracked int32 debugLevel = 1}
+	source = EmptySource {
+		untracked uint32 firstRun = 561
+		untracked uint32 firstLuminosityBlock = 6
+		untracked uint32 numberEventsInLuminosityBlock = 3
+		untracked uint32 numberEventsInRun = 7
+	}
+        endpath ep = {output}
+}
+!
+cmsRun --parameter-set ${LOCAL_TMP_DIR}/PrePoolInputTest2.cfg || die 'Failure using PrePoolInputTest2.cfg' $?
+
+cp ${LOCAL_TMP_DIR}/PoolInputTest.root ${LOCAL_TMP_DIR}/PoolInputOther.root
+
+cat > ${LOCAL_TMP_DIR}/PoolInputTest2.cfg << !
+# Configuration file for PoolInputTest
+process TESTRECO = {
+	untracked PSet maxEvents = {untracked int32 input = -1}
+	include "FWCore/Framework/test/cmsExceptionsFatal.cff"
+	path p = {Analysis}
+	module Analysis = OtherThingAnalyzer {untracked int32 debugLevel = 1}
+	source = PoolSource {
+		untracked uint32 setRunNumber = 121
+		untracked vstring fileNames = {
+			'file:${LOCAL_TMP_DIR}/PoolInputTest.root',
+			'file:${LOCAL_TMP_DIR}/PoolInputOther.root'
+		}
+	}
+}
+!
+cmsRun --parameter-set ${LOCAL_TMP_DIR}/PoolInputTest2.cfg || die 'Failure using PoolInputTest.cfg' $?
+
