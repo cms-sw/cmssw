@@ -11,7 +11,7 @@
 #include "TChain.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-/* #include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h" */
+#include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
 
 #include "DataFormats/METReco/interface/CaloMETCollection.h"
@@ -32,7 +32,7 @@ public:
 
   /** Analyze the Data */
   void analyze(const CandidateCollection& mctruth,
-/*             const HepMC::GenEvent hepmc, */
+	       const HepMC::GenEvent hepmc,
 	       TTree* tree);
 
 private:
