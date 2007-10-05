@@ -75,7 +75,7 @@ private:
     void unpackPSB(const edm::EventSetup&, const unsigned char*, L1GtPsbWord&);
 
     /// unpack the GMT record
-    void unpackGMT(const unsigned char*, std::auto_ptr<L1MuGMTReadoutCollection>&);
+    void unpackGMT(const unsigned char*, std::auto_ptr<L1MuGMTReadoutCollection>&,edm::Event&);
 
     /// unpack trailer word
     void unpackTrailer(const unsigned char*, FEDTrailer&);
