@@ -1,3 +1,12 @@
+std::cout <<"\t Getting the CSC Geometry"<<std::endl;
+edm::ESHandle<CSCGeometry> cscGeo;
+iSetup.get<MuonGeometryRecord>().get(cscGeo);
+    
+std::cout <<"\t Getting the CSC Segments"<<std::endl;
+edm::Handle<CSCSegmentCollection> allCSCSegments;
+iEvent.getByLabel(cscSegments, allCSCSegments);
+
+
  if(allCSCSegments->size()>0){
   
     std::cout<<"\t Here we go we have a Segment in the CSCs"<<std::endl;

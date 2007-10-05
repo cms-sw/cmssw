@@ -1,3 +1,11 @@
+std::cout <<"\t Getting the DT Geometry"<<std::endl;
+edm::ESHandle<DTGeometry> dtGeo;
+iSetup.get<MuonGeometryRecord>().get(dtGeo);
+   
+std::cout <<"\t Getting the DT Segments"<<std::endl;
+edm::Handle<DTRecSegment4DCollection> all4DSegments;
+iEvent.getByLabel(dt4DSegments, all4DSegments);
+    
 if(all4DSegments->size()>0){
   std::cout<<"\t Number of Segments in this event = "<<all4DSegments->size()<<std::endl;
   

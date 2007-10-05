@@ -13,7 +13,7 @@
 //
 // Original Author:  Camilo Carrillo (Uniandes)
 //         Created:  Tue Oct  2 16:57:49 CEST 2007
-// $Id: MuonSegmentEff.cc,v 1.3 2007/10/05 13:39:36 carrillo Exp $
+// $Id: MuonSegmentEff.cc,v 1.4 2007/10/05 16:45:05 carrillo Exp $
 //
 //
 
@@ -152,33 +152,18 @@ void MuonSegmentEff::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
   float dx=0.,dy=0.,dz=0.,Xo=0.,Yo=0.,X=0.,Y=0.,Z=0.;
   
   std::cout<<"New Event "<<iEvent.id().event()<<std::endl;
-  
+
   std::cout <<"\t Getting the RPC Geometry"<<std::endl;
   edm::ESHandle<RPCGeometry> rpcGeo;
   iSetup.get<MuonGeometryRecord>().get(rpcGeo);
   
-  std::cout <<"\t Getting the CSC Geometry"<<std::endl;
-  edm::ESHandle<CSCGeometry> cscGeo;
-  iSetup.get<MuonGeometryRecord>().get(cscGeo);
-
-  std::cout <<"\t Getting the DT Geometry"<<std::endl;
-  edm::ESHandle<DTGeometry> dtGeo;
-  iSetup.get<MuonGeometryRecord>().get(dtGeo);
-  
   std::cout <<"\t Getting the RPC Digis"<<std::endl;
   edm::Handle<RPCDigiCollection> rpcDigis;
   iEvent.getByLabel(muonRPCDigis, rpcDigis);
-
-  std::cout <<"\t Getting the CSC Segments"<<std::endl;
-  edm::Handle<CSCSegmentCollection> allCSCSegments;
-  iEvent.getByLabel(cscSegments, allCSCSegments);
-
-  std::cout <<"\t Getting the DT Segments"<<std::endl;
-  edm::Handle<DTRecSegment4DCollection> all4DSegments;
-  iEvent.getByLabel(dt4DSegments, all4DSegments);
   
   std::map<DTStationIndex,std::set<RPCDetId> > rollstoreDT;
-  std::map<CSCStationIndex,std::set<RPCDetId> > rollstoreCSC;
+  std::map<CSCStationIndex,std::set<RPCDetId> > rollstoreCSC;    
+
   
   for (TrackingGeometry::DetContainer::const_iterator it=rpcGeo->dets().begin();it<rpcGeo->dets().end();it++){
     if( dynamic_cast< RPCChamber* >( *it ) != 0 ){
@@ -187,7 +172,8 @@ void MuonSegmentEff::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
       for(std::vector<const RPCRoll*>::const_iterator r = roles.begin();r != roles.end(); ++r){
 	RPCDetId rpcId = (*r)->id();
 	int region=rpcId.region();
-	if(region==0){
+	
+	if(region==0&&(incldt||incldtMB4)){
 	  //std::cout<<"--Filling the barrel"<<rpcId<<std::endl;
 	  int wheel=rpcId.ring();
 	  int sector=rpcId.sector();
@@ -198,7 +184,7 @@ void MuonSegmentEff::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
 	  myrolls.insert(rpcId);
 	  rollstoreDT[ind]=myrolls;
 	}
-	else{
+	else if(inclcsc){
 	  //std::cout<<"--Filling the EndCaps"<<rpcId<<std::endl;
 	  int region=rpcId.region();
 	  CSCStationIndex ind(region);
@@ -214,15 +200,14 @@ void MuonSegmentEff::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
   if(incldt){
 #include "dtpart.inl"
   }
-
+  
   if(incldtMB4){
 #include "rb4part.inl"
   }
-
+  
   if(inclcsc){
 #include "cscpart.inl"
   }
-  
 }
 
 void 
@@ -253,8 +238,10 @@ MuonSegmentEff::endJob() {
   float tote = float(totalcounter[1])/float(totalcounter[0]);
   float totr = sqrt(tote*(1.-tote)/float(totalcounter[0]));
   
-  std::cout <<"\n\n \t \t TOTAL EFFICIENCY \t Predicted "<<totalcounter[1]<<"\t Observed "<<totalcounter[0]<<"\t Eff = "<<tote*100.<<"\t +/- \t"<<totr*100.<<"%"<<std::endl;
+  std::cout <<"\n\n \t \t TOTAL EFFICIENCY \t Predicted "<<totalcounter[0]<<"\t Observed "<<totalcounter[1]<<"\t Eff = "<<tote*100.<<"\t +/- \t"<<totr*100.<<"%"<<std::endl;
   std::cout <<totalcounter[1]<<" "<<totalcounter[0]<<" flagcode"<<std::endl;
 }
 //define this as a plug-in
 //DEFINE_FWK_MODULE(MuonSegmentEff);
+
+
