@@ -13,7 +13,7 @@
 //
 // Original Author:  Joshua Berger
 //         Created:  Mon Jul 23 22:52:31 CEST 2007
-// $Id$
+// $Id: MCParticlesProducer.cc,v 1.1 2007/09/14 19:05:50 jberger Exp $
 //
 //
 
@@ -106,6 +106,24 @@ MCParticlesProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
    std::auto_ptr<GenParticleCandidateCollection> mcParts(new GenParticleCandidateCollection);
 
    for(HepMC::GenEvent::particle_const_iterator mcpart = mcEvent->particles_begin(); mcpart != mcEvent->particles_end(); ++ mcpart ) {
+     if (abs((*mcpart)->pdg_id()) == 443 || abs((*mcpart)->pdg_id()) == 11) {
+       std::cout<<"Particle type: "<<(*mcpart)->pdg_id()<<std::endl;
+       std::cout<<"Parent types: ";
+       for (HepMC::GenVertex::particles_in_const_iterator parent = (*mcpart)->production_vertex()->particles_in_const_begin(); parent != (*mcpart)->production_vertex()->particles_in_const_end(); ++ parent) {
+	 std::cout<<(*parent)->pdg_id()<<"\t";
+       }
+       std::cout<<std::endl<<"Daughter types: ";
+       if ((*mcpart)->status() == 3) {
+	 for (HepMC::GenVertex::particles_out_const_iterator daught = (*mcpart)->end_vertex()->particles_out_const_begin(); daught != (*mcpart)->end_vertex()->particles_out_const_end(); ++ daught) {
+	   std::cout<<(*daught)->pdg_id()<<"\t";
+	 }
+       }
+       std::cout<<std::endl;
+       std::cout<<"E = "<<(*mcpart)->momentum().e()<<std::endl;
+       std::cout<<"px = "<<(*mcpart)->momentum().px()<<std::endl;
+       std::cout<<"py = "<<(*mcpart)->momentum().py()<<std::endl;
+       std::cout<<"pz = "<<(*mcpart)->momentum().pz()<<std::endl;
+     }
      Particle::LorentzVector p((*mcpart)->momentum().x(), (*mcpart)->momentum().y(), (*mcpart)->momentum().z(), (*mcpart)->momentum().t());
      Particle::Point vtx(0, 0, 0);
      if ((*mcpart)->production_vertex() != NULL) {
