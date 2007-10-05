@@ -24,8 +24,14 @@
   <script type = "text/javascript">
    function CloseUpperWindow()
    {
-    var frameSet = parent.document.getElementsByTagName("frameset") ;
-    frameSet[0].setAttribute("rows","0,100%") ;
+    var url = WebLib.getApplicationURL2();
+    var s0          = (url.lastIndexOf(".ch:")+4);
+    var s1          = url.lastIndexOf("/urn:");
+    var port_number = url.substring(s0, s1);
+    if (port_number == "1972") {
+      var frameSet = parent.document.getElementsByTagName("frameset") ;
+      frameSet[0].setAttribute("rows","0,100%") ;
+    }
    }
    function ShowTabs(option) 
    {
@@ -206,7 +212,7 @@
   	style = "width:  70%  ; 
 	         height: 100% ; 
 		 float:  left ;">
-   </div> <
+   </div> 
 
    <!-- The right frame: the DQM controls -->   
    <div class = "dqmControls"

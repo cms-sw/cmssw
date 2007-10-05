@@ -58,10 +58,10 @@ bool SiPixelActionExecutor::readConfiguration(int& tkmap_freq,
     configParser_->getDocument(edm::FileInPath(localPath).fullPath());
   }
  
-//  if (!configParser_->getFrequencyForTrackerMap(tkmap_freq)){
-//    cout << "SiPixelActionExecutor::readConfiguration: Failed to read TrackerMap configuration parameters!! ";
-//    return false;
-//  }
+  if (!configParser_->getFrequencyForTrackerMap(tkmap_freq)){
+    cout << "SiPixelActionExecutor::readConfiguration: Failed to read TrackerMap configuration parameters!! ";
+    return false;
+  }
   if (!configParser_->getFrequencyForBarrelSummary(sum_barrel_freq)){
     edm::LogInfo("SiPixelActionExecutor") << "Failed to read Barrel Summary configuration parameters!! " << "\n" ;
     return false;
@@ -84,6 +84,25 @@ bool SiPixelActionExecutor::readConfiguration(int& tkmap_freq,
   }
   if (!configParser_->getSourceType(source_type_)){
     edm::LogInfo("SiPixelActionExecutor")  << "Failed to read Source Type" << "\n" ;
+    return false;
+  }
+//cout<<"...leaving SiPixelActionExecutor::readConfiguration..."<<endl;
+  return true;
+}
+bool SiPixelActionExecutor::readConfiguration(int& tkmap_freq, int& summary_freq) {
+//cout<<"Entering SiPixelActionExecutor::readConfiguration..."<<endl;
+  string localPath = string("DQM/SiPixelMonitorClient/test/sipixel_monitorelement_config.xml");
+  if (configParser_ == 0) {
+    configParser_ = new SiPixelConfigParser();
+    configParser_->getDocument(edm::FileInPath(localPath).fullPath());
+  }
+ 
+  if (!configParser_->getFrequencyForTrackerMap(tkmap_freq)){
+    cout << "SiPixelActionExecutor::readConfiguration: Failed to read TrackerMap configuration parameters!! ";
+    return false;
+  }
+  if (!configParser_->getFrequencyForBarrelSummary(summary_freq)){
+    edm::LogInfo("SiPixelActionExecutor") << "Failed to read Summary configuration parameters!! " << "\n" ;
     return false;
   }
 //cout<<"...leaving SiPixelActionExecutor::readConfiguration..."<<endl;
@@ -831,9 +850,14 @@ MonitorElement* SiPixelActionExecutor::getFEDSummaryME(DaqMonitorBEInterface* be
 //
 //void SiPixelActionExecutor::setupQTests(MonitorUserInterface * mui) {
 void SiPixelActionExecutor::setupQTests(DaqMonitorBEInterface * bei) {
+//cout<<"Entering SiPixelActionExecutor::setupQTests: "<<endl;
+
   //DaqMonitorBEInterface * bei = mui->getBEInterface();
   bei->cd();
+  //cout<<"COLLATION: "<<collationDone<<endl;
   if (collationDone) bei->cd("Collector/Collated/Tracker");
+  else bei->cd("Tracker");
+  
   string localPath = string("DQM/SiPixelMonitorClient/test/sipixel_qualitytest_config.xml");
   if(!qtHandler_){
     qtHandler_ = new QTestHandle();
@@ -845,6 +869,8 @@ void SiPixelActionExecutor::setupQTests(DaqMonitorBEInterface * bei) {
   }else{
     cout << " Problem setting up quality tests "<<endl;
   }
+
+//cout<<" leaving SiPixelActionExecutor::setupQTests. "<<endl;
 }
 //
 // -- Check Status of Quality Tests
@@ -852,29 +878,35 @@ void SiPixelActionExecutor::setupQTests(DaqMonitorBEInterface * bei) {
 //void SiPixelActionExecutor::checkQTestResults(MonitorUserInterface * mui) {
 void SiPixelActionExecutor::checkQTestResults(DaqMonitorBEInterface * bei) {
 //cout<<"Entering SiPixelActionExecutor::checkQTestResults..."<<endl;
+
   //DaqMonitorBEInterface * bei = mui->getBEInterface();
   int messageCounter=0;
   string currDir = bei->pwd();
   vector<string> contentVec;
-
+  cout<<"currDir="<<currDir<<endl;
+  
   //mui->getContents(contentVec);
   bei->getContents(contentVec);
   
-  configParser_->getMessageLimitForQTests(message_limit_); 
+  configParser_->getMessageLimitForQTests(message_limit_);
+  //cout<<"message_limit_= "<<message_limit_<<endl; 
   for (vector<string>::iterator it = contentVec.begin();
        it != contentVec.end(); it++) {
     vector<string> contents;
     int nval = SiPixelUtility::getMEList((*it), contents);
+    cout<<"ME list length: "<<nval<<endl;
     if (nval == 0) continue;
     for (vector<string>::const_iterator im = contents.begin();
 	 im != contents.end(); im++) {
 
   //    MonitorElement * me = mui->get((*im));
       MonitorElement * me = bei->get((*im));
-      
+      //cout<<"ME: "<<(*im)<<endl;
       if (me) {
+      //cout<<"Mean= "<<me->getMean()<<endl;
 	// get all warnings associated with me
 	vector<QReport*> warnings = me->getQWarnings();
+	//cout<<"number of warnings: "<<warnings.size()<<endl;
 	for(vector<QReport *>::const_iterator wi = warnings.begin();
 	    wi != warnings.end(); ++wi) {
 	  messageCounter++;
@@ -892,6 +924,7 @@ void SiPixelActionExecutor::checkQTestResults(DaqMonitorBEInterface * bei) {
 	warnings=vector<QReport*>();
 	// get all errors associated with me
 	vector<QReport *> errors = me->getQErrors();
+	//cout<<"number of errors: "<<errors.size()<<endl;
 	for(vector<QReport *>::const_iterator ei = errors.begin();
 	    ei != errors.end(); ++ei) {
 	  messageCounter++;
@@ -912,7 +945,7 @@ void SiPixelActionExecutor::checkQTestResults(DaqMonitorBEInterface * bei) {
     }
     nval=int(); contents=vector<string>();
   }
-  cout<<"messageCounter: "<<messageCounter<<endl;
+  cout<<"messageCounter: "<<messageCounter<<" , message_limit: "<<message_limit_<<endl;
   if (messageCounter>=message_limit_)
     cout<<"WARNING: too many QTest failures! Giving up after "<<message_limit_<<" messages."<<endl;
   contentVec=vector<string>(); currDir=string(); messageCounter=int();
@@ -1052,12 +1085,14 @@ void SiPixelActionExecutor::fillLayout(DaqMonitorBEInterface * bei){
 //void SiPixelActionExecutor::saveMEs(MonitorUserInterface* mui,
 void SiPixelActionExecutor::saveMEs(DaqMonitorBEInterface* bei, 
                                     string fname){
+  //cout<<"fname= "<<fname<<" , collationDone: "<<collationDone<<" , I am in "<<bei->pwd()<<endl;
   //DaqMonitorBEInterface * bei = mui->getBEInterface();
   if (collationDone) {
     //mui->save(fname,"Collector/Collated/SiPixel");
   // non-backward compatible MUI<->BEI change:
   //   mui->save(fname,mui->pwd(),90);
-     bei->save(fname,bei->pwd(),90);
+     //bei->save(fname,bei->pwd(),90);
+    bei->save(fname,"Collector/Collated");
   } else {
   // non-backward compatible MUI<->BEI change:
   //   mui->save(fname,mui->pwd(),90);

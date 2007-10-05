@@ -40,6 +40,8 @@ class SiPixelActionExecutor {
 				    int 			 & sum_grandendcap_freq,
 				    int 			 & message_limit,
                                     int                          & source_type);
+ bool readConfiguration(	    int 			 & tkmap_freq, 
+                        	    int 			 & summary_freq);
  void readConfiguration(	    );
  //void createLayout(     	    MonitorUserInterface    	 * mui);
  void createLayout(     	    DaqMonitorBEInterface    	 * bei);

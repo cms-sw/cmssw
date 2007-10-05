@@ -139,8 +139,8 @@ GifDisplay.getGifURL = function(display_frame_name)
 GifDisplay.getDisplayRequestURL = function(display_frame_name)                                    
 {                                                     // Unused?                                 
   url = WebLib.getApplicationURL();                                                         
-  url = url + "/Request"                                                             
-  url = url + "?" + "RequestID=Draw"                                                 
+  //url = url + "/Request?"                                                             
+  url = url + "RequestID=Draw"                                                 
   url = url + "&" + "Current=" + contentViewer_current;                              
   url = url + "&" + "DisplayFrameName=" + display_frame_name;                        
                                                                                      

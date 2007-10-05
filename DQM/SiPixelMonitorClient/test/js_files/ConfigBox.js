@@ -4,8 +4,8 @@ var ConfigBox = {} ;
 ConfigBox.submitConfigure = function(url, myform)                                              
 {                                                   // Unused?                                   
   navigator_form = false;                                                            
-  url = url + "/Request";                                                            
-  url = url + "?" + "RequestID=Configure";                                           
+  //url = url + "/Request?";                                                            
+  url = url + "RequestID=Configure";                                           
   url = url + "&" + "Hostname=" + myform.Hostname.value;                             
   url = url + "&" + "Port=" + myform.Port.value;                                     
   url = url + "&" + "Clientname=" + myform.Name.value;                               

@@ -37,9 +37,9 @@ public:
   void handleCustomRequest(xgi::Input * in, 
                            xgi::Output * out ) 
 			   throw (xgi::exception::Exception);
-  void handleEDAnalyzerRequest(xgi::Input* in,
-                               xgi::Output* out, 
-			       int niter);  
+  void handleEDARequest(xgi::Input* in,
+                        xgi::Output* out, 
+			int niter);  
   
   void createAll();
 
@@ -54,6 +54,9 @@ public:
 			 int& freq_grandendcap_sum, 
 			 int& message_limit,
 			 int& source_type);
+  void readConfiguration(int& tkmap_freq, 
+                         int& summary_freq);
+  
   void setupQTests();
 
   void setOutputFileName(std::string fname){fileName_ = fname;};

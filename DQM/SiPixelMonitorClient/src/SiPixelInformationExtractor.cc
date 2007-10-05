@@ -50,22 +50,22 @@ SiPixelInformationExtractor::SiPixelInformationExtractor() {
 
   // variables used for reading layout names
   // ---------------------------------------
-  layoutParser_ = 0;
-  readReference_ = false;
-  layoutMap.clear();
+  //layoutParser_ = 0;
+  //readReference_ = false;
+  //layoutMap.clear();
 
   // variables used to store qtest information
   // for the slide show plot
   //  -----------------------------------------
-  qtestsParser_ = 0;
-  readQTestMap_  = false;
-  readMeMap_     = false;
-  qtestsMap.clear();
-  meQTestsMap.clear();
+  //qtestsParser_ = 0;
+  //readQTestMap_  = false;
+  //readMeMap_     = false;
+  //qtestsMap.clear();
+  //meQTestsMap.clear();
 
   // function used for reading configuration files [layout and qtest]
   // ----------------------------------------------------------------
-  readConfiguration();
+  //readConfiguration();
 
 }
 
@@ -80,8 +80,8 @@ SiPixelInformationExtractor::~SiPixelInformationExtractor() {
   if (canvas_) delete canvas_;
   if (paveOnCanvas)    delete paveOnCanvas;
 
-  if (layoutParser_) delete layoutParser_;
-  if (qtestsParser_) delete qtestsParser_;
+  //if (layoutParser_) delete layoutParser_;
+  //if (qtestsParser_) delete qtestsParser_;
 }
 
 //------------------------------------------------------------------------------
@@ -93,7 +93,7 @@ void SiPixelInformationExtractor::readConfiguration() {
 
   // read layout configuration file
   // ------------------------------
-/*  string localPath = string("DQM/SiPixelMonitorClient/test/sipixel_plot_layout_config.xml");
+  string localPath = string("DQM/SiPixelMonitorClient/test/sipixel_plot_layout_config.xml");
   if (layoutParser_ == 0) {
     layoutParser_ = new SiPixelLayoutParser();
     layoutParser_->getDocument(edm::FileInPath(localPath).fullPath());
@@ -113,10 +113,10 @@ void SiPixelInformationExtractor::readConfiguration() {
   // -------------------------------------------------------------------
   createDummiesFromLayout();
 
-*/
+
   // read quality test configuration file
   // ------------------------------------
-/*  localPath = string("DQM/SiPixelMonitorClient/test/sipixel_qualitytest_config.xml");
+  localPath = string("DQM/SiPixelMonitorClient/test/sipixel_qualitytest_config.xml");
   if (qtestsParser_ == 0) {
     qtestsParser_ = new SiPixelQTestsParser();
     qtestsParser_->getDocument(edm::FileInPath(localPath).fullPath());
@@ -143,7 +143,8 @@ void SiPixelInformationExtractor::readConfiguration() {
   }
   if (qtestsParser_) delete qtestsParser_;
   
-  cout << "..leaving SiPixelInformationExtractor::readConfiguration" << endl;*/
+  cout << "..leaving SiPixelInformationExtractor::readConfiguration" << endl;
+
 }
 //------------------------------------------------------------------------------
 /*! \brief (Documentation under construction).
@@ -1417,11 +1418,11 @@ const ostringstream&  SiPixelInformationExtractor::getIMGCImage(DaqMonitorBEInte
  */
 const ostringstream&  SiPixelInformationExtractor::getNamedImage(std::string theName) 
 {
-   cout << ACCyan << ACBold << ACReverse 
-	<< "[SiPixelInformationExtractor::getNamedImage()]"
-	<< ACPlain
-	<< " Requested " << theName
-	<< endl ;
+//   cout << ACCyan << ACBold << ACReverse 
+//	<< "[SiPixelInformationExtractor::getNamedImage()]"
+//	<< ACPlain
+//	<< " Requested " << theName
+//	<< endl ;
   pictureBuffer_.str("") ;
   map<std::string, std::string>::iterator thisBuffer = namedPictureBuffer.find(theName) ; 
   if( thisBuffer == namedPictureBuffer.end() )
@@ -1452,19 +1453,19 @@ const ostringstream&  SiPixelInformationExtractor::getNamedImage(std::string the
     	 << ACPlain << endl ;
     return pictureBuffer_;
   } else {
-    cout << ACCyan << ACBold << ACReverse 
-	 << "[SiPixelInformationExtractor::getNamedImage()] "
-       << ACPlain 
-       << "Buffer containing picture found for "
-       << theName
-       << endl ;
+//    cout << ACCyan << ACBold << ACReverse 
+//	 << "[SiPixelInformationExtractor::getNamedImage()] "
+//       << ACPlain 
+//       << "Buffer containing picture found for "
+//       << theName
+//       << endl ;
   }
   pictureBuffer_ << thisBuffer->second ;
-   cout << ACCyan << ACBold << ACReverse 
-	<< "[SiPixelInformationExtractor::getNamedImage()]"
-	<< ACPlain
-	<< " Returning " << theName
-	<< endl ;
+//   cout << ACCyan << ACBold << ACReverse 
+//	<< "[SiPixelInformationExtractor::getNamedImage()]"
+//	<< ACPlain
+//	<< " Returning " << theName
+//	<< endl ;
   return pictureBuffer_;
 }
 
@@ -1480,19 +1481,7 @@ bool SiPixelInformationExtractor::goToDir(DaqMonitorBEInterface* bei,
 //cout<<"entering SiPixelInformationExtractor::goToDir"<<endl;
   //DaqMonitorBEInterface * bei = mui->getBEInterface();
   bei->cd();
-  bei->cd("Collector");
-  //cout << mui->pwd() << endl;
-  vector<string> subdirs;
-  subdirs = bei->getSubdirs();
-  if (subdirs.size() == 0) return false;
-  
-  if (flg) bei->cd("Collated");
-  else bei->cd(subdirs[0]);
-  //cout << bei->pwd() << endl;
-  subdirs.clear();
-  subdirs = bei->getSubdirs();
-  if (subdirs.size() == 0) return false;
-  //cout<<"sname="<<sname<<endl;
+  if(flg) bei->cd("Collector/Collated");
   bei->cd(sname);
   string dirName = bei->pwd();
   if (dirName.find(sname) != string::npos) return true;

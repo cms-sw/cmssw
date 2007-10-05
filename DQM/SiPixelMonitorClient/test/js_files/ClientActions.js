@@ -6,7 +6,7 @@ var ClientActions = {} ;
 ClientActions.SubscribeAll = function () {
   var queryString = "RequestID=SubscribeAll";
   var url = WebLib.getApplicationURL2();
-  url = url + "/Request?";
+  //url = url + "/Request?";
   url = url + queryString; 
   
   WebLib.makeRequest(url, WebLib.dummy);
@@ -21,7 +21,7 @@ ClientActions.SubscribeAll = function () {
 ClientActions.SetupQualityTest = function() { // Unused?
   var queryString = "RequestID=SetupQTest";
   var url = WebLib.getApplicationURL2();
-  url = url + "/Request?";
+  //url = url + "/Request?";
   url = url + queryString; 
   
   WebLib.makeRequest(url, WebLib.dummy);     
@@ -34,7 +34,7 @@ ClientActions.SetupQualityTest = function() { // Unused?
 ClientActions.CheckQualityTestResults = function() {
   var queryString = "RequestID=CheckQTResults";
   var url = WebLib.getApplicationURL2();
-  url = url + "/Request?";
+  //url = url + "/Request?";
   url = url + queryString; 
   
   WebLib.makeRequest(url, WebLib.dummy);     
@@ -47,7 +47,7 @@ ClientActions.CheckQualityTestResults = function() {
 ClientActions.CreateSummary = function() {
   var queryString = "RequestID=CreateSummary";
   var url = WebLib.getApplicationURL2();
-  url = url + "/Request?";
+  //url = url + "/Request?";
   url = url + queryString; 
   
   WebLib.makeRequest(url, WebLib.dummy);     
@@ -58,9 +58,10 @@ ClientActions.CreateSummary = function() {
 // Same MEs in a file
 //
 ClientActions.SaveToFile = function() {
+  //alert("HALLO!" + err.message);
   var queryString = "RequestID=SaveToFile";
   var url = WebLib.getApplicationURL2();
-  url = url + "/Request?";
+  //url = url + "/Request?";
   url = url + queryString;   
   WebLib.makeRequest(url, WebLib.dummy);     
 }
@@ -77,7 +78,7 @@ ClientActions.CreateTrackerMap = function()
   var obj         = document.getElementById("create_tkmap");
 
   var url         = WebLib.getApplicationURL2();
-  url		 += "/Request?";
+  //url		 += "/Request?";
   url 		 += queryString;
   var obj   	  = document.getElementById("monitoring_element_list");
   var sname 	  = obj.options[obj.selectedIndex].value;
@@ -97,7 +98,7 @@ ClientActions.OpenTrackerMap = function() { // Unused?
   var queryString = "RequestID=OpenTkMap";
 
   var url = WebLib.getApplicationURL2();
-  url = url + "/Request?";
+  //url = url + "/Request?";
   url = url + queryString;
    
   WebLib.makeRequest(url, ClientActions.ReadResponseAndOpenTkMap); 
@@ -161,7 +162,7 @@ ClientActions.ReadResponseAndOpenTkMap = function()
 ClientActions.CollateME = function() {
   var queryString = "RequestID=CollateME";
   var url = WebLib.getApplicationURL2();
-  url = url + "/Request?";
+  //url = url + "/Request?";
   url = url + queryString; 
   
   WebLib.makeRequest(url, WebLib.dummy);     
@@ -175,7 +176,7 @@ ClientActions.RequestPlotFromLayout = function()
   try{
    var queryString;
    var url = WebLib.getApplicationURL2();
-   url += "/Request?";
+   //url += "/Request?";
    queryString = "RequestID=PlotHistogramFromLayout";
    url += queryString;
    WebLib.makeRequest(url,WebLib.dummy);
@@ -192,7 +193,7 @@ ClientActions.RequestErrorOverviewPlot = function()
   try{
    var queryString;
    var url = WebLib.getApplicationURL2();
-   url += "/Request?";
+   //url += "/Request?";
    queryString = "RequestID=PlotErrorOverviewHistogram";
    url += queryString;
    WebLib.makeRequest(url,WebLib.dummy);

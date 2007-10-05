@@ -378,7 +378,8 @@ IMGC.updateIMGC = function (source)
  
  var url = IMGC.getApplicationURL();
  url = url + 
-       '/Request?RequestID=updateIMGCPlots&MEFolder=' +
+       //'/Request?RequestID=updateIMGCPlots&MEFolder=' +
+       'RequestID=updateIMGCPlots&MEFolder=' +
        source ;
 
  // Ajax request to get back the list of ME that will be displayed by the call-back function
@@ -395,7 +396,7 @@ IMGC.updateIMGC = function (source)
 IMGC.updateAlarmsIMGC = function (path)	
 {
  var url      = IMGC.getApplicationURL();
- url         += "/Request?";
+ //url         += "/Request?";
  queryString  = 'RequestID=PlotHistogramFromPath';
  queryString += '&Path='   + path;
  queryString += '&width='  + IMGC.BASE_IMAGE_WIDTH +
@@ -454,7 +455,8 @@ IMGC.processIMGCPlots = function (ajax)
   for( var i=1; i<imageURLs.length-1; i++)
   {
    imageURLs[i-1] = url 				   + 
-  		    "/Request?RequestID=getIMGCPlot&Plot=" + 
+  		    //"/Request?RequestID=getIMGCPlot&Plot=" + 
+  		    "RequestID=getIMGCPlot&Plot=" + 
   		    imageURLs[i]			   +
   		    "&Folder="  			   +
   		    theFolder				   +
@@ -494,7 +496,14 @@ IMGC.getApplicationURL = function()
   url   = url.substring(0, index);
 
   // add the cgi request
-  url += "urn:xdaq-application:lid=15";
+  var s0          = (url.lastIndexOf(":")+1);
+  var s1          = url.lastIndexOf("/");
+  var port_number = url.substring(s0, s1);
+  if (port_number == "40000") {
+    url += "urn:xdaq-application:lid=27/moduleWeb?module=SiPixelEDAClient&";
+  } else if (port_number == "1972") {
+    url += "urn:xdaq-application:lid=15/Request?";
+  }
   return url;
  } catch(errorMessage) {
   alert("[IMGC.js::IMGC.getApplicationURL()]\nExecution/syntax error: " + error.errorMessage ) ;
@@ -1160,7 +1169,8 @@ IMGC.selectedIMGCItems = function ()
   if( selection[i].checked )
   {
    var qs = url                                    + 
-            "/Request?RequestID=getIMGCPlot&Plot=" + 
+            //"/Request?RequestID=getIMGCPlot&Plot=" + 
+            "RequestID=getIMGCPlot&Plot=" + 
 	    selection[i].value  		   +
 	    "&Folder="  			   +
 	    selection[i].getAttribute("folder")    +

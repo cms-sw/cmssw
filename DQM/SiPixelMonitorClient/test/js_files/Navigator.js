@@ -18,22 +18,22 @@ Navigator.getNavigatorRequestURL = function()
                                                                                      
   if (open.value != "")                                                              
   {                                                                                  
-    url = url + "/Request"                                                           
-    url = url + "?" + "RequestID=Open";                                              
+    //url = url + "/Request?"                                                           
+    url = url + "RequestID=Open";                                              
     url = url + "&" + "Current=" + Navigator.navigator_current;                                
     url = url + "&" + "Open=" + open.value;                                          
   }                                                                                  
   else if (subscribe.value != "")                                                    
   {                                                                                  
-    url = url + "/Request";                                                          
-    url = url + "?" + "RequestID=Subscribe";                                         
+    //url = url + "/Request?";                                                          
+    url = url + "RequestID=Subscribe";                                         
     url = url + "&" + "Current=" + Navigator.navigator_current;                                
     url = url + "&" + "SubscribeTo=" + subscribe.value;                              
   }                                                                                  
   else if (unsubscribe.value != "")                                                  
   {                                                                                  
-    url = url + "/Request";                                                          
-    url = url + "?" + "RequestID=Unsubscribe";                                       
+    //url = url + "/Request?";                                                          
+    url = url + "RequestID=Unsubscribe";                                       
     url = url + "&" + "Current=" + Navigator.navigator_current;                                
     url = url + "&" + "UnsubscribeFrom=" + unsubscribe.value;                        
   }                                                                                  

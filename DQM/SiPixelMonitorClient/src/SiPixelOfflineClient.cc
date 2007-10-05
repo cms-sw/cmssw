@@ -13,7 +13,7 @@
 //
 // Original Author:  Samvel Khalatyan (ksamdev at gmail dot com)
 //	   Created:  Wed Oct  5 16:42:34 CET 2006
-// $Id: SiStripOfflineClient.cc,v 1.10 2007/04/05 21:06:44 samvel Exp $
+// $Id: SiPixelOfflineClient.cc,v 1.1 2007/09/21 17:26:23 merkelp Exp $
 //
 //
 
@@ -272,5 +272,5 @@ void SiPixelOfflineClient::defaultWebPage(xgi::Input* in, xgi::Output* out){
     defPageCreated_ = true;
   }
   
-  sipixelWebInterface_->handleEDAnalyzerRequest(in,out,nevents_);
+  sipixelWebInterface_->handleEDARequest(in,out,nevents_);
 }

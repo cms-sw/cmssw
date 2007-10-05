@@ -41,7 +41,7 @@
    var stype 	   = obj.options[obj.selectedIndex].value;
    var queryString = "RequestID=periodicTrackerMapUpdate";
    var url	   = WebLib.getApplicationURL2();
-   url    	  += "/Request?";
+//   url    	  += "/Request?";
    url    	  += queryString;   
    url    	  += '&MEName='    + selME;
    url 		  += '&TKMapType=' + stype;
@@ -243,14 +243,15 @@
     {
       var myTrackerPlot ;
       if( theMEList[i].value == selME ) 
-      {
+      {      
        destURL = "baseImage0" ;
        myTrackerPlot = top.right.document.getElementById(destURL);
       } else {
        destURL = "baseImage" + ++destId;
        myTrackerPlot = theRightInnerFrame[0].document.getElementById(destURL);
       }
-      var url_serv      = "http://serverHost:1972/urn:xdaq-application:lid=15/Request?";
+      var url_serv = WebLib.getApplicationURL2();
+      //var url_serv      = "http://serverHost:1972/urn:xdaq-application:lid=15/Request?";
       var queryString   = "RequestID=PlotTkMapHistogram";
       queryString      += "&ModId="  + moduleId;
       queryString      += "&MEName=" + theMEList[i].value;
@@ -272,9 +273,9 @@
    SvgMap.theSelectedText.setAttribute("value",SvgMap.where.getAttribute("POS")) ;
    
    var innerPlots = currentMEList.length - 1 ; // Last one is the summary plot
-
    // Push the list of ME names into the combobox in the right frame
    var theMEListSelectors = top.right.document.forms['MEListForm'].MEListCB ;
+   
    for( var i=0; i < currentMEList.length; i++)
    {
     theMEListSelectors.options[i] = new Option(currentMEList[i],currentMESrc[i]);
