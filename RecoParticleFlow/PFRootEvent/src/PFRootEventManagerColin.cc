@@ -37,7 +37,7 @@ PFRootEventManagerColin::~PFRootEventManagerColin() {
 void PFRootEventManagerColin::readSpecificOptions(const char* file) {
 
 
-  cout<<"calling PFRootEventManagerColin::readSpecificOptions"<<endl; 
+//   cout<<"calling PFRootEventManagerColin::readSpecificOptions"<<endl; 
 //   PFRootEventManager::readOptions(file, refresh, reconnect);
 
   
@@ -71,11 +71,19 @@ void PFRootEventManagerColin::readSpecificOptions(const char* file) {
 
 
 bool PFRootEventManagerColin::processEntry(int entry) {
+
+  tauEvent_->reset();
+
   if( ! PFRootEventManager::processEntry(entry) ) {
     // cerr<<"event was not accepted"<<endl;
+    // print();
+    tauEvent_->rCode = 10;
+    outTree_->Fill();
     return false; // event not accepted
   }
-
+//   else 
+//     cerr<<"event accepted"<<endl;
+  
 
   bool rvalue = false;
   switch(mode_) {
@@ -91,7 +99,8 @@ bool PFRootEventManagerColin::processEntry(int entry) {
     cerr<<"colin: undefined mode"<<endl;
     assert(0);
   }
- 
+  outTree_->Fill();
+
   return rvalue;
 }
 
@@ -173,12 +182,12 @@ bool PFRootEventManagerColin::processNeutral() {
 
 bool PFRootEventManagerColin::processHIGH_E_TAUS() {
 
-  tauEvent_->reset();
 
   // true info 
   // 1 charged hadron, 2 photons
   // save charged part mom, save sum E photons
   
+
   int iHadron  = -1;
   int iPi0 = -1;
   unsigned nStableChargedHadrons=0;
@@ -210,7 +219,10 @@ bool PFRootEventManagerColin::processHIGH_E_TAUS() {
 
   // even after filtering events with one stable charged particle,
   // this particle can be a lepton (eg leptonic pion decay)
-  if( nStableChargedHadrons==0 ) return false;
+  if( nStableChargedHadrons==0 ) {
+    tauEvent_->rCode = 4; 
+    return false;
+  }
   assert( nStableChargedHadrons==1 );
 
 //   if( nPi0!=1 ) {
@@ -238,9 +250,9 @@ bool PFRootEventManagerColin::processHIGH_E_TAUS() {
     tauEvent_->eNeutral = 0;
   }
 
-  if( tauEvent_->eNeutral > 0.1* tauEvent_->pHadron ) {
-    print();
-  }
+//   if( tauEvent_->eNeutral > 0.1* tauEvent_->pHadron ) {
+//     print();
+//   }
 
 
   // check that there is 
@@ -248,25 +260,36 @@ bool PFRootEventManagerColin::processHIGH_E_TAUS() {
   // 0 or 1 ecal cluster
   // 0 or 1 hcal cluster
 
-  if( recTracks_.size() != 1 ) return false;
-  if( clustersECAL_->size() > 1 ) return false;
-  if( clustersHCAL_->size() > 1 ) return false;
-
+  if( recTracks_.size() != 1 ) {
+//     cout<<"more than 1 track"<<endl;
+    tauEvent_->rCode = 1;
+    return false;
+  }
+  if( clustersECAL_->size() > 1 ) {
+//     cout<<"more than 1 ecal cluster"<<endl;
+    tauEvent_->rCode = 2;
+    // return false;
+  }
+  if( clustersHCAL_->size() > 1 ) {
+//     cout<<"more than 1 hcal cluster"<<endl;
+    tauEvent_->rCode = 3;
+    return false;
+  }
   // save track mom + neutral info.
 
   tauEvent_->pTrack = recTracks_[0].extrapolatedPoint(reco::PFTrajectoryPoint::ClosestApproach ).momentum().P();
   tauEvent_->ptTrack = recTracks_[0].extrapolatedPoint(reco::PFTrajectoryPoint::ClosestApproach ).momentum().Pt();
-  
+  tauEvent_->etaTrack = recTracks_[0].extrapolatedPoint(reco::PFTrajectoryPoint::ClosestApproach ).momentum().Eta();
 
-  tauEvent_->nECAL = (*clustersECAL_).size();
-  if( (*clustersECAL_).size() == 1 ) {
-    tauEvent_->eECAL = (*clustersECAL_)[0].energy();
-  }
+  //   tauEvent_->nECAL = (*clustersECAL_).size();
+  //   if( (*clustersECAL_).size() == 1 ) {
+  //     tauEvent_->eECAL = (*clustersECAL_)[0].energy();
+  //   }
 
-  tauEvent_->nHCAL = (*clustersHCAL_).size();
-  if( (*clustersHCAL_).size() == 1 ) {
-    tauEvent_->eHCAL = (*clustersHCAL_)[0].energy();
-  }
+  //   tauEvent_->nHCAL = (*clustersHCAL_).size();
+  //   if( (*clustersHCAL_).size() == 1 ) {
+  //     tauEvent_->eHCAL = (*clustersHCAL_)[0].energy();
+  //   }
 
 
   // access blocks
@@ -277,12 +300,15 @@ bool PFRootEventManagerColin::processHIGH_E_TAUS() {
 
   // fill the tree
 
+    
+
+
   for(unsigned i=0; i<pfBlocks_->size(); i++) {
     const reco::PFBlock& block = (*pfBlocks_)[i];
-
+    
     const edm::OwnVector< reco::PFBlockElement >& 
       elements = block.elements();
-
+    
     // look for the track
     int iTrack = -1;
     unsigned nTracks = 0;
@@ -293,56 +319,97 @@ bool PFRootEventManagerColin::processHIGH_E_TAUS() {
       }
     }
     
-    if(nTracks!=1) continue; // no track, or too many tracks
-
-    // look for the ecal and hcal clusters
-
-    // unsigned nEcal = 0;
-    // unsigned nHcal = 0;
-    int iEcal = -1;
-    int iHcal = -1;
-    double   chi2Ecal = 999999999;
-    double   chi2Hcal = 999999999;
-    for(unsigned ie=0; ie<elements.size(); ie++) {
-      if( ie == iTrack) continue;
-      
-      double chi2 = block.chi2(ie, iTrack, 
-			       block.linkData() );
-
-      if( chi2<0 ) continue;
-
-      // element is connected to the track
-      switch( elements[ie].type() ) {
-      case reco::PFBlockElement::ECAL:
-	if(chi2<chi2Ecal) {
-	  chi2Ecal = chi2;
-	  iEcal = ie;
-	}
-	break;
-      case reco::PFBlockElement::HCAL:
-	if(chi2<chi2Hcal) {
-	  chi2Hcal = chi2;
-	  iHcal = ie;
-	}	
-	break;
-      default:
-	break;
-      }
-    }
+    if(nTracks!=1) continue; // no track, or too many tracks in the block
     
-//     cout<<block<<endl;
-//     cout<<iTrack<<" "<<iEcal<<" "<<iHcal<<endl;
+    std::map<double, unsigned> sortedElems;
+    block.associatedElements( iTrack, 
+			      sortedElems );
+    
+    tauEvent_->nECAL=0;
+    tauEvent_->nHCAL=0;
+    
+    typedef std::map<double, unsigned>::iterator IE;
+    for(IE ie = sortedElems.begin(); ie != sortedElems.end(); ++ie ) {
+      
+      
+      double chi2 = ie->first;
+      unsigned index = ie->second;
+      
+      reco::PFBlockElement::Type type = elements[index].type();
+      
+      reco::PFClusterRef clusterRef = elements[index].clusterRef();
 
-    // fill the tree and exit the function. 
-    if(iEcal>-1)
-      tauEvent_->chi2ECAL = chi2Ecal;
-    outTree_->Fill();
-    return true;
-  }
-  
+      
+      if( type == reco::PFBlockElement::ECAL ) {
+	if(!tauEvent_->nECAL ) { // closest ecal
+	  assert( !clusterRef.isNull() );
+	  tauEvent_->eECAL = clusterRef->energy();
+	  tauEvent_->etaECAL = clusterRef->positionXYZ().Eta();
+	  tauEvent_->chi2ECAL = chi2;
+	  tauEvent_->nECAL++;
+	}
+      }
+      else if( type == reco::PFBlockElement::HCAL ) {
+	if(!tauEvent_->nHCAL ) { // closest hcal
+	  assert( !clusterRef.isNull() );
+	  tauEvent_->eHCAL = clusterRef->energy();
+	  tauEvent_->etaHCAL = clusterRef->positionXYZ().Eta();
+	  tauEvent_->nHCAL++;
+	}
+      } 
+    } // eles associated to the track
+  } // blocks
+
+
+//     // look for the ecal and hcal clusters
+
+//     // unsigned nEcal = 0;
+//     // unsigned nHcal = 0;
+//     int iEcal = -1;
+//     int iHcal = -1;
+//     double   chi2Ecal = 999999999;
+//     double   chi2Hcal = 999999999;
+//     for(int ie=0; ie<elements.size(); ie++) {
+//       if( ie == iTrack) continue;
+      
+//       double chi2 = block.chi2(ie, iTrack, 
+// 			       block.linkData() );
+
+//       if( chi2<0 ) continue;
+
+//       // element is connected to the track
+//       switch( elements[ie].type() ) {
+//       case reco::PFBlockElement::ECAL:
+// 	if(chi2<chi2Ecal) {
+// 	  chi2Ecal = chi2;
+// 	  iEcal = ie;
+// 	}
+// 	break;
+//       case reco::PFBlockElement::HCAL:
+// 	if(chi2<chi2Hcal) {
+// 	  chi2Hcal = chi2;
+// 	  iHcal = ie;
+// 	}	
+// 	break;
+//       default:
+// 	break;
+//       }
+//     }
+    
+// //     cout<<block<<endl;
+// //     cout<<iTrack<<" "<<iEcal<<" "<<iHcal<<endl;
+    
+//     // fill the tree and exit the function. 
+//     if(iEcal>-1)
+//       tauEvent_->chi2ECAL = chi2Ecal;
+//     return true;
+//   }
   return false;
- 
+    
+    
 }
+
+
 
 
 void PFRootEventManagerColin::write() {
