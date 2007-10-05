@@ -18,9 +18,7 @@
 
 #include "SimDataFormats/CaloHit/interface/PCaloHit.h"
 #include "SimDataFormats/CaloHit/interface/PCaloHitContainer.h"
-#include "SimDataFormats/HcalValidation/interface/PHcalValidInfoLayer.h"
-#include "SimDataFormats/HcalValidation/interface/PHcalValidInfoNxN.h"
-#include "SimDataFormats/HcalValidation/interface/PHcalValidInfoJets.h"
+#include "SimDataFormats/ValidationFormats/interface/PValidationFormats.h"
 
 #include <iostream>
 #include <fstream>

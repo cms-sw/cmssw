@@ -11,8 +11,7 @@
  <use name=Geometry/HcalCommonData>
  <use name=DataFormats/HcalDetId> 
  <use name=SimDataFormats/CaloHit>
- <use name=SimDataFormats/CaloTest>
- <use name=SimDataFormats/HcalValidation>
+ <use name=SimDataFormats/ValidationFormats>
 </export>
 
 <use name=FWCore/Framework>
@@ -26,8 +25,7 @@
 <use name=Geometry/HcalCommonData>
 <use name=DataFormats/HcalDetId> 
 <use name=SimDataFormats/CaloHit>
-<use name=SimDataFormats/CaloTest>
-<use name=SimDataFormats/HcalValidation>
+<use name=SimDataFormats/ValidationFormats>
 <use name=hepmc>
 
 <Flags EDM_PLUGIN=1>

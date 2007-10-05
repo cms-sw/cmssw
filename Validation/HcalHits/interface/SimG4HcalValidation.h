@@ -14,9 +14,7 @@
 #include "Geometry/HcalCommonData/interface/HcalNumberingFromDDD.h"
 
 #include "SimDataFormats/CaloHit/interface/CaloHit.h"
-#include "SimDataFormats/HcalValidation/interface/PHcalValidInfoLayer.h"
-#include "SimDataFormats/HcalValidation/interface/PHcalValidInfoNxN.h"
-#include "SimDataFormats/HcalValidation/interface/PHcalValidInfoJets.h"
+#include "SimDataFormats/ValidationFormats/interface/PValidationFormats.h"
 
 #include <iostream>
 #include <memory>
