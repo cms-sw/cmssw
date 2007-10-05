@@ -3,7 +3,7 @@
 // Original Author:  Andrea Rizzi
 //         Created:  Wed Apr 12 11:12:49 CEST 2006
 // Accommodated for Jet Package by: Fedor Ratnikov Jul. 30, 2007
-// $Id: JetTracksAssociatorAtVertex.cc,v 1.1 2007/09/19 18:30:01 fedor Exp $
+// $Id: JetTracksAssociatorAtVertex.cc,v 1.1 2007/09/20 22:32:41 fedor Exp $
 //
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -32,7 +32,7 @@ void JetTracksAssociatorAtVertex::produce(edm::Event& fEvent, const edm::EventSe
   edm::Handle <reco::TrackCollection> tracks_h;
   fEvent.getByLabel (mTracks, tracks_h);
   
-  std::auto_ptr<reco::JetTracksAssociation::Container> jetTracks (new reco::JetTracksAssociation::Container);
+  std::auto_ptr<reco::JetTracksAssociation::Container> jetTracks (new reco::JetTracksAssociation::Container (reco::JetRefBaseProd(jets_h)));
 
   // format inputs
   std::vector <edm::RefToBase<reco::Jet> > allJets;

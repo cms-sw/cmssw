@@ -1,29 +1,10 @@
-#include "FWCore/Utilities/interface/Exception.h"
+#include "JetAssociationTemplate.icc"
 #include "DataFormats/TrackReco/interface/Track.h"
 
 #include "DataFormats/JetReco/interface/JetTracksAssociation.h"
 
-namespace {
-  reco::JetTracksAssociation::Container::const_iterator findRef (const reco::JetTracksAssociation::Container& fContainer,
-								   const edm::RefToBase<reco::Jet>& fJet) {
-    reco::JetTracksAssociation::Container::const_iterator i = fContainer.begin();
-    for (; i != fContainer.end(); ++i) {
-      if (i->first == fJet) return i;
-    }
-    return fContainer.end();
-  }
-  reco::JetTracksAssociation::Container::const_iterator findJet (const reco::JetTracksAssociation::Container& fContainer,
-								   const reco::Jet& fJet) {
-    reco::JetTracksAssociation::Container::const_iterator i = fContainer.begin();
-    for (; i != fContainer.end(); ++i) {
-      if (&*(i->first) == &fJet) return i;
-    }
-    return fContainer.end();
-  }
-}
-
 /// Get number of tracks associated with jet
-int reco::JetTracksAssociation::tracksNumber (const Container& fContainer, const edm::RefToBase<reco::Jet> fJet) {
+int reco::JetTracksAssociation::tracksNumber (const Container& fContainer, const reco::JetBaseRef fJet) {
   return getValue (fContainer, fJet).size();
 }
 int reco::JetTracksAssociation::tracksNumber (const Container& fContainer, const reco::Jet& fJet) {
@@ -31,7 +12,7 @@ int reco::JetTracksAssociation::tracksNumber (const Container& fContainer, const
 }
 /// Get LorentzVector as sum of all tracks associated with jet.
 reco::JetTracksAssociation::LorentzVector 
-reco::JetTracksAssociation::tracksP4 (const Container& fContainer, const edm::RefToBase<reco::Jet> fJet) {
+reco::JetTracksAssociation::tracksP4 (const Container& fContainer, const reco::JetBaseRef fJet) {
   const reco::TrackRefVector* tracks = &getValue (fContainer, fJet);
   math::XYZTLorentzVector result (0,0,0,0);
   for (unsigned t = 0; t < tracks->size(); ++t) {
@@ -53,44 +34,44 @@ reco::JetTracksAssociation::tracksP4 (const Container& fContainer, const reco::J
 
 
 bool reco::JetTracksAssociation::setValue (Container* fContainer, 
-					    const edm::RefToBase<reco::Jet>& fJet, 
-					    reco::TrackRefVector fValue) {
-  if (!fContainer) return false;
-  if (findRef (*fContainer, fJet) != fContainer->end ()) return false;
-  fContainer->push_back (Container::value_type (fJet, fValue));
-  return true;
+					   const reco::JetBaseRef& fJet, 
+					   reco::TrackRefVector fValue) {
+  return JetAssociationTemplate::setValue (fContainer, fJet,fValue);
 }
 
 bool reco::JetTracksAssociation::setValue (Container& fContainer, 
-					    const edm::RefToBase<reco::Jet>& fJet, 
+					    const reco::JetBaseRef& fJet, 
 					    reco::TrackRefVector fValue) {
-  return setValue (&fContainer, fJet, fValue);
+  return JetAssociationTemplate::setValue (fContainer, fJet,fValue);
 }
 
 const reco::TrackRefVector& reco::JetTracksAssociation::getValue (const Container& fContainer, 
-							    const edm::RefToBase<reco::Jet>& fJet) {
-  reco::JetTracksAssociation::Container::const_iterator i = findRef (fContainer, fJet);
-  if (i != fContainer.end ()) return i->second;
-  throw cms::Exception("No Association") << " in reco::JetTracksAssociation::getValue";
+							    const reco::JetBaseRef& fJet) {
+  return JetAssociationTemplate::getValue<Container, reco::TrackRefVector> (fContainer, fJet);
 }
 
 const reco::TrackRefVector& reco::JetTracksAssociation::getValue (const Container& fContainer, 
 							    const reco::Jet& fJet) {
-  reco::JetTracksAssociation::Container::const_iterator i = findJet (fContainer, fJet);
-  if (i != fContainer.end ()) return i->second;
-  throw cms::Exception("No Association") << " in reco::JetTracksAssociation::getValue";
+  return JetAssociationTemplate::getValue<Container, reco::TrackRefVector> (fContainer, fJet);
 }
 
-std::vector<edm::RefToBase<reco::Jet> > reco::JetTracksAssociation::allJets (const Container& fContainer) {
-  std::vector<edm::RefToBase<reco::Jet> > result;
-  reco::JetTracksAssociation::Container::const_iterator i = fContainer.begin();
-  for (; i != fContainer.end(); ++i) {
-    result.push_back (i->first);
-  }
-  return result;
+std::vector<reco::JetBaseRef > reco::JetTracksAssociation::allJets (const Container& fContainer) {
+  return JetAssociationTemplate::allJets (fContainer);
 }
   
 bool reco::JetTracksAssociation::hasJet (const Container& fContainer, 
-					  const edm::RefToBase<reco::Jet>& fJet) {
-  return findRef (fContainer, fJet) != fContainer.end();
+					  const reco::JetBaseRef& fJet) {
+  return JetAssociationTemplate::hasJet (fContainer, fJet);
+}
+
+bool reco::JetTracksAssociation::hasJet (const Container& fContainer, 
+					 const reco::Jet& fJet) {
+  return JetAssociationTemplate::hasJet (fContainer, fJet);
+}
+
+const reco::JetTracksAssociation::Container* reco::JetTracksAssociation::getByLabel (const fwlite::Event& fEvent, 
+										     const char* fModuleLabel,
+										     const char* fProductInstanceLabel,
+										     const char* fProcessLabel) {
+  return JetAssociationTemplate::getByLabel<Container> (fEvent, fModuleLabel, fProductInstanceLabel, fProcessLabel);
 }

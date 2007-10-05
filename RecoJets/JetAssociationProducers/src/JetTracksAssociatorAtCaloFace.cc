@@ -3,7 +3,7 @@
 // Original Author:  Andrea Rizzi
 //         Created:  Wed Apr 12 11:12:49 CEST 2006
 // Accommodated for Jet Package by: Fedor Ratnikov Jul. 30, 2007
-// $Id: JetTracksAssociatorAtCaloFace.cc,v 1.1 2007/09/10 21:34:14 fedor Exp $
+// $Id: JetTracksAssociatorAtCaloFace.cc,v 1.1 2007/09/19 18:30:01 fedor Exp $
 //
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -41,7 +41,7 @@ void JetTracksAssociatorAtCaloFace::produce(edm::Event& fEvent, const edm::Event
   edm::Handle <reco::TrackCollection> tracks_h;
   fEvent.getByLabel (mTracks, tracks_h);
   
-  std::auto_ptr<reco::JetTracksAssociation::Container> jetTracks (new reco::JetTracksAssociation::Container);
+  std::auto_ptr<reco::JetTracksAssociation::Container> jetTracks (new reco::JetTracksAssociation::Container (reco::JetRefBaseProd(jets_h)));
 
   // format inputs
   std::vector <edm::RefToBase<reco::Jet> > allJets;
