@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2007/10/05 17:49:09 $
- *  $Revision: 1.6 $
+ *  $Date: 2007/10/05 18:05:21 $
+ *  $Revision: 1.7 $
  *
  *  \author Martin Grunewald
  *
@@ -14,11 +14,8 @@
 #include "DataFormats/Common/interface/Handle.h"
 
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
-#include "DataFormats/L1Trigger/interface/L1ParticleMap.h"
-#include "DataFormats/L1Trigger/interface/L1ParticleMapFwd.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include <cassert>
 #include <iomanip>
 
 //
