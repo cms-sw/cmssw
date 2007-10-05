@@ -16,6 +16,7 @@
 #include "DataFormats/TrackReco/interface/TrackFwd.h" 
 #include "DataFormats/JetReco/interface/JetTrackMatch.h"
 #include "DataFormats/JetReco/interface/JetFloatAssociation.h"
+#include "DataFormats/JetReco/interface/JetToFloatAssociation.h"
 #include "DataFormats/JetReco/interface/JetTracksAssociation.h"
 #include "DataFormats/JetReco/interface/JetExtendedAssociation.h"
 #include "DataFormats/Common/interface/Wrapper.h"
@@ -73,11 +74,17 @@ namespace {
 
     edm::reftobase::Holder<reco::Candidate,edm::RefToBase<reco::Jet> >  rtbb6;
 
-    edm::Wrapper<JetFloatAssociation::Container>  j2f_c_w;
-    JetFloatAssociation::Container       j2f_c;
-    JetFloatAssociation::Ref             j2f_r;
-    JetFloatAssociation::RefProd         j2f_rp;
-    JetFloatAssociation::RefVector       j2f_rv;
+    edm::Wrapper<JetFloatAssociation::Container>  jf_c_w;
+    JetFloatAssociation::Container       jf_c;
+    JetFloatAssociation::Ref             jf_r;
+    JetFloatAssociation::RefProd         jf_rp;
+    JetFloatAssociation::RefVector       jf_rv;
+
+    edm::Wrapper<JetToFloatAssociation::Container>  j2f_c_w;
+    JetToFloatAssociation::Container       j2f_c;
+    JetToFloatAssociation::Ref             j2f_r;
+    JetToFloatAssociation::RefProd         j2f_rp;
+    JetToFloatAssociation::RefVector       j2f_rv;
 
     edm::Wrapper<JetTracksAssociation::Container>  jt_c_w;
     JetTracksAssociation::Container       jt_c;
