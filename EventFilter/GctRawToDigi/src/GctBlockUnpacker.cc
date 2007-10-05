@@ -116,7 +116,7 @@ void GctBlockUnpacker::blockToGctEmCand(const unsigned char * d, const GctBlockH
   // contains the rank0 non-isolated electron of the zeroth time-sample. 
   uint16_t * p = reinterpret_cast<uint16_t *>(const_cast<unsigned char *>(d));
 
-  for (unsigned int iso=0; iso<2; ++iso) {   // loop over non-iso/iso candidates
+  for (unsigned int iso=0; iso<2; ++iso) {   // loop over non-iso/iso candidate pairs
     for (unsigned int bx=0; bx<nSamples; ++bx) {   // loop over time samples
 
       bool isolated = (iso==1);
@@ -130,13 +130,13 @@ void GctBlockUnpacker::blockToGctEmCand(const unsigned char * d, const GctBlockH
       if (isolated) { em = gctIsoEm_; }
       else { em = gctNonIsoEm_; }
 
-      em->push_back(L1GctEmCand(*pp, isolated, id, 0, bx));  // rank0 electron
+      em->push_back(L1GctEmCand(*pp, isolated, id, 0 + (iso*4), bx));  // rank0 electron
       pp = pp + (2*(nSamples-1)) + 2;
-      em->push_back(L1GctEmCand(*pp, isolated, id, 0, bx));  // rank1 electron
+      em->push_back(L1GctEmCand(*pp, isolated, id, 1 + (iso*4), bx));  // rank1 electron
       pp = pp - (2*(nSamples-1)) - 1;
-      em->push_back(L1GctEmCand(*pp, isolated, id, 0, bx));  // rank2 electron
+      em->push_back(L1GctEmCand(*pp, isolated, id, 2 + (iso*4), bx));  // rank2 electron
       pp = pp + (2*(nSamples-1)) + 2;
-      em->push_back(L1GctEmCand(*pp, isolated, id, 0, bx));  // rank3 electron
+      em->push_back(L1GctEmCand(*pp, isolated, id, 3 + (iso*4), bx));  // rank3 electron
 
     }
   }
