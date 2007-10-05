@@ -15,7 +15,7 @@ FSimTrack::FSimTrack(const RawParticle* p,
 		     int iv, int ig, int id, 
 		     FBaseSimEvent* mom) :
   //  SimTrack(p->pid(),*p,iv,ig),   // to uncomment once Mathcore is installed 
-  SimTrack(p->pid(),HepLorentzVector(p->Px(),p->Py(),p->Pz(),p->E()),iv,ig), 
+  SimTrack(p->pid(),*p,iv,ig), 
   mom_(mom), id_(id), endv_(-1),
   layer1(0), layer2(0), ecal(0), hcal(0), vfcal(0), prop(false),
   momentum_(p->momentum())
