@@ -3,6 +3,7 @@
  * Generates PYQUEN HepMC events
  *
  * Original Author: Camelia Mironov
+ * $Id:$
 */
 
 #include <iostream>
@@ -11,7 +12,6 @@
 #include "GeneratorInterface/PyquenInterface/interface/PyquenSource.h"
 #include "GeneratorInterface/PyquenInterface/interface/PyquenWrapper.h"
 #include "GeneratorInterface/CommonInterface/interface/PythiaCMS.h"
-
 
 #include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -39,19 +39,19 @@ comenergy(pset.getParameter<double>("comEnergy")),
 doquench_(pset.getParameter<bool>("doQuench")),
 doradiativeenloss_(pset.getParameter<bool>("doRadiativeEnLoss")),
 docollisionalenloss_(pset.getParameter<bool>("doCollisionalEnLoss")),
-maxEventsToPrint_(pset.getUntrackedParameter<int>("maxEventsToPrint",1)),
 nquarkflavor_(pset.getParameter<int>("numQuarkFlavor")),
-pythiaHepMCVerbosity_(pset.getUntrackedParameter<bool>("pythiaHepMCVerbosity",false)),
-pythiaPylistVerbosity_(pset.getUntrackedParameter<int>("pythiaPylistVerbosity",0)),
 qgpt0_(pset.getParameter<double>("qgpInitialTemperature")),
-qgptau0_(pset.getParameter<double>("qgpProperTimeFormation"))
+qgptau0_(pset.getParameter<double>("qgpProperTimeFormation")),
+maxEventsToPrint_(pset.getUntrackedParameter<int>("maxEventsToPrint",1)),
+pythiaHepMCVerbosity_(pset.getUntrackedParameter<bool>("pythiaHepMCVerbosity",false)),
+pythiaPylistVerbosity_(pset.getUntrackedParameter<int>("pythiaPylistVerbosity",0))
 {
   // Default constructor
 
   // Verbosity Level
   // Valid PYLIST arguments are: 1, 2, 3, 5, 7, 11, 12, 13
   pythiaPylistVerbosity_ = pset.getUntrackedParameter<int>("pythiaPylistVerbosity",0);
-   LogDebug("PYLISTverbosity") << "Pythia PYLIST verbosity level = " << pythiaPylistVerbosity_ << endl;
+  LogDebug("PYLISTverbosity") << "Pythia PYLIST verbosity level = " << pythiaPylistVerbosity_ << endl;
   
   // HepMC event verbosity Level
   pythiaHepMCVerbosity_ = pset.getUntrackedParameter<bool>("pythiaHepMCVerbosity",false);
@@ -115,10 +115,11 @@ bool PyquenSource::call_pygive(const std::string& iParm )
 {
   // Set Pythia parameters
 
-  int numWarn = pydat1.mstu[26]; //# warnings
-  int numErr = pydat1.mstu[22];// # errors
+  int numWarn = pydat1.mstu[26];//# warnings
+  int numErr = pydat1.mstu[22]; //# errors
   // call the fortran routine pygive with a fortran string
   PYGIVE( iParm.c_str(), iParm.length() );  
+
   // if an error or warning happens it is problem
   return pydat1.mstu[26] == numWarn && pydat1.mstu[22] == numErr;   
 }
@@ -127,26 +128,22 @@ bool PyquenSource::call_pygive(const std::string& iParm )
 //____________________________________________________________________
 void PyquenSource::clear()
 {
-
 }
 
 
 //_____________________________________________________________________
 bool PyquenSource::produce(Event & e)
 {
-
-  edm::LogInfo("PYQUENabeamtarget") << "##### PYQUEN: beam/target A =  " << abeamtarget_;
-  edm::LogInfo("PYQUENcflag") << "##### PYQUEN: centrality flag cflag_ = " << cflag_;
-  edm::LogInfo("PYQUENbfixed") << "##### PYQUEN: fixed impact parameter bFixed = " << bfixed_;
-  edm::LogInfo("PYQUENinNFlav") << "##### PYQUEN: No active quark flavor nf =" << pyqpar.nfu;
-  edm::LogInfo("PYQUENinTemp") << "##### PYQUEN: Initial temperature of QGP, T0 ="<<pyqpar.T0u;
-  edm::LogInfo("PYQUENinTau") << "##### PYQUEN: Proper formation time of QGP, tau0 ="<< pyqpar.tau0u;
+  edm::LogInfo("PYQUENabeamtarget") << "##### PYQUEN: beam/target A = "                     << abeamtarget_;
+  edm::LogInfo("PYQUENcflag")       << "##### PYQUEN: centrality flag cflag_ = "            << cflag_;
+  edm::LogInfo("PYQUENbfixed")      << "##### PYQUEN: fixed impact parameter bFixed = "     << bfixed_;
+  edm::LogInfo("PYQUENinNFlav")     << "##### PYQUEN: No active quark flavor nf = "         << pyqpar.nfu;
+  edm::LogInfo("PYQUENinTemp")      << "##### PYQUEN: Initial temperature of QGP, T0 = "    << pyqpar.T0u;
+  edm::LogInfo("PYQUENinTau")       << "##### PYQUEN: Proper formation time of QGP, tau0 =" << pyqpar.tau0u;
 
   // Generate PYQUEN event
-
   // generate single partonic PYTHIA jet event
   call_pyevnt();
-
   // call PYQUEN to apply parton rescattering and energy loss 
   // if doQuench=FALSE, it is pure PYTHIA
   if( doquench_ ){
@@ -155,10 +152,11 @@ bool PyquenSource::produce(Event & e)
   } else {
     edm::LogInfo("PYQUENinAction") << "##### Calling PYQUEN: QUENCHING OFF!! This is just PYTHIA !!!! ####";
   }
+  call_pylist(1);
 
   // call PYTHIA to finish the hadronization
   PYEXEC();
-
+  call_pylist(1);
   // fill the HEPEVT with the PYJETS event record
   call_pyhepc(1);
 
@@ -175,17 +173,17 @@ bool PyquenSource::produce(Event & e)
   e.put(bare_product); 
 
   // verbosity
-  if( event() <= maxEventsToPrint_ && ( pythiaPylistVerbosity_ || pythiaHepMCVerbosity_ )){ 
-      // Prints PYLIST info
-      if( pythiaPylistVerbosity_ ){
-	  call_pylist(pythiaPylistVerbosity_);
-      }
+  if( event() <= maxEventsToPrint_ && ( pythiaPylistVerbosity_ || pythiaHepMCVerbosity_ )) { 
+    // Prints PYLIST info
+     if( pythiaPylistVerbosity_ ){
+       call_pylist(pythiaPylistVerbosity_);
+     }
       
-      // Prints HepMC event
-      if( pythiaHepMCVerbosity_ ){
-	  cout << "Event process = " << pypars.msti[0] << endl; 
-	//	evt->print();
-      }
+     // Prints HepMC event
+     if( pythiaHepMCVerbosity_ ){
+        cout << "Event process = " << pypars.msti[0] << endl; 
+	evt->print(); 
+     }
   }
     
   return true;
@@ -225,12 +223,13 @@ bool PyquenSource::pyqpythia_init(const ParameterSet & pset)
     for( vector<string>::const_iterator itPar = pars.begin(); itPar != pars.end(); ++itPar ) {
       static string sRandomValueSetting("MRPY(1)");
       if( 0 == itPar->compare(0,sRandomValueSetting.size(),sRandomValueSetting) ) {
-	throw edm::Exception(edm::errors::Configuration,"PythiaError")
-	  <<" Attempted to set random number using 'MRPY(1)'. NOT ALLOWED! \n Use RandomNumberGeneratorService to set the random number seed.";
+         throw edm::Exception(edm::errors::Configuration,"PythiaError")
+           << " Attempted to set random number using 'MRPY(1)'. NOT ALLOWED!\n"
+              " Use RandomNumberGeneratorService to set the random number seed.";
       }
       if( !call_pygive(*itPar) ) {
-	throw edm::Exception(edm::errors::Configuration,"PythiaError") 
-	  <<"PYTHIA did not accept \""<<*itPar<<"\"";
+        throw edm::Exception(edm::errors::Configuration,"PythiaError") 
+           << "PYTHIA did not accept \""<<*itPar<<"\"";
       }
     }
   }
