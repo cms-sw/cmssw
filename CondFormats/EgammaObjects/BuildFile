@@ -1,9 +1,9 @@
 <flags GENREFLEX_ARGS="--">
 <use name=FWCore/Framework>
-<use name=CondFormats/BTauObjects>
+<use name=CondFormats/PhysicsToolsObjects>
 <use name=rootrflx>
 <export>
    <lib name=CondFormatsEgammaObjects>
     <use name=FWCore/Framework>
-    <use name=CondFormats/BTauObjects>
+    <use name=CondFormats/PhysicsToolsObjects>
  </export>

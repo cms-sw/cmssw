@@ -1,6 +1,4 @@
      <lcgdict>
-        <class name="CalibratedHistogram"/>
-        <class name="std::vector<float>"/>
 
         <class name="ElectronLikelihoodCategoryData"/>      
         <class name="ElectronLikelihoodCalibration"/>

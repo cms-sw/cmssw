@@ -2,7 +2,7 @@
 #define ElectronLikelihoodCalibration_h
 
 #include "CondFormats/EgammaObjects/interface/ElectronLikelihoodCategoryData.h"
-#include "CondFormats/BTauObjects/interface/CalibratedHistogram.h"
+#include "CondFormats/PhysicsToolsObjects/interface/Histogram.h"
 #include <vector>
 
 struct ElectronLikelihoodCalibration 
@@ -11,7 +11,7 @@ struct ElectronLikelihoodCalibration
   struct Entry {
     
     ElectronLikelihoodCategoryData category;
-    CalibratedHistogram histogram;
+    PhysicsTools::Calibration::HistogramF histogram;
 
   };
 
