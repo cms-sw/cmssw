@@ -5,8 +5,8 @@
 //   Description: Configuration parameters for L1GlobalMuonTrigger
 //
 //
-//   $Date: 2007/07/06 15:35:37 $
-//   $Revision: 1.6 $
+//   $Date: 2007/09/06 13:50:37 $
+//   $Revision: 1.7 $
 //
 //   Author :
 //   N. Neumeister             CERN EP
@@ -35,6 +35,7 @@
 //-------------------------------
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/InputTag.h"
 #include "L1Trigger/GlobalMuonTrigger/src/L1MuGMTReg.h"
 #include "L1Trigger/GlobalMuonTrigger/src/L1MuGMTEtaLUT.h"
 #include "L1Trigger/GlobalMuonTrigger/src/L1MuGMTLFCOUDeltaEtaLUT.h"
@@ -77,6 +78,11 @@ using namespace std;
 L1MuGMTConfig::L1MuGMTConfig(const edm::ParameterSet& ps) {
 
   m_ps = &ps;
+
+  m_DTInputTag   = m_ps->getParameter<edm::InputTag>("DTCandidates");
+  m_CSCInputTag  = m_ps->getParameter<edm::InputTag>("CSCCandidates");
+  m_RPCbInputTag = m_ps->getParameter<edm::InputTag>("RPCbCandidates");
+  m_RPCfInputTag = m_ps->getParameter<edm::InputTag>("RPCfCandidates");
 
   m_debug = true;
   m_dbgLevel = m_ps->getUntrackedParameter<int>("Debug",0);
@@ -132,6 +138,10 @@ void L1MuGMTConfig::setDefaults() {
         << "*******************************************" << endl
         << endl
 
+        << "L1 Global Muon Trigger : DTCandidates : " << m_DTInputTag << endl
+        << "L1 Global Muon Trigger : CSCCandidates : " << m_CSCInputTag << endl
+        << "L1 Global Muon Trigger : RPCbCandidates : " << m_RPCbInputTag << endl
+        << "L1 Global Muon Trigger : RPCfCandidates : " << m_RPCfInputTag << endl
         << "L1 Global Muon Trigger : debug level : " << m_dbgLevel << endl
         << "L1 Global Muon Trigger : minimal bunch-crossing : " << m_BxMin << endl
         << "L1 Global Muon Trigger : maximal bunch-crossing : " << m_BxMax << endl
@@ -304,6 +314,10 @@ void L1MuGMTConfig::dumpRegs(std::string dir) {
 
 const edm::ParameterSet* L1MuGMTConfig::m_ps=0;
 
+edm::InputTag L1MuGMTConfig::m_DTInputTag = edm::InputTag();
+edm::InputTag L1MuGMTConfig::m_CSCInputTag = edm::InputTag();
+edm::InputTag L1MuGMTConfig::m_RPCbInputTag = edm::InputTag();
+edm::InputTag L1MuGMTConfig::m_RPCfInputTag = edm::InputTag();
 int   L1MuGMTConfig::m_dbgLevel = 0;
 bool  L1MuGMTConfig::m_debug = false;
 int   L1MuGMTConfig::m_BxMin = -4;

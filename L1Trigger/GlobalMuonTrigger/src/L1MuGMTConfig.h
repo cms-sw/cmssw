@@ -4,8 +4,8 @@
  *  Configuration parameters for L1GlobalMuonTrigger.
 */
 //
-//   $Date: 2007/07/06 15:35:37 $
-//   $Revision: 1.6 $
+//   $Date: 2007/09/06 13:50:37 $
+//   $Revision: 1.7 $
 //
 //   Author :
 //   N. Neumeister             CERN EP
@@ -31,6 +31,8 @@
 // Collaborating Class Declarations --
 //------------------------------------
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+
+class edm::InputTag;
 
 class L1MuGMTRegCDLConfig;
 class L1MuGMTRegMMConfigPhi;
@@ -88,6 +90,11 @@ class L1MuGMTConfig {
      
     /// destructor 
     virtual ~L1MuGMTConfig();
+
+    static edm::InputTag getDTInputTag()   { return m_DTInputTag; }
+    static edm::InputTag getCSCInputTag()  { return m_CSCInputTag; }
+    static edm::InputTag getRPCbInputTag() { return m_RPCbInputTag; }
+    static edm::InputTag getRPCfInputTag() { return m_RPCfInputTag; }
 
     static bool Debug() { return m_debug; }
     static bool Debug(int level) { return ( m_debug && m_dbgLevel >= level ); }
@@ -178,6 +185,11 @@ class L1MuGMTConfig {
 
     static const edm::ParameterSet* m_ps;
     static const L1MuGMTParameters* m_GMTParams;
+
+    static edm::InputTag m_DTInputTag;
+    static edm::InputTag m_CSCInputTag;
+    static edm::InputTag m_RPCbInputTag;
+    static edm::InputTag m_RPCfInputTag;
 
     static bool m_debug;     // debug flag 
     static int  m_dbgLevel;  // debug level

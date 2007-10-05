@@ -5,8 +5,8 @@
 //   Description: Pipelined Synchronising Buffer module 
 //
 //
-//   $Date: 2007/04/10 09:59:19 $
-//   $Revision: 1.7 $
+//   $Date: 2007/04/12 13:21:14 $
+//   $Revision: 1.8 $
 //
 //   Author :
 //   N. Neumeister            CERN EP 
@@ -84,20 +84,18 @@ L1MuGMTPSB::~L1MuGMTPSB() {
 // receive data
 //
 void L1MuGMTPSB::receiveData(edm::Event& e, int bx) {
-  ////////////////////////////////////////
 
-  std::vector<edm::Handle<std::vector<L1MuRegionalCand> > > alldata;
-  e.getManyByType(alldata);
+  ////////////////////////////////////
 
-  std::vector<edm::Handle<std::vector<L1MuRegionalCand> > >::iterator it;
-  for(it=alldata.begin(); it!=alldata.end(); it++) {
-    edm::Provenance const* prov = it->provenance();
-    if(prov->productInstanceName() == "DT")  getDTBX(it->product(),bx);
-    if(prov->productInstanceName() == "dt")  getDTBX(it->product(),bx);
-    if(prov->productInstanceName() == "CSC")  getCSC(it->product(),bx);
-    if(prov->productInstanceName() == "RPCb")  getRPCb(it->product(),bx);
-    if(prov->productInstanceName() == "RPCf")  getRPCf(it->product(),bx);
-  }
+  edm::Handle<std::vector<L1MuRegionalCand> > rc_handle;
+  e.getByLabel(L1MuGMTConfig::getDTInputTag(),rc_handle);
+  getDTBX(rc_handle.product(),bx);
+  e.getByLabel(L1MuGMTConfig::getCSCInputTag(),rc_handle);
+  getCSC(rc_handle.product(),bx);
+  e.getByLabel(L1MuGMTConfig::getRPCbInputTag(),rc_handle);
+  getRPCb(rc_handle.product(),bx);
+  e.getByLabel(L1MuGMTConfig::getRPCfInputTag(),rc_handle);
+  getRPCf(rc_handle.product(),bx);
 
   ////////////////////////////////////
 
