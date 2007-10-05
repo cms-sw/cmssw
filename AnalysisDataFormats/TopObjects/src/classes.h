@@ -87,8 +87,6 @@ namespace {
     edm::RefProd<TtGenEvent>                              rp_ttgen;
     edm::RefProd<StGenEvent>                              rp_stgen;
     edm::RefProd<TopGenEvent>                             rp_topgen;
-    std::vector<const reco::Candidate*>                   v_candvec;
-    edm::Wrapper<std::vector<const reco::Candidate*> >    w_v_candvec;
 
     TtDilepEvtSolution                                    ttdilep;
     TtSemiEvtSolution                                     ttsemi;
