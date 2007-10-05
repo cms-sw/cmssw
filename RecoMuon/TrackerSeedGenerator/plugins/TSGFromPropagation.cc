@@ -2,8 +2,8 @@
 
 /** \class TSGFromPropagation
  *
- *  $Date: 2007/07/21 21:25:57 $
- *  $Revision: 1.8 $
+ *  $Date: 2007/08/16 15:29:50 $
+ *  $Revision: 1.9 $
  *  \author Chang Liu - Purdue University 
  */
 
@@ -51,9 +51,15 @@ void TSGFromPropagation::trackerSeeds(const TrackCand& staMuon, const TrackingRe
 
   LogTrace(category) << " begin of trackerSeed ";
 
-  TrajectoryStateOnSurface staState = outerTkState(staMuon);
+  TrajectoryStateOnSurface staState;
 
-  if ( !staState.isValid() ) staState = innerState(staMuon);
+  if ( theUseMuonStateFlag ) {
+    TrajectoryStateOnSurface staState = outerTkState(staMuon);
+
+    if ( !staState.isValid() ) staState = innerState(staMuon);
+  } else {
+    staState = innerState(staMuon);
+  }
 
   if ( !staState.isValid() ) return ;
 
@@ -177,7 +183,7 @@ for (std::vector<TkStripMeasurementDet*>::const_iterator isd = stripdets.begin()
 
   if ( alltm.empty() ) LogTrace(category) << " NO Measurements Found: eta: "<<staState.globalPosition().eta() <<"pt "<<staState.globalMomentum().perp();
 
-  findSecondMeasurements(alltm, nls);
+  if ( theUseSecondMeasurementsFlag ) findSecondMeasurements(alltm, nls);
 
   selectMeasurements(alltm);
    LogTrace(category) << " Measurements for seeds: "<<alltm.size();
@@ -221,6 +227,10 @@ void TSGFromPropagation::init(const MuonServiceProxy* service) {
   theService = service;
 
   edm::ParameterSet vtxUpdatorParameters = theConfig.getParameter<edm::ParameterSet>("MuonUpdatorAtVertexParameters");
+
+  theUseSecondMeasurementsFlag = theConfig.getParameter<bool>("UseSecondMeasurements");
+
+  theUseMuonStateFlag = theConfig.getParameter<bool>("UseMuonState");
 
   theVtxUpdator = new MuonUpdatorAtVertex(vtxUpdatorParameters,theService);
 
