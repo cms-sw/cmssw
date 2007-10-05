@@ -28,7 +28,7 @@ class JetProbabilityComputer : public JetTagComputer
           const std::vector<float> & allProbabilities((tkip->probabilities(m_ipType)));
           const std::vector<reco::TrackIPTagInfo::TrackIPData> & impactParameters((tkip->impactParameterData()));
     
-          if(tkip->primaryVertex().isNull()) return 0; 
+          if(tkip->primaryVertex().isNull()) return 0 ; 
     
           GlobalPoint pv(tkip->primaryVertex()->position().x(),tkip->primaryVertex()->position().y(),tkip->primaryVertex()->position().z());
 
@@ -61,6 +61,7 @@ class JetProbabilityComputer : public JetTagComputer
       }
         else { 
                  //FIXME: report an  error?
+                abort();
                 return 0;
       }
    }
