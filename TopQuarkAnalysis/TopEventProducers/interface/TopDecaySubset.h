@@ -14,9 +14,10 @@
 
 namespace TopDecayID{
   static const int status = 3;
-  static const int tID = 6;
-  static const int bID = 5;
-  static const int WID =24;
+  static const int tID    = 6;
+  static const int bID    = 5;
+  static const int WID    = 24;
+  static const int tauID  = 15;
 }
 
 class TopDecaySubset : public edm::EDProducer {
@@ -29,6 +30,8 @@ class TopDecaySubset : public edm::EDProducer {
   void fillRefs(const reco::CandidateRefProd&, reco::CandidateCollection&);
 
   reco::Particle::LorentzVector fourVector(const reco::Candidate&);
+ protected:
+  void filltree(int& index, const reco::Candidate&, reco::CandidateCollection&);
  private:
   edm::InputTag src_;  
   std::map<int,std::vector<int> > refs_; //management of daughter

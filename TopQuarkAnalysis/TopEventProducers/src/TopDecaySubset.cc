@@ -26,6 +26,8 @@ TopDecaySubset::produce(edm::Event& evt, const edm::EventSetup& setup)
   const reco::CandidateRefProd ref = evt.getRefBeforePut<reco::CandidateCollection>(); 
   std::auto_ptr<reco::CandidateCollection> sel( new reco::CandidateCollection );
 
+  //clear existing refs
+  refs_.clear();  
   //fill output collection
   fillOutput( *src, *sel );
   //fill references
@@ -62,12 +64,10 @@ void TopDecaySubset::fillOutput(const reco::CandidateCollection& src, reco::Cand
       auto_ptr<reco::Candidate> ptr( cand );
       sel.push_back( ptr );
       ++idx;
-
       //keep top index for the map for 
       //management of the daughter refs 
       int iTop=idx, iW=0;
       vector<int> topDaughs, wDaughs;
-
       //iterate over top daughters
       Candidate::const_iterator td=t->begin();
       for( ; td!=t->end(); ++td){
@@ -84,21 +84,21 @@ void TopDecaySubset::fillOutput(const reco::CandidateCollection& src, reco::Cand
 	  auto_ptr<Candidate> ptr( cand );
 	  sel.push_back( ptr );
 	  topDaughs.push_back( ++idx ); //push index of top daughter
-
 	  //keep W idx 
 	  //for the map
 	  iW=idx;
-
 	  //iterate over W daughters
 	  Candidate::const_iterator wd=td->begin();
 	  for( ; wd!=td->end(); ++wd){
 	    if (wd->pdgId() != td->pdgId()) {
-
 	      GenParticleCandidate* cand = new GenParticleCandidate( wd->threeCharge(), fourVector( *wd ), 
 								     wd->vertex(), wd->pdgId(), wd->status(), false);
 	      auto_ptr<Candidate> ptr( cand );
 	      sel.push_back( ptr );
 	      wDaughs.push_back( ++idx ); //push index of wBoson daughter
+              if( wd->status()==TopDecayID::status && abs( wd->pdgId() )==TopDecayID::tauID ){ //is tau
+	        filltree(idx,*wd,sel);
+	      }
 	    }
 	  }
 	}
@@ -123,7 +123,27 @@ void TopDecaySubset::fillRefs(const reco::CandidateRefProd& ref, reco::Candidate
 	  throw edm::Exception( edm::errors::InvalidReference, "Not a GenParticleCandidate" );
 	}
 	part->addDaughter( CandidateRef(ref, *daughter) );
+	sel[*daughter].addMother(part);
       }
     }
   }
 }
+
+void TopDecaySubset::filltree(int& idx, const reco::Candidate& particle, reco::CandidateCollection& sel)
+{
+  vector<int> daughters;
+  int idx0 = idx;
+  Candidate::const_iterator daughter=particle.begin();
+  for( ; daughter!=particle.end(); ++daughter){
+    GenParticleCandidate* cand = new GenParticleCandidate( daughter->threeCharge(), fourVector( *daughter ),
+                                                           daughter->vertex(), daughter->pdgId(), daughter->status(), false);
+    auto_ptr<Candidate> ptr( cand );
+    sel.push_back( ptr );
+    daughters.push_back( ++idx ); //push index of daughter
+    filltree(idx,*daughter,sel); // continue recursively
+  }  
+  if(daughters.size()) {
+     refs_[ idx0 ] = daughters;
+  }
+}
+
