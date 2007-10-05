@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2007/09/27 23:03:38 $
- *  $Revision: 1.4 $
+ *  $Date: 2007/10/05 17:32:09 $
+ *  $Revision: 1.5 $
  *
  *  \author Martin Grunewald
  *
@@ -31,7 +31,8 @@ L1TrigReport::L1TrigReport(const edm::ParameterSet& iConfig) :
   nAccepts_(0),
   l1Accepts_(0),
   l1Names_(0),
-  init_(false)
+  init_(false),
+  nSize_(0)
 {
   LogDebug("") << "Level-1 Global Trigger Readout Record: " + l1GTReadoutRecTag_.encode();
 }
@@ -69,9 +70,14 @@ L1TrigReport::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   }
   const unsigned int n(L1GTRR->decisionWord.size());
 
-  // initialisation (could be made dynamic)
-  if (!init_) {
+  // initialisation - check for L1T table change
+  if ( (!init_) || (nSize_!=n) ) {
+    if (init_) endJob();
     init_=true;
+    nSize_=n;
+    nEvents_=0;
+    nErrors_=0;
+    nAccepts_=0;
     l1Names_.resize(n);
     l1Accepts_.resize(n);
     for (unsigned int i=0; i!=n; ++i) {
@@ -95,7 +101,6 @@ L1TrigReport::endJob()
   // final printout of accumulated statistics
 
   using namespace std;
-  const unsigned int n(l1extra::L1ParticleMap::kNumOfL1TriggerTypes);
 
     cout << dec << endl;
     cout << "L1T-Report " << "---------- Event  Summary ------------\n";
@@ -116,7 +121,7 @@ L1TrigReport::endJob()
 	 << "Name" << "\n";
 
   if (init_) {
-    for (unsigned int i=0; i!=n; ++i) {
+    for (unsigned int i=0; i!=nSize_; ++i) {
       cout << "L1T-Report "
 	   << right << setw(10) << i << " "
 	   << right << setw(10) << l1Accepts_[i] << " "

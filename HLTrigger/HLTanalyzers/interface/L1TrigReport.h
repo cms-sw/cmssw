@@ -7,8 +7,8 @@
  *  This class is an EDAnalyzer implementing TrigReport (statistics
  *  printed to log file) for L1 triggers
  *
- *  $Date: 2007/03/28 12:58:54 $
- *  $Revision: 1.1 $
+ *  $Date: 2007/10/05 17:32:08 $
+ *  $Revision: 1.2 $
  *
  *  \author Martin Grunewald
  *
@@ -45,6 +45,7 @@ class L1TrigReport : public edm::EDAnalyzer {
       std::vector<std::string> l1Names_;    // name of each L1 algorithm
 
       bool init_;                           // vectors initialised or not
+      unsigned int  nSize_;                 // size of L1 table
 
 };
 
