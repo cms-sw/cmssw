@@ -1,7 +1,7 @@
 /** \file 
  *
- *  $Date: 2007/08/15 16:24:48 $
- *  $Revision: 1.8 $
+ *  $Date: 2007/08/15 18:45:34 $
+ *  $Revision: 1.9 $
  *  \author N. Amapane - S. Argiro'
  */
 
@@ -159,7 +159,7 @@ namespace edm {
       return boost::shared_ptr<LuminosityBlockPrincipal>();
     }
     if (ep_.get() == 0) ep_ = readOneEvent(rp);
-    return ep_->luminosityBlockPrincipalSharedPtr();
+    return  (ep_.get() == 0) ? boost::shared_ptr<LuminosityBlockPrincipal>() : ep_->luminosityBlockPrincipalSharedPtr();
   }
 
   std::auto_ptr<EventPrincipal>

@@ -1,3 +1,8 @@
+2007-10-05  Emilio Meschi  <emilio.meschi@cern.ch>
+	* tag V01-02-02
+	* fix bug in DaqSource::readLuminosityBlock_ causing a crash when run is ended without 
+	* a single event having reached the EP
+
 2007-08-06  Emilio Meschi  <emilio.meschi@cern.ch>
 
 	* tag V00-05-00
