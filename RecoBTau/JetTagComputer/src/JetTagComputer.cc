@@ -23,7 +23,7 @@ void JetTagComputer::uses(unsigned int id, const std::string &label)
 			   "constructor" << std::endl;
 
 	if (id >= m_inputLabels.size())
-		m_inputLabels.resize(id);
+		m_inputLabels.resize(id + 1);
 
 	if (!m_inputLabels[id].empty())
 		throw cms::Exception("InvalidIndex")
