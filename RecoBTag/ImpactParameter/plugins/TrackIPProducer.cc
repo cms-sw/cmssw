@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea Rizzi
 //         Created:  Thu Apr  6 09:56:23 CEST 2006
-// $Id: TrackIPProducer.cc,v 1.5 2007/10/02 15:08:10 arizzi Exp $
+// $Id: TrackIPProducer.cc,v 1.6 2007/10/05 09:08:12 arizzi Exp $
 //
 //
 
@@ -157,13 +157,13 @@ TrackIPProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
        for (TrackRefVector::const_iterator itTrack = tracks.begin(); itTrack != tracks.end(); ++itTrack) {
              const Track & track = **itTrack;
      	     const TransientTrack & transientTrack = builder->build(&(**itTrack));
-         cout << " pt " <<  track.pt() <<
+/*         cout << " pt " <<  track.pt() <<
                  " d0 " <<  fabs(track.d0()) <<
                  " #hit " <<    track.hitPattern().numberOfValidHits()<<
                  " ipZ " <<   fabs(track.dz()-pvZ)<<
                  " chi2 " <<  track.normalizedChi2()<<
                  " #pixel " <<    track.hitPattern().numberOfValidPixelHits()<< endl;
- 
+ */
          if(     track.pt() > m_cutMinPt  &&                          // minimum pt
                  fabs(track.d0()) < m_cutMaxTIP &&                // max transverse i.p.
                  track.hitPattern().numberOfValidHits() >= m_cutTotalHits &&         // min num tracker hits

@@ -61,7 +61,6 @@ class JetProbabilityComputer : public JetTagComputer
       }
         else { 
                  //FIXME: report an  error?
-                abort();
                 return 0;
       }
    }
