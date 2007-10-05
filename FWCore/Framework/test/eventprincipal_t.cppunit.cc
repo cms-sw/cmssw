@@ -2,7 +2,7 @@
 
 Test of the EventPrincipal class.
 
-$Id: eventprincipal_t.cppunit.cc,v 1.46 2007/09/27 17:48:49 paterno Exp $
+$Id: eventprincipal_t.cppunit.cc,v 1.47 2007/09/28 21:29:52 paterno Exp $
 
 ----------------------------------------------------------------------*/  
 #include <map>
@@ -218,36 +218,41 @@ void test_ep::failgetbyIdTest()
   CPPUNIT_ASSERT_THROW(pEvent_->get(invalid), edm::Exception);
 
   edm::ProductID notpresent(10000000);
-  CPPUNIT_ASSERT_THROW(pEvent_->get(notpresent), edm::Exception);
+  edm::BasicHandle h(pEvent_->get(notpresent));
+  CPPUNIT_ASSERT(h.failedToGet());
 }
 
 void test_ep::failgetbySelectorTest()
 {
-  // We don't put EventPrincipals into the EventPrincipal,
+  // We don't put ProductIDs into the EventPrincipal,
   // so that's a type sure not to match any product.
-  edm::TypeID tid(*pEvent_); 
+  edm::ProductID dummy;
+  edm::TypeID tid(dummy);
 
   edm::ProcessNameSelector pnsel("PROD");
-  CPPUNIT_ASSERT_THROW(pEvent_->getBySelector(tid, pnsel), edm::Exception);
+  edm::BasicHandle h(pEvent_->getBySelector(tid, pnsel));
+  CPPUNIT_ASSERT(h.failedToGet());
 }
 
 void test_ep::failgetbyLabelTest() 
 {
-  // We don't put EventPrincipals into the EventPrincipal,
+  // We don't put ProductIDs into the EventPrincipal,
   // so that's a type sure not to match any product.
-  edm::TypeID tid(*pEvent_);
+  edm::ProductID dummy;
+  edm::TypeID tid(dummy);
 
   std::string label("this does not exist");
 
-  CPPUNIT_ASSERT_THROW(pEvent_->getByLabel(tid, label, std::string()),
-		       edm::Exception);
+  edm::BasicHandle h(pEvent_->getByLabel(tid, label, std::string()));
+  CPPUNIT_ASSERT(h.failedToGet());
 }
 
 void test_ep::failgetManyTest() 
 {
-  // We don't put EventPrincipals into the EventPrincipal,
+  // We don't put ProductIDs into the EventPrincipal,
   // so that's a type sure not to match any product.
-  edm::TypeID tid(*pEvent_);
+  edm::ProductID dummy;
+  edm::TypeID tid(dummy);
 
   edm::ProcessNameSelector sel("PROD");
   std::vector<edm::BasicHandle> handles;
@@ -257,15 +262,18 @@ void test_ep::failgetManyTest()
 
 void test_ep::failgetbyTypeTest() 
 {
-  edm::TypeID tid(*pEvent_);
-  CPPUNIT_ASSERT_THROW(pEvent_->getByType(tid), edm::Exception);
+  edm::ProductID dummy;
+  edm::TypeID tid(dummy);
+  edm::BasicHandle h(pEvent_->getByType(tid));
+  CPPUNIT_ASSERT(h.failedToGet());
 }
 
 void test_ep::failgetManybyTypeTest() 
 {
-  // We don't put EventPrincipals into the EventPrincipal,
+  // We don't put ProductIDs into the EventPrincipal,
   // so that's a type sure not to match any product.
-  edm::TypeID tid(*pEvent_);
+  edm::ProductID dummy;
+  edm::TypeID tid(dummy);
   std::vector<edm::BasicHandle> handles;
 
   
