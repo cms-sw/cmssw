@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2007/07/30 14:06:35 $
- *  $Revision: 1.3 $
+ *  $Date: 2007/09/27 23:03:38 $
+ *  $Revision: 1.4 $
  *
  *  \author Martin Grunewald
  *
@@ -25,7 +25,6 @@
 // constructors and destructor
 //
 L1TrigReport::L1TrigReport(const edm::ParameterSet& iConfig) :
-  l1ParticleMapTag_ (iConfig.getParameter<edm::InputTag> ("L1ExtraParticleMap")),
   l1GTReadoutRecTag_(iConfig.getParameter<edm::InputTag> ("L1GTReadoutRecord")),
   nEvents_(0),
   nErrors_(0),
@@ -53,7 +52,6 @@ L1TrigReport::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   using namespace std;
   using namespace edm;
   using namespace reco;
-  const unsigned int n(l1extra::L1ParticleMap::kNumOfL1TriggerTypes);
 
   nEvents_++;
 
@@ -69,40 +67,22 @@ L1TrigReport::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     nErrors_++;
     return;
   }
-
-  // get hold of L1ParticleMapCollection
-  Handle<l1extra::L1ParticleMapCollection> L1PMC;
-  try {iEvent.getByLabel(l1ParticleMapTag_,L1PMC);} catch (...) {;}
-  if (L1PMC.isValid()) {
-    LogDebug("") << "L1ParticleMapCollection contains " << L1PMC->size() << " maps.";
-  } else {
-    LogDebug("") << "L1ParticleMapCollection with label ["+l1ParticleMapTag_.encode()+"] not found!";
-    nErrors_++;
-    return;
-  }
+  const unsigned int n(L1GTRR->decisionWord.size());
 
   // initialisation (could be made dynamic)
-  assert(n==L1PMC->size());
   if (!init_) {
     init_=true;
     l1Names_.resize(n);
     l1Accepts_.resize(n);
     for (unsigned int i=0; i!=n; ++i) {
       l1Accepts_[i]=0;
-      if (i<l1extra::L1ParticleMap::kNumOfL1TriggerTypes) {
-	l1extra::L1ParticleMap::L1TriggerType 
-	  type(static_cast<l1extra::L1ParticleMap::L1TriggerType>(i));
-	l1Names_[i]=l1extra::L1ParticleMap::triggerName(type);
-      } else {
-	l1Names_[i]="@@NameNotFound??";
-      }
+      l1Names_[i]="NameNotAvailable";
     }
   }
 
   // decision for each L1 algorithm
   for (unsigned int i=0; i!=n; ++i) {
-    if ((*L1PMC)[i].triggerDecision()) l1Accepts_[i]++;
-    //    if (L1GTRR->decisionWord()[i]) l1Accepts_[i]++;
+    if (L1GTRR->decisionWord()[i]) l1Accepts_[i]++;
   }
 
   return;

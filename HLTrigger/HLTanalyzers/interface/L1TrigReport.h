@@ -7,8 +7,8 @@
  *  This class is an EDAnalyzer implementing TrigReport (statistics
  *  printed to log file) for L1 triggers
  *
- *  $Date: 2006/10/04 16:02:42 $
- *  $Revision: 1.13 $
+ *  $Date: 2007/03/28 12:58:54 $
+ *  $Revision: 1.1 $
  *
  *  \author Martin Grunewald
  *
@@ -35,7 +35,6 @@ class L1TrigReport : public edm::EDAnalyzer {
 
    private:
 
-      edm::InputTag l1ParticleMapTag_;   // Only because decisionWord of L1GTRR is not yet filled!
       edm::InputTag l1GTReadoutRecTag_;  // L1GlobalTriggerReadoutRecord
 
       unsigned int  nEvents_;            // number of events processed
