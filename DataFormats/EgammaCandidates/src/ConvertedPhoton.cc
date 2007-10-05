@@ -26,6 +26,7 @@ ConvertedPhoton::ConvertedPhoton(  const reco::SuperClusterRef sc,
   makePairMomentumPhi();
   makePairPtOverEtSC();
   makeEoverP() ;
+  makePrimaryVertexZ();
 
 
  
@@ -66,6 +67,22 @@ bool ConvertedPhoton::isConverted() const {
   else
     return false;
 }
+
+
+void  ConvertedPhoton::makePrimaryVertexZ() {
+  theZOfPrimaryVertexFromTracks_=-9999.;
+
+  float pTrkMag=this->pairMomentum().mag();
+  
+  if ( pTrkMag>0 && sqrt(this->conversionVertex().position().perp2()) !=0 ) {
+    float theta=acos(this->pairMomentum().z() /pTrkMag);
+    theZOfPrimaryVertexFromTracks_ = this->conversionVertex().position().z()  - sqrt(this->conversionVertex().position().perp2())*(1./tan(theta));
+    
+  }
+
+
+}
+
 
 void  ConvertedPhoton::makePairInvariantMass() {
   invMass_=-99.;
