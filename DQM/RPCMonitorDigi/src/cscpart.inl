@@ -21,13 +21,7 @@
       
       if(CSCSegmentsCounter[CSCId]==1){
 	int cscEndCap = CSCId.endcap();
-	int cscStation = CSCId.station();
-	int cscRing = CSCId.ring();
-	int cscChamber = CSCId.chamber();
 	int rpcRegion = 1; if(cscEndCap==2) rpcRegion= -1;
-	int rpcSector = int (cscChamber/6)+1;
-	int rpcSubsector = cscChamber%6+1;
-	int rpcStation = CSCId.station();
 
 	LocalPoint segmentPosition= segment->localPosition();
 	LocalVector segmentDirection=segment->localDirection();
