@@ -163,7 +163,7 @@ void GctBlockUnpacker::blockToGctInternEmCand(const unsigned char * d, const Gct
   uint16_t * p = reinterpret_cast<uint16_t *>(const_cast<unsigned char *>(d));
 
   // Loop over timesamples (i.e. bunch crossings)
-  for(unsigned int bx=0, bx < nSamples, ++bx)
+  for(unsigned int bx=0; bx < nSamples; ++bx)
   {
     // Loop over candidate pairs (i.e. each iteration unpacks a pair of candidates)
     for(unsigned int candPair = 0 ; candPair < numCandPairs ; ++candPair)
