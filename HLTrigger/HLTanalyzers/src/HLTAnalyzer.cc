@@ -36,6 +36,9 @@ HLTAnalyzer::HLTAnalyzer(edm::ParameterSet const& conf) {
 
   particleMapSource_ = conf.getParameter< std::string > ("particleMapSource");
 
+  ecalDigisLabel_ = conf.getParameter<std::string> ("ecalDigisLabel");
+  hcalDigisLabel_ = conf.getParameter<std::string> ("hcalDigisLabel");
+
   errCnt=0;
 
   edm::ParameterSet myAnaParams = conf.getParameter<edm::ParameterSet>("RunParameters") ;
@@ -88,7 +91,7 @@ void HLTAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetu
   edm::Handle<CaloMETCollection> recmet;
   edm::Handle<GenMETCollection> genmet;
   edm::Handle<METCollection> ht;
-//   edm::Handle<edm::HepMCProduct> hepmcHandle;
+  edm::Handle<edm::HepMCProduct> hepmcHandle;
   edm::Handle<CandidateCollection> mctruth;
   edm::Handle<ElectronCollection> Electron;
   edm::Handle<PhotonCollection> Photon;
@@ -100,6 +103,8 @@ void HLTAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetu
   edm::Handle<l1extra::L1JetParticleCollection> l1extjetc,l1extjetf,l1exttaujet;
   edm::Handle<l1extra::L1EtMissParticle> l1extmet;
   edm::Handle<l1extra::L1ParticleMapCollection> l1mapcoll;
+  edm::Handle<EcalTrigPrimDigiCollection> ecal;
+  edm::Handle<HcalTrigPrimDigiCollection> hcal;
 
 
   // Extract Data objects (event fragments)
@@ -127,12 +132,15 @@ void HLTAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetu
 
   try {iEvent.getByLabel(mctruth_,mctruth);} catch (...) { errMsg=errMsg + "  -- No Gen Particles";}
 
-//   HepMC::GenEvent hepmc;
-//   try {
-//     //iEvent.getByLabel("VtxSmeared", "", hepmcHandle);
-//     iEvent.getByLabel(hepmc_, "", hepmcHandle);
-//     hepmc = hepmcHandle->getHepMCData(); 
-//   } catch (...) { errMsg=errMsg + "  -- No MC truth"; }
+  try {iEvent.getByLabel(ecalDigisLabel_,ecal);} catch (...) { errMsg=errMsg + "  -- No ECAL TriggPrim";}
+  try {iEvent.getByLabel(hcalDigisLabel_,hcal);} catch (...) { errMsg=errMsg + "  -- No HCAL TriggPrim";}
+
+  HepMC::GenEvent hepmc;
+  try {
+//     iEvent.getByLabel("VtxSmeared", "", hepmcHandle);
+    iEvent.getByLabel("source", "", hepmcHandle);
+    hepmc = hepmcHandle->getHepMCData(); 
+  } catch (...) { errMsg=errMsg + "  -- No MC truth"; }
 
   if ((errMsg != "") && (errCnt < errMax())){
     errCnt=errCnt+1;
@@ -148,7 +156,7 @@ void HLTAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetu
   jet_analysis_.analyze(*recjets,*genjets, *recmet,*genmet, *ht, *caloTowers, *geometry, HltTree);
   elm_analysis_.analyze(*Electron, *Photon, *geometry, HltTree);
   muon_analysis_.analyze(*muon, *geometry, HltTree);
-  mct_analysis_.analyze(*mctruth,/*hepmc,*/HltTree);
+  mct_analysis_.analyze(*mctruth,hepmc,HltTree);
   hlt_analysis_.analyze(/**hltobj,*/*hltresults,*l1extemi,*l1extemn,*l1extmu,*l1extjetc,*l1extjetf,*l1exttaujet,*l1extmet,*l1mapcoll,HltTree);
 
   // After analysis, fill the variables tree
