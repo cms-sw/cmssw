@@ -60,15 +60,15 @@ GctBlockUnpacker::GctBlockUnpacker() :
     blockUnpackFn_[0xcb] = &GctBlockUnpacker::blockToGctInternEmCand;
     
     // Setup Block ID map for pipeline payload positions of isolated Internal EM Cands.
-    InternEmIsoBounds_[0x69] = pair<unsigned int, unsigned int>(8,15);
-    InternEmIsoBounds_[0x80] = pair<unsigned int, unsigned int>(0, 9);
-    InternEmIsoBounds_[0x83] = pair<unsigned int, unsigned int>(0, 1);
-    InternEmIsoBounds_[0x88] = pair<unsigned int, unsigned int>(0, 7);
-    InternEmIsoBounds_[0x8b] = pair<unsigned int, unsigned int>(0, 1);
-    InternEmIsoBounds_[0xc0] = pair<unsigned int, unsigned int>(0, 9);
-    InternEmIsoBounds_[0xc3] = pair<unsigned int, unsigned int>(0, 1);
-    InternEmIsoBounds_[0xc8] = pair<unsigned int, unsigned int>(0, 7);
-    InternEmIsoBounds_[0xcb] = pair<unsigned int, unsigned int>(0, 1);
+    InternEmIsoBounds_[0x69] = IsoBoundaryPair(8,15);
+    InternEmIsoBounds_[0x80] = IsoBoundaryPair(0, 9);
+    InternEmIsoBounds_[0x83] = IsoBoundaryPair(0, 1);
+    InternEmIsoBounds_[0x88] = IsoBoundaryPair(0, 7);
+    InternEmIsoBounds_[0x8b] = IsoBoundaryPair(0, 1);
+    InternEmIsoBounds_[0xc0] = IsoBoundaryPair(0, 9);
+    InternEmIsoBounds_[0xc3] = IsoBoundaryPair(0, 1);
+    InternEmIsoBounds_[0xc8] = IsoBoundaryPair(0, 7);
+    InternEmIsoBounds_[0xcb] = IsoBoundaryPair(0, 1);
   }
 
 }
@@ -145,8 +145,8 @@ void GctBlockUnpacker::blockToGctEmCand(const unsigned char * d, const GctBlockH
 
 
 // Internal EM Candidates unpacking
-void GctBlockUnpacker::blockToGctInternEmCand(const unsigned char * d, const GctBlockHeader& hdr) {
-
+void GctBlockUnpacker::blockToGctInternEmCand(const unsigned char * d, const GctBlockHeader& hdr)
+{
   LogDebug("GCT") << "Unpacking internal EM Cands" << std::endl;
 
   unsigned int id = hdr.id();
@@ -169,7 +169,7 @@ void GctBlockUnpacker::blockToGctInternEmCand(const unsigned char * d, const Gct
     for(unsigned int candPair = 0 ; candPair < numCandPairs ; ++candPair)
     {
       // Is the candidate electron pair an isolated pair or not?
-      bool iso = ((candPair>=lowerIsoPairBound) && (candPair<=upperIsoPairBound))
+      bool iso = ((candPair>=lowerIsoPairBound) && (candPair<=upperIsoPairBound));
       
       // Loop over the two electron candidates in each pair
       for(unsigned int i = 0 ; i < 2 ; ++i)
