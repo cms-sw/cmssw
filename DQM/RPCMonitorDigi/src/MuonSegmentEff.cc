@@ -13,7 +13,7 @@
 //
 // Original Author:  Camilo Carrillo (Uniandes)
 //         Created:  Tue Oct  2 16:57:49 CEST 2007
-// $Id: MuonSegmentEff.cc,v 1.2 2007/10/05 08:48:59 mmaggi Exp $
+// $Id: MuonSegmentEff.cc,v 1.3 2007/10/05 13:39:36 carrillo Exp $
 //
 //
 
@@ -127,6 +127,7 @@ MuonSegmentEff::MuonSegmentEff(const edm::ParameterSet& iConfig)
   ofrej.open("rejected.txt");
 
   incldt=iConfig.getParameter<bool>("incldt");
+  incldtMB4=iConfig.getParameter<bool>("incldtMB4");
   inclcsc=iConfig.getParameter<bool>("inclcsc");
   widestrip=iConfig.getParameter<int>("widestrip");
   muonRPCDigis=iConfig.getParameter<std::string>("muonRPCDigis");
@@ -200,9 +201,6 @@ void MuonSegmentEff::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
 	else{
 	  //std::cout<<"--Filling the EndCaps"<<rpcId<<std::endl;
 	  int region=rpcId.region();
-	  int sector=rpcId.sector();
-	  int subsector=rpcId.subsector();
-	  int station=rpcId.station();
 	  CSCStationIndex ind(region);
 	  std::set<RPCDetId> myrolls;
 	  if (rollstoreCSC.find(ind)!=rollstoreCSC.end()) myrolls=rollstoreCSC[ind];
@@ -216,7 +214,11 @@ void MuonSegmentEff::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
   if(incldt){
 #include "dtpart.inl"
   }
-  
+
+  if(incldtMB4){
+#include "rb4part.inl"
+  }
+
   if(inclcsc){
 #include "cscpart.inl"
   }
