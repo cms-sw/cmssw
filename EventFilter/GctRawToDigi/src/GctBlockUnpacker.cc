@@ -11,11 +11,12 @@
 
 using std::cout;
 using std::endl;
+using std::pair;
 
 // INITIALISE STATIC VARIABLES
 GctBlockUnpacker::RctCrateMap GctBlockUnpacker::rctCrate_ = GctBlockUnpacker::RctCrateMap();
 GctBlockUnpacker::BlockIdToUnpackFnMap GctBlockUnpacker::blockUnpackFn_ = GctBlockUnpacker::BlockIdToUnpackFnMap();
-
+GctBlockUnpacker::BlockIdToEmCandIsoBoundMap GctBlockUnpacker::InternEmIsoBounds_ = GctBlockUnpacker::BlockIdToEmCandIsoBoundMap();
 
 GctBlockUnpacker::GctBlockUnpacker() :
   rctEm_(0),
@@ -57,6 +58,17 @@ GctBlockUnpacker::GctBlockUnpacker() :
     blockUnpackFn_[0xc8] = &GctBlockUnpacker::blockToGctInternEmCand;
     blockUnpackFn_[0xc9] = &GctBlockUnpacker::blockToFibresAndToRctEmCand;
     blockUnpackFn_[0xcb] = &GctBlockUnpacker::blockToGctInternEmCand;
+    
+    // Setup Block ID map for pipeline payload positions of isolated Internal EM Cands.
+    InternEmIsoBounds_[0x69] = pair<unsigned int, unsigned int>(8,15);
+    InternEmIsoBounds_[0x80] = pair<unsigned int, unsigned int>(0, 9);
+    InternEmIsoBounds_[0x83] = pair<unsigned int, unsigned int>(0, 1);
+    InternEmIsoBounds_[0x88] = pair<unsigned int, unsigned int>(0, 7);
+    InternEmIsoBounds_[0x8b] = pair<unsigned int, unsigned int>(0, 1);
+    InternEmIsoBounds_[0xc0] = pair<unsigned int, unsigned int>(0, 9);
+    InternEmIsoBounds_[0xc3] = pair<unsigned int, unsigned int>(0, 1);
+    InternEmIsoBounds_[0xc8] = pair<unsigned int, unsigned int>(0, 7);
+    InternEmIsoBounds_[0xcb] = pair<unsigned int, unsigned int>(0, 1);
   }
 
 }
@@ -139,16 +151,35 @@ void GctBlockUnpacker::blockToGctInternEmCand(const unsigned char * d, const Gct
 
   unsigned int id = hdr.id();
   unsigned int nSamples = hdr.nSamples();
-  unsigned int length = hdr.length();
+  unsigned int numCandPairs = hdr.length();
 
-  for (unsigned int i=0 ; i<length*nSamples ; i+=nSamples) {  // temporarily just take 0th time sample
-    unsigned offset = i*4*nSamples;
-    uint16_t w0 = d[offset]   + (d[offset+1]<<8); 
-    uint16_t w1 = d[offset+2] + (d[offset+3]<<8);
-    gctInternEm_->push_back( L1GctInternEmCand(w0, i > 7, id, 2*i/nSamples, 0) );
-    gctInternEm_->push_back( L1GctInternEmCand(w1, i > 7, id, 2*(i/nSamples)+1, 0) );
+  // Debug assertion to prevent problems if definitions not up to date.
+  assert(InternEmIsoBounds_.find(id) != InternEmIsoBounds_.end());  
+
+  unsigned int lowerIsoPairBound = InternEmIsoBounds_[id].first;
+  unsigned int upperIsoPairBound = InternEmIsoBounds_[id].second;
+
+  // Re-interpret pointer to 16 bits so it sees one candidate at a time.
+  uint16_t * p = reinterpret_cast<uint16_t *>(const_cast<unsigned char *>(d));
+
+  // Loop over timesamples (i.e. bunch crossings)
+  for(unsigned int bx=0, bx < nSamples, ++bx)
+  {
+    // Loop over candidate pairs (i.e. each iteration unpacks a pair of candidates)
+    for(unsigned int candPair = 0 ; candPair < numCandPairs ; ++candPair)
+    {
+      // Is the candidate electron pair an isolated pair or not?
+      bool iso = ((candPair>=lowerIsoPairBound) && (candPair<=upperIsoPairBound))
+      
+      // Loop over the two electron candidates in each pair
+      for(unsigned int i = 0 ; i < 2 ; ++i)
+      { 
+        unsigned offset = 2*(bx + candPair*nSamples) + i;
+        uint16_t candRaw = p[offset]; 
+        gctInternEm_->push_back( L1GctInternEmCand(candRaw, iso, id, candPair*2 + i, bx) );
+      }
+    }
   }
-
 }
 
 

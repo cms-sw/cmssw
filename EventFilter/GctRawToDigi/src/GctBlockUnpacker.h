@@ -4,6 +4,7 @@
 
 #include <vector>
 #include <map>
+#include <utility>
 #include <memory>
 #include <boost/cstdint.hpp>
 
@@ -42,6 +43,18 @@ class GctBlockUnpacker {
   typedef std::map<unsigned int, unsigned int> RctCrateMap; // RCT Crate Map typedef.
   static RctCrateMap rctCrate_;  // And the RCT Crate Map itself.
 
+  // A typedef that holds the inclusive lower and upper bounds of pipeline
+  // gct trigger object pair number for isolated EM candidates.
+  // I.e. if the first and second trig object pair in the pipeline payload
+  // are isolated cands (4 iso in total), then the IsoBoundaryPair would
+  // be (0,1). 
+  typedef std::pair<unsigned int, unsigned int> IsoBoundaryPair;
+  // A typdef for mapping Block IDs to IsoBoundaryPairs.
+  typedef std::map<unsigned int, IsoBoundaryPair> BlockIdToEmCandIsoBoundMap;
+  // A map of Block IDs to IsoBoundaryPairs for storing the location of the isolated
+  // Internal EM cands in the pipeline, as this differs with Block ID. 
+  static BlockIdToEmCandIsoBoundMap InternEmIsoBounds_;
+  
   // Typedefs for the block ID to unpack function mapping.
   typedef void (GctBlockUnpacker::*PtrToUnpackFn)(const unsigned char *, const GctBlockHeader&);
   typedef std::map<unsigned int, PtrToUnpackFn> BlockIdToUnpackFnMap;
