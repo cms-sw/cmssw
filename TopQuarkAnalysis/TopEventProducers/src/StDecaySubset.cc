@@ -34,6 +34,8 @@ StDecaySubset::produce(edm::Event& evt, const edm::EventSetup& setup)
   const reco::CandidateRefProd ref = evt.getRefBeforePut<reco::CandidateCollection>(); 
   std::auto_ptr<reco::CandidateCollection> sel( new reco::CandidateCollection );
 
+  //clear existing refs
+  refs_.clear();
   //fill output collection
   fillOutput( *src, *sel );
   //fill references
@@ -165,6 +167,7 @@ void StDecaySubset::fillRefs(const reco::CandidateRefProd& ref, reco::CandidateC
 	  throw edm::Exception( edm::errors::InvalidReference, "Not a GenParticleCandidate" );
 	}
 	part->addDaughter( CandidateRef(ref, *daughter) );
+	sel[*daughter].addMother(part);
       }
     }
   }
