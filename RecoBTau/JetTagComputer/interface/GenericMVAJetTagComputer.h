@@ -20,10 +20,8 @@ class GenericMVAJetTagComputer : public JetTagComputer {
 
 	virtual float discriminator(const TagInfoHelper &info) const;
 
-    protected:
 	virtual reco::TaggingVariableList
 	taggingVariables(const reco::BaseTagInfo &tagInfo) const;
-
 	virtual reco::TaggingVariableList
 	taggingVariables(const TagInfoHelper &info) const;
 

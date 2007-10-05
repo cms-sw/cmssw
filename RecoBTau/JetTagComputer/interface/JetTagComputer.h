@@ -11,6 +11,7 @@
 
 // forward for friend declaration
 class JetTagProducer;
+class JetTagMVATrainer;
 
 class JetTagComputer {
     public:
@@ -78,6 +79,7 @@ class JetTagComputer {
 
     private:
 	friend class JetTagProducer;
+	friend class JetTagMVATrainer;
 
 	std::vector<std::string>	m_inputLabels;
 	mutable bool			m_setupDone;
