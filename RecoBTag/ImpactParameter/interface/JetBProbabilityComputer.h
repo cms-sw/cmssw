@@ -16,7 +16,7 @@ class JetBProbabilityComputer : public JetTagComputer
      m_minTrackProb     = parameters.getParameter<double>("minimumProbability");
      m_deltaR           = parameters.getParameter<double>("deltaR");
      m_trackSign        = parameters.getParameter<int>("trackIpSign");
-     m_nbTracks         = parameters.getParameter<int>("numberOfBTracks");
+     m_nbTracks         = parameters.getParameter<unsigned int>("numberOfBTracks");
      m_cutMaxDecayLen   = parameters.getParameter<double>("maximumDecayLength");
      m_cutMaxDistToAxis = parameters.getParameter<double>("maximumDistanceToJetAxis");
 
@@ -60,7 +60,7 @@ class JetBProbabilityComputer : public JetTagComputer
 
           float all = jetProbability(probabilities); 
           std::sort(probabilitiesB.begin(), probabilitiesB.end());
-          if(probabilitiesB.size() > nbTracks )  probabilitiesB.resize(nbTracks);
+          if(probabilitiesB.size() > m_nbTracks )  probabilitiesB.resize(m_nbTracks);
           float b = jetProbability(probabilitiesB);
         
 	  return -log(b)/4-log(all)/4; ///log(all);
@@ -111,7 +111,7 @@ double jetProbability( const std::vector<float> & v ) const
    int m_ipType;
    double m_deltaR;
    int m_trackSign;
-   int m_nbTracks;
+   unsigned int m_nbTracks;
    double  m_cutMaxDecayLen;
    double m_cutMaxDistToAxis;
 
