@@ -53,10 +53,8 @@ class JetProbabilityComputer : public JetTagComputer
               {
                 if(*it <=0 ) p= -*it; else continue; 
               } 
-                double delta  = -2.; 
-                if(m_deltaR > 0) delta = ROOT::Math::VectorUtil::DeltaR((*tkip->jet()).p4().Vect(), (*tracks[i]).momentum());
-              if(delta < m_deltaR || m_deltaR <= 0)
-             probabilities.push_back(p);
+              if(m_deltaR <= 0  || ROOT::Math::VectorUtil::DeltaR((*tkip->jet()).p4().Vect(), (*tracks[i]).momentum()) < m_deltaR )
+                probabilities.push_back(p);
             }
            }
            return jetProbability(probabilities); 

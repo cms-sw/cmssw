@@ -54,9 +54,7 @@ class TrackCountingComputer : public JetTagComputer
                  (impactParameters[i].closestToJetAxis - pv).mag() < m_cutMaxDecayLen        // max decay len
              )
               {
-                double delta;
-                if(m_deltaR > 0) delta  = ROOT::Math::VectorUtil::DeltaR((*tkip.jet()).p4().Vect(), (*tracks[i]).momentum());
-                if(m_deltaR <=0  || delta < m_deltaR)
+                if(m_deltaR <=0  || ROOT::Math::VectorUtil::DeltaR((*tkip.jet()).p4().Vect(), (*tracks[i]).momentum()) < m_deltaR)
                  significances.insert( ((m_ipType==0)?it->ip3d:it->ip2d).significance() );
               }
           }
