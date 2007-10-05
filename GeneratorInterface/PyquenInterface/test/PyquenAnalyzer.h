@@ -1,3 +1,5 @@
+// $Id:$
+
 #ifndef PyquenAnalyzer_H
 #define PyquenAnalyzer_H
 
@@ -9,7 +11,7 @@ class TH1D;
 
 
 class PyquenAnalyzer : public edm::EDAnalyzer
-{
+{ //analyzer module to analyze pythia events
  public:
   explicit PyquenAnalyzer(const edm::ParameterSet& );
   virtual ~PyquenAnalyzer() {} 
@@ -27,8 +29,7 @@ class PyquenAnalyzer : public edm::EDAnalyzer
   TH1D*        phdNdY;             // histogram for dN/dy
   TH1D*        phdNdPt;            // histogram for dN/dpt
   TH1D*        phdNdPhi;           // histogram for dN/dphi
-
 };
 
 #endif
-//module to analyze pythia events
+

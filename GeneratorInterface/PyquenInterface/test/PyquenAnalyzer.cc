@@ -1,3 +1,5 @@
+// $Id:$
+
 #include <iostream>
 
 #include "PyquenAnalyzer.h"
@@ -9,7 +11,6 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "HepMC/HeavyIon.h"
-
  
 #include "TFile.h"
 #include "TH1.h"
@@ -28,10 +29,9 @@ using namespace std;
  
 PyquenAnalyzer::PyquenAnalyzer(const ParameterSet& pset)
   : sOutFileName(pset.getUntrackedParameter<string>("HistOutFile",std::string("testPyquen.root")) ),
-pfOutFile(0), phdNdEta(0), phdNdY(0), phdNdPt(0),phdNdPhi(0)
+    pfOutFile(0), phdNdEta(0), phdNdY(0), phdNdPt(0),phdNdPhi(0)
 {
   // constructor
-
 }
 
 
