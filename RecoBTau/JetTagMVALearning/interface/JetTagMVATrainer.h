@@ -2,8 +2,9 @@
 #define RecoBTau_JetTagMVALearning_JetTagMVATrainer_h
 
 #include <string>
-#include <vector>
 #include <memory>
+#include <vector>
+#include <map>
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -12,9 +13,12 @@
 
 #include "CondFormats/PhysicsToolsObjects/interface/MVAComputer.h"
 
+#include "DataFormats/BTauReco/interface/TaggingVariable.h"
+
 #include "RecoBTau/JetTagComputer/interface/GenericMVAComputer.h"
 #include "RecoBTau/JetTagComputer/interface/GenericMVAComputerCache.h"
 #include "RecoBTau/JetTagComputer/interface/TagInfoMVACategorySelector.h"
+#include "RecoBTau/JetTagComputer/interface/GenericMVAJetTagComputer.h"
 
 class JetTagMVATrainer : public edm::EDAnalyzer {
     public:
@@ -29,7 +33,6 @@ class JetTagMVATrainer : public edm::EDAnalyzer {
 	bool isIgnoreFlavour(int flavour) const;
 
 	edm::InputTag					jetFlavour;
-	edm::InputTag					tagInfo;
 	std::auto_ptr<TagInfoMVACategorySelector>	categorySelector;
 	std::auto_ptr<GenericMVAComputerCache>		computerCache;
 
@@ -38,6 +41,13 @@ class JetTagMVATrainer : public edm::EDAnalyzer {
 	double						maxEta;
 
     private:
+	void setup(const JetTagComputer &computer);
+
+	std::string					jetTagComputer;
+
+	std::map<std::string, edm::InputTag>		tagInfoLabels;
+	std::vector<edm::InputTag>			tagInfos;
+
 	std::vector<int>				signalFlavours;
 	std::vector<int>				ignoreFlavours;
 };

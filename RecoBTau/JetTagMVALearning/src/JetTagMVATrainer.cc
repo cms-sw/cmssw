@@ -1,3 +1,4 @@
+#include <functional>
 #include <algorithm>
 #include <iostream>
 #include <vector>
@@ -25,6 +26,7 @@
 
 #include "PhysicsTools/MVATrainer/interface/MVATrainer.h"
 
+#include "RecoBTau/JetTagComputer/interface/JetTagComputerRecord.h"
 #include "RecoBTau/JetTagComputer/interface/GenericMVAComputer.h"
 #include "RecoBTau/JetTagComputer/interface/GenericMVAComputerCache.h"
 #include "RecoBTau/JetTagComputer/interface/TagInfoMVACategorySelector.h"
@@ -38,10 +40,10 @@ static const AtomicId kJetEta(TaggingVariableTokens[btau::jetEta]);
 
 JetTagMVATrainer::JetTagMVATrainer(const edm::ParameterSet &params) :
 	jetFlavour(params.getParameter<edm::InputTag>("jetFlavourMatching")),
-	tagInfo(params.getParameter<edm::InputTag>("tagInfo")),
 	minPt(params.getParameter<double>("minimumTransverseMomentum")),
 	minEta(params.getParameter<double>("minimumPseudoRapidity")),
 	maxEta(params.getParameter<double>("maximumPseudoRapidity")),
+	jetTagComputer(params.getParameter<std::string>("jetTagComputer")),
 	signalFlavours(params.getParameter<std::vector<int> >("signalFlavours")),
 	ignoreFlavours(params.getParameter<std::vector<int> >("ignoreFlavours"))
 {
@@ -63,10 +65,40 @@ JetTagMVATrainer::JetTagMVATrainer(const edm::ParameterSet &params) :
 
 	computerCache = std::auto_ptr<GenericMVAComputerCache>(
 			new GenericMVAComputerCache(calibrationLabels));
+
+	std::vector<std::string> inputTags =
+			params.getParameterNamesForType<edm::InputTag>();
+
+	for(std::vector<std::string>::const_iterator iter = inputTags.begin();
+	    iter != inputTags.end(); iter++)
+		tagInfoLabels[*iter] =
+				params.getParameter<edm::InputTag>(*iter);
 }
 
 JetTagMVATrainer::~JetTagMVATrainer()
 {
+}
+
+void JetTagMVATrainer::setup(const JetTagComputer &computer)
+{
+	std::vector<std::string> inputLabels(computer.m_inputLabels);
+
+	if (inputLabels.empty())
+		inputLabels.push_back("tagInfo");
+
+	for(std::vector<std::string>::const_iterator iter = inputLabels.begin();
+	    iter != inputLabels.end(); iter++) {
+		std::map<std::string, edm::InputTag>::const_iterator pos =
+						tagInfoLabels.find(*iter);
+		if (pos == tagInfoLabels.end())
+			throw cms::Exception("InputTagMissing")
+				<< "JetTagMVATrainer is missing a TagInfo "
+				   "InputTag \"" << *iter << "\"" << std::endl;
+
+		tagInfos.push_back(pos->second);
+	}
+
+	computer.m_setupDone = true;
 }
 
 bool JetTagMVATrainer::isSignalFlavour(int flavour) const
@@ -87,6 +119,22 @@ bool JetTagMVATrainer::isIgnoreFlavour(int flavour) const
 	return pos != ignoreFlavours.end() && *pos == flavour;
 }
 
+// map helper
+namespace {
+	struct JetCompare :
+		public std::binary_function<edm::RefToBase<Jet>,
+		                            edm::RefToBase<Jet>, bool> {
+		inline bool operator () (const edm::RefToBase<Jet> &j1,
+		                         const edm::RefToBase<Jet> &j2) const
+		{ return j1.key() < j2.key(); }
+	};
+
+	struct JetInfo {
+		unsigned int		flavour;
+		std::vector<int>	tagInfos;
+	};
+}
+
 void JetTagMVATrainer::analyze(const edm::Event& event,
                                const edm::EventSetup& es)
 {
@@ -100,19 +148,61 @@ void JetTagMVATrainer::analyze(const edm::Event& event,
 	if (computerCache->isEmpty())
 		return;
 
+	// retrieve JetTagComputer
+	edm::ESHandle<JetTagComputer> computerHandle;
+	es.get<JetTagComputerRecord>().get(jetTagComputer, computerHandle);
+	const GenericMVAJetTagComputer *computer =
+			dynamic_cast<const GenericMVAJetTagComputer*>(
+						computerHandle.product());
+	if (!computer)
+		throw cms::Exception("InvalidCast")
+			<< "JetTagComputer is not a MVAJetTagComputer "
+			   "in JetTagMVATrainer" << std::endl;
+
+	// finalize the JetTagMVALearning <-> JetTagComputer glue setup
+	if (!computer->m_setupDone)
+		setup(*computer);
+
+	// retrieve TagInfos
+	typedef std::map<edm::RefToBase<Jet>, JetInfo, JetCompare> JetInfoMap;
+	JetInfoMap jetInfos;
+
+	std::vector< edm::Handle< edm::View<BaseTagInfo> > >
+					tagInfoHandles(tagInfos.size());
+	unsigned int nTagInfos = tagInfos.size();
+	for(unsigned int i = 0; i < nTagInfos; i++) {
+		edm::Handle< edm::View<BaseTagInfo> > &tagInfoHandle =
+							tagInfoHandles[i];
+		event.getByLabel(tagInfos[i], tagInfoHandle);
+
+		int j = 0;
+		for(edm::View<BaseTagInfo>::const_iterator iter =
+			tagInfoHandle->begin();
+				iter != tagInfoHandle->end(); iter++, j++) {
+
+			JetInfo &jetInfo = jetInfos[iter->jet()];
+			if (jetInfo.tagInfos.empty()) {
+				jetInfo.flavour = 0;
+				jetInfo.tagInfos.resize(nTagInfos, -1);
+			}
+
+			jetInfo.tagInfos[i] = j;
+		}
+	}
+
 	// retrieve jet flavours;
 	edm::Handle<JetFlavourMatchingCollection> jetFlavourHandle;
 	event.getByLabel(jetFlavour, jetFlavourHandle);
 
-	typedef std::map<CaloJetRef, unsigned int> Map_t;
-	Map_t flavours;
 	for(JetFlavourMatchingCollection::const_iterator iter =
-		jetFlavourHandle->begin(); iter != jetFlavourHandle->end(); iter++)
-		flavours.insert(*iter);
+		jetFlavourHandle->begin();
+				iter != jetFlavourHandle->end(); iter++) {
 
-	// retrieve JetTagInfos
-	edm::Handle< edm::View<BaseTagInfo> > tagInfoHandle;
-	event.getByLabel(tagInfo, tagInfoHandle);
+		JetInfoMap::iterator pos =
+			jetInfos.find(edm::RefToBase<Jet>(iter->first));
+		if (pos != jetInfos.end())
+			pos->second.flavour = iter->second;
+	}
 
 	// cached array containing MVAComputer value list
 	std::vector<Variable::Value> values;
@@ -120,32 +210,38 @@ void JetTagMVATrainer::analyze(const edm::Event& event,
 	values.push_back(Variable::Value(kJetPt, 0));
 	values.push_back(Variable::Value(kJetEta, 0));
 
-	for(edm::View<BaseTagInfo>::const_iterator iter =
-		tagInfoHandle->begin(); iter != tagInfoHandle->end(); iter++) {
+	// now loop over the map and compute all JetTags
+	for(JetInfoMap::const_iterator iter = jetInfos.begin();
+	    iter != jetInfos.end(); iter++) {
+		edm::RefToBase<Jet> jet = iter->first;
+		const JetInfo &info = iter->second;
 
-		edm::RefToBase<Jet> jet = iter->jet();
-
+		// simple jet filter
 		if (jet->pt() < minPt ||
 		    std::abs(jet->eta()) < minEta ||
 		    std::abs(jet->eta()) > maxEta)
 			continue;
 
-		// identify jet flavours
-		Map_t::const_iterator pos =
-			flavours.find(jet.castTo<CaloJetRef>());
-		if (pos == flavours.end())
-			continue;
-
-		unsigned int flavour = pos->second;
-
 		// do not train with unknown jet flavours
-		if (isIgnoreFlavour(flavour))
+		if (isIgnoreFlavour(info.flavour))
 			continue;
 
 		// is it a b-jet?
-		bool target = isSignalFlavour(flavour);
+		bool target = isSignalFlavour(info.flavour);
 
-		TaggingVariableList variables = iter->taggingVariables();
+		// build TagInfos pointer for helper
+		std::vector<const BaseTagInfo*> tagInfoPtrs(nTagInfos);
+		for(unsigned int i = 0; i < nTagInfos; i++)  {
+			if (info.tagInfos[i] < 0)
+				continue;
+
+			tagInfoPtrs[i] =
+				&tagInfoHandles[i]->at(info.tagInfos[i]);
+		}
+		JetTagComputer::TagInfoHelper helper(tagInfoPtrs);
+
+		TaggingVariableList variables =
+					computer->taggingVariables(helper);
 
 		// retrieve index of computer in case categories are used
 		int index = 0;
@@ -155,9 +251,9 @@ void JetTagMVATrainer::analyze(const edm::Event& event,
 				continue;
 		}
 
-		GenericMVAComputer *computer =
+		GenericMVAComputer *mvaComputer =
 					computerCache->getComputer(index);
-		if (!computer)
+		if (!mvaComputer)
 			continue;
 
 		// composite full array of MVAComputer values
@@ -167,9 +263,9 @@ void JetTagMVATrainer::analyze(const edm::Event& event,
 		(insert++)->value = target;
 		(insert++)->value = jet->pt();
 		(insert++)->value = jet->eta();
-		std::copy(computer->iterator(variables.begin()),
-		          computer->iterator(variables.end()), insert);
+		std::copy(mvaComputer->iterator(variables.begin()),
+		          mvaComputer->iterator(variables.end()), insert);
 
-		static_cast<MVAComputer*>(computer)->eval(values);
+		static_cast<MVAComputer*>(mvaComputer)->eval(values);
 	}
 }
