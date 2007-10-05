@@ -53,6 +53,9 @@ RPCSynchronizer::RPCSynchronizer(const edm::ParameterSet& config){
   filename = config.getParameter<string>("filename");
   cosmics = config.getParameter<bool>("cosmics");
 
+  string defaultDataPath(getenv("CMSSW_BASE"));
+  filename = defaultDataPath+ "/src/" + filename; 
+
   _bxmap.clear();
 }
 

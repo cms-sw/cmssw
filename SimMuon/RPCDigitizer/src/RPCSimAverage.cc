@@ -76,13 +76,13 @@ RPCSimAverage::RPCSimAverage(const edm::ParameterSet& config) :
     std::cout <<"Link Board Gate Width     = "<<lbGate<<" ns"<<std::endl;
   }
 
-  //  string ifile="SimMuon/RPCDigitizer/data/ClSizeTot.dat";
+  string defaultDataPath(getenv("CMSSW_BASE"));
+  ifile = defaultDataPath+ "/src/" + ifile; 
 
   infile = new ifstream(ifile.c_str(), ios::in);
   if(! *infile) {
     cerr << "error: unable to open input file: "
          <<  ifile  << endl;
-    //    return -1;
   }
 
   string buffer;
@@ -116,6 +116,10 @@ RPCSimAverage::RPCSimAverage(const edm::ParameterSet& config) :
   
   rndEngine = &(rng->getEngine());
   flatDistribution = new CLHEP::RandFlat(rndEngine);
+}
+
+RPCSimAverage::~RPCSimAverage(){
+  delete infile;
 }
 
 int RPCSimAverage::getClSize(float posX)
@@ -171,12 +175,6 @@ RPCSimAverage::simulate(const RPCRoll* roll,
   _rpcSync->setGeometry(geo);
   _rpcSync->setReadOutTime(geo);
 
-  //  if(_rpcSync->getReadOutTime(roll->id()) < 1){
-//     std::cout<<"Region = "<<roll->id().region()<<"  Ring = "<<roll->id().ring()<<"  Station = "<<roll->id().station()<<"  Sector = "<<roll->id().sector()<<"  Layer = "<<roll->id().layer()<<"  Subsector = "<<roll->id().subsector()<<"  Roll = "<<roll->id().roll()<<std::endl;
-//     std::cout<<"IL TIME DELLA ROLL E': "<<_rpcSync->getReadOutTime(roll->id())<<std::endl;
-    //  }
-  //  _rpcSync->getReadOutTime(roll->id());
- 
   const Topology& topology=roll->specs()->topology();
 
   for (edm::PSimHitContainer::const_iterator _hit = rpcHits.begin();
@@ -273,16 +271,7 @@ void RPCSimAverage::simulateNoise(const RPCRoll* roll)
       int strip = RandFlat::shootInt(nstrips);
       int time_hit;
 
-      //      int sign = 0;
-//       if(RandFlat::shoot() > 0. && RandFlat::shoot() < 0.5)
-// 	time_hit = static_cast<int>(RandFlat::shoot(-(nbxing*gate),0.)/gate);
-//       else if(RandFlat::shoot() > 0.5 && RandFlat::shoot() < 1.)
       time_hit = (static_cast<int>(RandFlat::shoot(nbxing*gate)/gate)) - nbxing/2;
-      //      else if(RandFlat::shoot() > 0.5 && RandFlat::shoot() <= 1.) sign = -1;
-      //      int time_hit = sign*(static_cast<int>(RandFlat::shoot((nbxing*gate))/gate));
-      //      int time_hit = static_cast<int>(RandFlat::shoot(-(nbxing*gate),(nbxing*gate))/gate);
-
-
       
       std::pair<int, int> digi(strip,time_hit);
       strips.insert(digi);
