@@ -6,11 +6,13 @@
 #include "DataFormats/Math/interface/LorentzVector.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
+#include "DataFormats/VertexReco/interface/VertexFwd.h"
 
 class TrackKinematics {
     public:
 	TrackKinematics();
 	TrackKinematics(const std::vector<reco::Track> &tracks);
+	TrackKinematics(const reco::TrackRefVector &tracks);
 	TrackKinematics(const reco::Vertex &vertex);
 	~TrackKinematics() {}
 

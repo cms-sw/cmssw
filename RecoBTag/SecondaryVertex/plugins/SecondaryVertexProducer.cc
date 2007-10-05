@@ -33,6 +33,7 @@
 #include "TrackingTools/Records/interface/TransientTrackRecord.h"
 
 #include "RecoBTag/SecondaryVertex/interface/TrackSelector.h"
+#include "RecoBTag/SecondaryVertex/interface/TrackSorting.h"
 #include "RecoBTag/SecondaryVertex/interface/SecondaryVertex.h"
 #include "RecoBTag/SecondaryVertex/interface/VertexFilter.h"
 #include "RecoBTag/SecondaryVertex/interface/VertexSelector.h"
@@ -56,28 +57,10 @@ class SecondaryVertexProducer : public edm::EDProducer {
 	VertexSelector			vertexSelector;
 };
 
-static TrackIPTagInfo::SortCriteria getSortCriterium(const std::string &name)
-{
-	if (name == "sip3dSig")
-		return TrackIPTagInfo::IP3DSig;
-	if (name == "prob3d")
-		return TrackIPTagInfo::Prob3D;
-	if (name == "sip2dSig")
-		return TrackIPTagInfo::IP2DSig;
-	if (name == "prob2d")
-		return TrackIPTagInfo::Prob2D;
-	if (name == "sip2dVal")
-		return TrackIPTagInfo::IP2DValue;
-
-	throw cms::Exception("InvalidArgument")
-		<< "Identifier \"" << name << "\" does not represent a valid "
-		<< "track sorting criterium." << std::endl;
-}
-
 SecondaryVertexProducer::SecondaryVertexProducer(
 					const edm::ParameterSet &params) :
 	trackIPTagInfoLabel(params.getParameter<edm::InputTag>("trackIPTagInfos")),
-	sortCriterium(getSortCriterium(params.getParameter<std::string>("trackSort"))),
+	sortCriterium(TrackSorting::getCriterium(params.getParameter<std::string>("trackSort"))),
 	trackSelector(params.getParameter<edm::ParameterSet>("trackSelection")),
 	vtxRecoPSet(params.getParameter<edm::ParameterSet>("vertexReco")),
 	withPVError(params.getParameter<bool>("usePVError")),

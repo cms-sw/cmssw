@@ -26,6 +26,14 @@ TrackKinematics::TrackKinematics(const std::vector<Track> &tracks) :
 		add(*iter);
 }
 
+TrackKinematics::TrackKinematics(const TrackRefVector &tracks) :
+	n(0), sumWeights(0)
+{
+	for(TrackRefVector::const_iterator iter = tracks.begin();
+	    iter != tracks.end(); iter++)
+		add(**iter);
+}
+
 TrackKinematics::TrackKinematics(const Vertex &vertex) :
 	n(0), sumWeights(0)
 {
