@@ -64,7 +64,8 @@ std::vector<PizeroMCTruth> PizeroMCTruthFinder::find(std::vector<SimTrack> theSi
     std::cout << " First track has no vertex " << std::endl;
   }
   
-  HepLorentzVector primVtxPos= primVtx.position();           
+  // HepLorentzVector primVtxPos= primVtx.position(); 
+  math::XYZTLorentzVectorD primVtxPos=primVtx.position();          
 
   // Look at a second track
   iFirstSimTk++;
@@ -97,7 +98,8 @@ std::vector<PizeroMCTruth> PizeroMCTruthFinder::find(std::vector<SimTrack> theSi
 	
 	pizeroTracks.push_back( *iSimTk );
 
-	CLHEP::HepLorentzVector momentum = (*iSimTk).momentum();
+	// CLHEP::HepLorentzVector momentum = (*iSimTk).momentum();
+	math::XYZTLorentzVectorD momentum = (*iSimTk).momentum();
 
 
       }	
@@ -130,7 +132,7 @@ std::vector<PizeroMCTruth> PizeroMCTruthFinder::find(std::vector<SimTrack> theSi
 
   
   for (std::vector<SimTrack>::iterator iPizTk = pizeroTracks.begin(); iPizTk != pizeroTracks.end(); ++iPizTk){
-    std::cout << " Looping on the primary pizero pt  " << (*iPizTk).momentum().perp() << " pizero track ID " << (*iPizTk).trackId() << std::endl;
+    std::cout << " Looping on the primary pizero pt  " << sqrt((*iPizTk).momentum().perp2()) << " pizero track ID " << (*iPizTk).trackId() << std::endl;
     
     photonsFromPizero.clear();
     std::cout << " mcPhotons.size " << mcPhotons.size() << std::endl;
@@ -150,7 +152,11 @@ std::vector<PizeroMCTruth> PizeroMCTruthFinder::find(std::vector<SimTrack> theSi
     
     
     // build pizero MC thruth
-    result.push_back( PizeroMCTruth (  (*iPizTk).momentum(), photonsFromPizero, primVtx.position() ) );
+    HepLorentzVector tmpMom( (*iPizTk).momentum().px(), (*iPizTk).momentum().py(),
+                             (*iPizTk).momentum().pz(), (*iPizTk).momentum().e() ) ;
+    HepLorentzVector tmpPos( primVtx.position().x(), primVtx.position().y(),
+                             primVtx.position().z(), primVtx.position().t() ) ;
+    result.push_back( PizeroMCTruth (  tmpMom, photonsFromPizero, tmpPos ) );
     
     
   }   // end loop over primary pizeros

@@ -1,5 +1,6 @@
 #include "RecoEgamma/EgammaMCTools/interface/ElectronMCTruthFinder.h"
 
+
 #include <algorithm>                                                          
 
 ElectronMCTruthFinder::ElectronMCTruthFinder() {
@@ -56,7 +57,8 @@ std::vector<ElectronMCTruth> ElectronMCTruthFinder::find(std::vector<SimTrack> t
     std::cout << " First track has no vertex " << std::endl;
   }
   
-  HepLorentzVector primVtxPos= primVtx.position();           
+  // HepLorentzVector primVtxPos= primVtx.position(); 
+  math::XYZTLorentzVectorD primVtxPos = primVtx.position() ;
   
   // Look at a second track
   iFirstSimTk++;
@@ -122,15 +124,18 @@ std::vector<ElectronMCTruth> ElectronMCTruthFinder::find(std::vector<SimTrack> t
  
   
   for (std::vector<SimTrack>::iterator iEleTk = electronTracks.begin(); iEleTk != electronTracks.end(); ++iEleTk){
-    std::cout << " Looping on the primary electron pt  " << (*iEleTk).momentum().perp() << " electron track ID " << (*iEleTk).trackId() << std::endl;
+    std::cout << " Looping on the primary electron pt  " <<
+    (*iEleTk).momentum().pt() << " electron track ID " << (*iEleTk).trackId() << std::endl;
     
     
     
     SimTrack trLast =(*iEleTk); 
     int eleId = (*iEleTk).trackId();
     float remainingEnergy =trLast.momentum().e();
-    HepLorentzVector motherMomentum=(*iEleTk).momentum();
-    HepLorentzVector primEleMom=(*iEleTk).momentum();
+//    HepLorentzVector motherMomentum = (*iEleTk).momentum();
+//    HepLorentzVector primEleMom = (*iEleTk).momentum();
+    math::XYZTLorentzVectorD motherMomentum = (*iEleTk).momentum();
+    math::XYZTLorentzVectorD primEleMom = (*iEleTk).momentum();
     int eleVtxIndex= (*iEleTk).vertIndex();
     
     bremPos.clear();
@@ -156,11 +161,14 @@ std::vector<ElectronMCTruth> ElectronMCTruthFinder::find(std::vector<SimTrack> t
       if(  (  vertexId1 ==  vertexId2 ) && ( (*iSimTk).type() == (*iEleTk).type() ) && trLast.type() == 22   ) {
 	std::cout << " Here a e/gamma brem vertex " << std::endl;
 	
-	std::cout << " Secondary from electron:  particle1  type " << (*iSimTk).type() << " trackId " <<  (*iSimTk).trackId() << " vertex ID " << vertexId1 << " vertex position " << vertex1.position().perp() << " parent index "<< vertex1.parentIndex() << std::endl;
+	std::cout << " Secondary from electron:  particle1  type " << (*iSimTk).type() << " trackId " << 
+	(*iSimTk).trackId() << " vertex ID " << vertexId1 << " vertex position " << vertex1.position().pt() << " parent index "<< vertex1.parentIndex() << std::endl;
 	
-	std::cout << " Secondary from electron:  particle2  type " << trLast.type() << " trackId " <<  trLast.trackId() << " vertex ID " << vertexId2 << " vertex position " << vertex2.position().perp() << " parent index " << vertex2.parentIndex() << std::endl;
+	std::cout << " Secondary from electron:  particle2  type " << trLast.type() << " trackId " <<  trLast.trackId()
+	<< " vertex ID " << vertexId2 << " vertex position " << vertex2.position().pt() << " parent index " << vertex2.parentIndex() << std::endl;
 	
-	std::cout << " Electron pt " << (*iSimTk).momentum().perp() << " photon pt " <<  trLast.momentum().perp() << " Mother electron pt " <<  motherMomentum.perp() << std::endl;
+	std::cout << " Electron pt " << (*iSimTk).momentum().pt() << " photon pt " <<  trLast.momentum().pt() << 
+	"Mother electron pt " <<  sqrt(motherMomentum.perp2()) << std::endl;
 	std::cout << " eleId " << eleId << std::endl;
 	float eLoss = remainingEnergy - ( (*iSimTk).momentum() + trLast.momentum()).e();
 	std::cout << " eLoss " << eLoss << std::endl;              
@@ -183,8 +191,10 @@ std::vector<ElectronMCTruth> ElectronMCTruthFinder::find(std::vector<SimTrack> t
 	    motherMomentum = (*iSimTk).momentum();
 	    
 	    
-	    pBrem.push_back(trLast.momentum());
-	    bremPos.push_back(vertex1.position());
+	    pBrem.push_back( HepLorentzVector(trLast.momentum().px(),trLast.momentum().py(),
+	                                      trLast.momentum().pz(),trLast.momentum().e()) );
+	    bremPos.push_back( HepLorentzVector(vertex1.position().x(),vertex1.position().y(),
+	                                        vertex1.position().z(),vertex1.position().t()) );
 	    xBrem.push_back(eLoss);
 	    
 	  }
@@ -202,7 +212,10 @@ std::vector<ElectronMCTruth> ElectronMCTruthFinder::find(std::vector<SimTrack> t
     } // End loop over all SimTracks 
     std::cout << " Going to build the ElectronMCTruth: pBrem size " << pBrem.size() << std::endl;
     /// here fill the electron
-    result.push_back ( ElectronMCTruth( primEleMom,eleVtxIndex,  bremPos, pBrem, xBrem,  primVtxPos,  (*iEleTk)  )  ) ;
+    HepLorentzVector tmpEleMom(primEleMom.px(),primEleMom.py(),
+                               primEleMom.pz(),primEleMom.e() ) ;
+    HepLorentzVector tmpVtxPos(primVtxPos.x(),primVtxPos.y(),primVtxPos.z(),primVtxPos.t());
+    result.push_back ( ElectronMCTruth( tmpEleMom, eleVtxIndex,  bremPos, pBrem, xBrem,  tmpVtxPos,(*iEleTk)  )  ) ;
 
     
   } // End loop over primary electrons 
