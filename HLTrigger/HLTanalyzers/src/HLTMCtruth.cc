@@ -58,7 +58,7 @@ void HLTMCtruth::setup(const edm::ParameterSet& pSet, TTree* HltTree) {
 
 /* **Analyze the event** */
 void HLTMCtruth::analyze(const CandidateCollection& mctruth,
-//                       const HepMC::GenEvent hepmc,
+			 const HepMC::GenEvent hepmc,
 			 TTree* HltTree) {
 
   //std::cout << " Beginning HLTMCtruth " << std::endl;
@@ -69,9 +69,9 @@ void HLTMCtruth::analyze(const CandidateCollection& mctruth,
     int mab = 0;
     int mbb = 0;
 
-//     if (&hepmc){
-//       pthat = hepmc.event_scale(); // Pt-hat of the event
-//     }
+    if (&hepmc){
+      pthat = hepmc.event_scale(); // Pt-hat of the event
+    }
 
      if (&mctruth){
 
