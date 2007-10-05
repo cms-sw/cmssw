@@ -39,14 +39,16 @@ class IsolatedPixelTrackCandidateProducer : public edm::EDProducer {
   virtual void produce(edm::Event& evt, const edm::EventSetup& es);
 
  private:
-
+	
+  edm::InputTag hltGTseedlabel_;
   edm::InputTag l1eTauJetsSource_;
   edm::InputTag pixelTracksSource_;
-  edm::InputTag particleMapSource_;
+  edm::InputTag l1GtObjectMapSource_;
   edm::ParameterSet parameters;
 
   double pixelIsolationConeSize_;
   double maxEta_;
+  double tauAssocCone_;
 
 };
 

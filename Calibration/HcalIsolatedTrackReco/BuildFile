@@ -1,6 +1,7 @@
 <use name=DataFormats/Common>
 <use name=DataFormats/HcalIsolatedTrack>
 <use name=DataFormats/L1Trigger>
+<use name=DataFormats/L1GlobalTrigger>
 <use name=FWCore/Framework>
 <use name=FWCore/MessageLogger>
 <use name=FWCore/ParameterSet>
@@ -15,6 +16,7 @@
 <export>
   <use name=FWCore/Framework>
   <use name=FWCore/ParameterSet>
+  <use name=DataFormats/L1GlobalTrigger>
   <lib name=CalibrationHcalIsolatedTrackReco>
 </export>
 
