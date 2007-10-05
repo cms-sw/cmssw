@@ -72,6 +72,11 @@ L1GlobalTriggerRawToDigi::L1GlobalTriggerRawToDigi(const edm::ParameterSet& pSet
     produces<L1GlobalTriggerReadoutRecord>();
     produces<L1MuGMTReadoutCollection>();
 
+    produces<std::vector<L1MuRegionalCand> >("DT");
+    produces<std::vector<L1MuRegionalCand> >("CSC");
+    produces<std::vector<L1MuRegionalCand> >("RPCb");
+    produces<std::vector<L1MuRegionalCand> >("RPCf");
+
     // input tag for DAQ GT record
     m_daqGtInputTag = pSet.getUntrackedParameter<edm::InputTag>(
                           "DaqGtInputTag", edm::InputTag("l1GtPack"));
@@ -599,7 +604,7 @@ void L1GlobalTriggerRawToDigi::produce(edm::Event& iEvent, const edm::EventSetup
 
                     // unpack only if requested, otherwise skip it
                     if (activeBoardToUnpack) {
-                        unpackGMT(ptrGt,gmtrc);
+                        unpackGMT(ptrGt,gmtrc,iEvent);
                     }
 
                     // 17*64/8 TODO FIXME ask Ivan for a getSize() function for GMT record
@@ -777,12 +782,18 @@ void L1GlobalTriggerRawToDigi::unpackPSB(
 // unpack the GMT record
 void L1GlobalTriggerRawToDigi::unpackGMT(
     const unsigned char* chp,
-    std::auto_ptr<L1MuGMTReadoutCollection>& gmtrc)
+    std::auto_ptr<L1MuGMTReadoutCollection>& gmtrc,
+    edm::Event& iEvent)
 {
 
     LogDebug("L1GlobalTriggerRawToDigi")
     << "\nUnpacking GMT collection.\n"
     << std::endl;
+
+    std::auto_ptr<std::vector<L1MuRegionalCand> > DTCands( new std::vector<L1MuRegionalCand> );
+    std::auto_ptr<std::vector<L1MuRegionalCand> > CSCCands( new std::vector<L1MuRegionalCand> );
+    std::auto_ptr<std::vector<L1MuRegionalCand> > RPCbCands( new std::vector<L1MuRegionalCand> );
+    std::auto_ptr<std::vector<L1MuRegionalCand> > RPCfCands( new std::vector<L1MuRegionalCand> );
 
     const unsigned* p = (const unsigned*) chp;
 
@@ -829,10 +840,19 @@ void L1GlobalTriggerRawToDigi::unpackGMT(
                 unsigned waux = *p++;
                 waux = (waux&0xffff00ff) | ((~waux)&0x0000ff00);
                 L1MuRegionalCand cand(waux,iBxInEvent);
+                // fix the type assignment (csc=2, rpcb=1) -- should be done by GMT input chips
+                if(im>=4 && im<8) cand.setType(1);
+                if(im>=8 && im<12) cand.setType(2);
                 cand.setPhiValue( m_TriggerScales->getPhiScale()->getLowEdge(cand.phi_packed()) );
                 cand.setEtaValue( m_TriggerScales->getRegionalEtaScale(cand.type_idx())->getCenter(cand.eta_packed()) );
                 cand.setPtValue( m_TriggerScales->getPtScale()->getLowEdge(cand.pt_packed()) );
                 gmtrr.setInputCand(im, cand);
+                if(!cand.empty()) {
+                  if(im<4)           DTCands->push_back(cand);
+                  if(im>=4 && im<8)  RPCbCands->push_back(cand);
+                  if(im>=8 && im<12) CSCCands->push_back(cand);
+                  if(im>=12)         RPCfCands->push_back(cand);
+                }
             }
 
             unsigned char* prank = (unsigned char*) (p+12);
@@ -863,6 +883,12 @@ void L1GlobalTriggerRawToDigi::unpackGMT(
         iBxInEvent++;
 
     }
+
+    iEvent.put(DTCands,"DT");
+    iEvent.put(CSCCands,"CSC");
+    iEvent.put(RPCbCands,"RPCb");
+    iEvent.put(RPCfCands,"RPCf");
+
 }
 
 // unpack trailer word
