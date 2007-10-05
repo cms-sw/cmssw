@@ -130,13 +130,13 @@ void GctBlockUnpacker::blockToGctEmCand(const unsigned char * d, const GctBlockH
       if (isolated) { em = gctIsoEm_; }
       else { em = gctNonIsoEm_; }
 
-      em->push_back(L1GctEmCand(*pp, isolated, id, 0 + (iso*4), bx));  // rank0 electron
+      em->push_back(L1GctEmCand(*pp, isolated, id, 0, bx));  // rank0 electron
       pp = pp + (2*(nSamples-1)) + 2;
-      em->push_back(L1GctEmCand(*pp, isolated, id, 1 + (iso*4), bx));  // rank1 electron
+      em->push_back(L1GctEmCand(*pp, isolated, id, 1, bx));  // rank1 electron
       pp = pp - (2*(nSamples-1)) - 1;
-      em->push_back(L1GctEmCand(*pp, isolated, id, 2 + (iso*4), bx));  // rank2 electron
+      em->push_back(L1GctEmCand(*pp, isolated, id, 2, bx));  // rank2 electron
       pp = pp + (2*(nSamples-1)) + 2;
-      em->push_back(L1GctEmCand(*pp, isolated, id, 3 + (iso*4), bx));  // rank3 electron
+      em->push_back(L1GctEmCand(*pp, isolated, id, 3, bx));  // rank3 electron
 
     }
   }
