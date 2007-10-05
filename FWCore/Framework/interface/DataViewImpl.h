@@ -81,7 +81,7 @@ edm::Ref<AppleCollection> ref(refApples, index);
 */
 /*----------------------------------------------------------------------
 
-$Id: DataViewImpl.h,v 1.30 2007/07/31 23:58:54 wmtan Exp $
+$Id: DataViewImpl.h,v 1.31 2007/08/14 18:54:07 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 #include <cassert>
@@ -127,19 +127,19 @@ namespace edm {
     size_t size() const;
 
     template <typename PROD>
-    void 
+    bool 
     get(ProductID const& oid, Handle<PROD>& result) const;
 
     template <typename PROD>
-    void 
+    bool 
     get(SelectorBase const&, Handle<PROD>& result) const;
   
     template <typename PROD>
-    void 
+    bool 
     getByLabel(std::string const& label, Handle<PROD>& result) const;
 
     template <typename PROD>
-    void 
+    bool 
     getByLabel(std::string const& label,
 	       std::string const& productInstanceName, 
 	       Handle<PROD>& result) const;
@@ -148,7 +148,7 @@ namespace edm {
     // one needs to be overloaded, because the other getByLabel
     // implementations go through this one.
     template <typename ELEMENT>
-    void
+    bool
     getByLabel(std::string const& label, 
 	       std::string const& productInstanceName,
 	       Handle<View<ELEMENT> >& result) const;
@@ -156,7 +156,7 @@ namespace edm {
 
     /// same as above, but using the InputTag class 	 
     template <typename PROD> 	 
-    void 	 
+    bool 	 
     getByLabel(InputTag const& tag, Handle<PROD>& result) const; 	 
 
     template <typename PROD>
@@ -164,7 +164,7 @@ namespace edm {
     getMany(SelectorBase const&, std::vector<Handle<PROD> >& results) const;
 
     template <typename PROD>
-    void
+    bool
     getByType(Handle<PROD>& result) const;
 
     template <typename PROD>
@@ -446,60 +446,76 @@ namespace edm {
   }
   
   template <typename PROD>
-  void
+  bool
   DataViewImpl::get(ProductID const& oid, Handle<PROD>& result) const
   {
     result.clear();
     BasicHandle bh = this->get_(oid);
-    gotProductIDs_.push_back(bh.id());
     convert_handle(bh, result);  // throws on conversion error
+    if(!bh.failedToGet()) {
+      gotProductIDs_.push_back(bh.id());
+      return true;
+    }
+    return false;
   }
 
   template <typename PROD>
-  void 
+  bool 
   DataViewImpl::get(SelectorBase const& sel,
 		    Handle<PROD>& result) const
   {
     result.clear();
     BasicHandle bh = this->get_(TypeID(typeid(PROD)),sel);
-    gotProductIDs_.push_back(bh.id());
     convert_handle(bh, result);  // throws on conversion error
+    if(!bh.failedToGet()) {
+      gotProductIDs_.push_back(bh.id());
+      return true;
+    }
+    return false;
   }
   
   template <typename PROD>
   inline
-  void
+  bool
   DataViewImpl::getByLabel(std::string const& label,
 			   Handle<PROD>& result) const
   {
     result.clear();
-    getByLabel(label, std::string(), result);
+    return getByLabel(label, std::string(), result);
   }
 
   template <typename PROD>
-  void
+  bool
   DataViewImpl::getByLabel(InputTag const& tag, Handle<PROD>& result) const
   {
     result.clear();
     if (tag.process().empty()) {
-      getByLabel(tag.label(), tag.instance(), result);
+      return getByLabel(tag.label(), tag.instance(), result);
     } else {
       BasicHandle bh = this->getByLabel_(TypeID(typeid(PROD)), tag.label(), tag.instance(),tag.process());
-      gotProductIDs_.push_back(bh.id());
       convert_handle(bh, result);  // throws on conversion error
+      if(!bh.failedToGet()) {
+        gotProductIDs_.push_back(bh.id());
+        return true;
+      }
     }
+    return false;
   }
 
   template <typename PROD>
-  void
+  bool
   DataViewImpl::getByLabel(std::string const& label,
 			   std::string const& productInstanceName,
 			   Handle<PROD>& result) const
   {
     result.clear();
     BasicHandle bh = this->getByLabel_(TypeID(typeid(PROD)), label, productInstanceName);
-    gotProductIDs_.push_back(bh.id());
     convert_handle(bh, result);  // throws on conversion error
+    if(!bh.failedToGet()) {
+      gotProductIDs_.push_back(bh.id());
+      return true;
+    }
+    return false;
   }
 
   template <class T>
@@ -511,7 +527,7 @@ namespace edm {
   }
 
   template <typename ELEMENT>
-  void
+  bool
   DataViewImpl::getByLabel(std::string const& moduleLabel,
 			   std::string const& productInstanceName,
 			   Handle<View<ELEMENT> >& result) const
@@ -528,11 +544,15 @@ namespace edm {
                                              true);
 
     if (nFound == 0) {
-      throw edm::Exception(edm::errors::ProductNotFound)
+      boost::shared_ptr<cms::Exception> whyFailed(new edm::Exception(edm::errors::ProductNotFound) );
+      *whyFailed
 	<< "getByLabel: Found zero products matching all criteria\n"
 	<< "Looking for sequence of type: " << typeID << "\n"
 	<< "Looking for module label: " << moduleLabel << "\n"
 	<< "Looking for productInstanceName: " << productInstanceName << "\n";
+      Handle<View<ELEMENT> > temp(whyFailed);
+      result.swap(temp);
+      return false;
     }
     if (nFound > 1) {
       throw edm::Exception(edm::errors::ProductNotFound)
@@ -543,7 +563,7 @@ namespace edm {
     }
 
     fillView_(bhv[0], result);
-    return;
+    return true;
   }
 
   template <typename ELEMENT>
@@ -605,13 +625,17 @@ namespace edm {
   }
 
   template <typename PROD>
-  void
+  bool
   DataViewImpl::getByType(Handle<PROD>& result) const
   {
     result.clear();
     BasicHandle bh = this->getByType_(TypeID(typeid(PROD)));
-    gotProductIDs_.push_back(bh.id());
     convert_handle(bh, result);  // throws on conversion error
+    if(!bh.failedToGet()) {
+      gotProductIDs_.push_back(bh.id());
+      return true;
+    }
+    return false;
   }
 
   template <typename PROD>
