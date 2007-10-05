@@ -79,4 +79,21 @@
   <class name="std::vector<PTrackerSimHit::Trk>"/>
   <class name="std::vector<PTrackerSimHit::Hit>"/>
   <class name="edm::Wrapper<PTrackerSimHit>"/>
+  
+  <!--<class name="std::pair<float,float>"/>-->
+
+  <class name="MaterialAccountingStep"/>
+  <class name="std::vector<MaterialAccountingStep>"/>
+  <class name="edm::Wrapper<std::vector<MaterialAccountingStep> >"/>
+
+  <class name="MaterialAccountingDetector"/>
+  <class name="std::vector<MaterialAccountingDetector>"/>
+  <class name="edm::Wrapper<std::vector<MaterialAccountingDetector> >"/>
+
+  <class name="MaterialAccountingTrack">
+    <field name="m_current_volume"  transient="true"/>
+    <field name="m_detector"        transient="true"/>
+  </class>
+  <class name="std::vector<MaterialAccountingTrack>"/>
+  <class name="edm::Wrapper<std::vector<MaterialAccountingTrack> >"/>
 </lcgdict>

@@ -1,9 +1,11 @@
 <use name=DataFormats/Common>
-<use name=DataFormats/CLHEP>
+<use name=DataFormats/GeometryVector>
 <use name=clhep>
+<use name=geant4>
 <use name=rootrflx>
 <export>
- <use name=clhep>
- <lib name=SimDataFormatsValidationFormats>
+  <use name=DataFormats/GeometryVector>
+  <use name=clhep>
+  <use name=geant4>
+  <lib name=SimDataFormatsValidationFormats>
 </export>
-
