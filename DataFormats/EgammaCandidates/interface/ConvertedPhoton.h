@@ -6,7 +6,7 @@
  *
  * \author N.Marinelli  University of Notre Dame, US
  *
- * \version $Id: ConvertedPhoton.h,v 1.13 2007/09/17 17:42:37 nancy Exp $
+ * \version $Id: ConvertedPhoton.h,v 1.14 2007/09/17 18:28:22 nancy Exp $
  *
  */
 #include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
@@ -71,6 +71,7 @@ namespace reco {
     //  pair of BC matching the tracks
     const std::vector<reco::BasicCluster>&  bcMatchingWithTracks() const { return theMatchingBCs_;}
     /// set primary event vertex used to define photon direction
+    double zOfPrimaryVertexFromTracks() const {return theZOfPrimaryVertexFromTracks_;}
     void setVertex(const Point & vertex);
 
 
@@ -97,7 +98,7 @@ namespace reco {
     void makePairMomentumPhi() ;
     void makePairPtOverEtSC() ;
     void makeEoverP() ;
-
+    void makePrimaryVertexZ();
 
     double invMass_;
     double dCotTheta_;
@@ -106,7 +107,7 @@ namespace reco {
     GlobalVector  momTracks_;
     double ptOverEtSC_;
     double ep_;
-
+    double theZOfPrimaryVertexFromTracks_;
 
 
   };
