@@ -88,20 +88,20 @@ bool L1GctEmCand::empty() const {
 // return region object
 L1CaloRegionDetId L1GctEmCand::regionId() const {
   // get global eta
-  unsigned eta = ( etaSign()==1 ? 10-etaIndex() : 11+etaIndex() );
+  unsigned eta = ( etaSign()==1 ? (10-etaIndex()&0x7) : 11+(etaIndex()&0x7) );
   return L1CaloRegionDetId(eta, phiIndex());
 }
 
 // construct from rank, eta, phi
 void L1GctEmCand::construct(unsigned rank, unsigned eta, unsigned phi) {
-  m_data = (rank & 0x3f) + ((eta & 0x7)<<6) + ((phi & 0x1f)<<9);
+  m_data = (rank & 0x3f) + ((eta & 0xf)<<6) + ((phi & 0x1f)<<9);
 }
 
 // pretty print
 ostream& operator<<(ostream& s, const L1GctEmCand& cand) {
   s << "L1GctEmCand : ";
   s << "rank=" << hex << cand.rank();
-  s << ", etaSign=" << cand.etaSign() << ", eta=" << cand.etaIndex() << ", phi=" << cand.phiIndex();
+  s << ", etaSign=" << cand.etaSign() << ", eta=" << (cand.etaIndex()&0x7) << ", phi=" << cand.phiIndex();
   s << ", iso=" << cand.isolated() << dec;
   s << hex << " cap block=" << cand.capBlock() << ", index=" << cand.capIndex() << ", BX=" << cand.bx() << dec;
   return s;

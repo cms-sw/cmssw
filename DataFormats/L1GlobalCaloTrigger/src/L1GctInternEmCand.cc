@@ -56,7 +56,7 @@ bool L1GctInternEmCand::empty() const {
 ostream& operator<<(ostream& s, const L1GctInternEmCand& cand) {
   s << "L1GctInternEmCand : ";
   s << "rank=" << hex << cand.rank();
-  s << ", etaSign=" << cand.etaSign() << ", eta=" << cand.etaIndex() << ", phi=" << cand.phiIndex();
+  s << ", etaSign=" << cand.etaSign() << ", eta=" << (cand.etaIndex()&0xf) << ", phi=" << cand.phiIndex();
   s << ", iso=" << cand.isolated();
   s << " cap block=" << cand.capBlock() << ", index=" << cand.capIndex() << ", BX=" << cand.bx() << dec;
   return s;
@@ -65,7 +65,7 @@ ostream& operator<<(ostream& s, const L1GctInternEmCand& cand) {
 // return region object
 L1CaloRegionDetId L1GctInternEmCand::regionId() const {
   // get global eta
-  unsigned eta = ( etaSign()==1 ? 10-etaIndex() : 11+etaIndex() );
+  unsigned eta = ( etaSign()==1 ? 10-(etaIndex()&0xf) : 11+(etaIndex()&0xf) );
   return L1CaloRegionDetId(eta, phiIndex());
 }
 

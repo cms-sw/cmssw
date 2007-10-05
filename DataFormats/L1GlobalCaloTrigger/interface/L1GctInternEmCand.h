@@ -48,13 +48,13 @@ public:
   unsigned rank() const { return m_data & 0x3f; }
 
   /// get eta index -  Barrel 1:4, Endcap  5:7, HF  8:11
-  unsigned etaIndex() const { return (m_data>>6) & 0xf; }
+  unsigned etaIndex() const { return (m_data>>6) & 0x1f; }
 
   /// get eta sign (1 for -ve Z, 0 for +ve Z)
-  unsigned etaSign() const { return (m_data>>10) & 0x1; } // Changed from 9 to 10 3rd Oct 07
+  unsigned etaSign() const { return (m_data>>10) & 0x1; } 
 
   /// get phi index (0-17)
-  unsigned phiIndex() const { return (m_data>>11) & 0x1f; } // Changed from 10 to 11 3rd Oct 07
+  unsigned phiIndex() const { return (m_data>>11) & 0x1f; }
 
   /// which stream did this come from
   bool isolated() const { return m_iso; }

@@ -61,7 +61,7 @@ public:
   unsigned rank() const { return m_data & 0x3f; }
 
   /// get eta index -6 to -0, +0 to +6 (bit 3 is sign, 1 for -ve Z, 0 for +ve Z)
-  unsigned etaIndex() const { return (m_data>>6) & 0x7; } // Changed to 3 bits 3rd Oct 07
+  unsigned etaIndex() const { return (m_data>>6) & 0xf; } 
 
   /// get eta sign (1 for -ve Z, 0 for +ve Z) 
   unsigned etaSign() const { return (m_data>>9) & 0x1; } 
