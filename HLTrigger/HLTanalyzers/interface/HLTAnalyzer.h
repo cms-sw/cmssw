@@ -46,6 +46,7 @@ private:
   std::string recjets_,genjets_,recmet_,genmet_,ht_, calotowers_,hltobj_,hltresults_;
   std::string Electron_,Photon_,muon_;
   std::string l1extramc_,particleMapSource_,mctruth_; 
+  std::string ecalDigisLabel_,hcalDigisLabel_;
   int errCnt;
   const int errMax(){return 100;}
 

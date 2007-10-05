@@ -22,6 +22,21 @@
 #include "DataFormats/L1GlobalMuonTrigger/interface/L1MuGMTExtendedCand.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
 
+#include "L1Trigger/RegionalCaloTrigger/interface/L1RCTProducer.h" 
+
+#include "DataFormats/L1CaloTrigger/interface/L1CaloCollections.h"
+#include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
+#include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
+/* #include "CalibFormats/CaloTPG/interface/CaloTPGTranscoder.h" */
+/* #include "CalibFormats/CaloTPG/interface/CaloTPGRecord.h" */
+/* #include "CondFormats/L1TObjects/interface/L1CaloEtScale.h" */
+/* #include "CondFormats/DataRecord/interface/L1EmEtScaleRcd.h" */
+/* #include "CondFormats/L1TObjects/interface/L1RCTParameters.h" */
+/* #include "CondFormats/DataRecord/interface/L1RCTParametersRcd.h" */
+/* #include "L1Trigger/RegionalCaloTrigger/interface/L1RCT.h" */
+/* #include "L1Trigger/RegionalCaloTrigger/interface/L1RCTLookupTables.h"  */
+
+
 #include "HLTrigger/HLTanalyzers/interface/JetUtil.h"
 
 #include "DataFormats/METReco/interface/CaloMETCollection.h"
