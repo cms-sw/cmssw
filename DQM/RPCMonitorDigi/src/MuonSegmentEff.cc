@@ -13,7 +13,7 @@
 //
 // Original Author:  Camilo Carrillo (Uniandes)
 //         Created:  Tue Oct  2 16:57:49 CEST 2007
-// $Id$
+// $Id: MuonSegmentEff.cc,v 1.1 2007/10/04 10:42:11 mmaggi Exp $
 //
 //
 
@@ -205,9 +205,9 @@ void MuonSegmentEff::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
     }
   }
 
-#include "dtpart.txt"
-#include "cscpart.txt"
-
+#include "dtpart.inl"
+#include "cscpart.inl"
+  
 }
 
 void 
@@ -242,4 +242,4 @@ MuonSegmentEff::endJob() {
   std::cout <<totalcounter[1]<<" "<<totalcounter[0]<<" flagcode"<<std::endl;
 }
 //define this as a plug-in
-DEFINE_FWK_MODULE(MuonSegmentEff);
+//DEFINE_FWK_MODULE(MuonSegmentEff);
