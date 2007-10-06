@@ -1684,7 +1684,7 @@
    <rParent name="mb3:MB3ChimSLZLayer_47Cells_startCell2"/>
    <rChild name="mb3:MB3SLZGas"/>
    <ParE name="delta" value="[mbCommon:MBCell_width]*2."/>
-   <ParE name="base" value="-[mbCommon:MBChimSLZL47]-[mbCommon:MBCell_width]+[mbCommon:MBIbeamWall]"/>
+   <ParE name="base" value="-[mbCommon:MBChimSLZL47]-3*[mbCommon:MBCell_width]+[mbCommon:MBIbeamWall]"/>
    <ParE name="base" value="0.*mm"/>
    <ParE name="base" value="0.*mm"/>
    <ParE name="theta" value="90.*deg" />
