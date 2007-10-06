@@ -2335,7 +2335,7 @@ process RECO = {
             t=path.parseString('path p = {a,b}')
             self.assertEqual(str(t[0][1]),'(a,b)')            
             self.checkRepr(t[0][1], 'cms.Path((a*b))')
-            self.assertEqual(t[0][1].cfgRepr(p), 'cms.Path((process.a*process.b))')
+            self.assertEqual(t[0][1].cfgRepr(), 'cms.Path((process.a*process.b))')
             pth = t[0][1].make(p)
             self.assertEqual(str(pth),'(a*b)')
             #print pth
