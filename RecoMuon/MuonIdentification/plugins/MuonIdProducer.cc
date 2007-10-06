@@ -5,7 +5,7 @@
 // 
 //
 // Original Author:  Dmytro Kovalskyi
-// $Id: MuonIdProducer.cc,v 1.12 2007/10/01 00:27:24 dmytro Exp $
+// $Id: MuonIdProducer.cc,v 1.13 2007/10/06 00:43:34 dmytro Exp $
 //
 //
 
@@ -395,8 +395,7 @@ void MuonIdProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	timers.pop();
 	
 	timers.push("MuonIdProducer::produce::fillCaloCompatibility");
-	if ( fillCaloCompatibility_ && 
-	     ( muon->isGlobalMuon() || muon->isTrackerMuon() ) ) muon->setCaloCompatibility( muonCaloCompatibility_.evaluate(*muon) );
+	if ( fillCaloCompatibility_ ) muon->setCaloCompatibility( muonCaloCompatibility_.evaluate(*muon) );
 	timers.pop();
 	
 	timers.push("MuonIdProducer::produce::fillIsolation");
