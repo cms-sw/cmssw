@@ -119,14 +119,14 @@
   <rSolid name="MB1Pw0_c"/>
   <rSolid name="MB1_OLAP3"/>
   <rRotation name="rotations:000D"/>
-  <Translation x="-[MB1_x]+10.5*mm" y="0.*fm" z="[mbCommon:MBHeight_With2RPC]-20.5*mm"/>
+  <Translation x="[MB1_x]+10.5*mm" y="0.*fm" z="[mbCommon:MBHeight_With2RPC]-20.5*mm"/>
  </SubtractionSolid>
 
  <SubtractionSolid name="MB1Pw0">
   <rSolid name="MB1Pw0_d"/>
   <rSolid name="MB1_OLAP4"/>
   <rRotation name="rotations:000D"/>
-  <Translation x="[MB1_x]-20.5*mm" y="0.*fm" z="[mbCommon:MBHeight_With2RPC]-40.5*mm"/>
+  <Translation x="-[MB1_x]-20.5*mm" y="0.*fm" z="[mbCommon:MBHeight_With2RPC]-40.5*mm"/>
  </SubtractionSolid>
 
 
