@@ -3,11 +3,12 @@
 
 #include "RecoParticleFlow/PFRootEvent/interface/PFRootEventManager.h"
 #include "DataFormats/JetReco/interface/BasicJet.h"
-#include "DataFormats/JetReco/interface/BasicJetfwd.h"
+
 #include "DataFormats/JetReco/interface/PFJet.h"
-#include "DataFormats/JetReco/interface/PFJetfwd.h"
+#include "DataFormats/JetReco/interface/BasicJetCollection.h"
 #include "DataFormats/JetReco/interface/CaloJet.h"
-#include "DataFormats/JetReco/interface/CaloJetfwd.h"
+#include "DataFormats/JetReco/interface/PFJetCollection.h"
+
 #include "DataFormats/RecoCandidate/interface/RecoCaloTowerCandidate.h" 
 #include "RecoJets/JetAlgorithms/interface/CMSIterativeConeAlgorithm.h"
 #include "RecoJets/JetAlgorithms/interface/JetRecoTypes.h"

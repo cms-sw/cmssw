@@ -84,16 +84,10 @@ void FWLiteJetProducer::print() {
 void FWLiteJetProducer::applyCuts(const reco::CandidateCollection& Candidates, JetReco::InputCollection* input){
   //!!!!
   edm::OrphanHandle< reco::CandidateCollection >  CandidateHandle(&(Candidates), edm::ProductID(10001) );
-  input->reserve ( Candidates.size());	
-  //cout<<" Candidate " << CandidateHandle->size()<<Candidates.size() << endl;
-  for (unsigned i = 0; i <Candidates.size() ; i++) {
-    const reco::Candidate* constituent = &Candidates[i];	
+  // FIXME - NOT YET WORKING & COMPILING  
+  //  fillInputs (  CandidateHandle, &input, mEtInputCut_, mEInputCut_);
 
-    if ((mEtInputCut_ <= 0 || constituent->et() > mEtInputCut_) &&
-	(mEInputCut_ <= 0 || constituent->energy() > mEInputCut_)) {			
-      input->push_back (InputItem(CandidateHandle,i));			
-    }
-  }
+
 }
 
 //-----------------------------------------------------------
@@ -131,3 +125,61 @@ void FWLiteJetProducer::makeMidpointJets(const InputCollection& fInput, OutputCo
 
 
 //-----------------------------------------------------------
+ 
+
+namespace {
+  const bool debug = false;
+
+  bool makeCaloJet (const string& fTag) {
+    return fTag == "CaloJet";
+  }
+  bool makePFJet (const string& fTag) {
+    return fTag == "PFJet";
+  }
+  bool makeGenJet (const string& fTag) {
+    return fTag == "GenJet";
+  }
+  bool makeBasicJet (const string& fTag) {
+    return fTag == "BasicJet";
+  }
+
+  bool makeGenericJet (const string& fTag) {
+    return !makeCaloJet (fTag) && makePFJet (fTag) && !makeGenJet (fTag) && !makeBasicJet (fTag);
+  }
+
+  template <class T>  
+  void dumpJets (const T& fJets) {
+    for (unsigned i = 0; i < fJets.size(); ++i) {
+      std::cout << "Jet # " << i << std::endl << fJets[i].print();
+    }
+  }
+
+  class FakeHandle {
+  public:
+    FakeHandle (const CandidateCollection* fCollection, edm::ProductID fId) : mCollection (fCollection), mId (fId) {}
+    edm::ProductID id () const {return mId;} 
+    const CandidateCollection* product () const {return mCollection;}
+  private:
+    const CandidateCollection* mCollection;
+    edm::ProductID mId;
+  };
+
+  template <class HandleC>
+  void fillInputs (const HandleC& fData, JetReco::InputCollection* fInput, double fEtCut, double fECut) {
+    for (unsigned i = 0; i < fData.product ()->size (); i++) {
+      // if clone, trace back till the original
+      CandidateRef constituent (fData, i);
+      while (constituent.isNonnull() && constituent->hasMasterClone ()) {
+	CandidateBaseRef baseRef = constituent->masterClone ();
+	constituent = baseRef.castTo<CandidateRef>();
+      }
+      if (constituent.isNull()) {
+	std::cout<< "Missing MasterClone: Constituent is ignored..." << std::endl;
+      }
+      else if ((fEtCut <= 0 || constituent->et() > fEtCut) &&
+	  (fECut <= 0 || constituent->energy() > fECut)) {
+	fInput->push_back (constituent);
+      }
+    }
+  }
+}

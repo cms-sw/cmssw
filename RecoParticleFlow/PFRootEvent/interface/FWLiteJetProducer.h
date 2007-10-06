@@ -2,11 +2,11 @@
 #define Demo_PFRootEvent_FWLiteJetProducer_h
 
 #include "DataFormats/JetReco/interface/BasicJet.h"
-#include "DataFormats/JetReco/interface/BasicJetfwd.h"
 #include "DataFormats/JetReco/interface/CaloJet.h"
-#include "DataFormats/JetReco/interface/CaloJetfwd.h"
 #include "DataFormats/JetReco/interface/GenJet.h"
-#include "DataFormats/JetReco/interface/GenJetfwd.h"
+#include "DataFormats/JetReco/interface/BasicJetCollection.h"
+#include "DataFormats/JetReco/interface/CaloJetCollection.h"
+#include "DataFormats/JetReco/interface/GenJetCollection.h"
 #include "DataFormats/RecoCandidate/interface/RecoCaloTowerCandidate.h" 
 #include "RecoJets/JetAlgorithms/interface/CMSIterativeConeAlgorithm.h"
 #include "RecoJets/JetAlgorithms/interface/CMSMidpointAlgorithm.h"

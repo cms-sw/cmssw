@@ -32,25 +32,29 @@
 #include "DataFormats/Candidate/interface/CandidateFwd.h"
 #include "DataFormats/Math/interface/LorentzVector.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "RecoJets/JetAlgorithms/interface/JetRecoTypes.h"
 
 #include <vector>
 #include <string>
 
+
+namespace fastjet {
+  class JetDefinition;
+  class ActiveAreaSpec;
+}
 class FastJetFWLiteWrapper
-{
-  typedef reco::CandidateRef FJCand;
-  typedef const reco::CandidateRef constFJCand;
+{  
  public:
   FastJetFWLiteWrapper();
-  ~FastJetFWLiteWrapper();
-  void run (const std::vector <FJCand>& fInput, std::vector<ProtoJet>* fOutput);
- 
+ ~FastJetFWLiteWrapper();
+   void run(const JetReco::InputCollection& fInput, JetReco::OutputCollection* fOutput);
+
 
 private:         
-  //fastjet::JetDefinition jet_def;
-  struct JetConfig;
+ 
+
   int theMode_;
-  JetConfig *theJetConfig_;
+
   double thePtMin_;
   double theRparam_;
   double theDcut_;
@@ -61,7 +65,10 @@ private:
   int theActive_Area_Repeats_;
   //fastjet::ActiveAreaSpec theArea_Spec;
   double theGhostArea_;
-  double theMedian_Pt_Per_Area_;
+  double theMedian_Pt_Per_Area_;  
+  fastjet::JetDefinition* mJetDefinition;
+  fastjet::ActiveAreaSpec* mActiveArea;
+ 
 
  public:  
   // Set methods --------------------------------------------
