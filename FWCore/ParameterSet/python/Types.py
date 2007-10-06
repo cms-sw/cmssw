@@ -1,4 +1,4 @@
-from Mixins import _SimpleParameterTypeBase, _ParameterTypeBase, _Parameterizable, _ConfigureComponent, _Labelable, _TypedParameterizable, _Unlabelable
+from Mixins import PrintOptions, _SimpleParameterTypeBase, _ParameterTypeBase, _Parameterizable, _ConfigureComponent, _Labelable, _TypedParameterizable, _Unlabelable
 from Mixins import _ValidatingParameterListBase
 from ExceptionHandling import format_typename, format_outerframe
 
@@ -131,10 +131,10 @@ class string(_SimpleParameterTypeBase):
     @staticmethod
     def _isValid(value):
         return isinstance(value,type(''))
-    def configValue(self,indent,deltaIndent):
+    def configValue(self, options=PrintOptions()):
         return self.formatValueForConfig(self.value())
-    def pythonValue(self,indent,deltaIndent):
-        return self.configValue('','')
+    def pythonValue(self, options=PrintOptions()):
+        return self.configValue(options)
     @staticmethod
     def formatValueForConfig(value):
         l = len(value)
@@ -175,10 +175,10 @@ class InputTag(_ParameterTypeBase):
     def setProcessName(self,label):
         self.__processName = label
     processName = property(getProcessName,setProcessName,"process name for the product")
-    def configValue(self,indent,deltaIndent):
+    def configValue(self, options=PrintOptions()):
         return self.__moduleLabel+':'+self.__productInstance+':'+self.__processName
-    def pythonValue(self,indent,deltaIndent):
-        colonedValue = "\""+self.configValue(indent,deltaIndent)+"\""
+    def pythonValue(self, options=PrintOptions()):
+        colonedValue = "\""+self.configValue(options)+"\""
         # change label:instance:process to "label","instance","process"
         return colonedValue.replace(":","\",\"")
     @staticmethod
@@ -196,7 +196,7 @@ class InputTag(_ParameterTypeBase):
         return self
     @staticmethod
     def formatValueForConfig(value):
-        return value.configValue('','')
+        return value.configValue()
     @staticmethod
     def _valueFromString(string):
         parts = string.split(":")
@@ -217,7 +217,7 @@ class FileInPath(_SimpleParameterTypeBase):
     @staticmethod
     def _isValid(value):
         return True
-    def configValue(self,indent,deltaIndent):
+    def configValue(self, options=PrintOptions()):
         return string.formatValueForConfig(self.value())
     @staticmethod
     def formatValueForConfig(value):
@@ -239,10 +239,10 @@ class SecSource(_ParameterTypeBase,_TypedParameterizable,_ConfigureComponent,_La
         return True
     def configTypeName(self):
         return "secsource"
-    def configValue(self,indent='',deltaIndent=''):
-       return self.dumpConfig(indent, deltaIndent)
-    def dumpPython(self, indent, deltaIndent):
-        return "cms.SecSource(\""+self.type_()+"\",\n"+_Parameterizable.dumpPython(self,indent, deltaIndent)+indent+")"
+    def configValue(self, options=PrintOptions()):
+       return self.dumpConfig(options)
+    def dumpPython(self, options=PrintOptions()):
+        return "cms.SecSource(\""+self.type_()+"\",\n"+_Parameterizable.dumpPython(self, options)+options.indentation()+")"
     def copy(self):
         # TODO is the one in TypedParameterizable better?
         import copy
@@ -262,15 +262,17 @@ class PSet(_ParameterTypeBase,_Parameterizable,_ConfigureComponent,_Labelable):
     @staticmethod
     def _isValid(value):
         return True
-    def configValue(self,indent='',deltaIndent=''):
+    def configValue(self, options=PrintOptions()):
         config = '{ \n'
         for name in self.parameterNames_():
             param = getattr(self,name)
-            config+=indent+deltaIndent+param.configTypeName()+' '+name+' = '+param.configValue(indent+deltaIndent,deltaIndent)+'\n'
-        config += indent+'}\n'
+            options.indent()
+            config+=options.indentation()+param.configTypeName()+' '+name+' = '+param.configValue(options)+'\n'
+            options.unindent()
+        config += options.indentation()+'}\n'
         return config
-    def dumpPython(self,indent,deltaIndent):
-        return self.pythonTypeName()+"(\n"+_Parameterizable.dumpPython(self, indent,deltaIndent)+indent+")"
+    def dumpPython(self, options=PrintOptions()):
+        return self.pythonTypeName()+"(\n"+_Parameterizable.dumpPython(self, options)+options.indentation()+")"
     def copy(self):
         import copy
         return copy.copy(self)
@@ -375,7 +377,7 @@ class vstring(_ValidatingParameterListBase):
     @staticmethod
     def _itemIsValid(item):
         return string._isValid(item)
-    def configValueForItem(self,item,indent,deltaIndent):
+    def configValueForItem(self,item,options):
         return string.formatValueForConfig(item)
     @staticmethod
     def _valueFromString(value):
@@ -391,10 +393,10 @@ class VInputTag(_ValidatingParameterListBase):
     @staticmethod
     def _itemIsValid(item):
         return InputTag._isValid(item)
-    def configValueForItem(self,item,indent,deltaIndent):
+    def configValueForItem(self,item,options):
         return InputTag.formatValueForConfig(item)
-    def pythonValueForItem(self,item,indent,deltaIndent):
-        return "\""+item.dumpPython(indent,deltaIndent)+"\""
+    def pythonValueForItem(self,item, options):
+        return item.dumpPython(options)
     @staticmethod
     def _valueFromString(value):
         return VInputTag(*_ValidatingParameterListBase._itemsFromStrings(value,InputTag._valueFromString))
@@ -412,10 +414,10 @@ class VPSet(_ValidatingParameterListBase,_ConfigureComponent,_Labelable):
     @staticmethod
     def _itemIsValid(item):
         return PSet._isValid(item)
-    def configValueForItem(self,item,indent,deltaIndent):
-        return PSet.configValue(item,indent+deltaIndent,deltaIndent)
-    def pythonValueForItem(self,item,indent,deltaIndent):
-        return PSet.dumpPython(item,indent+deltaIndent,deltaIndent)
+    def configValueForItem(self,item, options):
+        return PSet.configValue(item, options)
+    def pythonValueForItem(self,item, options):
+        return PSet.dumpPython(item,options)
     def copy(self):
         import copy
         return copy.copy(self)
@@ -430,7 +432,7 @@ class VPSet(_ValidatingParameterListBase,_ConfigureComponent,_Labelable):
             parametersets.append(newparameterset)
         parameterSet.addVPSet(self.isTracked(), myname, parametersets)
     def __repr__(self):
-        return self.dumpPython('','    ')
+        return self.dumpPython()
 
 
 if __name__ == "__main__":
@@ -468,6 +470,7 @@ if __name__ == "__main__":
             v[1:1]=[5]
             self.assertEqual(len(v),4)
             self.assertEqual([1,5,4,2],list(v))
+            self.assertEqual(repr(v), "cms.vint32(1, 5, 4, 2)")
             self.assertRaises(TypeError,v.append,('blah'))
         def testbool(self):
             b = bool(True)
@@ -476,17 +479,20 @@ if __name__ == "__main__":
             self.assertEqual(b.value(),False)
             b = bool._valueFromString("2")
             self.assertEqual(b.value(),True)
+            self.assertEqual(repr(b), "cms.bool(True)")
         def testString(self):
             s=string('this is a test')
             self.assertEqual(s.value(),'this is a test')
+            self.assertEqual(repr(s), "cms.string(\'this is a test\')")
             s=string('\0')
             self.assertEqual(s.value(),'\0')
-            self.assertEqual(s.configValue('',''),"'\\0'")
+            self.assertEqual(s.configValue(),"'\\0'")
         def testUntracked(self):
             p=untracked(int32(1))
             self.assertRaises(TypeError,untracked,(1),{})
             self.failIf(p.isTracked())
             p=untracked.int32(1)
+            self.assertEqual(repr(p), "cms.untracked.int32(1)")
             self.assertRaises(TypeError,untracked,(1),{})
             self.failIf(p.isTracked())
             p=untracked.vint32(1,5,3)
@@ -497,7 +503,7 @@ if __name__ == "__main__":
             self.assertEqual(p.b.value(),1)
         def testInputTag(self):
             it = InputTag._valueFromString("label::proc")
-            print it.pythonValue('','')
+            print it.pythonValue()
             self.assertEqual(it.getModuleLabel(), "label")
             self.assertEqual(it.getProductInstanceLabel(), "")
             self.assertEqual(it.getProcessName(), "proc")
@@ -506,22 +512,29 @@ if __name__ == "__main__":
             self.assertEqual(it.getModuleLabel(), "label")
             self.assertEqual(it.getProductInstanceLabel(), "")
             self.assertEqual(it.getProcessName(), "proc")
+            self.assertEqual(repr(it), "cms.InputTag(\"label\",\"\",\"proc\")")
+            vit = VInputTag(InputTag("label1"), InputTag("label2"))
+            self.assertEqual(repr(vit), "cms.VInputTag(cms.InputTag(\"label1\",\"\",\"\"), cms.InputTag(\"label2\",\"\",\"\"))")
         def testPSet(self):
             p1 = PSet(anInt = int32(1), a = PSet(b = int32(1)))
             self.assertRaises(ValueError, PSet, "foo")
             self.assertRaises(TypeError, PSet, foo = "bar")
-            print p1.dumpPython('   ', '   ')
+            self.assertEqual(repr(p1), "cms.PSet(\n    a = cms.PSet(\n        b = cms.int32(1)\n    ),\n    anInt = cms.int32(1)\n)")
+            vp1 = VPSet(PSet(i = int32(2)))
+            #self.assertEqual(vp1.configValue(), "
+            self.assertEqual(repr(vp1), "cms.VPSet(cms.PSet(\n    i = cms.int32(2)\n))")
+
         def testFileInPath(self):
             f = FileInPath("FWCore/ParameterSet/python/Types.py")
-            self.assertEqual(f.configValue('','   '), "'FWCore/ParameterSet/python/Types.py'")
+            self.assertEqual(f.configValue(), "'FWCore/ParameterSet/python/Types.py'")
         def testSecSource(self):
             s1 = SecSource("PoolSource", fileNames = vstring("foo.root"))
             self.assertEqual(s1.type_(), "PoolSource")
             self.assertEqual(s1.configValue(),
 """PoolSource { 
-vstring fileNames = {
-'foo.root'
-}
+    vstring fileNames = {
+        'foo.root'
+    }
 
 }
 """)
