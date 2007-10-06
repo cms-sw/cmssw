@@ -11,6 +11,7 @@
 #include "AnalysisDataFormats/TopObjects/interface/TtSemiMassSolution.h"
 #include "AnalysisDataFormats/TopObjects/interface/StEvtSolution.h"
 #include "AnalysisDataFormats/TopObjects/interface/JetRejObs.h"
+#include "AnalysisDataFormats/TopObjects/interface/TtHadEvtSolution.h"
 
 #include "DataFormats/Common/interface/Wrapper.h"
 
@@ -91,12 +92,14 @@ namespace {
     TtDilepEvtSolution                                    ttdilep;
     TtSemiEvtSolution                                     ttsemi;
     TtSemiMassSolution              	                  ttsemimass;
+    TtHadEvtSolution                                      tthad;
     StEvtSolution                                         st;
     std::vector<TtDilepEvtSolution>                       v_ttdilep;
     std::vector<TtSemiEvtSolution>                        v_ttsemi;
     std::vector<StEvtSolution>                            v_st;
     edm::Wrapper<std::vector<TtDilepEvtSolution> >        w_v_ttdilep;
     edm::Wrapper<std::vector<TtSemiEvtSolution> >         w_v_ttsemi;
+    edm::Wrapper<std::vector<TtHadEvtSolution> >          w_v_tthad;
     edm::Wrapper<std::vector<StEvtSolution> >             w_v_st;
     
   }

@@ -60,13 +60,16 @@
   <class name="edm::RefProd<StGenEvent>" />
   <class name="edm::RefProd<TopGenEvent>" />
 
+  <class name="TtHadEvtSolution" />
   <class name="TtDilepEvtSolution" />
   <class name="TtSemiEvtSolution" />
   <class name="TtSemiMassSolution" />
   <class name="StEvtSolution" />
+  <class name="std::vector<TtHadEvtSolution>" />
   <class name="std::vector<TtDilepEvtSolution>" />
   <class name="std::vector<TtSemiEvtSolution>" />
   <class name="std::vector<StEvtSolution>" />
+  <class name="edm::Wrapper<std::vector<TtHadEvtSolution> >" />
   <class name="edm::Wrapper<std::vector<TtDilepEvtSolution> >" />
   <class name="edm::Wrapper<std::vector<TtSemiEvtSolution> >" />
   <class name="edm::Wrapper<std::vector<StEvtSolution> >" />
