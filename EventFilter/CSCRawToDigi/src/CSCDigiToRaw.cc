@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2007/05/04 00:10:55 $
- *  $Revision: 1.8 $
+ *  $Date: 2007/09/11 18:06:09 $
+ *  $Revision: 1.9 $
  *  \author A. Tumanov - Rice
  */
 
@@ -17,6 +17,12 @@
 #include "CondFormats/CSCObjects/interface/CSCReadoutMappingFromFile.h"
 #include <boost/dynamic_bitset.hpp>
 #include "EventFilter/CSCRawToDigi/src/bitset_append.h"
+#include <FWCore/Framework/interface/Event.h>
+#include <DataFormats/FEDRawData/interface/FEDHeader.h>
+#include <DataFormats/FEDRawData/interface/FEDTrailer.h>
+#include "EventFilter/Utilities/interface/Crc.h"
+
+
 
 using namespace edm;
 using namespace std;
@@ -106,7 +112,8 @@ CSCDigiToRaw::fillChamberDataMap(const CSCStripDigiCollection & stripDigis,
 void CSCDigiToRaw::createFedBuffers(const CSCStripDigiCollection& stripDigis,
 				    const CSCWireDigiCollection& wireDigis,
 				    FEDRawDataCollection& fed_buffers,
-				    CSCReadoutMappingFromFile& mapping)
+				    CSCReadoutMappingFromFile& mapping,
+				    Event & e)
 {
 
   ///bits of code from ORCA/Muon/METBFormatter - thanks, Rick:)!
@@ -148,6 +155,12 @@ void CSCDigiToRaw::createFedBuffers(const CSCStripDigiCollection& stripDigis,
 	      fedRawData.resize(dccBits.size());
 	      ///fill data with dccEvent
 	      bitset_utilities::bitsetToChar(dccBits, fedRawData.data());
+	      FEDHeader cscFEDHeader(fedRawData.data());
+	      cscFEDHeader.set(fedRawData.data(), 0, e.id().event(), 0, startingFED+idcc);
+	      FEDTrailer cscFEDTrailer(fedRawData.data()+(fedRawData.size()-8));
+	      cscFEDTrailer.set(fedRawData.data()+(fedRawData.size()-8), 
+				fedRawData.size()/8, 
+				evf::compute_crc(fedRawData.data(),fedRawData.size()), 0, 0);
 	      int dduId = mapping.dduId(chamberItr->first); ///get ddu id based on ChamberId form mapping
 	      if (oldDDUNumber!=dduId) 
 		{ //if new ddu increment indexDDU counter

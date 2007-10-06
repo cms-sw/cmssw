@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2007/04/25 19:31:26 $
- *  $Revision: 1.1 $
+ *  $Date: 2007/07/02 21:16:22 $
+ *  $Revision: 1.2 $
  *  \author A. Tumanov - Rice
  */
 
@@ -42,7 +42,9 @@ void CSCDigiToRawModule::produce(Event & e, const EventSetup& c){
 
 
   // Create the packed data
-  packer->createFedBuffers(*stripDigis, *wireDigis, *(fed_buffers.get()), theMapping);
+  packer->createFedBuffers(*stripDigis, *wireDigis, *(fed_buffers.get()), theMapping, e);
+
+
   
   // put the raw data to the event
   e.put(fed_buffers, "CSCRawData");
