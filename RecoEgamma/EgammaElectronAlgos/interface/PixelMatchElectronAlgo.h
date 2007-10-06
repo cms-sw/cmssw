@@ -15,6 +15,7 @@
 #include "DataFormats/EgammaCandidates/interface/PixelMatchGsfElectron.h"
 #include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
 #include "DataFormats/EgammaReco/interface/SeedSuperClusterAssociation.h"
+#include "DataFormats/EgammaReco/interface/BasicClusterShapeAssociation.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrackFwd.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
 #include "DataFormats/PixelMatchTrackReco/interface/GsfTrackSeedAssociation.h"
@@ -52,8 +53,12 @@ public:
  private:
 
   // create electrons from superclusters, tracks and Hcal rechits
-  void process(edm::Handle<reco::GsfTrackCollection> tracksH, const reco::SeedSuperClusterAssociationCollection *sclAss, const reco::GsfTrackSeedAssociationCollection *tsAss,
-   HBHERecHitMetaCollection *mhbhe, reco::PixelMatchGsfElectronCollection & outEle);
+  void process(edm::Handle<reco::GsfTrackCollection> tracksH,
+	       const reco::SeedSuperClusterAssociationCollection *sclAss,
+	       const reco::GsfTrackSeedAssociationCollection *tsAss,
+	       const reco::BasicClusterShapeAssociationCollection *shpAss,
+	       HBHERecHitMetaCollection *mhbhe,
+	       reco::PixelMatchGsfElectronCollection & outEle);
   
   // preselection method
   bool preSelection(const reco::SuperCluster& clus, const GlobalVector&, const GlobalPoint&,double HoE);
@@ -105,6 +110,10 @@ public:
   std::string assBarrelTrTSInstanceName_;
   std::string assEndcapTrTSLabel_;
   std::string assEndcapTrTSInstanceName_;
+  std::string assBarrelShapeLabel_;
+  std::string assBarrelShapeInstanceName_;
+  std::string assEndcapShapeLabel_;
+  std::string assEndcapShapeInstanceName_;
 
   edm::ESHandle<MagneticField>                theMagField;
   edm::ESHandle<CaloGeometry>                 theCaloGeom;
