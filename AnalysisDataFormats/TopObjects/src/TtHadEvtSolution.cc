@@ -1,5 +1,5 @@
 //
-// $Id: TtHadEvtSolution.cc,v 1.1 2007/09/20 12:28:00 mfhansen Exp $
+// $Id: TtHadEvtSolution.cc,v 1.1 2007/10/06 14:55:07 mfhansen Exp $
 // adapted TtSemiEvtSolution.cc,v 1.13 2007/07/05 23:43:08 lowette Exp 
 // for fully hadronic channel
 
@@ -178,9 +178,9 @@ void TtHadEvtSolution::setJetParametrisation(int jp)    { jetParam_ = jp; }
 void TtHadEvtSolution::setProbChi2(double c) { probChi2_ = c; }
 
 // methods to set the outcome of the different jet combination methods
-void TtHadEvtSolution::setMCCorrJetComb(int mcbs)    { mcCorrJetComb_ = mcbs; }
-void TtHadEvtSolution::setSimpleCorrJetComb(int sbs) { simpleCorrJetComb_ = sbs;  }
-void TtHadEvtSolution::setLRCorrJetComb(int lrbs)    { lrCorrJetComb_ = lrbs;  }
+void TtHadEvtSolution::setMCBestJetComb(int mcbs)    { mcCorrJetComb_ = mcbs; }
+void TtHadEvtSolution::setSimpleBestJetComb(int sbs) { simpleCorrJetComb_ = sbs;  }
+void TtHadEvtSolution::setLRBestJetComb(int lrbs)    { lrCorrJetComb_ = lrbs;  }
 void TtHadEvtSolution::setLRJetCombObservables(std::vector<std::pair<unsigned int, double> > varval) {
   lrJetCombVarVal_.clear();
   for(size_t ijc = 0; ijc<varval.size(); ijc++) lrJetCombVarVal_.push_back(varval[ijc]);

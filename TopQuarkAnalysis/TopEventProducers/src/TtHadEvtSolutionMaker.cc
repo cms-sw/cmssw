@@ -1,4 +1,4 @@
-// $Id: TtHadEvtSolutionMaker.cc, v 1.1 2007/09/17 14:30:32 mfhansen $
+// $Id: TtHadEvtSolutionMaker.cc,v 1.1 2007/10/06 15:11:42 mfhansen Exp $
 
 #include "TopQuarkAnalysis/TopEventProducers/interface/TtHadEvtSolutionMaker.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -184,102 +184,104 @@ void TtHadEvtSolutionMaker::produce(edm::Event & iEvent, const edm::EventSetup &
     // add TtHadSimpleBestJetComb to solutions
     int simpleBestJetComb = (*mySimpleBestJetComb)(*evtsols);
 
-    for(size_t s=0; s<evtsols->size(); s++) (*evtsols)[s].setSimpleCorrJetComb(simpleBestJetComb);    
-    // if asked for, match the event solutions to the gen Event
-    if(matchToGenEvt_){
-      int bestSolution = -999; 
-      int bestSolutionChangeW1Q = -999;
-      int bestSolutionChangeW2Q = -999;
-      edm::Handle<TtGenEvent> genEvt;
-      iEvent.getByLabel ("genEvt",genEvt); 
-      vector<const reco::Candidate*> quarks;
-      const reco::Candidate & genp  = *(genEvt->quarkFromTop());
-      const reco::Candidate & genq  = *(genEvt->quarkFromTopBar());
-      const reco::Candidate & genb  = *(genEvt->b());
-      const reco::Candidate & genj  = *(genEvt->quarkFromAntiTop());
-      const reco::Candidate & genk  = *(genEvt->quarkFromAntiTopBar());
-      const reco::Candidate & genbbar = *(genEvt->bBar());
-      quarks.push_back( &genp );       
-      quarks.push_back( &genq );   
-      quarks.push_back( &genb );
-      quarks.push_back( &genj );       
-      quarks.push_back( &genk );   
-      quarks.push_back( &genbbar );
-      vector<const reco::Candidate*> jets;         
-      for(size_t s=0; s<evtsols->size(); s++) {
-	jets.clear();     
-	const reco::Candidate & jetp  = (*evtsols)[s].getRecHadp();
-	const reco::Candidate & jetq  = (*evtsols)[s].getRecHadq();
-	const reco::Candidate & jetbh = (*evtsols)[s].getRecHadb();
-	const reco::Candidate & jetj  = (*evtsols)[s].getRecHadj();
-	const reco::Candidate & jetk  = (*evtsols)[s].getRecHadk();
-	const reco::Candidate & jetbbar = (*evtsols)[s].getRecHadbbar();
-	jets.push_back( &jetp );      
-	jets.push_back( &jetq );        
-	jets.push_back( &jetbh );
-	jets.push_back( &jetj );
-	jets.push_back( &jetk );
-	jets.push_back( &jetbbar );
-
-	JetPartonMatching aMatch(quarks,jets,1);  // 1: SpaceAngle; 2: DeltaR  
-	(*evtsols)[s].setGenEvt(genEvt);   
-	(*evtsols)[s].setMCBestSumAngles(aMatch.getSumAngles());
-	(*evtsols)[s].setMCBestAngleHadp(aMatch.getAngleForParton(0));
-	(*evtsols)[s].setMCBestAngleHadq(aMatch.getAngleForParton(1));
-	(*evtsols)[s].setMCBestAngleHadb(aMatch.getAngleForParton(2));
-	(*evtsols)[s].setMCBestAngleHadb(aMatch.getAngleForParton(2));
-	(*evtsols)[s].setMCBestAngleHadj(aMatch.getAngleForParton(3));
-	(*evtsols)[s].setMCBestAngleHadk(aMatch.getAngleForParton(4));
-	(*evtsols)[s].setMCBestAngleHadbbar(aMatch.getAngleForParton(5));
-
-	// Check match - checking if two light quarks are swapped wrt matched gen particle
-	if((aMatch.getMatchForParton(2) == 2 && aMatch.getMatchForParton(5) == 5)
-	   || (aMatch.getMatchForParton(2) == 5 && aMatch.getMatchForParton(5) == 2)){ // check b-jets
+    for(size_t s=0; s<evtsols->size(); s++){
+      (*evtsols)[s].setSimpleBestJetComb(simpleBestJetComb);    
+      // if asked for, match the event solutions to the gen Event
+      if(matchToGenEvt_){
+	int bestSolution = -999; 
+	int bestSolutionChangeW1Q = -999;
+	int bestSolutionChangeW2Q = -999;
+	edm::Handle<TtGenEvent> genEvt;
+	iEvent.getByLabel ("genEvt",genEvt); 
+	vector<const reco::Candidate*> quarks;
+	const reco::Candidate & genp  = *(genEvt->quarkFromTop());
+	const reco::Candidate & genq  = *(genEvt->quarkFromTopBar());
+	const reco::Candidate & genb  = *(genEvt->b());
+	const reco::Candidate & genj  = *(genEvt->quarkFromAntiTop());
+	const reco::Candidate & genk  = *(genEvt->quarkFromAntiTopBar());
+	const reco::Candidate & genbbar = *(genEvt->bBar());
+	quarks.push_back( &genp );       
+	quarks.push_back( &genq );   
+	quarks.push_back( &genb );
+	quarks.push_back( &genj );       
+	quarks.push_back( &genk );   
+	quarks.push_back( &genbbar );
+	vector<const reco::Candidate*> jets;         
+	for(size_t s=0; s<evtsols->size(); s++) {
+	  jets.clear();     
+	  const reco::Candidate & jetp  = (*evtsols)[s].getRecHadp();
+	  const reco::Candidate & jetq  = (*evtsols)[s].getRecHadq();
+	  const reco::Candidate & jetbh = (*evtsols)[s].getRecHadb();
+	  const reco::Candidate & jetj  = (*evtsols)[s].getRecHadj();
+	  const reco::Candidate & jetk  = (*evtsols)[s].getRecHadk();
+	  const reco::Candidate & jetbbar = (*evtsols)[s].getRecHadbbar();
+	  jets.push_back( &jetp );      
+	  jets.push_back( &jetq );        
+	  jets.push_back( &jetbh );
+	  jets.push_back( &jetj );
+	  jets.push_back( &jetk );
+	  jets.push_back( &jetbbar );
 	  
-	  if(aMatch.getMatchForParton(3) == 3 && aMatch.getMatchForParton(4) == 4){ //check light jets
-	    bestSolutionChangeW2Q = 0;
-	    if(aMatch.getMatchForParton(0) == 0 && aMatch.getMatchForParton(1) == 1) { 
-	      bestSolution = s;
-	      bestSolutionChangeW1Q = 0;
-	    }else{
-	      if(aMatch.getMatchForParton(0) == 1 && aMatch.getMatchForParton(1) == 0){
-		bestSolution = s;
-		bestSolutionChangeW1Q = 1;
-	      }
-	    }
-	  }else{
-	    if(aMatch.getMatchForParton(3) == 4 && aMatch.getMatchForParton(4) == 3)){ // or check if swapped 
-	    bestSolutionChangeW2Q = 1;
-	    if(aMatch.getMatchForParton(0) == 1 && aMatch.getMatchForParton(1) == 0){
-	      bestSolution = s;
-	      bestSolutionChangeW1Q = 1;
-	    }else{
+	  JetPartonMatching aMatch(quarks,jets,1);  // 1: SpaceAngle; 2: DeltaR  
+	  (*evtsols)[s].setGenEvt(genEvt);   
+	  (*evtsols)[s].setMCBestSumAngles(aMatch.getSumAngles());
+	  (*evtsols)[s].setMCBestAngleHadp(aMatch.getAngleForParton(0));
+	  (*evtsols)[s].setMCBestAngleHadq(aMatch.getAngleForParton(1));
+	  (*evtsols)[s].setMCBestAngleHadb(aMatch.getAngleForParton(2));
+	  (*evtsols)[s].setMCBestAngleHadb(aMatch.getAngleForParton(2));
+	  (*evtsols)[s].setMCBestAngleHadj(aMatch.getAngleForParton(3));
+	  (*evtsols)[s].setMCBestAngleHadk(aMatch.getAngleForParton(4));
+	  (*evtsols)[s].setMCBestAngleHadbbar(aMatch.getAngleForParton(5));
+	  
+	  // Check match - checking if two light quarks are swapped wrt matched gen particle
+	  if((aMatch.getMatchForParton(2) == 2 && aMatch.getMatchForParton(5) == 5)
+	     || (aMatch.getMatchForParton(2) == 5 && aMatch.getMatchForParton(5) == 2)){ // check b-jets
+	    
+	    if(aMatch.getMatchForParton(3) == 3 && aMatch.getMatchForParton(4) == 4){ //check light jets
+	      bestSolutionChangeW2Q = 0;
 	      if(aMatch.getMatchForParton(0) == 0 && aMatch.getMatchForParton(1) == 1) { 
 		bestSolution = s;
 		bestSolutionChangeW1Q = 0;
+	      }else{
+		if(aMatch.getMatchForParton(0) == 1 && aMatch.getMatchForParton(1) == 0){
+		  bestSolution = s;
+		  bestSolutionChangeW1Q = 1;
+		}
+	      }
+	    }else{
+	      if(aMatch.getMatchForParton(2) == 3 && aMatch.getMatchForParton(3) == 2){ // or check if swapped 
+		bestSolutionChangeW2Q = 1;
+		if(aMatch.getMatchForParton(0) == 1 && aMatch.getMatchForParton(1) == 0){
+		  bestSolution = s;
+		  bestSolutionChangeW1Q = 1;
+		}else{
+		  if(aMatch.getMatchForParton(0) == 0 && aMatch.getMatchForParton(1) == 1) { 
+		    bestSolution = s;
+		    bestSolutionChangeW1Q = 0;
+		  }
+		}
+	      }
+	      
+	      if(aMatch.getMatchForParton(2) == 2 && aMatch.getMatchForParton(3) == 3){
+		bestSolutionChangeW2Q = 0;
+		if(aMatch.getMatchForParton(0) == 0 && aMatch.getMatchForParton(1) == 1) {
+		  bestSolution = s; 
+		  bestSolutionChangeW1Q = 0;
+		} else if(aMatch.getMatchForParton(0) == 1 && aMatch.getMatchForParton(1) == 0) {
+		  bestSolution = s;             
+		  bestSolutionChangeW1Q = 1;           
+		}
 	      }
 	    }
 	  }
-	  
-	  if(aMatch.getMatchForParton(2) == 2 && aMatch.getMatchForParton(3) == 3){
-	    if(aMatch.getMatchForParton(0) == 0 && aMatch.getMatchForParton(1) == 1) {
-	      bestSolution = s; 
-	      bestSolutionChangeWQ = 0;
-	    } else if(aMatch.getMatchForParton(0) == 1 && aMatch.getMatchForParton(1) == 0) {
-	      bestSolution = s;             
-	      bestSolutionChangeWQ = 1;           
-	    }
+	  for(size_t s=0; s<evtsols->size(); s++) {
+	    (*evtsols)[s].setMCBestJetComb(bestSolution);
+	    (*evtsols)[s].setMCChangeW1Q(bestSolutionChangeW1Q);
+	    (*evtsols)[s].setMCChangeW2Q(bestSolutionChangeW2Q);
 	  }
 	}
-      }
-      for(size_t s=0; s<evtsols->size(); s++) {
-	(*evtsols)[s].setMCBestJetComb(bestSolution);
-	(*evtsols)[s].setMCChangeW1Q(bestSolutionChangeW1Q);
-	(*evtsols)[s].setMCChangeW2Q(bestSolutionChangeW2Q);
-      }
-      */
-    } // end matchEvt
-      
+      } // end matchEvt
+    }       
     //store the vector of solutions to the event     
     std::auto_ptr<std::vector<TtHadEvtSolution> > pOut(evtsols);
     iEvent.put(pOut);
@@ -290,5 +292,5 @@ void TtHadEvtSolutionMaker::produce(edm::Event & iEvent, const edm::EventSetup &
     std::auto_ptr<std::vector<TtHadEvtSolution> > pOut(evtsols);
     iEvent.put(pOut);
   }
-}
+}  
 

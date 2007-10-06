@@ -1,7 +1,7 @@
 #ifndef TopObjects_TtHadEvtSolution_h
 #define TopObjects_TtHadEvtSolution_h
 //
-// $Id: TtHadEvtSolution.h,v 1.01 2007/09/30 09:30:00 mfhansen Exp $
+// $Id: TtHadEvtSolution.h,v 1.1 2007/10/06 14:54:40 mfhansen Exp $
 // adapted TtSemiEvtSolution.h,v 1.14 2007/07/06 03:07:47 lowette Exp 
 // for fully hadronic channel
 
@@ -148,9 +148,9 @@ class TtHadEvtSolution {
     // method to set the prob. of the chi2 value resulting from the kinematic fit 
     void                      setProbChi2(double c);
     // methods to set the outcome of the different jet combination methods
-    void                      setMCCorrJetComb(int mcbs);
-    void                      setSimpleCorrJetComb(int sbs);
-    void                      setLRCorrJetComb(int lrbs);
+    void                      setMCBestJetComb(int mcbs);
+    void                      setSimpleBestJetComb(int sbs);
+    void                      setLRBestJetComb(int lrbs);
     void                      setLRJetCombObservables(std::vector<std::pair<unsigned int, double> > varval);
     void                      setLRJetCombLRval(double clr);
     void                      setLRJetCombProb(double plr);
