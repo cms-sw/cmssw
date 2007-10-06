@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2007/10/05 18:17:51 $
- *  $Revision: 1.8 $
+ *  $Date: 2007/10/06 09:32:23 $
+ *  $Revision: 1.9 $
  *
  *  \author Martin Grunewald
  *
@@ -50,41 +50,41 @@ L1TrigReport::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   using namespace std;
   using namespace edm;
 
-  nEvents_++;
-
   // get hold of L1GlobalReadoutRecord
   Handle<L1GlobalTriggerReadoutRecord> L1GTRR;
   try {iEvent.getByLabel(l1GTReadoutRecTag_,L1GTRR);} catch (...) {;}
   if (L1GTRR.isValid()) {
+    const unsigned int n(L1GTRR->decisionWord().size());
+    // initialisation
+    if ( (!init_) || (nSize_!=n) ) {
+      if (!init_) {
+	init_=true;
+      } else {
+	endJob();
+	nEvents_=0;
+	nErrors_=0;
+	nAccepts_=0;
+      }
+      nSize_=n;
+      l1Names_.resize(n);
+      l1Accepts_.resize(n);
+      for (unsigned int i=0; i!=n; ++i) {
+	l1Accepts_[i]=0;
+	l1Names_[i]="NameNotAvailable";
+      }
+    }
     const bool accept(L1GTRR->decision());
     LogDebug("") << "L1GlobalTriggerReadoutRecord decision: " << accept;
+    nEvents_++;
     if (accept) ++nAccepts_;
+    // decision for each L1 algorithm
+    for (unsigned int i=0; i!=n; ++i) {
+      if (L1GTRR->decisionWord()[i]) l1Accepts_[i]++;
+    }
   } else {
     LogDebug("") << "L1GlobalTriggerReadoutRecord with label ["+l1GTReadoutRecTag_.encode()+"] not found!";
+    nEvents_++;
     nErrors_++;
-    return;
-  }
-  const unsigned int n(L1GTRR->decisionWord().size());
-
-  // initialisation - check for L1T table change
-  if ( (!init_) || (nSize_!=n) ) {
-    if (init_) endJob();
-    init_=true;
-    nSize_=n;
-    nEvents_=0;
-    nErrors_=0;
-    nAccepts_=0;
-    l1Names_.resize(n);
-    l1Accepts_.resize(n);
-    for (unsigned int i=0; i!=n; ++i) {
-      l1Accepts_[i]=0;
-      l1Names_[i]="NameNotAvailable";
-    }
-  }
-
-  // decision for each L1 algorithm
-  for (unsigned int i=0; i!=n; ++i) {
-    if (L1GTRR->decisionWord()[i]) l1Accepts_[i]++;
   }
 
   return;
