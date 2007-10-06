@@ -139,6 +139,11 @@ if __name__ == "__main__":
             self.assertEqual(aCopy.bar.value(), "it")
             withType = EDAnalyzer("Test",type = int32(1))
             self.assertEqual(withType.type.value(),1)
+            block = PSet(i = int32(9))
+            m = EDProducer("DumbProducer", block, j = int32(10))
+            self.assertEqual(9, m.i.value())
+            self.assertEqual(10, m.j.value())
+
         
         def testService(self):
             empty = Service("Empty")
