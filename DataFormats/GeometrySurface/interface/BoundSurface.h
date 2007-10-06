@@ -25,6 +25,7 @@ public:
     Surface(   pos, rot ),
     m_phiSpan( 0., 0.),
     m_zSpan(   0., 0.),
+    m_rSpan(   0., 0.),
     theBounds( bounds->clone() )
   { 
     computeSpan();
@@ -36,6 +37,7 @@ public:
     Surface(   pos, rot),
     m_phiSpan( 0., 0.),
     m_zSpan(   0., 0.),
+    m_rSpan(   0., 0.),
     theBounds( bounds.clone()) 
   { 
     computeSpan();
@@ -48,6 +50,7 @@ public:
     Surface(   pos, rot, mp),  
     m_phiSpan( 0., 0.),
     m_zSpan(   0., 0.),
+    m_rSpan(   0., 0.),
     theBounds( bounds->clone()) 
   { 
     computeSpan();
@@ -60,6 +63,7 @@ public:
     Surface(   pos, rot, mp),  
     m_phiSpan( 0., 0.),
     m_zSpan(   0., 0.),
+    m_rSpan(   0., 0.),
     theBounds( bounds.clone()) 
   {
     computeSpan();
@@ -69,6 +73,7 @@ public:
     Surface(   iToCopy ), 
     m_phiSpan( iToCopy.m_phiSpan ),
     m_zSpan(   iToCopy.m_zSpan ),
+    m_rSpan(   0., 0.),
     theBounds( iToCopy.theBounds->clone() ) 
   {}
 
@@ -76,6 +81,7 @@ public:
     Surface::operator=( iRHS );
     m_phiSpan = iRHS.m_phiSpan;
     m_zSpan   = iRHS.m_zSpan;
+    m_rSpan(   0., 0.),
     theBounds.reset( iRHS.theBounds->clone() );
     return *this;
   }
@@ -84,7 +90,7 @@ public:
 
   std::pair<float,float> const & phiSpan() const { return m_phiSpan; }
   std::pair<float,float> const & zSpan()   const { return m_zSpan; }
-  std::pair<float,float> const & rSpan()   const { static std::pair<float,float> span; return span; }
+  std::pair<float,float> const & rSpan()   const { return m_rSpan; }
 
 protected:
   friend void boundSpan::computeSpan(BoundSurface& plane);
@@ -94,9 +100,7 @@ private:
 
   std::pair<float,float> m_phiSpan;
   std::pair<float,float> m_zSpan;
-  /* FIXME
-  std::pair<float,float> z_zSpan;
-  */
+  std::pair<float,float> m_rSpan;
   
   std::auto_ptr<Bounds> theBounds;
 };
