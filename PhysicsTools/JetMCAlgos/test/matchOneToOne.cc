@@ -30,10 +30,10 @@ using namespace reco;
 using namespace edm;
 using namespace ROOT::Math::VectorUtil;
 
-class jetTest : public edm::EDAnalyzer {
+class matchOneToOne : public edm::EDAnalyzer {
   public:
-    explicit jetTest(const edm::ParameterSet&);
-    ~jetTest() {}
+    explicit matchOneToOne(const edm::ParameterSet&);
+    ~matchOneToOne() {}
      virtual void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup);
      virtual void beginJob(const edm::EventSetup& iSetup) ;
      virtual void endJob() ;
@@ -51,9 +51,10 @@ class jetTest : public edm::EDAnalyzer {
 
     TFile*      hOutputFile ;
     TH1D*       hTotalLenght;
+    TH1F*       hDR;
 };
 
-jetTest::jetTest(const edm::ParameterSet& iConfig)
+matchOneToOne::matchOneToOne(const edm::ParameterSet& iConfig)
 {
   source_          = iConfig.getParameter<InputTag> ("src");
   matched_         = iConfig.getParameter<InputTag> ("matched");
@@ -61,31 +62,32 @@ jetTest::jetTest(const edm::ParameterSet& iConfig)
   fOutputFileName_ = iConfig.getUntrackedParameter<string>("HistOutFile",std::string("testMatch.root"));
 }
 
-void jetTest::beginJob( const edm::EventSetup& iSetup)
+void matchOneToOne::beginJob( const edm::EventSetup& iSetup)
 {
  
    hOutputFile   = new TFile( fOutputFileName_.c_str(), "RECREATE" ) ;
-   hTotalLenght  = new TH1D( "hTotalLenght", "Total Lenght", 100,  0., 5. );
+   hDR           = new TH1F( "hDR","",1000,0.,10.);
+   hTotalLenght  = new TH1D( "hTotalLenght", "Total Lenght", 1000,  0., 5. );
    return ;
 }
 
-void jetTest::endJob()
+void matchOneToOne::endJob()
 {      
    hOutputFile->Write() ;
    hOutputFile->Close() ;  
    return ;
 }
 
-void jetTest::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
+void matchOneToOne::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-  cout << "[GenJetTest] analysing event " << iEvent.id() << endl;
+  cout << "[matchOneToOne] analysing event " << iEvent.id() << endl;
   
   try {
     iEvent.getByLabel (source_,source);
     iEvent.getByLabel (matched_,matched);
     iEvent.getByLabel (matchedjetsOne_ , matchedjetsOne );
   } catch(std::exception& ce) {
-    cerr << "[GenJetTest] caught std::exception " << ce.what() << endl;
+    cerr << "[matchOneToOne] caught std::exception " << ce.what() << endl;
     return;
   }
   
@@ -93,6 +95,7 @@ void jetTest::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   // Printout for OneToOne matcher
   //
   double dR=-1.;
+  float totalLenght=0;
   cout << "**********************" << endl;
   cout << "* OneToOne Printout  *" << endl;
   cout << "**********************" << endl;
@@ -103,6 +106,7 @@ void jetTest::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       const Candidate *sourceRef = &*(f->key);
       const Candidate *matchRef  = &*(f->val);
       dR= DeltaR( sourceRef->p4() , matchRef->p4() );
+      totalLenght+=dR;
 
       printf("[GenJetTest] (pt,eta,phi) source = %6.2f %5.2f %5.2f matched = %6.2f %5.2f %5.2f dR=%5.3f\n",
 	     sourceRef->et(),
@@ -112,11 +116,12 @@ void jetTest::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	     matchRef->eta(),
 	     matchRef->phi(), 
 	     dR);
+
+      hDR->Fill(dR);
       
   }
 
-  hTotalLenght->Fill( dR );
-  
+  hTotalLenght->Fill( totalLenght );
 }
 
 DEFINE_FWK_MODULE( matchOneToOne );
