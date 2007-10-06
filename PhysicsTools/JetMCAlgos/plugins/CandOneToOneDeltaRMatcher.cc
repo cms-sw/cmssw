@@ -182,6 +182,15 @@ double CandOneToOneDeltaRMatcher::lenght(vector<int> best) {
   return myLenght;
 }
 
+// this is the Brute Force Algorithm
+// All the possible combination are checked
+// The best one is always found
+// Be carefull when you have high values for nMin and nMax --> the combinatorial could explode!
+// Sum(DeltaR) is minimized -->
+// 0.1 - 0.2 - 1.0 - 1.5 is lower than
+// 0.1 - 0.2 - 0.3 - 3.0 
+// Which one do you prefer? --> BruteForce select always the first
+
 vector<int> CandOneToOneDeltaRMatcher::AlgoBruteForce( int nMin, int nMax ) {
 
   vector<int> ca;
@@ -208,12 +217,19 @@ vector<int> CandOneToOneDeltaRMatcher::AlgoBruteForce( int nMin, int nMax ) {
     }
   while(next_combination( ca.begin() , ca.end() , cb.begin() , cb.end() ));
   
-  //  cout << "[CandOneToOneDeltaRMatcher] Best DeltaR=" << BestTotalDeltaR << " ";
-  //  for(vector<int>::iterator it=bestCB.begin(); it!=bestCB.end(); it++ ) cout << *it;
-  //  cout << endl;
-
   return bestCB;
 }
+
+// This method (Developed originally by Daniele Benedetti) check for the best combination
+// choosing the minimum DeltaR for each line in AllDist matrix
+// If no repeated row is found: ie (line,col)=(1,3) and (2,3) --> same as BruteForce
+// If repetition --> set the higher DeltaR between  the 2 repetition to 1000 and re-check best combination
+// Iterate until no repetition  
+// No guaranted minimum for Sum(DeltaR)
+// If you have:
+// 0.1 - 0.2 - 1.0 - 1.5 is lower than
+// 0.1 - 0.2 - 0.3 - 3.0 
+// SwitchMethod normally select the second solution
 
 vector<int> CandOneToOneDeltaRMatcher::AlgoSwitchMethod( int nMin, int nMax ) {
 
@@ -247,10 +263,6 @@ vector<int> CandOneToOneDeltaRMatcher::AlgoSwitchMethod( int nMin, int nMax ) {
       } 
     }
   } // End while
-
-  //  cout << "[CandOneToOneDeltaRMatcher] Best DeltaR=" << lenght(bestCB) << " ";
-  //  for(vector<int>::iterator it=bestCB.begin(); it!=bestCB.end(); it++ ) cout << *it;
-  //  cout << endl;
 
   return bestCB;
 
