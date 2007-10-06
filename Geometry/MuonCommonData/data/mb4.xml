@@ -710,7 +710,7 @@
   <rMaterial name="materials:M_B_Air"/>
  </LogicalPart>
 
-<!-- ####  MB4: DT Superlayers Phi -->
+<!-- ####  MB4Chim: DT Superlayers Phi  -->
 <!-- ## only paralel stuff is common -->
  <LogicalPart name="MB4ChimSLPhiClosingPlateParal" category="unspecified">
   <rSolid name="MB4ChimSLPhiClosingPlateParal"/>
@@ -721,7 +721,7 @@
   <rMaterial name="materials:Aluminium"/>
  </LogicalPart> 
 
- <!--- ### MB4 Big -->
+ <!--- ### MB4Chim Big -->
  <LogicalPart name="MB4BigChimSuperLayerPhi" category="unspecified">
   <rSolid name="MB4BigChimSuperLayerPhi"/>
   <rMaterial name="materials:Air"/>
@@ -734,19 +734,6 @@
   <rSolid name="MB4BigChimSLPhiAlPlateInner"/>
   <rMaterial name="materials:Aluminium"/>
  </LogicalPart>
- <LogicalPart name="MB4SLPhiLayer_95Cells" category="unspecified">
-  <rSolid name="MB4SLPhiLayer_95Cells"/>
-  <rMaterial name="materials:Aluminium"/>
- </LogicalPart>
- <LogicalPart name="MB4SLPhiLayer_95Cells_startCell2" category="unspecified">
-  <rSolid name="MB4SLPhiLayer_95Cells_startCell2"/>
-  <rMaterial name="materials:Aluminium"/>
- </LogicalPart>
- <LogicalPart name="MB4SLPhiLayer_96Cells" category="unspecified">
-  <rSolid name="MB4SLPhiLayer_96Cells"/>
-  <rMaterial name="materials:Aluminium"/>
- </LogicalPart>
-
 
 <!-- ####  MB4Chim: DT Honeycomb -->
  <LogicalPart name="MB4ChimHc_LateralC" category="unspecified">

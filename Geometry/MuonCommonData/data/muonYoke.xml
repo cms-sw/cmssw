@@ -15,106 +15,107 @@
  <Tubs name="YE34" rMin="1.1300*m" rMax="1.5300*m" dz="0.2726*m" startPhi="75*deg" deltaPhi="30*deg"/> 
  <Tubs name="ShieldingME4" rMin="1.1300*m" rMax="2.5000*m" dz="0.0375*m" startPhi="75*deg" deltaPhi="30*deg"/> 
  <PseudoTrap name="YE4" dx1="0.647073*m" dx2="1.86356*m" dy1="0.0500*m" dy2="0.0500*m" dz="2.27000*m" radius="-2.5000*m" atMinusZ="true"/> 
- <Trapezoid name="YB1_w0_b1" dz="0.63395*m" alp1="-7.6427*deg" bl1="0.1864*m" tl1="0.19845*m" h1="0.0450*m" alp2="-7.6427*deg" bl2="0.1864*m" tl2="0.19845*m" h2="0.0450*m" phi="0*deg" theta="0*deg"/> 
+ <Trapezoid name="YB1_w0_b1" dz="0.63395*m" alp1="-7.63074*deg" bl1="0.186343*m" tl1="0.198401*m" h1="0.045*m" alp2="-7.63074*deg" bl2="0.186343*m" tl2="0.198401*m" h2="0.045*m" phi="0*deg" theta="0*deg"/>
  <Box name="YB1_w0_b2" dx="0.7925*m" dy="0.0450*m" dz="0.62495*m"/> 
- <Trapezoid name="YB1_w0_b3" dz="1.268*m" alp1="7.6427*deg" bl1="0.2578*m" tl1="0.26985*m" h1="0.0450*m" alp2="7.6427*deg" bl2="0.2578*m" tl2="0.26985*m" h2="0.0450*m" phi="0*deg" theta="0*deg"/> 
- <Trapezoid name="YB1_w1_b1" dz="1.2679*m" alp1="-7.6427*deg" bl1="0.1864*m" tl1="0.19845*m" h1="0.0450*m" alp2="-7.6427*deg" bl2="0.1864*m" tl2="0.19845*m" h2="0.0450*m" phi="0*deg" theta="0*deg"/> 
+ <Trapezoid name="YB1_w0_b3" dz="1.268*m" alp1="7.63074*deg" bl1="0.257742*m" tl1="0.2698*m" h1="0.045*m" alp2="7.63074*deg" bl2="0.257742*m" tl2="0.2698*m" h2="0.045*m" phi="0*deg" theta="0*deg"/>
+
+ <Trapezoid name="YB1_w1_b1" dz="1.2679*m" alp1="-7.63074*deg" bl1="0.186343*m" tl1="0.198401*m" h1="0.045*m" alp2="-7.63074*deg" bl2="0.186343*m" tl2="0.198401*m" h2="0.045*m" phi="0*deg" theta="0*deg"/>
  <Box name="YB1_w1_b2" dx="0.21695*m" dy="0.0450*m" dz="0.186*m"/> 
  <Box name="YB1_w1_b3" dx="0.08*m" dy="0.0450*m" dz="0.186*m"/> 
  <Box name="YB1_w1_b4" dx="0.2700*m" dy="0.0450*m" dz="0.186*m"/> 
  <Box name="YB1_w1_b5" dx="0.08*m" dy="0.0450*m" dz="0.186*m"/> 
  <Box name="YB1_w1_b6" dx="0.14555*m" dy="0.0450*m" dz="0.186*m"/> 
  <Box name="YB1_w1_b7" dx="0.7925*m" dy="0.0450*m" dz="1.0639*m"/> 
- <Trapezoid name="YB1_w1_b8" dz="1.2679*m" alp1="7.6427*deg" bl1="0.2578*m" tl1="0.26985*m" h1="0.0450*m" alp2="7.6427*deg" bl2="0.2578*m" tl2="0.26985*m" h2="0.0450*m" phi="0*deg" theta="0*deg"/> 
- <Trapezoid name="YB1_w2_b1" dz="1.2679*m" alp1="-7.6427*deg" bl1="0.1864*m" tl1="0.19845*m" h1="0.0450*m" alp2="-7.6427*deg" bl2="0.1864*m" tl2="0.19845*m" h2="0.0450*m" phi="0*deg" theta="0*deg"/> 
- <Box name="YB1_w2_b2" dx="0.7925*m" dy="0.0450*m" dz="1.2500*m"/> 
- <Trapezoid name="YB1_w2_b3" dz="1.2679*m" alp1="7.6427*deg" bl1="0.2578*m" tl1="0.26985*m" h1="0.0450*m" alp2="7.6427*deg" bl2="0.2578*m" tl2="0.26985*m" h2="0.0450*m" phi="0*deg" theta="0*deg"/> 
+ <Trapezoid name="YB1_w1_b8" dz="1.2679*m" alp1="7.63074*deg" bl1="0.257742*m" tl1="0.2698*m" h1="0.045*m" alp2="7.63074*deg" bl2="0.257742*m" tl2="0.2698*m" h2="0.045*m" phi="0*deg" theta="0*deg"/>
+ <Trapezoid name="YB1_w2_b1" dz="1.2679*m" alp1="-7.63074*deg" bl1="0.186343*m" tl1="0.198401*m" h1="0.045*m" alp2="-7.63074*deg" bl2="0.186343*m" tl2="0.198401*m" h2="0.045*m" phi="0*deg" theta="0*deg"/>
+ <Box name="YB1_w2_b2" dx="0.79244*m" dy="0.0450*m" dz="1.2500*m"/> 
+ <Trapezoid name="YB1_w2_b3" dz="1.2679*m" alp1="7.63074*deg" bl1="0.257742*m" tl1="0.2698*m" h1="0.045*m" alp2="7.63074*deg" bl2="0.257742*m" tl2="0.2698*m" h2="0.045*m" phi="0*deg" theta="0*deg"/>
  <Trapezoid name="YB1_w0_m" dz="0.63395*m" alp1="0*deg" bl1="1.2607*m" tl1="1.3143*m" h1="0.1000*m" alp2="0*deg" bl2="1.2607*m" tl2="1.3143*m" h2="0.1000*m" phi="0*deg" theta="0*deg"/> 
- <Trapezoid name="YB1_w1_m1" dz="0.195*m" alp1="-7.63972*deg" bl1="0.4154*m" tl1="0.4422*m" h1="0.1000*m" alp2="-7.63972*deg" bl2="0.4154*m" tl2="0.4422*m" h2="0.1000*m" phi="0*deg" theta="0*deg"/> 
+ <Trapezoid name="YB1_w1_m1" dz="0.195*m" alp1="-7.6321701*deg" bl1="0.4154*m" tl1="0.4422*m" h1="0.1000*m" alp2="-7.6321701*deg" bl2="0.4154*m" tl2="0.4422*m" h2="0.1000*m" phi="0*deg" theta="0*deg"/> 
  <Box name="YB1_w1_m2" dx="0.08*m" dy="0.1000*m" dz="0.195*m"/> 
  <Box name="YB1_w1_m3" dx="0.2700*m" dy="0.1000*m" dz="0.195*m"/> 
  <Box name="YB1_w1_m4" dx="0.08*m" dy="0.1000*m" dz="0.195*m"/> 
- <Trapezoid name="YB1_w1_m5" dz="0.195*m" alp1="7.63972*deg" bl1="0.4154*m" tl1="0.4422*m" h1="0.1000*m" alp2="7.63972*deg" bl2="0.4154*m" tl2="0.4422*m" h2="0.1000*m" phi="0*deg" theta="0*deg"/> 
+ <Trapezoid name="YB1_w1_m5" dz="0.195*m" alp1="7.6321701*deg" bl1="0.4154*m" tl1="0.4422*m" h1="0.1000*m" alp2="7.6321701*deg" bl2="0.4154*m" tl2="0.4422*m" h2="0.1000*m" phi="0*deg" theta="0*deg"/> 
  <Trapezoid name="YB1_w1_m6" dz="1.0729*m" alp1="0*deg" bl1="1.2607*m" tl1="1.3143*m" h1="0.1000*m" alp2="0*deg" bl2="1.2607*m" tl2="1.3143*m" h2="0.1000*m" phi="0*deg" theta="0*deg"/> 
  <Trapezoid name="YB1_w2_m1" dz="1.2679*m" alp1="0*deg" bl1="1.2607*m" tl1="1.3143*m" h1="0.1000*m" alp2="0*deg" bl2="1.2607*m" tl2="1.3143*m" h2="0.1000*m" phi="0*deg" theta="0*deg"/> 
  <Box name="YBSepar2_w0" dx="0.0369*m" dy="0.2225*m" dz="0.63405*m"/> 
  <Box name="YBSepar2_w1" dx="0.0369*m" dy="0.2225*m" dz="1.2679*m"/> 
  <Box name="YBSepar2_w2" dx="0.0369*m" dy="0.2225*m" dz="1.2679*m"/> 
- <Trapezoid name="YB2_w0_b1" dz="0.63395*m" alp1="-7.65659*deg" bl1="0.18591*m" tl1="0.19731*m" h1="0.0425*m" alp2="-7.65659*deg" bl2="0.18591*m" tl2="0.19731*m" h2="0.0425*m" phi="0*deg" theta="0*deg"/> 
+ <Trapezoid name="YB2_w0_b1" dz="0.63395*m" alp1="-7.63074*deg" bl1="0.185862*m" tl1="0.19725*m" h1="0.0425*m" alp2="-7.63074*deg" bl2="0.185862*m" tl2="0.19725*m" h2="0.0425*m" phi="0*deg" theta="0*deg"/>
  <Box name="YB2_w0_b2" dx="1.09675*m" dy="0.0425*m" dz="0.62495*m"/> 
- <Trapezoid name="YB2_w0_b3" dz="0.63395*m" alp1="7.65659*deg" bl1="0.1509*m" tl1="0.1623*m" h1="0.0425*m" alp2="7.65659*deg" bl2="0.1509*m" tl2="0.1623*m" h2="0.0425*m" phi="0*deg" theta="0*deg"/> 
- <Trapezoid name="YB2_w1_b1" dz="1.2679*m" alp1="-7.65659*deg" bl1="0.18585*m" tl1="0.19725*m" h1="0.0425*m" alp2="-7.65659*deg" bl2="0.18585*m" tl2="0.19725*m" h2="0.0425*m" phi="0*deg" theta="0*deg"/> 
+ <Trapezoid name="YB2_w0_b3" dz="0.63395*m" alp1="7.63074*deg" bl1="0.150916*m" tl1="0.162304*m" h1="0.0425*m" alp2="7.63074*deg" bl2="0.150916*m" tl2="0.162304*m" h2="0.0425*m" phi="0*deg" theta="0*deg"/>
+ <Trapezoid name="YB2_w1_b1" dz="1.2679*m" alp1="-7.63074*deg" bl1="0.185862*m" tl1="0.19725*m" h1="0.0425*m" alp2="-7.63074*deg" bl2="0.185862*m" tl2="0.19725*m" h2="0.0425*m" phi="0*deg" theta="0*deg"/>
  <Box name="YB2_w1_b2" dx="0.31595*m" dy="0.0425*m" dz="0.186*m"/> 
  <Box name="YB2_w1_b3" dx="0.08*m" dy="0.0425*m" dz="0.186*m"/> 
  <Box name="YB2_w1_b4" dx="0.2700*m" dy="0.0425*m" dz="0.186*m"/> 
  <Box name="YB2_w1_b5" dx="0.08*m" dy="0.0425*m" dz="0.186*m"/> 
  <Box name="YB2_w1_b6" dx="0.3509*m" dy="0.0425*m" dz="0.186*m"/> 
  <Box name="YB2_w1_b7" dx="1.09675*m" dy="0.0425*m" dz="1.0639*m"/> 
- <Trapezoid name="YB2_w1_b8" dz="1.2679*m" alp1="7.65659*deg" bl1="0.1509*m" tl1="0.1623*m" h1="0.0425*m" alp2="7.65659*deg" bl2="0.1509*m" tl2="0.1623*m" h2="0.0425*m" phi="0*deg" theta="0*deg"/> 
- <Trapezoid name="YB2_w2_b1" dz="1.2679*m" alp1="-7.65659*deg" bl1="0.18585*m" tl1="0.19725*m" h1="0.0425*m" alp2="-7.65659*deg" bl2="0.18585*m" tl2="0.19725*m" h2="0.0425*m" phi="0*deg" theta="0*deg"/> 
+ <Trapezoid name="YB2_w1_b8" dz="1.2679*m" alp1="7.63074*deg" bl1="0.150916*m" tl1="0.162304*m" h1="0.0425*m" alp2="7.63074*deg" bl2="0.150916*m" tl2="0.162304*m" h2="0.0425*m" phi="0*deg" theta="0*deg"/>
+ <Trapezoid name="YB2_w2_b1" dz="1.2679*m" alp1="-7.63074*deg" bl1="0.185862*m" tl1="0.19725*m" h1="0.0425*m" alp2="-7.63074*deg" bl2="0.185862*m" tl2="0.19725*m" h2="0.0425*m" phi="0*deg" theta="0*deg"/>
  <Box name="YB2_w2_b2" dx="1.09675*m" dy="0.0425*m" dz="1.2500*m"/> 
- <Trapezoid name="YB2_w2_b3" dz="1.2679*m" alp1="7.65659*deg" bl1="0.1509*m" tl1="0.1623*m" h1="0.0425*m" alp2="7.65659*deg" bl2="0.1509*m" tl2="0.1623*m" h2="0.0425*m" phi="0*deg" theta="0*deg"/> 
+ <Trapezoid name="YB2_w2_b3" dz="1.2679*m" alp1="7.63074*deg" bl1="0.150916*m" tl1="0.162304*m" h1="0.0425*m" alp2="7.63074*deg" bl2="0.150916*m" tl2="0.162304*m" h2="0.0425*m" phi="0*deg" theta="0*deg"/>
  <Trapezoid name="YB2_w0_m" dz="0.63395*m" alp1="0*deg" bl1="1.4563*m" tl1="1.5769*m" h1="0.2250*m" alp2="0*deg" bl2="1.4563*m" tl2="1.5769*m" h2="0.2250*m" phi="0*deg" theta="0*deg"/> 
- <Trapezoid name="YB2_w1_m1" dz="0.195*m" alp1="-7.63552*deg" bl1="0.5132*m" tl1="0.5735*m" h1="0.2250*m" alp2="-7.63552*deg" bl2="0.5132*m" tl2="0.5735*m" h2="0.2250*m" phi="0*deg" theta="0*deg"/> 
+ <Trapezoid name="YB2_w1_m1" dz="0.195*m" alp1="-7.6321701*deg" bl1="0.5132*m" tl1="0.5735*m" h1="0.2250*m" alp2="-7.6321701*deg" bl2="0.5132*m" tl2="0.5735*m" h2="0.2250*m" phi="0*deg" theta="0*deg"/> 
  <Box name="YB2_w1_m2" dx="0.08*m" dy="0.2250*m" dz="0.195*m"/> 
  <Box name="YB2_w1_m3" dx="0.2700*m" dy="0.2250*m" dz="0.195*m"/> 
  <Box name="YB2_w1_m4" dx="0.08*m" dy="0.2250*m" dz="0.195*m"/> 
- <Trapezoid name="YB2_w1_m5" dz="0.195*m" alp1="7.63552*deg" bl1="0.5132*m" tl1="0.5735*m" h1="0.2250*m" alp2="7.63552*deg" bl2="0.5132*m" tl2="0.5735*m" h2="0.2250*m" phi="0*deg" theta="0*deg"/> 
+ <Trapezoid name="YB2_w1_m5" dz="0.195*m" alp1="7.6321701*deg" bl1="0.5132*m" tl1="0.5735*m" h1="0.2250*m" alp2="7.6321701*deg" bl2="0.5132*m" tl2="0.5735*m" h2="0.2250*m" phi="0*deg" theta="0*deg"/> 
  <Trapezoid name="YB2_w1_m6" dz="1.0729*m" alp1="0*deg" bl1="1.4563*m" tl1="1.5769*m" h1="0.2250*m" alp2="0*deg" bl2="1.4563*m" tl2="1.5769*m" h2="0.2250*m" phi="0*deg" theta="0*deg"/> 
  <Trapezoid name="YB2_w2_m1" dz="1.2679*m" alp1="0*deg" bl1="1.4563*m" tl1="1.5769*m" h1="0.2250*m" alp2="0*deg" bl2="1.4563*m" tl2="1.5769*m" h2="0.2250*m" phi="0*deg" theta="0*deg"/> 
- <Trapezoid name="YB2_w0_t1" dz="0.63395*m" alp1="-7.65659*deg" bl1="0.1706*m" tl1="0.182*m" h1="0.0425*m" alp2="-7.65659*deg" bl2="0.1706*m" tl2="0.182*m" h2="0.0425*m" phi="0*deg" theta="0*deg"/> 
+ <Trapezoid name="YB2_w0_t1" dz="0.63395*m" alp1="-7.63074*deg" bl1="0.170592*m" tl1="0.18198*m" h1="0.0425*m" alp2="-7.63074*deg" bl2="0.170592*m" tl2="0.18198*m" h2="0.0425*m" phi="0*deg" theta="0*deg"/>
  <Box name="YB2_w0_t2" dx="1.1837*m" dy="0.0425*m" dz="0.62495*m"/> 
- <Trapezoid name="YB2_w0_t3" dz="0.63395*m" alp1="7.65659*deg" bl1="0.2226*m" tl1="0.234*m" h1="0.0425*m" alp2="7.65659*deg" bl2="0.2226*m" tl2="0.234*m" h2="0.0425*m" phi="0*deg" theta="0*deg"/> 
- <Trapezoid name="YB2_w1_t1" dz="1.2679*m" alp1="-7.65659*deg" bl1="0.1706*m" tl1="0.182*m" h1="0.0425*m" alp2="-7.65659*deg" bl2="0.1706*m" tl2="0.182*m" h2="0.0425*m" phi="0*deg" theta="0*deg"/> 
+ <Trapezoid name="YB2_w0_t3" dz="0.63395*m" alp1="7.63074*deg" bl1="0.222589*m" tl1="0.233977*m" h1="0.0425*m" alp2="7.63074*deg" bl2="0.222589*m" tl2="0.233977*m" h2="0.0425*m" phi="0*deg" theta="0*deg"/>
+ <Trapezoid name="YB2_w1_t1" dz="1.2679*m" alp1="-7.63074*deg" bl1="0.170592*m" tl1="0.18198*m" h1="0.0425*m" alp2="-7.63074*deg" bl2="0.170592*m" tl2="0.18198*m" h2="0.0425*m" phi="0*deg" theta="0*deg"/>
  <Box name="YB2_w1_t2" dx="0.4029*m" dy="0.0425*m" dz="0.186*m"/> 
  <Box name="YB2_w1_t3" dx="0.08*m" dy="0.0425*m" dz="0.186*m"/> 
  <Box name="YB2_w1_t4" dx="0.2700*m" dy="0.0425*m" dz="0.186*m"/> 
  <Box name="YB2_w1_t5" dx="0.08*m" dy="0.0425*m" dz="0.186*m"/> 
  <Box name="YB2_w1_t6" dx="0.3509*m" dy="0.0425*m" dz="0.186*m"/> 
  <Box name="YB2_w1_t7" dx="1.1837*m" dy="0.0425*m" dz="1.0639*m"/> 
- <Trapezoid name="YB2_w1_t8" dz="1.2679*m" alp1="7.65659*deg" bl1="0.2226*m" tl1="0.234*m" h1="0.0425*m" alp2="7.65659*deg" bl2="0.2226*m" tl2="0.234*m" h2="0.0425*m" phi="0*deg" theta="0*deg"/> 
- <Trapezoid name="YB2_w2_t1" dz="1.2679*m" alp1="-7.65659*deg" bl1="0.1706*m" tl1="0.182*m" h1="0.0425*m" alp2="-7.65659*deg" bl2="0.1706*m" tl2="0.182*m" h2="0.0425*m" phi="0*deg" theta="0*deg"/> 
+ <Trapezoid name="YB2_w1_t8" dz="1.2679*m" alp1="7.63074*deg" bl1="0.222589*m" tl1="0.233977*m" h1="0.0425*m" alp2="7.63074*deg" bl2="0.222589*m" tl2="0.233977*m" h2="0.0425*m" phi="0*deg" theta="0*deg"/>
+ <Trapezoid name="YB2_w2_t1" dz="1.2679*m" alp1="-7.63074*deg" bl1="0.170592*m" tl1="0.18198*m" h1="0.0425*m" alp2="-7.63074*deg" bl2="0.170592*m" tl2="0.18198*m" h2="0.0425*m" phi="0*deg" theta="0*deg"/>
  <Box name="YB2_w2_t2" dx="1.1837*m" dy="0.0425*m" dz="1.2500*m"/> 
- <Trapezoid name="V_198" dz="1.2679*m" alp1="7.65659*deg" bl1="0.2226*m" tl1="0.234*m" h1="0.0425*m" alp2="7.65659*deg" bl2="0.2226*m" tl2="0.234*m" h2="0.0425*m" phi="0*deg" theta="0*deg"/> 
- <Box name="V_200" dx="0.0494*m" dy="0.2025*m" dz="0.63395*m"/> 
- <Box name="V_204" dx="0.0494*m" dy="0.2025*m" dz="1.2679*m"/> 
- <Box name="V_208" dx="0.0494*m" dy="0.2025*m" dz="1.2679*m"/> 
- <Trapezoid name="YB3_w0_b1" dz="0.63395*m" alp1="-7.65659*deg" bl1="0.16925*m" tl1="0.18065*m" h1="0.0425*m" alp2="-7.65659*deg" bl2="0.16925*m" tl2="0.18065*m" h2="0.0425*m" phi="0*deg" theta="0*deg"/> 
+ <Trapezoid name="YB2_w2_t3" dz="1.2679*m" alp1="7.63074*deg" bl1="0.222589*m" tl1="0.233977*m" h1="0.0425*m" alp2="7.63074*deg" bl2="0.222589*m" tl2="0.233977*m" h2="0.0425*m" phi="0*deg" theta="0*deg"/>
+ <Box name="YBSepar3_w0" dx="0.0494*m" dy="0.2025*m" dz="0.63395*m"/> 
+ <Box name="YBSepar3_w1" dx="0.0494*m" dy="0.2025*m" dz="1.2679*m"/> 
+ <Box name="YBSepar3_w2" dx="0.0494*m" dy="0.2025*m" dz="1.2679*m"/> 
+ <Trapezoid name="YB3_w0_b1" dz="0.63395*m" alp1="-7.63074*deg" bl1="0.169235*m" tl1="0.180623*m" h1="0.0425*m" alp2="-7.63074*deg" bl2="0.169235*m" tl2="0.180623*m" h2="0.0425*m" phi="0*deg" theta="0*deg"/>
  <Box name="YB3_w0_b2" dx="1.34475*m" dy="0.0425*m" dz="0.62495*m"/> 
- <Trapezoid name="YB3_w0_b3" dz="0.63395*m" alp1="7.65659*deg" bl1="0.1942*m" tl1="0.2056*m" h1="0.0425*m" alp2="7.65659*deg" bl2="0.1942*m" tl2="0.2056*m" h2="0.0425*m" phi="0*deg" theta="0*deg"/> 
- <Trapezoid name="YB3_w1_b1" dz="1.2679*m" alp1="-7.65659*deg" bl1="0.16925*m" tl1="0.18065*m" h1="0.0425*m" alp2="-7.65659*deg" bl2="0.16925*m" tl2="0.18065*m" h2="0.0425*m" phi="0*deg" theta="0*deg"/> 
+ <Trapezoid name="YB3_w0_b3" dz="0.63395*m" alp1="7.63074*deg" bl1="0.194191*m" tl1="0.205578*m" h1="0.0425*m" alp2="7.63074*deg" bl2="0.194191*m" tl2="0.205578*m" h2="0.0425*m" phi="0*deg" theta="0*deg"/>
+ <Trapezoid name="YB3_w1_b1" dz="1.2679*m" alp1="-7.63074*deg" bl1="0.169235*m" tl1="0.180623*m" h1="0.0425*m" alp2="-7.63074*deg" bl2="0.169235*m" tl2="0.180623*m" h2="0.0425*m" phi="0*deg" theta="0*deg"/>
  <Box name="YB3_w1_b2" dx="0.4700*m" dy="0.0425*m" dz="0.186*m"/> 
  <Box name="YB3_w1_b3" dx="0.08*m" dy="0.0425*m" dz="0.186*m"/> 
  <Box name="YB3_w1_b4" dx="0.2700*m" dy="0.0425*m" dz="0.186*m"/> 
  <Box name="YB3_w1_b5" dx="0.08*m" dy="0.0425*m" dz="0.186*m"/> 
  <Box name="YB3_w1_b6" dx="0.44495*m" dy="0.0425*m" dz="0.186*m"/> 
  <Box name="YB3_w1_b7" dx="1.34475*m" dy="0.0425*m" dz="1.0639*m"/> 
- <Trapezoid name="YB3_w1_b8" dz="1.2679*m" alp1="7.65659*deg" bl1="0.1942*m" tl1="0.2056*m" h1="0.0425*m" alp2="7.65659*deg" bl2="0.1942*m" tl2="0.2056*m" h2="0.0425*m" phi="0*deg" theta="0*deg"/> 
- <Trapezoid name="YB3_w2_b1" dz="1.2679*m" alp1="-9.01252*deg" bl1="0.16925*m" tl1="0.1827*m" h1="0.0425*m" alp2="-9.01252*deg" bl2="0.16925*m" tl2="0.1827*m" h2="0.0425*m" phi="0*deg" theta="0*deg"/> 
+ <Trapezoid name="YB3_w1_b8" dz="1.2679*m" alp1="7.63074*deg" bl1="0.194191*m" tl1="0.205578*m" h1="0.0425*m" alp2="7.63074*deg" bl2="0.194191*m" tl2="0.205578*m" h2="0.0425*m" phi="0*deg" theta="0*deg"/>
+ <Trapezoid name="YB3_w2_b1" dz="1.2679*m" alp1="-7.63074*deg" bl1="0.169237*m" tl1="0.180625*m" h1="0.0425*m" alp2="-7.63074*deg" bl2="0.169237*m" tl2="0.180625*m" h2="0.0425*m" phi="0*deg" theta="0*deg"/>
  <Box name="YB3_w2_b2" dx="1.34468*m" dy="0.0425*m" dz="1.2500*m"/> 
- <Trapezoid name="YB3_w2_b3" dz="1.2679*m" alp1="7.65659*deg" bl1="0.1942*m" tl1="0.2056*m" h1="0.0425*m" alp2="7.65659*deg" bl2="0.1942*m" tl2="0.2056*m" h2="0.0425*m" phi="0*deg" theta="0*deg"/> 
+ <Trapezoid name="YB3_w2_b3" dz="1.2679*m" alp1="7.63074*deg" bl1="0.194259*m" tl1="0.205647*m" h1="0.0425*m" alp2="7.63074*deg" bl2="0.194259*m" tl2="0.205647*m" h2="0.0425*m" phi="0*deg" theta="0*deg"/>
  <Trapezoid name="YB3_w0_m" dz="0.63395*m" alp1="0*deg" bl1="1.731*m" tl1="1.8515*m" h1="0.2250*m" alp2="0*deg" bl2="1.731*m" tl2="1.8515*m" h2="0.2250*m" phi="0*deg" theta="0*deg"/> 
- <Trapezoid name="YB3_w1_m1" dz="0.195*m" alp1="-7.62927*deg" bl1="0.65055*m" tl1="0.7108*m" h1="0.2250*m" alp2="-7.62927*deg" bl2="0.65055*m" tl2="0.7108*m" h2="0.2250*m" phi="0*deg" theta="0*deg"/> 
+ <Trapezoid name="YB3_w1_m1" dz="0.195*m" alp1="-7.6259161*deg" bl1="0.65055*m" tl1="0.7108*m" h1="0.2250*m" alp2="-7.6259161*deg" bl2="0.65055*m" tl2="0.7108*m" h2="0.2250*m" phi="0*deg" theta="0*deg"/> 
  <Box name="YB3_w1_m2" dx="0.08*m" dy="0.2250*m" dz="0.195*m"/> 
  <Box name="YB3_w1_m3" dx="0.2700*m" dy="0.2250*m" dz="0.195*m"/> 
  <Box name="YB3_w1_m4" dx="0.08*m" dy="0.2250*m" dz="0.195*m"/> 
- <Trapezoid name="YB3_w1_m5" dz="0.195*m" alp1="7.62927*deg" bl1="0.65055*m" tl1="0.7108*m" h1="0.2250*m" alp2="7.62927*deg" bl2="0.65055*m" tl2="0.7108*m" h2="0.2250*m" phi="0*deg" theta="0*deg"/> 
+ <Trapezoid name="YB3_w1_m5" dz="0.195*m" alp1="7.6259161*deg" bl1="0.65055*m" tl1="0.7108*m" h1="0.2250*m" alp2="7.6259161*deg" bl2="0.65055*m" tl2="0.7108*m" h2="0.2250*m" phi="0*deg" theta="0*deg"/> 
  <Trapezoid name="YB3_w1_m6" dz="1.0729*m" alp1="0*deg" bl1="1.731*m" tl1="1.8515*m" h1="0.2250*m" alp2="0*deg" bl2="1.731*m" tl2="1.8515*m" h2="0.2250*m" phi="0*deg" theta="0*deg"/> 
  <Trapezoid name="YB3_w2_m1" dz="1.2679*m" alp1="0*deg" bl1="1.731*m" tl1="1.8515*m" h1="0.2250*m" alp2="0*deg" bl2="1.731*m" tl2="1.8515*m" h2="0.2250*m" phi="0*deg" theta="0*deg"/> 
- <Trapezoid name="YB3_w0_t1" dz="0.63395*m" alp1="-7.65659*deg" bl1="0.245575*m" tl1="0.256975*m" h1="0.0425*m" alp2="-7.65659*deg" bl2="0.245575*m" tl2="0.256975*m" h2="0.0425*m" phi="0*deg" theta="0*deg"/> 
+ <Trapezoid name="YB3_w0_t1" dz="0.63395*m" alp1="-7.63074*deg" bl1="0.245512*m" tl1="0.2569*m" h1="0.0425*m" alp2="-7.63074*deg" bl2="0.245512*m" tl2="0.2569*m" h2="0.0425*m" phi="0*deg" theta="0*deg"/>
  <Box name="YB3_w0_t2" dx="1.43693*m" dy="0.0425*m" dz="0.62495*m"/> 
- <Trapezoid name="YB3_w0_t3" dz="0.63395*m" alp1="7.65659*deg" bl1="0.169075*m" tl1="0.180475*m" h1="0.0425*m" alp2="7.65659*deg" bl2="0.169075*m" tl2="0.180475*m" h2="0.0425*m" phi="0*deg" theta="0*deg"/> 
- <Trapezoid name="YB3_w1_t1" dz="1.2679*m" alp1="-7.65659*deg" bl1="0.2455*m" tl1="0.2569*m" h1="0.0425*m" alp2="-7.65659*deg" bl2="0.2455*m" tl2="0.2569*m" h2="0.0425*m" phi="0*deg" theta="0*deg"/> 
+ <Trapezoid name="YB3_w0_t3" dz="0.63395*m" alp1="7.63074*deg" bl1="0.169087*m" tl1="0.180475*m" h1="0.0425*m" alp2="7.63074*deg" bl2="0.169087*m" tl2="0.180475*m" h2="0.0425*m" phi="0*deg" theta="0*deg"/>
+ <Trapezoid name="YB3_w1_t1" dz="1.2679*m" alp1="-7.63074*deg" bl1="0.245514*m" tl1="0.256901*m" h1="0.0425*m" alp2="-7.63074*deg" bl2="0.245514*m" tl2="0.256901*m" h2="0.0425*m" phi="0*deg" theta="0*deg"/>
  <Box name="YB3_w1_t2" dx="0.4653*m" dy="0.0425*m" dz="0.186*m"/> 
  <Box name="YB3_w1_t3" dx="0.08*m" dy="0.0425*m" dz="0.186*m"/> 
  <Box name="YB3_w1_t4" dx="0.2700*m" dy="0.0425*m" dz="0.186*m"/> 
  <Box name="YB3_w1_t5" dx="0.08*m" dy="0.0425*m" dz="0.186*m"/> 
  <Box name="YB3_w1_t6" dx="0.5418*m" dy="0.0425*m" dz="0.186*m"/> 
  <Box name="YB3_w1_t7" dx="1.437*m" dy="0.0425*m" dz="1.0639*m"/> 
- <Trapezoid name="YB3_w1_t8" dz="1.2679*m" alp1="7.65659*deg" bl1="0.169*m" tl1="0.1804*m" h1="0.0425*m" alp2="7.65659*deg" bl2="0.169*m" tl2="0.1804*m" h2="0.0425*m" phi="0*deg" theta="0*deg"/> 
- <Trapezoid name="YB3_w2_t1" dz="1.2679*m" alp1="-7.65659*deg" bl1="0.2455*m" tl1="0.2569*m" h1="0.0425*m" alp2="-7.65659*deg" bl2="0.2455*m" tl2="0.2569*m" h2="0.0425*m" phi="0*deg" theta="0*deg"/> 
+ <Trapezoid name="YB3_w1_t8" dz="1.2679*m" alp1="7.63074*deg" bl1="0.169015*m" tl1="0.180403*m" h1="0.0425*m" alp2="7.63074*deg" bl2="0.169015*m" tl2="0.180403*m" h2="0.0425*m" phi="0*deg" theta="0*deg"/>
+ <Trapezoid name="YB3_w2_t1" dz="1.2679*m" alp1="-7.63074*deg" bl1="0.245514*m" tl1="0.256901*m" h1="0.0425*m" alp2="-7.63074*deg" bl2="0.245514*m" tl2="0.256901*m" h2="0.0425*m" phi="0*deg" theta="0*deg"/>
  <Box name="YB3_w2_t2" dx="1.437*m" dy="0.0425*m" dz="1.2500*m"/> 
- <Trapezoid name="YB3_w2_t3" dz="1.2679*m" alp1="7.65659*deg" bl1="0.169*m" tl1="0.1804*m" h1="0.0425*m" alp2="7.65659*deg" bl2="0.169*m" tl2="0.1804*m" h2="0.0425*m" phi="0*deg" theta="0*deg"/> 
+ <Trapezoid name="YB3_w2_t3" dz="1.2679*m" alp1="7.63074*deg" bl1="0.169015*m" tl1="0.180403*m" h1="0.0425*m" alp2="7.63074*deg" bl2="0.169015*m" tl2="0.180403*m" h2="0.0425*m" phi="0*deg" theta="0*deg"/>
  <Box name="CHIMHOLE_IRON_P" dx="0.27*m" dy="0.63/2*m" dz="0.1861*m"/> 
  <Box name="CHIMHOLE_IRON_N" dx="0.42*m" dy="0.63/2*m" dz="0.1861*m"/> 
 
@@ -842,35 +843,35 @@ END COMMENT-->
   <rMaterial name="materials:Iron"/> 
  </LogicalPart> 
  <LogicalPart name="YB2_w2P_t3" category="unspecified"> 
-  <rSolid name="V_198"/> 
+  <rSolid name="YB2_w2_t3"/> 
   <rMaterial name="materials:Iron"/> 
  </LogicalPart> 
  <LogicalPart name="YB2_w2N_t3" category="unspecified"> 
-  <rSolid name="V_198"/> 
+  <rSolid name="YB2_w2_t3"/> 
   <rMaterial name="materials:Iron"/> 
  </LogicalPart> 
  <LogicalPart name="YBSepar3_w0_1" category="unspecified"> 
-  <rSolid name="V_200"/> 
+  <rSolid name="YBSepar3_w0"/> 
   <rMaterial name="materials:Iron"/> 
  </LogicalPart> 
  <LogicalPart name="YBSepar3_w0_2" category="unspecified"> 
-  <rSolid name="V_200"/> 
+  <rSolid name="YBSepar3_w0"/> 
   <rMaterial name="materials:Iron"/> 
  </LogicalPart> 
  <LogicalPart name="YBSepar3_w1P" category="unspecified"> 
-  <rSolid name="V_204"/> 
+  <rSolid name="YBSepar3_w1"/> 
   <rMaterial name="materials:Iron"/> 
  </LogicalPart> 
  <LogicalPart name="YBSepar3_w1N" category="unspecified"> 
-  <rSolid name="V_204"/> 
+  <rSolid name="YBSepar3_w1"/> 
   <rMaterial name="materials:Iron"/> 
  </LogicalPart> 
  <LogicalPart name="YBSepar3_w2P" category="unspecified"> 
-  <rSolid name="V_208"/> 
+  <rSolid name="YBSepar3_w2"/> 
   <rMaterial name="materials:Iron"/> 
  </LogicalPart> 
  <LogicalPart name="YBSepar3_w2N" category="unspecified"> 
-  <rSolid name="V_208"/> 
+  <rSolid name="YBSepar3_w2"/> 
   <rMaterial name="materials:Iron"/> 
  </LogicalPart> 
  <LogicalPart name="YB3_w0_b1" category="unspecified"> 
@@ -1482,12 +1483,12 @@ END COMMENT-->
   <rParent name="muonBase:MBWheel_0"/> 
   <rChild name="YB1_w0_b1"/> 
   <ParE name="n" value="12"/> 
-  <ParE name="startAngle" value="12.771*deg"/> 
+  <ParE name="startAngle" value="12.7713*deg"/> 
   <ParE name="rangeAngle" value="360*deg"/> 
-  <ParE name="radius" value="4.7782*m"/> 
+  <ParE name="radius" value="4.77821*m"/> 
   <ParE name="rotateSolid" value="0"/> 
   <ParE name="rotateSolid" value="0"/> 
-  <ParE name="rotateSolid" value="-102.771*deg"/> 
+  <ParE name="rotateSolid" value="-102.7713*deg"/> 
   <ParE name="center" value="0"/> 
   <ParE name="center" value="0"/> 
   <ParE name="center" value="0.63395*m"/> 
@@ -1496,12 +1497,12 @@ END COMMENT-->
   <rParent name="muonBase:MBWheel_0"/> 
   <rChild name="YB1_w0_b4"/> 
   <ParE name="n" value="12"/> 
-  <ParE name="startAngle" value="12.771*deg"/> 
+  <ParE name="startAngle" value="12.7713*deg"/> 
   <ParE name="rangeAngle" value="360*deg"/> 
-  <ParE name="radius" value="4.7782*m"/> 
+  <ParE name="radius" value="4.77821*m"/> 
   <ParE name="rotateSolid" value="0"/> 
   <ParE name="rotateSolid" value="0"/> 
-  <ParE name="rotateSolid" value="-102.771*deg"/> 
+  <ParE name="rotateSolid" value="-102.7713*deg"/> 
   <ParE name="center" value="0"/> 
   <ParE name="center" value="0"/> 
   <ParE name="center" value="-0.63395*m"/> 
@@ -1538,12 +1539,12 @@ END COMMENT-->
   <rParent name="muonBase:MBWheel_0"/> 
   <rChild name="YB1_w0_b3"/> 
   <ParE name="n" value="12"/> 
-  <ParE name="startAngle" value="348.0669*deg"/> 
+  <ParE name="startAngle" value="348.0664*deg"/> 
   <ParE name="rangeAngle" value="360*deg"/> 
-  <ParE name="radius" value="4.76293*m"/> 
+  <ParE name="radius" value="4.76294*m"/> 
   <ParE name="rotateSolid" value="0"/> 
   <ParE name="rotateSolid" value="0"/> 
-  <ParE name="rotateSolid" value="-78.0669*deg"/> 
+  <ParE name="rotateSolid" value="-78.0664*deg"/> 
   <ParE name="center" value="0"/> 
   <ParE name="center" value="0"/> 
   <ParE name="center" value="0*m"/> 
@@ -1552,12 +1553,12 @@ END COMMENT-->
   <rParent name="muonBase:MBWheel_1P"/> 
   <rChild name="YB1_w1P_b1"/> 
   <ParE name="n" value="12"/> 
-  <ParE name="startAngle" value="12.771*deg"/> 
+  <ParE name="startAngle" value="12.7713*deg"/> 
   <ParE name="rangeAngle" value="360*deg"/> 
-  <ParE name="radius" value="4.7782*m"/> 
+  <ParE name="radius" value="4.77821*m"/> 
   <ParE name="rotateSolid" value="0"/> 
   <ParE name="rotateSolid" value="0"/> 
-  <ParE name="rotateSolid" value="-102.771*deg"/> 
+  <ParE name="rotateSolid" value="-102.7713*deg"/> 
   <ParE name="center" value="0"/> 
   <ParE name="center" value="0"/> 
   <ParE name="center" value="0*m"/> 
@@ -1566,12 +1567,12 @@ END COMMENT-->
   <rParent name="muonBase:MBWheel_1N"/> 
   <rChild name="YB1_w1N_b1"/> 
   <ParE name="n" value="12"/> 
-  <ParE name="startAngle" value="12.771*deg"/> 
+  <ParE name="startAngle" value="12.7713*deg"/> 
   <ParE name="rangeAngle" value="360*deg"/> 
-  <ParE name="radius" value="4.7782*m"/> 
+  <ParE name="radius" value="4.77821*m"/> 
   <ParE name="rotateSolid" value="0"/> 
   <ParE name="rotateSolid" value="0"/> 
-  <ParE name="rotateSolid" value="-102.771*deg"/> 
+  <ParE name="rotateSolid" value="-102.7713*deg"/> 
   <ParE name="center" value="0"/> 
   <ParE name="center" value="0"/> 
   <ParE name="center" value="0*m"/> 
@@ -1824,12 +1825,12 @@ END COMMENT-->
   <rParent name="muonBase:MBWheel_1P"/> 
   <rChild name="YB1_w1P_b8"/> 
   <ParE name="n" value="12"/> 
-  <ParE name="startAngle" value="348.0669*deg"/> 
+  <ParE name="startAngle" value="348.0664*deg"/> 
   <ParE name="rangeAngle" value="360*deg"/> 
-  <ParE name="radius" value="4.76293*m"/> 
+  <ParE name="radius" value="4.76294*m"/> 
   <ParE name="rotateSolid" value="0"/> 
   <ParE name="rotateSolid" value="0"/> 
-  <ParE name="rotateSolid" value="-78.0669*deg"/> 
+  <ParE name="rotateSolid" value="-78.0664*deg"/> 
   <ParE name="center" value="0"/> 
   <ParE name="center" value="0"/> 
   <ParE name="center" value="0*m"/> 
@@ -1838,12 +1839,12 @@ END COMMENT-->
   <rParent name="muonBase:MBWheel_1N"/> 
   <rChild name="YB1_w1N_b8"/> 
   <ParE name="n" value="12"/> 
-  <ParE name="startAngle" value="348.0669*deg"/> 
+  <ParE name="startAngle" value="348.0664*deg"/> 
   <ParE name="rangeAngle" value="360*deg"/> 
-  <ParE name="radius" value="4.76293*m"/> 
+  <ParE name="radius" value="4.76294*m"/> 
   <ParE name="rotateSolid" value="0"/> 
   <ParE name="rotateSolid" value="0"/> 
-  <ParE name="rotateSolid" value="-78.0669*deg"/> 
+  <ParE name="rotateSolid" value="-78.0664*deg"/> 
   <ParE name="center" value="0"/> 
   <ParE name="center" value="0"/> 
   <ParE name="center" value="0*m"/> 
@@ -1852,12 +1853,12 @@ END COMMENT-->
   <rParent name="muonBase:MBWheel_2P"/> 
   <rChild name="YB1_w2P_b1"/> 
   <ParE name="n" value="12"/> 
-  <ParE name="startAngle" value="12.771*deg"/> 
+  <ParE name="startAngle" value="12.7713*deg"/> 
   <ParE name="rangeAngle" value="360*deg"/> 
-  <ParE name="radius" value="4.7782*m"/> 
+  <ParE name="radius" value="4.77821*m"/> 
   <ParE name="rotateSolid" value="0"/> 
   <ParE name="rotateSolid" value="0"/> 
-  <ParE name="rotateSolid" value="-102.771*deg"/> 
+  <ParE name="rotateSolid" value="-102.7713*deg"/> 
   <ParE name="center" value="0"/> 
   <ParE name="center" value="0"/> 
   <ParE name="center" value="0*m"/> 
@@ -1866,12 +1867,12 @@ END COMMENT-->
   <rParent name="muonBase:MBWheel_2N"/> 
   <rChild name="YB1_w2N_b1"/> 
   <ParE name="n" value="12"/> 
-  <ParE name="startAngle" value="12.771*deg"/> 
+  <ParE name="startAngle" value="12.7713*deg"/> 
   <ParE name="rangeAngle" value="360*deg"/> 
-  <ParE name="radius" value="4.7782*m"/> 
+  <ParE name="radius" value="4.77821*m"/> 
   <ParE name="rotateSolid" value="0"/> 
   <ParE name="rotateSolid" value="0"/> 
-  <ParE name="rotateSolid" value="-102.771*deg"/> 
+  <ParE name="rotateSolid" value="-102.7713*deg"/> 
   <ParE name="center" value="0"/> 
   <ParE name="center" value="0"/> 
   <ParE name="center" value="0*m"/> 
@@ -1908,12 +1909,12 @@ END COMMENT-->
   <rParent name="muonBase:MBWheel_2P"/> 
   <rChild name="YB1_w2P_b3"/> 
   <ParE name="n" value="12"/> 
-  <ParE name="startAngle" value="348.0669*deg"/> 
+  <ParE name="startAngle" value="348.0664*deg"/> 
   <ParE name="rangeAngle" value="360*deg"/> 
-  <ParE name="radius" value="4.76293*m"/> 
+  <ParE name="radius" value="4.76294*m"/> 
   <ParE name="rotateSolid" value="0"/> 
   <ParE name="rotateSolid" value="0"/> 
-  <ParE name="rotateSolid" value="-78.0669*deg"/> 
+  <ParE name="rotateSolid" value="-78.0664*deg"/> 
   <ParE name="center" value="0"/> 
   <ParE name="center" value="0"/> 
   <ParE name="center" value="0*m"/> 
@@ -1922,12 +1923,12 @@ END COMMENT-->
   <rParent name="muonBase:MBWheel_2N"/> 
   <rChild name="YB1_w2N_b3"/> 
   <ParE name="n" value="12"/> 
-  <ParE name="startAngle" value="348.0669*deg"/> 
+  <ParE name="startAngle" value="348.0664*deg"/> 
   <ParE name="rangeAngle" value="360*deg"/> 
-  <ParE name="radius" value="4.76293*m"/> 
+  <ParE name="radius" value="4.76294*m"/> 
   <ParE name="rotateSolid" value="0"/> 
   <ParE name="rotateSolid" value="0"/> 
-  <ParE name="rotateSolid" value="-78.0669*deg"/> 
+  <ParE name="rotateSolid" value="-78.0664*deg"/> 
   <ParE name="center" value="0"/> 
   <ParE name="center" value="0"/> 
   <ParE name="center" value="0*m"/> 
@@ -2332,12 +2333,12 @@ END COMMENT-->
   <rParent name="muonBase:MBWheel_0"/> 
   <rChild name="YB2_w0_b1"/> 
   <ParE name="n" value="12"/> 
-  <ParE name="startAngle" value="13.084*deg"/> 
+  <ParE name="startAngle" value="13.0847*deg"/> 
   <ParE name="rangeAngle" value="360*deg"/> 
-  <ParE name="radius" value="5.53623*m"/> 
+  <ParE name="radius" value="5.5362413*m"/> 
   <ParE name="rotateSolid" value="0"/> 
   <ParE name="rotateSolid" value="0"/> 
-  <ParE name="rotateSolid" value="-103.084*deg"/> 
+  <ParE name="rotateSolid" value="-103.0847*deg"/> 
   <ParE name="center" value="0"/> 
   <ParE name="center" value="0"/> 
   <ParE name="center" value="0.63395*m"/> 
@@ -2346,12 +2347,12 @@ END COMMENT-->
   <rParent name="muonBase:MBWheel_0"/> 
   <rChild name="YB2_w0_b4"/> 
   <ParE name="n" value="12"/> 
-  <ParE name="startAngle" value="13.084*deg"/> 
+  <ParE name="startAngle" value="13.0847*deg"/> 
   <ParE name="rangeAngle" value="360*deg"/> 
-  <ParE name="radius" value="5.53623*m"/> 
+  <ParE name="radius" value="5.5362413*m"/> 
   <ParE name="rotateSolid" value="0"/> 
   <ParE name="rotateSolid" value="0"/> 
-  <ParE name="rotateSolid" value="-103.084*deg"/> 
+  <ParE name="rotateSolid" value="-103.0847*deg"/> 
   <ParE name="center" value="0"/> 
   <ParE name="center" value="0"/> 
   <ParE name="center" value="-0.63395*m"/> 
@@ -2388,12 +2389,12 @@ END COMMENT-->
   <rParent name="muonBase:MBWheel_0"/> 
   <rChild name="YB2_w0_b3"/> 
   <ParE name="n" value="12"/> 
-  <ParE name="startAngle" value="346.5636*deg"/> 
+  <ParE name="startAngle" value="346.5635*deg"/> 
   <ParE name="rangeAngle" value="360*deg"/> 
   <ParE name="radius" value="5.54426*m"/> 
   <ParE name="rotateSolid" value="0"/> 
   <ParE name="rotateSolid" value="0"/> 
-  <ParE name="rotateSolid" value="-76.5636*deg"/> 
+  <ParE name="rotateSolid" value="-76.5635*deg"/> 
   <ParE name="center" value="0"/> 
   <ParE name="center" value="0"/> 
   <ParE name="center" value="0.63395*m"/> 
@@ -2402,12 +2403,12 @@ END COMMENT-->
   <rParent name="muonBase:MBWheel_0"/> 
   <rChild name="YB2_w0_b6"/> 
   <ParE name="n" value="12"/> 
-  <ParE name="startAngle" value="346.5636*deg"/> 
+  <ParE name="startAngle" value="346.5635*deg"/> 
   <ParE name="rangeAngle" value="360*deg"/> 
   <ParE name="radius" value="5.54426*m"/> 
   <ParE name="rotateSolid" value="0"/> 
   <ParE name="rotateSolid" value="0"/> 
-  <ParE name="rotateSolid" value="-76.5636*deg"/> 
+  <ParE name="rotateSolid" value="-76.5635*deg"/> 
   <ParE name="center" value="0"/> 
   <ParE name="center" value="0"/> 
   <ParE name="center" value="-0.63395*m"/> 
@@ -2416,12 +2417,12 @@ END COMMENT-->
   <rParent name="muonBase:MBWheel_1P"/> 
   <rChild name="YB2_w1P_b1"/> 
   <ParE name="n" value="12"/> 
-  <ParE name="startAngle" value="13.085*deg"/> 
+  <ParE name="startAngle" value="13.0847*deg"/> 
   <ParE name="rangeAngle" value="360*deg"/> 
-  <ParE name="radius" value="5.53625*m"/> 
+  <ParE name="radius" value="5.5362413*m"/> 
   <ParE name="rotateSolid" value="0"/> 
   <ParE name="rotateSolid" value="0"/> 
-  <ParE name="rotateSolid" value="-103.085*deg"/> 
+  <ParE name="rotateSolid" value="-103.0847*deg"/> 
   <ParE name="center" value="0"/> 
   <ParE name="center" value="0"/> 
   <ParE name="center" value="0*m"/> 
@@ -2430,12 +2431,12 @@ END COMMENT-->
   <rParent name="muonBase:MBWheel_1N"/> 
   <rChild name="YB2_w1N_b1"/> 
   <ParE name="n" value="12"/> 
-  <ParE name="startAngle" value="13.085*deg"/> 
+  <ParE name="startAngle" value="13.0847*deg"/> 
   <ParE name="rangeAngle" value="360*deg"/> 
-  <ParE name="radius" value="5.53625*m"/> 
+  <ParE name="radius" value="5.5362413*m"/> 
   <ParE name="rotateSolid" value="0"/> 
   <ParE name="rotateSolid" value="0"/> 
-  <ParE name="rotateSolid" value="-103.085*deg"/> 
+  <ParE name="rotateSolid" value="-103.0847*deg"/> 
   <ParE name="center" value="0"/> 
   <ParE name="center" value="0"/> 
   <ParE name="center" value="0*m"/> 
@@ -2484,8 +2485,8 @@ END COMMENT-->
  </AlgoPosPart> 
  <AlgoPosPart algo="global:angular"> 
   <rParent name="muonBase:MBWheel_1N"/> 
-  <ParE name="startCopyNo" value="1" />
   <rChild name="YB2_w1N_b3"/> 
+  <ParE name="startCopyNo" value="1" />
   <ParE name="n" value="2"/> 
   <ParE name="startAngle" value="3.7125*deg"/> 
   <ParE name="rangeAngle" value="30*deg"/> 
@@ -2499,8 +2500,8 @@ END COMMENT-->
  </AlgoPosPart> 
  <AlgoPosPart algo="global:angular"> 
   <rParent name="muonBase:MBWheel_1N"/> 
-  <ParE name="startCopyNo" value="4" />
   <rChild name="YB2_w1N_b3"/> 
+  <ParE name="startCopyNo" value="4" />
   <ParE name="n" value="9"/> 
   <ParE name="startAngle" value="93.7125*deg"/> 
   <ParE name="rangeAngle" value="240*deg"/> 
@@ -2688,12 +2689,12 @@ END COMMENT-->
   <rParent name="muonBase:MBWheel_1P"/> 
   <rChild name="YB2_w1P_b8"/> 
   <ParE name="n" value="12"/> 
-  <ParE name="startAngle" value="346.5636*deg"/> 
+  <ParE name="startAngle" value="346.5635*deg"/> 
   <ParE name="rangeAngle" value="360*deg"/> 
   <ParE name="radius" value="5.54426*m"/> 
   <ParE name="rotateSolid" value="0"/> 
   <ParE name="rotateSolid" value="0"/> 
-  <ParE name="rotateSolid" value="-76.5636*deg"/> 
+  <ParE name="rotateSolid" value="-76.5635*deg"/> 
   <ParE name="center" value="0"/> 
   <ParE name="center" value="0"/> 
   <ParE name="center" value="0*m"/> 
@@ -2702,12 +2703,12 @@ END COMMENT-->
   <rParent name="muonBase:MBWheel_1N"/> 
   <rChild name="YB2_w1N_b8"/> 
   <ParE name="n" value="12"/> 
-  <ParE name="startAngle" value="346.5636*deg"/> 
+  <ParE name="startAngle" value="346.5635*deg"/> 
   <ParE name="rangeAngle" value="360*deg"/> 
   <ParE name="radius" value="5.54426*m"/> 
   <ParE name="rotateSolid" value="0"/> 
   <ParE name="rotateSolid" value="0"/> 
-  <ParE name="rotateSolid" value="-76.5636*deg"/> 
+  <ParE name="rotateSolid" value="-76.5635*deg"/> 
   <ParE name="center" value="0"/> 
   <ParE name="center" value="0"/> 
   <ParE name="center" value="0*m"/> 
@@ -2716,12 +2717,12 @@ END COMMENT-->
   <rParent name="muonBase:MBWheel_2P"/> 
   <rChild name="YB2_w2P_b1"/> 
   <ParE name="n" value="12"/> 
-  <ParE name="startAngle" value="13.085*deg"/> 
+  <ParE name="startAngle" value="13.0847*deg"/> 
   <ParE name="rangeAngle" value="360*deg"/> 
-  <ParE name="radius" value="5.53625*m"/> 
+  <ParE name="radius" value="5.5362413*m"/> 
   <ParE name="rotateSolid" value="0"/> 
   <ParE name="rotateSolid" value="0"/> 
-  <ParE name="rotateSolid" value="-103.085*deg"/> 
+  <ParE name="rotateSolid" value="-103.0847*deg"/> 
   <ParE name="center" value="0"/> 
   <ParE name="center" value="0"/> 
   <ParE name="center" value="0*m"/> 
@@ -2730,12 +2731,12 @@ END COMMENT-->
   <rParent name="muonBase:MBWheel_2N"/> 
   <rChild name="YB2_w2N_b1"/> 
   <ParE name="n" value="12"/> 
-  <ParE name="startAngle" value="13.085*deg"/> 
+  <ParE name="startAngle" value="13.0847*deg"/> 
   <ParE name="rangeAngle" value="360*deg"/> 
-  <ParE name="radius" value="5.53625*m"/> 
+  <ParE name="radius" value="5.5362413*m"/> 
   <ParE name="rotateSolid" value="0"/> 
   <ParE name="rotateSolid" value="0"/> 
-  <ParE name="rotateSolid" value="-103.085*deg"/> 
+  <ParE name="rotateSolid" value="-103.0847*deg"/> 
   <ParE name="center" value="0"/> 
   <ParE name="center" value="0"/> 
   <ParE name="center" value="0*m"/> 
@@ -2772,12 +2773,12 @@ END COMMENT-->
   <rParent name="muonBase:MBWheel_2P"/> 
   <rChild name="YB2_w2P_b3"/> 
   <ParE name="n" value="12"/> 
-  <ParE name="startAngle" value="346.5636*deg"/> 
+  <ParE name="startAngle" value="346.5635*deg"/> 
   <ParE name="rangeAngle" value="360*deg"/> 
   <ParE name="radius" value="5.54426*m"/> 
   <ParE name="rotateSolid" value="0"/> 
   <ParE name="rotateSolid" value="0"/> 
-  <ParE name="rotateSolid" value="-76.5636*deg"/> 
+  <ParE name="rotateSolid" value="-76.5635*deg"/> 
   <ParE name="center" value="0"/> 
   <ParE name="center" value="0"/> 
   <ParE name="center" value="0*m"/> 
@@ -2786,12 +2787,12 @@ END COMMENT-->
   <rParent name="muonBase:MBWheel_2N"/> 
   <rChild name="YB2_w2N_b3"/> 
   <ParE name="n" value="12"/> 
-  <ParE name="startAngle" value="346.5636*deg"/> 
+  <ParE name="startAngle" value="346.5635*deg"/> 
   <ParE name="rangeAngle" value="360*deg"/> 
   <ParE name="radius" value="5.54426*m"/> 
   <ParE name="rotateSolid" value="0"/> 
   <ParE name="rotateSolid" value="0"/> 
-  <ParE name="rotateSolid" value="-76.5636*deg"/> 
+  <ParE name="rotateSolid" value="-76.5635*deg"/> 
   <ParE name="center" value="0"/> 
   <ParE name="center" value="0"/> 
   <ParE name="center" value="0*m"/> 
@@ -2896,9 +2897,9 @@ END COMMENT-->
   <ParE name="center" value="0"/> 
   <ParE name="center" value="1.0729*m"/> 
  </AlgoPosPart> 
- <PosPart copyNumber="3">
   <rParent name="muonBase:MBWheel_1N"/> 
   <rChild name="YB2Chim_w1N_m2"/> 
+  <PosPart copyNumber="3">
   <rRotation name="rotations:R330"/>
   <Translation x="5.67081*m*cos(63.5375*deg)" y="5.67081*m*sin(63.5375*deg)" z="1.0729*m" />
  </PosPart> 
@@ -3018,9 +3019,9 @@ END COMMENT-->
   <ParE name="center" value="0"/> 
   <ParE name="center" value="1.0729*m"/> 
  </AlgoPosPart> 
- <PosPart copyNumber="3">
   <rParent name="muonBase:MBWheel_1N"/> 
   <rChild name="YB2Chim_w1N_m4"/> 
+  <PosPart copyNumber="3">
   <rRotation name="rotations:R330"/>
   <Translation x="5.67081*m*cos(56.4625*deg)" y="5.67081*m*sin(56.4625*deg)" z="1.0729*m" />
  </PosPart> 
@@ -3112,12 +3113,12 @@ END COMMENT-->
   <rParent name="muonBase:MBWheel_0"/> 
   <rChild name="YB2_w0_t1"/> 
   <ParE name="n" value="12"/> 
-  <ParE name="startAngle" value="13.399*deg"/> 
+  <ParE name="startAngle" value="13.3987*deg"/> 
   <ParE name="rangeAngle" value="360*deg"/> 
-  <ParE name="radius" value="6.09336*m"/> 
+  <ParE name="radius" value="6.0933547*m"/> 
   <ParE name="rotateSolid" value="0"/> 
   <ParE name="rotateSolid" value="0"/> 
-  <ParE name="rotateSolid" value="-103.399*deg"/> 
+  <ParE name="rotateSolid" value="-103.3987*deg"/> 
   <ParE name="center" value="0"/> 
   <ParE name="center" value="0"/> 
   <ParE name="center" value="0.63395*m"/> 
@@ -3126,12 +3127,12 @@ END COMMENT-->
   <rParent name="muonBase:MBWheel_0"/> 
   <rChild name="YB2_w0_t4"/> 
   <ParE name="n" value="12"/> 
-  <ParE name="startAngle" value="13.399*deg"/> 
+  <ParE name="startAngle" value="13.3987*deg"/> 
   <ParE name="rangeAngle" value="360*deg"/> 
-  <ParE name="radius" value="6.09336*m"/> 
+  <ParE name="radius" value="6.0933547*m"/> 
   <ParE name="rotateSolid" value="0"/> 
   <ParE name="rotateSolid" value="0"/> 
-  <ParE name="rotateSolid" value="-103.399*deg"/> 
+  <ParE name="rotateSolid" value="-103.3987*deg"/> 
   <ParE name="center" value="0"/> 
   <ParE name="center" value="0"/> 
   <ParE name="center" value="-0.63395*m"/> 
@@ -3168,12 +3169,12 @@ END COMMENT-->
   <rParent name="muonBase:MBWheel_0"/> 
   <rChild name="YB2_w0_t3"/> 
   <ParE name="n" value="12"/> 
-  <ParE name="startAngle" value="347.0778*deg"/> 
+  <ParE name="startAngle" value="347.0779*deg"/> 
   <ParE name="rangeAngle" value="360*deg"/> 
-  <ParE name="radius" value="6.08152*m"/> 
+  <ParE name="radius" value="6.0815176*m"/> 
   <ParE name="rotateSolid" value="0"/> 
   <ParE name="rotateSolid" value="0"/> 
-  <ParE name="rotateSolid" value="-77.0778*deg"/> 
+  <ParE name="rotateSolid" value="-77.0779*deg"/> 
   <ParE name="center" value="0"/> 
   <ParE name="center" value="0"/> 
   <ParE name="center" value="0.63395*m"/> 
@@ -3182,12 +3183,12 @@ END COMMENT-->
   <rParent name="muonBase:MBWheel_0"/> 
   <rChild name="YB2_w0_t6"/> 
   <ParE name="n" value="12"/> 
-  <ParE name="startAngle" value="347.0778*deg"/> 
+  <ParE name="startAngle" value="347.0779*deg"/> 
   <ParE name="rangeAngle" value="360*deg"/> 
-  <ParE name="radius" value="6.08152*m"/> 
+  <ParE name="radius" value="6.0815176*m"/> 
   <ParE name="rotateSolid" value="0"/> 
   <ParE name="rotateSolid" value="0"/> 
-  <ParE name="rotateSolid" value="-77.0778*deg"/> 
+  <ParE name="rotateSolid" value="-77.0779*deg"/> 
   <ParE name="center" value="0"/> 
   <ParE name="center" value="0"/> 
   <ParE name="center" value="-0.63395*m"/> 
@@ -3196,12 +3197,12 @@ END COMMENT-->
   <rParent name="muonBase:MBWheel_1P"/> 
   <rChild name="YB2_w1P_t1"/> 
   <ParE name="n" value="12"/> 
-  <ParE name="startAngle" value="13.399*deg"/> 
+  <ParE name="startAngle" value="13.3987*deg"/> 
   <ParE name="rangeAngle" value="360*deg"/> 
-  <ParE name="radius" value="6.09336*m"/> 
+  <ParE name="radius" value="6.0933547*m"/> 
   <ParE name="rotateSolid" value="0"/> 
   <ParE name="rotateSolid" value="0"/> 
-  <ParE name="rotateSolid" value="-103.399*deg"/> 
+  <ParE name="rotateSolid" value="-103.3987*deg"/> 
   <ParE name="center" value="0"/> 
   <ParE name="center" value="0"/> 
   <ParE name="center" value="0*m"/> 
@@ -3210,12 +3211,12 @@ END COMMENT-->
   <rParent name="muonBase:MBWheel_1N"/> 
   <rChild name="YB2_w1N_t1"/> 
   <ParE name="n" value="12"/> 
-  <ParE name="startAngle" value="13.399*deg"/> 
+  <ParE name="startAngle" value="13.3987*deg"/> 
   <ParE name="rangeAngle" value="360*deg"/> 
-  <ParE name="radius" value="6.09336*m"/> 
+  <ParE name="radius" value="6.0933547*m"/> 
   <ParE name="rotateSolid" value="0"/> 
   <ParE name="rotateSolid" value="0"/> 
-  <ParE name="rotateSolid" value="-103.399*deg"/> 
+  <ParE name="rotateSolid" value="-103.3987*deg"/> 
   <ParE name="center" value="0"/> 
   <ParE name="center" value="0"/> 
   <ParE name="center" value="0*m"/> 
@@ -3402,9 +3403,9 @@ END COMMENT-->
   <ParE name="center" value="0"/> 
   <ParE name="center" value="1.0639*m"/> 
  </AlgoPosPart> 
- <PosPart copyNumber="3">
   <rParent name="muonBase:MBWheel_1N"/> 
   <rChild name="YB2Chim_w1N_t5"/> 
+  <PosPart copyNumber="3">
   <rRotation name="rotations:R330"/>
   <Translation x="5.93782*m*cos(56.6218*deg)" y="5.93782*m*sin(56.6218*deg)" z="1.0639*m" />
  </PosPart> 
@@ -3468,12 +3469,12 @@ END COMMENT-->
   <rParent name="muonBase:MBWheel_1P"/> 
   <rChild name="YB2_w1P_t8"/> 
   <ParE name="n" value="12"/> 
-  <ParE name="startAngle" value="347.0778*deg"/> 
+  <ParE name="startAngle" value="347.0779*deg"/> 
   <ParE name="rangeAngle" value="360*deg"/> 
-  <ParE name="radius" value="6.08152*m"/> 
+  <ParE name="radius" value="6.0815176*m"/> 
   <ParE name="rotateSolid" value="0"/> 
   <ParE name="rotateSolid" value="0"/> 
-  <ParE name="rotateSolid" value="-77.0778*deg"/> 
+  <ParE name="rotateSolid" value="-77.0779*deg"/> 
   <ParE name="center" value="0"/> 
   <ParE name="center" value="0"/> 
   <ParE name="center" value="0*m"/> 
@@ -3482,12 +3483,12 @@ END COMMENT-->
   <rParent name="muonBase:MBWheel_1N"/> 
   <rChild name="YB2_w1N_t8"/> 
   <ParE name="n" value="12"/> 
-  <ParE name="startAngle" value="347.0778*deg"/> 
+  <ParE name="startAngle" value="347.0779*deg"/> 
   <ParE name="rangeAngle" value="360*deg"/> 
-  <ParE name="radius" value="6.08152*m"/> 
+  <ParE name="radius" value="6.0815176*m"/> 
   <ParE name="rotateSolid" value="0"/> 
   <ParE name="rotateSolid" value="0"/> 
-  <ParE name="rotateSolid" value="-77.0778*deg"/> 
+  <ParE name="rotateSolid" value="-77.0779*deg"/> 
   <ParE name="center" value="0"/> 
   <ParE name="center" value="0"/> 
   <ParE name="center" value="0*m"/> 
@@ -3496,12 +3497,12 @@ END COMMENT-->
   <rParent name="muonBase:MBWheel_2P"/> 
   <rChild name="YB2_w2P_t1"/> 
   <ParE name="n" value="12"/> 
-  <ParE name="startAngle" value="13.399*deg"/> 
+  <ParE name="startAngle" value="13.3987*deg"/> 
   <ParE name="rangeAngle" value="360*deg"/> 
-  <ParE name="radius" value="6.09336*m"/> 
+  <ParE name="radius" value="6.0933547*m"/> 
   <ParE name="rotateSolid" value="0"/> 
   <ParE name="rotateSolid" value="0"/> 
-  <ParE name="rotateSolid" value="-103.399*deg"/> 
+  <ParE name="rotateSolid" value="-103.3987*deg"/> 
   <ParE name="center" value="0"/> 
   <ParE name="center" value="0"/> 
   <ParE name="center" value="0*m"/> 
@@ -3510,12 +3511,12 @@ END COMMENT-->
   <rParent name="muonBase:MBWheel_2N"/> 
   <rChild name="YB2_w2N_t1"/> 
   <ParE name="n" value="12"/> 
-  <ParE name="startAngle" value="13.399*deg"/> 
+  <ParE name="startAngle" value="13.3987*deg"/> 
   <ParE name="rangeAngle" value="360*deg"/> 
-  <ParE name="radius" value="6.09336*m"/> 
+  <ParE name="radius" value="6.0933547*m"/> 
   <ParE name="rotateSolid" value="0"/> 
   <ParE name="rotateSolid" value="0"/> 
-  <ParE name="rotateSolid" value="-103.399*deg"/> 
+  <ParE name="rotateSolid" value="-103.3987*deg"/> 
   <ParE name="center" value="0"/> 
   <ParE name="center" value="0"/> 
   <ParE name="center" value="0*m"/> 
@@ -3552,12 +3553,12 @@ END COMMENT-->
   <rParent name="muonBase:MBWheel_2P"/> 
   <rChild name="YB2_w2P_t3"/> 
   <ParE name="n" value="12"/> 
-  <ParE name="startAngle" value="347.0778*deg"/> 
+  <ParE name="startAngle" value="347.0779*deg"/> 
   <ParE name="rangeAngle" value="360*deg"/> 
-  <ParE name="radius" value="6.08152*m"/> 
+  <ParE name="radius" value="6.0815176*m"/> 
   <ParE name="rotateSolid" value="0"/> 
   <ParE name="rotateSolid" value="0"/> 
-  <ParE name="rotateSolid" value="-77.0778*deg"/> 
+  <ParE name="rotateSolid" value="-77.0779*deg"/> 
   <ParE name="center" value="0"/> 
   <ParE name="center" value="0"/> 
   <ParE name="center" value="0*m"/> 
@@ -3566,12 +3567,12 @@ END COMMENT-->
   <rParent name="muonBase:MBWheel_2N"/> 
   <rChild name="YB2_w2N_t3"/> 
   <ParE name="n" value="12"/> 
-  <ParE name="startAngle" value="347.0778*deg"/> 
+  <ParE name="startAngle" value="347.0779*deg"/> 
   <ParE name="rangeAngle" value="360*deg"/> 
-  <ParE name="radius" value="6.08152*m"/> 
+  <ParE name="radius" value="6.0815176*m"/> 
   <ParE name="rotateSolid" value="0"/> 
   <ParE name="rotateSolid" value="0"/> 
-  <ParE name="rotateSolid" value="-77.0778*deg"/> 
+  <ParE name="rotateSolid" value="-77.0779*deg"/> 
   <ParE name="center" value="0"/> 
   <ParE name="center" value="0"/> 
   <ParE name="center" value="0*m"/> 
@@ -3664,12 +3665,12 @@ END COMMENT-->
   <rParent name="muonBase:MBWheel_0"/> 
   <rChild name="YB3_w0_b1"/> 
   <ParE name="n" value="12"/> 
-  <ParE name="startAngle" value="13.533*deg"/> 
+  <ParE name="startAngle" value="13.5332*deg"/> 
   <ParE name="rangeAngle" value="360*deg"/> 
-  <ParE name="radius" value="6.60078*m"/> 
+  <ParE name="radius" value="6.60077*m"/> 
   <ParE name="rotateSolid" value="0"/> 
   <ParE name="rotateSolid" value="0"/> 
-  <ParE name="rotateSolid" value="-103.533*deg"/> 
+  <ParE name="rotateSolid" value="-103.5332*deg"/> 
   <ParE name="center" value="0"/> 
   <ParE name="center" value="0"/> 
   <ParE name="center" value="0.63395*m"/> 
@@ -3678,12 +3679,12 @@ END COMMENT-->
   <rParent name="muonBase:MBWheel_0"/> 
   <rChild name="YB3_w0_b4"/> 
   <ParE name="n" value="12"/> 
-  <ParE name="startAngle" value="13.533*deg"/> 
+  <ParE name="startAngle" value="13.5332*deg"/> 
   <ParE name="rangeAngle" value="360*deg"/> 
-  <ParE name="radius" value="6.60078*m"/> 
+  <ParE name="radius" value="6.60077*m"/> 
   <ParE name="rotateSolid" value="0"/> 
   <ParE name="rotateSolid" value="0"/> 
-  <ParE name="rotateSolid" value="-103.533*deg"/> 
+  <ParE name="rotateSolid" value="-103.5332*deg"/> 
   <ParE name="center" value="0"/> 
   <ParE name="center" value="0"/> 
   <ParE name="center" value="-0.63395*m"/> 
@@ -3720,12 +3721,12 @@ END COMMENT-->
   <rParent name="muonBase:MBWheel_0"/> 
   <rChild name="YB3_w0_b3"/> 
   <ParE name="n" value="12"/> 
-  <ParE name="startAngle" value="346.6774*deg"/> 
+  <ParE name="startAngle" value="346.6776*deg"/> 
   <ParE name="rangeAngle" value="360*deg"/> 
   <ParE name="radius" value="6.59498*m"/> 
   <ParE name="rotateSolid" value="0"/> 
   <ParE name="rotateSolid" value="0"/> 
-  <ParE name="rotateSolid" value="-76.6774*deg"/> 
+  <ParE name="rotateSolid" value="-76.6776*deg"/> 
   <ParE name="center" value="0"/> 
   <ParE name="center" value="0"/> 
   <ParE name="center" value="0.63395*m"/> 
@@ -3734,12 +3735,12 @@ END COMMENT-->
   <rParent name="muonBase:MBWheel_0"/> 
   <rChild name="YB3_w0_b6"/> 
   <ParE name="n" value="12"/> 
-  <ParE name="startAngle" value="346.6774*deg"/> 
+  <ParE name="startAngle" value="346.6776*deg"/> 
   <ParE name="rangeAngle" value="360*deg"/> 
   <ParE name="radius" value="6.59498*m"/> 
   <ParE name="rotateSolid" value="0"/> 
   <ParE name="rotateSolid" value="0"/> 
-  <ParE name="rotateSolid" value="-76.6774*deg"/> 
+  <ParE name="rotateSolid" value="-76.6776*deg"/> 
   <ParE name="center" value="0"/> 
   <ParE name="center" value="0"/> 
   <ParE name="center" value="-0.63395*m"/> 
@@ -3748,12 +3749,12 @@ END COMMENT-->
   <rParent name="muonBase:MBWheel_1P"/> 
   <rChild name="YB3_w1P_b1"/> 
   <ParE name="n" value="12"/> 
-  <ParE name="startAngle" value="13.533*deg"/> 
+  <ParE name="startAngle" value="13.5332*deg"/> 
   <ParE name="rangeAngle" value="360*deg"/> 
-  <ParE name="radius" value="6.60078*m"/> 
+  <ParE name="radius" value="6.60077*m"/> 
   <ParE name="rotateSolid" value="0"/> 
   <ParE name="rotateSolid" value="0"/> 
-  <ParE name="rotateSolid" value="-103.533*deg"/> 
+  <ParE name="rotateSolid" value="-103.5332*deg"/> 
   <ParE name="center" value="0"/> 
   <ParE name="center" value="0"/> 
   <ParE name="center" value="0*m"/> 
@@ -3762,12 +3763,12 @@ END COMMENT-->
   <rParent name="muonBase:MBWheel_1N"/> 
   <rChild name="YB3_w1N_b1"/> 
   <ParE name="n" value="12"/> 
-  <ParE name="startAngle" value="13.533*deg"/> 
+  <ParE name="startAngle" value="13.5332*deg"/> 
   <ParE name="rangeAngle" value="360*deg"/> 
-  <ParE name="radius" value="6.60078*m"/> 
+  <ParE name="radius" value="6.60077*m"/> 
   <ParE name="rotateSolid" value="0"/> 
   <ParE name="rotateSolid" value="0"/> 
-  <ParE name="rotateSolid" value="-103.533*deg"/> 
+  <ParE name="rotateSolid" value="-103.5332*deg"/> 
   <ParE name="center" value="0"/> 
   <ParE name="center" value="0"/> 
   <ParE name="center" value="0*m"/> 
@@ -3844,9 +3845,9 @@ END COMMENT-->
   <ParE name="center" value="0"/> 
   <ParE name="center" value="1.0639*m"/> 
  </AlgoPosPart> 
- <PosPart copyNumber="3">
   <rParent name="muonBase:MBWheel_1N"/> 
   <rChild name="YB3Chim_w1N_b3"/> 
+  <PosPart copyNumber="3">
   <rRotation name="rotations:R330"/>
   <Translation x="6.42703*m*cos(63.1208*deg)" y="6.42703*m*sin(63.1208*deg)" z="1.0639*m" />
  </PosPart> 
@@ -3954,9 +3955,9 @@ END COMMENT-->
   <ParE name="center" value="0"/> 
   <ParE name="center" value="1.0639*m"/> 
  </AlgoPosPart> 
- <PosPart copyNumber="3">
   <rParent name="muonBase:MBWheel_1N"/> 
   <rChild name="YB3Chim_w1N_b5"/> 
+  <PosPart copyNumber="3">
   <rRotation name="rotations:R330"/>
   <Translation x="6.42703*m*cos(56.8792*deg)" y="6.42703*m*sin(56.8792*deg)" z="1.0639*m" />
  </PosPart> 
@@ -4020,12 +4021,12 @@ END COMMENT-->
   <rParent name="muonBase:MBWheel_1P"/> 
   <rChild name="YB3_w1P_b8"/> 
   <ParE name="n" value="12"/> 
-  <ParE name="startAngle" value="346.6774*deg"/> 
+  <ParE name="startAngle" value="346.6776*deg"/> 
   <ParE name="rangeAngle" value="360*deg"/> 
   <ParE name="radius" value="6.59498*m"/> 
   <ParE name="rotateSolid" value="0"/> 
   <ParE name="rotateSolid" value="0"/> 
-  <ParE name="rotateSolid" value="-76.6774*deg"/> 
+  <ParE name="rotateSolid" value="-76.6776*deg"/> 
   <ParE name="center" value="0"/> 
   <ParE name="center" value="0"/> 
   <ParE name="center" value="0*m"/> 
@@ -4034,12 +4035,12 @@ END COMMENT-->
   <rParent name="muonBase:MBWheel_1N"/> 
   <rChild name="YB3_w1N_b8"/> 
   <ParE name="n" value="12"/> 
-  <ParE name="startAngle" value="346.6774*deg"/> 
+  <ParE name="startAngle" value="346.6776*deg"/> 
   <ParE name="rangeAngle" value="360*deg"/> 
   <ParE name="radius" value="6.59498*m"/> 
   <ParE name="rotateSolid" value="0"/> 
   <ParE name="rotateSolid" value="0"/> 
-  <ParE name="rotateSolid" value="-76.6774*deg"/> 
+  <ParE name="rotateSolid" value="-76.6776*deg"/> 
   <ParE name="center" value="0"/> 
   <ParE name="center" value="0"/> 
   <ParE name="center" value="0*m"/> 
@@ -4048,12 +4049,12 @@ END COMMENT-->
   <rParent name="muonBase:MBWheel_2P"/> 
   <rChild name="YB3_w2P_b1"/> 
   <ParE name="n" value="12"/> 
-  <ParE name="startAngle" value="13.542*deg"/> 
+  <ParE name="startAngle" value="13.5332*deg"/> 
   <ParE name="rangeAngle" value="360*deg"/> 
-  <ParE name="radius" value="6.60102*m"/> 
+  <ParE name="radius" value="6.60077*m"/> 
   <ParE name="rotateSolid" value="0"/> 
   <ParE name="rotateSolid" value="0"/> 
-  <ParE name="rotateSolid" value="-103.542*deg"/> 
+  <ParE name="rotateSolid" value="-103.5332*deg"/> 
   <ParE name="center" value="0"/> 
   <ParE name="center" value="0"/> 
   <ParE name="center" value="0*m"/> 
@@ -4062,12 +4063,12 @@ END COMMENT-->
   <rParent name="muonBase:MBWheel_2N"/> 
   <rChild name="YB3_w2N_b1"/> 
   <ParE name="n" value="12"/> 
-  <ParE name="startAngle" value="13.542*deg"/> 
+  <ParE name="startAngle" value="13.5332*deg"/> 
   <ParE name="rangeAngle" value="360*deg"/> 
-  <ParE name="radius" value="6.60102*m"/> 
+  <ParE name="radius" value="6.60077*m"/> 
   <ParE name="rotateSolid" value="0"/> 
   <ParE name="rotateSolid" value="0"/> 
-  <ParE name="rotateSolid" value="-103.542*deg"/> 
+  <ParE name="rotateSolid" value="-103.5332*deg"/> 
   <ParE name="center" value="0"/> 
   <ParE name="center" value="0"/> 
   <ParE name="center" value="0*m"/> 
@@ -4104,12 +4105,12 @@ END COMMENT-->
   <rParent name="muonBase:MBWheel_2P"/> 
   <rChild name="YB3_w2P_b3"/> 
   <ParE name="n" value="12"/> 
-  <ParE name="startAngle" value="346.6774*deg"/> 
+  <ParE name="startAngle" value="346.6782*deg"/> 
   <ParE name="rangeAngle" value="360*deg"/> 
-  <ParE name="radius" value="6.59498*m"/> 
+  <ParE name="radius" value="6.59496*m"/> 
   <ParE name="rotateSolid" value="0"/> 
   <ParE name="rotateSolid" value="0"/> 
-  <ParE name="rotateSolid" value="-76.6774*deg"/> 
+  <ParE name="rotateSolid" value="-76.6782*deg"/> 
   <ParE name="center" value="0"/> 
   <ParE name="center" value="0"/> 
   <ParE name="center" value="0*m"/> 
@@ -4118,12 +4119,12 @@ END COMMENT-->
   <rParent name="muonBase:MBWheel_2N"/> 
   <rChild name="YB3_w2N_b3"/> 
   <ParE name="n" value="12"/> 
-  <ParE name="startAngle" value="346.6774*deg"/> 
+  <ParE name="startAngle" value="346.6782*deg"/> 
   <ParE name="rangeAngle" value="360*deg"/> 
-  <ParE name="radius" value="6.59498*m"/> 
+  <ParE name="radius" value="6.59496*m"/> 
   <ParE name="rotateSolid" value="0"/> 
   <ParE name="rotateSolid" value="0"/> 
-  <ParE name="rotateSolid" value="-76.6774*deg"/> 
+  <ParE name="rotateSolid" value="-76.6782*deg"/> 
   <ParE name="center" value="0"/> 
   <ParE name="center" value="0"/> 
   <ParE name="center" value="0*m"/> 
@@ -4228,9 +4229,9 @@ END COMMENT-->
   <ParE name="center" value="0"/> 
   <ParE name="center" value="1.0729*m"/> 
  </AlgoPosPart> 
- <PosPart copyNumber="3">
   <rParent name="muonBase:MBWheel_1N"/> 
   <rChild name="YB3Chim_w1N_m2"/> 
+  <PosPart copyNumber="3">
   <rRotation name="rotations:R330"/>
   <Translation x="6.69415*m*cos(62.9962*deg)" y="6.69415*m*sin(62.9962*deg)" z="1.0729*m" />
  </PosPart> 
@@ -4264,9 +4265,9 @@ END COMMENT-->
   <ParE name="center" value="0"/> 
   <ParE name="center" value="-1.0729*m"/> 
  </AlgoPosPart> 
- <PosPart copyNumber="4">
   <rParent name="muonBase:MBWheel_1P"/> 
   <rChild name="YB3Chim_w1P_m3"/> 
+  <PosPart copyNumber="4">
   <rRotation name="rotations:000D"/>
   <Translation x="6.685*m*cos(90.*deg)" y="6.685*m*sin(90.*deg)" z="-1.0729*m" />
  </PosPart> 
@@ -4300,9 +4301,9 @@ END COMMENT-->
   <ParE name="center" value="0"/> 
   <ParE name="center" value="1.0729*m"/> 
  </AlgoPosPart> 
- <PosPart copyNumber="3">
   <rParent name="muonBase:MBWheel_1N"/> 
   <rChild name="YB3Chim_w1N_m3"/> 
+  <PosPart copyNumber="3">
   <rRotation name="rotations:R330"/>
   <Translation x="6.685*m*cos(60*deg)" y="6.685*m*sin(60*deg)" z="1.0729*m" />
  </PosPart> 
@@ -4350,9 +4351,9 @@ END COMMENT-->
   <ParE name="center" value="0"/> 
   <ParE name="center" value="1.0729*m"/> 
  </AlgoPosPart> 
- <PosPart copyNumber="3">
   <rParent name="muonBase:MBWheel_1N"/> 
   <rChild name="YB3Chim_w1N_m4"/> 
+  <PosPart copyNumber="3">
   <rRotation name="rotations:R330"/>
   <Translation x="6.69415*m*cos(57.0038*deg)" y="6.69415*m*sin(57.0038*deg)" z="1.0729*m" />
  </PosPart> 
@@ -4444,12 +4445,12 @@ END COMMENT-->
   <rParent name="muonBase:MBWheel_0"/> 
   <rChild name="YB3_w0_t1"/> 
   <ParE name="n" value="12"/> 
-  <ParE name="startAngle" value="13.051*deg"/> 
+  <ParE name="startAngle" value="13.0516*deg"/> 
   <ParE name="rangeAngle" value="360*deg"/> 
-  <ParE name="radius" value="7.13685*m"/> 
+  <ParE name="radius" value="7.13687*m"/> 
   <ParE name="rotateSolid" value="0"/> 
   <ParE name="rotateSolid" value="0"/> 
-  <ParE name="rotateSolid" value="-103.051*deg"/> 
+  <ParE name="rotateSolid" value="-103.0516*deg"/> 
   <ParE name="center" value="0"/> 
   <ParE name="center" value="0"/> 
   <ParE name="center" value="0.63395*m"/> 
@@ -4458,12 +4459,12 @@ END COMMENT-->
   <rParent name="muonBase:MBWheel_0"/> 
   <rChild name="YB3_w0_t4"/> 
   <ParE name="n" value="12"/> 
-  <ParE name="startAngle" value="13.051*deg"/> 
+  <ParE name="startAngle" value="13.0516*deg"/> 
   <ParE name="rangeAngle" value="360*deg"/> 
-  <ParE name="radius" value="7.13685*m"/> 
+  <ParE name="radius" value="7.13687*m"/> 
   <ParE name="rotateSolid" value="0"/> 
   <ParE name="rotateSolid" value="0"/> 
-  <ParE name="rotateSolid" value="-103.051*deg"/> 
+  <ParE name="rotateSolid" value="-103.0516*deg"/> 
   <ParE name="center" value="0"/> 
   <ParE name="center" value="0"/> 
   <ParE name="center" value="-0.63395*m"/> 
@@ -4500,12 +4501,12 @@ END COMMENT-->
   <rParent name="muonBase:MBWheel_0"/> 
   <rChild name="YB3_w0_t3"/> 
   <ParE name="n" value="12"/> 
-  <ParE name="startAngle" value="346.3522*deg"/> 
+  <ParE name="startAngle" value="346.3521*deg"/> 
   <ParE name="rangeAngle" value="360*deg"/> 
-  <ParE name="radius" value="7.15450*m"/> 
+  <ParE name="radius" value="7.15451*m"/> 
   <ParE name="rotateSolid" value="0"/> 
   <ParE name="rotateSolid" value="0"/> 
-  <ParE name="rotateSolid" value="-76.3522*deg"/> 
+  <ParE name="rotateSolid" value="-76.3521*deg"/> 
   <ParE name="center" value="0"/> 
   <ParE name="center" value="0"/> 
   <ParE name="center" value="0.63395*m"/> 
@@ -4514,12 +4515,12 @@ END COMMENT-->
   <rParent name="muonBase:MBWheel_0"/> 
   <rChild name="YB3_w0_t6"/> 
   <ParE name="n" value="12"/> 
-  <ParE name="startAngle" value="346.3522*deg"/> 
+  <ParE name="startAngle" value="346.3521*deg"/> 
   <ParE name="rangeAngle" value="360*deg"/> 
-  <ParE name="radius" value="7.15450*m"/> 
+  <ParE name="radius" value="7.15451*m"/> 
   <ParE name="rotateSolid" value="0"/> 
   <ParE name="rotateSolid" value="0"/> 
-  <ParE name="rotateSolid" value="-76.3522*deg"/> 
+  <ParE name="rotateSolid" value="-76.3521*deg"/> 
   <ParE name="center" value="0"/> 
   <ParE name="center" value="0"/> 
   <ParE name="center" value="-0.63395*m"/> 
@@ -4528,12 +4529,12 @@ END COMMENT-->
   <rParent name="muonBase:MBWheel_1P"/> 
   <rChild name="YB3_w1P_t1"/> 
   <ParE name="n" value="12"/> 
-  <ParE name="startAngle" value="13.052*deg"/> 
+  <ParE name="startAngle" value="13.0516*deg"/> 
   <ParE name="rangeAngle" value="360*deg"/> 
-  <ParE name="radius" value="7.13686*m"/> 
+  <ParE name="radius" value="7.13687*m"/> 
   <ParE name="rotateSolid" value="0"/> 
   <ParE name="rotateSolid" value="0"/> 
-  <ParE name="rotateSolid" value="-103.052*deg"/> 
+  <ParE name="rotateSolid" value="-103.0516*deg"/> 
   <ParE name="center" value="0"/> 
   <ParE name="center" value="0"/> 
   <ParE name="center" value="0*m"/> 
@@ -4542,12 +4543,12 @@ END COMMENT-->
   <rParent name="muonBase:MBWheel_1N"/> 
   <rChild name="YB3_w1N_t1"/> 
   <ParE name="n" value="12"/> 
-  <ParE name="startAngle" value="13.052*deg"/> 
+  <ParE name="startAngle" value="13.0516*deg"/> 
   <ParE name="rangeAngle" value="360*deg"/> 
-  <ParE name="radius" value="7.13686*m"/> 
+  <ParE name="radius" value="7.13687*m"/> 
   <ParE name="rotateSolid" value="0"/> 
   <ParE name="rotateSolid" value="0"/> 
-  <ParE name="rotateSolid" value="-103.052*deg"/> 
+  <ParE name="rotateSolid" value="-103.0516*deg"/> 
   <ParE name="center" value="0"/> 
   <ParE name="center" value="0"/> 
   <ParE name="center" value="0*m"/> 
@@ -4624,9 +4625,9 @@ END COMMENT-->
   <ParE name="center" value="0"/> 
   <ParE name="center" value="1.0639*m"/> 
  </AlgoPosPart> 
- <PosPart copyNumber="3">
   <rParent name="muonBase:MBWheel_1N"/> 
   <rChild name="YB3Chim_w1N_t3"/> 
+  <PosPart copyNumber="3">
   <rRotation name="rotations:R330"/>
   <Translation x="6.9613*m*cos(62.8811*deg)" y="6.9613*m*sin(62.8811*deg)" z="1.0639*m" />
  </PosPart> 
@@ -4734,9 +4735,9 @@ END COMMENT-->
   <ParE name="center" value="0"/> 
   <ParE name="center" value="1.0639*m"/> 
  </AlgoPosPart> 
- <PosPart copyNumber="3">
   <rParent name="muonBase:MBWheel_1N"/> 
   <rChild name="YB3Chim_w1N_t5"/> 
+  <PosPart copyNumber="3">
   <rRotation name="rotations:R330"/>
   <Translation x="6.9613*m*cos(57.1189*deg)" y="6.9613*m*sin(57.1189*deg)" z="1.0639*m" />
  </PosPart> 
@@ -4828,12 +4829,12 @@ END COMMENT-->
   <rParent name="muonBase:MBWheel_2P"/> 
   <rChild name="YB3_w2P_t1"/> 
   <ParE name="n" value="12"/> 
-  <ParE name="startAngle" value="13.052*deg"/> 
+  <ParE name="startAngle" value="13.0516*deg"/> 
   <ParE name="rangeAngle" value="360*deg"/> 
-  <ParE name="radius" value="7.13686*m"/> 
+  <ParE name="radius" value="7.13687*m"/> 
   <ParE name="rotateSolid" value="0"/> 
   <ParE name="rotateSolid" value="0"/> 
-  <ParE name="rotateSolid" value="-103.052*deg"/> 
+  <ParE name="rotateSolid" value="-103.0516*deg"/> 
   <ParE name="center" value="0"/> 
   <ParE name="center" value="0"/> 
   <ParE name="center" value="0*m"/> 
@@ -4842,12 +4843,12 @@ END COMMENT-->
   <rParent name="muonBase:MBWheel_2N"/> 
   <rChild name="YB3_w2N_t1"/> 
   <ParE name="n" value="12"/> 
-  <ParE name="startAngle" value="13.052*deg"/> 
+  <ParE name="startAngle" value="13.0516*deg"/> 
   <ParE name="rangeAngle" value="360*deg"/> 
-  <ParE name="radius" value="7.13686*m"/> 
+  <ParE name="radius" value="7.13687*m"/> 
   <ParE name="rotateSolid" value="0"/> 
   <ParE name="rotateSolid" value="0"/> 
-  <ParE name="rotateSolid" value="-103.052*deg"/> 
+  <ParE name="rotateSolid" value="-103.0516*deg"/> 
   <ParE name="center" value="0"/> 
   <ParE name="center" value="0"/> 
   <ParE name="center" value="0*m"/> 

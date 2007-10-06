@@ -53,46 +53,80 @@
 <!-- ####  MB1: DTBX chamber -->
  <!--%% In MB1 the widest superlayer in x is the Z one -->
  <Box name="MB1_a" dx="[MB1_x]" dy="[mbCommon:MBSLPhiPlO_z]+12.*mm" dz="[mbCommon:MBHeight_With2RPC]"/>
- <Box name="MB1_OLAP1" dx="17.*mm" dy="[mbCommon:MBSLPhiPlO_z]+13.*mm" dz="10.*mm"/>
- <Box name="MB1_OLAP2" dx="14.*mm" dy="[mbCommon:MBSLPhiPlO_z]+13.*mm" dz="37.5*mm"/>
- <Box name="MB1_OLAP3" dx="1.*mm" dy="[mbCommon:MBSLPhiPlO_z]+13.*mm" dz="2.5*mm"/>
-
- <SubtractionSolid name="MB1P_b">
-  <rSolid name="MB1_a"/>
-  <rSolid name="MB1_OLAP1"/>
-  <rRotation name="rotations:000D"/>
-  <Translation x="-[MB1_x]+16.*mm" y="0.*fm" z="[mbCommon:MBHeight_With2RPC]-9.3*mm"/>
- </SubtractionSolid>
- <SubtractionSolid name="MB1P_c">
-  <rSolid name="MB1P_b"/>
-  <rSolid name="MB1_OLAP2"/>
-  <rRotation name="rotations:000D"/>
-  <Translation x="-[MB1_x]+13.*mm" y="0.*fm" z="[mbCommon:MBHeight_With2RPC]-36.7*mm"/>
- </SubtractionSolid>
- <SubtractionSolid name="MB1P">
-  <rSolid name="MB1P_c"/>
-  <rSolid name="MB1_OLAP3"/>
-  <rRotation name="rotations:000D"/>
-  <Translation x="[MB1_x]-0.5*mm" y="0.*fm" z="[mbCommon:MBHeight_With2RPC]-1.*mm"/>
- </SubtractionSolid>
+ <Box name="MB1_OLAP1" dx="17.*mm" dy="[mbCommon:MBSLPhiPlO_z]+13.*mm" dz="15.*mm"/>
+ <Box name="MB1_OLAP2" dx="5.6*mm" dy="[mbCommon:MBSLPhiPlO_z]+13.*mm" dz="6.6*mm"/>
+ <Box name="MB1_OLAP3" dx="10.*mm" dy="[mbCommon:MBSLPhiPlO_z]+13.*mm" dz="20.*mm"/>
+ <Box name="MB1_OLAP4" dx="20.*mm" dy="[mbCommon:MBSLPhiPlO_z]+13.*mm" dz="40.*mm"/>
 
  <SubtractionSolid name="MB1N_b">
   <rSolid name="MB1_a"/>
   <rSolid name="MB1_OLAP1"/>
   <rRotation name="rotations:000D"/>
-  <Translation x="[MB1_x]-16.*mm" y="0.*fm" z="[mbCommon:MBHeight_With2RPC]-9.3*mm"/>
+  <Translation x="[MB1_x]-16.8*mm" y="0.*fm" z="-[mbCommon:MBHeight_With2RPC]+14.8*mm"/>
  </SubtractionSolid>
- <SubtractionSolid name="MB1N_c">
+
+ <UnionSolid name="MB1N">
   <rSolid name="MB1N_b"/>
   <rSolid name="MB1_OLAP2"/>
   <rRotation name="rotations:000D"/>
-  <Translation x="[MB1_x]-13.*mm" y="0.*fm" z="[mbCommon:MBHeight_With2RPC]-36.7*mm"/>
- </SubtractionSolid>
- <SubtractionSolid name="MB1N">
-  <rSolid name="MB1N_c"/>
+  <Translation x="-[MB1_x]-5.5*mm" y="0.*fm" z="-[mbCommon:MBHeight_With2RPC]+6.5*mm"/>
+ </UnionSolid>
+
+ <UnionSolid name="MB1Nw0_c">
+  <rSolid name="MB1N_b"/>
+  <rSolid name="MB1_OLAP2"/>
+  <rRotation name="rotations:000D"/>
+  <Translation x="-[MB1_x]-5.5*mm" y="0.*fm" z="-[mbCommon:MBHeight_With2RPC]+6.5*mm"/>
+ </UnionSolid>
+
+ <SubtractionSolid name="MB1Nw0_d">
+  <rSolid name="MB1Nw0_c"/>
   <rSolid name="MB1_OLAP3"/>
   <rRotation name="rotations:000D"/>
-  <Translation x="-[MB1_x]+0.5*mm" y="0.*fm" z="[mbCommon:MBHeight_With2RPC]-1.*mm"/>
+  <Translation x="-[MB1_x]+10.5*mm" y="0.*fm" z="[mbCommon:MBHeight_With2RPC]-20.5*mm"/>
+ </SubtractionSolid>
+
+ <SubtractionSolid name="MB1Nw0">
+  <rSolid name="MB1Nw0_d"/>
+  <rSolid name="MB1_OLAP4"/>
+  <rRotation name="rotations:000D"/>
+  <Translation x="[MB1_x]-20.5*mm" y="0.*fm" z="[mbCommon:MBHeight_With2RPC]-40.5*mm"/>
+ </SubtractionSolid>
+
+
+ <SubtractionSolid name="MB1P_b">
+  <rSolid name="MB1_a"/>
+  <rSolid name="MB1_OLAP1"/>
+  <rRotation name="rotations:000D"/>
+  <Translation x="-[MB1_x]+16.8*mm" y="0.*fm" z="-[mbCommon:MBHeight_With2RPC]+14.8*mm"/>
+ </SubtractionSolid>
+
+ <UnionSolid name="MB1P">
+  <rSolid name="MB1P_b"/>
+  <rSolid name="MB1_OLAP2"/>
+  <rRotation name="rotations:000D"/>
+  <Translation x="[MB1_x]-5.5*mm" y="0.*fm" z="-[mbCommon:MBHeight_With2RPC]+6.5*mm"/>
+ </UnionSolid>
+
+ <UnionSolid name="MB1Pw0_c">
+  <rSolid name="MB1P_b"/>
+  <rSolid name="MB1_OLAP2"/>
+  <rRotation name="rotations:000D"/>
+  <Translation x="-[MB1_x]-5.5*mm" y="0.*fm" z="-[mbCommon:MBHeight_With2RPC]+6.5*mm"/>
+ </UnionSolid>
+
+ <SubtractionSolid name="MB1Pw0_d">
+  <rSolid name="MB1Pw0_c"/>
+  <rSolid name="MB1_OLAP3"/>
+  <rRotation name="rotations:000D"/>
+  <Translation x="-[MB1_x]+10.5*mm" y="0.*fm" z="[mbCommon:MBHeight_With2RPC]-20.5*mm"/>
+ </SubtractionSolid>
+
+ <SubtractionSolid name="MB1Pw0">
+  <rSolid name="MB1Pw0_d"/>
+  <rSolid name="MB1_OLAP4"/>
+  <rRotation name="rotations:000D"/>
+  <Translation x="[MB1_x]-20.5*mm" y="0.*fm" z="[mbCommon:MBHeight_With2RPC]-40.5*mm"/>
  </SubtractionSolid>
 
 
@@ -197,44 +231,35 @@
 <!-- ####  MB1Chimney Unit -->
 <!-- ####  MB1Chim: DTBX chamber -->
  <Box name="MB1Chim_a" dx="[MB1_x]" dy="[mbCommon:MBChimSLPhiPlO_z]+12.*mm" dz="[mbCommon:MBHeight_With2RPC]"/>
-
- <SubtractionSolid name="MB1ChimP_b">
-  <rSolid name="MB1Chim_a"/>
-  <rSolid name="MB1_OLAP1"/>
-  <rRotation name="rotations:000D"/>
-  <Translation x="-[MB1_x]+16.*mm" y="0.*fm" z="[mbCommon:MBHeight_With2RPC]-9.3*mm"/>
- </SubtractionSolid>
- <SubtractionSolid name="MB1ChimP_c">
-  <rSolid name="MB1ChimP_b"/>
-  <rSolid name="MB1_OLAP2"/>
-  <rRotation name="rotations:000D"/>
-  <Translation x="-[MB1_x]+13.*mm" y="0.*fm" z="[mbCommon:MBHeight_With2RPC]-36.7*mm"/>
- </SubtractionSolid>
- <SubtractionSolid name="MB1ChimP">
-  <rSolid name="MB1ChimP_c"/>
-  <rSolid name="MB1_OLAP3"/>
-  <rRotation name="rotations:000D"/>
-  <Translation x="[MB1_x]-0.5*mm" y="0.*fm" z="[mbCommon:MBHeight_With2RPC]-1.*mm"/>
- </SubtractionSolid>
+ <Box name="MB1Chim_OLAP2" dx="5.6*mm" dy="[mbCommon:MBChimSLPhiPlO_z]+13.*mm" dz="6.6*mm"/>
 
  <SubtractionSolid name="MB1ChimN_b">
   <rSolid name="MB1Chim_a"/>
   <rSolid name="MB1_OLAP1"/>
   <rRotation name="rotations:000D"/>
-  <Translation x="[MB1_x]-16.*mm" y="0.*fm" z="[mbCommon:MBHeight_With2RPC]-9.3*mm"/>
+  <Translation x="[MB1_x]-16.8*mm" y="0.*fm" z="-[mbCommon:MBHeight_With2RPC]+14.8*mm"/>
  </SubtractionSolid>
- <SubtractionSolid name="MB1ChimN_c">
+
+ <UnionSolid name="MB1ChimN">
   <rSolid name="MB1ChimN_b"/>
+  <rSolid name="MB1Chim_OLAP2"/>
+  <rRotation name="rotations:000D"/>
+  <Translation x="-[MB1_x]-5.5*mm" y="0.*fm" z="-[mbCommon:MBHeight_With2RPC]+6.5*mm"/>
+ </UnionSolid>
+
+ <SubtractionSolid name="MB1ChimP_b">
+  <rSolid name="MB1Chim_a"/>
+  <rSolid name="MB1_OLAP1"/>
+  <rRotation name="rotations:000D"/>
+  <Translation x="-[MB1_x]+16.8*mm" y="0.*fm" z="-[mbCommon:MBHeight_With2RPC]+14.8*mm"/>
+ </SubtractionSolid>
+
+ <UnionSolid name="MB1ChimP">
+  <rSolid name="MB1ChimP_b"/>
   <rSolid name="MB1_OLAP2"/>
   <rRotation name="rotations:000D"/>
-  <Translation x="[MB1_x]-13.*mm" y="0.*fm" z="[mbCommon:MBHeight_With2RPC]-36.7*mm"/>
- </SubtractionSolid>
- <SubtractionSolid name="MB1ChimN">
-  <rSolid name="MB1ChimN_c"/>
-  <rSolid name="MB1_OLAP3"/>
-  <rRotation name="rotations:000D"/>
-  <Translation x="-[MB1_x]+0.5*mm" y="0.*fm" z="[mbCommon:MBHeight_With2RPC]-1.*mm"/>
- </SubtractionSolid>
+  <Translation x="[MB1_x]+5.5*mm" y="0.*fm" z="-[mbCommon:MBHeight_With2RPC]+6.5*mm"/>
+ </UnionSolid>
 
  <!-- ####  MB1Chim: DT Superlayers Phi -->
  <Box name="MB1ChimSuperLayerPhi" dx="[mb1:MB1SLPhiPl_x]+2.7*mm" dy="[mbCommon:MBChimSLPhiPlO_z]+12.*mm" dz="[mbCommon:MBSuperLayer_height]"/>
@@ -288,13 +313,17 @@
   <rSolid name="MB1P"/>
   <rMaterial name="materials:M_B_Air"/>
  </LogicalPart>
+ <LogicalPart name="MB1P0" category="unspecified">
+  <rSolid name="MB1Pw0"/>
+  <rMaterial name="materials:M_B_Air"/>
+ </LogicalPart>
  <LogicalPart name="MB1N" category="unspecified">
   <rSolid name="MB1N"/>
   <rMaterial name="materials:M_B_Air"/>
  </LogicalPart>
 <!-- # In wheel_0, all the RPC chambers are Positive, while the DT are half positive, half negative -->
  <LogicalPart name="MB1N0P" category="unspecified">
-  <rSolid name="MB1N"/>
+  <rSolid name="MB1Nw0"/>
   <rMaterial name="materials:M_B_Air"/>
  </LogicalPart>
 
@@ -671,7 +700,7 @@
   </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
    <rParent name="muonBase:MBWheel_0"/>
-   <rChild name="mb1:MB1P"/>
+   <rChild name="mb1:MB1P0"/>
    <ParE name="startCopyNo" value="2" />
    <ParE name="incrCopyNo" value="4" />
    <ParE name="n" value="3" />
@@ -689,7 +718,7 @@
   </AlgoPosPart>
   <AlgoPosPart algo="global:angular">
    <rParent name="muonBase:MBWheel_0"/>
-   <rChild name="mb1:MB1P"/>
+   <rChild name="mb1:MB1P0"/>
    <ParE name="startCopyNo" value="3" />
    <ParE name="incrCopyNo" value="4" />
    <ParE name="n" value="3" />
@@ -863,6 +892,16 @@
  </PosPart>
  <PosPart copyNumber="3">
    <rParent name="mb1:MB1P"/>
+   <rChild name="mb1:MB1SuperLayerPhi"/>
+  <Translation x="[mb1:MB1pSLPhi2_HC_dist]" y="0*fm" z="-[mbCommon:MBSL_pos_z]" />
+ </PosPart>
+ <PosPart copyNumber="1">
+   <rParent name="mb1:MB1P0"/>
+   <rChild name="mb1:MB1SuperLayerPhi"/>
+  <Translation x="[mb1:MB1pSLPhi1_HC_dist]" y="0*fm" z="[mbCommon:MBSL_pos_z]" />
+ </PosPart>
+ <PosPart copyNumber="3">
+   <rParent name="mb1:MB1P0"/>
    <rChild name="mb1:MB1SuperLayerPhi"/>
   <Translation x="[mb1:MB1pSLPhi2_HC_dist]" y="0*fm" z="-[mbCommon:MBSL_pos_z]" />
  </PosPart>
@@ -1077,6 +1116,12 @@
   <rRotation name="rotations:R270"/>
  </PosPart>
  <PosPart copyNumber="2">
+   <rParent name="mb1:MB1P0"/>
+   <rChild name="mb1:MB1SuperLayerZ"/>
+  <Translation x="[mb1:MB1pSLZ_HC_dist]" y="0.*mm" z="-[mbCommon:MBHC_height]" />
+  <rRotation name="rotations:R270"/>
+ </PosPart>
+ <PosPart copyNumber="2">
    <rParent name="mb1:MB1N"/>
    <rChild name="mb1:MB1SuperLayerZ"/>
   <Translation x="[mb1:MB1nSLZ_HC_dist]" y="0.*mm" z="-[mbCommon:MBHC_height]" />
@@ -1276,6 +1321,11 @@
   <Translation x="0*fm" y="0*fm" z="[mbCommon:MBSuperLayer_height]" />
  </PosPart>
  <PosPart copyNumber="1">
+   <rParent name="mb1:MB1P0"/>
+   <rChild name="mb1:MB1HoneycombBox"/>
+  <Translation x="0*fm" y="0*fm" z="[mbCommon:MBSuperLayer_height]" />
+ </PosPart>
+ <PosPart copyNumber="1">
    <rParent name="mb1:MB1N"/>
    <rChild name="mb1:MB1HoneycombBox"/>
   <Translation x="0*fm" y="0*fm" z="[mbCommon:MBSuperLayer_height]" />
@@ -1373,6 +1423,11 @@
   <Translation x="[mb1:MB1RPC_I_x_pos]" y="0*fm" z="[mbCommon:MBRPC_z_pos]" />
  </PosPart>
  <PosPart copyNumber="1">
+   <rParent name="mb1:MB1P0"/>
+   <rChild name="mb1:MB1RPC_IP"/>
+  <Translation x="[mb1:MB1RPC_I_x_pos]" y="0*fm" z="[mbCommon:MBRPC_z_pos]" />
+ </PosPart>
+ <PosPart copyNumber="1">
    <rParent name="mb1:MB1RPC_IP"/>
    <rChild name="mb1:MB1RPC_IGasLeft"/>  
   <rRotation name="rotations:R180" />
@@ -1387,6 +1442,11 @@
 <!-- ##### MB1: RPC_OP chamber -->
  <PosPart copyNumber="1">
    <rParent name="mb1:MB1P"/>
+   <rChild name="mb1:MB1RPC_OP"/>
+  <Translation x="[mb1:MB1RPC_O_x_pos]" y="0*fm" z="-[mbCommon:MBRPC_z_pos]" />
+ </PosPart>
+ <PosPart copyNumber="1">
+   <rParent name="mb1:MB1P0"/>
    <rChild name="mb1:MB1RPC_OP"/>
   <Translation x="[mb1:MB1RPC_O_x_pos]" y="0*fm" z="-[mbCommon:MBRPC_z_pos]" />
  </PosPart>
