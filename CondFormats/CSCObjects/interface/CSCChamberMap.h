@@ -9,7 +9,9 @@ class CSCChamberMap{
   CSCChamberMap();
   ~CSCChamberMap();
 
-  typedef std::map< int,CSCMapItem::MapItem > CSCMap;
+  const CSCMapItem::MapItem& item( int key ) const;
+
+  typedef std::map< int, CSCMapItem::MapItem > CSCMap;
   CSCMap ch_map;
 };
 

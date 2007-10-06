@@ -9,6 +9,8 @@ class CSCChamberIndex{
   CSCChamberIndex();
   ~CSCChamberIndex();
 
+  const CSCMapItem::MapItem& item( int key )const;
+
   typedef std::vector< CSCMapItem::MapItem > CSCVector;
   CSCVector ch_index;
 };

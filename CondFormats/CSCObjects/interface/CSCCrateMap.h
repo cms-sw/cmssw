@@ -9,6 +9,8 @@ class CSCCrateMap{
   CSCCrateMap();
   ~CSCCrateMap();  
 
+  const CSCMapItem::MapItem& item( int key )const;
+
   typedef std::map< int,CSCMapItem::MapItem > CSCMap;
   CSCMap crate_map;
 };

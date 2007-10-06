@@ -9,6 +9,8 @@ class CSCDDUMap{
   CSCDDUMap();
   ~CSCDDUMap();
 
+  const CSCMapItem::MapItem& item( int key )const;
+
   typedef std::map< int,CSCMapItem::MapItem > CSCMap;
   CSCMap ddu_map;
 };
