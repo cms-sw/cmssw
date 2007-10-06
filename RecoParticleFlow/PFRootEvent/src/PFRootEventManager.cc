@@ -888,7 +888,7 @@ bool PFRootEventManager::processEntry(int entry) {
 //   else 
 //     return false;
   
-//   return goodevent;
+  return goodevent;
 
 }
 

@@ -13,7 +13,7 @@ PFRootEventManagerColin::PFRootEventManagerColin(const char* file)
   
   tauEvent_ = 0;
   neutralEvent_ = 0;
-  outTree_ = 0;   
+  outTreeMy_ = 0;   
   
 //   readOptions(file, false, false);
   
@@ -21,8 +21,8 @@ PFRootEventManagerColin::PFRootEventManagerColin(const char* file)
 //   neutralEvent_ = new NeutralEvent();  
 
 //   tauEvent_ = new TauEvent();  
-//   outTree_ = new TTree("Tau","");
-//   outTree_->Branch("event","TauEvent", &tauEvent_,32000,2);
+//   outTreeMy_ = new TTree("Tau","");
+//   outTreeMy_->Branch("event","TauEvent", &tauEvent_,32000,2);
 
   readSpecificOptions(file);
 
@@ -30,7 +30,7 @@ PFRootEventManagerColin::PFRootEventManagerColin(const char* file)
 
 PFRootEventManagerColin::~PFRootEventManagerColin() {
 //   delete event_;
-//   delete outTree_;
+//   delete outTreeMy_;
 }
 
 
@@ -43,22 +43,22 @@ void PFRootEventManagerColin::readSpecificOptions(const char* file) {
   
   options_->GetOpt("colin", "mode", mode_);
 
-  if(outTree_) delete outTree_;
+  if(outTreeMy_) delete outTreeMy_;
   
   outFile_->cd();
   switch(mode_) {
   case Neutral:
     cout<<"colin: Neutral mode"<<endl;
     neutralEvent_ = new NeutralEvent();  
-    outTree_ = new TTree("Neutral","");
-    outTree_->Branch("event","NeutralEvent", &neutralEvent_,32000,2);
+    outTreeMy_ = new TTree("Neutral","");
+    outTreeMy_->Branch("event","NeutralEvent", &neutralEvent_,32000,2);
     gDirectory->ls();
     break;
   case HIGH_E_TAUS:
     cout<<"colin: highETaus mode"<<endl;
     tauEvent_ = new TauEvent();  
-    outTree_ = new TTree("Tau","");
-    outTree_->Branch("event","TauEvent", &tauEvent_,32000,2);
+    outTreeMy_ = new TTree("Tau","");
+    outTreeMy_->Branch("event","TauEvent", &tauEvent_,32000,2);
     gDirectory->ls();
     break;
   default:
@@ -78,7 +78,7 @@ bool PFRootEventManagerColin::processEntry(int entry) {
     // cerr<<"event was not accepted"<<endl;
     // print();
     tauEvent_->rCode = 10;
-    outTree_->Fill();
+    outTreeMy_->Fill();
     return false; // event not accepted
   }
 //   else 
@@ -99,7 +99,7 @@ bool PFRootEventManagerColin::processEntry(int entry) {
     cerr<<"colin: undefined mode"<<endl;
     assert(0);
   }
-  outTree_->Fill();
+  outTreeMy_->Fill();
 
   return rvalue;
 }
@@ -172,7 +172,7 @@ bool PFRootEventManagerColin::processNeutral() {
   }
 
   
-  outTree_->Fill();
+  outTreeMy_->Fill();
   
   if(  neutralEvent_->nECAL<1 && neutralEvent_->eNeutral<1 )
     return true;
@@ -236,10 +236,10 @@ bool PFRootEventManagerColin::processHIGH_E_TAUS() {
 
 
   
-  double pHadron = trueParticles_[iHadron].extrapolatedPoint(reco::PFTrajectoryPoint::ClosestApproach ).momentum().P();
- 
-  
+  double pHadron = trueParticles_[iHadron].extrapolatedPoint(reco::PFTrajectoryPoint::ClosestApproach ).momentum().P(); 
   tauEvent_->pHadron = pHadron;
+
+  tauEvent_->eEcalHadron = trueParticles_[iHadron].ecalEnergy();
   
   if(nPi0 == 1) {
     math::XYZTLorentzVector pi0mom =  trueParticles_[iPi0].extrapolatedPoint(reco::PFTrajectoryPoint::ClosestApproach ).momentum();
@@ -415,6 +415,8 @@ bool PFRootEventManagerColin::processHIGH_E_TAUS() {
 void PFRootEventManagerColin::write() {
   // write histos here
   outFile_->cd();
-  outTree_->Write();
+  outTreeMy_->Write();
+
+  PFRootEventManager::write();
 }
 

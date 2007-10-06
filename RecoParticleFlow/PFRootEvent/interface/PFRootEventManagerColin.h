@@ -46,6 +46,7 @@ class TauEvent : public NeutralEvent {
     ptTrack = -1;
     etaTrack = -10;
     pHadron = -1;
+    eEcalHadron = -1;
     chi2ECAL = -1;
   }
   
@@ -54,6 +55,7 @@ class TauEvent : public NeutralEvent {
   double ptTrack;
   double etaTrack;
   double pHadron;
+  double eEcalHadron;
   double chi2ECAL;
 };
 
@@ -80,7 +82,7 @@ class PFRootEventManagerColin : public PFRootEventManager {
     HIGH_E_TAUS=1
   };
 
-  TTree          *outTree_;
+  TTree          *outTreeMy_;
   NeutralEvent   *neutralEvent_;
   TauEvent       *tauEvent_;
   int             mode_;
