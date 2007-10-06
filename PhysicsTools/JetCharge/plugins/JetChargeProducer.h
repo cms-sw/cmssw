@@ -5,15 +5,14 @@
 #include "FWCore/ParameterSet/interface/InputTag.h"
 
 #include "DataFormats/JetReco/interface/Jet.h"
-#include "DataFormats/JetReco/interface/JetToFloatAssociation.h"
-#include "DataFormats/BTauReco/interface/JetTracksAssociation.h"
+#include "DataFormats/JetReco/interface/JetFloatAssociation.h"
+#include "DataFormats/JetReco/interface/JetTracksAssociation.h"
 
 #include "PhysicsTools/JetCharge/interface/JetCharge.h"
 
 class JetChargeProducer : public edm::EDProducer {
     public:
-        typedef reco::JetToFloatAssociation::Container JetChargeCollection;
-        typedef JetChargeCollection::value_type JetChargePair;
+        typedef reco::JetFloatAssociation::Container JetChargeCollection;
 
         explicit JetChargeProducer(const edm::ParameterSet &cfg) ;
         virtual void produce(edm::Event&, const edm::EventSetup&);

@@ -13,12 +13,11 @@ void JetChargeProducer::produce(edm::Event &iEvent, const edm::EventSetup &iSetu
     typedef edm::RefToBase<reco::Jet>  JetRef;
 
     std::auto_ptr<JetChargeCollection> ret(new JetChargeCollection());
-    ret->reserve(hJTAs->size());
     for (IT it = hJTAs->begin(), ed = hJTAs->end(); it != ed; ++it) {
         const JetRef &jet = it->first;
         const reco::TrackRefVector &tracks = it->second;
         float  val = static_cast<float>( algo_.charge(jet->p4(), tracks) );
-        ret->push_back(JetChargePair(jet, val));
+        reco::JetFloatAssociation::setValue(*ret, jet, val);
     }
 
     iEvent.put(ret);        

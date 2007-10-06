@@ -7,7 +7,7 @@
 #include "FWCore/ParameterSet/interface/InputTag.h"
 
 #include "DataFormats/JetReco/interface/Jet.h"
-#include "DataFormats/JetReco/interface/JetToFloatAssociation.h"
+#include "DataFormats/JetReco/interface/JetFloatAssociation.h"
 
 #include "RecoBTag/MCTools/interface/JetFlavourIdentifier.h"
 
@@ -18,7 +18,7 @@
 
 class JetChargeAnalyzer : public edm::EDAnalyzer {
     public:
-        typedef reco::JetToFloatAssociation::Container JetChargeCollection;
+        typedef reco::JetFloatAssociation::Container JetChargeCollection;
 
         explicit JetChargeAnalyzer(const edm::ParameterSet&);
         ~JetChargeAnalyzer() {}
