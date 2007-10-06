@@ -313,7 +313,6 @@ void ConvertedPhotonProducer::produce(edm::Event& theEvent, const edm::EventSetu
     seedShpItr = barrelClShpMap.find(aClus->seed());
     assert(seedShpItr != barrelClShpMap.end());
     const reco::ClusterShapeRef& seedShapeRef = seedShpItr->val;
-    double r9 = seedShapeRef->e3x3()/(aClus->rawEnergy()+aClus->preshowerEnergy());
     
     
     ///// Find the +/- pairs
@@ -401,7 +400,7 @@ void ConvertedPhotonProducer::produce(edm::Event& theEvent, const edm::EventSetu
 	
   	
 	reco::SuperClusterRef scRef(reco::SuperClusterRef(scBarrelHandle, lSC));
-	reco::ConvertedPhoton  newCandidate(scRef,  trackPairRef, 0, p4, r9,  trkPositionAtEcal, theConversionVertex, matchingBC, vtx);
+	reco::ConvertedPhoton  newCandidate(scRef,  trackPairRef, 0, p4, seedShapeRef, trkPositionAtEcal, theConversionVertex, matchingBC, vtx);
 	outputConvPhotonCollection.push_back(newCandidate);
 
 	
@@ -422,7 +421,7 @@ void ConvertedPhotonProducer::produce(edm::Event& theEvent, const edm::EventSetu
       
 
       reco::SuperClusterRef scRef(reco::SuperClusterRef(scBarrelHandle, lSC));
-      reco::ConvertedPhoton  newCandidate(scRef,  trackPairRef, 0, p4, r9,  trkPositionAtEcal, theConversionVertex, matchingBC, vtx);
+      reco::ConvertedPhoton  newCandidate(scRef,  trackPairRef, 0, p4, seedShapeRef, trkPositionAtEcal, theConversionVertex, matchingBC, vtx);
 
       
 
@@ -449,7 +448,6 @@ void ConvertedPhotonProducer::produce(edm::Event& theEvent, const edm::EventSetu
     seedShpItr = endcapClShpMap.find(aClus->seed());
     assert(seedShpItr != endcapClShpMap.end());
     const reco::ClusterShapeRef& seedShapeRef = seedShpItr->val;
-    double r9 = seedShapeRef->e3x3()/(aClus->rawEnergy()+aClus->preshowerEnergy());
     
     
     
@@ -543,7 +541,7 @@ void ConvertedPhotonProducer::produce(edm::Event& theEvent, const edm::EventSetu
 	
 	
 	reco::SuperClusterRef scRef(reco::SuperClusterRef(scEndcapHandle, lSC));
-	reco::ConvertedPhoton  newCandidate(scRef,  trackPairRef, 0, p4, r9,  trkPositionAtEcal, theConversionVertex, matchingBC,  vtx );
+	reco::ConvertedPhoton  newCandidate(scRef,  trackPairRef, 0, p4, seedShapeRef, trkPositionAtEcal, theConversionVertex, matchingBC,  vtx );
 
 	
 	
@@ -568,7 +566,7 @@ void ConvertedPhotonProducer::produce(edm::Event& theEvent, const edm::EventSetu
       
       
       reco::SuperClusterRef scRef(reco::SuperClusterRef(scEndcapHandle, lSC));
-      reco::ConvertedPhoton  newCandidate(scRef,  trackPairRef, 0, p4, r9, trkPositionAtEcal, theConversionVertex, matchingBC, vtx);
+      reco::ConvertedPhoton  newCandidate(scRef,  trackPairRef, 0, p4, seedShapeRef, trkPositionAtEcal, theConversionVertex, matchingBC, vtx);
       
      
      

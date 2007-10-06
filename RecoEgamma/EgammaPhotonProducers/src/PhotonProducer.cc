@@ -165,18 +165,17 @@ void PhotonProducer::fillPhotonCollection(
   int lSC=0; // reset local supercluster index
   for(aClus = scCollection.begin(); aClus != scCollection.end(); aClus++) {
 
-    // compute R9=E3x3/ESC
+    //Get refs to SuperCluter and ClusterShape
+    reco::SuperClusterRef scRef(reco::SuperClusterRef(scHandle, lSC));
     seedShpItr = clshpMap.find(aClus->seed());
     assert(seedShpItr != clshpMap.end());
     const reco::ClusterShapeRef& seedShapeRef = seedShpItr->val;
-    double r9 = seedShapeRef->e3x3()/(aClus->rawEnergy()+aClus->preshowerEnergy());
-    double r19 = seedShapeRef->eMax()/seedShapeRef->e3x3();
-    double e5x5 = seedShapeRef->e5x5();
 
     // recalculate position of seed BasicCluster taking shower depth for unconverted photon
     math::XYZPoint unconvPos = posCalculator_.Calculate_Location(aClus->seed()->getHitsByDetId(),hits,geometry,geometryES);
 
     // compute position of ECAL shower
+    double r9 = seedShapeRef->e3x3()/(aClus->rawEnergy()+aClus->preshowerEnergy());
     math::XYZPoint caloPosition;
     if (r9>0.93) {
       caloPosition = unconvPos;
@@ -199,11 +198,9 @@ void PhotonProducer::fillPhotonCollection(
     math::XYZVector momentum = direction.unit() * aClus->energy();
     const reco::Particle::LorentzVector  p4(momentum.x(), momentum.y(), momentum.z(), aClus->energy() );
 
-    reco::Photon newCandidate(0, p4, unconvPos, r9, r19, e5x5, hasSeed, vtx);
+    reco::Photon newCandidate(0, p4, unconvPos, scRef, seedShapeRef, hasSeed, vtx);
 
     outputPhotonCollection.push_back(newCandidate);
-    reco::SuperClusterRef scRef(reco::SuperClusterRef(scHandle, lSC));
-    outputPhotonCollection[iSC].setSuperCluster(scRef);
  
     iSC++;
     lSC++;

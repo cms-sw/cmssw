@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Thu May 25 11:10:50 CDT 2006
-// $Id: PhotonCorrectionProducer.cc,v 1.15 2007/03/12 18:54:42 futyand Exp $
+// $Id: PhotonCorrectionProducer.cc,v 1.16 2007/09/08 13:31:14 ratnik Exp $
 //
 
 #include "RecoEgamma/EgammaPhotonProducers/interface/PhotonCorrectionProducer.h"
@@ -117,9 +117,8 @@ void PhotonCorrectionProducer::produce(edm::Event& evt, const edm::EventSetup& e
       
       float correctedEnergy = (ph->superCluster()->rawEnergy() +
 	                       ph->superCluster()->preshowerEnergy())*corrfactor;
-      reco::Photon correctedPhoton(ph->charge(), ph->p4()/ph->energy()*correctedEnergy, ph->unconvertedPosition(), ph->r9(), ph->r19(), ph->e5x5(), ph->hasPixelSeed(), ph->vertex());
+      reco::Photon correctedPhoton(ph->charge(), ph->p4()/ph->energy()*correctedEnergy, ph->unconvertedPosition(), ph->superCluster(), ph->seedClusterShape(), ph->hasPixelSeed(), ph->vertex());
       //std::cout << "photon energy before, after correction: " << ph->energy() << ", " << correctedPhoton.energy() << std::endl;
-      correctedPhoton.setSuperCluster(ph->superCluster());
       photon_ap->push_back(correctedPhoton);
     }
   
