@@ -48,12 +48,6 @@ namespace reco {
 namespace {
   namespace {
 
-    reco::JetTag                                                        jt;
-    reco::JetTagCollection                                              jt_c;
-    reco::JetTagRef                                                     jt_r;
-    reco::JetTagRefProd                                                 jt_rp;
-    reco::JetTagRefVector                                               jt_rv;
-    edm::Wrapper<reco::JetTagCollection>                                jt_wc;
 
     reco::SecondaryVertexTagInfo::TrackData                             sv_td;
     reco::SecondaryVertexTagInfo::VertexData                            sv_vd;

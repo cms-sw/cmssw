@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea Rizzi
 //         Created:  Thu Apr  6 09:56:23 CEST 2006
-// $Id: JetTagProducer.cc,v 1.1 2007/09/21 12:21:12 fwyzard Exp $
+// $Id: JetTagProducer.cc,v 1.2 2007/10/03 22:40:24 saout Exp $
 //
 //
 
@@ -150,10 +150,19 @@ JetTagProducer::produce(Event& iEvent, const EventSetup& iSetup)
       tagInfos[i] = cc;
     }
   }
+  //Take first tagInfo
+   Handle< View<BaseTagInfo> > &tagInfoHandle = tagInfoHandles[0];
+   JetTagCollection * jtc;
+   if(tagInfoHandle.product()->size() > 0) {
+        Jet jj =  (*tagInfoHandle->refAt(0)->jet());
+         RefToBaseProd<reco::Jet> rtbp(tagInfoHandle->refAt(0)->jet());
+         jtc = new JetTagCollection(RefToBaseProd<reco::Jet>(rtbp));
+    }
+   else jtc = new JetTagCollection();
+
+  std::auto_ptr<JetTagCollection> jetTagCollection(jtc);
 
   // now loop over the map and compute all JetTags
-  std::auto_ptr<JetTagCollection> jetTagCollection(new JetTagCollection());
-
   for(JetToTagInfoMap::const_iterator iter = jetToTagInfos.begin();
       iter != jetToTagInfos.end(); iter++) {
     const TagInfoRefs &refs = iter->second;
@@ -172,11 +181,12 @@ JetTagProducer::produce(Event& iEvent, const EventSetup& iSetup)
     JetTagComputer::TagInfoHelper helper(tagInfos);
     float discriminator = (*m_computer)(helper);
 
-    JetTag jetTag(discriminator);
+//    JetTag jetTag(discriminator);
     // set some (the last valid) RefToBase<BaseTagInfo> until it is dropped
-    jetTag.setTagInfo(tagInfoRef);
+//    jetTag.setTagInfo(tagInfoRef);
 
-    jetTagCollection->push_back(jetTag);
+//    jetTagCollection->push_back(jetTag);
+    (*jetTagCollection)[tagInfoRef->jet()]=discriminator;
   }
 
   iEvent.put(jetTagCollection);
