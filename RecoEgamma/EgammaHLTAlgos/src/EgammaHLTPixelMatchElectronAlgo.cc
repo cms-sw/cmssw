@@ -10,7 +10,7 @@
 */
 //
 // Original Author:  Monica Vazquez Acosta (CERN)
-// $Id: EgammaHLTPixelMatchElectronAlgo.cc,v 1.3 2007/03/07 09:07:54 monicava Exp $
+// $Id: EgammaHLTPixelMatchElectronAlgo.cc,v 1.4 2007/09/07 22:08:40 ratnik Exp $
 //
 //
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
@@ -58,7 +58,7 @@ void EgammaHLTPixelMatchElectronAlgo::setupES(const edm::EventSetup& es, const e
   //  theCkfTrajectoryBuilder = new CkfTrajectoryBuilder(conf,es,theMeasurementTracker);
   theTrajectoryCleaner = new TrajectoryCleanerBySharedHits();    
   std::string trajectoryBuilderName = conf.getParameter<std::string>("TrajectoryBuilder");
-  edm::ESHandle<TrackerTrajectoryBuilder> theTrajectoryBuilderHandle;
+  edm::ESHandle<TrajectoryBuilder> theTrajectoryBuilderHandle;
   es.get<CkfComponentsRecord>().get(trajectoryBuilderName,theTrajectoryBuilderHandle);
   theCkfTrajectoryBuilder = theTrajectoryBuilderHandle.product();    
 

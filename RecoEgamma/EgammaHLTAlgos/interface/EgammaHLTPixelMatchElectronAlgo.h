@@ -36,7 +36,7 @@
 #include "TrackingTools/DetLayers/interface/NavigationSchool.h"
 
 #include "RecoTracker/TkDetLayers/interface/GeometricSearchTracker.h"
-#include "RecoTracker/CkfPattern/interface/TrackerTrajectoryBuilder.h"
+#include "TrackingTools/PatternTools/interface/TrajectoryBuilder.h"
 #include "RecoTracker/TkNavigation/interface/SimpleNavigationSchool.h"
 #include "RecoTracker/MeasurementDet/interface/MeasurementTracker.h"
 #include "RecoTracker/CkfPattern/interface/TransientInitialStateEstimator.h"
@@ -98,8 +98,7 @@ public:
   std::string assEndcapLabel_;
   std::string assEndcapInstanceName_;
 
-  const TrackerTrajectoryBuilder*  theCkfTrajectoryBuilder;
-  //  CkfTrajectoryBuilder*  theCkfTrajectoryBuilder;
+  const TrajectoryBuilder*  theCkfTrajectoryBuilder;
   TrajectoryCleaner*               theTrajectoryCleaner;
   TransientInitialStateEstimator*  theInitialStateEstimator;
   
