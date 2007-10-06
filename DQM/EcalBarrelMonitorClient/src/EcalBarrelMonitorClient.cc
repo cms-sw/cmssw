@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  *
- * $Date: 2007/09/16 15:57:19 $
- * $Revision: 1.310 $
+ * $Date: 2007/09/17 09:47:32 $
+ * $Revision: 1.311 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -850,8 +850,8 @@ void EcalBarrelMonitorClient::endLuminosityBlock(const LuminosityBlock &l, const
           sprintf(tmp,"%09d", 0);
         }
         fileName.replace(i, 9, tmp);
-        sprintf(tmp,".%04d", l.id().luminosityBlock());
-        fileName.insert(i+9, tmp, 5);
+        sprintf(tmp,"_%06d", l.id().luminosityBlock());
+        fileName.insert(i+9, tmp, 7);
       }
     }
     dbe_->save(fileName);

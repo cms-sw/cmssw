@@ -1,8 +1,8 @@
 /*
  * \file EcalEndcapMonitorClient.cc
  *
- * $Date: 2007/10/04 08:39:55 $
- * $Revision: 1.69 $
+ * $Date: 2007/10/04 09:21:56 $
+ * $Revision: 1.70 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -874,8 +874,8 @@ void EcalEndcapMonitorClient::endLuminosityBlock(const LuminosityBlock &l, const
           sprintf(tmp,"%09d", 0);
         }
         fileName.replace(i, 9, tmp);
-        sprintf(tmp,".%04d", l.id().luminosityBlock());
-        fileName.insert(i+9, tmp, 5);
+        sprintf(tmp,"_%06d", l.id().luminosityBlock());
+        fileName.insert(i+9, tmp, 7);
       }
     }
     dbe_->save(fileName);
