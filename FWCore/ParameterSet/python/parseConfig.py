@@ -2,6 +2,7 @@
 import FWCore.ParameterSet.parsecf.pyparsing as pp
 import FWCore.ParameterSet.Config as cms
 from FWCore.ParameterSet.DictTypes import SortedKeysDict
+from Mixins import PrintOptions
 
 # Questions
 #  If an include includes a parameter already defined is that an error?
@@ -245,11 +246,14 @@ def _makeLabeledVInputTag(s,loc,toks):
         cms.untracked(p)
     return (toks[0][1],p)
 
-def _makePSetFromList(values):
+def _makeDictFromList(values):
     values = _validateLabelledList(values)
     values = _findAndHandleParameterIncludes(values)
     values = _validateLabelledList(values)
-    d = dict(values)
+    return dict(values)
+
+def _makePSetFromList(values):
+    d = _makeDictFromList(values)
     p = cms.PSet(*[],**d)
     return p
     
@@ -311,12 +315,20 @@ def _makeLabeledSecSource(s,loc,toks):
     if not tracked:
         cms.untracked(ss)
     return (toks[0][1],ss)
+
 class _UsingNode(cms._ParameterTypeBase):
     """For injection purposes, pretend this is a new parameter type
        then have a post process step which strips these out
     """
     def __init__(self,label):
         self.label = label
+    def dumpPython(self, options=PrintOptions()):
+        if options.isCfg:
+            return "process."+self.label
+        else:
+            return self.label
+
+
 
 #This is ugly but I need to know the labels used by all using statements
 # in order to efficiently process the 
@@ -343,12 +355,11 @@ class _IncludeNode(cms._ParameterTypeBase):
     def pythonModuleName(self):
         # we want something like "SimMuon.DT.mod_cfi"
         return self.pythonFileRoot().replace('/','.').replace('.data.','.')
-    def __repr__(self):
-        return self.cfgRepr()
-    def cfgRepr(self):
-        return "import "+self.pythonModuleName()+"\nprocess.extend("+self.pythonModuleName()+")\n"
-    def cffRepr(self):
-        return "from "+self.pythonModuleName()+" import *"
+    def dumpPython(self, options=PrintOptions()):
+        if options.isCfg: 
+            return "import "+self.pythonModuleName()+"\nprocess.extend("+self.pythonModuleName()+")\n"
+        else:
+            return "from "+self.pythonModuleName()+" import *"
     def createIfNeeded(self):
         import os
         import os.path
@@ -662,9 +673,12 @@ class _ModuleSeries(object):
         result = "cms."+self.factory().__name__+"("+str(self)+")"
         # for whatever reason, str(self) sticks with old punctuation
         return result.replace(',','*').replace('&','+')
-    def dumpPython(self, indent, deltaindent):
-        return repr(self)
-    def cfgRepr(self, proc):
+    def dumpPython(self, options):
+        if options.isCfg:
+            return self.cfgRepr()
+        else:
+            return repr(self)
+    def cfgRepr(self):
         return "cms."+self.factory().__name__+"("+self.topNode.cfgRepr()+")"
 
 
@@ -1092,7 +1106,7 @@ def _getCompressedNodes(s,loc, values):
         compressedValues = _validateLabelledList(compressedValues)
         expandedValues = _findAndHandleProcessBlockIncludes(compressedValues)
         expandedValues = _validateLabelledList(expandedValues)
-        _findAndHandleProcessUsingBlock(expandedValues)
+        #_findAndHandleProcessUsingBlock(expandedValues)
     except Exception, e:
         raise pp.ParseFatalException(s,loc,"the process contains the error \n"+str(e))
 
@@ -1103,7 +1117,11 @@ def _dumpCfg(s,loc,toks):
     p=cms.Process(label)
 
     values = _getCompressedNodes(s, loc, list(iter(toks[0][1])) )
-
+    options = PrintOptions()
+    options.isCfg = True
+    result = "import FWCore.ParameterSet.Config as cms\nprocess = cms.Process(\""+label+"\")\n"
+    print result+dumpPython(values, options)
+    return
     result = "import FWCore.ParameterSet.Config as cms\nprocess = cms.Process(\""+label+"\")\n"
     for key,value in values:
         if isinstance(value,_IncludeNode):
@@ -1115,8 +1133,7 @@ def _dumpCfg(s,loc,toks):
         elif isinstance(value,_ModuleSeries):
             result += "process."+key+" = "+value.cfgRepr(p)+"\n"
         else:
-            #result += "process."+str(key)+" ="+value.dumpPython('','    ')
-            result += "process."+key+" = "+value.dumpPython('','    ')+"\n"
+            result += "process."+key+" = "+value.dumpPython()+"\n"
     print result
 
 
@@ -1258,22 +1275,33 @@ cfgDumper.ignore(pp.pythonStyleComment)
 
 def dumpDict(d):
     result = 'import FWCore.ParameterSet.Config as cms\n'
+    options = PrintOptions()
+    options.isCfg = False
+    return result+dumpPython(d, options)
+
+
+def dumpPython(d, options):
     # play it safe: includes first, then others, then replaces
     includes = ''
     replaces = ''
     others = ''
     sequences = ''
+    prefix = ''
+    if options.isCfg:
+        prefix = 'process.'
     for key,value in d:
         if isinstance(value,_IncludeNode):
             value.createIfNeeded()
-            includes += value.cffRepr()+"\n"
+            includes += value.dumpPython(options)+"\n"
         elif isinstance(value,_ReplaceNode):
-            replaces += repr(value)+"\n"
+            if options.isCfg:
+                value.setPrefix("process.")
+            replaces += prefix+repr(value)+"\n"
         elif isinstance(value,_ModuleSeries):
-            sequences += key+" = "+value.dumpPython('','    ')+"\n"
+            sequences += prefix+key+" = "+value.dumpPython(options)+"\n"
         else:
-            others += key+" = "+value.dumpPython('','    ')+"\n"
-    return result+includes+"\n"+others+"\n"+sequences+"\n"+replaces
+            others += prefix+key+" = "+value.dumpPython(options)+"\n"
+    return includes+"\n"+others+"\n"+sequences+"\n"+replaces
 
 class _ConfigReturn(object):
     def __init__(self,d):
@@ -1485,7 +1513,6 @@ if __name__=="__main__":
             d=dict(iter(t))
             self.assertEqual(type(d['blah']),cms.PSet)
             self.assertEqual(d['blah'].ick.value(), 1)            
-            print t
 
             t=onlyParameters.parseString("""PSet blah = {
                                          InputTag t1 = abc: 
@@ -1798,6 +1825,7 @@ process RECO = {
 """)
             self.assertEqual(t[0].outputStuff.outputCommands,["drop *","keep blah_*_*_*"])
 
+
             _allUsingLabels = set()
             t=process.parseString("""
 process RECO = {
@@ -1851,7 +1879,6 @@ process RECO = {
                                                               "keep blah1_*_*_*",
                                                               "keep blah2_*_*_*",
                                                               "keep blah3_*_*_*"])
-
             t=process.parseString("""
 process RECO = {
    block FEVTEventContent = {
@@ -2266,17 +2293,18 @@ process USER =
             t[0].dumpConfig()
 
             _allUsingLabels = set()
-            t=process.parseString(
-"""
-process RECO = {
+
+            input= """process RECO = {
    es_prefer label = FooESProd {
    }
    es_module label = FooESProd {
    }
-}""")
+}"""
+
+            t=process.parseString(input)
             self.assertEqual(t[0].label.type_(),"FooESProd")
             print t[0].dumpConfig()
-
+            #self.checkRepr(t[0].dumpConfig(), input)
             _allUsingLabels = set()
             t=process.parseString(
 """
@@ -2570,7 +2598,7 @@ process RECO = {
             t = replace.parseString('replace a.b = foobar:')
             self.checkRepr(t[0][1], "a.b = "+foobar)
             t[0][1].do(process)
-            self.assertEqual(process.a.b.configValue('',''),'foobar::')                        
+            self.assertEqual(process.a.b.configValue(),'foobar::')                        
 
             process.a = cms.EDProducer('FooProd', b=cms.VInputTag((cms.InputTag("bar"))))
             t = replace.parseString('replace a.b = {foobar:}')
