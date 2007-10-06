@@ -13,8 +13,8 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "DataFormats/TrackCandidate/interface/TrackCandidateCollection.h"
 #include "DataFormats/TrackReco/interface/Track.h"
-#include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/TrackReco/interface/TrackExtra.h"
+#include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
 #include "TrackingTools/PatternTools/interface/TrackConstraintAssociation.h"
 
@@ -26,11 +26,15 @@ class Trajectory;
 class TrajectoryStateOnSurface;
 class TransientTrackingRecHitBuilder;
 
-typedef std::pair<Trajectory*, std::pair<reco::Track*,PropagationDirection> > AlgoProduct; 
-typedef std::vector< AlgoProduct >  AlgoProductCollection;
 
+template <class T>
 class TrackProducerAlgorithm {
-  
+public:
+  typedef std::vector<T> TrackCollection;
+  typedef std::pair<Trajectory*, std::pair<T*,PropagationDirection> > AlgoProduct; 
+  typedef std::vector< AlgoProduct >  AlgoProductCollection;
+
+
  public:
 
   /// Constructor
@@ -53,7 +57,7 @@ class TrackProducerAlgorithm {
   /// Run the Final Fit taking Tracks as input (for Refitter)
   void runWithTrack(const TrackingGeometry *, 
 		    const MagneticField *, 
-		    const reco::TrackCollection&,
+		    const TrackCollection&,
 		    const TrajectoryFitter *,
 		    const Propagator *,
 		    const TransientTrackingRecHitBuilder*,
@@ -88,13 +92,33 @@ class TrackProducerAlgorithm {
 
  private:
   edm::ParameterSet conf_;
-  TransientTrackingRecHit::RecHitContainer getHitVector(const reco::Track *, PropagationDirection&, float&,
+  TransientTrackingRecHit::RecHitContainer getHitVector(const T *, PropagationDirection&, float&,
 							const TransientTrackingRecHitBuilder*);
-  TrajectoryStateOnSurface getInitialState(const reco::Track * theT,
+  TrajectoryStateOnSurface getInitialState(const T * theT,
 					   TransientTrackingRecHit::RecHitContainer& hits,
 					   const TrackingGeometry * theG,
 					   const MagneticField * theMF);
 
 };
+
+#include "RecoTracker/TrackProducer/interface/TrackProducerAlgorithm.icc"
+
+template <> bool
+TrackProducerAlgorithm<reco::Track>::buildTrack(const TrajectoryFitter *,
+						   const Propagator *,
+						   AlgoProductCollection& ,
+						   TransientTrackingRecHit::RecHitContainer&,
+						   TrajectoryStateOnSurface& ,
+						   const TrajectorySeed&,
+						   float);
+
+template <> bool
+TrackProducerAlgorithm<reco::GsfTrack>::buildTrack(const TrajectoryFitter *,
+						      const Propagator *,
+						      AlgoProductCollection& ,
+						      TransientTrackingRecHit::RecHitContainer&,
+						      TrajectoryStateOnSurface& ,
+						      const TrajectorySeed&,
+						      float);
 
 #endif

@@ -1,4 +1,4 @@
-#include "RecoTracker/TrackProducer/interface/TrackRefitter.h"
+#include "RecoTracker/TrackProducer/plugins/TrackRefitter.h"
 // system include files
 #include <memory>
 // user include files
@@ -11,7 +11,7 @@
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 
 TrackRefitter::TrackRefitter(const edm::ParameterSet& iConfig):
-  TrackProducerBase(iConfig.getParameter<bool>("TrajectoryInEvent")),
+  KfTrackProducerBase(iConfig.getParameter<bool>("TrajectoryInEvent")),
   theAlgo(iConfig)
 {
   setConf(iConfig);

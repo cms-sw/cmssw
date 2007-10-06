@@ -1,0 +1,97 @@
+#include "RecoTracker/TrackProducer/interface/TrackProducerBase.h"
+
+/// user include files
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
+#include "MagneticField/Engine/interface/MagneticField.h"
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
+#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h" 
+#include "TrackingTools/Records/interface/TrackingComponentsRecord.h" 
+#include "TrackingTools/Records/interface/TransientRecHitRecord.h" 
+
+#include "TrackingTools/PatternTools/interface/TrajectoryFitter.h"
+#include "TrackingTools/GeomPropagators/interface/Propagator.h"
+
+#include "DataFormats/Common/interface/AssociationMap.h"
+
+//destructor
+template <class T>
+TrackProducerBase<T>::~TrackProducerBase(){ }
+
+// member functions
+// ------------ method called to produce the data  ------------
+
+template <class T> void 
+TrackProducerBase<T>::getFromES(const edm::EventSetup& setup,
+				  edm::ESHandle<TrackerGeometry>& theG,
+				  edm::ESHandle<MagneticField>& theMF,
+				  edm::ESHandle<TrajectoryFitter>& theFitter,
+				  edm::ESHandle<Propagator>& thePropagator,
+				  edm::ESHandle<TransientTrackingRecHitBuilder>& theBuilder)
+{
+  //
+  //get geometry
+  //
+  LogDebug("TrackProducer") << "get geometry" << "\n";
+  setup.get<TrackerDigiGeometryRecord>().get(theG);
+  //
+  //get magnetic field
+  //
+  LogDebug("TrackProducer") << "get magnetic field" << "\n";
+  setup.get<IdealMagneticFieldRecord>().get(theMF);  
+  //
+  // get the fitter from the ES
+  //
+  LogDebug("TrackProducer") << "get the fitter from the ES" << "\n";
+  std::string fitterName = conf_.getParameter<std::string>("Fitter");   
+  setup.get<TrackingComponentsRecord>().get(fitterName,theFitter);
+  //
+  // get also the propagator
+  //
+  LogDebug("TrackProducer") << "get also the propagator" << "\n";
+  std::string propagatorName = conf_.getParameter<std::string>("Propagator");   
+  setup.get<TrackingComponentsRecord>().get(propagatorName,thePropagator);
+  //
+  // get the builder
+  //
+  LogDebug("TrackProducer") << "get also the TransientTrackingRecHitBuilder" << "\n";
+  std::string builderName = conf_.getParameter<std::string>("TTRHBuilder");   
+  setup.get<TransientRecHitRecord>().get(builderName,theBuilder);
+
+  
+
+}
+
+template <class T> void
+TrackProducerBase<T>::getFromEvt(edm::Event& theEvent,edm::Handle<TrackCandidateCollection>& theTCCollection)
+{
+  //
+  //get the TrackCandidateCollection from the event
+  //
+  LogDebug("TrackProducer") << 
+    "get the TrackCandidateCollection from the event, source is " << src_<<"\n";
+  if (pro_=="") {
+    theEvent.getByLabel(src_,theTCCollection );  
+  } else {
+    theEvent.getByLabel(pro_,src_,theTCCollection );
+  }
+}
+
+template <class T> void
+TrackProducerBase<T>::getFromEvt(edm::Event& theEvent,edm::Handle<TrackCollection>& theTCollection)
+{
+  //
+  //get the TrackCollection from the event
+  //
+  LogDebug("TrackProducer") << 
+    "get the TrackCollection from the event, source is " << src_<<"\n";
+  if (pro_=="") {
+    theEvent.getByLabel(src_,theTCollection );  
+  } else {
+    theEvent.getByLabel(pro_,src_,theTCollection );
+  }
+}
+

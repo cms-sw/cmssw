@@ -4,8 +4,8 @@
 /** \class TrackProducerBase
  *  Base Class To Produce Tracks
  *
- *  $Date: 2007/03/26 10:13:49 $
- *  $Revision: 1.1 $
+ *  $Date: 2007/03/27 07:12:05 $
+ *  $Revision: 1.11 $
  *  \author cerati
  */
 
@@ -17,14 +17,23 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
-#include "RecoTracker/TrackProducer/interface/TrackProducerAlgorithm.h"
+
+#include "DataFormats/TrackReco/interface/TrackExtra.h"
+#include "DataFormats/TrackCandidate/interface/TrackCandidateCollection.h"
 
 class Propagator;
 class TrajectoryStateUpdator;
 class MeasurementEstimator;
 class TrackerGeometry;
+class TrajectoryFitter;
+class TransientTrackingRecHitBuilder;
 
+template <class T>
 class TrackProducerBase {
+public:
+  typedef std::vector<T> TrackCollection;
+  typedef std::pair<Trajectory*, std::pair<T*,PropagationDirection> > AlgoProduct;
+  typedef std::vector< AlgoProduct >  AlgoProductCollection;
 public:
   /// Constructor
   TrackProducerBase(bool trajectoryInEvent = false):
@@ -44,15 +53,7 @@ public:
   /// Get TrackCandidateCollection from the Event (needed by TrackProducer)
   virtual void getFromEvt(edm::Event&, edm::Handle<TrackCandidateCollection>&);
   /// Get TrackCollection from the Event (needed by TrackRefitter)
-  virtual void getFromEvt(edm::Event&, edm::Handle<reco::TrackCollection>&);
-
-  /// Put produced collections in the event
-  virtual void putInEvt(edm::Event&,
-			std::auto_ptr<TrackingRecHitCollection>&,
-			std::auto_ptr<reco::TrackCollection>&,
-			std::auto_ptr<reco::TrackExtraCollection>&,
-			std::auto_ptr<std::vector<Trajectory> >&,
-			AlgoProductCollection&);
+  virtual void getFromEvt(edm::Event&, edm::Handle<TrackCollection>&);
 
   /// Method where the procduction take place. To be implemented in concrete classes
   virtual void produce(edm::Event&, const edm::EventSetup&) = 0;
@@ -75,10 +76,12 @@ public:
   edm::ParameterSet conf_;
   std::string src_;
   std::string pro_;
-  bool trajectoryInEvent_;
-  edm::OrphanHandle<reco::TrackCollection> rTracks_;
  protected:
   std::string alias_;
+  bool trajectoryInEvent_;
+  edm::OrphanHandle<TrackCollection> rTracks_;
 };
+
+#include "RecoTracker/TrackProducer/interface/TrackProducerBase.icc"
 
 #endif

@@ -1,10 +1,10 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 
-#include "RecoTracker/TrackProducer/interface/TrackProducer.h"
-#include "RecoTracker/TrackProducer/interface/TrackRefitter.h"
-#include "RecoTracker/TrackProducer/interface/GsfTrackProducer.h"
+#include "RecoTracker/TrackProducer/plugins/TrackProducer.h"
+#include "RecoTracker/TrackProducer/plugins/TrackRefitter.h"
+#include "RecoTracker/TrackProducer/plugins/GsfTrackProducer.h"
 
-DEFINE_SEAL_MODULE();
-DEFINE_ANOTHER_FWK_MODULE(TrackProducer);
-DEFINE_ANOTHER_FWK_MODULE(TrackRefitter);
-DEFINE_ANOTHER_FWK_MODULE(GsfTrackProducer);
+// DEFINE_SEAL_MODULE();
+DEFINE_FWK_MODULE(TrackProducer);
+DEFINE_FWK_MODULE(TrackRefitter);
+DEFINE_FWK_MODULE(GsfTrackProducer);
