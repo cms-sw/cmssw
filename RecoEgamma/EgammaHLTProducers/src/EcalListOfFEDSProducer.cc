@@ -32,6 +32,7 @@
 
 // Jets stuff
 #include "DataFormats/L1Trigger/interface/L1JetParticle.h"
+#include "DataFormats/L1Trigger/interface/L1JetParticleFwd.h"
 
 #include <vector>
 
