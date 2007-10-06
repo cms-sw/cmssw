@@ -23,6 +23,10 @@ namespace reco {
   
   /// collection of MuonTrackLinks
   typedef std::vector<MuonTrackLinks> MuonTrackLinksCollection;
+  
+  class CaloMuon;
+  /// collection of Muon objects
+  typedef std::vector<CaloMuon> CaloMuonCollection;
 }
 
 #endif

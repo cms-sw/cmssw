@@ -40,5 +40,10 @@
   <class name="muonisolation::Direction::Distance"/>
   <class name="reco::MuIsoDeposit::Veto"/>
   <class name="std::multimap<muonisolation::Direction::Distance,float>"/>
+
+  <class name="reco::CaloMuon"/>
+  <class name="std::vector<reco::CaloMuon>"/>
+  <class name="edm::Wrapper<std::vector<reco::CaloMuon> >"/>
+
 </lcgdict>
 

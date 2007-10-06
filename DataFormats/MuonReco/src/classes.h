@@ -1,5 +1,6 @@
 #include "DataFormats/Common/interface/Wrapper.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
+#include "DataFormats/MuonReco/interface/CaloMuon.h"
 #include "Rtypes.h" 
 #include "Math/Cartesian3D.h" 
 #include "Math/Polar3D.h" 
@@ -57,5 +58,7 @@ namespace {
     edm::RefProd<std::vector<reco::MuonTrackLinks> > tl4;
     edm::Wrapper<edm::RefVector<std::vector<reco::MuonTrackLinks> > > wtl5;
 
+    std::vector<reco::CaloMuon> smv1;
+    edm::Wrapper<std::vector<reco::CaloMuon> > smc1;
   }
 }
