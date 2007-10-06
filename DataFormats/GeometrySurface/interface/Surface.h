@@ -94,19 +94,18 @@ public:
     return  m_mpSet ? &theMediumProperties : 0;
   }
 
-  void setMediumProperties( MediumProperties mp) {
-     theMediumProperties = mp;
-      m_mpSet=true;
+  void setMediumProperties( const MediumProperties & mp ) {
+    theMediumProperties = mp;
+    m_mpSet = true;
   }
 
-  void setMediumProperties( MediumProperties* mp) {
+  void setMediumProperties( MediumProperties* mp ) {
     if (mp) {
       theMediumProperties = *mp;
-      m_mpSet=true;
-    }
-    else {
+      m_mpSet = true;
+    } else {
       theMediumProperties = MediumProperties(0.,0.);
-      m_mpSet=false;
+      m_mpSet = false;
     }
   }
 
