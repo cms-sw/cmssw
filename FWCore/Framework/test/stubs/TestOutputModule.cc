@@ -111,8 +111,10 @@ namespace edmtest
 
       try {
         prod = getTriggerResults(e);
+        //throw doesn't happen until we dereference
+        *prod;
       }
-      catch (const edm::Exception&) {
+      catch (const cms::Exception&) {
         // We did not find one as expected, nothing else to test.
         return;
       }
