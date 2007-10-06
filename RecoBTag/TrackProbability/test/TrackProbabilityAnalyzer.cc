@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea Rizzi
 //         Created:  Wed Apr 12 11:12:49 CEST 2006
-// $Id: TrackProbabilityAnalyzer.cc,v 1.6 2007/02/14 17:13:53 arizzi Exp $
+// $Id: TrackProbabilityAnalyzer.cc,v 1.7 2007/06/28 17:28:20 fwyzard Exp $
 //
 //
 
@@ -97,12 +97,12 @@ TrackProbabilityAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetu
   const TrackProbabilityTagInfoCollection & info = *(jetsInfoHandle.product());
 
   for (JetTagCollection::size_type i = 0; i < jets.size(); ++i) {
-    cout << jets[i].discriminator() <<endl;
-    cout  << "Number of associated tracks " << jets[i].tracks().size() << endl;
-    const edm::RefVector<TrackCollection> & tracks=  jets[i].tracks();
-    for (edm::RefVector<TrackCollection>::iterator j = tracks.begin(); j != tracks.end(); ++j) {
-      cout << (*j)->pt() << endl;
-    }
+   // cout << jets[i].first <<endl;
+  //  cout  << "Number of associated tracks " << jets[i].tracks().size() << endl;
+  //  const edm::RefVector<TrackCollection> & tracks=  jets[i].tracks();
+    //for (edm::RefVector<TrackCollection>::iterator j = tracks.begin(); j != tracks.end(); ++j) {
+    //  cout << (*j)->pt() << endl;
+  //  }
   }    
  
   for(TrackProbabilityTagInfoCollection::size_type i = 0 ; i < info.size() ; ++i  )
