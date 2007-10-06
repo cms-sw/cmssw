@@ -6,7 +6,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: Photon.h,v 1.11 2007/03/16 13:59:37 llista Exp $
+ * \version $Id: Photon.h,v 1.12 2007/07/31 15:20:03 ratnik Exp $
  *
  */
 #include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
@@ -19,18 +19,20 @@ namespace reco {
     Photon() : RecoCandidate() { }
     /// constructor from values
     Photon( Charge q, const LorentzVector & p4, Point unconvPos,
-	    double r9, double r19, double e5x5, bool hasPixelSeed=false,
-	    const Point & vtx = Point( 0, 0, 0 ) ) : 
-      RecoCandidate( q, p4, vtx, 22 ), unconvPosition_( unconvPos ), 
-      r9_( r9 ), r19_( r19 ), e5x5_( e5x5 ), pixelSeed_( hasPixelSeed ) { }
+	    const SuperClusterRef scl, const ClusterShapeRef shp,
+	    bool hasPixelSeed=false, const Point & vtx = Point( 0, 0, 0 ) );
     /// destructor
     virtual ~Photon();
     /// returns a clone of the candidate
     virtual Photon * clone() const;
-    /// reference to a SuperCluster
+    /// reference to SuperCluster
     virtual reco::SuperClusterRef superCluster() const;
-    /// set refrence to Photon component
+    /// reference to ClusterShape for seed BasicCluster of SuperCluster
+    virtual reco::ClusterShapeRef seedClusterShape() const;
+    /// set reference to SuperCluster
     void setSuperCluster( const reco::SuperClusterRef & r ) { superCluster_ = r; }
+    /// set reference to ClusterShape
+    void setClusterShapeRef( const reco::ClusterShapeRef & r ) { seedClusterShape_ = r; }
     /// set primary event vertex used to define photon direction
     void setVertex(const Point & vertex);
     /// position in ECAL
@@ -49,9 +51,12 @@ namespace reco {
   private:
     /// check overlap with another candidate
     virtual bool overlap( const Candidate & ) const;
+    /// position of seed BasicCluster for shower depth of unconverted photon
+    math::XYZPoint unconvPosition_;
     /// reference to a SuperCluster
     reco::SuperClusterRef superCluster_;
-    math::XYZPoint unconvPosition_;
+    /// reference to ClusterShape for seed BasicCluster of SuperCluster
+    reco::ClusterShapeRef seedClusterShape_;
     double r9_;
     double r19_;
     double e5x5_;

@@ -10,14 +10,15 @@ const double pi = M_PI, pi2 = 2 * M_PI;
 using namespace reco;
 
 PixelMatchGsfElectron::PixelMatchGsfElectron(const LorentzVector & p4,
-					     const SuperClusterRef scl, const GsfTrackRef gsft,
+					     const SuperClusterRef scl,
+					     const ClusterShapeRef shp, const GsfTrackRef gsft,
 					     const GlobalPoint tssuperPos, const GlobalVector tssuperMom, 
                                              const GlobalPoint tsseedPos, const GlobalVector tsseedMom, 
 					     const GlobalPoint innPos, const GlobalVector innMom, 
 					     const GlobalPoint vtxPos, const GlobalVector vtxMom, 
 					     const GlobalPoint outPos, const GlobalVector outMom, 
 					     const double HoE) :
-  hadOverEm_(HoE), superCluster_(scl), track_(gsft)
+  hadOverEm_(HoE), superCluster_(scl), seedClusterShape_(shp), track_(gsft)
  {
   //
   // electron particle quantities

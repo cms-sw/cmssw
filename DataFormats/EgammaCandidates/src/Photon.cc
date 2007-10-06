@@ -1,9 +1,24 @@
-// $Id: Photon.cc,v 1.6 2007/03/24 23:13:30 futyand Exp $
+// $Id: Photon.cc,v 1.7 2007/07/31 15:20:03 ratnik Exp $
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 #include "DataFormats/EgammaReco/interface/SuperClusterFwd.h" 
+#include "DataFormats/EgammaReco/interface/ClusterShape.h"
+#include "DataFormats/EgammaReco/interface/ClusterShapeFwd.h" 
 
 using namespace reco;
+
+Photon::Photon( Charge q, const LorentzVector & p4, Point unconvPos,
+		const SuperClusterRef scl, const ClusterShapeRef shp,
+		bool hasPixelSeed, const Point & vtx) : 
+  RecoCandidate( q, p4, vtx, 22 ), unconvPosition_( unconvPos ),
+  superCluster_(scl), seedClusterShape_( shp ), pixelSeed_( hasPixelSeed ) {
+
+  // compute R9=E3x3/ESC
+  r9_ = seedClusterShape_->e3x3()/(superCluster_->rawEnergy()+superCluster_->preshowerEnergy());
+  r19_ = seedClusterShape_->eMax()/seedClusterShape_->e3x3();
+  e5x5_ = seedClusterShape_->e5x5();
+  
+}
 
 Photon::~Photon() { }
 
@@ -13,6 +28,10 @@ Photon * Photon::clone() const {
 
 reco::SuperClusterRef Photon::superCluster() const {
   return superCluster_;
+}
+
+reco::ClusterShapeRef Photon::seedClusterShape() const {
+  return seedClusterShape_;
 }
 
 bool Photon::overlap( const Candidate & c ) const {

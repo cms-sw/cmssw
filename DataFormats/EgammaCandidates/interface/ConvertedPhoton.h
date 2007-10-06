@@ -6,12 +6,13 @@
  *
  * \author N.Marinelli  University of Notre Dame, US
  *
- * \version $Id: ConvertedPhoton.h,v 1.14 2007/09/17 18:28:22 nancy Exp $
+ * \version $Id: ConvertedPhoton.h,v 1.15 2007/10/05 13:32:20 nancy Exp $
  *
  */
 #include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h" 
 #include "DataFormats/EgammaReco/interface/SuperClusterFwd.h" 
+#include "DataFormats/EgammaReco/interface/ClusterShapeFwd.h" 
 #include "DataFormats/GeometryVector/interface/GlobalVector.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
@@ -25,7 +26,8 @@ namespace reco {
 
     ConvertedPhoton( const reco::SuperClusterRef sc, 
                      const std::vector<reco::TrackRef> tr, 
-                     Charge q, const LorentzVector & p4, double r9,
+                     Charge q, const LorentzVector & p4,
+		     const reco::ClusterShapeRef shp,
 		     const std::vector<math::XYZPoint> trackPositionAtEcal , 
 		     const reco::Vertex  &  convVtx,
 		     const std::vector<reco::BasicCluster> & matchingBC, 
@@ -39,6 +41,8 @@ namespace reco {
     ConvertedPhoton * clone() const;
     /// reference to a SuperCluster
     reco::SuperClusterRef superCluster() const ;
+    /// reference to ClusterShape for seed BasicCluster of SuperCluster
+    reco::ClusterShapeRef seedClusterShape() const ;
 
     /// vector of references to  tracks
     std::vector<reco::TrackRef> tracks() const ; 
@@ -84,6 +88,8 @@ namespace reco {
     reco::SuperClusterRef superCluster_;
     /// reference to a vector Track references
     std::vector<reco::TrackRef>  tracks_;
+    /// reference to ClusterShape for seed BasicCluster of SuperCluster
+    reco::ClusterShapeRef seedClusterShape_;
     double r9_;
     std::vector<math::XYZPoint>  thePositionAtEcal_;
     reco::Vertex theConversionVertex_;

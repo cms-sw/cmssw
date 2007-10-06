@@ -1,20 +1,21 @@
 #include "DataFormats/EgammaCandidates/interface/ConvertedPhoton.h"
 #include "DataFormats/TrackReco/interface/Track.h" 
 #include "DataFormats/EgammaReco/interface/SuperCluster.h" 
+#include "DataFormats/EgammaReco/interface/ClusterShape.h" 
 
 using namespace reco;
 
 ConvertedPhoton::ConvertedPhoton(  const reco::SuperClusterRef sc, 
                                    const std::vector<reco::TrackRef> tr, 
                                    Charge q, const LorentzVector & p4,
-				   double r9, 
+				   const reco::ClusterShapeRef shp, 
 				   const std::vector<math::XYZPoint> trackPositionAtEcal, 
 				   const reco::Vertex  & convVtx,
 				   const std::vector<reco::BasicCluster> & matchingBC, 
 				   const Point & vtx = Point( 0, 0, 0 ) ):  
   RecoCandidate( q, p4, vtx, 22*q ),  
-  superCluster_(sc), tracks_(tr),
-  r9_(r9), 
+  superCluster_(sc), tracks_(tr), 
+  seedClusterShape_(shp), 
   thePositionAtEcal_(trackPositionAtEcal), 
   theConversionVertex_(convVtx), 
   theMatchingBCs_(matchingBC)  {
@@ -28,9 +29,9 @@ ConvertedPhoton::ConvertedPhoton(  const reco::SuperClusterRef sc,
   makeEoverP() ;
   makePrimaryVertexZ();
 
+  r9_=seedClusterShape_->e3x3()/(superCluster_->rawEnergy()+superCluster_->preshowerEnergy());
 
- 
- }
+}
 
 
 ConvertedPhoton::~ConvertedPhoton() { }
@@ -42,6 +43,10 @@ ConvertedPhoton * ConvertedPhoton::clone() const {
 
 reco::SuperClusterRef ConvertedPhoton::superCluster() const {
   return superCluster_;
+}
+
+reco::ClusterShapeRef ConvertedPhoton::seedClusterShape() const {
+  return seedClusterShape_;
 }
 
 std::vector<reco::TrackRef>  ConvertedPhoton::tracks() const { 
