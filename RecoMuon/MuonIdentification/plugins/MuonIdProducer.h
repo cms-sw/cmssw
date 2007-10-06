@@ -20,7 +20,7 @@
 */
 //
 // Original Author:  Dmytro Kovalskyi
-// $Id: MuonIdProducer.h,v 1.4 2007/09/25 19:14:51 dmytro Exp $
+// $Id: MuonIdProducer.h,v 1.5 2007/09/27 22:39:39 dmytro Exp $
 //
 //
 
@@ -58,7 +58,7 @@ class MuonIdProducer : public edm::EDProducer {
    virtual void produce(edm::Event&, const edm::EventSetup&);
 
  private:
-   bool          fillMuonId( edm::Event&, const edm::EventSetup&, reco::Muon& aMuon );
+   void          fillMuonId( edm::Event&, const edm::EventSetup&, reco::Muon& aMuon );
    void          fillArbitrationInfo( reco::MuonCollection* );
    void          fillMuonIsolation( edm::Event&, const edm::EventSetup&, reco::Muon& aMuon );
    void          init( edm::Event&, const edm::EventSetup& );
@@ -74,6 +74,8 @@ class MuonIdProducer : public edm::EDProducer {
 
    // check if a silicon track satisfies the trackerMuon requirements
    bool          isGoodTrack( const reco::Track& track );
+   
+   bool          isGoodTrackerMuon( const reco::Muon& muon );
    
    // check number of common DetIds for a given trackerMuon and a stand alone
    // muon track
@@ -92,6 +94,7 @@ class MuonIdProducer : public edm::EDProducer {
    double minP_;
    int    minNumberOfMatches_;
    double maxAbsEta_;
+   bool   addExtraSoftMuons_;
    
    // matching
    double maxAbsDx_;

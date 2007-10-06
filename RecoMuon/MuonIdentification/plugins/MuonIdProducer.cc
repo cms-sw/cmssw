@@ -5,7 +5,7 @@
 // 
 //
 // Original Author:  Dmytro Kovalskyi
-// $Id: MuonIdProducer.cc,v 1.11 2007/09/27 22:39:39 dmytro Exp $
+// $Id: MuonIdProducer.cc,v 1.12 2007/10/01 00:27:24 dmytro Exp $
 //
 //
 
@@ -53,6 +53,7 @@ muIsoExtractorCalo_(0),muIsoExtractorTrack_(0)
    minPt_                   = iConfig.getParameter<double>("minPt");
    minP_                    = iConfig.getParameter<double>("minP");
    minNumberOfMatches_      = iConfig.getParameter<int>("minNumberOfMatches");
+   addExtraSoftMuons_       = iConfig.getParameter<bool>("addExtraSoftMuons");
    maxAbsEta_               = iConfig.getParameter<double>("maxAbsEta");
    maxAbsDx_                = iConfig.getParameter<double>("maxAbsDx");
    maxAbsPullX_             = iConfig.getParameter<double>("maxAbsPullX");
@@ -312,7 +313,8 @@ void MuonIdProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	   timers.push("MuonIdProducer::produce::fillMuonId");
 	   reco::Muon trackerMuon( makeMuon(iEvent, iSetup, reco::TrackRef( innerTrackCollectionHandle_, i ), InnerTrack ) );
 	   trackerMuon.setType( reco::Muon::TrackerMuon );
-	   if ( ! fillMuonId(iEvent, iSetup, trackerMuon) ) {
+	   fillMuonId(iEvent, iSetup, trackerMuon);
+	   if ( ! isGoodTrackerMuon( trackerMuon ) ){
 	      LogTrace("MuonIdentification") << "track failed minimal number of muon matches requirement";
 	      continue;
 	   }
@@ -409,7 +411,15 @@ void MuonIdProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
    iEvent.put(outputMuons);
 }
 
-bool MuonIdProducer::fillMuonId(edm::Event& iEvent, const edm::EventSetup& iSetup,
+bool MuonIdProducer::isGoodTrackerMuon( const reco::Muon& muon )
+{
+   if ( addExtraSoftMuons_ && 
+	muon.pt()<5 && fabs(muon.eta())<1.5 && 
+	muon.numberOfMatches( reco::Muon::NoArbitration ) >= 1 ) return true;
+   return ( muon.numberOfMatches( reco::Muon::NoArbitration ) >= minNumberOfMatches_ );
+}
+
+void MuonIdProducer::fillMuonId(edm::Event& iEvent, const edm::EventSetup& iSetup,
 				reco::Muon& aMuon)
 {
    // perform track - detector association
@@ -436,7 +446,7 @@ bool MuonIdProducer::fillMuonId(edm::Event& iEvent, const edm::EventSetup& iSetu
       muonEnergy.hoS9  = info.nXnEnergy(TrackDetMatchInfo::HORecHits,1);   // 3x3 energy
       aMuon.setCalEnergy( muonEnergy );
    }
-   if ( ! fillMatching_ || aMuon.isStandAloneMuon() ) return true;
+   if ( ! fillMatching_ || aMuon.isStandAloneMuon() ) return;
    
    // fill muon match info
    std::vector<reco::MuonChamberMatch> muonChamberMatches;
@@ -498,7 +508,6 @@ bool MuonIdProducer::fillMuonId(edm::Event& iEvent, const edm::EventSetup& iSetu
      nubmerOfMatchesAccordingToTrackAssociator;
    LogTrace("MuonIdentification") << "number of segment matches with the producer requirements: " << 
      aMuon.numberOfMatches( reco::Muon::NoArbitration );
-   return  aMuon.numberOfMatches( reco::Muon::NoArbitration ) >= minNumberOfMatches_;
 }
 
 void MuonIdProducer::fillArbitrationInfo( reco::MuonCollection* pOutputMuons )
