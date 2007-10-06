@@ -73,7 +73,7 @@ public:
     Surface(   iToCopy ), 
     m_phiSpan( iToCopy.m_phiSpan ),
     m_zSpan(   iToCopy.m_zSpan ),
-    m_rSpan(   0., 0.),
+    m_rSpan(   iToCopy.m_rSpan ),
     theBounds( iToCopy.theBounds->clone() ) 
   {}
 
@@ -81,7 +81,7 @@ public:
     Surface::operator=( iRHS );
     m_phiSpan = iRHS.m_phiSpan;
     m_zSpan   = iRHS.m_zSpan;
-    m_rSpan(   0., 0.),
+    m_rSpan   = iRHS.m_rSpan;
     theBounds.reset( iRHS.theBounds->clone() );
     return *this;
   }
