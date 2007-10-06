@@ -51,9 +51,9 @@ class _ModuleSequenceType(_ConfigureComponent, _Labelable):
             raise TypeError(msg)
     def __str__(self):
         return str(self._seq)
-    def dumpConfig(self,indent,deltaIndent):
+    def dumpConfig(self, options):
         return '{'+self._seq.dumpSequenceConfig()+'}\n'
-    def dumpPython(self,indent,deltaIndent):
+    def dumpPython(self, options):
         return repr(self)
     def __repr__(self):
         return "cms."+type(self).__name__+'('+self._seq.dumpSequencePython()+')\n'
