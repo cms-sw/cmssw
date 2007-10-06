@@ -1,4 +1,4 @@
-// $Id: RootOutputFile.cc,v 1.21 2007/10/03 22:26:42 wmtan Exp $
+// $Id: RootOutputFile.cc,v 1.23 2007/10/04 18:29:30 wmtan Exp $
 
 #include "RootOutputFile.h"
 #include "PoolOutputModule.h"
@@ -28,6 +28,7 @@
 
 #include "TTree.h"
 #include "TFile.h"
+#include "TClass.h"
 #include "Rtypes.h"
 
 #include <map>
@@ -275,8 +276,8 @@ namespace edm {
       if (i->selected_) {
 	if (product == 0) {
 	  // Add a null product.
-          ROOT::Reflex::Object object = i->branchDescription_->type_.Construct();
-    	  product = static_cast<EDProduct *>(object.Address());
+	  TClass *cp = gROOT->GetClass(wrappedClassName(i->branchDescription_->fullClassName()).c_str());
+	  product = static_cast<EDProduct *>(cp->New());
 	}
 	i->product_ = product;
       }
