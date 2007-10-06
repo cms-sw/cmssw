@@ -22,12 +22,12 @@ class CandOneToOneDeltaRMatcher : public edm::EDProducer {
   void produce( edm::Event&, const edm::EventSetup& );
   double lenght( std::vector<int> );
   std::vector<int> AlgoBruteForce(int, int);
-  std::vector<int> AlgoSwitchMethod(int,int);
+  std::vector<int> AlgoSwitchMethod(int, int);
   
   edm::InputTag source_;
   edm::InputTag matched_;
   std::vector < std::vector<float> > AllDist;
-  int algoMethod_;
+  unsigned int algoMethod_;
 
 };
 
@@ -59,8 +59,9 @@ using namespace stdcomb;
 CandOneToOneDeltaRMatcher::CandOneToOneDeltaRMatcher( const ParameterSet & cfg ) :
   source_( cfg.getParameter<InputTag>( "src" ) ),
   matched_( cfg.getParameter<InputTag>( "matched" ) ),
-  algoMethod_( cfg.getUntrackedParameter<int>("algoMethod", false) ) {
-  produces<CandMatchMap>();
+  algoMethod_( cfg.getParameter<unsigned int>( "algoMethod" ) ) {
+  produces<CandMatchMap>("src2mtc");
+  produces<CandMatchMap>("mtc2src");
 }
 
 CandOneToOneDeltaRMatcher::~CandOneToOneDeltaRMatcher() {
@@ -88,6 +89,7 @@ void CandOneToOneDeltaRMatcher::produce( Event& evt, const EventSetup& es ) {
 
   const int nMin = min( source->size() , matched->size() );
   const int nMax = max( source->size() , matched->size() );
+  if( nMin < 1 ) return;
 
   if( nSrc <= nMtc ) {
     for(CandidateCollection::const_iterator iSr  = source->begin();
@@ -130,6 +132,7 @@ void CandOneToOneDeltaRMatcher::produce( Event& evt, const EventSetup& es ) {
   // Loop size if Brute Force
   int nLoopToDo = (int) ( TMath::Factorial(nMax) / TMath::Factorial(nMax - nMin) );
   edm::LogVerbatim("CandOneToOneDeltaRMatcher") << "nLoop:" << nLoopToDo << endl;
+  edm::LogVerbatim("CandOneToOneDeltaRMatcher") << "Choosen Algo is:" << algoMethod_ ;
   vector<int> bestCB;
 
   // Algo is Brute Force
@@ -155,18 +158,24 @@ void CandOneToOneDeltaRMatcher::produce( Event& evt, const EventSetup& es ) {
 
   for(int i1=0; i1<nMin; i1++) edm::LogVerbatim("CandOneToOneDeltaRMatcher") << "min: " << i1 << " " << bestCB[i1] << " " << AllDist[i1][bestCB[i1]];
 
-  auto_ptr<CandMatchMap> matchMap( new CandMatchMap( CandMatchMap::ref_type( CandidateRefProd( source  ),
-                                                                             CandidateRefProd( matched )  ) ) );
+  auto_ptr<CandMatchMap> matchMapSrMt( new CandMatchMap( CandMatchMap::ref_type( CandidateRefProd( source  ),
+                                                                                 CandidateRefProd( matched )  ) ) );
+  auto_ptr<CandMatchMap> matchMapMtSr( new CandMatchMap( CandMatchMap::ref_type( CandidateRefProd( matched ),
+                                                                                 CandidateRefProd( source  )  ) ) );
+
 
   for( int c = 0; c != nMin; c ++ ) {
     if( source->size() <= matched->size() ) { 
-      matchMap->insert( CandidateRef( source, c   ), CandidateRef( matched, bestCB[c] ) ); 
+      matchMapSrMt->insert( CandidateRef( source,  c         ), CandidateRef( matched, bestCB[c] ) ); 
+      matchMapMtSr->insert( CandidateRef( matched, bestCB[c] ), CandidateRef( source, c          ) );
     } else {
-      matchMap->insert( CandidateRef( source, bestCB[c] ), CandidateRef( matched, c   ) );
+      matchMapSrMt->insert( CandidateRef( source,  bestCB[c] ), CandidateRef( matched, c         ) );
+      matchMapMtSr->insert( CandidateRef( matched, c         ), CandidateRef( source,  bestCB[c] ) );
     }
   }
 
-  evt.put( matchMap );
+  evt.put( matchMapSrMt, "src2mtc" );
+  evt.put( matchMapMtSr, "mtc2src" );
 
   AllDist.clear();
 }
@@ -238,7 +247,6 @@ vector<int> CandOneToOneDeltaRMatcher::AlgoSwitchMethod( int nMin, int nMax ) {
     int minInd=0;
     for(int i2=1; i2<nMax; i2++) if( AllDist[i1][i2] < AllDist[i1][minInd] ) minInd = i2; 
     bestCB.push_back(minInd);
-    cout << "min:" << bestCB[i1] << endl;
   }
 
   bool inside = true;
