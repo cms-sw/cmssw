@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2007/10/05 18:05:21 $
- *  $Revision: 1.7 $
+ *  $Date: 2007/10/05 18:17:51 $
+ *  $Revision: 1.8 $
  *
  *  \author Martin Grunewald
  *
@@ -49,7 +49,6 @@ L1TrigReport::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
   using namespace std;
   using namespace edm;
-  using namespace reco;
 
   nEvents_++;
 
