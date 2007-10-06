@@ -13,29 +13,13 @@
 
 MaterialAccountingLayer::MaterialAccountingLayer( const DetLayer & layer ) :
   m_layer( & layer ),
-  m_z(0, 0),
-  m_r(0, 0),
+  m_z( layer.surface().zSpan() ),
+  m_r( layer.surface().rSpan() ),
   m_accounting(),
   m_errors(),
   m_tracks( 0 ),
   m_counted( false )
-{
-  // FIXME: find a better way to discover the R and Z ranges
-  const GlobalPoint & position = layer.surface().position();
-  const Bounds &      bounds   = layer.surface().bounds();
-  if (const SimpleCylinderBounds * cylinder = dynamic_cast<const SimpleCylinderBounds*>(&bounds)) {
-    m_z.first  = position.z() + cylinder->theZmin;
-    m_z.second = position.z() + cylinder->theZmax;
-    m_r.first  = cylinder->theRmin;
-    m_r.second = cylinder->theRmax;
-  } else
-  if (const SimpleDiskBounds * disk = dynamic_cast<const SimpleDiskBounds*>(&bounds)) {
-    m_z.first  = position.z() + disk->theZmin;
-    m_z.second = position.z() + disk->theZmax;
-    m_r.first  = disk->theRmin;
-    m_r.second = disk->theRmax;
-  }
-}
+{ }
 
 bool MaterialAccountingLayer::addDetector( const MaterialAccountingDetector& detector ) {
   if (not inside(detector))
