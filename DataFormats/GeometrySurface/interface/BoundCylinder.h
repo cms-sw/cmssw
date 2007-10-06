@@ -10,8 +10,8 @@
  *  using the static build() method. 
  *  (The normal constructor will become private in the future).
  *
- *  $Date: 2007/01/17 20:58:42 $
- *  $Revision: 1.1 $
+ *  $Date: 2007/07/31 15:20:07 $
+ *  $Revision: 1.2 $
  */
 
 #include "DataFormats/GeometrySurface/interface/Cylinder.h"
@@ -21,8 +21,8 @@
 class BoundCylinder : public Cylinder, public BoundSurface {
 public:
 
-  typedef ReferenceCountingPointer<BoundCylinder> BoundCylinderPointer;
-  typedef ConstReferenceCountingPointer<BoundCylinder> ConstBoundCylinderPointer;
+  typedef ReferenceCountingPointer<BoundCylinder>       BoundCylinderPointer;
+  typedef ConstReferenceCountingPointer<BoundCylinder>  ConstBoundCylinderPointer;
 
   /// Construct a cylinder with origin at pos and with rotation matrix rot,
   /// with bounds. The bounds you provide are cloned.
@@ -47,8 +47,6 @@ public:
 
   virtual ~BoundCylinder() {}
 
-
-
   // -- DEPRECATED CONSTRUCTORS
 
   /// Do not use this constructor directly; use the static build method,
@@ -58,7 +56,10 @@ public:
 		const RotationType& rot,
 		Scalar radius, 
 		const Bounds& bounds) :
-      Surface( pos,rot), Cylinder( pos, rot, radius), BoundSurface(pos, rot, bounds) {}
+    Surface( pos,rot ),
+    Cylinder( pos, rot, radius), 
+    BoundSurface(pos, rot, bounds) 
+  { }
 
   /// Do not use this constructor directly; use the static build method,
   /// which returns a ReferenceCountingPointer.
@@ -68,7 +69,10 @@ public:
 		Scalar radius,
 		MediumProperties* mp,
 		const Bounds& bounds) : 
-      Surface( pos,rot), Cylinder( pos, rot, radius, mp), BoundSurface(pos, rot, bounds) {}
+    Surface( pos,rot ),
+    Cylinder( pos, rot, radius, mp ), 
+    BoundSurface( pos, rot, bounds ) 
+  { }
 
   /// Obsolete constructor, radius should be given explicitly
   BoundCylinder(const PositionType& pos, 
@@ -80,14 +84,17 @@ public:
 		const RotationType& rot, 
 		const Bounds& bounds);
 
- protected:
+protected:
   // Private constructor - use build() instead
   BoundCylinder(const PositionType& pos,
 		const RotationType& rot,
 		Scalar radius,
 		const Bounds* bounds,
 		MediumProperties* mp=0) : 
-    Surface(pos,rot, mp), Cylinder(pos, rot, radius, mp), BoundSurface(pos, rot, bounds, mp) {}
+    Surface( pos,rot ),
+    Cylinder(pos, rot, radius, mp), 
+    BoundSurface(pos, rot, bounds, mp)
+  { }
 
 };
 

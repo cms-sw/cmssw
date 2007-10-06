@@ -84,7 +84,7 @@ public:
 
   std::pair<float,float> const & phiSpan() const { return m_phiSpan; }
   std::pair<float,float> const & zSpan()   const { return m_zSpan; }
-  std::pair<float,float> const & rSpan()   const { return std::pair<float,float>(); }
+  std::pair<float,float> const & rSpan()   const { static std::pair<float,float> span; return span; }
 
 protected:
   friend void boundSpan::computeSpan(BoundSurface& plane);
@@ -94,7 +94,9 @@ private:
 
   std::pair<float,float> m_phiSpan;
   std::pair<float,float> m_zSpan;
-//std::pair<float,float> z_zSpan;       // FIXME
+  /* FIXME
+  std::pair<float,float> z_zSpan;
+  */
   
   std::auto_ptr<Bounds> theBounds;
 };
