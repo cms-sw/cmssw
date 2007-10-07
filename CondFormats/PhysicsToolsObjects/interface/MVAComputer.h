@@ -9,7 +9,7 @@
 //
 // Author:	Christophe Saout <christophe.saout@cern.ch>
 // Created:     Sat Apr 24 15:18 CEST 2007
-// $Id: MVAComputer.h,v 1.9 2007/09/16 22:51:49 saout Exp $
+// $Id: MVAComputer.h,v 1.10 2007/09/17 23:48:52 saout Exp $
 //
 
 #include <string>
@@ -91,8 +91,8 @@ class ProcCategory : public VarProcessor {
 
 class ProcNormalize : public VarProcessor {
     public:
-	std::vector<HistogramF>		distr;
-	unsigned int			nCategories;
+	std::vector<HistogramF>	distr;
+	int				categoryIdx;
 };
 
 class ProcLikelihood : public VarProcessor {
@@ -105,7 +105,7 @@ class ProcLikelihood : public VarProcessor {
 	};
 
 	std::vector<SigBkg>		pdfs;
-	unsigned int			nCategories;
+	int				categoryIdx;
 	double				bias;
 };
 
