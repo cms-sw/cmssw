@@ -13,7 +13,7 @@
 //
 // Original Author:  Suchandra Dutta
 //      Created:  Thu Oct 19 09:02:32 CEST 2006
-// $Id: InvariantMass.cc,v 1.9 2007/10/07 10:28:33 fwyzard Exp $
+// $Id: InvariantMass.cc,v 1.10 2007/10/07 13:01:05 fwyzard Exp $
 //
 //
 
@@ -115,3 +115,7 @@ InvariantMass::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
    iEvent.put( tagCollection );
    iEvent.put( extCollection );
 }
+
+#include "FWCore/PluginManager/interface/ModuleDef.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+DEFINE_FWK_MODULE(InvariantMass);
