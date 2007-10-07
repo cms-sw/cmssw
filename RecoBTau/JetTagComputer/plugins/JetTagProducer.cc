@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea Rizzi
 //         Created:  Thu Apr  6 09:56:23 CEST 2006
-// $Id: JetTagProducer.cc,v 1.2 2007/10/03 22:40:24 saout Exp $
+// $Id: JetTagProducer.cc,v 1.3 2007/10/06 11:01:43 arizzi Exp $
 //
 //
 
@@ -124,12 +124,9 @@ JetTagProducer::produce(Event& iEvent, const EventSetup& iSetup)
   // now comes the tricky part:
   // we need to collect all requested TagInfos belonging to the same jet
 
-  // FIXME: note that we are storing the index of the View here.
-  // If we drop the RefToBase in the JetTag (i.e. JetToFloatAssociation)
-  // it is simpler to just map to the C++ pointers directly here.
-  typedef std::vector<int> TagInfoRefs;
+  typedef std::vector<const BaseTagInfo*> TagInfoPtrs;
   typedef RefToBase<Jet> JetRef;
-  typedef map<JetRef, TagInfoRefs, JetRefCompare> JetToTagInfoMap;
+  typedef map<JetRef, TagInfoPtrs, JetRefCompare> JetToTagInfoMap;
 
   JetToTagInfoMap jetToTagInfos;
 
@@ -140,53 +137,41 @@ JetTagProducer::produce(Event& iEvent, const EventSetup& iSetup)
     Handle< View<BaseTagInfo> > &tagInfoHandle = tagInfoHandles[i];
     iEvent.getByLabel(m_tagInfos[i], tagInfoHandle);
 
-    int cc = 0;
     for(View<BaseTagInfo>::const_iterator iter = tagInfoHandle->begin();
-        iter != tagInfoHandle->end(); iter++, cc++) {
-      TagInfoRefs &tagInfos = jetToTagInfos[iter->jet()];
+        iter != tagInfoHandle->end(); iter++) {
+      TagInfoPtrs &tagInfos = jetToTagInfos[iter->jet()];
       if (tagInfos.empty())
-        tagInfos.resize(nTagInfos, -1);
+        tagInfos.resize(nTagInfos);
 
-      tagInfos[i] = cc;
+      tagInfos[i] = &*iter;
     }
   }
-  //Take first tagInfo
-   Handle< View<BaseTagInfo> > &tagInfoHandle = tagInfoHandles[0];
-   JetTagCollection * jtc;
-   if(tagInfoHandle.product()->size() > 0) {
-        Jet jj =  (*tagInfoHandle->refAt(0)->jet());
-         RefToBaseProd<reco::Jet> rtbp(tagInfoHandle->refAt(0)->jet());
-         jtc = new JetTagCollection(RefToBaseProd<reco::Jet>(rtbp));
-    }
-   else jtc = new JetTagCollection();
+
+  // take first tagInfo
+  Handle< View<BaseTagInfo> > &tagInfoHandle = tagInfoHandles[0];
+  JetTagCollection * jtc;
+  if (tagInfoHandle.product()->size() > 0) {
+    Jet jj = *tagInfoHandle->refAt(0)->jet();
+    RefToBaseProd<Jet> rtbp(tagInfoHandle->refAt(0)->jet());
+    jtc = new JetTagCollection(RefToBaseProd<Jet>(rtbp));
+  } else
+    jtc = new JetTagCollection();
 
   std::auto_ptr<JetTagCollection> jetTagCollection(jtc);
 
   // now loop over the map and compute all JetTags
   for(JetToTagInfoMap::const_iterator iter = jetToTagInfos.begin();
       iter != jetToTagInfos.end(); iter++) {
-    const TagInfoRefs &refs = iter->second;
+    const TagInfoPtrs &tagInfoPtrs = iter->second;
 
-    // this is unnecessary if RefToBase to BaseTagInfo dropped, see above
-    vector<const BaseTagInfo*> tagInfos(nTagInfos);
-    RefToBase<BaseTagInfo> tagInfoRef;
-    for(unsigned int i = 0; i < nTagInfos; i++) {
-      if (refs[i] < 0)
-        continue;
-
-      tagInfoRef = tagInfoHandles[i]->refAt(refs[i]);
-      tagInfos[i] = tagInfoRef.get();
-    }
-
-    JetTagComputer::TagInfoHelper helper(tagInfos);
+    JetTagComputer::TagInfoHelper helper(tagInfoPtrs);
     float discriminator = (*m_computer)(helper);
 
 //    JetTag jetTag(discriminator);
-    // set some (the last valid) RefToBase<BaseTagInfo> until it is dropped
 //    jetTag.setTagInfo(tagInfoRef);
-
 //    jetTagCollection->push_back(jetTag);
-    (*jetTagCollection)[tagInfoRef->jet()]=discriminator;
+
+    (*jetTagCollection)[iter->first] = discriminator;
   }
 
   iEvent.put(jetTagCollection);
