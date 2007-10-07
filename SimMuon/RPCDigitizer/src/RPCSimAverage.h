@@ -31,7 +31,7 @@ class RPCSimAverage : public RPCSim
  public:
 
   RPCSimAverage(const edm::ParameterSet& config);
-  ~RPCSimAverage(){}
+  ~RPCSimAverage();
 
   void simulate(const RPCRoll* roll,
 		const edm::PSimHitContainer& rpcHits, const RPCGeometry*);
@@ -56,16 +56,10 @@ class RPCSimAverage : public RPCSim
   double rate;
   double gate;
 
-  std::string ifile;
-
   std::map< int, std::vector<double> > clsMap;
   std::vector<double> sum_clsize;
   std::ifstream *infile;
  
-  std::fstream *MyOutput1; 
-  std::fstream *MyOutput2;
-  std::fstream *MyOutput3;
-
   RPCSynchronizer* _rpcSync;
 
   CLHEP::HepRandomEngine* rndEngine;

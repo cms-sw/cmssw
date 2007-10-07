@@ -50,11 +50,10 @@ RPCSynchronizer::RPCSynchronizer(const edm::ParameterSet& config){
   lbGate = config.getParameter<double>("linkGateWidth");  //time gate width for the RPC signals                    ---> rpc_gate
 
   file = config.getParameter<bool>("file");
-  filename = config.getParameter<string>("filename");
   cosmics = config.getParameter<bool>("cosmics");
 
-  string defaultDataPath(getenv("CMSSW_BASE"));
-  filename = defaultDataPath+ "/src/" + filename; 
+  edm::FileInPath fp = config.getParameter<edm::FileInPath>("timingMap");
+  filename=fp.fullPath();
 
   _bxmap.clear();
 }
@@ -69,10 +68,6 @@ void RPCSynchronizer::setReadOutTime(const RPCGeometry* geo){
 
     infile = new fstream(filename.c_str(),std::ios::in);
     
-    if(!infile){
-      std::cerr<<"error: unable to open input file:"
-	       << filename << std::endl;
-    }
     int i = 0;
     while(!infile->eof()){
       i++;
@@ -97,7 +92,8 @@ void RPCSynchronizer::setReadOutTime(const RPCGeometry* geo){
 	  
 	  const BoundPlane & RPCSurface = (*r)->surface(); 
 	  GlobalPoint CenterPointRollGlobal = RPCSurface.toGlobal(LocalPoint(0,0,0));
-	  float space = sqrt(pow(CenterPointRollGlobal.x(),2)+pow(CenterPointRollGlobal.y(),2)+pow(CenterPointRollGlobal.z(),2));
+	  float space = CenterPointRollGlobal.mag();
+
 	  float time = space/(3e+10);
 	  
 	  _bxmap[(*r)->id()] = time*1e+9;

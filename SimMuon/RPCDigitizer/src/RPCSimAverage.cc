@@ -59,8 +59,6 @@ RPCSimAverage::RPCSimAverage(const edm::ParameterSet& config) :
   sspeed = config.getParameter<double>("signalPropagationSpeed");
   lbGate = config.getParameter<double>("linkGateWidth");
   rpcdigiprint = config.getParameter<bool>("printOutDigitizer");
-  ifile = config.getParameter<string>("fileClusterSize");
-
   rate=config.getParameter<double>("Rate");
   nbxing=config.getParameter<int>("Nbxing");
   gate=config.getParameter<double>("Gate");
@@ -76,14 +74,8 @@ RPCSimAverage::RPCSimAverage(const edm::ParameterSet& config) :
     std::cout <<"Link Board Gate Width     = "<<lbGate<<" ns"<<std::endl;
   }
 
-  string defaultDataPath(getenv("CMSSW_BASE"));
-  ifile = defaultDataPath+ "/src/" + ifile; 
-
-  infile = new ifstream(ifile.c_str(), ios::in);
-  if(! *infile) {
-    cerr << "error: unable to open input file: "
-         <<  ifile  << endl;
-  }
+  edm::FileInPath fp = config.getParameter<edm::FileInPath>("clsmapfile");
+  infile = new ifstream(fp.fullPath().c_str(), ios::in);
 
   string buffer;
   double sum = 0;
