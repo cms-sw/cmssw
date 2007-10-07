@@ -19,15 +19,19 @@ namespace reco {
         /// default constructor
     IsolatedPixelTrackCandidate() : RecoCandidate() { }
     /// constructor from a track
-      IsolatedPixelTrackCandidate(const reco::TrackRef & tr, double max, double sum): 
+      IsolatedPixelTrackCandidate(const reco::TrackRef & tr, bool tjbit, bool jbit, double max, double sum): 
       RecoCandidate( 0, LorentzVector(tr->px(),tr->py(),tr->pz(),tr->p()) ),
-	track_(tr),maxPtPxl_(max),sumPtPxl_(sum) {}
+	track_(tr),l1taujetBit_(tjbit), l1jetBit_(jbit), maxPtPxl_(max),sumPtPxl_(sum) {}
     /// destructor
     virtual ~IsolatedPixelTrackCandidate();
     /// returns a clone of the candidate
     virtual IsolatedPixelTrackCandidate * clone() const;
     /// refrence to a Track
     virtual reco::TrackRef track() const;
+    /// get decision of L1_SingleTauJet trigger
+    bool l1taujetRes() const {return l1taujetBit_;}
+    /// get decision of L1_SingleJet trigger
+    bool l1jetRes() const {return l1jetBit_;}
     /// highest Pt of other pixel tracks in the cone around the candidate
     double maxPtPxl() const {return maxPtPxl_;}
     /// Pt sum of other pixel tracks in the cone around the candidate
@@ -41,6 +45,10 @@ namespace reco {
     virtual bool overlap( const Candidate & ) const;
     /// reference to a Track
     reco::TrackRef track_;
+    /// decision of L1_SingleTauJet trigger
+    bool l1taujetBit_;
+    ///decision of L1_SingleJet trigger
+    bool l1jetBit_;
     /// highest Pt of other pixel tracks in the cone around the candidate
     double maxPtPxl_;
     /// Pt sum of other pixel tracks in the cone around the candidate
