@@ -1,5 +1,5 @@
 //
-// $Id$
+// $Id: TopLeptonCountFilter.cc,v 1.1 2007/10/02 23:54:16 lowette Exp $
 //
 
 #include "TopQuarkAnalysis/TopObjectProducers/interface/TopLeptonCountFilter.h"
@@ -28,11 +28,11 @@ TopLeptonCountFilter::~TopLeptonCountFilter() {
 
 bool TopLeptonCountFilter::filter(edm::Event & iEvent, const edm::EventSetup & iSetup) {
   edm::Handle<std::vector<TopElectron> > electrons;
-  iEvent.getByLabel(electronSource_, electrons);
+  if (countElectrons_) iEvent.getByLabel(electronSource_, electrons);
   edm::Handle<std::vector<TopMuon> > muons;
-  iEvent.getByLabel(muonSource_, muons);
+  if (countMuons_) iEvent.getByLabel(muonSource_, muons);
   edm::Handle<std::vector<TopTau> > taus;
-  iEvent.getByLabel(tauSource_, taus);
+  if (countTaus_) iEvent.getByLabel(tauSource_, taus);
   unsigned int nrLeptons = 0;
   nrLeptons += (countElectrons_ ? electrons->size() : 0);
   nrLeptons += (countMuons_     ? muons->size()     : 0);
