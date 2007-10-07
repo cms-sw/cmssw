@@ -4,6 +4,7 @@
 #include "PluginManager/ModuleDef.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "DataFormats/JetReco/interface/Jet.h"
+#include "DataFormats/JetReco/interface/JetFloatAssociation.h"
 #include "DataFormats/BTauReco/interface/JetTag.h"
 #include "DataFormats/JetReco/interface/CaloJetCollection.h"
 #include "TopQuarkAnalysis/TopSkimming/plugins/JetTagCountFilter.h"
@@ -31,14 +32,16 @@ bool
 JetTagCountFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
     unsigned int numberOfJets = 0;
-    edm::Handle<reco::JetTagCollection> jetTags;
-    iEvent.getByLabel(src_, jetTags);
-    for( reco::JetTagCollection::const_iterator jet = jetTags->begin(); jet != jetTags->end(); ++jet )
+    edm::Handle<reco::JetFloatAssociation::Container> jFA;
+    iEvent.getByLabel(src_, jFA);
+    std::vector<reco::JetBaseRef> jets = reco::JetFloatAssociation::allJets(*jFA);
+
+    for( std::vector<reco::JetBaseRef>::const_iterator jet = jets.begin(); jet != jets.end(); ++jet )
     {
         if (
-            (jet->discriminator() > minDiscriminator_) &&
-            (jet->jet()->et() > minJetEt_) &&
-            (fabs(jet->jet()->eta()) < maxJetEta_)
+            (reco::JetFloatAssociation::getValue(*jFA, **jet) > minDiscriminator_) &&
+            ((*jet)->et() > minJetEt_) &&
+            (fabs((*jet)->eta()) < maxJetEta_)
             ) numberOfJets++;
     }
     if ( numberOfJets < minNumber_ ) return false;

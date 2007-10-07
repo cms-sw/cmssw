@@ -24,13 +24,7 @@
 <library file=JetTagCountFilter.cc name=JetTagCountFilter>
   <use name=FWCore/Framework>
   <use name=FWCore/ParameterSet>
+  <use name=DataFormats/JetReco>
   <use name=rootmath>
 </library> 
-
-<library file=TtDecayChannelFilter.cc name=TtDecayChannelFilter>
-  <use name=FWCore/Framework>
-  <use name=FWCore/ParameterSet>
-  <use name=TopQuarkAnalysis/TopSkimming>
-  <use name=rootmath>
-</library>
 
