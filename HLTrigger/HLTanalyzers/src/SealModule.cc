@@ -8,7 +8,11 @@
 #include "HLTrigger/HLTanalyzers/interface/HLTrigReport.h"
 
 #include "DataFormats/EgammaCandidates/interface/ElectronFwd.h"
+#include "DataFormats/EgammaCandidates/interface/Electron.h"
+
 #include "DataFormats/EgammaCandidates/interface/PhotonFwd.h"
+#include "DataFormats/EgammaCandidates/interface/Photon.h"
+
 #include "HLTrigger/HLTanalyzers/interface/HLTAnalyzer.h"
 #include "HLTrigger/HLTanalyzers/interface/HLTGetDigi.h"
 #include "HLTrigger/HLTanalyzers/interface/HLTGetRaw.h"

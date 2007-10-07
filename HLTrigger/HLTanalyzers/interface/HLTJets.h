@@ -11,14 +11,17 @@
 #include "TChain.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "DataFormats/JetReco/interface/CaloJet.h"
-#include "DataFormats/JetReco/interface/CaloJetfwd.h"
-#include "DataFormats/JetReco/interface/GenJet.h"
-#include "DataFormats/JetReco/interface/GenJetfwd.h"
-#include "DataFormats/METReco/interface/MET.h"
+
+#include "DataFormats/JetReco/interface/CaloJetCollection.h"
+#include "DataFormats/JetReco/interface/GenJetCollection.h"
+
+#include "DataFormats/METReco/interface/CaloMET.h"
 #include "DataFormats/METReco/interface/CaloMETCollection.h"
+
+#include "DataFormats/METReco/interface/GenMET.h"
 #include "DataFormats/METReco/interface/GenMETCollection.h"
 #include "DataFormats/METReco/interface/METCollection.h"
+
 #include "DataFormats/CaloTowers/interface/CaloTowerCollection.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"

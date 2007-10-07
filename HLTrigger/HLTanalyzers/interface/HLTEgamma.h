@@ -11,15 +11,18 @@
 #include "TChain.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
+#include "DataFormats/EgammaCandidates/interface/PhotonFwd.h"
+
 #include "DataFormats/EgammaCandidates/interface/Electron.h"
+#include "DataFormats/EgammaCandidates/interface/ElectronFwd.h"
+
 #include "DataFormats/Candidate/interface/Candidate.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 
 #include "HLTrigger/HLTanalyzers/interface/JetUtil.h"
 #include "HLTrigger/HLTanalyzers/interface/CaloTowerBoundries.h"
-
-#include "DataFormats/METReco/interface/CaloMETCollection.h"
 
 typedef std::vector<std::string> MyStrings;
 
@@ -36,8 +39,8 @@ public:
   void setup(const edm::ParameterSet& pSet, TTree* tree);
 
   /** Analyze the Data */
-  void analyze(const ElectronCollection& electron,
-	       const PhotonCollection& photon,
+  void analyze(const reco::ElectronCollection& electron,
+	       const reco::PhotonCollection& photon,
 	       const CaloGeometry& geom,
 	       TTree* tree);
 

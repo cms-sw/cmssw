@@ -9,10 +9,9 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "DataFormats/EgammaCandidates/interface/ElectronFwd.h"
-#include "DataFormats/EgammaCandidates/interface/PhotonFwd.h"
 #include "HLTrigger/HLTanalyzers/interface/HLTEgamma.h"
 
+using namespace reco;
 
 HLTEgamma::HLTEgamma() {
   evtCounter=0;
@@ -26,9 +25,9 @@ HLTEgamma::HLTEgamma() {
 void HLTEgamma::setup(const edm::ParameterSet& pSet, TTree* HltTree) {
 
   edm::ParameterSet myEmParams = pSet.getParameter<edm::ParameterSet>("RunParameters") ;
-  vector<std::string> parameterNames = myEmParams.getParameterNames() ;
+  MyStrings parameterNames = myEmParams.getParameterNames() ;
   
-  for ( vector<std::string>::iterator iParam = parameterNames.begin();
+  for ( MyStrings::iterator iParam = parameterNames.begin();
 	iParam != parameterNames.end(); iParam++ ){
     if  ( (*iParam) == "Monte" ) _Monte =  myEmParams.getParameter<bool>( *iParam );
     else if ( (*iParam) == "Debug" ) _Debug =  myEmParams.getParameter<bool>( *iParam );
