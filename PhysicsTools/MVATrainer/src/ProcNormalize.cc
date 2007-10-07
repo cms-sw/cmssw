@@ -130,7 +130,7 @@ Calibration::VarProcessor *ProcNormalize::getCalibration() const
 {
 	Calibration::ProcNormalize *calib = new Calibration::ProcNormalize;
 	std::copy(pdfs.begin(), pdfs.end(), std::back_inserter(calib->distr));
-	calib->nCategories = 0;
+	calib->categoryIdx = -1;
 	return calib;
 }
 

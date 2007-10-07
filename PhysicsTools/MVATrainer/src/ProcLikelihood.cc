@@ -169,7 +169,7 @@ Calibration::VarProcessor *ProcLikelihood::getCalibration() const
 		calib->pdfs.push_back(pdf);
 	}
 
-	calib->nCategories = 0;
+	calib->categoryIdx = -1;
 	calib->bias = 1.0;
 
 	return calib;
