@@ -77,7 +77,8 @@ CombinedSVComputer::operator () (const TrackIPTagInfo &ipInfo,
 {
 	using namespace ROOT::Math;
 
-	math::XYZVector jetDir = ipInfo.jet()->momentum().Unit();
+	edm::RefToBase<Jet> jet = ipInfo.jet();
+	math::XYZVector jetDir = jet->momentum().Unit();
 	bool havePv = ipInfo.primaryVertex().isNonnull();
 	GlobalPoint pv;
 	if (havePv)
@@ -88,6 +89,9 @@ CombinedSVComputer::operator () (const TrackIPTagInfo &ipInfo,
 	btag::Vertices::VertexType vtxType = btag::Vertices::NoVertex;
 
 	TaggingVariableList vars; // = ipInfo.taggingVariables();
+
+	vars.insert(btau::jetPt, jet->pt(), true);
+	vars.insert(btau::jetEta, jet->eta(), true);
 
 	TrackKinematics allKinematics;
 	TrackKinematics vertexKinematics;
@@ -168,6 +172,8 @@ CombinedSVComputer::operator () (const TrackIPTagInfo &ipInfo,
 		vars.insert(btau::vertexMass, vertexSum.M(), true);
 		vars.insert(btau::vertexEnergyRatio, vertexSum.E() / allSum.E(), true);
 	}
+
+	vars.finalize();
 
 	return vars;
 }
