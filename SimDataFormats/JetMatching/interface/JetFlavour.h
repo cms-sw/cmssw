@@ -23,6 +23,8 @@ class JetFlavour
     typedef math::XYZPoint Point;
 
     JetFlavour(void) { }
+    JetFlavour(LorentzVector LV, Point PT, int FL)
+    : m_partonMomentum(LV), m_partonVertex(PT), m_flavour(FL) {}
      
   private:
     LorentzVector m_partonMomentum;
