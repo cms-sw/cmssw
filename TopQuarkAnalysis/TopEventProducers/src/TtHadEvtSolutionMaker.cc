@@ -1,4 +1,4 @@
-// $Id: TtHadEvtSolutionMaker.cc,v 1.1 2007/10/06 15:11:42 mfhansen Exp $
+// $Id: TtHadEvtSolutionMaker.cc,v 1.2 2007/10/06 20:29:34 mfhansen Exp $
 
 #include "TopQuarkAnalysis/TopEventProducers/interface/TtHadEvtSolutionMaker.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -7,12 +7,10 @@
 #include "TopQuarkAnalysis/TopTools/interface/JetPartonMatching.h"
 #include "TopQuarkAnalysis/TopKinFitter/interface/TtHadKinFitter.h"
 #include "TopQuarkAnalysis/TopJetCombination/interface/TtHadSimpleBestJetComb.h"
-/* Needs to be written ..........
 #include "TopQuarkAnalysis/TopJetCombination/interface/TtHadLRJetCombObservables.h"
 #include "TopQuarkAnalysis/TopJetCombination/interface/TtHadLRJetCombCalc.h"
 #include "TopQuarkAnalysis/TopEventSelection/interface/TtHadLRSignalSelObservables.h"
 #include "TopQuarkAnalysis/TopEventSelection/interface/TtHadLRSignalSelCalc.h"
-*/
 
 #include <memory>
 
@@ -44,16 +42,13 @@ TtHadEvtSolutionMaker::TtHadEvtSolutionMaker(const edm::ParameterSet & iConfig) 
   
   // define jet combinations related calculators
   mySimpleBestJetComb                    = new TtHadSimpleBestJetComb();
-  /*
-  Commented out until classes are written
   myLRSignalSelObservables               = new TtHadLRSignalSelObservables();
   myLRJetCombObservables                 = new TtHadLRJetCombObservables();
   if (addLRJetComb_)   myLRJetCombCalc   = new TtHadLRJetCombCalc(lrJetCombFile_, lrJetCombObs_);
-
+  
   // instantiate signal selection calculator
   if (addLRSignalSel_) myLRSignalSelCalc = new TtHadLRSignalSelCalc(lrSignalSelFile_, lrSignalSelObs_);
-  */
-
+ 
   // define what will be produced
   produces<std::vector<TtHadEvtSolution> >();
 }
@@ -65,15 +60,11 @@ TtHadEvtSolutionMaker::~TtHadEvtSolutionMaker()
   if (doKinFit_) {
     delete myKinFitter;
   }
-
   delete mySimpleBestJetComb;
-  /* 
-  Commented out until classes are ready
   delete myLRSignalSelObservables;
   delete myLRJetCombObservables;
   if(addLRSignalSel_) delete myLRSignalSelCalc;
   if(addLRJetComb_)   delete myLRJetCombCalc;
-  */
 }
 
 
@@ -140,31 +131,31 @@ void TtHadEvtSolutionMaker::produce(edm::Event & iEvent, const edm::EventSetup &
 		      std::cout<<"Fitting needed to decide on best solution, enable fitting!"<<std::endl;
 		    }
 		    
-
-		    /*
-		    Commented out for now until classes are ready....
 		    // these lines calculate the observables to be used in the TtHadSignalSelection LR
-		    if(unsigned int i==0;i!=asol.size();i++){
+		    for(unsigned int i=0;i!=asol.size();i++){
 		      (*myLRSignalSelObservables)(asol[i]);
 		    }
 		    // if asked for, calculate with these observable values the LRvalue and 
 		    // (depending on the configuration) probability this event is signal
-		    if(unsigned int i==0;i!=asol.size();i++){
-		      (*myLRSignalSelCalc)(asol[i]);
+		    if(addLRSignalSel_){
+		      for(unsigned int i=0;i!=asol.size();i++){
+			(*myLRSignalSelCalc)(asol[i]);
+		      }
 		    }
 		    
 		    // these lines calculate the observables to be used in the TtHadJetCombination LR
-		    if(unsigned int i==0;i!=asol.size();i++){
+		    for(unsigned int i=0;i!=asol.size();i++){
 		      (*myLRJetCombObservables)(asol[i]);
 		    }
 		    // if asked for, calculate with these observable values the LRvalue and 
 		    // (depending on the configuration) probability a jet combination is correct
-		    if(unsigned int i==0;i!=asol.size();i++){
-		      if(addLRJetComb_) (*myLRJetCombCalc)(asol[i]);
+		    if(addLRJetComb_){
+		      for(unsigned int i=0;i!=asol.size();i++){
+			(*myLRJetCombCalc)(asol[i]);
+		      }
 		    }
 		    //std::cout<<"SignalSelLRval = "<<asol.getLRSignalEvtLRval()<<"  JetCombProb = "<<asol.getLRSignalEvtProb()<<std::endl;
 		    //std::cout<<"JetCombLRval = "<<asol.getLRJetCombLRval()<<"  JetCombProb = "<<asol.getLRJetCombProb()<<std::endl;
-		    */
 		    
 		    // fill solution to vector with all possible solutions 
 		    for(unsigned int i=0;i!=asol.size();i++){
