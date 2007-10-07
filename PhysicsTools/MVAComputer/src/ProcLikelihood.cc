@@ -12,7 +12,7 @@
 //
 // Author:      Christophe Saout
 // Created:     Sat Apr 24 15:18 CEST 2007
-// $Id: ProcLikelihood.cc,v 1.5 2007/09/16 22:55:34 saout Exp $
+// $Id: ProcLikelihood.cc,v 1.6 2007/09/17 23:50:38 saout Exp $
 //
 
 #include <vector>
@@ -93,6 +93,7 @@ class ProcLikelihood : public VarProcessor {
 	};
 
 	std::vector<SigBkg>	pdfs;
+	int			categoryIdx;
 	unsigned int		nCategories;
 	double			bias;
 };
@@ -102,12 +103,13 @@ static ProcLikelihood::Registry registry("ProcLikelihood");
 double ProcLikelihood::SplinePDF::eval(double value) const
 {
 	value = (value - min) / width;
-	return spline.eval(value) / spline.getArea();
+	return spline.eval(value) * spline.numberOfEntries()
+	                          / spline.getArea();
 }
 
 double ProcLikelihood::HistogramPDF::eval(double value) const
 {
-	return histo->normalizedValue(value);
+	return histo->normalizedValue(value) * histo->numberOfBins();
 }
 
 ProcLikelihood::ProcLikelihood(const char *name,
@@ -115,22 +117,30 @@ ProcLikelihood::ProcLikelihood(const char *name,
                                const MVAComputer *computer) :
 	VarProcessor(name, calib, computer),
 	pdfs(calib->pdfs.begin(), calib->pdfs.end()),
-	nCategories(calib->nCategories),
+	categoryIdx(calib->categoryIdx),
+	nCategories(1),
 	bias(calib->bias)
 {
 }
 
 void ProcLikelihood::configure(ConfIterator iter, unsigned int n)
 {
-	if (nCategories) {
-		if (n < 1 || (n - 1) * nCategories != pdfs.size())
+	if (categoryIdx >= 0) {
+		if ((int)n < categoryIdx + 1)
 			return;
-		iter++(Variable::FLAG_NONE);
+		nCategories = pdfs.size() / (n - 1);
+		if (nCategories * (n - 1) != pdfs.size())
+			return;
 	} else if (n != pdfs.size())
 		return;
 
-	while(iter)
-		iter++(Variable::FLAG_ALL);
+	int i = 0;
+	while(iter) {
+		if (categoryIdx == i++)
+			iter++(Variable::FLAG_NONE);
+		else
+			iter++(Variable::FLAG_ALL);
+	}
 
 	iter << Variable::FLAG_OPTIONAL;
 }
@@ -140,8 +150,12 @@ void ProcLikelihood::eval(ValueIterator iter, unsigned int n) const
 	std::vector<SigBkg>::const_iterator pdf;
 	std::vector<SigBkg>::const_iterator last;
 
-	if (nCategories) {
-		int cat = (int)*iter++;
+	if (categoryIdx >= 0) {
+		ValueIterator iter2 = iter;
+		for(int i = 0; i < categoryIdx; i++)
+			++iter2;
+
+		int cat = (int)*iter;
 		if (cat < 0 || (unsigned int)cat >= nCategories) {
 			iter();
 			return;
@@ -154,22 +168,29 @@ void ProcLikelihood::eval(ValueIterator iter, unsigned int n) const
 		last = pdfs.end();
 	}		
 
-	bool empty = true;
+	int vars = 0;
 	double signal = bias;
 	double background = 1.0;
 
-	for(; pdf != last; ++pdf, ++iter) {
+	for(int i = 0; pdf != last; ++iter, i++) {
+		if (i == categoryIdx)
+			continue;
 		for(double *value = iter.begin();
 		    value < iter.end(); value++) {
-			empty = false;
-			double signalProb = pdf->signal->eval(*value);
-			double backgroundProb = pdf->background->eval(*value);
-			signal *= std::max(0.0, signalProb);
-			background *= std::max(0.0, backgroundProb);
+			double signalProb =
+				std::max(0.0, pdf->signal->eval(*value));
+			double backgroundProb =
+				std::max(0.0, pdf->background->eval(*value));
+			if (signalProb + backgroundProb < 1.0e-30)
+				continue;
+			vars++;
+			signal *= signalProb;
+			background *= backgroundProb;
 		}
+		++pdf;
 	}
 
-	if (empty || signal + background < 1.0e-30)
+	if (!vars || signal + background < std::exp(-6 * vars - 2))
 		iter();
 	else
 		iter(signal / (signal + background));

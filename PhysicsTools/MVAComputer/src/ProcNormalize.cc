@@ -12,7 +12,7 @@
 //
 // Author:      Christophe Saout
 // Created:     Sat Apr 24 15:18 CEST 2007
-// $Id: ProcNormalize.cc,v 1.5 2007/09/16 22:55:34 saout Exp $
+// $Id: ProcNormalize.cc,v 1.6 2007/09/17 23:50:38 saout Exp $
 //
 
 #include <vector>
@@ -55,6 +55,7 @@ class ProcNormalize : public VarProcessor {
 	};
 
 	std::vector<Map>	maps;
+	int			categoryIdx;
 	unsigned int		nCategories;
 };
 
@@ -65,21 +66,29 @@ ProcNormalize::ProcNormalize(const char *name,
                              const MVAComputer *computer) :
 	VarProcessor(name, calib, computer),
 	maps(calib->distr.begin(), calib->distr.end()),
-	nCategories(calib->nCategories)
+	categoryIdx(calib->categoryIdx),
+	nCategories(1)
 {
 }
 
 void ProcNormalize::configure(ConfIterator iter, unsigned int n)
 {
-	if (nCategories) {
-		if (n < 1 || (n - 1) * nCategories != maps.size())
+	if (categoryIdx >= 0) {
+		if ((int)n < categoryIdx + 1)
 			return;
-		iter++(Variable::FLAG_NONE);
+		nCategories = maps.size() / (n - 1);
+		if (nCategories * (n - 1) != maps.size())
+			return;
 	} else if (n != maps.size())
 		return;
 
-	while(iter)
-		iter << iter++(Variable::FLAG_ALL);
+	int i = 0;
+	while(iter) {
+		if (categoryIdx == i++)
+			iter++(Variable::FLAG_NONE);
+		else
+			iter << iter++(Variable::FLAG_ALL);
+	}
 }
 
 void ProcNormalize::eval(ValueIterator iter, unsigned int n) const
@@ -87,8 +96,12 @@ void ProcNormalize::eval(ValueIterator iter, unsigned int n) const
 	std::vector<Map>::const_iterator map;
 	std::vector<Map>::const_iterator last;
 
-	if (nCategories) {
-		int cat = (int)*iter++;
+	if (categoryIdx >= 0) {
+		ValueIterator iter2 = iter;
+		for(int i = 0; i < categoryIdx; i++)
+			++iter2;
+
+		int cat = (int)*iter;
 		if (cat < 0 || (unsigned int)cat >= nCategories) {
 			for(; iter; ++iter)
 				iter();
@@ -102,7 +115,9 @@ void ProcNormalize::eval(ValueIterator iter, unsigned int n) const
 		last = maps.end();
 	}
 
-	for(; map != last; ++map, ++iter) {
+	for(int i = 0; map != last; ++iter, i++) {
+		if (i == categoryIdx)
+			continue;
 		for(double *value = iter.begin();
 		    value < iter.end(); value++) {
 			double val = *value;
@@ -111,6 +126,7 @@ void ProcNormalize::eval(ValueIterator iter, unsigned int n) const
 			iter << val;
 		}
 		iter();
+		++map;
 	}
 }
 

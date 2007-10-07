@@ -77,7 +77,7 @@ void testWriteMVAComputerCondDB::endJob()
 	pdf.setBinContent(1, 1.0);
 	pdf.setBinContent(2, 1.5);
 	pdf.setBinContent(3, 1.0);
-	norm.nCategories = 0;
+	norm.categoryIdx = -1;
 	norm.distr.push_back(pdf);
 	norm.distr.push_back(pdf);
 
@@ -112,7 +112,7 @@ void testWriteMVAComputerCondDB::endJob()
 	pdf.setBinContent(9, 1.7);
 	sigBkg.background = pdf;
 	sigBkg.useSplines = true;
-	lkh.nCategories = 0;
+	lkh.categoryIdx = -1;
 	lkh.pdfs.push_back(sigBkg);
 	lkh.bias = 1.0;
 
