@@ -1,5 +1,5 @@
 //
-// $Id: TtHadEvtSolution.cc,v 1.1 2007/10/06 14:55:07 mfhansen Exp $
+// $Id: TtHadEvtSolution.cc,v 1.2 2007/10/06 20:28:52 mfhansen Exp $
 // adapted TtSemiEvtSolution.cc,v 1.13 2007/07/05 23:43:08 lowette Exp 
 // for fully hadronic channel
 
@@ -20,9 +20,9 @@ TtHadEvtSolution::TtHadEvtSolution() {
   changeW1Q_         = -999;
   changeW2Q_         = -999;
   probChi2_          = -999.;
-  mcCorrJetComb_     = -999;
-  simpleCorrJetComb_ = -999;
-  lrCorrJetComb_     = -999;
+  mcBestJetComb_     = -999;
+  simpleBestJetComb_ = -999;
+  lrBestJetComb_     = -999;
   lrJetCombLRval_    = -999.;
   lrJetCombProb_     = -999.;
   lrSignalEvtLRval_  = -999.;
@@ -63,11 +63,11 @@ reco::Particle TtHadEvtSolution::getRecHadtbar() const {
   // FIXME: the charge from the genevent
   return reco::Particle(0,this->getRecHadj().p4() + this->getRecHadk().p4() + this->getRecHadbbar().p4());
 }
-reco::Particle TtHadEvtSolution::getRecHadW() const {
+reco::Particle TtHadEvtSolution::getRecHadW_plus() const {
   // FIXME: the charge from the genevent
   return reco::Particle(0,this->getRecHadp().p4() + this->getRecHadq().p4());
 }
-reco::Particle TtHadEvtSolution::getRecHadWbar() const {
+reco::Particle TtHadEvtSolution::getRecHadW_minus() const {
   // FIXME: the charge from the genevent
   return reco::Particle(0,this->getRecHadj().p4() + this->getRecHadk().p4());
 }
@@ -82,8 +82,8 @@ TopJetType     TtHadEvtSolution::getRecHadk() const { return this->getHadk().get
 // return functions for calibrated fourvectors
 reco::Particle TtHadEvtSolution::getCalHadt() const { return reco::Particle(0,this->getCalHadp().p4() + this->getCalHadq().p4() + this->getCalHadb().p4()); }
 reco::Particle TtHadEvtSolution::getCalHadtbar() const { return reco::Particle(0,this->getCalHadj().p4() + this->getCalHadk().p4() + this->getCalHadbbar().p4()); }
-reco::Particle TtHadEvtSolution::getCalHadW() const { return reco::Particle(0,this->getCalHadp().p4() + this->getCalHadq().p4()); }
-reco::Particle TtHadEvtSolution::getCalHadWbar() const { return reco::Particle(0,this->getCalHadj().p4() + this->getCalHadk().p4()); }
+reco::Particle TtHadEvtSolution::getCalHadW_plus() const { return reco::Particle(0,this->getCalHadp().p4() + this->getCalHadq().p4()); }
+reco::Particle TtHadEvtSolution::getCalHadW_minus() const { return reco::Particle(0,this->getCalHadj().p4() + this->getCalHadk().p4()); }
 TopJet         TtHadEvtSolution::getCalHadb() const { return this->getHadb(); }
 TopJet         TtHadEvtSolution::getCalHadbbar() const { return this->getHadbbar(); }
 TopJet         TtHadEvtSolution::getCalHadp() const { return this->getHadp(); }
@@ -100,11 +100,11 @@ reco::Particle TtHadEvtSolution::getFitHadtbar() const {
   // FIXME: provide the correct charge from generated event
   return reco::Particle(0, this->getFitHadj().p4() + this->getFitHadk().p4() + this->getFitHadbbar().p4());
 }
-reco::Particle TtHadEvtSolution::getFitHadW() const {
+reco::Particle TtHadEvtSolution::getFitHadW_plus() const {
   // FIXME: provide the correct charge from generated event
   return reco::Particle(0, this->getFitHadp().p4() + this->getFitHadq().p4());
 }
-reco::Particle TtHadEvtSolution::getFitHadWbar() const {
+reco::Particle TtHadEvtSolution::getFitHadW_minus() const {
   // FIXME: provide the correct charge from generated event
   return reco::Particle(0, this->getFitHadj().p4() + this->getFitHadk().p4());
 }
@@ -178,9 +178,9 @@ void TtHadEvtSolution::setJetParametrisation(int jp)    { jetParam_ = jp; }
 void TtHadEvtSolution::setProbChi2(double c) { probChi2_ = c; }
 
 // methods to set the outcome of the different jet combination methods
-void TtHadEvtSolution::setMCBestJetComb(int mcbs)    { mcCorrJetComb_ = mcbs; }
-void TtHadEvtSolution::setSimpleBestJetComb(int sbs) { simpleCorrJetComb_ = sbs;  }
-void TtHadEvtSolution::setLRBestJetComb(int lrbs)    { lrCorrJetComb_ = lrbs;  }
+void TtHadEvtSolution::setMCBestJetComb(int mcbs)    { mcBestJetComb_ = mcbs; }
+void TtHadEvtSolution::setSimpleBestJetComb(int sbs) { simpleBestJetComb_ = sbs;  }
+void TtHadEvtSolution::setLRBestJetComb(int lrbs)    { lrBestJetComb_ = lrbs;  }
 void TtHadEvtSolution::setLRJetCombObservables(std::vector<std::pair<unsigned int, double> > varval) {
   lrJetCombVarVal_.clear();
   for(size_t ijc = 0; ijc<varval.size(); ijc++) lrJetCombVarVal_.push_back(varval[ijc]);

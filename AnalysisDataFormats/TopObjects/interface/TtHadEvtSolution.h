@@ -1,7 +1,7 @@
 #ifndef TopObjects_TtHadEvtSolution_h
 #define TopObjects_TtHadEvtSolution_h
 //
-// $Id: TtHadEvtSolution.h,v 1.1 2007/10/06 14:54:40 mfhansen Exp $
+// $Id: TtHadEvtSolution.h,v 1.2 2007/10/06 20:28:40 mfhansen Exp $
 // adapted TtSemiEvtSolution.h,v 1.14 2007/07/06 03:07:47 lowette Exp 
 // for fully hadronic channel
 
@@ -20,12 +20,13 @@
 class TtHadEvtSolution {
   friend class TtHadEvtSolutionMaker;
   friend class TtHadKinFitter;
+  friend class TtHadLRJetCombObservables;
+  friend class TtHadLRJetCombCalc;
   /*
   friend class TtHadLRSignalSelObservables;
   friend class TtHadLRSignalSelCalc;
-  friend class TtHadLRJetCombObservables;
-  friend class TtHadLRJetCombCalc;
   */
+ 
   public:
 
     TtHadEvtSolution();
@@ -51,37 +52,37 @@ class TtHadEvtSolution {
     // methods to get reconstructed objects 
     reco::Particle            getRecHadt() const;
     reco::Particle            getRecHadtbar() const;
-    reco::Particle            getRecHadW() const;     
-    reco::Particle            getRecHadWbar() const;       
+    reco::Particle            getRecHadW_plus() const;     
+    reco::Particle            getRecHadW_minus() const;       
 
     TopJetType                getRecHadb() const;
+    TopJetType                getRecHadbbar() const;
     TopJetType                getRecHadp() const;
     TopJetType                getRecHadq() const;
-    TopJetType                getRecHadbbar() const;
     TopJetType                getRecHadj() const;
     TopJetType                getRecHadk() const;
 
     // methods to get calibrated objects 
     reco::Particle            getCalHadt() const;
     reco::Particle            getCalHadtbar() const;
-    reco::Particle            getCalHadW() const;
-    reco::Particle            getCalHadWbar() const;
+    reco::Particle            getCalHadW_plus() const;
+    reco::Particle            getCalHadW_minus() const;
     TopJet                    getCalHadb() const;
+    TopJet                    getCalHadbbar() const;
     TopJet                    getCalHadp() const;
     TopJet                    getCalHadq() const;
-    TopJet                    getCalHadbbar() const;
     TopJet                    getCalHadj() const;
     TopJet                    getCalHadk() const;
 
     // methods to get fitted objects
     reco::Particle            getFitHadt() const;
     reco::Particle            getFitHadtbar() const;
-    reco::Particle            getFitHadW() const;
-    reco::Particle            getFitHadWbar() const;
+    reco::Particle            getFitHadW_plus() const;
+    reco::Particle            getFitHadW_minus() const;
     TopParticle               getFitHadb() const;
+    TopParticle               getFitHadbbar() const;
     TopParticle               getFitHadp() const;
     TopParticle               getFitHadq() const;
-    TopParticle               getFitHadbbar() const;
     TopParticle               getFitHadj() const;
     TopParticle               getFitHadk() const;
 
@@ -91,9 +92,9 @@ class TtHadEvtSolution {
     double                    getMCBestSumAngles() const       { return sumAnglejp_; };
     double                    getMCBestAngleHadp() const       { return angleHadp_; };
     double                    getMCBestAngleHadq() const       { return angleHadq_; };
-    double                    getMCBestAngleHadb() const       { return angleHadb_; };
     double                    getMCBestAngleHadj() const       { return angleHadj_; };
     double                    getMCBestAngleHadk() const       { return angleHadk_; };
+    double                    getMCBestAngleHadb() const       { return angleHadb_; };
     double                    getMCBestAngleHadbbar() const    { return angleHadbbar_; };
     int                       getMCChangeW1Q() const           { return changeW1Q_; };     
     int                       getMCChangeW2Q() const           { return changeW2Q_;}; 
@@ -107,9 +108,9 @@ class TtHadEvtSolution {
     double                    getLRSignalEvtLRval() const      { return lrSignalEvtLRval_; }
     double                    getLRSignalEvtProb() const       { return lrSignalEvtProb_; }
     // methods to get info on the outcome of the different jet combination methods
-    int                       getMCCorrJetComb() const         { return mcCorrJetComb_; }
-    int                       getSimpleCorrJetComb() const     { return simpleCorrJetComb_; }
-    int                       getLRCorrJetComb() const         { return lrCorrJetComb_; }
+    int                       getMCBestJetComb() const         { return mcBestJetComb_; }
+    int                       getSimpleBestJetComb() const     { return simpleBestJetComb_; }
+    int                       getLRBestJetComb() const         { return lrBestJetComb_; }
     double                    getLRJetCombObsVal(unsigned int) const;
     double                    getLRJetCombLRval() const        { return lrJetCombLRval_; }
     double                    getLRJetCombProb() const         { return lrJetCombProb_; }
@@ -121,25 +122,24 @@ class TtHadEvtSolution {
     // methods to set the basic TopObjects
     void                      setHadp(const edm::Handle<std::vector<TopJet> > & jh, int i);
     void                      setHadq(const edm::Handle<std::vector<TopJet> > & jh, int i);
-    void                      setHadb(const edm::Handle<std::vector<TopJet> > & jh, int i);
     void                      setHadj(const edm::Handle<std::vector<TopJet> > & jh, int i);
     void                      setHadk(const edm::Handle<std::vector<TopJet> > & jh, int i);
+    void                      setHadb(const edm::Handle<std::vector<TopJet> > & jh, int i);
     void                      setHadbbar(const edm::Handle<std::vector<TopJet> > & jh, int i);
     // methods to set the fitted objects 
-    void                      setFitHadb(const TopParticle & aFitHadb);
     void                      setFitHadp(const TopParticle & aFitHadp);
     void                      setFitHadq(const TopParticle & aFitHadq);
-    void                      setFitHadbbar(const TopParticle & aFitHadbbar);
     void                      setFitHadj(const TopParticle & aFitHadj);
     void                      setFitHadk(const TopParticle & aFitHadk);
-
+    void                      setFitHadb(const TopParticle & aFitHadb);
+    void                      setFitHadbbar(const TopParticle & aFitHadbbar);
     // methods to set the info on the matching
     void                      setMCBestSumAngles(double sdr);
     void                      setMCBestAngleHadp(double adr);
     void                      setMCBestAngleHadq(double adr);
-    void                      setMCBestAngleHadb(double adr);
     void                      setMCBestAngleHadj(double adr);
     void                      setMCBestAngleHadk(double adr);
+    void                      setMCBestAngleHadb(double adr);
     void                      setMCBestAngleHadbbar(double adr);
     void                      setMCChangeW1Q(int w1q);
     void                      setMCChangeW2Q(int w2q);
@@ -170,7 +170,7 @@ class TtHadEvtSolution {
     int                       changeW1Q_, changeW2Q_;
     int                       jetParam_;
     double                    probChi2_;
-    int                       mcCorrJetComb_, simpleCorrJetComb_, lrCorrJetComb_;
+    int                       mcBestJetComb_, simpleBestJetComb_, lrBestJetComb_;
     double                    lrJetCombLRval_, lrJetCombProb_;
     double                    lrSignalEvtLRval_, lrSignalEvtProb_;
     std::vector<std::pair<unsigned int, double> > lrJetCombVarVal_;
