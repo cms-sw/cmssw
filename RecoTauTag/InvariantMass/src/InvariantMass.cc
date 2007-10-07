@@ -13,7 +13,7 @@
 //
 // Original Author:  Suchandra Dutta
 //      Created:  Thu Oct 19 09:02:32 CEST 2006
-// $Id: InvariantMass.cc,v 1.7 2007/06/27 14:57:36 dutta Exp $
+// $Id: InvariantMass.cc,v 1.8 2007/09/24 21:58:55 fwyzard Exp $
 //
 //
 
@@ -66,8 +66,6 @@ InvariantMass::~InvariantMass()
   delete m_algo;
 }
 
-
-
 //
 // member functions
 //
@@ -81,9 +79,8 @@ InvariantMass::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
    Handle<IsolatedTauTagInfoCollection> isolatedTaus;
    iEvent.getByLabel(jetTrackSrc, isolatedTaus);
    
-   JetTagCollection         *baseCollection = new JetTagCollection();
-   TauMassTagInfoCollection *extCollection  = new TauMassTagInfoCollection();
-
+   std::auto_ptr<JetTagCollection>         tagCollection( new JetTagCollection() );
+   std::auto_ptr<TauMassTagInfoCollection> extCollection( new TauMassTagInfoCollection() );
 
    // Island basic cluster collection
    Handle<BasicClusterCollection> barrelBasicClusterHandle;
@@ -94,35 +91,22 @@ InvariantMass::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
    iEvent.getByLabel(m_ecalBClSrc,"islandEndcapBasicClusters",endcapBasicClusterHandle);
    reco::BasicClusterCollection endcapClusters = *(endcapBasicClusterHandle.product());
 
-
-   int theKey = 0;
-   for(IsolatedTauTagInfoCollection::const_iterator it  = isolatedTaus->begin(); 
-                                                    it != isolatedTaus->end(); it++) 
+   for (unsigned int i = 0; i < isolatedTaus->size(); ++i)
    {
-     IsolatedTauTagInfoRef tauRef(isolatedTaus,theKey);
+     IsolatedTauTagInfoRef tauRef(isolatedTaus, i);
      const Jet & jet = *(tauRef->jet()); 
      math::XYZVector jetDir(jet.px(),jet.py(),jet.pz());  
 
-     pair<JetTag,TauMassTagInfo> jetTauPair;
+     pair<double,TauMassTagInfo> jetTauPair;
      if (jetDir.eta() < 1.2) //barrel  
        jetTauPair = m_algo->tag(iEvent, iSetup, tauRef, barrelBasicClusterHandle);
      else 
        jetTauPair = m_algo->tag(iEvent, iSetup, tauRef, endcapBasicClusterHandle);
-     baseCollection->push_back(jetTauPair.first);    
-     extCollection->push_back(jetTauPair.second);
-     theKey++;
+     tagCollection->setValue( i, jetTauPair.first );
+     extCollection->push_back( jetTauPair.second );
    }
 
-   std::auto_ptr<reco::TauMassTagInfoCollection> resultExt(extCollection);  
-   edm::OrphanHandle <reco::TauMassTagInfoCollection >  myTagInfo =  iEvent.put(resultExt);
-   
-   int ic=0;
-   for (reco::JetTagCollection::iterator im = baseCollection->begin(); 
-               im != baseCollection->end(); im++) {
-     im->setTagInfo(RefToBase<BaseTagInfo>(TauMassTagInfoRef(myTagInfo,ic)));
-     ic++;
-   }
-
-   std::auto_ptr<reco::JetTagCollection> resultBase(baseCollection);
-   iEvent.put(resultBase);
+   iEvent.put( tagCollection );
+   iEvent.put( extCollection );
 }
+

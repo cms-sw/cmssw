@@ -36,7 +36,7 @@ public:
    
   ~InvariantMassAlgorithm();
 
-  std::pair<reco::JetTag,reco::TauMassTagInfo> tag(edm::Event& theEvent, const edm::EventSetup& theEventSetup,const reco::IsolatedTauTagInfoRef& tauRef, const edm::Handle<reco::BasicClusterCollection>& clus_handle); 
+  std::pair<double, reco::TauMassTagInfo> tag(edm::Event& theEvent, const edm::EventSetup& theEventSetup,const reco::IsolatedTauTagInfoRef& tauRef, const edm::Handle<reco::BasicClusterCollection>& clus_handle); 
 
   float getMinimumClusterDR(edm::Event& theEvent, const edm::EventSetup& theEventSetup,const reco::IsolatedTauTagInfoRef& tauRef, const math::XYZVector& cluster_3vec);
 

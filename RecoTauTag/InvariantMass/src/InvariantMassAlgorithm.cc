@@ -46,7 +46,7 @@ InvariantMassAlgorithm::~InvariantMassAlgorithm() {
 //
 // -- Tag 
 //
-pair<reco::JetTag,reco::TauMassTagInfo> InvariantMassAlgorithm::tag(edm::Event& theEvent, 
+pair<double, reco::TauMassTagInfo> InvariantMassAlgorithm::tag(edm::Event& theEvent, 
                                                               const edm::EventSetup& theEventSetup, 
                                                               const reco::IsolatedTauTagInfoRef& tauRef, 
                                                               const Handle<BasicClusterCollection>& clus_handle) 
@@ -66,20 +66,19 @@ pair<reco::JetTag,reco::TauMassTagInfo> InvariantMassAlgorithm::tag(edm::Event& 
       if ( (et < 0.04) || (et > 300.0) ) continue;    
       float delR = getMinimumClusterDR(theEvent, theEventSetup, tauRef, cluster3Vec);
       if (delR != -1.0) {
-	nSel++;
-	resultExtended.storeClusterTrackCollection(cluster, delR);
+        nSel++;
+        resultExtended.storeClusterTrackCollection(cluster, delR);
       }
     }
     if (0) cout << " Total Number of Clusters " << clus_handle->size() << " " << nSel << endl;
     
     discriminator = resultExtended.discriminator(matching_cone,
-                                               leading_trk_pt,
-                                               signal_cone,
-					       cluster_track_matching_cone,
-                                               inv_mass_cut); 
+                                                 leading_trk_pt,
+                                                 signal_cone,
+                                                 cluster_track_matching_cone,
+                                                 inv_mass_cut); 
   }
-  JetTag resultBase(discriminator);    
-  return pair<JetTag,TauMassTagInfo> (resultBase,resultExtended); 
+  return make_pair(discriminator, resultExtended); 
 }
 //
 // get Cluster Map
