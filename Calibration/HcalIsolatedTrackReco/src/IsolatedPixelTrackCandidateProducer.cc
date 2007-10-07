@@ -24,6 +24,7 @@
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetupFwd.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerObjectMapRecord.h"
+//#include "DataFormats/L1GlobalTrigger/interface/L1GtLogicParser.h"
 
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerObjectMapFwd.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerObjectMap.h"
@@ -43,7 +44,6 @@ IsolatedPixelTrackCandidateProducer::IsolatedPixelTrackCandidateProducer(const e
   maxEta_=config.getParameter<double>("MaxEta");
   hltGTseedlabel_=config.getUntrackedParameter<edm::InputTag>("L1GTSeedLabel");
   l1GtObjectMapSource_ = config.getUntrackedParameter<edm::InputTag> ("L1GtObjectMapSource");
-//  particleMapSource_=config.getUntrackedParameter<edm::InputTag>("ParticleMapSource");
 
   // Register the product
   produces< reco::IsolatedPixelTrackCandidateCollection >();
@@ -58,8 +58,7 @@ IsolatedPixelTrackCandidateProducer::~IsolatedPixelTrackCandidateProducer() {
 void IsolatedPixelTrackCandidateProducer::produce(edm::Event& theEvent, const edm::EventSetup& theEventSetup) {
 
   using namespace edm;
-
-  //  edm::LogInfo("IsolatedPixelTrackCandidateProducer") << "Producing event number: " << theEvent.id() << "\n";
+   using namespace l1extra;
 
   reco::IsolatedPixelTrackCandidateCollection * trackCollection=new reco::IsolatedPixelTrackCandidateCollection;
 
@@ -72,53 +71,23 @@ void IsolatedPixelTrackCandidateProducer::produce(edm::Event& theEvent, const ed
   edm::Handle<reco::HLTFilterObjectWithRefs> l1trigobj;
   theEvent.getByLabel(hltGTseedlabel_, l1trigobj);
 
-///////////////////
-  edm::Handle<L1GlobalTriggerObjectMapRecord> gtObjectMapRecord;
-  theEvent.getByLabel(l1GtObjectMapSource_, gtObjectMapRecord);
-
-  const std::vector<L1GlobalTriggerObjectMap>& objMapVec = gtObjectMapRecord->gtObjectMap();
-///////////////////
-
-//  std::cout<<"number of L1 triggered objects: "<<l1trigobj->size()<<std::endl;
-   // Get the successful L1 jet candidates.
-
   double ptTriggered=-10;
   double etaTriggered=-100;
   double phiTriggered=-100;
 
-/*
-  for (std::vector<L1GlobalTriggerObjectMap>::const_iterator itMap = objMapVec.begin(); itMap != objMapVec.end(); ++itMap) 
-	{
-        // check if the map is needed (using algorithm bits)
-        int algoBit = (*itMap).algoBitNumber();
-
-        std::string algoName = (*itMap).algoName();
-	bool res = (*itMap).algoGtlResult();
-	
-	int resu=-1;
-	if (res) resu=1;
-	else resu=0;
-	
-//	if (algoBit==35||algoBit==26) 
-//	std::cout<<"Name: "<<algoName<<"  algo bit number: "<<algoBit<<"   result: "<<resu<<std::endl;
-	
-	}
-  
-*/
+  bool restj=false;
+  bool resj=false;
 
   for (unsigned int p=0; p<l1trigobj->size(); p++)
 	{
-	edm::RefToBase<reco::Candidate> l1jetref=l1trigobj->getParticleRef(p);
-	if (l1jetref.get()->pt()>ptTriggered)
+	const edm::RefToBase<reco::Candidate> l1objref=l1trigobj->getParticleRef(p);
+	if (l1objref.get()->pt()>ptTriggered)
 		{
-		ptTriggered=l1jetref.get()->pt(); 
-		phiTriggered=l1jetref.get()->phi();
-		etaTriggered=l1jetref.get()->eta();
+		ptTriggered=l1objref.get()->pt(); 
+		phiTriggered=l1objref.get()->phi();
+		etaTriggered=l1objref.get()->eta();
 		}
 	}
-
-//  std::cout<<"phiTriggered: "<<phiTriggered<<"     etaTriggered: "<<etaTriggered<<"     ptTriggered: 
-//"<<ptTriggered<<std::endl;
 
   double minPtTrack_=5;
   double drMaxL1Track_=tauAssocCone_;
@@ -128,54 +97,50 @@ void IsolatedPixelTrackCandidateProducer::produce(edm::Event& theEvent, const ed
   //loop to select isolated tracks
   for (reco::TrackCollection::const_iterator track=pixelTracks->begin(); 
        track!=pixelTracks->end(); track++) {
+
     if(track->pt()<minPtTrack_) continue;
 
     if (fabs(track->eta())>maxEta_) continue;
 
     //selected tracks should match L1 taus
 
+    bool tmatch=false;
+
     for (l1extra::L1JetParticleCollection::const_iterator tj=l1eTauJets->begin(); tj!=l1eTauJets->end(); tj++) {
 
        //select taus not matched to triggered L1 jet
-      double dPhi;
-      if (fabs(tj->phi()-phiTriggered)>3.14159) dPhi=6.28318-fabs(tj->phi()-phiTriggered);
-      else dPhi=fabs(tj->phi()-phiTriggered); 
-   
-      if (dPhi<1) 
-	{	
-//	std::cout<<"SKIP"<<std::endl;
-//	std::cout<<"phi value: "<<tj->phi()<<"   dPhi value: "<<dPhi<<std::endl;
-	continue;
-	}
-      
+      double dPhi=fabs(tj->phi()-phiTriggered);
+      if (dPhi>3.1415926535) dPhi=2*3.1415926535-dPhi;
+      double R=sqrt(dPhi*dPhi+pow(tj->eta()-etaTriggered,2));
+      if (R<1) continue;
+	      
       //select tracks matched to tau
-      if(ROOT::Math::VectorUtil::DeltaR(track->momentum(),tj->momentum()) 
-	 > drMaxL1Track_) continue;
-      
-      ///////////////////
-
-      //calculate isolation
-      double maxPt=0;
-      double sumPt=0;
-      for (reco::TrackCollection::const_iterator track2=pixelTracks->begin(); 
-	   track2!=pixelTracks->end(); track2++) {
-	if(track2!=track &&
-	   ROOT::Math::VectorUtil::DeltaR(track->momentum(),track2->momentum())
-	   <pixelIsolationConeSize_){
-	  sumPt+=track2->pt();
-	  if(track2->pt()>maxPt) maxPt=track2->pt();
-	}
-      }
-      
-      if(maxPt<5){
-//	std::cout<<"PUT<<<<phi value: "<<tj->phi()<<"   dPhi value: "<<dPhi<<std::endl;
-//	std::cout<<"put track# "<<ntr<<std::endl;
-	reco::IsolatedPixelTrackCandidate newCandidate(reco::TrackRef(pixelTracks,track-pixelTracks->begin()), maxPt,sumPt);
-	trackCollection->push_back(newCandidate);
-      	ntr++;
-	}
+      if(ROOT::Math::VectorUtil::DeltaR(track->momentum(),tj->momentum()) > drMaxL1Track_) continue;
+	
+      tmatch=true;
 
     } //loop over L1 tau
+
+    //calculate isolation
+    double maxPt=0;
+    double sumPt=0;
+    for (reco::TrackCollection::const_iterator track2=pixelTracks->begin(); 
+	 track2!=pixelTracks->end(); track2++) {
+      if(track2!=track &&
+	 ROOT::Math::VectorUtil::DeltaR(track->momentum(),track2->momentum())
+	 <pixelIsolationConeSize_){
+	sumPt+=track2->pt();
+	if(track2->pt()>maxPt) maxPt=track2->pt();
+      }
+    }
+
+    if (tmatch&&maxPt<5)
+      {
+	reco::IsolatedPixelTrackCandidate 
+	newCandidate(reco::TrackRef(pixelTracks,track-pixelTracks->begin()),restj, resj, maxPt,sumPt);
+        trackCollection->push_back(newCandidate);
+        ntr++;
+      }
 
   }//loop over pixel tracks
 
