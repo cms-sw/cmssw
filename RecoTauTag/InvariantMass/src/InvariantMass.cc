@@ -13,7 +13,7 @@
 //
 // Original Author:  Suchandra Dutta
 //      Created:  Thu Oct 19 09:02:32 CEST 2006
-// $Id: InvariantMass.cc,v 1.8 2007/09/24 21:58:55 fwyzard Exp $
+// $Id: InvariantMass.cc,v 1.9 2007/10/07 10:28:33 fwyzard Exp $
 //
 //
 
@@ -79,34 +79,39 @@ InvariantMass::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
    Handle<IsolatedTauTagInfoCollection> isolatedTaus;
    iEvent.getByLabel(jetTrackSrc, isolatedTaus);
    
-   std::auto_ptr<JetTagCollection>         tagCollection( new JetTagCollection() );
+   std::auto_ptr<JetTagCollection>         tagCollection;
    std::auto_ptr<TauMassTagInfoCollection> extCollection( new TauMassTagInfoCollection() );
 
    // Island basic cluster collection
    Handle<BasicClusterCollection> barrelBasicClusterHandle;
-   iEvent.getByLabel(m_ecalBClSrc,"islandBarrelBasicClusters",barrelBasicClusterHandle);
-   reco::BasicClusterCollection barrelClusters = *(barrelBasicClusterHandle.product());
+   iEvent.getByLabel(m_ecalBClSrc, "islandBarrelBasicClusters", barrelBasicClusterHandle);
+   const reco::BasicClusterCollection & barrelClusters = *(barrelBasicClusterHandle.product());
 
    Handle<BasicClusterCollection> endcapBasicClusterHandle;
-   iEvent.getByLabel(m_ecalBClSrc,"islandEndcapBasicClusters",endcapBasicClusterHandle);
-   reco::BasicClusterCollection endcapClusters = *(endcapBasicClusterHandle.product());
+   iEvent.getByLabel(m_ecalBClSrc, "islandEndcapBasicClusters", endcapBasicClusterHandle);
+   const reco::BasicClusterCollection & endcapClusters = *(endcapBasicClusterHandle.product());
 
-   for (unsigned int i = 0; i < isolatedTaus->size(); ++i)
-   {
-     IsolatedTauTagInfoRef tauRef(isolatedTaus, i);
-     const Jet & jet = *(tauRef->jet()); 
-     math::XYZVector jetDir(jet.px(),jet.py(),jet.pz());  
+   if (isolatedTaus->empty()) {
+     tagCollection.reset( new JetTagCollection() );
+   } else {
+     RefToBaseProd<reco::Jet> prod( isolatedTaus->begin()->jet() );
+     tagCollection.reset( new JetTagCollection(RefToBaseProd<reco::Jet>(prod)) );
 
-     pair<double,TauMassTagInfo> jetTauPair;
-     if (jetDir.eta() < 1.2) //barrel  
-       jetTauPair = m_algo->tag(iEvent, iSetup, tauRef, barrelBasicClusterHandle);
-     else 
-       jetTauPair = m_algo->tag(iEvent, iSetup, tauRef, endcapBasicClusterHandle);
-     tagCollection->setValue( i, jetTauPair.first );
-     extCollection->push_back( jetTauPair.second );
+     for (unsigned int i = 0; i < isolatedTaus->size(); ++i)
+     {
+       IsolatedTauTagInfoRef tauRef(isolatedTaus, i);
+       const Jet & jet = *(tauRef->jet()); 
+       math::XYZVector jetDir(jet.px(),jet.py(),jet.pz());  
+       pair<double,TauMassTagInfo> jetTauPair;
+       if (jetDir.eta() < 1.2)      // barrel  
+         jetTauPair = m_algo->tag(iEvent, iSetup, tauRef, barrelBasicClusterHandle);
+       else                         // endcap
+         jetTauPair = m_algo->tag(iEvent, iSetup, tauRef, endcapBasicClusterHandle);
+       tagCollection->setValue( i, jetTauPair.first );
+       extCollection->push_back( jetTauPair.second );
+     }
    }
 
    iEvent.put( tagCollection );
    iEvent.put( extCollection );
 }
-
