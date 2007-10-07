@@ -239,7 +239,7 @@ bool PFRootEventManagerColin::processHIGH_E_TAUS() {
   double pHadron = trueParticles_[iHadron].extrapolatedPoint(reco::PFTrajectoryPoint::ClosestApproach ).momentum().P(); 
   tauEvent_->pHadron = pHadron;
 
-  tauEvent_->eEcalHadron = trueParticles_[iHadron].ecalEnergy();
+  //  tauEvent_->eEcalHadron = trueParticles_[iHadron].ecalEnergy();
   
   if(nPi0 == 1) {
     math::XYZTLorentzVector pi0mom =  trueParticles_[iPi0].extrapolatedPoint(reco::PFTrajectoryPoint::ClosestApproach ).momentum();
