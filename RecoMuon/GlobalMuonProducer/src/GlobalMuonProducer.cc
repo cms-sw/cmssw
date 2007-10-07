@@ -5,8 +5,8 @@
  *   information,<BR>
  *   starting from a standalone reonstructed muon.
  *
- *   $Date: 2007/05/09 20:04:49 $
- *   $Revision: 1.30 $
+ *   $Date: 2007/09/06 17:37:34 $
+ *   $Revision: 1.31 $
  *
  *   \author  R.Bellan - INFN TO
  */
@@ -53,9 +53,6 @@ GlobalMuonProducer::GlobalMuonProducer(const ParameterSet& parameterSet) {
   
   // STA Muon Collection Label
   theSTACollectionLabel = parameterSet.getParameter<InputTag>("MuonCollectionLabel");
-
-  // STA semi-persistent flag
-  theSTATrajectoryFlag = parameterSet.getParameter<bool>("MuonTrajectoryAvailable");
 
   // service parameters
   ParameterSet serviceParameters = parameterSet.getParameter<ParameterSet>("ServiceParameters");
@@ -115,12 +112,11 @@ void GlobalMuonProducer::produce(Event& event, const EventSetup& eventSetup) {
 
   vector<MuonTrajectoryBuilder::TrackCand> staTrackCands;
 
-  if(theSTATrajectoryFlag) {    
-    edm::Handle<TrajTrackAssociationCollection> staAssoMap;
-    event.getByLabel(theSTACollectionLabel.label(),staAssoMap);
-    
-    edm::Handle<reco::TrackToTrackMap> updatedStaAssoMap;
-    event.getByLabel(theSTACollectionLabel.label(),updatedStaAssoMap);
+  edm::Handle<TrajTrackAssociationCollection> staAssoMap;
+
+  edm::Handle<reco::TrackToTrackMap> updatedStaAssoMap;
+
+  if( event.getByLabel(theSTACollectionLabel.label(),staAssoMap) && event.getByLabel(theSTACollectionLabel.label(),updatedStaAssoMap) ) {    
     
     for(TrajTrackAssociationCollection::const_iterator it = staAssoMap->begin(); it != staAssoMap->end(); ++it){	
       const Ref<vector<Trajectory> > traj = it->key;

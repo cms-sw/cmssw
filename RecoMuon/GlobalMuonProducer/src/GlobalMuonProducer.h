@@ -9,8 +9,8 @@
  *   starting from a standalone reonstructed muon.
  *
  *
- *   $Date: 2007/03/20 13:38:12 $
- *   $Revision: 1.9 $
+ *   $Date: 2007/03/20 15:58:13 $
+ *   $Revision: 1.10 $
  *
  *   \author  R.Bellan - INFN TO
  */
@@ -40,8 +40,6 @@ class GlobalMuonProducer : public edm::EDProducer {
   /// STA Label
   edm::InputTag theSTACollectionLabel;
 
-  bool theSTATrajectoryFlag;
-  
   MuonTrackFinder* theTrackFinder;
     
   /// the event setup proxy, it takes care the services update
