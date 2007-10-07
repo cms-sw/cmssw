@@ -2,8 +2,8 @@
  *
   * See header file for documentation
  *
- *  $Date: 2007/05/10 13:12:40 $
- *  $Revision: 1.4 $
+ *  $Date: 2007/08/01 12:40:28 $
+ *  $Revision: 1.5 $
  *
  *  \author Arnaud Gay, Ian Tomalin
  *
@@ -75,21 +75,20 @@ HLTJetTag::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   int nTag(0);
   JetTagCollection::const_iterator jet;
   for (jet = jets.begin(); jet != jets.end(); jet++) {
-    edm::LogInfo("") << "Jet " << nJet
-	   	     << " : Et = " << jet->jet()->et()
-		     << " , No. of tracks = " << jet->tracks().size()
-		     << " , tag value = " << jet->discriminator();
+    LogTrace("") << "Jet " << nJet
+		 << " : Et = " << jet->first->et()
+		 << " , tag value = " << jet->second;
     nJet++;
     //  Check if jet is tagged.
-    if ( (min_Tag_ <= jet->discriminator()) && 
-	 (jet->discriminator() <= max_Tag_) ) {
+    if ( (min_Tag_ <= jet->second) && 
+	 (jet->second <= max_Tag_) ) {
       nTag++;
 
       // Store (ref to) jets which passed tagging cuts
-      ref=CandidateBaseRef(jet->jet() );
+      ref=CandidateBaseRef( jet->first );
       filterproduct->putParticle(ref);
       if (nTag==1) { // also store ProductID of Product containing AssociationMap
-	ProductID pid( (jet->jet()).id() );
+	ProductID pid( jet->first.id() );
 	filterproduct->putPID(pid);
       }
     }
