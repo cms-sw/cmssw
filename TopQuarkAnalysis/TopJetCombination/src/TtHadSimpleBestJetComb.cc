@@ -1,6 +1,6 @@
 #include "TopQuarkAnalysis/TopJetCombination/interface/TtHadSimpleBestJetComb.h"
 //
-// $Id: TtHadSimpleBestJetComb.cc,v 1.0 2007/09/20 08:30:00 mfhansen Exp $
+// $Id: TtHadSimpleBestJetComb.cc,v 1.1 2007/10/06 15:14:27 mfhansen Exp $
 // adapted Id: TtSemiSimpleBestJetComb.cc,v 1.2 2007/06/09 01:17:40 lowette Exp 
 // for fully hadronic channel
 
@@ -45,17 +45,17 @@ int TtHadSimpleBestJetComb::operator()(std::vector<TtHadEvtSolution> & sols){
     if(indices.size() == 1) bestSol = indices[0];
     if(indices.size() > 1){ //for more than one solution...
       for(unsigned int i=0;i!=indices.size();i++){
-	double DPhi_W1b0 = fabs(sols[indices[i]].getFitHadW().phi()-sols[indices[i]].getFitHadb().phi());
-	double DPhi_W2b0 = fabs(sols[indices[i]].getFitHadWbar().phi()-sols[indices[i]].getFitHadb().phi());
-	double DPhi_W1b1 = fabs(sols[indices[i]].getFitHadW().phi()-sols[indices[i]].getFitHadbbar().phi());
-	double DPhi_W2b1 = fabs(sols[indices[i]].getFitHadWbar().phi()-sols[indices[i]].getFitHadbbar().phi());
+	double DPhi_W1b0 = fabs(sols[indices[i]].getFitHadW_plus().phi()-sols[indices[i]].getFitHadb().phi());
+	double DPhi_W1b1 = fabs(sols[indices[i]].getFitHadW_plus().phi()-sols[indices[i]].getFitHadbbar().phi());
+	double DPhi_W2b0 = fabs(sols[indices[i]].getFitHadW_minus().phi()-sols[indices[i]].getFitHadb().phi());
+	double DPhi_W2b1 = fabs(sols[indices[i]].getFitHadW_minus().phi()-sols[indices[i]].getFitHadbbar().phi());
 	
 	if(DPhi_W1b0>3.1415) DPhi_W1b0 = 2.*3.1415-DPhi_W1b0;
 	if(DPhi_W1b1>3.1415) DPhi_W1b1 = 2.*3.1415-DPhi_W1b1;
 	if(DPhi_W2b0>3.1415) DPhi_W2b0 = 2.*3.1415-DPhi_W2b0;
 	if(DPhi_W2b1>3.1415) DPhi_W2b1 = 2.*3.1415-DPhi_W2b1;
 	// Select as best solution the one which either has both b-jets closer to a particular W-jet
-	// or the one in which the two angles added together are lower than the other.....
+	// or the one in which the two angles added together are lower than the other.....FIXME!!!
 	// W1b0 and W1b1 is a pair, W2b0 and W2b1
 	if(DPhi_W1b0<DPhi_W2b0 && DPhi_W1b1<DPhi_W2b1){
 	  if(DPhi_W1b0<prev_W1b && DPhi_W1b1<prev_W2b){
