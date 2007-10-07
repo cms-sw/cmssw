@@ -2,8 +2,8 @@
  *
  * Class for RPC Monitoring using RPCDigi and DT and CSCS egments.
  *
- *  $Date: 2007/10/05 13:40:11 $
- *  $Revision: 1.2 $
+ *  $Date: 2007/10/05 16:45:16 $
+ *  $Revision: 1.3 $
  *
  * \author Camilo Carrillo (Uniandes)
  *
@@ -45,6 +45,9 @@ class MuonSegmentEff : public edm::EDAnalyzer {
       bool incldtMB4;
       bool inclcsc;
       int widestrip;
+      int widestripRB4;
+      double MinCosAng;
+      double MaxD;
       std::string muonRPCDigis;
       std::string cscSegments;
       std::string dt4DSegments;
