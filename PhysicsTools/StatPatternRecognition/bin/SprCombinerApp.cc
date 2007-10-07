@@ -1,4 +1,4 @@
-//$Id: SprCombinerApp.cc,v 1.3 2007/07/24 23:05:12 narsky Exp $
+//$Id: SprCombinerApp.cc,v 1.4 2007/10/05 20:03:09 narsky Exp $
 
 
 #include "PhysicsTools/StatPatternRecognition/interface/SprExperiment.hh"
@@ -6,7 +6,8 @@
 #include "PhysicsTools/StatPatternRecognition/interface/SprData.hh"
 #include "PhysicsTools/StatPatternRecognition/interface/SprEmptyFilter.hh"
 #include "PhysicsTools/StatPatternRecognition/interface/SprAbsReader.hh"
-#include "PhysicsTools/StatPatternRecognition/interface/SprSimpleReader.hh"
+#include "PhysicsTools/StatPatternRecognition/interface/SprAbsWriter.hh"
+#include "PhysicsTools/StatPatternRecognition/interface/SprRWFactory.hh"
 #include "PhysicsTools/StatPatternRecognition/interface/SprStringParser.hh"
 #include "PhysicsTools/StatPatternRecognition/interface/SprClass.hh"
 #include "PhysicsTools/StatPatternRecognition/interface/SprDefs.hh"
@@ -49,7 +50,7 @@ void help(const char* prog)
   cout << "\t-a input ascii file mode (see SprSimpleReader.hh)  " << endl;
   cout << "\t-v verbose level (0=silent default,1,2)            " << endl;
   cout << "\t-w scale all signal weights by this factor         " << endl;
-  cout << "\t-f save trained classifier configuration to file"    << endl;
+  cout << "\t-f save trained classifier configuration to file   " << endl;
   cout << "\t-K keep this fraction in training set and          " << endl;
   cout << "\t\t put the rest into validation set                " << endl;
   cout << "\t-D randomize training set split-up                 " << endl;
@@ -78,7 +79,7 @@ int main(int argc, char ** argv)
   }
 
   // init
-  int readMode = 1;
+  int readMode = 0;
   int verbose = 0;
   bool scaleWeights = false;
   double sW = 1.;
@@ -105,7 +106,7 @@ int main(int argc, char ** argv)
 	inputClassesString = optarg;
 	break;
       case 'a' :
-	readMode = (optarg==0 ? 1 : atoi(optarg));
+	readMode = (optarg==0 ? 0 : atoi(optarg));
 	break;
       case 'v' :
 	verbose = (optarg==0 ? 0 : atoi(optarg));
@@ -175,10 +176,12 @@ int main(int argc, char ** argv)
   int nTrained = subConfigFiles[0].size();
 
   // make reader
-  SprSimpleReader reader(readMode);
+  SprRWFactory::DataType inputType 
+    = ( readMode==0 ? SprRWFactory::Root : SprRWFactory::Ascii );
+  auto_ptr<SprAbsReader> reader(SprRWFactory::makeReader(inputType,readMode));
 
   // read input data from file
-  auto_ptr<SprAbsFilter> filter(reader.read(trainFile.c_str()));
+  auto_ptr<SprAbsFilter> filter(reader->read(trainFile.c_str()));
   if( filter.get() == 0 ) {
     cerr << "Unable to read data from file " << trainFile.c_str() << endl;
     return 2;
@@ -239,10 +242,11 @@ int main(int argc, char ** argv)
   }
   if( !valFile.empty() ) {
     // make test reader
-    SprSimpleReader valReader(readMode);
+    auto_ptr<SprAbsReader> 
+      valReader(SprRWFactory::makeReader(inputType,readMode));
     
     // read test data from file
-    valFilter.reset(valReader.read(valFile.c_str()));
+    valFilter.reset(valReader->read(valFile.c_str()));
     if( valFilter.get() == 0 ) {
       cerr << "Unable to read data from file " << valFile.c_str() << endl;
       return 2;

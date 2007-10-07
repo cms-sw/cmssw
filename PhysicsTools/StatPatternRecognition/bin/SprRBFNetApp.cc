@@ -1,4 +1,4 @@
-//$Id: SprRBFNetApp.cc,v 1.3 2006/11/26 02:04:31 narsky Exp $
+//$Id: SprRBFNetApp.cc,v 1.4 2007/10/05 20:03:10 narsky Exp $
 /*
   Reads RBF net and stores its output into an output tuple.
 */
@@ -8,9 +8,9 @@
 #include "PhysicsTools/StatPatternRecognition/interface/SprData.hh"
 #include "PhysicsTools/StatPatternRecognition/interface/SprEmptyFilter.hh"
 #include "PhysicsTools/StatPatternRecognition/interface/SprAbsReader.hh"
-#include "PhysicsTools/StatPatternRecognition/interface/SprSimpleReader.hh"
+#include "PhysicsTools/StatPatternRecognition/interface/SprAbsWriter.hh"
 #include "PhysicsTools/StatPatternRecognition/interface/SprDataFeeder.hh"
-#include "PhysicsTools/StatPatternRecognition/interface/SprMyWriter.hh"
+#include "PhysicsTools/StatPatternRecognition/interface/SprRWFactory.hh"
 
 #include <unistd.h>
 #include <stdio.h>
@@ -28,9 +28,10 @@ void help(const char* prog)
        << " training_data_file " 
        << " net_configuration_file " << endl;
   cout << "\t Options: " << endl;
-  cout << "\t-h --- help                                        " << endl;
-  cout << "\t-o output Tuple file                                 " << endl;
+  cout << "\t-h --- help                                       " << endl;
+  cout << "\t-o output Tuple file                              " << endl;
   cout << "\t-a input ascii file mode (see SprSimpleReader.hh) " << endl;
+  cout << "\t-A save output data in ascii instead of Root      " << endl;
 }
 
 
@@ -43,24 +44,28 @@ int main(int argc, char ** argv)
   }
 
   // init
-  string hbkFile;
-  int readMode = 1;
+  string tupleFile;
+  int readMode = 0;
+  SprRWFactory::DataType writeMode = SprRWFactory::Root;
   
   // decode command line
   int c;
   extern char* optarg;
   //  extern int optind;
-  while( (c = getopt(argc,argv,"ho:a:")) != EOF ) {
+  while( (c = getopt(argc,argv,"ho:a:A")) != EOF ) {
     switch( c )
       {
       case 'h' :
 	help(argv[0]);
 	return 1;
       case 'o' :
-	hbkFile = optarg;
+	tupleFile = optarg;
 	break;
       case 'a' :
-	readMode = (optarg==0 ? 1 : atoi(optarg));
+	readMode = (optarg==0 ? 0 : atoi(optarg));
+	break;
+      case 'A' :
+	writeMode = SprRWFactory::Ascii;
 	break;
       }
   }
@@ -78,8 +83,10 @@ int main(int argc, char ** argv)
   }
 
   // read training data from file
-  SprSimpleReader reader(readMode);
-  auto_ptr<SprAbsFilter> filter(reader.read(trFile.c_str()));
+  SprRWFactory::DataType inputType 
+    = ( readMode==0 ? SprRWFactory::Root : SprRWFactory::Ascii );
+  auto_ptr<SprAbsReader> reader(SprRWFactory::makeReader(inputType,readMode));
+  auto_ptr<SprAbsFilter> filter(reader->read(trFile.c_str()));
   if( filter.get() == 0 ) {
     cerr << "Unable to read data from file " << trFile.c_str() << endl;
     return 2;
@@ -107,20 +114,20 @@ int main(int argc, char ** argv)
   }
 
   // make histogram if requested
-  if( hbkFile.empty() ) return 0;
+  if( tupleFile.empty() ) return 0;
 
   // make a writer
-  SprMyWriter hbk("training");
-  if( !hbk.init(hbkFile.c_str()) ) {
-    cerr << "Unable to open output file " << hbkFile.c_str() << endl;
+  auto_ptr<SprAbsWriter> tuple(SprRWFactory::makeWriter(writeMode,"training"));
+  if( !tuple->init(tupleFile.c_str()) ) {
+    cerr << "Unable to open output file " << tupleFile.c_str() << endl;
     return 4;
   }
 
   // feed
-  SprDataFeeder feeder(filter.get(),&hbk);
+  SprDataFeeder feeder(filter.get(),tuple.get());
   feeder.addClassifier(&net,"rbf");
   if( !feeder.feed(1000) ) {
-    cerr << "Cannot feed data into file " << hbkFile.c_str() << endl;
+    cerr << "Cannot feed data into file " << tupleFile.c_str() << endl;
     return 5;
   }
 

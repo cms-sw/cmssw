@@ -1,4 +1,4 @@
-//$Id: exampleBootstrapVarianceEst.cc,v 1.3 2006/11/26 02:04:32 narsky Exp $
+//$Id: exampleBootstrapVarianceEst.cc,v 1.4 2007/10/05 20:03:10 narsky Exp $
 /*
   This example estimates RMS of the correlation coefficient estimator obtained 
   for 20 points drawn from a bivariate Gaussian density with covariance matrix 
@@ -25,7 +25,7 @@
 #include "PhysicsTools/StatPatternRecognition/interface/SprDataMoments.hh"
 #include "PhysicsTools/StatPatternRecognition/interface/SprEmptyFilter.hh"
 #include "PhysicsTools/StatPatternRecognition/interface/SprSimpleReader.hh"
-#include "PhysicsTools/StatPatternRecognition/interface/SprMyWriter.hh"
+#include "PhysicsTools/StatPatternRecognition/interface/SprAsciiWriter.hh"
 #include "PhysicsTools/StatPatternRecognition/interface/SprClass.hh"
 
 #include <iostream>
@@ -39,7 +39,7 @@ using namespace std;
 int main(int argc, char ** argv)
 {
   // init
-  string hbkFile = "bootstrap.hbook";
+  string hbkFile = "bootstrap.out";
 
   // read training data from file
   string trFile = "gausscorr_uniform_2d_train.pat";
@@ -75,7 +75,7 @@ int main(int argc, char ** argv)
        << " 1: " << f2.ptsInClass(1) << endl;
 
   // set up an hbook writer
-  auto_ptr<SprAbsWriter> hbk(new SprMyWriter("bootstrap"));
+  auto_ptr<SprAbsWriter> hbk(new SprAsciiWriter("bootstrap"));
   if( !hbk->init(hbkFile.c_str()) ) {
     cerr << "Cannot open hbook file " << hbkFile.c_str() << endl;
     return 2;

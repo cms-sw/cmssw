@@ -1,4 +1,4 @@
-//$Id: SprExploratoryAnalysisApp.cc,v 1.5 2007/08/13 02:14:42 narsky Exp $
+//$Id: SprExploratoryAnalysisApp.cc,v 1.6 2007/10/05 20:03:09 narsky Exp $
 /*
   This executable is intended for exploratory analysis of data.
 
@@ -21,7 +21,8 @@
 #include "PhysicsTools/StatPatternRecognition/interface/SprBumpHunter.hh"
 #include "PhysicsTools/StatPatternRecognition/interface/SprTrainedDecisionTree.hh"
 #include "PhysicsTools/StatPatternRecognition/interface/SprEmptyFilter.hh"
-#include "PhysicsTools/StatPatternRecognition/interface/SprSimpleReader.hh"
+#include "PhysicsTools/StatPatternRecognition/interface/SprAbsReader.hh"
+#include "PhysicsTools/StatPatternRecognition/interface/SprRWFactory.hh"
 #include "PhysicsTools/StatPatternRecognition/interface/SprAbsTwoClassCriterion.hh"
 #include "PhysicsTools/StatPatternRecognition/interface/SprTwoClassSignalSignif.hh"
 #include "PhysicsTools/StatPatternRecognition/interface/SprTwoClassIDFraction.hh"
@@ -106,8 +107,8 @@ int main(int argc, char ** argv)
   }
 
   // init
-  string hbkFile;
-  int readMode = 1;
+  string tupleFile;
+  int readMode = 0;
   int iCrit = 1;
   bool computeCorr = false;
   bool scaleWeights = false;
@@ -127,7 +128,7 @@ int main(int argc, char ** argv)
 	help(argv[0]);
 	return 1;
       case 'a' :
-	readMode = (optarg==0 ? 1 : atoi(optarg));
+	readMode = (optarg==0 ? 0 : atoi(optarg));
 	break;
       case 'y' :
 	inputClassesString = optarg;
@@ -164,7 +165,9 @@ int main(int argc, char ** argv)
   }
 
   // make reader
-  SprSimpleReader reader(readMode);
+  SprRWFactory::DataType inputType 
+    = ( readMode==0 ? SprRWFactory::Root : SprRWFactory::Ascii );
+  auto_ptr<SprAbsReader> reader(SprRWFactory::makeReader(inputType,readMode));
 
   // include variables
   set<string> includeSet;
@@ -174,12 +177,12 @@ int main(int argc, char ** argv)
     assert( !includeVars.empty() );
     for( int i=0;i<includeVars[0].size();i++ ) 
       includeSet.insert(includeVars[0][i]);
-    if( !reader.chooseVars(includeSet) ) {
+    if( !reader->chooseVars(includeSet) ) {
       cerr << "Unable to include variables in training set." << endl;
       return 2;
     }
     else {
-      cout << "Folowing variables have been included in optimization: ";
+      cout << "Following variables have been included in optimization: ";
       for( set<string>::const_iterator 
 	     i=includeSet.begin();i!=includeSet.end();i++ )
 	cout << "\"" << *i << "\"" << " ";
@@ -195,12 +198,12 @@ int main(int argc, char ** argv)
     assert( !excludeVars.empty() );
     for( int i=0;i<excludeVars[0].size();i++ ) 
       excludeSet.insert(excludeVars[0][i]);
-    if( !reader.chooseAllBut(excludeSet) ) {
+    if( !reader->chooseAllBut(excludeSet) ) {
       cerr << "Unable to exclude variables from training set." << endl;
       return 2;
     }
     else {
-      cout << "Folowing variables have been excluded from optimization: ";
+      cout << "Following variables have been excluded from optimization: ";
       for( set<string>::const_iterator 
 	     i=excludeSet.begin();i!=excludeSet.end();i++ )
 	cout << "\"" << *i << "\"" << " ";
@@ -209,7 +212,7 @@ int main(int argc, char ** argv)
   }
 
   // read training data from file
-  auto_ptr<SprAbsFilter> filter(reader.read(trFile.c_str()));
+  auto_ptr<SprAbsFilter> filter(reader->read(trFile.c_str()));
   if( filter.get() == 0 ) {
     cerr << "Unable to read data from file " << trFile.c_str() << endl;
     return 2;

@@ -1,10 +1,10 @@
-//$Id: exampleUserCuts.cc,v 1.3 2007/07/24 23:05:12 narsky Exp $
+//$Id: exampleUserCuts.cc,v 1.4 2007/10/05 20:03:10 narsky Exp $
 
 #include "PhysicsTools/StatPatternRecognition/interface/SprExperiment.hh"
 #include "PhysicsTools/StatPatternRecognition/interface/SprAbsFilter.hh"
 #include "PhysicsTools/StatPatternRecognition/interface/SprPreFilter.hh"
 #include "PhysicsTools/StatPatternRecognition/interface/SprSimpleReader.hh"
-#include "PhysicsTools/StatPatternRecognition/interface/SprMyWriter.hh"
+#include "PhysicsTools/StatPatternRecognition/interface/SprAsciiWriter.hh"
 
 #include <iostream>
 #include <string>
@@ -119,8 +119,8 @@ int main(int argc, char ** argv)
        << " 1: " << filter->ptsInClass(1) << endl;
 
   // set up an output writer
-  auto_ptr<SprAbsWriter> tuple(new SprMyWriter("filtered"));
-  string tupleFile = "filtered.root";
+  auto_ptr<SprAbsWriter> tuple(new SprAsciiWriter("filtered"));
+  string tupleFile = "filtered.out";
   if( !tuple->init(tupleFile.c_str()) ) {
     cerr << "Cannot open file " << tupleFile.c_str() << endl;
     return 3;

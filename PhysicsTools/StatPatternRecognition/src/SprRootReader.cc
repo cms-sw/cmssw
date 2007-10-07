@@ -1,4 +1,4 @@
-// $Id: SprRootReader.cc,v 1.7 2007/07/24 23:05:12 narsky Exp $
+// $Id: SprRootReader.cc,v 1.8 2007/10/05 20:03:10 narsky Exp $
 
 #include "PhysicsTools/StatPatternRecognition/interface/SprExperiment.hh"
 #include "PhysicsTools/StatPatternRecognition/interface/SprRootReader.hh"
@@ -52,11 +52,15 @@ SprAbsFilter* SprRootReader::read(const char* filename)
         }
         if (line.find_first_not_of(' ') == string::npos)
             continue;
+
         istringstream inString(line);
         vector<string> lineFields;
         string fieldDummy;
         while (inString >> fieldDummy)
             lineFields.push_back(fieldDummy);
+
+	assert( lineFields.size() > 1 );
+
         if (lineFields.at(0) == "Tree:") {
             assert(treeName_.length() == 0);
             treeName_ = lineFields.at(1);
@@ -90,38 +94,59 @@ SprAbsFilter* SprRootReader::read(const char* filename)
             istringstream s(lineFields.at(1));
             s >> weight;
         } else if (lineFields.at(0) == "File:") {
+
+  	    assert( lineFields.size() > 1 );
+
             FileInfo thisFile;
             thisFile.name = lineFields.at(1);
-            istringstream dummyIn(string(lineFields.at(2), 0, lineFields.at(2).find_first_of('-')));
-            if (not (dummyIn >> thisFile.start)) {
+
+	    thisFile.start = 0;
+	    thisFile.end = -1;
+
+	    if( lineFields.size() > 2 ) {
+	      istringstream 
+		dummyIn(string(lineFields.at(2),
+			       0,
+			       lineFields.at(2).find_first_of('-')));
+	      if( !(dummyIn >> thisFile.start) ) {
                 thisFile.start = 0;
-            }
-            dummyIn.clear();
-            dummyIn.str(string(lineFields.at(2), lineFields.at(2).find_first_of('-')+1, string::npos));
-            if (not (dummyIn >> thisFile.end)) {
+	      }
+	      dummyIn.clear();
+	      dummyIn.str(string(lineFields.at(2), 
+				 lineFields.at(2).find_first_of('-')+1, 
+				 string::npos));
+	      if( !(dummyIn >> thisFile.end) ) {
                 thisFile.end = -1;
-            }
-            dummyIn.clear();
-            dummyIn.str(lineFields.at(3));
-            if (not (dummyIn >> thisFile.fileClass)) {
+	      }
+	      dummyIn.clear();
+	    }
+
+	    thisFile.fileClass = 0;
+
+	    if( lineFields.size() > 3 ) {
+	      istringstream dummyIn(lineFields.at(3));
+	      if (not (dummyIn >> thisFile.fileClass)) {
                 thisFile.fileClass = 0;
                 cout << dummyIn.get();
-            }
-            thisFile.weight = weight;
+	      }
+	    }
+
+	    thisFile.weight = weight;
             fileObjects_.push_back(thisFile);
-            cout << "found file: " << thisFile.name
-                    << " start: " << thisFile.start
-                    << " end: " << thisFile.end
-                    << " class: " << thisFile.fileClass
-                    << " weight: " << thisFile.weight
-                    << endl;
+
+            cout << "For tree " << treeName_
+		 << " found file: " << thisFile.name
+		 << " start: " << thisFile.start
+		 << " end: " << thisFile.end
+		 << " class: " << thisFile.fileClass
+		 << " weight: " << thisFile.weight
+		 << endl;
         }
     }
 
     if(hasSpecialClassifier_){
-        cout<<"A variable determined class has been chosen, the value"
-            <<" assigned to "<<classifierVarName_<<" will give the class"
-            <<" type for each entry"<<endl;
+      cout << "True class value is given by leaf " 
+	   << classifierVarName_ << endl;
     }
 
     if(weightLeafNames_.size()){

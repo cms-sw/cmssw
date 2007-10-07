@@ -1,4 +1,4 @@
-//$Id: SprVariableImportanceApp.cc,v 1.1 2007/07/06 21:46:22 narsky Exp $
+//$Id: SprVariableImportanceApp.cc,v 1.2 2007/10/05 20:03:10 narsky Exp $
 //
 // An executable to estimate the relative importance of variables.
 // See notes in README (Variable Selection).
@@ -7,7 +7,8 @@
 #include "PhysicsTools/StatPatternRecognition/interface/SprExperiment.hh"
 #include "PhysicsTools/StatPatternRecognition/interface/SprAbsFilter.hh"
 #include "PhysicsTools/StatPatternRecognition/interface/SprPoint.hh"
-#include "PhysicsTools/StatPatternRecognition/interface/SprSimpleReader.hh"
+#include "PhysicsTools/StatPatternRecognition/interface/SprAbsReader.hh"
+#include "PhysicsTools/StatPatternRecognition/interface/SprRWFactory.hh"
 #include "PhysicsTools/StatPatternRecognition/interface/SprStringParser.hh"
 #include "PhysicsTools/StatPatternRecognition/interface/SprClass.hh"
 #include "PhysicsTools/StatPatternRecognition/interface/SprClassifierReader.hh"
@@ -79,7 +80,7 @@ int main(int argc, char ** argv)
   }
 
   // init
-  int readMode = 1;
+  int readMode = 0;
   int verbose = 0;
   bool scaleWeights = false;
   double sW = 1.;
@@ -103,7 +104,7 @@ int main(int argc, char ** argv)
 	inputClassesString = optarg;
 	break;
       case 'a' :
-	readMode = (optarg==0 ? 1 : atoi(optarg));
+	readMode = (optarg==0 ? 0 : atoi(optarg));
 	break;
       case 'n' :
 	nPerm = (optarg==0 ? 1 : atoi(optarg));
@@ -145,7 +146,9 @@ int main(int argc, char ** argv)
   }
 
   // make reader
-  SprSimpleReader reader(readMode);
+  SprRWFactory::DataType inputType 
+    = ( readMode==0 ? SprRWFactory::Root : SprRWFactory::Ascii );
+  auto_ptr<SprAbsReader> reader(SprRWFactory::makeReader(inputType,readMode));
 
   // include variables
   set<string> includeSet;
@@ -155,7 +158,7 @@ int main(int argc, char ** argv)
     assert( !includeVars.empty() );
     for( int i=0;i<includeVars[0].size();i++ ) 
       includeSet.insert(includeVars[0][i]);
-    if( !reader.chooseVars(includeSet) ) {
+    if( !reader->chooseVars(includeSet) ) {
       cerr << "Unable to include variables in training set." << endl;
       return 2;
     }
@@ -176,7 +179,7 @@ int main(int argc, char ** argv)
     assert( !excludeVars.empty() );
     for( int i=0;i<excludeVars[0].size();i++ ) 
       excludeSet.insert(excludeVars[0][i]);
-    if( !reader.chooseAllBut(excludeSet) ) {
+    if( !reader->chooseAllBut(excludeSet) ) {
       cerr << "Unable to exclude variables from training set." << endl;
       return 2;
     }
@@ -190,7 +193,7 @@ int main(int argc, char ** argv)
   }
 
   // read input data from file
-  auto_ptr<SprAbsFilter> filter(reader.read(dataFile.c_str()));
+  auto_ptr<SprAbsFilter> filter(reader->read(dataFile.c_str()));
   if( filter.get() == 0 ) {
     cerr << "Unable to read data from file " << dataFile.c_str() << endl;
     return 2;

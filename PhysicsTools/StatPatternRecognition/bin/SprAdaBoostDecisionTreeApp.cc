@@ -1,4 +1,4 @@
-//$Id: SprAdaBoostDecisionTreeApp.cc,v 1.9 2007/08/30 17:54:38 narsky Exp $
+//$Id: SprAdaBoostDecisionTreeApp.cc,v 1.10 2007/10/05 20:03:09 narsky Exp $
 
 #include "PhysicsTools/StatPatternRecognition/interface/SprExperiment.hh"
 #include "PhysicsTools/StatPatternRecognition/interface/SprAbsFilter.hh"
@@ -10,9 +10,10 @@
 #include "PhysicsTools/StatPatternRecognition/interface/SprTopdownTree.hh"
 #include "PhysicsTools/StatPatternRecognition/interface/SprTrainedTopdownTree.hh"
 #include "PhysicsTools/StatPatternRecognition/interface/SprEmptyFilter.hh"
-#include "PhysicsTools/StatPatternRecognition/interface/SprSimpleReader.hh"
+#include "PhysicsTools/StatPatternRecognition/interface/SprAbsReader.hh"
+#include "PhysicsTools/StatPatternRecognition/interface/SprAbsWriter.hh"
 #include "PhysicsTools/StatPatternRecognition/interface/SprDataFeeder.hh"
-#include "PhysicsTools/StatPatternRecognition/interface/SprMyWriter.hh"
+#include "PhysicsTools/StatPatternRecognition/interface/SprRWFactory.hh"
 #include "PhysicsTools/StatPatternRecognition/interface/SprClassifierReader.hh"
 #include "PhysicsTools/StatPatternRecognition/interface/SprTwoClassGiniIndex.hh"
 #include "PhysicsTools/StatPatternRecognition/interface/SprTwoClassCrossEntropy.hh"
@@ -51,6 +52,7 @@ void help(const char* prog)
   cout << "\t-E epsilon for Epsilon and Real AdaBoosts (def=0.01)" << endl;
   cout << "\t-o output Tuple file                               " << endl;
   cout << "\t-a input ascii file mode (see SprSimpleReader.hh)  " << endl;
+  cout << "\t-A save output data in ascii instead of Root       " << endl;
   cout << "\t-n number of AdaBoost training cycles              " << endl;
   cout << "\t-l minimal number of entries per tree leaf (def=1) " << endl;
   cout << "\t-y list of input classes (see SprAbsFilter.hh)     " << endl;
@@ -102,8 +104,9 @@ int main(int argc, char ** argv)
   }
 
   // init
-  string hbkFile;
-  int readMode = 1;
+  string tupleFile;
+  int readMode = 0;
+  SprRWFactory::DataType writeMode = SprRWFactory::Root;
   unsigned cycles = 0;
   unsigned nmin = 1;
   int iCrit = 5;
@@ -140,7 +143,7 @@ int main(int argc, char ** argv)
   int c;
   extern char* optarg;
   //  extern int optind;
-  while((c = getopt(argc,argv,"hjM:E:o:a:n:l:y:c:g:b:m:iseu:v:f:F:r:K:Dt:d:w:V:z:Z:x:q:")) != EOF ) {
+  while((c = getopt(argc,argv,"hjM:E:o:a:An:l:y:c:g:b:m:iseu:v:f:F:r:K:Dt:d:w:V:z:Z:x:q:")) != EOF ) {
     switch( c )
       {
       case 'h' :
@@ -156,10 +159,13 @@ int main(int argc, char ** argv)
 	epsilon = (optarg==0 ? 0.01 : atof(optarg));
 	break;
       case 'o' :
-	hbkFile = optarg;
+	tupleFile = optarg;
 	break;
       case 'a' :
-	readMode = (optarg==0 ? 1 : atoi(optarg));
+	readMode = (optarg==0 ? 0 : atoi(optarg));
+	break;
+      case 'A' :
+	writeMode = SprRWFactory::Ascii;
 	break;
       case 'n' :
 	cycles = (optarg==0 ? 1 : atoi(optarg));
@@ -255,7 +261,9 @@ int main(int argc, char ** argv)
   }
 
   // make reader
-  SprSimpleReader reader(readMode);
+  SprRWFactory::DataType inputType 
+    = ( readMode==0 ? SprRWFactory::Root : SprRWFactory::Ascii );
+  auto_ptr<SprAbsReader> reader(SprRWFactory::makeReader(inputType,readMode));
 
   // include variables
   set<string> includeSet;
@@ -265,12 +273,12 @@ int main(int argc, char ** argv)
     assert( !includeVars.empty() );
     for( int i=0;i<includeVars[0].size();i++ ) 
       includeSet.insert(includeVars[0][i]);
-    if( !reader.chooseVars(includeSet) ) {
+    if( !reader->chooseVars(includeSet) ) {
       cerr << "Unable to include variables in training set." << endl;
       return 2;
     }
     else {
-      cout << "Folowing variables have been included in optimization: ";
+      cout << "Following variables have been included in optimization: ";
       for( set<string>::const_iterator 
 	     i=includeSet.begin();i!=includeSet.end();i++ )
 	cout << "\"" << *i << "\"" << " ";
@@ -286,12 +294,12 @@ int main(int argc, char ** argv)
     assert( !excludeVars.empty() );
     for( int i=0;i<excludeVars[0].size();i++ ) 
       excludeSet.insert(excludeVars[0][i]);
-    if( !reader.chooseAllBut(excludeSet) ) {
+    if( !reader->chooseAllBut(excludeSet) ) {
       cerr << "Unable to exclude variables from training set." << endl;
       return 2;
     }
     else {
-      cout << "Folowing variables have been excluded from optimization: ";
+      cout << "Following variables have been excluded from optimization: ";
       for( set<string>::const_iterator 
 	     i=excludeSet.begin();i!=excludeSet.end();i++ )
 	cout << "\"" << *i << "\"" << " ";
@@ -300,7 +308,7 @@ int main(int argc, char ** argv)
   }
 
   // read training data from file
-  auto_ptr<SprAbsFilter> filter(reader.read(trFile.c_str()));
+  auto_ptr<SprAbsFilter> filter(reader->read(trFile.c_str()));
   if( filter.get() == 0 ) {
     cerr << "Unable to read data from file " << trFile.c_str() << endl;
     return 2;
@@ -372,20 +380,21 @@ int main(int argc, char ** argv)
     }
   }
   if( !valFile.empty() && valPrint!=0 ) {
-    SprSimpleReader valReader(readMode);
+    auto_ptr<SprAbsReader> 
+      valReader(SprRWFactory::makeReader(inputType,readMode));
     if( !includeSet.empty() ) {
-      if( !valReader.chooseVars(includeSet) ) {
+      if( !valReader->chooseVars(includeSet) ) {
 	cerr << "Unable to include variables in validation set." << endl;
 	return 2;
       }
     }
     if( !excludeSet.empty() ) {
-      if( !valReader.chooseAllBut(excludeSet) ) {
+      if( !valReader->chooseAllBut(excludeSet) ) {
 	cerr << "Unable to exclude variables from validation set." << endl;
 	return 2;
       }
     }
-    valFilter.reset(valReader.read(valFile.c_str()));
+    valFilter.reset(valReader->read(valFile.c_str()));
     if( valFilter.get() == 0 ) {
       cerr << "Unable to read data from file " << valFile.c_str() << endl;
       return 2;
@@ -698,13 +707,13 @@ int main(int argc, char ** argv)
   }
 
   // make histogram if requested
-  if( hbkFile.empty() ) 
+  if( tupleFile.empty() ) 
     return 0;
 
   // make a writer
-  SprMyWriter hbk("training");
-  if( !hbk.init(hbkFile.c_str()) ) {
-    cerr << "Unable to open output file " << hbkFile.c_str() << endl;
+  auto_ptr<SprAbsWriter> tuple(SprRWFactory::makeWriter(writeMode,"training"));
+  if( !tuple->init(tupleFile.c_str()) ) {
+    cerr << "Unable to open output file " << tupleFile.c_str() << endl;
     return 10;
   }
 
@@ -732,10 +741,10 @@ int main(int argc, char ** argv)
   }
 
   // feed
-  SprDataFeeder feeder(filter.get(),&hbk,mapper);
+  SprDataFeeder feeder(filter.get(),tuple.get(),mapper);
   feeder.addClassifier(trainedAda.get(),"ada");
   if( !feeder.feed(1000) ) {
-    cerr << "Cannot feed data into file " << hbkFile.c_str() << endl;
+    cerr << "Cannot feed data into file " << tupleFile.c_str() << endl;
     return 11;
   }
 

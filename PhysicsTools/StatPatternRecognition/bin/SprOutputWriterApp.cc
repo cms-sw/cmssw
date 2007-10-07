@@ -1,13 +1,13 @@
-//$Id: SprOutputWriterApp.cc,v 1.2 2007/09/21 22:31:41 narsky Exp $
+//$Id: SprOutputWriterApp.cc,v 1.8 2007/10/05 20:03:09 narsky Exp $
 
 
 #include "PhysicsTools/StatPatternRecognition/interface/SprExperiment.hh"
 #include "PhysicsTools/StatPatternRecognition/interface/SprData.hh"
 #include "PhysicsTools/StatPatternRecognition/interface/SprEmptyFilter.hh"
 #include "PhysicsTools/StatPatternRecognition/interface/SprAbsReader.hh"
-#include "PhysicsTools/StatPatternRecognition/interface/SprSimpleReader.hh"
+#include "PhysicsTools/StatPatternRecognition/interface/SprAbsWriter.hh"
 #include "PhysicsTools/StatPatternRecognition/interface/SprDataFeeder.hh"
-#include "PhysicsTools/StatPatternRecognition/interface/SprMyWriter.hh"
+#include "PhysicsTools/StatPatternRecognition/interface/SprRWFactory.hh"
 #include "PhysicsTools/StatPatternRecognition/interface/SprStringParser.hh"
 #include "PhysicsTools/StatPatternRecognition/interface/SprClass.hh"
 #include "PhysicsTools/StatPatternRecognition/interface/SprClassifierReader.hh"
@@ -39,6 +39,7 @@ void help(const char* prog)
   cout << "\t-h --- help                                        " << endl;
   cout << "\t-y list of input classes (see SprAbsFilter.hh)     " << endl;
   cout << "\t-a input ascii file mode (see SprSimpleReader.hh)  " << endl;
+  cout << "\t-A save output data in ascii instead of Root       " << endl;
   cout << "\t-K use 1-fraction of input data                    " << endl;
   cout << "\t\t This option is for consistency with other execs." << endl;
   cout << "\t-v verbose level (0=silent default,1,2)            " << endl;
@@ -73,7 +74,8 @@ int main(int argc, char ** argv)
   }
 
   // init
-  int readMode = 1;
+  int readMode = 0;
+  SprRWFactory::DataType writeMode = SprRWFactory::Root;
   int verbose = 0;
   bool scaleWeights = false;
   double sW = 1.;
@@ -92,7 +94,7 @@ int main(int argc, char ** argv)
   int c;
   extern char* optarg;
   extern int optind;
-  while( (c = getopt(argc,argv,"hy:a:K:v:w:t:C:p:sV:z:Z:M")) != EOF ) {
+  while( (c = getopt(argc,argv,"hy:a:AK:v:w:t:C:p:sV:z:Z:M")) != EOF ) {
     switch( c )
       {
       case 'h' :
@@ -102,7 +104,10 @@ int main(int argc, char ** argv)
 	inputClassesString = optarg;
 	break;
       case 'a' :
-	readMode = (optarg==0 ? 1 : atoi(optarg));
+	readMode = (optarg==0 ? 0 : atoi(optarg));
+	break;
+      case 'A' :
+	writeMode = SprRWFactory::Ascii;
 	break;
       case 'K' :
         split = true;
@@ -180,7 +185,9 @@ int main(int argc, char ** argv)
   }
 
   // make reader
-  SprSimpleReader reader(readMode);
+  SprRWFactory::DataType inputType 
+    = ( readMode==0 ? SprRWFactory::Root : SprRWFactory::Ascii );
+  auto_ptr<SprAbsReader> reader(SprRWFactory::makeReader(inputType,readMode));
 
   // include variables
   set<string> includeSet;
@@ -190,7 +197,7 @@ int main(int argc, char ** argv)
     assert( !includeVars.empty() );
     for( int i=0;i<includeVars[0].size();i++ ) 
       includeSet.insert(includeVars[0][i]);
-    if( !reader.chooseVars(includeSet) ) {
+    if( !reader->chooseVars(includeSet) ) {
       cerr << "Unable to include variables in training set." << endl;
       return 2;
     }
@@ -211,7 +218,7 @@ int main(int argc, char ** argv)
     assert( !excludeVars.empty() );
     for( int i=0;i<excludeVars[0].size();i++ ) 
       excludeSet.insert(excludeVars[0][i]);
-    if( !reader.chooseAllBut(excludeSet) ) {
+    if( !reader->chooseAllBut(excludeSet) ) {
       cerr << "Unable to exclude variables from training set." << endl;
       return 2;
     }
@@ -225,7 +232,7 @@ int main(int argc, char ** argv)
   }
 
   // read input data from file
-  auto_ptr<SprAbsFilter> filter(reader.read(dataFile.c_str()));
+  auto_ptr<SprAbsFilter> filter(reader->read(dataFile.c_str()));
   if( filter.get() == 0 ) {
     cerr << "Unable to read data from file " << dataFile.c_str() << endl;
     return 2;
@@ -280,7 +287,7 @@ int main(int argc, char ** argv)
   else {
     valFilter.reset(filter.release());
   }
- 
+
   // read classifier configuration
   vector<SprAbsTrainedClassifier*> trained(nTrained);
   vector<SprCoordinateMapper*> specificMappers(nTrained);
@@ -336,8 +343,9 @@ int main(int argc, char ** argv)
 
   // make tuple
   if( tupleName.empty() ) tupleName = "data";
-  SprMyWriter tuple(tupleName.c_str());
-  if( !tuple.init(tupleFile.c_str()) ) {
+  auto_ptr<SprAbsWriter> 
+    tuple(SprRWFactory::makeWriter(writeMode,tupleName.c_str()));
+  if( !tuple->init(tupleFile.c_str()) ) {
     cerr << "Unable to open output file " << tupleFile.c_str() << endl;
     cleanup(trained);
     return 5;
@@ -367,7 +375,7 @@ int main(int argc, char ** argv)
   }
 
   // feed data into tuple
-  SprDataFeeder feeder(valFilter.get(),&tuple,mapper);
+  SprDataFeeder feeder(valFilter.get(),tuple.get(),mapper);
   for( int i=0;i<nTrained;i++ ) {
     string useName;
     if( useClassifierNames ) 

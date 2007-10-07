@@ -1,4 +1,4 @@
-//$Id: SprInteractiveAnalysisApp.cc,v 1.9 2007/08/30 17:54:42 narsky Exp $
+//$Id: SprInteractiveAnalysisApp.cc,v 1.10 2007/10/05 20:03:09 narsky Exp $
 /*
   This executable is intended for interactive analysis of small samples.
   The user can interactively add and remove various classifiers with
@@ -16,7 +16,8 @@
 #include "PhysicsTools/StatPatternRecognition/interface/SprAbsTrainedClassifier.hh"
 #include "PhysicsTools/StatPatternRecognition/interface/SprEmptyFilter.hh"
 #include "PhysicsTools/StatPatternRecognition/interface/SprUtils.hh"
-#include "PhysicsTools/StatPatternRecognition/interface/SprSimpleReader.hh"
+#include "PhysicsTools/StatPatternRecognition/interface/SprAbsReader.hh"
+#include "PhysicsTools/StatPatternRecognition/interface/SprAbsWriter.hh"
 #include "PhysicsTools/StatPatternRecognition/interface/SprClass.hh"
 #include "PhysicsTools/StatPatternRecognition/interface/SprBinarySplit.hh"
 #include "PhysicsTools/StatPatternRecognition/interface/SprAdaBoost.hh"
@@ -37,7 +38,7 @@
 #include "PhysicsTools/StatPatternRecognition/interface/SprIntegerBootstrap.hh"
 #include "PhysicsTools/StatPatternRecognition/interface/SprStringParser.hh"
 #include "PhysicsTools/StatPatternRecognition/interface/SprDataFeeder.hh"
-#include "PhysicsTools/StatPatternRecognition/interface/SprMyWriter.hh"
+#include "PhysicsTools/StatPatternRecognition/interface/SprRWFactory.hh"
 
 #include <unistd.h>
 #include <stdio.h>
@@ -94,6 +95,7 @@ void help(const char* prog)
   cout << "\t-p path to temporary cache files (default=\"./\")  " << endl;
   cout << "\t-o output Tuple file                               " << endl;
   cout << "\t-a input ascii file mode (see SprSimpleReader.hh)  " << endl;
+  cout << "\t-A save output data in ascii instead of Root       " << endl;
   cout << "\t-y list of input classes (see SprAbsFilter.hh)     " << endl;
   cout << "\t-K keep this fraction in training set and          " << endl;
   cout << "\t\t put the rest into validation set                " << endl;
@@ -375,9 +377,10 @@ int main(int argc, char ** argv)
   }
 
   // init
-  string hbkFile;
+  string tupleFile;
   string pathToCache;
-  int readMode = 1;
+  int readMode = 0;
+  SprRWFactory::DataType writeMode = SprRWFactory::Root;
   int verbose = 0;
   string includeList, excludeList;
   string inputClassesString;
@@ -390,7 +393,7 @@ int main(int argc, char ** argv)
   int c;
   extern char* optarg;
   //  extern int optind;
-  while( (c = getopt(argc,argv,"hp:o:a:y:K:Dt:v:V:z:")) 
+  while( (c = getopt(argc,argv,"hp:o:a:Ay:K:Dt:v:V:z:")) 
 	 != EOF ) {
     switch( c )
       {
@@ -401,10 +404,13 @@ int main(int argc, char ** argv)
 	pathToCache = optarg;
 	break;
       case 'o' :
-	hbkFile = optarg;
+	tupleFile = optarg;
 	break;
       case 'a' :
-	readMode = (optarg==0 ? 1 : atoi(optarg));
+	readMode = (optarg==0 ? 0 : atoi(optarg));
+	break;
+      case 'A' :
+	writeMode = SprRWFactory::Ascii;
 	break;
       case 'y' :
 	inputClassesString = optarg;
@@ -439,7 +445,9 @@ int main(int argc, char ** argv)
   }
 
   // make reader
-  SprSimpleReader reader(readMode);
+  SprRWFactory::DataType inputType 
+    = ( readMode==0 ? SprRWFactory::Root : SprRWFactory::Ascii );
+  auto_ptr<SprAbsReader> reader(SprRWFactory::makeReader(inputType,readMode));
 
   // include variables
   set<string> includeSet;
@@ -449,12 +457,12 @@ int main(int argc, char ** argv)
     assert( !includeVars.empty() );
     for( int i=0;i<includeVars[0].size();i++ ) 
       includeSet.insert(includeVars[0][i]);
-    if( !reader.chooseVars(includeSet) ) {
+    if( !reader->chooseVars(includeSet) ) {
       cerr << "Unable to include variables in training set." << endl;
       return 2;
     }
     else {
-      cout << "Folowing variables have been included in optimization: ";
+      cout << "Following variables have been included in optimization: ";
       for( set<string>::const_iterator 
 	     i=includeSet.begin();i!=includeSet.end();i++ )
 	cout << "\"" << *i << "\"" << " ";
@@ -470,12 +478,12 @@ int main(int argc, char ** argv)
     assert( !excludeVars.empty() );
     for( int i=0;i<excludeVars[0].size();i++ ) 
       excludeSet.insert(excludeVars[0][i]);
-    if( !reader.chooseAllBut(excludeSet) ) {
+    if( !reader->chooseAllBut(excludeSet) ) {
       cerr << "Unable to exclude variables from training set." << endl;
       return 2;
     }
     else {
-      cout << "Folowing variables have been excluded from optimization: ";
+      cout << "Following variables have been excluded from optimization: ";
       for( set<string>::const_iterator 
 	     i=excludeSet.begin();i!=excludeSet.end();i++ )
 	cout << "\"" << *i << "\"" << " ";
@@ -484,7 +492,7 @@ int main(int argc, char ** argv)
   }
 
   // read training data from file
-  auto_ptr<SprAbsFilter> filter(reader.read(trFile.c_str()));
+  auto_ptr<SprAbsFilter> filter(reader->read(trFile.c_str()));
   if( filter.get() == 0 ) {
     cerr << "Unable to read data from file " << trFile.c_str() << endl;
     return 2;
@@ -546,20 +554,21 @@ int main(int argc, char ** argv)
     }
   }
   if( !valFile.empty() ) {
-    SprSimpleReader valReader(readMode);
+    auto_ptr<SprAbsReader> 
+      valReader(SprRWFactory::makeReader(inputType,readMode));
     if( !includeSet.empty() ) {
-      if( !valReader.chooseVars(includeSet) ) {
+      if( !valReader->chooseVars(includeSet) ) {
 	cerr << "Unable to include variables in validation set." << endl;
 	return 2;
       }
     }
     if( !excludeSet.empty() ) {
-      if( !valReader.chooseAllBut(excludeSet) ) {
+      if( !valReader->chooseAllBut(excludeSet) ) {
 	cerr << "Unable to exclude variables from validation set." << endl;
 	return 2;
       }
     }
-    valFilter.reset(valReader.read(valFile.c_str()));
+    valFilter.reset(valReader->read(valFile.c_str()));
     if( valFilter.get() == 0 ) {
       cerr << "Unable to read data from file " << valFile.c_str() << endl;
       return 2;
@@ -1782,7 +1791,8 @@ int main(int argc, char ** argv)
       // open file
       string ntupleFile 
 	= answerName("Give name of the output ntuple file -->");
-      SprAbsWriter* writer = new SprMyWriter("ClassifierComparison");
+      auto_ptr<SprAbsWriter> 
+	writer(SprRWFactory::makeWriter(writeMode,"ClassifierComparison"));
       if( !writer->init(ntupleFile.c_str()) ) {
 	cerr << "Unable to open ntuple file " << ntupleFile.c_str() << endl;
 	return prepareExit(classifiers,cToClean,bootstraps,7);
@@ -1822,7 +1832,6 @@ int main(int argc, char ** argv)
 
       // clean up
       writer->close();
-      delete writer;
     }// end saving to file
 
     // clean up

@@ -1,4 +1,4 @@
-//$Id: SprOutputAnalyzerApp.cc,v 1.11 2007/08/30 17:54:42 narsky Exp $
+//$Id: SprOutputAnalyzerApp.cc,v 1.12 2007/10/05 20:03:09 narsky Exp $
 /*
   This executable for analysis of output ascii files produced by 
   a classifier. It lets the user quickly estimate fractions of 
@@ -378,10 +378,12 @@ int main(int argc, char ** argv)
 
   // supply input vectors to the plotter
   SprPlotter plotter(responses);
-  if( useAbsolute ) plotter.useAbsolute();
-  if( !plotter.setScaleFactors(sW,bW) ) {
-    cerr << "Unable to set the scaling factors for the plotter." << endl;
-    return 7;
+  if( useAbsolute ) {
+    plotter.useAbsolute();
+    if( !plotter.setScaleFactors(sW,bW) ) {
+      cerr << "Unable to set the scaling factors for the plotter." << endl;
+      return 7;
+    }
   }
   plotter.setCrit(crit.get());
 
