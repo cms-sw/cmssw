@@ -1,5 +1,5 @@
 //
-// $Id: TopJetProducer.cc,v 1.31 2007/10/05 11:29:32 lowette Exp $
+// $Id: TopJetProducer.cc,v 1.32 2007/10/07 16:12:20 lowette Exp $
 //
 
 #include "TopQuarkAnalysis/TopObjectProducers/interface/TopJetProducer.h"
@@ -241,7 +241,6 @@ void TopJetProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
         std::string moduleTagInfoName = (jetTags).provenance()->moduleName();  
         std::string moduleLabel = (jetTags).provenance()->moduleLabel();
         //********ignore taggers from AOD*********
-std::cout << moduleLabel << std::endl;
         bool tagShouldBeIgnored = false;
         for (unsigned int i = 0; i < tagModuleLabelsToIgnore_.size(); ++i) {
           if (moduleLabel == tagModuleLabelsToIgnore_[i]) { tagShouldBeIgnored = true; }
