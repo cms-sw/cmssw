@@ -16,7 +16,7 @@ input_data="gauss2_uniform_2d_train.pat"
 if [ "$mode" == "2" ]; then
   input_data="gauss2_uniform_2d_train_root.pat"
 fi
-exec_dir="../bin"
+exec_dir="/afs/cern.ch/user/n/narsky/w0/CMSSW_1_7_X_2007-10-07-1600/bin/slc4_ia32_gcc345"
 echo "TopdownTree 5 0 100" > check_execs.config
 #
 # check execs
@@ -32,7 +32,7 @@ $exec_dir/SprDecisionTreeApp $input_flag -n 100 -F 7.spr $input_data
 $exec_dir/SprFisherLogitApp $input_flag -m 1 -f 8.spr $input_data
 $exec_dir/SprFisherLogitApp $input_flag -l -f 9.spr $input_data
 $exec_dir/SprStdBackpropApp $input_flag -n 1 -l 10 -N '2:4:2:1' -f 10.spr $input_data
-$exec_dir/SprOutputWriterApp $input_flag -A -C '1,2,3,4,5,7,8,9,10' '1.spr,2.spr,3.spr,4.spr,4.spr,5.spr,6.spr,7.spr,8.spr,9.spr,10.spr' $input_data save.out
+$exec_dir/SprOutputWriterApp $input_flag -A -C '1,2,3,4,5,7,8,9,10' '1.spr,2.spr,3.spr,4.spr,5.spr,7.spr,8.spr,9.spr,10.spr' $input_data save.out
 $exec_dir/SprOutputWriterApp $input_flag -C '1,2,3,4,5,7,8,9,10' '1.spr,2.spr,3.spr,4.spr,5.spr,7.spr,8.spr,9.spr,10.spr' $input_data save.root
 #
 #
