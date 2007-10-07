@@ -16,18 +16,18 @@ if(all4DSegments->size()>0){
     scounter[segment->chamberId()]++;
   }    
   
-  std::cout<<"\t Loop over all the 4D Segments"<<std::endl;
+  std::cout<<"MB4 \t Loop over all the 4D Segments"<<std::endl;
   for (segment = all4DSegments->begin(); segment != all4DSegments->end(); ++segment){ 
     
     DTChamberId DTId = segment->chamberId();
     
-    std::cout<<"\t \t This Segment is in Chamber id: "<<DTId<<std::endl;
-    std::cout<<"\t \t Number of segments in this DT = "<<scounter[DTId]<<std::endl;
-    std::cout<<"\t \t DT Segment Dimension "<<segment->dimension()<<std::endl; 
-    std::cout<<"\t \t Is the only in this DT?"<<std::endl;
+    std::cout<<"MB4 \t \t This Segment is in Chamber id: "<<DTId<<std::endl;
+    std::cout<<"MB4 \t \t Number of segments in this DT = "<<scounter[DTId]<<std::endl;
+    std::cout<<"MB4 \t \t DT Segment Dimension "<<segment->dimension()<<std::endl; 
+    std::cout<<"MB4 \t \t Is the only in this DT?"<<std::endl;
     
     if(scounter[DTId] == 1){
-      std::cout<<"\t \t yes"<<std::endl;
+      std::cout<<"MB4 \t \t yes"<<std::endl;
       int dtWheel = DTId.wheel();
       int dtStation = DTId.station();
       int dtSector = DTId.sector();
@@ -37,7 +37,7 @@ if(all4DSegments->size()>0){
       
       
       //check if the dimension of the segment is 2
-      std::cout<<"\t \t Is the segment 2D?"<<std::endl;
+      std::cout<<"MB4 \t \t Is the segment 2D?"<<std::endl;
       
       
       //DE ACA PARA ARRIBA SE REPITE EN dtpart.inl
@@ -50,7 +50,7 @@ if(all4DSegments->size()>0){
 	  LocalVector segmentDirectionMB4=segmentDirection;
 	  LocalPoint segmentPositionMB4=segmentPosition;
 	  
-	  std::cout<<"MB4 \t 2D in RB4"<<DTId<<" with D="<<segment->dimension()<<segmentPositionMB4<<std::endl;	  
+	  std::cout<<"MB4 \t \t 2D in RB4"<<DTId<<" with D="<<segment->dimension()<<segmentPositionMB4<<std::endl;	  
 	  bool compatiblesegments=false;
 	  Xo=segmentPositionMB4.x();
 	  dx=segmentDirectionMB4.x();
@@ -74,15 +74,15 @@ if(all4DSegments->size()>0){
 	      
 	      LocalVector segDirMB4inMB3Frame=DTSurface3.toLocal(DTSurface4.toGlobal(segmentDirectionMB4));
 	      
-	      float cosAng=dx*dx3+dz*dz3/sqrt((dx3*dx3+dz3*dz3)*(dx*dx+dz*dz));
-	      
-	      //assertion(fabs(cosAng)<=1);
-	      float MaxCosAng=0.1; //Por ahora Luego en el config file
-	      if(cosAng<MaxCosAng){
+	      double cosAng=fabs(dx*dx3+dz*dz3/sqrt((dx3*dx3+dz3*dz3)*(dx*dx+dz*dz)));
+	      std::cout<<"MB4 \t \t Cos Angle Between Segments "<<cosAng<<std::endl;
+
+	      assert(fabs(cosAng)<=1.);
+
+	      if(cosAng>MinCosAng){
 		compatiblesegments=true;
-		std::set<RPCDetId> rollsForThisDT = 
-		  rollstoreDT[DTStationIndex(0,dtWheel,dtSector,dtStation)];
-		std::cout<<"MB4 \t \t Loop over all the rolls asociated to RB4"<<std::cout;
+		std::set<RPCDetId> rollsForThisDT = rollstoreDT[DTStationIndex(0,dtWheel,dtSector,dtStation)];
+		std::cout<<"MB4 \t \t Loop over all the rolls asociated to MB4 "<<std::endl;
 		for (
 		     std::set<RPCDetId>::iterator iteraRoll
 		       =rollsForThisDT.begin();iteraRoll != rollsForThisDT.end(); iteraRoll++){
@@ -115,7 +115,7 @@ if(all4DSegments->size()>0){
 		  GlobalPoint GlobalPointExtrapolated = DTSurfaceMB3.toGlobal(LocalPoint(X,Y,Z));
 		  LocalPoint PointExtrapolatedRPCFrame = RPCSurfaceRB4.toLocal(GlobalPointExtrapolated);
 		  
-		  std::cout<<"MB4 \t \t \t Point Extrapolated.z in RPC Local "<<PointExtrapolatedRPCFrame.z()<<std::cout;
+		  std::cout<<"MB4 \t \t \t Point Extrapolated.z in RPC Local "<<PointExtrapolatedRPCFrame.z()<<std::endl;
 		  
 		  if(fabs(PointExtrapolatedRPCFrame.z()) < 0.01  &&
 		     fabs(PointExtrapolatedRPCFrame.x()) < rsize &&
@@ -137,7 +137,7 @@ if(all4DSegments->size()>0){
 		    for (RPCDigiCollection::const_iterator digiIt = rpcRangeDigi.first;digiIt!=rpcRangeDigi.second;++digiIt){
 		      stripDetected=digiIt->strip();
 		      float res = fabs((float)(stripDetected) - stripPredicted);
-		      if(res<widestrip){
+		      if(res<widestripRB4){
 			std::cout <<"MB4 \t \t \t \t COINCEDENCE Predict "<<stripPredicted<<" Detect "<<stripDetected<<std::endl;
 			anycoincidence=true;
 			break;
@@ -178,8 +178,11 @@ if(all4DSegments->size()>0){
 	}//Is the station 4? for this segment
       }
       else{
-	std::cout<<"\t \t Strange Segment Is not a 4D Segment neither a 2D in MB4"<<std::endl;
+	std::cout<<"MB4 \t \t Strange Segment Is not a 2D Segment in MB4"<<std::endl;
       }
     }//De aca para abajo esta en dtpart.inl
   }
+}
+else{
+std::cout<<"This event doesn't have 4D Segment"<<std::endl;
 }

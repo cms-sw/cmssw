@@ -91,81 +91,82 @@ iEvent.getByLabel(cscSegments, allCSCSegments);
 	    std::cout<<"\t \t \t Center (0,0,0) Roll In CSCLocal"<<CenterRollinCSCFrame<<std::endl;
 	    
 	    float D=CenterRollinCSCFrame.z();
-	    std::cout<<"\t \t \t D="<<D<<"cm"<<std::endl;
+	    std::cout<<"\t \t \t D="<<D<<"cm"<<std::endl;	    
+	    if(D<MaxD){
+	      X=Xo+dx*D/dz;
+	      Y=Yo+dy*D/dz;
+	      Z=D;
 	    
-	    X=Xo+dx*D/dz;
-	    Y=Yo+dy*D/dz;
-	    Z=D;
+	      std::cout<<"\t \t \t X Predicted in CSCLocal= "<<X<<"cm"<<std::endl;
+	      std::cout<<"\t \t \t Y Predicted in CSCLocal= "<<Y<<"cm"<<std::endl;
+	      std::cout<<"\t \t \t Z Predicted in CSCLocal= "<<Z<<"cm"<<std::endl;
 	    
-	    std::cout<<"\t \t \t X Predicted in CSCLocal= "<<X<<"cm"<<std::endl;
-	    std::cout<<"\t \t \t Y Predicted in CSCLocal= "<<Y<<"cm"<<std::endl;
-	    std::cout<<"\t \t \t Z Predicted in CSCLocal= "<<Z<<"cm"<<std::endl;
-	    
-	    const TrapezoidalStripTopology* top_=dynamic_cast<const TrapezoidalStripTopology*>(&(rollasociated->topology()));
-	    LocalPoint xmin = top_->localPosition(0.);
-	    LocalPoint xmax = top_->localPosition((float)rollasociated->nstrips());
-	    float rsize = fabs( xmax.x()-xmin.x() )*0.5;
-	    float stripl = top_->stripLength();
-	    
-	    GlobalPoint GlobalPointExtrapolated=TheChamber->toGlobal(LocalPoint(X,Y,Z));
-	    std::cout<<"\t \t \t Point ExtraPolated in Global"<<GlobalPointExtrapolated<< std::endl;
-	    
-	    LocalPoint PointExtrapolatedRPCFrame = RPCSurface.toLocal(GlobalPointExtrapolated);
-	    std::cout<<"\t \t \t Point Extrapolated in RPCLocal"<<PointExtrapolatedRPCFrame<< std::endl;
-	    std::cout<<"\t \t \t Does the extrapolation go inside this roll????"<<std::endl;
-	    //conditions to find the right roll to extrapolate
-	    	  
-	    if(fabs(PointExtrapolatedRPCFrame.z()) < 0.01 && fabs(PointExtrapolatedRPCFrame.x()) < rsize && fabs(PointExtrapolatedRPCFrame.y()) < 
-stripl*0.5){ 
-	      std::cout<<"\t \t \t \t yes"<<std::endl;	
-	      //getting the number of the strip
-	      const float stripPredicted = rollasociated->strip(LocalPoint(PointExtrapolatedRPCFrame.x(),PointExtrapolatedRPCFrame.y(),0.)); 
+	      const TrapezoidalStripTopology* top_=dynamic_cast<const TrapezoidalStripTopology*>(&(rollasociated->topology()));
+	      LocalPoint xmin = top_->localPosition(0.);
+	      LocalPoint xmax = top_->localPosition((float)rollasociated->nstrips());
+	      float rsize = fabs( xmax.x()-xmin.x() )*0.5;
+	      float stripl = top_->stripLength();
 	      
-	      std::cout<<"\t \t \t \t It is "<<stripPredicted<<std::endl;	
-	      std::cout<<"\t \t \t \t Getting digis asociated to this roll in this event"<<std::endl;
-	      RPCDigiCollection::Range rpcRangeDigi=rpcDigis->get(rollasociated->id());
-	      std::cout<<"\t \t \t \t Loop over the digis in this roll"<<std::endl;
-
-	      bool anycoincidence = false;
+	      GlobalPoint GlobalPointExtrapolated=TheChamber->toGlobal(LocalPoint(X,Y,Z));
+	      std::cout<<"\t \t \t Point ExtraPolated in Global"<<GlobalPointExtrapolated<< std::endl;
 	      
-	      totalcounter[0]++;
-	      buff=counter[0];
-	      buff[rollasociated->id()]++;
-	      counter[0]=buff;
+	      LocalPoint PointExtrapolatedRPCFrame = RPCSurface.toLocal(GlobalPointExtrapolated);
+	      std::cout<<"\t \t \t Point Extrapolated in RPCLocal"<<PointExtrapolatedRPCFrame<< std::endl;
+	      std::cout<<"\t \t \t Does the extrapolation go inside this roll????"<<std::endl;
+	      //conditions to find the right roll to extrapolate
 	      
-	      for(RPCDigiCollection::const_iterator digiIt = rpcRangeDigi.first;digiIt!=rpcRangeDigi.second;++digiIt){
-		std::cout<<"\t \t \t \t \t Digi "<<*digiIt<<std::endl;
+	      if(fabs(PointExtrapolatedRPCFrame.z()) < 0.01 && fabs(PointExtrapolatedRPCFrame.x()) < rsize && fabs(PointExtrapolatedRPCFrame.y()) < 
+		 stripl*0.5){ 
+		std::cout<<"\t \t \t \t yes"<<std::endl;	
+		//getting the number of the strip
+		const float stripPredicted = rollasociated->strip(LocalPoint(PointExtrapolatedRPCFrame.x(),PointExtrapolatedRPCFrame.y(),0.)); 
 		
-		int stripDetected=digiIt->strip();
+		std::cout<<"\t \t \t \t It is "<<stripPredicted<<std::endl;	
+		std::cout<<"\t \t \t \t Getting digis asociated to this roll in this event"<<std::endl;
+		RPCDigiCollection::Range rpcRangeDigi=rpcDigis->get(rollasociated->id());
+		std::cout<<"\t \t \t \t Loop over the digis in this roll"<<std::endl;
 		
-		float res = fabs((float)(stripDetected) - stripPredicted);
-		std::cout<<"\t \t \t \t \t Diference "<<res<<std::endl;
+		bool anycoincidence = false;
 		
-		if(res < widestrip){
-		  anycoincidence=true;
-		  std::cout <<"\t \t \t \t \t \t COINCEDENCE Predict "<<stripPredicted<<" Detect "<<stripDetected<<std::endl;
-		  totalcounter[1]++;
-		  buff=counter[1];
-		  buff[rollasociated->id()]++;
-		  counter[1]=buff;
-		  break;
-		}
-	      }
-	      
-	      if(anycoincidence==false) {
-		std::cout <<"\t \t \t \t \t \t THIS PREDICTION DOESN'T MATCH WITH RPC DATA"<<std::endl;
-		totalcounter[2]++;
-		buff=counter[2];
+		totalcounter[0]++;
+		buff=counter[0];
 		buff[rollasociated->id()]++;
-		counter[2]=buff;		
-		ofrej<<"Roll "<<rollasociated->id()<<"\t Event "<<iEvent.id().event()<<std::endl;
-	      }
+		counter[0]=buff;
+		
+		for(RPCDigiCollection::const_iterator digiIt = rpcRangeDigi.first;digiIt!=rpcRangeDigi.second;++digiIt){
+		  std::cout<<"\t \t \t \t \t Digi "<<*digiIt<<std::endl;
+		  
+		  int stripDetected=digiIt->strip();
+		  
+		  float res = fabs((float)(stripDetected) - stripPredicted);
+		  std::cout<<"\t \t \t \t \t Diference "<<res<<std::endl;
+		  
+		  if(res < widestrip){
+		    anycoincidence=true;
+		    std::cout <<"\t \t \t \t \t \t COINCEDENCE Predict "<<stripPredicted<<" Detect "<<stripDetected<<std::endl;
+		    totalcounter[1]++;
+		    buff=counter[1];
+		    buff[rollasociated->id()]++;
+		    counter[1]=buff;
+		    break;
+		  }
+		}
 	      
-	    }
-	    else {
-	      std::cout<<"\t \t \t \t no"<<std::endl;
-	    }//Condition for the right match
-	  }//if extrapolation distance is not too long
+		if(anycoincidence==false) {
+		  std::cout <<"\t \t \t \t \t \t THIS PREDICTION DOESN'T MATCH WITH RPC DATA"<<std::endl;
+		  totalcounter[2]++;
+		  buff=counter[2];
+		  buff[rollasociated->id()]++;
+		  counter[2]=buff;		
+		  ofrej<<"Roll "<<rollasociated->id()<<"\t Event "<<iEvent.id().event()<<std::endl;
+		}
+	      
+	      }
+	      else {
+		std::cout<<"\t \t \t \t no"<<std::endl;
+	      }//Condition for the right match
+	    }//if extrapolation distance D is not too long
+	  }//if the distance between detectors is not too long
 	}//loop over the CSCStationIndex
       }//if we have just one segment
     }// loop over all the CSC segments
