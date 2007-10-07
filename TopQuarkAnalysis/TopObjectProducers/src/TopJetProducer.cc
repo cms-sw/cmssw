@@ -1,5 +1,5 @@
 //
-// $Id: TopJetProducer.cc,v 1.30 2007/10/05 09:10:52 lowette Exp $
+// $Id: TopJetProducer.cc,v 1.31 2007/10/05 11:29:32 lowette Exp $
 //
 
 #include "TopQuarkAnalysis/TopObjectProducers/interface/TopJetProducer.h"
@@ -241,6 +241,7 @@ void TopJetProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
         std::string moduleTagInfoName = (jetTags).provenance()->moduleName();  
         std::string moduleLabel = (jetTags).provenance()->moduleLabel();
         //********ignore taggers from AOD*********
+std::cout << moduleLabel << std::endl;
         bool tagShouldBeIgnored = false;
         for (unsigned int i = 0; i < tagModuleLabelsToIgnore_.size(); ++i) {
           if (moduleLabel == tagModuleLabelsToIgnore_[i]) { tagShouldBeIgnored = true; }
@@ -256,12 +257,12 @@ void TopJetProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
           if (DeltaR<reco::Candidate>()( (*caljets)[j], *jet_p ) < 0.00001) {
             //********store discriminators*********
             if (addDiscriminators_) {
-              std::pair<std::string, double> pairDiscri;
-              pairDiscri.first = moduleLabel;
-              pairDiscri.second = (*jetTags)[t].discriminator();
               //drop TauTag!!!
               for (unsigned int i = 0; i < bTaggingTagInfoNames_.size(); ++i) {
                 if (moduleTagInfoName == bTaggingTagInfoNames_[i]) {
+                  std::pair<std::string, double> pairDiscri;
+                  pairDiscri.first = moduleLabel;
+                  pairDiscri.second = (*jetTags)[t].discriminator();
                   ajet.addBDiscriminatorPair(pairDiscri);
                   continue;
                 }
@@ -333,4 +334,5 @@ std::vector<TopMuon> TopJetProducer::selectIsolated(const std::vector<TopMuon> &
   return output;
 }
 // TEMP End
+
 
