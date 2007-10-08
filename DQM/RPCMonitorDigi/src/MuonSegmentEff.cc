@@ -13,7 +13,7 @@
 //
 // Original Author:  Camilo Carrillo (Uniandes)
 //         Created:  Tue Oct  2 16:57:49 CEST 2007
-// $Id: MuonSegmentEff.cc,v 1.5 2007/10/05 19:17:46 carrillo Exp $
+// $Id: MuonSegmentEff.cc,v 1.6 2007/10/07 11:53:35 carrillo Exp $
 //
 //
 
@@ -231,20 +231,31 @@ MuonSegmentEff::endJob() {
     int o=obse[id]; 
     int r=reje[id]; 
     assert(p==o+r);
-    float ef = float(o)/float(p);
-    float er = sqrt(ef*(1.-ef)/float(p));
-    std::cout <<"\n "<<id<<"\t Predicted "<<p<<"\t Observed "<<o<<"\t Eff = "<<ef*100.<<" % +/- "<<er*100.<<" %";
-    if(ef<0.8){
-      std::cout<<"\t \t Warning!";
-    } 
+
+    if(p!=0){
+      float ef = float(o)/float(p); 
+      float er = sqrt(ef*(1.-ef)/float(p));
+      std::cout <<"\n "<<id<<"\t Predicted "<<p<<"\t Observed "<<o<<"\t Eff = "<<ef*100.<<" % +/- "<<er*100.<<" %";
+      if(ef<0.8){
+	std::cout<<"\t \t Warning!";
+      } 
+    }
+    else{
+      std::cout<<"No predictions in this file p=0"<<std::endl;
+    }
   }
-  float tote = float(totalcounter[1])/float(totalcounter[0]);
-  float totr = sqrt(tote*(1.-tote)/float(totalcounter[0]));
+  if(totalcounter[0]!=0){
+    float tote = float(totalcounter[1])/float(totalcounter[0]);
+    float totr = sqrt(tote*(1.-tote)/float(totalcounter[0]));
   
-  std::cout <<"\n\n \t \t TOTAL EFFICIENCY \t Predicted "<<totalcounter[0]<<"\t Observed "<<totalcounter[1]<<"\t Eff = "<<tote*100.<<"\t +/- \t"<<totr*100.<<"%"<<std::endl;
-  std::cout <<totalcounter[1]<<" "<<totalcounter[0]<<" flagcode"<<std::endl;
+    std::cout <<"\n\n \t \t TOTAL EFFICIENCY \t Predicted "<<totalcounter[0]<<"\t Observed "<<totalcounter[1]<<"\t Eff = "<<tote*100.<<"\t +/- \t"<<totr*100.<<"%"<<std::endl;
+    std::cout <<totalcounter[1]<<" "<<totalcounter[0]<<" flagcode"<<std::endl;
+  }
+  else{
+    std::cout<<"No predictions in this file = 0!!!"<<std::endl;
+  }
+
 }
-//define this as a plug-in
-//DEFINE_FWK_MODULE(MuonSegmentEff);
+
 
 
