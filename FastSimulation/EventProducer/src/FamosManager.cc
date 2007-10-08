@@ -114,19 +114,17 @@ void FamosManager::setupGeometryAndField(const edm::EventSetup & es)
   mySimEvent->initializePdt(&(*pdt));
   ParticleTable::instance(&(*pdt));
 
-  // Geometry
-  edm::ESHandle<DDCompactView> pDD;
-  es.get<IdealGeometryRecord>().get(pDD);
-
-  // Initialize the tracker reco geometry (always needed)
+  // Initialize the tracker misaligned reco geometry (always needed)
+  // By default, the misaligned geometry is aligned
   edm::ESHandle<GeometricSearchTracker>       theGeomSearchTracker;
-  es.get<TrackerRecoGeometryRecord>().get( theGeomSearchTracker );
+  es.get<TrackerRecoGeometryRecord>().get("MisAligned", theGeomSearchTracker );
   myTrajectoryManager->initializeRecoGeometry(&(*theGeomSearchTracker));
 
-  // Initialize the full tracker geometry (only if tracking is requested)
+  // Initialize the full (misaligned) tracker geometry (only if tracking is requested)
+  // By default, the misaligned geometry is aligned
   if ( m_Tracking ) {
     edm::ESHandle<TrackerGeometry> tracker;
-    es.get<TrackerDigiGeometryRecord>().get(tracker);
+    es.get<TrackerDigiGeometryRecord>().get("MisAligned",tracker);
 
     myTrajectoryManager->initializeTrackerGeometry(&(*tracker)); 
 
