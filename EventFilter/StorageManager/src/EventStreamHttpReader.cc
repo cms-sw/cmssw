@@ -17,7 +17,7 @@
                 Manager or specify a maximum number of events for
                 the client to read through a maxEvents parameter.
 
-  $Id: EventStreamHttpReader.cc,v 1.22 2007/09/14 13:18:31 hcheung Exp $
+  $Id: EventStreamHttpReader.cc,v 1.23 2007/09/28 17:04:53 badgett Exp $
 */
 
 #include "EventFilter/StorageManager/src/EventStreamHttpReader.h"
@@ -127,7 +127,7 @@ namespace edm
       return std::auto_ptr<edm::EventPrincipal>();
 
     // try to get an event repeat until we get one, this allows
-    // re-registration is the SM is halted or stopped
+    // re-registration if the SM is halted or stopped
 
     bool gotEvent = false;
     std::auto_ptr<EventPrincipal> result(0);
@@ -136,6 +136,7 @@ namespace edm
        result = getOneEvent();
        if(result.get() != NULL) gotEvent = true;
     }
+    // need next line so we only return a null pointer once for each end of run
     if(runEnded_) runEnded_ = false;
     return result;
   }
@@ -144,8 +145,11 @@ namespace edm
   {
     // repeat a http get every N seconds until we get an event
     // wait for Storage Manager event server buffer to not be empty
-    // only way to stop is specify a maxEvents parameter
-    // or kill the Storage Manager so the http get fails.
+    // only way to stop is specify a maxEvents parameter or cntrol-c.
+    // If the Storage Manager is killed so the http get fails, we
+    // end the job as we would be in an unknown state (If SM is up
+    // and we have a network problem we just try to get another event,
+    // but if SM is killed/dead we want to register.)
 
     // check if we need to sleep (to enforce the allowed request rate)
     struct timeval now;
@@ -243,9 +247,17 @@ namespace edm
 
     if (msgView.code() == Header::DONE) {
       // no need to register again as the SM/EventServer is kept alive on a stopAction
+      // *BUT* for a haltAction, we need a code to say when SM is halted as then we need 
+      // register again else the consumerId is wrong and we may get wrong events!
+      // We may even need to end the job if a new run has new triggers, etc.
       if(!alreadySaidHalted_) {
         alreadySaidHalted_ = true;
-        std::cout << "Storage Manager has halted - waiting for restart" << std::endl;
+        std::cout << "Storage Manager has stopped - waiting for restart" << std::endl;
+        std::cout << "Warning! If you are waiting forever at: "
+                  << "...waiting for event from Storage Manager... " << std::endl
+                  << "   it may be that the Storage Manager has been halted with a haltAction," << std::endl
+                  << "   instead of a stopAction. In this case you should control-c to end " << std::endl
+                  << "   this consumer and restart it. (This will be fixed in a future update)" << std::endl;
       }
       // decide if we need to notify that a run has ended
       if(!endRunAlreadyNotified_) {
@@ -257,6 +269,7 @@ namespace edm
     } else {
       // reset need-to-set-end-run flag when we get the first event (here any event)
       endRunAlreadyNotified_ = false;
+      alreadySaidHalted_ = false;
       events_read_++;
       EventMsgView eventView(&buf_[0]);
       return deserializeEvent(eventView);
@@ -266,7 +279,7 @@ namespace edm
   std::auto_ptr<SendJobHeader> EventStreamHttpReader::readHeader()
   {
     // repeat a http get every 5 seconds until we get the registry
-    // do it like this for the proof of principle test
+    // do it like this for pull mode
     bool alreadySaidWaiting = false;
     stor::ReadData data;
     do {
@@ -310,7 +323,8 @@ namespace edm
       if(messageStatus!=0)
       {
         cerr << "curl perform failed for header" << endl;
-        //return 0; //or use this?
+        // do not retry curl here as we should return to registration instead if we
+        // want an automatic recovery
         throw cms::Exception("readHeader","EventStreamHttpReader")
           << "Could not get header: probably XDAQ not running on Storage Manager "
           << "\n";
@@ -395,7 +409,9 @@ namespace edm
       stor::setopt(han, CURLOPT_HTTPHEADER, headers);
 
       // send the HTTP POST, read the reply, and cleanup before going on
-      CURLcode messageStatus = (CURLcode)-1;
+      //CURLcode messageStatus = (CURLcode)-1;
+      // set messageStatus to a non-zero (but still within CURLcode enum list)
+      CURLcode messageStatus = CURLE_COULDNT_CONNECT;
       int tries = 0;
       while (messageStatus!=0)
       {
