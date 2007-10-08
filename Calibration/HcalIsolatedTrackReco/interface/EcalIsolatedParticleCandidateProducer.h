@@ -9,7 +9,7 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "DataFormats/EgammaReco/interface/BasicCluster.h"
+#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 
 #include "DataFormats/HcalIsolatedTrack/interface/EcalIsolatedParticleCandidate.h"
 //
@@ -23,13 +23,16 @@ class EcalIsolatedParticleCandidateProducer : public edm::EDProducer {
 
    private:
 
-      bool useEndcap_;
-      double coneSize_;
-      double minEnergy_;
-      std::string barrelBclusterProducer_;
-      std::string endcapBclusterProducer_;
-      std::string barrelBclusterCollectionLabel_;
-      std::string endcapBclusterCollectionLabel_;
+    const CaloGeometry* geo;
+
+    double InConeSize_;
+    double OutConeSize_;
+    double hitCountEthr_;
+    double hitEthr_;
+    edm::InputTag l1tausource_;
+    edm::InputTag hltGTseedlabel_;
+    edm::InputTag EBrecHitCollectionLabel_;
+    edm::InputTag EErecHitCollectionLabel_;
 
       virtual void beginJob(const edm::EventSetup&) ;
       virtual void produce(edm::Event&, const edm::EventSetup&);

@@ -46,7 +46,6 @@ class IsolatedPixelTrackCandidateProducer : public edm::EDProducer {
   edm::ParameterSet parameters;
 
   double pixelIsolationConeSize_;
-  double maxEta_;
   double tauAssocCone_;
 
 };

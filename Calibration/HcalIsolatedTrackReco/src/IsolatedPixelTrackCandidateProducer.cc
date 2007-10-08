@@ -41,7 +41,6 @@ IsolatedPixelTrackCandidateProducer::IsolatedPixelTrackCandidateProducer(const e
   tauAssocCone_=config.getParameter<double>("tauAssociationCone"); 
   pixelTracksSource_=config.getUntrackedParameter<edm::InputTag>("PixelTracksSource");
   pixelIsolationConeSize_=config.getParameter<double>("PixelIsolationConeSize");
-  maxEta_=config.getParameter<double>("MaxEta");
   hltGTseedlabel_=config.getUntrackedParameter<edm::InputTag>("L1GTSeedLabel");
   l1GtObjectMapSource_ = config.getUntrackedParameter<edm::InputTag> ("L1GtObjectMapSource");
 
@@ -99,8 +98,6 @@ void IsolatedPixelTrackCandidateProducer::produce(edm::Event& theEvent, const ed
        track!=pixelTracks->end(); track++) {
 
     if(track->pt()<minPtTrack_) continue;
-
-    if (fabs(track->eta())>maxEta_) continue;
 
     //selected tracks should match L1 taus
 
