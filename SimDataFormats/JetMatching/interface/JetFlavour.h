@@ -25,6 +25,10 @@ class JetFlavour
     JetFlavour(void) { }
     JetFlavour(LorentzVector LV, Point PT, int FL)
     : m_partonMomentum(LV), m_partonVertex(PT), m_flavour(FL) {}
+
+    const LorentzVector getLorentzVector() const {return m_partonMomentum;}
+    const Point         getPartonVertex()  const {return m_partonVertex;  }
+    const int           getFlavour()       const {return m_flavour;       } 
      
   private:
     LorentzVector m_partonMomentum;
