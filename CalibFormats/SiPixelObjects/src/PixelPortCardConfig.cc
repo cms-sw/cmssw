@@ -15,7 +15,7 @@
 #include <assert.h>
 
 using namespace std;
-
+using namespace pos::PortCardSettingNames;
 using namespace pos;
 
 //added by Umesh
@@ -58,21 +58,89 @@ PixelPortCardConfig::PixelPortCardConfig(std::string filename):
     unsigned int i2c_values;
     
     in >> settingName >> std::hex >> i2c_values >> std::dec;
+    if (in.eof()) break;
     
     if ( settingName[settingName.size()-1] == ':' ) settingName.resize( settingName.size()-1 ); // remove ':' from end of string, if it's there
     
-    std::map<std::string, unsigned int>::iterator foundName_itr = nameToAddress_.find(settingName);
-    
-    if ( foundName_itr != nameToAddress_.end() )
+    // Special handling for AOH_GainX
+    if ( settingName == k_AOH_Gain1 || settingName == k_AOH_Gain2 || settingName == k_AOH_Gain3 )
     {
-    	i2c_address = foundName_itr->second;
+    	// Search for AOH_Gain123 in the previously-defined settings.
+    	bool foundOne = false;
+    	for (unsigned int i=0;i<device_.size();i++)
+    	{
+    		if ( device_[i].first == k_AOH_Gain123_address ) // Change AOH_GainX in all previous instances
+    		{
+    			foundOne = true;
+    			unsigned int oldValue = device_[i].second;
+    			if      ( settingName == k_AOH_Gain1 )
+    				device_[i].second = (0x3c & oldValue) + ((i2c_values & 0x3)<<0); // replace bits 0 and 1 with i2c_values
+    			else if ( settingName == k_AOH_Gain2 )
+    				device_[i].second = (0x33 & oldValue) + ((i2c_values & 0x3)<<2); // replace bits 2 and 3 with i2c_values
+    			else if ( settingName == k_AOH_Gain3 )
+    				device_[i].second = (0x0f & oldValue) + ((i2c_values & 0x3)<<4); // replace bits 4 and 5 with i2c_values
+    			else assert(0);
+    			//std::cout << "Changed setting "<< k_AOH_Gain123 <<"(address 0x"<<std::hex<<k_AOH_Gain123_address<<") from 0x"<<oldValue<<" to 0x"<< device_[i].second << std::dec <<"\n";
+    		}
+    	}
+    	if ( foundOne ) continue;
+    	else // If this was not set previously, add AOH_Gain123 with the other two gains set to zero.
+    	{
+    		i2c_address = k_AOH_Gain123_address;
+    		if      ( settingName == k_AOH_Gain1 ) i2c_values  = ((i2c_values & 0x3)<<0);
+    		else if ( settingName == k_AOH_Gain2 ) i2c_values  = ((i2c_values & 0x3)<<2);
+    		else if ( settingName == k_AOH_Gain3 ) i2c_values  = ((i2c_values & 0x3)<<4);
+    		else assert(0);
+    		settingName = k_AOH_Gain123;
+    	}
     }
-    else
+    else if ( settingName == k_AOH_Gain4 || settingName == k_AOH_Gain5 || settingName == k_AOH_Gain6 )
     {
-    	i2c_address = strtoul(settingName.c_str(), 0, 16); // convert string to integer using base 16
+    	// Search for AOH_Gain456 in the previously-defined settings.
+    	bool foundOne = false;
+    	for (unsigned int i=0;i<device_.size();i++)
+    	{
+    		if ( device_[i].first == k_AOH_Gain456_address ) // Change AOH_GainX in all previous instances
+    		{
+    			foundOne = true;
+    			unsigned int oldValue = device_[i].second;
+    			if      ( settingName == k_AOH_Gain4 )
+    				device_[i].second = (0x3c & oldValue) + ((i2c_values & 0x3)<<0); // replace bits 0 and 1 with i2c_values
+    			else if ( settingName == k_AOH_Gain5 )
+    				device_[i].second = (0x33 & oldValue) + ((i2c_values & 0x3)<<2); // replace bits 2 and 3 with i2c_values
+    			else if ( settingName == k_AOH_Gain6 )
+    				device_[i].second = (0x0f & oldValue) + ((i2c_values & 0x3)<<4); // replace bits 4 and 5 with i2c_values
+    			else assert(0);
+    			//std::cout << "Changed setting "<< k_AOH_Gain456 <<"(address 0x"<<std::hex<<k_AOH_Gain456_address<<") from 0x"<<oldValue<<" to 0x"<< device_[i].second << std::dec <<"\n";
+    		}
+    	}
+    	if ( foundOne ) continue;
+    	else // If this was not set previously, add AOH_Gain456 with the other two gains set to zero.
+    	{
+    		i2c_address = k_AOH_Gain456_address;
+    		if      ( settingName == k_AOH_Gain4 ) i2c_values  = ((i2c_values & 0x3)<<0);
+    		else if ( settingName == k_AOH_Gain5 ) i2c_values  = ((i2c_values & 0x3)<<2);
+    		else if ( settingName == k_AOH_Gain6 ) i2c_values  = ((i2c_values & 0x3)<<4);
+    		else assert(0);
+    		settingName = k_AOH_Gain456;
+    	}
+    }
+    else // no special handling for this name
+    {
+    
+    	std::map<std::string, unsigned int>::iterator foundName_itr = nameToAddress_.find(settingName);
+    
+    	if ( foundName_itr != nameToAddress_.end() )
+    	{
+    		i2c_address = foundName_itr->second;
+    	}
+    	else
+    	{
+    		i2c_address = strtoul(settingName.c_str(), 0, 16); // convert string to integer using base 16
+    	}
     }
     
-    //std::cout << "Setting name = " << settingName << ", i2c address = 0x" << std::hex << i2c_address << std::dec << std::endl;
+    //std::cout << "Setting name = " << settingName << ", i2c address = 0x" << std::hex << i2c_address <<", value = 0x"<< i2c_values << std::dec << std::endl;
       
     if (!in.eof()){
       pair<unsigned int, unsigned int> p(i2c_address, i2c_values);
@@ -80,8 +148,8 @@ PixelPortCardConfig::PixelPortCardConfig(std::string filename):
     }
 
   }
-  
   while (!in.eof());
+  
   in.close();
 
 }
@@ -123,6 +191,24 @@ void PixelPortCardConfig::writeASCII(std::string filename){
   for (unsigned int i=0;i<device_.size();i++)
   {
     unsigned int deviceAddress = device_.at(i).first;
+    
+    // Special handling for AOH_Gain123
+    if ( deviceAddress == k_AOH_Gain123_address )
+    {
+    	out << k_AOH_Gain1<<": 0x"<< (((device_[i].second) & 0x03)>>0) << std::endl; // output bits 0 & 1
+    	out << k_AOH_Gain2<<": 0x"<< (((device_[i].second) & 0x0c)>>2) << std::endl; // output bits 2 & 3
+    	out << k_AOH_Gain3<<": 0x"<< (((device_[i].second) & 0x30)>>4) << std::endl; // output bits 4 & 5
+    	continue;
+    }
+     // Special handling for AOH_Gain456
+    if ( deviceAddress == k_AOH_Gain456_address )
+    {
+    	out << k_AOH_Gain4<<": 0x"<< (((device_[i].second) & 0x03)>>0) << std::endl; // output bits 0 & 1
+    	out << k_AOH_Gain5<<": 0x"<< (((device_[i].second) & 0x0c)>>2) << std::endl; // output bits 2 & 3
+    	out << k_AOH_Gain6<<": 0x"<< (((device_[i].second) & 0x30)>>4) << std::endl; // output bits 4 & 5
+    	continue;
+    }
+    // End of special handling
     
     // Check to see if there's a name corresponding to this address.
     std::string settingName = "";

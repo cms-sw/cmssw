@@ -5,7 +5,7 @@
 namespace pos{
   namespace PortCardSettingNames
   {
-    const std::string k_PLL_L1_Trigger_Delay = "PLL_L1_Trigger_Delay";
+    //const std::string k_PLL_L1_Trigger_Delay = "PLL_L1_Trigger_Delay";
     const std::string k_Delay25_GCR = "Delay25_GCR";
     const std::string k_Delay25_SCL = "Delay25_SCL";
     const std::string k_Delay25_TRG = "Delay25_TRG";
@@ -20,6 +20,12 @@ namespace pos{
     const std::string k_AOH_Bias6 = "AOH_Bias6";
     const std::string k_AOH_Gain123 = "AOH_Gain123";
     const std::string k_AOH_Gain456 = "AOH_Gain456";
+    const std::string k_AOH_Gain1 = "AOH_Gain1";
+    const std::string k_AOH_Gain2 = "AOH_Gain2";
+    const std::string k_AOH_Gain3 = "AOH_Gain3";
+    const std::string k_AOH_Gain4 = "AOH_Gain4";
+    const std::string k_AOH_Gain5 = "AOH_Gain5";
+    const std::string k_AOH_Gain6 = "AOH_Gain6";
 	
     const unsigned int k_Delay25_GCR_address = 0x35;
     const unsigned int k_Delay25_SCL_address = 0x34;
