@@ -4,16 +4,22 @@
 #include "TTree.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
 #include "TrackingTools/TrackFitters/interface/TrajectoryStateCombiner.h"
 
+#include "Alignment/CommonAlignment/interface/Alignable.h"  
 #include "Alignment/CommonAlignment/interface/AlignableNavigator.h"  
-// #include "Alignment/CommonAlignment/interface/SurveyDet.h"  
+#include "Alignment/CommonAlignment/interface/AlignableObjectId.h"  
+#include "Alignment/CommonAlignment/interface/AlignmentParameters.h"
 #include "Alignment/CommonAlignment/interface/SurveyResidual.h"
+#include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentParameterStore.h"
 #include "Alignment/HIPAlignmentAlgorithm/interface/HIPUserVariables.h"
 #include "Alignment/HIPAlignmentAlgorithm/interface/HIPUserVariablesIORoot.h"
-#include "Alignment/TrackerAlignment/interface/TrackerAlignableId.h"
+#include "Alignment/MuonAlignment/interface/AlignableMuon.h"
+#include "Alignment/TrackerAlignment/interface/AlignableTracker.h"
+#include "DataFormats/TrackReco/interface/Track.h"
 
 #include "Alignment/HIPAlignmentAlgorithm/interface/HIPAlignmentAlgorithm.h"
 
@@ -623,8 +629,6 @@ void HIPAlignmentAlgorithm::bookRoot(void)
 
 void HIPAlignmentAlgorithm::fillRoot(void)
 {
-  TrackerAlignableId id;
-
   theFile2->cd();
 
   int naligned=0;
@@ -651,8 +655,8 @@ void HIPAlignmentAlgorithm::fillRoot(void)
       m2_Layer=tl.second;
 
       // get identifier (as for IO)
-      m2_Id    = id.alignableId(ali);
-      m2_ObjId = id.alignableTypeId(ali);
+      m2_Id    = ali->id();
+      m2_ObjId = ali->alignableObjectId();
 
       // get position
       GlobalPoint pos=ali->surface().position();
