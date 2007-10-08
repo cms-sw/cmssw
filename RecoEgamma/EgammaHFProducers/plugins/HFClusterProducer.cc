@@ -11,7 +11,7 @@
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "RecoEgamma/EgammaHFProducers/plugins/HFClusterProducer.h"
 using namespace reco;
-HFClusterProducer::HFClusterProducer(edm::ParameterSet const& conf) {
+HFClusterProducer::HFClusterProducer(edm::ParameterSet const& conf): hfreco_(conf.getUntrackedParameter<edm::InputTag>("hfreco")) {
   produces<reco::HFEMClusterShapeCollection>();
   produces<reco::BasicClusterCollection>();
   produces<reco::SuperClusterCollection>();
@@ -22,7 +22,7 @@ void HFClusterProducer::produce(edm::Event & e, edm::EventSetup const& iSetup) {
   
   edm::Handle<HFRecHitCollection> hf_hits;
   
-  e.getByType(hf_hits);
+  e.getByLabel(hfreco_,hf_hits);
   
   edm::ESHandle<CaloGeometry> geometry;
   iSetup.get<IdealGeometryRecord>().get(geometry);

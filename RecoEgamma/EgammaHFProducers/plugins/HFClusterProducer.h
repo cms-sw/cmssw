@@ -17,7 +17,7 @@ public:
   explicit HFClusterProducer(edm::ParameterSet const& conf);
   virtual void produce(edm::Event& e, edm::EventSetup const& iSetup);
 private:
- 
+  edm::InputTag hfreco;
   HFClusterAlgo algo_;
 };
 #endif

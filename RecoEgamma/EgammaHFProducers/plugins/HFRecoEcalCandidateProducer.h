@@ -26,7 +26,7 @@ public:
   explicit HFRecoEcalCandidateProducer(edm::ParameterSet const& conf);
   virtual void produce(edm::Event& e, edm::EventSetup const& iSetup);
 private:
-  std::string hfClusterShapes_;
+  edm::InputTag hfclusters_;
   HFRecoEcalCandidateAlgo algo_;
 };
 
