@@ -1,5 +1,7 @@
 <use name=RecoTracker/DebugTools>
 <use name=RecoTracker/CkfPattern>
+<use name=SimTracker/TrackAssociation>
+<use name=SimDataFormats/HepMCProduct>
 <library file="*.cc" name=RecoTrackerDebugToolsPlugins>
       <flags EDM_PLUGIN=1>
 </library>

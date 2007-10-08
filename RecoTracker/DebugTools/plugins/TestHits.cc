@@ -7,8 +7,17 @@
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
 #include "RecoTracker/TrackProducer/interface/TrackingRecHitLessFromGlobalPosition.h"
 #include "TrackingTools/PatternTools/interface/TSCPBuilderNoMaterial.h"
+#include "TrackingTools/TrackFitters/interface/TrajectoryStateCombiner.h"
 #include <TDirectory.h>
+#include "Geometry/TrackerGeometryBuilder/interface/GluedGeomDet.h"
+#include "TrackingTools/TrackFitters/interface/KFTrajectoryFitter.h"
 
+#include "DataFormats/SiStripDetId/interface/TIBDetId.h"
+#include "DataFormats/SiStripDetId/interface/TOBDetId.h"
+#include "DataFormats/SiStripDetId/interface/TIDDetId.h"
+#include "DataFormats/SiStripDetId/interface/TECDetId.h"
+#include "DataFormats/SiPixelDetId/interface/PXBDetId.h"
+#include "DataFormats/SiPixelDetId/interface/PXFDetId.h"
 
 typedef TrajectoryStateOnSurface TSOS;
 typedef TransientTrackingRecHit::ConstRecHitPointer CTTRHp;
@@ -21,7 +30,7 @@ TestHits::TestHits(const edm::ParameterSet& iConfig):
   propagatorName = conf_.getParameter<std::string>("Propagator");   
   builderName = conf_.getParameter<std::string>("TTRHBuilder");   
   srcName = conf_.getParameter<std::string>("src");   
-  updatorName = conf_.getParameter<std::string>("updator");
+  fname = conf_.getParameter<std::string>("Fitter");
   mineta = conf_.getParameter<double>("mineta");
   maxeta = conf_.getParameter<double>("maxeta");
 }
@@ -35,7 +44,7 @@ void TestHits::beginJob(const edm::EventSetup& iSetup)
   iSetup.get<IdealMagneticFieldRecord>().get(theMF);  
   iSetup.get<TrackingComponentsRecord>().get(propagatorName,thePropagator);
   iSetup.get<TransientRecHitRecord>().get(builderName,theBuilder);
-  iSetup.get<TrackingComponentsRecord>().get(updatorName,theUpdator);
+  iSetup.get<TrackingComponentsRecord>().get(fname, fit);
  
   file = new TFile("testhits.root","recreate");
   for (int i=0; i!=6; i++)
@@ -174,16 +183,10 @@ void TestHits::beginJob(const edm::EventSetup& iSetup)
       }
     }
   hTotChi2Increment = new TH1F("TotChi2Increment","TotChi2Increment",1000,0,100);
-  hChi2_vs_Process  = new TH2F("Chi2_vs_Process","Chi2_vs_Process",1000,0,100,17,-0.5,16.5);  
-  hChi2_vs_clsize  = new TH2F("Chi2_vs_clsize","Chi2_vs_clsize",1000,0,100,17,-0.5,16.5);
+  hProcess_vs_Chi2  = new TH2F("Process_vs_Chi2","Process_vs_Chi2",1000,0,100,17,-0.5,16.5);  
+  hClsize_vs_Chi2  = new TH2F("Clsize_vs_Chi2","Clsize_vs_Chi2",1000,0,100,17,-0.5,16.5);
 }
 
-#include "DataFormats/SiStripDetId/interface/TIBDetId.h"
-#include "DataFormats/SiStripDetId/interface/TOBDetId.h"
-#include "DataFormats/SiStripDetId/interface/TIDDetId.h"
-#include "DataFormats/SiStripDetId/interface/TECDetId.h"
-#include "DataFormats/SiPixelDetId/interface/PXBDetId.h"
-#include "DataFormats/SiPixelDetId/interface/PXFDetId.h"
 
 void TestHits::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
@@ -192,14 +195,15 @@ void TestHits::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   iEvent.getByLabel(srcName,theTCCollection ); 
   hitAssociator = new TrackerHitAssociator::TrackerHitAssociator(iEvent);
 
+  TrajectoryStateCombiner combiner;
+
   for (TrackCandidateCollection::const_iterator i=theTCCollection->begin(); i!=theTCCollection->end();i++){
 
-    LogTrace("TestHits") << "new collection" << std::endl;
+    LogTrace("TestHits") << "new candidate" << std::endl;
       
     const TrackCandidate * theTC = &(*i);
     PTrajectoryStateOnDet state = theTC->trajectoryStateOnDet();
     const TrackCandidate::range& recHitVec=theTC->recHits();
-    //const TrajectorySeed& seed = theTC->seed();
 
     //convert PTrajectoryStateOnDet to TrajectoryStateOnSurface
     TrajectoryStateTransform transformer;
@@ -217,39 +221,91 @@ void TestHits::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	 i!=recHitVec.second; i++){
       hits.push_back(theBuilder->build(&(*i) ));
     }
-    
-    //test hits
-    TSOS lastState, currentState, updatedState;
-    updatedState=theTSOS;
-    for (TransientTrackingRecHit::RecHitContainer::iterator rhit=hits.begin()+1;rhit!=hits.end();++rhit){
 
-      lastState=updatedState;
+    //call the fitter
+    vector<Trajectory> result = fit->fit(theTC->seed(), hits, theTSOS);
+    if (result.size()==0) break;
+    std::vector<TrajectoryMeasurement> vtm = result[0].measurements();
 
-      LogTrace("TestHits") << "new hit" << std::endl;
+    TSOS lastState = theTSOS;
+    for (std::vector<TrajectoryMeasurement>::iterator tm=vtm.begin(); tm!=vtm.end();tm++){
 
-      if ((*rhit)->isValid()==0) continue;
+      TransientTrackingRecHit::ConstRecHitPointer rhit = tm->recHit();
+      if ((rhit)->isValid()==0&&rhit->det()!=0) continue;
+      LogTrace("TestHits") << "new hit" ;
 
-      int subdetId = (*rhit)->det()->geographicalId().subdetId();
+      int subdetId = rhit->det()->geographicalId().subdetId();
       int layerId  = 0;
-      DetId id = (*rhit)->det()->geographicalId();
+      DetId id = rhit->det()->geographicalId();
       if (id.subdetId()==3) layerId = ((TIBDetId)(id)).layer();
       if (id.subdetId()==5) layerId = ((TOBDetId)(id)).layer();
       if (id.subdetId()==1) layerId = ((PXBDetId)(id)).layer();
       if (id.subdetId()==4) layerId = ((TIDDetId)(id)).wheel();
       if (id.subdetId()==6) layerId = ((TECDetId)(id)).wheel();
       if (id.subdetId()==2) layerId = ((PXFDetId)(id)).disk();
-      const Surface * surf = &( (*rhit)->det()->surface() );
-      currentState=thePropagator->propagate(lastState,*surf);	
-      if (currentState.isValid()==0) continue;
-      updatedState=theUpdator->update(currentState,**rhit);
+      LogTrace("TestHits") << "subdetId=" << subdetId << " layerId=" << layerId ;
 
-      vector<PSimHit> assSimHits = hitAssociator->associateHit(*(*rhit)->hit());
+      double delta = 99999;
+      LocalPoint rhitLPv = rhit->localPosition();
+
+      vector<PSimHit> assSimHits = hitAssociator->associateHit(*(rhit->hit()));
       if (assSimHits.size()==0) continue;
-      PSimHit shit=*(assSimHits.begin());
+      PSimHit shit;
+      for(vector<PSimHit>::const_iterator m=assSimHits.begin(); m<assSimHits.end(); m++){
+	if ((m->localPosition()-rhitLPv).mag()<delta) {
+	  shit=*m;
+	  delta = (m->localPosition()-rhitLPv).mag();
+	}
+      }
 
-      LocalVector shitLMom = shit.momentumAtEntry();
+      TSOS currentState = tm->forwardPredictedState();
+      if (tm->backwardPredictedState().isValid()) 
+	currentState = combiner(tm->backwardPredictedState(), tm->forwardPredictedState());
+      TSOS updatedState = tm->updatedState();
+ 
+      //plot chi2 increment
+      double chi2increment = tm->estimate();
+      LogTrace("TestHits") << "tm->estimate()=" << tm->estimate();
+      title.str("");
+      title << "Chi2Increment_" << subdetId << "-" << layerId;
+      hChi2Increment[title.str()]->Fill( chi2increment );
+      hTotChi2Increment->Fill( chi2increment );
+      hProcess_vs_Chi2->Fill( chi2increment, shit.processType() );
+      if (dynamic_cast<const SiPixelRecHit*>(rhit->hit()))	
+	hClsize_vs_Chi2->Fill( chi2increment, ((const SiPixelRecHit*)(rhit->hit()))->cluster()->size() );
+      if (dynamic_cast<const SiStripRecHit2D*>(rhit->hit()))	
+	hClsize_vs_Chi2->Fill( chi2increment, ((const SiStripRecHit2D*)(rhit->hit()))->cluster()->amplitudes().size() );
+     
+      //test hits
+      const Surface * surf = &( (rhit)->det()->surface() );
+      LocalVector shitLMom;
+      LocalPoint shitLPos;
+      if (dynamic_cast<const SiStripMatchedRecHit2D*>((rhit)->hit())) {
+	double rechitmatchedx = rhit->localPosition().x();
+	double rechitmatchedy = rhit->localPosition().y();
+	double mindist = 999999;
+	double distx, disty;
+	std::pair<LocalPoint,LocalVector> closestPair;
+	const StripGeomDetUnit* stripDet =(StripGeomDetUnit*) ((const GluedGeomDet *)(rhit)->det())->stereoDet();
+	const BoundPlane& plane = (rhit)->det()->surface();
+	for(vector<PSimHit>::const_iterator m=assSimHits.begin(); m<assSimHits.end(); m++) {
+	  //project simhit;
+	  std::pair<LocalPoint,LocalVector> hitPair = projectHit((*m),stripDet,plane);
+	  distx = fabs(rechitmatchedx - hitPair.first.x());
+	  disty = fabs(rechitmatchedy - hitPair.first.y());
+	  double dist = distx*distx+disty*disty;
+	  if(sqrt(dist)<mindist){
+	    mindist = dist;
+	    closestPair = hitPair;
+	  }
+	}
+	shitLPos = closestPair.first;
+	shitLMom = closestPair.second;
+      } else {
+	shitLPos = shit.localPosition();	
+	shitLMom = shit.momentumAtEntry();
+      }
       GlobalVector shitGMom = surf->toGlobal(shitLMom);
-      LocalPoint shitLPos = shit.localPosition();
       GlobalPoint shitGPos = surf->toGlobal(shitLPos);
 
       GlobalVector tsosGMom = currentState.globalMomentum();
@@ -257,29 +313,15 @@ void TestHits::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       GlobalPoint  tsosGPos = currentState.globalPosition();
       GlobalError  tsosGPEr = currentState.cartesianError().position();
 
-      GlobalPoint rhitGPos = (*rhit)->globalPosition();
-      GlobalError rhitGPEr = (*rhit)->globalPositionError();
+      GlobalPoint rhitGPos = (rhit)->globalPosition();
+      GlobalError rhitGPEr = (rhit)->globalPositionError();
 
       double pullGPX_rs = (rhitGPos.x()-shitGPos.x())/sqrt(rhitGPEr.cxx());
       double pullGPY_rs = (rhitGPos.y()-shitGPos.y())/sqrt(rhitGPEr.cyy());
       double pullGPZ_rs = (rhitGPos.z()-shitGPos.z())/sqrt(rhitGPEr.czz());
-//       double pullGPX_rs = (rhitGPos.x()-shitGPos.x())/*/sqrt(rhitGPEr.cxx())*/;
-//       double pullGPY_rs = (rhitGPos.y()-shitGPos.y())/*/sqrt(rhitGPEr.cyy())*/;
-//       double pullGPZ_rs = (rhitGPos.z()-shitGPos.z())/*/sqrt(rhitGPEr.czz())*/;
-
-      //plot chi2 increment
-      MeasurementExtractor me(currentState);
-      double chi2increment = computeChi2Increment(me,*rhit);
-      LogTrace("TestHits") << "chi2increment=" << chi2increment << endl;
-      title.str("");
-      title << "Chi2Increment_" << subdetId << "-" << layerId;
-      hChi2Increment[title.str()]->Fill( chi2increment );
-      hTotChi2Increment->Fill( chi2increment );
-      hChi2_vs_Process->Fill( chi2increment, shit.processType() );
-      if (dynamic_cast<const SiPixelRecHit*>((*rhit)->hit()))	
-	hChi2_vs_clsize->Fill( chi2increment, ((const SiPixelRecHit*)(*rhit)->hit())->cluster()->size() );
-      if (dynamic_cast<const SiStripRecHit2D*>((*rhit)->hit()))	
-	hChi2_vs_clsize->Fill( chi2increment, ((const SiStripRecHit2D*)(*rhit)->hit())->cluster()->amplitudes().size() );
+      //double pullGPX_rs = (rhitGPos.x()-shitGPos.x());
+      //double pullGPY_rs = (rhitGPos.y()-shitGPos.y());
+      //double pullGPZ_rs = (rhitGPos.z()-shitGPos.z());
       
       LogTrace("TestHits") << "rs" << std::endl;
 
@@ -296,9 +338,9 @@ void TestHits::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       double pullGPX_tr = (tsosGPos.x()-rhitGPos.x())/sqrt(tsosGPEr.cxx()+rhitGPEr.cxx());
       double pullGPY_tr = (tsosGPos.y()-rhitGPos.y())/sqrt(tsosGPEr.cyy()+rhitGPEr.cyy());
       double pullGPZ_tr = (tsosGPos.z()-rhitGPos.z())/sqrt(tsosGPEr.czz()+rhitGPEr.czz());
-//       double pullGPX_tr = (tsosGPos.x()-rhitGPos.x())/*/sqrt(tsosGPEr.cxx()+rhitGPEr.cxx())*/;
-//       double pullGPY_tr = (tsosGPos.y()-rhitGPos.y())/*/sqrt(tsosGPEr.cyy()+rhitGPEr.cyy())*/;
-//       double pullGPZ_tr = (tsosGPos.z()-rhitGPos.z())/*/sqrt(tsosGPEr.czz()+rhitGPEr.czz())*/;
+      //double pullGPX_tr = (tsosGPos.x()-rhitGPos.x());
+      //double pullGPY_tr = (tsosGPos.y()-rhitGPos.y());
+      //double pullGPZ_tr = (tsosGPos.z()-rhitGPos.z());
 
       LogTrace("TestHits") << "tr" << std::endl;
 
@@ -315,9 +357,9 @@ void TestHits::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       double pullGPX_ts = (tsosGPos.x()-shitGPos.x())/sqrt(tsosGPEr.cxx());
       double pullGPY_ts = (tsosGPos.y()-shitGPos.y())/sqrt(tsosGPEr.cyy());
       double pullGPZ_ts = (tsosGPos.z()-shitGPos.z())/sqrt(tsosGPEr.czz());
-//       double pullGPX_ts = (tsosGPos.x()-shitGPos.x())/*/sqrt(tsosGPEr.cxx())*/;
-//       double pullGPY_ts = (tsosGPos.y()-shitGPos.y())/*/sqrt(tsosGPEr.cyy())*/;
-//       double pullGPZ_ts = (tsosGPos.z()-shitGPos.z())/*/sqrt(tsosGPEr.czz())*/;
+      //double pullGPX_ts = (tsosGPos.x()-shitGPos.x());
+      //double pullGPY_ts = (tsosGPos.y()-shitGPos.y());
+      //double pullGPZ_ts = (tsosGPos.z()-shitGPos.z());
 
       LogTrace("TestHits") << "ts1" << std::endl;
 
@@ -334,9 +376,9 @@ void TestHits::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       double pullGMX_ts = (tsosGMom.x()-shitGMom.x())/sqrt(tsosGMEr.cxx());
       double pullGMY_ts = (tsosGMom.y()-shitGMom.y())/sqrt(tsosGMEr.cyy());
       double pullGMZ_ts = (tsosGMom.z()-shitGMom.z())/sqrt(tsosGMEr.czz());
-//       double pullGMX_ts = (tsosGMom.x()-shitGMom.x())/*/sqrt(tsosGMEr.cxx())*/;
-//       double pullGMY_ts = (tsosGMom.y()-shitGMom.y())/*/sqrt(tsosGMEr.cyy())*/;
-//       double pullGMZ_ts = (tsosGMom.z()-shitGMom.z())/*/sqrt(tsosGMEr.czz())*/;
+      //double pullGMX_ts = (tsosGMom.x()-shitGMom.x());
+      //double pullGMY_ts = (tsosGMom.y()-shitGMom.y());
+      //double pullGMZ_ts = (tsosGMom.z()-shitGMom.z());
 
       LogTrace("TestHits") << "ts2" << std::endl;
 
@@ -350,11 +392,11 @@ void TestHits::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       title << "PullGM_Z_" << subdetId << "-" << layerId << "_ts";
       hPullGM_Z_ts[title.str()]->Fill( pullGMZ_ts );
 
-      if (dynamic_cast<const SiStripMatchedRecHit2D*>((*rhit)->hit())) {
+      if (dynamic_cast<const SiStripMatchedRecHit2D*>((rhit)->hit())) {
 	//mono
 	LogTrace("TestHits") << "MONO HIT" << endl;
 	CTTRHp tMonoHit = 
-	  theBuilder->build(dynamic_cast<const SiStripMatchedRecHit2D*>((*rhit)->hit())->monoHit());
+	  theBuilder->build(dynamic_cast<const SiStripMatchedRecHit2D*>((rhit)->hit())->monoHit());
 	if (tMonoHit==0) continue;
 	vector<PSimHit> assMonoSimHits = hitAssociator->associateHit(*tMonoHit->hit());
 	if (assMonoSimHits.size()==0) continue;
@@ -380,9 +422,9 @@ void TestHits::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	double pullGPX_rs_mono = (monoRhitGPos.x()-monoShitGPos.x())/sqrt(monoRhitGPEr.cxx());
 	double pullGPY_rs_mono = (monoRhitGPos.y()-monoShitGPos.y())/sqrt(monoRhitGPEr.cyy());
 	double pullGPZ_rs_mono = (monoRhitGPos.z()-monoShitGPos.z())/sqrt(monoRhitGPEr.czz());
-// 	double pullGPX_rs_mono = (monoRhitGPos.x()-monoShitGPos.x())/*/sqrt(monoRhitGPEr.cxx())*/;
-// 	double pullGPY_rs_mono = (monoRhitGPos.y()-monoShitGPos.y())/*/sqrt(monoRhitGPEr.cyy())*/;
-// 	double pullGPZ_rs_mono = (monoRhitGPos.z()-monoShitGPos.z())/*/sqrt(monoRhitGPEr.czz())*/;
+	//double pullGPX_rs_mono = (monoRhitGPos.x()-monoShitGPos.x());
+	//double pullGPY_rs_mono = (monoRhitGPos.y()-monoShitGPos.y());
+	//double pullGPZ_rs_mono = (monoRhitGPos.z()-monoShitGPos.z());
 
 	title.str("");
 	title << "PullGP_X_" << subdetId << "-" << layerId << "_rs_mono";
@@ -397,9 +439,9 @@ void TestHits::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	double pullGPX_tr_mono = (monoTsosGPos.x()-monoRhitGPos.x())/sqrt(monoTsosGPEr.cxx()+monoRhitGPEr.cxx());
 	double pullGPY_tr_mono = (monoTsosGPos.y()-monoRhitGPos.y())/sqrt(monoTsosGPEr.cyy()+monoRhitGPEr.cyy());
 	double pullGPZ_tr_mono = (monoTsosGPos.z()-monoRhitGPos.z())/sqrt(monoTsosGPEr.czz()+monoRhitGPEr.czz());
-// 	double pullGPX_tr_mono = (monoTsosGPos.x()-monoRhitGPos.x())/*/sqrt(monoTsosGPEr.cxx()+monoRhitGPEr.cxx())*/;
-// 	double pullGPY_tr_mono = (monoTsosGPos.y()-monoRhitGPos.y())/*/sqrt(monoTsosGPEr.cyy()+monoRhitGPEr.cyy())*/;
-// 	double pullGPZ_tr_mono = (monoTsosGPos.z()-monoRhitGPos.z())/*/sqrt(monoTsosGPEr.czz()+monoRhitGPEr.czz())*/;
+	//double pullGPX_tr_mono = (monoTsosGPos.x()-monoRhitGPos.x());
+	//double pullGPY_tr_mono = (monoTsosGPos.y()-monoRhitGPos.y());
+	//double pullGPZ_tr_mono = (monoTsosGPos.z()-monoRhitGPos.z());
 
 	title.str("");
 	title << "PullGP_X_" << subdetId << "-" << layerId << "_tr_mono";
@@ -414,9 +456,9 @@ void TestHits::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	double pullGPX_ts_mono = (monoTsosGPos.x()-monoShitGPos.x())/sqrt(monoTsosGPEr.cxx());
 	double pullGPY_ts_mono = (monoTsosGPos.y()-monoShitGPos.y())/sqrt(monoTsosGPEr.cyy());
 	double pullGPZ_ts_mono = (monoTsosGPos.z()-monoShitGPos.z())/sqrt(monoTsosGPEr.czz());
-// 	double pullGPX_ts_mono = (monoTsosGPos.x()-monoShitGPos.x())/*/sqrt(monoTsosGPEr.cxx())*/;
-// 	double pullGPY_ts_mono = (monoTsosGPos.y()-monoShitGPos.y())/*/sqrt(monoTsosGPEr.cyy())*/;
-// 	double pullGPZ_ts_mono = (monoTsosGPos.z()-monoShitGPos.z())/*/sqrt(monoTsosGPEr.czz())*/;
+	//double pullGPX_ts_mono = (monoTsosGPos.x()-monoShitGPos.x());
+	//double pullGPY_ts_mono = (monoTsosGPos.y()-monoShitGPos.y());
+	//double pullGPZ_ts_mono = (monoTsosGPos.z()-monoShitGPos.z());
 
 	title.str("");
 	title << "PullGP_X_" << subdetId << "-" << layerId << "_ts_mono";
@@ -431,9 +473,9 @@ void TestHits::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	double pullGMX_ts_mono = (monoTsosGMom.x()-monoShitGMom.x())/sqrt(monoTsosGMEr.cxx());
 	double pullGMY_ts_mono = (monoTsosGMom.y()-monoShitGMom.y())/sqrt(monoTsosGMEr.cyy());
 	double pullGMZ_ts_mono = (monoTsosGMom.z()-monoShitGMom.z())/sqrt(monoTsosGMEr.czz());
-// 	double pullGMX_ts_mono = (monoTsosGMom.x()-monoShitGMom.x())/*/sqrt(monoTsosGMEr.cxx())*/;
-// 	double pullGMY_ts_mono = (monoTsosGMom.y()-monoShitGMom.y())/*/sqrt(monoTsosGMEr.cyy())*/;
-// 	double pullGMZ_ts_mono = (monoTsosGMom.z()-monoShitGMom.z())/*/sqrt(monoTsosGMEr.czz())*/;
+	//double pullGMX_ts_mono = (monoTsosGMom.x()-monoShitGMom.x());
+	//double pullGMY_ts_mono = (monoTsosGMom.y()-monoShitGMom.y());
+	//double pullGMZ_ts_mono = (monoTsosGMom.z()-monoShitGMom.z());
 
 	title.str("");
 	title << "PullGM_X_" << subdetId << "-" << layerId << "_ts_mono";
@@ -448,7 +490,7 @@ void TestHits::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	//stereo
 	LogTrace("TestHits") << "STEREO HIT" << endl;
 	CTTRHp tStereoHit = 
-	  theBuilder->build(dynamic_cast<const SiStripMatchedRecHit2D*>((*rhit)->hit())->stereoHit());
+	  theBuilder->build(dynamic_cast<const SiStripMatchedRecHit2D*>((rhit)->hit())->stereoHit());
 	if (tStereoHit==0) continue;
 	vector<PSimHit> assStereoSimHits = hitAssociator->associateHit(*tStereoHit->hit());
 	if (assStereoSimHits.size()==0) continue;
@@ -474,9 +516,9 @@ void TestHits::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	double pullGPX_rs_stereo = (stereoRhitGPos.x()-stereoShitGPos.x())/sqrt(stereoRhitGPEr.cxx());
 	double pullGPY_rs_stereo = (stereoRhitGPos.y()-stereoShitGPos.y())/sqrt(stereoRhitGPEr.cyy());
 	double pullGPZ_rs_stereo = (stereoRhitGPos.z()-stereoShitGPos.z())/sqrt(stereoRhitGPEr.czz());
-// 	double pullGPX_rs_stereo = (stereoRhitGPos.x()-stereoShitGPos.x())/*/sqrt(stereoRhitGPEr.cxx())*/;
-// 	double pullGPY_rs_stereo = (stereoRhitGPos.y()-stereoShitGPos.y())/*/sqrt(stereoRhitGPEr.cyy())*/;
-// 	double pullGPZ_rs_stereo = (stereoRhitGPos.z()-stereoShitGPos.z())/*/sqrt(stereoRhitGPEr.czz())*/;
+	//double pullGPX_rs_stereo = (stereoRhitGPos.x()-stereoShitGPos.x());
+	//double pullGPY_rs_stereo = (stereoRhitGPos.y()-stereoShitGPos.y());
+	//double pullGPZ_rs_stereo = (stereoRhitGPos.z()-stereoShitGPos.z());
 
 	title.str("");
 	title << "PullGP_X_" << subdetId << "-" << layerId << "_rs_stereo";
@@ -491,9 +533,9 @@ void TestHits::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	double pullGPX_tr_stereo = (stereoTsosGPos.x()-stereoRhitGPos.x())/sqrt(stereoTsosGPEr.cxx()+stereoRhitGPEr.cxx());
 	double pullGPY_tr_stereo = (stereoTsosGPos.y()-stereoRhitGPos.y())/sqrt(stereoTsosGPEr.cyy()+stereoRhitGPEr.cyy());
 	double pullGPZ_tr_stereo = (stereoTsosGPos.z()-stereoRhitGPos.z())/sqrt(stereoTsosGPEr.czz()+stereoRhitGPEr.czz());
-// 	double pullGPX_tr_stereo = (stereoTsosGPos.x()-stereoRhitGPos.x())/*/sqrt(stereoTsosGPEr.cxx()+stereoRhitGPEr.cxx())*/;
-// 	double pullGPY_tr_stereo = (stereoTsosGPos.y()-stereoRhitGPos.y())/*/sqrt(stereoTsosGPEr.cyy()+stereoRhitGPEr.cyy())*/;
-// 	double pullGPZ_tr_stereo = (stereoTsosGPos.z()-stereoRhitGPos.z())/*/sqrt(stereoTsosGPEr.czz()+stereoRhitGPEr.czz())*/;
+	//double pullGPX_tr_stereo = (stereoTsosGPos.x()-stereoRhitGPos.x());
+	//double pullGPY_tr_stereo = (stereoTsosGPos.y()-stereoRhitGPos.y());
+	//double pullGPZ_tr_stereo = (stereoTsosGPos.z()-stereoRhitGPos.z());
 
 	title.str("");
 	title << "PullGP_X_" << subdetId << "-" << layerId << "_tr_stereo";
@@ -508,9 +550,9 @@ void TestHits::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	double pullGPX_ts_stereo = (stereoTsosGPos.x()-stereoShitGPos.x())/sqrt(stereoTsosGPEr.cxx());
 	double pullGPY_ts_stereo = (stereoTsosGPos.y()-stereoShitGPos.y())/sqrt(stereoTsosGPEr.cyy());
 	double pullGPZ_ts_stereo = (stereoTsosGPos.z()-stereoShitGPos.z())/sqrt(stereoTsosGPEr.czz());
-// 	double pullGPX_ts_stereo = (stereoTsosGPos.x()-stereoShitGPos.x())/*/sqrt(stereoTsosGPEr.cxx())*/;
-// 	double pullGPY_ts_stereo = (stereoTsosGPos.y()-stereoShitGPos.y())/*/sqrt(stereoTsosGPEr.cyy())*/;
-// 	double pullGPZ_ts_stereo = (stereoTsosGPos.z()-stereoShitGPos.z())/*/sqrt(stereoTsosGPEr.czz())*/;
+	//double pullGPX_ts_stereo = (stereoTsosGPos.x()-stereoShitGPos.x());
+	//double pullGPY_ts_stereo = (stereoTsosGPos.y()-stereoShitGPos.y());
+	//double pullGPZ_ts_stereo = (stereoTsosGPos.z()-stereoShitGPos.z());
 
 	title.str("");
 	title << "PullGP_X_" << subdetId << "-" << layerId << "_ts_stereo";
@@ -525,9 +567,9 @@ void TestHits::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	double pullGMX_ts_stereo = (stereoTsosGMom.x()-stereoShitGMom.x())/sqrt(stereoTsosGMEr.cxx());
 	double pullGMY_ts_stereo = (stereoTsosGMom.y()-stereoShitGMom.y())/sqrt(stereoTsosGMEr.cyy());
 	double pullGMZ_ts_stereo = (stereoTsosGMom.z()-stereoShitGMom.z())/sqrt(stereoTsosGMEr.czz());
-// 	double pullGMX_ts_stereo = (stereoTsosGMom.x()-stereoShitGMom.x())/*/sqrt(stereoTsosGMEr.cxx())*/;
-// 	double pullGMY_ts_stereo = (stereoTsosGMom.y()-stereoShitGMom.y())/*/sqrt(stereoTsosGMEr.cyy())*/;
-// 	double pullGMZ_ts_stereo = (stereoTsosGMom.z()-stereoShitGMom.z())/*/sqrt(stereoTsosGMEr.czz())*/;
+	//double pullGMX_ts_stereo = (stereoTsosGMom.x()-stereoShitGMom.x());
+	//double pullGMY_ts_stereo = (stereoTsosGMom.y()-stereoShitGMom.y());
+	//double pullGMZ_ts_stereo = (stereoTsosGMom.z()-stereoShitGMom.z());
 
 	title.str("");
 	title << "PullGM_X_" << subdetId << "-" << layerId << "_ts_stereo";
@@ -538,12 +580,354 @@ void TestHits::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	title.str("");
 	title << "PullGM_Z_" << subdetId << "-" << layerId << "_ts_stereo";
 	hPullGM_Z_ts_stereo[title.str()]->Fill( pullGMZ_ts_stereo );
-      }
+      }    
+      lastState = updatedState;
     }
   }
   delete hitAssociator;
   LogTrace("TestHits") << "end of event" << std::endl;
 }
+//     TSOS lastState = theTSOS;
+//     for (std::vector<TrajectoryMeasurement>::iterator tm=vtm.begin(); tm!=vtm.end();tm++){
+
+//       TransientTrackingRecHit::ConstRecHitPointer rhit = tm->recHit();
+//       if ((rhit)->isValid()==0&&rhit->det()!=0) continue;
+    
+// //     //test hits
+// //     TSOS lastState, currentState, updatedState;
+// //     updatedState=theTSOS;
+// //     for (TransientTrackingRecHit::RecHitContainer::iterator rhit=hits.begin()+1;rhit!=hits.end();++rhit){
+
+//       lastState=updatedState;
+
+//       LogTrace("TestHits") << "new hit" << std::endl;
+
+//       if ((*rhit)->isValid()==0) continue;
+
+//       int subdetId = (*rhit)->det()->geographicalId().subdetId();
+//       int layerId  = 0;
+//       DetId id = (*rhit)->det()->geographicalId();
+//       if (id.subdetId()==3) layerId = ((TIBDetId)(id)).layer();
+//       if (id.subdetId()==5) layerId = ((TOBDetId)(id)).layer();
+//       if (id.subdetId()==1) layerId = ((PXBDetId)(id)).layer();
+//       if (id.subdetId()==4) layerId = ((TIDDetId)(id)).wheel();
+//       if (id.subdetId()==6) layerId = ((TECDetId)(id)).wheel();
+//       if (id.subdetId()==2) layerId = ((PXFDetId)(id)).disk();
+//       const Surface * surf = &( (*rhit)->det()->surface() );
+//       currentState=thePropagator->propagate(lastState,*surf);	
+//       if (currentState.isValid()==0) continue;
+//       updatedState=theUpdator->update(currentState,**rhit);
+
+//       double delta = 99999;
+//       LocalPoint rhitLP = rhit->localPosition();
+
+//       vector<PSimHit> assSimHits = hitAssociator->associateHit(*(*rhit)->hit());
+//       if (assSimHits.size()==0) continue;
+//       PSimHit shit;
+//       for(vector<PSimHit>::const_iterator m=assSimHits.begin(); m<assSimHits.end(); m++){
+// 	if ((*m-rhitLP).mag()<delta) {
+// 	  shit=*m;
+// 	  delta = (*m-rhitLP).mag();
+// 	}
+//       }
+
+//       LocalVector shitLMom = shit.momentumAtEntry();
+//       GlobalVector shitGMom = surf->toGlobal(shitLMom);
+//       LocalPoint shitLPos = shit.localPosition();
+//       GlobalPoint shitGPos = surf->toGlobal(shitLPos);
+
+//       GlobalVector tsosGMom = currentState.globalMomentum();
+//       GlobalError  tsosGMEr(currentState.cartesianError().matrix().Sub<AlgebraicSymMatrix33>(3,3));
+//       GlobalPoint  tsosGPos = currentState.globalPosition();
+//       GlobalError  tsosGPEr = currentState.cartesianError().position();
+
+//       GlobalPoint rhitGPos = (*rhit)->globalPosition();
+//       GlobalError rhitGPEr = (*rhit)->globalPositionError();
+
+//       double pullGPX_rs = (rhitGPos.x()-shitGPos.x())/sqrt(rhitGPEr.cxx());
+//       double pullGPY_rs = (rhitGPos.y()-shitGPos.y())/sqrt(rhitGPEr.cyy());
+//       double pullGPZ_rs = (rhitGPos.z()-shitGPos.z())/sqrt(rhitGPEr.czz());
+// //       double pullGPX_rs = (rhitGPos.x()-shitGPos.x())/*/sqrt(rhitGPEr.cxx())*/;
+// //       double pullGPY_rs = (rhitGPos.y()-shitGPos.y())/*/sqrt(rhitGPEr.cyy())*/;
+// //       double pullGPZ_rs = (rhitGPos.z()-shitGPos.z())/*/sqrt(rhitGPEr.czz())*/;
+
+//       //plot chi2 increment
+//       MeasurementExtractor me(currentState);
+//       double chi2increment = computeChi2Increment(me,*rhit);
+//       LogTrace("TestHits") << "chi2increment=" << chi2increment << endl;
+//       title.str("");
+//       title << "Chi2Increment_" << subdetId << "-" << layerId;
+//       hChi2Increment[title.str()]->Fill( chi2increment );
+//       hTotChi2Increment->Fill( chi2increment );
+//       hChi2_vs_Process->Fill( chi2increment, shit.processType() );
+//       if (dynamic_cast<const SiPixelRecHit*>((*rhit)->hit()))	
+// 	hChi2_vs_clsize->Fill( chi2increment, ((const SiPixelRecHit*)(*rhit)->hit())->cluster()->size() );
+//       if (dynamic_cast<const SiStripRecHit2D*>((*rhit)->hit()))	
+// 	hChi2_vs_clsize->Fill( chi2increment, ((const SiStripRecHit2D*)(*rhit)->hit())->cluster()->amplitudes().size() );
+      
+//       LogTrace("TestHits") << "rs" << std::endl;
+
+//       title.str("");
+//       title << "PullGP_X_" << subdetId << "-" << layerId << "_rs";
+//       hPullGP_X_rs[title.str()]->Fill( pullGPX_rs );
+//       title.str("");
+//       title << "PullGP_Y_" << subdetId << "-" << layerId << "_rs";
+//       hPullGP_Y_rs[title.str()]->Fill( pullGPY_rs );
+//       title.str("");
+//       title << "PullGP_Z_" << subdetId << "-" << layerId << "_rs";
+//       hPullGP_Z_rs[title.str()]->Fill( pullGPZ_rs );
+
+//       double pullGPX_tr = (tsosGPos.x()-rhitGPos.x())/sqrt(tsosGPEr.cxx()+rhitGPEr.cxx());
+//       double pullGPY_tr = (tsosGPos.y()-rhitGPos.y())/sqrt(tsosGPEr.cyy()+rhitGPEr.cyy());
+//       double pullGPZ_tr = (tsosGPos.z()-rhitGPos.z())/sqrt(tsosGPEr.czz()+rhitGPEr.czz());
+// //       double pullGPX_tr = (tsosGPos.x()-rhitGPos.x())/*/sqrt(tsosGPEr.cxx()+rhitGPEr.cxx())*/;
+// //       double pullGPY_tr = (tsosGPos.y()-rhitGPos.y())/*/sqrt(tsosGPEr.cyy()+rhitGPEr.cyy())*/;
+// //       double pullGPZ_tr = (tsosGPos.z()-rhitGPos.z())/*/sqrt(tsosGPEr.czz()+rhitGPEr.czz())*/;
+
+//       LogTrace("TestHits") << "tr" << std::endl;
+
+//       title.str("");
+//       title << "PullGP_X_" << subdetId << "-" << layerId << "_tr";
+//       hPullGP_X_tr[title.str()]->Fill( pullGPX_tr );
+//       title.str("");
+//       title << "PullGP_Y_" << subdetId << "-" << layerId << "_tr";
+//       hPullGP_Y_tr[title.str()]->Fill( pullGPY_tr );
+//       title.str("");
+//       title << "PullGP_Z_" << subdetId << "-" << layerId << "_tr";
+//       hPullGP_Z_tr[title.str()]->Fill( pullGPZ_tr );
+
+//       double pullGPX_ts = (tsosGPos.x()-shitGPos.x())/sqrt(tsosGPEr.cxx());
+//       double pullGPY_ts = (tsosGPos.y()-shitGPos.y())/sqrt(tsosGPEr.cyy());
+//       double pullGPZ_ts = (tsosGPos.z()-shitGPos.z())/sqrt(tsosGPEr.czz());
+// //       double pullGPX_ts = (tsosGPos.x()-shitGPos.x())/*/sqrt(tsosGPEr.cxx())*/;
+// //       double pullGPY_ts = (tsosGPos.y()-shitGPos.y())/*/sqrt(tsosGPEr.cyy())*/;
+// //       double pullGPZ_ts = (tsosGPos.z()-shitGPos.z())/*/sqrt(tsosGPEr.czz())*/;
+
+//       LogTrace("TestHits") << "ts1" << std::endl;
+
+//       title.str("");
+//       title << "PullGP_X_" << subdetId << "-" << layerId << "_ts";
+//       hPullGP_X_ts[title.str()]->Fill( pullGPX_ts );
+//       title.str("");
+//       title << "PullGP_Y_" << subdetId << "-" << layerId << "_ts";
+//       hPullGP_Y_ts[title.str()]->Fill( pullGPY_ts );
+//       title.str("");
+//       title << "PullGP_Z_" << subdetId << "-" << layerId << "_ts";
+//       hPullGP_Z_ts[title.str()]->Fill( pullGPZ_ts );
+
+//       double pullGMX_ts = (tsosGMom.x()-shitGMom.x())/sqrt(tsosGMEr.cxx());
+//       double pullGMY_ts = (tsosGMom.y()-shitGMom.y())/sqrt(tsosGMEr.cyy());
+//       double pullGMZ_ts = (tsosGMom.z()-shitGMom.z())/sqrt(tsosGMEr.czz());
+// //       double pullGMX_ts = (tsosGMom.x()-shitGMom.x())/*/sqrt(tsosGMEr.cxx())*/;
+// //       double pullGMY_ts = (tsosGMom.y()-shitGMom.y())/*/sqrt(tsosGMEr.cyy())*/;
+// //       double pullGMZ_ts = (tsosGMom.z()-shitGMom.z())/*/sqrt(tsosGMEr.czz())*/;
+
+//       LogTrace("TestHits") << "ts2" << std::endl;
+
+//       title.str("");
+//       title << "PullGM_X_" << subdetId << "-" << layerId << "_ts";
+//       hPullGM_X_ts[title.str()]->Fill( pullGMX_ts );
+//       title.str("");
+//       title << "PullGM_Y_" << subdetId << "-" << layerId << "_ts";
+//       hPullGM_Y_ts[title.str()]->Fill( pullGMY_ts );
+//       title.str("");
+//       title << "PullGM_Z_" << subdetId << "-" << layerId << "_ts";
+//       hPullGM_Z_ts[title.str()]->Fill( pullGMZ_ts );
+
+//       if (dynamic_cast<const SiStripMatchedRecHit2D*>((*rhit)->hit())) {
+// 	//mono
+// 	LogTrace("TestHits") << "MONO HIT" << endl;
+// 	CTTRHp tMonoHit = 
+// 	  theBuilder->build(dynamic_cast<const SiStripMatchedRecHit2D*>((*rhit)->hit())->monoHit());
+// 	if (tMonoHit==0) continue;
+// 	vector<PSimHit> assMonoSimHits = hitAssociator->associateHit(*tMonoHit->hit());
+// 	if (assMonoSimHits.size()==0) continue;
+// 	const PSimHit sMonoHit = *(assSimHits.begin());
+// 	const Surface * monoSurf = &( tMonoHit->det()->surface() );
+// 	if (monoSurf==0) continue;
+// 	TSOS monoState = thePropagator->propagate(lastState,*monoSurf);
+// 	if (monoState.isValid()==0) continue;
+
+// 	LocalVector monoShitLMom = sMonoHit.momentumAtEntry();
+// 	GlobalVector monoShitGMom = monoSurf->toGlobal(monoShitLMom);
+// 	LocalPoint monoShitLPos = sMonoHit.localPosition();
+// 	GlobalPoint monoShitGPos = monoSurf->toGlobal(monoShitLPos);
+
+// 	GlobalVector monoTsosGMom = monoState.globalMomentum();
+// 	GlobalError  monoTsosGMEr(monoState.cartesianError().matrix().Sub<AlgebraicSymMatrix33>(3,3));
+// 	GlobalPoint  monoTsosGPos = monoState.globalPosition();
+// 	GlobalError  monoTsosGPEr = monoState.cartesianError().position();
+
+// 	GlobalPoint monoRhitGPos = tMonoHit->globalPosition();
+// 	GlobalError monoRhitGPEr = tMonoHit->globalPositionError();
+
+// 	double pullGPX_rs_mono = (monoRhitGPos.x()-monoShitGPos.x())/sqrt(monoRhitGPEr.cxx());
+// 	double pullGPY_rs_mono = (monoRhitGPos.y()-monoShitGPos.y())/sqrt(monoRhitGPEr.cyy());
+// 	double pullGPZ_rs_mono = (monoRhitGPos.z()-monoShitGPos.z())/sqrt(monoRhitGPEr.czz());
+// // 	double pullGPX_rs_mono = (monoRhitGPos.x()-monoShitGPos.x())/*/sqrt(monoRhitGPEr.cxx())*/;
+// // 	double pullGPY_rs_mono = (monoRhitGPos.y()-monoShitGPos.y())/*/sqrt(monoRhitGPEr.cyy())*/;
+// // 	double pullGPZ_rs_mono = (monoRhitGPos.z()-monoShitGPos.z())/*/sqrt(monoRhitGPEr.czz())*/;
+
+// 	title.str("");
+// 	title << "PullGP_X_" << subdetId << "-" << layerId << "_rs_mono";
+// 	hPullGP_X_rs_mono[title.str()]->Fill( pullGPX_rs_mono );
+// 	title.str("");
+// 	title << "PullGP_Y_" << subdetId << "-" << layerId << "_rs_mono";
+// 	hPullGP_Y_rs_mono[title.str()]->Fill( pullGPY_rs_mono );
+// 	title.str("");
+// 	title << "PullGP_Z_" << subdetId << "-" << layerId << "_rs_mono";
+// 	hPullGP_Z_rs_mono[title.str()]->Fill( pullGPZ_rs_mono );
+
+// 	double pullGPX_tr_mono = (monoTsosGPos.x()-monoRhitGPos.x())/sqrt(monoTsosGPEr.cxx()+monoRhitGPEr.cxx());
+// 	double pullGPY_tr_mono = (monoTsosGPos.y()-monoRhitGPos.y())/sqrt(monoTsosGPEr.cyy()+monoRhitGPEr.cyy());
+// 	double pullGPZ_tr_mono = (monoTsosGPos.z()-monoRhitGPos.z())/sqrt(monoTsosGPEr.czz()+monoRhitGPEr.czz());
+// // 	double pullGPX_tr_mono = (monoTsosGPos.x()-monoRhitGPos.x())/*/sqrt(monoTsosGPEr.cxx()+monoRhitGPEr.cxx())*/;
+// // 	double pullGPY_tr_mono = (monoTsosGPos.y()-monoRhitGPos.y())/*/sqrt(monoTsosGPEr.cyy()+monoRhitGPEr.cyy())*/;
+// // 	double pullGPZ_tr_mono = (monoTsosGPos.z()-monoRhitGPos.z())/*/sqrt(monoTsosGPEr.czz()+monoRhitGPEr.czz())*/;
+
+// 	title.str("");
+// 	title << "PullGP_X_" << subdetId << "-" << layerId << "_tr_mono";
+// 	hPullGP_X_tr_mono[title.str()]->Fill( pullGPX_tr_mono );
+// 	title.str("");
+// 	title << "PullGP_Y_" << subdetId << "-" << layerId << "_tr_mono";
+// 	hPullGP_Y_tr_mono[title.str()]->Fill( pullGPY_tr_mono );
+// 	title.str("");
+// 	title << "PullGP_Z_" << subdetId << "-" << layerId << "_tr_mono";
+// 	hPullGP_Z_tr_mono[title.str()]->Fill( pullGPZ_tr_mono );
+
+// 	double pullGPX_ts_mono = (monoTsosGPos.x()-monoShitGPos.x())/sqrt(monoTsosGPEr.cxx());
+// 	double pullGPY_ts_mono = (monoTsosGPos.y()-monoShitGPos.y())/sqrt(monoTsosGPEr.cyy());
+// 	double pullGPZ_ts_mono = (monoTsosGPos.z()-monoShitGPos.z())/sqrt(monoTsosGPEr.czz());
+// // 	double pullGPX_ts_mono = (monoTsosGPos.x()-monoShitGPos.x())/*/sqrt(monoTsosGPEr.cxx())*/;
+// // 	double pullGPY_ts_mono = (monoTsosGPos.y()-monoShitGPos.y())/*/sqrt(monoTsosGPEr.cyy())*/;
+// // 	double pullGPZ_ts_mono = (monoTsosGPos.z()-monoShitGPos.z())/*/sqrt(monoTsosGPEr.czz())*/;
+
+// 	title.str("");
+// 	title << "PullGP_X_" << subdetId << "-" << layerId << "_ts_mono";
+// 	hPullGP_X_ts_mono[title.str()]->Fill( pullGPX_ts_mono );
+// 	title.str("");
+// 	title << "PullGP_Y_" << subdetId << "-" << layerId << "_ts_mono";
+// 	hPullGP_Y_ts_mono[title.str()]->Fill( pullGPY_ts_mono );
+// 	title.str("");
+// 	title << "PullGP_Z_" << subdetId << "-" << layerId << "_ts_mono";
+// 	hPullGP_Z_ts_mono[title.str()]->Fill( pullGPZ_ts_mono );
+
+// 	double pullGMX_ts_mono = (monoTsosGMom.x()-monoShitGMom.x())/sqrt(monoTsosGMEr.cxx());
+// 	double pullGMY_ts_mono = (monoTsosGMom.y()-monoShitGMom.y())/sqrt(monoTsosGMEr.cyy());
+// 	double pullGMZ_ts_mono = (monoTsosGMom.z()-monoShitGMom.z())/sqrt(monoTsosGMEr.czz());
+// // 	double pullGMX_ts_mono = (monoTsosGMom.x()-monoShitGMom.x())/*/sqrt(monoTsosGMEr.cxx())*/;
+// // 	double pullGMY_ts_mono = (monoTsosGMom.y()-monoShitGMom.y())/*/sqrt(monoTsosGMEr.cyy())*/;
+// // 	double pullGMZ_ts_mono = (monoTsosGMom.z()-monoShitGMom.z())/*/sqrt(monoTsosGMEr.czz())*/;
+
+// 	title.str("");
+// 	title << "PullGM_X_" << subdetId << "-" << layerId << "_ts_mono";
+// 	hPullGM_X_ts_mono[title.str()]->Fill( pullGMX_ts_mono );
+// 	title.str("");
+// 	title << "PullGM_Y_" << subdetId << "-" << layerId << "_ts_mono";
+// 	hPullGM_Y_ts_mono[title.str()]->Fill( pullGMY_ts_mono );
+// 	title.str("");
+// 	title << "PullGM_Z_" << subdetId << "-" << layerId << "_ts_mono";
+// 	hPullGM_Z_ts_mono[title.str()]->Fill( pullGMZ_ts_mono );
+
+// 	//stereo
+// 	LogTrace("TestHits") << "STEREO HIT" << endl;
+// 	CTTRHp tStereoHit = 
+// 	  theBuilder->build(dynamic_cast<const SiStripMatchedRecHit2D*>((*rhit)->hit())->stereoHit());
+// 	if (tStereoHit==0) continue;
+// 	vector<PSimHit> assStereoSimHits = hitAssociator->associateHit(*tStereoHit->hit());
+// 	if (assStereoSimHits.size()==0) continue;
+// 	const PSimHit sStereoHit = *(assSimHits.begin());
+// 	const Surface * stereoSurf = &( tStereoHit->det()->surface() );
+// 	if (stereoSurf==0) continue;
+// 	TSOS stereoState = thePropagator->propagate(lastState,*stereoSurf);
+// 	if (stereoState.isValid()==0) continue;
+
+// 	LocalVector stereoShitLMom = sStereoHit.momentumAtEntry();
+// 	GlobalVector stereoShitGMom = stereoSurf->toGlobal(stereoShitLMom);
+// 	LocalPoint stereoShitLPos = sStereoHit.localPosition();
+// 	GlobalPoint stereoShitGPos = stereoSurf->toGlobal(stereoShitLPos);
+
+// 	GlobalVector stereoTsosGMom = stereoState.globalMomentum();
+// 	GlobalError  stereoTsosGMEr(stereoState.cartesianError().matrix().Sub<AlgebraicSymMatrix33>(3,3));
+// 	GlobalPoint  stereoTsosGPos = stereoState.globalPosition();
+// 	GlobalError  stereoTsosGPEr = stereoState.cartesianError().position();
+
+// 	GlobalPoint stereoRhitGPos = tStereoHit->globalPosition();
+// 	GlobalError stereoRhitGPEr = tStereoHit->globalPositionError();
+
+// 	double pullGPX_rs_stereo = (stereoRhitGPos.x()-stereoShitGPos.x())/sqrt(stereoRhitGPEr.cxx());
+// 	double pullGPY_rs_stereo = (stereoRhitGPos.y()-stereoShitGPos.y())/sqrt(stereoRhitGPEr.cyy());
+// 	double pullGPZ_rs_stereo = (stereoRhitGPos.z()-stereoShitGPos.z())/sqrt(stereoRhitGPEr.czz());
+// // 	double pullGPX_rs_stereo = (stereoRhitGPos.x()-stereoShitGPos.x())/*/sqrt(stereoRhitGPEr.cxx())*/;
+// // 	double pullGPY_rs_stereo = (stereoRhitGPos.y()-stereoShitGPos.y())/*/sqrt(stereoRhitGPEr.cyy())*/;
+// // 	double pullGPZ_rs_stereo = (stereoRhitGPos.z()-stereoShitGPos.z())/*/sqrt(stereoRhitGPEr.czz())*/;
+
+// 	title.str("");
+// 	title << "PullGP_X_" << subdetId << "-" << layerId << "_rs_stereo";
+// 	hPullGP_X_rs_stereo[title.str()]->Fill( pullGPX_rs_stereo );
+// 	title.str("");
+// 	title << "PullGP_Y_" << subdetId << "-" << layerId << "_rs_stereo";
+// 	hPullGP_Y_rs_stereo[title.str()]->Fill( pullGPY_rs_stereo );
+// 	title.str("");
+// 	title << "PullGP_Z_" << subdetId << "-" << layerId << "_rs_stereo";
+// 	hPullGP_Z_rs_stereo[title.str()]->Fill( pullGPZ_rs_stereo );
+
+// 	double pullGPX_tr_stereo = (stereoTsosGPos.x()-stereoRhitGPos.x())/sqrt(stereoTsosGPEr.cxx()+stereoRhitGPEr.cxx());
+// 	double pullGPY_tr_stereo = (stereoTsosGPos.y()-stereoRhitGPos.y())/sqrt(stereoTsosGPEr.cyy()+stereoRhitGPEr.cyy());
+// 	double pullGPZ_tr_stereo = (stereoTsosGPos.z()-stereoRhitGPos.z())/sqrt(stereoTsosGPEr.czz()+stereoRhitGPEr.czz());
+// // 	double pullGPX_tr_stereo = (stereoTsosGPos.x()-stereoRhitGPos.x())/*/sqrt(stereoTsosGPEr.cxx()+stereoRhitGPEr.cxx())*/;
+// // 	double pullGPY_tr_stereo = (stereoTsosGPos.y()-stereoRhitGPos.y())/*/sqrt(stereoTsosGPEr.cyy()+stereoRhitGPEr.cyy())*/;
+// // 	double pullGPZ_tr_stereo = (stereoTsosGPos.z()-stereoRhitGPos.z())/*/sqrt(stereoTsosGPEr.czz()+stereoRhitGPEr.czz())*/;
+
+// 	title.str("");
+// 	title << "PullGP_X_" << subdetId << "-" << layerId << "_tr_stereo";
+// 	hPullGP_X_tr_stereo[title.str()]->Fill( pullGPX_tr_stereo );
+// 	title.str("");
+// 	title << "PullGP_Y_" << subdetId << "-" << layerId << "_tr_stereo";
+// 	hPullGP_Y_tr_stereo[title.str()]->Fill( pullGPY_tr_stereo );
+// 	title.str("");
+// 	title << "PullGP_Z_" << subdetId << "-" << layerId << "_tr_stereo";
+// 	hPullGP_Z_tr_stereo[title.str()]->Fill( pullGPZ_tr_stereo );
+
+// 	double pullGPX_ts_stereo = (stereoTsosGPos.x()-stereoShitGPos.x())/sqrt(stereoTsosGPEr.cxx());
+// 	double pullGPY_ts_stereo = (stereoTsosGPos.y()-stereoShitGPos.y())/sqrt(stereoTsosGPEr.cyy());
+// 	double pullGPZ_ts_stereo = (stereoTsosGPos.z()-stereoShitGPos.z())/sqrt(stereoTsosGPEr.czz());
+// // 	double pullGPX_ts_stereo = (stereoTsosGPos.x()-stereoShitGPos.x())/*/sqrt(stereoTsosGPEr.cxx())*/;
+// // 	double pullGPY_ts_stereo = (stereoTsosGPos.y()-stereoShitGPos.y())/*/sqrt(stereoTsosGPEr.cyy())*/;
+// // 	double pullGPZ_ts_stereo = (stereoTsosGPos.z()-stereoShitGPos.z())/*/sqrt(stereoTsosGPEr.czz())*/;
+
+// 	title.str("");
+// 	title << "PullGP_X_" << subdetId << "-" << layerId << "_ts_stereo";
+// 	hPullGP_X_ts_stereo[title.str()]->Fill( pullGPX_ts_stereo );
+// 	title.str("");
+// 	title << "PullGP_Y_" << subdetId << "-" << layerId << "_ts_stereo";
+// 	hPullGP_Y_ts_stereo[title.str()]->Fill( pullGPY_ts_stereo );
+// 	title.str("");
+// 	title << "PullGP_Z_" << subdetId << "-" << layerId << "_ts_stereo";
+// 	hPullGP_Z_ts_stereo[title.str()]->Fill( pullGPZ_ts_stereo );
+
+// 	double pullGMX_ts_stereo = (stereoTsosGMom.x()-stereoShitGMom.x())/sqrt(stereoTsosGMEr.cxx());
+// 	double pullGMY_ts_stereo = (stereoTsosGMom.y()-stereoShitGMom.y())/sqrt(stereoTsosGMEr.cyy());
+// 	double pullGMZ_ts_stereo = (stereoTsosGMom.z()-stereoShitGMom.z())/sqrt(stereoTsosGMEr.czz());
+// // 	double pullGMX_ts_stereo = (stereoTsosGMom.x()-stereoShitGMom.x())/*/sqrt(stereoTsosGMEr.cxx())*/;
+// // 	double pullGMY_ts_stereo = (stereoTsosGMom.y()-stereoShitGMom.y())/*/sqrt(stereoTsosGMEr.cyy())*/;
+// // 	double pullGMZ_ts_stereo = (stereoTsosGMom.z()-stereoShitGMom.z())/*/sqrt(stereoTsosGMEr.czz())*/;
+
+// 	title.str("");
+// 	title << "PullGM_X_" << subdetId << "-" << layerId << "_ts_stereo";
+// 	hPullGM_X_ts_stereo[title.str()]->Fill( pullGMX_ts_stereo );
+// 	title.str("");
+// 	title << "PullGM_Y_" << subdetId << "-" << layerId << "_ts_stereo";
+// 	hPullGM_Y_ts_stereo[title.str()]->Fill( pullGMY_ts_stereo );
+// 	title.str("");
+// 	title << "PullGM_Z_" << subdetId << "-" << layerId << "_ts_stereo";
+// 	hPullGM_Z_ts_stereo[title.str()]->Fill( pullGMZ_ts_stereo );
+//       }
+//     }
+//   }
+//   delete hitAssociator;
+//   LogTrace("TestHits") << "end of event" << std::endl;
+// }
 
 void TestHits::endJob() {
   //file->Write();
@@ -595,8 +979,8 @@ void TestHits::endJob() {
 
   chi2i->cd();
   hTotChi2Increment->Write();
-  hChi2_vs_Process->Write();
-  hChi2_vs_clsize->Write();
+  hProcess_vs_Chi2->Write();
+  hClsize_vs_Chi2->Write();
   for (int i=0; i!=6; i++)
     for (int j=0; j!=9; j++){
       if (i==0 && j>2) break;
@@ -786,16 +1170,31 @@ void TestHits::endJob() {
   file->Close();
 }
 
-template<unsigned int D> 
-double TestHits::computeChi2Increment(MeasurementExtractor me, 
-				      TransientTrackingRecHit::ConstRecHitPointer rhit) {
-  typedef typename AlgebraicROOTObject<D>::Vector VecD;
-  typedef typename AlgebraicROOTObject<D,D>::SymMatrix SMatDD;
-  VecD r = asSVector<D>(rhit->parameters()) - me.measuredParameters<D>(*rhit);
-  
-  SMatDD R = asSMatrix<D>(rhit->parametersError()) + me.measuredError<D>(*rhit);
-  R.Invert();
-  return ROOT::Math::Similarity(r,R) ;
+//needed by to do the residual for matched hits
+//taken from SiStripTrackingRecHitsValid.cc
+std::pair<LocalPoint,LocalVector> 
+TestHits::projectHit( const PSimHit& hit, const StripGeomDetUnit* stripDet, const BoundPlane& plane) 
+{ 
+   const StripTopology& topol = stripDet->specificTopology();
+   GlobalPoint globalpos= stripDet->surface().toGlobal(hit.localPosition());
+   LocalPoint localHit = plane.toLocal(globalpos);
+   //track direction
+   LocalVector locdir=hit.localDirection();
+   //rotate track in new frame
+   
+   GlobalVector globaldir= stripDet->surface().toGlobal(locdir);
+   LocalVector dir=plane.toLocal(globaldir);
+   float scale = -localHit.z() / dir.z();
+   
+   LocalPoint projectedPos = localHit + scale*dir;
+   
+   float selfAngle = topol.stripAngle( topol.strip( hit.localPosition()));
+   
+   LocalVector stripDir( sin(selfAngle), cos(selfAngle), 0); // vector along strip in hit frame
+   
+   LocalVector localStripDir( plane.toLocal(stripDet->surface().toGlobal( stripDir)));
+   
+   return std::pair<LocalPoint,LocalVector>( projectedPos, localStripDir);
 }
 
 #include "FWCore/Framework/interface/ModuleFactory.h"

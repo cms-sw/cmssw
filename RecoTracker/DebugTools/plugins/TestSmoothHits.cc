@@ -11,6 +11,13 @@
 #include <TDirectory.h>
 #include "Geometry/TrackerGeometryBuilder/interface/GluedGeomDet.h"
 
+#include "DataFormats/SiStripDetId/interface/TIBDetId.h"
+#include "DataFormats/SiStripDetId/interface/TOBDetId.h"
+#include "DataFormats/SiStripDetId/interface/TIDDetId.h"
+#include "DataFormats/SiStripDetId/interface/TECDetId.h"
+#include "DataFormats/SiPixelDetId/interface/PXBDetId.h"
+#include "DataFormats/SiPixelDetId/interface/PXFDetId.h"
+
 typedef TrajectoryStateOnSurface TSOS;
 typedef TransientTrackingRecHit::ConstRecHitPointer CTTRHp;
 using namespace std;
@@ -22,7 +29,6 @@ TestSmoothHits::TestSmoothHits(const edm::ParameterSet& iConfig):
   propagatorName = conf_.getParameter<std::string>("Propagator");   
   builderName = conf_.getParameter<std::string>("TTRHBuilder");   
   srcName = conf_.getParameter<std::string>("src");   
-  updatorName = conf_.getParameter<std::string>("updator");
   fname = conf_.getParameter<std::string>("Fitter");
   sname = conf_.getParameter<std::string>("Smoother");
   mineta = conf_.getParameter<double>("mineta");
@@ -38,7 +44,6 @@ void TestSmoothHits::beginJob(const edm::EventSetup& iSetup)
   iSetup.get<IdealMagneticFieldRecord>().get(theMF);  
   iSetup.get<TrackingComponentsRecord>().get(propagatorName,thePropagator);
   iSetup.get<TransientRecHitRecord>().get(builderName,theBuilder);
-  iSetup.get<TrackingComponentsRecord>().get(updatorName,theUpdator);
   iSetup.get<TrackingComponentsRecord>().get(fname, fit);
   iSetup.get<TrackingComponentsRecord>().get(sname, smooth);
 
@@ -183,17 +188,10 @@ void TestSmoothHits::beginJob(const edm::EventSetup& iSetup)
   hChi2_vs_clsize  = new TH2F("Chi2_vs_clsize","Chi2_vs_clsize",1000,0,100,17,-0.5,16.5);
 }
 
-#include "DataFormats/SiStripDetId/interface/TIBDetId.h"
-#include "DataFormats/SiStripDetId/interface/TOBDetId.h"
-#include "DataFormats/SiStripDetId/interface/TIDDetId.h"
-#include "DataFormats/SiStripDetId/interface/TECDetId.h"
-#include "DataFormats/SiPixelDetId/interface/PXBDetId.h"
-#include "DataFormats/SiPixelDetId/interface/PXFDetId.h"
 
 void TestSmoothHits::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
   LogTrace("TestSmoothHits") << "new event" << std::endl;
-  //cout << "new event" << std::endl;
 
   iEvent.getByLabel(srcName,theTCCollection ); 
   hitAssociator = new TrackerHitAssociator::TrackerHitAssociator(iEvent);
@@ -203,7 +201,6 @@ void TestSmoothHits::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
   for (TrackCandidateCollection::const_iterator i=theTCCollection->begin(); i!=theTCCollection->end();i++){
 
     LogTrace("TestSmoothHits") << "new candidate" << std::endl;
-    //cout << "new candidate" << std::endl;
       
     const TrackCandidate * theTC = &(*i);
     PTrajectoryStateOnDet state = theTC->trajectoryStateOnDet();
@@ -243,7 +240,7 @@ void TestSmoothHits::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
       TransientTrackingRecHit::ConstRecHitPointer rhit = tm->recHit();
       if ((rhit)->isValid()==0&&rhit->det()!=0) continue;
       LogTrace("TestSmoothHits") << "new hit" ;
-      //cout << "new hit" << std::endl;
+
       int subdetId = rhit->det()->geographicalId().subdetId();
       int layerId  = 0;
       DetId id = rhit->det()->geographicalId();
@@ -254,21 +251,26 @@ void TestSmoothHits::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
       if (id.subdetId()==6) layerId = ((TECDetId)(id)).wheel();
       if (id.subdetId()==2) layerId = ((PXFDetId)(id)).disk();
       LogTrace("TestSmoothHits") << "subdetId=" << subdetId << " layerId=" << layerId ;
-      //cout << "subdetId=" << subdetId << " layerId=" << layerId << std::endl;
+
+      double delta = 99999;
+      LocalPoint rhitLPv = rhit->localPosition();
 
       vector<PSimHit> assSimHits = hitAssociator->associateHit(*(rhit->hit()));
       if (assSimHits.size()==0) continue;
-      PSimHit shit=*(assSimHits.begin());
+      PSimHit shit;
+      for(vector<PSimHit>::const_iterator m=assSimHits.begin(); m<assSimHits.end(); m++){
+	if ((m->localPosition()-rhitLPv).mag()<delta) {
+	  shit=*m;
+	  delta = (m->localPosition()-rhitLPv).mag();
+	}
+      }
 
       TSOS currentState = combiner(tm->backwardPredictedState(), tm->forwardPredictedState());
       TSOS updatedState = tm->updatedState();
  
       //plot chi2 increment
-      //MeasurementExtractor me(combTsos);
-      //double chi2increment = computeChi2Increment(me,rhit);
       double chi2increment = tm->estimate();
       LogTrace("TestSmoothHits") << "tm->estimate()=" << tm->estimate();
-      //cout << "tm->estimate()=" << tm->estimate()<<endl;
       title.str("");
       title << "Chi2Increment_" << subdetId << "-" << layerId;
       hChi2Increment[title.str()]->Fill( chi2increment );
@@ -279,44 +281,21 @@ void TestSmoothHits::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
       if (dynamic_cast<const SiStripRecHit2D*>(rhit->hit()))	
 	hChi2_vs_clsize->Fill( chi2increment, ((const SiStripRecHit2D*)(rhit->hit()))->cluster()->amplitudes().size() );
      
-      //#if 0    
       //test hits
       const Surface * surf = &( (rhit)->det()->surface() );
       LocalVector shitLMom;
       LocalPoint shitLPos;
-      if (dynamic_cast<const SiStripMatchedRecHit2D*>((rhit)->hit())) {
+       if (dynamic_cast<const SiStripMatchedRecHit2D*>(rhit->hit())) {
 	double rechitmatchedx = rhit->localPosition().x();
 	double rechitmatchedy = rhit->localPosition().y();
-	double mindist = 999999;
-	double distx, disty;
-	std::pair<LocalPoint,LocalVector> closestPair;
+        double mindist = 999999;
+        float distx, disty;
+        std::pair<LocalPoint,LocalVector> closestPair;
 	const StripGeomDetUnit* stripDet =(StripGeomDetUnit*) ((const GluedGeomDet *)(rhit)->det())->stereoDet();
 	const BoundPlane& plane = (rhit)->det()->surface();
-	for(vector<PSimHit>::const_iterator m=assSimHits.begin(); m<assSimHits.end(); m++){
-	  const PSimHit& hit = *m;
-	  const StripTopology& topol = stripDet->specificTopology();
-	  GlobalPoint globalpos = stripDet->surface().toGlobal(hit.localPosition());
-	  LocalPoint localHit = plane.toLocal(globalpos);
-	  //track direction
-	  LocalVector locdir=hit.localDirection();
-	  //rotate track in new frame
-	  
-	  GlobalVector globaldir= stripDet->surface().toGlobal(locdir);
-	  LocalVector dir=plane.toLocal(globaldir);
-	  float scale = -localHit.z() / dir.z();
-	  
-	  LocalPoint projectedPos = localHit + scale*dir;
-	  
-	  //  std::cout << "projectedPos " << projectedPos << std::endl;
-	  
-	  float selfAngle = topol.stripAngle( topol.strip( hit.localPosition()));
-	  
-	  LocalVector stripDir( sin(selfAngle), cos(selfAngle), 0); // vector along strip in hit frame
-	  
-	  LocalVector localStripDir = LocalVector( plane.toLocal(stripDet->surface().toGlobal( stripDir)));
-
-	  std::pair<LocalPoint,LocalVector> hitPair( projectedPos, localStripDir);
-
+	for(vector<PSimHit>::const_iterator m=assSimHits.begin(); m<assSimHits.end(); m++) {
+	  //project simhit;
+	  std::pair<LocalPoint,LocalVector> hitPair = projectHit((*m),stripDet,plane);
 	  distx = fabs(rechitmatchedx - hitPair.first.x());
 	  disty = fabs(rechitmatchedy - hitPair.first.y());
 	  double dist = distx*distx+disty*disty;
@@ -333,6 +312,46 @@ void TestSmoothHits::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
       }
       GlobalVector shitGMom = surf->toGlobal(shitLMom);
       GlobalPoint shitGPos = surf->toGlobal(shitLPos);
+//      if (dynamic_cast<const SiStripMatchedRecHit2D*>((rhit)->hit())) {
+// 	double rechitmatchedx = rhit->localPosition().x();
+// 	double rechitmatchedy = rhit->localPosition().y();
+// 	double mindist = 999999;
+// 	double distx, disty;
+// 	std::pair<LocalPoint,LocalVector> closestPair;
+// 	const StripGeomDetUnit* stripDet =(StripGeomDetUnit*) ((const GluedGeomDet *)(rhit)->det())->stereoDet();
+// 	const BoundPlane& plane = (rhit)->det()->surface();
+// 	for(vector<PSimHit>::const_iterator m=assSimHits.begin(); m<assSimHits.end(); m++){
+// 	  const PSimHit& hit = *m;
+// 	  const StripTopology& topol = stripDet->specificTopology();
+// 	  GlobalPoint globalpos = stripDet->surface().toGlobal(hit.localPosition());
+// 	  LocalPoint localHit = plane.toLocal(globalpos);
+// 	  //track direction
+// 	  LocalVector locdir=hit.localDirection();
+// 	  //rotate track in new frame	  
+// 	  GlobalVector globaldir= stripDet->surface().toGlobal(locdir);
+// 	  LocalVector dir=plane.toLocal(globaldir);
+// 	  float scale = -localHit.z() / dir.z();	  
+// 	  LocalPoint projectedPos = localHit + scale*dir;	  	  
+// 	  float selfAngle = topol.stripAngle( topol.strip( hit.localPosition()));	  
+// 	  LocalVector stripDir( sin(selfAngle), cos(selfAngle), 0); // vector along strip in hit frame	  
+// 	  LocalVector localStripDir = LocalVector( plane.toLocal(stripDet->surface().toGlobal( stripDir)));
+// 	  std::pair<LocalPoint,LocalVector> hitPair( projectedPos, localStripDir);
+// 	  distx = fabs(rechitmatchedx - hitPair.first.x());
+// 	  disty = fabs(rechitmatchedy - hitPair.first.y());
+// 	  double dist = distx*distx+disty*disty;
+// 	  if(sqrt(dist)<mindist){
+// 	    mindist = dist;
+// 	    closestPair = hitPair;
+// 	  }
+// 	}
+// 	shitLPos = closestPair.first;
+// 	shitLMom = closestPair.second;
+//       } else {
+// 	shitLPos = shit.localPosition();	
+// 	shitLMom = shit.momentumAtEntry();
+//       }
+//       GlobalVector shitGMom = surf->toGlobal(shitLMom);
+//       GlobalPoint shitGPos = surf->toGlobal(shitLPos);
 
       GlobalVector tsosGMom = currentState.globalMomentum();
       GlobalError  tsosGMEr(currentState.cartesianError().matrix().Sub<AlgebraicSymMatrix33>(3,3));
@@ -856,17 +875,32 @@ void TestSmoothHits::endJob() {
   file->Close();
 }
 
-// template<unsigned int D> 
-// double TestSmoothHits::computeChi2Increment(MeasurementExtractor me, 
-// 				      TransientTrackingRecHit::ConstRecHitPointer rhit) {
-//   typedef typename AlgebraicROOTObject<D>::Vector VecD;
-//   typedef typename AlgebraicROOTObject<D,D>::SymMatrix SMatDD;
-//   VecD r = asSVector<D>(rhit->parameters()) - me.measuredParameters<D>(rhit);
-  
-//   SMatDD R = asSMatrix<D>(rhit->parametersError()) + me.measuredError<D>(rhit);
-//   R.Invert();
-//   return ROOT::Math::Similarity(r,R) ;
-// }
+//needed by to do the residual for matched hits
+//taken from SiStripTrackingRecHitsValid.cc
+std::pair<LocalPoint,LocalVector> 
+TestSmoothHits::projectHit( const PSimHit& hit, const StripGeomDetUnit* stripDet, const BoundPlane& plane) 
+{ 
+   const StripTopology& topol = stripDet->specificTopology();
+   GlobalPoint globalpos= stripDet->surface().toGlobal(hit.localPosition());
+   LocalPoint localHit = plane.toLocal(globalpos);
+   //track direction
+   LocalVector locdir=hit.localDirection();
+   //rotate track in new frame
+   
+   GlobalVector globaldir= stripDet->surface().toGlobal(locdir);
+   LocalVector dir=plane.toLocal(globaldir);
+   float scale = -localHit.z() / dir.z();
+   
+   LocalPoint projectedPos = localHit + scale*dir;
+   
+   float selfAngle = topol.stripAngle( topol.strip( hit.localPosition()));
+   
+   LocalVector stripDir( sin(selfAngle), cos(selfAngle), 0); // vector along strip in hit frame
+   
+   LocalVector localStripDir( plane.toLocal(stripDet->surface().toGlobal( stripDir)));
+   
+   return std::pair<LocalPoint,LocalVector>( projectedPos, localStripDir);
+}
 
 #include "FWCore/Framework/interface/ModuleFactory.h"
 #include "FWCore/Framework/interface/MakerMacros.h"

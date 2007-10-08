@@ -15,7 +15,7 @@
 //
 // Original Author:  Giuseppe Cerati
 //         Created:  Tue Feb 13 17:29:10 CET 2007
-// $Id: TestTrackHits.h,v 1.1 2007/03/16 18:49:15 cerati Exp $
+// $Id: TestTrackHits.h,v 1.2 2007/09/13 16:46:37 cerati Exp $
 //
 //
 
@@ -39,11 +39,13 @@
 #include "TrackingTools/Records/interface/TrackingComponentsRecord.h" 
 #include "TrackingTools/Records/interface/TransientRecHitRecord.h" 
 #include "SimTracker/TrackerHitAssociation/interface/TrackerHitAssociator.h"
+#include "SimTracker/TrackAssociation/interface/TrackAssociatorByHits.h"
 #include "TrackingTools/PatternTools/interface/TrajectoryStateUpdator.h"
 #include "TrackingTools/GeomPropagators/interface/Propagator.h"
 #include "Geometry/TrackerGeometryBuilder/interface/GluedGeomDet.h"
 #include <TFile.h>
 #include <TH1F.h>
+#include <TH2F.h>
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
 #include <sstream>
@@ -58,7 +60,7 @@ private:
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
   virtual void endJob() ;
 
-  GlobalPoint matchSimHits(PSimHit&, PSimHit&, const GluedGeomDet*);
+  std::pair<LocalPoint,LocalVector> projectHit(const PSimHit&, const StripGeomDetUnit*, const BoundPlane&);
   
   const edm::ParameterSet conf_;
   TrackerHitAssociator * hitAssociator;
@@ -68,14 +70,19 @@ private:
   std::string propagatorName;
   std::string builderName;
   std::string srcName;
+  std::string tpName;
   std::string updatorName;
   edm::ESHandle<TrackerGeometry> theG;
   edm::ESHandle<MagneticField> theMF;
   edm::ESHandle<Propagator> thePropagator;
   edm::ESHandle<TransientTrackingRecHitBuilder> theBuilder;
   edm::ESHandle<TrajectoryStateUpdator> theUpdator;
+  edm::ESHandle<TrackAssociatorBase> trackAssociator;
   edm::Handle<std::vector<Trajectory> > trajCollectionHandle;
+  edm::Handle<reco::TrackCollection > trackCollectionHandle;
   edm::Handle<TrajTrackAssociationCollection> trajTrackAssociationCollectionHandle;
+  edm::Handle<TrackingParticleCollection> trackingParticleCollectionHandle;
+
   TFile* file;
   std::stringstream title;
   std::map<std::string,TH1F*> hPullGP_X_ts;
@@ -90,6 +97,11 @@ private:
   std::map<std::string,TH1F*> hPullGP_X_tr;
   std::map<std::string,TH1F*> hPullGP_Y_tr;
   std::map<std::string,TH1F*> hPullGP_Z_tr;
+  std::map<std::string,TH1F*> hChi2Increment;  
+  std::map<std::string,TH1F*> hChi2GoodHit;  
+  std::map<std::string,TH1F*> hChi2BadHit;
+  TH1F *hTotChi2Increment, *hTotChi2GoodHit, *hTotChi2BadHit;
+  TH2F *hProcess_vs_Chi2, *hClsize_vs_Chi2, *hGoodHit_vs_Chi2;
 
   std::map<std::string,TH1F*> hPullGP_X_ts_mono;
   std::map<std::string,TH1F*> hPullGP_Y_ts_mono;
@@ -116,8 +128,6 @@ private:
   std::map<std::string,TH1F*> hPullGP_X_tr_stereo;
   std::map<std::string,TH1F*> hPullGP_Y_tr_stereo;
   std::map<std::string,TH1F*> hPullGP_Z_tr_stereo;
-
-  std::map<std::string,TH1F*> hChi2Increment;
 };
 
 #endif

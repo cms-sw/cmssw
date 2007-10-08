@@ -17,7 +17,7 @@
 //
 // Original Author:  Giuseppe Cerati
 //         Created:  Tue Feb 13 17:29:10 CET 2007
-// $Id: TestHits.h,v 1.2 2007/06/27 18:13:43 cerati Exp $
+// $Id: TestHits.h,v 1.3 2007/08/10 00:49:49 cerati Exp $
 //
 //
 #include <memory>
@@ -35,13 +35,13 @@
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h" 
 #include "TrackingTools/Records/interface/TrackingComponentsRecord.h" 
 #include "TrackingTools/Records/interface/TransientRecHitRecord.h" 
-#include "TrackingTools/PatternTools/interface/TrajectoryStateUpdator.h"
 #include "Geometry/CommonDetUnit/interface/TrackingGeometry.h"
 #include "DataFormats/TrackCandidate/interface/TrackCandidateCollection.h"
 #include "TrackingTools/GeomPropagators/interface/Propagator.h"
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHitBuilder.h"
 #include "RecoTracker/TransientTrackingRecHit/interface/TkTransientTrackingRecHitBuilder.h"
 #include "TrackingTools/PatternTools/interface/MeasurementExtractor.h"
+#include "TrackingTools/TrackFitters/interface/KFTrajectoryFitter.h"
 #include <sstream>
 #include <TFile.h>
 #include <TH1F.h>
@@ -56,18 +56,8 @@ private:
   virtual void beginJob(const edm::EventSetup&) ;
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
   virtual void endJob() ;
-  template<unsigned int D> 
-    double computeChi2Increment(MeasurementExtractor, TransientTrackingRecHit::ConstRecHitPointer);
-  double computeChi2Increment(MeasurementExtractor me, TransientTrackingRecHit::ConstRecHitPointer hit) {
-    switch (hit->dimension()) {
-    case 1: return computeChi2Increment<1>(me,hit);
-    case 2: return computeChi2Increment<2>(me,hit);
-    case 3: return computeChi2Increment<3>(me,hit);
-    case 4: return computeChi2Increment<4>(me,hit);
-    case 5: return computeChi2Increment<5>(me,hit);
-    }
-    throw cms::Exception("CkfDebugger error: rechit of dimension not 1,2,3,4,5");
-  }
+
+  std::pair<LocalPoint,LocalVector> projectHit(const PSimHit&, const StripGeomDetUnit*, const BoundPlane&);
 
   const edm::ParameterSet conf_;
   TrackerHitAssociator * hitAssociator;
@@ -77,12 +67,13 @@ private:
   std::string propagatorName;
   std::string builderName;
   std::string srcName;
-  std::string updatorName;
+  std::string fname;
+
   edm::ESHandle<TrackerGeometry> theG;
   edm::ESHandle<MagneticField> theMF;
   edm::ESHandle<Propagator> thePropagator;
   edm::ESHandle<TransientTrackingRecHitBuilder> theBuilder;
-  edm::ESHandle<TrajectoryStateUpdator> theUpdator;
+  edm::ESHandle<TrajectoryFitter> fit;
   edm::Handle<TrackCandidateCollection> theTCCollection;
 
   TFile* file;
@@ -101,7 +92,7 @@ private:
   std::map<std::string,TH1F*> hPullGP_Z_tr;
   std::map<std::string,TH1F*> hChi2Increment;
   TH1F * hTotChi2Increment;
-  TH2F * hChi2_vs_Process, *hChi2_vs_clsize;
+  TH2F * hProcess_vs_Chi2, *hClsize_vs_Chi2;
 
   std::map<std::string,TH1F*> hPullGP_X_ts_mono;
   std::map<std::string,TH1F*> hPullGP_Y_ts_mono;
