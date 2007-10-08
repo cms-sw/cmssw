@@ -1,25 +1,12 @@
 <use name=Alignment/CommonAlignment>
 <use name=CondCore/DBOutputService>
 <use name=CondFormats/Alignment>
-<use name=DataFormats/SiPixelDetId>
 <use name=DataFormats/SiStripDetId>
-<use name=FWCore/Framework>
 <use name=FWCore/MessageLogger>
-<use name=FWCore/ParameterSet>
 <use name=FWCore/ServiceRegistry>
 <use name=FWCore/Utilities>
-<use name=Geometry/CommonDetUnit>
-<use name=Geometry/Records>
-<use name=Geometry/TrackerGeometryBuilder>
-<use name=Geometry/TrackerNumberingBuilder>
 <export>
   <use name=Alignment/CommonAlignment>
-  <use name=FWCore/Framework>
-  <use name=FWCore/MessageLogger>
   <use name=FWCore/ParameterSet>
-  <use name=Geometry/CommonDetUnit>
-  <use name=Geometry/TrackerGeometryBuilder>
-  <use name=Geometry/TrackerNumberingBuilder>
   <lib name=AlignmentTrackerAlignment>
 </export>
-
