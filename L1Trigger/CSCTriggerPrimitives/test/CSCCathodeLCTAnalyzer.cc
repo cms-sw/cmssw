@@ -4,8 +4,8 @@
  * Slava Valuev  May 26, 2004
  * Porting from ORCA by S. Valuev in September 2006.
  *
- * $Date: 2007/03/07 09:41:21 $
- * $Revision: 1.7 $
+ * $Date: 2007/03/27 15:59:38 $
+ * $Revision: 1.8 $
  *
  */
 
@@ -26,6 +26,7 @@ using namespace std;
 //-----------------
 
 bool CSCCathodeLCTAnalyzer::debug = true;
+bool CSCCathodeLCTAnalyzer::isTMB07 = false;
 
 vector<CSCCathodeLayerInfo> CSCCathodeLCTAnalyzer::getSimInfo(
       const CSCCLCTDigi& clct, const CSCDetId& clctId,
@@ -77,7 +78,7 @@ vector<CSCCathodeLayerInfo> CSCCathodeLCTAnalyzer::lctDigis(
 
   // Parameters defining time window for accepting hits; should come from
   // configuration file eventually.
-  const int fifo_tbins  = 16;
+  const int fifo_tbins  = 12;
   const int bx_width    = 6;
   const int drift_delay = 2;
 
@@ -98,6 +99,13 @@ vector<CSCCathodeLayerInfo> CSCCathodeLCTAnalyzer::lctDigis(
       << " endcap " << clctId.endcap() << ", station " << clctId.station()
       << ", ring " << clctId.ring() << ", chamber " << clctId.chamber();
   }
+
+  // 'Staggering' for key layer.  Needed for TMB07 version.
+  const int key_layer = 3; // counting from 1.
+  CSCDetId layerId(clctId.endcap(), clctId.station(), clctId.ring(),
+		   clctId.chamber(), key_layer);
+  const CSCLayer* csclayer = geom_->layer(layerId);
+  int key_stagger = (csclayer->geometry()->stagger()+1)/2;
 
   for (int i_layer = 0; i_layer < CSCConstants::NUM_LAYERS; i_layer++) {
     // Clear tempInfo values every iteration before using.
@@ -184,11 +192,29 @@ vector<CSCCathodeLayerInfo> CSCCathodeLCTAnalyzer::lctDigis(
     }
 
     // Loop over all the strips in a pattern.
-    for (int i_strip = 0; i_strip < CSCCathodeLCTProcessor::NUM_PATTERN_STRIPS;
-	 i_strip++) {
-      if (CSCCathodeLCTProcessor::pattern[clct_pattern][i_strip] == i_layer) {
-	int strip = clct_keystrip +
-	  CSCCathodeLCTProcessor::pre_hit_pattern[1][i_strip];
+    int max_pattern_strips, layer, strip;
+    if (!isTMB07) {
+      max_pattern_strips = CSCCathodeLCTProcessor::NUM_PATTERN_STRIPS;
+    }
+    else {
+      max_pattern_strips = CSCCathodeLCTProcessor::NUM_PATTERN_HALFSTRIPS;
+    }
+    for (int i_strip = 0; i_strip < max_pattern_strips; i_strip++) {
+      if (!isTMB07) {
+	layer = CSCCathodeLCTProcessor::pattern[clct_pattern][i_strip];
+      }
+      else {
+	layer = CSCCathodeLCTProcessor::pattern2007[clct_pattern][i_strip];
+      }
+      if (layer == i_layer) {
+	if (!isTMB07) {
+	  strip = clct_keystrip +
+	    CSCCathodeLCTProcessor::pre_hit_pattern[1][i_strip];
+	}
+	else {
+	  strip = clct_keystrip + key_stagger +
+	    CSCCathodeLCTProcessor::pattern2007_offset[i_strip];
+	}
 	if (strip >= 0 && strip < CSCConstants::NUM_HALF_STRIPS) {
 	  // stripType=0 corresponds to distrips, stripType=1 for halfstrips.
 	  if (clct_stripType == 0)
@@ -201,7 +227,7 @@ vector<CSCCathodeLayerInfo> CSCCathodeLCTAnalyzer::lctDigis(
 	  if (digiId >= 0) {
 	    tempInfo.setId(layerId); // store the layer of this object
 	    tempInfo.addComponent(digiMap[digiId]); // and the RecDigi
-	    if (debug) LogDebug("lctDigis")
+	    if (debug) LogTrace("lctDigis")
 	      << " Digi on CLCT: strip/comp/time " << digiMap[digiId];
 	  }
 	}
@@ -242,7 +268,7 @@ void CSCCathodeLCTAnalyzer::digiSimHitAssociator(CSCCathodeLayerInfo& info,
       ostringstream strstrm;
       if (debug) {
 	strstrm << "\nLayer " << layerId.layer()
-		<< " has " << simHits.size() << " SimHit(s); eta value(s) = ";
+		<< " has " << simHits.size() << " SimHit(s); phi value(s) = ";
       }
 
       // Get the strip number for every digi and convert to phi.
@@ -290,7 +316,7 @@ void CSCCathodeLCTAnalyzer::digiSimHitAssociator(CSCCathodeLayerInfo& info,
 	info.addComponent(*bestHit);
       }
       if (debug) {
-	LogDebug("digiSimHitAssociator") << strstrm.str();
+	LogTrace("digiSimHitAssociator") << strstrm.str();
       }
     }
   }
@@ -308,21 +334,21 @@ int CSCCathodeLCTAnalyzer::nearestHS(
   PSimHit matchedHit;
   bool hit_found = false;
   CSCDetId layerId;
+  static const int key_layer = isTMB07 ? 3 : CSCConstants::KEY_CLCT_LAYER;
 
   vector<CSCCathodeLayerInfo>::const_iterator pli;
   for (pli = allLayerInfo.begin(); pli != allLayerInfo.end(); pli++) {
-    if (pli->getId().layer() == CSCConstants::KEY_CLCT_LAYER) {
+    if (pli->getId().layer() == key_layer) {
       vector<PSimHit> thisLayerHits = pli->getSimHits();
       if (thisLayerHits.size() > 0) {
 	// There can be one RecDigi (and therefore only one SimHit)
 	// in a keylayer.
 	if (thisLayerHits.size() != 1) {
-	  edm::LogWarning("nearestWG")
+	  edm::LogWarning("nearestHS")
 	    << "+++ Warning: " << thisLayerHits.size()
-	    << " SimHits in key layer " << CSCConstants::KEY_CLCT_LAYER
-	    << "! +++ \n";
+	    << " SimHits in key layer " << key_layer << "! +++ \n";
 	  for (unsigned i = 0; i < thisLayerHits.size(); i++) {
-	    edm::LogWarning("nearestWG")
+	    edm::LogWarning("nearestHS")
 	      << " SimHit # " << i << thisLayerHits[i] << "\n";
 	  }
 	}

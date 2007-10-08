@@ -8,8 +8,8 @@
  * \author Slava Valuev  26 May 2004.
  * Porting from ORCA by S. Valuev in September 2006.
  *
- * $Date: 2006/09/12 09:00:29 $
- * $Revision: 1.1 $
+ * $Date: 2006/09/20 12:34:09 $
+ * $Revision: 1.2 $
  *
  */
 
@@ -53,6 +53,7 @@ class CSCCathodeLCTAnalyzer
 
  private:
   static bool debug;
+  static bool isTMB07;
 
   /* Cache geometry for current event. */
   const CSCGeometry* geom_;
