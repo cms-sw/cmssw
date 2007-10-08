@@ -25,10 +25,15 @@ L1CSCTriggerPrimitivesConfigProducer::L1CSCTriggerPrimitivesConfigProducer(const
   // Decide on which of the two sets of parameters will be used.
   // (Temporary substitute for the IOV.)
   std::string alctParamSet, clctParamSet;
-  bool isMTCC = iConfig.getParameter<bool>("isMTCC");
+  bool isMTCC  = iConfig.getParameter<bool>("isMTCC");
+  bool isTMB07 = iConfig.getParameter<bool>("isTMB07");
   if (isMTCC) {
     alctParamSet = "alctParamMTCC2";
     clctParamSet = "clctParamMTCC2";
+  }
+  else if (isTMB07) {
+    alctParamSet = "alctParamMTCC2";
+    clctParamSet = "clctParam";
   }
   else {
     alctParamSet = "alctParam";
@@ -58,6 +63,12 @@ L1CSCTriggerPrimitivesConfigProducer::L1CSCTriggerPrimitivesConfigProducer(const
   m_clct_nph_pattern = clctParams.getParameter<unsigned int>("clctNphPattern");
   m_clct_hs_thresh   = clctParams.getParameter<unsigned int>("clctHsThresh");
   m_clct_ds_thresh   = clctParams.getParameter<unsigned int>("clctDsThresh");
+
+  // TMB07 parameters
+  m_clct_hit_thresh = clctParams.getParameter<unsigned int>("clctHitThresh");
+  m_clct_pid_thresh = clctParams.getParameter<unsigned int>("clctPidThresh");
+  m_clct_sep_src    = clctParams.getParameter<unsigned int>("clctSepSrc");
+  m_clct_sep_vme    = clctParams.getParameter<unsigned int>("clctSepVme");
 }
 
 //----------------
@@ -99,6 +110,11 @@ L1CSCTriggerPrimitivesConfigProducer::produce(const L1CSCTPParametersRcd& iRecor
   pL1CSCTPParams->setClctNphPattern(m_clct_nph_pattern);
   pL1CSCTPParams->setClctHsThresh(m_clct_hs_thresh);
   pL1CSCTPParams->setClctDsThresh(m_clct_ds_thresh);
+
+  pL1CSCTPParams->setClctHitThresh(m_clct_hit_thresh);
+  pL1CSCTPParams->setClctPidThresh(m_clct_pid_thresh);
+  pL1CSCTPParams->setClctSepSrc(m_clct_sep_src);
+  pL1CSCTPParams->setClctSepVme(m_clct_sep_vme);
 
   //return pL1CSCTPProducer;
   return pL1CSCTPParams;

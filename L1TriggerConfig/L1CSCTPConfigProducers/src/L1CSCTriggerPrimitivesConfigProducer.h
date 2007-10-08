@@ -8,7 +8,7 @@
  *
  * \author Slava Valuev
  * Created: Thu Apr 12 11:26:54 CEST 2007
- * $Id: L1CSCTriggerPrimitivesConfigProducer.h,v 1.1 2007/04/17 13:30:12 slava Exp $
+ * $Id: L1CSCTriggerPrimitivesConfigProducer.h,v 1.2 2007/08/15 12:46:01 slava Exp $
  *
  */
 
@@ -44,6 +44,8 @@ class L1CSCTriggerPrimitivesConfigProducer : public edm::ESProducer {
   unsigned int m_clct_bx_width,   m_clct_drift_delay;
   unsigned int m_clct_nph_pattern;
   unsigned int m_clct_hs_thresh,  m_clct_ds_thresh;
+  unsigned int m_clct_hit_thresh, m_clct_pid_thresh;  // new TMB-07 parameters
+  unsigned int m_clct_sep_src,    m_clct_sep_vme;
 };
 
 #endif
