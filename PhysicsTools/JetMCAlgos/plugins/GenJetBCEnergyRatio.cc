@@ -1,0 +1,113 @@
+// 
+// Plugin to store B and C ratio for a GenJet in the event
+// Author: Attilio  
+// Date: 05.10.2007
+//
+
+//=======================================================================
+
+// user include files
+#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSetfwd.h"
+#include "FWCore/ParameterSet/interface/InputTag.h"
+ 
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
+#include "DataFormats/JetReco/interface/Jet.h"
+#include "DataFormats/JetReco/interface/GenJetCollection.h"
+#include "SimDataFormats/JetMatching/interface/JetFlavour.h"
+
+#include "DataFormats/Common/interface/Ref.h"
+#include "DataFormats/Candidate/interface/Candidate.h"
+#include "DataFormats/Candidate/interface/CandidateFwd.h"
+#include "DataFormats/JetReco/interface/JetFloatAssociation.h"
+#include "DataFormats/Math/interface/Point3D.h"
+#include "DataFormats/Math/interface/LorentzVector.h"
+
+#include "PhysicsTools/JetMCUtils/interface/JetMCTag.h"
+#include "PhysicsTools/JetMCUtils/interface/CandMCTag.h"
+
+#include <memory>
+#include <string>
+#include <iostream>
+#include <vector>
+#include <Math/VectorUtil.h>
+#include <TMath.h>
+
+using namespace std;
+using namespace reco;
+using namespace edm;
+using namespace ROOT::Math::VectorUtil;
+using namespace JetMCTagUtils;
+using namespace CandMCTagUtils;
+
+class GenJetBCEnergyRatio : public edm::EDProducer 
+{
+  public:
+    GenJetBCEnergyRatio( const edm::ParameterSet & );
+    ~GenJetBCEnergyRatio();
+
+    typedef reco::JetFloatAssociation::Container JetBCEnergyRatioCollection;
+
+  private:
+    virtual void produce(edm::Event&, const edm::EventSetup& );
+
+    Handle< View<Jet> >         genJets;
+    Handle<CandidateCollection> particles;
+
+    edm::InputTag m_genjetsSrc;
+
+};
+
+//=========================================================================
+
+GenJetBCEnergyRatio::GenJetBCEnergyRatio( const edm::ParameterSet& iConfig )
+{
+    produces<JetBCEnergyRatioCollection>("bRatioCollection");
+    produces<JetBCEnergyRatioCollection>("cRatioCollection");
+    m_genjetsSrc           = iConfig.getParameter<edm::InputTag>("genJets");
+}
+
+//=========================================================================
+
+GenJetBCEnergyRatio::~GenJetBCEnergyRatio() 
+{
+}
+
+// ------------ method called to produce the data  ------------
+
+void GenJetBCEnergyRatio::produce( Event& iEvent, const EventSetup& iEs ) 
+{
+  iEvent.getByLabel(m_genjetsSrc, genJets);
+  iEvent.getByLabel ("genParticleCandidates", particles );
+
+  typedef edm::RefToBase<reco::Jet> GenJetRef;
+
+  std::auto_ptr<JetBCEnergyRatioCollection> bRatioColl(new JetBCEnergyRatioCollection());
+  std::auto_ptr<JetBCEnergyRatioCollection> cRatioColl(new JetBCEnergyRatioCollection());
+
+  for( size_t j = 0; j != genJets->size(); ++j ) {
+
+    float bRatio = EnergyRatioFromBHadrons( (*genJets)[j] );
+    float cRatio = EnergyRatioFromCHadrons( (*genJets)[j] );
+
+    GenJetRef jet = genJets->refAt(j) ;
+
+    reco::JetFloatAssociation::setValue(*bRatioColl, jet, bRatio);
+    reco::JetFloatAssociation::setValue(*cRatioColl, jet, cRatio);
+
+  }
+
+  iEvent.put(bRatioColl, "bRatioCollection");
+  iEvent.put(cRatioColl, "cRatioCollection");
+
+}
+
+//define this as a plug-in
+DEFINE_FWK_MODULE(GenJetBCEnergyRatio);
+
