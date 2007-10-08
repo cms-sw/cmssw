@@ -1,5 +1,5 @@
-#ifndef RecoBTag_SecondaryVertex_VertexSelector_h
-#define RecoBTag_SecondaryVertex_VertexSelector_h
+#ifndef RecoBTag_SecondaryVertex_VertexSorting_h
+#define RecoBTag_SecondaryVertex_VertexSorting_h
 
 #include <vector>
 #include <string>
@@ -8,12 +8,12 @@
 
 #include "RecoBTag/SecondaryVertex/interface/SecondaryVertex.h"
 
-class VertexSelector {
+class VertexSorting {
     public:
-	VertexSelector(const edm::ParameterSet &params);
-	~VertexSelector() {}
+	VertexSorting(const edm::ParameterSet &params);
+	~VertexSorting() {}
 
-	const SecondaryVertex*
+	std::vector<unsigned int>
 	operator () (const std::vector<SecondaryVertex> &svCandidates) const;
 
     private:
@@ -31,4 +31,4 @@ class VertexSelector {
 	SortCriterium	sortCriterium;
 };
 
-#endif // RecoBTag_SecondaryVertex_VertexSelector_h
+#endif // RecoBTag_SecondaryVertex_VertexSorting_h

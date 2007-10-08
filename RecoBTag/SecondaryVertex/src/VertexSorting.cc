@@ -1,6 +1,6 @@
-#include <limits>
 #include <string>
 #include <vector>
+#include <map>
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/Exception.h"
@@ -9,12 +9,12 @@
 #include "DataFormats/VertexReco/interface/Vertex.h"
 
 #include "RecoBTag/SecondaryVertex/interface/SecondaryVertex.h"
-#include "RecoBTag/SecondaryVertex/interface/VertexSelector.h"
+#include "RecoBTag/SecondaryVertex/interface/VertexSorting.h"
 
 using namespace reco; 
 
-VertexSelector::SortCriterium
-VertexSelector::getSortCriterium(const std::string &criterium)
+VertexSorting::SortCriterium
+VertexSorting::getSortCriterium(const std::string &criterium)
 {
 	if (criterium == "dist3dError")
 		return sortDist3dErr;
@@ -34,20 +34,17 @@ VertexSelector::getSortCriterium(const std::string &criterium)
 		<< std::endl;
 }
 
-VertexSelector::VertexSelector(const edm::ParameterSet &params) :
+VertexSorting::VertexSorting(const edm::ParameterSet &params) :
 	sortCriterium(getSortCriterium(params.getParameter<std::string>("sortCriterium")))
 {
 }
 
-// identify most probable SV (closest to interaction point)
+// identify most probable SV (closest to interaction point, significance-wise)
 // FIXME: identify if this is the best strategy!
 
-const SecondaryVertex* VertexSelector::operator () (
+std::vector<unsigned int> VertexSorting::operator () (
 		const std::vector<SecondaryVertex> &svCandidates) const
 {
-	const SecondaryVertex *bestSV = 0;
-	double bestValue = std::numeric_limits<double>::max();
-
 	Measurement1D (SecondaryVertex::*measurementFn)() const;
 	switch(sortCriterium) {
 	    case sortDist3dErr:
@@ -78,15 +75,19 @@ const SecondaryVertex* VertexSelector::operator () (
 		break;
 	}
 
+	std::multimap<double, unsigned int> sortedMap;
+	unsigned int i = 0;
 	for(std::vector<SecondaryVertex>::const_iterator iter =
 		svCandidates.begin(); iter != svCandidates.end(); iter++) {
 
 		double value = std::abs((((*iter).*measurementFn)().*valueFn)());
-		if (value < bestValue) {
-			bestValue = value;
-			bestSV = &*iter;
-		}
+		sortedMap.insert(std::make_pair(value, i++));
 	}
 
-	return bestSV;
+	std::vector<unsigned int> result;
+	for(std::multimap<double, unsigned int>::const_iterator iter =
+		sortedMap.begin(); iter != sortedMap.end(); iter++)
+		result.push_back(iter->second);
+
+	return result;
 }

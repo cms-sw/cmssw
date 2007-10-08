@@ -11,6 +11,8 @@
 #include "DataFormats/Math/interface/LorentzVector.h"
 #include "DataFormats/GeometryCommonDetAlgo/interface/Measurement1D.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
+#include "DataFormats/GeometryVector/interface/GlobalVector.h"
+#include "DataFormats/GeometryVector/interface/VectorUtil.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/BTauReco/interface/TrackIPTagInfo.h"
@@ -50,14 +52,13 @@ CombinedSVComputer::threshTrack(const TrackIPTagInfo &trackIPTagInfo,
 	for(std::vector<std::size_t>::const_iterator iter = indices.begin();
 	    iter != indices.end(); iter++) {
 		kin.add(*tracks[*iter]);
-
 		if (kin.vectorSum().M() > charmCut) 
 			return ipData[*iter];
 	}
 
-	static TrackIPTagInfo::TrackIPData dummy = {
-		  Measurement1D(-999.0, 1.0),
-		  Measurement1D(-999.0, 1.0),
+	static const TrackIPTagInfo::TrackIPData dummy = {
+		  Measurement1D(-1.0, 1.0),
+		  Measurement1D(-1.0, 1.0),
 	};
 	return dummy;
 }
@@ -98,8 +99,26 @@ CombinedSVComputer::operator () (const TrackIPTagInfo &ipInfo,
 
 	if (svInfo.nVertices() > 0) {
 		vtxType = btag::Vertices::RecoVertex;
-		vars.insert(svInfo.taggingVariables());
-		vertexKinematics = TrackKinematics(svInfo.secondaryVertex(0));
+		// vars.insert(svInfo.taggingVariables());
+		for(unsigned int i = 0; i < svInfo.nVertices(); i++) {
+			TrackRefVector tracks = svInfo.vertexTracks(i);
+			for(unsigned int j = 0; j < tracks.size(); j++)
+				vertexKinematics.add(*tracks[j],
+						svInfo.trackWeight(i, j));
+		}
+
+		vars.insert(btau::flightDistance2dVal,
+		            svInfo.flightDistance(0, true).value(), true);
+		vars.insert(btau::flightDistance2dSig,
+		            svInfo.flightDistance(0, true).significance(), true);
+		vars.insert(btau::flightDistance3dVal,
+		            svInfo.flightDistance(0, false).value(), true);
+		vars.insert(btau::flightDistance3dSig,
+		            svInfo.flightDistance(0, false).significance(), true);
+		vars.insert(btau::vertexJetDeltaR,
+		            Geom::deltaR(svInfo.flightDirection(0), jetDir), true);
+		vars.insert(btau::jetNSecondaryVertices, svInfo.nVertices(), true);
+		vars.insert(btau::vertexNTracks, svInfo.nVertexTracks(), true);
 	}
 
 	std::vector<std::size_t> indices = ipInfo.sortedIndexes(sortCriterium);

@@ -19,8 +19,8 @@ typedef GenericMVAJetTagComputerWrapper<CombinedSVComputer,
 	reco::TrackIPTagInfo,         ipTagInfos,
 	reco::SecondaryVertexTagInfo, svTagInfos> CombinedSVJetTagComputer;
 
-typedef JetTagComputerESProducer<CombinedSVJetTagComputer> CombinedSVESProducer;
-DEFINE_ANOTHER_FWK_EVENTSETUP_MODULE(CombinedSVESProducer);
+typedef JetTagComputerESProducer<CombinedSVJetTagComputer> CombinedSecondaryVertexESProducer;
+DEFINE_ANOTHER_FWK_EVENTSETUP_MODULE(CombinedSecondaryVertexESProducer);
 
 typedef JetTagComputerESProducer<SimpleSecondaryVertexComputer> SimpleSecondaryVertexESProducer;
 DEFINE_ANOTHER_FWK_EVENTSETUP_MODULE(SimpleSecondaryVertexESProducer);

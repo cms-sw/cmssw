@@ -36,7 +36,7 @@
 #include "RecoBTag/SecondaryVertex/interface/TrackSorting.h"
 #include "RecoBTag/SecondaryVertex/interface/SecondaryVertex.h"
 #include "RecoBTag/SecondaryVertex/interface/VertexFilter.h"
-#include "RecoBTag/SecondaryVertex/interface/VertexSelector.h"
+#include "RecoBTag/SecondaryVertex/interface/VertexSorting.h"
 
 using namespace reco;
 
@@ -54,7 +54,7 @@ class SecondaryVertexProducer : public edm::EDProducer {
 	edm::ParameterSet		vtxRecoPSet;
 	bool				withPVError;
 	VertexFilter			vertexFilter;
-	VertexSelector			vertexSelector;
+	VertexSorting			vertexSorting;
 };
 
 SecondaryVertexProducer::SecondaryVertexProducer(
@@ -65,7 +65,7 @@ SecondaryVertexProducer::SecondaryVertexProducer(
 	vtxRecoPSet(params.getParameter<edm::ParameterSet>("vertexReco")),
 	withPVError(params.getParameter<bool>("usePVError")),
 	vertexFilter(params.getParameter<edm::ParameterSet>("vertexCuts")),
-	vertexSelector(params.getParameter<edm::ParameterSet>("vertexSelection"))
+	vertexSorting(params.getParameter<edm::ParameterSet>("vertexSelection"))
 {
 	produces<SecondaryVertexTagInfoCollection>();
 }
@@ -215,24 +215,26 @@ void SecondaryVertexProducer::produce(edm::Event &event,
 
 		// identify most probable SV
 
-		const SecondaryVertex *bestSV = vertexSelector(SVs);
+		std::vector<unsigned int> vtxIndices = vertexSorting(SVs);
 
 		std::vector<SecondaryVertexTagInfo::VertexData> svData;
 
-		if (bestSV) {
-			svData.resize(1);
-			svData.back().vertex = *bestSV;
-			svData.back().dist2d = bestSV->dist2d();
-			svData.back().dist3d = bestSV->dist3d();
-			svData.back().direction =
-				GlobalVector(bestSV->x() - pv.x(),
-				             bestSV->y() - pv.y(),
-				             bestSV->z() - pv.z());
+		svData.resize(vtxIndices.size());
+		for(unsigned int idx = 0; idx < vtxIndices.size(); idx++) {
+			const SecondaryVertex &sv = SVs[vtxIndices[idx]];
+
+			svData[idx].vertex = sv;
+			svData[idx].dist2d = sv.dist2d();
+			svData[idx].dist3d = sv.dist3d();
+			svData[idx].direction =
+				GlobalVector(sv.x() - pv.x(),
+				             sv.y() - pv.y(),
+				             sv.z() - pv.z());
 
 			// mark tracks successfully used in vertex fit
 
-			for(Vertex::trackRef_iterator iter = bestSV->tracks_begin();
-			    iter != bestSV->tracks_end(); iter++) {
+			for(Vertex::trackRef_iterator iter = sv.tracks_begin();
+			    iter != sv.tracks_end(); iter++) {
 				TrackRefVector::const_iterator pos =
 					std::find(trackRefs.begin(), trackRefs.end(),
 					          iter->castTo<TrackRef>());
@@ -243,8 +245,9 @@ void SecondaryVertexProducer::produce(edm::Event &event,
 						<< std::endl;
 
 				unsigned int index = pos - trackRefs.begin();
-				trackData[index].second.svStatus = 
-					SecondaryVertexTagInfo::TrackData::trackAssociatedToVertex;
+				trackData[index].second.svStatus =
+					(SecondaryVertexTagInfo::TrackData::Status)
+					((unsigned int)SecondaryVertexTagInfo::TrackData::trackAssociatedToVertex + idx);
 			}
 		}
 
