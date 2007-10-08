@@ -11,12 +11,15 @@
 #include "DataFormats/Candidate/interface/CandidateFwd.h"
 #include "DataFormats/JetReco/interface/Jet.h"
 #include "DataFormats/JetReco/interface/CaloJetCollection.h"
+#include "DataFormats/JetReco/interface/JetFloatAssociation.h"
 #include "DataFormats/Common/interface/Ref.h"
 
 #include "SimDataFormats/JetMatching/interface/JetFlavour.h"
 
 class printJetFlavour : public edm::EDAnalyzer {
   public:
+    typedef reco::JetFloatAssociation::Container JetBCEnergyRatioCollection;
+
     explicit printJetFlavour(const edm::ParameterSet & );
     ~printJetFlavour() {};
     void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup);
@@ -25,8 +28,12 @@ class printJetFlavour : public edm::EDAnalyzer {
 
     typedef std::vector<std::pair<reco::CaloJetRef, reco::JetFlavour> > JetTagVector;
 
-    edm::InputTag source_;
-    edm::Handle<JetTagVector> theTagByValue;
+    edm::InputTag sourceByValue_;
+    edm::InputTag sourceBratio_;
+    edm::InputTag sourceCratio_;
+    edm::Handle<JetTagVector>                theTagByValue;
+    edm::Handle<JetBCEnergyRatioCollection>  theBratioValue;
+    edm::Handle<JetBCEnergyRatioCollection>  theCratioValue;
 
 };
 
@@ -42,7 +49,9 @@ using namespace edm;
 
 printJetFlavour::printJetFlavour(const edm::ParameterSet& iConfig)
 {
-  source_ = iConfig.getParameter<InputTag> ("src");
+  sourceByValue_ = iConfig.getParameter<InputTag> ("srcByValue");
+  sourceBratio_  = iConfig.getParameter<InputTag> ("srcBratio" );
+  sourceCratio_  = iConfig.getParameter<InputTag> ("srcCratio" );
 }
 
 void printJetFlavour::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
@@ -50,19 +59,22 @@ void printJetFlavour::analyze(const edm::Event& iEvent, const edm::EventSetup& i
   cout << "[printJetFlavour] analysing event " << iEvent.id() << endl;
   
   try {
-    iEvent.getByLabel (source_, theTagByValue );
+    iEvent.getByLabel (sourceByValue_, theTagByValue );
+    iEvent.getByLabel (sourceBratio_ , theBratioValue);
+    iEvent.getByLabel (sourceCratio_ , theCratioValue);
   } catch(std::exception& ce) {
     cerr << "[printJetFlavour] caught std::exception " << ce.what() << endl;
     return;
   }
   
+  cout << "-------------------- Jet Flavour by Value ------------------------" << endl;
   for ( JetTagVector::const_iterator j  = theTagByValue->begin();
                                      j != theTagByValue->end();
-                                     j++ ) {
+                                     j ++ ) {
     const CaloJetRef aJet  = (*j).first;   
     const JetFlavour aFlav = (*j).second;
 
-    printf("[GenJetTest] (pt,eta,phi) jet = %7.3f %6.3f %6.3f | parton = %7.3f %6.3f %6.3f | %2d\n",
+    printf("[printJetFlavour 1] (pt,eta,phi) jet = %7.3f %6.3f %6.3f | parton = %7.3f %6.3f %6.3f | %2d\n",
              aJet.get()->et(),
              aJet.get()->eta(),
              aJet.get()->phi(), 
@@ -71,9 +83,20 @@ void printJetFlavour::analyze(const edm::Event& iEvent, const edm::EventSetup& i
              aFlav.getLorentzVector().phi(), 
              aFlav.getFlavour()
           );
+  }
 
-//    cout << aJet.get()->et() << " " << aFla.getFlavour()<< endl;
-
+  cout << "-------------------- GenJet Bratio ------------------------" << endl;
+  for ( JetBCEnergyRatioCollection::const_iterator it  = theBratioValue->begin(); 
+                                                   it != theBratioValue->end();
+                                                   it ++) {  
+   
+    const Jet &jet = *(it->first);
+    printf("printJetFlavour 2] (pt,eta,phi) jet = %7.3f %6.3f %6.3f | bRatio = %7.5f \n",
+             jet.et(),
+             jet.eta(),
+             jet.phi(),
+             it->second
+          );
   }
 }
 
