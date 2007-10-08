@@ -17,7 +17,7 @@
 //
 // Original Author:  Loic QUERTENMONT
 //         Created:  Tue Sep 18 14:22:48 CEST 2007
-// $Id: NuclearTrackCorrector.h,v 1.2 2007/10/04 16:17:19 roberfro Exp $
+// $Id: NuclearTrackCorrector.h,v 1.3 2007/10/05 13:50:59 roberfro Exp $
 //
 //
 
@@ -59,12 +59,9 @@
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
 #include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
 
+#include "RecoTracker/TrackProducer/interface/TrackProducerAlgorithm.h"
 
 
-typedef edm::RefVector<TrajectorySeedCollection> TrajectorySeedRefVector;
-typedef edm::Ref<TrajectoryCollection> TrajectoryRef;
-typedef edm::Ref<TrackCandidateCollection> TrackCandidateRef;
-typedef TransientTrackingRecHit::ConstRecHitContainer ConstRecHitContainer;
 
 
 using namespace edm;
@@ -78,7 +75,16 @@ class TransientInitialStateEstimator;
 //
 
 class NuclearTrackCorrector :  public edm::EDProducer {
+
    public:
+      typedef edm::RefVector<TrajectorySeedCollection> TrajectorySeedRefVector;
+      typedef edm::Ref<TrajectoryCollection> TrajectoryRef;
+      typedef edm::Ref<TrackCandidateCollection> TrackCandidateRef;
+      typedef TransientTrackingRecHit::ConstRecHitContainer ConstRecHitContainer;
+      typedef TrackProducerAlgorithm<reco::Track>::AlgoProductCollection AlgoProductCollection;
+
+   public:
+
       explicit NuclearTrackCorrector(const edm::ParameterSet&);
       ~NuclearTrackCorrector();
 
@@ -122,7 +128,7 @@ class NuclearTrackCorrector :  public edm::EDProducer {
       edm::ParameterSet conf_;
       TransientInitialStateEstimator*  theInitialState;
 
-      TrackProducerAlgorithm* theAlgo;
+      TrackProducerAlgorithm<reco::Track>* theAlgo;
       const TrajTrackAssociationCollection* m_TrajToTrackCollection;
 };
 

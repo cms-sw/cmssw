@@ -41,7 +41,7 @@ theInitialState(0)
      KeepOnlyCorrectedTracks        = iConfig.getParameter<int>             ("KeepOnlyCorrectedTracks");
 
 
-     theAlgo = new TrackProducerAlgorithm(iConfig);
+     theAlgo = new TrackProducerAlgorithm<reco::Track>(iConfig);
 
      produces< TrajectoryCollection >();
      produces< TrajectoryToTrajectoryMap >();
@@ -131,7 +131,7 @@ NuclearTrackCorrector::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
         Trajectory newTraj;
         if( newTrajNeeded(newTraj, trajRef, seedRef) ) {
 
-          AlgoProductCollection  algoResults; 
+          AlgoProductCollection   algoResults; 
           bool isOK = getTrackFromTrajectory( newTraj , trajRef, algoResults);
 
           if( isOK ) {

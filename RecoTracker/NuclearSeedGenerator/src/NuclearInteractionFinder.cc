@@ -75,7 +75,7 @@ bool  NuclearInteractionFinder::run(const Trajectory& traj) {
 
         if(traj.empty() || !traj.isValid()) return false;
 
-        LogDebug("NuclearSeedGenerator") << "Analyzis of a new trajectory with a numlber of valid hits = " << traj.foundHits();
+        LogDebug("NuclearSeedGenerator") << "Analyzis of a new trajectory with a number of valid hits = " << traj.foundHits();
 
         std::vector<TrajectoryMeasurement> measurements = traj.measurements();
 
