@@ -170,7 +170,6 @@ Calibration::VarProcessor *ProcLikelihood::getCalibration() const
 	}
 
 	calib->categoryIdx = -1;
-	calib->bias = 1.0;
 
 	return calib;
 }
