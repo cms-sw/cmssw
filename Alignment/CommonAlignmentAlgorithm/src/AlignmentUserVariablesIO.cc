@@ -1,8 +1,8 @@
 /**
  * \file AlignmentUserVariablesIO
  *
- *  $Revision: 1.5 $
- *  $Date: 2006/11/30 10:34:05 $
+ *  $Revision: 1.3 $
+ *  $Date: 2006/12/12 08:55:45 $
  *  $Author: flucke $ (at least last update...)
  */
 
@@ -17,11 +17,11 @@
 // write many user variables
 
 int 
-AlignmentUserVariablesIO::write(const std::vector<Alignable*>& alivec, 
+AlignmentUserVariablesIO::write(const align::Alignables& alivec, 
   bool validCheck) 
 {
   int icount=0;
-  for(std::vector<Alignable*>::const_iterator it=alivec.begin();
+  for(align::Alignables::const_iterator it=alivec.begin();
     it!=alivec.end(); it++) {
     if ((*it)->alignmentParameters()->isValid() || !(validCheck)) {
       icount++;
@@ -38,14 +38,14 @@ AlignmentUserVariablesIO::write(const std::vector<Alignable*>& alivec,
 // read many user variables
 
 std::vector<AlignmentUserVariables*> 
-AlignmentUserVariablesIO::read(const std::vector<Alignable*>& alivec, int& ierr) 
+AlignmentUserVariablesIO::read(const align::Alignables& alivec, int& ierr) 
 {
   std::vector<AlignmentUserVariables*> retvec;
   ierr=0;
   int ierr2;
   int icount=0;
   int icount2=0;
-  for(std::vector<Alignable*>::const_iterator it=alivec.begin();
+  for(align::Alignables::const_iterator it=alivec.begin();
     it!=alivec.end(); it++) {
     AlignmentUserVariables* ad=readOne(*it, ierr2); // should create with new!
     if (ierr2==0) { 

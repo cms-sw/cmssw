@@ -3,12 +3,9 @@
 
 #include <map>
 
-#include "TTree.h"
-
+#include "Alignment/CommonAlignment/interface/StructureType.h"
 #include "Alignment/CommonAlignmentAlgorithm/interface/AlignableDataIO.h"
 #include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentIORootBase.h"
-#include "Alignment/CommonAlignmentAlgorithm/interface/AlignableData.h"
-#include "Alignment/CommonAlignment/interface/Alignable.h"
 
 /// concrete class for ROOT based IO of Alignable positions 
 
@@ -37,21 +34,21 @@ class AlignableDataIORoot : public AlignmentIORootBase, public AlignableDataIO
   /// read relative positions 
   AlignableRelData readRelRaw(Alignable* ali,int& ierr);
 
-  int findEntry(unsigned int detId,int comp);
+  int findEntry(align::ID, align::StructureType);
   void createBranches(void);
   void setBranchAddresses(void);
 
   // data members
 
   /// root tree contents 
-  int ObjId;
+  align::StructureType ObjId;
   //unsigned int Id;
-  int Id;
+  align::ID Id;
   double Pos[3];
   double Rot[9];
 
   bool newopen;
-  typedef  std::map< std::pair<int,int> , int > treemaptype;
+  typedef std::map< std::pair<align::ID, align::StructureType>, int > treemaptype;
   treemaptype treemap;
 
 };

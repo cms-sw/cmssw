@@ -8,15 +8,13 @@
  *  additional constraints on eta, phi, r, x, y or z are possible.
  *  Furthermore stores the 'selection' of selected AlignmentParameters.
  *
- *  $Date: 2007/01/23 16:07:08 $
- *  $Revision: 1.4 $
- *  (last update by $Author: fronga $)
+ *  $Date: 2007/07/12 14:35:17 $
+ *  $Revision: 1.5 $
+ *  (last update by $Author: flucke $)
  */
 
-#include <vector>
-#include <string>
+#include "Alignment/CommonAlignment/interface/Utilities.h"
 
-class Alignable;
 class AlignableTracker;
 class AlignableMuon;
 namespace edm {
@@ -32,12 +30,12 @@ class AlignmentParameterSelector {
   AlignmentParameterSelector( AlignableTracker *aliTracker, AlignableMuon *aliMuon );
 
   /// Destructor
-  virtual ~AlignmentParameterSelector();
+  virtual ~AlignmentParameterSelector() {}
 
   /// vector of alignables selected so far
-  const std::vector<Alignable*>& selectedAlignables() const;
+  const align::Alignables& selectedAlignables() const { return theSelectedAlignables; }
   /// vector of selection 'strings' for alignables, parallel to selectedAlignables()
-  const std::vector<std::vector<char> >& selectedParameters() const;
+  const std::vector<std::vector<char> >& selectedParameters() const { return theSelectedParameters; }
   /// remove all selected Alignables and geometrical restrictions
   void clear();
   /// remove all geometrical restrictions
@@ -75,7 +73,7 @@ class AlignmentParameterSelector {
 
  protected:
   /// adding alignables which fulfil geometrical restrictions and special switches 
-  unsigned int add(const std::vector<Alignable*> &alignables, const std::vector<char> &paramSel);
+  unsigned int add(const align::Alignables &alignables, const std::vector<char> &paramSel);
   /// some helper methods
   unsigned int addAllDets(const std::vector<char> &paramSel);
   unsigned int addAllRods(const std::vector<char> &paramSel);
@@ -83,9 +81,9 @@ class AlignmentParameterSelector {
   unsigned int addAllAlignables(const std::vector<char> &paramSel);
 
  private:
-  AlignableTracker*        theTracker;
-  AlignableMuon*           theMuon;
-  std::vector<Alignable*>  theSelectedAlignables;
+  AlignableTracker* theTracker;
+  AlignableMuon*    theMuon;
+  align::Alignables theSelectedAlignables;
   std::vector<std::vector<char> > theSelectedParameters;
 
   /// geometrical restrictions in eta, phi, r, x, y, z to be applied for next addSelection

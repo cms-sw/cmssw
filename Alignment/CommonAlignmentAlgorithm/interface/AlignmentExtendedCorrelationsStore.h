@@ -1,12 +1,6 @@
 #ifndef Alignment_CommonAlignmentAlgorithm_AlignmentExtendedCorrelationsStore_h
 #define Alignment_CommonAlignmentAlgorithm_AlignmentExtendedCorrelationsStore_h
 
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-
-#include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentCorrelationsStore.h"
-#include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentExtendedCorrelationsEntry.h"
-
-
 /// This class manages the storage and retrieval of correlations between Alignables
 /// for the AlignmentParameterStore. This implementation does not stores the entries
 /// of the "big covariance matrix" itself, but the statistical correlations, i.e.
@@ -15,6 +9,12 @@
 /// If a correlation exceeds a certain value (especially corrupted correlations with
 /// an absolute value bigger than 1) it is downweighted.
 
+
+#include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentCorrelationsStore.h"
+
+class AlignmentExtendedCorrelationsEntry;
+
+namespace edm { class ParameterSet; }
 
 class AlignmentExtendedCorrelationsStore : public AlignmentCorrelationsStore
 {

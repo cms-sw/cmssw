@@ -5,15 +5,13 @@
 ///
 /// Concrete class for ROOT-based I/O of AlignmentParameters 
 ///
-///  $Date: 2006/11/30 09:56:03 $
-///  $Revision: 1.3 $
+///  $Date: 2007/03/16 16:35:03 $
+///  $Revision: 1.4 $
 /// (last update by $Author: flucke $)
 
+#include "Alignment/CommonAlignment/interface/StructureType.h"
 #include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentIORootBase.h"
 #include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentParametersIO.h"
-
-class Alignable;
-class AlignmentParameters;
 
 class AlignmentParametersIORoot : public AlignmentIORootBase, public AlignmentParametersIO
 {
@@ -39,8 +37,9 @@ class AlignmentParametersIORoot : public AlignmentIORootBase, public AlignmentPa
 
   // helper functions
 
-  /// Find entry number corresponding to Id. Returns -1 on failure.
-  int findEntry(unsigned int detId,int comp);
+  /// Find entry number corresponding to ID and structure type.
+  /// Returns -1 on failure.
+  int findEntry(align::ID, align::StructureType);
 
   /// Create all branches and give names
   void createBranches(void);
@@ -49,8 +48,10 @@ class AlignmentParametersIORoot : public AlignmentIORootBase, public AlignmentPa
   void setBranchAddresses(void);
 
   // Alignment parameter tree 
-  int theObjId, theCovRang, theCovarRang, theHieraLevel;
-  unsigned int theId;
+  int theCovRang, theCovarRang, theHieraLevel;
+  align::ID theId;
+  align::StructureType theObjId;
+
   double thePar[nParMax],theCov[nParMax*(nParMax+1)/2];
 
 };

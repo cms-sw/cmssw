@@ -1,24 +1,22 @@
 #ifndef Alignment_CommonAlignmentAlgorithm_AlignmentParameterBuilder_h
 #define Alignment_CommonAlignmentAlgorithm_AlignmentParameterBuilder_h
 
-#include <string>
-#include <vector>
-
 /** \class AlignmentParameterBuilder
  *
  *  Build Alignment Parameter Structure 
  *
- *  $Date: 2006/11/30 10:08:26 $
- *  $Revision: 1.6 $
- *  (last update by $Author: flucke $)
+ *  $Date: 2007/01/23 16:07:08 $
+ *  $Revision: 1.7 $
+ *  (last update by $Author: fronga $)
  */
+
+#include "Alignment/CommonAlignment/interface/Utilities.h"
 
 namespace edm {
   class ParameterSet;
 }
 class AlignableTracker;
 class AlignableMuon;
-class Alignable;
 class AlignmentParameters;
 
 class AlignmentParameterBuilder 
@@ -52,12 +50,12 @@ public:
   unsigned int addSelections(const edm::ParameterSet &pset);
 
   /// Add arbitrary selection of Alignables, return number of higher level Alignables
-  unsigned int add(const std::vector<Alignable*> &alignables, const std::vector<bool> &sel);
+  unsigned int add(const align::Alignables &alignables, const std::vector<bool> &sel);
   /// Add a single Alignable, true if it is higher level, false if it is an AlignableDet 
   bool add(Alignable *alignable, const std::vector<bool> &sel);
 
   /// Get list of alignables for which AlignmentParameters are built 
-  std::vector<Alignable*> alignables() { return theAlignables; };
+  const align::Alignables& alignables() const { return theAlignables; };
 
   /// Remove n Alignables from list 
   void fixAlignables( int n );
@@ -73,7 +71,7 @@ private:
   // data members
 
   /// Vector of alignables 
-  std::vector<Alignable*> theAlignables;
+  align::Alignables theAlignables;
 
   /// Alignable tracker   
   AlignableTracker* theAlignableTracker;

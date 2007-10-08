@@ -11,13 +11,11 @@
  *  \author    : Gero Flucke
  *  date       : November 2006
  *  $Revision: 1.1 $
- *  $Date: 2006/11/14 08:43:38 $
+ *  $Date: 2006/11/30 10:08:26 $
  *  (last update by $Author: flucke $)
  */
 
 #include "Alignment/CommonAlignment/interface/AlignmentUserVariables.h"
-
-#include <vector>
 
 class SelectionUserVariables : public AlignmentUserVariables 
 {

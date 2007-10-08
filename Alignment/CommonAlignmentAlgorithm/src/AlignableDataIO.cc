@@ -1,7 +1,6 @@
+#include "Alignment/CommonAlignment/interface/Alignable.h"
+#include "Alignment/CommonAlignment/interface/AlignmentParameters.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-
-#include "Alignment/CommonAlignment/interface/Utilities.h"
-#include "Alignment/TrackerAlignment/interface/TrackerAlignableId.h"
 
 // this class's header
 #include "Alignment/CommonAlignmentAlgorithm/interface/AlignableDataIO.h"
@@ -38,11 +37,10 @@ int AlignableDataIO::writeAbsPos(Alignable* ali, bool validCheck)
       // global rotation
       align::RotationType rot = ali->surface().rotation();
       // write
-      TrackerAlignableId converter;
       return writeAbsRaw( 
 			 AlignableAbsData( pos,rot,
-					   converter.alignableId(ali),
-					   converter.alignableTypeId(ali) )
+					   ali->id(),
+					   ali->alignableObjectId() )
 			 );
     }
 
@@ -60,9 +58,8 @@ int AlignableDataIO::writeRelPos(Alignable* ali, bool validCheck)
       // rel. rotation in global frame
       align::RotationType rot = ali->rotation();
       // write
-      TrackerAlignableId converter;
-      return writeRelRaw(AlignableRelData(pos,rot,converter.alignableId(ali),
-					  converter.alignableTypeId(ali)));
+      return writeRelRaw(AlignableRelData(pos,rot,ali->id(),
+					  ali->alignableObjectId()));
     }
 
   return 1;
@@ -79,9 +76,8 @@ int AlignableDataIO::writeOrgPos(Alignable* ali, bool validCheck)
       // orig rotation
       align::RotationType rot = ali->globalRotation() * ali->rotation().transposed();
       // write
-      TrackerAlignableId converter;
-      return writeAbsRaw(AlignableAbsData(pos,rot,converter.alignableId(ali),
-					  converter.alignableTypeId(ali)));
+      return writeAbsRaw(AlignableAbsData(pos,rot,ali->id(),
+					  ali->alignableObjectId()));
     }
 
   return 1;
@@ -89,12 +85,12 @@ int AlignableDataIO::writeOrgPos(Alignable* ali, bool validCheck)
 
 
 // ----------------------------------------------------------------------------
-int AlignableDataIO::writeAbsPos(const std::vector<Alignable*>& alivec, 
+int AlignableDataIO::writeAbsPos(const align::Alignables& alivec, 
 				 bool validCheck)
 {
 
   int icount=0;
-  for( std::vector<Alignable*>::const_iterator it=alivec.begin();
+  for( align::Alignables::const_iterator it=alivec.begin();
        it!=alivec.end(); it++ ) 
     {
       int iret = writeAbsPos(*it,validCheck);
@@ -109,13 +105,13 @@ int AlignableDataIO::writeAbsPos(const std::vector<Alignable*>& alivec,
 
 // ----------------------------------------------------------------------------
 AlignablePositions 
-AlignableDataIO::readAbsPos(const std::vector<Alignable*>& alivec, int& ierr) 
+AlignableDataIO::readAbsPos(const align::Alignables& alivec, int& ierr) 
 {
  
   AlignablePositions retvec;
   int ierr2=0;
   ierr=0;
-  for( std::vector<Alignable*>::const_iterator it=alivec.begin();
+  for( align::Alignables::const_iterator it=alivec.begin();
        it!=alivec.end(); it++ ) 
     {
       AlignableAbsData ad=readAbsPos(*it, ierr2);
@@ -130,12 +126,12 @@ AlignableDataIO::readAbsPos(const std::vector<Alignable*>& alivec, int& ierr)
 
 
 // ----------------------------------------------------------------------------
-int AlignableDataIO::writeOrgPos( const std::vector<Alignable*>& alivec, 
+int AlignableDataIO::writeOrgPos( const align::Alignables& alivec, 
 				  bool validCheck )
 {
 
   int icount=0;
-  for( std::vector<Alignable*>::const_iterator it=alivec.begin();
+  for( align::Alignables::const_iterator it=alivec.begin();
        it!=alivec.end(); it++ ) 
     {
       int iret=writeOrgPos(*it,validCheck);
@@ -150,13 +146,13 @@ int AlignableDataIO::writeOrgPos( const std::vector<Alignable*>& alivec,
 
 // ----------------------------------------------------------------------------
 AlignablePositions 
-AlignableDataIO::readOrgPos(const std::vector<Alignable*>& alivec, int& ierr) 
+AlignableDataIO::readOrgPos(const align::Alignables& alivec, int& ierr) 
 {
 
   AlignablePositions retvec;
   int ierr2=0;
   ierr=0;
-  for( std::vector<Alignable*>::const_iterator it=alivec.begin();
+  for( align::Alignables::const_iterator it=alivec.begin();
        it!=alivec.end(); it++ ) 
     {
       AlignableAbsData ad=readOrgPos(*it, ierr2);
@@ -171,12 +167,12 @@ AlignableDataIO::readOrgPos(const std::vector<Alignable*>& alivec, int& ierr)
 
 
 // ----------------------------------------------------------------------------
-int AlignableDataIO::writeRelPos(const std::vector<Alignable*>& alivec, 
+int AlignableDataIO::writeRelPos(const align::Alignables& alivec, 
 				 bool validCheck )
 {
 
   int icount=0;
-  for( std::vector<Alignable*>::const_iterator it=alivec.begin();
+  for( align::Alignables::const_iterator it=alivec.begin();
        it!=alivec.end(); it++ ) {
     int iret=writeRelPos(*it,validCheck);
     if (iret==0) icount++;
@@ -189,13 +185,13 @@ int AlignableDataIO::writeRelPos(const std::vector<Alignable*>& alivec,
 
 // ----------------------------------------------------------------------------
 AlignableShifts 
-AlignableDataIO::readRelPos(const std::vector<Alignable*>& alivec, int& ierr) 
+AlignableDataIO::readRelPos(const align::Alignables& alivec, int& ierr) 
 {
 
   AlignableShifts retvec;
   int ierr2=0;
   ierr=0;
-  for( std::vector<Alignable*>::const_iterator it=alivec.begin();
+  for( align::Alignables::const_iterator it=alivec.begin();
        it!=alivec.end(); it++ ) 
     {
       AlignableRelData ad=readRelPos(*it, ierr2);

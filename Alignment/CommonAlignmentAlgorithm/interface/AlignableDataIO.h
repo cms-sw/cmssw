@@ -2,7 +2,6 @@
 #define Alignment_CommonAlignmentAlgorithm_AlignableDataIO_H
 
 #include "Alignment/CommonAlignmentAlgorithm/interface/AlignableData.h"
-#include "Alignment/CommonAlignment/interface/Alignable.h"
 
 /// Abstract base class for IO of alignable positions/shifts.
 /// Derived concrete class must implement raw read/write methods 
@@ -30,39 +29,39 @@ class AlignableDataIO
   int writeAbsPos(Alignable* ali, bool validCheck);
 
   /// Write absolute positions of many Alignables 
-  int writeAbsPos(const std::vector<Alignable*>& alivec, bool validCheck);
+  int writeAbsPos(const align::Alignables& alivec, bool validCheck);
 
   /// Read absolute positions of one Alignable 
   AlignableAbsData readAbsPos(Alignable* ali, int& ierr);
 
   /// Read absolute positions of many Alignables 
-  AlignablePositions readAbsPos(const std::vector<Alignable*>& alivec, int& ierr);
+  AlignablePositions readAbsPos(const align::Alignables& alivec, int& ierr);
 
 
   /// Write original positions of one Alignable 
   int writeOrgPos(Alignable* ali, bool validCheck);
 
   /// Write original positions of many Alignables 
-  int writeOrgPos(const std::vector<Alignable*>& alivec, bool validCheck);
+  int writeOrgPos(const align::Alignables& alivec, bool validCheck);
 
   /// Read original positions of one Alignable 
   AlignableAbsData readOrgPos(Alignable* ali, int& ierr);
 
   /// Read original positions of many Alignables 
-  AlignablePositions readOrgPos(const std::vector<Alignable*>& alivec, int& ierr);
+  AlignablePositions readOrgPos(const align::Alignables& alivec, int& ierr);
 
 
   /// Write relative positions of one Alignable 
   int writeRelPos(Alignable* ali, bool validCheck);
 
   /// Write relative positions of many Alignables 
-  int writeRelPos(const std::vector<Alignable*>& alivec, bool validCheck);
+  int writeRelPos(const align::Alignables& alivec, bool validCheck);
 
   /// Read relative positions of one Alignable 
   AlignableRelData readRelPos(Alignable* ali, int& ierr);
 
   /// Read relative positions of many Alignables 
-  AlignableShifts readRelPos(const std::vector<Alignable*>& alivec, int& ierr);
+  AlignableShifts readRelPos(const align::Alignables& alivec, int& ierr);
 
   // 'raw' read/write methods
   // must be provided by concrete derived class

@@ -1,28 +1,28 @@
 /**
  * \file AlignmentParameterStore.cc
  *
- *  $Revision: 1.17 $
- *  $Date: 2007/06/12 15:08:19 $
- *  (last update by $Author: ewidl $)
+ *  $Revision: 1.18 $
+ *  $Date: 2007/09/12 14:26:01 $
+ *  (last update by $Author: flucke $)
  */
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/Utilities/interface/Exception.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "Alignment/CommonAlignment/interface/Alignable.h"
+#include "Alignment/CommonAlignment/interface/AlignableDetOrUnitPtr.h"
 #include "Alignment/TrackerAlignment/interface/TrackerAlignableId.h"
 
-#include "Alignment/CommonAlignment/interface/Utilities.h"
 #include "Alignment/CommonAlignmentParametrization/interface/RigidBodyAlignmentParameters.h"
 #include "Alignment/CommonAlignmentParametrization/interface/FrameToFrameDerivative.h"
-#include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentCorrelationsStore.h"
 #include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentExtendedCorrelationsStore.h"
+#include "DataFormats/TrackingRecHit/interface/AlignmentPositionError.h"
 
 // This class's header
 #include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentParameterStore.h"
 
 //__________________________________________________________________________________________________
-AlignmentParameterStore::AlignmentParameterStore( const Alignables &alis,
+AlignmentParameterStore::AlignmentParameterStore( const align::Alignables &alis,
 						  const edm::ParameterSet& config ) :
   theAlignables(alis)
 {
@@ -33,8 +33,6 @@ AlignmentParameterStore::AlignmentParameterStore( const Alignables &alis,
     theCorrelationsStore = new AlignmentCorrelationsStore();
   }
 
-  theTrackerAlignableId = new TrackerAlignableId;
-
   edm::LogInfo("Alignment") << "@SUB=AlignmentParameterStore"
                             << "Created with " << theAlignables.size() << " alignables.";
 }
@@ -43,7 +41,6 @@ AlignmentParameterStore::AlignmentParameterStore( const Alignables &alis,
 AlignmentParameterStore::~AlignmentParameterStore()
 {
   delete theCorrelationsStore;
-  delete theTrackerAlignableId;
 }
 
 //__________________________________________________________________________________________________
@@ -65,7 +62,7 @@ CompositeAlignmentParameters
 AlignmentParameterStore::selectParameters( const std::vector<AlignableDetOrUnitPtr>& alignabledets ) const
 {
 
-  std::vector<Alignable*> alignables;
+  align::Alignables alignables;
   std::map <AlignableDetOrUnitPtr,Alignable*> alidettoalimap;
   std::map <Alignable*,int> aliposmap;
   std::map <Alignable*,int> alilenmap;
@@ -94,7 +91,7 @@ AlignmentParameterStore::selectParameters( const std::vector<AlignableDetOrUnitP
 
   // Fill in parameters and corresponding covariance matricess
   int ipos = 1; // NOTE: .sub indices start from 1
-  std::vector<Alignable*>::const_iterator it1;
+  align::Alignables::const_iterator it1;
   for( it1 = alignables.begin(); it1 != alignables.end(); ++it1 ) 
   {
     AlignmentParameters* ap = (*it1)->alignmentParameters();
@@ -115,7 +112,7 @@ AlignmentParameterStore::selectParameters( const std::vector<AlignableDetOrUnitP
     int jpos=1;
 
     // Look for correlations between alignables
-    std::vector<Alignable*>::const_iterator it2;
+    align::Alignables::const_iterator it2;
     for( it2 = alignables.begin(); it2 != it1; ++it2 ) 
     {
       theCorrelationsStore->correlations( *it1, *it2, *selcov, ipos-1, jpos-1 );
@@ -134,17 +131,17 @@ AlignmentParameterStore::selectParameters( const std::vector<AlignableDetOrUnitP
 
 //__________________________________________________________________________________________________
 CompositeAlignmentParameters
-AlignmentParameterStore::selectParameters( const std::vector<Alignable*>& alignables ) const
+AlignmentParameterStore::selectParameters( const align::Alignables& alignables ) const
 {
 
-  std::vector<Alignable*> selectedAlignables;
+  align::Alignables selectedAlignables;
   std::map <AlignableDetOrUnitPtr,Alignable*> alidettoalimap; // This map won't be filled!!!
   std::map <Alignable*,int> aliposmap;
   std::map <Alignable*,int> alilenmap;
   int nparam=0;
 
   // iterate over Alignable's
-  std::vector<Alignable*>::const_iterator ita;
+  align::Alignables::const_iterator ita;
   for ( ita = alignables.begin(); ita != alignables.end(); ++ita ) 
   {
     // Check if Alignable already there, insert into vector if not
@@ -161,7 +158,7 @@ AlignmentParameterStore::selectParameters( const std::vector<Alignable*>& aligna
 
   // Fill in parameters and corresponding covariance matrices
   int ipos = 1; // NOTE: .sub indices start from 1
-  std::vector<Alignable*>::const_iterator it1;
+  align::Alignables::const_iterator it1;
   for( it1 = selectedAlignables.begin(); it1 != selectedAlignables.end(); ++it1 ) 
   {
     AlignmentParameters* ap = (*it1)->alignmentParameters();
@@ -182,7 +179,7 @@ AlignmentParameterStore::selectParameters( const std::vector<Alignable*>& aligna
     int jpos=1;
 
     // Look for correlations between alignables
-    std::vector<Alignable*>::const_iterator it2;
+    align::Alignables::const_iterator it2;
     for( it2 = selectedAlignables.begin(); it2 != it1; ++it2 ) 
     {
       theCorrelationsStore->correlations( *it1, *it2, *selcov, ipos-1, jpos-1 );
@@ -203,14 +200,14 @@ AlignmentParameterStore::selectParameters( const std::vector<Alignable*>& aligna
 void AlignmentParameterStore::updateParameters( const CompositeAlignmentParameters& aap )
 {
 
-  std::vector<Alignable*> alignables = aap.components();
+  align::Alignables alignables = aap.components();
   const AlgebraicVector& parameters = aap.parameters();
   const AlgebraicSymMatrix& covariance = aap.covariance();
 
   int ipos = 1; // NOTE: .sub indices start from 1
 
   // Loop over alignables
-  for( std::vector<Alignable*>::const_iterator it=alignables.begin(); it != alignables.end(); ++it ) 
+  for( align::Alignables::const_iterator it=alignables.begin(); it != alignables.end(); ++it ) 
   {
     // Update parameters and local covariance   
     AlignmentParameters* ap = (*it)->alignmentParameters();
@@ -222,7 +219,7 @@ void AlignmentParameterStore::updateParameters( const CompositeAlignmentParamete
 	  
     // Now update correlations between detectors
     int jpos = 1;
-    for( std::vector<Alignable*>::const_iterator it2 = alignables.begin(); it2 != it; ++it2 ) 
+    for( align::Alignables::const_iterator it2 = alignables.begin(); it2 != it; ++it2 ) 
     {
       theCorrelationsStore->setCorrelations( *it, *it2, covariance, ipos-1, jpos-1 );
       jpos += (*it2)->alignmentParameters()->numSelected();
@@ -235,10 +232,10 @@ void AlignmentParameterStore::updateParameters( const CompositeAlignmentParamete
 
 
 //__________________________________________________________________________________________________
-std::vector<Alignable*> AlignmentParameterStore::validAlignables(void) const
+align::Alignables AlignmentParameterStore::validAlignables(void) const
 { 
-  std::vector<Alignable*> result;
-  for (std::vector<Alignable*>::const_iterator iali = theAlignables.begin();
+  align::Alignables result;
+  for (align::Alignables::const_iterator iali = theAlignables.begin();
        iali != theAlignables.end(); ++iali)
     if ( (*iali)->alignmentParameters()->isValid() ) result.push_back(*iali);
 
@@ -263,7 +260,7 @@ Alignable* AlignmentParameterStore::alignableFromAlignableDet( AlignableDetOrUni
 //__________________________________________________________________________________________________
 void AlignmentParameterStore::applyParameters(void)
 {
-  std::vector<Alignable*>::const_iterator iali;
+  align::Alignables::const_iterator iali;
   for ( iali = theAlignables.begin(); iali != theAlignables.end(); ++iali) 
     applyParameters( *iali );
 }
@@ -301,7 +298,7 @@ void AlignmentParameterStore::resetParameters(void)
   theCorrelationsStore->resetCorrelations();
 
   // Iterate over alignables in the store and reset parameters
-  std::vector<Alignable*>::const_iterator iali;
+  align::Alignables::const_iterator iali;
   for ( iali = theAlignables.begin(); iali != theAlignables.end(); ++iali )
     resetParameters( *iali );
 }
@@ -382,13 +379,13 @@ void AlignmentParameterStore::acquireRelativeParameters(void)
 // Layers start from zero
 std::pair<int,int> AlignmentParameterStore::typeAndLayer(const Alignable* ali) const
 {
-  return theTrackerAlignableId->typeAndLayerFromAlignable( ali );
+  return TrackerAlignableId().typeAndLayerFromDetId( ali->id() );
 }
 
 
 //__________________________________________________________________________________________________
 void AlignmentParameterStore::
-applyAlignableAbsolutePositions( const Alignables& alivec, 
+applyAlignableAbsolutePositions( const align::Alignables& alivec, 
                                  const AlignablePositions& newpos, 
                                  int& ierr )
 {
@@ -396,16 +393,16 @@ applyAlignableAbsolutePositions( const Alignables& alivec,
   ierr=0;
 
   // Iterate over list of alignables
-  for ( Alignables::const_iterator iali = alivec.begin(); iali != alivec.end(); ++iali ) 
+  for ( align::Alignables::const_iterator iali = alivec.begin(); iali != alivec.end(); ++iali ) 
   {
     Alignable* ali = *iali;
-    unsigned int detId = theTrackerAlignableId->alignableId(ali);
-    int typeId = theTrackerAlignableId->alignableTypeId(ali);
+    align::ID id = ali->id();
+    align::StructureType typeId = ali->alignableObjectId();
 
     // Find corresponding entry in AlignablePositions
     bool found=false;
     for ( AlignablePositions::const_iterator ipos = newpos.begin(); ipos != newpos.end(); ++ipos ) 
-      if ( detId == ipos->id() && typeId == ipos->objId() ) 
+      if ( id == ipos->id() && typeId == ipos->objId() ) 
 	if ( found )
 	  edm::LogError("DuplicatePosition")
 	    << "New positions for alignable found more than once!";
@@ -449,7 +446,7 @@ applyAlignableAbsolutePositions( const Alignables& alivec,
 
 //__________________________________________________________________________________________________
 void AlignmentParameterStore::
-applyAlignableRelativePositions( const Alignables& alivec, const AlignableShifts& shifts, int& ierr )
+applyAlignableRelativePositions( const align::Alignables& alivec, const AlignableShifts& shifts, int& ierr )
 {
 
   ierr=0;
@@ -460,14 +457,14 @@ applyAlignableRelativePositions( const Alignables& alivec, const AlignableShifts
   {
     Alignable* ali = alivec[i];
 
-    unsigned int detId = theTrackerAlignableId->alignableId(ali);
-    int typeId=theTrackerAlignableId->alignableTypeId(ali);
+    align::ID id = ali->id();
+    align::StructureType typeId = ali->alignableObjectId();
 
     // Find corresponding entry in AlignableShifts
     bool found = false;
     for ( AlignableShifts::const_iterator ipos = shifts.begin(); ipos != shifts.end(); ++ipos ) 
     {
-      if ( detId == ipos->id() && typeId == ipos->objId() ) 
+      if ( id == ipos->id() && typeId == ipos->objId() ) 
 	if ( found )
 	  edm::LogError("DuplicatePosition")
 	    << "New positions for alignable found more than once!";
@@ -505,7 +502,7 @@ void AlignmentParameterStore::attachAlignmentParameters( const Parameters& parve
 
 
 //__________________________________________________________________________________________________
-void AlignmentParameterStore::attachAlignmentParameters( const Alignables& alivec, 
+void AlignmentParameterStore::attachAlignmentParameters( const align::Alignables& alivec, 
                                                          const Parameters& parvec, int& ierr )
 {
   int ipass = 0;
@@ -513,7 +510,7 @@ void AlignmentParameterStore::attachAlignmentParameters( const Alignables& alive
   ierr = 0;
 
   // Iterate over alignables
-  for ( Alignables::const_iterator iali = alivec.begin(); iali != alivec.end(); ++iali ) 
+  for ( align::Alignables::const_iterator iali = alivec.begin(); iali != alivec.end(); ++iali ) 
   {
     // Iterate over Parameters
     bool found=false;
@@ -552,7 +549,7 @@ void AlignmentParameterStore::attachCorrelations( const Correlations& cormap,
 
 
 //__________________________________________________________________________________________________
-void AlignmentParameterStore::attachCorrelations( const Alignables& alivec, 
+void AlignmentParameterStore::attachCorrelations( const align::Alignables& alivec, 
                                                   const Correlations& cormap, 
                                                   bool overwrite, int& ierr )
 {
@@ -589,7 +586,7 @@ void AlignmentParameterStore::attachCorrelations( const Alignables& alivec,
 
 //__________________________________________________________________________________________________
 void AlignmentParameterStore::
-attachUserVariables( const Alignables& alivec,
+attachUserVariables( const align::Alignables& alivec,
                      const std::vector<AlignmentUserVariables*>& uvarvec, int& ierr )
 {
   ierr=0;
@@ -599,7 +596,7 @@ attachUserVariables( const Alignables& alivec,
 
   std::vector<AlignmentUserVariables*>::const_iterator iuvar=uvarvec.begin();
 
-  for ( Alignables::const_iterator iali=alivec.begin(); iali!=alivec.end(); ++iali, ++iuvar ) 
+  for ( align::Alignables::const_iterator iali=alivec.begin(); iali!=alivec.end(); ++iali, ++iuvar ) 
   {
     AlignmentParameters* ap = (*iali)->alignmentParameters();
     AlignmentUserVariables* uvarnew = (*iuvar);
@@ -609,7 +606,7 @@ attachUserVariables( const Alignables& alivec,
 
 
 //__________________________________________________________________________________________________
-void AlignmentParameterStore::setAlignmentPositionError( const Alignables& alivec, 
+void AlignmentParameterStore::setAlignmentPositionError( const align::Alignables& alivec, 
                                                          double valshift, double valrot )
 {
   unsigned int nAlignables = alivec.size();
@@ -639,7 +636,7 @@ void AlignmentParameterStore::setAlignmentPositionError( const Alignables& alive
 
 //__________________________________________________________________________________________________
 bool AlignmentParameterStore
-::hierarchyConstraints(const Alignable *ali, const Alignables &aliComps,
+::hierarchyConstraints(const Alignable *ali, const align::Alignables &aliComps,
 		       std::vector<std::vector<ParameterId> > &paramIdsVecOut,
 		       std::vector<std::vector<float> > &factorsVecOut,
 		       bool all6, float epsilon) const
@@ -655,7 +652,7 @@ bool AlignmentParameterStore
   FrameToFrameDerivative f2fDerivMaker;
 
   bool firstComp = true;
-  for (Alignables::const_iterator iComp = aliComps.begin(), iCompE = aliComps.end();
+  for (align::Alignables::const_iterator iComp = aliComps.begin(), iCompE = aliComps.end();
        iComp != iCompE; ++iComp) {
     const AlgebraicMatrix f2fDeriv(f2fDerivMaker.frameToFrameDerivative(*iComp, ali));
     const std::vector<bool> &aliCompSel = (*iComp)->alignmentParameters()->selector();

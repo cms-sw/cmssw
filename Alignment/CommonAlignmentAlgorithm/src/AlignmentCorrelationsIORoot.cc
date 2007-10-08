@@ -1,6 +1,8 @@
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "TTree.h"
 
-#include "Alignment/TrackerAlignment/interface/TrackerAlignableId.h"
+#include "Alignment/CommonAlignment/interface/Alignable.h"
+#include "Alignment/CommonAlignment/interface/AlignmentParameters.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 // this class's header
 #include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentCorrelationsIORoot.h"
@@ -40,11 +42,11 @@ void AlignmentCorrelationsIORoot::setBranchAddresses(void)
 
 // ----------------------------------------------------------------------------
 
-int AlignmentCorrelationsIORoot::write(const Correlations& cor, bool validCheck)
+int AlignmentCorrelationsIORoot::write(const align::Correlations& cor, bool validCheck)
 {
   int icount=0;
-  TrackerAlignableId converter;
-  for(Correlations::const_iterator it=cor.begin();
+
+  for(align::Correlations::const_iterator it=cor.begin();
     it!=cor.end();it++) {
     AlgebraicMatrix mat=(*it).second;
 	std::pair<Alignable*,Alignable*> Pair = (*it).first;
@@ -52,10 +54,10 @@ int AlignmentCorrelationsIORoot::write(const Correlations& cor, bool validCheck)
     Alignable* ali2 = Pair.second;
     if( (ali1->alignmentParameters()->isValid()
 	 && ali2->alignmentParameters()->isValid()) || !(validCheck)) {
-      Ali1ObjId = converter.alignableTypeId(ali1); 
-      Ali2ObjId = converter.alignableTypeId(ali2); 
-      Ali1Id = converter.alignableId(ali1);  
-      Ali2Id = converter.alignableId(ali2); 
+      Ali1ObjId = ali1->alignableObjectId(); 
+      Ali2ObjId = ali2->alignableObjectId(); 
+      Ali1Id = ali1->id();
+      Ali2Id = ali2->id();
       int maxColumn = mat.num_row();
       corSize = maxColumn*maxColumn;
       for(int row = 0;row<maxColumn;row++)	  
@@ -73,17 +75,16 @@ int AlignmentCorrelationsIORoot::write(const Correlations& cor, bool validCheck)
 // ----------------------------------------------------------------------------
 // read correlations for those alignables in vector given as argument
 
-AlignmentCorrelationsIORoot::Correlations 
-AlignmentCorrelationsIORoot::read(const std::vector<Alignable*>& alivec, int& ierr)
+align::Correlations 
+AlignmentCorrelationsIORoot::read(const align::Alignables& alivec, int& ierr)
 {
-  Correlations theMap;
-  TrackerAlignableId converter;
+  align::Correlations theMap;
 
   // create ID map for all Alignables in alivec
-  std::vector<Alignable*>::const_iterator it1;
+  align::Alignables::const_iterator it1;
   std::map< std::pair<unsigned int,int>, Alignable* > idAlis;
   for( it1=alivec.begin();it1!=alivec.end();it1++ )
-    idAlis[std::make_pair(converter.alignableId(*it1),converter.alignableTypeId(*it1))] = (*it1);
+    idAlis[std::make_pair((*it1)->id(),(*it1)->alignableObjectId())] = (*it1);
 
   std::map<std::pair<unsigned int,int>,Alignable*>::const_iterator aliSearch1;  
   std::map<std::pair<unsigned int,int>,Alignable*>::const_iterator aliSearch2;  
@@ -115,6 +116,3 @@ AlignmentCorrelationsIORoot::read(const std::vector<Alignable*>& alivec, int& ie
   ierr=0;
   return theMap;
 }
-
-
-

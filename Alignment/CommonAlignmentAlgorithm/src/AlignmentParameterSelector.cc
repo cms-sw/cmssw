@@ -1,12 +1,10 @@
 /** \file AlignmentParameterSelector.cc
  *  \author Gero Flucke, Nov. 2006
  *
- *  $Date: 2007/06/13 08:16:58 $
- *  $Revision: 1.9 $
+ *  $Date: 2007/07/12 14:35:18 $
+ *  $Revision: 1.10 $
  *  (last update by $Author: flucke $)
  */
-
-#include <cctype>
 
 #include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentParameterSelector.h"
 #include "Alignment/TrackerAlignment/interface/AlignableTracker.h"
@@ -14,9 +12,6 @@
 #include "Alignment/TrackerAlignment/interface/TrackerAlignableId.h"
 
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h" // for enums TID/TIB/etc.
-
-#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
-#include "DataFormats/GeometryVector/interface/Phi.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -35,23 +30,6 @@ AlignmentParameterSelector::AlignmentParameterSelector(AlignableTracker *aliTrac
   theRangesEta(), theRangesPhi(), theRangesR(), theRangesX(), theRangesY(), theRangesZ()
 {
   this->setSpecials(""); // init theOnlyDS, theOnlySS, theSelLayers, theMinLayer, theMaxLayer
-}
-
-//________________________________________________________________________________
-AlignmentParameterSelector::~AlignmentParameterSelector()
-{
-}
-
-//________________________________________________________________________________
-const std::vector<Alignable*>& AlignmentParameterSelector::selectedAlignables() const
-{
-  return theSelectedAlignables;
-}
-
-//________________________________________________________________________________
-const std::vector<std::vector<char> >& AlignmentParameterSelector::selectedParameters() const
-{
-  return theSelectedParameters;
 }
 
 //________________________________________________________________________________
@@ -281,30 +259,30 @@ unsigned int AlignmentParameterSelector::addSelection(const std::string &nameInp
 }
 
 //________________________________________________________________________________
-unsigned int AlignmentParameterSelector::add(const std::vector<Alignable*> &alignables,
+unsigned int AlignmentParameterSelector::add(const align::Alignables &alignables,
                                              const std::vector<char> &paramSel)
 {
   unsigned int numAli = 0;
 
   // loop on Alignable objects
-  for (std::vector<Alignable*>::const_iterator iAli = alignables.begin();
+  for (align::Alignables::const_iterator iAli = alignables.begin();
        iAli != alignables.end(); ++iAli) {
     bool keep = true;
     
     if (theOnlySS || theOnlyDS || theSelLayers) {
       TrackerAlignableId idProvider;
-      std::pair<int,int> typeLayer = idProvider.typeAndLayerFromAlignable(*iAli);
+      std::pair<int,int> typeLayer = idProvider.typeAndLayerFromDetId( (*iAli)->id() );
       int type  = typeLayer.first;
       int layer = typeLayer.second;
 
       // select on single/double sided barrel layers
       if (theOnlySS // only single sided
-	  && (abs(type) == StripSubdetector::TIB || abs(type) == StripSubdetector::TOB)
+	  && (std::abs(type) == StripSubdetector::TIB || std::abs(type) == StripSubdetector::TOB)
 	  && layer <= 2) {
 	  keep = false;
       }
       if (theOnlyDS // only double sided
-	  && (abs(type) == StripSubdetector::TIB || abs(type) == StripSubdetector::TOB)
+	  && (std::abs(type) == StripSubdetector::TIB || std::abs(type) == StripSubdetector::TOB)
 	  && layer > 2) {
 	  keep = false;
       }
@@ -330,7 +308,7 @@ unsigned int AlignmentParameterSelector::add(const std::vector<Alignable*> &alig
 bool AlignmentParameterSelector::outsideRanges(const Alignable *alignable) const
 {
 
-  const GlobalPoint position(alignable->globalPosition());
+  const align::PositionType& position(alignable->globalPosition());
 
   if (!theRangesEta.empty() && !this->insideRanges((position.eta()), theRangesEta)) return true;
   if (!theRangesPhi.empty() && !this->insideRanges((position.phi()), theRangesPhi,true))return true;
