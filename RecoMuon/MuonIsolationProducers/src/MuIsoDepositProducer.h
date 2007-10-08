@@ -21,9 +21,16 @@ public:
   virtual void produce(edm::Event&, const edm::EventSetup&);
   
 private:
+  template <typename T>
+    void callProduces(const std::vector<std::string>& instLabels);
+
 
   edm::ParameterSet theConfig;
-  bool theReadFromRecoMuon;
+  std::string theInputType;
+
+  std::string theOutputType;
+  bool theExtractForCandidate;
+
   std::string theMuonTrackRefType;
   edm::InputTag theMuonCollectionTag;
   std::vector<std::string> theDepositNames;
