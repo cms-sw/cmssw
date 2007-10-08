@@ -1,5 +1,5 @@
 #ifndef RECOLOCALCALO_HFCLUSTERPRODUCER_HFRECOECALCANDIDATEPRODUCER_H
-#define RECOLOCALCALO_HFCLUSTERPRODUCER_HFRECOECALCANDIDATEPRODUCEF_H 1// -*- C++ -*-
+#define RECOLOCALCALO_HFCLUSTERPRODUCER_HFRECOECALCANDIDATEPRODUCER_H 1// -*- C++ -*-
 //
 // Package:    EgammaHFProducers
 // Class:      HFRecoEcalCandidateProducers
@@ -21,9 +21,6 @@
 #include "RecoEgamma/EgammaHFProducers/interface/HFRecoEcalCandidateAlgo.h"
 //#include "MagneticField/Engine/interface/MagneticField.h"
 
-
-
-
 class HFRecoEcalCandidateProducer : public edm::EDProducer {
 public:
   explicit HFRecoEcalCandidateProducer(edm::ParameterSet const& conf);
@@ -32,4 +29,5 @@ private:
   std::string hfClusterShapes_;
   HFRecoEcalCandidateAlgo algo_;
 };
+
 #endif

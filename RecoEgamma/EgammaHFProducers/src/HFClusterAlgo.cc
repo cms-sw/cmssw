@@ -104,7 +104,6 @@ void HFClusterAlgo::clusterize(const HFRecHitCollection& hf,
 	seeds.push_back(*i);
 	makeCluster( i->id(),hf, geom,clusShp,Bclus,Sclus);
 	
-	unsigned int where=clusterShapes.size(); // index of all these
 	clusterShapes.push_back(clusShp);
 	BasicClusters.push_back(Bclus);
 	SuperClusters.push_back(Sclus);

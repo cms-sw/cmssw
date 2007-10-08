@@ -1,5 +1,5 @@
-#ifndef RECOLOCALCALO_HFCLUSTERPRODUCER_HFCLUSTERALGO_H
-#define RECOLOCALCALO_HFCLUSTERPRODUCER_HFCLUSTERALGO_H 1
+#ifndef HFRECORECALCANDIDATEALGO_H
+#define HFRECORECALCANDIDATEALGO_H 1
 
 #include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
@@ -8,6 +8,7 @@
 #include "DataFormats/EgammaReco/interface/HFEMClusterShapeAssociation.h"
 #include "DataFormats/EgammaReco/interface/HFEMClusterShape.h"
 #include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
+#include "DataFormats/RecoCandidate/interface/RecoEcalCandidateFwd.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include <map>
 #include <list>
