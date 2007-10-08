@@ -5,16 +5,17 @@
 /** \class RPCUnpackingModule
  *  Driver class for unpacking RPC raw data (DCC format)
  *
- *  $Date: 2007/04/05 15:51:06 $
- *  $Revision: 1.13 $
+ *  $Date: 2007/04/20 15:41:48 $
+ *  $Revision: 1.1 $
  *  \author Ilaria Segoni - CERN
  */
 
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/ParameterSet/interface/InputTag.h"
+#include "CondFormats/RPCObjects/interface/RPCReadOutMapping.h"
 
 namespace edm { class Event; class EventSetup; }
-
+static RPCReadOutMapping* RPCCabling;
 
 class RPCUnpackingModule: public edm::EDProducer {
 public:

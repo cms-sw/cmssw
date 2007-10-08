@@ -1,8 +1,8 @@
 /** \file
  * Implementation of class RPCUnpackingModule
  *
- *  $Date: 2007/04/05 15:51:06 $
- *  $Revision: 1.29 $
+ *  $Date: 2007/04/20 15:41:48 $
+ *  $Revision: 1.1 $
  *
  * \author Ilaria Segoni
  */
@@ -26,12 +26,13 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "CondFormats/RPCObjects/interface/RPCReadOutMapping.h"
-#include "CondFormats/DataRecord/interface/RPCReadOutMappingRcd.h"
+#include "CondFormats/RPCObjects/interface/RPCEMap.h"
+#include "CondFormats/DataRecord/interface/RPCEMapRcd.h"
+//#include "CondFormats/RPCObjects/interface/RPCReadOutMapping.h"
+//#include "CondFormats/DataRecord/interface/RPCReadOutMappingRcd.h"
 #include "RPCReadOutMappingWithFastSearch.h"
 #include "EventFilter/RPCRawToDigi/interface/DataRecord.h"
 #include "EventFilter/RPCRawToDigi/interface/EventRecords.h"
-
 
 #include <iostream>
 #include <bitset>
@@ -47,6 +48,7 @@ RPCUnpackingModule::RPCUnpackingModule(const edm::ParameterSet& pset)
   : dataLabel_(pset.getUntrackedParameter<edm::InputTag>("InputLabel",edm::InputTag("source"))),
     eventCounter_(0)
 {
+  RPCCabling = new RPCReadOutMapping("");
   produces<RPCDigiCollection>();
 }
 
@@ -61,10 +63,20 @@ void RPCUnpackingModule::produce(Event & e, const EventSetup& c){
   Handle<FEDRawDataCollection> allFEDRawData; 
   e.getByLabel(dataLabel_,allFEDRawData); 
 
-  edm::ESHandle<RPCReadOutMapping> readoutMapping;
-  c.get<RPCReadOutMappingRcd>().get(readoutMapping);
+//  edm::ESHandle<RPCReadOutMapping> readoutMapping;
+//  c.get<RPCReadOutMappingRcd>().get(readoutMapping);
+  edm::ESHandle<RPCEMap> readoutMapping;
+  c.get<RPCEMapRcd>().get(readoutMapping);
+  const RPCEMap* eMap=readoutMapping.product();
+
+  if (eMap->theVersion != RPCCabling->version()) {
+    delete RPCCabling;
+    RPCCabling = eMap->convert();
+  }
+
   static RPCReadOutMappingWithFastSearch readoutMappingSearch;
-  readoutMappingSearch.init(readoutMapping.product());
+//  readoutMappingSearch.init(readoutMapping.product());
+  readoutMappingSearch.init(RPCCabling);
 
   edm::LogInfo ("RPCUnpacker") <<"Got FEDRawData";
  

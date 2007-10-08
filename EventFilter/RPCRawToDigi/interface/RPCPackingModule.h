@@ -8,6 +8,7 @@
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "DataFormats/RPCDigi/interface/RPCDigiCollection.h"
 #include "EventFilter/RPCRawToDigi/interface/EventRecords.h"
+#include "CondFormats/RPCObjects/interface/RPCReadOutMapping.h"
 
 #include <vector> 
 
@@ -15,6 +16,7 @@ namespace edm {class ParameterSet;}
 namespace edm {class EventSetup; }
 namespace edm {class Event; }
 
+static RPCReadOutMapping* cabling;
 class FEDRawData;
 class RPCRecordFormatter;
 

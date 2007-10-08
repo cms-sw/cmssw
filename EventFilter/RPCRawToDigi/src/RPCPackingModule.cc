@@ -16,8 +16,8 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
-#include "CondFormats/RPCObjects/interface/RPCReadOutMapping.h"
-#include "CondFormats/DataRecord/interface/RPCReadOutMappingRcd.h"
+#include "CondFormats/RPCObjects/interface/RPCEMap.h"
+#include "CondFormats/DataRecord/interface/RPCEMapRcd.h"
 #include "EventFilter/RPCRawToDigi/interface/EventRecords.h"
 
 #include "EventFilter/RPCRawToDigi/interface/RPCRecordFormatter.h"
@@ -38,6 +38,7 @@ RPCPackingModule::RPCPackingModule( const ParameterSet& pset ) :
   eventCounter_(0)
 {
 
+  cabling = new RPCReadOutMapping("");
   // Set some private data members
 //  digiLabel_ = pset.getParameter<InputTag>("DigiProducer");
 
@@ -59,8 +60,16 @@ void RPCPackingModule::produce( edm::Event& ev,
   Handle< RPCDigiCollection > digiCollection;
   ev.getByType(digiCollection);
 
-  ESHandle<RPCReadOutMapping> readoutMapping;
-  es.get<RPCReadOutMappingRcd>().get(readoutMapping);
+//  ESHandle<RPCReadOutMapping> readoutMapping;
+//  es.get<RPCReadOutMappingRcd>().get(readoutMapping);
+  ESHandle<RPCEMap> readoutMapping;
+  es.get<RPCEMapRcd>().get(readoutMapping);
+  const RPCEMap* eMap=readoutMapping.product();
+
+  if (eMap->theVersion != cabling->version()) {
+    delete cabling;
+    cabling = eMap->convert();
+  }
 
   auto_ptr<FEDRawDataCollection> buffers( new FEDRawDataCollection );
 
@@ -68,7 +77,8 @@ void RPCPackingModule::produce( edm::Event& ev,
   pair<int,int> rpcFEDS(790,792);
   for (int id= rpcFEDS.first; id<=rpcFEDS.second; ++id){
 
-    RPCRecordFormatter formatter(id, readoutMapping.product()) ;
+//    RPCRecordFormatter formatter(id, readoutMapping.product()) ;
+    RPCRecordFormatter formatter(id, cabling) ;
     unsigned int lvl1_ID = ev.id().event();
     FEDRawData *  rawData =  RPCPackingModule::rawData(id, lvl1_ID, digiCollection.product(), formatter);
     FEDRawData& fedRawData = buffers->FEDData(id);
