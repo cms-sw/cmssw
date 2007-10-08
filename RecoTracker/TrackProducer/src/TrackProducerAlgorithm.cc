@@ -30,12 +30,13 @@
 
 template <> bool
 TrackProducerAlgorithm<reco::Track>::buildTrack (const TrajectoryFitter * theFitter,
-					 const Propagator * thePropagator,
-					 AlgoProductCollection& algoResults,
-					 TransientTrackingRecHit::RecHitContainer& hits,
-					 TrajectoryStateOnSurface& theTSOS,
-					 const TrajectorySeed& seed,
-					 float ndof)
+						 const Propagator * thePropagator,
+						 AlgoProductCollection& algoResults,
+						 TransientTrackingRecHit::RecHitContainer& hits,
+						 TrajectoryStateOnSurface& theTSOS,
+						 const TrajectorySeed& seed,
+						 float ndof,
+						 SeedRef seedRef)
 {
   //variable declarations
   std::vector<Trajectory> trajVec;
@@ -53,6 +54,7 @@ TrackProducerAlgorithm<reco::Track>::buildTrack (const TrajectoryFitter * theFit
   if (trajVec.size() != 0){
 
     theTraj = new Trajectory( trajVec.front() );
+    theTraj->setSeedRef(seedRef);
     
     if (theTraj->direction() == alongMomentum) {
       innertsos = theTraj->firstMeasurement().updatedState();
@@ -93,12 +95,13 @@ TrackProducerAlgorithm<reco::Track>::buildTrack (const TrajectoryFitter * theFit
 
 template <> bool
 TrackProducerAlgorithm<reco::GsfTrack>::buildTrack (const TrajectoryFitter * theFitter,
-					 const Propagator * thePropagator,
-					 AlgoProductCollection& algoResults,
-					 TransientTrackingRecHit::RecHitContainer& hits,
-					 TrajectoryStateOnSurface& theTSOS,
-					 const TrajectorySeed& seed,
-					 float ndof)
+						    const Propagator * thePropagator,
+						    AlgoProductCollection& algoResults,
+						    TransientTrackingRecHit::RecHitContainer& hits,
+						    TrajectoryStateOnSurface& theTSOS,
+						    const TrajectorySeed& seed,
+						    float ndof,
+						    SeedRef seedRef)
 {
   //variable declarations
   std::vector<Trajectory> trajVec;
@@ -117,6 +120,7 @@ TrackProducerAlgorithm<reco::GsfTrack>::buildTrack (const TrajectoryFitter * the
   if (trajVec.size() != 0){
 
     theTraj = new Trajectory( trajVec.front() );
+    theTraj->setSeedRef(seedRef);
     
     if (theTraj->direction() == alongMomentum) {
       innertsos = theTraj->firstMeasurement().updatedState();

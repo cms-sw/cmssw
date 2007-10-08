@@ -44,6 +44,7 @@ TrackProducerAlgorithm<T>::runWithCandidate(const TrackingGeometry * theG,
     {
       
       const TrackCandidate * theTC = &(*i);
+
       PTrajectoryStateOnDet state = theTC->trajectoryStateOnDet();
       const TrackCandidate::range& recHitVec=theTC->recHits();
       const TrajectorySeed& seed = theTC->seed();
@@ -76,8 +77,8 @@ TrackProducerAlgorithm<T>::runWithCandidate(const TrackingGeometry * theG,
       ndof = ndof - 5;
       
       //build Track
-      LogDebug("TrackProducer") << "going to buildTrack"<< "\n";
-      bool ok = buildTrack(theFitter,thePropagator,algoResults, hits, theTSOS, seed, ndof);
+      LogDebug("TrackProducer") << "going to buildTrack"<< "\n";      
+      bool ok = buildTrack(theFitter,thePropagator,algoResults, hits, theTSOS, seed, ndof,theTC->seedRef());
       LogDebug("TrackProducer") << "buildTrack result: " << ok << "\n";
       if(ok) cont++;
     }
@@ -115,7 +116,7 @@ TrackProducerAlgorithm<T>::runWithTrack(const TrackingGeometry * theG,
 	//LogDebug("TrackProducer") << "seed.direction()=" << seed.direction();
 
 	//=====  the hits are in the same order as they were in the track::extra.        
-	bool ok = buildTrack(theFitter,thePropagator,algoResults, hits, theInitialStateForRefitting, seed, ndof);
+	bool ok = buildTrack(theFitter,thePropagator,algoResults, hits, theInitialStateForRefitting, seed, ndof,theT->seedRef());
 	if(ok) cont++;
       }catch ( CMSexception & e){
 	edm::LogError("TrackProducer") << "Genexception1: " << e.explainSelf() <<"\n";      
@@ -131,8 +132,8 @@ TrackProducerAlgorithm<T>::runWithTrack(const TrackingGeometry * theG,
 
 template <class T> void
 TrackProducerAlgorithm<T>::runWithMomentum(const TrackingGeometry * theG,
-					     const MagneticField * theMF,
-					     const TrackMomConstraintAssociationCollection& theTCollectionWithConstraint,
+				             const MagneticField * theMF,
+				             const TrackMomConstraintAssociationCollection& theTCollectionWithConstraint,
 					     const TrajectoryFitter * theFitter,
 					     const Propagator * thePropagator,
 					     const TransientTrackingRecHitBuilder* builder,
@@ -176,7 +177,7 @@ TrackProducerAlgorithm<T>::runWithMomentum(const TrackingGeometry * theG,
 	//LogDebug("TrackProducer") << "seed.direction()=" << seed.direction();
 	
 	//=====  the hits are in the same order as they were in the track::extra.        
-	bool ok = buildTrack(theFitter,thePropagator,algoResults, hits, theInitialStateForRefitting, seed, ndof);
+	bool ok = buildTrack(theFitter,thePropagator,algoResults, hits, theInitialStateForRefitting, seed, ndof,theT->seedRef());
 	if(ok) cont++;
       }catch ( CMSexception & e){
 	edm::LogError("TrackProducer") << "Genexception1: " << e.explainSelf() <<"\n";      
@@ -253,7 +254,7 @@ TrackProducerAlgorithm<T>::runWithVertex(const TrackingGeometry * theG,
 	//LogDebug("TrackProducer") << "seed.direction()=" << seed.direction();
 
 	//=====  the hits are in the same order as they were in the track::extra.        
-	bool ok = buildTrack(theFitter,thePropagator,algoResults, hits, theInitialStateForRefitting, seed, ndof);
+	bool ok = buildTrack(theFitter,thePropagator,algoResults, hits, theInitialStateForRefitting, seed, ndof,theT->seedRef());
 	if(ok) cont++;
       }catch ( CMSexception & e){
 	edm::LogError("TrackProducer") << "Genexception1: " << e.explainSelf() <<"\n";      

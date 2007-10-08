@@ -181,7 +181,8 @@ GsfTrackProducer::putInEvt(edm::Event& evt,
     selTrackExtras->push_back( reco::TrackExtra (outpos, outmom, true,
 						 inpos, inmom, true,
 						 outertsos.curvilinearError(), outerId, 
-						 innertsos.curvilinearError(), innerId,seedDir));
+						 innertsos.curvilinearError(), innerId,
+						 seedDir,theTraj->seedRef()));
 
     reco::TrackExtra & tx = selTrackExtras->back();
     size_t i = 0;

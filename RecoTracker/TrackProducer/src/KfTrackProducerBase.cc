@@ -63,7 +63,7 @@ void KfTrackProducerBase::putInEvt(edm::Event& evt,
       innertsos = theTraj->lastMeasurement().updatedState();
       outerId = theTraj->firstMeasurement().recHit()->geographicalId().rawId();
       innerId = theTraj->lastMeasurement().recHit()->geographicalId().rawId();
-   }
+    }
     //build the TrackExtra
     GlobalPoint v = outertsos.globalParameters().position();
     GlobalVector p = outertsos.globalParameters().momentum();
@@ -77,11 +77,17 @@ void KfTrackProducerBase::putInEvt(edm::Event& evt,
     reco::TrackExtraRef teref= reco::TrackExtraRef ( rTrackExtras, idx ++ );
     reco::Track & track = selTracks->back();
     track.setExtra( teref );
+    
+    
     selTrackExtras->push_back( reco::TrackExtra (outpos, outmom, true, inpos, inmom, true,
 						 outertsos.curvilinearError(), outerId,
-						 innertsos.curvilinearError(), innerId,seedDir));
+						 innertsos.curvilinearError(), innerId,
+    						 seedDir,theTraj->seedRef()));
+
 
     reco::TrackExtra & tx = selTrackExtras->back();
+    
+
     size_t i = 0;
     for( TrajectoryFitter::RecHitContainer::const_iterator j = transHits.begin();
 	 j != transHits.end(); j ++ ) {
@@ -111,7 +117,7 @@ void KfTrackProducerBase::putInEvt(edm::Event& evt,
   rTracks_ = evt.put( selTracks );
   evt.put( selTrackExtras );
   evt.put( selHits );
-  
+
   if(trajectoryInEvent_) {
     edm::OrphanHandle<std::vector<Trajectory> > rTrajs = evt.put(selTrajectories);
 

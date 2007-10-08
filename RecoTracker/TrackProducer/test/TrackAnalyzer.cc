@@ -7,13 +7,7 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "FWCore/Framework/interface/ESHandle.h"
-//#include "FWCore/Framework/interface/EventSetup.h"
 
-// #include "TrackingTools/TransientRecHit/interface/TransientRecHit.h"
-// #include "TrackingTools/TransientRecHit/interface/TransientRecHitBuilder.h"
-// #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2DLocalPos.h"
-// #include "TrackingTools/TransientTrackerRecHit2D/interface/TSiStripRecHit2DLocalPos.h"
-// #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2DLocalPosCollection.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
@@ -63,13 +57,16 @@ class TrackAnalyzer : public edm::EDAnalyzer {
       std::cout << "\timpact parameter: " << track->d0()<< std::endl;
       std::cout << "\tcharge: " << track->charge()<< std::endl;
       std::cout << "\tnormalizedChi2: " << track->normalizedChi2()<< std::endl;
+
       i++;
       cout<<"\tFrom EXTRA : "<<endl;
       cout<<"\t\touter PT "<< track->outerPt()<<endl;
+      std::cout << "\t direction: " << track->seedDirection() << std::endl;
+      std::cout << "\t direction from seedRef: " << track->seedRef()->direction() << std::endl;
       //
       // try and access Hits
       //
-      cout <<"\t\tNumber of RecHits "<<track->recHitsSize()<<endl;
+      cout <<"\t\tNumber of RecHits "<<track->recHitsSize()<<endl;      
       for (trackingRecHit_iterator it = track->recHitsBegin();  it != track->recHitsEnd(); it++){
 	if ((*it)->isValid()){
 	  cout <<"\t\t\tRecHit on det "<<(*it)->geographicalId().rawId()<<endl;
@@ -79,6 +76,7 @@ class TrackAnalyzer : public edm::EDAnalyzer {
 	  cout <<"\t\t Invalid Hit On "<<(*it)->geographicalId().rawId()<<endl;
 	}
       }
+      
     }
   }
 };

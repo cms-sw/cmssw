@@ -4,8 +4,8 @@
 /** \class TrackProducerAlgorithm
  *  This class calls the Final Fit and builds the Tracks then produced by the TrackProducer or by the TrackRefitter
  *
- *  $Date: 2007/07/30 23:32:28 $
- *  $Revision: 1.13 $
+ *  $Date: 2007/10/06 08:04:11 $
+ *  $Revision: 1.15 $
  *  \author cerati
  */
 
@@ -33,7 +33,7 @@ public:
   typedef std::vector<T> TrackCollection;
   typedef std::pair<Trajectory*, std::pair<T*,PropagationDirection> > AlgoProduct; 
   typedef std::vector< AlgoProduct >  AlgoProductCollection;
-
+  typedef edm::RefToBase<TrajectorySeed> SeedRef;
 
  public:
 
@@ -87,8 +87,9 @@ public:
 		  AlgoProductCollection& ,
 		  TransientTrackingRecHit::RecHitContainer&,
 		  TrajectoryStateOnSurface& ,
-		  const TrajectorySeed&,
-		  float);
+		  const TrajectorySeed&,		  
+		  float,
+		  SeedRef seedRef = SeedRef());
 
  private:
   edm::ParameterSet conf_;
@@ -105,20 +106,22 @@ public:
 
 template <> bool
 TrackProducerAlgorithm<reco::Track>::buildTrack(const TrajectoryFitter *,
+						const Propagator *,
+						AlgoProductCollection& ,
+						TransientTrackingRecHit::RecHitContainer&,
+						TrajectoryStateOnSurface& ,
+						const TrajectorySeed&,
+						float,
+						SeedRef seedRef);
+
+template <> bool
+TrackProducerAlgorithm<reco::GsfTrack>::buildTrack(const TrajectoryFitter *,
 						   const Propagator *,
 						   AlgoProductCollection& ,
 						   TransientTrackingRecHit::RecHitContainer&,
 						   TrajectoryStateOnSurface& ,
 						   const TrajectorySeed&,
-						   float);
-
-template <> bool
-TrackProducerAlgorithm<reco::GsfTrack>::buildTrack(const TrajectoryFitter *,
-						      const Propagator *,
-						      AlgoProductCollection& ,
-						      TransientTrackingRecHit::RecHitContainer&,
-						      TrajectoryStateOnSurface& ,
-						      const TrajectorySeed&,
-						      float);
+						   float,
+						   SeedRef seedRef);
 
 #endif
