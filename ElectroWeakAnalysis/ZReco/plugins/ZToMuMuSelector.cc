@@ -83,7 +83,7 @@ bool ZToMuMuSelector::filter (Event & ev, const EventSetup &) {
             }
 
             try {
-                  ev.getByLabel(isoTag_, isoTrackerMap);
+                  ev.getByLabel(isoTrackerTag_, isoTrackerMap);
             } catch (...) {
                   LogTrace("") << ">>> ISO Tracker collection does not exist !!!";
                   return false;
