@@ -11,9 +11,15 @@ class HLTEcalIsolationFilter : public HLTFilter {
       virtual bool filter(edm::Event&, const edm::EventSetup&);
 
    private:
-      edm::InputTag candTag_; // input tag identifying product contains filtered egammas
-      double maxennearby;   // Ecal isolation threshold in GeV 
-      double minen;        // number of egammas required
+      edm::InputTag candTag_; 
+      double maxennearby; 
+      double minen;        
+      int maxhitout;
+      int maxhitin;
+      double maxenin;
+      double maxenout;
+      double maxetacand;
+
 };
 
 #endif 

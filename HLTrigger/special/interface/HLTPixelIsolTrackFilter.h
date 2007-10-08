@@ -14,6 +14,7 @@ class HLTPixelIsolTrackFilter : public HLTFilter {
       edm::InputTag candTag_; // input tag identifying product contains filtered egammas
       double maxptnearby;   // Ecal isolation threshold in GeV 
       double minpttrack;        // number of egammas required
+      double maxetatrack;
 };
 
 #endif //HLTEgammaEcalIsolFilter_h
