@@ -212,6 +212,21 @@
   	style = "width:  70%  ; 
 	         height: 100% ; 
 		 float:  left ;">
+     <fieldset style = "background:#DDEFFF;"> 
+         <div id = "progressIcon">	 
+          <h3>
+           <img id  = "progress_icon"
+	        src = "images/loading.gif" 
+		border = "0" /> 
+                &nbsp; Please, wait, loading...
+           </img>
+           <label class = "label"
+                  id    = "progress_message"
+                  style = "text-align:left;">
+           </label>
+          </h3>
+         </div>
+     </fieldset>
    </div> 
 
    <!-- The right frame: the DQM controls -->   
@@ -236,147 +251,6 @@
        <div  id    = "dhtmlgoodies_tabView1" 
              style = "float:  right;
                       width:  300px;">
-        <div class = "dhtmlgoodies_aTab">
-         <div class = "bloc" 
-              id    = "bloc2_2"
-               <!-- These are the non-expert action buttons: -->
-           <!-- <input name    = "summary"
-            	  id	  = "create_summary"
-            	  class   = "controlButton"
-            	  value   = "Update Summary"
-            	  onClick = "ClientActions.CreateSummary()"
-            	  type    = "submit">
-           </input>
-           <input name    = "QtestResult"
-            	  id	  = "check_qtest_result"
-            	  class   = "controlButton"
-            	  value   = "Update QTests"
-            	  onClick = "ClientActions.CheckQualityTestResults()"
-            	  type    = "submit">
-           </input> -->
- 	   <!-- These are the slide shown action buttons: -->
-	   <p/>
-           <label id      = "slide_show"
-                  style   = "margin-left:2%">
-               Slide Show:
-           </label>
-           <input name    = "StartSLShow" 
-                  id      = "start_slide_show"
-                  class   = "controlButton"
-                  value   = "|<<" 
-                  onClick = "SlideShow.ShowFirst()" 
-                  type    = "image"
-                  src     = "images/player_start.png">
-           </input>
-           <input name    = "PreviousSLShow" 
-                  id	  = "previous_slide_show"
-                  class   = "controlButton"
-                  value   = "<<" 
-                  onClick = "SlideShow.ShowPrev()" 
-                  type    = "image"
-                  src	  = "images/player_rew.png">
-           </input>
-           <input name    = "PlaySLShow" 
-                  id	  = "play_slide_show"
-                  class   = "controlButton"
-                  value   = ">" 
-                  onClick = "SlideShow.StartSlideShow()" 
-                  type    = "image"
-                  src	  = "images/player_play.png">
-           </input>
-           <input name    = "StopSLShow" 
-           	  id	  = "stop_slide_show"
-           	  class   = "controlButton"
-           	  value   = "||" 
-           	  onClick = "SlideShow.StopSlideShow()" 
-           	  type    = "image"
-           	  src	  = "images/player_stop.png">
-           </input>
-           <input name    = "NextSLShow" 
-           	  id	  = "next_slide_show"
-           	  class   = "controlButton"
-           	  value   = ">>" 
-           	  onClick = "SlideShow.ShowNext()" 
-           	  type    = "image"
-           	  src	  = "images/player_fwd.png">	 
-           </input>
-           <input name    = "EndSLShow" 
-           	  id	  = "end_slide_show"
-           	  class   = "controlButton"
-           	  value   = ">>|" 
-           	  onClick = "SlideShow.ShowLast()" 
-           	  type    = "image"
-           	  src	  = "images/player_end.png">
-           </input>
-           <select name	  = "updateSlideShow"
-                   class  = "selector"
-                   id	  = "update_slideshow">
-              <option selected value =   "3000"> 3 sec</option>
-              <option          value =   "5000"> 5 sec</option>
-              <option          value =  "10000">10 sec</option>
-           </select>
-
-	   <!-- <p/>
-           <label id	  = "summaryOverview_slideShow"
-           	  style   = "margin-left:2%">
-               Summary Plots Overview:
-           </label> -->
-           <input name    = "SummaryPlotsCreation" 
-                  id	  = "summary_plot_creation"
-                  class   = "controlButton"
-                  value   = "Manual Update" 
-                  onClick = "ClientActions.RequestPlotFromLayout()"
-                  type    = "submit">
-           </input>
-
-	   <p/>
-           <label id      = "summary_canvas"
-                  style   = "margin-left:2%">
-               Status Summary:
-           </label>
-           <input name    = "PixelSummaryOverviewShow" 
-                  id      = "pixel_summary_overview_show"
-                  class   = "controlButton"
-                  value   = "SiPixel" 
-                  onClick = "SlideShow.SummaryOverView('Pixel')" 
-                  type    = "submit">
-           </input>
-           <input name    = "BarrelSummaryOverviewShow" 
-                  id      = "barrel_summary_overview_show"
-                  class   = "controlButton"
-                  value   = "Barrel" 
-                  onClick = "SlideShow.SummaryOverView('Barrel')" 
-                  type    = "submit">
-           </input>
-           <input name    = "EndcapSummaryOverviewShow" 
-                  id      = "endcap_summary_overview_show"
-                  class   = "controlButton"
-                  value   = "Endcap" 
-                  onClick = "SlideShow.SummaryOverView('Endcap')" 
-                  type    = "submit">
-           </input>
-
-	   <p/>
-           <label id	  = "errorOverview_slideShow"
-           	  style   = "margin-left:2%">
-               Error Overview Plots:
-           </label>
-           <input name    = "errorOverviewPlotsCreation" 
-                  id      = "errorOverview_plot_creation"
-                  class   = "controlButton"
-                  value   = "Create" 
-                  onClick = "ClientActions.RequestErrorOverviewPlot()"
-                  type    = "submit">
-           </input>
-           <input name    = "ErrorOverviewShow" 
-                  id      = "errorOverview_plot_show"
-                  class   = "controlButton"
-                  value   = "Display" 
-                  onClick = "SlideShow.SummaryOverView('Error')" 
-                  type    = "submit">
-           </input>
-          </div> <!-- bloc2_2: Different actions for the non-expert Client -->
-        </div>  <!-- dhtmlgoodies_aTab -->
         <div class = "dhtmlgoodies_aTab">
          <div class = "bloc" 
               id    = "bloc2_3"
@@ -419,10 +293,9 @@
          </div>
         </div>
        
-        <fieldset>
-         <legend>
-	  Tracker Map Controls
-	 </legend>
+        <div class = "dhtmlgoodies_aTab">
+         <div class = "bloc" 
+              id    = "bloc2_7">
          <input name	= "listMECommand"
          	id	= "list_ME_command"
          	class	= "controlButton"
@@ -475,25 +348,10 @@
             <option	     value = "Alarms"	>Alarms  </option>
             <option	     value = "Entries"  >Entries </option>
          </select>
-
-         <div id = "progressIcon">	 
-          <h3>
-           <img id  = "progress_icon"
-	        src = "images/loading.gif" 
-		border = "0" /> 
-                &nbsp; Please, wait, loading...
-           </img>
-           <label class = "label"
-                  id    = "progress_message"
-                  style = "text-align:left;">
-           </label>
-          </h3>
-         </div>
-        </fieldset>
-       </div>
+        </div> 
       </div>
      </fieldset>
-    
+
      <!-- Following is the area to display the trees: -->
      <fieldset style = "background:#DDEFFF;">
 
@@ -641,7 +499,8 @@
   </form>
   
   <script type="text/javascript">
-   initTabs('dhtmlgoodies_tabView1', Array('Summary Slideshow','Expert Actions'), 0, '99.5%','100%');
+   //initTabs('dhtmlgoodies_tabView1', Array('Summary Slideshow','Expert Actions'), 0, '99.5%','100%');
+   initTabs('dhtmlgoodies_tabView1', Array('Expert Actions','TrackerMaps'), 0, '99.5%','100%');
    initTabs('dhtmlgoodies_tabView2', Array('Single Module View','Summary View','Alarm View'), 0, '99.5%','100%');
   </script>
   

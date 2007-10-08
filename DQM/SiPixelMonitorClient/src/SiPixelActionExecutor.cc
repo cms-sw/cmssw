@@ -883,7 +883,7 @@ void SiPixelActionExecutor::checkQTestResults(DaqMonitorBEInterface * bei) {
   int messageCounter=0;
   string currDir = bei->pwd();
   vector<string> contentVec;
-  cout<<"currDir="<<currDir<<endl;
+  //cout<<"currDir="<<currDir<<endl;
   
   //mui->getContents(contentVec);
   bei->getContents(contentVec);
@@ -894,7 +894,7 @@ void SiPixelActionExecutor::checkQTestResults(DaqMonitorBEInterface * bei) {
        it != contentVec.end(); it++) {
     vector<string> contents;
     int nval = SiPixelUtility::getMEList((*it), contents);
-    cout<<"ME list length: "<<nval<<endl;
+    //cout<<"ME list length: "<<nval<<endl;
     if (nval == 0) continue;
     for (vector<string>::const_iterator im = contents.begin();
 	 im != contents.end(); im++) {
