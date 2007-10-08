@@ -35,7 +35,7 @@ class  ImpactParameterAlgorithm  {
 
 	void setPrimaryVertex(Vertex * pv) {primaryVertex = pv;}
   
-	pair<JetTag,TauImpactParameterInfo> tag(const IsolatedTauTagInfoRef&, const Vertex&); 
+	pair<float,TauImpactParameterInfo> tag(const IsolatedTauTagInfoRef&, const Vertex&); 
 
 	void setTransientTrackBuilder(const TransientTrackBuilder*);
 

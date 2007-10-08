@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea Rizzi
 //         Created:  Thu Apr  6 09:56:23 CEST 2006
-// $Id: ImpactParameter.cc,v 1.3 2007/03/23 08:14:55 slehti Exp $
+// $Id: ImpactParameter.cc,v 1.4 2007/09/11 22:07:50 ratnik Exp $
 //
 //
 
@@ -46,21 +46,21 @@
 //
 ImpactParameter::ImpactParameter(const edm::ParameterSet& iConfig) {
 
-	jetTrackSrc = iConfig.getParameter<string>("JetTagProd");
-	vertexSrc   = iConfig.getParameter<string>("vertexSrc");
+        jetTrackSrc = iConfig.getParameter<string>("JetTagProd");
+        vertexSrc   = iConfig.getParameter<string>("vertexSrc");
         usingVertex = iConfig.getParameter<bool>("useVertex");
 
-	algo = new ImpactParameterAlgorithm(iConfig);
+        algo = new ImpactParameterAlgorithm(iConfig);
 
-	std::string modulname = iConfig.getParameter<string>( "@module_label" );
-	produces<reco::JetTagCollection>().setBranchAlias(modulname);
-	string infoBranchName = modulname + "Info";
-	produces<reco::TauImpactParameterInfoCollection>().setBranchAlias(infoBranchName);
+        std::string modulname = iConfig.getParameter<string>( "@module_label" );
+        produces<reco::JetTagCollection>().setBranchAlias(modulname);
+        string infoBranchName = modulname + "Info";
+        produces<reco::TauImpactParameterInfoCollection>().setBranchAlias(infoBranchName);
 }
 
 
 ImpactParameter::~ImpactParameter(){
-	delete algo;
+        delete algo;
 }
 
 
@@ -71,60 +71,56 @@ ImpactParameter::~ImpactParameter(){
 // ------------ method called to produce the data  ------------
 void ImpactParameter::produce(edm::Event& iEvent, const edm::EventSetup& iSetup){
 
-	using namespace reco;
+        using namespace reco;
 
-	Handle<IsolatedTauTagInfoCollection> isolatedTaus;
-	iEvent.getByLabel(jetTrackSrc,isolatedTaus);
+        Handle<IsolatedTauTagInfoCollection> isolatedTaus;
+        iEvent.getByLabel(jetTrackSrc,isolatedTaus);
 
-	JetTagCollection                 *baseCollection = new JetTagCollection();
-	TauImpactParameterInfoCollection *extCollection  = new TauImpactParameterInfoCollection();
+        std::auto_ptr<JetTagCollection>                 tagCollection;
+        std::auto_ptr<TauImpactParameterInfoCollection> extCollection( new TauImpactParameterInfoCollection() );
+        if (not isolatedTaus->empty()) {
+          edm::RefToBaseProd<reco::Jet> prod( isolatedTaus->begin()->jet() );
+          tagCollection.reset( new JetTagCollection(prod) );
+        } else {
+          tagCollection.reset( new JetTagCollection() );
+        }
 
         edm::ESHandle<TransientTrackBuilder> builder;
         iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder",builder);
         algo->setTransientTrackBuilder(builder.product());
 
-	Vertex PV;
-        if(usingVertex){
-	  Handle<reco::VertexCollection> vertices;
-	  iEvent.getByLabel(vertexSrc,vertices);
+        Vertex PV;
+        if (usingVertex) {
+          Handle<reco::VertexCollection> vertices;
+          iEvent.getByLabel(vertexSrc,vertices);
 
           const reco::VertexCollection vertCollection = *(vertices.product());
           reco::VertexCollection::const_iterator iVertex;
 
-	  for(iVertex = vertCollection.begin();iVertex!=vertCollection.end();iVertex++){
-	    PV = *iVertex;
-	  }
+          for(iVertex = vertCollection.begin();iVertex!=vertCollection.end();iVertex++){
+            PV = *iVertex;
+          }
 
-	}else{
-	  Vertex::Error e;
-	  e(0,0)=0;
-	  e(1,1)=0;
-	  e(2,2)=0;
-	  Vertex::Point p(0,0,0);
+        } else {
+          Vertex::Error e;
+          e(0,0)=0;
+          e(1,1)=0;
+          e(2,2)=0;
+          Vertex::Point p(0,0,0);
 
-	  Vertex dummyPV(p,e,1,1,1);
-	  PV = dummyPV;
-	}
+          Vertex dummyPV(p,e,1,1,1);
+          PV = dummyPV;
+        }
 
-	IsolatedTauTagInfoCollection::const_iterator it;
-	int theKey = 0;
-	for(it = isolatedTaus->begin(); it != isolatedTaus->end(); it++) {
-		IsolatedTauTagInfoRef tauRef(isolatedTaus,theKey);
+        for (unsigned int i = 0; i < isolatedTaus->size(); ++i) {
+            IsolatedTauTagInfoRef tauRef(isolatedTaus, i);
+            std::pair<float, TauImpactParameterInfo> ipInfo = algo->tag(tauRef,PV);
+            tagCollection->setValue(i, ipInfo.first);    
+            extCollection->push_back(ipInfo.second);
+        }
 
-		pair<JetTag,TauImpactParameterInfo> ipInfo = algo->tag(tauRef,PV);
-
-	        baseCollection->push_back(ipInfo.first);    
-	        extCollection->push_back(ipInfo.second);
-
-		theKey++;
-	}
-
-
-	std::auto_ptr<reco::JetTagCollection> resultBase(baseCollection);
-        iEvent.put(resultBase);
-
-	std::auto_ptr<reco::TauImpactParameterInfoCollection> resultExt(extCollection);  
-	iEvent.put(resultExt);
+        iEvent.put(extCollection);
+        iEvent.put(tagCollection);
 }
 
 

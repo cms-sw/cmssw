@@ -27,7 +27,7 @@ void ImpactParameterAlgorithm::setTransientTrackBuilder(const TransientTrackBuil
 }
 
 
-pair<JetTag,TauImpactParameterInfo> ImpactParameterAlgorithm::tag(const IsolatedTauTagInfoRef & tauRef, const Vertex & pv) {
+std::pair<float,TauImpactParameterInfo> ImpactParameterAlgorithm::tag(const IsolatedTauTagInfoRef & tauRef, const Vertex & pv) {
 
 	if(transientTrackBuilder == 0){
 	     cout << "Transient track builder is 0. abort!" << endl;
@@ -69,11 +69,7 @@ pair<JetTag,TauImpactParameterInfo> ImpactParameterAlgorithm::tag(const Isolated
 
 	}
 
-	double discriminator = resultExtended.discriminator(ip_min,ip_max,sip_min,use_sign,use3D);
+	float discriminator = resultExtended.discriminator(ip_min,ip_max,sip_min,use_sign,use3D);
 
-//	const JetTracksAssociationRef& jtaRef = tauRef->jtaRef();
-//	JetTag resultBase(discriminator,jtaRef);
-        JetTag resultBase(discriminator);
-
-	return pair<JetTag,TauImpactParameterInfo> (resultBase,resultExtended);
+	return std::make_pair( discriminator, resultExtended );
 }
