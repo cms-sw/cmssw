@@ -1,3 +1,9 @@
+2007-10-08  Harry Cheung <cheung@fnal.gov>
+
+	* tag V03-07-05
+	* Changed EventStreamHttpReader to allow reconnect if the SM is down 
+          (Change from Bill).
+
 2007-09-14  Harry Cheung <cheung@fnal.gov>
 
 	* tag V03-07-04
