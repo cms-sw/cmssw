@@ -1,7 +1,7 @@
 /// \file
 ///
-/// $Date: 2007/06/04 07:38:23 $
-/// $Revision: 1.2 $
+/// $Date: 2007/06/07 07:27:48 $
+/// $Revision: 1.3 $
 ///
 /// $Author: fronga $
 /// \author Frederic Ronga - CERN-PH-CMG
@@ -168,7 +168,7 @@ void MisalignmentScenarioBuilder::propagateParameters_( const edm::ParameterSet&
             LogDebug("PropagateParameters") << indent 
                                             << " - skipping top-level PSet " << (*it) << std::endl;
           }
-        else if ( theAlignableObjectId.nameToType( rootName ) == AlignableObjectId::invalid )
+        else if ( theAlignableObjectId.nameToType( rootName ) == align::invalid )
           {
             // Parameter is not known!
             throw cms::Exception("BadConfig") << "Unknown parameter set name " << rootName;

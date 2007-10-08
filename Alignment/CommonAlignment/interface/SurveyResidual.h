@@ -1,5 +1,5 @@
-#ifndef Alignment_SurveyAnalysis_SurveyResidual_h
-#define Alignment_SurveyAnalysis_SurveyResidual_h
+#ifndef Alignment_CommonAlignment_SurveyResidual_h
+#define Alignment_CommonAlignment_SurveyResidual_h
 
 /** \class SurveyResidual
  *
@@ -13,7 +13,7 @@
  *  \author Chung Khim Lae
  */
 
-#include "Alignment/CommonAlignment/interface/AlignableObjectId.h"
+#include "Alignment/CommonAlignment/interface/StructureType.h"
 #include "Alignment/CommonAlignment/interface/Utilities.h"
 
 class Alignable;
@@ -21,18 +21,16 @@ class AlignableSurface;
 
 class SurveyResidual
 {
-  typedef AlignableObjectId::AlignableObjectIdType StructureType;
-
   public:
 
   /// Constructor from an alignable whose residuals are to be found.
-  /// The type of residuals (panel, disc etc.) is given by AlignableType.
+  /// The type of residuals (panel, disc etc.) is given by StructureType.
   /// Set bias to true for biased residuals.
   /// Default is to find unbiased residuals.
   SurveyResidual(
 		 const Alignable&,
-		 StructureType,    // level at which residuals are found 
-		 bool bias = false // true for biased residuals
+		 align::StructureType, // level at which residuals are found 
+		 bool bias = false     // true for biased residuals
 		 );
 
   /// Find residual for the alignable in local frame.

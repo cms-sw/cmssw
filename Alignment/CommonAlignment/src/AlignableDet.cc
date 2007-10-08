@@ -2,8 +2,7 @@
 #include "CondFormats/Alignment/interface/Alignments.h"
 #include "CondFormats/Alignment/interface/AlignmentErrors.h"
 #include "DataFormats/TrackingRecHit/interface/AlignmentPositionError.h"
-#include "FWCore/Utilities/interface/Exception.h"
-#include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
+#include "Geometry/CommonDetUnit/interface/GeomDet.h"
 
 #include "Alignment/CommonAlignment/interface/AlignableDet.h"
 
@@ -16,60 +15,30 @@ AlignableDet::AlignableDet( const GeomDet* geomDet ) :
   
   // Behaviour depends on level of components:
   // Check if the AlignableDet is a CompositeDet or a DetUnit
-  // In both cases, we have to down-cast these GeomDets to GeomDetUnits
   
   if ( geomDet->components().size() == 0 ) // Is a DetUnit
-    {
-      const GeomDetUnit* tmpGeomDetUnit = dynamic_cast<const GeomDetUnit*>( geomDet );
-      theDetUnits.push_back( new AlignableDetUnit( tmpGeomDetUnit ) );
-    }
+  {
+    addComponent( new AlignableDetUnit( id(), geomDet->surface() ) );
+  }
   else // Is a compositeDet: push back all components
+  {
+    const std::vector< const GeomDet*>& geomDets = geomDet->components();
+    for ( std::vector<const GeomDet*>::const_iterator idet=geomDets.begin(); 
+	  idet != geomDets.end(); ++idet )
     {
-      std::vector< const GeomDet*> geomDets = geomDet->components();
-      for ( std::vector<const GeomDet*>::iterator idet=geomDets.begin(); 
-			idet != geomDets.end(); idet++ )
-		{
-		  const GeomDetUnit* tmpGeomDetUnit = dynamic_cast<const GeomDetUnit*>( *idet );
-		  if ( tmpGeomDetUnit ) // Just check down-cast worked...
-			theDetUnits.push_back( new AlignableDetUnit( tmpGeomDetUnit ) );
-		}
+      addComponent( new AlignableDetUnit( (*idet)->geographicalId().rawId(),
+					  (*idet)->surface() ) );
     }
+  }
 
 }
 
 
 //__________________________________________________________________________________________________
-AlignableDet::~AlignableDet() {
+AlignableDet::~AlignableDet()
+{
 
   delete theAlignmentPositionError;
-  for ( std::vector<AlignableDetUnit*>::iterator iter = theDetUnits.begin();
-		iter != theDetUnits.end(); iter++ )
-	delete *iter;
-
-}
-
-
-//__________________________________________________________________________________________________
-std::vector<Alignable*> AlignableDet::components() const 
-{
-
-  std::vector<Alignable*> result;
-  
-  result.insert( result.end(), theDetUnits.begin(), theDetUnits.end() );
-
-  return result;
-
-}
-
-
-//__________________________________________________________________________________________________
-AlignableDetUnit &AlignableDet::detUnit(int i) 
-{
-
-  if ( i >= size() ) 
-    throw cms::Exception("LogicError") << "DetUnit index (" << i << ") out of range";
-
-  return *theDetUnits[i];
 
 }
 
@@ -106,8 +75,7 @@ void AlignableDet::addAlignmentPositionErrorFromRotation(const RotationType& rot
 
   // average error calculated by movement of a local point at
   // (xWidth/2,yLength/2,0) caused by the rotation rot
-  const GlobalVector localPositionVector = this->globalPosition()
-    - this->surface().toGlobal( Local3DPoint(.5 * surface().width(), .5 * surface().length(), 0.) );
+  GlobalVector localPositionVector = surface().toGlobal( LocalVector(.5 * surface().width(), .5 * surface().length(), 0.) );
 
   LocalVector::BasicVectorType lpvgf = localPositionVector.basicVector();
   GlobalVector gv( rot.multiplyInverse(lpvgf) - lpvgf );

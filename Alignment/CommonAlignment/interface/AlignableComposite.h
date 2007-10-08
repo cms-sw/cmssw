@@ -7,7 +7,7 @@
 /// The AlignableComposite is itself Alignable.
 /// Apart from providing an interface to access components,
 /// the AlignableComposite provides a convenient way of (mis)aligning
-/// a droup of detectors as one rigid body.
+/// a group of detectors as one rigid body.
 /// The components of a Composite can themselves be composite,
 /// providing a hierarchical view of the detector for alignment.
 ///
@@ -16,9 +16,6 @@
 /// alignment is defined by the mechanical mounting of detectors
 /// in various structures, while the GeomDet hierarchy is
 /// optimised for pattern recognition.
-///
-/// Misalignment can be de-/reactivated (forwarded to components).
-///
 
 class GeomDet;
 
@@ -32,15 +29,15 @@ public:
 
   /// Constructor for a composite with given rotation.
   /// Position is found from average of daughters' positions later.
-  /// Default arguments for backward compatibility with empty constructor.
-  AlignableComposite( uint32_t id = 0,
-		      AlignableObjectIdType = AlignableObjectId::invalid,
+  /// Default values for backward compatibility with MuonAlignment.
+  AlignableComposite( align::ID = 0,
+		      StructureType = align::invalid,
 		      const RotationType& = RotationType() );
 
   virtual ~AlignableComposite();
 
   /// Add a component and set its mother to this alignable.
-  /// Also find average position of this alignable.
+  /// Also find average position of this composite from its sensors' positions.
   virtual void addComponent( Alignable* component );
 
   /// Return vector of direct components
@@ -74,7 +71,7 @@ public:
   virtual void addAlignmentPositionErrorFromLocalRotation( const RotationType& rotation );
 
   /// Return the alignable type identifier
-  virtual int alignableObjectId() const { return static_cast<int>(theStructureType); }
+  virtual StructureType alignableObjectId() const { return theStructureType; }
 
   /// Recursive printout of alignable structure
   virtual void dump() const;
@@ -90,10 +87,9 @@ protected:
   
 private:
 
-  AlignableObjectIdType theStructureType;
+  StructureType theStructureType;
 
-  Alignables theComponents;
-
+  Alignables theComponents; // direct daughters
 };
 
 #endif

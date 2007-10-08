@@ -1,8 +1,10 @@
 #ifndef Alignment_TrackerAlignment_AlignableModifier_H
 #define Alignment_TrackerAlignment_AlignableModifier_H
 
-#include <vector>
-#include <string>
+// #include <vector>
+// #include <string>
+
+#include "CondFormats/Alignment/interface/Definitions.h"
 
 /// AlignableModifier is a helper class to modify the Alignables.
 ///
@@ -17,9 +19,6 @@ class AlignableModifier
 {
 
 public:
-  
-  typedef GlobalPoint           PositionType;
-  typedef TkRotation<float>     RotationType;
 
   /// Constructor
   AlignableModifier();
@@ -35,43 +34,43 @@ public:
 
   /// Move alignable in global space according to parameters
   void moveAlignable( Alignable* alignable, bool random, bool gaussian,
-					  float sigmaX, float sigmaY, float sigmaZ );
+		      float sigmaX, float sigmaY, float sigmaZ );
 
   /// Move alignable in local space according to parameters
   void moveAlignableLocal( Alignable* alignable, bool random, bool gaussian,
- 						   float sigmaX, float sigmaY, float sigmaZ );
+			   float sigmaX, float sigmaY, float sigmaZ );
 
   /// Rotate alignable in global space according to parameters
   void rotateAlignable( Alignable* alignable, bool random, bool gaussian,
-						float sigmaPhiX, float sigmaPhiY, float sigmaPhiZ );
+			float sigmaPhiX, float sigmaPhiY, float sigmaPhiZ );
 
   /// Rotate alignable in local space according to parameters
   void rotateAlignableLocal( Alignable* alignable, bool random, bool gaussian,
-							 float sigmaPhiX, float sigmaPhiY, float sigmaPhiZ );
+			     float sigmaPhiX, float sigmaPhiY, float sigmaPhiZ );
   
   /// Add the AlignmentPositionError (in global frame) to Alignable
   void addAlignmentPositionError( Alignable* alignable, 
-								  float dx, float dy, float dz );
+				  float dx, float dy, float dz );
 
   /// Add the AlignmentPositionError (in local frame) to Alignable
   void addAlignmentPositionErrorLocal( Alignable* alignable, 
-									   float dx, float dy, float dz );
+				       float dx, float dy, float dz );
 
   /// Add alignment position error resulting from rotation in global frame
   void addAlignmentPositionErrorFromRotation( Alignable* alignable, 
-											  float phiX, float phiY, float phiZ ); 
+					      float phiX, float phiY, float phiZ ); 
 
   /// Add alignment position error resulting from rotation in local frame
   void addAlignmentPositionErrorFromLocalRotation( Alignable* alignable, 
-												   float phiX, float phiY, float phiZ ); 
+						   float phiX, float phiY, float phiZ ); 
 
   /// Add alignment position error resulting from rotation in global frame
   void addAlignmentPositionErrorFromRotation( Alignable* alignable, 
-											  RotationType& rotation ); 
+					      align::RotationType& ); 
 
   /// Add alignment position error resulting from rotation in local frame
   void addAlignmentPositionErrorFromLocalRotation( Alignable* alignable, 
-												   RotationType& rotation ); 
+						   align::RotationType& ); 
 
   /// Decodes string and sets distribution accordingly ('fixed', 'flat' or 'gaussian').
   void setDistribution( const std::string& distr );

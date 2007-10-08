@@ -5,21 +5,23 @@
 #include "CondFormats/Alignment/interface/Alignments.h"
 #include "CondFormats/Alignment/interface/AlignmentErrors.h"
 #include "DataFormats/TrackingRecHit/interface/AlignmentPositionError.h"
+#include "Geometry/CommonDetUnit/interface/GeomDet.h"
 
 #include "Alignment/CommonAlignment/interface/AlignableComposite.h"
 
 
 //__________________________________________________________________________________________________
 AlignableComposite::AlignableComposite( const GeomDet* geomDet ) : 
-  Alignable(geomDet)
+  Alignable( geomDet->geographicalId().rawId(), geomDet->surface() ),
+  theStructureType(align::AlignableDet)
 {
 }
 
-AlignableComposite::AlignableComposite(uint32_t id,
-				       AlignableObjectIdType structureType,
+AlignableComposite::AlignableComposite(align::ID id,
+				       StructureType type,
 				       const RotationType& rot):
   Alignable(id, rot),
-  theStructureType(structureType)
+  theStructureType(type)
 {
 }
 
@@ -30,11 +32,16 @@ AlignableComposite::~AlignableComposite()
 
 void AlignableComposite::addComponent(Alignable* ali)
 {
+  const Alignables& newComps = ali->deepComponents();
+
+  theDeepComponents.insert( theDeepComponents.end(), newComps.begin(), newComps.end() );
+
+  Scalar k = static_cast<Scalar>( newComps.size() ) / theDeepComponents.size();
+
+  theSurface.move( ( ali->globalPosition() - globalPosition() ) * k );
+
   ali->setMother(this);
   theComponents.push_back(ali);
-
-  theSurface.move( ( ali->globalPosition() - globalPosition() ) /
-		   static_cast<Scalar>( theComponents.size() ) );
 }
 
 //__________________________________________________________________________________________________
@@ -99,7 +106,7 @@ void AlignableComposite::rotateInGlobalFrame( const RotationType& rotation )
   
   Alignables comp = this->components();
   
-  GlobalPoint  myPosition = this->globalPosition();
+  PositionType myPosition = this->globalPosition();
   
   for ( Alignables::iterator i=comp.begin(); i!=comp.end(); i++ )
     {
@@ -178,7 +185,7 @@ void AlignableComposite::addAlignmentPositionErrorFromRotation( const RotationTy
 
   Alignables comp = this->components();
 
-  GlobalPoint  myPosition=this->globalPosition();
+  PositionType myPosition=this->globalPosition();
 
   for ( Alignables::const_iterator i=comp.begin(); i!=comp.end(); i++ )
     {

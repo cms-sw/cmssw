@@ -142,59 +142,59 @@ bool AlignableModifier::modify( Alignable* alignable, const edm::ParameterSet& p
   this->setDistribution( distribution_ );
 
   // Apply displacements
-  if ( fabs(dX_) + fabs(dY_) + fabs(dZ_) > 0 && setTranslations_ )
+  if ( std::abs(dX_) + std::abs(dY_) + std::abs(dZ_) > 0 && setTranslations_ )
 	this->moveAlignable( alignable, random_, gaussian_, scale_*dX_, scale_*dY_, scale_*dZ_ );
 
   // Apply local displacements
-  if ( fabs(dXlocal_) + fabs(dYlocal_) + fabs(dZlocal_) > 0 && setTranslations_ )
+  if ( std::abs(dXlocal_) + std::abs(dYlocal_) + std::abs(dZlocal_) > 0 && setTranslations_ )
  	this->moveAlignableLocal( alignable, random_, gaussian_, 
  							  scale_*dXlocal_, scale_*dYlocal_, scale_*dZlocal_ );
 
   // Apply rotations
-  if ( fabs(phiX_) + fabs(phiY_) + fabs(phiZ_) > 0 && setRotations_ )
+  if ( std::abs(phiX_) + std::abs(phiY_) + std::abs(phiZ_) > 0 && setRotations_ )
 	this->rotateAlignable( alignable, random_, gaussian_, scale_*phiX_, scale_*phiY_, scale_*phiZ_ );
 
   // Apply local rotations
-  if ( fabs(phiXlocal_) + fabs(phiYlocal_) + fabs(phiZlocal_) > 0 && setRotations_ )
+  if ( std::abs(phiXlocal_) + std::abs(phiYlocal_) + std::abs(phiZlocal_) > 0 && setRotations_ )
 	this->rotateAlignableLocal( alignable, random_, gaussian_, 
 								scale_*phiXlocal_, scale_*phiYlocal_, scale_*phiZlocal_ );
 
   // Apply twist
-  if ( fabs(twist_) > 0 )
+  if ( std::abs(twist_) > 0 )
 	edm::LogError("NotImplemented") << "Twist is not implemented yet";
 
   // Apply shear
-  if ( fabs(shear_) > 0 )
+  if ( std::abs(shear_) > 0 )
 	edm::LogError("NotImplemented") << "Shear is not implemented yet";
 
   // Apply error
   if ( setError_ )
 	{
 	  // Alignment Position Error for flat distribution: 1 sigma
-	  if ( !gaussian_ ) scaleError_ *= 0.577;
+	  if ( !gaussian_ ) scaleError_ *= 0.68;
 
 	  // Add scale to error
 	  scaleError_ *= scale_;
 
 	  // Error on displacement
-	  if ( fabs(dX_) + fabs(dY_) + fabs(dZ_) > 0 && setTranslations_ )
+	  if ( std::abs(dX_) + std::abs(dY_) + std::abs(dZ_) > 0 && setTranslations_ )
 		this->addAlignmentPositionError( alignable, 
 										 scaleError_*dX_, scaleError_*dY_, scaleError_*dZ_ );
 
  	  // Error on local displacements
- 	  if ( fabs(dXlocal_) + fabs(dYlocal_) + fabs(dZlocal_) > 0 && setTranslations_ )
+ 	  if ( std::abs(dXlocal_) + std::abs(dYlocal_) + std::abs(dZlocal_) > 0 && setTranslations_ )
  		this->addAlignmentPositionErrorLocal( alignable,
  											  scaleError_*dXlocal_, scaleError_*dYlocal_, 
  											  scaleError_*dZlocal_ );
 
 	  // Error on rotations
-	  if ( fabs(phiX_) + fabs(phiY_) + fabs(phiZ_) > 0 && setRotations_ )
+	  if ( std::abs(phiX_) + std::abs(phiY_) + std::abs(phiZ_) > 0 && setRotations_ )
 		this->addAlignmentPositionErrorFromRotation( alignable, 
 													 scaleError_*phiX_, scaleError_*phiY_, 
 													 scaleError_*phiZ_ );
 
 	  // Error on local rotations
-	  if ( fabs(phiXlocal_) + fabs(phiYlocal_) + fabs(phiZlocal_) > 0 && setRotations_ )
+	  if ( std::abs(phiXlocal_) + std::abs(phiYlocal_) + std::abs(phiZlocal_) > 0 && setRotations_ )
 		this->addAlignmentPositionErrorFromLocalRotation( alignable, 
 														  scaleError_*phiXlocal_, 
                                                           scaleError_*phiYlocal_, 
@@ -296,7 +296,7 @@ void AlignableModifier::moveAlignableLocal( Alignable* alignable, bool random, b
   std::ostringstream message;
  
   // Get movement vector according to arguments
-  LocalVector moveV( sigmaX, sigmaY, sigmaZ ); // Default: fixed
+  align::LocalVector moveV( sigmaX, sigmaY, sigmaZ ); // Default: fixed
   if ( random ) 
 	{
 	  std::vector<float> randomNumbers;
@@ -311,7 +311,7 @@ void AlignableModifier::moveAlignableLocal( Alignable* alignable, bool random, b
 		  randomNumbers = this->flatRandomVector( sigmaX, sigmaY, sigmaZ );
 		  message << "flat ";
 		}
-	  moveV = LocalVector( randomNumbers[0], randomNumbers[1], randomNumbers[2] );
+	  moveV = align::LocalVector( randomNumbers[0], randomNumbers[1], randomNumbers[2] );
 	}
   
   message << " move with sigma " << sigmaX << " " << sigmaY << " " << sigmaZ;
@@ -360,9 +360,9 @@ void AlignableModifier::rotateAlignable( Alignable* alignable, bool random, bool
   LogDebug("PrintArgs") << message.str(); // Arguments
 
   LogDebug("PrintMovement") << "applied rotation angles: " << rotV; // Actual movements
-  if ( fabs(sigmaPhiX) ) alignable->rotateAroundGlobalX( rotV.x() );
-  if ( fabs(sigmaPhiY) ) alignable->rotateAroundGlobalY( rotV.y() );
-  if ( fabs(sigmaPhiZ) ) alignable->rotateAroundGlobalZ( rotV.z() );
+  if ( std::abs(sigmaPhiX) ) alignable->rotateAroundGlobalX( rotV.x() );
+  if ( std::abs(sigmaPhiY) ) alignable->rotateAroundGlobalY( rotV.y() );
+  if ( std::abs(sigmaPhiZ) ) alignable->rotateAroundGlobalZ( rotV.z() );
   m_modified++;
 
 
@@ -380,7 +380,7 @@ AlignableModifier::rotateAlignableLocal( Alignable* alignable, bool random, bool
   std::ostringstream message;
 
   // Get rotation vector according to arguments
-  LocalVector rotV( sigmaPhiX, sigmaPhiY, sigmaPhiZ ); // Default: fixed
+  align::LocalVector rotV( sigmaPhiX, sigmaPhiY, sigmaPhiZ ); // Default: fixed
   if ( random ) 
     {
 	  std::vector<float> randomNumbers;
@@ -395,7 +395,7 @@ AlignableModifier::rotateAlignableLocal( Alignable* alignable, bool random, bool
 		  randomNumbers = flatRandomVector( sigmaPhiX, sigmaPhiY, sigmaPhiZ );
 		  message << "flat ";
 		}
-	  rotV = LocalVector( randomNumbers[0], randomNumbers[1], randomNumbers[2] );
+	  rotV = align::LocalVector( randomNumbers[0], randomNumbers[1], randomNumbers[2] );
     }
   
   message << "local rotation by angles " << sigmaPhiX << " " << sigmaPhiY << " " << sigmaPhiZ;
@@ -403,9 +403,9 @@ AlignableModifier::rotateAlignableLocal( Alignable* alignable, bool random, bool
   LogDebug("PrintArgs") << message.str(); // Arguments
   
   LogDebug("PrintMovement") << "applied local rotation angles: " << rotV; // Actual movements
-  if ( fabs(sigmaPhiX) ) alignable->rotateAroundLocalX( rotV.x() );
-  if ( fabs(sigmaPhiY) ) alignable->rotateAroundLocalY( rotV.y() );
-  if ( fabs(sigmaPhiZ) ) alignable->rotateAroundLocalZ( rotV.z() );
+  if ( std::abs(sigmaPhiX) ) alignable->rotateAroundLocalX( rotV.x() );
+  if ( std::abs(sigmaPhiY) ) alignable->rotateAroundLocalY( rotV.y() );
+  if ( std::abs(sigmaPhiZ) ) alignable->rotateAroundLocalZ( rotV.z() );
   m_modified++;
 
 
@@ -421,17 +421,17 @@ AlignableModifier::gaussianRandomVector( float sigmaX, float sigmaY, float sigma
   if ( sigmaX<0 )
 	{
 	  edm::LogWarning("BadConfig") << " taking absolute value for gaussian sigma_x";
-	  sigmaX = fabs(sigmaX);
+	  sigmaX = std::abs(sigmaX);
 	}
   if ( sigmaY<0 )
 	{
 	  edm::LogWarning("BadConfig") << " taking absolute value for gaussian sigma_y";
-	  sigmaY = fabs(sigmaY);
+	  sigmaY = std::abs(sigmaY);
 	}
   if ( sigmaZ<0 )
 	{
 	  edm::LogWarning("BadConfig") << " taking absolute value for gaussian sigma_z";
-	  sigmaZ = fabs(sigmaZ);
+	  sigmaZ = std::abs(sigmaZ);
 	}
 
   // Pass by reference, otherwise pointer is deleted!
@@ -458,17 +458,17 @@ AlignableModifier::flatRandomVector( float sigmaX,float sigmaY, float sigmaZ ) c
   if ( sigmaX<0 )
 	{
 	  edm::LogWarning("BadConfig") << " taking absolute value for gaussian sigma_x";
-	  sigmaX = fabs(sigmaX);
+	  sigmaX = std::abs(sigmaX);
 	}
   if ( sigmaY<0 )
 	{
 	  edm::LogWarning("BadConfig") << " taking absolute value for gaussian sigma_y";
-	  sigmaY = fabs(sigmaY);
+	  sigmaY = std::abs(sigmaY);
 	}
   if ( sigmaZ<0 )
 	{
 	  edm::LogWarning("BadConfig") << " taking absolute value for gaussian sigma_z";
-	  sigmaZ = fabs(sigmaZ);
+	  sigmaZ = std::abs(sigmaZ);
 	}
 
   RandFlat aFlatObjX( *theDRand48Engine, -sigmaX, sigmaX );
@@ -508,7 +508,7 @@ void AlignableModifier::addAlignmentPositionErrorLocal( Alignable* alignable,
   LogDebug("PrintArgs") << "Adding a local AlignmentPositionError of size " 
 						<< dx << " "  << dy << " "  << dz;
 
-  GlobalVector error = alignable->surface().toGlobal( LocalVector(dx,dy,dz) );
+  align::GlobalVector error = alignable->surface().toGlobal( align::LocalVector(dx,dy,dz) );
 
   AlignmentPositionError ape( error.x(), error.y(), error.z() );
   alignable->addAlignmentPositionError( ape );
@@ -523,10 +523,10 @@ void AlignableModifier::addAlignmentPositionErrorFromRotation( Alignable* aligna
 																	  float phiZ )
 {
 
-  RotationType rotx( Basic3DVector<float>(1.0, 0.0, 0.0), phiX );
-  RotationType roty( Basic3DVector<float>(0.0, 1.0, 0.0), phiY );
-  RotationType rotz( Basic3DVector<float>(0.0, 0.0, 1.0), phiZ );
-  RotationType rot = rotz * roty * rotx;
+  align::RotationType rotx( Basic3DVector<float>(1.0, 0.0, 0.0), phiX );
+  align::RotationType roty( Basic3DVector<float>(0.0, 1.0, 0.0), phiY );
+  align::RotationType rotz( Basic3DVector<float>(0.0, 0.0, 1.0), phiZ );
+  align::RotationType rot = rotz * roty * rotx;
   
   this->addAlignmentPositionErrorFromRotation( alignable, rot );
 
@@ -539,10 +539,10 @@ void AlignableModifier::addAlignmentPositionErrorFromLocalRotation( Alignable* a
 																		   float phiZ )
 {
 
-  RotationType rotx( Basic3DVector<float>(1.0, 0.0, 0.0), phiX );
-  RotationType roty( Basic3DVector<float>(0.0, 1.0, 0.0), phiY );
-  RotationType rotz( Basic3DVector<float>(0.0, 0.0, 1.0), phiZ );
-  RotationType rot = rotz * roty * rotx;
+  align::RotationType rotx( Basic3DVector<float>(1.0, 0.0, 0.0), phiX );
+  align::RotationType roty( Basic3DVector<float>(0.0, 1.0, 0.0), phiY );
+  align::RotationType rotz( Basic3DVector<float>(0.0, 0.0, 1.0), phiZ );
+  align::RotationType rot = rotz * roty * rotx;
   
   this->addAlignmentPositionErrorFromLocalRotation( alignable, rot );
 
@@ -551,7 +551,7 @@ void AlignableModifier::addAlignmentPositionErrorFromLocalRotation( Alignable* a
 
 //__________________________________________________________________________________________________
 void AlignableModifier::addAlignmentPositionErrorFromRotation( Alignable* alignable, 
-																	  RotationType& rotation )
+																	  align::RotationType& rotation )
 { 
 
   LogDebug("PrintArgs") << "Adding an AlignmentPositionError from Rotation" << std::endl 
@@ -564,7 +564,7 @@ void AlignableModifier::addAlignmentPositionErrorFromRotation( Alignable* aligna
 
 //__________________________________________________________________________________________________
 void AlignableModifier::addAlignmentPositionErrorFromLocalRotation( Alignable* alignable, 
-																		   RotationType& rotation )
+																		   align::RotationType& rotation )
 { 
   
   LogDebug("PrintArgs") << "Adding an AlignmentPositionError from Local Rotation" << std::endl 

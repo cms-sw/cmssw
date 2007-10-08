@@ -6,10 +6,11 @@
 #include "Alignment/CommonAlignment/interface/AlignableDetUnit.h"
 
 //__________________________________________________________________________________________________
-AlignableDetUnit::AlignableDetUnit( const GeomDet* geomDet ) :
-  Alignable(geomDet),
+AlignableDetUnit::AlignableDetUnit(align::ID id, const AlignableSurface& surf):
+  Alignable(id, surf),
   theAlignmentPositionError(0)
 {
+  theDeepComponents.push_back(this);
 }
 
 //__________________________________________________________________________________________________
@@ -65,11 +66,9 @@ void AlignableDetUnit::addAlignmentPositionError(const AlignmentPositionError& a
 void AlignableDetUnit::addAlignmentPositionErrorFromRotation(const RotationType& rot ) 
 {
 
-
   // average error calculated by movement of a local point at
   // (xWidth/2,yLength/2,0) caused by the rotation rot
-  const GlobalVector localPositionVector = this->globalPosition()
-    - this->surface().toGlobal( Local3DPoint(.5 * surface().width(), .5 * surface().length(), 0.) );
+  GlobalVector localPositionVector = surface().toGlobal( LocalVector(.5 * surface().width(), .5 * surface().length(), 0.) );
 
   LocalVector::BasicVectorType lpvgf = localPositionVector.basicVector();
   GlobalVector gv( rot.multiplyInverse(lpvgf) - lpvgf );

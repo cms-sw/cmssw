@@ -5,7 +5,8 @@
  <use name=DataFormats/DetId>
  <use name=DataFormats/GeometrySurface>
  <use name=DataFormats/GeometryVector>
- <use name=Geometry/CommonDetUnit>  
+ <use name=DataFormats/SiPixelDetId>
+ <use name=FWCore/Utilities>
  <use name=TrackingTools/TransientTrackingRecHit>
 </export>
 
@@ -14,6 +15,7 @@
 <use name=DataFormats/DetId>
 <use name=DataFormats/GeometrySurface>
 <use name=DataFormats/GeometryVector>
+<use name=DataFormats/SiPixelDetId>
 <use name=DataFormats/TrackingRecHit>
 <use name=FWCore/MessageLogger>
 <use name=FWCore/ParameterSet>
