@@ -16,6 +16,11 @@ namespace {
     edm::Ref<TrajectorySeedCollection> s1;
     edm::RefProd<TrajectorySeedCollection> s2;
     edm::RefVector<TrajectorySeedCollection> s3;
+
+    edm::RefToBase<TrajectorySeed> sr;  
+    edm::reftobase::IndirectHolder<TrajectorySeed> ihs;
+
+
   }
 }
 
