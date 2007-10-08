@@ -13,7 +13,7 @@ class EcalPreshowerGeometry : public CaloSubdetectorGeometry
       typedef CaloSubdetectorGeometry::ParVec ParVec ;
       typedef CaloSubdetectorGeometry::ParVecVec ParVecVec ;
 
-      enum CornersCount { k_NumberOfCellsForCorners = 137728 } ;
+      enum CornersCount { k_NumberOfCellsForCorners = 137216 } ;
 
       EcalPreshowerGeometry() ;
   
