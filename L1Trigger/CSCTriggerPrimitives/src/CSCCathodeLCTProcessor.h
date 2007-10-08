@@ -23,8 +23,8 @@
  * in ORCA).
  * Porting from ORCA by S. Valuev (Slava.Valuev@cern.ch), May 2006.
  *
- * $Date: 2007/04/18 16:08:55 $
- * $Revision: 1.12 $
+ * $Date: 2007/08/17 16:12:36 $
+ * $Revision: 1.13 $
  *
  */
 
@@ -97,6 +97,20 @@ class CSCCathodeLCTProcessor
   static const int pre_hit_pattern[2][NUM_PATTERN_STRIPS];
   static const int pattern[CSCConstants::NUM_CLCT_PATTERNS][NUM_PATTERN_STRIPS+1];
 
+  bool isTMB07;
+  enum {NUM_CLCT_PATTERNS_2007 = 11, NUM_PATTERN_HALFSTRIPS = 42};
+  static const int pattern2007_offset[NUM_PATTERN_HALFSTRIPS];
+  static const int pattern2007[NUM_CLCT_PATTERNS_2007][NUM_PATTERN_HALFSTRIPS+1];
+  unsigned int best_pid[CSCConstants::NUM_HALF_STRIPS];
+  unsigned int nhits[CSCConstants::NUM_HALF_STRIPS];
+
+  std::vector<CSCCLCTDigi> findLCTs2007(const int halfstrip[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS]);
+  void ptnFinding2007(
+	const unsigned int pulse[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS],
+	const int nStrips, const unsigned int bx_time);
+  void markBusyKeys(const int best_hstrip, const int best_pid,
+		    int quality[CSCConstants::NUM_HALF_STRIPS]);
+
   /** Number of di-strips/half-strips per CFEB. **/
   static const int cfeb_strips[2];
 
@@ -136,6 +150,8 @@ class CSCCathodeLCTProcessor
   /** Configuration parameters. */
   unsigned int bx_width, drift_delay, hs_thresh, ds_thresh, nph_pattern;
   unsigned int fifo_tbins, fifo_pretrig; // only for test beam mode.
+  unsigned int hit_thresh, pid_thresh;   // new TMB-07 parameters
+  unsigned int sep_src, sep_vme;
 
   /** Set default values for configuration parameters. */
   void setDefaultConfigParameters();
