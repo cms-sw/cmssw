@@ -63,6 +63,18 @@ class L1CSCTPParameters
   /** returns CLCT ds_thresh */
   inline unsigned int clctDsThresh() const    {return m_clct_ds_thresh;}
 
+  /** returns CLCT hit_thresh */
+  inline unsigned int clctHitThresh() const   {return m_clct_hit_thresh;}
+
+  /** returns CLCT pid_thresh */
+  inline unsigned int clctPidThresh() const   {return m_clct_pid_thresh;}
+
+  /** returns CLCT sep_src */
+  inline unsigned int clctSepSrc() const      {return m_clct_sep_src;}
+
+  /** returns CLCT sep_vme */
+  inline unsigned int clctSepVme() const      {return m_clct_sep_vme;}
+
   /** sets ALCT fifo_tbins */
   void setAlctFifoTbins(const unsigned int theValue) {
     m_alct_fifo_tbins = theValue;
@@ -143,6 +155,26 @@ class L1CSCTPParameters
     m_clct_ds_thresh = theValue;
   }
 
+  /** sets CLCT hit_thresh */
+  void setClctHitThresh(const unsigned int theValue) {
+    m_clct_hit_thresh = theValue;
+  }
+
+  /** sets CLCT pid_thresh */
+  void setClctPidThresh(const unsigned int theValue) {
+    m_clct_pid_thresh = theValue;
+  }
+
+  /** sets CLCT sep_src */
+  void setClctSepSrc(const unsigned int theValue) {
+    m_clct_sep_src = theValue;
+  }
+
+  /** sets CLCT sep_vme */
+  void setClctSepVme(const unsigned int theValue) {
+    m_clct_sep_vme = theValue;
+  }
+
  private:
   /** ALCT configuration parameters. */
   unsigned int m_alct_fifo_tbins, m_alct_fifo_pretrig;
@@ -155,6 +187,8 @@ class L1CSCTPParameters
   unsigned int m_clct_bx_width,   m_clct_drift_delay;
   unsigned int m_clct_nph_pattern;
   unsigned int m_clct_hs_thresh,  m_clct_ds_thresh;
+  unsigned int m_clct_hit_thresh, m_clct_pid_thresh;  // new TMB-07 parameters
+  unsigned int m_clct_sep_src,    m_clct_sep_vme;
 };
 
 #endif
