@@ -11,11 +11,13 @@
 #include "FWCore/PluginManager/interface/ModuleDef.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
-
 // Raw data collection
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 #include "DataFormats/FEDRawData/interface/FEDHeader.h"
 #include "DataFormats/FEDRawData/interface/FEDTrailer.h"
+
+// Header needed to computer CRCs
+#include "EventFilter/Utilities/interface/Crc.h"
 
 // GCT raw data formats
 #include "EventFilter/GctRawToDigi/src/GctBlockHeader.h"
@@ -51,7 +53,8 @@ GctDigiToRaw::GctDigiToRaw(const edm::ParameterSet& iConfig) :
   gctInputLabel_(iConfig.getParameter<edm::InputTag>("gctInputLabel")),
   fedId_(iConfig.getParameter<int>("gctFedId")),
   verbose_(iConfig.getUntrackedParameter<bool>("verbose",false)),
-  counter_(0)
+  counter_(0),
+  blockPacker_()
 {
 
   edm::LogInfo("GCT") << "GctDigiToRaw will pack FED Id " << fedId_ << endl;
@@ -129,7 +132,7 @@ void GctDigiToRaw::print(FEDRawData& data) {
 
   const unsigned char * d = data.data();
 
-  for (int i=0; i<data.size(); i=i+4) {
+  for (unsigned int i=0; i<data.size(); i=i+4) {
     uint32_t w = (uint32_t)d[i] + (uint32_t)(d[i+1]<<8) + (uint32_t)(d[i+2]<<16) + (uint32_t)(d[i+3]<<24);
     cout << std::hex << std::setw(4) << i/4 << " " << std::setw(8) << w << endl;
   }
