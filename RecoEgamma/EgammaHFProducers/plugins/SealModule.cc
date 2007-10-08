@@ -3,10 +3,10 @@
 #include "FWCore/Framework/interface/ModuleFactory.h"
 
 #include "HFClusterProducer.h"
-//#include "HFEgammaProducer.h"//coming soon
+//#include "HFEgammaProducer.h"
 
 
-DEFINE_SEAL_MODULE();//may need removal
+DEFINE_SEAL_MODULE();
 
 DEFINE_ANOTHER_FWK_MODULE(HFClusterProducer);
 //DEFINE_ANOTHER_FWK_MODULE(HFEgammaProducer);
