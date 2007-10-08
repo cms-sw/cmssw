@@ -114,10 +114,13 @@ namespace edm {
   bool
   RootTree::isIndexValid() const {
     // If the ROOT index on the tree is trashed, one of these tests will probably fail.
-    if (tree_->GetEntryNumberWithBestIndex(0, 0) != -1) {
+    if (tree_ == 0 || tree_->GetEntryNumberWithBestIndex(0, 0) != -1) {
       return false;
     }
     TTreeIndex *ip = dynamic_cast<TTreeIndex *>(tree_->GetTreeIndex());
+    if (ip == 0) {
+      return false;
+    }
     Long64_t indexForEntryZero = ip->GetIndexValues()[0];
     unsigned int major = static_cast<unsigned int>(indexForEntryZero >> 31);
     unsigned int minor = static_cast<unsigned int>(indexForEntryZero & 0x7fffffff);
