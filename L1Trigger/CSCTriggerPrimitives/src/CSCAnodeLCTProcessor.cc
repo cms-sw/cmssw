@@ -20,8 +20,8 @@
 //                Porting from ORCA by S. Valuev (Slava.Valuev@cern.ch),
 //                May 2006.
 //
-//   $Date: 2007/06/13 14:45:02 $
-//   $Revision: 1.17 $
+//   $Date: 2007/08/17 16:12:36 $
+//   $Revision: 1.18 $
 //
 //   Modifications: 
 //
@@ -423,7 +423,7 @@ bool CSCAnodeLCTProcessor::getDigis(const CSCWireDigiCollection* wiredc) {
       noDigis = false;
     }
 
-    if (infoV > 1) LogDebug("CSCAnodeLCTProcessor")
+    if (infoV > 1) LogTrace("CSCAnodeLCTProcessor")
       << "found " << rwired.second - rwired.first
       << " wire digi(s) in layer " << i_layer << "; " << theEndcap << " "
       << theStation << " " << theRing << " " << theSector << "("
@@ -432,7 +432,7 @@ bool CSCAnodeLCTProcessor::getDigis(const CSCWireDigiCollection* wiredc) {
     for (CSCWireDigiCollection::const_iterator digiIt = rwired.first;
 	 digiIt != rwired.second; ++digiIt) {
       digiV[i_layer].push_back(*digiIt);
-      if (infoV > 1) LogDebug("CSCAnodeLCTProcessor") << "   " << (*digiIt);
+      if (infoV > 1) LogTrace("CSCAnodeLCTProcessor") << "   " << (*digiIt);
     }
   }
 
@@ -465,7 +465,7 @@ void CSCAnodeLCTProcessor::readWireDigis(int wire[CSCConstants::NUM_LAYERS][CSCC
       // use them since they can modify the ALCTs found later, via
       // ghost-cancellation logic.
       if (bx_time >= 0 && bx_time < static_cast<int>(fifo_tbins)) {
-	if (infoV > 2) LogDebug("CSCAnodeLCTProcessor")
+	if (infoV > 2) LogTrace("CSCAnodeLCTProcessor")
 	  << "Digi on layer " << i_layer << " wire " << i_wire
 	  << " at time " << bx_time;
 
@@ -529,7 +529,7 @@ bool CSCAnodeLCTProcessor::pulseExtension(const int wire[CSCConstants::NUM_LAYER
 
 	// Debug information.
 	if (infoV > 1) {
-	  LogDebug("CSCAnodeLCTProcessor")
+	  LogTrace("CSCAnodeLCTProcessor")
 	    << "Wire digi: layer " << i_layer
 	    << " digi #" << ++digi_num << " wire group " << i_wire
 	    << " time " << wire[i_layer][i_wire];
@@ -538,7 +538,7 @@ bool CSCAnodeLCTProcessor::pulseExtension(const int wire[CSCConstants::NUM_LAYER
 	    for (int i = 1; i <= 32; i++) {
 	      strstrm << ((pulse[i_layer][i_wire]>>(32-i)) & 1);
 	    }
-	   LogDebug("CSCAnodeLCTProcessor") << "  Pulse: " << strstrm.str();
+	   LogTrace("CSCAnodeLCTProcessor") << "  Pulse: " << strstrm.str();
 	  }
 	}
       }
@@ -587,7 +587,7 @@ bool CSCAnodeLCTProcessor::preTrigger(const int key_wire) {
 	      if (layers_hit >= nph_thresh) {
 		first_bx[key_wire] = bx_time;
 		if (infoV > 1) {
-		  LogDebug("CSCAnodeLCTProcessor")
+		  LogTrace("CSCAnodeLCTProcessor")
 		    << "Pretrigger was satisfied for wire: " << key_wire
 		    << " pattern: " << i_pattern
 		    << " bx_time: " << bx_time;
@@ -638,7 +638,7 @@ bool CSCAnodeLCTProcessor::patternDetection(const int key_wire) {
 	      // keep track of which layers already had hits.
 	      hit_layer[this_layer] = true;
 	      if (infoV > 1)
-		LogDebug("CSCAnodeLCTProcessor")
+		LogTrace("CSCAnodeLCTProcessor")
 		  << "bx_time: " << first_bx[key_wire]
 		  << " pattern: " << i_pattern << " keywire: " << key_wire
 		  << " layer: "     << this_layer
@@ -665,7 +665,7 @@ bool CSCAnodeLCTProcessor::patternDetection(const int key_wire) {
 	}
       }
       if (infoV > 1) {
-	LogDebug("CSCAnodeLCTProcessor")
+	LogTrace("CSCAnodeLCTProcessor")
 	  << "Pattern found; keywire: "  << key_wire
 	  << " type: " << ptn_label[i_pattern]
 	  << " quality: " << temp_quality << "\n";
@@ -674,10 +674,10 @@ bool CSCAnodeLCTProcessor::patternDetection(const int key_wire) {
   }
   if (infoV > 1 && quality[key_wire][1] > 0) {
     if (quality[key_wire][2] == 0)
-      LogDebug("CSCAnodeLCTProcessor")
+      LogTrace("CSCAnodeLCTProcessor")
 	<< "Collision Pattern A is chosen" << "\n";
     else if (quality[key_wire][2] == 1)
-      LogDebug("CSCAnodeLCTProcessor")
+      LogTrace("CSCAnodeLCTProcessor")
 	<< "Collision Pattern B is chosen" << "\n";
   }
   return trigger;
@@ -744,7 +744,7 @@ void CSCAnodeLCTProcessor::ghostCancellationLogic() {
     for (int i_pattern = 0; i_pattern < 2; i_pattern++) {
       if (ghost_cleared[key_wire][i_pattern] > 0) {
 	clear(key_wire, i_pattern);
-	if (infoV > 1) LogDebug("CSCAnodeLCTProcessor")
+	if (infoV > 1) LogTrace("CSCAnodeLCTProcessor")
 	  << ((i_pattern == 0) ? "Accelerator" : "Collision")
 	  << " pattern ghost cancelled on key_wire: " << key_wire << "\n";
       }
@@ -912,10 +912,10 @@ std::vector<CSCALCTDigi> CSCAnodeLCTProcessor::bestTrackSelector(
   }
 
   if (infoV > 1) {
-    LogDebug("CSCAnodeLCTProcessor") << fourBest.size() << " ALCTs selected: ";
+    LogTrace("CSCAnodeLCTProcessor") << fourBest.size() << " ALCTs selected: ";
     for (std::vector<CSCALCTDigi>::const_iterator plct = fourBest.begin();
 	 plct != fourBest.end(); plct++) {
-      LogDebug("CSCAnodeLCTProcessor") << (*plct);
+      LogTrace("CSCAnodeLCTProcessor") << (*plct);
     }
   }
 
@@ -965,7 +965,7 @@ void CSCAnodeLCTProcessor::trigMode(const int key_wire) {
     // Disables collision tracks
     if (quality[key_wire][1] > 0) {
       quality[key_wire][1] = 0;
-      if (infoV > 1) LogDebug("CSCAnodeLCTProcessor")
+      if (infoV > 1) LogTrace("CSCAnodeLCTProcessor")
 	<< "trigMode(): collision track " << key_wire << " disabled" << "\n";
     }
     break;
@@ -973,7 +973,7 @@ void CSCAnodeLCTProcessor::trigMode(const int key_wire) {
     // Disables accelerator tracks
     if (quality[key_wire][0] > 0) {
       quality[key_wire][0] = 0;
-      if (infoV > 1) LogDebug("CSCAnodeLCTProcessor")
+      if (infoV > 1) LogTrace("CSCAnodeLCTProcessor")
 	<< "trigMode(): accelerator track " << key_wire << " disabled" << "\n";
     }
     break;
@@ -982,7 +982,7 @@ void CSCAnodeLCTProcessor::trigMode(const int key_wire) {
     // in the same wire group at the same time
     if (quality[key_wire][0] > 0 && quality[key_wire][1] > 0) {
       quality[key_wire][1] = 0;
-      if (infoV > 1) LogDebug("CSCAnodeLCTProcessor")
+      if (infoV > 1) LogTrace("CSCAnodeLCTProcessor")
 	<< "trigMode(): collision track " << key_wire << " disabled" << "\n";
     }
     break;
@@ -1001,7 +1001,7 @@ void CSCAnodeLCTProcessor::alctAmode(const int key_wire) {
     // Ignore accelerator muons.
     if (quality[key_wire][0] > 0) {
       quality[key_wire][0] = 0;
-      if (infoV > 1) LogDebug("CSCAnodeLCTProcessor")
+      if (infoV > 1) LogTrace("CSCAnodeLCTProcessor")
 	<< "alctMode(): accelerator track " << key_wire << " ignored" << "\n";
     }
     break;
@@ -1009,7 +1009,7 @@ void CSCAnodeLCTProcessor::alctAmode(const int key_wire) {
     // Prefer collision muons by adding promotion bit.
     if (quality[key_wire][1] > 0) {
       quality[key_wire][1] += promotionBit;
-      if (infoV > 1) LogDebug("CSCAnodeLCTProcessor")
+      if (infoV > 1) LogTrace("CSCAnodeLCTProcessor")
 	<< "alctMode(): collision track " << key_wire << " promoted" << "\n";
     }
     break;
@@ -1017,7 +1017,7 @@ void CSCAnodeLCTProcessor::alctAmode(const int key_wire) {
     // Prefer accelerator muons by adding promotion bit.
     if (quality[key_wire][0] > 0) {
       quality[key_wire][0] += promotionBit;
-      if (infoV > 1) LogDebug("CSCAnodeLCTProcessor")
+      if (infoV > 1) LogTrace("CSCAnodeLCTProcessor")
 	<< "alctMode(): accelerator track " << key_wire << " promoted"<< "\n";
     }
     break;
@@ -1025,7 +1025,7 @@ void CSCAnodeLCTProcessor::alctAmode(const int key_wire) {
     // Ignore collision muons.
     if (quality[key_wire][1] > 0) {
       quality[key_wire][1] = 0;
-      if (infoV > 1) LogDebug("CSCAnodeLCTProcessor")
+      if (infoV > 1) LogTrace("CSCAnodeLCTProcessor")
 	<< "alctMode(): collision track " << key_wire << " ignored" << "\n";
     }
     break;
@@ -1094,7 +1094,7 @@ void CSCAnodeLCTProcessor::dumpDigis(const int wire[CSCConstants::NUM_LAYERS][CS
       }
     }
   }
-  LogDebug("CSCAnodeLCTProcessor") << strstrm.str();
+  LogTrace("CSCAnodeLCTProcessor") << strstrm.str();
 }
 
 // Returns vector of found ALCTs, if any.
@@ -1173,12 +1173,12 @@ void CSCAnodeLCTProcessor::showPatterns(const int key_wire) {
   for (int i_pattern = 0; i_pattern < CSCConstants::NUM_ALCT_PATTERNS;
        i_pattern++) {
     std::ostringstream strstrm_header;
-    LogDebug("CSCAnodeLCTProcessor")
+    LogTrace("CSCAnodeLCTProcessor")
       << "\n" << "Pattern: " << i_pattern << " Key wire: " << key_wire;
     for (int i = 1; i <= 32; i++) {
       strstrm_header << ((32-i)%10);
     }
-    LogDebug("CSCAnodeLCTProcessor") << strstrm_header.str();
+    LogTrace("CSCAnodeLCTProcessor") << strstrm_header.str();
     for (int i_wire = 0; i_wire < NUM_PATTERN_WIRES; i_wire++) {
       if (pattern_mask[i_pattern][i_wire] != 0) {
 	std::ostringstream strstrm_pulse;
@@ -1187,11 +1187,11 @@ void CSCAnodeLCTProcessor::showPatterns(const int key_wire) {
 	for (int i = 1; i <= 32; i++) {
 	  strstrm_pulse << ((pulse[this_layer][this_wire]>>(32-i)) & 1);
 	}
-	LogDebug("CSCAnodeLCTProcessor")
+	LogTrace("CSCAnodeLCTProcessor")
 	  << strstrm_pulse.str() << " on layer " << this_layer;
       }
     }
-    LogDebug("CSCAnodeLCTProcessor")
+    LogTrace("CSCAnodeLCTProcessor")
       << "-------------------------------------------";
   }
 }

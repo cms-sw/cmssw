@@ -8,8 +8,8 @@
 //
 //   Author List: S. Valuev, UCLA.
 //
-//   $Date: 2006/12/21 13:34:25 $
-//   $Revision: 1.9 $
+//   $Date: 2007/04/18 16:08:55 $
+//   $Revision: 1.10 $
 //
 //   Modifications:
 //
@@ -177,7 +177,7 @@ void CSCTriggerPrimitivesBuilder::build(const CSCWireDigiCollection* wiredc,
 
 	      // Correlated LCTs.
 	      if (!lctV.empty()) {
-		LogDebug("L1CSCTrigger")
+		LogTrace("L1CSCTrigger")
 		  << "Put " << lctV.size() << " LCT digi"
 		  << ((lctV.size() > 1) ? "s " : " ") << "in collection\n";
 		oc_lct.put(std::make_pair(lctV.begin(),lctV.end()), detid);
@@ -185,7 +185,7 @@ void CSCTriggerPrimitivesBuilder::build(const CSCWireDigiCollection* wiredc,
 
 	      // Anode LCTs.
 	      if (!alctV.empty()) {
-		LogDebug("L1CSCTrigger")
+		LogTrace("L1CSCTrigger")
 		  << "Put " << alctV.size() << " ALCT digi"
 		  << ((alctV.size() > 1) ? "s " : " ") << "in collection\n";
 		oc_alct.put(std::make_pair(alctV.begin(),alctV.end()), detid);
@@ -193,7 +193,7 @@ void CSCTriggerPrimitivesBuilder::build(const CSCWireDigiCollection* wiredc,
 
 	      // Cathode LCTs.
 	      if (!clctV.empty()) {
-		LogDebug("L1CSCTrigger")
+		LogTrace("L1CSCTrigger")
 		  << "Put " << clctV.size() << " CLCT digi"
 		  << ((clctV.size() > 1) ? "s " : " ") << "in collection\n";
 		oc_clct.put(std::make_pair(clctV.begin(),clctV.end()), detid);
