@@ -8,6 +8,7 @@
 #include "Reflex/Base.h"
 #include "Reflex/Member.h"
 #include "Reflex/TypeTemplate.h"
+#include "Api.h" // for G__ClassInfo
 
 #include "FWCore/Utilities/interface/ReflexTools.h"
 #include "FWCore/Utilities/interface/EDMException.h"
@@ -159,6 +160,13 @@ namespace edm
       "multimap"
     };
 
+
+    bool
+    hasCintDictionary(std::string const& name) {
+      std::auto_ptr<G__ClassInfo> ci(new G__ClassInfo(name.c_str()));
+        return (ci.get() && ci->IsLoaded());
+    } 
+
     // Checks if there is a Reflex dictionary for the Type t.
     // If noComponents is false, checks members and base classes recursively.
     // If noComponents is true, checks Type t only.
@@ -192,7 +200,9 @@ namespace edm
       if (t.IsEnum()) return;
 
       if (!bool(t)) {
-  	missingTypes().insert(name);
+	if (!hasCintDictionary(name)) {
+  	  missingTypes().insert(name);
+	}
 	return;
       }
       if (noComponents) return;
