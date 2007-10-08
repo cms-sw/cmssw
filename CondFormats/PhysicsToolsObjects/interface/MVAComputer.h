@@ -9,7 +9,7 @@
 //
 // Author:	Christophe Saout <christophe.saout@cern.ch>
 // Created:     Sat Apr 24 15:18 CEST 2007
-// $Id: MVAComputer.h,v 1.10 2007/09/17 23:48:52 saout Exp $
+// $Id: MVAComputer.h,v 1.11 2007/10/07 02:35:45 saout Exp $
 //
 
 #include <string>
@@ -105,8 +105,8 @@ class ProcLikelihood : public VarProcessor {
 	};
 
 	std::vector<SigBkg>		pdfs;
+	std::vector<double>		bias;
 	int				categoryIdx;
-	double				bias;
 };
 
 class ProcLinear : public VarProcessor {
