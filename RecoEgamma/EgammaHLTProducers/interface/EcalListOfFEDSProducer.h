@@ -24,9 +24,12 @@ public:
 	void produce(edm::Event & e, const edm::EventSetup& c);
 	void beginJob(const edm::EventSetup& c);
 	void endJob(void);
-	std::vector<int> Egamma(edm::Event& e, const edm::EventSetup& es, std::vector<int>& done);
-	std::vector<int> Muon(edm::Event& e, const edm::EventSetup& es, std::vector<int>& done);
-	std::vector<int> Jets(edm::Event& e, const edm::EventSetup& es, std::vector<int>& done);
+	// std::vector<int> Egamma(edm::Event& e, const edm::EventSetup& es, std::vector<int>& done);
+	// std::vector<int> Muon(edm::Event& e, const edm::EventSetup& es, std::vector<int>& done);
+	// std::vector<int> Jets(edm::Event& e, const edm::EventSetup& es, std::vector<int>& done);
+	void Egamma(edm::Event& e, const edm::EventSetup& es, std::vector<int>& done, std::vector<int>& FEDs);
+	void Muon(edm::Event& e, const edm::EventSetup& es, std::vector<int>& done, std::vector<int>& FEDs);
+	void Jets(edm::Event& e, const edm::EventSetup& es, std::vector<int>& done, std::vector<int>& FEDs);
 
 private:
 	bool EGamma_;

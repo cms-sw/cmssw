@@ -26,12 +26,14 @@ public:
 private:
 	edm::InputTag EgammaSourceEB_;
    	edm::InputTag MuonsSourceEB_ ;
+	edm::InputTag TausSourceEB_ ;
 	edm::InputTag JetsSourceEB_ ;
 	edm::InputTag RestSourceEB_ ;
 	std::string OutputLabelEB_;
 
         edm::InputTag EgammaSourceEE_;
         edm::InputTag MuonsSourceEE_ ;
+	edm::InputTag TausSourceEE_ ;
         edm::InputTag JetsSourceEE_ ;
 	edm::InputTag RestSourceEE_ ;
         std::string OutputLabelEE_;

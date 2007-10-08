@@ -20,11 +20,13 @@ EcalRecHitsMerger::EcalRecHitsMerger(const edm::ParameterSet& pset) {
 
  EgammaSourceEB_ = pset.getUntrackedParameter<edm::InputTag>("EgammaSource_EB");
  MuonsSourceEB_  = pset.getUntrackedParameter<edm::InputTag>("MuonsSource_EB");
+ TausSourceEB_  = pset.getUntrackedParameter<edm::InputTag>("TausSource_EB");
  JetsSourceEB_   = pset.getUntrackedParameter<edm::InputTag>("JetsSource_EB");
  RestSourceEB_   = pset.getUntrackedParameter<edm::InputTag>("RestSource_EB");
 
  EgammaSourceEE_ = pset.getUntrackedParameter<edm::InputTag>("EgammaSource_EE");
  MuonsSourceEE_  = pset.getUntrackedParameter<edm::InputTag>("MuonsSource_EE");
+ TausSourceEE_  = pset.getUntrackedParameter<edm::InputTag>("TausSource_EE");
  JetsSourceEE_   = pset.getUntrackedParameter<edm::InputTag>("JetsSource_EE");
  RestSourceEE_   = pset.getUntrackedParameter<edm::InputTag>("RestSource_EE");
 
@@ -54,11 +56,13 @@ void EcalRecHitsMerger::produce(edm::Event & e, const edm::EventSetup& iSetup){
 
  Handle<EcalRecHitCollection> EBrechits_egamma;
  Handle<EcalRecHitCollection> EBrechits_muons;
+ Handle<EcalRecHitCollection> EBrechits_taus;
  Handle<EcalRecHitCollection> EBrechits_jets;
  Handle<EcalRecHitCollection> EBrechits_rest;
 
  Handle<EcalRecHitCollection> EErechits_egamma;
  Handle<EcalRecHitCollection> EErechits_muons;
+ Handle<EcalRecHitCollection> EErechits_taus;
  Handle<EcalRecHitCollection> EErechits_jets;
  Handle<EcalRecHitCollection> EErechits_rest;
 
@@ -75,6 +79,12 @@ void EcalRecHitsMerger::produce(edm::Event & e, const edm::EventSetup& iSetup){
 	e.getByLabel(MuonsSourceEB_,  EBrechits_muons);
  }
  catch (...)  { ; }
+
+ try {
+        e.getByLabel(TausSourceEB_,  EBrechits_taus);
+ }
+ catch (...)  { ; }
+
 
  try {
 	e.getByLabel(JetsSourceEB_,   EBrechits_jets);
@@ -96,6 +106,11 @@ void EcalRecHitsMerger::produce(edm::Event & e, const edm::EventSetup& iSetup){
         e.getByLabel(MuonsSourceEE_,  EErechits_muons);
  }
  catch (...)  { ; }
+
+ try {
+        e.getByLabel(TausSourceEE_,  EErechits_taus);
+ }
+ catch (...)  { ; }
                                                                                                                                
  try {
         e.getByLabel(JetsSourceEE_,   EErechits_jets);
@@ -112,17 +127,19 @@ void EcalRecHitsMerger::produce(edm::Event & e, const edm::EventSetup& iSetup){
 
  int EBN_egamma=0;
  int EBN_muons=0;
+ int EBN_taus=0;
  int EBN_jets=0;
  int EBN_rest=0;
 
  if (EBrechits_egamma.isValid()) EBN_egamma = EBrechits_egamma -> size();
  if (EBrechits_muons.isValid())  EBN_muons  = EBrechits_muons  -> size();
+ if (EBrechits_taus.isValid())  EBN_taus  = EBrechits_taus  -> size();
  if (EBrechits_jets.isValid())   EBN_jets   = EBrechits_jets   -> size();
  if (EBrechits_rest.isValid())   EBN_rest   = EBrechits_rest   -> size();
 
  if (debug_) cout << " EBN_egamma EBN_muons EBN_jets EBN_rest " << EBN_egamma << " " << EBN_muons << " " << EBN_jets << " " << EBN_rest << endl;
 
- int EBnHits = EBN_egamma+EBN_muons+EBN_jets+EBN_rest;
+ int EBnHits = EBN_egamma+EBN_muons+EBN_jets+EBN_rest + EBN_taus;
  EBMergedRecHits -> reserve(EBnHits);
 
  // int n1=0;
@@ -148,6 +165,13 @@ void EcalRecHitsMerger::produce(edm::Event & e, const edm::EventSetup& iSetup){
 		 EBMergedRecHits -> push_back(*it);
 	}
  } 
+ if (EBN_taus > 0) {
+        if (debug_) cout << " Merging  " << EBN_taus << " EB RecHits from Taus. " << endl;
+        for (EcalRecHitCollection::const_iterator it=EBrechits_taus->begin(); it !=EBrechits_taus->end(); it++) {
+                 EBMergedRecHits -> push_back(*it);
+        }
+ }
+
  if (EBN_jets > 0) {
 	if (debug_) cout << " Merging  " << EBN_jets << " EB RecHits from Jets. " << endl;
 	// EcalRecHitCollection* ptr3 = ptr + n1;
@@ -171,17 +195,19 @@ void EcalRecHitsMerger::produce(edm::Event & e, const edm::EventSetup& iSetup){
 
  int EEN_egamma=0;
  int EEN_muons=0;
+ int EEN_taus=0;
  int EEN_jets=0;
  int EEN_rest=0;
 
  if (EErechits_egamma.isValid()) EEN_egamma = EErechits_egamma -> size();
  if (EErechits_muons.isValid())  EEN_muons  = EErechits_muons  -> size();
+ if (EErechits_taus.isValid())  EEN_taus  = EErechits_taus  -> size();
  if (EErechits_jets.isValid())   EEN_jets   = EErechits_jets   -> size();
  if (EErechits_rest.isValid())   EEN_rest   = EErechits_rest   -> size();
                                                                                                                                
  if (debug_) cout << " EEN_egamma EEN_muons EEN_jets EEN_rest " << EEN_egamma << " " << EEN_muons << " " << EEN_jets << " " << EEN_rest << endl;
                                                                                                                                
- int EEnHits = EEN_egamma+EEN_muons+EEN_jets + EEN_rest;
+ int EEnHits = EEN_egamma+EEN_muons+EEN_jets + EEN_rest + EEN_taus;
  EEMergedRecHits -> reserve(EEnHits);
                                                                                                                                
  // int n1=0;
@@ -198,6 +224,13 @@ void EcalRecHitsMerger::produce(edm::Event & e, const edm::EventSetup& iSetup){
                  EEMergedRecHits -> push_back(*it);
         }
  }
+ if (EEN_taus > 0) {
+        if (debug_) cout << " Merging  " << EEN_taus << " EE RecHits from Taus. " << endl;
+        for (EcalRecHitCollection::const_iterator it=EErechits_taus->begin(); it !=EErechits_taus->end(); it++) {
+                 EEMergedRecHits -> push_back(*it);
+        }
+ }
+
  if (EEN_jets > 0) {
         if (debug_) cout << " Merging  " << EEN_jets << " EE RecHits from Jets. " << endl;
         for (EcalRecHitCollection::const_iterator it=EErechits_jets->begin(); it != EErechits_jets->end(); it++) {

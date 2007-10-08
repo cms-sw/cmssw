@@ -33,7 +33,6 @@
 // Jets stuff
 #include "DataFormats/L1Trigger/interface/L1JetParticle.h"
 #include "DataFormats/L1Trigger/interface/L1JetParticleFwd.h"
-
 #include <vector>
 
 using namespace l1extra;
@@ -142,18 +141,21 @@ void EcalListOfFEDSProducer::produce(edm::Event & e, const edm::EventSetup& iSet
 
 
  if (EGamma_) {
-  feds = Egamma(e, iSetup, Done);
+  // feds = Egamma(e, iSetup, Done);
+  Egamma(e, iSetup, Done, feds);
  }
 
- else if (Muon_) {
-   feds = Muon(e, iSetup, Done);
+ if (Muon_) {
+   // feds = Muon(e, iSetup, Done);
+   Muon(e, iSetup, Done, feds);
  }
 
- else if (Jets_) {
-   feds = Jets(e, iSetup, Done);
+ if (Jets_) {
+   // feds = Jets(e, iSetup, Done);
+   Jets(e, iSetup, Done, feds);
  }
 
- else {
+ if ( !EGamma_ && !Muon_ && ! Jets_)  {
    for (int i=1; i <= 54; i++) {
       if ( std::find(Done.begin(), Done.end(), i) == Done.end())
       feds.push_back(i);
@@ -175,9 +177,10 @@ void EcalListOfFEDSProducer::produce(edm::Event & e, const edm::EventSetup& iSet
 }
 
 
-std::vector<int> EcalListOfFEDSProducer::Egamma(edm::Event& e, const edm::EventSetup& es, std::vector<int>& done) {
+// std::vector<int> EcalListOfFEDSProducer::Egamma(edm::Event& e, const edm::EventSetup& es, std::vector<int>& done) {
+void EcalListOfFEDSProducer::Egamma(edm::Event& e, const edm::EventSetup& es, std::vector<int>& done, std::vector<int>& FEDs ) {
 
- std::vector<int> FEDs;
+ // std::vector<int> FEDs;
 
  if (debug_) std::cout << std::endl << std::endl << " enter in EcalListOfFEDSProducer::Egamma" << std::endl;
 
@@ -261,14 +264,15 @@ std::vector<int> EcalListOfFEDSProducer::Egamma(edm::Event& e, const edm::EventS
 	std::cout << "Number of FEDS is " << FEDs.size() << std::endl;
  }
 
- return FEDs;
+ // return FEDs;
 
 }
 
 
-std::vector<int> EcalListOfFEDSProducer::Muon(edm::Event& e, const edm::EventSetup& es, std::vector<int>& done) {
+// std::vector<int> EcalListOfFEDSProducer::Muon(edm::Event& e, const edm::EventSetup& es, std::vector<int>& done) {
+void EcalListOfFEDSProducer::Muon(edm::Event& e, const edm::EventSetup& es, std::vector<int>& done, std::vector<int>& FEDs) {
 
- std::vector<int> FEDs;
+ // std::vector<int> FEDs;
 
  if (debug_) std::cout << std::endl << std::endl << " enter in EcalListOfFEDSProducer::Muon" << std::endl;
 
@@ -306,15 +310,16 @@ std::vector<int> EcalListOfFEDSProducer::Muon(edm::Event& e, const edm::EventSet
  }
                                                                                                                        
 
- return FEDs;
+ // return FEDs;
 
 }
 
 
 
-std::vector<int> EcalListOfFEDSProducer::Jets(edm::Event& e, const edm::EventSetup& es, std::vector<int>& done) {
+// std::vector<int> EcalListOfFEDSProducer::Jets(edm::Event& e, const edm::EventSetup& es, std::vector<int>& done) {
+void EcalListOfFEDSProducer::Jets(edm::Event& e, const edm::EventSetup& es, std::vector<int>& done, std::vector<int>& FEDs) {
 
- std::vector<int> FEDs;
+ // std::vector<int> FEDs;
 
  if (debug_) std::cout << std::endl << std::endl << " enter in EcalListOfFEDSProducer::Jets" << std::endl;
  double epsilon = 0.01;
@@ -414,7 +419,7 @@ std::vector<int> EcalListOfFEDSProducer::Jets(edm::Event& e, const edm::EventSet
  }
 
 
- return FEDs;
+ // return FEDs;
 
 }
 
