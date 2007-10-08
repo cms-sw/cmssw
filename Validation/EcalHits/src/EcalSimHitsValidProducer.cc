@@ -6,7 +6,7 @@
 #include "SimG4Core/Notification/interface/BeginOfEvent.h"
 #include "SimG4Core/Notification/interface/EndOfEvent.h"
 #include "SimG4CMS/Calo/interface/CaloG4HitCollection.h"
-#include "SimDataFormats/EcalValidation/interface/PEcalValidInfo.h"
+#include "SimDataFormats/ValidationFormats/interface/PValidationFormats.h"
 
 #include "G4Step.hh"
 #include "G4SDManager.hh"

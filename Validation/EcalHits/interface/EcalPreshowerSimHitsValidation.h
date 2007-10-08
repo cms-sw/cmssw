@@ -26,7 +26,7 @@
 #include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
 #include "SimDataFormats/CaloHit/interface/PCaloHit.h"
 #include "SimDataFormats/CaloHit/interface/PCaloHitContainer.h"
-#include "SimDataFormats/EcalValidation/interface/PEcalValidInfo.h"
+#include "SimDataFormats/ValidationFormats/interface/PValidationFormats.h"
 
 #include <iostream>
 #include <fstream>

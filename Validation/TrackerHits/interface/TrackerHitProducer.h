@@ -25,7 +25,7 @@
 
 
 // data in edm::event
-#include "SimDataFormats/TrackerValidation/interface/PTrackerSimHit.h"
+#include "SimDataFormats/ValidationFormats/interface/PValidationFormats.h"
 #include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
 #include "SimDataFormats/Vertex/interface/SimVertexContainer.h"
 #include "SimDataFormats/Track/interface/SimTrackContainer.h"
