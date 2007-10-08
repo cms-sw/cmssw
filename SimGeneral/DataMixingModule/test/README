@@ -1,0 +1,14 @@
+
+Mike Hildreth 8/10/2007
+
+skeletal instructions - will update later
+
+
+step2: execute the DataMixingModule
+- checkout SimGeneral/DataMixingModule and cd to it's test directory
+- in the test directory, change in data/mm.cfg the name of the input file to 
+  what was created in step 1 (at 2 places), assuming you have a file
+- execute by typing
+      cmsRun --parameter-set data/mm.cfg
+
+step3: verify the result (not ready yet)
