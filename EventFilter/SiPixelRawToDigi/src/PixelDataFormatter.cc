@@ -124,7 +124,7 @@ void PixelDataFormatter::interpretRawData(int fedId, const FEDRawData& rawData, 
 }
 
 
-FEDRawData * PixelDataFormatter::formatData(int fedId, const Digis & digis) 
+FEDRawData * PixelDataFormatter::formatData(unsigned int lvl1_ID, int fedId, const Digis & digis) 
 {
   vector<Word32> words;
 
@@ -176,7 +176,7 @@ FEDRawData * PixelDataFormatter::formatData(int fedId, const Digis & digis)
 
   //
   // write one header
-  FEDHeader::set(  reinterpret_cast<unsigned char*>(word), 0, 0, 0, fedId); 
+  FEDHeader::set(  reinterpret_cast<unsigned char*>(word), 0, lvl1_ID, 0, fedId); 
   word++;
 
   //

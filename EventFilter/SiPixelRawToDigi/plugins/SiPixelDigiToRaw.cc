@@ -84,7 +84,7 @@ void SiPixelDigiToRaw::produce( edm::Event& ev,
   typedef vector<const PixelFEDCabling *>::const_iterator FI;
   for (FI it = cabling.begin(); it != cabling.end(); it++) {
     LogDebug("SiPixelDigiToRaw")<<" PRODUCE DATA FOR FED_id: " << (**it).id();
-    FEDRawData * rawData = formatter.formatData( (**it).id(), digis);
+    FEDRawData * rawData = formatter.formatData( ev.id().event(),(**it).id(), digis);
     FEDRawData& fedRawData = buffers->FEDData( (**it).id() ); 
     fedRawData = *rawData;
     LogDebug("SiPixelDigiToRaw")<<"size of data in fedRawData: "<<fedRawData.size();

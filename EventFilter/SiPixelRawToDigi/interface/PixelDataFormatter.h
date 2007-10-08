@@ -66,7 +66,7 @@ public:
 
   void interpretRawData(int fedId,  const FEDRawData & data, Digis & digis, Errors & errors);
 
-  FEDRawData * formatData( int fedId, const Digis & digis);
+  FEDRawData * formatData( unsigned int lvl1_ID, int fedId, const Digis & digis);
 
 private:
   mutable int theDigiCounter;
