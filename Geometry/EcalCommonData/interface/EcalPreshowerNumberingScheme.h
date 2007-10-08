@@ -14,14 +14,33 @@ class EcalPreshowerNumberingScheme : public EcalNumberingScheme {
   EcalPreshowerNumberingScheme();
   ~EcalPreshowerNumberingScheme();
   virtual uint32_t getUnitID(const EcalBaseNumber& baseNumber) const ;
-  void findXY(const int& layer, const int& waf, int& x, int& y) const;
 
-private:
+ private:
 
-  int iquad_max[40];
-  int iquad_min[40];
-  int Ntot[40];
-  int Ncols[40];
+  int L3ax[3];
+  int L3ay[3];
+  int L3bx[1];
+  int L3by[1];
+  int L2ax[3];
+  int L2ay[3];
+  int L2bx[1];
+  int L2by[1];
+  int L1ax[26];
+  int L1ay[26];
+  int L1bx[1];
+  int L1by[1];
+  int L1cx[1];
+  int L1cy[1];
+  int L1dx[1];
+  int L1dy[1];
+  int L1ex[1];
+  int L1ey[1];
+  int L0ax[23];
+  int L0ay[23];
+  int L0bx[1];
+  int L0by[1];
+  int L0cx[1];
+  int L0cy[1];
 
 };
 
