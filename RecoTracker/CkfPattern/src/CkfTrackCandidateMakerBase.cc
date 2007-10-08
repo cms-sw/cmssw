@@ -111,9 +111,7 @@ namespace cms{
     std::string seedLabel = conf_.getParameter<std::string>("SeedLabel");
 
     edm::Handle<View<TrajectorySeed> > collseed;
-    //edm::Handle<TrajectorySeedCollection> collseed;
     e.getByLabel(seedProducer, seedLabel, collseed);
-    //view TrajectorySeedCollection const & theSeedColl = *collseed;
     
     // Step C: Create empty output collection
     std::auto_ptr<TrackCandidateCollection> output(new TrackCandidateCollection);    
@@ -122,8 +120,6 @@ namespace cms{
     // Step D: Invoke the building algorithm
     if ((*collseed).size()>0){
       vector<Trajectory> theFinalTrajectories;
-      //view TrajectorySeedCollection::const_iterator iseed;
-      //view TrajectorySeedCollection::const_iterator end = lastSeed(theSeedColl);
 
       vector<Trajectory> rawResult;
       if (theSeedCleaner) theSeedCleaner->init( &rawResult );
@@ -133,7 +129,6 @@ namespace cms{
       
       size_t collseed_size = collseed->size(); 
       for (size_t j = 0; j < collseed_size; j++){
-	//for(iseed=theSeedColl.begin();iseed!=end;iseed++){
 	vector<Trajectory> theTmpTrajectories;
       
 	if (theSeedCleaner && !theSeedCleaner->good( &((*collseed)[j])) ) continue;
@@ -145,9 +140,10 @@ namespace cms{
 
 	theTrajectoryCleaner->clean(theTmpTrajectories);
       
-	for(vector<Trajectory>::const_iterator it=theTmpTrajectories.begin();
+	for(vector<Trajectory>::iterator it=theTmpTrajectories.begin();
 	    it!=theTmpTrajectories.end(); it++){
 	  if( it->isValid() ) {
+	    it->setSeedRef(collseed->refAt(j));
 	    rawResult.push_back(*it);
             if (theSeedCleaner) theSeedCleaner->add( & (*it) );
 	  }
@@ -201,10 +197,9 @@ namespace cms{
 
 	PTrajectoryStateOnDet* state = TrajectoryStateTransform().persistentState( initState.first,
 										   initState.second->geographicalId().rawId());
-	//	FitTester fitTester(es);
-	//	fitTester.fit( *it);
+
+	output->push_back(TrackCandidate(recHits,it->seed(),*state,it->seedRef() ) );
 	
-	output->push_back(TrackCandidate(recHits,it->seed(),*state));
 	delete state;
       }
       
