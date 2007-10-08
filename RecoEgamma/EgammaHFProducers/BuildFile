@@ -1,3 +1,6 @@
+<use name=FWCore/Framework>
+<use name=FWCore/ParameterSet>
+<use name=FWCore/PluginManager>
 <use name=DataFormats/HcalRecHit>
 <use name=Geometry/CaloGeometry>
 <use name=FWCore/Framework>
@@ -5,8 +8,13 @@
 <use name=DataFormats/EgammaReco>
 <use name=Geometry/Records>
 <use name=Geometry/CaloEventSetup>
+<use name=DataFormats/RecoCandidate>
+<use name=DataFormats/EgammaCandidates>
+<use name=root>
 <export>
   <lib name=RecoEgammaEgammaHFProducers>
+  <use name=FWCore/Framework>
+  <use name=FWCore/ParameterSet>
   <use name=DataFormats/HcalRecHit>
   <use name=Geometry/CaloGeometry>
   <use name=FWCore/Framework>
@@ -14,4 +22,7 @@
   <use name=DataFormats/EgammaReco>
   <use name=Geometry/Records>
   <use name=Geometry/CaloEventSetup>
+  <use name=DataFormats/RecoCandidate>
+  <use name=DataFormats/EgammaCandidates>
+  <use name=root>
 </export>
