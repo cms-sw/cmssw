@@ -3,3 +3,6 @@
 <library file=ZToLLEdmNtupleDumper.cc>
   <use name=DataFormats/Candidate>
 </library>
+<library file=ZToMuMuSelector.cc>
+  <use name=DataFormats/TrackReco>
+</library>
