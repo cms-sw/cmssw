@@ -5,6 +5,7 @@ $Id: PoolSource.cc,v 1.64 2007/10/08 21:39:23 wmtan Exp $
 #include "RootFile.h"
 #include "RootTree.h"
 #include "IOPool/Common/interface/ClassFiller.h"
+#include "IOPool/Common/interface/RootChains.h"
 
 #include "FWCore/Catalog/interface/FileCatalog.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
@@ -36,6 +37,16 @@ namespace edm {
       init(*fileIter_);
       updateProductRegistry();
       setInitialPosition(pset);
+      rootFile_->forceRunNumber(pset.getUntrackedParameter<unsigned int>("setRunNumber", 0));
+      if (fileIter_ == fileCatalogItems().begin() && rootFile_->eventTree().entryNumber() == -1) {
+	// Set up TChains for fast cloning if and only if we start from the beginning of the first file.
+        RootChains & chains = RootChains::instance();
+        chains.makeChains();
+        for (std::vector<FileCatalogItem>::const_iterator it = fileCatalogItems().begin(), itEnd = fileCatalogItems().end();
+	     it != itEnd; ++it) {
+	  chains.addFile(it->fileName());
+        }
+      }
     } else {
       Service<RandomNumberGenerator> rng;
       if (!rng.isAvailable()) {
