@@ -7,8 +7,8 @@
 //
 //   Author List: S. Valuev, UCLA.
 //
-//   $Date: 2007/06/12 13:21:41 $
-//   $Revision: 1.14 $
+//   $Date: 2007/08/17 16:22:40 $
+//   $Revision: 1.15 $
 //
 //   Modifications:
 //
@@ -64,7 +64,9 @@ const int CSCTriggerPrimitivesReader::MAX_WG[CSC_TYPES] = {
 const int CSCTriggerPrimitivesReader::MAX_HS[CSC_TYPES] = {
   128, 160, 128,  96, 160, 160, 160, 160, 160, 160}; // max. # of halfstrips
 const int CSCTriggerPrimitivesReader::ptype[CSCConstants::NUM_CLCT_PATTERNS]= {
-  -999,  3, -3,  2,  -2,  1, -1,  0};  // "signed" pattern (== phiBend)
+  -999,  3, -3,  2, -2,  1, -1,  0};  // "signed" pattern (== phiBend)
+const int CSCTriggerPrimitivesReader::ptype_TMB07[CSCCathodeLCTProcessor::NUM_CLCT_PATTERNS_2007]= {
+  -999,  -5,  4, -4,  3, -3,  2, -2,  1, -1,  0}; // "signed" pattern (== phiBend)
 
 // LCT counters
 int  CSCTriggerPrimitivesReader::numALCT   = 0;
@@ -91,6 +93,7 @@ CSCTriggerPrimitivesReader::CSCTriggerPrimitivesReader(const edm::ParameterSet& 
   dataLctsIn_ = conf.getParameter<bool>("dataLctsIn");
   emulLctsIn_ = conf.getParameter<bool>("emulLctsIn");
   isMTCCData_ = conf.getParameter<bool>("isMTCCData");
+  isTMB07 = false;
   lctProducerData_ = conf.getUntrackedParameter<string>("CSCLCTProducerData",
 							"cscunpacker");
   lctProducerEmul_ = conf.getUntrackedParameter<string>("CSCLCTProducerEmul",
@@ -120,7 +123,7 @@ void CSCTriggerPrimitivesReader::analyze(const edm::Event& ev,
 					 const edm::EventSetup& setup) {
   ++eventsAnalyzed;
   //if (ev.id().event()%10 == 0)
-  LogDebug("CSCTriggerPrimitivesReader")
+  LogTrace("CSCTriggerPrimitivesReader")
     << "\n** CSCTriggerPrimitivesReader: processing run #"
     << ev.id().run() << " event #" << ev.id().event()
     << "; events so far: " << eventsAnalyzed << " **";
@@ -311,23 +314,25 @@ void CSCTriggerPrimitivesReader::setRootStyle() {
 // Histograms for LCTs
 //---------------------
 void CSCTriggerPrimitivesReader::bookALCTHistos() {
-  hAlctPerEvent = new TH1F("", "ALCTs per event",     11, -0.5,  10.5);
-  hAlctPerCSC   = new TH1F("", "ALCTs per CSC type",  10, -0.5,   9.5);
-  hAlctValid    = new TH1F("", "ALCT validity",        3, -0.5,   2.5);
-  hAlctQuality  = new TH1F("", "ALCT quality",         5, -0.5,   4.5);
-  hAlctAccel    = new TH1F("", "ALCT accel. flag",     3, -0.5,   2.5);
-  hAlctCollis   = new TH1F("", "ALCT collision. flag", 3, -0.5,   2.5);
-  hAlctKeyGroup = new TH1F("", "ALCT key wiregroup", 120, -0.5, 119.5);
-  hAlctBXN      = new TH1F("", "ALCT bx",             20, -0.5,  19.5);
+  hAlctPerEvent  = new TH1F("", "ALCTs per event",     11, -0.5,  10.5);
+  hAlctPerChamber= new TH1F("", "ALCTs per chamber",    3, -0.5,   2.5);
+  hAlctPerCSC    = new TH1F("", "ALCTs per CSC type",  10, -0.5,   9.5);
+  hAlctValid     = new TH1F("", "ALCT validity",        3, -0.5,   2.5);
+  hAlctQuality   = new TH1F("", "ALCT quality",         5, -0.5,   4.5);
+  hAlctAccel     = new TH1F("", "ALCT accel. flag",     3, -0.5,   2.5);
+  hAlctCollis    = new TH1F("", "ALCT collision. flag", 3, -0.5,   2.5);
+  hAlctKeyGroup  = new TH1F("", "ALCT key wiregroup", 120, -0.5, 119.5);
+  hAlctBXN       = new TH1F("", "ALCT bx",             20, -0.5,  19.5);
 
   bookedALCTHistos = true;
 }
 
 void CSCTriggerPrimitivesReader::bookCLCTHistos() {
   hClctPerEvent  = new TH1F("", "CLCTs per event",    11, -0.5, 10.5);
+  hClctPerChamber= new TH1F("", "CLCTs per chamber",   3, -0.5,  2.5);
   hClctPerCSC    = new TH1F("", "CLCTs per CSC type", 10, -0.5,  9.5);
   hClctValid     = new TH1F("", "CLCT validity",       3, -0.5,  2.5);
-  hClctQuality   = new TH1F("", "CLCT layers hit",     8, -0.5,  7.5);
+  hClctQuality   = new TH1F("", "CLCT layers hit",     9, -0.5,  8.5);
   hClctStripType = new TH1F("", "CLCT strip type",     3, -0.5,  2.5);
   hClctSign      = new TH1F("", "CLCT sign (L/R)",     3, -0.5,  2.5);
   hClctCFEB      = new TH1F("", "CLCT cfeb #",         6, -0.5,  5.5);
@@ -336,13 +341,13 @@ void CSCTriggerPrimitivesReader::bookCLCTHistos() {
   hClctKeyStrip[0] = new TH1F("","CLCT keystrip, distrips",   40, -0.5,  39.5);
   //hClctKeyStrip[0] = new TH1F("","CLCT keystrip, distrips",  160, -0.5, 159.5);
   hClctKeyStrip[1] = new TH1F("","CLCT keystrip, halfstrips",160, -0.5, 159.5);
-  hClctPattern[0]  = new TH1F("","CLCT pattern, distrips",    10, -0.5,   9.5);
-  hClctPattern[1]  = new TH1F("","CLCT pattern, halfstrips",  10, -0.5,   9.5);
+  hClctPattern[0]  = new TH1F("","CLCT pattern, distrips",    13, -0.5,  12.5);
+  hClctPattern[1]  = new TH1F("","CLCT pattern, halfstrips",  13, -0.5,  12.5);
 
   for (int i = 0; i < CSC_TYPES; i++) {
-    string s1 = "Pattern number, " + csc_type[i];
-    hClctPatternCsc[i][0] = new TH1F("", s1.c_str(),  9, -4.5, 4.5);
-    hClctPatternCsc[i][1] = new TH1F("", s1.c_str(),  9, -4.5, 4.5);
+    string s1 = "CLCT bend, " + csc_type[i];
+    hClctBendCsc[i][0] = new TH1F("", s1.c_str(),  5, -0.5, 4.5);
+    hClctBendCsc[i][1] = new TH1F("", s1.c_str(),  5, -0.5, 4.5);
 
     string s2 = "CLCT keystrip, " + csc_type[i];
     int max_ds = MAX_HS[i]/4;
@@ -354,6 +359,7 @@ void CSCTriggerPrimitivesReader::bookCLCTHistos() {
 
 void CSCTriggerPrimitivesReader::bookLCTTMBHistos() {
   hLctTMBPerEvent  = new TH1F("", "LCTs per event",    11, -0.5, 10.5);
+  hLctTMBPerChamber= new TH1F("", "LCTs per chamber",   3, -0.5,  2.5);
   hLctTMBPerCSC    = new TH1F("", "LCTs per CSC type", 10, -0.5,  9.5);
   hCorrLctTMBPerCSC= new TH1F("", "Corr. LCTs per CSC type", 10, -0.5, 9.5);
   hLctTMBEndcap    = new TH1F("", "Endcap",             4, -0.5,  3.5);
@@ -523,10 +529,18 @@ void CSCTriggerPrimitivesReader::bookResolHistos() {
     string u6 = "#phi_rec-#phi_sim (mrad) vs halfstrip, " + csc_type[i];
     hPhiDiffVsStripCsc[i][1] =
       new TH2F("", u6.c_str(), MAX_HS[i], 0., MAX_HS[i], 100, PDMIN, PDMAX);
+
+    string u7 = "#phi(layer 1)-#phi(layer 6), mrad, " + csc_type[i];
+    hTrueBendCsc[i] =new TH1F("", u7.c_str(), 100, -10., 10.);
   }
 
-  for (int i = 0; i < 9; i++) {
-    sprintf(histname, "#phi_rec-#phi_sim, bend = %d", i-4);
+  int max_patterns, phibend;
+  if (!isTMB07) max_patterns = CSCConstants::NUM_CLCT_PATTERNS;
+  else          max_patterns = CSCCathodeLCTProcessor::NUM_CLCT_PATTERNS_2007;
+  for (int i = 0; i < max_patterns; i++) {
+    if (!isTMB07) phibend = ptype[i];
+    else          phibend = ptype_TMB07[i];
+    sprintf(histname, "#phi_rec-#phi_sim, bend = %d", phibend);
     hPhiDiffPattern[i] = new TH1F("", histname, 100, PDMIN, PDMAX);
   }
 
@@ -568,6 +582,7 @@ void CSCTriggerPrimitivesReader::fillALCTHistos(const CSCALCTDigiCollection* alc
   int nValidALCTs = 0;
   CSCALCTDigiCollection::DigiRangeIterator detUnitIt;
   for (detUnitIt = alcts->begin(); detUnitIt != alcts->end(); detUnitIt++) {
+    int nValidALCTsPerCSC = 0;
     const CSCDetId& id = (*detUnitIt).first;
     const CSCALCTDigiCollection::Range& range = (*detUnitIt).second;
     for (CSCALCTDigiCollection::const_iterator digiIt = range.first;
@@ -585,8 +600,9 @@ void CSCTriggerPrimitivesReader::fillALCTHistos(const CSCALCTDigiCollection* alc
 	hAlctPerCSC->Fill(getCSCType(id));
 
         nValidALCTs++;
+	nValidALCTsPerCSC++;
 
-	if (debug) LogDebug("CSCTriggerPrimitivesReader")
+	if (debug) LogTrace("CSCTriggerPrimitivesReader")
 	  << (*digiIt) << " found in endcap " <<  id.endcap()
 	  << " station " << id.station() << " sector " << id.triggerSector()
 	  << " ring " << id.ring() << " chamber " << id.chamber()
@@ -594,9 +610,10 @@ void CSCTriggerPrimitivesReader::fillALCTHistos(const CSCALCTDigiCollection* alc
 	//cout << "raw id = " << id.rawId() << endl;
       }
     }
+    hAlctPerChamber->Fill(nValidALCTsPerCSC);
   }
   hAlctPerEvent->Fill(nValidALCTs);
-  if (debug) LogDebug("CSCTriggerPrimitivesReader")
+  if (debug) LogTrace("CSCTriggerPrimitivesReader")
     << nValidALCTs << " valid ALCTs found in this event";
   numALCT += nValidALCTs;
 }
@@ -608,6 +625,7 @@ void CSCTriggerPrimitivesReader::fillCLCTHistos(const CSCCLCTDigiCollection* clc
   int nValidCLCTs = 0;
   CSCCLCTDigiCollection::DigiRangeIterator detUnitIt;
   for (detUnitIt = clcts->begin(); detUnitIt != clcts->end(); detUnitIt++) {
+    int nValidCLCTsPerCSC = 0;
     const CSCDetId& id = (*detUnitIt).first;
     const CSCCLCTDigiCollection::Range& range = (*detUnitIt).second;
     for (CSCCLCTDigiCollection::const_iterator digiIt = range.first;
@@ -629,22 +647,30 @@ void CSCTriggerPrimitivesReader::fillCLCTHistos(const CSCCLCTDigiCollection* clc
 
 	int csctype = getCSCType(id);
 	hClctPerCSC->Fill(csctype);
-        hClctPatternCsc[csctype][striptype]->Fill(ptype[(*digiIt).getPattern()]);
+
+	int phibend;
+	int pattern = (*digiIt).getPattern();
+	if (!isTMB07) phibend = ptype[pattern];
+	else          phibend = ptype_TMB07[pattern];
+	hClctBendCsc[csctype][striptype]->Fill(abs(phibend));
+
 	if (striptype == 0) // distrips
 	  hClctKeyStripCsc[csctype]->Fill(keystrip);
 
         nValidCLCTs++;
+	nValidCLCTsPerCSC++;
 
-	if (debug) LogDebug("CSCTriggerPrimitivesReader")
+	if (debug) LogTrace("CSCTriggerPrimitivesReader")
 	  << (*digiIt) << " found in endcap " <<  id.endcap()
 	  << " station " << id.station() << " sector " << id.triggerSector()
 	  << " ring " << id.ring() << " chamber " << id.chamber()
 	  << " (trig id. " << id.triggerCscId() << ")";
       }
     }
+    hClctPerChamber->Fill(nValidCLCTsPerCSC);
   }
   hClctPerEvent->Fill(nValidCLCTs);
-  if (debug) LogDebug("CSCTriggerPrimitivesReader")
+  if (debug) LogTrace("CSCTriggerPrimitivesReader")
     << nValidCLCTs << " valid CLCTs found in this event";
   numCLCT += nValidCLCTs;
 }
@@ -656,6 +682,7 @@ void CSCTriggerPrimitivesReader::fillLCTTMBHistos(const CSCCorrelatedLCTDigiColl
   int nValidLCTs = 0;
   CSCCorrelatedLCTDigiCollection::DigiRangeIterator detUnitIt;
   for (detUnitIt = lcts->begin(); detUnitIt != lcts->end(); detUnitIt++) {
+    int nValidLCTsPerCSC = 0;
     const CSCDetId& id = (*detUnitIt).first;
     const CSCCorrelatedLCTDigiCollection::Range& range = (*detUnitIt).second;
     for (CSCCorrelatedLCTDigiCollection::const_iterator digiIt = range.first;
@@ -693,17 +720,19 @@ void CSCTriggerPrimitivesReader::fillLCTTMBHistos(const CSCCorrelatedLCTDigiColl
 	if (alct_valid && clct_valid) hCorrLctTMBPerCSC->Fill(csctype); 
 
         nValidLCTs++;
+	nValidLCTsPerCSC++;
 
-	if (debug) LogDebug("CSCTriggerPrimitivesReader")
+	if (debug) LogTrace("CSCTriggerPrimitivesReader")
 	  << (*digiIt) << " found in endcap " <<  id.endcap()
 	  << " station " << id.station() << " sector " << id.triggerSector()
 	  << " ring " << id.ring() << " chamber " << id.chamber()
 	  << " (trig id. " << id.triggerCscId() << ")";
       }
     }
+    hLctTMBPerChamber->Fill(nValidLCTsPerCSC);
   }
   hLctTMBPerEvent->Fill(nValidLCTs);
-  if (debug) LogDebug("CSCTriggerPrimitivesReader")
+  if (debug) LogTrace("CSCTriggerPrimitivesReader")
     << nValidLCTs << " valid LCTs found in this event";
   numLCTTMB += nValidLCTs;
 }
@@ -753,7 +782,7 @@ void CSCTriggerPrimitivesReader::fillLCTMPCHistos(const CSCCorrelatedLCTDigiColl
 
         nValidLCTs++;
 
-	if (debug) LogDebug("CSCTriggerPrimitivesReader")
+	if (debug) LogTrace("CSCTriggerPrimitivesReader")
 	  << "MPC " << (*digiIt) << " found in endcap " <<  id.endcap()
 	  << " station " << id.station() << " sector " << id.triggerSector()
 	  << " ring " << id.ring() << " chamber " << id.chamber()
@@ -762,7 +791,7 @@ void CSCTriggerPrimitivesReader::fillLCTMPCHistos(const CSCCorrelatedLCTDigiColl
     }
   }
   hLctMPCPerEvent->Fill(nValidLCTs);
-  if (debug) LogDebug("CSCTriggerPrimitivesReader")
+  if (debug) LogTrace("CSCTriggerPrimitivesReader")
     << nValidLCTs << " MPC LCTs found in this event";
   numLCTMPC += nValidLCTs;
 }
@@ -789,7 +818,8 @@ void CSCTriggerPrimitivesReader::compareALCTs(
 				 const CSCALCTDigiCollection* alcts_emul) {
 
   // (Empirical) offset between 12-bit fullBX and Tbin0 of raw anode hits.
-  int tbin_anode_offset = 4; // 2007, starting with run 539.
+  //int tbin_anode_offset = 4; // 2007, starting with run 539.
+  int tbin_anode_offset = 5; // 2007, run 14419.
   if (isMTCCData_) tbin_anode_offset = 10; // MTCC-II. Why not 6???
 
   // Loop over all chambers in search for ALCTs.
@@ -848,7 +878,7 @@ void CSCTriggerPrimitivesReader::compareALCTs(
 	      }
 	      strstrm << "\n";
 	    }
-	    LogDebug("CSCTriggerPrimitivesReader") << strstrm.str();
+	    LogTrace("CSCTriggerPrimitivesReader") << strstrm.str();
 	  }
 
 	  int csctype = getCSCType(detid);
@@ -894,7 +924,7 @@ void CSCTriggerPrimitivesReader::compareALCTs(
 		    data_wiregroup == emul_wiregroup &&
 		    data_bx        == emul_corr_bx) {
 		  if (ndata == nemul) hAlctCompMatchCsc[csctype]->Fill(cham);
-		  if (debug) LogDebug("CSCTriggerPrimitivesReader")
+		  if (debug) LogTrace("CSCTriggerPrimitivesReader")
 		    << "       Identical ALCTs #" << data_trknmb;
 		}
 		else {
@@ -974,7 +1004,7 @@ void CSCTriggerPrimitivesReader::compareCLCTs(
 	      }
 	      strstrm << "\n";
 	    }
-	    LogDebug("CSCTriggerPrimitivesReader") << strstrm.str();
+	    LogTrace("CSCTriggerPrimitivesReader") << strstrm.str();
 	  }
 
 	  int csctype = getCSCType(detid);
@@ -1027,7 +1057,7 @@ void CSCTriggerPrimitivesReader::compareCLCTs(
 		    // BX comparison cannot be performed for MTCC data.
 		    (isMTCCData_ || (data_bx == emul_corr_bx))) {
 		  if (ndata == nemul) hClctCompMatchCsc[csctype]->Fill(cham);
-		  if (debug) LogDebug("CSCTriggerPrimitivesReader")
+		  if (debug) LogTrace("CSCTriggerPrimitivesReader")
 		    << "       Identical CLCTs #" << data_trknmb;
 		}
 		else {
@@ -1104,7 +1134,7 @@ void CSCTriggerPrimitivesReader::compareLCTs(
 	      strstrm << "\n";
 
 	    }
-	    LogDebug("CSCTriggerPrimitivesReader") << strstrm.str();
+	    LogTrace("CSCTriggerPrimitivesReader") << strstrm.str();
 	  }
 
 	  int csctype = getCSCType(detid);
@@ -1154,7 +1184,7 @@ void CSCTriggerPrimitivesReader::compareLCTs(
 		    data_bend      == emul_bend      &&
 		    data_bx        == emul_corr_bx) {
 		  if (ndata == nemul) hLctCompMatchCsc[csctype]->Fill(cham);
-		  if (debug) LogDebug("CSCTriggerPrimitivesReader")
+		  if (debug) LogTrace("CSCTriggerPrimitivesReader")
 		    << "       Identical LCTs #" << data_trknmb;
 		}
 		else {
@@ -1239,9 +1269,12 @@ void CSCTriggerPrimitivesReader::MCStudies(const edm::Event& ev,
       if (debug) LogDebug("CSCTriggerPrimitivesReader") 
 	<< "MC part #" << ++i << ": id = "  << id
 	<< ", status = " << (*p)->status()
+	<< "\n   pX = " << (*p)->momentum().x()
+	<< ", pY = " << (*p)->momentum().y()
 	<< ", pT = " << (*p)->momentum().perp() << " GeV"
-	<< ", eta = " << (*p)->momentum().pseudoRapidity()
-	<< ", phi = " << phitmp*180./M_PI << " deg";
+	<< ", p =  " << (*p)->momentum().rho()  << " GeV"
+	<< "\n   eta = " << (*p)->momentum().pseudoRapidity()
+	<< ", phi = " << phitmp << " (" << phitmp*180./M_PI << " deg)";
     }
 
     // If hepMC info is there, try to get wire and comparator digis,
@@ -1254,7 +1287,7 @@ void CSCTriggerPrimitivesReader::MCStudies(const edm::Event& ev,
     ev.getByLabel(compDigiProducer_.label(), compDigiProducer_.instance(),
 		  compDigis);
     ev.getByLabel("g4SimHits", "MuonCSCHits", simHits);
-    if (debug) LogDebug("CSCTriggerPrimitivesReader")
+    if (debug) LogTrace("CSCTriggerPrimitivesReader")
       << "   #CSC SimHits: " << simHits->size();
 
     // MC-based resolution studies.
@@ -1307,7 +1340,7 @@ void CSCTriggerPrimitivesReader::calcResolution(
 	  hResolDeltaEta->Fill(deltaEta);
 
 	  double deltaWG = wiregroup - hitWG;
-	  if (debug) LogDebug("CSCTriggerPrimitivesReader")
+	  if (debug) LogTrace("CSCTriggerPrimitivesReader")
 	    << "WG: MC = " << hitWG << " rec = " << wiregroup
 	    << " delta = " << deltaWG;
 	  hResolDeltaWG->Fill(deltaWG);
@@ -1329,6 +1362,7 @@ void CSCTriggerPrimitivesReader::calcResolution(
   }
 
   // CLCT resolution
+  static const int key_layer = isTMB07 ? 3 : CSCConstants::KEY_CLCT_LAYER;
   CSCCathodeLCTAnalyzer clct_analyzer;
   clct_analyzer.setGeometry(geom_);
   CSCCLCTDigiCollection::DigiRangeIterator cdetUnitIt;
@@ -1353,7 +1387,7 @@ void CSCTriggerPrimitivesReader::calcResolution(
 	  int stripType = (*digiIt).getStripType();
 
 	  CSCDetId layerId(id.endcap(), id.station(), id.ring(),
-			   id.chamber(), CSCConstants::KEY_CLCT_LAYER);
+			   id.chamber(), key_layer);
 	  int endc    = id.endcap();
 	  int stat    = id.station();
 	  int csctype = getCSCType(id);
@@ -1375,6 +1409,9 @@ void CSCTriggerPrimitivesReader::calcResolution(
 	  deltaPhi *= 1000; // in mrad
 	  if      (hitPhi  < 0) hitPhi  += 2.*M_PI;
 	  if      (clctPhi < 0) clctPhi += 2.*M_PI;
+	  if (debug) LogTrace("CSCTriggerPrimitivesReader")
+	    << " clctPhi = " << clctPhi << " hitPhi = " << hitPhi
+	    << " deltaPhi = " << deltaPhi;
 
 	  hResolDeltaPhi->Fill(deltaPhi);
 	  if (stripType == 0) { // di-strip CLCT
@@ -1389,7 +1426,7 @@ void CSCTriggerPrimitivesReader::calcResolution(
 	    hResolDeltaPhiHS->Fill(deltaPhi);
 	    hPhiDiffVsStripCsc[csctype][1]->Fill(halfstrip, deltaPhi);
 	  }
-	  if (debug) LogDebug("CSCTriggerPrimitivesReader")
+	  if (debug) LogTrace("CSCTriggerPrimitivesReader")
 	    << "Half-strip: MC = " << hitHS << " rec = " << halfstrip
 	    << " pattern type = " << stripType << " delta = " << deltaStrip;
 
@@ -1405,16 +1442,48 @@ void CSCTriggerPrimitivesReader::calcResolution(
 	    double hsperrad = getHsPerRad(csctype); // halfstrips-per-radian
 	    if((endc == 1 && (stat == 1 || stat == 2)) ||
 	       (endc == 2 && (stat == 3 || stat == 4))) {
-	      int phibend = ptype[(*digiIt).getPattern()];
-	      hPhiDiffPattern[phibend+4]->Fill(deltaPhi/1000*hsperrad);
+	      hPhiDiffPattern[(*digiIt).getPattern()]->Fill(deltaPhi/1000*hsperrad);
 	    }
 	  }
-
 	}
 	else {
 	  edm::LogWarning("CSCTriggerPrimitivesReader")
 	    << "+++ Warning in calcResolution(): no matched SimHit"
 	    << " found! +++\n";
+	}
+
+	// "True bend", defined as difference in phi between muon hit
+	// positions in the first and in the sixth layers.
+	double phi1 = -999.0, phi6 = -999.0;
+	vector<CSCCathodeLayerInfo>::const_iterator pli;
+	edm::PSimHitContainer::const_iterator psh;
+	for (pli = clctInfo.begin(); pli != clctInfo.end(); pli++) {
+	  CSCDetId layerId = pli->getId();
+	  int layer = layerId.layer();
+	  if (layer == 1 || layer == 6) {
+	    // Get simHits in this layer.
+	    for (psh = allSimHits->begin(); psh != allSimHits->end(); psh++) {
+	      // Find detId where simHit is located.
+	      CSCDetId hitId = (CSCDetId)(*psh).detUnitId();
+	      if (hitId == layerId &&
+		  abs(psh->particleType()) == 13) { // muon hits only
+		const CSCLayer* csclayer = geom_->layer(layerId);
+		GlobalPoint thisPoint =
+		  csclayer->toGlobal(psh->localPosition());
+		double phi = thisPoint.phi();
+		if (layer == 1)      phi1 = phi;
+		else if (layer == 6) phi6 = phi;
+		break; // simply take the first suitable hit.
+	      }
+	    }
+	  }
+	}
+	if (phi1 > -99. && phi6 > -99.) {
+	  double deltaPhi = phi1 - phi6;
+	  if (deltaPhi > M_PI)       deltaPhi -= 2.*M_PI;
+	  else if (deltaPhi < -M_PI) deltaPhi += 2.*M_PI;
+	  int csctype = getCSCType(id);
+	  hTrueBendCsc[csctype]->Fill(deltaPhi*1000.); // in mrad
 	}
       }
     }
@@ -1455,7 +1524,7 @@ void CSCTriggerPrimitivesReader::calcEfficiency(
       chamberIds.push_back(newChamberId);
     }
   }
-  LogDebug("CSCTriggerPrimitivesReader")
+  LogTrace("CSCTriggerPrimitivesReader")
     << "Found SimHits in " << chamberIds.size() << " CSCs";
 
   bool used[CSCConstants::NUM_LAYERS];
@@ -1486,10 +1555,10 @@ void CSCTriggerPrimitivesReader::calcEfficiency(
 	}
       }
     }
-    LogDebug("CSCTriggerPrimitivesReader")
+    LogTrace("CSCTriggerPrimitivesReader")
       << "CSC in endcap " << endcap << " station " << station
       << " ring " << ring << " chamber " << chamber
-      << " has hits in " << nLayers << " layers";
+      << " has muon hits in " << nLayers << " layers";
 
     // If the number of layers with hits is above threshold, look for
     // a presence of LCTs.
@@ -1529,7 +1598,7 @@ void CSCTriggerPrimitivesReader::calcEfficiency(
 	       digiIt != range.second; digiIt++) {
 	    if (digiIt->isValid()) {
 	      // Check the distance??
-	      LogDebug("CSCTriggerPrimitivesReader") << "ALCT was found";
+	      LogTrace("CSCTriggerPrimitivesReader") << "ALCT was found";
 	      isALCT = true;
 	      break;
 	    }
@@ -1542,7 +1611,7 @@ void CSCTriggerPrimitivesReader::calcEfficiency(
 	hEfficALCTEtaCsc[csctype]->Fill(fabs(hitEta));
       }
       else {
-	LogDebug("CSCTriggerPrimitivesReader") << "ALCT was not found";
+	LogTrace("CSCTriggerPrimitivesReader") << "ALCT was not found";
       }
 
       bool isCLCT = false;
@@ -1556,7 +1625,7 @@ void CSCTriggerPrimitivesReader::calcEfficiency(
 	       digiIt != range.second; digiIt++) {
 	    if (digiIt->isValid()) {
 	      // Check the distance??
-	      LogDebug("CSCTriggerPrimitivesReader") << "CLCT was found";
+	      LogTrace("CSCTriggerPrimitivesReader") << "CLCT was found";
 	      isCLCT = true;
 	      break;
 	    }
@@ -1569,7 +1638,7 @@ void CSCTriggerPrimitivesReader::calcEfficiency(
 	hEfficCLCTEtaCsc[csctype]->Fill(fabs(hitEta));
       }
       else {
-	LogDebug("CSCTriggerPrimitivesReader") << "CLCT was not found";
+	LogTrace("CSCTriggerPrimitivesReader") << "CLCT was not found";
       }
 
     }
@@ -1599,13 +1668,14 @@ void CSCTriggerPrimitivesReader::drawALCTHistos() {
   sprintf(pagenum, "- %d -", page);  t.DrawText(0.9, 0.02, pagenum);
   gStyle->SetOptStat(111110);
   pad[page]->Draw();
-  pad[page]->Divide(1,2);
+  pad[page]->Divide(1,3);
   pad[page]->cd(1);  hAlctPerEvent->Draw();
+  pad[page]->cd(2);  hAlctPerChamber->Draw();
   for (int i = 0; i < CSC_TYPES; i++) {
     hAlctPerCSC->GetXaxis()->SetBinLabel(i+1, csc_type[i].c_str());
   }
   // Should be multiplied by 40/nevents to convert to MHz
-  pad[page]->cd(2);  hAlctPerCSC->Draw();
+  pad[page]->cd(3);  hAlctPerCSC->Draw();
   page++;  c1->Update();
 
   ps->NewPage();
@@ -1650,13 +1720,22 @@ void CSCTriggerPrimitivesReader::drawCLCTHistos() {
   sprintf(pagenum, "- %d -", page);  t.DrawText(0.9, 0.02, pagenum);
   gStyle->SetOptStat(111110);
   pad[page]->Draw();
-  pad[page]->Divide(1,2);
+  pad[page]->Divide(1,3);
   pad[page]->cd(1);  hClctPerEvent->Draw();
+
+  int nbins = hClctPerChamber->GetNbinsX();
+  for (int ibin = 1; ibin <= nbins; ibin++) {
+    double f_bin = hClctPerChamber->GetBinContent(ibin);
+    edm::LogInfo(" ")
+      << "bin = " << ibin << " content: " << f_bin << endl;
+  }
+
+  pad[page]->cd(2);  hClctPerChamber->Draw();
   for (int i = 0; i < CSC_TYPES; i++) {
     hClctPerCSC->GetXaxis()->SetBinLabel(i+1, csc_type[i].c_str());
   }
   // Should be multiplied by 40/nevents to convert to MHz
-  pad[page]->cd(2);  hClctPerCSC->Draw();
+  pad[page]->cd(3);  hClctPerCSC->Draw();
   page++;  c1->Update();
 
   ps->NewPage();
@@ -1693,32 +1772,36 @@ void CSCTriggerPrimitivesReader::drawCLCTHistos() {
 
   ps->NewPage();
   c1->Clear();  c1->cd(0);
-  title = new TPaveLabel(0.1, 0.94, 0.9, 0.98, "CLCT halfstrip pattern types");
+  title = new TPaveLabel(0.1, 0.94, 0.9, 0.98,
+			 "CLCT bend for various chamber types, halfstrips");
   title->SetFillColor(10);  title->Draw();
   sprintf(pagenum, "- %d -", page);  t.DrawText(0.9, 0.02, pagenum);
   gStyle->SetOptStat(110);
   pad[page]->Draw();
   pad[page]->Divide(2,5);
   for (int idh = 0; idh < CSC_TYPES-1; idh++) {
+    if (idh == 3) continue; // skip ME1/A
     pad[page]->cd(idh+1);
-    hClctPatternCsc[idh][1]->GetXaxis()->SetTitle("Pattern number");
-    hClctPatternCsc[idh][1]->GetYaxis()->SetTitle("Number of LCTs");
-    hClctPatternCsc[idh][1]->Draw();
+    hClctBendCsc[idh][1]->GetXaxis()->SetTitle("Pattern bend");
+    hClctBendCsc[idh][1]->GetYaxis()->SetTitle("Number of LCTs");
+    hClctBendCsc[idh][1]->Draw();
   }
   page++;  c1->Update();
 
   ps->NewPage();
   c1->Clear();  c1->cd(0);
-  title = new TPaveLabel(0.1, 0.94, 0.9, 0.98, "CLCT distrip pattern types");
+  title = new TPaveLabel(0.1, 0.94, 0.9, 0.98,
+			 "CLCT bend for various chamber types, distrips");
   title->SetFillColor(10);  title->Draw();
   sprintf(pagenum, "- %d -", page);  t.DrawText(0.9, 0.02, pagenum);
   pad[page]->Draw();
   pad[page]->Divide(2,5);
   for (int idh = 0; idh < CSC_TYPES-1; idh++) {
+    if (idh == 3) continue; // skip ME1/A
     pad[page]->cd(idh+1);
-    hClctPatternCsc[idh][0]->GetXaxis()->SetTitle("Pattern number");
-    hClctPatternCsc[idh][0]->GetYaxis()->SetTitle("Number of LCTs");
-    hClctPatternCsc[idh][0]->Draw();
+    hClctBendCsc[idh][0]->GetXaxis()->SetTitle("Pattern bend");
+    hClctBendCsc[idh][0]->GetYaxis()->SetTitle("Number of LCTs");
+    hClctBendCsc[idh][0]->Draw();
   }
   page++;  c1->Update();
 
@@ -1731,6 +1814,7 @@ void CSCTriggerPrimitivesReader::drawCLCTHistos() {
   pad[page]->Draw();
   pad[page]->Divide(2,5);
   for (int idh = 0; idh < CSC_TYPES-1; idh++) {
+    if (idh == 3) continue; // skip ME1/A
     pad[page]->cd(idh+1);
     hClctKeyStripCsc[idh]->GetXaxis()->SetTitle("Key distrip");
     hClctKeyStripCsc[idh]->GetXaxis()->SetTitleOffset(1.2);
@@ -1738,7 +1822,6 @@ void CSCTriggerPrimitivesReader::drawCLCTHistos() {
     hClctKeyStripCsc[idh]->Draw();
   }
   page++;  c1->Update();
-
   ps->Close();
 }
 
@@ -1765,16 +1848,17 @@ void CSCTriggerPrimitivesReader::drawLCTTMBHistos() {
   sprintf(pagenum, "- %d -", page);  t.DrawText(0.9, 0.02, pagenum);
   gStyle->SetOptStat(111110);
   pad[page]->Draw();
-  pad[page]->Divide(1,3);
+  pad[page]->Divide(2,2);
   pad[page]->cd(1);  hLctTMBPerEvent->Draw();
+  pad[page]->cd(2);  hLctTMBPerChamber->Draw();
   c1->Update();
   for (int i = 0; i < CSC_TYPES; i++) {
     hLctTMBPerCSC->GetXaxis()->SetBinLabel(i+1, csc_type[i].c_str());
     hCorrLctTMBPerCSC->GetXaxis()->SetBinLabel(i+1, csc_type[i].c_str());
   }
   // Should be multiplied by 40/nevents to convert to MHz
-  pad[page]->cd(2);  hLctTMBPerCSC->Draw();
-  pad[page]->cd(3);  hCorrLctTMBPerCSC->Draw();
+  pad[page]->cd(3);  hLctTMBPerCSC->Draw();
+  pad[page]->cd(4);  hCorrLctTMBPerCSC->Draw();
   gStyle->SetOptStat(1110);
   page++;  c1->Update();
 
@@ -2481,12 +2565,38 @@ void CSCTriggerPrimitivesReader::drawResolHistos() {
   gStyle->SetOptStat(111110);
   pad[page]->Draw();
   pad[page]->Divide(3,3);
-  for (int idh = 0; idh < 9; idh++) {
+  int min_pattern, max_pattern;
+  if (!isTMB07) {
+    min_pattern = 0;
+    max_pattern = CSCConstants::NUM_CLCT_PATTERNS;
+  }
+  else {
+    min_pattern = 2;
+    max_pattern = CSCCathodeLCTProcessor::NUM_CLCT_PATTERNS_2007;
+  }
+  for (int idh = min_pattern; idh < max_pattern; idh++) {
     hPhiDiffPattern[idh]->GetXaxis()->SetTitle("Halfstrip");
     hPhiDiffPattern[idh]->GetXaxis()->SetTitleOffset(1.2);
-    pad[page]->cd(idh+1);  hPhiDiffPattern[idh]->Draw();
+    pad[page]->cd(idh-min_pattern+1);  hPhiDiffPattern[idh]->Draw();
     // if (hPhiDiffPattern[idh]->GetEntries() > 1)
     //   hPhiDiffPattern[idh]->Fit("gaus","Q");
+  }
+  page++;  c1->Update();
+
+  ps->NewPage();
+  c1->Clear();  c1->cd(0);
+  title = new TPaveLabel(0.1, 0.94, 0.9, 0.98,
+			 "#phi_1-#phi_6 (mrad), muon SimHits");
+  title->SetFillColor(10);  title->Draw();
+  sprintf(pagenum, "- %d -", page);  t.DrawText(0.9, 0.02, pagenum);
+  pad[page]->Draw();
+  pad[page]->Divide(2,5);
+  for (int idh = 0; idh < CSC_TYPES-1; idh++) {
+    hTrueBendCsc[idh]->GetYaxis()->SetTitle("Entries");
+    hTrueBendCsc[idh]->GetYaxis()->SetTitleSize(0.07);
+    hTrueBendCsc[idh]->GetXaxis()->SetLabelSize(0.07); // default=0.04
+    hTrueBendCsc[idh]->GetYaxis()->SetLabelSize(0.07);
+    pad[page]->cd(idh+1);  hTrueBendCsc[idh]->Draw();
   }
   page++;  c1->Update();
 

@@ -8,8 +8,8 @@
  *
  * \author Slava Valuev, UCLA.
  *
- * $Date: 2006/12/21 13:53:08 $
- * $Revision: 1.8 $
+ * $Date: 2007/08/17 16:22:40 $
+ * $Revision: 1.9 $
  *
  */
 
@@ -27,6 +27,8 @@
 #include <DataFormats/CSCDigi/interface/CSCCorrelatedLCTDigiCollection.h>
 #include <DataFormats/CSCDigi/interface/CSCWireDigiCollection.h>
 #include <DataFormats/CSCDigi/interface/CSCComparatorDigiCollection.h>
+
+#include <L1Trigger/CSCTriggerPrimitives/src/CSCCathodeLCTProcessor.h> // TMB07
 
 #include <SimDataFormats/TrackingHit/interface/PSimHitContainer.h>
 
@@ -67,6 +69,8 @@ class CSCTriggerPrimitivesReader : public edm::EDAnalyzer
   // Flag to indicate MTCC data (used only when dataLctsIn_ = true).
   bool isMTCCData_;
 
+  bool isTMB07;
+
   // Producer's labels
   std::string   lctProducerData_;
   std::string   lctProducerEmul_;
@@ -86,6 +90,7 @@ class CSCTriggerPrimitivesReader : public edm::EDAnalyzer
   static const int MAX_WG[CSC_TYPES];
   static const int MAX_HS[CSC_TYPES];
   static const int ptype[CSCConstants::NUM_CLCT_PATTERNS];
+  static const int ptype_TMB07[CSCCathodeLCTProcessor::NUM_CLCT_PATTERNS_2007];
 
   // LCT counters
   static int numALCT;
@@ -163,17 +168,18 @@ class CSCTriggerPrimitivesReader : public edm::EDAnalyzer
 
   // Histograms
   // ALCTs
-  TH1F *hAlctPerEvent, *hAlctPerCSC;
+  TH1F *hAlctPerEvent, *hAlctPerChamber, *hAlctPerCSC;
   TH1F *hAlctValid, *hAlctQuality, *hAlctAccel, *hAlctCollis, *hAlctKeyGroup;
   TH1F *hAlctBXN;
   // CLCTs
-  TH1F *hClctPerEvent, *hClctPerCSC;
+  TH1F *hClctPerEvent, *hClctPerChamber, *hClctPerCSC;
   TH1F *hClctValid, *hClctQuality, *hClctStripType, *hClctSign, *hClctCFEB;
   TH1F *hClctBXN;
   TH1F *hClctKeyStrip[2], *hClctPattern[2];
-  TH1F *hClctPatternCsc[CSC_TYPES][2], *hClctKeyStripCsc[CSC_TYPES];
+  TH1F *hClctBendCsc[CSC_TYPES][2], *hClctKeyStripCsc[CSC_TYPES];
   // Correlated LCTs in TMB
-  TH1F *hLctTMBPerEvent, *hLctTMBPerCSC, *hCorrLctTMBPerCSC;
+  TH1F *hLctTMBPerEvent, *hLctTMBPerChamber;
+  TH1F *hLctTMBPerCSC, *hCorrLctTMBPerCSC;
   TH1F *hLctTMBEndcap, *hLctTMBStation, *hLctTMBSector, *hLctTMBRing;
   TH1F *hLctTMBChamber[MAX_STATIONS];
   TH1F *hLctTMBValid, *hLctTMBQuality, *hLctTMBKeyGroup;
@@ -214,7 +220,8 @@ class CSCTriggerPrimitivesReader : public edm::EDAnalyzer
   TH1F *hPhiDiffVsPhi[MAX_STATIONS];
   TH1F *hPhiDiffCsc[CSC_TYPES][5];
   TH2F *hPhiDiffVsStripCsc[CSC_TYPES][2];
-  TH1F *hPhiDiffPattern[9];
+  TH1F *hTrueBendCsc[CSC_TYPES];
+  TH1F *hPhiDiffPattern[CSCCathodeLCTProcessor::NUM_CLCT_PATTERNS_2007];
   // Efficiency histograms
   TH1F *hEfficHitsEta[MAX_STATIONS];
   TH1F *hEfficALCTEta[MAX_STATIONS], *hEfficCLCTEta[MAX_STATIONS];
