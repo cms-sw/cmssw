@@ -1,6 +1,7 @@
 #ifndef CommonDet_Trajectory_H
 #define CommonDet_Trajectory_H
 
+#include "DataFormats/Common/interface/RefToBase.h"
 #include "TrackingTools/PatternTools/interface/TrajectoryMeasurement.h"
 #include "DataFormats/TrajectorySeed/interface/PropagationDirection.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeed.h"
@@ -49,7 +50,7 @@ public:
   Trajectory() :  theChiSquared(0), theValid(true),
     theNumberOfFoundHits(0), theNumberOfLostHits(0),
     theDirection(alongMomentum), theDirectionValidity(false),
-    theSeed(TrajectorySeed())  
+    theSeed(TrajectorySeed()), seedRef_()  
     {}
 
 
@@ -63,7 +64,7 @@ public:
     theChiSquared(0), theValid(true),
     theNumberOfFoundHits(0), theNumberOfLostHits(0),
     theDirection(alongMomentum), theDirectionValidity(false),
-    theSeed(seed)
+    theSeed(seed), seedRef_()
   {}
 
   /** Constructor of an empty trajectory with defined direction.
@@ -74,7 +75,7 @@ public:
     theChiSquared(0), theValid(true),
     theNumberOfFoundHits(0), theNumberOfLostHits(0),
     theDirection(dir), theDirectionValidity(true),
-    theSeed(seed)
+    theSeed(seed), seedRef_()
   {}
 
   /** Reserves space in the vector to avoid lots of allocations when 
@@ -186,6 +187,16 @@ public:
     check(); return theData.back().layer();
   }
 
+  /**  return the Reference to the trajectory seed in the original
+   *   seeds collection. If the collection has been dropped from the
+   *   Event, the reference may be invalid. Its validity should be tested,
+   *   before the reference is actually used. 
+   */
+  edm::RefToBase<TrajectorySeed> seedRef(void) const { return seedRef_; }
+  
+  void setSeedRef(const edm::RefToBase<TrajectorySeed> & seedRef) { seedRef_ = seedRef ; } 
+
+
 private:
 
   DataContainer theData;
@@ -199,6 +210,7 @@ private:
   bool                 theDirectionValidity;
 
   TrajectorySeed       theSeed;
+  edm::RefToBase<TrajectorySeed> seedRef_;
 
   void check() const;
 };
