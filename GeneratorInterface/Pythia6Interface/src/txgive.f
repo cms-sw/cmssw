@@ -8,7 +8,7 @@ C...Sets values of commonblock variables.
       implicit none 
       Integer           Ipar     ! global TopRex integer parameters  
       double precision  Rpar     ! global TopRex real    parameters
-      common /TXPAR/Ipar(200), Rpar(200)
+      common /TXPAR/Ipar(512), Rpar(512)
       save   /TXPAR/
 ***
       integer CSAMODE
@@ -23,7 +23,7 @@ C...Sets values of commonblock variables.
       character *(*) chin
       character *40 inam, rnam
       character *20 cvi  ! , cvj
-      character *80 STRIN
+      character *512 STRIN
 ****
 *
       Iread = 1
@@ -34,7 +34,7 @@ C...Sets values of commonblock variables.
 C	print*,'IER', ier
          if(ier.ne.1) then
            iread = 0
-           read(strin(1:80),*) CSAMODE 
+           read(strin(1:512),*) CSAMODE 
          endif
 *
       
@@ -43,7 +43,7 @@ C	print*,'IER', ier
 C	print*,'IER', ier
          if(ier.ne.1) then
            iread = 0
-           read(strin(1:80),*) MUONRW 
+           read(strin(1:512),*) MUONRW 
          endif
 *
 *
@@ -53,7 +53,7 @@ C	print*,'IER', ier
 C	print*,'IER', ier
          if(ier.ne.1) then
            iread = 0
-           read(strin(1:80),*) GAMMAJRW 
+           read(strin(1:512),*) GAMMAJRW 
          endif
 *
       
@@ -62,7 +62,7 @@ C	print*,'IER', ier
 C	print*,'IER', ier
          if(ier.ne.1) then
            iread = 0
-           read(strin(1:80),*) ZJRW 
+           read(strin(1:512),*) ZJRW 
          endif
 	 
       rnam = 'ZPRW ='
@@ -70,7 +70,7 @@ C	print*,'IER', ier
 C	print*,'IER', ier
          if(ier.ne.1) then
            iread = 0
-           read(strin(1:80),*) ZPRW 
+           read(strin(1:512),*) ZPRW 
          endif
 	 
 	 
@@ -79,7 +79,7 @@ C	print*,'IER', ier
 C	print*,'IER', ier
          if(ier.ne.1) then
            iread = 0
-           read(strin(1:80),*) HLTRW 
+           read(strin(1:512),*) HLTRW 
          endif
 	 
       rnam = 'SUSYRW ='
@@ -87,7 +87,7 @@ C	print*,'IER', ier
 C	print*,'IER', ier
          if(ier.ne.1) then
            iread = 0
-           read(strin(1:80),*) SUSYRW 
+           read(strin(1:512),*) SUSYRW 
          endif
 
       rnam = 'WWRW ='
@@ -95,25 +95,25 @@ C	print*,'IER', ier
 C	print*,'IER', ier
          if(ier.ne.1) then
            iread = 0
-           read(strin(1:80),*) WWRW 
+           read(strin(1:512),*) WWRW 
          endif
 	 
 	 
 ***
 
-      do I = 1,200
+      do I = 1,512
         call intochar(I, il, cvi)
          Inam = 'ipar('//cvi(1:il)//')'//' = '
          Rnam = 'rpar('//cvi(1:il)//')'//' = '
         call TXRSTR2(rnam, chin, strin, ier) 
          if(ier.ne.1) then
            iread = 0
-           read(strin(1:80),*) Rpar(i) 
+           read(strin(1:512),*) Rpar(i) 
          endif
         call TXRSTR2(inam, chin, strin, ier) 
          if(ier.ne.1) then
            iread = 0
-           read(strin(1:80),*) Ipar(i) 
+           read(strin(1:512),*) Ipar(i) 
          endif
       enddo
 *
@@ -139,10 +139,10 @@ c----------------------------------------------------------------------------c
       parameter (lens=40)
 *
       character *40 inam, vv, vst, ww 
-      character *80 strout, aa, vnu 
+      character *512 strout, aa, vnu 
 *
       ier = 1
-       do i = 1,80
+       do i = 1,512
         if(aa(i:i).ne.' ') then 
          j1 = 1  ! non-blank character
          if(aa(i:i).eq.'*') goto 200   ! first non-blank item = '*' -  comment
@@ -151,7 +151,7 @@ c----------------------------------------------------------------------------c
        enddo
         goto 200 !  blank string 
  16    j1 = 0
-       do i = 1,80
+       do i = 1,512
         if(aa(i:i).ne.' ') then 
            if(aa(i:i).eq.'='.and.j1.eq.0) then
             j1 = i
@@ -172,7 +172,7 @@ c----------------------------------------------------------------------------c
         endif
         enddo
         vst(1:jj) = vv(1:jj)
-        vnu = aa((j1+1):80)
+        vnu = aa((j1+1):512)
 **
       j1 = 0
       do i=1,lens
@@ -198,7 +198,7 @@ c----------------------------------------------------------------------------c
          vv = vst 
          IF(ww(1:j1).eq.vv(1:j1)) THEN 
              IER = 0
-             strout(1:80) = vnu(1:80)
+             strout(1:512) = vnu(1:512)
              return
          ENDIF 
  200    IER = 1
