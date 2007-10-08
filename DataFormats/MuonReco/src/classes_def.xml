@@ -4,6 +4,7 @@
   <class name="edm::Wrapper<std::vector<reco::Muon> >"/>
   <class name="edm::Ref<std::vector<reco::Muon>,reco::Muon,edm::refhelper::FindUsingAdvance<std::vector<reco::Muon>,reco::Muon> >"/>
   <class name="edm::RefProd<std::vector<reco::Muon> >"/>
+  <class name="edm::helpers::Key<edm::RefProd<std::vector<reco::Muon> > >"/>
   <class name="edm::RefVector<std::vector<reco::Muon>,reco::Muon,edm::refhelper::FindUsingAdvance<std::vector<reco::Muon>,reco::Muon> >"/>
   <class name="edm::Wrapper<edm::RefVector<std::vector<reco::Muon>,reco::Muon,edm::refhelper::FindUsingAdvance<std::vector<reco::Muon>,reco::Muon> > >"/>
   <class name="edm::reftobase::Holder<reco::Candidate, edm::Ref<std::vector<reco::Muon>,reco::Muon,edm::refhelper::FindUsingAdvance<std::vector<reco::Muon>,reco::Muon> > >" />
@@ -36,6 +37,41 @@
       <field name="transientMap_" transient="true" />
   </class>
   <class name="edm::Wrapper<edm::AssociationMap<edm::OneToValue<std::vector<reco::Track>, reco::MuIsoDeposit, unsigned int > > >" />
+
+  <class name="edm::AssociationMap<edm::OneToValue<std::vector<reco::Muon>, reco::MuIsoDeposit, unsigned int > >">
+      <field name="transientMap_" transient="true" />
+  </class>
+  <class name="edm::Wrapper<edm::AssociationMap<edm::OneToValue<std::vector<reco::Muon>, reco::MuIsoDeposit, unsigned int > > >" />
+
+  <class name="edm::AssociationMap<edm::OneToValue<std::vector<reco::Muon>,bool,unsigned int> >">
+    <field name="transientMap_" transient="true" />
+  </class>
+  <class name="edm::Wrapper<edm::AssociationMap<edm::OneToValue<std::vector<reco::Muon>, bool, unsigned int > > >" />
+
+  <class name="edm::AssociationMap<edm::OneToValue<std::vector<reco::Muon>,int,unsigned int> >">
+    <field name="transientMap_" transient="true" />
+  </class>
+  <class name="edm::Wrapper<edm::AssociationMap<edm::OneToValue<std::vector<reco::Muon>, int, unsigned int > > >" />
+
+  <class name="edm::AssociationMap<edm::OneToValue<std::vector<reco::Muon>,float,unsigned int> >">
+    <field name="transientMap_" transient="true" />
+  </class>
+  <class name="edm::Wrapper<edm::AssociationMap<edm::OneToValue<std::vector<reco::Muon>, float, unsigned int > > >" />
+
+  <class pattern="edm::KeyVal<*>" />
+  <class pattern="edm::Wrapper<edm::AssociationMap<*>" />
+  <class pattern="edm::Ref<edm::AssociationMap<*>" />
+  <class pattern="edm::RefProd<edm::AssociationMap<*>" />
+  <class pattern="edm::RefVector<edm::AssociationMap<*>" />
+  <class pattern="edm::AssociationVector<*>">
+    <field name="transientVector_" transient="true"/>
+    <field name="fixed_" transient="true"/>
+  </class>
+  <class pattern="edm::Wrapper<edm::AssociationVector<*>" />
+  <class pattern="edm::Ref<edm::AssociationVector<*>" />
+  <class pattern="edm::RefProd<edm::AssociationVector<*>" />
+  <class pattern="edm::RefVector<edm::AssociationVector<*>" />
+
   <class name="muonisolation::Direction"/>
   <class name="muonisolation::Direction::Distance"/>
   <class name="reco::MuIsoDeposit::Veto"/>
