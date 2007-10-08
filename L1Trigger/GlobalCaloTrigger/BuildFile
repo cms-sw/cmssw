@@ -1,23 +1,13 @@
 <use name=boost>
-#<use name=FWCore/Framework>
-#<use name=FWCore/ParameterSet>
-#<use name=FWCore/Utilities>
-#<use name=FWCore/PluginManager>
 <use name=DataFormats/L1GlobalCaloTrigger>
 <use name=CondFormats/L1TObjects>
 <use name=CondFormats/DataRecord>
-#<use name=root>
 
 <export>
   <lib name=L1TriggerGlobalCaloTrigger>
   <use name=boost>
-#  <use name=FWCore/Framework>
-#  <use name=FWCore/ParameterSet>
-#  <use name=FWCore/Utilities>
-#  <use name=FWCore/PluginManager>
   <use name=DataFormats/L1GlobalCaloTrigger>
   <use name=CondFormats/L1TObjects>
   <use name=CondFormats/DataRecord>
-#  <use name=root>
 </export>
 
