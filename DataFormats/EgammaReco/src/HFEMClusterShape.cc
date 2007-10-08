@@ -31,13 +31,12 @@ double reco::HFEMClusterShape::e5x5() const {
   return eLong5x5_+eShort5x5_;
 }
 
-double reco::HFEMClusterShape::LongeCut() const{
-  return eLong3x3()/eShort3x3();
+double reco::HFEMClusterShape::eSeL() const{
+  return eShort3x3()/eLong3x3();
 }
-double reco::HFEMClusterShape::TransCut() const{
-  return eLong3x3()/eCore();
+double reco::HFEMClusterShape::eCOREe9() const{
+  return eCore()/eLong3x3();
 }
-double reco::HFEMClusterShape::ShowerCut() const{
-return (eLong5x5()+eShort5x5())/(eLong3x3()+eShort3x3());
+double reco::HFEMClusterShape::e9e25() const{
+return (eLong3x3()+eShort3x3()/(eLong5x5()+eShort5x5()));
 } 
- 

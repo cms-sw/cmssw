@@ -43,12 +43,12 @@ namespace reco {
     double e5x5() const;
 
     //Identification Variables
-    //Longetudinal variable
-    double LongeCut() const;
-    //Transverse Variable
-    double TransCut() const;
-    //Shower Exclusion Variable
-    double ShowerCut() const;
+    //Longetudinal variable: E(3x3,short fibers)/E(3x3,long fibers)
+    double eSeL() const;
+    //Transverse Variable: E(Core of cluster)/E(3x3)
+    double eCOREe9() const;
+    //Shower Exclusion Variable: E(3x3)/E(5x5)
+    double e9e25() const;
 
     //energy in central highest energy cells (at least 50% energy of previous total energy startign with seed cell)
     double eCore() const {return eLongCore_;}
