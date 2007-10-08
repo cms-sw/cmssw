@@ -54,8 +54,12 @@
   <class name="edm::reftobase::Holder<reco::Candidate, edm::Ref<std::vector<reco::GenericJet>,reco::GenericJet,edm::refhelper::FindUsingAdvance<std::vector<reco::GenericJet>,reco::GenericJet> > >" />
   <class name="reco::JetTrackMatch<std::vector<reco::GenericJet> >"/>
 
+  <class pattern="edm::AssociationVector<*>">
+    <field name="transientVector_" transient="true"/>
+    <field name="fixed_" transient="true"/>
+  </class>
+
   <class name="edm::Wrapper<reco::JetFloatAssociation::Container>" />
-  <class name="reco::JetFloatAssociation::Container"/>
   <class name="reco::JetFloatAssociation::Values"/>
   <class name="reco::JetFloatAssociation::value_type"/>
   <class name="reco::JetFloatAssociation::transient_vector_type"/>
@@ -68,7 +72,6 @@
   <function name="reco::JetFloatAssociation::hasJet"/>
   <function name="reco::JetFloatAssociation::getByLabel"/>
 
-  <class name="reco::JetToFloatAssociation::Container"/>
   <class name="reco::JetToFloatAssociation::Values"/>
   <class name="reco::JetToFloatAssociation::value_type"/>
   <class name="reco::JetToFloatAssociation::transient_vector_type"/>
@@ -82,7 +85,6 @@
   <function name="reco::JetToFloatAssociation::getByLabel"/>
 
   <class name="edm::Wrapper<reco::JetTracksAssociation::Container>" />
-  <class name="reco::JetTracksAssociation::Container"/>
   <class name="reco::JetTracksAssociation::Values"/>
   <class name="reco::JetTracksAssociation::value_type"/>
   <class name="reco::JetTracksAssociation::transient_vector_type"/>
@@ -99,7 +101,6 @@
 
   <class name="edm::Wrapper<reco::JetExtendedAssociation::Container>" />
   <class name="reco::JetExtendedAssociation::JetExtendedData"/>
-  <class name="reco::JetExtendedAssociation::Container"/>
   <class name="reco::JetExtendedAssociation::Values"/>
   <class name="reco::JetExtendedAssociation::value_type"/>
   <class name="reco::JetExtendedAssociation::transient_vector_type"/>
