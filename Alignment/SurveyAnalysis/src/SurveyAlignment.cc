@@ -1,5 +1,3 @@
-#include <iostream>
-
 #include "Alignment/CommonAlignment/interface/Alignable.h"
 #include "Alignment/CommonAlignment/interface/AlignmentParameters.h"
 #include "Alignment/SurveyAnalysis/interface/SurveyOutput.h"
@@ -8,7 +6,7 @@
 
 using namespace align;
 
-SurveyAlignment::SurveyAlignment(const std::vector<Alignable*>& sensors,
+SurveyAlignment::SurveyAlignment(const Alignables& sensors,
 				 const std::vector<StructureType>& levels):
   theSensors(sensors),
   theLevels(levels)

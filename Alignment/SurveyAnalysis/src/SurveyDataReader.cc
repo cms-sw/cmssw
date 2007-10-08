@@ -2,15 +2,11 @@
 #include <fstream>
 #include <iostream>
 
-#include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "DataFormats/CLHEP/interface/AlgebraicObjects.h"
-#include "CLHEP/Vector/Rotation.h"
-#include "CLHEP/Vector/ThreeVector.h"
 #include "DataFormats/SiStripDetId/interface/TIBDetId.h"
 #include "DataFormats/SiStripDetId/interface/TIDDetId.h"
-#include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
+// #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
 
 #include "Alignment/SurveyAnalysis/interface/SurveyDataReader.h"
 
@@ -26,14 +22,14 @@ void SurveyDataReader::readFile( const std::string& textFileName ,const std::str
     throw cms::Exception("FileAccess") << "Unable to open input text file for " << fileType.c_str();
 
   int nErrors = 0;
-  DetIdType m_detId;
+  align::ID m_detId;
   int NINPUTS_align = 30;
   int NINPUTS_detId = 6;
   if (fileType == "TID") NINPUTS_detId++;
 
   std::vector<int> d_inputs;
-  std::vector<float> a_inputs;
-  std::vector<float> a_outputs;
+  align::Scalars a_inputs;
+  align::Scalars a_outputs;
   int itmpInput;
   float tmpInput; 
 
@@ -96,10 +92,10 @@ void SurveyDataReader::readFile( const std::string& textFileName ,const std::str
 
 }
 //__________________________________________________________________________________________________
-std::vector<float> 
-SurveyDataReader::convertToAlignableCoord( std::vector<float> align_params ) 
+align::Scalars 
+SurveyDataReader::convertToAlignableCoord( const align::Scalars& align_params ) 
 {
-      std::vector<float> align_outputs;
+      align::Scalars align_outputs;
 
       // Convert to coordinates that TrackerAlignment can read in
      

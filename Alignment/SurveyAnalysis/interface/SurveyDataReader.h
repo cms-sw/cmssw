@@ -7,33 +7,26 @@
 //
 // The result is a map of DetIds and corresponding OpticalInfo
 //
-#include <string>
-#include <vector>
-#include <map>
+
+#include "Alignment/CommonAlignment/interface/Utilities.h"
 
 class SurveyDataReader
 {
 
-  typedef unsigned int DetIdType;
-  typedef std::map< DetIdType, std::vector<float> > MapType;
-  typedef std::pair< DetIdType, std::vector<float> > PairType;
-  typedef std::map< std::vector<int>, std::vector<float> > MapTypeOr;
-  typedef std::pair< std::vector<int>, std::vector<float> > PairTypeOr;
-
 public:
-  /// Constructor
-  SurveyDataReader() {};
-  
-  /// Destructor
-  ~SurveyDataReader() {};
+
+  typedef std::map<align::ID, align::Scalars >  MapType;
+  typedef std::pair<align::ID,align::Scalars > PairType;
+  typedef std::map< std::vector<int>, align::Scalars > MapTypeOr;
+  typedef std::pair< std::vector<int>, align::Scalars > PairTypeOr;
   
   /// Read given text file
   void readFile( const std::string& textFileName, const std::string& fileType );
-  std::vector<float> convertToAlignableCoord( std::vector<float> align_params );
+  align::Scalars convertToAlignableCoord( const align::Scalars& align_params );
 
   // Returns the Map
-  const MapType detIdMap() const { return theMap; }
-  const MapTypeOr surveyMap() const { return theOriginalMap; }
+  const MapType& detIdMap() const { return theMap; }
+  const MapTypeOr& surveyMap() const { return theOriginalMap; }
 
 private:
 
