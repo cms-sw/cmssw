@@ -41,7 +41,4 @@ void SiStripBadStrip::getDetIds(std::vector<uint32_t>& DetIds_) const {
   }
 }
 
- int SiStripBadStrip::getBadStrips(const Range& range) const {
-   return (*range.first);
- }
 
