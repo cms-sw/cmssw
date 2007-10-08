@@ -12,7 +12,7 @@
 <use name=root>
 <flags SEAL_PLUGIN_NAME="HLTriggerOfflineSUSYBSM">
 <export>
-   <lib name=SusyBsmTriggerPerformanceTriggerValidator>
+   <lib name=HLTriggerOfflineSUSYBSM>
    <use name=FWCore/Framework>
    <use name=Foundation/PluginManager>
    <use name=FWCore/ParameterSet>
