@@ -91,9 +91,9 @@ std::vector< std::pair< LinkBoardElectronicIndex, LinkBoardPackedStrip> >
             febCheck++;
             if (febConnector.rawId() != rawDetId) continue;
             int febInLB = febConnector.linkBoardInputNum();
-            if (febInLB != febCheck) {
+            /* if (febInLB != febCheck) {
               edm::LogError("rawDataFrame") << " problem with febInLB: " <<febInLB<<" "<<febCheck;
-            }
+	      } */
             const std::vector<ChamberStripSpec> & strips = febConnector.strips();
 
             for (std::vector<ChamberStripSpec>::const_iterator 
