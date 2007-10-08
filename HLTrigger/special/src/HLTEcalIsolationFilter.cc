@@ -57,7 +57,6 @@ bool HLTEcalIsolationFilter::filter(edm::Event& iEvent, const edm::EventSetup& i
 	(cands_it->energyIn()<maxenin)&&
 	fabs(cands_it->eta())<maxetacand)
 	{
-	  std::cout<<"PASS"<<std::endl;
 	  filterproduct->putParticle(candref);
 	  n++;
 	}
