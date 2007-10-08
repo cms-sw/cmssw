@@ -176,10 +176,10 @@ class ESFastTDigitizer
 	output.push_back(digi);  
 	if (needToDeleteSignal) delete analogSignal;
       }
-	
-      // free up some memory
-      theHitResponse->clear();
-    }
+    }	
+    
+    // free up some memory
+    theHitResponse->clear();
   }
   
   
