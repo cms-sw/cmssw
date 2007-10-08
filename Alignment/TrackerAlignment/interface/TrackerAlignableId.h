@@ -10,17 +10,13 @@
 /// A mapping between the AlignableObjectId and the string name
 /// is also provided.
 ///
-///  $Revision: 1.9 $
-///  $Date: 2007/05/12 00:27:42 $
-///  (last update by $Author: cklae $)
+///  $Revision: 1.10 $
+///  $Date: 2007/06/11 07:20:29 $
+///  (last update by $Author: flucke $)
 
-#include <string>
 #include <utility>
-#include <boost/cstdint.hpp>
 
-class Alignable;
 class DetId;
-class GeomDet;
 
 class TrackerAlignableId
 {
@@ -28,42 +24,12 @@ class TrackerAlignableId
 public:
   
   TrackerAlignableId() {}
-  ~TrackerAlignableId() {}
-
-  typedef std::pair<uint32_t,int> UniqueId;
-
-  /// Return geographical ID of first GeomDet
-  uint32_t alignableId( const Alignable* alignable ) const;
-
-  /// Return Type ID (Det, Rod etc.) of Alignable
-  int alignableTypeId( const Alignable* alignable ) const; 
-
-  /// Return uniqueID of alignable, consisting of the geographical ID of the
-  /// first GeomDet and the type ID (i.e. Rod, Layer, etc.) 
-  UniqueId alignableUniqueId( const Alignable* alignable ) const;
-  /// Return type and layer of Alignable
-  std::pair<int,int> typeAndLayerFromAlignable( const Alignable* alignable ) const;
-
-  /// Return type and layer of GeomDet
-  std::pair<int,int> typeAndLayerFromGeomDet( const GeomDet& geomDet ) const;
 
   /// Return type and layer of DetId
+  /// Keep this for now.
+  /// Concept of a "layer" in Alignment is obsolete.
+  /// Will be replaced by a more generic function.
   std::pair<int,int> typeAndLayerFromDetId( const DetId& detId ) const;
-
-  /// Return string corresponding to given Alignable
-  const std::string& alignableTypeName( const Alignable* alignable ) const;
-
-  /// Return string corresponding to given alignable object ID
-  const std::string& alignableTypeIdToName( int id ) const;
-  
-
-private:
-
-  /// Get first sensor of an Alignable
-  const Alignable& firstDet( const Alignable& alignable ) const;
- 
-  /// Get unique identifyer of first AlignableDet of alignable
-  uint32_t firstDetId( const Alignable& alignable ) const;
 
 };
 
