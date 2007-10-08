@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2007/04/20 06:58:26 $
- *  $Revision: 1.1 $
+ *  $Date: 2007/05/02 07:02:22 $
+ *  $Revision: 1.2 $
  *
  *  \author various
  *
@@ -12,6 +12,8 @@
 #include "HLTrigger/HLTanalyzers/interface/HLTGetDigi.h"
 
 #include "DataFormats/Common/interface/Handle.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/ESHandle.h"
 
 // system include files
 #include <memory>
@@ -41,6 +43,22 @@
 #include "DataFormats/DTDigi/interface/DTDigiCollection.h"
 #include "DataFormats/RPCDigi/interface/RPCDigi.h"
 #include "DataFormats/RPCDigi/interface/RPCDigiCollection.h"
+#include "DataFormats/L1GlobalCaloTrigger/interface/L1GctEtSums.h"
+#include "DataFormats/L1GlobalCaloTrigger/interface/L1GctCollections.h"
+#include "DataFormats/L1GlobalCaloTrigger/interface/L1GctJetCounts.h"
+#include "DataFormats/L1CaloTrigger/interface/L1CaloCollections.h"
+#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
+#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerEvmReadoutRecord.h"
+#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerObjectMapRecord.h"
+#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerObjectMap.h"
+#include "DataFormats/L1GlobalMuonTrigger/interface/L1MuGMTReadoutCollection.h"
+#include "DataFormats/L1GlobalMuonTrigger/interface/L1MuGMTCand.h"
+#include "DataFormats/L1GlobalMuonTrigger/interface/L1MuGMTExtendedCand.h"
+#include "CondFormats/L1TObjects/interface/L1GtParameters.h"
+#include "CondFormats/DataRecord/interface/L1GtParametersRcd.h"
+#include "DataFormats/L1GlobalMuonTrigger/interface/L1MuGMTCand.h"
+#include "DataFormats/L1GlobalMuonTrigger/interface/L1MuGMTExtendedCand.h"
+#include "DataFormats/L1GlobalMuonTrigger/interface/L1MuGMTReadoutCollection.h"
 
 using namespace edm;
 using namespace std;
@@ -63,6 +81,28 @@ HLTGetDigi::HLTGetDigi(const edm::ParameterSet& ps)
   DTdigiCollection_ = ps.getParameter<edm::InputTag>("DTdigiCollection");
   RPCdigiCollection_ = ps.getParameter<edm::InputTag>("RPCdigiCollection");
 
+  GctCaloEmLabel_ = ps.getParameter<edm::InputTag>("L1CaloEmCollection");
+  GctCaloRegionLabel_ = ps.getParameter<edm::InputTag>("L1CaloRegionCollection");
+
+  GctIsoEmLabel_ = ps.getParameter<edm::InputTag>("GctIsoEmCollection");
+  GctNonIsoEmLabel_ = ps.getParameter<edm::InputTag>("GctNonIsoEmCollection");
+
+  GctCenJetLabel_ = ps.getParameter<edm::InputTag>("GctCenJetCollection");
+  GctForJetLabel_ = ps.getParameter<edm::InputTag>("GctForJetCollection");
+  GctTauJetLabel_ = ps.getParameter<edm::InputTag>("GctTauJetCollection");
+  GctJetCountsLabel_ = ps.getParameter<edm::InputTag>("GctJetCounts");
+
+  GctEtHadLabel_ = ps.getParameter<edm::InputTag>("GctEtHadCollection");
+  GctEtMissLabel_ = ps.getParameter<edm::InputTag>("GctEtMissCollection");
+  GctEtTotalLabel_ = ps.getParameter<edm::InputTag>("GctEtTotalCollection");
+
+  GtEvmRRLabel_ = ps.getParameter<edm::InputTag>("GtEvmReadoutRecord");
+  GtObjectMapLabel_ = ps.getParameter<edm::InputTag>("GtObjectMapRecord");
+  GtRRLabel_ = ps.getParameter<edm::InputTag>("GtReadoutRecord");
+
+  GmtCandsLabel_ = ps.getParameter<edm::InputTag>("GmtCands");
+  GmtReadoutCollection_ = ps.getParameter<edm::InputTag>("GmtReadoutCollection");
+  
   //--- Define which digis we want ---//
   getEcalDigis_   = ps.getUntrackedParameter<bool>("getEcal",true) ; 
   getEcalESDigis_ = ps.getUntrackedParameter<bool>("getEcalES",true) ; 
@@ -72,6 +112,14 @@ HLTGetDigi::HLTGetDigi(const edm::ParameterSet& ps)
   getCSCDigis_    = ps.getUntrackedParameter<bool>("getCSC",true) ; 
   getDTDigis_     = ps.getUntrackedParameter<bool>("getDT",true) ; 
   getRPCDigis_    = ps.getUntrackedParameter<bool>("getRPC",true) ; 
+  getGctEmDigis_  = ps.getUntrackedParameter<bool>("getGctEm",true) ; 
+  getGctJetDigis_ = ps.getUntrackedParameter<bool>("getGctJet",true) ; 
+  getGctEtDigis_  = ps.getUntrackedParameter<bool>("getGctEt",true) ;
+  getL1Calo_      = ps.getUntrackedParameter<bool>("getL1Calo",true) ;
+  getGtRecords_   = ps.getUntrackedParameter<bool>("getGtRecords",true) ;
+  getGtRR_        = ps.getUntrackedParameter<bool>("getGtReadoutRecord",true) ;
+  getGmtCands_    = ps.getUntrackedParameter<bool>("getGmtCands",true) ;
+  getGmtRC_       = ps.getUntrackedParameter<bool>("getGmtReadout",true) ;
   
 }
 
@@ -88,6 +136,127 @@ HLTGetDigi::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
     using namespace edm;
 
+    //--- L1 GCT and GT Digis ---//
+    edm::Handle<L1GctEtHad> GctEtHad ; 
+    edm::Handle<L1GctEtMiss> GctEtMiss ; 
+    edm::Handle<L1GctEtTotal> GctEtTotal ; 
+
+    const L1GctEtHad*   etHad   = 0 ; 
+    const L1GctEtMiss*  etMiss  = 0 ; 
+    const L1GctEtTotal* etTotal = 0 ;
+
+    if (getGctEtDigis_) {
+        iEvent.getByLabel(GctEtHadLabel_,GctEtHad) ; 
+        iEvent.getByLabel(GctEtMissLabel_,GctEtMiss) ; 
+        iEvent.getByLabel(GctEtTotalLabel_,GctEtTotal) ; 
+        etHad = GctEtHad.product() ; 
+        etMiss = GctEtMiss.product() ; 
+        etTotal = GctEtTotal.product() ; 
+
+        LogDebug("DigiInfo") << "Value of L1GctEtHad::et(): " << etHad->et() ; 
+        LogDebug("DigiInfo") << "Value of L1GctEtMiss::et(): " << etMiss->et() << ", phi(): " << etMiss->phi() ; 
+        LogDebug("DigiInfo") << "Value of L1GctEtTotal::et(): " << etTotal->et() ; 
+    }
+
+    edm::Handle<L1GctEmCandCollection> GctIsoEM ; 
+    edm::Handle<L1GctEmCandCollection> GctNonIsoEM ; 
+
+    const L1GctEmCandCollection* isoEMdigis = 0 ; 
+    const L1GctEmCandCollection* nonIsoEMdigis = 0 ; 
+    if (getGctEmDigis_) {
+        iEvent.getByLabel(GctIsoEmLabel_,GctIsoEM) ;
+        isoEMdigis = GctIsoEM.product() ; 
+        iEvent.getByLabel(GctNonIsoEmLabel_,GctNonIsoEM) ; 
+        nonIsoEMdigis = GctNonIsoEM.product() ; 
+        LogDebug("DigiInfo") << "total # Gct Iso EM digis: " << isoEMdigis->size() ; 
+        LogDebug("DigiInfo") << "total # Gct non-Iso EM digis: " << nonIsoEMdigis->size() ;
+    }
+    
+    edm::Handle<L1GctJetCandCollection> GctCenJets ; 
+    edm::Handle<L1GctJetCandCollection> GctForJets ; 
+    edm::Handle<L1GctJetCandCollection> GctTauJets ; 
+    edm::Handle<L1GctJetCounts> GctJetCounts ; 
+
+    const L1GctJetCandCollection* cenJetDigis = 0 ; 
+    const L1GctJetCandCollection* forJetDigis = 0 ; 
+    const L1GctJetCandCollection* tauJetDigis = 0 ;
+    std::auto_ptr<L1GctJetCounts> newCounts( new L1GctJetCounts() ) ;
+    L1GctJetCounts* counts = newCounts.get() ; 
+        
+    if (getGctJetDigis_) {
+        iEvent.getByLabel(GctCenJetLabel_,GctCenJets) ;
+        cenJetDigis = GctCenJets.product() ; 
+        iEvent.getByLabel(GctForJetLabel_,GctForJets) ;
+        forJetDigis = GctForJets.product() ; 
+        iEvent.getByLabel(GctTauJetLabel_,GctTauJets) ;
+        tauJetDigis = GctTauJets.product() ; 
+        LogDebug("DigiInfo") << "total # Gct central Jet digis: " << cenJetDigis->size() ; 
+        LogDebug("DigiInfo") << "total # Gct forward Jet digis: " << forJetDigis->size() ;
+        LogDebug("DigiInfo") << "total # Gct tau Jet digis: " << tauJetDigis->size() ;
+
+        iEvent.getByLabel(GctJetCountsLabel_,GctJetCounts) ; 
+        *counts = *GctJetCounts.product() ;
+    }
+
+    edm::Handle<L1CaloEmCollection> GctCaloEm ; 
+    edm::Handle<L1CaloRegionCollection> GctCaloRegion ; 
+    
+    const L1CaloEmCollection* caloEm = 0 ; 
+    const L1CaloRegionCollection* caloRegion = 0 ; 
+
+    if (getL1Calo_) {
+        iEvent.getByLabel(GctCaloEmLabel_,GctCaloEm) ; 
+        iEvent.getByLabel(GctCaloRegionLabel_,GctCaloRegion) ; 
+
+        caloEm = GctCaloEm.product() ; 
+        caloRegion = GctCaloRegion.product() ; 
+
+        LogDebug("DigiInfo") << "Calo EM size: " << caloEm->size() ; 
+        LogDebug("DigiInfo") << "Calo region size: " << caloRegion->size() ; 
+    }
+
+    edm::Handle<L1GlobalTriggerEvmReadoutRecord> gtEvmRR ;
+    edm::Handle<L1GlobalTriggerObjectMapRecord> gtMap ;
+    edm::Handle<L1GlobalTriggerReadoutRecord> gtRR ;
+
+    edm::ESHandle< L1GtParameters > l1GtPar ;
+    iSetup.get< L1GtParametersRcd >().get( l1GtPar ) ;
+    int nBx = l1GtPar->gtTotalBxInEvent() ; 
+    
+    std::auto_ptr<L1GlobalTriggerEvmReadoutRecord> newGtEvm( new L1GlobalTriggerEvmReadoutRecord(nBx) ) ; 
+    std::auto_ptr<L1GlobalTriggerObjectMapRecord> newGtMap( new L1GlobalTriggerObjectMapRecord() ) ; 
+    std::auto_ptr<L1GlobalTriggerReadoutRecord> newGtRR( new L1GlobalTriggerReadoutRecord(nBx) ) ; 
+    L1GlobalTriggerEvmReadoutRecord* evm = newGtEvm.get() ; 
+    L1GlobalTriggerObjectMapRecord* map = newGtMap.get() ; 
+    L1GlobalTriggerReadoutRecord* rr = newGtRR.get() ; 
+    if (getGtRecords_) {
+        iEvent.getByLabel(GtEvmRRLabel_, gtEvmRR) ;
+        iEvent.getByLabel(GtObjectMapLabel_, gtMap) ;
+        *evm = *gtEvmRR.product() ;
+        *map = *gtMap.product() ;
+    }
+
+    if (getGtRR_) {
+        iEvent.getByLabel(GtRRLabel_, gtRR) ;
+        *rr = *gtRR.product() ;
+    }
+    
+    edm::Handle< std::vector<L1MuGMTCand> > GmtCands ;
+    edm::Handle<L1MuGMTReadoutCollection> GmtMuCollection ; 
+    std::auto_ptr<std::vector<L1MuGMTCand> > cands( new std::vector<L1MuGMTCand> ) ;
+    std::auto_ptr<L1MuGMTReadoutCollection> muCollection(new L1MuGMTReadoutCollection(nBx)) ;
+ 
+    if (getGmtCands_) {
+        iEvent.getByLabel(GmtCandsLabel_,GmtCands) ; 
+        *cands = *GmtCands.product() ; 
+    }
+    if (getGmtRC_) {
+        iEvent.getByLabel(GmtReadoutCollection_,GmtMuCollection) ;
+        *muCollection = *GmtMuCollection.product() ;
+        std::vector<L1MuGMTExtendedCand> muons = muCollection->getRecord().getGMTCands() ;
+        LogDebug("DigiInfo") << "GMT muons present: " << muons.size() ;
+    }
+    
     edm::Handle< DetSetVector<PixelDigi> >  input;
     auto_ptr<DetSetVector<PixelDigi> > NewPixelDigi(new DetSetVector<PixelDigi> );
     DetSetVector<PixelDigi>* tt = NewPixelDigi.get();

@@ -22,6 +22,7 @@
 <use name=SimDataFormats/HepMCProduct>
 <use name=DataFormats/L1Trigger>
 <use name=DataFormats/L1GlobalTrigger>
+<use name=CondFormats/L1TObjects>
 <use name=hepmc>
 <flags EDM_PLUGIN=1>
 <export>
@@ -49,4 +50,5 @@
   <use name=SimDataFormats/HepMCProduct>
   <use name=DataFormats/L1Trigger>
   <use name=DataFormats/L1GlobalTrigger>
+  <use name=CondFormats/L1TObjects>
 </export>

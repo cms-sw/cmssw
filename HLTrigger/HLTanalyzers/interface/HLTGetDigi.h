@@ -7,8 +7,8 @@
  *  This class is an EDAnalyzer implementing a "get data into RAM"
  *  functionality for DIGIs, to simulate online FF running/timimg.
  *
- *  $Date: 2007/04/20 06:58:26 $
- *  $Revision: 1.1 $
+ *  $Date: 2007/05/02 07:02:21 $
+ *  $Revision: 1.2 $
  *
  *  \author various
  *
@@ -42,6 +42,24 @@ class HLTGetDigi : public edm::EDAnalyzer {
   edm::InputTag CSCWiredigiCollection_;      
   edm::InputTag DTdigiCollection_;      
   edm::InputTag RPCdigiCollection_;
+  edm::InputTag GctCaloEmLabel_ ;
+  edm::InputTag GctCaloRegionLabel_ ;
+  edm::InputTag GctIsoEmLabel_ ;
+  edm::InputTag GctNonIsoEmLabel_ ;
+  edm::InputTag GctCenJetLabel_ ; 
+  edm::InputTag GctForJetLabel_ ; 
+  edm::InputTag GctTauJetLabel_ ; 
+  edm::InputTag GctJetCountsLabel_ ; 
+  edm::InputTag GctEtHadLabel_ ; 
+  edm::InputTag GctEtMissLabel_ ; 
+  edm::InputTag GctEtTotalLabel_ ; 
+
+  edm::InputTag GtEvmRRLabel_ ; 
+  edm::InputTag GtObjectMapLabel_ ; 
+  edm::InputTag GtRRLabel_ ; 
+
+  edm::InputTag GmtCandsLabel_ ; 
+  edm::InputTag GmtReadoutCollection_ ; 
     
   bool getEcalDigis_ ; 
   bool getEcalESDigis_ ; 
@@ -51,6 +69,14 @@ class HLTGetDigi : public edm::EDAnalyzer {
   bool getCSCDigis_ ; 
   bool getDTDigis_ ; 
   bool getRPCDigis_ ; 
+  bool getL1Calo_ ; 
+  bool getGctEmDigis_ ; 
+  bool getGctJetDigis_ ; 
+  bool getGctEtDigis_ ; 
+  bool getGtRecords_ ; 
+  bool getGtRR_ ; 
+  bool getGmtCands_ ; 
+  bool getGmtRC_ ; 
 
 };
 
