@@ -13,7 +13,7 @@
 //
 // Original Author:  Grigory Safronov
 //         Created:  Thu Jun  7 17:21:58 MSD 2007
-// $Id: EcalIsolatedParticleCandidateProducer.cc,v 1.1 2007/07/12 21:09:34 safronov Exp $
+// $Id: EcalIsolatedParticleCandidateProducer.cc,v 1.2 2007/10/08 13:22:25 safronov Exp $
 //
 //
 
@@ -85,8 +85,6 @@ void
 EcalIsolatedParticleCandidateProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
  
-  std::cout<<"NEW EVENT"<<std::endl;
-
   using namespace edm;
 
   Handle<l1extra::L1JetParticleCollection> l1Taus;
@@ -122,13 +120,11 @@ EcalIsolatedParticleCandidateProducer::produce(edm::Event& iEvent, const edm::Ev
 
   reco::EcalIsolatedParticleCandidateCollection * eipcCollection=new reco::EcalIsolatedParticleCandidateCollection;
 
-  std::cout<<"ntau: "<<l1Taus->size()<<std::endl;
   for (l1extra::L1JetParticleCollection::const_iterator tit=l1Taus->begin(); tit!=l1Taus->end(); tit++)
 	{
 	double dphi=fabs(tit->phi()-phiTriggered);
 	if (dphi>3.1415926535) dphi=2*3.1415926535-dphi;
 	double Rseed=sqrt(pow(etaTriggered-tit->eta(),2)+dphi*dphi);
-	std::cout<<"Rseed: "<<Rseed<<std::endl;
 	if (Rseed<1.2) continue;
 	int nhitOut=0;
 	int nhitIn=0;
@@ -191,7 +187,6 @@ EcalIsolatedParticleCandidateProducer::produce(edm::Event& iEvent, const edm::Ev
                         }
 
                 }
-	std::cout<<"NHITIN :"<<nhitIn<<"    NHITOUT: "<<nhitOut<<"   ETA: "<<tit->eta()<<"   PHI: "<<tit->phi()<<std::endl;
 	reco::EcalIsolatedParticleCandidate newca(tit->eta(), tit->phi(), InEnergy, OutEnergy, nhitIn, nhitOut);
         eipcCollection->push_back(newca);	
 	}
