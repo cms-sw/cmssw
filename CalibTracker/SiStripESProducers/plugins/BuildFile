@@ -1,0 +1,12 @@
+<use name=FWCore/Framework>
+<use name=FWCore/ParameterSet>
+<use name=FWCore/MessageLogger>
+<use name=CondFormats/DataRecord>
+<use name=CondFormats/SiStripObjects>
+<use name=CalibTracker/Records>
+<use name=CalibTracker/SiStripCommon>
+<use name=CalibFormats/SiStripObjects>
+
+<library file=*.cc name=CalibTrackerSiStripESProducersPlugins>
+  <flags EDM_PLUGIN=1>
+</library>
