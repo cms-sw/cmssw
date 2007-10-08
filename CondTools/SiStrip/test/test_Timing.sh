@@ -2,7 +2,7 @@
 
 function test_db() {
 
-    [ $# = 0 ] && echo -e "usage: test_db -mode<write/read> -what<gain,ped,noise,pednoise,modulehv,badstrip> -stream<blob,noblob> -geom_mtcc<-geom_ideal> <-debug>\n"
+    [ $# = 0 ] && echo -e "usage: test_db -mode<write/read> -what<gain,ped,noise,pednoise,modulehv,badstrip> -stream<blob,noblob>  <-debug>\n"
 
     mode=""
     [ `echo $@ | grep -c "\-write[ ]*"` = 1 ] && mode=write 
@@ -19,17 +19,14 @@ function test_db() {
     [ `echo $@ | grep -c "\-noise[ ]*"`    = 1 ] && module=noise   
     [ `echo $@ | grep -c "\-pednoise[ ]*"` = 1 ] && module=pednoise
 
-    [ `echo $@ | grep -c "\-geom_mtcc[ ]*"`  = 1 ] && geom=geom_mtcc
-    [ `echo $@ | grep -c "\-geom_ideal[ ]*"` = 1 ] && geom=geom_ideal
-
     debugflag="false"
     [ `echo $@ | grep -c "\-debug[ ]*"` = 1 ] && debugflag=debug 
 
-    logfile=${mode}_${module}_${geom}_${blobflag}.log
-    dbfile=${workdir}/${module}_${geom}_${blobflag}.db
-    dbcatalog=${workdir}/${module}_${geom}_${blobflag}.xml
+    logfile=${mode}_${module}_${blobflag}.log
+    dbfile=${workdir}/${module}_${blobflag}.db
+    dbcatalog=${workdir}/${module}_${blobflag}.xml
 
-    cfgfile=${workdir}/${mode}_${module}_${geom}_${blobflag}.cfg
+    cfgfile=${workdir}/${mode}_${module}_${blobflag}.cfg
 
 
     eval `scramv1 runtime -sh`
@@ -51,7 +48,6 @@ function test_db() {
         -e "s@insert_logfile@${logfile}@"  \
         -e "s@insert_dbfile@${dbfile}@"  \
         -e "s@insert_dbcatalog@${dbcatalog}@"  \
-        -e "s@\#${geom}@@"  \
         -e "s@\#${blobflag}@@"  \
         -e "s@\#${debugflag}[ ]* @@g" \
         -e "s@\#${module}[ ]* @@g" \
@@ -100,12 +96,8 @@ if [ "$1" == "doLoop" ];
 	do
 	for what in badstrip gain ped noise pednoise;
 	  do
-	      #echo -e "\n\n$mode $what with $stream on geometry mtcc\n\n"      
-	      #test_db -$mode -$what -$stream -geom_mtcc -debug
-	      #timeis[$i]=$timereport
-	      #let i++
 	  echo -e "\n\n$mode $what with $stream on geometry ideal\n\n"      
-	  test_db -$mode -$what -$stream -geom_ideal
+	  test_db -$mode -$what -$stream 
 	  timeis[$i]=$timereport
 	  let i++
 	done
@@ -122,15 +114,13 @@ if [ "$1" == "doLoop" ];
 	do
 	for what in modulehv badstrip gain ped noise pednoise;
 	  do
-	     # echo -e "$mode \t$what \twith $stream on geometry mtcc debug \t\t" ${timeis[$i]}     
-	     # let i++
 	  echo -e "$mode \t$what \twith $stream on geometry ideal      \t\t" ${timeis[$i]}     
 	  let i++
 	done
       done
     done
-else
+else 
     echo -e "\n[usage]:  "
     echo -e "\n\ttest_Timing.sh doLoop"
-    echo -e "OR\n\ttest_db -mode<write/read> -what<modulehv, badstrip,gain,ped,noise,pednoise> -stream<blob,noblob> -geom_mtcc<-geom_ideal> <-debug>\n"
+    echo -e "OR\n\tgo to bash\n\t. ./test_Timing.sh  \n\t test_db -mode<write/read> -what<modulehv, badstrip,gain,ped,noise,pednoise> -stream<blob,noblob> <-debug>\n"
 fi
