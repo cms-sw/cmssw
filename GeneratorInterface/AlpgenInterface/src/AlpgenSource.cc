@@ -1,6 +1,6 @@
 /*
- *  $Date: 2007/07/13 16:07:50 $
- *  $Revision: 1.7 $
+ *  $Date: 2007/07/17 13:23:04 $
+ *  $Revision: 1.8 $
  *  
  *  Filip Moorgat & Hector Naves 
  *  26/10/05
@@ -233,7 +233,14 @@ bool AlpgenSource::produce(Event & e) {
     call_pyhepc( 1 );
     
     //    HepMC::GenEvent* evt = conv.getGenEventfromHEPEVT();
-    HepMC::GenEvent* evt = conv.read_next_event();
+    //    HepMC::GenEvent* evt = conv.read_next_event();
+    // temp fix from memory leak from Andreas Hinzmann
+    HepMC::GenEvent* evt;
+    if(evt) {
+     if (evt->particles_size()>0) delete evt;
+    }
+    evt = conv.read_next_event();
+    
     evt->set_signal_process_id(pypars.msti[0]);
     evt->set_event_number(numberEventsInRun() - remainingEvents() - 1);
     
