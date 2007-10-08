@@ -3,8 +3,8 @@
  *  Makes histograms of high level Muon objects/quantities
  *  for Alignment Scenarios/DB comparison
  *
- *  $Date: 2007/07/19 17:53:06 $
- *  $Revision: 1.5 $
+ *  $Date: 2007/09/05 11:06:25 $
+ *  $Revision: 1.14 $
  *  \author J. Fernandez - IFCA (CSIC-UC) <Javier.Fernandez@cern.ch>
  */
 
@@ -634,7 +634,7 @@ void MuonAlignmentAnalyzer::analyze(const Event & event, const EventSetup& event
     std::vector<TrackingRecHit *> my4DTrack;
     
     //Loop over the hits of the track
-    for(int counter  = 0; counter != staTrack->recHitsSize()-1; ++counter) {
+    for(unsigned int counter  = 0; counter != staTrack->recHitsSize()-1; ++counter) {
   
       TrackingRecHitRef myRef = staTrack->recHit(counter);
       const TrackingRecHit *rechit = myRef.get();
@@ -848,14 +848,14 @@ void MuonAlignmentAnalyzer::analyze(const Event & event, const EventSetup& event
 	    char nameOfHistoZ[50];
 	
 	    if(det==1){ // DT
-	    sprintf(nameOfHistoRPhi, "ResidualRPhi_W%ldMB%1dS%1d",wheel,station,sector );
-	    sprintf(nameOfHistoPhi, "ResidualPhi_W%ldMB%1dS%1d",wheel,station,sector);
-	    sprintf(nameOfHistoZ, "ResidualZ_W%ldMB%1dS%1d",wheel,station,sector);
+	    sprintf(nameOfHistoRPhi, "ResidualRPhi_W%dMB%1dS%1d",wheel,station,sector );
+	    sprintf(nameOfHistoPhi, "ResidualPhi_W%dMB%1dS%1d",wheel,station,sector);
+	    sprintf(nameOfHistoZ, "ResidualZ_W%dMB%1dS%1d",wheel,station,sector);
 	    }
 	    else if(det==2){ //CSC
-	    sprintf(nameOfHistoRPhi, "ResidualRPhi_ME%ldR%1dCh%1d",station,ring,chamber );
-	    sprintf(nameOfHistoPhi, "ResidualPhi_ME%ldR%1dCh%1d",station,ring,chamber);
-	    sprintf(nameOfHistoZ, "ResidualZ_ME%ldR%1dCh%1d",station,ring,chamber);
+	    sprintf(nameOfHistoRPhi, "ResidualRPhi_ME%dR%1dCh%1d",station,ring,chamber );
+	    sprintf(nameOfHistoPhi, "ResidualPhi_ME%dR%1dCh%1d",station,ring,chamber);
+	    sprintf(nameOfHistoZ, "ResidualZ_ME%dR%1dCh%1d",station,ring,chamber);
 
 	    }		    
 	    
