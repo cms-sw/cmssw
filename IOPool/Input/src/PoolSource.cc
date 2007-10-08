@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: PoolSource.cc,v 1.62 2007/09/10 20:25:11 wmtan Exp $
+$Id: PoolSource.cc,v 1.63 2007/09/19 19:35:51 wmtan Exp $
 ----------------------------------------------------------------------*/
 #include "PoolSource.h"
 #include "RootFile.h"
@@ -32,6 +32,8 @@ namespace edm {
     if (matchMode == std::string("strict")) matchMode_ = BranchDescription::Strict;
     ClassFiller();
     if (primary()) {
+      TFile *filePtr = (fileIter_->fileName().empty() ? 0 : TFile::Open(fileIter_->fileName().c_str()));
+      if (filePtr != 0) filePtr->Close();
       init(*fileIter_);
       updateProductRegistry();
       setInitialPosition(pset);
@@ -60,7 +62,7 @@ namespace edm {
 
   void
   PoolSource::endJob() {
-    rootFile_->close();
+    rootFile_->close(true);
     delete flatDistribution_;
   }
 
@@ -102,8 +104,6 @@ namespace edm {
 
   void PoolSource::init(FileCatalogItem const& file) {
     TTree::SetMaxTreeSize(kMaxLong64);
-    TFile *filePtr = (file.fileName().empty() ? 0 : TFile::Open(file.fileName().c_str()));
-    if (filePtr != 0) filePtr->Close();
     rootFile_ = RootFileSharedPtr(new RootFile(file.fileName(), catalog().url(),
 	processConfiguration(), file.logicalFileName()));
   }
@@ -135,7 +135,7 @@ namespace edm {
       }
     }
 
-    rootFile_->close();
+    rootFile_->close(primary());
 
     init(*fileIter_);
 
@@ -162,7 +162,7 @@ namespace edm {
     }
     --fileIter_;
 
-    rootFile_->close();
+    rootFile_->close(primary());
 
     init(*fileIter_);
 

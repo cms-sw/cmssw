@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: RootFile.cc,v 1.83 2007/09/19 20:25:12 wmtan Exp $
+$Id: RootFile.cc,v 1.84 2007/10/03 22:28:00 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "RootFile.h"
@@ -177,9 +177,10 @@ namespace edm {
   }
 
   void
-  RootFile::close() {
-    // Do not close the TFile explicitly because a delayed reader may still be using it.
-    // The shared pointers will take care of closing and deleting it.
+  RootFile::close(bool reallyClose) {
+    if (reallyClose) {
+      filePtr_->Close();
+    }
     Service<JobReport> reportSvc;
     reportSvc->inputFileClosed(reportToken_);
   }
