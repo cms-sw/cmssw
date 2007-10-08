@@ -1,11 +1,9 @@
 /*----------------------------------------------------------------------
-$Id: RootFile.cc,v 1.84 2007/10/03 22:28:00 wmtan Exp $
+$Id: RootFile.cc,v 1.81 2007/09/11 19:52:11 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "RootFile.h"
 
-
-#include "IOPool/Common/interface/FileIdentifier.h"
 #include "DataFormats/Provenance/interface/BranchDescription.h"
 #include "DataFormats/Provenance/interface/BranchType.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
@@ -15,7 +13,6 @@ $Id: RootFile.cc,v 1.84 2007/10/03 22:28:00 wmtan Exp $
 #include "DataFormats/Provenance/interface/ParameterSetBlob.h"
 #include "DataFormats/Provenance/interface/ModuleDescriptionRegistry.h"
 #include "DataFormats/Provenance/interface/ProcessHistoryRegistry.h"
-#include "DataFormats/Provenance/interface/RunID.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/Registry.h"
@@ -32,6 +29,20 @@ $Id: RootFile.cc,v 1.84 2007/10/03 22:28:00 wmtan Exp $
 #include "Rtypes.h"
 
 namespace edm {
+  namespace {
+    void
+    kludgeZeroRun(RunID *id) {
+      if (id->run() == 0) (*id) = RunID(1);
+    }
+    void
+    kludgeZeroRun(LuminosityBlockID *id) {
+      if (id->run() == 0) (*id) = LuminosityBlockID(1, id->luminosityBlock());
+    }
+    void
+    kludgeZeroRun(EventID *id) {
+      if (id->run() == 0) (*id) = EventID(1, id->event());
+    }
+  }
 //---------------------------------------------------------------------
   RootFile::RootFile(std::string const& fileName,
 		     std::string const& catalogName,
@@ -51,9 +62,7 @@ namespace edm {
       lumiTree_(filePtr_, InLumi),
       runTree_(filePtr_, InRun),
       treePointers_(),
-      productRegistry_(),
-      forcedRunNumber_(0),
-      forcedRunNumberOffset_(0) {
+      productRegistry_() {
     treePointers_[InEvent] = &eventTree_;
     treePointers_[InLumi]  = &lumiTree_;
     treePointers_[InRun]   = &runTree_;
@@ -73,7 +82,6 @@ namespace edm {
     ProcessHistoryMap *pHistMapPtr = &pHistMap;
     ModuleDescriptionMap *mdMapPtr = &mdMap;
     FileFormatVersion *fftPtr = &fileFormatVersion_;
-    FileID *fidPtr = &fid_;
 
     // Read the metadata tree.
     TTree *metaDataTree = dynamic_cast<TTree *>(filePtr_->Get(poolNames::metaDataTreeName().c_str()));
@@ -84,9 +92,6 @@ namespace edm {
     metaDataTree->SetBranchAddress(poolNames::processHistoryMapBranchName().c_str(), &pHistMapPtr);
     metaDataTree->SetBranchAddress(poolNames::moduleDescriptionMapBranchName().c_str(), &mdMapPtr);
     metaDataTree->SetBranchAddress(poolNames::fileFormatVersionBranchName().c_str(), &fftPtr);
-    if (metaDataTree->FindBranch(poolNames::fileIdentifierBranchName().c_str()) != 0) {
-      metaDataTree->SetBranchAddress(poolNames::fileIdentifierBranchName().c_str(), &fidPtr);
-    }
 
     metaDataTree->GetEntry(0);
 
@@ -148,9 +153,6 @@ namespace edm {
     if (!fileFormatVersion_.isValid()) {
       fileFormatVersion_.value_ = 0;
     }
-    if (!fid_.isValid()) {
-      fid_ = FileID(createFileIdentifier());
-    }
     assert(eventTree().isValid());
 //  if (fileFormatVersion_.value_ >= 3) {
 //    assert(lumiTree().isValid());
@@ -179,7 +181,7 @@ namespace edm {
   void
   RootFile::close(bool reallyClose) {
     if (reallyClose) {
-      filePtr_->Close();
+    filePtr_->Close();
     }
     Service<JobReport> reportSvc;
     reportSvc->inputFileClosed(reportToken_);
@@ -200,7 +202,7 @@ namespace edm {
         eventAux_.luminosityBlock_ = 1;
       }
     }
-    overrideRunNumber(eventAux_.id_, eventAux_.isRealData());
+    kludgeZeroRun(&eventAux_.id_);
   }
 
   // readEvent() is responsible for creating, and setting up, the
@@ -272,7 +274,7 @@ namespace edm {
       EventAux eventAux;
       EventAux *pEvAux = &eventAux;
       eventTree().fillAux<EventAux>(pEvAux);
-      overrideRunNumber(eventAux.id_, false);
+      kludgeZeroRun(&eventAux.id_);
       // back up, so event will not be skipped.
       eventTree().previous();
       return boost::shared_ptr<RunPrincipal>(
@@ -293,7 +295,7 @@ namespace edm {
       runTree().fillAux<RunAux>(pRunAux);
       conversion(runAux, runAux_);
     } 
-    overrideRunNumber(runAux_.id_);
+    kludgeZeroRun(&runAux_.id_);
     if (runAux_.beginTime() == Timestamp::invalidTimestamp()) {
       // RunAuxiliary did not contain a valid timestamp.  Take it from the next event.
       if (eventTree().next()) {
@@ -327,7 +329,7 @@ namespace edm {
       EventAux eventAux;
       EventAux *pEvAux = &eventAux;
       eventTree().fillAux<EventAux>(pEvAux);
-      overrideRunNumber(eventAux.id_, false);
+      kludgeZeroRun(&eventAux.id_);
       // back up, so event will not be skipped.
       eventTree().previous();
       if (eventAux.id_.run() != rp->run()) {
@@ -355,7 +357,7 @@ namespace edm {
       lumiTree().fillAux<LuminosityBlockAux>(pLumiAux);
       conversion(lumiAux, lumiAux_);
     }
-    overrideRunNumber(lumiAux_.id_);
+    kludgeZeroRun(&lumiAux_.id_);
 
     if (lumiAux_.run() != rp->run()) {
       // The lumi block is in a different run.  Back up, and return a null pointer.
@@ -382,35 +384,5 @@ namespace edm {
     // Create a group in the lumi for each product
     lumiTree().fillGroups(thisLumi->groupGetter());
     return thisLumi;
-  }
-
-  void
-  RootFile::overrideRunNumber(RunID & id) {
-    if (forcedRunNumber_ != 0) {
-       forcedRunNumberOffset_ = forcedRunNumber_ - id.run();
-       forcedRunNumber_ = 0;
-    }
-    if (forcedRunNumberOffset_ != 0) {
-      id = RunID(id.run() + forcedRunNumberOffset_);
-    } 
-    if (id.run() == 0) id = RunID::firstValidRun();
-  }
-  void
-  RootFile::overrideRunNumber(LuminosityBlockID & id) {
-    if (forcedRunNumberOffset_ != 0) {
-      id = LuminosityBlockID(id.run() + forcedRunNumberOffset_, id.luminosityBlock());
-    } 
-    if (id.run() == 0) id = LuminosityBlockID(RunID::firstValidRun().run(), id.luminosityBlock());
-  }
-  void
-  RootFile::overrideRunNumber(EventID & id, bool isRealData) {
-    if (forcedRunNumberOffset_ != 0) {
-      if (isRealData) {
-        throw cms::Exception("Configuration","RootFile::RootFile()")
-          << "The 'setRunNumber' parameter of PoolSource cannot be used with real data.\n";
-      }
-      id = EventID(id.run() + forcedRunNumberOffset_, id.event());
-    } 
-    if (id.run() == 0) id = EventID(RunID::firstValidRun().run(), id.event());
   }
 }

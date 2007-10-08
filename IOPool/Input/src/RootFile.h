@@ -5,7 +5,7 @@
 
 RootFile.h // used by ROOT input sources
 
-$Id: RootFile.h,v 1.35 2007/10/03 22:28:01 wmtan Exp $
+$Id: RootFile.h,v 1.36 2007/10/08 21:39:23 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -21,8 +21,6 @@ $Id: RootFile.h,v 1.35 2007/10/03 22:28:01 wmtan Exp $
 #include "DataFormats/Provenance/interface/LuminosityBlockAuxiliary.h"
 #include "DataFormats/Provenance/interface/RunAuxiliary.h"
 #include "DataFormats/Provenance/interface/FileFormatVersion.h"
-#include "DataFormats/Provenance/interface/FileID.h"
-#include "DataFormats/Provenance/interface/ProvenanceFwd.h"
 #include "FWCore/MessageLogger/interface/JobReport.h"
 class TFile;
 
@@ -33,7 +31,7 @@ namespace edm {
 
   class RootFile {
   public:
-    typedef boost::array<RootTree *, NumBranchTypes> RootTreePtrArray;
+    typedef boost::array<RootTree *, EndBranchType> RootTreePtrArray;
     explicit RootFile(std::string const& fileName,
 		      std::string const& catalogName,
 		      ProcessConfiguration const& processConfiguration,
@@ -57,14 +55,10 @@ namespace edm {
     RootTree & eventTree() {return eventTree_;}
     RootTree & lumiTree() {return lumiTree_;}
     RootTree & runTree() {return runTree_;}
-    void forceRunNumber(RunNumber_t const& run) {forcedRunNumber_ = run;}
 
   private:
     void validateFile();
     void fillEventAuxiliary();
-    void overrideRunNumber(RunID & id);
-    void overrideRunNumber(LuminosityBlockID & id);
-    void overrideRunNumber(EventID & id, bool isRealData);
     RootFile(RootFile const&); // disable copy construction
     RootFile & operator=(RootFile const&); // disable assignment
     std::string const file_;
@@ -73,7 +67,6 @@ namespace edm {
     ProcessConfiguration const& processConfiguration_;
     boost::shared_ptr<TFile> filePtr_;
     FileFormatVersion fileFormatVersion_;
-    FileID fid_;
     JobReport::Token reportToken_;
     EventAuxiliary eventAux_;
     LuminosityBlockAuxiliary lumiAux_;
@@ -83,8 +76,6 @@ namespace edm {
     RootTree runTree_;
     RootTreePtrArray treePointers_;
     boost::shared_ptr<ProductRegistry const> productRegistry_;
-    RunNumber_t forcedRunNumber_;
-    int forcedRunNumberOffset_;
   }; // class RootFile
 
 }
