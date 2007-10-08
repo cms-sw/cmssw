@@ -227,6 +227,7 @@ void L1GctCalibFunConfigurer::setPiecewiseCubicParamsForBin(std::vector<double>&
 
     // Here's the extrapolation above etMax
     double etMaxCorr = p0.at(1) + etMax*(p1.at(1) + etMax*(p2.at(1) + etMax*p3.at(1)));
+    threshold.at(0) = etMax;
     p0.at(0) = 0.0;
     p1.at(0) = etMaxCorr/etMax;
     p2.at(0) = 0.0;
@@ -253,7 +254,7 @@ void L1GctCalibFunConfigurer::setPiecewiseCubicParamsForBin(std::vector<double>&
     // Put the parameters back into the vector, with
     // the high-Et extrapolation at the beginning
     paramsForBin.clear();
-    for (unsigned piece=0; piece<numberOfPieces; piece++) {
+    for (unsigned piece=0; piece<=numberOfPieces; piece++) {
       paramsForBin.push_back(threshold.at(piece));
       paramsForBin.push_back(p0.at(piece));
       paramsForBin.push_back(p1.at(piece));
