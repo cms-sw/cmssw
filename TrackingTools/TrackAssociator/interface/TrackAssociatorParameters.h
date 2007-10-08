@@ -13,7 +13,7 @@
 */
 //
 // Original Author:  Dmytro Kovalskyi
-// $Id: TrackAssociatorParameters.h,v 1.2 2007/04/13 03:09:27 dmytro Exp $
+// $Id: TrackAssociatorParameters.h,v 1.3.4.1 2007/10/08 10:28:17 dmytro Exp $
 //
 //
 
@@ -21,6 +21,7 @@
 
 class TrackAssociatorParameters {
  public:
+   enum CrossedEnergyAlgorithmType { SinglePointAlongTrajectory, FivePointTwoSigmaElipseAlongTrajectory };
    TrackAssociatorParameters(){}
    TrackAssociatorParameters( const edm::ParameterSet& );
    void loadParameters( const edm::ParameterSet& );
@@ -69,6 +70,6 @@ class TrackAssociatorParameters {
    edm::InputTag theDTRecSegment4DCollectionLabel;
    edm::InputTag theCSCSegmentCollectionLabel;
    
-
+   CrossedEnergyAlgorithmType crossedEnergyType;
 };
 #endif

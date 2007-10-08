@@ -18,7 +18,7 @@
 //
 // Original Author:  Dmytro Kovalskyi
 //         Created:  Fri Apr 21 10:59:41 PDT 2006
-// $Id: CachedTrajectory.h,v 1.7 2007/06/27 07:09:11 dmytro Exp $
+// $Id: CachedTrajectory.h,v 1.8.4.1 2007/10/08 10:28:16 dmytro Exp $
 //
 //
 
@@ -35,6 +35,7 @@ class CachedTrajectory {
  public:
    CachedTrajectory();
    enum TrajectorType { IpToEcal, IpToHcal, IpToHO, FullTrajectory };
+   enum WideTrajectoryType { Ecal, Hcal, HO };
 
    void reset_trajectory();
    
@@ -67,6 +68,9 @@ class CachedTrajectory {
    const std::vector<SteppingHelixStateInfo>& getEcalTrajectory();
    const std::vector<SteppingHelixStateInfo>& getHcalTrajectory();
    const std::vector<SteppingHelixStateInfo>& getHOTrajectory();
+
+   std::vector<GlobalPoint>* getWideTrajectory(const std::vector<SteppingHelixStateInfo>&,
+                                                     WideTrajectoryType);
 
    SteppingHelixStateInfo getStateAtEcal();
    SteppingHelixStateInfo getStateAtHcal();
@@ -114,6 +118,9 @@ class CachedTrajectory {
    std::vector<SteppingHelixStateInfo> ecalTrajectory_;
    std::vector<SteppingHelixStateInfo> hcalTrajectory_;
    std::vector<SteppingHelixStateInfo> hoTrajectory_;
+   std::vector<GlobalPoint> wideEcalTrajectory_; 
+   std::vector<GlobalPoint> wideHcalTrajectory_;
+   std::vector<GlobalPoint> wideHOTrajectory_;
    SteppingHelixStateInfo stateAtIP_;
    
    bool fullTrajectoryFilled_;

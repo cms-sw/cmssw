@@ -10,7 +10,7 @@
 */
 //
 // Original Author:  Dmytro Kovalskyi
-// $Id: TrackAssociatorParameters.cc,v 1.2 2007/04/13 03:09:27 dmytro Exp $
+// $Id: TrackAssociatorParameters.cc,v 1.3.4.1 2007/10/08 10:28:18 dmytro Exp $
 //
 //
 
@@ -50,6 +50,14 @@ void TrackAssociatorParameters::loadParameters( const edm::ParameterSet& iConfig
    // accountForTrajectoryChangeMuon   = iConfig.getParameter<bool>("accountForTrajectoryChangeMuon");
    
    truthMatch = iConfig.getParameter<bool>("truthMatch");
+   std::string type = iConfig.getParameter<std::string>("crossedEnergyType");
+   
+   crossedEnergyType = SinglePointAlongTrajectory;    // default
+   if ( type == "FivePointTwoSigmaElipseAlongTrajectory" )  
+     crossedEnergyType = FivePointTwoSigmaElipseAlongTrajectory;
+   else
+     if ( type != "SinglePointAlongTrajectory" ) 
+       throw cms::Exception("ConfigurationError") << "Uknown algorithm type: " << type << "\n";
 }
 
 TrackAssociatorParameters::TrackAssociatorParameters( const edm::ParameterSet& iConfig )

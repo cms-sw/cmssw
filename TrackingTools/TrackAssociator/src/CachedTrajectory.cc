@@ -3,7 +3,7 @@
 // Package:    TrackAssociator
 // Class:      CachedTrajectory
 // 
-// $Id: CachedTrajectory.cc,v 1.12 2007/06/27 07:09:12 dmytro Exp $
+// $Id: CachedTrajectory.cc,v 1.13.4.1 2007/10/08 10:28:18 dmytro Exp $
 //
 //
 
@@ -354,6 +354,9 @@ void CachedTrajectory::reset_trajectory() {
    ecalTrajectory_.clear();
    hcalTrajectory_.clear();
    hoTrajectory_.clear();
+   wideEcalTrajectory_.clear();   
+   wideHcalTrajectory_.clear();
+   wideHOTrajectory_.clear();
    fullTrajectoryFilled_ = false;
 }
 
@@ -387,6 +390,101 @@ const std::vector<SteppingHelixStateInfo>& CachedTrajectory::getHOTrajectory() {
    return hoTrajectory_;
 }
    
+std::vector<GlobalPoint>*
+CachedTrajectory::getWideTrajectory(const std::vector<SteppingHelixStateInfo>& states, 
+                                    WideTrajectoryType wideTrajectoryType) {
+   std::vector<GlobalPoint>* wideTrajectory = 0;
+   switch (wideTrajectoryType) {
+    case Ecal:
+       LogTrace("TrackAssociator") << "Filling ellipses in Ecal trajectory";
+       wideTrajectory = &wideEcalTrajectory_;
+       break;
+    case Hcal:
+       LogTrace("TrackAssociator") << "Filling ellipses in Hcal trajectory";
+      wideTrajectory = &wideHcalTrajectory_;
+      break;
+    case HO:
+       LogTrace("TrackAssociator") << "Filling ellipses in HO trajectory";
+       wideTrajectory = &wideHOTrajectory_;
+       break;
+   }
+   if(!wideTrajectory) return 0;
+
+   for(std::vector<SteppingHelixStateInfo>::const_iterator state= states.begin();
+       state != states.end(); state++) {
+      // defined a normal plane wrt the particle trajectory direction
+      // let's hope that I computed the rotation matrix correctly.
+      GlobalVector vector(state->momentum().unit());
+      float r21 = 0;
+      float r22 = vector.z()/sqrt(1-pow(vector.x(),2));
+      float r23 = -vector.y()/sqrt(1-pow(vector.x(),2));
+      float r31 = vector.x();
+      float r32 = vector.y();
+      float r33 = vector.z();
+      float r11 = r22*r33-r23*r32;
+      float r12 = r23*r31;
+      float r13 = -r22*r31;
+   
+      Plane::RotationType rotation(r11, r12, r13,
+                                   r21, r22, r23,
+                                   r31, r32, r33);
+      Plane* target = new Plane(state->position(), rotation);
+
+      TrajectoryStateOnSurface tsos = state->getStateOnSurface(*target);
+
+      if (!tsos.isValid()) {
+         LogTrace("TrackAssociator") << "[getWideTrajectory] TSOS not valid";
+         continue;
+      }
+      if (!tsos.hasError()) {
+         LogTrace("TrackAssociator") << "[getWideTrajectory] TSOS does not have Errors";
+         continue;
+      }
+      LocalError localErr = tsos.localError().positionError();
+      localErr.scale(2); // get the 2 sigma ellipse
+      float xx = localErr.xx();
+      float xy = localErr.xy();
+      float yy = localErr.yy();
+
+      float denom = yy - xx;
+      float phi = 0., phi_temp=0.;
+      if(xy == 0 && denom==0) phi = M_PI_4;
+      else phi = 0.5 * atan2(2.*xy,denom); // angle of MAJOR axis
+      phi_temp = phi;
+      // Unrotate the error ellipse to get the semimajor and minor axes. Then place points on
+      // the endpoints of semiminor an seminajor axes on original(rotated) error ellipse.
+      LocalError rotErr = localErr.rotate(-phi); // xy covariance of rotErr should be zero
+      float semi1 = sqrt(rotErr.xx());
+      float semi2 = sqrt(rotErr.yy());
+      
+      // Just use one point if the ellipse is small
+      // if(semi1 < 0.1 && semi2 < 0.1) {
+      //   LogTrace("TrackAssociator") << "[getWideTrajectory] Error ellipse is small, using one trajectory point";
+      //   wideTrajectory->push_back(state->position());
+      //   continue;
+      // }
+
+      Local2DPoint bounds[4];
+      bounds[0] = Local2DPoint(semi1*cos(phi),         semi1*sin(phi));
+      bounds[1] = Local2DPoint(semi1*cos(phi+M_PI),    semi1*sin(phi+M_PI));
+      phi += M_PI_2; // add pi/2 for the semi2 axis
+      bounds[2] = Local2DPoint(semi2*cos(phi),         semi2*sin(phi));
+      bounds[3] = Local2DPoint(semi2*cos(phi+M_PI),    semi2*sin(phi+M_PI));
+
+      // LogTrace("TrackAssociator") << "Axes " << semi1 <<","<< semi2 <<"   phi "<< phi;
+      // LogTrace("TrackAssociator") << "Local error ellipse: " << bounds[0] << bounds[1] << bounds[2] << bounds[3];
+
+      wideTrajectory->push_back(state->position());
+      for(int index=0; index<4; ++index)
+         wideTrajectory->push_back(target->toGlobal(bounds[index]));
+
+      //LogTrace("TrackAssociator") <<"Global error ellipse: (" << target->toGlobal(bounds[0]) <<","<< target->toGlobal(bounds[1])
+      //         <<","<< target->toGlobal(bounds[2]) <<","<< target->toGlobal(bounds[3]) <<","<<state->position() <<")";
+   }
+
+   return wideTrajectory;
+}
+
 SteppingHelixStateInfo CachedTrajectory::getStateAtEcal()
 {
    if ( ecalTrajectory_.empty() )

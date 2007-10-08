@@ -24,8 +24,8 @@ std::string TrackDetMatchInfo::dumpGeometry( const DetId& id )
    }
    std::ostringstream oss;
 
-   const CaloCellGeometry::CornersVec& points = caloGeometry->getSubdetectorGeometry(id)->getGeometry(id)->getCorners();
-   for( CaloCellGeometry::CornersVec::const_iterator point = points.begin();
+   const std::vector<GlobalPoint>& points = caloGeometry->getSubdetectorGeometry(id)->getGeometry(id)->getCorners();
+   for(std::vector<GlobalPoint>::const_iterator point = points.begin();
        point != points.end(); ++point)
      oss << "(" << point->z() << ", " << point->perp() << ", " << point->eta() << ", " << point->phi() << "), \t";
    return oss.str();

@@ -13,7 +13,7 @@
 //
 // Original Author:  Dmytro Kovalskyi
 //         Created:  Fri Apr 21 10:59:41 PDT 2006
-// $Id: TrackDetectorAssociator.cc,v 1.22 2007/09/17 22:00:57 dmytro Exp $
+// $Id$
 //
 //
 
@@ -263,11 +263,24 @@ void TrackDetectorAssociator::fillEcal( const edm::Event& iEvent,
    timers.push("TrackDetectorAssociator::fillEcal");
    
    const std::vector<SteppingHelixStateInfo>& trajectoryStates = cachedTrajectory_.getEcalTrajectory();
-   std::vector<GlobalPoint> trajectory;
-   for(std::vector<SteppingHelixStateInfo>::const_iterator itr = trajectoryStates.begin();
-       itr != trajectoryStates.end(); itr++) trajectory.push_back(itr->position());
+
+   std::vector<GlobalPoint> coreTrajectory;
+   std::vector<GlobalPoint> trajectoryWithErrors;
+   if ( parameters.crossedEnergyType == TrackAssociatorParameters::FivePointTwoSigmaElipseAlongTrajectory ) {
+      timers.push("TrackDetectorAssociator::fillEcal::BuildEllipse");
+      std::vector<GlobalPoint>* wideTrajectory = cachedTrajectory_.getWideTrajectory(trajectoryStates, CachedTrajectory::Ecal);
+      trajectoryWithErrors = *wideTrajectory;
+      for(unsigned int trajit=0; trajit<wideTrajectory->size(); trajit+=5)
+	coreTrajectory.push_back(trajectoryWithErrors[trajit]);
+      LogTrace("TrackAssociator") << "Wide trajectory has " << wideTrajectory->size() << " points";
+      timers.pop();
+   } else {
+      for(std::vector<SteppingHelixStateInfo>::const_iterator itr = trajectoryStates.begin();
+	  itr != trajectoryStates.end(); itr++) coreTrajectory.push_back(itr->position());
+      trajectoryWithErrors = coreTrajectory;
+   }
    
-   if(trajectory.empty()) {
+   if(coreTrajectory.empty()) {
       LogTrace("TrackAssociator") << "ECAL track trajectory is empty; moving on\n";
       info.isGoodEcal = 0;
       return;
@@ -292,16 +305,23 @@ void TrackDetectorAssociator::fillEcal( const edm::Event& iEvent,
       // get trajectory change with respect to initial state
       DetIdAssociator::MapRange mapRange = getMapRange(cachedTrajectory_.trajectoryDelta(CachedTrajectory::IpToEcal),
 						       parameters.dREcalPreselection);
-      ecalIdsInRegion = ecalDetIdAssociator_.getDetIdsCloseToAPoint(trajectory[0],mapRange);
-   } else ecalIdsInRegion = ecalDetIdAssociator_.getDetIdsCloseToAPoint(trajectory[0], parameters.dREcalPreselection);
+      ecalIdsInRegion = ecalDetIdAssociator_.getDetIdsCloseToAPoint(coreTrajectory[0],mapRange);
+   } else ecalIdsInRegion = ecalDetIdAssociator_.getDetIdsCloseToAPoint(coreTrajectory[0], parameters.dREcalPreselection);
    timers.pop_and_push("TrackDetectorAssociator::fillEcal::matching::cone");
    LogTrace("TrackAssociator") << "ECAL hits in the region: " << ecalIdsInRegion.size();
    if (parameters.dREcalPreselection > parameters.dREcal)
-     ecalIdsInRegion =  ecalDetIdAssociator_.getDetIdsInACone(ecalIdsInRegion, trajectory, parameters.dREcal);
-   timers.pop_and_push("TrackDetectorAssociator::fillEcal::matching::crossed");
+     ecalIdsInRegion =  ecalDetIdAssociator_.getDetIdsInACone(ecalIdsInRegion, coreTrajectory, parameters.dREcal);
    LogTrace("TrackAssociator") << "ECAL hits in the cone: " << ecalIdsInRegion.size();
-   std::vector<DetId> crossedEcalIds =  ecalDetIdAssociator_.getCrossedDetIdsOrdered(ecalIdsInRegion, trajectory);
-   timers.pop();
+   std::vector<DetId> crossedEcalIds;
+   if ( parameters.crossedEnergyType == TrackAssociatorParameters::FivePointTwoSigmaElipseAlongTrajectory ) {
+      float conesize = .0696;
+      std::set<DetId> ecalIdsInSubRegion =  ecalDetIdAssociator_.getDetIdsInACone(ecalIdsInRegion, coreTrajectory, conesize);
+      timers.pop_and_push("TrackDetectorAssociator::fillEcal::matching::crossed");
+      crossedEcalIds =  ecalDetIdAssociator_.getCrossedDetIdsOrdered(ecalIdsInSubRegion, trajectoryWithErrors);
+      timers.pop();
+   } else {
+      crossedEcalIds =  ecalDetIdAssociator_.getCrossedDetIdsOrdered(ecalIdsInRegion, trajectoryWithErrors);
+   }
    LogTrace("TrackAssociator") << "ECAL crossed hits " << crossedEcalIds.size();
    
    info.crossedEcalIds = crossedEcalIds;
@@ -411,11 +431,24 @@ void TrackDetectorAssociator::fillHcal( const edm::Event& iEvent,
    timers.push("TrackDetectorAssociator::fillHcal");
 
    const std::vector<SteppingHelixStateInfo>& trajectoryStates = cachedTrajectory_.getHcalTrajectory();
-   std::vector<GlobalPoint> trajectory;
-   for(std::vector<SteppingHelixStateInfo>::const_iterator itr = trajectoryStates.begin();
-       itr != trajectoryStates.end(); itr++) trajectory.push_back(itr->position());
 
-   if(trajectory.empty()) {
+   std::vector<GlobalPoint> coreTrajectory;
+   std::vector<GlobalPoint> trajectoryWithErrors;
+   if ( parameters.crossedEnergyType == TrackAssociatorParameters::FivePointTwoSigmaElipseAlongTrajectory ) {
+      timers.push("TrackDetectorAssociator::fillHcal::BuildEllipse");
+      std::vector<GlobalPoint>* wideTrajectory = cachedTrajectory_.getWideTrajectory(trajectoryStates, CachedTrajectory::Hcal);
+      trajectoryWithErrors = *wideTrajectory;
+      for(unsigned int trajit=0; trajit<wideTrajectory->size(); trajit+=5)
+	coreTrajectory.push_back(trajectoryWithErrors[trajit]);
+      LogTrace("TrackAssociator") << "Wide trajectory has " << wideTrajectory->size() << " points";
+      timers.pop();
+   } else {
+      for(std::vector<SteppingHelixStateInfo>::const_iterator itr = trajectoryStates.begin();
+	  itr != trajectoryStates.end(); itr++) coreTrajectory.push_back(itr->position());   
+      trajectoryWithErrors = coreTrajectory;
+   }
+   
+   if(coreTrajectory.empty()) {
       LogTrace("TrackAssociator") << "HCAL trajectory is empty; moving on\n";
       info.isGoodHcal = 0;
       return;
@@ -435,13 +468,20 @@ void TrackDetectorAssociator::fillHcal( const edm::Event& iEvent,
       // get trajectory change with respect to initial state
       DetIdAssociator::MapRange mapRange = getMapRange(cachedTrajectory_.trajectoryDelta(CachedTrajectory::IpToHcal),
 						       parameters.dRHcalPreselection);
-      idsInRegion = hcalDetIdAssociator_.getDetIdsCloseToAPoint(trajectory[0], mapRange);
-   } else idsInRegion = hcalDetIdAssociator_.getDetIdsCloseToAPoint(trajectory[0], parameters.dRHcalPreselection);
+      idsInRegion = hcalDetIdAssociator_.getDetIdsCloseToAPoint(coreTrajectory[0], mapRange);
+   } else idsInRegion = hcalDetIdAssociator_.getDetIdsCloseToAPoint(coreTrajectory[0], parameters.dRHcalPreselection);
    
    LogTrace("TrackAssociator") << "HCAL hits in the region: " << idsInRegion.size() << "\n" << DetIdInfo::info(idsInRegion);
-   std::set<DetId> idsInACone = hcalDetIdAssociator_.getDetIdsInACone(idsInRegion, trajectory, parameters.dRHcal);
+   std::set<DetId> idsInACone = hcalDetIdAssociator_.getDetIdsInACone(idsInRegion, coreTrajectory, parameters.dRHcal);
    LogTrace("TrackAssociator") << "HCAL hits in the cone: " << idsInACone.size() << "\n" << DetIdInfo::info(idsInACone);
-   std::vector<DetId> crossedIds = hcalDetIdAssociator_.getCrossedDetIdsOrdered(idsInRegion, trajectory);
+   std::vector<DetId> crossedIds;
+   if ( parameters.crossedEnergyType == TrackAssociatorParameters::FivePointTwoSigmaElipseAlongTrajectory ) {
+      float conesize = 0.348;
+      std::set<DetId> idsInSubRegion =  hcalDetIdAssociator_.getDetIdsInACone(idsInRegion, coreTrajectory, conesize);
+      crossedIds = hcalDetIdAssociator_.getCrossedDetIdsOrdered(idsInSubRegion, trajectoryWithErrors);
+   } else {
+      crossedIds = hcalDetIdAssociator_.getCrossedDetIdsOrdered(idsInRegion, trajectoryWithErrors);
+   }
    LogTrace("TrackAssociator") << "HCAL hits crossed: " << crossedIds.size() << "\n" << DetIdInfo::info(crossedIds);
    
    info.crossedHcalIds = crossedIds;
@@ -475,11 +515,24 @@ void TrackDetectorAssociator::fillHO( const edm::Event& iEvent,
    timers.push("TrackDetectorAssociator::fillHO");
 
    const std::vector<SteppingHelixStateInfo>& trajectoryStates = cachedTrajectory_.getHOTrajectory();
-   std::vector<GlobalPoint> trajectory;
-   for(std::vector<SteppingHelixStateInfo>::const_iterator itr = trajectoryStates.begin();
-       itr != trajectoryStates.end(); itr++) trajectory.push_back(itr->position());
 
-   if(trajectory.empty()) {
+   std::vector<GlobalPoint> coreTrajectory;
+   std::vector<GlobalPoint> trajectoryWithErrors;
+   if ( parameters.crossedEnergyType == TrackAssociatorParameters::FivePointTwoSigmaElipseAlongTrajectory ) {
+      timers.push("TrackDetectorAssociator::fillHO::BuildEllipse");
+      std::vector<GlobalPoint>* wideTrajectory = cachedTrajectory_.getWideTrajectory(trajectoryStates, CachedTrajectory::Hcal);
+      trajectoryWithErrors = *wideTrajectory;
+      for(unsigned int trajit=0; trajit<wideTrajectory->size(); trajit+=5)
+	coreTrajectory.push_back(trajectoryWithErrors[trajit]);
+      LogTrace("TrackAssociator") << "Wide trajectory has " << wideTrajectory->size() << " points";
+      timers.pop();
+   } else {
+      for(std::vector<SteppingHelixStateInfo>::const_iterator itr = trajectoryStates.begin();
+	  itr != trajectoryStates.end(); itr++) coreTrajectory.push_back(itr->position());
+      trajectoryWithErrors = coreTrajectory;
+   }
+
+   if(coreTrajectory.empty()) {
       LogTrace("TrackAssociator") << "HO trajectory is empty; moving on\n";
       info.isGoodHO = 0;
       return;
@@ -487,7 +540,7 @@ void TrackDetectorAssociator::fillHO( const edm::Event& iEvent,
    info.isGoodHO = 1;
    
    // find crossed HOs
-   timers.push("TrackDetectorAssociator::fillHO::access::HO");
+   timers.pop_and_push("TrackDetectorAssociator::fillHO::access::HO");
    edm::Handle<HORecHitCollection> collection;
 
    iEvent.getByLabel( parameters.theHORecHitCollectionLabel, collection );
@@ -499,14 +552,21 @@ void TrackDetectorAssociator::fillHO( const edm::Event& iEvent,
       // get trajectory change with respect to initial state
       DetIdAssociator::MapRange mapRange = getMapRange(cachedTrajectory_.trajectoryDelta(CachedTrajectory::IpToHO),
 						       parameters.dRHcalPreselection);
-      idsInRegion = hoDetIdAssociator_.getDetIdsCloseToAPoint(trajectory[0], mapRange);
-   } else idsInRegion = hoDetIdAssociator_.getDetIdsCloseToAPoint(trajectory[0], parameters.dRHcalPreselection);
+      idsInRegion = hoDetIdAssociator_.getDetIdsCloseToAPoint(coreTrajectory[0], mapRange);
+   } else idsInRegion = hoDetIdAssociator_.getDetIdsCloseToAPoint(coreTrajectory[0], parameters.dRHcalPreselection);
    
    LogTrace("TrackAssociator") << "idsInRegion.size(): " << idsInRegion.size();
-   std::set<DetId> idsInACone = hoDetIdAssociator_.getDetIdsInACone(idsInRegion, trajectory, parameters.dRHcal);
+   std::set<DetId> idsInACone = hoDetIdAssociator_.getDetIdsInACone(idsInRegion, coreTrajectory, parameters.dRHcal);
    LogTrace("TrackAssociator") << "idsInACone.size(): " << idsInACone.size();
-   std::vector<DetId> crossedIds = hoDetIdAssociator_.getCrossedDetIdsOrdered(idsInRegion, trajectory);
-   LogTrace("TrackAssociator") << "crossedIds.size(): " << crossedIds.size();
+   std::vector<DetId> crossedIds;
+   if ( parameters.crossedEnergyType == TrackAssociatorParameters::FivePointTwoSigmaElipseAlongTrajectory ) {
+      float conesize=0.348;
+      std::set<DetId> idsInSubRegion = hoDetIdAssociator_.getDetIdsInACone(idsInRegion, coreTrajectory, conesize);
+      crossedIds = hoDetIdAssociator_.getCrossedDetIdsOrdered(idsInSubRegion, trajectoryWithErrors);
+      LogTrace("TrackAssociator") << "crossedIds.size(): " << crossedIds.size();
+   } else {
+      crossedIds = hoDetIdAssociator_.getCrossedDetIdsOrdered(idsInRegion, trajectoryWithErrors);
+   }
    
    info.crossedHOIds = crossedIds;
    
