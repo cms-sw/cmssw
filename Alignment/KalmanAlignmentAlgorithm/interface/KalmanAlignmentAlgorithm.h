@@ -9,6 +9,7 @@
 
 // include for refitting
 #include "RecoTracker/TrackProducer/interface/TrackProducerBase.h"
+#include "RecoTracker/TrackProducer/interface/TrackProducerAlgorithm.h"
 
 /// The main class for the Kalman alignment algorithm. It is the stage on which all the protagonists
 /// are playing: the refitter, the trajectory factory and the updator.
@@ -19,7 +20,7 @@ class AlignableNavigator;
 class TrajectoryFitter;
 
 
-class KalmanAlignmentAlgorithm : public AlignmentAlgorithmBase, public TrackProducerBase
+class KalmanAlignmentAlgorithm : public AlignmentAlgorithmBase, public TrackProducerBase<reco::Track>
 {
 
 public:
@@ -61,7 +62,7 @@ private:
   AlignmentParameterStore* theParameterStore;
   AlignableNavigator* theNavigator;
 
-  TrackProducerAlgorithm theRefitterAlgo;
+  TrackProducerAlgorithm<reco::Track> theRefitterAlgo;
   TrajectoryFitter* theTrajectoryRefitter;
   bool theRefitterDebugFlag;
 };
