@@ -13,14 +13,14 @@ EcalPreshowerGeometry::EcalPreshowerGeometry() :
 
 //  _zplane[0]=303.16;
 //  _zplane[1]=307.13;
-  _zplane[0]=301.615;
-  _zplane[1]=305.585;
+  _zplane[0]=303.353;
+  _zplane[1]=307.838;
   _pitch = 0.190625; //strip pitch
   _waf_w = 6.3; // wafer width
   _act_w = 6.1; //wafer active area
   //new geometry
-  _intra_lad_gap = 0.05; // gap between wafers in same ladder
-  _inter_lad_gap = 0.03;// additional gap between wafers in adj ladders
+  _intra_lad_gap = 0.04; // gap between wafers in same ladder
+  _inter_lad_gap = 0.05;// additional gap between wafers in adj ladders
   _centre_gap = 0.05;  // gap at center
 }
 

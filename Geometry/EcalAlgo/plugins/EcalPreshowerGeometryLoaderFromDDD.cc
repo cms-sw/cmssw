@@ -74,16 +74,31 @@ void
 EcalPGL::extraStuff( EcalPreshowerGeometry* geom )
 {
    typedef CaloSubdetectorGeometry::CellCont Cont ;
+   unsigned int n1 ( 0 ) ;
+   unsigned int n2 ( 0 ) ;
    float z1 ( 0 ) ;
    float z2 ( 0 ) ;
    const Cont& con ( geom->cellGeometries() ) ;
    for( Cont::const_iterator i ( con.begin() ) ; i != con.end() ; ++i )
    {
       const ESDetId esid ( i->first ) ;
-      if( 0 == z1 && 1 == esid.plane() ) z1 = fabs( i->second->getPosition().z() ) ;
-      if( 0 == z2 && 2 == esid.plane() ) z2 = fabs( i->second->getPosition().z() ) ;
-      if( 0 != z1 && 0 != z2 ) break ;
+      if( 1 == esid.plane() )
+      {
+	 z1 += fabs( i->second->getPosition().z() ) ;
+	 ++n1 ;
+      }
+      if( 2 == esid.plane() )
+      {
+	 z2 += fabs( i->second->getPosition().z() ) ;
+	 ++n2 ;
+      }
+//      if( 0 == z1 && 1 == esid.plane() ) z1 = fabs( i->second->getPosition().z() ) ;
+//      if( 0 == z2 && 2 == esid.plane() ) z2 = fabs( i->second->getPosition().z() ) ;
+//      if( 0 != z1 && 0 != z2 ) break ;
    }
+   assert( 0 != n1 && 0 != n2 ) ;
+   z1 /= (1.*n1) ;
+   z2 /= (1.*n2) ;
    assert( 0 != z1 && 0 != z2 ) ;
    geom->setzPlanes( z1, z2 ) ;
 }
