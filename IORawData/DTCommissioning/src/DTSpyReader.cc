@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2007/08/21 13:22:11 $
- *  $Revision: 1.5 $
+ *  $Date: 2007/09/03 13:52:16 $
+ *  $Revision: 1.6 $
  *  \author M. Zanetti
  */
 
@@ -37,7 +37,7 @@ DTSpyReader::DTSpyReader(const edm::ParameterSet& pset) :
   mySpy = new  DTSpy(); 
 
   /// connecting to XDAQ note ("0.0.0.0" = localhost)
-  string connectionParameters = pset.getParameter<string>("connectionParameters");
+  string connectionParameters = pset.getUntrackedParameter<string>("connectionParameters");
   mySpy->Connect(connectionParameters.c_str(),10000);  
 
   cout<<endl;
