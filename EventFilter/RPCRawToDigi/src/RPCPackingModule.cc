@@ -69,8 +69,8 @@ void RPCPackingModule::produce( edm::Event& ev,
   for (int id= rpcFEDS.first; id<=rpcFEDS.second; ++id){
 
     RPCRecordFormatter formatter(id, readoutMapping.product()) ;
-
-    FEDRawData *  rawData =  RPCPackingModule::rawData(id, digiCollection.product(), formatter);
+    unsigned int lvl1_ID = ev.id().event();
+    FEDRawData *  rawData =  RPCPackingModule::rawData(id, lvl1_ID, digiCollection.product(), formatter);
     FEDRawData& fedRawData = buffers->FEDData(id);
 
     fedRawData = *rawData;
@@ -80,7 +80,7 @@ void RPCPackingModule::produce( edm::Event& ev,
 }
 
 
-FEDRawData * RPCPackingModule::rawData( int fedId, const RPCDigiCollection * digis, const RPCRecordFormatter & formatter)
+FEDRawData * RPCPackingModule::rawData( int fedId, unsigned int lvl1_ID, const RPCDigiCollection * digis, const RPCRecordFormatter & formatter)
 {
   //
   // get merged records
@@ -113,7 +113,6 @@ FEDRawData * RPCPackingModule::rawData( int fedId, const RPCDigiCollection * dig
   //
   unsigned char *pHeader  = raw->data();
   int evt_ty = 3;
-  int lvl1_ID = 100; // FIXME - increase/set event by event
   int source_ID = fedId;
   FEDHeader::set(pHeader, evt_ty, lvl1_ID, trigger_BX, source_ID);
 

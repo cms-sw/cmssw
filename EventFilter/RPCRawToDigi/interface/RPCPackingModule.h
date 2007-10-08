@@ -34,7 +34,7 @@ public:
       int fedId, int trigger_BX, const RPCDigiCollection* , const RPCRecordFormatter& ); 
 
 private:
-  FEDRawData * rawData( int fedId, const RPCDigiCollection* , const RPCRecordFormatter& );
+  FEDRawData * rawData( int fedId, unsigned int lvl1_ID, const RPCDigiCollection* , const RPCRecordFormatter& );
 
 private:
   unsigned long eventCounter_;
