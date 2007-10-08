@@ -12,7 +12,7 @@
 //
 // Author:      Christophe Saout
 // Created:     Sat Apr 24 15:18 CEST 2007
-// $Id: ProcLikelihood.cc,v 1.6 2007/09/17 23:50:38 saout Exp $
+// $Id: ProcLikelihood.cc,v 1.7 2007/10/07 02:48:39 saout Exp $
 //
 
 #include <vector>
@@ -44,6 +44,8 @@ class ProcLikelihood : public VarProcessor {
 	struct PDF {
 		virtual ~PDF() {}
 		virtual double eval(double value) const = 0;
+
+		double	norm;
 	};
 
 	struct SplinePDF : public PDF {
@@ -86,6 +88,10 @@ class ProcLikelihood : public VarProcessor {
 				background = std::auto_ptr<PDF>(
 					new HistogramPDF(&calib.background));
 			}
+			double norm = (calib.signal.numberOfBins() +
+			               calib.background.numberOfBins()) / 2.0;
+			signal->norm = norm;
+			background->norm = norm;
 		}
 
 		std::auto_ptr<PDF>	signal;
@@ -93,9 +99,9 @@ class ProcLikelihood : public VarProcessor {
 	};
 
 	std::vector<SigBkg>	pdfs;
+	std::vector<double>	bias;
 	int			categoryIdx;
 	unsigned int		nCategories;
-	double			bias;
 };
 
 static ProcLikelihood::Registry registry("ProcLikelihood");
@@ -103,13 +109,12 @@ static ProcLikelihood::Registry registry("ProcLikelihood");
 double ProcLikelihood::SplinePDF::eval(double value) const
 {
 	value = (value - min) / width;
-	return spline.eval(value) * spline.numberOfEntries()
-	                          / spline.getArea();
+	return spline.eval(value) * norm / spline.getArea();
 }
 
 double ProcLikelihood::HistogramPDF::eval(double value) const
 {
-	return histo->normalizedValue(value) * histo->numberOfBins();
+	return histo->normalizedValue(value) * norm;
 }
 
 ProcLikelihood::ProcLikelihood(const char *name,
@@ -117,9 +122,9 @@ ProcLikelihood::ProcLikelihood(const char *name,
                                const MVAComputer *computer) :
 	VarProcessor(name, calib, computer),
 	pdfs(calib->pdfs.begin(), calib->pdfs.end()),
+	bias(calib->bias),
 	categoryIdx(calib->categoryIdx),
-	nCategories(1),
-	bias(calib->bias)
+	nCategories(1)
 {
 }
 
@@ -131,7 +136,9 @@ void ProcLikelihood::configure(ConfIterator iter, unsigned int n)
 		nCategories = pdfs.size() / (n - 1);
 		if (nCategories * (n - 1) != pdfs.size())
 			return;
-	} else if (n != pdfs.size())
+		if (!bias.empty() && bias.size() != nCategories)
+			return;
+	} else if (n != pdfs.size() || bias.size() > 1)
 		return;
 
 	int i = 0;
@@ -150,12 +157,13 @@ void ProcLikelihood::eval(ValueIterator iter, unsigned int n) const
 	std::vector<SigBkg>::const_iterator pdf;
 	std::vector<SigBkg>::const_iterator last;
 
+	int cat;
 	if (categoryIdx >= 0) {
 		ValueIterator iter2 = iter;
 		for(int i = 0; i < categoryIdx; i++)
 			++iter2;
 
-		int cat = (int)*iter;
+		cat = (int)*iter2;
 		if (cat < 0 || (unsigned int)cat >= nCategories) {
 			iter();
 			return;
@@ -164,13 +172,14 @@ void ProcLikelihood::eval(ValueIterator iter, unsigned int n) const
 		pdf = pdfs.begin() + cat * (n - 1);
 		last = pdf + (n - 1);
 	} else {
+		cat = 0;
 		pdf = pdfs.begin();
 		last = pdfs.end();
 	}		
 
 	int vars = 0;
-	double signal = bias;
-	double background = 1.0;
+	long double signal = bias.empty() ? 1.0 : bias[cat];
+	long double background = 1.0;
 
 	for(int i = 0; pdf != last; ++iter, i++) {
 		if (i == categoryIdx)
@@ -181,7 +190,7 @@ void ProcLikelihood::eval(ValueIterator iter, unsigned int n) const
 				std::max(0.0, pdf->signal->eval(*value));
 			double backgroundProb =
 				std::max(0.0, pdf->background->eval(*value));
-			if (signalProb + backgroundProb < 1.0e-30)
+			if (signalProb + backgroundProb < 1.0e-20)
 				continue;
 			vars++;
 			signal *= signalProb;
@@ -190,7 +199,7 @@ void ProcLikelihood::eval(ValueIterator iter, unsigned int n) const
 		++pdf;
 	}
 
-	if (!vars || signal + background < std::exp(-6 * vars - 2))
+	if (!vars || signal + background < std::exp(-7 * vars - 3))
 		iter();
 	else
 		iter(signal / (signal + background));

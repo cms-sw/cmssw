@@ -114,7 +114,6 @@ void testWriteMVAComputerCondDB::endJob()
 	sigBkg.useSplines = true;
 	lkh.categoryIdx = -1;
 	lkh.pdfs.push_back(sigBkg);
-	lkh.bias = 1.0;
 
 	computer->addProcessor(&lkh);
 

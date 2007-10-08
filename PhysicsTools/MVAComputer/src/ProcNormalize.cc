@@ -12,7 +12,7 @@
 //
 // Author:      Christophe Saout
 // Created:     Sat Apr 24 15:18 CEST 2007
-// $Id: ProcNormalize.cc,v 1.6 2007/09/17 23:50:38 saout Exp $
+// $Id: ProcNormalize.cc,v 1.7 2007/10/07 02:48:39 saout Exp $
 //
 
 #include <vector>
@@ -101,7 +101,7 @@ void ProcNormalize::eval(ValueIterator iter, unsigned int n) const
 		for(int i = 0; i < categoryIdx; i++)
 			++iter2;
 
-		int cat = (int)*iter;
+		int cat = (int)*iter2;
 		if (cat < 0 || (unsigned int)cat >= nCategories) {
 			for(; iter; ++iter)
 				iter();
