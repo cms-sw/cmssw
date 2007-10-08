@@ -34,7 +34,7 @@ namespace{
   std::map<int, DccSpec> theFeds; 
 }
 
-
+#include "CondFormats/RPCObjects/interface/RPCEMap.h"
 
 
 

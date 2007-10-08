@@ -24,6 +24,20 @@
   <class name="RPCReadOutMapping"/>
   <class name="std::map<int,DccSpec>"/>
 
+  <class name="RPCEMap"/>
+  <class name="RPCEMap::dccItem"/>
+  <class name="std::vector<RPCEMap::dccItem>"/>
+  <class name="RPCEMap::tbItem"/>
+  <class name="std::vector<RPCEMap::tbItem>"/>
+  <class name="RPCEMap::linkItem"/>
+  <class name="std::vector<RPCEMap::linkItem>"/>
+  <class name="RPCEMap::lbItem"/>
+  <class name="std::vector<RPCEMap::lbItem>"/>
+  <class name="RPCEMap::febItem"/>
+  <class name="std::vector<RPCEMap::febItem>"/>
+  <class name="RPCEMap::stripItem"/>
+  <class name="std::vector<RPCEMap::stripItem>"/>
+
   <class name="L1RPCConfig"/>
   <class name="RPCPattern"/>
   <class name="RPCPattern::RPCLogicalStrip"/>
