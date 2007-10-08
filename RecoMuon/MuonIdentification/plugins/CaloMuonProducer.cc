@@ -13,7 +13,7 @@
 //
 // Original Author:  Dmytro Kovalskyi
 //         Created:  Wed Oct  3 16:29:03 CDT 2007
-// $Id$
+// $Id: CaloMuonProducer.cc,v 1.1 2007/10/07 17:18:29 dmytro Exp $
 //
 //
 
@@ -84,11 +84,8 @@ reco::CaloMuon CaloMuonProducer::makeMuon( const edm::Event& iEvent, const edm::
    tmpMuon.setCalEnergy( aMuon.getCalEnergy() );
    tmpMuon.setTrack( aMuon.track() );
    
-   std::cout << "Calo track pt: " << aMuon.pt() << std::endl;
-   
    // get calo compatibility
    aMuon.setCaloCompatibility( muonCaloCompatibility_.evaluate(tmpMuon) );
-   std::cout << "Calo compatibility: " << aMuon.getCaloCompatibility() << std::endl;
    return aMuon;
 }
 
@@ -124,7 +121,6 @@ void CaloMuonProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
 	if ( ! caloMuon.isCaloCompatibilityValid() || caloMuon.getCaloCompatibility() < caloCut_ ) continue;
 	caloMuons->push_back( caloMuon );
      }
-   std::cout << "Number of calomuons: " << caloMuons->size() << std::endl;
    iEvent.put(caloMuons);
 }
 
