@@ -31,7 +31,7 @@ SiStripBadStrip* SiStripBadModuleByHandBuilder::getNewObject(){
 
   for(std::vector<uint32_t>::const_iterator it=BadModuleList_.begin(); it!=BadModuleList_.end(); ++it){
     
-    std::vector<int> theSiStripVector;
+    std::vector<unsigned int> theSiStripVector;
     
     if (printdebug_)
       edm::LogInfo("SiStripBadModuleByHandBuilder") << " BadModule " << *it << " \t"

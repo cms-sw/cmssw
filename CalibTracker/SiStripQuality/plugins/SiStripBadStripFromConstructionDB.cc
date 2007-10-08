@@ -81,12 +81,12 @@ void SiStripBadStripFromConstructionDB::algoAnalyze(const edm::Event& evt, const
   
   // put manually inserted bad modules (detids) to DB object
   if(ext_bad_detids.size()!=0){
-    std::vector<int> ext_temp(ext_bad_detids.size());
+    std::vector<unsigned int> ext_temp(ext_bad_detids.size());
     ext_temp[0]=(((1 & 0xFFFF) << 16) | (768 & 0xFFFF));
 
     for(uint32_t i=0; i<ext_bad_detids.size();i++){
        
-      for(std::vector<int>::const_iterator iter=ext_temp.begin(); iter!=ext_temp.end();iter++){
+      for(std::vector<unsigned int>::const_iterator iter=ext_temp.begin(); iter!=ext_temp.end();iter++){
 	SiStripBadStrip::Range ext_range(iter, iter);
 	SiStripBadStrip_->put(ext_bad_detids[i], ext_range);
       }
@@ -102,7 +102,7 @@ void SiStripBadStripFromConstructionDB::algoAnalyze(const edm::Event& evt, const
   
   // loop over detids from construction db 
   for(std::vector< std::pair<uint32_t,std::vector<short> > >::const_iterator it = constdb_strips.begin(); it != constdb_strips.end(); it++){
-    std::vector<int> theSiStripVector;
+    std::vector<unsigned int> theSiStripVector;
 
 
     std::vector<short>::const_iterator tempiter;
