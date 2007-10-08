@@ -4,6 +4,8 @@
 <use name=hepmc> 
 <use name=clhep> 
 <use name=pythia6>
+<use name=tauola>
+<use name=photos>
 <flags SEAL_PLUGIN_NAME="GeneratorInterfacePythia6Interface">
 <export>
  <use name=boost>
@@ -12,6 +14,8 @@
  <use name=hepmc> 
  <use name=clhep> 
  <use name=pythia6>
+ <use name=tauola>
+ <use name=photos>
 </export>
 
  <lib name=g2c></lib>
