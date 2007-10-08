@@ -5,7 +5,7 @@
  *
  * \author Luca Lista, INFN
  *
- * $Id: RefToBaseProd.h,v 1.11 2007/09/19 10:55:39 llista Exp $
+ * $Id: RefToBaseProd.h,v 1.12 2007/09/19 17:27:45 llista Exp $
  *
  */
   
@@ -160,6 +160,16 @@ namespace edm {
   template <typename T>
   inline
   View<T> const* RefToBaseProd<T>::operator->() const {
+    if ( view_.get() == 0 ) {
+      if ( product_.isNull() )
+	throw edm::Exception(errors::InvalidReference)
+	  << "attempting get view from a null RefToBaseProd.";
+      ProductID id = product_.id();
+      std::vector<void const*> pointers;
+      helper_vector_ptr helpers;
+      product_.productGetter()->getIt(id)->fillView(id, pointers, helpers);
+      view_.reset( new View<T>( pointers, helpers ) );
+    }
     return view_.get();
   } 
 
@@ -169,9 +179,9 @@ namespace edm {
     std::swap( product_, other.product_ );
     // why this does not compile? 
     // std::swap( view_, other.view_ );
-     std::auto_ptr<View<T> > tmp = view_;
-     view_ = other.view_;
-     other.view_ = tmp;
+    std::auto_ptr<View<T> > tmp = view_;
+    view_ = other.view_;
+    other.view_ = tmp;
   }
 
   template <typename T>
@@ -215,7 +225,6 @@ namespace edm {
     helper_vector_ptr helpers( new holder_type );
     detail::reallyFillView( * ref.product(), ref.id(), pointers, * helpers );
     view_.reset( new View<T>( pointers, helpers ) );
-   
   }
 
   template <typename T>
