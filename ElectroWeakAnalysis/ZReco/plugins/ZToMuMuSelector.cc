@@ -44,9 +44,9 @@ ZToMuMuSelector::ZToMuMuSelector( const ParameterSet & cfg ) :
       massZMax_(cfg.getParameter<double>("MassZMax")),
 
       onlyGlobalMuons_(cfg.getParameter<bool>("OnlyGlobalMuons")),
-      trackerTag_(cfg.getUntrackedParameter<edm::InputTag> ("TrackerTag",edm::InputTag(""))),
-      isoTrackerTag_(cfg.getUntrackedParameter<edm::InputTag> ("TrackerIsolationTag",edm::InputTag(""))),
-      minTrackerHits_(cfg.getUntrackedParameter<int>("MinTrackerHits",0))
+      trackerTag_(cfg.getUntrackedParameter<edm::InputTag> ("TrackerTag",edm::InputTag("ctfWithMaterialTracks"))),
+      isoTrackerTag_(cfg.getUntrackedParameter<edm::InputTag> ("TrackerIsolationTag",edm::InputTag("zMuMuTrackerIsolations"))),
+      minTrackerHits_(cfg.getUntrackedParameter<int>("MinTrackerHits",7))
 {
 }
 
