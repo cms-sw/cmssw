@@ -1,15 +1,16 @@
 #ifndef Alignment_CommonAlignmentParametrization_CompositeAlignmentParameters_h
 #define Alignment_CommonAlignmentParametrization_CompositeAlignmentParameters_h
 
-#include <map>
+// #include <map>
 
 #include "Alignment/CommonAlignment/interface/AlignmentParameters.h"
-#include "Alignment/CommonAlignment/interface/AlignableDetOrUnitPtr.h"
 
 /// \class CompositeAlignmentParameters
 ///
 /// Concrete class for 'concatenated' alignment parameters and associated
 /// Quantities for a set of Alignables. Provided by AlignmentParameterStore.
+
+class AlignableDet;
 
 class CompositeAlignmentParameters : public AlignmentParameters 
 {
@@ -24,7 +25,7 @@ public:
   typedef std::map<Alignable*,int> Alilenmap;
 
   /// constructors 
-  CompositeAlignmentParameters() {};
+
   CompositeAlignmentParameters(const AlgebraicVector& par, const AlgebraicSymMatrix& cov,
 			       const Components& comp);
 

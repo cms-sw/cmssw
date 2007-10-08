@@ -1,22 +1,20 @@
 /** \file RigidBodyAlignmentParameters.cc
  *
- *  Version    : $Revision: 1.11 $
- *  last update: $Date: 2007/06/13 08:30:10 $
+ *  Version    : $Revision: 1.12 $
+ *  last update: $Date: 2007/07/12 12:54:29 $
  *  by         : $Author: flucke $
  */
 
 #include "FWCore/Utilities/interface/Exception.h"
 
 #include "Alignment/CommonAlignment/interface/Alignable.h"
-#include "Alignment/CommonAlignment/interface/Utilities.h"
-#include "Alignment/CommonAlignmentParametrization/interface/KarimakiAlignmentDerivatives.h"
-#include "Alignment/CommonAlignmentParametrization/interface/FrameToFrameDerivative.h"
-// This class's header 
-
-#include "Alignment/CommonAlignmentParametrization/interface/RigidBodyAlignmentParameters.h"
-
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "Alignment/CommonAlignment/interface/AlignableDetOrUnitPtr.h"
+#include "Alignment/CommonAlignmentParametrization/interface/FrameToFrameDerivative.h"
+#include "Alignment/CommonAlignmentParametrization/interface/KarimakiAlignmentDerivatives.h"
+#include "CondFormats/Alignment/interface/Definitions.h"
+
+// This class's header 
+#include "Alignment/CommonAlignmentParametrization/interface/RigidBodyAlignmentParameters.h"
 
 //__________________________________________________________________________________________________
 RigidBodyAlignmentParameters::RigidBodyAlignmentParameters(Alignable* ali, bool calcMis) :

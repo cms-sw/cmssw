@@ -9,11 +9,9 @@
 /// [derived from AlignmentParameters]. The number of parameters
 /// N_PARAM is fixed to 6 (3 translations + 3 rotations)
 ///
-///  $Date: 2007/06/13 08:30:08 $
-///  $Revision: 1.10 $
+///  $Date: 2007/07/12 12:54:31 $
+///  $Revision: 1.11 $
 /// (last update by $Author: flucke $)
-
-class AlignableDetOrUnitPtr;
 
 class RigidBodyAlignmentParameters : public AlignmentParameters 
 {

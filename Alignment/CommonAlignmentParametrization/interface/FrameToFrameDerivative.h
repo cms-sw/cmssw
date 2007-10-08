@@ -1,15 +1,15 @@
 #ifndef Alignment_CommonAlignmentParametrization_FrameToFrameDerivative_h
 #define Alignment_CommonAlignmentParametrization_FrameToFrameDerivative_h
 
-#include "Alignment/CommonAlignment/interface/Utilities.h"
+#include "CondFormats/Alignment/interface/Definitions.h"
 
 /// \class FrameToFrameDerivative
 ///
 /// class for calculating derivatives between different frames
 ///
-///  $Date: 2007/03/02 12:17:09 $
-///  $Revision: 1.4 $
-/// (last update by $Author: fronga $)
+///  $Date: 2007/03/12 21:28:48 $
+///  $Revision: 1.5 $
+/// (last update by $Author: cklae $)
 
 class Alignable;
 
