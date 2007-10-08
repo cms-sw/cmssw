@@ -4,8 +4,8 @@
 /** \class AlignableDTChamber
  *  The alignable muon DT chamber.
  *
- *  $Date: 2006/8/4 10:00:01 $
- *  $Revision: 1.0 $
+ *  $Date: 2006/08/04 20:18:50 $
+ *  $Revision: 1.9 $
  *  \author Andre Sznajder - UERJ(Brazil)
  */
 
@@ -66,7 +66,7 @@ class AlignableDTChamber: public AlignableComposite
   virtual void addAlignmentPositionErrorFromLocalRotation(const RotationType& rot);
 
   /// Alignable object identifier
-  virtual int alignableObjectId () const { return AlignableObjectId::AlignableDTChamber; }
+  virtual StructureType alignableObjectId () const { return align::AlignableDTChamber; }
 
   //virtual void twist(float);
 

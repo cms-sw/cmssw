@@ -4,8 +4,8 @@
 /** \class AlignableCSCCEndcap
  *  The alignable muon CSC endcap.
  *
- *  $Date: 2006/10/16 14:39:30 $
- *  $Revision: 1.4 $
+ *  $Date: 2007/03/02 15:46:12 $
+ *  $Revision: 1.5 $
  *  \author Andre Sznajder - UERJ(Brazil)
  */
 
@@ -64,7 +64,7 @@ class AlignableCSCEndcap : public AlignableComposite
   AlignableCSCStation &station(int i);  
   
   /// Return alignable object identifier
-  virtual int alignableObjectId() const { return AlignableObjectId::AlignableCSCEndcap; }
+  virtual StructureType alignableObjectId() const { return align::AlignableCSCEndcap; }
 
   /// Printout muon End Cap information (not recursive)
   friend std::ostream& operator << ( std::ostream&, const AlignableCSCEndcap& );

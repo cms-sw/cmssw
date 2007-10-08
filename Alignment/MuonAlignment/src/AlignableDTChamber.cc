@@ -1,10 +1,14 @@
 /** \file
  *
- *  $Date: 2006/8/4 10:10:07 $
- *  $Revision: 1.0 $
+ *  $Date: 2006/08/04 20:18:51 $
+ *  $Revision: 1.6 $
  *  \author Andre Sznajder - UERJ(Brazil)
  */
  
+#include "CondFormats/Alignment/interface/Alignments.h"
+#include "CondFormats/Alignment/interface/AlignmentErrors.h"
+#include "DataFormats/TrackingRecHit/interface/AlignmentPositionError.h"
+#include "FWCore/Utilities/interface/Exception.h"
 
 #include "Alignment/MuonAlignment/interface/AlignableDTChamber.h"
 
@@ -204,19 +208,21 @@ std::ostream &operator << ( std::ostream &os, const AlignableDTChamber & r )
 
   for ( std::vector<AlignableDet*>::const_iterator idet = r.theDets.begin(); 
 		idet != r.theDets.end(); idet++) 
-	{
-	  for ( int i=0; i<(*idet)->size();i++) 
-		{
-		  os << "     Det position, phi, r: " 
-			 << (*idet)->detUnit(i).globalPosition() << " , "
-			 << (*idet)->detUnit(i).globalPosition().phi() << " , "
-			 << (*idet)->detUnit(i).globalPosition().perp() << std::endl; 
-		  os << "     local  position, phi, r: " 
-			 << r.surface().toLocal( (*idet)->detUnit(i).globalPosition() )        << " , "
-			 << r.surface().toLocal( (*idet)->detUnit(i).globalPosition() ).phi()  << " , "
-			 << r.surface().toLocal( (*idet)->detUnit(i).globalPosition() ).perp() << std::endl; 
-		}
-	}
+  {
+    const align::Alignables& comp = (*idet)->components();
+
+    for (unsigned int i = 0; i < comp.size(); ++i) 
+    {
+      os << "     Det position, phi, r: " 
+	 << comp[i]->globalPosition() << " , "
+	 << comp[i]->globalPosition().phi() << " , "
+	 << comp[i]->globalPosition().perp() << std::endl; 
+      os << "     local  position, phi, r: " 
+	 << r.surface().toLocal( comp[i]->globalPosition() )        << " , "
+	 << r.surface().toLocal( comp[i]->globalPosition() ).phi()  << " , "
+	 << r.surface().toLocal( comp[i]->globalPosition() ).perp() << std::endl; 
+    }
+  }
   return os;
 
 }

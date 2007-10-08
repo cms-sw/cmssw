@@ -4,8 +4,8 @@
 /** \class AlignableDTWheel
  *  The alignable muon DT wheel.
  *
- *  $Date: 2006/08/04 20:18:50 $
- *  $Revision: 1.4 $
+ *  $Date: 2007/03/02 15:46:12 $
+ *  $Revision: 1.5 $
  *  \author Andre Sznajder - UERJ(Brazil)
  */
 
@@ -60,7 +60,7 @@ class AlignableDTWheel : public AlignableComposite
   AlignableDTStation &station(int i);  
   
   /// Return alignable object identifier
-  virtual int alignableObjectId() const { return AlignableObjectId::AlignableDTWheel; }
+  virtual StructureType alignableObjectId() const { return align::AlignableDTWheel; }
 
   /// Printout muon DT wheel information (not recursive)
   friend std::ostream& operator << ( std::ostream&, const AlignableDTWheel& );

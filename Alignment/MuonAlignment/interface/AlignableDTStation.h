@@ -4,8 +4,8 @@
 /** \class AlignableDTStation
  *  The alignable muon DT station.
  *
- *  $Date: 2006/08/04 20:18:50 $
- *  $Revision: 1.4 $
+ *  $Date: 2007/03/02 15:46:12 $
+ *  $Revision: 1.5 $
  *  \author Andre Sznajder - UERJ(Brazil)
  */
 
@@ -60,7 +60,7 @@ class AlignableDTStation : public AlignableComposite
   AlignableDTChamber &chamber(int i);  
   
   /// Return alignable object identifier
-  virtual int alignableObjectId() const { return AlignableObjectId::AlignableDTStation; }
+  virtual StructureType alignableObjectId() const { return align::AlignableDTStation; }
 
   /// Printout muon DT Station information (not recursive)
   friend std::ostream& operator << ( std::ostream&, const AlignableDTStation& );
