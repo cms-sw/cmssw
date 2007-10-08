@@ -11,17 +11,12 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "DataFormats/EcalDetId/interface/ESDetId.h"
-#include "DataFormats/EgammaReco/interface/BasicClusterFwd.h"
-#include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 
 #include "RecoEcal/EgammaClusterAlgos/interface/EndcapPiZeroDiscriminatorAlgo.h"
-#include "RecoEcal/EgammaCoreTools/interface/PositionCalc.h"
-#include "RecoEcal/EgammaCoreTools/interface/ClusterShapeAlgo.h"
-
 
 #include "TH1.h"
 class TFile;
@@ -46,21 +41,20 @@ class PiZeroDiscriminatorProducer : public edm::EDProducer {
   int nEvt_;         // internal counter of events
 
   //clustering parameters:
-  std::string endcapHitProducer_;
-  std::string endcapHitCollection_;
-  std::string barrelHitProducer_;  
-  std::string barrelHitCollection_;  
 
   std::string preshHitProducer_;   // name of module/plugin/producer producing hits
   std::string preshHitCollection_; // secondary name given to collection of hits by hitProducer
+
+  std::string barrelClusterShapeMapProducer_;
+  std::string barrelClusterShapeMapCollection_;
+  std::string endcapClusterShapeMapProducer_;
+  std::string endcapClusterShapeMapCollection_;
 
   std::string photonCorrCollectionProducer_;
   std::string correctedPhotonCollection_;
   std::string PhotonPi0DiscriminatorAssociationMap_;
 
   EndcapPiZeroDiscriminatorAlgo * presh_pi0_algo; // algorithm doing the real work
-  PositionCalc posCalculator_; // position calculation algorithm
-  ClusterShapeAlgo shapeAlgo_; // cluster shape algorithm
 
   EndcapPiZeroDiscriminatorAlgo::DebugLevel_pi0 debugL_pi0;
 };
