@@ -2,6 +2,8 @@
 #include "Alignment/KalmanAlignmentAlgorithm/interface/KalmanAlignmentUserVariables.h"
 #include "Alignment/KalmanAlignmentAlgorithm/interface/KalmanAlignmentDataCollector.h"
 
+#include "Alignment/CommonAlignment/interface/AlignableObjectId.h"
+#include "Alignment/CommonAlignment/interface/AlignmentParameters.h"
 #include "Alignment/CommonAlignment/interface/Utilities.h"
 
 using namespace std;
@@ -17,13 +19,15 @@ KalmanAlignmentUserVariables::KalmanAlignmentUserVariables( Alignable* parent,
 {
   if ( parent && alignableId )
   {
-    pair< int, int > typeAndLayer = alignableId->typeAndLayerFromAlignable( parent );
+    static AlignableObjectId idMap;
+
+    pair< int, int > typeAndLayer = alignableId->typeAndLayerFromDetId( parent->id() );
 
     int iType = typeAndLayer.first;
     int iLayer = typeAndLayer.second;
-    int iId = alignableId->alignableId( parent );
+    align::ID iId = parent->id();
 
-    string strName = alignableId->alignableTypeName( parent ) + string( "_" );
+    string strName = idMap.typeToName( parent->alignableObjectId() ) + string( "_" );
     string strType = string( "Type" ) + toString( iType ) + string( "_" );
     string strLayer = string( "Layer" ) + toString( iLayer ) + string( "_" );
     string strId =  string( "Id" ) + toString( iId );
