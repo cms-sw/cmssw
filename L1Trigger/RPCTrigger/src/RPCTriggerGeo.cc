@@ -1,7 +1,7 @@
 /** \file RPCTriggerGeo.cc
  *
- *  $Date: 2006/12/05 09:25:26 $
- *  $Revision: 1.17 $
+ *  $Date: 2007/01/30 08:12:56 $
+ *  $Revision: 1.18 $
  *  \author Tomasz Fruboes
  */
 
@@ -218,6 +218,9 @@ L1RpcLogConesVec RPCTriggerGeo::getCones(edm::Handle<RPCDigiCollection> rpcDigis
          digiIt!=range.second;
          ++digiIt)
     {
+      if (digiIt->bx()!=0)
+         continue;
+
       RPCRingFromRolls::stripCords sc;
       sc.m_detRawId=rawId;
       sc.m_stripNo=digiIt->strip();
