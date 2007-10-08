@@ -1,0 +1,40 @@
+#ifndef RECOLOCALCALO_HFCLUSTERPRODUCER_HFCLUSTERALGO_H
+#define RECOLOCALCALO_HFCLUSTERPRODUCER_HFCLUSTERALGO_H 1
+
+#include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
+#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
+#include "DataFormats/EgammaReco/interface/HFEMClusterShape.h"
+#include "DataFormats/EgammaReco/interface/SuperCluster.h"
+#include "DataFormats/EgammaReco/interface/HFEMClusterShapeAssociation.h"
+#include "DataFormats/EgammaReco/interface/HFEMClusterShape.h"
+#include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
+#include "DataFormats/Common/interface/Handle.h"
+#include <map>
+#include <list>
+
+/** \class HFRecoEcalCandidateAlgo
+ 
+  * \author K. Klapoetke -- Minnesota
+  */
+//$Id:HFRecoEcalCandidateAlgo.h,v 1.1 2007/09/26 09:52 K. Klapoetke Minnesota
+
+class HFRecoEcalCandidateAlgo {
+public:
+  HFRecoEcalCandidateAlgo(bool correct, double e9e25Cut,double eCOREe9Cut,double eSeLCut); 
+  
+  /** Analyze the hits */
+  void produce(const edm::Handle<reco::SuperClusterCollection>& SuperClusters,
+	       const reco::HFEMClusterShapeAssociationCollection& AssocShapes,
+	       reco::RecoEcalCandidateCollection& RecoECand);
+  
+  
+ private:
+  reco::RecoEcalCandidate correctEPosition(const reco::SuperCluster& original, const reco::HFEMClusterShape& shape);
+  
+  bool m_correct;
+  double m_e9e25Cut;
+  double m_eCOREe9Cut;
+  double m_eSeLCut;
+};
+
+#endif 
