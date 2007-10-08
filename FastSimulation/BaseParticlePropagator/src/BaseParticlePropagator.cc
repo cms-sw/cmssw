@@ -382,7 +382,8 @@ BaseParticlePropagator::propagateToEcal(bool first) {
   //
   // First propagate to global barrel / endcap cylinder 
   //  setPropagationConditions(1290. , 3045 , first);
-  setPropagationConditions(129.0 , 303.16 , first);
+  //  New position of the preshower as of CMSSW_1_7_X
+  setPropagationConditions(129.0 , 303.353 , first);
   return propagate();
 
 }
@@ -396,7 +397,8 @@ BaseParticlePropagator::propagateToPreshowerLayer1(bool first) {
   //
   // First propagate to global barrel / endcap cylinder 
   //  setPropagationConditions(1290., 3045 , first);
-  setPropagationConditions(129.0, 303.16 , first);
+  //  New position of the preshower as of CMSSW_1_7_X
+  setPropagationConditions(129.0, 303.353 , first);
   bool done = propagate();
 
   // Check that were are on the Layer 1 
@@ -415,7 +417,8 @@ BaseParticlePropagator::propagateToPreshowerLayer2(bool first) {
   //
   // First propagate to global barrel / endcap cylinder 
   //  setPropagationConditions(1290. , 3090 , first);
-  setPropagationConditions(129.0 , 307.13 , first);
+  //  New position of the preshower as of CMSSW_1_7_X
+  setPropagationConditions(129.0 , 307.838 , first);
   bool done = propagate();
 
   // Check that we are on Layer 2 
@@ -434,14 +437,14 @@ BaseParticlePropagator::propagateToEcalEntrance(bool first) {
   // Geometry taken from CMS ECAL TDR
   //
   // First propagate to global barrel / endcap cylinder 
-  setPropagationConditions(129.0 , 317.0,first);
+  setPropagationConditions(129.0 , 320.9,first);
   bool done = propagate();
 
   // Go to endcap cylinder in the "barrel cut corner" 
   // eta = 1.479 -> cos^2(theta) = 0.81230
   //  if ( done && eta > 1.479 && success == 1 ) {
   if ( done && cos2ThetaV() > 0.81230 && success == 1 ) {
-    setPropagationConditions(171.1 , 317.0, first);
+    setPropagationConditions(152.6 , 320.9, first);
     done = propagate();
   }
 
