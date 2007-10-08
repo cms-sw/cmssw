@@ -1,5 +1,5 @@
 #include "TrackingTools/TrackFitters/interface/TrajectoryStateCombiner.h"
-#include "Alignment/TrackerAlignment/interface/TrackerAlignableId.h"
+#include "Alignment/CommonAlignment/interface/AlignableObjectId.h"
 
 #include "Alignment/CommonAlignmentMonitor/plugins/AlignmentMonitorGeneric.h"
 
@@ -12,7 +12,7 @@ AlignmentMonitorGeneric::AlignmentMonitorGeneric(const edm::ParameterSet& cfg):
 
 void AlignmentMonitorGeneric::book()
 {
-  TrackerAlignableId idMap;
+  static AlignableObjectId idMap;
 
   std::vector<std::string> residNames; // names of residual histograms
 
@@ -34,20 +34,21 @@ void AlignmentMonitorGeneric::book()
 
     hists.resize(nResidName, 0);
 
-    TrackerAlignableId::UniqueId id = idMap.alignableUniqueId(ali);
+    align::ID id = ali->id();
+    align::StructureType type = ali->alignableObjectId();
 
     for (unsigned int n = 0; n < nResidName; ++n)
     {
       const std::string& name = residNames[n];
 
       TString histName(name.c_str());
-      histName += Form("_%s_%d", idMap.alignableTypeIdToName(id.second).c_str(), id.first);
+      histName += Form("_%s_%d", idMap.typeToName(type).c_str(), id);
       histName.ReplaceAll(" ", "");
 
       TString histTitle(name.c_str());
       histTitle += Form(" for %s with ID %d (subdet %d)",
-			idMap.alignableTypeIdToName(id.second).c_str(),
-			id.first, DetId(id.first).subdetId());
+			idMap.typeToName(type).c_str(),
+			id, DetId(id).subdetId());
 
       TH1F* hist = new TH1F(histName, histTitle, nBin_, -5., 5.);
       hists[n] = static_cast<TH1F*>( add("/iterN/" + name + '/', hist) );
