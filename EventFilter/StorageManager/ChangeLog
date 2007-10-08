@@ -1,5 +1,11 @@
 2007-10-08  Harry Cheung <cheung@fnal.gov>
 
+	* tag V03-07-06
+	* Changed EventStreamHttpReader to fix a print bug and give a warning
+          for when the SM was halted rather than stopped.
+
+2007-10-08  Harry Cheung <cheung@fnal.gov>
+
 	* tag V03-07-05
 	* Changed EventStreamHttpReader to allow reconnect if the SM is down 
           (Change from Bill).
