@@ -5,8 +5,8 @@
  *
  *  Namespace for common calculations in alignment.
  *
- *  $Date: 2007/04/09 00:40:21 $
- *  $Revision: 1.7 $
+ *  $Date: 2007/10/08 13:21:29 $
+ *  $Revision: 1.9 $
  *  \author Chung Khim Lae
  */
 
@@ -51,6 +51,17 @@ namespace align
 		       const GlobalVectors& current,
 		       const GlobalVectors& nominal
 		       );
+
+  GlobalVector diffR(
+		     const GlobalVectors& current,
+		     const GlobalVectors& nominal
+		     );
+
+  /// Find the CM of a set of points
+  GlobalVector centerOfMass(
+			    const GlobalVectors& theVs
+			    );
+	
 
   /// Correct a rotation matrix for rounding errors.
   void rectify(

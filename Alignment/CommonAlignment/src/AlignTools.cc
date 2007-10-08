@@ -1,6 +1,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "Alignment/CommonAlignment/interface/Alignable.h"
+#include "Alignment/CommonAlignment/interface/SurveyDet.h"
 #include "Alignment/CommonAlignment/interface/AlignTools.h"
-#include "DataFormats/DetId/interface/DetId.h"
 
 //Finds the TR between two alignables - first alignable is reference
 AlgebraicVector align::diffAlignables(Alignable* refAli, Alignable*curAli){
@@ -63,7 +64,7 @@ AlgebraicVector align::diffAlignables(Alignable* refAli, Alignable*curAli){
 }
 
 //Finds the TR between two sets of alignables - first alignable is reference,
-void align::diffAlignables(std::vector<Alignable*>& refAlis, std::vector<Alignable*>& curAlis, std::vector<AlgebraicVector>& diffs){
+void align::diffAlignables(Alignables& refAlis, Alignables& curAlis, std::vector<AlgebraicVector>& diffs){
 
 	align::GlobalVectors refVs;
 	align::GlobalVectors curVs;
@@ -141,12 +142,12 @@ void align::moveAlignable(Alignable* ali, AlgebraicVector diff){
 //Creates the points which are used in diffAlignables
 void align::createPoints(align::GlobalVectors* Vs, Alignable* ali){
 
-	const std::vector<Alignable*> comp = ali->components();
+	const Alignables& comp = ali->components();
 	unsigned int nComp = comp.size();
 	for (unsigned int i = 0; i < nComp; ++i) createPoints(Vs, comp[i]);
 
 	//only create points for lowest hiearchical level
-	if (ali->alignableObjectId() == AlignableObjectId::AlignableDetUnit){
+	if (ali->alignableObjectId() == align::AlignableDetUnit){
 		//if no survey information, create local points
 		if(!(ali->survey())){
 			align::ErrorMatrix error;

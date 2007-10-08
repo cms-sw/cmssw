@@ -147,6 +147,36 @@ align::RotationType align::diffRot(const GlobalVectors& current,
   return rot;
 }
 
+align::GlobalVector align::diffR(const GlobalVectors& current,
+				 const GlobalVectors& nominal)
+{
+  GlobalVector nCM(0,0,0);
+  GlobalVector cCM(0,0,0);
+
+  unsigned int nPoints = nominal.size();
+
+  for (unsigned int j = 0; j < nPoints; ++j)
+  {
+    nCM += nominal[j];
+    cCM += current[j];
+  }
+
+  nCM -= cCM;
+
+  return nCM /= static_cast<Scalar>(nPoints);
+}
+
+align::GlobalVector align::centerOfMass(const GlobalVectors& theVs)
+{
+  unsigned int nPoints = theVs.size();
+
+  GlobalVector CM(0,0,0);
+
+  for (unsigned int j = 0; j < nPoints; ++j) CM += theVs[j];
+
+  return CM /= static_cast<Scalar>(nPoints);
+}
+
 void align::rectify(RotationType& rot)
 {
   rot = toMatrix( toAngles(rot) );
