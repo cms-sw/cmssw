@@ -1,8 +1,8 @@
 /*
  * \file EcalEndcapMonitorClient.cc
  *
- * $Date: 2007/10/04 09:21:56 $
- * $Revision: 1.70 $
+ * $Date: 2007/10/06 12:32:44 $
+ * $Revision: 1.71 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -779,16 +779,18 @@ void EcalEndcapMonitorClient::endRun(void) {
 
   if ( outputFile_.size() != 0 ) {
     string fileName = outputFile_;
-    for ( unsigned int i = 0; i < fileName.size(); i++ ) {
-      if( fileName.substr(i, 9) == "RUNNUMBER" )  {
-        char tmp[10];
-        if ( run_ != -1 ) {
-          sprintf(tmp,"%09d", run_);
-        } else {
-          sprintf(tmp,"%09d", 0);
-        }
-        fileName.replace(i, 9, tmp);
+    char tmp[9];
+    if ( fileName.find("RUNNUMBER") < fileName.size() ) {
+      if ( run_ != -1 ) {
+        sprintf(tmp,"%09d", run_);
+      } else {
+        sprintf(tmp,"%09d", 0);
       }
+      fileName.replace(fileName.find("RUNNUMBER"), 9, tmp);
+    }
+    if ( fileName.find("LBLOCK") < fileName.size() ) {
+      sprintf(tmp,"%06d", 0);
+      fileName.replace(fileName.find("LBLOCK"), 6, tmp);
     }
     dbe_->save(fileName);
   }
@@ -864,21 +866,22 @@ void EcalEndcapMonitorClient::endLuminosityBlock(const LuminosityBlock &l, const
   this->analyze();
 
   if ( outputFile_.size() != 0 ) {
-    string fileName = outputFile_;
-    for ( unsigned int i = 0; i < fileName.size(); i++ ) {
-      if( fileName.substr(i, 9) == "RUNNUMBER" )  {
-        char tmp[10];
+    if ( outputFile_.find("LBLOCK") < outputFile_.size() ) {
+      string fileName = outputFile_;
+      char tmp[10];
+      if ( fileName.find("RUNNUMBER") < fileName.size() ) {
         if ( run_ != -1 ) {
           sprintf(tmp,"%09d", run_);
         } else {
           sprintf(tmp,"%09d", 0);
         }
-        fileName.replace(i, 9, tmp);
-        sprintf(tmp,"_%06d", l.id().luminosityBlock());
-        fileName.insert(i+9, tmp, 7);
+        fileName.replace(fileName.find("RUNNUMBER"), 9, tmp);
       }
+      sprintf(tmp,"%06d", l.id().luminosityBlock());
+      fileName.replace(fileName.find("LBLOCK"), 6, tmp);
+
+      dbe_->save(fileName);
     }
-    dbe_->save(fileName);
   }
 
 }
