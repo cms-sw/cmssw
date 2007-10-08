@@ -4,67 +4,72 @@
  *
  *
  */
-
-#include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
-#include "DataFormats/EgammaReco/interface/SuperCluster.h"
+#include "DataFormats/Candidate/interface/LeafCandidate.h"
+#include "DataFormats/Candidate/interface/OverlapChecker.h"
+//#include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
+#include "DataFormats/L1Trigger/interface/L1JetParticle.h"
+//#include "DataFormats/EgammaReco/interface/SuperCluster.h"
 
 #include "DataFormats/HcalIsolatedTrack/interface/EcalIsolatedParticleCandidateFwd.h"
 
 namespace reco {
   
-  class EcalIsolatedParticleCandidate: public RecoCandidate {
+  class EcalIsolatedParticleCandidate: public LeafCandidate {
     
   public:
     
     // default constructor
-    EcalIsolatedParticleCandidate() : RecoCandidate() { }
-      // constructor from a superCluster
-      EcalIsolatedParticleCandidate(const reco::SuperClusterRef& sc,double etacl, double phicl,  double encl, double enmnear, double ensnear): 
-	//     EcalIsolatedParticleCandidate(double etacl, double phicl,  double encl, double eSC, double eBC):
-	RecoCandidate( 0, LorentzVector() ),
-	superClu_(sc), eta_(etacl),phi_(phicl),energy_(encl), enMaxNear_(enmnear), enSumNear_(ensnear) {}
+    EcalIsolatedParticleCandidate() : LeafCandidate() { }
+      // constructor from a tau jet
+      EcalIsolatedParticleCandidate(const l1extra::L1JetParticleRef& l1tau, double etatau, double phitau,  double enIn, double 
+enOut, int nhitIn, int nhitOut): 
+	LeafCandidate( 0, LorentzVector() ),
+	l1tau_(l1tau), eta_(etatau),phi_(phitau),enIn_(enIn), enOut_(enOut), nhitIn_(nhitIn), nhitOut_(nhitOut){}
 	
 	//constructor with null candidate
-	EcalIsolatedParticleCandidate(double etacl, double phicl,  double encl, double enmnear, double ensnear):
-	  RecoCandidate( 0, LorentzVector() ), eta_(etacl),phi_(phicl),energy_(encl), enMaxNear_(enmnear), enSumNear_(ensnear) {} 
+	EcalIsolatedParticleCandidate(double etatau, double phitau,  double enIn, double enOut, int nhitIn, int nhitOut):
+	  LeafCandidate( 0, LorentzVector() ), eta_(etatau),phi_(phitau),enIn_(enIn), enOut_(enOut), nhitIn_(nhitIn), 
+nhitOut_(nhitOut) {} 
 	  /// destructor
 	virtual ~EcalIsolatedParticleCandidate();
 	/// returns a clone of the candidate
 	virtual EcalIsolatedParticleCandidate * clone() const;
 	
-	/// reference to a BasicCluster
-	virtual reco::SuperClusterRef superCluster() const;
+	/// reference to a tau jet
+	virtual l1extra::L1JetParticleRef l1TauJet() const;
 
 	double eta() const {return eta_; }
 	
 	double phi() const {return phi_; }
 
-	double energy() const {return energy_; }
+	double energyIn() const {return enIn_; }
 
 	/// total ecal energy in smaller cone around the candidate
-	double enMaxNear() const {return enMaxNear_;}
+	double energyOut() const {return enOut_;}
 	/// total ecal energy in bigger cone around the candidate
-	double enSumNear() const {return enSumNear_;}
+	int nHitIn() const {return nhitIn_;}
+
+	int nHitOut() const {return nhitOut_;}
 	
 	/// set refrence to BasicCluster component
-	void setSuperCluster( const SuperClusterRef & sc ) { superClu_ = sc; }
+	void setL1TauJet( const l1extra::L1JetParticleRef & l1tau ) { l1tau_ = l1tau; }
 	
 
   private:
-    /// check overlap with another candidate
-    virtual bool overlap( const reco::Candidate & ) const;
-    /// reference to a superCluster
-    reco::SuperClusterRef superClu_;
-    /// eta of super cluster
+    /// reference to a L1 tau jet
+    l1extra::L1JetParticleRef l1tau_;
+    /// eta of L1 tau jet
     double eta_;
-    /// phi of super cluster
+    /// phi of L1 tau jet
     double phi_;
-    /// energy of super cluster 
-    double energy_;
-    /// total ecal energy in smaller cone around the candidate
-    double enMaxNear_;
-    /// total ecal energy in bigger cone around the candidate
-    double enSumNear_;
+    /// energy in inner cone around L1 tau jet
+    double enIn_;
+    /// energy in outer cone around L1 tau jet
+    double enOut_;
+    /// number of hits in inner cone
+    int nhitIn_;
+    /// number of hits in inner cone
+    int nhitOut_;
 
   };
 
