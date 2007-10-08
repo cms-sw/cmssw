@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea Rizzi
 //         Created:  Thu Apr  6 09:56:23 CEST 2006
-// $Id: JetTagProducer.cc,v 1.3 2007/10/06 11:01:43 arizzi Exp $
+// $Id: JetTagProducer.cc,v 1.4 2007/10/07 02:50:04 saout Exp $
 //
 //
 
@@ -151,12 +151,10 @@ JetTagProducer::produce(Event& iEvent, const EventSetup& iSetup)
   Handle< View<BaseTagInfo> > &tagInfoHandle = tagInfoHandles[0];
   JetTagCollection * jtc;
   if (tagInfoHandle.product()->size() > 0) {
-    Jet jj = *tagInfoHandle->refAt(0)->jet();
-    RefToBaseProd<Jet> rtbp(tagInfoHandle->refAt(0)->jet());
-    jtc = new JetTagCollection(RefToBaseProd<Jet>(rtbp));
+    RefToBase<Jet> jj = tagInfoHandle->begin()->jet();
+    jtc = new JetTagCollection(RefToBaseProd<Jet>(jj));
   } else
     jtc = new JetTagCollection();
-
   std::auto_ptr<JetTagCollection> jetTagCollection(jtc);
 
   // now loop over the map and compute all JetTags
