@@ -312,14 +312,18 @@ void OptoScanAnalysis::analyse() {
       bias_[igain] = static_cast<uint16_t>( lift_off ) + 2;
     } else { bias_[igain] = defaultBiasSetting_; } 
     
-    // Set "zero light" level and link noise
-    zeroLight_[igain] = zero_light_level;
-    linkNoise_[igain] = zero_light_error; //@@ WRONG!!!! should be error at threshold or "minimum noise" level from new histo?!?
-    
     // Calculate "lift off" and laser threshold (in mA)
     liftOff_[igain] = 0.45 * lift_off;
     threshold_[igain] = 0.45 * ( lift_off - width/2. );
-    
+
+    // Set "zero light" level and link noise
+    zeroLight_[igain] = zero_light_level;
+    linkNoise_[igain] = zero_light_error; 
+    //@@ WRONG!!!! should be error at threshold or "minimum noise" level from new histo?!?
+    //uint32_t bin_number = static_cast<uint32_t>( threshold_[igain] / 0.45 ); 
+    //if ( bin_number < base_errors.size() ) { linkNoise_[igain] = base_errors[bin_number]; }
+    //else { linkNoise_[igain] == sistrip::invalid_; }
+
     // Calculate tick mark height
     if ( low_params.b_ <= sistrip::maximum_ &&
 	 width <= sistrip::maximum_ ) {
