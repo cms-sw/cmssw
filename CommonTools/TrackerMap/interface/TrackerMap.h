@@ -28,6 +28,8 @@ class TrackerMap {
   void setText(int idmod , std::string s );
   void setText(int layer, int ring, int nmod , string s );
   void setPalette(int numpalette){palette=numpalette;} 
+  void drawPalette(std::ofstream * file); 
+  void showPalette(bool printflag1){printflag=printflag1;}; 
   int getxsize(){return xsize;};
   int getysize(){return ysize;};
   int getNumMod(){return number_modules;};
@@ -36,6 +38,7 @@ class TrackerMap {
   typedef std::map<const int  , TmModule *> ImoduleMap;
   ImoduleMap imoduleMap;
   int palette;
+  bool printflag;
   int ndet; //number of detectors 
   int npart; //number of detectors parts 
   string title;

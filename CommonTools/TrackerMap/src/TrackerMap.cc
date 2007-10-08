@@ -20,6 +20,7 @@ TrackerMap::TrackerMap(string s,int xsize1,int ysize1) {
   title=s;
   posrel=true;
   palette = 1;
+  printflag=false;
 
   ndet = 3; // number of detectors: pixel, inner silicon, outer silicon
   npart = 3; // number of detector parts: endcap -z, barrel, endcap +z
@@ -164,8 +165,8 @@ void TrackerMap::drawModule(TmModule * mod, int key,int nlay, bool print_total, 
    float delta=(maxvalue-minvalue);
    float x =(mod->value-minvalue);
    green= (int) ( x<delta/4 ? x : ( x > 3/4*delta ?  -255/(delta/4) * x + 4 * 255 : 255 ) );
-   blue = (int) ( x<delta/2 ? 0 : ( x > 3/4*delta ?  255 : 255/(delta/4) * x - 510 ) );
-   red = (int) ( x<delta/4 ? 255 : ( x > 1/2*delta ?  0 : -255/(delta/4) * x + 510 ) );
+   red = (int) ( x<delta/2 ? 0 : ( x > 3/4*delta ?  255 : 255/(delta/4) * x - 510 ) );
+   blue = (int) ( x<delta/4 ? 255 : ( x > 1/2*delta ?  0 : -255/(delta/4) * x + 510 ) );
      }
      if (palette==2){//palette 2 yellow-green
      green = (int)((mod->value-minvalue)/(maxvalue-minvalue)*256.);
@@ -255,7 +256,8 @@ void TrackerMap::save(bool print_total, float minval, float maxval, string outpu
     }
   }
   *savefile << "</svg:g>"<<endl;
-  *savefile << " <svg:text id=\"Title\" class=\"normalText\"  x=\"100\" y=\"0\">"<<title<<"</svg:text>"<<endl;
+  *savefile << " <svg:text id=\"Title\" class=\"normalText\"  x=\"300\" y=\"0\">"<<title<<"</svg:text>"<<endl;
+  if(printflag)drawPalette(savefile);
   *savefile << "</svg:svg>"<<endl;
   *savefile << "</svg>"<<endl;
   savefile->close(); 
@@ -354,12 +356,36 @@ void TrackerMap::print(bool print_total, float minval, float maxval, string outp
     }
   }
   *svgfile << "</svg:g></svg:svg>"<<endl;
-  *svgfile << " <svg:text id=\"Title\" class=\"normalText\"  x=\"100\" y=\"0\">"<<title<<"</svg:text>"<<endl;
+  *svgfile << " <svg:text id=\"Title\" class=\"normalText\"  x=\"300\" y=\"0\">"<<title<<"</svg:text>"<<endl;
+  if(printflag)drawPalette(svgfile);
   *svgfile << "</svg:svg>"<<endl;
   *svgfile << "</body></html>"<<endl;
+   svgfile->close();
 
 }
 
+void TrackerMap::drawPalette(ofstream * svgfile){
+  int red, green, blue;
+  float val=minvalue;
+  float dval = (maxvalue-minvalue)/256.;
+  for(int i=0;i<256;i++){
+ if(palette==1){//palette1 1 - raibow
+   float delta=(maxvalue-minvalue);
+   float x =(val-minvalue);
+   green= (int) ( x<delta/4 ? x : ( x > 3/4*delta ?  -255/(delta/4) * x + 4 * 255 : 255 ) );
+   red = (int) ( x<delta/2 ? 0 : ( x > 3/4*delta ?  255 : 255/(delta/4) * x - 510 ) );
+   blue = (int) ( x<delta/4 ? 255 : ( x > 1/2*delta ?  0 : -255/(delta/4) * x + 510 ) );
+     }
+     if (palette==2){//palette 2 yellow-green
+     green = (int)((val-minvalue)/(maxvalue-minvalue)*256.);
+         if (green > 255) green=255;
+         red = 255; blue=0;green=255-green;
+        }
+    *svgfile <<"<svg:rect  x=\""<<i<<"\" y=\"0\" width=\"1\" height=\"20\" fill=\"rgb("<<red<<","<<green<<","<<blue<<")\" />\n";
+
+    val = val + dval;
+   }
+} 
 void TrackerMap::fillc(int idmod, int red, int green, int blue  ){
 
   TmModule * mod = imoduleMap[idmod];
