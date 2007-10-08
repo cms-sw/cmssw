@@ -91,6 +91,7 @@ bool ZToMuMuSelector::filter (Event & ev, const EventSetup &) {
       }
 
       unsigned int npairs = 0;
+      bool globalCombinationFound = false;
       for (unsigned int i=0; i<muonCollection->size(); i++) {
             TrackRef mu(muonCollection,i);
             LogTrace("") << "> Processing muon number " << i << "...";
@@ -104,7 +105,6 @@ bool ZToMuMuSelector::filter (Event & ev, const EventSetup &) {
             LogTrace("") << "\t... isolated? " << iso;
             if (!iso) continue;
 
-            bool globalCombinationFound = false;
             for (unsigned int j=i+1; j<muonCollection->size(); j++) {
                   TrackRef mu2(muonCollection,j);
                   LogTrace("") << "> Processing second muon number " << j << "...";
