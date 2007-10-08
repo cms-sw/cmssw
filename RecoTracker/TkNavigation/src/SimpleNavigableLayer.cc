@@ -14,7 +14,22 @@ bool SimpleNavigableLayer::wellInside( const FreeTrajectoryState& fts,
 {
   TSOS propState = propagator(dir).propagate( fts, bl->specificSurface());
   if ( !propState.isValid()) return false;
-  
+ 
+  //if requested check that the layer is crossed on the right side
+  if (theCheckCrossingSide){
+     //we have to check the crossing side only if we are going to something smaller
+     if (fts.position().perp()>bl->specificSurface().radius() || 
+         fabs(fts.position().z())>bl->surface().bounds().length()/2. ){
+	if (propState.globalPosition().basicVector().dot(fts.position().basicVector())<0){
+		LogTrace("TkNavigation") << "Crossing over prevented!\nStaring from (x,y,z,r) (" 
+		<< fts.position().x()<<","<< fts.position().y()<<","<< fts.position().z()<<","<<fts.position().perp()
+		<< ") going to TSOS (x,y,z,r)" 
+		<< propState.globalPosition().x()<<","<< propState.globalPosition().y()<<","<< propState.globalPosition().z()<<","<<propState.globalPosition().perp()<<")";; 
+		return false;
+	}
+     } 	
+  }	
+
   const Bounds& bounds( bl->specificSurface().bounds());
   float length = bounds.length() / 2.f;
 
@@ -44,6 +59,12 @@ bool SimpleNavigableLayer::wellInside( const FreeTrajectoryState& fts,
 {
   TSOS propState = propagator(dir).propagate( fts, fl->specificSurface());
   if ( !propState.isValid()) return false;
+
+  //if requested avoids crossing over the tracker 
+  if (theCheckCrossingSide){
+	if (fts.position().z()*propState.globalPosition().z() < 0) return false;
+  }
+
 
   float rpos = propState.globalPosition().perp();
   float innerR = fl->specificSurface().innerRadius();

@@ -14,7 +14,8 @@ public:
 			       const BDLC& outerBL, 
 			       const FDLC& outerFL, 
 			       const MagneticField* field,
-			       float epsilon);
+			       float epsilon,
+			       bool checkCrossingSide=true);
 
   SimpleForwardNavigableLayer( ForwardDetLayer* detLayer,
 			       const BDLC& outerBL, 
@@ -26,7 +27,8 @@ public:
 			       const FDLC& innerFL,
 			       const FDLC& allInnerFL,
 			       const MagneticField* field,
-			       float epsilon);
+			       float epsilon,
+			       bool checkCrossingSide=true);
 
   // NavigableLayer interface
   virtual std::vector<const DetLayer*> 
@@ -43,6 +45,7 @@ public:
   compatibleLayers( const FreeTrajectoryState& fts, 
 		    PropagationDirection timeDirection) const;
 
+  virtual void setAdditionalLink(DetLayer*, NavigationDirection direction=insideOut);
 
   virtual DetLayer* detLayer() const;
   virtual void   setDetLayer( DetLayer* dl);

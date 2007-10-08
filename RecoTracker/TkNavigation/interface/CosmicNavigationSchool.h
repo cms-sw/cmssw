@@ -4,7 +4,7 @@
 //#include "TrackingTools/DetLayers/interface/NavigationSchool.h"
 #include "RecoTracker/TkNavigation/interface/SimpleNavigationSchool.h"
 #include "RecoTracker/TkDetLayers/interface/GeometricSearchTracker.h"
-#include "RecoTracker/TkNavigation/interface/FakeDetLayer.h"
+//#include "RecoTracker/TkNavigation/interface/FakeDetLayer.h"
 
 #include <vector>
 
@@ -20,13 +20,14 @@ public:
   CosmicNavigationSchool(const GeometricSearchTracker* theTracker,
 			 const MagneticField* field);
  
-  ~CosmicNavigationSchool();
+  ~CosmicNavigationSchool(){};
 private:
-  FakeDetLayer* theFakeDetLayer;
+  //FakeDetLayer* theFakeDetLayer;
   void linkBarrelLayers( SymmetricLayerFinder& symFinder);
-  void linkToAllRegularBarrelLayer(BDLC&);
-  void establishInverseRelations();
-  void linkNextBarrelLayer( ForwardDetLayer* fl, BDLC& reachableBL); 
+  //void linkForwardLayers( SymmetricLayerFinder& symFinder); 
+  void establishInverseRelations( SymmetricLayerFinder& symFinder );
+  void buildAdditionalBarrelLinks();
+  void buildAdditionalForwardLinks(SymmetricLayerFinder& symFinder);
 };
 
 #endif // CosmicNavigationSchool_H

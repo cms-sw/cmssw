@@ -22,10 +22,15 @@ public:
   typedef std::vector<BarrelDetLayer*>              BDLC;
   typedef std::vector<ForwardDetLayer*>             FDLC;
 
-  SimpleNavigableLayer( const MagneticField* field,float eps) :
-    theEpsilon(eps),thePropagator(field) {}
+  SimpleNavigableLayer( const MagneticField* field,float eps,bool checkCrossingSide=true) :
+    theEpsilon(eps),thePropagator(field),theCheckCrossingSide(checkCrossingSide) {}
 
   virtual void setInwardLinks(const BDLC&, const FDLC&) = 0;
+  
+  virtual void setAdditionalLink(DetLayer*, NavigationDirection direction=insideOut) = 0;
+
+  void setCheckCrossingSide(bool docheck) {theCheckCrossingSide = docheck;}
+
 
 protected:
 
@@ -38,6 +43,8 @@ protected:
   float                     theEpsilon;
 
   mutable AnalyticalPropagator     thePropagator;
+  
+  bool theCheckCrossingSide;
 
   bool wellInside( const FreeTrajectoryState& fts, PropagationDirection dir,
 		   const BarrelDetLayer* bl, DLC& result) const;

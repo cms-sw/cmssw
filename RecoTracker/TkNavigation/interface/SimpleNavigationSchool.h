@@ -20,7 +20,7 @@ class MagneticField;
 class SimpleNavigationSchool : public NavigationSchool {
 public:
   
-  SimpleNavigationSchool(){};
+  SimpleNavigationSchool() : theField(0),theTracker(0){};
   SimpleNavigationSchool(const GeometricSearchTracker* theTracker,
 			 const MagneticField* field);
   

@@ -18,8 +18,9 @@ SimpleForwardNavigableLayer( ForwardDetLayer* detLayer,
 			     const BDLC& outerBL, 
 			     const FDLC& outerFL, 
 			     const MagneticField* field,
-			     float epsilon) :
-  SimpleNavigableLayer(field,epsilon),
+			     float epsilon,
+			     bool checkCrossingSide) :
+  SimpleNavigableLayer(field,epsilon,checkCrossingSide),
   areAllReachableLayersSet(false),
   theDetLayer(detLayer), 
   theOuterBarrelLayers(outerBL),
@@ -55,8 +56,9 @@ SimpleForwardNavigableLayer( ForwardDetLayer* detLayer,
                              const FDLC& innerFL,
                              const FDLC& allInnerFL,
 			     const MagneticField* field,
-			     float epsilon) :
-  SimpleNavigableLayer(field,epsilon),
+			     float epsilon,
+			     bool checkCrossingSide) :
+  SimpleNavigableLayer(field,epsilon,checkCrossingSide),
   areAllReachableLayersSet(true),
   theDetLayer(detLayer), 
   theOuterBarrelLayers(outerBL),
@@ -309,3 +311,37 @@ void SimpleForwardNavigableLayer::setInwardLinks(const BDLC& innerBL,
   sort(theInnerBarrelLayers.begin(), theInnerBarrelLayers.end(), TkLayerLess(outsideIn));  
 
 }
+
+void SimpleForwardNavigableLayer::setAdditionalLink(DetLayer* additional, NavigationDirection direction){
+  ForwardDetLayer* fadditional = dynamic_cast<ForwardDetLayer*>(additional);
+  BarrelDetLayer*  badditional = dynamic_cast<BarrelDetLayer*>(additional);
+  if (badditional){
+        if (direction==insideOut){
+                theOuterBarrelLayers.push_back(badditional);
+		theAllOuterBarrelLayers.push_back(badditional);
+		theOuterLayers.push_back(badditional);
+		theAllOuterLayers.push_back(badditional);
+                return;
+        }
+        theInnerBarrelLayers.push_back(badditional);
+	theAllInnerBarrelLayers.push_back(badditional);
+	theInnerLayers.push_back(badditional);
+	theAllInnerLayers.push_back(badditional);
+        return;
+  } else if (fadditional){
+        if (direction==insideOut){
+                theOuterForwardLayers.push_back(fadditional);
+		theAllOuterForwardLayers.push_back(fadditional);	
+		theOuterLayers.push_back(badditional);
+		theAllOuterLayers.push_back(badditional);
+                return;
+        }
+        theInnerForwardLayers.push_back(fadditional);
+	theAllInnerForwardLayers.push_back(fadditional);
+	theInnerLayers.push_back(badditional);
+	theAllInnerLayers.push_back(badditional);
+        return;
+  }
+  edm::LogError("TkNavigation") << "trying to add neither a ForwardDetLayer nor a BarrelDetLayer";
+  return;
+} 
