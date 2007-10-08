@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea Rizzi
 //         Created:  Thu Apr  6 09:56:23 CEST 2006
-// $Id: TrackIPProducer.cc,v 1.6 2007/10/05 09:08:12 arizzi Exp $
+// $Id: TrackIPProducer.cc,v 1.7 2007/10/05 09:26:35 arizzi Exp $
 //
 //
 
@@ -42,6 +42,8 @@
 
 #include "RecoBTag/TrackProbability/interface/HistogramProbabilityEstimator.h"
 #include "RecoBTag/ImpactParameter/plugins/TrackIPProducer.h"
+#include "TrackingTools/PatternTools/interface/TwoTrackMinimumDistance.h"
+
 
 using namespace std;
 using namespace reco;
@@ -106,7 +108,7 @@ TrackIPProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   
 
    //output collections 
-   reco::TrackIPTagInfoCollection * outCollection = new reco::TrackIPTagInfoCollection();
+  reco::TrackIPTagInfoCollection * outCollection = new reco::TrackIPTagInfoCollection();
 
    //use first pv of the collection
    //FIXME: use BeamSpot when pv is missing
@@ -131,8 +133,10 @@ TrackIPProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
    
    double pvZ=pv->z();
  
+
    int i=0;
    JetTracksAssociationCollection::const_iterator it = jetTracksAssociation->begin();
+   TwoTrackMinimumDistance minDist;
    for(; it != jetTracksAssociation->end(); it++, i++)
      {
         TrackRefVector tracks = it->second;
@@ -154,7 +158,9 @@ TrackIPProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
         vector<float> prob2D,prob3D;
         vector<TrackIPTagInfo::TrackIPData> ipData;
 
-       for (TrackRefVector::const_iterator itTrack = tracks.begin(); itTrack != tracks.end(); ++itTrack) {
+        multimap<float,int> significanceMap; 
+        int ind =0;
+        for (TrackRefVector::const_iterator itTrack = tracks.begin(); itTrack != tracks.end(); ++itTrack) {
              const Track & track = **itTrack;
      	     const TransientTrack & transientTrack = builder->build(&(**itTrack));
 /*         cout << " pt " <<  track.pt() <<
@@ -163,7 +169,7 @@ TrackIPProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
                  " ipZ " <<   fabs(track.dz()-pvZ)<<
                  " chi2 " <<  track.normalizedChi2()<<
                  " #pixel " <<    track.hitPattern().numberOfValidPixelHits()<< endl;
- */
+*/
          if(     track.pt() > m_cutMinPt  &&                          // minimum pt
                  fabs(track.d0()) < m_cutMaxTIP &&                // max transverse i.p.
                  track.hitPattern().numberOfValidHits() >= m_cutTotalHits &&         // min num tracker hits
@@ -173,21 +179,23 @@ TrackIPProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
            )     // quality cuts
         { 
          //Fill vectors
+         //TODO: what if .first is false?
          ip3Dv.push_back(IPTools::signedImpactParameter3D(transientTrack,direction,*pv).second);
          ip2Dv.push_back(IPTools::signedTransverseImpactParameter(transientTrack,direction,*pv).second);
          dLenv.push_back(IPTools::signedDecayLength3D(transientTrack,direction,*pv).second);
          jetDistv.push_back(IPTools::jetTrackDistance(transientTrack,direction,*pv).second);
-
          TrackIPTagInfo::TrackIPData trackIp;
          trackIp.ip3d=IPTools::signedImpactParameter3D(transientTrack,direction,*pv).second;
          trackIp.ip2d=IPTools::signedTransverseImpactParameter(transientTrack,direction,*pv).second;
          trackIp.closestToJetAxis=IPTools::closestApproachToJet(transientTrack.impactPointState(), *pv, direction,transientTrack.field()).globalPosition();
          //TODO:cross check if it is the same using other methods
          trackIp.distanceToJetAxis=IPTools::jetTrackDistance(transientTrack,direction,*pv).second.value();
- 
+         //TODO: fill distance,point to first track!!
+         significanceMap.insert(pair<float,int>(trackIp.ip3d.significance(), ind++) ); 
+
          ipData.push_back(trackIp);
          selectedTracks.push_back(*itTrack);
-
+        
          if(m_computeProbabilities) {
               //probability with 3D ip
               pair<bool,double> probability =  m_probabilityEstimator->probability(0,ipData.back().ip3d.significance(),track,*(it->first),*pv);
@@ -202,6 +210,28 @@ TrackIPProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
          } // quality cuts if
      
       } //track loop
+       
+       if(ipData.size() >  1)
+       {
+        multimap<float,int>::iterator last=significanceMap.end();
+        last--;
+        int first=last->second;
+        last--;
+        int second=last->second;
+       
+        for(int n=0;n< ipData.size();n++)
+	{
+               int use;
+               if(n==first) use = second; else use = first;
+               TrajectoryStateOnSurface trackState1 =  builder->build(selectedTracks[n]).impactPointState();
+               TrajectoryStateOnSurface trackState2 =  builder->build(selectedTracks[use]).impactPointState();
+               std::pair<GlobalPoint,GlobalPoint> points = minDist.points(trackState1,trackState2);
+               float distance = ( points.first - points.second ).mag();
+	       ipData[n].closestToFirstTrack=points.first;
+               ipData[n].distanceToFirstTrack=distance;
+
+	}
+       }
        TrackIPTagInfo tagInfo(ipData,prob2D,prob3D,selectedTracks,
                               edm::Ref<JetTracksAssociationCollection>(jetTracksAssociation,i),
                               *pvRef);
