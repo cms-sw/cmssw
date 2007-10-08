@@ -8,7 +8,7 @@
  * \author Slava Valuev  26 May 2004.
  * Porting from ORCA by S. Valuev in September 2006.
  *
- * $Date: 2006/09/12 15:51:21 $
+ * $Date: 2006/09/12 09:00:29 $
  * $Revision: 1.1 $
  *
  */
@@ -53,6 +53,7 @@ class CSCAnodeLCTAnalyzer
 
  private:
   static bool debug;
+  static bool isMTCCMask;
 
   /* Cache geometry for current event. */
   const CSCGeometry* geom_;

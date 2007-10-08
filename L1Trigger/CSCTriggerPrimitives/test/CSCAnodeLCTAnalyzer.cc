@@ -4,8 +4,8 @@
  * Slava Valuev  May 26, 2004.
  * Porting from ORCA by S. Valuev in September 2006.
  *
- * $Date: 2006/12/21 13:38:12 $
- * $Revision: 1.5 $
+ * $Date: 2007/08/17 16:17:28 $
+ * $Revision: 1.6 $
  *
  */
 
@@ -26,6 +26,7 @@ using namespace std;
 //-----------------
 
 bool CSCAnodeLCTAnalyzer::debug = true;
+bool CSCAnodeLCTAnalyzer::isMTCCMask = false;
 
 vector<CSCAnodeLayerInfo> CSCAnodeLCTAnalyzer::getSimInfo(
       const CSCALCTDigi& alct, const CSCDetId& alctId,
@@ -143,19 +144,27 @@ vector<CSCAnodeLayerInfo> CSCAnodeLCTAnalyzer::lctDigis(
     }
 
     // Loop over all the wires in a pattern.
+    int mask;
     for (int i_wire = 0; i_wire < CSCAnodeLCTProcessor::NUM_PATTERN_WIRES;
 	 i_wire++) {
-      if ((CSCAnodeLCTProcessor::pattern_envelope[0][i_wire] == i_layer) &&
-	  (CSCAnodeLCTProcessor::pattern_mask_default[alct_pattern][i_wire] == 1)) {
-	int wire = alct_keywire +
-	  CSCAnodeLCTProcessor::pattern_envelope[1+MESelection][i_wire];
-	if (wire >= 0 && wire < CSCConstants::MAX_NUM_WIRES) {
-	  // Check if there is a "good" Digi on this wire.
-	  if (digiMap.count(wire) > 0) {
-	    tempInfo.setId(layerId); // store the layer of this object
-	    tempInfo.addComponent(digiMap[wire]); // and the RecDigi
-	    if (debug) LogDebug("lctDigis")
-	      << " Digi on ALCT: wire group " << digiMap[wire].getWireGroup();
+      if (CSCAnodeLCTProcessor::pattern_envelope[0][i_wire] == i_layer) {
+	if (!isMTCCMask) {
+	  mask = CSCAnodeLCTProcessor::pattern_mask_default[alct_pattern][i_wire];
+	}
+	else {
+	  mask = CSCAnodeLCTProcessor::pattern_mask_MTCC[alct_pattern][i_wire];
+	}
+	if (mask == 1) {
+	  int wire = alct_keywire +
+	    CSCAnodeLCTProcessor::pattern_envelope[1+MESelection][i_wire];
+	  if (wire >= 0 && wire < CSCConstants::MAX_NUM_WIRES) {
+	    // Check if there is a "good" Digi on this wire.
+	    if (digiMap.count(wire) > 0) {
+	      tempInfo.setId(layerId); // store the layer of this object
+	      tempInfo.addComponent(digiMap[wire]); // and the RecDigi
+	      if (debug) LogDebug("lctDigis")
+		<< " Digi on ALCT: wire group " << digiMap[wire].getWireGroup();
+	    }
 	  }
 	}
       }
