@@ -1,5 +1,7 @@
 #include "CondTools/L1Trigger/interface/DataReader.h"
 
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
 #include "CondCore/PluginSystem/interface/DataProxy.h"
 #include "CondCore/PluginSystem/interface/ProxyFactory.h"
 
@@ -152,6 +154,9 @@ void DataReader::updateToken (const std::string & tag, const edm::RunNumber_t ru
 std::pair<boost::shared_ptr<edm::eventsetup::DataProxy>, edm::eventsetup::DataKey>
 DataReader::createPayload (const std::string & record, const std::string & type)
 {
+
+  edm::LogWarning("L1DBESSource") << "DataReader::createPayload( " << record << " , " << type << " )";
+
      edm::eventsetup::TypeTag typeTag = findType (type);
      std::stringstream ss;
      ss << record << "@" << type;

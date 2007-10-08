@@ -1,5 +1,7 @@
 #include "CondTools/L1Trigger/interface/DataManager.h"
 
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
 #include "CondCore/DBCommon/interface/SessionConfiguration.h"
 #include "CondCore/DBCommon/interface/ConnectionConfiguration.h"
 
@@ -52,8 +54,9 @@ edm::eventsetup::TypeTag DataManager::findType (const std::string & type) const
   static edm::eventsetup::TypeTag defaultType;
   edm::eventsetup::TypeTag typeTag = edm::eventsetup::TypeTag::findType (type);
   
-  //     if (typeTag == defaultType)
-  //        throw cond::Exception ("l1t::DataManager::findType") << "Type " << type << " was not found";
+  if (typeTag == defaultType)
+    //throw cond::Exception ("l1t::DataManager::findType")
+    edm::LogError("L1TriggerDB") << "DataManager::findType() : " << type << " was not found";
   
   return typeTag;
 }
