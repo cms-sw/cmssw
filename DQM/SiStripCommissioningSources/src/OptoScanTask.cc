@@ -169,7 +169,7 @@ void OptoScanTask::locateTicks( const edm::DetSet<SiStripRawDigi>& digis,
   float tick_median = 0.;
   
   // Calculate mid-range of data 
-  uint16_t mid_range = adc.front() + ( adc.back() + adc.front() ) / 2;
+  uint16_t mid_range = adc.front() + ( adc.back() - adc.front() ) / 2;
   
   // Associate ADC values with either "ticks" or "baseline"
   std::vector<uint16_t>::const_iterator iter = adc.begin();
