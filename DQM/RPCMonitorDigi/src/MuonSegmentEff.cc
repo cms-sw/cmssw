@@ -13,7 +13,7 @@
 //
 // Original Author:  Camilo Carrillo (Uniandes)
 //         Created:  Tue Oct  2 16:57:49 CEST 2007
-// $Id: MuonSegmentEff.cc,v 1.6 2007/10/07 11:53:35 carrillo Exp $
+// $Id: MuonSegmentEff.cc,v 1.7 2007/10/08 12:13:05 carrillo Exp $
 //
 //
 
@@ -62,6 +62,16 @@
 
 #include <DataFormats/GeometrySurface/interface/LocalError.h>
 #include <DataFormats/GeometryVector/interface/LocalPoint.h>
+
+
+#include <cmath>
+#include "TFile.h"
+#include "TH1F.h"
+#include "TH2F.h"
+#include "TCanvas.h"
+
+
+
 
 class DTStationIndex{
 public: 
@@ -136,14 +146,26 @@ MuonSegmentEff::MuonSegmentEff(const edm::ParameterSet& iConfig)
   muonRPCDigis=iConfig.getParameter<std::string>("muonRPCDigis");
   cscSegments=iConfig.getParameter<std::string>("cscSegments");
   dt4DSegments=iConfig.getParameter<std::string>("dt4DSegments");
+  // Giuseppe
+  nameInLog = iConfig.getUntrackedParameter<std::string>("moduleLogName", "RPC_Eff");
+  EffSaveRootFile  = iConfig.getUntrackedParameter<bool>("EffSaveRootFile", true); 
+  EffSaveRootFileEventsInterval  = iConfig.getUntrackedParameter<int>("EffEventsInterval", 10000); 
+  EffRootFileName  = iConfig.getUntrackedParameter<std::string>("EffRootFileName", "CMSRPCEff.root"); 
+  //Interface
+  dbe = edm::Service<DaqMonitorBEInterface>().operator->();
+  edm::Service<MonitorDaemon> daemon;
+  daemon.operator->();
+  _idList.clear(); 
 
+  //Giuseppe
 
 }
 
 
 MuonSegmentEff::~MuonSegmentEff()
 {
-
+  edm::LogInfo (nameInLog) <<"Beginning DQMMonitorDigi " ;
+  dbe->showDirStructure();
 }
 
 void MuonSegmentEff::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
@@ -151,6 +173,12 @@ void MuonSegmentEff::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
   using namespace edm;
   
   std::map<RPCDetId, int> buff;
+
+  char layerLabel[128];
+  char meIdRPC [128];
+  char meIdDT [128];
+  char meRPC [128];
+  char meIdCSC [128];
 
   float dx=0.,dy=0.,dz=0.,Xo=0.,Yo=0.,X=0.,Y=0.,Z=0.;
   
@@ -255,7 +283,98 @@ MuonSegmentEff::endJob() {
     std::cout<<"No predictions in this file = 0!!!"<<std::endl;
   }
 
+
+  std::vector<uint32_t>::iterator meIt;
+  for(meIt = _idList.begin(); meIt != _idList.end(); ++meIt){
+
+    char detUnitLabel[128];
+
+    char meIdRPC [128];
+    char meIdDT [128];
+    char effIdRPC_DT [128];
+
+    char meIdRPC_2D [128];
+    char meIdDT_2D [128];
+    char effIdRPC_DT_2D [128];
+
+    sprintf(detUnitLabel ,"%d",*meIt);
+
+    sprintf(meIdRPC,"RPCDataOccupancyFromDT_%s",detUnitLabel);
+    sprintf(meIdRPC_2D,"RPCDataOccupancy2DFromDT_%s",detUnitLabel);
+
+    sprintf(meIdDT,"ExpectedOccupancyFromDT_%s",detUnitLabel);
+    sprintf(meIdDT_2D,"ExpectedOccupancy2DFromDT_%s",detUnitLabel);
+
+    sprintf(effIdRPC_DT,"EfficienyFromDTExtrapolation_%s",detUnitLabel);
+    sprintf(effIdRPC_DT_2D,"EfficienyFromDT2DExtrapolation_%s",detUnitLabel);
+
+    std::map<std::string, MonitorElement*> meMap=meCollection[*meIt];
+
+    for(unsigned int i=1;i<=100;++i){
+      
+      if(meMap[meIdDT]->getBinContent(i) != 0){
+	float eff = meMap[meIdRPC]->getBinContent(i)/meMap[meIdDT]->getBinContent(i);
+	float erreff = sqrt(eff*(1-eff)/meMap[meIdDT]->getBinContent(i));
+	meMap[effIdRPC_DT]->setBinContent(i,eff*100.);
+	meMap[effIdRPC_DT]->setBinError(i,erreff*100.);
+      }
+    }
+    for(unsigned int i=1;i<=100;++i){
+      for(unsigned int j=1;j<=200;++j){
+	if(meMap[meIdDT_2D]->getBinContent(i,j) != 0){
+	  float eff = meMap[meIdRPC_2D]->getBinContent(i,j)/meMap[meIdDT_2D]->getBinContent(i,j);
+	  float erreff = sqrt(eff*(1-eff)/meMap[meIdDT_2D]->getBinContent(i,j));
+	  meMap[effIdRPC_DT_2D]->setBinContent(i,j,eff*100.);
+	  meMap[effIdRPC_DT_2D]->setBinError(i,j,erreff*100.);
+	}
+      }
+    }
+    ///CSC
+
+    char meRPC [128];
+    char meIdCSC [128];
+    char effIdRPC_CSC [128];
+
+    char meRPC_2D [128];
+    char meIdCSC_2D [128];
+    char effIdRPC_CSC_2D [128];
+
+    sprintf(detUnitLabel ,"%d",*meIt);
+
+    sprintf(meRPC,"RPCDataOccupancyFromCSC_%s",detUnitLabel);
+    sprintf(meRPC_2D,"RPCDataOccupancy2DFromCSC_%s",detUnitLabel);
+
+    sprintf(meIdCSC,"ExpectedOccupancyFromCSC_%s",detUnitLabel);
+    sprintf(meIdCSC_2D,"ExpectedOccupancy2DFromCSC_%s",detUnitLabel);
+
+    sprintf(effIdRPC_CSC,"EfficienyFromCSCExtrapolation_%s",detUnitLabel);
+    sprintf(effIdRPC_CSC_2D,"EfficienyFromCSC2DExtrapolation_%s",detUnitLabel);
+
+    //std::map<std::string, MonitorElement*> meMap=meCollection[*meIt];
+
+    for(unsigned int i=1;i<=100;++i){
+      
+      if(meMap[meIdCSC]->getBinContent(i) != 0){
+	float eff = meMap[meRPC]->getBinContent(i)/meMap[meIdCSC]->getBinContent(i);
+	float erreff = sqrt(eff*(1-eff)/meMap[meIdCSC]->getBinContent(i));
+	meMap[effIdRPC_CSC]->setBinContent(i,eff*100.);
+	meMap[effIdRPC_CSC]->setBinError(i,erreff*100.);
+      }
+    }
+    for(unsigned int i=1;i<=100;++i){
+      for(unsigned int j=1;j<=200;++j){
+	if(meMap[meIdCSC_2D]->getBinContent(i,j) != 0){
+	  float eff = meMap[meRPC_2D]->getBinContent(i,j)/meMap[meIdCSC_2D]->getBinContent(i,j);
+	  float erreff = sqrt(eff*(1-eff)/meMap[meIdCSC_2D]->getBinContent(i,j));
+	  meMap[effIdRPC_CSC_2D]->setBinContent(i,j,eff*100.);
+	  meMap[effIdRPC_CSC_2D]->setBinError(i,j,erreff*100.);
+	}
+      }
+    }
+  }
+
+
+  //Giuseppe
+  if(EffSaveRootFile) dbe->save(EffRootFileName);
 }
-
-
 

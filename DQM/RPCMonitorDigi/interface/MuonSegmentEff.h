@@ -2,8 +2,8 @@
  *
  * Class for RPC Monitoring using RPCDigi and DT and CSCS egments.
  *
- *  $Date: 2007/10/05 16:45:16 $
- *  $Revision: 1.3 $
+ *  $Date: 2007/10/04 10:41:54 $
+ *  $Revision: 1.1 $
  *
  * \author Camilo Carrillo (Uniandes)
  *
@@ -25,22 +25,28 @@
 #include<map>
 #include<fstream>
 
+class RPCDetId;
+class TFile;
+class TH1F;
+class TFile;
+class TCanvas;
+class TH2F;
 
 
 class MuonSegmentEff : public edm::EDAnalyzer {
    public:
       explicit MuonSegmentEff(const edm::ParameterSet&);
       ~MuonSegmentEff();
-
-
-   private:
       virtual void beginJob(const edm::EventSetup&) ;
       virtual void analyze(const edm::Event&, const edm::EventSetup&);
       virtual void endJob() ;
+      std::map<std::string, MonitorElement*> bookDetUnitSeg(RPCDetId & detId);
+
+   private:
 
       std::vector<std::map<RPCDetId, int> > counter;
       std::vector<int> totalcounter;
-      std::ofstream ofrej;      
+      std::ofstream ofrej;
       bool incldt;
       bool incldtMB4;
       bool inclcsc;
@@ -51,5 +57,15 @@ class MuonSegmentEff : public edm::EDAnalyzer {
       std::string muonRPCDigis;
       std::string cscSegments;
       std::string dt4DSegments;
-};
 
+      //Giuseppe
+      std::map<uint32_t, std::map<std::string, MonitorElement*> >  meCollection;
+      bool EffSaveRootFile;
+      int  EffSaveRootFileEventsInterval;
+      std::string EffRootFileName;
+      std::string nameInLog;
+      DaqMonitorBEInterface * dbe;
+
+      std::vector<uint32_t> _idList;
+
+};

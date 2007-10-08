@@ -105,7 +105,37 @@ if(all4DSegments->size()>0){
 	      RPCDigiCollection::Range rpcRangeDigi=rpcDigis->get(rollasociated->id());
 	      
 	      int stripCounter = 0;
+//////////////////////////////////////////////////////////////////////////////////////
+
+
+
+	      //--------- HISTOGRAM STRIP PREDICTED FROM DT  -------------------
 	      
+	    
+	      uint32_t id = rollId.rawId();
+	      _idList.push_back(id);
+	      
+	      char detUnitLabel[128];
+	      sprintf(detUnitLabel ,"%d",id);
+	      sprintf(layerLabel ,"layer%d_subsector%d_roll%d",rollId.layer(),rollId.subsector(),rollId.roll());
+	      
+	      std::map<uint32_t, std::map<std::string,MonitorElement*> >::iterator meItr = meCollection.find(id);
+	      if (meItr == meCollection.end()){
+		meCollection[id] = bookDetUnitSeg(rollId);
+	      }
+	      
+	      std::map<std::string, MonitorElement*> meMap=meCollection[id];
+
+	      sprintf(meIdDT,"ExpectedOccupancyFromDT_%s",detUnitLabel);
+	      meMap[meIdDT]->Fill(stripPredicted);
+
+	      sprintf(meIdDT,"ExpectedOccupancy2DFromDT_%s",detUnitLabel);
+	      meMap[meIdDT]->Fill(stripPredicted,Y);
+
+
+
+	    
+//////////////////////////////////////////////////////////////////////////////////////	      
 	      
 	      totalcounter[0]++;
 	      buff=counter[0];
@@ -120,6 +150,27 @@ if(all4DSegments->size()>0){
 		stripDetected=digiIt->strip();
 		
 		float res = (float)(stripDetected) - stripPredicted;
+
+
+////////////////////////////////////////////////////////////////////////////////////////
+
+
+		sprintf(meIdRPC,"RPCResidualsFromDT_%s",detUnitLabel);
+		meMap[meIdRPC]->Fill(res);
+		
+		sprintf(meIdRPC,"RPCResiduals2DFromDT_%s",detUnitLabel);
+		meMap[meIdRPC]->Fill(res,Y);
+
+
+
+
+
+////////////////////////////////////////////////////////////////////////////////////////
+
+
+
+
+
 		
 		if(res < widestrip){
 		  std::cout <<"\t \t \t \t COINCEDENCE Predict "<<stripPredicted<<" Detect "<<stripDetected<<std::endl;
@@ -129,6 +180,24 @@ if(all4DSegments->size()>0){
 		  buff=counter[1];
 		  buff[rollId]++;
 		  counter[1]=buff;
+
+/////////////////////////////////////////////////////////////////////////////////////////
+
+
+
+		sprintf(meIdRPC,"RealDetectedOccupancyFromDT_%s",detUnitLabel);
+		meMap[meIdRPC]->Fill(stripDetected);
+
+		sprintf(meIdRPC,"RPCDataOccupancyFromDT_%s",detUnitLabel);
+		meMap[meIdRPC]->Fill(stripPredicted);
+
+		sprintf(meIdRPC,"RPCDataOccupancy2DFromDT_%s",detUnitLabel);
+		meMap[meIdRPC]->Fill(stripPredicted,Y);
+
+
+/////////////////////////////////////////////////////////////////////////////////////////
+
+
 		  break;
 		}
 	      }
