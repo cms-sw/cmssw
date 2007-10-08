@@ -14,7 +14,7 @@
 //
 // Original Author:  Alex Tapper
 //         Created:  Fri Jan 19 14:30:35 CET 2007
-// $Id: TagCaloJetProducer.h,v 1.1 2007/07/06 19:52:57 tapper Exp $
+// $Id: TagCaloJetProducer.h,v 1.2 2007/09/25 13:15:14 dlange Exp $
 //
 //
 
@@ -67,8 +67,10 @@ void TagCaloJetProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSet
   std::auto_ptr<reco::CaloJetCollection> cand(new reco::CaloJetCollection);
 
   for (reco::JetTagCollection::const_iterator t=tags->begin(); t!=tags->end(); t++){
-      if (t->discriminator()>disMin_) {
-        const reco::CaloJet j = *(t->jet().castTo<reco::CaloJetRef>());
+    //    if (t->discriminator()>disMin_) {
+    if (t->second>disMin_) {
+        const reco::CaloJet j = *(t->first.castTo<reco::CaloJetRef>());
+        //        const reco::CaloJet j = *(t->jet().castTo<reco::CaloJetRef>());
         //        const reco::CaloJet* j = dynamic_cast<const reco::CaloJet*>(&(t->jet()));
         cand->push_back(j);
     }
