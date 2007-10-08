@@ -1,0 +1,11 @@
+<use name=boost>
+<use name=rootrflx>
+<use name=root>
+<use name=DataFormats/Common>
+<export>
+  <use name=boost>
+  <use name=rootrflx>
+  <use name=root>
+  <lib name=DataFormatsHistograms>
+</export>
+
