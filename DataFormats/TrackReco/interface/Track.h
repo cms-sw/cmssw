@@ -14,7 +14,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: Track.h,v 1.41 2007/09/18 15:02:47 ratnik Exp $
+ * \version $Id: Track.h,v 1.42 2007/09/20 16:55:37 tomalini Exp $
  *
  */
 #include "DataFormats/TrackReco/interface/TrackBase.h"
@@ -98,8 +98,15 @@ namespace reco {
     /// Number of lost (=invalid) hits on track.
     unsigned short lost() const {return  numberOfLostHits();  }
 
-    // direction how the hits were sorted in the original seed
+    /// direction of how the hits were sorted in the original seed
     PropagationDirection seedDirection() const {return extra_->seedDirection();}
+
+    /**  return the edm::reference to the trajectory seed in the original
+     *   seeds collection. If the collection has been dropped from the
+     *   Event, the reference may be invalid. Its validity should be tested,
+     *   before the reference is actually used. 
+     */
+    edm::RefToBase<TrajectorySeed> seedRef() const { return extra_->seedRef(); }
 
   private:
     /// Reference to additional information stored only on RECO.

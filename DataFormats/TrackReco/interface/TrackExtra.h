@@ -9,7 +9,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: TrackExtra.h,v 1.22 2007/08/21 02:08:52 ratnik Exp $
+ * \version $Id: TrackExtra.h,v 1.23 2007/09/20 16:55:38 tomalini Exp $
  *
  */
 #include <Rtypes.h>
@@ -18,6 +18,7 @@
 #include "DataFormats/Math/interface/Error.h"
 #include "DataFormats/TrackReco/interface/TrackExtraBase.h"
 #include "DataFormats/TrajectorySeed/interface/PropagationDirection.h"
+#include "DataFormats/TrajectorySeed/interface/TrajectorySeed.h"
 
 namespace reco {
   class TrackExtra : public TrackExtraBase {
@@ -37,12 +38,15 @@ namespace reco {
 
     /// default constructor
     TrackExtra(): seedDir_(anyDirection) { }
-    /// constructor from outermost position and momentum
+
+    /// constructor from outermost/innermost position and momentum and Seed information
     TrackExtra( const Point & outerPosition, const Vector & outerMomentum, bool ok ,
 		const Point & innerPosition, const Vector & innerMomentum, bool iok,
 		const CovarianceMatrix& outerState, unsigned int outerId,
 		const CovarianceMatrix& innerState, unsigned int innerId, 
-		PropagationDirection seedDir);
+		PropagationDirection seedDir,
+		edm::RefToBase<TrajectorySeed>  seedRef=edm::RefToBase<TrajectorySeed>());
+
     /// outermost hit position
     const Point & outerPosition() const { return outerPosition_; }
     /// momentum vector at outermost hit position
@@ -95,7 +99,15 @@ namespace reco {
     // direction how the hits were sorted in the original seed
     PropagationDirection seedDirection() const {return seedDir_;}
 
+    /**  return the edm::reference to the trajectory seed in the original
+     *   seeds collection. If the collection has been dropped from the
+     *   Event, the reference may be invalid. Its validity should be tested,
+     *   before the reference is actually used. 
+     */
+    edm::RefToBase<TrajectorySeed> seedRef() const { return seedRef_; }
+
   private:
+
     /// outermost hit position
     Point outerPosition_;
     /// momentum vector at outermost hit position
@@ -118,7 +130,7 @@ namespace reco {
     unsigned int innerDetId_;
 
     PropagationDirection seedDir_;
-
+    edm::RefToBase<TrajectorySeed> seedRef_;
   };
 
 }
