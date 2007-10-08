@@ -60,11 +60,15 @@ bool WToMuNuSelector::filter (Event & ev, const EventSetup &) {
       double met_px = 0.;
       double met_py = 0.;
 
+      // Note:    try/catch sequences should disappear in the future
+      //          GetByLabel will return a false bool value 
+      //          if the collection is not present
+
       Handle<TrackCollection> muonCollection;
       try {
             ev.getByLabel(muonTag_, muonCollection);
       } catch (...) {
-            LogTrace("") << ">>> Muon collection does not exists !!!";
+            LogTrace("") << ">>> Muon collection does not exist !!!";
             return false;
       }
       for (unsigned int i=0; i<muonCollection->size(); i++) {
@@ -78,7 +82,7 @@ bool WToMuNuSelector::filter (Event & ev, const EventSetup &) {
       try {
             ev.getByLabel(metTag_, metCollection);
       } catch (...) {
-            LogTrace("") << ">>> MET collection does not exists !!!";
+            LogTrace("") << ">>> MET collection does not exist !!!";
             return false;
       }
       CaloMETCollection::const_iterator caloMET = metCollection->begin();
@@ -91,7 +95,7 @@ bool WToMuNuSelector::filter (Event & ev, const EventSetup &) {
       try {
             ev.getByLabel(isoTag_, isoMap_);
       } catch (...) {
-            LogTrace("") << ">>> ISO collection does not exists !!!";
+            LogTrace("") << ">>> ISO collection does not exist !!!";
             return false;
       }
 
@@ -99,7 +103,7 @@ bool WToMuNuSelector::filter (Event & ev, const EventSetup &) {
       try {
             ev.getByLabel(jetTag_, jetCollection);
       } catch (...) {
-            LogTrace("") << ">>> CALOJET collection does not exists !!!";
+            LogTrace("") << ">>> CALOJET collection does not exist !!!";
             return false;
       }
 
@@ -132,7 +136,7 @@ bool WToMuNuSelector::filter (Event & ev, const EventSetup &) {
             double w_py = mu->py() + met_py;
             double massT = w_et*w_et - w_px*w_px - w_py*w_py;
             massT = (massT>0) ? sqrt(massT) : 0;
-            LogTrace("") << "\t... W_et, W_py, W_py= " << w_et << ", " << w_px << ", " << w_py << " GeV";
+            LogTrace("") << "\t... W_et, W_px, W_py= " << w_et << ", " << w_px << ", " << w_py << " GeV";
             LogTrace("") << "\t... Invariant transverse mass= " << massT << " GeV";
             if (massT<massTMin_) continue;
             if (massT>massTMax_) continue;
@@ -149,7 +153,7 @@ bool WToMuNuSelector::filter (Event & ev, const EventSetup &) {
             LogTrace("") << ">>>> Event REJECTED";
             return false;
       }
-      LogTrace("") << "> Number of muonsf for W= " << nmuons;
+      LogTrace("") << "> Number of muons for W= " << nmuons;
       if (nmuons<1) {
             LogTrace("") << ">>>> Event REJECTED";
             return false;
