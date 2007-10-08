@@ -4,7 +4,7 @@
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-
+#include "FWCore/Framework/interface/ESHandle.h"
 //FEDRawData
 #include "DataFormats/FEDRawData/interface/FEDRawData.h"
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
@@ -53,12 +53,12 @@
 #include "EventFilter/CSCRawToDigi/interface/CSCTMBHeader.h"
 #include "EventFilter/CSCRawToDigi/interface/CSCRPCData.h"
 #include "EventFilter/CSCRawToDigi/interface/CSCDCCExaminer.h"
-
-
+#include "CondFormats/CSCObjects/interface/CSCCrateMap.h"
+#include "CondFormats/DataRecord/interface/CSCCrateMapRcd.h"
 #include <EventFilter/CSCRawToDigi/interface/CSCMonitorInterface.h>
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
-#include "CondFormats/CSCObjects/interface/CSCReadoutMappingFromFile.h"
+
 
 #include <iostream>
 
@@ -107,10 +107,7 @@ CSCDCCUnpacker::CSCDCCUnpacker(const edm::ParameterSet & pset) :
   CSCDDUEventData::setDebug(debug);
   CSCTMBHeader::setDebug(debug);
   CSCRPCData::setDebug(debug);
-
   CSCDDUEventData::setErrorMask(errorMask);
-
-  theMapping  = CSCReadoutMappingFromFile(pset);
   
 }
 
@@ -123,6 +120,11 @@ CSCDCCUnpacker::~CSCDCCUnpacker()
 
 void CSCDCCUnpacker::produce(edm::Event & e, const edm::EventSetup& c)
 {
+  ///accessing database for mapping (do we really have to do this every event???)
+  edm::ESHandle<CSCCrateMap> hcrate;
+  c.get<CSCCrateMapRcd>().get(hcrate); 
+  const CSCCrateMap* pcrate = hcrate.product();
+
   //++numOfEvents;
   /// Get a handle to the FED data collection
   edm::Handle<FEDRawDataCollection> rawdata;
@@ -236,7 +238,7 @@ void CSCDCCUnpacker::produce(edm::Event & e, const edm::EventSetup& c)
 
 		      if ( (vmecrate>=0)&&(vmecrate<=200) && (dmb>=0)&&(dmb<=10) ) 
 			{
-			  layer = theMapping.detId( endcap, station, vmecrate, dmb, tmb,icfeb,ilayer );
+			  layer = pcrate->detId(vmecrate, dmb,icfeb,ilayer );
 			} 
 		      else 
 			{
@@ -391,7 +393,7 @@ void CSCDCCUnpacker::produce(edm::Event & e, const edm::EventSetup& c)
 		      for (int ilayer = 1; ilayer <= 6; ++ilayer) 
 			{
 			  /// set layer (dmb and vme are valid because already checked in line 205
-			  layer = theMapping.detId( endcap, station, vmecrate, dmb, tmb,icfeb,ilayer );
+			  layer = pcrate->detId( vmecrate, dmb,icfeb,ilayer );
 
 			  std::vector <CSCWireDigi> wireDigis =  cscData[iCSC].wireDigis(ilayer);
 
@@ -417,7 +419,7 @@ void CSCDCCUnpacker::produce(edm::Event & e, const edm::EventSetup& c)
 		 
 			  for ( icfeb = 0; icfeb < 5; ++icfeb )
 			    {
-			      layer = theMapping.detId( endcap, station, vmecrate, dmb, tmb,icfeb,ilayer );
+			      layer = pcrate->detId( vmecrate, dmb, icfeb,ilayer );
 			      if (cscData[iCSC].cfebData(icfeb)) 
 				{
 				  std::vector<CSCStripDigi> stripDigis;

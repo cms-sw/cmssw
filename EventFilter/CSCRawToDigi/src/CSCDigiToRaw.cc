@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2007/09/11 18:06:09 $
- *  $Revision: 1.9 $
+ *  $Date: 2007/10/06 12:51:12 $
+ *  $Revision: 1.10 $
  *  \author A. Tumanov - Rice
  */
 
@@ -14,13 +14,14 @@
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 #include "DataFormats/FEDRawData/interface/FEDRawData.h"
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
-#include "CondFormats/CSCObjects/interface/CSCReadoutMappingFromFile.h"
 #include <boost/dynamic_bitset.hpp>
 #include "EventFilter/CSCRawToDigi/src/bitset_append.h"
 #include <FWCore/Framework/interface/Event.h>
 #include <DataFormats/FEDRawData/interface/FEDHeader.h>
 #include <DataFormats/FEDRawData/interface/FEDTrailer.h>
 #include "EventFilter/Utilities/interface/Crc.h"
+#include "CondFormats/CSCObjects/interface/CSCChamberMap.h"
+#include "CondFormats/DataRecord/interface/CSCChamberMapRcd.h"
 
 
 
@@ -35,7 +36,7 @@ CSCDigiToRaw::~CSCDigiToRaw(){}
 map<CSCDetId, CSCEventData> 
 CSCDigiToRaw::fillChamberDataMap(const CSCStripDigiCollection & stripDigis, 
 				 const CSCWireDigiCollection & wireDigis, 
-				 CSCReadoutMappingFromFile & mapping) 
+				 CSCChamberMap* mapping) 
 {
   map<CSCDetId, CSCEventData> chamberMap;
   ///iterate over chambers with strip digis in them
@@ -62,7 +63,7 @@ CSCDigiToRaw::fillChamberDataMap(const CSCStripDigiCollection & stripDigis,
 	  chamberMapItr = chamberMap.insert(pair<CSCDetId, CSCEventData>(chamberID, CSCEventData(chamberType))).first;
 	}    
       CSCEventData & cscData = chamberMapItr->second;
-      cscData.dmbHeader().setCrateAddress(mapping.crate(cscDetId), mapping.dmbId(cscDetId));
+      cscData.dmbHeader().setCrateAddress(mapping->crate(cscDetId), mapping->dmb(cscDetId));
       ///add strip digis to that chamber
       std::vector<CSCStripDigi>::const_iterator digiItr = (*j).second.first;
       std::vector<CSCStripDigi>::const_iterator last = (*j).second.second;
@@ -95,7 +96,7 @@ CSCDigiToRaw::fillChamberDataMap(const CSCStripDigiCollection & stripDigis,
 	  chamberMapItr = chamberMap.insert(pair<CSCDetId, CSCEventData>(chamberID, CSCEventData(chamberType))).first;
 	}
       CSCEventData & cscData = chamberMapItr->second;
-      cscData.dmbHeader().setCrateAddress(mapping.crate(cscDetId), mapping.dmbId(cscDetId));
+      cscData.dmbHeader().setCrateAddress(mapping->crate(cscDetId), mapping->dmb(cscDetId));
       ///add strip digis to that chamber
       std::vector<CSCWireDigi>::const_iterator digiItr = (*j).second.first;
       std::vector<CSCWireDigi>::const_iterator last = (*j).second.second;
@@ -112,7 +113,7 @@ CSCDigiToRaw::fillChamberDataMap(const CSCStripDigiCollection & stripDigis,
 void CSCDigiToRaw::createFedBuffers(const CSCStripDigiCollection& stripDigis,
 				    const CSCWireDigiCollection& wireDigis,
 				    FEDRawDataCollection& fed_buffers,
-				    CSCReadoutMappingFromFile& mapping,
+				    CSCChamberMap* mapping,
 				    Event & e)
 {
 
@@ -139,14 +140,14 @@ void CSCDigiToRaw::createFedBuffers(const CSCStripDigiCollection& stripDigis,
       ///@@ WARNING some DCCs only have 4 DDUs, but I'm giving them all 5, for now
       int nDDUs = 5;
       int indexDDU=0;
-      int oldDDUNumber = mapping.dduId(chamberDataMap.begin()->first);///initialize to first DDU
+      int oldDDUNumber = mapping->ddu(chamberDataMap.begin()->first);///initialize to first DDU
 
       CSCDCCEventData dccEvent(idcc, nDDUs, bx, l1a);
       /// for every chamber with data, add to a DDU in this DCC Event
       for(map<CSCDetId, CSCEventData>::iterator chamberItr = chamberDataMap.begin();
 	chamberItr != chamberDataMap.end(); ++chamberItr)
 	{
-	  int indexDCC = mapping.dccId(chamberItr->first);
+	  int indexDCC = mapping->slink(chamberItr->first);
 	  if (idcc==indexDCC) 
 	    { ///fill the right dcc 
 	      dccEvent.dduData()[indexDDU].add(chamberItr->second);
@@ -161,7 +162,7 @@ void CSCDigiToRaw::createFedBuffers(const CSCStripDigiCollection& stripDigis,
 	      cscFEDTrailer.set(fedRawData.data()+(fedRawData.size()-8), 
 				fedRawData.size()/8, 
 				evf::compute_crc(fedRawData.data(),fedRawData.size()), 0, 0);
-	      int dduId = mapping.dduId(chamberItr->first); ///get ddu id based on ChamberId form mapping
+	      int dduId = mapping->ddu(chamberItr->first); ///get ddu id based on ChamberId form mapping
 	      if (oldDDUNumber!=dduId) 
 		{ //if new ddu increment indexDDU counter
 		  ++indexDDU;

@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2007/07/02 21:16:22 $
- *  $Revision: 1.2 $
+ *  $Date: 2007/10/06 12:51:01 $
+ *  $Revision: 1.3 $
  *  \author A. Tumanov - Rice
  */
 
@@ -12,14 +12,17 @@
 #include <DataFormats/CSCDigi/interface/CSCWireDigiCollection.h>
 #include "DataFormats/Common/interface/Handle.h"
 #include <FWCore/Framework/interface/Event.h>
-#include "CondFormats/CSCObjects/interface/CSCReadoutMappingFromFile.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "CondFormats/CSCObjects/interface/CSCChamberMap.h"
+#include "CondFormats/DataRecord/interface/CSCChamberMapRcd.h"
+
+
 
 using namespace edm;
 using namespace std;
 
 CSCDigiToRawModule::CSCDigiToRawModule(const edm::ParameterSet & pset): 
   packer(new CSCDigiToRaw) {
-  theMapping  = CSCReadoutMappingFromFile(pset);
   digiCreator = pset.getUntrackedParameter<string>("DigiCreator", "cscunpacker");
   produces<FEDRawDataCollection>("CSCRawData"); 
 }
@@ -31,6 +34,10 @@ CSCDigiToRawModule::~CSCDigiToRawModule(){
 
 
 void CSCDigiToRawModule::produce(Event & e, const EventSetup& c){
+  ///reverse mapping for packer
+  edm::ESHandle<CSCChamberMap> hcham;
+  c.get<CSCChamberMapRcd>().get(hcham); 
+  const CSCChamberMap* theMapping = hcham.product();
 
 
   auto_ptr<FEDRawDataCollection> fed_buffers(new FEDRawDataCollection);

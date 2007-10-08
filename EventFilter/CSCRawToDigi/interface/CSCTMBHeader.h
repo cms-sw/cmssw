@@ -180,6 +180,108 @@ class CSCTMBHeader {
   void setEventInformation(const CSCDMBHeader &);
   CSCTMBHeader(const unsigned short * buf);
 
+  bool FirmwareVersion() const {return firmwareVersion;}
+  
+
+  uint16_t BXNCount() const {
+    switch (firmwareVersion) {
+    case 2006:
+      return header2006.bxnCount;
+    case 2007:
+      return header2007.bxnCount;
+    default:
+      edm::LogError("CSCTMBHeader")
+        <<"coundn't get bxncount: TMB firmware version is bad/not defined!";
+      break;
+    }
+  }
+  uint16_t ALCTMatchTime() const {
+    switch (firmwareVersion) {
+    case 2006:
+      return header2006.alctMatchTime;
+    case 2007:
+      return header2007.matchWin;
+    default:
+      edm::LogError("CSCTMBHeader")
+        <<"coundn't get alctMatchTime: TMB firmware version is bad/not defined!";
+      break;
+    }
+  }
+  uint16_t CLCTOnly() const {
+    switch (firmwareVersion) {
+    case 2006:
+      return header2006.clctOnly;
+    case 2007:
+      return header2007.clctOnly;
+    default:
+      edm::LogError("CSCTMBHeader")
+	<<"coundn't get clctOnly: TMB firmware version is bad/not defined!";
+      break;
+    }
+  }
+  uint16_t ALCTOnly() const {
+    switch (firmwareVersion) {
+    case 2006:
+      return header2006.alctOnly;
+    case 2007:
+      return header2007.alctOnly;
+    default:
+      edm::LogError("CSCTMBHeader")
+        <<"coundn't get alctOnly: TMB firmware version is bad/not defined!";
+      break;
+    }
+  }
+  uint16_t TMBMatch() const {
+    switch (firmwareVersion) {
+    case 2006:
+      return header2006.tmbMatch;
+    case 2007:
+      return header2007.tmbMatch;
+    default:
+      edm::LogError("CSCTMBHeader")
+        <<"coundn't get TMBMatch : TMB firmware version is bad/not defined!";
+      break;
+    }
+  }
+
+  uint16_t Bxn0Diff() const {
+    switch (firmwareVersion) {
+    case 2006:
+      return header2006.bxn0Diff;
+    case 2007:
+      return 0;///header2007.bxn0Diff;
+    default:
+      edm::LogError("CSCTMBHeader")
+        <<"coundn't get bxn0diff: TMB firmware version is bad/not defined!";
+      break;
+    }
+  }
+  uint16_t Bxn1Diff() const {
+    switch (firmwareVersion) {
+    case 2006:
+      return header2006.bxn1Diff;
+    case 2007:
+      return 0;// header2007.bxn1Diff;
+    default:
+      edm::LogError("CSCTMBHeader")
+        <<"coundn't get bxn1diff: TMB firmware version is bad/not defined!";
+      break;
+    }
+  }
+
+  uint16_t L1ANumber() const {
+    switch (firmwareVersion) {
+    case 2006:
+      return header2006.l1aNumber;
+    case 2007:
+      return header2007.l1aNumber;
+    default:
+      edm::LogError("CSCTMBHeader")
+        <<"coundn't get L1A: TMB firmware version is bad/not defined!";
+      break;
+    }
+  }
+
   uint16_t sizeInBytes() const {
     switch (firmwareVersion) {
     case 2006:
