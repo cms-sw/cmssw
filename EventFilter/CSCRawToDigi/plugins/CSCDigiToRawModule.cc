@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2007/10/06 12:51:01 $
- *  $Revision: 1.3 $
+ *  $Date: 2007/10/08 22:01:05 $
+ *  $Revision: 1.4 $
  *  \author A. Tumanov - Rice
  */
 
@@ -13,6 +13,7 @@
 #include "DataFormats/Common/interface/Handle.h"
 #include <FWCore/Framework/interface/Event.h>
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/EventSetup.h"
 #include "CondFormats/CSCObjects/interface/CSCChamberMap.h"
 #include "CondFormats/DataRecord/interface/CSCChamberMapRcd.h"
 

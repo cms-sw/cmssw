@@ -5,6 +5,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/EventSetup.h"
 //FEDRawData
 #include "DataFormats/FEDRawData/interface/FEDRawData.h"
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
@@ -225,9 +226,6 @@ void CSCDCCUnpacker::produce(edm::Event & e, const edm::EventSetup& c)
 		    { //loop over CSCs
 
 		      ///first process chamber-wide digis such as LCT
-		      int endcap = 1;
-		      int station = 1;
-		      int tmb = 1;
 		      int vmecrate = cscData[iCSC].dmbHeader().crateID();
 		      int dmb = cscData[iCSC].dmbHeader().dmbID();
 		      int icfeb = 0; ///default value for all digis not related to cfebs
