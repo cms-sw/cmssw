@@ -16,6 +16,7 @@ HLTPixelIsolTrackFilter::HLTPixelIsolTrackFilter(const edm::ParameterSet& iConfi
   candTag_ = iConfig.getUntrackedParameter<edm::InputTag> ("candTag");
   minpttrack = iConfig.getParameter<double> ("MinPtTrack");
   maxptnearby  = iConfig.getParameter<double> ("MaxPtNearby");
+  maxetatrack  = iConfig.getParameter<double> ("MaxEtaTrack");
 
   //register your products
   produces<reco::HLTFilterObjectWithRefs>();
@@ -49,7 +50,7 @@ bool HLTPixelIsolTrackFilter::filter(edm::Event& iEvent, const edm::EventSetup& 
       candref=edm::RefToBase<reco::Candidate>(reco::IsolatedPixelTrackCandidateRef(recotrackcands,distance(cands_beg,cands_it)));
 
       if ((cands_it->maxPtPxl()<maxptnearby)&&
-	  (cands_it->pt()>minpttrack))
+	  (cands_it->pt()>minpttrack)&&fabs(cands_it->track()->eta())<maxetatrack)
 	{
 	  filterproduct->putParticle(candref);
 	  n++;

@@ -14,8 +14,11 @@
 HLTEcalIsolationFilter::HLTEcalIsolationFilter(const edm::ParameterSet& iConfig)
 {
   candTag_ = iConfig.getUntrackedParameter<edm::InputTag> ("EcalIsolatedParticleSource");
-  minen = iConfig.getParameter<double> ("MinEnergy");
-  maxennearby  = iConfig.getParameter<double> ("MaxEnergyNearby");
+  maxhitout = iConfig.getParameter<int> ("MaxNhitOuterCone");
+  maxhitin  = iConfig.getParameter<int> ("MaxNhitInnerCone");
+  maxenin = iConfig.getParameter<double> ("MaxEnergyInnerCone");
+  maxenout = iConfig.getParameter<double> ("MaxEnergyOuterCone");
+  maxetacand = iConfig.getParameter<double> ("MaxEtaCandidate");  
 
   //register your products
   produces<reco::HLTFilterObjectWithRefs>();
@@ -48,9 +51,13 @@ bool HLTEcalIsolationFilter::filter(edm::Event& iEvent, const edm::EventSetup& i
     {
       candref=edm::RefToBase<reco::Candidate>(reco::EcalIsolatedParticleCandidateRef(ecIsolCands,distance(cands_beg,cands_it)));
 
-      if ((cands_it->enMaxNear()<maxennearby)&&
-	  (cands_it->energy()>minen))
+      if ((cands_it->nHitIn()<=maxhitin)&&
+	  (cands_it->nHitOut()<=maxhitout)&&
+	(cands_it->energyOut()<maxenout)&&
+	(cands_it->energyIn()<maxenin)&&
+	fabs(cands_it->eta())<maxetacand)
 	{
+	  std::cout<<"PASS"<<std::endl;
 	  filterproduct->putParticle(candref);
 	  n++;
 	}
