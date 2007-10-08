@@ -14,6 +14,8 @@
 
 // Raw data collection
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
+#include "DataFormats/FEDRawData/interface/FEDHeader.h"
+#include "DataFormats/FEDRawData/interface/FEDTrailer.h"
 
 // GCT raw data formats
 #include "EventFilter/GctRawToDigi/src/GctBlockHeader.h"
@@ -79,10 +81,10 @@ GctDigiToRaw::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
    using namespace edm;
 
-   // counters
+   // counters  -- NEED TO SORT OUT THIS BcId & EvId MESS!
    counter_++;
    blockPacker_.setBcId(counter_ % 3564);
-   blockPacker_.setEvId(counter_ % (0x1<<24));
+   blockPacker_.setEvId(iEvent.id().event());
 
    // get digis
    edm::Handle<L1GctEmCandCollection> isoEm;
@@ -95,29 +97,31 @@ GctDigiToRaw::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
    std::auto_ptr<FEDRawDataCollection> rawColl(new FEDRawDataCollection()); 
 
    // get the GCT buffer
-   FEDRawData& feddata=rawColl->FEDData(fedId_);
+   FEDRawData& fedRawData=rawColl->FEDData(fedId_);
 
-   // set the size & get pointer
-   feddata.resize(48);
-   unsigned char * d = feddata.data();
+   // set the size & make pointers to the header, beginning of payload, and footer.
+   const unsigned int rawSize = 48;  // MUST BE MULTIPLE OF 8! (slink packets are 64 bit, but using 8-bit data struct).
+   fedRawData.resize(rawSize);
+   unsigned char * pHeader = fedRawData.data();  
+   unsigned char * pPayload = pHeader + 8;
+   unsigned char * pFooter = pHeader + rawSize - 8;
 
-   // write CDF header
-   blockPacker_.writeFedHeader(d, fedId_);
-   d=d+8;
+   // Write CDF header (exactly as told by Marco Zanetti)
+   FEDHeader fedHeader(pHeader);
+   fedHeader.set(pHeader, 1, iEvent.id().event(), counter_ % 3564, fedId_);  // what should the bx_ID be?
 
    // pack GCT EM output digis
-   blockPacker_.writeGctEmBlock(d, isoEm.product(), nonIsoEm.product());      
+   blockPacker_.writeGctEmBlock(pPayload, isoEm.product(), nonIsoEm.product());      
 
-   // write footer (is this necessary???)
-   const unsigned char * s = feddata.data();
-   blockPacker_.writeFedFooter(d, s);
+   // write footer (exactly as told by Marco Zanetti)
+   FEDTrailer fedTrailer(pFooter);
+   fedTrailer.set(pFooter, rawSize/8, evf::compute_crc(pHeader, rawSize), 0, 0);
 
    // debug output
-   if (verbose_) print(feddata);
+   if (verbose_) print(fedRawData);
 
    // put the collection in the event
    iEvent.put(rawColl);
-
 }
 
 
