@@ -13,7 +13,7 @@
 //
 // Original Author:  Dmytro Kovalskyi
 //         Created:  Fri Apr 21 10:59:41 PDT 2006
-// $Id: MuonDetIdAssociator.cc,v 1.5 2007/03/08 04:19:26 dmytro Exp $
+// $Id: MuonDetIdAssociator.cc,v 1.6.8.1 2007/10/06 05:50:13 jribnik Exp $
 //
 //
 
@@ -26,12 +26,12 @@
 #include "Geometry/CSCGeometry/interface/CSCChamber.h"
 #include <deque>
 
-void MuonDetIdAssociator::check_setup(){
+void MuonDetIdAssociator::check_setup() const {
    if (geometry_==0) throw cms::Exception("ConfigurationProblem") << "GlobalTrackingGeomtry is not set\n";
    DetIdAssociator::check_setup();
 }
 
-const GeomDet* MuonDetIdAssociator::getGeomDet( const DetId& id )
+const GeomDet* MuonDetIdAssociator::getGeomDet( const DetId& id ) const
 {
    if (geometry_==0) throw cms::Exception("ConfigurationProblem") << "GlobalTrackingGeomtry is not set\n";
    const GeomDet* gd = geometry_->idToDet(id);
@@ -40,12 +40,12 @@ const GeomDet* MuonDetIdAssociator::getGeomDet( const DetId& id )
 }
 
 
-GlobalPoint MuonDetIdAssociator::getPosition(const DetId& id){
+GlobalPoint MuonDetIdAssociator::getPosition(const DetId& id) const {
    Surface::PositionType point(getGeomDet(id)->surface().position());
    return GlobalPoint(point.x(),point.y(),point.z());
 }
 
-std::set<DetId> MuonDetIdAssociator::getASetOfValidDetIds(){
+std::set<DetId> MuonDetIdAssociator::getASetOfValidDetIds() const {
    std::set<DetId> setOfValidIds;
    if (geometry_==0) throw cms::Exception("ConfigurationProblem") << "GlobalTrackingGeomtry is not set\n";
    // we need to store only DTChambers as well as CSCChambers
@@ -83,13 +83,13 @@ std::set<DetId> MuonDetIdAssociator::getASetOfValidDetIds(){
    return setOfValidIds;
 }
 
-bool MuonDetIdAssociator::insideElement(const GlobalPoint& point, const DetId& id){
+bool MuonDetIdAssociator::insideElement(const GlobalPoint& point, const DetId& id) const {
    if (geometry_==0) throw cms::Exception("ConfigurationProblem") << "GlobalTrackingGeomtry is not set\n";
    LocalPoint lp = geometry_->idToDet(id)->toLocal(point);
    return geometry_->idToDet(id)->surface().bounds().inside(lp);
 }
 
-std::vector<GlobalPoint> MuonDetIdAssociator::getDetIdPoints(const DetId& id){
+std::vector<GlobalPoint> MuonDetIdAssociator::getDetIdPoints(const DetId& id) const {
    std::vector<GlobalPoint> points;
    const GeomDet* geomDet = getGeomDet( id );
    

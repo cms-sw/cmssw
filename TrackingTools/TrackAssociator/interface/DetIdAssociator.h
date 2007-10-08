@@ -21,7 +21,7 @@
 //
 // Original Author:  Dmytro Kovalskyi
 //         Created:  Fri Apr 21 10:59:41 PDT 2006
-// $Id: DetIdAssociator.h,v 1.11 2007/04/13 02:55:39 dmytro Exp $
+// $Id: DetIdAssociator.h,v 1.12.6.1 2007/10/06 05:50:12 jribnik Exp $
 //
 //
 
@@ -35,9 +35,10 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "TrackPropagation/SteppingHelixPropagator/interface/SteppingHelixStateInfo.h"
 #include "TrackingTools/TrackAssociator/interface/FiducialVolume.h"
+#include "Geometry/CommonDetUnit/interface/GeomDet.h"
+#include "TrackingTools/Records/interface/DetIdAssociatorRecord.h"
 #include <set>
 #include <vector>
-
 
 class DetIdAssociator{
  public:
@@ -57,58 +58,61 @@ class DetIdAssociator{
    /// Preselect DetIds close to a point on the inner surface of the detector. 
    /// "iN" is a number of the adjacent bins of the map to retrieve 
    virtual std::set<DetId> getDetIdsCloseToAPoint(const GlobalPoint&,
-						  const int iN = 0);
+						  const int iN = 0) const;
    virtual std::set<DetId> getDetIdsCloseToAPoint(const GlobalPoint& direction,
 						  const unsigned int iNEtaPlus,
 						  const unsigned int iNEtaMinus,
 						  const unsigned int iNPhiPlus,
-						  const unsigned int iNPhiMinus);
+						  const unsigned int iNPhiMinus) const;
    virtual std::set<DetId> getDetIdsCloseToAPoint(const GlobalPoint& direction,
-						  const MapRange& mapRange);
+						  const MapRange& mapRange) const;
    /// Preselect DetIds close to a point on the inner surface of the detector. 
    /// "d" defines the allowed range in theta-phi space:
    /// - theta is in [point.theta()-d, point.theta()+d]
    /// - phi is in [point.phi()-d, point.phi()+d]
    virtual std::set<DetId> getDetIdsCloseToAPoint(const GlobalPoint& point,
-						  const double d = 0);
+						  const double d = 0) const;
    /// - theta is in [point.theta()-dThetaMinus, point.theta()+dThetaPlus]
    /// - phi is in [point.phi()-dPhiMinus, point.phi()+dPhiPlus]
    virtual std::set<DetId> getDetIdsCloseToAPoint(const GlobalPoint& point,
 						  const double dThetaPlus,
 						  const double dThetaMinus,
 						  const double dPhiPlus,
-						  const double dPhiMinus);
+						  const double dPhiMinus) const;
    /// Find DetIds that satisfy given requirements
    /// - inside eta-phi cone of radius dR
    virtual std::set<DetId> getDetIdsInACone(const std::set<DetId>&,
 					    const std::vector<GlobalPoint>& trajectory,
-					    const double dR);
+					    const double dR) const;
    /// - DetIds crossed by the track
    virtual std::set<DetId> getCrossedDetIds(const std::set<DetId>&,
-					    const std::vector<GlobalPoint>& trajectory);
+					    const std::vector<GlobalPoint>& trajectory) const;
    /// - DetIds crossed by the track, ordered according to the order
    ///   that they were crossed by the track flying outside the detector
    virtual std::vector<DetId> getCrossedDetIdsOrdered(const std::set<DetId>&,
-						      const std::vector<GlobalPoint>& trajectory);
+						      const std::vector<GlobalPoint>& trajectory) const;
    /// look-up map eta index
-   virtual int iEta (const GlobalPoint&);
+   virtual int iEta (const GlobalPoint&) const;
    /// look-up map phi index
-   virtual int iPhi (const GlobalPoint&);
+   virtual int iPhi (const GlobalPoint&) const;
    /// set a specific track propagator to be used
    virtual void setPropagator(Propagator* ptr){	ivProp_ = ptr; };
    /// number of bins of the look-up map in phi dimension
-   int nPhiBins(){ return nPhi_;}
+   int nPhiBins() const { return nPhi_;}
    /// number of bins of the look-up map in eta dimension
-   int nEtaBins(){ return nEta_;}
+   int nEtaBins() const { return nEta_;}
    /// look-up map bin size in eta dimension
-   double etaBinSize(){ return etaBinSize_;};
+   double etaBinSize() const { return etaBinSize_;};
    /// make the look-up map
    virtual void buildMap();
    /// get active detector volume
-   const FiducialVolume& volume();
+   const FiducialVolume& volume() const;
+
+   virtual void setGeometry(const DetIdAssociatorRecord&) = 0;
+   virtual const GeomDet* getGeomDet(const DetId&) const = 0;
    
  protected:
-   virtual void check_setup()
+   virtual void check_setup() const
      {
 	if (nEta_==0) throw cms::Exception("FatalError") << "Number of eta bins is not set.\n";
 	if (nPhi_==0) throw cms::Exception("FatalError") << "Number of phi bins is not set.\n";
@@ -116,15 +120,15 @@ class DetIdAssociator{
 	if (etaBinSize_==0) throw cms::Exception("FatalError") << "Eta bin size is not set.\n";
      }
    
-   virtual void dumpMapContent( int, int );
-   virtual void dumpMapContent( int, int, int, int );
+   virtual void dumpMapContent( int, int ) const;
+   virtual void dumpMapContent( int, int, int, int ) const;
    
-   virtual GlobalPoint getPosition(const DetId&) = 0;
-   virtual std::set<DetId> getASetOfValidDetIds() = 0;
-   virtual std::vector<GlobalPoint> getDetIdPoints(const DetId&) = 0;
+   virtual GlobalPoint getPosition(const DetId&) const = 0;
+   virtual std::set<DetId> getASetOfValidDetIds() const = 0;
+   virtual std::vector<GlobalPoint> getDetIdPoints(const DetId&) const = 0;
    
-   virtual bool insideElement(const GlobalPoint&, const DetId&) = 0;
-   virtual bool nearElement(const GlobalPoint& point, const DetId& id, const double distance) {
+   virtual bool insideElement(const GlobalPoint&, const DetId&) const = 0;
+   virtual bool nearElement(const GlobalPoint& point, const DetId& id, const double distance) const {
      GlobalPoint center = getPosition(id);
 
      double deltaPhi(fabs(point.phi()-center.phi()));

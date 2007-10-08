@@ -15,7 +15,7 @@
 //
 // Original Author:  Dmytro Kovalskyi
 //         Created:  Fri Apr 21 10:59:41 PDT 2006
-// $Id: EcalDetIdAssociator.h,v 1.3 2006/09/01 17:21:41 jribnik Exp $
+// $Id: EcalDetIdAssociator.h,v 1.4.8.1 2007/10/06 05:50:12 jribnik Exp $
 //
 //
 
@@ -24,9 +24,12 @@
 class EcalDetIdAssociator: public CaloDetIdAssociator{
  public:
    EcalDetIdAssociator():CaloDetIdAssociator(360,300,0.02){};
+
+   EcalDetIdAssociator(const edm::ParameterSet& pSet):CaloDetIdAssociator(pSet){};
+
  protected:
 
-   virtual std::set<DetId> getASetOfValidDetIds(){
+   virtual std::set<DetId> getASetOfValidDetIds() const {
       std::set<DetId> setOfValidIds;
       std::vector<DetId> vectOfValidIds = geometry_->getValidDetIds(DetId::Ecal, 1);//EB
       for(std::vector<DetId>::const_iterator it = vectOfValidIds.begin(); it != vectOfValidIds.end(); ++it)

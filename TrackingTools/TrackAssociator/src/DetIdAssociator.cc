@@ -13,7 +13,7 @@
 //
 // Original Author:  Dmytro Kovalskyi
 //         Created:  Fri Apr 21 10:59:41 PDT 2006
-// $Id: DetIdAssociator.cc,v 1.17 2007/04/13 02:55:40 dmytro Exp $
+// $Id: DetIdAssociator.cc,v 1.18.6.1 2007/10/06 05:50:13 jribnik Exp $
 //
 //
 
@@ -46,7 +46,7 @@ DetIdAssociator::~DetIdAssociator(){
 }
 
 std::set<DetId> DetIdAssociator::getDetIdsCloseToAPoint(const GlobalPoint& direction,
-							const int iN)
+							const int iN) const
 {
    unsigned int n = 0;
    if (iN>0) n = iN;
@@ -57,11 +57,11 @@ std::set<DetId> DetIdAssociator::getDetIdsCloseToAPoint(const GlobalPoint& direc
 							const unsigned int iNEtaPlus,
 							const unsigned int iNEtaMinus,
 							const unsigned int iNPhiPlus,
-							const unsigned int iNPhiMinus)
+							const unsigned int iNPhiMinus) const
 {
    std::set<DetId> set;
    check_setup();
-   if (! theMapIsValid_ ) buildMap();
+   if (! theMapIsValid_ ) throw cms::Exception("FatalError") << "map is not valid.";
    LogTrace("TrackAssociator") << "(iNEtaPlus, iNEtaMinus, iNPhiPlus, iNPhiMinus): " <<
      iNEtaPlus << ", " << iNEtaMinus << ", " << iNPhiPlus << ", " << iNPhiMinus;
    LogTrace("TrackAssociator") << "point (eta,phi): " << direction.eta() << "," << direction.phi();
@@ -115,7 +115,7 @@ std::set<DetId> DetIdAssociator::getDetIdsCloseToAPoint(const GlobalPoint& direc
 }
 
 std::set<DetId> DetIdAssociator::getDetIdsCloseToAPoint(const GlobalPoint& point,
-							const double d)
+							const double d) const
 {
    return getDetIdsCloseToAPoint(point,d,d,d,d);
 }
@@ -124,7 +124,7 @@ std::set<DetId> DetIdAssociator::getDetIdsCloseToAPoint(const GlobalPoint& point
 							const double dThetaPlus,
 							const double dThetaMinus,
 							const double dPhiPlus,
-							const double dPhiMinus)
+							const double dPhiMinus) const
 {
    LogTrace("TrackAssociator") << "(dThetaPlus,dThetaMinus,dPhiPlus,dPhiMinus): " <<
      dThetaPlus << ", " << dThetaMinus << ", " << dPhiPlus << ", " << dPhiMinus;
@@ -151,12 +151,12 @@ std::set<DetId> DetIdAssociator::getDetIdsCloseToAPoint(const GlobalPoint& point
 }
 
 
-int DetIdAssociator::iEta (const GlobalPoint& point)
+int DetIdAssociator::iEta (const GlobalPoint& point) const
 {
    return int(point.eta()/etaBinSize_ + nEta_/2);
 }
 
-int DetIdAssociator::iPhi (const GlobalPoint& point)
+int DetIdAssociator::iPhi (const GlobalPoint& point) const
 {
    return int((double(point.phi())+M_PI)/(2*M_PI)*nPhi_);
 }
@@ -256,7 +256,7 @@ void DetIdAssociator::buildMap()
 
 std::set<DetId> DetIdAssociator::getDetIdsInACone(const std::set<DetId>& inset, 
 					     const std::vector<GlobalPoint>& trajectory,
-					     const double dR)
+					     const double dR) const
 {
    if ( dR > 2*M_PI && dR > maxEta_ ) return inset;
    check_setup();
@@ -271,7 +271,7 @@ std::set<DetId> DetIdAssociator::getDetIdsInACone(const std::set<DetId>& inset,
 }
 
 std::set<DetId> DetIdAssociator::getCrossedDetIds(const std::set<DetId>& inset,
-						  const std::vector<GlobalPoint>& trajectory)
+						  const std::vector<GlobalPoint>& trajectory) const
 {
    check_setup();
    std::set<DetId> outset;
@@ -285,7 +285,7 @@ std::set<DetId> DetIdAssociator::getCrossedDetIds(const std::set<DetId>& inset,
 }
 
 std::vector<DetId> DetIdAssociator::getCrossedDetIdsOrdered(const std::set<DetId>& inset,
-							   const std::vector<GlobalPoint>& trajectory)
+							   const std::vector<GlobalPoint>& trajectory) const
 {
    check_setup();
    std::vector<DetId> output;
@@ -305,7 +305,7 @@ std::vector<DetId> DetIdAssociator::getCrossedDetIdsOrdered(const std::set<DetId
    return output;
 }
 
-void DetIdAssociator::dumpMapContent(int ieta, int iphi)
+void DetIdAssociator::dumpMapContent(int ieta, int iphi) const
 {
    if (! (ieta>=0 && ieta<nEta_ && iphi>=0) )
      {
@@ -325,22 +325,21 @@ void DetIdAssociator::dumpMapContent(int ieta, int iphi)
      }
 }
 
-void DetIdAssociator::dumpMapContent(int ieta_min, int ieta_max, int iphi_min, int iphi_max)
+void DetIdAssociator::dumpMapContent(int ieta_min, int ieta_max, int iphi_min, int iphi_max) const
 {
    for(int i=ieta_min;i<=ieta_max;i++)
      for(int j=iphi_min;j<=iphi_max;j++)
        dumpMapContent(i,j);
 }
 
-
-const FiducialVolume& DetIdAssociator::DetIdAssociator::volume()
+const FiducialVolume& DetIdAssociator::volume() const
 {
-   if (! theMapIsValid_) buildMap(); // volume is computed during buildMap;
+   if (! theMapIsValid_ ) throw cms::Exception("FatalError") << "map is not valid.";
    return volume_; 
 }
 
 std::set<DetId> DetIdAssociator::getDetIdsCloseToAPoint(const GlobalPoint& direction,
-							const MapRange& mapRange)
+							const MapRange& mapRange) const
 {
    return getDetIdsCloseToAPoint(direction, mapRange.dThetaPlus, mapRange.dThetaMinus,
 				 mapRange.dPhiPlus, mapRange.dPhiMinus);

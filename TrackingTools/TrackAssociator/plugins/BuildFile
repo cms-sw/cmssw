@@ -1,0 +1,7 @@
+<use name=FWCore/PluginManager>
+<use name=TrackingTools/TrackAssociator>
+<use name=TrackingTools/Records>
+
+<library file="*.cc" name=TrackingToolsTrackAssociatorPlugins>
+   <flags EDM_PLUGIN=1>
+</library>

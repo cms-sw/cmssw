@@ -15,7 +15,7 @@
 //
 // Original Author:  Dmytro Kovalskyi
 //         Created:  Fri Apr 21 10:59:41 PDT 2006
-// $Id: HcalDetIdAssociator.h,v 1.3 2006/09/01 17:21:41 jribnik Exp $
+// $Id: HcalDetIdAssociator.h,v 1.1.12.1 2007/10/06 05:50:12 jribnik Exp $
 //
 //
 
@@ -24,9 +24,12 @@
 class HcalDetIdAssociator: public CaloDetIdAssociator{
  public:
    HcalDetIdAssociator():CaloDetIdAssociator(72, 70 ,0.087){};
+
+   HcalDetIdAssociator(const edm::ParameterSet& pSet):CaloDetIdAssociator(pSet){};
+
  protected:
 
-   virtual std::set<DetId> getASetOfValidDetIds(){
+   virtual std::set<DetId> getASetOfValidDetIds() const {
       std::set<DetId> setOfValidIds;
       std::vector<DetId> vectOfValidIds = geometry_->getValidDetIds(DetId::Hcal, 1);//HB
       for(std::vector<DetId>::const_iterator it = vectOfValidIds.begin(); it != vectOfValidIds.end(); ++it)

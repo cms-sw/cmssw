@@ -1,45 +1,90 @@
-# -*-SH-*-
-
-<use name=clhep>
+<use name=DataFormats/CaloTowers>
 <use name=DataFormats/Common>
+<use name=DataFormats/CSCRecHit>
+<use name=DataFormats/DetId>
+<use name=DataFormats/DTRecHit>
+<use name=DataFormats/EcalDetId>
+<use name=DataFormats/EcalRecHit>
+<use name=DataFormats/EgammaReco>
+<use name=DataFormats/GeometryCommonDetAlgo>
+<use name=DataFormats/GeometrySurface>
+<use name=DataFormats/GeometryVector>
+<use name=DataFormats/HcalDetId>
+<use name=DataFormats/HcalRecHit>
+<use name=DataFormats/Math>
+<use name=DataFormats/MuonDetId>
+<use name=DataFormats/TrackingRecHit>
 <use name=DataFormats/TrackReco>
-## <use name=DataFormats/EgammaReco>
-<use name=DataFormats/MuonReco>
-
-<use name=Utilities/Timing>
-
 <use name=FWCore/Framework>
+<use name=FWCore/MessageLogger>
 <use name=FWCore/PluginManager>
 <use name=FWCore/ParameterSet>
-
-<use name=Geometry/CaloEventSetup>
-
-
-<use name=Geometry/DTGeometry>
-# <use name=Geometry/RPCGeometry>
-<use name=Geometry/CSCGeometry>
+<use name=FWCore/Utilities>
 <use name=Geometry/CaloGeometry>
+<use name=Geometry/CaloEventSetup>
 <use name=Geometry/CommonDetUnit>
-## <use name=Geometry/TrackerGeometryBuilder>
-<use name=DataFormats/GeometrySurface>
-
+<use name=Geometry/CSCGeometry>
+<use name=Geometry/DTGeometry>
 <use name=Geometry/Records>
-
-# <use name=SimCalorimetry/EcalSimProducers>
-<use name=heppdt>
-<use name=SimDataFormats/HepMCProduct>
-<use name=DataFormats/DetId>
-
-<use name=TrackingTools/GeomPropagators>
-
 <use name=MagneticField/Engine>
 <use name=MagneticField/Records>
-
+<use name=SimDataFormats/CaloHit>
+<use name=SimDataFormats/Track>
+<use name=SimDataFormats/TrackingHit>
+<use name=SimDataFormats/Vertex>
+<use name=TrackingTools/GeomPropagators>
+<use name=TrackingTools/Records>
+<use name=TrackingTools/TrajectoryState>
 <use name=TrackPropagation/SteppingHelixPropagator>
+<use name=Utilities/Timing>
+#<use name=clhep
+#<use name=heppdt>
+
 <flags LCGDICT_ARGS="--deep">
 
 <export>
-   <lib name=TrackingToolsTrackAssociator>
+    <lib name=TrackingToolsTrackAssociator>
+   <use name=DataFormats/CaloTowers>
+   <use name=DataFormats/Common>
+   <use name=DataFormats/CSCRecHit>
+   <use name=DataFormats/DetId>
+   <use name=DataFormats/DTRecHit>
+   <use name=DataFormats/EcalDetId>
+   <use name=DataFormats/EcalRecHit>
+   <use name=DataFormats/EgammaReco>
+   <use name=DataFormats/GeometryCommonDetAlgo>
+   <use name=DataFormats/GeometrySurface>
+   <use name=DataFormats/GeometryVector>
+   <use name=DataFormats/HcalDetId>
+   <use name=DataFormats/HcalRecHit>
+   <use name=DataFormats/Math>
+   <use name=DataFormats/MuonDetId>
+   <use name=DataFormats/TrackingRecHit>
+   <use name=DataFormats/TrackReco>
+   <use name=FWCore/Framework>
+   <use name=FWCore/MessageLogger>
+   <use name=FWCore/PluginManager>
+   <use name=FWCore/ParameterSet>
+   <use name=FWCore/Utilities>
+   <use name=Geometry/CaloGeometry>
+   <use name=Geometry/CaloEventSetup>
+   <use name=Geometry/CommonDetUnit>
+   <use name=Geometry/CSCGeometry>
+   <use name=Geometry/DTGeometry>
+   <use name=Geometry/Records>
+   <use name=MagneticField/Engine>
+   <use name=MagneticField/Records>
+   <use name=SimDataFormats/CaloHit>
+   <use name=SimDataFormats/Track>
+   <use name=SimDataFormats/TrackingHit>
+   <use name=SimDataFormats/Vertex>
+   <use name=TrackingTools/GeomPropagators>
+   <use name=TrackingTools/Records>
+   <use name=TrackingTools/TrajectoryState>
+   <use name=TrackPropagation/SteppingHelixPropagator>
+   <use name=Utilities/Timing>
+   #<use name=clhep
+   #<use name=heppdt>
 </export>
    
 # add debug symbols
