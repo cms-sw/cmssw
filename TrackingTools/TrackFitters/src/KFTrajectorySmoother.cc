@@ -33,171 +33,152 @@ KFTrajectorySmoother::trajectories(const Trajectory& aTraj) const {
   Trajectory myTraj(aTraj.seed(), thePropagator->propagationDirection());
 
   std::vector<TM> avtm = aTraj.measurements();
-  LogDebug("TrackFitters") <<" KFTrajectorySmoother::trajectories starting with "<< avtm.size() <<" HITS\n";
+  LogDebug("TrackFitters") << "KFTrajectorySmoother::trajectories starting with " << avtm.size() << " HITS\n";
 
   for (unsigned int j=0;j<avtm.size();j++) { 
     if (avtm[j].recHit()->det()) 
-      LogTrace("TrackFitters") << "hit #:" << j << " rawId=" << avtm[j].recHit()->det()->geographicalId().rawId() 
+      LogTrace("TrackFitters") << "hit #:" << j+1 << " rawId=" << avtm[j].recHit()->det()->geographicalId().rawId() 
 			       << " validity=" << avtm[j].recHit()->isValid();
     else
-      LogTrace("TrackFitters") << "hit #:" << j << " Hit with no Det information";
+      LogTrace("TrackFitters") << "hit #:" << j+1 << " Hit with no Det information";
   }
 
   TSOS predTsos = avtm.back().forwardPredictedState();
   predTsos.rescaleError(theErrorRescaling);
-
-  if(!predTsos.isValid()) {
-    LogDebug("TrackFitters") << 
-      "KFTrajectorySmoother: predicted tsos of last measurement not valid!";
-    return std::vector<Trajectory>();
-  }
   TSOS currTsos;
-
-  //first smoothed tm is last fitted
-  if(avtm.back().recHit()->isValid()) {
-
-    //update
-    currTsos = updator()->update(predTsos, *(avtm.back().recHit()));
-
-    const TransientTrackingRecHit & firsthit = *(avtm.back().recHit());
-
-    LogDebug("TrackFitters")
-      <<" ----------------- FIRST HIT -----------------------\n"
-      <<"  HIT IS AT R   "<<(firsthit).globalPosition().perp()<<"\n"
-      <<"  HIT IS AT Z   "<<(firsthit).globalPosition().z()<<"\n"
-      <<"  HIT IS AT Phi "<<(firsthit).globalPosition().phi()<<"\n"
-      <<"  HIT IS AT Loc "<<(firsthit).localPosition()<<"\n"
-      <<"  WITH LocError "<<(firsthit).localPositionError()<<"\n"
-      <<"  HIT IS AT Glo "<<(firsthit).globalPosition()<<"\n"
-      <<"  HIT parameters "<<(firsthit).parameters()<<"\n"
-      <<"  HIT parametersError "<<(firsthit).parametersError()<<"\n"
-      <<"SURFACE POSITION"<<"\n"
-      <<(firsthit).surface()->position()<<"\n"
-      <<"SURFACE ROTATION"<<"\n"
-      <<(firsthit).surface()->rotation();
-    LogTrace("TrackFitters") <<" hit id="<<(firsthit).geographicalId().rawId();
-    if ((firsthit).geographicalId().subdetId() == StripSubdetector::TIB ) {
-	LogTrace("TrackFitters") <<" I am TIB "<<TIBDetId((firsthit).geographicalId()).layer();
-    }else if ((firsthit).geographicalId().subdetId() == StripSubdetector::TOB ) { 
-      LogTrace("TrackFitters") <<" I am TOB "<<TOBDetId((firsthit).geographicalId()).layer();
-    }else if ((firsthit).geographicalId().subdetId() == StripSubdetector::TEC ) { 
-      LogTrace("TrackFitters") <<" I am TEC "<<TECDetId((firsthit).geographicalId()).wheel();
-    }else if ((firsthit).geographicalId().subdetId() == StripSubdetector::TID ) { 
-      LogTrace("TrackFitters") <<" I am TID "<<TIDDetId((firsthit).geographicalId()).wheel();
-    }else if ((firsthit).geographicalId().subdetId() == (int) PixelSubdetector::PixelBarrel ) {
-      LogTrace("TrackFitters") <<" I am PixBar "<< PXBDetId((firsthit).geographicalId()).layer();
-    }
-    else {
-      LogTrace("TrackFitters") <<" I am PixFwd "<< PXFDetId((firsthit).geographicalId()).disk();
-    }
-    LogTrace("TrackFitters")
-      <<" predTsos !"<<"\n"
-      <<predTsos<<"\n"
-      <<" currTsos !"<<"\n"
-      <<currTsos<<"\n";
-      
-    myTraj.push(TM(avtm.back().forwardPredictedState(), 
-		   predTsos,
-		   avtm.back().updatedState(), 
-		   avtm.back().recHit(),
-		   avtm.back().estimate()), 
-		avtm.back().estimate());
-  } else {
-    currTsos = predTsos;
-    myTraj.push(TM(avtm.back().forwardPredictedState(),
-		   avtm.back().recHit()));
-  }
-  
+ 
   TrajectoryStateCombiner combiner;
 
-  for(std::vector<TM>::reverse_iterator itm = avtm.rbegin() + 1; 
-      itm != avtm.rend() - 1; itm++) {
+  unsigned int hitcounter = avtm.size();
+  for(std::vector<TM>::reverse_iterator itm = avtm.rbegin(); itm != (avtm.rend()); ++itm,--hitcounter) {
+
+    TransientTrackingRecHit::ConstRecHitPointer hit = itm->recHit();
 
     //check surface just for safety: should never be ==0 because they are skipped in the fitter 
-    if ( (*itm).recHit()->surface()==0 ) {
-	LogDebug("TrackFitters")<< " Error: invalid hit with no GeomDet attached .... skipping";
-	continue;
+    if ( hit->surface()==0 ) {
+      LogDebug("TrackFitters")<< " Error: invalid hit with no GeomDet attached .... skipping";
+      continue;
     }
 
-    predTsos = thePropagator->propagate( currTsos, *((*itm).recHit()->surface()) );
+    if (hitcounter != avtm.size())//no propagation needed for first smoothed (==last fitted) hit 
+      predTsos = thePropagator->propagate( currTsos, *(hit->surface()) );
 
     if(!predTsos.isValid()) {
-      LogDebug("TrackFitters") << 
-	"KFTrajectorySmoother: predicted tsos not valid!";
-      return std::vector<Trajectory>();
+      LogDebug("TrackFitters") << "KFTrajectorySmoother: predicted tsos not valid!";
+      if( myTraj.foundHits() >= minHits_ ) {
+	LogDebug("TrackFitters") << " breaking trajectory" << "\n";
+	break;      
+      } else {        
+	LogDebug("TrackFitters") << " killing trajectory" << "\n";       
+	return std::vector<Trajectory>();
+      }
     }
 
-    if((*itm).recHit()->isValid()) {
+    if(hit->isValid()) {
       LogDebug("TrackFitters")
-	<<" ----------------- NEW HIT -----------------------"<<"\n"
-	<<"  HIT IS AT R   "<<(*itm).recHit()->globalPosition().perp()<<"\n"
-	<<"  HIT IS AT Z   "<<(*itm).recHit()->globalPosition().z()<<"\n"
-	<<"  HIT IS AT Phi "<<(*itm).recHit()->globalPosition().phi()<<"\n"
-	<<"  HIT IS AT Loc "<<(*itm).recHit()->localPosition()<<"\n"
-	<<"  WITH LocError "<<(*itm).recHit()->localPositionError()<<"\n"
-	<<"  HIT IS AT Glo "<<(*itm).recHit()->globalPosition()<<"\n"
-	<<"SURFACE POSITION"<<"\n"
-	<<(*itm).recHit()->surface()->position()<<"\n"
-	<<"SURFACE ROTATION"<<"\n"
-	<<(*itm).recHit()->surface()->rotation();
-      LogTrace("TrackFitters") <<" hit id="<<(*itm).recHit()->geographicalId().rawId();
-      if ((*itm).recHit()->geographicalId().subdetId() == StripSubdetector::TIB ) {
-	LogTrace("TrackFitters") <<" I am TIB "<<TIBDetId((*itm).recHit()->geographicalId()).layer();
-      }else if ((*itm).recHit()->geographicalId().subdetId() == StripSubdetector::TOB ) { 
-	LogTrace("TrackFitters") <<" I am TOB "<<TOBDetId((*itm).recHit()->geographicalId()).layer();
-      }else if ((*itm).recHit()->geographicalId().subdetId() == StripSubdetector::TEC ) { 
-	LogTrace("TrackFitters") <<" I am TEC "<<TECDetId((*itm).recHit()->geographicalId()).wheel();
-      }else if ((*itm).recHit()->geographicalId().subdetId() == StripSubdetector::TID ) { 
-	LogTrace("TrackFitters") <<" I am TID "<<TIDDetId((*itm).recHit()->geographicalId()).wheel();
-      }else if ((*itm).recHit()->geographicalId().subdetId() == (int) PixelSubdetector::PixelBarrel ) {
-	LogTrace("TrackFitters") <<" I am PixBar "<< PXBDetId((*itm).recHit()->geographicalId()).layer();
+	<< "----------------- HIT #" << hitcounter << " (VALID)-----------------------\n"
+	<< "HIT IS AT R   " << hit->globalPosition().perp() << "\n"
+	<< "HIT IS AT Z   " << hit->globalPosition().z() << "\n"
+	<< "HIT IS AT Phi " << hit->globalPosition().phi() << "\n"
+	<< "HIT IS AT Loc " << hit->localPosition() << "\n"
+	<< "WITH LocError " << hit->localPositionError() << "\n"
+	<< "HIT IS AT Glo " << hit->globalPosition() << "\n"
+	<< "SURFACE POSITION: " << hit->surface()->position() << "\n"
+	<< "SURFACE ROTATION: " << hit->surface()->rotation() << "\n"
+	<< "hit geographicalId=" << hit->geographicalId().rawId();
+      if (hit->geographicalId().subdetId() == StripSubdetector::TIB ) {
+	LogTrace("TrackFitters") << "I am TIB " << TIBDetId(hit->geographicalId()).layer();
+      }else if (hit->geographicalId().subdetId() == StripSubdetector::TOB ) { 
+	LogTrace("TrackFitters") << "I am TOB "<< TOBDetId(hit->geographicalId()).layer();
+      }else if (hit->geographicalId().subdetId() == StripSubdetector::TEC ) { 
+	LogTrace("TrackFitters") << "I am TEC "<< TECDetId(hit->geographicalId()).wheel();
+      }else if (hit->geographicalId().subdetId() == StripSubdetector::TID ) { 
+	LogTrace("TrackFitters") << "I am TID "<< TIDDetId(hit->geographicalId()).wheel();
+      }else if (hit->geographicalId().subdetId() == (int) PixelSubdetector::PixelBarrel ) {
+	LogTrace("TrackFitters") << "I am PixBar "<< PXBDetId(hit->geographicalId()).layer();
+      } else if (hit->geographicalId().subdetId() == (int) PixelSubdetector::PixelEndcap ){
+	LogTrace("TrackFitters") << "I am PixFwd " << PXFDetId(hit->geographicalId()).disk();
+      } else {
+	LogTrace("TrackFitters") << "UNKNOWN HIT TYPE";
       }
-      else {
-	LogTrace("TrackFitters") <<" I am PixFwd "<< PXFDetId((*itm).recHit()->geographicalId()).disk();
-      }
-
+    
       //update
-      currTsos = updator()->update(predTsos, (*(*itm).recHit()));
+      currTsos = updator()->update(predTsos, (*hit));
+
+      TSOS combTsos,smooTsos;
       //3 different possibilities to calculate smoothed state:
       //1: update combined predictions with hit
       //2: combine fwd-prediction with bwd-filter
       //3: combine bwd-prediction with fwd-filter
-      TSOS combTsos = combiner(predTsos, (*itm).forwardPredictedState());
+
+      //combTsos is the predicted state with N-1 hits information. this means: 
+      //forward predicted state for first smoothed (last fitted) hit
+      //backward predicted state for last smoothed (first fitted) hit
+      //combination of forward and backward predictions for other hits
+      if (hitcounter == avtm.size()) combTsos = itm->forwardPredictedState();
+      else if (hitcounter == 1) combTsos = predTsos;
+      else combTsos = combiner(predTsos, itm->forwardPredictedState());
       if(!combTsos.isValid()) {
 	LogDebug("TrackFitters") << 
-	  "KFTrajectorySmoother: combined tsos not valid!\n"<<
-	  "pred Tsos pos: "<<predTsos.globalPosition()<< "\n" <<
-	  "pred Tsos mom: "<<predTsos.globalMomentum()<< "\n" <<
-	  "TrackingRecHit: "<<(*itm).recHit()->surface()->toGlobal((*itm).recHit()->localPosition())<< "\n" ;
-	return std::vector<Trajectory>();
+	  "KFTrajectorySmoother: combined tsos not valid!\n" <<
+	  "pred Tsos pos: " << predTsos.globalPosition() << "\n" <<
+	  "pred Tsos mom: " << predTsos.globalMomentum() << "\n" <<
+	  "TrackingRecHit: " << hit->surface()->toGlobal(hit->localPosition()) << "\n" ;
+	if( myTraj.foundHits() >= minHits_ ) {
+	  LogDebug("TrackFitters") << " breaking trajectory" << "\n";
+	  break;      
+	} else {        
+	  LogDebug("TrackFitters") << " killing trajectory" << "\n";       
+	  return std::vector<Trajectory>();
+	}
       }
 
-      TSOS smooTsos = combiner((*itm).updatedState(), predTsos);
+      //smooTsos updates the N-1 hits prediction with the hit
+      if (hitcounter == avtm.size()) smooTsos = itm->updatedState();
+      else if (hitcounter == 1) smooTsos = currTsos;
+      else smooTsos = combiner(itm->updatedState(), predTsos);
 
       if(!smooTsos.isValid()) {
-	LogDebug("TrackFitters") <<
-	  "KFTrajectorySmoother: smoothed tsos not valid!";
-	return std::vector<Trajectory>();
+	LogDebug("TrackFitters") << "KFTrajectorySmoother: smoothed tsos not valid!";
+	if( myTraj.foundHits() >= minHits_ ) {
+	  LogDebug("TrackFitters") << " breaking trajectory" << "\n";
+	  break;      
+	} else {        
+	  LogDebug("TrackFitters") << " killing trajectory" << "\n";       
+	  return std::vector<Trajectory>();
+	}
       }
 
+      double estimate;
+      if (hitcounter != avtm.size()) estimate = estimator()->estimate(combTsos, *hit ).second;
+      else estimate = itm->estimate();
+
       LogTrace("TrackFitters")
-	<<" predTsos !"<<"\n"
-	<< predTsos<<"\n"
-	<<" currTsos !"<<"\n"
-	<< currTsos<<"\n"
-	<<" smooTsos !"<<"\n"
-	<<  smooTsos<<"\n";
+	<< "predTsos !" << "\n"
+	<< predTsos << "\n"
+	<< "currTsos !" << "\n"
+	<< currTsos << "\n"
+	<< "smooTsos !" << "\n"
+	<< smooTsos << "\n"
+	<< "smoothing estimate (with combTSOS)=" << estimate << "\n"
+	<< "filtering estimate=" << itm->estimate() << "\n";
 	
-      myTraj.push(TM((*itm).forwardPredictedState(),
+      myTraj.push(TM(itm->forwardPredictedState(),
 		     predTsos,
 		     smooTsos,
-		     (*itm).recHit(),
-		     estimator()->estimate(combTsos, *((*itm).recHit()) ).second),
-		  (*itm).estimate());
-
+		     hit,
+		     estimate),
+		  itm->estimate());
     } else {
+      LogDebug("TrackFitters") 
+	<< "----------------- HIT #" << hitcounter << " (INVALID)-----------------------";      
+
+      //no update
       currTsos = predTsos;
-      TSOS combTsos = combiner(predTsos, (*itm).forwardPredictedState());
+      TSOS combTsos;
+      if (hitcounter == avtm.size()) combTsos = itm->forwardPredictedState();
+      else if (hitcounter == 1) combTsos = predTsos;
+      else combTsos = combiner(predTsos, itm->forwardPredictedState());
       
       if(!combTsos.isValid()) {
     	LogDebug("TrackFitters") << 
@@ -205,83 +186,13 @@ KFTrajectorySmoother::trajectories(const Trajectory& aTraj) const {
     	return std::vector<Trajectory>();
       }
       
-      myTraj.push(TM((*itm).forwardPredictedState(),
+      myTraj.push(TM(itm->forwardPredictedState(),
     		     predTsos,
     		     combTsos,
-    		     (*itm).recHit()));
+    		     hit));
     }
   }
-  
-  //last smoothed tm is last filtered
-  if ( avtm.front().recHit()->surface()!=0 ) {
-    //check surface just for safety: should never be ==0 because they are skipped in the fitter 
-    predTsos = thePropagator->propagate( currTsos, *(avtm.front().recHit()->surface()) );
-  } else {
-    LogDebug("TrackFitters")<< " Error: invalid hit with no GeomDet attached .... skipping";
-    myTraj.push(TM(avtm.front().forwardPredictedState(),
-  		   avtm.front().recHit()));
-    return std::vector<Trajectory>(1, myTraj); 
-  }
 
-  if(!predTsos.isValid()) {
-	LogDebug("TrackFitters") << 
-	  "KFTrajectorySmoother: predicted tsos not valid!";
-    return std::vector<Trajectory>();
-  }
-  
-  if(avtm.front().recHit()->isValid()) {
-
-    //update
-    currTsos = updator()->update(predTsos, *(avtm.front().recHit()));
-    const TransientTrackingRecHit & lasthit = *(avtm.front().recHit());
-
-    LogDebug("TrackFitters")
-      <<" ----------------- LAST HIT -----------------------\n"
-      <<"  HIT IS AT R   "<<(lasthit).globalPosition().perp()<<"\n"
-      <<"  HIT IS AT Z   "<<(lasthit).globalPosition().z()<<"\n"
-      <<"  HIT IS AT Phi "<<(lasthit).globalPosition().phi()<<"\n"
-      <<"  HIT IS AT Loc "<<(lasthit).localPosition()<<"\n"
-      <<"  WITH LocError "<<(lasthit).localPositionError()<<"\n"
-      <<"  HIT IS AT Glo "<<(lasthit).globalPosition()<<"\n"
-      <<"  HIT parameters "<<(lasthit).parameters()<<"\n"
-      <<"  HIT parametersError "<<(lasthit).parametersError()<<"\n"
-      <<"SURFACE POSITION"<<"\n"
-      <<(lasthit).surface()->position()<<"\n"
-      <<"SURFACE ROTATION"<<"\n"
-      <<(lasthit).surface()->rotation();
-    LogTrace("TrackFitters") <<"  GOING TO examine hit "<<(lasthit).geographicalId().rawId();
-    if ((lasthit).geographicalId().subdetId() == StripSubdetector::TIB ) {
-      LogTrace("TrackFitters") <<" I am TIB "<<TIBDetId((lasthit).geographicalId()).layer();
-    }else if ((lasthit).geographicalId().subdetId() == StripSubdetector::TOB ) { 
-      LogTrace("TrackFitters") <<" I am TOB "<<TOBDetId((lasthit).geographicalId()).layer();
-    }else if ((lasthit).geographicalId().subdetId() == StripSubdetector::TEC ) { 
-      LogTrace("TrackFitters") <<" I am TEC "<<TECDetId((lasthit).geographicalId()).wheel();
-    }else if ((lasthit).geographicalId().subdetId() == StripSubdetector::TID ) { 
-      LogTrace("TrackFitters") <<" I am TID "<<TIDDetId((lasthit).geographicalId()).wheel();
-    }else if ((lasthit).geographicalId().subdetId() == (int) PixelSubdetector::PixelBarrel ) {
-      LogTrace("TrackFitters") <<" I am PixBar "<< PXBDetId((lasthit).geographicalId()).layer();
-    }
-    else {
-      LogTrace("TrackFitters") <<" I am PixFwd "<< PXFDetId((lasthit).geographicalId()).disk();
-    }
-    LogTrace("TrackFitters")
-      <<" predTsos !"<<"\n"
-      << predTsos<<"\n"
-      <<" currTsos !"<<"\n"
-      << currTsos<<"\n";
-
-    myTraj.push(TM(avtm.front().forwardPredictedState(),
-		   predTsos,
-		   currTsos,
-		   avtm.front().recHit(),
-		   estimator()->estimate(predTsos, *(avtm.front().recHit())).second),
-		avtm.front().estimate());
-    
-  } else {
-    myTraj.push(TM(avtm.front().forwardPredictedState(),
-  		   avtm.front().recHit()));
-  }
-  
   return std::vector<Trajectory>(1, myTraj); 
-
+  
 }

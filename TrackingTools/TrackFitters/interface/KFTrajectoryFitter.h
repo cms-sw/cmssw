@@ -4,8 +4,8 @@
 /** \class KFTrajectoryFitter
  *  A Standard Kalman fit. Ported from ORCA
  *
- *  $Date: 2007/05/09 12:56:07 $
- *  $Revision: 1.5.2.1 $
+ *  $Date: 2007/05/09 14:17:57 $
+ *  $Revision: 1.6 $
  *  \author todorov, cerati
  */
 
@@ -31,17 +31,21 @@ public:
 
   KFTrajectoryFitter(const Propagator& aPropagator,
 		     const TrajectoryStateUpdator& aUpdator,
-		     const MeasurementEstimator& aEstimator) :
+		     const MeasurementEstimator& aEstimator,
+		     int minHits = 3) :
     thePropagator(aPropagator.clone()),
     theUpdator(aUpdator.clone()),
-    theEstimator(aEstimator.clone()) {}
+    theEstimator(aEstimator.clone()),
+    minHits_(minHits){}
   
   KFTrajectoryFitter(const Propagator* aPropagator,
 		     const TrajectoryStateUpdator* aUpdator,
-		     const MeasurementEstimator* aEstimator) : 
+		     const MeasurementEstimator* aEstimator,
+		     int minHits = 3) : 
     thePropagator(aPropagator->clone()),
     theUpdator(aUpdator->clone()),
-    theEstimator(aEstimator->clone()) {}
+    theEstimator(aEstimator->clone()),
+    minHits_(minHits) {}
 
   virtual ~KFTrajectoryFitter(); 
   
@@ -67,6 +71,7 @@ private:
   Propagator* thePropagator;
   const TrajectoryStateUpdator* theUpdator;
   const MeasurementEstimator* theEstimator;
+  int minHits_;
 };
 
 #endif //CD_KFTrajectoryFitter_H_

@@ -32,6 +32,7 @@ KFTrajectoryFitterESProducer::produce(const TrackingComponentsRecord & iRecord){
   std::string pname = pset_.getParameter<std::string>("Propagator");
   std::string uname = pset_.getParameter<std::string>("Updator");
   std::string ename = pset_.getParameter<std::string>("Estimator");
+  int minHits = pset_.getParameter<int>("minHits");
 
   edm::ESHandle<Propagator> prop;
   edm::ESHandle<TrajectoryStateUpdator> upd;
@@ -43,7 +44,8 @@ KFTrajectoryFitterESProducer::produce(const TrackingComponentsRecord & iRecord){
 
   _fitter  = boost::shared_ptr<TrajectoryFitter>(new KFTrajectoryFitter(prop.product(),
 									upd.product(),
-									est.product()));
+									est.product(),
+									minHits));
   return _fitter;
 }
 

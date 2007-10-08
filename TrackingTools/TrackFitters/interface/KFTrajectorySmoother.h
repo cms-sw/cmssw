@@ -5,8 +5,8 @@
  *  A Standard Kalman smoother. The forward fit is not redone,
  *  only the backward smoothing. Ported from ORCA
  *
- *  $Date: 2007/05/09 12:56:07 $
- *  $Revision: 1.4.2.1 $
+ *  $Date: 2007/05/09 14:17:57 $
+ *  $Revision: 1.5 $
  *  \author todorov, cerati
  */
 
@@ -31,21 +31,25 @@ public:
   KFTrajectorySmoother(const Propagator& aPropagator,
                        const TrajectoryStateUpdator& aUpdator,
                        const MeasurementEstimator& aEstimator,
-		       float errorRescaling = 100.f) :
+		       float errorRescaling = 100.f,
+		       int minHits = 3) :
     thePropagator(aPropagator.clone()),
     theUpdator(aUpdator.clone()),
     theEstimator(aEstimator.clone()),
-    theErrorRescaling(errorRescaling) {}
+    theErrorRescaling(errorRescaling),
+    minHits_(minHits){}
 
 
   KFTrajectorySmoother(const Propagator* aPropagator,
 		       const TrajectoryStateUpdator* aUpdator, 
 		       const MeasurementEstimator* aEstimator,
-		       float errorRescaling = 100.f) :
+		       float errorRescaling = 100.f,
+		       int minHits = 3) :
     thePropagator(aPropagator->clone()),
     theUpdator(aUpdator->clone()),
     theEstimator(aEstimator->clone()),
-    theErrorRescaling(errorRescaling)  {}
+    theErrorRescaling(errorRescaling),
+    minHits_(minHits){}
 
   virtual ~KFTrajectorySmoother();
 
@@ -65,7 +69,7 @@ private:
   const TrajectoryStateUpdator* theUpdator;
   const MeasurementEstimator* theEstimator;
   float theErrorRescaling;
-
+  int minHits_;
 };
 
 #endif //CD_KFTrajectorySmoother_H_
