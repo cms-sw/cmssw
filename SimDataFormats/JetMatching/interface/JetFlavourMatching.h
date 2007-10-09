@@ -3,12 +3,13 @@
 
 #include "DataFormats/JetReco/interface/CaloJetCollection.h"
 #include "DataFormats/Common/interface/AssociationVector.h"
+#include "DataFormats/Common/interface/RefToBaseProd.h"
 #include "SimDataFormats/JetMatching/interface/JetFlavour.h"
 #include <vector>
 
 namespace reco {
 
-typedef edm::AssociationVector<reco::CaloJetRefProd,std::vector<reco::JetFlavour> > JetFlavourMatchingCollectionBase;
+typedef edm::AssociationVector<edm::RefToBaseProd<reco::Jet>,std::vector<reco::JetFlavour> > JetFlavourMatchingCollectionBase;
 
 class JetFlavourMatchingCollection : public JetFlavourMatchingCollectionBase {
 public:

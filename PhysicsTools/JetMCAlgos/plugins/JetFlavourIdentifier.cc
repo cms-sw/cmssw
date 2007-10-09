@@ -22,9 +22,12 @@
 
 //#include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
 
+
 #include "DataFormats/JetReco/interface/Jet.h"
+#include "DataFormats/JetReco/interface/JetCollection.h"
 #include "DataFormats/JetReco/interface/CaloJetCollection.h"
 #include "SimDataFormats/JetMatching/interface/JetFlavour.h"
+#include "SimDataFormats/JetMatching/interface/JetFlavourMatching.h"
 
 #include "DataFormats/Common/interface/Ref.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
@@ -54,12 +57,10 @@ class JetFlavourIdentifier : public edm::EDProducer
   private:
     virtual void produce(edm::Event&, const edm::EventSetup& );
 
-    typedef std::vector<std::pair<reco::CaloJetRef, reco::JetFlavour> > JetTagVector;
 
     int fillAlgoritDefinition( const Jet& ) const;
     int fillPhysicsDefinition( const Jet& ) const;
 
-    Handle<CaloJetCollection>   jets;
     Handle<CandidateCollection> particles;
 
     edm::InputTag m_jetsSrc;
@@ -76,7 +77,7 @@ class JetFlavourIdentifier : public edm::EDProducer
 
 JetFlavourIdentifier::JetFlavourIdentifier( const edm::ParameterSet& iConfig )
 {
-    produces<JetTagVector>();
+    produces<JetFlavourMatching>();
     m_jetsSrc           = iConfig.getParameter<edm::InputTag>("jets");
     coneSizeToAssociate = iConfig.getParameter<double>("coneSizeToAssociate");
     physDefinition      = iConfig.getParameter<bool>("physicsDefinition");
@@ -93,16 +94,17 @@ JetFlavourIdentifier::~JetFlavourIdentifier()
 void JetFlavourIdentifier::produce( Event& iEvent, const EventSetup& iEs ) 
 {
 
-  iEvent.getByLabel(m_jetsSrc, jets);
+  edm::Handle <edm::View <reco::Jet> > jets_h;
+  iEvent.getByLabel(m_jetsSrc, jets_h);
+
   iEvent.getByLabel ("genParticleCandidates", particles );
+//   std::auto_ptr<reco::JetFlavourMatchingCollection> jetTracks (new reco::JetFlavourMatchingCollection (reco::JetRefBaseProd(jets_h)));
+        auto_ptr<reco::JetFlavourMatchingCollection> jetFlavMatching( new JetFlavourMatchingCollection(reco::JetRefBaseProd(jets_h)));
+  int size = jets_h->size();
 
-  auto_ptr<JetTagVector> theJetTagVector( new JetTagVector );
-  int size = jets->size();
-  theJetTagVector->reserve(size);
-
-  for (size_t j = 0; j < jets->size(); j++) {
-       const int theMappedPartonAlg = fillAlgoritDefinition( (*jets)[j] );
-       const int theMappedPartonPhy = fillPhysicsDefinition( (*jets)[j] );
+  for (size_t j = 0; j < jets_h->size(); j++) {
+       const int theMappedPartonAlg = fillAlgoritDefinition( (*jets_h)[j] );
+       const int theMappedPartonPhy = fillPhysicsDefinition( (*jets_h)[j] );
 
        if(physDefinition) {
          if ( theMappedPartonPhy < 0 ) continue;
@@ -117,13 +119,10 @@ void JetFlavourIdentifier::produce( Event& iEvent, const EventSetup& iEs )
          thePartonVertex        = aPartAlg.vertex();
          thePartonFlavour       = aPartAlg.pdgId();
        }
-
-       auto_ptr<JetFlavour> matchJetParton( new JetFlavour(thePartonLorentzVector, thePartonVertex, thePartonFlavour) );
-       theJetTagVector->push_back( make_pair( CaloJetRef(jets,j) , *matchJetParton ) ); 
-
+       (*jetFlavMatching)[jets_h->refAt(j)]=JetFlavour(thePartonLorentzVector, thePartonVertex, thePartonFlavour); 
   }
 
-  iEvent.put( theJetTagVector );
+  iEvent.put(  jetFlavMatching );
 
 }
 
