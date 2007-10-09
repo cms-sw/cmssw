@@ -11,6 +11,9 @@
 #include "DataFormats/TestObjects/interface/StreamTestThing.h"
 #include "DataFormats/TestObjects/interface/StreamTestTmpl.h"
 
+#include "DataFormats/Common/interface/Holder.h"
+#include "DataFormats/Common/interface/RefToBaseProd.h"
+
 namespace {
 struct dictionary {
   edm::Wrapper<edmtest::DummyProduct> dummyw12;
@@ -46,6 +49,7 @@ struct dictionary {
   std::vector<edmtest::Sortable> x3;
   std::vector<edmtest::Unsortable> x4;
 
- 
+  edm::reftobase::Holder<edmtest::Thing,edm::Ref<std::vector<edmtest::Thing> > > bhThing;
+  edm::RefToBaseProd<edmtest::Thing> rtbpThing;
 };
 }

@@ -51,6 +51,10 @@
  <class name="std::vector<edmtest::Thing>"/>
  <class name="std::vector<edmtest::OtherThing>"/>
  <class name="edm::RefProd<std::vector<edmtest::Thing> >"/>
+ <class name="edm::RefToBaseProd<edmtest::Thing>"/>
+ <class name="edm::reftobase::BaseHolder<edmtest::Thing>"/>
+ <class name="edm::reftobase::Holder<edmtest::Thing,edm::Ref<std::vector<edmtest::Thing>,edmtest::Thing,edm::refhelper::FindUsingAdvance<std::vector<edmtest::Thing>,edmtest::Thing> > >"/>
+ <class name="edm::RefToBase<edmtest::Thing>"/>
  <class name="edm::Ref<std::vector<edmtest::Thing>,edmtest::Thing,edm::refhelper::FindUsingAdvance<std::vector<edmtest::Thing>,edmtest::Thing> >"/>
  <class name="edm::RefVector<std::vector<edmtest::Thing>,edmtest::Thing,edm::refhelper::FindUsingAdvance<std::vector<edmtest::Thing>,edmtest::Thing> >"/>
  <class name="edm::Wrapper<std::vector<edmtest::Thing> >"/>
