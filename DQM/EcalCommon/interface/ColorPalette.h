@@ -1,12 +1,15 @@
-// $Id: ColorPalette.h,v 1.4 2007/02/08 15:24:00 benigno Exp $
+// $Id: ColorPalette.h,v 1.1 2007/04/11 05:47:06 dellaric Exp $
 
 /*!
   \file ColorPalette.h
   \brief Color palette for quality plots
   \author B. Gobbo 
-  \version $Revision: 1.4 $
-  \date $Date: 2007/02/08 15:24:00 $
+  \version $Revision: 1.1 $
+  \date $Date: 2007/04/11 05:47:06 $
 */
+
+#ifndef ColorPalette_H
+#define ColorPalette_H
 
 namespace ecdqm {
 
@@ -32,3 +35,5 @@ namespace ecdqm {
 		       { 0.0000, 0.2767, 0.4170}, { 0.0000, 0.2392, 0.3608}}; */
 
 }
+
+#endif // ColorPalette_H
