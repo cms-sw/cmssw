@@ -109,7 +109,7 @@ GSGsfTrackCandidateMaker::produce(edm::Event& e, const edm::EventSetup& es)
 
       // The simulated Track
       const SimTrack& theSimTrack = (*theSimTracks)[theSimTrackId];
-      double ptSim = theSimTrack.momentum().vect().perp();
+      double ptSim = theSimTrack.momentum().Pt();
       //      const SiTrackerGSRecHit2D* rechit2 = (const SiTrackerGSRecHit2D*) &(*theSecondHit) ;
       // The DetId's for later comparison
       const DetId& detId1 =  theFirstHit->geographicalId();
