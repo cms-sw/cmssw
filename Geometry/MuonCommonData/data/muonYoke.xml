@@ -2897,9 +2897,9 @@ END COMMENT-->
   <ParE name="center" value="0"/> 
   <ParE name="center" value="1.0729*m"/> 
  </AlgoPosPart> 
+ <PosPart copyNumber="3">
   <rParent name="muonBase:MBWheel_1N"/> 
   <rChild name="YB2Chim_w1N_m2"/> 
-  <PosPart copyNumber="3">
   <rRotation name="rotations:R330"/>
   <Translation x="5.67081*m*cos(63.5375*deg)" y="5.67081*m*sin(63.5375*deg)" z="1.0729*m" />
  </PosPart> 
@@ -3019,9 +3019,9 @@ END COMMENT-->
   <ParE name="center" value="0"/> 
   <ParE name="center" value="1.0729*m"/> 
  </AlgoPosPart> 
+ <PosPart copyNumber="3">
   <rParent name="muonBase:MBWheel_1N"/> 
   <rChild name="YB2Chim_w1N_m4"/> 
-  <PosPart copyNumber="3">
   <rRotation name="rotations:R330"/>
   <Translation x="5.67081*m*cos(56.4625*deg)" y="5.67081*m*sin(56.4625*deg)" z="1.0729*m" />
  </PosPart> 
