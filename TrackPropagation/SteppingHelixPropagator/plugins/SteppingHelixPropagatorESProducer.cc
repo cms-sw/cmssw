@@ -1,6 +1,7 @@
 #include "SteppingHelixPropagatorESProducer.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
+#include "MagneticField/VolumeBasedEngine/interface/VolumeBasedMagneticField.h"
 
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -39,6 +40,18 @@ SteppingHelixPropagatorESProducer::produce(const TrackingComponentsRecord & iRec
   if (pdir == "anyDirection") dir = anyDirection;
   
   SteppingHelixPropagator* shProp = new SteppingHelixPropagator(&(*magfield), dir);
+
+  bool setVBFPointer = pset_.getParameter<bool>("SetVBFPointer");
+  if (setVBFPointer){
+    std::string vbfName = pset_.getParameter<std::string>("VBFName");
+    ESHandle<MagneticField> vbfField;
+    iRecord.getRecord<IdealMagneticFieldRecord>().get(vbfName, vbfField );
+    const VolumeBasedMagneticField* vbfCPtr = dynamic_cast<const VolumeBasedMagneticField*>(&(*vbfField));
+    if (vbfField.isValid()) shProp->setVBFPointer(vbfCPtr);
+  }
+
+  bool useInTeslaFromMagField = pset_.getParameter<bool>("useInTeslaFromMagField");
+  shProp->setUseInTeslaFromMagField(useInTeslaFromMagField);
 
   bool haveX0Corr = pset_.getParameter<bool>("ApplyRadX0Correction");
   shProp->applyRadX0Correction(haveX0Corr);

@@ -9,15 +9,15 @@
  *  Material effects (multiple scattering and energy loss) are based on tuning
  *  to MC and (eventually) data. 
  *
- *  $Date: 2007/05/11 04:51:09 $
- *  $Revision: 1.22 $
+ *  $Date: 2007/05/13 03:28:44 $
+ *  $Revision: 1.23 $
  *  \author Vyacheslav Krutelyov (slava77)
  */
 
 //
 // Original Author:  Vyacheslav Krutelyov
 //         Created:  Fri Mar  3 16:01:24 CST 2006
-// $Id: SteppingHelixPropagator.h,v 1.22 2007/05/11 04:51:09 slava77 Exp $
+// $Id: SteppingHelixPropagator.h,v 1.23 2007/05/13 03:28:44 slava77 Exp $
 //
 //
 
@@ -174,6 +174,14 @@ class SteppingHelixPropagator : public Propagator {
   //! use this in hope of a speed-up
   void setUseTuningForL2Speed(bool val){ useTuningForL2Speed_ = val;}
 
+  //! set VolumBasedField pointer
+  //! allows to have geometry description in uniformField scenario
+  //! only important/relevant in the barrel region
+  void setVBFPointer(const VolumeBasedMagneticField* val) { vbField_ = val;}
+
+  //! force getting field value from MagneticField, not the geometric one
+  void setUseInTeslaFromMagField(bool val) { useInTeslaFromMagField_ = val;}
+
  protected:
   typedef SteppingHelixStateInfo::VolumeBounds MatBounds;
   //! (Internals) Init starting point
@@ -263,6 +271,7 @@ class SteppingHelixPropagator : public Propagator {
   bool useMagVolumes_;
   bool useIsYokeFlag_;
   bool useMatVolumes_;
+  bool useInTeslaFromMagField_;
   bool returnTangentPlane_;
   bool sendLogWarning_;
   bool useTuningForL2Speed_;

@@ -5,15 +5,15 @@
  *  to MC and (eventually) data. 
  *  Implementation file contents follow.
  *
- *  $Date: 2007/05/18 08:07:54 $
- *  $Revision: 1.45 $
+ *  $Date: 2007/07/10 05:12:07 $
+ *  $Revision: 1.46 $
  *  \author Vyacheslav Krutelyov (slava77)
  */
 
 //
 // Original Author:  Vyacheslav Krutelyov
 //         Created:  Fri Mar  3 16:01:24 CST 2006
-// $Id: SteppingHelixPropagator.cc,v 1.45 2007/05/18 08:07:54 slava77 Exp $
+// $Id: SteppingHelixPropagator.cc,v 1.46 2007/07/10 05:12:07 slava77 Exp $
 //
 //
 
@@ -60,6 +60,7 @@ SteppingHelixPropagator::SteppingHelixPropagator(const MagneticField* field,
   useMagVolumes_ = true;
   useIsYokeFlag_ = true;
   useMatVolumes_ = true;
+  useInTeslaFromMagField_ = false; //overrides behavior only if true
   returnTangentPlane_ = true;
   sendLogWarning_ = false;
   useTuningForL2Speed_ = false;
@@ -596,7 +597,7 @@ void SteppingHelixPropagator::loadState(SteppingHelixPropagator::StateInfo& svCu
   svCurrent.dir = dir == alongMomentum ? 1.: -1.;
 
   svCurrent.path_ = 0; // this could've held the initial path
-  svCurrent.radPath = 0;
+  svCurrent.radPath_ = 0;
 
   GlobalPoint gPointNegZ(svCurrent.r3.x(), svCurrent.r3.y(), -fabs(svCurrent.r3.z()));
 
@@ -622,7 +623,7 @@ void SteppingHelixPropagator::loadState(SteppingHelixPropagator::StateInfo& svCu
     }
   }
   
-  if (useMagVolumes_ && svCurrent.magVol != 0){
+  if (useMagVolumes_ && svCurrent.magVol != 0 && ! useInTeslaFromMagField_){
     bf = svCurrent.magVol->inTesla(gPointNegZ);
     if (r3.z() > 0){
       svCurrent.bf.set(-bf.x(), -bf.y(), bf.z());
@@ -653,7 +654,7 @@ void SteppingHelixPropagator::loadState(SteppingHelixPropagator::StateInfo& svCu
   svCurrent.isValid_ = true;
 
   if (debug_){
-    LogTrace(metname)<<"Loaded at  path: "<<svCurrent.path_<<" radPath: "<<svCurrent.radPath
+    LogTrace(metname)<<"Loaded at  path: "<<svCurrent.path()<<" radPath: "<<svCurrent.radPath()
 		     <<" p3 "<<" pt: "<<svCurrent.p3.perp()<<" phi: "<<svCurrent.p3.phi()
 		     <<" eta: "<<svCurrent.p3.eta()
 		     <<" "<<svCurrent.p3
@@ -676,8 +677,8 @@ void SteppingHelixPropagator::getNextState(const SteppingHelixPropagator::StateI
 
   svNext.r3 = svPrevious.r3; svNext.r3 += drVec;
 
-  svNext.path_ = svPrevious.path_ + dS;
-  svNext.radPath = svPrevious.radPath + dX0;
+  svNext.path_ = svPrevious.path() + dS;
+  svNext.radPath_ = svPrevious.radPath() + dX0;
 
   GlobalPoint gPointNegZ(svNext.r3.x(), svNext.r3.y(), -fabs(svNext.r3.z()));
 
@@ -703,7 +704,7 @@ void SteppingHelixPropagator::getNextState(const SteppingHelixPropagator::StateI
     }
   }
 
-  if (useMagVolumes_ && svNext.magVol != 0){
+  if (useMagVolumes_ && svNext.magVol != 0 && ! useInTeslaFromMagField_){
     bf = svNext.magVol->inTesla(gPointNegZ);
     if (svNext.r3.z() > 0){
       svNext.bf.set(-bf.x(), -bf.y(), bf.z());
@@ -741,7 +742,7 @@ void SteppingHelixPropagator::getNextState(const SteppingHelixPropagator::StateI
   }
 
   if (debug_){
-    LogTrace(metname)<<"Now at  path: "<<svNext.path_<<" radPath: "<<svNext.radPath
+    LogTrace(metname)<<"Now at  path: "<<svNext.path()<<" radPath: "<<svNext.radPath()
 		     <<" p3 "<<" pt: "<<svNext.p3.perp()<<" phi: "<<svNext.p3.phi()
 		     <<" eta: "<<svNext.p3.eta()
 		     <<" "<<svNext.p3
@@ -770,7 +771,7 @@ bool SteppingHelixPropagator::makeAtomStep(SteppingHelixPropagator::StateInfo& s
 					   SteppingHelixPropagator::Fancy fancy) const{
   static const std::string metname = "SteppingHelixPropagator";
   if (debug_){
-    LogTrace(metname)<<"Make atom step "<<svCurrent.path_<<" with step "<<dS<<" in direction "<<dir<<std::endl;
+    LogTrace(metname)<<"Make atom step "<<svCurrent.path()<<" with step "<<dS<<" in direction "<<dir<<std::endl;
   }
 
   double dP = 0;
@@ -825,7 +826,7 @@ bool SteppingHelixPropagator::makeAtomStep(SteppingHelixPropagator::StateInfo& s
     GlobalVector bfGV;
     Vector bf; //(bfGV.x(), bfGV.y(), bfGV.z());
     // = svCurrent.magVol->inTesla(GlobalPoint(drVec.x(), drVec.y(), -fabs(drVec.z())));
-    if (useMagVolumes_ && svCurrent.magVol != 0){
+    if (useMagVolumes_ && svCurrent.magVol != 0 && ! useInTeslaFromMagField_){
       // this negative-z business will break at some point
       bfGV = svCurrent.magVol->inTesla(GlobalPoint(drVec.x(), drVec.y(), -fabs(drVec.z())));
       if (drVec.z() > 0){
@@ -905,7 +906,7 @@ bool SteppingHelixPropagator::makeAtomStep(SteppingHelixPropagator::StateInfo& s
 	// if summed up along the path, should result in 
 	// theta_total^2 = Int_0^x0{ f(x)dX} = (13.6/p0)^2*x0*(1+0.036*ln(x0+1))
 	// x0+1 above is to make the result infrared safe.
-	double x0 = fabs(svCurrent.radPath);
+	double x0 = fabs(svCurrent.radPath());
 	double dX0 = fabs(dS)/radX0;
 	double alphaX0 = 13.6e-3/p0; alphaX0 *= alphaX0;
 	double betaX0 = 0.038;
@@ -1451,7 +1452,7 @@ SteppingHelixPropagator::refToDest(SteppingHelixPropagator::DestType dest,
     //     break;
   case PATHL_DT:
     {
-      double curS = fabs(sv.path_);
+      double curS = fabs(sv.path());
       dist = pars[PATHL_P] - curS;
       refDirection = pars[PATHL_P] > 0 ? 
 	alongMomentum : oppositeToMomentum;
@@ -1532,14 +1533,14 @@ SteppingHelixPropagator::refToMagVolume(const SteppingHelixPropagator::StateInfo
   if (cVol == 0) return result;
   std::vector<VolumeSide> cVolFaces(cVol->faces());
 
-  double distToFace[6];
-  double tanDistToFace[6];
+  double distToFace[6] = {0,0,0,0,0,0};
+  double tanDistToFace[6] = {0,0,0,0,0,0};
   PropagationDirection refDirectionToFace[6];
   Result resultToFace[6];
   int iFDest = -1;
   int iDistMin = -1;
   
-  uint iFDestSorted[6];
+  uint iFDestSorted[6] = {0,0,0,0,0,0};
   uint nDestSorted =0;
   uint nearParallels = 0;
 
@@ -1764,8 +1765,8 @@ SteppingHelixPropagator::refToMatVolume(const SteppingHelixPropagator::StateInfo
 		      sv.rzLims.zMin, sv.rzLims.zMax, 
 		      sv.rzLims.th1, sv.rzLims.th2 };
 
-  double distToFace[4];
-  double tanDistToFace[4];
+  double distToFace[4] = {0,0,0,0};
+  double tanDistToFace[4] = {0,0,0,0};
   PropagationDirection refDirectionToFace[4];
   Result resultToFace[4];
   int iFDest = -1;
