@@ -3,8 +3,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2007/03/30 16:29:02 $
- *  $Revision: 1.6 $
+ *  $Date: 2007/09/20 07:19:35 $
+ *  $Revision: 1.7 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -79,14 +79,16 @@ void DTEfficiencyTask::beginLuminosityBlock(LuminosityBlock const& lumiSeg, Even
   if(debug)
     cout<<"[DTEfficiencyTask]: Begin of LS transition"<<endl;
   
-  /*for(map<DTLayerId, vector<MonitorElement*> > ::const_iterator histo = histosPerL.begin();
-      histo != histosPerL.end();
-      histo++) {
-    int size = (*histo).second.size();
-    for(int i=0; i<size; i++){
-      (*histo).second[i]->Reset();
+  if(lumiSeg.id().luminosityBlock()%parameters.getUntrackedParameter<int>("ResetCycle", 3) == 0) {
+    for(map<DTLayerId, vector<MonitorElement*> > ::const_iterator histo = histosPerL.begin();
+	histo != histosPerL.end();
+	histo++) {
+      int size = (*histo).second.size();
+      for(int i=0; i<size; i++){
+	(*histo).second[i]->Reset();
+      }
     }
-    }*/
+  }
   
 }
 
