@@ -5,7 +5,7 @@
 
 RootTree.h // used by ROOT input sources
 
-$Id: RootTree.h,v 1.15 2007/08/23 23:25:25 wmtan Exp $
+$Id: RootTree.h,v 1.16 2007/10/02 02:55:14 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -32,6 +32,7 @@ namespace edm {
     
     bool isValid() const;
     bool isIndexValid() const;
+    void checkAndFixIndex();
     void addBranch(BranchKey const& key,
 		   BranchDescription const& prod,
 		   std::string const& oldBranchName);
@@ -60,6 +61,7 @@ namespace edm {
 // Therefore,using smart pointers here will do no good.
     TTree *const tree_;
     TTree *const metaTree_;
+    BranchType branchType_;
     TBranch *const auxBranch_;
     EntryNumber entries_;
     EntryNumber entryNumber_;

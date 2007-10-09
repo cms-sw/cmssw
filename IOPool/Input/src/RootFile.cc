@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: RootFile.cc,v 1.87 2007/10/08 23:41:57 wmtan Exp $
+$Id: RootFile.cc,v 1.88 2007/10/09 07:10:40 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "RootFile.h"
@@ -158,10 +158,17 @@ namespace edm {
       fid_ = FileID(createFileIdentifier());
     }
     assert(eventTree().isValid());
-//  if (fileFormatVersion_.value_ >= 3) {
-//    assert(lumiTree().isValid());
-//    assert(runTree().isValid());
-//  }
+    if (fileFormatVersion_.value_ >= 3) {
+      eventTree().checkAndFixIndex();
+      if (lumiTree().isValid()) {
+        lumiTree().checkAndFixIndex();
+      }
+      if (runTree().isValid()) {
+        runTree().checkAndFixIndex();
+      }
+      // assert(lumiTree().isValid());
+      // assert(runTree().isValid());
+    }
   }
 
   void

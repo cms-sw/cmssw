@@ -27,23 +27,14 @@ namespace edm {
     filePtr_(filePtr),
     tree_(dynamic_cast<TTree *>(filePtr_.get() != 0 ? filePtr->Get(BranchTypeToProductTreeName(branchType).c_str()) : 0)),
     metaTree_(dynamic_cast<TTree *>(filePtr_.get() != 0 ? filePtr->Get(BranchTypeToMetaDataTreeName(branchType).c_str()) : 0)),
-
-    auxBranch_(tree_ ? getAuxiliaryBranch(tree_, branchType) : 0),
+    branchType_(branchType),
+    auxBranch_(tree_ ? getAuxiliaryBranch(tree_, branchType_) : 0),
     entries_(tree_ ? tree_->GetEntries() : 0),
     entryNumber_(-1),
     origEntryNumber_(),
     branchNames_(),
     branches_(new BranchMap)
-  {
-    if (!isIndexValid()) {
-      if (BranchTypeToMinorIndexName(branchType).empty()) {
-        tree_->BuildIndex(BranchTypeToMajorIndexName(branchType).c_str());
-      } else {
-        tree_->BuildIndex(BranchTypeToMajorIndexName(branchType).c_str(),
-                         BranchTypeToMinorIndexName(branchType).c_str());
-      }
-    }
-  }
+  { }
 
   bool
   RootTree::isValid() const {
@@ -126,5 +117,17 @@ namespace edm {
     unsigned int minor = static_cast<unsigned int>(indexForEntryZero & 0x7fffffff);
     EntryNumber index = tree_->GetEntryNumberWithIndex(major, minor);
     return (index == 0);
+  }
+
+  void
+  RootTree::checkAndFixIndex() {
+    if (!isIndexValid()) {
+      if (BranchTypeToMinorIndexName(branchType_).empty()) {
+        tree_->BuildIndex(BranchTypeToMajorIndexName(branchType_).c_str());
+      } else {
+        tree_->BuildIndex(BranchTypeToMajorIndexName(branchType_).c_str(),
+                         BranchTypeToMinorIndexName(branchType_).c_str());
+      }
+    }
   }
 }
