@@ -11,8 +11,8 @@
  *  
  *  DataFormat class to hold the information for the Global Hit Validation
  *
- *  $Date: 2007/04/30 19:41:24 $
- *  $Revision: 1.2 $
+ *  $Date: 2007/10/04 19:26:40 $
+ *  $Revision: 1.1 $
  *  \author M. Strang SUNY-Buffalo
  */
 
@@ -107,35 +107,33 @@ class PGlobalSimHit
   void putMuonRpcBrlHits(std::vector<float> tof, std::vector<float> r,
 			  std::vector<float> phi, std::vector<float> eta);  
 
-
-  // get functions
-  int getnRawGenPart() {return nRawGenPart;}
-  int getnG4Vtx() {return nG4Vtx;}
-  VtxVector getG4Vtx() {return G4Vtx;}
-  int getnG4Trk() {return nG4Trk;}
-  TrkVector getG4Trk() {return G4Trk;}
-  int getnECalHits() {return nECalHits;}
-  CalVector getECalHits() {return ECalHits;}
-  int getnPreShHits() {return nPreShHits;}
-  CalVector getPreShHits() {return PreShHits;}
-  int getnHCalHits() {return nHCalHits;}
-  CalVector getHCalHits() {return HCalHits;}
-  int getnPxlFwdHits() {return nPxlFwdHits;}
-  FwdVector getPxlFwdHits() {return PxlFwdHits;}
-  int getnPxlBrlHits() {return nPxlBrlHits;}
-  BrlVector getPxlBrlHits() {return PxlBrlHits;}
-  int getnSiFwdHits() {return nSiFwdHits;}
-  FwdVector getSiFwdHits() {return SiFwdHits;}
-  int getnSiBrlHits() {return nSiBrlHits;}
-  BrlVector getSiBrlHits() {return SiBrlHits;}  
-  int getnMuonDtHits() {return nMuonDtHits;}
-  BrlVector getMuonDtHits() {return MuonDtHits;}
-  int getnMuonCscHits() {return nMuonCscHits;}
-  FwdVector getMuonCscHits() {return MuonCscHits;}
-  int getnMuonRpcFwdHits() {return nMuonRpcFwdHits;}
-  FwdVector getMuonRpcFwdHits() {return MuonRpcFwdHits;}
-  int getnMuonRpcBrlHits() {return nMuonRpcBrlHits;}
-  BrlVector getMuonRpcBrlHits() {return MuonRpcBrlHits;}  
+  int getnRawGenPart() const {return nRawGenPart;}
+  int getnG4Vtx() const {return nG4Vtx;}
+  VtxVector getG4Vtx() const {return G4Vtx;}
+  int getnG4Trk() const {return nG4Trk;}
+  TrkVector getG4Trk() const {return G4Trk;}
+  int getnECalHits() const {return nECalHits;}
+  CalVector getECalHits() const {return ECalHits;}
+  int getnPreShHits() const {return nPreShHits;}
+  CalVector getPreShHits() const {return PreShHits;}
+  int getnHCalHits() const {return nHCalHits;}
+  CalVector getHCalHits() const {return HCalHits;}
+  int getnPxlFwdHits() const {return nPxlFwdHits;}
+  FwdVector getPxlFwdHits() const {return PxlFwdHits;}
+  int getnPxlBrlHits() const {return nPxlBrlHits;}
+  BrlVector getPxlBrlHits() const {return PxlBrlHits;}
+  int getnSiFwdHits() const {return nSiFwdHits;}
+  FwdVector getSiFwdHits() const {return SiFwdHits;}
+  int getnSiBrlHits() const {return nSiBrlHits;}
+  BrlVector getSiBrlHits() const {return SiBrlHits;}  
+  int getnMuonDtHits() const {return nMuonDtHits;}
+  BrlVector getMuonDtHits() const {return MuonDtHits;}
+  int getnMuonCscHits() const {return nMuonCscHits;}
+  FwdVector getMuonCscHits() const {return MuonCscHits;}
+  int getnMuonRpcFwdHits() const {return nMuonRpcFwdHits;}
+  FwdVector getMuonRpcFwdHits() const {return MuonRpcFwdHits;}
+  int getnMuonRpcBrlHits() const {return nMuonRpcBrlHits;}
+  BrlVector getMuonRpcBrlHits() const {return MuonRpcBrlHits;}  
 
  private:
 
@@ -230,12 +228,12 @@ class PGlobalDigi
   void putESCalDigis(std::vector<float> adc0, std::vector<float> adc1,
 		     std::vector<float> adc2, std::vector<float> she);
   //get functions
-  int getnEBCalDigis() {return nEBCalDigis;}  
-  int getnEECalDigis() {return nEECalDigis;}
-  int getnESCalDigis() {return nESCalDigis;}  
-  ECalDigiVector getEBCalDigis() {return EBCalDigis;}  
-  ECalDigiVector getEECalDigis() {return EECalDigis;}
-  ESCalDigiVector getESCalDigis() {return ESCalDigis;}  
+  int getnEBCalDigis() const {return nEBCalDigis;}  
+  int getnEECalDigis() const {return nEECalDigis;}
+  int getnESCalDigis() const {return nESCalDigis;}  
+  ECalDigiVector getEBCalDigis() const {return EBCalDigis;}  
+  ECalDigiVector getEECalDigis() const {return EECalDigis;}
+  ESCalDigiVector getESCalDigis() const {return ESCalDigis;}  
 
   ////////////
   // HCal Info
@@ -253,14 +251,14 @@ class PGlobalDigi
   void putHOCalDigis(std::vector<float> aee, std::vector<float> she);
   void putHFCalDigis(std::vector<float> aee, std::vector<float> she);
   //get functions
-  int getnHBCalDigis() {return nHBCalDigis;}  
-  int getnHECalDigis() {return nHECalDigis;}  
-  int getnHOCalDigis() {return nHOCalDigis;}  
-  int getnHFCalDigis() {return nHFCalDigis;}  
-  HCalDigiVector getHBCalDigis() {return HBCalDigis;}  
-  HCalDigiVector getHECalDigis() {return HECalDigis;}  
-  HCalDigiVector getHOCalDigis() {return HOCalDigis;}  
-  HCalDigiVector getHFCalDigis() {return HFCalDigis;}  
+  int getnHBCalDigis() const {return nHBCalDigis;}  
+  int getnHECalDigis() const {return nHECalDigis;}  
+  int getnHOCalDigis() const {return nHOCalDigis;}  
+  int getnHFCalDigis() const {return nHFCalDigis;}  
+  HCalDigiVector getHBCalDigis() const {return HBCalDigis;}  
+  HCalDigiVector getHECalDigis() const {return HECalDigis;}  
+  HCalDigiVector getHOCalDigis() const {return HOCalDigis;}  
+  HCalDigiVector getHFCalDigis() const {return HFCalDigis;}  
 
   ////////////////////////
   // Silicon Tracker info
@@ -297,44 +295,44 @@ class PGlobalDigi
   void putTECW7Digis(std::vector<float> adc, std::vector<int> strip);
   void putTECW8Digis(std::vector<float> adc, std::vector<int> strip);
   //get functions
-  int getnTIBL1Digis() {return nTIBL1Digis;}  
-  int getnTIBL2Digis() {return nTIBL2Digis;}  
-  int getnTIBL3Digis() {return nTIBL3Digis;}  
-  int getnTIBL4Digis() {return nTIBL4Digis;}  
-  int getnTOBL1Digis() {return nTOBL1Digis;}  
-  int getnTOBL2Digis() {return nTOBL2Digis;}  
-  int getnTOBL3Digis() {return nTOBL3Digis;}  
-  int getnTOBL4Digis() {return nTOBL4Digis;}
-  int getnTIDW1Digis() {return nTIDW1Digis;}
-  int getnTIDW2Digis() {return nTIDW2Digis;}
-  int getnTIDW3Digis() {return nTIDW3Digis;} 
-  int getnTECW1Digis() {return nTECW1Digis;}
-  int getnTECW2Digis() {return nTECW2Digis;}
-  int getnTECW3Digis() {return nTECW3Digis;}
-  int getnTECW4Digis() {return nTECW4Digis;}
-  int getnTECW5Digis() {return nTECW5Digis;}
-  int getnTECW6Digis() {return nTECW6Digis;}
-  int getnTECW7Digis() {return nTECW7Digis;}
-  int getnTECW8Digis() {return nTECW8Digis;} 
-  SiStripDigiVector getTIBL1Digis() {return TIBL1Digis;}  
-  SiStripDigiVector getTIBL2Digis() {return TIBL2Digis;}  
-  SiStripDigiVector getTIBL3Digis() {return TIBL3Digis;}  
-  SiStripDigiVector getTIBL4Digis() {return TIBL4Digis;}
-  SiStripDigiVector getTOBL1Digis() {return TOBL1Digis;}  
-  SiStripDigiVector getTOBL2Digis() {return TOBL2Digis;}  
-  SiStripDigiVector getTOBL3Digis() {return TOBL3Digis;}  
-  SiStripDigiVector getTOBL4Digis() {return TOBL4Digis;}   
-  SiStripDigiVector getTIDW1Digis() {return TIDW1Digis;}
-  SiStripDigiVector getTIDW2Digis() {return TIDW2Digis;}
-  SiStripDigiVector getTIDW3Digis() {return TIDW3Digis;} 
-  SiStripDigiVector getTECW1Digis() {return TECW1Digis;}
-  SiStripDigiVector getTECW2Digis() {return TECW2Digis;}
-  SiStripDigiVector getTECW3Digis() {return TECW3Digis;}
-  SiStripDigiVector getTECW4Digis() {return TECW4Digis;}
-  SiStripDigiVector getTECW5Digis() {return TECW5Digis;}
-  SiStripDigiVector getTECW6Digis() {return TECW6Digis;}
-  SiStripDigiVector getTECW7Digis() {return TECW7Digis;}
-  SiStripDigiVector getTECW8Digis() {return TECW8Digis;}
+  int getnTIBL1Digis() const {return nTIBL1Digis;}  
+  int getnTIBL2Digis() const {return nTIBL2Digis;}  
+  int getnTIBL3Digis() const {return nTIBL3Digis;}  
+  int getnTIBL4Digis() const {return nTIBL4Digis;}  
+  int getnTOBL1Digis() const {return nTOBL1Digis;}  
+  int getnTOBL2Digis() const {return nTOBL2Digis;}  
+  int getnTOBL3Digis() const {return nTOBL3Digis;}  
+  int getnTOBL4Digis() const {return nTOBL4Digis;}
+  int getnTIDW1Digis() const {return nTIDW1Digis;}
+  int getnTIDW2Digis() const {return nTIDW2Digis;}
+  int getnTIDW3Digis() const {return nTIDW3Digis;} 
+  int getnTECW1Digis() const {return nTECW1Digis;}
+  int getnTECW2Digis() const {return nTECW2Digis;}
+  int getnTECW3Digis() const {return nTECW3Digis;}
+  int getnTECW4Digis() const {return nTECW4Digis;}
+  int getnTECW5Digis() const {return nTECW5Digis;}
+  int getnTECW6Digis() const {return nTECW6Digis;}
+  int getnTECW7Digis() const {return nTECW7Digis;}
+  int getnTECW8Digis() const {return nTECW8Digis;} 
+  SiStripDigiVector getTIBL1Digis() const {return TIBL1Digis;}  
+  SiStripDigiVector getTIBL2Digis() const {return TIBL2Digis;}  
+  SiStripDigiVector getTIBL3Digis() const {return TIBL3Digis;}  
+  SiStripDigiVector getTIBL4Digis() const {return TIBL4Digis;}
+  SiStripDigiVector getTOBL1Digis() const {return TOBL1Digis;}  
+  SiStripDigiVector getTOBL2Digis() const {return TOBL2Digis;}  
+  SiStripDigiVector getTOBL3Digis() const {return TOBL3Digis;}  
+  SiStripDigiVector getTOBL4Digis() const {return TOBL4Digis;}   
+  SiStripDigiVector getTIDW1Digis() const {return TIDW1Digis;}
+  SiStripDigiVector getTIDW2Digis() const {return TIDW2Digis;}
+  SiStripDigiVector getTIDW3Digis() const {return TIDW3Digis;} 
+  SiStripDigiVector getTECW1Digis() const {return TECW1Digis;}
+  SiStripDigiVector getTECW2Digis() const {return TECW2Digis;}
+  SiStripDigiVector getTECW3Digis() const {return TECW3Digis;}
+  SiStripDigiVector getTECW4Digis() const {return TECW4Digis;}
+  SiStripDigiVector getTECW5Digis() const {return TECW5Digis;}
+  SiStripDigiVector getTECW6Digis() const {return TECW6Digis;}
+  SiStripDigiVector getTECW7Digis() const {return TECW7Digis;}
+  SiStripDigiVector getTECW8Digis() const {return TECW8Digis;}
 
   ///////////////
   // SiPixel info
@@ -363,20 +361,20 @@ class PGlobalDigi
   void putFWD2nDigis(std::vector<float> adc, std::vector<int> row,
 		    std::vector<int> column);
   //get functions
-  int getnBRL1Digis() {return nBRL1Digis;}  
-  int getnBRL2Digis() {return nBRL2Digis;}  
-  int getnBRL3Digis() {return nBRL3Digis;}
-  int getnFWD1pDigis() {return nFWD1pDigis;}  
-  int getnFWD1nDigis() {return nFWD1nDigis;}    
-  int getnFWD2pDigis() {return nFWD2pDigis;}  
-  int getnFWD2nDigis() {return nFWD2nDigis;}  
-  SiPixelDigiVector getBRL1Digis() {return BRL1Digis;}  
-  SiPixelDigiVector getBRL2Digis() {return BRL2Digis;}  
-  SiPixelDigiVector getBRL3Digis() {return BRL3Digis;}  
-  SiPixelDigiVector getFWD1pDigis() {return FWD1pDigis;}
-  SiPixelDigiVector getFWD1nDigis() {return FWD1nDigis;} 
-  SiPixelDigiVector getFWD2pDigis() {return FWD2pDigis;}
-  SiPixelDigiVector getFWD2nDigis() {return FWD2nDigis;} 
+  int getnBRL1Digis() const {return nBRL1Digis;}  
+  int getnBRL2Digis() const {return nBRL2Digis;}  
+  int getnBRL3Digis() const {return nBRL3Digis;}
+  int getnFWD1pDigis() const {return nFWD1pDigis;}  
+  int getnFWD1nDigis() const {return nFWD1nDigis;}    
+  int getnFWD2pDigis() const {return nFWD2pDigis;}  
+  int getnFWD2nDigis() const {return nFWD2nDigis;}  
+  SiPixelDigiVector getBRL1Digis() const {return BRL1Digis;}  
+  SiPixelDigiVector getBRL2Digis() const {return BRL2Digis;}  
+  SiPixelDigiVector getBRL3Digis() const {return BRL3Digis;}  
+  SiPixelDigiVector getFWD1pDigis() const {return FWD1pDigis;}
+  SiPixelDigiVector getFWD1nDigis() const {return FWD1nDigis;} 
+  SiPixelDigiVector getFWD2pDigis() const {return FWD2pDigis;}
+  SiPixelDigiVector getFWD2nDigis() const {return FWD2nDigis;} 
 
   ////////////
   // Muon info
@@ -403,14 +401,14 @@ class PGlobalDigi
   void putMB4Digis(std::vector<int> slayer, std::vector<float> time, 
 		   std::vector<int> layer);
   //get functions
-  int getnMB1Digis() {return nMB1Digis;}  
-  int getnMB2Digis() {return nMB2Digis;}  
-  int getnMB3Digis() {return nMB3Digis;}  
-  int getnMB4Digis() {return nMB4Digis;}  
-  DTDigiVector getMB1Digis() {return MB1Digis;}  
-  DTDigiVector getMB2Digis() {return MB2Digis;}  
-  DTDigiVector getMB3Digis() {return MB3Digis;}  
-  DTDigiVector getMB4Digis() {return MB4Digis;}  
+  int getnMB1Digis() const {return nMB1Digis;}  
+  int getnMB2Digis() const {return nMB2Digis;}  
+  int getnMB3Digis() const {return nMB3Digis;}  
+  int getnMB4Digis() const {return nMB4Digis;}  
+  DTDigiVector getMB1Digis() const {return MB1Digis;}  
+  DTDigiVector getMB2Digis() const {return MB2Digis;}  
+  DTDigiVector getMB3Digis() const {return MB3Digis;}  
+  DTDigiVector getMB4Digis() const {return MB4Digis;}  
 
   /////////////////
   // CSC Strip info
@@ -424,8 +422,8 @@ class PGlobalDigi
   //put functions
   void putCSCstripDigis(std::vector<float> adc);
   //get functions
-  int getnCSCstripDigis() {return nCSCstripDigis;}  
-  CSCstripDigiVector getCSCstripDigis() {return CSCstripDigis;}  
+  int getnCSCstripDigis() const {return nCSCstripDigis;}  
+  CSCstripDigiVector getCSCstripDigis() const {return CSCstripDigis;}  
 
   /////////////////
   // CSC Wire info
@@ -439,8 +437,8 @@ class PGlobalDigi
   //put functions
   void putCSCwireDigis(std::vector<float> time);
   //get functions
-  int getnCSCwireDigis() {return nCSCwireDigis;}  
-  CSCwireDigiVector getCSCwireDigis() {return CSCwireDigis;} 
+  int getnCSCwireDigis() const {return nCSCwireDigis;}  
+  CSCwireDigiVector getCSCwireDigis() const {return CSCwireDigis;} 
 
  private:
 
@@ -600,12 +598,12 @@ class PGlobalRecHit
   void putEECalRecHits(std::vector<float> re, std::vector<float> she);
   void putESCalRecHits(std::vector<float> re, std::vector<float> she);
   //get functions
-  int getnEBCalRecHits() {return nEBCalRecHits;}  
-  int getnEECalRecHits() {return nEECalRecHits;}
-  int getnESCalRecHits() {return nESCalRecHits;}  
-  ECalRecHitVector getEBCalRecHits() {return EBCalRecHits;}  
-  ECalRecHitVector getEECalRecHits() {return EECalRecHits;}
-  ECalRecHitVector getESCalRecHits() {return ESCalRecHits;}  
+  int getnEBCalRecHits() const {return nEBCalRecHits;}  
+  int getnEECalRecHits() const {return nEECalRecHits;}
+  int getnESCalRecHits() const {return nESCalRecHits;}  
+  ECalRecHitVector getEBCalRecHits() const {return EBCalRecHits;}  
+  ECalRecHitVector getEECalRecHits() const {return EECalRecHits;}
+  ECalRecHitVector getESCalRecHits() const {return ESCalRecHits;}  
 
   ////////////
   // HCal Info
@@ -628,14 +626,14 @@ class PGlobalRecHit
   void putHFCalRecHits(std::vector<float> rec, std::vector<float> r, 
 		       std::vector<float> she);
   //get functions
-  int getnHBCalRecHits() {return nHBCalRecHits;}  
-  int getnHECalRecHits() {return nHECalRecHits;}  
-  int getnHOCalRecHits() {return nHOCalRecHits;}  
-  int getnHFCalRecHits() {return nHFCalRecHits;}  
-  HCalRecHitVector getHBCalRecHits() {return HBCalRecHits;}  
-  HCalRecHitVector getHECalRecHits() {return HECalRecHits;}  
-  HCalRecHitVector getHOCalRecHits() {return HOCalRecHits;}  
-  HCalRecHitVector getHFCalRecHits() {return HFCalRecHits;}  
+  int getnHBCalRecHits() const {return nHBCalRecHits;}  
+  int getnHECalRecHits() const {return nHECalRecHits;}  
+  int getnHOCalRecHits() const {return nHOCalRecHits;}  
+  int getnHFCalRecHits() const {return nHFCalRecHits;}  
+  HCalRecHitVector getHBCalRecHits() const {return HBCalRecHits;}  
+  HCalRecHitVector getHECalRecHits() const {return HECalRecHits;}  
+  HCalRecHitVector getHOCalRecHits() const {return HOCalRecHits;}  
+  HCalRecHitVector getHFCalRecHits() const {return HFCalRecHits;}  
 
   ////////////////////////
   // Silicon Tracker info
@@ -693,44 +691,44 @@ class PGlobalRecHit
   void putTECW8RecHits(std::vector<float> rx, std::vector<float> ry,
 		       std::vector<float> sx, std::vector<float> sy);
   //get functions
-  int getnTIBL1RecHits() {return nTIBL1RecHits;}  
-  int getnTIBL2RecHits() {return nTIBL2RecHits;}  
-  int getnTIBL3RecHits() {return nTIBL3RecHits;}  
-  int getnTIBL4RecHits() {return nTIBL4RecHits;}  
-  int getnTOBL1RecHits() {return nTOBL1RecHits;}  
-  int getnTOBL2RecHits() {return nTOBL2RecHits;}  
-  int getnTOBL3RecHits() {return nTOBL3RecHits;}  
-  int getnTOBL4RecHits() {return nTOBL4RecHits;}
-  int getnTIDW1RecHits() {return nTIDW1RecHits;}
-  int getnTIDW2RecHits() {return nTIDW2RecHits;}
-  int getnTIDW3RecHits() {return nTIDW3RecHits;} 
-  int getnTECW1RecHits() {return nTECW1RecHits;}
-  int getnTECW2RecHits() {return nTECW2RecHits;}
-  int getnTECW3RecHits() {return nTECW3RecHits;}
-  int getnTECW4RecHits() {return nTECW4RecHits;}
-  int getnTECW5RecHits() {return nTECW5RecHits;}
-  int getnTECW6RecHits() {return nTECW6RecHits;}
-  int getnTECW7RecHits() {return nTECW7RecHits;}
-  int getnTECW8RecHits() {return nTECW8RecHits;} 
-  SiStripRecHitVector getTIBL1RecHits() {return TIBL1RecHits;}  
-  SiStripRecHitVector getTIBL2RecHits() {return TIBL2RecHits;}  
-  SiStripRecHitVector getTIBL3RecHits() {return TIBL3RecHits;}  
-  SiStripRecHitVector getTIBL4RecHits() {return TIBL4RecHits;}
-  SiStripRecHitVector getTOBL1RecHits() {return TOBL1RecHits;}  
-  SiStripRecHitVector getTOBL2RecHits() {return TOBL2RecHits;}  
-  SiStripRecHitVector getTOBL3RecHits() {return TOBL3RecHits;}  
-  SiStripRecHitVector getTOBL4RecHits() {return TOBL4RecHits;}   
-  SiStripRecHitVector getTIDW1RecHits() {return TIDW1RecHits;}
-  SiStripRecHitVector getTIDW2RecHits() {return TIDW2RecHits;}
-  SiStripRecHitVector getTIDW3RecHits() {return TIDW3RecHits;} 
-  SiStripRecHitVector getTECW1RecHits() {return TECW1RecHits;}
-  SiStripRecHitVector getTECW2RecHits() {return TECW2RecHits;}
-  SiStripRecHitVector getTECW3RecHits() {return TECW3RecHits;}
-  SiStripRecHitVector getTECW4RecHits() {return TECW4RecHits;}
-  SiStripRecHitVector getTECW5RecHits() {return TECW5RecHits;}
-  SiStripRecHitVector getTECW6RecHits() {return TECW6RecHits;}
-  SiStripRecHitVector getTECW7RecHits() {return TECW7RecHits;}
-  SiStripRecHitVector getTECW8RecHits() {return TECW8RecHits;}
+  int getnTIBL1RecHits() const {return nTIBL1RecHits;}  
+  int getnTIBL2RecHits() const {return nTIBL2RecHits;}  
+  int getnTIBL3RecHits() const {return nTIBL3RecHits;}  
+  int getnTIBL4RecHits() const {return nTIBL4RecHits;}  
+  int getnTOBL1RecHits() const {return nTOBL1RecHits;}  
+  int getnTOBL2RecHits() const {return nTOBL2RecHits;}  
+  int getnTOBL3RecHits() const {return nTOBL3RecHits;}  
+  int getnTOBL4RecHits() const {return nTOBL4RecHits;}
+  int getnTIDW1RecHits() const {return nTIDW1RecHits;}
+  int getnTIDW2RecHits() const {return nTIDW2RecHits;}
+  int getnTIDW3RecHits() const {return nTIDW3RecHits;} 
+  int getnTECW1RecHits() const {return nTECW1RecHits;}
+  int getnTECW2RecHits() const {return nTECW2RecHits;}
+  int getnTECW3RecHits() const {return nTECW3RecHits;}
+  int getnTECW4RecHits() const {return nTECW4RecHits;}
+  int getnTECW5RecHits() const {return nTECW5RecHits;}
+  int getnTECW6RecHits() const {return nTECW6RecHits;}
+  int getnTECW7RecHits() const {return nTECW7RecHits;}
+  int getnTECW8RecHits() const {return nTECW8RecHits;} 
+  SiStripRecHitVector getTIBL1RecHits() const {return TIBL1RecHits;}  
+  SiStripRecHitVector getTIBL2RecHits() const {return TIBL2RecHits;}  
+  SiStripRecHitVector getTIBL3RecHits() const {return TIBL3RecHits;}  
+  SiStripRecHitVector getTIBL4RecHits() const {return TIBL4RecHits;}
+  SiStripRecHitVector getTOBL1RecHits() const {return TOBL1RecHits;}  
+  SiStripRecHitVector getTOBL2RecHits() const {return TOBL2RecHits;}  
+  SiStripRecHitVector getTOBL3RecHits() const {return TOBL3RecHits;}  
+  SiStripRecHitVector getTOBL4RecHits() const {return TOBL4RecHits;}   
+  SiStripRecHitVector getTIDW1RecHits() const {return TIDW1RecHits;}
+  SiStripRecHitVector getTIDW2RecHits() const {return TIDW2RecHits;}
+  SiStripRecHitVector getTIDW3RecHits() const {return TIDW3RecHits;} 
+  SiStripRecHitVector getTECW1RecHits() const {return TECW1RecHits;}
+  SiStripRecHitVector getTECW2RecHits() const {return TECW2RecHits;}
+  SiStripRecHitVector getTECW3RecHits() const {return TECW3RecHits;}
+  SiStripRecHitVector getTECW4RecHits() const {return TECW4RecHits;}
+  SiStripRecHitVector getTECW5RecHits() const {return TECW5RecHits;}
+  SiStripRecHitVector getTECW6RecHits() const {return TECW6RecHits;}
+  SiStripRecHitVector getTECW7RecHits() const {return TECW7RecHits;}
+  SiStripRecHitVector getTECW8RecHits() const {return TECW8RecHits;}
 
   ///////////////
   // SiPixel info
@@ -760,20 +758,20 @@ class PGlobalRecHit
   void putFWD2nRecHits(std::vector<float> rx, std::vector<float> ry,
 		       std::vector<float> sx, std::vector<float> sy);
   //get functions
-  int getnBRL1RecHits() {return nBRL1RecHits;}  
-  int getnBRL2RecHits() {return nBRL2RecHits;}  
-  int getnBRL3RecHits() {return nBRL3RecHits;}
-  int getnFWD1pRecHits() {return nFWD1pRecHits;}  
-  int getnFWD1nRecHits() {return nFWD1nRecHits;}    
-  int getnFWD2pRecHits() {return nFWD2pRecHits;}  
-  int getnFWD2nRecHits() {return nFWD2nRecHits;}  
-  SiPixelRecHitVector getBRL1RecHits() {return BRL1RecHits;}  
-  SiPixelRecHitVector getBRL2RecHits() {return BRL2RecHits;}  
-  SiPixelRecHitVector getBRL3RecHits() {return BRL3RecHits;}  
-  SiPixelRecHitVector getFWD1pRecHits() {return FWD1pRecHits;}
-  SiPixelRecHitVector getFWD1nRecHits() {return FWD1nRecHits;} 
-  SiPixelRecHitVector getFWD2pRecHits() {return FWD2pRecHits;}
-  SiPixelRecHitVector getFWD2nRecHits() {return FWD2nRecHits;} 
+  int getnBRL1RecHits() const {return nBRL1RecHits;}  
+  int getnBRL2RecHits() const {return nBRL2RecHits;}  
+  int getnBRL3RecHits() const {return nBRL3RecHits;}
+  int getnFWD1pRecHits() const {return nFWD1pRecHits;}  
+  int getnFWD1nRecHits() const {return nFWD1nRecHits;}    
+  int getnFWD2pRecHits() const {return nFWD2pRecHits;}  
+  int getnFWD2nRecHits() const {return nFWD2nRecHits;}  
+  SiPixelRecHitVector getBRL1RecHits() const {return BRL1RecHits;}  
+  SiPixelRecHitVector getBRL2RecHits() const {return BRL2RecHits;}  
+  SiPixelRecHitVector getBRL3RecHits() const {return BRL3RecHits;}  
+  SiPixelRecHitVector getFWD1pRecHits() const {return FWD1pRecHits;}
+  SiPixelRecHitVector getFWD1nRecHits() const {return FWD1nRecHits;} 
+  SiPixelRecHitVector getFWD2pRecHits() const {return FWD2pRecHits;}
+  SiPixelRecHitVector getFWD2nRecHits() const {return FWD2nRecHits;} 
 
   ////////////
   // Muon info
@@ -792,8 +790,8 @@ class PGlobalRecHit
   //put functions
   void putDTRecHits(std::vector<float> rhd, std::vector<float> shd);
   //get functions
-  int getnDTRecHits() {return nDTRecHits;}  
-  DTRecHitVector getDTRecHits() {return DTRecHits;}  
+  int getnDTRecHits() const {return nDTRecHits;}  
+  DTRecHitVector getDTRecHits() const {return DTRecHits;}  
 
   /////////////////
   // CSC info
@@ -810,8 +808,8 @@ class PGlobalRecHit
   void putCSCRecHits(std::vector<float> rhphi, std::vector<float> rhperp, 
 		     std::vector<float> shphi);
   //get functions
-  int getnCSCRecHits() {return nCSCRecHits;}  
-  CSCRecHitVector getCSCRecHits() {return CSCRecHits;}  
+  int getnCSCRecHits() const {return nCSCRecHits;}  
+  CSCRecHitVector getCSCRecHits() const {return CSCRecHits;}  
 
   /////////////////
   // RPC info
@@ -826,8 +824,8 @@ class PGlobalRecHit
   //put functions
   void putRPCRecHits(std::vector<float> rhx, std::vector<float> shx);
   //get functions
-  int getnRPCRecHits() {return nRPCRecHits;}  
-  RPCRecHitVector getRPCRecHits() {return RPCRecHits;} 
+  int getnRPCRecHits() const {return nRPCRecHits;}  
+  RPCRecHitVector getRPCRecHits() const {return RPCRecHits;} 
 
  private:
 
