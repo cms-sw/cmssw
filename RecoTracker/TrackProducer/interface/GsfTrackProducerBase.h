@@ -1,41 +1,31 @@
 #ifndef GsfTrackProducerBase_h
 #define GsfTrackProducerBase_h
 
-#include "FWCore/Framework/interface/EDProducer.h"
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESHandle.h"
+/** \class GsfTrackProducerBase
+ *  Produce Tracks from TrackCandidates
+ *
+ *  $Date: 2007/10/06 08:04:11 $
+ *  $Revision: 1.1 $
+ *  \author cerati
+ */
 
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-
-#include "TrackingTools/PatternTools/interface/Trajectory.h"
-#include "RecoTracker/TrackProducer/interface/GsfTrackProducerAlgorithm.h"
+#include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrackFwd.h"
+#include "DataFormats/GsfTrackReco/interface/GsfTrackExtra.h"
+#include "DataFormats/GsfTrackReco/interface/GsfTrackExtraFwd.h"
 #include "DataFormats/GsfTrackReco/interface/GsfComponent5D.h"
+#include "RecoTracker/TrackProducer/interface/TrackProducerBase.h"
 
-class Propagator;
-class TrajectoryStateUpdator;
-class MeasurementEstimator;
-class TrackerGeometry;
+// #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
 
-class GsfTrackProducerBase {
+class GsfTrackProducerBase : public TrackProducerBase<reco::GsfTrack> {
 public:
-  GsfTrackProducerBase(bool trajectoryInEvent = false):
-    trajectoryInEvent_(trajectoryInEvent){}
 
-  virtual ~GsfTrackProducerBase();
-  
-  virtual void getFromES(const edm::EventSetup&,
-			 edm::ESHandle<TrackerGeometry>& ,
-			 edm::ESHandle<MagneticField>& ,
-			 edm::ESHandle<TrajectoryFitter>& ,
-			 edm::ESHandle<Propagator>& ,
-			 edm::ESHandle<TransientTrackingRecHitBuilder>& );
+  /// Constructor
+  explicit GsfTrackProducerBase(bool trajectoryInEvent = false) :
+    TrackProducerBase<reco::GsfTrack>(trajectoryInEvent) {}
 
-  virtual void getFromEvt(edm::Event&, edm::Handle<TrackCandidateCollection>&);
-  virtual void getFromEvt(edm::Event&, edm::Handle<reco::TrackCollection>&);
-
-  typedef GsfTrackProducerAlgorithm::AlgoProductCollection AlgoProductCollection;
+  /// Put produced collections in the event
   virtual void putInEvt(edm::Event&,
 			std::auto_ptr<TrackingRecHitCollection>&,
 			std::auto_ptr<reco::GsfTrackCollection>&,
@@ -44,24 +34,9 @@ public:
 			std::auto_ptr<std::vector<Trajectory> >&,
 			AlgoProductCollection&);
 
-  virtual void produce(edm::Event&, const edm::EventSetup&) = 0;
 
-  void setConf(edm::ParameterSet conf){conf_=conf;}
-  //edm::ParameterSet conf(){return conf;}
-  void setSrc(std::string src){src_=src;}
-  void setAlias(std::string alias){
-    alias.erase(alias.size()-6,alias.size());
-    alias_=alias;
-  }
- protected:
-     void fillStates (TrajectoryStateOnSurface tsos, std::vector<reco::GsfComponent5D>& states) const;
- private:
-  edm::ParameterSet conf_;
-  std::string src_;
-  bool trajectoryInEvent_;
- protected:
-  std::string alias_;
-
+protected:
+  void fillStates (TrajectoryStateOnSurface tsos, std::vector<reco::GsfComponent5D>& states) const;
 };
 
 #endif
