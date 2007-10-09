@@ -16,7 +16,7 @@
 //CMSSW includes
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
-#include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
 
 
 
