@@ -1,8 +1,8 @@
 /*
  * \file DTLocalTriggerTask.cc
  * 
- * $Date: 2007/09/20 08:02:25 $
- * $Revision: 1.13 $
+ * $Date: 2007/09/21 11:05:24 $
+ * $Revision: 1.14 $
  * \author M. Zanetti - INFN Padova
  *
 */
@@ -88,17 +88,17 @@ void DTLocalTriggerTask::beginLuminosityBlock(LuminosityBlock const& lumiSeg, Ev
   if(debug)
     cout<<"[DTLocalTriggerTask]: Begin of LS transition"<<endl;
   
-
-  /*for(map<string, map<uint32_t, MonitorElement*> > ::const_iterator histo = digiHistos.begin();
-      histo != digiHistos.end();
-      histo++) {
-    for(map<uint32_t, MonitorElement*> ::const_iterator ht = (*histo).second.begin();
-      ht != (*histo).second.end();
-      ht++) {
-      (*ht).second->Reset();
+  if(lumiSeg.id().luminosityBlock()%parameters.getUntrackedParameter<int>("ResetCycle", 3) == 0) {
+    for(map<string, map<uint32_t, MonitorElement*> > ::const_iterator histo = digiHistos.begin();
+	histo != digiHistos.end();
+	histo++) {
+      for(map<uint32_t, MonitorElement*> ::const_iterator ht = (*histo).second.begin();
+	  ht != (*histo).second.end();
+	  ht++) {
+	(*ht).second->Reset();
+      }
     }
-    }*/
-
+  }
   
 }
 
