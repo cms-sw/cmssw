@@ -8,6 +8,7 @@
 <use name=DQMServices/CoreROOT>
 <<use name=root>
 <use name=clhep>
+<use name=DataFormats/Math>
 
 <flags EDM_PLUGIN=1>
 
@@ -25,6 +26,7 @@
  <use name=DQMServices/CoreROOT>
  <use name=root>
  <use name=clhep>
+ <use name=DataFormats/Math> 
 </export>
 
 <use name=SimG4CMS/Tracker>

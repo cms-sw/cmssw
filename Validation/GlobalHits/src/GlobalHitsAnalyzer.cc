@@ -2,8 +2,8 @@
  *  
  *  See header file for description of class
  *
- *  $Date: 2007/09/26 22:22:39 $
- *  $Revision: 1.1 $
+ *  $Date: 2007/10/09 00:03:50 $
+ *  $Revision: 1.2 $
  *  \author M. Strang SUNY-Buffalo
  */
 
@@ -723,7 +723,7 @@ void GlobalHitsAnalyzer::fillG4MC(const edm::Event& iEvent)
     
     ++i;
 
-    const HepLorentzVector& G4Vtx = itVtx->position();
+    const HepLorentzVector G4Vtx(itVtx->position().x(),itVtx->position().y(),itVtx->position().z(),itVtx->position().e());
 
     if (meGeantVtxX[0]) meGeantVtxX[0]->Fill((G4Vtx[0]*unit)/micrometer);
     if (meGeantVtxX[1]) meGeantVtxX[1]->Fill((G4Vtx[0]*unit)/micrometer);
@@ -761,7 +761,7 @@ void GlobalHitsAnalyzer::fillG4MC(const edm::Event& iEvent)
 
     ++i;
 
-    const HepLorentzVector& G4Trk = itTrk->momentum();
+    const HepLorentzVector G4Trk(itTrk->momentum().x(),itTrk->momentum().y(),itTrk->momentum().z(),itTrk->momentum().e());
 
     if (meGeantTrkPt) meGeantTrkPt->
 			Fill(sqrt(G4Trk[0]*G4Trk[0]+G4Trk[1]*G4Trk[1]));

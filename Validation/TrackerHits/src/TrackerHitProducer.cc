@@ -224,7 +224,10 @@ void TrackerHitProducer::fillG4MC(edm::Event& iEvent)
     
     ++i;
 
-    const HepLorentzVector& G4Vtx = itVtx->position();
+    const HepLorentzVector& G4Vtx = HepLorentzVector(itVtx->position().x(),
+                                                     itVtx->position().y(),
+                                                     itVtx->position().z(),  
+                                                     itVtx->position().e());
     G4VtxX.push_back(G4Vtx[0]/micrometer); //cm from code -> micrometer *10000
     G4VtxY.push_back(G4Vtx[1]/micrometer); //cm from code -> micrometer *10000
     G4VtxZ.push_back(G4Vtx[2]/millimeter); //cm from code -> millimeter *10
@@ -253,7 +256,10 @@ void TrackerHitProducer::fillG4MC(edm::Event& iEvent)
     ++i;
 
     double etaInit =0, phiInit =0, pInit =0;
-    const HepLorentzVector& G4Trk = itTrk->momentum();
+    const HepLorentzVector& G4Trk = HepLorentzVector(itTrk->momentum().x(),
+                                                     itTrk->momentum().y(),
+                                                     itTrk->momentum().z(),
+                                                     itTrk->momentum().e());
     pInit =sqrt(G4Trk[0]*G4Trk[0]+G4Trk[1]*G4Trk[1]+G4Trk[2]*G4Trk[2]);
       if ( pInit == 0) 
           edm::LogError("TrackerHitProducer::fillG4MC") 

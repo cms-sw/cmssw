@@ -18,6 +18,7 @@
 #include "SimDataFormats/EncodedEventId/interface/EncodedEventId.h"
 #include "SimDataFormats/Track/interface/SimTrack.h"
 #include "SimDataFormats/Vertex/interface/SimVertex.h"
+#include "DataFormats/Math/interface/LorentzVector.h"
 
 // helper files
 #include <CLHEP/Vector/LorentzVector.h>
@@ -436,7 +437,7 @@ void TrackerHitAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& c)
   }
   //////////////////////////////////
   // extract TEC low container
-  edm::Handle<edm::PSimHitContainer> SiTECHighContainer;
+  edm ::Handle<edm::PSimHitContainer> SiTECHighContainer;
 //  iEvent.getByLabel("g4SimHits","TrackerHitsTECHighTof",SiTECHighContainer);
   e.getByLabel(SiTECHighSrc_,SiTECHighContainer);
   if (!SiTECHighContainer.isValid()) {
@@ -463,7 +464,10 @@ void TrackerHitAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& c)
 
 //    cout << "itTrk = "<< itTrk << endl;
     double eta =0, phi =0, p =0;
-    const HepLorentzVector& G4Trk = itTrk->momentum();
+    const HepLorentzVector& G4Trk = HepLorentzVector(itTrk->momentum().x(),
+                                                     itTrk->momentum().y(),
+                                                     itTrk->momentum().z(),
+                                                     itTrk->momentum().e());  
     p =sqrt(G4Trk[0]*G4Trk[0]+G4Trk[1]*G4Trk[1]+G4Trk[2]*G4Trk[2]);
       if ( p == 0) 
           edm::LogError("TrackerHitAnalyzer::analyze") 

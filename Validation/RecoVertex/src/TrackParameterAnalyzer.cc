@@ -144,7 +144,10 @@ TrackParameterAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup&
        return;
      }else{
        // get the vertex position
-       HepLorentzVector v=(*simVtcs)[t->vertIndex()].position();
+       HepLorentzVector v((*simVtcs)[t->vertIndex()].position().x(),
+                          (*simVtcs)[t->vertIndex()].position().y(),
+                          (*simVtcs)[t->vertIndex()].position().z(),
+                          (*simVtcs)[t->vertIndex()].position().e());
        int pdgCode=t->type();
 
        if( pdgCode==-99 ){
@@ -157,7 +160,7 @@ TrackParameterAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup&
 	 else {
 	   std::cout << pdgCode << " " <<std::endl;
 	 }
-	 HepLorentzVector p=t->momentum();
+	 HepLorentzVector p(t->momentum().x(),t->momentum().y(),t->momentum().z(),t->momentum().e());
 	 if(verbose_){
 	   std::cout << "simtrk "
 		       << " gen=" << std::setw( 4) << t->genpartIndex()

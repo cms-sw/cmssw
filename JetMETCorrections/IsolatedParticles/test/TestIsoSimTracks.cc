@@ -161,7 +161,7 @@ void TestIsoSimTracks::analyze( const edm::Event& iEvent, const edm::EventSetup&
        tracksCI != simTracks->end(); tracksCI++){
       
       // skip low Pt tracks
-      if (tracksCI->momentum().perp() < 0.7) {
+      if (tracksCI->momentum().Pt() < 0.7) {
 //	 std::cout << "Skipped low Pt track (Pt: " << tracksCI->momentum().perp() << ")" <<std::endl;
 	 continue;
       }
@@ -179,7 +179,7 @@ void TestIsoSimTracks::analyze( const edm::Event& iEvent, const edm::EventSetup&
 //	 continue;
 //      }
       
-      std::cout << "\n-------------------------------------------------------\n Track (pt,eta,phi): " << tracksCI->momentum().perp() << " , " <<
+      std::cout << "\n-------------------------------------------------------\n Track (pt,eta,phi): " << tracksCI->momentum().Pt() << " , " <<
 	tracksCI->momentum().eta() << " , " << tracksCI->momentum().phi() << std::endl;
       
       // Simply get ECAL energy of the crossed crystals
@@ -212,7 +212,7 @@ void TestIsoSimTracks::analyze( const edm::Event& iEvent, const edm::EventSetup&
 
           if (info.isGoodEcal==1 && fabs(info.trkGlobPosAtEcal.eta()) < 2.6){
  	   AllTracks.push_back(GlobalPoint(info.trkGlobPosAtEcal.x()/rfa, info.trkGlobPosAtEcal.y()/rfa, info.trkGlobPosAtEcal.z()/rfa));
-	    if (tracksCI->momentum().perp() > 2. && fabs(info.trkGlobPosAtEcal.eta()) < 2.1) 
+	    if (tracksCI->momentum().Pt() > 2. && fabs(info.trkGlobPosAtEcal.eta()) < 2.1) 
 	     {				 
 	     AllTracks1.push_back(GlobalPoint(info.trkGlobPosAtEcal.x()/rfa, info.trkGlobPosAtEcal.y()/rfa, info.trkGlobPosAtEcal.z()/rfa));
 	     }
