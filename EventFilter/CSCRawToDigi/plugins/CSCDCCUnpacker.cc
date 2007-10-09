@@ -122,13 +122,9 @@ CSCDCCUnpacker::~CSCDCCUnpacker()
 void CSCDCCUnpacker::produce(edm::Event & e, const edm::EventSetup& c)
 {
   ///accessing database for mapping (do we really have to do this every event???)
-  std::cout<<"Sandrik before mapping" <<std::endl;
-
   edm::ESHandle<CSCCrateMap> hcrate;
   c.get<CSCCrateMapRcd>().get(hcrate); 
   const CSCCrateMap* pcrate = hcrate.product();
-
-  std::cout<<"Sandrik created the mapping pointer!" <<std::endl;
 
 
   //++numOfEvents;
