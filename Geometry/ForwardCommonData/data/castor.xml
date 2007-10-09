@@ -1,15 +1,19 @@
 <?xml version="1.0"?>
 <DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../DDLSchema/DDLSchema.xsd">
 
+<ConstantsSection label="castor.xml" eval="true">
+ <Constant name="CastorRmax"   value="300.0*mm"/>
+</ConstantsSection>
+
 <SolidSection label="castor.xml">
 <!--  -->
 <!-- main CASTOR volume: total length EM + Hadronic calo + dead material -->
 <!--  -->
  <Polyhedra name="CAST" numSide="8" startPhi="0.0*deg" deltaPhi="360.0*deg" >
-  <ZSection rMin="39.000*mm"   rMax="40.0005*mm"    z="0.0*mm" />
-  <ZSection rMin="39.00*mm"   rMax="318.600*mm"   z="278.6*mm" />
-  <ZSection rMin="39.00*mm"   rMax="318.600*mm"   z="1320.0*mm" />
-  <ZSection rMin="318.600*mm"  rMax="318.6005*mm"   z="1598.6*mm" />
+  <ZSection rMin="39.000*mm"    rMax="40.0005*mm"    z="0.0*mm" />
+  <ZSection rMin="39.00*mm"     rMax="[CastorRmax]"  z="278.6*mm" />
+  <ZSection rMin="39.00*mm"     rMax="[CastorRmax]"  z="1320.0*mm" />
+  <ZSection rMin="[CastorRmax]" rMax="[CastorRmax]"  z="1598.6*mm" />
  </Polyhedra>
 <!--  --> 
 <!-- 5mm Aluminium, separating EM + H sections -->
@@ -167,24 +171,24 @@
 <!-- tree with EM dead material  1 copy 8x18 -->
 <!--  -->
 <Polyhedra name="CEDC" numSide="8" startPhi="0.0*deg" deltaPhi="360.0*deg" >
-	<ZSection rMin="144.500*mm"  rMax="144.5005*mm"   z="104.5*mm" />
-	<ZSection rMin="144.500*mm"  rMax="247.50*mm"   z="207.5*mm" />
-	<ZSection rMin="215.600*mm"  rMax="318.60*mm"   z="278.6*mm" />
-	<ZSection rMin="318.600*mm"  rMax="318.6005*mm"   z="381.6*mm" />
+	<ZSection rMin="144.500*mm"   rMax="144.5005*mm"   z="104.5*mm" />
+	<ZSection rMin="144.500*mm"   rMax="247.50*mm"     z="207.5*mm" />
+	<ZSection rMin="215.600*mm"   rMax="[CastorRmax]"  z="278.6*mm" />
+	<ZSection rMin="[CastorRmax]" rMax="[CastorRmax]"  z="381.6*mm" />
 </Polyhedra>
 <!-- one sector  8 copies -->
 <Polyhedra name="CEDS" numSide="1" startPhi="0.0*deg" deltaPhi="45.0*deg" >
-	<ZSection rMin="144.500*mm"  rMax="144.5005*mm"   z="104.5*mm" />
-	<ZSection rMin="144.500*mm"  rMax="247.500*mm"   z="207.5*mm" />
-	<ZSection rMin="215.600*mm"  rMax="318.60*mm"   z="278.6*mm" />
-	<ZSection rMin="318.600*mm"  rMax="318.6005*mm"   z="381.6*mm" />
+	<ZSection rMin="144.500*mm"   rMax="144.5005*mm"   z="104.5*mm" />
+	<ZSection rMin="144.500*mm"   rMax="247.500*mm"    z="207.5*mm" />
+	<ZSection rMin="215.600*mm"   rMax="[CastorRmax]"  z="278.6*mm" />
+	<ZSection rMin="[CastorRmax]" rMax="[CastorRmax]"  z="381.6*mm" />
 </Polyhedra>
 <!-- read-out channel  18 copies -->
 <Polyhedra name="CEDR" numSide="1" startPhi="0.0*deg" deltaPhi="45.0*deg" >
-	<ZSection rMin="144.500*mm"  rMax="144.5005*mm"   z="104.5*mm" />
-	<ZSection rMin="144.500*mm"  rMax="196.000*mm" z="156.0*mm" />
-	<ZSection rMin="267.100*mm"  rMax="318.60*mm"   z="278.6*mm" />
-	<ZSection rMin="318.600*mm"  rMax="318.6005*mm"   z="330.1*mm" />
+	<ZSection rMin="144.500*mm"   rMax="144.5005*mm"   z="104.5*mm" />
+	<ZSection rMin="144.500*mm"   rMax="196.000*mm"    z="156.0*mm" />
+	<ZSection rMin="267.100*mm"   rMax="[CastorRmax]"  z="278.6*mm" />
+	<ZSection rMin="[CastorRmax]" rMax="[CastorRmax]"  z="330.1*mm" />
 </Polyhedra>
 <!--  Aluminium (1mm) compartment with Air lightguide (external part)  1 copy --> 
 <Polyhedra name="CEAL" numSide="1" startPhi="11.6287*deg" deltaPhi="21.74255*deg" >
@@ -213,24 +217,24 @@
 <!-- tree with Hadronic dead material  1 copy 8x18 -->
 <!--  -->
 <Polyhedra name="CHDC" numSide="8" startPhi="0.0*deg" deltaPhi="360.0*deg" >
-	<ZSection rMin="178.400*mm"  rMax="178.4005*mm"   z="138.4*mm" />
-	<ZSection rMin="178.400*mm"  rMax="318.60*mm"   z="278.6*mm" />
-	<ZSection rMin="178.400*mm"  rMax="318.60*mm"   z="1350.4*mm" />
-	<ZSection rMin="318.600*mm"  rMax="318.6005*mm"   z="1490.6*mm" />
+	<ZSection rMin="178.400*mm"   rMax="178.4005*mm"   z="138.4*mm" />
+	<ZSection rMin="178.400*mm"   rMax="[CastorRmax]"  z="278.6*mm" />
+	<ZSection rMin="178.400*mm"   rMax="[CastorRmax]"  z="1350.4*mm" />
+	<ZSection rMin="[CastorRmax]" rMax="[CastorRmax]"  z="1490.6*mm" />
 </Polyhedra>
 <!-- one sector  8 copies -->
 <Polyhedra name="CHDS" numSide="1" startPhi="0.0*deg" deltaPhi="45.0*deg" >
-<ZSection rMin="178.400*mm"  rMax="178.4005*mm"   z="138.4*mm" />
-<ZSection rMin="178.400*mm"  rMax="318.600*mm"   z="278.6*mm" />
-<ZSection rMin="178.400*mm"  rMax="318.60*mm"   z="1350.4*mm" />
-<ZSection rMin="318.600*mm"  rMax="318.6005*mm"   z="1490.6*mm" />
+<ZSection rMin="178.400*mm"   rMax="178.4005*mm"   z="138.4*mm" />
+<ZSection rMin="178.400*mm"   rMax="[CastorRmax]"  z="278.6*mm" />
+<ZSection rMin="178.400*mm"   rMax="[CastorRmax]"  z="1350.4*mm" />
+<ZSection rMin="[CastorRmax]" rMax="[CastorRmax]"  z="1490.6*mm" />
 </Polyhedra>
 <!-- read-out channel  12 copies -->
 <Polyhedra name="CHDR" numSide="1" startPhi="0.0*deg" deltaPhi="45.0*deg" >
-<ZSection rMin="178.400*mm"  rMax="178.4005*mm"   z="138.4*mm" />
-<ZSection rMin="178.400*mm"  rMax="279.400*mm"   z="239.4*mm" />
-<ZSection rMin="217.600*mm"  rMax="318.60*mm"   z="278.6*mm" />
-<ZSection rMin="318.600*mm"  rMax="318.6005*mm"   z="379.6*mm" />
+<ZSection rMin="178.400*mm"   rMax="178.4005*mm"   z="138.4*mm" />
+<ZSection rMin="178.400*mm"   rMax="279.400*mm"    z="239.4*mm" />
+<ZSection rMin="217.600*mm"   rMax="[CastorRmax]"  z="278.6*mm" />
+<ZSection rMin="[CastorRmax]" rMax="[CastorRmax]"  z="379.6*mm" />
 </Polyhedra>
 
 <!--  Aluminium (1mm) compartment with Air lightguide (external part)  1 copy -->
@@ -249,10 +253,10 @@
 <!-- Air volume to be filled by PMT  1 copy -->
 <!-- volume for PMT's -->
  <Polyhedra name="CHEL" numSide="1" startPhi="19.88288*deg" deltaPhi="5.2342*deg" >
-  <ZSection rMin="262.53*mm"  rMax="262.53*mm"   z="250.53*mm" />
-  <ZSection rMin="262.53*mm"  rMax="286.53*mm"   z="274.53*mm" />
-  <ZSection rMin="294.03*mm"  rMax="318.03*mm"   z="305.83*mm" />
-  <ZSection rMin="318.03*mm"  rMax="318.03*mm"   z="329.83*mm" />
+  <ZSection rMin="262.53*mm"    rMax="262.53*mm"     z="250.53*mm" />
+  <ZSection rMin="262.53*mm"    rMax="286.53*mm"     z="274.53*mm" />
+  <ZSection rMin="294.03*mm"    rMax="[CastorRmax]"  z="305.83*mm" />
+  <ZSection rMin="[CastorRmax]" rMax="[CastorRmax]"  z="329.83*mm" />
  </Polyhedra>
 </SolidSection>
 <!--  -->
@@ -752,7 +756,7 @@
 <!-- copies for dead material -->
 <!-- EM dead material -->
 <PosPart copyNumber="1">
-	<rParent name="castor:CAEC"/>
+	<rParent name="castor:CAST"/>
 	<rChild name="castor:CEDC"/>
 	<rRotation name="rotations:000D"/>
 </PosPart>
@@ -809,9 +813,10 @@
 	<Translation x="0.0*mm" y="0.0*mm" z="51.5*mm" />
 </PosPart>
 <PosPart copyNumber="1">
-	<rParent name="castor:CAHC"/>
+	<rParent name="castor:CAST"/>
 	<rChild name="castor:CHDC"/>
 	<rRotation name="rotations:000D"/>
+        <Translation x="0.0*cm" y="0.0*cm" z="108.0*mm" />
 </PosPart>
 
 <PosPart copyNumber="1">
