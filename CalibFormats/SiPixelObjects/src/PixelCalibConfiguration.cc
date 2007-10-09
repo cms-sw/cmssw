@@ -51,6 +51,7 @@ PixelCalibConfiguration::PixelCalibConfiguration(std::string filename):
 	     mode_=="SCurve"||
 	     mode_=="Delay25"||
 	     mode_=="ClockPhaseCalibration"||
+	     mode_=="TemperatureCalibration"||
 	     mode_=="ThresholdCalDelayFIFO1"||
              mode_=="ThresholdCalDelay");
       in >>tmp;
