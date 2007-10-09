@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripDigiToRaw.h,v 1.14 2007/03/21 16:38:13 bainbrid Exp $
+// Last commit: $Id: SiStripDigiToRaw.h,v 1.15 2007/04/24 16:58:58 bainbrid Exp $
 
 #ifndef EventFilter_SiStripRawToDigi_SiStripDigiToRaw_H
 #define EventFilter_SiStripRawToDigi_SiStripDigiToRaw_H
@@ -6,6 +6,7 @@
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Common/interface/DetSetVector.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/Event.h"
 #include "boost/cstdint.hpp"
 #include <string>
 
@@ -28,7 +29,8 @@ class SiStripDigiToRaw {
 		    int16_t appended_bytes );
   ~SiStripDigiToRaw();
   
-  void createFedBuffers( edm::ESHandle<SiStripFedCabling>& cabling,
+  void createFedBuffers( edm::Event&, 
+			 edm::ESHandle<SiStripFedCabling>& cabling,
 			 edm::Handle< edm::DetSetVector<SiStripDigi> >& digis,
 			 std::auto_ptr<FEDRawDataCollection>& buffers );
   

@@ -1,10 +1,13 @@
-// Last commit: $Id: SiStripDigiToRaw.cc,v 1.20 2007/05/03 18:00:03 pwing Exp $
+// Last commit: $Id: SiStripDigiToRaw.cc,v 1.21 2007/06/14 18:41:07 pwing Exp $
 
 #include "EventFilter/SiStripRawToDigi/interface/SiStripDigiToRaw.h"
 #include "CondFormats/SiStripObjects/interface/SiStripFedCabling.h"
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
+#include "DataFormats/FEDRawData/interface/FEDHeader.h"
+#include "DataFormats/FEDRawData/interface/FEDTrailer.h"
 #include "DataFormats/SiStripDigi/interface/SiStripDigi.h"
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
+#include "EventFilter/Utilities/interface/Crc.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "Utilities/Timing/interface/TimingReport.h"
 #include "Fed9UUtils.hh"
@@ -38,7 +41,8 @@ SiStripDigiToRaw::~SiStripDigiToRaw() {
 //     Fed9UEvent object using current FEDRawData buffer, dumps FED
 //     buffer to stdout, retrieves data from various header fields
 */
-void SiStripDigiToRaw::createFedBuffers( edm::ESHandle<SiStripFedCabling>& cabling,
+void SiStripDigiToRaw::createFedBuffers( edm::Event& event,
+					 edm::ESHandle<SiStripFedCabling>& cabling,
 					 edm::Handle< edm::DetSetVector<SiStripDigi> >& collection,
 					 auto_ptr<FEDRawDataCollection>& buffers ) {
 
@@ -136,6 +140,14 @@ void SiStripDigiToRaw::createFedBuffers( edm::ESHandle<SiStripFedCabling>& cabli
       generator.getBuffer( ints );
       if ( creator ) { delete creator; }
 
+      FEDHeader header( fedrawdata.data() );
+      header.set( fedrawdata.data(), 0, event.id().event(), 0, *ifed );
+      
+      FEDTrailer trailer( fedrawdata.data() + ( fedrawdata.size() - 8 )  );
+      trailer.set( fedrawdata.data() + ( fedrawdata.size() - 8 ), 
+		   fedrawdata.size() / 8,
+		   evf::compute_crc( fedrawdata.data(), fedrawdata.size() ), 0, 0 );
+      
     }
     
   }

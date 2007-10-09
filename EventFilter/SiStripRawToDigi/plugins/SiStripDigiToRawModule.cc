@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripDigiToRawModule.cc,v 1.20 2007/03/21 16:38:14 bainbrid Exp $
+// Last commit: $Id: SiStripDigiToRawModule.cc,v 1.1 2007/04/24 16:58:58 bainbrid Exp $
 
 #include "EventFilter/SiStripRawToDigi/plugins/SiStripDigiToRawModule.h"
 #include "EventFilter/SiStripRawToDigi/interface/SiStripDigiToRaw.h"
@@ -66,7 +66,7 @@ void SiStripDigiToRawModule::produce( edm::Event& iEvent,
 
   std::auto_ptr<FEDRawDataCollection> buffers( new FEDRawDataCollection );
   
-  digiToRaw_->createFedBuffers( cabling, digis, buffers );
+  digiToRaw_->createFedBuffers( iEvent, cabling, digis, buffers );
 
   iEvent.put( buffers );
   
