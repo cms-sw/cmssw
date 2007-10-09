@@ -131,6 +131,21 @@ namespace pos{
 
     virtual void fecDebug(int newstate)=0;
 
+    virtual int delay25Test(int mymfec, 
+			    int myfecchannel, 
+			    int myhubaddress, 
+			    int mytbmchannel,
+			    int myportaddress,
+			    int myrocid, 
+			    int mymask, 
+			    int mytrim,
+			    int nTry,
+			    int& success0, 
+			    int& success1,
+			    int& success2, 
+			    int& success3)=0;
+    
+
     //virtual void setVCalDAC(std::string ROC, unsigned char dac)=0;
  
     //... maybe some more
