@@ -3,8 +3,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2007/05/18 15:41:59 $
- *  $Revision: 1.3 $
+ *  $Date: 2007/09/20 07:18:07 $
+ *  $Revision: 1.4 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -89,14 +89,16 @@ void DTChamberEfficiencyTask::beginLuminosityBlock(LuminosityBlock const& lumiSe
   if(debug)
     cout<<"[DTChamberEfficiencyTask]: Begin of LS transition"<<endl;
   
-  /*for(map<DTChamberId, vector<MonitorElement*> > ::const_iterator histo = histosPerCh.begin();
-      histo != histosPerCh.end();
-      histo++) {
-    int size = (*histo).second.size();
-    for(int i=0; i<size; i++){
-      (*histo).second[i]->Reset();
+  if(lumiSeg.id().luminosityBlock()%parameters.getUntrackedParameter<int>("ResetCycle", 3) == 0) {
+    for(map<DTChamberId, vector<MonitorElement*> > ::const_iterator histo = histosPerCh.begin();
+	histo != histosPerCh.end();
+	histo++) {
+      int size = (*histo).second.size();
+      for(int i=0; i<size; i++){
+	(*histo).second[i]->Reset();
+      }
     }
-    }*/
+  }
   
 }
 
