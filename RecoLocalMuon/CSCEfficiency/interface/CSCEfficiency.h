@@ -24,7 +24,7 @@
 #include "RecoLocalMuon/CSCRecHit/src/CSCWireCluster.h"
 #include "DataFormats/CSCRecHit/interface/CSCRecHit2DCollection.h"
 
-#include "Validation/MuonCSCDigis/interface/PSimHitMap.h"
+#include "SimMuon/MCTruth/interface/PSimHitMap.h"
 
 #include "DataFormats/MuonDetId/interface/CSCDetId.h"
 #include <DataFormats/CSCRecHit/interface/CSCSegmentCollection.h>

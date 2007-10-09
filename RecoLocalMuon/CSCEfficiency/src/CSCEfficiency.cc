@@ -1742,7 +1742,6 @@ void CSCEfficiency::analyze(const Event & event, const EventSetup& eventSetup){
       globDirX   = globalDirection.x();
       globDirY   = globalDirection.y();
       globDirZ   = globalDirection.z();
-      std::cout<<" dx = "<< globDirX<<" dy = "<< globDirY<<" dz = "<<globDirZ<<" theta = "<<globalDirection.theta()<<" acos = "<<acos(globDirZ)<<" -acos"<<acos(-globDirZ)<<std::endl;
       if(printalot) std::cout<<"SEGMENT: globDirX/globDirZ = "<<globDirX/globDirZ<<" globDirY/globDirZ = "<<globDirY/globDirZ<<std::endl;
     } else {
       if (printalot) printf("\tFailed to get a local->global segment tranformation.\n");
@@ -1848,13 +1847,12 @@ void CSCEfficiency::analyze(const Event & event, const EventSetup& eventSetup){
 	  }
 	}
 	int NSegFound = 0;
-	double theta = 99.;
+	double theta = acos(DirCouple[0][2]);
 	for(int iSeg=0;iSeg<nSegments;iSeg++){
 	  if( NChamberCouple[1]==SegmentInChamber[iSeg] // is there a segment in the chamber required
 	      && ExtrapolateToRing==SegmentInRing[iSeg] // and in the extrapolated ring
 	      && ExtrapolateToStation==SegmentInStation[iSeg]){ // and in the extrapolated station  
 	    NSegFound++;
-	    theta = acos(DirCouple[1][2]);
 	  }
 	}
 
