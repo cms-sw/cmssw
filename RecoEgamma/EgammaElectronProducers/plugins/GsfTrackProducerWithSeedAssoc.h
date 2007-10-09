@@ -16,6 +16,7 @@
 //
 
 #include "RecoTracker/TrackProducer/interface/GsfTrackProducerBase.h"
+#include "RecoTracker/TrackProducer/interface/TrackProducerAlgorithm.h"
 
 //#include "TrackingTools/TransientTrack/interface/TransientTrack.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrackFwd.h"
@@ -31,7 +32,7 @@ public:
   //  std::vector<reco::TransientTrack> getTransient(edm::Event&, const edm::EventSetup&);
 
 private:
-  GsfTrackProducerAlgorithm theAlgo;
+  TrackProducerAlgorithm<reco::GsfTrack> theAlgo;
   std::string assocModule_;
   edm::OrphanHandle<reco::GsfTrackCollection> rTracks_;
   bool myTrajectoryInEvent_;

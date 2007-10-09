@@ -17,7 +17,7 @@
 #include "DataFormats/TrackCandidate/interface/TrackCandidateSeedAssociation.h"
 
 TrackProducerWithSeedAssoc::TrackProducerWithSeedAssoc(const edm::ParameterSet& iConfig):
-  TrackProducerBase(iConfig.getParameter<bool>("TrajectoryInEvent")),
+  TrackProducerBase<reco::Track>(iConfig.getParameter<bool>("TrajectoryInEvent")),
   theAlgo(iConfig)
 {
   setConf(iConfig);

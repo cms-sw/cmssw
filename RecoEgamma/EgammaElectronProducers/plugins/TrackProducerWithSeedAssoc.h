@@ -16,11 +16,11 @@
 //
 
 #include "RecoTracker/TrackProducer/interface/TrackProducerBase.h"
-
+#include "RecoTracker/TrackProducer/interface/TrackProducerAlgorithm.h" 
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 
-class TrackProducerWithSeedAssoc : public TrackProducerBase, public edm::EDProducer {
+class TrackProducerWithSeedAssoc : public TrackProducerBase<reco::Track>, public edm::EDProducer {
 public:
 
   explicit TrackProducerWithSeedAssoc(const edm::ParameterSet& iConfig);
@@ -31,7 +31,7 @@ public:
   std::vector<reco::TransientTrack> getTransient(edm::Event&, const edm::EventSetup&);
 
 private:
-  TrackProducerAlgorithm theAlgo;
+  TrackProducerAlgorithm<reco::Track> theAlgo;
   std::string assocModule_;
   edm::OrphanHandle<reco::TrackCollection> rTracks_;
   bool myTrajectoryInEvent_;
