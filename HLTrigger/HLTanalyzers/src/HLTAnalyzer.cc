@@ -34,7 +34,8 @@ HLTAnalyzer::HLTAnalyzer(edm::ParameterSet const& conf) {
 
   l1extramc_ = conf.getParameter< std::string > ("l1extramc");
 
-  particleMapSource_ = conf.getParameter< std::string > ("particleMapSource");
+//  particleMapSource_ = conf.getParameter< std::string > ("particleMapSource");
+  particleMapSource_="";
 
   ecalDigisLabel_ = conf.getParameter<std::string> ("ecalDigisLabel");
   hcalDigisLabel_ = conf.getParameter<std::string> ("hcalDigisLabel");
@@ -102,7 +103,7 @@ void HLTAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetu
   edm::Handle<l1extra::L1MuonParticleCollection> l1extmu;
   edm::Handle<l1extra::L1JetParticleCollection> l1extjetc,l1extjetf,l1exttaujet;
   edm::Handle<l1extra::L1EtMissParticle> l1extmet;
-  edm::Handle<l1extra::L1ParticleMapCollection> l1mapcoll;
+//edm::Handle<l1extra::L1ParticleMapCollection> l1mapcoll;
   edm::Handle<EcalTrigPrimDigiCollection> ecal;
   edm::Handle<HcalTrigPrimDigiCollection> hcal;
 
@@ -128,7 +129,7 @@ void HLTAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetu
   try {iEvent.getByLabel(l1extramc_,"Forward",l1extjetf);} catch (...) { errMsg=errMsg + "  -- No forward L1Jet objects";}
   try {iEvent.getByLabel(l1extramc_,"Tau",l1exttaujet);} catch (...) { errMsg=errMsg + "  -- No L1Jet-Tau objects";}
   try {iEvent.getByLabel(l1extramc_,l1extmet);} catch (...) { errMsg=errMsg + "  -- No L1EtMiss object";}
-  try {iEvent.getByLabel(particleMapSource_,l1mapcoll );} catch (...) { errMsg=errMsg + "  -- No L1 Map Collection";}
+//try {iEvent.getByLabel(particleMapSource_,l1mapcoll );} catch (...) { errMsg=errMsg + "  -- No L1 Map Collection";}
 
   try {iEvent.getByLabel(mctruth_,mctruth);} catch (...) { errMsg=errMsg + "  -- No Gen Particles";}
 
@@ -157,7 +158,7 @@ void HLTAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetu
   elm_analysis_.analyze(*Electron, *Photon, *geometry, HltTree);
   muon_analysis_.analyze(*muon, *geometry, HltTree);
   mct_analysis_.analyze(*mctruth,hepmc,HltTree);
-  hlt_analysis_.analyze(/**hltobj,*/*hltresults,*l1extemi,*l1extemn,*l1extmu,*l1extjetc,*l1extjetf,*l1exttaujet,*l1extmet,*l1mapcoll,HltTree);
+  hlt_analysis_.analyze(/**hltobj,*/*hltresults,*l1extemi,*l1extemn,*l1extmu,*l1extjetc,*l1extjetf,*l1exttaujet,*l1extmet,/* *l1mapcoll, */HltTree);
 
   // After analysis, fill the variables tree
   HltTree->Fill();

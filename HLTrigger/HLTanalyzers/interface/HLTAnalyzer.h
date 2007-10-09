@@ -15,7 +15,7 @@
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 
 #include "DataFormats/Common/interface/Handle.h"
-#include "DataFormats/L1Trigger/interface/L1ParticleMap.h"
+// #include "DataFormats/L1Trigger/interface/L1ParticleMap.h"
 
 /** \class HLTAnalyzer
   *  

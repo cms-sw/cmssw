@@ -15,10 +15,14 @@
 #include "DataFormats/Common/interface/TriggerResults.h"
 #include "FWCore/Framework/interface/TriggerNames.h"
 #include "DataFormats/L1Trigger/interface/L1EmParticle.h"
+#include "DataFormats/L1Trigger/interface/L1EmParticleFwd.h"
 #include "DataFormats/L1Trigger/interface/L1MuonParticle.h"
+#include "DataFormats/L1Trigger/interface/L1MuonParticleFwd.h"
 #include "DataFormats/L1Trigger/interface/L1JetParticle.h"
+#include "DataFormats/L1Trigger/interface/L1JetParticleFwd.h"
 #include "DataFormats/L1Trigger/interface/L1EtMissParticle.h"
-#include "DataFormats/L1Trigger/interface/L1ParticleMap.h"
+#include "DataFormats/L1Trigger/interface/L1EtMissParticleFwd.h"
+// #include "DataFormats/L1Trigger/interface/L1ParticleMap.h"
 #include "DataFormats/L1GlobalMuonTrigger/interface/L1MuGMTExtendedCand.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
 
@@ -65,7 +69,7 @@ public:
 	       const l1extra::L1JetParticleCollection& l1extjetf,
 	       const l1extra::L1JetParticleCollection& l1exttaujet,
 	       const l1extra::L1EtMissParticle& l1extmet,
-	       const l1extra::L1ParticleMapCollection& l1mapcoll,
+//	       const l1extra::L1ParticleMapCollection& l1mapcoll,
 	       TTree* tree);
 
 private:

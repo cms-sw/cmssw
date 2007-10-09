@@ -130,7 +130,7 @@ void HLTInfo::analyze(/*const HLTFilterObjectWithRefs& hltobj,*/
 		      const l1extra::L1JetParticleCollection& L1ExtJetF,
 		      const l1extra::L1JetParticleCollection& L1ExtTau,
 		      const l1extra::L1EtMissParticle& L1ExtMet,
-		      const l1extra::L1ParticleMapCollection& L1MapColl,
+//		      const l1extra::L1ParticleMapCollection& L1MapColl,
 		      TTree* HltTree) {
 
 //   std::cout << " Beginning HLTInfo " << std::endl;
@@ -326,6 +326,8 @@ void HLTInfo::analyze(/*const HLTFilterObjectWithRefs& hltobj,*/
     if (_Debug) std::cout << "%HLTInfo -- No L1 MET object" << std::endl;
   }
 
+  /* comment out full block: uses the obsolete l1ExtraParticleMap|Collection
+
   if (&L1MapColl) {
 
     // 1st event : Book as many branches as trigger paths provided in the input...
@@ -345,7 +347,8 @@ void HLTInfo::analyze(/*const HLTFilterObjectWithRefs& hltobj,*/
    
   }
   else {
-    if (_Debug) std::cout << "%HLTInfo -- No L1 Map Collection" << std::endl;
+    if (_Debug) std::cout << "%HLTInfo -- No [obsolete] L1 Map Collection" << std::endl;
   }
+  */
 
 }
