@@ -392,7 +392,7 @@ void L1RCT::saveRCTInput(ostream& os)
       os
 	<< "Crate = 0-17" << std::endl
 	<< "Card = 0-7 within the crate" << std::endl
-	<< "Tower = 0-32 covers 4 x 8 covered by the card" << std::endl
+	<< "Tower = 1-32 covers 4 x 8 covered by the card" << std::endl
 	<< "EMAddr(0:8) = EMFGBit(0:0)+CompressedEMET(1:8)" << std::endl
 	<< "HDAddr(0:8) = HDFGBit(0:0)+CompressedHDET(1:8) - note: HDFGBit(0:0) is not part of the hardware LUT address" << std::endl
 	<< "LutOut(0:17)= LinearEMET(0:6)+HoEFGVetoBit(7:7)+LinearJetET(8:16)+ActivityBit(17:17)" << std::endl
@@ -411,7 +411,8 @@ void L1RCT::saveRCTInput(ostream& os)
 	{
 	  for(unsigned short iCard = 0; iCard < 7; iCard++)
 	    {
-	      for(unsigned short iTower = 0; iTower < 32; iTower++)
+	      // tower numbered from 1-32
+	      for(unsigned short iTower = 1; iTower < 33; iTower++)
 		{
 		  unsigned short ecal = barrel[iCrate][iCard][iTower] / 2;
 		  unsigned short hcal = barrel[iCrate][iCard][iTower+32] / 2;
