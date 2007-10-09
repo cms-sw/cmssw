@@ -16,7 +16,8 @@ using namespace reco;
 // constructors and destructor
 //
 NuclearSeedsEDProducer::NuclearSeedsEDProducer(const edm::ParameterSet& iConfig) : conf_(iConfig),
-improveSeeds(iConfig.getParameter<bool>("improveSeeds"))
+improveSeeds(iConfig.getParameter<bool>("improveSeeds")),
+producer_(iConfig.getParameter<std::string>("producer"))
 {
    produces<TrajectorySeedCollection>();
    produces<TrajectoryToSeedsMap>();
@@ -38,10 +39,8 @@ NuclearSeedsEDProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
 {
    typedef TrajectoryMeasurement TM;
 
-   edm::Handle<reco::TrackCollection> m_TrackCollection;
-   iEvent.getByLabel( "TrackRefitter", m_TrackCollection );
    edm::Handle< TrajectoryCollection > m_TrajectoryCollection;
-   iEvent.getByLabel( "TrackRefitter", m_TrajectoryCollection );
+   iEvent.getByLabel( producer_, m_TrajectoryCollection );
 
    LogDebug("NuclearSeedGenerator") << "Number of trajectory in event :" << m_TrajectoryCollection->size() << "\n";
 

@@ -15,7 +15,7 @@
 //
 // Original Author:  Vincent ROBERFROID
 //         Created:  Wed Feb 28 12:05:36 CET 2007
-// $Id: NuclearSeedsEDProducer.h,v 1.3 2007/08/09 14:45:05 roberfro Exp $
+// $Id: NuclearSeedsEDProducer.h,v 1.4 2007/09/05 15:15:28 roberfro Exp $
 //
 //
 
@@ -63,5 +63,6 @@ class NuclearSeedsEDProducer : public edm::EDProducer {
       std::auto_ptr<NuclearInteractionFinder>     theNuclearInteractionFinder;
 
       bool improveSeeds;
+      std::string producer_;
 };
 #endif
