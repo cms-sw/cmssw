@@ -180,6 +180,7 @@ TrackAssociatorByHits::associateRecoToSim(edm::Handle<reco::TrackCollection>& tr
 	
 	if (AbsoluteNumberOfHits) quality = static_cast<double>(nshared);
 	else if(ri!=0) quality = (static_cast<double>(nshared)/static_cast<double>(ri));
+	else quality = 0;
 	//for now save the number of shared hits between the reco and sim track
 	//cut on the fraction
 	if(quality > theMinHitCut){
@@ -314,6 +315,7 @@ TrackAssociatorByHits::associateSimToReco(edm::Handle<reco::TrackCollection>& tr
       int tpindex =0;
       for (TrackingParticleCollection::const_iterator t = tPC.begin(); t != tPC.end(); ++t, ++tpindex) {
 	LogTrace("TrackAssociator") << "NEW TP";
+	LogTrace("TrackAssociator") << "number of PSimHits for this TP: "  << t->trackPSimHit().size() ;
 	idcachev.clear();
 	nshared =0;
 	int nsimhit = 0;
@@ -411,6 +413,7 @@ TrackAssociatorByHits::associateSimToReco(edm::Handle<reco::TrackCollection>& tr
 
 	if (AbsoluteNumberOfHits) quality = static_cast<double>(nshared);
 	else if(totsimhit!=0) quality = ((double) nshared)/((double)totsimhit);
+	else quality = 0;
 	LogTrace("TrackAssociator") << "Final count: nhit(TP) = " << nsimhit << " re-counted = " << totsimhit 
 				    << " re-count(lay) = " << totsimhit << " nshared = " << nshared 
 				    << " nrechit = " << ri;
