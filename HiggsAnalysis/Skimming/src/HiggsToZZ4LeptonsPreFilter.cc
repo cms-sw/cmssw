@@ -35,12 +35,16 @@ HiggsToZZ4LeptonsPreFilter::HiggsToZZ4LeptonsPreFilter(const edm::ParameterSet& 
   // Local Debug flag
   debug              = pset.getParameter<bool>("DebugHiggsToZZ4LeptonsPreFilter");
 
-
+  ikept = 0;
+  evt = 0;
 }
 
 
 // Destructor
 HiggsToZZ4LeptonsPreFilter::~HiggsToZZ4LeptonsPreFilter() {
+
+  std::cout << "number of events processed: " << evt << std::endl;
+  std::cout << "number of events kept: " << ikept << std::endl;
 
 }
 
@@ -49,7 +53,7 @@ HiggsToZZ4LeptonsPreFilter::~HiggsToZZ4LeptonsPreFilter() {
 bool HiggsToZZ4LeptonsPreFilter::filter(edm::Event& event, const edm::EventSetup& setup ) {
 
   bool keepEvent   = false;
-
+  evt++;
 
 
   // get gen particle candidates 
@@ -91,6 +95,7 @@ bool HiggsToZZ4LeptonsPreFilter::filter(edm::Event& event, const edm::EventSetup
     if ( e.categoryCode() != edm::errors::ProductNotFound ) throw;    
   }
 
+  if (keepEvent ) ikept++;
 
   return keepEvent;
 

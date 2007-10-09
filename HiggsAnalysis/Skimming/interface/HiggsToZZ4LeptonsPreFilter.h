@@ -40,8 +40,8 @@ class HiggsToZZ4LeptonsPreFilter : public edm::EDFilter {
 
 
  private:
-  int nEvents, nSelectedEvents;
-
+  int evt, ikept;
+  
 
   bool debug;
 
