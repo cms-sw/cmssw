@@ -18,6 +18,7 @@
 // L1Extra
 #include "DataFormats/L1Trigger/interface/L1EmParticle.h"
 #include "DataFormats/L1Trigger/interface/L1JetParticle.h"
+#include "DataFormats/L1Trigger/interface/L1JetParticleFwd.h"
 ///
 #include "DataFormats/HLTReco/interface/HLTFilterObject.h"
 

@@ -6,10 +6,8 @@
  */
 #include "DataFormats/Candidate/interface/LeafCandidate.h"
 #include "DataFormats/Candidate/interface/OverlapChecker.h"
-//#include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
 #include "DataFormats/L1Trigger/interface/L1JetParticle.h"
-//#include "DataFormats/EgammaReco/interface/SuperCluster.h"
-
+#include "DataFormats/L1Trigger/interface/L1JetParticleFwd.h"
 #include "DataFormats/HcalIsolatedTrack/interface/EcalIsolatedParticleCandidateFwd.h"
 
 namespace reco {
@@ -21,15 +19,13 @@ namespace reco {
     // default constructor
     EcalIsolatedParticleCandidate() : LeafCandidate() { }
       // constructor from a tau jet
-      EcalIsolatedParticleCandidate(const l1extra::L1JetParticleRef& l1tau, double etatau, double phitau,  double enIn, double 
-enOut, int nhitIn, int nhitOut): 
+      EcalIsolatedParticleCandidate(const l1extra::L1JetParticleRef& l1tau, double etatau, double phitau,  double enIn, double enOut, int nhitIn, int nhitOut): 
 	LeafCandidate( 0, LorentzVector() ),
 	l1tau_(l1tau), eta_(etatau),phi_(phitau),enIn_(enIn), enOut_(enOut), nhitIn_(nhitIn), nhitOut_(nhitOut){}
 	
 	//constructor with null candidate
 	EcalIsolatedParticleCandidate(double etatau, double phitau,  double enIn, double enOut, int nhitIn, int nhitOut):
-	  LeafCandidate( 0, LorentzVector() ), eta_(etatau),phi_(phitau),enIn_(enIn), enOut_(enOut), nhitIn_(nhitIn), 
-nhitOut_(nhitOut) {} 
+	  LeafCandidate( 0, LorentzVector() ), eta_(etatau),phi_(phitau),enIn_(enIn), enOut_(enOut), nhitIn_(nhitIn), nhitOut_(nhitOut) {} 
 	  /// destructor
 	virtual ~EcalIsolatedParticleCandidate();
 	/// returns a clone of the candidate
@@ -76,4 +72,4 @@ nhitOut_(nhitOut) {}
 
 }
 
-#endif
+#endif // HcalIsolatedTrack_EcalIsolatedParticleCandidate_h
