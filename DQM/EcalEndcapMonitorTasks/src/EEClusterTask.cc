@@ -1,8 +1,8 @@
 /*
  * \file EEClusterTask.cc
  *
- * $Date: 2007/09/07 00:02:23 $
- * $Revision: 1.10 $
+ * $Date: 2007/10/09 19:47:47 $
+ * $Revision: 1.11 $
  * \author G. Della Ricca
  * \author E. Di Marco
  *
@@ -125,7 +125,7 @@ void EEClusterTask::setup(void){
     meEneBasic_ = dbe_->book1D(histo, histo, 100, 0., 150.);
 
     sprintf(histo, "EECLT BC number");
-    meNumBasic_ = dbe_->book1D(histo, histo, 100, 0., 100.);
+    meNumBasic_ = dbe_->book1D(histo, histo, 100, 0., 200.);
 
     sprintf(histo, "EECLT BC size");
     meSizBasic_ = dbe_->book1D(histo, histo, 10, 0., 10.);
