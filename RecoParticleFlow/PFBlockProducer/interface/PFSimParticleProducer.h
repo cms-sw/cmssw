@@ -70,7 +70,7 @@ class PFSimParticleProducer : public edm::EDProducer {
 
   // parameters used for track reconstruction --------------
 
-  TrackProducerAlgorithm trackAlgo_;
+  TrackProducerAlgorithm<reco::Track> trackAlgo_;
   std::string            fitterName_;
   std::string            propagatorName_;
   std::string            builderName_;

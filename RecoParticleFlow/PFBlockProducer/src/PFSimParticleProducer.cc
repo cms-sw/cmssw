@@ -336,6 +336,7 @@ void PFSimParticleProducer::produce(Event& iEvent,
 }
 
 
+
 void 
 PFSimParticleProducer::processRecTracks(auto_ptr< reco::PFRecTrackCollection >& 
 			     trackCollection, 
@@ -390,7 +391,7 @@ PFSimParticleProducer::processRecTracks(auto_ptr< reco::PFRecTrackCollection >&
     // Get track candidates and create smoothed tracks
     // Temporary solution. Let's hope that in the future, Trajectory objects 
     // will become persistent.
-    AlgoProductCollection algoResults;
+    TrackProducerAlgorithm<reco::Track>::AlgoProductCollection algoResults;
     try{
       LogDebug("PFSimParticleProducer")<<"get the TrackCandidateCollection"
 			    <<" from the event, source is " 
@@ -415,7 +416,7 @@ PFSimParticleProducer::processRecTracks(auto_ptr< reco::PFRecTrackCollection >&
     }
 
     // Loop over smoothed tracks and fill PFRecTrack collection 
-    for(AlgoProductCollection::iterator itTrack = algoResults.begin();
+    for(TrackProducerAlgorithm<reco::Track>::AlgoProductCollection::iterator itTrack = algoResults.begin();
 	itTrack != algoResults.end(); itTrack++) {
       Trajectory*  theTraj  = (*itTrack).first;
       vector<TrajectoryMeasurement> measurements = theTraj->measurements();
