@@ -1,8 +1,8 @@
  /*
  * \file DTDigiForNoiseTask.cc
  * 
- * $Date: 2007/09/20 07:18:46 $
- * $Revision: 1.28 $
+ * $Date: 2007/10/09 08:34:01 $
+ * $Revision: 1.1 $
  * \author G. Mila - INFN Torino
  *
  */
@@ -96,11 +96,13 @@ void DTDigiForNoiseTask::beginLuminosityBlock(LuminosityBlock const& lumiSeg, Ev
   if(debug)
     cout<<"[DTDigiForNoiseTask]: Begin of LS transition"<<endl;
   
-  /*for(map< DTLayerId, MonitorElement* > ::const_iterator histo = digiHistos.begin();
-      histo != digiHistos.end();
-      histo++) {
-    (*histo).second->Reset();
-    }*/
+  if(lumiSeg.id().luminosityBlock()%parameters.getUntrackedParameter<int>("ResetCycle", 3) == 0) {
+    for(map< DTLayerId, MonitorElement* > ::const_iterator histo = digiHistos.begin();
+	histo != digiHistos.end();
+	histo++) {
+      (*histo).second->Reset();
+    }
+  }
   
 }
 
