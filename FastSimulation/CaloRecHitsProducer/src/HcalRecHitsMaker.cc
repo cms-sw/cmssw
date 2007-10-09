@@ -13,10 +13,13 @@
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "DataFormats/HcalDigi/interface/HBHEDataFrame.h"
 #include "CLHEP/GenericFunctions/Erf.hh"
-
+#include "CalibFormats/HcalObjects/interface/HcalTPGCoder.h"
+#include "CalibFormats/HcalObjects/interface/HcalTPGRecord.h"
 #include "FastSimulation/Utilities/interface/RandomEngine.h"
 #include "TFile.h"
 #include "TGraph.h"
+#include <fstream>
+#include <iomanip>
 
 class RandomEngine;
 
@@ -68,35 +71,57 @@ HcalRecHitsMaker::HcalRecHitsMaker(edm::ParameterSet const & p,
   } else {
     hcalHotFractionHF_ =0.;
   }
-
-  // Open the histogram for the fC to ADC conversion
-  gROOT->cd();
-  edm::FileInPath myDataFile("FastSimulation/CaloRecHitsProducer/data/adcvsfc.root");
-  TFile * myFile = new TFile(myDataFile.fullPath().c_str(),"READ");
-  TGraph * myGraf = (TGraph*)myFile->Get("adcvsfc");
-  unsigned size=myGraf->GetN();
-  fctoadc_.resize(10000);
-  unsigned p_index=0;
-  fctoadc_[0]=0;
-  int prev_nadc=0;
-  int nadc=0;
-  for(unsigned ibin=0;ibin<size;++ibin)
+  if(doDigis_)
     {
-      double x,y;
-      myGraf->GetPoint(ibin,x,y);
-      int index=(int)floor(x);
-      if(index<0||index>=10000) continue;
-      prev_nadc=nadc;
-      nadc=(int)y;
-      // Now fills the vector
-      for(unsigned ivec=p_index;ivec<(unsigned)index;++ivec)
+      // Open the histogram for the fC to ADC conversion
+      gROOT->cd();
+      edm::FileInPath myDataFile("FastSimulation/CaloRecHitsProducer/data/adcvsfc.root");
+      TFile * myFile = new TFile(myDataFile.fullPath().c_str(),"READ");
+      TGraph * myGraf = (TGraph*)myFile->Get("adcvsfc");
+      unsigned size=myGraf->GetN();
+      fctoadc_.resize(10000);
+      unsigned p_index=0;
+      fctoadc_[0]=0;
+      int prev_nadc=0;
+      int nadc=0;
+      for(unsigned ibin=0;ibin<size;++ibin)
 	{
-	  fctoadc_[ivec] = prev_nadc;
+	  double x,y;
+	  myGraf->GetPoint(ibin,x,y);
+	  int index=(int)floor(x);
+	  if(index<0||index>=10000) continue;
+	  prev_nadc=nadc;
+	  nadc=(int)y;
+	  // Now fills the vector
+	  for(unsigned ivec=p_index;ivec<(unsigned)index;++ivec)
+	    {
+	      fctoadc_[ivec] = prev_nadc;
+	    }
+	  p_index = index;
 	}
-      p_index = index;
-    }
-  myFile->Close();
-  gROOT->cd();
+      myFile->Close();
+      gROOT->cd();
+      edm::FileInPath myTPGFilePath("CalibCalorimetry/HcalTPGAlgos/data/RecHit-TPG-calib.dat");
+      TPGFactor_.resize(87,1.2);
+      std::ifstream  myTPGFile(myTPGFilePath.fullPath().c_str(),ifstream::in);
+      if(myTPGFile)
+	{
+	  float gain;
+	  myTPGFile >> gain;
+	  for(unsigned i=0;i<86;++i)
+	    {
+	      myTPGFile >> TPGFactor_[i] ;
+	      //	  std::cout << TPGFactor_[i] << std::endl;
+	    }
+	}
+      else
+	{
+	  std::cout << " Unable to open CalibCalorimetry/HcalTPGAlgos/data/RecHit-TPG-calib.dat" << std::endl;
+	  std::cout <<	" Using a constant 1.2 factor " << std::endl;
+	}
+      
+    } // doDigis_
+  
 }
 
 HcalRecHitsMaker::~HcalRecHitsMaker()
@@ -114,7 +139,59 @@ void HcalRecHitsMaker::init(const edm::EventSetup &es,bool doDigis)
   nhecells_ = hecells_.size();
   nhocells_ = hocells_.size();
   nhfcells_ = hfcells_.size(); 
-  initialized_=true;
+
+   // Get the gain and peds
+  edm::ESHandle<HcalTPGCoder> inputCoder;
+  es.get<HcalTPGRecord>().get(inputCoder);  
+
+  myCoder_ = &(*inputCoder);
+
+  //HB
+  for(unsigned ic=0;ic<nhbcells_;++ic)
+    {
+      float ped=(*inputCoder).getLUTPedestal(HcalDetId(hbcells_[ic]));
+      float gain=(*inputCoder).getLUTGain(HcalDetId(hbcells_[ic]));
+      hbpeds_.insert(std::pair<uint32_t,float>(hbcells_[ic],ped));
+      int ieta=HcalDetId(hbcells_[ic]).ieta();
+      gain*=TPGFactor_[(ieta>0)?ieta+43:-ieta];
+      hbgains_.insert(std::pair<uint32_t,float>(hbcells_[ic],gain));
+    }
+  //HE
+  for(unsigned ic=0;ic<nhecells_;++ic)
+    {
+      float ped=(*inputCoder).getLUTPedestal(HcalDetId(hecells_[ic]));
+      float gain=(*inputCoder).getLUTGain(HcalDetId(hecells_[ic]));
+      int ieta=HcalDetId(hecells_[ic]).ieta();
+
+      gain*=TPGFactor_[(ieta>0)?ieta+44:-ieta+1];
+//      if(abs(ieta)>=21&&abs(ieta)<=26)
+//	gain*=2.;
+//      if(abs(ieta)>=27&&abs(ieta)<=29)
+//	gain*=5.;
+      hepeds_.insert(std::pair<uint32_t,float>(hecells_[ic],ped));
+      hegains_.insert(std::pair<uint32_t,float>(hecells_[ic],gain));
+    }
+//HO
+//  for(unsigned ic=0;ic<nhocells_;++ic)
+//    {
+//      float ped=(*inputCoder).getLUTPedestal(HcalDetId(hocells_[ic]));
+//      float gain=(*inputCoder).getLUTGain(HcalDetId(hocells_[ic]));
+//      int ieta=HcalDetId(hecells_[ic]).ieta();
+//      gain*=TPGFactor_[(ieta>0)?ieta+43:-ieta];
+//      hopeds_.insert(std::pair<uint32_t,float>(hocells_[ic],ped));
+//      hogains_.insert(std::pair<uint32_t,float>(hocells_[ic],gain);
+//    }
+  //HF
+  for(unsigned ic=0;ic<nhfcells_;++ic)
+    {
+      float ped=(*inputCoder).getLUTPedestal(HcalDetId(hfcells_[ic]));
+      float gain=(*inputCoder).getLUTGain(HcalDetId(hfcells_[ic]));
+      int ieta=HcalDetId(hfcells_[ic]).ieta();
+      gain*=TPGFactor_[(ieta>0)?ieta+45:-ieta+2];
+      hfpeds_.insert(std::pair<uint32_t,float>(hfcells_[ic],ped));
+      hfgains_.insert(std::pair<uint32_t,float>(hfcells_[ic],gain));
+    }
+  initialized_=true; 
 }
 
 
@@ -195,7 +272,7 @@ void HcalRecHitsMaker::loadHcalRecHits(edm::Event &iEvent,HBHERecHitCollection& 
 	{
 	  HBHEDataFrame myDataFrame(detid);
 	  myDataFrame.setSize(2);
-	  double nfc=it->second.first/.177;
+	  double nfc=it->second.first/hbgains_[it->first]+hbpeds_[it->first];
 	  int nadc=fCtoAdc(nfc);
 	  HcalQIESample qie(nadc, 0, 0, 0) ;
 	  myDataFrame.setSample(0,qie);
@@ -219,7 +296,7 @@ void HcalRecHitsMaker::loadHcalRecHits(edm::Event &iEvent,HBHERecHitCollection& 
 	{
 	  HBHEDataFrame myDataFrame(detid);
 	  myDataFrame.setSize(2);
-	  double nfc=it->second.first/.269;
+	  double nfc=it->second.first/hegains_[it->first]+hepeds_[it->first];
 	  int nadc=fCtoAdc(nfc);
 	  HcalQIESample qie(nadc, 0, 0, 0) ;
 	  myDataFrame.setSample(0,qie);
@@ -254,8 +331,8 @@ void HcalRecHitsMaker::loadHcalRecHits(edm::Event &iEvent,HBHERecHitCollection& 
 	{
 	  HFDataFrame myDataFrame(detid);
 	  myDataFrame.setSize(1);
-	  double nfc=it->second.first/.14;
-	  int nadc=fCtoAdc(nfc*2.6);
+	  double nfc=it->second.first/hfgains_[it->first]+hfpeds_[it->first];
+	  int nadc=fCtoAdc(nfc/2.6);
 	  HcalQIESample qie(nadc, 0, 0, 0) ;
 	  myDataFrame.setSample(0,qie);
 	  hfDigis.push_back(myDataFrame);
