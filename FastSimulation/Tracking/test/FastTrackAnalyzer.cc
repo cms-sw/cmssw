@@ -663,10 +663,10 @@ void FastTrackAnalyzer::analyze(const edm::Event& event, const edm::EventSetup& 
 	     hMap["trk_Pull_eta"]	  ->Fill(   ( track->eta() -  simTrack->momentum().eta()) / track->etaError()   );
 	     
 	     hMap["trk_Rec_pt"] 	  ->Fill( track->pt()  );
-	     hMap["trk_Sim_pt"] 	  ->Fill( simTrack->momentum().perp()  );
-	     hMap["trk_Res_pt"] 	  ->Fill( track->pt() -  simTrack->momentum().perp() );
+	     hMap["trk_Sim_pt"] 	  ->Fill( simTrack->momentum().Pt()  );
+	     hMap["trk_Res_pt"] 	  ->Fill( track->pt() -  simTrack->momentum().Pt() );
 	     
-	     double simQoverp =  simTrack->charge() / simTrack->momentum().vect().mag();
+	     double simQoverp =  simTrack->charge() / simTrack->momentum().P();
 	     
 	     hMap["trk_Pull_qoverp"] ->Fill( (track->qoverp() -  simQoverp) / track->qoverpError()  );
 	     std::cout<<" qoverp = " << track->qoverp() << std::endl;
