@@ -13,7 +13,7 @@
 //
 // Original Author:  Dmytro Kovalskyi
 //         Created:  Fri Apr 21 10:59:41 PDT 2006
-// $Id$
+// $Id: TrackDetectorAssociator.cc,v 1.25 2007/10/08 13:04:35 dmytro Exp $
 //
 //
 
@@ -669,7 +669,7 @@ DetIdAssociator::MapRange TrackDetectorAssociator::getMapRange( const std::pair<
    return mapRange;
 }
 
-void TrackDetectorAssociator::getMuonChamberMatches(std::vector<MuonChamberMatch>& matches,
+void TrackDetectorAssociator::getTAMuonChamberMatches(std::vector<TAMuonChamberMatch>& matches,
 						    const AssociatorParameters& parameters)
 {
    // Strategy:
@@ -769,7 +769,7 @@ void TrackDetectorAssociator::getMuonChamberMatches(std::vector<MuonChamberMatch
       if ( (distanceX < parameters.muonMaxDistanceX && distanceY < parameters.muonMaxDistanceY) ||
 	   (sigmaX < parameters.muonMaxDistanceSigmaX && sigmaY < parameters.muonMaxDistanceSigmaY) ) {
          LogTrace("TrackAssociator") << "found a match, DetId: " << detId->rawId();
-         MuonChamberMatch match;
+         TAMuonChamberMatch match;
          match.tState = stateOnSurface;
          match.localDistanceX = distanceX;
          match.localDistanceY = distanceY;
@@ -815,15 +815,15 @@ void TrackDetectorAssociator::fillMuon( const edm::Event& iEvent,
    timers.pop_and_push("TrackDetectorAssociator::fillMuon::matchChembers");
    
    // get a set of matches corresponding to muon chambers
-   std::vector<MuonChamberMatch> matchedChambers;
+   std::vector<TAMuonChamberMatch> matchedChambers;
    LogTrace("TrackAssociator") << "Trying to Get ChamberMatches" << std::endl;
-   getMuonChamberMatches(matchedChambers, parameters);
+   getTAMuonChamberMatches(matchedChambers, parameters);
    LogTrace("TrackAssociator") << "Chambers matched: " << matchedChambers.size() << "\n";
    
    // Iterate over all chamber matches and fill segment matching 
    // info if it's available
    timers.pop_and_push("TrackDetectorAssociator::fillMuon::findSemgents");
-   for(std::vector<MuonChamberMatch>::iterator matchedChamber = matchedChambers.begin(); 
+   for(std::vector<TAMuonChamberMatch>::iterator matchedChamber = matchedChambers.begin(); 
        matchedChamber != matchedChambers.end(); matchedChamber++)
      {
 	const GeomDet* geomDet = muonDetIdAssociator_->getGeomDet((*matchedChamber).id);
@@ -833,7 +833,7 @@ void TrackDetectorAssociator::fillMuon( const edm::Event& iEvent,
 	   DTRecSegment4DCollection::range  range = dtSegments->get(chamber->id());
 	   // Loop over the segments of this chamber
 	   for (DTRecSegment4DCollection::const_iterator segment = range.first; segment!=range.second; segment++)
-	     addMuonSegmentMatch(*matchedChamber, &(*segment), parameters);
+	     addTAMuonSegmentMatch(*matchedChamber, &(*segment), parameters);
 	}else{
 	   // CSC Chamber
 	   if(const CSCChamber* chamber = dynamic_cast<const CSCChamber*>(geomDet) ) {
@@ -841,7 +841,7 @@ void TrackDetectorAssociator::fillMuon( const edm::Event& iEvent,
 	      CSCSegmentCollection::range  range = cscSegments->get(chamber->id());
 	      // Loop over the segments
 	      for (CSCSegmentCollection::const_iterator segment = range.first; segment!=range.second; segment++)
-		 addMuonSegmentMatch(*matchedChamber, &(*segment), parameters);
+		 addTAMuonSegmentMatch(*matchedChamber, &(*segment), parameters);
 	   }else{
 	      throw cms::Exception("FatalError") << "Failed to cast GeomDet object to either DTChamber or CSCChamber. Who is this guy anyway?\n";
 	   }
@@ -851,7 +851,7 @@ void TrackDetectorAssociator::fillMuon( const edm::Event& iEvent,
 }
 
 
-void TrackDetectorAssociator::addMuonSegmentMatch(MuonChamberMatch& matchedChamber,
+void TrackDetectorAssociator::addTAMuonSegmentMatch(TAMuonChamberMatch& matchedChamber,
 					  const RecSegment* segment,
 					  const AssociatorParameters& parameters)
 {
@@ -889,7 +889,7 @@ void TrackDetectorAssociator::addMuonSegmentMatch(MuonChamberMatch& matchedChamb
 			   deltaPhi*deltaPhi) < parameters.dRMuon;
 
    if(isGood) {
-      MuonSegmentMatch muonSegment;
+      TAMuonSegmentMatch muonSegment;
       muonSegment.segmentGlobalPosition = getPoint(segmentGlobalPosition);
       muonSegment.segmentLocalPosition = getPoint( segment->localPosition() );
       muonSegment.segmentLocalDirection = getVector( segment->localDirection() );

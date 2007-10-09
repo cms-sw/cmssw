@@ -7,7 +7,7 @@
 #include "DataFormats/HcalRecHit/interface/HORecHit.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "SimDataFormats/Track/interface/SimTrackContainer.h"
-#include "TrackingTools/TrackAssociator/interface/MuonChamberMatch.h"
+#include "TrackingTools/TrackAssociator/interface/TAMuonChamberMatch.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h"
@@ -63,7 +63,7 @@ class TrackDetMatchInfo {
    std::vector<DetId>      crossedHOIds;
    std::vector<DetId>      crossedTowerIds;
    
-   std::vector<MuonChamberMatch> chambers;
+   std::vector<TAMuonChamberMatch> chambers;
 
    /// track info
    FreeTrajectoryState stateAtIP;

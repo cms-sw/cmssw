@@ -1,10 +1,10 @@
-#include "TrackingTools/TrackAssociator/interface/MuonChamberMatch.h"
+#include "TrackingTools/TrackAssociator/interface/TAMuonChamberMatch.h"
 #include "DataFormats/MuonDetId/interface/DTChamberId.h"
 #include "DataFormats/MuonDetId/interface/CSCDetId.h"
 #include "DataFormats/MuonDetId/interface/RPCDetId.h"
 #include <sstream>
 
-int MuonChamberMatch::station() const {
+int TAMuonChamberMatch::station() const {
 	int muonSubdetId = id.subdetId();
 
 	if(muonSubdetId==1) {//DT
@@ -23,7 +23,7 @@ int MuonChamberMatch::station() const {
 	return -1;
 }
 
-std::string MuonChamberMatch::info() const {
+std::string TAMuonChamberMatch::info() const {
    int muonSubdetId = id.subdetId();
    std::ostringstream oss;
 

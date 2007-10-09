@@ -18,12 +18,12 @@
 //
 // Original Author:  Dmytro Kovalskyi
 //         Created:  Fri Apr 21 10:59:41 PDT 2006
-// $Id: CachedTrajectory.h,v 1.8.4.1 2007/10/08 10:28:16 dmytro Exp $
+// $Id: CachedTrajectory.h,v 1.9 2007/10/08 11:23:34 dmytro Exp $
 //
 //
 
 #include "TrackingTools/TrackAssociator/interface/DetIdAssociator.h"
-#include "TrackingTools/TrackAssociator/interface/MuonChamberMatch.h"
+#include "TrackingTools/TrackAssociator/interface/TAMuonChamberMatch.h"
 #include "TrackingTools/TrackAssociator/interface/FiducialVolume.h"
 #include "TrackPropagation/SteppingHelixPropagator/interface/SteppingHelixStateInfo.h"
 #include "Geometry/CommonDetUnit/interface/GlobalTrackingGeometry.h"

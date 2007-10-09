@@ -15,12 +15,12 @@
 //
 // Original Author:  Dmytro Kovalskyi
 //         Created:  Fri Apr 21 10:59:41 PDT 2006
-// $Id: MuonDetIdAssociator.h,v 1.2.12.1 2007/10/06 05:50:12 jribnik Exp $
+// $Id: MuonDetIdAssociator.h,v 1.3 2007/10/08 13:04:32 dmytro Exp $
 //
 //
 
 #include "TrackingTools/TrackAssociator/interface/DetIdAssociator.h"
-#include "TrackingTools/TrackAssociator/interface/MuonChamberMatch.h"
+#include "TrackingTools/TrackAssociator/interface/TAMuonChamberMatch.h"
 #include "TrackPropagation/SteppingHelixPropagator/interface/SteppingHelixStateInfo.h"
 #include "Geometry/CommonDetUnit/interface/GlobalTrackingGeometry.h"
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"

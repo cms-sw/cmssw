@@ -14,7 +14,7 @@
 //
 // Original Author:  Dmytro Kovalskyi
 //         Created:  Fri Apr 21 10:59:41 PDT 2006
-// $Id$
+// $Id: TrackDetectorAssociator.h,v 1.12 2007/10/08 13:04:32 dmytro Exp $
 //
 //
 
@@ -142,11 +142,11 @@ class TrackDetectorAssociator {
 			TrackDetMatchInfo&,
 			const AssociatorParameters&);
    
-   void addMuonSegmentMatch(MuonChamberMatch&,
+   void addTAMuonSegmentMatch(TAMuonChamberMatch&,
 			    const RecSegment*,
 			    const AssociatorParameters&);
    
-   void getMuonChamberMatches(std::vector<MuonChamberMatch>& matches,
+   void getTAMuonChamberMatches(std::vector<TAMuonChamberMatch>& matches,
 			      const AssociatorParameters& parameters);
   
    void           init( const edm::EventSetup&);

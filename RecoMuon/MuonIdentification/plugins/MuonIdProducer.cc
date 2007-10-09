@@ -5,7 +5,7 @@
 // 
 //
 // Original Author:  Dmytro Kovalskyi
-// $Id: MuonIdProducer.cc,v 1.13 2007/10/06 00:43:34 dmytro Exp $
+// $Id: MuonIdProducer.cc,v 1.14 2007/10/06 01:00:42 dmytro Exp $
 //
 //
 
@@ -450,7 +450,7 @@ void MuonIdProducer::fillMuonId(edm::Event& iEvent, const edm::EventSetup& iSetu
    // fill muon match info
    std::vector<reco::MuonChamberMatch> muonChamberMatches;
    unsigned int nubmerOfMatchesAccordingToTrackAssociator = 0;
-   for( std::vector<MuonChamberMatch>::const_iterator chamber=info.chambers.begin();
+   for( std::vector<TAMuonChamberMatch>::const_iterator chamber=info.chambers.begin();
 	chamber!=info.chambers.end(); chamber++ )
      {
 	reco::MuonChamberMatch matchedChamber;
@@ -475,7 +475,7 @@ void MuonIdProducer::fillMuonId(edm::Event& iEvent, const edm::EventSetup& iSetu
 	if ( ! chamber->segments.empty() ) ++nubmerOfMatchesAccordingToTrackAssociator;
 	
 	// fill segments
-	for( std::vector<MuonSegmentMatch>::const_iterator segment = chamber->segments.begin();
+	for( std::vector<TAMuonSegmentMatch>::const_iterator segment = chamber->segments.begin();
 	     segment != chamber->segments.end(); segment++ ) 
 	  {
 	     reco::MuonSegmentMatch matchedSegment;

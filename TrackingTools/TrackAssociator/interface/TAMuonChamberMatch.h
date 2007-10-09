@@ -1,5 +1,5 @@
-#ifndef TrackAssociator_MuonChamberMatch_h
-#define TrackAssociator_MuonChamberMatch_h
+#ifndef TrackAssociator_TAMuonChamberMatch_h
+#define TrackAssociator_TAMuonChamberMatch_h
 
 /**
  * 
@@ -14,17 +14,17 @@
 #include "DataFormats/Math/interface/Vector3D.h"
 #include "DataFormats/Math/interface/Point3D.h"
 #include "DataFormats/DetId/interface/DetId.h"
-#include "TrackingTools/TrackAssociator/interface/MuonSegmentMatch.h"
+#include "TrackingTools/TrackAssociator/interface/TAMuonSegmentMatch.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 
-class MuonChamberMatch {
+class TAMuonChamberMatch {
  public:
    int station() const;
    std::string info() const;
    int detector() const { return id.subdetId(); }
 
    /// distance sign convention: negative - crossed chamber, positive - missed chamber
-   std::vector<MuonSegmentMatch> segments;
+   std::vector<TAMuonSegmentMatch> segments;
    float localDistanceX;
    float localDistanceY;
    TrajectoryStateOnSurface tState;

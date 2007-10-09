@@ -13,7 +13,7 @@
 //
 // Original Author:  Dmytro Kovalskyi
 //         Created:  Fri Apr 21 10:59:41 PDT 2006
-// $Id: TestTrackAssociator.cc,v 1.16 2007/04/13 03:09:28 dmytro Exp $
+// $Id: TestTrackAssociator.cc,v 1.17 2007/09/18 18:28:31 dmytro Exp $
 //
 //
 
@@ -267,7 +267,7 @@ void TestTrackAssociator::analyze( const edm::Event& iEvent, const edm::EventSet
 
       if (parameters_.useMuon) {
 	 LogVerbatim("TrackAssociator") << "Muon detector matching details: " ;
-	 for(std::vector<MuonChamberMatch>::const_iterator chamber = info.chambers.begin();
+	 for(std::vector<TAMuonChamberMatch>::const_iterator chamber = info.chambers.begin();
 	     chamber!=info.chambers.end(); chamber++)
 	   {
 	      LogVerbatim("TrackAssociator") << chamber->info() << "\n\t(DetId, station, edgeX, edgeY): "
@@ -284,7 +284,7 @@ void TestTrackAssociator::analyze( const edm::Event& iEvent, const edm::EventSet
 		<< chamber->tState.localPosition().x() << ", "
 		<< chamber->tState.localPosition().y();
 
-	      for(std::vector<MuonSegmentMatch>::const_iterator segment=chamber->segments.begin(); 
+	      for(std::vector<TAMuonSegmentMatch>::const_iterator segment=chamber->segments.begin(); 
 		  segment!=chamber->segments.end(); segment++)
 		{
 		   LogVerbatim("TrackAssociator") << "\t segment position (z,Rho,eta,phi,DetId): " 
