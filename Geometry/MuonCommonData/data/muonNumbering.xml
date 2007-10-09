@@ -94,6 +94,7 @@
  <SpecPar name="MuonBarrelStation1">
    <PartSelector path="//MB1N0P"/>
    <PartSelector path="//MB1P"/>
+   <PartSelector path="//MB1P0"/>
    <PartSelector path="//MB1ChimP"/>
    <PartSelector path="//MB1N"/>
    <PartSelector path="//MB1ChimN"/>
