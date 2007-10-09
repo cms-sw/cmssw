@@ -1,4 +1,5 @@
 <library file=ZMuMuAnalyzer.cc>
+<library file=ZToMuMuSelector.cc>
 
 <use name=FWCore/Framework>
   <use name=PhysicsTools/UtilAlgos>
