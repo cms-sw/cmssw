@@ -63,6 +63,7 @@ namespace reco {
     /// elements are sorted by increasing chi2.
     /// if specified, only the elements of type "type" will be considered
     void associatedElements( unsigned i,
+			     std::vector<double>& linkData, 
 			     std::map<double, unsigned>& sortedAssociates,
 			     reco::PFBlockElement::Type type = PFBlockElement::NONE) const;  
       
