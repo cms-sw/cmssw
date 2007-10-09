@@ -113,9 +113,9 @@
  <Tubs name="ZStopSpace" rMin="4.694*m  " rMax="4.955*m  " dz="32*cm " startPhi="0*deg" deltaPhi="360*deg"/>
  <Tubs name="ZStop_1_ZStopSpaceDivision" rMin="4.694*m  " rMax="4.955*m  " dz="32*cm " startPhi="346.25*deg" deltaPhi="3.0999999*deg"/>
  <Tubs name="ZStop_2_ZStopSpaceDivision" rMin="4.694*m  " rMax="4.955*m  " dz="32*cm " startPhi="10.75*deg" deltaPhi="3.0999999*deg"/>
- <Tubs name="ME12Ring" rMin="2.6*m  " rMax="4.6751*m  " dz="32*cm " startPhi="0*deg" deltaPhi="360*deg"/>
- <Tubs name="ME12Space" rMin="2.75*m  " rMax="4.6751*m  " dz="12.25*cm " startPhi="0*deg" deltaPhi="360*deg"/>
- <Trd1 name="ME12" dz="94.7*cm " dy1="12.5*cm " dy2="12.5*cm " dx1="37.614*cm " dx2="53.856*cm " />
+ <Tubs name="ME12Ring" rMin="2.6*m  " rMax="4.685*m  " dz="32*cm " startPhi="0*deg" deltaPhi="360*deg"/>
+ <Tubs name="ME12Space" rMin="2.735*m  " rMax="4.685*m  " dz="12.25*cm " startPhi="0*deg" deltaPhi="360*deg"/>
+ <Trd1 name="ME12" dz="94.7*cm " dy1="12.25*cm " dy2="12.25*cm " dx1="37.614*cm " dx2="53.856*cm " />
 
  <!-- <Trd1 name="ME12AlumFrame" dz="94.7*cm " dy1="[AlumFrameHalfThick]" dy2="[AlumFrameHalfThick]" dx1="37.614*cm " dx2="53.856*cm " /> -->
  <Trd1 name="ME12AlumFrameBlock" dz="947*mm" dy1="[AlumFrameHalfThick]" dy2="[AlumFrameHalfThick]" dx1="376.14*mm" dx2="538.56*mm" />
@@ -154,7 +154,7 @@
   <ZSection z="7.265*m  "  rMin="4.955*m  "  rMax="7*m  " />
  </Polyhedra>
  <Tubs name="ME13Space" rMin="5.055*m  " rMax="6.8733*m  " dz="12.25*cm " startPhi="0*deg" deltaPhi="360*deg"/>
- <Trd1 name="ME13" dz="89.65*cm " dy1="12.5*cm " dy2="12.5*cm " dx1="43.21*cm " dx2="58.925*cm " />
+ <Trd1 name="ME13" dz="89.65*cm " dy1="12.25*cm " dy2="12.25*cm " dx1="43.21*cm " dx2="58.925*cm " />
 
  <!-- <Trd1 name="ME13AlumFrame" dz="89.65*cm " dy1="[AlumFrameHalfThick]" dy2="[AlumFrameHalfThick]" dx1="43.21*cm " dx2="58.925*cm " /> -->
  <Trd1 name="ME13AlumFrameBlock" dz="896.5*mm" dy1="[AlumFrameHalfThick]" dy2="[AlumFrameHalfThick]" dx1="432.1*mm" dx2="589.25*mm" />
@@ -182,6 +182,7 @@
  <Trd1 name="ME13_ActiveGasVol" dz="82.08*cm " dy1="[ActiveGasVolHalfThick]" dy2="[ActiveGasVolHalfThick]" dx1="31.70*cm " dx2="46.05*cm " />
  <Trd1 name="ME_DeadGas_1_ME13_ActiveGasVol" dz="1.265*cm " dy1="[ActiveGasVolHalfThick]" dy2="[ActiveGasVolHalfThick]" dx1="42.02*cm " dx2="42.24*cm " />
  <Trd1 name="ME_DeadGas_2_ME13_ActiveGasVol" dz="1.265*cm " dy1="[ActiveGasVolHalfThick]" dy2="[ActiveGasVolHalfThick]" dx1="37.59*cm " dx2="37.81*cm " />
+
  <Tubs name="RR13" rMin="5.05*m  " rMax="6.87*m  " dz="4.5*cm " startPhi="0*deg" deltaPhi="360*deg"/>
  <Tubs name="RT1C" rMin="5.05*m  " rMax="6.87*m  " dz="2*cm " startPhi="-8*deg" deltaPhi="16*deg"/>
  <Trd1 name="RFCX" dz="87.15*cm " dy1="5.5*mm " dy2="5.5*mm " dx1="44.435*cm " dx2="59.676*cm " />
@@ -189,6 +190,7 @@
  <Trd1 name="REC1" dz="20.15*cm " dy1="1*mm " dy2="1*mm " dx1="56.097*cm " dx2="59.623*cm " />
  <Trd1 name="REC2" dz="37.95*cm " dy1="1*mm " dy2="1*mm " dx1="49.369*cm " dx2="56.009*cm " />
  <Trd1 name="REC3" dz="28*cm " dy1="1*mm " dy2="1*mm " dx1="44.382*cm " dx2="49.281*cm " />
+
  <Tubs name="ME2Ring" rMin="1.135*m  " rMax="7*m  " dz="32.75*cm " startPhi="0*deg" deltaPhi="360*deg"/>
  <Tubs name="ShieldingBoronPoly_1_ME2" rMin="1.305*m  " rMax="1.906*m  " dz="2.5*cm " startPhi="0*deg" deltaPhi="360*deg"/>
  <Tubs name="ShieldingAntinomyLead_1_ME2" rMin="1.305*m  " rMax="1.906*m  " dz="6.49995*mm " startPhi="0*deg" deltaPhi="360*deg"/>
@@ -225,6 +227,7 @@
  <Trd1 name="ME21_ActiveGasVol" dz="94.83*cm " dy1="[ActiveGasVolHalfThick]" dy2="[ActiveGasVolHalfThick]" dx1="27.00*cm " dx2="62.855*cm " />
  <Trd1 name="ME_DeadGas_1_ME21_ActiveGasVol" dz="1.25*cm " dy1="[ActiveGasVolHalfThick]" dy2="[ActiveGasVolHalfThick]" dx1="51.92*cm " dx2="52.39*cm " />
  <Trd1 name="ME_DeadGas_2_ME21_ActiveGasVol" dz="1.25*cm " dy1="[ActiveGasVolHalfThick]" dy2="[ActiveGasVolHalfThick]" dx1="40.33*cm " dx2="40.805*cm " />
+
  <Tubs name="RR2X" rMin="1.97*m  " rMax="6.99*m  " dz="4.5*cm " startPhi="0*deg" deltaPhi="360*deg"/>
  <Tubs name="RT2D" rMin="1.97*m  " rMax="3.3*m  " dz="2*cm " startPhi="-13*deg" deltaPhi="26*deg"/>
  <Trd1 name="RFDX" dz="61.55*cm " dy1="5.5*mm " dy2="5.5*mm " dx1="35.159*cm " dx2="56.847*cm " />
@@ -244,6 +247,7 @@
  <Trd1 name="REF1" dz="25.95*cm " dy1="1*mm " dy2="1*mm " dx1="56.14*cm " dx2="60.681*cm " />
  <Trd1 name="REF2" dz="37.95*cm " dy1="1*mm " dy2="1*mm " dx1="49.413*cm " dx2="56.053*cm " />
  <Trd1 name="REF3" dz="30.2*cm " dy1="1*mm " dy2="1*mm " dx1="44.041*cm " dx2="49.325*cm " />
+
  <Tubs name="ME22Space" rMin="3.575*m  " rMax="6.9968*m  " dz="12.6*cm " startPhi="0*deg" deltaPhi="360*deg"/>
  <Trd1 name="ME22" dz="1.690*m  " dy1="12.5*cm " dy2="12.5*cm " dx1="45.519*cm " dx2="76.34*cm " />
 
@@ -275,6 +279,7 @@
  <Trd1 name="ME_DeadGas_2_ME22_ActiveGasVol" dz="1.265*cm " dy1="[ActiveGasVolHalfThick]" dy2="[ActiveGasVolHalfThick]" dx1="52.18*cm " dx2="52.42*cm " />
  <Trd1 name="ME_DeadGas_3_ME22_ActiveGasVol" dz="1.265*cm " dy1="[ActiveGasVolHalfThick]" dy2="[ActiveGasVolHalfThick]" dx1="46.67*cm " dx2="46.9*cm " />
  <Trd1 name="ME_DeadGas_4_ME22_ActiveGasVol" dz="1.265*cm " dy1="[ActiveGasVolHalfThick]" dy2="[ActiveGasVolHalfThick]" dx1="41.16*cm " dx2="41.38*cm " />
+
  <Tubs name="ME3Ring" rMin="1.36*m  " rMax="7*m  " dz="32.75*cm " startPhi="0*deg" deltaPhi="360*deg"/>
  <Tubs name="ShieldingBoronPoly_1_ME3" rMin="1.362*m  " rMax="1.437*m  " dz="31.5*cm " startPhi="0*deg" deltaPhi="360*deg"/>
  <Tubs name="ShieldingAntinomyLead_1_ME3" rMin="1.438*m  " rMax="1.468*m  " dz="31.5*cm " startPhi="0*deg" deltaPhi="360*deg"/>
@@ -310,12 +315,14 @@
  <Trd1 name="ME31_ActiveGasVol" dz="84.85*cm " dy1="[ActiveGasVolHalfThick]" dy2="[ActiveGasVolHalfThick]" dx1="30.70*cm " dx2="62.855*cm " />
  <Trd1 name="ME_DeadGas_1_ME31_ActiveGasVol" dz="1.25*cm " dy1="[ActiveGasVolHalfThick]" dy2="[ActiveGasVolHalfThick]" dx1="51.94*cm " dx2="52.405*cm " />
  <Trd1 name="ME_DeadGas_2_ME31_ActiveGasVol" dz="1.25*cm " dy1="[ActiveGasVolHalfThick]" dy2="[ActiveGasVolHalfThick]" dx1="40.6*cm " dx2="41.07*cm " />
+
  <Tubs name="RR3X" rMin="2.419*m  " rMax="6.99*m  " dz="4.5*cm " startPhi="0*deg" deltaPhi="360*deg"/>
  <Tubs name="RT3G" rMin="2.419*m  " rMax="3.3*m  " dz="2*cm " startPhi="-13*deg" deltaPhi="26*deg"/>
  <Trd1 name="RFGX" dz="39.1*cm " dy1="5.5*mm " dy2="5.5*mm " dx1="43.076*cm " dx2="56.847*cm " />
  <Trd1 name="RHGX" dz="39.05*cm " dy1="5*mm " dy2="5*mm " dx1="43.026*cm " dx2="56.797*cm " />
  <Trd1 name="REG1" dz="16.05*cm " dy1="1*mm " dy2="1*mm " dx1="51.134*cm " dx2="56.794*cm " />
  <Trd1 name="REG2" dz="22.5*cm " dy1="1*mm " dy2="1*mm " dx1="43.023*cm " dx2="50.957*cm " />
+
  <Tubs name="ME32Space" rMin="3.575*m  " rMax="6.9968*m  " dz="12.6*cm " startPhi="0*deg" deltaPhi="360*deg"/>
  <Trd1 name="ME32" dz="1.690*m  " dy1="12.5*cm " dy2="12.5*cm " dx1="45.519*cm " dx2="76.34*cm " />
 
@@ -347,6 +354,7 @@
  <Trd1 name="ME_DeadGas_2_ME32_ActiveGasVol" dz="1.265*cm " dy1="[ActiveGasVolHalfThick]" dy2="[ActiveGasVolHalfThick]" dx1="52.18*cm " dx2="52.42*cm " />
  <Trd1 name="ME_DeadGas_3_ME32_ActiveGasVol" dz="1.265*cm " dy1="[ActiveGasVolHalfThick]" dy2="[ActiveGasVolHalfThick]" dx1="46.67*cm " dx2="46.9*cm " />
  <Trd1 name="ME_DeadGas_4_ME32_ActiveGasVol" dz="1.265*cm " dy1="[ActiveGasVolHalfThick]" dy2="[ActiveGasVolHalfThick]" dx1="41.16*cm " dx2="41.38*cm " />
+
  <Tubs name="ME4Ring" rMin="1.53*m  " rMax="7*m  " dz="33.675*cm " startPhi="0*deg" deltaPhi="360*deg"/>
  <Tubs name="ShieldingBoronPoly_1_ME4" rMin="1.532*m  " rMax="1.607*m  " dz="31.5*cm " startPhi="0*deg" deltaPhi="360*deg"/>
  <Tubs name="ShieldingAntinomyLead_1_ME4" rMin="1.608*m  " rMax="1.646*m  " dz="31.5*cm " startPhi="0*deg" deltaPhi="360*deg"/>
@@ -383,6 +391,39 @@
  <Trd1 name="ME41_ActiveGasVol" dz="74.710*cm " dy1="[ActiveGasVolHalfThick]" dy2="[ActiveGasVolHalfThick]" dx1="34.505*cm " dx2="62.825*cm " />
  <Trd1 name="ME_DeadGas_1_ME41_ActiveGasVol" dz="1.25*cm " dy1="[ActiveGasVolHalfThick]" dy2="[ActiveGasVolHalfThick]" dx1="52.296*cm " dx2="52.762*cm " />
  <Trd1 name="ME_DeadGas_2_ME41_ActiveGasVol" dz="1.25*cm " dy1="[ActiveGasVolHalfThick]" dy2="[ActiveGasVolHalfThick]" dx1="43.32*cm " dx2="43.8*cm " />
+
+<!-- Remove this line to restore ME42
+ <Tubs name="ME42Space" rMin="3.575*m  " rMax="6.9968*m  " dz="12.6*cm " startPhi="0*deg" deltaPhi="360*deg"/>
+ <Trd1 name="ME42" dz="1.690*m  " dy1="12.5*cm " dy2="12.5*cm " dx1="45.519*cm " dx2="76.34*cm " />
+
+ <Trd1 name="ME42AlumFrameBlock" dz="1.690*m  " dy1="[AlumFrameHalfThick]" dy2="[AlumFrameHalfThick]" dx1="455.19*mm" dx2="763.4*mm" />
+ <Trd1 name="ME42AlumFrameSubtraction" dz="1607.53*mm" dy1="[AlumFrameSubtractionThick]" dy2="[AlumFrameSubtractionThick]" dx1="455.19*mm-81.3*mm" dx2="763.4*mm-81.3*mm" />
+ <SubtractionSolid name="ME42AlumFrameTempBlock">
+   <rSolid name="ME42AlumFrameBlock"/>
+   <rSolid name="ME42AlumFrameSubtraction"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0.0*fm" y="[AlumFrameHalfThick]-[AlumFrameSubtractionThick]" z="0.0*fm"/>
+ </SubtractionSolid>
+ <SubtractionSolid name="ME42AlumFrame">
+   <rSolid name="ME42AlumFrameTempBlock"/>
+   <rSolid name="ME42AlumFrameSubtraction"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0.0*fm" y="-[AlumFrameHalfThick]+[AlumFrameSubtractionThick]" z="0.0*fm"/>
+ </SubtractionSolid>
+
+ <Trd1 name="ME42FR4Body" dz="1.690*m  " dy1="[FR4BodyHalfThick]" dy2="[FR4BodyHalfThick]" dx1="45.519*cm " dx2="76.34*cm " />
+ <Trd1 name="ME42PolycarbPanel" dz="1.67095*m  " dy1="[PolycarbPanelHalfThick]" dy2="[PolycarbPanelHalfThick]" dx1="41.95*cm " dx2="73.345*cm " />
+ <Trd1 name="ME_FR4Skin_1_ME42Layer" dz="1.67095*m  " dy1="[FR4SkinHalfThick]" dy2="[FR4SkinHalfThick]" dx1="41.95*cm " dx2="73.345*cm " />
+ <Trd1 name="ME_FR4Skin_2_ME42Layer" dz="1.67095*m  " dy1="[FR4SkinHalfThick]" dy2="[FR4SkinHalfThick]" dx1="41.95*cm " dx2="73.345*cm " />
+ <Trd1 name="MECU_1_ME42Layer" dz="1.67095*m  " dy1="[CuFoilHalfThick]" dy2="[CuFoilHalfThick]" dx1="41.95*cm " dx2="73.345*cm " />
+ <Trd1 name="MECU_2_ME42Layer" dz="1.67095*m  " dy1="[CuFoilHalfThick]" dy2="[CuFoilHalfThick]" dx1="41.95*cm " dx2="73.345*cm " />
+ <Trd1 name="ME42_ActiveGasVol" dz="1.6153*m  " dy1="[ActiveGasVolHalfThick]" dy2="[ActiveGasVolHalfThick]" dx1="33.230*cm " dx2="63.575*cm " />
+ <Trd1 name="ME_DeadGas_1_ME42_ActiveGasVol" dz="1.265*cm " dy1="[ActiveGasVolHalfThick]" dy2="[ActiveGasVolHalfThick]" dx1="57.7*cm " dx2="57.93*cm " />
+ <Trd1 name="ME_DeadGas_2_ME42_ActiveGasVol" dz="1.265*cm " dy1="[ActiveGasVolHalfThick]" dy2="[ActiveGasVolHalfThick]" dx1="52.18*cm " dx2="52.42*cm " />
+ <Trd1 name="ME_DeadGas_3_ME42_ActiveGasVol" dz="1.265*cm " dy1="[ActiveGasVolHalfThick]" dy2="[ActiveGasVolHalfThick]" dx1="46.67*cm " dx2="46.9*cm " />
+ <Trd1 name="ME_DeadGas_4_ME42_ActiveGasVol" dz="1.265*cm " dy1="[ActiveGasVolHalfThick]" dy2="[ActiveGasVolHalfThick]" dx1="41.16*cm " dx2="41.38*cm " />
+-->
+
  <Tubs name="RR4X" rMin="2.644*m  " rMax="6.99*m  " dz="4.5*cm " startPhi="0*deg" deltaPhi="360*deg"/>
  <Tubs name="RT4H" rMin="2.644*m  " rMax="3.3*m  " dz="2*cm " startPhi="-13*deg" deltaPhi="26*deg"/>
  <Trd1 name="RFHX" dz="27.85*cm " dy1="5.5*mm " dy2="5.5*mm " dx1="47.044*cm " dx2="56.847*cm " />
@@ -1177,6 +1218,66 @@
   <rSolid name="REH2"/>
   <rMaterial name="materials:M_RPC_Gas"/>
  </LogicalPart>
+
+<!-- Remove this line to restore ME42
+ <LogicalPart name="ME42Space" category="unspecified">
+  <rSolid name="ME42Space"/>
+  <rMaterial name="materials:ME_free_space"/>
+ </LogicalPart>
+ <LogicalPart name="ME42" category="unspecified">
+  <rSolid name="ME42"/>
+  <rMaterial name="materials:M_F_Air"/>
+ </LogicalPart>
+ <LogicalPart name="ME42AlumFrame" category="unspecified">
+  <rSolid name="ME42AlumFrame"/>
+  <rMaterial name="materials:M_Aluminium"/>
+ </LogicalPart>
+ <LogicalPart name="ME42FR4Body" category="unspecified">
+  <rSolid name="ME42FR4Body"/>
+  <rMaterial name="materials:M_NEMA FR4 plate"/>
+ </LogicalPart>
+ <LogicalPart name="ME42PolycarbPanel" category="unspecified">
+  <rSolid name="ME42PolycarbPanel"/>
+  <rMaterial name="materials:Polycarbonate"/>
+ </LogicalPart>
+ <LogicalPart name="ME_FR4Skin_1_ME42Layer" category="unspecified">
+  <rSolid name="ME_FR4Skin_1_ME42Layer"/>
+  <rMaterial name="materials:M_NEMA FR4 plate"/>
+ </LogicalPart>
+ <LogicalPart name="ME_FR4Skin_2_ME42Layer" category="unspecified">
+  <rSolid name="ME_FR4Skin_2_ME42Layer"/>
+  <rMaterial name="materials:M_NEMA FR4 plate"/>
+ </LogicalPart>
+ <LogicalPart name="MECU_1_ME42Layer" category="unspecified">
+  <rSolid name="MECU_1_ME42Layer"/>
+  <rMaterial name="materials:M_Copper"/>
+ </LogicalPart>
+ <LogicalPart name="MECU_2_ME42Layer" category="unspecified">
+  <rSolid name="MECU_2_ME42Layer"/>
+  <rMaterial name="materials:M_Copper"/>
+ </LogicalPart>
+ <LogicalPart name="ME42_ActiveGasVol" category="unspecified">
+  <rSolid name="ME42_ActiveGasVol"/>
+  <rMaterial name="materials:M_Argon CF_4 CO_2"/>
+ </LogicalPart>
+ <LogicalPart name="ME_DeadGas_1_ME42_ActiveGasVol" category="unspecified">
+  <rSolid name="ME_DeadGas_1_ME42_ActiveGasVol"/>
+  <rMaterial name="materials:Dead_Argon CF_4 CO_2"/>
+ </LogicalPart>
+ <LogicalPart name="ME_DeadGas_2_ME42_ActiveGasVol" category="unspecified">
+  <rSolid name="ME_DeadGas_2_ME42_ActiveGasVol"/>
+  <rMaterial name="materials:Dead_Argon CF_4 CO_2"/>
+ </LogicalPart>
+ <LogicalPart name="ME_DeadGas_3_ME42_ActiveGasVol" category="unspecified">
+  <rSolid name="ME_DeadGas_3_ME42_ActiveGasVol"/>
+  <rMaterial name="materials:Dead_Argon CF_4 CO_2"/>
+ </LogicalPart>
+ <LogicalPart name="ME_DeadGas_4_ME42_ActiveGasVol" category="unspecified">
+  <rSolid name="ME_DeadGas_4_ME42_ActiveGasVol"/>
+  <rMaterial name="materials:Dead_Argon CF_4 CO_2"/>
+ </LogicalPart>
+-->
+
  <LogicalPart name="ShieldingBoronPoly_1_ME" category="unspecified">
   <rSolid name="ShieldingBoronPoly_1_ME"/>
   <rMaterial name="materials:Boron Polyethyl."/>
@@ -1403,6 +1504,16 @@
   <rRotation name="rotations:000D"/>
   <Translation x="0*fm " y="-10.0234*cm " z="0*fm " />
  </PosPart>
+
+<!-- Remove to restore ME42
+<PosPart copyNumber="1">
+   <rParent name="mf:ME42"/>
+   <rChild name="mf:MEEQ"/>
+  <rRotation name="rotations:000D"/>
+  <Translation x="0*fm " y="-10.0234*cm " z="0*fm " />
+ </PosPart>
+-->
+
  <PosPart copyNumber="1">
    <rParent name="mf:ME12"/>
    <rChild name="mf:AlgPinNarrowEnd"/>
@@ -1487,6 +1598,22 @@
   <rRotation name="RotYZaroundX90"/>
   <Translation x="0*fm " y="-9.4034*cm " z="77.890*cm " />
  </PosPart>
+
+<!-- Remove to restore ME42
+<PosPart copyNumber="1">
+   <rParent name="mf:ME42"/>
+   <rChild name="mf:AlgPinNarrowEnd"/>
+  <rRotation name="RotYZaroundX90"/>
+  <Translation x="0*fm " y="-9.4034*cm " z="-164.555*cm " />
+ </PosPart>
+ <PosPart copyNumber="1">
+   <rParent name="mf:ME42"/>
+   <rChild name="mf:AlgPinWideEnd"/>
+  <rRotation name="RotYZaroundX90"/>
+  <Translation x="0*fm " y="-9.4034*cm " z="164.555*cm " />
+ </PosPart>
+-->
+
  <PosPart copyNumber="1">
    <rParent name="mf:ME1Ring"/>
    <rChild name="mf:RR11"/>
@@ -3740,6 +3867,100 @@
   <rRotation name="rotations:000D"/>
   <Translation x="0*fm " y="0*fm " z="-25.45*cm " />
  </PosPart>
+
+<!-- Remove to restore ME42
+ <PosPart copyNumber="1">
+   <rParent name="mf:ME4Ring"/>
+   <rChild name="mf:ME42Space"/>
+  <rRotation name="rotations:000D"/>
+  <Translation x="0*fm " y="0*fm " z="-20.15*cm " />
+ </PosPart>
+ <PosPart copyNumber="2">
+   <rParent name="mf:ME4Ring"/>
+   <rChild name="mf:ME42Space"/>
+  <rRotation name="rotations:R010"/>
+  <Translation x="0*fm " y="0*fm " z="5.04999*cm " />
+ </PosPart>
+ <Division name="ME42SpaceDivision" parent="ME42Space" axis="phi" offset="-10*deg" width="20*deg"/>
+ <PosPart copyNumber="1">
+   <rParent name="mf:ME42SpaceDivision"/>
+   <rChild name="mf:ME42"/>
+  <rRotation name="rotations:90DX"/>
+  <Translation x="5.2625*m  " y="0*fm " z="0*fm " />
+ </PosPart>
+ <PosPart copyNumber="1">
+   <rParent name="mf:ME42"/>
+   <rChild name="mf:ME42AlumFrame"/>
+  <rRotation name="rotations:000D"/>
+  <Translation x="0*fm " y="1.5*cm " z="0*fm " />
+ </PosPart>
+ <PosPart copyNumber="1">
+   <rParent name="mf:ME42AlumFrame"/>
+   <rChild name="mf:ME42FR4Body"/>
+  <rRotation name="rotations:000D"/>
+ </PosPart>
+ <PosPart copyNumber="1">
+   <rParent name="mf:ME42FR4Body"/>
+   <rChild name="mf:ME42PolycarbPanel"/>
+  <rRotation name="rotations:000D"/>
+ </PosPart>
+ <Division name="ME42Layer" parent="ME42PolycarbPanel" axis="y" offset="[LayerOffset]" width="[LayerSpacing]" nReplicas="6"/> 
+ <PosPart copyNumber="1">
+   <rParent name="mf:ME42Layer"/>
+   <rChild name="mf:ME_FR4Skin_1_ME42Layer"/>
+  <rRotation name="rotations:000D"/>
+  <Translation x="0*fm " y="[FR4SkinCenter]" z="0*fm " />
+ </PosPart>
+ <PosPart copyNumber="2">
+   <rParent name="mf:ME42Layer"/>
+   <rChild name="mf:ME_FR4Skin_2_ME42Layer"/>
+  <rRotation name="rotations:000D"/>
+  <Translation x="0*fm " y="-[FR4SkinCenter]" z="0*fm " />
+ </PosPart>
+ <PosPart copyNumber="1">
+   <rParent name="mf:ME42Layer"/>
+   <rChild name="mf:MECU_1_ME42Layer"/>
+  <rRotation name="rotations:000D"/>
+  <Translation x="0*fm " y="[CuFoilCenter]" z="0*fm " />
+ </PosPart>
+ <PosPart copyNumber="2">
+   <rParent name="mf:ME42Layer"/>
+   <rChild name="mf:MECU_2_ME42Layer"/>
+  <rRotation name="rotations:000D"/>
+  <Translation x="0*fm " y="-[CuFoilCenter]" z="0*fm " />
+ </PosPart>
+ <PosPart copyNumber="1">
+   <rParent name="mf:ME42Layer"/>
+   <rChild name="mf:ME42_ActiveGasVol"/>
+  <rRotation name="rotations:000D"/>
+  <Translation x="0*fm " y="0*fm " z="-9.5*mm " />
+ </PosPart>
+ <PosPart copyNumber="1">
+   <rParent name="mf:ME42_ActiveGasVol"/>
+   <rChild name="mf:ME_DeadGas_1_ME42_ActiveGasVol"/>
+  <rRotation name="rotations:000D"/>
+  <Translation x="0*fm " y="0*fm " z="1.0116*m  " />
+ </PosPart>
+ <PosPart copyNumber="2">
+   <rParent name="mf:ME42_ActiveGasVol"/>
+   <rChild name="mf:ME_DeadGas_2_ME42_ActiveGasVol"/>
+  <rRotation name="rotations:000D"/>
+  <Translation x="0*fm " y="0*fm " z="40.46*cm " />
+ </PosPart>
+ <PosPart copyNumber="3">
+   <rParent name="mf:ME42_ActiveGasVol"/>
+   <rChild name="mf:ME_DeadGas_3_ME42_ActiveGasVol"/>
+  <rRotation name="rotations:000D"/>
+  <Translation x="0*fm " y="0*fm " z="-20.23*cm " />
+ </PosPart>
+ <PosPart copyNumber="4">
+   <rParent name="mf:ME42_ActiveGasVol"/>
+   <rChild name="mf:ME_DeadGas_4_ME42_ActiveGasVol"/>
+  <rRotation name="rotations:000D"/>
+  <Translation x="0*fm " y="0*fm " z="-80.92*cm " />
+ </PosPart>
+-->
+
  <PosPart copyNumber="1">
    <rParent name="mf:ME4Ring"/>
    <rChild name="mf:RR4X"/>
