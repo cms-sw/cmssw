@@ -1,3 +1,8 @@
+2007-10-09  Emilio Meschi  <emilio.meschi@cern.ch>
+	
+	* tag V01-01-02
+	* fix halting to call detachDqmFromShm only when shm is present
+
 2007-08-14  Emilio Meschi  <emilio.meschi@cern.ch>
 
 	* tag V01-01-00
