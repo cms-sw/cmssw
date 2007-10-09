@@ -28,6 +28,8 @@ namespace edmtest {
       element.refVec.erase(ri);
       element.oneNullOneNot.push_back(edm::Ref<ThingCollection>(parent.id()));
       element.oneNullOneNot.push_back(edm::Ref<ThingCollection>(parent, 0));
+      element.refToBaseProd = edm::RefToBaseProd<Thing>(element.refProd);
+      element.refToBase = edm::RefToBase<Thing>(element.ref);
       assert(element.oneNullOneNot.size() == 2); // we'll check this in our tests
       result.push_back(element);
       //      element.refVec.clear(); // no need to clear; 'element' is created anew on every loop

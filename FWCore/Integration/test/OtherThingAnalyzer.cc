@@ -66,6 +66,23 @@ namespace edmtest {
       } else {
         throw cms::Exception("Inconsistent Data", "OtherThingAnalyzer::analyze") << "ITEM " << i << " has incorrect value " << tc.a << '\n';
       }
+      const edm::View<Thing>& viewThing = *otherThing.refToBaseProd;
+      const edm::View<Thing>::size_type viewSize1 = viewThing.size();
+      const edm::View<Thing>::size_type viewSize2 = otherThing.refToBaseProd->size();
+      if (viewSize1 == 0 || viewSize2 != viewSize1) {
+        throw cms::Exception("Inconsistent Data", "OtherThingAnalyzer::analyze") << " RefToBaseProd size mismatch " << std::endl;
+      }
+      if (viewSize1 != size1) {
+        throw cms::Exception("Inconsistent Data", "OtherThingAnalyzer::analyze") << " RefToBaseProd size mismatch to RefProd size" << std::endl;
+      }
+      Thing const& tcBase = *otherThing.refToBase;
+      int const& xBase = otherThing.refToBase->a;
+      if (tcBase.a == i && xBase == i) {
+        edm::LogInfo("OtherThingAnalyzer") << " ITEM " << i << " LABEL " << label << " RefToBase dereferenced successfully.\n";
+      } else {
+        throw cms::Exception("Inconsistent Data", "OtherThingAnalyzer::analyze") << "ITEM " << i << " RefToBase has incorrect value " << tc.a << '\n';
+      }
+
       bool shouldBeTrue = otherThing.refVec[0] != otherThing.refVec[1];
       if (!shouldBeTrue) {
         throw cms::Exception("Inconsistent Data", "OtherThingAnalyzer::analyze") << "Inequality has incorrect value\n";
