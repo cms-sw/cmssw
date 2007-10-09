@@ -60,6 +60,7 @@ public:
 
   //! make multiple MuIsoDeposit(s) based on a track as input
   //! use these only if CPU-constrained
+  //! for all derived types THIS METHOD HAS TO BE IMPLEMENTED at the minimum
   virtual std::vector<reco::MuIsoDeposit> 
     deposits(const edm::Event & ev, const edm::EventSetup & evSetup, const reco::Track & track) const{
     return std::vector<reco::MuIsoDeposit>(1, deposit(ev, evSetup, track));
@@ -76,7 +77,10 @@ public:
   //! use these only if CPU-constrained
   virtual std::vector<reco::MuIsoDeposit> 
     deposits(const edm::Event & ev, const edm::EventSetup & evSetup, const reco::Candidate & track) const{
-    return std::vector<reco::MuIsoDeposit>(1, deposit(ev, evSetup, track));
+    return deposits(ev, evSetup, 
+		    reco::Track(10, 10,  
+				track.vertex(), track.momentum(), track.charge(), 
+				reco::Track::CovarianceMatrix()));
   }
 
   //! make multiple MuIsoDeposit(s) based on a candidateBaseRef as input
