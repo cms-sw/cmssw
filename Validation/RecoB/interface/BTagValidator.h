@@ -9,7 +9,7 @@
  author: Victor Bazterra, UIC
          Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
 
- version $Id: BTagValidator.h,v 1.3 2007/02/14 20:09:41 yumiceva Exp $
+ version $Id: BTagValidator.h,v 1.4 2007/02/14 20:53:18 bazterra Exp $
 
 ________________________________________________________________**/
 
@@ -25,8 +25,6 @@ ________________________________________________________________**/
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-
-#include "RecoBTag/Analysis/interface/BTagPABase.h"
 
 //
 // class decleration
@@ -54,11 +52,8 @@ class BTagValidator : public edm::EDAnalyzer
     std::string referenceFilename_;
     vstring histogramList_;
     bool doCompare_;
-    bool doAnalysis_;
     //bool OnlyCompare_;
 	
-    // performance analicer base class
-    BTagPABaseABC * petBase_;
 };
 
 

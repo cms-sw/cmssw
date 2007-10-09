@@ -6,7 +6,7 @@
  author: Victor Bazterra, UIC
          Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
 
- version $Id: BTagValidator.cc,v 1.12 2007/09/05 21:36:45 yumiceva Exp $
+ version $Id: BTagValidator.cc,v 1.13 2007/10/04 14:42:48 yumiceva Exp $
 
 ________________________________________________________________**/
 
@@ -20,17 +20,8 @@ ________________________________________________________________**/
 #include "TH3.h"
 #include "TString.h"
 
-#include "RecoBTag/Analysis/interface/BaseBTagPlotter.h"
-
-#include "DataFormats/BTauReco/interface/TrackCountingTagInfo.h"
-
 #include "FWCore/Utilities/interface/Exception.h"
 
-#include "RecoBTag/Analysis/interface/TrackCountingTagPlotter.h"
-#include "RecoBTag/Analysis/interface/TrackProbabilityTagPlotter.h"
-#include "RecoBTag/Analysis/interface/SoftLeptonTagPlotter.h"
-#include "RecoBTag/Analysis/interface/CombinedTagPlotter.h"
-#include "RecoBTag/Analysis/interface/TrackIPTagPlotter.h"
 #include "Validation/RecoB/interface/HistoCompare.h"
 
 //
@@ -49,24 +40,6 @@ BTagValidator::BTagValidator(const edm::ParameterSet& iConfig) {
 	histogramList_ = iConfig.getParameter<vstring>( "histogramList" );
 	referenceFilename_ = iConfig.getParameter<std::string>( "referenceFilename" );
 	doCompare_ = iConfig.getParameter<bool>( "compareHistograms");
-	doAnalysis_ = iConfig.getParameter<bool>( "doAnalysis");
-					
-	if (doAnalysis_) {
-		if (algorithm_ == "TrackCounting") 
-			petBase_ = new BTagPABase< TrackCountingTagPlotter>(iConfig);
-		else if (algorithm_ == "TrackProbability")
-			petBase_ = new BTagPABase< TrackProbabilityTagPlotter>(iConfig);
-		else if (algorithm_ == "SoftLepton")
-			petBase_ = new BTagPABase< SoftLeptonTagPlotter>(iConfig);
-		else if (algorithm_ == "CombinedSV")
-			petBase_ = new BTagPABase< CombinedTagPlotter>(iConfig);
-		else if (algorithm_ == "CombinedSVMVA")
-			petBase_ = new BTagPABase< CombinedTagPlotter>(iConfig);
-		else if (algorithm_ == "TrackIP")
-			petBase_ = new BTagPABase< TrackIPTagPlotter>(iConfig);
-		else 
-			throw cms::Exception("UnknownAlgorithm") << algorithm_ << " possible options are TrackCounting, TrackProbability and SoftLepton. ";
-	}
 }
 
 
@@ -82,16 +55,12 @@ BTagValidator::~BTagValidator() {
 // ------------ method called to for each event  ------------
 void
 BTagValidator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
-{
-	if(doAnalysis_) petBase_->analyze(iEvent, iSetup);
-}
+{ }
 
 
 void 
 BTagValidator::endJob() 
 {
-	if ( doAnalysis_ ) petBase_->endJob();
-
 	// Validation section
 	TObject * tObject ;
 
