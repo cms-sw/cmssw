@@ -2,7 +2,7 @@
 
 Test program for edm::Ref use in ROOT.
 
-$Id: ref_t.cppunit.cpp,v 1.12 2007/06/05 15:21:06 chrjones Exp $
+$Id: ref_t.cppunit.cpp,v 1.13 2007/08/02 23:24:08 ratnik Exp $
  ----------------------------------------------------------------------*/
 
 #include <iostream>
@@ -75,10 +75,16 @@ static void checkMatch(const edmtest::OtherThingCollection* pOthers,
   CPPUNIT_ASSERT(pThings != 0);
   CPPUNIT_ASSERT(pOthers->size() == pThings->size());
   
+  //This test requires at least one entry
+  CPPUNIT_ASSERT(pOthers->size() > 0 );
+  const edm::View<edmtest::Thing>& view = *(pOthers->front().refToBaseProd);
+  CPPUNIT_ASSERT(view.size() == pOthers->size());
+  
   edmtest::ThingCollection::const_iterator itThing = pThings->begin(), itThingEnd = pThings->end();
   edmtest::OtherThingCollection::const_iterator itOther = pOthers->begin();
+  edm::View<edmtest::Thing>::const_iterator itView = view.begin();
   
-  for( ; itThing != itThingEnd; ++itThing, ++itOther) {
+  for( ; itThing != itThingEnd; ++itThing, ++itOther,++itView) {
     //I'm assuming the following is true
     CPPUNIT_ASSERT(itOther->ref.key() == static_cast<unsigned int>(itThing - pThings->begin()));
     //std::cout <<" ref "<<itOther->ref.get()->a<<" thing "<<itThing->a<<std::endl;
@@ -86,6 +92,18 @@ static void checkMatch(const edmtest::OtherThingCollection* pOthers,
       std::cout <<" *PROBLEM: ref "<<itOther->ref.get()->a<<"!= thing "<<itThing->a<<std::endl;
     }
     CPPUNIT_ASSERT( itOther->ref.get()->a == itThing->a);
+
+    CPPUNIT_ASSERT(itOther->refToBase.key() == static_cast<unsigned int>(itThing - pThings->begin()));
+    //std::cout <<" ref "<<itOther->ref.get()->a<<" thing "<<itThing->a<<std::endl;
+    if(itOther->refToBase.get()->a != itThing->a) {
+      std::cout <<" *PROBLEM: refToBase "<<itOther->refToBase.get()->a<<"!= thing "<<itThing->a<<std::endl;
+    }
+    CPPUNIT_ASSERT( itOther->refToBase.get()->a == itThing->a);
+
+    if(itView->a != itThing->a) {
+      std::cout <<" *PROBLEM: RefToBaseProd "<<itView->a<<"!= thing "<<itThing->a<<std::endl;
+    }
+    CPPUNIT_ASSERT( itView->a == itThing->a);
   }
 }
 

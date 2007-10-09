@@ -2,7 +2,7 @@
 
 Test program for edm::Ref use in ROOT.
 
-$Id: test.cppunit.cpp,v 1.1 2007/05/16 14:37:44 chrjones Exp $
+$Id: test.cppunit.cpp,v 1.2 2007/05/16 16:48:33 chrjones Exp $
  ----------------------------------------------------------------------*/
 
 #include <iostream>
@@ -81,15 +81,26 @@ static void checkMatch(const edmtest::OtherThingCollection* pOthers,
   CPPUNIT_ASSERT(pOthers != 0);
   CPPUNIT_ASSERT(pThings != 0);
   CPPUNIT_ASSERT(pOthers->size() == pThings->size());
+
+  //This test requires at least one entry
+  CPPUNIT_ASSERT(pOthers->size() > 0 );
+  const edm::View<edmtest::Thing>& view = *(pOthers->front().refToBaseProd);
+  CPPUNIT_ASSERT(view.size() == pOthers->size());
+  
   
   edmtest::ThingCollection::const_iterator itThing = pThings->begin(), itThingEnd = pThings->end();
   edmtest::OtherThingCollection::const_iterator itOther = pOthers->begin();
-  
-  for( ; itThing != itThingEnd; ++itThing, ++itOther) {
+  edm::View<edmtest::Thing>::const_iterator itView = view.begin();
+
+  for( ; itThing != itThingEnd; ++itThing, ++itOther,++itView) {
     //std::cout <<"getting data"<<std::endl;
     //I'm assuming the following is true
     CPPUNIT_ASSERT(itOther->ref.key() == static_cast<unsigned int>(itThing - pThings->begin()));
     CPPUNIT_ASSERT( itOther->ref.get()->a == itThing->a);
+    if(itView->a != itThing->a) {
+      std::cout <<" *PROBLEM: RefToBaseProd "<<itView->a<<"!= thing "<<itThing->a<<std::endl;
+    }
+    CPPUNIT_ASSERT( itView->a == itThing->a);
   }
 }
 
