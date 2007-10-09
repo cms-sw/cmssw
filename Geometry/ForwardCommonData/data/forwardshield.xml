@@ -61,7 +61,7 @@
  <Constant name="RotShldZ13"   value="18.890*m"/>
  <Constant name="RotShldZ14"   value="19.839*m"/>
  <Constant name="RotShldZ15"   value="19.889*m"/>
- <Constant name="RotShldR1"    value="33.00*cm"/>
+ <Constant name="RotShldR1"    value="[cms:ForwdDetsR1]"/>
  <Constant name="RotShldR2"    value="40.00*cm"/>
  <Constant name="RotShldR3"    value="74.29*cm"/>
  <Constant name="RotShldR4"    value="70.00*cm"/>
