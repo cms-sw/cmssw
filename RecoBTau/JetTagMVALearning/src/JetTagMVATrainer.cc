@@ -201,7 +201,7 @@ void JetTagMVATrainer::analyze(const edm::Event& event,
 		JetInfoMap::iterator pos =
 			jetInfos.find(edm::RefToBase<Jet>(iter->first));
 		if (pos != jetInfos.end())
-			pos->second.flavour = iter->second;
+			pos->second.flavour = iter->second.getFlavour();
 	}
 
 	// cached array containing MVAComputer value list
