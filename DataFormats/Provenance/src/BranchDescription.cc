@@ -219,7 +219,7 @@ namespace edm {
   void
   BranchDescription::throwIfInvalid_() const
   {
-    if (branchType_ >= edm::EndBranchType)
+    if (branchType_ >= edm::NumBranchTypes)
       throwExceptionWithText("Illegal BranchType detected");
 
     if (moduleLabel_.empty())
