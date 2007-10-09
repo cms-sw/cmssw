@@ -1,7 +1,7 @@
 /*
  * 
- * $Date: 2007/06/19 10:21:25 $
- * $Revision: 1.11 $
+ * $Date: 2007/09/19 17:07:29 $
+ * $Revision: 1.12 $
  * \authors:
  *  A. Gresele - INFN Trento
  *  G. Mila - INFN Torino
@@ -122,8 +122,6 @@ void DTNoiseTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, EventSetup 
 
   edm::LogVerbatim ("noise") <<"[DTNoiseTest]: "<<nLumiSegs<<" updates";
 
-
-
   ESHandle<DTStatusFlag> statusMap;
   context.get<DTStatusFlagRcd>().get(statusMap);
   
@@ -150,9 +148,9 @@ void DTNoiseTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, EventSetup 
 	double nevents = (int) noiseHisto->GetEntries();	
 	
 	double normalization =0;
-	
+
 	if (noiseHisto) {
-	  
+
 	  float average=0;
 	  float nOfChannels=0;
 	  float noiseStatistics=0;
@@ -230,6 +228,7 @@ void DTNoiseTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, EventSetup 
 	
 	DTLayerId lID = (*l_it)->id();
 	MonitorElement * noisePerEventME = dbe->get(getMEName(lID));
+
 	if (noisePerEventME) {
 	  MonitorElementT<TNamed>* obPerEvent = dynamic_cast<MonitorElementT<TNamed>*>(noisePerEventME);
 	  if (obPerEvent) {
@@ -336,7 +335,7 @@ string DTNoiseTest::getMEName(const DTLayerId & ly) {
   string folderRoot = parameters.getUntrackedParameter<string>("folderRoot", "Collector/FU0/");
   string folderTag = parameters.getUntrackedParameter<string>("folderTagForDigiPerEventTest", "DigiPerEvent");
   string folderName = 
-    folderRoot + "DT/DTDigiTask/Wheel" +  wheel.str() +
+    folderRoot + "DT/DTDigiForNoiseTask/Wheel" +  wheel.str() +
     "/Station" + station.str() +
     "/Sector" + sector.str() + "/" + folderTag + "/";
   
