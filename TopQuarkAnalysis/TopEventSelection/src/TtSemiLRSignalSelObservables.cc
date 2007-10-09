@@ -42,16 +42,20 @@ void TtSemiLRSignalSelObservables::operator() (TtSemiEvtSolution &TS)
 	TLorentzVector *Lepb = new TLorentzVector();
 	Lepb->SetPxPyPzE(TopJets[0].getRecJet().px(),TopJets[0].getRecJet().py(),TopJets[0].getRecJet().pz(),TopJets[0].getRecJet().energy());
 	
-	TLorentzVector *Lept = new TLorentzVector();
-	Lept->SetPxPyPzE(TS.getRecLept().px(),TS.getRecLept().py(),TS.getRecLept().pz(),TS.getRecLept().energy());
+        TLorentzVector * Lepl = new TLorentzVector();
+        if (TS.getDecay() == "muon") {
+          Lepl->SetPxPyPzE(TS.getMuon().px(),TS.getMuon().py(),TS.getMuon().pz(),TS.getMuon().energy());
+        } else if (TS.getDecay() == "electron") {
+          Lepl->SetPxPyPzE(TS.getElectron().px(),TS.getElectron().py(),TS.getElectron().pz(),TS.getElectron().energy());
+        }
 	
 	TLorentzVector *Lepn = new TLorentzVector();
 	Lepn->SetPxPyPzE(TS.getRecLepn().px(),TS.getRecLepn().py(),TS.getRecLepn().pz(),TS.getRecLepn().energy());
 	
-	double alpha = pow(Lept->E(),2)-pow(Lept->Pz(),2);
-	double zeta  = pow(Lept->E(),2)-pow(80.41,2)-2*(Lept->Px()*Lepn->Px()+Lept->Py()*Lepn->Py());
-	double beta  = Lept->Pz()*zeta;	
-	double gamma = pow(Lept->E(),2)*(pow(Lepn->Pt(),2))-pow(zeta/2,2);	
+	double alpha = pow(Lepl->E(),2)-pow(Lepl->Pz(),2);
+	double zeta  = pow(Lepl->E(),2)-pow(80.41,2)-2*(Lepl->Px()*Lepn->Px()+Lepl->Py()*Lepn->Py());
+	double beta  = Lepl->Pz()*zeta;	
+	double gamma = pow(Lepl->E(),2)*(pow(Lepn->Pt(),2))-pow(zeta/2,2);	
 	double Delta = pow(beta,2)-4*alpha*gamma;
 	double LepnPt= Lepn->Pt();
 	int    it    = 0;	
@@ -59,7 +63,7 @@ void TtSemiLRSignalSelObservables::operator() (TtSemiEvtSolution &TS)
 	while(Delta<0 && it<1000)
 	{
 		LepnPt = LepnPt-0.1;
-		gamma = pow(Lept->E(),2)*(pow(LepnPt,2))-pow(zeta/2,2);
+		gamma = pow(Lepl->E(),2)*(pow(LepnPt,2))-pow(zeta/2,2);
 		Delta = pow(beta,2)-4*alpha*gamma;
 		//cout<<"Look for another solution, Pt of the neutrino over estimated"<<endl;
 		it++;
@@ -70,12 +74,12 @@ void TtSemiLRSignalSelObservables::operator() (TtSemiEvtSolution &TS)
 	
 	Lepn->SetPz(Solution1);	
 	TLorentzVector *LepTop1 = new TLorentzVector();
-	LepTop1->SetPxPyPzE(Lepb->Px()+Lept->Px()+Lepn->Px(),Lepb->Py()+Lept->Py()+Lepn->Py(),Lepb->Pz()+Lept->Pz()+Solution1,Lepb->E()+Lept->E()+Lepn->E());	
+	LepTop1->SetPxPyPzE(Lepb->Px()+Lepl->Px()+Lepn->Px(),Lepb->Py()+Lepl->Py()+Lepn->Py(),Lepb->Pz()+Lepl->Pz()+Solution1,Lepb->E()+Lepl->E()+Lepn->E());	
 	double DiffLepTopMass1 = fabs(LepTop1->M()-175);
 	
 	Lepn->SetPz(Solution2);	
 	TLorentzVector *LepTop2 = new TLorentzVector();
-	LepTop2->SetPxPyPzE(Lepb->Px()+Lept->Px()+Lepn->Px(),Lepb->Py()+Lept->Py()+Lepn->Py(),Lepb->Pz()+Lept->Pz()+Solution2,Lepb->E()+Lept->E()+Lepn->E());		
+	LepTop2->SetPxPyPzE(Lepb->Px()+Lepl->Px()+Lepn->Px(),Lepb->Py()+Lepl->Py()+Lepn->Py(),Lepb->Pz()+Lepl->Pz()+Solution2,Lepb->E()+Lepl->E()+Lepn->E());		
 	double DiffLepTopMass2 = fabs(LepTop2->M()-175);
 	
 	double Solution = (DiffLepTopMass1<DiffLepTopMass2 ? Solution1 : Solution2);
@@ -132,7 +136,7 @@ void TtSemiLRSignalSelObservables::operator() (TtSemiEvtSolution &TS)
 			{
 				N += fabs(TopJets[i].getRecJet().px()*nx+TopJets[i].getRecJet().py()*ny+TopJets[i].getRecJet().pz()*nz);
 			}
-				N += fabs(Lept->Px()*nx+Lept->Py()*ny+Lept->Pz()*nz)+fabs(Lepn->Px()*nx+Lepn->Py()*ny+Lepn->Pz()*nz);
+				N += fabs(Lepl->Px()*nx+Lepl->Py()*ny+Lepl->Pz()*nz)+fabs(Lepn->Px()*nx+Lepn->Py()*ny+Lepn->Pz()*nz);
 	
 			C_tmp = 2*N/D;
 			if(C_tmp<C) C = C_tmp;
@@ -238,7 +242,12 @@ void TtSemiLRSignalSelObservables::operator() (TtSemiEvtSolution &TS)
 	
 // Pt of the lepton
 
-	double Obs11 = TS.getRecLept().pt();
+	double Obs11 = 0;
+        if (TS.getDecay() == "muon") {
+          Obs11 = TS.getRecLepm().pt();
+        } else if (TS.getDecay() == "electron") {
+          Obs11 = TS.getRecLepe().pt();
+        }
 	evtselectVarVal.push_back(pair<unsigned int,double>(11,Obs11));
 	
 	
@@ -246,15 +255,15 @@ void TtSemiLRSignalSelObservables::operator() (TtSemiEvtSolution &TS)
 
 	TMatrixDSym Matrix(3);
 	
-	double PX2 = pow(Hadp->Px(),2)+pow(Hadq->Px(),2)+pow(Hadb->Px(),2)+pow(Lepb->Px(),2)+pow(Lept->Px(),2)+pow(Lepn->Px(),2);
-	double PY2 = pow(Hadp->Py(),2)+pow(Hadq->Py(),2)+pow(Hadb->Py(),2)+pow(Lepb->Py(),2)+pow(Lept->Py(),2)+pow(Lepn->Py(),2);
-	double PZ2 = pow(Hadp->Pz(),2)+pow(Hadq->Pz(),2)+pow(Hadb->Pz(),2)+pow(Lepb->Pz(),2)+pow(Lept->Pz(),2)+pow(Lepn->Pz(),2);
+	double PX2 = pow(Hadp->Px(),2)+pow(Hadq->Px(),2)+pow(Hadb->Px(),2)+pow(Lepb->Px(),2)+pow(Lepl->Px(),2)+pow(Lepn->Px(),2);
+	double PY2 = pow(Hadp->Py(),2)+pow(Hadq->Py(),2)+pow(Hadb->Py(),2)+pow(Lepb->Py(),2)+pow(Lepl->Py(),2)+pow(Lepn->Py(),2);
+	double PZ2 = pow(Hadp->Pz(),2)+pow(Hadq->Pz(),2)+pow(Hadb->Pz(),2)+pow(Lepb->Pz(),2)+pow(Lepl->Pz(),2)+pow(Lepn->Pz(),2);
 	
 	double P2  = PX2+PY2+PZ2;
 	
-	double PXY = Hadp->Px()*Hadp->Py()+Hadq->Px()*Hadq->Py()+Hadb->Px()*Hadb->Py()+Lepb->Px()*Lepb->Py()+Lept->Px()*Lept->Py()+Lepn->Px()*Lepn->Py();
-	double PXZ = Hadp->Px()*Hadp->Pz()+Hadq->Px()*Hadq->Pz()+Hadb->Px()*Hadb->Pz()+Lepb->Px()*Lepb->Pz()+Lept->Px()*Lept->Pz()+Lepn->Px()*Lepn->Pz();
-	double PYZ = Hadp->Py()*Hadp->Pz()+Hadq->Py()*Hadq->Pz()+Hadb->Py()*Hadb->Pz()+Lepb->Py()*Lepb->Pz()+Lept->Py()*Lept->Pz()+Lepn->Py()*Lepn->Pz();
+	double PXY = Hadp->Px()*Hadp->Py()+Hadq->Px()*Hadq->Py()+Hadb->Px()*Hadb->Py()+Lepb->Px()*Lepb->Py()+Lepl->Px()*Lepl->Py()+Lepn->Px()*Lepn->Py();
+	double PXZ = Hadp->Px()*Hadp->Pz()+Hadq->Px()*Hadq->Pz()+Hadb->Px()*Hadb->Pz()+Lepb->Px()*Lepb->Pz()+Lepl->Px()*Lepl->Pz()+Lepn->Px()*Lepn->Pz();
+	double PYZ = Hadp->Py()*Hadp->Pz()+Hadq->Py()*Hadq->Pz()+Hadb->Py()*Hadb->Pz()+Lepb->Py()*Lepb->Pz()+Lepl->Py()*Lepl->Pz()+Lepn->Py()*Lepn->Pz();
 
 	Matrix(0,0) = PX2/P2; Matrix(0,1) = PXY/P2; Matrix(0,2) = PXZ/P2;
 	Matrix(1,0) = PXY/P2; Matrix(1,1) = PY2/P2; Matrix(1,2) = PYZ/P2;
@@ -286,29 +295,29 @@ void TtSemiLRSignalSelObservables::operator() (TtSemiEvtSolution &TS)
 //Sphericity and Aplanarity with boosting back the system to CM frame	
 
 	TLorentzVector *TtbarSystem = new TLorentzVector();
-	TtbarSystem->SetPx(Hadp->Px()+Hadq->Px()+Hadb->Px()+Lepb->Px()+Lept->Px()+Lepn->Px());
-	TtbarSystem->SetPy(Hadp->Py()+Hadq->Py()+Hadb->Py()+Lepb->Py()+Lept->Py()+Lepn->Py());
-	TtbarSystem->SetPz(Hadp->Pz()+Hadq->Pz()+Hadb->Pz()+Lepb->Pz()+Lept->Pz()+Lepn->Pz());
-	TtbarSystem->SetE(Hadp->E()+Hadq->E()+Hadb->E()+Lepb->E()+Lept->E()+Lepn->E());
+	TtbarSystem->SetPx(Hadp->Px()+Hadq->Px()+Hadb->Px()+Lepb->Px()+Lepl->Px()+Lepn->Px());
+	TtbarSystem->SetPy(Hadp->Py()+Hadq->Py()+Hadb->Py()+Lepb->Py()+Lepl->Py()+Lepn->Py());
+	TtbarSystem->SetPz(Hadp->Pz()+Hadq->Pz()+Hadb->Pz()+Lepb->Pz()+Lepl->Pz()+Lepn->Pz());
+	TtbarSystem->SetE(Hadp->E()+Hadq->E()+Hadb->E()+Lepb->E()+Lepl->E()+Lepn->E());
 
 	TVector3 BoostBackToCM = -(TtbarSystem->BoostVector());
 	Hadp->Boost(BoostBackToCM);
 	Hadq->Boost(BoostBackToCM);
 	Hadb->Boost(BoostBackToCM);
 	Lepb->Boost(BoostBackToCM);
-	Lept->Boost(BoostBackToCM);
+	Lepl->Boost(BoostBackToCM);
 	Lepn->Boost(BoostBackToCM);
 
 
-	double BOOST_PX2 = pow(Hadp->Px(),2)+pow(Hadq->Px(),2)+pow(Hadb->Px(),2)+pow(Lepb->Px(),2)+pow(Lept->Px(),2)+pow(Lepn->Px(),2);
-	double BOOST_PY2 = pow(Hadp->Py(),2)+pow(Hadq->Py(),2)+pow(Hadb->Py(),2)+pow(Lepb->Py(),2)+pow(Lept->Py(),2)+pow(Lepn->Py(),2);
-	double BOOST_PZ2 = pow(Hadp->Pz(),2)+pow(Hadq->Pz(),2)+pow(Hadb->Pz(),2)+pow(Lepb->Pz(),2)+pow(Lept->Pz(),2)+pow(Lepn->Pz(),2);
+	double BOOST_PX2 = pow(Hadp->Px(),2)+pow(Hadq->Px(),2)+pow(Hadb->Px(),2)+pow(Lepb->Px(),2)+pow(Lepl->Px(),2)+pow(Lepn->Px(),2);
+	double BOOST_PY2 = pow(Hadp->Py(),2)+pow(Hadq->Py(),2)+pow(Hadb->Py(),2)+pow(Lepb->Py(),2)+pow(Lepl->Py(),2)+pow(Lepn->Py(),2);
+	double BOOST_PZ2 = pow(Hadp->Pz(),2)+pow(Hadq->Pz(),2)+pow(Hadb->Pz(),2)+pow(Lepb->Pz(),2)+pow(Lepl->Pz(),2)+pow(Lepn->Pz(),2);
 	
 	double BOOST_P2  = BOOST_PX2+BOOST_PY2+BOOST_PZ2;
 	
-	double BOOST_PXY = Hadp->Px()*Hadp->Py()+Hadq->Px()*Hadq->Py()+Hadb->Px()*Hadb->Py()+Lepb->Px()*Lepb->Py()+Lept->Px()*Lept->Py()+Lepn->Px()*Lepn->Py();
-	double BOOST_PXZ = Hadp->Px()*Hadp->Pz()+Hadq->Px()*Hadq->Pz()+Hadb->Px()*Hadb->Pz()+Lepb->Px()*Lepb->Pz()+Lept->Px()*Lept->Pz()+Lepn->Px()*Lepn->Pz();
-	double BOOST_PYZ = Hadp->Py()*Hadp->Pz()+Hadq->Py()*Hadq->Pz()+Hadb->Py()*Hadb->Pz()+Lepb->Py()*Lepb->Pz()+Lept->Py()*Lept->Pz()+Lepn->Py()*Lepn->Pz();
+	double BOOST_PXY = Hadp->Px()*Hadp->Py()+Hadq->Px()*Hadq->Py()+Hadb->Px()*Hadb->Py()+Lepb->Px()*Lepb->Py()+Lepl->Px()*Lepl->Py()+Lepn->Px()*Lepn->Py();
+	double BOOST_PXZ = Hadp->Px()*Hadp->Pz()+Hadq->Px()*Hadq->Pz()+Hadb->Px()*Hadb->Pz()+Lepb->Px()*Lepb->Pz()+Lepl->Px()*Lepl->Pz()+Lepn->Px()*Lepn->Pz();
+	double BOOST_PYZ = Hadp->Py()*Hadp->Pz()+Hadq->Py()*Hadq->Pz()+Hadb->Py()*Hadb->Pz()+Lepb->Py()*Lepb->Pz()+Lepl->Py()*Lepl->Pz()+Lepn->Py()*Lepn->Pz();
 
 	TMatrixDSym BOOST_Matrix(3);
 
