@@ -13,11 +13,12 @@
 //
 // Original Author:  Roberto Covarelli
 //         Created:  Mon Jan 15 10:39:42 CET 2007
-// $Id: TrackHitFilter.cc,v 1.3 2007/06/22 08:20:39 covarell Exp $
+// $Id: TrackHitFilter.cc,v 1.4 2007/07/26 15:59:28 covarell Exp $
 //
 //
 
 #include "Alignment/TrackHitFilter/interface/TrackHitFilter.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
 
 using namespace edm;
 using namespace reco;
