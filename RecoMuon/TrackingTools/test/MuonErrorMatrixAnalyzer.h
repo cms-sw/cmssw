@@ -24,13 +24,15 @@
 
 #include "RecoMuon/TrackingTools/interface/MuonErrorMatrix.h"
 
-#include <FWCore/Framework/interface/ESHandle.h>
+#include "FWCore/Framework/interface/ESHandle.h"
+
+#include "DataFormats/GeometrySurface/interface/Cylinder.h"
 
 class MagneticField;
 class TrackAssociatorBase;
 class TH1;
 class TH2;
-
+class Propagator;
 //
 // class decleration
 //
@@ -83,6 +85,25 @@ class MuonErrorMatrixAnalyzer : public edm::EDAnalyzer {
   /// class holder for the empirical error scale factor parametrization from pull
   MuonErrorMatrix * theErrorMatrixStore_Pull;
   edm::ParameterSet theErrorMatrixStore_Pull_pset;
+
+
+  /// the range of the pull fit is [-theGaussianPullFitRange, theGaussianPullFitRange] [-2,2] by default
+  double theGaussianPullFitRange;
+
+
+  /// radius at which the comparison is made: =0 is using TSCPBuilderNoMaterial, !=0 is using the propagator
+  double theRadius;
+
+  /// reference to the cylinder of radius theRadius
+  Cylinder::CylinderPointer refSurface;
+
+  /// propagator used to go to the cylinder surface, ALONG momentum
+  std::string thePropagatorName;
+  edm::ESHandle<Propagator> thePropagator;
+
+  /// put the free trajectory state to the TSCPBuilderNoMaterial or the cylinder surface
+  FreeTrajectoryState refLocusState(const FreeTrajectoryState &fts);
+
 
   /// control plot root file (auxiliary, configurable)
   TFile * thePlotFile;

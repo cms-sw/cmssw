@@ -10,7 +10,7 @@
 
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
-#include <MagneticField/Records/interface/IdealMagneticFieldRecord.h>
+#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -20,8 +20,10 @@
 #include "SimTracker/Records/interface/TrackAssociatorRecord.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
 
-#include <MagneticField/Engine/interface/MagneticField.h>
+#include "MagneticField/Engine/interface/MagneticField.h"
 #include "SimTracker/TrackAssociation/interface/TrackAssociatorBase.h"
+
+#include "TrackingTools/GeomPropagators/interface/Propagator.h"
 
 #include "TH1F.h"
 #include "TH2F.h"
@@ -47,6 +49,16 @@ MuonErrorMatrixAnalyzer::MuonErrorMatrixAnalyzer(const edm::ParameterSet& iConfi
   theErrorMatrixStore_Pull_pset = iConfig.getParameter<edm::ParameterSet>("errorMatrix_Pull_pset");
 
   thePlotFileName= iConfig.getParameter<std::string>("plotFileName");
+
+  theRadius = iConfig.getParameter<double>("radius");
+  if (theRadius!=0){
+    GlobalPoint O(0,0,0);
+    Surface::RotationType R;
+    refSurface = Cylinder::build(O,R,theRadius);
+    thePropagatorName = iConfig.getParameter<std::string>("propagatorName");
+  }
+
+  theGaussianPullFitRange = iConfig.getUntrackedParameter<double>("gaussianPullFitRange",2.0);
 }
 
 
@@ -76,11 +88,36 @@ MuonErrorMatrixAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup
 }
 
 
+FreeTrajectoryState MuonErrorMatrixAnalyzer::refLocusState(const FreeTrajectoryState & fts){
+  if (theRadius ==0 ){
+    GlobalPoint vtx(0,0,0);
+    TSCPBuilderNoMaterial tscpBuilder;
+    FreeTrajectoryState PCAstate= tscpBuilder(fts,vtx).theState();
+    return PCAstate;
+  }
+  else{
+    //go to the cylinder surface, along momentum
+    TrajectoryStateOnSurface onRef = thePropagator->propagate(fts, *refSurface);
+    
+    if (!onRef.isValid()){
+      edm::LogError(theCategory)<<" cannot propagate to cylinder of radius: "<<theRadius;
+      return FreeTrajectoryState();
+    }
+    return (*onRef.freeState());
+  }
+}
+
+
 void 
   MuonErrorMatrixAnalyzer::analyze_from_errormatrix(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
 
   using namespace edm;
+
+  if (theRadius!=0){
+    //get a propagator
+    iSetup.get<TrackingComponentsRecord>().get(thePropagatorName, thePropagator);
+  }
 
   //get the mag field
   iSetup.get<IdealMagneticFieldRecord>().get(theField);
@@ -94,22 +131,28 @@ void
   for (uint it=0;it!=tracks->size();++it){
 
      //   take their initial free state
-     FreeTrajectoryState PCAstate = transformer.initialFreeState((*tracks)[it],theField.product());
-     if (PCAstate.position().mag()==0)
-       {edm::LogError(theCategory)<<"invalid state from track initial state. skipping.\n"<<PCAstate;continue;}
+    FreeTrajectoryState PCAstate = transformer.initialFreeState((*tracks)[it],theField.product());
+    if (PCAstate.position().mag()==0)
+      {edm::LogError(theCategory)<<"invalid state from track initial state. skipping.\n"<<PCAstate;continue;}
+    
+     FreeTrajectoryState trackRefState = refLocusState(PCAstate);
+     if ( trackRefState.position().mag()==0) continue;
+     
+     AlgebraicSymMatrix55 errorMatrix = trackRefState.curvilinearError().matrix();
 
-     AlgebraicSymMatrix55 errorMatrix = PCAstate.curvilinearError().matrix();
-     LogDebug(theCategory)<<"error matrix:\n"<<errorMatrix;
+     double pT=trackRefState.momentum().perp();
+     double eta=fabs(trackRefState.momentum().eta());
+     double phi=trackRefState.momentum().phi();
+
+     LogDebug(theCategory)<<"error matrix:\n"<<errorMatrix
+			  <<"\n state: \n"
+                          <<trackRefState;
      
      //fill the TProfile3D
      for (int i=0;i!=5;++i){ for(int j=i;j!=5;++j){
 	 //get the profile plot to fill
 	 TProfile3D * ij = theErrorMatrixStore_Reported->get(i,j);
 	 if (!ij){edm::LogError(theCategory)<<"cannot get profile "<<i<<" "<<j;  continue;}
-
-	 double pT=PCAstate.momentum().perp();
-	 double eta=PCAstate.momentum().eta();
-	 double phi=PCAstate.momentum().phi();
 
 	 //get sigma squared or correlation factor
 	 double value=MuonErrorMatrix::Term(errorMatrix,i,j);
@@ -189,42 +232,40 @@ MuonErrorMatrixAnalyzer::analyze_from_pull(const edm::Event& iEvent, const edm::
 	if (trackPCAstate.position().mag()==0)
 	  {edm::LogError(theCategory)<<"invalid state from track initial state. skipping.\n"<<trackPCAstate;continue;}
 
-	//get the track fts at the pca with extrapolator so you can compare the Curvilinear parameters at each point.
-       	GlobalPoint vtx(0,0,0);
-	//Get the vector of parameters for sim track 
-	TSCPBuilderNoMaterial tscpBuilder;
-	//	TrajectoryStateClosestToPoint tscp_sim = tscpBuilder(sim_fts,vtx);
-	//	FreeTrajectoryState simPCAstate=tscp_sim.theState();
-	FreeTrajectoryState simPCAstate= tscpBuilder(sim_fts,vtx).theState();
+	//get then both at the reference locus
+        FreeTrajectoryState simRefState = refLocusState(sim_fts);
+        FreeTrajectoryState trackRefState = refLocusState(trackPCAstate);
 
-
-	//want to get the global vector and global point from tsos, and then use this to get algebraic vector of curvilineartrajectoryparameters something like
-
-	GlobalVector momentum_sim = simPCAstate.momentum();
-	GlobalPoint point_sim = simPCAstate.position();
-     
-	GlobalVector momentum_track = trackPCAstate.momentum();
-	GlobalPoint point_track = trackPCAstate.position();
-
+        if (simRefState.position().mag()==0 || trackRefState.position().mag()==0 )
+          continue;
+	
+	GlobalVector momentum_sim = simRefState.momentum();
+	GlobalPoint point_sim = simRefState.position();
+	
+	GlobalVector momentum_track = trackRefState.momentum();
+	GlobalPoint point_track = trackRefState.position();
+	
 	//conversion from global to curvinlinear parameters for both reco and sim track
-	CurvilinearTrajectoryParameters sim_CTP(point_sim,momentum_sim,simPCAstate.charge());
-	CurvilinearTrajectoryParameters track_CTP(point_track,momentum_track,trackPCAstate.charge());
+	CurvilinearTrajectoryParameters sim_CTP(point_sim,momentum_sim,simRefState.charge());
+	CurvilinearTrajectoryParameters track_CTP(point_track,momentum_track,trackRefState.charge());
 
 
 	//These are the parameters for the CTP point
 	AlgebraicVector5 sim_CTP_vector = sim_CTP.vector();
 	AlgebraicVector5 track_CTP_vector = track_CTP.vector();
-	const AlgebraicSymMatrix55 & track_error =  trackPCAstate.curvilinearError().matrix();
+	const AlgebraicSymMatrix55 & track_error =  trackRefState.curvilinearError().matrix();
 
-	double pT_sim = simPCAstate.momentum().perp();
+	double pT_sim = simRefState.momentum().perp();
 	
 	//get the momentum, eta, phi here
-	double pT=trackPCAstate.momentum().perp();
-	double eta=fabs(trackPCAstate.momentum().eta());
-	double phi=trackPCAstate.momentum().phi();
+	double pT=trackRefState.momentum().perp();
+	double eta=fabs(trackRefState.momentum().eta());
+	double phi=trackRefState.momentum().phi();
 	
 	LogDebug(theCategory)<<"The sim pT for this association is: "<<pT_sim<<" GeV"
-			     <<"The track pT for this association is: "<<pT<<" GeV";
+			     <<"sim state: \n"<<simRefState
+			     <<"The track pT for this association is: "<<pT<<" GeV"
+			     <<"reco state: \n"<<trackRefState;
 	
 	//once have the momentum,eta,phi choose what bin it should go in
 	//how do i get the correct bin
@@ -244,18 +285,6 @@ MuonErrorMatrixAnalyzer::analyze_from_pull(const edm::Event& iEvent, const edm::
 	      uint iH=theErrorMatrixStore_Residual->index(i,j);
 	      TProfile3D * ij = theErrorMatrixStore_Residual->get(i,j);
 	      if (!ij){edm::LogError(theCategory)<<i<<" "<<j<<" not vali indexes. TProfile3D not found."; continue;}
-
-	      /*	
-		int iPt=ij->GetXaxis()->FindBin(pT)-1;
-		if (iPt==-1 || iPt==ij->GetNbinsX())
-		{edm::LogError(theCategory)<<"there is an under/over flow entry in pT: "<<pT;continue;}
-		int iEta=ij->GetYaxis()->FindBin(eta)-1;
-		if (iEta==-1 || iEta==ij->GetNbinsY())
-		{edm::LogError(theCategory)<<"there is an under/over flow entry in Eta: "<<eta;continue;}
-		int iPhi=ij->GetZaxis()->FindBin(phi)-1;
-		if (iPhi==-1 || iPhi==ij->GetNbinsZ())
-		{edm::LogError(theCategory)<<"there is an under/over flow entry in Phi: "<<phi;continue;}
-	      */
 
 	      int iPt=theErrorMatrixStore_Residual->findBin(ij->GetXaxis(),pT)-1;// between 0 and maxbin-1;
 	      int iEta=theErrorMatrixStore_Residual->findBin(ij->GetYaxis(),eta)-1;// between 0 and maxbin-1;
@@ -603,7 +632,7 @@ MuonErrorMatrixAnalyzer::endJob() {
 
   if (theErrorMatrixStore_Pull){
     // extract the scale factors from the pull distribution
-    TF1 * f = new TF1("fit_for_theErrorMatrixStore_Pull","gaus",-2,2);
+    TF1 * f = new TF1("fit_for_theErrorMatrixStore_Pull","gaus",-theGaussianPullFitRange,theGaussianPullFitRange);
 
     for (uint i=0;i!=5;++i){
       for (uint j=i;j<5;++j){
