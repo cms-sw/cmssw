@@ -63,7 +63,7 @@ if(all4DSegments->size()>0){
 	  for(segMB3=all4DSegments->begin();segMB3!=all4DSegments->end();++segMB3){
 	    DTChamberId dtid3 = segMB3->chamberId();
 	    
-	    if(dtid3.station()==3&&dtid3.sector()==DTId.sector()&&dtid3.wheel()==DTId.wheel()){
+	    if(dtid3.station()==3&&dtid3.sector()==DTId.sector()&&dtid3.wheel()==DTId.wheel()&&scounter[dtid3] == 1){
 	      
 	      const GeomDet* gdet3=dtGeo->idToDet(segMB3->geographicalId());
 	      const BoundPlane & DTSurface3 = gdet3->surface();
