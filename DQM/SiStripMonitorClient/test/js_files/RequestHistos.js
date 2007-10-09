@@ -420,7 +420,7 @@ RequestHistos.CheckQualityTestResultsDetail = function() {
   var url          = WebLib.getApplicationURL2();
   url              = url + queryString; 
   
-  makeRequest(url, RequestHistos.FillTextStatus); 
+  WebLib.makeRequest(url, RequestHistos.FillTextStatus); 
 }
 //
 // -- Fill the status of QTest in the status list area
@@ -431,7 +431,7 @@ RequestHistos.FillTextStatus = function()
     if (WebLib.http_request.status == 200) {
       try {
         var text = WebLib.http_request.responseText;
-	CommonActionsFillText("summary_status_area", text);
+	CommonActions.FillText("summary_status_area", text);
       }
       catch (err) {
 //        alert ("Error detail: " + err.message); 
