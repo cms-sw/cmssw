@@ -114,7 +114,8 @@ void MuIsoDepositProducer::produce(Event& event, const EventSetup& eventSetup){
     nMuons = muonTracks->size();
     LogDebug(metname) <<"Got MuonTracks of size "<<nMuons;
   }
-  if (readFromCandidateView || theExtractForCandidate){
+  if (readFromCandidateView || theExtractForCandidate 
+      || theOutputType == "VectorToCandidateView"){
     event.getByLabel(theMuonCollectionTag,candsView);
     uint nCands = candsView->size();
     if (nCands != nMuons && nMuons != 99999) edm::LogError(metname)<<"Wrong muon-candidate count";
