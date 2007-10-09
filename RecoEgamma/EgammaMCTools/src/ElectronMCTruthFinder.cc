@@ -58,7 +58,10 @@ std::vector<ElectronMCTruth> ElectronMCTruthFinder::find(std::vector<SimTrack> t
   }
   
   // HepLorentzVector primVtxPos= primVtx.position(); 
-  math::XYZTLorentzVectorD primVtxPos = primVtx.position() ;
+  math::XYZTLorentzVectorD primVtxPos(primVtx.position().x(),
+                                      primVtx.position().y(),
+                                      primVtx.position().z(),
+                                      primVtx.position().e());
   
   // Look at a second track
   iFirstSimTk++;
@@ -125,7 +128,7 @@ std::vector<ElectronMCTruth> ElectronMCTruthFinder::find(std::vector<SimTrack> t
   
   for (std::vector<SimTrack>::iterator iEleTk = electronTracks.begin(); iEleTk != electronTracks.end(); ++iEleTk){
     std::cout << " Looping on the primary electron pt  " <<
-    (*iEleTk).momentum().pt() << " electron track ID " << (*iEleTk).trackId() << std::endl;
+    std::sqrt((*iEleTk).momentum().perp2()) << " electron track ID " << (*iEleTk).trackId() << std::endl;
     
     
     
@@ -134,8 +137,11 @@ std::vector<ElectronMCTruth> ElectronMCTruthFinder::find(std::vector<SimTrack> t
     float remainingEnergy =trLast.momentum().e();
 //    HepLorentzVector motherMomentum = (*iEleTk).momentum();
 //    HepLorentzVector primEleMom = (*iEleTk).momentum();
-    math::XYZTLorentzVectorD motherMomentum = (*iEleTk).momentum();
-    math::XYZTLorentzVectorD primEleMom = (*iEleTk).momentum();
+    math::XYZTLorentzVectorD motherMomentum((*iEleTk).momentum().x(),
+                                            (*iEleTk).momentum().y(),
+                                            (*iEleTk).momentum().z(),
+                                            (*iEleTk).momentum().e());
+    math::XYZTLorentzVectorD primEleMom(motherMomentum);
     int eleVtxIndex= (*iEleTk).vertIndex();
     
     bremPos.clear();
@@ -162,12 +168,12 @@ std::vector<ElectronMCTruth> ElectronMCTruthFinder::find(std::vector<SimTrack> t
 	std::cout << " Here a e/gamma brem vertex " << std::endl;
 	
 	std::cout << " Secondary from electron:  particle1  type " << (*iSimTk).type() << " trackId " << 
-	(*iSimTk).trackId() << " vertex ID " << vertexId1 << " vertex position " << vertex1.position().pt() << " parent index "<< vertex1.parentIndex() << std::endl;
+	(*iSimTk).trackId() << " vertex ID " << vertexId1 << " vertex position " << std::sqrt(vertex1.position().perp2()) << " parent index "<< vertex1.parentIndex() << std::endl;
 	
 	std::cout << " Secondary from electron:  particle2  type " << trLast.type() << " trackId " <<  trLast.trackId()
-	<< " vertex ID " << vertexId2 << " vertex position " << vertex2.position().pt() << " parent index " << vertex2.parentIndex() << std::endl;
+	<< " vertex ID " << vertexId2 << " vertex position " << std::sqrt(vertex2.position().perp2()) << " parent index " << vertex2.parentIndex() << std::endl;
 	
-	std::cout << " Electron pt " << (*iSimTk).momentum().pt() << " photon pt " <<  trLast.momentum().pt() << 
+	std::cout << " Electron pt " << std::sqrt((*iSimTk).momentum().perp2()) << " photon pt " <<  std::sqrt(trLast.momentum().perp2()) << 
 	"Mother electron pt " <<  sqrt(motherMomentum.perp2()) << std::endl;
 	std::cout << " eleId " << eleId << std::endl;
 	float eLoss = remainingEnergy - ( (*iSimTk).momentum() + trLast.momentum()).e();

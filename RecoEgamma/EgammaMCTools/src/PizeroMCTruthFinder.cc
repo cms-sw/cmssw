@@ -65,7 +65,10 @@ std::vector<PizeroMCTruth> PizeroMCTruthFinder::find(std::vector<SimTrack> theSi
   }
   
   // HepLorentzVector primVtxPos= primVtx.position(); 
-  math::XYZTLorentzVectorD primVtxPos=primVtx.position();          
+  math::XYZTLorentzVectorD primVtxPos(primVtx.position().x(),
+                                      primVtx.position().y(),
+                                      primVtx.position().z(),
+                                      primVtx.position().e());          
 
   // Look at a second track
   iFirstSimTk++;
@@ -99,7 +102,10 @@ std::vector<PizeroMCTruth> PizeroMCTruthFinder::find(std::vector<SimTrack> theSi
 	pizeroTracks.push_back( *iSimTk );
 
 	// CLHEP::HepLorentzVector momentum = (*iSimTk).momentum();
-	math::XYZTLorentzVectorD momentum = (*iSimTk).momentum();
+	math::XYZTLorentzVectorD momentum((*iSimTk).momentum().x(),
+                                      (*iSimTk).momentum().y(),
+                                      (*iSimTk).momentum().z(),
+                                      (*iSimTk).momentum().e());
 
 
       }	

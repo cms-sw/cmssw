@@ -69,7 +69,10 @@ std::vector<PhotonMCTruth> PhotonMCTruthFinder::find(std::vector<SimTrack> theSi
   }
   
   // HepLorentzVector primVtxPos= primVtx.position();
-  math::XYZTLorentzVectorD& primVtxPos = primVtx.position();           
+  math::XYZTLorentzVectorD primVtxPos(primVtx.position().x(),
+                                       primVtx.position().y(),
+                                       primVtx.position().z(),
+                                       primVtx.position().e());           
 
   // Look at a second track
   iFirstSimTk++;
@@ -189,8 +192,11 @@ std::vector<PhotonMCTruth> PhotonMCTruthFinder::find(std::vector<SimTrack> theSi
 	     float remainingEnergy =trLast.momentum().e();
 	     //HepLorentzVector primEleMom=(*iEleTk).momentum();  
              //HepLorentzVector motherMomentum=(*iEleTk).momentum();  
-	     math::XYZTLorentzVectorD primEleMom=(*iEleTk).momentum();  
-             math::XYZTLorentzVectorD motherMomentum=(*iEleTk).momentum();  
+	     math::XYZTLorentzVectorD primEleMom((*iEleTk).momentum().x(),
+                                             (*iEleTk).momentum().y(),
+                                             (*iEleTk).momentum().z(),
+                                             (*iEleTk).momentum().e());  
+         math::XYZTLorentzVectorD motherMomentum(primEleMom);  
 	     int eleId = (*iEleTk).trackId();     
              int eleVtxIndex= (*iEleTk).vertIndex();
            
@@ -306,7 +312,10 @@ std::vector<PhotonMCTruth> PhotonMCTruthFinder::find(std::vector<SimTrack> theSi
          int convVtxId =electronsFromConversions[0].vertexInd();
 	 SimVertex convVtx = theSimVertices[convVtxId];
 	 // CLHEP::HepLorentzVector vtxPosition = convVtx.position();
-	 math::XYZTLorentzVectorD vtxPosition = convVtx.position();
+	 math::XYZTLorentzVectorD vtxPosition(convVtx.position().x(),
+                                          convVtx.position().y(),
+                                          convVtx.position().z(),
+                                          convVtx.position().e());
          
 	   
          //result.push_back( PhotonMCTruth(isAconversion, (*iPhoTk).momentum(), photonVertexIndex, phoTrkId, vtxPosition,   primVtx.position(), trkFromConversion ));
