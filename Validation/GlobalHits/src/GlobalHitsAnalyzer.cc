@@ -2,8 +2,8 @@
  *  
  *  See header file for description of class
  *
- *  $Date: 2007/08/24 23:37:59 $
- *  $Revision: 1.10 $
+ *  $Date: 2007/09/26 22:22:39 $
+ *  $Revision: 1.1 $
  *  \author M. Strang SUNY-Buffalo
  */
 
@@ -192,44 +192,72 @@ GlobalHitsAnalyzer::GlobalHitsAnalyzer(const edm::ParameterSet& iPSet) :
     meMCRGP[0] = dbe->book1D(hname,htitle,100,0.,5000.);
     sprintf(hname,"hMCRGP_1013");
     meMCRGP[1] = dbe->book1D(hname,htitle,100,0.,500.);  
+    for (Int_t i = 0; i < 2; ++i) {
+      meMCRGP[i]->setAxisTitle("Number of Raw Generated Particles",1);
+      meMCRGP[i]->setAxisTitle("Count",2);
+    }
 
     sprintf(hname,"hMCG4Vtx_1001");
     sprintf(htitle,"G4 Vertices");
     meMCG4Vtx[0] = dbe->book1D(hname,htitle,100,0.,50000.);
     sprintf(hname,"hMCG4Vtx2_1011");
     meMCG4Vtx[1] = dbe->book1D(hname,htitle,100,-0.5,99.5); 
+    for (Int_t i = 0; i < 2; ++i) {
+      meMCG4Vtx[i]->setAxisTitle("Number of Vertices",1);
+      meMCG4Vtx[i]->setAxisTitle("Count",2);
+    }
 
     sprintf(hname,"hMCG4Trk_1002");
     sprintf(htitle,"G4 Tracks");
     meMCG4Trk[0] = dbe->book1D(hname,htitle,150,0.,15000.);
     sprintf(hname,"hMCG4Trk2_1012");
     meMCG4Trk[1] = dbe->book1D(hname,htitle,150,-0.5,99.5);    
+    for (Int_t i = 0; i < 2; ++i) {
+      meMCG4Trk[i]->setAxisTitle("Number of Tracks",1);
+      meMCG4Trk[i]->setAxisTitle("Count",2);
+    }
 
     sprintf(hname,"hGeantVtxX2_1104");
     sprintf(htitle,"Geant vertex x/micrometer");
     meGeantVtxX[0] = dbe->book1D(hname,htitle,100,-8000000.,8000000.);
     sprintf(hname,"hGeantVtxX_1101");
     meGeantVtxX[1] = dbe->book1D(hname,htitle,100,-50.,50.); 
+    for (Int_t i = 0; i < 2; ++i) {
+      meGeantVtxX[i]->setAxisTitle("x of Vertex (um)",1);
+      meGeantVtxX[i]->setAxisTitle("Count",2);
+    }
 
     sprintf(hname,"hGeantVtxY_1105");
     sprintf(htitle,"Geant vertex y/micrometer");
     meGeantVtxY[0] = dbe->book1D(hname,htitle,100,-8000000,8000000.);
     sprintf(hname,"hGeantVtxY_1102");
     meGeantVtxY[1] = dbe->book1D(hname,htitle,100,-50.,50.); 
+    for (Int_t i = 0; i < 2; ++i) {
+      meGeantVtxY[i]->setAxisTitle("y of Vertex (um)",1);
+      meGeantVtxY[i]->setAxisTitle("Count",2);
+    }
 
     sprintf(hname,"hGeantVtxZ_1106");
     sprintf(htitle,"Geant vertex z/millimeter");
     meGeantVtxZ[0] = dbe->book1D(hname,htitle,100,-11000.,11000.);
     sprintf(hname,"hGeantVtxZ_1103");
     meGeantVtxZ[1] = dbe->book1D(hname,htitle,100,-250.,250.);
+    for (Int_t i = 0; i < 2; ++i) {
+      meGeantVtxZ[i]->setAxisTitle("z of Vertex (mm)",1);
+      meGeantVtxZ[i]->setAxisTitle("Count",2);
+    }
 
     sprintf(hname,"hGeantTrkPt_1201");
     sprintf(htitle,"Geant track pt/GeV");
     meGeantTrkPt = dbe->book1D(hname,htitle,100,0.,200.);
+    meGeantTrkPt->setAxisTitle("pT of Track (GeV)",1);
+    meGeantTrkPt->setAxisTitle("Count",2);
 
     sprintf(hname,"hGeantTrkE_1202");
     sprintf(htitle,"Geant track E/GeV");
     meGeantTrkE = dbe->book1D(hname,htitle,100,0.,5000.);
+    meGeantTrkE->setAxisTitle("E of Track (GeV)",1);
+    meGeantTrkE->setAxisTitle("Count",2);
 
     // ECal
     dbe->setCurrentFolder("ECal");
@@ -250,14 +278,27 @@ GlobalHitsAnalyzer::GlobalHitsAnalyzer(const edm::ParameterSet& iPSet) :
     meCaloEcalToF[0] = dbe->book1D(hname,htitle,100,0.,1000.);
     sprintf(hname,"hCaloEcalToF2_2113");
     meCaloEcalToF[1] = dbe->book1D(hname,htitle,100,0.,100.);
+ 
+    for (Int_t i = 0; i < 2; ++i) {
+      meCaloEcal[i]->setAxisTitle("Number of Hits",1);
+      meCaloEcal[i]->setAxisTitle("Count",2);
+      meCaloEcalE[i]->setAxisTitle("Energy of Hits (GeV)",1);
+      meCaloEcalE[i]->setAxisTitle("Count",2);
+      meCaloEcalToF[i]->setAxisTitle("Time of Flight of Hits (ns)",1);
+      meCaloEcalToF[i]->setAxisTitle("Count",2);
+    }
 
     sprintf(hname,"hCaloEcalPhi_2104");
     sprintf(htitle,"Ecal hits, phi/rad");
     meCaloEcalPhi = dbe->book1D(hname,htitle,100,-3.2,3.2);
+    meCaloEcalPhi->setAxisTitle("Phi of Hits (rad)",1);
+    meCaloEcalPhi->setAxisTitle("Count",2);
 
     sprintf(hname,"hCaloEcalEta_2105");
     sprintf(htitle,"Ecal hits, eta");
     meCaloEcalEta = dbe->book1D(hname,htitle,100,-5.5,5.5);
+    meCaloEcalEta->setAxisTitle("Eta of Hits",1);
+    meCaloEcalEta->setAxisTitle("Count",2);
 
     sprintf(hname,"hCaloPreSh_2201");
     sprintf(htitle,"PreSh hits");
@@ -277,13 +318,26 @@ GlobalHitsAnalyzer::GlobalHitsAnalyzer(const edm::ParameterSet& iPSet) :
     sprintf(hname,"hCaloPreShToF2_2213");
     meCaloPreShToF[1] = dbe->book1D(hname,htitle,100,0.,100.);
 
+    for (Int_t i = 0; i < 2; ++i) {
+      meCaloPreSh[i]->setAxisTitle("Number of Hits",1);
+      meCaloPreSh[i]->setAxisTitle("Count",2);
+      meCaloPreShE[i]->setAxisTitle("Energy of Hits (GeV)",1);
+      meCaloPreShE[i]->setAxisTitle("Count",2);
+      meCaloPreShToF[i]->setAxisTitle("Time of Flight of Hits (ns)",1);
+      meCaloPreShToF[i]->setAxisTitle("Count",2);
+    }
+
     sprintf(hname,"hCaloPreShPhi_2204");
     sprintf(htitle,"PreSh hits, phi/rad");
     meCaloPreShPhi = dbe->book1D(hname,htitle,100,-3.2,3.2);
+    meCaloPreShPhi->setAxisTitle("Phi of Hits (rad)",1);
+    meCaloPreShPhi->setAxisTitle("Count",2);
 
     sprintf(hname,"hCaloPreShEta_2205");
     sprintf(htitle,"PreSh hits, eta");
     meCaloPreShEta = dbe->book1D(hname,htitle,100,-5.5,5.5);
+    meCaloPreShEta->setAxisTitle("Eta of Hits",1);
+    meCaloPreShEta->setAxisTitle("Count",2);
 
     // Hcal
     dbe->setCurrentFolder("HCal");
@@ -305,74 +359,119 @@ GlobalHitsAnalyzer::GlobalHitsAnalyzer(const edm::ParameterSet& iPSet) :
     sprintf(hname,"hCaloHcalToF2_2313");
     meCaloHcalToF[1] = dbe->book1D(hname,htitle,100,0.,100.);
 
+    for (Int_t i = 0; i < 2; ++i) {
+      meCaloHcal[i]->setAxisTitle("Number of Hits",1);
+      meCaloHcal[i]->setAxisTitle("Count",2);
+      meCaloHcalE[i]->setAxisTitle("Energy of Hits (GeV)",1);
+      meCaloHcalE[i]->setAxisTitle("Count",2);
+      meCaloHcalToF[i]->setAxisTitle("Time of Flight of Hits (ns)",1);
+      meCaloHcalToF[i]->setAxisTitle("Count",2);
+    }
+
     sprintf(hname,"hCaloHcalPhi_2304");
     sprintf(htitle,"Hcal hits, phi/rad");
     meCaloHcalPhi = dbe->book1D(hname,htitle,100,-3.2,3.2);
+    meCaloHcalPhi->setAxisTitle("Phi of Hits (rad)",1);
+    meCaloHcalPhi->setAxisTitle("Count",2);
 
     sprintf(hname,"hCaloHcalEta_2305");
     sprintf(htitle,"Hcal hits, eta");
     meCaloHcalEta = dbe->book1D(hname,htitle,100,-5.5,5.5);
-
+    meCaloHcalEta->setAxisTitle("Eta of Hits",1);
+    meCaloHcalEta->setAxisTitle("Count",2);
+    
     dbe->setCurrentFolder("Tracker");
     sprintf(hname,"hTrackerPx_3101");
     sprintf(htitle,"Pixel hits");
     meTrackerPx[0] = dbe->book1D(hname,htitle,100,0.,10000.);
     sprintf(hname,"hTrackerPx2_3111");
     meTrackerPx[1] = dbe->book1D(hname,htitle,100,-0.5,99.5);
+    for (Int_t i = 0; i < 2; ++i) {
+      meTrackerPx[i]->setAxisTitle("Number of Pixel Hits",1);
+      meTrackerPx[i]->setAxisTitle("Count",2);
+    }
 
     sprintf(hname,"hTrackerPxPhi_3102");
     sprintf(htitle,"Pixel hits phi/rad");
     meTrackerPxPhi = dbe->book1D(hname,htitle,100,-3.2,3.2);
+    meTrackerPxPhi->setAxisTitle("Phi of Hits (rad)",1);
+    meTrackerPxPhi->setAxisTitle("Count",2);
 
     sprintf(hname,"hTrackerPxEta_3103");
     sprintf(htitle,"Pixel hits eta");
     meTrackerPxEta = dbe->book1D(hname,htitle,100,-3.5,3.5);
+    meTrackerPxEta->setAxisTitle("Eta of Hits",1);
+    meTrackerPxEta->setAxisTitle("Count",2);
 
     sprintf(hname,"hTrackerPxBToF_3104");
     sprintf(htitle,"Pixel barrel hits, ToF/ns");
     meTrackerPxBToF = dbe->book1D(hname,htitle,100,0.,40.);
+    meTrackerPxBToF->setAxisTitle("Time of Flight of Hits (ns)",1);
+    meTrackerPxBToF->setAxisTitle("Count",2);
 
     sprintf(hname,"hTrackerPxBR_3106");
     sprintf(htitle,"Pixel barrel hits, R/cm");
     meTrackerPxBR = dbe->book1D(hname,htitle,100,0.,50.);
+    meTrackerPxBR->setAxisTitle("R of Hits (cm)",1);
+    meTrackerPxBR->setAxisTitle("Count",2);
 
     sprintf(hname,"hTrackerPxFToF_3105");
     sprintf(htitle,"Pixel forward hits, ToF/ns");
     meTrackerPxFToF = dbe->book1D(hname,htitle,100,0.,50.);
+    meTrackerPxFToF->setAxisTitle("Time of Flight of Hits (ns)",1);
+    meTrackerPxFToF->setAxisTitle("Count",2);
 
     sprintf(hname,"hTrackerPxFZ_3107");
     sprintf(htitle,"Pixel forward hits, Z/cm");
     meTrackerPxFZ = dbe->book1D(hname,htitle,200,-100.,100.);
+    meTrackerPxFZ->setAxisTitle("Z of Hits (cm)",1);
+    meTrackerPxFZ->setAxisTitle("Count",2);
 
     sprintf(hname,"hTrackerSi_3201");
     sprintf(htitle,"Silicon hits");
     meTrackerSi[0] = dbe->book1D(hname,htitle,100,0.,10000.);
     sprintf(hname,"hTrackerSi2_3211");
     meTrackerSi[1] = dbe->book1D(hname,htitle,100,-0.5,99.5);
+    for (Int_t i = 0; i < 2; ++i) { 
+      meTrackerSi[i]->setAxisTitle("Number of Silicon Hits",1);
+      meTrackerSi[i]->setAxisTitle("Count",2);
+    }
 
     sprintf(hname,"hTrackerSiPhi_3202");
     sprintf(htitle,"Silicon hits phi/rad");
     meTrackerSiPhi = dbe->book1D(hname,htitle,100,-3.2,3.2);
+    meTrackerSiPhi->setAxisTitle("Phi of Hits (rad)",1);
+    meTrackerSiPhi->setAxisTitle("Count",2);
 
     sprintf(hname,"hTrackerSiEta_3203");
     sprintf(htitle,"Silicon hits eta");
     meTrackerSiEta = dbe->book1D(hname,htitle,100,-3.5,3.5);
+    meTrackerSiEta->setAxisTitle("Eta of Hits",1);
+    meTrackerSiEta->setAxisTitle("Count",2);
 
     sprintf(hname,"hTrackerSiBToF_3204");
     sprintf(htitle,"Silicon barrel hits, ToF/ns");
     meTrackerSiBToF = dbe->book1D(hname,htitle,100,0.,50.);
+    meTrackerSiBToF->setAxisTitle("Time of Flight of Hits (ns)",1);
+    meTrackerSiBToF->setAxisTitle("Count",2);
 
     sprintf(hname,"hTrackerSiBR_3206");
     sprintf(htitle,"Silicon barrel hits, R/cm");
     meTrackerSiBR = dbe->book1D(hname,htitle,100,0.,200.);
+    meTrackerSiBR->setAxisTitle("R of Hits (cm)",1);
+    meTrackerSiBR->setAxisTitle("Count",2);
 
     sprintf(hname,"hTrackerSiFToF_3205");
     sprintf(htitle,"Silicon forward hits, ToF/ns");
     meTrackerSiFToF = dbe->book1D(hname,htitle,100,0.,75.);
+    meTrackerSiFToF->setAxisTitle("Time of Flight of Hits (ns)",1);
+    meTrackerSiFToF->setAxisTitle("Count",2);
 
     sprintf(hname,"hTrackerSiFZ_3207");
     sprintf(htitle,"Silicon forward hits, Z/cm");
     meTrackerSiFZ = dbe->book1D(hname,htitle,200,-300.,300.);
+    meTrackerSiFZ->setAxisTitle("Z of Hits (cm)",1);
+    meTrackerSiFZ->setAxisTitle("Count",2);
 
     dbe->setCurrentFolder("Muon");
     sprintf(hname,"hMuon_4001");
@@ -380,54 +479,86 @@ GlobalHitsAnalyzer::GlobalHitsAnalyzer(const edm::ParameterSet& iPSet) :
     meMuon[0] = dbe->book1D(hname,htitle,100,0.,10000.);
     sprintf(hname,"hMuon2_4011");
     meMuon[1] = dbe->book1D(hname,htitle,100,-0.5,99.5);
+    for (Int_t i = 0; i < 2; ++i) { 
+      meMuon[i]->setAxisTitle("Number of Muon Hits",1);
+      meMuon[i]->setAxisTitle("Count",2);
+    }  
 
     sprintf(hname,"hMuonPhi_4002");
     sprintf(htitle,"Muon hits phi/rad");
     meMuonPhi = dbe->book1D(hname,htitle,100,-3.2,3.2);
+    meMuonPhi->setAxisTitle("Phi of Hits (rad)",1);
+    meMuonPhi->setAxisTitle("Count",2);
 
     sprintf(hname,"hMuonEta_4003");
     sprintf(htitle,"Muon hits eta");
     meMuonEta = dbe->book1D(hname,htitle,100,-3.5,3.5);
+    meMuonEta->setAxisTitle("Eta of Hits",1);
+    meMuonEta->setAxisTitle("Count",2);
 
     sprintf(hname,"hMuonCscToF_4201");
     sprintf(htitle,"Muon CSC hits, ToF/ns");
     meMuonCscToF[0] = dbe->book1D(hname,htitle,100,0.,250.);
     sprintf(hname,"hMuonCscToF2_4202");
     meMuonCscToF[1] = dbe->book1D(hname,htitle,100,0.,50.);
+    for (Int_t i = 0; i < 2; ++i) {   
+      meMuonCscToF[i]->setAxisTitle("Time of Flight of Hits (ns)",1);
+      meMuonCscToF[i]->setAxisTitle("Count",2);
+    }  
 
     sprintf(hname,"hMuonCscZ_4203");
     sprintf(htitle,"Muon CSC hits, Z/cm");
     meMuonCscZ = dbe->book1D(hname,htitle,200,-1500.,1500.);
+    meMuonCscZ->setAxisTitle("Z of Hits (cm)",1);
+    meMuonCscZ->setAxisTitle("Count",2);
 
     sprintf(hname,"hMuonDtToF_4101");
     sprintf(htitle,"Muon DT hits, ToF/ns");
     meMuonDtToF[0] = dbe->book1D(hname,htitle,100,0.,250.);
     sprintf(hname,"hMuonDtToF2_4102");
     meMuonDtToF[1] = dbe->book1D(hname,htitle,100,0.,50.);
+    for (Int_t i = 0; i < 2; ++i) {   
+      meMuonDtToF[i]->setAxisTitle("Time of Flight of Hits (ns)",1);
+      meMuonDtToF[i]->setAxisTitle("Count",2);
+    } 
 
     sprintf(hname,"hMuonDtR_4103");
     sprintf(htitle,"Muon DT hits, R/cm");
     meMuonDtR = dbe->book1D(hname,htitle,100,0.,1500.); 
+    meMuonDtR->setAxisTitle("R of Hits (cm)",1);
+    meMuonDtR->setAxisTitle("Count",2);
 
     sprintf(hname,"hMuonRpcFToF_4304");
     sprintf(htitle,"Muon RPC forward hits, ToF/ns");
     meMuonRpcFToF[0] = dbe->book1D(hname,htitle,100,0.,250.);
     sprintf(hname,"hMuonRpcFToF2_4305");
     meMuonRpcFToF[1] = dbe->book1D(hname,htitle,100,0.,50.);
+    for (Int_t i = 0; i < 2; ++i) {   
+      meMuonRpcFToF[i]->setAxisTitle("Time of Flight of Hits (ns)",1);
+      meMuonRpcFToF[i]->setAxisTitle("Count",2);
+    }  
 
     sprintf(hname,"hMuonRpcFZ_4306");
     sprintf(htitle,"Muon RPC forward hits, Z/cm");
     meMuonRpcFZ = dbe->book1D(hname,htitle,201,-1500.,1500.);
+    meMuonRpcFZ->setAxisTitle("Z of Hits (cm)",1);
+    meMuonRpcFZ->setAxisTitle("Count",2);
 
     sprintf(hname,"hMuonRpcBToF_4101");
     sprintf(htitle,"Muon RPC barrel hits, ToF/ns");
     meMuonRpcBToF[0] = dbe->book1D(hname,htitle,100,0.,250.);
     sprintf(hname,"hMuonRpcBToF2_4102");
     meMuonRpcBToF[1] = dbe->book1D(hname,htitle,100,0.,50.);
+    for (Int_t i = 0; i < 2; ++i) {   
+      meMuonRpcBToF[i]->setAxisTitle("Time of Flight of Hits (ns)",1);
+      meMuonRpcBToF[i]->setAxisTitle("Count",2);
+    }
 
     sprintf(hname,"hMuonRpcBR_4103");
     sprintf(htitle,"Muon RPC barrel hits, R/cm");
-    meMuonRpcBR = dbe->book1D(hname,htitle,100,0.,1500.);   
+    meMuonRpcBR = dbe->book1D(hname,htitle,100,0.,1500.);
+    meMuonRpcBR->setAxisTitle("R of Hits (cm)",1);
+    meMuonRpcBR->setAxisTitle("Count",2); 
   }
 }
 
