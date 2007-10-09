@@ -1,4 +1,4 @@
-// $Id: RootOutputFile.cc,v 1.23 2007/10/04 18:29:30 wmtan Exp $
+// $Id: RootOutputFile.cc,v 1.24 2007/10/06 04:08:28 wmtan Exp $
 
 #include "RootOutputFile.h"
 #include "PoolOutputModule.h"
@@ -20,7 +20,6 @@
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
 #include "DataFormats/Provenance/interface/Provenance.h"
 #include "DataFormats/Common/interface/BasicHandle.h"
-#include "FWCore/Utilities/interface/WrappedClassName.h"
 #include "FWCore/Framework/interface/ConstProductRegistry.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/Registry.h"
@@ -276,7 +275,7 @@ namespace edm {
       if (i->selected_) {
 	if (product == 0) {
 	  // Add a null product.
-	  TClass *cp = gROOT->GetClass(wrappedClassName(i->branchDescription_->fullClassName()).c_str());
+	  TClass *cp = gROOT->GetClass(i->branchDescription_->wrappedName().c_str());
 	  product = static_cast<EDProduct *>(cp->New());
 	}
 	i->product_ = product;

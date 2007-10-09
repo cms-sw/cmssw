@@ -1,7 +1,6 @@
 #include "RootOutputTree.h"
 #include "TFile.h"
 #include "TChain.h"
-#include "FWCore/Utilities/interface/WrappedClassName.h"
 #include "FWCore/Utilities/interface/for_all.h"
 
 #include "boost/bind.hpp"
@@ -79,7 +78,7 @@ namespace edm {
       metaBranches_.push_back(meta);
       if (selected) {
 	TBranch * branch = tree_->Branch(prod.branchName().c_str(),
-		       wrappedClassName(prod.className()).c_str(),
+		       prod.wrappedName().c_str(),
 		       &pProd,
 		       (prod.basketSize() == BranchDescription::invalidBasketSize ? basketSize_ : prod.basketSize()),
 		       (prod.splitLevel() == BranchDescription::invalidSplitLevel ? splitLevel_ : prod.splitLevel()));

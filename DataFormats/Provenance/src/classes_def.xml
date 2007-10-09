@@ -31,6 +31,7 @@
  </class>
  <class name="edm::BranchDescription">
    <field name="branchName_" transient="true"/>
+   <field name="wrappedName_" transient="true"/>
    <field name="produced_" transient="true"/>
    <field name="present_" transient="true"/>
    <field name="provenancePresent_" transient="true"/>

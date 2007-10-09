@@ -7,6 +7,11 @@ namespace edm {
     std::string const wrapperEnd1(">");
     std::string const wrapperEnd2(" >");
     std::string const& wrapperEnd = (className[className.size()-1] == '>' ? wrapperEnd2 : wrapperEnd1);
-    return wrapperBegin + className + wrapperEnd;
+    std::string wrapped;
+    wrapped.reserve(wrapperBegin.size() + className.size() + wrapperEnd.size());
+    wrapped += wrapperBegin;
+    wrapped += className;
+    wrapped += wrapperEnd;
+    return wrapped;
   }
 }

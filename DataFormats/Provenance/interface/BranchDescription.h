@@ -6,7 +6,7 @@
 BranchDescription: The full description of a Branch.
 This description also applies to every product instance on the branch.  
 
-$Id: BranchDescription.h,v 1.5 2007/08/28 14:32:10 wmtan Exp $
+$Id: BranchDescription.h,v 1.6 2007/08/28 17:49:44 wmtan Exp $
 ----------------------------------------------------------------------*/
 #include <iosfwd>
 #include <string>
@@ -89,6 +89,7 @@ namespace edm {
     std::set<std::string> const& branchAliases() const {return branchAliases_;}
     std::string const& branchName() const {return branchName_;}
     BranchType const& branchType() const {return branchType_;}
+    std::string const& wrappedName() const {return wrappedName_;}
 
   private:
     void throwIfInvalid_() const;
@@ -139,6 +140,10 @@ namespace edm {
     // The branch name (transient), which is currently derivable fron the other
     // attributes.
     mutable std::string branchName_;
+
+    // The wrapped class name (transient), which is currently derivable fron the other
+    // attributes.
+    mutable std::string wrappedName_;
 
     // Was this branch produced in this process
     // rather than in a previous process

@@ -8,7 +8,7 @@
 
 /*----------------------------------------------------------------------
 
-$Id: BranchDescription.cc,v 1.4 2007/08/28 14:33:25 wmtan Exp $
+$Id: BranchDescription.cc,v 1.5 2007/09/13 16:29:49 paterno Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -26,6 +26,7 @@ namespace edm {
     processConfigurationIDs_(),
     branchAliases_(),
     branchName_(),
+    wrappedName_(),
     produced_(false),
     present_(true),
     provenancePresent_(true),
@@ -58,6 +59,7 @@ namespace edm {
     processConfigurationIDs_(),
     branchAliases_(aliases),
     branchName_(),
+    wrappedName_(),
     produced_(true),
     present_(true),
     provenancePresent_(true),
@@ -96,6 +98,7 @@ namespace edm {
     processConfigurationIDs_(procConfigIDs),
     branchAliases_(aliases),
     branchName_(),
+    wrappedName_(),
     produced_(true),
     present_(true),
     provenancePresent_(true),
@@ -109,6 +112,9 @@ namespace edm {
 
   void
   BranchDescription::init() const {
+    if (!branchName_.empty()) {
+      return;	// already called
+    }
     throwIfInvalid_();
 
     char const underscore('_');
@@ -134,20 +140,31 @@ namespace edm {
       << "' contains an underscore ('_'), which is illegal in a process name.\n";
     }
 
-    branchName_ = friendlyClassName() + underscore + moduleLabel() + underscore +
-      productInstanceName() + underscore + processName() + period;
+    branchName_.reserve(friendlyClassName().size() +
+			moduleLabel().size() +
+			productInstanceName().size() +
+			processName().size() + 4);
+    branchName_ += friendlyClassName();
+    branchName_ += underscore;
+    branchName_ += moduleLabel();
+    branchName_ += underscore;
+    branchName_ += productInstanceName();
+    branchName_ += underscore;
+    branchName_ += processName();
+    branchName_ += period;
 
     ROOT::Reflex::Type t = ROOT::Reflex::Type::ByName(fullClassName());
     ROOT::Reflex::PropertyList p = t.Properties();
     transient_ = (p.HasProperty("persistent") ? p.PropertyAsString("persistent") == std::string("false") : false);
 
-    type_ = ROOT::Reflex::Type::ByName(wrappedClassName(fullClassName()));
+    wrappedName_ = wrappedClassName(fullClassName());
+    type_ = ROOT::Reflex::Type::ByName(wrappedName_);
     ROOT::Reflex::PropertyList wp = type_.Properties();
     if (wp.HasProperty("splitLevel")) {
 	splitLevel_ = strtol(wp.PropertyAsString("splitLevel").c_str(), 0, 0);
 	if (splitLevel_ < 0) {
           throw cms::Exception("IllegalSplitLevel") << "' An illegal ROOT split level of " <<
-	  splitLevel_ << " is specified for class " << wrappedClassName(fullClassName()) << ".'\n";
+	  splitLevel_ << " is specified for class " << wrappedName_ << ".'\n";
 	}
 	++splitLevel_; //Compensate for wrapper
     }
@@ -155,7 +172,7 @@ namespace edm {
 	basketSize_ = strtol(wp.PropertyAsString("basketSize").c_str(), 0, 0);
 	if (basketSize_ <= 0) {
           throw cms::Exception("IllegalBasketSize") << "' An illegal ROOT basket size of " <<
-	  basketSize_ << " is specified for class " << wrappedClassName(fullClassName()) << "'.\n";
+	  basketSize_ << " is specified for class " << wrappedName_ << "'.\n";
 	}
     }
   }

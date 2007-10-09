@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: RootFile.cc,v 1.85 2007/10/08 21:39:23 wmtan Exp $
+$Id: RootFile.cc,v 1.87 2007/10/08 23:41:57 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "RootFile.h"
@@ -103,14 +103,20 @@ namespace edm {
       for (ProductRegistry::ProductList::const_iterator it = prodList.begin(), itEnd = prodList.end();
            it != itEnd; ++it) {
         BranchDescription const& prod = it->second;
-	//need to call init to cause the branch name to be recalculated
-	prod.init();
-        BranchDescription newBD(prod);
-        newBD.friendlyClassName_ = friendlyname::friendlyName(newBD.className());
-
-        newBD.init();
-        newReg->addProduct(newBD);
-	newBranchToOldBranch[newBD.branchName()] = prod.branchName();
+        std::string newFriendlyName = friendlyname::friendlyName(prod.className());
+	if (newFriendlyName == prod.friendlyClassName_) {
+	  prod.init();
+          newReg->addProduct(prod);
+	  newBranchToOldBranch[prod.branchName()] = prod.branchName();
+	} else {
+          BranchDescription newBD(prod);
+          newBD.friendlyClassName_ = newFriendlyName;
+	  newBD.init();
+          newReg->addProduct(newBD);
+	  // Need to call init to get old branch name.
+	  prod.init();
+	  newBranchToOldBranch[newBD.branchName()] = prod.branchName();
+	}
       }
       // freeze the product registry
       newReg->setFrozen();
