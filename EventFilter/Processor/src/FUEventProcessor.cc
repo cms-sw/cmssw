@@ -555,7 +555,7 @@ bool FUEventProcessor::halting(toolbox::task::WorkLoop* wl)
     edm::EventProcessor::StatusCode rc = stopEventProcessor();
     if(rc != edm::EventProcessor::epTimedOut)
       {
-	detachDqmFromShm();
+	if(hasShMem_) detachDqmFromShm();
 	if(st == edm::event_processor::sJobReady || st == edm::event_processor::sDone)
 	  evtProcessor_->endJob();
 	monitorInfoSpace_->lock(); //protect monitoring workloop from using ep pointer while it is being deleted
