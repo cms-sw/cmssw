@@ -1,8 +1,8 @@
  /*
  * \file DTDigiTask.cc
  * 
- * $Date: 2007/09/25 17:24:57 $
- * $Revision: 1.29 $
+ * $Date: 2007/09/25 17:41:09 $
+ * $Revision: 1.30 $
  * \author M. Zanetti - INFN Padova
  *
  */
@@ -214,7 +214,7 @@ void DTDigiTask::bookHistos(const DTChamberId& dtCh, string folder, string histo
   
   if (debug) cout<<"[DTDigiTask]: histoName "<<histoName<<endl;
   
-  if ( folder == "Occupancies" || folder == "DigiPerEvent" )    {
+  if (folder == "Occupancies")    {
     
     const DTChamber* dtchamber = muonGeom->chamber(dtCh);
     const std::vector<const DTSuperLayer*> dtSupLylist = dtchamber->superLayers();
@@ -240,8 +240,6 @@ void DTDigiTask::bookHistos(const DTChamberId& dtCh, string folder, string histo
 	   || histoTag == "OccupancyNoise_perL"
 	   || histoTag == "OccupancyInTimeHits_perL")
 	  (digiHistos[histoTag])[(*ly)->id().rawId()] = dbe->book1D(histoName_layer,histoName_layer,nWires,firstWire,nWires+firstWire);
-	if(histoTag == "DigiPerEvent")
-	  (digiHistos[histoTag])[(*ly)->id().rawId()] = dbe->book2D(histoName_layer,histoName_layer,nWires,firstWire,nWires+firstWire,10,-0.5,9.5);
 	++ly;
 	if((nWires+firstWire) > nWires_max) nWires_max = (nWires+firstWire);
 	
@@ -251,8 +249,7 @@ void DTDigiTask::bookHistos(const DTChamberId& dtCh, string folder, string histo
    
     if(histoTag != "OccupancyAllHits_perL" 
 	   && histoTag != "OccupancyNoise_perL"
-	   && histoTag != "OccupancyInTimeHits_perL"
-           && histoTag != "DigiPerEvent"){
+	   && histoTag != "OccupancyInTimeHits_perL"){
       (digiHistos[histoTag])[dtCh.rawId()] = dbe->book2D(histoName,histoName,nWires_max,1,nWires_max+1,12,0,12);
     
       for(int i=1;i<=12;i++) { 
@@ -499,52 +496,10 @@ void DTDigiTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 	    }
 	  }
 	}
-	histoTag = "DigiPerEvent";
-	if (digiHistos[histoTag].find(indexL) == digiHistos[histoTag].end())
-	  bookHistos(dtChId, string("DigiPerEvent"), histoTag );
 	
     }
   }
   
-  //To plot the number of digi per event per wire
-  std::map<int,int > DigiPerWirePerEvent;
-  
-  // Loop over all the chambers
-  vector<DTChamber*>::const_iterator ch_it = muonGeom->chambers().begin();
-  vector<DTChamber*>::const_iterator ch_end = muonGeom->chambers().end();
-  // Loop over the SLs
-  for (; ch_it != ch_end; ++ch_it) {
-    //    DTChamberId ch = (*ch_it)->id();
-    vector<const DTSuperLayer*>::const_iterator sl_it = (*ch_it)->superLayers().begin(); 
-    vector<const DTSuperLayer*>::const_iterator sl_end = (*ch_it)->superLayers().end();
-    // Loop over the SLs
-    for(; sl_it != sl_end; ++sl_it) {
-      //      DTSuperLayerId sl = (*sl_it)->id();
-      vector<const DTLayer*>::const_iterator l_it = (*sl_it)->layers().begin(); 
-      vector<const DTLayer*>::const_iterator l_end = (*sl_it)->layers().end();
-      // Loop over the Ls
-      for(; l_it != l_end; ++l_it) {
-	DTLayerId layerId = (*l_it)->id();
-	int nWires = muonGeom->layer(layerId)->specificTopology().channels();
-	uint32_t indexL = layerId.rawId();
-	histoTag = "DigiPerEvent";
-	if (digiHistos[histoTag].find(indexL) != digiHistos[histoTag].end()){
-	  for (int wire=1; wire<=nWires; wire++) {
-	    DigiPerWirePerEvent[wire]= 0;
-	  }
-	  DTDigiCollection::Range layerDigi= dtdigis->get(layerId);
-	  for (DTDigiCollection::const_iterator digi = layerDigi.first;
-	       digi!=layerDigi.second;
-	       ++digi){
-		DigiPerWirePerEvent[(*digi).wire()]+=1;
-	  }
-	  for (int wire=1; wire<=nWires; wire++) {
-	    (digiHistos.find(histoTag)->second).find(indexL)->second->Fill(wire,DigiPerWirePerEvent[wire]);
-	  }
-	}
-      } //Loop Ls
-    } //Loop SLs
-  } //Loop over chambers
   hitMapCheck.clear();
 }
 
