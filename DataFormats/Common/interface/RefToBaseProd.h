@@ -5,13 +5,14 @@
  *
  * \author Luca Lista, INFN
  *
- * $Id: RefToBaseProd.h,v 1.13 2007/10/08 09:23:00 llista Exp $
+ * $Id: RefToBaseProd.h,v 1.14 2007/10/09 13:05:18 chrjones Exp $
  *
  */
   
 #include "DataFormats/Common/interface/EDProductfwd.h"
 #include "DataFormats/Common/interface/RefCore.h"
 #include "DataFormats/Provenance/interface/ProductID.h"
+#include "DataFormats/Common/interface/ConstPtrCache.h"
 
 namespace edm {
   template<typename T> class View;
@@ -23,7 +24,7 @@ namespace edm {
     typedef View<T> product_type;
 
     /// Default constructor needed for reading from persistent store. Not for direct use.
-    RefToBaseProd() : product_(), view_(0) {}
+    RefToBaseProd() : product_(), viewCache_(0) {}
 
     /// General purpose constructor from handle-like object.
     // The templating is artificial.
@@ -43,7 +44,7 @@ namespace edm {
     RefToBaseProd( const RefProd<C> & );
 
     /// Destructor
-    ~RefToBaseProd() {}
+    ~RefToBaseProd() { delete viewPtr();}
 
     /// Dereference operator
     product_type const&  operator*() const;
@@ -90,8 +91,11 @@ namespace edm {
     void swap(RefToBaseProd<T> &);
 
   private:
+    View<T> const* viewPtr() const {
+      return reinterpret_cast<const View<T>*>(viewCache_.ptr_);
+    }
     RefCore product_;
-    mutable std::auto_ptr<View<T> > view_;
+    mutable ConstPtrCache viewCache_;
   };
 }
 
@@ -123,7 +127,7 @@ namespace edm {
   inline
   RefToBaseProd<T>::RefToBaseProd(Handle<View<T> > const& handle) :
     product_(handle->id(), 0, handle->productGetter() ),
-    view_( new View<T>( * handle ) ) {
+    viewCache_( new View<T>( * handle ) ) {
     assert( handle->productGetter() == 0 );
   }
 
@@ -131,21 +135,21 @@ namespace edm {
   inline
   RefToBaseProd<T>::RefToBaseProd( const View<T> & view ) :
     product_( view.id(), 0, view.productGetter() ),
-    view_( new View<T>( view ) ) {
+    viewCache_( new View<T>( view ) ) {
   }
 
   template <typename T>
   inline
   RefToBaseProd<T>::RefToBaseProd( const RefToBaseProd<T> & ref ) :
     product_( ref.product_ ),
-    view_( ref.view_.get() ? (new View<T>( * ref ) ) : 0 ) {
+    viewCache_( ref.viewPtr() ? (new View<T>( * ref ) ) : 0 ) {
   }
 
   template <typename T>
   inline
   RefToBaseProd<T> & RefToBaseProd<T>::operator=( const RefToBaseProd<T> & other ) {
-    product_ = other.product_;
-    view_.reset( other.view_.get() ? new View<T>( *( other.view_ ) ) : 0 );
+    RefToBaseProd<T> temp(other);
+    this->swap(temp);
     return *this;
   }
 
@@ -160,7 +164,7 @@ namespace edm {
   template <typename T>
   inline
   View<T> const* RefToBaseProd<T>::operator->() const {
-    if ( view_.get() == 0 ) {
+    if ( viewCache_.ptr_ == 0 ) {
       if ( product_.isNull() )
 	throw edm::Exception(errors::InvalidReference)
 	  << "attempting get view from a null RefToBaseProd.";
@@ -168,20 +172,16 @@ namespace edm {
       std::vector<void const*> pointers;
       helper_vector_ptr helpers;
       product_.productGetter()->getIt(id)->fillView(id, pointers, helpers);
-      view_.reset( new View<T>( pointers, helpers ) );
+      viewCache_.ptr_ =( new View<T>( pointers, helpers ) );
     }
-    return view_.get();
+    return viewPtr();
   } 
 
   template<typename T>
   inline
   void RefToBaseProd<T>::swap(RefToBaseProd<T> & other) {
     std::swap( product_, other.product_ );
-    // why this does not compile? 
-    // std::swap( view_, other.view_ );
-    std::auto_ptr<View<T> > tmp = view_;
-    view_ = other.view_;
-    other.view_ = tmp;
+    std::swap( viewCache_.ptr_, other.viewCache_.ptr_); 
   }
 
   template <typename T>
@@ -224,7 +224,7 @@ namespace edm {
     typedef reftobase::RefVectorHolder<ref_vector> holder_type;
     helper_vector_ptr helpers( new holder_type );
     detail::reallyFillView( * ref.product(), ref.id(), pointers, * helpers );
-    view_.reset( new View<T>( pointers, helpers ) );
+    viewCache_.ptr_=( new View<T>( pointers, helpers ) );
   }
 
   template <typename T>
@@ -237,7 +237,7 @@ namespace edm {
     typedef reftobase::RefVectorHolder<ref_vector> holder_type;
     helper_vector_ptr helpers( new holder_type );
     detail::reallyFillView( * handle, handle.id(), pointers, * helpers );
-    view_.reset( new View<T>( pointers, helpers ) );
+    viewCache_.ptr_=( new View<T>( pointers, helpers ) );
   }
 
   /// Constructor from Ref.
@@ -254,7 +254,7 @@ namespace edm {
     typedef reftobase::RefVectorHolder<ref_vector> holder_type;
     helper_vector_ptr helpers( new holder_type );
     detail::reallyFillView( * ref.product(), ref.id(), pointers, * helpers );
-    view_.reset( new View<T>( pointers, helpers ) );
+    viewCache_.ptr_=( new View<T>( pointers, helpers ) );
   }
 
   /// Constructor from RefToBase.
@@ -268,7 +268,7 @@ namespace edm {
     std::vector<void const*> pointers;
     helper_vector_ptr helpers( ref.holder_->makeVectorBaseHolder().release() );
     helpers->reallyFillView( ref.product(), ref.id(), pointers );
-    view_.reset( new View<T>( pointers, helpers ) );
+    viewCache_.ptr_=( new View<T>( pointers, helpers ) );
   }
 
 }
