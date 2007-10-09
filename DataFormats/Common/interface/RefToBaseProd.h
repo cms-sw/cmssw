@@ -5,7 +5,7 @@
  *
  * \author Luca Lista, INFN
  *
- * $Id: RefToBaseProd.h,v 1.12 2007/09/19 17:27:45 llista Exp $
+ * $Id: RefToBaseProd.h,v 1.13 2007/10/08 09:23:00 llista Exp $
  *
  */
   
@@ -138,14 +138,14 @@ namespace edm {
   inline
   RefToBaseProd<T>::RefToBaseProd( const RefToBaseProd<T> & ref ) :
     product_( ref.product_ ),
-    view_( new View<T>( * ref ) ) {
+    view_( ref.view_.get() ? (new View<T>( * ref ) ) : 0 ) {
   }
 
   template <typename T>
   inline
   RefToBaseProd<T> & RefToBaseProd<T>::operator=( const RefToBaseProd<T> & other ) {
     product_ = other.product_;
-    view_.reset( new View<T>( *( other.view_ ) ) );
+    view_.reset( other.view_.get() ? new View<T>( *( other.view_ ) ) : 0 );
     return *this;
   }
 
