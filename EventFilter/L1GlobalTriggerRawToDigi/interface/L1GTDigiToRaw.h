@@ -65,7 +65,7 @@ private:
     /// block packers -------------
 
     /// pack header
-    void packHeader(unsigned char*);
+    void packHeader(unsigned char*, edm::Event&);
 
     /// pack the GTFE block
     /// gives the number of bunch crosses in the event, as well as the active boards
@@ -90,7 +90,7 @@ private:
     unsigned int flipPtQ(unsigned int);
 
     /// pack trailer word
-    void packTrailer(unsigned char*, int);
+    void packTrailer(unsigned char*, unsigned char*, int);
 
     /// end of job stuff
     virtual void endJob();
