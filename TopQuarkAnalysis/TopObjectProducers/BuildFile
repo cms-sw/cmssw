@@ -8,6 +8,8 @@
 <use name=PhysicsTools/Parser>
 <use name=RecoBTag/MCTools>
 <use name=RecoMuon/MuonIdentification>
+<use name=AnalysisDataFormats/Egamma>
+
 <flags EDM_PLUGIN=1>
 <export>
   <lib name=TopQuarkAnalysisTopObjectProducers>
@@ -20,4 +22,5 @@
   <use name=DataFormats/TrackReco>
   <use name=DataFormats/Math>
   <use name=RecoMuon/MuonIdentification>
+  <use name=AnalysisDataFormats/Egamma>
 </export>
