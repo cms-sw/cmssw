@@ -1,24 +1,28 @@
 <use name=FWCore/Framework>
+<use name=FWCore/PluginManager>
+<use name=FWCore/ParameterSet>
 <use name=DQMServices/CoreROOT>
-<use name=SimDataFormats/TrackerDigiSimLink>
+<use name=DQM/SiPixelCommon>
 <use name=SimTracker/TrackerHitAssociation>
-<use name=DataFormats/SiStripDetId> 
-<use name=Geometry/TrackerGeometryBuilder>
+<use name=SimDataFormats/TrackerDigiSimLink>
+<use name=DataFormats/SiStripDetId>
+<use name=Geometry/CommonDetUnit>
 <use name=Geometry/Records>
+<use name=Geometry/TrackerGeometryBuilder>
 <use name=boost>
-<use name=root>
-
 <flags EDM_PLUGIN=1>
-
 <export>
- <lib name=DQMSiPixelMonitorRecHit>
- <use name=FWCore/Framework>
- <use name=DQMServices/CoreROOT>
- <use name=SimDataFormats/TrackerDigiSimLink>
- <use name=SimTracker/TrackerHitAssociation>
- <use name=DataFormats/SiStripDetId>
- <use name=Geometry/TrackerGeometryBuilder>
- <use name=Geometry/Records>
- <use name=boost>
- <use name=root>
+   <lib name=DQMSiPixelMonitorRecHit>
+   <use name=FWCore/Framework>
+   <use name=FWCore/PluginManager>
+   <use name=FWCore/ParameterSet>
+   <use name=DataFormats/SiStripDetId>
+   <use name=SimTracker/TrackerDigiSimLink>
+   <use name=SimTracker/TrackerHitAssociation>
+   <use name=DQMServices/CoreROOT>
+   <use name=DQM/SiPixelCommon>
+   <use name=Geometry/CommonDetUnit>
+   <use name=Geometry/Records>
+   <use name=Geometry/TrackerGeometryBuilder>
+   <use name=boost>
 </export>
