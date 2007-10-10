@@ -34,17 +34,22 @@ using namespace muonisolation;
 //! constructor with config
 MuIsoDepositProducer::MuIsoDepositProducer(const ParameterSet& par) :
   theConfig(par),
-  theInputType(par.getParameter<std::string>("InputType")),
-  theOutputType(par.getParameter<std::string>("OutputType")),
-  theExtractForCandidate(par.getParameter<bool>("ExtractForCandidate")),
-  theMuonTrackRefType(par.getParameter<std::string>("MuonTrackRefType")),
-  theMuonCollectionTag(par.getParameter<edm::InputTag>("inputMuonCollection")),
   theDepositNames(std::vector<std::string>(1,std::string())),
-  theMultipleDepositsFlag(par.getParameter<bool>("MultipleDepositsFlag")),
   theExtractor(0)
-  {
+{
   LogDebug("RecoMuon|MuonIsolation")<<" MuIsoDepositProducer CTOR";
 
+  edm::ParameterSet ioPSet = par.getParameter<edm::ParameterSet>("IOPSet");
+
+  theInputType = ioPSet.getParameter<std::string>("InputType");
+  theOutputType = ioPSet.getParameter<std::string>("OutputType");
+  theExtractForCandidate = ioPSet.getParameter<bool>("ExtractForCandidate");
+  theMuonTrackRefType = ioPSet.getParameter<std::string>("MuonTrackRefType");
+  theMuonCollectionTag = ioPSet.getParameter<edm::InputTag>("inputMuonCollection");
+  theMultipleDepositsFlag = ioPSet.getParameter<bool>("MultipleDepositsFlag");
+  
+
+  
   if (theMultipleDepositsFlag){
     theDepositNames = par.getParameter<edm::ParameterSet>("ExtractorPSet")
       .getParameter<std::vector<std::string> >("DepositInstanceLabels");
@@ -223,6 +228,8 @@ void MuIsoDepositProducer::produce(Event& event, const EventSetup& eventSetup){
 template <typename T>
 void MuIsoDepositProducer::callProduces(const std::vector<std::string>& instLabels){
   for (uint i = 0; i < instLabels.size(); ++i){
-    produces<T>(instLabels[i]);
+    std::string alias = theConfig.getParameter<std::string>("@module_label");
+    if (instLabels[i] != "") alias += "_" + instLabels[i];
+    produces<T>(instLabels[i]).setBranchAlias(alias);
   }
 }
