@@ -292,7 +292,7 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
             if(simRecColl.find(tp) != simRecColl.end()){
               rt = simRecColl[tp];
 	      if (rt.size()!=0) {
-		reco::TrackRef t = rt.begin()->first;
+		edm::Ref<edm::View<reco::Track> > t = rt.begin()->first;
 		totASSpT[w][f]++;
 	      }
 	    }
