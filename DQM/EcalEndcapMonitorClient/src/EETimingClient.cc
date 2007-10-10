@@ -1,8 +1,8 @@
 /*
  * \file EETimingClient.cc
  *
- * $Date: 2007/09/09 18:40:47 $
- * $Revision: 1.23 $
+ * $Date: 2007/09/10 06:43:46 $
+ * $Revision: 1.24 $
  * \author G. Della Ricca
  *
 */
@@ -546,6 +546,15 @@ void EETimingClient::htmlOutput(int run, string htmlDir, string htmlName){
 
   int pCol3[6] = { 301, 302, 303, 304, 305, 306 };
 
+  TH2S labelGrid("labelGrid","label grid", 100, -2., 98., 100, -2., 98.);
+  for ( short j=0; j<400; j++ ) {
+    int x = 5*(1 + j%20);
+    int y = 5*(1 + j/20);
+    labelGrid.SetBinContent(x, y, Numbers::inTowersEE[j]);
+  }
+  labelGrid.SetMarkerSize(1);
+  labelGrid.SetMinimum(0.1);
+
   string imgNameQual, imgNameTim, imgNameMean, imgNameRMS, imgName, meName;
 
   TCanvas* cQual = new TCanvas("cQual", "Temp", 0, 0, 2*csize, 2*csize);
@@ -591,6 +600,13 @@ void EETimingClient::htmlOutput(int run, string htmlDir, string htmlName){
       obj2f->GetXaxis()->SetLabelSize(0.02);
       obj2f->GetYaxis()->SetLabelSize(0.02);
       obj2f->Draw("col");
+      int x1 = labelGrid.GetXaxis()->FindBin(Numbers::ix0EE(ism)+0.);
+      int x2 = labelGrid.GetXaxis()->FindBin(Numbers::ix0EE(ism)+50.);
+      int y1 = labelGrid.GetYaxis()->FindBin(Numbers::iy0EE(ism)+0.);
+      int y2 = labelGrid.GetYaxis()->FindBin(Numbers::iy0EE(ism)+50.);
+      labelGrid.GetXaxis()->SetRange(x1, x2);
+      labelGrid.GetYaxis()->SetRange(y1, y2);
+      labelGrid.Draw("text,same");
       cQual->SetBit(TGraph::kClipFrame);
       TLine l;
       l.SetLineWidth(1);

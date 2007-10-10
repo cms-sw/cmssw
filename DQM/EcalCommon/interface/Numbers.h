@@ -1,11 +1,11 @@
-// $Id: Numbers.h,v 1.10 2007/10/04 08:38:11 dellaric Exp $
+// $Id: Numbers.h,v 1.11 2007/10/04 09:11:57 dellaric Exp $
 
 /*!
   \file Numbers.h
   \brief Some "id" conversions
   \author B. Gobbo 
-  \version $Revision: 1.10 $
-  \date $Date: 2007/10/04 08:38:11 $
+  \version $Revision: 1.11 $
+  \date $Date: 2007/10/04 09:11:57 $
 */
 
 #ifndef Numbers_H
@@ -74,6 +74,8 @@ class Numbers {
 
   static int ixSectorsEE[202];
   static int iySectorsEE[202];
+
+  static int inTowersEE[400];
 
 private:
 
