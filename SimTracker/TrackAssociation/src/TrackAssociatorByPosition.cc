@@ -90,7 +90,7 @@ double TrackAssociatorByPosition::quality(const TrajectoryStateOnSurface & tr, c
 }
 
 
-RecoToSimCollection TrackAssociatorByPosition::associateRecoToSim(edm::Handle<reco::TrackCollection>& tCH, 
+RecoToSimCollection TrackAssociatorByPosition::associateRecoToSim(edm::Handle<edm::View<reco::Track> >& tCH, 
 								  edm::Handle<TrackingParticleCollection>& tPCH,
 								  const edm::Event * e ) const{
   RecoToSimCollection  outputCollection;
@@ -117,7 +117,7 @@ RecoToSimCollection TrackAssociatorByPosition::associateRecoToSim(edm::Handle<re
       double dQ= quality(trackReferenceState,simReferenceState);
       if (dQ < theQCut){
 	atLeastOne=true;
-	outputCollection.insert(reco::TrackRef(tCH,Ti),
+	outputCollection.insert(edm::Ref<edm::View<reco::Track>  >(tCH,Ti),
 				std::make_pair(edm::Ref<TrackingParticleCollection>(tPCH,TPi),dQ));
 	edm::LogVerbatim("TrackAssociatorByPosition")<<"track number: "<<Ti
 						     <<" associated with dQ: "<<dQ
@@ -127,8 +127,8 @@ RecoToSimCollection TrackAssociatorByPosition::associateRecoToSim(edm::Handle<re
 	minPair = std::make_pair(Ti,TPi);}
     }//loop over tracking particles
     if (theMinIfNoMatch && !atLeastOne && dQmin!=dQmin_default){
-      outputCollection.insert(reco::TrackRef(tCH,minPair.first),
-			       std::make_pair(edm::Ref<TrackingParticleCollection>(tPCH,minPair.second),dQmin));}
+      outputCollection.insert(edm::Ref<edm::View<reco::Track>  >(tCH,minPair.first),
+			      std::make_pair(edm::Ref<TrackingParticleCollection>(tPCH,minPair.second),dQmin));}
   }//loop over tracks
   outputCollection.post_insert();
   return outputCollection;
@@ -136,9 +136,9 @@ RecoToSimCollection TrackAssociatorByPosition::associateRecoToSim(edm::Handle<re
 
 
 
-SimToRecoCollection TrackAssociatorByPosition::associateSimToReco(edm::Handle<reco::TrackCollection>& tCH, 
-							      edm::Handle<TrackingParticleCollection>& tPCH,
-							      const edm::Event * e ) const {
+SimToRecoCollection TrackAssociatorByPosition::associateSimToReco(edm::Handle<edm::View<reco::Track> >& tCH, 
+								  edm::Handle<TrackingParticleCollection>& tPCH,
+								  const edm::Event * e ) const {
   SimToRecoCollection  outputCollection;
   //for each tracking particle, find matching tracks.
 
@@ -166,7 +166,7 @@ SimToRecoCollection TrackAssociatorByPosition::associateSimToReco(edm::Handle<re
       if (dQ < theQCut){
 	atLeastOne=true;
 	outputCollection.insert(edm::Ref<TrackingParticleCollection>(tPCH,TPi),
-				std::make_pair(reco::TrackRef(tCH,Ti),dQ));
+				std::make_pair(edm::Ref<edm::View<reco::Track>  >(tCH,Ti),dQ));
 	edm::LogVerbatim("TrackAssociatorByPosition")<<"TrackingParticle number: "<<TPi
 						     <<" associated with dQ: "<<dQ
 						     <<" to track number: "<<Ti;}
@@ -176,7 +176,7 @@ SimToRecoCollection TrackAssociatorByPosition::associateSimToReco(edm::Handle<re
     }//loop over tracks
     if (theMinIfNoMatch && !atLeastOne && dQmin!=dQmin_default){
       outputCollection.insert(edm::Ref<TrackingParticleCollection>(tPCH,minPair.first),
-			      std::make_pair(reco::TrackRef(tCH,minPair.second),dQmin));}
+			      std::make_pair(edm::Ref<edm::View<reco::Track>  >(tCH,minPair.second),dQmin));}
   }//loop over tracking particles
   
   outputCollection.post_insert();
