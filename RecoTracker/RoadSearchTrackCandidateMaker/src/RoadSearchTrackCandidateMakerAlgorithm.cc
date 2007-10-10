@@ -9,9 +9,9 @@
 // Original Author: Oliver Gutsche, gutsche@fnal.gov
 // Created:         Wed Mar 15 13:00:00 UTC 2006
 //
-// $Author: gutsche $
-// $Date: 2007/07/08 20:32:40 $
-// $Revision: 1.40 $
+// $Author: burkett $
+// $Date: 2007/08/16 23:44:31 $
+// $Revision: 1.43 $
 //
 
 #include <vector>
@@ -188,6 +188,7 @@ void RoadSearchTrackCandidateMakerAlgorithm::run(const RoadSearchCloudCollection
 
     //std::map<const DetLayer*, int> cloud_layer_reference; // for debugging
     std::multimap<const DetLayer*, const TrackingRecHit* > cloud_layer_map;
+    std::map<const DetLayer*, int> cloud_layer_reference0; // for debugging
     std::multimap<const DetLayer*, const TrackingRecHit* >::const_iterator hiter;
     for (RoadSearchCloud::RecHitVector::const_iterator ih=recHits.begin(); ih!=recHits.end(); ++ih) {
       const DetLayer* hitLayer =
@@ -201,13 +202,13 @@ void RoadSearchTrackCandidateMakerAlgorithm::run(const RoadSearchCloudCollection
           layers[nlayers] = hitLayer;
           lstereo[nlayers] = false;
           nhits_l[nlayers] = 0;
-          //cloud_layer_reference.insert(std::make_pair(layers[nlayers], nlayers));
+          cloud_layer_reference0.insert(std::make_pair(layers[nlayers], nlayers));
           ilayer = nlayers;
           ++nlayers;
         }
         else{
-	  //std::map<const DetLayer*, int>::const_iterator ilyr = cloud_layer_reference.find(hitLayer);
-          //ilayer = ilyr->second;
+	  std::map<const DetLayer*, int>::const_iterator ilyr = cloud_layer_reference0.find(hitLayer);
+          ilayer = ilyr->second;
         }
       }
       else {
@@ -237,23 +238,50 @@ void RoadSearchTrackCandidateMakerAlgorithm::run(const RoadSearchCloudCollection
       const DetLayer* thisLayer =
 	theMeasurementTracker->geometricSearchTracker()->detLayer((*ihit)->geographicalId());
 
-      cloud_layer_reference.insert(std::make_pair( thisLayer, RecHitsByLayer.size()));
+      std::map<const DetLayer*, int>::const_iterator ilyr = cloud_layer_reference.find(thisLayer);
+      if (ilyr==cloud_layer_reference.end())
+	cloud_layer_reference.insert(std::make_pair( thisLayer, RecHitsByLayer.size()));
       if (!RecHitsByLayer.empty() && RecHitsByLayer.back().first == thisLayer) { // Old Layer
 	RecHitsByLayer.back().second.push_back(*ihit);
       }
-      else { // New Layer
-	RoadSearchCloud::RecHitVector rhc;
-	rhc.push_back(*ihit);
-	RecHitsByLayer.push_back(std::make_pair(thisLayer, rhc));
+      else {
+	if (NoFieldCosmic_) {
+	  if (ilyr != cloud_layer_reference.end()){// Not a New Layer
+	    int ilayer = ilyr->second;
+	    (RecHitsByLayer.begin()+ilayer)->second.push_back(*ihit);
+	  }
+	  else{// New Layer
+	    RoadSearchCloud::RecHitVector rhc;
+	    rhc.push_back(*ihit);
+	    RecHitsByLayer.push_back(std::make_pair(thisLayer, rhc));
+	  }
+	}
+	else{ // Assume it is a new layer
+	  RoadSearchCloud::RecHitVector rhc;
+	  rhc.push_back(*ihit);
+	  RecHitsByLayer.push_back(std::make_pair(thisLayer, rhc));
+	}
 
       }
-      if (debug_){
-	GlobalPoint gp = trackerGeom->idToDet((*ihit)->geographicalId())->surface().toGlobal((*ihit)->localPosition());
-	std::cout << "Hit "<< ihit-recHits.begin()
-		  << " r/z = "
-		  << gp.perp() << " " << gp.z()
-		  <<" in layer " << thisLayer << " layer number " << RecHitsByLayer.size()
-		  << " with " << RecHitsByLayer.back().second.size() << "  hits " << std::endl;
+    }
+
+    if (debug_){
+      int ntothit = 0;
+      for (std::vector<std::pair<const DetLayer*, RoadSearchCloud::RecHitVector > >::iterator ilhv = RecHitsByLayer.begin();
+	   ilhv != RecHitsByLayer.end(); ++ilhv) {
+	RoadSearchCloud::RecHitVector theLayerHits = ilhv->second;
+	for (RoadSearchCloud::RecHitVector::const_iterator ihit = theLayerHits.begin();
+           ihit != theLayerHits.end(); ++ihit) {
+	
+	  GlobalPoint gp = trackerGeom->idToDet((*ihit)->geographicalId())->surface().toGlobal((*ihit)->localPosition());
+	  std::cout << "Hit "<< ntothit
+		    << " r/z = "
+		    << gp.perp() << " " << gp.z()
+		    <<" in layer " << ilhv->first 
+		    << " is hit " << (ihit-theLayerHits.begin())+1 
+		    << " of " << theLayerHits.size() << "  total hits " << std::endl;
+	  ntothit++;
+	}
       }
     }
 
@@ -726,7 +754,7 @@ void RoadSearchTrackCandidateMakerAlgorithm::run(const RoadSearchCloudCollection
   delete theRevPropagator; 
   delete theAnalyticalPropagator;
   delete theHitMatcher;
-  if (debug_) std::cout<< "Found " << output.size() << " track candidates."<<std::endl;
+  std::cout<< "*** RS Found " << output.size() << " track candidates."<<std::endl;
 
 }
 
