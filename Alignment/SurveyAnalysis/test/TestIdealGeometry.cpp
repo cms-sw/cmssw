@@ -13,27 +13,19 @@
 
 
 // system include files
-#include <string>
 #include <TTree.h>
 #include <TFile.h>
-#include <TRotMatrix.h>
+// #include <TRotMatrix.h>
 
 // user include files
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
-
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "Alignment/TrackerAlignment/interface/AlignableTracker.h"
-#include "Alignment/TrackerAlignment/interface/AlignableTrackerBarrelLayer.h"
-#include "Alignment/TrackerAlignment/interface/AlignableTrackerRod.h"
-
+#include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 /* #include "CondFormats/Alignment/interface/Alignments.h"
@@ -43,9 +35,6 @@
 #include "CondFormats/Alignment/interface/AlignTransformError.h"
 #include "CondFormats/AlignmentRecord/interface/TrackerAlignmentErrorRcd.h"*/
 
-#include "DataFormats/DetId/interface/DetId.h"
-#include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
-#include "DataFormats/SiStripDetId/interface/SiStripDetId.h"
 #include "DataFormats/SiStripDetId/interface/TIBDetId.h"
 #include "DataFormats/SiStripDetId/interface/TIDDetId.h"
 
@@ -55,15 +44,13 @@
 // class declaration
 //
 using namespace std;
-static const int NFILES = 2;
 
 class TestIdealGeometry : public edm::EDAnalyzer {
 
-  typedef unsigned int DetIdType;
-  typedef std::map< DetIdType, std::vector<float> > MapType;
-  typedef std::pair< DetIdType, std::vector<float> > PairType;
-  typedef std::map< std::vector<int>, std::vector<float> > MapTypeOr;
-  typedef std::pair< std::vector<int>, std::vector<float> > PairTypeOr;
+  typedef SurveyDataReader::MapType    MapType;
+  typedef SurveyDataReader::PairType   PairType;
+  typedef SurveyDataReader::MapTypeOr  MapTypeOr;
+  typedef SurveyDataReader::PairTypeOr PairTypeOr;
 
 public:
   explicit TestIdealGeometry( const edm::ParameterSet& );
@@ -81,7 +68,7 @@ private:
   float dnx_,dny_,dnz_;
   int Id_;
   // TRotMatrix* rot_;
-
+  static const int NFILES = 2;
 };
 
 //
@@ -147,7 +134,7 @@ TestIdealGeometry::analyze( const edm::Event& iEvent, const edm::EventSetup& iSe
 
   edm::LogInfo("TrackerAlignment") << "Files read";
 
-  const MapTypeOr theSurveyMap = dataReader.surveyMap();
+  const MapTypeOr& theSurveyMap = dataReader.surveyMap();
 
   edm::LogInfo("TrackerAlignment") << "Map written";
 
@@ -205,7 +192,7 @@ TestIdealGeometry::analyze( const edm::Event& iEvent, const edm::EventSetup& iSe
 
 	    for ( MapTypeOr::const_iterator it = theSurveyMap.begin(); it != theSurveyMap.end(); it++ ) {
 	      std::vector<int> locPos = (it)->first;
-	      std::vector<float> align_params = (it)->second;
+	      align::Scalars align_params = (it)->second;
 	      
 	      if (locPos[0] == int(comparisonVect[0]) &&
 		  locPos[1] == int(comparisonVect[1]) &&

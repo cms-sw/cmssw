@@ -1,10 +1,9 @@
 #include "TRandom3.h"
 
+#include "Alignment/CommonAlignment/interface/AlignableObjectId.h"
 #include "Alignment/CommonAlignment/interface/SurveyDet.h"
 #include "Alignment/TrackerAlignment/interface/AlignableTracker.h"
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
-#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeomBuilderFromGeometricDet.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "Alignment/SurveyAnalysis/test/SurveyInputDummy.h"
 
@@ -29,14 +28,7 @@ SurveyInputDummy::SurveyInputDummy(const edm::ParameterSet& cfg)
 
 void SurveyInputDummy::beginJob(const edm::EventSetup& setup)
 {
-  edm::ESHandle<GeometricDet> geom;
-
-  setup.get<IdealGeometryRecord>().get(geom);
-
-  TrackerGeometry* tracker =
-    TrackerGeomBuilderFromGeometricDet().build(&*geom);
-
-  Alignable* ali = new AlignableTracker(&*geom, tracker);
+  Alignable* ali = new AlignableTracker;
 
   addSurveyInfo(ali);
   addComponent(ali);
@@ -46,7 +38,7 @@ void SurveyInputDummy::addSurveyInfo(Alignable* ali)
 {
   static TRandom3 rand;
 
-  const std::vector<Alignable*>& comp = ali->components();
+  const align::Alignables& comp = ali->components();
 
   unsigned int nComp = comp.size();
 
@@ -54,7 +46,7 @@ void SurveyInputDummy::addSurveyInfo(Alignable* ali)
 
   align::ErrorMatrix cov; // default 0
 
-  std::map<StructureType, double>::const_iterator e = theErrors.find( (StructureType)ali->alignableObjectId() );
+  std::map<align::StructureType, double>::const_iterator e = theErrors.find( ali->alignableObjectId() );
 
   if (theErrors.end() != e)
   {

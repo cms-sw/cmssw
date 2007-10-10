@@ -16,43 +16,30 @@
 #include <string>
 #include <TTree.h>
 #include <TFile.h>
-#include <TRotMatrix.h>
+// #include <TRotMatrix.h>
 
 // user include files
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
-
-#include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "Alignment/TrackerAlignment/interface/AlignableTracker.h"
-#include "Alignment/TrackerAlignment/interface/AlignableTrackerBarrelLayer.h"
-#include "Alignment/TrackerAlignment/interface/AlignableTrackerRod.h"
-
+#include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
-#include "DataFormats/GeometrySurface/interface/TkRotation.h"
-#include "CondFormats/Alignment/interface/Alignments.h"
-#include "CondFormats/Alignment/interface/AlignTransform.h"
-#include "CondFormats/AlignmentRecord/interface/TrackerAlignmentRcd.h"
-#include "CondFormats/Alignment/interface/AlignmentErrors.h"
-#include "CondFormats/Alignment/interface/AlignTransformError.h"
-#include "CondFormats/AlignmentRecord/interface/TrackerAlignmentErrorRcd.h"
 
-#include "DataFormats/DetId/interface/DetId.h"
-#include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
-#include "DataFormats/SiStripDetId/interface/SiStripDetId.h"
+#include "CondFormats/Alignment/interface/Alignments.h"
+#include "CondFormats/Alignment/interface/AlignmentErrors.h"
+#include "CondFormats/DataRecord/interface/TrackerAlignmentRcd.h"
+#include "CondFormats/DataRecord/interface/TrackerAlignmentErrorRcd.h"
+
 #include "DataFormats/SiStripDetId/interface/TIBDetId.h"
 #include "DataFormats/SiStripDetId/interface/TIDDetId.h"
 #include "DataFormats/SiStripDetId/interface/TOBDetId.h"
 #include "DataFormats/SiStripDetId/interface/TECDetId.h"
-
-#include "Alignment/SurveyAnalysis/interface/SurveyDataReader.h"
 //
 //
 // class declaration
@@ -217,7 +204,7 @@ TestConverter2::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup
 
 		    // HepRotation fromAngles( (*iGeomDet).eulerAngles()  );
                     HepRotation fromAngles( (*iGeomDet).rotation()  );
-		    Surface::RotationType rotation( fromAngles.xx(), fromAngles.xy(), fromAngles.xz(),
+		    align::RotationType rotation( fromAngles.xx(), fromAngles.xy(), fromAngles.xz(),
 						    fromAngles.yx(), fromAngles.yy(), fromAngles.yz(),
 						    fromAngles.zx(), fromAngles.zy(), fromAngles.zz() );
 		    

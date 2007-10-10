@@ -1,4 +1,5 @@
 #include "Alignment/CommonAlignment/interface/Alignable.h"
+#include "Alignment/CommonAlignment/interface/AlignableObjectId.h"
 #include "Alignment/SurveyAnalysis/interface/SurveyAlignmentPoints.h"
 #include "Alignment/SurveyAnalysis/interface/SurveyAlignmentSensor.h"
 #include "Alignment/SurveyAnalysis/interface/SurveyInputBase.h"
@@ -15,7 +16,7 @@ SurveyTest::SurveyTest(const edm::ParameterSet& cfg):
 {
   typedef std::vector<std::string> Strings;
 
-  AlignableObjectId dummy;
+  static AlignableObjectId dummy;
 
   const Strings& hierarchy = cfg.getParameter<Strings>("hierarch");
 

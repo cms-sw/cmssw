@@ -16,37 +16,22 @@
 #include <string>
 #include <TTree.h>
 #include <TFile.h>
-#include <TRotMatrix.h>
+// #include <TRotMatrix.h>
 
 // user include files
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
-
-#include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "Alignment/TrackerAlignment/interface/AlignableTracker.h"
-#include "Alignment/TrackerAlignment/interface/AlignableTrackerBarrelLayer.h"
-#include "Alignment/TrackerAlignment/interface/AlignableTrackerRod.h"
-
-#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
-#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
-#include "DataFormats/GeometrySurface/interface/TkRotation.h"
 #include "CondFormats/Alignment/interface/Alignments.h"
-#include "CondFormats/Alignment/interface/AlignTransform.h"
-#include "CondFormats/AlignmentRecord/interface/TrackerAlignmentRcd.h"
 #include "CondFormats/Alignment/interface/AlignmentErrors.h"
-#include "CondFormats/Alignment/interface/AlignTransformError.h"
-#include "CondFormats/AlignmentRecord/interface/TrackerAlignmentErrorRcd.h"
+#include "CondFormats/DataRecord/interface/TrackerAlignmentRcd.h"
+#include "CondFormats/DataRecord/interface/TrackerAlignmentErrorRcd.h"
 
-#include "DataFormats/DetId/interface/DetId.h"
-#include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
-#include "DataFormats/SiStripDetId/interface/SiStripDetId.h"
 #include "DataFormats/SiStripDetId/interface/TIBDetId.h"
 #include "DataFormats/SiStripDetId/interface/TIDDetId.h"
 
@@ -55,16 +40,13 @@
 //
 // class declaration
 //
-using namespace std;
-static const int NFILES = 2;
 
 class TestConverter : public edm::EDAnalyzer {
 
-  typedef unsigned int DetIdType;
-  typedef std::map< DetIdType, std::vector<float> > MapType;
-  typedef std::pair< DetIdType, std::vector<float> > PairType;
-  typedef std::map< std::vector<int>, std::vector<float> > MapTypeOr;
-  typedef std::pair< std::vector<int>, std::vector<float> > PairTypeOr;
+  typedef SurveyDataReader::MapType    MapType;
+  typedef SurveyDataReader::PairType   PairType;
+  typedef SurveyDataReader::MapTypeOr  MapTypeOr;
+  typedef SurveyDataReader::PairTypeOr PairTypeOr;
 
 public:
   explicit TestConverter( const edm::ParameterSet& );
@@ -84,6 +66,7 @@ private:
   int Id_;
   // TRotMatrix* rot_;
 
+  static const int NFILES = 2;
 };
 
 //
@@ -152,7 +135,7 @@ TestConverter::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup 
 
   edm::LogInfo("TrackerAlignment") << "Files read";
 
-  const MapTypeOr theSurveyMap = dataReader.surveyMap();
+  const MapTypeOr& theSurveyMap = dataReader.surveyMap();
 
   edm::LogInfo("TrackerAlignment") << "Map written";
 
@@ -211,8 +194,8 @@ TestConverter::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup 
           */
 
 	  for ( MapTypeOr::const_iterator it = theSurveyMap.begin(); it != theSurveyMap.end(); it++ ) {
-	      std::vector<int> locPos = (it)->first;
-	      std::vector<float> align_params = (it)->second;
+	      const std::vector<int>& locPos = (it)->first;
+	      const align::Scalars& align_params = (it)->second;
 	      
 	      /* if (locPos[0] == int(comparisonVect[0]) &&
 		  locPos[2] == int(comparisonVect[1]) &&
@@ -230,9 +213,9 @@ TestConverter::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup 
 		  if ((*it).rawId() == (*iGeomDet).rawId()) {
 		  
 		    HepRotation fromAngles = (*iGeomDet).rotation() ;
-		    Surface::RotationType rotation( fromAngles.xx(), fromAngles.xy(), fromAngles.xz(),
-		    				    fromAngles.yx(), fromAngles.yy(), fromAngles.yz(),
-		    				    fromAngles.zx(), fromAngles.zy(), fromAngles.zz() );
+		    align::RotationType rotation( fromAngles.xx(), fromAngles.xy(), fromAngles.xz(),
+						  fromAngles.yx(), fromAngles.yy(), fromAngles.yz(),
+						  fromAngles.zx(), fromAngles.zy(), fromAngles.zz() );
 		    
 		    Id_     = (*iGeomDet).rawId();    
 		    dx_      = (*iGeomDet).translation().x() - align_params[15]; 

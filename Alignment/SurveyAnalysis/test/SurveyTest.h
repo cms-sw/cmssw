@@ -5,17 +5,14 @@
  *
  *  Analyser module for testing.
  *
- *  $Date: 2007/04/09 04:11:13 $
- *  $Revision: 1.4 $
+ *  $Date: 2007/05/03 20:59:00 $
+ *  $Revision: 1.5 $
  *  \author Chung Khim Lae
  */
 
-#include <vector>
-
-#include "Alignment/CommonAlignment/interface/AlignableObjectId.h"
+#include "Alignment/CommonAlignment/interface/StructureType.h"
+#include "Alignment/CommonAlignment/interface/Utilities.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
-
-class Alignable;
 
 class SurveyTest:
   public edm::EDAnalyzer
@@ -30,7 +27,7 @@ class SurveyTest:
 
   private:
 
-  void getTerminals(std::vector<Alignable*>& terminals, Alignable* ali);
+  void getTerminals(align::Alignables& terminals, Alignable* ali);
 
   bool theBiasFlag; // true for biased residuals
 
@@ -39,7 +36,7 @@ class SurveyTest:
   std::string theAlgorithm;  // points or sensor residual
   std::string theOutputFile; // name of output file
 
-  std::vector<AlignableObjectId::AlignableObjectIdType> theHierarchy;
+  std::vector<align::StructureType> theHierarchy;
 };
 
 #endif

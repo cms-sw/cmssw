@@ -22,19 +22,17 @@
  *  The covariance matrix for all structures of a level will be diagonal
  *  given by value^2 * identity.
  *
- *  $Date: 2007/06/24 01:46:26 $
- *  $Revision: 1.1 $
+ *  $Date: 2007/09/23 14:42:55 $
+ *  $Revision: 1.2 $
  *  \author Chung Khim Lae
  */
 
-#include "Alignment/CommonAlignment/interface/AlignableObjectId.h"
+#include "Alignment/CommonAlignment/interface/StructureType.h"
 #include "Alignment/SurveyAnalysis/interface/SurveyInputBase.h"
 
 class SurveyInputDummy:
   public SurveyInputBase
 {
-  typedef AlignableObjectId::AlignableObjectIdType StructureType;
-
   public:
 
   SurveyInputDummy(
@@ -53,7 +51,7 @@ class SurveyInputDummy:
 		     Alignable*
 		     );
 
-  std::map<StructureType, double> theErrors;
+  std::map<align::StructureType, double> theErrors;
 };
 
 #endif

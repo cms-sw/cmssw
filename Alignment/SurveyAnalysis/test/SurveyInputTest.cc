@@ -1,5 +1,6 @@
+#include "Alignment/CommonAlignment/interface/AlignableComposite.h"
+#include "Alignment/CommonAlignment/interface/AlignableObjectId.h"
 #include "Alignment/CommonAlignment/interface/SurveyDet.h"
-#include "Alignment/SurveyAnalysis/test/AlignableTest.h"
 
 #include "Alignment/SurveyAnalysis/test/SurveyInputTest.h"
 
@@ -23,6 +24,8 @@ Alignable* SurveyInputTest::create(const std::string& parName)
   static const Doubles zero3Vector(3, 0.);
   static const Doubles zero6Vector(6, 0.);
   static const Strings emptyString;
+
+  static AlignableObjectId idMap;
 
   edm::ParameterSet pars = theConfig.getParameter<edm::ParameterSet>(parName);
 
@@ -48,7 +51,8 @@ Alignable* SurveyInputTest::create(const std::string& parName)
           int type = pars.getParameter<int>        ("typeId");
   std::string name = pars.getParameter<std::string>("object");
 
-  AlignableTest* ali = new AlignableTest(surf, type);
+  Alignable* ali = new AlignableComposite( type, idMap.nameToType(name),
+					   surf.rotation() );
 
   Strings comp = pars.getUntrackedParameter<Strings>("compon", emptyString);
 
