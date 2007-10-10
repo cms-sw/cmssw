@@ -19,6 +19,10 @@
 <use name=RecoMuon/TrackingTools>
 <use name=TrackingTools/TransientTrack>
 <use name=SimDataFormats/Track>
+<use name=SimDataFormats/HepMCProduct>                                                                                
+<use name=SimTracker/TrackAssociation>
+
+
 <use name=CLHEP>
 <use name=root>
 <flags EDM_PLUGIN=1>
