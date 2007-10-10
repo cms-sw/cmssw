@@ -10,33 +10,26 @@
 
 
 // system include files
-#include <string>
 #include <TTree.h>
 #include <TFile.h>
 #include <TRotMatrix.h>
 
 // user include files
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
-
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "Alignment/TrackerAlignment/interface/AlignableTracker.h"
-#include "Alignment/TrackerAlignment/interface/AlignableTrackerBarrelLayer.h"
-#include "Alignment/TrackerAlignment/interface/AlignableTrackerRod.h"
 
 #include "CondFormats/Alignment/interface/Alignments.h"
-#include "CondFormats/Alignment/interface/AlignTransform.h"
-#include "CondFormats/AlignmentRecord/interface/TrackerAlignmentRcd.h"
 #include "CondFormats/Alignment/interface/AlignmentErrors.h"
-#include "CondFormats/Alignment/interface/AlignTransformError.h"
-#include "CondFormats/AlignmentRecord/interface/TrackerAlignmentErrorRcd.h"
+#include "CondFormats/DataRecord/interface/TrackerAlignmentRcd.h"
+#include "CondFormats/DataRecord/interface/TrackerAlignmentErrorRcd.h"
 
 //
 //
@@ -45,8 +38,7 @@
 
 class TestTrackerReader : public edm::EDAnalyzer {
 public:
-  explicit TestTrackerReader( const edm::ParameterSet& );
-  ~TestTrackerReader();
+  explicit TestTrackerReader( const edm::ParameterSet& ) {}
   
   
   virtual void analyze( const edm::Event&, const edm::EventSetup& );
@@ -58,18 +50,6 @@ private:
   TRotMatrix* rot;
 
 };
-
-//
-// constructors and destructor
-//
-TestTrackerReader::TestTrackerReader( const edm::ParameterSet& iConfig ) 
-{ 
-}
-
-
-TestTrackerReader::~TestTrackerReader()
-{ 
-}
 
 
 void

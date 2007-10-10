@@ -1,8 +1,10 @@
 <use name=Alignment/CommonAlignment>
 <use name=CondCore/DBOutputService>
 <use name=CondFormats/Alignment>
+<use name=DataFormats/SiPixelDetId>
 <use name=DataFormats/SiStripDetId>
 <use name=FWCore/MessageLogger>
+<use name=FWCore/ParameterSet>
 <use name=FWCore/ServiceRegistry>
 <use name=FWCore/Utilities>
 <export>
