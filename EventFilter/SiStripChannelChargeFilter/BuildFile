@@ -6,6 +6,7 @@
 <use name=DataFormats/SiStripDigi>
 <use name=DataFormats/SiStripCluster>
 <use name=DataFormats/SiStripDetId>
+<use name=DataFormats/TrackReco>
 
 <export>
 <lib name=EventFilterSiStripChannelChargeFilter>
@@ -16,4 +17,5 @@
 <use name=DataFormats/SiStripDigi>
 <use name=DataFormats/SiStripCluster>
 <use name=DataFormats/SiStripDetId>
+<use name=DataFormats/TrackReco>
 </export>
