@@ -2,8 +2,8 @@
 /*
  * \file DTDataIntegrityTest.cc
  * 
- * $Date: 2007/08/06 09:57:04 $
- * $Revision: 1.10 $
+ * $Date: 2007/09/20 10:31:43 $
+ * $Revision: 1.11 $
  * \author S. Bolognesi - CERN
  *
  */
@@ -106,15 +106,10 @@ void DTDataIntegrityTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, Eve
 
   if(nupdates%nTimeBin == 0 && parameters.getUntrackedParameter<bool>("writeHisto", true)){
     edm::LogVerbatim ("dataIntegrity") <<"[DTDataIntegrityTest]: saving all histos";
-    if(run == 0){
-      string rootFile = "DTDataIntegrityTest_0.root";
-      dbe->save(parameters.getUntrackedParameter<string>("outputFile", rootFile));
-    }
-    else{
-      stringstream runNumber; runNumber << run;
-      string rootFile = "DTDataIntegrityTest_" + runNumber.str() + ".root";
-      dbe->save(parameters.getUntrackedParameter<string>("outputFile", rootFile));
-    }
+    stringstream runNumber; runNumber << run;
+    stringstream lumiNumber; lumiNumber << nLumiSegs;
+    string rootFile = "DTDataIntegrityTest_" + lumiNumber.str() + "_" + runNumber.str() + ".root";
+    dbe->save(parameters.getUntrackedParameter<string>("outputFile", rootFile));
   }
   
   //Counter for x bin in the timing histos
@@ -209,31 +204,24 @@ void DTDataIntegrityTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, Eve
       }
       (dduHistos.find(histoType)->second).find(dduId)->second->setBinContent(counter,rosNumber_mean);
       (dduHistos.find(histoType)->second).find(dduId)->second->setBinLabel(counter, nLumiSegs_s.str(), 1);
-   }
-
+    }
+    
     //Monitor the event lenght VS time
      MonitorElement * evLenght_histo = dbe->get(getMEName("EventLenght",dduId));
      if (evLenght_histo && doTimeHisto) {
        edm::LogVerbatim ("dataIntegrity") <<"[DTDataIntegrityTest]:histo DDUEventLenght found";
-
-      double evLenght_mean = evLenght_histo->getMean();
-      //Fill timing histos and set x label with luminosity block number
-      histoType = "EvLenghtVSTime";
-      if (dduHistos[histoType].find(dduId) == dduHistos[histoType].end()) {
-	bookTimeHistos(histoType,dduId,nLumiSegs);
-      }
-      (dduHistos.find(histoType)->second).find(dduId)->second->setBinContent(counter,evLenght_mean);
-      (dduHistos.find(histoType)->second).find(dduId)->second->setBinLabel(counter, nLumiSegs_s.str(), 1);
-
-      //FIXME: it does not reset the histo!!!
-      MonitorElementT<TNamed>* ob = dynamic_cast<MonitorElementT<TNamed>*>( const_cast<MonitorElement*>(evLenght_histo) );
-      if( ob ) {
-  	ob->Reset();
-      }
-      
-      
+       
+       double evLenght_mean = evLenght_histo->getMean();
+       //Fill timing histos and set x label with luminosity block number
+       histoType = "EvLenghtVSTime";
+       if (dduHistos[histoType].find(dduId) == dduHistos[histoType].end()) {
+	 bookTimeHistos(histoType,dduId,nLumiSegs);
+       }
+       (dduHistos.find(histoType)->second).find(dduId)->second->setBinContent(counter,evLenght_mean);
+       (dduHistos.find(histoType)->second).find(dduId)->second->setBinLabel(counter, nLumiSegs_s.str(), 1);
+       
      }
-
+     
      //Monitor the FIFO occupancy VS time 
      MonitorElement * fifo_histo = dbe->get(getMEName("FIFOStatus",dduId));
      if (fifo_histo && doTimeHisto) {
@@ -252,7 +240,7 @@ void DTDataIntegrityTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, Eve
        }
      }
   }
-
+  
   //Save MEs in a root file
   //if ((nupdates%parameters.getUntrackedParameter<int>("saveResultsFrequency", 5)==0) && 
   //  (parameters.getUntrackedParameter<bool>("writeHisto", true)) ) 
