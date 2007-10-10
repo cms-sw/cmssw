@@ -25,6 +25,7 @@
 <use name=CondTools/Hcal>
 <use name=TrackPropagation/SteppingHelixPropagator>
 <use name=TrackingTools/TrackAssociator>
+<use name=SimDataFormats/HepMCProduct>
 
 <use name=Calibration/Tools>
 

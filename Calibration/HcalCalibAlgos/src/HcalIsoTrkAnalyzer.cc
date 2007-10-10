@@ -15,7 +15,7 @@
 // Original Author:  Andrey Pozdnyakov
 //                   ... and Sergey Petrushanko (all lines between M+ and M-)
 //         Created:  Thu Jul 12 18:12:19 CEST 2007
-// $Id: HcalIsoTrkAnalyzer.cc,v 1.2 2007/09/14 13:32:01 kodolova Exp $
+// $Id: HcalIsoTrkAnalyzer.cc,v 1.3 2007/09/18 13:27:42 ratnik Exp $
 //
 //
 
@@ -284,14 +284,14 @@ HcalIsoTrkAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
       // Find Ecal RecHit with maximum energy and collect other information
       MaxHit.hitenergy=-100;
       nECRecHits=0;
-      for (std::vector<EcalRecHit>::const_iterator ehit=info.ecalRecHits.begin(); ehit!=info.ecalRecHits.end(); ehit++) 
+      for (std::vector<const EcalRecHit*>::const_iterator ehit=info.ecalRecHits.begin(); ehit!=info.ecalRecHits.end(); ehit++) 
 	{
-	  if(ehit->energy() > MaxHit.hitenergy) 
+	  if((*ehit)->energy() > MaxHit.hitenergy) 
 	    {
-	      MaxHit.hitenergy = ehit->energy();
+	      MaxHit.hitenergy = (*ehit)->energy();
 	    }
 
-	 GlobalPoint pos = geo->getPosition(ehit->detid());
+	 GlobalPoint pos = geo->getPosition((*ehit)->detid());
 	 double phihit = pos.phi();
 	 double etahit = pos.eta();
 	 
@@ -300,7 +300,7 @@ HcalIsoTrkAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 	 double deta = fabs(trackEta - etahit); 
 	 double dr = sqrt(dphi*dphi + deta*deta);
 	 if(m_histoFlag==1)  {thDrTrEHits -> Fill(dr);}
-	 ecRHen [nECRecHits] = ehit->energy();
+	 ecRHen [nECRecHits] = (*ehit)->energy();
 	 ecRHeta[nECRecHits] = etahit;
 	 ecRHphi[nECRecHits] = phihit;
 	 nECRecHits++;
