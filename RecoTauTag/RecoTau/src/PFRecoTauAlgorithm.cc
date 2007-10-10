@@ -76,11 +76,10 @@ PFTau PFRecoTauAlgorithm::buildPFTau(const PFTauTagInfoRef& myPFTauTagInfoRef,co
 	    myleadPFCand_rectkavailable=true;
 	    myleadPFCand_rectkDZ=(*myleadPFCand_rectk).dz();
 	    if(TransientTrackBuilder_!=0){ 
-	      TransientTrack myleadPFCand_rectransienttk=TransientTrackBuilder_->build(&(*myleadPFCand_rectk));
-	      SignedTransverseImpactParameter myleadPFCand_rectransienttk_signediptMeas;
+	      const TransientTrack myleadPFCand_rectransienttk=TransientTrackBuilder_->build(&(*myleadPFCand_rectk));
 	      GlobalVector myPFJetdir((*myPFJet).px(),(*myPFJet).py(),(*myPFJet).pz());
-	      if(myleadPFCand_rectransienttk_signediptMeas.apply(myleadPFCand_rectransienttk,myPFJetdir,myPV).first)
-		myPFTau.setleadPFChargedHadrCandsignedSipt(myleadPFCand_rectransienttk_signediptMeas.apply(myleadPFCand_rectransienttk,myPFJetdir,myPV).second.significance());
+	      if(IPTools::signedTransverseImpactParameter(myleadPFCand_rectransienttk,myPFJetdir,myPV).first)
+		myPFTau.setleadPFChargedHadrCandsignedSipt(IPTools::signedTransverseImpactParameter(myleadPFCand_rectransienttk,myPFJetdir,myPV).second.significance());
 	    }
 	    if((*myleadPFCand_rectk).innerOk()){
 	      myPFTau_refInnerPosition_x=(*myleadPFCand_rectk).innerPosition().x(); 

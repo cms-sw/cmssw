@@ -52,11 +52,10 @@ CaloTau CaloRecoTauAlgorithm::buildCaloTau(Event& iEvent,const CaloTauTagInfoRef
     myCaloTau.setleadTrack(myleadTk);
     double myleadTkDZ=(*myleadTk).dz();
     if(TransientTrackBuilder_!=0){ 
-      TransientTrack myleadTransientTk=TransientTrackBuilder_->build(&(*myleadTk));
-      SignedTransverseImpactParameter myleadTransientTk_signediptMeas;
+      const TransientTrack myleadTransientTk=TransientTrackBuilder_->build(&(*myleadTk));
       GlobalVector myCaloJetdir((*myCaloJet).px(),(*myCaloJet).py(),(*myCaloJet).pz());
-      if(myleadTransientTk_signediptMeas.apply(myleadTransientTk,myCaloJetdir,myPV).first)
-	myCaloTau.setleadTracksignedSipt(myleadTransientTk_signediptMeas.apply(myleadTransientTk,myCaloJetdir,myPV).second.significance());
+      if(IPTools::signedTransverseImpactParameter(myleadTransientTk,myCaloJetdir,myPV).first)
+	myCaloTau.setleadTracksignedSipt(IPTools::signedTransverseImpactParameter(myleadTransientTk,myCaloJetdir,myPV).second.significance());
     }
     if((*myleadTk).innerOk()){
       myCaloTau_refInnerPosition_x=(*myleadTk).innerPosition().x(); 

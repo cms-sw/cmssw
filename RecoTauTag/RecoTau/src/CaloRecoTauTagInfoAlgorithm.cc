@@ -10,6 +10,10 @@ CaloRecoTauTagInfoAlgorithm::CaloRecoTauTagInfoAlgorithm(const ParameterSet& par
   // 
   UsePVconstraint_                    = parameters.getParameter<bool>("UsePVconstraint");
   tkPVmaxDZ_                          = parameters.getParameter<double>("tkPVmaxDZ");
+  // parameters of the considered EcalRecHits 
+  EBRecHitsLabel_                     = parameters.getParameter<InputTag>("EBRecHitsSource"); 
+  EERecHitsLabel_                     = parameters.getParameter<InputTag>("EERecHitsSource"); 
+  ESRecHitsLabel_                     = parameters.getParameter<InputTag>("ESRecHitsSource"); 
   // parameters of the considered neutral ECAL BasicClusters
   ECALBasicClustersAroundCaloJet_DRConeSize_      = parameters.getParameter<double>("ECALBasicClustersAroundCaloJet_DRConeSize");
   ECALBasicClusterminE_                           = parameters.getParameter<double>("ECALBasicClusterminE");
@@ -42,9 +46,9 @@ vector<pair<math::XYZPoint,float> > CaloRecoTauTagInfoAlgorithm::getPositionAndE
   Handle<EBRecHitCollection> EBRecHits;
   Handle<EERecHitCollection> EERecHits; 
   Handle<ESRecHitCollection> ESRecHits; 
-  theEvent.getByLabel("ecalRecHit","EcalRecHitsEB",EBRecHits);
-  theEvent.getByLabel("ecalRecHit","EcalRecHitsEE",EERecHits);
-  theEvent.getByLabel("ecalPreshowerRecHit","EcalRecHitsES",ESRecHits);
+  theEvent.getByLabel(EBRecHitsLabel_,EBRecHits);
+  theEvent.getByLabel(EERecHitsLabel_,EERecHits);
+  theEvent.getByLabel(ESRecHitsLabel_,ESRecHits);
   for(vector<CaloTowerRef>::const_iterator i_Tower=theCaloTowers.begin();i_Tower!=theCaloTowers.end();i_Tower++){
     size_t numRecHits = (**i_Tower).constituentsSize();
     for(size_t j=0;j<numRecHits;j++) {

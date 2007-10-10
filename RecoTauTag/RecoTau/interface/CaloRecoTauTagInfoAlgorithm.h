@@ -53,6 +53,8 @@ class  CaloRecoTauTagInfoAlgorithm  {
   double ECALBasicClustersAroundCaloJet_DRConeSize_;
   double ECALBasicClusterminE_;
   double ECALBasicClusterpropagTrack_matchingDRConeSize_;
+  // 
+  InputTag EBRecHitsLabel_,EERecHitsLabel_,ESRecHitsLabel_; 
 };
 #endif 
 
