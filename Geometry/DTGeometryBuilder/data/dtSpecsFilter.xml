@@ -4,13 +4,13 @@
     <!--This are the MB1 chambers-->
     <SpecPar name="MuonDTTree:MB1P">
       <!--These have FrontEnd on POSITIVE Zed (global CMS frame) -->
-      <PartSelector path="//MB1P"/>
-      <PartSelector path="//MB1P/MB1SuperLayerPhi"/>
-      <PartSelector path="//MB1P/MB1SuperLayerPhi/MB1SLPhiLayer_.*Cells"/>
-      <PartSelector path="//MB1P/MB1SuperLayerPhi/MB1SLPhiLayer_.*Cells/MBSLPhiGas"/>
-      <PartSelector path="//MB1P/MB1SuperLayerZ"/>
-      <PartSelector path="//MB1P/MB1SuperLayerZ/MB1SLZLayer_.*Cells"/>
-      <PartSelector path="//MB1P/MB1SuperLayerZ/MB1SLZLayer_.*Cells/MB1SLZGas"/>
+      <PartSelector path="//MB1P.*"/>
+      <PartSelector path="//MB1P.*/MB1SuperLayerPhi"/>
+      <PartSelector path="//MB1P.*/MB1SuperLayerPhi/MB1SLPhiLayer_.*Cells"/>
+      <PartSelector path="//MB1P.*/MB1SuperLayerPhi/MB1SLPhiLayer_.*Cells/MBSLPhiGas"/>
+      <PartSelector path="//MB1P.*/MB1SuperLayerZ"/>
+      <PartSelector path="//MB1P.*/MB1SuperLayerZ/MB1SLZLayer_.*Cells"/>
+      <PartSelector path="//MB1P.*/MB1SuperLayerZ/MB1SLZLayer_.*Cells/MB1SLZGas"/>
       <Parameter name="Type" value="MB1" />
       <Parameter name="FEPos" value="plus" />
       <Parameter name="MuStructure" value="MuonBarrelDT" />
