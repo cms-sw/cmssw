@@ -19,7 +19,7 @@ GctBlockUnpacker::BlockIdToUnpackFnMap GctBlockUnpacker::blockUnpackFn_ = GctBlo
 GctBlockUnpacker::BlockIdToEmCandIsoBoundMap GctBlockUnpacker::InternEmIsoBounds_ = GctBlockUnpacker::BlockIdToEmCandIsoBoundMap();
 
 GctBlockUnpacker::GctBlockUnpacker() :
-  sourceCardRouting_(),
+  srcCardRouting_(),
   rctEm_(0),
   gctIsoEm_(0),
   gctNonIsoEm_(0),
