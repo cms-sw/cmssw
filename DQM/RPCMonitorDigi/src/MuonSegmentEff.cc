@@ -13,7 +13,7 @@
 //
 // Original Author:  Camilo Carrillo (Uniandes)
 //         Created:  Tue Oct  2 16:57:49 CEST 2007
-// $Id: MuonSegmentEff.cc,v 1.7 2007/10/08 12:13:05 carrillo Exp $
+// $Id: MuonSegmentEff.cc,v 1.8 2007/10/08 16:58:35 carrillo Exp $
 //
 //
 
@@ -134,18 +134,26 @@ MuonSegmentEff::MuonSegmentEff(const edm::ParameterSet& iConfig)
   totalcounter[0]=0;
   totalcounter[1]=0;
   totalcounter[2]=0;
-  ofrej.open("rejected.txt");
 
-  incldt=iConfig.getParameter<bool>("incldt");
-  incldtMB4=iConfig.getParameter<bool>("incldtMB4");
-  inclcsc=iConfig.getParameter<bool>("inclcsc");
-  widestrip=iConfig.getParameter<int>("widestrip");
-  widestripRB4=iConfig.getParameter<int>("widestripRB4");
-  MinCosAng=iConfig.getParameter<double>("MinCosAng");
-  MaxD=iConfig.getParameter<double>("MaxD");
-  muonRPCDigis=iConfig.getParameter<std::string>("muonRPCDigis");
-  cscSegments=iConfig.getParameter<std::string>("cscSegments");
-  dt4DSegments=iConfig.getParameter<std::string>("dt4DSegments");
+  incldt=iConfig.getUntrackedParameter<bool>("incldt",true);
+  incldtMB4=iConfig.getUntrackedParameter<bool>("incldtMB4",true);
+  inclcsc=iConfig.getUntrackedParameter<bool>("inclcsc",true);
+  widestrip=iConfig.getUntrackedParameter<int>("widestrip",4);
+  widestripRB4=iConfig.getUntrackedParameter<int>("widestripRB4",4);
+  MinCosAng=iConfig.getUntrackedParameter<double>("MinCosAng",0.9999);
+  MaxD=iConfig.getUntrackedParameter<double>("MaxD",40.);
+  muonRPCDigis=iConfig.getUntrackedParameter<std::string>("muonRPCDigis","muonRPCDigis");
+  cscSegments=iConfig.getUntrackedParameter<std::string>("cscSegments","cscSegments");
+  dt4DSegments=iConfig.getUntrackedParameter<std::string>("dt4DSegments","dt4DSegments");
+  rejected=iConfig.getUntrackedParameter<std::string>("rejected","rejected.txt");
+  rollseff=iConfig.getUntrackedParameter<std::string>("rollseff","rollseff.txt");
+
+  std::cout<<rejected<<std::endl;
+  std::cout<<rollseff<<std::endl;
+  
+  ofrej.open(rejected.c_str());
+  ofeff.open(rollseff.c_str());
+  
   // Giuseppe
   nameInLog = iConfig.getUntrackedParameter<std::string>("moduleLogName", "RPC_Eff");
   EffSaveRootFile  = iConfig.getUntrackedParameter<bool>("EffSaveRootFile", true); 
@@ -252,7 +260,8 @@ MuonSegmentEff::endJob() {
   std::map<RPCDetId, int> obse = counter[1];
   std::map<RPCDetId, int> reje = counter[2];
   std::map<RPCDetId, int>::iterator irpc;
-  
+
+     
   for (irpc=pred.begin(); irpc!=pred.end();irpc++){
     RPCDetId id=irpc->first;
     int p=pred[id]; 
@@ -264,12 +273,15 @@ MuonSegmentEff::endJob() {
       float ef = float(o)/float(p); 
       float er = sqrt(ef*(1.-ef)/float(p));
       std::cout <<"\n "<<id<<"\t Predicted "<<p<<"\t Observed "<<o<<"\t Eff = "<<ef*100.<<" % +/- "<<er*100.<<" %";
+      ofeff <<"\n "<<id<<"\t Predicted "<<p<<"\t Observed "<<o<<"\t Eff = "<<ef*100.<<" % +/- "<<er*100.<<" %";
       if(ef<0.8){
 	std::cout<<"\t \t Warning!";
+	ofeff<<"\t \t Warning!";
       } 
     }
     else{
       std::cout<<"No predictions in this file p=0"<<std::endl;
+      ofeff<<"No predictions in this file p=0"<<std::endl;
     }
   }
   if(totalcounter[0]!=0){
@@ -278,11 +290,15 @@ MuonSegmentEff::endJob() {
   
     std::cout <<"\n\n \t \t TOTAL EFFICIENCY \t Predicted "<<totalcounter[0]<<"\t Observed "<<totalcounter[1]<<"\t Eff = "<<tote*100.<<"\t +/- \t"<<totr*100.<<"%"<<std::endl;
     std::cout <<totalcounter[1]<<" "<<totalcounter[0]<<" flagcode"<<std::endl;
+    
+    ofeff <<"\n\n \t \t TOTAL EFFICIENCY \t Predicted "<<totalcounter[0]<<"\t Observed "<<totalcounter[1]<<"\t Eff = "<<tote*100.<<"\t +/- \t"<<totr*100.<<"%"<<std::endl;
+    ofeff <<totalcounter[1]<<" "<<totalcounter[0]<<" flagcode"<<std::endl;
+
   }
   else{
     std::cout<<"No predictions in this file = 0!!!"<<std::endl;
+    ofeff <<"No predictions in this file = 0!!!"<<std::endl;
   }
-
 
   std::vector<uint32_t>::iterator meIt;
   for(meIt = _idList.begin(); meIt != _idList.end(); ++meIt){
@@ -372,7 +388,6 @@ MuonSegmentEff::endJob() {
       }
     }
   }
-
 
   //Giuseppe
   if(EffSaveRootFile) dbe->save(EffRootFileName);

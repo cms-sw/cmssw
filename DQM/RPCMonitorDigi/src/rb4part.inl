@@ -7,7 +7,7 @@ edm::Handle<DTRecSegment4DCollection> all4DSegments;
 iEvent.getByLabel(dt4DSegments, all4DSegments);
     
 if(all4DSegments->size()>0){
-  std::cout<<"\t Number of Segments in this event = "<<all4DSegments->size()<<std::endl;
+  std::cout<<"MB4 \t Number of Segments in this event = "<<all4DSegments->size()<<std::endl;
   
   std::map<DTChamberId,int> scounter;
   DTRecSegment4DCollection::const_iterator segment;  
@@ -42,7 +42,6 @@ if(all4DSegments->size()>0){
       
       //DE ACA PARA ARRIBA SE REPITE EN dtpart.inl
 
-      
       if(segment->dimension()==2){
 	
 	if(dtStation==4){
@@ -83,10 +82,9 @@ if(all4DSegments->size()>0){
 		compatiblesegments=true;
 		std::set<RPCDetId> rollsForThisDT = rollstoreDT[DTStationIndex(0,dtWheel,dtSector,dtStation)];
 		std::cout<<"MB4 \t \t Loop over all the rolls asociated to MB4 "<<std::endl;
-		for (
-		     std::set<RPCDetId>::iterator iteraRoll
+		
+		for (std::set<RPCDetId>::iterator iteraRoll
 		       =rollsForThisDT.begin();iteraRoll != rollsForThisDT.end(); iteraRoll++){
-		  
 		  const RPCRoll* rollasociated = rpcGeo->roll(*iteraRoll); //roll asociado a MB4
 		  const BoundPlane & RPCSurfaceRB4 = rollasociated->surface(); //surface MB4
 		  const GeomDet* gdet=dtGeo->idToDet(segMB3->geographicalId()); 
@@ -106,7 +104,6 @@ if(all4DSegments->size()>0){
 		  
 		  const RectangularStripTopology* top_
 		    =dynamic_cast<const RectangularStripTopology*>(&(rollasociated->topology())); //Topologia roll asociado MB4
-		  
 		  LocalPoint xmin = top_->localPosition(0.);
 		  LocalPoint xmax = top_->localPosition((float)rollasociated->nstrips());
 		  float rsize = fabs( xmax.x()-xmin.x() )*0.5;
@@ -115,60 +112,44 @@ if(all4DSegments->size()>0){
 		  GlobalPoint GlobalPointExtrapolated = DTSurfaceMB3.toGlobal(LocalPoint(X,Y,Z));
 		  LocalPoint PointExtrapolatedRPCFrame = RPCSurfaceRB4.toLocal(GlobalPointExtrapolated);
 		  
-		  std::cout<<"MB4 \t \t \t Point Extrapolated.z in RPC Local "<<PointExtrapolatedRPCFrame.z()<<std::endl;
+		  std::cout<<"MB4 \t \t \t Does the extrapolation goes inside the roll?"<<std::endl;
 		  
 		  if(fabs(PointExtrapolatedRPCFrame.z()) < 0.01  &&
 		     fabs(PointExtrapolatedRPCFrame.x()) < rsize &&
 		     fabs(PointExtrapolatedRPCFrame.y()) < stripl*0.5){ 
 		    
+		    std::cout<<"MB4 \t \t \t Yes"<<std::endl;
 		    const float stripPredicted=
 		      rollasociated->strip(LocalPoint(PointExtrapolatedRPCFrame.x(),PointExtrapolatedRPCFrame.y(),0.)); 
 		    
 		    RPCDetId  rollId = rollasociated->id();
-
-
-
-
-//////////////////////////////////////////////////////////////////////////////////////
-
-
-
-	      //--------- HISTOGRAM STRIP PREDICTED FROM DT  -------------------
-	      
-	    
-	      uint32_t id = rollId.rawId();
-	      _idList.push_back(id);
-	      
-	      char detUnitLabel[128];
-	      sprintf(detUnitLabel ,"%d",id);
-	      sprintf(layerLabel ,"layer%d_subsector%d_roll%d",rollId.layer(),rollId.subsector(),rollId.roll());
-	      
-	      std::map<uint32_t, std::map<std::string,MonitorElement*> >::iterator meItr = meCollection.find(id);
-	      if (meItr == meCollection.end()){
-		meCollection[id] = bookDetUnitSeg(rollId);
-	      }
-	      
-	      std::map<std::string, MonitorElement*> meMap=meCollection[id];
-
-	      sprintf(meIdDT,"ExpectedOccupancyFromDT_%s",detUnitLabel);
-	      meMap[meIdDT]->Fill(stripPredicted);
-
-	      sprintf(meIdDT,"ExpectedOccupancy2DFromDT_%s",detUnitLabel);
-	      meMap[meIdDT]->Fill(stripPredicted,Y);
-
-
-
-	    
-//////////////////////////////////////////////////////////////////////////////////////
-
-
-
-
-
-
-
-
 		    
+
+		    //--------- HISTOGRAM STRIP PREDICTED FROM DT  -------------------
+		    
+		    
+		    uint32_t id = rollId.rawId();
+		    _idList.push_back(id);
+		    
+		    char detUnitLabel[128];
+		    sprintf(detUnitLabel ,"%d",id);
+		    sprintf(layerLabel ,"layer%d_subsector%d_roll%d",rollId.layer(),rollId.subsector(),rollId.roll());
+	      
+		    std::map<uint32_t, std::map<std::string,MonitorElement*> >::iterator meItr = meCollection.find(id);
+		    if (meItr == meCollection.end()){
+		      meCollection[id] = bookDetUnitSeg(rollId);
+		    }
+	      
+		    std::map<std::string, MonitorElement*> meMap=meCollection[id];
+	      
+		    sprintf(meIdDT,"ExpectedOccupancyFromDT_%s",detUnitLabel);
+		    meMap[meIdDT]->Fill(stripPredicted);
+	      
+		    sprintf(meIdDT,"ExpectedOccupancy2DFromDT_%s",detUnitLabel);
+		    meMap[meIdDT]->Fill(stripPredicted,Y);
+
+		    //-------------------------------------------------
+			    
 		    totalcounter[0]++;
 		    buff=counter[0];
 		    buff[rollId]++;
@@ -177,59 +158,42 @@ if(all4DSegments->size()>0){
 		    bool anycoincidence=false;
 		    int stripDetected = 0;
 		    RPCDigiCollection::Range rpcRangeDigi = rpcDigis->get(rollasociated->id());
+
+		    std::cout<<"MB4 \t \t \t \t Loop over all the digis in this roll"<<std::endl;
 		    for (RPCDigiCollection::const_iterator digiIt = rpcRangeDigi.first;digiIt!=rpcRangeDigi.second;++digiIt){
 		      stripDetected=digiIt->strip();
 		      float res = fabs((float)(stripDetected) - stripPredicted);
 
+		      //-------filling the histograms--------------------
 
-
-////////////////////////////////////////////////////////////////////////////////////////
-
-
-		sprintf(meIdRPC,"RPCResidualsFromDT_%s",detUnitLabel);
-		meMap[meIdRPC]->Fill(res);
+		      
+		      sprintf(meIdRPC,"RPCResidualsFromDT_%s",detUnitLabel);
+		      meMap[meIdRPC]->Fill(res);
 		
-		sprintf(meIdRPC,"RPCResiduals2DFromDT_%s",detUnitLabel);
-		meMap[meIdRPC]->Fill(res,Y);
+		      sprintf(meIdRPC,"RPCResiduals2DFromDT_%s",detUnitLabel);
+		      meMap[meIdRPC]->Fill(res,Y);
 
 
-
-
-
-////////////////////////////////////////////////////////////////////////////////////////
-
-
-
-
-
+		      //-------------------------------------------------------
 
 
 		      if(res<widestripRB4){
-			std::cout <<"MB4 \t \t \t \t COINCEDENCE Predict "<<stripPredicted<<" Detect "<<stripDetected<<std::endl;
+			std::cout <<"MB4 \t \t \t \t \t COINCEDENCE Predict "<<stripPredicted<<" Detect "<<stripDetected<<std::endl;
 			anycoincidence=true;
 
+			//-------filling the histograms-------------------------------
+
+			sprintf(meIdRPC,"RealDetectedOccupancyFromDT_%s",detUnitLabel);
+			meMap[meIdRPC]->Fill(stripDetected);
+
+			sprintf(meIdRPC,"RPCDataOccupancyFromDT_%s",detUnitLabel);
+			meMap[meIdRPC]->Fill(stripPredicted);
+
+			sprintf(meIdRPC,"RPCDataOccupancy2DFromDT_%s",detUnitLabel);
+			meMap[meIdRPC]->Fill(stripPredicted,Y);
 
 
-/////////////////////////////////////////////////////////////////////////////////////////
-
-
-
-		sprintf(meIdRPC,"RealDetectedOccupancyFromDT_%s",detUnitLabel);
-		meMap[meIdRPC]->Fill(stripDetected);
-
-		sprintf(meIdRPC,"RPCDataOccupancyFromDT_%s",detUnitLabel);
-		meMap[meIdRPC]->Fill(stripPredicted);
-
-		sprintf(meIdRPC,"RPCDataOccupancy2DFromDT_%s",detUnitLabel);
-		meMap[meIdRPC]->Fill(stripPredicted,Y);
-
-
-/////////////////////////////////////////////////////////////////////////////////////////
-
-
-
-
-
+			//-------------------------------------------------------
 			break;
 		      }
 		    }
@@ -246,8 +210,8 @@ if(all4DSegments->size()>0){
 		      buff=counter[2];
 		      buff[rollId]++;
 		      counter[2]=buff;		
-		      std::cout <<"MB4 \t \t \t \t THIS PREDICTION DOESN'T HAVE ANY CORRESPONDENCE WITH THE DATA"<<std::endl;
-		      ofrej<<"Wh "<<dtWheel
+		      std::cout <<"MB4 \t \t \t \t \t THIS PREDICTION DOESN'T HAVE ANY CORRESPONDENCE WITH THE DATA"<<std::endl;
+		      ofrej<<"MB4 Wh "<<dtWheel
 			   <<"\t St "<<dtStation
 			   <<"\t Se "<<dtSector
 			   <<"\t Roll "<<rollasociated->id()
@@ -255,6 +219,9 @@ if(all4DSegments->size()>0){
 			   <<iEvent.id().event()
 			   <<std::endl;
 		    }
+		  }
+		  else{
+		    std::cout<<"MB4 \t \t \t No"<<std::endl;
 		  }
 		}// loop over the rolls 
 	      }// are the segments compatibles
@@ -266,13 +233,16 @@ if(all4DSegments->size()>0){
 	    }//if dtid3.station()==3&&dtid3.sector()==DTId.sector()&&dtid3.wheel()==DTId.wheel()
 	  }//lood over all the segments looking for one in MB3 
 	}//Is the station 4? for this segment
+	else{
+	  std::cout<<"MB4 \t \t Strange Segment Is a 2D Segment but is not in MB4"<<std::endl;
+	}
       }
       else{
-	std::cout<<"MB4 \t \t Strange Segment Is not a 2D Segment in MB4"<<std::endl;
+	std::cout<<"MB4 \t \t Is NOT a 2D Segment"<<std::endl;
       }
     }//De aca para abajo esta en dtpart.inl
   }
 }
 else{
-std::cout<<"This event doesn't have 4D Segment"<<std::endl;
+  std::cout<<"MB4 This event doesn't have 4D Segment"<<std::endl;
 }

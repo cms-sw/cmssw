@@ -23,8 +23,7 @@ if(all4DSegments->size()>0){
     
     std::cout<<"\t \t This Segment is in Chamber id: "<<DTId<<std::endl;
     std::cout<<"\t \t Number of segments in this DT = "<<scounter[DTId]<<std::endl;
-    std::cout<<"\t \t DT Segment Dimension "<<segment->dimension()<<std::endl; 
-    std::cout<<"\t \t Is the only in this DT?"<<std::endl;
+    std::cout<<"\t \t Is the only one in this DT?"<<std::endl;
 
     if(scounter[DTId] == 1){	
       std::cout<<"\t \t yes"<<std::endl;
@@ -43,6 +42,8 @@ if(all4DSegments->size()>0){
       
       if(segment->dimension()==4){
 	std::cout<<"\t \t yes"<<std::endl;
+	std::cout<<"\t \t DT Segment Dimension "<<segment->dimension()<<std::endl; 
+
 	Xo=segmentPosition.x();
 	Yo=segmentPosition.y();
 	dx=segmentDirection.x();
@@ -57,7 +58,8 @@ if(all4DSegments->size()>0){
 	  const BoundPlane & RPCSurface = rollasociated->surface(); 
 
 	  std::cout<<"\t \t \t RollID: "<<rollasociated->id()<<std::endl;
-	  std::cout<<"\t \t \t Doing the extrapolation"<<std::endl;
+	  std::cout<<"\t \t \t Doing the extrapolation to this roll"<<std::endl;
+
 	  std::cout<<"\t \t \t DT Segment Direction in DTLocal "<<segmentDirection<<std::endl;
 	  std::cout<<"\t \t \t DT Segment Point in DTLocal "<<segmentPosition<<std::endl;
 	  
@@ -68,9 +70,10 @@ if(all4DSegments->size()>0){
 	  std::cout<<"\t \t \t Center (0,0,0) Roll In DTLocal"<<CenterRollinDTFrame<<std::endl;
 	    
 	  float D=CenterRollinDTFrame.z();
-	  std::cout<<"\t \t \t D="<<D<<"cm"<<std::endl;
+	  std::cout<<"\t \t \t Is D less than MaxD? D="<<D<<"cm"<<std::endl;
 	  
-	  if(D<MaxD){ 
+	  if(fabs(D)<MaxD){ 
+	    std::cout<<"\t \t \t yes"<<std::endl;
 	    X=Xo+dx*D/dz;
 	    Y=Yo+dy*D/dz;
 	    Z=D;
@@ -95,23 +98,20 @@ if(all4DSegments->size()>0){
 	    if(fabs(PointExtrapolatedRPCFrame.z()) < 0.01 && fabs(PointExtrapolatedRPCFrame.x()) < rsize && fabs(PointExtrapolatedRPCFrame.y()) < stripl*0.5){
 	      
 	      RPCDetId  rollId = rollasociated->id();
-	      std::cout<<"\t \t \t yes"<<std::endl;	
+	      std::cout<<"\t \t \t \t yes"<<std::endl;	
 	      const float stripPredicted = 
 		rollasociated->strip(LocalPoint(PointExtrapolatedRPCFrame.x(),PointExtrapolatedRPCFrame.y(),0.)); 
 	      
-	      std::cout<<"\t \t \t Candidate"<<rollasociated->id()<<" "<<"(from DT Segment) STRIP---> "<<stripPredicted<< std::endl;
+	      std::cout<<"\t \t \t \t Candidate"<<rollasociated->id()<<" "<<"(from DT Segment) STRIP---> "<<stripPredicted<< std::endl;
 	      
 	      int stripDetected = 0;
 	      RPCDigiCollection::Range rpcRangeDigi=rpcDigis->get(rollasociated->id());
 	      
 	      int stripCounter = 0;
-//////////////////////////////////////////////////////////////////////////////////////
-
 
 
 	      //--------- HISTOGRAM STRIP PREDICTED FROM DT  -------------------
 	      
-	    
 	      uint32_t id = rollId.rawId();
 	      _idList.push_back(id);
 	      
@@ -132,28 +132,26 @@ if(all4DSegments->size()>0){
 	      sprintf(meIdDT,"ExpectedOccupancy2DFromDT_%s",detUnitLabel);
 	      meMap[meIdDT]->Fill(stripPredicted,Y);
 
-
-
+	      //-----------------------------------------------------
 	    
-//////////////////////////////////////////////////////////////////////////////////////	      
-	      
 	      totalcounter[0]++;
 	      buff=counter[0];
 	      buff[rollasociated->id()]++;
 	      counter[0]=buff;
 	      
 	      bool anycoincidence=false;
+
 	      
+	      std::cout<<"\t \t \t \t \t Loop over the digis in this roll "<<std::endl;
+
 	      for (RPCDigiCollection::const_iterator digiIt = rpcRangeDigi.first;digiIt!=rpcRangeDigi.second;++digiIt){
 		stripCounter++;
-		std::cout<<"\t \t \t \t Digi "<<*digiIt<<std::endl;//print the digis in the event
+		std::cout<<"\t \t \t \t \t Digi "<<*digiIt<<std::endl;//print the digis in the event
 		stripDetected=digiIt->strip();
 		
 		float res = (float)(stripDetected) - stripPredicted;
 
-
-////////////////////////////////////////////////////////////////////////////////////////
-
+		//-------filling the histograms--------------------
 
 		sprintf(meIdRPC,"RPCResidualsFromDT_%s",detUnitLabel);
 		meMap[meIdRPC]->Fill(res);
@@ -162,70 +160,66 @@ if(all4DSegments->size()>0){
 		meMap[meIdRPC]->Fill(res,Y);
 
 
-
-
-
-////////////////////////////////////////////////////////////////////////////////////////
-
-
-
-
+		//-------------------------------------------------
 
 		
 		if(res < widestrip){
-		  std::cout <<"\t \t \t \t COINCEDENCE Predict "<<stripPredicted<<" Detect "<<stripDetected<<std::endl;
+		  std::cout <<"\t \t \t \t \t COINCEDENCE Predict "<<stripPredicted<<" Detect "<<stripDetected<<std::endl;
 		  anycoincidence=true;
-		  std::cout <<"\t \t \t \t Increassing counter"<<std::endl;
+		  std::cout <<"\t \t \t \t \t Increassing counter"<<std::endl;
 		  totalcounter[1]++;
 		  buff=counter[1];
 		  buff[rollId]++;
 		  counter[1]=buff;
 
-/////////////////////////////////////////////////////////////////////////////////////////
+		  //----------------filling the histograms---------------------
 
+		  sprintf(meIdRPC,"RealDetectedOccupancyFromDT_%s",detUnitLabel);
+		  meMap[meIdRPC]->Fill(stripDetected);
 
-
-		sprintf(meIdRPC,"RealDetectedOccupancyFromDT_%s",detUnitLabel);
-		meMap[meIdRPC]->Fill(stripDetected);
-
-		sprintf(meIdRPC,"RPCDataOccupancyFromDT_%s",detUnitLabel);
-		meMap[meIdRPC]->Fill(stripPredicted);
-
-		sprintf(meIdRPC,"RPCDataOccupancy2DFromDT_%s",detUnitLabel);
-		meMap[meIdRPC]->Fill(stripPredicted,Y);
-
-
-/////////////////////////////////////////////////////////////////////////////////////////
-
+		  sprintf(meIdRPC,"RPCDataOccupancyFromDT_%s",detUnitLabel);
+		  meMap[meIdRPC]->Fill(stripPredicted);
+		
+		  sprintf(meIdRPC,"RPCDataOccupancy2DFromDT_%s",detUnitLabel);
+		  meMap[meIdRPC]->Fill(stripPredicted,Y);
+		
+		  //-----------------------------------------------------------
 
 		  break;
 		}
 	      }
 	      if(anycoincidence==false) {
-		std::cout <<"\t \t \t \t XXXXX THIS PREDICTION DOESN'T HAVE ANY CORRESPONDENCE WITH THE DATA"<<std::endl;
+		std::cout <<"\t \t \t \t \t THIS PREDICTION DOESN'T HAVE ANY CORRESPONDENCE WITH THE DATA"<<std::endl;
 		totalcounter[2]++;
 		buff=counter[2];
 		buff[rollId]++;
 		counter[2]=buff;		
-		std::cout << "\t \t \t \t One for counterFAIL"<<std::endl;
-		ofrej<<"Roll "<<rollasociated->id()<<"\t Event "<<iEvent.id().event()<<std::endl;
+		std::cout << "\t \t \t \t \t One for counterFAIL"<<std::endl;
+		
+		ofrej<<"DTs Wh "<<dtWheel
+		     <<"\t St "<<dtStation
+		     <<"\t Se "<<dtSector
+		     <<"\t Roll "<<rollasociated->id()
+		     <<"\t Event "
+		     <<iEvent.id().event()
+		     <<std::endl;
 	      }
 	      
 	    }
 	    else {
-	      std::cout<<"\t \t \t no"<<std::endl;
+	      std::cout<<"\t \t \t \t No the prediction is outside of this roll"<<std::endl;
 	    }//Condition for the right match
 	  }else{
-	    std::cout<<"\t \t \t Exrtrapolation too long!, canceled"<<std::endl;
+	    std::cout<<"\t \t \t No, Exrtrapolation too long!, canceled"<<std::endl;
 	  }//D not so big
 	}//loop over all the rolls
       }
     }
     else {
-	std::cout<<"\t \t no"<<std::endl;
+      std::cout<<"\t \t No More than one segment in this chamber."<<std::endl;
     }
   }
 }
 else {
-   std::cout<<"This Event doesn't have any DT4DDSegment"<<std::endl; //is ther more than 1 segment in this event?
-  }
+  std::cout<<"This Event doesn't have any DT4DDSegment"<<std::endl; //is ther more than 1 segment in this event?
+}
