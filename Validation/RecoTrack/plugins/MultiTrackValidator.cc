@@ -3,6 +3,7 @@
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 
+#include "DataFormats/Common/interface/View.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "SimDataFormats/Track/interface/SimTrackContainer.h"
@@ -233,9 +234,8 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
       //
       //get collections from the event
       //
-      edm::Handle<reco::TrackCollection> trackCollection;
+      edm::Handle<edm::View<reco::Track> > trackCollection;
       event.getByLabel(label[www], trackCollection);
-      const reco::TrackCollection tC = *(trackCollection.product());
       
       //associate tracks
       LogTrace("TrackValidator") << "Calling associateRecoToSim method" << "\n";
@@ -265,11 +265,11 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
 	  if (getEta(tp->momentum().eta())>etaintervals[w][f]&&
 	      getEta(tp->momentum().eta())<etaintervals[w][f+1]) {
 	    totSIMeta[w][f]++;
-	    std::vector<std::pair<reco::TrackRef, double> > rt;
+	    std::vector<std::pair<edm::Ref<edm::View<reco::Track> >, double> > rt;
 	    if(simRecColl.find(tp) != simRecColl.end()){
 	      rt = simRecColl[tp];
 	      if (rt.size()!=0) {
-		reco::TrackRef t = rt.begin()->first;
+		edm::Ref<edm::View<reco::Track> > t = rt.begin()->first;
 		ats++;
 		totASSeta[w][f]++;
 		edm::LogVerbatim("TrackValidator") << "TrackingParticle #" << st 
@@ -288,7 +288,7 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
           if (sqrt(tp->momentum().perp2())>pTintervals[w][f]&&
               sqrt(tp->momentum().perp2())<pTintervals[w][f+1]) {
             totSIMpT[w][f]++;
-	    std::vector<std::pair<reco::TrackRef, double> > rt;
+	    std::vector<std::pair<edm::Ref<edm::View<reco::Track> >, double> > rt;
             if(simRecColl.find(tp) != simRecColl.end()){
               rt = simRecColl[tp];
 	      if (rt.size()!=0) {
@@ -309,11 +309,11 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
 					 << label[www].process()<<":"
 					 << label[www].label()<<":"
 					 << label[www].instance()
-					 << " (before cuts): " << tC.size() << "\n";
+					 << " (before cuts): " << trackCollection->size() << "\n";
       int at=0;
       int rT=0;
-      for(reco::TrackCollection::size_type i=0; i<tC.size(); ++i){
-	reco::TrackRef track(trackCollection, i);
+      for(reco::TrackCollection::size_type i=0; i<trackCollection->size(); ++i){
+	edm::Ref<edm::View<reco::Track> > track(trackCollection, i);
 	rT++;
 
 	std::vector<std::pair<TrackingParticleRef, double> > tp;
