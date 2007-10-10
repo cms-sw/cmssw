@@ -1,8 +1,8 @@
 /*
  * \file DTDataIntegrityTask.cc
  * 
- * $Date: 2007/08/09 13:25:33 $
- * $Revision: 1.29 $
+ * $Date: 2007/09/25 17:24:57 $
+ * $Revision: 1.30 $
  * \author M. Zanetti (INFN Padova), S. Bolognesi (INFN Torino)
  *
  */
@@ -59,6 +59,50 @@ DTDataIntegrityTask::DTDataIntegrityTask(const edm::ParameterSet& ps,edm::Activi
 DTDataIntegrityTask::~DTDataIntegrityTask() {
   if(debug)
     cout<<"[DTDataIntegrityTask]: Destructor. Analyzed "<< neventsDDU <<" events"<<endl;
+}
+
+
+
+void DTDataIntegrityTask::beginLuminosityBlock(LuminosityBlock const& lumiSeg, EventSetup const& context) {
+
+  if(debug)
+    cout<<"[DTDataIntegrityTask]: Begin of LS transition"<<endl;
+
+  if(lumiSeg.id().luminosityBlock()%parameters.getUntrackedParameter<int>("ResetCycle", 3) == 0) {
+    for(map<string, map<int, MonitorElement*> > ::const_iterator ddu_histo = dduHistos.begin();
+	ddu_histo != dduHistos.end();
+	ddu_histo++) {
+      for(map<int, MonitorElement*> ::const_iterator dh = (*ddu_histo).second.begin();
+	  dh != (*ddu_histo).second.end();
+	  dh++) {
+	(*dh).second->Reset();
+      }
+    }
+    for(map<string, MonitorElement*> ::const_iterator rosS_histo = rosSHistos.begin();
+	rosS_histo != rosSHistos.end();
+	rosS_histo++) {
+      (*rosS_histo).second->Reset();
+    }
+    for(map<string, map<int, MonitorElement*> > ::const_iterator ros_histo = rosHistos.begin();
+	ros_histo != rosHistos.end();
+	ros_histo++) {
+      for(map<int, MonitorElement*> ::const_iterator rosh = (*ros_histo).second.begin();
+	  rosh != (*ros_histo).second.end();
+	  rosh++) {
+	(*rosh).second->Reset();
+      }
+    }
+    for(map<string, map<int, MonitorElement*> > ::const_iterator rob_histo = robHistos.begin();
+	rob_histo != robHistos.end();
+	rob_histo++) {
+      for(map<int, MonitorElement*> ::const_iterator robh = (*rob_histo).second.begin();
+	  robh != (*rob_histo).second.end();
+	  robh++) {
+	(*robh).second->Reset();
+      }
+    }
+  }
+
 }
 
 /*

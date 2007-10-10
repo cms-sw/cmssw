@@ -5,8 +5,8 @@
  *
  * Class for DT Data Integrity.
  *  
- *  $Date: 2007/03/27 14:10:22 $
- *  $Revision: 1.10 $
+ *  $Date: 2007/03/29 17:56:00 $
+ *  $Revision: 1.11 $
  *
  * \author Marco Zanetti  - INFN Padova
  *
@@ -19,6 +19,7 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include <FWCore/Framework/interface/LuminosityBlock.h>
 
 #include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
 
@@ -46,6 +47,8 @@ public:
 
   void processROS25(DTROS25Data & data, int dduID, int ros);
   void processFED(DTDDUData & dduData, const std::vector<DTROS25Data> & rosData, int dduID);
+
+  void beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& context) ;
 
   void postEndJob();
 
