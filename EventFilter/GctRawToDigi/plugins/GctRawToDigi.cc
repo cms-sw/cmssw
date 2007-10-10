@@ -109,24 +109,24 @@ GctRawToDigi::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 void GctRawToDigi::unpack(const FEDRawData& d, edm::Event& e)
 {
-  // First make collections for storing data...:
+  std::vector<GctBlockHeader> bHdrs; // For storing block headers
+  bHdrs.reserve(16);  // Reserve approx the right amount of space.
 
-  // Block headers
-  std::vector<GctBlockHeader> bHdrs;
-
-  // GCT input data
-  std::auto_ptr<L1CaloEmCollection> rctEm( new L1CaloEmCollection() ); 
-  std::auto_ptr<L1CaloRegionCollection> rctRgn( new L1CaloRegionCollection() ); 
+  // ** DON'T RESERVE SPACE IN VECTORS FOR DEBUG UNPACK ITEMS! **
+  
+  // Collections for storing GCT input data.  
+  std::auto_ptr<L1CaloEmCollection> rctEm( new L1CaloEmCollection() ); // Input electrons.
+  std::auto_ptr<L1CaloRegionCollection> rctRgn( new L1CaloRegionCollection() ); // Input regions.
   
   // GCT intermediate data
   std::auto_ptr<L1GctInternEmCandCollection> gctInternEm( new L1GctInternEmCandCollection() ); 
 
   // GCT output data
-  std::auto_ptr<L1GctEmCandCollection> gctIsoEm( new L1GctEmCandCollection() ); 
-  std::auto_ptr<L1GctEmCandCollection> gctNonIsoEm( new L1GctEmCandCollection() ); 
-  std::auto_ptr<L1GctJetCandCollection> gctCenJets( new L1GctJetCandCollection() ); 
-  std::auto_ptr<L1GctJetCandCollection> gctForJets( new L1GctJetCandCollection() ); 
-  std::auto_ptr<L1GctJetCandCollection> gctTauJets( new L1GctJetCandCollection() );
+  std::auto_ptr<L1GctEmCandCollection>  gctIsoEm   ( new L1GctEmCandCollection() );  gctIsoEm->reserve(4);
+  std::auto_ptr<L1GctEmCandCollection>  gctNonIsoEm( new L1GctEmCandCollection() );  gctNonIsoEm->reserve(4);
+  std::auto_ptr<L1GctJetCandCollection> gctCenJets ( new L1GctJetCandCollection() ); gctCenJets->reserve(4);
+  std::auto_ptr<L1GctJetCandCollection> gctForJets ( new L1GctJetCandCollection() ); gctForJets->reserve(4);
+  std::auto_ptr<L1GctJetCandCollection> gctTauJets ( new L1GctJetCandCollection() ); gctTauJets->reserve(4);
   
   std::auto_ptr<L1GctEtTotal> etTotResult( new L1GctEtTotal() );
   std::auto_ptr<L1GctEtHad> etHadResult( new L1GctEtHad() );
@@ -134,13 +134,15 @@ void GctRawToDigi::unpack(const FEDRawData& d, edm::Event& e)
 
   std::auto_ptr<L1GctFibreCollection> gctFibres( new L1GctFibreCollection() );
 
-
   // Setup blockUnpacker
   blockUnpacker_.setRctEmCollection( rctEm.get() );
   blockUnpacker_.setIsoEmCollection( gctIsoEm.get() );
   blockUnpacker_.setNonIsoEmCollection( gctNonIsoEm.get() );
   blockUnpacker_.setInternEmCollection( gctInternEm.get() );
   blockUnpacker_.setFibreCollection( gctFibres.get() );
+  blockUnpacker_.setCentralJetCollection( gctCenJets.get() );
+  blockUnpacker_.setForwardJetCollection( gctForJets.get() );
+  blockUnpacker_.setTauJetCollection( gctTauJets.get() );
 
   // Unpacking variables
   const unsigned char * data = d.data();
@@ -149,8 +151,8 @@ void GctRawToDigi::unpack(const FEDRawData& d, edm::Event& e)
   bool lost = false;
 
   // read blocks
-  for (unsigned nb=0; !lost && dPtr<dEnd && nb<MAX_BLOCKS; ++nb) {
-
+  for (unsigned nb=0; !lost && dPtr<dEnd && nb<MAX_BLOCKS; ++nb)
+  {
     // read block header
     GctBlockHeader blockHead(&data[dPtr]);
 
@@ -164,16 +166,14 @@ void GctRawToDigi::unpack(const FEDRawData& d, edm::Event& e)
     unsigned blockLen = blockHead.length();
     unsigned nSamples = blockHead.nSamples();
     dPtr += 4*(blockLen*nSamples+1); // *4 because blockLen is in 32-bit words, +1 for header
-    
   }
   
   // dump summary in verbose mode
-  if (verbose_) {
+  if (verbose_)
+  {
     std::ostringstream os;
     os << "Found " << bHdrs.size() << " GCT internal headers" << endl;
-    for (unsigned i=0; i<bHdrs.size(); ++i) {
-      os << bHdrs[i]<< endl;
-    }
+    for (unsigned i=0; i<bHdrs.size(); ++i) { os << bHdrs[i]<< endl; }
     os << "Read " << rctEm.get()->size() << " RCT EM candidates" << endl;
     os << "Read " << gctIsoEm.get()->size() << " GCT iso EM candidates" << endl;
     os << "Read " << gctNonIsoEm.get()->size() << " GCT non-iso EM candidates" << endl;
@@ -182,27 +182,23 @@ void GctRawToDigi::unpack(const FEDRawData& d, edm::Event& e)
     edm::LogVerbatim("GCT") << os.str();
   }
 
-
   // put data into the event
-  if (doEm_) {
+  if (doEm_)
+  {
     e.put(rctEm);
     e.put(gctIsoEm, "isoEm");
     e.put(gctNonIsoEm, "nonIsoEm");
   }
-  if (doJets_) {
+  if (doJets_)
+  {
     e.put(rctRgn);
     e.put(gctCenJets,"cenJets");
     e.put(gctForJets,"forJets");
     e.put(gctTauJets,"tauJets");
   }
-  if (doEtSums_) {
-  }
-  if (doInternEm_) {
-    e.put(gctInternEm);
-  }
-  if (doFibres_) {
-    e.put(gctFibres);
-  }
+  if (doEtSums_)   { }
+  if (doInternEm_) { e.put(gctInternEm); }
+  if (doFibres_)   { e.put(gctFibres); }
 
 }
 

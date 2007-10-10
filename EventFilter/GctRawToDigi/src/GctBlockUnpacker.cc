@@ -19,11 +19,13 @@ GctBlockUnpacker::BlockIdToUnpackFnMap GctBlockUnpacker::blockUnpackFn_ = GctBlo
 GctBlockUnpacker::BlockIdToEmCandIsoBoundMap GctBlockUnpacker::InternEmIsoBounds_ = GctBlockUnpacker::BlockIdToEmCandIsoBoundMap();
 
 GctBlockUnpacker::GctBlockUnpacker() :
+  sourceCardRouting_(),
   rctEm_(0),
   gctIsoEm_(0),
   gctNonIsoEm_(0),
   gctInternEm_(0),
-  gctFibres_(0)
+  gctFibres_(0),
+  gctJets_(NUM_JET_CATAGORIES)
 {
   static bool initClass = true;
   
@@ -31,15 +33,21 @@ GctBlockUnpacker::GctBlockUnpacker() :
   {
     initClass = false;
     
-    // RCT crates
+    // RCT crates - original
     rctCrate_[0x81] = 4;
     rctCrate_[0x89] = 0;
     rctCrate_[0xC1] = 13;
     rctCrate_[0xC9] = 9;
 
+    // RCT crates - new (change told to make by Alex 09/10/07, but do not queue for any 17X release)
+    //rctCrate_[0x81] = 13;
+    //rctCrate_[0x89] = 9;
+    //rctCrate_[0xC1] = 4;
+    //rctCrate_[0xC9] = 0; 
+
     // Setup block unpack function map.
     blockUnpackFn_[0x00] = &GctBlockUnpacker::blockDoNothing;
-    blockUnpackFn_[0x58] = &GctBlockUnpacker::blockDoNothing;
+    blockUnpackFn_[0x58] = &GctBlockUnpacker::blockToGctJetCand;
     blockUnpackFn_[0x59] = &GctBlockUnpacker::blockDoNothing;
     blockUnpackFn_[0x5f] = &GctBlockUnpacker::blockDoNothing;
     blockUnpackFn_[0x68] = &GctBlockUnpacker::blockToGctEmCand;
@@ -70,14 +78,13 @@ GctBlockUnpacker::GctBlockUnpacker() :
     InternEmIsoBounds_[0xc8] = IsoBoundaryPair(0, 7);
     InternEmIsoBounds_[0xcb] = IsoBoundaryPair(0, 1);
   }
-
 }
 
 GctBlockUnpacker::~GctBlockUnpacker() { }
 
 // conversion
-void GctBlockUnpacker::convertBlock(const unsigned char * data, GctBlockHeader& hdr) {
-
+void GctBlockUnpacker::convertBlock(const unsigned char * data, GctBlockHeader& hdr)
+{
   unsigned int id = hdr.id();
   unsigned int nSamples = hdr.nSamples();
 
@@ -85,7 +92,8 @@ void GctBlockUnpacker::convertBlock(const unsigned char * data, GctBlockHeader& 
   if ( nSamples < 1 ) { return; }
 
   // check block is valid
-  if ( !hdr.valid() ) {
+  if ( !hdr.valid() )
+  {
     edm::LogError("GCT") << "Attempting to unpack an unidentified block\n" << hdr << endl;
     return;     
   }
@@ -100,13 +108,12 @@ void GctBlockUnpacker::convertBlock(const unsigned char * data, GctBlockHeader& 
   // the map::find() method returning the end of the map,
   // assuming the GctBlockHeader definitions are up-to-date.
   (this->*blockUnpackFn_.find(id)->second)(data, hdr);  // Calls the correct unpack function, based on block ID.
-
 }
 
 
 // Output EM Candidates unpacking
-void GctBlockUnpacker::blockToGctEmCand(const unsigned char * d, const GctBlockHeader& hdr) {
-
+void GctBlockUnpacker::blockToGctEmCand(const unsigned char * d, const GctBlockHeader& hdr)
+{
   LogDebug("GCT") << "Unpacking GCT output EM Cands" << std::endl;
 
   unsigned int id = hdr.id();
@@ -116,16 +123,16 @@ void GctBlockUnpacker::blockToGctEmCand(const unsigned char * d, const GctBlockH
   // contains the rank0 non-isolated electron of the zeroth time-sample. 
   uint16_t * p = reinterpret_cast<uint16_t *>(const_cast<unsigned char *>(d));
 
-  for (unsigned int iso=0; iso<2; ++iso) {   // loop over non-iso/iso candidate pairs
-    for (unsigned int bx=0; bx<nSamples; ++bx) {   // loop over time samples
-
+  for (unsigned int iso=0; iso<2; ++iso)  // loop over non-iso/iso candidate pairs
+  {
+    for (unsigned int bx=0; bx<nSamples; ++bx) // loop over time samples
+    {
       bool isolated = (iso==1);
       
       // The +(2*bx) for the start of the correct time sample
       // The +(iso*4*nSamples) for selecting the start of the non-iso/iso. 
       uint16_t * pp = p + (2*bx) + (iso*4*nSamples);
       
-
       L1GctEmCandCollection* em;
       if (isolated) { em = gctIsoEm_; }
       else { em = gctNonIsoEm_; }
@@ -140,7 +147,6 @@ void GctBlockUnpacker::blockToGctEmCand(const unsigned char * d, const GctBlockH
 
     }
   }
-
 }
 
 
@@ -185,8 +191,8 @@ void GctBlockUnpacker::blockToGctInternEmCand(const unsigned char * d, const Gct
 
 // Input EM Candidates unpacking
 // this is the last time I deal the RCT bit assignment travesty!!!
-void GctBlockUnpacker::blockToRctEmCand(const unsigned char * d, const GctBlockHeader& hdr) {
-
+void GctBlockUnpacker::blockToRctEmCand(const unsigned char * d, const GctBlockHeader& hdr)
+{
   LogDebug("GCT") << "Unpacking RCT EM Cands" << std::endl;
 
   unsigned int id = hdr.id();
@@ -239,8 +245,8 @@ void GctBlockUnpacker::blockToRctEmCand(const unsigned char * d, const GctBlockH
 
 
 // Fibre unpacking
-void GctBlockUnpacker::blockToFibres(const unsigned char * d, const GctBlockHeader& hdr) {
-
+void GctBlockUnpacker::blockToFibres(const unsigned char * d, const GctBlockHeader& hdr)
+{
   LogDebug("GCT") << "Unpacking GCT Fibres" << std::endl;
   
   unsigned int id = hdr.id();
@@ -258,8 +264,44 @@ void GctBlockUnpacker::blockToFibres(const unsigned char * d, const GctBlockHead
   } 
 }
 
-void GctBlockUnpacker::blockToFibresAndToRctEmCand(const unsigned char * d, const GctBlockHeader& hdr) {
+void GctBlockUnpacker::blockToFibresAndToRctEmCand(const unsigned char * d, const GctBlockHeader& hdr)
+{
   this->blockToRctEmCand(d, hdr);
   this->blockToFibres(d, hdr);
 }
 
+void GctBlockUnpacker::blockToGctJetCand(const unsigned char * d, const GctBlockHeader& hdr)
+{
+  LogDebug("GCT") << "Unpacking GCT output Jet Cands" << std::endl;
+  
+  const unsigned int id = hdr.id();  // Capture block ID.
+  const unsigned int nSamples = hdr.nSamples();  // Number of time-samples.
+  
+  const unsigned int catagoryOffset = nSamples * 4;  // Offset to jump from one jet catagory to the next.
+  const unsigned int timeSampleOffset = nSamples * 2;  // Offset to jump to next candidate pair in the same time-sample.
+
+  // Re-interpret block payload pointer to 16 bits so it sees one candidate at a time.
+  // p points to the start of the block payload, at the rank0 tau jet candidate.
+  uint16_t * p = reinterpret_cast<uint16_t *>(const_cast<unsigned char *>(d));
+  
+  // Loop over the different catagories of jets
+  for(unsigned int iCat = 0 ; iCat < NUM_JET_CATAGORIES ; ++iCat)
+  {
+    assert(gctJets_.at(iCat)->empty()); // The supplied vector should be empty.
+    // Loop over the different timesamples (bunch crossings).
+    for(unsigned int bx = 0 ; bx < nSamples ; ++bx)
+    {
+       // cand0Offset will give the offset on p to get the rank 0 Jet Cand of the correct catagory and timesample.
+      unsigned int cand0Offset = iCat*catagoryOffset + bx*2;
+      
+      // Rank 0 Jet.
+      gctJets_.at(iCat)->push_back(L1GctJetCand(p[cand0Offset], iCat==TAU_JETS, iCat==FORWARD_JETS, id, 0, bx));
+      // Rank 1 Jet.
+      gctJets_.at(iCat)->push_back(L1GctJetCand(p[cand0Offset + timeSampleOffset], iCat==TAU_JETS, iCat==FORWARD_JETS, id, 1, bx));
+      // Rank 2 Jet.
+      gctJets_.at(iCat)->push_back(L1GctJetCand(p[cand0Offset + 1],  iCat==TAU_JETS, iCat==FORWARD_JETS, id, 2, bx));
+      // Rank 3 Jet.
+      gctJets_.at(iCat)->push_back(L1GctJetCand(p[cand0Offset + timeSampleOffset + 1], iCat==TAU_JETS, iCat==FORWARD_JETS, id, 3, bx));      
+    }
+  }
+}

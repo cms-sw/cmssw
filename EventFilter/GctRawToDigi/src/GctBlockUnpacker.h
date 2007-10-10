@@ -17,61 +17,82 @@
 
 #include "EventFilter/GctRawToDigi/src/GctBlockHeader.h"
 
-class GctBlockUnpacker {
+class GctBlockUnpacker
+{
+ private:
+  /// An enum for use with central, forward, and tau jet cand collections vector(s).
+  /*! Note that the order here mimicks the order in the RAW data format. */
+  enum JetCandCatagory { TAU_JETS, FORWARD_JETS, CENTRAL_JETS, NUM_JET_CATAGORIES };
+
  public:
 
   GctBlockUnpacker();
   ~GctBlockUnpacker();
   
   /// set collection pointers
-  /// when unpacking set these to empty collections which will be filled
-  /// when packing, set these to the full collections of input data
+  /// when unpacking set these to empty collections that will be filled.
   void setRctEmCollection(L1CaloEmCollection* coll) { rctEm_ = coll; }
   void setIsoEmCollection(L1GctEmCandCollection* coll) { gctIsoEm_ = coll; }
   void setNonIsoEmCollection(L1GctEmCandCollection* coll) { gctNonIsoEm_ = coll; }
   void setInternEmCollection(L1GctInternEmCandCollection* coll) { gctInternEm_ = coll; }
   void setFibreCollection(L1GctFibreCollection* coll) { gctFibres_ = coll; }
+  void setTauJetCollection(L1GctJetCandCollection* coll) { gctJets_.at(TAU_JETS) = coll; }
+  void setForwardJetCollection(L1GctJetCandCollection* coll) { gctJets_.at(FORWARD_JETS) = coll; }
+  void setCentralJetCollection(L1GctJetCandCollection* coll) { gctJets_.at(CENTRAL_JETS) = coll; }
 
   // get digis from block
   void convertBlock(const unsigned char * d, GctBlockHeader& hdr);
 
  private:
+ 
+  // PRIVATE TYPDEFS, ENUMS, AND CLASS CONSTANTS. 
+  /// Typedef for mapping block ID to RCT crate.
+  typedef std::map<unsigned int, unsigned int> RctCrateMap;
 
-  // source card mapping info
+  /*! A typedef that holds the inclusive lower and upper bounds of pipeline
+   *  gct trigger object pair number for isolated EM candidates.
+   *  I.e. if the first and second trig object pair in the pipeline payload
+   *  are isolated cands (4 iso in total), then the IsoBoundaryPair would
+   *  be (0,1). */ 
+  typedef std::pair<unsigned int, unsigned int> IsoBoundaryPair;
+  /// A typdef for mapping Block IDs to IsoBoundaryPairs.
+  typedef std::map<unsigned int, IsoBoundaryPair> BlockIdToEmCandIsoBoundMap;
+
+  /// Function pointer typdef to a block unpack function.
+  typedef void (GctBlockUnpacker::*PtrToUnpackFn)(const unsigned char *, const GctBlockHeader&);
+  /// Typedef for a block ID to unpack function map.
+  typedef std::map<unsigned int, PtrToUnpackFn> BlockIdToUnpackFnMap;
+
+  /// Typedef for a vector of pointers to L1GctJetCandCollection.
+  typedef std::vector<L1GctJetCandCollection*> GctJetCandCollections;
+
+
+  // PRIVATE MEMBERS
+  /// Map to relate capture block ID to the RCT crate the data originated from.
+  static RctCrateMap rctCrate_;
+
+  /// Block ID to unpack function map.
+  static BlockIdToUnpackFnMap blockUnpackFn_;
+
+  /*! A map of Block IDs to IsoBoundaryPairs for storing the location of the isolated
+   *  Internal EM cands in the pipeline, as this differs with Block ID. */ 
+  static BlockIdToEmCandIsoBoundMap InternEmIsoBounds_;
+
+  /// Source card mapping info
   SourceCardRouting srcCardRouting_;
 
-  typedef std::map<unsigned int, unsigned int> RctCrateMap; // RCT Crate Map typedef.
-  static RctCrateMap rctCrate_;  // And the RCT Crate Map itself.
-
-  // A typedef that holds the inclusive lower and upper bounds of pipeline
-  // gct trigger object pair number for isolated EM candidates.
-  // I.e. if the first and second trig object pair in the pipeline payload
-  // are isolated cands (4 iso in total), then the IsoBoundaryPair would
-  // be (0,1). 
-  typedef std::pair<unsigned int, unsigned int> IsoBoundaryPair;
-  // A typdef for mapping Block IDs to IsoBoundaryPairs.
-  typedef std::map<unsigned int, IsoBoundaryPair> BlockIdToEmCandIsoBoundMap;
-  // A map of Block IDs to IsoBoundaryPairs for storing the location of the isolated
-  // Internal EM cands in the pipeline, as this differs with Block ID. 
-  static BlockIdToEmCandIsoBoundMap InternEmIsoBounds_;
-  
-  // Typedefs for the block ID to unpack function mapping.
-  typedef void (GctBlockUnpacker::*PtrToUnpackFn)(const unsigned char *, const GctBlockHeader&);
-  typedef std::map<unsigned int, PtrToUnpackFn> BlockIdToUnpackFnMap;
-  
-  static BlockIdToUnpackFnMap blockUnpackFn_;  // And the block ID to unpack function map itself.
-
   // collections of RCT objects
-  L1CaloEmCollection* rctEm_;
+  L1CaloEmCollection* rctEm_;  ///< RCT EM cands
 
   // collections of output objects
-  L1GctEmCandCollection* gctIsoEm_;
-  L1GctEmCandCollection* gctNonIsoEm_;
-  L1GctInternEmCandCollection* gctInternEm_;  
-  L1GctFibreCollection* gctFibres_;
+  L1GctEmCandCollection* gctIsoEm_;  ///< GCT output isolated EM cands.
+  L1GctEmCandCollection* gctNonIsoEm_;  ///< GCT output non-isolated EM cands.
+  L1GctInternEmCandCollection* gctInternEm_;  ///< GCT internal EM Cands.  
+  L1GctFibreCollection* gctFibres_;  ///< Fibre data.
+  GctJetCandCollections gctJets_;  /// Vector of pointers to the various jet candidate collections.
 
- private:  // FUNCTIONS
 
+  // PRIVATE METHODS
   // convert functions for each type of block
   /// unpack GCT EM Candidates
   void blockToGctEmCand(const unsigned char * d, const GctBlockHeader& hdr);
@@ -87,6 +108,9 @@ class GctBlockUnpacker {
   
   /// unpack Fibres and RCT EM Candidates
   void blockToFibresAndToRctEmCand(const unsigned char * d, const GctBlockHeader& hdr);
+  
+  /// Unpack GCT Jet Candidates.
+  void blockToGctJetCand(const unsigned char * d, const GctBlockHeader& hdr);
   
   /// Do nothing
   void blockDoNothing(const unsigned char * d, const GctBlockHeader& hdr) {}
