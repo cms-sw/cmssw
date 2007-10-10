@@ -5,6 +5,7 @@
 #include "FastSimulation/ParticlePropagator/interface/ParticlePropagator.h"
 #include "FastSimulation/ParticleDecay/interface/Pythia6Decays.h"
 #include "FastSimulation/ParticleDecay/interface/Pythia6jets.h"
+#include "FastSimulation/ParticleDecay/interface/Pythia6Random.h"
 
 #define PYTHIA6PYDECY pythia6pydecy_
 
@@ -12,16 +13,32 @@ extern "C" {
   void PYTHIA6PYDECY(int *ip);
 }
 
-Pythia6Decays::Pythia6Decays()
+Pythia6Decays::Pythia6Decays(int seed)
 {
-  // Initialize PYTHIA decay tables...
-  call_pyinit( "CMS", "p", "p", 14000. );
   // Create a new Pythia6jets
   pyjets = new Pythia6jets();
+  // Create a new Pythia6Random steering
+  pyrand = new Pythia6Random(seed);
+  // Initialize PYTHIA decay tables...
+  call_pyinit( "CMS", "p", "p", 14000. );
+
 }
 
 Pythia6Decays::~Pythia6Decays() {
   delete pyjets;
+  delete pyrand;
+}
+
+const void 
+Pythia6Decays::getRandom() {
+  pyrand->save(0);
+  pyrand->get(1);
+}
+
+const void 
+Pythia6Decays::saveRandom() {
+  pyrand->save(1);
+  pyrand->get(0);
 }
 
 const DaughterParticleList&
