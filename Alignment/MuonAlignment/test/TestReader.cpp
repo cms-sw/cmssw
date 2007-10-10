@@ -24,18 +24,14 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "Alignment/TrackerAlignment/interface/AlignableTracker.h"
-#include "Alignment/TrackerAlignment/interface/AlignableTrackerBarrelLayer.h"
-#include "Alignment/TrackerAlignment/interface/AlignableTrackerRod.h"
-
 #include "CondFormats/Alignment/interface/Alignments.h"
 #include "CondFormats/Alignment/interface/AlignTransform.h"
-#include "CondFormats/AlignmentRecord/interface/DTAlignmentRcd.h"
-#include "CondFormats/AlignmentRecord/interface/CSCAlignmentRcd.h"
+#include "CondFormats/DataRecord/interface/DTAlignmentRcd.h"
+#include "CondFormats/DataRecord/interface/CSCAlignmentRcd.h"
 #include "CondFormats/Alignment/interface/AlignmentErrors.h"
 #include "CondFormats/Alignment/interface/AlignTransformError.h"
-#include "CondFormats/AlignmentRecord/interface/DTAlignmentErrorRcd.h"
-#include "CondFormats/AlignmentRecord/interface/CSCAlignmentErrorRcd.h"
+#include "CondFormats/DataRecord/interface/DTAlignmentErrorRcd.h"
+#include "CondFormats/DataRecord/interface/CSCAlignmentErrorRcd.h"
 
 //
 //
@@ -107,7 +103,7 @@ TestMuonReader::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup
   for ( std::vector<AlignTransformError>::const_iterator it = dtAlignmentErrors->m_alignError.begin();
 		it != dtAlignmentErrors->m_alignError.end(); it++ )
 	{
-	  HepSymMatrix error = (*it).matrix();
+	  CLHEP::HepSymMatrix error = (*it).matrix();
 	  std::cout << (*it).rawId() << " ";
 	  for ( int i=0; i<error.num_row(); i++ )
 		for ( int j=0; j<=i; j++ ) 
@@ -146,7 +142,7 @@ TestMuonReader::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup
   for ( std::vector<AlignTransformError>::const_iterator it = cscAlignmentErrors->m_alignError.begin();
 		it != cscAlignmentErrors->m_alignError.end(); it++ )
 	{
-	  HepSymMatrix error = (*it).matrix();
+	  CLHEP::HepSymMatrix error = (*it).matrix();
 	  std::cout << (*it).rawId() << " ";
 	  for ( int i=0; i<error.num_row(); i++ )
 		for ( int j=0; j<=i; j++ ) 
