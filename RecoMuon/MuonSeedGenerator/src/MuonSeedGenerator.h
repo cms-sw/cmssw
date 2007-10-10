@@ -4,8 +4,8 @@
 /** \class MuonSeedGenerator
  *  No description available.
  *
- *  $Date: 2006/11/13 08:55:24 $
- *  $Revision: 1.6 $
+ *  $Date: 2007/03/28 00:54:57 $
+ *  $Revision: 1.8 $
  *  \author R. Bellan - INFN Torino
  */
 
@@ -13,10 +13,7 @@
 #include "FWCore/ParameterSet/interface/InputTag.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
 #include "RecoMuon/TransientTrackingRecHit/interface/MuonTransientTrackingRecHit.h"
-
 #include <vector>
-
-namespace edm {class ParameterSet; class Event; class EventSetup;}
 
 class MuonSeedFinder;
 
@@ -40,6 +37,8 @@ class MuonSeedGenerator: public edm::EDProducer {
   void complete(MuonSeedFinder& seed, MuonTransientTrackingRecHit::MuonRecHitContainer &recHits, bool* used=0) const;
   void checkAndFill(MuonSeedFinder& seedFinder, const edm::EventSetup& eSetup);
   void fill(MuonSeedFinder& seedFinder, const edm::EventSetup& eSetup);
+  //returns a zeroed array of bools of length listSize
+  static bool * zero(int listSize);
 
   // FIXME: change in OwnVector?
   std::vector<TrajectorySeed> theSeeds;
