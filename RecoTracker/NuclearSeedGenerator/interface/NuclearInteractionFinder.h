@@ -103,6 +103,7 @@ private:
   unsigned int  maxHits;
   double        rescaleErrorFactor;
   bool          checkCompletedTrack; /**< If set to true check all the tracks, even those reaching the edge of the tracker */
+  std::string   navigationSchoolName;
 
 };
 #endif

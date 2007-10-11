@@ -10,13 +10,15 @@
 #include "TrackingTools/KalmanUpdators/interface/Chi2MeasurementEstimatorBase.h"
 
 #include "RecoTracker/Record/interface/CkfComponentsRecord.h"
+#include "RecoTracker/Record/interface/NavigationSchoolRecord.h" 
 
 #include "DataFormats/TrajectorySeed/interface/PropagationDirection.h"
 
 NuclearInteractionFinder::NuclearInteractionFinder(const edm::EventSetup& es, const edm::ParameterSet& iConfig) :
 maxHits(iConfig.getParameter<int>("maxHits")),
 rescaleErrorFactor(iConfig.getParameter<double>("rescaleErrorFactor")),
-checkCompletedTrack(iConfig.getParameter<bool>("checkCompletedTrack"))
+checkCompletedTrack(iConfig.getParameter<bool>("checkCompletedTrack")),
+navigationSchoolName(iConfig.getParameter<std::string>("NavigationSchool"))
 {
 
    std::string measurementTrackerName = iConfig.getParameter<std::string>("MeasurementTrackerName");
@@ -26,7 +28,8 @@ checkCompletedTrack(iConfig.getParameter<bool>("checkCompletedTrack"))
    edm::ESHandle<Chi2MeasurementEstimatorBase> est;
    edm::ESHandle<MeasurementTracker> measurementTrackerHandle;
    edm::ESHandle<GeometricSearchTracker>       theGeomSearchTrackerHandle;
-   edm::ESHandle<TrackerGeometry>           theTrackerGeom;
+   edm::ESHandle<TrackerGeometry>              theTrackerGeom;
+   edm::ESHandle<NavigationSchool>             nav;
 
    es.get<TrackerDigiGeometryRecord> ().get (theTrackerGeom);
    es.get<TrackingComponentsRecord>().get("PropagatorWithMaterial",prop);
@@ -34,16 +37,19 @@ checkCompletedTrack(iConfig.getParameter<bool>("checkCompletedTrack"))
    es.get<CkfComponentsRecord>().get(measurementTrackerName, measurementTrackerHandle);
    es.get<TrackerRecoGeometryRecord>().get(theGeomSearchTrackerHandle );
    es.get<IdealMagneticFieldRecord>().get(theMagField);
+   es.get<NavigationSchoolRecord>().get(navigationSchoolName, nav);
 
    thePropagator = prop.product();
    theEstimator = est.product();
    theMeasurementTracker = measurementTrackerHandle.product();
    theLayerMeasurements = new LayerMeasurements(theMeasurementTracker);
    theGeomSearchTracker = theGeomSearchTrackerHandle.product();
-   theNavigationSchool  = new SimpleNavigationSchool(theGeomSearchTracker,&(*theMagField));
+
+   theNavigationSchool  = nav.product();
 
    // set the correct navigation
    NavigationSetter setter( *theNavigationSchool);
+
    LogDebug("NuclearSeedGenerator") << "New NuclearInteractionFinder instance with parameters : \n"
                                         << "maxHits : " << maxHits << "\n"
                                         << "rescaleErrorFactor : " << rescaleErrorFactor << "\n"
