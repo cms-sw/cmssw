@@ -9,9 +9,9 @@
 // Original Author: Oliver Gutsche, gutsche@fnal.gov
 // Created:         Wed Mar 15 13:00:00 UTC 2006
 //
-// $Author: burkett $
-// $Date: 2007/08/16 23:44:31 $
-// $Revision: 1.43 $
+// $Author: noeding $
+// $Date: 2007/10/10 18:30:40 $
+// $Revision: 1.44 $
 //
 
 #include <vector>
@@ -754,7 +754,7 @@ void RoadSearchTrackCandidateMakerAlgorithm::run(const RoadSearchCloudCollection
   delete theRevPropagator; 
   delete theAnalyticalPropagator;
   delete theHitMatcher;
-  std::cout<< "*** RS Found " << output.size() << " track candidates."<<std::endl;
+  if (debug_) std::cout<< "*** RS Found " << output.size() << " track candidates."<<std::endl;
 
 }
 
