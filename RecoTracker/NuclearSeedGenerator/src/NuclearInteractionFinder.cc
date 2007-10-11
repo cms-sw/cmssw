@@ -70,7 +70,6 @@ void NuclearInteractionFinder::setEvent(const edm::Event& event) const
 //----------------------------------------------------------------------
 NuclearInteractionFinder::~NuclearInteractionFinder() {
   delete theLayerMeasurements;
-  delete theNavigationSchool;
   delete nuclTester;
   delete currentSeed;
   delete thePrimaryHelix;
