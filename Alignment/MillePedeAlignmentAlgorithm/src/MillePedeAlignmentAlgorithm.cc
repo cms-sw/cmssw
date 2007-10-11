@@ -3,8 +3,8 @@
  *
  *  \author    : Gero Flucke
  *  date       : October 2006
- *  $Revision: 1.24 $
- *  $Date: 2007/08/31 17:24:28 $
+ *  $Revision: 1.25 $
+ *  $Date: 2007/08/31 18:03:19 $
  *  (last update by $Author: flucke $)
  */
 
@@ -15,9 +15,6 @@
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
 // end in header, too
-
-//#include "MagneticField/Engine/interface/MagneticField.h"
-#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h" 
 
 #include "Alignment/MillePedeAlignmentAlgorithm/interface/MillePedeMonitor.h"
 #include "Alignment/MillePedeAlignmentAlgorithm/interface/MillePedeAlignmentAlgorithm.h"
@@ -32,12 +29,19 @@
 #include "Alignment/ReferenceTrajectories/interface/TrajectoryFactoryBase.h"
 #include "Alignment/ReferenceTrajectories/interface/TrajectoryFactoryPlugin.h"
 
+#include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentParameterStore.h"
 #include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentIORoot.h"
 
 #include "Alignment/CommonAlignment/interface/AlignableNavigator.h"
 #include "Alignment/CommonAlignment/interface/AlignableDetOrUnitPtr.h"
 
+// includes to make known that they inherit from Alignable:
+#include "Alignment/TrackerAlignment/interface/AlignableTracker.h"
+#include "Alignment/MuonAlignment/interface/AlignableMuon.h"
+
 #include "DataFormats/CLHEP/interface/AlgebraicObjects.h"
+#include "DataFormats/TrackReco/interface/Track.h"
+
 
 #include <Geometry/CommonDetUnit/interface/GeomDetUnit.h>
 #include <Geometry/CommonDetUnit/interface/GeomDetType.h>

@@ -7,8 +7,8 @@
 ///
 ///  \author    : Gero Flucke
 ///  date       : October 2006
-///  $Revision: 1.12 $
-///  $Date: 2007/06/21 17:01:29 $
+///  $Revision: 1.13 $
+///  $Date: 2007/07/13 16:27:06 $
 ///  (last update by $Author: flucke $)
 
 
@@ -25,14 +25,16 @@
 #include <vector>
 #include <string>
 
+class Alignable;
 class AlignableTracker;
 class AlignableMuon;
-
-class MagneticField;
 
 class AlignmentParameters;
 class AlignableNavigator;
 class AlignableDetOrUnitPtr;
+class AlignmentUserVariables;
+
+class AlignmentParameterStore;
 
 class MillePedeMonitor;
 class PedeSteerer;
