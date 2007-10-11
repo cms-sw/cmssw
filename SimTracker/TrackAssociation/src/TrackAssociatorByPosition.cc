@@ -13,7 +13,7 @@ TrajectoryStateOnSurface TrackAssociatorByPosition::getState(const TrackingParti
   //loop over PSimHits
   const PSimHit * psimhit=0;
   const BoundPlane * plane=0;
-  double dLim=0;
+  double dLim=thePositionMinimumDistance;
 
   //    look for the further most hit beyond a certain limit
   LogDebug("TrackAssociatorByPosition")<<(int)(simtrack.pSimHit_end()-simtrack.pSimHit_begin())<<" PSimHits.";
