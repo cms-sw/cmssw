@@ -7,6 +7,7 @@
 #include "TrackingTools/Records/interface/TransientTrackRecord.h"
 
 #include "DataFormats/GeometryCommonDetAlgo/interface/ErrorFrameTransformer.h"
+#include "DataFormats/TrackingRecHit/interface/AlignmentPositionError.h"
 
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h" 
