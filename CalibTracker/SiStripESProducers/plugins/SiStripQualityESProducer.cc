@@ -13,7 +13,7 @@
 //
 // Original Author:  Domenico GIORDANO
 //         Created:  Wed Oct  3 12:11:10 CEST 2007
-// $Id$
+// $Id: SiStripQualityESProducer.cc,v 1.1 2007/10/08 17:34:22 giordano Exp $
 //
 //
 
@@ -40,6 +40,7 @@ boost::shared_ptr<SiStripQuality> SiStripQualityESProducer::produce(const SiStri
   edm::LogInfo("SiStripQualityESProducer") << "produce called" << std::endl;
 
   SiStripQuality* quality = new SiStripQuality();
+
   edm::ESHandle<SiStripBadStrip> obj;
   std::string tagName;  
   std::string recordName;
@@ -64,6 +65,7 @@ boost::shared_ptr<SiStripQuality> SiStripQualityESProducer::produce(const SiStri
     edm::LogInfo("SiStripQualityESProducer") << "[SiStripQualityESProducer::produce] Got data from record " << recordName << " with tag " << tagName << std::endl;
   }
   quality->cleanUp();
+  quality->fillBadComponents();
 
   boost::shared_ptr<SiStripQuality> pQuality(quality);
 
