@@ -17,14 +17,16 @@ Validation distributions are produced in two steps:
 
 2b. Information about matched CaloJets and GenJets is processed, and physics
   properties of jets, like energy scale, energy resolution, spatial resolution,
-  efficiencies are recovered. Results are ploted separately for different
+  efficiencies are recovered. Results are plotted separately for different
   eta regions or different momentum regions.
 
 
 Step 1.
 
 cvs co Validation/RecoJets
-cd Validation/RecoJets/analysis
+cd Validation/RecoJets
+scramv1 b
+cd analysis
 ./fill_histograms.sh /store/CSA07/mc/2007/10/4/CSA07-CSA07JetMET-Tier0-A1-Chowder/0000/02DD858C-CC72-DC11-9824-000423D6CA02.root
 
 Notes:
@@ -49,5 +51,14 @@ possible inconsistency will reflect rather difference in physics, then differenc
 reconstruction.
 For test, let's compare midPointCone5CaloJets with themselves:
 
-cp midPointCone5CaloJets.root midPointCone5CaloJets_reference.root
-  
+cp midPointCone5CaloJets_validation.root midPointCone5CaloJets_validation_reference.root
+../../../../test/slc4_ia32_gcc345/compareHists midPointCone5CaloJets_validation.root midPointCone5CaloJets_validation_reference.root 'TEST: Comparing midPointCone5CaloJets with themselves'
+
+A set of .gif files with relevant names is created. Of course, all histograms are expected 
+to have probability exactly one in this case.
+
+Step 2b.
+
+../../../../test/slc4_ia32_gcc345/plotHists midPointCone5CaloJets_validation.root
+
+A set of .gif files with relevant names is created.
