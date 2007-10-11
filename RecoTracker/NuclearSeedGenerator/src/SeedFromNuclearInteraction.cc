@@ -114,7 +114,7 @@ FreeTrajectoryState* SeedFromNuclearInteraction::stateWithError(TangentHelix& he
    secondaryErrorInNewFrame(2,2) = helix.vertexError() * helix.vertexError();
    secondaryErrorInNewFrame(3,3) = p_perp_max*p_perp_max;  
    secondaryErrorInNewFrame(4,4) = p_perp_max*p_perp_max; 
-   secondaryErrorInNewFrame(5,5) = p_max*p_max/4;
+   secondaryErrorInNewFrame(5,5) = p_max*p_max;
 
    AlgebraicSymMatrix66 secondaryError = ROOT::Math::SimilarityT(globalRotation, secondaryErrorInNewFrame);
 
