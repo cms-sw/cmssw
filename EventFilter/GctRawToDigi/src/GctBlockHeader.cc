@@ -54,8 +54,8 @@ map<unsigned, unsigned> GctBlockHeader::blockLength_(a, a + sizeof(a) / sizeof(a
 /// setup class static to lookup block name
 pair<unsigned, string> b[] = {
   pair<unsigned, string>(0x00,"NULL"),
-  pair<unsigned, string>(0x58,"Greg's random register"),
-  pair<unsigned, string>(0x59,"Greg's other random register"),
+  pair<unsigned, string>(0x58,"ConcJet: Output to Global Trigger"),
+  pair<unsigned, string>(0x59,"ConcJet: Sort Input"),
   pair<unsigned, string>(0x5f,"ConcJet: Bunch Counter Pattern Test"),
   pair<unsigned, string>(0x68,"ConcElec: Output to Global Trigger"),
   pair<unsigned, string>(0x69,"ConcElec: Sort Input"),
