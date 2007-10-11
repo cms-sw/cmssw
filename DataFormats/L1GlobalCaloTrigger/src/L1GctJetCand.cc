@@ -90,7 +90,6 @@ ostream& operator<<(ostream& s, const L1GctJetCand& cand) {
     else { s << "central"; }
   }
   s << hex << " cap block=" << cand.capBlock() << ", index=" << cand.capIndex() << ", BX=" << cand.bx() << dec;
-  s << std::endl;
   return s;
 }
 
