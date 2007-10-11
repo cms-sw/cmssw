@@ -22,7 +22,6 @@ class SiStripBadStripFromConstructionDB:public ConditionDBWriter<SiStripBadStrip
  protected:
   // Leave possibility of inheritance
   virtual void algoBeginJob(const edm::EventSetup&);
-  virtual void algoAnalyze(const edm::Event& , const edm::EventSetup& );
 
  private:
   virtual SiStripBadStrip * getNewObject();
