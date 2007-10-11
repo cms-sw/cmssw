@@ -1,5 +1,5 @@
 //
-// $Id: TopJetProducer.cc,v 1.33 2007/10/07 16:13:15 lowette Exp $
+// $Id: TopJetProducer.cc,v 1.34 2007/10/10 02:06:17 lowette Exp $
 //
 
 #include "TopQuarkAnalysis/TopObjectProducers/interface/TopJetProducer.h"
@@ -51,7 +51,8 @@ TopJetProducer::TopJetProducer(const edm::ParameterSet& iConfig) {
   addDiscriminators_       = iConfig.getParameter<bool>                     ( "addDiscriminators" );
   addJetTagRefs_           = iConfig.getParameter<bool>                     ( "addJetTagRefs" );
   bTaggingTagInfoNames_    = iConfig.getParameter<std::vector<std::string> >( "bTagInfoNames" );
-  tagModuleLabelsToIgnore_ = iConfig.getParameter<std::vector<std::string> >( "tagModuleLabelsToIgnore" );
+  //tagModuleLabelsToIgnore_ = iConfig.getParameter<std::vector<std::string> >( "tagModuleLabelsToIgnore" );
+  tagModuleLabelsToKeep_ = iConfig.getParameter<std::vector<std::string> >( "tagModuleLabelsToKeep" );
   addAssociatedTracks_     = iConfig.getParameter<bool>                     ( "addAssociatedTracks" ); 
   trackAssociationPSet_    = iConfig.getParameter<edm::ParameterSet>        ( "trackAssociation" );
   addJetCharge_            = iConfig.getParameter<bool>                     ( "addJetCharge" ); 
@@ -246,15 +247,15 @@ void TopJetProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
 
         //**************************
         //get label and module names
-        std::string moduleTagInfoName = (jetTags).provenance()->moduleName();  
+	// std::string moduleTagInfoName = (jetTags).provenance()->moduleName();  
         std::string moduleLabel = (jetTags).provenance()->moduleLabel();
         //********ignore taggers from AOD*********
-        bool tagShouldBeIgnored = false;
+	/* bool tagShouldBeIgnored = false;
         for (unsigned int i = 0; i < tagModuleLabelsToIgnore_.size(); ++i) {
           if (moduleLabel == tagModuleLabelsToIgnore_[i]) { tagShouldBeIgnored = true; }
         }
         if (tagShouldBeIgnored) continue;
-
+	*/
         for (size_t t = 0; t < jetTags->size(); t++) {
           edm::RefToBase<reco::Jet> jet_p = (*jetTags)[t].jet();
           if (jet_p.isNull()) {
@@ -264,9 +265,9 @@ void TopJetProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
           if (DeltaR<reco::Candidate>()( (*caljets)[j], *jet_p ) < 0.00001) {
             //********store discriminators*********
             if (addDiscriminators_) {
-              //drop TauTag!!!
-              for (unsigned int i = 0; i < bTaggingTagInfoNames_.size(); ++i) {
-                if (moduleTagInfoName == bTaggingTagInfoNames_[i]) {
+	      //look only at the tagger present in tagModuleLabelsToKeep_
+              for (unsigned int i = 0; i < tagModuleLabelsToKeep_.size(); ++i) {
+                if (moduleLabel == tagModuleLabelsToKeep_[i]) {
                   std::pair<std::string, double> pairDiscri;
                   pairDiscri.first = moduleLabel;
                   pairDiscri.second = (*jetTags)[t].discriminator();
@@ -286,10 +287,10 @@ void TopJetProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
         }
       }
     }
-
+    
     // Associate tracks with jet (at least temporary)
     simpleJetTrackAssociator_.associate(ajet.momentum(), hTracks, ajet.associatedTracks_);
-
+    
     // PUT HERE EVERYTHING WHICH NEEDS TRACKS
     if (addJetCharge_) {
       ajet.jetCharge_ = static_cast<float>(jetCharge_->charge(ajet.p4(), ajet.associatedTracks_));
