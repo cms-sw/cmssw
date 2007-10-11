@@ -94,14 +94,17 @@ void HcalDataFormatMonitor::setup(const edm::ParameterSet& ps,
     type = "HTR Error Word - Crate 17";
     meCrate17HTRErr_ = m_dbe->book2D(type,type,40,-0.25,19.75,maxbits,-0.5,maxbits-0.5);
     
-    type = "HBHE Data Format Error Word";
-    hbheHists.DCC_ErrWd =  m_dbe->book1D(type,type,16,-0.5,15.5);
+    type = "HB Data Format Error Word";
+    DCC_ErrWd_HB =  m_dbe->book1D(type,type,16,-0.5,15.5);
+
+    type = "HE Data Format Error Word";
+    DCC_ErrWd_HE =  m_dbe->book1D(type,type,16,-0.5,15.5);
 
     type = "HF Data Format Error Word";
-    hfHists.DCC_ErrWd =  m_dbe->book1D(type,type,16,-0.5,15.5);
+    DCC_ErrWd_HF =  m_dbe->book1D(type,type,16,-0.5,15.5);
 
     type = "HO Data Format Error Word";
-    hoHists.DCC_ErrWd = m_dbe->book1D(type,type,16,-0.5,15.5);
+    DCC_ErrWd_HO = m_dbe->book1D(type,type,16,-0.5,15.5);
 
    }
 
@@ -191,19 +194,19 @@ void HcalDataFormatMonitor::unpack(const FEDRawData& raw, const
 	if (!did.null()) {
 	  switch (((HcalSubdetector)did.subdetId())) {
 	  case (HcalBarrel): {
-	    tmpErr = hbheHists.DCC_ErrWd;
+	    tmpErr = DCC_ErrWd_HB;
 	    valid = true;
 	  } break;
 	  case (HcalEndcap): {
-	    tmpErr = hbheHists.DCC_ErrWd;
+	    tmpErr = DCC_ErrWd_HE;
 	    valid = true;
 	  } break;
 	  case (HcalOuter): {
-	    tmpErr = hoHists.DCC_ErrWd;
+	    tmpErr = DCC_ErrWd_HO;
 	    valid = true;
 	  } break;
 	  case (HcalForward): {
-	    tmpErr = hfHists.DCC_ErrWd; 
+	    tmpErr = DCC_ErrWd_HF; 
 	    valid = true;
 	  } break;
 	  default: break;

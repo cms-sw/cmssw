@@ -1,11 +1,11 @@
 #include <DQM/HcalMonitorClient/interface/HcalLEDClient.h>
 
-HcalLEDClient::HcalLEDClient(const ParameterSet& ps, MonitorUserInterface* mui){
+HcalLEDClient::HcalLEDClient(const ParameterSet& ps, DaqMonitorBEInterface* dbe){
   
   dqmReportMapErr_.clear(); dqmReportMapWarn_.clear(); dqmReportMapOther_.clear();
   dqmQtests_.clear();
 
-  mui_ = mui;
+  dbe_ = dbe;
 
   for(int i=0; i<4; i++){    
     rms_shape_[i]=0;
@@ -32,7 +32,7 @@ HcalLEDClient::HcalLEDClient(const ParameterSet& ps, MonitorUserInterface* mui){
   // cloneME switch
   cloneME_ = ps.getUntrackedParameter<bool>("cloneME", true);
   // verbosity switch
-  verbose_ = ps.getUntrackedParameter<bool>("verbose", false);
+  debug_ = ps.getUntrackedParameter<bool>("debug", false);
 
   rms_thresh_ = ps.getUntrackedParameter<double>("LEDRMS_ErrThresh", 0.8);
   cout << "LED RMS error threshold set to " << rms_thresh_ << endl;
@@ -70,7 +70,7 @@ HcalLEDClient::HcalLEDClient(){
   dqmReportMapErr_.clear(); dqmReportMapWarn_.clear(); dqmReportMapOther_.clear();
   dqmQtests_.clear();
 
-  mui_ = 0;
+  dbe_ = 0;
  for(int i=0; i<4; i++){    
     rms_shape_[i]=0;
     mean_shape_[i]=0;
@@ -94,7 +94,7 @@ HcalLEDClient::HcalLEDClient(){
   }
 
   // verbosity switch
-  verbose_ = false;
+  debug_ = false;
   for(int i=0; i<4; i++) subDetsOn_[i] = false;
 
 }
@@ -105,7 +105,7 @@ HcalLEDClient::~HcalLEDClient(){
 
 void HcalLEDClient::beginJob(const EventSetup& eventSetup){
   
-  if ( verbose_ ) cout << "HcalLEDClient: beginJob" << endl;
+  if ( debug_ ) cout << "HcalLEDClient: beginJob" << endl;
   //  eventSetup.get<HcalDbRecord>().get(conditions_);
   
    // get the hcal mapping
@@ -115,35 +115,30 @@ void HcalLEDClient::beginJob(const EventSetup& eventSetup){
 
   ievt_ = 0;
   jevt_ = 0;
-  this->setup();
-  this->subscribe();
   this->resetAllME();
   return;
 }
 
 void HcalLEDClient::beginRun(void){
 
-  if ( verbose_ ) cout << "HcalLEDClient: beginRun" << endl;
+  if ( debug_ ) cout << "HcalLEDClient: beginRun" << endl;
 
   jevt_ = 0;
-  this->setup();
-  this->subscribe();
   this->resetAllME();
   return;
 }
 
 void HcalLEDClient::endJob(void) {
 
-  if ( verbose_ ) cout << "HcalLEDClient: endJob, ievt = " << ievt_ << endl;
+  if ( debug_ ) cout << "HcalLEDClient: endJob, ievt = " << ievt_ << endl;
 
-  //  this->unsubscribe();
   this->cleanup();
   return;
 }
 
 void HcalLEDClient::endRun(void) {
 
-  if ( verbose_ ) cout << "HcalLEDClient: endRun, jevt = " << jevt_ << endl;
+  if ( debug_ ) cout << "HcalLEDClient: endRun, jevt = " << jevt_ << endl;
 
   this->cleanup();
   return;
@@ -206,33 +201,15 @@ void HcalLEDClient::cleanup(void) {
   return;
 }
 
-void HcalLEDClient::subscribe(void){
-
-  if ( verbose_ ) cout << "HcalLEDClient: subscribe" << endl;
-  if(mui_) mui_->subscribe("*/HcalMonitor/LEDMonitor/*");
-  return;
-}
-
-void HcalLEDClient::subscribeNew(void){
-  if(mui_) mui_->subscribeNew("*/HcalMonitor/LEDMonitor/*");
-  return;
-}
-
-void HcalLEDClient::unsubscribe(void){
-
-  if ( verbose_ ) cout << "HcalLEDClient: unsubscribe" << endl;
-  if(mui_) mui_->unsubscribe("*/HcalMonitor/LEDMonitor/*");
-  return;
-}
 
 void HcalLEDClient::errorOutput(){
-  if(!mui_) return;
+  if(!dbe_) return;
   dqmReportMapErr_.clear(); dqmReportMapWarn_.clear(); dqmReportMapOther_.clear();
   
   for (map<string, string>::iterator testsMap=dqmQtests_.begin(); testsMap!=dqmQtests_.end();testsMap++){
     string testName = testsMap->first;
     string meName = testsMap->second;
-    MonitorElement* me = mui_->getBEInterface()->get(meName);
+    MonitorElement* me = dbe_->get(meName);
     if(me){
       if (me->hasError()){
 	vector<QReport*> report =  me->getQErrors();
@@ -272,25 +249,24 @@ void HcalLEDClient::getErrors(map<string, vector<QReport*> > outE, map<string, v
 }
 
 void HcalLEDClient::report(){
-   if(!mui_) return;
-  if ( verbose_ ) cout << "HcalLEDClient: report" << endl;
-  this->setup();
+   if(!dbe_) return;
+  if ( debug_ ) cout << "HcalLEDClient: report" << endl;
 
   char name[256];
   sprintf(name, "%sHcalMonitor/LEDMonitor/LED Task Event Number",process_.c_str());
-  MonitorElement* me = mui_->getBEInterface()->get(name);
+  MonitorElement* me = dbe_->get(name);
   if ( me ) {
     string s = me->valueString();
     ievt_ = -1;
     sscanf((s.substr(2,s.length()-2)).c_str(), "%d", &ievt_);
-    if ( verbose_ ) cout << "Found '" << name << "'" << endl;
+    if ( debug_ ) cout << "Found '" << name << "'" << endl;
   }
   getHistograms();
   return;
 }
 
 void HcalLEDClient::getHistograms(){
-  if(!mui_) return;
+  if(!dbe_) return;
   char name[256];
 
   //Get mean/rms maps by Geometry
@@ -303,24 +279,24 @@ void HcalLEDClient::getHistograms(){
 
   for(int i=0; i<4; i++){
     sprintf(name,"%sHcalMonitor/LEDMonitor/LED Mean Time Depth %d",process_.c_str(),i+1);
-    meDepTimeMean[i] = mui_->getBEInterface()->get(name);
+    meDepTimeMean[i] = dbe_->get(name);
     sprintf(name,"%sHcalMonitor/LEDMonitor/LED RMS Time Depth %d",process_.c_str(),i+1);
-    meDepTimeRMS[i] = mui_->getBEInterface()->get(name);
+    meDepTimeRMS[i] = dbe_->get(name);
     sprintf(name,"%sHcalMonitor/LEDMonitor/LED Mean Shape Depth %d",process_.c_str(),i+1);
-    meDepShapeMean[i] = mui_->getBEInterface()->get(name);
+    meDepShapeMean[i] = dbe_->get(name);
     sprintf(name,"%sHcalMonitor/LEDMonitor/LED RMS Shape Depth %d",process_.c_str(),i+1);
-    meDepShapeRMS[i] = mui_->getBEInterface()->get(name);
+    meDepShapeRMS[i] = dbe_->get(name);
     sprintf(name,"%sHcalMonitor/LEDMonitor/LED Mean Energy Depth %d",process_.c_str(),i+1);
-    meDepEnergyMean[i] = mui_->getBEInterface()->get(name);
+    meDepEnergyMean[i] = dbe_->get(name);
     sprintf(name,"%sHcalMonitor/LEDMonitor/LED RMS Energy Depth %d",process_.c_str(),i+1);
-    meDepEnergyRMS[i] = mui_->getBEInterface()->get(name);
+    meDepEnergyRMS[i] = dbe_->get(name);
 
-    if(meDepTimeMean[i]) mui_->getBEInterface()->softReset(meDepTimeMean[i]);
-    if(meDepTimeRMS[i]) mui_->getBEInterface()->softReset(meDepTimeRMS[i]);
-    if(meDepEnergyMean[i]) mui_->getBEInterface()->softReset(meDepEnergyMean[i]);
-    if(meDepEnergyRMS[i]) mui_->getBEInterface()->softReset(meDepEnergyRMS[i]);
-    if(meDepShapeMean[i]) mui_->getBEInterface()->softReset(meDepShapeMean[i]);
-    if(meDepShapeRMS[i]) mui_->getBEInterface()->softReset(meDepShapeRMS[i]);
+    if(meDepTimeMean[i]) dbe_->softReset(meDepTimeMean[i]);
+    if(meDepTimeRMS[i]) dbe_->softReset(meDepTimeRMS[i]);
+    if(meDepEnergyMean[i]) dbe_->softReset(meDepEnergyMean[i]);
+    if(meDepEnergyRMS[i]) dbe_->softReset(meDepEnergyRMS[i]);
+    if(meDepShapeMean[i]) dbe_->softReset(meDepShapeMean[i]);
+    if(meDepShapeRMS[i]) dbe_->softReset(meDepShapeRMS[i]);
   }
 
   //Get mean/rms maps by Electronics
@@ -333,48 +309,48 @@ void HcalLEDClient::getHistograms(){
   map<unsigned int,MonitorElement*> meMEANshapeElec;
 
   sprintf(name,"%sHcalMonitor/FEDs Unpacked",process_.c_str());
-  meFEDunpacked = mui_->getBEInterface()->get(name);
+  meFEDunpacked = dbe_->get(name);
   if(meFEDunpacked){
     for(int b=1; b<=meFEDunpacked->getNbinsX(); b++){
       if(meFEDunpacked->getBinContent(b)>0){
 	
-	int fedNum = b-1;
+	int fedNum = b-1+700;
 	sprintf(name,"%sHcalMonitor/LEDMonitor/DCC %d Mean Shape Map",process_.c_str(),fedNum);
-	MonitorElement* me1 = mui_->getBEInterface()->get(name);
+	MonitorElement* me1 = dbe_->get(name);
 	if(me1!=NULL){
-	  mui_->getBEInterface()->softReset(me1);
+	  dbe_->softReset(me1);
 	  meMEANshapeElec[fedNum] = me1;	
 	}
 	sprintf(name,"%sHcalMonitor/LEDMonitor/DCC %d RMS Shape Map",process_.c_str(),fedNum);
-	MonitorElement* me2 = mui_->getBEInterface()->get(name);
+	MonitorElement* me2 = dbe_->get(name);
 	if(me2!=NULL){
-	  mui_->getBEInterface()->softReset(me2);
+	  dbe_->softReset(me2);
 	  meRMSshapeElec[fedNum] = me2;
 	}
 	
 	sprintf(name,"%sHcalMonitor/LEDMonitor/DCC %d Mean Energy Map",process_.c_str(),fedNum);
-	MonitorElement* me3 = mui_->getBEInterface()->get(name);
+	MonitorElement* me3 = dbe_->get(name);
 	if(me3!=NULL){
-	  mui_->getBEInterface()->softReset(me3);
+	  dbe_->softReset(me3);
 	  meMEANenergyElec[fedNum] = me3;
 	}
 	sprintf(name,"%sHcalMonitor/LEDMonitor/DCC %d RMS Energy Map",process_.c_str(),fedNum);
-	MonitorElement* me4 = mui_->getBEInterface()->get(name);
+	MonitorElement* me4 = dbe_->get(name);
 	if(me4!=NULL){
-	  mui_->getBEInterface()->softReset(me4);
+	  dbe_->softReset(me4);
 	  meRMSenergyElec[fedNum] = me4;
 	}
 	
 	sprintf(name,"%sHcalMonitor/LEDMonitor/DCC %d Mean Time Map",process_.c_str(),fedNum);
-	MonitorElement* me5 = mui_->getBEInterface()->get(name);
+	MonitorElement* me5 = dbe_->get(name);
 	if(me5!=NULL){
-	  mui_->getBEInterface()->softReset(me5);
+	  dbe_->softReset(me5);
 	  meMEANtimeElec[fedNum] = me5;	  
 	}
 	sprintf(name,"%sHcalMonitor/LEDMonitor/DCC %d RMS Time Map",process_.c_str(),fedNum);
-	MonitorElement* me6 = mui_->getBEInterface()->get(name);
+	MonitorElement* me6 = dbe_->get(name);
 	if(me6!=NULL){
-	  mui_->getBEInterface()->softReset(me6);
+	  dbe_->softReset(me6);
 	  meRMStimeElec[fedNum] = me6;
 	}
       }
@@ -389,39 +365,39 @@ void HcalLEDClient::getHistograms(){
     else if(i==3) type = "HO";
 
     sprintf(name,"LEDMonitor/%s/%s Average Pulse Shape",type.c_str(),type.c_str());      
-    avg_shape_[i] = getHisto(name, process_,mui_,verbose_,cloneME_);
+    avg_shape_[i] = getHisto(name, process_,dbe_,debug_,cloneME_);
     sprintf(name,"LEDMonitor/%s/%s Average Pulse Time",type.c_str(),type.c_str());      
-    avg_time_[i] = getHisto(name, process_,mui_,verbose_,cloneME_);
+    avg_time_[i] = getHisto(name, process_,dbe_,debug_,cloneME_);
     sprintf(name,"LEDMonitor/%s/%s Average Pulse Energy",type.c_str(),type.c_str());      
-    avg_energy_[i] = getHisto(name, process_,mui_,verbose_,cloneME_);
+    avg_energy_[i] = getHisto(name, process_,dbe_,debug_,cloneME_);
     
     sprintf(name,"%sHcalMonitor/LEDMonitor/%s/%s LED Shape RMS Values",process_.c_str(),type.c_str(),type.c_str());
-    MonitorElement* meShapeRMS  = mui_->getBEInterface()->get(name);
+    MonitorElement* meShapeRMS  = dbe_->get(name);
     sprintf(name,"%sHcalMonitor/LEDMonitor/%s/%s LED Shape Mean Values",process_.c_str(),type.c_str(),type.c_str());
-    MonitorElement* meShapeMean  = mui_->getBEInterface()->get(name);
+    MonitorElement* meShapeMean  = dbe_->get(name);
     sprintf(name,"%sHcalMonitor/LEDMonitor/%s/%s LED Time RMS Values",process_.c_str(),type.c_str(),type.c_str());
-    MonitorElement* meTimeRMS  = mui_->getBEInterface()->get(name);
+    MonitorElement* meTimeRMS  = dbe_->get(name);
     sprintf(name,"%sHcalMonitor/LEDMonitor/%s/%s LED Time Mean Values",process_.c_str(),type.c_str(),type.c_str());
-    MonitorElement* meTimeMean  = mui_->getBEInterface()->get(name);
+    MonitorElement* meTimeMean  = dbe_->get(name);
 
     sprintf(name,"%sHcalMonitor/LEDMonitor/%s/%s LED Energy RMS Values",process_.c_str(),type.c_str(),type.c_str());
-    MonitorElement* meEnergyRMS  = mui_->getBEInterface()->get(name);
+    MonitorElement* meEnergyRMS  = dbe_->get(name);
     sprintf(name,"%sHcalMonitor/LEDMonitor/%s/%s LED Energy Mean Values",process_.c_str(),type.c_str(),type.c_str());
-    MonitorElement* meEnergyMean  = mui_->getBEInterface()->get(name);
+    MonitorElement* meEnergyMean  = dbe_->get(name);
 
     sprintf(name,"%sHcalMonitor/LEDMonitor/%s/%s LED Geo Error Map",process_.c_str(),type.c_str(),type.c_str());
-    MonitorElement* meGeoErr  = mui_->getBEInterface()->get(name);
+    MonitorElement* meGeoErr  = dbe_->get(name);
     sprintf(name,"%sHcalMonitor/LEDMonitor/%s/%s LED Elec Error Map",process_.c_str(),type.c_str(),type.c_str());
-    MonitorElement* meElecErr  = mui_->getBEInterface()->get(name);
+    MonitorElement* meElecErr  = dbe_->get(name);
 
 
     if(!meShapeRMS || !meShapeMean) continue;
     if(!meTimeRMS || !meTimeMean) continue;
     if(!meEnergyRMS || !meEnergyMean) continue;
-    mui_->getBEInterface()->softReset(meShapeRMS); mui_->getBEInterface()->softReset(meShapeMean);
-    mui_->getBEInterface()->softReset(meTimeRMS); mui_->getBEInterface()->softReset(meTimeMean);
-    mui_->getBEInterface()->softReset(meEnergyRMS); mui_->getBEInterface()->softReset(meEnergyMean);
-    mui_->getBEInterface()->softReset(meGeoErr); mui_->getBEInterface()->softReset(meElecErr);
+    dbe_->softReset(meShapeRMS); dbe_->softReset(meShapeMean);
+    dbe_->softReset(meTimeRMS); dbe_->softReset(meTimeMean);
+    dbe_->softReset(meEnergyRMS); dbe_->softReset(meEnergyMean);
+    dbe_->softReset(meGeoErr); dbe_->softReset(meElecErr);
     
     for(int ieta=-42; ieta<=42; ieta++){
       if(ieta==0) continue;
@@ -437,20 +413,19 @@ void HcalLEDClient::getHistograms(){
 	  
 	  sprintf(name,"%sHcalMonitor/LEDMonitor/%s/%s LED Shape ieta=%d iphi=%d depth=%d",
 		  process_.c_str(), type.c_str(),type.c_str(),ieta,iphi,depth);  
-	  MonitorElement* me = mui_->getBEInterface()->get(name);
+	  MonitorElement* me = dbe_->get(name);
 	  if(me){
 	    meShapeRMS->Fill(me->getRMS());
 	    meShapeMean->Fill(me->getMean());
 	    meDepShapeRMS[depth-1]->Fill(ieta,iphi,me->getRMS());
 	    meDepShapeMean[depth-1]->Fill(ieta,iphi,me->getMean());
 	    
-	    if(meRMSshapeElec.find(eid.dccid())!=meRMSshapeElec.end()){
-	      meRMSshapeElec[eid.dccid()]->Fill(eid.htrChanId(), eid.spigot(), me->getRMS());
-	      meMEANshapeElec[eid.dccid()]->Fill(eid.htrChanId(), eid.spigot(), me->getMean());
+	    if(meRMSshapeElec.find(eid.dccid()+700)!=meRMSshapeElec.end()){
+	      meRMSshapeElec[eid.dccid()+700]->Fill(eid.htrChanId(), eid.spigot(), me->getRMS());
+	      meMEANshapeElec[eid.dccid()+700]->Fill(eid.htrChanId(), eid.spigot(), me->getMean());
 	    }
-	    else{
-	      printf("HcalLEDClient:  we should had had a histo for DCC %d!!\n",eid.dccid());
-	    }
+	    else printf("HcalLEDClient:  we should have had a histo for DCC %d!!\n",eid.dccid()+700);
+	    
 
 	    if(me->getRMS()<rms_thresh_ || me->getMean()>mean_thresh_){
 	      meGeoErr->Fill(ieta,iphi);
@@ -463,26 +438,26 @@ void HcalLEDClient::getHistograms(){
 	  float timeRMSVal = -1; float enRMSVal = -1;
 	  sprintf(name,"%sHcalMonitor/LEDMonitor/%s/%s LED Time ieta=%d iphi=%d depth=%d",process_.c_str(),
 		  type.c_str(),type.c_str(),ieta,iphi,depth);  
-	  me = mui_->getBEInterface()->get(name);
+	  me = dbe_->get(name);
 	  if(me){
 	    timeMeanVal = me->getMean();
 	    timeRMSVal = me->getRMS();
 	    meTimeRMS->Fill(timeRMSVal);
-	    meTimeMean->Fill(timeMeanVal);
+	    meTimeMean->Fill(timeMeanVal);	
 	    meDepTimeRMS[depth-1]->Fill(ieta,iphi,timeRMSVal);
 	    meDepTimeMean[depth-1]->Fill(ieta,iphi,timeMeanVal);
-	    if(meRMStimeElec.find(eid.dccid())!=meRMStimeElec.end()){
-	      meRMStimeElec[eid.dccid()]->Fill(eid.htrChanId(), eid.spigot(), timeRMSVal);
-	      meMEANtimeElec[eid.dccid()]->Fill(eid.htrChanId(), eid.spigot(), timeMeanVal);
+	    if(meRMStimeElec.find(eid.dccid()+700)!=meRMStimeElec.end()){
+	      meRMStimeElec[eid.dccid()+700]->Fill(eid.htrChanId(), eid.spigot(), timeRMSVal);
+	      meMEANtimeElec[eid.dccid()+700]->Fill(eid.htrChanId(), eid.spigot(), timeMeanVal);
 	    }
 	    else{
-	      printf("HcalLEDClient:  we should had had a histo for DCC %d!!\n",eid.dccid());
+	      printf("HcalLEDClient:  we should had had a histo for DCC %d!!\n",eid.dccid()+700);
 	    }
 	  }
 
 	  sprintf(name,"%sHcalMonitor/LEDMonitor/%s/%s LED Energy ieta=%d iphi=%d depth=%d",process_.c_str(),
 		  type.c_str(),type.c_str(),ieta,iphi,depth);  
-	  me = mui_->getBEInterface()->get(name);
+	  me = dbe_->get(name);
 	  if(me){
 	    enMeanVal = me->getMean();
 	    enRMSVal = me->getRMS();
@@ -490,12 +465,12 @@ void HcalLEDClient::getHistograms(){
 	    meEnergyMean->Fill(enMeanVal);
 	    meDepEnergyRMS[depth-1]->Fill(ieta,iphi,enRMSVal);
 	    meDepEnergyMean[depth-1]->Fill(ieta,iphi,enMeanVal);
-	    if(meRMSenergyElec.find(eid.dccid())!=meRMSenergyElec.end()){
-	      meRMSenergyElec[eid.dccid()]->Fill(eid.htrChanId(), eid.spigot(), enRMSVal);
-	      meMEANenergyElec[eid.dccid()]->Fill(eid.htrChanId(), eid.spigot(), enMeanVal);
+	    if(meRMSenergyElec.find(eid.dccid()+700)!=meRMSenergyElec.end()){
+	      meRMSenergyElec[eid.dccid()+700]->Fill(eid.htrChanId(), eid.spigot(), enRMSVal);
+	      meMEANenergyElec[eid.dccid()+700]->Fill(eid.htrChanId(), eid.spigot(), enMeanVal);
 	    }	    
 	    else{
-	      printf("HcalLEDClient:  we should had had a histo for DCC %d!!\n",eid.dccid());
+	      printf("HcalLEDClient:  we should had had a histo for DCC %d!!\n",eid.dccid()+700);
 	    }
 
 	    if(depth==1 || depth==2)
@@ -506,39 +481,39 @@ void HcalLEDClient::getHistograms(){
       }
     }
     
-    rms_shape_[i]=getHisto(meShapeRMS,verbose_,cloneME_);
-    mean_shape_[i]=getHisto(meShapeMean,verbose_,cloneME_);
-    rms_time_[i]=getHisto(meTimeRMS,verbose_,cloneME_);
-    mean_time_[i]=getHisto(meTimeMean,verbose_,cloneME_);
-    rms_energy_[i]=getHisto(meEnergyRMS,verbose_,cloneME_);
-    mean_energy_[i]=getHisto(meEnergyMean,verbose_,cloneME_);
+    rms_shape_[i]=getHisto(meShapeRMS,debug_,cloneME_);
+    mean_shape_[i]=getHisto(meShapeMean,debug_,cloneME_);
+    rms_time_[i]=getHisto(meTimeRMS,debug_,cloneME_);
+    mean_time_[i]=getHisto(meTimeMean,debug_,cloneME_);
+    rms_energy_[i]=getHisto(meEnergyRMS,debug_,cloneME_);
+    mean_energy_[i]=getHisto(meEnergyMean,debug_,cloneME_);
 
     
-    err_map_geo_[i]=getHisto2(meGeoErr,verbose_,cloneME_);
-    err_map_elec_[i]=getHisto2(meElecErr,verbose_,cloneME_);
+    err_map_geo_[i]=getHisto2(meGeoErr,debug_,cloneME_);
+    err_map_elec_[i]=getHisto2(meElecErr,debug_,cloneME_);
   }
 
   for(int i=0; i<4; i++){
-    rms_shapeDep_[i]=getHisto2(meDepShapeRMS[i],verbose_,cloneME_);
-    mean_shapeDep_[i]=getHisto2(meDepShapeMean[i],verbose_,cloneME_);
-    rms_timeDep_[i]=getHisto2(meDepTimeRMS[i],verbose_,cloneME_);
-    mean_timeDep_[i]=getHisto2(meDepTimeMean[i],verbose_,cloneME_);
-    rms_energyDep_[i]=getHisto2(meDepEnergyRMS[i],verbose_,cloneME_);
-    mean_energyDep_[i]=getHisto2(meDepEnergyMean[i],verbose_,cloneME_);
+    rms_shapeDep_[i]=getHisto2(meDepShapeRMS[i],debug_,cloneME_);
+    mean_shapeDep_[i]=getHisto2(meDepShapeMean[i],debug_,cloneME_);
+    rms_timeDep_[i]=getHisto2(meDepTimeRMS[i],debug_,cloneME_);
+    mean_timeDep_[i]=getHisto2(meDepTimeMean[i],debug_,cloneME_);
+    rms_energyDep_[i]=getHisto2(meDepEnergyRMS[i],debug_,cloneME_);
+    mean_energyDep_[i]=getHisto2(meDepEnergyMean[i],debug_,cloneME_);
   }
 
   for(map<unsigned int, MonitorElement*>::iterator meIter = meRMStimeElec.begin();
       meIter !=meRMStimeElec.end();
       meIter ++){
 
-    rms_timeElec_[meIter->first] = getHisto2(meIter->second,verbose_,cloneME_);
-    mean_timeElec_[meIter->first] = getHisto2(meMEANtimeElec[meIter->first],verbose_,cloneME_);
+    rms_timeElec_[meIter->first] = getHisto2(meIter->second,debug_,cloneME_);
+    mean_timeElec_[meIter->first] = getHisto2(meMEANtimeElec[meIter->first],debug_,cloneME_);
  
-    rms_energyElec_[meIter->first] = getHisto2(meRMSenergyElec[meIter->first],verbose_,cloneME_);
-    mean_energyElec_[meIter->first] = getHisto2(meMEANenergyElec[meIter->first],verbose_,cloneME_);
+    rms_energyElec_[meIter->first] = getHisto2(meRMSenergyElec[meIter->first],debug_,cloneME_);
+    mean_energyElec_[meIter->first] = getHisto2(meMEANenergyElec[meIter->first],debug_,cloneME_);
 
-    rms_shapeElec_[meIter->first] = getHisto2(meRMSshapeElec[meIter->first],verbose_,cloneME_);
-    mean_shapeElec_[meIter->first] = getHisto2(meMEANshapeElec[meIter->first],verbose_,cloneME_);
+    rms_shapeElec_[meIter->first] = getHisto2(meRMSshapeElec[meIter->first],debug_,cloneME_);
+    mean_shapeElec_[meIter->first] = getHisto2(meMEANshapeElec[meIter->first],debug_,cloneME_);
   }
   
   return;
@@ -548,22 +523,22 @@ void HcalLEDClient::analyze(void){
   
   jevt_++;
   int updates = 0;
-  if(mui_) mui_->getNumUpdates();
+  //  if(dbe_) dbe_->getNumUpdates();
   if ( (updates % 10) == 0 ) {
-    if ( verbose_ ) cout << "HcalLEDClient: " << updates << " updates" << endl;
+    if ( debug_ ) cout << "HcalLEDClient: " << updates << " updates" << endl;
   }
   
   return;
 }
 
 void HcalLEDClient::createTests(){
-  if(!mui_) return;
+  if(!dbe_) return;
   
   char meTitle[250], name[250];    
   vector<string> params;
 
-  if(verbose_) printf("Creating LED tests...\n");
-  
+  if(debug_) printf("Creating LED tests...\n");
+
   for(int i=0; i<4; i++){
     if(!subDetsOn_[i]) continue;
     string type = "HB";
@@ -574,7 +549,7 @@ void HcalLEDClient::createTests(){
     sprintf(meTitle,"%sHcalMonitor/LEDMonitor/%s/%s LED Shape RMS Values",process_.c_str(),type.c_str(),type.c_str());
     sprintf(name,"%s LED Shape RMS Values: X-Range",type.c_str());
     if( dqmQtests_.find(name) == dqmQtests_.end() ){	
-      MonitorElement* me = mui_->getBEInterface()->get(meTitle);
+      MonitorElement* me = dbe_->get(meTitle);
       if(me){
 	dqmQtests_[name]=meTitle;	  
 	params.clear();
@@ -583,14 +558,14 @@ void HcalLEDClient::createTests(){
 	char low[20];
 	sprintf(low,"%.2f\n",rms_thresh_);
 	params.push_back(low); params.push_back("2");  //xmin, xmax
-	createXRangeTest(mui_, params);
+	createXRangeTest(dbe_, params);
       }
     }
     
     sprintf(meTitle,"%sHcalMonitor/LEDMonitor/%s/%s LED Shape Mean Values",process_.c_str(),type.c_str(),type.c_str());
     sprintf(name,"%s LED Shape RMS Values: X-Range",type.c_str());
     if( dqmQtests_.find(name) == dqmQtests_.end() ){	
-      MonitorElement* me = mui_->getBEInterface()->get(meTitle);
+      MonitorElement* me = dbe_->get(meTitle);
       if(me){
 	dqmQtests_[name]=meTitle;	  
 	params.clear();
@@ -599,7 +574,7 @@ void HcalLEDClient::createTests(){
 	char high[20];
 	sprintf(high,"%.2f\n",mean_thresh_);
 	params.push_back("0"); params.push_back(high);  //xmin, xmax
-	createXRangeTest(mui_, params);
+	createXRangeTest(dbe_, params);
       }
     }    
   }
@@ -608,22 +583,24 @@ void HcalLEDClient::createTests(){
 }
 
 void HcalLEDClient::resetAllME(){
-  if(!mui_) return;
+  if(!dbe_) return;
   Char_t name[150];    
   
+  printf("\n\n\n\n\n\nRESET ALL ME\n\n\n\n\n");
+
   for(int i=1; i<5; i++){
     sprintf(name,"%sHcalMonitor/LEDMonitor/LED Mean Time Depth %d",process_.c_str(),i);
-    resetME(name,mui_);
+    resetME(name,dbe_);
     sprintf(name,"%sHcalMonitor/LEDMonitor/LED RMS Time Depth %d",process_.c_str(),i);
-    resetME(name,mui_);
+    resetME(name,dbe_);
     sprintf(name,"%sHcalMonitor/LEDMonitor/LED Mean Shape Depth %d",process_.c_str(),i);
-    resetME(name,mui_);
+    resetME(name,dbe_);
     sprintf(name,"%sHcalMonitor/LEDMonitor/LED RMS Shape Depth %d",process_.c_str(),i);
-    resetME(name,mui_);
+    resetME(name,dbe_);
     sprintf(name,"%sHcalMonitor/LEDMonitor/LED Mean Energy Depth %d",process_.c_str(),i);
-    resetME(name,mui_);
+    resetME(name,dbe_);
     sprintf(name,"%sHcalMonitor/LEDMonitor/LED RMS Energy Depth %d",process_.c_str(),i);
-    resetME(name,mui_);
+    resetME(name,dbe_);
   }
 
 
@@ -635,29 +612,29 @@ void HcalLEDClient::resetAllME(){
     else if(i==3) type = "HO"; 
 
     sprintf(name,"%sHcalMonitor/LEDMonitor/%s/%s Ped Subtracted Pulse Shape",process_.c_str(),type.c_str(),type.c_str());
-    resetME(name,mui_);
+    resetME(name,dbe_);
     sprintf(name,"%sHcalMonitor/LEDMonitor/%s/%s Average Pulse Shape",process_.c_str(),type.c_str(),type.c_str());
-    resetME(name,mui_);
+    resetME(name,dbe_);
     sprintf(name,"%sHcalMonitor/LEDMonitor/%s/%s LED Shape RMS Values",process_.c_str(),type.c_str(),type.c_str());
-    resetME(name,mui_);
+    resetME(name,dbe_);
     sprintf(name,"%sHcalMonitor/LEDMonitor/%s/%s LED Shape Mean Values",process_.c_str(),type.c_str(),type.c_str());
-    resetME(name,mui_);
+    resetME(name,dbe_);
     sprintf(name,"%sHcalMonitor/LEDMonitor/%s/%s Average Pulse Time",process_.c_str(),type.c_str(),type.c_str());
-    resetME(name,mui_);
+    resetME(name,dbe_);
     sprintf(name,"%sHcalMonitor/LEDMonitor/%s/%s LED Time RMS Values",process_.c_str(),type.c_str(),type.c_str());
-    resetME(name,mui_);
+    resetME(name,dbe_);
     sprintf(name,"%sHcalMonitor/LEDMonitor/%s/%s LED Time Mean Values",process_.c_str(),type.c_str(),type.c_str());
-    resetME(name,mui_);
+    resetME(name,dbe_);
     sprintf(name,"%sHcalMonitor/LEDMonitor/%s/%s Average Pulse Energy",process_.c_str(),type.c_str(),type.c_str());
-    resetME(name,mui_);
+    resetME(name,dbe_);
     sprintf(name,"%sHcalMonitor/LEDMonitor/%s/%s LED Energy RMS Values",process_.c_str(),type.c_str(),type.c_str());
-    resetME(name,mui_);
+    resetME(name,dbe_);
     sprintf(name,"%sHcalMonitor/LEDMonitor/%s/%s LED Energy Mean Values",process_.c_str(),type.c_str(),type.c_str());
-    resetME(name,mui_);
+    resetME(name,dbe_);
     sprintf(name,"%sHcalMonitor/LEDMonitor/%s/%s LED Geo Error Map",process_.c_str(),type.c_str(),type.c_str());
-    resetME(name,mui_);
+    resetME(name,dbe_);
     sprintf(name,"%sHcalMonitor/LEDMonitor/%s/%s LED Elec Error Map",process_.c_str(),type.c_str(),type.c_str());
-    resetME(name,mui_);
+    resetME(name,dbe_);
     
     for(int ieta=-42; ieta<42; ieta++){
       if(ieta==0) continue;
@@ -666,13 +643,13 @@ void HcalLEDClient::resetAllME(){
 	  if(!isValidGeom(i, ieta, iphi,depth)) continue;
 	  sprintf(name,"%sHcalMonitor/LEDMonitor/%s/%s LED Shape ieta=%d iphi=%d depth=%d",
 		  process_.c_str(), type.c_str(),type.c_str(),ieta,iphi,depth);  
-	  resetME(name,mui_);
+	  resetME(name,dbe_);
 	  sprintf(name,"%sHcalMonitor/LEDMonitor/%s/%s LED Time ieta=%d iphi=%d depth=%d",
 		  process_.c_str(),type.c_str(),type.c_str(),ieta,iphi,depth);  
-	  resetME(name,mui_);
+	  resetME(name,dbe_);
 	  sprintf(name,"%sHcalMonitor/LEDMonitor/%s/%s LED Energy ieta=%d iphi=%d depth=%d",
 		  process_.c_str(),type.c_str(),type.c_str(),ieta,iphi,depth);  
-	  resetME(name,mui_);
+	  resetME(name,dbe_);
 	}
       }
     }
@@ -684,7 +661,7 @@ void HcalLEDClient::htmlOutput(int runNo, string htmlDir, string htmlName){
   
   cout << "Preparing HcalLEDClient html output ..." << endl;
   string client = "LEDMonitor";
-  htmlErrors(runNo,htmlDir,client,process_,mui_,dqmReportMapErr_,dqmReportMapWarn_,dqmReportMapOther_);
+  htmlErrors(runNo,htmlDir,client,process_,dbe_,dqmReportMapErr_,dqmReportMapWarn_,dqmReportMapOther_);
 
   ofstream htmlFile;
   htmlFile.open((htmlDir + htmlName).c_str());

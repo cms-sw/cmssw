@@ -8,8 +8,8 @@
 
 /** \class Hcaldataformatmonitor
  *
- * $Date: 2007/08/08 18:46:04 $
- * $Revision: 1.15 $
+ * $Date: 2007/10/04 21:03:13 $
+ * $Revision: 1.16 $
  * \author W. Fisher - FNAL
  */
 class HcalDataFormatMonitor: public HcalBaseMonitor {
@@ -75,11 +75,11 @@ class HcalDataFormatMonitor: public HcalBaseMonitor {
      MonitorElement* meCrate16HTRErr_;   //Map of HTR errors into Crate 16
      MonitorElement* meCrate17HTRErr_;   //Map of HTR errors into Crate 17
 
-   struct{
-     MonitorElement* DCC_ErrWd;  //16 bit HTR error word, Ext. Header 3
- 
-   } hbheHists,hfHists,hoHists;
-   
+     MonitorElement* DCC_ErrWd_HB;
+     MonitorElement* DCC_ErrWd_HE;
+     MonitorElement* DCC_ErrWd_HF;
+     MonitorElement* DCC_ErrWd_HO;
+
 };
 
 #endif

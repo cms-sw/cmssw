@@ -44,16 +44,11 @@ class HcalPedestalClient{
 public:
   
   /// Constructor
-  HcalPedestalClient(const ParameterSet& ps, MonitorUserInterface* mui);
+  HcalPedestalClient(const ParameterSet& ps, DaqMonitorBEInterface* dbe_);
   HcalPedestalClient();
   
   /// Destructor
   virtual ~HcalPedestalClient();
-  
-  /// Subscribe/Unsubscribe to Monitoring Elements
-  void subscribe(void);
-  void subscribeNew(void);
-  void unsubscribe(void);
   
   /// Analyze
   void analyze(void);
@@ -115,7 +110,8 @@ private:
   bool plotPedRAW_;
   string process_;
   
-  MonitorUserInterface* mui_;
+  //  MonitorUserInterface* mui_;
+  DaqMonitorBEInterface* dbe_;
   const HcalElectronicsMap* readoutMap_;
 
   int nCrates_;

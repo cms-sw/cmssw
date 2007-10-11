@@ -4,8 +4,8 @@
 /*
  * \file HcalMonitorModule.h
  *
- * $Date: 2007/10/02 22:16:03 $
- * $Revision: 1.16 $
+ * $Date: 2007/10/04 21:03:12 $
+ * $Revision: 1.17 $
  * \author W. Fisher
  *
 */
@@ -23,7 +23,7 @@
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "DataFormats/Provenance/interface/EventID.h"  
 #include "DataFormats/HcalDigi/interface/HcalUnpackerReport.h"
-
+#include "DQMServices/Components/interface/DQMAnalyzer.h"
 
 #include "DQM/HcalMonitorModule/interface/HcalMonitorSelector.h"
 #include "DQM/HcalMonitorTasks/interface/HcalDigiMonitor.h"
@@ -44,76 +44,76 @@
 #include <vector>
 #include <string>
 
-using namespace cms;
 using namespace std;
 
-class HcalMonitorModule: public edm::EDAnalyzer{
+class HcalMonitorModule: public DQMAnalyzer{
 
 public:
+  
+  // Constructor
+  HcalMonitorModule(const edm::ParameterSet& ps);
 
-/// Constructor
-HcalMonitorModule(const edm::ParameterSet& ps);
+  // Destructor
+  ~HcalMonitorModule();
+  
+ protected:
+  
+  // Analyze
+  void analyze(const edm::Event& e, const edm::EventSetup& c);
+  
+  // BeginJob
+  void beginJob(const edm::EventSetup& c);
+  
+  // BeginRun
+  void beginRun(const edm::Run& run, const edm::EventSetup& c);
 
-/// Destructor
-~HcalMonitorModule();
+  // Begin LumiBlock
+  void beginLuminosityBlock(const edm::LuminosityBlock& lumiSeg, 
+                            const edm::EventSetup& c) ;
 
-protected:
+  // End LumiBlock
+  void endLuminosityBlock(const edm::LuminosityBlock& lumiSeg, 
+                          const edm::EventSetup& c);
 
-/// Analyze
-void analyze(const edm::Event& e, const edm::EventSetup& c);
+  // EndJob
+  void endJob(void);
+  
+  // EndRun
+  void endRun(const edm::Run& run, const edm::EventSetup& c);
 
-// BeginJob
-void beginJob(const edm::EventSetup& c);
+  // Reset
+  void reset(void);
+  
+ private:
 
-// EndJob
-void endJob(void);
-
-// Reset
- void reset(void);
-
-private:
-
-  int m_ievt;
-  int m_runNum;
-  int m_lastRun;
-  bool m_verbose;
-  bool m_fedsListed;
-  DaqMonitorBEInterface* m_dbe;
+  int ievt_;
+  bool fedsListed_;
   
   edm::InputTag inputLabelDigi_;
   edm::InputTag inputLabelRecHitHBHE_;
   edm::InputTag inputLabelRecHitHF_;
   edm::InputTag inputLabelRecHitHO_;
 
-  MonitorElement* m_meFEDS;
-  MonitorElement* m_meStatus;
-  MonitorElement* m_meRunNum;
-  MonitorElement* m_meRunType;
-  MonitorElement* m_meEvtNum;
-  MonitorElement* m_meEvtMask;
-  MonitorElement* m_meTrigger;
-  MonitorElement* m_meBeamE;
+  MonitorElement* meFEDS_;
+  MonitorElement* meStatus_;
+  MonitorElement* meRunType_;
+  MonitorElement* meEvtMask_;
+  MonitorElement* meTrigger_;
   
-  HcalMonitorSelector*    m_evtSel;
-  HcalDigiMonitor*        m_digiMon;
-  HcalDataFormatMonitor*  m_dfMon;
-  HcalRecHitMonitor*      m_rhMon;
-  HcalTrigPrimMonitor*      m_tpMon;
-  HcalPedestalMonitor*    m_pedMon;
-  HcalLEDMonitor*         m_ledMon;
-  HcalMTCCMonitor*        m_mtccMon;
-  HcalHotCellMonitor*     m_hotMon;
-  HcalCommissioningMonitor*     m_commisMon;
-  HcalTemplateAnalysis*   m_tempAnalysis;
+  HcalMonitorSelector*    evtSel_;
+  HcalDigiMonitor*        digiMon_;
+  HcalDataFormatMonitor*  dfMon_;
+  HcalRecHitMonitor*      rhMon_;
+  HcalTrigPrimMonitor*    tpMon_;
+  HcalPedestalMonitor*    pedMon_;
+  HcalLEDMonitor*         ledMon_;
+  HcalMTCCMonitor*        mtccMon_;
+  HcalHotCellMonitor*     hotMon_;
+  HcalCommissioningMonitor* commisMon_;
+  HcalTemplateAnalysis*   tempAnalysis_;
   
-  edm::ESHandle<HcalDbService> m_conditions;
-  const HcalElectronicsMap* m_readoutMap;
-
-  bool m_monitorDaemon;
-  bool offline_;
-
-  string m_outputFile;
-  ofstream m_logFile;
+  edm::ESHandle<HcalDbService> conditions_;
+  const HcalElectronicsMap*    readoutMap_;
 
 };
 

@@ -30,16 +30,11 @@ class HcalHotCellClient{
 public:
 
 /// Constructor
-HcalHotCellClient(const ParameterSet& ps, MonitorUserInterface* mui);
+HcalHotCellClient(const ParameterSet& ps, DaqMonitorBEInterface* dbe_);
 HcalHotCellClient();
 
 /// Destructor
 virtual ~HcalHotCellClient();
-
-/// Subscribe/Unsubscribe to Monitoring Elements
-void subscribe(void);
-void subscribeNew(void);
-void unsubscribe(void);
 
 /// Analyze
 void analyze(void);
@@ -90,7 +85,9 @@ private:
   bool verbose_;
   string process_;
 
-  MonitorUserInterface* mui_;
+  //  MonitorUserInterface* mui_;
+  DaqMonitorBEInterface* dbe_;
+
   bool subDetsOn_[4];
 
   TH2F* gl_geo_[4];

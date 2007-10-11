@@ -30,16 +30,11 @@ class HcalDigiClient{
 public:
 
 /// Constructor
-HcalDigiClient(const ParameterSet& ps, MonitorUserInterface* mui);
+HcalDigiClient(const ParameterSet& ps, DaqMonitorBEInterface* dbe_);
 HcalDigiClient();
 
 /// Destructor
 virtual ~HcalDigiClient();
-
-/// Subscribe/Unsubscribe to Monitoring Elements
-void subscribe(void);
-void subscribeNew(void);
-void unsubscribe(void);
 
 /// Analyze
 void analyze(void);
@@ -87,10 +82,12 @@ private:
   
   bool collateSources_;
   bool cloneME_;
-  bool verbose_;
+  bool debug_;
   string process_;
 
-  MonitorUserInterface* mui_;
+  //  MonitorUserInterface* mui_;
+  DaqMonitorBEInterface* dbe_;
+
   bool subDetsOn_[4];
 
   TH2F* gl_occ_geo_[4];

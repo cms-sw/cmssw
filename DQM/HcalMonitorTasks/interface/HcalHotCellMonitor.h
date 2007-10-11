@@ -46,8 +46,8 @@ public:
 private:  ///Monitoring elements
 
   template<class CellCollection> 
-    void FindHotCell(const CellCollection& c, HistList& h, int hb=0)
-  {
+    void FindHotCell(const CellCollection& c, HistList& h, int hb=0){
+
     /* This function finds hot cells from a collection of reco'd cells 'c'.
        It fills them into the appropriate histogram in HistList 'h'.
        If hb = 1, cells are required to come from the HB barrel detector.
@@ -56,35 +56,31 @@ private:  ///Monitoring elements
        is assumed to take place when the original collection 'c' is made).
     */
 
-    if(c.size()>0)
-      {
-	// reset subdetector counters
-	enS=0; 
-	tS=0; 
-	etaS=0; phiS=0;
-	idS=-1;
+    if(c.size()>0){
+      // reset subdetector counters
+      enS=0; tS=0; 
+      etaS=0; phiS=0;
+      idS=-1;
 	
-	// Define CellCollection iterator type
-	typedef typename CellCollection::const_iterator cell_iter;
-	cell_iter _cell;
-
-	// loop over all hits
-	for (_cell=c.begin(); _cell!=c.end(); _cell++) 
-	  { 
+      // Define CellCollection iterator type
+      typedef typename CellCollection::const_iterator cell_iter;
+      cell_iter _cell;
+      
+      // loop over all hits
+      for (_cell=c.begin(); _cell!=c.end(); _cell++){ 
 	
-	    // hb==1:  loop over barrels only
-	    if (hb==1 && (HcalSubdetector)(_cell->id().subdet())!=HcalBarrel) continue;
-	    // hb==2:  loop over endcap only
-	    else if (hb==2 && (HcalSubdetector)(_cell->id().subdet())!=HcalEndcap) continue;
-
-	    // check whether cell is above lower threshold
-	    if(_cell->energy()>occThresh0_)
-	      {
-		if(vetoCell(_cell->id())) continue; // skip vetoed cells
-		h.meEN_MAP_GEO_Thr0->Fill(_cell->id().ieta(),_cell->id().iphi(),_cell->energy());
-		h.meOCC_MAP_GEO_Thr0->Fill(_cell->id().ieta(),_cell->id().iphi());
-		// check whether cell is above upper threshold
-		if(_cell->energy()>occThresh1_)
+	// hb==1:  loop over barrels only
+	if (hb==1 && (HcalSubdetector)(_cell->id().subdet())!=HcalBarrel) continue;
+	// hb==2:  loop over endcap only
+	else if (hb==2 && (HcalSubdetector)(_cell->id().subdet())!=HcalEndcap) continue;
+	
+	// check whether cell is above lower threshold
+	if(_cell->energy()>occThresh0_){
+	  if(vetoCell(_cell->id())) continue; // skip vetoed cells
+	  if(h.meEN_MAP_GEO_Thr0!=NULL) h.meEN_MAP_GEO_Thr0->Fill(_cell->id().ieta(),_cell->id().iphi(),_cell->energy());
+	  if(h.meOCC_MAP_GEO_Thr0!=NULL) h.meOCC_MAP_GEO_Thr0->Fill(_cell->id().ieta(),_cell->id().iphi());
+	  // check whether cell is above upper threshold
+	  if(_cell->energy()>occThresh1_)
 		  {
 		    h.meEN_MAP_GEO_Thr1->Fill(_cell->id().ieta(),_cell->id().iphi(),_cell->energy());
 		    h.meOCC_MAP_GEO_Thr1->Fill(_cell->id().ieta(),_cell->id().iphi());

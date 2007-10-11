@@ -42,16 +42,11 @@ class HcalLEDClient{
 public:
   
   /// Constructor
-  HcalLEDClient(const ParameterSet& ps, MonitorUserInterface* mui);
+  HcalLEDClient(const ParameterSet& ps, DaqMonitorBEInterface* dbe_);
   HcalLEDClient();
   
   /// Destructor
   virtual ~HcalLEDClient();
-  
-  /// Subscribe/Unsubscribe to Monitoring Elements
-  void subscribe(void);
-  void subscribeNew(void);
-  void unsubscribe(void);
   
   /// Analyze
   void analyze(void);
@@ -100,12 +95,13 @@ private:
 
   bool collateSources_;
   bool cloneME_;
-  bool verbose_;
+  bool debug_;
   string process_;
   string m_outputFileName;
   ofstream m_outTextFile;
 
-  MonitorUserInterface* mui_;
+  //  MonitorUserInterface* mui_;
+  DaqMonitorBEInterface* dbe_;
   const HcalElectronicsMap* readoutMap_;
   edm::ESHandle<HcalDbService> conditions_;
 
