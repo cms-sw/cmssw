@@ -1,5 +1,5 @@
 //
-// $Id: TtDilepEvtSolutionMaker.cc,v 1.7 2007/10/03 10:00:05 lowette Exp $
+// $Id: TtDilepEvtSolutionMaker.cc,v 1.8 2007/10/03 22:18:00 lowette Exp $
 //
 
 #include "TopQuarkAnalysis/TopEventProducers/interface/TtDilepEvtSolutionMaker.h"
@@ -19,6 +19,7 @@ TtDilepEvtSolutionMaker::TtDilepEvtSolutionMaker(const edm::ParameterSet & iConf
   // configurables
   electronSource_ = iConfig.getParameter<edm::InputTag>("electronSource");
   muonSource_     = iConfig.getParameter<edm::InputTag>("muonSource");
+  tauSource_      = iConfig.getParameter<edm::InputTag>("tauSource");
   metSource_      = iConfig.getParameter<edm::InputTag>("metSource");
   jetSource_      = iConfig.getParameter<edm::InputTag>("jetSource");
   nrCombJets_     = iConfig.getParameter<unsigned int> ("nrCombJets");
@@ -27,6 +28,8 @@ TtDilepEvtSolutionMaker::TtDilepEvtSolutionMaker(const edm::ParameterSet & iConf
   eeChannel_      = iConfig.getParameter<bool>         ("eeChannel"); 
   emuChannel_     = iConfig.getParameter<bool>         ("emuChannel");
   mumuChannel_    = iConfig.getParameter<bool>         ("mumuChannel");
+  mutauChannel_   = iConfig.getParameter<bool>         ("mutauChannel");
+  etauChannel_    = iConfig.getParameter<bool>         ("etauChannel");
   tmassbegin_     = iConfig.getParameter<double>       ("tmassbegin");
   tmassend_       = iConfig.getParameter<double>       ("tmassend");
   tmassstep_      = iConfig.getParameter<double>       ("tmassstep");
@@ -45,6 +48,8 @@ TtDilepEvtSolutionMaker::~TtDilepEvtSolutionMaker() {
 void TtDilepEvtSolutionMaker::produce(edm::Event & iEvent, const edm::EventSetup & iSetup) {
 
   using namespace edm;
+  Handle<std::vector<TopTau> > taus;
+  iEvent.getByLabel(tauSource_, taus);
   Handle<std::vector<TopMuon> > muons;
   iEvent.getByLabel(muonSource_, muons);
   Handle<std::vector<TopElectron> > electrons;
@@ -57,11 +62,14 @@ void TtDilepEvtSolutionMaker::produce(edm::Event & iEvent, const edm::EventSetup
   // select lepton (the TtLepton vectors are, for the moment, sorted on pT)
   int selMuonp = -1, selMuonm = -1;
   int selElectronp = -1, selElectronm = -1;
+  int selTaup = -1, selTaum = -1;
   bool leptonFound = false;
 
   bool mumu = false;
   bool emu = false;
   bool ee = false;
+  bool etau = false;
+  bool mutau = false;
 
   if (muons->size() + electrons->size() >=2) {
     if (electrons->size() == 0) mumu = true;
@@ -81,15 +89,25 @@ void TtDilepEvtSolutionMaker::produce(edm::Event & iEvent, const edm::EventSetup
       else mumu = true;
     }
  }
+ else if(muons->size() + electrons->size()==1 && taus->size()>0) {
+   // this is the minimal modification of the dilept selection that includes taus.
+   // we are considering taus only when no other solution with electrons or muons exist.
+   if(muons->size()==1) mutau = true;
+   else etau = true;
+ }
  
- if ((ee && emu) || (ee && mumu) || (emu && mumu))
+ if(int(ee)+int(emu)+int(mumu)+int(etau)+int(mutau)>1) 
    std::cout << "[TtDilepEvtSolutionMaker]: "
-        << "Lepton selection criteria uncorrectly defined" << std::endl;
+             << "Lepton selection criteria uncorrectly defined" << std::endl;
  
  bool leptonFoundEE = false;
  bool leptonFoundMM = false;
  bool leptonFoundEpMm = false;
  bool leptonFoundEmMp = false;
+ bool leptonFoundEpTm = false;
+ bool leptonFoundEmTp = false;
+ bool leptonFoundMpTm = false;
+ bool leptonFoundMmTp = false;
  if (ee) {
    if (LepDiffCharge(&(*electrons)[0], &(*electrons)[1])) {
      leptonFound = true;
@@ -136,6 +154,38 @@ void TtDilepEvtSolutionMaker::produce(edm::Event & iEvent, const edm::EventSetup
    }
  }
   
+ else if (mutau) {
+   if (LepDiffCharge(&(*taus)[0], &(*muons)[0])) {
+     leptonFound = true;
+     if (HasPositiveCharge(&(*muons)[0])) {
+       leptonFoundMpTm = true;
+       selTaum = 0;
+       selMuonp = 0;
+     }
+     else {
+       leptonFoundMmTp = true;
+       selTaup = 0;
+       selMuonm = 0;
+     }
+   }
+ }
+
+ else if (etau) {
+   if (LepDiffCharge(&(*taus)[0], &(*electrons)[0])) {
+     leptonFound = true;
+     if (HasPositiveCharge(&(*electrons)[0])) {
+       leptonFoundEpTm = true;
+       selTaum = 0;
+       selElectronp = 0;
+     }
+     else {
+       leptonFoundEmTp = true;
+       selTaup = 0;
+       selElectronm = 0;
+     }
+   }
+ }
+
   //select MET (TopMET vector is sorted on ET)
   bool METFound = false;
   if(mets -> size()>=1) { METFound = true; }
@@ -146,7 +196,9 @@ void TtDilepEvtSolutionMaker::produce(edm::Event & iEvent, const edm::EventSetup
   
   bool correctLepton = (leptonFoundEE && eeChannel_) ||
                        ((leptonFoundEmMp || leptonFoundEpMm) && emuChannel_) ||
-                       (leptonFoundMM && mumuChannel_);
+                       (leptonFoundMM && mumuChannel_) ||
+		       ((leptonFoundMmTp || leptonFoundMpTm) && mutauChannel_)||
+		       ((leptonFoundEmTp || leptonFoundEpTm) && etauChannel_);
                        
   std::vector<TtDilepEvtSolution> * evtsols = new std::vector<TtDilepEvtSolution>();
   if(correctLepton && METFound && jetsFound){
@@ -160,25 +212,35 @@ void TtDilepEvtSolutionMaker::produce(edm::Event & iEvent, const edm::EventSetup
       TtDilepEvtSolution asol;
       
       double xconstraint = 0, yconstraint = 0;
-      if (leptonFoundEE || leptonFoundEpMm) {
+      if (leptonFoundEE || leptonFoundEpMm || leptonFoundEpTm) {
         asol.setElectronp(electrons, selElectronp);
         xconstraint += (*electrons)[selElectronp].px();
         yconstraint += (*electrons)[selElectronp].py();
       }
-      if (leptonFoundEE || leptonFoundEmMp) {
+      if (leptonFoundEE || leptonFoundEmMp || leptonFoundEmTp) {
         asol.setElectronm(electrons, selElectronm);
         xconstraint += (*electrons)[selElectronm].px();
         yconstraint += (*electrons)[selElectronm].py();
       }
-      if (leptonFoundMM || leptonFoundEmMp) {
+      if (leptonFoundMM || leptonFoundEmMp || leptonFoundMpTm) {
         asol.setMuonp(muons, selMuonp);
         xconstraint += (*muons)[selMuonp].px();
         yconstraint += (*muons)[selMuonp].py();
       }
-      if (leptonFoundMM || leptonFoundEpMm) {
+      if (leptonFoundMM || leptonFoundEpMm || leptonFoundMmTp) {
         asol.setMuonm(muons, selMuonm);
         xconstraint += (*muons)[selMuonm].px();
         yconstraint += (*muons)[selMuonm].py();
+      }
+      if (leptonFoundEpTm || leptonFoundMpTm) {
+        asol.setTaum(taus, selTaum);
+        xconstraint += (*taus)[selTaum].px();
+        yconstraint += (*taus)[selTaum].py();
+      }
+      if (leptonFoundEmTp || leptonFoundMmTp) {
+        asol.setTaup(taus, selTaup);
+        xconstraint += (*taus)[selTaup].px();
+        yconstraint += (*taus)[selTaup].py();
       }
       
       if (ib == 0) {asol.setB(jets, 0); asol.setBbar(jets, 1);}
@@ -230,35 +292,5 @@ void TtDilepEvtSolutionMaker::produce(edm::Event & iEvent, const edm::EventSetup
     iEvent.put(pOut);
   }
 
-}
-
-bool TtDilepEvtSolutionMaker::PTComp(const TopElectron * e, const TopMuon * m) const {
-  if (e->pt() > m->pt()) return true;
-  else return false;
-}
-
-bool TtDilepEvtSolutionMaker::LepDiffCharge(const TopElectron * e, const TopMuon * m) const {
-  if (e->charge() != m->charge()) return true;
-  else return false;
-}
-
-bool TtDilepEvtSolutionMaker::LepDiffCharge(const TopElectron * e1, const TopElectron * e2) const {
-  if (e1->charge() != e2->charge()) return true;
-  else return false;
-}
-
-bool TtDilepEvtSolutionMaker::LepDiffCharge(const TopMuon * m1, const TopMuon * m2) const {
-  if (m1->charge() != m2->charge()) return true;
-  else return false;
-}
-
-bool TtDilepEvtSolutionMaker::HasPositiveCharge(const TopMuon * m) const {
-  if (m->charge() > 0) return true;
-  else return false;
-}
-
-bool TtDilepEvtSolutionMaker::HasPositiveCharge(const TopElectron * e) const {
-  if (e->charge() > 0) return true;
-  else return false;
 }
 

@@ -6,9 +6,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/InputTag.h"
 
-#include "AnalysisDataFormats/TopObjects/interface/TopElectron.h"
-#include "AnalysisDataFormats/TopObjects/interface/TopMuon.h"
-
+#include <DataFormats/Candidate/interface/Candidate.h>
 
 class TtDilepEvtSolutionMaker : public edm::EDProducer {
 
@@ -22,22 +20,33 @@ class TtDilepEvtSolutionMaker : public edm::EDProducer {
   private:  
 
     // next methods are avoidable but they make the code legible
-    bool PTComp(const TopElectron * e, const TopMuon * m) const;
-    bool LepDiffCharge(const TopElectron * e, const TopMuon * m) const;
-    bool LepDiffCharge(const TopElectron * e1, const TopElectron * e2) const;
-    bool LepDiffCharge(const TopMuon * m1, const TopMuon * m2) const;
-    bool HasPositiveCharge(const TopMuon * m) const;
-    bool HasPositiveCharge(const TopElectron * e) const;
+    inline bool PTComp(const reco::Candidate*, const reco::Candidate*) const;
+    inline bool LepDiffCharge(const reco::Candidate* , const reco::Candidate*) const;
+    inline bool HasPositiveCharge(const reco::Candidate*) const;
 
   private:
 
     edm::InputTag electronSource_;
     edm::InputTag muonSource_;
+    edm::InputTag tauSource_;
     edm::InputTag metSource_;
     edm::InputTag jetSource_;
     unsigned int nrCombJets_;
     bool matchToGenEvt_, calcTopMass_;
-    bool eeChannel_, emuChannel_, mumuChannel_;
+    bool eeChannel_, emuChannel_, mumuChannel_, etauChannel_, mutauChannel_;
     double tmassbegin_, tmassend_, tmassstep_;
 
 };
+
+inline bool TtDilepEvtSolutionMaker::PTComp(const reco::Candidate* l1, const reco::Candidate* l2) const {
+  return (l1->pt() > l2->pt());
+}
+
+inline bool TtDilepEvtSolutionMaker::LepDiffCharge(const reco::Candidate* l1, const reco::Candidate* l2) const {
+  return (l1->charge() != l2->charge());
+}
+
+inline bool TtDilepEvtSolutionMaker::HasPositiveCharge(const reco::Candidate* l) const {
+  return (l->charge() > 0);
+}
+
