@@ -1,8 +1,8 @@
 /*
  * \file DQMClientExample.cc
  * 
- * $Date: 2007/08/31 09:39:07 $
- * $Revision: 1.4 $
+ * $Date: 2007/09/23 15:22:59 $
+ * $Revision: 1.1 $
  * \author M. Zanetti - CERN
  *
  */
@@ -43,14 +43,14 @@ void DQMClientExample::beginJob(const EventSetup& context){
 
   // then do your thing
   edm::LogVerbatim ("DQMClientExample") <<"[DQMClientExample]: BeginJob";
-  dbe->setCurrentFolder(PSrootFolder+"C1/Tests");
-  clientHisto = dbe->book1D("clientHisto", "Guassian fit results.", 2, 0, 1);
+  dbe_->setCurrentFolder(rootFolder_+"C1/Tests");
+  clientHisto = dbe_->book1D("clientHisto", "Guassian fit results.", 2, 0, 1);
 }
 
 //--------------------------------------------------------
-void DQMClientExample::beginRun(const EventSetup& context) {
+void DQMClientExample::beginRun(const Run& r, const EventSetup& context) {
   // call DQMAnalyzer in the beginning 
-  DQMAnalyzer::beginRun(context);
+  DQMAnalyzer::beginRun(r,context);
 
   // then do your thing
   edm::LogVerbatim ("DQMClientExample") <<"[DQMClientExample]: Begin of Run";
@@ -78,16 +78,16 @@ void DQMClientExample::endLuminosityBlock(const LuminosityBlock& lumiSeg,
                                           const EventSetup& context) {
   // do your thing here
   edm::LogVerbatim ("DQMClientExample") <<"[DQMClientExample]: End of LS transition, performing the DQM client operation";
-  if ( getNumLumiSecs()%PSprescale != 0 ) return;
+  if ( getNumLumiSecs()%prescaleLS_ != 0 ) return;
   edm::LogVerbatim ("DQMClientExample") <<"[DQMClientExample]: "<<getNumLumiSecs()<<" updates";
 
-  string folderRoot = PSrootFolder ;
+  string folderRoot = rootFolder_;
   string histoName = folderRoot + "C1/C2/histo4";
 
   float mean =0;
   float rms = 0;
 
-  MonitorElement * meHisto = dbe->get(histoName);
+  MonitorElement * meHisto = dbe_->get(histoName);
 
   if (meHisto) {
     
@@ -111,7 +111,7 @@ void DQMClientExample::endLuminosityBlock(const LuminosityBlock& lumiSeg,
   clientHisto->setBinContent(2,rms);
 
 
-  string criterionName = parameters.getUntrackedParameter<string>("QTestName","exampleQTest"); 
+  string criterionName = parameters_.getUntrackedParameter<string>("QTestName","exampleQTest"); 
   const QReport * theQReport = clientHisto->getQReport(criterionName);
   if(theQReport) {
     vector<dqm::me_util::Channel> badChannels = theQReport->getBadChannels();
@@ -138,7 +138,7 @@ void DQMClientExample::endRun(const Run& r, const EventSetup& context){
 void DQMClientExample::endJob(){
   // do your thing here
   edm::LogVerbatim ("DQMClientExample") <<"[DQMClientExample] endjob called!";
-  dbe->rmdir(PSrootFolder+"C1/Tests");
+  dbe_->rmdir(rootFolder_+"C1/Tests");
 
   // call DQMAnalyzer in the end
   DQMAnalyzer::endJob();

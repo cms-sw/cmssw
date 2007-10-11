@@ -29,83 +29,83 @@ DQMSourceExample::DQMSourceExample( const edm::ParameterSet& ps )
 {
 
 /// use this to read in reference histograms from file
-//  dbe->readReferenceME("ref_test.root");
-//  dbe->open("ref_test.root",false,"","prep");
+//  dbe_->readReferenceME("ref_test.root");
+//  dbe_->open("ref_test.root",false,"","prep");
 
 // use this to collate histograms from files
-//  dbe->open("test1.root",true,"","Collate");
-//  dbe->open("test2.root",true,"","Collate");
+//  dbe_->open("test1.root",true,"","Collate");
+//  dbe_->open("test2.root",true,"","Collate");
 
 /// use this to retrieve CMSSW version of file
-//  cout << dbe->getFileReleaseVersion("ref_test.root") << endl;
+//  cout << dbe_->getFileReleaseVersion("ref_test.root") << endl;
 
 
 /// book some histograms here
   const int NBINS = 50; XMIN = 0; XMAX = 50;
 
   // create and cd into new folder
-  dbe->setCurrentFolder(PSrootFolder+"C1");
-  h1 = dbe->book1D("histo", "Example 1D histogram.", NBINS, XMIN, XMAX);
-  h2 = dbe->book2D("histo2", "Example 2 2D histogram.", NBINS, XMIN, XMAX, 
+  dbe_->setCurrentFolder(rootFolder_+"C1");
+  h1 = dbe_->book1D("histo", "Example 1D histogram.", NBINS, XMIN, XMAX);
+  h2 = dbe_->book2D("histo2", "Example 2 2D histogram.", NBINS, XMIN, XMAX, 
 		   NBINS, XMIN, XMAX);
-  p1 = dbe->bookProfile("prof1","my profile",NBINS,XMIN,XMAX,NBINS,XMIN,XMAX,"");
+  p1 = dbe_->bookProfile("prof1","my profile",NBINS,XMIN,XMAX,NBINS,XMIN,XMAX,"");
   // create and cd into new folder
-  dbe->setCurrentFolder(PSrootFolder+"C1/C2");
-  h3 = dbe->book1D("histo3", "Example 3 1D histogram.", NBINS, XMIN, XMAX);
-  h4 = dbe->book1D("histo4", "Example 4 1D histogram.", NBINS, XMIN, XMAX);
-  h5 = dbe->book1D("histo5", "Example 5 1D histogram.", NBINS, XMIN, XMAX);
-  h6 = dbe->book1D("histo6", "Example 6 1D histogram.", NBINS, XMIN, XMAX);
+  dbe_->setCurrentFolder(rootFolder_+"C1/C2");
+  h3 = dbe_->book1D("histo3", "Example 3 1D histogram.", NBINS, XMIN, XMAX);
+  h4 = dbe_->book1D("histo4", "Example 4 1D histogram.", NBINS, XMIN, XMAX);
+  h5 = dbe_->book1D("histo5", "Example 5 1D histogram.", NBINS, XMIN, XMAX);
+  h6 = dbe_->book1D("histo6", "Example 6 1D histogram.", NBINS, XMIN, XMAX);
   // create and cd into new folder
-  dbe->setCurrentFolder(PSrootFolder+"C1/C3");
+  dbe_->setCurrentFolder(rootFolder_+"C1/C3");
   const int NBINS2 = 10;
-  h7 = dbe->book1D("histo7", "Example 7 1D histogram.", NBINS2, XMIN, XMAX);
+  h7 = dbe_->book1D("histo7", "Example 7 1D histogram.", NBINS2, XMIN, XMAX);
   char temp[1024];
   for(int i = 1; i <= NBINS2; ++i)
     {
       sprintf(temp, " bin no. %d", i);
       h7->setBinLabel(i, temp);
     }
-  i1 = dbe->bookInt("int1");
-  f1 = dbe->bookFloat("float1");
-  s1 = dbe->bookString("s1", "my string");
+  i1 = dbe_->bookInt("int1");
+  f1 = dbe_->bookFloat("float1");
+  s1 = dbe_->bookString("s1", "my string");
 
   h2->setAxisTitle("Customized x-axis", 1);
   h2->setAxisTitle("Customized y-axis", 2);
 
   // assign tag to MEs h1, h2 and h7
   const unsigned int detector_id = 17;
-  dbe->tag(h1, detector_id);
-  dbe->tag(h2, detector_id);
-  dbe->tag(h7, detector_id);
+  dbe_->tag(h1, detector_id);
+  dbe_->tag(h2, detector_id);
+  dbe_->tag(h7, detector_id);
   // tag full directory
-  dbe->tagContents(PSrootFolder+"C1/C3", detector_id);
+  dbe_->tagContents(rootFolder_+"C1/C3", detector_id);
 
   // assign tag to MEs h4 and h6
   const unsigned int detector_id2 = 25;
   const unsigned int detector_id3 = 50;
-  dbe->tag(h4, detector_id2);
-  dbe->tag(h6, detector_id3);
+  dbe_->tag(h4, detector_id2);
+  dbe_->tag(h6, detector_id3);
 
   // contents of h5 & h6 will be reset at end of monitoring cycle
   h5->setResetMe(true);
   h6->setResetMe(true);
-  dbe->showDirStructure();
+  dbe_->showDirStructure();
   
   
 /// test referenceME methods
-//  cout << (dbe->makeReferenceME(h1)?1:0) << endl;
-//  MonitorElement* rh1 = dbe->getReferenceME(h1);
+//  cout << (dbe_->makeReferenceME(h1)?1:0) << endl;
+//  MonitorElement* rh1 = dbe_->getReferenceME(h1);
 //  cout << rh1->getPathname() << endl;
-//  dbe->deleteME(rh1);
+//  dbe_->deleteME(rh1);
 //  cout << h1->getPathname() << endl;
-//  cout << (dbe->isReferenceME(h2)?1:0) << endl;
-//  cout << (dbe->makeReferenceME(h2)?1:0) << endl;
-//  MonitorElement* rh2 = dbe->getReferenceME(h2);
-//  cout << (dbe->isReferenceME(rh2)?1:0) << endl;
-//  cout << (dbe->isReferenceME(h2)?1:0) << endl;
-//  dbe->deleteME(h2);
-//  dbe->deleteME(f1);
-//  dbe->showDirStructure();
+//  cout << (dbe_->isReferenceME(h2)?1:0) << endl;
+//  cout << (dbe_->makeReferenceME(h2)?1:0) << endl;
+//  MonitorElement* rh2 = dbe_->getReferenceME(h2);
+//  cout << (dbe_->isReferenceME(rh2)?1:0) << endl;
+//  cout << (dbe_->isReferenceME(h2)?1:0) << endl;
+//  dbe_->deleteME(h2);
+//  dbe_->deleteME(f1);
+//  dbe_->showDirStructure();
 }
 
 
@@ -127,9 +127,9 @@ void DQMSourceExample::beginJob(const EventSetup& context){
 }
 
 //--------------------------------------------------------
-void DQMSourceExample::beginRun(const EventSetup& context) {
+void DQMSourceExample::beginRun(const edm::Run& r, const EventSetup& context) {
   // call DQMAnalyzer in the beginning 
-  DQMAnalyzer::beginRun(context);
+  DQMAnalyzer::beginRun(r, context);
   // then do your thing
 
 }

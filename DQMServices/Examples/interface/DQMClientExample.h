@@ -5,8 +5,8 @@
  * *
  *  DQM Test Client
  *
- *  $Date: 2007/08/29 13:49:00 $
- *  $Revision: 1.2 $
+ *  $Date: 2007/09/23 15:22:57 $
+ *  $Revision: 1.1 $
  *  \author  M. Zanetti CERN
  *   
  */
@@ -38,7 +38,7 @@ protected:
   void beginJob(const edm::EventSetup& c);
 
   /// BeginRun
-  void beginRun(const edm::EventSetup& c);
+  void beginRun(const edm::Run& r, const edm::EventSetup& c);
 
   /// Fake Analyze
   void analyze(const edm::Event& e, const edm::EventSetup& c) ;

@@ -1,8 +1,8 @@
 /*
  * \file DQMAnalyzer.cc
  * 
- * $Date: 2007/04/03 09:51:57 $
- * $Revision: 1.3 $
+ * $Date: 2007/09/23 15:22:54 $
+ * $Revision: 1.1 $
  * \author M. Zanetti - CERN PH
  *
  */
@@ -23,83 +23,115 @@
 #include <sstream>
 #include <math.h>
 
-using namespace edm;
 using namespace std;
 
-DQMAnalyzer::DQMAnalyzer(const edm::ParameterSet& ps):
-irun_(0),ilumisec_(0),ievent_(0),itime_(0),
-nevt_(0),nlumisecs_(0),
-saved_(false),
-debug_(false)
-//,actonLS_(false)
+//--------------------------------------------------------
+DQMAnalyzer::DQMAnalyzer():
+irun_(0), ilumisec_(0), ievent_(0), itime_(0),
+actonLS_(false),debug_(false),
+nevt_(0), nlumisecs_(0),
+saved_(false)
+{}
+
+//--------------------------------------------------------
+DQMAnalyzer::DQMAnalyzer(const ParameterSet& ps):
+irun_(0), ilumisec_(0), ievent_(0), itime_(0),
+actonLS_(false),debug_(false),
+nevt_(0), nlumisecs_(0),
+saved_(false)
 {
-  
-  parameters = ps;
+  parameters_ = ps;
+  initialize();
+}
 
-  cout<<"DQMAnalyzer::constructor"<<endl;
-  
-  // get backendinterface
-  dbe = edm::Service<DaqMonitorBEInterface>().operator->();
-    cout << " DaqMonitorBEInterface " << endl;
 
-  // some other environment parms (FIXME: put into SetParameters() function)
-  if ( parameters.getUntrackedParameter<bool>("enableMonitorDaemon", true) ) {
+void DQMAnalyzer::initialize(){  
+
+  debug_ = parameters_.getUntrackedParameter<bool>("debug", false);
+  if(debug_) cout << "DQMAnalyzer: constructor...." << endl;
+  
+  // get back-end interface
+  dbe_ = Service<DaqMonitorBEInterface>().operator->();
+  if(debug_) cout << "===>DQM DaqMonitorBEInterface " << endl;
+  
+  // some other environment parms
+  if ( parameters_.getUntrackedParameter<bool>("enableMonitorDaemon", true) ) {
     Service<MonitorDaemon> daemon;
     daemon.operator->();
-    cout << " MonitorDaemon enabled " << endl;
+    if(debug_) cout << "===>DQM MonitorDaemon enabled " << endl;
   } 
-  else {
-    cout<<"DQMAnalyzer: Warning, MonitorDaemon service not enabled"<<endl;
-  }
+  else if(debug_) cout<<"DQMAnalyzer: Warning, MonitorDaemon service not enabled"<<endl;
+  
+  if ( debug_ ) dbe_->setVerbose(1);
+  else dbe_->setVerbose(0);
 
   // set parameters   
-  PSprescale = parameters.getUntrackedParameter<int>("diagnosticPrescale", 1);
-    cout << " PSprescale = " << PSprescale << endl;
+  prescaleEvt_ = parameters_.getUntrackedParameter<int>("diagnosticPrescaleEvt", -1);
+  cout << "===>DQM event prescale = " << prescaleEvt_ << " event(s)"<< endl;
 
+  prescaleLS_ = parameters_.getUntrackedParameter<int>("diagnosticPrescaleLS", -1);
+  cout << "===>DQM lumi section prescale = " << prescaleLS_ << " lumi section(s)"<< endl;
+  if (prescaleLS_>0) actonLS_=true;
 
-// FIXME make client act upon event counter or LS or collector update ...
-//  PSprescaleLS = parameters.getUntrackedParameter<int>("PrescaleLS", -1);
-//    cout << " PSprescaleLS  = " << PSprescaleLS << endl;
-//  if (PSprescaleLS>0) { 
-//    actonLS_=true;
-//    cout << " Note: This module acts on every " << PSprescaleLS << 
-//            " endLuminosityBlocks " << endl;
-//  }
+  prescaleUpdate_ = parameters_.getUntrackedParameter<int>("diagnosticPrescaleUpdate", -1);
+  cout << "===>DQM update prescale = " << prescaleUpdate_ << " update(s)"<< endl;
+
+  prescaleTime_ = parameters_.getUntrackedParameter<int>("diagnosticPrescaleTime", -1);
+  cout << "===>DQM time prescale = " << prescaleTime_ << " minute(s)"<< endl;
+  
+  
+  // Base folder for the contents of this job
+  monitorName_ = parameters_.getUntrackedParameter<string>("monitorName","");
+  cout << "===>DQM monitor name = " << monitorName_ << endl;
     
-  PSrootFolder = parameters.getUntrackedParameter<string>("folderRoot", "");
-
-  if (PSrootFolder.size() != 0) {
-    if( PSrootFolder.substr(PSrootFolder.size()-1, 1) != "/" ) 
-    PSrootFolder = PSrootFolder + "/";
-    cout << " PSrootFolder  = " << PSrootFolder << endl;
+  rootFolder_ = "DQMAnalyzer";
+  if (monitorName_.size() != 0){
+    rootFolder_ = monitorName_ + "Monitor/";
+    cout << "===>DQM rootFolder  = " << rootFolder_ << endl;
   }
+  
+  gettimeofday(&psTime_.startTV,NULL);
+  /// get time in milliseconds, convert to minutes
+  psTime_.startTime = (psTime_.startTV.tv_sec*1000.0+psTime_.startTV.tv_usec/1000.0)/(60.0*1000.0);
+  psTime_.elapsedTime=0;
+  psTime_.updateTime=0;
 
 }
 
+//--------------------------------------------------------
 DQMAnalyzer::~DQMAnalyzer(){
 
   if (debug_) cout<<"DQMAnalyzer::destructor"<<endl;
 
 }
 
-void DQMAnalyzer::beginJob(const edm::EventSetup& c){
+//--------------------------------------------------------
+void DQMAnalyzer::beginJob(const EventSetup& c){
   
+  if (debug_) cout<<"DQMAnalyzer::begin job"<<endl;
+
   nevt_=0;
   nlumisecs_=0;
   
   // book framework ME
-  dbe->setVerbose(1);
-  dbe->setCurrentFolder(parameters.getUntrackedParameter<string>("eventInfoFolder", "EventInfo/")) ;
-  runId_ = dbe->bookInt("iRun");
-  lumisecId_ = dbe->bookInt("iLumiSection");
-  eventId_ = dbe->bookInt("iEvent");
-  timeStamp_ = dbe->bookFloat("timeStamp");
+  dbe_->setVerbose(1);
+  dbe_->setCurrentFolder(parameters_.getUntrackedParameter<string>("eventInfoFolder", "EventInfo/")) ;
+  runId_ = dbe_->bookInt("iRun");
+  lumisecId_ = dbe_->bookInt("iLumiSection");
+  eventId_ = dbe_->bookInt("iEvent");
+  timeStamp_ = dbe_->bookFloat("timeStamp");
 
 }
 
-void DQMAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& c){
+//--------------------------------------------------------
+void DQMAnalyzer::analyze(const Event& e, const EventSetup& c){
  
   if (debug_ || nevt_==1) cout<<"DQMAnalyzer::analyze"<<endl;
+  
+  //get elapsed time in minutes...
+  gettimeofday(&psTime_.updateTV,NULL);
+  float currTime =(psTime_.updateTV.tv_sec*1000.0+psTime_.updateTV.tv_usec/1000.0) / (60.0*1000);
+  psTime_.elapsedTime = currTime - psTime_.startTime;
 
   // set counters and flags
   saved_ = false;
@@ -119,58 +151,96 @@ void DQMAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& c){
   if (eventId_)   eventId_->Fill(ievent_);
   if (timeStamp_) timeStamp_->Fill(itime_); 
 
+
+  if (debug_) prescale();
+  
 }
 
-void DQMAnalyzer::beginRun(const edm::EventSetup& c){
-   cout <<"DQMAnalyzer::beginRun"<<endl;
-   cout <<"FIXME reset histos here"<<endl;
+//--------------------------------------------------------
+void DQMAnalyzer::beginRun(const Run& r, const EventSetup& c){
+  cout <<"DQMAnalyzer::begin run "<< r.id().run() << endl;
+  cout <<"FIXME reset histos here"<<endl;
 }
-void DQMAnalyzer::beginLuminosityBlock(const edm::LuminosityBlock& lumiSeg, const edm::EventSetup& c){
+
+//--------------------------------------------------------
+void DQMAnalyzer::beginLuminosityBlock(const LuminosityBlock& lumiSeg, const EventSetup& c){
    if (debug_ || nlumisecs_==0) cout <<"DQMAnalyzer::beginLuminosityBlock"<<endl;
    nlumisecs_++;
+
+   if(actonLS_ && !prescale()){
+     // do scheduled tasks...
+   }
    cout <<"nlumisecs_: "<<nlumisecs_<<endl;
 }
-void DQMAnalyzer::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg, const edm::EventSetup& c){
+
+//--------------------------------------------------------
+void DQMAnalyzer::endLuminosityBlock(const LuminosityBlock& lumiSeg, const EventSetup& c){
    if (debug_ || nlumisecs_==1) cout <<"DQMAnalyzer::endLuminosityBlock"<<endl;
+
+   if(actonLS_ && !prescale()){
+     // do scheduled tasks...
+     save(); 
+   }   
 }
-void DQMAnalyzer::endRun(const edm::Run& run, const edm::EventSetup& c){
-   cout <<"DQMAnalyzer::endRun"<<endl;
-   save();
+
+//--------------------------------------------------------
+void DQMAnalyzer::endRun(const Run& r, const EventSetup& c){
+  cout <<"DQMAnalyzer::end run "<< r.id().run() << endl;
+   save("endRun");
 }
+
+//--------------------------------------------------------
 void DQMAnalyzer::endJob() { 
-   cout <<"DQMAnalyzer::endJob"<<endl;
+   if (debug_) cout <<"DQMAnalyzer::endJob"<<endl;
    save();
 }
 
+//--------------------------------------------------------
+void DQMAnalyzer::reset() { 
+  if (debug_) cout <<"DQMAnalyzer::reset"<<endl;
+}
+
+//--------------------------------------------------------
+bool DQMAnalyzer::prescale(){
+  ///Return true if this event should be skipped according to the prescale condition...
+  if (debug_) cout <<"DQMAnalyzer::prescale"<<endl;
+  
+  if(prescaleEvt_>0 && (ievent_%prescaleEvt_)!=0) return true;
+  if(prescaleLS_>0 && (ilumisec_%prescaleLS_)!=0) return true;
+  if(prescaleTime_>0){
+    float time = psTime_.elapsedTime - psTime_.updateTime;
+    if(time<prescaleTime_) return true;
+    else psTime_.updateTime = psTime_.elapsedTime;
+  }
+  //  if(prescaleUpdate_>0 && (nupdates_%prescaleUpdate_)!=0) return true; ///need to define what "updates" means
+
+  return false;
+}
+
+//--------------------------------------------------------
 void DQMAnalyzer::save(std::string flag){
-
+  
   if (debug_) cout <<"DQMAnalyzer::save"<<endl;
-  if (saved_) return; // save only once per event
-  std::string name = parameters.getUntrackedParameter<string>("outputFile","") ;
-  
-  // default name
-  if (name=="") return;
-  
-  if (debug_) cout <<"DQMAnalyzer::save: saving"<<endl;
 
-
-  // temporarily strip off prefix DQM and extensions .root
-  if( name.size() != 0) {
-    for( unsigned int i = 0; i < name.size(); i++ ) {
-      if( name.substr(i, 5) == ".root" ) name.replace(i, 5, "");
-      if( name.substr(i, 4) == "DQM_" ) name.replace(i, 4, "");
-      if( name.substr(i, 3) == "DQM" ) name.replace(i, 3, "");
-    }
+  bool disable = parameters_.getUntrackedParameter<bool>("disableROOToutput", false);
+  if(disable){
+    cout <<"DQMAnalyzer:  ROOT output disabled"<<endl;
+    return;
   }
 
+  if (saved_) return; // save only once per event
+  if (debug_) cout <<"DQMAnalyzer::save: saving"<<endl;
+  
+  std::string name = "DQM_"+monitorName_;
+ 
   // add runnumber  
   char run[10];
   if(irun_>0) sprintf(run,"%09d", irun_);
   else sprintf(run,"%09d", 0);
 
   if (flag=="endRun") {
-    string saver = "DQM_"+name+"_"+run+".root";
-    dbe->save(saver);
+    string outFile = name+"_"+run+".root";
+    dbe_->save(outFile);
     saved_=true; // save only once per event
     return;
   }
@@ -180,9 +250,9 @@ void DQMAnalyzer::save(std::string flag){
   if(ilumisec_>0) sprintf(lumisec,"%06d", ilumisec_);
   else sprintf(lumisec,"%06d", 0);
   
-  string saver = "DQM_"+name+"_"+run+"_"+lumisec+".root";
-  dbe->save(saver);
+  string outFile = name+"_"+run+"_"+lumisec+".root";
+  dbe_->save(outFile);
   saved_=true; // save only once per event
-
+  return;
 }
 
