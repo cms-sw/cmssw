@@ -253,6 +253,7 @@ void MuIsoValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 	//Fill historgams concerning muon isolation 
 	for (MuonIterator muon = muonsHandle->begin(); muon != muonsHandle->end(); ++muon ) {
 		++nMuons;
+		if (muon->combinedMuon().isNull()) continue;
 	
 		MuIsoDepRef& ctfDep  = ( *ctfIsoHandle)[muon->combinedMuon()];
 		MuIsoDepRef& ecalDep = (*ecalIsoHandle)[muon->combinedMuon()];
