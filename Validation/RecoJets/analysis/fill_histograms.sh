@@ -12,14 +12,15 @@ for input in $*
 done
 echo input_file: $input_file
 
-for flavor in midPointCone5CaloJets midPointCone7CaloJets iterativeCone5CaloJets iterativeCone7CaloJets Fastjet10CaloJets Fastjet6CaloJets 
+for flavor in midPointCone5  iterativeCone5 fastjet6 midPointCone7 iterativeCone7
   do
-    echo Processing flavor $flavor ...
+    calojets_name=$flavor'CaloJets'
+    genjets_name=$flavor'GenJetsNoNuBSM'
+    echo Processing flavor $flavor 
     cfg_file=$flavor.cfg
-    output_file=$flavor.root
     log_file=$flavor.log
     rm -f $cfg_file $log_file
-    cat template.cfg | sed s^INPUT_FILES^"$input_file"^g | sed s^OUTPUT_FILE^$output_file^g | sed s^SOURCE^$flavor^g > $cfg_file
+    cat template.cfg | sed s^INPUT_FILES^"$input_file"^g |  sed s^CALO_JETS^"$calojets_name"^g | sed s^GEN_JETS^"$genjets_name"^g > $cfg_file
       
     eval `scramv1 ru -sh`
     cmsRun $cfg_file > $log_file 2>&1 
