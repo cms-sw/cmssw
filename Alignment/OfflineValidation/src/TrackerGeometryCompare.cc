@@ -190,8 +190,8 @@ void TrackerGeometryCompare::createROOTGeometry(const edm::EventSetup& iSetup){
 	//read the ROOT file
 	//uint32_t inputRawId;
 	int inputRawId1, inputRawId2;
-	float inputX1, inputY1, inputZ1, inputX2, inputY2, inputZ2;
-	float inputAlpha1, inputBeta1, inputGamma1, inputAlpha2, inputBeta2, inputGamma2;
+	double inputX1, inputY1, inputZ1, inputX2, inputY2, inputZ2;
+	double inputAlpha1, inputBeta1, inputGamma1, inputAlpha2, inputBeta2, inputGamma2;
 	_inputTree1->SetBranchAddress("rawid", &inputRawId1);
 	_inputTree1->SetBranchAddress("x", &inputX1);
 	_inputTree1->SetBranchAddress("y", &inputY1);
