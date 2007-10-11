@@ -3,7 +3,6 @@
 
 #include <iosfwd>
 #include <string>
-#include <vector>
 
 #include "DataFormats/Provenance/interface/ParameterSetID.h"
 #include "DataFormats/Provenance/interface/PassID.h"
@@ -32,10 +31,6 @@ namespace edm {
     ParameterSetID parameterSetID_;
     ReleaseVersion releaseVersion_; 
     PassID passID_;
-
-    typedef std::vector<std::string> ModulesOnPath_t;
-    std::map<std::string, ModulesOnPath_t> module_names_by_path_;
-    //std::map<std::string, ?> 
   };
 
   inline
