@@ -68,6 +68,8 @@ private:
 	void surveyToTracker(AlignableTracker* ali, Alignments* alignVals, AlignmentErrors* alignErrors);
 	//need for conversion for surveyToTracker
 	void addSurveyInfo(Alignable* ali);
+	void createDBGeometry(const edm::EventSetup& iSetup);
+	void createROOTGeometry(const edm::EventSetup& iSetup);
 	
 	AlignableTracker* referenceTracker;
 	AlignableTracker* dummyTracker;
@@ -79,11 +81,20 @@ private:
 	
 
 	std::string _inputType;
+	std::string _inputFileType;
+	std::string _inputFilename1;
+	std::string _inputFilename2;
+	std::string _inputTreename;
 	
 	//root configuration
 	std::string _filename;
 	TFile* _theFile;
 	TTree* _alignTree;
+	TFile* _inputRootFile1;
+	TFile* _inputRootFile2;
+	TTree* _inputTree1;
+	TTree* _inputTree2;
+	
 	int _id, _level, _mid, _mlevel, _sublevel;
 	float _xVal, _yVal, _zVal, _rVal, _phiVal, _alphaVal, _betaVal, _gammaVal;
 	float _dxVal, _dyVal, _dzVal, _drVal, _dphiVal, _dalphaVal, _dbetaVal, _dgammaVal;
