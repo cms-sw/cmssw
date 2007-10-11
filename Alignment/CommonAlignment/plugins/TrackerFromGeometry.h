@@ -13,8 +13,8 @@
  *
  *  Set applyAlignment to true to apply alignments from DB. Default is false.
  *
- *  $Date: 2007/04/25 18:37:59 $
- *  $Revision: 1.8 $
+ *  $Date: 2007/10/08 16:21:12 $
+ *  $Revision: 1.1 $
  *  \author Chung Khim Lae
  */
 
@@ -30,15 +30,11 @@ class TrackerFromGeometry:
 		      const edm::ParameterSet&
 		      );
 
-  /// Read from DB and print survey info.
-  virtual void beginJob(
-			const edm::EventSetup&
-			);
-
+  /// Create the tracker geometry.
   virtual void analyze(
 		       const edm::Event&,
 		       const edm::EventSetup&
-		       ) {}
+		       );
 
   private:
 

@@ -27,12 +27,12 @@
  *
  *  This module just allows user to specify the names for the list of basic
  *  components in each sub-detector so that these lists can be used in other
- *  modules. For eg, in AlignableCompositeBuilder.
+ *  modules. For eg, in AlignableBuilder.
  *
  *  Names must be unique.
  *
- *  $Date: 2007/04/25 18:37:59 $
- *  $Revision: 1.8 $
+ *  $Date: 2007/10/08 16:21:12 $
+ *  $Revision: 1.1 $
  *  \author Chung Khim Lae
  */
 
@@ -48,20 +48,16 @@ class AlignablesFromGeometry:
 
   public:
 
-  /// Set file name
+  /// Init cfg parameters.
   AlignablesFromGeometry(
 			 const edm::ParameterSet&
 			 );
 
-  /// Read from DB and print survey info.
-  virtual void beginJob(
-			const edm::EventSetup&
-			);
-
+  /// Build the Alignables.
   virtual void analyze(
 		       const edm::Event&,
 		       const edm::EventSetup&
-		       ) {}
+		       );
 
   private:
 

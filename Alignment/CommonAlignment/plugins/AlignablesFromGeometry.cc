@@ -16,7 +16,8 @@ AlignablesFromGeometry::AlignablesFromGeometry(const edm::ParameterSet& cfg):
 {
 }
 
-void AlignablesFromGeometry::beginJob(const edm::EventSetup&)
+void AlignablesFromGeometry::analyze(const edm::Event&,
+				     const edm::EventSetup&)
 {
   if ( !theTrackerCfg.empty() )
   {

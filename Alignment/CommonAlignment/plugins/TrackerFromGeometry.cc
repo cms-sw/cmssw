@@ -18,7 +18,8 @@ TrackerFromGeometry::TrackerFromGeometry(const edm::ParameterSet& cfg):
 {
 }
 
-void TrackerFromGeometry::beginJob(const edm::EventSetup& setup)
+void TrackerFromGeometry::analyze(const edm::Event&,
+				  const edm::EventSetup& setup)
 {
   edm::ESHandle<GeometricDet> geom;
 
