@@ -3,9 +3,9 @@
  *
  *  \author    : Gero Flucke
  *  date       : November 2006
- *  $Revision: 1.3 $
- *  $Date: 2006/12/03 17:53:57 $
- *  (last update by $Author: fronga $)
+ *  $Revision: 1.4 $
+ *  $Date: 2007/03/16 17:03:01 $
+ *  (last update by $Author: flucke $)
  */
 
 // this class's header
@@ -13,7 +13,6 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "Alignment/TrackerAlignment/interface/TrackerAlignableId.h"
 #include "Alignment/CommonAlignment/interface/Alignable.h"
 #include "Alignment/CommonAlignment/interface/AlignmentParameters.h"
 #include "Alignment/MillePedeAlignmentAlgorithm/interface/MillePedeVariables.h"
@@ -107,10 +106,8 @@ int MillePedeVariablesIORoot::writeOne(Alignable* ali)
   myHitsY = mpVar->hitsY();
   myLabel = mpVar->label();
 
-  const TrackerAlignableId ID;
-  const TrackerAlignableId::UniqueId detType = ID.alignableUniqueId(ali); 
-  myId = detType.first;
-  myObjId = detType.second;
+  myId = ali->id();
+  myObjId = ali->alignableObjectId();
 
   tree->Fill();
 
@@ -122,13 +119,10 @@ AlignmentUserVariables* MillePedeVariablesIORoot::readOne(Alignable *ali, int &i
 {
   ierr = 0;
 
-  const TrackerAlignableId ID;
-  const TrackerAlignableId::UniqueId detType = ID.alignableUniqueId(ali); 
-  
-  if (tree->GetEntryWithIndex(detType.first, detType.second) < 0) {
+  if (tree->GetEntryWithIndex(ali->id(), ali->alignableObjectId()) < 0) {
     edm::LogError("Alignment") << "@SUB=MillePedeVariablesIORoot::readOne"
-                               << "No index for detType = (" << detType.first << "/"
-                               << detType.second << ") found!";
+                               << "No index for id/type = (" << ali->id() << "/"
+                               << ali->alignableObjectId() << ") found!";
     ierr = 1;
     return 0;
   }

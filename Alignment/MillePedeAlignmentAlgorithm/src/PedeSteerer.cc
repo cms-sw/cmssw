@@ -3,8 +3,8 @@
  *
  *  \author    : Gero Flucke
  *  date       : October 2006
- *  $Revision: 1.16 $
- *  $Date: 2007/08/31 18:03:19 $
+ *  $Revision: 1.17 $
+ *  $Date: 2007/09/16 19:52:40 $
  *  (last update by $Author: flucke $)
  */
 
@@ -329,7 +329,8 @@ void PedeSteerer::correctToReferenceSystem()
   std::vector<Alignable*> definerDets; // or ...DetUnits
   for (std::vector<Alignable*>::iterator it = theCoordDefiners.begin(), iE = theCoordDefiners.end();
        it != iE; ++it) {// find lowest level objects of alignables that define the coordinate system
-    (*it)->deepComponents(definerDets);
+    const std::vector<Alignable*> &comp = (*it)->deepComponents();
+    definerDets.insert(definerDets.end(), comp.begin(), comp.end());
   }
 
   for (unsigned int iLoop = 0; ; ++iLoop) { // iterate: shifts and rotations are not independent
@@ -379,9 +380,11 @@ unsigned int PedeSteerer::hierarchyConstraints(const std::vector<Alignable*> &al
        iA != iEnd; ++iA) {
     aliDaughts.clear();
     if (!(*iA)->firstCompsWithParams(aliDaughts)) {
+      static AlignableObjectId objId; // static since costly constructor FIXME?
       edm::LogError("Alignment") << "@SUB=PedeSteerer::hierarchyConstraints"
                                  << "Some but not all daughters of "
-				 << TrackerAlignableId().alignableTypeName(*iA) << " with params!";
+				 << objId. typeToName((*iA)->alignableObjectId())
+				 << " with params!";
     }
 //     edm::LogInfo("Alignment") << "@SUB=PedeSteerer::hierarchyConstraints"
 // 			      << aliDaughts.size() << " ali param components";
@@ -408,6 +411,8 @@ void PedeSteerer::hierarchyConstraint(const Alignable *ali,
                                       const std::vector<Alignable*> &components,
 				      std::ofstream &file) const
 {
+  static AlignableObjectId objId; // static since costly constructor FIXME?
+
   typedef AlignmentParameterStore::ParameterId ParameterId;
   typedef std::vector<Alignable*>::size_type IndexType;
 
@@ -445,7 +450,9 @@ void PedeSteerer::hierarchyConstraint(const Alignable *ali,
       if (true) { // debug
 	const TrackerAlignableId aliId;
 	aConstr << "   ! for param " << compParNum << " of a " 
-		<< aliId.alignableTypeName(aliSubComp) << " (label " << aliLabel << ")";
+// 		<< aliId.alignableTypeName(aliSubComp) 
+		<< objId.typeToName(aliSubComp->alignableObjectId())
+		<< " (label " << aliLabel << ")";
       }
       aConstr << "\n";
     } // end loop on params
@@ -453,9 +460,10 @@ void PedeSteerer::hierarchyConstraint(const Alignable *ali,
     if (!aConstr.str().empty()) {
       if (true) { //debug
 	const TrackerAlignableId aliId;
-	file << "\n* Nr. " << iConstr << " of a '" << aliId.alignableTypeName(ali) << "' (label "
+	file << "\n* Nr. " << iConstr << " of a '"
+	     << objId.typeToName(ali->alignableObjectId()) << "' (label "
 	     << myLabels.alignableLabel(const_cast<Alignable*>(ali)) // ugly cast: FIXME!
-	     << "), layer " << aliId.typeAndLayerFromAlignable(ali).second
+	     << "), layer " << aliId.typeAndLayerFromDetId(ali->id()).second
 	     << ", position " << ali->globalPosition()
 	     << ", r = " << ali->globalPosition().perp();
       }
