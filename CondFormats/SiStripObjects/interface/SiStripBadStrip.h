@@ -5,11 +5,18 @@
 #include<map>
 #include<iostream>
 #include<boost/cstdint.hpp>
+#include "DataFormats/SiStripCommon/interface/ConstantsForCondObjects.h"
 
 
 class SiStripBadStrip {
 
  public:
+
+  struct data{
+    unsigned short firstStrip;
+    unsigned short range;
+    unsigned short flag;
+  };
 
   struct DetRegistry{
     uint32_t detid;
@@ -40,6 +47,19 @@ class SiStripBadStrip {
   ContainerIterator getDataVectorEnd()      const {return v_badstrips.end();}
   RegistryIterator getRegistryVectorBegin() const {return indexes.begin();}
   RegistryIterator getRegistryVectorEnd()   const{return indexes.end();}
+
+
+  inline data decode (const unsigned int& value) const {
+    data a;
+    a.firstStrip = ((value>>sistrip::FirstBadStripShift_)&sistrip::FirstBadStripMask_);
+    a.range      = ((value>>sistrip::RangeBadStripShift_)&sistrip::RangeBadStripMask_);
+    a.flag       = ((value>>sistrip::FlagBadStripShift_)&sistrip::FlagBadStripMask_);
+    return a;
+  }
+  
+  inline unsigned int encode (const unsigned short& first, const unsigned short& NconsecutiveBadStrips, const unsigned short& flag=0) {
+    return   ((first & sistrip::FirstBadStripMask_)<<sistrip::FirstBadStripShift_) | ((NconsecutiveBadStrips & sistrip::RangeBadStripMask_)<<sistrip::RangeBadStripShift_) | ((flag & sistrip::FlagBadStripMask_)<<sistrip::FlagBadStripShift_);
+  }
 
 protected:
   std::vector<unsigned int> v_badstrips; 
