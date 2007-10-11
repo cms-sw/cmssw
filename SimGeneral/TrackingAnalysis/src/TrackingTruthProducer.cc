@@ -124,12 +124,7 @@ void TrackingTruthProducer::produce(Event &event, const EventSetup &) {
   for (MixCollection<SimTrack>::MixItr itP = trackCollection->begin();
        itP !=  trackCollection->end(); ++itP){
     int                       q = (int)(itP -> charge()); // Check this
-    // LorentzVector             p = itP -> momentum();
-    //LorentzVector p(itP->momentum().x(),itP->momentum().y(),itP->momentum().z(),itP->momentum().e());
-    const HepLorentzVector& p = HepLorentzVector(itP->momentum().x(),
-						 itP->momentum().y(),
-						 itP->momentum().z(),
-						 itP->momentum().e());
+    const LorentzVector theMomentum = itP -> momentum();
     unsigned int     simtrackId = itP -> trackId();
     int                 genPart = itP -> genpartIndex(); // The HepMC particle number
     int                 genVert = itP -> vertIndex();    // The SimVertex #
@@ -138,7 +133,6 @@ void TrackingTruthProducer::produce(Event &event, const EventSetup &) {
     EncodedTruthId      trackId = EncodedTruthId(trackEventId,simtrackId);
 
     bool signalEvent = (trackEventId.event() == 0 && trackEventId.bunchCrossing() == 0);
-    const TrackingParticle::LorentzVector theMomentum(p.x(), p.y(), p.z(), p.t());
     double  time = 0;
 
     const HepMC::GenParticle *gp = 0;
@@ -340,7 +334,7 @@ void TrackingTruthProducer::produce(Event &event, const EventSetup &) {
   //DEBUG
   for (TrackingParticleCollection::const_iterator t = tPC -> begin(); t != tPC -> end(); ++t) {
   cout << "T.P.   Track mass, Momentum, q , ID, & Event # "
-  << t -> mass()  << " " 
+  << t -> mass()  << " "
   << t -> p4()    << " " << t -> charge() << " "
   << t -> pdgId() << " "
   << t -> eventId().bunchCrossing() << "." << t -> eventId().event() << endl;
