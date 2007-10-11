@@ -1,17 +1,15 @@
 /** \file LaserAlignmentAlgorithmPosTEC.cc
  *  
  *
- *  $Date: Sun Mar 18 19:35:40 CET 2007 $
- *  $Revision: 1.1 $
+ *  $Date: 2007/03/18 19:00:20 $
+ *  $Revision: 1.3 $
  *  \author Maarten Thomas
  */
 
 #include "Alignment/LaserAlignment/interface/LaserAlignmentAlgorithmPosTEC.h"
-#include "Alignment/TrackerAlignment/interface/AlignableTrackerEndcap.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "DataFormats/GeometrySurface/interface/Surface.h"
 #include "DataFormats/TrackingRecHit/interface/AlignmentPositionError.h"
 
 LaserAlignmentAlgorithmPosTEC::LaserAlignmentAlgorithmPosTEC(edm::ParameterSet const& theConf, int theAlignmentIteration) 
@@ -156,12 +154,16 @@ void LaserAlignmentAlgorithmPosTEC::doGlobalFit(AlignableTracker * theAlignableT
 
     }
 
-
   // loop over all discs, access the AlignableTracker to move the discs 
   // according to the calculated alignment corrections
   // AlignableTracker will take care to the propagation of the movements
   // to the lowest level of alignable objects
-  for (int i = 0; i < 9; ++i)
+  const align::Alignables& endcaps = theAlignableTracker->endCaps();
+  const Alignable* endcap = endcaps[0];
+  if (endcap->globalPosition().z() < 0) endcap = endcaps[1];
+  const align::Alignables& disks = endcap->components();
+
+  for (unsigned int i = 0; i < disks.size(); ++i)
     {
       int aPhi = 3*i;
       int aX   = 3*i + 1;
@@ -170,17 +172,17 @@ void LaserAlignmentAlgorithmPosTEC::doGlobalFit(AlignableTracker * theAlignableT
       int eX = 3*i + 2;
       int eY = 3*i + 3;
 
-      GlobalVector translation(-1.0 * theFittedGlobalParametersPosTEC[aX], 
-			       -1.0 * theFittedGlobalParametersPosTEC[aY],
-			       0.0);
-			AlignmentPositionError positionError(errpar_(&eX),errpar_(&eY), 0.0);
-			Surface::RotationType rotationError( Basic3DVector<float>(0.0, 0.0, 1.0), errpar_(&ePhi) );
+      align::GlobalVector translation(-1.0 * theFittedGlobalParametersPosTEC[aX], 
+				      -1.0 * theFittedGlobalParametersPosTEC[aY],
+				      0.0);
+      AlignmentPositionError positionError(errpar_(&eX),errpar_(&eY), 0.0);
+      align::RotationType rotationError( Basic3DVector<float>(0.0, 0.0, 1.0), errpar_(&ePhi) );
+      Alignable* disk = disks[i];
 
-      theAlignableTracker->endCap(0).layer(i).move(translation);
-      theAlignableTracker->endCap(0).layer(i).addAlignmentPositionError(positionError);
-      theAlignableTracker->endCap(0).layer(i).rotateAroundGlobalZ(-1.0 * theFittedGlobalParametersPosTEC[aPhi]);
-      theAlignableTracker->endCap(0).layer(i).addAlignmentPositionErrorFromRotation(rotationError);
-			
+      disk->move(translation);
+      disk->addAlignmentPositionError(positionError);
+      disk->rotateAroundGlobalZ(-1.0 * theFittedGlobalParametersPosTEC[aPhi]);
+      disk->addAlignmentPositionErrorFromRotation(rotationError);
     }
 
 

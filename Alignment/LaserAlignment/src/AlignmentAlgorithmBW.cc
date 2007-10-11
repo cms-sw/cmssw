@@ -1,8 +1,8 @@
 /** \file AlignmentAlgorithmBW.cc
  *  Implementation of Bruno Wittmer's alignment algorithm for the Laser Alignment System
  *
- *  $Date: 2007/05/08 07:59:44 $
- *  $Revision: 1.7 $
+ *  $Date: 2007/06/11 14:44:27 $
+ *  $Revision: 1.8 $
  *  \author Maarten Thomas
  */
 
@@ -80,19 +80,19 @@ std::vector<LASAlignmentParameter> AlignmentAlgorithmBW::run(const std::string t
 	/**
 	 * sT = \f$ \sum_i \Theta_i \f$
 	**/
-	double sT = phiPositions.sum();
+// 	double sT = phiPositions.sum();
 	/**
 	 * sTq = \f$ \sum_i \Theta_i^2 \f$
 	**/
-	double sTq = (phiPositions*phiPositions).sum();
+// 	double sTq = (phiPositions*phiPositions).sum();
 	/**
 	 * nenn2 = \f$ n_{beams} \cdot \sum_i \Theta_i^2 - \left(\sum_i \Theta_i \right)^2 \f$
 	**/
-	double nenn2 = nSectors * sTq - pow(sT,2);
+// 	double nenn2 = nSectors * sTq - pow(sT,2);
 	/**
 	 * nenn3 = \f$ n_{discs} \cdot \sum_k z_k^2 - \left(\sum_k z_k \right)^2 \f$
 	**/
-	double nenn3 = nDiscs * sZq - pow(sZ,2);
+// 	double nenn3 = nDiscs * sZq - pow(sZ,2);
 	/**
 	 * A = sum of all beam positions
 	**/

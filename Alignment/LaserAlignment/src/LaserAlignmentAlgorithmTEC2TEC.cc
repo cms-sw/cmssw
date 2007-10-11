@@ -1,18 +1,15 @@
 /** \file LaserAlignmentAlgorithmTEC2TEC.cc
  *  
  *
- *  $Date: Sun Mar 18 19:35:51 CET 2007 $
- *  $Revision: 1.1 $
+ *  $Date: 2007/03/18 19:00:20 $
+ *  $Revision: 1.3 $
  *  \author Maarten Thomas
  */
 
 #include "Alignment/LaserAlignment/interface/LaserAlignmentAlgorithmTEC2TEC.h"
-#include "Alignment/TrackerAlignment/interface/AlignableTrackerEndcap.h"
-#include "Alignment/TrackerAlignment/interface/AlignableTrackerHalfBarrel.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "DataFormats/GeometrySurface/interface/Surface.h"
 #include "DataFormats/TrackingRecHit/interface/AlignmentPositionError.h"
 
 LaserAlignmentAlgorithmTEC2TEC::LaserAlignmentAlgorithmTEC2TEC(edm::ParameterSet const& theConf, int theLaserIteration) 
@@ -195,12 +192,24 @@ void LaserAlignmentAlgorithmTEC2TEC::doGlobalFit(AlignableTracker * theAlignable
 
     }
   
+  const align::Alignables& TECs = theAlignableTracker->endCaps();
+
+  const Alignable *TECplus = TECs[0], *TECminus = TECs[1];
+
+  if (TECplus->globalPosition().z() < 0) // reverse order
+  {
+    TECplus = TECs[1]; TECminus = TECs[0];
+  }
+
+  const align::Alignables& posDisks = TECplus->components();
+  const align::Alignables& negDisks = TECminus->components();
+
   // loop over all discs, access the AlignableTracker to move the discs 
   // according to the calculated alignment corrections
   // AlignableTracker will take care to the propagation of the movements
   // to the lowest level of alignable objects
   // first TEC+ disc 5 -> 1
-  for (int i = 0; i < 5; ++i)
+  for (unsigned int i = 0; i < 5; ++i)
     {
       int aPhi = 3*i;
       int aX   = 3*i + 1;
@@ -210,16 +219,17 @@ void LaserAlignmentAlgorithmTEC2TEC::doGlobalFit(AlignableTracker * theAlignable
       int eY = 3*i + 3;
       
       // TEC+ discs ... consider right order!!!
-      GlobalVector translation(-1.0 * theFittedGlobalParametersTEC2TEC[aX],
-		   -1.0 * theFittedGlobalParametersTEC2TEC[aY],
-		   0.0);
-			AlignmentPositionError positionError(errpar_(&eX), errpar_(&eY), 0.0);
-			Surface::RotationType rotationError( Basic3DVector<float>(0.0, 0.0, 1.0), errpar_(&ePhi) );
-		
-      theAlignableTracker->endCap(0).layer(abs(-4 + i)).move(translation);
-	   	theAlignableTracker->endCap(0).layer(abs(-4 + i)).addAlignmentPositionError(positionError);
-		  theAlignableTracker->endCap(0).layer(abs(-4 + i)).rotateAroundGlobalZ(-1.0 * theFittedGlobalParametersTEC2TEC[aPhi]);
-     	theAlignableTracker->endCap(0).layer(abs(-4 + i)).addAlignmentPositionErrorFromRotation(rotationError);
+      align::GlobalVector translation(-1.0 * theFittedGlobalParametersTEC2TEC[aX],
+				      -1.0 * theFittedGlobalParametersTEC2TEC[aY],
+				      0.0);
+      AlignmentPositionError positionError(errpar_(&eX), errpar_(&eY), 0.0);
+      align::RotationType rotationError( Basic3DVector<float>(0.0, 0.0, 1.0), errpar_(&ePhi) );
+      Alignable* disk = posDisks[4 - i];
+
+      disk->move(translation);
+      disk->addAlignmentPositionError(positionError);
+      disk->rotateAroundGlobalZ(-1.0 * theFittedGlobalParametersTEC2TEC[aPhi]);
+      disk->addAlignmentPositionErrorFromRotation(rotationError);
     }
 		
 	int ePhiTOB1 = 16, eXTOB1 = 17, eYTOB1 = 18;
@@ -227,62 +237,77 @@ void LaserAlignmentAlgorithmTEC2TEC::doGlobalFit(AlignableTracker * theAlignable
 	int ePhiTIB2 = 31, eXTIB2 = 32, eYTIB2 = 33;
 	int ePhiTOB2 = 34, eXTOB2 = 35, eYTOB2 = 36;
 	
-  GlobalVector translationTOB1(-1.0 * theFittedGlobalParametersTEC2TEC[16],
+  align::GlobalVector translationTOB1(-1.0 * theFittedGlobalParametersTEC2TEC[16],
 			       -1.0 * theFittedGlobalParametersTEC2TEC[17],
 			       0.0);
 	AlignmentPositionError positionErrorTOB1(errpar_(&eXTOB1), errpar_(&eYTOB1), 0.0);
-	Surface::RotationType rotationErrorTOB1( Basic3DVector<float>(0.0,0.0,1.0), errpar_(&ePhiTOB1) );
+	align::RotationType rotationErrorTOB1( Basic3DVector<float>(0.0,0.0,1.0), errpar_(&ePhiTOB1) );
 
-  GlobalVector translationTIB1(-1.0 * theFittedGlobalParametersTEC2TEC[19],
+  align::GlobalVector translationTIB1(-1.0 * theFittedGlobalParametersTEC2TEC[19],
 			       -1.0 * theFittedGlobalParametersTEC2TEC[20],
 			       0.0);
 	AlignmentPositionError positionErrorTIB1(errpar_(&eXTIB1), errpar_(&eYTIB1), 0.0);
-	Surface::RotationType rotationErrorTIB1( Basic3DVector<float>(0.0,0.0,1.0), errpar_(&ePhiTIB1) );
+	align::RotationType rotationErrorTIB1( Basic3DVector<float>(0.0,0.0,1.0), errpar_(&ePhiTIB1) );
 
-  GlobalVector translationTIB2(-1.0 * theFittedGlobalParametersTEC2TEC[31],
+  align::GlobalVector translationTIB2(-1.0 * theFittedGlobalParametersTEC2TEC[31],
 			       -1.0 * theFittedGlobalParametersTEC2TEC[32],
 			       0.0);
 	AlignmentPositionError positionErrorTIB2(errpar_(&eXTIB2), errpar_(&eYTIB2), 0.0);
-	Surface::RotationType rotationErrorTIB2( Basic3DVector<float>(0.0,0.0,1.0), errpar_(&ePhiTIB2) );
+	align::RotationType rotationErrorTIB2( Basic3DVector<float>(0.0,0.0,1.0), errpar_(&ePhiTIB2) );
 
-  GlobalVector translationTOB2(-1.0 * theFittedGlobalParametersTEC2TEC[34],
+  align::GlobalVector translationTOB2(-1.0 * theFittedGlobalParametersTEC2TEC[34],
 			       -1.0 * theFittedGlobalParametersTEC2TEC[35],
 			       0.0);
 	AlignmentPositionError positionErrorTOB2(errpar_(&eXTOB2), errpar_(&eYTOB2), 0.0);
-	Surface::RotationType rotationErrorTOB2( Basic3DVector<float>(0.0,0.0,1.0), errpar_(&ePhiTOB2) );
+	align::RotationType rotationErrorTOB2( Basic3DVector<float>(0.0,0.0,1.0), errpar_(&ePhiTOB2) );
 
   // TOB and TIB (no loop needed: 3 corrections for TOB+,TIB+,TIB-,TOB-; should
   // be the same value each)
+  const align::Alignables& TOBs = theAlignableTracker->outerHalfBarrels();
+  const align::Alignables& TIBs = theAlignableTracker->innerHalfBarrels();
+
+  Alignable *TOBplus = TOBs[0], *TOBminus = TOBs[1];
+  Alignable *TIBplus = TIBs[0], *TIBminus = TIBs[1];
+
+  if (TOBplus->globalPosition().z() < 0) // reverse order
+  {
+    TOBplus = TOBs[1]; TOBminus = TOBs[0];
+  }
+  if (TIBplus->globalPosition().z() < 0) // reverse order
+  {
+    TIBplus = TIBs[1]; TIBminus = TIBs[0];
+  }
+
   // TOB+
-  theAlignableTracker->outerHalfBarrel(0).move(translationTOB1);
-	theAlignableTracker->outerHalfBarrel(0).addAlignmentPositionError(positionErrorTOB1);
-  theAlignableTracker->outerHalfBarrel(0).rotateAroundGlobalZ(-1.0 * theFittedGlobalParametersTEC2TEC[15]);
-	theAlignableTracker->outerHalfBarrel(0).addAlignmentPositionErrorFromRotation(rotationErrorTOB1);
+  TOBplus->move(translationTOB1);
+  TOBplus->addAlignmentPositionError(positionErrorTOB1);
+  TOBplus->rotateAroundGlobalZ(-1.0 * theFittedGlobalParametersTEC2TEC[15]);
+  TOBplus->addAlignmentPositionErrorFromRotation(rotationErrorTOB1);
 
   // TIB+ 
-  theAlignableTracker->innerHalfBarrel(0).move(translationTIB1);
-	theAlignableTracker->innerHalfBarrel(0).addAlignmentPositionError(positionErrorTIB1);
-  theAlignableTracker->innerHalfBarrel(0).rotateAroundGlobalZ(-1.0 * theFittedGlobalParametersTEC2TEC[18]);
-	theAlignableTracker->innerHalfBarrel(0).addAlignmentPositionErrorFromRotation(rotationErrorTIB1);
+  TIBplus->move(translationTIB1);
+  TIBplus->addAlignmentPositionError(positionErrorTIB1);
+  TIBplus->rotateAroundGlobalZ(-1.0 * theFittedGlobalParametersTEC2TEC[18]);
+  TIBplus->addAlignmentPositionErrorFromRotation(rotationErrorTIB1);
 
-	// TOB-
-  theAlignableTracker->outerHalfBarrel(1).move(translationTOB2);
-	theAlignableTracker->outerHalfBarrel(1).addAlignmentPositionError(positionErrorTOB2);
-  theAlignableTracker->outerHalfBarrel(1).rotateAroundGlobalZ(-1.0 * theFittedGlobalParametersTEC2TEC[33]);
-	theAlignableTracker->outerHalfBarrel(1).addAlignmentPositionErrorFromRotation(rotationErrorTOB2);
+  // TOB-
+  TOBminus->move(translationTOB2);
+  TOBminus->addAlignmentPositionError(positionErrorTOB2);
+  TOBminus->rotateAroundGlobalZ(-1.0 * theFittedGlobalParametersTEC2TEC[33]);
+  TOBminus->addAlignmentPositionErrorFromRotation(rotationErrorTOB2);
 	
   // TIB-
-  theAlignableTracker->innerHalfBarrel(1).move(translationTIB2);
-	theAlignableTracker->innerHalfBarrel(1).addAlignmentPositionError(positionErrorTIB2);
-  theAlignableTracker->innerHalfBarrel(1).rotateAroundGlobalZ(-1.0 * theFittedGlobalParametersTEC2TEC[30]);
-	theAlignableTracker->innerHalfBarrel(1).addAlignmentPositionErrorFromRotation(rotationErrorTIB2);
+  TIBminus->move(translationTIB2);
+  TIBminus->addAlignmentPositionError(positionErrorTIB2);
+  TIBminus->rotateAroundGlobalZ(-1.0 * theFittedGlobalParametersTEC2TEC[30]);
+  TIBminus->addAlignmentPositionErrorFromRotation(rotationErrorTIB2);
 
   // TEC- disc 1 -> 5
   // loop over all discs, access the AlignableTracker to move the discs 
   // according to the calculated alignment corrections
   // AlignableTracker will take care to the propagation of the movements
   // to the lowest level of alignable objects
-  for (int i = 0; i < 5; ++i)
+  for (unsigned int i = 0; i < 5; ++i)
     {
       int aPhi = 3*i + 51;
       int aX   = 3*i + 52;
@@ -291,16 +316,17 @@ void LaserAlignmentAlgorithmTEC2TEC::doGlobalFit(AlignableTracker * theAlignable
       int eX = 3*i + 53;
       int eY = 3*i + 54;
       
-      GlobalVector translation(-1.0 * theFittedGlobalParametersTEC2TEC[aX],
+      align::GlobalVector translation(-1.0 * theFittedGlobalParametersTEC2TEC[aX],
 			       -1.0 * theFittedGlobalParametersTEC2TEC[aY],
-			       0.0);
-			AlignmentPositionError positionError(errpar_(&eX), errpar_(&eY), 0.0);
-			Surface::RotationType rotationError( Basic3DVector<float>(0.0, 0.0, 1.0), errpar_(&ePhi) );
+				      0.0);
+      AlignmentPositionError positionError(errpar_(&eX), errpar_(&eY), 0.0);
+      align::RotationType rotationError( Basic3DVector<float>(0.0, 0.0, 1.0), errpar_(&ePhi) );
+      Alignable* disk = negDisks[i];
 
-      theAlignableTracker->endCap(1).layer(i).move(translation);
-      theAlignableTracker->endCap(1).layer(i).addAlignmentPositionError(positionError);
-      theAlignableTracker->endCap(1).layer(i).rotateAroundGlobalZ(-1.0 * theFittedGlobalParametersTEC2TEC[aPhi]);
-			theAlignableTracker->endCap(1).layer(i).addAlignmentPositionErrorFromRotation(rotationError);
+      disk->move(translation);
+      disk->addAlignmentPositionError(positionError);
+      disk->rotateAroundGlobalZ(-1.0 * theFittedGlobalParametersTEC2TEC[aPhi]);
+      disk->addAlignmentPositionErrorFromRotation(rotationError);
     }
 
   // zero initialisation (to avoid problems with the next Millepede fit!????)

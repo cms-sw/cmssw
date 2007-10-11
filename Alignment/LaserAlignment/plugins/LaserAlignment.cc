@@ -1,14 +1,13 @@
 /** \file LaserAlignment.cc
  *  LAS reconstruction module
  *
- *  $Date: 2007/05/02 09:40:10 $
- *  $Revision: 1.13 $
+ *  $Date: 2007/05/08 07:59:43 $
+ *  $Revision: 1.14 $
  *  \author Maarten Thomas
  */
 
 #include "Alignment/LaserAlignment/plugins/LaserAlignment.h"
 
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Common/interface/EDProduct.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -25,7 +24,6 @@
 #include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetType.h"
 #include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeomBuilderFromGeometricDet.h"
-#include "DataFormats/GeometrySurface/interface/BoundSurface.h"
 #include "Geometry/TrackingGeometryAligner/interface/GeometryAligner.h"
 #include "DataFormats/DetId/interface/DetId.h"
 
@@ -40,8 +38,6 @@
 #include "DataFormats/LaserAlignment/interface/LASBeamProfileFitCollection.h"
 #include "DataFormats/LaserAlignment/interface/LASAlignmentParameter.h"
 #include "DataFormats/LaserAlignment/interface/LASAlignmentParameterCollection.h"
-
-#include "Alignment/TrackerAlignment/interface/AlignableTrackerEndcap.h"
 
 // Conditions database
 #include "FWCore/ServiceRegistry/interface/Service.h"
@@ -425,7 +421,7 @@ void LaserAlignment::produce(edm::Event& theEvent, edm::EventSetup const& theSet
           theLaserPhiError.push_back(thePhiErrorScalingFactor * thePhiError);
 
           /// for Bruno's algorithm get the pitch at strip 255.5 and multiply it with 255.5 to get the position in cm at the middle of the module
-          const StripGeomDetUnit* const theStripDet = dynamic_cast<const StripGeomDetUnit*>(theTrackerGeometry->idToDet((iHist->second).first));
+//           const StripGeomDetUnit* const theStripDet = dynamic_cast<const StripGeomDetUnit*>(theTrackerGeometry->idToDet((iHist->second).first));
 
           // double thePosition = 255.5 * theStripDet->specificTopology().localPitch(theStripDet->specificTopology().localPosition(255.5));
           double thePosition = 0.0;
@@ -532,30 +528,44 @@ void LaserAlignment::produce(edm::Event& theEvent, edm::EventSetup const& theSet
       /**
         * TO BE DONE!!!!!!!!!!
           **/
-          for (int i = 0; i < 9; ++i)
+	const align::Alignables& TECs = theAlignableTracker->endCaps();
+
+	const Alignable *TECplus = TECs[0], *TECminus = TECs[1];
+
+	if (TECplus->globalPosition().z() < 0) // reverse order
+	{
+	  TECplus = TECs[1]; TECminus = TECs[0];
+	}
+
+	const align::Alignables& posDisks = TECplus->components();
+	const align::Alignables& negDisks = TECminus->components();
+
+	for (unsigned int i = 0; i < 9; ++i)
         {
-          GlobalVector translationPos( -1.0 * (theAPPosTECR4.at(0).dxk()[i] + theAPPosTECR6.at(0).dxk()[i])/2,
+          align::GlobalVector translationPos( -1.0 * (theAPPosTECR4.at(0).dxk()[i] + theAPPosTECR6.at(0).dxk()[i])/2,
             -1.0 * (theAPPosTECR4.at(0).dyk()[i] + theAPPosTECR6.at(0).dyk()[i])/2,
             0.0);
-          GlobalVector translationNeg( -1.0 * (theAPNegTECR4.at(0).dxk()[i] + theAPNegTECR6.at(0).dxk()[i])/2,
+          align::GlobalVector translationNeg( -1.0 * (theAPNegTECR4.at(0).dxk()[i] + theAPNegTECR6.at(0).dxk()[i])/2,
             -1.0 * (theAPNegTECR4.at(0).dyk()[i] + theAPNegTECR6.at(0).dyk()[i])/2,
             0.0);
           // TODO - Implement usage and propagation of errors!!!!
           AlignmentPositionError positionErrorPos(0.0, 0.0, 0.0);
-          Surface::RotationType rotationErrorPos( Basic3DVector<float>(0.0, 0.0, 1.0), 0.0 );
+          align::RotationType rotationErrorPos( Basic3DVector<float>(0.0, 0.0, 1.0), 0.0 );
           AlignmentPositionError positionErrorNeg(0.0, 0.0, 0.0);
-          Surface::RotationType rotationErrorNeg( Basic3DVector<float>(0.0, 0.0, 1.0), 0.0 );
+          align::RotationType rotationErrorNeg( Basic3DVector<float>(0.0, 0.0, 1.0), 0.0 );
+	  Alignable* posDisk = posDisks[i];
+	  Alignable* negDisk = negDisks[i];
 
           // TEC+
-          theAlignableTracker->endCap(0).layer(i).move(translationPos);
-          theAlignableTracker->endCap(0).layer(i).addAlignmentPositionError(positionErrorPos);
-          theAlignableTracker->endCap(0).layer(i).rotateAroundGlobalZ(-1.0 * (theAPPosTECR4.at(0).dphik()[i] + theAPPosTECR6.at(0).dphik()[i])/2);
-          theAlignableTracker->endCap(0).layer(i).addAlignmentPositionErrorFromRotation(rotationErrorPos);
+          posDisk->move(translationPos);
+          posDisk->addAlignmentPositionError(positionErrorPos);
+          posDisk->rotateAroundGlobalZ(-1.0 * (theAPPosTECR4.at(0).dphik()[i] + theAPPosTECR6.at(0).dphik()[i])/2);
+          posDisk->addAlignmentPositionErrorFromRotation(rotationErrorPos);
           // TEC-
-          theAlignableTracker->endCap(1).layer(i).move(translationNeg);
-          theAlignableTracker->endCap(1).layer(i).addAlignmentPositionError(positionErrorNeg);
-          theAlignableTracker->endCap(1).layer(i).rotateAroundGlobalZ(-1.0 * (theAPNegTECR4.at(0).dphik()[i] + theAPNegTECR6.at(0).dphik()[i])/2);
-          theAlignableTracker->endCap(1).layer(i).addAlignmentPositionErrorFromRotation(rotationErrorNeg);
+          negDisk->move(translationNeg);
+          negDisk->addAlignmentPositionError(positionErrorNeg);
+          negDisk->rotateAroundGlobalZ(-1.0 * (theAPNegTECR4.at(0).dphik()[i] + theAPNegTECR6.at(0).dphik()[i])/2);
+          negDisk->addAlignmentPositionErrorFromRotation(rotationErrorNeg);
         }
       }        
       // store the estimated alignment parameters into the DB

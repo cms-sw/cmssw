@@ -1,17 +1,15 @@
 /** \file LaserAlignmentAlgorithmNegTEC.cc
  *  
  *
- *  $Date: Sun Mar 18 19:35:20 CET 2007 $
- *  $Revision: 1.1 $
+ *  $Date: 2007/03/18 19:00:20 $
+ *  $Revision: 1.3 $
  *  \author Maarten Thomas
  */
 
 #include "Alignment/LaserAlignment/interface/LaserAlignmentAlgorithmNegTEC.h"
-#include "Alignment/TrackerAlignment/interface/AlignableTrackerEndcap.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "DataFormats/GeometrySurface/interface/Surface.h"
 #include "DataFormats/TrackingRecHit/interface/AlignmentPositionError.h"
 
 LaserAlignmentAlgorithmNegTEC::LaserAlignmentAlgorithmNegTEC(edm::ParameterSet const& theConf, int theAlignmentIteration) 
@@ -127,12 +125,17 @@ void LaserAlignmentAlgorithmNegTEC::doGlobalFit(AlignableTracker * theAlignableT
       p3 += 3; p4 += 3; p5 += 3;
       n4 += 3; n5 += 3; n6 += 3;
     }
-  
+
   // loop over all discs, access the AlignableTracker to move the discs 
   // according to the calculated alignment corrections
   // AlignableTracker will take care to the propagation of the movements
   // to the lowest level of alignable objects
-  for (int i = 0; i < 9; ++i)
+  const align::Alignables& endcaps = theAlignableTracker->endCaps();
+  const Alignable* endcap = endcaps[1];
+  if (endcap->globalPosition().z() > 0) endcap = endcaps[0];
+  const align::Alignables& disks = endcap->components();
+
+  for (unsigned int i = 0; i < disks.size(); ++i)
     {
       int aPhi = 3*i;
       int aX   = 3*i + 1;
@@ -141,16 +144,17 @@ void LaserAlignmentAlgorithmNegTEC::doGlobalFit(AlignableTracker * theAlignableT
       int eX = 3*i + 2;
       int eY = 3*i + 3;
       
-      GlobalVector translation(-1.0 * theFittedGlobalParametersNegTEC[aX],
-			       -1.0 * theFittedGlobalParametersNegTEC[aY],
-			       0.0);
-			AlignmentPositionError positionError(errpar_(&eX), errpar_(&eY), 0.0);
-			Surface::RotationType rotationError( Basic3DVector<float>(0.0, 0.0, 1.0), errpar_(&ePhi) );
+      align::GlobalVector translation(-1.0 * theFittedGlobalParametersNegTEC[aX],
+				      -1.0 * theFittedGlobalParametersNegTEC[aY],
+				      0.0);
+      AlignmentPositionError positionError(errpar_(&eX), errpar_(&eY), 0.0);
+      align::RotationType rotationError( Basic3DVector<align::Scalar>(0.0, 0.0, 1.0), errpar_(&ePhi) );
+      Alignable* disk = disks[i];
 
-      theAlignableTracker->endCap(1).layer(i).move(translation);
-      theAlignableTracker->endCap(1).layer(i).addAlignmentPositionError(positionError);
-      theAlignableTracker->endCap(1).layer(i).rotateAroundGlobalZ(-1.0 * theFittedGlobalParametersNegTEC[aPhi]);
-			theAlignableTracker->endCap(1).layer(i).addAlignmentPositionErrorFromRotation(rotationError);
+      disk->move(translation);
+      disk->addAlignmentPositionError(positionError);
+      disk->rotateAroundGlobalZ(-1.0 * theFittedGlobalParametersNegTEC[aPhi]);
+      disk->addAlignmentPositionErrorFromRotation(rotationError);
 			      
     }
 

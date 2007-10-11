@@ -4,13 +4,14 @@
 /** \class LaserAlignment
  *  Main reconstruction module for the Laser Alignment System
  *
- *  $Date: 2007/05/02 09:40:10 $
- *  $Revision: 1.6 $
+ *  $Date: 2007/05/08 07:59:43 $
+ *  $Revision: 1.7 $
  *  \author Maarten Thomas
  */
 
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "Alignment/LaserAlignment/interface/BeamProfileFitter.h"
