@@ -90,13 +90,11 @@ namespace
   void write_maps()
   {
     pid_t pid = getpid();
-    std::ostringstream number;
-    number << pid;
-    std::string inputname("/proc/");
-    inputname += number.str();
-    inputname += "/maps";
-    std::ifstream input(inputname.c_str());
-    std::ofstream output("map.dump");
+    std::ostringstream strinput,stroutput;
+    strinput << "/proc/" << pid << "/maps";
+    stroutput << "profdata_" << pid << "_maps";
+    std::ifstream input(strinput.str().c_str());
+    std::ofstream output(stroutput.str().c_str());
     std::string line;
     while (std::getline(input, line)) output << line << '\n';
     input.close();
@@ -128,27 +126,50 @@ namespace
   }
 
   void dumpStack(const char* msg,
-		 unsigned int* esp, unsigned int* ebp, unsigned char* eip)
+		 unsigned int* esp, unsigned int* ebp, unsigned char* eip,
+		 ucontext_t* ucp)
   {
 #if defined(__x86_64__) || defined(__LP64__) || defined(_LP64)
     throw logic_error("Cannot dumpStack on 64 bit build");
 #else
     fprintf(frame_cond, msg);
     fflush(frame_cond);
+    return;
     fprintf(frame_cond, "dumpStack:\n i= %x\n eip[0]= %2.2x\nb= %x\n s= %x\n b[0]= %x\n b[1]= %x\n b[2]= %x\n",
 	    (void*)eip, eip[0], (void*)ebp, (void*)esp, (void*)(ebp[0]), (void*)(ebp[1]), (void*)(ebp[2]));
     fflush(frame_cond);
 
 
+#if 0
     unsigned int* spp = esp;
-
     for(int i=15;i>-5;--i)
       {
 	fprintf(frame_cond, "    %x esp[%d]= %x\n", (void*)(spp+i), i, (void*)*(spp+i));
 	fflush(frame_cond);
       }
+#else
+    while(ucp->uc_link)
+      {
+	fprintf(frame_cond, "   %8.8x\n",ucp->uc_link);
+	ucp = ucp->uc_link;
+      }
+#endif
 #endif
   }
+}
+
+namespace {
+  // counters
+  int samples_total=0;
+  int samples_uninterpretable=0;
+  int samples_ebp_less_esp=0;
+  int samples_bad_ebp=0;
+  int samples_after_push=0;
+  int samples_before_push=0;
+  int samples_between_leave_ret=0;
+  int samples_skipped=0;
+  int samples_outside_range=0;
+  int samples_popped=0;
 }
 
 // ---------------------------------------------------------------------
@@ -175,6 +196,7 @@ extern "C"
     unsigned char* eip=(unsigned char*)ucp->uc_mcontext.gregs[REG_EIP];
     void* stacktop = prof->stackTop();
     void** arr = prof->tempStack();
+    ++samples_total;
 
 #if 0
     std::cerr << "siginfo=" << (void*)info
@@ -198,14 +220,18 @@ extern "C"
 	  {
 	    *cur++ = ((unsigned int)eip);
 	    *cur++ = 0U;
-	    std::cerr << "early completion for eip = " << (unsigned int)eip << '\n';
+	    //std::cerr << "early completion for eip = " << (unsigned int)eip << '\n';
+	    fprintf(frame_cond," early completion for eip %8.8x\n",(unsigned int)eip);
+
+	    ++samples_uninterpretable;
 	    stack_uninterpretable=true;
 	  }
 	else
 	  {
-	    std::cerr << "ebp < esp (but not early completion)\n";
+	    fprintf(frame_cond,"ebp < esp (but not early completion)\n");
 	    ebp=(unsigned int*)(*ebp);
 	    ebp=(unsigned int*)(*ebp);
+	    ++samples_ebp_less_esp;
 	  } 
       }
   
@@ -225,6 +251,7 @@ extern "C"
 
 	if(eip[0]==INSTR::RET)
 	  {
+	    ++samples_between_leave_ret;
 	    //std::cerr << "after the leave and immediately before the ret\n";
 	    condition += 1;
 	    //*cur++ = ((unsigned int)*esp);
@@ -241,76 +268,89 @@ extern "C"
 	// have been done, then EBP and ESP aren't yet set for the new
 	// function... so set them.
 
-	    if(
-	       (esp)<(unsigned int*)0x0000ffff||
-	       (esp+1)<(unsigned int*)0x0000ffff||
-	       (esp+2)<(unsigned int*)0x0000ffff
-	       )
-	      {
-		dumpStack("bad ebp data ****************\n",esp,ebp,eip); 
-	      }
+	if(
+	   (esp)<(unsigned int*)0x0000ffff||
+	   (esp+1)<(unsigned int*)0x0000ffff||
+	   (esp+2)<(unsigned int*)0x0000ffff
+	   )
+	  {
+	    dumpStack("bad ebp data ****************\n",esp,ebp,eip,ucp); 
+	  }
 	if( *esp==(unsigned int)ebp )
 	  {
+	    ++samples_after_push;
 	    condition += 4;	    
 	    //std::cerr << "after the push, before the mov\n";
 	    ebp = esp;
 	  }
 	else if(eip[0]==0x55 && eip[1]==0x89 && eip[2]==0xe5)
 	  {
+	    ++samples_before_push;
 	    condition += 8;
 	    //std::cerr << "after the call, before the push\n";
 	    *cur++ = *esp;
 	  }
 	// if value at stacktop and stacktop-1 are outside stack range
-	else if(
-		(*(esp-2)==0xadb8 && *(esp-1)==0x80cd00) &&
-		(unsigned int)eip!=*(esp-1) &&
-		*eip!=0xc3 && *eip!=0xe8
-		 )
-	  {
-	    dumpStack("---------------------\n", esp,ebp,eip);
+	else if((*(esp-2)==0xadb8 && *(esp-1)==0x80cd00))
+	  if( (unsigned int)eip!=*(esp-1) && *eip!=0xc3 && *eip!=0xe8 )
+	    {
+	      ++samples_outside_range;
+	      dumpStack("stacktop and stacktop-1 outside range\n",
+			esp,ebp,eip,ucp);
+	      
+	      if ( (void*)eip > stacktop)
+		{
+		  // The current function had no stack frame.
+		  ++samples_bad_ebp;
+		  condition += 16;
+		  if( (ebp+0)<(unsigned int*)0x0000ffff )
+		    {
+		      dumpStack("bad ebp data ****************\n",
+				esp,ebp,eip,ucp);
+		    }
+		  ebp = (unsigned int*)esp[0];
+                  ebp=0; // we will skip these types of frames for now!!!! (jbk)
 
-	    if ( (void*)eip > stacktop)
-	      {
-		// The current function had no stack frame.
-		condition += 16;
-	    if( (ebp+0)<(unsigned int*)0x0000ffff )
-	      {
-		dumpStack("bad ebp data ****************\n",
-			  esp,ebp,eip); 
-	      }
-		ebp = (unsigned int*)esp[0];
-// 		frame* f = (frame*)(esp[0]);
-// 		while ( f != 0 )
-// 		  {
-// 		    f->print(frame_cond);
-// 		    f = f->next;
-// 		  }
-
-	      }
-	    else
-	      {
-		// The stack frame for the current function has
-		// already been popped.
-		condition += 2;
-		//std::cerr << "after the leave but before the ret\n";
-		*cur++ = *esp;
-	      }
-	  }
-      
+		  // 		frame* f = (frame*)(esp[0]);
+		  // 		while ( f != 0 )
+		  // 		  {
+		  // 		    f->print(frame_cond);
+		  // 		    f = f->next;
+		  // 		  }
+		  
+		}
+	      else
+		{
+		  // The stack frame for the current function has
+		  // already been popped.
+		  ++samples_popped;
+		  condition += 2;
+		  //std::cerr << "after the leave but before the ret\n";
+		  *cur++ = *esp;
+		}
+	    }
+	  else
+	    {
+	      //std::cerr << "skip stack trace\n";
+	      ++samples_skipped;
+	      ebp=0;
+	    }
+	
 	if (ebp<reinterpret_cast<unsigned int*>(stacktop) == false) 
 	  fprintf(stderr, "--- not going through the loop this time\n");
 
 	//if (condition!=0) fprintf(stderr, "bad condition: %d\n", condition);
 	//while(ebp<stacktop)
+
 	int counter = 0;
-	while (ebp)
+	while (ebp && ebp<stacktop)
 	  {
 	    //*cur++   = *(ebp+1);
 	    if( (ebp+1)<(unsigned int*)0x0000ffff )
 	      {
-		dumpStack("bad ebp+1 data ****************\n",
-			  esp,ebp,eip); 
+		fprintf(frame_cond,"bad ebp+1 data %8.8x\n",(ebp+1));
+		//dumpStack("bad ebp+1 data ****************\n",
+		//	  esp,ebp,eip,ucp); 
 		break;
 	      }
 	    unsigned int ival = ebp[1];
@@ -320,8 +360,9 @@ extern "C"
 	    //ebp=(unsigned int*)(*ebp);
 	    if( (ebp)<(unsigned int*)0x0000ffff )
 	      {
-		dumpStack("bad ebp data ****************\n",
-			  esp,ebp,eip); 
+		fprintf(frame_cond,"bad ebp data\n");
+		//dumpStack("bad ebp data ****************\n",
+		//	  esp,ebp,eip,ucp); 
 		break;
 	      }
 	    unsigned int val = ebp[0];
@@ -704,6 +745,22 @@ void SimpleProfiler::complete()
 
   writeProfileData(fd_,filename_);
   write_maps();
+
+  std::string totsname = makeFileName();
+  totsname += "_sample_info";
+  std::ofstream ost(totsname.c_str());
+  
+  ost << "samples_total " << samples_total << "\n"
+      << "samples_uninterpretable " << samples_uninterpretable << "\n"
+      << "samples_ebp_less_esp " << samples_ebp_less_esp << "\n"
+      << "samples_bad_ebp " << samples_bad_ebp << "\n"
+      << "samples_after_push " << samples_after_push << "\n"
+      << "samples_before_push " << samples_before_push << "\n"
+      << "samples_between_leave_ret " << samples_between_leave_ret << "\n"
+      << "samples_skipped " << samples_skipped << "\n"
+      << "samples_outside_range " << samples_outside_range << "\n"
+      << "samples_popped " << samples_popped << "\n"
+    ;
 }
 
 
