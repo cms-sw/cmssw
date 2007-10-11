@@ -367,8 +367,9 @@ void TrackerMap::print(bool print_total, float minval, float maxval, string outp
 void TrackerMap::drawPalette(ofstream * svgfile){
   int red, green, blue;
   float val=minvalue;
-  float dval = (maxvalue-minvalue)/256.;
-  for(int i=0;i<256;i++){
+  int paletteLength = 250;
+  float dval = (maxvalue-minvalue)/(float)paletteLength;
+  for(int i=0;i<paletteLength;i++){
  if(palette==1){//palette1 1 - raibow
    float delta=(maxvalue-minvalue);
    float x =(val-minvalue);
@@ -382,7 +383,10 @@ void TrackerMap::drawPalette(ofstream * svgfile){
          red = 255; blue=0;green=255-green;
         }
     *svgfile <<"<svg:rect  x=\""<<i<<"\" y=\"0\" width=\"1\" height=\"20\" fill=\"rgb("<<red<<","<<green<<","<<blue<<")\" />\n";
-
+    if(i%50 == 0){
+       *svgfile <<"<svg:rect  x=\""<<i<<"\" y=\"10\" width=\"1\" height=\"10\" fill=\"black\" />\n";
+      if(i%100==0)*svgfile << " <svg:text  class=\"normalText\"  x=\""<<i<<"\" y=\"30\">" <<val<<"</svg:text>"<<endl;
+       }
     val = val + dval;
    }
 } 
