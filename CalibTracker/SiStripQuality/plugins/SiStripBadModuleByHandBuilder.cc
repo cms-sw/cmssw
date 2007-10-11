@@ -12,6 +12,8 @@ SiStripBadModuleByHandBuilder::SiStripBadModuleByHandBuilder(const edm::Paramete
   fp_ = iConfig.getUntrackedParameter<edm::FileInPath>("file",edm::FileInPath("CalibTracker/SiStripCommon/data/SiStripDetInfo.dat"));
   BadModuleList_ = iConfig.getUntrackedParameter<std::vector<uint32_t> >("BadModuleList");
   printdebug_ = iConfig.getUntrackedParameter<bool>("printDebug",false);
+
+  reader = new SiStripDetInfoFileReader(fp_.fullPath());  
 }
 
 
@@ -26,13 +28,15 @@ SiStripBadStrip* SiStripBadModuleByHandBuilder::getNewObject(){
   SiStripBadStrip* obj = new SiStripBadStrip();
 
   unsigned int firstBadStrip=0;
-  unsigned short NconsecutiveBadStrips=768;
-  int theBadStripRange = ((firstBadStrip & 0xFFFF) << 16) | (NconsecutiveBadStrips & 0xFFFF) ;
+  unsigned short NconsecutiveBadStrips;
+  unsigned int theBadStripRange; 
 
   for(std::vector<uint32_t>::const_iterator it=BadModuleList_.begin(); it!=BadModuleList_.end(); ++it){
     
     std::vector<unsigned int> theSiStripVector;
     
+    NconsecutiveBadStrips=reader->getNumberOfApvsAndStripLength(*it).first*128;
+    theBadStripRange = obj->encode(firstBadStrip,NconsecutiveBadStrips);
     if (printdebug_)
       edm::LogInfo("SiStripBadModuleByHandBuilder") << " BadModule " << *it << " \t"
 						   << " firstBadStrip " << firstBadStrip << "\t "
