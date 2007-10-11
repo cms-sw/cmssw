@@ -1,4 +1,4 @@
-#include "IOPool/Common/interface/FileIdentifier.h"
+#include "FWCore/Catalog/interface/FileIdentifier.h"
 #include "POOLCore/Guid.h"
 
 namespace edm {
