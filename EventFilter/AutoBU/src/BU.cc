@@ -86,6 +86,7 @@ BU::BU(xdaq::ApplicationStub *s)
   , sumOfSquares_(0)
   , sumOfSizes_(0)
   , i2oPool_(0)
+  , init_(true)
 {
   // initialize state machine
   fsm_.initialize<evf::BU>(this);
@@ -192,7 +193,7 @@ bool BU::enabling(toolbox::task::WorkLoop* wl)
 {
   isHalting_=false;
   try {
-    LOG4CPLUS_INFO(log_,"Start enabling ...");
+    LOG4CPLUS_INFO(log_,"Start enabling ...isBuilding = " << (int)isBuilding_ << " isSending = " << (int)isSending_ );
     if (!isBuilding_) startBuildingWorkLoop();
     if (!isSending_)  startSendingWorkLoop();
     LOG4CPLUS_INFO(log_,"Finished enabling!");
@@ -212,16 +213,36 @@ bool BU::stopping(toolbox::task::WorkLoop* wl)
 {
   try {
     LOG4CPLUS_INFO(log_,"Start stopping :) ...");
+
+   if (0!=PlaybackRawDataProvider::instance() && (!replay_.value_ || nbEventsBuilt_<events_.size()))
+     { 
+       lock();
+       freeIds_.push(events_.size()); 
+       unlock();
+	postBuild();
+	while (!builtIds_.empty()) {
+	  LOG4CPLUS_INFO(log_,"wait to flush ...builtIds=" << builtIds_.size() );
+	  ::sleep(1);
+	}
+	PlaybackRawDataProvider::instance()->setFreeToEof(); // let the playback go to the last event and exit
+      }
+
     lock();
-    freeIds_.push(events_.size()); 
     builtIds_.push(events_.size());
     unlock();
-    postBuild();
+
     postSend();
     while (!sentIds_.empty()) {
       LOG4CPLUS_INFO(log_,"wait to flush ...");
       ::sleep(1);
     }
+    if (0!=PlaybackRawDataProvider::instance() && (replay_.value_ && nbEventsBuilt_>=events_.size()))
+      {
+	lock();
+	freeIds_.push(events_.size());
+	unlock();
+	postBuild();
+      }
     LOG4CPLUS_INFO(log_,"Finished stopping!");
     fsm_.fireEvent("StopDone",this);
   }
@@ -229,7 +250,7 @@ bool BU::stopping(toolbox::task::WorkLoop* wl)
     string msg = "stopping FAILED: " + (string)e.what();
     fsm_.fireFailed(msg,this);
   }
-  
+  init_ = true;
   return false;
 }
 
@@ -391,23 +412,36 @@ bool BU::building(toolbox::task::WorkLoop* wl)
   unlock();
   
   if (buResourceId>=events_.size()) {
-    LOG4CPLUS_INFO(log_,"shutdown 'building' workloop.");
+    LOG4CPLUS_INFO(log_,"shutdown 'building' workloop.buResourceId = " << buResourceId << " events_size() = " << events_.size());
     isBuilding_=false;
     return false;
   }
 
   if (!isHalting_) {
     BUEvent* evt=events_[buResourceId];
-    generateEvent(evt);
-    
-    lock();
-    nbEventsBuilt_++;
-    builtIds_.push(buResourceId);
-    unlock();
-    
-    postSend();
+    if(generateEvent(evt))
+      {
+	lock();
+	nbEventsBuilt_++;
+	builtIds_.push(buResourceId);
+	unlock();
+	
+	postSend();
+      }
+    else
+      {
+	LOG4CPLUS_INFO(log_,"building:received null post");
+	lock();
+	unsigned int saveBUResourceId = buResourceId;
+	//	buResourceId = freeIds_.front(); freeIds_.pop();
+	freeIds_.push(saveBUResourceId);
+	unlock();
+	LOG4CPLUS_INFO(log_,"building:going out of loop");
+	isBuilding_=false;
+	LOG4CPLUS_INFO(log_,"shutdown 'building' workloop.isBuilding = " << (int)isBuilding_);
+	return false;
+      }
   }
-  
   return true;
 }
 
@@ -675,13 +709,20 @@ double BU::deltaT(const struct timeval *start,const struct timeval *end)
 bool BU::generateEvent(BUEvent* evt)
 {
   // replay?
-  if (replay_.value_&&nbEventsBuilt_>=events_.size()) return true;
-  
+  if (replay_.value_&&nbEventsBuilt_>=events_.size()) 
+    {
+      PlaybackRawDataProvider::instance()->setFreeToEof();
+      return true;
+    }  
   // PLAYBACK mode
   if (0!=PlaybackRawDataProvider::instance()) {
+    if(init_)LOG4CPLUS_INFO(log_,"AutoBU::using pbprovider at 0x" << hex 
+		   << (unsigned int) PlaybackRawDataProvider::instance() << dec);
     unsigned int runNumber,evtNumber;
+
     FEDRawDataCollection* event=
       PlaybackRawDataProvider::instance()->getFEDRawData(runNumber,evtNumber);
+    if(event == 0) return false;
     evt->initialize(evtNumber);
     
     for (unsigned int i=0;i<validFedIds_.size();i++) {
@@ -713,8 +754,8 @@ bool BU::generateEvent(BUEvent* evt)
       evt->writeFedTrailer(i);
     }
     
-  }  
-
+  }
+  init_ = false;
   return true;
 }
 
