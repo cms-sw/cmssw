@@ -37,16 +37,11 @@ public:
   virtual bool eventRequired () const {return true;}
    
 private:
+  edm::InputTag m_JetTracksAtVertex;
+  edm::InputTag m_JetTracksAtCalo;
   int theResponseAlgo;
-  double theRcalo;
-  double theRvert;  
 
   SingleParticleJetResponseTmp * theSingle;
-  edm::InputTag mInputCaloTower;
-  edm::InputTag mInputPVfCTF;
-  std::string m_inputTrackLabel;
-  TrackAssociatorParameters parameters_;
-  mutable TrackDetectorAssociator* trackAssociator_;
 
 };
 

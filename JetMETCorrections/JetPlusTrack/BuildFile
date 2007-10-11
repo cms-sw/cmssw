@@ -1,13 +1,19 @@
+<flags EDM_PLUGIN=1>
 <use name=boost>
 <use name=JetMETCorrections/Objects>
-<use name=TrackingTools/TrackAssociator>
 <use name=FWCore/Framework>
 <use name=FWCore/ParameterSet>
-<use name=DataFormats/VertexReco>
-<use name=TrackingTools/TrajectoryState>
 <use name=SimDataFormats/HepMCProduct>
+<use name=MagneticField/Engine>
+<use name=DataFormats/JetReco>
+<use name=Geometry/CaloGeometry>
+<use name=Geometry/CaloEventSetup>
+<use name=Geometry/CaloTopology>
+<use name=Geometry/CommonDetUnit>
+<use name=DataFormats/GeometrySurface>
+<use name=Geometry/Records>
+<use name=RecoJetsJetAssociationProducers>
 <export>
    <lib name=JetMETCorrectionsJetPlusTrack>
    <use name=JetMETCorrections/Objects>
-   <use name=TrackingTools/TrackAssociator>
 </export>
