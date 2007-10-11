@@ -6,6 +6,7 @@
 
 #include "RecoBTag/SecondaryVertex/interface/SecondaryVertex.h"
 
+namespace reco{
 class VertexFilter {
     public:
 	VertexFilter(const edm::ParameterSet &params);
@@ -32,5 +33,5 @@ class VertexFilter {
 
 	double		maxDeltaRToJetAxis;
 };
-
+}
 #endif // RecoBTag_SecondaryVertex_VertexFilter_h
