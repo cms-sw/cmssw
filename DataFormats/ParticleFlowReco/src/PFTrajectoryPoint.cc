@@ -45,14 +45,14 @@ bool   PFTrajectoryPoint::operator==(const reco::PFTrajectoryPoint& other) const
 std::ostream& reco::operator<<(std::ostream& out, 
 			       const reco::PFTrajectoryPoint& trajPoint) {
   if(!out) return out;
-
+  
   const math::XYZPoint& posxyz = trajPoint.positionXYZ();
-
+  
   out<<"Traj point id = "<<trajPoint.detId()
      <<", layer = "<<trajPoint.layer()
      <<", Eta,Phi = "<<posxyz.Eta()<<","<<posxyz.Phi()
      <<", X,Y = "<<posxyz.X()<<","<<posxyz.Y()
-     <<", R,Z = "<<posxyz.R()<<","<<posxyz.Z()
+     <<", R,Z = "<<posxyz.Rho()<<","<<posxyz.Z()
      <<", E,Pt = "<<trajPoint.momentum().E()<<","<<trajPoint.momentum().Pt();
   
   return out;

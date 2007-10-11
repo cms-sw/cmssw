@@ -26,16 +26,16 @@ PFCluster::PFCluster() :
 }
 
 
-  
+
 PFCluster::PFCluster(int layer, double energy,
 		     double x, double y, double z ) : 
   layer_(layer),
   energy_(energy), 
   posxyz_(x,y,z),
   posrep_( posxyz_.Rho(), posxyz_.Eta(), posxyz_.Phi() ),
-//   posCalcMode_(0),
-//   posCalcP1_(0),
-//   posCalcDepthCor_(false),
+  //   posCalcMode_(0),
+  //   posCalcP1_(0),
+  //   posCalcDepthCor_(false),
   color_(2)
 {  
   instanceCounter_++;
@@ -48,9 +48,9 @@ PFCluster::PFCluster(const PFCluster& other) :
   energy_(other.energy_),
   posxyz_(other.posxyz_),
   posrep_(other.posrep_),
-//   posCalcMode_(other.posCalcMode_),
-//   posCalcP1_(other.posCalcP1_),
-//   posCalcDepthCor_(other.posCalcDepthCor_),
+  //   posCalcMode_(other.posCalcMode_),
+  //   posCalcP1_(other.posCalcP1_),
+  //   posCalcDepthCor_(other.posCalcDepthCor_),
   color_(other.color_)
 {
   instanceCounter_++;
@@ -493,19 +493,22 @@ std::ostream& reco::operator<<(std::ostream& out,
   
   if(!out) return out;
   
+  const math::XYZPoint&  posxyz = cluster.positionXYZ();
   const PFCluster::REPPoint&  pos = cluster.positionREP();
   const std::vector< reco::PFRecHitFraction >& fracs = 
     cluster.recHitFractions();
-
+  
   out<<"cluster "
      <<"\tlayer: "<<cluster.layer()
      <<"\tenergy: "<<cluster.energy()
-     <<"\tpos: "
+     <<"\tXYZ: "
+     <<posxyz.X()<<","<<posxyz.Y()<<","<<posxyz.Z()<<" | "
+     <<"\tREP: "
      <<pos.Rho()<<","<<pos.Eta()<<","<<pos.Phi()<<" | "
      <<fracs.size()<<" rechits: ";
-    for(unsigned i=0; i<fracs.size(); i++) {
-      out<<fracs[i]<<", ";
-    }
-
+  for(unsigned i=0; i<fracs.size(); i++) {
+    out<<fracs[i]<<", ";
+  }
+  
   return out;
 }
