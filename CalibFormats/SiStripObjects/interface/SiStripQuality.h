@@ -17,7 +17,7 @@
 //
 // Author:      Domenico Giordano
 // Created:     Wed Sep 26 17:42:12 CEST 2007
-// $Id$
+// $Id: SiStripQuality.h,v 1.1 2007/10/08 17:30:47 giordano Exp $
 //
 
 
@@ -31,6 +31,18 @@ class SiStripQuality: public SiStripBadStrip {
 
  public:
 
+  struct BadComponent{
+    uint32_t detid;
+    unsigned short BadApvs : 6;
+    unsigned short BadFibers :3;
+    bool BadModule :1;
+  };
+
+  class BadComponentStrictWeakOrdering{
+  public:
+    bool operator() (const BadComponent& p,const uint32_t i) const {return p.detid < i;}
+  };
+  
   SiStripQuality();
   SiStripQuality(edm::FileInPath&);
   SiStripQuality(const SiStripBadStrip* );
@@ -48,24 +60,18 @@ class SiStripQuality: public SiStripBadStrip {
  
   void add(const SiStripBadStrip*);
 
-  inline std::pair<unsigned short,unsigned short> decode (const unsigned int& value) const {
-    return std::make_pair( ((value >> 16)  & 0xFFFF) , (value & 0xFFFF) );
-  }
-
-  inline unsigned int encode (const unsigned short& first, const unsigned short& NconsecutiveBadStrips) {
-    return   ((first & 0xFFFF) << 16) | ( NconsecutiveBadStrips & 0xFFFF ) ;
-  }
-
   bool cleanUp();
 
-  /*
-  bool IsModuleBad(const uint32_t& detid);
-  bool IsFiberBad(const uint32_t& detid, const short& fiberNb);
-  bool IsApvBad(const uint32_t& detid, const short& apvNb);
-  */
-  bool IsStripBad(const uint32_t& detid, const short& strip);
-  /*
-  short getBadApvs(const uint32_t& detid); 
+  void fillBadComponents();
+
+  //------- Interface for the user ----------//
+
+  bool IsModuleBad(const uint32_t& detid) const;
+  bool IsFiberBad(const uint32_t& detid, const short& fiberNb) const;
+  bool IsApvBad(const uint32_t& detid, const short& apvNb) const;
+  bool IsStripBad(const uint32_t& detid, const short& strip) const;
+  
+  short getBadApvs(const uint32_t& detid) const; 
   //each bad apv correspond to a bit to 1: num=
   //0 <-> all good apvs
   //1 <-> only apv 0 bad
@@ -73,7 +79,7 @@ class SiStripQuality: public SiStripBadStrip {
   //3<->  apv 0 and 1 bad
   // 4 <-> only apv 2 bad
   //...
-  short getBadFibers(const uint32_t& detid); 
+  short getBadFibers(const uint32_t& detid) const; 
   //each bad fiber correspond to a bit to 1: num=
   //0 <-> all good fibers
   //1 <-> only fiber 0 bad
@@ -81,11 +87,8 @@ class SiStripQuality: public SiStripBadStrip {
   //3<->  fiber 0 and 1 bad
   // 4 <-> only fiber 2 bad
   //...
-
-  void getBadModuleList(std::vector<uint32_t>&);
-  void getBadFiberList(std::vector< std::pair<uint32_t,short> >&);
-  void getBadApvList(std::vector< std::pair<uint32_t,short> >&);
-  */
+  
+  const std::vector<BadComponent>& getBadComponentList() const { return BadComponentVect; }   
 
  private:
 
@@ -96,6 +99,8 @@ class SiStripQuality: public SiStripBadStrip {
   edm::FileInPath fileInpath;
 
   bool toCleanUp;
+
+  std::vector<BadComponent> BadComponentVect;
 };
 
 #endif
