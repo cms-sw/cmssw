@@ -2,7 +2,7 @@
 // Author:  Christophe Delaere
 // Created: Thu Jul  26 11:08:00 CEST 2007
 //
-// $Id: TopTauProducer.cc,v 1.8 2007/10/04 16:11:40 delaer Exp $
+// $Id: TopTauProducer.cc,v 1.9 2007/10/09 00:22:34 lowette Exp $
 //
 
 #include "TopQuarkAnalysis/TopObjectProducers/interface/TopTauProducer.h"
@@ -130,13 +130,13 @@ void TopTauProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
     if (addGenMatch_) {
       // initialize best match as null
       reco::GenParticleCandidate bestGenTau(0, reco::Particle::LorentzVector(0, 0, 0, 0), reco::Particle::Point(0,0,0), 0, 0, true);
-      float bestDR = 0;
+      float bestDR = 5.; // this is the upper limit on the candidate matching. 
       // find the closest generated tau. No charge cut is applied
       for (reco::CandidateCollection::const_iterator itGenTau = particles->begin(); itGenTau != particles->end(); ++itGenTau) {
         reco::GenParticleCandidate aGenTau = *(dynamic_cast<reco::GenParticleCandidate *>(const_cast<reco::Candidate *>(&*itGenTau)));
         if (abs(aGenTau.pdgId())==15 && aGenTau.status()==2) {
 	  float currDR = DeltaR<reco::Candidate>()(aGenTau, *aTau);
-          if (bestDR == 0 || currDR < bestDR) {
+          if (currDR < bestDR) {
             bestGenTau = aGenTau;
             bestDR = currDR;
           }
