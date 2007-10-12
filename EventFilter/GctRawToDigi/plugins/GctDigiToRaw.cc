@@ -15,6 +15,7 @@
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 #include "DataFormats/FEDRawData/interface/FEDHeader.h"
 #include "DataFormats/FEDRawData/interface/FEDTrailer.h"
+#include "DataFormats/Provenance/interface/EventID.h"
 
 // Header needed to computer CRCs
 #include "EventFilter/Utilities/interface/Crc.h"
@@ -82,12 +83,14 @@ GctDigiToRaw::~GctDigiToRaw()
 void
 GctDigiToRaw::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
+  using namespace edm;
+  
   counter_++; // To "simulate" bunch crossings for now...
   unsigned int bx = counter_ % 3564;  // What's the proper way of doing this?
   edm::EventNumber eventNumber = iEvent.id().event();
   
   // Supply bx and EvID to the packer so it can make internal capture block headers.
-  blockPacker_.setBcId(counter_ % 3564);
+  blockPacker_.setBcId(bx);
   blockPacker_.setEvId(eventNumber);
  
   // get digis
@@ -95,9 +98,9 @@ GctDigiToRaw::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   iEvent.getByLabel(gctInputLabel_.label(), "isoEm", isoEm);
   edm::Handle<L1GctEmCandCollection> nonIsoEm;
   iEvent.getByLabel(gctInputLabel_.label(), "nonIsoEm", nonIsoEm);
-  edm::Handle<L1GctJetCandCollection> centralJets;
+  edm::Handle<L1GctJetCandCollection> cenJets;
   iEvent.getByLabel(gctInputLabel_.label(), "cenJets", cenJets);
-  edm::Handle<L1GctJetCandCollection> forwardJets;
+  edm::Handle<L1GctJetCandCollection> forJets;
   iEvent.getByLabel(gctInputLabel_.label(), "forJets", forJets);
   edm::Handle<L1GctJetCandCollection> tauJets;
   iEvent.getByLabel(gctInputLabel_label(), "tauJets", tauJets);
@@ -117,7 +120,7 @@ GctDigiToRaw::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
  
   // Write CDF header (exactly as told by Marco Zanetti)
   FEDHeader fedHeader(pHeader);
-  fedHeader.set(pHeader, 1, eventNumber, counter_ % 3564, fedId_);  // what should the bx_ID be?
+  fedHeader.set(pHeader, 1, eventNumber, bx, fedId_);  // what should the bx_ID be?
  
   // pack GCT Jet output digis
   blockPacker_.writeGctJetBlock(pPayload, cenJets.product(), forJets.product(), tauJets.product());
