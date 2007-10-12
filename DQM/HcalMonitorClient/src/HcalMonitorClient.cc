@@ -32,30 +32,25 @@ void HcalMonitorClient::initialize(const ParameterSet& ps){
   dataformat_client_ = 0; digi_client_ = 0;
   rechit_client_ = 0; pedestal_client_ = 0;
   led_client_ = 0; hot_client_ = 0; 
-  
-  offline_ = false;
+  lastResetTime_=0;
 
   // MonitorDaemon switch
   enableMonitorDaemon_ = ps.getUntrackedParameter<bool>("enableMonitorDaemon", true);
-  
   if ( enableMonitorDaemon_ ) cout << "-->enableMonitorDaemon switch is ON" << endl;
   else cout << "-->enableMonitorDaemon switch is OFF" << endl;
+
+  mui_ = new MonitorUIRoot();
 
   // DQM ROOT input
   inputFile_ = ps.getUntrackedParameter<string>("inputFile", "");
   if(inputFile_.size()!=0 ) cout << "-->reading DQM input from " << inputFile_ << endl;
   
-  mui_ = new MonitorUIRoot();
-
   if( ! enableMonitorDaemon_ ) {  
     if( inputFile_.size() != 0 && dbe_!=NULL){
       dbe_->open(inputFile_);
       dbe_->showDirStructure();     
     }
   }
-
-  // location
-  location_ =  ps.getUntrackedParameter<string>("location", "USC");
 
   //histogram reset freqency, update frequency, timeout
   resetUpdate_ = ps.getUntrackedParameter<int>("resetFreqUpdates",-1);  //number of collector updates
@@ -64,21 +59,24 @@ void HcalMonitorClient::initialize(const ParameterSet& ps){
   if(resetEvents_!=-1) cout << "-->Will reset histograms every " << resetEvents_ <<" events." << endl;
   resetTime_ = ps.getUntrackedParameter<int>("resetFreqTime",-1);       //number of minutes
   if(resetTime_!=-1) cout << "-->Will reset histograms every " << resetTime_ <<" minutes." << endl;
+  resetLS_ = ps.getUntrackedParameter<int>("resetFreqLS",-1);       //number of lumisections
+  if(resetLS_!=-1) cout << "-->Will reset histograms every " << resetLS_ <<" lumi sections." << endl;
 
   // base Html output directory
   baseHtmlDir_ = ps.getUntrackedParameter<string>("baseHtmlDir", "");
-
   if( baseHtmlDir_.size() != 0 ) 
     cout << "-->HTML output will go to baseHtmlDir = '" << baseHtmlDir_ << "'" << endl;
   else cout << "-->HTML output is disabled" << endl;
   
   // exit on end job switch
   enableExit_ = ps.getUntrackedParameter<bool>("enableExit", true);
-
   if( enableExit_ ) cout << "-->enableExit switch is ON" << endl;
   else cout << "-->enableExit switch is OFF" << endl;
 
+  
   runningStandalone_ = ps.getUntrackedParameter<bool>("runningStandalone", false);
+  if( runningStandalone_ ) cout << "-->standAlone switch is ON" << endl;
+  else cout << "-->standAlone switch is OFF" << endl;
 
   // global ROOT style
   gStyle->Reset("Default");
@@ -247,6 +245,16 @@ void HcalMonitorClient::endLuminosityBlock(const LuminosityBlock &l, const Event
 //--------------------------------------------------------
 void HcalMonitorClient::analyze(const Event& e, const edm::EventSetup& eventSetup){
   DQMAnalyzer::analyze(e,eventSetup);
+
+  if(resetEvents_>0 && (ievent_%resetEvents_)==0) resetAllME();
+  if(resetLS_>0 && (ilumisec_%resetLS_)==0) resetAllME();
+  int deltaT = itime_-lastResetTime_;
+  if(resetTime_>0 && (deltaT>resetTime_)){
+    resetAllME();
+    lastResetTime_ = itime_;
+  }
+  //  if(nupdates%resetUpdate_)==0) resetAllME();
+
   if ( runningStandalone_ || prescale()) return;
   else analyze();
 }
@@ -444,8 +452,6 @@ void HcalMonitorClient::offlineSetup(){
   rechit_client_ = 0; pedestal_client_ = 0;
   led_client_ = 0;  hot_client_ = 0;
   
-  offline_ = true;
-
   // base Html output directory
   baseHtmlDir_ = ".";
   

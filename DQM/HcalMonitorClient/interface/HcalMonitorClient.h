@@ -101,16 +101,15 @@ private:
   int resetUpdate_;
   int resetEvents_;
   int resetTime_;
+  int lastResetTime_;
+  int resetLS_;
   
   bool runningStandalone_;
-  bool offline_;
   bool enableExit_;
   bool enableMonitorDaemon_;
 
   string inputFile_;
   string baseHtmlDir_;
-  string process_;
-  string location_;
 
   MonitorUserInterface* mui_;
   HcalDataFormatClient* dataformat_client_;
