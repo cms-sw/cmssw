@@ -13,7 +13,7 @@
 //
 // Original Author:  
 //         Created:  Tue Oct 17 00:13:51 EDT 2006
-// $Id: L1ExtraParticlesProd.h,v 1.3 2007/07/04 01:36:11 wsun Exp $
+// $Id: L1ExtraParticlesProd.h,v 1.4 2007/09/27 23:08:00 ratnik Exp $
 //
 
 // system include files
@@ -46,10 +46,11 @@ class L1ExtraParticlesProd : public edm::EDProducer {
       virtual void produce(edm::Event&, const edm::EventSetup&);
       virtual void endJob() ;
 
-      math::XYZTLorentzVector gctLorentzVector( const double& et,
-						const L1GctCand& cand,
-						const L1CaloGeometry* geom,
-						bool central ) ;
+      //      math::XYZTLorentzVector gctLorentzVector( const double& et,
+      math::PtEtaPhiMLorentzVector gctLorentzVector( const double& et,
+						     const L1GctCand& cand,
+						     const L1CaloGeometry* geom,
+						     bool central ) ;
       
       // ----------member data ---------------------------
       bool produceMuonParticles_ ;

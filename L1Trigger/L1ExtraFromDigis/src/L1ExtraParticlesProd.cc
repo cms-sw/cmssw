@@ -8,7 +8,7 @@
 //
 // Original Author:  Werner Sun
 //         Created:  Mon Oct  2 22:45:32 EDT 2006
-// $Id: L1ExtraParticlesProd.cc,v 1.13 2007/08/01 18:26:22 jbrooke Exp $
+// $Id: L1ExtraParticlesProd.cc,v 1.14 2007/09/26 02:45:32 wsun Exp $
 //
 //
 
@@ -161,20 +161,24 @@ L1ExtraParticlesProd::produce( edm::Event& iEvent,
 
 	    double eta =
 	       muScales->getGMTEtaScale()->getCenter( muItr->etaIndex() ) ;
-	    double tanThOver2 = exp( -eta ) ;
-	    double pz = pt * ( 1. - tanThOver2 * tanThOver2 ) /
-	       ( 2. * tanThOver2 ) ;
-	    double p  = pt * ( 1. + tanThOver2 * tanThOver2 ) /
-	       ( 2. * tanThOver2 ) ;
-	    double e = sqrt( p * p + muonMassGeV_ * muonMassGeV_ ) ;
+// 	    double tanThOver2 = exp( -eta ) ;
+// 	    double pz = pt * ( 1. - tanThOver2 * tanThOver2 ) /
+// 	       ( 2. * tanThOver2 ) ;
+// 	    double p  = pt * ( 1. + tanThOver2 * tanThOver2 ) /
+// 	       ( 2. * tanThOver2 ) ;
+// 	    double e = sqrt( p * p + muonMassGeV_ * muonMassGeV_ ) ;
 
 	    double phi =
 	       muScales->getPhiScale()->getLowEdge( muItr->phiIndex() ) ;
 
-	    math::XYZTLorentzVector p4( pt * cos( phi ),
-					pt * sin( phi ),
-					pz,
-					e ) ;
+// 	    math::XYZTLorentzVector p4( pt * cos( phi ),
+// 					pt * sin( phi ),
+// 					pz,
+// 					e ) ;
+	    math::PtEtaPhiMLorentzVector p4( pt,
+					     eta,
+					     phi,
+					     muonMassGeV_ ) ;
 
 	    muColl->push_back(
 	       L1MuonParticle( muItr->charge(),
@@ -438,10 +442,14 @@ L1ExtraParticlesProd::produce( edm::Event& iEvent,
 
       double phi = caloGeom->etSumPhiBinCenter( hwEtMiss->phi() ) ;
 
-      math::XYZTLorentzVector p4( etMiss * cos( phi ),
-				  etMiss * sin( phi ),
-				  0.,
-				  etMiss ) ;
+//       math::XYZTLorentzVector p4( etMiss * cos( phi ),
+// 				  etMiss * sin( phi ),
+// 				  0.,
+// 				  etMiss ) ;
+      math::PtEtaPhiMLorentzVector p4( etMiss,
+				       0.,
+				       phi,
+				       0. ) ;
 
       auto_ptr< L1EtMissParticle > etMissParticle(
 	 new L1EtMissParticle( p4,
@@ -457,7 +465,8 @@ L1ExtraParticlesProd::produce( edm::Event& iEvent,
    }
 }
 
-math::XYZTLorentzVector
+//math::XYZTLorentzVector
+math::PtEtaPhiMLorentzVector
 L1ExtraParticlesProd::gctLorentzVector( const double& et,
 					const L1GctCand& cand,
 					const L1CaloGeometry* geom,
@@ -468,16 +477,20 @@ L1ExtraParticlesProd::gctLorentzVector( const double& et,
 
    double eta = geom->etaBinCenter( cand.etaIndex(), central ) ;
 
-   double tanThOver2 = exp( -eta ) ;
-   double ez = etCorr * ( 1. - tanThOver2 * tanThOver2 ) / ( 2. * tanThOver2 );
-   double e  = etCorr * ( 1. + tanThOver2 * tanThOver2 ) / ( 2. * tanThOver2 );
+//    double tanThOver2 = exp( -eta ) ;
+//    double ez = etCorr * ( 1. - tanThOver2 * tanThOver2 ) / ( 2. * tanThOver2 );
+//    double e  = etCorr * ( 1. + tanThOver2 * tanThOver2 ) / ( 2. * tanThOver2 );
 
    double phi = geom->emJetPhiBinCenter( cand.phiIndex() ) ;
 
-   return math::XYZTLorentzVector( etCorr * cos( phi ),
-				   etCorr * sin( phi ),
-				   ez,
-				   e ) ;
+//    return math::XYZTLorentzVector( etCorr * cos( phi ),
+// 				   etCorr * sin( phi ),
+// 				   ez,
+// 				   e ) ;
+   return math::PtEtaPhiMLorentzVector( etCorr,
+					eta,
+					phi,
+					0. ) ;
 }     
 
 // ------------ method called once each job just before starting event loop  ------------
