@@ -7,8 +7,8 @@
  *   studies
  *
  *
- *   $Date: 2007/04/27 08:52:21 $
- *   $Revision: 1.6 $
+ *   $Date: 2007/05/21 13:13:25 $
+ *   $Revision: 1.7 $
  *
  *   \author C. Battilana
  */
@@ -37,6 +37,7 @@
 #include "TFile.h"
 
 // Collaborating classes
+#include "DataFormats/Math/interface/LorentzVector.h"
 #include <CLHEP/Vector/LorentzVector.h>
 
 // C++ headers
@@ -250,10 +251,10 @@ void DTTrigTest::analyze(const Event & iEvent, const EventSetup& iEventSetup){
   
   for (itrack=MyTracks->begin(); itrack!=MyTracks->end(); itrack++){
     if ( abs(itrack->type())==13){
-      float pt  = itrack->momentum().perp();
-      float eta = itrack->momentum().pseudoRapidity();
+      math::XYZTLorentzVectorD momentum = itrack->momentum();
+      float pt  = momentum.Pt();
+      float eta = momentum.eta();
       if ( pt>ptcut && fabs(eta)<etacut ){
-	HepLorentzVector momentum = itrack->momentum();
 	float phi = momentum.phi();
 	int charge = static_cast<int> (-itrack->type()/13); //static_cast<int> (itrack->charge());
 	if ( phi<0 ) phi = 2*M_PI + phi;
