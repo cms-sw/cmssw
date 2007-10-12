@@ -70,7 +70,7 @@ void GctBlockPacker::writeGctJetBlock(unsigned char * d,
                                       const L1GctJetCandCollection* tauJets)
 {
   // Set up a vector of the collections for easy iteration.
-  vector<L1GctJetCandCollection*> jets(NUM_JET_CATAGORIES);
+  vector<const L1GctJetCandCollection*> jets(NUM_JET_CATAGORIES);
   jets.at(CENTRAL_JETS)=cenJets;
   jets.at(FORWARD_JETS)=forJets;
   jets.at(TAU_JETS)=tauJets;
