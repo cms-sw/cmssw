@@ -5,8 +5,8 @@
 //   Description:   Dump GMT readout
 //                  
 //                
-//   $Date: 2007/04/02 15:45:39 $
-//   $Revision: 1.9 $
+//   $Date: 2007/08/02 15:44:06 $
+//   $Revision: 1.10 $
 //
 //   I. Mikulec            HEPHY Vienna
 //
@@ -85,7 +85,7 @@ void L1MuGMTDump::analyze(const edm::Event& e, const edm::EventSetup& es) {
       pxgen[igen]=(*isimtr).momentum().px();
       pygen[igen]=(*isimtr).momentum().py();
       pzgen[igen]=(*isimtr).momentum().pz();
-      ptgen[igen]=(*isimtr).momentum().perp();
+      ptgen[igen]=(*isimtr).momentum().pt();
       etagen[igen]=(*isimtr).momentum().eta();
       phigen[igen]=(*isimtr).momentum().phi()>0 ? (*isimtr).momentum().phi() : (*isimtr).momentum().phi()+2*3.14159265359;
       chagen[igen]=(*isimtr).type()>0 ? -1 : 1 ;
