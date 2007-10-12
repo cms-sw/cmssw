@@ -96,7 +96,8 @@ PFBlockProducer::PFBlockProducer(const edm::ParameterSet& iConfig) {
   double chi2_PSH_PSV 
     = iConfig.getParameter<double>("pf_chi2_PSH_PSV");  
   
-
+  bool multiLink = 
+    iConfig.getUntrackedParameter<bool>("pf_multilink",false);
 
   //energyCalibration_ = new PFEnergyCalibration(iConfig);
 
@@ -118,7 +119,8 @@ PFBlockProducer::PFBlockProducer(const edm::ParameterSet& iConfig) {
 			      chi2_ECAL_HCAL,
 			      chi2_ECAL_PS,
 			      chi2_PS_Track,
-			      chi2_PSH_PSV );
+			      chi2_PSH_PSV,
+			      multiLink );
   
 
 //   energyCalibration_ = new PFEnergyCalibration();
