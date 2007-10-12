@@ -18,20 +18,21 @@
 
 template<typename C>
 class HistoAnalyzer : public edm::EDAnalyzer {
- public:
+public:
   /// constructor from parameter set
   HistoAnalyzer( const edm::ParameterSet& );
   /// destructor
   ~HistoAnalyzer();
-
- private:
+  
+protected:
   /// process an event
   virtual void analyze( const edm::Event&, const edm::EventSetup& );
+
+private:
   /// label of the collection to be read in
   edm::InputTag src_;
   /// vector of the histograms
   std::vector<ExpressionHisto<typename C::value_type>* > vhistograms;
-
 };
 
 template<typename C>
