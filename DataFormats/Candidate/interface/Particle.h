@@ -7,7 +7,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: Particle.h,v 1.15 2007/09/14 13:34:21 llista Exp $
+ * \version $Id: Particle.h,v 1.16 2007/10/10 09:10:47 llista Exp $
  *
  */
 #include "DataFormats/Math/interface/Point3D.h"
@@ -87,6 +87,8 @@ namespace reco {
     double y() const { return p4_.Rapidity(); }
     /// set 4-momentum
     void setP4( const LorentzVector & p4 ) { p4_ = p4; }
+    /// set mass
+    void setMass( double m ) { p4_.SetM(m); }
     /// vertex position
     const Point & vertex() const { return vertex_; }
     /// x coordinate of vertex position
