@@ -229,6 +229,26 @@ void CSCDCCUnpacker::produce(edm::Event & e, const edm::EventSetup& c)
 		      ///first process chamber-wide digis such as LCT
 		      int vmecrate = cscData[iCSC].dmbHeader().crateID();
 		      int dmb = cscData[iCSC].dmbHeader().dmbID();
+
+		      ///adjust crate numbers for MTCC data
+		      if (unpackMTCCData)
+			switch (vmecrate) {
+			case 0:
+			  vmecrate=23;
+			  break;
+			case 1:
+			  vmecrate=17;
+			  break;
+			case 2:
+			  vmecrate=11;
+			  break;
+			case 3:
+			  vmecrate=10;
+			  break;
+			default:
+			  break;
+			}
+		      
 		      int icfeb = 0; ///default value for all digis not related to cfebs
 		      int ilayer = 0; /// zeroth layer indicates whole chamber
 
