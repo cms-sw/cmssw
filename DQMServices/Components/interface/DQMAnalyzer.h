@@ -4,8 +4,8 @@
 /*
  * \file DQMAnalyzer.h
  *
- * $Date: 2007/09/23 15:22:49 $
- * $Revision: 1.1 $
+ * $Date: 2007/10/11 22:41:11 $
+ * $Revision: 1.2 $
  * \author M. Zanetti - INFN Padova
  *
 */
@@ -134,9 +134,9 @@ private:
 
   struct{
     timeval startTV,updateTV;
-    float startTime;
-    float elapsedTime; 
-    float updateTime;
+    double startTime;
+    double elapsedTime; 
+    double updateTime;
   } psTime_;    
 
   bool saved_;

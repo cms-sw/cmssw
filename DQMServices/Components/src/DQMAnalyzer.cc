@@ -1,8 +1,8 @@
 /*
  * \file DQMAnalyzer.cc
  * 
- * $Date: 2007/09/23 15:22:54 $
- * $Revision: 1.1 $
+ * $Date: 2007/10/11 22:41:12 $
+ * $Revision: 1.2 $
  * \author M. Zanetti - CERN PH
  *
  */
@@ -44,7 +44,7 @@ saved_(false)
   initialize();
 }
 
-
+//--------------------------------------------------------
 void DQMAnalyzer::initialize(){  
 
   debug_ = parameters_.getUntrackedParameter<bool>("debug", false);
@@ -92,7 +92,8 @@ void DQMAnalyzer::initialize(){
   
   gettimeofday(&psTime_.startTV,NULL);
   /// get time in milliseconds, convert to minutes
-  psTime_.startTime = (psTime_.startTV.tv_sec*1000.0+psTime_.startTV.tv_usec/1000.0)/(60.0*1000.0);
+  psTime_.startTime = (psTime_.startTV.tv_sec*1000.0+psTime_.startTV.tv_usec/1000.0);
+  psTime_.startTime /= (60.0*1000.0);
   psTime_.elapsedTime=0;
   psTime_.updateTime=0;
 
@@ -130,8 +131,12 @@ void DQMAnalyzer::analyze(const Event& e, const EventSetup& c){
   
   //get elapsed time in minutes...
   gettimeofday(&psTime_.updateTV,NULL);
-  float currTime =(psTime_.updateTV.tv_sec*1000.0+psTime_.updateTV.tv_usec/1000.0) / (60.0*1000);
+  double currTime =(psTime_.updateTV.tv_sec*1000.0+psTime_.updateTV.tv_usec/1000.0); //in milliseconds
+  printf("Now in MS: %f\n",currTime);
+  currTime /= (60.0*1000.0); //in minutes
   psTime_.elapsedTime = currTime - psTime_.startTime;
+
+  printf("now: %f, start: %f, delta: %f\n",currTime,psTime_.startTime,psTime_.elapsedTime);
 
   // set counters and flags
   saved_ = false;
@@ -143,7 +148,7 @@ void DQMAnalyzer::analyze(const Event& e, const EventSetup& c){
   ievent_   = e.id().event();
   itime_    = e.time().value();
 
-  if (debug_) cout << nevt_ << " " << irun_ << " " << ilumisec_ << " " << ievent_ << " " << itime_ << endl; 
+  if (debug_) cout << "DQMAnalyzer: evts: "<< nevt_ << ", run: " << irun_ << ", LS: " << ilumisec_ << ", evt: " << ievent_ << ", time: " << itime_ << endl; 
   
   // ME
   if (runId_)     runId_->Fill(irun_);
@@ -203,18 +208,38 @@ void DQMAnalyzer::reset() {
 //--------------------------------------------------------
 bool DQMAnalyzer::prescale(){
   ///Return true if this event should be skipped according to the prescale condition...
+  ///    Accommodate a logical "OR" of the possible tests
   if (debug_) cout <<"DQMAnalyzer::prescale"<<endl;
   
-  if(prescaleEvt_>0 && (ievent_%prescaleEvt_)!=0) return true;
-  if(prescaleLS_>0 && (ilumisec_%prescaleLS_)!=0) return true;
-  if(prescaleTime_>0){
-    float time = psTime_.elapsedTime - psTime_.updateTime;
-    if(time<prescaleTime_) return true;
-    else psTime_.updateTime = psTime_.elapsedTime;
-  }
-  //  if(prescaleUpdate_>0 && (nupdates_%prescaleUpdate_)!=0) return true; ///need to define what "updates" means
+  //First determine if we care...
+  bool evtPS =    prescaleEvt_>0;
+  bool lsPS =     prescaleLS_>0;
+  bool timePS =   prescaleTime_>0;
+  bool updatePS = prescaleUpdate_>0;
 
-  return false;
+  // If no prescales are set, keep the event
+  if(!evtPS && !lsPS && !timePS && !updatePS) return false;
+
+  //check each instance
+  if(lsPS && (ilumisec_%prescaleLS_)!=0) lsPS = false; //LS veto
+  if(evtPS && (ievent_%prescaleEvt_)!=0) evtPS = false; //evt # veto
+  if(timePS){
+    float time = psTime_.elapsedTime - psTime_.updateTime;
+    if(time<prescaleTime_){
+      timePS = false;  //timestamp veto
+      psTime_.updateTime = psTime_.elapsedTime;
+    }
+  }
+  //  if(prescaleUpdate_>0 && (nupdates_%prescaleUpdate_)==0) updatePS=false; ///need to define what "updates" means
+  
+  if (debug_) printf("DQMAnalyzer::prescale  evt: %d/%d, ls: %d/%d, time: %f/%d\n",
+		     ievent_,evtPS,
+		     ilumisec_,lsPS,
+		     psTime_.elapsedTime - psTime_.updateTime,timePS);
+
+  // if any criteria wants to keep the event, do so
+  if(evtPS || lsPS || timePS) return false; //FIXME updatePS left out for now
+  return true;
 }
 
 //--------------------------------------------------------
