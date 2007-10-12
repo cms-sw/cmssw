@@ -1,13 +1,14 @@
-<library file=ZMuMuAnalyzer.cc>
-<library file=ZToMuMuSelector.cc>
-<library file=ZToMuMuFilter.cc>
-
 <use name=FWCore/Framework>
-  <use name=PhysicsTools/UtilAlgos>
-  <use name=DataFormats/MuonReco>
-  <use name=FWCore/ParameterSet>
-  <use name=DataFormats/HepMCCandidate>
-  <use name=root>
-</library>
+<use name=PhysicsTools/UtilAlgos>
+<use name=DataFormats/MuonReco>
+<use name=FWCore/ParameterSet>
+<use name=DataFormats/HepMCCandidate>
+<use name=root>
+
+<library file=ZToMuMuHistogrammer.cc></library>
+<library file=ZMuMuAnalyzer.cc></library>
+<library file=ZToMuMuSelector.cc></library>
+<library file=ZToMuMuFilter.cc></library>
+
 
 
