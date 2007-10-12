@@ -7,9 +7,9 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Revision: 1.10 $
+ * \version $Revision: 1.11 $
  *
- * $Id: CandCombiner.h,v 1.10 2007/07/23 11:13:58 llista Exp $
+ * $Id: CandCombiner.h,v 1.11 2007/09/18 20:04:29 llista Exp $
  *
  */
 #include "FWCore/Framework/interface/EDProducer.h"
@@ -60,32 +60,40 @@ namespace reco {
       combiner_( reco::modules::make<Selector>( cfg ), 
 		 reco::modules::make<PairSelector>( cfg ),
 		 Setup( cfg ), 
-		 true, 
+		 checkCharge(cfg), 
 		 dauCharge_ ) {
 		 }
       /// destructor
       virtual ~CandCombiner() { }
 
     private:
-    /// process an event
-    void produce( edm::Event& evt, const edm::EventSetup& es ) {
-      Init::init( combiner_.setup(), es );
-      int n = labels_.size();
-      std::vector<edm::Handle<InputCollection> > colls( n );
-      for( int i = 0; i < n; ++i )
-      evt.getByLabel( labels_[ i ].tag_, colls[ i ] );
-      typedef typename combiner::helpers::template CandRefHelper<InputCollection>::RefProd RefProd;
-      std::vector<RefProd> cv;
-      for( typename std::vector<edm::Handle<InputCollection> >::const_iterator c = colls.begin();
-	   c != colls.end(); ++ c ) {
-	RefProd r( *c );
+      /// process an event
+      void produce( edm::Event& evt, const edm::EventSetup& es ) {
+	Init::init( combiner_.setup(), es );
+	int n = labels_.size();
+	std::vector<edm::Handle<InputCollection> > colls( n );
+	for( int i = 0; i < n; ++i )
+	  evt.getByLabel( labels_[ i ].tag_, colls[ i ] );
+	typedef typename combiner::helpers::template CandRefHelper<InputCollection>::RefProd RefProd;
+	std::vector<RefProd> cv;
+	for( typename std::vector<edm::Handle<InputCollection> >::const_iterator c = colls.begin();
+	     c != colls.end(); ++ c ) {
+	  RefProd r( *c );
 	cv.push_back( r );
+	}
+	evt.put( combiner_.combine( cv ) );
       }
-      evt.put( combiner_.combine( cv ) );
-    }
-    
-    /// combiner utility
-    ::CandCombiner<InputCollection, Selector, PairSelector, Cloner, Setup> combiner_;
+      /// combiner utility
+      ::CandCombiner<InputCollection, Selector, PairSelector, Cloner, Setup> combiner_;
+      bool checkCharge( const edm::ParameterSet & cfg ) const {
+	using namespace std;
+	const string par( "checkCharge" );
+	vector<string> bools = cfg.getParameterNamesForType<bool>();
+	bool found = find( bools.begin(), bools.end(), "checkCharge" ) != bools.end();
+	if (found) return cfg.getParameter<bool>( par );
+	// default: check charge
+	return true;
+      }
     };
 
   }
