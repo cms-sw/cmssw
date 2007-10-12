@@ -1,4 +1,7 @@
-$Id: HISTORY,v 1.3 2007/09/22 00:04:51 narsky Exp $
+$Id: HISTORY,v 1.4 2007/10/07 22:15:34 narsky Exp $
+
+12.10.2007 narsky V00-01-01
+    Minor fix in Root I/O - bringing up-to-date with SPR-07-02-01.
 
 07.10.2007 narsky V00-01-00
     Bringing to Sourceforge SPR-07-02-00.

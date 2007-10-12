@@ -1,4 +1,4 @@
-//$Id: SprRootWriter.cc,v 1.3 2006/11/13 19:09:43 narsky Exp $
+//$Id: SprRootWriter.cc,v 1.4 2007/10/10 20:21:31 narsky Exp $
 
 #include "PhysicsTools/StatPatternRecognition/interface/SprExperiment.hh"
 #include "PhysicsTools/StatPatternRecognition/interface/SprRootWriter.hh"
@@ -10,6 +10,7 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <stdio.h>
+#include <algorithm>
 
 using namespace std;
 
@@ -66,7 +67,9 @@ int SprRootWriter::SetBranches()
   TString values = "index/F:classification/F:weight/F";
   for(int i = 0; i < axes_.size(); i++) {
     values += ":";
-    values += axes_[i].c_str();
+    string temp = axes_[i];
+    replace(temp.begin(),temp.end(),'/','_');
+    values += temp.c_str();
     values += "/F";
   }
 

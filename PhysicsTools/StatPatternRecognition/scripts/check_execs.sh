@@ -16,7 +16,7 @@ input_data="gauss2_uniform_2d_train.pat"
 if [ "$mode" == "2" ]; then
   input_data="gauss2_uniform_2d_train_root.pat"
 fi
-exec_dir="/afs/cern.ch/user/n/narsky/w0/CMSSW_1_7_X_2007-10-07-1600/bin/slc4_ia32_gcc345"
+exec_dir="../bin"
 echo "TopdownTree 5 0 100" > check_execs.config
 #
 # check execs

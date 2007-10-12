@@ -1,4 +1,4 @@
-// $Id: SprRootReader.cc,v 1.8 2007/10/05 20:03:10 narsky Exp $
+// $Id: SprRootReader.cc,v 1.9 2007/10/10 20:21:31 narsky Exp $
 
 #include "PhysicsTools/StatPatternRecognition/interface/SprExperiment.hh"
 #include "PhysicsTools/StatPatternRecognition/interface/SprRootReader.hh"
@@ -278,15 +278,22 @@ SprAbsFilter* SprRootReader::readRootObjects(bool needToCalcWeights)
     return new SprEmptyFilter(data.release(), true);
 }
 
+
 bool SprRootReader::chooseVars(const std::set<std::string>& vars)
 {
-    return false;
+  cerr << "Unable to choose variables: "
+       << "SprRootReader::chooseVars() not implemented." << endl;
+  return false;
 }
+
 
 bool SprRootReader::chooseAllBut(const std::set<std::string>& vars)
 {
-    return false;
+  cerr << "Unable to choose variables: "
+       << "SprRootReader::chooseAllBut() not implemented." << endl;
+  return false;
 }
+
 
 void SprRootReader::chooseAll()
 {
