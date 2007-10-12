@@ -48,5 +48,6 @@
 
  <class pattern="*pair*"/>
  <class pattern="*map*"/>
+ <class pattern="*EcalContainer*"/>
 
 </lcgdict>
