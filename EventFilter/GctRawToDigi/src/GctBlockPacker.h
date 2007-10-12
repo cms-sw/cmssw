@@ -25,23 +25,24 @@ class GctBlockPacker {
   void setBcId(uint32_t ev) { evid_ = ev; }
   void setEvId(uint32_t bc) { bcid_ = bc; }
 
-  void writeFedHeader(unsigned char * d, uint32_t fedId);
-
-  void writeFedFooter(unsigned char * d, const unsigned char * start);
-
   void writeGctHeader(unsigned char * d, uint16_t id, uint16_t nSamples);
 
+  /// Writes the GCT EM block into an unsigned char array, starting at the position pointed to by d.
+  /*! \param d must be pointing at the position where the EM block header should be written! */
   void writeGctEmBlock(unsigned char * d, const L1GctEmCandCollection* iso, const L1GctEmCandCollection* nonIso);
 
-  void writeGctCenJetBlock(unsigned char * d, const L1GctJetCandCollection* coll);
-
-  void writeGctTauJetBlock(unsigned char * d, const L1GctJetCandCollection* coll);
-
-  void writeGctForJetBlock(unsigned char * d, const L1GctJetCandCollection* coll);
+  /// Writes the GCT Jet block into an unsigned char array, starting at the position pointed to by d.
+  /*! \param d must be pointing at the position where the Jet block header should be written! */
+  void writeGctJetBlock(unsigned char * d, const L1GctEmCandCollection* cenJets,
+                        const L1GctEmCandCollection* forJets, const L1GctEmCandCollection* tauJets);
 
   void writeEnergySumsBlock(unsigned char * d, const L1GctEtMiss* etm, const L1GctEtTotal* ett, const L1GctEtHad* eth);
 
  private:
+
+  /// An enum for use with central, forward, and tau jet cand collections vector(s).
+  /*! Note that the order here mimicks the order in the RAW data format. */
+  enum JetCandCatagory { TAU_JETS, FORWARD_JETS, CENTRAL_JETS, NUM_JET_CATAGORIES };
 
   uint32_t bcid_;
   uint32_t evid_;

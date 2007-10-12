@@ -82,49 +82,58 @@ GctDigiToRaw::~GctDigiToRaw()
 void
 GctDigiToRaw::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-   using namespace edm;
-
-   // counters  -- NEED TO SORT OUT THIS BcId & EvId MESS!
-   counter_++;
-   blockPacker_.setBcId(counter_ % 3564);
-   blockPacker_.setEvId(iEvent.id().event());
-
-   // get digis
-   edm::Handle<L1GctEmCandCollection> isoEm;
-   iEvent.getByLabel(gctInputLabel_.label(), "isoEm", isoEm);
-
-   edm::Handle<L1GctEmCandCollection> nonIsoEm;
-   iEvent.getByLabel(gctInputLabel_.label(), "nonIsoEm", nonIsoEm);
-
-   // create the raw data collection
-   std::auto_ptr<FEDRawDataCollection> rawColl(new FEDRawDataCollection()); 
-
-   // get the GCT buffer
-   FEDRawData& fedRawData=rawColl->FEDData(fedId_);
-
-   // set the size & make pointers to the header, beginning of payload, and footer.
-   const unsigned int rawSize = 48;  // MUST BE MULTIPLE OF 8! (slink packets are 64 bit, but using 8-bit data struct).
-   fedRawData.resize(rawSize);
-   unsigned char * pHeader = fedRawData.data();  
-   unsigned char * pPayload = pHeader + 8;
-   unsigned char * pFooter = pHeader + rawSize - 8;
-
-   // Write CDF header (exactly as told by Marco Zanetti)
-   FEDHeader fedHeader(pHeader);
-   fedHeader.set(pHeader, 1, iEvent.id().event(), counter_ % 3564, fedId_);  // what should the bx_ID be?
-
-   // pack GCT EM output digis
-   blockPacker_.writeGctEmBlock(pPayload, isoEm.product(), nonIsoEm.product());      
-
-   // write footer (exactly as told by Marco Zanetti)
-   FEDTrailer fedTrailer(pFooter);
-   fedTrailer.set(pFooter, rawSize/8, evf::compute_crc(pHeader, rawSize), 0, 0);
-
-   // debug output
-   if (verbose_) print(fedRawData);
-
-   // put the collection in the event
-   iEvent.put(rawColl);
+  counter_++; // To "simulate" bunch crossings for now...
+  unsigned int bx = counter_ % 3564;  // What's the proper way of doing this?
+  edm::EventNumber eventNumber = iEvent.id().event();
+  
+  // Supply bx and EvID to the packer so it can make internal capture block headers.
+  blockPacker_.setBcId(counter_ % 3564);
+  blockPacker_.setEvId(eventNumber);
+ 
+  // get digis
+  edm::Handle<L1GctEmCandCollection> isoEm;
+  iEvent.getByLabel(gctInputLabel_.label(), "isoEm", isoEm);
+  edm::Handle<L1GctEmCandCollection> nonIsoEm;
+  iEvent.getByLabel(gctInputLabel_.label(), "nonIsoEm", nonIsoEm);
+  edm::Handle<L1GctJetCandCollection> centralJets;
+  iEvent.getByLabel(gctInputLabel_.label(), "cenJets", cenJets);
+  edm::Handle<L1GctJetCandCollection> forwardJets;
+  iEvent.getByLabel(gctInputLabel_.label(), "forJets", forJets);
+  edm::Handle<L1GctJetCandCollection> tauJets;
+  iEvent.getByLabel(gctInputLabel_label(), "tauJets", tauJets);
+  
+  // create the raw data collection
+  std::auto_ptr<FEDRawDataCollection> rawColl(new FEDRawDataCollection()); 
+ 
+  // get the GCT buffer
+  FEDRawData& fedRawData=rawColl->FEDData(fedId_);
+ 
+  // set the size & make pointers to the header, beginning of payload, and footer.
+  const unsigned int rawSize = 64;  // MUST BE MULTIPLE OF 8! (slink packets are 64 bit, but using 8-bit data struct).
+  fedRawData.resize(rawSize);
+  unsigned char * pHeader = fedRawData.data();  
+  unsigned char * pPayload = pHeader + 8;
+  unsigned char * pFooter = pHeader + rawSize - 8;
+ 
+  // Write CDF header (exactly as told by Marco Zanetti)
+  FEDHeader fedHeader(pHeader);
+  fedHeader.set(pHeader, 1, eventNumber, counter_ % 3564, fedId_);  // what should the bx_ID be?
+ 
+  // pack GCT Jet output digis
+  blockPacker_.writeGctJetBlock(pPayload, cenJets, forJets, tauJets));
+ 
+  // pack GCT EM output digis. Add offset of 28 to start of Slink payload to get EM block header position.
+  blockPacker_.writeGctEmBlock(pPayload + 28, isoEm.product(), nonIsoEm.product());      
+ 
+  // write footer (exactly as told by Marco Zanetti)
+  FEDTrailer fedTrailer(pFooter);
+  fedTrailer.set(pFooter, rawSize/8, evf::compute_crc(pHeader, rawSize), 0, 0);
+ 
+  // debug output
+  if (verbose_) print(fedRawData);
+ 
+  // put the collection in the event
+  iEvent.put(rawColl);
 }
 
 
