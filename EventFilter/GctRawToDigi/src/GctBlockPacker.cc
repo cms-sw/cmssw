@@ -71,9 +71,9 @@ void GctBlockPacker::writeGctJetBlock(unsigned char * d,
 {
   // Set up a vector of the collections for easy iteration.
   vector<L1GctEmCandCollection*> jets(NUM_JET_CATAGORIES);
-  vector.at(CENTRAL_JETS)=cenJets;
-  vector.at(FORWARD_JETS)=forJets;
-  vector.at(TAU_JETS)=tauJets;
+  jets.at(CENTRAL_JETS)=cenJets;
+  jets.at(FORWARD_JETS)=forJets;
+  jets.at(TAU_JETS)=tauJets;
   
   // number of time samples to write
   const uint16_t nSamples = 1;
@@ -97,9 +97,9 @@ void GctBlockPacker::writeGctJetBlock(unsigned char * d,
       const unsigned int cand0Offset = iCat*catagoryOffset + bx*2;
       
       p[cand0Offset] = jets.at(iCat)->at(0).raw();  // rank 0 jet
-      p[cand0Offset + timeSampleOffset] = jets.at(iCat)->(1).raw(); // rank 1 jet
+      p[cand0Offset + timeSampleOffset] = jets.at(iCat)->at(1).raw(); // rank 1 jet
       p[cand0Offset + 1] = jets.at(iCat)->at(2).raw(); // rank 2 jet
-      p[cand0Offset + timeSampleOffset + 1] = jet.at(iCat)->at(3).raw(); // rank 3 jet.
+      p[cand0Offset + timeSampleOffset + 1] = jets.at(iCat)->at(3).raw(); // rank 3 jet.
     }
   }
 }
