@@ -1,5 +1,5 @@
 //
-// $Id: TtDilepEvtSolution.cc,v 1.5 2007/07/20 07:05:14 lowette Exp $
+// $Id: TtDilepEvtSolution.cc,v 1.6 2007/07/25 13:32:35 rwolf Exp $
 //
 
 #include "AnalysisDataFormats/TopObjects/interface/TtDilepEvtSolution.h"
@@ -27,6 +27,8 @@ TopElectron TtDilepEvtSolution::getElectronp() const { return *elecp_; }
 TopElectron TtDilepEvtSolution::getElectronm() const { return *elecm_; }
 TopMuon     TtDilepEvtSolution::getMuonp() const     { return *muonp_; }
 TopMuon     TtDilepEvtSolution::getMuonm() const     { return *muonm_; }
+TopTau      TtDilepEvtSolution::getTaup() const      { return *taup_; }
+TopTau      TtDilepEvtSolution::getTaum() const      { return *taum_; }
 TopMET      TtDilepEvtSolution::getMET() const       { return *met_; }
 
 
@@ -65,6 +67,8 @@ void TtDilepEvtSolution::setGenEvt(const edm::Handle<TtGenEvent> & aGenEvt) {
 // methods to set the basic TopObjects
 void TtDilepEvtSolution::setB(const edm::Handle<std::vector<TopJet> > & jh, int i)              { jetB_ = edm::Ref<std::vector<TopJet> >(jh, i); }
 void TtDilepEvtSolution::setBbar(const edm::Handle<std::vector<TopJet> > & jh, int i)           { jetBbar_ = edm::Ref<std::vector<TopJet> >(jh, i); }
+void TtDilepEvtSolution::setTaup(const edm::Handle<std::vector<TopTau> > & mh, int i)         { taup_ = edm::Ref<std::vector<TopTau> >(mh, i); wpDecay_ = "tau"; }
+void TtDilepEvtSolution::setTaum(const edm::Handle<std::vector<TopTau> > & mh, int i)         { taum_ = edm::Ref<std::vector<TopTau> >(mh, i); wmDecay_ = "tau"; }
 void TtDilepEvtSolution::setMuonp(const edm::Handle<std::vector<TopMuon> > & mh, int i)         { muonp_ = edm::Ref<std::vector<TopMuon> >(mh, i); wpDecay_ = "muon"; }
 void TtDilepEvtSolution::setMuonm(const edm::Handle<std::vector<TopMuon> > & mh, int i)         { muonm_ = edm::Ref<std::vector<TopMuon> >(mh, i); wmDecay_ = "muon"; }
 void TtDilepEvtSolution::setElectronp(const edm::Handle<std::vector<TopElectron> > & eh, int i) { elecp_ = edm::Ref<std::vector<TopElectron> >(eh, i); wpDecay_ = "electron"; }

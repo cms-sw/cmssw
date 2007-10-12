@@ -1,5 +1,5 @@
 //
-// $Id: TtDilepEvtSolution.h,v 1.7 2007/08/03 09:24:23 tsirig Exp $
+// $Id: TtDilepEvtSolution.h,v 1.8 2007/09/20 18:12:22 lowette Exp $
 //
 
 #ifndef TopObjects_TtDilepEvtSolution_h
@@ -15,6 +15,7 @@
 #include "AnalysisDataFormats/TopObjects/interface/TopElectron.h"
 #include "AnalysisDataFormats/TopObjects/interface/TopMuon.h"
 #include "AnalysisDataFormats/TopObjects/interface/TopMET.h"
+#include "AnalysisDataFormats/TopObjects/interface/TopTau.h"
 
 #include <vector>
 #include <string>
@@ -37,6 +38,8 @@ class TtDilepEvtSolution {
     TopElectron getElectronm() const;
     TopMuon     getMuonp() const;
     TopMuon     getMuonm() const;
+    TopTau      getTaup() const;
+    TopTau      getTaum() const;
     TopMET      getMET() const;
     // methods to get the MC matched particles
     const TtGenEvent &      getGenEvent() const;
@@ -59,8 +62,8 @@ class TtDilepEvtSolution {
     std::string getWpDecay() const { return wpDecay_; }
     std::string getWmDecay() const { return wmDecay_; }
     // miscellaneous methods
-    bool getBestSol() const { return bestSol_; }
-    double getRecTopMass() const {return topmass_; }
+    bool   getBestSol()      const { return bestSol_; }
+    double getRecTopMass()   const {return topmass_; }
     double getRecWeightMax() const {return weightmax_; }
     
   protected:
@@ -72,6 +75,8 @@ class TtDilepEvtSolution {
     void setBbar(const edm::Handle<std::vector<TopJet> > & jh, int i);
     void setMuonp(const edm::Handle<std::vector<TopMuon> > & mh, int i);
     void setMuonm(const edm::Handle<std::vector<TopMuon> > & mh, int i);
+    void setTaup(const edm::Handle<std::vector<TopTau> > & mh, int i);
+    void setTaum(const edm::Handle<std::vector<TopTau> > & mh, int i);
     void setElectronp(const edm::Handle<std::vector<TopElectron> > & eh, int i);
     void setElectronm(const edm::Handle<std::vector<TopElectron> > & eh, int i);
     void setMET(const edm::Handle<std::vector<TopMET> > & nh, int i);
@@ -86,6 +91,7 @@ class TtDilepEvtSolution {
     edm::RefProd<TtGenEvent>            theGenEvt_;
     edm::Ref<std::vector<TopElectron> > elecp_, elecm_;
     edm::Ref<std::vector<TopMuon> >     muonp_, muonm_;
+    edm::Ref<std::vector<TopTau> >      taup_, taum_;
     edm::Ref<std::vector<TopJet> >      jetB_, jetBbar_;
     edm::Ref<std::vector<TopMET> >      met_;
     // miscellaneous
