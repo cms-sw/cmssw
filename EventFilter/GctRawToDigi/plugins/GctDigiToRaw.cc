@@ -87,7 +87,7 @@ GctDigiToRaw::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   
   counter_++; // To "simulate" bunch crossings for now...
   unsigned int bx = counter_ % 3564;  // What's the proper way of doing this?
-  edm::EventNumber eventNumber = iEvent.id().event();
+  EventNumber_t eventNumber = iEvent.id().event();
   
   // Supply bx and EvID to the packer so it can make internal capture block headers.
   blockPacker_.setBcId(bx);
@@ -103,7 +103,7 @@ GctDigiToRaw::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   edm::Handle<L1GctJetCandCollection> forJets;
   iEvent.getByLabel(gctInputLabel_.label(), "forJets", forJets);
   edm::Handle<L1GctJetCandCollection> tauJets;
-  iEvent.getByLabel(gctInputLabel_label(), "tauJets", tauJets);
+  iEvent.getByLabel(gctInputLabel_.label(), "tauJets", tauJets);
   
   // create the raw data collection
   std::auto_ptr<FEDRawDataCollection> rawColl(new FEDRawDataCollection()); 
