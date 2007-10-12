@@ -120,7 +120,7 @@ GctDigiToRaw::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   fedHeader.set(pHeader, 1, eventNumber, counter_ % 3564, fedId_);  // what should the bx_ID be?
  
   // pack GCT Jet output digis
-  blockPacker_.writeGctJetBlock(pPayload, cenJets, forJets, tauJets));
+  blockPacker_.writeGctJetBlock(pPayload, cenJets.product(), forJets.product(), tauJets.product());
  
   // pack GCT EM output digis. Add offset of 28 to start of Slink payload to get EM block header position.
   blockPacker_.writeGctEmBlock(pPayload + 28, isoEm.product(), nonIsoEm.product());      

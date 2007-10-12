@@ -33,8 +33,8 @@ class GctBlockPacker {
 
   /// Writes the GCT Jet block into an unsigned char array, starting at the position pointed to by d.
   /*! \param d must be pointing at the position where the Jet block header should be written! */
-  void writeGctJetBlock(unsigned char * d, const L1GctEmCandCollection* cenJets,
-                        const L1GctEmCandCollection* forJets, const L1GctEmCandCollection* tauJets);
+  void writeGctJetBlock(unsigned char * d, const L1GctJetCandCollection* cenJets,
+                        const L1GctJetCandCollection* forJets, const L1GctJetCandCollection* tauJets);
 
   void writeEnergySumsBlock(unsigned char * d, const L1GctEtMiss* etm, const L1GctEtTotal* ett, const L1GctEtHad* eth);
 
