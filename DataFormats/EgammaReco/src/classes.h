@@ -16,7 +16,6 @@
 #include "DataFormats/EgammaReco/interface/ElectronPixelSeedFwd.h" 
 #include "DataFormats/EgammaReco/interface/PreshowerCluster.h"
 #include "DataFormats/EgammaReco/interface/PreshowerClusterFwd.h" 
-#include "DataFormats/EgammaReco/interface/SeedSuperClusterAssociation.h"
 #include "DataFormats/EgammaReco/interface/BasicClusterShapeAssociation.h"
 #include "DataFormats/EgammaReco/interface/HFEMClusterShapeAssociation.h"
 
@@ -67,13 +66,6 @@ namespace {
     edm::Ref<reco::ElectronPixelSeedCollection> r111;
     edm::RefProd<reco::ElectronPixelSeedCollection> rp111;
     edm::Wrapper<edm::RefVector<reco::ElectronPixelSeedCollection> > wrv111;
-    
-    reco::SeedSuperClusterAssociationCollection v112;
-    edm::Wrapper<reco::SeedSuperClusterAssociationCollection> w112;
-    reco::SeedSuperClusterAssociation ra112;
-    reco::SeedSuperClusterAssociationRef r112;
-    reco::SeedSuperClusterAssociationRefProd rp112;
-    edm::Wrapper<reco::SeedSuperClusterAssociationRefVector> wrv112;
     
     reco::PreshowerClusterCollection ps5;
     edm::Wrapper<reco::PreshowerClusterCollection> psw5;
