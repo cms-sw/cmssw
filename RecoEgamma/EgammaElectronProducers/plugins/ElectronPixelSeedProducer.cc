@@ -13,7 +13,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: ElectronPixelSeedProducer.cc,v 1.1 2007/04/20 14:54:21 uberthon Exp $
+// $Id: ElectronPixelSeedProducer.cc,v 1.2 2007/05/10 14:58:22 uberthon Exp $
 //
 //
 
@@ -27,6 +27,7 @@
 
 #include "RecoEgamma/EgammaElectronAlgos/interface/ElectronPixelSeedGenerator.h"
 #include "DataFormats/EgammaReco/interface/ElectronPixelSeed.h"
+#include "DataFormats/EgammaReco/interface/ElectronPixelSeedFwd.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHitCollection.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 #include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
@@ -62,10 +63,12 @@ ElectronPixelSeedProducer::ElectronPixelSeedProducer(const edm::ParameterSet& iC
   instanceName_[1]=iConfig.getParameter<std::string>("superClusterEndcapLabel");
 
   //register your products
-  produces<TrajectorySeedCollection>(label_[0]);
-  produces<TrajectorySeedCollection>(label_[1]);
-  produces<SeedSuperClusterAssociationCollection>(label_[0]);
-  produces<SeedSuperClusterAssociationCollection>(label_[1]);
+  //  produces<TrajectorySeedCollection>(label_[0]);
+  //  produces<TrajectorySeedCollection>(label_[1]);
+  produces<ElectronPixelSeedCollection>(label_[0]);
+  produces<ElectronPixelSeedCollection>(label_[1]);
+  //  produces<SeedSuperClusterAssociationCollection>(label_[0]);
+  //  produces<SeedSuperClusterAssociationCollection>(label_[1]);
 }
 
 
@@ -133,19 +136,20 @@ void ElectronPixelSeedProducer::produce(edm::Event& e, const edm::EventSetup& iS
       TrajectorySeed *seed = &(*is);
       pOutSeeds[i]->push_back(*seed);
     }
-    const edm::OrphanHandle<TrajectorySeedCollection> refprod =  e.put(pOutSeeds[i],label_[i]);
+    //    const edm::OrphanHandle<TrajectorySeedCollection> refprod =  e.put(pOutSeeds[i],label_[i]);
 
     // now we can put the Ref-s into the associationmap
-    unsigned int id=0;
-    for (ElectronPixelSeedCollection::iterator is=pSeeds[i]->begin(); is!=pSeeds[i]->end();is++) {
-      LogDebug("")  << "new seed with " << (*is).nHits() << " hits, charge " << (*is).getCharge() <<
-	" and cluster energy " << (*is).superCluster()->energy() << " PID "<<(*is).superCluster().id();
-      SuperClusterRef refsc = is->superCluster();
-      edm::Ref<TrajectorySeedCollection> refseed(refprod,id++);
-      LogDebug("")  <<" Adding scl ref with PID "<<refsc.id();
-      pOutAssos[i]->insert(refseed,refsc);
-    }
-    e.put(pOutAssos[i],label_[i]);
+//     unsigned int id=0;
+//     for (ElectronPixelSeedCollection::iterator is=pSeeds[i]->begin(); is!=pSeeds[i]->end();is++) {
+//       LogDebug("")  << "new seed with " << (*is).nHits() << " hits, charge " << (*is).getCharge() <<
+// 	" and cluster energy " << (*is).superCluster()->energy() << " PID "<<(*is).superCluster().id();
+//       SuperClusterRef refsc = is->superCluster();
+//       edm::Ref<TrajectorySeedCollection> refseed(refprod,id++);
+//       LogDebug("")  <<" Adding scl ref with PID "<<refsc.id();
+//       pOutAssos[i]->insert(refseed,refsc);
+//     }
+    //    e.put(pOutAssos[i],label_[i]);
+    e.put(pSeeds[i],label_[i]);
   }
 
 }

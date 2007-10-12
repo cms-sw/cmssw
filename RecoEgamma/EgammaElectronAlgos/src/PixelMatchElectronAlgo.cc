@@ -12,7 +12,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Thu july 6 13:22:06 CEST 2006
-// $Id: PixelMatchElectronAlgo.cc,v 1.49 2007/10/06 20:28:20 futyand Exp $
+// $Id: PixelMatchElectronAlgo.cc,v 1.50 2007/10/11 12:30:42 futyand Exp $
 //
 //
 
@@ -26,6 +26,8 @@
 
 #include "DataFormats/EgammaReco/interface/BasicCluster.h"
 #include "DataFormats/EgammaReco/interface/ClusterShape.h"
+#include "DataFormats/EgammaReco/interface/ElectronPixelSeed.h"
+#include "DataFormats/EgammaReco/interface/ElectronPixelSeedFwd.h"
 #include "DataFormats/TrackCandidate/interface/TrackCandidate.h"
 #include "DataFormats/TrackCandidate/interface/TrackCandidateCollection.h"
 #include "DataFormats/Math/interface/LorentzVector.h"
@@ -120,14 +122,6 @@ void PixelMatchElectronAlgo::setupES(const edm::EventSetup& es, const edm::Param
   trackBarrelInstanceName_ = conf.getParameter<string>("TrackBarrelProducer");
   trackEndcapLabel_ = conf.getParameter<string>("TrackEndcapLabel");
   trackEndcapInstanceName_ = conf.getParameter<string>("TrackEndcapProducer");
-  assBarrelLabel_ = conf.getParameter<string>("SCLBarrelLabel");
-  assBarrelInstanceName_ = conf.getParameter<string>("SCLBarrelProducer");
-  assEndcapLabel_ = conf.getParameter<string>("SCLEndcapLabel");
-  assEndcapInstanceName_ = conf.getParameter<string>("SCLEndcapProducer");
-  assBarrelTrTSLabel_ = conf.getParameter<string>("AssocTrTSBarrelLabel");
-  assBarrelTrTSInstanceName_ = conf.getParameter<string>("AssocTrTBarrelProducer");
-  assEndcapTrTSLabel_ = conf.getParameter<string>("AssocTrTEndcapLabel");
-  assEndcapTrTSInstanceName_ = conf.getParameter<string>("AssocTrTEndcapProducer");
   assBarrelShapeInstanceName_ = conf.getParameter<string>("AssocShapeBarrelProducer");
   assBarrelShapeLabel_ = conf.getParameter<string>("AssocShapeBarrelLabel");
   assEndcapShapeInstanceName_ = conf.getParameter<string>("AssocShapeEndcapProducer");
@@ -148,19 +142,6 @@ void  PixelMatchElectronAlgo::run(Event& e, PixelMatchGsfElectronCollection & ou
   }
   e.getByLabel(trackBarrelLabel_,trackBarrelInstanceName_,tracksBarrelH);
   e.getByLabel(trackEndcapLabel_,trackEndcapInstanceName_,tracksEndcapH);
-
-  edm::Handle<SeedSuperClusterAssociationCollection> barrelH;
-  edm::Handle<SeedSuperClusterAssociationCollection> endcapH;
-  e.getByLabel(assBarrelLabel_,assBarrelInstanceName_,barrelH);
-  e.getByLabel(assEndcapLabel_,assEndcapInstanceName_,endcapH);
-
-  edm::Handle<GsfTrackSeedAssociationCollection> barrelTSAssocH;
-  edm::Handle<GsfTrackSeedAssociationCollection> endcapTSAssocH;
-  e.getByLabel(assBarrelTrTSLabel_,assBarrelTrTSInstanceName_,barrelTSAssocH);
-  e.getByLabel(assEndcapTrTSLabel_,assEndcapTrTSInstanceName_,endcapTSAssocH);
-  edm::LogInfo("") 
-    <<"\n\n Treating "<<e.id()<<", Number of seeds Barrel:"
-    <<barrelH.product()->size()<<" Number of seeds Endcap:"<<endcapH.product()->size();
   
   edm::Handle<BasicClusterShapeAssociationCollection> barrelShapeAssocH;
   edm::Handle<BasicClusterShapeAssociationCollection> endcapShapeAssocH;
@@ -168,12 +149,14 @@ void  PixelMatchElectronAlgo::run(Event& e, PixelMatchGsfElectronCollection & ou
   e.getByLabel(assEndcapShapeLabel_,assEndcapShapeInstanceName_,endcapShapeAssocH);
 
   // create electrons from tracks in 2 steps: barrel + endcap
-  const SeedSuperClusterAssociationCollection  *sclAss=&(*barrelH);
+  //  const SeedSuperClusterAssociationCollection  *sclAss=&(*barrelH);
   const BasicClusterShapeAssociationCollection *shpAss=&(*barrelShapeAssocH);
-  process(tracksBarrelH,sclAss,barrelTSAssocH.product(),shpAss,mhbhe,outEle);
-  sclAss=&(*endcapH);
+  //  process(tracksBarrelH,sclAss,barrelTSAssocH.product(),shpAss,mhbhe,outEle);
+  process(tracksBarrelH,shpAss,mhbhe,outEle);
+   //  sclAss=&(*endcapH);
   shpAss=&(*endcapShapeAssocH);
-  process(tracksEndcapH,sclAss,endcapTSAssocH.product(),shpAss,mhbhe,outEle);
+  //  process(tracksEndcapH,sclAss,endcapTSAssocH.product(),shpAss,mhbhe,outEle);
+  process(tracksEndcapH,shpAss,mhbhe,outEle);
   delete mhbhe;
   std::ostringstream str;
 
@@ -192,8 +175,6 @@ void  PixelMatchElectronAlgo::run(Event& e, PixelMatchGsfElectronCollection & ou
 }
 
 void PixelMatchElectronAlgo::process(edm::Handle<GsfTrackCollection> tracksH,
-	                const SeedSuperClusterAssociationCollection *sclAss,
-	                const GsfTrackSeedAssociationCollection *tsAss,
 		        const BasicClusterShapeAssociationCollection *shpAss,
                         HBHERecHitMetaCollection *mhbhe,
 		        PixelMatchGsfElectronCollection & outEle) {
@@ -204,8 +185,12 @@ void PixelMatchElectronAlgo::process(edm::Handle<GsfTrackCollection> tracksH,
   for (unsigned int i=0;i<tracks->size();++i) {
     const GsfTrack & t=(*tracks)[i];
     const GsfTrackRef trackRef = edm::Ref<GsfTrackCollection>(tracksH,i);
-    edm::Ref<TrajectorySeedCollection> seed = (*tsAss)[trackRef];
-    const SuperClusterRef & scRef=(*sclAss)[seed];
+    const GsfTrackExtraRef trExtra = trackRef->gsfExtra();
+    //    edm::Ref<TrajectorySeedCollection> seed = (*tsAss)[trackRef];
+    //    const SuperClusterRef & scRef=(*sclAss)[seed];
+    edm::RefToBase<TrajectorySeed> seed = trackRef->extra()->seedRef();
+    ElectronPixelSeedRef elseed=seed.castTo<ElectronPixelSeedRef>();
+    const SuperClusterRef & scRef=elseed->superCluster();
     const SuperCluster theClus=*scRef;
 
     //get ref to ClusterShape for seed BasicCluster of SuperCluster
@@ -267,7 +252,8 @@ void PixelMatchElectronAlgo::process(edm::Handle<GsfTrackCollection> tracksH,
 								 vtxMom.y()*scale,
 								 vtxMom.z()*scale,
 								 theClus.energy());
-      PixelMatchGsfElectron ele(momentum,(*sclAss)[seed],seedShapeRef,trackRef,sclPos,sclMom,seedPos,seedMom,innPos,innMom,vtxPos,vtxMom,outPos,outMom,HoE);
+      //      PixelMatchGsfElectron ele(momentum,(*sclAss)[seed],seedShapeRef,trackRef,sclPos,sclMom,seedPos,seedMom,innPos,innMom,vtxPos,vtxMom,outPos,outMom,HoE);
+     PixelMatchGsfElectron ele(momentum,scRef,seedShapeRef,trackRef,sclPos,sclMom,seedPos,seedMom,innPos,innMom,vtxPos,vtxMom,outPos,outMom,HoE);
 
       //and set various properties
       float trackEta = ecalEta(
@@ -281,6 +267,7 @@ void PixelMatchElectronAlgo::process(edm::Handle<GsfTrackCollection> tracksH,
 			       trackRef->innerMomentum().phi(),
 			       trackRef->charge(),
 			       trackRef->innerPosition().Rho());
+
 
       ele.setDeltaEtaSuperClusterAtVtx(theClus.position().eta() - trackEta);
       float dphi = theClus.position().phi() - trackPhi;
@@ -297,9 +284,9 @@ void PixelMatchElectronAlgo::process(edm::Handle<GsfTrackCollection> tracksH,
       theMomCorrector.correct(ele,vtxTSOS);
 	//mCorr.getBestMomentum(),mCorr.getSCEnergyError(),mCorr.getTrackMomentumError());
       outEle.push_back(ele);
-      LogInfo("")<<"Constructed new electron with energy  "<< (*sclAss)[seed]->energy();
-    }
-  }  // loop over tracks
+      LogInfo("")<<"Constructed new electron with energy  "<< scRef->energy();
+      }
+  } // loop over tracks
 }
 
 bool PixelMatchElectronAlgo::preSelection(const SuperCluster& clus, const GlobalVector& tsosVtxMom, const GlobalPoint& tsosSclPos, double HoE) 

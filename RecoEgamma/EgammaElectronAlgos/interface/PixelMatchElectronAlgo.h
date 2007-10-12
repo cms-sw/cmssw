@@ -54,12 +54,10 @@ public:
 
   // create electrons from superclusters, tracks and Hcal rechits
   void process(edm::Handle<reco::GsfTrackCollection> tracksH,
-	       const reco::SeedSuperClusterAssociationCollection *sclAss,
-	       const reco::GsfTrackSeedAssociationCollection *tsAss,
 	       const reco::BasicClusterShapeAssociationCollection *shpAss,
 	       HBHERecHitMetaCollection *mhbhe,
 	       reco::PixelMatchGsfElectronCollection & outEle);
-  
+   
   // preselection method
   bool preSelection(const reco::SuperCluster& clus, const GlobalVector&, const GlobalPoint&,double HoE);
   
@@ -102,14 +100,6 @@ public:
   std::string trackEndcapLabel_;
   std::string trackBarrelInstanceName_;
   std::string trackEndcapInstanceName_;
-  std::string assBarrelLabel_;
-  std::string assBarrelInstanceName_;
-  std::string assEndcapLabel_;
-  std::string assEndcapInstanceName_;
-  std::string assBarrelTrTSLabel_;
-  std::string assBarrelTrTSInstanceName_;
-  std::string assEndcapTrTSLabel_;
-  std::string assEndcapTrTSInstanceName_;
   std::string assBarrelShapeLabel_;
   std::string assBarrelShapeInstanceName_;
   std::string assEndcapShapeLabel_;
