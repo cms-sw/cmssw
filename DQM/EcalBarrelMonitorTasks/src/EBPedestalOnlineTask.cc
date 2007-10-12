@@ -1,8 +1,8 @@
 /*
  * \file EBPedestalOnlineTask.cc
  *
- * $Date: 2007/05/11 15:05:05 $
- * $Revision: 1.23 $
+ * $Date: 2007/05/21 09:57:44 $
+ * $Revision: 1.24 $
  * \author G. Della Ricca
  *
 */
@@ -114,6 +114,8 @@ void EBPedestalOnlineTask::endJob(void){
 }
 
 void EBPedestalOnlineTask::analyze(const Event& e, const EventSetup& c){
+
+  Numbers::initGeometry(c);
 
   if ( ! init_ ) this->setup();
 

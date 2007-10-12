@@ -34,5 +34,4 @@
   <class name="std::map<DTChamberId,DTConfigTrigUnit>"/>
   <class name="std::map<DTSectCollId,DTConfigSectColl>"/>
   <class name="DTConfigManager"/>
-  <class name="L1RCTParameters"/>
 </lcgdict>

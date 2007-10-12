@@ -4,8 +4,8 @@
 /*
  * \file EBPedestalClient.h
  *
- * $Date: 2007/04/29 17:17:49 $
- * $Revision: 1.53 $
+ * $Date: 2007/05/29 16:56:51 $
+ * $Revision: 1.54 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -74,7 +74,7 @@ void cleanup(void);
 void htmlOutput(int run, string htmlDir, string htmlName);
 
 // WriteDB
-bool writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV* moniov, int ism);
+bool writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV* moniov);
 
 /// Get Functions
 inline int getEvtPerJob() { return ievt_; }

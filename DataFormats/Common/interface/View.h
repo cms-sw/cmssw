@@ -14,7 +14,7 @@ EDProduct that is a sequence.
 //
 // Original Author:  
 //         Created:  Mon Dec 18 09:48:30 CST 2006
-// $Id: View.h,v 1.8 2007/06/20 15:54:13 paterno Exp $
+// $Id: View.h,v 1.1 2007/07/09 07:28:50 llista Exp $
 //
 
 #include <vector>
@@ -131,6 +131,10 @@ namespace edm
 
     // The following is for testing only.
     static void fill_from_range(T* first, T* last, View& output);
+
+    const void * product() const {
+      return refs_.product();
+    }
 
   private:
     seq_t items_;

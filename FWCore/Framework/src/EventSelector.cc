@@ -19,7 +19,9 @@ namespace edm
     results_from_current_process_(true),
     psetID_initialized_(false),
     psetID_(),
-    paths_()
+    paths_(),
+    nTriggerNames_(0),
+    notStarPresent_(false)
   {
     init(pathspecs, names);
   }
@@ -30,7 +32,9 @@ namespace edm
     results_from_current_process_(false),
     psetID_initialized_(false),
     psetID_(),
-    paths_(pathspecs)
+    paths_(pathspecs),
+    nTriggerNames_(0),
+    notStarPresent_(false)
   {
   }
 
@@ -41,6 +45,9 @@ namespace edm
     accept_all_ = false;
     decision_bits_.clear();
 
+    nTriggerNames_ = triggernames.size();
+    notStarPresent_ = false;
+
     if ( paths.empty() )
       {
 	accept_all_ = true;
@@ -48,7 +55,6 @@ namespace edm
       }
 
     bool star_done = false;
-    bool not_star_done = false;
     for (Strings::const_iterator i(paths.begin()), end(paths.end()); 
 	 i!=end; ++i)
       {
@@ -61,11 +67,9 @@ namespace edm
 	    for(unsigned int k=0;k<triggernames.size();++k) 
 	      decision_bits_.push_back(BitInfo(k,true));
 	  }
-	else if(current_path == "!*" && !not_star_done)
+	else if (current_path == "!*")
 	  {
-	    not_star_done = true;
-	    for(unsigned int k=0;k<triggernames.size();++k) 
-	      decision_bits_.push_back(BitInfo(k,false));
+            notStarPresent_ = true;
 	  }
 	else
 	  {
@@ -97,7 +101,7 @@ namespace edm
 	  }
       }
     
-    if (not_star_done && star_done) accept_all_ = true;
+    if (notStarPresent_ && star_done) accept_all_ = true;
   }
   
   EventSelector::EventSelector(edm::ParameterSet const& config,
@@ -107,7 +111,9 @@ namespace edm
     results_from_current_process_(true),
     psetID_initialized_(false),
     psetID_(),
-    paths_()
+    paths_(),
+    nTriggerNames_(0),
+    notStarPresent_(false)
   {
     Strings paths; // default is empty...
 
@@ -169,6 +175,17 @@ namespace edm
             return true;
           }
       }
+    
+    // handle the special "!*" case, this selects events that fail all trigger paths
+    if (notStarPresent_) {
+
+      bool allFail = true;
+      for (int j = 0; j < nTriggerNames_; ++j) {
+        if (this->acceptTriggerPath(tr[j], BitInfo(j, true))) allFail = false;
+      }
+      if (allFail) return true;
+    }
+
     return false;
   }
 
@@ -201,6 +218,28 @@ namespace edm
               }
           }
       }
+
+    // handle the special "!*" case, this selects events that fail all trigger paths
+    if (notStarPresent_) {
+
+      bool allFail = true;
+      for (int j = 0; j < nTriggerNames_; ++j) {
+
+        int pathIndex = j;
+        if (pathIndex < number_of_trigger_paths)
+        {
+          int byteIndex = ((int) pathIndex / 4);
+          int subIndex = pathIndex % 4;
+          int state = array_of_trigger_results[byteIndex] >> (subIndex * 2);
+          state &= 0x3;
+          HLTPathStatus pathStatus(static_cast<hlt::HLTState>(state));
+
+          if (this->acceptTriggerPath(pathStatus, BitInfo(j, true))) allFail = false;
+        }
+      }
+      if (allFail) return true;
+    }
+
     return false;
   }
 

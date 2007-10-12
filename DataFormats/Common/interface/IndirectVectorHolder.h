@@ -40,6 +40,9 @@ namespace edm {
 	    << "In IndirectHolder<T> trying to push_back wrong reference type";
 	helper_->push_back( h->helper_ );
       }
+      virtual const void * product() const {
+	return helper_->product();
+      }
     private:
       typedef typename base_type::const_iterator_imp const_iterator_imp;
       RefVectorHolderBase * helper_;

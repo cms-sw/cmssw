@@ -16,7 +16,7 @@ class _Sequenceable(object):
         try: 
             return lookuptable[id(self)]
         except:
-            raise KeyError
+            raise KeyError("no "+str(type(self))+" with id "+str(id(self))+" found")
 
 class _ModuleSequenceType(_ConfigureComponent, _Labelable):
     """Base class for classes which define a sequence of modules"""
@@ -29,41 +29,32 @@ class _ModuleSequenceType(_ConfigureComponent, _Labelable):
                 msg += "    %i) %s \n"  %(i, item._errorstr())
             msg += "Maybe you forgot to combine them via '*' or '+'."     
             raise TypeError(msg)
-        if not isinstance(arg[0],_Sequenceable):
-            typename = format_typename(self)
-            msg = format_outerframe(2)
-            msg += "%s only takes arguments of types which are allowed in a sequence, but was given:\n" %typename
-            msg +=format_typename(arg[0])
-            msg +="\nPlease remove the problematic object from the argument list"
-            raise TypeError(msg)
-
+        self._checkIfSequenceable(arg[0])
         self._seq = arg[0]
     def _place(self,name,proc):
         self._placeImpl(name,proc)
     def __imul__(self,rhs):
-        if not isinstance(rhs,_Sequenceable):
-            typename = format_typename(self)
-            msg = format_outerframe(2)
-            msg += "%s only takes arguments of types which are allowed in a sequence, but was given:\n" %typename
-            msg +=format_typename(rhs)
-            msg +="\nPlease remove the problematic object from the argument list"
-            raise TypeError(msg)
+        self._checkIfSequenceable(rhs)
         self._seq = _SequenceOpAids(self._seq,rhs)
         return self
     def __iadd__(self,rhs):
-        if not isinstance(rhs,_Sequenceable):
+        self._checkIfSequenceable(rhs)
+        self._seq = _SequenceOpFollows(self._seq,rhs)
+        return self
+    def _checkIfSequenceable(self,v):
+        if not isinstance(v,_Sequenceable):
             typename = format_typename(self)
             msg = format_outerframe(2)
             msg += "%s only takes arguments of types which are allowed in a sequence, but was given:\n" %typename
-            msg +=format_typename(rhs)
+            msg +=format_typename(v)
             msg +="\nPlease remove the problematic object from the argument list"
             raise TypeError(msg)
-        self._seq = _SequenceOpFollows(self._seq,rhs)
-        return self
     def __str__(self):
         return str(self._seq)
     def dumpConfig(self,indent,deltaIndent):
         return '{'+self._seq.dumpSequenceConfig()+'}\n'
+    def dumpPython(self,indent,deltaIndent):
+        return "cms."+type(self).__name__+'('+self._seq.dumpSequencePython()+')\n'
     def copy(self):
         returnValue =_ModuleSequenceType.__new__(type(self))
         returnValue.__init__(self._seq)
@@ -88,7 +79,13 @@ class _ModuleSequenceType(_ConfigureComponent, _Labelable):
         deps = dict()
         self._findDependencies(deps,set())
         return deps
-
+    def nameInProcessDesc_(self, myname):
+        return myname
+    def insertInto(self, parameterSet, myname):
+        # represented just as a list of names in the ParameterSet
+        l = []
+        self._seq.fillNamesList(l)
+        parameterSet.addVString(True, myname, l)
 
 class _SequenceOpAids(_Sequenceable):
     """Used in the expression tree for a sequence as a stand in for the ',' operator"""
@@ -99,12 +96,17 @@ class _SequenceOpAids(_Sequenceable):
         return '('+str(self.__left)+'*'+str(self.__right) +')'
     def dumpSequenceConfig(self):
         return '('+self.__left.dumpSequenceConfig()+','+self.__right.dumpSequenceConfig()+')'
+    def dumpSequencePython(self):
+        return '('+self.__left.dumpSequencePython()+'*'+self.__right.dumpSequencePython()+')'
     def _findDependencies(self,knownDeps,presentDeps):
         #do left first and then right since right depends on left
         self.__left._findDependencies(knownDeps,presentDeps)
         self.__right._findDependencies(knownDeps,presentDeps)
     def _clonesequence(self, lookuptable):
         return type(self)(self.__left._clonesequence(lookuptable),self.__right._clonesequence(lookuptable))
+    def fillNamesList(self, l):
+        self.__left.fillNamesList(l)
+        self.__right.fillNamesList(l)
 
 
 class _SequenceNegation(_Sequenceable):
@@ -112,11 +114,17 @@ class _SequenceNegation(_Sequenceable):
     def __init__(self, operand):
         self.__operand = operand
     def __str__(self):
-        return '!%s' %self.__operand
+        return '~%s' %self.__operand
     def dumpSequenceConfig(self):
         return '!%s' %self.__operand.dumpSequenceConfig()
+    def dumpSequencePython(self):
+        return '!%s' %self.__operand.dumpSequencePython()
     def _findDependencies(self,knownDeps, presentDeps):
         self.__operand._findDependencies(knownDeps, presentDeps)
+    def fillNamesList(self, l):
+        l.append(self.__str__())
+    def _clonesequence(self, lookuptable):
+        return type(self)(self.__operand._clonesequence(lookuptable))
 
 
 class _SequenceOpFollows(_Sequenceable):
@@ -128,6 +136,8 @@ class _SequenceOpFollows(_Sequenceable):
         return '('+str(self.__left)+'+'+str(self.__right) +')'
     def dumpSequenceConfig(self):
         return '('+self.__left.dumpSequenceConfig()+'&'+self.__right.dumpSequenceConfig()+')'
+    def dumpSequencePython(self):
+        return '('+self.__left.dumpSequencePython()+'+'+self.__right.dumpSequencePython()+')'
     def _findDependencies(self,knownDeps,presentDeps):
         oldDepsL = presentDeps.copy()
         oldDepsR = presentDeps.copy()
@@ -138,6 +148,10 @@ class _SequenceOpFollows(_Sequenceable):
         presentDeps.update(oldDepsR)
     def _clonesequence(self, lookuptable):
         return type(self)(self.__left._clonesequence(lookuptable),self.__right._clonesequence(lookuptable))
+    def fillNamesList(self, l):
+        self.__left.fillNamesList(l)
+        self.__right.fillNamesList(l)
+
 
 
 class Path(_ModuleSequenceType):

@@ -15,6 +15,10 @@
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 
+#include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
+#include "Geometry/CommonTopologies/interface/StripTopology.h"
+#include "Geometry/TrackerGeometryBuilder/interface/GluedGeomDet.h"
+
 // Numbering scheme
 #include "DataFormats/SiPixelDetId/interface/PXBDetId.h"
 #include "DataFormats/SiPixelDetId/interface/PXFDetId.h"
@@ -53,20 +57,29 @@ FastTrackAnalyzer::FastTrackAnalyzer(edm::ParameterSet const& conf) :
   PXF_Err_AxisLim = conf.getParameter<double>("PXF_Err_AxisLim");
   
   TIB_Res_AxisLim = conf.getParameter<double>("TIB_Res_AxisLim" );
+  TIB_Resy_AxisLim = conf.getParameter<double>("TIB_Resy_AxisLim" );
   TIB_Pos_AxisLim = conf.getParameter<double>("TIB_Pos_AxisLim" );
   TID_Res_AxisLim = conf.getParameter<double>("TID_Res_AxisLim" );
+  TID_Resy_AxisLim = conf.getParameter<double>("TID_Resy_AxisLim" );
   TID_Pos_AxisLim = conf.getParameter<double>("TID_Pos_AxisLim" );
   TOB_Res_AxisLim = conf.getParameter<double>("TOB_Res_AxisLim" );
+  TOB_Resy_AxisLim = conf.getParameter<double>("TOB_Resy_AxisLim" );
   TOB_Pos_AxisLim = conf.getParameter<double>("TOB_Pos_AxisLim" );
   TEC_Res_AxisLim = conf.getParameter<double>("TEC_Res_AxisLim" );
+  TEC_Resy_AxisLim = conf.getParameter<double>("TEC_Resy_AxisLim" );
   TEC_Pos_AxisLim = conf.getParameter<double>("TEC_Pos_AxisLim" );
   
   TIB_Err_AxisLim  = conf.getParameter<double>("TIB_Err_AxisLim" );
+  TIB_Erry_AxisLim  = conf.getParameter<double>("TIB_Erry_AxisLim" );
   TID_Err_AxisLim  = conf.getParameter<double>("TID_Err_AxisLim" );
+  TID_Erry_AxisLim  = conf.getParameter<double>("TID_Erry_AxisLim" );
   TOB_Err_AxisLim  = conf.getParameter<double>("TOB_Err_AxisLim" );
+  TOB_Erry_AxisLim  = conf.getParameter<double>("TOB_Erry_AxisLim" );
   TEC_Err_AxisLim  = conf.getParameter<double>("TEC_Err_AxisLim" );
+  TEC_Erry_AxisLim  = conf.getParameter<double>("TEC_Erry_AxisLim" );
 
   NumTracks_AxisLim = conf.getParameter<int>("NumTracks_AxisLim" );
+ outfilename = conf.getParameter<string>("outfilename");
 }
 //---------------------------------------------------------
 FastTrackAnalyzer::~FastTrackAnalyzer() {}
@@ -152,48 +165,99 @@ void FastTrackAnalyzer::beginJob( const edm::EventSetup& es){
 
   }
 
-  // strip maximum 9 layers (TEC)
-  for(int i=1; i<=9; i++){
+  // strip maximum 7 layers (TEC)
+  for(int i=1; i<=7; i++){
     TString index = ""; index+=i;
     if(i<5){
       hMap["all_TIB_Res_x_"+index] = new TH1F("all_TIB_Res_x_"+index, "all_TIB_Res_x_"+index, 100, -TIB_Res_AxisLim, TIB_Res_AxisLim);
       hMap["all_TIB_SimPos_x_"+index] = new TH1F("all_TIB_SimPos_x_"+index, "all_TIB_SimPos_x_"+index, 100, -TIB_Pos_AxisLim, TIB_Pos_AxisLim);
       hMap["all_TIB_RecPos_x_"+index] = new TH1F("all_TIB_RecPos_x_"+index, "all_TIB_RecPos_x_"+index, 100, -TIB_Pos_AxisLim, TIB_Pos_AxisLim);
-      hMap["all_TIB_Err_x_"+index] = new TH1F("all_TIB_Err_x_"+index, "all_TIB_Err_x_"+index, 100, -TIB_Err_AxisLim, TIB_Err_AxisLim);
+      hMap["all_TIB_Err_x_"+index] = new TH1F("all_TIB_Err_x_"+index, "all_TIB_Err_x_"+index, 100, 0, TIB_Err_AxisLim);
       hMap["TIB_Res_x_"+index] = new TH1F("TIB_Res_x_"+index, "TIB_Res_x_"+index, 100, -TIB_Res_AxisLim, TIB_Res_AxisLim);
       hMap["TIB_SimPos_x_"+index] = new TH1F("TIB_SimPos_x_"+index, "TIB_SimPos_x_"+index, 100, -TIB_Pos_AxisLim, TIB_Pos_AxisLim);
       hMap["TIB_RecPos_x_"+index] = new TH1F("TIB_RecPos_x_"+index, "TIB_RecPos_x_"+index, 100, -TIB_Pos_AxisLim, TIB_Pos_AxisLim);
-      hMap["TIB_Err_x_"+index] = new TH1F("TIB_Err_x_"+index, "TIB_Err_x_"+index, 100, -TIB_Err_AxisLim, TIB_Err_AxisLim);
+      hMap["TIB_Err_x_"+index] = new TH1F("TIB_Err_x_"+index, "TIB_Err_x_"+index, 100, 0, TIB_Err_AxisLim);
+      //pat
+      if(i==1 || i== 2){
+	hMap["all_TIB_Res_y_"+index] = new TH1F("all_TIB_Res_y_"+index, "all_TIB_Res_y_"+index, 100, -TIB_Resy_AxisLim, TIB_Resy_AxisLim);
+	hMap["all_TIB_RecPos_y_"+index] = new TH1F("all_TIB_RecPos_y_"+index, "all_TIB_RecPos_y_"+index, 100, -TIB_Pos_AxisLim, TIB_Pos_AxisLim);
+	hMap["all_TIB_Err_y_"+index] = new TH1F("all_TIB_Err_y_"+index, "all_TIB_Err_y_"+index, 100, 0, TIB_Erry_AxisLim);
+	hMap["all_TIB_SimPos_y_"+index] = new TH1F("all_TIB_SimPos_y_"+index, "all_TIB_SimPos_y_"+index, 100, -TIB_Pos_AxisLim, TIB_Pos_AxisLim);
+	hMap["TIB_Res_y_"+index] = new TH1F("TIB_Res_y_"+index, "TIB_Res_y_"+index, 100, -TIB_Resy_AxisLim, TIB_Resy_AxisLim);
+	hMap["TIB_RecPos_y_"+index] = new TH1F("TIB_RecPos_y_"+index, "TIB_RecPos_y_"+index, 100, -TIB_Pos_AxisLim, TIB_Pos_AxisLim);
+	hMap["TIB_Err_y_"+index] = new TH1F("TIB_Err_y_"+index, "TIB_Err_y_"+index, 100, 0, TIB_Erry_AxisLim);
+	hMap["TIB_SimPos_y_"+index] = new TH1F("TIB_SimPos_y_"+index, "TIB_SimPos_y_"+index, 100, -TIB_Pos_AxisLim, TIB_Pos_AxisLim);
+      }
     }
     if(i<7){
       hMap["all_TOB_Res_x_"+index] = new TH1F("all_TOB_Res_x_"+index, "all_TOB_Res_x_"+index, 100, -TOB_Res_AxisLim, TOB_Res_AxisLim);
       hMap["all_TOB_SimPos_x_"+index] = new TH1F("all_TOB_SimPos_x_"+index, "all_TOB_SimPos_x_"+index, 100, -TOB_Pos_AxisLim, TOB_Pos_AxisLim);
       hMap["all_TOB_RecPos_x_"+index] = new TH1F("all_TOB_RecPos_x_"+index, "all_TOB_RecPos_x_"+index, 100, -TOB_Pos_AxisLim, TOB_Pos_AxisLim);
-      hMap["all_TOB_Err_x_"+index] = new TH1F("all_TOB_Err_x_"+index, "all_TOB_Err_x_"+index, 100, -TOB_Err_AxisLim, TOB_Err_AxisLim);
+      hMap["all_TOB_Err_x_"+index] = new TH1F("all_TOB_Err_x_"+index, "all_TOB_Err_x_"+index, 100, 0, TOB_Err_AxisLim);
       hMap["TOB_Res_x_"+index] = new TH1F("TOB_Res_x_"+index, "TOB_Res_x_"+index, 100, -TOB_Res_AxisLim, TOB_Res_AxisLim);
       hMap["TOB_SimPos_x_"+index] = new TH1F("TOB_SimPos_x_"+index, "TOB_SimPos_x_"+index, 100, -TOB_Pos_AxisLim, TOB_Pos_AxisLim);
       hMap["TOB_RecPos_x_"+index] = new TH1F("TOB_RecPos_x_"+index, "TOB_RecPos_x_"+index, 100, -TOB_Pos_AxisLim, TOB_Pos_AxisLim);
       hMap["TOB_Err_x_"+index] = new TH1F("TOB_Err_x_"+index, "TOB_Err_x_"+index, 100, -TOB_Err_AxisLim, TOB_Err_AxisLim);
+      //pat
+      if(i==1 || i== 2){
+	hMap["all_TOB_Res_y_"+index] = new TH1F("all_TOB_Res_y_"+index, "all_TOB_Res_y_"+index, 100, -TOB_Resy_AxisLim, TOB_Resy_AxisLim);
+	hMap["all_TOB_RecPos_y_"+index] = new TH1F("all_TOB_RecPos_y_"+index, "all_TOB_RecPos_y_"+index, 100, -TOB_Pos_AxisLim, TOB_Pos_AxisLim);
+	hMap["all_TOB_Err_y_"+index] = new TH1F("all_TOB_Err_y_"+index, "all_TOB_Err_y_"+index, 100, 0, TOB_Erry_AxisLim);
+	hMap["all_TOB_SimPos_y_"+index] = new TH1F("all_TOB_SimPos_y_"+index, "all_TOB_SimPos_y_"+index, 100, -TOB_Pos_AxisLim, TOB_Pos_AxisLim);
+	hMap["TOB_Res_y_"+index] = new TH1F("TOB_Res_y_"+index, "TOB_Res_y_"+index, 100, -TOB_Resy_AxisLim, TOB_Resy_AxisLim);
+	hMap["TOB_RecPos_y_"+index] = new TH1F("TOB_RecPos_y_"+index, "TOB_RecPos_y_"+index, 100, -TOB_Pos_AxisLim, TOB_Pos_AxisLim);
+	hMap["TOB_Err_y_"+index] = new TH1F("TOB_Err_y_"+index, "TOB_Err_y_"+index, 100, 0, TOB_Erry_AxisLim);
+	hMap["TOB_SimPos_y_"+index] = new TH1F("TOB_SimPos_y_"+index, "TOB_SimPos_y_"+index, 100, -TOB_Pos_AxisLim, TOB_Pos_AxisLim);
+      }
     }
 
     hMap["all_TEC_Res_x_"+index] = new TH1F("all_TEC_Res_x_"+index, "all_TEC_Res_x_"+index, 100, -TEC_Res_AxisLim, TEC_Res_AxisLim);
+    hMap["all_TEC_Res_x_proj_"+index] = new TH1F("all_TEC_Res_x_proj_"+index, "all_TEC_Res_x_proj_"+index, 100, -TEC_Res_AxisLim, TEC_Res_AxisLim);
     hMap["all_TEC_SimPos_x_"+index] = new TH1F("all_TEC_SimPos_x_"+index, "all_TEC_SimPos_x_"+index, 100, -TEC_Pos_AxisLim, TEC_Pos_AxisLim);
     hMap["all_TEC_RecPos_x_"+index] = new TH1F("all_TEC_RecPos_x_"+index, "all_TEC_RecPos_x_"+index, 100, -TEC_Pos_AxisLim, TEC_Pos_AxisLim);
-    hMap["all_TEC_Err_x_"+index] = new TH1F("all_TEC_Err_x_"+index, "all_TEC_Err_x_"+index, 100, -TEC_Err_AxisLim, TEC_Err_AxisLim);
+    hMap["all_TEC_Err_x_"+index] = new TH1F("all_TEC_Err_x_"+index, "all_TEC_Err_x_"+index, 100, 0, TEC_Err_AxisLim);
+
+
     hMap["TEC_Res_x_"+index] = new TH1F("TEC_Res_x_"+index, "TEC_Res_x_"+index, 100, -TEC_Res_AxisLim, TEC_Res_AxisLim);
+    hMap["TEC_Res_x_proj_"+index] = new TH1F("TEC_Res_x_proj_"+index, "TEC_Res_x_proj_"+index, 100, -TEC_Res_AxisLim, TEC_Res_AxisLim);
     hMap["TEC_SimPos_x_"+index] = new TH1F("TEC_SimPos_x_"+index, "TEC_SimPos_x_"+index, 100, -TEC_Pos_AxisLim, TEC_Pos_AxisLim);
     hMap["TEC_RecPos_x_"+index] = new TH1F("TEC_RecPos_x_"+index, "TEC_RecPos_x_"+index, 100, -TEC_Pos_AxisLim, TEC_Pos_AxisLim);
     hMap["TEC_Err_x_"+index] = new TH1F("TEC_Err_x_"+index, "TEC_Err_x_"+index, 100, -TEC_Err_AxisLim, TEC_Err_AxisLim);
+      //pat
+      if(i==1 || i== 2 || i==5){
+	hMap["all_TEC_Res_y_"+index] = new TH1F("all_TEC_Res_y_"+index, "all_TEC_Res_y_"+index, 100, -TEC_Resy_AxisLim, TEC_Resy_AxisLim);
+	hMap["all_TEC_RecPos_y_"+index] = new TH1F("all_TEC_RecPos_y_"+index, "all_TEC_RecPos_y_"+index, 100, -TEC_Pos_AxisLim, TEC_Pos_AxisLim);
+	hMap["all_TEC_Err_y_"+index] = new TH1F("all_TEC_Err_y_"+index, "all_TEC_Err_y_"+index, 100,0, TEC_Erry_AxisLim);
+	hMap["all_TEC_SimPos_y_"+index] = new TH1F("all_TEC_SimPos_y_"+index, "all_TEC_SimPos_y_"+index, 100, -TEC_Pos_AxisLim, TEC_Pos_AxisLim);
+	hMap["TEC_Res_y_"+index] = new TH1F("TEC_Res_y_"+index, "TEC_Res_y_"+index, 100, -TEC_Resy_AxisLim, TEC_Resy_AxisLim);
+	hMap["TEC_RecPos_y_"+index] = new TH1F("TEC_RecPos_y_"+index, "TEC_RecPos_y_"+index, 100, -TEC_Pos_AxisLim, TEC_Pos_AxisLim);
+	hMap["TEC_Err_y_"+index] = new TH1F("TEC_Err_y_"+index, "TEC_Err_y_"+index, 100,0, TEC_Erry_AxisLim);
+	hMap["TEC_SimPos_y_"+index] = new TH1F("TEC_SimPos_y_"+index, "TEC_SimPos_y_"+index, 100, -TEC_Pos_AxisLim, TEC_Pos_AxisLim);
+      }
 
     if(i<4){
       hMap["all_TID_Res_x_"+index] = new TH1F("all_TID_Res_x_"+index, "all_TID_Res_x_"+index, 100, -TID_Res_AxisLim, TID_Res_AxisLim);
+      hMap["all_TID_Res_x_proj_"+index] = new TH1F("all_TID_Res_x_proj_"+index, "all_TID_Res_x_proj_"+index, 100, -TID_Res_AxisLim, TID_Res_AxisLim);
       hMap["all_TID_SimPos_x_"+index] = new TH1F("all_TID_SimPos_x_"+index, "all_TID_SimPos_x_"+index, 100, -TID_Pos_AxisLim, TID_Pos_AxisLim);
       hMap["all_TID_RecPos_x_"+index] = new TH1F("all_TID_RecPos_x_"+index, "all_TID_RecPos_x_"+index, 100, -TID_Pos_AxisLim, TID_Pos_AxisLim);
-      hMap["all_TID_Err_x_"+index] = new TH1F("all_TID_Err_x_"+index, "all_TID_Err_x_"+index, 100, -TID_Err_AxisLim, TID_Err_AxisLim);
+      hMap["all_TID_Err_x_"+index] = new TH1F("all_TID_Err_x_"+index, "all_TID_Err_x_"+index, 100, 0, TID_Err_AxisLim);
       hMap["TID_Res_x_"+index] = new TH1F("TID_Res_x_"+index, "TID_Res_x_"+index, 100, -TID_Res_AxisLim, TID_Res_AxisLim);
+      hMap["TID_Res_x_proj_"+index] = new TH1F("TID_Res_x_proj_"+index, "TID_Res_x_proj_"+index, 100, -TID_Res_AxisLim, TID_Res_AxisLim);
       hMap["TID_SimPos_x_"+index] = new TH1F("TID_SimPos_x_"+index, "TID_SimPos_x_"+index, 100, -TID_Pos_AxisLim, TID_Pos_AxisLim);
       hMap["TID_RecPos_x_"+index] = new TH1F("TID_RecPos_x_"+index, "TID_RecPos_x_"+index, 100, -TID_Pos_AxisLim, TID_Pos_AxisLim);
       hMap["TID_Err_x_"+index] = new TH1F("TID_Err_x_"+index, "TID_Err_x_"+index, 100, -TID_Err_AxisLim, TID_Err_AxisLim);
+      //pat
+      if(i==1 || i== 2){
+	hMap["all_TID_Res_y_"+index] = new TH1F("all_TID_Res_y_"+index, "all_TID_Res_y_"+index, 100, -TID_Resy_AxisLim, TID_Resy_AxisLim);
+	hMap["all_TID_RecPos_y_"+index] = new TH1F("all_TID_RecPos_y_"+index, "all_TID_RecPos_y_"+index, 100, -TID_Pos_AxisLim, TID_Pos_AxisLim);
+	hMap["all_TID_Err_y_"+index] = new TH1F("all_TID_Err_y_"+index, "all_TID_Err_y_"+index, 100,0, TID_Erry_AxisLim);
+	hMap["all_TID_SimPos_y_"+index] = new TH1F("all_TID_SimPos_y_"+index, "all_TID_SimPos_y_"+index, 100, -TID_Pos_AxisLim, TID_Pos_AxisLim);
+	hMap["TID_Res_y_"+index] = new TH1F("TID_Res_y_"+index, "TID_Res_y_"+index, 100, -TID_Resy_AxisLim, TID_Resy_AxisLim);
+	hMap["TID_RecPos_y_"+index] = new TH1F("TID_RecPos_y_"+index, "TID_RecPos_y_"+index, 100, -TID_Pos_AxisLim, TID_Pos_AxisLim);
+	hMap["TID_Err_y_"+index] = new TH1F("TID_Err_y_"+index, "TID_Err_y_"+index, 100,0, TID_Erry_AxisLim);
+	hMap["TID_SimPos_y_"+index] = new TH1F("TID_SimPos_y_"+index, "TID_SimPos_y_"+index, 100, -TID_Pos_AxisLim, TID_Pos_AxisLim);
+
+      }
     }
   }
 
@@ -208,6 +272,7 @@ void FastTrackAnalyzer::beginJob( const edm::EventSetup& es){
 
   hMap["trk_Rec_eta"] = new TH1F("trk_Rec_eta", "trk_Rec_eta", 100,-3, 3);
   hMap["trk_Sim_eta"] = new TH1F("trk_Sim_eta", "trk_Sim_eta", 100,-3, 3);
+  hMap["trk_Cnd_eta"] = new TH1F("trk_Cnd_eta", "trk_Cnd_eta", 100,-3, 3);
   hMap["trk_Res_eta"] = new TH1F("trk_Res_eta", "trk_Res_eta", 1000,-0.01, 0.01);
   hMap["trk_Pull_eta"] = new TH1F("trk_Pull_eta", "trk_Pull_eta", 1000,-25, 25);
 
@@ -255,11 +320,11 @@ void FastTrackAnalyzer::analyze(const edm::Event& event, const edm::EventSetup& 
     const reco::TrackCollection tC = *(trackCollection.product());
     
     //get simtrack info
-    edm::Handle<SimTrackContainer> theSimTracks;
-    event.getByLabel("famosSimHits",theSimTracks);
+     edm::Handle<std::vector<SimTrack> > theSimTracks;
+     event.getByLabel("famosSimHits",theSimTracks); 
 
     edm::Handle<SimVertexContainer> theSimVtx;
-    event.getByLabel("famosSimHits",theSimVtx);
+    event.getByType(theSimVtx);
 
     // print size of vertex collection
     std::cout<<" AS: vertex.size() = "<< theSimVtx->size() << std::endl;
@@ -301,49 +366,20 @@ void FastTrackAnalyzer::analyze(const edm::Event& event, const edm::EventSetup& 
     unsigned int iTotalSimHits = 0;
     unsigned int iCandRecHits = 0;
     
-    // count number of hits in track candidate
-    // stop with error if no candidate
-    if(theTrackCandColl->size() != 1){
-      std::cout<<"  AS: ERROR debugging: theTrackCandColl->size() != 1"<< std::endl;
-      exit(1);
-    }
-    for(TrackCandidateCollection::const_iterator it = theTrackCandColl->begin(); it!= theTrackCandColl->end(); it++){
-      TrackCandidate::RecHitContainer::const_iterator theItBegin =   it->recHits().first;
-      TrackCandidate::RecHitContainer::const_iterator theItEnd =   it->recHits().second;
-      for( TrackCandidate::RecHitContainer::const_iterator theIt = theItBegin; theIt!= theItEnd; theIt++){
-	iCandRecHits++;
-      }
-    }
-
-//     // print position of simhits for debugging
-//     std::cout<<" AS: global position of all simhits (x, y, z, r)"<< std::endl;
-//     //loop on all simhits to count them
-//     for (MixCollection<PSimHit>::iterator isim=allTrackerHits.begin(); isim!= allTrackerHits.end(); isim++) {
-//       unsigned int subdet   = DetId(isim->detUnitId()).subdetId();
-//       iTotalSimHits++;
-//       if(subdet==1 || subdet==2)iPixSimHits++;
-//       else if(subdet==3|| subdet==4 || subdet==5 || subdet == 6) iStripSimHits++;
-//       else {
-// 	std::cout<<" AS: ERROR simhit subdet inconsistent"<< std::endl;
-// 	exit(1);
-//       }
-
-//       const GeomDetUnit *  det = tracker.idToDetUnit( DetId(isim->detUnitId())  );
-//       GlobalPoint posGlobSim =     det->surface().toGlobal( isim->localPosition()  );
-      
-//       std::cout<< posGlobSim.x() << "  ,  " << posGlobSim.y() << "  ,  "<< posGlobSim.z() << "  ,  " << posGlobSim.perp() << std::endl;
-//     }
-
     
     //------------------------
     //loop on all rechits, match them to simhits and make plots
     for(edm::OwnVector<SiTrackerGSRecHit2D>::const_iterator iterrechit = theRecHitIteratorBegin;
 	iterrechit != theRecHitIteratorEnd; ++iterrechit) { // loop on GSRecHits
       
+      //      std::cout<<" looping over rechits "<< std::endl;
+
       DetId detid = (*iterrechit).geographicalId();
 
       // count rechits
       unsigned int subdet = detid.subdetId();
+      //      std::cout<<" subdet = "<< subdet << std::endl;
+      //      std::cout<<" recdetid = " << detid.rawId() << std::endl;
       iTotalRecHits++;
       if(subdet==1 || subdet==2) iPixRecHits++;
       else if(subdet==3|| subdet==4 || subdet==5 || subdet == 6) iStripRecHits++;
@@ -351,6 +387,12 @@ void FastTrackAnalyzer::analyze(const edm::Event& event, const edm::EventSetup& 
 	std::cout<<" AS: ERROR simhit subdet inconsistent"<< std::endl;
 	exit(1);
       }
+
+//       //continue for matched hits
+//       if(subdet > 2){
+// 	StripSubdetector specDetId=StripSubdetector(detid);
+// 	if(specDetId.glued()) continue;
+//       }
 
       SiTrackerGSRecHit2D const rechit=*iterrechit;
 
@@ -360,42 +402,93 @@ void FastTrackAnalyzer::analyze(const edm::Event& event, const edm::EventSetup& 
       //match sim hit to rec hit
       unsigned int matchedSimHits = 0;
       PSimHit* simHit = NULL;
+      PSimHit* simHitStereoPatch = NULL;
+      int numpartners=0;
       for (MixCollection<PSimHit>::iterator isim=allTrackerHits.begin(); isim!= allTrackerHits.end(); isim++) {
+	//	std::cout<<" looping over simhits " << std::endl;
 	//compare detUnitIds && SimTrackIds to match rechit to simhit (for pileup will need to add EncodedEventId info as well).
 	int simdetid = (*isim).detUnitId();
+	//	std::cout<<"  simdetid = "<< simdetid << std::endl;
 	if(detid.rawId() == (*isim).detUnitId() && (*iterrechit).simtrackId()==(*isim).trackId())
 	  {
 	    matchedSimHits++;
+	    numpartners++;
 	    simHit = const_cast<PSimHit*>(&(*isim));
+	    
 	    std::cout << "\tRecHit pos = " << position << "\tin Det " << detid.rawId() << "\tsimtkID = " << (*iterrechit).simtrackId() << std::endl;
 	    std::cout << "\tmatched to Simhit = " << (*isim).localPosition() << "\tsimtkId = " <<(*isim).trackId() << std::endl; 	    
 	  }
+	else{
+	  if(subdet > 2){
+	    StripSubdetector specDetId=StripSubdetector(detid);
+	    //	    std::cout<<"   glued = " << specDetId.glued() << std::endl;
+	    const GluedGeomDet* gluedDet = dynamic_cast<const GluedGeomDet*> (trackerG->idToDet(detid));
+	    //	    std::cout<<"   gluedgeomdet = " << gluedDet << std::endl;
+	    if(gluedDet){
+	      //	      const GluedGeomDet* gluedDet = (const GluedGeomDet*)trackerG->idToDet(detid);
+	      const GeomDetUnit* theMonoDet = gluedDet->monoDet();
+	      const GeomDetUnit* theStereoDet = gluedDet->stereoDet();
+	      int monodetid = theMonoDet->geographicalId().rawId();
+	      int stereodetid = theStereoDet->geographicalId().rawId();
+	      //	      std::cout<< "   monodetid = " << monodetid << std::endl;
+	      if( monodetid ==  (*isim).detUnitId() && (*iterrechit).simtrackId()==(*isim).trackId()){
+		//matching the rphi one
+		std::cout<<"    ***  found matched matched hit ! ***"<< std::endl;
+		matchedSimHits++;
+		numpartners++;
+		simHit = const_cast<PSimHit*>(&(*isim));
+		
+		std::cout << "\tRecHit pos = " << position << "\tin Det " << detid.rawId() << "\tsimtkID = " << (*iterrechit).simtrackId() << std::endl;
+		std::cout << "\tmatched to Simhit = " << (*isim).localPosition() << "\tsimtkId = " <<(*isim).trackId() << std::endl; 
+	      }
+	      if( stereodetid ==  (*isim).detUnitId() && (*iterrechit).simtrackId()==(*isim).trackId()){
+		//matching the rphi one
+		numpartners++;
+		std::cout<<"    ***  found matched matched hit ! ***"<< std::endl;
+		// 	matchedSimHits++;
+		simHitStereoPatch = const_cast<PSimHit*>(&(*isim));
+		
+		std::cout << "\tRecHit pos = " << position << "\tin Det " << detid.rawId() << "\tsimtkID = " << (*iterrechit).simtrackId() << std::endl;
+		std::cout << "\tmatched to Simhit = " << (*isim).localPosition() << "\tsimtkId = " <<(*isim).trackId() << std::endl; 
+	      }
+	      
+
+	    }
+	  }
+	}
       }
-      if(matchedSimHits!=1){ // for debugging
+      
+      if(matchedSimHits==0 && simHitStereoPatch){
+	matchedSimHits++;
+	simHit=simHitStereoPatch;
+      }
+
+      if(matchedSimHits!=1 ){ // for debugging
 	std::cout<<"ERROR: matchedSimHits!=1 " << std::endl;
+	std::cout<<"ERROR: matchedSimHits =  " << matchedSimHits<<  std::endl;
 	exit(1);
       }
 
       // now match TrackingRecHits from track candidate to rec hit
       unsigned int matchedCandHits = 0;
-      const TrackingRecHit * matchedCandHit;
-      TrackCandidate::RecHitContainer::const_iterator theItBegin =    theTrackCandColl->begin()->recHits().first;
-      TrackCandidate::RecHitContainer::const_iterator theItEnd =    theTrackCandColl->begin()->recHits().second;
-      for( TrackCandidate::RecHitContainer::const_iterator theIt = theItBegin; theIt!= theItEnd; theIt++){
-	const TrackingRecHit & candHit = *theIt;
-	if(detid.rawId() == candHit.geographicalId().rawId()){
-	  matchedCandHits++;
-	  matchedCandHit = &candHit;
-	}
-      }
-      if(matchedCandHits!=1){
-	std::cout<<"  AS:ERROR: matchedCandHits!=1"<< std::endl;
-	exit(1);
-      }
+      const TrackingRecHit * matchedCandHit=0;
+//       TrackCandidate::RecHitContainer::const_iterator theItBegin =    theTrackCandColl->begin()->recHits().first;
+//       TrackCandidate::RecHitContainer::const_iterator theItEnd =    theTrackCandColl->begin()->recHits().second;
+//       for( TrackCandidate::RecHitContainer::const_iterator theIt = theItBegin; theIt!= theItEnd; theIt++){
+// 	const TrackingRecHit & candHit = *theIt;
+// 	if(detid.rawId() == candHit.geographicalId().rawId()){
+// 	  matchedCandHits++;
+// 	  matchedCandHit = &candHit;
+// 	}
+//       }
+//       if(matchedCandHits!=1){
+// 	std::cout<<"  AS:ERROR: matchedCandHits!=1"<< std::endl;
+// 	exit(1);
+//       }
 
 
       //make  plots for Hits
-      makeHitsPlots("all_", &rechit, simHit, matchedCandHit);
+      makeHitsPlots("all_", &rechit, simHit, matchedCandHit, numpartners);
 
     }
     //end all hits validation plots
@@ -414,16 +507,17 @@ void FastTrackAnalyzer::analyze(const edm::Event& event, const edm::EventSetup& 
     // number of hits in track candidates
     hMap["cnd_NumRecHits"]->Fill(iCandRecHits);
 
-    //--------------------------------------
-    //start validation plots for tracks and hits in tracks
-    //---------------------------------------
-    std::cout << "Reconstructed "<< tC.size() << " tracks" << std::endl ;
-    std::cout << "Simulated "<< theSimTracks->size() << " tracks" << std::endl ;
-    hMap["NumRecTracks"]->Fill(tC.size());
-    hMap["NumSimTracks"]->Fill(theSimTracks->size());
+//     //--------------------------------------
+//     //start validation plots for tracks and hits in tracks
+//     //---------------------------------------
+     std::cout << "Reconstructed "<< tC.size() << " tracks" << std::endl ;
+     std::cout << "Simulated "<< theSimTracks->size() << " tracks" << std::endl ;
+
+     hMap["NumRecTracks"]->Fill(tC.size());
+     hMap["NumSimTracks"]->Fill(theSimTracks->size());
 
     
-    int i=1;
+     int i=1;
     for (reco::TrackCollection::const_iterator track=tC.begin(); track!=tC.end(); track++){
 
       std::cout << "Track number "<< i << std::endl ;
@@ -434,7 +528,8 @@ void FastTrackAnalyzer::analyze(const edm::Event& event, const edm::EventSetup& 
       std::cout <<"\t\tNumber of RecHits "<<track->recHitsSize() << std::endl;
       SimTrackIds.clear();
       int ri=0;
-      for (trackingRecHit_iterator it = track->recHitsBegin();  it != track->recHitsEnd(); it++){
+
+       for (trackingRecHit_iterator it = track->recHitsBegin();  it != track->recHitsEnd(); it++){
 	ri++;
 	if ((*it)->isValid()){
 
@@ -445,153 +540,187 @@ void FastTrackAnalyzer::analyze(const edm::Event& event, const edm::EventSetup& 
 	      std::cout << "\t\t\tRecHit # " << ri << "\t SimTrackId = " << currentId << std::endl;
 	      SimTrackIds.push_back(currentId);
 	      std::cout<<"\t\t\t SimHit ID belonging to this RecHit = "<< rechit->simhitId() << std::endl;
-	      DetId adetid = rechit->geographicalId();
+	      DetId detid = rechit->geographicalId();
+	      unsigned int subdet = detid.subdetId();
 
 	      // search the associated original PSimHit
-	      PSimHit* simHit = NULL;
 	      unsigned int matchedSimHits = 0;
+	      PSimHit* simHit = NULL;
+	      PSimHit* simHitStereoPatch = NULL;
+	      int numpartners=0;
+
 	      for (MixCollection<PSimHit>::iterator isim=allTrackerHits.begin(); isim!= allTrackerHits.end(); isim++) {
-		if(adetid.rawId() == (*isim).detUnitId() && rechit->simtrackId()==(*isim).trackId()){
+		if(detid.rawId() == (*isim).detUnitId() && rechit->simtrackId()==(*isim).trackId()){
 		  simHit = const_cast<PSimHit*>(&(*isim));
 		  matchedSimHits++;
-		  std::cout << "\tRecHit pos = " << rechit->localPosition() << "\tin Det " << adetid.rawId() << "\tsimtkID = " << rechit->simtrackId() << std::endl;
+		  std::cout << "\tRecHit pos = " << rechit->localPosition() << "\tin Det " << detid.rawId() << "\tsimtkID = " << rechit->simtrackId() << std::endl;
 		  std::cout << "\tmatched to Simhit = " << (*isim).localPosition() << "\tsimtkId = " <<(*isim).trackId() << std::endl; 	    		  
 		}
+		else{
+		  if(subdet > 2){
+		    StripSubdetector specDetId=StripSubdetector(detid);
+		    //	    std::cout<<"   glued = " << specDetId.glued() << std::endl;
+		    const GluedGeomDet* gluedDet = dynamic_cast<const GluedGeomDet*> (trackerG->idToDet(detid));
+		    //	    std::cout<<"   gluedgeomdet = " << gluedDet << std::endl;
+		    if(gluedDet){
+		      //	      const GluedGeomDet* gluedDet = (const GluedGeomDet*)trackerG->idToDet(detid);
+		      const GeomDetUnit* theMonoDet = gluedDet->monoDet();
+		      const GeomDetUnit* theStereoDet = gluedDet->stereoDet();
+		      int monodetid = theMonoDet->geographicalId().rawId();
+		      int stereodetid = theStereoDet->geographicalId().rawId();
+		      //	      std::cout<< "   monodetid = " << monodetid << std::endl;
+		      if( monodetid ==  (*isim).detUnitId() && rechit->simtrackId()==(*isim).trackId()){
+			//matching the rphi one
+			std::cout<<"    ***  found matched matched hit ! ***"<< std::endl;
+			matchedSimHits++;
+			numpartners++;
+			simHit = const_cast<PSimHit*>(&(*isim));
+		
+
+		      }
+		      if( stereodetid ==  (*isim).detUnitId() && (*rechit).simtrackId()==(*isim).trackId()){
+			//matching the rphi one
+			numpartners++;
+			std::cout<<"    ***  found matched matched hit ! ***"<< std::endl;
+			// 	matchedSimHits++;
+			simHitStereoPatch = const_cast<PSimHit*>(&(*isim));
+			
+
+		      }
+		      
+		      
+		    }
+		  }
+		}
+		
+	      }// end loop on simhits
+
+
+	      if(matchedSimHits==0 && simHitStereoPatch){
+		matchedSimHits++;
+		simHit=simHitStereoPatch;
 	      }
-	      if(matchedSimHits!=1){
+	      
+	      if(matchedSimHits!=1 ){ // for debugging
 		std::cout<<"ERROR: matchedSimHits!=1 " << std::endl;
+		std::cout<<"ERROR: matchedSimHits =  " << matchedSimHits<<  std::endl;
 		exit(1);
 	      }
 	      
+	      
 	      //make plots for Hits
-	      makeHitsPlots("", rechit, simHit,0);
+	      makeHitsPlots("", rechit, simHit,0, numpartners);
 	 
 	    }
 	}else{
 	  cout <<"\t\t Invalid Hit On "<<(*it)->geographicalId().rawId()<<endl;
 	} 
-      }
-      
-      int nmax = 0;
-      int idmax = -1;
-      for(size_t j=0; j<SimTrackIds.size(); j++){
-	int n =0;
-	n = std::count(SimTrackIds.begin(), SimTrackIds.end(), SimTrackIds[j]);
-	if(n>nmax){
+       }// end loop on rechits
+       
+       int nmax = 0;
+       int idmax = -1;
+       for(size_t j=0; j<SimTrackIds.size(); j++){
+	 int n =0;
+	 n = std::count(SimTrackIds.begin(), SimTrackIds.end(), SimTrackIds[j]);
+	 if(n>nmax){
 	  nmax = n;
 	  idmax = SimTrackIds[i];
-	}
-      }
-      float totsim = nmax;
-      float tothits = track->recHitsSize();//include pixel as well..
-      float fraction = totsim/tothits ;
-      
-      std::cout << "Track id # " << i << "\tmatched to Simtrack id= " << idmax  << "\t momentum = " << track->momentum() << std::endl;
-      std::cout << "\tN(matches)= " << totsim <<  "\t# of rechits = " << track->recHitsSize() 
-		<< "\tfraction = " << fraction << std::endl;
-
-      //now found the simtrack information
-      for(SimTrackContainer::const_iterator simTrack = theSimTracks->begin(); simTrack != theSimTracks->end(); simTrack++)
-	{ 
-	  if(simTrack->trackId() == idmax) {
-	    std::cout << "\t\tSim track mom = " << simTrack->momentum() << " charge = " <<  simTrack->charge() << std::endl;
-
+	 }
+       }
+       //       float totsim = nmax;
+       //       float tothits = track->recHitsSize();//include pixel as well..
+       //       float fraction = totsim/tothits ;
+       
+       //       std::cout << "Track id # " << i << "\tmatched to Simtrack id= " << idmax  << "\t momentum = " << track->momentum() << std::endl;
+       //       std::cout << "\tN(matches)= " << totsim <<  "\t# of rechits = " << track->recHitsSize() 
+       // 		<< "\tfraction = " << fraction << std::endl;
+       
+       
+       //      //now found the simtrack information
+       for(SimTrackContainer::const_iterator simTrack = theSimTracks->begin(); simTrack != theSimTracks->end(); simTrack++)
+	 { 
+	   if(simTrack->trackId() == idmax) {
+	     std::cout << "\t\tSim track mom = " << simTrack->momentum() << " charge = " <<  simTrack->charge() << std::endl;
+	     
+	     
+	     
+	     hMap["trk_Rec_chi2"]->Fill(track->chi2());
+	     hMap["trk_Rec_Normchi2"]->Fill(track->normalizedChi2());
+	     hMap["trk_Rec_ndof"]->Fill(track->ndof());
+	     
+	     hMap["trk_Rec_phi"]     ->Fill(  track->phi() );
+	     hMap["trk_Sim_phi"] 	  ->Fill( simTrack->momentum().phi()); 
+	     hMap["trk_Res_phi"] 	  ->Fill(  track->phi() -  simTrack->momentum().phi() );
+	     hMap["trk_Pull_phi"]	  ->Fill( ( track->phi() -  simTrack->momentum().phi()) / track->phiError()   );
+	     
+	     hMap["trk_Rec_eta"] 	  ->Fill(    track->eta() );                                                      
+	     hMap["trk_Sim_eta"] 	  ->Fill(   simTrack->momentum().eta());                                          
+	     hMap["trk_Res_eta"] 	  ->Fill(    track->eta() -  simTrack->momentum().eta() );                        
+	     hMap["trk_Pull_eta"]	  ->Fill(   ( track->eta() -  simTrack->momentum().eta()) / track->etaError()   );
+	     
+	     hMap["trk_Rec_pt"] 	  ->Fill( track->pt()  );
+	     hMap["trk_Sim_pt"] 	  ->Fill( simTrack->momentum().perp()  );
+	     hMap["trk_Res_pt"] 	  ->Fill( track->pt() -  simTrack->momentum().perp() );
+	     
+	     double simQoverp =  simTrack->charge() / simTrack->momentum().vect().mag();
+	     
+	     hMap["trk_Pull_qoverp"] ->Fill( (track->qoverp() -  simQoverp) / track->qoverpError()  );
+	     std::cout<<" qoverp = " << track->qoverp() << std::endl;
+	     std::cout<<" simqoverp = "<< simQoverp << std::endl;
+	     std::cout<<" qoverpPull = "<<  (track->qoverp() -  simQoverp) / track->qoverpError() << std::endl;
+	     
+	     hMap["trk_Rec_d0"] 	  ->Fill(   track->d0() );
+	     hMap["trk_Err_d0"]	  ->Fill(  track->d0Error()  );
+	     //	    hMap["trk_Pull_d0"]	  ->Fill(   );
+	     hMap["trk_Rec_dz"] 	  ->Fill(   track->dz() );
+	     hMap["trk_Err_dz"]	  ->Fill(  track->dzError()  );
+	     
+	     hMap["trk_Rec_charge"] ->Fill( track->charge() );
+	   }
 	   
+	   
+	 }
+    } // end loop on rectracks
+    
 
-	    hMap["trk_Rec_chi2"]->Fill(track->chi2());
-	    hMap["trk_Rec_Normchi2"]->Fill(track->normalizedChi2());
-	    hMap["trk_Rec_ndof"]->Fill(track->ndof());
-	    
-	    hMap["trk_Rec_phi"]     ->Fill(  track->phi() );
-	    hMap["trk_Sim_phi"] 	  ->Fill( simTrack->momentum().phi()); 
-	    hMap["trk_Res_phi"] 	  ->Fill(  track->phi() -  simTrack->momentum().phi() );
-	    hMap["trk_Pull_phi"]	  ->Fill( ( track->phi() -  simTrack->momentum().phi()) / track->phiError()   );
-	    
-	    hMap["trk_Rec_eta"] 	  ->Fill(    track->eta() );                                                      
-	    hMap["trk_Sim_eta"] 	  ->Fill(   simTrack->momentum().eta());                                          
-	    hMap["trk_Res_eta"] 	  ->Fill(    track->eta() -  simTrack->momentum().eta() );                        
-	    hMap["trk_Pull_eta"]	  ->Fill(   ( track->eta() -  simTrack->momentum().eta()) / track->etaError()   );
-	    
-	    hMap["trk_Rec_pt"] 	  ->Fill( track->pt()  );
-	    hMap["trk_Sim_pt"] 	  ->Fill( simTrack->momentum().perp()  );
-	    hMap["trk_Res_pt"] 	  ->Fill( track->pt() -  simTrack->momentum().perp() );
-	    
-	    double simQoverp =  simTrack->charge() / simTrack->momentum().vect().mag();
-	    
-	    hMap["trk_Pull_qoverp"] ->Fill( (track->qoverp() -  simQoverp) / track->qoverpError()  );
-	    std::cout<<" qoverp = " << track->qoverp() << std::endl;
-	    std::cout<<" simqoverp = "<< simQoverp << std::endl;
-	    std::cout<<" qoverpPull = "<<  (track->qoverp() -  simQoverp) / track->qoverpError() << std::endl;
-	    
-	    hMap["trk_Rec_d0"] 	  ->Fill(   track->d0() );
-	    hMap["trk_Err_d0"]	  ->Fill(  track->d0Error()  );
-	    //	    hMap["trk_Pull_d0"]	  ->Fill(   );
-	    hMap["trk_Rec_dz"] 	  ->Fill(   track->dz() );
-	    hMap["trk_Err_dz"]	  ->Fill(  track->dzError()  );
-	    
-	    hMap["trk_Rec_charge"] ->Fill( track->charge() );
-	  }
-	}
-      i++;
+    
+    for(TrackCandidateCollection::const_iterator it = theTrackCandColl->begin(); it!= theTrackCandColl->end(); it++){
+      PTrajectoryStateOnDet state = it->trajectoryStateOnDet();
+      //convert PTrajectoryStateOnDet to TrajectoryStateOnSurface
+      TrajectoryStateTransform transformer;
+      DetId  detId(state.detId());
+      TrajectoryStateOnSurface theTSOS = transformer.transientState( state,
+								     &(theG->idToDet(detId)->surface()), 
+								     theMagField.product());
       
-    }// end loop on rec tracks
-
-    ///--------------------
-    /// compare first sim track to first track candidate
-    const TrackCandidate & trackCand = *theTrackCandColl->begin();
-    PTrajectoryStateOnDet ptrajState = trackCand.trajectoryStateOnDet();
-    TrajectoryStateTransform transformer;
-  
-    DetId firstHitId(trackCand.recHits().first->geographicalId() );
-    if(firstHitId.rawId() != ptrajState.detId()){
-      std::cout<<"  AS:ERR: firstHitId.rawId() != ptrajState.detId() " << std::endl;
-      exit(1);
+      hMap["trk_Cnd_eta"]->Fill(   theTSOS.globalMomentum().eta() );
     }
-    cout<<" first hit id = "<< firstHitId.rawId() << std::endl;
     
-
-    // trajectory state on first detector surface
-    TrajectoryStateOnSurface  tsos = transformer.transientState(ptrajState, 
-								&( tracker.idToDetUnit(	 firstHitId )->surface()),
-								theMagField.product()) ;
-
-    std::cout<<"\t  AS: simtrack compared to track candidate:"<< std::endl;
-    std::cout<<" tsos.globalPosition().eta() = "<< tsos.globalPosition().eta() << std::endl;
-    std::cout<<" tsos.globalPosition().phi() = "<< tsos.globalPosition().phi() << std::endl;
-    std::cout<<" tsos.globalPosition().x() = "<< tsos.globalPosition().x() << std::endl;
-    std::cout<<" tsos.globalPosition().y() = "<< tsos.globalPosition().y() << std::endl;
-    std::cout<<" tsos.globalPosition().z() = "<< tsos.globalPosition().z() << std::endl<< std::endl;;
-    std::cout<<" tsos.globalMomentum().eta() = "<< tsos.globalMomentum().eta() << std::endl;
-    std::cout<<" tsos.globalMomentum().phi() = "<< tsos.globalMomentum().phi() << std::endl;
-    std::cout<<" tsos.globalMomentum().x() = "<< tsos.globalMomentum().x() << std::endl;
-    std::cout<<" tsos.globalMomentum().y() = "<< tsos.globalMomentum().y() << std::endl;
-    std::cout<<" tsos.globalMomentum().z() = "<< tsos.globalMomentum().z() << std::endl<< std::endl;
-    std::cout<<" theSimTracks->begin()->momentum().eta() = "<<    theSimTracks->begin()->momentum().eta() << std::endl;
-    std::cout<<" theSimTracks->begin()->momentum().phi() = "<<    theSimTracks->begin()->momentum().phi() << std::endl;
-    std::cout<<" theSimTracks->begin()->momentum().x() = "<<    theSimTracks->begin()->momentum().x() << std::endl;
-    std::cout<<" theSimTracks->begin()->momentum().y() = "<<    theSimTracks->begin()->momentum().y() << std::endl;
-    std::cout<<" theSimTracks->begin()->momentum().z() = "<<    theSimTracks->begin()->momentum().z() << std::endl;
-  
-    std::cout<<" vertex:"<< std::endl;
-    std::cout<<" x = "<< (*theSimVtx)[0].position().x() << std::endl;
-    std::cout<<" y = "<< (*theSimVtx)[0].position().y() << std::endl;
-    std::cout<<" z = "<< (*theSimVtx)[0].position().z() << std::endl;
-    //---------------------
     
-
   }
 
 
 //------------------------------------------------------
-void FastTrackAnalyzer::makeHitsPlots(TString prefix, const SiTrackerGSRecHit2D * rechit, PSimHit * simHit, const TrackingRecHit * candHit){
+void FastTrackAnalyzer::makeHitsPlots(TString prefix, const SiTrackerGSRecHit2D * rechit, PSimHit * simHit, const TrackingRecHit * candHit, int numpartners){
+  std::cout<< "making plots" << std::endl;
+
   DetId adetid = rechit->geographicalId();
   DetId simdetid= DetId(simHit->detUnitId());
 
-  const GeomDetUnit *  det = trackerG->idToDetUnit(adetid);
+  DetId recdetid = rechit->geographicalId();
+  unsigned int recsubdet = recdetid.subdetId();
+  unsigned int subdet   = DetId(simHit->detUnitId()).subdetId();
+  unsigned int detid    = DetId(simHit->detUnitId()).rawId();
+
+  //  const GeomDetUnit *  det = trackerG->idToDetUnit(adetid);
+  const GeomDet* det = trackerG->idToDet( adetid ); 
   const GeomDetUnit *  simdet = trackerG->idToDetUnit(simdetid);
+
+  const GluedGeomDet* gluedDet = dynamic_cast<const GluedGeomDet*> (trackerG->idToDet(adetid));
 
   GlobalPoint posGlobRec =  det->surface().toGlobal(  rechit->localPosition() );
   GlobalPoint posGlobSim =  det->surface().toGlobal( simHit->localPosition()  );
+  
 
   float xGlobRec = posGlobRec.x();
   float yGlobRec = posGlobRec.y();
@@ -610,7 +739,45 @@ void FastTrackAnalyzer::makeHitsPlots(TString prefix, const SiTrackerGSRecHit2D 
   float xSim = simHit->localPosition().x();
   float ySim = simHit->localPosition().y();
   float zSim = simHit->localPosition().z();
-  
+ 
+  if(gluedDet){    
+    const StripGeomDetUnit* partnerstripdet = (StripGeomDetUnit*) gluedDet->monoDet();
+    const StripGeomDetUnit* stereostripdet = (StripGeomDetUnit*) gluedDet->stereoDet();
+    std::pair<LocalPoint,LocalVector> hitPair1, hitPair2;
+    //check both track directions
+    hitPair1= projectHit(*simHit,partnerstripdet,gluedDet->surface(), 1);
+    hitPair2= projectHit(*simHit,partnerstripdet,gluedDet->surface(), -1);
+    /*
+    std::cout<<"   before after sim project: " << std::endl;
+    std::cout<<"    xSimBefore = " << xSim << std::endl;
+    std::cout<<"    ySimBefore = " << ySim << std::endl;
+    */
+    float xSim1 =  hitPair1.first.x();
+    float ySim1 =  hitPair1.first.y();
+    float zSim1 =  hitPair1.first.z();
+
+    float xSim2 =  hitPair2.first.x();
+    float ySim2 =  hitPair2.first.y();
+    float zSim2 =  hitPair2.first.z();
+
+    if( ((xSim1-xRec)*(xSim1-xRec)+(ySim1-yRec)*(ySim1-yRec)) <  ((xSim2-xRec)*(xSim2-xRec)+(ySim2-yRec)*(ySim2-yRec))){
+      xSim =  hitPair1.first.x();
+      ySim =  hitPair1.first.y();
+      zSim =  hitPair1.first.z();
+    }
+    else{
+      xSim =  hitPair2.first.x();
+      ySim =  hitPair2.first.y();
+      zSim =  hitPair2.first.z();
+    }
+    /*
+    std::cout<<"    xSim1After = " << xSim1 << std::endl;
+    std::cout<<"    ySim1After = " << ySim1 << std::endl;
+    std::cout<<"    xSim2After = " << xSim2 << std::endl;
+    std::cout<<"    ySim2After = " << ySim2 << std::endl;
+    */
+  }
+
   float delta_x = xRec - xSim;
   float delta_y = yRec - ySim;
   float delta_z = zRec - zSim;
@@ -619,24 +786,23 @@ void FastTrackAnalyzer::makeHitsPlots(TString prefix, const SiTrackerGSRecHit2D 
   float err_xy = sqrt(rechit->localPositionError().xy());
   float err_yy = sqrt(rechit->localPositionError().yy());
 
-  DetId recdetid = rechit->geographicalId();
-  unsigned int recsubdet = recdetid.subdetId();
-  unsigned int subdet   = DetId(simHit->detUnitId()).subdetId();
-  unsigned int detid    = DetId(simHit->detUnitId()).rawId();
 
   //check if rec and sim are the same
-  if(subdet!=recsubdet){
-    std::cout<<"subdet!=recsubdet"<<std::endl;
-    exit(1);
-  }
+//   if(subdet!=recsubdet){
+//     std::cout<<"subdet!=recsubdet"<<std::endl;
+//     exit(1);
+//   }
+/*
   std::cout<<"plotting for prefix "<< prefix << std::endl;
   std::cout<<"\t\t\t detid = "<< detid << "  subdet = "<< subdet<<" which means: "<< std::endl;
-  switch (subdet) {
+*/ 
+
+ switch (subdet) {
     // Pixel Barrel
   case 1: {
 		PXBDetId module(detid);
 		unsigned int theLayer = module.layer();
-		std::cout << "\t\t\tPixel Barrel Layer " << theLayer << std::endl;
+		//	std::cout << "\t\t\tPixel Barrel Layer " << theLayer << std::endl;
 		TString layer = ""; layer+=theLayer;
 		hMap[prefix+"PXB_RecPos_x_"+layer]->Fill(xRec);
 		hMap[prefix+"PXB_RecPos_y_"+layer]->Fill(yRec);
@@ -653,7 +819,7 @@ void FastTrackAnalyzer::makeHitsPlots(TString prefix, const SiTrackerGSRecHit2D 
 	      case 2:    {
 		PXFDetId module(detid);
 		unsigned int theDisk = module.disk();
-		std::cout << "\t\t\tPixel Forward Disk " << theDisk << std::endl;
+		//std::cout << "\t\t\tPixel Forward Disk " << theDisk << std::endl;
 		TString layer = ""; layer+=theDisk;
 		hMap[prefix+"PXF_RecPos_x_"+layer]->Fill(xRec);
 		hMap[prefix+"PXF_RecPos_y_"+layer]->Fill(yRec);
@@ -671,13 +837,24 @@ void FastTrackAnalyzer::makeHitsPlots(TString prefix, const SiTrackerGSRecHit2D 
 		{
 		  TIBDetId module(detid);
 		  unsigned int theLayer  = module.layer();
+		  /*
 		  std::cout << "\t\t\tTIB Layer " << theLayer << std::endl;
+		  std::cout<<"\t\t\t recLocX = "<< xRec << "   simLocX = "<< xSim << std::endl;
+		  std::cout<<"\t\t\t recLocY = "<< yRec << "   simLocY = "<< ySim << std::endl;
+		  std::cout<<"\t\t\t recLocZ = "<< zRec << "   simLocZ = "<< zSim << std::endl;
+		  std::cout<<"\t\t\t errX = "<< err_xx <<"   errY = "<< err_yy << std::endl;
+		  */
 		  TString layer=""; layer+=theLayer;
 		  hMap[prefix+"TIB_Res_x_"+layer] ->Fill(delta_x);
 		  hMap[prefix+"TIB_SimPos_x_"+layer] ->Fill(xSim);
-		  hMap[prefix+"TIB_RecPos_x_"+layer] ->Fill(xRec);
+ 		  hMap[prefix+"TIB_RecPos_x_"+layer] ->Fill(xRec);
 		  hMap[prefix+"TIB_Err_x_"+layer] ->Fill(err_xx);
-
+		  if(theLayer ==1 || theLayer ==2){
+		    hMap[prefix+"TIB_Res_y_"+layer] ->Fill(delta_y);
+		    hMap[prefix+"TIB_RecPos_y_"+layer] ->Fill(yRec);
+		    hMap[prefix+"TIB_SimPos_y_"+layer] ->Fill(ySim);
+		    hMap[prefix+"TIB_Err_y_"+layer] ->Fill(err_yy);
+		  }
 		  break;
 		}
 		// TID
@@ -685,12 +862,23 @@ void FastTrackAnalyzer::makeHitsPlots(TString prefix, const SiTrackerGSRecHit2D 
 		{
 		  TIDDetId module(detid);
 		  unsigned int theRing  = module.ring();
-		  std::cout << "\t\t\tTID Ring " << theRing << std::endl;
+		  //std::cout << "\t\t\tTID Ring " << theRing << std::endl;
 		  TString ring=""; ring+=theRing;
+
 		  hMap[prefix+"TID_Res_x_"+ring] ->Fill(delta_x);
+		  if(gluedDet) if( numpartners == 1) {
+		    hMap[prefix+"TID_Res_x_proj_"+ring]->Fill(delta_x);
+		  }
 		  hMap[prefix+"TID_SimPos_x_"+ring] ->Fill(xSim);
 		  hMap[prefix+"TID_RecPos_x_"+ring] ->Fill(xRec);
 		  hMap[prefix+"TID_Err_x_"+ring] ->Fill(err_xx);
+
+		  if(theRing==1 || theRing==2){
+		    hMap[prefix+"TID_Res_y_"+ring] ->Fill(delta_y);
+		    hMap[prefix+"TID_RecPos_y_"+ring] ->Fill(yRec);
+		    hMap[prefix+"TID_SimPos_y_"+ring] ->Fill(ySim);
+		    hMap[prefix+"TID_Err_y_"+ring] ->Fill(err_yy);
+		  }
 		  break;
 		}
 		    // TOB
@@ -698,26 +886,53 @@ void FastTrackAnalyzer::makeHitsPlots(TString prefix, const SiTrackerGSRecHit2D 
 		{
 		  TOBDetId module(detid);
 		  unsigned int theLayer  = module.layer();
-		  std::cout << "\t\t\tTOB Layer " << theLayer << std::endl;
+		  //std::cout << "\t\t\tTOB Layer " << theLayer << std::endl;
 		  TString layer=""; layer+=theLayer;
 		  hMap[prefix+"TOB_Res_x_"+layer] ->Fill(delta_x);
 		  hMap[prefix+"TOB_SimPos_x_"+layer] ->Fill(xSim);
 		  hMap[prefix+"TOB_RecPos_x_"+layer] ->Fill(xRec);
 		  hMap[prefix+"TOB_Err_x_"+layer] ->Fill(err_xx);
+		  if(theLayer ==1 || theLayer ==2){
+		    hMap[prefix+"TOB_Res_y_"+layer] ->Fill(delta_y);
+		    hMap[prefix+"TOB_RecPos_y_"+layer] ->Fill(yRec);
+		    hMap[prefix+"TOB_SimPos_y_"+layer] ->Fill(ySim);
+		    hMap[prefix+"TOB_Err_y_"+layer] ->Fill(err_yy);
+		  }
 		  break;
 		}
 		// TEC
 	      case 6:
 		{
+
+		  StripSubdetector specDetId=StripSubdetector(detid);
 		  TECDetId module(detid);
 		  unsigned int theRing  = module.ring();
 		  unsigned int theWheel = module.wheel();
-		  std::cout << "\t\t\tTEC Ring " << theRing << ",    wheel = " << theWheel <<  std::endl;
+		  if(!gluedDet && theRing==1){
+		    std::cout<<"     AS debugging2 !gluedDet && theRing==1"<< std::endl;
+		    exit(1);
+		  }
+		  //std::cout << "\t\t\tTEC Ring " << theRing << ",    wheel = " << theWheel <<  std::endl;
 		  TString ring=""; ring+=theRing;
-		  hMap[prefix+"TEC_Res_x_"+ring] ->Fill(delta_x);
-		  hMap[prefix+"TEC_SimPos_x_"+ring] ->Fill(xSim);
-		  hMap[prefix+"TEC_RecPos_x_"+ring] ->Fill(xRec);
-		  hMap[prefix+"TEC_Err_x_"+ring] ->Fill(err_xx);
+		  
+
+		    hMap[prefix+"TEC_Res_x_"+ring] ->Fill(delta_x);
+		    hMap[prefix+"TEC_SimPos_x_"+ring] ->Fill(xSim);
+		    hMap[prefix+"TEC_RecPos_x_"+ring] ->Fill(xRec);
+		    hMap[prefix+"TEC_Err_x_"+ring] ->Fill(err_xx);
+
+		  if(theRing ==1 || theRing ==2 || theRing==5){
+		    hMap[prefix+"TEC_Res_y_"+ring] ->Fill(delta_y);
+		    hMap[prefix+"TEC_RecPos_y_"+ring] ->Fill(yRec);
+		    hMap[prefix+"TEC_SimPos_y_"+ring] ->Fill(ySim);
+		    hMap[prefix+"TEC_Err_y_"+ring] ->Fill(err_yy);
+
+		    if(gluedDet) if( numpartners==1) {
+		      hMap[prefix+"TEC_Res_x_proj_"+ring]->Fill(delta_x);
+		    }
+
+		  }
+
 		  break;
 		}
 		
@@ -778,13 +993,50 @@ void FastTrackAnalyzer::makeHitsPlots(TString prefix, const SiTrackerGSRecHit2D 
 
 void FastTrackAnalyzer::endJob(){
 
-  TFile* outfile = new TFile("ResHistos.root", "RECREATE");
+  TFile* outfile = new TFile(outfilename, "RECREATE");
   outfile->cd();
   for(std::map<TString, TH1F*>::iterator it = hMap.begin(); it!=hMap.end(); it++){
     it->second->Write();
   }
   outfile->Close();
 }
+
+
+std::pair<LocalPoint,LocalVector> FastTrackAnalyzer::projectHit( const PSimHit& hit, const StripGeomDetUnit* stripDet,
+								   const BoundPlane& plane, int thesign) 
+{
+  //  const StripGeomDetUnit* stripDet = dynamic_cast<const StripGeomDetUnit*>(hit.det());
+  //if (stripDet == 0) throw MeasurementDetException("HitMatcher hit is not on StripGeomDetUnit");
+  
+  const StripTopology& topol = stripDet->specificTopology();
+  GlobalPoint globalpos= stripDet->surface().toGlobal(hit.localPosition());
+  LocalPoint localHit = plane.toLocal(globalpos);
+  //track direction
+  //  LocalVector locdir=hit.localDirection();
+
+  LocalPoint lcenterofstrip=hit.localPosition();
+  GlobalPoint gcenterofstrip=(stripDet->surface()).toGlobal(lcenterofstrip);
+  GlobalVector gtrackdirection=gcenterofstrip-GlobalPoint(0,0,0);
+ LocalVector dir= plane.toLocal(gtrackdirection);
+
+  //rotate track in new frame
+  
+  //  GlobalVector globaldir= stripDet->surface().toGlobal(locdir);
+  //  LocalVector dir=plane.toLocal(globaldir);
+  float scale = thesign * localHit.z() / dir.z();
+    LocalPoint projectedPos = localHit + scale*dir;
+  
+  //  std::cout << "projectedPos " << projectedPos << std::endl;
+  
+  float selfAngle = topol.stripAngle( topol.strip( hit.localPosition()));
+  
+  LocalVector stripDir( sin(selfAngle), cos(selfAngle), 0); // vector along strip in hit frame
+  
+  LocalVector localStripDir( plane.toLocal(stripDet->surface().toGlobal( stripDir)));
+  
+  return std::pair<LocalPoint,LocalVector>( projectedPos, localStripDir);
+}
+
 
 //define this as a plug-in
 DEFINE_SEAL_MODULE();

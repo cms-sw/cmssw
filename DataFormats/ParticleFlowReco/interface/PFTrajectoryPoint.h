@@ -30,10 +30,10 @@ namespace reco {
     typedef ROOT::Math::PositionVector3D<ROOT::Math::CylindricalEta3D<Double32_t> > REPPoint;
 
     /// Define the different layers where the track can be propagated
-    enum LayerType_t {
+    enum LayerType {
        /// Point of closest approach from beam axis (initial point in the case of PFSimParticle)
       ClosestApproach = 0,
-      BeamPipe = 1,       
+      BeamPipeOrEndVertex = 1,       
       /// Preshower layer 1
       PS1 = 2,             
       /// Preshower layer 2

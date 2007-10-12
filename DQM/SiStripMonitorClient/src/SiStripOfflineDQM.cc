@@ -13,7 +13,7 @@
 //
 // Original Author:  Samvel Khalatyan (ksamdev at gmail dot com)
 //         Created:  Wed Oct  5 16:42:34 CET 2006
-// $Id: SiStripOfflineDQM.cc,v 1.9 2007/03/12 22:32:14 samvel Exp $
+// $Id: SiStripOfflineDQM.cc,v 1.10 2007/04/05 21:06:44 samvel Exp $
 //
 //
 
@@ -95,27 +95,27 @@ void SiStripOfflineDQM::endJob() {
   LogInfo( "SiStripOfflineDQM")
     << "Summary";
   LogInfo( "SiStripOfflineDQM")
-    << oActionExecutor_.getQTestSummary( poMui_);
+    << oActionExecutor_.getQTestSummary( poMui_->getBEInterface());
 
   LogInfo( "SiStripOfflineDQM")
     << "SummaryLite";
   LogInfo( "SiStripOfflineDQM")
-    << oActionExecutor_.getQTestSummaryLite( poMui_);
+    << oActionExecutor_.getQTestSummaryLite( poMui_->getBEInterface());
 
   LogInfo( "SiStripOfflineDQM")
     << "SummaryXML";
   LogInfo( "SiStripOfflineDQM")
-    << oActionExecutor_.getQTestSummaryXML( poMui_);
+    << oActionExecutor_.getQTestSummaryXML( poMui_->getBEInterface());
 
   LogInfo( "SiStripOfflineDQM")
     << "SummaryXMLLite";
   LogInfo( "SiStripOfflineDQM")
-    << oActionExecutor_.getQTestSummaryXMLLite( poMui_);
+    << oActionExecutor_.getQTestSummaryXMLLite( poMui_->getBEInterface());
 
-  oActionExecutor_.createSummary( poMui_);
+  oActionExecutor_.createSummary( poMui_->getBEInterface());
 
   if( bSAVE_IN_FILE_) {
-    oActionExecutor_.saveMEs( poMui_, oOUT_FILE_NAME_);
+    oActionExecutor_.saveMEs( poMui_->getBEInterface(), oOUT_FILE_NAME_);
   }
 
   if( bVERBOSE_) {

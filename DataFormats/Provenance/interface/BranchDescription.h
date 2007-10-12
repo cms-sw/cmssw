@@ -6,7 +6,7 @@
 BranchDescription: The full description of a Branch.
 This description also applies to every product instance on the branch.  
 
-$Id: BranchDescription.h,v 1.1 2007/03/04 04:48:08 wmtan Exp $
+$Id: BranchDescription.h,v 1.6 2007/08/28 17:49:44 wmtan Exp $
 ----------------------------------------------------------------------*/
 #include <iosfwd>
 #include <string>
@@ -19,6 +19,7 @@ $Id: BranchDescription.h,v 1.1 2007/03/04 04:48:08 wmtan Exp $
 #include "DataFormats/Provenance/interface/ModuleDescriptionID.h"
 #include "DataFormats/Provenance/interface/ProcessConfigurationID.h"
 
+#include "Reflex/Type.h"
 /*
   BranchDescription
 
@@ -29,7 +30,8 @@ $Id: BranchDescription.h,v 1.1 2007/03/04 04:48:08 wmtan Exp $
 
 namespace edm {
   struct BranchDescription {
-
+    static int const invalidSplitLevel = -1;
+    static int const invalidBasketSize = 0;
     enum MatchMode { Strict = 0,
 		     Permissive };
 
@@ -75,6 +77,9 @@ namespace edm {
     bool const& present() const {return present_;}
     bool const& provenancePresent() const {return provenancePresent_;}
     bool const& transient() const {return transient_;}
+    ROOT::Reflex::Type const& type() const {return type_;}
+    int const& splitLevel() const {return splitLevel_;}
+    int const& basketSize() const {return basketSize_;}
 
     ModuleDescriptionID const& moduleDescriptionID() const {return moduleDescriptionID_;}
     std::set<ParameterSetID> const& psetIDs() const {return psetIDs_;}
@@ -84,6 +89,7 @@ namespace edm {
     std::set<std::string> const& branchAliases() const {return branchAliases_;}
     std::string const& branchName() const {return branchName_;}
     BranchType const& branchType() const {return branchType_;}
+    std::string const& wrappedName() const {return wrappedName_;}
 
   private:
     void throwIfInvalid_() const;
@@ -135,6 +141,10 @@ namespace edm {
     // attributes.
     mutable std::string branchName_;
 
+    // The wrapped class name (transient), which is currently derivable fron the other
+    // attributes.
+    mutable std::string wrappedName_;
+
     // Was this branch produced in this process
     // rather than in a previous process
     bool produced_;
@@ -150,6 +160,17 @@ namespace edm {
     // Is the class of the branch marked as transient
     // in the data dictionary
     mutable bool transient_;
+
+    // The Reflex Type of the wrapped object.
+    mutable ROOT::Reflex::Type type_;
+
+    // The split level of the branch, as marked
+    // in the data dictionary.
+    mutable int splitLevel_;
+
+    // The basket size of the branch, as marked
+    // in the data dictionary.
+    mutable int basketSize_;
   };
   
   inline

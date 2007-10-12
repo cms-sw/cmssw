@@ -3,15 +3,14 @@
 
 using namespace std;
 
-
-void
+vector<DetGroup> 
 DetGroupMerger::orderAndMergeTwoLevels( const vector<DetGroup>& one,  
 					const vector<DetGroup>& two,
-					std::vector<DetGroup>& result,
 					int firstIndex, 
-					int firstCrossed) {
-  if (one.empty() && two.empty()) return;
+					int firstCrossed) const{
+  if (one.empty() && two.empty()) return vector<DetGroup>();
 
+  vector<DetGroup> result;
 
   if (one.empty()) {
     result = two;
@@ -24,15 +23,15 @@ DetGroupMerger::orderAndMergeTwoLevels( const vector<DetGroup>& one,
     else                            incrementAndDoubleSize(result);
   }
   else { // both are not empty
-    if (firstIndex == firstCrossed) mergeTwoLevels( one, two,result);
-    else                            mergeTwoLevels( two, one, result);
+    if (firstIndex == firstCrossed) result = mergeTwoLevels( one, two);
+    else                            result = mergeTwoLevels( two, one);
   }
+  return result;
 }
 
-
-void
-DetGroupMerger::mergeTwoLevels( const vector<DetGroup>& one,  const vector<DetGroup>& two, std::vector<DetGroup>& result) {
-
+vector<DetGroup> 
+DetGroupMerger::mergeTwoLevels( const vector<DetGroup>& one,  const vector<DetGroup>& two) const{
+  vector<DetGroup> result;
   result.reserve( one.size() + two.size());
 
   int indSize1 = one.front().indexSize();
@@ -46,10 +45,11 @@ DetGroupMerger::mergeTwoLevels( const vector<DetGroup>& one,  const vector<DetGr
     result.push_back(*j);
     result.back().incrementIndex(indSize1);
   }
+  return result;
 }
 
 void 
-DetGroupMerger::addSameLevel( const vector<DetGroup>& gvec, vector<DetGroup>& result) {
+DetGroupMerger::addSameLevel( const vector<DetGroup>& gvec, vector<DetGroup>& result) const{
   for (vector<DetGroup>::const_iterator ig=gvec.begin(); ig != gvec.end(); ig++) {
     int gSize = ig->indexSize();
     int index = ig->index(); // at which level it should be inserted
@@ -79,7 +79,7 @@ DetGroupMerger::addSameLevel( const vector<DetGroup>& gvec, vector<DetGroup>& re
 }
 
 void 
-DetGroupMerger::doubleIndexSize( vector<DetGroup>& vec) {
+DetGroupMerger::doubleIndexSize( vector<DetGroup>& vec) const{
   int indSize = vec.front().indexSize();
   for (vector<DetGroup>::iterator i=vec.begin(); i!=vec.end(); i++) {
     i->setIndexSize( 2*indSize);
@@ -87,7 +87,7 @@ DetGroupMerger::doubleIndexSize( vector<DetGroup>& vec) {
 }
 
 void 
-DetGroupMerger::incrementAndDoubleSize( vector<DetGroup>& vec) {
+DetGroupMerger::incrementAndDoubleSize( vector<DetGroup>& vec) const{
   int indSize = vec.front().indexSize();
   for (vector<DetGroup>::iterator i=vec.begin(); i!=vec.end(); i++) {
     i->incrementIndex( indSize);

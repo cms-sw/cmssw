@@ -1,7 +1,7 @@
 /** \file RPCTrigger.cc
  *
- *  $Date: 2007/06/06 15:19:20 $
- *  $Revision: 1.4 $
+ *  $Date: 2007/07/30 16:29:37 $
+ *  $Revision: 1.5.2.1 $
  *  \author Tomasz Fruboes
  */
 #include "L1Trigger/RPCTrigger/interface/RPCTrigger.h"
@@ -36,6 +36,7 @@ RPCTrigger::RPCTrigger(const edm::ParameterSet& iConfig):
      m_triggerDebug = 0;
    
   m_label = iConfig.getParameter<std::string>("label");
+  m_fixRPCGeo = iConfig.getParameter<bool>("fixRPCGeo");
 }
 
 
@@ -101,6 +102,7 @@ RPCTrigger::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     edm::LogInfo("RPC") << "Building RPC links map for a RPCTrigger";
     edm::ESHandle<RPCGeometry> rpcGeom;
     iSetup.get<MuonGeometryRecord>().get( rpcGeom );     
+    m_theLinksystem.fixGeo(m_fixRPCGeo);
     m_theLinksystem.buildGeometry(rpcGeom);
     edm::LogInfo("RPC") << "RPC links map for a RPCTrigger built";
 
@@ -193,7 +195,8 @@ std::vector<L1MuRegionalCand> RPCTrigger::giveFinallCandindates(L1RpcTBMuonsVec 
     //Note: pac numbering begins at 5 deg and goes from 1 to 144.
     // we want phi values from 0 to 2.5 deg to be phiPacked=0 
     // max phiPacked value is 143 (see CMS IN 2004-022)
-    int phiPacked = (finalMuons[iMu].getPhiAddr()+2)%144;
+    //int phiPacked = (finalMuons[iMu].getPhiAddr()+2)%144;
+    int phiPacked = finalMuons[iMu].getPhiAddr();
     l1Cand.setPhiPacked(phiPacked);
 /*
     float eta = RPCConst::etaFromTowerNum(cone.m_Tower);
@@ -209,7 +212,7 @@ std::vector<L1MuRegionalCand> RPCTrigger::giveFinallCandindates(L1RpcTBMuonsVec 
 //    }
 
 //    etaAddr &= 63; // 6 bits only
-         
+    //std::cout << "RPC "<< etaAddr << " " << finalMuons[iMu].getEtaAddr() <<std::endl;    
     l1Cand.setEtaPacked(etaAddr);
     l1Cand.setChargeValid(true);
 

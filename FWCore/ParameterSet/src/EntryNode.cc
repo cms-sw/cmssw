@@ -46,9 +46,10 @@ namespace edm {
 
       if( match != "" )
       {
-        out << "Found " << match << "\n";
+        print(out, COMPRESSED);
+        out << std::endl;
         printTrace(out);
-        out << "\n";
+        out << std::endl;
       }
     }
 

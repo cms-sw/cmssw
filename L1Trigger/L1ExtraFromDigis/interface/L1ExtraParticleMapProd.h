@@ -12,7 +12,7 @@
 //
 // Original Author:  
 //         Created:  Tue Oct 17 00:14:00 EDT 2006
-// $Id: L1ExtraParticleMapProd.h,v 1.5 2007/04/22 22:35:49 wsun Exp $
+// $Id: L1ExtraParticleMapProd.h,v 1.8 2007/08/08 03:49:05 wsun Exp $
 //
 
 // system include files
@@ -135,17 +135,14 @@ class L1ExtraParticleMapProd : public edm::EDProducer {
           const double& etThreshold,                                // input
           bool& decision );                                         // output
 
-      template< class TCollection1, class TCollection2 >
-      void evaluateDoubleObjectPlusForwardRapidityGapTrigger (
-	  const std::vector< edm::Ref< TCollection1 > >& inputRefs1,// input
-          const std::vector< edm::Ref< TCollection2 > >& inputRefs2,// input
-          const double& etThreshold1,                               // input
-          const double& etThreshold2,                               // input
-          const double& etThreshold3,                               // input
-          bool& decision,                                           // output
-          std::vector< edm::Ref< TCollection1 > >& outputRefs1,     // output
-          std::vector< edm::Ref< TCollection2 > >& outputRefs2,     // output
-          l1extra::L1ParticleMap::L1IndexComboVector& combos );     // output
+/*        void evaluateDoubleExclusiveIsoEG( */
+/*           const l1extra::L1EmParticleVectorRef& inputRefs1,         // input */
+/* 	  const l1extra::L1JetParticleVectorRef& inputRefs2,        // input */
+/* 	  const double& etThreshold1,                               // input */
+/* 	  const double& etThreshold2,                               // input */
+/* 	  bool& decision,                                           // output */
+/* 	  l1extra::L1EmParticleVectorRef& outputRefs1,              // output */
+/* 	  l1extra::L1ParticleMap::L1IndexComboVector& combos );     // output */
 
       // ----------member data ---------------------------
       edm::InputTag muonSource_ ;

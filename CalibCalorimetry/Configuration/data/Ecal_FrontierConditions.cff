@@ -2,3 +2,4 @@
 # Ecal  calibrations from Frontier
 #
 include "RecoLocalCalo/EcalRecProducers/data/getEcalConditions_frontier.cff"
+include "CalibCalorimetry/EcalLaserCorrection/data/ecalLaserCorrectionService.cfi"

@@ -34,6 +34,7 @@ namespace reco {
     }
     
   private:
+
     /// reference to the corresponding track (transient)
     PFRecTrackRef  trackRefPF_;
 

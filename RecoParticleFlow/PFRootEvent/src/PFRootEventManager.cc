@@ -1,8 +1,10 @@
 
-#include "FWCore/Framework/interface/OrphanHandle.h"
-// #include "DataFormats/Common/interface/OrphanHandle.h"
-#include "DataFormats/Common/interface/ProductID.h"
-// #include "DataFormats/Provenance/interface/ProductID.h"
+
+// #include "FWCore/Framework/interface/OrphanHandle.h"
+#include "DataFormats/Common/interface/OrphanHandle.h"
+// #include "DataFormats/Common/interface/ProductID.h"
+#include "DataFormats/Provenance/interface/ProductID.h"
+
 
 #include "DataFormats/Math/interface/Point3D.h"
 
@@ -27,7 +29,7 @@
 #include "RecoParticleFlow/PFClusterTools/interface/PFEnergyCalibration.h"
 #include "RecoParticleFlow/PFClusterTools/interface/PFEnergyResolution.h"
 
-#include "FWCore/FWLite/src/AutoLibraryLoader.h"
+#include "FWCore/FWLite/interface/AutoLibraryLoader.h"
 
 #include "RecoParticleFlow/PFRootEvent/interface/GPFRecHit.h"
 #include "RecoParticleFlow/PFRootEvent/interface/GPFCluster.h"
@@ -45,11 +47,12 @@
 #include <TCutG.h>
 #include <TPolyLine.h>
 #include <TColor.h>
-#include "TGraph.h"
-#include "TMath.h"
-#include "TLine.h"
-#include "TLatex.h"
-#include "TVector3.h"
+#include <TGraph.h>
+#include <TMath.h>
+#include <TLine.h>
+#include <TLatex.h>
+#include <TVector3.h>
+// #include <TDatabasePDG.h>
 
 #include <iostream>
 #include <vector>
@@ -80,7 +83,9 @@ PFRootEventManager::PFRootEventManager(const char* file)
   pfCandidates_(new reco::PFCandidateCollection),
   outFile_(0),
   maxERecHitEcal_(-1),
-  maxERecHitHcal_(-1) {
+  maxERecHitHcal_(-1)
+//   ,pdgTable_( new TDatabasePDG) 
+{
   
 //   options_ = 0;
 //   tree_ = 0;
@@ -123,6 +128,7 @@ PFRootEventManager::PFRootEventManager(const char* file)
 void PFRootEventManager::reset() { 
   maxERecHitEcal_ = -1;
   maxERecHitHcal_ = -1;  
+
 
   if(outEvent_) {
     outEvent_->reset();
@@ -287,6 +293,17 @@ void PFRootEventManager::readOptions(const char* file,
   filterHadronicTaus_ = true;
   options_->GetOpt("filter", "hadronic_taus", filterHadronicTaus_);
   
+  filterTaus_.clear();
+  options_->GetOpt("filter", "taus", filterTaus_);
+  if( !filterTaus_.empty() &&
+       filterTaus_.size() != 2 ) {
+    cerr<<"PFRootEventManager::ReadOptions, bad filter/taus option."<<endl
+	<<"please use : "<<endl
+	<<"\tfilter taus n_charged n_neutral"<<endl;
+    filterTaus_.clear();
+  }
+  
+
   // clustering parameters -----------------------------------------------
 
   double threshEcalBarrel = 0.1;
@@ -898,8 +915,10 @@ bool PFRootEventManager::processEntry(int entry) {
   if(outTree_) outTree_->Fill();
   
  
-  if( deltaEt>30 )
+  if( deltaEt<-0.5 ) {
+    cout<<deltaEt<<endl;
     return true;
+  }
   //  if(trueParticles_.size() != 1 ) return false;
   else 
     return false;
@@ -960,14 +979,28 @@ bool PFRootEventManager::readFromSimulation(int entry) {
 	   <<filterNParticles_<< endl; 
       goodevent = false;
     }
-    if(filterHadronicTaus_ && !isHadronicTau() ) {
+    if(goodevent && filterHadronicTaus_ && !isHadronicTau() ) {
       cout << "PFRootEventManager : leptonic tau discarded " << endl; 
       goodevent =  false;
     }
+    if( goodevent && !filterTaus_.empty() && !chargedNeutralTau() ) {
+      assert( filterTaus_.size() == 2 );
+      cout <<"PFRootEventManager : tau discarded: "
+	   <<"number of charged and neutral particles different from "
+	   <<filterTaus_[0]<<","<<filterTaus_[1]<<endl;
+      goodevent =  false;      
+    } 
+
     if(goodevent)
       fillOutEventWithSimParticles( trueParticles_ );
 
   }
+  
+//   if(caloTowersBranch_) {
+//     if(goodevent)
+//       fillOutEventWithCaloTowers( caloTowers_ );
+//   } 
+  
   if(rechitsECALBranch_) {
     PreprocessRecHits( rechitsECAL_ , findRecHitNeighbours_);
   }
@@ -992,6 +1025,7 @@ bool PFRootEventManager::readFromSimulation(int entry) {
 
   return goodevent;
 }
+
 
 
 bool PFRootEventManager::isHadronicTau() const {
@@ -1020,6 +1054,143 @@ bool PFRootEventManager::isHadronicTau() const {
 
 
   return true;
+}
+
+
+
+bool PFRootEventManager::chargedNeutralTau() const {
+  
+  int nNeutral = 0;
+  int nCharged = 0;
+  
+  for ( unsigned i=0;  i < trueParticles_.size(); i++) {
+    const reco::PFSimParticle& ptc = trueParticles_[i];
+   
+    const std::vector<int>& daughters = ptc.daughterIds();
+
+    // if the particle decays before ECAL, we do not want to 
+    // consider it.
+    if(!daughters.empty() ) continue; 
+
+    double charge = ptc.charge();
+    
+    if( abs(charge)>1e-9) 
+      nCharged++;
+    else 
+      nNeutral++;
+  }    
+
+//   const HepMC::GenEvent* myGenEvent = MCTruth_.GetEvent();
+//   if(!myGenEvent) {
+//     cerr<<"impossible to filter on the number of charged and "
+// 	<<"neutral particles without the HepMCProduct. "
+// 	<<"Please check that the branch edmHepMCProduct_*_*_* is found"<<endl;
+//     exit(1);
+//   }
+  
+//   for ( HepMC::GenEvent::particle_const_iterator 
+// 	  piter  = myGenEvent->particles_begin();
+// 	piter != myGenEvent->particles_end(); 
+// 	++piter ) {
+    
+//     const HepMC::GenParticle* p = *piter;
+//     int partId = p->pdg_id();
+    
+// //     pdgTable_->GetParticle( partId )->Print();
+       
+//     int charge = chargeValue(partId);
+//     cout<<partId <<" "<<charge/3.<<endl;
+
+//     if(charge) 
+//       nCharged++;
+//     else 
+//       nNeutral++;
+//   }
+  
+  if( nCharged == filterTaus_[0] && 
+      nNeutral == filterTaus_[1]  )
+    return true;
+  else 
+    return false;
+}
+
+
+
+int PFRootEventManager::chargeValue(const int& Id) const {
+
+  
+  //...Purpose: to give three times the charge for a particle/parton.
+
+  //      ID     = particle ID
+  //      hepchg = particle charge times 3
+
+  int kqa,kq1,kq2,kq3,kqj,irt,kqx,kqn;
+  int hepchg;
+
+
+  int ichg[109]={-1,2,-1,2,-1,2,-1,2,0,0,-3,0,-3,0,-3,0,
+-3,0,0,0,0,0,0,3,0,0,0,0,0,0,3,0,3,6,0,0,3,6,0,0,-1,2,-1,2,-1,2,0,0,0,0,
+-3,0,-3,0,-3,0,0,0,0,0,-1,2,-1,2,-1,2,0,0,0,0,
+-3,0,-3,0,-3,0,3,3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+
+
+  //...Initial values. Simple case of direct readout.
+  hepchg=0;
+  kqa=abs(Id);
+  kqn=kqa/1000000000%10;
+  kqx=kqa/1000000%10;
+  kq3=kqa/1000%10;
+  kq2=kqa/100%10;
+  kq1=kqa/10%10;
+  kqj=kqa%10;
+  irt=kqa%10000;
+
+  //...illegal or ion
+  //...set ion charge to zero - not enough information
+  if(kqa==0 || kqa >= 10000000) {
+
+    if(kqn==1) {hepchg=0;}
+  }
+  //... direct translation
+  else if(kqa<=100) {hepchg = ichg[kqa-1];}
+  //... deuteron or tritium
+  else if(kqa==100 || kqa==101) {hepchg = -3;}
+  //... alpha or He3
+  else if(kqa==102 || kqa==104) {hepchg = -6;}
+  //... KS and KL (and undefined)
+  else if(kqj == 0) {hepchg = 0;}
+  //C... direct translation
+  else if(kqx>0 && irt<100)
+    {
+      hepchg = ichg[irt-1];
+      if(kqa==1000017 || kqa==1000018) {hepchg = 0;}
+      if(kqa==1000034 || kqa==1000052) {hepchg = 0;}
+      if(kqa==1000053 || kqa==1000054) {hepchg = 0;}
+      if(kqa==5100061 || kqa==5100062) {hepchg = 6;}
+    }
+  //...Construction from quark content for heavy meson, diquark, baryon.
+  //...Mesons.
+  else if(kq3==0)
+    {
+      hepchg = ichg[kq2-1]-ichg[kq1-1];
+      //...Strange or beauty mesons.
+      if((kq2==3) || (kq2==5)) {hepchg = ichg[kq1-1]-ichg[kq2-1];}
+    }
+  else if(kq1 == 0) {
+    //...Diquarks.
+    hepchg = ichg[kq3-1] + ichg[kq2-1];
+  }
+
+  else{
+    //...Baryons
+    hepchg = ichg[kq3-1]+ichg[kq2-1]+ichg[kq1-1];
+  }
+
+  //... fix sign of charge
+  if(Id<0 && hepchg!=0) {hepchg = -1*hepchg;}
+
+  // cout << hepchg<< endl;
+  return hepchg;
 }
 
 
@@ -1099,6 +1270,8 @@ void PFRootEventManager::clustering() {
 
   // HCAL clustering -------------------------------------------
 
+  fillRecHitMask( mask, rechitsHCAL_ );
+  clusterAlgoHCAL_.setMask( mask );  
   edm::OrphanHandle< reco::PFRecHitCollection > rechitsHandleHCAL( &rechitsHCAL_, edm::ProductID(10002) );
   clusterAlgoHCAL_.doClustering( rechitsHandleHCAL );
   //clusterAlgoHCAL_.doClustering( rechitsHCAL_ );
@@ -1108,6 +1281,8 @@ void PFRootEventManager::clustering() {
 
   // PS clustering -------------------------------------------
 
+  fillRecHitMask( mask, rechitsPS_ );
+  clusterAlgoPS_.setMask( mask );  
   edm::OrphanHandle< reco::PFRecHitCollection > rechitsHandlePS( &rechitsPS_, edm::ProductID(10003) );
   clusterAlgoPS_.doClustering( rechitsHandlePS );
   //clusterAlgoPS_.doClustering( rechitsPS_ );
@@ -1132,9 +1307,47 @@ PFRootEventManager::fillOutEventWithClusters(const reco::PFClusterCollection&
     cluster.e = clusters[i].energy();
     cluster.layer = clusters[i].layer();
     cluster.type = 1;
+
+    reco::PFTrajectoryPoint::LayerType tpLayer = 
+      reco::PFTrajectoryPoint::NLayers;
+    switch( clusters[i].layer() ) {
+    case PFLayer::ECAL_BARREL:
+    case PFLayer::ECAL_ENDCAP:
+      tpLayer = reco::PFTrajectoryPoint::ECALEntrance;
+      break;
+    case PFLayer::HCAL_BARREL1:
+    case PFLayer::HCAL_ENDCAP:
+      tpLayer = reco::PFTrajectoryPoint::HCALEntrance;
+      break;
+    default:
+      break;
+    }
+    if(tpLayer < reco::PFTrajectoryPoint::NLayers) {
+      try {
+	double peta = -10;
+	double phi = -10;
+	double pe = -10;
+
+	const reco::PFSimParticle& ptc 
+	  = closestParticle( tpLayer, 
+			     cluster.eta, cluster.phi, 
+			     peta, phi, pe );
+
+	
+	cluster.particle.eta = peta;
+	cluster.particle.phi = phi;
+	cluster.particle.e = pe;
+	cluster.particle.pdgCode = ptc.pdgCode();
+	
+	
+      }
+      catch( std::exception& err ) {
+	cerr<<err.what()<<endl;
+      } 
+    }
+
     outEvent_->addCluster(cluster);
   }   
-
 }
 
 
@@ -1144,22 +1357,76 @@ PFRootEventManager::fillOutEventWithSimParticles(const reco::PFSimParticleCollec
 
   if(!outEvent_) return;
   
-  for ( unsigned i=0;  i < trueParticles_.size(); i++) {
+  for ( unsigned i=0;  i < trueParticles.size(); i++) {
     
-    const reco::PFSimParticle& ptc = trueParticles_[i];
-    const reco::PFTrajectoryPoint& tpatecal 
-      = ptc.trajectoryPoint(1);
-    
-    // cout<<tpatecal<<endl;
-    
-    EventColin::Particle outptc;
-    outptc.eta = tpatecal.positionXYZ().Eta();
-    outptc.phi = tpatecal.positionXYZ().Phi();    
-    outptc.e = tpatecal.momentum().E();
-    
-    outEvent_->addParticle(outptc);
+    const reco::PFSimParticle& ptc = trueParticles[i];
+
+    unsigned ntrajpoints = ptc.nTrajectoryPoints();
+
+    if(ntrajpoints>2) { // decay before ecal -> 2 trajpoints only
+
+      
+      reco::PFTrajectoryPoint::LayerType ecalEntrance 
+	= reco::PFTrajectoryPoint::ECALEntrance;
+
+      if(ntrajpoints == 3) { 
+	// old format for PFSimCandidates. 
+	// in this case, the PFSimCandidate which does not decay 
+	// before ECAL has 3 points: initial, ecal entrance, hcal entrance
+	ecalEntrance = static_cast<reco::PFTrajectoryPoint::LayerType>(1);
+      }
+      else continue; // endcap case we do not care;
+
+      const reco::PFTrajectoryPoint& tpatecal 
+	= ptc.extrapolatedPoint( ecalEntrance );
+            
+      EventColin::Particle outptc;
+      outptc.eta = tpatecal.positionXYZ().Eta();
+      outptc.phi = tpatecal.positionXYZ().Phi();    
+      outptc.e = tpatecal.momentum().E();
+      outptc.pdgCode = ptc.pdgCode();
+
+      outEvent_->addParticle(outptc);
+    }
   }   
 }
+      
+
+void 
+PFRootEventManager::fillOutEventWithCaloTowers( const CaloTowerCollection& cts ){
+
+  if(!outEvent_) return;
+  
+  for ( unsigned i=0;  i < cts.size(); i++) {
+
+    const CaloTower& ct = cts[i];
+    
+    EventColin::CaloTower outct;
+    outct.e  = ct.energy();
+    outct.ee = ct.emEnergy();
+    outct.eh = ct.hadEnergy();
+
+    outEvent_->addCaloTower( outct );
+  }
+}
+
+
+void 
+PFRootEventManager::fillOutEventWithBlocks( const reco::PFBlockCollection& 
+					    blocks ) {
+
+  if(!outEvent_) return;
+  
+  for ( unsigned i=0;  i < blocks.size(); i++) {
+
+    const reco::PFBlock& block = blocks[i];
+    
+    EventColin::Block outblock;
+ 
+    outEvent_->addBlock( outblock );
+  }
+}
+
 
 
 
@@ -1173,7 +1440,6 @@ void PFRootEventManager::particleFlow() {
 
   edm::OrphanHandle< reco::PFRecTrackCollection > trackh( &recTracks_, 
 							  edm::ProductID(1) );  
-  
   edm::OrphanHandle< reco::PFClusterCollection > ecalh( clustersECAL_.get(), 
 							edm::ProductID(2) );  
   
@@ -1181,7 +1447,16 @@ void PFRootEventManager::particleFlow() {
 							edm::ProductID(3) );  
   
 
-  pfBlockAlgo_.setInput( trackh, ecalh, hcalh );
+  vector<bool> trackMask;
+  fillTrackMask( trackMask, recTracks_ );
+  vector<bool> ecalMask;
+  fillClusterMask( ecalMask, *clustersECAL_ );
+  vector<bool> hcalMask;
+  fillClusterMask( hcalMask, *clustersHCAL_ );
+  
+
+  pfBlockAlgo_.setInput( trackh, ecalh, hcalh, 
+			 trackMask, ecalMask, hcalMask );
   pfBlockAlgo_.findBlocks();
   
   if( debug_) cout<<pfBlockAlgo_<<endl;
@@ -1198,6 +1473,8 @@ void PFRootEventManager::particleFlow() {
  
   if( debug_) cout<<"PFRootEventManager::particleFlow stop"<<endl;
 }
+
+
 
 double PFRootEventManager::makeJets() {
   //std::cout << "building jets from MC particles," 
@@ -1299,17 +1576,28 @@ double PFRootEventManager::makeJets() {
   //CALO TOWER JETS (ECAL+HCAL Towers)
   //cout << endl;  
   //cout << "THERE ARE " << caloTowers_.size() << " CALO TOWERS" << endl;
+
   vector<TLorentzVector> allcalotowers;
-  for ( unsigned int i = 0; i < caloTowers_.size(); ++i)
-    {
-      TLorentzVector caloT;
-      TVector3 pepr( caloTowers_[i].eta(),
-		     caloTowers_[i].phi(),
-		     caloTowers_[i].energy());
-      TVector3 pxyz = Utils::VectorEPRtoXYZ( pepr );
-      caloT.SetPxPyPzE(pxyz.X(),pxyz.Y(),pxyz.Z(),caloTowers_[i].energy());
-      allcalotowers.push_back(caloT);
-    }//loop calo towers
+//   vector<double>         allemenergy;
+//   vector<double>         allhadenergy;
+  double threshCaloTowers = 0;
+  for ( unsigned int i = 0; i < caloTowers_.size(); ++i) {
+    
+    if(caloTowers_[i].energy() < threshCaloTowers) {
+      //     cout<<"skipping calotower"<<endl;
+      continue;
+    }
+
+    TLorentzVector caloT;
+    TVector3 pepr( caloTowers_[i].eta(),
+		   caloTowers_[i].phi(),
+		   caloTowers_[i].energy());
+    TVector3 pxyz = Utils::VectorEPRtoXYZ( pepr );
+    caloT.SetPxPyPzE(pxyz.X(),pxyz.Y(),pxyz.Z(),caloTowers_[i].energy());
+    allcalotowers.push_back(caloT);
+//     allemenergy.push_back( caloTowers_[i].emEnergy() );
+//     allhadenergy.push_back( caloTowers_[i].hadEnergy() );
+  }//loop calo towers
   if ( jetsDebug_)  
     cout << " RETRIEVED " << allcalotowers.size() 
 	 << " CALOTOWER 4-VECTORS " << endl;
@@ -1326,13 +1614,23 @@ double PFRootEventManager::makeJets() {
     double jetcalo_pt = sqrt(jetmom.Px()*jetmom.Px()+jetmom.Py()*jetmom.Py());
     double jetcalo_et = jetmom.Et();
 
+    
+
     EventColin::Jet jet;
     jet.eta = jetmom.Eta();
     jet.phi = jetmom.Phi();
     jet.et  = jetmom.Et();
     jet.e   = jetmom.E();
-    
-    if(outEvent_) outEvent_->addJetEHT( jet );
+      
+    const vector<int>& indexes = caloTjets[i].GetIndexes();
+    for( unsigned ii=0; ii<indexes.size(); ii++){
+      jet.ee   +=  caloTowers_[ indexes[ii] ].emEnergy();
+      jet.eh   +=  caloTowers_[ indexes[ii] ].hadEnergy();
+      jet.ete   +=  caloTowers_[ indexes[ii] ].emEt();
+      jet.eth   +=  caloTowers_[ indexes[ii] ].hadEt();
+    }
+  
+    if(outEvent_) outEvent_->addJetEHT( jet );  
 
     if ( jetsDebug_) {
       cout << " ECAL+HCAL jet : " << caloTjets[i] << endl;
@@ -1424,7 +1722,9 @@ double PFRootEventManager::makeJets() {
   }//loop PF jets
 
   //fill histos
-  h_deltaETvisible_MCEHT_->Fill(JetEHTETmax - partTOTMC.Et());
+  
+  double deltaEtEHT = JetEHTETmax - partTOTMC.Et();
+  h_deltaETvisible_MCEHT_->Fill(deltaEtEHT);
 
   double deltaEt = JetPFETmax - partTOTMC.Et();
   h_deltaETvisible_MCPF_ ->Fill(deltaEt);
@@ -1432,8 +1732,8 @@ double PFRootEventManager::makeJets() {
   if (verbosity_ == VERBOSE ) {
     cout << "makeJets E_T(PF) - E_T(true) = " << deltaEt << endl;
   }
-
-  return deltaEt;
+  
+  return deltaEt/partTOTMC.Et();
 }//Makejets
 
 
@@ -1456,7 +1756,11 @@ void PFRootEventManager::displayNext(bool init) {
     // iCurrentEntry_=ientry;
     ientry++;
   }
-  display();
+  
+  if( ok )
+    display();
+  else 
+    cerr<<"PFRootEventManager::displayNext : no event matching criteria"<<endl;
 }
 
 
@@ -2408,6 +2712,52 @@ void PFRootEventManager::lookForMaxRecHit(bool ecal) {
 
 
 
+
+void PFRootEventManager::lookForGenParticle(unsigned barcode) {
+  
+  const HepMC::GenEvent* event = MCTruth_.GetEvent();
+  if(!event) {
+    cerr<<"no GenEvent"<<endl;
+    return;
+  }
+  
+  const HepMC::GenParticle* particle = event->barcode_to_particle(barcode);
+  if(!particle) {
+    cerr<<"no particle with barcode "<<barcode<<endl;
+    return;
+  }
+
+  math::XYZTLorentzVector momentum(particle->momentum().px(),
+				   particle->momentum().py(),
+				   particle->momentum().pz(),
+				   particle->momentum().e());
+
+  double eta = momentum.Eta();
+  double phi = momentum.phi();
+
+  double phisize = 0.05;
+  double etasize = 0.05;
+  
+  double etagate = displayZoomFactor_ * etasize;
+  double phigate = displayZoomFactor_ * phisize;
+  
+  if(displayHist_[EPE]) {
+    displayHist_[EPE]->GetXaxis()->SetRangeUser(eta-etagate, eta+etagate);
+    displayHist_[EPE]->GetYaxis()->SetRangeUser(phi-phigate, phi+phigate);
+  }
+  if(displayHist_[EPH]) {
+    displayHist_[EPH]->GetXaxis()->SetRangeUser(eta-etagate, eta+etagate);
+    displayHist_[EPH]->GetYaxis()->SetRangeUser(phi-phigate, phi+phigate);
+  }
+  
+  updateDisplay();
+
+}
+
+
+
+
+
 double PFRootEventManager::getMaxE(int layer) const {
 
   double maxe = -9999;
@@ -2570,16 +2920,14 @@ void  PFRootEventManager::print(ostream& out) const {
   if( printTrueParticles_ ) {
     out<<"True Particles  ==========================================="<<endl;
     for(unsigned i=0; i<trueParticles_.size(); i++) {
-       if( trackInsideGCut( &(trueParticles_[i]) ) )
+       if( trackInsideGCut( trueParticles_[i] ) )
 	 out<<"\t"<<trueParticles_[i]<<endl;
      }    
  
   }
-
-  
   if ( printMCtruth_ ) { 
     out<<"MC truth  ==========================================="<<endl;
-    printMCTruth(MCTruth_.GetEvent());
+    printMCTruth(out);
   }
 }
 
@@ -2602,7 +2950,7 @@ void  PFRootEventManager::printDisplay(  const char* sdirectory ) const {
     cerr<<"cannot create directory "<<directory<<endl;
     return;
   }
-  
+
   cout<<"Event display printed in directory "<<directory<<endl;
 
   directory += "/";
@@ -2631,8 +2979,10 @@ void  PFRootEventManager::printDisplay(  const char* sdirectory ) const {
 }
 
 void
-PFRootEventManager::printMCTruth(const HepMC::GenEvent* myGenEvent) const {
-
+PFRootEventManager::printMCTruth(std::ostream& out,
+				 int maxNLines) const {
+  
+  const HepMC::GenEvent* myGenEvent = MCTruth_.GetEvent();
   if(!myGenEvent) return;
 
   std::cout << "Id  Gen Name       eta    phi     pT     E    Vtx1   " 
@@ -2640,13 +2990,17 @@ PFRootEventManager::printMCTruth(const HepMC::GenEvent* myGenEvent) const {
 	    << "Moth  Vtx2  eta   phi     R      Z   Da1  Da2 Ecal?" 
 	    << std::endl;
 
+  int nLines = 0;
   for ( HepMC::GenEvent::particle_const_iterator 
 	  piter  = myGenEvent->particles_begin();
-	  piter != myGenEvent->particles_end(); 
+	piter != myGenEvent->particles_end(); 
 	++piter ) {
+
+    if( nLines == maxNLines) break;
+    nLines++;
     
     HepMC::GenParticle* p = *piter;
-     /* */
+    /* */
     int partId = p->pdg_id();
     std::string name;
 
@@ -2681,6 +3035,7 @@ PFRootEventManager::printMCTruth(const HepMC::GenEvent* myGenEvent) const {
     case   22: { name = "gamma"; break; }
     case   23: { name = "Z0"; break; }
     case   24: { name = "W+"; break; }
+    case   25: { name = "H0"; break; }
     case  -24: { name = "W-"; break; }
     case  111: { name = "pi0"; break; }
     case  113: { name = "rho0"; break; }
@@ -2823,7 +3178,7 @@ void  PFRootEventManager::printRecHit(const reco::PFRecHit& rh,
 }
 
 void  PFRootEventManager::printCluster(const reco::PFCluster& cluster,
-				      ostream& out ) const {
+				       ostream& out ) const {
   
   if(!out) return;
 
@@ -2839,12 +3194,12 @@ void  PFRootEventManager::printCluster(const reco::PFCluster& cluster,
 
 
 
-bool PFRootEventManager::trackInsideGCut( const reco::PFTrack* track ) const {
+bool PFRootEventManager::trackInsideGCut( const reco::PFTrack& track ) const {
 
   TCutG* cutg = (TCutG*) gROOT->FindObject("CUTG");
   if(!cutg) return true;
   
-  const vector< reco::PFTrajectoryPoint >& points = track->trajectoryPoints();
+  const vector< reco::PFTrajectoryPoint >& points = track.trajectoryPoints();
   
   for( unsigned i=0; i<points.size(); i++) {
     if( ! points[i].isValid() ) continue;
@@ -2862,7 +3217,7 @@ void
 PFRootEventManager::fillRecHitMask( vector<bool>& mask, 
 				    const reco::PFRecHitCollection& rechits ) 
   const {
-
+  
   TCutG* cutg = (TCutG*) gROOT->FindObject("CUTG");
   if(!cutg) return;
 
@@ -2878,6 +3233,96 @@ PFRootEventManager::fillRecHitMask( vector<bool>& mask,
     else 
       mask.push_back( false );   
   }
+}
+
+
+void  
+PFRootEventManager::fillClusterMask(vector<bool>& mask, 
+				    const reco::PFClusterCollection& clusters) 
+  const {
+  
+  TCutG* cutg = (TCutG*) gROOT->FindObject("CUTG");
+  if(!cutg) return;
+
+  mask.clear();
+  mask.reserve( clusters.size() );
+  for(unsigned i=0; i<clusters.size(); i++) {
+    
+    double eta = clusters[i].positionREP().Eta();
+    double phi = clusters[i].positionREP().Phi();
+
+    if( cutg->IsInside( eta, phi ) )
+      mask.push_back( true );
+    else 
+      mask.push_back( false );   
+  }
+}
+
+void  
+PFRootEventManager::fillTrackMask(vector<bool>& mask, 
+				  const reco::PFRecTrackCollection& tracks) 
+  const {
+  
+  TCutG* cutg = (TCutG*) gROOT->FindObject("CUTG");
+  if(!cutg) return;
+
+  mask.clear();
+  mask.reserve( tracks.size() );
+  for(unsigned i=0; i<tracks.size(); i++) {
+    if( trackInsideGCut( tracks[i] ) )
+      mask.push_back( true );
+    else 
+      mask.push_back( false );   
+  }
+}
+
+
+const reco::PFSimParticle&
+PFRootEventManager::closestParticle( reco::PFTrajectoryPoint::LayerType layer, 
+				     double eta, double phi,
+				     double& peta, double& pphi, double& pe) 
+  const {
+  
+
+  if( trueParticles_.empty() ) {
+    string err  = "PFRootEventManager::closestParticle : ";
+    err        += "vector of PFSimParticles is empty";
+    throw std::length_error( err.c_str() );
+  }
+
+  double mindist2 = 99999999;
+  unsigned iClosest=0;
+  for(unsigned i=0; i<trueParticles_.size(); i++) {
+    
+    const reco::PFSimParticle& ptc = trueParticles_[i];
+
+    // protection for old version of the PFSimParticle 
+    // dataformats. 
+    if( layer >= reco::PFTrajectoryPoint::NLayers ||
+	ptc.nTrajectoryMeasurements() + layer >= 
+	ptc.nTrajectoryPoints() ) {
+      continue;
+    }
+
+    const reco::PFTrajectoryPoint& tp
+      = ptc.extrapolatedPoint( layer );
+
+    peta = tp.positionXYZ().Eta();
+    pphi = tp.positionXYZ().Phi();
+    pe = tp.momentum().E();
+
+    double deta = peta - eta;
+    double dphi = pphi - phi;
+
+    double dist2 = deta*deta + dphi*dphi;
+
+    if(dist2<mindist2) {
+      mindist2 = dist2;
+      iClosest = i;
+    }
+  }
+
+  return trueParticles_[iClosest];
 }
 
 

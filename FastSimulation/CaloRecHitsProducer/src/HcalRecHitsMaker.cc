@@ -17,6 +17,7 @@
 #include "FastSimulation/Utilities/interface/RandomEngine.h"
 #include "TFile.h"
 #include "TGraph.h"
+#include <fstream>
 
 class RandomEngine;
 
@@ -177,6 +178,7 @@ void HcalRecHitsMaker::loadHcalRecHits(edm::Event &iEvent,HBHERecHitCollection& 
 
   loadPCaloHits(iEvent);
   noisify();
+  hbheHits.reserve(hbRecHits_.size()+heRecHits_.size());
 
   // HB
   std::map<uint32_t,std::pair<float,bool> >::const_iterator it=hbRecHits_.begin();
@@ -225,7 +227,7 @@ void HcalRecHitsMaker::loadHcalRecHits(edm::Event &iEvent,HBHERecHitCollection& 
 	}
     }
 
-  
+  hoHits.reserve(hoRecHits_.size());
   // HO
   it = hoRecHits_.begin();
   itend = hoRecHits_.end();
@@ -238,6 +240,7 @@ void HcalRecHitsMaker::loadHcalRecHits(edm::Event &iEvent,HBHERecHitCollection& 
     }
   
   // HF
+  hfHits.reserve(hfRecHits_.size());
   it = hfRecHits_.begin();
   itend = hfRecHits_.end();
   for(;it!=itend;++it)
@@ -372,8 +375,8 @@ void HcalRecHitsMaker::noisify()
 void HcalRecHitsMaker::noisifySubdet(std::map<uint32_t,std::pair<float,bool> >& theMap, const std::vector<uint32_t>& thecells, unsigned ncells, double hcalHotFraction_)
 {
 
-  unsigned mean=(unsigned)((double)(ncells-theMap.size())*hcalHotFraction_);
-  unsigned nhcal = (unsigned)(random_->poissonShoot(mean));
+  double mean = (double)(ncells-theMap.size())*hcalHotFraction_;
+  unsigned nhcal = random_->poissonShoot(mean);
   
   unsigned ncell=0;
   unsigned cellindex=0;

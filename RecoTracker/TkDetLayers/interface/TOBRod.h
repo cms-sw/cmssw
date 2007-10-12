@@ -12,7 +12,7 @@
  *  
  */
 
-class TOBRod : public DetRod, public GeometricSearchDetWithGroups{
+class TOBRod : public DetRod{
  public:
   typedef PeriodicBinFinderInZ<float>   BinFinderType;
 
@@ -31,12 +31,19 @@ class TOBRod : public DetRod, public GeometricSearchDetWithGroups{
   compatible( const TrajectoryStateOnSurface& ts, const Propagator&, 
 	      const MeasurementEstimator&) const;
 
-  void groupedCompatibleDetsV( const TrajectoryStateOnSurface& tsos,
-			       const Propagator& prop,
-			       const MeasurementEstimator& est,
-			       std::vector<DetGroup> & result) const;
-  
- 
+  virtual std::vector<DetWithState> 
+  compatibleDets( const TrajectoryStateOnSurface& startingState,
+		  const Propagator& prop, 
+		  const MeasurementEstimator& est) const;
+
+  virtual std::vector<DetGroup> 
+  groupedCompatibleDets( const TrajectoryStateOnSurface& startingState,
+			 const Propagator& prop,
+			 const MeasurementEstimator& est) const;
+
+
+  virtual bool hasGroups() const {return true;}  
+
  private:
   // private methods for the implementation of groupedCompatibleDets()
 

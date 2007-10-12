@@ -97,7 +97,7 @@ print "make directories ...\n";
 `mkdir soap`                 if (! -e "soap");
 `mkdir xml`                  if (! -e "xml");
 `mkdir cfg`                  if (! -e "cfg");
-`mkdir $SMout`        if (! -e "$SMout");
+`mkdir -p $SMout`     if (! -e "$SMout");
 `mkdir $SMout/open`   if (! -e "$SMout/open");
 `mkdir $SMout/closed` if (! -e "$SMout/closed");
 `mkdir $SMout/mbox`   if (! -e "$SMout/mbox");
@@ -186,6 +186,9 @@ if (!$doSM) { push (@EPproperties,"outputEnabled","boolean","false"); }
 my @SMproperties = ("STparameterSet",   "string",     "file:$pwd/cfg/sm.cfg",
 		    "runNumber",        "unsignedInt","0",
 		    "fileCatalog",      "string",     "summaryCatalog.txt",
+		    "filePath",		"string",     "$SMout",
+		    "mailboxPath",      "string",     "$SMout/mbox",
+		    "setupLabel",       "string",     "test",
 		    "closeFileScript",  "string",     "$SMperl/dummy.pl",
 		    "notifyTier0Script","string",     "$SMperl/dummy.pl",
 		    "insertFileScript", "string",     "$SMperl/dummy.pl");
@@ -443,7 +446,8 @@ sub makeCfgFu
     $result = $result . "  // source\n";
     $result = $result . "  source = DaqSource\n";
     $result = $result . "  {\n";
-    $result = $result . "    string          reader    = \"FUShmReader\"\n";
+    $result = $result . "    untracked string          readerPluginName    = \"FUShmReader\"\n";
+    $result = $result . "    untracked uint32          evtsPerLS           = 10\n";
     $result = $result . "  }\n\n";
     $result = $result . "  // paths\n";
     $result = $result . "  path p1 = { m1, a1 }\n";
@@ -462,8 +466,13 @@ sub makeCfgFu
     $result = $result . "    untracked vstring destinations = { \"cout\" }\n";
     $result = $result . "    untracked PSet    cout         = " .
 	                "{ untracked string threshold = \"WARNING\" }\n";
-    #$result = $result . "    untracked PSet    log4cplus    = " .
-    #                    "{ untracked string threshold = \"WARNING\" }\n";
+    $result = $result . "    untracked PSet    log4cplus    = " .
+	                "{ untracked string threshold = \"WARNING\" }\n";
+    $result = $result . "  }\n\n";
+
+    $result = $result . "  service = PrescaleService {\n";
+    $result = $result . "    uint32 prescaleFactor = 1\n";
+    $result = $result . "    vstring InitialConfig = { \"1\", \"1\", \"1\" }\n";
     $result = $result . "  }\n\n";
 
     $result = $result . "  service = FUShmDQMOutputService {\n";
@@ -509,11 +518,10 @@ sub makeCfgFu
     
     $result = $result . "  module out = ShmStreamConsumer\n";
     $result = $result . "  {\n";
-    $result = $result . "    int32           max_event_size       = 7000000\n";
+    $result = $result . "    untracked int32 max_event_size       = 7000000\n";
     $result = $result . "    int32           max_queue_depth      =       5\n";
-    $result = $result . "    bool            use_compression      =    true\n";
-    $result = $result . "    int32           compression_level    =       1\n";
-    $result = $result . "    untracked int32 lumiSection_interval =     600\n";
+    $result = $result . "    untracked bool  use_compression      =    true\n";
+    $result = $result . "    untracked int32 compression_level    =       1\n";
     $result = $result . "  }\n\n";
     
     $result = $result . "}\n";
@@ -537,54 +545,38 @@ sub makeCfgSm
     $result = $result . "  // modules\n\n";
     $result = $result . "  module out = EventStreamFileWriter\n";
     $result = $result . "  {\n";
-    $result = $result . "    int32 max_event_size    = 7000000\n";
-    $result = $result . "    int32 max_queue_depth   =       5\n";
-    $result = $result . "    bool use_compression    =   false\n";
-    $result = $result . "    int32 compression_level =       1\n\n";
-    $result = $result . "    string fileName           =     \"storageManager\"\n";
-    $result = $result . "    string indexFileName      = \"storageManager.ind\"\n";
-    $result = $result . "    string filePath           =             \"$SMout\"\n";
-    $result = $result . "    string mailboxPath        =        \"$SMout/mbox\"\n";
-    $result = $result . "    string setupLabel         =               \"mtcc\"\n";
-    $result = $result . "    string streamLabel        =                  \"A\"\n";
-    $result = $result . "    int32  maxSize            =            536870912\n";
-    $result = $result . "    double highWaterMark      =                  0.9\n";
-    $result = $result . "    double lumiSectionTimeOut =                 10.0\n\n";
+    $result = $result . "    string          streamLabel       =     \"A\"\n";
+    $result = $result . "    int32           maxSize           = 536870912\n";
     $result = $result . "    untracked PSet SelectEvents = { vstring SelectEvents={\"p1\"}}\n";
+
+    $result = $result . "    untracked int32 max_event_size    = 7000000\n";
+    $result = $result . "    untracked int32 max_queue_depth   =       5\n";
+    $result = $result . "    untracked bool  use_compression   =   false\n";
+    $result = $result . "    untracked int32 compression_level =       1\n\n";
     $result = $result . "  }\n\n";
+
     $result = $result . "  module out2 = EventStreamFileWriter\n";
     $result = $result . "  {\n";
-    $result = $result . "    int32 max_event_size    = 7000000\n";
-    $result = $result . "    int32 max_queue_depth   =       5\n";
-    $result = $result . "    bool use_compression    =   false\n";
-    $result = $result . "    int32 compression_level =       1\n\n";
-    $result = $result . "    string fileName           =     \"storageManager\"\n";
-    $result = $result . "    string indexFileName      = \"storageManager.ind\"\n";
-    $result = $result . "    string filePath           =             \"$SMout\"\n";
-    $result = $result . "    string mailboxPath        =        \"$SMout/mbox\"\n";
-    $result = $result . "    string setupLabel         =               \"mtcc\"\n";
-    $result = $result . "    string streamLabel        =                  \"B\"\n";
-    $result = $result . "    int32  maxSize            =           1073741824\n";
-    $result = $result . "    double highWaterMark      =                  0.9\n";
-    $result = $result . "    double lumiSectionTimeOut =               10.0\n\n";
-    $result = $result . "    untracked PSet SelectEvents = { vstring SelectEvents={\"p2\"}}\n";
+    $result = $result . "    string streamLabel =      \"B\"\n";
+    $result = $result . "    int32  maxSize     = 1073741824\n";
+    $result = $result . "    untracked PSet SelectEvents  = { vstring SelectEvents={\"p2\"}}\n";
+
+    $result = $result . "    untracked int32 max_event_size    = 7000000\n";
+    $result = $result . "    untracked int32 max_queue_depth   =       5\n";
+    $result = $result . "    untracked bool use_compression    =   false\n";
+    $result = $result . "    untracked int32 compression_level =       1\n\n";
     $result = $result . "  }\n\n";
+
     $result = $result . "  module out3 = EventStreamFileWriter\n";
     $result = $result . "  {\n";
-    $result = $result . "    int32 max_event_size    = 7000000\n";
-    $result = $result . "    int32 max_queue_depth   =       5\n";
-    $result = $result . "    bool use_compression    =   false\n";
-    $result = $result . "    int32 compression_level =       1\n\n";
-    $result = $result . "    string fileName           =     \"storageManager\"\n";
-    $result = $result . "    string indexFileName      = \"storageManager.ind\"\n";
-    $result = $result . "    string filePath           =             \"$SMout\"\n";
-    $result = $result . "    string mailboxPath        =        \"$SMout/mbox\"\n";
-    $result = $result . "    string setupLabel         =               \"mtcc\"\n";
-    $result = $result . "    string streamLabel        =                  \"C\"\n";
-    $result = $result . "    int32  maxSize            =           1073741824\n";
-    $result = $result . "    double highWaterMark      =                  0.9\n";
-    $result = $result . "    double lumiSectionTimeOut =               10.0\n\n";
+    $result = $result . "    string streamLabel        =      \"C\"\n";
+    $result = $result . "    int32  maxSize            = 1073741824\n";
     $result = $result . "    untracked PSet SelectEvents = { vstring SelectEvents={\"p3\"}}\n";
+
+    $result = $result . "    untracked int32 max_event_size    = 7000000\n";
+    $result = $result . "    untracked int32 max_queue_depth   =       5\n";
+    $result = $result . "    untracked bool use_compression    =   false\n";
+    $result = $result . "    untracked int32 compression_level =       1\n\n";
     $result = $result . "  }\n\n";
     $result = $result . "}\n";
 }

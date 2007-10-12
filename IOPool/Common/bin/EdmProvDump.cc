@@ -1,6 +1,5 @@
 #include "TFile.h"
 #include "TTree.h"
-#include "TBranch.h"
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
 #include "Cintex/Cintex.h"
 #include "DataFormats/Provenance/interface/ParameterSetID.h"

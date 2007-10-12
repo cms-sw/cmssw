@@ -13,7 +13,7 @@
 //
 // Original Author:  Chi Nhan Nguyen
 //         Created:  Mon Feb 19 13:25:24 CST 2007
-// $Id: FastL1GlobalAlgo.cc,v 1.6 2007/06/17 13:53:32 chinhan Exp $
+// $Id: FastL1GlobalAlgo.cc,v 1.7 2007/06/17 14:31:35 chinhan Exp $
 //
 
 // No BitInfos for release versions
@@ -192,18 +192,21 @@ FastL1GlobalAlgo::addJet(int iRgn, bool taubit) {
   reco::Particle::LorentzVector rp4(ex,ey,ez,e); 
   l1extra::L1JetParticle tjet(rp4);
   
-  if (taubit || et>m_L1Config.noTauVetoLevel) {
-    m_TauJets.push_back(tjet);
-  } else {
-    if (std::abs(eta)<3.0)
-      m_CenJets.push_back(tjet);
-    else
-      m_ForJets.push_back(tjet);
+  if (et>=10.) {
+    if ((taubit || et>m_L1Config.noTauVetoLevel) && (std::abs(eta)<3.0) ) {
+      m_TauJets.push_back(tjet);
+      // sort by et 
+      std::sort(m_TauJets.begin(),m_TauJets.end(), myspace::greaterEt);
+    } else {
+      if (std::abs(eta)<3.0) {
+	m_CenJets.push_back(tjet);
+	std::sort(m_CenJets.begin(),m_CenJets.end(), myspace::greaterEt);
+      } else {
+	m_ForJets.push_back(tjet);
+	std::sort(m_ForJets.begin(),m_ForJets.end(), myspace::greaterEt);
+      }
+    }
   }
-  // sort by et 
-  std::sort(m_TauJets.begin(),m_TauJets.end(), myspace::greaterEt);
-  std::sort(m_CenJets.begin(),m_CenJets.end(), myspace::greaterEt);
-  std::sort(m_ForJets.begin(),m_ForJets.end(), myspace::greaterEt);
  
 }
 
@@ -499,12 +502,38 @@ FastL1GlobalAlgo::isTauJet(int cRgn) {
   int sid = m_Regions[cRgn].GetSouthId();
   int seid = m_Regions[cRgn].GetSEId();
 
+
+  //Use 3x2 window at eta borders!
+
+  // west border:
+  if ((cRgn%22)==17) { 
+    if (
+	m_Regions[nid].GetTauBit()  ||
+	m_Regions[neid].GetTauBit() ||
+	m_Regions[eid].GetTauBit()  ||
+	m_Regions[seid].GetTauBit() ||
+	m_Regions[sid].GetTauBit()  ||
+	m_Regions[cRgn].GetTauBit()
+	) 
+      return false;
+    else return true;
+  }
+  // east border:
+  if ((cRgn%22)==4) { 
+     if (
+	m_Regions[nid].GetTauBit()  ||
+	m_Regions[nwid].GetTauBit() ||
+	m_Regions[wid].GetTauBit()  ||
+	m_Regions[swid].GetTauBit() ||
+	m_Regions[sid].GetTauBit()  ||
+	m_Regions[cRgn].GetTauBit()
+	) 
+      return false;
+    else return true;
+  }
+
   if (nwid==999 || neid==999 || nid==999 || swid==999 || seid==999 || sid==999 || wid==999 || 
       eid==999 ) { 
-    //std::cerr << "FastL1GlobalAlgo::isTauJet(): RegionId out of bounds: " << std::endl
-    //      << nwid << " " << nid << " "  << neid << " " << std::endl
-    //      << wid << " " << cRgn << " "  << eid << " " << std::endl
-    //      << swid << " " << sid << " "  << seid << " " << std::endl;    
     return false;
   }
 

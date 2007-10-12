@@ -29,6 +29,7 @@ if(!open(LOGFILE, $log)){die "Can not open \"$log\" file for reading.";}
 my $file="";
 my $cache={};
 my %urls=();
+if($html){$urls{src}=1;}
 while(my $line=<LOGFILE>)
 {
   chomp $line;
@@ -38,8 +39,11 @@ while(my $line=<LOGFILE>)
     foreach my $key ("Total Lines", "Code Lines", "Commented Lines", "Empty Lines", "Include Statements", "Include Added", "Include Removed")
     {&addValue ($cache, $file, $key);}
     &addValue ($cache,$file,"Files",1);
-    if($html && (-f "${dir}/includechecker/src/${file}"))
-    {$urls{"src/${file}"}=1;}
+    if($html && -f "${dir}/includechecker/src/${file}")
+    {
+      my $f=$file;
+      while($f ne "."){$urls{"src/${f}"}=1;$f=dirname($f);}
+    }
   }
   elsif ($line=~/^\s+Total\s+lines\s+:\s+(\d+)\s*$/)
   {&addValue ($cache, $file, "Total Lines", $1);}
@@ -85,7 +89,7 @@ sub process ()
     if($html)
     {
       if(exists $urls{"${base}${key}"}){$url="${base}${key}";}
-      else{next;}
+      #else{next;}
     }
     print "###########################################################################\n";
     if($url){print "For <A href=\"$url\">${base}${key}</a>\n";}
@@ -181,7 +185,8 @@ sub addValue ()
 sub usage_msg()
 {
   print "Usage: \n$0 \\\n\t[--log <file>] [--help]\n\n";
-  print "  --log <file>       Log file whcih contains the output of includechecker\n";
+  print "  --log    <file>    Log file whcih contains the output of includechecker\n";
+  print "  --tmpdir <dir>     Path of directory tmp directory where the newly generated files are available.\n";       
   print "  --help             To see this help message.\n";
   exit 0;
 }

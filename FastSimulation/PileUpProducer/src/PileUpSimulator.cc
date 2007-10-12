@@ -42,13 +42,14 @@ PileUpSimulator::PileUpSimulator(FSimEvent* aSimEvent,
   std::string fullPath;
   
   // Read the information from a previous run (to keep reproducibility)
-  this->read(inputFile);
+  bool input = this->read(inputFile);
 
   // Open the file for saving the information of the current run
   myOutputFile.open ("PileUpOutputFile.txt");
   myOutputBuffer = 0;
 
   // Open the root files
+  std::cout << "Opening minimum-bias event files ... " << std::endl;
   for ( unsigned file=0; file<theNumberOfFiles; ++file ) {
 
     edm::FileInPath myDataFile("FastSimulation/PileUpProducer/data/"+theFileNames[file]);
@@ -70,15 +71,25 @@ PileUpSimulator::PileUpSimulator(FSimEvent* aSimEvent,
     theBranches[file]->SetAddress(&thePUEvents[file]);
     //
     theNumberOfEntries[file] = theTrees[file]->GetEntries();
+    // Add some randomness (if there was no input file)
+    if ( !input ) 
+      theCurrentEntry[file] 
+	= (unsigned) (theNumberOfEntries[file] * random->flatShoot());
+
+    /*
     std::cout << "File " << theFileNames[file]
 	      << " is opened with " << theNumberOfEntries[file] 
 	      << " entries and will be read from Entry/Event "
 	      << theCurrentEntry[file] << "/" << theCurrentMinBiasEvt[file]
 	      << std::endl;
-
+    */
     theTrees[file]->GetEntry(theCurrentEntry[file]);
     unsigned NMinBias = thePUEvents[file]->nMinBias();
     theNumberOfMinBiasEvts[file] = NMinBias;
+    // Add some randomness (if there was no input file)
+    if ( !input )
+	theCurrentMinBiasEvt[file] = 
+	  (unsigned) (theNumberOfMinBiasEvts[file] * random->flatShoot());
     
   }
   
@@ -92,9 +103,10 @@ PileUpSimulator::~PileUpSimulator() {
   // Close all local files
   // Among other things, this allows the TROOT destructor to end up 
   // without crashing, while trying to close these files from outside
+  std::cout << "Closing minimum-bias event files... " << std::endl;
   for ( unsigned file=0; file<theFiles.size(); ++file ) {
     
-    std::cout << "Closing " << theFileNames[file] << std::endl;
+    // std::cout << "Closing " << theFileNames[file] << std::endl;
     theFiles[file]->Close();
     
   }
@@ -260,7 +272,7 @@ PileUpSimulator::save() {
 
 }
 
-void
+bool
 PileUpSimulator::read(std::string inputFile) {
 
   ifstream myInputFile;
@@ -276,7 +288,7 @@ PileUpSimulator::read(std::string inputFile) {
 
     // Get the size of the file
     if ( stat(inputFile.c_str(), &results) == 0 ) size = results.st_size;
-    else return; // Something is wrong with that file !
+    else return false; // Something is wrong with that file !
   
     // Position the pointer just before the last record
     myInputFile.seekg(size-size1-size2);
@@ -286,6 +298,10 @@ PileUpSimulator::read(std::string inputFile) {
     myInputFile.read((char*)&theCurrentMinBiasEvt.front(),size2);
     myInputFile.close();
 
+    return true;
+
   } 
+
+  return false;
 
 }

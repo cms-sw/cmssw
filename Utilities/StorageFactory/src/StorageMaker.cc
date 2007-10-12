@@ -27,16 +27,16 @@ StorageMaker::open (const std::string &proto,
                    const std::string &tmpdir)
 {
     try {
-      return open_(proto, path, mode, tmpdir);
+      return doOpen(proto, path, mode, tmpdir);
     }
     catch (seal::Error& e) {
-      std::string errorMsg = "File '" + path + "' is not found or could not be opened.\n" + e.explainSelf();
+      std::string errorMsg = "File '" + path + "' is not found or could not be opened.\n" + e.explain();
       throw edm::Exception(edm::errors::NotFound, "StorageMaker::open()") << errorMsg;
     }
 }
 
 bool
-StorageMaker::check_ (const std::string &proto,
+StorageMaker::doCheck (const std::string &proto,
 		     const std::string &path,
 		     seal::IOOffset *size /* = 0 */)
 {

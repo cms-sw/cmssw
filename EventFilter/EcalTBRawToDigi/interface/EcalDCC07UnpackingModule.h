@@ -4,9 +4,10 @@
 /** \class EcalUnpackingModule
  * 
  *
- *  $Date: 2007/04/12 08:36:46 $
- *  $Revision: 1.9 $
- * \author N. Marinelli 
+ *  $Date: 2007/07/05 07:22:48 $
+ *  $Revision: 1.2 $
+ * \author Y. Maravin
+ * \author G. Franzoni
  * \author G. Della Ricca
  */
 
@@ -47,6 +48,9 @@ class MatacqDataFormatter;
     CamacTBDataFormatter* camacTBformatter_;
     TableDataFormatter* tableFormatter_;
     MatacqDataFormatter* matacqFormatter_;
+
+    bool ProduceEEDigis_;
+    bool ProduceEBDigis_;
 
   };
 

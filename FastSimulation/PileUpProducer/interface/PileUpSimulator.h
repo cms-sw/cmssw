@@ -47,7 +47,7 @@ class PileUpSimulator
   void save();
 
   /// Read former minbias configuration (from previous run)
-  void read(std::string inputFile);
+  bool read(std::string inputFile);
 
  private:
 

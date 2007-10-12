@@ -3,7 +3,6 @@
 #include "EventFilter/EcalRawToDigiDev/interface/DCCEventBlock.h"
 #include "EventFilter/EcalRawToDigiDev/interface/DCCDataUnpacker.h"
 #include "EventFilter/EcalRawToDigiDev/interface/DCCEventBlock.h"
-#include "EventFilter/EcalRawToDigiDev/interface/ECALUnpackerException.h"
 #include <stdio.h>
 #include "EventFilter/EcalRawToDigiDev/interface/EcalElectronicsMapper.h"
 
@@ -29,7 +28,7 @@ void DCCFEBlock::updateCollectors(){
 
 
 
-void DCCFEBlock::unpack(uint64_t ** data, uint * dwToEnd, bool zs, uint expectedTowerID){
+int DCCFEBlock::unpack(uint64_t ** data, uint * dwToEnd, bool zs, uint expectedTowerID){
   
   zs_      = zs;  
   datap_   = data;
@@ -38,12 +37,11 @@ void DCCFEBlock::unpack(uint64_t ** data, uint * dwToEnd, bool zs, uint expected
   
  
   if( (*dwToEnd_)<1){
-    std::ostringstream output;
-    output<<"EcalRawToDigi@SUB=DCCFEBlock"
+   edm::LogWarning("EcalRawToDigi@SUB=DCCFEBlockk::unpack")
       <<"\n Unable to unpack Tower block for event "<<event_->l1A()<<" in dcc <<"<<mapper_->getActiveDCC()
       <<"\n The end of event was reached !";
     //TODO : add this to a dcc event size collection error?
-    throw ECALUnpackerException(output.str());
+    return STOP_EVENT_UNPACKING;
   }
   
   lastStripId_     = 0;
@@ -67,23 +65,18 @@ void DCCFEBlock::unpack(uint64_t ** data, uint * dwToEnd, bool zs, uint expected
 
   if( expTowerID_ != towerId_){
 
-    std::ostringstream output;    
-    output<<"EcalRawToDigi@SUB=DCCFEBlock::unpack"
+   edm::LogWarning("EcalRawToDigi@SUB=DCCFEBlock::unpack")
       <<"\n For event "<<event_->l1A()<<" and dcc "<<mapper_->getActiveDCC()
       <<"\n Expected trigger tower is "<<expTowerID_<<" while "<<towerId_<<" was found "
       <<"\n => Skipping this event...";
     
-    EcalTrigTowerDetId *  tp = mapper_->getTTDetIdPointer(mapper_->getActiveSM()+TCCID_SMID_SHIFT_EB,expTowerID_);
+    //EcalTrigTowerDetId * tp = mapper_->getTTDetIdPointer(mapper_->getActiveSM()+TCCID_SMID_SHIFT_EB,expTowerID_);
     // this needs understanding and fix
-    //    (*invalidTTIds_)->push_back(*tp);
+    // (*invalidTTIds_)->push_back(*tp);
 
-
-    // move on to next tower block and pass over to next  tower block
-    (*data) += blockLength_;
-
-    return;     
-    //was:
-    //   throw ECALUnpackerException(output.str());    
+    updateEventPointers();
+    return SKIP_BLOCK_UNPACKING;     
+       
 
   }
   
@@ -92,47 +85,48 @@ void DCCFEBlock::unpack(uint64_t ** data, uint * dwToEnd, bool zs, uint expected
     uint dccBx = (event_->bx())&TCC_BX_MASK;
     uint dccL1 = (event_->l1A())&TCC_L1_MASK; 
     if( dccBx != bx_ || dccL1 != l1_ ){
-      std::ostringstream output;
-      output<<"EcalRawToDigi@SUB=DCCFEBlock::unpack"
+      edm::LogWarning("EcalRawToDigi@SUB=DCCFEBlock::unpack")
        <<"\n Synchronization error for Tower Block "<<towerId_<<" in event "<<event_->l1A()<<" with bx "<<event_->bx()<<" in dcc "<<mapper_->getActiveDCC()
        <<"\n TCC local l1A is  "<<l1_<<" and local bx is "<<bx_
        <<"\n => Skipping this event...";
       //Note : add to error collection ?		 
-      throw ECALUnpackerException(output.str());
+      updateEventPointers();
+	  return SKIP_BLOCK_UNPACKING;
+	  
     }
   }
 
   // check number of samples
   if( nTSamples_ != expXtalTSamples_ ){
-    std::ostringstream output;
-    output<<"EcalRawToDigi@SUB=DCCFEBlock::unpack"
+    edm::LogWarning("EcalRawToDigi@SUB=DCCFEBlock::unpack")
+      <<"EcalRawToDigi@SUB=DCCFEBlock::unpack"
       <<"\n Unable to unpack Tower Block "<<towerId_<<" for event "<<event_->l1A()<<" in dcc <<"<<mapper_->getActiveDCC()
       <<"\n Number of time samples "<<nTSamples_<<" is not the same as expected ("<<expXtalTSamples_<<")"
       <<"\n => Skipping this event...";
     //Note : add to error collection ?		 
-    throw ECALUnpackerException(output.str());
+    updateEventPointers();
+	return SKIP_BLOCK_UNPACKING;
+	
   }  
   
   xtalBlockSize_     = numbDWInXtalBlock_*8;
   blockSize_         = blockLength_*8;  
   
   if((*dwToEnd_)<blockLength_){
-    std::ostringstream output;
-    output<<"EcalRawToDigi@SUB=DCCFEBlock::unpack"
+    
+	edm::LogWarning("EcalRawToDigi@SUB=DCCFEBlock::unpack")
       <<"\n Unable to unpack Tower Block "<<towerId_<<" for event "<<event_->l1A()<<" in dcc <<"<<mapper_->getActiveDCC()
       <<"\n Only "<<((*dwToEnd_)*8)<<" bytes are available while "<<blockSize_<<" are needed!"
       <<"\n => Skipping this event...";
-    //TODO : add to error collection 
-    throw ECALUnpackerException(output.str());
+    //TODO : add to error collections
+    return STOP_EVENT_UNPACKING;
   }
   
   
   if(!zs_){
 	 
     if ( unfilteredDataBlockLength_ != blockLength_ ){
-       
-      std::ostringstream output;
-      output<<"EcalRawToDigi@SUB=DCCFEBlock"
+      edm::LogWarning("EcalRawToDigi@SUB=DCCFEBlock")
         <<"\n For event "<<event_->l1A()<<", dcc "<<mapper_->getActiveDCC()<<" and tower "<<towerId_
         <<"\n Expected block size is "<<(unfilteredDataBlockLength_*8)<<" bytes while "<<(blockLength_*8)<<" was found"
         <<"\n => Skipping this event...";
@@ -140,25 +134,25 @@ void DCCFEBlock::unpack(uint64_t ** data, uint * dwToEnd, bool zs, uint expected
       EcalTrigTowerDetId *  tp = mapper_->getTTDetIdPointer(mapper_->getActiveSM()+TCCID_SMID_SHIFT_EB,expTowerID_);
       (*invalidBlockLengths_)->push_back(*tp);
 
-      throw ECALUnpackerException(output.str());
+      //Safer approach... 
+	  return STOP_EVENT_UNPACKING;	  
 	
      }
   }else if( blockLength_ > unfilteredDataBlockLength_ || (blockLength_-1) < numbDWInXtalBlock_ ){
    
-      std::ostringstream output;
-      output<<"EcalRawToDigi@SUB=DCCFEBlock"
-        <<"\n For event "<<event_->l1A()<<" and dcc "<<mapper_->getActiveDCC()
-        <<"\n The tower "<<towerId_<<" has a wrong number of bytes : "<<(blockLength_*8)	   
-        <<"\n => Skipping this event...";
+     edm::LogWarning("EcalRawToDigi@SUB=DCCFEBlock::unpack")
+       <<"\n For event "<<event_->l1A()<<" and dcc "<<mapper_->getActiveDCC()
+       <<"\n The tower "<<towerId_<<" has a wrong number of bytes : "<<(blockLength_*8)	   
+       <<"\n => Skipping this event...";
       
       EcalTrigTowerDetId *  tp = mapper_->getTTDetIdPointer(mapper_->getActiveSM()+TCCID_SMID_SHIFT_EB,expTowerID_);
       (*invalidBlockLengths_)->push_back(*tp);
   
-    throw ECALUnpackerException(output.str());
+     //Safer approach... 
+	 return STOP_EVENT_UNPACKING;
     
   }
   
-
   uint numbOfXtalBlocks = (blockLength_-1)/numbDWInXtalBlock_; 
 
   // get XTAL Data
@@ -181,7 +175,8 @@ void DCCFEBlock::unpack(uint64_t ** data, uint * dwToEnd, bool zs, uint expected
    
   }
   
-  updateEventPointers();		
+  updateEventPointers();
+  return BLOCK_UNPACKED;		
         
 }
 
