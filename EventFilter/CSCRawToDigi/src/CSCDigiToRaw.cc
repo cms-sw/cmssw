@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2007/10/08 22:01:06 $
- *  $Revision: 1.11 $
+ *  $Date: 2007/10/08 22:20:13 $
+ *  $Revision: 1.12 $
  *  \author A. Tumanov - Rice
  */
 
@@ -63,6 +63,9 @@ CSCDigiToRaw::fillChamberDataMap(const CSCStripDigiCollection & stripDigis,
 	  chamberMapItr = chamberMap.insert(pair<CSCDetId, CSCEventData>(chamberID, CSCEventData(chamberType))).first;
 	}    
       CSCEventData & cscData = chamberMapItr->second;
+      //std::cout<<"printing CSCDetId just before dmb" <<cscDetId<<std::endl;
+      //std::cout<<"crate " <<mapping->crate(cscDetId)<<std::endl;
+      //std::cout<<"dmb " <<mapping->dmb(cscDetId)<<std::endl;
       cscData.dmbHeader().setCrateAddress(mapping->crate(cscDetId), mapping->dmb(cscDetId));
       ///add strip digis to that chamber
       std::vector<CSCStripDigi>::const_iterator digiItr = (*j).second.first;
@@ -140,36 +143,41 @@ void CSCDigiToRaw::createFedBuffers(const CSCStripDigiCollection& stripDigis,
       ///@@ WARNING some DCCs only have 4 DDUs, but I'm giving them all 5, for now
       int nDDUs = 5;
       int indexDDU=0;
-      int oldDDUNumber = mapping->ddu(chamberDataMap.begin()->first);///initialize to first DDU
+      //std::cout<<"printing CSCDetId just before ddu" <<chamberDataMap.begin()->first<<std::endl;
+      ///skip if CSCDetId==0
+      if (chamberDataMap.begin()->first.endcap()+chamberDataMap.begin()->first.station()
+	  +chamberDataMap.begin()->first.ring()+chamberDataMap.begin()->first.chamber()) {
+	int oldDDUNumber = mapping->ddu(chamberDataMap.begin()->first);///initialize to first DDU
 
-      CSCDCCEventData dccEvent(idcc, nDDUs, bx, l1a);
-      /// for every chamber with data, add to a DDU in this DCC Event
-      for(map<CSCDetId, CSCEventData>::iterator chamberItr = chamberDataMap.begin();
-	chamberItr != chamberDataMap.end(); ++chamberItr)
-	{
-	  int indexDCC = mapping->slink(chamberItr->first);
-	  if (idcc==indexDCC) 
-	    { ///fill the right dcc 
-	      dccEvent.dduData()[indexDDU].add(chamberItr->second);
-	      boost::dynamic_bitset<> dccBits = dccEvent.pack();
-	      FEDRawData & fedRawData = fed_buffers.FEDData(startingFED+idcc);
-	      fedRawData.resize(dccBits.size());
-	      ///fill data with dccEvent
-	      bitset_utilities::bitsetToChar(dccBits, fedRawData.data());
-	      FEDHeader cscFEDHeader(fedRawData.data());
-	      cscFEDHeader.set(fedRawData.data(), 0, e.id().event(), 0, startingFED+idcc);
-	      FEDTrailer cscFEDTrailer(fedRawData.data()+(fedRawData.size()-8));
-	      cscFEDTrailer.set(fedRawData.data()+(fedRawData.size()-8), 
-				fedRawData.size()/8, 
-				evf::compute_crc(fedRawData.data(),fedRawData.size()), 0, 0);
-	      int dduId = mapping->ddu(chamberItr->first); ///get ddu id based on ChamberId form mapping
-	      if (oldDDUNumber!=dduId) 
-		{ //if new ddu increment indexDDU counter
-		  ++indexDDU;
-		  oldDDUNumber = dduId;
-		}
-	    }
-	}
+	CSCDCCEventData dccEvent(idcc, nDDUs, bx, l1a);
+	/// for every chamber with data, add to a DDU in this DCC Event
+	for(map<CSCDetId, CSCEventData>::iterator chamberItr = chamberDataMap.begin();
+	    chamberItr != chamberDataMap.end(); ++chamberItr)
+	  {
+	    int indexDCC = mapping->slink(chamberItr->first);
+	    if (idcc==indexDCC) 
+	      { ///fill the right dcc 
+		dccEvent.dduData()[indexDDU].add(chamberItr->second);
+		boost::dynamic_bitset<> dccBits = dccEvent.pack();
+		FEDRawData & fedRawData = fed_buffers.FEDData(startingFED+idcc);
+		fedRawData.resize(dccBits.size());
+		///fill data with dccEvent
+		bitset_utilities::bitsetToChar(dccBits, fedRawData.data());
+		FEDHeader cscFEDHeader(fedRawData.data());
+		cscFEDHeader.set(fedRawData.data(), 0, e.id().event(), 0, startingFED+idcc);
+		FEDTrailer cscFEDTrailer(fedRawData.data()+(fedRawData.size()-8));
+		cscFEDTrailer.set(fedRawData.data()+(fedRawData.size()-8), 
+				  fedRawData.size()/8, 
+				  evf::compute_crc(fedRawData.data(),fedRawData.size()), 0, 0);
+		int dduId = mapping->ddu(chamberItr->first); ///get ddu id based on ChamberId form mapping
+		if (oldDDUNumber!=dduId) 
+		  { //if new ddu increment indexDDU counter
+		    ++indexDDU;
+		    oldDDUNumber = dduId;
+		  }
+	      }
+	  }
+      }
     }
 }
 
