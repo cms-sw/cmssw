@@ -1,8 +1,8 @@
 /*
  * \file EELaserClient.cc
  *
- * $Date: 2007/10/10 09:46:39 $
- * $Revision: 1.32 $
+ * $Date: 2007/10/13 16:28:52 $
+ * $Revision: 1.33 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -4796,7 +4796,7 @@ void EELaserClient::htmlOutput(int run, string htmlDir, string htmlName){
 
     htmlFile << "</tr>" << endl;
 
-    htmlFile << "<tr align=\"center\">" << endl;
+    htmlFile << "<tr>" << endl;
 
     for ( int iCanvas = 1 ; iCanvas <= 4 ; iCanvas++ ) {
 
