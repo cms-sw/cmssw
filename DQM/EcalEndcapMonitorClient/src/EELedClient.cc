@@ -1,8 +1,8 @@
 /*
  * \file EELedClient.cc
  *
- * $Date: 2007/09/07 22:30:06 $
- * $Revision: 1.15 $
+ * $Date: 2007/10/10 09:46:39 $
+ * $Revision: 1.16 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -2393,7 +2393,7 @@ void EELedClient::htmlOutput(int run, string htmlDir, string htmlName){
 
     htmlFile << "</tr>" << endl;
 
-    htmlFile << "<tr align=\"center\">" << endl;
+    htmlFile << "<tr>" << endl;
 
     for ( int iCanvas = 1 ; iCanvas <= 1 ; iCanvas++ ) {
 
@@ -2411,7 +2411,7 @@ void EELedClient::htmlOutput(int run, string htmlDir, string htmlName){
 
     htmlFile << "</tr>" << endl;
 
-    htmlFile << "<tr align=\"center\">" << endl;
+    htmlFile << "<tr>" << endl;
 
     for ( int iCanvas = 1 ; iCanvas <= 1 ; iCanvas++ ) {
 
@@ -2429,7 +2429,7 @@ void EELedClient::htmlOutput(int run, string htmlDir, string htmlName){
 
     htmlFile << "</tr>" << endl;
 
-    htmlFile << "<tr align=\"center\">" << endl;
+    htmlFile << "<tr>" << endl;
 
     for ( int iCanvas = 1 ; iCanvas <= 1 ; iCanvas++ ) {
 
@@ -2447,7 +2447,7 @@ void EELedClient::htmlOutput(int run, string htmlDir, string htmlName){
 
     htmlFile << "</tr>" << endl;
 
-    htmlFile << "<tr align=\"center\">" << endl;
+    htmlFile << "<tr>" << endl;
 
     for ( int iCanvas = 1 ; iCanvas <= 1 ; iCanvas++ ) {
 
@@ -2486,7 +2486,7 @@ void EELedClient::htmlOutput(int run, string htmlDir, string htmlName){
 
     htmlFile << "</tr>" << endl;
 
-    htmlFile << "<tr align=\"center\">" << endl;
+    htmlFile << "<tr>" << endl;
 
     for ( int iCanvas = 1 ; iCanvas <= 1 ; iCanvas++ ) {
 
@@ -2528,7 +2528,7 @@ void EELedClient::htmlOutput(int run, string htmlDir, string htmlName){
 
     htmlFile << "</tr>" << endl;
 
-    htmlFile << "<tr align=\"center\">" << endl;
+    htmlFile << "<tr>" << endl;
 
     for ( int iCanvas = 1 ; iCanvas <= 1 ; iCanvas++ ) {
 
