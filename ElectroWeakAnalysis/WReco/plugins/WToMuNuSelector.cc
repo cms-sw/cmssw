@@ -56,7 +56,6 @@ WToMuNuSelector::WToMuNuSelector( const ParameterSet & cfg ) :
 }
 
 bool WToMuNuSelector::filter (Event & ev, const EventSetup &) {
-      double met_et = 0.;
       double met_px = 0.;
       double met_py = 0.;
 
@@ -73,7 +72,6 @@ bool WToMuNuSelector::filter (Event & ev, const EventSetup &) {
       }
       for (unsigned int i=0; i<muonCollection->size(); i++) {
             TrackRef mu(muonCollection,i);
-            met_et += mu->pt();
             met_px -= mu->px();
             met_py -= mu->py();
       }
@@ -87,9 +85,9 @@ bool WToMuNuSelector::filter (Event & ev, const EventSetup &) {
       }
       CaloMETCollection::const_iterator caloMET = metCollection->begin();
       LogTrace("") << ">>> CaloMET_et, CaloMET_py, CaloMET_py= " << caloMET->et() << ", " << caloMET->px() << ", " << caloMET->py();;
-      met_et += caloMET->et();
       met_px += caloMET->px();
       met_py += caloMET->py();
+      double met_et = sqrt(met_px*met_px+met_py*met_py);
 
       edm::Handle<reco::MuIsoAssociationMap> isoMap_;
       try {
