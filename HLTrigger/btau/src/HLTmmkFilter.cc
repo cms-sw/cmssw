@@ -168,7 +168,7 @@ bool HLTmmkFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 	  vertex = tv;
 
 	  Candidate *c = cTrack.clone();
-	  c->SetM(0.4937);
+	  c->setMass(0.4937);
 
 	  mmk->addDaughter(cMuon0);
 	  mmk->addDaughter(cMuon1);
