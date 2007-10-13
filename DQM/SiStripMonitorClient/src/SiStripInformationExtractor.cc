@@ -119,8 +119,11 @@ void SiStripInformationExtractor::printSummaryHistoList(DaqMonitorBEInterface * 
   for (vector<string>::const_iterator it = meVec.begin();
        it != meVec.end(); it++) {
     if ((*it).find("Summary") == 0) {
-      str_val << "<li class=\"dhtmlgoodies_sheet.gif\"><a href=\"javascript:RequestHistos.DrawSingleHisto('"
-           << currDir << "/"<< (*it) << "')\">" << (*it) << "</a></li>" << endl;
+      str_val << "<li class=\"dhtmlgoodies_sheet.gif\">"
+              << " <a href=\"javascript:RequestHistos.DrawSingleHisto('"
+              << currDir << "/"<< (*it) 
+              << "')\">" << (*it) 
+              << "</a></li>" << endl;
     }
   }
 
@@ -154,7 +157,7 @@ void SiStripInformationExtractor::printAlarmList(DaqMonitorBEInterface * bei, os
   selectImage(image_name,bei->getStatus(currDir));
   str_val << "<li><a href=\"#\" id=\"" 
           << currDir << "\">" << dname << "</a> <img src=\"" 
-          << image_name << "\">" << endl;
+          << image_name << "\"></img>" << endl;
   vector<string> subDirVec = bei->getSubdirs();
   vector<string> meVec = bei->getMEs(); 
   if (subDirVec.size() == 0 && meVec.size() == 0) {
@@ -173,9 +176,12 @@ void SiStripInformationExtractor::printAlarmList(DaqMonitorBEInterface * bei, os
         if (my_map.size() > 0) {
 	  string image_name1;
 	  selectImage(image_name1,my_map);
-	  str_val << "<li class=\"dhtmlgoodies_sheet.gif\"><a href=\"javascript:RequestHistos.ReadStatus('"
-		<< full_path<< "')\">" << (*it) << "</a><img src=\""
-		<< image_name1 << "\""<< "</li>" << endl;
+	  str_val << "<li class=\"dhtmlgoodies_sheet.gif\">"
+		  << " <a href=\"javascript:RequestHistos.ReadStatus('"
+		  << full_path 
+		  << "')\">" << (*it) 
+		  << "</a><img src=\"" << image_name1 << "\"></img>"
+	  	  << " </li>" << endl;
         }
       }
     }
