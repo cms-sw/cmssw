@@ -59,7 +59,12 @@ class EcalCondObjectContainer {
                         switch (id.subdetId()) {
                                 case EcalBarrel :
                                         { 
-                                                return eb_.find(rawId);
+                                                const_iterator it = eb_.find(rawId);
+                                                if ( it != eb_.end() ) {
+                                                        return it;
+                                                } else {
+                                                        return ee_.end();
+                                                }
                                         }
                                         break;
                                 case EcalEndcap :
