@@ -1,8 +1,8 @@
 /*
  * \file EELaserTask.cc
  *
- * $Date: 2007/08/21 11:31:48 $
- * $Revision: 1.18 $
+ * $Date: 2007/10/14 12:31:59 $
+ * $Revision: 1.19 $
  * \author G. Della Ricca
  *
 */
@@ -651,6 +651,8 @@ void EELaserTask::analyze(const Event& e, const EventSetup& c){
 
       EcalPnDiodeDigi pn = (*pnItr);
       EcalPnDiodeDetId id = pn.id();
+
+      if ( id.iEcalSubDetectorId() != EcalEndcap ) continue;
 
       int ism = Numbers::iSM( id );
 

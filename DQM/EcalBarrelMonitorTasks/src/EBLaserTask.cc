@@ -1,8 +1,8 @@
 /*
  * \file EBLaserTask.cc
  *
- * $Date: 2007/08/16 14:26:04 $
- * $Revision: 1.87 $
+ * $Date: 2007/10/14 12:31:59 $
+ * $Revision: 1.88 $
  * \author G. Della Ricca
  *
 */
@@ -648,6 +648,8 @@ void EBLaserTask::analyze(const Event& e, const EventSetup& c){
 
       EcalPnDiodeDigi pn = (*pnItr);
       EcalPnDiodeDetId id = pn.id();
+
+      if ( id.iEcalSubDetectorId() != EcalBarrel ) continue;
 
       int ism = Numbers::iSM( id );
 

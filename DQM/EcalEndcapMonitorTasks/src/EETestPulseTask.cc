@@ -1,8 +1,8 @@
 /*
  * \file EETestPulseTask.cc
  *
- * $Date: 2007/08/16 14:26:08 $
- * $Revision: 1.16 $
+ * $Date: 2007/08/21 11:31:49 $
+ * $Revision: 1.17 $
  * \author G. Della Ricca
  *
 */
@@ -379,6 +379,8 @@ void EETestPulseTask::analyze(const Event& e, const EventSetup& c){
 
       EcalPnDiodeDigi pn = (*pnItr);
       EcalPnDiodeDetId id = pn.id();
+
+      if ( id.iEcalSubDetectorId() != EcalEndcap ) continue;
 
       int ism = Numbers::iSM( id );
 

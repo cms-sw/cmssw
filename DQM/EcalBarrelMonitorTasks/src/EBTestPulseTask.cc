@@ -1,8 +1,8 @@
 /*
  * \file EBTestPulseTask.cc
  *
- * $Date: 2007/08/14 17:43:06 $
- * $Revision: 1.76 $
+ * $Date: 2007/08/16 14:26:05 $
+ * $Revision: 1.77 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -377,6 +377,8 @@ void EBTestPulseTask::analyze(const Event& e, const EventSetup& c){
 
       EcalPnDiodeDigi pn = (*pnItr);
       EcalPnDiodeDetId id = pn.id();
+
+      if ( id.iEcalSubDetectorId() != EcalBarrel ) continue;
 
       int ism = Numbers::iSM( id );
 

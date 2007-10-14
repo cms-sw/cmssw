@@ -1,8 +1,8 @@
 /*
  * \file EELedTask.cc
  *
- * $Date: 2007/08/21 11:31:49 $
- * $Revision: 1.7 $
+ * $Date: 2007/10/14 12:31:59 $
+ * $Revision: 1.8 $
  * \author G. Della Ricca
  *
 */
@@ -330,6 +330,8 @@ void EELedTask::analyze(const Event& e, const EventSetup& c){
 
       EcalPnDiodeDigi pn = (*pnItr);
       EcalPnDiodeDetId id = pn.id();
+
+      if ( id.iEcalSubDetectorId() != EcalEndcap ) continue;
 
       int ism = Numbers::iSM( id );
 
