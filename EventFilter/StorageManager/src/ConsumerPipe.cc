@@ -4,7 +4,7 @@
  * event server part of the storage manager.
  *
  * 16-Aug-2006 - KAB  - Initial Implementation
- * $Id$
+ * $Id: ConsumerPipe.cc,v 1.10 2007/05/16 22:55:03 hcheung Exp $
  */
 
 #include "EventFilter/StorageManager/interface/ConsumerPipe.h"
@@ -173,7 +173,9 @@ void ConsumerPipe::putEvent(boost::shared_ptr< std::vector<char> > bufPtr)
   // if a push mode consumer actually push the event out to SMProxyServer
   if(pushMode_) {
     bool success = pushEvent();
+    // update the time of the most recent successful transaction
     if(!success) ++pushEventFailures_;
+    else lastEventRequestTime_ = time(NULL);
   }
 }
 

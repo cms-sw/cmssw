@@ -1,3 +1,9 @@
+2007-10-14  Harry Cheung <cheung@fnal.gov>
+
+	* tag V03-07-07
+	* Fixed bug in ConsumerPipe and DQMConsumerPipe where pushEvent to the
+          SMSProxyServer did not update the "lastEventRequestTime_"
+
 2007-10-08  Harry Cheung <cheung@fnal.gov>
 
 	* tag V03-07-06

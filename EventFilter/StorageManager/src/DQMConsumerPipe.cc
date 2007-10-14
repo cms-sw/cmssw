@@ -6,7 +6,7 @@
  * Initial Implementation based on Kurt's ConsumerPipe
  * make a common class later when all this works
  *
- * $Id$
+ * $Id: DQMConsumerPipe.cc,v 1.4 2007/05/16 22:55:03 hcheung Exp $
  */
 
 #include "EventFilter/StorageManager/interface/DQMConsumerPipe.h"
@@ -145,7 +145,9 @@ void DQMConsumerPipe::putDQMEvent(boost::shared_ptr< std::vector<char> > bufPtr)
   // actually push out DQM data if this is a push mode consumer (SMProxyServer)
   if(pushMode_) {
     bool success = pushEvent();
+    // update the time of the most recent successful transaction
     if(!success) ++pushEventFailures_;
+    else lastEventRequestTime_ = time(NULL);
   }
 }
 
