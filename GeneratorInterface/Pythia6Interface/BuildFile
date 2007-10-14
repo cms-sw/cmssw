@@ -4,7 +4,12 @@
 <use name=hepmc> 
 <use name=clhep> 
 <use name=pythia6>
-<flags EDM_PLUGIN=1>
+#<use name=tauola>
+#<use name=photos>
+<lib name=tauola27.121.1>
+<lib name=tauola27.121.1_aux1>
+<lib name=photos215>
+<flags SEAL_PLUGIN_NAME="GeneratorInterfacePythia6Interface">
 <export>
  <use name=boost>
  <use name=FWCore/Framework>
@@ -12,7 +17,14 @@
  <use name=hepmc> 
  <use name=clhep> 
  <use name=pythia6>
+# <use name=tauola>
+# <use name=photos>
+<lib name=tauola27.121.1>
+<lib name=tauola27.121.1_aux1>
+<lib name=photos215>
 </export>
 
  <lib name=g2c></lib>
  <lib name=m></lib>
+
+
