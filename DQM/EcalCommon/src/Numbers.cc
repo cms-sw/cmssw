@@ -1,11 +1,11 @@
-// $Id: Numbers.cc,v 1.23 2007/10/10 09:46:39 dellaric Exp $
+// $Id: Numbers.cc,v 1.24 2007/10/10 16:14:51 dellaric Exp $
 
 /*!
   \file Numbers.cc
   \brief Some "id" conversions
   \author B. Gobbo 
-  \version $Revision: 1.23 $
-  \date $Date: 2007/10/10 09:46:39 $
+  \version $Revision: 1.24 $
+  \date $Date: 2007/10/10 16:14:51 $
 */
 
 #include <sstream>
@@ -149,7 +149,7 @@ int Numbers::iSM( const int ism, const int subdet ) throw( std::runtime_error ) 
     // EB+
     if( ism >= 19 && ism <= 36 ) return( ism-18 );
     return( -999 );
-  } else if( subdet ==  EcalEndcap) {
+  } else if( subdet == EcalEndcap ) {
     if( ism < 1 || ism > 18 ) {
       std::ostringstream s;
       s << "Wrong SM id: iSM = " << ism;
