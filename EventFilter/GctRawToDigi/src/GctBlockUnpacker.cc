@@ -33,17 +33,10 @@ GctBlockUnpacker::GctBlockUnpacker() :
   {
     initClass = false;
     
-    // RCT crates - original
-    rctCrate_[0x81] = 4;
-    rctCrate_[0x89] = 0;
-    rctCrate_[0xC1] = 13;
-    rctCrate_[0xC9] = 9;
-
-    // RCT crates - new (change told to make by Alex 09/10/07, but do not queue for any 17X release)
-    //rctCrate_[0x81] = 13;
-    //rctCrate_[0x89] = 9;
-    //rctCrate_[0xC1] = 4;
-    //rctCrate_[0xC9] = 0; 
+    rctCrate_[0x81] = 13;
+    rctCrate_[0x89] = 9;
+    rctCrate_[0xC1] = 4;
+    rctCrate_[0xC9] = 0; 
 
     // Setup block unpack function map.
     blockUnpackFn_[0x00] = &GctBlockUnpacker::blockDoNothing;
