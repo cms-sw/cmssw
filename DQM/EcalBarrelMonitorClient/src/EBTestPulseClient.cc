@@ -1,8 +1,8 @@
 /*
  * \file EBTestPulseClient.cc
  *
- * $Date: 2007/09/06 18:59:05 $
- * $Revision: 1.154 $
+ * $Date: 2007/09/07 22:30:04 $
+ * $Revision: 1.155 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -1049,10 +1049,12 @@ void EBTestPulseClient::analyze(void){
             val = 0.;
           if ( meg01_[ism-1] ) meg01_[ism-1]->setBinContent( ie, ip, val );
 
+          int ic = (ip-1) + 20*(ie-1) + 1;
+
           if ( mea01_[ism-1] ) {
             if ( mean01 > 0. ) {
-              mea01_[ism-1]->setBinContent( ip+20*(ie-1), mean01 );
-              mea01_[ism-1]->setBinError( ip+20*(ie-1), rms01 );
+              mea01_[ism-1]->setBinContent( ic, mean01 );
+              mea01_[ism-1]->setBinError( ic, rms01 );
             } else {
               mea01_[ism-1]->setEntries( 1.+mea01_[ism-1]->getEntries() );
             }
@@ -1071,10 +1073,12 @@ void EBTestPulseClient::analyze(void){
             val = 0.;
           if ( meg02_[ism-1] ) meg02_[ism-1]->setBinContent( ie, ip, val );
 
+          int ic = (ip-1) + 20*(ie-1) + 1;
+
           if ( mea02_[ism-1] ) {
             if ( mean02 > 0. ) {
-              mea02_[ism-1]->setBinContent( ip+20*(ie-1), mean02 );
-              mea02_[ism-1]->setBinError( ip+20*(ie-1), rms02 );
+              mea02_[ism-1]->setBinContent( ic, mean02 );
+              mea02_[ism-1]->setBinError( ic, rms02 );
             } else {
               mea02_[ism-1]->setEntries( 1.+mea02_[ism-1]->getEntries() );
             }
@@ -1093,10 +1097,12 @@ void EBTestPulseClient::analyze(void){
             val = 0.;
           if ( meg03_[ism-1] ) meg03_[ism-1]->setBinContent( ie, ip, val );
 
+          int ic = (ip-1) + 20*(ie-1) + 1;
+
           if ( mea03_[ism-1] ) {
             if ( mean03 > 0. ) {
-              mea03_[ism-1]->setBinContent( ip+20*(ie-1), mean03 );
-              mea03_[ism-1]->setBinError( ip+20*(ie-1), rms03 );
+              mea03_[ism-1]->setBinContent( ic, mean03 );
+              mea03_[ism-1]->setBinError( ic, rms03 );
             } else {
               mea03_[ism-1]->setEntries( 1.+mea03_[ism-1]->getEntries() );
             }
