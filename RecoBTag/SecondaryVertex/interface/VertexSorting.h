@@ -8,6 +8,8 @@
 
 #include "RecoBTag/SecondaryVertex/interface/SecondaryVertex.h"
 
+namespace reco {
+
 class VertexSorting {
     public:
 	VertexSorting(const edm::ParameterSet &params);
@@ -30,5 +32,7 @@ class VertexSorting {
 
 	SortCriterium	sortCriterium;
 };
+
+} // namespace reco
 
 #endif // RecoBTag_SecondaryVertex_VertexSorting_h
