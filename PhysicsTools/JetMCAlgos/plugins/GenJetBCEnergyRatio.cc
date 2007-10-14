@@ -56,10 +56,7 @@ class GenJetBCEnergyRatio : public edm::EDProducer
 
   private:
     virtual void produce(edm::Event&, const edm::EventSetup& );
-
-    Handle< View<Jet> >         genJets;
-    Handle<CandidateCollection> particles;
-
+    Handle< View<Jet> > genjets;
     edm::InputTag m_genjetsSrc;
 
 };
@@ -70,7 +67,7 @@ GenJetBCEnergyRatio::GenJetBCEnergyRatio( const edm::ParameterSet& iConfig )
 {
     produces<JetBCEnergyRatioCollection>("bRatioCollection");
     produces<JetBCEnergyRatioCollection>("cRatioCollection");
-    m_genjetsSrc           = iConfig.getParameter<edm::InputTag>("genJets");
+    m_genjetsSrc = iConfig.getParameter<edm::InputTag>("genJets");
 }
 
 //=========================================================================
@@ -83,25 +80,25 @@ GenJetBCEnergyRatio::~GenJetBCEnergyRatio()
 
 void GenJetBCEnergyRatio::produce( Event& iEvent, const EventSetup& iEs ) 
 {
-  iEvent.getByLabel(m_genjetsSrc, genJets);
-  iEvent.getByLabel ("genParticleCandidates", particles );
+  iEvent.getByLabel(m_genjetsSrc, genjets);
 
-  typedef edm::RefToBase<reco::Jet> GenJetRef;
+  typedef edm::RefToBase<reco::Jet> JetRef;
 
   std::auto_ptr<JetBCEnergyRatioCollection> bRatioColl(new JetBCEnergyRatioCollection());
   std::auto_ptr<JetBCEnergyRatioCollection> cRatioColl(new JetBCEnergyRatioCollection());
+  
+  for( size_t j = 0; j != genjets->size(); ++j ) {
 
-  for( size_t j = 0; j != genJets->size(); ++j ) {
+    float bRatio = EnergyRatioFromBHadrons( (*genjets)[j] );
+    float cRatio = EnergyRatioFromCHadrons( (*genjets)[j] );
 
-    float bRatio = EnergyRatioFromBHadrons( (*genJets)[j] );
-    float cRatio = EnergyRatioFromCHadrons( (*genJets)[j] );
-
-    GenJetRef jet = genJets->refAt(j) ;
-
-    reco::JetFloatAssociation::setValue(*bRatioColl, jet, bRatio);
-    reco::JetFloatAssociation::setValue(*cRatioColl, jet, cRatio);
+    const JetRef & aJet = genjets->refAt(j) ;
+    cout << aJet.get()->et() << endl;
+    JetFloatAssociation::setValue(*bRatioColl, aJet, bRatio);
+    JetFloatAssociation::setValue(*cRatioColl, aJet, cRatio);
 
   }
+
 
   iEvent.put(bRatioColl, "bRatioCollection");
   iEvent.put(cRatioColl, "cRatioCollection");
