@@ -28,6 +28,8 @@
 #include "DataFormats/JetReco/interface/CaloJetCollection.h"
 #include "SimDataFormats/JetMatching/interface/JetFlavour.h"
 #include "SimDataFormats/JetMatching/interface/JetFlavourMatching.h"
+#include "SimDataFormats/JetMatching/interface/MatchedPartons.h"
+#include "SimDataFormats/JetMatching/interface/JetMatchedPartons.h"
 
 #include "DataFormats/Common/interface/Ref.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
@@ -57,19 +59,9 @@ class JetFlavourIdentifier : public edm::EDProducer
   private:
     virtual void produce(edm::Event&, const edm::EventSetup& );
 
-
-    int fillAlgoritDefinition( const Jet& ) const;
-    int fillPhysicsDefinition( const Jet& ) const;
-
-    Handle<CandidateCollection> particles;
-
-    edm::InputTag m_jetsSrc;
-    double coneSizeToAssociate;
+    Handle<JetMatchedPartonsCollection> theTagByRef;
+    InputTag sourceByRefer_;
     bool physDefinition;
-
-    math::XYZTLorentzVector thePartonLorentzVector;
-    math::XYZPoint          thePartonVertex;
-    int                     thePartonFlavour;        
 
 };
 
@@ -77,10 +69,9 @@ class JetFlavourIdentifier : public edm::EDProducer
 
 JetFlavourIdentifier::JetFlavourIdentifier( const edm::ParameterSet& iConfig )
 {
-    produces<JetFlavourMatching>();
-    m_jetsSrc           = iConfig.getParameter<edm::InputTag>("jets");
-    coneSizeToAssociate = iConfig.getParameter<double>("coneSizeToAssociate");
-    physDefinition      = iConfig.getParameter<bool>("physicsDefinition");
+    produces<JetFlavourMatchingCollection>();
+    sourceByRefer_ = iConfig.getParameter<InputTag>("srcByReference");
+    physDefinition = iConfig.getParameter<bool>("physicsDefinition");
 }
 
 //=========================================================================
@@ -94,141 +85,50 @@ JetFlavourIdentifier::~JetFlavourIdentifier()
 void JetFlavourIdentifier::produce( Event& iEvent, const EventSetup& iEs ) 
 {
 
-  edm::Handle <edm::View <reco::Jet> > jets_h;
-  iEvent.getByLabel(m_jetsSrc, jets_h);
+  iEvent.getByLabel (sourceByRefer_ , theTagByRef   );  
 
-  iEvent.getByLabel ("genParticleCandidates", particles );
-//   std::auto_ptr<reco::JetFlavourMatchingCollection> jetTracks (new reco::JetFlavourMatchingCollection (reco::JetRefBaseProd(jets_h)));
-        auto_ptr<reco::JetFlavourMatchingCollection> jetFlavMatching( new JetFlavourMatchingCollection(reco::JetRefBaseProd(jets_h)));
-  int size = jets_h->size();
+  JetFlavourMatchingCollection * jfmc;
+  if(theTagByRef.product()->size()>0) {
+    RefToBase<Jet> jj = theTagByRef->begin()->first;
+    jfmc = new JetFlavourMatchingCollection(RefToBaseProd<Jet>(jj));
+  } else {
+    jfmc = new JetFlavourMatchingCollection();
+  }
+  auto_ptr<reco::JetFlavourMatchingCollection> jetFlavMatching(jfmc);
 
-  for (size_t j = 0; j < jets_h->size(); j++) {
-       const int theMappedPartonAlg = fillAlgoritDefinition( (*jets_h)[j] );
-       const int theMappedPartonPhy = fillPhysicsDefinition( (*jets_h)[j] );
+  for ( JetMatchedPartonsCollection::const_iterator j  = theTagByRef->begin();
+                                                    j != theTagByRef->end();
+                                                    j ++ ) {
 
-       if(physDefinition) {
-         if ( theMappedPartonPhy < 0 ) continue;
-         const Candidate & aPartPhy = (*particles)[theMappedPartonPhy] ;
-         thePartonLorentzVector = aPartPhy.p4();         
-         thePartonVertex        = aPartPhy.vertex();
-         thePartonFlavour       = aPartPhy.pdgId();         
-       } else {
-         if ( theMappedPartonAlg < 0 ) continue;
-         const Candidate & aPartAlg = (*particles)[theMappedPartonAlg] ; 
-         thePartonLorentzVector = aPartAlg.p4();
-         thePartonVertex        = aPartAlg.vertex();
-         thePartonFlavour       = aPartAlg.pdgId();
-       }
-       (*jetFlavMatching)[jets_h->refAt(j)]=JetFlavour(thePartonLorentzVector, thePartonVertex, thePartonFlavour); 
+    const MatchedPartons aMatch = (*j).second;
+
+    math::XYZTLorentzVector thePartonLorentzVector(0,0,0,0);
+    math::XYZPoint          thePartonVertex(0,0,0);
+    int                     thePartonFlavour = 0;  
+
+    if( physDefinition ) {
+      const CandidateRef aPartPhy = aMatch.physicsDefinitionParton() ;
+      if(aPartPhy.isNonnull()) {  
+        thePartonLorentzVector = aPartPhy.get()->p4();         
+        thePartonVertex        = aPartPhy.get()->vertex();
+        thePartonFlavour       = aPartPhy.get()->pdgId(); 
+      }
+    }
+    if( !physDefinition ) {
+      const CandidateRef aPartAlg = aMatch.algoDefinitionParton() ;
+      if(aPartAlg.isNonnull()) {
+        thePartonLorentzVector = aPartAlg.get()->p4();
+        thePartonVertex        = aPartAlg.get()->vertex();
+        thePartonFlavour       = aPartAlg.get()->pdgId();
+      }
+    }
+
+    (*jetFlavMatching)[(*j).first]=JetFlavour(thePartonLorentzVector, thePartonVertex, thePartonFlavour); 
+
   }
 
   iEvent.put(  jetFlavMatching );
 
-}
-
-
-//
-// Algorithmic Definition: 
-// Output: define one associatedParton
-// Loop on all particle.
-// A particle is a parton if its daughter is a string(code=92) or a cluster(code=93) 
-// If (parton is within the cone defined by coneSizeToAssociate) then:
-//           if (parton is a b)                                   then associatedParton is the b
-//      else if (associatedParton =! b and parton is a c)         then associatedParton is the c
-//      else if (associatedParton =! b and associatedParton =! c) then associatedParton is the one with the highest pT
-// associatedParton can be -1 --> no partons in the cone
-// True Flavour of the jet --> flavour of the associatedParton
-//
-// ToDo: if more than one b(c) in the cone --> the selected parton is not always the one with highest pT
-//
-int JetFlavourIdentifier::fillAlgoritDefinition( const Jet& theJet ) const {
-
-  int tempParticle = -1;
-  int tempPartonHighestPt = -1;
-  float maxPt = 0;
-  for( size_t m = 0; m != particles->size(); ++ m ) {
-    const Candidate & aParton = (*particles)[ m ];
-    if( aParton.numberOfDaughters() > 0  && ( aParton.daughter(0)->pdgId() == 91 || aParton.daughter(0)->pdgId() == 92 ) ) {
-      double dist = DeltaR( theJet.p4(), aParton.p4() );
-      if( dist <= coneSizeToAssociate ) {
-        if( tempParticle == -1 && ( abs( aParton.pdgId() ) == 4 )  ) tempParticle = m;
-        if(                         abs( aParton.pdgId() ) == 5    ) tempParticle = m;
-        if( aParton.pt() > maxPt ) {
-           maxPt = aParton.pt();
-           tempPartonHighestPt = m;
-        }
-      }
-    }
-  }
-  if ( tempParticle == -1 ) tempParticle = tempPartonHighestPt;
-  return tempParticle;
-}
-
-//
-// Physics Definition: 
-// A initialParticle is a particle with status=3
-// Output: define one associatedInitialParticle
-// Loop on all particles
-// A particle is a parton if its daughter is a string(code=92) or a cluster(code=93)
-// if( only one initialParticle within the cone defined by coneSizeToAssociate) associatedInitialParticle is the initialParticle
-// TheBiggerConeSize = 0.7 --> it's hard coded!
-// if( a parton not coming from associatedInitialParticle in TheBiggerConeSize is a b or a c) reject the association
-//
-// associatedInitialParticle can be -1 --> no initialParticle in the cone or rejected association
-// True Flavour of the jet --> flavour of the associatedInitialParticle
-//
-int JetFlavourIdentifier::fillPhysicsDefinition( const Jet& theJet ) const {
-
-  float TheBiggerConeSize = 0.7; // In HepMC it's 0.3 --> it's a mistake: value has to be 0.7
-  int tempParticle = -1;
-  int nInTheCone = 0;
-
-  vector<const reco::Candidate *> theContaminations;
-  theContaminations.clear();
-
-  for( size_t m = 0; m != particles->size(); ++ m ) {
-    const Candidate & aParticle = (*particles)[ m ];
-    // skipping all particle but udscbg (is this correct/enough?!?!)
-    bool isAParton = false;
-    int flavour = abs(aParticle.pdgId());
-    if(flavour == 1 || 
-       flavour == 2 ||
-       flavour == 3 ||
-       flavour == 4 ||
-       flavour == 5 ||
-       flavour == 21 ) isAParton = true;
-    if(!isAParton) continue;
-    double dist = DeltaR( theJet.p4(), aParticle.p4() );
-    if( aParticle.status() == 3 && dist <= coneSizeToAssociate ) {
-      //cout << "particle in small cone=" << aParticle.pdgId() << endl;
-      tempParticle = m;
-      nInTheCone++;
-    }
-    // Look for partons in TheBiggerConeSize now
-    if( aParticle.numberOfDaughters() > 0  && ( aParticle.daughter(0)->pdgId() == 91 || aParticle.daughter(0)->pdgId() == 92 ) ) {
-      if( dist < TheBiggerConeSize ) theContaminations.push_back( &aParticle );
-    }
-  }
-
-  //cout << "theJet=" << theJet.p4().Et() << " " << theJet.p4().eta() << " " << theJet.p4().phi() << endl;
-
-  if(nInTheCone != 1) return -1; // rejected --> only one initialParton requested
-  if(theContaminations.size() == 0 ) return tempParticle; //no contamination
-  int initialPartonFlavour = abs( ((*particles)[ tempParticle ]).pdgId() );
-
-  //cout << "nInTheCone=" << nInTheCone << " theContaminations.size=" << theContaminations.size() << " iniFla=" << initialPartonFlavour << endl;
-
-  vector<const Candidate *>::const_iterator itCont = theContaminations.begin();
-  for( ; itCont != theContaminations.end(); itCont++ ) {
-    int contaminatingFlavour = abs( (*itCont)->pdgId() );
-    if( (*itCont)->numberOfMothers()>0 && (*itCont)->mother(0) == &( (*particles)[ tempParticle ]) ) continue; // mother is the initialParton --> OK
-    if( initialPartonFlavour == 4 ) {  
-      if( contaminatingFlavour == 4 ) continue; // keep association --> the initialParton is a c --> the contaminated parton is a c
-      tempParticle = -1; // all the other cases reject!
-    }
-  } 
-
-  return tempParticle;   
 }
 
 //define this as a plug-in
