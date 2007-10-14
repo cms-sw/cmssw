@@ -1,8 +1,8 @@
 /*
  * \file EELedTask.cc
  *
- * $Date: 2007/08/16 14:26:08 $
- * $Revision: 1.6 $
+ * $Date: 2007/08/21 11:31:49 $
+ * $Revision: 1.7 $
  * \author G. Della Ricca
  *
 */
@@ -281,13 +281,17 @@ void EELedTask::analyze(const Event& e, const EventSetup& c){
         if ( sample.gainId() == 2 ) gain = 1./ 6.;
         if ( sample.gainId() == 3 ) gain = 1./ 1.;
 
-        if ( ix < 6 || iy > 10 ) {
+        if ( dccMap[ism].getRtHalf() == 1 || dccMap[ism].getRtHalf() == 3 ) {
 
           meShapeMap = meShapeMapA_[ism-1];
 
-        } else {
+        } else if ( dccMap[ism].getRtHalf() == 2 ) {
 
           meShapeMap = meShapeMapB_[ism-1];
+
+        } else {
+
+          LogWarning("EELedTask") << " RtHalf = " << dccMap[ism].getRtHalf();
 
         }
 
@@ -439,17 +443,21 @@ void EELedTask::analyze(const Event& e, const EventSetup& c){
       MonitorElement* meTimeMap = 0;
       MonitorElement* meAmplPNMap = 0;
 
-      if ( ix < 6 || iy > 10 ) {
+      if ( dccMap[ism].getRtHalf() == 1 || dccMap[ism].getRtHalf() == 3 ) {
 
         meAmplMap = meAmplMapA_[ism-1];
         meTimeMap = meTimeMapA_[ism-1];
         meAmplPNMap = meAmplPNMapA_[ism-1];
 
-      } else {
+      } else if ( dccMap[ism].getRtHalf() == 2 ) {
 
         meAmplMap = meAmplMapB_[ism-1];
         meTimeMap = meTimeMapB_[ism-1];
         meAmplPNMap = meAmplPNMapB_[ism-1];
+
+      } else {
+
+        LogWarning("EELedTask") << " RtHalf = " << dccMap[ism].getRtHalf();
 
       }
 
@@ -470,13 +478,17 @@ void EELedTask::analyze(const Event& e, const EventSetup& c){
 
       float wval = 0.;
 
-      if ( ix < 6 || iy > 10 ) {
+      if ( dccMap[ism].getRtHalf() == 1 || dccMap[ism].getRtHalf() == 3 ) {
 
         if ( adcA[ism-1] != 0. ) wval = xval / adcA[ism-1];
 
-      } else {
+      } else if ( dccMap[ism].getRtHalf() == 2 ) {
 
         if ( adcB[ism-1] != 0. ) wval = xval / adcB[ism-1];
+
+      } else {
+
+        LogWarning("EELedTask") << " RtHalf = " << dccMap[ism].getRtHalf();
 
       }
 

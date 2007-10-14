@@ -1,8 +1,8 @@
 /*
  * \file EBLaserTask.cc
  *
- * $Date: 2007/08/14 17:43:06 $
- * $Revision: 1.86 $
+ * $Date: 2007/08/16 14:26:04 $
+ * $Revision: 1.87 $
  * \author G. Della Ricca
  *
 */
@@ -593,19 +593,23 @@ void EBLaserTask::analyze(const Event& e, const EventSetup& c){
         if ( sample.gainId() == 2 ) gain = 1./ 6.;
         if ( sample.gainId() == 3 ) gain = 1./ 1.;
 
-        if ( ie < 6 || ip > 10 ) {
+        if ( dccMap[ism].getRtHalf() == 1 || dccMap[ism].getRtHalf() == 3 ) {
 
           if ( dccMap[ism].getEventSettings().wavelength == 0 ) meShapeMap = meShapeMapL1A_[ism-1];
           if ( dccMap[ism].getEventSettings().wavelength == 1 ) meShapeMap = meShapeMapL2A_[ism-1];
           if ( dccMap[ism].getEventSettings().wavelength == 2 ) meShapeMap = meShapeMapL3A_[ism-1];
           if ( dccMap[ism].getEventSettings().wavelength == 3 ) meShapeMap = meShapeMapL4A_[ism-1];
 
-        } else {
+        } else if ( dccMap[ism].getRtHalf() == 2 ) {
 
           if ( dccMap[ism].getEventSettings().wavelength == 0 ) meShapeMap = meShapeMapL1B_[ism-1];
           if ( dccMap[ism].getEventSettings().wavelength == 1 ) meShapeMap = meShapeMapL2B_[ism-1];
           if ( dccMap[ism].getEventSettings().wavelength == 2 ) meShapeMap = meShapeMapL3B_[ism-1];
           if ( dccMap[ism].getEventSettings().wavelength == 3 ) meShapeMap = meShapeMapL4B_[ism-1];
+
+        } else {
+
+          LogWarning("EBLaserTask") << " RtHalf = " << dccMap[ism].getRtHalf();
 
         }
 
@@ -768,7 +772,7 @@ void EBLaserTask::analyze(const Event& e, const EventSetup& c){
       MonitorElement* meTimeMap = 0;
       MonitorElement* meAmplPNMap = 0;
 
-      if ( ie < 6 || ip > 10 ) {
+      if ( dccMap[ism].getRtHalf() == 1 || dccMap[ism].getRtHalf() == 3 ) {
 
         if ( dccMap[ism].getEventSettings().wavelength == 0 ) {
           meAmplMap = meAmplMapL1A_[ism-1];
@@ -791,7 +795,7 @@ void EBLaserTask::analyze(const Event& e, const EventSetup& c){
           meAmplPNMap = meAmplPNMapL4A_[ism-1];
         }
 
-      } else {
+      } else if ( dccMap[ism].getRtHalf() == 2 ) {
 
         if ( dccMap[ism].getEventSettings().wavelength == 0 ) {
           meAmplMap = meAmplMapL1B_[ism-1];
@@ -814,6 +818,10 @@ void EBLaserTask::analyze(const Event& e, const EventSetup& c){
           meAmplPNMap = meAmplPNMapL4B_[ism-1];
         }
 
+      } else {
+
+        LogWarning("EBLaserTask") << " RtHalf = " << dccMap[ism].getRtHalf();
+
       }
 
       float xval = hit.amplitude();
@@ -833,13 +841,17 @@ void EBLaserTask::analyze(const Event& e, const EventSetup& c){
 
       float wval = 0.;
 
-      if ( ie < 6 || ip > 10 ) {
+      if ( dccMap[ism].getRtHalf() == 1 || dccMap[ism].getRtHalf() == 3 ) {
 
         if ( adcA[ism-1] != 0. ) wval = xval / adcA[ism-1];
 
-      } else {
+      } else if ( dccMap[ism].getRtHalf() == 2 ) {
 
         if ( adcB[ism-1] != 0. ) wval = xval / adcB[ism-1];
+
+      } else {
+
+        LogWarning("EBLaserTask") << " RtHalf = " << dccMap[ism].getRtHalf();
 
       }
 
