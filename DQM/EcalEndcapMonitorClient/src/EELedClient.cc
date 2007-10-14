@@ -1,8 +1,8 @@
 /*
  * \file EELedClient.cc
  *
- * $Date: 2007/10/13 16:28:52 $
- * $Revision: 1.17 $
+ * $Date: 2007/10/14 12:31:59 $
+ * $Revision: 1.18 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -1309,10 +1309,8 @@ void EELedClient::analyze(void){
               }
             }
 
-            if ( metav01_[ism-1] )
-              metav01_[ism-1] ->Fill(mean09);
-            if ( metrms01_[ism-1] )
-              metrms01_[ism-1]->Fill(rms09);
+            if ( metav01_[ism-1] ) metav01_[ism-1] ->Fill(mean09);
+            if ( metrms01_[ism-1] ) metrms01_[ism-1]->Fill(rms09);
 
           }
 
@@ -1332,10 +1330,8 @@ void EELedClient::analyze(void){
               }
             }
 
-            if ( metav05_[ism-1] )
-              metav05_[ism-1] ->Fill(mean21);
-            if ( metrms05_[ism-1] )
-              metrms05_[ism-1]->Fill(rms21);
+            if ( metav05_[ism-1] ) metav05_[ism-1] ->Fill(mean21);
+            if ( metrms05_[ism-1] ) metrms05_[ism-1]->Fill(rms21);
 
           }
 

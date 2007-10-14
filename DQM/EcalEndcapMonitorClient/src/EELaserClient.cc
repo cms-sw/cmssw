@@ -1,8 +1,8 @@
 /*
  * \file EELaserClient.cc
  *
- * $Date: 2007/10/13 16:30:55 $
- * $Revision: 1.34 $
+ * $Date: 2007/10/14 12:31:59 $
+ * $Revision: 1.35 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -3171,10 +3171,8 @@ void EELaserClient::analyze(void){
               }
             }
 
-            if ( metav01_[ism-1] )
-              metav01_[ism-1] ->Fill(mean09);
-            if ( metrms01_[ism-1] )
-              metrms01_[ism-1]->Fill(rms09);
+            if ( metav01_[ism-1] ) metav01_[ism-1] ->Fill(mean09);
+            if ( metrms01_[ism-1] ) metrms01_[ism-1]->Fill(rms09);
           }
 
         }
@@ -3193,10 +3191,8 @@ void EELaserClient::analyze(void){
               }
             }
 
-            if ( metav05_[ism-1] )
-              metav05_[ism-1] ->Fill(mean21);
-            if ( metrms05_[ism-1] )
-              metrms05_[ism-1]->Fill(rms21);
+            if ( metav05_[ism-1] ) metav05_[ism-1] ->Fill(mean21);
+            if ( metrms05_[ism-1] ) metrms05_[ism-1]->Fill(rms21);
           }
 
         }
@@ -3215,10 +3211,8 @@ void EELaserClient::analyze(void){
               }
             }
 
-            if ( metav02_[ism-1] )
-              metav02_[ism-1] ->Fill(mean10);
-            if ( metrms02_[ism-1] )
-              metrms02_[ism-1]->Fill(rms10);
+            if ( metav02_[ism-1] ) metav02_[ism-1] ->Fill(mean10);
+            if ( metrms02_[ism-1] ) metrms02_[ism-1]->Fill(rms10);
           }
 
         }
@@ -3237,10 +3231,8 @@ void EELaserClient::analyze(void){
               }
             }
 
-            if ( metav06_[ism-1] )
-              metav06_[ism-1] ->Fill(mean22);
-            if ( metrms06_[ism-1] )
-              metrms06_[ism-1]->Fill(rms22);
+            if ( metav06_[ism-1] ) metav06_[ism-1] ->Fill(mean22);
+            if ( metrms06_[ism-1] ) metrms06_[ism-1]->Fill(rms22);
           }
 
         }
@@ -3259,10 +3251,8 @@ void EELaserClient::analyze(void){
               }
             }
 
-            if ( metav03_[ism-1] )
-              metav03_[ism-1] ->Fill(mean11);
-            if ( metrms03_[ism-1] )
-              metrms03_[ism-1]->Fill(rms11);
+            if ( metav03_[ism-1] ) metav03_[ism-1] ->Fill(mean11);
+            if ( metrms03_[ism-1] ) metrms03_[ism-1]->Fill(rms11);
           }
 
         }
@@ -3281,10 +3271,8 @@ void EELaserClient::analyze(void){
               }
             }
 
-            if ( metav07_[ism-1] )
-              metav07_[ism-1] ->Fill(mean23);
-            if ( metrms07_[ism-1] )
-              metrms07_[ism-1]->Fill(rms23);
+            if ( metav07_[ism-1] ) metav07_[ism-1] ->Fill(mean23);
+            if ( metrms07_[ism-1] ) metrms07_[ism-1]->Fill(rms23);
           }
 
         }
@@ -3303,10 +3291,8 @@ void EELaserClient::analyze(void){
               }
             }
 
-            if ( metav04_[ism-1] )
-              metav04_[ism-1] ->Fill(mean12);
-            if ( metrms04_[ism-1] )
-              metrms04_[ism-1]->Fill(rms12);
+            if ( metav04_[ism-1] ) metav04_[ism-1] ->Fill(mean12);
+            if ( metrms04_[ism-1] ) metrms04_[ism-1]->Fill(rms12);
           }
 
         }
@@ -3325,10 +3311,8 @@ void EELaserClient::analyze(void){
               }
             }
 
-            if ( metav08_[ism-1] )
-              metav08_[ism-1] ->Fill(mean24);
-            if ( metrms08_[ism-1] )
-              metrms08_[ism-1]->Fill(rms24);
+            if ( metav08_[ism-1] ) metav08_[ism-1] ->Fill(mean24);
+            if ( metrms08_[ism-1] ) metrms08_[ism-1]->Fill(rms24);
           }
 
         }

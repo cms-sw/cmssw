@@ -1,8 +1,8 @@
 /*
  * \file EETimingClient.cc
  *
- * $Date: 2007/09/10 06:43:46 $
- * $Revision: 1.24 $
+ * $Date: 2007/10/10 09:46:39 $
+ * $Revision: 1.25 $
  * \author G. Della Ricca
  *
 */
@@ -439,16 +439,21 @@ void EETimingClient::analyze(void){
             val = 0.;
           if ( meg01_[ism-1] ) meg01_[ism-1]->setBinContent(ix, iy, val);
 
-          if ( mea01_[ism-1] ) {
-            if ( mean01 > 0. ) {
-              mea01_[ism-1]->setBinContent(iy+20*(ix-1), mean01);
-              mea01_[ism-1]->setBinError(iy+20*(ix-1), rms01);
-            } else {
-              mea01_[ism-1]->setEntries(1.+mea01_[ism-1]->getEntries());
+          int ic = Numbers::icEE(ism, ix, iy);
+
+          if ( ic != -1 ) {
+            if ( mea01_[ism-1] ) {
+              if ( mean01 > 0. ) {
+                mea01_[ism-1]->setBinContent(ic, mean01);
+                mea01_[ism-1]->setBinError(ic, rms01);
+              } else {
+                mea01_[ism-1]->setEntries(1.+mea01_[ism-1]->getEntries());
+              }
             }
+
+            if ( mep01_[ism-1] ) mep01_[ism-1]->Fill(mean01);
+            if ( mer01_[ism-1] ) mer01_[ism-1]->Fill(rms01);
           }
-          if ( mep01_[ism-1] ) mep01_[ism-1]->Fill(mean01);
-          if ( mer01_[ism-1] ) mer01_[ism-1]->Fill(rms01);
 
         }
 
