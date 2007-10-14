@@ -5,6 +5,7 @@
 #include "DataFormats/Common/interface/Wrapper.h"
 #include "DataFormats/Common/interface/RefVectorIterator.h"
 #include "DataFormats/Common/interface/Ref.h"
+#include "DataFormats/Common/interface/RefToBase.h"
 
 namespace {
   namespace {
@@ -19,9 +20,7 @@ namespace {
 
     edm::RefToBase<TrajectorySeed> sr;  
     edm::reftobase::IndirectHolder<TrajectorySeed> ihs;
-
-
+    edm::reftobase::Holder< TrajectorySeed, edm::Ref<TrajectorySeedCollection> > rbh;
+    edm::reftobase::RefHolder< edm::Ref<TrajectorySeedCollection> > rbrh;
   }
 }
-
-
