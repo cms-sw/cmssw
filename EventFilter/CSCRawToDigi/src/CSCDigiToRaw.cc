@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2007/10/08 22:20:13 $
- *  $Revision: 1.12 $
+ *  $Date: 2007/10/13 15:19:53 $
+ *  $Revision: 1.13 $
  *  \author A. Tumanov - Rice
  */
 
@@ -22,6 +22,7 @@
 #include "EventFilter/Utilities/interface/Crc.h"
 #include "CondFormats/CSCObjects/interface/CSCChamberMap.h"
 #include "CondFormats/DataRecord/interface/CSCChamberMapRcd.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 
 
@@ -130,12 +131,12 @@ void CSCDigiToRaw::createFedBuffers(const CSCStripDigiCollection& stripDigis,
 
   int l1a=1; ///need to add increments or get it from lct digis 
   int bx = 0;///same as above
-  int startingFED = FEDNumbering::getCSCFEDIds().first;
+  //int startingFED = FEDNumbering::getCSCFEDIds().first;
 
-  for (int idcc=FEDNumbering::getCSCFEDIds().first-startingFED;
-       idcc<=FEDNumbering::getCSCFEDIds().second-startingFED;++idcc) 
+  for (int idcc=FEDNumbering::getCSCFEDIds().first;
+       idcc<=FEDNumbering::getCSCFEDIds().second;++idcc) 
     {
-      ///idcc goes from 0 to 7
+      ///idcc goes from startingFed to startingFED+7
       /// @@ if ReadoutMapping changes, this'll have to change
       /// DCCs 1, 2,4,5have 5 DDUs.  Otherwise, 4
       ///int nDDUs = (idcc < 2) || (idcc ==4) || (idcc ==5)
@@ -154,17 +155,20 @@ void CSCDigiToRaw::createFedBuffers(const CSCStripDigiCollection& stripDigis,
 	for(map<CSCDetId, CSCEventData>::iterator chamberItr = chamberDataMap.begin();
 	    chamberItr != chamberDataMap.end(); ++chamberItr)
 	  {
+	    //std::cout<<"inside the pack loop" <<std::endl;
 	    int indexDCC = mapping->slink(chamberItr->first);
+	    //std::cout<<" indexDCC=" << indexDCC <<std::endl;
+	    //std::cout<<" idcc = " <<idcc<<std::endl;
 	    if (idcc==indexDCC) 
 	      { ///fill the right dcc 
 		dccEvent.dduData()[indexDDU].add(chamberItr->second);
 		boost::dynamic_bitset<> dccBits = dccEvent.pack();
-		FEDRawData & fedRawData = fed_buffers.FEDData(startingFED+idcc);
+		FEDRawData & fedRawData = fed_buffers.FEDData(idcc);
 		fedRawData.resize(dccBits.size());
 		///fill data with dccEvent
 		bitset_utilities::bitsetToChar(dccBits, fedRawData.data());
 		FEDHeader cscFEDHeader(fedRawData.data());
-		cscFEDHeader.set(fedRawData.data(), 0, e.id().event(), 0, startingFED+idcc);
+		cscFEDHeader.set(fedRawData.data(), 0, e.id().event(), 0, idcc);
 		FEDTrailer cscFEDTrailer(fedRawData.data()+(fedRawData.size()-8));
 		cscFEDTrailer.set(fedRawData.data()+(fedRawData.size()-8), 
 				  fedRawData.size()/8, 
@@ -177,7 +181,7 @@ void CSCDigiToRaw::createFedBuffers(const CSCStripDigiCollection& stripDigis,
 		  }
 	      }
 	  }
-      }
+      } else { edm::LogError("CSCDigiToRaw") <<"invalid CSCDetId==0";}
     }
 }
 
