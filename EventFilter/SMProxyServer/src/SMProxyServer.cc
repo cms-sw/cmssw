@@ -1,10 +1,10 @@
-// $Id: SMProxyServer.cc,v 1.5 2007/06/30 16:09:01 hcheung Exp $
+// $Id: SMProxyServer.cc,v 1.6 2007/07/30 04:51:29 wmtan Exp $
 
 #include <iostream>
 #include <iomanip>
 #include <sstream>
 #include <vector>
-#include <sys/statfs.h>
+#include <sys/stat.h>
 
 #include "EventFilter/SMProxyServer/interface/SMProxyServer.h"
 #include "EventFilter/StorageManager/interface/ConsumerPipe.h"
@@ -35,6 +35,8 @@
 #include "xoap/SOAPBody.h"
 #include "xoap/domutils.h"
 
+#include "xdata/InfoSpaceFactory.h"
+
 using namespace edm;
 using namespace std;
 using namespace stor;
@@ -43,6 +45,7 @@ SMProxyServer::SMProxyServer(xdaq::ApplicationStub * s)
   throw (xdaq::exception::Exception) :
   xdaq::Application(s),
   fsm_(this), 
+  reasonForFailedState_(),
   ah_(0), 
   collateDQM_(false),
   archiveDQM_(false),
@@ -258,7 +261,7 @@ void SMProxyServer::defaultWebPage(xgi::Input *in, xgi::Output *out)
     *out << "  <td align=\"left\">"                                    << endl;
     *out << "    <img"                                                 << endl;
     *out << "     align=\"middle\""                                    << endl;
-    *out << "     src=\"/daq/evb/examples/fu/images/fu64x64.gif\""     << endl;
+    *out << "     src=\"/rubuilder/fu/images/fu64x64.gif\""     << endl;
     *out << "     alt=\"main\""                                        << endl;
     *out << "     width=\"64\""                                        << endl;
     *out << "     height=\"64\""                                       << endl;
@@ -266,13 +269,14 @@ void SMProxyServer::defaultWebPage(xgi::Input *in, xgi::Output *out)
     *out << "    <b>"                                                  << endl;
     *out << getApplicationDescriptor()->getClassName() << " instance "
          << getApplicationDescriptor()->getInstance()                  << endl;
+    *out << "      " << fsm_.stateName()->toString()                   << endl;
     *out << "    </b>"                                                 << endl;
     *out << "  </td>"                                                  << endl;
     *out << "  <td width=\"32\">"                                      << endl;
     *out << "    <a href=\"/urn:xdaq-application:lid=3\">"             << endl;
     *out << "      <img"                                               << endl;
     *out << "       align=\"middle\""                                  << endl;
-    *out << "       src=\"/daq/xdaq/hyperdaq/images/HyperDAQ.jpg\""    << endl;
+    *out << "       src=\"/hyperdaq/images/HyperDAQ.jpg\""    << endl;
     *out << "       alt=\"HyperDAQ\""                                  << endl;
     *out << "       width=\"32\""                                      << endl;
     *out << "       height=\"32\""                                      << endl;
@@ -286,7 +290,7 @@ void SMProxyServer::defaultWebPage(xgi::Input *in, xgi::Output *out)
          << "/debug\">"                   << endl;
     *out << "      <img"                                               << endl;
     *out << "       align=\"middle\""                                  << endl;
-    *out << "       src=\"/daq/evb/bu/images/debug32x32.gif\""         << endl;
+    *out << "       src=\"/rubuilder/fu/images/debug32x32.gif\""         << endl;
     *out << "       alt=\"debug\""                                     << endl;
     *out << "       width=\"32\""                                      << endl;
     *out << "       height=\"32\""                                     << endl;
@@ -294,6 +298,17 @@ void SMProxyServer::defaultWebPage(xgi::Input *in, xgi::Output *out)
     *out << "    </a>"                                                 << endl;
     *out << "  </td>"                                                  << endl;
     *out << "</tr>"                                                    << endl;
+    if(fsm_.stateName()->value_ == "Failed")
+    {
+      *out << "<tr>"                                         << endl;
+      *out << " <td>"                                        << endl;
+      *out << "<textarea rows=" << 5 << " cols=60 scroll=yes";
+      *out << " readonly title=\"Reason For Failed\">"               << endl;
+      *out << reasonForFailedState_                                  << endl;
+      *out << "</textarea>"                                          << endl;
+      *out << " </td>"                                       << endl;
+      *out << "</tr>"                                        << endl;
+    }
     *out << "</table>"                                                 << endl;
 
   *out << "<hr/>"                                                    << endl;
@@ -575,7 +590,7 @@ void SMProxyServer::defaultWebPage(xgi::Input *in, xgi::Output *out)
 }
 
 
-//////////// *** fusender web page //////////////////////////////////////////////////////////
+//////////// *** smsender web page //////////////////////////////////////////////////////////
 void SMProxyServer::smsenderWebPage(xgi::Input *in, xgi::Output *out)
   throw (xgi::exception::Exception)
 {
@@ -592,7 +607,7 @@ void SMProxyServer::smsenderWebPage(xgi::Input *in, xgi::Output *out)
     *out << "  <td align=\"left\">"                                    << endl;
     *out << "    <img"                                                 << endl;
     *out << "     align=\"middle\""                                    << endl;
-    *out << "     src=\"/daq/evb/examples/fu/images/fu64x64.gif\""     << endl;
+    *out << "     src=\"/rubuilder/fu/images/fu64x64.gif\""     << endl;
     *out << "     alt=\"main\""                                        << endl;
     *out << "     width=\"64\""                                        << endl;
     *out << "     height=\"64\""                                       << endl;
@@ -600,13 +615,14 @@ void SMProxyServer::smsenderWebPage(xgi::Input *in, xgi::Output *out)
     *out << "    <b>"                                                  << endl;
     *out << getApplicationDescriptor()->getClassName() << " instance "
          << getApplicationDescriptor()->getInstance()                  << endl;
+    *out << "      " << fsm_.stateName()->toString()                   << endl;
     *out << "    </b>"                                                 << endl;
     *out << "  </td>"                                                  << endl;
     *out << "  <td width=\"32\">"                                      << endl;
     *out << "    <a href=\"/urn:xdaq-application:lid=3\">"             << endl;
     *out << "      <img"                                               << endl;
     *out << "       align=\"middle\""                                  << endl;
-    *out << "       src=\"/daq/xdaq/hyperdaq/images/HyperDAQ.jpg\""    << endl;
+    *out << "       src=\"/hyperdaq/images/HyperDAQ.jpg\""    << endl;
     *out << "       alt=\"HyperDAQ\""                                  << endl;
     *out << "       width=\"32\""                                      << endl;
     *out << "       height=\"32\""                                      << endl;
@@ -620,7 +636,7 @@ void SMProxyServer::smsenderWebPage(xgi::Input *in, xgi::Output *out)
          << "/debug\">"                   << endl;
     *out << "      <img"                                               << endl;
     *out << "       align=\"middle\""                                  << endl;
-    *out << "       src=\"/daq/evb/bu/images/debug32x32.gif\""         << endl;
+    *out << "       src=\"/rubuilder/fu/images/debug32x32.gif\""         << endl;
     *out << "       alt=\"debug\""                                     << endl;
     *out << "       width=\"32\""                                      << endl;
     *out << "       height=\"32\""                                     << endl;
@@ -628,6 +644,17 @@ void SMProxyServer::smsenderWebPage(xgi::Input *in, xgi::Output *out)
     *out << "    </a>"                                                 << endl;
     *out << "  </td>"                                                  << endl;
     *out << "</tr>"                                                    << endl;
+    if(fsm_.stateName()->value_ == "Failed")
+    {
+      *out << "<tr>"                                         << endl;
+      *out << " <td>"                                        << endl;
+      *out << "<textarea rows=" << 5 << " cols=60 scroll=yes";
+      *out << " readonly title=\"Reason For Failed\">"               << endl;
+      *out << reasonForFailedState_                                  << endl;
+      *out << "</textarea>"                                          << endl;
+      *out << " </td>"                                       << endl;
+      *out << "</tr>"                                        << endl;
+    }
     *out << "</table>"                                                 << endl;
 
   *out << "<hr/>"                                                    << endl;
@@ -713,7 +740,7 @@ void SMProxyServer::DQMOutputWebPage(xgi::Input *in, xgi::Output *out)
     *out << "  <td align=\"left\">"                                    << endl;
     *out << "    <img"                                                 << endl;
     *out << "     align=\"middle\""                                    << endl;
-    *out << "     src=\"/daq/evb/examples/fu/images/fu64x64.gif\""     << endl;
+    *out << "     src=\"/rubuilder/fu/images/fu64x64.gif\""     << endl;
     *out << "     alt=\"main\""                                        << endl;
     *out << "     width=\"64\""                                        << endl;
     *out << "     height=\"64\""                                       << endl;
@@ -721,13 +748,14 @@ void SMProxyServer::DQMOutputWebPage(xgi::Input *in, xgi::Output *out)
     *out << "    <b>"                                                  << endl;
     *out << getApplicationDescriptor()->getClassName() << " instance "
          << getApplicationDescriptor()->getInstance()                  << endl;
+    *out << "      " << fsm_.stateName()->toString()                   << endl;
     *out << "    </b>"                                                 << endl;
     *out << "  </td>"                                                  << endl;
     *out << "  <td width=\"32\">"                                      << endl;
     *out << "    <a href=\"/urn:xdaq-application:lid=3\">"             << endl;
     *out << "      <img"                                               << endl;
     *out << "       align=\"middle\""                                  << endl;
-    *out << "       src=\"/daq/xdaq/hyperdaq/images/HyperDAQ.jpg\""    << endl;
+    *out << "       src=\"/hyperdaq/images/HyperDAQ.jpg\""    << endl;
     *out << "       alt=\"HyperDAQ\""                                  << endl;
     *out << "       width=\"32\""                                      << endl;
     *out << "       height=\"32\""                                      << endl;
@@ -741,7 +769,7 @@ void SMProxyServer::DQMOutputWebPage(xgi::Input *in, xgi::Output *out)
          << "/debug\">"                   << endl;
     *out << "      <img"                                               << endl;
     *out << "       align=\"middle\""                                  << endl;
-    *out << "       src=\"/daq/evb/bu/images/debug32x32.gif\""         << endl;
+    *out << "       src=\"/rubuilder/fu/images/debug32x32.gif\""         << endl;
     *out << "       alt=\"debug\""                                     << endl;
     *out << "       width=\"32\""                                      << endl;
     *out << "       height=\"32\""                                     << endl;
@@ -749,6 +777,17 @@ void SMProxyServer::DQMOutputWebPage(xgi::Input *in, xgi::Output *out)
     *out << "    </a>"                                                 << endl;
     *out << "  </td>"                                                  << endl;
     *out << "</tr>"                                                    << endl;
+    if(fsm_.stateName()->value_ == "Failed")
+    {
+      *out << "<tr>"                                         << endl;
+      *out << " <td>"                                        << endl;
+      *out << "<textarea rows=" << 5 << " cols=60 scroll=yes";
+      *out << " readonly title=\"Reason For Failed\">"               << endl;
+      *out << reasonForFailedState_                                  << endl;
+      *out << "</textarea>"                                          << endl;
+      *out << " </td>"                                       << endl;
+      *out << "</tr>"                                        << endl;
+    }
     *out << "</table>"                                                 << endl;
 
     *out << "<hr/>"                                                    << endl;
@@ -1292,7 +1331,8 @@ void SMProxyServer::setupFlashList()
   //----------------------------------------------------------------------------
   std::ostringstream oss;
   oss << "urn:xdaq-monitorable:" << class_.value_ << ":" << instance_.value_;
-  xdata::InfoSpace *is = xdata::InfoSpace::get(oss.str());
+  toolbox::net::URN urn = this->createQualifiedInfoSpace(oss.str());
+  xdata::InfoSpace *is = xdata::getInfoSpaceFactory()->get(urn.toString());
 
   //----------------------------------------------------------------------------
   // Publish monitor data in monitorable info space -- Head
@@ -1402,6 +1442,19 @@ bool SMProxyServer::configuring(toolbox::task::WorkLoop* wl)
   try {
     LOG4CPLUS_INFO(getApplicationLogger(),"Start configuring ...");
     
+    // check output locations and scripts before we continue
+    if((bool)archiveDQM_) {
+      try {
+        checkDirectoryOK(filePrefixDQM_.toString());
+      }
+      catch(cms::Exception& e)
+      {
+        reasonForFailedState_ = e.explainSelf();
+        fsm_.fireFailed(reasonForFailedState_,this);
+        return false;
+      }
+    }
+
     // the poll rate is set by maxESEventRate_ and we poll for both events
     // and DQM events at the same time!
     
@@ -1459,18 +1512,24 @@ bool SMProxyServer::configuring(toolbox::task::WorkLoop* wl)
     }
     catch(cms::Exception& e)
       {
-	XCEPT_RAISE (toolbox::fsm::exception::Exception, 
-		     e.explainSelf());
+	//XCEPT_RAISE (toolbox::fsm::exception::Exception, e.explainSelf());
+        reasonForFailedState_ = e.explainSelf();
+        fsm_.fireFailed(reasonForFailedState_,this);
+        return false;
       }
     catch(std::exception& e)
       {
-	XCEPT_RAISE (toolbox::fsm::exception::Exception, 
-		     e.what());
+	//XCEPT_RAISE (toolbox::fsm::exception::Exception, e.what());
+        reasonForFailedState_  = e.what();
+        fsm_.fireFailed(reasonForFailedState_,this);
+        return false;
       }
     catch(...)
       {
-	XCEPT_RAISE (toolbox::fsm::exception::Exception, 
-		     "Unknown Exception");
+	//XCEPT_RAISE (toolbox::fsm::exception::Exception, "Unknown Exception");
+        reasonForFailedState_  = "Unknown Exception while configuring";
+        fsm_.fireFailed(reasonForFailedState_,this);
+        return false;
       }
     
     
@@ -1479,8 +1538,9 @@ bool SMProxyServer::configuring(toolbox::task::WorkLoop* wl)
     fsm_.fireEvent("ConfigureDone",this);
   }
   catch (xcept::Exception &e) {
-    string msg = "configuring FAILED: " + (string)e.what();
-    fsm_.fireFailed(msg,this);
+    reasonForFailedState_ = "configuring FAILED: " + (string)e.what();
+    fsm_.fireFailed(reasonForFailedState_,this);
+    return false;
   }
 
   return false;
@@ -1508,8 +1568,9 @@ bool SMProxyServer::enabling(toolbox::task::WorkLoop* wl)
     fsm_.fireEvent("EnableDone",this);
   }
   catch (xcept::Exception &e) {
-    string msg = "enabling FAILED: " + (string)e.what();
-    fsm_.fireFailed(msg,this);
+    reasonForFailedState_ = "enabling FAILED: " + (string)e.what();
+    fsm_.fireFailed(reasonForFailedState_,this);
+    return false;
   }
   
   return false;
@@ -1551,8 +1612,9 @@ bool SMProxyServer::stopping(toolbox::task::WorkLoop* wl)
     fsm_.fireEvent("StopDone",this);
   }
   catch (xcept::Exception &e) {
-    string msg = "stopping FAILED: " + (string)e.what();
-    fsm_.fireFailed(msg,this);
+    reasonForFailedState_ = "stopping FAILED: " + (string)e.what();
+    fsm_.fireFailed(reasonForFailedState_,this);
+    return false;
   }
   
   return false;
@@ -1587,14 +1649,27 @@ bool SMProxyServer::halting(toolbox::task::WorkLoop* wl)
     fsm_.fireEvent("HaltDone",this);
   }
   catch (xcept::Exception &e) {
-    string msg = "halting FAILED: " + (string)e.what();
-    fsm_.fireFailed(msg,this);
+    reasonForFailedState_ = "halting FAILED: " + (string)e.what();
+    fsm_.fireFailed(reasonForFailedState_,this);
+    return false;
   }
   
   return false;
 }
 
+void SMProxyServer::checkDirectoryOK(std::string path)
+{
+  struct stat buf;
 
+  int retVal = stat(path.c_str(), &buf);
+  if(retVal !=0 )
+  {
+    edm::LogError("SMProxyServer") << "Directory or file " << path
+                                    << " does not exist. Error=" << errno ;
+    throw cms::Exception("SMProxyServer","checkDirectoryOK")
+            << "Directory or file " << path << " does not exist. Error=" << errno << std::endl;
+  }
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 xoap::MessageReference SMProxyServer::fsmCallback(xoap::MessageReference msg)
