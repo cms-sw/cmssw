@@ -93,7 +93,7 @@ void GenJetBCEnergyRatio::produce( Event& iEvent, const EventSetup& iEs )
     float cRatio = EnergyRatioFromCHadrons( (*genjets)[j] );
 
     const JetRef & aJet = genjets->refAt(j) ;
-    cout << aJet.get()->et() << endl;
+    //cout << aJet.get()->et() << endl;
     JetFloatAssociation::setValue(*bRatioColl, aJet, bRatio);
     JetFloatAssociation::setValue(*cRatioColl, aJet, cRatio);
 
