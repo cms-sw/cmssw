@@ -1,4 +1,4 @@
-// user include files
+	// user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -10,71 +10,132 @@
 #include "DataFormats/Candidate/interface/Candidate.h"
 #include "DataFormats/Candidate/interface/CandidateFwd.h"
 #include "DataFormats/JetReco/interface/Jet.h"
+#include "DataFormats/JetReco/interface/JetCollection.h"
 #include "DataFormats/JetReco/interface/CaloJetCollection.h"
 #include "DataFormats/JetReco/interface/JetFloatAssociation.h"
+
+#include "DataFormats/Common/interface/View.h"
 #include "DataFormats/Common/interface/Ref.h"
+#include "DataFormats/Common/interface/getRef.h"
 
 #include "SimDataFormats/JetMatching/interface/JetFlavour.h"
-
-class printJetFlavour : public edm::EDAnalyzer {
-  public:
-    typedef reco::JetFloatAssociation::Container JetBCEnergyRatioCollection;
-
-    explicit printJetFlavour(const edm::ParameterSet & );
-    ~printJetFlavour() {};
-    void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup);
-
-  private:
-
-    typedef std::vector<std::pair<reco::CaloJetRef, reco::JetFlavour> > JetTagVector;
-
-    edm::InputTag sourceByValue_;
-    edm::InputTag sourceBratio_;
-    edm::InputTag sourceCratio_;
-    edm::Handle<JetTagVector>                theTagByValue;
-    edm::Handle<JetBCEnergyRatioCollection>  theBratioValue;
-    edm::Handle<JetBCEnergyRatioCollection>  theCratioValue;
-
-};
+#include "SimDataFormats/JetMatching/interface/JetFlavourMatching.h"
+#include "SimDataFormats/JetMatching/interface/MatchedPartons.h"
+#include "SimDataFormats/JetMatching/interface/JetMatchedPartons.h"
 
 // system include files
 #include <memory>
 #include <string>
 #include <iostream>
 #include <vector>
+#include <Math/VectorUtil.h>
+#include <TMath.h>
+
+class printJetFlavour : public edm::EDAnalyzer {
+  public:
+    explicit printJetFlavour(const edm::ParameterSet & );
+    ~printJetFlavour() {};
+    void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup);
+
+  private:
+    edm::InputTag sourcePartons_;
+    edm::InputTag sourceByRefer_;
+    edm::InputTag sourceByValue_;
+    edm::Handle<reco::JetMatchedPartonsCollection> theTagByRef;
+    edm::Handle<reco::JetFlavourMatchingCollection> theTagByValue;
+};
 
 using namespace std;
 using namespace reco;
 using namespace edm;
+using namespace ROOT::Math::VectorUtil;
 
 printJetFlavour::printJetFlavour(const edm::ParameterSet& iConfig)
 {
+  cout << "PJF test costruttore" << endl;
+  sourceByRefer_ = iConfig.getParameter<InputTag> ("srcByReference");
   sourceByValue_ = iConfig.getParameter<InputTag> ("srcByValue");
-  sourceBratio_  = iConfig.getParameter<InputTag> ("srcBratio" );
-  sourceCratio_  = iConfig.getParameter<InputTag> ("srcCratio" );
 }
 
 void printJetFlavour::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
   cout << "[printJetFlavour] analysing event " << iEvent.id() << endl;
-  
   try {
-    iEvent.getByLabel (sourceByValue_, theTagByValue );
-    iEvent.getByLabel (sourceBratio_ , theBratioValue);
-    iEvent.getByLabel (sourceCratio_ , theCratioValue);
+    iEvent.getByLabel (sourceByRefer_ , theTagByRef   );
+    iEvent.getByLabel (sourceByValue_ , theTagByValue );
   } catch(std::exception& ce) {
     cerr << "[printJetFlavour] caught std::exception " << ce.what() << endl;
     return;
   }
-  
-  cout << "-------------------- Jet Flavour by Value ------------------------" << endl;
-  for ( JetTagVector::const_iterator j  = theTagByValue->begin();
-                                     j != theTagByValue->end();
+
+  cout << "-------------------- Jet Flavour by Ref From Partons--------------" << endl;
+  for ( JetMatchedPartonsCollection::const_iterator j  = theTagByRef->begin();
+                                     j != theTagByRef->end();
                                      j ++ ) {
-    const CaloJetRef aJet  = (*j).first;   
+    const Jet *aJet       = (*j).first.get();
+    const MatchedPartons aMatch = (*j).second;
+    printf("[printJetFlavour] (pt,eta,phi) jet = %7.2f %6.3f %6.3f \n",
+             aJet->et(),
+             aJet->eta(),
+             aJet->phi()
+          );
+    const CandidateRef theHeaviest = aMatch.heaviest() ;
+    if(theHeaviest.isNonnull()) {
+      float dist = DeltaR( aJet->p4(), theHeaviest.get()->p4() );
+      cout << setprecision(2) << setw(6) << fixed << 
+              "                           theHeaviest flav (pt,eta,phi)=" << theHeaviest.get()->pdgId() 
+                                                                  << " (" << theHeaviest.get()->et() 
+                                                                  << ","  << theHeaviest.get()->eta() 
+                                                                  << ","  << theHeaviest.get()->phi() 
+                                                                  << ") Dr=" << dist << endl;  
+    }
+    const CandidateRef theNearest2 = aMatch.nearest_status2() ;
+    if(theNearest2.isNonnull()) {
+      float dist = DeltaR( aJet->p4(), theNearest2.get()->p4() );
+      cout << "                      theNearest Stat2 flav (pt,eta,phi)=" << theNearest2.get()->pdgId()
+                                                                  << " (" << theNearest2.get()->et()   
+                                                                  << ","  << theNearest2.get()->eta()  
+                                                                  << ","  << theNearest2.get()->phi() 
+                                                                  << ") Dr=" << dist << endl;
+    }
+    const CandidateRef theNearest3 = aMatch.nearest_status3() ;
+    if(theNearest3.isNonnull()) {
+      float dist = DeltaR( aJet->p4(), theNearest3.get()->p4() );
+      cout << "                      theNearest Stat3 flav (pt,eta,phi)=" << theNearest3.get()->pdgId()
+                                                                  << " (" << theNearest3.get()->et()
+                                                                  << ","  << theNearest3.get()->eta()
+                                                                  << ","  << theNearest3.get()->phi() 
+                                                                  << ") Dr=" << dist << endl;
+    }
+    const CandidateRef thePhyDef = aMatch.physicsDefinitionParton() ;
+    if(thePhyDef.isNonnull()) {
+      float dist = DeltaR( aJet->p4(), thePhyDef.get()->p4() );
+      cout << "                     thePhysDefinition flav (pt,eta,phi)=" << thePhyDef.get()->pdgId()
+                                                                  << " (" << thePhyDef.get()->et()
+                                                                  << ","  << thePhyDef.get()->eta()
+                                                                  << ","  << thePhyDef.get()->phi() 
+                                                                  << ") Dr=" << dist << endl;
+    }
+    const CandidateRef theAlgDef = aMatch.algoDefinitionParton() ;
+    if(theAlgDef.isNonnull()) {
+      float dist = DeltaR( aJet->p4(), theAlgDef.get()->p4() );
+      cout << "                     theAlgoDefinition flav (pt,eta,phi)=" << theAlgDef.get()->pdgId()
+                                                                  << " (" << theAlgDef.get()->et()
+                                                                  << ","  << theAlgDef.get()->eta()
+                                                                  << ","  << theAlgDef.get()->phi() 
+                                                                  << ") Dr=" << dist << endl;   
+    }
+  }
+
+
+  cout << "-------------------- Jet Flavour by Value ------------------------" << endl;
+  for ( JetFlavourMatchingCollection::const_iterator j  = theTagByValue->begin();
+                                                     j != theTagByValue->end();
+                                                     j ++ ) {
+    RefToBase<Jet> aJet  = (*j).first;   
     const JetFlavour aFlav = (*j).second;
 
-    printf("[printJetFlavour 1] (pt,eta,phi) jet = %7.3f %6.3f %6.3f | parton = %7.3f %6.3f %6.3f | %2d\n",
+    printf("[printJetFlavour] (pt,eta,phi) jet = %7.2f %6.3f %6.3f | parton = %7.2f %6.3f %6.3f | %4d\n",
              aJet.get()->et(),
              aJet.get()->eta(),
              aJet.get()->phi(), 
@@ -85,19 +146,6 @@ void printJetFlavour::analyze(const edm::Event& iEvent, const edm::EventSetup& i
           );
   }
 
-  cout << "-------------------- GenJet Bratio ------------------------" << endl;
-  for ( JetBCEnergyRatioCollection::const_iterator it  = theBratioValue->begin(); 
-                                                   it != theBratioValue->end();
-                                                   it ++) {  
-   
-    const Jet &jet = *(it->first);
-    printf("printJetFlavour 2] (pt,eta,phi) jet = %7.3f %6.3f %6.3f | bRatio = %7.5f \n",
-             jet.et(),
-             jet.eta(),
-             jet.phi(),
-             it->second
-          );
-  }
 }
 
 DEFINE_FWK_MODULE( printJetFlavour );
