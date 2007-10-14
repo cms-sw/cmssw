@@ -1,4 +1,4 @@
-// $Id: StorageManager.cc,v 1.27 2007/08/19 07:31:45 hcheung Exp $
+// $Id: StorageManager.cc,v 1.28 2007/08/22 08:27:30 meschi Exp $
 
 #include <iostream>
 #include <iomanip>
@@ -2044,6 +2044,7 @@ bool StorageManager::configuring(toolbox::task::WorkLoop* wl)
       checkDirectoryOK(closeFileScript_.toString());
       checkDirectoryOK(notifyTier0Script_.toString());
       checkDirectoryOK(insertFileScript_.toString());
+      if((bool)archiveDQM_) checkDirectoryOK(filePrefixDQM_.toString());
     }
     catch(cms::Exception& e)
     {

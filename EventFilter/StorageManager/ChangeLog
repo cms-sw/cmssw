@@ -1,5 +1,11 @@
 2007-10-14  Harry Cheung <cheung@fnal.gov>
 
+	* tag V03-07-08
+	* Fixed StorageManager to also test the DQM archive output base path
+          if we have requested DQM archiving
+
+2007-10-14  Harry Cheung <cheung@fnal.gov>
+
 	* tag V03-07-07
 	* Fixed bug in ConsumerPipe and DQMConsumerPipe where pushEvent to the
           SMSProxyServer did not update the "lastEventRequestTime_"
