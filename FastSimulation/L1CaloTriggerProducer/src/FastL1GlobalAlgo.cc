@@ -13,7 +13,7 @@
 //
 // Original Author:  Chi Nhan Nguyen
 //         Created:  Mon Feb 19 13:25:24 CST 2007
-// $Id: FastL1GlobalAlgo.cc,v 1.20 2007/09/26 23:41:50 chinhan Exp $
+// $Id: FastL1GlobalAlgo.cc,v 1.23 2007/09/27 20:12:03 chinhan Exp $
 //
 
 // No BitInfos for release versions
@@ -248,7 +248,7 @@ m_Regions[iRgn].BitInfo.setEnergy ( e);
       std::sort(m_TauJets.begin(),m_TauJets.end(), myspace::greaterEt);
     } else {
 //sm
-  if (m_DoBitInfo) m_Regions[iRgn].BitInfo.setSoft ( true);
+  if (m_DoBitInfo) m_Regions[iRgn].BitInfo.setHard ( true);
 //ms
       if (std::abs(eta)<3.0) {
 	m_CenJets.push_back(tjet);
@@ -544,7 +544,7 @@ FastL1GlobalAlgo::FillL1RegionsTP(edm::Event const& e, const edm::EventSetup& s)
        hTP!=HTPinput->end(); hTP++) {
     
     //if (hTP!=HTPinput->end()) {
-    HcalTrigTowerDetId htwrid   = hTP->id();
+    //HcalTrigTowerDetId htwrid   = hTP->id();
     //DetId htwrid   = (DetId)hTP->id();
     //std::cout<<"******* AAAAAAAAAAA"<<std::endl;
     //CaloTowerDetId hTPtowerDetId = theTowerConstituentsMap->towerOf((DetId)htwrid);
@@ -553,8 +553,17 @@ FastL1GlobalAlgo::FillL1RegionsTP(edm::Event const& e, const edm::EventSetup& s)
     int rgnid = 999;
     int twrid = 999;
 
-    rgnid  = m_RMap->getRegionIndex(htwrid.ieta(),htwrid.iphi());
-    twrid = m_RMap->getRegionTowerIndex(htwrid.ieta(),htwrid.iphi());
+    int hiphi = hTP->id().iphi();
+    int hieta = hTP->id().ieta();
+if(abs(hieta) > 20 && hiphi%2 == 0) hiphi--;
+//
+std::pair<int, int> prim_tower_feed; // prim tower indeces iEta +/- 1~32, iPhi (+) 1~72
+prim_tower_feed.first = hieta;
+prim_tower_feed.second = hiphi;
+std::pair<int, int> rct_index = m_RMap-> getRegionEtaPhiIndex(prim_tower_feed); // convert prim tower indeces into RCT indeces ieta 0~21, iphi 0~17
+rgnid = rct_index.second*22 + rct_index.first; // converting fastL1 obsolete RCT numbering
+//    rgnid  = m_RMap->getRegionIndex(hieta,hiphi);
+    twrid = m_RMap->getRegionTowerIndex(hieta,hiphi);
 
     /*
     if (std::abs(htwrid.ieta())>28) {
@@ -568,12 +577,12 @@ FastL1GlobalAlgo::FillL1RegionsTP(edm::Event const& e, const edm::EventSetup& s)
     	       <<rgnid<<" "<<twrid<<std::endl;
     }
     */
-
+if(rgnid < 396 && twrid < 16){
     hEtV[rgnid][twrid] = (int)hTP->SOI_compressedEt();
     hFGV[rgnid][twrid] = (int)hTP->SOI_fineGrain();
-    hiEtaV[rgnid][twrid] = (int)htwrid.ieta();
-    hiPhiV[rgnid][twrid] = (int)htwrid.iphi();
-    
+    hiEtaV[rgnid][twrid] = hieta;
+    hiPhiV[rgnid][twrid] = hiphi;
+}
   }
   
 
@@ -584,12 +593,22 @@ FastL1GlobalAlgo::FillL1RegionsTP(edm::Event const& e, const edm::EventSetup& s)
   double emEtaV[396][16] = {0.};
   for (EcalTrigPrimDigiCollection::const_iterator eTP=ETPinput->begin(); 
        eTP!=ETPinput->end(); eTP++) {
+   
+    int eieta = eTP->id().ieta();
+if(abs(eieta)> 28) continue; // no crystal in HF
+else{
+    int eiphi = eTP->id().iphi();
+
     int rgnid = 999;
     int twrid = 999;
-   
-    int hiphi = eTP->id().iphi();
-    rgnid  = m_RMap->getRegionIndex(eTP->id().ieta(),hiphi);
-    twrid = m_RMap->getRegionTowerIndex(eTP->id().ieta(),hiphi);
+if(abs(eieta) > 20 && eiphi%2 == 0) eiphi--;
+std::pair<int, int> prim_tower_feed; // prim tower indeces iEta +/- 1~28, iPhi (+) 1~72
+prim_tower_feed.first = eieta;
+prim_tower_feed.second = eiphi;
+std::pair<int, int> rct_index = m_RMap-> getRegionEtaPhiIndex(prim_tower_feed); // convert prim tower indeces into RCT indeces ieta 0~21, iphi 0~17
+rgnid = rct_index.second*22 + rct_index.first; // converting fastL1 obsolete RCT numbering
+//    rgnid  = m_RMap->getRegionIndex(eieta,eiphi);
+    twrid = m_RMap->getRegionTowerIndex(eieta,eiphi);
   
     /*  
     if (eTP->compressedEt()>0) {
@@ -597,21 +616,23 @@ FastL1GlobalAlgo::FillL1RegionsTP(edm::Event const& e, const edm::EventSetup& s)
     	       <<rgnid<<" "<<twrid<<std::endl;
     }
     */
-
+if(rgnid < 396 && twrid < 16){
     emEtV[rgnid][twrid] = (int)eTP->compressedEt();
     emFGV[rgnid][twrid] = (int)eTP->fineGrain();
-    emiEtaV[rgnid][twrid] = (int)eTP->id().ieta();
-    emiPhiV[rgnid][twrid] = (int)eTP->id().iphi();
-
+    emiEtaV[rgnid][twrid] = eieta;
+    emiPhiV[rgnid][twrid] = eiphi;
 
     edm::ESHandle<CaloGeometry> cGeom; 
     s.get<IdealGeometryRecord>().get(cGeom);    
-    const GlobalPoint gP1 = cGeom->getPosition(eTP->id());
+
+CaloTowerDetId  towerDetId = CaloTowerDetId( eieta, eiphi); 
+    const GlobalPoint gP1 = cGeom->getPosition(towerDetId);
     double eta = gP1.eta();  
     //double phi = gP1.phi();    
     emEtaV[rgnid][twrid] = eta;
-  }
-
+}
+} // else
+  } // ecalTP
 
 
   for (int i=0; i<396; i++) {
@@ -680,11 +701,15 @@ m_Regions[i].BitInfo.hcal[j] = hadEt;
 	else 
 	  m_Regions[i].SetFGBit(j,false);
 	
-	if (emEt > 3.0 && emEt < 60. && hadEt/emEt >  m_L1Config.hOeThreshold)  
+	if (emEt > 3.0){
+	if (emEt < 60. && hadEt/emEt >  m_L1Config.hOeThreshold)  
 	  m_Regions[i].SetHOEBit(j,true);
 	else
 	  m_Regions[i].SetHOEBit(j,false);
-	
+	}
+        else
+          m_Regions[i].SetHOEBit(j,false);
+
 	m_Regions[i].SetRegionBits(e, m_DoBitInfo);
       }
       
