@@ -18,8 +18,8 @@
 class JetCharge {
 public:
 	enum Variable { Pt, RelPt, RelEta, DeltaR, Unit };
-	typedef math::XYZTLorentzVector  LorentzVector;
-	typedef math::XYZVector          Vector;
+	typedef reco::Particle::LorentzVector  LorentzVector;
+	typedef reco::Particle::Vector         Vector;
 
 	JetCharge(Variable var, double exponent=1.0) : var_(var), exp_(exponent) { }
 	JetCharge(const edm::ParameterSet &iCfg) ;
@@ -27,7 +27,7 @@ public:
 	double charge(const LorentzVector &lv, const reco::TrackCollection &vec) const ;
 	double charge(const LorentzVector &lv, const reco::TrackRefVector &vec) const ;
 	double charge(const LorentzVector &lv, const reco::CandidateCollection &vec) const ;
-	double charge(const reco::CompositeCandidate &parent) const ;
+	double charge(const reco::Candidate &parent) const ;
 	//double charge(const LorentzVector &lv, const reco::CandidateRefVector &vec) const ;
 
 private:
