@@ -3,8 +3,8 @@
  *  Makes histograms of high level Muon objects/quantities
  *  for Alignment Scenarios/DB comparison
  *
- *  $Date: 2007/10/15 07:33:34 $
- *  $Revision: 1.16 $
+ *  $Date: 2007/10/15 19:32:33 $
+ *  $Revision: 1.17 $
  *  \author J. Fernandez - IFCA (CSIC-UC) <Javier.Fernandez@cern.ch>
  */
 
@@ -382,7 +382,7 @@ void MuonAlignmentAnalyzer::analyze(const Event & event, const EventSetup& event
     for (simTrack = simTracks->begin(); simTrack != simTracks->end(); ++simTrack){
       if (abs((*simTrack).type()) == 13) {
 	i++;
-	simPt=(*simTrack).momentum().perp();
+	simPt=(*simTrack).momentum().Pt();
 	simEta=(*simTrack).momentum().eta();
 	simPhi=(*simTrack).momentum().phi();
 	numberOfSimTracks++;
