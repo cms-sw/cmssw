@@ -1,5 +1,5 @@
 //
-// $Id: TopJetProducer.cc,v 1.34 2007/10/10 02:06:17 lowette Exp $
+// $Id: TopJetProducer.cc,v 1.35 2007/10/11 14:46:11 jandrea Exp $
 //
 
 #include "TopQuarkAnalysis/TopObjectProducers/interface/TopJetProducer.h"
@@ -50,9 +50,7 @@ TopJetProducer::TopJetProducer(const edm::ParameterSet& iConfig) {
   addBTagInfo_             = iConfig.getParameter<bool>                     ( "addBTagInfo" );
   addDiscriminators_       = iConfig.getParameter<bool>                     ( "addDiscriminators" );
   addJetTagRefs_           = iConfig.getParameter<bool>                     ( "addJetTagRefs" );
-  bTaggingTagInfoNames_    = iConfig.getParameter<std::vector<std::string> >( "bTagInfoNames" );
-  //tagModuleLabelsToIgnore_ = iConfig.getParameter<std::vector<std::string> >( "tagModuleLabelsToIgnore" );
-  tagModuleLabelsToKeep_ = iConfig.getParameter<std::vector<std::string> >( "tagModuleLabelsToKeep" );
+  tagModuleLabelsToKeep_   = iConfig.getParameter<std::vector<std::string> >( "tagModuleLabelsToKeep" );
   addAssociatedTracks_     = iConfig.getParameter<bool>                     ( "addAssociatedTracks" ); 
   trackAssociationPSet_    = iConfig.getParameter<edm::ParameterSet>        ( "trackAssociation" );
   addJetCharge_            = iConfig.getParameter<bool>                     ( "addJetCharge" ); 
@@ -245,17 +243,9 @@ void TopJetProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
       for (size_t k=0; k<jetTags_testManyByType.size(); k++) {
         edm::Handle<std::vector<reco::JetTag> > jetTags = jetTags_testManyByType[k];
 
-        //**************************
         //get label and module names
-	// std::string moduleTagInfoName = (jetTags).provenance()->moduleName();  
         std::string moduleLabel = (jetTags).provenance()->moduleLabel();
-        //********ignore taggers from AOD*********
-	/* bool tagShouldBeIgnored = false;
-        for (unsigned int i = 0; i < tagModuleLabelsToIgnore_.size(); ++i) {
-          if (moduleLabel == tagModuleLabelsToIgnore_[i]) { tagShouldBeIgnored = true; }
-        }
-        if (tagShouldBeIgnored) continue;
-	*/
+
         for (size_t t = 0; t < jetTags->size(); t++) {
           edm::RefToBase<reco::Jet> jet_p = (*jetTags)[t].jet();
           if (jet_p.isNull()) {
