@@ -44,9 +44,9 @@ class TtGenEvent: public TopGenEvent {
  private:
   
   bool isLepton(const reco::Candidate& part) const 
-  {return (abs(part.pdgId())==11 || abs(part.pdgId())==13 || abs(part.pdgId())==15);}
+  {return ((abs(part.pdgId())==11 || abs(part.pdgId())==13 || abs(part.pdgId())==15) && (part.status()==3));}
   bool isNeutrino(const reco::Candidate& part) const 
-  {return (abs(part.pdgId())==12 || abs(part.pdgId())==14 || abs(part.pdgId())==16);}
+  {return ((abs(part.pdgId())==12 || abs(part.pdgId())==14 || abs(part.pdgId())==16) && (part.status()==3));}
   double flavour(const reco::Candidate& part) const 
   {return (double)(part.pdgId() / abs(part.pdgId()) );}
 };
