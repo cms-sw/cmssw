@@ -13,7 +13,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: PixelMatchGsfElectronProducer.cc,v 1.3 2007/06/30 00:10:13 charlot Exp $
+// $Id: PixelMatchGsfElectronProducer.cc,v 1.4 2007/08/28 01:42:29 ratnik Exp $
 //
 //
 
@@ -24,7 +24,6 @@
 #include "DataFormats/EgammaCandidates/interface/PixelMatchGsfElectronFwd.h"
 #include "RecoEgamma/EgammaElectronAlgos/interface/PixelMatchElectronAlgo.h"
 #include "DataFormats/EgammaReco/interface/ElectronPixelSeed.h"
-#include "DataFormats/EgammaReco/interface/SeedSuperClusterAssociation.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
 #include "DataFormats/TrackCandidate/interface/TrackCandidateCollection.h"
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHitFwd.h"
