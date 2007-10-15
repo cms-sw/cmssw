@@ -155,6 +155,10 @@ def _handleUsing(using,otherUsings,process,allUsingLabels):
     valuesFromOtherUsings=[]
     otherUsings = otherUsings.copy()
     otherUsings.add(using.label)
+    if using.label not in process:
+        raise pp.ParseFatalException(using.s,using.loc,
+                "the using labelled '"+using.label+"' does not correspond to a known block or PSet"
+                +"\n from file "+using.file)
     d = process[using.label].__dict__
     usingLabels=[]
     for label,param in (x for x in d.iteritems() if isinstance(x[1],cms._ParameterTypeBase)):
