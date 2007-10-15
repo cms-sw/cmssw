@@ -1,6 +1,6 @@
 /*----------------------------------------------------------------------
 
-$Id: OutputModule.cc,v 1.43 2007/10/03 22:18:37 wmtan Exp $
+$Id: OutputModule.cc,v 1.44 2007/10/15 15:15:22 paterno Exp $
 ----------------------------------------------------------------------*/
 
 #include "FWCore/Framework/interface/OutputModule.h"
@@ -380,7 +380,7 @@ namespace edm {
   ModuleDescription const&
   OutputModule::description() const
   {
-    return md_;
+    return moduleDescription_;
   }
 
   bool OutputModule::selected(BranchDescription const& desc) const
