@@ -773,7 +773,7 @@ class _ReplaceNode(object):
     def __init__(self,path,setter,s,loc):
         self.path = path
         self.setter = setter
-        self.forErrorMessage =(s,loc)
+        self.forErrorMessage =(s,loc,_fileStack[-1])
         self.multiplesAllowed = setter.multiplesAllowed
     def setPrefix(self, prefix):
         """Used to add the word 'process' to included nodes"""
@@ -793,7 +793,9 @@ class _ReplaceNode(object):
             raise pp.ParseException(self.forErrorMessage[0],
                                     self.forErrorMessage[1],
                                     "The replace statement '"+'.'.join(self.path)
-                                    +"' had the error \n"+str(e))
+                                    +"' had the error \n"+str(e)
+                                    +"\n from file "+self.forErrorMessage[2]
+                                    )
     def _setValue(self,obj,attr):
         self.setter.setValue(obj,attr)
     def _recurse(self,path,obj):
@@ -992,7 +994,8 @@ def _makeReplace(s,loc,toks):
         raise pp.ParseException(s,loc,"replace statement '"
                                 +'.'.join(list(path))
                                 +"' had the error \n"
-                                +str(e))
+                                +str(e)
+                                +"\n from file "+_fileStack[-1])
 
 _replaceValue = (pp.Group(_scopeBegin+_scopeEnd
                          ).setParseAction(_MakeSetter(_ReplaceSetter))|
@@ -2676,6 +2679,9 @@ process RECO = {
             #self.assertEqual(process.a.b.configValue('',''),'{\nfoobar::\n}\n')                        
             self.assertEqual(list(process.a.b),[cms.InputTag("bar"),cms.InputTag('foobar')])                        
 
+            process.a = cms.EDProducer("FooProd", b = cms.uint32(1))
+            t = replace.parseString('replace a.c = 2')
+            self.assertRaises(pp.ParseBaseException,t[0][1].do,(process))
 
     unittest.main()
 #try:
