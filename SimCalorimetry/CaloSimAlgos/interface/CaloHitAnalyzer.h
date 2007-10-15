@@ -15,6 +15,9 @@
 
 class CaloVSimParameterMap;
 class CaloVHitFilter;
+#include "SimDataFormats/CaloHit/interface/PCaloHit.h"
+#include "SimDataFormats/CrossingFrame/interface/MixCollection.h"
+
 
 class CaloHitAnalyzer 
 {
@@ -25,7 +28,7 @@ public:
                   const CaloVHitFilter * filter = 0);
 
   /// should be called each event
-  void fillHits(const edm::PCaloHitContainer & hits);
+  void fillHits(MixCollection<PCaloHit> & hits);
   
   /// to be called for each RecHit
   void analyze(int detId, double recEnergy);
