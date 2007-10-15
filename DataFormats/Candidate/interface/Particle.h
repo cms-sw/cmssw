@@ -7,7 +7,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: Particle.h,v 1.16 2007/10/10 09:10:47 llista Exp $
+ * \version $Id: Particle.h,v 1.17 2007/10/12 15:37:39 llista Exp $
  *
  */
 #include "DataFormats/Math/interface/Point3D.h"
@@ -22,7 +22,9 @@ namespace reco {
     /// electric charge type
     typedef int Charge;
     /// Lorentz vector
-    typedef math::PtEtaPhiMLorentzVector LorentzVector;
+    typedef math::XYZTLorentzVector LorentzVector;
+    /// Lorentz vector
+    typedef math::PtEtaPhiMLorentzVector PolarLorentzVector;
     /// point in the space
     typedef math::XYZPoint Point;
     /// point in the space
@@ -31,6 +33,13 @@ namespace reco {
     Particle() : cacheFixed_( false ) { }
     /// constructor from values
     Particle( Charge q, const LorentzVector & p4, const Point & vertex = Point( 0, 0, 0 ),
+	      int pdgId = 0, int status = 0, bool integerCharge = true ) : 
+      qx3_( q ), p4_( p4 ), vertex_( vertex ), pdgId_( pdgId ), status_( status ),
+      cacheFixed_( false ) { 
+      if ( integerCharge ) qx3_ *= 3;
+    }
+    /// constructor from values with polar Lorentz vector
+    Particle( Charge q, const PolarLorentzVector & p4, const Point & vertex = Point( 0, 0, 0 ),
 	      int pdgId = 0, int status = 0, bool integerCharge = true ) : 
       qx3_( q ), p4_( p4 ), vertex_( vertex ), pdgId_( pdgId ), status_( status ),
       cacheFixed_( false ) { 
@@ -47,7 +56,9 @@ namespace reco {
     /// set electric charge
     void setThreeCharge( Charge qx3 ) { qx3_ = qx3; }
     /// four-momentum Lorentz vector
-    const LorentzVector & p4() const { return p4_; }
+    const PolarLorentzVector & polarP4() const { return p4_; }
+    /// four-momentum Lorentz vector
+    const LorentzVector & p4() const { cache(); return p4Cache_; }
     /// spatial momentum vector
     Vector momentum() const { cache(); return p4Cache_.Vect(); }
     /// boost vector to boost a Lorentz vector 
@@ -112,7 +123,7 @@ namespace reco {
     /// electric charge
     Charge qx3_;   
     /// four-momentum Lorentz vector
-    LorentzVector p4_;
+    PolarLorentzVector p4_;
     /// vertex position
     Point vertex_;
     /// PDG identifier
@@ -121,7 +132,7 @@ namespace reco {
     int status_;
     /// THE FOLLOWING SHOULD BE CHANGED IN 1.7.0
     /// internal cache type for polar coordinates
-    typedef math::XYZTLorentzVector LorentzVectorCache;
+    typedef LorentzVector LorentzVectorCache;
     /// internal cache for p4
     mutable LorentzVectorCache p4Cache_;
     /// has cache been set?
