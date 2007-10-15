@@ -1,11 +1,11 @@
-// $Id: Numbers.h,v 1.11 2007/10/04 09:11:57 dellaric Exp $
+// $Id: Numbers.h,v 1.12 2007/10/10 09:46:38 dellaric Exp $
 
 /*!
   \file Numbers.h
   \brief Some "id" conversions
   \author B. Gobbo 
-  \version $Revision: 1.11 $
-  \date $Date: 2007/10/04 09:11:57 $
+  \version $Revision: 1.12 $
+  \date $Date: 2007/10/10 09:46:38 $
 */
 
 #ifndef Numbers_H
@@ -62,7 +62,9 @@ class Numbers {
 
   static int         iTT( const EcalTrigTowerDetId& id ) throw( std::runtime_error );
 
-  static std::vector<DetId> ttCrystals( const EcalTrigTowerDetId& id ) throw( std::runtime_error );
+  static std::vector<DetId> crystals( const EcalTrigTowerDetId& id ) throw( std::runtime_error );
+
+  static std::vector<DetId> crystals( const EcalElectronicsId& id ) throw( std::runtime_error );
 
   static int ix0EE( const int ism );
 

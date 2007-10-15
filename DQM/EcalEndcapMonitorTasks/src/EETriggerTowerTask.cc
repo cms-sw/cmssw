@@ -1,8 +1,8 @@
 /*
  * \file EETriggerTowerTask.cc
  *
- * $Date: 2007/10/04 08:39:55 $
- * $Revision: 1.8 $
+ * $Date: 2007/10/04 11:24:17 $
+ * $Revision: 1.9 $
  * \author G. Della Ricca
  *
 */
@@ -335,7 +335,7 @@ EETriggerTowerTask::processDigis( const Handle<EcalTrigPrimDigiCollection>&
 
     int itt = Numbers::iTT( idt );
 
-    vector<DetId> crystals = Numbers::ttCrystals( idt );
+    vector<DetId> crystals = Numbers::crystals( idt );
 
     for ( unsigned int i=0; i<crystals.size(); i++ ) {
 

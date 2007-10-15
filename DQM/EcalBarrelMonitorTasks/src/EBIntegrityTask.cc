@@ -1,8 +1,8 @@
 /*
  * \file EBIntegrityTask.cc
  *
- * $Date: 2007/10/04 10:13:24 $
- * $Revision: 1.46 $
+ * $Date: 2007/10/15 03:53:06 $
+ * $Revision: 1.47 $
  * \author G. Della Ricca
  *
  */
@@ -52,6 +52,8 @@ EBIntegrityTask::EBIntegrityTask(const ParameterSet& ps){
   EcalElectronicsIdCollection2_ = ps.getParameter<edm::InputTag>("EcalElectronicsIdCollection2");
   EcalElectronicsIdCollection3_ = ps.getParameter<edm::InputTag>("EcalElectronicsIdCollection3");
   EcalElectronicsIdCollection4_ = ps.getParameter<edm::InputTag>("EcalElectronicsIdCollection4");
+  EcalElectronicsIdCollection5_ = ps.getParameter<edm::InputTag>("EcalElectronicsIdCollection5");
+  EcalElectronicsIdCollection6_ = ps.getParameter<edm::InputTag>("EcalElectronicsIdCollection6");
 
   meIntegrityDCCSize = 0;
   for (int i = 0; i < 36 ; i++) {
@@ -411,6 +413,8 @@ void EBIntegrityTask::analyze(const Event& e, const EventSetup& c){
 
   }
 
+// begin old stuff
+
   try {
 
     Handle<EcalTrigTowerDetIdCollection> ids5;
@@ -487,10 +491,78 @@ void EBIntegrityTask::analyze(const Event& e, const EventSetup& c){
 
   }
 
+// end old stuff
+
+// begin new stuff
+
+  try {
+
+    Handle<EcalElectronicsIdCollection> ids5;
+    e.getByLabel(EcalElectronicsIdCollection1_, ids5);
+
+    for ( EcalElectronicsIdCollection::const_iterator idItr = ids5->begin(); idItr != ids5->end(); ++ idItr ) {
+
+      EcalElectronicsId id = (*idItr);
+
+      if ( id.subdet() != EcalBarrel ) continue;
+
+      int itt = id.towerId();
+
+      int iet = (itt-1)%17 + 1;
+      int ipt = (itt-1)%4 + 1;
+
+      int ismt = Numbers::iSM( id );
+
+      float xiet = iet - 0.5;
+      float xipt = ipt - 0.5;
+
+      if ( meIntegrityTTId[ismt-1] ) meIntegrityTTId[ismt-1]->Fill(xiet, xipt);
+
+    }
+
+  } catch ( exception& ex) {
+
+    LogWarning("EBIntegrityTask") << EcalElectronicsIdCollection1_ << " not available";
+
+  }
+
+  try {
+
+    Handle<EcalElectronicsIdCollection> ids6;
+    e.getByLabel(EcalElectronicsIdCollection2_, ids6);
+
+    for ( EcalElectronicsIdCollection::const_iterator idItr = ids6->begin(); idItr != ids6->end(); ++ idItr ) {
+
+      EcalElectronicsId id = (*idItr);
+
+      if ( id.subdet() != EcalBarrel ) continue;
+
+      int itt = id.towerId();
+
+      int iet = (itt-1)%17 + 1;
+      int ipt = (itt-1)%4 + 1;
+
+      int ismt = Numbers::iSM( id );
+
+      float xiet = iet - 0.5;
+      float xipt = ipt - 0.5;
+
+      if ( meIntegrityTTBlockSize[ismt-1] ) meIntegrityTTBlockSize[ismt-1]->Fill(xiet, xipt);
+
+    }
+
+  } catch ( exception& ex) {
+
+    LogWarning("EBIntegrityTask") << EcalElectronicsIdCollection2_ << " not available";
+
+  }
+
+// end new stuff
+
   try {
 
     Handle<EcalElectronicsIdCollection> ids7;
-    e.getByLabel(EcalElectronicsIdCollection1_, ids7);
+    e.getByLabel(EcalElectronicsIdCollection3_, ids7);
 
     for ( EcalElectronicsIdCollection::const_iterator idItr = ids7->begin(); idItr != ids7->end(); ++ idItr ) {
 
@@ -509,14 +581,14 @@ void EBIntegrityTask::analyze(const Event& e, const EventSetup& c){
 
   } catch ( exception& ex) {
 
-    LogWarning("EBIntegrityTask") << EcalElectronicsIdCollection1_ << " not available";
+    LogWarning("EBIntegrityTask") << EcalElectronicsIdCollection3_ << " not available";
 
   }
 
   try {
 
     Handle<EcalElectronicsIdCollection> ids8;
-    e.getByLabel(EcalElectronicsIdCollection2_, ids8);
+    e.getByLabel(EcalElectronicsIdCollection4_, ids8);
 
     for ( EcalElectronicsIdCollection::const_iterator idItr = ids8->begin(); idItr != ids8->end(); ++ idItr ) {
 
@@ -535,14 +607,14 @@ void EBIntegrityTask::analyze(const Event& e, const EventSetup& c){
 
   } catch ( exception& ex) {
 
-    LogWarning("EBIntegrityTask") << EcalElectronicsIdCollection2_ << " not available";
+    LogWarning("EBIntegrityTask") << EcalElectronicsIdCollection4_ << " not available";
 
   }
 
   try {
 
     Handle<EcalElectronicsIdCollection> ids9;
-    e.getByLabel(EcalElectronicsIdCollection3_, ids9);
+    e.getByLabel(EcalElectronicsIdCollection5_, ids9);
 
     for ( EcalElectronicsIdCollection::const_iterator idItr = ids9->begin(); idItr != ids9->end(); ++ idItr ) {
 
@@ -556,8 +628,8 @@ void EBIntegrityTask::analyze(const Event& e, const EventSetup& c){
       int ie = EBIntegrityTask::chMemAbscissa[chid-1];
       int ip = EBIntegrityTask::chMemOrdinate[chid-1];
 
-      int iTt = id.towerId();
-      ie += (iTt-69)*5;
+      int itt = id.towerId();
+      ie += (itt-69)*5;
 
       float xie = ie - 0.5;
       float xip = ip - 0.5;
@@ -568,14 +640,14 @@ void EBIntegrityTask::analyze(const Event& e, const EventSetup& c){
 
   } catch ( exception& ex) {
 
-    LogWarning("EBIntegrityTask") << EcalElectronicsIdCollection3_ << " not available";
+    LogWarning("EBIntegrityTask") << EcalElectronicsIdCollection5_ << " not available";
 
   }
 
   try {
 
     Handle<EcalElectronicsIdCollection> ids10;
-    e.getByLabel(EcalElectronicsIdCollection4_, ids10);
+    e.getByLabel(EcalElectronicsIdCollection6_, ids10);
 
     for ( EcalElectronicsIdCollection::const_iterator idItr = ids10->begin(); idItr != ids10->end(); ++ idItr ) {
 
@@ -589,8 +661,8 @@ void EBIntegrityTask::analyze(const Event& e, const EventSetup& c){
       int ie = EBIntegrityTask::chMemAbscissa[chid-1];
       int ip = EBIntegrityTask::chMemOrdinate[chid-1];
 
-      int iTt = id.towerId();
-      ie += (iTt-69)*5;
+      int itt = id.towerId();
+      ie += (itt-69)*5;
 
       float xie = ie - 0.5;
       float xip = ip - 0.5;
@@ -601,7 +673,7 @@ void EBIntegrityTask::analyze(const Event& e, const EventSetup& c){
 
   } catch ( exception& ex) {
 
-    LogWarning("EBIntegrityTask") << EcalElectronicsIdCollection4_ << " not available";
+    LogWarning("EBIntegrityTask") << EcalElectronicsIdCollection6_ << " not available";
 
   }
 

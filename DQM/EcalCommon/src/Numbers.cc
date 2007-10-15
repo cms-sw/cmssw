@@ -1,11 +1,11 @@
-// $Id: Numbers.cc,v 1.24 2007/10/10 16:14:51 dellaric Exp $
+// $Id: Numbers.cc,v 1.25 2007/10/14 17:30:35 dellaric Exp $
 
 /*!
   \file Numbers.cc
   \brief Some "id" conversions
   \author B. Gobbo 
-  \version $Revision: 1.24 $
-  \date $Date: 2007/10/10 16:14:51 $
+  \version $Revision: 1.25 $
+  \date $Date: 2007/10/14 17:30:35 $
 */
 
 #include <sstream>
@@ -283,12 +283,28 @@ int Numbers::iTT( const EcalTrigTowerDetId& id ) throw( std::runtime_error ) {
 
 //-------------------------------------------------------------------------
 
-std::vector<DetId> Numbers::ttCrystals( const EcalTrigTowerDetId& id ) throw( std::runtime_error ) {
+std::vector<DetId> Numbers::crystals( const EcalTrigTowerDetId& id ) throw( std::runtime_error ) {
 
   if( Numbers::map ) {
     int itcc = Numbers::map->TCCid(id);
     int itt = Numbers::map->iTT(id);
     return( Numbers::map->ttConstituents( itcc, itt) );
+  } else {
+    std::ostringstream s;
+    s << "ECAL Geometry not available";
+    throw( std::runtime_error( s.str() ) );
+  }
+
+}
+
+//-------------------------------------------------------------------------
+
+std::vector<DetId> Numbers::crystals( const EcalElectronicsId& id ) throw( std::runtime_error ) {
+
+  if( Numbers::map ) {
+    int idcc = id.dccId();
+    int itt = id.towerId();
+    return( Numbers::map->dccTowerConstituents( idcc, itt) );
   } else {
     std::ostringstream s;
     s << "ECAL Geometry not available";

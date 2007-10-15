@@ -4,8 +4,8 @@
 /*
  * \file EEIntegrityTask.h
  *
- * $Date: 2007/05/12 09:28:32 $
- * $Revision: 1.4 $
+ * $Date: 2007/10/04 10:37:49 $
+ * $Revision: 1.5 $
  * \author G. Della Ricca
  *
  */
@@ -56,12 +56,12 @@ edm::InputTag EEDetIdCollection1_;
 edm::InputTag EEDetIdCollection2_;
 edm::InputTag EEDetIdCollection3_;
 edm::InputTag EEDetIdCollection4_;
-edm::InputTag EcalTrigTowerDetIdCollection1_;
-edm::InputTag EcalTrigTowerDetIdCollection2_;
 edm::InputTag EcalElectronicsIdCollection1_;
 edm::InputTag EcalElectronicsIdCollection2_;
 edm::InputTag EcalElectronicsIdCollection3_;
 edm::InputTag EcalElectronicsIdCollection4_;
+edm::InputTag EcalElectronicsIdCollection5_;
+edm::InputTag EcalElectronicsIdCollection6_;
 
 MonitorElement* meIntegrityChId[18];
 MonitorElement* meIntegrityGain[18];
