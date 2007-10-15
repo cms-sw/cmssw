@@ -6,7 +6,6 @@
  */
 
 #include "FWCore/Framework/interface/EDProducer.h"
-#include "FWCore/ParameterSet/interface/InputTag.h"
 #include "DataFormats/RPCDigi/interface/RPCDigiCollection.h"
 #include "EventFilter/RPCRawToDigi/interface/EventRecords.h"
 
@@ -35,12 +34,10 @@ public:
       int fedId, int trigger_BX, const RPCDigiCollection* , const RPCRecordFormatter& ); 
 
 private:
-
   FEDRawData * rawData( int fedId, const RPCDigiCollection* , const RPCRecordFormatter& );
 
 private:
-
-//  edm::InputTag digiLabel_;
   unsigned long eventCounter_;
+
 };
 #endif

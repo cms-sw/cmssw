@@ -6,11 +6,11 @@
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"                
-
+#include "CondFormats/DataRecord/interface/SiStripLorentzAngleRcd.h"
 #include "boost/mpl/vector.hpp"
 
 class  TrackerCPERecord: public edm::eventsetup::DependentRecordImplementation<TrackerCPERecord,
-  boost::mpl::vector<TrackerDigiGeometryRecord,IdealMagneticFieldRecord> > {};
+  boost::mpl::vector<TrackerDigiGeometryRecord,IdealMagneticFieldRecord,SiStripLorentzAngleRcd> > {};
 
 #endif 
 

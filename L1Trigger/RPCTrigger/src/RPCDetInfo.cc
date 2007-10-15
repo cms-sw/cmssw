@@ -1,14 +1,14 @@
 /** \file RPCDetInfo.cc
  *
- *  $Date: 2006/12/31 13:03:17 $
- *  $Revision: 1.12 $
+ *  $Date: 2007/04/06 10:02:36 $
+ *  $Revision: 1.14 $
  *  \author Tomasz Fruboes
  */
 
 #include <cmath>
 #include <algorithm>
 #include "L1Trigger/RPCTrigger/interface/RPCDetInfo.h"
-
+#include "Geometry/RPCGeometry/interface/RPCGeomServ.h"
 
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -23,8 +23,17 @@ RPCDetInfo::RPCDetInfo(RPCRoll* roll){
 
   RPCDetId detId = roll->id();
 
+  RPCGeomServ grs(detId);
+  m_globRoll = grs.eta_partition();
+
   m_detId = detId.rawId();
   m_region = detId.region(); 
+
+  // Hand;le endcaps.  Needed to verify that etaPartition works ok in barrel
+  //if (m_region==1 || m_region == -1){
+  //    m_globRoll = 12;
+  //}
+  
   m_ring = detId.ring();
   m_station = detId.station();
   m_layer = detId.layer();
@@ -33,6 +42,8 @@ RPCDetInfo::RPCDetInfo(RPCRoll* roll){
   m_subsector = detId.subsector();
 
   setHwPlane();
+
+  
 
   // Determine min and max \eta values
   const StripTopology* topology = dynamic_cast<const StripTopology*>
@@ -85,6 +96,12 @@ RPCDetInfo::RPCDetInfo(RPCRoll* roll){
   GlobalPoint gStripCentre2 = roll->toGlobal(lStripCentre2);
   float phi2 =  transformPhi(gStripCentre2.phi());
 
+ /* std::cout << "Roll: " <<m_globRoll 
+            << " plane: "<< m_hwPlane 
+            << " z: " << gStripCentre2.z() 
+            << " r: " << gStripCentre2.perp() 
+            <<std::endl;
+*/
   m_phiMin = std::min(phi1,phi2);
   m_phiMax = std::max(phi1,phi2);
   
@@ -124,6 +141,10 @@ int RPCDetInfo::getRingFromRollsId(){
  */
 //#############################################################################
 int RPCDetInfo::getGlobRollNo(){
+
+
+   return m_globRoll;
+/*
   int globRoll=20;
     
   if (m_region==0){ //barell
@@ -184,7 +205,8 @@ int RPCDetInfo::getGlobRollNo(){
   if ( (globRoll==20) || (globRoll==-20))
     edm::LogError("RPCTrigger") << "Problem with RPCDetInfo::getGlobRollNo function. GlobRoll=" << globRoll;
     
-  return globRoll;
+  return globRoll;*/
+
 }
 ///////////////////////////////////////////////////////////////////////////////
 /**

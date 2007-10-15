@@ -4,8 +4,8 @@
 /*
  * \file EECosmicTask.h
  *
- * $Date: 2007/03/20 12:37:26 $
- * $Revision: 1.21 $
+ * $Date: 2007/04/05 14:54:03 $
+ * $Revision: 1.3 $
  * \author G. Della Ricca
  *
 */
@@ -46,14 +46,18 @@ private:
 
 int ievt_;
 
+DaqMonitorBEInterface* dbe_;
+
+bool enableCleanup_;
+
 edm::InputTag EcalRawDataCollection_;
 edm::InputTag EcalRecHitCollection_;
 
-MonitorElement* meCutMap_[36];
+MonitorElement* meCutMap_[18];
 
-MonitorElement* meSelMap_[36];
+MonitorElement* meSelMap_[18];
 
-MonitorElement* meSpectrumMap_[36];
+MonitorElement* meSpectrumMap_[18];
 
 bool init_;
 

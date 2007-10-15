@@ -1,7 +1,7 @@
 //
 // Original Author:  Fabian Stoeckli
 //         Created:  Tue Nov 14 13:43:02 CET 2006
-// $Id: H4muAnalyzer.cc,v 1.2 2007/02/14 15:51:35 fabstoec Exp $
+// $Id: Z2muAnalyzer.cc,v 1.1 2007/03/07 17:05:31 antoniov Exp $
 //
 // Modified for PomwigInterface test for Z/gamma* -> 2mu
 // 02/2007
@@ -24,8 +24,10 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "CLHEP/HepMC/GenEvent.h"
-#include "CLHEP/HepMC/GenParticle.h"
+#include "HepMC/GenEvent.h"
+#include "HepMC/GenParticle.h"
+
+#include "CLHEP/Vector/LorentzVector.h"
 
 #include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
 
@@ -65,12 +67,13 @@ Z2muAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
    
    // if there are at least two muons
    // calculate invarant mass of first two and fill it into histogram
-   HepLorentzVector tot_momentum;
    double inv_mass = 0.0;
    std::cout<<muons.size()<<std::endl;
    if(muons.size()>=2) {
-     tot_momentum = muons[0]->momentum();
-     tot_momentum += muons[1]->momentum();
+     HepLorentzVector tot_momentum(muons[0]->momentum().px() + muons[1]->momentum().px(),
+				   muons[0]->momentum().py() + muons[1]->momentum().py(),
+				   muons[0]->momentum().pz() + muons[1]->momentum().pz(),
+				   muons[0]->momentum().e() + muons[1]->momentum().e());	 	
      inv_mass = sqrt(tot_momentum.m2());
    }
    

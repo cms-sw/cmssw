@@ -1,9 +1,9 @@
 /** \class EcalRecHitProducer
  *   produce ECAL rechits from uncalibrated rechits
  *
- *  $Id: EcalRecHitProducer.cc,v 1.7 2006/08/23 15:47:01 meridian Exp $
- *  $Date: 2006/08/23 15:47:01 $
- *  $Revision: 1.7 $
+ *  $Id: EcalRecHitProducer.cc,v 1.8 2007/03/09 10:15:04 meridian Exp $
+ *  $Date: 2007/03/09 10:15:04 $
+ *  $Revision: 1.8 $
  *  \author Shahram Rahatlou, University of Rome & INFN, March 2006
  *
  **/
@@ -73,7 +73,9 @@ EcalRecHitProducer::produce(edm::Event& evt, const edm::EventSetup& es) {
    try {
      evt.getByLabel( EBuncalibRecHitCollection_, pEBUncalibRecHits);
      EBuncalibRecHits = pEBUncalibRecHits.product(); // get a ptr to the product
+#ifdef DEBUG
      LogDebug("EcalRecHitDebug") << "total # EB uncalibrated rechits: " << EBuncalibRecHits->size();
+#endif
    } catch (...) {
      //edm::LogError("EcalRecHitError") << "Error! can't get the product " << EBuncalibRecHitCollection_.c_str() ;
    }
@@ -81,7 +83,9 @@ EcalRecHitProducer::produce(edm::Event& evt, const edm::EventSetup& es) {
    try {
      evt.getByLabel( EEuncalibRecHitCollection_, pEEUncalibRecHits);
      EEuncalibRecHits = pEEUncalibRecHits.product(); // get a ptr to the product
+#ifdef DEBUG
      LogDebug("EcalRecHitDebug") << "total # EE uncalibrated rechits: " << EEuncalibRecHits->size();
+#endif
    } catch (...) {
      //edm::LogError("EcalRecHitError") << "Error! can't get the product " << EEuncalibRecHitCollection_.c_str() ;
    }
@@ -91,32 +95,35 @@ EcalRecHitProducer::produce(edm::Event& evt, const edm::EventSetup& es) {
    std::auto_ptr< EERecHitCollection > EErechits( new EERecHitCollection );
 
    // now fetch all conditions we nEEd to make rechits
+   edm::ESHandle<EcalADCToGeVConstant> pAgc;
+   es.get<EcalADCToGeVConstantRcd>().get(pAgc);
+   const EcalADCToGeVConstant* agc = pAgc.product();
+   //
+   // use this value in the algorithm
+   EBalgo_->setADCToGeVConstant(float(agc->getEBValue()));
+   EEalgo_->setADCToGeVConstant(float(agc->getEEValue()));
+   // Intercalib constants
+   edm::ESHandle<EcalIntercalibConstants> pIcal;
+   es.get<EcalIntercalibConstantsRcd>().get(pIcal);
+   const EcalIntercalibConstants* ical = pIcal.product();
+   const EcalIntercalibConstants::EcalIntercalibConstantMap& icalMap=ical->getMap();
+#ifdef DEBUG
+   LogDebug("EcalRecHitDebug") << "Global EB ADC->GeV scale: " << agc->getEBValue() << " GeV/ADC count" ;
+#endif
    // ADC -> GeV Scale
-   // TODO Make two ADCtoGeV scale for EB & EE 
+
 
    if (EBuncalibRecHits)
      {
-       edm::ESHandle<EcalADCToGeVConstant> pAgc;
-       es.get<EcalADCToGeVConstantRcd>().get(pAgc);
-       const EcalADCToGeVConstant* agc = pAgc.product();
-       LogDebug("EcalRecHitDebug") << "Global EB ADC->GeV scale: " << agc->getEBValue() << " GeV/ADC count" ;
-       //
-       // use this value in the algorithm
-       EBalgo_->setADCToGeVConstant(float(agc->getEBValue()));
-       
-       // Intercalib constants
-       edm::ESHandle<EcalIntercalibConstants> pIcal;
-       es.get<EcalIntercalibConstantsRcd>().get(pIcal);
-       const EcalIntercalibConstants* ical = pIcal.product();
        
        // loop over uncalibrated rechits to make calibrated ones
        for(EBUncalibratedRecHitCollection::const_iterator it  = EBuncalibRecHits->begin();
 	   it != EBuncalibRecHits->end(); ++it) {
 	 
 	 // find intercalib constant for this xtal
-	 EcalIntercalibConstants::EcalIntercalibConstantMap::const_iterator icalit=ical->getMap().find(it->id().rawId());
+	 EcalIntercalibConstants::EcalIntercalibConstantMap::const_iterator icalit=icalMap.find(it->id().rawId());
 	 EcalIntercalibConstants::EcalIntercalibConstant icalconst;
-	 if( icalit!=ical->getMap().end() ){
+	 if( icalit!=icalMap.end() ){
 	   icalconst = icalit->second;
 	   //	   LogDebug("EcalRecHitDebug") << "Found intercalib for xtal " << EBDetId(it->id()).ic() << " " << icalconst ;
 	 } else {
@@ -129,7 +136,7 @@ EcalRecHitProducer::produce(edm::Event& evt, const edm::EventSetup& es) {
 	 EcalRecHit aHit( EBalgo_->makeRecHit(*it, icalconst ) );
 	 EBrechits->push_back( aHit );
 	 
-	 
+#ifdef DEBUG	 
 	 if(it->amplitude()>0.) 
 	   {
 	     LogDebug("EcalRecHitDebug") << "processed UncalibRecHit with rawId: "
@@ -138,32 +145,20 @@ EcalRecHitProducer::produce(edm::Event& evt, const edm::EventSetup& es) {
 					     << " calib rechit energy: " << aHit.energy()
 	       ;
 	   }
+#endif
        }
      }
 
    if (EEuncalibRecHits)
      {
-       edm::ESHandle<EcalADCToGeVConstant> pAgc;
-       es.get<EcalADCToGeVConstantRcd>().get(pAgc);
-       const EcalADCToGeVConstant* agc = pAgc.product();
-       LogDebug("EcalRecHitDebug") << "Global ADC->GeV scale: " << agc->getEEValue() << " GeV/ADC count" ;
-       //
-       // use this value in the algorithm
-       EEalgo_->setADCToGeVConstant(float(agc->getEEValue()));
-       
-       // Intercalib constants
-       edm::ESHandle<EcalIntercalibConstants> pIcal;
-       es.get<EcalIntercalibConstantsRcd>().get(pIcal);
-       const EcalIntercalibConstants* ical = pIcal.product();
-       
        // loop over uncalibrated rechits to make calibrated ones
        for(EEUncalibratedRecHitCollection::const_iterator it  = EEuncalibRecHits->begin();
 	   it != EEuncalibRecHits->end(); ++it) {
 	 
 	 // find intercalib constant for this xtal
-	 EcalIntercalibConstants::EcalIntercalibConstantMap::const_iterator icalit=ical->getMap().find(it->id().rawId());
+	 EcalIntercalibConstants::EcalIntercalibConstantMap::const_iterator icalit=icalMap.find(it->id().rawId());
 	 EcalIntercalibConstants::EcalIntercalibConstant icalconst;
-	 if( icalit!=ical->getMap().end() ){
+	 if( icalit!=icalMap.end() ){
 	   icalconst = icalit->second;
 	   // LogDebug("EcalRecHitDebug") << "Found intercalib for xtal " << EEDetId(it->id()).ic() << " " << icalconst ;
 	 } else {
@@ -176,7 +171,7 @@ EcalRecHitProducer::produce(edm::Event& evt, const edm::EventSetup& es) {
 	 EcalRecHit aHit( EEalgo_->makeRecHit(*it, icalconst ) );
 	 EErechits->push_back( aHit );
 	 
-	 
+#ifdef DEBUG
 	 if(it->amplitude()>0.) 
 	   {
 	     LogDebug("EcalRecHitDebug") << "processed UncalibRecHit with rawId: "
@@ -185,15 +180,16 @@ EcalRecHitProducer::produce(edm::Event& evt, const edm::EventSetup& es) {
 					     << " calib rechit energy: " << aHit.energy()
 	       ;
 	   }
+#endif
        }
      }
    // put the collection of recunstructed hits in the event
-   
+#ifdef DEBUG   
    LogDebug("EcalRecHitInfo") << "total # EB calibrated rechits: " << EBrechits->size()
      ;
    LogDebug("EcalRecHitInfo") << "total # EE calibrated rechits: " << EErechits->size()
      ;
-
+#endif
    evt.put( EBrechits, EBrechitCollection_ );
    evt.put( EErechits, EErechitCollection_ );
 } //produce()

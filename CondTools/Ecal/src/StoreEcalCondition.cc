@@ -8,6 +8,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include <fstream>
+#include <iostream>
 #include <time.h>
 #include <unistd.h> 
 
@@ -26,7 +27,7 @@ StoreEcalCondition::StoreEcalCondition(const edm::ParameterSet& iConfig) {
     {
       inpFileName_.push_back(itToPut->getUntrackedParameter<std::string>("inputFile"));
       objectName_.push_back(itToPut->getUntrackedParameter<std::string>("conditionType"));
-      //since_.push_back(itToPut->getUntrackedParameter<unsigned int>("since"));
+      //      since_.push_back(itToPut->getUntrackedParameter<unsigned int>("since"));
     }
 
   sm_constr_ = -1;
@@ -98,7 +99,8 @@ void StoreEcalCondition::endJob() {
 	edm::LogError("StoreEcalCondition")<< "Object " << objectName_[i]  << " is not supported by this program." << endl;
       }
       
-      writeToLogFile(objectName_[i], inpFileName_[i], since_[i]);
+
+      //      writeToLogFile(objectName_[i], inpFileName_[i], since_[i]);
 
     } catch(cond::Exception &e) {
       writeToLogFileResults("finished with exception\n");
@@ -331,88 +333,80 @@ StoreEcalCondition::readEcalTBWeightsFromFile(const char* inputFile) {
 	EcalWeightSet wgt; // one set of weights
 	EcalWeightSet::EcalWeightMatrix& wgt1   = wgt.getWeightsBeforeGainSwitch();
 	EcalWeightSet::EcalWeightMatrix& wgt2   = wgt.getWeightsAfterGainSwitch();	
-	EcalWeightSet::EcalWeightMatrix& chisq1 = wgt.getChi2WeightsBeforeGainSwitch();
-	EcalWeightSet::EcalWeightMatrix& chisq2 = wgt.getChi2WeightsAfterGainSwitch();
+	EcalWeightSet::EcalChi2WeightMatrix& chisq1 = wgt.getChi2WeightsBeforeGainSwitch();
+	EcalWeightSet::EcalChi2WeightMatrix& chisq2 = wgt.getChi2WeightsAfterGainSwitch();
 	
-	std::vector<EcalWeight> wamp, wped, wtime; //weights before gain switch
-	std::vector<EcalWeight> wamp2, wped2, wtime2; //weights after gain switch
+// 	std::vector<EcalWeight> wamp, wped, wtime; //weights before gain switch
+// 	std::vector<EcalWeight> wamp2, wped2, wtime2; //weights after gain switch
 	
 	//WEIGHTS BEFORE GAIN SWITCH
 	//Amplitude weights 
 	for(int j = 0; j < nSamples; ++j) {
 	  double ww = 0.0; WeightsFileTB >> ww;
-	  wamp.push_back(EcalWeight(ww));
+	  wgt1(0,j)=ww;
 	  str << ww << " ";
 	}// loop Samples
-	wgt1.push_back(wamp); //vector<vector>
 	str << std::endl;
 	
 	//Pedestal weights
 	for(int j = 0; j < nSamples; ++j) {
 	  double ww = 0.0; WeightsFileTB >> ww;
-	  wped.push_back(EcalWeight(ww));
+	  wgt1(1,j)=ww;
 	  str << ww << " ";
 	}//loop Samples
-	wgt1.push_back(wped); //vector<vector>
 	str << std::endl;
 	
 	//Timing weights
 	for(int j = 0; j < nSamples; ++j) {
 	  double ww = 0.0; WeightsFileTB >> ww;
-	  wtime.push_back(EcalWeight(ww));
+	  wgt1(2,j)=ww;
 	  str << ww << " ";
 	}//loop Samples
-	wgt1.push_back(wtime);//vector<vector>
 	str << std::endl;
 	
 	for(int j = 0; j < nSamples; ++j) {
 	  // fill chi2 matrix
-	  std::vector<EcalWeight> vChi2; // row of chi2 matrix
-	  for(int iRow = 0; iRow < nSamples; ++iRow) {
+	  //std::vector<EcalWeight> vChi2; // row of chi2 matrix
+	  for(int k = 0; k < nSamples; ++k) {
 	    double ww = 0.0; WeightsFileTB >> ww;
-	    vChi2.push_back(ww);
+	    chisq1(j,k)=ww;
 	    str << ww << " ";
 	  } //loop samples
-	  chisq1.push_back(vChi2);
 	  str << std::endl;
 	}//loop lines
 	
 	//WEIGHTS AFTER GAIN SWITCH
 	for(int j = 0; j < nSamples; ++j) {
 	  double ww = 0.0; WeightsFileTB >> ww;
-	  wamp2.push_back(EcalWeight(ww));
+	  wgt2(0,j)=ww;
 	  str << ww << " ";
 	}// loop Samples
-	wgt2.push_back(wamp2); //vector<vector>
 	str << std::endl;
 	
 	//Pedestal weights
 	for(int j = 0; j < nSamples; ++j) {
 	  double ww = 0.0; WeightsFileTB >> ww;
-	  wped2.push_back(EcalWeight(ww));
+	  wgt2(1,j)=ww;
 	  str << ww << " ";
 	}//loop Samples
-	wgt2.push_back(wped2); //vector<vector>
 	str << std::endl;
 	
 	//Timing weights
 	for(int j = 0; j < nSamples; ++j) {
 	  double ww = 0.0; WeightsFileTB >> ww;
-	  wtime2.push_back(EcalWeight(ww));
+	  wgt2(2,j)=ww;
 	  str << ww << " ";
 	}//loop Samples
-	wgt2.push_back(wtime2);//vector<vector>
 	str << std::endl;
 	
 	for(int j = 0; j < nSamples; ++j) {
 	  // fill chi2 matrix
-	  std::vector<EcalWeight> vChi2; // row of chi2 matrix
-	  for(int iRow = 0; iRow < nSamples; ++iRow) {
+	  //std::vector<EcalWeight> vChi2; // row of chi2 matrix
+	  for(int k = 0; k < nSamples; ++k) {
 	    double ww = 0.0; WeightsFileTB >> ww;
-	    vChi2.push_back(ww);
+	    chisq2(j,k)=ww;
 	    str << ww << " ";
 	  } //loop samples
-	  chisq2.push_back(vChi2);
 	  str << std::endl;
 	}//loop lines
 

@@ -4,7 +4,7 @@
 
 namespace edm {class ParameterSet;}
 namespace muonisolation { class MuIsoExtractor; }
-#include <PluginManager/PluginFactory.h>
+#include "FWCore/PluginManager/interface/PluginFactory.h"
 
 class MuIsoExtractorFactory : public 
     seal::PluginFactory< muonisolation::MuIsoExtractor* (const edm::ParameterSet&) > { 

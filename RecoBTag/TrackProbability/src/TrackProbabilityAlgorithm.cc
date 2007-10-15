@@ -75,6 +75,15 @@ if(jetTracks.product()->numberOfAssociations(jetTracks->key)!=0) //if there are 
              const TransientTrack transientTrack = (m_transientTrackBuilder->build(&(**it)));
              float distToAxis = SignedImpactParameter3D::distanceWithJetAxis(transientTrack,direction,pv).second.value();
              float dLen = SignedDecayLength3D::apply(transientTrack,direction,pv).second.value(); 
+     /*  cout << "cuts: pt,d0,nhit,LIP,Chi,MaxDistJetAx,MaxDL" << endl;
+            cout << track.pt() << " > " << m_cutMinPt << endl;
+              cout << track.d0() << " < " << m_cutMaxTIP << endl;
+              cout <<  track.numberOfValidHits() << " " <<  track.found() << " " << track.lost() << " " << track.recHitsSize()<< ">="<< m_cutTotalHits << endl;
+              cout << fabs(track.dz()-pvZ) <<"  < " << m_cutMaxLIP << endl;
+              cout << track.normalizedChi2()<< " < " << m_cutMaxChiSquared << endl;
+              cout <<  distToAxis << " < " <<  m_cutMaxDistToAxis << endl;
+              cout <<    dLen << " < " << m_cutMaxDecayLen << endl;
+       */     
                if( track.pt() > m_cutMinPt  &&  //minimum pt
                  fabs(track.d0()) < m_cutMaxTIP && // max transverse i.p.
                  track.recHitsSize() >= m_cutTotalHits && // min num tracker hits
@@ -110,6 +119,7 @@ if(jetTracks.product()->numberOfAssociations(jetTracks->key)!=0) //if there are 
   
     for(multimap<double,int>::reverse_iterator it = probability3DMap.rbegin();it != probability3DMap.rend(); it++)
     {
+     cout << (*it).first << "  idx: " << (*it).second << endl; 
      probability3D.push_back((*it).first); //probability vector
      trackOrder3D.push_back((*it).second);
     }

@@ -4,8 +4,8 @@
 /*
  * \file EBIntegrityClient.h
  *
- * $Date: 2007/03/13 10:14:25 $
- * $Revision: 1.46 $
+ * $Date: 2007/03/26 17:35:04 $
+ * $Revision: 1.47 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -150,6 +150,9 @@ TH2F* hmem_[36];
 float threshCry_;
 
 const static int chNum [5][5];
+
+MEContentsTH2FWithinRangeROOT* qtg01_[36];
+MEContentsTH2FWithinRangeROOT* qtg02_[36];
 
 };
 

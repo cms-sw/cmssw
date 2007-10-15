@@ -10,8 +10,8 @@
  *
  * \file EcalRawToDigi.h
  *
- * $Date: 2007/03/29 09:21:57 $
- * $Revision: 1.1.2.3 $
+ * $Date: 2007/05/23 14:37:20 $
+ * $Revision: 1.6 $
  * \author N. Almeida
  * \author G. Franzoni
  *
@@ -40,10 +40,7 @@ class EcalElectronicsMapper;
 class EcalElectronicsMapping;
 class DCCDataUnpacker;
 
-using namespace std;
-using namespace edm;
-
-class EcalRawToDigiDev : public EDProducer{
+class EcalRawToDigiDev : public edm::EDProducer{
 
  public:
   /**
@@ -65,6 +62,9 @@ class EcalRawToDigiDev : public EDProducer{
 
   //list of FEDs to unpack
   std::vector<int> fedUnpackList_;
+
+  std::vector<int> orderedFedUnpackList_;
+  std::vector<int> orderedDCCIdList_;
   
   uint numbXtalTSamples_;
   uint numbTriggerTSamples_;
@@ -77,6 +77,12 @@ class EcalRawToDigiDev : public EDProducer{
   bool syncCheck_;
   bool first_;
   bool put_;
+
+  std::string dataLabel_ ; 
+
+  // -- For regional unacking :
+  bool REGIONAL_ ;
+  std::string fedsLabel_ ;
 
   //an electronics mapper class 
   EcalElectronicsMapper * myMap_;

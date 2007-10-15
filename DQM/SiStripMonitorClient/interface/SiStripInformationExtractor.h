@@ -3,12 +3,14 @@
 
 #include "DQMServices/UI/interface/MonitorUIRoot.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
+#include "DQM/SiStripMonitorClient/interface/SiStripLayoutParser.h"
 
 
 #include "xgi/include/xgi/Utils.h"
 #include "xgi/include/xgi/Method.h"
 
 #include "TCanvas.h"
+#include "TH1.h"
 
 #include <fstream>
 #include <sstream>
@@ -30,6 +32,8 @@ class SiStripInformationExtractor {
   void plotGlobalHistos(MonitorUserInterface * mui,
                       std::multimap<std::string, std::string>& req_map);
   void plotHistosFromPath(MonitorUserInterface * mui,std::multimap<std::string, std::string>& req_map);
+  void plotHistosFromLayout(MonitorUserInterface * mui);
+
   const std::ostringstream& getImage() const;
   void readSummaryHistoTree(MonitorUserInterface* mui, std::string& str_name, 
                 xgi::Output * out, bool coll_flag);
@@ -38,9 +42,12 @@ class SiStripInformationExtractor {
  
   void readStatusMessage(MonitorUserInterface* mui, std::string& path,xgi::Output * out);
   void readGlobalHistoList(MonitorUserInterface* mui, xgi::Output * out, bool coll_flag);
+  void readLayoutNames(xgi::Output * out);
+
 
  private:
 
+  void readConfiguration();
   void fillModuleAndHistoList(MonitorUserInterface * mui,
         std::vector<std::string>& modules, std::vector<std::string>& histos);
   void fillGlobalHistoList(MonitorUserInterface * mui, std::vector<std::string>& histos);
@@ -52,7 +59,7 @@ class SiStripInformationExtractor {
 	      std::string item_name);
   std::string getItemValue(std::multimap<std::string, std::string>& req_map,
 	      std::string item_name);
-  void fillImageBuffer(TCanvas& c1);
+  void fillImageBuffer();
   void plotHistos(std::multimap<std::string, std::string>& req_map, 
                   std::vector<MonitorElement*> me_list, bool sflag);
   bool goToDir(MonitorUserInterface* mui, std::string& sname, bool flg);
@@ -61,7 +68,16 @@ class SiStripInformationExtractor {
   void selectImage(std::string& name, int status);
   void selectImage(std::string& name, dqm::qtests::QR_map& test_map);
   void selectGlobalHistos(MonitorUserInterface * mui, std::vector<std::string>& names, std::vector<MonitorElement*>& mes);
+  void defineZone(int nhist, int& ncol, int & now);  
+  void setCanvasMessage(const std::string& error_string);
+  void createDummiesFromLayout();
+  void setDrawingOption(TH1* hist, float xlow=-1.0, float xhigh=-1.0);
 
   std::ostringstream pictureBuffer_;
+  SiStripLayoutParser* layoutParser_;
+
+  std::map<std::string, std::vector< std::string > > layoutMap;
+  TCanvas* canvas_;
+  bool  readReference_;
 };
 #endif

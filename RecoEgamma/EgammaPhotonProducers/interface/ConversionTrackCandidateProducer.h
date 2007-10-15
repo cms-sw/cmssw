@@ -3,9 +3,9 @@
 /** \class ConversionTrackCandidateProducer
  **  
  **
- **  $Id: ConversionTrackCandidateProducer.h,v 1.2 2007/02/25 16:29:55 nancy Exp $ 
- **  $Date: 2007/02/25 16:29:55 $ 
- **  $Revision: 1.2 $
+ **  $Id: ConversionTrackCandidateProducer.h,v 1.1 2006/12/19 17:57:52 nancy Exp $ 
+ **  $Date: 2006/12/19 17:57:52 $ 
+ **  $Revision: 1.1 $
  **  \author Nancy Marinelli, U. of Notre Dame, US
  **
  ***/
@@ -46,7 +46,6 @@ class ConversionTrackCandidateProducer : public edm::EDProducer {
 
  private:
 
-  int nEvt_;
   
 
   std::string OutInTrackCandidateBarrelCollection_;

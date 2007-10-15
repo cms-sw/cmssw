@@ -7,7 +7,7 @@
 #include "DetectorDescription/Base/interface/DDException.h"
 #include "CLHEP/Units/SystemOfUnits.h"
 #include "CLHEP/Units/PhysicalConstants.h"
-#include<cmath>
+
 
 using DDI::Polycone;
 
@@ -71,7 +71,7 @@ double Polycone::volume() const
    DCOUT('V',"Polycone::volume(), loop=" << loop);
    int i=2;
    for (int j=2; j<(loop+2); ++j) {
-     double dz= std::fabs(p_[i]-p_[i+3]);
+      double dz= fabs(p_[i]-p_[i+3]);
       DCOUT('v', "   dz=" << dz/cm << "cm zi=" << p_[i] << " zii=" << p_[i+3] );
       double v_min = dz * pi/3. *(  p_[i+1]*p_[i+1] + p_[i+4]*p_[i+4]
                             + p_[i+1]*p_[i+4] );
@@ -84,14 +84,14 @@ double Polycone::volume() const
       sec += s;
       i += 3;			    			    					   
    }  
-   result = sec * std::fabs(p_[1])/rad/(2.*pi);
+   result = sec * fabs(p_[1])/rad/(2.*pi);
   }
   
   if (shape_==ddpolycone_rz) {
     double volume=0;
     double phiFrom=p_[0]/rad;
     double phiTo=(p_[0]+p_[1])/rad;
-    double slice=(std::fabs(phiFrom-phiTo))/(2*pi);
+    double slice=(fabs(phiFrom-phiTo))/(2*pi);
     double zBegin=0;
     double zEnd=0;
     double rBegin=0;
@@ -129,7 +129,7 @@ double Polycone::volume() const
 
     volume=volume+volume2;
   
-    volume=std::fabs(slice*pi*volume);
+    volume=fabs(slice*pi*volume);
 
     result = volume;
 

@@ -22,10 +22,9 @@
 #include "G4VProcess.hh"
 #include "G4EventManager.hh"
 
-#include <iostream>
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-//#define DEBUG
-//#define DEBUGST
+#include <iostream>
 
 
 MuonSensitiveDetector::MuonSensitiveDetector(std::string name, 
@@ -44,13 +43,12 @@ MuonSensitiveDetector::MuonSensitiveDetector(std::string name,
   // Here simply create 1 MuonSlaveSD for the moment
   //  
   
-#ifdef DEBUG 
-  std::cout << "create MuonSubDetector "<<name<<std::endl;
-#endif
+  LogDebug("MuonSimDebug") << "create MuonSubDetector "<<name<<std::endl;
+
   detector = new MuonSubDetector(name);
-#ifdef DEBUG 
-  std::cout << "create MuonFrameRotation"<<std::endl;
-#endif
+
+  LogDebug("MuonSimDebug") << "create MuonFrameRotation"<<std::endl;
+
  if (detector->isEndcap()) {
    //    cout << "MuonFrameRotation create MuonEndcapFrameRotation"<<endl;
     theRotation=new MuonEndcapFrameRotation();
@@ -60,13 +58,9 @@ MuonSensitiveDetector::MuonSensitiveDetector(std::string name,
   }  else {
     theRotation = 0;
   }
-#ifdef DEBUG 
-  std::cout << "create MuonSlaveSD"<<std::endl;
-#endif
+  LogDebug("MuonSimDebug") << "create MuonSlaveSD"<<std::endl;
   slaveMuon  = new MuonSlaveSD(detector,theManager);
-#ifdef DEBUG 
-  std::cout << "create MuonSimHitNumberingScheme"<<std::endl;
-#endif
+  LogDebug("MuonSimDebug") << "create MuonSimHitNumberingScheme"<<std::endl;
   numbering  = new MuonSimHitNumberingScheme(detector, cpv);
   g4numbering = new MuonG4Numbering(cpv);
   
@@ -77,9 +71,7 @@ MuonSensitiveDetector::MuonSensitiveDetector(std::string name,
   std::vector<std::string>  lvNames= SensitiveDetectorCatalog::instance()->logicalNames(name);
   this->Register();
   for (std::vector<std::string>::iterator it = lvNames.begin();  it != lvNames.end(); it++){
-#ifdef DEBUG
-    std::cout << name << " MuonSensitiveDetector:: attaching SD to LV " << *it << std::endl;
-#endif
+    LogDebug("MuonSimDebug") << name << " MuonSensitiveDetector:: attaching SD to LV " << *it << std::endl;
     this->AssignSD(*it);
   }
 
@@ -88,9 +80,7 @@ MuonSensitiveDetector::MuonSensitiveDetector(std::string name,
   }
 
 
-#ifdef DEBUGST
-    std::cout << "  EnergyThresholdForPersistency " << STenergyPersistentCut << " AllMuonsPersistent " <<  STallMuonsPersistent << std::endl;
-#endif
+    LogDebug("MuonSimDebug") << "  EnergyThresholdForPersistency " << STenergyPersistentCut << " AllMuonsPersistent " <<  STallMuonsPersistent << std::endl;
     
     theG4ProcessTypeEnumerator = new G4ProcessTypeEnumerator;
     myG4TrackToParticleID = new G4TrackToParticleID;
@@ -128,17 +118,13 @@ void MuonSensitiveDetector::update(const  ::EndOfEvent * ev)
 
 void MuonSensitiveDetector::clearHits()
 {
-#ifdef DEBUG 
-  std::cout << "MuonSensitiveDetector::clearHits"<<std::endl;
-#endif
+  LogDebug("MuonSimDebug") << "MuonSensitiveDetector::clearHits"<<std::endl;
   slaveMuon->Initialize();
 }
 
 bool MuonSensitiveDetector::ProcessHits(G4Step * aStep, G4TouchableHistory * ROhist)
 {
-#ifdef DEBUG
-  std::cout <<" MuonSensitiveDetector::ProcessHits "<<InitialStepPosition(aStep,WorldCoordinates)<<std::endl;
-#endif
+  LogDebug("MuonSimDebug") <<" MuonSensitiveDetector::ProcessHits "<<InitialStepPosition(aStep,WorldCoordinates)<<std::endl;
 
  // TimeMe t1( theHitTimer, false);
 
@@ -216,8 +202,16 @@ void MuonSensitiveDetector::createHit(G4Step * aStep){
     theEntryPoint= toOrcaUnits(toOrcaRef(InitialStepPositionVsParent(aStep,1),aStep)); // 1 level up
     theExitPoint= toOrcaUnits(toOrcaRef(FinalStepPositionVsParent(aStep,1),aStep));  
   } else if (detector->isEndcap()) {
-    theEntryPoint= toOrcaUnits(toOrcaRef(InitialStepPositionVsParent(aStep,4),aStep)); // 4 levels up
-    theExitPoint= toOrcaUnits(toOrcaRef(FinalStepPositionVsParent(aStep,4),aStep));  
+    // save local z at current level
+    theEntryPoint= toOrcaUnits(toOrcaRef(InitialStepPosition(aStep,LocalCoordinates),aStep));
+    theExitPoint= toOrcaUnits(toOrcaRef(FinalStepPosition(aStep,LocalCoordinates),aStep));
+    float zentry = theEntryPoint.z();
+    float zexit = theExitPoint.z();
+    Local3DPoint tempEntryPoint= toOrcaUnits(toOrcaRef(InitialStepPositionVsParent(aStep,4),aStep)); // 4 levels up
+    Local3DPoint tempExitPoint= toOrcaUnits(toOrcaRef(FinalStepPositionVsParent(aStep,4),aStep));
+    // reset local z from z wrt deep-parent volume to z wrt low-level volume
+    theEntryPoint = Local3DPoint( tempEntryPoint.x(), tempEntryPoint.y(), zentry );
+    theExitPoint  = Local3DPoint( tempExitPoint.x(), tempExitPoint.y(), zexit );
   } else {
     theEntryPoint= toOrcaUnits(toOrcaRef(InitialStepPosition(aStep,LocalCoordinates),aStep));
     theExitPoint= toOrcaUnits(toOrcaRef(FinalStepPosition(aStep,LocalCoordinates),aStep)); 
@@ -226,8 +220,8 @@ void MuonSensitiveDetector::createHit(G4Step * aStep){
   float thePabs             = aStep->GetPreStepPoint()->GetMomentum().mag()/GeV;
   float theTof              = aStep->GetPreStepPoint()->GetGlobalTime()/nanosecond;
   float theEnergyLoss       = aStep->GetTotalEnergyDeposit()/GeV;
-  //  short theParticleType     = theTrack->GetDefinition()->GetPDGEncoding();
-  short theParticleType     = myG4TrackToParticleID->particleID(theTrack);
+  //  int theParticleType     = theTrack->GetDefinition()->GetPDGEncoding();
+  int theParticleType     = myG4TrackToParticleID->particleID(theTrack);
   G4ThreeVector gmd  = aStep->GetPreStepPoint()->GetMomentumDirection();
   G4ThreeVector lmd = ((G4TouchableHistory *)(aStep->GetPreStepPoint()->GetTouchable()))->GetHistory()
     ->GetTopTransform().TransformAxis(gmd);
@@ -238,73 +232,65 @@ void MuonSensitiveDetector::createHit(G4Step * aStep){
   storeVolumeAndTrack( aStep );
   theDetUnitId              = setDetUnitId(aStep);
 
-#ifdef DEBUG
   Global3DPoint theGlobalPos;
-  const G4RotationMatrix * theGlobalRot;
-#endif
   if (printHits) {   
+    const G4RotationMatrix * theGlobalRot;
     Local3DPoint theGlobalHelp = InitialStepPosition(aStep,WorldCoordinates);
     theGlobalEntry = toOrcaUnits(Global3DPoint (theGlobalHelp.x(),theGlobalHelp.y(),theGlobalHelp.z()));
-#ifdef DEBUG
+
     G4StepPoint * preStepPoint = aStep->GetPreStepPoint();
     G4TouchableHistory * theTouchable=(G4TouchableHistory *)
                                       (preStepPoint->GetTouchable());
     theGlobalHelp=ConvertToLocal3DPoint(theTouchable->GetTranslation());
     theGlobalPos = toOrcaUnits(Global3DPoint (theGlobalHelp.x(),theGlobalHelp.y(),theGlobalHelp.z()));
     theGlobalRot = theTouchable->GetRotation();
-#endif
   }
   
-  
-#ifdef DEBUG 
-  std::cout << "MuonSensitiveDetector::createHit UpdatablePSimHit"<<std::endl;
-#endif
+  LogDebug("MuonSimDebug") << "MuonSensitiveDetector::createHit UpdatablePSimHit"<<std::endl;
+
   theHit = new UpdatablePSimHit(theEntryPoint,theExitPoint,thePabs,theTof,
                   theEnergyLoss,theParticleType,theDetUnitId,
                   theTrackID,theThetaAtEntry,thePhiAtEntry,
                   theG4ProcessTypeEnumerator->processId(theTrack->GetCreatorProcess()));
 
-#ifdef DEBUG      
-  std::cout <<"=== NEW ==================> ELOSS   = "<<theEnergyLoss<<" "
+
+  LogDebug("MuonSimDebug") <<"=== NEW ==================> ELOSS   = "<<theEnergyLoss<<" "
        <<thePV->GetLogicalVolume()->GetName()<<std::endl;
   const G4VProcess* p = aStep->GetPostStepPoint()->GetProcessDefinedStep();
   const G4VProcess* p2 = aStep->GetPreStepPoint()->GetProcessDefinedStep();
   if (p)
-    std::cout <<" POST PROCESS = "<<p->GetProcessName()<<std::endl;
+    LogDebug("MuonSimDebug") <<" POST PROCESS = "<<p->GetProcessName()<<std::endl;
   if (p2)
-    std::cout <<" PRE  PROCESS = "<<p2->GetProcessName()<<std::endl;
-  std::cout << "newhit theta " << theThetaAtEntry<<std::endl;
-  std::cout << "newhit phi   " << thePhiAtEntry<<std::endl;
-  std::cout << "newhit pabs  " << thePabs<<std::endl;
-  std::cout << "newhit tof   " << theTof<<std::endl;
-  std::cout << "newhit track " << theTrackID<<std::endl;
-  std::cout << "newhit entry " << theEntryPoint<<std::endl;
-  std::cout << "newhit exit  " << theExitPoint<<std::endl;
-  std::cout << "newhit eloss " << theEnergyLoss << std::endl;
-  std::cout << "newhit detid " << theDetUnitId<<std::endl;
-  std::cout << "newhit delta " << (theExitPoint-theEntryPoint)<<std::endl;
-  std::cout << "newhit deltu " << (theExitPoint-theEntryPoint).unit();
-  std::cout << " " << (theExitPoint-theEntryPoint).mag()<<std::endl;
-  std::cout << "newhit glob  " << theGlobalEntry<<std::endl;
-  std::cout << "newhit dpos  " << theGlobalPos<<std::endl;
-  std::cout << "newhit drot  " << std::endl;
-  //  theGlobalRot->print(std::cout);
-#endif
+    LogDebug("MuonSimDebug") <<" PRE  PROCESS = "<<p2->GetProcessName()<<std::endl;
+  LogDebug("MuonSimDebug") << "newhit theta " << theThetaAtEntry<<std::endl;
+  LogDebug("MuonSimDebug") << "newhit phi   " << thePhiAtEntry<<std::endl;
+  LogDebug("MuonSimDebug") << "newhit pabs  " << thePabs<<std::endl;
+  LogDebug("MuonSimDebug") << "newhit tof   " << theTof<<std::endl;
+  LogDebug("MuonSimDebug") << "newhit track " << theTrackID<<std::endl;
+  LogDebug("MuonSimDebug") << "newhit entry " << theEntryPoint<<std::endl;
+  LogDebug("MuonSimDebug") << "newhit exit  " << theExitPoint<<std::endl;
+  LogDebug("MuonSimDebug") << "newhit eloss " << theEnergyLoss << std::endl;
+  LogDebug("MuonSimDebug") << "newhit detid " << theDetUnitId<<std::endl;
+  LogDebug("MuonSimDebug") << "newhit delta " << (theExitPoint-theEntryPoint)<<std::endl;
+  LogDebug("MuonSimDebug") << "newhit deltu " << (theExitPoint-theEntryPoint).unit();
+  LogDebug("MuonSimDebug") << " " << (theExitPoint-theEntryPoint).mag()<<std::endl;
+  LogDebug("MuonSimDebug") << "newhit glob  " << theGlobalEntry<<std::endl;
+  LogDebug("MuonSimDebug") << "newhit dpos  " << theGlobalPos<<std::endl;
+  LogDebug("MuonSimDebug") << "newhit drot  " << std::endl;
+  //  theGlobalRot->print(LogDebug("MuonSimDebug"));
+
 
   //
   //----- SimTracks: Make it persistent?
   //
   int thePID = theTrack->GetDefinition()->GetPDGEncoding();
-#ifdef DEBUGST
-  std::cout << " checking simtrack " << thePID << " " << thePabs << " STenergyPersistentCut " << STenergyPersistentCut << std::endl;
-#endif
+  LogDebug("MuonSimDebug") << " checking simtrack " << thePID << " " << thePabs << " STenergyPersistentCut " << STenergyPersistentCut << std::endl;
 
   if( thePabs*GeV > STenergyPersistentCut 
       || ( abs(thePID) == 13 && STallMuonsPersistent ) ){
     TrackInformation* info = getOrCreateTrackInformation(theTrack);
-#ifdef DEBUGST
-    std::cout <<" track leaving hit in muons made selected for persistency"<<std::endl;
-#endif
+    LogDebug("MuonSimDebug") <<" track leaving hit in muons made selected for persistency"<<std::endl;
+
     info->storeTrack(true);
   }
      
@@ -320,7 +306,11 @@ void MuonSensitiveDetector::updateHit(G4Step * aStep){
   if (detector->isBarrel()) {
     theExitPoint= toOrcaUnits(toOrcaRef(FinalStepPositionVsParent(aStep,1),aStep));  
   } else if (detector->isEndcap()) {
-    theExitPoint= toOrcaUnits(toOrcaRef(FinalStepPositionVsParent(aStep,4),aStep));  
+    // save local z at current level
+    theExitPoint= toOrcaUnits(toOrcaRef(FinalStepPosition(aStep,LocalCoordinates),aStep));
+    float zexit = theExitPoint.z();
+    Local3DPoint tempExitPoint= toOrcaUnits(toOrcaRef(FinalStepPositionVsParent(aStep,4),aStep));
+    theExitPoint  = Local3DPoint( tempExitPoint.x(), tempExitPoint.y(), zexit );
   } else {
     theExitPoint= toOrcaUnits(toOrcaRef(FinalStepPosition(aStep,LocalCoordinates),aStep)); 
   }
@@ -334,22 +324,20 @@ void MuonSensitiveDetector::updateHit(G4Step * aStep){
   theHit->updateExitPoint(theExitPoint);
   theHit->addEnergyLoss(theEnergyLoss);
 
-#ifdef DEBUG      
-  std::cout <<"=== UPDATE ===============> ELOSS   = "<<theEnergyLoss<<" "
+  LogDebug("MuonSimDebug") <<"=== UPDATE ===============> ELOSS   = "<<theEnergyLoss<<" "
        <<thePV->GetLogicalVolume()->GetName()<<std::endl;
   const G4VProcess* p = aStep->GetPostStepPoint()->GetProcessDefinedStep();
   const G4VProcess* p2 = aStep->GetPreStepPoint()->GetProcessDefinedStep();
   if (p)
-    std::cout <<" POST PROCESS = "<<p->GetProcessName()<<std::endl;
+    LogDebug("MuonSimDebug") <<" POST PROCESS = "<<p->GetProcessName()<<std::endl;
   if (p2)
-    std::cout <<" PRE  PROCESS = "<<p2->GetProcessName()<<std::endl;
-  std::cout << "updhit exit  " << theExitPoint<<std::endl;
-  std::cout << "updhit eloss " << theHit->energyLoss() <<std::endl;
-  std::cout << "updhit detid " << theDetUnitId<<std::endl;
-  std::cout << "updhit delta " << (theExitPoint-theHit->entryPoint())<<std::endl;
-  std::cout << "updhit deltu " << (theExitPoint-theHit->entryPoint()).unit();
-  std::cout << " " << (theExitPoint-theHit->entryPoint()).mag()<<std::endl; 
-#endif
+    LogDebug("MuonSimDebug") <<" PRE  PROCESS = "<<p2->GetProcessName()<<std::endl;
+  LogDebug("MuonSimDebug") << "updhit exit  " << theExitPoint<<std::endl;
+  LogDebug("MuonSimDebug") << "updhit eloss " << theHit->energyLoss() <<std::endl;
+  LogDebug("MuonSimDebug") << "updhit detid " << theDetUnitId<<std::endl;
+  LogDebug("MuonSimDebug") << "updhit delta " << (theExitPoint-theHit->entryPoint())<<std::endl;
+  LogDebug("MuonSimDebug") << "updhit deltu " << (theExitPoint-theHit->entryPoint()).unit();
+  LogDebug("MuonSimDebug") << " " << (theExitPoint-theHit->entryPoint()).mag()<<std::endl; 
 
 }
 
@@ -378,12 +366,12 @@ TrackInformation* MuonSensitiveDetector::getOrCreateTrackInformation( const G4Tr
 {
   G4VUserTrackInformation* temp = gTrack->GetUserInformation();
   if (temp == 0){
-    std::cout <<" ERROR: no G4VUserTrackInformation available"<<std::endl;
+    std::cerr <<" ERROR: no G4VUserTrackInformation available"<<std::endl;
     abort();
   }else{
     TrackInformation* info = dynamic_cast<TrackInformation*>(temp);
     if (info ==0){
-      std::cout <<" ERROR: TkSimTrackSelection: the UserInformation does not appear to be a TrackInformation"<<std::endl;
+      std::cerr <<" ERROR: TkSimTrackSelection: the UserInformation does not appear to be a TrackInformation"<<std::endl;
       abort();
     }
     return info;
@@ -393,7 +381,7 @@ TrackInformation* MuonSensitiveDetector::getOrCreateTrackInformation( const G4Tr
 void MuonSensitiveDetector::EndOfEvent(G4HCofThisEvent*)
 {
 //  TimeMe t("MuonSensitiveDetector::EndOfEvent", false);
- // std::cout << "MuonSensitiveDetector::EndOfEvent saving last hit en event " << std::endl;
+ // LogDebug("MuonSimDebug") << "MuonSensitiveDetector::EndOfEvent saving last hit en event " << std::endl;
   saveHit();
 }
 

@@ -21,7 +21,7 @@ CSCWireTopology::CSCWireTopology(
 		     double yOfFirstWire,
                      float wireAngleInDegrees ) :
       theWireGrouping( 0 ), theWireGeometry( 0 ),
-      theAlignmentPinToFirstWire( wg.alignmentPinToFirstWire ) {
+      theAlignmentPinToFirstWire( wg.alignmentPinToFirstWire / 10. ) {
 
      // Pass consecutiveGroups and wiresInConsecutiveGroups
      // directly on to theWireGrouping ctor. These vectors
@@ -30,24 +30,28 @@ CSCWireTopology::CSCWireTopology(
   theWireGrouping = new CSCGangedWireGrouping( wg.consecutiveGroups,
 		           wg.wiresInEachGroup, wg.numberOfGroups );
 
-  float wireAngleInRadians = wireAngleInDegrees*degree;
-  float wireSpacing = wg.wireSpacing/10.; // in cm
   const float zeroprecision = 1.E-06; // blur zero a bit, for comparisons
 
-   LogTrace("CSC") <<  
+  float wireAngleInRadians = wireAngleInDegrees*degree;
+
+  //@@ Conversion from mm to cm
+  float wireSpacing = wg.wireSpacing   / 10.; // in cm
+  float nw = wg.narrowWidthOfWirePlane / 10.; // in cm
+  float ww = wg.wideWidthOfWirePlane   / 10.; // in cm
+  float lw = wg.lengthOfWirePlane      / 10.; // in cm
+
+   LogTrace("CSCWireTopology|CSC") <<  
        "CSCWireTopology constructing CSCWireGeometry with:\n" <<
        " wireSpacing = " << wireSpacing*10. << " (mm) " <<
-       ", yOfFirstWire = " << yOfFirstWire << " (cm) " <<
-       ", wireAngle = " << wireAngleInDegrees << " (degrees) " <<
-    wireAngleInRadians << " (radians)";
+       ", yOfFirstWire = " << yOfFirstWire << " (cm) " << 
+     ", wireAngle = " << wireAngleInDegrees << " (deg) = " << wireAngleInRadians << " (rads)" <<
+     ", extent: n, w, l = " << nw << ", " << ww << ", " << lw << " (cm)";
 
   if ( fabs(wireAngleInDegrees) > zeroprecision ) { 
-    theWireGeometry = new CSCSlantedWireGeometry( wireSpacing, yOfFirstWire, 
-		wg.narrowWidthOfWirePlane, wg.wideWidthOfWirePlane, wg.lengthOfWirePlane, wireAngleInRadians );
+    theWireGeometry = new CSCSlantedWireGeometry( wireSpacing, yOfFirstWire, nw, ww, lw, wireAngleInRadians );
   }
   else {
-    theWireGeometry = new CSCNonslantedWireGeometry( wireSpacing, yOfFirstWire,
-                wg.narrowWidthOfWirePlane, wg.wideWidthOfWirePlane, wg.lengthOfWirePlane );
+    theWireGeometry = new CSCNonslantedWireGeometry( wireSpacing, yOfFirstWire, nw, ww, lw );
   }
 }
 

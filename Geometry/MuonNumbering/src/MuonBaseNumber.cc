@@ -1,4 +1,5 @@
 #include "Geometry/MuonNumbering/interface/MuonBaseNumber.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <iostream>
 
 //#define LOCAL_DEBUG
@@ -11,15 +12,15 @@ void MuonBaseNumber::addBase(LevelBaseNumber num){
 
   while (cur!=end) {
     if (num.level()==(*cur).level()) {
-      std::cout << "MuonBaseNumber::AddBase tries to add "
+      edm::LogInfo("MuonBaseNumber") << "MuonBaseNumber::addBase was asked to add "
 	   <<num.level()<<" "
 	   <<num.super()<<" "
 	   <<num.base()
 	   <<" to existing level "
 	   <<(*cur).level()<<" "
 	   <<(*cur).super()<<" "
-	   <<(*cur).base()
-	   <<std::endl;
+	   <<(*cur).base() << " but refused.";
+      return; // don't overwrite current volume stored
     }
     cur++;
   }

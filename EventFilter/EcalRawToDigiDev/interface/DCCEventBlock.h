@@ -12,8 +12,8 @@
  *
  * \file DCCEventBlock.h
  *
- * $Date: 2007/03/28 00:43:17 $
- * $Revision: 1.1.2.3 $
+ * $Date: 2007/04/10 17:33:48 $
+ * $Revision: 1.4 $
  *
  * \author N. Almeida
  * \author G. Franzoni
@@ -31,7 +31,6 @@ class DCCDataUnpacker;
 class DCCMemBlock;
 class EcalElectronicsMapper;
 
-using namespace std;
 
 class DCCEventBlock {
 	
@@ -47,7 +46,7 @@ class DCCEventBlock {
 
    void updateCollectors();
 	
-   void display(ostream & o);
+   void display(std::ostream & o);
 		
    uint smId()                  { return smId_;     }
    uint l1A()                   { return l1_;       }
@@ -66,8 +65,8 @@ class DCCEventBlock {
     uint eventSize_;
     uint dwToEnd_;
    
-    vector<short> feChStatus_;
-    vector<short> tccChStatus_;
+    std::vector<short> feChStatus_;
+    std::vector<short> tccChStatus_;
     
     uint srChStatus_;
 
@@ -80,6 +79,7 @@ class DCCEventBlock {
     uint dccErrors_;
     uint runNumber_;
     uint runType_;
+    uint detailedTriggerType_;
     
     uint sr_;
     uint zs_;
@@ -97,7 +97,7 @@ class DCCEventBlock {
     bool feUnpacking_;
     bool memUnpacking_;
 
-    auto_ptr<EcalRawDataCollection> *  dccHeaders_;
+    std::auto_ptr<EcalRawDataCollection> *  dccHeaders_;
 	 
 
 };

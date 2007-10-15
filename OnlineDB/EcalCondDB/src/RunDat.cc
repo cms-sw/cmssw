@@ -105,6 +105,7 @@ void RunDat::fetchData(map< EcalLogicID, RunDat >* fillMap, RunIOV* iov)
       p.second = dat;
       fillMap->insert(p);
     }
+    m_conn->terminateStatement(stmt);
   } catch (SQLException &e) {
     throw(runtime_error("RunDat::fetchData():  "+e.getMessage()));
   }

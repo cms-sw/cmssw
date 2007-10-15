@@ -9,8 +9,8 @@
  *
  * \file DCCTCCBlock.h
  *
- * $Date: 2007/03/28 00:43:18 $
- * $Revision: 1.1.2.2 $
+ * $Date: 2007/04/02 11:09:45 $
+ * $Revision: 1.3 $
  *
  * \author N. Almeida
  * 
@@ -33,8 +33,6 @@
 
 class DCCDataUnpacker;
 
-using namespace edm;
-
 class DCCTCCBlock : public DCCDataBlockPrototype {
 	
   public :
@@ -50,7 +48,7 @@ class DCCTCCBlock : public DCCDataBlockPrototype {
      */
     void unpack(uint64_t ** data, uint * dwToEnd);
 	 
-    void display(ostream & o); 
+    void display(std::ostream & o); 
 	 
   
   protected :
@@ -67,7 +65,7 @@ class DCCTCCBlock : public DCCDataBlockPrototype {
     
     EcalTrigTowerDetId * pTTDetId_;   
     EcalTriggerPrimitiveDigi * pTP_;
-    auto_ptr<EcalTrigPrimDigiCollection > * tps_;  
+    std::auto_ptr<EcalTrigPrimDigiCollection > * tps_;  
 
 };
 

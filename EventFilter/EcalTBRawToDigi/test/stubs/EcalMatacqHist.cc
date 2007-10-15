@@ -9,7 +9,6 @@
 #include <DataFormats/EcalDigi/interface/EcalDigiCollections.h>
 #include <FWCore/Utilities/interface/Exception.h>
 
-using namespace std;
 
 EcalMatacqHist::EcalMatacqHist(const edm::ParameterSet& ps):
   iEvent(0){
@@ -20,9 +19,9 @@ EcalMatacqHist::EcalMatacqHist(const edm::ParameterSet& ps):
   hTTrigMin = ps.getUntrackedParameter<double>("hTTrigMin", 0.);
   hTTrigMax = ps.getUntrackedParameter<double>("hTTrigMax", 2000.);
   TDirectory* dsave = gDirectory;
-  outFile = auto_ptr<TFile> (new TFile(outFileName.c_str(), "RECREATE"));
+  outFile = std::auto_ptr<TFile> (new TFile(outFileName.c_str(), "RECREATE"));
   if(outFile->IsZombie()){
-    cout << "EcalMatacqHist: Failed to create file " << outFileName
+    std::cout << "EcalMatacqHist: Failed to create file " << outFileName
 	 << " No histogram will be created.\n";
   }
 
@@ -37,7 +36,7 @@ EcalMatacqHist::~EcalMatacqHist(){
   if(!outFile->IsZombie()){
     TDirectory* dsave = gDirectory;
     outFile->cd();
-    for(vector<TProfile>::iterator it = profiles.begin();
+    for(std::vector<TProfile>::iterator it = profiles.begin();
        it != profiles.end();
        ++it){
       it->Write();
@@ -68,10 +67,10 @@ EcalMatacqHist:: analyze( const edm::Event & e, const  edm::EventSetup& c){
     if(iEvent >= firstTimePlotEvent
        && iEvent < firstTimePlotEvent + nTimePlots){
       int nSamples = digis.size();
-      stringstream title;
-      stringstream name;
+      std::stringstream title;
+      std::stringstream name;
       name << "matacq" << digis.chId() << "_"
-	   << setfill('0') << setw(4) << iEvent;
+	   << std::setfill('0') << std::setw(4) << iEvent;
       title << "Matacq channel " <<  digis.chId() << ", event " << iEvent
 	    << ", Ts = " << digis.ts()*1.e9 << "ns";
       float tTrig_s = digis.tTrig();
@@ -89,10 +88,10 @@ EcalMatacqHist:: analyze( const edm::Event & e, const  edm::EventSetup& c){
     //profile
     //init:
     if(iCh>=profiles.size()){ //profile not yet allocated for this matacq ch.
-      stringstream profTitle;
+      std::stringstream profTitle;
       profTitle << "Matacq channel " <<  digis.chId()
 		<< " profile";
-      stringstream profileName;
+      std::stringstream profileName;
       profileName << "matacq" << digis.chId();
       profiles.push_back(TProfile(profileName.str().c_str(),
 				  profTitle.str().c_str(),

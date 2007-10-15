@@ -1,0 +1,6 @@
+2007-06-13  Harry Cheung <cheung@fnal.gov>
+
+	* tag V02-04-01
+        * fixes to DQM collation and archiving from Bill Badgett
+        * includes first attempt for xdaq3.9 compatibility from Emilio Meschi
+        * fix for using DQMHttpSource with a FUEP app running EP in async

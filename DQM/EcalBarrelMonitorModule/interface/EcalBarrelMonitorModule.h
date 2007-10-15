@@ -4,8 +4,8 @@
 /*
  * \file EcalBarrelMonitorModule.h
  *
- * $Date: 2007/03/24 12:57:51 $
- * $Revision: 1.40 $
+ * $Date: 2007/04/05 14:53:54 $
+ * $Revision: 1.42 $
  * \author G. Della Ricca
  *
 */
@@ -54,6 +54,8 @@ int evtType_;
 int runNumber_;
 int evtNumber_;
 
+bool fixedRunNumber_;
+
 int ievt_;
 
 edm::InputTag EcalTBEventHeader_;
@@ -68,6 +70,8 @@ bool enableMonitorDaemon_;
 bool enableEventDisplay_;
 
 DaqMonitorBEInterface* dbe_;
+
+bool enableCleanup_;
 
 MonitorElement* meStatus_;
 

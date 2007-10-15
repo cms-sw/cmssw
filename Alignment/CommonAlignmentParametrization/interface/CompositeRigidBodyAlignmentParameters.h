@@ -2,6 +2,12 @@
 #ifndef Alignment_CommonAlignmentParametrization_CompositeRigidBodyAlignmentParameters_h
 #define Alignment_CommonAlignmentParametrization_CompositeRigidBodyAlignmentParameters_h
 
+#include <vector>
+
+#include "DataFormats/CLHEP/interface/AlgebraicObjects.h"
+#include "Geometry/CommonDetUnit/interface/GeomDet.h"
+#include "Alignment/CommonAlignment/interface/Alignable.h"
+
 #include "Alignment/CommonAlignmentParametrization/interface/RigidBodyAlignmentParameters.h"
 
 /// \class CompositeRigidBodyAlignmentParameters
@@ -10,9 +16,9 @@
 ///  Derived from RigidBodyAlignmentParameters so that
 ///  derivatives method can be redefined
 ///
-///  $Date: 2007/03/02 12:17:09 $
-///  $Revision: 1.3 $
-/// (last update by $Author: fronga $)
+///  $Date: 2006/10/19 14:20:59 $
+///  $Revision: 1.2 $
+/// (last update by $Author: flucke $)
 
 class CompositeRigidBodyAlignmentParameters : public RigidBodyAlignmentParameters 
 {

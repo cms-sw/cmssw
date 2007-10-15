@@ -1,8 +1,0 @@
-<export>
- <lib name=RecoTrackerDebugTools>
- <use name=RecoTracker/CkfPattern>
-</export>
-
-<use name=RecoTracker/CkfPattern>
-<use name=SimTracker/TrackerHitAssociation>
-<flags SEAL_PLUGIN_NAME="RecoTrackerDebugTools">

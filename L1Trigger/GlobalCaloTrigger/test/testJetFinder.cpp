@@ -13,6 +13,9 @@
 
 //Custom headers needed for this test
 #include "DataFormats/L1CaloTrigger/interface/L1CaloRegion.h"
+
+#include "L1Trigger/GlobalCaloTrigger/test/produceTrivialCalibrationLut.h"
+
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctJet.h"
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctJetEtCalibrationLut.h"
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctSourceCard.h"
@@ -93,24 +96,11 @@ int main(int argc, char **argv)
       srcCrds[i] = new L1GctSourceCard(3*i+2, L1GctSourceCard::cardType3);
     }
         
-    double lsb=1.0;
-    static const unsigned nThresh=64;
-    vector<double> thresh(nThresh);
-    thresh.at(0) = 0.0;
-    for (unsigned t=1; t<nThresh; ++t) {
-      thresh.at(t) = t*16.0 - 8.0;
-    }
-
-    double threshold=5.0;
-    vector< vector<double> > defaultCalib;
-    L1CaloEtScale* myScale = new L1CaloEtScale(lsb, thresh);
-    L1GctJetEtCalibrationFunction* myFun = new L1GctJetEtCalibrationFunction();
-    myFun->setOutputEtScale(*myScale);
-    myFun->setParams(lsb, threshold,
-                     defaultCalib, defaultCalib);
+    produceTrivialCalibrationLut* lutProducer=new produceTrivialCalibrationLut();
 
     // Instance of the class
-    L1GctJetEtCalibrationLut* myJetEtCalLut = L1GctJetEtCalibrationLut::setupLut(myFun);
+    L1GctJetEtCalibrationLut* myJetEtCalLut = lutProducer->produce();
+    delete lutProducer;
   
     L1GctTdrJetFinder * myJetFinder = new L1GctTdrJetFinder(9, srcCrds); //TEST OBJECT on heap;
     myJetFinder->setJetEtCalibrationLut(myJetEtCalLut); 
@@ -152,6 +142,7 @@ void classTest(L1GctTdrJetFinder *myJetFinder)
   RegionsVector outputRegions; //Size?
   RawJetsVector outputJets;    //Size?
   ULong outputHt;
+  ULong sumOfJetHt;
   //Jet Counts to be added at some point
   
   // Load our test input data and known results
@@ -173,19 +164,32 @@ void classTest(L1GctTdrJetFinder *myJetFinder)
   outputJets = myJetFinder->getRawJets();
   outputHt = myJetFinder->getHt().value();
 
+  sumOfJetHt = 0;
+  for (RawJetsVector::const_iterator it=outputJets.begin(); it!=outputJets.end(); ++it) {
+    sumOfJetHt += it->calibratedEt(myJetFinder->getJetEtCalLut());
+  }
+
   //Test the outputted jets against the known results
   if(!compareJetsVectors(outputJets, trueJets, "outputted jets")) { testPass = false; }
   
-  //Test the outputted Ht against known result
-  if(outputHt != trueHt)
+  //Test the outputted Ht against known result.
+  //NOTE: this is lookup table dependent, so the reference file
+  //needs to change when the lookup table changes.
+  if(outputHt != sumOfJetHt)
   {
-    cout << "output Ht " << outputHt << " true Ht " << trueHt << endl;
+    cout << "output Ht " << outputHt << " true Ht " << sumOfJetHt << endl;
     cout << "\nTest class has FAILED Ht comparison!" << endl;
     testPass = false;
   }
   else
   {
     cout << "\nTest class has passed Ht comparison." << endl;
+    if(outputHt != trueHt)
+    {
+      cout << "The value recorded in the file " << trueHt
+           << " is wrong; should be " << sumOfJetHt << endl;
+      cout << "Have you changed the calibration function??" << endl;
+    }
   }
 
   //Test the Et strip sums against known results
@@ -400,7 +404,6 @@ L1GctJet readSingleJet(ifstream &fin)
   //return object
   L1GctJet tempJet(jetComponents[0], jetComponents[1],
                        jetComponents[2], static_cast<bool>(jetComponents[3]));
-
   return tempJet;
 }
 

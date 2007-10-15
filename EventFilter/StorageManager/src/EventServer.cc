@@ -2,7 +2,7 @@
  * This class manages the distribution of events to consumers from within
  * the storage manager.
  *
- * 17-Aug-2006 - KAB  - Initial Implementation
+ * $Id: EventServer.cc,v 1.4 2007/04/26 01:01:54 hcheung Exp $
  */
 
 #include "EventFilter/StorageManager/interface/EventServer.h"
@@ -13,36 +13,16 @@ using namespace stor;
 using namespace edm;
 
 /**
- * Initialize the maximum reduction factor.
- */
-const int EventServer::MAX_REDUCTION_FACTOR = 1000000;
-
-/**
  * Initialize the maximum accept interval.
  */
 const double EventServer::MAX_ACCEPT_INTERVAL = 86400.0;  // seconds in 1 day
 
 /**
- * EventServer constructor.  Two ways of throttling events are supported:
- * specifying a maximimum allowed rate of accepted events and specifying
- * a fixed prescale.  If the fixed prescale value is greater than zero,
- * it takes precendence.  That is, the maximum rate is ignored if the
- * prescale is in effect.
+ * EventServer constructor.  Throttling events are supported:
+ * specifying a maximimum allowed rate of accepted events
  */
-EventServer::EventServer(int eventPrescaleFactor, double maximumRate)
+EventServer::EventServer(double maximumRate)
 {
-  // assign the prescale for candidate events
-  // (zero and negative values are legal, and these signal that we should
-  // use the maximum rate rather than the prescale)
-  if (eventPrescaleFactor > MAX_REDUCTION_FACTOR)
-  {
-    eventReductionFactor_ = MAX_REDUCTION_FACTOR;
-  }
-  else
-  {
-    eventReductionFactor_ = eventPrescaleFactor;
-  }
-
   // determine the amount of time that we need to wait between accepted
   // events (to ensure that the event server doesn't send "too many" events
   // to consumers).  The maximum rate specified to this constructor is
@@ -62,7 +42,6 @@ EventServer::EventServer(int eventPrescaleFactor, double maximumRate)
   gettimeofday(&lastAcceptedEventTime_, &dummyTZ);
 
   // initialize counters
-  skippedEventCounter_ = 0;;
   disconnectedConsumerTestCounter_ = 0;
 }
 
@@ -107,7 +86,6 @@ boost::shared_ptr<ConsumerPipe> EventServer::getConsumer(uint32 consumerId)
 /**
  * Processes the specified event.  This includes checking whether
  * the event is allowed to be delivered to consumers based on the
- * prescale and 
  * maximum event rate specified in the constructor, checking if
  * any consumers are ready to receive events, checking if any consumers
  * are interested in this specific event, making a local copy of the
@@ -117,34 +95,14 @@ void EventServer::processEvent(const EventMsgView &eventView)
 {
   // check if we are ready to accept another event
   struct timeval now;
-  if (eventReductionFactor_ > 0)
-  {
-    // skip events based on the specified reduction factor
-    skippedEventCounter_++;
-    if (skippedEventCounter_ >= eventReductionFactor_)
-    {
-      // "accept" this event and reset the counter
-      skippedEventCounter_ = 0;
-    }
-    else
-    {
-      // skip this event
-      return;
-    }
-  }
-  else
-  {
-    // throttle events that occur more frequently than our max allowed rate
-    struct timezone dummyTZ;
-    gettimeofday(&now, &dummyTZ);
-    double timeDiff = (double) now.tv_sec;
-    timeDiff -= (double) lastAcceptedEventTime_.tv_sec;
-    timeDiff += ((double) now.tv_usec / 1000000.0);
-    timeDiff -= ((double) lastAcceptedEventTime_.tv_usec / 1000000.0);
-    //cout << "timeDiff = " << timeDiff <<
-    //  ", minTime = " << minTimeBetweenEvents_ << std::endl;
-    if (timeDiff < minTimeBetweenEvents_) {return;}
-  }
+  // throttle events that occur more frequently than our max allowed rate
+  struct timezone dummyTZ;
+  gettimeofday(&now, &dummyTZ);
+  double timeDiff = (double) now.tv_sec;
+  timeDiff -= (double) lastAcceptedEventTime_.tv_sec;
+  timeDiff += ((double) now.tv_usec / 1000000.0);
+  timeDiff -= ((double) lastAcceptedEventTime_.tv_usec / 1000000.0);
+  if (timeDiff < minTimeBetweenEvents_) {return;}
 
   // do nothing if the event is empty
   if (eventView.size() == 0) {return;}
@@ -186,10 +144,7 @@ void EventServer::processEvent(const EventMsgView &eventView)
         bufPtr.swap(tmpBufPtr);
 
         // update the local time stamp for the latest accepted event
-        if (eventReductionFactor_ <= 0)
-        {
-          lastAcceptedEventTime_ = now;
-        }
+        lastAcceptedEventTime_ = now;
       }
 
       // add the event to the consumer pipe
@@ -251,4 +206,16 @@ boost::shared_ptr< std::vector<char> > EventServer::getEvent(uint32 consumerId)
 
   // return the event buffer
   return bufPtr;
+}
+
+void EventServer::clearQueue()
+{
+  std::map< uint32, boost::shared_ptr<ConsumerPipe> >::const_iterator consIter;
+  for (consIter = consumerTable.begin();
+       consIter != consumerTable.end();
+       consIter++)
+  {
+    boost::shared_ptr<ConsumerPipe> consPipe = consIter->second;
+    consPipe->clearQueue();
+  }
 }

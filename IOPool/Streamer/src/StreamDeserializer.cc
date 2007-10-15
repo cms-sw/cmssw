@@ -29,6 +29,7 @@ namespace edm
    */
   StreamDeserializer::StreamDeserializer():
     processConfiguration_(),
+    processHistoryID_(),
     tc_(getTClass(typeid(SendEvent))),
     dest_(init_size),
     xbuf_(TBuffer::kRead, init_size)
@@ -120,10 +121,9 @@ namespace edm
     auto_ptr<EventPrincipal> ep(new EventPrincipal(sd->id_,
                                                    sd->time_,
                                                    productRegistry,
-                                                   1,
-                                                   processConfiguration_));
-    // Add processConfiguration_ to the process history.
-    ep->addToProcessHistory();
+                                                   eventView.lumi(),
+                                                   processConfiguration_,
+						   processHistoryID_));
     // no process name list handling
 
     SendProds::iterator spi(sd->prods_.begin()),spe(sd->prods_.end());

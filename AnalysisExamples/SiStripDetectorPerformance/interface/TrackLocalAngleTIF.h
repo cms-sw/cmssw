@@ -1,27 +1,11 @@
-// ---------------------------------------------------------------------------
-// This class performs a simple disentaglment of the matched rechits
-// providing a vector of rechits and angles.
-//
-// Class objects need to be initialized with the event setup. It needs
-// to access the tracker geometry to convert the local directions.
-// The SeparateHits method requires a reco::TrackInfoRef. It takes it
-// by reference. It returns a vector<pair<const TrackingRecHit*,float> >,
-// which contains all the hits (matched hits are divided in mono and stereo)
-// and the corresponding track angles.
-// It also stores the phi and theta angles and the local and global direction
-// vectors which can be taken by the corresponding get methods.
-//
-// M.De Mattia 13/2/2007
-// ---------------------------------------------------------------------------
-
 #ifndef AnalysisExamples_SiStripDetectorPerformance_TrackLocalAngleTIF_h
 #define AnalysisExamples_SiStripDetectorPerformance_TrackLocalAngleTIF_h
 
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/Handle.h"
+#include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "Geometry/Vector/interface/GlobalPoint.h"
+#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "DataFormats/Common/interface/EDProduct.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
@@ -33,13 +17,12 @@
 #include "TrackingTools/MaterialEffects/interface/PropagatorWithMaterial.h"
 #include "TrackingTools/KalmanUpdators/interface/KFUpdator.h"
 #include "TrackingTools/KalmanUpdators/interface/Chi2MeasurementEstimator.h"
-#include "TrackingTools/TrackFitters/interface/KFTrajectoryFitter.h"
+ #include "TrackingTools/TrackFitters/interface/KFTrajectoryFitter.h"
 #include "TrackingTools/TrackFitters/interface/KFTrajectorySmoother.h"
 #include "RecoTracker/TransientTrackingRecHit/interface/TkTransientTrackingRecHitBuilder.h" 
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/TrackReco/interface/Track.h"
-#include "AnalysisDataFormats/TrackInfo/interface/TrackInfo.h"
 
 class TrackLocalAngleTIF 
 {
@@ -48,13 +31,23 @@ class TrackLocalAngleTIF
   typedef std::vector<std::pair<const TrackingRecHit *, LocalVector > > HitLclDirAssociation;
   typedef std::vector<std::pair<const TrackingRecHit *, GlobalVector> > HitGlbDirAssociation;
   
-  TrackLocalAngleTIF();
+  //  typedef TransientTrackingRecHit::ConstRecHitPointer    ConstRecHitPointer;
+  //typedef TransientTrackingRecHit::RecHitPointer         RecHitPointer;
+  //typedef ConstReferenceCountingPointer<TransientTrackingRecHit> ConstRecHitPointer;
+  
+  explicit TrackLocalAngleTIF(const edm::ParameterSet& conf);
   
   virtual ~TrackLocalAngleTIF();
+  void init(const edm::Event& e,const edm::EventSetup& c);
 
-  void init ( const edm::EventSetup& es  );
+  std::vector<std::pair<const TrackingRecHit*,float> > findtrackangle(const TrajectorySeed& seed,
+										       const reco::Track & theT);
 
-  std::vector<std::pair<const TrackingRecHit*,float> > SeparateHits(reco::TrackInfoRef & trackinforef);
+  std::vector<std::pair<const TrackingRecHit *,float> > findtrackangle(const reco::Track & theT);
+  std::vector<std::pair<const TrackingRecHit *,float> > buildTrack(TransientTrackingRecHit::RecHitContainer& hits,
+								   const TrajectoryStateOnSurface& theTSOS,
+								   const TrajectorySeed& seed);
+  TrajectoryStateOnSurface  startingTSOS(const TrajectorySeed& seed)const;
 
   inline HitAngleAssociation getXZHitAngle() const throw() { 
     return oXZHitAngle; }
@@ -67,15 +60,26 @@ class TrackLocalAngleTIF
     return oGlobalDir; }
 
  private:
+  edm::ParameterSet conf_;
+  
+  bool seed_plus;
+  const Propagator  *thePropagator;
+  const Propagator  *thePropagatorOp;
+  KFUpdator *theUpdator;
+  Chi2MeasurementEstimator *theEstimator;
+  const TransientTrackingRecHitBuilder *RHBuilder;
+  //  const KFTrajectorySmoother * theSmoother;
+  const TrajectoryFitter * theFitter;
+  const TrackerGeometry * tracker;
+  const MagneticField * magfield;
+  TrajectoryStateTransform tsTransform;
+  //  TransientTrackingRecHit::RecHitContainer hits;
 
   HitAngleAssociation oXZHitAngle;
   HitAngleAssociation oYZHitAngle;
 
   HitLclDirAssociation oLocalDir;
   HitGlbDirAssociation oGlobalDir;
-
-  const TrackerGeometry * _tracker;
-  reco::TrackInfo::TrajectoryInfo::const_iterator _tkinfoiter;
 };
 
 

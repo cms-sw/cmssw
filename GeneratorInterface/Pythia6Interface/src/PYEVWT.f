@@ -17,6 +17,7 @@ C...Double precision and integer declarations.
       INTEGER PYK,PYCHGE,PYCOMP
 C...Commonblocks.
       COMMON/PYDAT1/MSTU(200),PARU(200),MSTJ(200),PARJ(200)
+      COMMON/PYPARS/MSTP(200),PARP(200),MSTI(200),PARI(200)
       COMMON/PYINT1/MINT(400),VINT(400)
       COMMON/PYINT2/ISET(500),KFPR(500,2),COEF(500,20),ICOL(40,4,2)
       SAVE /PYDAT1/,/PYINT1/,/PYINT2/
@@ -62,10 +63,12 @@ C                  2 for EWK soup
 C                  3 for HLT soup
 C                  4 for soft muon soup
 C                  5 for exotics soup ?
+C                  6 for cross-section reweighted quarkonia production
 
  
-      IF (CSAMODE.LE.0.OR.CSAMODE.GT.5) THEN
+      IF (CSAMODE.LE.0.OR.CSAMODE.GT.6) THEN
          write (*,*) ' CSAMODE not properly set !! No reweighting!! '
+         write (*,*) ' CSAMODE = ', CSAMODE
       ENDIF      
 
  
@@ -183,9 +186,27 @@ C...Optional weights for zprime and susy (exotics soup?)
         IF (ISUB.GE.201.AND.ISUB.LE.296) THEN
           IF (SUSYRW.GT.(1.0D-14)) WTXS = SUSYRW 
         ENDIF
-      
-       
+
       ENDIF 
+
+
+C...Weights for cross-section reweighted quarkonia      
+
+      IF (CSAMODE.EQ.6) THEN
+
+C...Copy form for pT0 as used in multiple interactions.
+      PT0=PARP(82)*(VINT(1)/PARP(89))**PARP(90)
+      PT20=PT0**2
+
+C...Introduce dampening factor. 
+      WTXS=(PT2/(PT20+PT2))**2
+
+C...Also dampen alpha_strong by using larger Q2 scale.
+      Q2=VINT(52)
+      WTXS=WTXS*(PYALPS(PT20+Q2)/PYALPS(Q2))**3
+
+      ENDIF 
+       
 
       RETURN
       END

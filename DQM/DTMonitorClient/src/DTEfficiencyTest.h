@@ -6,8 +6,8 @@
  * *
  *  DQM Test Client
  *
- *  $Date: 2007/03/29 10:06:38 $
- *  $Revision: 1.1 $
+ *  $Date: 2007/03/30 16:10:06 $
+ *  $Revision: 1.2 $
  *  \author  G. Mila - INFN Torino
  *   
  */
@@ -68,7 +68,6 @@ protected:
 
 private:
 
-  bool debug;
   int nevents;
 
   DaqMonitorBEInterface* dbe;

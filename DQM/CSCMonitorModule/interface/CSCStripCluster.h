@@ -28,7 +28,7 @@ class CSCStripCluster {
   int rnlocal(){return localMax.size();}
   CSCStripCluster();
   virtual ~CSCStripCluster();
-//  ClassDef(CSCStripCluster,1) //CSCStripCluster
+  //  ClassDef(CSCStripCluster,1) //CSCStripCluster
 
 };
 #endif

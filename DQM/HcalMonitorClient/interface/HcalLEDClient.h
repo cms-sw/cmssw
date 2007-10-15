@@ -89,7 +89,7 @@ public:
   bool hasWarnings() const { return dqmReportMapWarn_.size(); }
   bool hasOther() const { return dqmReportMapOther_.size(); }
 
-  void resetME();
+  void resetAllME();
   void createTests();
 
 
@@ -97,30 +97,47 @@ private:
   
   int ievt_;
   int jevt_;
-  
-  edm::ESHandle<HcalDbService> conditions_;
 
   bool collateSources_;
   bool cloneME_;
   bool verbose_;
   string process_;
+  string m_outputFileName;
+  ofstream m_outTextFile;
 
   MonitorUserInterface* mui_;
   const HcalElectronicsMap* readoutMap_;
+  edm::ESHandle<HcalDbService> conditions_;
 
-  int etaMin[4]; int etaMax[4];
-  int phiMin[4]; int phiMax[4];
-  int depMin[4]; int depMax[4];
+  bool subDetsOn_[4];
 
-  TH1F* avg_shape[4];
-  TH1F* avg_time[4];
+  TH1F* avg_shape_[4];
+  TH1F* avg_time_[4];
+  TH1F* avg_energy_[4];
 
-  TH1F* rms_shape[4];
-  TH1F* mean_shape[4];
-  TH1F* rms_time[4];
-  TH1F* mean_time[4];
-  TH2F* err_map_geo[4];
-  TH2F* err_map_elec[4];
+  TH1F* rms_shape_[4];
+  TH1F* mean_shape_[4];
+  TH1F* rms_time_[4];
+  TH1F* mean_time_[4];
+  TH1F* rms_energy_[4];
+  TH1F* mean_energy_[4];
+
+  TH2F* err_map_geo_[4];
+  TH2F* err_map_elec_[4];
+
+  TH2F* rms_energyDep_[4];
+  TH2F* mean_energyDep_[4];
+  TH2F* rms_timeDep_[4];
+  TH2F* mean_timeDep_[4];
+  TH2F* rms_shapeDep_[4];
+  TH2F* mean_shapeDep_[4];
+
+  map<unsigned int, TH2F*> rms_energyElec_;
+  map<unsigned int, TH2F*> mean_energyElec_;
+  map<unsigned int, TH2F*> rms_timeElec_;
+  map<unsigned int, TH2F*> mean_timeElec_;
+  map<unsigned int, TH2F*> rms_shapeElec_;
+  map<unsigned int, TH2F*> mean_shapeElec_;
 
   // Quality criteria for data integrity
   float rms_thresh_;

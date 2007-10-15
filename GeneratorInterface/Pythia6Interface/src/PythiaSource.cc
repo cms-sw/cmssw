@@ -1,6 +1,6 @@
 /*
- *  $Date: 2007/03/20 10:58:25 $
- *  $Revision: 1.2 $
+ *  $Date: 2007/05/22 13:39:22 $
+ *  $Revision: 1.9 $
  *  
  *  Filip Moorgat & Hector Naves 
  *  26/10/05
@@ -8,14 +8,21 @@
  *  Patrick Janot : added the PYTHIA card reading
  *
  *  Sasha Nikitenko : added single/double particle gun
+ *
+ *  Holger Pieta : added FileInPath for SLHA
+ *
  */
 
 
 #include "GeneratorInterface/Pythia6Interface/interface/PythiaSource.h"
 #include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
+#include "SimDataFormats/HepMCProduct/interface/GenInfoProduct.h"
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/Run.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
+#include "Utilities/General/interface/FileInPath.h"
+
 
 #include <iostream>
 #include "time.h"
@@ -24,8 +31,11 @@ using namespace edm;
 using namespace std;
 
 
-#include "HepMC/PythiaWrapper6_2.h"
+#include "GeneratorInterface/Pythia6Interface/interface/PythiaWrapper6_2.h"
 #include "HepMC/IO_HEPEVT.h"
+
+#include "GeneratorInterface/CommonInterface/interface/Txgive.h"
+
 
 #define PYGIVE pygive_
 extern "C" {
@@ -80,7 +90,9 @@ PythiaSource::PythiaSource( const ParameterSet & pset,
   pythiaPylistVerbosity_ (pset.getUntrackedParameter<int>("pythiaPylistVerbosity",0)),
   pythiaHepMCVerbosity_ (pset.getUntrackedParameter<bool>("pythiaHepMCVerbosity",false)),
   maxEventsToPrint_ (pset.getUntrackedParameter<int>("maxEventsToPrint",1)),
-  comenergy(pset.getUntrackedParameter<double>("comEnergy",14000.))
+  comenergy(pset.getUntrackedParameter<double>("comEnergy",14000.)),
+  extCrossSect(pset.getUntrackedParameter<double>("crossSection", -1.)),
+  extFilterEff(pset.getUntrackedParameter<double>("filterEfficiency", -1.))
   
 {
   
@@ -101,7 +113,22 @@ PythiaSource::PythiaSource( const ParameterSet & pset,
   maxEventsToPrint_ = pset.getUntrackedParameter<int>("maxEventsToPrint",0);
   cout << "Number of events to be printed = " << maxEventsToPrint_ << endl;
 
-  
+  //tauola
+  useTauola_ = pset.getUntrackedParameter<bool>("UseTauola", false);
+  if ( useTauola_ ) {
+    cout << "--> use TAUOLA" << endl;
+  } else {
+    cout << "--> do not use TAUOLA" << endl; 
+  }
+  useTauolaPolarization_ = pset.getUntrackedParameter<bool>("UseTauolaPolarization", false);
+  if ( useTauolaPolarization_ ) {
+    cout << "(Polarization effects enabled)" << endl;
+    tauola_.enablePolarizationEffects();
+  } else {
+    cout << "(Polarization effects disabled)" << endl;
+    tauola_.disablePolarizationEffects();
+  }
+
   particleID = pset.getUntrackedParameter<int>("ParticleID", 0);
   if(particleID) {
 
@@ -113,6 +140,14 @@ PythiaSource::PythiaSource( const ParameterSet & pset,
     ptmin = pset.getUntrackedParameter<double>("Ptmin",20.);
     ptmax = pset.getUntrackedParameter<double>("Ptmax",420.);
     cout <<" ptmin = " << ptmin <<" ptmax = " << ptmax << endl;
+  
+  
+    emin = pset.getUntrackedParameter<double>("Emin",-1);
+    emax = pset.getUntrackedParameter<double>("Emax",-1);
+    if ( emin > 0 && emax > 0 ) {
+      cout <<" emin = " << emin <<" emax = " << emax << endl;
+    }
+
 
     etamin = pset.getUntrackedParameter<double>("Etamin",0.);
     etamax = pset.getUntrackedParameter<double>("Etamax",2.2);
@@ -148,7 +183,7 @@ PythiaSource::PythiaSource( const ParameterSet & pset,
     vector<string> pars = 
       pythia_params.getParameter<vector<string> >(mySet);
     
-    if (mySet != "SLHAParameters"){
+    if (mySet != "SLHAParameters" && mySet != "CSAParameters"){
     cout << "----------------------------------------------" << endl;
     cout << "Read PYTHIA parameter set " << mySet << endl;
     cout << "----------------------------------------------" << endl;
@@ -166,7 +201,27 @@ PythiaSource::PythiaSource( const ParameterSet & pset,
 	  <<" pythia did not accept the following \""<<*itPar<<"\"";
       }
     }
-    }else if(mySet == "SLHAParameters"){   
+    } else if(mySet == "CSAParameters"){   
+
+   // Read CSA parameter
+  
+   pars = pythia_params.getParameter<vector<string> >("CSAParameters");
+
+   cout << "----------------------------------------------" << endl; 
+   cout << "Reading CSA parameter settings. " << endl;
+   cout << "----------------------------------------------" << endl;                                                                           
+
+   call_txgive_init();
+  
+  
+   // Loop over all parameters and stop in case of a mistake
+    for (vector<string>::const_iterator 
+            itPar = pars.begin(); itPar != pars.end(); ++itPar) {
+      call_txgive(*itPar); 
+     
+         } 
+     
+   } else if(mySet == "SLHAParameters"){   
 
    // Read SLHA parameter
   
@@ -207,10 +262,34 @@ PythiaSource::PythiaSource( const ParameterSet & pset,
       call_pyinit( "CMS", "p", "p", comenergy );
     }
 
+  if ( useTauola_ ) {
+    cout << "----------------------------------------------" << endl;
+    cout << "Initializing Tauola" << endl;
+ // read External Generator parameters
+    ParameterSet generator_params =
+    pset.getParameter<ParameterSet>("GeneratorParameters") ;
+     vector<string> pars =
+      generator_params.getParameter<vector<string> >("generator");
+     cout << "----------------------------------------------" << endl;
+     cout << "Read External Generator parameter set "  << endl;
+     cout << "----------------------------------------------" << endl;
+   for( vector<string>::const_iterator
+           itPar = pars.begin(); itPar != pars.end(); ++itPar )
+       {
+      call_txgive(*itPar);
+       }
+
+    cout << "   Read TAUOLA card: " << endl;
+    tauola_.initialize();
+    //call_pretauola(-1); // initialize TAUOLA package for tau decays
+    cout << "----------------------------------------------" << endl;
+  }
+
   cout << endl; // Stetically add for the output
   //********                                      
   
   produces<HepMCProduct>();
+  produces<GenInfoProduct, edm::InRun>();
   cout << "PythiaSource: starting event generation ... " << endl;
 }
 
@@ -218,6 +297,10 @@ PythiaSource::PythiaSource( const ParameterSet & pset,
 PythiaSource::~PythiaSource(){
   cout << "PythiaSource: event generation done. " << endl;
   call_pystat(1);
+  if ( useTauola_ ) {
+    tauola_.print();
+    //call_pretauola(1); // print TAUOLA decay statistics output
+  }
   clear(); 
 }
 
@@ -225,6 +308,16 @@ void PythiaSource::clear() {
  
 }
 
+void PythiaSource::endRun(Run & r) {
+ 
+ double cs = pypars.pari[0]; // cross section in mb
+ auto_ptr<GenInfoProduct> giprod (new GenInfoProduct());
+ giprod->set_cross_section(cs);
+ giprod->set_external_cross_section(extCrossSect);
+ giprod->set_filter_efficiency(extFilterEff);
+ r.put(giprod);
+
+}
 
 bool PythiaSource::produce(Event & e) {
 
@@ -237,13 +330,18 @@ bool PythiaSource::produce(Event & e) {
       {
 	int ip = 1;
 	double pt  = fRandomGenerator->fire(ptmin, ptmax);
+	double e   = fRandomGenerator->fire(emin, emax);
 	double eta = fRandomGenerator->fire(etamin, etamax);
 	double the = 2.*atan(exp(-eta));
 	double phi = fRandomGenerator->fire(phimin, phimax);
 	double pmass = PYMASS(particleID);
-	double pe = pt/sin(the);
-	double ee = sqrt(pe*pe+pmass*pmass);
-
+	double ee = 0.;
+	if ( emin > pmass && emax > pmass ) { // generate single particle distribution flat in energy
+	  ee = e;
+	} else { // generate single particle distribution flat in pt
+	  double pe = pt/sin(the);
+	  ee = sqrt(pe*pe+pmass*pmass);
+	}
 	/*
 	cout <<" pt = " << pt 
 	     <<" eta = " << eta 
@@ -266,12 +364,27 @@ bool PythiaSource::produce(Event & e) {
 	    phi  = phi + 3.1415927;
 	    if (phi > 2.* 3.1415927) {phi = phi - 2.* 3.1415927;}         
 	    PY1ENT(ip, particleID2, ee, the, phi);
-	  }
+	  } else if ( useTauola_ && abs(particleID) == 15 ){
+	  // Produce tau/anti-tau neutrino
+	  // (automatically done in case Tauola is used to simulated tau decays,
+	  //  as Tauola does not decay tau leptons if they are not produced
+	  //  in association with either an anti-tau lepon or an anti-tau neutrino)
+	  ip = ip + 1;
+	  int particleID2 = ( particleID < 0 ) ? +16 : -16;
+	  the = 2.*atan(exp(eta));
+	  phi  = phi + 3.1415927;
+	  if (phi > 2.* 3.1415927) {phi = phi - 2.* 3.1415927;}
+	  PY1ENT(ip, particleID2, ee, the, phi);
+	}
 	PYEXEC();
       } else {
 	call_pyevnt();      // generate one event with Pythia
       }
-
+    
+    if ( useTauola_ ) {
+      tauola_.processEvent();
+      //call_pretauola(0); // generate tau decays with TAUOLA
+    }
     call_pyhepc( 1 );
     
     //HepMC::GenEvent* evt = conv.getGenEventfromHEPEVT();
@@ -344,12 +457,41 @@ PythiaSource::call_txgive_init() {
 
 bool
 PythiaSource::call_slhagive(const std::string& iParm ) {
-  	 
-  SLHAGIVE( iParm.c_str(), iParm.length() );
-  cout << "     " <<  iParm.c_str() << endl;
-  	 
-        return 1;
+	if( iParm.find( "SLHAFILE", 0 ) != string::npos ) {
+		string::size_type start = iParm.find_first_of( "=" ) + 1;
+		string::size_type end = iParm.length() - 1;
+		string::size_type temp = iParm.find_first_of( "'", start );
+		if( temp != string::npos ) {
+			start = temp + 1;
+			end = iParm.find_last_of( "'" ) - 1;
+		} 
+		start = iParm.find_first_not_of( " ", start );
+		end = iParm.find_last_not_of( " ", end );		
+		string shortfile = iParm.substr( start, end - start + 1 );
+		string file;
+		if( shortfile[0] == '/' ) {
+			cout << "SLHA file given with absolut path." << endl;
+			file = shortfile;
+		} else {
+		//	try {
+				FileInPath f1( shortfile );
+				file = f1.fullPath();
+		//	} catch(...) {
+		//		cout << "SLHA file not in path. Trying anyway." << endl;
+		//		file = shortfile;
+		//	}
+		}
+		file = "SLHAFILE = '" + file + "'";
+		SLHAGIVE( file.c_str(), file.length() );
+		cout << "     " <<  file.c_str() << endl;
+		
+	} else {
+		SLHAGIVE( iParm.c_str(), iParm.length() );
+		cout << "     " <<  iParm.c_str() << endl; 
+	}
+	return 1;
 }
+
 
 bool 
 PythiaSource::call_slha_init() {

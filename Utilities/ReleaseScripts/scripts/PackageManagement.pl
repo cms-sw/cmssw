@@ -6,7 +6,7 @@
 # Author: Shaun ASHBY <Shaun.Ashby@cern.ch>
 # (Tagcollector interface taken from CmsTCPackageList.pl (author D.Lange))
 # Update: 2006-04-10 16:15:32+0200
-# Revision: $Id: PackageManagement.pl,v 1.6 2006/04/19 08:32:27 sashby Exp $ 
+# Revision: $Id: PackageManagement.pl,v 1.7 2006/07/31 14:29:58 sashby Exp $ 
 #
 # Copyright: 2006 (C) Shaun ASHBY
 #
@@ -18,6 +18,7 @@ use Getopt::Long ();
 my $cvs = '/usr/bin/cvs';
 my $projectroot='CMSSW';
 my $cvsroot = ':kserver:cmscvs.cern.ch:/cvs_server/repositories/'.$projectroot;
+my $cvsrootAnon = ':pserver:anonymous@cmscvs.cern.ch:/cvs_server/repositories/'.$projectroot;
 my $outdir;
 my $rv;
 my $releaseid;
@@ -53,6 +54,7 @@ my %options =
     "search=s"        => sub { $opts{USE_REGEXP} = 1; $opts{PACKAGES} = 0; $package_search_regexp = $_[1]; },
     "justtag"         => sub { $opts{SHOWTAGONLY} = 1 },
     "dumptags"        => sub { $opts{DUMPTAGLIST} = 1 },
+    "anoncvs"         => sub { $opts{ANONCVS} = 1; $cvsroot=$cvsrootAnon; }, 
     "silent"          => sub { $opts{VERBOSE} = 0 },
     "help"            => sub { &usage(); exit(0)}
     );
@@ -430,6 +432,7 @@ sub usage()
    $string.="--pack=<PACKAGES>           Only consider the packages listed in space-separated string PACKAGES.\n";
    $string.="--search=<REGEXP>           Query/checkout packages matching the Perl regular expression REGEXP.\n";
    $string.="--justtag | -j              Print just the CVS tag for the package given in \"--pack X\" option.\n";
+   $string.="--anoncvs                   Use the anonymous CVSROOT to check out packages\n";  
    $string.="--query | -q                Query package lists to see tags. Don't perform any checkouts.\n";
    $string.="--silent | -s               Be silent: don't print anything.\n";
    $string.="--help | -h                 Show this help and exit.\n";

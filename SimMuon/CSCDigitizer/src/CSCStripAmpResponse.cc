@@ -5,7 +5,15 @@
 #include <iostream>
 #include <cmath>
 
-float CSCStripElectronicsSim::calculateAmpResponse(float t) const
+
+CSCStripAmpResponse::CSCStripAmpResponse(int shapingTime, int tailShaping)
+: theShapingTime(shapingTime),
+  theTailShaping(tailShaping)
+{
+}
+
+
+float CSCStripAmpResponse::calculateAmpResponse(float t) const
 {
 
     // Local variables 

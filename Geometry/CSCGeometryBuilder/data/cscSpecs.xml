@@ -75,10 +75,20 @@
 <Parameter name="upar" value="2.9582"/>
 <!--# 30 - ctiOffset - possible future use -->
 <Parameter name="upar" value="0.0"/>
-<!--# 31 - z of strip layer 1 wrt centre of chamber (cm) -->
-<Parameter name="upar" value="6.4"/>
+<!--# 31 - chamber frame thickness (mm) -->
+<!-- make things consistent with current mf.xml values by using an incorrect frame thickness -->
+<!--Parameter name="upar" value="8.0"/-->
+<Parameter name="upar" value="2.0"/>
+<!--# 32 - gas gap thickness (mm) -->
+<!-- make things consistent with current mf.xml values by using an incorrect gap thickness -->
+<!--Parameter name="upar" value="7.0"/-->
+<Parameter name="upar" value="5.6"/>
+<!--# 33 - panel thickness (mm) -->
+<!-- make things consistent with current mf.xml values by using an incorrect panel thickness -->
+<!--Parameter name="upar" value="15.0"/-->
+<Parameter name="upar" value="20.0"/>
 
-<!-- ME1a PARAMETERS FOLLOW, EACH INDEX REALLY (#+32) -->
+<!-- ME1a PARAMETERS FOLLOW, EACH INDEX IS REALLY (#+34) -->
 
 <Parameter name="upar" value="0.015"/>
 <!--# 0 - strip resolution-->
@@ -145,8 +155,18 @@
 <Parameter name="upar" value="3.8785"/>
 <!--# 30 - ctiOffset - possible future use -->
 <Parameter name="upar" value="0.0"/>
-<!--# 31 - z of strip layer 1 wrt centre of chamber (cm) -->
-<Parameter name="upar" value="6.4"/>
+<!--# 31 - chamber frame thickness (mm) -->
+<!-- make things consistent with current mf.xml values by using an incorrect frame thickness -->
+<!--Parameter name="upar" value="8.0"/-->
+<Parameter name="upar" value="2.0"/>
+<!--# 32 - gas gap thickness (mm) -->
+<!-- make things consistent with current mf.xml values by using an incorrect gap thickness -->
+<!--Parameter name="upar" value="7.0"/-->
+<Parameter name="upar" value="5.6"/>
+<!--# 33 - panel thickness (mm) -->
+<!-- make things consistent with current mf.xml values by using an incorrect panel thickness -->
+<!--Parameter name="upar" value="15.0"/-->
+<Parameter name="upar" value="20.0"/>
 
 <!-- Wire group specs. 
      The wire grouping is specified by two vectors NumGroups and NumWiresPerGrp, of the same length. 
@@ -249,8 +269,14 @@
 <Parameter name="upar" value="2.33"/>
 <!--# 30 - ctiOffset - possible future use -->
 <Parameter name="upar" value="0.0"/>
-<!--# 31 - z of strip layer 1 wrt centre of chamber (cm) -->
-<Parameter name="upar" value="6.4"/>
+<!--# 31 - chamber frame thickness (mm) -->
+<!--Parameter name="upar" value="6.096"/-->
+<!-- make things consistent with current mf.xml values by using an incorrect frame thickness -->
+<Parameter name="upar" value="2.0025"/>
+<!--# 32 - gas gap thickness (mm) -->
+<Parameter name="upar" value="9.525"/>
+<!--# 33 - panel thickness (mm) -->
+<Parameter name="upar" value="15.875"/>
 
 <!-- Wire group specs. 
      The wire grouping is specified by two vectors NumGroups and NumWiresPerGrp, of the same length. 
@@ -365,8 +391,14 @@
 <Parameter name="upar" value="2.16"/>
 <!--# 30 - ctiOffset - possible future use -->
 <Parameter name="upar" value="0.0"/>
-<!--# 31 - z of strip layer 1 wrt centre of chamber (cm) -->
-<Parameter name="upar" value="6.4"/>
+<!--# 31 - chamber frame thickness (mm) -->
+<!--Parameter name="upar" value="6.096"/-->
+<!-- make things consistent with current mf.xml values by using an incorrect frame thickness -->
+<Parameter name="upar" value="2.0025"/>
+<!--# 32 - gas gap thickness (mm) -->
+<Parameter name="upar" value="9.525"/>
+<!--# 33 - panel thickness (mm) -->
+<Parameter name="upar" value="15.875"/>
 
 <!-- Wire group specs. 
      The wire grouping is specified by two vectors NumGroups and NumWiresPerGrp, of the same length. 
@@ -477,8 +509,14 @@
 <Parameter name="upar" value="4.65"/>
 <!--# 30 - ctiOffset - possible future use -->
 <Parameter name="upar" value="0.0"/>
-<!--# 31 - z of strip layer 1 wrt centre of chamber (cm) -->
-<Parameter name="upar" value="6.4"/>
+<!--# 31 - chamber frame thickness (mm) -->
+<!--Parameter name="upar" value="6.096"/-->
+<!-- make things consistent with current mf.xml values by using an incorrect frame thickness -->
+<Parameter name="upar" value="2.0025"/>
+<!--# 32 - gas gap thickness (mm) -->
+<Parameter name="upar" value="9.525"/>
+<!--# 33 - panel thickness (mm) -->
+<Parameter name="upar" value="15.875"/>
 
 <!-- Wire group specs. 
      The wire grouping is specified by two vectors NumGroups and NumWiresPerGrp, of the same length. 
@@ -589,8 +627,15 @@
 <Parameter name="upar" value="4.65"/>
 <!--# 30 - ctiOffset - possible future use -->
 <Parameter name="upar" value="0.0"/>
-<!--# 31 - z of strip layer 1 wrt centre of chamber (cm) -->
-<Parameter name="upar" value="6.4"/>
+<!--# 31 - chamber frame thickness (mm) -->
+<!--# 31 - chamber frame thickness (mm) -->
+<!--Parameter name="upar" value="6.096"/-->
+<!-- make things consistent with current mf.xml values by using an incorrect frame thickness -->
+<Parameter name="upar" value="2.0025"/>
+<!--# 32 - gas gap thickness (mm) -->
+<Parameter name="upar" value="9.525"/>
+<!--# 33 - panel thickness (mm) -->
+<Parameter name="upar" value="15.875"/>
 
 <!-- Wire group specs. 
      The wire grouping is specified by two vectors NumGroups and NumWiresPerGrp, of the same length. 
@@ -699,8 +744,15 @@
 <Parameter name="upar" value="4.65"/>
 <!--# 30 - ctiOffset - possible future use -->
 <Parameter name="upar" value="0.0"/>
-<!--# 31 - z of strip layer 1 wrt centre of chamber (cm) -->
-<Parameter name="upar" value="6.4"/>
+<!--# 31 - chamber frame thickness (mm) -->
+<!--# 31 - chamber frame thickness (mm) -->
+<!--Parameter name="upar" value="6.096"/-->
+<!-- make things consistent with current mf.xml values by using an incorrect frame thickness -->
+<Parameter name="upar" value="2.0025"/>
+<!--# 32 - gas gap thickness (mm) -->
+<Parameter name="upar" value="9.525"/>
+<!--# 33 - panel thickness (mm) -->
+<Parameter name="upar" value="15.875"/>
 
 <!-- Wire group specs. 
      The wire grouping is specified by two vectors NumGroups and NumWiresPerGrp, of the same length. 
@@ -808,8 +860,15 @@
 <Parameter name="upar" value="2.33"/>
 <!--# 30 - ctiOffset - possible future use -->
 <Parameter name="upar" value="0.0"/>
-<!--# 31 - z of strip layer 1 wrt centre of chamber (cm) -->
-<Parameter name="upar" value="6.4"/>
+<!--# 31 - chamber frame thickness (mm) -->
+<!--# 31 - chamber frame thickness (mm) -->
+<!--Parameter name="upar" value="6.096"/-->
+<!-- make things consistent with current mf.xml values by using an incorrect frame thickness -->
+<Parameter name="upar" value="2.0025"/>
+<!--# 32 - gas gap thickness (mm) -->
+<Parameter name="upar" value="9.525"/>
+<!--# 33 - panel thickness (mm) -->
+<Parameter name="upar" value="15.875"/>
 
 <!-- Wire group specs. 
      The wire grouping is specified by two vectors NumGroups and NumWiresPerGrp, of the same length. 
@@ -932,8 +991,15 @@
 <Parameter name="upar" value="2.33"/>
 <!--# 30 - ctiOffset - possible future use -->
 <Parameter name="upar" value="0.0"/>
-<!--# 31 - z of strip layer 1 wrt centre of chamber (cm) -->
-<Parameter name="upar" value="6.4"/>
+<!--# 31 - chamber frame thickness (mm) -->
+<!--# 31 - chamber frame thickness (mm) -->
+<!--Parameter name="upar" value="6.096"/-->
+<!-- make things consistent with current mf.xml values by using an incorrect frame thickness -->
+<Parameter name="upar" value="2.0025"/>
+<!--# 32 - gas gap thickness (mm) -->
+<Parameter name="upar" value="9.525"/>
+<!--# 33 - panel thickness (mm) -->
+<Parameter name="upar" value="15.875"/>
 
 <!-- Wire group specs. 
      The wire grouping is specified by two vectors NumGroups and NumWiresPerGrp, of the same length. 

@@ -4,7 +4,7 @@
 #include "RecoTracker/TkTrackingRegions/interface/OrderedHitsGenerator.h"
 namespace edm {class ParameterSet;}
 
-#include <PluginManager/PluginFactory.h>
+#include "FWCore/PluginManager/interface/PluginFactory.h"
 
 class OrderedHitsGeneratorFactory 
    : public seal::PluginFactory< OrderedHitsGenerator * (const edm::ParameterSet&) > {

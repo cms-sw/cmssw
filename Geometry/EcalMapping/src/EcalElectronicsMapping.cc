@@ -10,7 +10,8 @@
 #include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
-
+using boost::multi_index_container;
+using namespace boost::multi_index;
 
 EcalElectronicsMapping::EcalElectronicsMapping() {
 }
@@ -281,6 +282,8 @@ EcalElectronicsId EcalElectronicsMapping::getElectronicsId(const DetId& id) cons
 	const EBDetId ebdetid = EBDetId(id);
 
 	int dcc = DCCid(ebdetid);
+	bool EBPlus = (zside(dcc,DCCMODE) > 0);
+	bool EBMinus = !EBPlus;
 
 	EcalTrigTowerDetId trigtower = ebdetid.tower();
 	// int tower = trigtower.iTT();
@@ -293,13 +296,25 @@ EcalElectronicsId EcalElectronicsMapping::getElectronicsId(const DetId& id) cons
 	bool RightTower = rightTower(tower);
  	if (RightTower) {
 		strip = (ieta-1)%5;
-		if (strip%2 == 0) channel = (iphi-1) %5;
-		else channel = 4 -( (iphi-1) %5 ); 
+		if (strip%2 == 0) {
+			if (EBMinus) channel = (iphi-1) %5;
+			if (EBPlus) channel = 4 -( (iphi-1) %5 );
+		}
+		else {
+			if (EBMinus) channel = 4 -( (iphi-1) %5 ); 
+			if (EBPlus) channel = (iphi-1) %5;
+		}
 	}
 	else {
 		strip = 4 - ( (ieta-1)%5 );
-		if (strip%2 == 0) channel = 4 -( (iphi-1) %5 );
-		else channel = (iphi-1) %5;
+		if (strip%2 == 0) {
+			if (EBMinus) channel = 4 -( (iphi-1) %5 );
+			if (EBPlus) channel = (iphi-1) %5;
+		}
+		else {
+			if (EBMinus) channel = (iphi-1) %5;
+			if (EBPlus) channel = 4 -( (iphi-1) %5 );
+		}
 	}
 	strip += 1;
 	channel += 1;
@@ -353,6 +368,9 @@ DetId EcalElectronicsMapping::getDetId(const EcalElectronicsId& id) const {
                                                                                                            
         int smid = 0;
         int iphi = 0;
+	bool EBPlus = (id.zside() > 0);
+  	bool EBMinus = !EBPlus;
+
         if (id.zside() < 0) {
                 smid = dcc + 19 - DCCID_PHI0_EBM;
                 iphi = (smid - 19) * kCrystalsInPhi;
@@ -369,13 +387,25 @@ DetId EcalElectronicsMapping::getDetId(const EcalElectronicsId& id) const {
 	int ieta = 5 * ((tower-1) / kTowersInPhi) + 1;
         if (RightTower) {
 		ieta += (strip-1);
-                if (strip%2 == 1) iphi += (channel-1) +1;
-                else iphi += (4 - (channel-1)) +1;
+                if (strip%2 == 1) {
+			if (EBMinus) iphi += (channel-1) +1;
+			if (EBPlus) iphi += (4 - (channel-1)) +1;
+		}
+                else {
+			if (EBMinus) iphi += (4 - (channel-1)) +1;
+			if (EBPlus) iphi += (channel-1) +1;
+		}
         }
         else {
 		ieta += 4 - (strip-1);
-                if (strip%2 == 1) iphi += (4 - (channel-1)) +1;
-                else iphi += (channel-1) +1;
+                if (strip%2 == 1) {
+			if (EBMinus) iphi += (4 - (channel-1)) +1;
+			if (EBPlus) iphi += (channel-1) +1;
+		}
+                else {
+			if (EBMinus) iphi += (channel-1) +1;
+			if (EBPlus) iphi += (4 - (channel-1)) +1;
+		}
         }
         if (id.zside() < 0) ieta = -ieta;
 

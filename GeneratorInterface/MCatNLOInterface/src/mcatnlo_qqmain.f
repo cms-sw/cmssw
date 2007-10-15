@@ -7,7 +7,7 @@ c events are indentified with letters a and b respectively
      #  value(20),ecmlst(100),
      #  xmlst(100),fh1lst(100),fh2lst(100),renlst(100),
      #  fh1mclst(100),fh2mclst(100),renmclst(100),
-     #  xlep1mass(2),xlep2mass(2),xmomshifts(4)
+     #  xlep1mass(2),xlep2mass(2),xmomshifts(4),vickm(1:6,1:6)
       real * 8 
      #  xm,xpdflam4,xpdflam5,tmp,xfh,xfh1,xfh2,ecm,xren,betfac,
      #  delta,deltas,deltac,dtot,avtot,ac1,ac2,xtotal,ytotal,av3a,
@@ -18,7 +18,10 @@ c events are indentified with letters a and b respectively
      #  bw2delf,bw2fmmn,xm1low2,xm1upp2,xm2low2,xm2upp2,brrtop1,
      #  brrtop2,xmw2,gammax1,xm1low,xm1upp,gammax2,xm2low,xm2upp,
      #  bw1mdpl,bw1mdmn,bw1fmpl,bw2mdpl,bw2mdmn,bw2fmpl,al_spcfun,
-     #  be_spcfun
+     #  be_spcfun,tga1,tga1mn,tga1pl,tbw1fmpl,tbw1fmmn,tbw1delf,
+     #  ym1low2,ym1upp2,tga2,tga2mn,tga2pl,tbw2fmpl,tbw2fmmn,tbw2delf,
+     #  ym2low2,ym2upp2,xmt2,gammay1,ym1low,ym1upp,gammay2,ym2low,
+     #  ym2upp,tbw1mdpl,tbw1mdmn,tbw2mdpl,tbw2mdmn
       integer 
      #  ih1,ih2,ndns1,ndns2,jloop,iseld,nlf,ncl3,jecm,
      #  loproc,maproc,iproc,iinput,iverbose,ichkmom,
@@ -27,11 +30,11 @@ c events are indentified with letters a and b respectively
      #  ndim,nwild,itd1,itd2,ibscall,iwgtnorm,iseed0,
      #  iseed,maxtrials,mode,lo,isubttype,iprespl,iwrong,iwrong1,
      #  ntotal,ndiff,nevts,ntrls,itot,ionshell,iunita,iunitb,
-     #  ioutput,ii,iunit,i,itmpqq,itmpvv,mx_of_evta,mx_of_evtb,
+     #  ioutput,ii,iunit,i,j,itmpqq,itmpvv,mx_of_evta,mx_of_evtb,
      #  nlfp1sch,nlas,ia1ora2,iasmc,iassoft,ifk88seed,ip4,ip5,
      #  ip6,ip7,ip8,ip9,izero,ione,idec,iwidth,il1hw,il2hw,
      #  neventsuw,ifailuw,ncntuws,nmaxuw,nqmaxuw,nqeventsuw,
-     #  nqcntuws,ideconsh
+     #  nqcntuws,ideconsh,jwidth,mqeventsuw,idecseed
       character * 2 scheme,xproc(3)
       character * 4 part1,part2
       character * 20 parm(20),gname
@@ -53,6 +56,8 @@ c ih1,ih2 = beam type (0=(p+n)/2, 1=p, -1=pbar, 2=n, -2=nbar)
 c quark and gluon masses, used by Herwig. PDF labeling convention
       real*8 xmass(-5:21)
       common/parmass/xmass
+c CKM matrix elements entered by the user
+      common/cvickm/vickm
 c alsf and besf are the parameters that control gfunsoft
       common/cgfunsfp/alsf,besf
 c alcl, becl and gacl are the parameters that control gfuncoll
@@ -83,11 +88,25 @@ c Top decay variables
 c Decay of the tops: idec=0    -->   tops decay
 c                    idec=1    -->   tops don't decay, or b production
       common/cidec/idec
-c Mass ranges: iwidth=0    -->   W on shell
-c              iwidth=1    -->   W off shell
+c Top mass ranges: jwidth=0    -->   top on shell
+c                  jwidth=1    -->   top off shell
+      common/cjwidth/jwidth
+c Top mass ranges
+      common/tbw1/tga1,tga1mn,tga1pl,tbw1fmpl,tbw1fmmn,tbw1delf,
+     #            ym1low2,ym1upp2
+      common/tbw2/tga2,tga2mn,tga2pl,tbw2fmpl,tbw2fmmn,tbw2delf,
+     #            ym2low2,ym2upp2
+c W mass ranges: iwidth=0    -->   W on shell
+c                iwidth=1    -->   W off shell
       common/ciwidth/iwidth
-c Type of W decays; il1hw and il2hw are entered following HERWIG conventions:
-c     IL=1,2,3    for W   ==>  e,mu,tau
+c Type of W decays; il1hw and il2hw are entered with the following conventions,
+c which control the decay of the W (top always decays into Wb)
+c  IL=0     ==> all W decays (quark+leptons)
+c  IL=1,2,3 ==> W -> e\nu_e, mu\nu_mu, tau\nu_tau
+c  IL=4     ==> W -> e\nu_e + mu\nu_mu
+c  IL=5     ==> W -> all quarks
+c  IL=6     ==> W -> e\nu_e + mu\nu_mu + all quarks (ie all decays except tau)
+c  IL=7     ==> the top does not decay
       common/cilhw/il1hw,il2hw
 c W mass and width
       common/cwparam/xmw,gaw
@@ -102,6 +121,8 @@ c top branching ratios
       common/brratios/brrtop1,brrtop2
 c mass of leptons from W decays
       common/clepmass/xlep1mass,xlep2mass
+c seed for the determination of the identities of decay products
+      common/cidecseed/idecseed
 c----------------------------------------------------------
 c nlfp1sch=0 --> use nl light flavours, nlfp1sch=1 --> nl+1 scheme
       common/cnlfp1sch/nlfp1sch
@@ -128,7 +149,7 @@ c In the integration routines, loproc<=jproc<=maproc
 c Number of failures in flavour determination
       common/ciwrong/iwrong,iwrong1
 c Common blocks for statistics relevant to secondary unweighting
-      common/c1iunwgt/neventsuw,nqeventsuw,ifailuw
+      common/c1iunwgt/neventsuw,nqeventsuw,mqeventsuw,ifailuw
       common/c2iunwgt/ncntuws,nqcntuws,nmaxuw,nqmaxuw
 c Average shifts in momenta, due to quark and lepton masses
       common/cshifts/xmomshifts
@@ -194,6 +215,14 @@ cccc common block for the input parameters
 
       integer mmdecide
       common/decpar/mmdecide
+
+
+CCC SPECIAL FOR MC@NLO331
+      real * 8 mmgammay1,mmgammay2,mmym1low,mmym2low,
+     $ mmym1upp, mmym2upp
+      common/para331/mmgammay1,mmgammay2,mmym1low,mmym2low,
+     $ mmym1upp, mmym2upp
+
 CCC =================================================================
 
 C
@@ -209,6 +238,8 @@ c ichkmom=0 ==> enables checks on kinematics
       ichkmom=1
 c initialization of internal randon number generation
       ifk88seed=1
+c initialization of randon number generation for decay product identities
+      idecseed=1
 c if linked to PDFLIB, these quantities stay negative
       ifk88ih=-100
       ifk88ndns=-100
@@ -345,8 +376,7 @@ c Top decay parameters
       if(itmpvv.eq.-1706.or.itmpvv.eq.-11706)then
        if(iinput.lt.2) then
           write(*,*)' '
-          write(*,*)'Enter IL=1,2,3 following HERWIG conventions'
-          write(*,*)'               for t->W(->l_IL nu_IL) b'
+          write(*,*)'Enter IL=0..6 for t->W(->d1_IL d2_IL) b'
           write(*,*)'      IL=7 for undecayed tops'
           write(*,*)'for W+ and W- from top and tbar'
           read(*,*) il1hw,il2hw
@@ -355,23 +385,24 @@ c Top decay parameters
           il2hw=mmil2code
        endif
        write(11,'(1x,i2,1x,i2,28x,a)') il1hw,il2hw,
-     #      '! 1,2,3 -> t dec, 7 -> t undec'
+     #    '! 0..6 -> t dec, 7 -> t undec'
        if( (il1hw.eq.7.and.il2hw.ne.7) .or.
      #         (il1hw.ne.7.and.il2hw.eq.7) )then
           write(*,*) 'Ws must both decay or being stable'
           stop
        elseif(il1hw.eq.7.and.il2hw.eq.7)then
           idec=1
-       elseif( (il1hw.ge.1.and.il1hw.le.3) .and.
-     #         (il2hw.ge.1.and.il2hw.le.3) )then
+       elseif( (il1hw.ge.0.and.il1hw.le.6) .and.
+     #         (il2hw.ge.0.and.il2hw.le.6) )then
           idec=0
        else
           write(*,*) 'Unknown options:',il1hw,il2hw
           stop
        endif
        if(idec.eq.0)then
-          if(iinput.lt.2) then
              xmt=xm
+             xmt2=xmt**2
+             if(iinput.lt.2) then
              write(*,*)' '
              write(*,*)'Enter top width'
              read(*,*)twidth
@@ -391,6 +422,58 @@ c
           write(11,'(2(1x,d10.4),12x,a)') xmw,gaw,'! M_W, Gamma_W'
           xmw2=xmw**2
 c
+
+          if(iinput.lt.2) then
+             write(*,*)' '
+             write(*,*)'Enter GammaX, M_T(min), M_T(max) for top'
+             write(*,*)
+     #            '  If GammaX>0, the top mass is chosen in the range'
+             write(*,*)'      M0-GammaX*width < M_T < M0+GammaX*width'
+             write(*,*)'  and M_T(min), M_T(max) are ignored'
+             write(*,*)
+     #            '  If GammaX<0, the top mass is chosen in the range'
+             write(*,*)'            M_T(min) < M_T < M_T(max)'
+             write(*,*)
+     #  '  If GammaX=0, the top mass is set equal to the pole mass'
+             read(*,*)gammay1,ym1low,ym1upp
+             write(11,'(3(1x,d10.4),1x,a)') gammay1,ym1low,ym1upp,
+     #            '! GammaX, M_T(min), M_T(max)'
+          else
+             gammay1=mmgammay1
+             ym1low=mmym1low
+             ym1upp=mmym1upp
+          endif
+          if(gammay1.lt.0.and.ym1low.ge.ym1upp)then
+             write(*,*)'Enter a non-zero range'
+             stop
+          endif
+c
+          if(iinput.lt.2) then
+             write(*,*)' '
+             write(*,*)'Enter GammaX, M_Tb(min), M_Tb(max) for tbar'
+             write(*,*)
+     #            '  If GammaX>0, the tbar mass is chosen in the range'
+             write(*,*)'      M0-GammaX*width < M_Tb < M0+GammaX*width'
+             write(*,*)'  and M_Tb(min), M_Tb(max) are ignored'
+             write(*,*)
+     #            '  If GammaX<0, the tbar mass is chosen in the range'
+             write(*,*)'            M_Tb(min) < M_Tb < M_Tb(max)'
+             write(*,*)
+     #  '  If GammaX=0, the tbar mass is set equal to the pole mass'
+             read(*,*)gammay2,ym2low,ym2upp
+             write(11,'(3(1x,d10.4),1x,a)') gammay2,ym2low,ym2upp,
+     #            '! GammaX, M_Tb(min), M_Tb(max)'
+          else
+             gammay2=mmgammay2
+             ym2low=mmym2low
+             ym2upp=mmym2upp
+          endif      
+          if(gammay2.lt.0.and.ym2low.ge.ym2upp)then
+             write(*,*)'Enter a non-zero range'
+             stop
+          endif
+c     
+
           if(iinput.lt.2) then
              write(*,*)' '
              write(*,*)'Enter GammaX, M_V1(min), M_V1(max) for W+'
@@ -437,8 +520,43 @@ c
           write(11,'(3(1x,d10.4),1x,a)') gammax2,xm2low,xm2upp,
      #    '! GammaX, M_V2(min), M_V2(max)'
           if(gammax2.lt.0.and.xm2low.ge.xm2upp)then
-            write(*,*)'Enter a non-zero range'
-            stop
+             write(*,*)'Enter a non-zero range'
+             stop
+          endif
+c CKM matrix elements
+          do i=1,6
+             do j=1,6
+                vickm(i,j)=0.d0
+             enddo
+          enddo
+          if(iinput.lt.2) then
+             write(*,*)' '
+             write(*,*)'Enter |V_ud|, |V_us|, |V_ub|'
+             write(*,*)' all equal to zero to use PDG values'
+             read(*,*)vickm(1,2),vickm(1,3),vickm(1,5)
+             write(11,'(3(1x,d10.4),1x,a)')
+     #            vickm(1,2),vickm(1,3),vickm(1,5),
+     #            '! |V_ud|,|V_us|,|V_ub|'
+             write(*,*)'Enter |V_cd|, |V_cs|, |V_cb|'
+             read(*,*)vickm(4,2),vickm(4,3),vickm(4,5)
+             write(11,'(3(1x,d10.4),1x,a)')
+     #            vickm(4,2),vickm(4,3),vickm(4,5),
+     #            '! |V_cd|,|V_cs|,|V_cb|'
+             write(*,*)'Enter |V_td|, |V_ts|, |V_tb|'
+             read(*,*)vickm(6,2),vickm(6,3),vickm(6,5)
+             write(11,'(3(1x,d10.4),1x,a)')
+     #            vickm(6,2),vickm(6,3),vickm(6,5),
+     #            '! |V_td|,|V_ts|,|V_tb|'
+          else
+             vickm(1,2)=mmvud
+             vickm(1,3)=mmvus
+             vickm(1,5)=mmvub
+             vickm(4,2)=mmvcd
+             vickm(4,3)=mmvcs
+             vickm(4,5)=mmvcb
+             vickm(6,2)=mmvtd
+             vickm(6,3)=mmvts
+             vickm(6,5)=mmvtb
           endif
         else
           xmt=0.d0
@@ -580,7 +698,7 @@ c            if (xlam.le.0) call prntsf
          enddo
          write(11,'(1x,d10.4,23x,a)') xlam,'! lambda'
       endif
-      write(*,*) 'Lambda_5=',xlam,' GeV'
+C      write(*,*) 'Lambda_5=',xlam,' GeV'
 c
  22   if(scheme.ne.'DI'.and.scheme.ne.'MS') then
          if(iinput.lt.2) then
@@ -763,10 +881,10 @@ c-----------------------------------------------------------------
         read(*,*)betfac,delta
         write(11,'(2(2x,d10.4),10x,a)') betfac,delta,'! betfac,delta'
       else
-        write(*,*)' '
-        write(*,*)'Enter zi ( [ 2*kt(gluon)/sqrt(shat) ]^2 < zi )'
-        write(*,*)' Default is: zi=0.3'
         if(iinput.lt.2) then
+           write(*,*)' '
+           write(*,*)'Enter zi ( [ 2*kt(gluon)/sqrt(shat) ]^2 < zi )'
+           write(*,*)' Default is: zi=0.3'
            read(*,*) etacut
         else
            etacut=0.3
@@ -876,11 +994,75 @@ c----------------------------------------------------------------
         loproc=iproc
         maproc=iproc
       endif
+
 c When tops decay, compute the relevant parameters
       if(idec.eq.0)then
+         if( (gammay1.ne.0.d0.and.twidth.eq.0.d0) .or.
+     #           (gammay2.ne.0.d0.and.twidth.eq.0.d0) )then
+          write(*,*)'Non-zero top mass range requires non-zero width'
+          stop
+       endif
+       if(gammay1.eq.0.and.gammay2.eq.0)then
+          jwidth=0
+          ym1low2=-1.d0
+          ym1upp2=-1.d0
+          ym2low2=-1.d0
+          ym2upp2=-1.d0
+          tbw1delf=0.d0
+          tbw2delf=0.d0
+       elseif(gammay1.ne.0.and.gammay2.ne.0)then
+          jwidth=1
+          tga1=twidth
+          tga2=twidth
+          if(gammay1.ge.0)then
+             ym1low2=(max( 10.d0,xmt-gammay1*tga1 ))**2
+             ym1upp2=(min(ecmlst(1)-10.d0,xmt+gammay1*tga1))**2
+          else
+             ym1low2=(max( 10.d0,ym1low) )**2
+             ym1upp2=(min(ecmlst(1)-10.d0,ym1upp))**2
+          endif
+          if(ym1low2.gt.ym1upp2)then
+             write(*,*)'Error in top mass range #1'
+             write(*,*)ym1low2,ym1upp2
+             stop
+          endif
+c     Parameters for the skewed Breit Wigner function
+          tga1mn=tga1
+          tga1pl=1.15d0*tga1
+          tbw1mdpl=ym1upp2-xmt2
+          tbw1mdmn=xmt2-ym1low2
+          tbw1fmpl=tga1pl/tga1*atan(tbw1mdpl/(xmt*tga1pl))
+          tbw1fmmn=tga1mn/tga1*atan(tbw1mdmn/(xmt*tga1mn))
+          tbw1delf=(tbw1fmpl+tbw1fmmn)/pi
+c     
+          if(gammay2.ge.0)then
+             ym2low2=(max( 10.d0,xmt-gammay2*tga2 ))**2
+             ym2upp2=(min(ecmlst(1)-10.d0,xmt+gammay2*tga2))**2
+          else
+             ym2low2=(max( 10.d0,ym2low) )**2
+             ym2upp2=(min(ecmlst(1)-10.d0,ym2upp))**2
+          endif
+          if(ym2low2.gt.ym2upp2)then
+             write(*,*)'Error in top mass range #2'
+             write(*,*)ym2low2,ym2upp2
+             stop
+          endif
+c     Parameters for the skewed Breit Wigner function
+          tga2mn=tga2
+          tga2pl=1.15d0*tga2
+          tbw2mdpl=ym2upp2-xmt2
+          tbw2mdmn=xmt2-ym2low2
+          tbw2fmpl=tga2pl/tga2*atan(tbw2mdpl/(xmt*tga2pl))
+          tbw2fmmn=tga2mn/tga2*atan(tbw2mdmn/(xmt*tga2mn))
+          tbw2delf=(tbw2fmpl+tbw2fmmn)/pi
+       else
+          write(*,*)'Both mass ranges must be non-zero'
+          stop
+       endif
+c     
         if( (gammax1.ne.0.d0.and.gaw.eq.0.d0) .or.
      #      (gammax2.ne.0.d0.and.gaw.eq.0.d0) )then
-          write(*,*)'Non-zero mass range require non-zero widths'
+          write(*,*)'Non-zero W mass range require non-zero widths'
           write(*,*) gammax1, gammax2,gaw
           stop
         endif
@@ -899,12 +1081,16 @@ c When tops decay, compute the relevant parameters
           ga1=gaw
           ga2=gaw
           if(gammax1.ge.0)then
-            xm1low2=(max( 1.d-1,xlep1mass(1)+xlep2mass(1),
-     #                    xmw-gammax1*ga1 ))**2
-            xm1upp2=(min(xmt-1.d-1,xmw+gammax1*ga1))**2
+             xm1low2=(max( 5.d0,xmw-gammax1*ga1 ))**2
+             xm1upp2=(xmw+gammax1*ga1)**2
           else
-            xm1low2=(max(1.d-1,xlep1mass(1)+xlep2mass(1),xm1low))**2
-            xm1upp2=(min(xmt-1.d-1,xm1upp))**2
+             xm1low2=(max( 5.d0,xm1low ))**2
+             xm1upp2=xm1upp**2
+          endif
+          if(jwidth.eq.0)then
+            xm1upp2=min((xmt-xmass(5))**2-1.d-1,xm1upp2)
+          else
+            xm1upp2=min((sqrt(ym1upp2)-xmass(5))**2-1.d-1,xm1upp2)
           endif
           if(xm1low2.gt.xm1upp2)then
             write(*,*)'Error in pair mass range #1'
@@ -919,12 +1105,16 @@ c Parameters for the Breit Wigner
           bw1delf=(bw1fmpl+bw1fmmn)/pi
 c
           if(gammax2.ge.0)then
-            xm2low2=(max( 1.d-1,xlep1mass(2)+xlep2mass(2),
-     #                    xmw-gammax2*ga2 ))**2
-            xm2upp2=(min(xmt-1.d-1,xmw+gammax2*ga2))**2
+            xm2low2=(max( 5.d0,xmw-gammax2*ga2 ))**2
+            xm2upp2=(xmw+gammax2*ga2)**2
           else
-            xm2low2=(max(1.d-1,xlep1mass(2)+xlep2mass(2),xm2low))**2
-            xm2upp2=(min(xmt-1.d-1,xm2upp))**2
+            xm2low2=(max( 5.d0,xm2low ))**2
+            xm2upp2=xm2upp**2
+          endif
+          if(jwidth.eq.0)then
+            xm2upp2=min((xmt-xmass(5))**2-1.d-1,xm2upp2)
+          else
+            xm2upp2=min((sqrt(ym2upp2)-xmass(5))**2-1.d-1,xm2upp2)
           endif
           if(xm2low2.gt.xm2upp2)then
             write(*,*)'Error in pair mass range #2'
@@ -1317,7 +1507,7 @@ c Write all the quantities which identify the run
              write(ioutput,803)xmlst(jloop),twidth,
      #                         '--> M_top, Gamma_top'
              write(ioutput,803)xmw,gaw,'--> M_W, Gamma_W'
-             write(ioutput,810)il1hw,il2hw,'--> IL1, IL2 (1,2,3,7)'
+             write(ioutput,810)il1hw,il2hw,'--> IL1, IL2 (0..7)'
            endif
            write(ioutput,804)xmass(1),xmass(2),
      #                       xmass(3),xmass(4),
@@ -2976,6 +3166,10 @@ C      end
       real*8 xsign,xtmp,theta,cth,sth,fk88random,sqsh,ycmnew
       real*8 x1,x2
       common/cx1x2/x1,x2
+      real*8 tq12,tq22
+      common/ctvirt/tq12,tq22
+      real*8 q12,q22
+      common/cvirt/q12,q22
       real*8 xmom_cm(11,4)
       common/cxmomcm/xmom_cm
       real*8 xmom_lb(11,4)
@@ -3031,6 +3225,13 @@ c
             xmom_cm(k+5,4)=xtmp
           enddo
         endif
+c Exchange W and top invariant masses as well: used by put_on_shell
+        xtmp=q22
+        q22=q12
+        q12=xtmp
+        xtmp=tq22
+        tq22=tq12
+        tq12=xtmp
       endif
 c perform a random rotation in the transverse plane
       theta=2*pi*fk88random(ifk88seed)
@@ -3275,13 +3476,13 @@ C      end
       parameter (pi=3.14159265358979312D0)
       parameter (one=1.d0)
       parameter (delta_thrs=0.5d-3)
+      real*8 tq12,tq22
+      common/ctvirt/tq12,tq22
+      real*8 q12,q22
+      common/cvirt/q12,q22
       common/procmass/xmss
       real*8 xmass(-5:21)
       common/parmass/xmass
-c top mass and width; top mass squared is stored in fixvar; xmt must
-c be used only in those parts of the code relevant to top decay
-      real*8 xmt,twidth
-      common/ctparam/xmt,twidth
 c W mass and width
       real*8 xmw,gaw
       common/cwparam/xmw,gaw
@@ -3322,14 +3523,14 @@ c
       xmss(1) = xmass(ip1)
       xmss(2) = xmass(ip2)
       xmss(3) = xmass(ip3)
-      xmss(4) = sqrt(xm2)
-      xmss(5) = sqrt(xm2)
       if(idec.eq.0)then
-        if(ideconsh.eq.0)then
-          do i=6,11
-            xmss(i) = 0.d0
-          enddo
-        elseif(ideconsh.eq.2)then
+         xmss(4) = sqrt(tq12)
+         xmss(5) = sqrt(tq22)
+         if(ideconsh.eq.0)then
+            do i=6,11
+               xmss(i) = 0.d0
+            enddo
+         elseif(ideconsh.eq.2)then
           xmss(6) = xlep1mass(1)
           xmss(7) = xlep2mass(1)
           xmss(8) = xmass(5)
@@ -3341,6 +3542,8 @@ c
           stop
         endif
       elseif(idec.eq.1)then
+         xmss(4) = sqrt(xm2)
+         xmss(5) = sqrt(xm2)
         do i=6,11
           xmss(i) = -1.d10
         enddo
@@ -3494,25 +3697,30 @@ c (when iwidth=1, W is off shell)
      #                xmom_cm(in,3),xmom_cm(in,4),one,wvec)
           qw2=xnormsq(wvec)
           qw=sqrt(qw2)
-          if( ichkmom.eq.0 .and. iwidth.eq.0 .and.
-     #        abs(qw/xmw-1.d0).gt.1.d-4 )then
+          if( ichkmom.eq.0 .and. 
+     #        ( (iwidth.eq.0.and.abs(qw/xmw-1.d0).gt.1.d-4) .or.
+     #          (iwidth.eq.1.and.it.eq.4.and.
+     #           abs(qw/sqrt(q12)-1.d0).gt.1.d-4) .or.
+     #          (iwidth.eq.1.and.it.eq.5.and.
+     #           abs(qw/sqrt(q22)-1.d0).gt.1.d-4) ) )then
             write(6,*)'Error #3 in put_on_sheqq'
             write(6,*)qw,it,il,in
             stop
           endif
           if( ichkmom.eq.0 .and. iwidth.eq.1 .and.
-     #        qw.gt.xmt )then
+     #        qw.gt.xmss(it) )then
             write(6,*)'Error #4 in put_on_sheqq'
             write(6,*)qw,it,il,in
             stop
           endif
-          xbwnorm=xm2-2*(xmss(ib)**2+qw2)+(xmss(ib)**2-qw2)**2/xm2
+          xbwnorm=xmss(it)**2-2*(xmss(ib)**2+qw2)+
+     #            (xmss(ib)**2-qw2)**2/xmss(it)**2
           xbwnorm=sqrt(xbwnorm)/2.d0
           do j=1,3
             xavg3(j)=0.d0
           enddo
           xsign=1.d0
-          call xhwulof(xtmp,xmt,wvec,qw,xk1tmp,fakemass)
+          call xhwulof(xtmp,xmss(it),wvec,qw,xk1tmp,fakemass)
           xk1tmp_norm=xnorm_3(xk1tmp)
           do j=1,3
             xavg3(j)=xavg3(j)+xsign*xk1tmp(j)/(2*xk1tmp_norm)
@@ -3520,7 +3728,7 @@ c (when iwidth=1, W is off shell)
           xsign=-1.d0
           call fillvec(xmom_cm(ib,1),xmom_cm(ib,2),
      #                 xmom_cm(ib,3),xmom_cm(ib,4),ytmp1)
-          call xhwulof(xtmp,xmt,ytmp1,xmss(ib),xk1tmp,fakemass)
+          call xhwulof(xtmp,xmss(it),ytmp1,xmss(ib),xk1tmp,fakemass)
           xk1tmp_norm=xnorm_3(xk1tmp)
           do j=1,3
             xavg3(j)=xavg3(j)+xsign*xk1tmp(j)/(2*xk1tmp_norm)
@@ -3533,14 +3741,16 @@ c (when iwidth=1, W is off shell)
           do j=1,3
             xk1tmp(j)=xsign*xbwnorm*xavg3(j)
           enddo
-          xk1tmp(4)=xmt/2.d0*(1+xsign*(qw2-xmss(ib)**2)/xm2)
-          call xhwulob(xtmp,xmt,xk1tmp,qw,wvec2,fakemass)
+          xk1tmp(4)=xmss(it)/2.d0*
+     #              (1+xsign*(qw2-xmss(ib)**2)/xmss(it)**2)
+          call xhwulob(xtmp,xmss(it),xk1tmp,qw,wvec2,fakemass)
           xsign=-1.d0
           do j=1,3
             xk1tmp(j)=xsign*xbwnorm*xavg3(j)
           enddo
-          xk1tmp(4)=xmt/2.d0*(1+xsign*(qw2-xmss(ib)**2)/xm2)
-          call xhwulob(xtmp,xmt,xk1tmp,xmss(ib),ytmp2,fakemass)
+          xk1tmp(4)=xmss(it)/2.d0*
+     #              (1+xsign*(qw2-xmss(ib)**2)/xmss(it)**2)
+          call xhwulob(xtmp,xmss(it),xk1tmp,xmss(ib),ytmp2,fakemass)
           call getvec(ytmp2,xmom_prime(ib,1),xmom_prime(ib,2),
      #                      xmom_prime(ib,3),xmom_prime(ib,4))
 c Next deal with the lepton pair; W has momentum wvec2
@@ -3966,6 +4176,8 @@ c iret is set equal to 0 (by checkqq), and no operation is performed
       common/nl/nl
       integer ifk88seed
       common/cifk88seed/ifk88seed
+      integer idec
+      common/cidec/idec
 c
       i0=0
       jproc0=0
@@ -4060,6 +4272,211 @@ c
         ip1=ip1o
         ip2=ip2o
         ip3=ip3o
+c The tops decay. In such a case, determine the identities of the decay 
+c products, and assign them the relevant masses (to be used by put_on_shell)
+        if(idec.eq.0)call getpdecids()
+      endif
+      return
+      end
+
+
+      subroutine getpdecids()
+      implicit none
+c Fraction of decays W->e+mu/W->e+mu+all quarks
+      real*8 frac12
+      parameter (frac12=0.25d0)
+c Fraction of decays W->e+mu+tau/W->e+mu+tau+all quarks
+      real*8 frac123
+      parameter (frac123=0.3333d0)
+      integer iemu,iemutau,ipone,imone
+      parameter (iemu=1113)
+      parameter (iemutau=111315)
+      parameter (ipone=1)
+      parameter (imone=-1)
+      real*8 xg,decprnd
+      real*8 xlep1mass(2),xlep2mass(2)
+      common/clepmass/xlep1mass,xlep2mass
+      real*8 xmass(-5:21)
+      common/parmass/xmass
+      real*8 pdglepmss(11:16)
+      common/cpdglepmss/pdglepmss
+      integer idecseed
+      common/cidecseed/idecseed
+      integer il1hw,il2hw
+      common/cilhw/il1hw,il2hw
+      integer ip4,ip5,ip6,ip7,ip8,ip9
+      common/ci2part/ip4,ip5,ip6,ip7,ip8,ip9
+      integer ip4s,ip5s,ip6s,ip7s,ip8s,ip9s
+      common/ci2parts/ip4s,ip5s,ip6s,ip7s,ip8s,ip9s
+c
+      if(il1hw.eq.7.or.il2hw.eq.7)then
+        write(*,*)'Error #1 in getpdecids()',il1hw,il2hw
+        stop
+      endif
+c Tops always decay into Wb
+      ip6=ip6s
+      ip9=ip9s
+c W+ decay
+      if(il1hw.eq.0)then
+        xg=decprnd(idecseed)
+        if(xg.lt.frac123)then
+          call declepuwgt(-iemutau,ip4,ip5)
+        else
+          call decqrkuwgt(ipone,ip4,ip5)
+        endif
+      elseif(il1hw.ge.1.and.il1hw.le.3)then
+        ip4=ip4s
+        ip5=ip5s
+      elseif(il1hw.eq.4)then
+        call declepuwgt(-iemu,ip4,ip5)
+      elseif(il1hw.eq.5)then
+        call decqrkuwgt(ipone,ip4,ip5)
+      elseif(il1hw.eq.6)then
+        xg=decprnd(idecseed)
+        if(xg.lt.frac12)then
+          call declepuwgt(-iemu,ip4,ip5)
+        else
+          call decqrkuwgt(ipone,ip4,ip5)
+        endif
+      else
+        write(*,*)'Error #2 in getpdecids()',il1hw
+        stop
+      endif
+      if(abs(ip4).le.5.and.abs(ip5).le.5)then
+        xlep1mass(1)=xmass(ip4)
+        xlep2mass(1)=xmass(ip5)
+      elseif( abs(ip4).ge.11.and.abs(ip4).le.16 .and.
+     #        abs(ip5).ge.11.and.abs(ip5).le.16 )then
+        xlep1mass(1)=pdglepmss(abs(ip4))
+        xlep2mass(1)=pdglepmss(abs(ip5))
+      else
+        write(*,*)'Error #4 in getpdecids()',ip4,ip5
+        stop
+      endif
+c W- decay
+      if(il2hw.eq.0)then
+        xg=decprnd(idecseed)
+        if(xg.lt.frac123)then
+          call declepuwgt(iemutau,ip7,ip8)
+        else
+          call decqrkuwgt(imone,ip7,ip8)
+        endif
+      elseif(il2hw.ge.1.and.il2hw.le.3)then
+        ip7=ip7s
+        ip8=ip8s
+      elseif(il2hw.eq.4)then
+        call declepuwgt(iemu,ip7,ip8)
+      elseif(il2hw.eq.5)then
+        call decqrkuwgt(imone,ip7,ip8)
+      elseif(il2hw.eq.6)then
+        xg=decprnd(idecseed)
+        if(xg.lt.frac12)then
+          call declepuwgt(iemu,ip7,ip8)
+        else
+          call decqrkuwgt(imone,ip7,ip8)
+        endif
+      else
+        write(*,*)'Error #3 in getpdecids()',il2hw
+        stop
+      endif
+      if(abs(ip7).le.5.and.abs(ip8).le.5)then
+        xlep1mass(2)=xmass(ip7)
+        xlep2mass(2)=xmass(ip8)
+      elseif( abs(ip7).ge.11.and.abs(ip7).le.16 .and.
+     #        abs(ip8).ge.11.and.abs(ip8).le.16 )then
+        xlep1mass(2)=pdglepmss(abs(ip7))
+        xlep2mass(2)=pdglepmss(abs(ip8))
+      else
+        write(*,*)'Error #5 in getpdecids()',ip7,ip8
+        stop
+      endif
+      return
+      end
+
+
+      subroutine declepuwgt(ip4s,ip4,ip5)
+c Determines on statistical basis the identity of the leptons emerging
+c from W decays
+      implicit none
+      integer ip4s,ip4,ip5,ii
+      real*8 xg,decprnd
+      integer idecseed
+      common/cidecseed/idecseed
+      integer ichlw0(1:3)
+      data ichlw0/11,13,15/
+      integer ineuw0(1:3)
+      data ineuw0/12,14,16/
+c
+      xg=decprnd(idecseed)
+      if(abs(ip4s).eq.1113)then
+        ii=1+int(2*xg)
+        ip4=sign(1,ip4s)*ichlw0(ii)
+        ip5=-sign(1,ip4s)*ineuw0(ii)
+      elseif(abs(ip4s).eq.111315)then
+        ii=1+int(3*xg)
+        ip4=sign(1,ip4s)*ichlw0(ii)
+        ip5=-sign(1,ip4s)*ineuw0(ii)
+      else
+        write(*,*)'Error in declepuwgt',ip4s
+        stop
+      endif
+      return
+      end
+
+
+      subroutine decqrkuwgt(ipmone,ip4,ip5)
+c Determines on statistical basis the identity of the quarks emerging
+c from W+ (ipmone=1) or W- (ipmone=-1) decays
+      implicit none
+      integer ipmone,ip4,ip5,iwh,iresu,iresd,ii,jj
+      real*8 xg,decprnd,xden,wh
+      real*8 ckm2(1:6,1:6)
+      common/cckm2/ckm2
+      real*8 ruckm,rcckm,rtckm,rducckm,rsucckm,rbucckm
+      common/cckmfct/ruckm,rcckm,rtckm,rducckm,rsucckm,rbucckm
+      integer imapp(0:5)
+      common/cimapp/imapp
+      integer idecseed
+      common/cidecseed/idecseed
+      integer imapd(3)
+      data imapd/2,3,5/
+      integer imapu(3)
+      data imapu/1,4,6/
+c 
+c All decays: (u+any downbar)+(c+any downbar)
+      xden=ruckm+rcckm
+      xg=decprnd(idecseed)
+      wh=0.d0
+      iwh=0
+      iresu=0
+      iresd=0
+      do ii=1,2
+        do jj=1,3
+          if(iwh.eq.0)then
+            wh=wh+ckm2(imapu(ii),imapd(jj))/xden
+            if(wh.gt.xg)then
+              iresu=imapu(ii)
+              iresd=imapd(jj)
+              iwh=1
+            endif
+          endif
+        enddo
+      enddo
+c
+      if(iresu.eq.0.or.iresd.eq.0)then
+        write(*,*)'Error #1 in decqrkuwgt:',ipmone,ip4,ip5
+        stop
+      else
+        if(ipmone.eq.1)then
+          ip4=-imapp(iresd)
+          ip5=imapp(iresu)
+        elseif(ipmone.eq.-1)then
+          ip4=imapp(iresd)
+          ip5=-imapp(iresu)
+        else
+          write(*,*)'Error #2 in decqrkuwgt:',ipmone,ip4,ip5
+          stop
+        endif
       endif
       return
       end
@@ -4189,9 +4606,10 @@ c idr=1; therefore, this routine must be called before labmqq...refcon
 c and getmqq()
       implicit none
       integer jproc0
-      real*8 pi,tolerance,bdredfact
+      real*8 pi,tolerance,pdftiny,bdredfact
       parameter (pi=3.14159265358979312D0)
       parameter (tolerance=1.d-2)
+      parameter (pdftiny=1.d-8)
 c Divide the bound by bdredfact to compensate for peculiar behaviour of
 c ttbar cross section. May become a process-dependent correction if need be
       parameter (bdredfact=2.d0)
@@ -4204,6 +4622,22 @@ c ttbar cross section. May become a process-dependent correction if need be
       common/cxmomcm/xmom_cm
       real*8 ps,px,py,pcth1,pcth2
       common/cpsave/ps,px,py,pcth1,pcth2
+      real*8 tq12,tq22
+      common/ctvirt/tq12,tq22
+      real*8 q12,q22
+      common/cvirt/q12,q22
+      real*8 ycm,tau
+      common/x1x2/ycm,tau
+      real*8 x1,x2
+      common/cx1x2/x1,x2
+      real*8 tga1,tga1mn,tga1pl,tbw1fmpl,tbw1fmmn,tbw1delf,
+     #       ym1low2,ym1upp2
+      common/tbw1/tga1,tga1mn,tga1pl,tbw1fmpl,tbw1fmmn,tbw1delf,
+     #            ym1low2,ym1upp2
+      real*8 tga2,tga2mn,tga2pl,tbw2fmpl,tbw2fmmn,tbw2delf,
+     #       ym2low2,ym2upp2
+      common/tbw2/tga2,tga2mn,tga2pl,tbw2fmpl,tbw2fmmn,tbw2delf,
+     #            ym2low2,ym2upp2
       real*8 xm012,ga1,bw1delf,bw1fmmn
       common/cbw1/xm012,ga1,bw1delf,bw1fmmn
       real*8 xm022,ga2,bw2delf,bw2fmmn
@@ -4214,20 +4648,26 @@ c ttbar cross section. May become a process-dependent correction if need be
       common/cweinan/sthw2,cthw2
       real*8 xmt,twidth
       common/ctparam/xmt,twidth
+      real*8 xmass(-5:21)
+      common/parmass/xmass
       integer i1hpro
       common/ci1hpro/i1hpro
       integer ip1,ip2,ip3
       common/ci1part/ip1,ip2,ip3
       integer ifuntype
       common/cifuntype/ifuntype
+      integer jwidth
+      common/cjwidth/jwidth
       integer iwidth
       common/ciwidth/iwidth
       integer ichkmom
       common/cichkmom/ichkmom
-      integer neventsuw,nqeventsuw,ifailuw
-      common/c1iunwgt/neventsuw,nqeventsuw,ifailuw
+      integer neventsuw,nqeventsuw,mqeventsuw,ifailuw
+      common/c1iunwgt/neventsuw,nqeventsuw,mqeventsuw,ifailuw
       integer ncntuws,nqcntuws,nmaxuw,nqmaxuw
       common/c2iunwgt/ncntuws,nqcntuws,nmaxuw,nqmaxuw
+      integer mqcntuws,mqmaxuw
+      common/c3iunwgt/mqcntuws,mqmaxuw
       integer idec
       common/cidec/idec
       integer ifk88seed
@@ -4236,13 +4676,18 @@ c ttbar cross section. May become a process-dependent correction if need be
       common/cxproc/xproc
       real*8 xtmp,prob,spcdamp,rrnd,fk88random,e1,f1,g1,h1,e2,f2,
      # g2,h2,phitq1,cthtq1,phitq2,cthtq2,phiat1,cthat1,phiat2,cthat2,
-     # o,p,q12,q22,xbwmass3,rat1,qphsp,q1,q2,tk,uk,q1q,q2q,q1c,q2c,w1,
+     # o,p,xbwmass3,rat1,qphsp,q1,q2,tk,uk,q1q,q2q,q1c,q2c,w1,
      # w2,w1h,w2h,xdec,xmadevttb,unxdec,xttb,dmfactb1,dmfact1,
-     # dmfactb2,dmfact2,phspfact1,phspfact2,xboundb,rat,xtq(4),xbq(4),
-     # xel(4),xnu(4)
-      integer iborn,iproj,icross,jjprc,icntuw,iqcntuw
+     # dmfactb2,dmfact2,phspfact1,phspfact2,xboundb,rat,q,r,
+     # xbwmass3_mod,xp,xpsave,psp,staup,xlstaup,ycmp,x1p,x2p,
+     # wm1upp2,wbw1mdpl,wbw1fmpl,wbw1delf,wm2upp2,wbw2mdpl,wbw2fmpl,
+     # wbw2delf,tq1,tq2,xlumund,getlumsqq,xlumdec,bwfunc_mod,
+     # xtq(4),xbq(4),xel(4),xnu(4)
+      integer iborn,iproj,icross,jjprc,icntuw,iqcntuw,kp1,kp2,kp3,
+     # jqcntuw
 c
-      if(ichkmom.eq.0)call spccheqq(1)
+      if(ichkmom.eq.0.and.jwidth.eq.0)call spccheqq(1)
+      if(jwidth.eq.1)call getx1x2(tau,ycm)
       if(ifuntype.eq.2)then
         if(px.ne.1.d0.or.xmom_cm(3,4).ne.0.d0)then
           write(*,*)'Error #1 in getspincoqq'
@@ -4280,29 +4725,98 @@ c for S and H events respectively. When iproj=1, the real kinematics is close
 c to the soft/collinear limits, and the Born is used to unweight. In the case 
 c of the qg process, such Born is either gg (q||q <==> y->1) or qq 
 c (g||q <==> y->-1). We choose gg (qq) if py>0 (py<0). This strategy,
-c which serves to set here the local value of jproc (jjprc), must also 
-c be adopted in the case of S events due to the qg contribution, and is
-c associated with icross=1; icross=0 implies on the other hand that the 
-c local and global values of jproc are the same. Any manipulations on 
-c parton identities must also be carried out here
+c which serves to set here the local value of jproc (jjprc), cannot be
+c be adopted in the case of S events due to the qg contribution, since
+c for such event we always have py=1. For S events, we rather define jjprc
+c using the value of i1hpro defined in xout(), where the conversion 
+c qg->qqbar or qg->gg has already been made.
+c When this routine is called, the parton identities have already been
+c determined by xout (ip1,ip2,ip3). This includes reflection/conjugation,
+c which must be undone since we assume here idr=1. In other words, the
+c matrix elements called here compute the processes
+c  gg->QQbarg; qqbar->QQbarg; qg->QQbarq
+c (with only the first two at the Born level, excluding the final-state g)
+c and therefore the local parton identities (kp1,kp2,kp3) must be
+c consistent with such computations; the parton coming from the left (right)
+c will have Bjorken x equal to x1 (x2).
+c In summary, we have what follows:
+c
+c          icross=0                               icross=1
+c  H events, not projected onto S        H events, projected onto S
+c  S events, qq and gg contributions     S events, qg contribution
+c          iproj=0                                iproj=1
+c  H events, not projected onto S        H events, projected onto S
+c  S events
+c          iborn=0                                iborn=1
+c  Use Born matrix elements              Use real matrix elements 
+c
       if(icross.eq.0)then
         jjprc=jproc0
       elseif(icross.eq.1)then
         if(jproc0.ne.3)then
           jjprc=jproc0
         else
-          if(py.ge.0.d0)then
-            jjprc=1
-          else
-            jjprc=2
-          endif
+           if(ifuntype.eq.1)then
+              if(py.ge.0.d0)then
+                 jjprc=1
+              else
+                 jjprc=2
+              endif
+           else
+              if(i1hpro.eq.407)then
+                 jjprc=1
+              elseif(i1hpro.eq.401.or.i1hpro.eq.403)then
+                 jjprc=2
+              else
+                 write(*,*)'Error #10 in getspincorr'
+                 stop
+              endif
+           endif
         endif
       else
-        write(*,*)'Error #2 in getspincoqq'
-        stop
+         write(*,*)'Error #2 in getspincoqq'
+         stop
       endif
       prcsave=prc
       prc=xproc(jjprc)
+c Get local parton identities if top are off-shell
+      if(jwidth.eq.1)then
+        if(iproj.eq.0)then
+          kp1=ip1
+          kp2=ip2
+          kp3=ip3
+          call undorcspc(jjprc,kp1,kp2,kp3)
+        elseif(iproj.eq.1)then
+          if(ifuntype.ne.1)then
+            write(*,*)'Error #5 in getspincorr'
+            stop
+          else
+            if(jproc0.ne.3)then
+              kp1=ip1
+              kp2=ip2
+              kp3=ip3
+              call undorcspc(jjprc,kp1,kp2,kp3)
+            else
+              if(jjprc.eq.1)then
+                kp1=21
+                kp2=21
+                kp3=21
+              elseif(jjprc.eq.2)then
+                kp1=abs(ip3)
+                kp2=-abs(ip3)
+                kp3=21
+              else
+                write(*,*)'Error #6 in getspincorr'
+                stop
+              endif
+            endif
+          endif
+        else
+          write(*,*)'Error #7 in getspincorr'
+          stop
+        endif
+        call checkpidspc(jjprc,kp1,kp2,kp3,jproc0)
+      endif
 c
       neventsuw=neventsuw+1
       icntuw=0
@@ -4324,6 +4838,68 @@ c
       phiat2=2*pi*g2
       cthat2=-1.d0+2*h2
  300  continue
+      if(jwidth.eq.1)then
+        jqcntuw=0
+        jqcntuw=jqcntuw+1
+        q=fk88random(ifk88seed)
+        r=fk88random(ifk88seed)
+c Since the upper bound is q-dependent, distribute q according to the
+c form of the bound, which is a skewed Breit Wigner
+        tq12=xbwmass3_mod(q,xm2,tga1,tga1mn,tga1pl,tbw1delf,tbw1fmmn)
+        tq22=xbwmass3_mod(r,xm2,tga2,tga2mn,tga2pl,tbw2delf,tbw2fmmn)
+        mqcntuws=mqcntuws+jqcntuw
+        if(jqcntuw.gt.mqmaxuw)mqmaxuw=jqcntuw
+        mqeventsuw=mqeventsuw+1
+        xp=xtmp
+        xpsave=px
+        psp=min( ((sqrt(tq12)+sqrt(tq22))/(2*xmt))**2*ps , sh )
+        staup=sqrt(psp/sh)
+        xlstaup=log(staup)
+        ycmp=ycm
+        if(ycmp.le.xlstaup)ycmp=0.999*xlstaup
+        if(ycmp.ge.-xlstaup)ycmp=-0.999*xlstaup
+        x1p=staup*exp(ycmp)
+        x2p=staup/exp(ycmp)
+c Define local upper bounds for W mass ranges
+        wm1upp2=(sqrt(tq12)-xmass(5))**2-1.d-1
+        if(xm1upp2.gt.wm1upp2)then
+          if(xm1low2.gt.wm1upp2)then
+            write(*,*)'Error in pair mass range #1: getspincorr'
+            write(*,*)xm1low2,xm1upp2,tq12
+            stop
+          endif
+          wbw1mdpl=wm1upp2-xm012
+          wbw1fmpl=atan(wbw1mdpl/(sqrt(xm012)*ga1))
+          wbw1delf=(wbw1fmpl+bw1fmmn)/pi
+        else
+          wbw1delf=bw1delf
+        endif
+        wm2upp2=(sqrt(tq22)-xmass(5))**2-1.d-1
+        if(xm2upp2.gt.wm2upp2)then
+          if(xm2low2.gt.wm2upp2)then
+            write(*,*)'Error in pair mass range #2: getspincorr'
+            write(*,*)xm2low2,xm2upp2,tq22
+            stop
+          endif
+          wbw2mdpl=wm2upp2-xm022
+          wbw2fmpl=atan(wbw2mdpl/(sqrt(xm022)*ga2))
+          wbw2delf=(wbw2fmpl+bw2fmmn)/pi
+        else
+          wbw2delf=bw2delf
+        endif
+      else
+        tq12=xm2
+        tq22=xm2
+        xp=xtmp
+        xpsave=px
+        psp=ps
+        x1p=-1.d8
+        x2p=-1.d8
+        wbw1delf=bw1delf
+        wbw2delf=bw2delf
+      endif
+      tq1=sqrt(tq12)
+      tq2=sqrt(tq22)
       if(iwidth.eq.1)then
         iqcntuw=0
  200    iqcntuw=iqcntuw+1
@@ -4331,14 +4907,14 @@ c
         p=fk88random(ifk88seed)
 c First distribute q's according to the matrix element upper bound,
 c which can be done exactly the upper bound being a Breit Wigner
-        q12=xbwmass3(o,xm012,ga1,bw1delf,bw1fmmn)
-        q22=xbwmass3(p,xm022,ga2,bw2delf,bw2fmmn)
+        q12=xbwmass3(o,xm012,ga1,wbw1delf,bw1fmmn)
+        q22=xbwmass3(p,xm022,ga2,wbw2delf,bw2fmmn)
 c Then reject some of the values generated according to the phase-space
 c q-dependent factor. A 1->1+(1->2) phase-space decomposition has been used.
 c Much better here than after computing matrix elements. The following
 c form works since qphsp is a function decreasing with q2
-        rat1=( qphsp(q12,xm2)/qphsp(xm1low2,xm2) )*
-     #       ( qphsp(q22,xm2)/qphsp(xm2low2,xm2) )
+        rat1=( qphsp(q12,tq12)/qphsp(xm1low2,tq12) )*
+     #       ( qphsp(q22,tq22)/qphsp(xm2low2,tq22) )
         rrnd=fk88random(ifk88seed)
         if(rat1.lt.rrnd)goto 200
         nqcntuws=nqcntuws+iqcntuw
@@ -4352,31 +4928,56 @@ c form works since qphsp is a function decreasing with q2
         q22=xm022
         q2=sqrt(q22)
       endif
-c No complications here due to off-shell tops; can use the same kinematics 
-c for decayed and undecayed matrix elements
+      if(q12.gt.tq12.or.q22.gt.tq22)then
+        write(*,*)'Error #8 in getspincorr'
+        write(*,*)q12,tq12,q22,tq22
+        stop
+      endif
       call invqq(xm2,ps,xtmp,py,pcth1,pcth2,str,
      #           tk,uk,q1q,q2q,q1c,q2c,w1,w2,w1h,w2h)
-      call gentopdmom(xmt,q1,cthtq1,phitq1,cthtq2,phitq2,
-     #                xtq,xbq,xel,xnu,1)
-      if(ichkmom.eq.0)call checktdec1(xmt,xtq,xbq,xel,xnu,1)
-      call gentopdmom(xmt,q2,cthat1,phiat1,cthat2,phiat2,
-     #                xtq,xbq,xel,xnu,2)
-      if(ichkmom.eq.0)call checktdec1(xmt,xtq,xbq,xel,xnu,2)
-      if(ichkmom.eq.0)call checkmqq(xmom_cm,ps,0.d0,10,1)
-      xdec=xmadevttb(iborn,jjprc,ione,ps,tk,uk,xmom_cm)
       unxdec=xttb(iborn,jjprc,ione,xm2,ps,xtmp,py,
      #            tk,uk,q1q,q2q,w1h,w2h,pcth2)
+      if(jwidth.eq.0)then
+        xlumund=1.d0
+      else
+        xlumund=getlumsqq(x1,x2,kp1,kp2)
+        call invar2(tq12,tq22,psp,xp,py,pcth1,pcth2,str,
+     #              tk,uk,q1q,q2q,q1c,q2c,w1,w2,w1h,w2h)
+      endif
+      call gentopdmom(tq1,q1,cthtq1,phitq1,cthtq2,phitq2,
+     #                xtq,xbq,xel,xnu,1)
+      if(ichkmom.eq.0)call checktdec1(tq1,xtq,xbq,xel,xnu,1)
+      call gentopdmom(tq2,q2,cthat1,phiat1,cthat2,phiat2,
+     #                xtq,xbq,xel,xnu,2)
+      if(ichkmom.eq.0)call checktdec1(tq2,xtq,xbq,xel,xnu,2)
+      if(ichkmom.eq.0)call checkmqq(xmom_cm,psp,0.d0,10,1)
+      xdec=xmadevttb(iborn,jjprc,ione,psp,tk,uk,xmom_cm)*
+     #     psp/ps
+      if(jwidth.eq.0)then
+        xlumdec=1.d0
+      else
+        xlumdec=getlumsqq(x1p,x2p,kp1,kp2)
+      endif
       dmfactb1=256*xm2**2/16.d0
       dmfact1=1/(64.d0*sthw2**2)*
      #        1.d0/((q12-xm012)**2+xm012*ga1**2)
       dmfactb2=256*xm2**2/16.d0
       dmfact2=1/(64.d0*sthw2**2)*
      #        1.d0/((q22-xm022)**2+xm022*ga2**2)
-      phspfact1=1.d0/(xm2*twidth**2)
-      phspfact2=1.d0/(xm2*twidth**2)
+      if(jwidth.eq.0)then
+        phspfact1=1.d0/(xm2*twidth**2)
+        phspfact2=1.d0/(xm2*twidth**2)
+      else
+        phspfact1=pi/(xmt*tga1)*bwfunc_mod(tq12,xm2,tga1,tga1mn,tga1pl)
+        phspfact2=pi/(xmt*tga2)*bwfunc_mod(tq22,xm2,tga2,tga2mn,tga2pl)
+      endif
       xboundb=dmfactb1*dmfact1*phspfact1*
      #        dmfactb2*dmfact2*phspfact2
-      rat=xdec/((1+tolerance)*unxdec*xboundb)
+      if(xlumdec.gt.pdftiny.and.xlumund.gt.pdftiny)then
+        rat=xdec*xlumdec/((1+tolerance)*unxdec*xlumund*xboundb)
+      else
+        rat=xdec/((1+tolerance)*unxdec*xboundb)
+      endif
       rat=rat*bdredfact
       if(rat.gt.1.d0)then
         ifailuw=ifailuw+1
@@ -4390,26 +4991,126 @@ c The event is accepted; regenerate kinematics if Born was used for
 c unweighting H events (to get xmom_cm corresponding to a real emission
 c configuration)
       if(iproj.eq.0)then
-        if(px.ne.xtmp)then
+         if(xp.ne.xpsave)then
           write(*,*)'Error #3 in getspincoqq'
           stop
         endif
       elseif(iproj.eq.1)then
-        call invqq(xm2,ps,px,py,pcth1,pcth2,str,
-     #             tk,uk,q1q,q2q,q1c,q2c,w1,w2,w1h,w2h)
-        call gentopdmom(xmt,q1,cthtq1,phitq1,cthtq2,phitq2,
+        call invar2(tq12,tq22,psp,xpsave,py,pcth1,pcth2,str,
+     #              tk,uk,q1q,q2q,q1c,q2c,w1,w2,w1h,w2h)
+        call gentopdmom(tq1,q1,cthtq1,phitq1,cthtq2,phitq2,
      #                  xtq,xbq,xel,xnu,1)
-        call gentopdmom(xmt,q2,cthat1,phiat1,cthat2,phiat2,
+        call gentopdmom(tq2,q2,cthat1,phiat1,cthat2,phiat2,
      #                  xtq,xbq,xel,xnu,2)
-        if(ichkmom.eq.0)call checkmqq(xmom_cm,ps,0.d0,20,1)
+        if(ichkmom.eq.0)call checkmqq(xmom_cm,psp,0.d0,20,1)
       else
-        write(*,*)'Error #4 in getspincoqq'
-        stop
+         write(*,*)'Error #4 in getspincorr'
+         stop
       endif
-      if(ichkmom.eq.0)call spccheqq(2)
+      if(ichkmom.eq.0.and.jwidth.eq.0)call spccheqq(2)
       prc=prcsave
       return
       end
+
+
+      subroutine undorcspc(jjprc,kp1,kp2,kp3)
+c Returns parton identities corresponding to idr=1
+      implicit none
+      integer jjprc,kp1,kp2,kp3
+c
+      if(jjprc.eq.1)then
+        continue
+      elseif(jjprc.eq.2)then
+        if(kp1.lt.0)then
+          kp1=-kp1
+          kp2=-kp2
+        endif
+      elseif(jjprc.eq.3)then
+        if(kp1.eq.21)then
+          kp1=abs(kp2)
+          kp3=kp1
+          kp2=21
+        else
+          if(kp1.lt.0)then
+            kp1=-kp1
+            kp3=-kp3
+          endif
+        endif
+      else
+        write(*,*)'Error in undorcspc: unknown process',jjprc
+        stop
+      endif
+      return
+      end
+
+
+
+      subroutine checkpidspc(jjprc,kp1,kp2,kp3,jproc0)
+c Checks parton identities after manipulations performed in getspincorr
+      implicit none
+      integer jjprc,kp1,kp2,kp3,jproc0,ierr
+      integer ip1,ip2,ip3
+      common/ci1part/ip1,ip2,ip3
+c
+      ierr=0
+      if(jjprc.eq.1)then
+        if(kp1.ne.21.or.kp2.ne.21.or.kp3.ne.21)ierr=1
+      elseif(jjprc.eq.2)then
+        if( kp1.lt.1.or.kp1.gt.5 .or.
+     #      kp2.lt.-5.or.kp2.gt.-1 .or.
+     #      kp3.ne.21 )ierr=1
+      elseif(jjprc.eq.3)then
+        if( kp1.lt.1.or.kp1.gt.5 .or.
+     #      kp2.ne.21 .or.
+     #      kp3.lt.1.or.kp3.gt.5 )ierr=1
+      else
+        write(*,*)'Error in checkpidspc: unknown process',jjprc
+        stop
+      endif
+      if(ierr.eq.1)then
+        write(*,*)'Error in checkpidspc'
+        write(*,*)jjprc,kp1,kp2,kp3
+        write(*,*)jproc0,ip1,ip2,ip3
+        stop
+      endif
+      return
+      end
+
+
+      function getlumsqq(x1,x2,kp1,kp2)
+      implicit none
+      include 'hvqcblks.h'
+      real*8 getlumsqq,x1,x2
+      integer kp1,kp2
+      integer ih1,ih2,ndns1,ndns2
+      common/strfqq0/ih1,ih2,ndns1,ndns2
+      integer invimapp(-5:21)
+      common/cinvimapp/invimapp
+      real*8 zg2,zgmu2_nqq
+      real*4 fh1x1(-5:5),fh2x2(-5:5),smuf2h1,smuf2h2
+      integer ip1,ip2
+c
+      if( x1.lt.0.d0.or.x1.gt.1.d0 .or.
+     #    x2.lt.0.d0.or.x2.gt.1.d0 )then
+        write(*,*)'Error in getlumsqq: Bjorken x',x1,x2
+        stop
+      endif
+      zg2=zgmu2_nqq()
+      smuf2h1=sngl(xmuf2h1)
+      smuf2h2=sngl(xmuf2h2)
+      call mlmpdf(ndns1,ih1,smuf2h1,sngl(x1),fh1x1,5)
+      call mlmpdf(ndns2,ih2,smuf2h2,sngl(x2),fh2x2,5)
+      ip1=invimapp(kp1)
+      ip2=invimapp(kp2)
+      if( ip1.lt.-5.or.ip1.gt.5 .or.
+     #    ip2.lt.-5.or.ip2.gt.5 )then
+        write(*,*)'Error in getlumsqq: parton IDs',ip1,ip2,kp1,kp2
+        stop
+      endif
+      getlumsqq=dble(fh1x1(ip1)*fh2x2(ip2))
+      return
+      end
+
 
 
 C      function spcdamp(x,y)
@@ -4864,6 +5565,194 @@ c
       end
 
 
+
+      subroutine invar2(xm12,xm22,s,x,y,cth1,cth2,str,
+     #            tk,uk,q1q,q2q,q1c,q2c,w1,w2,w1h,w2h)
+c This routine is derived from invar() of the VV package. It serves to
+c fill xmom_cm in the case of top and tbar unequal masses, and must be
+c called only by getspincorr(). It must not be used to compute MNR matrix
+c elements. The common blocks have been redefined to be consistent with
+c those of invar() of the QQ package. The return values of the invariants
+c which are the entries of this routine will be set to zero to force the
+c code to crash if an improper use is attempted; exception is made for
+c tk and uk, since these are used to define the FKS damping factor
+      implicit none
+      real * 8 xm12,xm22,s,x,y,cth1,cth2,tk,uk,q1q,q2q,q1c,q2c,
+     # w1,w2,w1h,w2h
+      character * 2 str
+      real * 8 pq1,pq2,pp,yq1,yq2,yp
+      common/perpen/pq1(2),pq2(2),pp(2)
+      common/ycmvar/yq1,yq2,yp
+      real * 8 tiny,s2,drs2,p10,p20,k0,k10,k20,bx,sth1,cpsi2,spsi2,
+     # cpsi,spsi,cpsi1,spsi1,xktsq,xkt1,xkt2,xkt1sq,xkt2sq,xkt,
+     # tmp,sqs,e1lab,pl1lab,e2lab,pl2lab
+      parameter (tiny=1.d-14)
+      real*8 xmom_cm(11,4)
+      common/cxmomcm/xmom_cm
+      integer ichkmom
+      common/cichkmom/ichkmom
+c
+      tk=-s*(1-x)*(1-y)/2.d0
+      uk=-s*(1-x)*(1+y)/2.d0
+      s2 = tk+uk+s
+      drs2 = 2*sqrt(s2)
+      p10 = (s+tk)/drs2
+      p20 = (s+uk)/drs2
+      k0  = -(tk+uk)/drs2
+      k10 = (s2+xm12-xm22)/drs2
+      k20 = (s2+xm22-xm12)/drs2
+      bx=sqrt(s2**2+xm22**2+xm12**2-2*(s2*xm22+s2*xm12+xm22*xm12))/drs2
+      sth1 = sqrt(1-cth1**2)
+      if(str.eq.'p1') then
+         cpsi2 = 1
+         spsi2 = 0
+         cpsi = 1-8*x/((1+y+x*(1-y))*(1-y+x*(1+y)))
+         spsi = 4*(1-x)*sqrt(x*(1-y**2))/
+     #          ((1+y+x*(1-y))*(1-y+x*(1+y)))
+         cpsi1 = (1+y-x*(1-y))/(1+y+x*(1-y))
+         spsi1 = sqrt(4*x*(1-y**2))/(1+y+x*(1-y))
+      else
+         write(6,*) 'Error in invar: str=',str
+         stop
+      endif
+      q1q = xm12 - 2*p10*(k10-bx*(cth2*sth1*spsi2+cth1*cpsi2))
+      q2q = xm22 - 2*p20*(k20+bx*(cth2*sth1*spsi +cth1*cpsi ))
+      q1c = xm12 + xm22 - s - tk - q1q
+      q2c = xm12 + xm22 - s - uk - q2q
+      w1  = xm12 - q1q + q2q - tk
+      w2  = xm22 - q2q + q1q - uk
+c
+      if(abs(q1q-xm12).lt.tiny) then
+        yq1  = 1.d8
+      elseif(abs(q2c-xm12).lt.tiny) then
+        yq1  = -1.d8
+      else
+        yq1 = .5d0*log( (xm12-q2c)/(xm12-q1q) )
+      endif
+      if(abs(q1c-xm22).lt.tiny) then
+        yq2  = 1.d8
+      elseif(abs(q2q-xm22).lt.tiny) then
+        yq2  = -1.d8
+      else
+        yq2 = .5d0*log( (xm22-q2q)/(xm22-q1c) )
+      endif
+      if(abs(tk).lt.tiny) then
+        yp  = 1.d8
+      elseif(abs(uk).lt.tiny) then
+        yp  = -1.d8
+      else
+        yp  = .5d0*log( uk/tk )
+      endif
+c-----------------------------------------------------------------
+c xktsq, xkt1sq e xkt2sq are the square of transverse momenta of g, Q, 
+c and Qb respectively. The axis orientation is such that Q is always
+c along the x direction. The component of p_T(Qb) along the y direction
+c is always positive or zero
+c
+      xktsq = uk*tk/s
+      if(xktsq.eq.0) then
+         pq1(1) = bx*sth1
+         pq1(2) = 0.d0
+         pq2(1) = -pq1(1)
+         pq2(2) = 0.d0
+         pp(1) = 0.d0
+         pp(2) = 0.d0
+         xkt1 = pq1(1)
+         xkt2 = xkt1
+      else
+         xkt1sq = (xm12-q2c)*(xm12-q1q)/s - xm12
+         xkt2sq = (xm22-q2q)*(xm22-q1c)/s - xm22
+         xkt = sqrt(xktsq)
+         xkt1 = sqrt(xkt1sq)
+         xkt2 = sqrt(xkt2sq)
+         pq1(1) = xkt1
+         pq1(2) = 0.d0
+         pq2(1) = (xktsq-xkt1sq-xkt2sq)/(2.d0*xkt1)
+         tmp = xkt2sq-pq2(1)**2
+         if(tmp.gt.0.d0)then
+            pq2(2) = sqrt(tmp)
+         else
+            pq2(2) = 0.d0
+         endif
+         pp(1) = (xkt2sq-xkt1sq-xktsq)/(2.d0*xkt1)
+         tmp = xktsq-pp(1)**2
+         if(tmp.gt.0.d0)then
+            pp(2) = -sqrt(tmp)
+         else
+            pp(2) = 0.d0
+         endif
+      endif
+      if(ichkmom.eq.0)call checkptcon(pq1,pq2,pp)
+c
+c Incoming partons
+      sqs=sqrt(s)
+      xmom_cm(1,1)=0.d0
+      xmom_cm(1,2)=0.d0
+      xmom_cm(1,3)=sqs/2.d0
+      xmom_cm(1,4)=sqs/2.d0
+      xmom_cm(2,1)=0.d0
+      xmom_cm(2,2)=0.d0
+      xmom_cm(2,3)=-sqs/2.d0
+      xmom_cm(2,4)=sqs/2.d0
+c Outgoing light parton
+      if(tk.eq.0.d0.and.uk.eq.0.d0)then
+        xmom_cm(3,1)=0.d0
+        xmom_cm(3,2)=0.d0
+        xmom_cm(3,3)=0.d0
+        xmom_cm(3,4)=0.d0
+      elseif(tk.eq.0)then
+        xmom_cm(3,1)=0.d0
+        xmom_cm(3,2)=0.d0
+        xmom_cm(3,3)=-uk/(2*sqs)
+        xmom_cm(3,4)=xmom_cm(3,3)
+      elseif(uk.eq.0)then
+        xmom_cm(3,1)=0.d0
+        xmom_cm(3,2)=0.d0
+        xmom_cm(3,3)=tk/(2*sqs)
+        xmom_cm(3,4)=-xmom_cm(3,3)
+      else
+        xmom_cm(3,1)=pp(1)
+        xmom_cm(3,2)=pp(2)
+        xmom_cm(3,3)=sqs/2.d0*(1-x)*y
+        xmom_cm(3,4)=sqs/2.d0*(1-x)
+      endif
+c Heavy quark
+      e1lab=(2*xm12-q1q-q2c)/(2*sqs)
+      pl1lab=(q1q-q2c)/(2*sqs)
+      xmom_cm(4,1)=pq1(1)
+      xmom_cm(4,2)=pq1(2)
+      xmom_cm(4,3)=pl1lab
+      xmom_cm(4,4)=e1lab
+c Heavy antiquark
+      e2lab=(2*xm22-q1c-q2q)/(2*sqs)
+      pl2lab=(q1c-q2q)/(2*sqs)
+      xmom_cm(5,1)=pq2(1)
+      xmom_cm(5,2)=pq2(2)
+      xmom_cm(5,3)=pl2lab
+      xmom_cm(5,4)=e2lab
+c
+      if(ichkmom.eq.0)call checkmqq(xmom_cm,s,0.d0,1,2)
+c Set all return values to zero, since invariants must not be used 
+c after calling this routine. This may be easily changed. However,
+c the entries of this routine follow MNR conventions, while the local
+c values have been computed using FNR conventions. Thus, the assignments
+c below need be changed into
+c  q1q=q1q-xm12;  q2q=q2q-xm22;  q1c=q1c-xm22;  q2c=q2c-xm12;
+c  w1=w1-xm12;  w2=w2-xm22
+c and w1h, w2h need be recomputed explicitly
+      q1q=0.d0
+      q2q=0.d0
+      q1c=0.d0
+      q2c=0.d0
+      w1=0.d0
+      w2=0.d0
+      w1h=0.d0
+      w2h=0.d0
+c
+      return
+      end
+
+
       subroutine checkmqq(xmom,smax,ybst,iflag,itype)
       implicit none
       real * 8 xmom(11,4)
@@ -4992,6 +5881,27 @@ c
       end
 
 
+C      subroutine checkptcon(ptv1,ptv2,ptvg)
+C      implicit none
+C      real*8 ptv1(2),ptv2(2),ptvg(2),tiny,pt1,pt2,ptmax
+C      parameter (tiny=1.d-5)
+C      integer jj
+Cc
+C      ptmax=max(abs(ptv1(1)),abs(ptv2(1)),abs(ptvg(1)),
+C     #          abs(ptv1(2)),abs(ptv2(2)),abs(ptvg(2)))
+C      pt1=ptv1(1)+ptv2(1)+ptvg(1)
+C      pt2=ptv1(2)+ptv2(2)+ptvg(2)
+C      if(pt1.gt.ptmax*tiny.or.pt2.gt.ptmax*tiny)then
+C        write(*,*)'Transverse momentum is not conserved'
+C        write(*,'(4(d14.8,1x))') (ptv1(jj),jj=1,2)
+C        write(*,'(4(d14.8,1x))') (ptv2(jj),jj=1,2)
+C        write(*,'(4(d14.8,1x))') (ptvg(jj),jj=1,2)
+C        stop
+C      endif
+C      return
+C      end
+
+
 C      function bwfunc(s,xm02,gah)
 Cc Returns the Breit Wigner function, normalized in such a way that
 Cc its integral in the range (-inf,inf) is one
@@ -5023,6 +5933,61 @@ C      xm0=sqrt(xm02)
 C      xbwmass3=xm02+xm0*ga*tan(pi*bwdelf*t-bwfmmn)
 C      return
 C      end
+
+
+C      function bwfunc_mod(s,xm02,ga0,gamn,gapl)
+Cc Returns a skewed Breit Wigner function, defined as follows
+Cc   skBW(M)=BW(M,M0,G0,G_mn)  if  M<M0
+Cc   skBW(M)=BW(M,M0,G0,G_pl)  if  M>M0
+Cc where 
+Cc   BW(M,M0,G0,G)=(M0*G^2)/(pi*G0) 1/((M^2-M0^2)^2+M0^2 G^2)
+Cc whose normalization is therefore such that
+Cc   BW(M0,M0,G0,G)=1/(pi*M0*G0)
+C      implicit none
+C      real*8 bwfunc_mod,s,xm02,ga0,gamn,gapl
+C      real*8 pi,xm0,tmp
+C      parameter (pi=3.1415926535897932d0)
+Cc
+C      xm0=sqrt(xm02)
+C      if(s.le.xm02)then
+C        tmp=xm0*gamn**2/(ga0*pi*((s-xm02)**2+xm02*gamn**2))
+C      else
+C        tmp=xm0*gapl**2/(ga0*pi*((s-xm02)**2+xm02*gapl**2))
+C      endif
+C      bwfunc_mod=tmp
+C      return
+C      end
+
+
+C      function xbwmass3_mod(t,xm02,ga0,gamn,gapl,bwdelf,bwfmmn)
+Cc Returns the boson mass squared, given 0<t<1, the nominal mass (xm0),
+Cc the widths of the skewed Breit Wigner function, and the mass range 
+Cc (implicit in bwdelf and bwfmmn). This function is the inverse of 
+Cc F(M^2), where
+c   F(M^2)=\int_{xmlow2}^{M^2} ds skBW(sqrt(s))
+c   skBW(M)=BW(M,M0,G0,G_mn)  if  M<M0
+c   skBW(M)=BW(M,M0,G0,G_pl)  if  M>M0
+c with
+c   BW(M,M0,G0,G)=(M0*G^2)/(pi*G0) 1/((M^2-M0^2)^2+M0^2 G^2)
+c whose normalization is therefore such that
+c   BW(M0,M0,G0,G)=1/(pi*M0*G0)
+c and therefore eats up the skewed Breit-Wigner when changing integration 
+c variable M^2 --> t
+C      implicit none
+C      real*8 xbwmass3_mod,t,xm02,ga0,gamn,gapl,bwdelf,bwfmmn
+C      real*8 pi,xm0,tmp
+C      parameter (pi=3.1415926535897932d0)
+Cc
+C      xm0=sqrt(xm02)
+C      if(t.le.(bwfmmn/pi))then
+C        tmp=xm02+xm0*gamn*tan( ga0/gamn*(pi*bwdelf*t-bwfmmn) )
+C      else
+C        tmp=xm02+xm0*gapl*tan( ga0/gapl*(pi*bwdelf*t-bwfmmn) )
+C      endif
+C      xbwmass3_mod=tmp
+C      return
+C      end
+
 
 
       subroutine chvqq(z,x,xjac,del)
@@ -5097,6 +6062,26 @@ C      FK88RANDOM = SEED*MINV
 C      END
 
 
+
+      FUNCTION DECPRND(SEED)
+*     -----------------
+* Ref.: K. Park and K.W. Miller, Comm. of the ACM 31 (1988) p.1192
+* Use seed = 1 as first value.
+*
+      IMPLICIT INTEGER(A-Z)
+      DOUBLE PRECISION MINV,DECPRND
+      SAVE
+      PARAMETER(M=2147483647,A=16807,Q=127773,R=2836)
+      PARAMETER(MINV=0.46566128752458d-09)
+      HI = SEED/Q
+      LO = MOD(SEED,Q)
+      SEED = A*LO - R*HI
+      IF(SEED.LE.0) SEED = SEED + M
+      DECPRND = SEED*MINV
+      END
+
+
+
 C      function itoosoftkin()
 Cc Returns 1 when a three-body kinematics can be safely approximated
 Cc with a two-body kinematics. It is useful when three-body NLO configurations
@@ -5118,6 +6103,7 @@ c Electroweak parameters for top decay; this routine is a modification
 c of that of the VB code
       implicit none
       include 'hvqcblks.h'
+      integer i,j
       real * 8 pi,zero,one,xme,xmmu,xmtau
       parameter (pi=3.14159265358979312D0)
       parameter (one=1.d0)
@@ -5126,14 +6112,23 @@ c Values from PDG 2003
       parameter (xme=0.510998902d-3)
       parameter (xmmu=105.6583568d-3)
       parameter (xmtau=1776.99d-3)
+      real * 8 ckm(1:6,1:6),ckm2(1:6,1:6),vickm(1:6,1:6)
+      common/cckm2/ckm2
+      common/cvickm/vickm
+      real * 8 ruckm,rcckm,rtckm,rducckm,rsucckm,rbucckm
+      common/cckmfct/ruckm,rcckm,rtckm,rducckm,rsucckm,rbucckm
       real * 8 xmw,gaw
       common/cwparam/xmw,gaw
       real * 8 xlep1mass(2),xlep2mass(2)
       common/clepmass/xlep1mass,xlep2mass
+      real * 8 pdglepmss(11:16)
+      common/cpdglepmss/pdglepmss
       real * 8 xm1low2,xm1upp2,xm2low2,xm2upp2
       common/bounmc/xm1low2,xm1upp2,xm2low2,xm2upp2
       real * 8 brrtop1,brrtop2
       common/brratios/brrtop1,brrtop2
+      real * 8 brrfct1,brrfct2
+      common/brrfacts/brrfct1,brrfct2
       real * 8 sthw2,cthw2
       common/cweinan/sthw2,cthw2
       real * 8 xmt,twidth
@@ -5147,49 +6142,130 @@ c Type of V decays, with HERWIG conventions; see the beginning of this file
       common/cilhw/il1hw,il2hw
 c Identities of the vector bosons or leptons in the final state 
 c (PDG conventions)
-      integer ip4,ip5,ip6,ip7,ip8,ip9
-      common/ci2part/ip4,ip5,ip6,ip7,ip8,ip9
+      integer ip4s,ip5s,ip6s,ip7s,ip8s,ip9s
+      common/ci2parts/ip4s,ip5s,ip6s,ip7s,ip8s,ip9s
 c PDG codes for charged leptons and neutrinos for a given IL (NLO) code;
 c the particle code (not the antiparticle) is entered here
 c Charged lepton from W decay
-      integer ichlw(1:3)
-      data ichlw/11,13,15/
+      integer ichlw(0:6)
+      data ichlw/0,11,13,15,0,0,0/
 c Neutrino from W decay
-      integer ineuw(1:3)
-      data ineuw/12,14,16/
+      integer ineuw(0:6)
+      data ineuw/0,12,14,16,0,0,0/
       real * 8 alfaem,xalfaem,xmwme,gawme,topdecw,brtop,xmw2,tmpmss(3)
 c
 c Electron charge squared (computed at the W mass)
-      alfaem = xalfaem(xmw)
+      xmw2=xmw**2
+      alfaem = xalfaem(xmw2)
       ze2 = 4*pi*alfaem
 c sin and cos squared of theta_W; MSbar scheme, from PDG2003
       sthw2=0.23113d0
       cthw2=1-sthw2
-c Lepton masses and identities: xlep#mass(i) is the mass of lepton # in 
-c the decay of top (i=1) or tbar (i=2)
+c Lepton masses and identities: xlep#mass(i) is the mass of the decay 
+c product # in the decay of top (i=1, in which case #=1 ==> antiparticle,
+c #=2 ==> particle) or tbar (i=2, in which case #=1 ==> particle,
+c #=2 ==> antiparticle). If the tops have a given leptonic decay, the
+c masses are set here, but are in any case overwritten by the routine
+c getpdecids(), in order to treat all the cases on equal footing
+      pdglepmss(11)=xme
+      pdglepmss(12)=0.d0
+      pdglepmss(13)=xmmu
+      pdglepmss(14)=0.d0
+      pdglepmss(15)=xmtau
+      pdglepmss(16)=0.d0
       tmpmss(1)=xme
       tmpmss(2)=xmmu
       tmpmss(3)=xmtau
-      ip4=-ichlw(il1hw)
-      ip5=ineuw(il1hw)
-      ip6=5
-      ip7=ichlw(il2hw)
-      ip8=-ineuw(il2hw)
-      ip9=-5
-      if(il1hw.le.3)then
+      ip4s=-ichlw(il1hw)
+      ip5s=ineuw(il1hw)
+      ip6s=5
+      ip7s=ichlw(il2hw)
+      ip8s=-ineuw(il2hw)
+      ip9s=-5
+      if(il1hw.ge.1.and.il1hw.le.3)then
         xlep1mass(1)=tmpmss(il1hw)
         xlep2mass(1)=0.d0
+      elseif(il1hw.eq.0.or.(il1hw.ge.4.and.il1hw.le.6))then
+        xlep1mass(1)=-1.d0
+        xlep2mass(1)=-1.d0
       else
         write(*,*)'Error in setpqq: inconsistent entries'
         stop
       endif
-      if(il2hw.le.3)then
+      if(il2hw.ge.1.and.il2hw.le.3)then
         xlep1mass(2)=tmpmss(il2hw)
         xlep2mass(2)=0.d0
+      elseif(il2hw.eq.0.or.(il2hw.ge.4.and.il2hw.le.6))then
+        xlep1mass(2)=-1.d0
+        xlep2mass(2)=-1.d0
       else
         write(*,*)'Error in setpqq: inconsistent entries'
         stop
       endif
+c Statistical factors: multiply the branching ratios by the number of
+c possible decay channels -- this affects the event weights. Assume
+c that BR(W->all leptons)=BR(W->u+any downbar)=BR(W->c+any downbar)=0.333
+      brrfct1=1.d0
+      if(il1hw.eq.0)then
+        brrfct1=9.d0
+      elseif(il1hw.eq.4)then
+        brrfct1=2.d0
+      elseif(il1hw.eq.5)then
+        brrfct1=6.d0
+      elseif(il1hw.eq.6)then
+        brrfct1=8.d0
+      endif
+      brrfct2=1.d0
+      brrfct2=1.d0
+      if(il2hw.eq.0)then
+        brrfct2=9.d0
+      elseif(il2hw.eq.4)then
+        brrfct2=2.d0
+      elseif(il2hw.eq.5)then
+        brrfct2=6.d0
+      elseif(il2hw.eq.6)then
+        brrfct2=8.d0
+      endif
+c ckm(i,j)=|CKM matrix elements|, with  i=1,4,6 --> up,charm,top
+c                                       j=2,3,5 --> down,strange,bottom
+      if(vickm(1,2).eq.0.d0.and.vickm(1,3).eq.0.d0.and.
+     #   vickm(1,5).eq.0.d0)then
+        do i=1,6
+          do j=1,6
+            ckm(i,j)=0.d0
+          enddo
+        enddo
+c Values from PDG 2003.
+c Centers of the ranges given in eq.(11.2), supposedly taking unitarity
+c into account; with the following entries, it holds better than 0.1%
+        ckm(1,2)=0.9748d0
+        ckm(1,3)=0.2225d0
+        ckm(1,5)=0.0036d0
+        ckm(4,2)=0.2225d0
+        ckm(4,3)=0.9740d0
+        ckm(4,5)=0.041d0
+        ckm(6,2)=0.009d0
+        ckm(6,3)=0.0405d0
+        ckm(6,5)=0.9992d0
+      else
+        do i=1,6
+          do j=1,6
+            ckm(i,j)=vickm(i,j)
+          enddo
+        enddo
+      endif
+      do i=1,6
+        do j=1,6
+          ckm2(i,j)=ckm(i,j)**2
+        enddo
+      enddo
+c Combinations used for unweighting
+      ruckm=ckm2(1,2)+ckm2(1,3)+ckm2(1,5)
+      rcckm=ckm2(4,2)+ckm2(4,3)+ckm2(4,5)
+      rtckm=ckm2(6,2)+ckm2(6,3)+ckm2(6,5)
+      rducckm=ckm2(1,2)+ckm2(4,2)
+      rsucckm=ckm2(1,3)+ckm2(4,3)
+      rbucckm=ckm2(1,5)+ckm2(4,5)
 c Fills MadEvent common blocks. Set positron charge and QCD coupling g 
 c equal to one, and use the actual values in the main code
       xmwme=xmw
@@ -5203,7 +6279,6 @@ c Compute branching ratios; we set here |Vtb|=1
         brrtop1=ze2**2*brrtop1
         brrtop2=ze2**2*brrtop2
       else
-        xmw2=xmw**2
         brtop=(xm2-xmw2)**2*(xm2+2*xmw2)/(6144*pi**3*xmt**3)
         brtop=brtop * 2/(sthw2**2 * xmw2*gaw**2)
         brtop=brtop/twidth
@@ -5241,7 +6316,7 @@ c
       subroutine parsetpqq()
       implicit none
       integer jproc,ileg,ie0sq,i,itype
-      integer imapp(0:5)
+      integer imapp(0:5),invimapp(-5:21)
       integer ialwsplit(1:3,1:4,1:3)
       integer icllborn(1:3,1:4,1:3),icllkern(1:3,1:4,1:3)
       integer icolconn(1:3,1:4,1:3)
@@ -5249,6 +6324,7 @@ c
       integer idp1(4,3,5),idp2(4,3,5),idp3(4,3,5)
       character * 2 xproc(3)
       common/cimapp/imapp
+      common/cinvimapp/invimapp
       common/cialwsplit/ialwsplit
       common/cicllsplit/icllborn,icllkern
       common/cicolconn/icolconn
@@ -5268,6 +6344,20 @@ c given our id number (1=u, 2=d, 3=s, 4=c, 5=b, 0=g)
       imapp(3)=3
       imapp(4)=4
       imapp(5)=5
+c
+c invimapp(i) is the inverse map of imapp(i)
+      do i=-5,21
+        invimapp(i)=-100000
+      enddo
+      invimapp(1)=2
+      invimapp(2)=1
+      invimapp(3)=3
+      invimapp(4)=4
+      invimapp(5)=5
+      invimapp(21)=0
+      do i=-5,-1
+        invimapp(i)=-invimapp(-i)
+      enddo
 c
 c ialwsplit(jproc,ileg,ie0sq) returns 0 if there's no splitting from leg ileg
 c in the 2-->3 process whose initial state is identified by jproc (jproc=1,2,3
@@ -5807,6 +6897,9 @@ c (1+2)-(3+4+5)=0 or (1+2)-(3+6+7+8+9+10+11)=0
 c Branching ratios, to be inserted in the case of decayed tops
       real*8 brrtop1,brrtop2
       common/brratios/brrtop1,brrtop2
+c Statistical factors for decays
+      real * 8 brrfct1,brrfct2
+      common/brrfacts/brrfct1,brrfct2
 c
       if(xpmone.eq.-1)then
 c Events are already stored in temporary files, and are passed to this
@@ -5818,7 +6911,7 @@ c Events are obtained from SPRING, and are written to temporary files
 c for the first time
         if(idec.eq.0)then
           np=9
-          brfact=brrtop1*brrtop2
+          brfact=brrtop1*brrtop2*brrfct1*brrfct2
         elseif(idec.eq.1)then
           np=5
           brfact=1.d0

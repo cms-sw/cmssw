@@ -1,47 +1,39 @@
 #include "IOPool/Streamer/interface/StreamerInputFile.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "IOPool/Streamer/interface/StreamerInputIndexFile.h"
-#include "IOPool/Streamer/interface/StreamerFileIO.h"
-#include "DataFormats/Common/interface/Wrapper.h"
 #include "FWCore/Utilities/interface/DebugMacros.h"
 
+#include "Utilities/StorageFactory/interface/StorageFactory.h"
+#include "SealBase/IOError.h"
+
+#include <iostream>
+
 using namespace edm;
-using namespace std;
 
 StreamerInputFile::~StreamerInputFile()
 {
+  if (storage_) storage_->close();
 
-  if (ist_ != NULL) {
-    ist_->close();
-    delete ist_;
-  }
-  
   delete startMsg_;
   delete  currentEvMsg_;
 }
 
 StreamerInputFile::StreamerInputFile(const std::string& name):
-  ist_(new ifstream(name.c_str(), ios_base::binary | ios_base::in)),
   useIndex_(false),
   startMsg_(0),
   currentEvMsg_(0),
   headerBuf_(1000*1000),
   eventBuf_(1000*1000*7),
   multiStreams_(false),
-  newHeader_(false)
+  newHeader_(false),
+  endOfFile_(false)
 {
-  if (!ist_->is_open())
-     {
-      throw cms::Exception("StreamerInputFile","StreamerInputFile")
-              << "Error Opening Input File: "<< name << "\n";
-     } 
-  else 
-    readStartMessage();
+  openStreamerFile(name);
+  readStartMessage();
 }
 
 StreamerInputFile::StreamerInputFile(const std::string& name, 
                                      const std::string& order):
-  ist_(new ifstream(name.c_str(), ios_base::binary | ios_base::in)),
   useIndex_(true),
   index_(new StreamerInputIndexFile(order)),
   //indexIter_b(index_->begin()),
@@ -52,20 +44,15 @@ StreamerInputFile::StreamerInputFile(const std::string& name,
   headerBuf_(1000*1000),
   eventBuf_(1000*1000*7),
   multiStreams_(false),
-  newHeader_(false)
+  newHeader_(false),
+  endOfFile_(false)
 {
-  if (!ist_->is_open())
-     {
-      throw cms::Exception("StreamerInputFile","StreamerInputFile")
-              << "Error Opening Input File: "<< name << "\n";
-     }
-  else
-    readStartMessage();
+  openStreamerFile(name);
+  readStartMessage();
 }
 
 StreamerInputFile::StreamerInputFile(const std::string& name,
                                      const StreamerInputIndexFile& order):
-  ist_(new ifstream(name.c_str(), ios_base::binary | ios_base::in)),
   useIndex_(true),
   index_((StreamerInputIndexFile*)&order),
   //indexIter_b(index_->begin()),
@@ -76,40 +63,56 @@ StreamerInputFile::StreamerInputFile(const std::string& name,
   headerBuf_(1000*1000),
   eventBuf_(1000*1000*7),
   multiStreams_(false),
-  newHeader_(false)
+  newHeader_(false),
+  endOfFile_(false)
 {
-  if (!ist_->is_open())
-     {
-      throw cms::Exception("StreamerInputFile","StreamerInputFile")
-              << "Error Opening Input File: "<< name << "\n";
-     }
-  else
-    readStartMessage();
+  openStreamerFile(name);
+  readStartMessage();
 }
 
 
 StreamerInputFile::StreamerInputFile(const std::vector<std::string>& names):
- useIndex_(false),
- startMsg_(0),
- currentEvMsg_(0),
- headerBuf_(1000*1000),
- eventBuf_(1000*1000*7),
- currentFile_(0),
- streamerNames_(names),
- multiStreams_(true),
- currRun_(0),
- currProto_(0),
- newHeader_(false)
+  useIndex_(false),
+  startMsg_(0),
+  currentEvMsg_(0),
+  headerBuf_(1000*1000),
+  eventBuf_(1000*1000*7),
+  currentFile_(0),
+  streamerNames_(names),
+  multiStreams_(true),
+  currRun_(0),
+  currProto_(0),
+  newHeader_(false),
+  endOfFile_(false)
 {
-  ist_ =new ifstream(names.at(0).c_str(), ios_base::binary | ios_base::in);
-  if (ist_->is_open()) {
-      ++currentFile_;
-      readStartMessage();
-      currRun_ = startMsg_->run();
-      currProto_ = startMsg_->protocolVersion();
-  } else {
+  openStreamerFile(names.at(0));
+  ++currentFile_;
+  readStartMessage();
+  currRun_ = startMsg_->run();
+  currProto_ = startMsg_->protocolVersion();
+}
+
+void
+StreamerInputFile::openStreamerFile(const std::string& name) {
+
+  if (storage_) storage_->close();
+
+  seal::IOOffset size = -1;
+  if (StorageFactory::get()->check(name.c_str(), &size)) {
+    try {
+      storage_.reset(StorageFactory::get()->open(name.c_str(),
+                                                 seal::IOFlags::OpenRead));
+    }
+    catch (seal::Error& se ) {
       throw cms::Exception("StreamerInputFile","StreamerInputFile")
-              << "Error Opening Input File: "<< names.at(0) << "\n";
+        << "Error Opening Streamer Input File: " << name << "\n"
+        << se.explain() << "\n";
+    }
+  }
+  else {
+    throw cms::Exception("StreamerInputFile", "StreamerInputFile")
+      << "Error Opening Streamer Input File, file does not exist: "
+      << name << "\n";
   }
 }
 
@@ -117,31 +120,54 @@ const StreamerInputIndexFile* StreamerInputFile::index() {
   return index_;
 }
 
+seal::IOSize StreamerInputFile::readBytes(char *buf, seal::IOSize nBytes)
+{
+  seal::IOSize n;
+  try {
+    n = storage_->read(buf, nBytes);
+  }
+  catch (seal::Error& ce) {
+    throw cms::Exception("StreamerInputFile","StreamerInputFile")
+      << "Failed reading streamer file in function readBytes\n"
+      << ce.explain() << "\n";
+  }
+  return n;
+}
+
 void StreamerInputFile::readStartMessage() 
 {
-  ist_->read(&headerBuf_[0], sizeof(HeaderView));
-
-  if (ist_->eof() || (unsigned int)ist_->gcount() < sizeof(HeaderView)) 
-  {
-        throw cms::Exception("readStartMessage","StreamerInputFile")
-              << "No file exists or Empty file encountered:\n";
+  seal::IOSize nWant = sizeof(HeaderView);
+  seal::IOSize nGot = readBytes(&headerBuf_[0], nWant);
+  if (nGot != nWant) {
+    throw cms::Exception("readStartMessage", "StreamerInputFile")
+      << "Failed reading streamer file, first read in readStartMessage\n";
   }
 
   HeaderView head(&headerBuf_[0]);
   uint32 code = head.code();
   if (code != Header::INIT) /** Not an init message should return ******/
   {
-    throw cms::Exception("readStartMessage","StreamerInputFile")
-              << "Expecting an init Message at start of file\n";
+    throw cms::Exception("readStartMessage", "StreamerInputFile")
+      << "Expecting an init Message at start of file\n";
     return;
   }
 
   uint32 headerSize = head.size();
-  //Bring the pointer at start of Start Message/start of file
-  ist_->seekg(0, ios::beg);
   if (headerBuf_.size() < headerSize) headerBuf_.resize(headerSize);
-  ist_->read(&headerBuf_[0], headerSize);
- 
+
+  if (headerSize > sizeof(HeaderView)) {
+    nWant = headerSize - sizeof(HeaderView);
+    nGot = readBytes(&headerBuf_[sizeof(HeaderView)], nWant);
+    if (nGot != nWant) {
+      throw cms::Exception("readStartMessage","StreamerInputFile")
+        << "Failed reading streamer file, second read in readStartMessage\n";
+    }
+  }
+  else {
+    throw cms::Exception("readStartMessage","StreamerInputFile")
+      << "Failed reading streamer file, init header size from data too small\n";
+  }
+  
   delete startMsg_;
   startMsg_ = new InitMsgView(&headerBuf_[0]) ;
 }
@@ -154,9 +180,16 @@ bool StreamerInputFile::next()
 
      if (indexIter_b != indexIter_e) {
         EventIndexRecord* iview = *(indexIter_b);
-        //ist_->clear();
-        // Bring the fptr to start of event 
-        ist_->seekg((iview->getOffset()) - 1, ios::beg);
+
+        try {
+          storage_->position((iview->getOffset()) - 1);
+        }
+        catch (seal::Error& ce) {
+          throw cms::Exception("StreamerInputFile","StreamerInputFile")
+            << "Failed reading streamer file in function next\n"
+            << ce.explain() << "\n";
+        }
+
         ++indexIter_b;
      }  
   }
@@ -167,6 +200,7 @@ bool StreamerInputFile::next()
   if (multiStreams_) {
      //Try opening next file
      if (openNextFile()) {
+        endOfFile_ = false;
         if (this->readEventMessage()) {
            return true;
         }
@@ -181,26 +215,15 @@ bool StreamerInputFile::openNextFile() {
    if (currentFile_ <= streamerNames_.size()-1)
    {
 
-     FDEBUG(10) << "Opening file "<< streamerNames_.at(currentFile_).c_str() << std::endl;
+     FDEBUG(10) << "Opening file "
+                << streamerNames_.at(currentFile_).c_str() << std::endl;
  
-     if (ist_ != NULL) {
-       ist_->clear();
-       ist_->close();
-       delete ist_;
-     }
+     openStreamerFile(streamerNames_.at(currentFile_));
 
-     ist_ = new ifstream(streamerNames_.at(currentFile_).c_str(),
-                                 ios_base::binary | ios_base::in);
-     if (!ist_->is_open())
-     {
-      throw cms::Exception("StreamerInputFile","openNextFile")
-          << "Error Opening Input File: "<< streamerNames_.at(currentFile_) << "\n";
-      return false;
-     }
-
-     //if start message was already there, lets see if the new one is similar
-     if (startMsg_ != NULL) {  //There was a previous file opened, must compare headers
-        FDEBUG(10) << "Comparing Header"<<endl;
+     // If start message was already there, then compare the
+     // previous and new headers
+     if (startMsg_ != NULL) {  
+        FDEBUG(10) << "Comparing Header" << std::endl;
         if (!compareHeader())
         {
             return false;
@@ -219,15 +242,14 @@ bool StreamerInputFile::compareHeader() {
   
   //Values from new Header should match up
   if (currRun_ != startMsg_->run() ||
-       currProto_ != startMsg_->protocolVersion())
-     {
-      throw cms::Exception("MismatchedInput","StreamerInputFile::compareHeader")
-        << "File " << streamerNames_.at(currentFile_).c_str() 
-        << "\nhas different run number or protocol version then previous\n";
+      currProto_ != startMsg_->protocolVersion())
+  {
+    throw cms::Exception("MismatchedInput","StreamerInputFile::compareHeader")
+      << "File " << streamerNames_.at(currentFile_)
+      << "\nhas different run number or protocol version than previous\n";
 
-      return false;
-     }
-
+    return false;
+  }
   newHeader_ = true;
   return true;
 }
@@ -235,31 +257,50 @@ bool StreamerInputFile::compareHeader() {
 
 int StreamerInputFile::readEventMessage()  
 {
-  std::streampos last_pos = ist_->tellg();
-  ist_->read(&eventBuf_[0], sizeof(HeaderView));
-  if (ist_->eof() || (unsigned int)ist_->gcount() < sizeof(HeaderView))
-        return 0;
+  if (endOfFile_) return 0;
+
+  seal::IOSize nWant = sizeof(HeaderView);
+  seal::IOSize nGot = readBytes(&eventBuf_[0], nWant);
+  if (nGot != nWant) {
+    throw cms::Exception("readEventMessage", "StreamerInputFile")
+      << "Failed reading streamer file, first read in readEventMessage\n";
+  }
 
   HeaderView head(&eventBuf_[0]);
   uint32 code = head.code();
-  if (code != Header::EVENT) /** Not an event message should return ******/
+
+  // When we get the EOF record we know we have read all events
+  // normally and are at the end, return 0 to indicate this
+  if (code == Header::EOFRECORD) {
+    endOfFile_ = true;
     return 0;
+  }
+
+  // If it is not an event nor EOFRECORD then something is wrong.
+  if (code != Header::EVENT) {
+    throw cms::Exception("readEventMessage", "StreamerInputFile")
+      << "Failed reading streamer file, unknown code in event header\n"
+      << "code = " << code << "\n";
+  }
 
   uint32 eventSize = head.size();
-  //Bring the pointer to end of previous Message
-
-  ist_->seekg(last_pos);
   if (eventBuf_.size() < eventSize) eventBuf_.resize(eventSize);
-  ist_->read(&eventBuf_[0], eventSize);
-  if (ist_->eof() || (unsigned int)ist_->gcount() < eventSize) //Probably an unfinished file
-     return 0;
 
+  if (eventSize > sizeof(HeaderView)) {
+    nWant = eventSize - sizeof(HeaderView);
+    nGot = readBytes(&eventBuf_[sizeof(HeaderView)], nWant);
+    if (nGot != nWant) {
+      throw cms::Exception("readEventMessage", "StreamerInputFile")
+        << "Failed reading streamer file, second read in readEventMessage\n";
+    }
+  }
+  else {
+    throw cms::Exception("readEventMessage","StreamerInputFile")
+      << "Failed reading streamer file, event header size from data too small\n";
+  }
+ 
   delete currentEvMsg_;
   currentEvMsg_ = new EventMsgView((void*)&eventBuf_[0]);
   
-  //This Brings the pointer to end of this Event Msg.
-  std::streamoff evSize = currentEvMsg_->size();
-  ist_->seekg(last_pos + evSize);
- 
   return 1;
 }

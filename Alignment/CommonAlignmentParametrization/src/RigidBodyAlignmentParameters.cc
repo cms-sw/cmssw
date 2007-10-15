@@ -1,14 +1,13 @@
 /** \file RigidBodyAlignmentParameters.cc
  *
- *  $Date: 2006/12/23 15:55:48 $
- *  $Revision: 1.4 $
+ *  $Date: 2006/11/30 09:48:47 $
+ *  $Revision: 1.3 $
  */
 
 #include "FWCore/Utilities/interface/Exception.h"
 
-#include "Alignment/CommonAlignment/interface/Alignable.h"
-#include "Alignment/CommonAlignment/interface/Utilities.h"
 #include "Alignment/CommonAlignmentParametrization/interface/KarimakiAlignmentDerivatives.h"
+#include "Alignment/CommonAlignmentParametrization/interface/AlignmentTransformations.h"
 
 // This class's header 
 
@@ -81,7 +80,7 @@ RigidBodyAlignmentParameters::cloneFromSelected( const AlgebraicVector& paramete
 //__________________________________________________________________________________________________
 AlgebraicMatrix 
 RigidBodyAlignmentParameters::derivatives( const TrajectoryStateOnSurface& tsos, 
-					   AlignableDet* ) const
+					   AlignableDet* alignableDet ) const
 {
   return KarimakiAlignmentDerivatives()(tsos);
 }
@@ -90,9 +89,9 @@ RigidBodyAlignmentParameters::derivatives( const TrajectoryStateOnSurface& tsos,
 //__________________________________________________________________________________________________
 AlgebraicMatrix 
 RigidBodyAlignmentParameters::selectedDerivatives( const TrajectoryStateOnSurface& tsos, 
-						   AlignableDet* ) const
+						   AlignableDet* alignableDet ) const
 {
-  AlgebraicMatrix dev = derivatives( tsos, 0 );
+  AlgebraicMatrix dev = derivatives( tsos, alignableDet );
 
   int ncols  = dev.num_col();
   int nrows  = dev.num_row();
@@ -137,20 +136,26 @@ AlgebraicVector RigidBodyAlignmentParameters::globalParameters(void) const
 {
   AlgebraicVector m_GlobalParameters(N_PARAM, 0);
 
-  AlgebraicVector shift = translation(); // fixme: should return LocalVector
+  AlgebraicVector shift = translation();
 
-  align::LocalVector lv(shift[0], shift[1], shift[2]);
-  align::GlobalVector dg = theAlignable->surface().toGlobal(lv);
+  LocalPoint l0   = Local3DPoint( 0.0,  0.0, 0.0 );
+  LocalPoint l1   = Local3DPoint(shift[0], shift[1], shift[2]);
+  GlobalPoint g0  = theAlignable->surface().toGlobal( l0);
+  GlobalPoint g1  = theAlignable->surface().toGlobal( l1);
+  GlobalVector dg = g1-g0;
 
   m_GlobalParameters[0] = dg.x();
   m_GlobalParameters[1] = dg.y();
   m_GlobalParameters[2] = dg.z();
 
-  align::EulerAngles eulerglob = theAlignable->surface().toGlobal( rotation() );
+  AlgebraicVector eulerloc = rotation();
+  AlignmentTransformations alignmentTransformation;
+  Surface::RotationType detrot = theAlignable->surface().rotation();
+  AlgebraicVector eulerglob = alignmentTransformation.localToGlobalEulerAngles( eulerloc, detrot );
 
-  m_GlobalParameters[3]=eulerglob(1);
-  m_GlobalParameters[4]=eulerglob(2);
-  m_GlobalParameters[5]=eulerglob(3);
+  m_GlobalParameters[3]=eulerglob[0];
+  m_GlobalParameters[4]=eulerglob[1];
+  m_GlobalParameters[5]=eulerglob[2];
 
   return m_GlobalParameters;
 }
@@ -168,20 +173,18 @@ void RigidBodyAlignmentParameters::print(void) const
 
 AlgebraicVector RigidBodyAlignmentParameters::displacementFromAlignable(Alignable* ali) const
 {
-  const align::RotationType& dR = ali->rotation();
-
-  align::LocalVector shifts( ali->globalRotation() * ( dR.transposed() * ali->displacement().basicVector() ) );
-
-  align::EulerAngles angles = align::toAngles( ali->surface().toLocal(dR) );
+  AlignmentTransformations trafo; // why does it not work with const?
+  const Alignable::RotationType diffRot    (ali->rotation());// a.transform(b) means a = b * a
+  const Alignable::RotationType globRotOrig(diffRot.transposed().transform(ali->globalRotation()));
+  const AlgebraicVector         globShift  (trafo.algebraicVector(ali->displacement()));
+  const AlgebraicVector         locShift   (trafo.algebraicMatrix(globRotOrig) * globShift);
+  const Alignable::RotationType locRot     (trafo.globalToLocalMatrix(diffRot, globRotOrig));
+  const AlgebraicVector         angles     (trafo.eulerAngles(locRot, 0));
 
   AlgebraicVector displacement(N_PARAM);
-
-  displacement[0] = shifts.x();
-  displacement[1] = shifts.y();
-  displacement[2] = shifts.z();
-  displacement[3] = angles(1);
-  displacement[4] = angles(2);
-  displacement[5] = angles(3);
+  for (int i = 0; i < N_PARAM; ++i) {
+    displacement[i] = (i < dalpha ? locShift[i] : angles[i-dalpha]);
+  }
 
   return displacement;
 }

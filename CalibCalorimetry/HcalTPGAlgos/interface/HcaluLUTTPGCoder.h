@@ -19,36 +19,31 @@
   * [LUT 1(127)] [LUT 2(127)] ...
   * </pre>
   *
-  * $Date: 2007/02/19 15:55:53 $
-  * $Revision: 1.4 $
+  * $Date: 2007/04/16 17:31:56 $
+  * $Revision: 1.8 $
   * \author M. Weinberger -- TAMU
+  * \author Tulika Bose and Greg Landsberg -- Brown
   */
 class HcaluLUTTPGCoder : public HcalTPGCoder {
 public:
   HcaluLUTTPGCoder(const char* filename);
   HcaluLUTTPGCoder(const char* ifilename, const char* ofilename);
-  virtual ~HcaluLUTTPGCoder() {}
-  virtual void adc2Linear(const HBHEDataFrame& df, IntegerCaloSamples& ics) const ;
+  virtual ~HcaluLUTTPGCoder();
+  virtual void adc2Linear(const HBHEDataFrame& df, IntegerCaloSamples& ics) const;
   virtual void adc2Linear(const HFDataFrame& df, IntegerCaloSamples& ics) const;
-  virtual void compress(const IntegerCaloSamples& ics, const std::vector<bool>& featureBits, HcalTriggerPrimitiveDigi& tp) const;  
-  bool getadc2fCLUT();
-  bool getped();
-  bool getgain();
+  virtual void compress(const IntegerCaloSamples& ics, const std::vector<bool>& featureBits, HcalTriggerPrimitiveDigi& tp) const;
+  virtual void getConditions(const edm::EventSetup& es) const;
+  virtual void releaseConditions() const {}
+  
 private:
-  void loadILUTs(const char* filename);
-  void loadOLUTs(const char* filename);
-  //void generateILUTs(const char *filename);
-  void generateILUTs();
-  typedef std::vector<int> LUTType;
-  std::vector<LUTType> inputluts_;
-  const LUTType* ietaILutMap_[54];
-  std::vector<LUTType> outputluts_;
-  const LUTType* ietaOLutMap_[32];
-  float adc2fCLUT_[128];
-  //std::vector<LUTType> adc2fCLUT_;
-  float ped_;
-  float ped_HF;
-  float gain_;
+  static const int nluts = 46005, INPUT_LUT_SIZE = 128;
+  int GetLUTID(HcalSubdetector id, int ieta, int iphi, int depth) const;
+  void AllocateLUTs();
+  void getRecHitCalib(const char* filename);
+  float Rcalib[87];
+  typedef short unsigned int LUT;
+  LUT *inputLUT[nluts];
+  static const float nominal_gain;              // Nominal HB/HE gain in GeV/fC
 };
-
+  const float HcaluLUTTPGCoder::nominal_gain = 0.177; 
 #endif

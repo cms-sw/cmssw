@@ -21,8 +21,9 @@
 #include "HepMC/GenEvent.h"
 #include "CLHEP/Random/JamesRandom.h"
 #include "CLHEP/Random/RandFlat.h"
+#include "GeneratorInterface/Pythia6Interface/interface/TauolaInterface.h"
 
-
+class Run;
 
 namespace edm
 {
@@ -33,6 +34,8 @@ namespace edm
     PythiaSource(const ParameterSet &, const InputSourceDescription &);
     /// Destructor
     virtual ~PythiaSource();
+
+    void endRun( Run& r);
 
 
   private:
@@ -57,16 +60,27 @@ namespace edm
     bool pythiaHepMCVerbosity_;
     /// Events to print if verbosity
     unsigned int maxEventsToPrint_;    
+   
+    // external cross section and filter efficiency
+    double extCrossSect;
+    double extFilterEff;    
     
- 
+    // flag indicating whether or not TAUOLA is used for tau decays
+    bool useTauola_;
+    bool useTauolaPolarization_;
+    
     // for single particle generation in pythia
     int    particleID;
     bool   doubleParticle;
-    double ptmin, ptmax;
+    double ptmin, ptmax;   
+    double emin, emax;
+    bool flatEnergy;
     double etamin, etamax;
     double phimin, phimax;
-    double comenergy;
+    double comenergy;    
     
+    TauolaInterface tauola_;
+  
     CLHEP::HepRandomEngine* fRandomEngine;
     CLHEP::RandFlat*        fRandomGenerator; 
 

@@ -1,14 +1,14 @@
 /*
  * \file DTtTrigCalibrationTest.cc
  * 
- * $Date: 2007/03/23 17:04:05 $
- * $Revision: 1.2 $
+ * $Date: 2007/06/14 17:49:15 $
+ * $Revision: 1.6 $
  * \author M. Zanetti - CERN
  *
  */
 
 
-#include <DQM/DTMonitorClient/interface/DTtTrigCalibrationTest.h>
+#include "DQM/DTMonitorClient/src/DTtTrigCalibrationTest.h"
 
 // Framework
 #include <FWCore/Framework/interface/Event.h>
@@ -31,6 +31,7 @@
 
 #include "CondFormats/DataRecord/interface/DTStatusFlagRcd.h"
 #include "CondFormats/DTObjects/interface/DTStatusFlag.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 // the Timebox fitter
 #include "CalibMuon/DTCalibration/interface/DTTimeBoxFitter.h"
@@ -46,9 +47,7 @@ using namespace std;
 
 DTtTrigCalibrationTest::DTtTrigCalibrationTest(const edm::ParameterSet& ps){
   
-  debug = ps.getUntrackedParameter<bool>("debug", "false");
-  if(debug)
-    cout<<"[DTtTrigCalibrationTest]: Constructor"<<endl;
+  edm::LogVerbatim ("tTrigCalibration") <<"[DTtTrigCalibrationTest]: Constructor";
 
   parameters = ps;
   
@@ -62,8 +61,7 @@ DTtTrigCalibrationTest::DTtTrigCalibrationTest(const edm::ParameterSet& ps){
 
 DTtTrigCalibrationTest::~DTtTrigCalibrationTest(){
 
-  if(debug)
-    cout << "DTtTrigCalibrationTest: analyzed " << nevents << " events" << endl;
+  edm::LogVerbatim ("tTrigCalibration") <<"DTtTrigCalibrationTest: analyzed " << nevents << " events";
 
   delete theFitter;
 
@@ -71,19 +69,14 @@ DTtTrigCalibrationTest::~DTtTrigCalibrationTest(){
 
 void DTtTrigCalibrationTest::endJob(){
 
-  if(debug)
-    cout<<"[DTtTrigCalibrationTest] endjob called!"<<endl;
+  edm::LogVerbatim ("tTrigCalibration") <<"[DTtTrigCalibrationTest] endjob called!";
 
-  if ( parameters.getUntrackedParameter<bool>("writeHisto", true) ) 
-    dbe->save(parameters.getUntrackedParameter<string>("outputFile", "DTtTrigCalibrationTest.root"));
-  
   dbe->rmdir("DT/Tests/DTtTrigCalibration");
 }
 
 void DTtTrigCalibrationTest::beginJob(const edm::EventSetup& context){
 
-  if(debug)
-    cout<<"[DTtTrigCalibrationTest]: BeginJob"<<endl;
+  edm::LogVerbatim ("tTrigCalibration") <<"[DTtTrigCalibrationTest]: BeginJob";
 
   nevents = 0;
 
@@ -108,9 +101,14 @@ void DTtTrigCalibrationTest::bookHistos(const DTChamberId & ch) {
 
 void DTtTrigCalibrationTest::analyze(const edm::Event& e, const edm::EventSetup& context){
 
+
+  // counts number of updats (online mode) or number of events (standalone mode)
   nevents++;
-  if (nevents%1 == 0 && debug) 
-    cout<<"[DTtTrigCalibrationTest]: "<<nevents<<" updates"<<endl;
+  // if running in standalone perform diagnostic only after a reasonalbe amount of events
+  if ( parameters.getUntrackedParameter<bool>("runningStandalone", false) && 
+       nevents%parameters.getUntrackedParameter<int>("diagnosticPrescale", 1000) != 0 ) return;
+
+  edm::LogVerbatim ("tTrigCalibration") <<"[DTtTrigCalibrationTest]: "<<nevents<<" updates";
 
   context.get<DTTtrigRcd>().get(tTrigMap);
   float tTrig, tTrigRMS;
@@ -129,6 +127,8 @@ void DTtTrigCalibrationTest::analyze(const edm::Event& e, const edm::EventSetup&
       MonitorElement * tb_histo = dbe->get(getMEName(slID));
       if (tb_histo) {
 	
+	edm::LogVerbatim ("tTrigCalibration") <<"[DTtTrigCalibrationTest]: I've got the histo!!";	
+
 	MonitorElementT<TNamed>* ob = dynamic_cast<MonitorElementT<TNamed>*>(tb_histo);
 	if (ob) {
 	  TH1F * tb_histo_root = dynamic_cast<TH1F*> (ob->operator->());
@@ -154,12 +154,17 @@ void DTtTrigCalibrationTest::analyze(const edm::Event& e, const edm::EventSetup&
 	vector<dqm::me_util::Channel> badChannels = theQReport->getBadChannels();
 	for (vector<dqm::me_util::Channel>::iterator channel = badChannels.begin(); 
 	     channel != badChannels.end(); channel++) {
-	  cout<<(*ch_it)->id()<<" Bad channels: "<<(*channel).getBin()<<" "<<(*channel).getContents()<<endl;
+	  edm::LogError ("tTrigCalibration") <<"Chamber ID : "<<(*ch_it)->id()<<" Bad channels: "<<(*channel).getBin()<<" "<<(*channel).getContents();
 	}
-	cout<<"-------- "<<theQReport->getMessage()<<" ------- "<<theQReport->getStatus()<<endl;
+	edm::LogWarning ("tTrigCalibration") <<"-------- "<<theQReport->getMessage()<<" ------- "<<theQReport->getStatus();
       } 
     }
 
+  }
+  
+  if (nevents%parameters.getUntrackedParameter<int>("resultsSavingRate",10) == 0){
+    if ( parameters.getUntrackedParameter<bool>("writeHisto", true) ) 
+      dbe->save(parameters.getUntrackedParameter<string>("outputFile", "DTtTrigCalibrationTest.root")); 
   }
 }
 
@@ -171,13 +176,14 @@ string DTtTrigCalibrationTest::getMEName(const DTSuperLayerId & slID) {
   stringstream sector; sector << slID.sector();	
   stringstream superLayer; superLayer << slID.superlayer();
 
+  string folderRoot = parameters.getUntrackedParameter<string>("folderRoot", "Collector/FU0/");
   string folderTag = parameters.getUntrackedParameter<string>("folderTag", "TimeBoxes");
   string folderName = 
-    "Collector/FU0/DT/DTDigiTask/Wheel" +  wheel.str() +
+    folderRoot + "DT/DTDigiTask/Wheel" +  wheel.str() +
     "/Station" + station.str() +
     "/Sector" + sector.str() + "/" + folderTag + "/";
 
-  string histoTag = parameters.getUntrackedParameter<string>("histoTag", "TimeBoxAllHits");
+  string histoTag = parameters.getUntrackedParameter<string>("histoTag", "TimeBox");
   string histoname = folderName + histoTag  
     + "_W" + wheel.str() 
     + "_St" + station.str() 

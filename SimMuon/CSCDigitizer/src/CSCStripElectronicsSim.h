@@ -11,6 +11,8 @@
 #include "SimMuon/CSCDigitizer/src/CSCBaseElectronicsSim.h"
 #include "DataFormats/CSCDigi/interface/CSCStripDigiCollection.h"
 #include "DataFormats/CSCDigi/interface/CSCComparatorDigiCollection.h"
+#include "SimMuon/CSCDigitizer/src/CSCStripAmpResponse.h"
+
 class CSCDetectorHit;
 class CSCComparatorDigi;
 class CSCCrosstalkGenerator;
@@ -39,6 +41,7 @@ private:
   virtual int readoutElement(int strip) const;
 
   float calculateAmpResponse(float t) const;
+  CSCStripAmpResponse theAmpResponse;
 
   std::vector<CSCComparatorDigi> runComparator();
 
@@ -63,6 +66,9 @@ private:
   channelsToRead(const std::list<int> & keyStrips) const;
 
   void addCrosstalk();
+  void addCrosstalk(const CSCAnalogSignal & signal,
+                    int thisStrip, int otherStrip);
+
 
   void selfTest() const;
 
@@ -89,23 +95,16 @@ private:
   bool doCrosstalk_;
   CSCStripConditions * theStripConditions;
   CSCCrosstalkGenerator * theCrosstalkGenerator;
-  CSCScaNoiseGenerator  * theScaNoiseGenerator;
 
   int theComparatorClockJump;
   // the length of each SCA time bin, in ns.  50 by default
   float sca_time_bin_size;
-  // the following values are in ADC counts
-  float theAnalogNoise;
-  float thePedestal;
-  float thePedestalWidth;
   // the SCA bin which holds the peak signal.  4, by default.
   // that's really the 5th, since We start counting at 0
   int   sca_peak_bin;
   // which time bin the trigger crossing goes in
   int theComparatorTimeBinOffset;
 
-  // can be "simple" or "file"
-  std::string scaNoiseMode_;
 };
 
 #endif

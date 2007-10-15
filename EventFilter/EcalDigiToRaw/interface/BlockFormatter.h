@@ -11,7 +11,6 @@
 #include <DataFormats/FEDRawData/interface/FEDRawDataCollection.h>
 
 
-using namespace std;
 
  class EcalDigiToRaw;
 
@@ -29,11 +28,11 @@ class BlockFormatter {
 	void print(FEDRawData& rawdata);
 	// void CleanUp(FEDRawDataCollection* productRawData);
 	void CleanUp(FEDRawDataCollection* productRawData,
-			map<int, map<int,int> >* FEDorder);
+			std::map<int, std::map<int,int> >* FEDorder);
 	void PrintSizes(FEDRawDataCollection* productRawData);
 
  protected :
-	pair<int,int> EcalFEDIds;
+	std::pair<int,int> EcalFEDIds;
         bool debug_;
 
 	bool doBarrel_;

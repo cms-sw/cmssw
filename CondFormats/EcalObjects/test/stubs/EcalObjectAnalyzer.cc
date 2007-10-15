@@ -68,43 +68,43 @@ EcalObjectAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& context)
   // Context is not used.
   std::cout <<">>> EcalObjectAnalyzer: processing run "<<e.id().run() << " event: " << e.id().event() << std::endl;
 
-  edm::ESHandle<EcalPedestals> pPeds;
-  context.get<EcalPedestalsRcd>().get(pPeds);
+//   edm::ESHandle<EcalPedestals> pPeds;
+//   context.get<EcalPedestalsRcd>().get(pPeds);
 
-  // ADC -> GeV Scale
-  edm::ESHandle<EcalADCToGeVConstant> pAgc;
-  context.get<EcalADCToGeVConstantRcd>().get(pAgc);
-  const EcalADCToGeVConstant* agc = pAgc.product();
-  std::cout << "Global ADC->GeV scale: EB " << agc->getEBValue() << " GeV/ADC count" 
-	    << " EE " << agc->getEEValue() << " GeV/ADC count" <<std::endl; 
+//   // ADC -> GeV Scale
+//   edm::ESHandle<EcalADCToGeVConstant> pAgc;
+//   context.get<EcalADCToGeVConstantRcd>().get(pAgc);
+//   const EcalADCToGeVConstant* agc = pAgc.product();
+//   std::cout << "Global ADC->GeV scale: EB " << agc->getEBValue() << " GeV/ADC count" 
+// 	    << " EE " << agc->getEEValue() << " GeV/ADC count" <<std::endl; 
 
-  // use a channel to fetch values from DB
-  double r1 = (double)std::rand()/( double(RAND_MAX)+double(1) );
-  int ieta =  int( 1 + r1*85 );
-  r1 = (double)std::rand()/( double(RAND_MAX)+double(1) );
-  int iphi =  int( 1 + r1*20 );
+//   // use a channel to fetch values from DB
+//   double r1 = (double)std::rand()/( double(RAND_MAX)+double(1) );
+//   int ieta =  int( 1 + r1*85 );
+//   r1 = (double)std::rand()/( double(RAND_MAX)+double(1) );
+//   int iphi =  int( 1 + r1*20 );
 
-  EBDetId ebid(ieta,iphi); //eta,phi
-  std::cout << "EcalObjectAnalyzer: using EBDetId: " << ebid << std::endl;
+   EBDetId ebid(1,248,1); //eta,phi
+   std::cout << "EcalObjectAnalyzer: using EBDetId: " << ebid << std::endl;
 
-  const EcalPedestals* myped=pPeds.product();
-  std::map<const unsigned int,EcalPedestals::Item>::const_iterator it=myped->m_pedestals.find(ebid.rawId());
-  if( it!=myped->m_pedestals.end() ){
-    std::cout << "EcalPedestal: "
-	      << "  mean_x1:  " <<it->second.mean_x1 << " rms_x1: " << it->second.rms_x1
-	      << "  mean_x6:  " <<it->second.mean_x6 << " rms_x6: " << it->second.rms_x6
-	      << "  mean_x12: " <<it->second.mean_x12 << " rms_x12: " << it->second.rms_x12
-	      << std::endl;
-  } else {
-    std::cout << "No pedestal found for this xtal! something wrong with EcalPedestals in your DB? "
-	      << std::endl;
-  }
+//   const EcalPedestals* myped=pPeds.product();
+//   std::map<const unsigned int,EcalPedestals::Item>::const_iterator it=myped->m_pedestals.find(ebid.rawId());
+//   if( it!=myped->m_pedestals.end() ){
+//     std::cout << "EcalPedestal: "
+// 	      << "  mean_x1:  " <<it->second.mean_x1 << " rms_x1: " << it->second.rms_x1
+// 	      << "  mean_x6:  " <<it->second.mean_x6 << " rms_x6: " << it->second.rms_x6
+// 	      << "  mean_x12: " <<it->second.mean_x12 << " rms_x12: " << it->second.rms_x12
+// 	      << std::endl;
+//   } else {
+//     std::cout << "No pedestal found for this xtal! something wrong with EcalPedestals in your DB? "
+// 	      << std::endl;
+//   }
 
   // fetch map of groups of xtals
   edm::ESHandle<EcalWeightXtalGroups> pGrp;
   context.get<EcalWeightXtalGroupsRcd>().get(pGrp);
   const EcalWeightXtalGroups* grp = pGrp.product();
-
+  
   EcalWeightXtalGroups::EcalXtalGroupsMap::const_iterator git = grp->getMap().find( ebid.rawId() );
   EcalXtalGroupId gid;
   if( git != grp->getMap().end() ) {
@@ -115,41 +115,41 @@ EcalObjectAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& context)
 	      << std::endl;
   }
 
-  // Gain Ratios
-  edm::ESHandle<EcalGainRatios> pRatio;
-  context.get<EcalGainRatiosRcd>().get(pRatio);
-  const EcalGainRatios* gr = pRatio.product();
+//   // Gain Ratios
+//   edm::ESHandle<EcalGainRatios> pRatio;
+//   context.get<EcalGainRatiosRcd>().get(pRatio);
+//   const EcalGainRatios* gr = pRatio.product();
 
-  EcalGainRatios::EcalGainRatioMap::const_iterator grit=gr->getMap().find(ebid.rawId());
-  EcalMGPAGainRatio mgpa;
-  if( grit!=gr->getMap().end() ){
-    mgpa = grit->second;
+//   EcalGainRatios::EcalGainRatioMap::const_iterator grit=gr->getMap().find(ebid.rawId());
+//   EcalMGPAGainRatio mgpa;
+//   if( grit!=gr->getMap().end() ){
+//     mgpa = grit->second;
 
-    std::cout << "EcalMGPAGainRatio: "
-	      << "gain 12/6 :  " << mgpa.gain12Over6() << " gain 6/1: " << mgpa.gain6Over1()
-	      << std::endl;
-  } else {
-    std::cout << "No MGPA Gain Ratio found for this xtal! something wrong with EcalGainRatios in your DB? "
-	      << std::endl;
-  }
+//     std::cout << "EcalMGPAGainRatio: "
+// 	      << "gain 12/6 :  " << mgpa.gain12Over6() << " gain 6/1: " << mgpa.gain6Over1()
+// 	      << std::endl;
+//   } else {
+//     std::cout << "No MGPA Gain Ratio found for this xtal! something wrong with EcalGainRatios in your DB? "
+// 	      << std::endl;
+//   }
 
-  // Intercalib constants
-  edm::ESHandle<EcalIntercalibConstants> pIcal;
-  context.get<EcalIntercalibConstantsRcd>().get(pIcal);
-  const EcalIntercalibConstants* ical = pIcal.product();
+//   // Intercalib constants
+//   edm::ESHandle<EcalIntercalibConstants> pIcal;
+//   context.get<EcalIntercalibConstantsRcd>().get(pIcal);
+//   const EcalIntercalibConstants* ical = pIcal.product();
 
-  EcalIntercalibConstants::EcalIntercalibConstantMap::const_iterator icalit=ical->getMap().find(ebid.rawId());
-  EcalIntercalibConstants::EcalIntercalibConstant icalconst;
-  if( icalit!=ical->getMap().end() ){
-    icalconst = icalit->second;
+//   EcalIntercalibConstants::EcalIntercalibConstantMap::const_iterator icalit=ical->getMap().find(ebid.rawId());
+//   EcalIntercalibConstants::EcalIntercalibConstant icalconst;
+//   if( icalit!=ical->getMap().end() ){
+//     icalconst = icalit->second;
 
-    std::cout << "EcalIntercalibConstant: "
-	      << icalconst
-	      << std::endl;
-  } else {
-    std::cout << "No intercalib const found for this xtal! something wrong with EcalIntercalibConstants in your DB? "
-	      << std::endl;
-  }
+//     std::cout << "EcalIntercalibConstant: "
+// 	      << icalconst
+// 	      << std::endl;
+//   } else {
+//     std::cout << "No intercalib const found for this xtal! something wrong with EcalIntercalibConstants in your DB? "
+// 	      << std::endl;
+//   }
 
   // fetch TB weights
   std::cout <<"Fetching EcalTBWeights from DB " << std::endl;

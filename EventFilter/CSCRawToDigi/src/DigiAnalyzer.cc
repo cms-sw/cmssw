@@ -20,13 +20,15 @@
 #include "DataFormats/CSCDigi/interface/CSCComparatorDigiCollection.h"
 #include "DataFormats/CSCDigi/interface/CSCALCTDigi.h"
 #include "DataFormats/CSCDigi/interface/CSCALCTDigiCollection.h"
+#include "DataFormats/CSCDigi/interface/CSCDDUStatusDigi.h"
+#include "DataFormats/CSCDigi/interface/CSCDDUStatusDigiCollection.h"
 #include "DataFormats/CSCDigi/interface/CSCCLCTDigi.h"
 #include "DataFormats/CSCDigi/interface/CSCCLCTDigiCollection.h"
 #include "DataFormats/CSCDigi/interface/CSCRPCDigi.h"
 #include "DataFormats/CSCDigi/interface/CSCRPCDigiCollection.h"
 #include "DataFormats/CSCDigi/interface/CSCCorrelatedLCTDigi.h"
 #include "DataFormats/CSCDigi/interface/CSCCorrelatedLCTDigiCollection.h"
-
+#include "EventFilter/CSCRawToDigi/interface/CSCDDUHeader.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -44,39 +46,49 @@ void DigiAnalyzer::analyze(edm::Event const& e, edm::EventSetup const& iSetup) {
   // These declarations create handles to the types of records that you want
   // to retrieve from event "e".
   //
-  edm::Handle<CSCWireDigiCollection> wires;
-  edm::Handle<CSCStripDigiCollection> strips;
-  edm::Handle<CSCComparatorDigiCollection> comparators;
-  edm::Handle<CSCALCTDigiCollection> alcts;
-  edm::Handle<CSCCLCTDigiCollection> clcts;
-  edm::Handle<CSCRPCDigiCollection> rpcs;
-  edm::Handle<CSCCorrelatedLCTDigiCollection> correlatedlcts;
-  
+  /*
+    edm::Handle<CSCWireDigiCollection> wires;
+    edm::Handle<CSCStripDigiCollection> strips;
+    edm::Handle<CSCComparatorDigiCollection> comparators;
+    edm::Handle<CSCALCTDigiCollection> alcts;
+    edm::Handle<CSCCLCTDigiCollection> clcts;
+    edm::Handle<CSCRPCDigiCollection> rpcs;
+    edm::Handle<CSCCorrelatedLCTDigiCollection> correlatedlcts;
+  */
+
+  edm::Handle<CSCDDUStatusDigiCollection> dduStatusDigi;
+
   // Pass the handle to the method "getByType", which is used to retrieve
   // one and only one instance of the type in question out of event "e". If
   // zero or more than one instance exists in the event an exception is thrown.
   //
-  e.getByLabel("cscunpacker","MuonCSCWireDigi",wires);
-  e.getByLabel("cscunpacker","MuonCSCStripDigi",strips);
-  e.getByLabel("cscunpacker","MuonCSCComparatorDigi",comparators);
-  e.getByLabel("cscunpacker","MuonCSCALCTDigi",alcts);
-  e.getByLabel("cscunpacker","MuonCSCCLCTDigi",clcts);
-  e.getByLabel("cscunpacker","MuonCSCRPCDigi",rpcs);
-  e.getByLabel("cscunpacker","MuonCSCCorrelatedLCTDigi",correlatedlcts);
-   
+
+  e.getByLabel("cscunpacker","MuonCSCDDUStatusDigi", dduStatusDigi);
+
+  /*e.getByLabel("cscunpacker","MuonCSCWireDigi",wires);
+    e.getByLabel("cscunpacker","MuonCSCStripDigi",strips);
+    e.getByLabel("cscunpacker","MuonCSCComparatorDigi",comparators);
+    e.getByLabel("cscunpacker","MuonCSCALCTDigi",alcts);
+    e.getByLabel("cscunpacker","MuonCSCCLCTDigi",clcts);
+    e.getByLabel("cscunpacker","MuonCSCRPCDigi",rpcs);
+    e.getByLabel("cscunpacker","MuonCSCCorrelatedLCTDigi",correlatedlcts);
+  */
   
    
   // read digi collections and print digis
   //
-  for (CSCWireDigiCollection::DigiRangeIterator j=wires->begin(); j!=wires->end(); j++) {
-    std::vector<CSCWireDigi>::const_iterator digiItr = (*j).second.first;
-    std::vector<CSCWireDigi>::const_iterator last = (*j).second.second;
+  
+  for (CSCDDUStatusDigiCollection::DigiRangeIterator j=dduStatusDigi->begin(); j!=dduStatusDigi->end(); j++) {
+    std::vector<CSCDDUStatusDigi>::const_iterator digiItr = (*j).second.first;
+    std::vector<CSCDDUStatusDigi>::const_iterator last = (*j).second.second;
     for( ; digiItr != last; ++digiItr) {
-      digiItr->print();
+      CSCDDUHeader header(*digiItr);
+      std::cout <<"L1 number = " << header.lvl1num() << std::endl; 
+      std::cout <<"DDU number = " << header.source_id() << std::endl;
     }
   }
   
- 
+  /*
   for (CSCStripDigiCollection::DigiRangeIterator j=strips->begin(); j!=strips->end(); j++) {
     std::vector<CSCStripDigi>::const_iterator digiItr = (*j).second.first;
     std::vector<CSCStripDigi>::const_iterator last = (*j).second.second;
@@ -138,7 +150,7 @@ void DigiAnalyzer::analyze(edm::Event const& e, edm::EventSetup const& iSetup) {
     }
   }
 
-
+  */
 
   eventNumber++;
   edm::LogInfo ("DigiAnalyzer")  << "end of event number " << eventNumber;

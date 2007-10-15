@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2007/02/03 16:05:46 $
- *  $Revision: 1.4 $
+ *  $Date: 2007/04/26 12:16:52 $
+ *  $Revision: 1.6 $
  *  \author N. Amapane - INFN Torino
  */
 
@@ -20,6 +20,8 @@
 #include "MagneticField/Layers/interface/MagVerbosity.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
+#include "MagneticField/VolumeBasedEngine/src/trackerField.icc"
+
 using namespace std;
 using namespace edm;
 
@@ -33,7 +35,7 @@ MagGeometry::MagGeometry(const edm::ParameterSet& config, std::vector<MagBLayer 
   tolerance = config.getParameter<double>("findVolumeTolerance");
   cacheLastVolume = config.getUntrackedParameter<bool>("cacheLastVolume");
   timerOn = config.getUntrackedParameter<bool>("timerOn", false);
-
+  useParametrizedTrackerField = config.getParameter<bool>("useParametrizedTrackerField");
 
   TimeMe t1("MagGeometry:build",false);
 
@@ -101,6 +103,10 @@ GlobalVector MagGeometry::fieldInTesla(const GlobalPoint & gp) const {
   static TimingReport::Item & timer1 = (*TimingReport::current())["MagGeometry::fieldInTesla"];
   static TimingReport::Item & timer2 = (*TimingReport::current())["MagGeometry::fieldInTesla:VolumeQuery"];
   TimeMe t1(timer1,false);
+
+  // Use Veikko's parametrized field in central volume? 
+  GlobalVector bresult;
+  if ( useParametrizedTrackerField && trackerField( gp, bresult) ) return bresult; 
     
   // If point is outside magfield map, return 0 field.
   if (abs(gp.z()) > 1600. || gp.perp() > 1000.) return GlobalVector();
@@ -238,4 +244,8 @@ bool MagGeometry::inBarrel(const GlobalPoint& gp) const {
   float R = gp.perp();
   return (fabs(Z)<634.49 || (R>308.755 && fabs(Z)<661.01));
 }
+
+
+
+
 

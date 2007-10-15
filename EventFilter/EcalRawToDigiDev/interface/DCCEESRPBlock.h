@@ -9,8 +9,8 @@
  *
  * \file DCCEESRPBlock.h
  *
- * $Date: 2007/03/28 00:43:17 $
- * $Revision: 1.1.2.2 $
+ * $Date: 2007/04/02 11:09:45 $
+ * $Revision: 1.3 $
  *
  * \author N. Almeida
  *
@@ -46,7 +46,7 @@ class DCCEESRPBlock : public DCCSRPBlock{
     
     void checkSrpIdAndNumbSRFlags();
 	 
-    auto_ptr<EESrFlagCollection>  * eeSrFlagsDigis_;
+    std::auto_ptr<EESrFlagCollection>  * eeSrFlagsDigis_;
 	 
     EcalScDetId * pSCDetId_;
     

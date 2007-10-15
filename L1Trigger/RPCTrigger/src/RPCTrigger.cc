@@ -1,7 +1,7 @@
 /** \file RPCTrigger.cc
  *
- *  $Date: 2007/03/26 09:43:23 $
- *  $Revision: 1.24 $
+ *  $Date: 2007/04/02 10:45:07 $
+ *  $Revision: 1.25 $
  *  \author Tomasz Fruboes
  */
 #include "L1Trigger/RPCTrigger/interface/RPCTrigger.h"
@@ -234,6 +234,3 @@ std::vector<L1MuRegionalCand> RPCTrigger::giveFinallCandindates(L1RpcTBMuonsVec 
   return RPCCand;
 }
 
-
-//define this as a plug-in
-DEFINE_FWK_MODULE(RPCTrigger);

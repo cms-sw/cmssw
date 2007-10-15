@@ -2,7 +2,6 @@
 
 <use name=FWCore/Framework>
 <use name=FWCore/ParameterSet>
-<use name=EventFilter/EcalTBRawToDigi>
 <use name=DataFormats/FEDRawData>
 <use name=DataFormats/EcalDigi>
 <use name=DataFormats/EcalDetId>
@@ -18,7 +17,6 @@
 <flags SEAL_PLUGIN_NAME="CalibCalorimetryEcalPedestalOffsets">
 <export>
   <lib name=CalibCalorimetryEcalPedestalOffsets>
-  <use name=EventFilter/EcalTBRawToDigi>
   <use name=DataFormats/FEDRawData>
   <use name=DataFormats/EcalDetId>
   <use name=CondFormats/EcalObjects>

@@ -4,8 +4,8 @@
 /** \class EcalUnpackingModule
  * 
  *
- *  $Date: 2005/12/22 08:29:39 $
- *  $Revision: 1.7 $
+ *  $Date: 2006/07/21 12:37:11 $
+ *  $Revision: 1.8 $
  * \author N. Marinelli 
  * \author G. Della Ricca
  */
@@ -16,7 +16,6 @@
 #include <iostream>
 #include <string>
 
-using namespace std;
 
 class EcalTBDaqFormatter;
 class EcalSupervisorDataFormatter;

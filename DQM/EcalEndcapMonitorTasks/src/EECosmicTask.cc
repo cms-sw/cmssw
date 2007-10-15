@@ -1,8 +1,8 @@
 /*
  * \file EECosmicTask.cc
  *
- * $Date: 2007/03/21 16:10:40 $
- * $Revision: 1.68 $
+ * $Date: 2007/05/24 13:26:12 $
+ * $Revision: 1.9 $
  * \author G. Della Ricca
  *
 */
@@ -26,6 +26,8 @@
 #include "DataFormats/EcalRecHit/interface/EcalUncalibratedRecHit.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 
+#include <DQM/EcalCommon/interface/Numbers.h>
+
 #include <DQM/EcalEndcapMonitorTasks/interface/EECosmicTask.h>
 
 using namespace cms;
@@ -34,12 +36,19 @@ using namespace std;
 
 EECosmicTask::EECosmicTask(const ParameterSet& ps){
 
+  Numbers::maxSM = 18;
+
   init_ = false;
+
+  // get hold of back-end interface
+  dbe_ = Service<DaqMonitorBEInterface>().operator->();
+
+  enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", true);
 
   EcalRawDataCollection_ = ps.getParameter<edm::InputTag>("EcalRawDataCollection");
   EcalRecHitCollection_ = ps.getParameter<edm::InputTag>("EcalRecHitCollection");
 
-  for (int i = 0; i < 36 ; i++) {
+  for (int i = 0; i < 18 ; i++) {
     meCutMap_[i] = 0;
     meSelMap_[i] = 0;
     meSpectrumMap_[i] = 0;
@@ -55,14 +64,9 @@ void EECosmicTask::beginJob(const EventSetup& c){
 
   ievt_ = 0;
 
-  DaqMonitorBEInterface* dbe = 0;
-
-  // get hold of back-end interface
-  dbe = Service<DaqMonitorBEInterface>().operator->();
-
-  if ( dbe ) {
-    dbe->setCurrentFolder("EcalEndcap/EECosmicTask");
-    dbe->rmdir("EcalEndcap/EECosmicTask");
+  if ( dbe_ ) {
+    dbe_->setCurrentFolder("EcalEndcap/EECosmicTask");
+    dbe_->rmdir("EcalEndcap/EECosmicTask");
   }
 
 }
@@ -73,30 +77,25 @@ void EECosmicTask::setup(void){
 
   Char_t histo[200];
 
-  DaqMonitorBEInterface* dbe = 0;
+  if ( dbe_ ) {
+    dbe_->setCurrentFolder("EcalEndcap/EECosmicTask");
 
-  // get hold of back-end interface
-  dbe = Service<DaqMonitorBEInterface>().operator->();
-
-  if ( dbe ) {
-    dbe->setCurrentFolder("EcalEndcap/EECosmicTask");
-
-    dbe->setCurrentFolder("EcalEndcap/EECosmicTask/Cut");
-    for (int i = 0; i < 36 ; i++) {
+    dbe_->setCurrentFolder("EcalEndcap/EECosmicTask/Cut");
+    for (int i = 0; i < 18 ; i++) {
       sprintf(histo, "EECT energy cut SM%02d", i+1);
-      meCutMap_[i] = dbe->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096., "s");
+      meCutMap_[i] = dbe_->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096., "s");
     }
 
-    dbe->setCurrentFolder("EcalEndcap/EECosmicTask/Sel");
-    for (int i = 0; i < 36 ; i++) {
+    dbe_->setCurrentFolder("EcalEndcap/EECosmicTask/Sel");
+    for (int i = 0; i < 18 ; i++) {
       sprintf(histo, "EECT energy sel SM%02d", i+1);
-      meSelMap_[i] = dbe->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096., "s");
+      meSelMap_[i] = dbe_->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096., "s");
     }
 
-    dbe->setCurrentFolder("EcalEndcap/EECosmicTask/Spectrum");
-    for (int i = 0; i < 36 ; i++) {
+    dbe_->setCurrentFolder("EcalEndcap/EECosmicTask/Spectrum");
+    for (int i = 0; i < 18 ; i++) {
       sprintf(histo, "EECT energy spectrum SM%02d", i+1);
-      meSpectrumMap_[i] = dbe->book1D(histo, histo, 100, 0., 1.5);
+      meSpectrumMap_[i] = dbe_->book1D(histo, histo, 100, 0., 1.5);
     }
 
   }
@@ -105,29 +104,26 @@ void EECosmicTask::setup(void){
 
 void EECosmicTask::cleanup(void){
 
-  DaqMonitorBEInterface* dbe = 0;
+  if ( ! enableCleanup_ ) return;
 
-  // get hold of back-end interface
-  dbe = Service<DaqMonitorBEInterface>().operator->();
+  if ( dbe_ ) {
+    dbe_->setCurrentFolder("EcalEndcap/EECosmicTask");
 
-  if ( dbe ) {
-    dbe->setCurrentFolder("EcalEndcap/EECosmicTask");
-
-    dbe->setCurrentFolder("EcalEndcap/EECosmicTask/Cut");
-    for (int i = 0; i < 36 ; i++) {
-      if ( meCutMap_[i] ) dbe->removeElement( meCutMap_[i]->getName() );
+    dbe_->setCurrentFolder("EcalEndcap/EECosmicTask/Cut");
+    for (int i = 0; i < 18 ; i++) {
+      if ( meCutMap_[i] ) dbe_->removeElement( meCutMap_[i]->getName() );
       meCutMap_[i] = 0;
     }
 
-    dbe->setCurrentFolder("EcalEndcap/EECosmicTask/Sel");
-    for (int i = 0; i < 36 ; i++) {
-      if ( meSelMap_[i] ) dbe->removeElement( meSelMap_[i]->getName() );
+    dbe_->setCurrentFolder("EcalEndcap/EECosmicTask/Sel");
+    for (int i = 0; i < 18 ; i++) {
+      if ( meSelMap_[i] ) dbe_->removeElement( meSelMap_[i]->getName() );
       meSelMap_[i] = 0;
     }
 
-    dbe->setCurrentFolder("EcalEndcap/EECosmicTask/Spectrum");
-    for (int i = 0; i < 36 ; i++) {
-      if ( meSpectrumMap_[i] ) dbe->removeElement( meSpectrumMap_[i]->getName() );
+    dbe_->setCurrentFolder("EcalEndcap/EECosmicTask/Spectrum");
+    for (int i = 0; i < 18 ; i++) {
+      if ( meSpectrumMap_[i] ) dbe_->removeElement( meSpectrumMap_[i]->getName() );
       meSpectrumMap_[i] = 0;
     }
 
@@ -159,13 +155,19 @@ void EECosmicTask::analyze(const Event& e, const EventSetup& c){
 
       EcalDCCHeaderBlock dcch = (*dcchItr);
 
-      map<int, EcalDCCHeaderBlock>::iterator i = dccMap.find(dcch.id());
+      int ism = Numbers::iSM( dcch ); if ( ism > 18 ) continue;
+
+      map<int, EcalDCCHeaderBlock>::iterator i = dccMap.find( ism );
       if ( i != dccMap.end() ) continue;
 
-      dccMap[dcch.id()] = dcch;
+      dccMap[ ism ] = dcch;
 
       if ( dcch.getRunType() == EcalDCCHeaderBlock::COSMIC ||
-           dcch.getRunType() == EcalDCCHeaderBlock::MTCC ) enable = true;
+           dcch.getRunType() == EcalDCCHeaderBlock::MTCC ||
+           dcch.getRunType() == EcalDCCHeaderBlock::COSMICS_GLOBAL ||
+           dcch.getRunType() == EcalDCCHeaderBlock::PHYSICS_GLOBAL ||
+           dcch.getRunType() == EcalDCCHeaderBlock::COSMICS_LOCAL ||
+           dcch.getRunType() == EcalDCCHeaderBlock::PHYSICS_LOCAL ) enable = true;
 
     }
 
@@ -198,7 +200,7 @@ void EECosmicTask::analyze(const Event& e, const EventSetup& c){
       int ie = (ic-1)/20 + 1;
       int ip = (ic-1)%20 + 1;
 
-      int ism = id.ism();
+      int ism = Numbers::iSM( id ); if ( ism > 18 ) continue;
 
       float xie = ie - 0.5;
       float xip = ip - 0.5;
@@ -207,7 +209,11 @@ void EECosmicTask::analyze(const Event& e, const EventSetup& c){
       if ( i == dccMap.end() ) continue;
 
       if ( ! ( dccMap[ism].getRunType() == EcalDCCHeaderBlock::COSMIC ||
-               dccMap[ism].getRunType() == EcalDCCHeaderBlock::MTCC ) ) continue;
+               dccMap[ism].getRunType() == EcalDCCHeaderBlock::MTCC ||
+               dccMap[ism].getRunType() == EcalDCCHeaderBlock::COSMICS_GLOBAL ||
+               dccMap[ism].getRunType() == EcalDCCHeaderBlock::PHYSICS_GLOBAL ||
+               dccMap[ism].getRunType() == EcalDCCHeaderBlock::COSMICS_LOCAL ||
+               dccMap[ism].getRunType() == EcalDCCHeaderBlock::PHYSICS_LOCAL ) ) enable = true;
 
       LogDebug("EECosmicTask") << " det id = " << id;
       LogDebug("EECosmicTask") << " sm, eta, phi " << ism << " " << ie << " " << ip;

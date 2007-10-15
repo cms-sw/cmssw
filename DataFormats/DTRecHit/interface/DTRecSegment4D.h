@@ -5,8 +5,8 @@
  *
  * 4-parameter RecHits for MuonBarrel DT (x,y, dx/dz, dy/dz)
  *
- * $Date: 2006/11/22 10:02:31 $
- * $Revision: 1.9 $
+ * $Date: 2006/07/03 15:12:46 $
+ * $Revision: 1.8 $
  * \author Stefano Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
  * \author Riccardo Bellan - INFN TO <riccardo.bellan@cern.ch>
  *
@@ -97,15 +97,11 @@ class DTRecSegment4D : public RecSegment {
   /// Does it have the Z projection?
   bool hasZed() const {return (theProjection==full | theProjection==Z);}
   
-  /// The superPhi segment: 0 if no phi projection available
-  const DTChamberRecSegment2D *phiSegment() const {
-    return hasPhi()? &thePhiSeg: 0;
-  }
+  /// The superPhi segment 
+  const DTChamberRecSegment2D *phiSegment() const {return &thePhiSeg;}
     
-  /// The Z segment: 0 if not zed projection available
-  const DTSLRecSegment2D *zSegment() const {
-    return hasZed()? &theZedSeg : 0;
-  }
+  /// The Z segment
+  const DTSLRecSegment2D *zSegment() const {return &theZedSeg;}
     
   /// Set position
   void setPosition(LocalPoint pos) { thePosition = pos; }

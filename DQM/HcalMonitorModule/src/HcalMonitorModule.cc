@@ -3,8 +3,8 @@
 /*
  * \file HcalMonitorModule.cc
  * 
- * $Date: 2007/03/21 23:01:06 $
- * $Revision: 1.27 $
+ * $Date: 2007/06/07 22:12:45 $
+ * $Revision: 1.33 $
  * \author W Fisher
  *
 */
@@ -128,7 +128,7 @@ HcalMonitorModule::~HcalMonitorModule(){
   
   if(m_verbose) printf("HcalMonitorModule: Destructor.....");
 
-  if ( offline_ ) sleep(35); 
+  if ( offline_ ) sleep(15); 
 
   if (m_dbe && !offline_){    
     if(m_digiMon!=NULL) {  m_digiMon->clearME();}
@@ -165,11 +165,6 @@ void HcalMonitorModule::beginJob(const edm::EventSetup& c){
   
   if ( m_meStatus ) m_meStatus->Fill(0);
   if ( m_meEvtNum ) m_meEvtNum->Fill(m_ievt);
-  
-  // To get information from the event setup, you must request the "Record"
-  // which contains it and then extract the object you need
-  // edm::ESHandle<CaloGeometry> geometry;
-  // eventSetup.get<IdealGeometryRecord>().get(geometry);
   
   // get the hcal mapping
   edm::ESHandle<HcalDbService> pSetup;
@@ -225,7 +220,6 @@ void HcalMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& even
   m_ievt++;
   int evtMask=DO_HCAL_DIGIMON|DO_HCAL_DFMON|DO_HCAL_RECHITMON|DO_HCAL_PED_CALIBMON;
 
-  /*
   int trigMask=0;
   if(m_mtccMon==NULL){
     m_evtSel->processEvent(e);
@@ -238,7 +232,6 @@ void HcalMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& even
     if(trigMask&0x08) m_meTrigger->Fill(4);
     if(trigMask&0x10) m_meTrigger->Fill(5);
   }
-  */
 
   edm::EventID id_ = e.id();
   m_runNum = (int)(id_.run());
@@ -250,52 +243,65 @@ void HcalMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& even
     m_meEvtMask->Fill(evtMask);
   }
   
-  // get digis if necessary
+  // get raw data and unpacker report
+  edm::Handle<FEDRawDataCollection> rawraw;  
+  try{e.getByType(rawraw);} catch(...){};           
+  edm::Handle<HcalUnpackerReport> report;  
+  try{e.getByType(report);} catch(...){};
+
+  // get digis
   edm::Handle<HBHEDigiCollection> hbhe_digi;
   edm::Handle<HODigiCollection> ho_digi;
   edm::Handle<HFDigiCollection> hf_digi;
-  if((evtMask&DO_HCAL_DIGIMON) 
-     || (evtMask&DO_HCAL_PED_CALIBMON) 
-     || (evtMask&DO_HCAL_LED_CALIBMON)){
-    try{e.getByType(hbhe_digi);} catch(...){};
-    try{e.getByType(hf_digi);} catch(...){};
-    try{e.getByType(ho_digi);} catch(...){};
-  }
-  
-  // Digi-dependent monitor tasks
-  if((m_digiMon!=NULL) && (evtMask&DO_HCAL_DIGIMON)) m_digiMon->processEvent(*hbhe_digi,*ho_digi,*hf_digi,*m_conditions);
-  if((m_pedMon!=NULL) && (evtMask&DO_HCAL_PED_CALIBMON)) m_pedMon->processEvent(*hbhe_digi,*ho_digi,*hf_digi,*m_conditions);
-  //  if((m_ledMon!=NULL) && (evtMask&DO_HCAL_LED_CALIBMON)) m_ledMon->processEvent(*hbhe_digi,*ho_digi,*hf_digi);
-  if(m_ledMon!=NULL) m_ledMon->processEvent(*hbhe_digi,*ho_digi,*hf_digi,*m_conditions);
-  
-  // Data Format monitor task
-  if((m_dfMon != NULL) && (evtMask&DO_HCAL_DFMON)){
-    edm::Handle<FEDRawDataCollection> rawraw;  
-    try{e.getByType(rawraw);} catch(...){};           
-    edm::Handle<HcalUnpackerReport> report;  
-    try{e.getByType(report);} catch(...){};
-    m_dfMon->processEvent(*rawraw,*report,*m_readoutMap);
-  }
+  edm::Handle<HcalTrigPrimDigiCollection> tp_digi;
 
-  // Rec Hit monitor task
+  try{e.getByType(hbhe_digi);} catch(...){};
+  try{e.getByType(hf_digi);} catch(...){};
+  try{e.getByType(ho_digi);} catch(...){};
+  try{e.getByType(tp_digi);} catch(...){};
+
+  //get rechits
   edm::Handle<HBHERecHitCollection> hb_hits;
   edm::Handle<HORecHitCollection> ho_hits;
   edm::Handle<HFRecHitCollection> hf_hits;
   try{e.getByType(hb_hits);} catch(...){}; 
   try{e.getByType(ho_hits);} catch(...){}; 
   try{e.getByType(hf_hits);} catch(...){}; 
-  if((m_rhMon != NULL) && (evtMask&DO_HCAL_RECHITMON)){
-    m_rhMon->processEvent(*hb_hits,*ho_hits,*hf_hits);
-  }
-  if((m_hotMon != NULL) && (evtMask&DO_HCAL_RECHITMON)){
-    m_hotMon->processEvent(*hb_hits,*ho_hits,*hf_hits);
-  }
 
+  //get trigger info
   edm::Handle<LTCDigiCollection> ltc;
   try{ e.getByType(ltc); } catch(...){};         
-  if(m_mtccMon != NULL){
-    m_mtccMon->processEvent(*hbhe_digi,*ho_digi, *ltc,*m_conditions);
-  }
+
+
+  /// Run the configured tasks
+
+  // Data Format monitor task
+  if((m_dfMon != NULL) && (evtMask&DO_HCAL_DFMON)) 
+    m_dfMon->processEvent(*rawraw,*report,*m_readoutMap);
+
+  // Digi monitor task
+  if((m_digiMon!=NULL) && (evtMask&DO_HCAL_DIGIMON)) 
+    m_digiMon->processEvent(*hbhe_digi,*ho_digi,*hf_digi,*m_conditions);
+
+  // Pedestal monitor task
+  if((m_pedMon!=NULL) && (evtMask&DO_HCAL_PED_CALIBMON)) 
+    m_pedMon->processEvent(*hbhe_digi,*ho_digi,*hf_digi,*m_conditions);
+
+  // LED monitor task
+  //  if((m_ledMon!=NULL) && (evtMask&DO_HCAL_LED_CALIBMON)) m_ledMon->processEvent(*hbhe_digi,*ho_digi,*hf_digi);
+  if(m_ledMon!=NULL) 
+    m_ledMon->processEvent(*hbhe_digi,*ho_digi,*hf_digi,*m_conditions, *report);
+  
+  // Rec Hit monitor task
+  if((m_rhMon != NULL) && (evtMask&DO_HCAL_RECHITMON)) 
+    m_rhMon->processEvent(*hb_hits,*ho_hits,*hf_hits);
+
+  // Hot Cell monitor task
+  if((m_hotMon != NULL) && (evtMask&DO_HCAL_RECHITMON)) 
+    m_hotMon->processEvent(*hb_hits,*ho_hits,*hf_hits);
+
+  // Old MTCC monitor task
+  if(m_mtccMon != NULL) m_mtccMon->processEvent(*hbhe_digi,*ho_digi, *ltc,*m_conditions);
 
   if(m_commisMon != NULL) m_commisMon->processEvent(*hbhe_digi,*ho_digi, *hf_digi,
 						    *hb_hits,*ho_hits,*hf_hits,
@@ -316,12 +322,11 @@ void HcalMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& even
   return;
 }
 
-// Here are the necessary incantations to declare your module to the
-// framework, so it can be referenced in a cmsRun file.
-//
-#include "PluginManager/ModuleDef.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-
-DEFINE_SEAL_MODULE();
-DEFINE_ANOTHER_FWK_MODULE(HcalMonitorModule);
-
+// Here are the necessary incantations to declare your module to the 	 
+ // framework, so it can be referenced in a cmsRun file. 	 
+ // 	 
+ #include "FWCore/PluginManager/interface/ModuleDef.h" 	 
+ #include "FWCore/Framework/interface/MakerMacros.h" 	 
+  	 
+ DEFINE_SEAL_MODULE(); 	 
+ DEFINE_ANOTHER_FWK_MODULE(HcalMonitorModule);

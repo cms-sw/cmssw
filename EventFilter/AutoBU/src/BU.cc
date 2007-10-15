@@ -13,6 +13,7 @@
 #include "EventFilter/Utilities/interface/Crc.h"
 
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
+#include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 
 #include "xoap/include/xoap/SOAPEnvelope.h"
 #include "xoap/include/xoap/SOAPBody.h"
@@ -41,6 +42,9 @@ BU::BU(xdaq::ApplicationStub *s)
   , fsm_(this)
   , gui_(0)
   , evtNumber_(0)
+  , isBuilding_(false)
+  , isSending_(false)
+  , isHalting_(false)
   , wlBuilding_(0)
   , asBuilding_(0)
   , wlSending_(0)
@@ -59,7 +63,9 @@ BU::BU(xdaq::ApplicationStub *s)
   , rate_(0.0)
   , rms_(0.0)
   , nbEventsInBU_(0)
+  , nbEventsRequested_(0)
   , nbEventsBuilt_(0)
+  , nbEventsSent_(0)
   , nbEventsDiscarded_(0)
   , mode_("RANDOM")
   , replay_(false)
@@ -165,6 +171,7 @@ BU::~BU()
 //______________________________________________________________________________
 bool BU::configuring(toolbox::task::WorkLoop* wl)
 {
+  isHalting_=false;
   try {
     LOG4CPLUS_INFO(log_,"Start configuring ...");
     reset();
@@ -184,9 +191,11 @@ bool BU::configuring(toolbox::task::WorkLoop* wl)
 //______________________________________________________________________________
 bool BU::enabling(toolbox::task::WorkLoop* wl)
 {
+  isHalting_=false;
   try {
     LOG4CPLUS_INFO(log_,"Start enabling ...");
-    startSendingWorkLoop();
+    if (!isBuilding_) startBuildingWorkLoop();
+    if (!isSending_)  startSendingWorkLoop();
     LOG4CPLUS_INFO(log_,"Finished enabling!");
     fsm_.fireEvent("EnableDone",this);
   }
@@ -205,9 +214,11 @@ bool BU::stopping(toolbox::task::WorkLoop* wl)
   try {
     LOG4CPLUS_INFO(log_,"Start stopping :) ...");
     lock();
-    freeIds_.push(events_.size());
+    freeIds_.push(events_.size()); 
     builtIds_.push(events_.size());
     unlock();
+    postBuild();
+    postSend();
     while (!sentIds_.empty()) {
       LOG4CPLUS_INFO(log_,"wait to flush ...");
       ::sleep(1);
@@ -229,13 +240,14 @@ bool BU::halting(toolbox::task::WorkLoop* wl)
 {
   try {
     LOG4CPLUS_INFO(log_,"Start halting ...");
-    lock();
-    freeIds_.push(events_.size());
-    builtIds_.push(events_.size());
-    unlock();
-    while (!sentIds_.empty()) {
-      LOG4CPLUS_INFO(log_,"wait to flush ...");
-      ::sleep(1);
+    isHalting_=true;
+    if (isBuilding_&&isSending_) {
+      lock();
+      freeIds_.push(events_.size());
+      builtIds_.push(events_.size());
+      unlock();
+      postBuild();
+      postSend();
     }
     LOG4CPLUS_INFO(log_,"Finished halting!");
     fsm_.fireEvent("HaltDone",this);
@@ -260,6 +272,12 @@ xoap::MessageReference BU::fsmCallback(xoap::MessageReference msg)
 //______________________________________________________________________________
 void BU::I2O_BU_ALLOCATE_Callback(toolbox::mem::Reference *bufRef)
 {
+  if (isHalting_) {
+    LOG4CPLUS_WARN(log_,"Ignore BU_ALLOCATE message while halting.");
+    bufRef->release();
+    return;
+  }
+  
   I2O_MESSAGE_FRAME             *stdMsg;
   I2O_BU_ALLOCATE_MESSAGE_FRAME *msg;
   
@@ -276,6 +294,7 @@ void BU::I2O_BU_ALLOCATE_Callback(toolbox::mem::Reference *bufRef)
     lock();
     rqstIds_.push(fuResourceId);
     postRqst();
+    nbEventsRequested_++;
     nbEventsInBU_++;
     unlock();
   }
@@ -287,6 +306,12 @@ void BU::I2O_BU_ALLOCATE_Callback(toolbox::mem::Reference *bufRef)
 //______________________________________________________________________________
 void BU::I2O_BU_DISCARD_Callback(toolbox::mem::Reference *bufRef)
 {
+  if (isHalting_) {
+    LOG4CPLUS_WARN(log_,"Ignore BU_DISCARD message while halting.");
+    bufRef->release();
+    return;
+  }
+
   I2O_MESSAGE_FRAME           *stdMsg=(I2O_MESSAGE_FRAME*)bufRef->getDataLocation();
   I2O_BU_DISCARD_MESSAGE_FRAME*msg   =(I2O_BU_DISCARD_MESSAGE_FRAME*)stdMsg;
   unsigned int buResourceId=msg->buResourceId[0];
@@ -346,6 +371,7 @@ void BU::webPageRequest(xgi::Input *in,xgi::Output *out)
 void BU::startBuildingWorkLoop() throw (evf::Exception)
 {
   try {
+    LOG4CPLUS_INFO(log_,"Start 'building' workloop");
     wlBuilding_=
       toolbox::task::getWorkLoopFactory()->getWorkLoop(sourceId_+
 						       "Building",
@@ -353,9 +379,10 @@ void BU::startBuildingWorkLoop() throw (evf::Exception)
     if (!wlBuilding_->isActive()) wlBuilding_->activate();
     asBuilding_=toolbox::task::bind(this,&BU::building,sourceId_+"Building");
     wlBuilding_->submit(asBuilding_);
+    isBuilding_=true;
   }
   catch (xcept::Exception& e) {
-    string msg = "Failed to start workloop 'Building'.";
+    string msg = "Failed to start workloop 'building'.";
     XCEPT_RETHROW(evf::Exception,msg,e);
   }
 }
@@ -371,18 +398,21 @@ bool BU::building(toolbox::task::WorkLoop* wl)
   
   if (buResourceId>=events_.size()) {
     LOG4CPLUS_INFO(log_,"shutdown 'building' workloop.");
+    isBuilding_=false;
     return false;
   }
 
-  BUEvent* evt=events_[buResourceId];
-  generateEvent(evt);
-  
-  lock();
-  nbEventsBuilt_++;
-  builtIds_.push(buResourceId);
-  unlock();
-  
-  postSend();
+  if (!isHalting_) {
+    BUEvent* evt=events_[buResourceId];
+    generateEvent(evt);
+    
+    lock();
+    nbEventsBuilt_++;
+    builtIds_.push(buResourceId);
+    unlock();
+    
+    postSend();
+  }
   
   return true;
 }
@@ -392,15 +422,17 @@ bool BU::building(toolbox::task::WorkLoop* wl)
 void BU::startSendingWorkLoop() throw (evf::Exception)
 {
   try {
+    LOG4CPLUS_INFO(log_,"Start 'sending' workloop");
     wlSending_=toolbox::task::getWorkLoopFactory()->getWorkLoop(sourceId_+
 								"Sending",
 								"waiting");
     if (!wlSending_->isActive()) wlSending_->activate();
     asSending_=toolbox::task::bind(this,&BU::sending,sourceId_+"Sending");
     wlSending_->submit(asSending_);
+    isSending_=true;
   }
   catch (xcept::Exception& e) {
-    string msg = "Failed to start workloop 'Sending'.";
+    string msg = "Failed to start workloop 'sending'.";
     XCEPT_RETHROW(evf::Exception,msg,e);
   }
 }
@@ -416,26 +448,30 @@ bool BU::sending(toolbox::task::WorkLoop* wl)
   
   if (buResourceId>=events_.size()) {
     LOG4CPLUS_INFO(log_,"shutdown 'sending' workloop.");
+    isSending_=false;
     return false;
   }
 
-  waitRqst();
-  lock();
-  unsigned int fuResourceId=rqstIds_.front(); rqstIds_.pop();
-  unlock();
+  if (!isHalting_) {
+    waitRqst();
+    lock();
+    unsigned int fuResourceId=rqstIds_.front(); rqstIds_.pop();
+    unlock();
+    
+    BUEvent* evt=events_[buResourceId];
+    toolbox::mem::Reference* msg=createMsgChain(evt,fuResourceId);
+    
+    lock();
+    sumOfSquares_+=(uint64_t)evt->evtSize()*(uint64_t)evt->evtSize();
+    sumOfSizes_  +=evt->evtSize();
+    nbEventsInBU_--;
+    nbEventsSent_++;
+    sentIds_.insert(buResourceId);
+    unlock();
+    
+    buAppContext_->postFrame(msg,buAppDesc_,fuAppDesc_);  
+  }
   
-  BUEvent* evt=events_[buResourceId];
-  toolbox::mem::Reference* msg=createMsgChain(evt,fuResourceId);
-  
-  lock();
-  sumOfSquares_+=(uint64_t)evt->evtSize()*(uint64_t)evt->evtSize();
-  sumOfSizes_  +=evt->evtSize();
-  nbEventsInBU_--;
-  sentIds_.insert(buResourceId);
-  unlock();
-
-  buAppContext_->postFrame(msg,buAppDesc_,fuAppDesc_);  
-
   return true;
 }
 
@@ -447,6 +483,7 @@ void BU::startMonitoringWorkLoop() throw (evf::Exception)
   gettimeofday(&monStartTime_,&timezone);
   
   try {
+    LOG4CPLUS_INFO(log_,"Start 'monitoring' workloop");
     wlMonitoring_=
       toolbox::task::getWorkLoopFactory()->getWorkLoop(sourceId_+
 						       "Monitoring",
@@ -456,7 +493,7 @@ void BU::startMonitoringWorkLoop() throw (evf::Exception)
     wlMonitoring_->submit(asMonitoring_);
   }
   catch (xcept::Exception& e) {
-    string msg = "Failed to start workloop 'Monitoring'.";
+    string msg = "Failed to start workloop 'monitoring'.";
     XCEPT_RETHROW(evf::Exception,msg,e);
   }
 }
@@ -554,7 +591,9 @@ void BU::exportParameters()
   gui_->addMonitorParam("rms",                &rms_);
 
   gui_->addMonitorCounter("nbEvtsInBU",       &nbEventsInBU_);
+  gui_->addMonitorCounter("nbEvtsRequested",  &nbEventsRequested_);
   gui_->addMonitorCounter("nbEvtsBuilt",      &nbEventsBuilt_);
+  gui_->addMonitorCounter("nbEvtsSent",       &nbEventsSent_);
   gui_->addMonitorCounter("nbEvtsDiscarded",  &nbEventsDiscarded_);
 
   gui_->addStandardParam("mode",              &mode_);

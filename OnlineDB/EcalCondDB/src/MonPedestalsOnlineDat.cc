@@ -14,6 +14,7 @@ MonPedestalsOnlineDat::MonPedestalsOnlineDat()
   m_env = NULL;
   m_conn = NULL;
   m_writeStmt = NULL;
+  m_readStmt = NULL;
 
   m_adcMeanG12 = 0;
   m_adcRMSG12 = 0;
@@ -87,14 +88,14 @@ void MonPedestalsOnlineDat::fetchData(std::map< EcalLogicID, MonPedestalsOnlineD
   }
 
   try {
-    Statement* stmt = m_conn->createStatement();
-    stmt->setSQL("SELECT cv.name, cv.logic_id, cv.id1, cv.id2, cv.id3, cv.maps_to, "
+
+    m_readStmt->setSQL("SELECT cv.name, cv.logic_id, cv.id1, cv.id2, cv.id3, cv.maps_to, "
 		 "d.adc_mean_g12, d.adc_rms_g12, d.task_status "
 		 "FROM channelview cv JOIN mon_pedestals_online_dat d "
 		 "ON cv.logic_id = d.logic_id AND cv.name = cv.maps_to "
 		 "WHERE d.iov_id = :iov_id");
-    stmt->setInt(1, iovID);
-    ResultSet* rset = stmt->executeQuery();
+    m_readStmt->setInt(1, iovID);
+    ResultSet* rset = m_readStmt->executeQuery();
     
     std::pair< EcalLogicID, MonPedestalsOnlineDat > p;
     MonPedestalsOnlineDat dat;
@@ -115,5 +116,92 @@ void MonPedestalsOnlineDat::fetchData(std::map< EcalLogicID, MonPedestalsOnlineD
     }
   } catch (SQLException &e) {
     throw(runtime_error("MonPedestalsOnlineDat::fetchData():  "+e.getMessage()));
+  }
+}
+
+void MonPedestalsOnlineDat::writeArrayDB(const std::map< EcalLogicID, MonPedestalsOnlineDat >* data, MonRunIOV* iov)
+  throw(runtime_error)
+{
+  this->checkConnection();
+  this->checkPrepare();
+
+  int iovID = iov->fetchID();
+  if (!iovID) { throw(runtime_error("MonPedestalsOnlineDat::writeArrayDB:  IOV not in DB")); }
+
+
+  int nrows=data->size(); 
+  int* ids= new int[nrows];
+  int* iovid_vec= new int[nrows];
+  float* xx= new float[nrows];
+  float* yy= new float[nrows];
+  int* st= new int[nrows];
+
+  ub2* ids_len= new ub2[nrows];
+  ub2* iov_len= new ub2[nrows];
+  ub2* x_len= new ub2[nrows];
+  ub2* y_len= new ub2[nrows];
+  ub2* st_len= new ub2[nrows];
+
+  const EcalLogicID* channel;
+  const MonPedestalsOnlineDat* dataitem;
+  int count=0;
+  typedef map< EcalLogicID, MonPedestalsOnlineDat >::const_iterator CI;
+  for (CI p = data->begin(); p != data->end(); ++p) {
+        channel = &(p->first);
+	int logicID = channel->getLogicID();
+	if (!logicID) { throw(runtime_error("MonPedestalsOnlineDat::writeArrayDB:  Bad EcalLogicID")); }
+	ids[count]=logicID;
+	iovid_vec[count]=iovID;
+
+	dataitem = &(p->second);
+	// dataIface.writeDB( channel, dataitem, iov);
+	float x=dataitem->getADCMeanG12();
+	float y=dataitem->getADCRMSG12();
+	int statu=dataitem->getTaskStatus();
+
+
+
+	xx[count]=x;
+	yy[count]=y;
+	st[count]=statu;
+
+
+	ids_len[count]=sizeof(ids[count]);
+	iov_len[count]=sizeof(iovid_vec[count]);
+	
+	x_len[count]=sizeof(xx[count]);
+	y_len[count]=sizeof(yy[count]);
+	st_len[count]=sizeof(st[count]);
+
+	count++;
+     }
+
+
+  try {
+    m_writeStmt->setDataBuffer(1, (dvoid*)iovid_vec, OCCIINT, sizeof(iovid_vec[0]),iov_len);
+    m_writeStmt->setDataBuffer(2, (dvoid*)ids, OCCIINT, sizeof(ids[0]), ids_len );
+    m_writeStmt->setDataBuffer(3, (dvoid*)xx, OCCIFLOAT , sizeof(xx[0]), x_len );
+    m_writeStmt->setDataBuffer(4, (dvoid*)yy, OCCIFLOAT , sizeof(yy[0]), y_len );
+    m_writeStmt->setDataBuffer(5, (dvoid*)st, OCCIINT , sizeof(st[0]), st_len );
+   
+
+    m_writeStmt->executeArrayUpdate(nrows);
+
+    delete [] ids;
+    delete [] iovid_vec;
+    delete [] xx;
+    delete [] yy;
+    delete [] st;
+
+    delete [] ids_len;
+    delete [] iov_len;
+    delete [] x_len;
+    delete [] y_len;
+    delete [] st_len;
+
+
+
+  } catch (SQLException &e) {
+    throw(runtime_error("MonPedestalsDat::writeArrayDB():  "+e.getMessage()));
   }
 }

@@ -10,7 +10,7 @@
 <use name=FWCore/ParameterSet>
 <use name=FWCore/ServiceRegistry>
 <use name=FWCore/Utilities>
-<use name=Foundation/PluginManager>
+<use name=FWCore/PluginManager>
 <use name=IOPool/Streamer>
 <use name=xdaq>
 <use name=zlib>

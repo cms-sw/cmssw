@@ -307,6 +307,13 @@ C--add new variable to prevent infinite loops in HWDFOR/FIV
 
       INTEGER ICODE
       CHARACTER*6 SUBRTN
+
+CCCC -- added in order to control if event was skipped
+      DOUBLE PRECISION eventisok
+      COMMON/eventstat/ eventisok
+
+      eventisok=0.0d0
+
       IF (ICODE.GE.0) WRITE (6,10) SUBRTN,ICODE
    10 FORMAT(/' HWWARN CALLED FROM SUBPROGRAM ',A6,': CODE =',I4)
       IF (ICODE.LT.0) THEN
@@ -322,6 +329,7 @@ C--add new variable to prevent infinite loops in HWDFOR/FIV
    30    FORMAT(' EVENT',I8,':   SEEDS =',I11,' &',I11,
      &'  WEIGHT =',E11.4/' EVENT KILLED.   EXECUTION CONTINUES')
          IERROR=ICODE
+         eventisok= 1.0d0
          RETURN
       ELSEIF (ICODE.LT.300) THEN
          WRITE (6,40)

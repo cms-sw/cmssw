@@ -4,8 +4,8 @@
 /** \class LaserAlignment
  *  Main reconstruction module for the Laser Alignment System
  *
- *  $Date: Sun Mar 18 19:38:44 CET 2007 $
- *  $Revision: 1.1 $
+ *  $Date: 2007/03/18 19:00:20 $
+ *  $Revision: 1.2 $
  *  \author Maarten Thomas
  */
 

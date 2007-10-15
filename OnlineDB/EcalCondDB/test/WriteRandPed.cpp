@@ -24,7 +24,7 @@ public:
     try {
       cout << "Making connection..." << flush;
       if (host != "?") {
-	econn = new EcalCondDBInterface( host, sid, user, pass );
+	econn = new EcalCondDBInterface(host, sid, user, pass );
       } else {
 	econn = new EcalCondDBInterface( sid, user, pass );
       }
@@ -147,7 +147,7 @@ public:
       // Insert the dataset, identifying by moniov
       cout << "Writing IOV " << i << " of " << numruns 
 	   << " (run " << run << ")..." << flush;
-      econn->insertDataSet(&dataset, &moniov );
+      econn->insertDataArraySet(&dataset, &moniov );
       cout << "Done." << endl;
 
       // Increment IOV run, start_time

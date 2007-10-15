@@ -1,6 +1,9 @@
 #ifndef L1GCTJETETCALIBRATIONLUT_H_
 #define L1GCTJETETCALIBRATIONLUT_H_
 
+#define JET_ET_CAL_LUT_ADD_BITS 15
+#define JET_ET_CAL_LUT_DAT_BITS 16
+
 #include "L1Trigger/GlobalCaloTrigger/src/L1GctLut.h"
 
 class L1GctJetEtCalibrationFunction;
@@ -20,7 +23,7 @@ class L1GctJetEtCalibrationFunction;
  *
  */
 
-class L1GctJetEtCalibrationLut : public L1GctLut<15,16>
+class L1GctJetEtCalibrationLut : public L1GctLut<JET_ET_CAL_LUT_ADD_BITS,JET_ET_CAL_LUT_DAT_BITS>
 {
  public:
   static const int NAddress;

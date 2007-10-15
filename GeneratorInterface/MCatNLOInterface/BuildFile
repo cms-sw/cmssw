@@ -1,5 +1,6 @@
 <use name=lhapdf>
-<use name=herwig6_510>
+<use name=herwig>
+<use name=jimmy>
 <use name=boost>
 <use name=FWCore/Framework>
 <use name=FWCore/Utilities>
@@ -11,7 +12,8 @@
 <export>
  <lib name=GeneratorInterfaceMCatNLOInterface>
  <use name=lhapdf>	
- <use name=herwig6_510>
+ <use name=herwig>
+ <use name=jimmy>
  <use name=boost>
  <use name=FWCore/Framework>
  <use name=FWCore/Utilities>

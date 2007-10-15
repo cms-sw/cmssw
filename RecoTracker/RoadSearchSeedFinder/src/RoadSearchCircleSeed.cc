@@ -11,8 +11,8 @@
 // Created:         Mon Jan 22 21:42:35 UTC 2007
 //
 // $Author: gutsche $
-// $Date: 2006/09/08 19:26:18 $
-// $Revision: 1.11 $
+// $Date: 2007/02/05 19:26:14 $
+// $Revision: 1.1 $
 //
 
 #include <cmath>
@@ -87,6 +87,7 @@ RoadSearchCircleSeed::RoadSearchCircleSeed(TrackingRecHit *hit1,
     radius_ = 0;
     impactParameter_ = 0;
   } else {
+    type_ = circle;
     double x = 0.5 * m12/m11;
     double y = -0.5 * m13/m11;
     radius_  = std::sqrt(x*x+y*y+m14/m11);

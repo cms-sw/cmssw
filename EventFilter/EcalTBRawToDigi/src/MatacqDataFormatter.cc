@@ -1,5 +1,5 @@
 // -*- Mode: C++; c-basic-offset: 2; indent-tabs-mode: t; tab-width: 8; -*-
-// $Id: MatacqDataFormatter.cc,v 1.3 2006/09/21 12:22:36 pgras Exp $
+// $Id: MatacqDataFormatter.cc,v 1.4 2006/11/11 21:01:43 pgras Exp $
 
 #include "EventFilter/EcalTBRawToDigi/src/MatacqDataFormatter.h"
 #include "DataFormats/FEDRawData/interface/FEDRawData.h"
@@ -13,94 +13,94 @@
 #include <algorithm>
 #include <vector>
 
-using namespace std;
+
 
 //#define MATACQ_DEBUG
 
 void  MatacqDataFormatter::interpretRawData(const FEDRawData & data, EcalMatacqDigiCollection& matacqDigiCollection) {
 #if MATACQ_DEBUG
-  cout << "****************************************************************\n";
-  cout << "********************** MATACQ decoder **************************\n";
-  cout << "****************************************************************\n";
-  cout << "FEDRawData: \n";
-  char oldPad = cout.fill('0');
+  std::cout << "****************************************************************\n";
+  std::cout << "********************** MATACQ decoder **************************\n";
+  std::cout << "****************************************************************\n";
+  std::cout << "FEDRawData: \n";
+  char oldPad = std::cout.fill('0');
   for(int i=0; i < max(100, (int)data.size()); ++i){
-    cout << hex << setw(2) << (int)(data.data()[i])
+    std::cout << std::hex << std::setw(2) << (int)(data.data()[i])
 	 << ((i+1)%8?" ":"\n") ;
   }
-  cout.fill(oldPad);
-  cout << "======================================================================\n";
+  std::cout.fill(oldPad);
+  std::cout << "======================================================================\n";
 #endif //MATACQ_DEBUG defined
   
   MatacqRawEvent matacq(data.data(), data.size());
 
 #if MATACQ_DEBUG
-  printData(cout, matacq);
+  printData(std::cout, matacq);
 #endif //MATACQ_DEBUG defined
 
   const double ns = 1.e-9; //ns->s
   const double ps = 1.e-12;//ps->s
   double ts = ns/matacq.getFreqGHz();
-  double tTrig = matacq.getTTrigPs()<.5*numeric_limits<int>::max()?
+  double tTrig = matacq.getTTrigPs()<.5*std::numeric_limits<int>::max()?
     ps*matacq.getTTrigPs():999.;
   int version = matacq.getMatacqDataFormatVersion();
   
-  vector<int16_t> samples;
+  std::vector<int16_t> samples;
   //FIXME: the interpretRawData method should fill an EcalMatacqDigiCollection
   //instead of an EcalMatacqDigi because Matacq channels are several.
   //In the meamtime copy only the first channel appearing in data:
-  const vector<MatacqRawEvent::ChannelData>& chData = matacq.getChannelData();
+  const std::vector<MatacqRawEvent::ChannelData>& chData = matacq.getChannelData();
   for(unsigned iCh=0; iCh < chData.size(); ++iCh){
     //copy time samples into a vector:
     samples.resize(chData[iCh].nSamples);
     copy(chData[iCh].samples, chData[iCh].samples+chData[iCh].nSamples,
 	 samples.begin());
     int chId = chData[iCh].chId;
-    vector<int16_t> empty;
+    std::vector<int16_t> empty;
     EcalMatacqDigi matacqDigi(empty, chId, ts, version, tTrig);
     matacqDigiCollection.push_back(matacqDigi);
     matacqDigiCollection.back().swap(samples); //swap is more efficient than a copy
   }
 }
 
-void MatacqDataFormatter::printData(ostream& out, const MatacqRawEvent& matacq) const{
-  cout << "FED id: " << hex << "0x" << matacq.getFedId() << dec << "\n";
-  cout << "Event id (lv1): " 
-       << hex << "0x" << matacq.getEventId() << dec << "\n";
-  cout << "FOV: " << hex << "0x" << matacq.getFov() << dec << "\n";
-  cout << "BX id: " << hex << "0x" << matacq.getBxId() << dec << "\n";
-  cout << "Trigger type: " 
-       << hex << "0x" << matacq.getTriggerType() << dec << "\n";
-  cout << "DCC Length: " << matacq.getDccLen() << "\n";
-  cout << "Run number: " << matacq.getRunNum() << "\n";
-  cout << "Field 'DCC errors': " 
-       << hex << "0x" << matacq.getDccErrors() << dec << "\n";
+void MatacqDataFormatter::printData(std::ostream& out, const MatacqRawEvent& matacq) const{
+  std::cout << "FED id: " << std::hex << "0x" << matacq.getFedId() << std::dec << "\n";
+  std::cout << "Event id (lv1): " 
+       << std::hex << "0x" << matacq.getEventId() << std::dec << "\n";
+  std::cout << "FOV: " << std::hex << "0x" << matacq.getFov() << std::dec << "\n";
+  std::cout << "BX id: " << std::hex << "0x" << matacq.getBxId() << std::dec << "\n";
+  std::cout << "Trigger type: " 
+       << std::hex << "0x" << matacq.getTriggerType() << std::dec << "\n";
+  std::cout << "DCC Length: " << matacq.getDccLen() << "\n";
+  std::cout << "Run number: " << matacq.getRunNum() << "\n";
+  std::cout << "Field 'DCC errors': " 
+       << std::hex << "0x" << matacq.getDccErrors() << std::dec << "\n";
   
   if(matacq.getStatus()){
-    cout << "Error in matacq data. Errot code: "
-	 << hex << "0x" << matacq.getStatus() << dec << "\n";
+    std::cout << "Error in matacq data. Errot code: "
+	 << std::hex << "0x" << matacq.getStatus() << std::dec << "\n";
   }
   
-  cout << "MATACQ data format version: " << matacq.getMatacqDataFormatVersion()
+  std::cout << "MATACQ data format version: " << matacq.getMatacqDataFormatVersion()
        << "\n";
-  cout << "Sampling frequency: " << matacq.getFreqGHz() << " GHz\n";
-  cout << "MATACQ channel count: " << matacq.getChannelCount() << "\n";
+  std::cout << "Sampling frequency: " << matacq.getFreqGHz() << " GHz\n";
+  std::cout << "MATACQ channel count: " << matacq.getChannelCount() << "\n";
   time_t timeStamp = matacq.getTimeStamp();
-  cout << "Data acquired on : " << ctime(&timeStamp);
+  std::cout << "Data acquired on : " << ctime(&timeStamp);
 
-  const vector<MatacqRawEvent::ChannelData>& channels = matacq.getChannelData();
+  const std::vector<MatacqRawEvent::ChannelData>& channels = matacq.getChannelData();
   for(unsigned i=0; i< channels.size(); ++i){
-    cout << "-------------------------------------- Channel "
+    std::cout << "-------------------------------------- Channel "
 	 << channels[i].chId
-	 << ": " << setw(4) << channels[i].nSamples
+	 << ": " << std::setw(4) << channels[i].nSamples
 	 << " samples --------------------------------------\n";
     
     for(int iSample = 0; iSample<channels[i].nSamples; ++iSample){
       MatacqRawEvent::int16le_t adc = (channels[i].samples)[iSample];
-      cout << setw(4) << adc
+      std::cout << std::setw(4) << adc
 	   << ((iSample%20==19)?"\n":" ");
     }
   }
-  cout << "=================================================="
+  std::cout << "=================================================="
     "==================================================\n\n";   
 }

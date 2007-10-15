@@ -1,8 +1,8 @@
 /*
  * \file L1TRPCTF.cc
  *
- * $Date: 2007/02/20 21:42:10 $
- * $Revision: 1.2 $
+ * $Date: 2007/02/22 19:43:53 $
+ * $Revision: 1.3 $
  * \author J. Berryhill
  *
  */
@@ -133,7 +133,15 @@ void L1TRPCTF::analyze(const Event& e, const EventSetup& c)
   int nrpctfbtrack = 0;
 
   edm::Handle<std::vector<L1MuRegionalCand> > pRPCTFbtracks;  
+  try {
   e.getByLabel(rpctfbSource_,pRPCTFbtracks);
+  }
+  catch (...) {
+    edm::LogInfo("L1RPCTF") << "can't find L1MuRegionalCand with label "
+			       << rpctfbSource_.label() ;
+    return;
+  } 
+
    for( vector<L1MuRegionalCand>::const_iterator 
         RPCTFItr =  pRPCTFbtracks->begin() ;
         RPCTFItr != pRPCTFbtracks->end() ;
@@ -192,7 +200,15 @@ void L1TRPCTF::analyze(const Event& e, const EventSetup& c)
        }
 
   edm::Handle<std::vector<L1MuRegionalCand> > pRPCTFftracks;  
+ 
+ try {
   e.getByLabel(rpctffSource_,pRPCTFftracks);
+  }
+  catch (...) {
+    edm::LogInfo("L1RPCTF") << "can't find L1MuRegionalCand with label "
+			       << rpctffSource_.label() ;
+    return;
+  } 
 
   int nrpctfftrack = 0;
   for( vector<L1MuRegionalCand>::const_iterator 
