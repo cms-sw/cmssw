@@ -1,8 +1,8 @@
 /*
  * \file EEIntegrityTask.cc
  *
- * $Date: 2007/10/04 10:37:50 $
- * $Revision: 1.13 $
+ * $Date: 2007/10/04 16:11:55 $
+ * $Revision: 1.14 $
  * \author G. Della Ricca
  *
  */
@@ -502,6 +502,8 @@ void EEIntegrityTask::analyze(const Event& e, const EventSetup& c){
 
       EcalElectronicsId id = (*idItr);
 
+      if ( id.subdet() != EcalEndcap ) continue;
+
       int ism = Numbers::iSM( id );
 
       int itt   = id.towerId();
@@ -526,6 +528,8 @@ void EEIntegrityTask::analyze(const Event& e, const EventSetup& c){
 
       EcalElectronicsId id = (*idItr);
 
+      if ( id.subdet() != EcalEndcap ) continue;
+
       int ism = Numbers::iSM( id );
 
       int itt   = id.towerId();
@@ -549,6 +553,8 @@ void EEIntegrityTask::analyze(const Event& e, const EventSetup& c){
     for ( EcalElectronicsIdCollection::const_iterator idItr = ids9->begin(); idItr != ids9->end(); ++ idItr ) {
 
       EcalElectronicsId id = (*idItr);
+
+      if ( id.subdet() != EcalEndcap ) continue;
 
       int ism = Numbers::iSM( id );
 
@@ -580,6 +586,8 @@ void EEIntegrityTask::analyze(const Event& e, const EventSetup& c){
     for ( EcalElectronicsIdCollection::const_iterator idItr = ids10->begin(); idItr != ids10->end(); ++ idItr ) {
 
       EcalElectronicsId id = (*idItr);
+
+      if ( id.subdet() != EcalEndcap ) continue;
 
       int ism = Numbers::iSM( id );
 
