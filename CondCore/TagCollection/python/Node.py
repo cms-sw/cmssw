@@ -33,11 +33,11 @@ class LeafNode(Node):
         super(Node,self).__setattr__( 'isLeaf',True )
         self.__dict__.setdefault('tagid',0)
         self.__dict__.setdefault('tagname','')
-        self.__dict__.setdefault('payloadname','')
-        self.__dict__.setdefault('provenanceDB','')
-        self.__dict__.setdefault('provenanceCatalog','')
-        self.__dict__.setdefault('eventSetupRecord','')
-        self.__dict__.setdefault('useBlob',False)
+        self.__dict__.setdefault('pfn','')
+        self.__dict__.setdefault('recordname','')
+        self.__dict__.setdefault('objectname','')
+        self.__dict__.setdefault('labelname','')
+        self.__dict__.setdefault('timetype','')
         self.__dict__.setdefault('comment','')
     def __repr__( self ):
         """__repr__

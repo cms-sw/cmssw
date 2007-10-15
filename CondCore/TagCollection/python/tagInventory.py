@@ -8,8 +8,8 @@ class  tagInventory(object):
         """
         self.__session = session
         self.__tagInventoryTableName = 'TAGINVENTORY_TABLE'
-        self.__tagInventoryTableColumns = {'tagid':'unsigned long', 'tagname':'string', 'payloadname':'string', 'provenanceDB':'string', 'provenanceCatalog':'string', 'eventSetupRecord':'string', 'useBlob':'bool', 'comment':'string'}
-        self.__tagInventoryTableNotNullColumns = ['tagname','payloadname','provenanceDB','provenanceCatalog','eventSetupRecord','useBlob']
+        self.__tagInventoryTableColumns = {'tagid':'unsigned int', 'tagname':'string', 'pfn':'string','recordname':'string', 'objectname':'string', 'labelname':'string','timetype':'string','comment':'string'}
+        self.__tagInventoryTableNotNullColumns = ['tagname','pfn','recordname','objectname','labelname']
         self.__tagInventoryTableUniqueColumns = ['tagname']
         self.__tagInventoryTablePK = ('tagid')
     def createInventoryTable( self ):
@@ -54,7 +54,7 @@ class  tagInventory(object):
             
             transaction.start(False)
             dbop=DBImpl.DBImpl(schema)
-            tabrowValueDict={'tagid':tagid,'tagname':leafNode.tagname,'payloadname':leafNode.payloadname,'provenanceDB':leafNode.provenanceDB,'provenanceCatalog':leafNode.provenanceCatalog,'eventSetupRecord':leafNode.eventSetupRecord,'useBlob':leafNode.useBlob,'comment':leafNode.comment}
+            tabrowValueDict={'tagid':tagid,'tagname':leafNode.tagname,'objectname':leafNode.objectname,'pfn':leafNode.pfn,'labelname':leafNode.labelname,'recordname':leafNode.recordname,'timetype':leafNode.timetype,'comment':leafNode.comment}
             dbop.insertOneRow(self.__tagInventoryTableName,
                               self.__tagInventoryTableColumns,
                               tabrowValueDict)
@@ -87,11 +87,11 @@ class  tagInventory(object):
             while ( cursor.next() ):
                 leafnode.tagid=cursor.currentRow()['tagid'].data()
                 leafnode.tagname=cursor.currentRow()['tagname'].data()
-                leafnode.payloadname=cursor.currentRow()['payloadname'].data()
-                leafnode.provenanceDB=cursor.currentRow()['provenanceDB'].data()
-                leafnode.provenanceCatalog=cursor.currentRow()['provenanceCatalog'].data()
-                leafnode.eventSetupRecord=cursor.currentRow()['eventSetupRecord'].data()
-                leafnode.useBlob=cursor.currentRow()['useBlob'].data()
+                leafnode.objectname=cursor.currentRow()['objectname'].data()
+                leafnode.pfn=cursor.currentRow()['pfn'].data()
+                leafnode.labelname=cursor.currentRow()['labelname'].data()
+                leafnode.recordname=cursor.currentRow()['recordname'].data()
+                leafnode.timetype=cursor.currentRow()['timetype'].data()
                 leafnode.comment=cursor.currentRow()['comment'].data()
             transaction.commit()
             del query
@@ -118,11 +118,11 @@ class  tagInventory(object):
             while ( cursor.next() ):
                 leafnode.tagid=cursor.currentRow()['tagid'].data()
                 leafnode.tagname=cursor.currentRow()['tagname'].data()
-                leafnode.payloadname=cursor.currentRow()['payloadname'].data()
-                leafnode.provenanceDB=cursor.currentRow()['provenanceDB'].data()
-                leafnode.provenanceCatalog=cursor.currentRow()['provenanceCatalog'].data()
-                leafnode.eventSetupRecord=cursor.currentRow()['eventSetupRecord'].data()
-                leafnode.useBlob=cursor.currentRow()['useBlob'].data()
+                leafnode.objectname=cursor.currentRow()['objectname'].data()
+                leafnode.pfn=cursor.currentRow()['pfn'].data()
+                leafnode.labelname=cursor.currentRow()['labelname'].data()
+                leafnode.recordname=cursor.currentRow()['recordname'].data()
+                leafnode.timetype=cursor.currentRow()['timetype'].data()
                 leafnode.comment=cursor.currentRow()['comment'].data()
             transaction.commit()
             del query
@@ -146,12 +146,12 @@ class  tagInventory(object):
                 leafnode = Node.LeafNode()
                 leafnode.tagid=cursor.currentRow()['tagid'].data()
                 leafnode.tagname=cursor.currentRow()['tagname'].data()
-                leafnode.payloadname=cursor.currentRow()['payloadname'].data()
-                leafnode.provenanceDB=cursor.currentRow()['provenanceDB'].data()
-                leafnode.provenanceCatalog=cursor.currentRow()['provenanceCatalog'].data()
-                leafnode.eventSetupRecord=cursor.currentRow()['eventSetupRecord'].data()
-                leafnode.useBlob=cursor.currentRow()['useBlob'].data()
-                leafnode.useBlob=cursor.currentRow()['comment'].data()
+                leafnode.objectname=cursor.currentRow()['objectname'].data()
+                leafnode.pfn=cursor.currentRow()['pfn'].data()
+                leafnode.recordname=cursor.currentRow()['recordname'].data()
+                leafnode.labelname=cursor.currentRow()['labelname'].data()
+                leafnode.timetype=cursor.currentRow()['timetype'].data()
+                leafnode.comment=cursor.currentRow()['comment'].data()
                 result.append(leafnode)
             transaction.commit()
             del query
@@ -170,11 +170,11 @@ if __name__ == "__main__":
         inv.createInventoryTable()
         tagentry=Node.LeafNode()
         tagentry.tagname='ecalpedestalsfromonline'
-        tagentry.payloadname='EcalPedestals'
-        tagentry.provenanceDB='oracle://devdb10/CMS_COND_ECAL'
-        tagentry.provenanceCatalog='relationacatalog_oracle://devdb10/CMS_COND_GENERAL'
-        tagentry.eventSetupRecord='EcalPedestalsRcd'
-        tagentry.useBlob=False
+        tagentry.objectname='EcalPedestals'
+        tagentry.pfn='oracle://devdb10/CMS_COND_ECAL'
+        tagentry.recordname='EcalPedestalsRcd'
+        tagentry.labelname=''
+        tagentry.timetype='runnumber'
         tagentry.comment='crapcrapcrapandcrackcrackcrak'
         inv.addEntry(tagentry)
         result=inv.getAllEntries()
