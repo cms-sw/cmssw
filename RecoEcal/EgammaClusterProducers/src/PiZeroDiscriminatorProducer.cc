@@ -37,7 +37,6 @@
 #include "DataFormats/EgammaReco/interface/ClusterShapeFwd.h"
 // ArisB 26/9/2007
 #include "DataFormats/EgammaReco/interface/BasicClusterShapeAssociation.h"
-#include "DataFormats/EgammaReco/interface/SeedSuperClusterAssociation.h"
 // ArisE 26/9/2007
 #include "DataFormats/EgammaReco/interface/BasicCluster.h"
 #include "DataFormats/EgammaReco/interface/BasicClusterFwd.h"
