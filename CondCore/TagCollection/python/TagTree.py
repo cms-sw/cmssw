@@ -8,7 +8,7 @@ class tagTree(object):
         self.__session = session
         self.__tagTreeTableName = 'TAGTREE_TABLE'
         self.__tagInventoryTableName = 'TAGINVENTORY_TABLE'
-        self.__tagTreeTableColumns = {'nodeid':'unsigned long', 'nodelabel':'string', 'lft':'unsigned long', 'rgt':'unsigned long', 'parentid':'unsigned long', 'tagid':'unsigned long', 'globalSince':'unsigned long long', 'globalTill':'unsigned long long','comment':'string'}
+        self.__tagTreeTableColumns = {'nodeid':'unsigned long', 'nodelabel':'string', 'lft':'unsigned long', 'rgt':'unsigned long', 'parentid':'unsigned long', 'tagid':'unsigned long', 'globalsince':'unsigned long long', 'globaltill':'unsigned long long','comment':'string'}
         self.__tagTreeTableNotNullColumns = ['nodelabel','lft','rgt','parentid']
         self.__tagTreeTableUniqueColumns = ['nodelabel','lft','rgt']
         self.__tagTreeTablePK = ('nodeid')
@@ -61,8 +61,8 @@ class tagTree(object):
                 parentNode=self.getNode(parentLabel)
                 parentid=parentNode.nodeid
             nodelabel=node.nodelabel
-            globalSince=node.globalSince
-            globalTill=node.globalTill
+            globalsince=node.globalsince
+            globaltill=node.globaltill
             if node.isLeaf:
                 tagid=node.tagid
             lft=0
@@ -75,8 +75,8 @@ class tagTree(object):
                 rgt=parentNode.rgt+1
             tabrowValueDict={'nodeid':nodeid, 'nodelabel':nodelabel,
                             'lft':lft, 'rgt':rgt, 'parentid':parentid,
-                            'tagid':tagid, 'globalSince':globalSince,
-                            'globalTill':globalTill,'comment':''
+                            'tagid':tagid, 'globalsince':globalsince,
+                            'globaltill':globaltill,'comment':''
                             }
             transaction.start(False)
             tableHandle = self.__session.nominalSchema().tableHandle(self.__tagTreeTableName)
@@ -119,8 +119,8 @@ class tagTree(object):
                 result.lft=cursor.currentRow()['lft'].data()
                 result.rgt=cursor.currentRow()['rgt'].data()
                 result.parentid=cursor.currentRow()['parentid'].data()
-                result.globalSince=cursor.currentRow()['globalSince'].data()
-                result.globalTill=cursor.currentRow()['globalTill'].data()
+                result.globalsince=cursor.currentRow()['globalsince'].data()
+                result.globaltill=cursor.currentRow()['globaltill'].data()
             transaction.commit()
             del query
             return result
@@ -191,8 +191,8 @@ class tagTree(object):
                 resultNode.lft=cursor.currentRow()['lft'].data()
                 resultNode.rgt=cursor.currentRow()['rgt'].data()
                 resultNode.parentid=cursor.currentRow()['parentid'].data()
-                resultNode.globalSince=cursor.currentRow()['globalSince'].data()
-                resultNode.globalTill=cursor.currentRow()['globalTill'].data()
+                resultNode.globalsince=cursor.currentRow()['globalsince'].data()
+                resultNode.globaltill=cursor.currentRow()['globaltill'].data()
                 result.append( resultNode )
             transaction.commit()
             del query
@@ -239,8 +239,8 @@ class tagTree(object):
                     resultNode.lft=cursor.currentRow()['p1.lft'].data()
                     resultNode.rgt=cursor.currentRow()['p1.rgt'].data()
                     resultNode.parentid=cursor.currentRow()['p1.parentid'].data()
-                    resultNode.globalSince=cursor.currentRow()['p1.globalSince'].data()
-                    resultNode.globalTill=cursor.currentRow()['p1.globalTill'].data()
+                    resultNode.globalsince=cursor.currentRow()['p1.globalsince'].data()
+                    resultNode.globaltill=cursor.currentRow()['p1.globaltill'].data()
                     result.append(resultNode)
                 transaction.commit()
                 del query
@@ -389,15 +389,15 @@ if __name__ == "__main__":
         mytree.createTagTreeTable()
         mynode=Node.Node()
         mynode.nodelabel='A'
-        mynode.globalSince=1
-        mynode.globalTill=10
+        mynode.globalsince=1
+        mynode.globaltill=10
         mytree.insertNode(mynode,'ROOT')
         result=mytree.getNode('A')
         print result
         mynode=Node.Node()
         mynode.nodelabel='AC1'
-        mynode.globalSince=2
-        mynode.globalTill=5
+        mynode.globalsince=2
+        mynode.globaltill=5
         mytree.insertNode(mynode,'A')
         result=mytree.getNode('A')
         print result
@@ -409,8 +409,8 @@ if __name__ == "__main__":
         print 'all leafs',result
         mynode=Node.Node()
         mynode.nodelabel='AB2'
-        mynode.globalSince=3
-        mynode.globalTill=7
+        mynode.globalsince=3
+        mynode.globaltill=7
         mytree.insertNode(mynode,'A')
         result=mytree.getNode('A')
         print 'Node A ',result

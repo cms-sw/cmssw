@@ -8,8 +8,8 @@ class Node(object):
         self.__dict__.setdefault('lft',0)
         self.__dict__.setdefault('rgt',0)
         self.__dict__.setdefault('parentid',0)
-        self.__dict__.setdefault('globalSince',0)
-        self.__dict__.setdefault('globalTill',0)
+        self.__dict__.setdefault('globalsince',0)
+        self.__dict__.setdefault('globaltill',0)
        # self.__dict__.setdefault('comment','')
     def __repr__( self ):
         """__repr__
