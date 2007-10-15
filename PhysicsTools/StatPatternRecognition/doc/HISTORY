@@ -1,4 +1,7 @@
-$Id: HISTORY,v 1.4 2007/10/07 22:15:34 narsky Exp $
+$Id: HISTORY,v 1.5 2007/10/12 19:25:00 narsky Exp $
+
+15.10.2007 narsky V00-01-02
+    Added data/trainRoot.pat as a sample of Root input.
 
 12.10.2007 narsky V00-01-01
     Minor fix in Root I/O - bringing up-to-date with SPR-07-02-01.
