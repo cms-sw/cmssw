@@ -13,7 +13,7 @@
 //
 // Original Author:  Rizzi Andrea
 //         Created:  Mon Sep 24 09:30:06 CEST 2007
-// $Id: HSCPAnalyzer.cc,v 1.3 2007/10/11 14:17:19 arizzi Exp $
+// $Id: HSCPAnalyzer.cc,v 1.4 2007/10/15 09:32:52 arizzi Exp $
 //
 //
 
@@ -66,13 +66,16 @@ class HSCPAnalyzer : public edm::EDAnalyzer {
       virtual void beginJob(const edm::EventSetup&) ;
       virtual void analyze(const edm::Event&, const edm::EventSetup&);
       virtual void endJob() ;
+      double cutMin(TH1F * h, double ci);
+
       edm::InputTag m_dedxSrc;
       bool m_haveSimTracks;
       bool m_useWeights;
+       
 
       TH1F * h_pt;
-      TH1F *  h_massSel;
-      TH1F *  h_massSelFit;
+      TH1F * h_massSel;
+      TH1F * h_massSelFit;
       TH1F * h_mass;
       TH1F * h_massFit;
       TH1F * h_massProton;
@@ -190,8 +193,8 @@ HSCPAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
               std::cout << dedx[i].first->normalizedChi2() << " " << dedx[i].first->numberOfValidHits() << " " << p <<std::endl;
               }
           }
-         float k=919/2.75*0.0012;
-         float k2=919/2.55*0.0012;
+         float k=0.4;  //919/2.75*0.0012;
+         float k2=0.432; //919/2.55*0.0012;
          float mass=p*sqrt(k*dedxVal-1);
          float mass2=p*sqrt(k2*dedxFitVal-1);
 
@@ -241,7 +244,9 @@ void
 HSCPAnalyzer::beginJob(const edm::EventSetup&)
 {
   edm::Service<TFileService> fs;
-  TFileDirectory subDir = fs->mkdir( "Reco" );
+
+//------------ RECO DEDX ----------------
+  TFileDirectory subDir = fs->mkdir( "RecoDeDx" );
   h_pt =  subDir.make<TH1F>( "mu_pt"  , "p_{t}", 100,  0., 1500. );
   h_dedx =  subDir.make<TH2F>( "dedx_p"  , "\\frac{dE}{dX} vs p", 100,  0., 1500., 100,0,8 );
   h_dedxCtrl =  subDir.make<TH2F>( "dedx_lowp"  , "\\frac{dE}{dX} vs p", 100,  0., 3., 100,0,8 );
@@ -257,6 +262,7 @@ HSCPAnalyzer::beginJob(const edm::EventSetup&)
   h_massProton =  subDir.make<TH1F>( "massProton"  , "Proton Mass (dedx)", 100,  0., 2.);
   h_massProtonFit =  subDir.make<TH1F>( "massProton_FIT"  , "Proton Mass (dedx)", 100,  0., 2.);
 
+//------------ SIM ----------------
   TFileDirectory subDir2 = fs->mkdir( "Sim" );
   h_simmu_pt =  subDir2.make<TH1F>( "mu_sim_pt"  , "p_{t} mu", 100,  0., 1500. );
   h_simmu_eta  =  subDir2.make<TH1F>( "mu_sim_eta"  , "\\eta mu", 50,  -4., 4. );
@@ -268,15 +274,56 @@ HSCPAnalyzer::beginJob(const edm::EventSetup&)
 // ------------ method called once each job just after ending the event loop  ------------
 void 
 HSCPAnalyzer::endJob() {
-  h_dedxMIP->Fit("gaus");
-  h_dedxFitMIP->Fit("gaus");
+  h_dedxMIP->Fit("gaus","Q");
+  h_dedxFitMIP->Fit("gaus","Q");
 
-  h_massProton->Fit("gaus","","",0.8,1.2); 
-  cout << "Proton Mass (std): " << h_massProton->GetFunction("gaus")->GetParameter(1) << endl;
-  h_massProtonFit->Fit("gaus","","",0.8,1.2); 
-  cout << "Proton Mass (fit): " <<  h_massProtonFit->GetFunction("gaus")->GetParameter(1) << endl;
+  h_massProton->Fit("gaus","Q","",0.8,1.2); 
+  h_massProtonFit->Fit("gaus","Q","",0.8,1.2); 
+
+
+  float mipMean = h_dedxMIP->GetFunction("gaus")->GetParameter(1);
+  float mipMeanFit = h_dedxFitMIP->GetFunction("gaus")->GetParameter(1);
+  float mipSigma = h_dedxMIP->GetFunction("gaus")->GetParameter(2);
+  float mipSigmaFit = h_dedxFitMIP->GetFunction("gaus")->GetParameter(2);
+
+  cout << "DeDx cuts: " << endl;
+  cout << "   Unbinned Fit de/dx:"<< endl; 
+  cout << "    Proton Mass : " <<  h_massProtonFit->GetFunction("gaus")->GetParameter(1) << endl;
+  cout << "    MIP  mean : " <<  mipMeanFit << "    sigma : " << mipSigmaFit << endl;
+  cout << "    95% @ dedx > " << cutMin(h_dedxFitMIP,0.05) << endl;
+  cout << "    99% @ dedx > " << cutMin(h_dedxFitMIP,0.01) << endl;
+  cout << "    99.5% @ dedx > " << cutMin(h_dedxFitMIP,0.005) << endl;
+  cout << "    99.9% @ dedx > " << cutMin(h_dedxFitMIP,0.001) << endl;
+  cout << "    99.99% @ dedx > " << cutMin(h_dedxFitMIP,0.0001) << endl;
+  cout << "    99.999% @ dedx > " << cutMin(h_dedxFitMIP,0.00001) << endl;
+  cout << "   dedxSrc de/dx ("<< m_dedxSrc << "):" << endl; 
+  cout << "    Proton Mass : " << h_massProton->GetFunction("gaus")->GetParameter(1) << endl;
+  cout << "    MIP  mean : " <<  mipMean << "    sigma : " << mipSigma << endl;
+  cout << "    95% @ dedx > " << cutMin(h_dedxMIP,0.05) << endl;
+  cout << "    99% @ dedx > " << cutMin(h_dedxMIP,0.01) << endl;
+  cout << "    99.5% @ dedx > " << cutMin(h_dedxMIP,0.005) << endl;
+  cout << "    99.9% @ dedx > " << cutMin(h_dedxMIP,0.001) << endl;
+  cout << "    99.99% @ dedx > " << cutMin(h_dedxMIP,0.0001) << endl;
+  cout << "    99.999% @ dedx > " << cutMin(h_dedxMIP,0.00001) << endl;
 
 }
+
+double HSCPAnalyzer::cutMin(TH1F * h, double ci)
+{
+ double sum=0;
+
+ if(h->GetEntries()>0)
+ for(int i=h->GetNbinsX();i>=0; i--) 
+  {
+   sum+=h->GetBinContent(i); 
+   if(sum/h->GetEntries()>ci)
+    {
+      return h->GetBinCenter(i); 
+    }
+  } 
+ return h->GetBinCenter(0);
+}
+
 
 //define this as a plug-in
 DEFINE_FWK_MODULE(HSCPAnalyzer);
