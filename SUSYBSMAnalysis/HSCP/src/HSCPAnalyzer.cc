@@ -13,7 +13,7 @@
 //
 // Original Author:  Rizzi Andrea
 //         Created:  Mon Sep 24 09:30:06 CEST 2007
-// $Id: HSCPAnalyzer.cc,v 1.2 2007/10/10 10:14:20 arizzi Exp $
+// $Id: HSCPAnalyzer.cc,v 1.3 2007/10/11 14:17:19 arizzi Exp $
 //
 //
 
@@ -47,6 +47,7 @@
 #include <vector>
 #include <TH1F.h>
 #include <TH2F.h>
+#include <TF1.h>
 //
 // class decleration
 //
@@ -189,8 +190,8 @@ HSCPAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
               std::cout << dedx[i].first->normalizedChi2() << " " << dedx[i].first->numberOfValidHits() << " " << p <<std::endl;
               }
           }
-         float k=919/2.82*0.0012;
-         float k2=919/2.58*0.0012;
+         float k=919/2.75*0.0012;
+         float k2=919/2.55*0.0012;
          float mass=p*sqrt(k*dedxVal-1);
          float mass2=p*sqrt(k2*dedxFitVal-1);
 
@@ -267,6 +268,14 @@ HSCPAnalyzer::beginJob(const edm::EventSetup&)
 // ------------ method called once each job just after ending the event loop  ------------
 void 
 HSCPAnalyzer::endJob() {
+  h_dedxMIP->Fit("gaus");
+  h_dedxFitMIP->Fit("gaus");
+
+  h_massProton->Fit("gaus","","",0.8,1.2); 
+  cout << "Proton Mass (std): " << h_massProton->GetFunction("gaus")->GetParameter(1) << endl;
+  h_massProtonFit->Fit("gaus","","",0.8,1.2); 
+  cout << "Proton Mass (fit): " <<  h_massProtonFit->GetFunction("gaus")->GetParameter(1) << endl;
+
 }
 
 //define this as a plug-in

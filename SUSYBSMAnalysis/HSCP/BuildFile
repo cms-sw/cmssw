@@ -4,6 +4,7 @@
 <use name=DataFormats/TrackReco>
 <use name=PhysicsTools/UtilAlgos>
 <use name=FWCore/ServiceRegistry>
+<use name=root>
 
 <flags EDM_PLUGIN=1>
 <export>

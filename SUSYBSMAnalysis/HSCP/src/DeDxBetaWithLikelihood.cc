@@ -13,7 +13,7 @@
 //
 // Original Author:  Rizzi Andrea
 //         Created:  Wed Oct 10 12:01:28 CEST 2007
-// $Id: DeDxBetaWithLikelihood.cc,v 1.1 2007/10/10 10:14:20 arizzi Exp $
+// $Id: DeDxBetaWithLikelihood.cc,v 1.2 2007/10/11 14:17:19 arizzi Exp $
 //
 //
 
@@ -38,6 +38,10 @@
 #include "DataFormats/TrackReco/interface/Track.h"
 
 
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "PhysicsTools/UtilAlgos/interface/TFileService.h"
+
+
 #include <vector>
 #include <TNtuple.h>
 #include <TF1.h>
@@ -57,7 +61,8 @@ class DeDxBetaWithLikelihood : public edm::EDProducer {
       virtual void produce(edm::Event&, const edm::EventSetup&);
       virtual void endJob() ;
       edm::InputTag m_trackDeDxHitsTag;
-   
+      TNtuple * tmpNt;
+      TF1 * f1;
       // ----------member data ---------------------------
 };
 
@@ -74,6 +79,10 @@ class DeDxBetaWithLikelihood : public edm::EDProducer {
 //
 DeDxBetaWithLikelihood::DeDxBetaWithLikelihood(const edm::ParameterSet& iConfig)
 {
+  edm::Service<TFileService> fs;
+  TFileDirectory subDir = fs->mkdir( "Temp" );
+  tmpNt =  subDir.make<TNtuple>( "dedx","dedx","dedx");
+  f1 =  subDir.make<TF1>( "f1", "landaun" );
 
    m_trackDeDxHitsTag = iConfig.getParameter<edm::InputTag>("trackDeDxHits");
    produces<std::vector<float> >();
@@ -122,29 +131,28 @@ DeDxBetaWithLikelihood::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
 float DeDxBetaWithLikelihood::fit(const reco::TrackDeDxHits & dedxVec)
 {
  using namespace std;
- TNtuple tmpNt("dedx","dedx","dedx");
+ 
  double mpv=-5.;
  double chi=-5.;
-
+ if(dedxVec.second.size() < 1) return 0;
+ tmpNt->Reset();
  // copy data into a tree:
  for (unsigned int i=0; i<dedxVec.second.size();i++) {
 // cout << dedxVec.second[i].charge() << endl;
-   tmpNt.Fill(dedxVec.second[i].charge());
+   tmpNt->Fill(dedxVec.second[i].charge());
  }
-// stupid->Scan();
  // fit:
- TF1* f1 = new TF1("f1", "landaun");
  f1->SetParameters(1, 3.0 , 0.3);
  f1->SetParLimits(0, 1, 1); // fix the normalization parameter to 1
- int status = tmpNt.UnbinnedFit("f1","dedx","","Q");
+ int status = tmpNt->UnbinnedFit("f1","dedx","","Q");
  mpv = f1->GetParameter(1);
  if (status<=0) {
    cout << "(AnalyzeTracks::LandauFit) no convergence!   status = " << status << endl;
- tmpNt.Scan();
+ tmpNt->Scan();
     return 0;
  }
- delete f1;
  return mpv;
+ return 0.123123; 
 }
 
 // ------------ method called once each job just before starting event loop  ------------
