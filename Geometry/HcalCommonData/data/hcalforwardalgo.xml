@@ -4,7 +4,7 @@
 <ConstantsSection label="hcalforwardalgo.xml" eval="true">
  <Constant name="shiftSF"     value="11.0*cm"/>
  <Constant name="dzHF"        value="82.5*cm"/>
- <Constant name="dzHFx"       value="([dzHF]+0.005*cm)"/>
+ <Constant name="dzHFx"       value="([dzHF])"/>
  <Constant name="dzVCal"      value="([cms:ForwdVcalZ2]-[cms:ForwdVcalZ1])/2"/>
  <Constant name="halfAngHF"   value="10*deg"/>
  <Constant name="rMinHF"      value="12.5*cm"/>
@@ -14,7 +14,7 @@
  <Constant name="dyHF"        value="([rMaxHF]-[rMinHF])/2"/>
  <Constant name="yposHF"      value="([rMaxHF]+[rMinHF])/2"/>
  <Constant name="zposVCal"    value="([cms:ForwdVcalZ2]+[cms:ForwdVcalZ1])/2"/>
- <Constant name="zposModule"  value="11.955*m" />
+ <Constant name="zposModule"  value="11.975*m" />
  <Constant name="boxDx"       value="0.50*cm" />
  <Constant name="boxDy"       value="0.25*cm" />
  <Constant name="startY"      value="(-[dyHF]+1.25*cm)" />
