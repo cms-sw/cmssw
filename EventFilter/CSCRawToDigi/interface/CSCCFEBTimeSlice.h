@@ -75,7 +75,7 @@ class CSCCFEBTimeSlice {
   
   void setControllerWord(const CSCCFEBSCAControllerWord & controllerWord);
 
-  bool check() const {return dummy == 0x7FFF;}
+  bool check() const {return ((dummy == 0x7FFF)||((dummy|crc)== 0x7FFF));}
 
   friend std::ostream & operator<<(std::ostream & os, const CSCCFEBTimeSlice &);
 
@@ -114,7 +114,8 @@ class CSCCFEBTimeSlice {
   unsigned L1A_number :6;
   unsigned blank_space_3 : 4; 
 
-  /// word 100 is a dummy: 0x7FFF
+  /// word 100 is a dummy: 0x7FFF in old format
+  /// in new format it is or-ed with 97 to be 0x7FFF
   unsigned dummy : 16;
 };
 
