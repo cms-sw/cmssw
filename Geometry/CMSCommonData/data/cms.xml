@@ -55,9 +55,9 @@
  <Constant name="ForwdBeamR6"  value="20.5*cm"/>
  <Constant name="ForwdBeamR7"  value="4.00*cm"/>
  <Constant name="ForwdBeamR8"  value="2.15*cm"/>
- <Constant name="ForwdVcalZ1"  value="11.1295*m"/>
+ <Constant name="ForwdVcalZ1"  value="11.150*m"/>
  <Constant name="ForwdVcalZ2"  value="12.800*m"/>
- <Constant name="ForwdVcalR1"  value="1.600*m"/>
+ <Constant name="ForwdVcalR1"  value="1.595*m"/>
  <Constant name="ForwdDetsZ1"  value="16.0015*m"/>
  <Constant name="ForwdDetsR1"  value="33.00*cm"/>
  <Constant name="MBarRmin"     value="3.80*m"/>
