@@ -567,7 +567,7 @@ long CSCDCCExaminer::check(const unsigned short* &buffer, long length){
     // == ALCT Trailer found
 	if(
         // New ALCT data format:
-        ( buf0[0]==0xDE0D && (buf0[1]&0xF800)==0xD000 && (buf0[2]&0xF800)==0xD000 && (buf0[3]&0xF800)==0xD000 ) ||
+        ( buf0[0]==0xDE0D && (buf0[1]&0xF000)==0xD000 && (buf0[2]&0xF000)==0xD000 && (buf0[3]&0xF000)==0xD000 ) ||
         // Old ALCT data format:
         ( (buf0[0]&0x0800)==0x0000 && (buf0[1]&0xF800)==0xD000 && (buf0[2]&0xFFFF)==0xDE0D && (buf0[3]&0xF000)==0xD000 )
     ){
