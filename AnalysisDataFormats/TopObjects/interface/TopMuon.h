@@ -1,5 +1,5 @@
 //
-// $Id$
+// $Id: TopMuon.h,v 1.1 2007/09/20 18:12:22 lowette Exp $
 //
 
 #ifndef TopObjects_TopMuon_h
@@ -13,7 +13,7 @@
    store and retrieve the high-level additional information.
 
   \author   Steven Lowette
-  \version  $Id$
+  \version  $Id: TopMuon.h,v 1.1 2007/09/20 18:12:22 lowette Exp $
 */
 
 #include "DataFormats/MuonReco/interface/Muon.h"
@@ -41,10 +41,14 @@ class TopMuon : public TopLepton<TopMuonType> {
 
   protected:
 
+    void setTrackIso(double trackIso);
+    void setCaloIso(double caloIso);
     void setLeptonID(double id);
 
   protected:
 
+    double trackIso_;
+    double caloIso_;
     double leptonID_;
 
 };
