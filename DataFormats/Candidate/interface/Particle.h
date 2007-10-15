@@ -7,7 +7,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: Particle.h,v 1.20 2007/10/15 12:27:12 llista Exp $
+ * \version $Id: Particle.h,v 1.21 2007/10/15 12:44:33 llista Exp $
  *
  */
 #include "DataFormats/Math/interface/Point3D.h"
@@ -97,7 +97,13 @@ namespace reco {
     /// repidity
     double y() const { cache(); return p4Cache_.Rapidity(); }
     /// set 4-momentum
-    void setP4( const LorentzVector & p4 ) { p4_ = p4; }
+    void setP4( const LorentzVector & p4 ) { p4_ = p4; clearCache(); }
+    /// set particle mass
+    void setMass( double m ) { 
+      // the following implementation is suboptimal, 
+      // but will be changed as we move to internal polar coordinates
+      PolarLorentzVector p4 = polarP4(); p4.SetM(m); p4_ = p4; clearCache(); 
+    }
     /// vertex position
     const Point & vertex() const { return vertex_; }
     /// x coordinate of vertex position
@@ -137,6 +143,10 @@ namespace reco {
       if ( cacheFixed_ ) return;
       p4Cache_ = p4_;
       cacheFixed_ = true;
+    }
+    /// set internal cache
+    void clearCache() const { 
+      cacheFixed_ = false;
     }
   };
 
