@@ -32,10 +32,6 @@ namespace reco {
     Candidate( Charge q, const LorentzVector & p4, const Point & vtx = Point( 0, 0, 0 ),
 	       int pdgId = 0, int status = 0, bool integerCharge = true ) : 
       Particle( q, p4, vtx, pdgId, status, integerCharge ) { }
-    /// constructor from values
-    Candidate( Charge q, const PolarLorentzVector & p4, const Point & vtx = Point( 0, 0, 0 ),
-	       int pdgId = 0, int status = 0, bool integerCharge = true ) : 
-      Particle( q, p4, vtx, pdgId, status, integerCharge ) { }
     /// destructor
     virtual ~Candidate();
     /// returns a clone of the Candidate object

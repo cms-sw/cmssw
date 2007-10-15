@@ -29,10 +29,6 @@ namespace reco {
     CompositeRefCandidate( Charge q, const LorentzVector & p4, const Point & vtx = Point( 0, 0, 0 ),
 			   int pdgId = 0, int status = 0, bool integerCharge = true ) :
       Candidate( q, p4, vtx, pdgId, status, integerCharge ) { }
-    /// constructor from values
-    CompositeRefCandidate( Charge q, const PolarLorentzVector & p4, const Point & vtx = Point( 0, 0, 0 ),
-			   int pdgId = 0, int status = 0, bool integerCharge = true ) :
-      Candidate( q, p4, vtx, pdgId, status, integerCharge ) { }
     /// constructor from a particle
     CompositeRefCandidate( const Particle & p ) : Candidate( p ) { }
     /// destructor

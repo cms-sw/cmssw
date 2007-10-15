@@ -31,10 +31,6 @@ namespace reco {
     ShallowCloneCandidate( const CandidateBaseRef & masterClone, 
 			   Charge q, const LorentzVector & p4, const Point & vtx = Point( 0, 0, 0 ) ) : 
       Candidate( q, p4, vtx ), masterClone_( masterClone ) { }
-    /// constructor from values
-    ShallowCloneCandidate( const CandidateBaseRef & masterClone, 
-			   Charge q, const PolarLorentzVector & p4, const Point & vtx = Point( 0, 0, 0 ) ) : 
-      Candidate( q, p4, vtx ), masterClone_( masterClone ) { }
     /// destructor
     virtual ~ShallowCloneCandidate();
     /// returns a clone of the Candidate object
