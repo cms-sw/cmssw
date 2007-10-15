@@ -102,7 +102,7 @@ void popcon::StateCreator::storeStatusData()
 		return;
 	try{	
 		m_coraldb->startTransaction(false);
-		coral::ITable& mytable=m_coraldb->sessionProxy().nominalSchema().tableHandle("POPCON_PAYLOAD_STATE");
+		coral::ITable& mytable=m_coraldb->sessionProxy().nominalSchema().tableHandle("P_CON_PAYLOAD_STATE");
 		coral::ITableDataEditor& editor = mytable.dataEditor();
 		
 		coral::AttributeList rowBuffer;
@@ -155,7 +155,7 @@ void popcon::StateCreator::generateStatusData()
 		if (cursor->next() ){
 			if (m_debug)
 				std::cerr << "generateStatusData()for " << nfo.object_name << " , size is:  " <<  rowBuffer[0].data<int>() << std::endl;
-			m_current_state = DBState(nfo.object_name, rowBuffer[0].data<int>());
+			m_current_state = DBState(nfo.object_name, rowBuffer[0].data<int>(), m_offline);
 		}	
 
 		//status_db.commit();
@@ -265,22 +265,22 @@ void popcon::StateCreator::getStoredStatusData()
 		rowBuffer.extend<std::string>( "ED" );
 		rowBuffer.extend<std::string>( "MO" );
 		coral::IQuery* query = schema.newQuery();
-		query->addToOutputList( "POPCON_PAYLOAD_STATE.NAME","N");
-		query->addToOutputList( "POPCON_PAYLOAD_STATE.PAYLOAD_SIZE","PS");
-		query->addToOutputList( "POPCON_PAYLOAD_STATE.EXCEPT_DESCRIPTION","ED");
-		query->addToOutputList( "POPCON_PAYLOAD_STATE.MANUAL_OVERRIDE","MO");
-		query->addToTableList("POPCON_PAYLOAD_STATE","");
+		query->addToOutputList( "P_CON_PAYLOAD_STATE.NAME","N");
+		query->addToOutputList( "P_CON_PAYLOAD_STATE.PAYLOAD_SIZE","PS");
+		query->addToOutputList( "P_CON_PAYLOAD_STATE.EXCEPT_DESCRIPTION","ED");
+		query->addToOutputList( "P_CON_PAYLOAD_STATE.MANUAL_OVERRIDE","MO");
+		query->addToTableList("P_CON_PAYLOAD_STATE","");
 		coral::AttributeList conditionData;
 		conditionData.extend<std::string>( "oname" );
 		conditionData[0].data<std::string>() = nfo.object_name;
-		std::string condition = "POPCON_PAYLOAD_STATE.NAME = :oname";
+		std::string condition = "P_CON_PAYLOAD_STATE.NAME = :oname";
 		query->setCondition(condition, conditionData);
 		query->setMemoryCacheSize( 100 );
 		query->defineOutput( rowBuffer );
 		coral::ICursor& cursor4 = query->execute();
 		unsigned short count=0;
 		while ( cursor4.next() ) {
-			m_saved_state=DBState(rowBuffer);
+			m_saved_state=DBState(rowBuffer, m_offline);
 			count ++;
 		}
 
