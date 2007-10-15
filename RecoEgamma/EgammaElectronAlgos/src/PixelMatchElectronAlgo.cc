@@ -12,7 +12,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Thu july 6 13:22:06 CEST 2006
-// $Id: PixelMatchElectronAlgo.cc,v 1.50 2007/10/11 12:30:42 futyand Exp $
+// $Id: PixelMatchElectronAlgo.cc,v 1.51 2007/10/12 11:35:27 uberthon Exp $
 //
 //
 
@@ -79,7 +79,8 @@ using namespace std;
 using namespace reco;
 //using namespace math; // conflicts with DataFormat/Math/interface/Point3D.h!!!!
 
-PixelMatchElectronAlgo::PixelMatchElectronAlgo(double maxEOverPBarrel, double maxEOverPEndcaps, 
+PixelMatchElectronAlgo::PixelMatchElectronAlgo(const edm::ParameterSet& conf,
+                                               double maxEOverPBarrel, double maxEOverPEndcaps, 
                                                double minEOverPBarrel, double minEOverPEndcaps,
                                                double hOverEConeSize, double maxHOverE, 
                                                double maxDeltaEta, double maxDeltaPhi, double ptcut,
@@ -93,26 +94,6 @@ PixelMatchElectronAlgo::PixelMatchElectronAlgo(double maxEOverPBarrel, double ma
   geomPropBw_=0;	
   geomPropFw_=0;	
   mtsTransform_=0;
-}
-
-PixelMatchElectronAlgo::~PixelMatchElectronAlgo() {
-  delete geomPropBw_;
-  delete geomPropFw_;
-  delete mtsTransform_;
-}
-
-void PixelMatchElectronAlgo::setupES(const edm::EventSetup& es, const edm::ParameterSet &conf) {
-
-  //services
-  es.get<IdealMagneticFieldRecord>().get(theMagField);
-  es.get<TrackerDigiGeometryRecord>().get(trackerHandle_);
-
-  // get calo geometry
-  es.get<IdealGeometryRecord>().get(theCaloGeom);
-  
-  mtsTransform_ = new MultiTrajectoryStateTransform;
-  geomPropBw_ = new GsfPropagatorAdapter(AnalyticalPropagator(theMagField.product(), oppositeToMomentum));
-  geomPropFw_ = new GsfPropagatorAdapter(AnalyticalPropagator(theMagField.product(), alongMomentum));
 
   // get nested parameter set for the TransientInitialStateEstimator
   ParameterSet tise_params = conf.getParameter<ParameterSet>("TransientInitialStateEstimatorParameters") ;
@@ -126,6 +107,30 @@ void PixelMatchElectronAlgo::setupES(const edm::EventSetup& es, const edm::Param
   assBarrelShapeLabel_ = conf.getParameter<string>("AssocShapeBarrelLabel");
   assEndcapShapeInstanceName_ = conf.getParameter<string>("AssocShapeEndcapProducer");
   assEndcapShapeLabel_ = conf.getParameter<string>("AssocShapeEndcapLabel");
+}
+
+PixelMatchElectronAlgo::~PixelMatchElectronAlgo() {
+  delete geomPropBw_;
+  delete geomPropFw_;
+  delete mtsTransform_;
+}
+
+void PixelMatchElectronAlgo::setupES(const edm::EventSetup& es) {
+
+  //services
+  es.get<IdealMagneticFieldRecord>().get(theMagField);
+  es.get<TrackerDigiGeometryRecord>().get(trackerHandle_);
+
+  // get calo geometry
+  es.get<IdealGeometryRecord>().get(theCaloGeom);
+  
+  if (mtsTransform_) delete mtsTransform_;
+  mtsTransform_ = new MultiTrajectoryStateTransform;
+  if (geomPropBw_) delete geomPropBw_;
+  geomPropBw_ = new GsfPropagatorAdapter(AnalyticalPropagator(theMagField.product(), oppositeToMomentum));
+  if (geomPropFw_) delete geomPropFw_;
+  geomPropFw_ = new GsfPropagatorAdapter(AnalyticalPropagator(theMagField.product(), alongMomentum));
+
 }
 
 void  PixelMatchElectronAlgo::run(Event& e, PixelMatchGsfElectronCollection & outEle) {
@@ -149,13 +154,9 @@ void  PixelMatchElectronAlgo::run(Event& e, PixelMatchGsfElectronCollection & ou
   e.getByLabel(assEndcapShapeLabel_,assEndcapShapeInstanceName_,endcapShapeAssocH);
 
   // create electrons from tracks in 2 steps: barrel + endcap
-  //  const SeedSuperClusterAssociationCollection  *sclAss=&(*barrelH);
   const BasicClusterShapeAssociationCollection *shpAss=&(*barrelShapeAssocH);
-  //  process(tracksBarrelH,sclAss,barrelTSAssocH.product(),shpAss,mhbhe,outEle);
   process(tracksBarrelH,shpAss,mhbhe,outEle);
-   //  sclAss=&(*endcapH);
   shpAss=&(*endcapShapeAssocH);
-  //  process(tracksEndcapH,sclAss,endcapTSAssocH.product(),shpAss,mhbhe,outEle);
   process(tracksEndcapH,shpAss,mhbhe,outEle);
   delete mhbhe;
   std::ostringstream str;
@@ -186,8 +187,6 @@ void PixelMatchElectronAlgo::process(edm::Handle<GsfTrackCollection> tracksH,
     const GsfTrack & t=(*tracks)[i];
     const GsfTrackRef trackRef = edm::Ref<GsfTrackCollection>(tracksH,i);
     const GsfTrackExtraRef trExtra = trackRef->gsfExtra();
-    //    edm::Ref<TrajectorySeedCollection> seed = (*tsAss)[trackRef];
-    //    const SuperClusterRef & scRef=(*sclAss)[seed];
     edm::RefToBase<TrajectorySeed> seed = trackRef->extra()->seedRef();
     ElectronPixelSeedRef elseed=seed.castTo<ElectronPixelSeedRef>();
     const SuperClusterRef & scRef=elseed->superCluster();
@@ -252,7 +251,6 @@ void PixelMatchElectronAlgo::process(edm::Handle<GsfTrackCollection> tracksH,
 								 vtxMom.y()*scale,
 								 vtxMom.z()*scale,
 								 theClus.energy());
-      //      PixelMatchGsfElectron ele(momentum,(*sclAss)[seed],seedShapeRef,trackRef,sclPos,sclMom,seedPos,seedMom,innPos,innMom,vtxPos,vtxMom,outPos,outMom,HoE);
      PixelMatchGsfElectron ele(momentum,scRef,seedShapeRef,trackRef,sclPos,sclMom,seedPos,seedMom,innPos,innMom,vtxPos,vtxMom,outPos,outMom,HoE);
 
       //and set various properties
@@ -282,7 +280,6 @@ void PixelMatchElectronAlgo::process(edm::Handle<GsfTrackCollection> tracksH,
       theEnCorrector.correct(ele);
       ElectronMomentumCorrector theMomCorrector;
       theMomCorrector.correct(ele,vtxTSOS);
-	//mCorr.getBestMomentum(),mCorr.getSCEnergyError(),mCorr.getTrackMomentumError());
       outEle.push_back(ele);
       LogInfo("")<<"Constructed new electron with energy  "<< scRef->energy();
       }

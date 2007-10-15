@@ -17,8 +17,6 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include <string>
-
 class PixelMatchElectronAlgo;
 
 class PixelMatchGsfElectronProducer : public edm::EDProducer
@@ -34,9 +32,6 @@ class PixelMatchGsfElectronProducer : public edm::EDProducer
 
  private:
 
-  const edm::ParameterSet conf_;
-
   PixelMatchElectronAlgo* algo_;
-  std::string  seedProducer_;
 };
 #endif

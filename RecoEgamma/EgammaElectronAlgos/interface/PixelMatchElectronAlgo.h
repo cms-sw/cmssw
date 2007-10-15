@@ -37,7 +37,8 @@ class PixelMatchElectronAlgo {
 
 public:
 
-  PixelMatchElectronAlgo(double maxEOverPBarrel, double maxEOverPEndcaps, 
+  PixelMatchElectronAlgo(const edm::ParameterSet& conf,
+                         double maxEOverPBarrel, double maxEOverPEndcaps, 
                          double minEOverPBarrel, double minEOverPEndcaps,
                          double hOverEConeSize, double maxHOverE, 
                          double maxDeltaEta, double maxDeltaPhi, double ptCut,
@@ -45,7 +46,7 @@ public:
 
   ~PixelMatchElectronAlgo();
 
-  void setupES(const edm::EventSetup& setup, const edm::ParameterSet& conf);
+  void setupES(const edm::EventSetup& setup);
   void run(edm::Event&, reco::PixelMatchGsfElectronCollection&);
 
  private:

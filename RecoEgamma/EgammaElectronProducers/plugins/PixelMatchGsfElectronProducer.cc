@@ -35,14 +35,15 @@
 
 using namespace reco;
  
-PixelMatchGsfElectronProducer::PixelMatchGsfElectronProducer(const edm::ParameterSet& iConfig) : conf_(iConfig)
+PixelMatchGsfElectronProducer::PixelMatchGsfElectronProducer(const edm::ParameterSet& iConfig) 
 {
   //register your products
   produces<PixelMatchGsfElectronCollection>();
 
   //create algo
   algo_ = new
-    PixelMatchElectronAlgo(iConfig.getParameter<double>("maxEOverPBarrel"),
+    PixelMatchElectronAlgo(iConfig,
+                           iConfig.getParameter<double>("maxEOverPBarrel"),
 			   iConfig.getParameter<double>("maxEOverPEndcaps"),
                            iConfig.getParameter<double>("minEOverPBarrel"),
 			   iConfig.getParameter<double>("minEOverPEndcaps"),
@@ -63,7 +64,7 @@ PixelMatchGsfElectronProducer::~PixelMatchGsfElectronProducer()
 
 void PixelMatchGsfElectronProducer::beginJob(edm::EventSetup const&iSetup) 
 {     
-  algo_->setupES(iSetup,conf_);  
+  algo_->setupES(iSetup);  
 }
 
 // ------------ method called to produce the data  ------------

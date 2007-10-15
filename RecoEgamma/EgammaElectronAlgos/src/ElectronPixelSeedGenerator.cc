@@ -13,7 +13,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: ElectronPixelSeedGenerator.cc,v 1.27 2007/05/22 16:16:11 uberthon Exp $
+// $Id: ElectronPixelSeedGenerator.cc,v 1.28 2007/07/16 15:10:44 charlot Exp $
 //
 //
 #include "RecoEgamma/EgammaElectronAlgos/interface/PixelHitMatcher.h" 
@@ -24,6 +24,7 @@
 #include "RecoTracker/Record/interface/TrackerRecoGeometryRecord.h"
 #include "RecoTracker/TkSeedGenerator/interface/FastHelix.h"
 #include "RecoTracker/TkNavigation/interface/SimpleNavigationSchool.h"
+#include "RecoTracker/Record/interface/NavigationSchoolRecord.h"
 
 #include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
@@ -55,14 +56,18 @@ ElectronPixelSeedGenerator::ElectronPixelSeedGenerator(float iephimin1, float ie
                                                        bool idynamicphiroad)
  : ephimin1(iephimin1), ephimax1(iephimax1), pphimin1(ipphimin1), pphimax1(ipphimax1), pphimin2(ipphimin2),	
    pphimax2(ipphimax2),zmin1(izmin1),zmax1(izmax1),zmin2(izmin2),zmax2(izmax2),dynamicphiroad(idynamicphiroad),
-   myMatchEle(0), myMatchPos(0),
-   theMode_(unknown), theUpdator(0), thePropagator(0), theMeasurementTracker(0), 
+   myMatchEle(0), myMatchPos(0),theUpdator(0), thePropagator(0), theMeasurementTracker(0), 
    theNavigationSchool(0), theSetup(0), pts_(0)
-{}
+{
+      // Instantiate the pixel hit matchers
+      LogDebug("") << "ElectronPixelSeedGenerator, phi limits: " << ephimin1 << ", " << ephimax1 << ", "
+		   << pphimin1 << ", " << pphimax1;
+      myMatchEle = new PixelHitMatcher( ephimin1, ephimax1, pphimin2, pphimax2, zmin1, zmax1, zmin2, zmax2);
+      myMatchPos = new PixelHitMatcher( pphimin1, pphimax1, pphimin2, pphimax2, zmin1, zmax1, zmin2, zmax2);
+}
 
 ElectronPixelSeedGenerator::~ElectronPixelSeedGenerator() {
 
-  delete theNavigationSchool;
   delete myMatchEle;
   delete myMatchPos;
   delete thePropagator;
@@ -71,30 +76,32 @@ ElectronPixelSeedGenerator::~ElectronPixelSeedGenerator() {
 }
 
 
-void ElectronPixelSeedGenerator::setupES(const edm::EventSetup& setup, const edm::ParameterSet &conf) {
-
-  theSetup= &setup;
-
+void ElectronPixelSeedGenerator::setupES(const edm::EventSetup& setup) {
   setup.get<IdealMagneticFieldRecord>().get(theMagField);
   setup.get<TrackerRecoGeometryRecord>().get( theGeomSearchTracker );
 
-  theUpdator = new KFUpdator();
-  thePropagator = new PropagatorWithMaterial(alongMomentum,.1057,&(*theMagField)); 
-  theNavigationSchool   = new SimpleNavigationSchool(&(*theGeomSearchTracker),&(*theMagField));
+  edm::ESHandle<NavigationSchool> nav;
+  setup.get<NavigationSchoolRecord>().get("SimpleNavigationSchool", nav);
+  theNavigationSchool = nav.product();
+  NavigationSetter setter(*theNavigationSchool);
 
-   edm::ESHandle<MeasurementTracker>    measurementTrackerHandle;
+  edm::ESHandle<MeasurementTracker>    measurementTrackerHandle;
   setup.get<CkfComponentsRecord>().get(measurementTrackerHandle);
   theMeasurementTracker = measurementTrackerHandle.product();
 
-  myMatchEle->setES(&(*theMagField),theMeasurementTracker);
+  if (theUpdator) delete theUpdator;
+  theUpdator = new KFUpdator();
+  if (thePropagator) delete thePropagator;
+  thePropagator = new PropagatorWithMaterial(alongMomentum,.1057,&(*theMagField)); 
+  myMatchEle->setES(&(*theMagField),theMeasurementTracker); 
   myMatchPos->setES(&(*theMagField),theMeasurementTracker);
 }
 
-void  ElectronPixelSeedGenerator::run(edm::Event& e, const edm::Handle<reco::SuperClusterCollection> &clusters, reco::ElectronPixelSeedCollection & out){
+void  ElectronPixelSeedGenerator::run(edm::Event& e, const edm::EventSetup& setup, const edm::Handle<reco::SuperClusterCollection> &clusters, reco::ElectronPixelSeedCollection & out){
+
+  theSetup= &setup; 
 
   theMeasurementTracker->updatePixels(e);
-  
-  NavigationSetter setter(*theNavigationSchool);
 
   for  (unsigned int i=0;i<clusters->size();++i) {
     edm::Ref<reco::SuperClusterCollection> theClusB(clusters,i);
@@ -104,26 +111,9 @@ void  ElectronPixelSeedGenerator::run(edm::Event& e, const edm::Handle<reco::Sup
     seedsFromThisCluster(theClusB,out) ;
   }
 
-  if(theMode_==offline) LogDebug ("run") << "(offline)";
-  
   LogDebug ("run") << ": For event "<<e.id();
   LogDebug ("run") <<"Nr of superclusters: "<<clusters->size()
    <<", no. of ElectronPixelSeeds found  = " << out.size();
-}
-
-void ElectronPixelSeedGenerator::setup(bool off)
-{
-
-  if(theMode_==unknown)
-    {
-      // Instantiate the pixel hit matchers
-      LogDebug("") << "ElectronPixelSeedGenerator, phi limits: " << ephimin1 << ", " << ephimax1 << ", "
-		   << pphimin1 << ", " << pphimax1;
-      myMatchEle = new PixelHitMatcher( ephimin1, ephimax1, pphimin2, pphimax2, zmin1, zmax1, zmin2, zmax2);
-      myMatchPos = new PixelHitMatcher( pphimin1, pphimax1, pphimin2, pphimax2, zmin1, zmax1, zmin2, zmax2);
-      if(off) theMode_=offline; else theMode_ = HLT;
-    }
-
 }
 
 void ElectronPixelSeedGenerator::seedsFromThisCluster( edm::Ref<reco::SuperClusterCollection> seedCluster, reco::ElectronPixelSeedCollection& result)

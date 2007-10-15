@@ -17,13 +17,12 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: PixelHitMatcher.h,v 1.3 2007/02/05 17:53:51 uberthon Exp $
+// $Id: PixelHitMatcher.h,v 1.5 2007/05/22 16:16:10 uberthon Exp $
 //
 //
 
 #include "TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h" 
 #include "TrackingTools/MaterialEffects/interface/PropagatorWithMaterial.h" 
-#include "TrackingTools/DetLayers/interface/NavigationSchool.h"
 #include "RecoEgamma/EgammaElectronAlgos/interface/BarrelMeasurementEstimator.h" 
 #include "RecoEgamma/EgammaElectronAlgos/interface/ForwardMeasurementEstimator.h" 
 #include "RecoEgamma/EgammaElectronAlgos/interface/PixelMatchStartLayers.h"
@@ -42,7 +41,6 @@ class MeasurementTracker;
 class MagneticField;
 class GeometricSearchTracker;
 class LayerMeasurements;
-class NavigationSchool;
 
 class RecHitWithDist
 {
@@ -84,15 +82,10 @@ class PixelHitMatcher{
     meas1stBLayer(phi1min,phi1max,z1min,z1max), meas2ndBLayer(phi2min,phi2max,z2min,z2max), 
     meas1stFLayer(phi1min,phi1max,z1min,z1max), meas2ndFLayer(phi2min,phi2max,z2min,z2max),
     startLayers(),
-    //    prop1stLayer(oppositeToMomentum,.511), prop2ndLayer(alongMomentum,.511),//depends on event?
-    prop1stLayer(0), prop2ndLayer(0),//depends on event?
-    //      theNavigationSchool( new SimpleNavigationSchool), vertex(0.) {} //depends on event??
-    theNavigationSchool(0),theGeometricSearchTracker(0),theLayerMeasurements(0),
-    vertex(0.) {}
+    prop1stLayer(0), prop2ndLayer(0),theGeometricSearchTracker(0),theLayerMeasurements(0),vertex(0.) {}
   virtual ~PixelHitMatcher();
   void setES(const MagneticField*, const MeasurementTracker *theMeasurementTracker);
 
-  //RC vector<pair<RecHitWithDist,TSiPixelRecHit> > compatibleHits(const GlobalPoint& xmeas,
   std::vector<std::pair<RecHitWithDist,ConstRecHitPointer> > compatibleHits(const GlobalPoint& xmeas,
 								  const GlobalPoint& vprim,
 								  float energy,
@@ -127,7 +120,6 @@ class PixelHitMatcher{
   PixelMatchStartLayers startLayers;
   PropagatorWithMaterial *prop1stLayer;
   PropagatorWithMaterial *prop2ndLayer;
-  NavigationSchool* theNavigationSchool;
   const GeometricSearchTracker *theGeometricSearchTracker;
   const LayerMeasurements *theLayerMeasurements;
   const MagneticField* theMagField;

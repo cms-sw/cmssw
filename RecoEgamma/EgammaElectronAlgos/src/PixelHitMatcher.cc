@@ -13,7 +13,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: PixelHitMatcher.cc,v 1.7 2007/05/07 20:01:15 charlot Exp $
+// $Id: PixelHitMatcher.cc,v 1.8 2007/05/09 11:59:21 charlot Exp $
 //
 //
 
@@ -22,17 +22,13 @@
 #include "RecoEgamma/EgammaElectronAlgos/interface/PixelMatchNextLayers.h"
 #include "TrackingTools/PatternTools/interface/TrajectoryMeasurement.h" 
 #include "TrackingTools/DetLayers/interface/DetLayer.h"
-#include "TrackingTools/DetLayers/interface/NavigationSetter.h"
 #include "TrackingTools/MeasurementDet/interface/LayerMeasurements.h"
 #include "RecoTracker/MeasurementDet/interface/MeasurementTracker.h"
-#include "RecoTracker/TkNavigation/interface/SimpleNavigationSchool.h" 
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/GeometryCommonDetAlgo/interface/PerpendicularBoundPlaneBuilder.h"
 #include "CLHEP/Units/PhysicalConstants.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-
-#include <typeinfo>  //FIXME
 
 using namespace reco;
 using namespace std;

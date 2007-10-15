@@ -53,7 +53,6 @@ ElectronPixelSeedProducer::ElectronPixelSeedProducer(const edm::ParameterSet& iC
 					    iConfig.getParameter<double>("ZMax2"),
                                             iConfig.getParameter<bool>("dynamicPhiRoad") );
 					      
-  matcher_->setup(true); //always set to offline in our case!
  
  //  get labels from config'
   label_[0]=iConfig.getParameter<std::string>("superClusterBarrelProducer");
@@ -76,7 +75,7 @@ ElectronPixelSeedProducer::~ElectronPixelSeedProducer()
 
 void ElectronPixelSeedProducer::beginJob(edm::EventSetup const&iSetup) 
 {
-     matcher_->setupES(iSetup,conf_);  
+     matcher_->setupES(iSetup);  
 }
 
 void ElectronPixelSeedProducer::produce(edm::Event& e, const edm::EventSetup& iSetup) 
@@ -93,12 +92,19 @@ void ElectronPixelSeedProducer::produce(edm::Event& e, const edm::EventSetup& iS
     // invoke algorithm
     edm::Handle<SuperClusterCollection> clusters;
     e.getByLabel(label_[i],instanceName_[i],clusters);
-    matcher_->run(e,clusters,*pSeeds[i]);
+    matcher_->run(e,iSetup,clusters,*pSeeds[i]);
   
+ 
+    // convert ElectronPixelSeeds into trajectorySeeds 
+    // we have first to create AND put the TrajectorySeedCollection
+    // in order to get a working Handle
+    // if not there is a problem when inserting into the map
+
     for (ElectronPixelSeedCollection::iterator is=pSeeds[i]->begin(); is!=pSeeds[i]->end();is++) {
       LogDebug("")  << "new seed with " << (*is).nHits() << " hits, charge " << (*is).getCharge() <<
 	" and cluster energy " << (*is).superCluster()->energy() << " PID "<<(*is).superCluster().id();
     }
+
     e.put(pSeeds[i],label_[i]);
   }
 

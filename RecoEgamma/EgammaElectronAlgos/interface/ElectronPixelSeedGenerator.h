@@ -45,9 +45,6 @@ public:
   typedef TransientTrackingRecHit::RecHitPointer        RecHitPointer;
   typedef TransientTrackingRecHit::RecHitContainer      RecHitContainer;
   
-
-  enum mode{HLT, offline, unknown};  //to be used later
-
   ElectronPixelSeedGenerator(
                           float iephimin1,
 			  float iephimax1,
@@ -64,9 +61,8 @@ public:
 
   ~ElectronPixelSeedGenerator();
 
-  void setup(bool);
-  void setupES(const edm::EventSetup& setup, const edm::ParameterSet& conf);
-  void run(edm::Event&, const edm::Handle<reco::SuperClusterCollection>&, reco::ElectronPixelSeedCollection&);
+  void setupES(const edm::EventSetup& setup);
+  void run(edm::Event&, const edm::EventSetup& setup, const edm::Handle<reco::SuperClusterCollection>&, reco::ElectronPixelSeedCollection&);
 
  private:
 
@@ -83,7 +79,6 @@ public:
   
   PixelHitMatcher *myMatchEle;
   PixelHitMatcher *myMatchPos;
-  mode theMode_;
 
   edm::ESHandle<MagneticField>                theMagField;
   edm::ESHandle<GeometricSearchTracker>       theGeomSearchTracker;
@@ -95,14 +90,9 @@ public:
 
   const edm::EventSetup *theSetup; 
   TrajectoryStateTransform transformer_; 
-  //RC recHitContainer recHits_; 
+
   PRecHitContainer recHits_; 
   PTrajectoryStateOnDet* pts_; 
-
-  /*   edm::ValidityInterval vMag; */
-  /*   edm::ValidityInterval vTrackerDigi; */
-  /*   edm::ValidityInterval vTrackerReco; */
-
 };
 
 #endif // ElectronPixelSeedGenerator_H
