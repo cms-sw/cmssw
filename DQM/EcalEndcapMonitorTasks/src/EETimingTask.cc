@@ -1,8 +1,8 @@
 /*
  * \file EETimingTask.cc
  *
- * $Date: 2007/08/15 10:36:23 $
- * $Revision: 1.13 $
+ * $Date: 2007/08/21 11:31:49 $
+ * $Revision: 1.14 $
  * \author G. Della Ricca
  *
 */
@@ -159,6 +159,8 @@ void EETimingTask::analyze(const Event& e, const EventSetup& c){
       LogDebug("EETimingTask") << " hit amplitude " << xval;
       LogDebug("EETimingTask") << " hit jitter " << yval;
       LogDebug("EETimingTask") << " hit pedestal " << zval;
+
+      if ( xval <= 20. ) continue;
 
       if ( meTimeMap ) meTimeMap->Fill(xix, xiy, yval);
 
