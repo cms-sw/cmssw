@@ -514,6 +514,7 @@ void SiPixelActionExecutor::fillGrandBarrelSummaryHistos(DaqMonitorBEInterface* 
   string path_name = bei->pwd();
   string dir_name =  path_name.substr(path_name.find_last_of("/")+1);
   if ((dir_name.find("Collector") == 0) ||
+      (dir_name.find("Collated") == 0) ||
       (dir_name.find("FU") == 0) ||
       (dir_name.find("Tracker") == 0) ||
       (dir_name.find("AdditionalPixelErrors") == 0) ||
@@ -628,6 +629,7 @@ void SiPixelActionExecutor::fillGrandEndcapSummaryHistos(DaqMonitorBEInterface* 
   string path_name = bei->pwd();
   string dir_name =  path_name.substr(path_name.find_last_of("/")+1);
   if ((dir_name.find("Collector") == 0) ||
+      (dir_name.find("Collated") == 0) ||
       (dir_name.find("FU") == 0) ||
       (dir_name.find("Tracker") == 0) ||
       (dir_name.find("AdditionalPixelErrors") == 0) ||
@@ -904,6 +906,7 @@ void SiPixelActionExecutor::checkQTestResults(DaqMonitorBEInterface * bei) {
       //cout<<"ME: "<<(*im)<<endl;
       if (me) {
       //cout<<"Mean= "<<me->getMean()<<endl;
+        me->runQTests();
 	// get all warnings associated with me
 	vector<QReport*> warnings = me->getQWarnings();
 	//cout<<"number of warnings: "<<warnings.size()<<endl;

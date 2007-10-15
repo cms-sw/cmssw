@@ -565,7 +565,7 @@ void SiPixelWebInterface::performAction() {
   case SiPixelWebInterface::SaveData :
     {
 //      cout << " Saving Monitoring Elements " << endl;
-      setOutputFileName("SiPixelWebClient.root");
+      //setOutputFileName("SiPixelWebClient.root");
       actionExecutor_->saveMEs(bei, fileName_);
       break;
     }

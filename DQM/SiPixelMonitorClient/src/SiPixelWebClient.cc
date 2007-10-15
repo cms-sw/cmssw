@@ -131,12 +131,12 @@ void SiPixelWebClient::onUpdate() const
   }
 
   // Initial Creation of Summary Plot for Slide Show:
-  if (nUpdate == 5){ //actionExecutor_->checkQTestResults(mui_);
-      webInterface_p->setActionFlag(SiPixelWebInterface::PlotHistogramFromLayout);
-      seal::Callback action(seal::CreateCallback(webInterface_p, 
-			    &SiPixelWebInterface::performAction));
-      mui_->addCallback(action);
-  }  
+//  if (nUpdate == 5){ //actionExecutor_->checkQTestResults(mui_);
+//      webInterface_p->setActionFlag(SiPixelWebInterface::PlotHistogramFromLayout);
+//      seal::Callback action(seal::CreateCallback(webInterface_p, 
+//			    &SiPixelWebInterface::performAction));
+///     mui_->addCallback(action);
+//  }  
   
   // put here the code that needs to be executed on every update:
   std::vector<std::string> uplist;
@@ -162,12 +162,12 @@ void SiPixelWebClient::onUpdate() const
   //    bei->addCallback(action);
   }
   // Frequent Updating of Summary Plot for Slide Show:
-  if (nUpdate > 0 && nUpdate%301 == 0){ 
-      webInterface_p->setActionFlag(SiPixelWebInterface::PlotHistogramFromLayout);
-      seal::Callback action(seal::CreateCallback(webInterface_p, 
-			    &SiPixelWebInterface::performAction));
-      mui_->addCallback(action);
-  }
+//  if (nUpdate > 0 && nUpdate%301 == 0){ 
+//      webInterface_p->setActionFlag(SiPixelWebInterface::PlotHistogramFromLayout);
+//      seal::Callback action(seal::CreateCallback(webInterface_p, 
+//			    &SiPixelWebInterface::performAction));
+//      mui_->addCallback(action);
+//  }
 /*  // Creation of TrackerMap
   if (updateFrequencyForTrackerMap_ != -1 && nUpdate > 30) {
     if (nUpdate%updateFrequencyForTrackerMap_ == 1) {
@@ -181,6 +181,7 @@ void SiPixelWebClient::onUpdate() const
 */  
   // Save ME's into a file: 
   if (nUpdate%550 == 0) {
+    webInterface_p->setOutputFileName("SiPixelWebClient.root");
     webInterface_p->setActionFlag(SiPixelWebInterface::SaveData);
     seal::Callback action(seal::CreateCallback(webInterface_p, 
 			  &SiPixelWebInterface::performAction));

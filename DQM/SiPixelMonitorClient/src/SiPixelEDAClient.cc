@@ -155,7 +155,8 @@ void SiPixelEDAClient::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, e
 //  }
   if (nLumiBlock==1) {
     cout << " Setting up QTests " << endl;
-    sipixelWebInterface_->setupQTests();
+    sipixelWebInterface_->setActionFlag(SiPixelWebInterface::setupQTest);
+    sipixelWebInterface_->performAction();
   }
     cout << " Checking QTest results " << endl;
     sipixelWebInterface_->setActionFlag(SiPixelWebInterface::QTestResult);
@@ -191,6 +192,15 @@ void SiPixelEDAClient::endRun(edm::Run const& run, edm::EventSetup const& eSetup
 
   edm::LogVerbatim ("SiPixelEDAClient") <<"[SiPixelEDAClient]: End of Run, saving  DQM output ";
   int iRun = run.run();
+  
+  cout << " Updating Summary " << endl;
+  sipixelWebInterface_->setActionFlag(SiPixelWebInterface::Summary);
+  sipixelWebInterface_->performAction();
+  cout << " Checking QTest results " << endl;
+  sipixelWebInterface_->setActionFlag(SiPixelWebInterface::QTestResult);
+  sipixelWebInterface_->performAction();
+  
+  
   saveAll(iRun, -1);
 
   cout<<"...leaving SiPixelEDAClient::endRun. "<<endl;
