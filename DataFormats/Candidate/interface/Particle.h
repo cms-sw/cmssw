@@ -7,7 +7,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: Particle.h,v 1.15 2007/09/14 13:34:21 llista Exp $
+ * \version $Id: Particle.h,v 1.20 2007/10/15 12:27:12 llista Exp $
  *
  */
 #include "DataFormats/Math/interface/Point3D.h"
@@ -23,6 +23,8 @@ namespace reco {
     typedef int Charge;
     /// Lorentz vector
     typedef math::XYZTLorentzVector LorentzVector;
+    /// Lorentz vector
+    typedef math::PtEtaPhiMLorentzVector PolarLorentzVector;
     /// point in the space
     typedef math::XYZPoint Point;
     /// point in the space
@@ -31,6 +33,13 @@ namespace reco {
     Particle() : cacheFixed_( false ) { }
     /// constructor from values
     Particle( Charge q, const LorentzVector & p4, const Point & vertex = Point( 0, 0, 0 ),
+	      int pdgId = 0, int status = 0, bool integerCharge = true ) : 
+      qx3_( q ), p4_( p4 ), vertex_( vertex ), pdgId_( pdgId ), status_( status ),
+      cacheFixed_( false ) { 
+      if ( integerCharge ) qx3_ *= 3;
+    }
+    /// constructor from values
+    Particle( Charge q, const PolarLorentzVector & p4, const Point & vertex = Point( 0, 0, 0 ),
 	      int pdgId = 0, int status = 0, bool integerCharge = true ) : 
       qx3_( q ), p4_( p4 ), vertex_( vertex ), pdgId_( pdgId ), status_( status ),
       cacheFixed_( false ) { 
@@ -48,6 +57,8 @@ namespace reco {
     void setThreeCharge( Charge qx3 ) { qx3_ = qx3; }
     /// four-momentum Lorentz vector
     const LorentzVector & p4() const { return p4_; }
+    /// four-momentum Lorentz vector
+    const PolarLorentzVector & polarP4() const { cache(); return p4Cache_; }
     /// spatial momentum vector
     Vector momentum() const { return p4_.Vect(); }
     /// boost vector to boost a Lorentz vector 
@@ -117,11 +128,8 @@ namespace reco {
     int pdgId_;
     /// status word
     int status_;
-    /// THE FOLLOWING SHOULD BE CHANGED IN 1.7.0
-    /// internal cache type for polar coordinates
-    typedef math::PtEtaPhiMLorentzVector LorentzVectorCache;
     /// internal cache for p4
-    mutable LorentzVectorCache p4Cache_;
+    mutable PolarLorentzVector p4Cache_;
     /// has cache been set?
     mutable  edm::BoolCache cacheFixed_;
     /// set internal cache

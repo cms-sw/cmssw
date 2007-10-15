@@ -29,7 +29,7 @@ namespace test {
 
   class DummyCandidate1 : public reco::LeafCandidate {
   public:
-    DummyCandidate1( const PolarLorentzVector & p, Charge q, int x, 
+    DummyCandidate1( const LorentzVector & p, Charge q, int x, 
 		     int y1, int y2) : reco::LeafCandidate( q, p ) { 
       c.x = x;
       cc[0].x = y1;
@@ -60,12 +60,12 @@ namespace reco {
 }
 
 void testCandidate::checkAll() {
-  reco::Particle::PolarLorentzVector p( 1.0, 2.0, 3.0, 4.0 );
+  reco::Particle::LorentzVector p( 1.0, 2.0, 3.0, 4.0 );
   reco::Particle::Charge q( 1 );
   int x = 123, y0 = 111, y1 = 222;
   std::auto_ptr<reco::Candidate> c( new test::DummyCandidate1( p, q, x, y0, y1 ) );
   CPPUNIT_ASSERT( c->charge() == q );
-  CPPUNIT_ASSERT( c->polarP4() == p );
+  CPPUNIT_ASSERT( c->p4() == p );
   CPPUNIT_ASSERT( c->numberOfDaughters() == 0 );
   CPPUNIT_ASSERT( c->get<test::DummyComponent>().x == x );
   CPPUNIT_ASSERT( c->numberOf<test::DummyComponent2>() == 2 );

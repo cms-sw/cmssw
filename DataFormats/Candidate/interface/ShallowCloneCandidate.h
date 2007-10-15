@@ -7,7 +7,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: ShallowCloneCandidate.h,v 1.11 2007/09/21 14:12:58 llista Exp $
+ * \version $Id: ShallowCloneCandidate.h,v 1.12 2007/10/15 11:51:26 llista Exp $
  *
  */
 #include "DataFormats/Candidate/interface/Candidate.h"
@@ -30,6 +30,10 @@ namespace reco {
     /// constructor from values
     ShallowCloneCandidate( const CandidateBaseRef & masterClone, 
 			   Charge q, const LorentzVector & p4, const Point & vtx = Point( 0, 0, 0 ) ) : 
+      Candidate( q, p4, vtx ), masterClone_( masterClone ) { }
+    /// constructor from values
+    ShallowCloneCandidate( const CandidateBaseRef & masterClone, 
+			   Charge q, const PolarLorentzVector & p4, const Point & vtx = Point( 0, 0, 0 ) ) : 
       Candidate( q, p4, vtx ), masterClone_( masterClone ) { }
     /// destructor
     virtual ~ShallowCloneCandidate();

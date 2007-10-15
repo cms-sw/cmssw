@@ -18,13 +18,13 @@ CPPUNIT_TEST_SUITE_REGISTRATION(testCompositeCandidate);
 namespace test {
   class DummyCandidate : public reco::LeafCandidate {
   public:
-    DummyCandidate( const PolarLorentzVector & p, Charge q = 0 ) : reco::LeafCandidate( q, p ) { }
+    DummyCandidate( const LorentzVector & p, Charge q = 0 ) : reco::LeafCandidate( q, p ) { }
     virtual DummyCandidate * clone() const { return new DummyCandidate( * this ); }
   };
 }
 
 void testCompositeCandidate::checkAll() {
-  reco::Particle::PolarLorentzVector p1( 1.0, 2.0, 3.0, 4.0 ), p2( 1.5, 2.5, 3.5, 4.5 );
+  reco::Particle::LorentzVector p1( 1.0, 2.0, 3.0, 4.0 ), p2( 1.5, 2.5, 3.5, 4.5 );
   reco::Particle::Charge q1( 1 ), q2( -1 );
   test::DummyCandidate t1( p1, q1 );
   test::DummyCandidate t2( p2, q2 );
@@ -42,7 +42,7 @@ void testCompositeCandidate::checkAll() {
     d[ idx ++ ] = & * i;
   }
   CPPUNIT_ASSERT( d[ 0 ]->charge() == q1 );
-  CPPUNIT_ASSERT( d[ 0 ]->polarP4() == p1 );
+  CPPUNIT_ASSERT( d[ 0 ]->p4() == p1 );
   CPPUNIT_ASSERT( d[ 1 ]->charge() == q2 );
-  CPPUNIT_ASSERT( d[ 1 ]->polarP4() == p2 );
+  CPPUNIT_ASSERT( d[ 1 ]->p4() == p2 );
 }
