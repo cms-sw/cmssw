@@ -114,6 +114,7 @@ def _handleInclude(fileName,otherFiles,recurseFiles,parser,validator,recursor):
     """reads in the file with name 'fileName' making sure it does not recursively include itself
     by looking in 'otherFiles' then applies the 'parser' to the contents of the file,
     runs the validator and then applies the recursor to see if other files must now be included"""
+    global _fileStack
     if fileName in recurseFiles:
         raise RuntimeError('the file '+fileName+' eventually includes itself')
     if fileName in otherFiles:
@@ -339,6 +340,7 @@ class _UsingNode(cms._ParameterTypeBase):
        then have a post process step which strips these out
     """
     def __init__(self,label,s,loc):
+        global _fileStack
         self.label = label
         self.s = s
         self.loc = loc
@@ -499,6 +501,7 @@ class _MakePlugin(object):
     def __init__(self,plugin):
         self.__plugin = plugin
     def __call__(self,s,loc,toks):
+        global _fileStack
         type = toks[0][0]
         values = list(iter(toks[0][1]))
         try:
@@ -514,6 +517,7 @@ class _MakeFrom(object):
     def __init__(self,plugin):
         self.__plugin = plugin
     def __call__(self,s,loc,toks):
+        global _fileStack
         label = toks[0][0]
         inc = toks[0][1]
         try:
@@ -670,6 +674,7 @@ def _parsePathInReverse(s,loc,toks):
 
 class _ModuleSeries(object):
     def __init__(self,topNode,s,loc,toks):
+        global _fileStack
         #NOTE: nee to record what file we are from as well
         self.topNode = topNode
         self.forErrorMessage = (s,loc,toks,_fileStack[-1])
@@ -774,6 +779,7 @@ block = pp.Group(untracked+pp.Keyword("block")+label+_equalTo+scopedParameters
 class _ReplaceNode(object):
     """Handles the 'replace' command"""
     def __init__(self,path,setter,s,loc):
+        global _fileStack
         self.path = path
         self.setter = setter
         self.forErrorMessage =(s,loc,_fileStack[-1])
@@ -994,6 +1000,7 @@ def _makeReplace(s,loc,toks):
         setter = toks[0][1]
         return ('.'.join(path),_ReplaceNode(list(path),setter,s,loc))
     except Exception, e:
+        global _fileStack
         raise pp.ParseException(s,loc,"replace statement '"
                                 +'.'.join(list(path))
                                 +"' had the error \n"
@@ -1177,7 +1184,7 @@ def _makeProcess(s,loc,toks):
         values = _findAndHandleProcessBlockIncludes(values)
         values = _validateLabelledList(values)
     except Exception, e:
-        raise RuntimError("the process contains the error \n"+str(e)
+        raise RuntimeError("the process contains the error \n"+str(e)
                           )
 
 
@@ -1352,6 +1359,7 @@ def parseCfgFile(fileName):
     # and then using FileInPath
 
     global _allUsingLabels
+    global _fileStack
     _allUsingLabels = set()
     oldFileStack = _fileStack
     _fileStack = [fileName]
@@ -1367,6 +1375,7 @@ def parseCfgFile(fileName):
 
 def parseCffFile(fileName):
     """Read a .cff file and return a dictionary"""
+    global _fileStack
     _fileStack.append(fileName)
     try:
         t=onlyFragment.parseFile(_fileFactory(fileName))
@@ -1397,6 +1406,7 @@ def processFromString(configString):
     """Reads a string containing the equivalent content of a .cfg file and
     creates a Process object"""
     global _allUsingLabels
+    global _fileStack
     _allUsingLabels = set()
     oldFileStack = _fileStack
     _fileStack = ["{string}"]
