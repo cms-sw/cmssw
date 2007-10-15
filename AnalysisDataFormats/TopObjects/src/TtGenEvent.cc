@@ -1,5 +1,5 @@
 //
-// $Id: TtGenEvent.cc,v 1.12 2007/07/25 13:32:35 rwolf Exp $
+// $Id: TtGenEvent.cc,v 1.13 2007/07/26 20:36:53 lowette Exp $
 //
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "AnalysisDataFormats/TopObjects/interface/TtGenEvent.h"
@@ -25,7 +25,7 @@ TtGenEvent::numberOfLeptons() const
   int lep=0;
   const reco::CandidateCollection & partsColl = *parts_;
   for (unsigned int i = 0; i < partsColl.size(); ++i) {
-    if (isLepton(partsColl[i])) {
+    if (isLepton(partsColl[i]) && partsColl[i].status()==3) {
       ++lep;
     }
   }  
