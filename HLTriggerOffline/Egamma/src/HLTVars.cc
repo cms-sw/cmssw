@@ -13,7 +13,7 @@
 //
 // Original Author:  Joshua Berger
 //         Created:  Wed Aug 22 20:56:48 CEST 2007
-// $Id: HLTVars.cc,v 1.2 2007/09/17 21:49:32 jberger Exp $
+// $Id: HLTVars.cc,v 1.3 2007/09/29 16:59:15 jberger Exp $
 //
 //
 
@@ -673,14 +673,16 @@ struct HLTTiming NonIsoTimingTemp = {l1MatchNonIsoTime, EtNonIsoTime, ElecIHcalN
        if (phi < 0) phi += TWOPI;
        struct ElecHLTCutVarsPreTrack elecStructPT = {l1Match, Et, ElecIHcal, pixMatch, eta, phi, matchElec.Et, matchElec.eta, matchElec.phi}; 
        struct PhotHLTCutVars photStruct = {l1Match, Et, IEcal, PhotIHcal, PhotItrack, eta, phi, matchPhot.Et, matchPhot.eta, matchPhot.phi};
-       SingleElecsPT->push_back(elecStructPT);
-       RelaxedSingleElecsPT->push_back(elecStructPT);
-       DoubleElecsPT->push_back(elecStructPT);
-       RelaxedDoubleElecsPT->push_back(elecStructPT);
-       SinglePhots->push_back(photStruct);
-       RelaxedSinglePhots->push_back(photStruct);
-       DoublePhots->push_back(photStruct);
-       RelaxedDoublePhots->push_back(photStruct);
+       if (Et > 5.0) {
+	 SingleElecsPT->push_back(elecStructPT);
+	 RelaxedSingleElecsPT->push_back(elecStructPT);
+	 DoubleElecsPT->push_back(elecStructPT);
+	 RelaxedDoubleElecsPT->push_back(elecStructPT);
+	 SinglePhots->push_back(photStruct);
+	 RelaxedSinglePhots->push_back(photStruct);
+	 DoublePhots->push_back(photStruct);
+	 RelaxedDoublePhots->push_back(photStruct);
+       }
        if(doEoverpIso) { 
          for (ElectronCollection::const_iterator eleccand = l1IsoElecs->begin(); eleccand != l1IsoElecs->end(); ++eleccand) {
            ElectronRef electronref(ElectronRef(l1IsoElecs, eleccand - l1IsoElecs->begin()));
@@ -692,10 +694,12 @@ struct HLTTiming NonIsoTimingTemp = {l1MatchNonIsoTime, EtNonIsoTime, ElecIHcalN
  	     phi = electronref->phi();
              if (phi < 0) phi += TWOPI;
              struct ElecHLTCutVars elecStruct = {l1Match, Et, ElecIHcal, pixMatch, Eoverp, ElecItrack, eta, phi, matchElec.Et, matchElec.eta, matchElec.phi};
-             SingleElecs->push_back(elecStruct);
-             RelaxedSingleElecs->push_back(elecStruct);
-             DoubleElecs->push_back(elecStruct);
-             RelaxedDoubleElecs->push_back(elecStruct);
+             if (Et > 5.0) {
+	       SingleElecs->push_back(elecStruct);
+	       RelaxedSingleElecs->push_back(elecStruct);
+	       DoubleElecs->push_back(elecStruct);
+	       RelaxedDoubleElecs->push_back(elecStruct);
+	     }
 	     Eoverp = 99999.;
 	     ElecItrack = 99999.;
 	     eta = recoecalcand->eta();
@@ -732,10 +736,12 @@ struct HLTTiming NonIsoTimingTemp = {l1MatchNonIsoTime, EtNonIsoTime, ElecIHcalN
        if (phi < 0) phi += TWOPI;
        struct ElecHLTCutVarsPreTrack elecStructPT = {l1Match, Et, ElecIHcal, pixMatch, eta, phi, matchElec.Et, matchElec.eta, matchElec.phi};
        struct PhotHLTCutVars photStruct = {l1Match, Et, IEcal, PhotIHcal, PhotItrack, eta, phi, matchPhot.Et, matchPhot.eta, matchPhot.phi};
-       RelaxedSingleElecsPT->push_back(elecStructPT);
-       RelaxedDoubleElecsPT->push_back(elecStructPT);
-       RelaxedSinglePhots->push_back(photStruct);
-       RelaxedDoublePhots->push_back(photStruct);
+       if (Et > 5.0) {
+	 RelaxedSingleElecsPT->push_back(elecStructPT);
+	 RelaxedDoubleElecsPT->push_back(elecStructPT);
+	 RelaxedSinglePhots->push_back(photStruct);
+	 RelaxedDoublePhots->push_back(photStruct);
+       }
        if(doEoverpNonIso) {
          for (ElectronCollection::const_iterator eleccand = l1NonIsoElecs->begin(); eleccand != l1NonIsoElecs->end(); ++eleccand) {
            ElectronRef electronref(ElectronRef(l1NonIsoElecs, eleccand - l1NonIsoElecs->begin()));
@@ -747,8 +753,10 @@ struct HLTTiming NonIsoTimingTemp = {l1MatchNonIsoTime, EtNonIsoTime, ElecIHcalN
 	     phi = electronref->phi();
              if (phi < 0) phi += TWOPI;
              struct ElecHLTCutVars elecStruct = {l1Match, Et, ElecIHcal, pixMatch, Eoverp, ElecItrack, eta, phi, matchElec.Et, matchElec.eta, matchElec.phi};
-             RelaxedSingleElecs->push_back(elecStruct);
-             RelaxedDoubleElecs->push_back(elecStruct);
+	     if (Et > 5.0) {
+	       RelaxedSingleElecs->push_back(elecStruct);
+	       RelaxedDoubleElecs->push_back(elecStruct);
+	     }
 	     Eoverp = 99999.;
 	     ElecItrack = 99999.;
 	     eta = recoecalcand->eta();
