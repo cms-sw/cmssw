@@ -9,7 +9,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: CompositeRefBaseCandidate.h,v 1.12 2007/09/14 09:53:42 llista Exp $
+ * \version $Id: CompositeRefBaseCandidate.h,v 1.13 2007/09/21 14:12:58 llista Exp $
  *
  */
 #include "DataFormats/Candidate/interface/iterator_imp_specific.h"
@@ -24,6 +24,10 @@ namespace reco {
     CompositeRefBaseCandidate() : Candidate() { }
     /// constructor from values
     CompositeRefBaseCandidate( Charge q, const LorentzVector & p4, const Point & vtx = Point( 0, 0, 0 ),
+			       int pdgId = 0, int status = 0, bool integerCharge = true ) :
+      Candidate( q, p4, vtx, pdgId, status, integerCharge ) { }
+    /// constructor from values
+    CompositeRefBaseCandidate( Charge q, const PolarLorentzVector & p4, const Point & vtx = Point( 0, 0, 0 ),
 			       int pdgId = 0, int status = 0, bool integerCharge = true ) :
       Candidate( q, p4, vtx, pdgId, status, integerCharge ) { }
     /// constructor from a particle
