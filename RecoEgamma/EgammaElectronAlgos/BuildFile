@@ -9,7 +9,6 @@
 <use name=DataFormats/TrackReco>
 <use name=DataFormats/EgammaReco>
 <use name=DataFormats/EgammaCandidates>
-<use name=DataFormats/PixelMatchTrackReco>
 <use name=Geometry/CommonDetUnit>
 <use name=Geometry/TrackerGeometryBuilder>
 <use name=RecoTracker/MeasurementDet>
@@ -38,7 +37,6 @@
    <use name=DataFormats/TrackReco>
    <use name=DataFormats/EgammaReco>
    <use name=DataFormats/EgammaCandidates>
-   <use name=DataFormats/PixelMatchTrackReco>
    <use name=Geometry/CommonDetUnit>
    <use name=Geometry/TrackerGeometryBuilder>
    <use name=RecoTracker/MeasurementDet>
