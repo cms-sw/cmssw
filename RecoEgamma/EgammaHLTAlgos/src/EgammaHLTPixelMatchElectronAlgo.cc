@@ -10,11 +10,15 @@
 */
 //
 // Original Author:  Monica Vazquez Acosta (CERN)
-// $Id: EgammaHLTPixelMatchElectronAlgo.cc,v 1.5 2007/10/06 18:09:31 dlange Exp $
+// $Id: EgammaHLTPixelMatchElectronAlgo.cc,v 1.6 2007/10/15 15:51:31 ghezzi Exp $
 //
 //
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 #include "RecoEgamma/EgammaHLTAlgos/interface/EgammaHLTPixelMatchElectronAlgo.h"
+
+#include "TrackingTools/DetLayers/interface/NavigationSetter.h"
+#include "TrackingTools/DetLayers/interface/NavigationSchool.h"
+#include "RecoTracker/Record/interface/NavigationSchoolRecord.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -36,7 +40,7 @@ EgammaHLTPixelMatchElectronAlgo::EgammaHLTPixelMatchElectronAlgo():
 EgammaHLTPixelMatchElectronAlgo::~EgammaHLTPixelMatchElectronAlgo() {
 
   delete theInitialStateEstimator;
-  delete theNavigationSchool;
+  //delete theNavigationSchool;
   delete theTrajectoryCleaner; 
     
 }
@@ -51,10 +55,11 @@ void EgammaHLTPixelMatchElectronAlgo::setupES(const edm::EventSetup& es, const e
   ParameterSet tise_params = conf.getParameter<ParameterSet>("TransientInitialStateEstimatorParameters") ;
   theInitialStateEstimator       = new TransientInitialStateEstimator( es,tise_params);
 
-  theNavigationSchool   = new SimpleNavigationSchool(&(*theGeomSearchTracker),&(*theMagField));
-
+  edm::ESHandle<NavigationSchool> nav;
+  setup.get<NavigationSchoolRecord>().get("SimpleNavigationSchool", nav);
+  theNavigationSchool = nav.product();
   // set the correct navigation
-  NavigationSetter setter( *theNavigationSchool);
+  NavigationSetter setter(*theNavigationSchool);
 
   //  theCkfTrajectoryBuilder = new CkfTrajectoryBuilder(conf,es,theMeasurementTracker);
   theTrajectoryCleaner = new TrajectoryCleanerBySharedHits();    

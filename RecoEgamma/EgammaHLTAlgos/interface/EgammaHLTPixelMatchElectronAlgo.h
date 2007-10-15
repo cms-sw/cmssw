@@ -33,12 +33,12 @@
 
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "TrackingTools/TrajectoryCleaning/interface/TrajectoryCleaner.h"
-#include "TrackingTools/DetLayers/interface/NavigationSetter.h"
-#include "TrackingTools/DetLayers/interface/NavigationSchool.h"
+//#include "TrackingTools/DetLayers/interface/NavigationSetter.h"
+//#include "TrackingTools/DetLayers/interface/NavigationSchool.h"
 
 #include "RecoTracker/TkDetLayers/interface/GeometricSearchTracker.h"
 #include "TrackingTools/PatternTools/interface/TrajectoryBuilder.h"
-#include "RecoTracker/TkNavigation/interface/SimpleNavigationSchool.h"
+//#include "RecoTracker/TkNavigation/interface/SimpleNavigationSchool.h"
 #include "RecoTracker/MeasurementDet/interface/MeasurementTracker.h"
 #include "RecoTracker/CkfPattern/interface/TransientInitialStateEstimator.h"
 #include "RecoTracker/Record/interface/TrackerRecoGeometryRecord.h"
@@ -60,6 +60,8 @@
 
 
 //class TransientInitialStateEstimator;
+class NavigationSchool;
+
 
 using namespace std;
 using namespace edm;
