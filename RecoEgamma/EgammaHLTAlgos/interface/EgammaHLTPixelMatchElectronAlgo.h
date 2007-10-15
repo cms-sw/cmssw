@@ -15,7 +15,8 @@
 #include "DataFormats/EgammaCandidates/interface/ElectronFwd.h"
 #include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
 #include "DataFormats/EgammaReco/interface/ElectronPixelSeed.h"
-#include "DataFormats/EgammaReco/interface/SeedSuperClusterAssociation.h"
+#include "DataFormats/EgammaReco/interface/ElectronPixelSeedFwd.h"
+//#include "DataFormats/EgammaReco/interface/SeedSuperClusterAssociation.h"
 #include "DataFormats/TrackCandidate/interface/TrackCandidate.h"
 #include "DataFormats/TrackCandidate/interface/TrackCandidateCollection.h"
 #include "DataFormats/Math/interface/LorentzVector.h"
@@ -82,21 +83,21 @@ public:
  private:
 
   // create electrons from tracks
-  void process(edm::Handle<TrackCollection> tracksH, const SeedSuperClusterAssociationCollection *sclAss, ElectronCollection & outEle);
+  void process(edm::Handle<TrackCollection> tracksH, ElectronCollection & outEle);
   
   // temporary to get seed corresponding to track
-  bool equal(edm::Ref<TrajectorySeedCollection> ts, const Track& t);
-  bool compareHits(const TrackingRecHit& rh1, const TrackingRecHit & rh2) const ;
+  // bool equal(edm::Ref<TrajectorySeedCollection> ts, const Track& t);
+  //bool compareHits(const TrackingRecHit& rh1, const TrackingRecHit & rh2) const ;
 
   // input configuration
   std::string trackBarrelLabel_;
   std::string trackEndcapLabel_;
   std::string trackBarrelInstanceName_;
   std::string trackEndcapInstanceName_;
-  std::string assBarrelLabel_;
-  std::string assBarrelInstanceName_;
-  std::string assEndcapLabel_;
-  std::string assEndcapInstanceName_;
+  // std::string assBarrelLabel_;
+  // std::string assBarrelInstanceName_;
+  //std::string assEndcapLabel_;
+  //std::string assEndcapInstanceName_;
 
   const TrajectoryBuilder*  theCkfTrajectoryBuilder;
   TrajectoryCleaner*               theTrajectoryCleaner;
