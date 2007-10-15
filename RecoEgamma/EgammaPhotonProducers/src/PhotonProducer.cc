@@ -16,6 +16,7 @@
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "DataFormats/EgammaReco/interface/ClusterShape.h"
 #include "DataFormats/EgammaCandidates/interface/PhotonFwd.h"
+#include "DataFormats/EgammaReco/interface/ElectronPixelSeed.h"
 #include "RecoEgamma/EgammaPhotonProducers/interface/PhotonProducer.h"
 
 
@@ -38,7 +39,7 @@ PhotonProducer::PhotonProducer(const edm::ParameterSet& config) :
   endcapHitProducer_   = conf_.getParameter<std::string>("endcapHitProducer");
   barrelHitCollection_ = conf_.getParameter<std::string>("barrelHitCollection");
   endcapHitCollection_ = conf_.getParameter<std::string>("endcapHitCollection");
-  pixelSeedAssocProducer_ = conf_.getParameter<std::string>("pixelSeedAssocProducer");
+  pixelSeedProducer_ = conf_.getParameter<std::string>("pixelSeedProducer");
   vertexProducer_       = conf_.getParameter<std::string>("primaryVertexProducer");
   PhotonCollection_ = conf_.getParameter<std::string>("photonCollection");
 
@@ -115,13 +116,13 @@ void PhotonProducer::produce(edm::Event& theEvent, const edm::EventSetup& theEve
   const CaloSubdetectorGeometry *preshowerGeometry = geoHandle->getSubdetectorGeometry(DetId::Ecal, EcalPreshower);
 
   // Get association map linking SuperClusters to ElectronPixelSeeds
-  Handle<reco::SeedSuperClusterAssociationCollection> barrelPixelSeedAssocHandle;
-  theEvent.getByLabel(pixelSeedAssocProducer_, scHybridBarrelProducer_, barrelPixelSeedAssocHandle);
-  const reco::SeedSuperClusterAssociationCollection& barrelPixelSeedAssoc = *barrelPixelSeedAssocHandle;
+  Handle<reco::ElectronPixelSeedCollection> barrelPixelSeedHandle;
+  theEvent.getByLabel(pixelSeedProducer_, scHybridBarrelProducer_, barrelPixelSeedHandle);
+  const reco::ElectronPixelSeedCollection& barrelPixelSeeds = *barrelPixelSeedHandle;
 
-  Handle<reco::SeedSuperClusterAssociationCollection> endcapPixelSeedAssocHandle;
-  theEvent.getByLabel(pixelSeedAssocProducer_, scIslandEndcapProducer_, endcapPixelSeedAssocHandle);
-  const reco::SeedSuperClusterAssociationCollection& endcapPixelSeedAssoc = *endcapPixelSeedAssocHandle;
+  Handle<reco::ElectronPixelSeedCollection> endcapPixelSeedHandle;
+  theEvent.getByLabel(pixelSeedProducer_, scIslandEndcapProducer_, endcapPixelSeedHandle);
+  const reco::ElectronPixelSeedCollection& endcapPixelSeeds = *endcapPixelSeedHandle;
 
   // Get the primary event vertex
   Handle<reco::VertexCollection> vertexHandle;
@@ -137,8 +138,8 @@ void PhotonProducer::produce(edm::Event& theEvent, const edm::EventSetup& theEve
 
   int iSC=0; // index in photon collection
   // Loop over barrel and endcap SC collections and fill the  photon collection
-  fillPhotonCollection(scBarrelHandle,barrelClShpMap,barrelGeometry,preshowerGeometry,barrelRecHits,barrelPixelSeedAssoc,vtx,outputPhotonCollection,iSC);
-  fillPhotonCollection(scEndcapHandle,endcapClShpMap,endcapGeometry,preshowerGeometry,endcapRecHits,endcapPixelSeedAssoc,vtx,outputPhotonCollection,iSC);
+  fillPhotonCollection(scBarrelHandle,barrelClShpMap,barrelGeometry,preshowerGeometry,barrelRecHits,barrelPixelSeeds,vtx,outputPhotonCollection,iSC);
+  fillPhotonCollection(scEndcapHandle,endcapClShpMap,endcapGeometry,preshowerGeometry,endcapRecHits,endcapPixelSeeds,vtx,outputPhotonCollection,iSC);
 
   // put the product in the event
   edm::LogInfo("PhotonProducer") << " Put in the event " << iSC << " Photon Candidates \n";
@@ -153,14 +154,14 @@ void PhotonProducer::fillPhotonCollection(
 		   const CaloSubdetectorGeometry *geometry,
 		   const CaloSubdetectorGeometry *geometryES,
 		   const EcalRecHitCollection *hits,
-		   const reco::SeedSuperClusterAssociationCollection& pixelSeedAssoc,
+		   const reco::ElectronPixelSeedCollection& pixelSeeds,
 		   math::XYZPoint & vtx,
 		   reco::PhotonCollection & outputPhotonCollection, int& iSC) {
 
   reco::SuperClusterCollection scCollection = *(scHandle.product());
   reco::SuperClusterCollection::iterator aClus;
   reco::BasicClusterShapeAssociationCollection::const_iterator seedShpItr;
-  reco::SeedSuperClusterAssociationCollection::const_iterator pixelSeedAssocItr;
+  reco::ElectronPixelSeedCollection::const_iterator pixelSeedItr;
 
   int lSC=0; // reset local supercluster index
   for(aClus = scCollection.begin(); aClus != scCollection.end(); aClus++) {
@@ -185,9 +186,9 @@ void PhotonProducer::fillPhotonCollection(
 
     // does the SuperCluster have a matched pixel seed?
     bool hasSeed = false;
-    for(pixelSeedAssocItr = pixelSeedAssoc.begin(); pixelSeedAssocItr != pixelSeedAssoc.end(); pixelSeedAssocItr++) {
-      if (fabs(pixelSeedAssocItr->val->eta() - aClus->eta()) < 0.0001 &&
-	  fabs(pixelSeedAssocItr->val->phi() - aClus->phi()) < 0.0001) {
+    for(pixelSeedItr = pixelSeeds.begin(); pixelSeedItr != pixelSeeds.end(); pixelSeedItr++) {
+      if (fabs(pixelSeedItr->superCluster()->eta() - aClus->eta()) < 0.0001 &&
+	  fabs(pixelSeedItr->superCluster()->phi() - aClus->phi()) < 0.0001) {
 	hasSeed=true;
 	break;
       }
