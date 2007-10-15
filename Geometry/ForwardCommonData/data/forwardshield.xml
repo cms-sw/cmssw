@@ -10,6 +10,31 @@
  <Constant name="VcalEleZ2"    value="14.150*m"/>
  <Constant name="VcalEleR1"    value="1.0200*m"/>
  <Constant name="VcalEleR2"    value="1.4500*m"/>
+ <Constant name="VcalEleBoxDx" value="85.0*mm"/>
+ <Constant name="VcalEleBoxDy" value="155.0*mm"/>
+ <Constant name="VcalEleBoxDz" value="140.0*mm"/>
+ <Constant name="VcalEleBoxR0" value="1075.0*mm"/>
+ <Constant name="VcalPMTR"     value="14.25*mm"/>
+ <Constant name="VcalPMTL"     value="85.0*mm"/>
+ <Constant name="VcalPMTDist"  value="130.0*mm"/>
+ <Constant name="VcalPMTSep"   value="42.0*mm"/>
+ <Constant name="VcalCathR"    value="12.5*mm"/>
+ <Constant name="VcalCathL"    value="6.0*mm"/>
+ <Constant name="halfAngHF"    value="10*deg"/>
+ <Constant name="VcalEleR3"    value="([VcalEleR2]*cos([halfAngHF]))"/>
+ <Constant name="dxLowEleBox"  value="([VcalEleR1]*tan([halfAngHF]))"/>
+ <Constant name="dxTopEleBox"  value="([VcalEleR2]*sin([halfAngHF]))"/>
+ <Constant name="dyEleBox"     value="([VcalEleR3]-[VcalEleR1])/2"/>
+ <Constant name="dzEleBox"     value="([VcalEleZ2]-[VcalEleZ1])/2"/>
+ <Constant name="yposEleBox"   value="([VcalEleR3]+[VcalEleR1])/2"/>
+ <Constant name="zposEleBox"   value="([VcalEleZ2]+[VcalEleZ1])/2"/>
+ <Constant name="VcalPlateT"   value="10.0*mm"/>
+ <Constant name="VcalEleBoxX"  value="([VcalEleBoxR0] + [VcalEleBoxDy]) *
+                                       sin([halfAngHF]/2)"/>
+ <Constant name="VcalEleBoxY"  value="([VcalEleBoxR0] + [VcalEleBoxDy]) *
+                                      cos([halfAngHF]/2) - [yposEleBox]"/>
+ <Constant name="VcalEleBoxZ"  value="([VcalPlateT]*2 + [VcalEleBoxDz] -
+                                      [dzEleBox])"/>
  <Constant name="FixRotRad"    value="1.0000*m"/>
  <Constant name="FixShldZ1"    value="10.910*m"/>
  <Constant name="FixShldZ2"    value="11.110*m"/>
@@ -26,7 +51,7 @@
  <Constant name="FixShldZ13"   value="21.900*m"/>
  <Constant name="FixShldZ14"   value="22.500*m"/>
  <Constant name="FixShldZ15"   value="22.550*m"/>
- <Constant name="FixShldR1"    value="1.1080*m"/>
+ <Constant name="FixShldR1"    value="1.1130*m"/>
  <Constant name="FixShldR2"    value="[cms:ForwdVcalR1]"/>
  <Constant name="FixShldR3"    value="1.5200*m"/>
  <Constant name="FixShldR4"    value="1.6000*m"/>
@@ -91,6 +116,17 @@
  <Constant name="QuadR4"       value="22.00*cm"/>
 </ConstantsSection>
 
+<RotationSection label="forwardshield.xml">
+ <Rotation name="R005" thetaX="90*deg" phiX="5*deg"   thetaY="90*deg" 
+                       phiY="95*deg"   thetaZ="0*deg" phiZ="0*deg" />
+ <Rotation name="R010" thetaX="90*deg" phiX="10*deg"  thetaY="90*deg"
+                       phiY="100*deg"  thetaZ="0*deg" phiZ="0*deg" />
+ <Rotation name="R350" thetaX="90*deg" phiX="-10*deg" thetaY="90*deg" 
+                       phiY="80*deg"   thetaZ="0*deg" phiZ="0*deg" />
+ <Rotation name="R355" thetaX="90*deg" phiX="-5*deg"  thetaY="90*deg"
+                       phiY="85*deg"   thetaZ="0*deg" phiZ="0*deg" />
+</RotationSection>
+
 <SolidSection label="forwardshield.xml">
  <Polycone name="OQUA" startPhi="0*deg" deltaPhi="360*deg" >
   <ZSection z="[cms:MuonBeamZ2]"  rMin="[cms:ForwdBeamR1]" rMax="[ForwdRmax]"/>
@@ -146,6 +182,22 @@
        startPhi="0*deg" deltaPhi="360*deg" />
  <Tubs name="VcalElectronics" rMin="[VcalEleR1]" rMax="[VcalEleR2]" 
        dz="([VcalEleZ2]-[VcalEleZ1])/2" startPhi="0*deg" deltaPhi="360*deg"/>
+ <Trapezoid name="VcalEleBox" dz="[dzEleBox]"     alp1="0*deg"    
+                              bl1="[dxLowEleBox]" tl1="[dxTopEleBox]"
+                              h1="[dyEleBox]"     alp2="0*deg"
+                              bl2="[dxLowEleBox]" tl2="[dxTopEleBox]"
+                              h2="[dyEleBox]"  phi="0*deg"   theta="0*deg" />
+ <Trapezoid name="VcalPlate"  dz="[VcalPlateT]"   alp1="0*deg"    
+                              bl1="[dxLowEleBox]" tl1="[dxTopEleBox]"
+                              h1="[dyEleBox]"     alp2="0*deg"
+                              bl2="[dxLowEleBox]" tl2="[dxTopEleBox]"
+                              h2="[dyEleBox]"  phi="0*deg"   theta="0*deg" />
+ <Box  name="VcalElecRBX"    dx="[VcalEleBoxDx]" dy="[VcalEleBoxDy]"
+       dz="[VcalEleBoxDz]" />
+ <Tubs name="VcalElecPMT"     rMin="0*fm" rMax="[VcalPMTR]" dz="[VcalPMTL]/2"
+       startPhi="0*deg" deltaPhi="360*deg" />
+ <Tubs name="VcalElecCathode" rMin="0*fm" rMax="[VcalCathR]" dz="[VcalCathL]/2"
+       startPhi="0*deg" deltaPhi="360*deg" />
  <Tubs name="FixedShield01" rMin="[cms:ForwdBeamR2]" rMax="[FixShldR1]" 
        dz="([FixShldZ2]-[FixShldZ1])/2" startPhi="0*deg" deltaPhi="360*deg"/>
  <Polycone name="FixedShield02" startPhi="0*deg" deltaPhi="360*deg" >
@@ -323,7 +375,27 @@
  </LogicalPart>
  <LogicalPart name="VcalElectronics" category="unspecified">
   <rSolid name="VcalElectronics"/>
+  <rMaterial name="materials:Air"/>
+ </LogicalPart>
+ <LogicalPart name="VcalEleBox" category="unspecified">
+  <rSolid name="VcalEleBox"/>
   <rMaterial name="materials:FrontEnd Electronics"/>
+ </LogicalPart>
+ <LogicalPart name="VcalPlate" category="unspecified">
+  <rSolid name="VcalPlate"/>
+  <rMaterial name="materials:Steel-008"/>
+ </LogicalPart>
+ <LogicalPart name="VcalElecRBX" category="unspecified">
+  <rSolid name="VcalElecRBX"/>
+  <rMaterial name="materials:FrontEnd Electronics"/>
+ </LogicalPart>
+ <LogicalPart name="VcalElecPMT" category="unspecified">
+  <rSolid name="VcalElecPMT"/>
+  <rMaterial name="materials:FrontEnd Electronics"/>
+ </LogicalPart>
+ <LogicalPart name="VcalElecCathode" category="unspecified">
+  <rSolid name="VcalElecCathode"/>
+  <rMaterial name="materials:PhotoCathode"/>
  </LogicalPart>
  <LogicalPart name="FixedShield01" category="unspecified">
   <rSolid name="FixedShield01"/>
@@ -525,6 +597,28 @@
   <Translation x="0*fm" y="0*fm" z="([VcalEleZ2]+[VcalEleZ1])/2" />
  </PosPart>
  <PosPart copyNumber="1">
+   <rParent name="forwardshield:VcalEleBox"/>
+   <rChild name="forwardshield:VcalPlate"/>
+  <Translation x="0*fm" y="0*fm" z="([VcalPlateT]-[dzEleBox])" />
+ </PosPart>
+ <PosPart copyNumber="1">
+   <rParent name="forwardshield:VcalEleBox"/>
+   <rChild name="forwardshield:VcalElecRBX"/>
+  <rRotation name="forwardshield:R355"/>
+  <Translation x="[VcalEleBoxX]" y="[VcalEleBoxY]" z="[VcalEleBoxZ]" />
+ </PosPart>
+ <PosPart copyNumber="2">
+   <rParent name="forwardshield:VcalEleBox"/>
+   <rChild name="forwardshield:VcalElecRBX"/>
+  <rRotation name="forwardshield:R005"/>
+  <Translation x="-[VcalEleBoxX]" y="[VcalEleBoxY]" z="[VcalEleBoxZ]" />
+ </PosPart>
+ <PosPart copyNumber="1">
+   <rParent name="forwardshield:VcalElecPMT"/>
+   <rChild name="forwardshield:VcalElecCathode"/>
+  <Translation x="0*fm" y="0*fm" z="([VcalCathL]-[VcalPMTL])/2" />
+ </PosPart>
+ <PosPart copyNumber="1">
    <rParent name="forwardshield:OQUA"/>
    <rChild name="forwardshield:FixedShield01"/>
   <rRotation name="rotations:000D"/>
@@ -676,5 +770,31 @@
   <Translation x="0*fm" y="0*fm" z="([cms:HallZ]+[QuadZ1])/2" />
  </PosPart>
 </PosPartSection>
+
+<Algorithm name="hcal:DDHCalAngular">
+   <rParent name="forwardshield:VcalElectronics"/>
+   <String  name="ChildName"    value="VcalEleBox"/>
+   <String  name="RotNameSpace" value="hcalrotations"/>
+   <Numeric name="n"            value="18" />
+   <Numeric name="startCopyNo"  value="1" />
+   <Numeric name="incrCopyNo"   value="1" />
+   <Numeric name="rangeAngle"   value="360*deg"/>
+   <Numeric name="startAngle"   value="-90*deg"/>
+   <Numeric name="shiftY"       value="[yposEleBox]"/>
+   <Numeric name="shiftX"       value="0*fm"/>
+   <Numeric name="zoffset"      value="0*fm"/>
+</Algorithm>
+
+<Algorithm name="hcal:DDHCalLinearXY">
+   <rParent name="forwardshield:VcalElecRBX"/>
+   <String  name="ChildName"    value="forwardshield:VcalElecPMT"/>
+   <Numeric name="DeltaX"       value="[VcalPMTSep]"/>
+   <Numeric name="DeltaY"       value="[VcalPMTSep]"/>
+   <Numeric name="NumberX"      value="4"/>
+   <Numeric name="NumberY"      value="7"/>
+   <Vector name="Center" type="numeric" nEntries="3">
+     0., 0., 0.
+   </Vector>
+</Algorithm>
 
 </DDDefinition>
