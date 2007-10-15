@@ -79,6 +79,9 @@
   <class name="edm::Wrapper<reco::CandMatchMapMany>" /> 
   <class pattern="edm::AssociationMap<*>::const_iterator" />
   <class pattern="edm::Wrapper<edm::AssociationVector<*>"/>
+  <class name="std::map<unsigned int,edm::helpers::KeyVal<edm::Ref<edm::OwnVector<reco::Candidate,edm::ClonePolicy<reco::Candidate> >,reco::Candidate,edm::refhelper::FindUsingAdvance<edm::OwnVector<reco::Candidate,edm::ClonePolicy<reco::Candidate> >,reco::Candidate> >,edm::Ref<edm::OwnVector<reco::Candidate,edm::ClonePolicy<reco::Candidate> >,reco::Candidate,edm::refhelper::FindUsingAdvance<edm::OwnVector<reco::Candidate,edm::ClonePolicy<reco::Candidate> >,reco::Candidate> > > >" />
+
+
 </selection>
 <exclusion>
   <class name="edm::OwnVector<reco::Candidate, edm::ClonePolicy<reco::Candidate> >">
