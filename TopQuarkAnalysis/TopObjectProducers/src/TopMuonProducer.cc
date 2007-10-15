@@ -1,5 +1,5 @@
 //
-// $Id: TopMuonProducer.cc,v 1.17 2007/10/02 15:35:00 lowette Exp $
+// $Id: TopMuonProducer.cc,v 1.18 2007/10/04 23:30:55 lowette Exp $
 //
 
 #include "TopQuarkAnalysis/TopObjectProducers/interface/TopMuonProducer.h"
@@ -9,10 +9,12 @@
 
 #include "DataFormats/HepMCCandidate/interface/GenParticleCandidate.h"
 #include "PhysicsTools/Utilities/interface/DeltaR.h"
+#include "DataFormats/MuonReco/interface/MuIsoDeposit.h"
+#include "DataFormats/MuonReco/interface/Muon.h"
+#include "DataFormats/MuonReco/interface/MuonFwd.h"
 
 #include "TopQuarkAnalysis/TopObjectResolutions/interface/TopObjectResolutionCalc.h"
 #include "TopQuarkAnalysis/TopLeptonSelection/interface/TopLeptonLRCalc.h"
-#include "RecoMuon/MuonIdentification/interface/IdGlobalFunctions.h"
 
 #include "TMath.h"
 
@@ -25,7 +27,7 @@ TopMuonProducer::TopMuonProducer(const edm::ParameterSet & iConfig) {
   // general configurables
   muonSrc_       = iConfig.getParameter<edm::InputTag>( "muonSource" );
   // MC matching configurables
-  addGenMatch_    = iConfig.getParameter<bool>        ( "addGenMatch" );
+  addGenMatch_   = iConfig.getParameter<bool>         ( "addGenMatch" );
   genPartSrc_    = iConfig.getParameter<edm::InputTag>( "genParticleSource" );
   maxDeltaR_     = iConfig.getParameter<double>       ( "maxDeltaR" );
   minRecoOnGenEt_= iConfig.getParameter<double>       ( "minRecoOnGenEt" );
@@ -34,9 +36,15 @@ TopMuonProducer::TopMuonProducer(const edm::ParameterSet & iConfig) {
   addResolutions_= iConfig.getParameter<bool>         ( "addResolutions" );
   useNNReso_     = iConfig.getParameter<bool>         ( "useNNResolutions" );
   muonResoFile_  = iConfig.getParameter<std::string>  ( "muonResoFile" );
+  // isolation configurables
+  doTrkIso_      = iConfig.getParameter<bool>         ( "doTrkIsolation" );
+  doCalIso_      = iConfig.getParameter<bool>         ( "doCalIsolation" );
+  trackIsoSrc_   = iConfig.getParameter<edm::InputTag>( "trackIsoSource" );
+  ecalIsoSrc_    = iConfig.getParameter<edm::InputTag>( "ecalIsoSource" );
+  hcalIsoSrc_    = iConfig.getParameter<edm::InputTag>( "hcalIsoSource" );
+  hocalIsoSrc_   = iConfig.getParameter<edm::InputTag>( "hocalIsoSource" );
   // muon ID configurables
   addMuonID_     = iConfig.getParameter<bool>         ( "addMuonID" );
-//  muonIDSrc_     = iConfig.getParameter<edm::InputTag>( "muonIDSource" );
   // likelihood ratio configurables
   addLRValues_   = iConfig.getParameter<bool>         ( "addLRValues" );
   tracksSrc_     = iConfig.getParameter<edm::InputTag>( "tracksSource" );
@@ -72,6 +80,20 @@ void TopMuonProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetu
     matchTruth(*particles, muons);
   }
 
+  // prepare isolation calculation
+  edm::Handle<reco::MuIsoDepositAssociationMap> trackerIso;
+  if (doTrkIso_) {
+    iEvent.getByLabel(trackIsoSrc_, trackerIso);
+  }
+  edm::Handle<reco::MuIsoDepositAssociationMap> ecalIso;
+  edm::Handle<reco::MuIsoDepositAssociationMap> hcalIso;
+  edm::Handle<reco::MuIsoDepositAssociationMap> hocalIso;
+  if (doCalIso_) {
+    iEvent.getByLabel(ecalIsoSrc_, ecalIso);
+    iEvent.getByLabel(hcalIsoSrc_, hcalIso);
+    iEvent.getByLabel(hocalIsoSrc_, hocalIso);
+  }
+
   // prepare LR calculation
   edm::Handle<reco::TrackCollection> trackHandle;
   if (addLRValues_) {
@@ -91,6 +113,21 @@ void TopMuonProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetu
     // add resolution info
     if (addResolutions_) {
       (*theResoCalc_)(aMuon);
+    }
+    // do tracker isolation
+    if (doTrkIso_) {
+      const reco::MuIsoDeposit & depTracker = (*trackerIso)[muons[m].combinedMuon()];
+      // cone hardcoded, corresponds to default in recent CMSSW versions
+      std::pair<double, int> sumPtAndNTracks03 = depTracker.depositAndCountWithin(0.3);
+      aMuon.setTrackIso(sumPtAndNTracks03.first);
+    }
+    // do calorimeter isolation
+    if (doCalIso_) {
+      const reco::MuIsoDeposit & depEcal = (*ecalIso)[muons[m].combinedMuon()];
+      const reco::MuIsoDeposit & depHcal = (*hcalIso)[muons[m].combinedMuon()];
+      const reco::MuIsoDeposit & depHOcal = (*hocalIso)[muons[m].combinedMuon()];
+      // cone hardcoded, corresponds to default in recent CMSSW versions
+      aMuon.setCaloIso(depEcal.depositWithin(0.3)+depHcal.depositWithin(0.3)+depHOcal.depositWithin(0.3));
     }
     // add muon ID info
     if (addMuonID_) {
