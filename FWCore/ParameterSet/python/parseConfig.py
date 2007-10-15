@@ -506,7 +506,8 @@ class _MakePlugin(object):
             values = _findAndHandleParameterIncludes(values)
             values = _validateLabelledList(values)
         except Exception, e:
-            raise pp.ParseFatalException(s,loc,type+" contains the error "+str(e))
+            raise pp.ParseFatalException(s,loc,type+" contains the error "+str(e)
+                                         +"\n from file "+_fileStack[-1])
         d = dict(values)
         return self.__plugin(*[type],**d)
 class _MakeFrom(object):
@@ -518,10 +519,12 @@ class _MakeFrom(object):
         try:
             values = _findAndHandleProcessBlockIncludes((inc,))
         except Exception, e:
-            raise pp.ParseFatalException(s,loc,label+" contains the error "+str(e))
+            raise pp.ParseFatalException(s,loc,label+" contains the error "+str(e)
+                                         +"\n from file "+_fileStack[-1])
         d = dict(values)
         if label not in d:
-            raise pp.ParseFatalException(s,loc,"the file "+inc.fileName+" does not contain a "+label)
+            raise pp.ParseFatalException(s,loc,"the file "+inc.fileName+" does not contain a "+label
+                                         +"\n from file "+_fileStack[-1])
         return d[label]
 
 def _replaceKeywordWithType(s,loc,toks):
@@ -1769,6 +1772,12 @@ path 'p' contains the error: 'Process' object has no attribute 'doesNotExist'
             finally:
                 _fileFactory = oldFactory
 
+            self.assertRaises(pp.ParseFatalException,
+                              plugin.parseString,
+                              ("""es_module foo = WithLabel {
+                                 uint32 a = 1
+                                 int32 a = 1
+                                 }"""))
         def testProcess(self):
             global _allUsingLabels
             _allUsingLabels = set()
