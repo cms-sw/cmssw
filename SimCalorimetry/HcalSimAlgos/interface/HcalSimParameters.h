@@ -20,6 +20,9 @@ public:
   void setDbService(const HcalDbService * service) {theDbService = service;}
 
   virtual double simHitToPhotoelectrons(const DetId & detId) const;
+  virtual double photoelectronsToAnalog(const DetId & detId) const {
+    return CaloSimParameters::photoelectronsToAnalog();
+  }
 
   double fCtoGeV(const DetId & detId) const;
 
