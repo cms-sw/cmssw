@@ -28,6 +28,11 @@
   <use name=SimDataFormats/HepMCProduct>
 </library>
 
+<library file=GenParticleProducer.cc>
+  <use name=SimGeneral/HepPDTRecord>
+  <use name=SimDataFormats/HepMCProduct>
+</library>
+
 <library file=GenParticleCandidateSelector.cc>
   <use name=SimGeneral/HepPDTRecord>
 </library>
@@ -45,18 +50,6 @@
 </library>
 
 <library file=MCTruthCompositeMatcher.cc>
-</library>
-
-<library file=MCTruthMuonCompositeMatcher.cc>
-  <use name=DataFormats/MuonReco>
-</library>
-
-<library file=MCTruthPixelMatchGsfElectronCompositeMatcher.cc>
-  <use name=DataFormats/EgammaCandidates>
-</library>
-
-<library file=MCTruthCaloJetCompositeMatcher.cc>
-  <use name=DataFormats/JetReco>
 </library>
 
 <library file=ParticleListDrawer.cc>
