@@ -5,19 +5,19 @@
  * Convert HepMC GenEvent format into a collection of type
  * CandidateCollection containing objects of type GenParticleCandidate
  *
- * \version $Id: FastGenParticleCandidateProducer.cc,v 1.21 2007/06/19 10:17:32 llista Exp $
+ * \version $Id: FastGenParticleCandidateProducer.cc,v 1.22 2007/06/19 17:52:55 llista Exp $
  *
  */
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/ParameterSet/interface/InputTag.h"
 #include "DataFormats/Candidate/interface/CandidateFwd.h"
-#include "DataFormats/HepMCCandidate/interface/GenParticleCandidateFwd.h"
 #include <vector>
 #include <map>
 #include <set>
 
 namespace edm { class ParameterSet; }
 namespace HepMC { class GenParticle; class GenEvent; }
+namespace reco { class GenParticleCandidate; }
 
 class FastGenParticleCandidateProducer : public edm::EDProducer {
  public:
