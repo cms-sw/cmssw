@@ -19,7 +19,7 @@
 //
 // Original Author:  Andrea Perrotta
 //         Created:  Mon Oct 30 14:37:24 CET 2006
-// $Id: ParamL3MuonProducer.cc,v 1.6 2007/06/18 15:42:47 pjanot Exp $
+// $Id: ParamL3MuonProducer.cc,v 1.8 2007/10/01 14:37:54 aperrott Exp $
 //
 //
 
@@ -305,8 +305,8 @@ void ParamL3MuonProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
 	  hasL3 = myL3EfficiencyHandler->kill(mySimTrack);
 	  if (hasL3) {
 	    int myL3Charge = myTrackerTrack->charge();
-	    const math::XYZTLorentzVector& myL3P4 =
-	              myL3PtSmearer->smear(mySimP4,myTrackerTrack->momentum());
+	    const math::PtEtaPhiMLorentzVector& myL3P4 =
+	      math::PtEtaPhiMLorentzVector( myL3PtSmearer->smear(mySimP4,myTrackerTrack->momentum()) );
 	    math::XYZPoint myL3Vertex = myTrackerTrack->referencePoint();
 	    reco::Muon * thisL3MuonCand = new reco::Muon(myL3Charge,myL3P4,myL3Vertex);
 	    thisL3MuonCand->setTrack(myTrackerTrack);
@@ -329,8 +329,8 @@ void ParamL3MuonProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
 	//      }
 	if (hasGL) {
 	  int myGLCharge = myTrackerTrack->charge();
-	  const math::XYZTLorentzVector& myGLP4 =
-          myGLPtSmearer->smear(mySimP4,myTrackerTrack->momentum());
+	  const math::PtEtaPhiMLorentzVector& myGLP4 =
+	    math::PtEtaPhiMLorentzVector ( myGLPtSmearer->smear(mySimP4,myTrackerTrack->momentum()) );
 	  math::XYZPoint myGLVertex = myTrackerTrack->referencePoint();
 	  reco::Muon * thisGLMuonCand = new reco::Muon(myGLCharge,myGLP4,myGLVertex);
 	  thisGLMuonCand->setTrack(myTrackerTrack);
@@ -375,8 +375,7 @@ void ParamL3MuonProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
       double pt = (*l1mu)->ptValue() + 1.e-6 ;
       double eta = (*l1mu)->etaValue();
       double phi = (*l1mu)->phiValue();
-      math::PtEtaPhiMLorentzVector PtEtaPhiMP4(pt,eta,phi,muonMassGeV_);
-      math::XYZTLorentzVector myL1P4(PtEtaPhiMP4);
+      math::PtEtaPhiMLorentzVector myL1P4(pt,eta,phi,muonMassGeV_);
       mySimpleL1MuonExtraCands.push_back( l1extra::L1MuonParticle( (*l1mu)->charge(), myL1P4, *(*l1mu)) );
    }
     else if (debug_) std::cout << " Killed L1 muon candidate of rank " << rank
