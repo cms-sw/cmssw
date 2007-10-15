@@ -1,9 +1,15 @@
 <use name=FWCore/Framework>
 <use name=FWCore/PluginManager>
 <use name=FWCore/ParameterSet>
-<use name=DataFormats/TrackReco>
 <use name=PhysicsTools/UtilAlgos>
 <use name=FWCore/ServiceRegistry>
+<use name=DataFormats/TrackReco>
+<use name=DataFormats/MuonReco>
+<use name=DataFormats/DTRecHit>
+<use name=DataFormats/Common>
+<use name=RecoMuon/TrackingTools>
+<use name=RecoMuon/GlobalTrackFinder>
+<use name=TrackingTools/TransientTrack>
 <use name=root>
 
 <flags EDM_PLUGIN=1>
