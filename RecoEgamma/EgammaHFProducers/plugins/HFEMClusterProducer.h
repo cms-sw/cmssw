@@ -1,5 +1,5 @@
-#ifndef EgammaElectronProducers_HFClusterProducer_h
-#define EgammaElectronProducers_HFClusterProducer_h
+#ifndef EgammaElectronProducers_HFEMClusterProducer_h
+#define EgammaElectronProducers_HFEMClusterProducer_h
 //Package:    EgammaHFProdcers
 // Class  :    HFClusterProducer
 // Original Author:  Kevin Klapoetke (minnesota)
@@ -12,9 +12,9 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/Event.h"
 
-class HFClusterProducer : public edm::EDProducer {
+class HFEMClusterProducer : public edm::EDProducer {
 public:
-  explicit HFClusterProducer(edm::ParameterSet const& conf);
+  explicit HFEMClusterProducer(edm::ParameterSet const& conf);
   virtual void produce(edm::Event& e, edm::EventSetup const& iSetup);
 private:
   edm::InputTag hfreco_;

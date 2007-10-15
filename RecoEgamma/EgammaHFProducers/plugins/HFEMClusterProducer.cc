@@ -1,24 +1,24 @@
 //Package:    EgammaHFProdcers
-// Class  :    HFClusterProducer
+// Class  :    HFEMClusterProducer
 // Original Author:  Kevin Klapoetke (minnesota)
 //        
-// $Id: HFClusterProducer.cc,v 1.2 2007/09/19 Kevin Klapoetke
+// $Id: HFEMClusterProducer.cc,v 1.2 2007/09/19 Kevin Klapoetke
 //
 
 #include <iostream>
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
-#include "RecoEgamma/EgammaHFProducers/plugins/HFClusterProducer.h"
+#include "RecoEgamma/EgammaHFProducers/plugins/HFEMClusterProducer.h"
 using namespace reco;
-HFClusterProducer::HFClusterProducer(edm::ParameterSet const& conf): hfreco_(conf.getUntrackedParameter<edm::InputTag>("hfreco")) {
+HFEMClusterProducer::HFEMClusterProducer(edm::ParameterSet const& conf): hfreco_(conf.getUntrackedParameter<edm::InputTag>("hits")) {
   produces<reco::HFEMClusterShapeCollection>();
   produces<reco::BasicClusterCollection>();
   produces<reco::SuperClusterCollection>();
   produces<reco::HFEMClusterShapeAssociationCollection>(); 
 }
 
-void HFClusterProducer::produce(edm::Event & e, edm::EventSetup const& iSetup) {  
+void HFEMClusterProducer::produce(edm::Event & e, edm::EventSetup const& iSetup) {  
   
   edm::Handle<HFRecHitCollection> hf_hits;
   
