@@ -50,7 +50,6 @@ namespace cms{
   CkfTrackCandidateMakerBase::~CkfTrackCandidateMakerBase() {
     delete theInitialState;  
     delete theNavigationSchool;
-    delete theTrajectoryCleaner;    
     if (theSeedCleaner) delete theSeedCleaner;
   }  
 
@@ -63,7 +62,11 @@ namespace cms{
     // get nested parameter set for the TransientInitialStateEstimator
     ParameterSet tise_params = conf_.getParameter<ParameterSet>("TransientInitialStateEstimatorParameters") ;
     theInitialState          = new TransientInitialStateEstimator( es,tise_params);
-    theTrajectoryCleaner     = new TrajectoryCleanerBySharedHits();          
+
+    std::string trajectoryCleanerName = conf_.getParameter<std::string>("TrajectoryCleaner");
+    edm::ESHandle<TrajectoryCleaner> trajectoryCleanerH;
+    es.get<TrajectoryCleaner::Record>().get(trajectoryCleanerName, trajectoryCleanerH);
+    theTrajectoryCleaner= trajectoryCleanerH.product();
 
     //theNavigationSchool      = new SimpleNavigationSchool(&(*theGeomSearchTracker),&(*theMagField));
     edm::ParameterSet NavigationPSet = conf_.getParameter<edm::ParameterSet>("NavigationPSet");
