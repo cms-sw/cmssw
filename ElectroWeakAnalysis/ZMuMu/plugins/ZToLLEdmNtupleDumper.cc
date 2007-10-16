@@ -45,6 +45,7 @@ ZToLLEdmNtupleDumper::ZToLLEdmNtupleDumper( const ParameterSet & cfg ) {
     produces<vector<float> >( alias = zName + "Pt" ).setBranchAlias( alias );
     produces<vector<float> >( alias = zName + "Eta" ).setBranchAlias( alias );
     produces<vector<float> >( alias = zName + "Phi" ).setBranchAlias( alias );
+    produces<vector<float> >( alias = zName + "Y" ).setBranchAlias( alias );
     produces<vector<float> >( alias = zName + "Dau1Pt" ).setBranchAlias( alias );
     produces<vector<float> >( alias = zName + "Dau2Pt" ).setBranchAlias( alias );
     produces<vector<float> >( alias = zName + "Dau1Eta" ).setBranchAlias( alias );
@@ -57,6 +58,7 @@ ZToLLEdmNtupleDumper::ZToLLEdmNtupleDumper( const ParameterSet & cfg ) {
     produces<vector<float> >( alias = zName + "TruePt" ).setBranchAlias( alias );
     produces<vector<float> >( alias = zName + "TrueEta" ).setBranchAlias( alias );
     produces<vector<float> >( alias = zName + "TruePhi" ).setBranchAlias( alias );
+    produces<vector<float> >( alias = zName + "TrueY" ).setBranchAlias( alias );
   }
 }
 
@@ -76,6 +78,7 @@ void ZToLLEdmNtupleDumper::produce( Event & evt, const EventSetup & ) {
     auto_ptr<vector<float> > zPt( new vector<float> );
     auto_ptr<vector<float> > zEta( new vector<float> );
     auto_ptr<vector<float> > zPhi( new vector<float> );
+    auto_ptr<vector<float> > zY( new vector<float> );
     auto_ptr<vector<float> > zDau1Pt( new vector<float> );
     auto_ptr<vector<float> > zDau2Pt( new vector<float> );
     auto_ptr<vector<float> > zDau1Eta( new vector<float> );
@@ -88,6 +91,7 @@ void ZToLLEdmNtupleDumper::produce( Event & evt, const EventSetup & ) {
     auto_ptr<vector<float> > trueZPt( new vector<float> );
     auto_ptr<vector<float> > trueZEta( new vector<float> );
     auto_ptr<vector<float> > trueZPhi( new vector<float> );
+    auto_ptr<vector<float> > trueZY( new vector<float> );
     for( size_t i = 0; i < zSize; ++ i ) {
       const Candidate & z = (*zColl)[ i ];
       CandidateRef zRef( zColl, i );
@@ -95,6 +99,7 @@ void ZToLLEdmNtupleDumper::produce( Event & evt, const EventSetup & ) {
       zPt->push_back( z.pt() );
       zEta->push_back( z.eta() );
       zPhi->push_back( z.phi() );
+      zY->push_back( z.rapidity() );
       const Candidate * dau1 = z.daughter(0); 
       const Candidate * dau2 = z.daughter(1); 
       zDau1Pt->push_back( dau1->pt() );
@@ -116,11 +121,13 @@ void ZToLLEdmNtupleDumper::produce( Event & evt, const EventSetup & ) {
 	  trueZPt->push_back( z.pt() );
 	  trueZEta->push_back( z.eta() );      
 	  trueZPhi->push_back( z.phi() );      
+	  trueZY->push_back( z.rapidity() );      
 	} else {
 	  trueZMass->push_back( -100 );
 	  trueZPt->push_back( -100 );
 	  trueZEta->push_back( -100 );      
 	  trueZPhi->push_back( -100 );      
+	  trueZY->push_back( -100 );      
 	}
       }
     }
@@ -128,6 +135,8 @@ void ZToLLEdmNtupleDumper::produce( Event & evt, const EventSetup & ) {
     evt.put( zMass, zName +  "Mass" );
     evt.put( zPt, zName + "Pt" );
     evt.put( zEta, zName + "Eta" );
+    evt.put( zPhi, zName + "Phi" );
+    evt.put( zY, zName + "Y" );
     evt.put( zDau1Pt, zName + "Dau1Pt" );
     evt.put( zDau2Pt, zName + "Dau2Pt" );
     evt.put( zDau1Eta, zName + "Dau1Eta" );
@@ -139,6 +148,8 @@ void ZToLLEdmNtupleDumper::produce( Event & evt, const EventSetup & ) {
     evt.put( trueZMass, zName +  "TrueMass" );
     evt.put( trueZPt, zName + "TruePt" );
     evt.put( trueZEta, zName + "TrueEta" );
+    evt.put( trueZPhi, zName + "TruePhi" );
+    evt.put( trueZY, zName + "TrueY" );
   }
 }
 
