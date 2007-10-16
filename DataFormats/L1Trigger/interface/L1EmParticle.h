@@ -12,7 +12,7 @@
 //
 // Original Author:  Werner Sun
 //         Created:  Sat Jul 15 12:41:07 EDT 2006
-// $Id: L1EmParticle.h,v 1.7 2007/07/31 15:20:14 ratnik Exp $
+// $Id: L1EmParticle.h,v 1.8 2007/10/01 19:34:55 wsun Exp $
 //
 
 // system include files
@@ -43,8 +43,14 @@ namespace l1extra {
 	 L1EmParticle( const LorentzVector& p4,
 		       const edm::Ref< L1GctEmCandCollection >& aRef ) ;
 
+	 L1EmParticle( const PolarLorentzVector& p4,
+		       const edm::Ref< L1GctEmCandCollection >& aRef ) ;
+
          // Creates null Ref.
          L1EmParticle( const LorentzVector& p4,
+                       EmType type = kUndefined ) ;
+
+         L1EmParticle( const PolarLorentzVector& p4,
                        EmType type = kUndefined ) ;
 
 	 virtual ~L1EmParticle() {}

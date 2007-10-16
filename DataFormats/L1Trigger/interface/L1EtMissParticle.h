@@ -12,7 +12,7 @@
 //
 // Original Author:  Werner Sun
 //         Created:  Sat Jul 15 12:41:07 EDT 2006
-// $Id: L1EtMissParticle.h,v 1.8 2007/07/31 15:20:14 ratnik Exp $
+// $Id: L1EtMissParticle.h,v 1.9 2007/10/01 19:34:55 wsun Exp $
 //
 
 // system include files
@@ -34,6 +34,16 @@ namespace l1extra {
 
 	 // Default Refs are null.
 	 L1EtMissParticle( const LorentzVector& p4,
+			   const double& etTotal,
+			   const double& etHad,
+			   const edm::RefProd< L1GctEtMiss >& aEtMissRef =
+			      edm::RefProd< L1GctEtMiss >(),
+			   const edm::RefProd< L1GctEtTotal >& aEtTotalRef =
+			      edm::RefProd< L1GctEtTotal >(),
+			   const edm::RefProd< L1GctEtHad >& aEtHadRef =
+			      edm::RefProd< L1GctEtHad >() ) ;
+
+	 L1EtMissParticle( const PolarLorentzVector& p4,
 			   const double& etTotal,
 			   const double& etHad,
 			   const edm::RefProd< L1GctEtMiss >& aEtMissRef =

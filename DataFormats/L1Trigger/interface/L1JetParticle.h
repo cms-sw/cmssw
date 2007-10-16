@@ -12,7 +12,7 @@
 //
 // Original Author:  Werner Sun
 //         Created:  Sat Jul 15 12:41:07 EDT 2006
-// $Id: L1JetParticle.h,v 1.7 2007/07/31 15:20:14 ratnik Exp $
+// $Id: L1JetParticle.h,v 1.8 2007/10/01 19:34:55 wsun Exp $
 //
 
 // system include files
@@ -44,8 +44,14 @@ namespace l1extra {
 	 L1JetParticle( const LorentzVector& p4,
 			const edm::Ref< L1GctJetCandCollection >& aRef ) ;
 
+	 L1JetParticle( const PolarLorentzVector& p4,
+			const edm::Ref< L1GctJetCandCollection >& aRef ) ;
+
          // Creates null Ref.
          L1JetParticle( const LorentzVector& p4,
+                        JetType type = kUndefined ) ;
+
+         L1JetParticle( const PolarLorentzVector& p4,
                         JetType type = kUndefined ) ;
 
 	 virtual ~L1JetParticle() {}

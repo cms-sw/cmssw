@@ -12,7 +12,7 @@
 //
 // Original Author:  Werner Sun
 //         Created:  Sat Jul 15 12:41:07 EDT 2006
-// $Id: L1MuonParticle.h,v 1.9 2007/07/31 15:20:14 ratnik Exp $
+// $Id: L1MuonParticle.h,v 1.10 2007/10/01 19:34:55 wsun Exp $
 //
 
 // system include files
@@ -39,9 +39,21 @@ namespace l1extra {
 			 const LorentzVector& p4,
 			 const L1MuGMTExtendedCand& aCand ) ;
 
+	 L1MuonParticle( Charge q,
+			 const PolarLorentzVector& p4,
+			 const L1MuGMTExtendedCand& aCand ) ;
+
          // Creates null Ref.
          L1MuonParticle( Charge q,
                          const LorentzVector& p4,
+                         bool isolated = false,
+                         bool mip = false,
+			 bool forward = false,
+			 bool rpc = false,
+			 unsigned int detector = 0 ) ;
+
+         L1MuonParticle( Charge q,
+                         const PolarLorentzVector& p4,
                          bool isolated = false,
                          bool mip = false,
 			 bool forward = false,
