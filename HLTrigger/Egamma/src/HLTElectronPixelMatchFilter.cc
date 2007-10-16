@@ -1,6 +1,6 @@
 /** \class HLTElectronPixelMatchFilter
  *
- * $Id: HLTElectronPixelMatchFilter.cc,v 1.4 2007/05/08 13:22:44 ghezzi Exp $
+ * $Id: HLTElectronPixelMatchFilter.cc,v 1.5 2007/09/20 00:05:22 ratnik Exp $
  *
  *  \author Monica Vazquez Acosta (CERN)
  *
@@ -17,9 +17,11 @@
 
 #include "DataFormats/Common/interface/AssociationMap.h"
 
-#include "DataFormats/EgammaReco/interface/ElectronPixelSeed.h"
+
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
-#include "DataFormats/EgammaReco/interface/SeedSuperClusterAssociation.h"
+#include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
+#include "DataFormats/EgammaReco/interface/ElectronPixelSeed.h"
+#include "DataFormats/EgammaReco/interface/ElectronPixelSeedFwd.h"
 
 #include "DataFormats/RecoCandidate/interface/RecoEcalCandidate.h"
 #include "DataFormats/RecoCandidate/interface/RecoEcalCandidateFwd.h"
@@ -66,18 +68,18 @@ HLTElectronPixelMatchFilter::filter(edm::Event& iEvent, const edm::EventSetup& i
   iEvent.getByLabel (candTag_,recoecalcands);
   
   //get hold of the pixel seed - supercluster association map
-  edm::Handle<reco::SeedSuperClusterAssociationCollection> L1IsoBarrelMap;
-  iEvent.getByLabel (L1IsoPixelmapbarrelTag_,L1IsoBarrelMap);
+  edm::Handle<reco::ElectronPixelSeedCollection> L1IsoBarrelSeeds;
+  iEvent.getByLabel (L1IsoPixelmapbarrelTag_,L1IsoBarrelSeeds);
   
   //get hold of the pixel seed - supercluster association map
-  edm::Handle<reco::SeedSuperClusterAssociationCollection> L1IsoEndcapMap;
-  iEvent.getByLabel (L1IsoPixelmapendcapTag_,L1IsoEndcapMap);
+  edm::Handle<reco::ElectronPixelSeedCollection> L1IsoEndcapSeeds;
+  iEvent.getByLabel (L1IsoPixelmapendcapTag_,L1IsoEndcapSeeds);
 
-  edm::Handle<reco::SeedSuperClusterAssociationCollection> L1NonIsoBarrelMap;
-  edm::Handle<reco::SeedSuperClusterAssociationCollection> L1NonIsoEndcapMap;
+  edm::Handle<reco::ElectronPixelSeedCollection> L1NonIsoBarrelSeeds;
+  edm::Handle<reco::ElectronPixelSeedCollection> L1NonIsoEndcapSeeds;
   if(!doIsolated_){
-    iEvent.getByLabel (L1NonIsoPixelmapbarrelTag_,L1NonIsoBarrelMap);
-    iEvent.getByLabel (L1NonIsoPixelmapendcapTag_,L1NonIsoEndcapMap);
+    iEvent.getByLabel (L1NonIsoPixelmapbarrelTag_,L1NonIsoBarrelSeeds);
+    iEvent.getByLabel (L1NonIsoPixelmapendcapTag_,L1NonIsoEndcapSeeds);
   }
   
   // look at all egammas,  check cuts and add to filter object
@@ -87,47 +89,42 @@ HLTElectronPixelMatchFilter::filter(edm::Event& iEvent, const edm::EventSetup& i
     candref = recoecalcands->getParticleRef(i);
     reco::RecoEcalCandidateRef recr = candref.castTo<reco::RecoEcalCandidateRef>();
     reco::SuperClusterRef recr2 = recr->superCluster();
-
     int nmatch = 0;
 
-    for(reco::SeedSuperClusterAssociationCollection::const_iterator itb = L1IsoBarrelMap->begin(); 
-	itb != L1IsoBarrelMap->end(); itb++){
-      
-      edm::Ref<reco::SuperClusterCollection> theClusBarrel = itb->val;
-      
-      if(&(*recr2) ==  &(*theClusBarrel)) {
+    for(reco::ElectronPixelSeedCollection::const_iterator itb = L1IsoBarrelSeeds->begin(); 
+	itb != L1IsoBarrelSeeds->end(); itb++){
+      const reco::SuperClusterRef & scRef=itb->superCluster();
+
+      if(&(*recr2) ==  &(*scRef)) {
 	nmatch++;
       }
     }
-
-    for(reco::SeedSuperClusterAssociationCollection::const_iterator ite = L1IsoEndcapMap->begin(); 
-	ite != L1IsoEndcapMap->end(); ite++){
-      
-      edm::Ref<reco::SuperClusterCollection> theClusEndcap = ite->val;
-      
-      if(&(*recr2) ==  &(*theClusEndcap)) {
+    
+    for(reco::ElectronPixelSeedCollection::const_iterator ite = L1IsoEndcapSeeds->begin(); 
+	ite != L1IsoEndcapSeeds->end(); ite++){
+       const reco::SuperClusterRef & scRef=ite->superCluster();
+      if(&(*recr2) ==  &(*scRef)) {
 	nmatch++;
       }
     }
 
     if(!doIsolated_){
 
-      for(reco::SeedSuperClusterAssociationCollection::const_iterator itb = L1NonIsoBarrelMap->begin(); 
-	  itb != L1NonIsoBarrelMap->end(); itb++){
+      for(reco::ElectronPixelSeedCollection::const_iterator itb = L1NonIsoBarrelSeeds->begin(); 
+	  itb != L1NonIsoBarrelSeeds->end(); itb++){
+	const reco::SuperClusterRef & scRef=itb->superCluster();
       
-	edm::Ref<reco::SuperClusterCollection> theClusBarrel = itb->val;
-      
-	if(&(*recr2) ==  &(*theClusBarrel)) {
+	if(&(*recr2) ==  &(*scRef)) {
 	  nmatch++;
 	}
       }
 
-      for(reco::SeedSuperClusterAssociationCollection::const_iterator ite = L1NonIsoEndcapMap->begin(); 
-	  ite != L1NonIsoEndcapMap->end(); ite++){
+      for(reco::ElectronPixelSeedCollection::const_iterator ite = L1NonIsoEndcapSeeds->begin(); 
+	  ite != L1NonIsoEndcapSeeds->end(); ite++){
       
-	edm::Ref<reco::SuperClusterCollection> theClusEndcap = ite->val;
+	const reco::SuperClusterRef & scRef=ite->superCluster();
       
-	if(&(*recr2) ==  &(*theClusEndcap)) {
+	if(&(*recr2) ==  &(*scRef)) {
 	  nmatch++;
 	}
       } 
@@ -138,9 +135,9 @@ HLTElectronPixelMatchFilter::filter(edm::Event& iEvent, const edm::EventSetup& i
       n++;
       filterproduct->putParticle(candref);
     }
-
+    
   }
-
+   
   // filter decision
   bool accept(n>=ncandcut_);
   

@@ -3,7 +3,7 @@
  *  Original Author: Jeremy Werner                          
  *  Institution: Princeton University, USA                                                                 *  Contact: Jeremy.Werner@cern.ch 
  *  Date: February 21, 2007     
- * $Id: $
+ * $Id: HLTPMDocaFilter.cc,v 1.3 2007/03/07 10:44:05 monicava Exp $
  *
  */
 
@@ -20,7 +20,6 @@
 
 #include "DataFormats/EgammaReco/interface/ElectronPixelSeed.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
-#include "DataFormats/EgammaReco/interface/SeedSuperClusterAssociation.h"
 
 #include "DataFormats/RecoCandidate/interface/RecoEcalCandidate.h"
 #include "DataFormats/RecoCandidate/interface/RecoCandidate.h"

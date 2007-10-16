@@ -18,7 +18,6 @@
 #include "DataFormats/Common/interface/AssociationMap.h"
 
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
-#include "DataFormats/EgammaReco/interface/SeedSuperClusterAssociation.h"
 
 #include "DataFormats/RecoCandidate/interface/RecoEcalCandidate.h"
 #include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
