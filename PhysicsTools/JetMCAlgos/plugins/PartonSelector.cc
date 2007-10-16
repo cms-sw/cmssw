@@ -21,8 +21,7 @@
 #include "DataFormats/Common/interface/Ref.h"  
 #include "DataFormats/Candidate/interface/CandidateFwd.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticleCandidate.h"
-#include "DataFormats/HepMCCandidate/interface/GenParticleCandidateFwd.h"
-       
+      
 #include <memory>
 #include <string>
 #include <iostream>
