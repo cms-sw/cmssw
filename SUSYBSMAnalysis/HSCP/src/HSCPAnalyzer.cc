@@ -13,7 +13,7 @@
 //
 // Original Author:  Rizzi Andrea
 //         Created:  Mon Sep 24 09:30:06 CEST 2007
-// $Id: HSCPAnalyzer.cc,v 1.4 2007/10/15 09:32:52 arizzi Exp $
+// $Id: HSCPAnalyzer.cc,v 1.5 2007/10/15 16:34:57 arizzi Exp $
 //
 //
 
@@ -74,18 +74,23 @@ class HSCPAnalyzer : public edm::EDAnalyzer {
        
 
       TH1F * h_pt;
-      TH1F * h_massSel;
-      TH1F * h_massSelFit;
-      TH1F * h_mass;
-      TH1F * h_massFit;
-      TH1F * h_massProton;
-      TH1F * h_massProtonFit;
+// RECO DEDX
+      TH1F * h_dedxMassSel;
+      TH1F * h_dedxMassSelFit;
+      TH1F * h_dedxMass;
+      TH1F * h_dedxMassFit;
+      TH1F * h_dedxMassProton;
+      TH1F * h_dedxMassProtonFit;
       TH2F * h_dedx;
       TH2F * h_dedxCtrl;
       TH2F * h_dedxFit;
       TH2F * h_dedxFitCtrl;
       TH1F * h_dedxMIP;
       TH1F * h_dedxFitMIP;
+//ANALYSIS
+      TH1F * h_pSpectrumAfterSelection[6]; 
+      TH1F * h_massAfterSelection[6];
+ // SIM
       TH1F * h_simmu_pt; 
       TH1F * h_simmu_eta; 
       TH1F * h_simhscp_pt; 
@@ -198,19 +203,32 @@ HSCPAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
          float mass=p*sqrt(k*dedxVal-1);
          float mass2=p*sqrt(k2*dedxFitVal-1);
 
-         h_mass->Fill(mass,w); 
-         h_massFit->Fill(mass2,w); 
-        if(p > 30 && dedxVal > 3.45  ) {  h_massSel->Fill(mass,w); }
-        if(p > 30 && dedxFitVal > 3.3 ) { h_massSelFit->Fill(mass2,w);     }        
+         h_dedxMass->Fill(mass,w); 
+         h_dedxMassFit->Fill(mass2,w); 
+        if(p > 30 && dedxVal > 3.45  ) {  h_dedxMassSel->Fill(mass,w); }
+        if(p > 30 && dedxFitVal > 3.3 ) { h_dedxMassSelFit->Fill(mass2,w);     }        
 
          if(p < 1.2 && mass2 > 0.200 )
           {
-           h_massProton->Fill(mass,w);
+           h_dedxMassProton->Fill(mass,w);
           }
          if(p < 1.2 && mass > 0.200 )
           {
-           h_massProtonFit->Fill(mass2,w);
+           h_dedxMassProtonFit->Fill(mass2,w);
           }
+
+    //Dedx for analsyis
+    //FIXME: make it configurable
+    double dedxFitCut[6] = {3.0,3.16,3.24,3.64,4.68,6.2};
+    for(int i=0;i<6;i++)
+      {
+        if(dedxFitVal > dedxFitCut[i]) 
+        {
+         h_pSpectrumAfterSelection[i]->Fill(p,w);
+         h_massAfterSelection[i]->Fill(mass2,w);      
+        }
+      }  
+
         }
     }
 
@@ -255,12 +273,25 @@ HSCPAnalyzer::beginJob(const edm::EventSetup&)
   h_dedxFitCtrl =  subDir.make<TH2F>( "dedx_lowp_FIT"  , "\\frac{dE}{dX} vs p", 100,  0., 3., 100,0,8 );
   h_dedxFitMIP =  subDir.make<TH1F>( "dedxMIP_FIT"  , "\\frac{dE}{dX}  ",100,0,8 );
 
-  h_massSel =  subDir.make<TH1F>( "massSel"  , "Mass (dedx), with selection", 100,  0., 1500.);
-  h_massSelFit =  subDir.make<TH1F>( "massSel_FIT"  , "Mass (dedx), with selection", 100,  0., 1500.);
-  h_mass =  subDir.make<TH1F>( "mass"  , "Mass (dedx)", 100,  0., 1500.);
-  h_massFit =  subDir.make<TH1F>( "mass_FIT"  , "Mass (dedx)", 100,  0., 1500.);
-  h_massProton =  subDir.make<TH1F>( "massProton"  , "Proton Mass (dedx)", 100,  0., 2.);
-  h_massProtonFit =  subDir.make<TH1F>( "massProton_FIT"  , "Proton Mass (dedx)", 100,  0., 2.);
+  h_dedxMassSel =  subDir.make<TH1F>( "massSel"  , "Mass (dedx), with selection", 100,  0., 1500.);
+  h_dedxMassSelFit =  subDir.make<TH1F>( "massSel_FIT"  , "Mass (dedx), with selection", 100,  0., 1500.);
+  h_dedxMass =  subDir.make<TH1F>( "mass"  , "Mass (dedx)", 100,  0., 1500.);
+  h_dedxMassFit =  subDir.make<TH1F>( "mass_FIT"  , "Mass (dedx)", 100,  0., 1500.);
+  h_dedxMassProton =  subDir.make<TH1F>( "massProton"  , "Proton Mass (dedx)", 100,  0., 2.);
+  h_dedxMassProtonFit =  subDir.make<TH1F>( "massProton_FIT"  , "Proton Mass (dedx)", 100,  0., 2.);
+
+
+//-------- Analysis ----------------
+ TFileDirectory subDirAn =  fs->mkdir( "Analysis" );
+ for(int i=0;i<6;i++) 
+  {
+   stringstream sel;
+   sel << i;
+   
+   h_pSpectrumAfterSelection[i] = subDirAn.make<TH1F>((string("pSpectrumDedxSel")+sel.str()).c_str(),(string("P spectrum after selection #")+sel.str()).c_str(),300,0,1000);
+   h_massAfterSelection[i] = subDirAn.make<TH1F>((string("massDedxSel")+sel.str()).c_str(),(string("Mass after selection #")+sel.str()).c_str(),300,0,1000);
+
+  } 
 
 //------------ SIM ----------------
   TFileDirectory subDir2 = fs->mkdir( "Sim" );
@@ -277,8 +308,8 @@ HSCPAnalyzer::endJob() {
   h_dedxMIP->Fit("gaus","Q");
   h_dedxFitMIP->Fit("gaus","Q");
 
-  h_massProton->Fit("gaus","Q","",0.8,1.2); 
-  h_massProtonFit->Fit("gaus","Q","",0.8,1.2); 
+  h_dedxMassProton->Fit("gaus","Q","",0.8,1.2); 
+  h_dedxMassProtonFit->Fit("gaus","Q","",0.8,1.2); 
 
 
   float mipMean = h_dedxMIP->GetFunction("gaus")->GetParameter(1);
@@ -286,25 +317,33 @@ HSCPAnalyzer::endJob() {
   float mipSigma = h_dedxMIP->GetFunction("gaus")->GetParameter(2);
   float mipSigmaFit = h_dedxFitMIP->GetFunction("gaus")->GetParameter(2);
 
+  double effPoints[6] = {0.05,0.01,0.005,0.001,0.0001,0.00001};
+  float dedxFitEff[6];
+  float dedxFitEffP[6];
+  float dedxFitEffM[6];
+  float dedxStdEff[6];
+  float dedxStdEffP[6];
+  float dedxStdEffM[6];
+  for(int i=0;i<6;i++)
+  {
+   dedxFitEff[i]=cutMin(h_dedxFitMIP,effPoints[i]);
+   float n=h_dedxFitMIP->GetEntries();
+   float delta=sqrt(effPoints[i]*n)/n;
+   dedxFitEffM[i]=cutMin(h_dedxFitMIP,effPoints[i]+delta)-dedxFitEff[i];
+   dedxFitEffP[i]=cutMin(h_dedxFitMIP,effPoints[i]-delta)-dedxFitEff[i];
+
+   dedxStdEff[i]=cutMin(h_dedxMIP,effPoints[i]);
+
+  }
   cout << "DeDx cuts: " << endl;
   cout << "   Unbinned Fit de/dx:"<< endl; 
-  cout << "    Proton Mass : " <<  h_massProtonFit->GetFunction("gaus")->GetParameter(1) << endl;
+  cout << "    Proton Mass : " <<  h_dedxMassProtonFit->GetFunction("gaus")->GetParameter(1) << endl;
   cout << "    MIP  mean : " <<  mipMeanFit << "    sigma : " << mipSigmaFit << endl;
-  cout << "    95% @ dedx > " << cutMin(h_dedxFitMIP,0.05) << endl;
-  cout << "    99% @ dedx > " << cutMin(h_dedxFitMIP,0.01) << endl;
-  cout << "    99.5% @ dedx > " << cutMin(h_dedxFitMIP,0.005) << endl;
-  cout << "    99.9% @ dedx > " << cutMin(h_dedxFitMIP,0.001) << endl;
-  cout << "    99.99% @ dedx > " << cutMin(h_dedxFitMIP,0.0001) << endl;
-  cout << "    99.999% @ dedx > " << cutMin(h_dedxFitMIP,0.00001) << endl;
+  for(int i=0;i<6;i++)   cout << "    " << (1-effPoints[i])*100 << "% @ dedx > " << dedxFitEff[i] << "+"<< dedxFitEffP[i] << " "<< dedxFitEffM[i] <<endl;
   cout << "   dedxSrc de/dx ("<< m_dedxSrc << "):" << endl; 
-  cout << "    Proton Mass : " << h_massProton->GetFunction("gaus")->GetParameter(1) << endl;
+  cout << "    Proton Mass : " << h_dedxMassProton->GetFunction("gaus")->GetParameter(1) << endl;
   cout << "    MIP  mean : " <<  mipMean << "    sigma : " << mipSigma << endl;
-  cout << "    95% @ dedx > " << cutMin(h_dedxMIP,0.05) << endl;
-  cout << "    99% @ dedx > " << cutMin(h_dedxMIP,0.01) << endl;
-  cout << "    99.5% @ dedx > " << cutMin(h_dedxMIP,0.005) << endl;
-  cout << "    99.9% @ dedx > " << cutMin(h_dedxMIP,0.001) << endl;
-  cout << "    99.99% @ dedx > " << cutMin(h_dedxMIP,0.0001) << endl;
-  cout << "    99.999% @ dedx > " << cutMin(h_dedxMIP,0.00001) << endl;
+  for(int i=0;i<6;i++)   cout << "    " << (1-effPoints[i])*100 << "% @ dedx > " << dedxStdEff[i] << endl;
 
 }
 
