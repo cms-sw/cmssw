@@ -10,7 +10,7 @@
 */
 //
 // Original Author:  Monica Vazquez Acosta (CERN)
-// $Id: EgammaHLTPixelMatchElectronAlgo.cc,v 1.6 2007/10/15 15:51:31 ghezzi Exp $
+// $Id: EgammaHLTPixelMatchElectronAlgo.cc,v 1.7 2007/10/15 16:35:46 ghezzi Exp $
 //
 //
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
@@ -56,7 +56,7 @@ void EgammaHLTPixelMatchElectronAlgo::setupES(const edm::EventSetup& es, const e
   theInitialStateEstimator       = new TransientInitialStateEstimator( es,tise_params);
 
   edm::ESHandle<NavigationSchool> nav;
-  setup.get<NavigationSchoolRecord>().get("SimpleNavigationSchool", nav);
+  es.get<NavigationSchoolRecord>().get("SimpleNavigationSchool", nav);
   theNavigationSchool = nav.product();
   // set the correct navigation
   NavigationSetter setter(*theNavigationSchool);
