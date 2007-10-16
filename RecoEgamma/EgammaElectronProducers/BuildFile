@@ -17,7 +17,6 @@
 <use name=RecoTracker/CkfPattern>
 <use name=RecoTracker/TrackProducer>
 <export>
-   <lib name=RecoEgammaEgammaElectronProducers>
    <use name=FWCore/Framework>
    <use name=FWCore/ParameterSet>
    <use name=MagneticField/Engine>
