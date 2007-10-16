@@ -1,16 +1,14 @@
 #ifndef Alignment_CommonAlignmentAlgorithm_AlignmentTrackSelector_h
 #define Alignment_CommonAlignmentAlgorithm_AlignmentTrackSelector_h
 
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/TrackReco/interface/Track.h"
-#include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
-#include "DataFormats/DetId/interface/DetId.h"
-#include "Alignment/TrackerAlignment/interface/TrackerAlignableId.h"
-#include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
 
 #include <vector>
 
-namespace edm { class Event; }
+namespace edm {
+  class Event;
+  class ParameterSet;
+}
 
 class AlignmentTrackSelector
 {
@@ -44,15 +42,11 @@ class AlignmentTrackSelector
   };
   ComparePt ptComparator;
 
-  /// private data members
-  edm::ParameterSet conf_;
-
   bool applyBasicCuts,applyNHighestPt,applyMultiplicityFilter;
   int nHighestPt,minMultiplicity,maxMultiplicity;
   double ptMin,ptMax,etaMin,etaMax,phiMin,phiMax,nHitMin,nHitMax,chi2nMax;
   int minHitsinTIB, minHitsinTOB, minHitsinTID, minHitsinTEC;
 
-  TrackerAlignableId *TkMap;
 };
 
 #endif

@@ -1,11 +1,15 @@
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-
 #include "Alignment/CommonAlignmentProducer/interface/AlignmentTrackSelector.h"
+
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+
+#include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
+#include "DataFormats/DetId/interface/DetId.h"
+#include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
 
 // constructor ----------------------------------------------------------------
 
 AlignmentTrackSelector::AlignmentTrackSelector(const edm::ParameterSet & cfg) :
-  conf_(cfg),
   applyBasicCuts( cfg.getParameter<bool>( "applyBasicCuts" ) ),
   applyNHighestPt( cfg.getParameter<bool>( "applyNHighestPt" ) ),
   applyMultiplicityFilter( cfg.getParameter<bool>( "applyMultiplicityFilter" ) ),
@@ -40,7 +44,7 @@ AlignmentTrackSelector::AlignmentTrackSelector(const edm::ParameterSet & cfg) :
 	edm::LogInfo("AlignmentTrackSelector") 
 	  << "apply multiplicity filter N>= " << minMultiplicity << "and N<= " << maxMultiplicity;
 
-  edm::ParameterSet minHitsPerSubdet = conf_.getParameter<edm::ParameterSet>( "minHitsPerSubDet" );
+  edm::ParameterSet minHitsPerSubdet = cfg.getParameter<edm::ParameterSet>( "minHitsPerSubDet" );
   minHitsinTIB = minHitsPerSubdet.getParameter<int>( "inTIB" );
   minHitsinTOB = minHitsPerSubdet.getParameter<int>( "inTOB" );
   minHitsinTID = minHitsPerSubdet.getParameter<int>( "inTID" );
@@ -48,8 +52,6 @@ AlignmentTrackSelector::AlignmentTrackSelector(const edm::ParameterSet & cfg) :
   
   edm::LogInfo("AlignmentTrackSelector") 
     << "Minimum number of hits in TIB/TID/TOB/TEC = " << minHitsinTIB << "/" << minHitsinTID << "/" << minHitsinTOB << "/" << minHitsinTEC;
-
-  TkMap = new TrackerAlignableId();
 }
 
 // destructor -----------------------------------------------------------------
@@ -90,17 +92,13 @@ AlignmentTrackSelector::basicCuts(const Tracks& tracks) const
   Tracks result;
 
   for(Tracks::const_iterator it=tracks.begin();
-      it!=tracks.end();it++) {
+      it != tracks.end(); ++it) {
     const reco::Track* trackp=*it;
     float pt=trackp->pt();
     float eta=trackp->eta();
     float phi=trackp->phi();
     int nhit = trackp->numberOfValidHits(); 
     float chi2n = trackp->normalizedChi2();
-    int nhitinTIB = 0;
-    int nhitinTOB = 0;
-    int nhitinTID = 0;
-    int nhitinTEC = 0;
 
     //edm::LogDebug("AlignmentTrackSelector") << " pt,eta,phi,nhit: "
     //  <<pt<<","<<eta<<","<<phi<<","<<nhit;
@@ -111,13 +109,23 @@ AlignmentTrackSelector::basicCuts(const Tracks& tracks) const
        && nhit>=nHitMin && nhit<=nHitMax
        && chi2n<chi2nMax) {
 
-         for (trackingRecHit_iterator iHit = trackp->recHitsBegin(); iHit != trackp->recHitsEnd(); iHit++) {
-	   std::pair<int,int> typeAndLay = TkMap->typeAndLayerFromDetId( (*iHit)->geographicalId() );
-	   int type = typeAndLay.first; 
-           if (type == int(StripSubdetector::TIB)) nhitinTIB++;
-           if (type == int(StripSubdetector::TOB)) nhitinTOB++;
-           if (type == int(StripSubdetector::TID)) nhitinTID++;
-           if (type == int(StripSubdetector::TEC)) nhitinTEC++;
+      int nhitinTIB = 0;
+      int nhitinTOB = 0;
+      int nhitinTID = 0;
+      int nhitinTEC = 0;
+         for (trackingRecHit_iterator iHit = trackp->recHitsBegin(); iHit != trackp->recHitsEnd(); ++iHit) {
+           // if (!(*iHit)->isValid()) continue;
+           const DetId detId((*iHit)->geographicalId());
+           if (detId.det() != DetId::Tracker) {
+             edm::LogError("DetectorMismatch") << "@SUB=AlignmentTrackSelector::basicCuts"
+                                                 << "DetId.det() != DetId::Tracker (=" << DetId::Tracker
+                                                 << "), but " << detId.det() << ".";
+           }
+           if     (StripSubdetector::TIB == detId.subdetId()) ++nhitinTIB;
+           else if(StripSubdetector::TOB == detId.subdetId()) ++nhitinTOB;
+           else if(StripSubdetector::TID == detId.subdetId()) ++nhitinTID;
+           else if(StripSubdetector::TEC == detId.subdetId()) ++nhitinTEC;
+           // what about FPIX and BPIX?
          }
          
          if (nhitinTIB>=minHitsinTIB &&
