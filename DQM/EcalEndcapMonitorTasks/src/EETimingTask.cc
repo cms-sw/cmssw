@@ -1,8 +1,8 @@
 /*
  * \file EETimingTask.cc
  *
- * $Date: 2007/08/21 11:31:49 $
- * $Revision: 1.14 $
+ * $Date: 2007/10/15 15:01:17 $
+ * $Revision: 1.15 $
  * \author G. Della Ricca
  *
 */
@@ -160,7 +160,7 @@ void EETimingTask::analyze(const Event& e, const EventSetup& c){
       LogDebug("EETimingTask") << " hit jitter " << yval;
       LogDebug("EETimingTask") << " hit pedestal " << zval;
 
-      if ( xval <= 20. ) continue;
+      if ( xval <= 2. ) continue;
 
       if ( meTimeMap ) meTimeMap->Fill(xix, xiy, yval);
 

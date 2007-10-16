@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  *
- * $Date: 2007/10/06 12:32:43 $
- * $Revision: 1.312 $
+ * $Date: 2007/10/08 19:43:01 $
+ * $Revision: 1.313 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -532,16 +532,16 @@ void EcalBarrelMonitorClient::initialize(const ParameterSet& ps){
 
     clients_.push_back( new EBTimingClient(ps) );
     clientNames_.push_back( "Timing" );
-//    chb_.insert( EBCIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::COSMIC ));
-    chb_.insert( EBCIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::LASER_STD ));
+    chb_.insert( EBCIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::COSMIC ));
+//    chb_.insert( EBCIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::LASER_STD ));
 //    chb_.insert( EBCIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::TESTPULSE_MGPA ));
     chb_.insert( EBCIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::MTCC ));
 
-//    chb_.insert( EBCIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::COSMICS_GLOBAL ));
+    chb_.insert( EBCIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::COSMICS_GLOBAL ));
     chb_.insert( EBCIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::PHYSICS_GLOBAL ));
-//    chb_.insert( EBCIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::COSMICS_LOCAL ));
+    chb_.insert( EBCIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::COSMICS_LOCAL ));
     chb_.insert( EBCIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::PHYSICS_LOCAL ));
-    chb_.insert( EBCIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::LASER_GAP ));
+//    chb_.insert( EBCIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::LASER_GAP ));
 //    chb_.insert( EBCIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::TESTPULSE_GAP ));
 
   }

@@ -1,8 +1,8 @@
 /*
  * \file EEPedestalOnlineClient.cc
  *
- * $Date: 2007/09/07 22:30:06 $
- * $Revision: 1.25 $
+ * $Date: 2007/10/10 09:46:39 $
+ * $Revision: 1.26 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -93,7 +93,7 @@ EEPedestalOnlineClient::EEPedestalOnlineClient(const ParameterSet& ps){
 
   expectedMean_ = 200.0;
   discrepancyMean_ = 25.0;
-  RMSThreshold_ = 2.5;
+  RMSThreshold_ = 4.0;
 
 }
 

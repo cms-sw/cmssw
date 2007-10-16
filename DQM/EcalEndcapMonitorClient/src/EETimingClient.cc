@@ -1,8 +1,8 @@
 /*
  * \file EETimingClient.cc
  *
- * $Date: 2007/10/10 09:46:39 $
- * $Revision: 1.25 $
+ * $Date: 2007/10/14 15:04:24 $
+ * $Revision: 1.26 $
  * \author G. Della Ricca
  *
 */
@@ -92,8 +92,8 @@ EETimingClient::EETimingClient(const ParameterSet& ps){
   }
 
   expectedMean_ = 6.0;
-  discrepancyMean_ = 0.5;
-  RMSThreshold_ = 0.5;
+  discrepancyMean_ = 3.0;
+  RMSThreshold_ = 5.5;
 
 }
 
