@@ -329,16 +329,16 @@ GoodSeedProducer::produce(Event& iEvent, const EventSetup& iSetup)
 	  
 	  float Ytmva=reader->EvaluateMVA( method_ );
 	  
-	  float BDTcut=thr[ibin+7]; 
+	  float BDTcut=thr[ibin+4]; 
 	  if ( Ytmva>BDTcut) GoodTkId=true;
 	}else{ 
 	  
 	  
 	  
 	  //
-	  float chiratiocut=thr[ibin+4]; 
-	  float gschicut=thr[ibin+5]; 
-	  float gsptmin=thr[ibin+6];
+	  float chiratiocut=thr[ibin+5]; 
+	  float gschicut=thr[ibin+6]; 
+	  float gsptmin=thr[ibin+7];
 
 	  GoodTkId=((dpt>gsptmin)&&(chired<gschicut)&&(chiRatio<chiratiocut));      
        
