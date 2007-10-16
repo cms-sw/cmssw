@@ -13,7 +13,7 @@
 //
 // Original Author:  Chi Nhan Nguyen
 //         Created:  Mon Feb 19 13:25:24 CST 2007
-// $Id: FastL1Region.cc,v 1.13 2007/09/07 23:01:35 smaruyam Exp $
+// $Id: FastL1Region.cc,v 1.16 2007/09/27 20:12:03 chinhan Exp $
 //
 
 // No BitInfos for release versions
@@ -309,10 +309,10 @@ FastL1Region::FillTower(const CaloTower& t, int& tid)
   }
 
   double upperThres = 1024.;
-  double emet = RCTEnergyTrunc(emet,Config.TowerEMLSB,upperThres);
-  double hadet = RCTEnergyTrunc(hadet,Config.TowerHadLSB,upperThres);
-  double eme = RCTEnergyTrunc(eme,Config.TowerEMLSB,upperThres);
-  double hade = RCTEnergyTrunc(hade,Config.TowerHadLSB,upperThres);
+  double emet = RCTEnergyTrunc(t.emEt(),Config.TowerEMLSB,upperThres);
+  double hadet = RCTEnergyTrunc(t.hadEt(),Config.TowerHadLSB,upperThres);
+  //double eme = RCTEnergyTrunc(t.emEnergy(),Config.TowerEMLSB,upperThres);
+  //double hade = RCTEnergyTrunc(t.hadEnergy(),Config.TowerHadLSB,upperThres);
 
   if ( emet<EThres) emet = 0.;
   if ( hadet<HThres) hadet = 0.;
@@ -883,26 +883,37 @@ corrJetEt1(double et, double eta)
 
 // EM correction from ORCA for cmsim 133
 double 
-corrEmEt(double et, double eta) {
+//corrEmEt(double et, double eta) {
+corrEmEt(double et, int eta) {
 
-  const int nscales = 26;
 
-  double etalimit[nscales] = { 0.087,0.174,0.261,0.348,0.435,0.522,0.609,0.696,0.783,0.870,0.957,
+  const int nscales = 32;
+  /*
+  const int nscales = 27;
+  double etalimit[nscales] = { 0.0,0.087,0.174,0.261,0.348,0.435,0.522,0.609,0.696,0.783,0.870,0.957,
 			  1.044,1.131,1.218,1.305,1.392,1.479,1.566,1.653,1.740,1.830,1.930,
 			  2.043,2.172,2.322,2.500};
-  
+  */
+
   double scfactor[nscales] = { 
     1.00,1.01,1.02,1.02,1.02,1.06,1.04,1.04,1.05,1.09,1.10,1.10,1.15,
-    1.20,1.27,1.29,1.32,1.52,1.52,1.48,1.40,1.32,1.26,1.21,1.17,1.15};
+    1.20,1.27,1.29,1.32,1.52,1.52,1.48,1.40,1.32,1.26,1.21,1.17,1.15, 
+    1.15,1.15,1.15,1.15,1.15,1.15};
 
+  /*
   double scale=1.;
   for (int i=0;i<nscales;i++) {
     if (std::abs(eta)<etalimit[i]) {
       scale = scfactor[i];
     }
   }
+    return (scale*et);
+  */
 
-  return (scale*et);
+  if (eta>=0 && eta <=28)
+    return (scfactor[eta]*et);
+  else
+    return et;
 }
 
 
@@ -910,9 +921,10 @@ corrEmEt(double et, double eta) {
 double 
 RCTEnergyTrunc(double et, double LSB, double thres) {
 
+  //return et;
   if (et>=thres) return thres;
 
-  et += LSB/2.;
+  //et += LSB/2.;
   //double ret = (int)(et / LSB) * LSB + LSB;
   int iEt = (int)(et / LSB);
   double ret =  (double)iEt * LSB;
@@ -923,6 +935,8 @@ RCTEnergyTrunc(double et, double LSB, double thres) {
 
 double 
 GCTEnergyTrunc(double et, double LSB, bool doEM) {
+
+  //return et;
 
   //double L1CaloEmEtScaleLSB = LSB;
   //double L1CaloRegionEtScaleLSB = LSB;

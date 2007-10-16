@@ -13,7 +13,7 @@
 //
 // Original Author:  Chi Nhan Nguyen
 //         Created:  Mon Feb 19 13:25:24 CST 2007
-// $Id: FastL1GlobalAlgo.cc,v 1.23 2007/09/27 20:12:03 chinhan Exp $
+// $Id: FastL1GlobalAlgo.cc,v 1.24 2007/10/15 19:04:17 smaruyam Exp $
 //
 
 // No BitInfos for release versions
@@ -451,17 +451,17 @@ FastL1GlobalAlgo::FillMET(edm::Event const& e) {
 // ------------ Fill MET 2: loop over regions ------------
 void
 FastL1GlobalAlgo::FillMET() {
-  double sum_e = 0.0;
+  //double sum_e = 0.0;
   double sum_et = 0.0;
   double sum_ex = 0.0;
   double sum_ey = 0.0;
-  double sum_ez = 0.0;
+  //double sum_ez = 0.0;
 
   for (int i=0; i<396; i++) { 
     std::pair<double, double> etaphi = m_RMap->getRegionCenterEtaPhi(i);
     double phi   = etaphi.second;
-    double eta = etaphi.first;
-    double theta = 2.*atan(exp(-eta));
+    //double eta = etaphi.first;
+    //double theta = 2.*atan(exp(-eta));
     
     double et = m_Regions[i].SumEt();
     //double e = m_Regions[i].SumE();
@@ -555,16 +555,20 @@ FastL1GlobalAlgo::FillL1RegionsTP(edm::Event const& e, const edm::EventSetup& s)
 
     int hiphi = hTP->id().iphi();
     int hieta = hTP->id().ieta();
-if(abs(hieta) > 20 && hiphi%2 == 0) hiphi--;
-//
-std::pair<int, int> prim_tower_feed; // prim tower indeces iEta +/- 1~32, iPhi (+) 1~72
-prim_tower_feed.first = hieta;
-prim_tower_feed.second = hiphi;
-std::pair<int, int> rct_index = m_RMap-> getRegionEtaPhiIndex(prim_tower_feed); // convert prim tower indeces into RCT indeces ieta 0~21, iphi 0~17
-rgnid = rct_index.second*22 + rct_index.first; // converting fastL1 obsolete RCT numbering
-//    rgnid  = m_RMap->getRegionIndex(hieta,hiphi);
+
+    /*
+    if(abs(hieta) > 20 && hiphi%2 == 0) hiphi--;
+    std::pair<int, int> prim_tower_feed; // prim tower indeces iEta +/- 1~32, iPhi (+) 1~72
+    prim_tower_feed.first = hieta;
+    prim_tower_feed.second = hiphi;
+    std::pair<int, int> rct_index = m_RMap-> getRegionEtaPhiIndex(prim_tower_feed); // convert prim tower indeces into RCT indeces ieta 0~21, iphi 0~17
+    rgnid = rct_index.second*22 + rct_index.first; // converting fastL1 obsolete RCT numbering
+    */
+
+    rgnid  = m_RMap->getRegionIndex(hieta,hiphi);
     twrid = m_RMap->getRegionTowerIndex(hieta,hiphi);
 
+    //std::cout<<hieta<<" "<<hiphi<<" "<<rgnid<<" "<<twrid<<" "<<std::endl;
     /*
     if (std::abs(htwrid.ieta())>28) {
       std::cout<<htwrid.ieta()<<" "<<htwrid.iphi()<<" "<<rgnid<<" "<<twrid<<" "<<std::endl;
@@ -577,12 +581,12 @@ rgnid = rct_index.second*22 + rct_index.first; // converting fastL1 obsolete RCT
     	       <<rgnid<<" "<<twrid<<std::endl;
     }
     */
-if(rgnid < 396 && twrid < 16){
-    hEtV[rgnid][twrid] = (int)hTP->SOI_compressedEt();
-    hFGV[rgnid][twrid] = (int)hTP->SOI_fineGrain();
-    hiEtaV[rgnid][twrid] = hieta;
-    hiPhiV[rgnid][twrid] = hiphi;
-}
+    if(rgnid < 396 && twrid < 16){
+      hEtV[rgnid][twrid] = (int)hTP->SOI_compressedEt();
+      hFGV[rgnid][twrid] = (int)hTP->SOI_fineGrain();
+      hiEtaV[rgnid][twrid] = hieta;
+      hiPhiV[rgnid][twrid] = hiphi;
+    }
   }
   
 
@@ -590,51 +594,65 @@ if(rgnid < 396 && twrid < 16){
   int emFGV[396][16] = {0};
   int emiEtaV[396][16] = {0};
   int emiPhiV[396][16] = {0};
-  double emEtaV[396][16] = {0.};
+  //double emEtaV[396][16] = {0.};
   for (EcalTrigPrimDigiCollection::const_iterator eTP=ETPinput->begin(); 
        eTP!=ETPinput->end(); eTP++) {
    
     int eieta = eTP->id().ieta();
-if(abs(eieta)> 28) continue; // no crystal in HF
-else{
-    int eiphi = eTP->id().iphi();
 
-    int rgnid = 999;
-    int twrid = 999;
-if(abs(eieta) > 20 && eiphi%2 == 0) eiphi--;
-std::pair<int, int> prim_tower_feed; // prim tower indeces iEta +/- 1~28, iPhi (+) 1~72
-prim_tower_feed.first = eieta;
-prim_tower_feed.second = eiphi;
-std::pair<int, int> rct_index = m_RMap-> getRegionEtaPhiIndex(prim_tower_feed); // convert prim tower indeces into RCT indeces ieta 0~21, iphi 0~17
-rgnid = rct_index.second*22 + rct_index.first; // converting fastL1 obsolete RCT numbering
-//    rgnid  = m_RMap->getRegionIndex(eieta,eiphi);
-    twrid = m_RMap->getRegionTowerIndex(eieta,eiphi);
-  
-    /*  
-    if (eTP->compressedEt()>0) {
-      std::cout<<"*** "<<eTP->compressedEt()<<" "<<eTP->fineGrain()<<" "
-    	       <<rgnid<<" "<<twrid<<std::endl;
-    }
+    if(abs(eieta)> 28) continue; // no crystal in HF
+    else{
+      int eiphi = eTP->id().iphi();
+      //int teiphi = eiphi;
+      
+      int rgnid = 999;
+      int twrid = 999;
+      
+      //if(abs(eieta) > 20 && eiphi%2 == 0) teiphi=eiphi-1;
+      
+    /*
+      if(abs(eieta) > 20 && eiphi%2 == 0) eiphi--;
+      std::pair<int, int> prim_tower_feed; // prim tower indeces iEta +/- 1~28, iPhi (+) 1~72
+      prim_tower_feed.first = eieta;
+      prim_tower_feed.second = eiphi;
+      std::pair<int, int> rct_index = m_RMap-> getRegionEtaPhiIndex(prim_tower_feed); // convert prim tower indeces into RCT indeces ieta 0~21, iphi 0~17
+      rgnid = rct_index.second*22 + rct_index.first; // converting fastL1 obsolete RCT numbering
     */
-if(rgnid < 396 && twrid < 16){
-    emEtV[rgnid][twrid] = (int)eTP->compressedEt();
-    emFGV[rgnid][twrid] = (int)eTP->fineGrain();
-    emiEtaV[rgnid][twrid] = eieta;
-    emiPhiV[rgnid][twrid] = eiphi;
+      
+      rgnid  = m_RMap->getRegionIndex(eieta,eiphi);
+      twrid = m_RMap->getRegionTowerIndex(eieta,eiphi);
+      
+      /*  
+	  if (eTP->compressedEt()>0) {
+	  std::cout<<"*** "<<eTP->compressedEt()<<" "<<eTP->fineGrain()<<" "
+	  <<rgnid<<" "<<twrid<<std::endl;
+	  }
+      */
+      if(rgnid < 396 && twrid < 16){
+	emEtV[rgnid][twrid] = (int)eTP->compressedEt();
+	emFGV[rgnid][twrid] = (int)eTP->fineGrain();
+	emiEtaV[rgnid][twrid] = eieta;
+	emiPhiV[rgnid][twrid] = eiphi;
+	
+	//edm::ESHandle<CaloGeometry> cGeom; 
+	//s.get<IdealGeometryRecord>().get(cGeom);    
+      
+	//CaloTowerDetId  towerDetId = CaloTowerDetId( eieta, teiphi); 
+	//CaloTowerDetId  towerDetId2 = CaloTowerDetId( eieta, eiphi); 
+	//const GlobalPoint gP1 = cGeom->getPosition(towerDetId);
+	//const GlobalPoint gP12 = cGeom->getPosition(towerDetId2);
+	//double eta = gP1.eta();  
 
-    edm::ESHandle<CaloGeometry> cGeom; 
-    s.get<IdealGeometryRecord>().get(cGeom);    
+	//if(abs(eieta) > 20) 
+	//std::cout<<eiphi<<" "<<gP1.phi()<<" "<<eieta<<" "<<gP1.eta()<<" "<<std::endl;
 
-CaloTowerDetId  towerDetId = CaloTowerDetId( eieta, eiphi); 
-    const GlobalPoint gP1 = cGeom->getPosition(towerDetId);
-    double eta = gP1.eta();  
-    //double phi = gP1.phi();    
-    emEtaV[rgnid][twrid] = eta;
-}
-} // else
+	//double phi = gP1.phi();    
+	//emEtaV[rgnid][twrid] = eta;
+      }
+    } // else
   } // ecalTP
-
-
+  
+  
   for (int i=0; i<396; i++) {
     for (int j=0; j<16; j++) {
 /* sm
@@ -660,7 +678,8 @@ m_Regions[i].BitInfo.hcal.push_back(0);
 	//double hadEt = hEtV[i][j] * m_L1Config.JetLSB;
    
 	if (m_L1Config.DoEMCorr) {
-	  emEt = corrEmEt(emEt,emEtaV[i][j]);
+	  //emEt = corrEmEt(emEt,emEtaV[i][j]);
+	  emEt = corrEmEt(emEt,std::abs(emiEtaV[i][j]));
 	}
 
 	double et = emEt + hadEt;
@@ -918,8 +937,8 @@ FastL1GlobalAlgo::isEMCand(CaloTowerDetId cid, l1extra::L1EmParticle* ph,const e
   if (crgn>395 || crgn < 0 || ctwr > 15 || ctwr < 0) return 0;
 
   CaloTowerCollection c = m_Regions.at(crgn).GetCaloTowers();
-  //double cenEt = c[ctwr].et();
-  double cenEt = RCTEnergyTrunc(c[ctwr].et(),0.5,64);
+  double cenEt = c[ctwr].et();
+  //double cenEt = RCTEnergyTrunc(c[ctwr].et(),0.5,64);
   //double cenE = c[ctwr].emEnergy();
   
   // Using region position rather than tower position
@@ -978,8 +997,8 @@ FastL1GlobalAlgo::isEMCand(CaloTowerDetId cid, l1extra::L1EmParticle* ph,const e
   //
   if (norgn>395 || norgn < 0 || notwr > 15 || notwr < 0) return 0;
   c = m_Regions[norgn].GetCaloTowers();
-  //double noEt = c[notwr].et();
-  double noEt = RCTEnergyTrunc(c[notwr].et(),0.5,64);
+  double noEt = c[notwr].et();
+  //double noEt = RCTEnergyTrunc(c[notwr].et(),0.5,64);
    //double noE = c[notwr].emEnergy();
   // check fine grain bit
   bool noFGbit = m_Regions[norgn].GetFGBit(notwr);
@@ -989,8 +1008,8 @@ FastL1GlobalAlgo::isEMCand(CaloTowerDetId cid, l1extra::L1EmParticle* ph,const e
   //
   if (sorgn>395 || sorgn < 0 || sotwr > 15 || sotwr < 0) return 0;
   c = m_Regions[sorgn].GetCaloTowers();
-  //double soEt = c[sotwr].et();
-  double soEt = RCTEnergyTrunc(c[sotwr].et(),0.5,64);
+  double soEt = c[sotwr].et();
+  //double soEt = RCTEnergyTrunc(c[sotwr].et(),0.5,64);
   //double soE = c[sotwr].emEnergy();
   // check fine grain bit
   bool soFGbit = m_Regions[sorgn].GetFGBit(sotwr);
@@ -1000,8 +1019,8 @@ FastL1GlobalAlgo::isEMCand(CaloTowerDetId cid, l1extra::L1EmParticle* ph,const e
   //
   if (wergn>395 || wergn < 0 || wetwr > 15 || wetwr < 0) return 0;
   c = m_Regions[wergn].GetCaloTowers();
-  //double weEt = c[wetwr].et();
-  double weEt = RCTEnergyTrunc(c[wetwr].et(),0.5,64);
+  double weEt = c[wetwr].et();
+  //double weEt = RCTEnergyTrunc(c[wetwr].et(),0.5,64);
   //double weE = c[wetwr].emEnergy();
   // check fine grain bit
   bool weFGbit = m_Regions[wergn].GetFGBit(wetwr);
@@ -1011,8 +1030,8 @@ FastL1GlobalAlgo::isEMCand(CaloTowerDetId cid, l1extra::L1EmParticle* ph,const e
   //
   if (eargn>395 || eargn < 0 || eatwr > 15 || eatwr < 0) return 0;
   c = m_Regions[eargn].GetCaloTowers();
-  //double eaEt = c[eatwr].et();
-  double eaEt = RCTEnergyTrunc(c[eatwr].et(),0.5,64);
+  double eaEt = c[eatwr].et();
+  //double eaEt = RCTEnergyTrunc(c[eatwr].et(),0.5,64);
   //double eaE = c[eatwr].emEnergy();
   // check fine grain bit
   bool eaFGbit = m_Regions[eargn].GetFGBit(eatwr);
@@ -1022,8 +1041,8 @@ FastL1GlobalAlgo::isEMCand(CaloTowerDetId cid, l1extra::L1EmParticle* ph,const e
   //
   if (nwrgn>395 || nwrgn < 0 || nwtwr > 15 || nwtwr < 0) return 0;
   c = m_Regions[nwrgn].GetCaloTowers();
-  //double nwEt = c[nwtwr].et();
-  double nwEt = RCTEnergyTrunc(c[nwtwr].et(),0.5,64);
+  double nwEt = c[nwtwr].et();
+  //double nwEt = RCTEnergyTrunc(c[nwtwr].et(),0.5,64);
   //double nwE = c[nwtwr].emEnergy();
   // check fine grain bit
   bool nwFGbit = m_Regions[nwrgn].GetFGBit(nwtwr);
@@ -1033,8 +1052,8 @@ FastL1GlobalAlgo::isEMCand(CaloTowerDetId cid, l1extra::L1EmParticle* ph,const e
   //
   if (nergn>395 || nergn < 0 || netwr > 15 || netwr < 0) return 0;
   c = m_Regions[nergn].GetCaloTowers();
-  //double neEt = c[netwr].et();
-  double neEt = RCTEnergyTrunc(c[netwr].et(),0.5,64);
+  double neEt = c[netwr].et();
+  //double neEt = RCTEnergyTrunc(c[netwr].et(),0.5,64);
   //double neE = c[netwr].emEnergy();
   // check fine grain bit
   bool neFGbit = m_Regions[nergn].GetFGBit(netwr);
@@ -1044,8 +1063,8 @@ FastL1GlobalAlgo::isEMCand(CaloTowerDetId cid, l1extra::L1EmParticle* ph,const e
   //
   if (swrgn>395 || swrgn < 0 || swtwr > 15 || swtwr < 0) return 0;
   c = m_Regions[swrgn].GetCaloTowers();
-  //double swEt = c[swtwr].et();
-  double swEt = RCTEnergyTrunc(c[swtwr].et(),0.5,64);
+  double swEt = c[swtwr].et();
+  //double swEt = RCTEnergyTrunc(c[swtwr].et(),0.5,64);
   //double swE = c[swtwr].emEnergy();
   // check fine grain bit
   bool swFGbit = m_Regions[swrgn].GetFGBit(swtwr);
@@ -1055,8 +1074,8 @@ FastL1GlobalAlgo::isEMCand(CaloTowerDetId cid, l1extra::L1EmParticle* ph,const e
   //
   if (sergn>395 || sergn < 0 || setwr > 15 || setwr < 0) return 0;
   c = m_Regions[sergn].GetCaloTowers();
-  //double seEt = c[setwr].et();
-  double seEt = RCTEnergyTrunc(c[setwr].et(),0.5,64);
+  double seEt = c[setwr].et();
+  //double seEt = RCTEnergyTrunc(c[setwr].et(),0.5,64);
   //double seE = c[setwr].emEnergy();
   // check fine grain bit
   bool seFGbit = m_Regions[sergn].GetFGBit(setwr);
