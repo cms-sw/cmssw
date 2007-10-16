@@ -1,5 +1,5 @@
 //
-// $Id: TopElectronProducer.cc,v 1.24 2007/10/02 15:35:00 lowette Exp $
+// $Id: TopElectronProducer.cc,v 1.25 2007/10/04 23:34:50 lowette Exp $
 //
 
 #include "TopQuarkAnalysis/TopObjectProducers/interface/TopElectronProducer.h"
@@ -46,7 +46,13 @@ TopElectronProducer::TopElectronProducer(const edm::ParameterSet & iConfig) {
   // likelihood ratio configurables
   addLRValues_      = iConfig.getParameter<bool>         ( "addLRValues" );
   electronLRFile_   = iConfig.getParameter<std::string>  ( "electronLRFile" );
-
+  // configurables for isolation from egamma producer
+  addEgammaIso_     = iConfig.getParameter<bool>         ( "addEgammaIso");
+  egammaTkIsoSrc_   = iConfig.getParameter<edm::InputTag>( "egammaTkIsoSource");
+  egammaTkNumIsoSrc_= iConfig.getParameter<edm::InputTag>( "egammaTkNumIsoSource");
+  egammaEcalIsoSrc_ = iConfig.getParameter<edm::InputTag>( "egammaEcalIsoSource");
+  egammaHcalIsoSrc_ = iConfig.getParameter<edm::InputTag>( "egammaHcalIsoSource");
+  
   // construct resolution calculator
   if(addResolutions_){
     theResoCalc_= new TopObjectResolutionCalc(edm::FileInPath(electronResoFile_).fullPath(), useNNReso_);
@@ -88,6 +94,16 @@ void TopElectronProducer::produce(edm::Event & iEvent, const edm::EventSetup & i
     trkIsolation_= new TrackerIsolationPt();
     iEvent.getByLabel(tracksSrc_, trackHandle);
   }
+  edm::Handle<reco::PMGsfElectronIsoCollection> tkIsoHandle;
+  edm::Handle<reco::PMGsfElectronIsoNumCollection> tkNumIsoHandle;
+  edm::Handle<CandViewDoubleAssociations> ecalIsoHandle;
+  edm::Handle<CandViewDoubleAssociations> hcalIsoHandle;
+  if (addEgammaIso_) {
+    iEvent.getByLabel(egammaTkIsoSrc_,tkIsoHandle);
+    iEvent.getByLabel(egammaTkNumIsoSrc_,tkNumIsoHandle);
+    iEvent.getByLabel(egammaEcalIsoSrc_,ecalIsoHandle);
+    iEvent.getByLabel(egammaHcalIsoSrc_,hcalIsoHandle);
+  }
   std::vector<CaloTower> towers;
   if (addCalIso_) {
     calIsolation_= new CaloIsolationEnergy();
@@ -127,6 +143,10 @@ void TopElectronProducer::produce(edm::Event & iEvent, const edm::EventSetup & i
     // do calorimeter isolation
     if (addCalIso_) {
       anElectron.setCaloIso(calIsolation_->calculate(anElectron, towers));
+    }
+    // add isolation from egamma producers
+    if (addEgammaIso_) {
+      setEgammaIso(anElectron,electronsHandle,tkIsoHandle,tkNumIsoHandle,ecalIsoHandle,hcalIsoHandle,e);
     }
     // add electron ID info
     if (addElecID_) {
@@ -236,4 +256,25 @@ double TopElectronProducer::electronID(const edm::Handle<std::vector<TopElectron
   //cut based available at the moment)
   const reco::ElectronIDRef& id = elecID->val;
   return id->cutBasedDecision();
+}
+
+//fill the TopElectron with the isolation quantities calculated by the egamma producers
+void TopElectronProducer::setEgammaIso(TopElectron &anElectron,
+				       const edm::Handle<std::vector<TopElectronType> > & elecs,
+				       const edm::Handle<reco::PMGsfElectronIsoCollection> tkIsoHandle,
+				       const edm::Handle<reco::PMGsfElectronIsoNumCollection> tkNumIsoHandle,
+				       const edm::Handle<reco::CandViewDoubleAssociations> ecalIsoHandle,
+				       const edm::Handle<reco::CandViewDoubleAssociations> hcalIsoHandle,
+				       int idx) {
+
+
+  //find isolations for elec with index idx
+  edm::Ref<std::vector<TopElectronType> > elecsRef( elecs, idx );
+  reco::CandidateBaseRef candRef(elecsRef);
+  //reco::ElectronIDAssociationCollection::const_iterator elecID = elecIDs->find( elecsRef );
+  anElectron.setEgammaTkIso((*tkIsoHandle)[elecsRef]);
+  anElectron.setEgammaTkNumIso((*tkNumIsoHandle)[elecsRef]);
+  anElectron.setEgammaEcalIso((*ecalIsoHandle)[candRef]);
+  anElectron.setEgammaHcalIso((*hcalIsoHandle)[candRef]);
+  
 }

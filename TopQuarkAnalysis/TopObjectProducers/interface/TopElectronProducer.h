@@ -1,5 +1,5 @@
 //
-// $Id: TopElectronProducer.h,v 1.16 2007/09/21 00:28:12 lowette Exp $
+// $Id: TopElectronProducer.h,v 1.17 2007/10/02 15:34:59 lowette Exp $
 //
 
 #ifndef TopObjectProducers_TopElectronProducer_h
@@ -14,7 +14,7 @@
    and calculation of a lepton likelihood ratio
 
   \author   Jan Heyninck, Steven Lowette
-  \version  $Id: TopElectronProducer.h,v 1.16 2007/09/21 00:28:12 lowette Exp $
+  \version  $Id: TopElectronProducer.h,v 1.17 2007/10/02 15:34:59 lowette Exp $
 */
 
 
@@ -27,6 +27,10 @@
 #include "AnalysisDataFormats/Egamma/interface/ElectronID.h"
 #include "AnalysisDataFormats/Egamma/interface/ElectronIDAssociation.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticleCandidate.h"
+#include "DataFormats/EgammaCandidates/interface/PMGsfElectronIsoCollection.h"
+#include "DataFormats/EgammaCandidates/interface/PMGsfElectronIsoNumCollection.h"
+#include "DataFormats/Candidate/interface/CandAssociation.h"
+#include "DataFormats/Common/interface/View.h"
 
 #include "AnalysisDataFormats/TopObjects/interface/TopElectron.h"
 
@@ -55,6 +59,13 @@ class TopElectronProducer : public edm::EDProducer {
     void matchTruth(const reco::CandidateCollection & particles, std::vector<TopElectronType> & electrons);
     double electronID(const edm::Handle<std::vector<TopElectronType> > & elecs, 
                       const edm::Handle<reco::ElectronIDAssociationCollection> & elecIDs, int idx);
+    void setEgammaIso(TopElectron &anElectron,
+		      const edm::Handle<std::vector<TopElectronType> > & elecs,
+		      const edm::Handle<reco::PMGsfElectronIsoCollection> tkIsoHandle,
+		      const edm::Handle<reco::PMGsfElectronIsoNumCollection> tkNumIsoHandle,
+		      const edm::Handle<reco::CandViewDoubleAssociations> ecalIsoHandle,
+		      const edm::Handle<reco::CandViewDoubleAssociations> hcalIsoHandle,
+		      int idx);
 
   private:
 
@@ -77,6 +88,12 @@ class TopElectronProducer : public edm::EDProducer {
     edm::InputTag elecIDSrc_;
     bool          addLRValues_;
     std::string   electronLRFile_;
+    bool          addEgammaIso_;
+    edm::InputTag egammaTkIsoSrc_;
+    edm::InputTag egammaTkNumIsoSrc_;
+    edm::InputTag egammaEcalIsoSrc_;
+    edm::InputTag egammaHcalIsoSrc_;
+
     // tools
     TopObjectResolutionCalc      * theResoCalc_;
     TrackerIsolationPt           * trkIsolation_;
