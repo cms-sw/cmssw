@@ -22,10 +22,10 @@
 #include "TrackingTools/Records/interface/TransientRecHitRecord.h"  
 #include "TrackingTools/Records/interface/TrackingComponentsRecord.h" 
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
-#include "TrackingTools/GeomPropagators/interface/StraightLinePropagator.h"
 #include "FastSimulation/BaseParticlePropagator/interface/BaseParticlePropagator.h"
 #include <fstream>
 #include <string>
+
 
 using namespace edm;
 using namespace std;
@@ -33,35 +33,40 @@ PFResolutionMap* GoodSeedProducer::resMapEtaECAL_ = 0;
 PFResolutionMap* GoodSeedProducer::resMapPhiECAL_ = 0;
 
 GoodSeedProducer::GoodSeedProducer(const ParameterSet& iConfig):
-  maxShPropagator_(0),
   pfTransformer_(0),
   conf_(iConfig)
 {
   LogInfo("GoodSeedProducer")<<"Electron PreIdentification started  ";
-
+  
   //now do what ever initialization is needed
  
   tracksContainers_ = 
     iConfig.getParameter< vector < InputTag > >("TkColList");
-
+  
+  minPt_=iConfig.getParameter<double>("MinPt");
+  maxEta_=iConfig.getParameter<double>("MaxEta");
+  
   pfCLusTagECLabel_=
     iConfig.getParameter<InputTag>("PFEcalClusterLabel");
-
+  
   pfCLusTagPSLabel_=
     iConfig.getParameter<InputTag>("PFPSClusterLabel");
-
+  
   preidgsf_=iConfig.getParameter<string>("PreGsfLabel");
   preidckf_=iConfig.getParameter<string>("PreCkfLabel");
-
-  propagatorName_ = iConfig.getParameter<string>("Propagator");
+  
+  
   fitterName_ = iConfig.getParameter<string>("Fitter");
   smootherName_ = iConfig.getParameter<string>("Smoother");
   
-
-
+  
+  
   nHitsInSeed_=iConfig.getParameter<int>("NHitsInSeed");
 
   clusThreshold_=iConfig.getParameter<double>("ClusterThreshold");
+  
+  minEp_=iConfig.getParameter<double>("MinEOverP");
+  maxEp_=iConfig.getParameter<double>("MaxEOverP");
 
   //collection to produce
   produceCkfseed_ = iConfig.getUntrackedParameter<bool>("ProduceCkfSeed",false);
@@ -72,25 +77,24 @@ GoodSeedProducer::GoodSeedProducer(const ParameterSet& iConfig):
 
   if(produceCkfseed_){
     LogDebug("GoodSeedProducer")<<"Seeds for CKF will be produced ";
-   produces<TrajectorySeedCollection>(preidckf_);
+    produces<TrajectorySeedCollection>(preidckf_);
   }
-
+  
   if(produceCkfPFT_){
     LogDebug("GoodSeedProducer")<<"PFTracks from CKF tracks will be produced ";
     produces<reco::PFRecTrackCollection>();
   }
-
-
+  
+  
   useTmva_= iConfig.getUntrackedParameter<bool>("UseTMVA",false);
 }
 
 
 GoodSeedProducer::~GoodSeedProducer()
 {
-
+  
   // do anything here that needs to be done at desctruction time
   // (e.g. close files, deallocate resources etc.) 
-  delete maxShPropagator_;
   delete pfTransformer_;
 }
 
@@ -103,20 +107,22 @@ GoodSeedProducer::~GoodSeedProducer()
 void
 GoodSeedProducer::produce(Event& iEvent, const EventSetup& iSetup)
 {
- 
+  
   LogDebug("GoodSeedProducer")<<"START event: "<<iEvent.id().event()
 			      <<" in run "<<iEvent.id().run();
-
+  
+  //Create empty output collections
   auto_ptr<TrajectorySeedCollection> output_preid(new TrajectorySeedCollection);
   auto_ptr<TrajectorySeedCollection> output_nopre(new TrajectorySeedCollection);
   auto_ptr< reco::PFRecTrackCollection > 
     pOutputPFRecTrackCollection(new reco::PFRecTrackCollection);
-
-		      
+  
+  
+  //Handle input collections
+  //ECAL clusters	      
   Handle<reco::PFClusterCollection> theECPfClustCollection;
   iEvent.getByLabel(pfCLusTagECLabel_,theECPfClustCollection);
-  Handle<reco::PFClusterCollection> thePSPfClustCollection;
-  iEvent.getByLabel(pfCLusTagPSLabel_,thePSPfClustCollection);
+  
   vector<reco::PFCluster> basClus;
   vector<reco::PFCluster>::const_iterator iklus;
   for (iklus=theECPfClustCollection.product()->begin();
@@ -125,9 +131,13 @@ GoodSeedProducer::produce(Event& iEvent, const EventSetup& iSetup)
     if((*iklus).energy()>clusThreshold_) basClus.push_back(*iklus);
   }
   
+  //PS clusters
+  Handle<reco::PFClusterCollection> thePSPfClustCollection;
+  iEvent.getByLabel(pfCLusTagPSLabel_,thePSPfClustCollection);
+  
   ps1Clus.clear();
   ps2Clus.clear();
-
+  
   for (iklus=thePSPfClustCollection.product()->begin();
        iklus!=thePSPfClustCollection.product()->end();
        iklus++){
@@ -136,194 +146,154 @@ GoodSeedProducer::produce(Event& iEvent, const EventSetup& iSetup)
     if ((*iklus).layer()==-11) ps1Clus.push_back(*iklus);
     if ((*iklus).layer()==-12) ps2Clus.push_back(*iklus);
   }
-
-
+  
+  //Vector of track collections
   for (uint istr=0; istr<tracksContainers_.size();istr++){
     
+    //Track collection
     Handle<reco::TrackCollection> tkRefCollection;
     iEvent.getByLabel(tracksContainers_[istr], tkRefCollection);
     reco::TrackCollection  Tk=*(tkRefCollection.product());
     
+    //Trajectory collection
     Handle<vector<Trajectory> > tjCollection;
     iEvent.getByLabel(tracksContainers_[istr], tjCollection);
     vector<Trajectory> Tj=*(tjCollection.product());
-
-   
-    LogDebug("GoodSeedProducer")<<"Number of tracks in colloction "
+    
+    
+    LogDebug("GoodSeedProducer")<<"Number of tracks in collection "
                                 <<tracksContainers_[istr] <<" to be analyzed "
                                 <<Tj.size();
-
-
- 
-
-  for(uint i=0;i<Tk.size();i++){
-    int ipteta=getBin(Tk[i].eta(),Tk[i].pt());
-
-    int ibin=ipteta*9;
-    reco::TrackRef trackRef(tkRefCollection, i);
-    TrajectorySeed Seed=Tj[i].seed();
-
-    float PTOB=Tj[i].lastMeasurement().updatedState().globalMomentum().mag();
-    float chikfred=Tk[i].normalizedChi2();
-    int nhitpi=Tj[i].foundHits();
-    float EP=0;
-
-
-    //CLUSTERS - TRACK matching
     
-    float pfmass=  0.0005;
-    float pfoutenergy=sqrt((pfmass*pfmass)+Tk[i].outerMomentum().Mag2());
-    BaseParticlePropagator theOutParticle = 
-      BaseParticlePropagator( 
-			     RawParticle(XYZTLorentzVector(Tk[i].outerMomentum().x(),
-							   Tk[i].outerMomentum().y(),
-							   Tk[i].outerMomentum().z(),
-							   pfoutenergy),
-					 XYZTLorentzVector(Tk[i].outerPosition().x(),
-							   Tk[i].outerPosition().y(),
-							   Tk[i].outerPosition().z(),
-							   0.)),
-			     0.,0.,4.);
-    theOutParticle.setCharge(Tk[i].charge());
-
-    theOutParticle.propagateToEcalEntrance(false);
-    
-
-    float toteta=1000;
-    float totphi=1000;
-    float dr=1000;
-    float EE=0;
-    float feta=0;
-
-     if(theOutParticle.getSuccess()!=0){
-       bool isBelowPS=(fabs(theOutParticle.vertex().eta())>1.65) ? true :false;	
-
-       for(vector<reco::PFCluster>::const_iterator aClus = basClus.begin();
-	   aClus != basClus.end(); aClus++) {
-           double ecalShowerDepth
-             = reco::PFCluster::getDepthCorrection(aClus->energy(),
-                                             isBelowPS,
-                                             false);
-
-	 math::XYZPoint meanShower=math::XYZPoint(theOutParticle.vertex())+
-	   math::XYZTLorentzVector(theOutParticle.momentum()).Vect().Unit()*ecalShowerDepth;	
-	 
-	 float etarec=meanShower.eta();
-	 float phirec=meanShower.phi();
-	 
-	 float tmp_dr=sqrt(pow((aClus->positionXYZ().phi()-phirec),2)+
-			   pow((aClus->positionXYZ().eta()-etarec),2));
-	 if (tmp_dr<dr) {
-	   dr=tmp_dr;
-	   toteta=aClus->positionXYZ().eta()-etarec;
-	   totphi=aClus->positionXYZ().phi()-phirec;
-	   EP=aClus->energy()/PTOB;
-	   EE=aClus->energy();
-	   feta= aClus->positionXYZ().eta();
-	 }
-       }
-     }
-     
-     double ecaletares 
-       = resMapEtaECAL_->GetBinContent(resMapEtaECAL_->FindBin(feta,EE));
-     double ecalphires 
-       = resMapPhiECAL_->GetBinContent(resMapPhiECAL_->FindBin(feta,EE)); 
-
-    float chieta=(toteta!=1000)? toteta/ecaletares : toteta;
-    float chiphi=(totphi!=1000)? totphi/ecalphires : totphi;
-    float chichi= sqrt(chieta*chieta + chiphi*chiphi);
-
-    bool cc1= false;
-
-    //TMVA Analysis
-    if(useTmva_){
-      chi=chichi;
-      chired=1000;
-      chiRatio=1000;
-      dpt=0;
-      nhit=nhitpi;
-
-      Trajectory::ConstRecHitContainer tmp;
-      Trajectory::ConstRecHitContainer hits=Tj[i].recHits();
-      for (int ih=hits.size()-1; ih>=0; ih--)  tmp.push_back(hits[ih]);
-      vector<Trajectory> FitTjs=(fitter_.product())->fit(Seed,tmp,Tj[i].lastMeasurement().updatedState());
+    //loop over the track collection
+    for(uint i=0;i<Tk.size();i++){		
+      int ipteta=getBin(Tk[i].eta(),Tk[i].pt());
+      int ibin=ipteta*8;
+      reco::TrackRef trackRef(tkRefCollection, i);
+      TrajectorySeed Seed=Tj[i].seed();
+      
+      float PTOB=Tj[i].lastMeasurement().updatedState().globalMomentum().mag();
+      float chikfred=Tk[i].normalizedChi2();
+      int nhitpi=Tj[i].foundHits();
+      float EP=0;
+      
+      
+      //CLUSTERS - TRACK matching
+      
+      float pfmass=  0.0005;
+      float pfoutenergy=sqrt((pfmass*pfmass)+Tk[i].outerMomentum().Mag2());
+      XYZTLorentzVector mom =XYZTLorentzVector(Tk[i].outerMomentum().x(),
+					       Tk[i].outerMomentum().y(),
+					       Tk[i].outerMomentum().z(),
+					       pfoutenergy);
+      XYZTLorentzVector pos =   XYZTLorentzVector(Tk[i].outerPosition().x(),
+						  Tk[i].outerPosition().y(),
+						  Tk[i].outerPosition().z(),
+						  0.);
+      BaseParticlePropagator theOutParticle = 
+	BaseParticlePropagator( RawParticle(mom,pos),
+				0.,0.,4.);
+      theOutParticle.setCharge(Tk[i].charge());
+      
+      theOutParticle.propagateToEcalEntrance(false);
+      
+      
+      float toteta=1000;
+      float totphi=1000;
+      float dr=1000;
+      float EE=0;
+      float feta=0;
+      
+      if(theOutParticle.getSuccess()!=0){
+	bool isBelowPS=(fabs(theOutParticle.vertex().eta())>1.65) ? true :false;	
 	
-      if(FitTjs.size()>0){
-	if(FitTjs[0].isValid()){
-	  vector<Trajectory> SmooTjs=(smoother_.product())->trajectories(FitTjs[0]);
-	  if(SmooTjs.size()>0){
-	    if(SmooTjs[0].isValid()){
-		
-	      //Track refitted with electron hypothesis
-		
-	      float pt_out=SmooTjs[0].firstMeasurement().
-		updatedState().globalMomentum().perp();
-	      float pt_in=SmooTjs[0].lastMeasurement().
-		updatedState().globalMomentum().perp();
-	      dpt=(pt_in>0) ? fabs(pt_out-pt_in)/pt_in : 0.;
-	      chiRatio=SmooTjs[0].chiSquared()/Tj[i].chiSquared();
-	      chired=chiRatio*chikfred;
-	    }
+	for(vector<reco::PFCluster>::const_iterator aClus = basClus.begin();
+	    aClus != basClus.end(); aClus++) {
+	  double ecalShowerDepth
+	    = reco::PFCluster::getDepthCorrection(aClus->energy(),
+						  isBelowPS,
+						  false);
+	  
+	  math::XYZPoint meanShower=math::XYZPoint(theOutParticle.vertex())+
+	    math::XYZTLorentzVector(theOutParticle.momentum()).Vect().Unit()*ecalShowerDepth;	
+	  
+	  float etarec=meanShower.eta();
+	  float phirec=meanShower.phi();
+	  float tmp_ep=aClus->energy()/PTOB;
+          float tmp_phi=fabs(aClus->positionXYZ().phi()-phirec);
+	  if (tmp_phi>TMath::TwoPi()) tmp_phi-= TMath::TwoPi();
+	  float tmp_dr=sqrt(pow(tmp_phi,2)+
+			    pow((aClus->positionXYZ().eta()-etarec),2));
+	  
+	  if ((tmp_dr<dr)&&(tmp_ep>minEp_)&&(tmp_ep<maxEp_)){
+	    dr=tmp_dr;
+	    toteta=aClus->positionXYZ().eta()-etarec;
+	    totphi=tmp_phi;
+	    EP=tmp_ep;
+	    EE=aClus->energy();
+	    feta= aClus->positionXYZ().eta();
 	  }
 	}
       }
-      eta=Tk[i].eta();
-      pt=Tk[i].pt();
-      eP=EP;
-      //ENDCAP
-      //USE OF PRESHOWER 
-      if (fabs(Tk[i].eta())>1.6){
-	ps2En=0;ps1En=0;
-	ps2chi=100.; ps1chi=100.;
-	PSforTMVA(Tj[i].firstMeasurement().updatedState());
-      }
 
+      //Resolution maps
+      double ecaletares 
+	= resMapEtaECAL_->GetBinContent(resMapEtaECAL_->FindBin(feta,EE));
+      double ecalphires 
+	= resMapPhiECAL_->GetBinContent(resMapPhiECAL_->FindBin(feta,EE)); 
       
-      float Ytmva=(fabs(Tk[i].eta())<1.6) ? 
-	reader->EvaluateMVA( metBarrel_ ):
-	reader->EvaluateMVA( metEndcap_ );
-      
-      if ( Ytmva>thrTMVA[ipteta]) cc1=true;
-    }else{ 
-      
-      //thresholds     
-      float chi2cut=thr[ibin+0];
-      float ep_cutmin=thr[ibin+1];
-      //
-      int hit1max=int(thr[ibin+2]);
-      float chiredmin=thr[ibin+3];
-      //
-      float chiratiocut=thr[ibin+4]; 
-      float gschicut=thr[ibin+5]; 
-      float gsptmin=thr[ibin+6];
-      // 
-      int hit2max=int(thr[ibin+7]);
-      float finchicut=thr[ibin+8]; 
-      //
-      
-      
+      //geomatrical compatibility
+      float chieta=(toteta!=1000)? toteta/ecaletares : toteta;
+      float chiphi=(totphi!=1000)? totphi/ecalphires : totphi;
+      float chichi= sqrt(chieta*chieta + chiphi*chiphi);
       
       
       //Matching criteria
-      bool aa1= (chichi<chi2cut);
-      bool aa2= ((EP>ep_cutmin)&&(EP<1.2));
-      bool aa3= (aa1 && aa2);
-      int ipsbin=(ibin>=90)? 4*((ibin/9)-10) :-1;
-      bool aa4= ((aa3)||(ibin<90))? false : PSCorrEnergy(Tj[i].firstMeasurement().updatedState(),ipsbin);
-      bool aa5= (aa3 || aa4);
-      //KF filter
-      bool bb1 =
+      float chi2cut=thr[ibin+0];
+      float ep_cutmin=thr[ibin+1];
+      bool GoodMatching= ((chichi<chi2cut) &&(EP>ep_cutmin) &&(EP<1.2));
+      
+      //ENDCAP
+      //USE OF PRESHOWER 
+      if (fabs(Tk[i].eta())>1.6){
+        int iptbin =getBin(Tk[i].pt());
+	ps2En=0;ps1En=0;
+	ps2chi=100.; ps1chi=100.;
+	PSforTMVA(mom,pos);
+	float p1e=thrPS[iptbin];
+        float p2e=thrPS[iptbin+1];
+        float p1c=thrPS[iptbin+2];
+        float p2c=thrPS[iptbin+3];
+	bool GoodPSMatching= 
+	  ((ps2En>p2e)
+	   &&(ps1En>p1e)
+	   &&(ps1chi<p1c)
+	   &&(ps2chi<p2c));
+	GoodMatching = (GoodMatching && GoodPSMatching);
+      }
+      
+      
+      bool GoodRange= ((fabs(Tk[i].eta())<maxEta_) && 
+                       (Tk[i].pt()>minPt_));
+      //KF FILTERING FOR UNMATCHED EVENTS
+      int hit1max=int(thr[ibin+2]);
+      float chiredmin=thr[ibin+3];
+      bool GoodKFFiltering =
 	((chikfred>chiredmin) || (nhitpi<hit1max));
+      
+      bool GoodTkId= false;
+      
+      if((!GoodMatching) &&(GoodKFFiltering) &&(GoodRange)){
 
-      bool bb2 = false;
-      bool bb3 = false;
-
-      if((!aa5)&&bb1){
-
+	chi=chichi;
+	chired=1000;
+	chiRatio=1000;
+	dpt=0;
+	nhit=nhitpi;
+      
 	Trajectory::ConstRecHitContainer tmp;
 	Trajectory::ConstRecHitContainer hits=Tj[i].recHits();
 	for (int ih=hits.size()-1; ih>=0; ih--)  tmp.push_back(hits[ih]);
-	
 	vector<Trajectory> FitTjs=(fitter_.product())->fit(Seed,tmp,Tj[i].lastMeasurement().updatedState());
 	
 	if(FitTjs.size()>0){
@@ -338,91 +308,113 @@ GoodSeedProducer::produce(Event& iEvent, const EventSetup& iSetup)
 		  updatedState().globalMomentum().perp();
 		float pt_in=SmooTjs[0].lastMeasurement().
 		  updatedState().globalMomentum().perp();
-		float el_dpt=(pt_in>0) ? fabs(pt_out-pt_in)/pt_in : 0.;
-		float chiratio=SmooTjs[0].chiSquared()/Tj[i].chiSquared();
-		float gchi=chiratio*chikfred;
-		
-		//Criteria based on electron tracks
-		bb2=((el_dpt>gsptmin)&&(gchi<gschicut)&&(chiratio<chiratiocut));
-		bb3=((gchi<finchicut)&&(nhitpi<hit2max));
+		dpt=(pt_in>0) ? fabs(pt_out-pt_in)/pt_in : 0.;
+		chiRatio=SmooTjs[0].chiSquared()/Tj[i].chiSquared();
+		chired=chiRatio*chikfred;
 	      }
 	    }
 	  }
 	}
+	
+	//TMVA Analysis
+	if(useTmva_){
+	  
+	  
+	
+	  eta=Tk[i].eta();
+	  pt=Tk[i].pt();
+	  eP=EP;
+
+	  
+	  
+	  float Ytmva=reader->EvaluateMVA( method_ );
+	  
+	  float BDTcut=thr[ibin+7]; 
+	  if ( Ytmva>BDTcut) GoodTkId=true;
+	}else{ 
+	  
+	  
+	  
+	  //
+	  float chiratiocut=thr[ibin+4]; 
+	  float gschicut=thr[ibin+5]; 
+	  float gsptmin=thr[ibin+6];
+
+	  GoodTkId=((dpt>gsptmin)&&(chired<gschicut)&&(chiRatio<chiratiocut));      
+       
+	}
       }
-  
+    
+      bool GoodPreId= (GoodTkId || GoodMatching); 
+   
 
       
-      bool bb4=(bb2 || bb3);
-      bool bb5=(bb4 && bb1);
-      cc1=(aa5 || bb5); 
-      
-      if(cc1)
+      if(GoodPreId)
 	LogDebug("GoodSeedProducer")<<"Track (pt= "<<Tk[i].pt()<<
 	  "GeV/c, eta= "<<Tk[i].eta() <<
 	  ") preidentified for agreement between  track and ECAL cluster";
-      if(cc1 &&(!bb1))
+      if(GoodPreId &&(!GoodMatching))
 	LogDebug("GoodSeedProducer")<<"Track (pt= "<<Tk[i].pt()<<
 	  "GeV/c, eta= "<<Tk[i].eta() <<
 	  ") preidentified only for track properties";
       
-    }
+    
 
-    if (cc1){
-      
-      //NEW SEED with n hits
-      int nHitsinSeed= min(nHitsInSeed_,Tj[i].foundHits());
-      
-      Trajectory seedTraj;
-      OwnVector<TrackingRecHit>  rhits;
+      if (GoodPreId){
+	
+	//NEW SEED with n hits
+	int nHitsinSeed= min(nHitsInSeed_,Tj[i].foundHits());
+	
+	Trajectory seedTraj;
+	OwnVector<TrackingRecHit>  rhits;
+	
+	vector<TrajectoryMeasurement> tm=Tj[i].measurements();
+	
+	for (int ihit=tm.size()-1; ihit>=int(tm.size()-nHitsinSeed);ihit-- ){ 
+	  //for the first n measurement put the TM in the trajectory
+	  // and save the corresponding hit
+	  if ((*tm[ihit].recHit()).hit()->isValid()){
+	    seedTraj.push(tm[ihit]);
+	    rhits.push_back((*tm[ihit].recHit()).hit()->clone());
+	  }
+	}
+	PTrajectoryStateOnDet* state = TrajectoryStateTransform().
+	  persistentState(seedTraj.lastMeasurement().updatedState(),
+			  (*seedTraj.lastMeasurement().recHit()).hit()->geographicalId().rawId());
+	
+	TrajectorySeed NewSeed(*state,rhits,alongMomentum);
+	
+	output_preid->push_back(NewSeed);
+	delete state;
+	if(produceCkfPFT_){
+	  
+	  reco::PFRecTrack pftrack( trackRef->charge(), 
+				    reco::PFRecTrack::KF_ELCAND, 
+				    i, trackRef );
+	  
+	  bool valid = pfTransformer_->addPoints( pftrack, *trackRef, Tj[i] );
+	  if(valid)
+	    pOutputPFRecTrackCollection->push_back(pftrack);		
+	} 
+      }else{
+	if (produceCkfseed_){
+	  output_nopre->push_back(Seed);
+	}
+	if(produceCkfPFT_){
+	  
+	  reco::PFRecTrack pftrack( trackRef->charge(), 
+				    reco::PFRecTrack::KF, 
+				    i, trackRef );
 
-      vector<TrajectoryMeasurement> tm=Tj[i].measurements();
-
-      for (int ihit=tm.size()-1; ihit>=int(tm.size()-nHitsinSeed);ihit-- ){ 
-	//for the first n measurement put the TM in the trajectory
-	// and save the corresponding hit
-	if ((*tm[ihit].recHit()).hit()->isValid()){
-	  seedTraj.push(tm[ihit]);
-	  rhits.push_back((*tm[ihit].recHit()).hit()->clone());
+	  bool valid = pfTransformer_->addPoints( pftrack, *trackRef, Tj[i] );
+	  
+	  if(valid)
+	    pOutputPFRecTrackCollection->push_back(pftrack);		
+	  
 	}
       }
-      PTrajectoryStateOnDet* state = TrajectoryStateTransform().
-	persistentState(seedTraj.lastMeasurement().updatedState(),
-			(*seedTraj.lastMeasurement().recHit()).hit()->geographicalId().rawId());
-      
-      TrajectorySeed NewSeed(*state,rhits,alongMomentum);
-
-      output_preid->push_back(NewSeed);
-      delete state;
-      if(produceCkfPFT_){
-	
-	reco::PFRecTrack pftrack( trackRef->charge(), 
-				  reco::PFRecTrack::KF_ELCAND, 
-				  i, trackRef );
-	
-	bool valid = pfTransformer_->addPoints( pftrack, *trackRef, Tj[i] );
-	if(valid)
-	  pOutputPFRecTrackCollection->push_back(pftrack);		
-      } 
-    }else{
-      if (produceCkfseed_){
-	output_nopre->push_back(Seed);
-      }
-      if(produceCkfPFT_){
-		
-	reco::PFRecTrack pftrack( trackRef->charge(), 
-				  reco::PFRecTrack::KF, 
-				  i, trackRef );
-
-	bool valid = pfTransformer_->addPoints( pftrack, *trackRef, Tj[i] );
-	
-	if(valid)
-	  pOutputPFRecTrackCollection->push_back(pftrack);		
-	
-      }
-    }
-  }
-  }
+    } //end loop on track collection
+  } //end loop on the vector of track collections
   if(produceCkfPFT_){
     iEvent.put(pOutputPFRecTrackCollection);
   }
@@ -438,15 +430,11 @@ GoodSeedProducer::beginJob(const EventSetup& es)
 {
 
   //Get Magnetic Field
-  ESHandle<MagneticField> magField;
-  es.get<IdealMagneticFieldRecord>().get(magField);
-  pfTransformer_= new PFTrackTransformer(magField.product());
+  pfTransformer_= new PFTrackTransformer();
 
   //Tracking Tools
-  es.get<TrackingComponentsRecord>().get(propagatorName_, propagator_);
   es.get<TrackingComponentsRecord>().get(fitterName_, fitter_);
   es.get<TrackingComponentsRecord>().get(smootherName_, smoother_);
-  maxShPropagator_=new StraightLinePropagator(magField.product());
 
   
   //Resolution maps
@@ -457,124 +445,68 @@ GoodSeedProducer::beginJob(const EventSetup& es)
 
   if(useTmva_){
     reader = new TMVA::Reader();
-    string Method = conf_.getParameter<string>("TMVAMethod");
+    method_ = conf_.getParameter<string>("TMVAMethod");
     
-    reader->AddVariable("eta",&eta);
-    reader->AddVariable("pt",&pt);
     reader->AddVariable("eP",&eP);
     reader->AddVariable("chi",&chi);
-    reader->AddVariable("nhit",&nhit);
     reader->AddVariable("chired",&chired);
     reader->AddVariable("chiRatio",&chiRatio);
     reader->AddVariable("dpt",&dpt);
-    reader->AddVariable("ps1En",&ps1En);
-    reader->AddVariable("ps2En",&ps2En);
-    reader->AddVariable("ps1chi",&ps1chi);
-    reader->AddVariable("ps2chi",&ps2chi);
-    
-    FileInPath BarrelWeigths(conf_.getParameter<string>("WeightsForBarrel"));
-    metBarrel_=Method + " barrel";
-    reader->BookMVA( metBarrel_, BarrelWeigths.fullPath().c_str()  );
-    FileInPath EndcapWeigths(conf_.getParameter<string>("WeightsForEndcap"));
-    metEndcap_=Method + " endcap";
-    reader->BookMVA( metEndcap_, EndcapWeigths.fullPath().c_str()  );	
-    
-    FileInPath parTMVAFile(conf_.getParameter<string>("TMVAThresholdFile"));
-    ifstream ifsTMVA(parTMVAFile.fullPath().c_str());
-    for (int iy=0;iy<15;iy++) ifsTMVA >> thrTMVA[iy];
-  }else{
+    reader->AddVariable("nhit",&nhit);
+    reader->AddVariable("eta",&eta);
+    reader->AddVariable("pt",&pt);
+    FileInPath Weigths(conf_.getParameter<string>("Weights"));
+    reader->BookMVA( method_, Weigths.fullPath().c_str()  );	
+    }
 
     
     //read threshold
     FileInPath parFile(conf_.getParameter<string>("ThresholdFile"));
     ifstream ifs(parFile.fullPath().c_str());
-    for (int iy=0;iy<135;iy++) ifs >> thr[iy];
+    for (int iy=0;iy<72;iy++) ifs >> thr[iy];
     
     //read PS threshold
     FileInPath parPSFile(conf_.getParameter<string>("PSThresholdFile"));
     ifstream ifsPS(parPSFile.fullPath().c_str());
-    for (int iy=0;iy<20;iy++) ifsPS >> thrPS[iy];
-  }
+    for (int iy=0;iy<12;iy++) ifsPS >> thrPS[iy];
+ 
 }
-
+int GoodSeedProducer::getBin(float pt){
+int ip=0;
+  if (pt<6) ip=0;
+  else {  if (pt<12) ip=1;
+        else ip=2;
+  }
+return ip;
+}
 int GoodSeedProducer::getBin(float eta, float pt){
   int ie=0;
   int ip=0;
-  if (fabs(eta)<0.8) ie=0;
+  if (fabs(eta)<1.2) ie=0;
   else{ if (fabs(eta)<1.65) ie=1;
     else ie=2;
   }
-  if (pt<2) ip=0;
-  else {  if (pt<4) ip=1;
-    else {  if (pt<6) ip=2;
-      else {  if (pt<15) ip=3;
-	else ip=4;
-      }
-    }
+  if (pt<6) ip=0;
+  else {  if (pt<12) ip=1;     
+	else ip=2;
   }
-  int iep= ie*5+ip;
+  int iep= ie*3+ip;
   LogDebug("GoodSeedProducer")<<"Track pt ="<<pt<<" eta="<<eta<<" bin="<<iep;
   return iep;
 }
 
-bool GoodSeedProducer::PSCorrEnergy(const TSOS tsos, int ibin){
-  int sder=0;
-  float psEn1 =thrPS[ibin+0];
-  float dX1   =thrPS[ibin+1];
-  float psEn2 =thrPS[ibin+2];
-  float dY2   =thrPS[ibin+3];
-  TSOS ps1TSOS =
-    pfTransformer_->getStateOnSurface(PFGeometry::PS1Wall, tsos,
-                                      propagator_.product(), sder);
-  if (!(ps1TSOS.isValid())) return false;
-  GlobalPoint v1=ps1TSOS.globalPosition();
-  
-  if (!((v1.perp() >=
-         PFGeometry::innerRadius(PFGeometry::PS1)) &&
-        (v1.perp() <=
-         PFGeometry::outerRadius(PFGeometry::PS1)))) return false;
-  
-  bool Ps1g=false;  
-  vector<reco::PFCluster>::const_iterator ips;
-  for (ips=ps1Clus.begin(); ips!=ps1Clus.end();ips++){
-    if ((fabs(v1.x()-(*ips).positionXYZ().x())<dX1)&&
-        (fabs(v1.y()-(*ips).positionXYZ().y())<7)&&
-        (v1.z()*(*ips).positionXYZ().z()>0)&&
-	((*ips).energy()>psEn1)) Ps1g=true;
-  }
-  if (!Ps1g) return false;
-  TSOS ps2TSOS =
-    pfTransformer_->getStateOnSurface(PFGeometry::PS2Wall, ps1TSOS,
-                                      propagator_.product(), sder);
-  if (!(ps2TSOS.isValid())) return false;
-  GlobalPoint v2=ps2TSOS.globalPosition();
-  
-  if (!((v2.perp() >=
-         PFGeometry::innerRadius(PFGeometry::PS2)) &&
-        (v2.perp() <=
-         PFGeometry::outerRadius(PFGeometry::PS2)))) return false;
-  bool Ps2g =false;
-  for (ips=ps2Clus.begin(); ips!=ps2Clus.end();ips++){
-    if ((fabs(v2.x()-(*ips).positionXYZ().x())<10.)&&
-	(fabs(v2.y()-(*ips).positionXYZ().y())<dY2)&&
-	(v2.z()*(*ips).positionXYZ().z()>0)&&
-	((*ips).energy()>psEn2)) Ps2g=true;    
-  }
+void GoodSeedProducer::PSforTMVA(XYZTLorentzVector mom,XYZTLorentzVector pos ){
 
-  return Ps2g;
-  
-}
-void GoodSeedProducer::PSforTMVA(const TSOS tsos){
-  int sder=0;
-  TSOS ps1TSOS =
-    pfTransformer_->getStateOnSurface(PFGeometry::PS1Wall, tsos,
-                                      propagator_.product(), sder);
-  if (ps1TSOS.isValid()){
-    GlobalPoint v1=ps1TSOS.globalPosition();
-  
-    if ((v1.perp() >=
+  BaseParticlePropagator OutParticle(RawParticle(mom,pos)
+				     ,0.,0.,4.) ;
+
+  OutParticle.propagateToPreshowerLayer1(false);
+  if (OutParticle.getSuccess()!=0){
+    //   GlobalPoint v1=ps1TSOS.globalPosition();
+    math::XYZPoint v1=math::XYZPoint(OutParticle.vertex());
+    if ((v1.Rho() >=
 	 PFGeometry::innerRadius(PFGeometry::PS1)) &&
-	(v1.perp() <=
+	(v1.Rho() <=
 	 PFGeometry::outerRadius(PFGeometry::PS1))) {
       float enPScl1=0;
       float chi1=100;
@@ -591,14 +523,13 @@ void GoodSeedProducer::PSforTMVA(const TSOS tsos){
       ps1En=enPScl1;
       ps1chi=chi1;
 
-      TSOS ps2TSOS =
-	pfTransformer_->getStateOnSurface(PFGeometry::PS2Wall, ps1TSOS,
-					  propagator_.product(), sder);
-      if (ps2TSOS.isValid()){
-	GlobalPoint v2=ps2TSOS.globalPosition();
-	if ((v2.perp() >=
+
+      OutParticle.propagateToPreshowerLayer2(false);
+      if (OutParticle.getSuccess()!=0){
+	math::XYZPoint v2=math::XYZPoint(OutParticle.vertex());
+	if ((v2.Rho() >=
 	     PFGeometry::innerRadius(PFGeometry::PS2)) &&
-	    (v2.perp() <=
+	    (v2.Rho() <=
 	     PFGeometry::outerRadius(PFGeometry::PS2))){
 	  float enPScl2=0;
 	  float chi2=100;

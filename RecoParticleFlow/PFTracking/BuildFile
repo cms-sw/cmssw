@@ -1,7 +1,5 @@
 <flags EDM_PLUGIN=1>
 <use name=FWCore/Framework>
-<use name=MagneticField/Engine>
-<use name=MagneticField/Records>
 <use name=TrackingTools/Records>
 <use name=TrackingTools/PatternTools>
 <use name=TrackingTools/TrajectoryState>
@@ -16,8 +14,6 @@
 <export>	
 <lib name=RecoParticleFlowPFTracking>
 <use name=FWCore/Framework>
-<use name=MagneticField/Engine>
-<use name=MagneticField/Records>
 <use name=TrackingTools/Records>
 <use name=TrackingTools/PatternTools>
 <use name=TrackingTools/TrajectoryState>

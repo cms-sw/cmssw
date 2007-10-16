@@ -13,16 +13,7 @@
 #include "DataFormats/ParticleFlowReco/interface/PFRecTrackFwd.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 
-#include "DataFormats/GeometrySurface/interface/SimpleCylinderBounds.h"
-#include "DataFormats/GeometrySurface/interface/SimpleDiskBounds.h"
-#include "DataFormats/GeometrySurface/interface/BoundCylinder.h"
-
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
-#include "TrackingTools/GeomPropagators/interface/AnalyticalPropagator.h"
-#include "TrackingTools/GeomPropagators/interface/StraightLinePropagator.h"
-
-#include "MagneticField/Engine/interface/MagneticField.h"
-
 #include "FastSimulation/BaseParticlePropagator/interface/BaseParticlePropagator.h"
 
 using namespace std;
@@ -31,72 +22,19 @@ using namespace edm;
 
 
 
-PFTrackTransformer::PFTrackTransformer( const MagneticField * magField){
+PFTrackTransformer::PFTrackTransformer(){
   LogInfo("PFTrackTransformer")<<"PFTrackTransformer built";
 
-  fwdPropagator_=new AnalyticalPropagator(magField,alongMomentum);
-  bkwdPropagator_=new AnalyticalPropagator(magField,oppositeToMomentum);
-  maxShPropagator_=new StraightLinePropagator(magField);
   PFGeometry pfGeometry;
 }
 
 
 
 PFTrackTransformer::~PFTrackTransformer(){
-  delete fwdPropagator_;
-  delete bkwdPropagator_;
-  delete maxShPropagator_;
+
 }
 
 
-
-TrajectoryStateOnSurface 
-PFTrackTransformer::getStateOnSurface( PFGeometry::Surface_t iSurf, 
-				       const TrajectoryStateOnSurface& tsos, 
-				       const Propagator* propagator, int& side)
-  const {
-
-  GlobalVector p = tsos.globalParameters().momentum();
-  TSOS finalTSOS;
-  side = -100;
-  if (fabs(p.perp()/p.z()) > PFGeometry::tanTh(iSurf)) {
-    finalTSOS = propagator->propagate(tsos, PFGeometry::barrelBound(iSurf));
-    side = 0;
-    if (!finalTSOS.isValid()) {
-      if (p.z() > 0.) {
-	finalTSOS = propagator->propagate(tsos, PFGeometry::positiveEndcapDisk(iSurf));
-	side = 1;
-      } else {
-	finalTSOS = propagator->propagate(tsos, PFGeometry::negativeEndcapDisk(iSurf));
-	side = -1;
-      }
-    }
-  } else if (p.z() > 0.) {
-    finalTSOS = propagator->propagate(tsos, PFGeometry::positiveEndcapDisk(iSurf));
-    side = 1;
-    if (!finalTSOS.isValid()) {
-      finalTSOS = propagator->propagate(tsos, PFGeometry::barrelBound(iSurf));
-      side = 0;
-    }
-  } else {
-    finalTSOS = propagator->propagate(tsos, PFGeometry::negativeEndcapDisk(iSurf));
-    side = -1;
-    if (!finalTSOS.isValid()) {
-      finalTSOS = propagator->propagate(tsos, PFGeometry::barrelBound(iSurf));
-      side = 0;
-    }
-  }
-  
-  if( !finalTSOS.isValid() ) {
-    LogWarning("PFProducer")<<"invalid trajectory state on surface: "
-			  <<" iSurf = "<<iSurf
-			  <<" tan theta = "<<p.perp()/p.z()
-			  <<" pz = "<<p.z()
-			  <<endl;
-  }
-  
-  return finalTSOS;
-}
 
 
 
@@ -251,64 +189,4 @@ PFTrackTransformer::addPoints( reco::PFRecTrack& pftrack,
 
    
    return true;
-}
-
-pair<float,float> PFTrackTransformer::showerDimension(float Eclus,
-						      math::XYZPoint showerDirection, 
-						      bool isBelowPS )const {
-  double ecalShowerDepth     
-    = PFCluster::getDepthCorrection(Eclus,
-				    isBelowPS, 
-				    false);
-  showerDirection *= ecalShowerDepth/showerDirection.R();
-  double rCyl = PFGeometry::innerRadius(PFGeometry::ECALBarrel) + 
-    showerDirection.Rho();
-  double zCyl = PFGeometry::innerZ(PFGeometry::ECALEndcap) + 
-    fabs(showerDirection.Z());
-  return make_pair(rCyl,zCyl);
-}
-
-ReferenceCountingPointer<Surface>
-PFTrackTransformer::showerMaxSurface(float Eclus, bool isBelowPS, 
-				     TSOS ecalTSOS,int side) const {
-  double ecalShowerDepth     
-      = PFCluster::getDepthCorrection(Eclus,
-				      isBelowPS, 
-				      false);
-  math::XYZPoint showerDirection(ecalTSOS.globalMomentum().x(), 
-				 ecalTSOS.globalMomentum().y(), 
-				 ecalTSOS.globalMomentum().z());
-  showerDirection *= ecalShowerDepth/showerDirection.R();
-  double rCyl = PFGeometry::innerRadius(PFGeometry::ECALBarrel) + 
-    showerDirection.Rho();
-  double zCyl = PFGeometry::innerZ(PFGeometry::ECALEndcap) + 
-    fabs(showerDirection.Z());
-  
-
-  ReferenceCountingPointer<Surface> showerMaxWall;
-  const float epsilon = 0.001; // should not matter at all
-  switch (side) {
-  case 0: 
-    showerMaxWall 
-      = ReferenceCountingPointer
-      <Surface>(new BoundCylinder(GlobalPoint(0.,0.,0.), 
-				  TkRotation<float>(), 
-				  SimpleCylinderBounds(rCyl, rCyl, -zCyl, zCyl))); 
-    break;
-  case +1: 
-    showerMaxWall 
-      = ReferenceCountingPointer
-      <Surface>( new BoundPlane(Surface::PositionType(0,0,zCyl), 
-				TkRotation<float>(), 
-				SimpleDiskBounds(0., rCyl, -epsilon, epsilon))); 
-    break;
-  case -1: 
-    showerMaxWall 
-      = ReferenceCountingPointer
-      <Surface>(new BoundPlane(Surface::PositionType(0,0,-zCyl), 
-			       TkRotation<float>(), 
-			       SimpleDiskBounds(0., rCyl, -epsilon, epsilon))); 
-       break;
-  }
-  return  showerMaxWall;
 }
