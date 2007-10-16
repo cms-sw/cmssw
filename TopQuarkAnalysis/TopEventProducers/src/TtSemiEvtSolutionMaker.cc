@@ -1,5 +1,5 @@
 //
-// $Id: TtSemiEvtSolutionMaker.cc,v 1.24 2007/10/03 22:18:00 lowette Exp $
+// $Id: TtSemiEvtSolutionMaker.cc,v 1.25 2007/10/03 23:29:51 lowette Exp $
 //
 
 #include "TopQuarkAnalysis/TopEventProducers/interface/TtSemiEvtSolutionMaker.h"
@@ -226,7 +226,7 @@ void TtSemiEvtSolutionMaker::produce(edm::Event & iEvent, const edm::EventSetup 
       float bestLRVal = 1000000;
       int bestSol = (*evtsols)[0].getLRBestJetComb(); // duplicate the default
       for(size_t s=0; s<evtsols->size(); s++) {
-        if ((*evtsols)[s].getLRJetCombLRval() < bestLRVal) {
+        if ((*evtsols)[s].getLRJetCombLRval() > bestLRVal) {
           bestLRVal = (*evtsols)[s].getLRJetCombLRval();
           bestSol = s;
         }
