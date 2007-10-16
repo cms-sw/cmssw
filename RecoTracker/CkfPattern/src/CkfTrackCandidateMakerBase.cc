@@ -28,7 +28,8 @@
 #include "RecoTracker/CkfPattern/interface/SeedCleanerBySharedInput.h"
 #include "RecoTracker/CkfPattern/interface/CachingSeedCleanerBySharedInput.h"
 
-#include "RecoTracker/TkNavigation/interface/NavigationSchoolFactory.h"
+#include "RecoTracker/Record/interface/NavigationSchoolRecord.h"
+#include "TrackingTools/DetLayers/interface/NavigationSchool.h"
 
 #include<algorithm>
 #include<functional>
@@ -49,7 +50,6 @@ namespace cms{
   // Virtual destructor needed.
   CkfTrackCandidateMakerBase::~CkfTrackCandidateMakerBase() {
     delete theInitialState;  
-    delete theNavigationSchool;
     if (theSeedCleaner) delete theSeedCleaner;
   }  
 
@@ -68,11 +68,10 @@ namespace cms{
     es.get<TrajectoryCleaner::Record>().get(trajectoryCleanerName, trajectoryCleanerH);
     theTrajectoryCleaner= trajectoryCleanerH.product();
 
-    //theNavigationSchool      = new SimpleNavigationSchool(&(*theGeomSearchTracker),&(*theMagField));
-    edm::ParameterSet NavigationPSet = conf_.getParameter<edm::ParameterSet>("NavigationPSet");
-    std::string navigationSchoolName = NavigationPSet.getParameter<std::string>("ComponentName");
-    theNavigationSchool = NavigationSchoolFactory::get()->create( navigationSchoolName, &(*theGeomSearchTracker), &(*theMagField));
-
+    std::string navigationSchoolName = conf_.getParameter<std::string>("NavigationSchool");
+    edm::ESHandle<NavigationSchool> navigationSchoolH;
+    es.get<NavigationSchoolRecord>().get(navigationSchoolName, navigationSchoolH);
+    theNavigationSchool = navigationSchoolH.product();
 
     // set the correct navigation
     NavigationSetter setter( *theNavigationSchool);
