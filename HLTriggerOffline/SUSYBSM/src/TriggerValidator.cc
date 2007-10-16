@@ -13,7 +13,7 @@
 //
 // Original Author:  Massimiliano Chiorboli
 //         Created:  Wed Aug 29 15:10:56 CEST 2007
-// $Id$
+// $Id: TriggerValidator.cc,v 1.2 2007/09/28 11:10:19 chiorbo Exp $
 //
 //
 
@@ -30,7 +30,8 @@
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/Framework/interface/Handle.h"
+#include "FWCore/Framework/interface/TriggerNames.h"
+#include "DataFormats/Common/interface/Handle.h"
 
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -106,7 +107,8 @@ TriggerValidator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
   // Get the L1 Info
   // ********************************************************    
   Handle<l1extra::L1ParticleMapCollection> L1PMC;
-  try {iEvent.getByType(L1PMC);} catch (...) {;}
+  //  try {iEvent.getByType(L1PMC);} catch (...) {;}
+  iEvent.getByType(L1PMC);
   std::vector<int> l1bits;
   if (!L1PMC.isValid()) {cout << "L1ParticleMapCollection Not Valid!" << endl;}
   int nL1size = L1PMC->size();
@@ -168,8 +170,9 @@ TriggerValidator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
     numTotHltBitsBeforeCuts.reserve((*(trhv[iRefHlt])).size()+1);
     hHltBitsAfterCuts->SetBins((*(trhv[iRefHlt])).size()+1, 0, (*(trhv[iRefHlt])).size()+1);
     hL1HltMap->SetBins(L1PMC->size(), 0, L1PMC->size(), (*(trhv[iRefHlt])).size(), 0, (*(trhv[iRefHlt])).size());
-   numTotHltBitsAfterCuts.reserve((*(trhv[iRefHlt])).size()+1);
-    hlNames_=(*(trhv[iRefHlt])).getTriggerNames();
+    numTotHltBitsAfterCuts.reserve((*(trhv[iRefHlt])).size()+1);
+    triggerNames_.init(*(trhv[iRefHlt]));
+    hlNames_=triggerNames_.triggerNames();
     hlNames_.push_back("Total");
   }
 

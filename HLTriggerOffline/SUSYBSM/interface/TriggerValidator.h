@@ -16,7 +16,7 @@
 //
 // Original Author:  Massimiliano Chiorboli
 //         Created:  Wed Aug 29 15:10:56 CEST 2007
-// $Id$
+// $Id: TriggerValidator.h,v 1.2 2007/09/28 11:10:50 chiorbo Exp $
 //
 //
 
@@ -27,6 +27,7 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Framework/interface/TriggerNames.h"
 
 #include "TFile.h"
 #include "TH1.h"
@@ -65,6 +66,7 @@ class TriggerValidator : public edm::EDAnalyzer {
       // name of each L1 algorithm
       std::vector<std::string> l1Names_;    
       // name of each hlt algorithm
+      edm::TriggerNames triggerNames_;  // TriggerNames class
       std::vector<std::string>  hlNames_;  
 
 
