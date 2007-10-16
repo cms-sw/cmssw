@@ -8,6 +8,6 @@
 <library file=ZToMuMuHistogrammer.cc></library>
 <library file=ZMuMuAnalyzer.cc></library>
 <library file=ZToMuMuFilter.cc></library>
-
+<library file=ZToLLEdmNtupleDumper.cc></library>
 
 
