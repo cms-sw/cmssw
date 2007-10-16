@@ -10,7 +10,7 @@
 */
 //
 // Original Author: Monica Vazquez Acosta (CERN)
-// $Id:$
+// $Id: EgammaHLTPixelMatchElectronProducers.cc,v 1.1 2006/11/03 16:56:38 monicava Exp $
 //
 //
 
@@ -26,7 +26,6 @@
 #include "RecoEgamma/EgammaHLTAlgos/interface/EgammaHLTPixelMatchElectronAlgo.h"
 #include "DataFormats/EgammaReco/interface/ElectronPixelSeedFwd.h"
 #include "DataFormats/EgammaReco/interface/ElectronPixelSeed.h"
-#include "DataFormats/EgammaReco/interface/SeedSuperClusterAssociation.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/TrackReco/interface/TrackExtraFwd.h"
 #include "DataFormats/TrackReco/interface/Track.h"
