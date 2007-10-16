@@ -3,8 +3,8 @@
  *  
  *  All the code is under revision
  *
- *  $Date: 2007/03/28 00:58:31 $
- *  $Revision: 1.18 $
+ *  $Date: 2007/10/10 21:13:48 $
+ *  $Revision: 1.19 $
  *
  *  \author A. Vitelli - INFN Torino, V.Palichik
  *  \author ported by: R. Bellan - INFN Torino
@@ -503,7 +503,7 @@ void MuonSeedGenerator::produce(edm::Event& event, const edm::EventSetup& eSetup
 }
 
 
-bool * MuonSeedGenerator::zero(int listSize)
+bool * MuonSeedGenerator::zero(unsigned listSize)
 {
   bool * result = 0;
   if (listSize) {
@@ -533,13 +533,15 @@ void MuonSeedGenerator::complete(MuonSeedFinder& seed,
     float deta = fabs (ptg1.eta()-ptg2.eta());
     // Geom::Phi should keep it in the range [-pi, pi]
     float dphi = fabs (ptg1.phi()-ptg2.phi());
+    float eta2 = fabs( ptg2.eta() );
+
     // Cox: Just too far away?
     if ( deta > .2 || dphi > .1 ) {
       nr++;
       continue;
     }   // +vvp!!!
 
-    if( fabs ( ptg2.eta() ) < 1.0 ) {     //  barrel only
+    if( eta2 < 1.0 ) {     //  barrel only
 
       LocalPoint pt1 = first->det()->toLocal(ptg1); // local pos of rechit in seed's det
 
@@ -566,9 +568,11 @@ void MuonSeedGenerator::complete(MuonSeedFinder& seed,
 
     }  // eta  < 1.0
 
-    if( fabs ( ptg2.eta() ) > 1.0 ) {    //  endcap & overlap.
-
-      if ( deta < .1 && dphi < 0.07 ) {  
+    else {    //  endcap & overlap.
+      // allow a looser dphi cut where bend is greatest, so we get those little 5-GeV muons
+      // watch out for ghosts from ME1/A, below 2.0.
+      float dphicut = (eta2 > 1.6 && eta2 < 2.0) ? 0.1 : 0.07;
+      if ( deta < .1 && dphi < dphicut ) {  
 
 	good_rhit.push_back(*iter);
 	if (used) used[nr]=true;

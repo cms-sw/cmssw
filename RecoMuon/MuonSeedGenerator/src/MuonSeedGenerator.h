@@ -4,8 +4,8 @@
 /** \class MuonSeedGenerator
  *  No description available.
  *
- *  $Date: 2007/03/28 00:54:57 $
- *  $Revision: 1.8 $
+ *  $Date: 2007/10/10 21:14:06 $
+ *  $Revision: 1.9 $
  *  \author R. Bellan - INFN Torino
  */
 
@@ -38,7 +38,7 @@ class MuonSeedGenerator: public edm::EDProducer {
   void checkAndFill(MuonSeedFinder& seedFinder, const edm::EventSetup& eSetup);
   void fill(MuonSeedFinder& seedFinder, const edm::EventSetup& eSetup);
   //returns a zeroed array of bools of length listSize
-  static bool * zero(int listSize);
+  static bool * zero(unsigned listSize);
 
   // FIXME: change in OwnVector?
   std::vector<TrajectorySeed> theSeeds;
