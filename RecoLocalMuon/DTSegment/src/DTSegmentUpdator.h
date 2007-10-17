@@ -8,8 +8,8 @@
  * impact angle and position (also along the wire) and perform linear fit on
  * improved hits.
  *
- * $Date: 2006/11/20 18:33:20 $
- * $Revision: 1.5 $
+ * $Date: 2007/03/10 16:14:43 $
+ * $Revision: 1.6 $
  * \author Stefano Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
  * \author Riccardo Bellan - INFN TO <riccardo.bellan@cern.ch>
  *
@@ -59,6 +59,9 @@ class DTSegmentUpdator{
      * true segment, by definition the segment is "good", while it's not the
      * case for just candidates */
     void fit(DTRecSegment4D* seg);
+
+    /** calculate the t0 offset from the hits in the segment */
+    void fitT0(DTRecSegment2D* seg);
 
     /// recompute hits position and refit the segment4D
     void update(DTRecSegment4D* seg);
