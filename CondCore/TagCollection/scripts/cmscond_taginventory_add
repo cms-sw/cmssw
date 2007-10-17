@@ -121,7 +121,6 @@ class tagInventoryBuilder:
             inv.addEntry(tagentry)
             del session
         except Exception, e:
-            print "Failed in unit test"
             print str(e)
             del session
         
