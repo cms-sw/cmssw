@@ -713,7 +713,10 @@ long CSCDCCExaminer::check(const unsigned short* &buffer, long length){
 
 
     // == CFEB Sample Trailer found
-    if( (buf0[1]&0xF000)==0x7000 && (buf0[2]&0xF000)==0x7000 && (buf0[3]&0xFFFF)==0x7FFF ){
+	if( (buf0[1]&0xF000)==0x7000 && (buf0[2]&0xF000)==0x7000 && (
+		(buf0[3]&0xFFFF)==0x7FFF ||   // old format
+		( (buf0[3]&buf0[0])==0x0000 && (buf0[3]|buf0[0])==0x7FFF ) // 2007 format
+		) ){
       if((CFEB_SampleCount%8)  == 0   ){ cout<<" <"; }
       if( CFEB_SampleWordCount == 100 ){ cout<<"+";  }
       if( CFEB_SampleWordCount != 100 ){ cout<<"-";
