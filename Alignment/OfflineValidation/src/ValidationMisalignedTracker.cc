@@ -13,7 +13,7 @@
 //
 // Original Author:  Nicola De Filippis
 //         Created:  Thu Dec 14 13:13:32 CET 2006
-// $Id$
+// $Id: ValidationMisalignedTracker.cc,v 1.1 2007/10/10 22:01:18 ndefilip Exp $
 //
 //
 
@@ -346,7 +346,6 @@ ValidationMisalignedTracker::analyze(const edm::Event& iEvent, const edm::EventS
      }
    }
    
-   // Inizio parte nuova - VALIDATION
    
    edm::Handle<TrackingParticleCollection>  TPCollectionHeff ;
    iEvent.getByLabel(label_tp_effic,TPCollectionHeff);
