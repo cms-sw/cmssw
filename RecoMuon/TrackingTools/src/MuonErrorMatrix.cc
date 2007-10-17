@@ -194,7 +194,6 @@ CurvilinearTrajectoryError MuonErrorMatrix::getFast(GlobalVector momentum) {
 
 
 
-
 /*CurvilinearTrajectoryError MuonErrorMatrix::get_random(GlobalVector momentum)  { 
   static TRandom2 rand;
   AlgebraicSymMatrix55 V;//result
@@ -316,3 +315,24 @@ double MuonErrorMatrix::Term(const AlgebraicSymMatrix55 & curv, int i, int j){
   return 0;
 }
 
+
+void MuonErrorMatrix::multiply(CurvilinearTrajectoryError & initial_error, const CurvilinearTrajectoryError & scale_error){
+  //scale term by term the matrix
+  const AlgebraicSymMatrix55 & scale_matrix=scale_error.matrix();
+  AlgebraicSymMatrix55 revised_matrix = initial_error.matrix();
+  for(int i = 0;i!=5;i++){for(int j = 0;j!=5;j++){
+      revised_matrix(i,j)*=scale_matrix(i,j);
+    }}
+  initial_error = CurvilinearTrajectoryError(revised_matrix);
+}
+bool MuonErrorMatrix::divide(CurvilinearTrajectoryError & num_error, const CurvilinearTrajectoryError & denom_error){
+  //divide term by term the matrix
+  const AlgebraicSymMatrix55 & denom_matrix=denom_error.matrix();
+  AlgebraicSymMatrix55 num_matrix = num_error.matrix();
+  for(int i = 0;i!=5;i++){for(int j = 0;j!=5;j++){
+      if (denom_matrix(i,j)==0) return false;
+      num_matrix(i,j)/=denom_matrix(i,j);
+    }}
+  num_error = CurvilinearTrajectoryError(num_matrix);
+  return true;
+}

@@ -54,8 +54,16 @@ MuonErrorMatrixAnalyzer::MuonErrorMatrixAnalyzer(const edm::ParameterSet& iConfi
   if (theRadius!=0){
     GlobalPoint O(0,0,0);
     Surface::RotationType R;
-    refSurface = Cylinder::build(O,R,theRadius);
+    refRSurface = Cylinder::build(O,R,theRadius);
     thePropagatorName = iConfig.getParameter<std::string>("propagatorName");
+    theZ = iConfig.getParameter<double>("z");
+    if (theZ!=0){
+      //plane can only be specified if R is specified
+      GlobalPoint Opoz(0,0,theZ);
+      GlobalPoint Oneg(0,0,-theZ);
+      refZSurface[1] = Plane::build(Opoz,R);
+      refZSurface[0] = Plane::build(Oneg,R);
+    }
   }
 
   theGaussianPullFitRange = iConfig.getUntrackedParameter<double>("gaussianPullFitRange",2.0);
@@ -89,7 +97,7 @@ MuonErrorMatrixAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup
 
 
 FreeTrajectoryState MuonErrorMatrixAnalyzer::refLocusState(const FreeTrajectoryState & fts){
-  if (theRadius ==0 ){
+  if (theRadius ==0){
     GlobalPoint vtx(0,0,0);
     TSCPBuilderNoMaterial tscpBuilder;
     FreeTrajectoryState PCAstate= tscpBuilder(fts,vtx).theState();
@@ -97,14 +105,36 @@ FreeTrajectoryState MuonErrorMatrixAnalyzer::refLocusState(const FreeTrajectoryS
   }
   else{
     //go to the cylinder surface, along momentum
-    TrajectoryStateOnSurface onRef = thePropagator->propagate(fts, *refSurface);
-    
+    TrajectoryStateOnSurface onRef = thePropagator->propagate(fts, *refRSurface);
+
     if (!onRef.isValid()){
       edm::LogError(theCategory)<<" cannot propagate to cylinder of radius: "<<theRadius;
-      return FreeTrajectoryState();
-    }
+      //try out the plane if specified
+      if (theZ!=0){
+	onRef = thePropagator->propagate(fts, *(refZSurface[(fts.momentum().z()>0)]));
+	if (!onRef.isValid()){
+	  edm::LogError(theCategory)<<" cannot propagate to the plane of Z: "
+				    <<((fts.momentum().z()>0)?"+":"-")
+				    <<theZ<<" either.";
+	  return FreeTrajectoryState();
+	}//invalid state
+      }//z plane is set
+      else {return FreeTrajectoryState();}
+    }//invalid state
+    else if (fabs(onRef.globalPosition().z())>theZ && theZ!=0){
+      //try out the plane
+      onRef = thePropagator->propagate(fts, *(refZSurface[(fts.momentum().z()>0)]));
+      if (!onRef.isValid()){
+	edm::LogError(theCategory)<<" cannot propagate to the plane of Z: "
+				  <<((fts.momentum().z()>0)?"+":"-")
+				  <<theZ<<" even though cylinder z indicates it should.";
+      }//invalid state
+    }//z further than the planes
+
+    LogDebug(theCategory)<<"reference state is:\n"<<onRef;
+
     return (*onRef.freeState());
-  }
+  }// R=0
 }
 
 
@@ -377,7 +407,7 @@ MuonErrorMatrixAnalyzer::beginJob(const edm::EventSetup& setup)
   //need to choose which TProfile to get bin content info from.
      
   //create the 15 histograms, 5 of them TH1F, 10 of them TH2F
-
+  if (theErrorMatrixStore_Residual){
   for (uint i=0;i!=5;++i){
     for (uint j=i;j<5;++j){
       uint iH=theErrorMatrixStore_Residual->index(i,j);
@@ -435,9 +465,10 @@ MuonErrorMatrixAnalyzer::beginJob(const edm::EventSetup& setup)
 	  }}}//end of loop over the pt,eta,phi
 
     }
-  }
+  }}
 
   //create the 15 histograms, 5 of them TH1F, 10 of them TH2F
+  if (theErrorMatrixStore_Pull){
   for (uint i=0;i!=5;++i){
     for (uint j=i;j<5;++j){
       uint iH=theErrorMatrixStore_Pull->index(i,j);
@@ -494,7 +525,7 @@ MuonErrorMatrixAnalyzer::beginJob(const edm::EventSetup& setup)
             }
           }}}//end of loop over the pt,eta,phi
     }
-  }
+  }}
 
 
 } 

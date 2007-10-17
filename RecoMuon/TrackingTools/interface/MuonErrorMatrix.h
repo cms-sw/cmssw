@@ -8,7 +8,7 @@
  * Error/Scale factor matrix is obtained using get(GlobalVector momentum)
  *
  * $Dates: 2007/09/04 13:28 $
- * $Revision: 1.1 $
+ * $Revision: 1.2 $
  *
  * \author Jean-Roch Vlimant  UCSB
  * \author Finn Rebassoo      UCSB
@@ -43,6 +43,12 @@ class MuonErrorMatrix{
   /// main method to be used. Retrieve a 5x5 symetrical matrix according to parametrization of error or scale factor
   CurvilinearTrajectoryError get(GlobalVector momentum);
   CurvilinearTrajectoryError getFast(GlobalVector momentum);
+
+  /// multiply term by term the two matrix
+  static  void multiply(CurvilinearTrajectoryError & initial_error, const CurvilinearTrajectoryError & scale_error);
+
+  /// divide term by term the two matrix
+  static  bool divide(CurvilinearTrajectoryError & num_error, const CurvilinearTrajectoryError & denom_error);
 
   /// actually get access to the TProfile3D used for the parametrization
   inline TProfile3D * get(int i , int j) {return Index(i,j);}

@@ -7,7 +7,7 @@
  * to give an empirical parametrization of the track parameters errors.
  *
  * $Dates: 2007/09/04 13:28 $
- * $Revision: 1.1 $
+ * $Revision: 1.2 $
  *
  * \author Jean-Roch Vlimant  UCSB
  * \author Finn Rebassoo      UCSB
@@ -27,6 +27,7 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 
 #include "DataFormats/GeometrySurface/interface/Cylinder.h"
+#include "DataFormats/GeometrySurface/interface/Plane.h"
 
 class MagneticField;
 class TrackAssociatorBase;
@@ -95,7 +96,13 @@ class MuonErrorMatrixAnalyzer : public edm::EDAnalyzer {
   double theRadius;
 
   /// reference to the cylinder of radius theRadius
-  Cylinder::CylinderPointer refSurface;
+  Cylinder::CylinderPointer refRSurface;
+
+  /// z at which the comparison is made: =0 is using TSCPBuilderNoMaterial, !=0 is using the propagator
+  double theZ;
+
+  ///reference to a plane at -z [0] and +z [1]:  [(z>0)]
+  Plane::PlanePointer refZSurface[2];
 
   /// propagator used to go to the cylinder surface, ALONG momentum
   std::string thePropagatorName;
