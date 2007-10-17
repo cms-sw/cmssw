@@ -11,6 +11,7 @@
 #include "TMatrixD.h"
 #include "TMath.h"
 
+class TF2;
 
 class TtDilepKinSolver {
 
@@ -20,6 +21,7 @@ class TtDilepKinSolver {
     TtDilepKinSolver(double,double,double, double xx = 0, double yy = 0);
     ~TtDilepKinSolver();
 
+    inline void useWeightFromMC(bool useMC) { useMCforBest_ = useMC; }
     TtDilepEvtSolution addKinSolInfo(TtDilepEvtSolution * asol);
 
   private:
@@ -33,7 +35,8 @@ class TtDilepKinSolver {
                  const TLorentzVector l,
 	         const TLorentzVector b_al,
 	         const TLorentzVector b_l, double sol);
-     double WeightSol();
+     double WeightSolfromMC();
+     double WeightSolfromShape();
      int quartic(double* q_coeff, double* q_sol);
      int cubic(double* c_coeff, double* c_sol);
 
@@ -72,6 +75,10 @@ class TtDilepKinSolver {
      
      //provisional
      TLorentzVector genLV_n, genLV_n_;
+     // flag to swith from WeightSolfromMC() to WeightSolfromShape()
+     bool useMCforBest_;
+     // Event shape
+     TF2* EventShape_;
 };
 
 
