@@ -60,8 +60,8 @@ void HcalDigiTester::reco(const edm::Event& iEvent, const edm::EventSetup& iSetu
   }
 
  
-  typename   edm::Handle<edm::SortedCollection<Digi> > hbhe;
-  typename edm::SortedCollection<Digi>::const_iterator ihbhe;
+  typename   edm::Handle<edm::SortedCollection<Digi> > digiCollection;
+  typename edm::SortedCollection<Digi>::const_iterator digiItr;
   
   ievent++;
    
@@ -75,7 +75,7 @@ void HcalDigiTester::reco(const edm::Event& iEvent, const edm::EventSetup& iSetu
   int ndigis=0;
   
   float sumamplfC = 0;
-  iEvent.getByType (hbhe) ;
+  iEvent.getByLabel(inputTag_, digiCollection) ;
 
   int subdet = 1;
   if (hcalselector_ == "HB"  ) subdet = 1;
@@ -83,10 +83,10 @@ void HcalDigiTester::reco(const edm::Event& iEvent, const edm::EventSetup& iSetu
   if (hcalselector_ == "HO"  ) subdet = 3;
   if (hcalselector_ == "HF"  ) subdet = 4; 
 
-  for (ihbhe=hbhe->begin();ihbhe!=hbhe->end();ihbhe++)
+  for (digiItr=digiCollection->begin();digiItr!=digiCollection->end();digiItr++)
     {
 
-      HcalDetId cell(ihbhe->id()); 
+      HcalDetId cell(digiItr->id()); 
       
       if (cell.subdet()== subdet   ) 
      	{
@@ -99,7 +99,7 @@ void HcalDigiTester::reco(const edm::Event& iEvent, const edm::EventSetup& iSetu
 	  conditions->makeHcalCalibration(cell, &calibrations);
 	  const HcalQIECoder* channelCoder = conditions->getHcalCoder(cell);
 	  HcalCoderDb coder (*channelCoder, *shape);
-	  coder.adc2fC(*ihbhe,tool);
+	  coder.adc2fC(*digiItr,tool);
 	      
 	  float amplRecHitfC = 0;
 	  float amplfC = 0;
@@ -107,7 +107,7 @@ void HcalDigiTester::reco(const edm::Event& iEvent, const edm::EventSetup& iSetu
 	
 	  for  (int ii=0;ii<tool.size();ii++)
 	    {
-	      int capid = (*ihbhe)[ii].capid();
+	      int capid = (*digiItr)[ii].capid();
 	      amplfC+=(tool[ii]-calibrations.pedestal(capid));
 	      if ( fabs(feta_mc-fEta) < 0.087/2. && acos(cos(fphi_mc-fPhi))<0.087/2.  ) {
 
@@ -132,7 +132,7 @@ void HcalDigiTester::reco(const edm::Event& iEvent, const edm::EventSetup& iSetu
 		}
 	    }
 
-	  monitor()->fillADC0count((*ihbhe)[0].adc());
+	  monitor()->fillADC0count((*digiItr)[0].adc());
 	  monitor()->fillADC0fC(tool[0]);
 	  
 	  if (amplRecHitfC>10.)
@@ -154,10 +154,10 @@ void HcalDigiTester::reco(const edm::Event& iEvent, const edm::EventSetup& iSetu
 	      float fBin67 = tool[5] + tool[6];
 
 
-	      fBin5 -= calibrations.pedestal((*ihbhe)[4].capid());
+	      fBin5 -= calibrations.pedestal((*digiItr)[4].capid());
 	  
-	      fBin67 -= (calibrations.pedestal((*ihbhe)[5].capid())
-			 + calibrations.pedestal((*ihbhe)[6].capid()));
+	      fBin67 -= (calibrations.pedestal((*digiItr)[5].capid())
+			 + calibrations.pedestal((*digiItr)[6].capid()));
       
 	      //fBin12 is a pedestal, others are percentages
 	      if(amplfC > 0)
@@ -205,6 +205,7 @@ void HcalDigiTester::reco(const edm::Event& iEvent, const edm::EventSetup& iSetu
 
 HcalDigiTester::HcalDigiTester(const edm::ParameterSet& iConfig)
   : dbe_(edm::Service<DaqMonitorBEInterface>().operator->()),
+    inputTag_(iConfig.getParameter<edm::InputTag>("digiLabel")),
     outputFile_(iConfig.getUntrackedParameter<std::string>("outputFile", "")),
     hcalselector_(iConfig.getUntrackedParameter<std::string>("hcalselector", "all")),
     subpedvalue_(iConfig.getUntrackedParameter<bool>("subpedvalue", "true")),
