@@ -38,5 +38,5 @@ double reco::HFEMClusterShape::eCOREe9() const{
   return eCore()/eLong3x3();
 }
 double reco::HFEMClusterShape::e9e25() const{
-return (eLong3x3()+eShort3x3()/(eLong5x5()+eShort5x5()));
+  return (eLong3x3()+eShort3x3())/(eLong5x5()+eShort5x5());
 } 
