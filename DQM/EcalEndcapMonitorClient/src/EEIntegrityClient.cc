@@ -2,8 +2,8 @@
 /*
  * \file EEIntegrityClient.cc
  *
- * $Date: 2007/10/04 16:27:38 $
- * $Revision: 1.26 $
+ * $Date: 2007/10/10 09:46:39 $
+ * $Revision: 1.27 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -503,7 +503,7 @@ bool EEIntegrityClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
 
           if ( econn ) {
             try {
-              ecid = LogicID::getEcalLogicID("EB_crystal_number", Numbers::iSM(ism, EcalEndcap), ic);
+              ecid = LogicID::getEcalLogicID("EE_crystal_number", Numbers::iSM(ism, EcalEndcap), ic);
               dataset1[ecid] = c1;
             } catch (runtime_error &e) {
               cerr << e.what() << endl;
@@ -588,7 +588,7 @@ bool EEIntegrityClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
 
           if ( econn ) {
             try {
-              ecid = LogicID::getEcalLogicID("EB_trigger_tower", Numbers::iSM(ism, EcalEndcap), itt);
+              ecid = LogicID::getEcalLogicID("EE_trigger_tower", Numbers::iSM(ism, EcalEndcap), itt);
               dataset2[ecid] = c2;
             } catch (runtime_error &e) {
               cerr << e.what() << endl;
@@ -665,7 +665,7 @@ bool EEIntegrityClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
 
           if ( econn ) {
             try {
-              ecid = LogicID::getEcalLogicID("EB_mem_channel", Numbers::iSM(ism, EcalEndcap), ic);
+              ecid = LogicID::getEcalLogicID("EE_mem_channel", Numbers::iSM(ism, EcalEndcap), ic);
               dataset3[ecid] = c3;
             } catch (runtime_error &e) {
               cerr << e.what() << endl;
@@ -749,7 +749,7 @@ bool EEIntegrityClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
 
         if ( econn ) {
           try {
-            ecid = LogicID::getEcalLogicID("EB_mem_TT", Numbers::iSM(ism, EcalEndcap), itt);
+            ecid = LogicID::getEcalLogicID("EE_mem_TT", Numbers::iSM(ism, EcalEndcap), itt);
             dataset4[ecid] = c4;
           } catch (runtime_error &e) {
             cerr << e.what() << endl;
