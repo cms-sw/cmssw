@@ -22,10 +22,15 @@ namespace reco {
       abs(part.pdgId())==15; 
   }
 
-  inline bool isNeutrino(const Particle& part) { 
+  inline bool isNeutrino(const Particle & part) { 
     return abs(part.pdgId())==12 || 
       abs(part.pdgId())==14 || 
       abs(part.pdgId())==16; 
+  }
+
+  inline int flavour(const Particle & part) {
+    int id = part.pdgId();
+    return id/abs(id);
   }
 
 }
