@@ -587,6 +587,61 @@ void DaqMonitorBEInterface::useQTest(unsigned int tag, const rootDir & Dir,
   addQReport(allMEs, qc);
 }
 
+
+void DaqMonitorBEInterface::useQTest(string search_string, string qtname) const
+{
+   useQTest(0, search_string, qtname); // "0" means no tag
+}   
+
+void DaqMonitorBEInterface::useQTest(unsigned int tag, string search_string,
+				    string qtname) const
+{
+  if(search_string.empty())
+    return;
+
+  QCriterion * qc = getQCriterion(qtname);
+  if(!qc)
+    {
+      cerr << " *** Quality test " << qtname << " does not exist! " << endl;
+      return;
+    }
+
+  if(tag == 0) // "0" means no tag
+    useQTest(0, search_string, this->Own, qc);
+  else
+    {
+      ctdir_it tg = Tags.find(tag);
+      if(tg != Tags.end())
+	useQTest(tag, search_string, tg->second, qc);
+      else
+	qc->add2search_path(search_string, tag);
+    }
+   
+}
+
+// attach quality test <qtname> to tagged MEs ==> FAST
+// this action applies to all MEs already available or future ones
+void DaqMonitorBEInterface::useQTest(unsigned int tag, string qtname) const
+{
+  QCriterion * qc = getQCriterion(qtname);
+  if(!qc)
+    {
+      cerr << " *** Quality test " << qtname << " does not exist! " << endl;
+      return;
+    }
+  if(tag == 0)
+    {
+      cerr << " *** Tag must be positive number! \n";
+      return;
+    }
+  
+  ctdir_it tg = Tags.find(tag);
+  if(tg != Tags.end())
+    useQTest(tag, tg->second, qc);
+  else
+    qc->add2tags(tag); 
+}
+
 // add quality reports to all MEs
 void DaqMonitorBEInterface::addQReport(vector<MonitorElement *> & allMEs, 
 				       QCriterion * qc) const
@@ -659,3 +714,4 @@ bool DaqMonitorBEInterface::hasOtherReport(const vector<MonitorElement *> &
 
 
 const string DaqMonitorBEInterface::monitorDirName = "DQMData";
+const string DaqMonitorBEInterface::referenceDirName = "Reference";

@@ -103,7 +103,7 @@ private:
   // that's really the 5th, since We start counting at 0
   int   sca_peak_bin;
   // which time bin the trigger crossing goes in
-  int theComparatorTimeBinOffset;
+  double theComparatorTimeBinOffset;
 
 };
 

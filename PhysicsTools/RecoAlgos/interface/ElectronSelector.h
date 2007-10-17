@@ -7,9 +7,9 @@
  * 
  * \author Luca Lista, INFN
  *
- * \version $Revision: 1.8 $
+ * \version $Revision: 1.9 $
  *
- * $Id: ElectronSelector.h,v 1.8 2006/12/07 11:28:31 llista Exp $
+ * $Id: ElectronSelector.h,v 1.9 2007/03/14 12:22:10 llista Exp $
  *
  */
 
@@ -52,7 +52,8 @@ namespace helper {
 	  selTrackExtras_->push_back( TrackExtra( trk.outerPosition(), trk.outerMomentum(), trk.outerOk(),
 						  trk.innerPosition(), trk.innerMomentum(), trk.innerOk(),
 						  trk.outerStateCovariance(), trk.outerDetId(),
-						  trk.innerStateCovariance(), trk.innerDetId() ) );
+						  trk.innerStateCovariance(), trk.innerDetId(),
+						  trk.seedDirection() ) );
   	  TrackExtra & tx = selTrackExtras_->back();
 	  for( trackingRecHit_iterator hit = trk.recHitsBegin(); hit != trk.recHitsEnd(); ++ hit ) {
 	    selHits_->push_back( (*hit)->clone() );

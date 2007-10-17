@@ -1,7 +1,7 @@
 #include "HLTrigger/btau/interface/GetJetsFromHLTobject.h"
 
 #include "DataFormats/HLTReco/interface/HLTFilterObject.h"
-#include "DataFormats/JetReco/interface/CaloJet.h"
+#include "DataFormats/JetReco/interface/CaloJetCollection.h"
 
 #include "DataFormats/Common/interface/RefVector.h"
 

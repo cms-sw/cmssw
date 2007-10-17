@@ -1,7 +1,7 @@
 #ifndef StreamerOutputModule_h_
 #define StreamerOutputModule_h_
 
-// $Id: StreamerOutputModule.h,v 1.25 2007/05/01 22:41:11 hcheung Exp $
+// $Id: StreamerOutputModule.h,v 1.27 2007/08/16 23:39:07 wmtan Exp $
 
 #include "FWCore/RootAutoLibraryLoader/interface/RootAutoLibraryLoader.h"
 #include "FWCore/Utilities/interface/Exception.h"
@@ -145,11 +145,11 @@ namespace edm
 template <class Consumer>
 StreamerOutputModule<Consumer>::StreamerOutputModule(edm::ParameterSet const& ps):
   OutputModule(ps),
-  selections_(&descVec_[InEvent]),
+  selections_(&descVec()[InEvent]),
   prod_reg_buf_(1000 * 1000),
-  maxEventSize_(ps.template getParameter<int>("max_event_size")),
-  useCompression_(ps.template getParameter<bool>("use_compression")),
-  compressionLevel_(ps.template getParameter<int>("compression_level")),
+  maxEventSize_(ps.template getUntrackedParameter<int>("max_event_size", 7000000)),
+  useCompression_(ps.template getUntrackedParameter<bool>("use_compression", true)),
+  compressionLevel_(ps.template getUntrackedParameter<int>("compression_level", 1)),
   lumiSectionInterval_(ps.template getUntrackedParameter<int>("lumiSection_interval", 0)), 
   c_(new Consumer(ps)),   //Try auto_ptr with this ?
   serializer_(selections_),
@@ -252,7 +252,7 @@ std::auto_ptr<InitMsgBuilder> StreamerOutputModule<Consumer>::serializeRegistry(
 
 
     //Setting the process name to HLT
-    std::string processName = "HLT";
+    std::string processName = OutputModule::processName();
 
     std::auto_ptr<InitMsgBuilder> init_message(
                                 new InitMsgBuilder(&prod_reg_buf_[0], prod_reg_buf_.size(),

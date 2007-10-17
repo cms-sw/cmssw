@@ -133,8 +133,8 @@ void EcalPreshowerRecHitsMaker::noisify()
 void EcalPreshowerRecHitsMaker::noisifySubdet(std::map<uint32_t,std::pair<float,bool> >& theMap, const std::vector<uint32_t>& thecells, unsigned ncells)
 {
   // noise won't be injected in cells that contain signal
-  unsigned mean=(unsigned)((double)(ncells-theMap.size())*preshowerHotFraction_);
-  unsigned nps = (unsigned)(random_->poissonShoot(mean));
+  double mean = (double)(ncells-theMap.size())*preshowerHotFraction_;
+  unsigned nps = random_->poissonShoot(mean);
   
   unsigned ncell=0;
   unsigned cellindex=0;

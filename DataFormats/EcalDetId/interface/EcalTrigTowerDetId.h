@@ -2,7 +2,6 @@
 #define ECALDETID_ECALTRIGTOWERDETID_H
 
 #include <ostream>
-#include <boost/cstdint.hpp>
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
 
@@ -11,7 +10,7 @@
     
    DetId for an Ecal Trigger tower
 
-   $Id: EcalTrigTowerDetId.h,v 1.6 2006/05/25 15:29:09 meridian Exp $
+   $Id: EcalTrigTowerDetId.h,v 1.7 2006/08/23 15:40:05 meridian Exp $
 */
 
 

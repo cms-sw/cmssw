@@ -89,13 +89,6 @@ MultiVertexReconstructor::MultiVertexReconstructor (
 {}
 
 vector < TransientVertex > MultiVertexReconstructor::vertices ( 
-    const vector < reco::TransientTrack > & trks,
-    const reco::BeamSpot & s ) const
-{
-  return vertices ( trks );
-}
-
-vector < TransientVertex > MultiVertexReconstructor::vertices ( 
     const vector < reco::TransientTrack > & trks ) const
 {
   /*
@@ -120,7 +113,6 @@ vector < TransientVertex > MultiVertexReconstructor::vertices (
   {
     ret.push_back ( *i );
   };
-
   if ( verbose() )
   {
     cout << "[MultiVertexReconstructor] input " << tmp.size()

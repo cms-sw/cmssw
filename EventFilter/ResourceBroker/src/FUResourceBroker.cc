@@ -394,25 +394,21 @@ void FUResourceBroker::actionPerformed(xdata::Event& e)
   if (0==resourceTable_) return;
   
   gui_->monInfoSpace()->lock();
-  
-  if (e.type()=="ItemRetrieveEvent") {
-    
-    string item=dynamic_cast<xdata::ItemRetrieveEvent&>(e).itemName();
-    
-    if (item=="nbShmClients")      nbShmClients_     =resourceTable_->nbShmClients();
-    if (item=="nbAllocatedEvents") nbAllocatedEvents_=resourceTable_->nbAllocated();
-    if (item=="nbPendingRequests") nbPendingRequests_=resourceTable_->nbPending();
-    if (item=="nbReceivedEvents")  nbReceivedEvents_ =resourceTable_->nbCompleted();
-    if (item=="nbAcceptedEvents")  nbAcceptedEvents_ =resourceTable_->nbAccepted();
-    if (item=="nbSentEvents")      nbSentEvents_     =resourceTable_->nbSent();
-    if (item=="nbDiscardedEvents") nbDiscardedEvents_=resourceTable_->nbDiscarded();
-    if (item=="nbLostEvents")      nbLostEvents_     =resourceTable_->nbLost();
-    if (item=="nbDataErrors")      nbDataErrors_     =resourceTable_->nbErrors();
-    if (item=="nbCrcErrors")       nbCrcErrors_      =resourceTable_->nbCrcErrors();
-    if (item=="nbAllocateSent")    nbAllocateSent_   =resourceTable_->nbAllocSent();
+
+  if (e.type()=="urn:xdata-event:ItemGroupRetrieveEvent") {
+    nbShmClients_     =resourceTable_->nbShmClients();
+    nbAllocatedEvents_=resourceTable_->nbAllocated();
+    nbPendingRequests_=resourceTable_->nbPending();
+    nbReceivedEvents_ =resourceTable_->nbCompleted();
+    nbAcceptedEvents_ =resourceTable_->nbAccepted();
+    nbSentEvents_     =resourceTable_->nbSent();
+    nbDiscardedEvents_=resourceTable_->nbDiscarded();
+    nbLostEvents_     =resourceTable_->nbLost();
+    nbDataErrors_     =resourceTable_->nbErrors();
+    nbCrcErrors_      =resourceTable_->nbCrcErrors();
+    nbAllocateSent_   =resourceTable_->nbAllocSent();
   }
-  
-  if (e.type()=="ItemChangedEvent") {
+  else if (e.type()=="ItemChangedEvent") {
     
     string item=dynamic_cast<xdata::ItemChangedEvent&>(e).itemName();
     
@@ -421,7 +417,7 @@ void FUResourceBroker::actionPerformed(xdata::Event& e)
     if (item=="doDumpEvents") resourceTable_->setDoDumpEvents(doDumpEvents_);
     if (item=="runNumber")    resourceTable_->resetCounters();
   }
- 
+  
   gui_->monInfoSpace()->unlock();
 }
 
@@ -617,18 +613,6 @@ void FUResourceBroker::exportParameters()
 
   gui_->exportParameters();
 
-  gui_->addItemRetrieveListener("nbShmClients",     this);
-  gui_->addItemRetrieveListener("nbAllocatedEvents",this);
-  gui_->addItemRetrieveListener("nbPendingRequests",this);
-  gui_->addItemRetrieveListener("nbReceivedEvents", this);
-  gui_->addItemRetrieveListener("nbAcceptedEvents", this);
-  gui_->addItemRetrieveListener("nbSentEvents",     this);
-  gui_->addItemRetrieveListener("nbDiscardedEvents",this);
-  gui_->addItemRetrieveListener("nbLostEvents",     this);
-  gui_->addItemRetrieveListener("nbDataErrors",     this);
-  gui_->addItemRetrieveListener("nbCrcErrors",      this);
-  gui_->addItemRetrieveListener("nbAllocateSent",   this);
-  
   gui_->addItemChangedListener("doFedIdCheck",      this);
   gui_->addItemChangedListener("doCrcCheck",        this);
   gui_->addItemChangedListener("doDumpEvents",      this);

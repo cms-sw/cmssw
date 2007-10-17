@@ -40,6 +40,7 @@ class RPCTriggerGeo {
     RPCRingFromRolls::RPCLinks getLinks() const {return m_links;};
 
     std::vector<int> getTowersForStrip(RPCDetId detID, int strip);
+    void fixGeo(bool fix){m_fixRPCGeo = fix;  };
     //int getTowersForStrip(RPCDetId detID, int strip);
   private:
     void addDet(RPCRoll* roll);
@@ -47,6 +48,7 @@ class RPCTriggerGeo {
     int etaToTower(float eta);
                               
     bool m_isGeometryBuilt; ///< Determines if geometry is built allready
+    bool m_fixRPCGeo; ///< Fix problems with geometry (get rid of trouble messages in 160)
     typedef std::map<uint32_t, RPCRingFromRolls> RPCRingFromRollsMap;
     // Probably the curls should be local 
     RPCRingFromRollsMap m_RPCRingFromRollsMap; ///< Stores all curls

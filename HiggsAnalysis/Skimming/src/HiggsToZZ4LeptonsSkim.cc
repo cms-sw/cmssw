@@ -12,19 +12,16 @@
 #include <HiggsAnalysis/Skimming/interface/HiggsToZZ4LeptonsSkim.h>
 
 // User include files
-#include <DataFormats/Common/interface/Handle.h>
-#include <FWCore/Framework/interface/ESHandle.h>
 #include <FWCore/ParameterSet/interface/ParameterSet.h>
-#include <FWCore/MessageLogger/interface/MessageLogger.h> 
 
 // Muons:
 #include <DataFormats/TrackReco/interface/Track.h>
 
 // Electrons
 #include "DataFormats/EgammaCandidates/interface/PixelMatchGsfElectron.h"
+#include "DataFormats/EgammaCandidates/interface/PixelMatchGsfElectronFwd.h"
 
 // C++
-#include <algorithm>
 #include <iostream>
 #include <vector>
 
@@ -34,47 +31,47 @@ using namespace reco;
 
 
 // Constructor
-HiggsToZZ4LeptonsSkim::HiggsToZZ4LeptonsSkim(const edm::ParameterSet& pset) : HiggsAnalysisSkimType(pset) {
+HiggsToZZ4LeptonsSkim::HiggsToZZ4LeptonsSkim(const edm::ParameterSet& pset) {
 
   // Local Debug flag
   debug              = pset.getParameter<bool>("DebugHiggsToZZ4LeptonsSkim");
-
-  // Eventually, HLT objects:
 
   // Reconstructed objects
   recTrackLabel      = pset.getParameter<edm::InputTag>("RecoTrackLabel");
   theGLBMuonLabel    = pset.getParameter<edm::InputTag>("GlobalMuonCollectionLabel");
   thePixelGsfELabel  = pset.getParameter<edm::InputTag>("ElectronCollectionLabel");
 
-  // Pt cut on electron and muon (HLT mimic)
-  singleMuonHLTPtCut = pset.getParameter<double>("singleMuonHLTPtCut");
-  doubleMuonHLTPtCut = pset.getParameter<double>("doubleMuonHLTPtCut");
-  singleElecHLTEtCut = pset.getParameter<double>("singleElecHLTEtCut");
-  doubleElecHLTEtCut = pset.getParameter<double>("doubleElecHLTEtCut");
-
   // Minimum Pt for leptons for skimming
   muonMinPt          = pset.getParameter<double>("muonMinimumPt");
   elecMinEt          = pset.getParameter<double>("electronMinimumEt");
   nLeptonMin         = pset.getParameter<int>("nLeptonMinimum");
 
+  nEvents         = 0;
+  nSelectedEvents = 0;
+
 }
 
 
-// Filter event
-bool HiggsToZZ4LeptonsSkim::skim(edm::Event& event, const edm::EventSetup& setup, int& whichTrigger) {
+// Destructor
+HiggsToZZ4LeptonsSkim::~HiggsToZZ4LeptonsSkim() {
 
-  //using namespace edm;
+  edm::LogVerbatim("HiggsToZZ4LeptonsSkim") 
+  << " Number_events_read " << nEvents          
+  << " Number_events_kept " << nSelectedEvents 
+  << " Efficiency         " << ((double)nSelectedEvents)/((double) nEvents + 0.01) << std::endl;
+}
+
+
+
+// Filter event
+bool HiggsToZZ4LeptonsSkim::filter(edm::Event& event, const edm::EventSetup& setup ) {
+
+  nEvents++;
+
   using reco::TrackCollection;
 
   bool keepEvent   = false;
-  bool oneMuon     = false;
-  bool twoMuon     = false;
-  bool oneElectron = false;
-  bool twoElectron = false;
-  bool fourLepton  = false;
   int  nLeptons    = 0;
-  int  nMuonAbovePt= 0;
-  int  nElectronAbovePt = 0;
   
 
   // First look at muons:
@@ -89,26 +86,14 @@ bool HiggsToZZ4LeptonsSkim::skim(edm::Event& event, const edm::EventSetup& setup
     // Loop over muon collections and count how many muons there are, 
     // and how many are above threshold
     for ( muons = muTracks->begin(); muons != muTracks->end(); ++muons ) {
-      float pt_mu = muons->pt();
-      if ( pt_mu > singleMuonHLTPtCut) {
-        oneMuon = true;             
-        nMuonAbovePt++; 
-      } 
-      else if ( pt_mu > doubleMuonHLTPtCut ) {
-        nMuonAbovePt++; 
-      }
-
-      if ( pt_mu > muonMinPt) nLeptons++; 
+      if ( muons->pt() > muonMinPt) nLeptons++; 
     }  
   } 
   
-  catch ( cms::Exception& ex ) {
-    edm::LogError("HiggsToZZ4LeptonsSkim") << "Warning: cannot get collection with label " 
-			    		   << theGLBMuonLabel.label();
+  catch (const edm::Exception& e) {
+    //wrong reason for exception
+    if ( e.categoryCode() != edm::errors::ProductNotFound ) throw;    
   }
-
-  // 2 muon HLT equivalent trigger (mock):
-  if ( nMuonAbovePt > 1 ) twoMuon = true;
 
 
   // Now look at electrons:
@@ -126,36 +111,20 @@ bool HiggsToZZ4LeptonsSkim::skim(edm::Event& event, const edm::EventSetup& setup
     // and how many are above threshold
     for ( electrons = eTracks->begin(); electrons != eTracks->end(); ++electrons ) {
       float et_e = electrons->et(); 
-      if ( et_e > singleElecHLTEtCut) {
-        oneElectron = true;
-        nElectronAbovePt++; 
-      }
-      else if ( et_e > doubleElecHLTEtCut ) {
-        nElectronAbovePt++; 
-      }
-
       if ( et_e > elecMinEt) nLeptons++; 
     }
   }
-  
-  catch ( cms::Exception& ex ) {
-    edm::LogError("HiggsToZZ4LeptonsSkim") << "Warning: cannot get collection with label " 
-					   << thePixelGsfELabel.label();
+
+  catch(const edm::Exception& e) {
+    //wrong reason for exception
+    if ( e.categoryCode() != edm::errors::ProductNotFound ) throw;    
   }
-  // 2 electron HLT equivalent trigger:
-  if ( nElectronAbovePt > 1 ) twoElectron = true;
   
-  if ( nLeptons >= nLeptonMin) fourLepton = true;
-
-  if (oneElectron) whichTrigger+=1;
-  if (twoElectron) whichTrigger+=10;
-  if (oneMuon) whichTrigger+=100;
-  if (twoMuon) whichTrigger+=1000;
-
-
   // Make decision:
-  if (( oneMuon || twoMuon || oneElectron || twoElectron ) && fourLepton ) keepEvent = true;
-  
+  if ( nLeptons >= nLeptonMin) keepEvent = true;
+
+  if (keepEvent) nSelectedEvents++;
+
   return keepEvent;
 }
 

@@ -8,7 +8,7 @@
 #include "RecoTracker/TkTrackingRegions/interface/OrderedHitsGenerator.h"
 #include "RecoTracker/TkTrackingRegions/interface/TrackingRegion.h"
 #include "RecoTracker/TkHitPairs/interface/OrderedHitPairs.h"
-#include "RecoTracker/TkSeedingLayers/interface/SeedingLayerSets.h"
+#include "RecoTracker/TkSeedingLayers/interface/SeedingLayerSetsBuilder.h"
 #include "RecoTracker/TkSeedingLayers/interface/OrderedSeedingHits.h"
 
 class GenericPairGenerator : public OrderedHitsGenerator {
@@ -20,7 +20,8 @@ class GenericPairGenerator : public OrderedHitsGenerator {
 					      const edm::EventSetup& es);
 	private:
 	ctfseeding::SeedingLayerSets init(const edm::EventSetup& es);
-	edm::ParameterSet conf_;
+	//edm::ParameterSet conf_;
+	SeedingLayerSetsBuilder theLsb;
 	OrderedHitPairs hitPairs;
 };
 

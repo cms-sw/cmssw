@@ -10,7 +10,7 @@ such code sees the LuminosityBlock class, which is a proxy for LuminosityBlockPr
 The major internal component of the LuminosityBlockPrincipal
 is the DataBlock.
 
-$Id: LuminosityBlockPrincipal.h,v 1.18 2007/06/21 16:52:42 wmtan Exp $
+$Id: LuminosityBlockPrincipal.h,v 1.22 2007/07/31 23:58:54 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -27,15 +27,10 @@ namespace edm {
   typedef Principal Base;
   public:
     LuminosityBlockPrincipal(LuminosityBlockNumber_t const& id,
+        Timestamp const& beginTm,
+        Timestamp const& endTm,
 	boost::shared_ptr<ProductRegistry const> reg,
         boost::shared_ptr<RunPrincipal> rp,
-        ProcessConfiguration const& pc,
-	ProcessHistoryID const& hist = ProcessHistoryID(),
-	boost::shared_ptr<DelayedReader> rtrv = boost::shared_ptr<DelayedReader>(new NoDelayedReader));
-
-    LuminosityBlockPrincipal(LuminosityBlockNumber_t const& id,
-	boost::shared_ptr<ProductRegistry const> reg,
-        RunNumber_t run,
         ProcessConfiguration const& pc,
 	ProcessHistoryID const& hist = ProcessHistoryID(),
 	boost::shared_ptr<DelayedReader> rtrv = boost::shared_ptr<DelayedReader>(new NoDelayedReader));
@@ -59,6 +54,18 @@ namespace edm {
       return aux().id();
     }
 
+    Timestamp const& beginTime() const {
+      return aux().beginTime();
+    }
+
+    Timestamp const& endTime() const {
+      return aux().endTime();
+    }
+
+    void setEndTime(Timestamp const& time) {
+      aux_.setEndTime(time);
+    }
+
     LuminosityBlockNumber_t luminosityBlock() const {
       return aux().luminosityBlock();
     }
@@ -71,6 +78,7 @@ namespace edm {
     RunNumber_t runNumber() const {
       return aux().run();
     }
+
     using Base::addGroup;
     using Base::addToProcessHistory;
     using Base::getAllProvenance;

@@ -11,8 +11,8 @@
   * Virtual base class for a "meta collection" which references 
   * CaloRecHit-derived objects in their base collections.
   *
-  * $Date: $
-  * $Revision: $
+  * $Date: 2006/01/17 15:57:11 $
+  * $Revision: 1.1 $
   * \author J. Mans - Minnesota
   */
 class CaloRecHitMetaCollectionV {
@@ -62,7 +62,10 @@ public:
     const CaloRecHitMetaCollectionV* collection_;
     offset_type offset_;
   };
-
+//
+// add virtual descructor
+//
+  virtual ~CaloRecHitMetaCollectionV() {}
   typedef Iterator const_iterator;
 
   /// find by id (default version is very slow unsorted find)

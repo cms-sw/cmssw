@@ -51,10 +51,11 @@ void DDTECModuleAlgo::initialize(const DDNumericArguments & nArgs,
   isRing6 = dlHybrid < dlTop;
 
   LogDebug("TECGeom") << "DDTECModuleAlgo debug: ModuleThick " << moduleThick
-					  << " Detector Tilt " << detTilt/deg << " Height "
-					  << fullHeight << " dl(Top) " << dlTop << " dl(Bottom) "
-					  << dlBottom << " dl(Hybrid) " << dlHybrid
-					  << " rPos " << rPos<< " standrad rotation " << standardRot;
+		      << " Detector Tilt " << detTilt/deg << " Height "
+		      << fullHeight << " dl(Top) " << dlTop << " dl(Bottom) "
+		      << dlBottom << " dl(Hybrid) " << dlHybrid
+		      << " rPos " << rPos << " standrad rotation " 
+		      << standardRot;
 
   frameWidth     = nArgs["FrameWidth"];
   frameThick     = nArgs["FrameThick"];
@@ -101,9 +102,11 @@ void DDTECModuleAlgo::initialize(const DDNumericArguments & nArgs,
 		      << "Supplies Box's Material: " << siFrSuppBoxMat
 		      << " positioned at" << sideFrameZ;
   for (int i= 0; i < (int)(siFrSuppBoxWidth.size());i++){
-    LogDebug("TECGeom") << " Supplies Box"<<i<<"'s Width: " << siFrSuppBoxWidth[i]
-			<< " Supplies Box"<<i<<"'s Height: " << siFrSuppBoxHeight[i]
-			<< " Supplies Box"<<i<<"'s y Position: " << siFrSuppBoxYPos[i];
+    LogDebug("TECGeom") << " Supplies Box" << i << "'s Width: " 
+			<< siFrSuppBoxWidth[i] << " Supplies Box" << i
+			<<"'s Height: " << siFrSuppBoxHeight[i]
+			<< " Supplies Box" << i << "'s y Position: " 
+			<< siFrSuppBoxYPos[i];
   }
   waferMat       = sArgs["WaferMaterial"];
   sideWidthTop   = nArgs["SideWidthTop"];
@@ -173,7 +176,7 @@ void DDTECModuleAlgo::initialize(const DDNumericArguments & nArgs,
 			<< " SiReenforcement"<<i<<"'s y Position: " <<siReenforceYPos[i];
   }
 
-    noOverlapShift = nArgs["NoOverlapShift"];
+  noOverlapShift = nArgs["NoOverlapShift"];
   //Everything that is normal/stereo specific comes here
   isStereo = (int)nArgs["isStereo"] == 1;
   if(!isStereo){
@@ -181,22 +184,22 @@ void DDTECModuleAlgo::initialize(const DDNumericArguments & nArgs,
   }
   else{
     LogDebug("TECGeom") << "This is a stereo module!"; 
-	posCorrectionPhi= nArgs["PosCorrectionPhi"];
+    posCorrectionPhi= nArgs["PosCorrectionPhi"];
     topFrame2LHeight = nArgs["TopFrame2LHeight"];
     topFrame2RHeight = nArgs["TopFrame2RHeight"];
     topFrame2Width   = nArgs["TopFrame2Width"];
-	LogDebug("TECGeom") << "Phi Position corrected by " << posCorrectionPhi << "*rad";
+    LogDebug("TECGeom") << "Phi Position corrected by " << posCorrectionPhi << "*rad";
     LogDebug("TECGeom") << "DDTECModuleAlgo debug: stereo Top Frame 2nd Part left Heigt " 
 			<< topFrame2LHeight << " right Height " << topFrame2RHeight 
       		        << " Width " << topFrame2Width ;
-
+    
     sideFrameLWidthLow =  nArgs["SideFrameLWidthLow"]; 
     sideFrameRWidthLow =  nArgs["SideFrameRWidthLow"]; 
 
     LogDebug("TECGeom") << " left Leg's lower Width: " << sideFrameLWidthLow
 			<< " right Leg's lower Width: " << sideFrameRWidthLow;
 
-	// posCorrectionR =  nArgs["PosCorrectionR"]; 
+    // posCorrectionR =  nArgs["PosCorrectionR"]; 
     //LogDebug("TECGeom") << "Stereo Module Position Correction with R = " << posCorrectionR;
   }
 }
@@ -592,35 +595,37 @@ void DDTECModuleAlgo::execute() {
   }
 
   //Bridge 
-  name    = idName + "Bridge";
-  matname = DDName(DDSplit(bridgeMat).first, DDSplit(bridgeMat).second);
-  matter  = DDMaterial(matname);
-  bl2     = 0.5*bridgeSep + bridgeWidth;
-  bl1     = bl2 - bridgeHeight * dxdif / dzdif;
-  h1      = 0.5 * bridgeThick;
-  dz      = 0.5 * bridgeHeight;
-  solid = DDSolidFactory::trap(DDName(name,idNameSpace), dz, 0, 0, h1, bl1, 
-			       bl1, 0, h1, bl2, bl2, 0);
-  LogDebug("TECGeom") << "DDTECModuleAlgo test:\t" << solid.name()
-		      << " Trap made of " << matname << " of dimensions "
-		      << dz << ", 0, 0, " << h1 << ", " << bl1 << ", "
-		      << bl1 << ", 0, " << h1 << ", " << bl2 << ", " << bl2
-		      << ", 0";
-  DDLogicalPart bridge(solid.ddname(), matter, solid);
+  if (bridgeMat != "None") {
+    name    = idName + "Bridge";
+    matname = DDName(DDSplit(bridgeMat).first, DDSplit(bridgeMat).second);
+    matter  = DDMaterial(matname);
+    bl2     = 0.5*bridgeSep + bridgeWidth;
+    bl1     = bl2 - bridgeHeight * dxdif / dzdif;
+    h1      = 0.5 * bridgeThick;
+    dz      = 0.5 * bridgeHeight;
+    solid = DDSolidFactory::trap(DDName(name,idNameSpace), dz, 0, 0, h1, bl1, 
+				 bl1, 0, h1, bl2, bl2, 0);
+    LogDebug("TECGeom") << "DDTECModuleAlgo test:\t" << solid.name()
+			<< " Trap made of " << matname << " of dimensions "
+			<< dz << ", 0, 0, " << h1 << ", " << bl1 << ", "
+			<< bl1 << ", 0, " << h1 << ", " << bl2 << ", " << bl2
+			<< ", 0";
+    DDLogicalPart bridge(solid.ddname(), matter, solid);
 
-  name    = idName + "BridgeGap";
-  matname = DDName(DDSplit(genMat).first, DDSplit(genMat).second);
-  matter  = DDMaterial(matname);
-  bl1     = 0.5*bridgeSep;
-  solid = DDSolidFactory::box(DDName(name,idNameSpace), bl1, h1, dz);
-  LogDebug("TECGeom") << "DDTECModuleAlgo test:\t" << solid.name() 
-		      << " Box made of " << matname << " of dimensions "
-		      << bl1 << ", " << h1 << ", " << dz;
-  DDLogicalPart bridgeGap(solid.ddname(), matter, solid);
-  DDpos (bridgeGap, bridge, 1, DDTranslation(0.0, 0.0, 0.0), DDRotation());
-  LogDebug("TECGeom") << "DDTECModuleAlgo test: " << bridgeGap.name() 
-		      << " number 1 positioned in " << bridge.name()
-		      << " at (0,0,0) with no rotation";
+    name    = idName + "BridgeGap";
+    matname = DDName(DDSplit(genMat).first, DDSplit(genMat).second);
+    matter  = DDMaterial(matname);
+    bl1     = 0.5*bridgeSep;
+    solid = DDSolidFactory::box(DDName(name,idNameSpace), bl1, h1, dz);
+    LogDebug("TECGeom") << "DDTECModuleAlgo test:\t" << solid.name() 
+			<< " Box made of " << matname << " of dimensions "
+			<< bl1 << ", " << h1 << ", " << dz;
+    DDLogicalPart bridgeGap(solid.ddname(), matter, solid);
+    DDpos (bridgeGap, bridge, 1, DDTranslation(0.0, 0.0, 0.0), DDRotation());
+    LogDebug("TECGeom") << "DDTECModuleAlgo test: " << bridgeGap.name() 
+			<< " number 1 positioned in " << bridge.name()
+			<< " at (0,0,0) with no rotation";
+  }
 
   LogDebug("TECGeom") << "<<== End of DDTECModuleAlgo construction ...";
 }

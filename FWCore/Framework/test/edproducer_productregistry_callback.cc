@@ -3,7 +3,7 @@
    test for ProductRegistry 
 
    \author Stefano ARGIRO
-   \version $Id: edproducer_productregistry_callback.cc,v 1.11 2007/03/04 06:14:45 wmtan Exp $
+   \version $Id: edproducer_productregistry_callback.cc,v 1.12 2007/06/14 17:52:19 wmtan Exp $
    \date 21 July 2005
 */
 
@@ -16,22 +16,15 @@
 
 #include "FWCore/Framework/src/SignallingProductRegistry.h"
 #include "FWCore/Framework/interface/ConstProductRegistry.h"
-#include "DataFormats/Provenance/interface/ModuleDescription.h"
 
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/src/ProducerWorker.h"
-#include "FWCore/Framework/interface/Event.h"
-#include "DataFormats/Common/interface/Handle.h"
-#include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/Actions.h"
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
 #include "FWCore/Framework/src/WorkerMaker.h"
-#include "FWCore/Framework/src/Factory.h"
 #include "FWCore/Framework/src/WorkerParams.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/ParameterSet/interface/parse.h"
-#include "FWCore/ParameterSet/interface/Makers.h"
 
 #include "FWCore/ServiceRegistry/interface/ServiceRegistry.h"
 #include "FWCore/Utilities/interface/TypeID.h"

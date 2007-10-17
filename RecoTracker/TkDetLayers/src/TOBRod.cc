@@ -89,46 +89,68 @@ TOBRod::compatible( const TrajectoryStateOnSurface& ts, const Propagator&,
 }
 
 
-
-
-
-void
-TOBRod::groupedCompatibleDetsV( const TrajectoryStateOnSurface& tsos,
-			       const Propagator& prop,
-			       const MeasurementEstimator& est,
-			       std::vector<DetGroup> & result) const{
+vector<DetWithState> 
+TOBRod::compatibleDets( const TrajectoryStateOnSurface& startingState,
+			const Propagator& prop, 
+			const MeasurementEstimator& est) const{
   
+  // standard implementation of compatibleDets() for class which have 
+  // groupedCompatibleDets implemented.
+  // This code should be moved in a common place intead of being 
+  // copied many times.
+  
+  vector<DetWithState> result;  
+  vector<DetGroup> vectorGroups = groupedCompatibleDets(startingState,prop,est);
+  for(vector<DetGroup>::const_iterator itDG=vectorGroups.begin();
+      itDG!=vectorGroups.end();itDG++){
+    for(vector<DetGroupElement>::const_iterator itDGE=itDG->begin();
+	itDGE!=itDG->end();itDGE++){
+      result.push_back(DetWithState(itDGE->det(),itDGE->trajectoryState()));
+    }
+  }
+  return result;  
+}
+
+
+vector<DetGroup> 
+TOBRod::groupedCompatibleDets( const TrajectoryStateOnSurface& tsos,
+			       const Propagator& prop,
+			       const MeasurementEstimator& est) const{
+  
+  vector<DetGroup> closestResult;
   SubLayerCrossings  crossings; 
   crossings = computeCrossings( tsos, prop.propagationDirection());
-  if(! crossings.isValid()) return;
+  if(! crossings.isValid()) return closestResult;
 
-  vector<DetGroup> closestResult;
   addClosest( tsos, prop, est, crossings.closest(), closestResult);
+
   if (closestResult.empty()){
     vector<DetGroup> nextResult;
     addClosest( tsos, prop, est, crossings.other(), nextResult);
-    if(nextResult.empty())    return;
+    if(nextResult.empty())    return nextResult;
 
     DetGroupElement nextGel( nextResult.front().front());  
     int crossingSide = LayerCrossingSide().barrelSide( nextGel.trajectoryState(), prop);
-    DetGroupMerger::orderAndMergeTwoLevels( closestResult, nextResult, result, 
+    DetGroupMerger merger;
+    return  merger.orderAndMergeTwoLevels( closestResult, nextResult, 
 					   crossings.closestIndex(), crossingSide);   
-  } else {
-  
-    DetGroupElement closestGel( closestResult.front().front());
-    float window = computeWindowSize( closestGel.det(), closestGel.trajectoryState(), est);
-
-    searchNeighbors( tsos, prop, est, crossings.closest(), window,
-     		     closestResult, false);
-
-    vector<DetGroup> nextResult;
-    searchNeighbors( tsos, prop, est, crossings.other(), window,
-		     nextResult, true);
-
-    int crossingSide = LayerCrossingSide().barrelSide( closestGel.trajectoryState(), prop);
-    DetGroupMerger::orderAndMergeTwoLevels( closestResult, nextResult, result, 
-					    crossings.closestIndex(), crossingSide);
   }
+  
+  DetGroupElement closestGel( closestResult.front().front());
+  float window = computeWindowSize( closestGel.det(), closestGel.trajectoryState(), est);
+
+  searchNeighbors( tsos, prop, est, crossings.closest(), window,
+		   closestResult, false);
+
+  vector<DetGroup> nextResult;
+  searchNeighbors( tsos, prop, est, crossings.other(), window,
+		   nextResult, true);
+
+  int crossingSide = LayerCrossingSide().barrelSide( closestGel.trajectoryState(), prop);
+  DetGroupMerger merger;
+  return merger.orderAndMergeTwoLevels( closestResult, nextResult, 
+					crossings.closestIndex(), crossingSide);
+
 }
 
 
@@ -178,8 +200,8 @@ TOBRod::addClosest( const TrajectoryStateOnSurface& tsos,
 {
 
   const vector<const GeomDet*>& sRod( subRod( crossing.subLayerIndex()));
-  return CompatibleDetToGroupAdder::add( *sRod[crossing.closestDetIndex()], 
-					 tsos, prop, est, result);
+  return CompatibleDetToGroupAdder().add( *sRod[crossing.closestDetIndex()], 
+					  tsos, prop, est, result);
 }
 
 
@@ -219,14 +241,14 @@ void TOBRod::searchNeighbors( const TrajectoryStateOnSurface& tsos,
     }
   }
 
-  typedef CompatibleDetToGroupAdder Adder;
+  CompatibleDetToGroupAdder adder;
   for (int idet=negStartIndex; idet >= 0; idet--) {
     if (!overlap( gCrossingPos, *sRod[idet], window)) break;
-    if (!Adder::add( *sRod[idet], tsos, prop, est, result)) break;
+    if (!adder.add( *sRod[idet], tsos, prop, est, result)) break;
   }
   for (int idet=posStartIndex; idet < static_cast<int>(sRod.size()); idet++) {
     if (!overlap( gCrossingPos, *sRod[idet], window)) break;
-    if (!Adder::add( *sRod[idet], tsos, prop, est, result)) break;
+    if (!adder.add( *sRod[idet], tsos, prop, est, result)) break;
   }
 }
 

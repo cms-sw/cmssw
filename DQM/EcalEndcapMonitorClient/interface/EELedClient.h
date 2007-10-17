@@ -4,8 +4,8 @@
 /*
  * \file EELedClient.h
  *
- * $Date: 2007/06/11 19:07:31 $
- * $Revision: 1.3 $
+ * $Date: 2007/07/03 12:36:19 $
+ * $Revision: 1.1 $
  * \author G. Della Ricca
  *
 */
@@ -73,7 +73,7 @@ void cleanup(void);
 void htmlOutput(int run, string htmlDir, string htmlName);
 
 /// WriteDB
-bool writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV* moniov, int ism);
+bool writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV* moniov);
 
 /// Get Functions
 inline int getEvtPerJob() { return ievt_; }
@@ -195,6 +195,12 @@ float amplitudeThresholdPnG16_;
 float pedPnExpectedMean_[2];
 float pedPnDiscrepancyMean_[2];
 float pedPnRMSThreshold_[2];
+
+MEContentsTH2FWithinRangeROOT* qtg01_[36];
+
+MEContentsTH2FWithinRangeROOT* qtg05_[36];
+
+MEContentsTH2FWithinRangeROOT* qtg09_[36];
 
 };
 

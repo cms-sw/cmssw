@@ -1,40 +1,52 @@
 #ifndef DCCRAWDATADEFINITIONS_
 #define DCCRAWDATADEFINITIONS_
 
+
+
+
+
+
+
+
 enum globalFieds{
 
-  B_MASK                             =  1,
-  HEADERLENGTH                =  9,
-  HEADERSIZE                      = 72,
-  EMPTYEVENTSIZE            = 32,
-	
-  PHYSICTRIGGER               = 1,
-  CALIBRATIONTRIGGER     = 2,
-  TESTTRIGGER                    = 3,
-  TECHNICALTRIGGER         = 4,
-      
-  CH_ENABLED                      = 0,
-  CH_DISABLED                     = 1,
-  CH_TIMEOUT                      = 2,
-  CH_SUPPRESS                   = 7,
+  BLOCK_UNPACKED = 0, 
+  SKIP_BLOCK_UNPACKING=1, 
+  STOP_EVENT_UNPACKING=2, 
 
-  SRP_NREAD                        = 0,
-  SRP_NUMBFLAGS             = 68,
-  SRP_BLOCKLENGTH         = 6,
-  SRP_EB_NUMBFLAGS       = 68,
+
+  B_MASK               =  1,
+  HEADERLENGTH         =  9,
+  HEADERSIZE           = 72,
+  EMPTYEVENTSIZE       = 32,
+	
+  PHYSICTRIGGER        = 1,
+  CALIBRATIONTRIGGER   = 2,
+  TESTTRIGGER          = 3,
+  TECHNICALTRIGGER     = 4,
+      
+  CH_ENABLED           = 0,
+  CH_DISABLED          = 1,
+  CH_TIMEOUT           = 2,
+  CH_SUPPRESS          = 7,
+
+  SRP_NREAD            = 0,
+  SRP_NUMBFLAGS        = 68,
+  SRP_BLOCKLENGTH      = 6,
+  SRP_EB_NUMBFLAGS     = 68,
   
-  BOEVALUE                          = 0x5, 
-  ERROR_EMPTYEVENT      = 0x1, 		
-  TOWERH_SIZE                   = 8, 
-  TRAILER_SIZE                    = 8,
-  TCC_EB_NUMBTTS          = 68,
+  BOEVALUE             = 0x5, 
+  ERROR_EMPTYEVENT     = 0x1, 		
+  TOWERH_SIZE          = 8, 
+  TRAILER_SIZE         = 8,
+  TCC_EB_NUMBTTS       = 68,
   TCCID_SMID_SHIFT_EB  = 27,
   
   //ARRAY SIZES
-  NUMB_SM               = 54,
-  NUMB_FE                = 68,
-  NUMB_TCC             = 108,
-  NUMB_XTAL            = 5,
+  NUMB_SM             = 54,
+  NUMB_FE             = 68,
+  NUMB_TCC            = 108,
+  NUMB_XTAL           = 5,
   NUMB_STRIP          = 5
   
   
@@ -48,42 +60,42 @@ enum globalFieds{
 
 enum headerFields{ 
           
-  H_FEDID_B                   = 8,
-  H_FEDID_MASK           = 0xFFF,
-  
-  H_BX_B                         = 20,
-  H_BX_MASK                 = 0xFFF,
+  H_FEDID_B            = 8,
+  H_FEDID_MASK         = 0xFFF,
+ 
+  H_BX_B               = 20,
+  H_BX_MASK            = 0xFFF,
       
-  H_L1_B                           = 32,
-  H_L1_MASK                   = 0xFFFFFF,
+  H_L1_B               = 32,
+  H_L1_MASK            = 0xFFFFFF,
 
-  H_TTYPE_B                   = 56,
-  H_TTYPE_MASK           = 0xF,    
+  H_TTYPE_B            = 56,
+  H_TTYPE_MASK         = 0xF,    
 
-  H_EVLENGTH_MASK    = 0xFFFFFF,
+  H_EVLENGTH_MASK      = 0xFFFFFF,
       
-  H_ERRORS_B              = 24,
-  H_ERRORS_MASK      = 0xFF,
+  H_ERRORS_B           = 24,
+  H_ERRORS_MASK        = 0xFF,
 
-  H_RNUMB_B               = 32,
-  H_RNUMB_MASK       = 0xFFFFFF,
+  H_RNUMB_B            = 32,
+  H_RNUMB_MASK         = 0xFFFFFF,
 
-  H_RTYPE_MASK                    = 0xFFFFFFFF, // bits 0.. 31 of the 3rd DCC header word
+  H_RTYPE_MASK         = 0xFFFFFFFF, // bits 0.. 31 of the 3rd DCC header word
 
-  H_DET_TTYPE_B                   = 32,
-  H_DET_TTYPE_MASK           = 0xFFFF,            // for bits 32.. 47 of the 3rd DCC header word
+  H_DET_TTYPE_B        = 32,
+  H_DET_TTYPE_MASK     = 0xFFFF,     // for bits 32.. 47 of the 3rd DCC header word
 
-  H_SR_B                                   = 32,
-  H_ZS_B                                   = 33,
-  H_TZS_B                                 = 34,
+  H_SR_B               = 32,
+  H_ZS_B               = 33,
+  H_TZS_B              = 34,
         
-  H_SRCHSTATUS_B               = 36,
-  H_CHSTATUS_MASK            = 0xF,
+  H_SRCHSTATUS_B       = 36,
+  H_CHSTATUS_MASK      = 0xF,
 
-  H_TCC1CHSTATUS_B          = 40, 
-  H_TCC2CHSTATUS_B          = 44,
-  H_TCC3CHSTATUS_B          = 48,
-  H_TCC4CHSTATUS_B          = 52
+  H_TCC1CHSTATUS_B     = 40, 
+  H_TCC2CHSTATUS_B     = 44,
+  H_TCC3CHSTATUS_B     = 48,
+  H_TCC4CHSTATUS_B     = 52
      
 
 };		
@@ -91,17 +103,17 @@ enum headerFields{
 
 enum detailedTriggerTypeFields{ 
 
-   H_DCCID_B                   = 0,
-   H_DCCID_MASK           = 0x3F,
+   H_DCCID_B            = 0,
+   H_DCCID_MASK         = 0x3F,
 
-   H_HALF_B                      = 6,
-   H_HALF_MASK              = 0x3,
+   H_HALF_B             = 6,
+   H_HALF_MASK          = 0x3,
 
-   H_TR_TYPE_B               = 8,
+   H_TR_TYPE_B          = 8,
    H_TR_TYPE_MASK       = 0x7,
 
-   H_WAVEL_B                  = 11,
-   H_WAVEL_MASK          = 0x7
+   H_WAVEL_B            = 11,
+   H_WAVEL_MASK         = 0x7
 
 };
 

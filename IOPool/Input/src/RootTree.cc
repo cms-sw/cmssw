@@ -1,7 +1,10 @@
 #include "RootTree.h"
 #include "RootDelayedReader.h"
 #include "FWCore/Framework/interface/Principal.h"
-#include "Reflex/Type.h"
+#include "FWCore/Utilities/interface/WrappedClassName.h"
+#include "DataFormats/Provenance/interface/BranchKey.h"
+#include "DataFormats/Provenance/interface/BranchDescription.h"
+#include "DataFormats/Provenance/interface/ConstBranchDescription.h"
 #include "TTree.h"
 #include "TFile.h"
 class TBranch;
@@ -33,7 +36,7 @@ namespace edm {
 
   bool
   RootTree::isValid() const {
-    if (metaTree_ == 0) {
+    if (metaTree_ == 0 || metaTree_->GetNbranches() == 0) {
       return tree_ != 0 && auxBranch_ != 0 &&
 	 tree_->GetNbranches() == 1; 
     }
@@ -58,7 +61,6 @@ namespace edm {
         info.provenanceBranch_ = provBranch;
         info.productBranch_ = 0;
 	if (prod.present_) {
-          info.type = ROOT::Reflex::Type::ByName(wrappedClassName(prod.className()));
           info.productBranch_ = branch;
 	  //we want the new branch name for the JobReport
 	  branchNames_.push_back(prod.branchName());
@@ -69,7 +71,7 @@ namespace edm {
 
   void
   RootTree::fillGroups(Principal& item) {
-    if (metaTree_ == 0) return;
+    if (metaTree_ == 0 || metaTree_->GetNbranches() == 0) return;
     // Loop over provenance
     BranchMap::const_iterator pit = branches_->begin(), pitEnd = branches_->end();
     for (; pit != pitEnd; ++pit) {

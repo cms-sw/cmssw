@@ -5,6 +5,7 @@
 
 class ParticlePropagator;
 class Pythia6jets;
+class Pythia6Random;
 class RawParticle;
 
 typedef std::vector<RawParticle> DaughterParticleList;
@@ -13,15 +14,19 @@ typedef DaughterParticleList::const_iterator DaughterParticleIterator;
 class Pythia6Decays 
 {
  public:
-  Pythia6Decays();
+  Pythia6Decays(int seed);
   ~Pythia6Decays();
 
   const DaughterParticleList&
     particleDaughters(ParticlePropagator& particle);
 
+  const void getRandom();
+  const void saveRandom();
+
  private:
 
   Pythia6jets* pyjets;
+  Pythia6Random* pyrand;
   DaughterParticleList theList;
 
 

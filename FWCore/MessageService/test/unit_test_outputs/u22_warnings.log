@@ -1,0 +1,6 @@
+%MSG-w configuration:  UnitTestClient_P:sendSomeMessages Run: 1 Event: 1
+useLogFlush = 1 queueFillers = 500
+%MSG
+%MSG-e keyMessage:  UnitTestClient_P:sendSomeMessages Run: 1 Event: 1
+This message is issued just before abort
+%MSG

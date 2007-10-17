@@ -1,7 +1,7 @@
 /** \file RPCTriggerGeo.cc
  *
- *  $Date: 2006/12/05 09:25:26 $
- *  $Revision: 1.17 $
+ *  $Date: 2007/01/30 08:12:56 $
+ *  $Revision: 1.18 $
  *  \author Tomasz Fruboes
  */
 
@@ -32,6 +32,7 @@
 RPCTriggerGeo::RPCTriggerGeo(){
 
   m_isGeometryBuilt=false;
+  m_fixRPCGeo = true;
 
 }
 //#############################################################################
@@ -184,6 +185,7 @@ void RPCTriggerGeo::addDet(RPCRoll* roll){
   } else {  // add a new RingFromRolls
     
     RPCRingFromRolls newRingFromRolls;
+    newRingFromRolls.fixGeo(m_fixRPCGeo);
     newRingFromRolls.addDetId(detInfo);
     m_RPCRingFromRollsMap[detInfo.getRingFromRollsId()]=newRingFromRolls;
 

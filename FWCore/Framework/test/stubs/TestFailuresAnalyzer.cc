@@ -13,7 +13,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Sep  2 13:54:17 EDT 2005
-// $Id: TestFailuresAnalyzer.cc,v 1.1 2005/12/14 01:34:21 chrjones Exp $
+// $Id: TestFailuresAnalyzer.cc,v 1.2 2006/10/21 17:18:57 wmtan Exp $
 //
 //
 
@@ -22,8 +22,6 @@
 #include <memory>
 
 // user include files
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 

@@ -1,15 +1,11 @@
 <use name=DataFormats/BTauReco>
-<use name=DataFormats/BeamSpot>
 <use name=DataFormats/Common>
 <use name=DataFormats/EgammaCandidates>
 <use name=DataFormats/EgammaReco>
 <use name=DataFormats/GeometryVector>
-<use name=DataFormats/GsfTrackReco>
 <use name=DataFormats/HcalRecHit>
 <use name=DataFormats/JetReco>
-<use name=DataFormats/Math>
 <use name=DataFormats/MuonReco>
-<use name=DataFormats/Provenance>
 <use name=DataFormats/TrackReco>
 <use name=DataFormats/VertexReco>
 <use name=FWCore/Framework>
@@ -25,14 +21,14 @@
 <use name=TrackingTools/TrackAssociator>
 <use name=TrackingTools/TransientTrack>
 <use name=boost_regex>
-<use name=rootmath>
 <use name=rootcore>
+<flags EDM_PLUGIN=1>
 <export>
   <use name=DataFormats/BTauReco>
-  <use name=DataFormats/Common>
+  <use name=DataFormats/EgammaCandidates>
   <use name=DataFormats/GeometryVector>
   <use name=DataFormats/JetReco>
-  <use name=DataFormats/Provenance>
+  <use name=DataFormats/MuonReco>
   <use name=DataFormats/TrackReco>
   <use name=DataFormats/VertexReco>
   <use name=FWCore/Framework>
