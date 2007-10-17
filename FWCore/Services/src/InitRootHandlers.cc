@@ -80,6 +80,16 @@ void RootErrorHandler(int level, bool die, const char* location, const char* mes
       el_severity = edm::ELseverityLevel::ELsev_info;
     }
 
+// Intercept some messages and upgrade the severity
+
+    if ((el_location.find("TBranchElement::Fill") != std::string::npos)
+     && (el_message.find("fill branch") != std::string::npos)
+     && (el_message.find("address") != std::string::npos)
+     && (el_message.find("not set") != std::string::npos)) {
+      el_severity = edm::ELseverityLevel::ELsev_fatal;
+      die = true;
+    }
+
 // Feed the message to the MessageLogger... let it choose to suppress or not.
 
   if (el_severity == edm::ELseverityLevel::ELsev_fatal) {
@@ -103,7 +113,7 @@ void RootErrorHandler(int level, bool die, const char* location, const char* mes
    if (die) {
 // Throw an edm::Exception instead of just aborting
      std::ostringstream sstr;
-     sstr << "Fatal Root error " << el_message;
+     sstr << "Fatal Root Error: " << el_message << '\n';
      edm::Exception except(edm::errors::FatalRootError, sstr.str());
      throw except;
    }
