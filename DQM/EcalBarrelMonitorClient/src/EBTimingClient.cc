@@ -1,8 +1,8 @@
 /*
  * \file EBTimingClient.cc
  *
- * $Date: 2007/10/14 15:24:49 $
- * $Revision: 1.40 $
+ * $Date: 2007/10/16 08:30:07 $
+ * $Revision: 1.41 $
  * \author G. Della Ricca
  *
 */
@@ -420,7 +420,7 @@ void EBTimingClient::analyze(void){
             val = 0.;
           if ( meg01_[ism-1] ) meg01_[ism-1]->setBinContent(ie, ip, val);
 
-          int ic = (ip-1) + 20*(ie-1) + 1;
+          int ic = Numbers::icEB(ism, ie, ip);
 
           if ( mea01_[ism-1] ) {
             if ( mean01 > 0. ) {
@@ -443,7 +443,7 @@ void EBTimingClient::analyze(void){
 
             EcalLogicID ecid = m->first;
 
-            int ic = (ip-1) + 20*(ie-1) + 1;
+            int ic = Numbers::indexEB(ism, ie, ip);
 
             if ( ecid.getID1() == Numbers::iSM(ism, EcalBarrel) && ecid.getID2() == ic ) {
               if ( (m->second).getErrorBits() & bits01 ) {

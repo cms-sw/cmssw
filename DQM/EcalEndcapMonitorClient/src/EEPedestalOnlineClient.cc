@@ -1,8 +1,8 @@
 /*
  * \file EEPedestalOnlineClient.cc
  *
- * $Date: 2007/10/16 08:30:08 $
- * $Revision: 1.27 $
+ * $Date: 2007/10/17 14:05:27 $
+ * $Revision: 1.28 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -324,7 +324,7 @@ bool EEPedestalOnlineClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov,
 
           status = status && UtilsClient::getBinQual(meg03_[ism-1], ix, iy);
 
-          int ic = Numbers::icEE(ism, ix, iy);
+          int ic = Numbers::indexEE(ism, ix, iy);
 
           if ( ic == -1 ) continue;
 
@@ -523,7 +523,7 @@ void EEPedestalOnlineClient::analyze(void){
  
             if ( ! Numbers::validEE(ism, jx, jy) ) continue;
 
-            int ic = Numbers::icEE(ism, ix, iy);
+            int ic = Numbers::indexEE(ism, ix, iy);
 
             if ( ic == -1 ) continue;
 

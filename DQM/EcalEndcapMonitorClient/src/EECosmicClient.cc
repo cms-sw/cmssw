@@ -1,8 +1,8 @@
 /*
  * \file EECosmicClient.cc
  *
- * $Date: 2007/10/10 09:46:39 $
- * $Revision: 1.20 $
+ * $Date: 2007/10/17 14:05:25 $
+ * $Revision: 1.21 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -228,7 +228,7 @@ bool EECosmicClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunI
 
           o.setAvgEnergy(mean01);
 
-          int ic = Numbers::icEE(ism, ix, iy);
+          int ic = Numbers::indexEE(ism, ix, iy);
 
           if ( ic == -1 ) continue;
 

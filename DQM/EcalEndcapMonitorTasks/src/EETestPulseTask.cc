@@ -1,8 +1,8 @@
 /*
  * \file EETestPulseTask.cc
  *
- * $Date: 2007/08/21 11:31:49 $
- * $Revision: 1.17 $
+ * $Date: 2007/10/14 16:02:59 $
+ * $Revision: 1.18 $
  * \author G. Della Ricca
  *
 */
@@ -90,7 +90,7 @@ void EETestPulseTask::setup(void){
     dbe_->setCurrentFolder("EcalEndcap/EETestPulseTask/Gain01");
     for (int i = 0; i < 18 ; i++) {
       sprintf(histo, "EETPT shape %s G01", Numbers::sEE(i+1).c_str());
-      meShapeMapG01_[i] = dbe_->bookProfile2D(histo, histo, 1700, 0., 1700., 10, 0., 10., 4096, 0., 4096., "s");
+      meShapeMapG01_[i] = dbe_->bookProfile2D(histo, histo, 850, 0., 850., 10, 0., 10., 4096, 0., 4096., "s");
       dbe_->tag(meShapeMapG01_[i], i+1);
       sprintf(histo, "EETPT amplitude %s G01", Numbers::sEE(i+1).c_str());
       meAmplMapG01_[i] = dbe_->bookProfile2D(histo, histo, 50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50., 50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50., 4096, 0., 4096.*12., "s");
@@ -100,7 +100,7 @@ void EETestPulseTask::setup(void){
     dbe_->setCurrentFolder("EcalEndcap/EETestPulseTask/Gain06");
     for (int i = 0; i < 18 ; i++) {
       sprintf(histo, "EETPT shape %s G06", Numbers::sEE(i+1).c_str());
-      meShapeMapG06_[i] = dbe_->bookProfile2D(histo, histo, 1700, 0., 1700., 10, 0., 10., 4096, 0., 4096., "s");
+      meShapeMapG06_[i] = dbe_->bookProfile2D(histo, histo, 850, 0., 850., 10, 0., 10., 4096, 0., 4096., "s");
       dbe_->tag(meShapeMapG06_[i], i+1);
       sprintf(histo, "EETPT amplitude %s G06", Numbers::sEE(i+1).c_str());
       meAmplMapG06_[i] = dbe_->bookProfile2D(histo, histo, 50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50., 50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50., 4096, 0., 4096.*12., "s");
@@ -110,7 +110,7 @@ void EETestPulseTask::setup(void){
     dbe_->setCurrentFolder("EcalEndcap/EETestPulseTask/Gain12");
     for (int i = 0; i < 18 ; i++) {
       sprintf(histo, "EETPT shape %s G12", Numbers::sEE(i+1).c_str());
-      meShapeMapG12_[i] = dbe_->bookProfile2D(histo, histo, 1700, 0., 1700., 10, 0., 10., 4096, 0., 4096., "s");
+      meShapeMapG12_[i] = dbe_->bookProfile2D(histo, histo, 850, 0., 850., 10, 0., 10., 4096, 0., 4096., "s");
       dbe_->tag(meShapeMapG12_[i], i+1);
       sprintf(histo, "EETPT amplitude %s G12", Numbers::sEE(i+1).c_str());
       meAmplMapG12_[i] = dbe_->bookProfile2D(histo, histo, 50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50., 50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50., 4096, 0., 4096.*12., "s");

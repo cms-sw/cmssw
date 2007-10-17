@@ -1,8 +1,8 @@
 /*
  * \file EELedTask.cc
  *
- * $Date: 2007/10/14 12:31:59 $
- * $Revision: 1.8 $
+ * $Date: 2007/10/14 16:02:59 $
+ * $Revision: 1.9 $
  * \author G. Della Ricca
  *
 */
@@ -91,7 +91,7 @@ void EELedTask::setup(void){
 
     for (int i = 0; i < 18 ; i++) {
       sprintf(histo, "EELDT shape %s A", Numbers::sEE(i+1).c_str());
-      meShapeMapA_[i] = dbe_->bookProfile2D(histo, histo, 1700, 0., 1700., 10, 0., 10., 4096, 0., 4096., "s");
+      meShapeMapA_[i] = dbe_->bookProfile2D(histo, histo, 850, 0., 850., 10, 0., 10., 4096, 0., 4096., "s");
       dbe_->tag(meShapeMapA_[i], i+1);
       sprintf(histo, "EELDT amplitude %s A", Numbers::sEE(i+1).c_str());
       meAmplMapA_[i] = dbe_->bookProfile2D(histo, histo, 50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50., 50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50., 4096, 0., 4096.*12., "s");
@@ -104,7 +104,7 @@ void EELedTask::setup(void){
       dbe_->tag(meAmplPNMapA_[i], i+1);
 
       sprintf(histo, "EELDT shape %s B", Numbers::sEE(i+1).c_str());
-      meShapeMapB_[i] = dbe_->bookProfile2D(histo, histo, 1700, 0., 1700., 10, 0., 10., 4096, 0., 4096., "s");
+      meShapeMapB_[i] = dbe_->bookProfile2D(histo, histo, 850, 0., 850., 10, 0., 10., 4096, 0., 4096., "s");
       dbe_->tag(meShapeMapB_[i], i+1);
       sprintf(histo, "EELDT amplitude %s B", Numbers::sEE(i+1).c_str());
       meAmplMapB_[i] = dbe_->bookProfile2D(histo, histo, 50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50., 50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50., 4096, 0., 4096.*12., "s");

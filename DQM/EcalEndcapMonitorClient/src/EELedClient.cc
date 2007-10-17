@@ -1,8 +1,8 @@
 /*
  * \file EELedClient.cc
  *
- * $Date: 2007/10/14 15:04:24 $
- * $Revision: 1.19 $
+ * $Date: 2007/10/17 14:05:27 $
+ * $Revision: 1.20 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -339,19 +339,19 @@ void EELedClient::setup(void) {
 
     if ( mea01_[ism-1] ) dbe_->removeElement( mea01_[ism-1]->getName() );;
     sprintf(histo, "EELDT amplitude A %s", Numbers::sEE(ism).c_str());
-    mea01_[ism-1] = dbe_->book1D(histo, histo, 1700, 0., 1700.);
+    mea01_[ism-1] = dbe_->book1D(histo, histo, 850, 0., 850.);
 
     if ( mea05_[ism-1] ) dbe_->removeElement( mea05_[ism-1]->getName() );;
     sprintf(histo, "EELDT amplitude B %s", Numbers::sEE(ism).c_str());
-    mea05_[ism-1] = dbe_->book1D(histo, histo, 1700, 0., 1700.);
+    mea05_[ism-1] = dbe_->book1D(histo, histo, 850, 0., 850.);
 
     if ( met01_[ism-1] ) dbe_->removeElement( met01_[ism-1]->getName() );
     sprintf(histo, "EELDT timing A %s", Numbers::sEE(ism).c_str());
-    met01_[ism-1] = dbe_->book1D(histo, histo, 1700, 0., 1700.);
+    met01_[ism-1] = dbe_->book1D(histo, histo, 850, 0., 850.);
 
     if ( met05_[ism-1] ) dbe_->removeElement( met05_[ism-1]->getName() );
     sprintf(histo, "EELDT timing B %s", Numbers::sEE(ism).c_str());
-    met05_[ism-1] = dbe_->book1D(histo, histo, 1700, 0., 1700.);
+    met05_[ism-1] = dbe_->book1D(histo, histo, 850, 0., 850.);
 
     if ( metav01_[ism-1] ) dbe_->removeElement( metav01_[ism-1]->getName() );
     sprintf(histo, "EELDT timing mean A %s", Numbers::sEE(ism).c_str());
@@ -371,11 +371,11 @@ void EELedClient::setup(void) {
 
     if ( meaopn01_[ism-1] ) dbe_->removeElement( meaopn01_[ism-1]->getName() );
     sprintf(histo, "EELDT amplitude over PN A %s", Numbers::sEE(ism).c_str());
-    meaopn01_[ism-1] = dbe_->book1D(histo, histo, 1700, 0., 1700.);
+    meaopn01_[ism-1] = dbe_->book1D(histo, histo, 850, 0., 850.);
 
     if ( meaopn05_[ism-1] ) dbe_->removeElement( meaopn05_[ism-1]->getName() );
     sprintf(histo, "EELDT amplitude over PN B %s", Numbers::sEE(ism).c_str());
-    meaopn05_[ism-1] = dbe_->book1D(histo, histo, 1700, 0., 1700.);
+    meaopn05_[ism-1] = dbe_->book1D(histo, histo, 850, 0., 850.);
 
     if ( mepnprms01_[ism-1] ) dbe_->removeElement( mepnprms01_[ism-1]->getName() );
     sprintf(histo, "EEPDT PNs pedestal rms %s G01", Numbers::sEE(ism).c_str());
@@ -643,7 +643,7 @@ bool EELedClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV*
 
           status = status && UtilsClient::getBinQual(meg01_[ism-1], ix, iy);
 
-          int ic = Numbers::icEE(ism, ix, iy);
+          int ic = Numbers::indexEE(ism, ix, iy);
 
           if ( ic == -1 ) continue;
 
@@ -684,7 +684,7 @@ bool EELedClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV*
 
           status = status && UtilsClient::getBinQual(meg01_[ism-1], ix, iy);
 
-          int ic = Numbers::icEE(ism, ix, iy);
+          int ic = Numbers::indexEE(ism, ix, iy);
 
           if ( ic == -1 ) continue;
 
@@ -1350,7 +1350,7 @@ void EELedClient::analyze(void){
 
             if ( ! Numbers::validEE(ism, jx, jy) ) continue;
 
-            int ic = Numbers::icEE(ism, ix, iy);
+            int ic = Numbers::indexEE(ism, ix, iy);
 
             if ( ic == -1 ) continue;
 

@@ -1,11 +1,11 @@
-// $Id: Numbers.h,v 1.12 2007/10/10 09:46:38 dellaric Exp $
+// $Id: Numbers.h,v 1.13 2007/10/15 16:26:41 dellaric Exp $
 
 /*!
   \file Numbers.h
   \brief Some "id" conversions
   \author B. Gobbo 
-  \version $Revision: 1.12 $
-  \date $Date: 2007/10/10 09:46:38 $
+  \version $Revision: 1.13 $
+  \date $Date: 2007/10/15 16:26:41 $
 */
 
 #ifndef Numbers_H
@@ -62,6 +62,14 @@ class Numbers {
 
   static int         iTT( const EcalTrigTowerDetId& id ) throw( std::runtime_error );
 
+  static int         indexEB( const int ism, const int ie, const int ip );
+
+  static int         indexEE( const int ism, const int ix, const int iy );
+
+  static int         icEB( const int ism, const int ix, const int iy );
+
+  static int         icEE( const int ism, const int ix, const int iy );
+
   static std::vector<DetId> crystals( const EcalTrigTowerDetId& id ) throw( std::runtime_error );
 
   static std::vector<DetId> crystals( const EcalElectronicsId& id ) throw( std::runtime_error );
@@ -71,8 +79,6 @@ class Numbers {
   static int iy0EE( const int ism );
 
   static bool validEE( const int ism, const int ix, const int iy );
-
-  static int icEE( const int ism, const int ix, const int iy );
 
   static int ixSectorsEE[202];
   static int iySectorsEE[202];

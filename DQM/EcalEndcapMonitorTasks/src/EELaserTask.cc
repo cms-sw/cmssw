@@ -1,8 +1,8 @@
 /*
  * \file EELaserTask.cc
  *
- * $Date: 2007/10/14 12:31:59 $
- * $Revision: 1.19 $
+ * $Date: 2007/10/14 16:02:59 $
+ * $Revision: 1.20 $
  * \author G. Della Ricca
  *
 */
@@ -131,7 +131,7 @@ void EELaserTask::setup(void){
     dbe_->setCurrentFolder("EcalEndcap/EELaserTask/Laser1");
     for (int i = 0; i < 18 ; i++) {
       sprintf(histo, "EELT shape %s L1A", Numbers::sEE(i+1).c_str());
-      meShapeMapL1A_[i] = dbe_->bookProfile2D(histo, histo, 1700, 0., 1700., 10, 0., 10., 4096, 0., 4096., "s");
+      meShapeMapL1A_[i] = dbe_->bookProfile2D(histo, histo, 850, 0., 850., 10, 0., 10., 4096, 0., 4096., "s");
       dbe_->tag(meShapeMapL1A_[i], i+1);
       sprintf(histo, "EELT amplitude %s L1A", Numbers::sEE(i+1).c_str());
       meAmplMapL1A_[i] = dbe_->bookProfile2D(histo, histo, 50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50., 50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50., 4096, 0., 4096.*12., "s");
@@ -144,7 +144,7 @@ void EELaserTask::setup(void){
       dbe_->tag(meAmplPNMapL1A_[i], i+1);
 
       sprintf(histo, "EELT shape %s L1B", Numbers::sEE(i+1).c_str());
-      meShapeMapL1B_[i] = dbe_->bookProfile2D(histo, histo, 1700, 0., 1700., 10, 0., 10., 4096, 0., 4096., "s");
+      meShapeMapL1B_[i] = dbe_->bookProfile2D(histo, histo, 850, 0., 850., 10, 0., 10., 4096, 0., 4096., "s");
       dbe_->tag(meShapeMapL1B_[i], i+1);
       sprintf(histo, "EELT amplitude %s L1B", Numbers::sEE(i+1).c_str());
       meAmplMapL1B_[i] = dbe_->bookProfile2D(histo, histo, 50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50., 50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50., 4096, 0., 4096.*12., "s");
@@ -160,7 +160,7 @@ void EELaserTask::setup(void){
     dbe_->setCurrentFolder("EcalEndcap/EELaserTask/Laser2");
     for (int i = 0; i < 18 ; i++) {
       sprintf(histo, "EELT shape %s L2A", Numbers::sEE(i+1).c_str());
-      meShapeMapL2A_[i] = dbe_->bookProfile2D(histo, histo, 1700, 0., 1700., 10, 0., 10., 4096, 0., 4096., "s");
+      meShapeMapL2A_[i] = dbe_->bookProfile2D(histo, histo, 850, 0., 850., 10, 0., 10., 4096, 0., 4096., "s");
       dbe_->tag(meShapeMapL2A_[i], i+1);
       sprintf(histo, "EELT amplitude %s L2A", Numbers::sEE(i+1).c_str());
       meAmplMapL2A_[i] = dbe_->bookProfile2D(histo, histo, 50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50., 50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50., 4096, 0., 4096.*12., "s");
@@ -173,7 +173,7 @@ void EELaserTask::setup(void){
       dbe_->tag(meAmplPNMapL2A_[i], i+1);
 
       sprintf(histo, "EELT shape %s L2B", Numbers::sEE(i+1).c_str());
-      meShapeMapL2B_[i] = dbe_->bookProfile2D(histo, histo, 1700, 0., 1700., 10, 0., 10., 4096, 0., 4096., "s");
+      meShapeMapL2B_[i] = dbe_->bookProfile2D(histo, histo, 850, 0., 850., 10, 0., 10., 4096, 0., 4096., "s");
       dbe_->tag(meShapeMapL2B_[i], i+1);
       sprintf(histo, "EELT amplitude %s L2B", Numbers::sEE(i+1).c_str());
       meAmplMapL2B_[i] = dbe_->bookProfile2D(histo, histo, 50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50., 50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50., 4096, 0., 4096.*12., "s");
@@ -189,7 +189,7 @@ void EELaserTask::setup(void){
     dbe_->setCurrentFolder("EcalEndcap/EELaserTask/Laser3");
     for (int i = 0; i < 18 ; i++) {
       sprintf(histo, "EELT shape %s L3A", Numbers::sEE(i+1).c_str());
-      meShapeMapL3A_[i] = dbe_->bookProfile2D(histo, histo, 1700, 0., 1700., 10, 0., 10., 4096, 0., 4096., "s");
+      meShapeMapL3A_[i] = dbe_->bookProfile2D(histo, histo, 850, 0., 850., 10, 0., 10., 4096, 0., 4096., "s");
       dbe_->tag(meShapeMapL3A_[i], i+1);
       sprintf(histo, "EELT amplitude %s L3A", Numbers::sEE(i+1).c_str());
       meAmplMapL3A_[i] = dbe_->bookProfile2D(histo, histo, 50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50., 50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50., 4096, 0., 4096.*12., "s");
@@ -202,7 +202,7 @@ void EELaserTask::setup(void){
       dbe_->tag(meAmplPNMapL3A_[i], i+1);
 
       sprintf(histo, "EELT shape %s L3B", Numbers::sEE(i+1).c_str());
-      meShapeMapL3B_[i] = dbe_->bookProfile2D(histo, histo, 1700, 0., 1700., 10, 0., 10., 4096, 0., 4096., "s");
+      meShapeMapL3B_[i] = dbe_->bookProfile2D(histo, histo, 850, 0., 850., 10, 0., 10., 4096, 0., 4096., "s");
       dbe_->tag(meShapeMapL3B_[i], i+1);
       sprintf(histo, "EELT amplitude %s L3B", Numbers::sEE(i+1).c_str());
       meAmplMapL3B_[i] = dbe_->bookProfile2D(histo, histo, 50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50., 50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50., 4096, 0., 4096.*12., "s");
@@ -218,7 +218,7 @@ void EELaserTask::setup(void){
     dbe_->setCurrentFolder("EcalEndcap/EELaserTask/Laser4");
     for (int i = 0; i < 18 ; i++) {
       sprintf(histo, "EELT shape %s L4A", Numbers::sEE(i+1).c_str());
-      meShapeMapL4A_[i] = dbe_->bookProfile2D(histo, histo, 1700, 0., 1700., 10, 0., 10., 4096, 0., 4096., "s");
+      meShapeMapL4A_[i] = dbe_->bookProfile2D(histo, histo, 850, 0., 850., 10, 0., 10., 4096, 0., 4096., "s");
       dbe_->tag(meShapeMapL4A_[i], i+1);
       sprintf(histo, "EELT amplitude %s L4A", Numbers::sEE(i+1).c_str());
       meAmplMapL4A_[i] = dbe_->bookProfile2D(histo, histo, 50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50., 50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50., 4096, 0., 4096.*12., "s");
@@ -231,7 +231,7 @@ void EELaserTask::setup(void){
       dbe_->tag(meAmplPNMapL4A_[i], i+1);
 
       sprintf(histo, "EELT shape %s L4B", Numbers::sEE(i+1).c_str());
-      meShapeMapL4B_[i] = dbe_->bookProfile2D(histo, histo, 1700, 0., 1700., 10, 0., 10., 4096, 0., 4096., "s");
+      meShapeMapL4B_[i] = dbe_->bookProfile2D(histo, histo, 850, 0., 850., 10, 0., 10., 4096, 0., 4096., "s");
       dbe_->tag(meShapeMapL4B_[i], i+1);
       sprintf(histo, "EELT amplitude %s L4B", Numbers::sEE(i+1).c_str());
       meAmplMapL4B_[i] = dbe_->bookProfile2D(histo, histo, 50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50., 50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50., 4096, 0., 4096.*12., "s");

@@ -1,11 +1,11 @@
-// $Id: Numbers.cc,v 1.26 2007/10/15 16:26:42 dellaric Exp $
+// $Id: Numbers.cc,v 1.27 2007/10/17 14:12:05 dellaric Exp $
 
 /*!
   \file Numbers.cc
   \brief Some "id" conversions
   \author B. Gobbo 
-  \version $Revision: 1.26 $
-  \date $Date: 2007/10/15 16:26:42 $
+  \version $Revision: 1.27 $
+  \date $Date: 2007/10/17 14:12:05 $
 */
 
 #include <sstream>
@@ -44,17 +44,15 @@ void Numbers::initGeometry( const edm::EventSetup& setup ) {
 
 int Numbers::iEB( const int ism ) throw( std::runtime_error ) {
 
-  if( ism < 1 || ism > 36 ) {
-    std::ostringstream s;
-    s << "Wrong SM id determination: iSM = " << ism;
-    throw( std::runtime_error( s.str() ) );
-  }
-
   // EB-
   if( ism >=  1 && ism <= 18 ) return( -ism );
+
   // EB+
   if( ism >= 19 && ism <= 36 ) return( +ism - 18 );
-  return( -999 );
+
+  std::ostringstream s;
+  s << "Wrong SM id determination: iSM = " << ism;
+  throw( std::runtime_error( s.str() ) );
 
 }
 
@@ -83,12 +81,6 @@ std::string Numbers::sEB( const int ism  ) throw( std::runtime_error ) {
 
 int Numbers::iEE( const int ism ) throw( std::runtime_error ) {
   
-  if( ism < 1 || ism > 18 ) {
-    std::ostringstream s;
-    s << "Wrong SM id determination: iSM = " << ism;
-    throw( std::runtime_error( s.str() ) );
-  }
-
   // EE-
   if( ism ==  1 ) return( -7 );
   if( ism ==  2 ) return( -8 );
@@ -99,6 +91,7 @@ int Numbers::iEE( const int ism ) throw( std::runtime_error ) {
   if( ism ==  7 ) return( -4 );
   if( ism ==  8 ) return( -5 );
   if( ism ==  9 ) return( -6 );
+
   // EE+
   if( ism == 10 ) return( +7 );
   if( ism == 11 ) return( +8 );
@@ -109,7 +102,10 @@ int Numbers::iEE( const int ism ) throw( std::runtime_error ) {
   if( ism == 16 ) return( +4 );
   if( ism == 17 ) return( +5 );
   if( ism == 18 ) return( +6 );
-  return( -999 );
+
+  std::ostringstream s;
+  s << "Wrong SM id determination: iSM = " << ism;
+  throw( std::runtime_error( s.str() ) );
 
 }
 
@@ -139,27 +135,29 @@ std::string Numbers::sEE( const int ism  ) throw( std::runtime_error ) {
 int Numbers::iSM( const int ism, const int subdet ) throw( std::runtime_error ) {
 
   if( subdet == EcalBarrel ) {
-    if( ism < 1 || ism > 36 ) {
-      std::ostringstream s;
-      s << "Wrong SM id: iSM = " << ism;
-      throw( std::runtime_error( s.str() ) );
-    }
+
     // EB-
     if( ism >=  1 && ism <= 18 ) return( ism+18 );
+
     // EB+
     if( ism >= 19 && ism <= 36 ) return( ism-18 );
-    return( -999 );
+
+    std::ostringstream s;
+    s << "Wrong SM id: iSM = " << ism;
+    throw( std::runtime_error( s.str() ) );
+
   } else if( subdet == EcalEndcap ) {
-    if( ism < 1 || ism > 18 ) {
-      std::ostringstream s;
-      s << "Wrong SM id: iSM = " << ism;
-      throw( std::runtime_error( s.str() ) );
-    }
+
     // EE-
     if( ism >=  1 && ism <=  9 ) return( ism+9 );
+
     // EE+
     if (ism >= 10 && ism <= 18 ) return( ism-9 );
-    return( -999 );
+
+    std::ostringstream s;
+    s << "Wrong SM id: iSM = " << ism;
+    throw( std::runtime_error( s.str() ) );
+
   } else {
     std::ostringstream s;
     s << "Invalid subdetector: subdet = " << subdet;
@@ -175,9 +173,14 @@ int Numbers::iSM( const EBDetId& id ) throw( std::runtime_error ) {
   if( Numbers::map ) {
     EcalElectronicsId eid = Numbers::map->getElectronicsId(id);
     int idcc = eid.dccId();
+
     // EB-/EB+
     if( idcc >= 10 && idcc <= 45 ) return( idcc - 9 );
-    return( -999 );
+
+    std::ostringstream s;
+    s << "Wrong DCC id: iDCC = " << idcc;
+    throw( std::runtime_error( s.str() ) );
+
   } else {
     return( Numbers::iSM( id.ism(), EcalBarrel ) );
   }
@@ -191,11 +194,17 @@ int Numbers::iSM( const EEDetId& id ) throw( std::runtime_error ) {
   if( Numbers::map ) {
     EcalElectronicsId eid = Numbers::map->getElectronicsId(id);
     int idcc = eid.dccId();
+
     // EE-
     if( idcc >=  1 && idcc <=  9 ) return( idcc );
+
     // EE+
     if( idcc >= 46 && idcc <= 54 ) return( idcc - 45 + 9 );
-    return( -999 );
+
+    std::ostringstream s;
+    s << "Wrong DCC id: iDCC = " << idcc;
+    throw( std::runtime_error( s.str() ) );
+
   } else {
     std::ostringstream s;
     s << "ECAL Geometry not available";
@@ -210,13 +219,20 @@ int Numbers::iSM( const EcalTrigTowerDetId& id ) throw( std::runtime_error ) {
 
   if( Numbers::map ) {
     int idcc = Numbers::map->DCCid(id);
+
     // EE-
     if( idcc >=  1 && idcc <=  9 ) return( idcc );
+
     // EB-/EB+
     if( idcc >= 10 && idcc <= 45 ) return( idcc - 9 );
+
     // EE+
     if( idcc >= 46 && idcc <= 54 ) return( idcc - 45 + 9 );
-    return( -999 );
+
+    std::ostringstream s;
+    s << "Wrong DCC id: iDCC = " << idcc;
+    throw( std::runtime_error( s.str() ) );
+
   } else {
     if( id.subDet() == EcalBarrel ) {
       return( Numbers::iSM( id.iDCC(), id.subDet() ) );
@@ -249,13 +265,20 @@ int Numbers::iSM( const EcalPnDiodeDetId& id ) {
 
 int Numbers::iSM( const EcalDCCHeaderBlock& id, const int subdet ) {
 
+  int idcc = id.id();
+
   // EE-
-  if( id.id() >=  1 && id.id() <=  9 ) return( id.id() );
+  if( idcc >=  1 && idcc <=  9 ) return( idcc );
+
   // EB-/EB+
-  if( id.id() >= 10 && id.id() <= 45 ) return( id.id() - 9 );
+  if( idcc >= 10 && idcc <= 45 ) return( idcc - 9 );
+
   // EE+
-  if( id.id() >= 46 && id.id() <= 54 ) return( id.id() - 45 + 9 );
-  return( -999 );
+  if( idcc >= 46 && idcc <= 54 ) return( idcc - 45 + 9 );
+
+  std::ostringstream s;
+  s << "Wrong DCC id: iDCC = " << idcc;
+  throw( std::runtime_error( s.str() ) );
 
 }
 
@@ -266,15 +289,16 @@ int Numbers::iTT( const EcalTrigTowerDetId& id ) throw( std::runtime_error ) {
   if( Numbers::map ) {
     return( Numbers::map->iTT(id) );
   } else {
-    if( id.subDet() == EcalBarrel ) {
+    int isubdet = id.subDet();
+    if( isubdet == EcalBarrel ) {
       return( id.iTT() );
-    } else if( id.subDet() ==  EcalEndcap) {
+    } else if( isubdet ==  EcalEndcap) {
       std::ostringstream s;
       s << "ECAL Geometry not available";
       throw( std::runtime_error( s.str() ) );
     } else {
       std::ostringstream s;
-      s << "Invalid subdetector: subdet = " << id.subDet();
+      s << "Invalid subdetector: iSubdet = " << isubdet;
       throw( std::runtime_error( s.str() ) );
     }
   }
@@ -288,7 +312,7 @@ std::vector<DetId> Numbers::crystals( const EcalTrigTowerDetId& id ) throw( std:
   if( Numbers::map ) {
     int itcc = Numbers::map->TCCid(id);
     int itt = Numbers::map->iTT(id);
-    return( Numbers::map->ttConstituents( itcc, itt) );
+    return( Numbers::map->ttConstituents( itcc, itt ) );
   } else {
     std::ostringstream s;
     s << "ECAL Geometry not available";
@@ -304,12 +328,76 @@ std::vector<DetId> Numbers::crystals( const EcalElectronicsId& id ) throw( std::
   if( Numbers::map ) {
     int idcc = id.dccId();
     int itt = id.towerId();
-    return( Numbers::map->dccTowerConstituents( idcc, itt) );
+    return( Numbers::map->dccTowerConstituents( idcc, itt ) );
   } else {
     std::ostringstream s;
     s << "ECAL Geometry not available";
     throw( std::runtime_error( s.str() ) );
   }
+
+}
+
+//-------------------------------------------------------------------------
+
+int Numbers::indexEB( const int ism, const int ie, const int ip ){
+  return( (ip-1) + 20*(ie-1) + 1 );
+}
+
+//-------------------------------------------------------------------------
+
+int Numbers::indexEE( const int ism, const int ix, const int iy ){
+
+  int iz = 0;
+
+  if( ism >=  1 && ism <=  9 ) iz = -1;
+  if( ism >= 10 && ism <= 18 ) iz = +1;
+
+  if( EEDetId::validDetId(ix, iy, iz) ) {
+
+    EEDetId id(ix, iy, iz, EEDetId::XYMODE);
+
+    return( id.hashedIndex() );
+
+  }
+
+  return( -1 );
+
+}
+
+//-------------------------------------------------------------------------
+
+int Numbers::icEB( const int ism, const int ie, const int ip ) {
+  return( (ip-1) + 20*(ie-1) + 1 );
+}
+
+//-------------------------------------------------------------------------
+
+int Numbers::icEE( const int ism, const int ix, const int iy ) {
+
+  int iz = 0;
+
+  if( ism >=  1 && ism <=  9 ) iz = -1;
+  if( ism >= 10 && ism <= 18 ) iz = +1;
+
+  if( EEDetId::validDetId(ix, iy, iz) ) {
+
+    EEDetId id(ix, iy, iz, EEDetId::XYMODE);
+
+    if( Numbers::map ) {
+      EcalElectronicsId eid = Numbers::map->getElectronicsId(id);
+      int vfe = eid.towerId();
+      int strip = eid.stripId();
+      int channel = eid.xtalId();
+      return ( (vfe-1)*25 + (strip-1)*5 + channel );
+    } else {
+      std::ostringstream s;
+      s << "ECAL Geometry not available";
+      throw( std::runtime_error( s.str() ) );
+    }
+
+  }
+
+  return( -1 );
 
 }
 
@@ -381,37 +469,6 @@ bool Numbers::validEE( const int ism, const int ix, const int iy ) {
   }
 
   return false;
-
-}
-
-//-------------------------------------------------------------------------
-
-int Numbers::icEE( const int ism, const int ix, const int iy ) {
-
-  int iz = 0;
-
-  if( ism >=  1 && ism <=  9 ) iz = -1;
-  if( ism >= 10 && ism <= 18 ) iz = +1;
-
-  if( EEDetId::validDetId(ix, iy, iz) ) {
-
-    EEDetId id(ix, iy, iz, EEDetId::XYMODE);
-
-    if( Numbers::map ) {
-      EcalElectronicsId eid = Numbers::map->getElectronicsId(id);
-      int vfe = eid.towerId();
-      int strip = eid.stripId();
-      int channel = eid.xtalId();
-      return ( (vfe-1)*25 + (strip-1)*5 + channel );
-    } else {
-      std::ostringstream s;
-      s << "ECAL Geometry not available";
-      throw( std::runtime_error( s.str() ) );
-    }
-
-  }
-
-  return( -1 );
 
 }
 

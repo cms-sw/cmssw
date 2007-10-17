@@ -1,8 +1,8 @@
 /*
  * \file EBPedestalClient.cc
  *
- * $Date: 2007/09/06 18:59:05 $
- * $Revision: 1.153 $
+ * $Date: 2007/09/07 22:30:04 $
+ * $Revision: 1.154 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -593,7 +593,7 @@ bool EBPedestalClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRu
                              UtilsClient::getBinQual(meg02_[ism-1], ie, ip) &&
                              UtilsClient::getBinQual(meg03_[ism-1], ie, ip);
 
-          int ic = (ip-1) + 20*(ie-1) + 1;
+          int ic = Numbers::indexEB(ism, ie, ip);
 
           if ( econn ) {
             try {
@@ -1057,7 +1057,7 @@ void EBPedestalClient::analyze(void){
 
             EcalLogicID ecid = m->first;
 
-            int ic = (ip-1) + 20*(ie-1) + 1;
+            int ic = Numbers::indexEB(ism, ie, ip);
 
             if ( ecid.getID1() == Numbers::iSM(ism, EcalBarrel) && ecid.getID2() == ic ) {
               if ( (m->second).getErrorBits() & bits01 ) {

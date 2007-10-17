@@ -1,8 +1,8 @@
 /*
  * \file EBCosmicClient.cc
  *
- * $Date: 2007/09/06 18:59:05 $
- * $Revision: 1.81 $
+ * $Date: 2007/09/07 22:30:04 $
+ * $Revision: 1.82 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -219,7 +219,7 @@ bool EBCosmicClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunI
 
           o.setAvgEnergy(mean01);
 
-          int ic = (ip-1) + 20*(ie-1) + 1;
+          int ic = Numbers::indexEB(ism, ie, ip);
 
           if ( econn ) {
             try {

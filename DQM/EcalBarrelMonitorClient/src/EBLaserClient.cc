@@ -1,8 +1,8 @@
 /*
  * \file EBLaserClient.cc
  *
- * $Date: 2007/10/14 12:31:58 $
- * $Revision: 1.182 $
+ * $Date: 2007/10/14 15:24:49 $
+ * $Revision: 1.184 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -1233,7 +1233,7 @@ bool EBLaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
 
           status = status && UtilsClient::getBinQual(meg01_[ism-1], ie, ip);
 
-          int ic = (ip-1) + 20*(ie-1) + 1;
+          int ic = Numbers::indexEB(ism, ie, ip);
 
           if ( econn ) {
             try {
@@ -1272,7 +1272,7 @@ bool EBLaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
 
           status = status && UtilsClient::getBinQual(meg01_[ism-1], ie, ip);
 
-          int ic = (ip-1) + 20*(ie-1) + 1;
+          int ic = Numbers::indexEB(ism, ie, ip);
 
           if ( econn ) {
             try {
@@ -1311,7 +1311,7 @@ bool EBLaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
 
           status = status && UtilsClient::getBinQual(meg02_[ism-1], ie, ip);
 
-          int ic = (ip-1) + 20*(ie-1) + 1;
+          int ic = Numbers::indexEB(ism, ie, ip);
 
           if ( econn ) {
             try {
@@ -1350,7 +1350,7 @@ bool EBLaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
 
           status = status && UtilsClient::getBinQual(meg02_[ism-1], ie, ip);
 
-          int ic = (ip-1) + 20*(ie-1) + 1;
+          int ic = Numbers::indexEB(ism, ie, ip);
 
           if ( econn ) {
             try {
@@ -1389,7 +1389,7 @@ bool EBLaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
 
           status = status && UtilsClient::getBinQual(meg03_[ism-1], ie, ip);
 
-          int ic = (ip-1) + 20*(ie-1) + 1;
+          int ic = Numbers::indexEB(ism, ie, ip);
 
           if ( econn ) {
             try {
@@ -1428,7 +1428,7 @@ bool EBLaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
 
           status = status && UtilsClient::getBinQual(meg03_[ism-1], ie, ip);
 
-          int ic = (ip-1) + 20*(ie-1) + 1;
+          int ic = Numbers::indexEB(ism, ie, ip);
 
           if ( econn ) {
             try {
@@ -1467,7 +1467,7 @@ bool EBLaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
 
           status = status && UtilsClient::getBinQual(meg04_[ism-1], ie, ip);
 
-          int ic = (ip-1) + 20*(ie-1) + 1;
+          int ic = Numbers::indexEB(ism, ie, ip);
 
           if ( econn ) {
             try {
@@ -1506,7 +1506,7 @@ bool EBLaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
 
           status = status && UtilsClient::getBinQual(meg04_[ism-1], ie, ip);
 
-          int ic = (ip-1) + 20*(ie-1) + 1;
+          int ic = Numbers::indexEB(ism, ie, ip);
 
           if ( econn ) {
             try {
@@ -2791,7 +2791,7 @@ void EBLaserClient::analyze(void){
             val = 0.;
           if ( meg01_[ism-1] ) meg01_[ism-1]->setBinContent( ie, ip, val );
 
-          int ic = (ip-1) + 20*(ie-1) + 1;
+          int ic = Numbers::icEB(ism, ie, ip);
 
           if ( mea01_[ism-1] ) {
             if ( mean01 > 0. ) {
@@ -2813,7 +2813,7 @@ void EBLaserClient::analyze(void){
             val = 0.;
           if ( meg01_[ism-1] ) meg01_[ism-1]->setBinContent( ie, ip, val );
 
-          int ic = (ip-1) + 20*(ie-1) + 1;
+          int ic = Numbers::icEB(ism, ie, ip);
 
           if ( mea05_[ism-1] ) {
             if ( mean13 > 0. ) {
@@ -2835,7 +2835,7 @@ void EBLaserClient::analyze(void){
             val = 0.;
           if ( meg02_[ism-1] ) meg02_[ism-1]->setBinContent( ie, ip, val);
 
-          int ic = (ip-1) + 20*(ie-1) + 1;
+          int ic = Numbers::icEB(ism, ie, ip);
 
           if ( mea02_[ism-1] ) {
             if ( mean03 > 0. ) {
@@ -2857,7 +2857,7 @@ void EBLaserClient::analyze(void){
             val = 0.;
           if ( meg02_[ism-1] ) meg02_[ism-1]->setBinContent( ie, ip, val);
 
-          int ic = (ip-1) + 20*(ie-1) + 1;
+          int ic = Numbers::icEB(ism, ie, ip);
 
           if ( mea06_[ism-1] ) {
             if ( mean15 > 0. ) {
@@ -2879,7 +2879,7 @@ void EBLaserClient::analyze(void){
             val = 0.;
           if ( meg03_[ism-1] ) meg03_[ism-1]->setBinContent( ie, ip, val );
 
-          int ic = (ip-1) + 20*(ie-1) + 1;
+          int ic = Numbers::icEB(ism, ie, ip);
 
           if ( mea03_[ism-1] ) {
             if ( mean05 > 0. ) {
@@ -2901,7 +2901,7 @@ void EBLaserClient::analyze(void){
             val = 0.;
           if ( meg03_[ism-1] ) meg03_[ism-1]->setBinContent( ie, ip, val );
 
-          int ic = (ip-1) + 20*(ie-1) + 1;
+          int ic = Numbers::icEB(ism, ie, ip);
 
           if ( mea07_[ism-1] ) {
             if ( mean17 > 0. ) {
@@ -2923,7 +2923,7 @@ void EBLaserClient::analyze(void){
             val = 0.;
           if ( meg04_[ism-1] ) meg04_[ism-1]->setBinContent( ie, ip, val );
 
-          int ic = (ip-1) + 20*(ie-1) + 1;
+          int ic = Numbers::icEB(ism, ie, ip);
 
           if ( mea04_[ism-1] ) {
             if ( mean07 > 0. ) {
@@ -2945,7 +2945,7 @@ void EBLaserClient::analyze(void){
             val = 0.;
           if ( meg04_[ism-1] ) meg04_[ism-1]->setBinContent( ie, ip, val );
 
-          int ic = (ip-1) + 20*(ie-1) + 1;
+          int ic = Numbers::icEB(ism, ie, ip);
 
           if ( mea08_[ism-1] ) {
             if ( mean19 > 0. ) {
@@ -2960,7 +2960,7 @@ void EBLaserClient::analyze(void){
 
         if ( update02 ) {
 
-          int ic = (ip-1) + 20*(ie-1) + 1;
+          int ic = Numbers::icEB(ism, ie, ip);
 
           if ( meaopn01_[ism-1] ) {
             if ( mean02 > 0. ) {
@@ -2975,7 +2975,7 @@ void EBLaserClient::analyze(void){
 
         if ( update14 ) {
 
-          int ic = (ip-1) + 20*(ie-1) + 1;
+          int ic = Numbers::icEB(ism, ie, ip);
 
           if ( meaopn05_[ism-1] ) {
             if ( mean14 > 0. ) {
@@ -2990,7 +2990,7 @@ void EBLaserClient::analyze(void){
 
         if ( update04 ) {
 
-          int ic = (ip-1) + 20*(ie-1) + 1;
+          int ic = Numbers::icEB(ism, ie, ip);
 
           if ( meaopn02_[ism-1] ) {
             if ( mean04 > 0. ) {
@@ -3005,7 +3005,7 @@ void EBLaserClient::analyze(void){
 
         if ( update16 ) {
 
-          int ic = (ip-1) + 20*(ie-1) + 1;
+          int ic = Numbers::icEB(ism, ie, ip);
 
           if ( meaopn06_[ism-1] ) {
             if ( mean16 > 0. ) {
@@ -3020,7 +3020,7 @@ void EBLaserClient::analyze(void){
 
         if ( update06 ) {
 
-          int ic = (ip-1) + 20*(ie-1) + 1;
+          int ic = Numbers::icEB(ism, ie, ip);
 
           if ( meaopn03_[ism-1] ) {
             if ( mean06 > 0. ) {
@@ -3035,7 +3035,7 @@ void EBLaserClient::analyze(void){
 
         if ( update18 ) {
 
-          int ic = (ip-1) + 20*(ie-1) + 1;
+          int ic = Numbers::icEB(ism, ie, ip);
 
           if ( meaopn07_[ism-1] ) {
             if ( mean18 > 0. ) {
@@ -3050,7 +3050,7 @@ void EBLaserClient::analyze(void){
 
         if ( update08 ) {
 
-          int ic = (ip-1) + 20*(ie-1) + 1;
+          int ic = Numbers::icEB(ism, ie, ip);
 
           if ( meaopn04_[ism-1] ) {
             if ( mean08 > 0. ) {
@@ -3065,7 +3065,7 @@ void EBLaserClient::analyze(void){
 
         if ( update20 ) {
 
-          int ic = (ip-1) + 20*(ie-1) + 1;
+          int ic = Numbers::icEB(ism, ie, ip);
 
           if ( meaopn08_[ism-1] ) {
             if ( mean20 > 0. ) {
@@ -3080,7 +3080,7 @@ void EBLaserClient::analyze(void){
 
         if ( update09 ) {
 
-          int ic = (ip-1) + 20*(ie-1) + 1;
+          int ic = Numbers::icEB(ism, ie, ip);
 
           if ( met01_[ism-1] ) {
             if ( mean09 > 0. ) {
@@ -3098,7 +3098,7 @@ void EBLaserClient::analyze(void){
 
         if ( update21 ) {
 
-          int ic = (ip-1) + 20*(ie-1) + 1;
+          int ic = Numbers::icEB(ism, ie, ip);
 
           if ( met05_[ism-1] ) {
             if ( mean21 > 0. ) {
@@ -3116,7 +3116,7 @@ void EBLaserClient::analyze(void){
 
         if ( update10 ) {
 
-          int ic = (ip-1) + 20*(ie-1) + 1;
+          int ic = Numbers::icEB(ism, ie, ip);
 
           if ( met02_[ism-1] ) {
             if ( mean10 > 0. ) {
@@ -3134,7 +3134,7 @@ void EBLaserClient::analyze(void){
 
         if ( update22 ) {
 
-          int ic = (ip-1) + 20*(ie-1) + 1;
+          int ic = Numbers::icEB(ism, ie, ip);
 
           if ( met06_[ism-1] ) {
             if ( mean22 > 0. ) {
@@ -3152,7 +3152,7 @@ void EBLaserClient::analyze(void){
 
         if ( update11 ) {
 
-          int ic = (ip-1) + 20*(ie-1) + 1;
+          int ic = Numbers::icEB(ism, ie, ip);
 
           if ( met03_[ism-1] ) {
             if ( mean11 > 0. ) {
@@ -3170,7 +3170,7 @@ void EBLaserClient::analyze(void){
 
         if ( update23 ) {
 
-          int ic = (ip-1) + 20*(ie-1) + 1;
+          int ic = Numbers::icEB(ism, ie, ip);
 
           if ( met07_[ism-1] ) {
             if ( mean23 > 0. ) {
@@ -3188,7 +3188,7 @@ void EBLaserClient::analyze(void){
 
         if ( update12 ) {
 
-          int ic = (ip-1) + 20*(ie-1) + 1;
+          int ic = Numbers::icEB(ism, ie, ip);
 
           if ( met04_[ism-1] ) {
             if ( mean12 > 0. ) {
@@ -3206,7 +3206,7 @@ void EBLaserClient::analyze(void){
 
         if ( update24 ) {
 
-          int ic = (ip-1) + 20*(ie-1) + 1;
+          int ic = Numbers::icEB(ism, ie, ip);
 
           if ( met08_[ism-1] ) {
             if ( mean24 > 0. ) {
@@ -3230,7 +3230,7 @@ void EBLaserClient::analyze(void){
 
             EcalLogicID ecid = m->first;
 
-            int ic = (ip-1) + 20*(ie-1) + 1;
+            int ic = Numbers::indexEB(ism, ie, ip);
 
             if ( ecid.getID1() == Numbers::iSM(ism, EcalBarrel) && ecid.getID2() == ic ) {
               if ( (m->second).getErrorBits() & bits01 ) {

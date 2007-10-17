@@ -2,8 +2,8 @@
 /*
  * \file EBIntegrityClient.cc
  *
- * $Date: 2007/09/06 18:59:05 $
- * $Revision: 1.157 $
+ * $Date: 2007/09/07 22:30:04 $
+ * $Revision: 1.158 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -480,7 +480,7 @@ bool EBIntegrityClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
           }
           c1.setTaskStatus(val);
 
-          int ic = (ip-1) + 20*(ie-1) + 1;
+          int ic = Numbers::indexEB(ism, ie, ip);
 
           if ( econn ) {
             try {
@@ -1146,7 +1146,7 @@ void EBIntegrityClient::analyze(void){
 
             EcalLogicID ecid = m->first;
 
-            int ic = (ip-1) + 20*(ie-1) + 1;
+            int ic = Numbers::indexEB(ism, ie, ip);
 
             if ( ecid.getID1() == Numbers::iSM(ism, EcalBarrel) && ecid.getID2() == ic ) {
               if ( (m->second).getErrorBits() & bits01 ) {

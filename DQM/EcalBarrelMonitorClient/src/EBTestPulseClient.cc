@@ -1,8 +1,8 @@
 /*
  * \file EBTestPulseClient.cc
  *
- * $Date: 2007/09/07 22:30:04 $
- * $Revision: 1.155 $
+ * $Date: 2007/10/14 15:24:49 $
+ * $Revision: 1.156 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -573,7 +573,7 @@ bool EBTestPulseClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
 
           }
 
-          int ic = (ip-1) + 20*(ie-1) + 1;
+          int ic = Numbers::indexEB(ism, ie, ip);
 
           if ( econn ) {
             try {
@@ -1049,7 +1049,7 @@ void EBTestPulseClient::analyze(void){
             val = 0.;
           if ( meg01_[ism-1] ) meg01_[ism-1]->setBinContent( ie, ip, val );
 
-          int ic = (ip-1) + 20*(ie-1) + 1;
+          int ic = Numbers::icEB(ism, ie, ip);
 
           if ( mea01_[ism-1] ) {
             if ( mean01 > 0. ) {
@@ -1073,7 +1073,7 @@ void EBTestPulseClient::analyze(void){
             val = 0.;
           if ( meg02_[ism-1] ) meg02_[ism-1]->setBinContent( ie, ip, val );
 
-          int ic = (ip-1) + 20*(ie-1) + 1;
+          int ic = Numbers::icEB(ism, ie, ip);
 
           if ( mea02_[ism-1] ) {
             if ( mean02 > 0. ) {
@@ -1097,7 +1097,7 @@ void EBTestPulseClient::analyze(void){
             val = 0.;
           if ( meg03_[ism-1] ) meg03_[ism-1]->setBinContent( ie, ip, val );
 
-          int ic = (ip-1) + 20*(ie-1) + 1;
+          int ic = Numbers::icEB(ism, ie, ip);
 
           if ( mea03_[ism-1] ) {
             if ( mean03 > 0. ) {
@@ -1118,7 +1118,7 @@ void EBTestPulseClient::analyze(void){
 
             EcalLogicID ecid = m->first;
 
-            int ic = (ip-1) + 20*(ie-1) + 1;
+            int ic = Numbers::indexEB(ism, ie, ip);
 
             if ( ecid.getID1() == Numbers::iSM(ism, EcalBarrel) && ecid.getID2() == ic ) {
               if ( (m->second).getErrorBits() & bits01 ) {

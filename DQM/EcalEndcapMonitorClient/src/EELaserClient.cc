@@ -1,8 +1,8 @@
 /*
  * \file EELaserClient.cc
  *
- * $Date: 2007/10/14 15:04:22 $
- * $Revision: 1.36 $
+ * $Date: 2007/10/17 14:05:25 $
+ * $Revision: 1.37 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -622,53 +622,53 @@ void EELaserClient::setup(void) {
 
     if ( mea01_[ism-1] ) dbe_->removeElement( mea01_[ism-1]->getName() );;
     sprintf(histo, "EELT amplitude L1A %s", Numbers::sEE(ism).c_str());
-    mea01_[ism-1] = dbe_->book1D(histo, histo, 1700, 0., 1700.);
+    mea01_[ism-1] = dbe_->book1D(histo, histo, 850, 0., 850.);
     if ( mea02_[ism-1] ) dbe_->removeElement( mea02_[ism-1]->getName() );
     sprintf(histo, "EELT amplitude L2A %s", Numbers::sEE(ism).c_str());
-    mea02_[ism-1] = dbe_->book1D(histo, histo, 1700, 0., 1700.);
+    mea02_[ism-1] = dbe_->book1D(histo, histo, 850, 0., 850.);
     if ( mea03_[ism-1] ) dbe_->removeElement( mea03_[ism-1]->getName() );
     sprintf(histo, "EELT amplitude L3A %s", Numbers::sEE(ism).c_str());
-    mea03_[ism-1] = dbe_->book1D(histo, histo, 1700, 0., 1700.);
+    mea03_[ism-1] = dbe_->book1D(histo, histo, 850, 0., 850.);
     if ( mea04_[ism-1] ) dbe_->removeElement( mea04_[ism-1]->getName() );
     sprintf(histo, "EELT amplitude L4A %s", Numbers::sEE(ism).c_str());
-    mea04_[ism-1] = dbe_->book1D(histo, histo, 1700, 0., 1700.);
+    mea04_[ism-1] = dbe_->book1D(histo, histo, 850, 0., 850.);
     if ( mea05_[ism-1] ) dbe_->removeElement( mea05_[ism-1]->getName() );;
     sprintf(histo, "EELT amplitude L1B %s", Numbers::sEE(ism).c_str());
-    mea05_[ism-1] = dbe_->book1D(histo, histo, 1700, 0., 1700.);
+    mea05_[ism-1] = dbe_->book1D(histo, histo, 850, 0., 850.);
     if ( mea06_[ism-1] ) dbe_->removeElement( mea06_[ism-1]->getName() );
     sprintf(histo, "EELT amplitude L2B %s", Numbers::sEE(ism).c_str());
-    mea06_[ism-1] = dbe_->book1D(histo, histo, 1700, 0., 1700.);
+    mea06_[ism-1] = dbe_->book1D(histo, histo, 850, 0., 850.);
     if ( mea07_[ism-1] ) dbe_->removeElement( mea07_[ism-1]->getName() );
     sprintf(histo, "EELT amplitude L3B %s", Numbers::sEE(ism).c_str());
-    mea07_[ism-1] = dbe_->book1D(histo, histo, 1700, 0., 1700.);
+    mea07_[ism-1] = dbe_->book1D(histo, histo, 850, 0., 850.);
     if ( mea08_[ism-1] ) dbe_->removeElement( mea08_[ism-1]->getName() );
     sprintf(histo, "EELT amplitude L4B %s", Numbers::sEE(ism).c_str());
-    mea08_[ism-1] = dbe_->book1D(histo, histo, 1700, 0., 1700.);
+    mea08_[ism-1] = dbe_->book1D(histo, histo, 850, 0., 850.);
 
     if ( met01_[ism-1] ) dbe_->removeElement( met01_[ism-1]->getName() );
     sprintf(histo, "EELT timing L1A %s", Numbers::sEE(ism).c_str());
-    met01_[ism-1] = dbe_->book1D(histo, histo, 1700, 0., 1700.);
+    met01_[ism-1] = dbe_->book1D(histo, histo, 850, 0., 850.);
     if ( met02_[ism-1] ) dbe_->removeElement( met02_[ism-1]->getName() );
     sprintf(histo, "EELT timing L2A %s", Numbers::sEE(ism).c_str());
-    met02_[ism-1] = dbe_->book1D(histo, histo, 1700, 0., 1700.);
+    met02_[ism-1] = dbe_->book1D(histo, histo, 850, 0., 850.);
     if ( met03_[ism-1] ) dbe_->removeElement( met03_[ism-1]->getName() );
     sprintf(histo, "EELT timing L3A %s", Numbers::sEE(ism).c_str());
-    met03_[ism-1] = dbe_->book1D(histo, histo, 1700, 0., 1700.);
+    met03_[ism-1] = dbe_->book1D(histo, histo, 850, 0., 850.);
     if ( met04_[ism-1] ) dbe_->removeElement( met04_[ism-1]->getName() );
     sprintf(histo, "EELT timing L4A %s", Numbers::sEE(ism).c_str());
-    met04_[ism-1] = dbe_->book1D(histo, histo, 1700, 0., 1700.);
+    met04_[ism-1] = dbe_->book1D(histo, histo, 850, 0., 850.);
     if ( met05_[ism-1] ) dbe_->removeElement( met05_[ism-1]->getName() );
     sprintf(histo, "EELT timing L1B %s", Numbers::sEE(ism).c_str());
-    met05_[ism-1] = dbe_->book1D(histo, histo, 1700, 0., 1700.);
+    met05_[ism-1] = dbe_->book1D(histo, histo, 850, 0., 850.);
     if ( met06_[ism-1] ) dbe_->removeElement( met06_[ism-1]->getName() );
     sprintf(histo, "EELT timing L2B %s", Numbers::sEE(ism).c_str());
-    met06_[ism-1] = dbe_->book1D(histo, histo, 1700, 0., 1700.);
+    met06_[ism-1] = dbe_->book1D(histo, histo, 850, 0., 850.);
     if ( met07_[ism-1] ) dbe_->removeElement( met07_[ism-1]->getName() );
     sprintf(histo, "EELT timing L3B %s", Numbers::sEE(ism).c_str());
-    met07_[ism-1] = dbe_->book1D(histo, histo, 1700, 0., 1700.);
+    met07_[ism-1] = dbe_->book1D(histo, histo, 850, 0., 850.);
     if ( met08_[ism-1] ) dbe_->removeElement( met08_[ism-1]->getName() );
     sprintf(histo, "EELT timing L4B %s", Numbers::sEE(ism).c_str());
-    met08_[ism-1] = dbe_->book1D(histo, histo, 1700, 0., 1700.);
+    met08_[ism-1] = dbe_->book1D(histo, histo, 850, 0., 850.);
 
     if ( metav01_[ism-1] ) dbe_->removeElement( metav01_[ism-1]->getName() );
     sprintf(histo, "EELT timing mean L1A %s", Numbers::sEE(ism).c_str());
@@ -722,28 +722,28 @@ void EELaserClient::setup(void) {
 
     if ( meaopn01_[ism-1] ) dbe_->removeElement( meaopn01_[ism-1]->getName() );
     sprintf(histo, "EELT amplitude over PN L1A %s", Numbers::sEE(ism).c_str());
-    meaopn01_[ism-1] = dbe_->book1D(histo, histo, 1700, 0., 1700.);
+    meaopn01_[ism-1] = dbe_->book1D(histo, histo, 850, 0., 850.);
     if ( meaopn02_[ism-1] ) dbe_->removeElement( meaopn02_[ism-1]->getName() );
     sprintf(histo, "EELT amplitude over PN L2A %s", Numbers::sEE(ism).c_str());
-    meaopn02_[ism-1] = dbe_->book1D(histo, histo, 1700, 0., 1700.);
+    meaopn02_[ism-1] = dbe_->book1D(histo, histo, 850, 0., 850.);
     if ( meaopn03_[ism-1] ) dbe_->removeElement( meaopn03_[ism-1]->getName() );
     sprintf(histo, "EELT amplitude over PN L3A %s", Numbers::sEE(ism).c_str());
-    meaopn03_[ism-1] = dbe_->book1D(histo, histo, 1700, 0., 1700.);
+    meaopn03_[ism-1] = dbe_->book1D(histo, histo, 850, 0., 850.);
     if ( meaopn04_[ism-1] ) dbe_->removeElement( meaopn04_[ism-1]->getName() );
     sprintf(histo, "EELT amplitude over PN L4A %s", Numbers::sEE(ism).c_str());
-    meaopn04_[ism-1] = dbe_->book1D(histo, histo, 1700, 0., 1700.);
+    meaopn04_[ism-1] = dbe_->book1D(histo, histo, 850, 0., 850.);
     if ( meaopn05_[ism-1] ) dbe_->removeElement( meaopn05_[ism-1]->getName() );
     sprintf(histo, "EELT amplitude over PN L1B %s", Numbers::sEE(ism).c_str());
-    meaopn05_[ism-1] = dbe_->book1D(histo, histo, 1700, 0., 1700.);
+    meaopn05_[ism-1] = dbe_->book1D(histo, histo, 850, 0., 850.);
     if ( meaopn06_[ism-1] ) dbe_->removeElement( meaopn06_[ism-1]->getName() );
     sprintf(histo, "EELT amplitude over PN L2B %s", Numbers::sEE(ism).c_str());
-    meaopn06_[ism-1] = dbe_->book1D(histo, histo, 1700, 0., 1700.);
+    meaopn06_[ism-1] = dbe_->book1D(histo, histo, 850, 0., 850.);
     if ( meaopn07_[ism-1] ) dbe_->removeElement( meaopn07_[ism-1]->getName() );
     sprintf(histo, "EELT amplitude over PN L3B %s", Numbers::sEE(ism).c_str());
-    meaopn07_[ism-1] = dbe_->book1D(histo, histo, 1700, 0., 1700.);
+    meaopn07_[ism-1] = dbe_->book1D(histo, histo, 850, 0., 850.);
     if ( meaopn08_[ism-1] ) dbe_->removeElement( meaopn08_[ism-1]->getName() );
     sprintf(histo, "EELT amplitude over PN L4B %s", Numbers::sEE(ism).c_str());
-    meaopn08_[ism-1] = dbe_->book1D(histo, histo, 1700, 0., 1700.);
+    meaopn08_[ism-1] = dbe_->book1D(histo, histo, 850, 0., 850.);
     
     if ( mepnprms01_[ism-1] ) dbe_->removeElement( mepnprms01_[ism-1]->getName() );
     sprintf(histo, "EEPDT PNs pedestal rms %s G01 L1", Numbers::sEE(ism).c_str());
@@ -1259,7 +1259,7 @@ bool EELaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
 
           status = status && UtilsClient::getBinQual(meg01_[ism-1], ix, iy);
 
-          int ic = Numbers::icEE(ism, ix, iy);
+          int ic = Numbers::indexEE(ism, ix, iy);
 
           if ( ic == -1 ) continue;
 
@@ -1300,7 +1300,7 @@ bool EELaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
 
           status = status && UtilsClient::getBinQual(meg01_[ism-1], ix, iy);
 
-          int ic = Numbers::icEE(ism, ix, iy);
+          int ic = Numbers::indexEE(ism, ix, iy);
 
           if ( econn ) {
             try {
@@ -1339,7 +1339,7 @@ bool EELaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
 
           status = status && UtilsClient::getBinQual(meg02_[ism-1], ix, iy);
 
-          int ic = Numbers::icEE(ism, ix, iy);
+          int ic = Numbers::indexEE(ism, ix, iy);
 
           if ( ic == -1 ) continue;
 
@@ -1380,7 +1380,7 @@ bool EELaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
 
           status = status && UtilsClient::getBinQual(meg02_[ism-1], ix, iy);
 
-          int ic = Numbers::icEE(ism, ix, iy);
+          int ic = Numbers::indexEE(ism, ix, iy);
 
           if ( econn ) {
             try {
@@ -1419,7 +1419,7 @@ bool EELaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
 
           status = status && UtilsClient::getBinQual(meg03_[ism-1], ix, iy);
 
-          int ic = Numbers::icEE(ism, ix, iy);
+          int ic = Numbers::indexEE(ism, ix, iy);
 
           if ( ic == -1 ) continue;
 
@@ -1460,7 +1460,7 @@ bool EELaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
 
           status = status && UtilsClient::getBinQual(meg03_[ism-1], ix, iy);
 
-          int ic = Numbers::icEE(ism, ix, iy);
+          int ic = Numbers::indexEE(ism, ix, iy);
 
           if ( econn ) {
             try {
@@ -1499,7 +1499,7 @@ bool EELaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
 
           status = status && UtilsClient::getBinQual(meg04_[ism-1], ix, iy);
 
-          int ic = Numbers::icEE(ism, ix, iy);
+          int ic = Numbers::indexEE(ism, ix, iy);
 
           if ( ic == -1 ) continue;
 
@@ -1540,7 +1540,7 @@ bool EELaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
 
           status = status && UtilsClient::getBinQual(meg04_[ism-1], ix, iy);
 
-          int ic = Numbers::icEE(ism, ix, iy);
+          int ic = Numbers::indexEE(ism, ix, iy);
 
           if ( econn ) {
             try {
@@ -3056,7 +3056,6 @@ void EELaserClient::analyze(void){
 
         if ( update04 ) {
 
-
           int ic = Numbers::icEE(ism, ix, iy);
 
           if ( ic != -1 ) {
@@ -3330,7 +3329,7 @@ void EELaserClient::analyze(void){
  
             if ( ! Numbers::validEE(ism, jx, jy) ) continue;
 
-            int ic = Numbers::icEE(ism, ix, iy);
+            int ic = Numbers::indexEE(ism, ix, iy);
 
             if ( ic == -1 ) continue;
 

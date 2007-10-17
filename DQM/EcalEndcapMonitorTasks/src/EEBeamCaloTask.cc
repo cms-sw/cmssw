@@ -1,8 +1,8 @@
 /*
  * \file EEBeamCaloTask.cc
  *
- * $Date: 2007/06/13 18:01:29 $
- * $Revision: 1.10 $
+ * $Date: 2007/08/14 17:44:47 $
+ * $Revision: 1.11 $
  * \author A. Ghezzi
  *
  */
@@ -85,7 +85,7 @@ EEBeamCaloTask::EEBeamCaloTask(const ParameterSet& ps){
   meEEBCaloBeamCentered_ = 0;
 
   meEEBCaloE1MaxCry_ = 0;
-//   for(int u=0;u<1701;u++){
+//   for(int u=0;u<851;u++){
 //     meBBCaloE3x3Cry_[u]=0;
 //     meBBCaloE1Cry_[u]=0;
 //   }
@@ -174,7 +174,7 @@ void EEBeamCaloTask::setup(void){
     }
 
 //     dbe_->setCurrentFolder("EcalEndcap/EEBeamCaloTask/EnergyHistos");
-//     for(int u=0; u< 1701;u++){
+//     for(int u=0; u< 851;u++){
 //       sprintf(histo, "EEBCT rec Ene sum 3x3 cry: %04d",u);
 //       meBBCaloE3x3Cry_[u] = dbe_->book1D(histo,histo,1000,0.,4500.);
 
@@ -196,7 +196,7 @@ void EEBeamCaloTask::setup(void){
     // not all needed cry are readout-> bin 1, all needed cry are readout-> bin 3
 
     sprintf(histo, "EEBCT readout crystals number");
-    meBBNumCaloCryRead_ = dbe_->book1D(histo,histo,1701,0.,1701.);
+    meBBNumCaloCryRead_ = dbe_->book1D(histo,histo,851,0.,851.);
 
     sprintf(histo, "EEBCT rec Ene sum 3x3");
     meBBCaloE3x3_ = dbe_->book1D(histo,histo,500,0.,9000.);
@@ -217,12 +217,12 @@ void EEBeamCaloTask::setup(void){
     //table is moving-> bin 2, table is not moving-> bin 1
 
     sprintf(histo, "EEBCT crystals done");
-    CrystalsDone_ = dbe_->book1D(histo,histo,1700,1.,1701.);
+    CrystalsDone_ = dbe_->book1D(histo,histo,850,1.,851.);
     //for a crystal done the corresponing bin is filled with the step in the
     //autoscan pertainig to the given crystales
 
     sprintf(histo, "EEBCT crystal in beam vs event");
-    CrystalInBeam_vs_Event_ = dbe_->bookProfile(histo, histo, 20000,0.,400000.,1802,-101.,1701.,"s");
+    CrystalInBeam_vs_Event_ = dbe_->bookProfile(histo, histo, 20000,0.,400000.,1802,-101.,851.,"s");
     // 1 bin each 20 events
     // when table is moving for just one events fill with -100
 
@@ -232,14 +232,14 @@ void EEBeamCaloTask::setup(void){
 
     sprintf(histo, "EEBCT average rec energy in the single crystal");
     //meEEBCaloE1vsCry_ = dbe_->book1D(histo, histo, 85,1.,86.);
-    meEEBCaloE1vsCry_ = dbe_->bookProfile(histo, histo, 1700,1.,1701.,500,0.,9000.,"s");
+    meEEBCaloE1vsCry_ = dbe_->bookProfile(histo, histo, 850,1.,851.,500,0.,9000.,"s");
 
     sprintf(histo, "EEBCT average rec energy in the 3x3 array");
     //meEEBCaloE3x3vsCry_= dbe_->book1D(histo, histo,85,1.,86.);
-    meEEBCaloE3x3vsCry_ = dbe_->bookProfile(histo, histo, 1700,1.,1701.,500,0.,9000.,"s");
+    meEEBCaloE3x3vsCry_ = dbe_->bookProfile(histo, histo, 850,1.,851.,500,0.,9000.,"s");
 
     sprintf(histo, "EEBCT number of entries");
-    meEEBCaloEntriesVsCry_ = dbe_->book1D(histo, histo,1700,1.,1701.);
+    meEEBCaloEntriesVsCry_ = dbe_->book1D(histo, histo,850,1.,851.);
 
     sprintf(histo, "EEBCT energy deposition in the 3x3");
     meEEBCaloBeamCentered_ = dbe_->book2D(histo, histo,3,-1.5,1.5,3,-1.5,1.5);
@@ -280,7 +280,7 @@ void EEBeamCaloTask::cleanup(void){
     }
 
 //     dbe_->setCurrentFolder("EcalEndcap/EEBeamCaloTask/EnergyHistos");
-//     for(int u=0; u< 1701;u++){
+//     for(int u=0; u< 851;u++){
 //       if ( meBBCaloE3x3Cry_[u] ) dbe_->removeElement( meBBCaloE3x3Cry_[u]->getName() );
 //       meBBCaloE3x3Cry_[u] = 0;
 //       if ( meBBCaloE1Cry_[u] ) dbe_->removeElement( meBBCaloE1Cry_[u]->getName() );
@@ -622,7 +622,7 @@ void EEBeamCaloTask::analyze(const Event& e, const EventSetup& c){
   meBBNumCaloCryRead_->Fill(nebd);
 
   //matrix 7x7 around cry in beam
-  int cry_to_beRead[49]; //0 or -1 for non existing crystals (eg 1702)
+  int cry_to_beRead[49]; //0 or -1 for non existing crystals (eg 852)
   for(int u=0;u<49;u++){cry_to_beRead[u]=0;}
   // chech that all the crystals in the 7x7 exist
   for(int de=-3; de<4; de++){
@@ -787,7 +787,7 @@ void EEBeamCaloTask::analyze(const Event& e, const EventSetup& c){
     meBBCaloE3x3_->Fill(ene3x3);
     meEEBCaloE1vsCry_->Fill(cry_in_beam , cryInBeamEne );
     meEEBCaloE3x3vsCry_->Fill(cry_in_beam, ene3x3 );
-    //     if( cry_in_beam > 0 && cry_in_beam < 1701){
+    //     if( cry_in_beam > 0 && cry_in_beam < 851){
     //       meBBCaloE3x3Cry_[cry_in_beam]->Fill(ene3x3);
     //       meBBCaloE1Cry_[cry_in_beam]->Fill(cryInBeamEne);
     //     }
