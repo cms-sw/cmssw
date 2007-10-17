@@ -75,11 +75,6 @@ void RootErrorHandler(int level, bool die, const char* location, const char* mes
       el_severity = edm::ELseverityLevel::ELsev_info;
     }
 
-    if ((el_message.find("ShowMembers")    != std::string::npos)
-     && (el_message.find("TrackingRecHit") != std::string::npos)) {
-      el_severity = edm::ELseverityLevel::ELsev_info;
-    }
-
 // Intercept some messages and upgrade the severity
 
     if ((el_location.find("TBranchElement::Fill") != std::string::npos)
