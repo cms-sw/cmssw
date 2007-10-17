@@ -1,11 +1,11 @@
-// $Id: Numbers.cc,v 1.25 2007/10/14 17:30:35 dellaric Exp $
+// $Id: Numbers.cc,v 1.26 2007/10/15 16:26:42 dellaric Exp $
 
 /*!
   \file Numbers.cc
   \brief Some "id" conversions
   \author B. Gobbo 
-  \version $Revision: 1.25 $
-  \date $Date: 2007/10/14 17:30:35 $
+  \version $Revision: 1.26 $
+  \date $Date: 2007/10/15 16:26:42 $
 */
 
 #include <sstream>
@@ -397,11 +397,17 @@ int Numbers::icEE( const int ism, const int ix, const int iy ) {
 
     EEDetId id(ix, iy, iz, EEDetId::XYMODE);
 
-    //if( Numbers::iSM( id1 ) == ism ) return( id.ic() );
-
-    // temporary fix, waiting for something better ....
-
-    return( 5*(ix-1) + (iy-1) );
+    if( Numbers::map ) {
+      EcalElectronicsId eid = Numbers::map->getElectronicsId(id);
+      int vfe = eid.towerId();
+      int strip = eid.stripId();
+      int channel = eid.xtalId();
+      return ( (vfe-1)*25 + (strip-1)*5 + channel );
+    } else {
+      std::ostringstream s;
+      s << "ECAL Geometry not available";
+      throw( std::runtime_error( s.str() ) );
+    }
 
   }
 
