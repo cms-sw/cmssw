@@ -31,8 +31,9 @@ class TtDilepEvtSolutionMaker : public edm::EDProducer {
     edm::InputTag tauSource_;
     edm::InputTag metSource_;
     edm::InputTag jetSource_;
+    edm::InputTag evtSource_;
     unsigned int nrCombJets_;
-    bool matchToGenEvt_, calcTopMass_;
+    bool matchToGenEvt_, calcTopMass_, useMCforBest_;
     bool eeChannel_, emuChannel_, mumuChannel_, etauChannel_, mutauChannel_;
     double tmassbegin_, tmassend_, tmassstep_;
 

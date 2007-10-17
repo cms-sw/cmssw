@@ -1,5 +1,5 @@
 //
-// $Id: TtDilepEvtSolutionMaker.cc,v 1.8 2007/10/03 22:18:00 lowette Exp $
+// $Id: TtDilepEvtSolutionMaker.cc,v 1.9 2007/10/11 14:53:46 delaer Exp $
 //
 
 #include "TopQuarkAnalysis/TopEventProducers/interface/TtDilepEvtSolutionMaker.h"
@@ -22,9 +22,11 @@ TtDilepEvtSolutionMaker::TtDilepEvtSolutionMaker(const edm::ParameterSet & iConf
   tauSource_      = iConfig.getParameter<edm::InputTag>("tauSource");
   metSource_      = iConfig.getParameter<edm::InputTag>("metSource");
   jetSource_      = iConfig.getParameter<edm::InputTag>("jetSource");
+  evtSource_      = iConfig.getParameter<edm::InputTag>("evtSource");
   nrCombJets_     = iConfig.getParameter<unsigned int> ("nrCombJets");
   matchToGenEvt_  = iConfig.getParameter<bool>         ("matchToGenEvt");
   calcTopMass_    = iConfig.getParameter<bool>         ("calcTopMass"); 
+  useMCforBest_   = iConfig.getParameter<bool>         ("bestSolFromMC");
   eeChannel_      = iConfig.getParameter<bool>         ("eeChannel"); 
   emuChannel_     = iConfig.getParameter<bool>         ("emuChannel");
   mumuChannel_    = iConfig.getParameter<bool>         ("mumuChannel");
@@ -38,12 +40,9 @@ TtDilepEvtSolutionMaker::TtDilepEvtSolutionMaker(const edm::ParameterSet & iConf
   produces<std::vector<TtDilepEvtSolution> >();
 }
 
-
 /// destructor
 TtDilepEvtSolutionMaker::~TtDilepEvtSolutionMaker() {
 }
-
-
 
 void TtDilepEvtSolutionMaker::produce(edm::Event & iEvent, const edm::EventSetup & iSetup) {
 
@@ -59,238 +58,267 @@ void TtDilepEvtSolutionMaker::produce(edm::Event & iEvent, const edm::EventSetup
   Handle<std::vector<TopJet> > jets;
   iEvent.getByLabel(jetSource_, jets);
 
-  // select lepton (the TtLepton vectors are, for the moment, sorted on pT)
   int selMuonp = -1, selMuonm = -1;
   int selElectronp = -1, selElectronm = -1;
   int selTaup = -1, selTaum = -1;
   bool leptonFound = false;
-
   bool mumu = false;
   bool emu = false;
   bool ee = false;
   bool etau = false;
   bool mutau = false;
+  bool leptonFoundEE = false;
+  bool leptonFoundMM = false;
+  bool leptonFoundEpMm = false;
+  bool leptonFoundEmMp = false;
+  bool leptonFoundEpTm = false;
+  bool leptonFoundEmTp = false;
+  bool leptonFoundMpTm = false;
+  bool leptonFoundMmTp = false;
+  bool jetsFound = false;
+  bool METFound = false;
+  int  JetVetoByTaus;
+  
+  //select MET (TopMET vector is sorted on ET)
+  if(mets->size()>=1) { METFound = true; }
 
+  // If we have electrons and muons available, 
+  // build a solutions with electrons and muons.
   if (muons->size() + electrons->size() >=2) {
+    // select leptons
     if (electrons->size() == 0) mumu = true;
-    
     else if (muons->size() == 0) ee = true;
-    
     else if (electrons->size() == 1) {
       if (muons->size() == 1) emu = true;
       else if (PTComp(&(*electrons)[0], &(*muons)[1])) emu = true;
       else  mumu = true;
     }
-    
     else if (electrons->size() > 1) {
       if (PTComp(&(*electrons)[1], &(*muons)[0])) ee = true;
       else if (muons->size() == 1) emu = true;
       else if (PTComp(&(*electrons)[0], &(*muons)[1])) emu = true;
       else mumu = true;
     }
- }
- else if(muons->size() + electrons->size()==1 && taus->size()>0) {
-   // this is the minimal modification of the dilept selection that includes taus.
-   // we are considering taus only when no other solution with electrons or muons exist.
-   if(muons->size()==1) mutau = true;
-   else etau = true;
- }
+    if (ee) {
+      if (LepDiffCharge(&(*electrons)[0], &(*electrons)[1])) {
+        leptonFound = true;
+        leptonFoundEE = true;
+        if (HasPositiveCharge(&(*electrons)[0])) {
+          selElectronp = 0;
+          selElectronm = 1;
+        } else {
+          selElectronp = 1;
+          selElectronm = 0;
+        }
+      }
+    }
+    else if (emu) {
+      if (LepDiffCharge(&(*electrons)[0], &(*muons)[0])) {
+        leptonFound = true;
+        if (HasPositiveCharge(&(*electrons)[0])) {
+          leptonFoundEpMm = true;
+          selElectronp = 0;
+          selMuonm = 0;
+        } else {
+          leptonFoundEmMp = true;
+          selMuonp = 0;
+          selElectronm = 0;
+        }
+      }
+    }
+    else if (mumu) {
+      if (LepDiffCharge(&(*muons)[0], &(*muons)[1])) {
+        leptonFound = true;
+        leptonFoundMM = true;
+        if (HasPositiveCharge(&(*muons)[0])) {
+          selMuonp = 0;
+          selMuonm = 1;
+        } else {
+          selMuonp = 1;
+          selMuonm = 0;
+        }
+      }
+    }
+    //select Jets (TopJet vector is sorted on ET)
+    if(jets->size()>=2) { jetsFound = true; }
+  }
+  // If a tau is needed to have two leptons, then only consider the taus.
+  // This is the minimal modification of the dilept selection that includes taus,
+  // since we are considering taus only when no other solution exist.
+  else if(muons->size() + electrons->size()==1 && taus->size()>0) {
+    // select leptons
+    if(muons->size()==1) {
+      mutau = true;
+      // depending on the muon charge, set the right muon index and specify channel
+      int expectedCharge = - muons->begin()->charge();
+      int* tauIdx = NULL;
+      if (expectedCharge<0) {
+	selMuonp = 0;
+	tauIdx = &selTaum;
+	leptonFoundMpTm = true;
+      } else {
+	selMuonm = 0;
+	tauIdx = &selTaup;
+	leptonFoundMmTp = true;
+      }
+      // loop over the vector of taus to find the first one (highest Pt)
+      // that has the charge opposite to the muon one
+      for(std::vector<TopTau>::const_iterator tau = taus->begin(); tau < taus->end(); ++tau ) {
+        if(tau->charge()*expectedCharge>=0) { *tauIdx = tau-taus->begin(); leptonFound = true; }
+      }
+      // check that one combination has been found
+      if(!leptonFound) { leptonFoundMpTm = false; leptonFoundMmTp = false; } 
+      // discard the jet that matches the tau (if one) 
+      if(leptonFound) {
+        for(std::vector<TopJet>::const_iterator jet = jets->begin(); jet<jets->end() && JetVetoByTaus<0; ++jet) {
+          if(DeltaR<reco::Particle>()(*(taus->begin()+*tauIdx),*jet)<0.1) {
+            JetVetoByTaus = jet-jets->begin();
+          }
+	}
+      }
+    }
+    else {
+      etau = true;
+      // depending on the electron charge, set the right electron index and specify channel
+      int expectedCharge = - electrons->begin()->charge();
+      int* tauIdx = NULL;
+      if (expectedCharge<0) {
+	selElectronp = 0;
+	tauIdx = &selTaum;
+	leptonFoundEpTm = true;
+      } else {
+	selElectronm = 0;
+	tauIdx = &selTaup;
+	leptonFoundEmTp = true;
+      }
+      // loop over the vector of taus to find the first one (highest Pt)
+      // that has the charge opposite to the electron one, and does not match in eta-phi
+      for(std::vector<TopTau>::const_iterator tau = taus->begin(); tau < taus->end(); ++tau ) {
+        if(tau->charge()*expectedCharge>=0 && DeltaR<reco::Particle>()(*tau,*(electrons->begin()))>0.1) { 
+	  *tauIdx = tau-taus->begin(); 
+	  leptonFound = true; 
+	}
+      }
+      // check that one combination has been found
+      if(!leptonFound) { leptonFoundEpTm = false; leptonFoundEmTp = false; } 
+      // discard the jet that matches the tau (if one) 
+      if(leptonFound) {
+        for(std::vector<TopJet>::const_iterator jet = jets->begin(); jet<jets->end() && JetVetoByTaus<0; ++jet) {
+          if(DeltaR<reco::Particle>()(*(taus->begin()+*tauIdx),*jet)<0.1) {
+            JetVetoByTaus = jet-jets->begin();
+          }
+        }
+      }
+    }
+    // select Jets (TopJet vector is sorted on ET)
+    jetsFound = ((jets->size()>=3)||(jets->size()==2&&JetVetoByTaus<0));
+  }
  
- if(int(ee)+int(emu)+int(mumu)+int(etau)+int(mutau)>1) 
-   std::cout << "[TtDilepEvtSolutionMaker]: "
-             << "Lepton selection criteria uncorrectly defined" << std::endl;
- 
- bool leptonFoundEE = false;
- bool leptonFoundMM = false;
- bool leptonFoundEpMm = false;
- bool leptonFoundEmMp = false;
- bool leptonFoundEpTm = false;
- bool leptonFoundEmTp = false;
- bool leptonFoundMpTm = false;
- bool leptonFoundMmTp = false;
- if (ee) {
-   if (LepDiffCharge(&(*electrons)[0], &(*electrons)[1])) {
-     leptonFound = true;
-     leptonFoundEE = true;
-     if (HasPositiveCharge(&(*electrons)[0])) {
-       selElectronp = 0;
-       selElectronm = 1;
-     }
-     else {
-       selElectronp = 1;
-       selElectronm = 0;
-     }
-   }
- }
- 
- else if (emu) {
-   if (LepDiffCharge(&(*electrons)[0], &(*muons)[0])) {
-     leptonFound = true;
-     if (HasPositiveCharge(&(*electrons)[0])) {
-       leptonFoundEpMm = true;
-       selElectronp = 0;
-       selMuonm = 0;
-     }
-     else {
-       leptonFoundEmMp = true;
-       selMuonp = 0;
-       selElectronm = 0;
-     }
-   }
- }
- 
- else if (mumu) {
-   if (LepDiffCharge(&(*muons)[0], &(*muons)[1])) {
-     leptonFound = true;
-     leptonFoundMM = true;
-     if (HasPositiveCharge(&(*muons)[0])) {
-       selMuonp = 0;
-       selMuonm = 1;
-     }
-     else {
-       selMuonp = 1;
-       selMuonm = 0;
-     }
-   }
- }
+  // Check that the above work makes sense
+  if(int(ee)+int(emu)+int(mumu)+int(etau)+int(mutau)>1) 
+    std::cout << "[TtDilepEvtSolutionMaker]: "
+              << "Lepton selection criteria uncorrectly defined" << std::endl;
   
- else if (mutau) {
-   if (LepDiffCharge(&(*taus)[0], &(*muons)[0])) {
-     leptonFound = true;
-     if (HasPositiveCharge(&(*muons)[0])) {
-       leptonFoundMpTm = true;
-       selTaum = 0;
-       selMuonp = 0;
-     }
-     else {
-       leptonFoundMmTp = true;
-       selTaup = 0;
-       selMuonm = 0;
-     }
-   }
- }
-
- else if (etau) {
-   if (LepDiffCharge(&(*taus)[0], &(*electrons)[0])) {
-     leptonFound = true;
-     if (HasPositiveCharge(&(*electrons)[0])) {
-       leptonFoundEpTm = true;
-       selTaum = 0;
-       selElectronp = 0;
-     }
-     else {
-       leptonFoundEmTp = true;
-       selTaup = 0;
-       selElectronm = 0;
-     }
-   }
- }
-
-  //select MET (TopMET vector is sorted on ET)
-  bool METFound = false;
-  if(mets -> size()>=1) { METFound = true; }
-
-  //select Jets (TopJet vector is sorted on ET)
-  bool jetsFound = false;
-  if(jets -> size()>=2) { jetsFound = true; }
-  
-  bool correctLepton = (leptonFoundEE && eeChannel_) ||
-                       ((leptonFoundEmMp || leptonFoundEpMm) && emuChannel_) ||
-                       (leptonFoundMM && mumuChannel_) ||
+  bool correctLepton = (leptonFoundEE && eeChannel_)                          ||
+                       ((leptonFoundEmMp || leptonFoundEpMm) && emuChannel_)  ||
+                       (leptonFoundMM && mumuChannel_)                        ||
 		       ((leptonFoundMmTp || leptonFoundMpTm) && mutauChannel_)||
-		       ((leptonFoundEmTp || leptonFoundEpTm) && etauChannel_);
+		       ((leptonFoundEmTp || leptonFoundEpTm) && etauChannel_)   ;
                        
   std::vector<TtDilepEvtSolution> * evtsols = new std::vector<TtDilepEvtSolution>();
-  if(correctLepton && METFound && jetsFound){
-
+  if(correctLepton && METFound && jetsFound) {
     // protect against reading beyond array boundaries
     unsigned int nrCombJets = nrCombJets_; // do not overwrite nrCombJets_
     if (jets->size() < nrCombJets) nrCombJets = jets->size();
-
-    //SaveSolution for both jet-lep pairings
+    // consider all permutations
     for (unsigned int ib = 0; ib < nrCombJets; ib++) {
-      TtDilepEvtSolution asol;
-      
-      double xconstraint = 0, yconstraint = 0;
-      if (leptonFoundEE || leptonFoundEpMm || leptonFoundEpTm) {
-        asol.setElectronp(electrons, selElectronp);
-        xconstraint += (*electrons)[selElectronp].px();
-        yconstraint += (*electrons)[selElectronp].py();
+      // skipped jet vetoed during components-flagging.
+      if(int(ib)==JetVetoByTaus) continue;
+      // second loop of the permutations
+      for (unsigned int ibbar = 0; ibbar < nrCombJets; ibbar++) {
+        // avoid the diagonal: b and bbar must be distinct jets
+        if(ib==ibbar) continue;
+	// skipped jet vetoed during components-flagging.
+	if(int(ibbar)==JetVetoByTaus) continue;
+	// Build and save a solution
+        TtDilepEvtSolution asol;
+        double xconstraint = 0, yconstraint = 0;
+	// Set e+ in the event
+        if (leptonFoundEE || leptonFoundEpMm || leptonFoundEpTm) {
+          asol.setElectronp(electrons, selElectronp);
+          xconstraint += (*electrons)[selElectronp].px();
+          yconstraint += (*electrons)[selElectronp].py();
+        }
+	// Set e- in the event
+        if (leptonFoundEE || leptonFoundEmMp || leptonFoundEmTp) {
+          asol.setElectronm(electrons, selElectronm);
+          xconstraint += (*electrons)[selElectronm].px();
+          yconstraint += (*electrons)[selElectronm].py();
+        }
+	// Set mu+ in the event
+        if (leptonFoundMM || leptonFoundEmMp || leptonFoundMpTm) {
+          asol.setMuonp(muons, selMuonp);
+          xconstraint += (*muons)[selMuonp].px();
+          yconstraint += (*muons)[selMuonp].py();
+        }
+	// Set mu- in the event
+        if (leptonFoundMM || leptonFoundEpMm || leptonFoundMmTp) {
+          asol.setMuonm(muons, selMuonm);
+          xconstraint += (*muons)[selMuonm].px();
+          yconstraint += (*muons)[selMuonm].py();
+        }
+	// Set tau- in the event
+        if (leptonFoundEpTm || leptonFoundMpTm) {
+          asol.setTaum(taus, selTaum);
+          xconstraint += (*taus)[selTaum].px();
+          yconstraint += (*taus)[selTaum].py();
+        }
+	// Set tau+ in the event
+        if (leptonFoundEmTp || leptonFoundMmTp) {
+          asol.setTaup(taus, selTaup);
+          xconstraint += (*taus)[selTaup].px();
+          yconstraint += (*taus)[selTaup].py();
+        }
+	// Set Jets/MET in the event
+        asol.setB(jets, ib); 
+	asol.setBbar(jets, ibbar);
+        asol.setMET(mets, 0);
+        xconstraint += (*jets)[ib].px() + (*jets)[ibbar].px() + (*mets)[0].px();
+        yconstraint += (*jets)[ib].py() + (*jets)[ibbar].py() + (*mets)[0].py();
+	// if asked for, match the event solutions to the gen Event
+	if(matchToGenEvt_){
+	  Handle<TtGenEvent> genEvt;
+	  iEvent.getByLabel (evtSource_,genEvt);
+	  asol.setGenEvt(genEvt);
+	} 
+	// If asked, use the kin fitter to compute the top mass
+        if (calcTopMass_) {
+          TtDilepKinSolver solver(tmassbegin_, tmassend_, tmassstep_, xconstraint, yconstraint);
+	  solver.useWeightFromMC(useMCforBest_);
+          asol = solver.addKinSolInfo(&asol);
+        }
+        evtsols->push_back(asol);
       }
-      if (leptonFoundEE || leptonFoundEmMp || leptonFoundEmTp) {
-        asol.setElectronm(electrons, selElectronm);
-        xconstraint += (*electrons)[selElectronm].px();
-        yconstraint += (*electrons)[selElectronm].py();
-      }
-      if (leptonFoundMM || leptonFoundEmMp || leptonFoundMpTm) {
-        asol.setMuonp(muons, selMuonp);
-        xconstraint += (*muons)[selMuonp].px();
-        yconstraint += (*muons)[selMuonp].py();
-      }
-      if (leptonFoundMM || leptonFoundEpMm || leptonFoundMmTp) {
-        asol.setMuonm(muons, selMuonm);
-        xconstraint += (*muons)[selMuonm].px();
-        yconstraint += (*muons)[selMuonm].py();
-      }
-      if (leptonFoundEpTm || leptonFoundMpTm) {
-        asol.setTaum(taus, selTaum);
-        xconstraint += (*taus)[selTaum].px();
-        yconstraint += (*taus)[selTaum].py();
-      }
-      if (leptonFoundEmTp || leptonFoundMmTp) {
-        asol.setTaup(taus, selTaup);
-        xconstraint += (*taus)[selTaup].px();
-        yconstraint += (*taus)[selTaup].py();
-      }
-      
-      if (ib == 0) {asol.setB(jets, 0); asol.setBbar(jets, 1);}
-      if (ib == 1) {asol.setB(jets, 1); asol.setBbar(jets, 0);}
-      asol.setMET(mets, 0);
-      xconstraint += (*jets)[0].px() + (*jets)[1].px() +
-                     (*mets)[0].px();
-      yconstraint += (*jets)[0].py() + (*jets)[1].py() +
-                     (*mets)[0].py();
-      
-      if (calcTopMass_) {
-        Handle<TtGenEvent> genEvent;
-        iEvent.getByLabel ("genEvt",genEvent);
-  if (genEvent->isFullLeptonic()) {   // FIXME: temporary solution to avoid crash in JetPartonMatching for non semi-leptonic events
-        asol.setGenEvt(genEvent);
-        TtDilepKinSolver solver(tmassbegin_, tmassend_, tmassstep_, xconstraint, yconstraint);
-        asol = solver.addKinSolInfo(&asol);
-  }
-      }
-      
-      evtsols->push_back(asol);
-    }
-    
-    // if asked for, match the event solutions to the gen Event
+    } 
+    // flag the best solution (MC matching)
     if(matchToGenEvt_){
-      Handle<TtGenEvent> genEvt;
-      iEvent.getByLabel ("genEvt",genEvt);
-  if (genEvt->isFullLeptonic()) {   // FIXME: temporary solution to avoid crash in JetPartonMatching for non semi-leptonic events
       double bestSolDR = 9999.;
       int bestSol = 0;
       for(size_t s=0; s<evtsols->size(); s++) {
-        (*evtsols)[s].setGenEvt(genEvt);
-        //FIXME probably this should be moved to BestMatching.h
-        double dRBB =       DeltaR<reco::Particle>()((reco::Particle) (*evtsols)[s].getCalJetB(), (reco::Particle) *((*evtsols)[s].getGenB()));
-        double dRBbarBbar = DeltaR<reco::Particle>()((reco::Particle) (*evtsols)[s].getCalJetBbar(), (reco::Particle) *((*evtsols)[s].getGenBbar()));
-        if (dRBB + dRBbarBbar < bestSolDR) { bestSolDR = dRBB + dRBbarBbar; bestSol = s; }
+        double dR = (*evtsols)[s].getResidual();
+        if(dR<bestSolDR) { bestSolDR = dR; bestSol = s; }
       }
       (*evtsols)[bestSol].setBestSol(true);
-  }
     }
-    
+    // put the result in the event
     std::auto_ptr<std::vector<TtDilepEvtSolution> > pOut(evtsols);
     iEvent.put(pOut);
-  }
-  else {
+  } else {
+    // no solution: put a dummy solution in the event
     TtDilepEvtSolution asol;
     evtsols->push_back(asol);
     std::auto_ptr<std::vector<TtDilepEvtSolution> > pOut(evtsols);
     iEvent.put(pOut);
   }
-
 }
 
