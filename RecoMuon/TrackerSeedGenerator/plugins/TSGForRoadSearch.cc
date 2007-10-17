@@ -19,6 +19,7 @@
 #include "TrackPropagation/SteppingHelixPropagator/interface/SteppingHelixPropagator.h"
 
 #include "RecoMuon/TrackingTools/interface/MuonServiceProxy.h"
+#include "RecoMuon/TrackingTools/interface/MuonErrorMatrix.h"
 
 #include <TrackingTools/KalmanUpdators/interface/KFUpdator.h>
 
@@ -41,6 +42,9 @@ TSGForRoadSearch::TSGForRoadSearch(const edm::ParameterSet & par){
   if (theManySeeds){ theUpdator = new KFUpdator();}
   else{  theUpdator=0;}
 
+  edm::ParameterSet errorMatrixPset = par.getParameter<edm::ParameterSet>("errorMatrixPset");
+  if (!errorMatrixPset.empty()){theErrorMatrixAdjuster = new MuonErrorMatrix(errorMatrixPset);}
+  else {theErrorMatrixAdjuster=0;}
 }
 TSGForRoadSearch::~TSGForRoadSearch(){
   delete theChi2Estimator;
@@ -154,6 +158,20 @@ void TSGForRoadSearch::makeSeeds_0(const reco::Track & muon, std::vector<Traject
   TrajectoryStateOnSurface inner = theProxyService->propagator(thePropagatorName)->propagate(cIPFTS,blc.front()->surface());
   if ( !inner.isValid() ) {LogDebug(theCategory) <<"inner state is not valid"; return;}
 
+  /* rescale the error*/
+  if (theErrorMatrixAdjuster){
+    
+    CurvilinearTrajectoryError oMat = inner.curvilinearError();
+    CurvilinearTrajectoryError sfMat = theErrorMatrixAdjuster->get(inner.globalMomentum());//FIXME with position
+    MuonErrorMatrix::multiply(oMat, sfMat);
+    
+    inner = TrajectoryStateOnSurface(inner.globalParameters(),
+				     oMat,
+				     inner.surface(),
+				     inner.surfaceSide(),
+				     inner.weight());
+  }
+
   double z = inner.globalPosition().z();
 
   std::vector<ForwardDetLayer*> ptidc = theMeasurementTracker->geometricSearchTracker()->posTidLayers();
@@ -209,6 +227,20 @@ void TSGForRoadSearch::makeSeeds_3(const reco::Track & muon, std::vector<Traject
   std::vector<BarrelDetLayer*> blc = theMeasurementTracker->geometricSearchTracker()->tobLayers();
   TrajectoryStateOnSurface outer = theProxyService->propagator(thePropagatorName)->propagate(cIPFTS,blc.back()->surface());
   if ( !outer.isValid() ) {LogDebug(theCategory) <<"outer state is not valid"; return;}
+
+  /* rescale the error*/
+  if (theErrorMatrixAdjuster){
+    
+    CurvilinearTrajectoryError oMat = outer.curvilinearError();
+    CurvilinearTrajectoryError sfMat = theErrorMatrixAdjuster->get(outer.globalMomentum());//FIXME with position
+    MuonErrorMatrix::multiply(oMat, sfMat);
+    
+    outer = TrajectoryStateOnSurface(outer.globalParameters(),
+				     oMat,
+				     outer.surface(),
+				     outer.surfaceSide(),
+				     outer.weight());
+  }
 
   double z = outer.globalPosition().z();
 
@@ -271,12 +303,30 @@ void TSGForRoadSearch::makeSeeds_4(const reco::Track & muon, std::vector<Traject
   TrajectoryStateOnSurface inner = theProxyService->propagator(thePropagatorName)->propagate(cIPFTS,blc.front()->surface());
   if ( !inner.isValid() ) {LogDebug(theCategory) <<"inner state is not valid"; return;}
 
+  /* rescale the error*/
+  if (theErrorMatrixAdjuster){
+    
+    CurvilinearTrajectoryError oMat = inner.curvilinearError();
+    CurvilinearTrajectoryError sfMat = theErrorMatrixAdjuster->get(inner.globalMomentum());//FIXME with position
+    MuonErrorMatrix::multiply(oMat, sfMat);
+    
+    inner = TrajectoryStateOnSurface(inner.globalParameters(),
+				     oMat,
+				     inner.surface(),
+				     inner.surfaceSide(),
+				     inner.weight());
+  }
+    
   double z = inner.globalPosition().z();
 
   std::vector<ForwardDetLayer*> ppxlc = theMeasurementTracker->geometricSearchTracker()->posPixelForwardLayers();
   std::vector<ForwardDetLayer*> npxlc = theMeasurementTracker->geometricSearchTracker()->negPixelForwardLayers();
+  std::vector<ForwardDetLayer*> ptidc = theMeasurementTracker->geometricSearchTracker()->posTidLayers();
+  std::vector<ForwardDetLayer*> ptecc = theMeasurementTracker->geometricSearchTracker()->posTecLayers();
+  std::vector<ForwardDetLayer*> ntidc = theMeasurementTracker->geometricSearchTracker()->negTidLayers();
+  std::vector<ForwardDetLayer*> ntecc = theMeasurementTracker->geometricSearchTracker()->negTecLayers();
 
-  if (ppxlc.empty() || npxlc.empty())
+  if ((ppxlc.empty() || npxlc.empty()) && (ptidc.empty() || ptecc.empty()) )
     { edm::LogError(theCategory)<<"want to start from pixel layer, but no forward layer exists"; return;}
 
   const DetLayer *inLayer = NULL;
@@ -284,16 +334,72 @@ void TSGForRoadSearch::makeSeeds_4(const reco::Track & muon, std::vector<Traject
   const double epsilon = 0.5 ;//cm
   double barrel_half_length = blc.front()->specificSurface().bounds().length()/2. - epsilon;
 
+  double fz=fabs(z);
   if (fabs(z-blc.front()->surface().position().z()) < barrel_half_length)
-    {
-      inLayer = blc.front();
-    }
+    { inLayer = blc.front(); }
   else 
     {
       inLayer = ( z < 0 ) ? npxlc.front() : ppxlc.front() ;
     }
+  /*
+    {
+      if (fz < fabs(((z>0)?ppxlc:npxlc).front()->surface().position().z()))
+	{
+	  inLayer=((z>0)?ppxlc:npxlc).front();
+	}
+      else
+	{
+	  inLayer=((z>0)?ppxlc:npxlc).back();
+	}
+    }
 
   //find out at least one compatible detector reached
+  std::vector< DetLayer::DetWithState > compatible = inLayer->compatibleDets(inner,*theProxyService->propagator(thePropagatorCompatibleName),*theChi2Estimator);
+
+  if (compatible.size()==0){
+    std::vector<ForwardDetLayer*>::iterator layerIt = (z>0)? ppxlc.begin() : npxlc.begin();
+    std::vector<ForwardDetLayer*>::iterator pxlEnd = (z>0)? ppxlc.end() : npxlc.end();
+    std::vector<ForwardDetLayer*>::iterator tidEnd = (z>0)? ptidc.end() : ntidc.end();
+    std::vector<ForwardDetLayer*>::iterator tecEnd = (z>0)? ptecc.end() : ntecc.end();
+    std::vector<ForwardDetLayer*>::iterator pxlBegin = (z>0)? ppxlc.begin() : npxlc.begin();
+    std::vector<ForwardDetLayer*>::iterator tidBegin = (z>0)? ptidc.begin() : ntidc.begin();
+    std::vector<ForwardDetLayer*>::iterator tecBegin = (z>0)? ptecc.begin() : ntecc.begin();
+
+    while (compatible.size()==0) {
+      switch ( (*layerIt)->subDetector() ) {
+      case PixelSubdetector::PixelBarrel:
+	{//if you were in the barrel PXL. go to the first disk
+	  layerIt = (z>0)? ppxlc.begin() : npxlc.begin(); 
+	  break;
+	}
+      case PixelSubdetector::PixelEndcap:
+	{
+	  layerIt++;
+	  if (layerIt==pxlEnd) layerIt=tidBegin;
+	  break;
+	}
+      case StripSubdetector::TIB: break;
+      case StripSubdetector::TID:
+	{
+	  layerIt++;
+	  if (layerIt==tidEnd) layerIt = tecBegin;
+	  break;
+	}
+      case StripSubdetector::TOB: break;
+      case StripSubdetector::TEC:
+	{
+	  layerIt++;
+	  if (layerIt==tecEnd){
+	    //	 well your are in trouble here. just return empty
+	    return;}
+	}
+      }//switch
+
+      compatible = (*layerIt)->compatibleDets(inner,*theProxyService->propagator(thePropagatorCompatibleName),*theChi2Estimator);
+    }//while
+  }//if size==0
+  */
+  
   std::vector< DetLayer::DetWithState > compatible = inLayer->compatibleDets(inner,*theProxyService->propagator(thePropagatorCompatibleName),*theChi2Estimator);
 
   pushTrajectorySeed(muon,compatible,alongMomentum,result);
