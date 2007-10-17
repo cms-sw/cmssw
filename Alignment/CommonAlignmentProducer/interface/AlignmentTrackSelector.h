@@ -10,6 +10,8 @@ namespace edm {
   class ParameterSet;
 }
 
+class TrackingRecHit;
+
 class AlignmentTrackSelector
 {
 
@@ -30,6 +32,10 @@ class AlignmentTrackSelector
 
   /// apply basic cuts on pt,eta,phi,nhit
   Tracks basicCuts(const Tracks& tracks) const;
+  /// checking hit requirements beyond simple number of valid hits
+  bool detailedHitsCheck(const reco::Track* track) const;
+  bool isHit2D(const TrackingRecHit &hit) const;
+
 
   /// filter the n highest pt tracks
   Tracks theNHighestPtTracks(const Tracks& tracks) const;
@@ -42,10 +48,12 @@ class AlignmentTrackSelector
   };
   ComparePt ptComparator;
 
-  bool applyBasicCuts,applyNHighestPt,applyMultiplicityFilter;
-  int nHighestPt,minMultiplicity,maxMultiplicity;
-  double ptMin,ptMax,etaMin,etaMax,phiMin,phiMax,nHitMin,nHitMax,chi2nMax;
-  int minHitsinTIB, minHitsinTOB, minHitsinTID, minHitsinTEC;
+  const bool applyBasicCuts,applyNHighestPt,applyMultiplicityFilter;
+  const int nHighestPt,minMultiplicity,maxMultiplicity;
+  const bool multiplicityOnInput; /// if true, cut min/maxMultiplicity on input instead of on final result
+  const double ptMin,ptMax,etaMin,etaMax,phiMin,phiMax,nHitMin,nHitMax,chi2nMax;
+  const unsigned int nHitMin2D;
+  int minHitsinTIB, minHitsinTOB, minHitsinTID, minHitsinTEC, minHitsinBPIX, minHitsinFPIX;
 
 };
 
