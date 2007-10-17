@@ -158,7 +158,24 @@ class  tagInventory(object):
             return result
         except Exception, e:
             transaction.rollback()
-            raise Exception, str(e)        
+            raise Exception, str(e)
+    def deleteAllEntries( self ):
+        """Delete all entries in the inventory
+        """
+        try:
+            transaction=self.__session.transaction()
+            transaction.start(False)
+            schema = self.__session.nominalSchema()
+            dbop=DBImpl.DBImpl(schema)
+            inputData = coral.AttributeList()
+            dbop.deleteRows(self.__tagInventoryTableName,
+                            '',
+                            inputData)
+            transaction.commit()
+        except Exception, e:
+            transaction.rollback()
+            raise Exception, str(e)
+        
 if __name__ == "__main__":
     context = coral.Context()
     context.setVerbosityLevel( 'ERROR' )

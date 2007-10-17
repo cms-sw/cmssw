@@ -21,7 +21,16 @@ class DBImpl(object):
                 inputData[name].setData(tabrowValueDict[name])
             editor.insertRow( inputData )
         except Exception, e:
-            raise Exception, str(e) 
+            raise Exception, str(e)
+    def deleteRows( self, tableName, condition, conditionbindDict ):
+        """Delete row(s)
+        """
+        try:
+            tableHandle = self.__schema.tableHandle(tableName)
+            editor = tableHandle.dataEditor()
+            editor.deleteRows( condition, conditionbindDict )
+        except Exception, e:
+            raise Exception, str(e)
     def dropTable( self, tableName ):
         """Drop specified table.
         """
