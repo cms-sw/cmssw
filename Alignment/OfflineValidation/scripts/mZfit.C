@@ -26,8 +26,8 @@ c1->cd();
 TFile *f[5];
 TTree *MyTree[5];
 
-f[2]=new TFile("../../Z/Misalignment10.root");
-MyTree[2]=Tracks;
+f[2]=new TFile("ValidationMisalignedTracker_zmumu_chiara.root");
+MyTree[2]=EffTracks;
 
 
 ////&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
@@ -46,7 +46,7 @@ TMath::Max( 1.e-10,(x[0]-par[2])*(x[0]-par[2]) + .25*par[1]*par[1]);
 }
 
 TF1 *fitFcn = new TF1("fitFcn",lorentzianPeak,70,110,3);
-fitFcn->SetParameters(0.5,4,90);
+fitFcn->SetParameters(3.,4.,90.);
 fitFcn->SetParNames("Ftop","Fwidth","Fmass");
 fitFcn->SetLineWidth(2);
 
@@ -55,7 +55,7 @@ fitFcn->SetLineWidth(2);
  sprintf(name,"mZmu[%d]",i);
  mZmu[i] = new TH1F(name,name,200,0.,200.);
  sprintf(histoname,"mZmu[%d]",i);
- MyTree[i]->Project(histoname,"recmzmu","eff==1 && recmzmu>0.");
+ MyTree[i]->Project(histoname,"recmzmu","eff==1 && recmzmu>0.&& recpt>3. && abs(receta)<2.5");
  
  cout << "Entries " << mZmu[i]->GetEntries() <<endl;
  mZmu[i]->Scale(1/mZmu[i]->GetEntries());
@@ -69,7 +69,7 @@ fitFcn->SetLineWidth(2);
  //if (i==0) mZmu[i]->Draw();
  //else mZmu[i]->Draw("same");
  
- mZmu[i]->Fit("fitFcn","M","",70,110);
+ mZmu[i]->Fit("fitFcn","M","",60,120);
  //mZmu[i]->Fit("gaus","","",70,110); 
  c1->Update();
   
