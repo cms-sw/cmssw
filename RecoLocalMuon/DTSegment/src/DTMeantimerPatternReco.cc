@@ -1,7 +1,7 @@
 /** \file
  *
- * $Date: 2007/03/29 13:17:28 $
- * $Revision: 1.00 $
+ * $Date: 2007/07/09 13:56:49 $
+ * $Revision: 1.1 $
  * \author Stefano Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
  * \author Riccardo Bellan - INFN TO <riccardo.bellan@cern.ch>
  * \author Piotr Traczyk - SINS Warsaw <ptraczyk@fuw.edu.pl>
@@ -269,7 +269,7 @@ DTMeantimerPatternReco::addHits(const DTSuperLayer* sl, vector<AssPoint>& assHit
   pointsSet.insert(assHits.begin(),assHits.end());
   DTSegmentCand* seg = new DTSegmentCand(pointsSet,sl);
 
-  if (seg) {
+  if (theUpdator->fit(seg)) {
     seg->setChi2(chi2l); // we need to set the chi^2 so that the cleaner can pick the best segments
     if (debug) cout << "Segment built: " << *seg<< endl;
     if (checkDoubleCandidates(result,seg)) {
@@ -405,7 +405,7 @@ DTMeantimerPatternReco::fitWithT0(const vector<AssPoint> &assHits, double &chi2,
       chi2+=chi*chi;
     }
 
-  t0_corr/=0.00543; // convert drift distance to time
+  t0_corr/=-0.00543; // convert drift distance to time, positive times mean late particles
 
   if (debug && fitdebug) {
     cout << "      t0_corr = " << t0_corr << "ns  chi2/nHits = " << chi2 << "/" << assHits.size() << endl;
@@ -416,7 +416,7 @@ DTMeantimerPatternReco::fitWithT0(const vector<AssPoint> &assHits, double &chi2,
       if (leftHits.size())
         for (hitCoord::const_iterator assHit=leftHits.begin(); assHit!=leftHits.end(); ++assHit) 
             cout << "   z= " << (*assHit).first << "   x= " << (*assHit).second 
-                 << "   x_corr= " << (*assHit).second-t0_corr*0.00543 
+                 << "   x_corr= " << (*assHit).second+t0_corr*0.00543 
                  << "   seg= " << a*(*assHit).first+b << endl;
       if (rightHits.size())
         for (hitCoord::const_iterator assHit=rightHits.begin(); assHit!=rightHits.end(); ++assHit) 
