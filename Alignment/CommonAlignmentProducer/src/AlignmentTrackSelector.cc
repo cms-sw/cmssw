@@ -16,54 +16,55 @@ const int kFPIX = 2; // dito for '2'
 // constructor ----------------------------------------------------------------
 
 AlignmentTrackSelector::AlignmentTrackSelector(const edm::ParameterSet & cfg) :
-  applyBasicCuts( cfg.getParameter<bool>( "applyBasicCuts" ) ),
-  applyNHighestPt( cfg.getParameter<bool>( "applyNHighestPt" ) ),
-  applyMultiplicityFilter( cfg.getParameter<bool>( "applyMultiplicityFilter" ) ),
-  nHighestPt( cfg.getParameter<int>( "nHighestPt" ) ),
-  minMultiplicity ( cfg.getParameter<int>( "minMultiplicity" ) ),
-  maxMultiplicity ( cfg.getParameter<int>( "maxMultiplicity" ) ),
-  multiplicityOnInput ( cfg.getParameter<bool>( "multiplicityOnInput" ) ),
-  ptMin( cfg.getParameter<double>( "ptMin" ) ),
-  ptMax( cfg.getParameter<double>( "ptMax" ) ),
-  etaMin( cfg.getParameter<double>( "etaMin" ) ),
-  etaMax( cfg.getParameter<double>( "etaMax" ) ),
-  phiMin( cfg.getParameter<double>( "phiMin" ) ),
-  phiMax( cfg.getParameter<double>( "phiMax" ) ),
-  nHitMin( cfg.getParameter<double>( "nHitMin" ) ),
-  nHitMax( cfg.getParameter<double>( "nHitMax" ) ),
-  chi2nMax( cfg.getParameter<double>( "chi2nMax" ) ),
-  nHitMin2D( cfg.getParameter<unsigned int>( "nHitMin2D" ) )
+  applyBasicCuts_( cfg.getParameter<bool>( "applyBasicCuts" ) ),
+  applyNHighestPt_( cfg.getParameter<bool>( "applyNHighestPt" ) ),
+  applyMultiplicityFilter_( cfg.getParameter<bool>( "applyMultiplicityFilter" ) ),
+  nHighestPt_( cfg.getParameter<int>( "nHighestPt" ) ),
+  minMultiplicity_ ( cfg.getParameter<int>( "minMultiplicity" ) ),
+  maxMultiplicity_ ( cfg.getParameter<int>( "maxMultiplicity" ) ),
+  multiplicityOnInput_ ( cfg.getParameter<bool>( "multiplicityOnInput" ) ),
+  ptMin_( cfg.getParameter<double>( "ptMin" ) ),
+  ptMax_( cfg.getParameter<double>( "ptMax" ) ),
+  etaMin_( cfg.getParameter<double>( "etaMin" ) ),
+  etaMax_( cfg.getParameter<double>( "etaMax" ) ),
+  phiMin_( cfg.getParameter<double>( "phiMin" ) ),
+  phiMax_( cfg.getParameter<double>( "phiMax" ) ),
+  nHitMin_( cfg.getParameter<double>( "nHitMin" ) ),
+  nHitMax_( cfg.getParameter<double>( "nHitMax" ) ),
+  chi2nMax_( cfg.getParameter<double>( "chi2nMax" ) ),
+  nHitMin2D_( cfg.getParameter<unsigned int>( "nHitMin2D" ) ),
+  // Ugly to use the same getParameter 6 times, but this allows const cut variables...
+  minHitsinTIB_(cfg.getParameter<edm::ParameterSet>( "minHitsPerSubDet" ).getParameter<int>( "inTIB" ) ),
+  minHitsinTOB_ (cfg.getParameter<edm::ParameterSet>( "minHitsPerSubDet" ).getParameter<int>( "inTOB" ) ),
+  minHitsinTID_ (cfg.getParameter<edm::ParameterSet>( "minHitsPerSubDet" ).getParameter<int>( "inTID" ) ),
+  minHitsinTEC_ (cfg.getParameter<edm::ParameterSet>( "minHitsPerSubDet" ).getParameter<int>( "inTEC" ) ),
+  minHitsinBPIX_ (cfg.getParameter<edm::ParameterSet>( "minHitsPerSubDet" ).getParameter<int>( "inBPIX" ) ),
+  minHitsinFPIX_ (cfg.getParameter<edm::ParameterSet>( "minHitsPerSubDet" ).getParameter<int>( "inFPIX" ) )
 {
 
-  if (applyBasicCuts)
+  if (applyBasicCuts_)
 	edm::LogInfo("AlignmentTrackSelector") 
 	  << "applying basic track cuts ..."
-	  << "\nptmin,ptmax:     " << ptMin   << "," << ptMax 
-	  << "\netamin,etamax:   " << etaMin  << "," << etaMax
-	  << "\nphimin,phimax:   " << phiMin  << "," << phiMax
-	  << "\nnhitmin,nhitmax: " << nHitMin << "," << nHitMax
-          << "\nnhitmin2D:       " << nHitMin2D
-	  << "\nchi2nmax:        " << chi2nMax;
+	  << "\nptmin,ptmax:     " << ptMin_   << "," << ptMax_ 
+	  << "\netamin,etamax:   " << etaMin_  << "," << etaMax_
+	  << "\nphimin,phimax:   " << phiMin_  << "," << phiMax_
+	  << "\nnhitmin,nhitmax: " << nHitMin_ << "," << nHitMax_
+          << "\nnhitmin2D:       " << nHitMin2D_
+	  << "\nchi2nmax:        " << chi2nMax_;
 
-  if (applyNHighestPt)
+  if (applyNHighestPt_)
 	edm::LogInfo("AlignmentTrackSelector") 
-	  << "filter N tracks with highest Pt N=" << nHighestPt;
+	  << "filter N tracks with highest Pt N=" << nHighestPt_;
 
-  if (applyMultiplicityFilter)
+  if (applyMultiplicityFilter_)
 	edm::LogInfo("AlignmentTrackSelector") 
-	  << "apply multiplicity filter N>= " << minMultiplicity << "and N<= " << maxMultiplicity
-          << " on " << (multiplicityOnInput ? "input" : "output");
+	  << "apply multiplicity filter N>= " << minMultiplicity_ << "and N<= " << maxMultiplicity_
+          << " on " << (multiplicityOnInput_ ? "input" : "output");
 
-  edm::ParameterSet minHitsPerSubdet = cfg.getParameter<edm::ParameterSet>( "minHitsPerSubDet" );
-  minHitsinTIB = minHitsPerSubdet.getParameter<int>( "inTIB" );
-  minHitsinTOB = minHitsPerSubdet.getParameter<int>( "inTOB" );
-  minHitsinTID = minHitsPerSubdet.getParameter<int>( "inTID" );
-  minHitsinTEC = minHitsPerSubdet.getParameter<int>( "inTEC" );
-  minHitsinBPIX= minHitsPerSubdet.getParameter<int>( "inBPIX" );
-  minHitsinFPIX= minHitsPerSubdet.getParameter<int>( "inFPIX" );
-  
   edm::LogInfo("AlignmentTrackSelector") 
-    << "Minimum number of hits in TIB/TID/TOB/TEC/BPIX/FPIX = " << minHitsinTIB << "/" << minHitsinTID << "/" << minHitsinTOB << "/" << minHitsinTEC << "/" << minHitsinBPIX << "/" << minHitsinFPIX;
+    << "Minimum number of hits in TIB/TID/TOB/TEC/BPIX/FPIX = " 
+    << minHitsinTIB_ << "/" << minHitsinTID_ << "/" << minHitsinTOB_
+    << "/" << minHitsinTEC_ << "/" << minHitsinBPIX_ << "/" << minHitsinFPIX_;
 }
 
 // destructor -----------------------------------------------------------------
@@ -79,24 +80,24 @@ AlignmentTrackSelector::select(const Tracks& tracks, const edm::Event& evt) cons
 {
   Tracks result;
   
-  if (applyMultiplicityFilter && multiplicityOnInput && 
-      (tracks.size() < static_cast<unsigned int>(minMultiplicity) 
-       || tracks.size() > static_cast<unsigned int>(maxMultiplicity))) {
+  if (applyMultiplicityFilter_ && multiplicityOnInput_ && 
+      (tracks.size() < static_cast<unsigned int>(minMultiplicity_) 
+       || tracks.size() > static_cast<unsigned int>(maxMultiplicity_))) {
 //     edm::LogInfo("test") << "@SUB=AlignmentTrackSelector::select" << "skip due to input size "
 //                          << tracks.size() << ".";
     return result; // still empty
   }
   
   // apply basic track cuts (if selected)
-  if (applyBasicCuts)  result= this->basicCuts(tracks);
+  if (applyBasicCuts_)  result= this->basicCuts(tracks);
   
   // filter N tracks with highest Pt (if selected)
-  if (applyNHighestPt) result= this->theNHighestPtTracks(result);
+  if (applyNHighestPt_) result= this->theNHighestPtTracks(result);
   
   // apply minimum multiplicity requirement (if selected)
-  if (applyMultiplicityFilter && !multiplicityOnInput) {
-    if (result.size() < static_cast<unsigned int>(minMultiplicity) 
-        || result.size() > static_cast<unsigned int>(maxMultiplicity) ) {
+  if (applyMultiplicityFilter_ && !multiplicityOnInput_) {
+    if (result.size() < static_cast<unsigned int>(minMultiplicity_) 
+        || result.size() > static_cast<unsigned int>(maxMultiplicity_) ) {
 //       edm::LogInfo("test") << "@SUB=AlignmentTrackSelector::select" << "remove all due to output size "
 //                            << result.size() << ".";
       result.clear();
@@ -126,11 +127,11 @@ AlignmentTrackSelector::basicCuts(const Tracks& tracks) const
     //edm::LogDebug("AlignmentTrackSelector") << " pt,eta,phi,nhit: "
     //  <<pt<<","<<eta<<","<<phi<<","<<nhit;
 
-    if (pt>ptMin && pt<ptMax 
-       && eta>etaMin && eta<etaMax 
-       && phi>phiMin && phi<phiMax 
-       && nhit>=nHitMin && nhit<=nHitMax
-       && chi2n<chi2nMax) {
+    if (pt>ptMin_ && pt<ptMax_ 
+       && eta>etaMin_ && eta<etaMax_ 
+       && phi>phiMin_ && phi<phiMax_ 
+       && nhit>=nHitMin_ && nhit<=nHitMax_
+       && chi2n<chi2nMax_) {
       if (this->detailedHitsCheck(trackp)) result.push_back(trackp);
 //       else {
 //         edm::LogInfo("test") << "@SUB=AlignmentTrackSelector::basicCuts"
@@ -154,9 +155,9 @@ bool AlignmentTrackSelector::detailedHitsCheck(const reco::Track *trackp) const
 {
   // checking hit requirements beyond simple number of valid hits
 
-  if (minHitsinTIB || minHitsinTOB || minHitsinTID || minHitsinTEC
-      || minHitsinFPIX || minHitsinBPIX
-      || nHitMin2D) { // any detailed hit cut is active, so have to check
+  if (minHitsinTIB_ || minHitsinTOB_ || minHitsinTID_ || minHitsinTEC_
+      || minHitsinFPIX_ || minHitsinBPIX_
+      || nHitMin2D_) { // any detailed hit cut is active, so have to check
     int nhitinTIB = 0, nhitinTOB = 0, nhitinTID = 0, nhitinTEC = 0, nhitinBPIX = 0, nhitinFPIX = 0;
     unsigned int nHit2D = 0;
     for (trackingRecHit_iterator iHit = trackp->recHitsBegin(); iHit != trackp->recHitsEnd(); ++iHit) {
@@ -174,12 +175,12 @@ bool AlignmentTrackSelector::detailedHitsCheck(const reco::Track *trackp) const
       else if (                kBPIX == detId.subdetId()) ++nhitinBPIX;
       else if (                kFPIX == detId.subdetId()) ++nhitinFPIX;
       // Do not call isHit2D(..) if already enough 2D hits for performance reason:
-      if (nHit2D < nHitMin2D && this->isHit2D(**iHit)) ++nHit2D;
+      if (nHit2D < nHitMin2D_ && this->isHit2D(**iHit)) ++nHit2D;
     } // end loop on hits
-    return (nhitinTIB >= minHitsinTIB && nhitinTOB >= minHitsinTOB 
-            && nhitinTID >= minHitsinTID && nhitinTEC >= minHitsinTEC 
-            && nhitinBPIX >= minHitsinBPIX && nhitinFPIX >= minHitsinFPIX 
-            && nHit2D >= nHitMin2D);
+    return (nhitinTIB >= minHitsinTIB_ && nhitinTOB >= minHitsinTOB_ 
+            && nhitinTID >= minHitsinTID_ && nhitinTEC >= minHitsinTEC_ 
+            && nhitinBPIX >= minHitsinBPIX_ && nhitinFPIX >= minHitsinFPIX_ 
+            && nHit2D >= nHitMin2D_);
   } else { // no cuts set, so we are just fine and can avoid loop on hits
     return true;
   }
@@ -231,7 +232,7 @@ AlignmentTrackSelector::theNHighestPtTracks(const Tracks& tracks) const
   int n=0;
   for (Tracks::const_iterator it=sortedTracks.begin();
 	   it!=sortedTracks.end(); it++) {
-	if (n<nHighestPt) { result.push_back(*it); n++; }
+	if (n<nHighestPt_) { result.push_back(*it); n++; }
   }
 
   return result;

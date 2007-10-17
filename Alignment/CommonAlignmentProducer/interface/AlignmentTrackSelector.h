@@ -48,12 +48,12 @@ class AlignmentTrackSelector
   };
   ComparePt ptComparator;
 
-  const bool applyBasicCuts,applyNHighestPt,applyMultiplicityFilter;
-  const int nHighestPt,minMultiplicity,maxMultiplicity;
-  const bool multiplicityOnInput; /// if true, cut min/maxMultiplicity on input instead of on final result
-  const double ptMin,ptMax,etaMin,etaMax,phiMin,phiMax,nHitMin,nHitMax,chi2nMax;
-  const unsigned int nHitMin2D;
-  int minHitsinTIB, minHitsinTOB, minHitsinTID, minHitsinTEC, minHitsinBPIX, minHitsinFPIX;
+  const bool applyBasicCuts_, applyNHighestPt_, applyMultiplicityFilter_;
+  const int nHighestPt_, minMultiplicity_, maxMultiplicity_;
+  const bool multiplicityOnInput_; /// if true, cut min/maxMultiplicity on input instead of on final result
+  const double ptMin_,ptMax_,etaMin_,etaMax_,phiMin_,phiMax_,nHitMin_,nHitMax_,chi2nMax_;
+  const unsigned int nHitMin2D_;
+  const int minHitsinTIB_, minHitsinTOB_, minHitsinTID_, minHitsinTEC_, minHitsinBPIX_, minHitsinFPIX_;
 
 };
 
