@@ -1,10 +1,10 @@
-#include "JetMETCorrections/JetPlusTrack/interface/SingleParticleJetResponseTmp.h"
+#include "JetMETCorrections/Algorithms/interface/SingleParticleJetResponse.h"
 #include <iostream>
 using namespace std;
 
-SingleParticleJetResponseTmp::SingleParticleJetResponseTmp() {}
+SingleParticleJetResponse::SingleParticleJetResponse() {}
 
-vector<double> SingleParticleJetResponseTmp::response(double echar, double energycluster, int algo) const 
+vector<double> SingleParticleJetResponse::response(double echar, double energycluster, int algo) const 
 {
   vector<double> response;
   double recal=0,rhcal=0;

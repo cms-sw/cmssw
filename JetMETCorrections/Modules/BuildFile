@@ -8,7 +8,6 @@
 <use name=JetMETCorrections/Algorithms>
 <use name=JetMETCorrections/GammaJet>
 <use name=JetMETCorrections/JetParton>
-<use name=JetMETCorrections/JetPlusTrack>
 <use name=JetMETCorrections/TauJet>
 <use name=PhysicsTools/Utilities>
 <flags EDM_PLUGIN=1>

@@ -2,9 +2,9 @@
 #define JetPlusTrackCorrector_h
 
 #include "JetMETCorrections/Objects/interface/JetCorrector.h"
-#include "TrackingTools/TrackAssociator/interface/TrackDetectorAssociator.h"
+#include "FWCore/ParameterSet/interface/InputTag.h"
 
-class SingleParticleJetResponseTmp;
+class SingleParticleJetResponse;
 
 namespace edm {
   class Event;
@@ -41,7 +41,7 @@ private:
   edm::InputTag m_JetTracksAtCalo;
   int theResponseAlgo;
 
-  SingleParticleJetResponseTmp * theSingle;
+  SingleParticleJetResponse * theSingle;
 
 };
 

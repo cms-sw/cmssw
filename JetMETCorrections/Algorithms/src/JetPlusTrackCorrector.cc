@@ -1,12 +1,13 @@
-#include "JetMETCorrections/JetPlusTrack/interface/JetPlusTrackCorrector.h"
+#include "JetMETCorrections/Algorithms/interface/JetPlusTrackCorrector.h"
 
 #include <vector>
 
 #include "FWCore/Framework/interface/Event.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "JetMETCorrections/JetPlusTrack/interface/SingleParticleJetResponseTmp.h"
+#include "JetMETCorrections/Algorithms/interface/SingleParticleJetResponse.h"
 #include "DataFormats/JetReco/interface/JetTracksAssociation.h"
+#include "DataFormats/TrackReco/interface/Track.h"
 
 
 
@@ -17,6 +18,7 @@ JetPlusTrackCorrector::JetPlusTrackCorrector(const edm::ParameterSet& iConfig)
 			  m_JetTracksAtVertex = iConfig.getParameter<edm::InputTag>("JetTrackCollectionAtVertex");
 			  m_JetTracksAtCalo = iConfig.getParameter<edm::InputTag>("JetTrackCollectionAtCalo");
 			  theResponseAlgo = iConfig.getParameter<int>("respalgo");
+			  theSingle = new SingleParticleJetResponse;
 }
 
 JetPlusTrackCorrector::~JetPlusTrackCorrector()

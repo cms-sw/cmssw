@@ -1,5 +1,5 @@
-#ifndef SingleParticleJetResponseTmp_h
-#define SingleParticleJetResponseTmp_h
+#ifndef SingleParticleJetResponse_h
+#define SingleParticleJetResponse_h
 
 /** \class SingleParticleJetResponse
     \brief This class computes the expected response in the calorimeters 
@@ -16,12 +16,12 @@
 #include <vector>
 #include <cmath>
 
-class SingleParticleJetResponseTmp 
+class SingleParticleJetResponse 
 {
 public:
   
-  SingleParticleJetResponseTmp();
-  ~SingleParticleJetResponseTmp(){};
+  SingleParticleJetResponse();
+  ~SingleParticleJetResponse(){};
   std::vector<double> response(double echar, double energycluster, int algo = 0) const;
 };
 #endif

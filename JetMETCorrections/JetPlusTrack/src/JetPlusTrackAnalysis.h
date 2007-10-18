@@ -1,13 +1,14 @@
 #ifndef JetPlusTrackAnalysis_h
 #define JetPlusTrackAnalysis_h
 
-#include "TrackingTools/TrackAssociator/interface/TrackDetectorAssociator.h"
 // user include files
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include <string>
 #include <memory>
 #include <map>
+
+class CaloGeometry;
 
 namespace edm {
   class Event;
