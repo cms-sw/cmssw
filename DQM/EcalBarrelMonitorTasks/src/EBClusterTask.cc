@@ -1,8 +1,8 @@
 /*
  * \file EBClusterTask.cc
  *
- * $Date: 2007/09/06 23:55:58 $
- * $Revision: 1.26 $
+ * $Date: 2007/10/18 08:18:42 $
+ * $Revision: 1.27 $
  * \author G. Della Ricca
  * \author E. Di Marco
  *
@@ -173,7 +173,7 @@ void EBClusterTask::setup(void){
     mes9s25_ = dbe_->book1D(histo, histo, 50, 0., 1.);
 
     sprintf(histo, "EBCLT dicluster invariant mass");
-    meInvMass_ = dbe_->book1D(histo, histo, 50, 60., 120.);
+    meInvMass_ = dbe_->book1D(histo, histo, 100, 0., 200.);
 
   }
 
