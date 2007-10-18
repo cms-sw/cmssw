@@ -57,7 +57,6 @@ class SimplePi0DiscAnalyzer : public edm::EDAnalyzer {
      virtual void beginJob(const edm::EventSetup&) ;
      virtual void analyze(const edm::Event&, const edm::EventSetup&);
      virtual void endJob() ;
-     float GetDeltaR(float Photon_eta, float SC_eta, float Photon_phi, float SC_phi);
       // ----------member data ---------------------------
 	
      string photonCollectionProducer_;       
@@ -138,15 +137,15 @@ SimplePi0DiscAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
          << " Et = " <<  localPho.energy()*sin(2*atan(exp(-Photon_eta)))
          << " Eta = " << Photon_eta << " and Phi = " << Photon_phi << endl;       
 
+    SuperClusterRef it_super = localPho.superCluster(); // get the SC related to the Photon candidate
+
     bool isPhotConv = false;
     int Ntrk_conv = 0;
     int Conv_SCE_id = 0;
     for( reco::ConvertedPhotonCollection::const_iterator iCPho = phoCollection.begin(); 
 	 iCPho != phoCollection.end(); iCPho++) { 
-       float SClu_eta = (*iCPho).superCluster()->eta();
-       float SClu_phi = (*iCPho).superCluster()->phi();  
-       float dR_Photon_Conv_SC = GetDeltaR(Photon_eta, SClu_eta, Photon_phi, SClu_phi);         
-       if(dR_Photon_Conv_SC < 0.01) { 
+       SuperClusterRef it_superConv = (*iCPho).superCluster();// get the SC related to the  Converted Photon candidate
+       if(it_super == it_superConv) { 
          isPhotConv = (*iCPho).isConverted(); 
          Ntrk_conv = (*iCPho).tracks().size();
 	 break;
@@ -203,8 +202,6 @@ void SimplePi0DiscAnalyzer::beginJob(const edm::EventSetup&)
   hEndcWithPresh_nnout_Assoc_ = new TH1F("endcWithPresh_nnout_Assoc","NNout for Endcap WithPresh Photons(AssociationMap)",100,0.,1.);
   hEndcWithPresh_nnout_NoConv_Assoc_ = new TH1F("endcWithPresh_nnout_NoConv_Assoc","NNout for Endcap Unconverted WithPresh Photons(AssociationMap)",100,0.,1.);
 
-
-
 }
 
 // ------------ method called once each job just after ending the event loop  ------------
@@ -225,20 +222,6 @@ SimplePi0DiscAnalyzer::endJob() {
 
   rootFile_->Close();
 
-}
-
-float
-SimplePi0DiscAnalyzer::GetDeltaR(float Photon_eta, float SC_eta, float Photon_phi, float SC_phi){
-
-  float deltaPhi = Photon_phi-SC_phi;
-  float deltaEta = Photon_eta-SC_eta;
-
-  if ( deltaPhi > 3.1459  ) deltaPhi -= 3.1459;
-  if ( deltaPhi < -3.1459 ) deltaPhi += 3.1459;
-  deltaPhi=pow(deltaPhi,2);
-  deltaEta=pow(deltaEta,2);
-  float delta =  deltaPhi+deltaEta ;
-  return delta;
 }
 
 //define this as a plug-in
