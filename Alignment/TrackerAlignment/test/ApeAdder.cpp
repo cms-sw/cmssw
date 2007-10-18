@@ -35,6 +35,7 @@
 #include "CondFormats/Alignment/interface/AlignmentErrors.h"
 #include "CondFormats/Alignment/interface/AlignTransformError.h"
 #include "CondFormats/DataRecord/interface/TrackerAlignmentErrorRcd.h"
+#include "DataFormats/TrackingRecHit/interface/AlignmentPositionError.h"
 
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
@@ -75,13 +76,11 @@ void ApeAdder::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup 
 {
 
   // Get geometry from ES
-  edm::ESHandle<GeometricDet> gD;
-  iSetup.get<IdealGeometryRecord>().get( gD );
   edm::ESHandle<TrackerGeometry> trackerGeometry;
   iSetup.get<TrackerDigiGeometryRecord>().get( trackerGeometry );
     
   // Create the alignable hierarchy
-  AlignableTracker* theAlignableTracker = new AlignableTracker( &(*gD), &(*trackerGeometry) );
+  AlignableTracker* theAlignableTracker = new AlignableTracker( &(*trackerGeometry) );
   
   // Now loop on alignable dets and add alignment error
   if ( theAlignableTracker->barrelGeomDets().size() ) 
@@ -113,6 +112,8 @@ void ApeAdder::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup 
                                                      poolDbService->currentTime(), 
                                                      theErrorRecordName );
   
+  delete theAlignableTracker;
+
 }
 
 void ApeAdder::addApe( std::vector<Alignable*> alignables )
