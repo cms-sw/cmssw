@@ -43,7 +43,7 @@ L1GctWheelJetFpga::L1GctWheelJetFpga(int id,
 
 void L1GctWheelJetFpga::checkSetup()
 {
-  setupRawTauJetsVec();  //sets up tau jet vector, but with tau-veto bits set to false.
+  setupJetsVectors();  //Initialises all the jet vectors with jets of the correct type.
   
   //Check object construction is ok
   if(m_id < 0 || m_id > 1)
@@ -145,22 +145,7 @@ std::ostream& operator << (std::ostream& os, const L1GctWheelJetFpga& fpga)
 
 void L1GctWheelJetFpga::reset()
 {
-  m_inputJets.clear();
-  m_inputJets.resize(MAX_JETS_IN);
-
-  m_rawCentralJets.clear();
-  m_rawCentralJets.resize(MAX_RAW_CJETS);
-  m_rawForwardJets.clear();
-  m_rawForwardJets.resize(MAX_RAW_FJETS);
-  m_rawTauJets.clear();
-  setupRawTauJetsVec();
-
-  m_centralJets.clear();
-  m_centralJets.resize(MAX_JETS_OUT);
-  m_forwardJets.clear();
-  m_forwardJets.resize(MAX_JETS_OUT);
-  m_tauJets.clear();
-  m_tauJets.resize(MAX_JETS_OUT);
+  setupJetsVectors();
 
   for (unsigned int i=0; i<MAX_LEAF_CARDS; ++i)
   {
@@ -196,6 +181,7 @@ void L1GctWheelJetFpga::fetchInput()
 
 void L1GctWheelJetFpga::process()
 {
+  setupJetsVectors();
   classifyJets();
 
   sort(m_rawCentralJets.begin(), m_rawCentralJets.end(), L1GctJetFinderBase::rankGreaterThan());
@@ -258,14 +244,6 @@ void L1GctWheelJetFpga::storeJets(JetVector jets, unsigned short iLeaf, unsigned
 
 void L1GctWheelJetFpga::classifyJets()
 {
-  //Clear the contents of all three of the  raw jet vectors
-  m_rawCentralJets.clear();
-  m_rawCentralJets.resize(MAX_RAW_CJETS);
-  m_rawForwardJets.clear();
-  m_rawForwardJets.resize(MAX_RAW_FJETS);
-  m_rawTauJets.clear();
-  setupRawTauJetsVec();
-
   JetVector::iterator currentJet;  
   
   //counters for entering the classified jets into the different raw jet vectors
@@ -307,10 +285,20 @@ void L1GctWheelJetFpga::classifyJets()
   }
 }
 
-void L1GctWheelJetFpga::setupRawTauJetsVec()
+void L1GctWheelJetFpga::setupJetsVectors()
 {
-  // Create a jet candidate with the tau flag set to true,
-  // then copy it into the tauJets vector
-  L1GctJetCand temp(0, 0, 0, true, false);
-  m_rawTauJets.assign(MAX_RAW_TJETS, temp);
+  // Create empty jet candidates with the three different combinations
+  // of flags, corresponding to central, forward and tau jets
+  L1GctJetCand tempCen(0, 0, 0, false, false);
+  L1GctJetCand tempTau(0, 0, 0, true,  false);
+  L1GctJetCand tempFwd(0, 0, 0, false, true);
+
+  // Initialize the jet vectors with copies of the appropriate empty jet type
+  m_rawCentralJets.assign(MAX_RAW_CJETS, tempCen);
+  m_rawTauJets.assign    (MAX_RAW_TJETS, tempTau);
+  m_rawForwardJets.assign(MAX_RAW_FJETS, tempFwd);
+
+  m_centralJets.assign(MAX_JETS_OUT, tempCen);
+  m_tauJets.assign    (MAX_JETS_OUT, tempTau);
+  m_forwardJets.assign(MAX_JETS_OUT, tempFwd);
 }
