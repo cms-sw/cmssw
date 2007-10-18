@@ -4,7 +4,8 @@
 #include <TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h>
 #include <Geometry/CommonDetUnit/interface/GeomDet.h>
 
-#include "DataFormats/Math/interface/deltaR.h"
+//#include "DataFormats/Math/interface/deltaR.h"
+#include "PhysicsTools/Utilities/interface/deltaR.h"
 
 using namespace edm;
 using namespace reco;
