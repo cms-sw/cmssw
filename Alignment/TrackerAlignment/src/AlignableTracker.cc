@@ -1,5 +1,12 @@
+// Geometry
+#include "Geometry/CommonDetUnit/interface/GeomDet.h"
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+#include "DataFormats/SiStripDetId/interface/SiStripDetId.h"
+
+// Alignment
 #include "Alignment/CommonAlignment/interface/AlignableBuilder.h"
 #include "Alignment/CommonAlignment/interface/AlignableObjectId.h"
+#include "Alignment/CommonAlignment/interface/AlignableDet.h"
 
 #include "CondFormats/Alignment/interface/Alignments.h"
 #include "CondFormats/Alignment/interface/AlignmentErrors.h"
@@ -7,12 +14,20 @@
 
 #include "Alignment/TrackerAlignment/interface/AlignableTracker.h"
 
-using namespace align;
 
-AlignableTracker::AlignableTracker(const GeometricDet*,
-				   const TrackerGeometry*):
-  AlignableComposite( 0, Tracker, RotationType() )
+//__________________________________________________________________________________________________
+AlignableTracker::AlignableTracker( const TrackerGeometry* tkGeom ):
+  AlignableComposite( 0, align::Tracker, RotationType() )
 {
+
+  // Get levels from geometry
+  detsToAlignables(tkGeom->detsPXB(), "TPBModule");
+  detsToAlignables(tkGeom->detsPXF(), "TPEModule");
+  detsToAlignables(tkGeom->detsTIB(), "TIBModule");
+  detsToAlignables(tkGeom->detsTID(), "TIDModule");
+  detsToAlignables(tkGeom->detsTOB(), "TOBModule");
+  detsToAlignables(tkGeom->detsTEC(), "TECModule");
+
   buildTPB();
   buildTPE();
   buildTIB();
@@ -20,113 +35,142 @@ AlignableTracker::AlignableTracker(const GeometricDet*,
   buildTOB();
   buildTEC();
   buildTRK();
+
 }
 
-void AlignableTracker::buildBarrel(const std::string& subDet) const
-{
-  static AlignableObjectId objId;
 
-  const Alignables& halfBarrels = AlignSetup<Alignables>::find(subDet + "HalfBarrel");
+//__________________________________________________________________________________________________
+void AlignableTracker::detsToAlignables( const TrackingGeometry::DetContainer& dets,
+                                         const std::string& moduleName )
+{
+  unsigned int nDet = dets.size();
+
+  align::Alignables& alis = alignableLists_.get(moduleName);
+  alis.reserve(nDet);
+
+  for (unsigned int i = 0; i < nDet; ++i)
+  {
+    SiStripDetId detId = dets[i]->geographicalId();
+    if ( !detId.glued() ) // skip components of glued det
+      alis.push_back( new AlignableDet(dets[i]) );
+  }
+
+}
+
+
+//__________________________________________________________________________________________________
+void AlignableTracker::buildBarrel(const std::string& subDet)
+{
+  AlignableObjectId objId;
+
+  align::Alignables& halfBarrels = alignableLists_.find(subDet + "HalfBarrel");
 
   std::string barrelName = subDet + "Barrel";
 
-  Alignable*& barrel = AlignSetup<Alignable*>::get(barrelName);
+  Alignable*& barrel = alignables_.get(barrelName);
 
   barrel = new AlignableComposite( halfBarrels[0]->id(),
-				   objId.nameToType(barrelName),
-				   RotationType() );
+                                   objId.nameToType(barrelName),
+                                   RotationType() );
 
   barrel->addComponent(halfBarrels[0]);
   barrel->addComponent(halfBarrels[1]);
 }
 
-void AlignableTracker::buildTPB() const
+//__________________________________________________________________________________________________
+void AlignableTracker::buildTPB()
 {
-  AlignableBuilder builder(TPBModule);
+  AlignableBuilder builder(align::TPBModule, tkCounters_ );
 
-  builder.addLevelInfo(TPBLadder    , true, 22); // max 22 ladders per layer
-  builder.addLevelInfo(TPBLayer     , false, 3); // 3 layers per half barrel
-  builder.addLevelInfo(TPBHalfBarrel, false, 2); // 2 half barrels in TPB
-  builder.buildAll();
+  builder.addLevelInfo(align::TPBLadder    , true, 22); // max 22 ladders per layer
+  builder.addLevelInfo(align::TPBLayer     , false, 3); // 3 layers per half barrel
+  builder.addLevelInfo(align::TPBHalfBarrel, false, 2); // 2 half barrels in TPB
+  builder.buildAll( alignableLists_ );
 
   buildBarrel("TPB");
 }
 
-void AlignableTracker::buildTPE() const
+//__________________________________________________________________________________________________
+void AlignableTracker::buildTPE()
 {
-  AlignableBuilder builder(TPEModule);
+  AlignableBuilder builder(align::TPEModule, tkCounters_);
 
-  builder.addLevelInfo(TPEPanel       , true,  2); // 2 panels per blade
-  builder.addLevelInfo(TPEBlade       , true, 12); // 12 blades per half disk
-  builder.addLevelInfo(TPEHalfDisk    , false, 3); // max 3 disks per cylinder
-  builder.addLevelInfo(TPEHalfCylinder, false, 2); // 2 HC per endcap
-  builder.addLevelInfo(TPEEndcap      , false, 2); // 2 endcaps in TPE
-  builder.buildAll();
+  builder.addLevelInfo(align::TPEPanel       , true,  2); // 2 panels per blade
+  builder.addLevelInfo(align::TPEBlade       , true, 12); // 12 blades per half disk
+  builder.addLevelInfo(align::TPEHalfDisk    , false, 3); // max 3 disks per cylinder
+  builder.addLevelInfo(align::TPEHalfCylinder, false, 2); // 2 HC per endcap
+  builder.addLevelInfo(align::TPEEndcap      , false, 2); // 2 endcaps in TPE
+  builder.buildAll( alignableLists_ );
 }
 
-void AlignableTracker::buildTIB() const
+//__________________________________________________________________________________________________
+void AlignableTracker::buildTIB()
 {
-  AlignableBuilder builder(TIBModule);
+  AlignableBuilder builder(align::TIBModule, tkCounters_);
 
-  builder.addLevelInfo(TIBString    , true, 28); // max 22 strings per surface
-  builder.addLevelInfo(TIBSurface   , false, 2); // 2 surfaces per half shell
-  builder.addLevelInfo(TIBHalfShell , false, 2); // 2 half shells per layer
-  builder.addLevelInfo(TIBLayer     , false, 4); // 4 layers per half barrel
-  builder.addLevelInfo(TIBHalfBarrel, false, 2); // 2 half barrels in TIB
-  builder.buildAll();
+  builder.addLevelInfo(align::TIBString    , true, 28); // max 22 strings per surface
+  builder.addLevelInfo(align::TIBSurface   , false, 2); // 2 surfaces per half shell
+  builder.addLevelInfo(align::TIBHalfShell , false, 2); // 2 half shells per layer
+  builder.addLevelInfo(align::TIBLayer     , false, 4); // 4 layers per half barrel
+  builder.addLevelInfo(align::TIBHalfBarrel, false, 2); // 2 half barrels in TIB
+  builder.buildAll( alignableLists_ );
 
   buildBarrel("TIB");
 }
 
-void AlignableTracker::buildTID() const
+//__________________________________________________________________________________________________
+void AlignableTracker::buildTID()
 {
-  AlignableBuilder builder(TIDModule);
+  AlignableBuilder builder(align::TIDModule, tkCounters_);
 
-  builder.addLevelInfo(TIDSide  , false, 2); // 2 sides per ring
-  builder.addLevelInfo(TIDRing  , false, 3); // 3 rings per disk
-  builder.addLevelInfo(TIDDisk  , false, 3); // 3 disks per endcap
-  builder.addLevelInfo(TIDEndcap, false, 2); // 2 endcaps in TID
-  builder.buildAll();
+  builder.addLevelInfo(align::TIDSide  , false, 2); // 2 sides per ring
+  builder.addLevelInfo(align::TIDRing  , false, 3); // 3 rings per disk
+  builder.addLevelInfo(align::TIDDisk  , false, 3); // 3 disks per endcap
+  builder.addLevelInfo(align::TIDEndcap, false, 2); // 2 endcaps in TID
+  builder.buildAll( alignableLists_ );
 }
 
-void AlignableTracker::buildTOB() const
+//__________________________________________________________________________________________________
+void AlignableTracker::buildTOB()
 {
-  AlignableBuilder builder(TOBModule);
+  AlignableBuilder builder(align::TOBModule, tkCounters_);
 
-  builder.addLevelInfo(TOBRod       , true, 74); // max 74 rods per layer
-  builder.addLevelInfo(TOBLayer     , false, 6); // 6 layers per half barrel
-  builder.addLevelInfo(TOBHalfBarrel, false, 2); // 2 half barrels in TOB
-  builder.buildAll();
+  builder.addLevelInfo(align::TOBRod       , true, 74); // max 74 rods per layer
+  builder.addLevelInfo(align::TOBLayer     , false, 6); // 6 layers per half barrel
+  builder.addLevelInfo(align::TOBHalfBarrel, false, 2); // 2 half barrels in TOB
+  builder.buildAll( alignableLists_ );
 
   buildBarrel("TOB");
 }
 
-void AlignableTracker::buildTEC() const
+//__________________________________________________________________________________________________
+void AlignableTracker::buildTEC()
 {
-  AlignableBuilder builder(TECModule);
+  AlignableBuilder builder(align::TECModule, tkCounters_);
 
-  builder.addLevelInfo(TECRing  , true,  7); // max 7 rings per petal
-  builder.addLevelInfo(TECPetal , true,  8); // 8 petals per side
-  builder.addLevelInfo(TECSide  , false, 2); // 2 sides per disk
-  builder.addLevelInfo(TECDisk  , false, 9); // 9 disks per endcap
-  builder.addLevelInfo(TECEndcap, false, 2); // 2 endcaps in TEC
-  builder.buildAll();
+  builder.addLevelInfo(align::TECRing  , true,  7); // max 7 rings per petal
+  builder.addLevelInfo(align::TECPetal , true,  8); // 8 petals per side
+  builder.addLevelInfo(align::TECSide  , false, 2); // 2 sides per disk
+  builder.addLevelInfo(align::TECDisk  , false, 9); // 9 disks per endcap
+  builder.addLevelInfo(align::TECEndcap, false, 2); // 2 endcaps in TEC
+  builder.buildAll( alignableLists_ );
 }
 
+//__________________________________________________________________________________________________
 void AlignableTracker::buildTRK()
 {
-  Alignable*& pixel = AlignSetup<Alignable*>::get("Pixel");
-  Alignable*& strip = AlignSetup<Alignable*>::get("Strip");
+  Alignable*& pixel = alignables_.get("Pixel");
+  Alignable*& strip = alignables_.get("Strip");
 
-  Alignable* const& innerBarrel = AlignSetup<Alignable*>::find("TIBBarrel");
-  Alignable* const& outerBarrel = AlignSetup<Alignable*>::find("TOBBarrel");
-  Alignable* const& pixelBarrel = AlignSetup<Alignable*>::find("TPBBarrel");
-  const Alignables& innerEndcap = AlignSetup<Alignables>::find("TIDEndcap");
-  const Alignables& outerEndcap = AlignSetup<Alignables>::find("TECEndcap");
-  const Alignables& pixelEndcap = AlignSetup<Alignables>::find("TPEEndcap");
+  Alignable* const& innerBarrel = alignables_.find("TIBBarrel");
+  Alignable* const& outerBarrel = alignables_.find("TOBBarrel");
+  Alignable* const& pixelBarrel = alignables_.find("TPBBarrel");
+  const align::Alignables& innerEndcap = alignableLists_.find("TIDEndcap");
+  const align::Alignables& outerEndcap = alignableLists_.find("TECEndcap");
+  const align::Alignables& pixelEndcap = alignableLists_.find("TPEEndcap");
 
-  pixel = new AlignableComposite( pixelBarrel->id(), Pixel, RotationType() );
-  strip = new AlignableComposite( innerBarrel->id(), Strip, RotationType() );
+  pixel = new AlignableComposite( pixelBarrel->id(), align::Pixel, RotationType() );
+  strip = new AlignableComposite( innerBarrel->id(), align::Strip, RotationType() );
 
   pixel->addComponent(pixelBarrel);
   pixel->addComponent(pixelEndcap[0]);
@@ -143,11 +187,13 @@ void AlignableTracker::buildTRK()
   addComponent(pixel); // add to tracker
   addComponent(strip); // add to tracker
 
-  AlignSetup<Alignable*>::get("Tracker") = this;
+  alignables_.get("Tracker") = this;
 }
 
-Alignables AlignableTracker::merge(const Alignables& list1,
-				   const Alignables& list2) const
+
+//__________________________________________________________________________________________________
+align::Alignables AlignableTracker::merge( const Alignables& list1,
+                                           const Alignables& list2 ) const
 {
   Alignables all = list1;
 
@@ -156,14 +202,15 @@ Alignables AlignableTracker::merge(const Alignables& list1,
   return all;
 }
 
+
 //__________________________________________________________________________________________________
 Alignments* AlignableTracker::alignments( void ) const
 {
 
-  Alignables comp = this->components();
+  align::Alignables comp = this->components();
   Alignments* m_alignments = new Alignments();
   // Add components recursively
-  for ( Alignables::iterator i=comp.begin(); i!=comp.end(); i++ )
+  for ( align::Alignables::iterator i=comp.begin(); i!=comp.end(); i++ )
     {
       Alignments* tmpAlignments = (*i)->alignments();
       std::copy( tmpAlignments->m_align.begin(), tmpAlignments->m_align.end(), 
@@ -183,11 +230,11 @@ Alignments* AlignableTracker::alignments( void ) const
 AlignmentErrors* AlignableTracker::alignmentErrors( void ) const
 {
 
-  Alignables comp = this->components();
+  align::Alignables comp = this->components();
   AlignmentErrors* m_alignmentErrors = new AlignmentErrors();
 
   // Add components recursively
-  for ( Alignables::iterator i=comp.begin(); i!=comp.end(); i++ )
+  for ( align::Alignables::iterator i=comp.begin(); i!=comp.end(); i++ )
     {
 	  AlignmentErrors* tmpAlignmentErrors = (*i)->alignmentErrors();
       std::copy( tmpAlignmentErrors->m_alignError.begin(), tmpAlignmentErrors->m_alignError.end(), 

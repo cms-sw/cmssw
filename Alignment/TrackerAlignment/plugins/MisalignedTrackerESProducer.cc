@@ -64,10 +64,10 @@ MisalignedTrackerESProducer::produce( const TrackerDigiGeometryRecord& iRecord )
   theTracker  = boost::shared_ptr<TrackerGeometry>( trackerBuilder.build(&(*gD)) );
   
   // Create the alignable hierarchy
-  AlignableTracker* theAlignableTracker = new AlignableTracker( &(*gD), &(*theTracker) );
+  std::auto_ptr<AlignableTracker> theAlignableTracker(new AlignableTracker( &(*theTracker) ) );
 
   // Create misalignment scenario, apply to geometry
-  TrackerScenarioBuilder scenarioBuilder( theAlignableTracker );
+  TrackerScenarioBuilder scenarioBuilder( &(*theAlignableTracker) );
   scenarioBuilder.applyScenario( theParameterSet );
   Alignments* alignments =  theAlignableTracker->alignments();
   AlignmentErrors* alignmentErrors = theAlignableTracker->alignmentErrors();

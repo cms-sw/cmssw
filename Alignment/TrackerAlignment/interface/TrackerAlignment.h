@@ -8,19 +8,22 @@
  *  \author Nhan Tran
  */
 
+#include "FWCore/Framework/interface/EventSetup.h"
+
 #include "Alignment/TrackerAlignment/interface/AlignableTracker.h"
 
 class TrackerAlignment
 {
 
 public:
-  TrackerAlignment();
+  TrackerAlignment( const edm::EventSetup& setup );
 
   ~TrackerAlignment();
-	
+  
   AlignableTracker* getAlignableTracker() { return theAlignableTracker; }
-	
-  void moveAlignablePixelEndCaps( int rawId, const align::Scalars& localDisplacements, const align::Scalars& localRotations  );
+   
+  void moveAlignablePixelEndCaps( int rawId, const align::Scalars& localDisplacements, 
+                                  const align::Scalars& localRotations  );
   void moveAlignableEndCaps( int rawId, const align::Scalars& localDisplacements, const align::Scalars& localRotations  );
   void moveAlignablePixelHalfBarrels( int rawId, const align::Scalars& localDisplacements, const align::Scalars& localRotations  );
   void moveAlignableInnerHalfBarrels( int rawId, const align::Scalars& localDisplacements, const align::Scalars& localRotations  );
