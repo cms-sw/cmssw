@@ -1,8 +1,8 @@
 /*
  * \file EEClusterTask.cc
  *
- * $Date: 2007/10/09 19:54:26 $
- * $Revision: 1.12 $
+ * $Date: 2007/10/18 08:23:23 $
+ * $Revision: 1.13 $
  * \author G. Della Ricca
  * \author E. Di Marco
  *
@@ -216,10 +216,10 @@ void EEClusterTask::setup(void){
     meSCSiz_ = dbe_->book1D(histo, histo, 10, 0., 10.);
 
     sprintf(histo, "EECLT island s1s9");
-    mes1s9_ = dbe_->book1D(histo, histo, 50, 0., 1.);
+    mes1s9_ = dbe_->book1D(histo, histo, 55, 0., 1.1);
 
     sprintf(histo, "EECLT island s9s25");
-    mes9s25_ = dbe_->book1D(histo, histo, 50, 0., 1.);
+    mes9s25_ = dbe_->book1D(histo, histo, 55, 0., 1.1);
 
     sprintf(histo, "EECLT dicluster invariant mass");
     meInvMass_ = dbe_->book1D(histo, histo, 100, 0., 200.);
