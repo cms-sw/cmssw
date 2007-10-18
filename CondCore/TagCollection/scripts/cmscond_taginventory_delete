@@ -91,10 +91,9 @@ class tagInventoryDelete:
         inv=tagInventory.tagInventory(session)
         try:
             if self.__all is True:
-                result=inv.deleteAllEntries()
-                print result 
+                inv.deleteAllEntries()
             else:
-                result=inv.deleteEntryByName(self.__tag)
+                inv.deleteEntryByName(self.__tag)
             del session
         except Exception, e:
             print str(e)
