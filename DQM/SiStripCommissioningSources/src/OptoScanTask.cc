@@ -36,7 +36,7 @@ void OptoScanTask::book() {
   for ( uint16_t igain = 0; igain < opto_.size(); igain++ ) { opto_[igain].resize(3); }
   
   for ( uint16_t igain = 0; igain < opto_.size(); igain++ ) { 
-    for ( uint16_t ihisto = 0; ihisto < 2; ihisto++ ) { 
+    for ( uint16_t ihisto = 0; ihisto < 3; ihisto++ ) { 
       
       // Extra info
       std::stringstream extra_info; 
@@ -105,7 +105,8 @@ void OptoScanTask::fill( const SiStripEventSummary& summary,
     // Find digital "0" and digital "1" levels from tick marks within scope mode data
     std::pair<float,float> digital_range;
     std::vector<float> baseline;
-    locateTicks( digis, digital_range, baseline );
+    float baseline_rms = 0;
+    locateTicks( digis, digital_range, baseline, baseline_rms );
     
     // Digital "0"
     if ( digital_range.first < 1. * sistrip::valid_ ) {
@@ -118,11 +119,8 @@ void OptoScanTask::fill( const SiStripEventSummary& summary,
     }
     
     // Baseline rms
-    if ( !baseline.empty() ) {
-      std::vector<float>::const_iterator iter = baseline.begin();
-      for ( ; iter != baseline.end(); iter++ ) {
-	updateHistoSet( opto_[gain][2], bias, *iter );
-      }
+    if ( baseline_rms < 1. * sistrip::valid_ ) {
+      updateHistoSet( opto_[gain][2], bias, baseline_rms );
     }
     
   }
@@ -146,7 +144,8 @@ void OptoScanTask::update() {
 //
 void OptoScanTask::locateTicks( const edm::DetSet<SiStripRawDigi>& digis, 
 				std::pair<float,float>& range, 
-				std::vector<float>& baseline ) {
+				std::vector<float>& baseline,
+				float& baseline_rms ) {
   
   // Copy ADC values and sort 
   std::vector<uint16_t> adc; 
@@ -208,9 +207,11 @@ void OptoScanTask::locateTicks( const edm::DetSet<SiStripRawDigi>& digis,
     tick_median = 1. * sistrip::invalid_; 
   }
   
-  range.first = base_mean;
-  range.second = tick_mean;
-  copy( base.begin(), base.end(), baseline.begin() );
+  baseline.reserve( base.size() );
+  baseline.assign( base.begin(), base.end() );
+  range.first = base_mean; 
+  range.second = tick_mean; 
+  baseline_rms = base_rms;
 
 }
 
