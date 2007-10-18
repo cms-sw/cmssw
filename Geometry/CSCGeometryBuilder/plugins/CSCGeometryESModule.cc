@@ -8,8 +8,8 @@
 // Alignments
 #include "CondFormats/Alignment/interface/Alignments.h"
 #include "CondFormats/Alignment/interface/AlignmentErrors.h"
-#include "CondFormats/DataRecord/interface/CSCAlignmentRcd.h"
-#include "CondFormats/DataRecord/interface/CSCAlignmentErrorRcd.h"
+#include "CondFormats/AlignmentRecord/interface/CSCAlignmentRcd.h"
+#include "CondFormats/AlignmentRecord/interface/CSCAlignmentErrorRcd.h"
 #include "Geometry/TrackingGeometryAligner/interface/GeometryAligner.h"
 #include "Geometry/MuonNumbering/interface/MuonDDDConstants.h"
 #include "DataFormats/TrackingRecHit/interface/AlignmentPositionError.h"
