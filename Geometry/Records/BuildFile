@@ -1,10 +1,10 @@
 <use name=FWCore/Utilities>
 <use name=FWCore/Framework>
-<use name=CondFormats/DataRecord>
+<use name=CondFormats/AlignmentRecord>
 <use name=clhep>
 <use name=boost>
 <export>
    <lib name=GeometryRecords>
-   <use name=CondFormats/DataRecord>
+   <use name=CondFormats/AlignmentRecord>
    <use name=FWCore/Framework>
 </export>
