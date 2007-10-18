@@ -17,15 +17,15 @@
 //
 // Author:      Domenico Giordano
 // Created:     Wed Sep 26 17:42:12 CEST 2007
-// $Id: SiStripQuality.h,v 1.1 2007/10/08 17:30:47 giordano Exp $
+// $Id: SiStripQuality.h,v 1.2 2007/10/11 10:38:15 giordano Exp $
 //
 
 
 #include "CondFormats/SiStripObjects/interface/SiStripBadStrip.h"
 #include "FWCore/ParameterSet/interface/FileInPath.h"
 #include "CalibTracker/SiStripCommon/interface/SiStripDetInfoFileReader.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <vector>
-
 
 class SiStripQuality: public SiStripBadStrip {
 
@@ -43,26 +43,35 @@ class SiStripQuality: public SiStripBadStrip {
     bool operator() (const BadComponent& p,const uint32_t i) const {return p.detid < i;}
   };
   
-  SiStripQuality();
+  SiStripQuality(); //takes default file for SiStripDetInfoFileReader
   SiStripQuality(edm::FileInPath&);
-  SiStripQuality(const SiStripBadStrip* );
-  SiStripQuality(const SiStripBadStrip*, edm::FileInPath&);
+  SiStripQuality(const SiStripQuality&); //copy constructor
 
-
-  ~SiStripQuality(){
+  ~SiStripQuality(){ 
+    LogTrace("SiStripQuality") << "SiStripQuality destructor" << std::endl; 
     delete reader;
-  };
+  }
 
   void clear(){
     v_badstrips.clear();
     indexes.clear();
+    BadComponentVect.clear();
+    toCleanUp=false;
   }
- 
-  void add(const SiStripBadStrip*);
 
+  void add(const SiStripBadStrip*);
+ 
   bool cleanUp();
 
   void fillBadComponents();
+
+  SiStripQuality& operator +=(const SiStripQuality&); 
+  SiStripQuality& operator -=(const SiStripQuality&);
+  const SiStripQuality operator -(const SiStripQuality&) const ;
+  bool operator ==(const SiStripQuality&) const;
+  bool operator !=(const SiStripQuality&) const;
+  
+  edm::FileInPath getFileInPath() const {return FileInPath_;}
 
   //------- Interface for the user ----------//
 
@@ -93,12 +102,13 @@ class SiStripQuality: public SiStripBadStrip {
  private:
 
   void compact(std::vector<unsigned int>&,std::vector<unsigned int>&,unsigned short&);
+  void subtract(std::vector<unsigned int>&,const std::vector<unsigned int>&);
+  void subtraction(std::vector<unsigned int>&,const unsigned int&);
   bool put_replace(const uint32_t& DetId, Range input);
 
-  SiStripDetInfoFileReader* reader;
-  edm::FileInPath fileInpath;
-
   bool toCleanUp;
+  edm::FileInPath FileInPath_;
+  SiStripDetInfoFileReader* reader;
 
   std::vector<BadComponent> BadComponentVect;
 };

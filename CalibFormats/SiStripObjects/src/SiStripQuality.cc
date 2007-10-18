@@ -1,29 +1,92 @@
  //
 // Author:      Domenico Giordano
 // Created:     Wed Sep 26 17:42:12 CEST 2007
-// $Id: SiStripQuality.cc,v 1.1 2007/10/08 17:30:50 giordano Exp $
+// $Id: SiStripQuality.cc,v 1.2 2007/10/11 10:38:15 giordano Exp $
 //
 #include "FWCore/Framework/interface/eventsetupdata_registration_macro.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripQuality.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
  
-SiStripQuality::SiStripQuality():toCleanUp(false){
-  reader = new SiStripDetInfoFileReader(edm::FileInPath("CalibTracker/SiStripCommon/data/SiStripDetInfo.dat").fullPath());
+SiStripQuality::SiStripQuality():
+  toCleanUp(false),
+  FileInPath_("CalibTracker/SiStripCommon/data/SiStripDetInfo.dat"){
+  reader=new SiStripDetInfoFileReader(FileInPath_.fullPath());
 }
 
-SiStripQuality::SiStripQuality(edm::FileInPath& file):toCleanUp(false){
-  reader = new SiStripDetInfoFileReader(file.fullPath());
+SiStripQuality::SiStripQuality(edm::FileInPath& file):toCleanUp(false),FileInPath_(file){
+  reader=new SiStripDetInfoFileReader(FileInPath_.fullPath());
 }
 
-SiStripQuality::SiStripQuality(const SiStripBadStrip* base):toCleanUp(false){
-  reader = new SiStripDetInfoFileReader(edm::FileInPath("CalibTracker/SiStripCommon/data/SiStripDetInfo.dat").fullPath());
-  add(base);
+SiStripQuality::SiStripQuality(const SiStripQuality& other){
+  FileInPath_=other.FileInPath_;
+  reader=new SiStripDetInfoFileReader(*(other.reader));
+  toCleanUp=other.toCleanUp;
+  indexes=other.indexes;
+  v_badstrips=other.v_badstrips;
+  BadComponentVect=other.BadComponentVect;
 }
 
-SiStripQuality::SiStripQuality(const SiStripBadStrip* base, edm::FileInPath& file):toCleanUp(false){
-  reader = new SiStripDetInfoFileReader(file.fullPath());
-  add(base);
+
+SiStripQuality& SiStripQuality::operator +=(const SiStripQuality& other){ 
+  this->add(&other); 
+  this->cleanUp(); 
+  this->fillBadComponents(); 
+  return *this; 
 }
+
+SiStripQuality& SiStripQuality::operator -=(const SiStripQuality& other){
+    
+  SiStripBadStrip::RegistryIterator rbegin = other.getRegistryVectorBegin();
+  SiStripBadStrip::RegistryIterator rend   = other.getRegistryVectorEnd();
+  std::vector<unsigned int> ovect,vect;
+  uint32_t detid;
+  unsigned short Nstrips;
+    
+  for (SiStripBadStrip::RegistryIterator rp=rbegin; rp != rend; ++rp) {
+    
+    detid=rp->detid;
+    Nstrips=reader->getNumberOfApvsAndStripLength(detid).first*128;
+    
+    SiStripBadStrip::Range orange = SiStripBadStrip::Range( other.getDataVectorBegin()+rp->ibegin , other.getDataVectorBegin()+rp->iend );
+    
+    //Is this detid already in the collections owned by this class?
+    SiStripBadStrip::Range range = getRange(detid);   
+    if (range.first!=range.second){ //yes, it is
+
+      vect.clear();
+      ovect.clear();
+
+      //if other full det is bad, remove det from this
+      SiStripBadStrip::data data_=decode(*(orange.first));
+      if(orange.second-orange.first!=1
+	 || data_.firstStrip!=0
+	 || data_.range<Nstrips){
+	
+	ovect.insert(ovect.end(),orange.first,orange.second);
+	vect.insert(vect.end(),range.first,range.second);
+	subtract(vect,ovect);
+      } 
+      SiStripBadStrip::Range newrange(vect.begin(),vect.end());
+      if ( ! put_replace(detid,newrange) )
+	edm::LogError("SiStripQuality")<<"[" << __PRETTY_FUNCTION__ << "] " << std::endl;
+    }
+  }
+  toCleanUp=true;
+  cleanUp(); 
+  fillBadComponents(); 
+  return *this; 
+}
+
+const SiStripQuality SiStripQuality::operator -(const SiStripQuality& other) const {
+  return SiStripQuality(*this) -= other; 
+}
+
+bool SiStripQuality::operator ==(const SiStripQuality& other) const{
+  SiStripQuality a = (*this) - other ;
+  return a.getRegistryVectorBegin()==getRegistryVectorEnd();
+}
+bool SiStripQuality::operator !=(const SiStripQuality& other) const { return !(*this == other) ; }
+
 
 void SiStripQuality::add(const SiStripBadStrip* base){
   SiStripBadStrip::RegistryIterator basebegin = base->getRegistryVectorBegin();
@@ -33,7 +96,6 @@ void SiStripQuality::add(const SiStripBadStrip* base){
   
   if (indexes.size()==0){
     //Case A - the Registry is empty
-    LogTrace("SiStripQuality") << "in CaseA" << std::endl;
     indexes.insert(indexes.end(),basebegin,baseend);
     v_badstrips.insert(v_badstrips.end(),base->getDataVectorBegin(),base->getDataVectorEnd());
       
@@ -148,6 +210,45 @@ void SiStripQuality::compact(std::vector<unsigned int>& tmp,std::vector<unsigned
   vect.push_back(encode(fs_0.firstStrip,fs_0.range));
 }
 
+void SiStripQuality::subtract(std::vector<unsigned int>& A,const std::vector<unsigned int>& B){
+  ContainerIterator it=B.begin();
+  ContainerIterator itend=B.end();
+  for(;it!=itend;++it){    
+    subtraction(A,*it);
+  }
+}
+
+void SiStripQuality::subtraction(std::vector<unsigned int>& A,const unsigned int& B){
+  SiStripBadStrip::data fs_A, fs_B, fs_m, fs_M;
+  std::vector<unsigned int> tmp;
+
+  fs_B=decode(B);
+  ContainerIterator jt=A.begin();
+  ContainerIterator jtend=A.end();
+  for(;jt!=jtend;++jt){
+    fs_A=decode(*jt);
+    if (B<*jt){
+      fs_m=fs_B;
+      fs_M=fs_A;
+    }else{
+      fs_m=fs_A;
+      fs_M=fs_B;
+    }
+    //A) Verify the range to be subtracted crosses the new range
+    if (fs_m.firstStrip+fs_m.range>fs_M.firstStrip){
+      if (*jt<B){
+	tmp.push_back(encode(fs_A.firstStrip,fs_B.firstStrip-fs_A.firstStrip));
+      }
+      if (fs_A.firstStrip+fs_A.range>fs_B.firstStrip+fs_B.range){
+	tmp.push_back(encode(fs_B.firstStrip+fs_B.range,fs_A.firstStrip+fs_A.range-(fs_B.firstStrip+fs_B.range)));
+      }
+    }else{
+      tmp.push_back(*jt);
+    }
+  } 
+  A=tmp;
+}
+
 bool SiStripQuality::cleanUp(){
 
   if (!toCleanUp)
@@ -167,12 +268,13 @@ bool SiStripQuality::cleanUp(){
   SiStripBadStrip::RegistryIterator baseend   = indexes_tmp.end();
 
   for (SiStripBadStrip::RegistryIterator basep=basebegin; basep != baseend; ++basep) {
-
-    SiStripBadStrip::Range range( v_badstrips_tmp.begin()+basep->ibegin, v_badstrips_tmp.begin()+basep->iend );
-    if ( ! put(basep->detid,range) )
-      edm::LogError("SiStripQuality")<<"[" << __PRETTY_FUNCTION__ << "] " << std::endl;
+    if(basep->ibegin!=basep->iend){
+      SiStripBadStrip::Range range( v_badstrips_tmp.begin()+basep->ibegin, v_badstrips_tmp.begin()+basep->iend );
+      if ( ! put(basep->detid,range) )
+	edm::LogError("SiStripQuality")<<"[" << __PRETTY_FUNCTION__ << "] " << std::endl;
+    }
   }
-
+  
   LogTrace("SiStripQuality") << "[SiStripQuality::cleanUp] after cleanUp v_badstrips.size()= " << v_badstrips.size() << " indexes.size()=" << indexes.size() << std::endl;
   return true;
 }
