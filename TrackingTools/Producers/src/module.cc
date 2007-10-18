@@ -3,6 +3,7 @@
 #include "TrackingTools/Producers/interface/SmartPropagatorESProducer.h"
 #include "TrackingTools/Producers/interface/BeamHaloPropagatorESProducer.h"
 #include "TrackingTools/Producers/interface/TrajectoryCleanerESProducer.h"
+#include "TrackingTools/Producers/interface/TrajectoryFilterESProducer.h"
 
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -17,3 +18,4 @@ DEFINE_ANOTHER_FWK_EVENTSETUP_MODULE(AnalyticalPropagatorESProducer);
 DEFINE_ANOTHER_FWK_EVENTSETUP_MODULE(SmartPropagatorESProducer);
 DEFINE_ANOTHER_FWK_EVENTSETUP_MODULE(BeamHaloPropagatorESProducer);
 DEFINE_ANOTHER_FWK_EVENTSETUP_MODULE(TrajectoryCleanerESProducer);
+DEFINE_ANOTHER_FWK_EVENTSETUP_MODULE(TrajectoryFilterESProducer);
