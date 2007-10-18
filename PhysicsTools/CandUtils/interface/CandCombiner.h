@@ -32,95 +32,97 @@ namespace combiner {
   }
 }
 
-template<typename Helper,
+template<typename InputCollection,
          typename Selector, 
 	 typename PairSelector = AnyPairSelector,
 	 typename Cloner = combiner::helpers::NormalClone, 
-	 typename Setup = AddFourMomenta>
-class CandCombiner : public CandCombinerBase<Helper> {
+	 typename Setup = AddFourMomenta,
+         typename OutputCollection = reco::CandidateCollection>
+class CandCombiner : public CandCombinerBase<InputCollection, OutputCollection> {
 public:
+  typedef CandCombinerBase<InputCollection, OutputCollection> base;
   /// default constructor
   CandCombiner() :
-  CandCombinerBase<Helper>( ), 
+  base( ), 
     select_(), selectPair_(), setup_() { }
   /// constructor from a selector and two charges
   CandCombiner( int q1, int q2 ) :
-    CandCombinerBase<Helper>( q1, q2 ), 
+    base( q1, q2 ), 
     select_(), selectPair_(), setup_() { }
   /// constructor from a selector and three charges
   CandCombiner( int q1, int q2, int q3 ) :
-    CandCombinerBase<Helper>( q1, q2, q3 ), 
+    base( q1, q2, q3 ), 
     select_(), selectPair_(), setup_() { }
   /// constructor from a selector and four charges
   CandCombiner( int q1, int q2, int q3, int q4 ) :
-    CandCombinerBase<Helper>( q1, q2, q3, q4 ), 
+    base( q1, q2, q3, q4 ), 
     select_(), selectPair_(), setup_() { }
   /// default constructor
   CandCombiner( const Selector & select ) :
-    CandCombinerBase<Helper>( ), 
+    base( ), 
     select_( select ), selectPair_(), setup_() { }
   /// constructor from a selector and two charges
   CandCombiner( const Selector & select, int q1, int q2 ) :
-    CandCombinerBase<Helper>( q1, q2 ), 
+    base( q1, q2 ), 
     select_( select ), selectPair_(), setup_() { }
   /// constructor from a selector and three charges
   CandCombiner( const Selector & select, int q1, int q2, int q3 ) :
-    CandCombinerBase<Helper>( q1, q2, q3 ), 
+    base( q1, q2, q3 ), 
     select_( select ), selectPair_(), setup_() { }
   /// constructor from a selector and four charges
   CandCombiner( const Selector & select, int q1, int q2, int q3, int q4 ) :
-    CandCombinerBase<Helper>( q1, q2, q3, q4 ), 
+    base( q1, q2, q3, q4 ), 
     select_( select ), selectPair_(), setup_() { }
   /// constructor from selector
   CandCombiner( const Selector & select, const PairSelector & selectPair ) :
-    CandCombinerBase<Helper>( ), 
+    base( ), 
     select_( select ), selectPair_( selectPair ), setup_() { }
   /// constructor from a selector and two charges
   CandCombiner( const Selector & select, const PairSelector & selectPair, int q1, int q2 ) :
-    CandCombinerBase<Helper>( q1, q2 ), 
+    base( q1, q2 ), 
     select_( select ), selectPair_( selectPair ), setup_() { }
   /// constructor from a selector and three charges
   CandCombiner( const Selector & select, const PairSelector & selectPair, int q1, int q2, int q3 ) :
-    CandCombinerBase<Helper>( q1, q2, q3 ), 
+    base( q1, q2, q3 ), 
     select_( select ), selectPair_( selectPair ), setup_() { }
   /// constructor from a selector and four charges
   CandCombiner( const Selector & select, const PairSelector & selectPair, int q1, int q2, int q3, int q4 ) :
-    CandCombinerBase<Helper>( q1, q2, q3, q4 ), 
+    base( q1, q2, q3, q4 ), 
     select_( select ), selectPair_( selectPair ), setup_() { }
   CandCombiner( const Selector & select, const PairSelector & selectPair, const Setup & setup ) :
-    CandCombinerBase<Helper>( ), 
+    base( ), 
     select_( select ), selectPair_( selectPair ), setup_( setup ) { }
   /// constructor from a selector and two charges
   CandCombiner( const Selector & select, const PairSelector & selectPair, const Setup & setup, int q1, int q2 ) :
-    CandCombinerBase<Helper>( q1, q2 ), 
+    base( q1, q2 ), 
     select_( select ), selectPair_( selectPair ), setup_( setup ) { }
   /// constructor from a selector and three charges
   CandCombiner( const Selector & select, const PairSelector & selectPair, const Setup & setup, int q1, int q2, int q3 ) :
-    CandCombinerBase<Helper>( q1, q2, q3 ), 
+    base( q1, q2, q3 ), 
     select_( select ), selectPair_( selectPair ), setup_( setup ) { }
   /// constructor from a selector and four charges
   CandCombiner( const Selector & select, const PairSelector & selectPair, const Setup & setup, int q1, int q2, int q3, int q4 ) :
-    CandCombinerBase<Helper>( q1, q2, q3, q4 ), 
+    base( q1, q2, q3, q4 ), 
     select_( select ), selectPair_( selectPair ), setup_( setup ) { }
   /// constructor from a selector, specifying to check for charge
   CandCombiner( const Selector & select, const PairSelector & selectPair, const Setup & setup,const std::vector <int> & dauCharge ) : 
-    CandCombinerBase<Helper>( true, dauCharge ), select_( select ), selectPair_( selectPair ), setup_( setup ) { }
+    base( true, dauCharge ), select_( select ), selectPair_( selectPair ), setup_( setup ) { }
   /// constructor from a selector, specifying to check for charge
   CandCombiner( const Selector & select, const PairSelector & selectPair, const std::vector <int> & dauCharge ) : 
-    CandCombinerBase<Helper>( true, dauCharge ), select_( select ), selectPair_( selectPair ), setup_() { }
+    base( true, dauCharge ), select_( select ), selectPair_( selectPair ), setup_() { }
   /// constructor from a selector, specifying to check for charge
   CandCombiner( const std::vector <int> & dauCharge ) : 
-    CandCombinerBase<Helper>( true, dauCharge ), select_(), selectPair_(), setup_() { }
+    base( true, dauCharge ), select_(), selectPair_(), setup_() { }
   /// constructor from a selector, specifying optionally to check for charge
   CandCombiner( const Selector & select, const PairSelector & selectPair, const Setup & setup,
 		 bool checkCharge, const std::vector <int> & dauCharge ) : 
-    CandCombinerBase<Helper>( checkCharge, dauCharge ), 
+    base( checkCharge, dauCharge ), 
     select_( select ), selectPair_( selectPair ), setup_( setup ) { }
   /// return reference to setup object to allow its initialization
   Setup & setup() { return setup_; }
 
 private:
-  typedef typename CandCombinerBase<Helper>::Ref Ref;
+  typedef typename base::Ref Ref;
 
   /// select a candidate
   virtual bool select( const reco::Candidate & c ) const {
