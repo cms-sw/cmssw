@@ -159,6 +159,7 @@ class  tagInventory(object):
         except Exception, e:
             transaction.rollback()
             raise Exception, str(e)
+        
     def deleteAllEntries( self ):
         """Delete all entries in the inventory
         """
@@ -170,6 +171,25 @@ class  tagInventory(object):
             inputData = coral.AttributeList()
             dbop.deleteRows(self.__tagInventoryTableName,
                             '',
+                            inputData)
+            transaction.commit()
+        except Exception, e:
+            transaction.rollback()
+            raise Exception, str(e)
+        
+    def deleteEntryByName( self, tagname ):
+        """Delete entry with given tag name
+        """
+        try:
+            transaction=self.__session.transaction()
+            transaction.start(False)
+            schema = self.__session.nominalSchema()
+            dbop=DBImpl.DBImpl(schema)
+            inputData = coral.AttributeList()
+            inputData.extend( "tagname","string" )
+            inputData[0].setData(tagname)
+            dbop.deleteRows(self.__tagInventoryTableName,
+                            'tagname=:tagname',
                             inputData)
             transaction.commit()
         except Exception, e:
@@ -194,6 +214,14 @@ if __name__ == "__main__":
         tagentry.timetype='runnumber'
         tagentry.comment='crapcrapcrapandcrackcrackcrak'
         inv.addEntry(tagentry)
+        tagentry.tagname='crap'
+        tagentry.objectname='MyPedestals'
+        tagentry.pfn='oracle://devdb10/CMS_COND_ME'
+        tagentry.recordname='MyPedestalsRcd'
+        tagentry.labelname='mylabel'
+        tagentry.timetype='runnumber'
+        tagentry.comment='no'
+        inv.addEntry(tagentry)
         result=inv.getAllEntries()
         print 'get all##\t',result
         result=inv.getEntryByName('ecalpedestalsfromonline')
@@ -202,6 +230,11 @@ if __name__ == "__main__":
         print 'get crap##\t',result
         result=inv.getEntryById(0)
         print 'get by id 0##\t',result
+        inv.deleteEntryByName('ecalpedestalsfromonline')
+        result=inv.getEntryByName('ecalpedestalsfromonline')
+        print 'get ecalpedestalsfromonline##\t',result
+        result=inv.getEntryByName('crap')
+        print 'get crap##\t',result
         del session
     except Exception, e:
         print "Failed in unit test"
