@@ -4,8 +4,8 @@
 /*
  * \file EEClusterClient.h
  *
- * $Date: 2007/08/17 09:05:11 $
- * $Revision: 1.5 $
+ * $Date: 2007/09/07 22:30:06 $
+ * $Revision: 1.6 $
  * \author G. Della Ricca
  * \author F. Cossutti
  * \author E. Di Marco
@@ -100,20 +100,15 @@ vector<int> superModules_;
 MonitorUserInterface* mui_;
 DaqMonitorBEInterface* dbe_;
 
-TH1F* allEEBasic_[3];
-TProfile2D* eneEEBasic_[2];
-TH2F* numEEBasic_[2];
-TProfile2D* enePolarEEBasic_[2];
-TH2F* numPolarEEBasic_[2];
-
-TH1F* allEE_[3];
-TProfile2D* eneEE_[2];
-TH2F* numEE_[2];
-TProfile2D* enePolarEE_[2];
-TH2F* numPolarEE_[2];
-
-TH1F* s_;
-
+TH1F* hBC1D_[3];
+TProfile2D* hProfMap_[3][2];
+TProfile* hProfMapProjR_[3][2];
+TProfile* hProfMapProjPhi_[3][2];
+TH2F* hOccMap_[2];
+TH1F* hOccMapProjR_[2];
+TH1F* hOccMapProjPhi_[2];
+TH1F* hSC1D_[3]; 
+TH1F* s01_[3];
 
 };
 
