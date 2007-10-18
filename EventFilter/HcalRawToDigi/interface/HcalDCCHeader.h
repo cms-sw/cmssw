@@ -10,8 +10,8 @@ class HcalHTRData;
  *  Interpretive class for an HcalDCCHeader
  *   
  *
- *  $Date: 2005/07/26 15:10:51 $
- *  $Revision: 1.1 $
+ *  $Date: 2007/02/19 04:05:40 $
+ *  $Revision: 1.2 $
  *  \author J. Mans - UMD
  */
 
@@ -59,6 +59,8 @@ class HcalDCCHeader {
   inline int getSourceId() const { return (commondataformat0>>8)&0xFFF; }
   /** get the bunch id from the CDF header */
   inline int getBunchId() const { return (commondataformat0>>20)&0xFFF; }
+  /** get the orbit number from the CDF header */
+  inline unsigned int getOrbitNumber() const { return (commondataformat2); }
 
  private:
   // CURRENTLY VALID FOR LITTLE-ENDIAN (LINUX/x86) ONLY
