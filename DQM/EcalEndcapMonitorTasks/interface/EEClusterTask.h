@@ -4,8 +4,8 @@
 /*
  * \file EEClusterTask.h
  *
- * $Date: 2007/05/22 15:08:12 $
- * $Revision: 1.4 $
+ * $Date: 2007/05/24 16:57:53 $
+ * $Revision: 1.5 $
  * \author G. Della Ricca
  *
  */
@@ -50,23 +50,23 @@ DaqMonitorBEInterface* dbe_;
 
 bool enableCleanup_;
 
-edm::InputTag islandEndcapSuperClusterCollection_;
-edm::InputTag islandEndcapBasicClusterCollection_;
+edm::InputTag BasicClusterCollection_;
+edm::InputTag SuperClusterCollection_;
+ edm::InputTag ClusterShapeAssociation_;
 
-MonitorElement* meEne_, *meEneBasic_;
-MonitorElement* meNum_, *meNumBasic_;
-MonitorElement* meSiz_, *meSizBasic_;
+MonitorElement* meBCEne_, *meBCNum_, *meBCCry_;
 
-MonitorElement* meEneFwdMap_, *meEneFwdMapBasic_;
-MonitorElement* meNumFwdMap_, *meNumFwdMapBasic_;
-MonitorElement* meEneFwdPolarMap_, *meEneFwdPolarMapBasic_;
-MonitorElement* meNumFwdPolarMap_, *meNumFwdPolarMapBasic_;
-MonitorElement* meEneBwdMap_, *meEneBwdMapBasic_;
-MonitorElement* meNumBwdMap_, *meNumBwdMapBasic_;
-MonitorElement* meEneBwdPolarMap_, *meEneBwdPolarMapBasic_;
-MonitorElement* meNumBwdPolarMap_, *meNumBwdPolarMapBasic_;
+MonitorElement* meBCEneFwdMap_, *meBCNumFwdMap_, *meBCETFwdMap_, *meBCCryFwdMap_;
+MonitorElement* meBCEneFwdMapProjR_, *meBCNumFwdMapProjR_, *meBCETFwdMapProjR_, *meBCCryFwdMapProjR_;
+MonitorElement* meBCEneFwdMapProjPhi_, *meBCNumFwdMapProjPhi_, *meBCETFwdMapProjPhi_, *meBCCryFwdMapProjPhi_;
 
-MonitorElement* meInvMass_;
+MonitorElement* meBCEneBwdMap_, *meBCNumBwdMap_, *meBCETBwdMap_, *meBCCryBwdMap_;
+MonitorElement* meBCEneBwdMapProjR_, *meBCNumBwdMapProjR_, *meBCETBwdMapProjR_, *meBCCryBwdMapProjR_;
+MonitorElement* meBCEneBwdMapProjPhi_, *meBCNumBwdMapProjPhi_, *meBCETBwdMapProjPhi_, *meBCCryBwdMapProjPhi_;
+
+MonitorElement* meSCEne_, *meSCNum_, *meSCSiz_;  
+
+MonitorElement* mes1s9_, *mes9s25_, *meInvMass_;
 
 bool init_;
 
