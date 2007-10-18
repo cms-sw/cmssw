@@ -40,12 +40,13 @@
 // ArisE 26/9/2007
 #include "DataFormats/EgammaReco/interface/BasicCluster.h"
 #include "DataFormats/EgammaReco/interface/BasicClusterFwd.h"
+#include "DataFormats/EgammaReco/interface/BasicClusterShapeAssociation.h"
+#include "DataFormats/EgammaReco/interface/SeedSuperClusterAssociation.h"
 
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
 #include "DataFormats/EgammaCandidates/interface/PhotonFwd.h"
+#include "DataFormats/EgammaReco/interface/PreshowerClusterShape.h"
 #include "DataFormats/EgammaCandidates/interface/PhotonPi0DiscriminatorAssociation.h"
-
-#include "TFile.h"
 
 using namespace std;
 using namespace reco;
@@ -54,12 +55,24 @@ using namespace edm;
 
 PiZeroDiscriminatorProducer::PiZeroDiscriminatorProducer(const ParameterSet& ps) {
   // use configuration file to setup input/output collection names
+<<<<<<< PiZeroDiscriminatorProducer.cc
+=======
   // Parameters to identify the hit collections
   preshHitProducer_   = ps.getParameter<string>("preshRecHitProducer");
   preshHitCollection_ = ps.getParameter<string>("preshRecHitCollection");
+>>>>>>> 1.8
+
+<<<<<<< PiZeroDiscriminatorProducer.cc
+  preshClusterShapeCollectionX_ = ps.getParameter<std::string>("preshClusterShapeCollectionX");
+  preshClusterShapeCollectionY_ = ps.getParameter<std::string>("preshClusterShapeCollectionY");
+  preshClusterShapeProducer_   = ps.getParameter<std::string>("preshClusterShapeProducer");
 
   photonCorrCollectionProducer_ = ps.getParameter<string>("corrPhoProducer");
   correctedPhotonCollection_ = ps.getParameter<string>("correctedPhotonCollection");
+=======
+  photonCorrCollectionProducer_ = ps.getParameter<string>("corrPhoProducer");
+  correctedPhotonCollection_ = ps.getParameter<string>("correctedPhotonCollection");
+>>>>>>> 1.8
 
   barrelClusterShapeMapProducer_   = ps.getParameter<string>("barrelClusterShapeMapProducer");
   barrelClusterShapeMapCollection_ = ps.getParameter<string>("barrelClusterShapeMapCollection");
@@ -102,6 +115,30 @@ void PiZeroDiscriminatorProducer::produce(Event& evt, const EventSetup& es) {
        cout << "\n .......  Event " << evt.id() << " with Number = " <<  nEvt_+1
             << " is analyzing ....... " << endl << endl;
 
+<<<<<<< PiZeroDiscriminatorProducer.cc
+  // Get ES clusters in X plane
+  Handle<reco::PreshowerClusterShapeCollection> pPreshowerShapeClustersX;
+  evt.getByLabel(preshClusterShapeProducer_, preshClusterShapeCollectionX_, pPreshowerShapeClustersX);
+  const reco::PreshowerClusterShapeCollection *clustersX = pPreshowerShapeClustersX.product();
+  cout << "\n pPreshowerShapeClustersX->size() = " << clustersX->size() << endl;
+
+  // Get ES clusters in Y plane
+  Handle<reco::PreshowerClusterShapeCollection> pPreshowerShapeClustersY;
+  evt.getByLabel(preshClusterShapeProducer_, preshClusterShapeCollectionY_, pPreshowerShapeClustersY);
+  const reco::PreshowerClusterShapeCollection *clustersY = pPreshowerShapeClustersY.product();
+  cout << "\n pPreshowerShapeClustersY->size() = " << clustersY->size() << endl;
+
+// Get association maps linking BasicClusters to ClusterShape
+  Handle<BasicClusterShapeAssociationCollection> barrelClShpHandle;
+  evt.getByLabel(barrelClusterShapeMapProducer_, barrelClusterShapeMapCollection_,barrelClShpHandle);
+  const BasicClusterShapeAssociationCollection& barrelClShpMap = *barrelClShpHandle;
+  
+  Handle<BasicClusterShapeAssociationCollection> endcapClShpHandle;
+  evt.getByLabel(endcapClusterShapeMapProducer_, endcapClusterShapeMapCollection_, endcapClShpHandle);
+  const BasicClusterShapeAssociationCollection& endcapClShpMap = *endcapClShpHandle;
+  
+  auto_ptr<PhotonPi0DiscriminatorAssociationMap> Pi0Assocs_p(new PhotonPi0DiscriminatorAssociationMap);
+=======
   Handle< EcalRecHitCollection >   pRecHits;
   Handle< SuperClusterCollection > pSuperClusters;
 
@@ -140,6 +177,7 @@ void PiZeroDiscriminatorProducer::produce(Event& evt, const EventSetup& es) {
   Handle<BasicClusterShapeAssociationCollection> endcapClShpHandle;
   evt.getByLabel(endcapClusterShapeMapProducer_, endcapClusterShapeMapCollection_, endcapClShpHandle);
   const BasicClusterShapeAssociationCollection& endcapClShpMap = *endcapClShpHandle;
+>>>>>>> 1.8
 
   //make cycle over Photon Collection
   int Photon_index  = 0;
@@ -147,7 +185,12 @@ void PiZeroDiscriminatorProducer::produce(Event& evt, const EventSetup& es) {
   evt.getByLabel(photonCorrCollectionProducer_, correctedPhotonCollection_ , correctedPhotonHandle);
   const PhotonCollection corrPhoCollection = *(correctedPhotonHandle.product());
   cout << " Photon Collection size : " << corrPhoCollection.size() << endl;
+<<<<<<< PiZeroDiscriminatorProducer.cc
   for( PhotonCollection::const_iterator  iPho = corrPhoCollection.begin(); iPho != corrPhoCollection.end(); iPho++) {
+       float Phot_R9 = iPho->r9();
+=======
+  for( PhotonCollection::const_iterator  iPho = corrPhoCollection.begin(); iPho != corrPhoCollection.end(); iPho++) {
+>>>>>>> 1.8
        if ( debugL_pi0 <= EndcapPiZeroDiscriminatorAlgo::pDEBUG ) {
          cout << " Photon index : " << Photon_index 
                            << " with Energy = " <<  iPho->energy()
@@ -186,6 +229,41 @@ void PiZeroDiscriminatorProducer::produce(Event& evt, const EventSetup& es) {
           double SC_seed_Shape_E5x5 = seedShapeRef->e5x5();
           if ( debugL_pi0 <= EndcapPiZeroDiscriminatorAlgo::pDEBUG ) {
             cout << "BC energy_max = " <<  SC_seed_energy << endl;
+<<<<<<< PiZeroDiscriminatorProducer.cc
+            cout << "ClusterShape  E1_max_New = " <<   SC_seed_Shape_E1 << endl;
+            cout << "ClusterShape  E3x3_max_New = " <<   SC_seed_Shape_E3x3 <<  endl;
+            cout << "ClusterShape  E5x5_max_New = " <<   SC_seed_Shape_E5x5 << endl;
+          }           
+// Get the Preshower 2-planes energy vectors associated with the given SC
+          vector<float> vout_stripE1;
+	  vector<float> vout_stripE2;
+          for(reco::PreshowerClusterShapeCollection::const_iterator esClus = clustersX->begin();
+                                                       esClus !=clustersX->end(); esClus++) {
+             if( it_super == esClus->superCluster()) {
+	        
+               vout_stripE1 = esClus->getStripEnergies();
+	       
+             }
+          }
+	  for(reco::PreshowerClusterShapeCollection::const_iterator esClus = clustersY->begin();
+                                                       esClus !=clustersY->end(); esClus++) {
+            if( it_super == esClus->superCluster()) {				       
+	    
+               vout_stripE2 = esClus->getStripEnergies();
+	    }  
+          }
+          if ( debugL_pi0 <= EndcapPiZeroDiscriminatorAlgo::pDEBUG ) {
+            cout  << "PiZeroDiscriminatorProducer : ES_input_vector = " ;
+            for(int k1=0;k1<11;k1++) {
+              cout  << vout_stripE1[k1] << " " ;
+            }
+            for(int k1=0;k1<11;k1++) {
+              cout  << vout_stripE2[k1] << " " ;
+            }
+            cout  << endl;
+          }
+	  
+=======
             cout << "ClusterShape  E1_max_New = " <<   SC_seed_Shape_E1 << endl;
             cout << "ClusterShape  E3x3_max_New = " <<   SC_seed_Shape_E3x3 <<  endl;
             cout << "ClusterShape  E5x5_max_New = " <<   SC_seed_Shape_E5x5 << endl;
@@ -199,6 +277,7 @@ void PiZeroDiscriminatorProducer::produce(Event& evt, const EventSetup& es) {
           vector<float> vout_stripE1 = presh_pi0_algo->findPreshVector(stripX, &rechits_map, topology_p);
           vector<float> vout_stripE2 = presh_pi0_algo->findPreshVector(stripY, &rechits_map, topology_p);
 
+>>>>>>> 1.8
           bool valid_NNinput = presh_pi0_algo->calculateNNInputVariables(vout_stripE1, vout_stripE2,
                                                  SC_seed_Shape_E1, SC_seed_Shape_E3x3, SC_seed_Shape_E5x5);
 
@@ -226,6 +305,7 @@ void PiZeroDiscriminatorProducer::produce(Event& evt, const EventSetup& es) {
 		    << " eta = " << SC_eta
 		    << " phi = " << SC_phi
 		    << " contains: " << it_super->clustersSize() << " BCs "
+                    << " R9 = " << Phot_R9
 		    << " has NNout = " <<  nnoutput << endl;
          }
  	 Pi0Assocs_p->insert(Ref<PhotonCollection>(correctedPhotonHandle,Photon_index), nnoutput); 
@@ -294,6 +374,7 @@ void PiZeroDiscriminatorProducer::produce(Event& evt, const EventSetup& es) {
 		    << " eta = " << SC_eta
 		    << " phi = " << SC_phi
 		    << " contains: " << it_super->clustersSize() << " BCs "
+		    << " R9 = " << Phot_R9
 		    << " has NNout = " <<  nnoutput
 	            << endl;
          }

@@ -1,9 +1,15 @@
 #ifndef RecoEcal_EgammaClusterProducers_PiZeroDiscriminatorProducer_h
 #define RecoEcal_EgammaClusterProducers_PiZeroDiscriminatorProducer_h
 
+<<<<<<< PiZeroDiscriminatorProducer.h
 // $Author: akyriaki $
 // $Id: PiZeroDiscriminatorProducer.h,v 1.3 2007/06/25 09:16:03 akyriaki Exp $
 // $Date: 2007/06/25 09:16:03 $
+=======
+// $Author: futyand $
+// $Id: PiZeroDiscriminatorProducer.h,v 1.5 2007/10/08 18:49:42 futyand Exp $
+// $Date: 2007/10/08 18:49:42 $
+>>>>>>> 1.5
 
 #include <memory>
 
@@ -41,9 +47,20 @@ class PiZeroDiscriminatorProducer : public edm::EDProducer {
   int nEvt_;         // internal counter of events
 
   //clustering parameters:
+<<<<<<< PiZeroDiscriminatorProducer.h
+  std::string preshClusterShapeCollectionX_;  // secondary name to be given to collection of cluster produced in this module
+  std::string preshClusterShapeCollectionY_;
+  std::string preshClusterShapeProducer_;
+
+  std::string barrelClusterShapeMapProducer_;
+  std::string barrelClusterShapeMapCollection_;
+  std::string endcapClusterShapeMapProducer_;
+  std::string endcapClusterShapeMapCollection_;
+=======
 
   std::string preshHitProducer_;   // name of module/plugin/producer producing hits
   std::string preshHitCollection_; // secondary name given to collection of hits by hitProducer
+>>>>>>> 1.5
 
   std::string barrelClusterShapeMapProducer_;
   std::string barrelClusterShapeMapCollection_;
