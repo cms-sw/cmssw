@@ -498,8 +498,12 @@ namespace edm {
       {
         if(currentPtr->findChild(*it, currentPtr) == false)
         {
+          std::ostringstream tr;
+          currentPtr->printTrace(tr);
           throw edm::Exception(errors::Configuration,"No such element")
-             << "Could not find: " << *it << " in " << currentPtr->name();
+             << "Could not find: " << *it << " in " 
+             << currentPtr->type() << " " << currentPtr->name()
+             << "\n" << tr.str();
         }
 
         ++it; 
