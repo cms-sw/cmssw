@@ -17,6 +17,7 @@
 #include "TrackingTools/Records/interface/TransientRecHitRecord.h"
 #include "RecoTracker/Record/interface/CkfComponentsRecord.h"
 
+#include "TrackingTools/TrajectoryFiltering/interface/TrajectoryFilter.h"
 #include <string>
 #include <memory>
 
@@ -40,6 +41,8 @@ CkfTrajectoryBuilderESProducer::produce(const CkfComponentsRecord& iRecord)
   std::string estimatorName          = pset_.getParameter<std::string>("estimator"); 
   std::string recHitBuilderName      = pset_.getParameter<std::string>("TTRHBuilder");     
   std::string measurementTrackerName = pset_.getParameter<std::string>("MeasurementTrackerName");     
+  std::string filterName = pset_.getParameter<std::string>("trajectoryFilterName");
+  
 
   edm::ESHandle<TrajectoryStateUpdator> updatorHandle;
   edm::ESHandle<Propagator>             propagatorAlongHandle;
@@ -47,14 +50,16 @@ CkfTrajectoryBuilderESProducer::produce(const CkfComponentsRecord& iRecord)
   edm::ESHandle<Chi2MeasurementEstimatorBase>   estimatorHandle;
   edm::ESHandle<TransientTrackingRecHitBuilder> recHitBuilderHandle;
   edm::ESHandle<MeasurementTracker>             measurementTrackerHandle;
+  edm::ESHandle<TrajectoryFilter> filterHandle;
 
   iRecord.getRecord<TrackingComponentsRecord>().get(updatorName,updatorHandle);
   iRecord.getRecord<TrackingComponentsRecord>().get(propagatorAlongName,propagatorAlongHandle);
   iRecord.getRecord<TrackingComponentsRecord>().get(propagatorOppositeName,propagatorOppositeHandle);
   iRecord.getRecord<TrackingComponentsRecord>().get(estimatorName,estimatorHandle);  
   iRecord.getRecord<TransientRecHitRecord>().get(recHitBuilderName,recHitBuilderHandle);  
-  iRecord.get(measurementTrackerName, measurementTrackerHandle);  
-    
+  iRecord.get(measurementTrackerName, measurementTrackerHandle);
+  iRecord.getRecord<TrajectoryFilter::Record>().get(filterName, filterHandle);
+
   _trajectoryBuilder  = 
     boost::shared_ptr<TrajectoryBuilder>(new CkfTrajectoryBuilder(pset_,
 								  updatorHandle.product(),
@@ -62,7 +67,8 @@ CkfTrajectoryBuilderESProducer::produce(const CkfComponentsRecord& iRecord)
 								  propagatorOppositeHandle.product(),
 								  estimatorHandle.product(),
 								  recHitBuilderHandle.product(),
-								  measurementTrackerHandle.product()) );  
+								  measurementTrackerHandle.product(),
+								  filterHandle.product()) );  
   return _trajectoryBuilder;
 }
 

@@ -8,7 +8,8 @@
 #include "RecoTracker/CkfPattern/interface/BaseCkfTrajectoryBuilder.h"
 #include "DataFormats/TrajectorySeed/interface/PropagationDirection.h"
 
-#include "RecoTracker/CkfPattern/interface/TempTrajectory.h"
+//#include "RecoTracker/CkfPattern/interface/TempTrajectory.h"
+#include "TrackingTools/PatternTools/interface/TempTrajectory.h"
 
 #include <vector>
 
@@ -30,7 +31,8 @@ class GroupedCkfTrajectoryBuilder : public BaseCkfTrajectoryBuilder {
 			      const Propagator*                     propagatorOpposite,
 			      const Chi2MeasurementEstimatorBase*   estimator,
 			      const TransientTrackingRecHitBuilder* RecHitBuilder,
-			      const MeasurementTracker*             measurementTracker);
+			      const MeasurementTracker*             measurementTracker,
+			      const TrajectoryFilter*               filter);
 
   /// destructor
   virtual ~GroupedCkfTrajectoryBuilder(){}

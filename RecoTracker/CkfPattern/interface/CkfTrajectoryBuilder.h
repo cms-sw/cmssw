@@ -22,13 +22,12 @@ class TrajectoryFilter;
 #include "RecoTracker/CkfPattern/interface/BaseCkfTrajectoryBuilder.h"
 
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
+#include "TrackingTools/PatternTools/interface/TempTrajectory.h"
 #include "TrackingTools/PatternTools/interface/TrajectoryMeasurement.h"
 
 
-#include "RecoTracker/CkfPattern/interface/TempTrajectory.h"
-
 class TransientTrackingRecHitBuilder;
-
+class TrajectoryFilter;
 
 class CkfTrajectoryBuilder :public BaseCkfTrajectoryBuilder {
 
@@ -43,7 +42,8 @@ public:
 		       const Propagator*                     propagatorOpposite,
 		       const Chi2MeasurementEstimatorBase*   estimator,
 		       const TransientTrackingRecHitBuilder* recHitBuilder,
-		       const MeasurementTracker*             measurementTracker);
+		       const MeasurementTracker*             measurementTracker,
+		       const TrajectoryFilter*               filter);
 
   ~CkfTrajectoryBuilder() {}
   

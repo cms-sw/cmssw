@@ -28,7 +28,7 @@ class TempTrajectory;
 class TrajectoryFilter;
 class TrackingRegion;
 class TrajectoryMeasurementGroup;
-
+class TrajectoryCleaner;
 
 
 /** The component of track reconstruction that, strating from a seed,
@@ -59,7 +59,8 @@ public:
 			   const Propagator*                     propagatorOpposite,
 			   const Chi2MeasurementEstimatorBase*   estimator,
 			   const TransientTrackingRecHitBuilder* RecHitBuilder,
-			   const MeasurementTracker*             measurementTracker);
+			   const MeasurementTracker*             measurementTracker,
+			   const TrajectoryFilter*               filter);
 
   virtual ~BaseCkfTrajectoryBuilder();
 
@@ -70,10 +71,10 @@ public:
   virtual void setDebugger( CkfDebugger * dbg) const {;}
  
   /** Maximum number of lost hits per trajectory candidate. */
-  int 		maxLostHit()		{return theMaxLostHit;}
+  //  int 		maxLostHit()		{return theMaxLostHit;}
 
   /** Maximum number of consecutive lost hits per trajectory candidate. */
-  int 		maxConsecLostHit()	{return theMaxConsecLostHit;}
+  //  int 		maxConsecLostHit()	{return theMaxConsecLostHit;}
 
  protected:    
   //methods for dubugging 
@@ -122,14 +123,15 @@ public:
 
 
  private:
-  int theMaxLostHit;            /**< Maximum number of lost hits per trajectory candidate.*/
-  int theMaxConsecLostHit;      /**< Maximum number of consecutive lost hits 
-                                     per trajectory candidate. */
-  int theMinimumNumberOfHits;   /**< Minimum number of hits for a trajectory to be returned.*/
-  float theChargeSignificance;  /**< Value to declare (q/p)/sig(q/p) significant. Negative: ignore. */
+  //  int theMaxLostHit;            /**< Maximum number of lost hits per trajectory candidate.*/
+  //  int theMaxConsecLostHit;      /**< Maximum number of consecutive lost hits 
+  //                                     per trajectory candidate. */
+  //  int theMinimumNumberOfHits;   /**< Minimum number of hits for a trajectory to be returned.*/
+  //  float theChargeSignificance;  /**< Value to declare (q/p)/sig(q/p) significant. Negative: ignore. */
 
-  TrajectoryFilter*              theMinPtCondition;
-  TrajectoryFilter*              theMaxHitsCondition;
+  //  TrajectoryFilter*              theMinPtCondition;
+  //  TrajectoryFilter*              theMaxHitsCondition;
+  const TrajectoryFilter* theFilter;
 
 
 };

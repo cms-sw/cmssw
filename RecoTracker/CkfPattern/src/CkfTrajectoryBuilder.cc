@@ -32,11 +32,12 @@ CkfTrajectoryBuilder::
 		       const Propagator*                     propagatorOpposite,
 		       const Chi2MeasurementEstimatorBase*   estimator,
 		       const TransientTrackingRecHitBuilder* recHitBuilder,
-		       const MeasurementTracker*             measurementTracker):
+		       const MeasurementTracker*             measurementTracker,
+		       const TrajectoryFilter*               filter):
 
     BaseCkfTrajectoryBuilder(conf,
 			     updator, propagatorAlong,propagatorOpposite,
-			     estimator, recHitBuilder, measurementTracker)
+			     estimator, recHitBuilder, measurementTracker,filter)
 {
   theMaxCand              = conf.getParameter<int>("maxCand");
   theLostHitPenalty       = conf.getParameter<double>("lostHitPenalty");
