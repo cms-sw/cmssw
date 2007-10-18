@@ -1,8 +1,8 @@
 /*
  * \file EBTimingClient.cc
  *
- * $Date: 2007/10/16 08:30:07 $
- * $Revision: 1.41 $
+ * $Date: 2007/10/17 15:58:42 $
+ * $Revision: 1.42 $
  * \author G. Della Ricca
  *
 */
@@ -59,7 +59,7 @@ EBTimingClient::EBTimingClient(const ParameterSet& ps){
 
   // vector of selected Super Modules (Defaults to all 36).
   superModules_.reserve(36);
-  for ( unsigned int i = 1; i < 37; i++ ) superModules_.push_back(i);
+  for ( unsigned int i = 1; i <= 36; i++ ) superModules_.push_back(i);
   superModules_ = ps.getUntrackedParameter<vector<int> >("superModules", superModules_);
 
   for ( unsigned int i=0; i<superModules_.size(); i++ ) {

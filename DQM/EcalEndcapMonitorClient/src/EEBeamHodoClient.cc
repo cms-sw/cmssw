@@ -1,8 +1,8 @@
 /*
  * \file EEBeamHodoClient.cc
  *
- * $Date: 2007/08/17 18:25:28 $
- * $Revision: 1.8 $
+ * $Date: 2007/09/07 22:30:06 $
+ * $Revision: 1.9 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -55,7 +55,7 @@ EEBeamHodoClient::EEBeamHodoClient(const ParameterSet& ps){
 
   // vector of selected Super Modules (Defaults to all 18).
   superModules_.reserve(18);
-  for ( unsigned int i = 1; i < 19; i++ ) superModules_.push_back(i);
+  for ( unsigned int i = 1; i <= 18; i++ ) superModules_.push_back(i);
   superModules_ = ps.getUntrackedParameter<vector<int> >("superModules", superModules_);
 
   for (int i=0; i<4; i++) {

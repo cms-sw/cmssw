@@ -1,8 +1,8 @@
 /*
  * \file EEPedestalOnlineClient.cc
  *
- * $Date: 2007/10/17 14:05:27 $
- * $Revision: 1.28 $
+ * $Date: 2007/10/17 15:58:45 $
+ * $Revision: 1.29 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -62,7 +62,7 @@ EEPedestalOnlineClient::EEPedestalOnlineClient(const ParameterSet& ps){
 
   // vector of selected Super Modules (Defaults to all 18).
   superModules_.reserve(18);
-  for ( unsigned int i = 1; i < 19; i++ ) superModules_.push_back(i);
+  for ( unsigned int i = 1; i <= 18; i++ ) superModules_.push_back(i);
   superModules_ = ps.getUntrackedParameter<vector<int> >("superModules", superModules_);
 
   for ( unsigned int i=0; i<superModules_.size(); i++ ) {

@@ -1,8 +1,8 @@
 /*
  * \file EBBeamHodoClient.cc
  *
- * $Date: 2007/08/17 09:05:07 $
- * $Revision: 1.40 $
+ * $Date: 2007/09/07 22:30:03 $
+ * $Revision: 1.41 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -54,7 +54,7 @@ EBBeamHodoClient::EBBeamHodoClient(const ParameterSet& ps){
 
   // vector of selected Super Modules (Defaults to all 36).
   superModules_.reserve(36);
-  for ( unsigned int i = 1; i < 37; i++ ) superModules_.push_back(i);
+  for ( unsigned int i = 1; i <= 36; i++ ) superModules_.push_back(i);
   superModules_ = ps.getUntrackedParameter<vector<int> >("superModules", superModules_);
 
   for (int i=0; i<4; i++) {

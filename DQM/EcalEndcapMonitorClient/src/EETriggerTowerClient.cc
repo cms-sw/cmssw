@@ -1,8 +1,8 @@
 /*
  * \file EETriggerTowerClient.cc
  *
- * $Date: 2007/10/04 08:39:55 $
- * $Revision: 1.14 $
+ * $Date: 2007/10/10 09:46:40 $
+ * $Revision: 1.15 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -62,7 +62,7 @@ EETriggerTowerClient::EETriggerTowerClient(const ParameterSet& ps){
 
   // vector of selected Super Modules (Defaults to all 18).
   superModules_.reserve(18);
-  for ( unsigned int i = 1; i < 19; i++ ) superModules_.push_back(i);
+  for ( unsigned int i = 1; i <= 18; i++ ) superModules_.push_back(i);
   superModules_ = ps.getUntrackedParameter<vector<int> >("superModules", superModules_);
 
   for ( unsigned int i=0; i<superModules_.size(); i++ ) {
@@ -505,7 +505,7 @@ void EETriggerTowerClient::htmlOutput(int run, string htmlDir, string htmlName){
 
   cout << "Preparing EETriggerTowerClient html output ..." << std::endl;
 
-  std::ofstream htmlFile[37];
+  std::ofstream htmlFile[19];
 
   htmlFile[0].open((htmlDir + htmlName).c_str());
 

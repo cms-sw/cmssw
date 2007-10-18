@@ -1,8 +1,8 @@
 /*
  * \file EBSummaryClient.cc
  *
- * $Date: 2007/09/27 15:32:11 $
- * $Revision: 1.57 $
+ * $Date: 2007/10/18 08:11:06 $
+ * $Revision: 1.58 $
  * \author G. Della Ricca
  *
 */
@@ -65,7 +65,7 @@ EBSummaryClient::EBSummaryClient(const ParameterSet& ps){
 
   // vector of selected Super Modules (Defaults to all 36).
   superModules_.reserve(36);
-  for ( unsigned int i = 1; i < 37; i++ ) superModules_.push_back(i);
+  for ( unsigned int i = 1; i <= 36; i++ ) superModules_.push_back(i);
   superModules_ = ps.getUntrackedParameter<vector<int> >("superModules", superModules_);
 
   meIntegrity_      = 0;

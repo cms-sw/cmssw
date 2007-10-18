@@ -2,8 +2,8 @@
 /*
  * \file EBIntegrityClient.cc
  *
- * $Date: 2007/09/07 22:30:04 $
- * $Revision: 1.158 $
+ * $Date: 2007/10/17 15:58:42 $
+ * $Revision: 1.159 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -68,7 +68,7 @@ EBIntegrityClient::EBIntegrityClient(const ParameterSet& ps){
 
   // vector of selected Super Modules (Defaults to all 36).
   superModules_.reserve(36);
-  for ( unsigned int i = 1; i < 37; i++ ) superModules_.push_back(i);
+  for ( unsigned int i = 1; i <= 36; i++ ) superModules_.push_back(i);
   superModules_ = ps.getUntrackedParameter<vector<int> >("superModules", superModules_);
 
   h00_ = 0;

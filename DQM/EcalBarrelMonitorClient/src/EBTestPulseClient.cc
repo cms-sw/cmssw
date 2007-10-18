@@ -1,8 +1,8 @@
 /*
  * \file EBTestPulseClient.cc
  *
- * $Date: 2007/10/14 15:24:49 $
- * $Revision: 1.156 $
+ * $Date: 2007/10/17 15:58:42 $
+ * $Revision: 1.157 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -63,7 +63,7 @@ EBTestPulseClient::EBTestPulseClient(const ParameterSet& ps){
 
   // vector of selected Super Modules (Defaults to all 36).
   superModules_.reserve(36);
-  for ( unsigned int i = 1; i < 37; i++ ) superModules_.push_back(i);
+  for ( unsigned int i = 1; i <= 36; i++ ) superModules_.push_back(i);
   superModules_ = ps.getUntrackedParameter<vector<int> >("superModules", superModules_);
 
   for ( unsigned int i=0; i<superModules_.size(); i++ ) {

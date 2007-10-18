@@ -1,8 +1,8 @@
 /*
  * \file EcalEndcapMonitorClient.cc
  *
- * $Date: 2007/10/08 19:43:02 $
- * $Revision: 1.72 $
+ * $Date: 2007/10/16 08:30:09 $
+ * $Revision: 1.73 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -306,7 +306,7 @@ void EcalEndcapMonitorClient::initialize(const ParameterSet& ps){
 
   // vector of selected Super Modules (Defaults to all 18).
 
-  for ( unsigned int i = 1; i < 19; i++ ) superModules_.push_back(i);
+  for ( unsigned int i = 1; i <= 18; i++ ) superModules_.push_back(i);
 
   superModules_ = ps.getUntrackedParameter<vector<int> >("superModules", superModules_);
 
