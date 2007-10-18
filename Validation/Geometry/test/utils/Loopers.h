@@ -318,9 +318,11 @@ void Loopers::Book(){
   hist_bx_vs_secondaryParticle = new TH2F("hist_bx_vs_secondaryParticle",
 					  "Bunch Crossings [25 ns] vs Secondary Particle;Secondary Particle;Bunch Crossing [25 ns];Events/bin",
 					  4,0.5,4.5,21,-0.25,10.25);
-  
+
 }
 
 void Loopers::MakePlots(TString suffix);
+
+void Loopers::rootStyle();
 
 #endif // #ifdef Loopers_cxx

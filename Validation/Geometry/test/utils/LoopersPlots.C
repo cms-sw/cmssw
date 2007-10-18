@@ -2,14 +2,15 @@ TH1F* hist_bx_mean;
 TH1F* hist_bx_95;
 
 const Int_t nBins = 4;
+const Int_t nBins_2 = 3;
 
 void LoopersPlots() {
   setStyle();
   
-  hist_bx_mean = new TH1F("hist_bx_mean","Bunch Crossing;Pseudorapidity |#eta|;Bunch Crossings [25 ns]",
-			  24,0.0,2.4);
-  hist_bx_95 = new TH1F("hist_bx_95","Bunch Crossing;Pseudorapidity |#eta|;Bunch Crossings [25 ns]",
-			24,0.0,2.4);
+  hist_bx_mean = new TH1F("hist_bx_mean","Bunch Crossing vs Pseudorapidity;Pseudorapidity |#eta|;Bunch Crossings [25 ns]",
+			  10,0.0,1.0);
+  hist_bx_95 = new TH1F("hist_bx_95","Bunch Crossing vs Pseudorapidity;Pseudorapidity |#eta|;Bunch Crossings [25 ns]",
+			10,0.0,1.0);
   
   // fill with Loopers analalysis numbers
   Double_t Pseudorapidity[nBins]     = { 0.0      , 0.3      , 0.6      , 1.5      };
@@ -23,9 +24,50 @@ void LoopersPlots() {
     hist_bx_mean->SetBinError( hist_bx_mean->FindBin(Pseudorapidity[i]) , BunchCrossing_RMS[i] );
     hist_bx_95->Fill(   Pseudorapidity[i] , BunchCrossing_95[i]   );
   }
+
+  hist_bx_mean_pT_eta00 = new TH1F("hist_bx_mean_pT_eta00",
+				   "Bunch Crossing vs Transverse Momentum |#eta|=0;Transverse Momentum p_{T} [GeV/c];Bunch Crossings [25 ns]",
+				   100,0.0,1.0);
+  hist_bx_mean_pT_eta00->GetYaxis()->SetRangeUser(0.0,3.2);
+  
+  hist_bx_95_pT_eta00 = new TH1F("hist_bx_95_pT_eta00",
+				 "Bunch Crossing vs Transverse Momentum |#eta|=0;Transverse Momentum p_{T} [GeV/c];Bunch Crossings [25 ns]",
+				 100,0.0,1.0);
+  hist_bx_95_pT_eta00->GetYaxis()->SetRangeUser(0.0,3.2);
+  
+  hist_bx_mean_pT_eta03 = new TH1F("hist_bx_mean_pT_eta03",
+				   "Bunch Crossing vs Transverse Momentum |#eta|=0.3;Transverse Momentum p_{T} [GeV/c];Bunch Crossings [25 ns]",
+				   100,0.0,1.0);
+  hist_bx_mean_pT_eta03->GetYaxis()->SetRangeUser(0.0,3.2);
+  
+  hist_bx_95_pT_eta03 = new TH1F("hist_bx_95_pT_eta03",
+				 "Bunch Crossing vs Transverse Momentum |#eta|=0.3;Transverse Momentum p_{T} [GeV/c];Bunch Crossings [25 ns]",
+				 100,0.0,1.0);
+  hist_bx_95_pT_eta03->GetYaxis()->SetRangeUser(0.0,3.2);
+  
+  // fill with Loopers analalysis numbers
+  Double_t TransverseMomentum[nBins_2]          = { 0.2      , 0.4      , 0.6      };
+  Double_t BunchCrossing_Mean_pT_eta00[nBins_2] = { 0.302835 , 0.702969 , 1.3105   };
+  Double_t BunchCrossing_RMS_pT_eta00[nBins_2]  = { 0.135268 , 0.479322 , 0.851869 };
+  Double_t BunchCrossing_95_pT_eta00[nBins_2]   = { 0.45     , 1.55     , 2.85     };
+  Double_t BunchCrossing_Mean_pT_eta03[nBins_2] = { 0.264885 , 0.555507 , 0.752343 };
+  Double_t BunchCrossing_RMS_pT_eta03[nBins_2]  = { 0.131494 , 0.388753 , 0.455688 };
+  Double_t BunchCrossing_95_pT_eta03[nBins_2]   = { 0.45     , 1.35     , 1.45     };
+  
+  for(Int_t i=0; i<nBins_2; i++) {
+    // bunch crossings
+    hist_bx_mean_pT_eta00->Fill( TransverseMomentum[i] , BunchCrossing_Mean_pT_eta00[i] );
+    hist_bx_mean_pT_eta00->SetBinError( hist_bx_mean_pT_eta00->FindBin(TransverseMomentum[i]) , BunchCrossing_RMS_pT_eta00[i] );
+    hist_bx_95_pT_eta00->Fill(   TransverseMomentum[i] , BunchCrossing_95_pT_eta00[i]   );
+    hist_bx_mean_pT_eta03->Fill( TransverseMomentum[i] , BunchCrossing_Mean_pT_eta03[i] );
+    hist_bx_mean_pT_eta03->SetBinError( hist_bx_mean_pT_eta03->FindBin(TransverseMomentum[i]) , BunchCrossing_RMS_pT_eta03[i] );
+    hist_bx_95_pT_eta03->Fill(   TransverseMomentum[i] , BunchCrossing_95_pT_eta03[i]   );
+  }
   
   // draw
-  drawHistos( hist_bx_95 , hist_bx_mean , "bx" );
+  drawHistos( hist_bx_95          , hist_bx_mean          , "bx"       );
+  drawHistos( hist_bx_95_pT_eta00 , hist_bx_mean_pT_eta00 , "bx_eta00" );
+  drawHistos( hist_bx_95_pT_eta03 , hist_bx_mean_pT_eta03 , "bx_eta03" );
   //
 }
 
@@ -68,6 +110,7 @@ void drawHistos(TH1F* myHisto, TH1F* myHisto_err, TString myName) {
   can.Update();
   can.SaveAs( Form( "LoopersPlots_%s.eps", myName.Data() ) );
   can.SaveAs( Form( "LoopersPlots_%s.gif", myName.Data() ) );
+  can.SaveAs( Form( "LoopersPlots_%s.C"  , myName.Data() ) );
   //
 }
 
@@ -112,6 +155,7 @@ void drawHistos(TGraphAsymmErrors* myHisto, TH1F* myHisto_low, TH1F* myHisto_hig
   can.Update();
   can.SaveAs( Form( "LoopersPlots_%s.eps", myName.Data() ) );
   can.SaveAs( Form( "LoopersPlots_%s.gif", myName.Data() ) );
+  can.SaveAs( Form( "LoopersPlots_%s.C"  , myName.Data() ) );
   //
 }
 
@@ -153,6 +197,7 @@ void drawHistos(TH1F* myHisto_1, TH1F* myHisto_2 , TString myName) {
   can.Update();
   can.SaveAs( Form( "LoopersPlots_%s.eps", myName.Data() ) );
   can.SaveAs( Form( "LoopersPlots_%s.gif", myName.Data() ) );
+  can.SaveAs( Form( "LoopersPlots_%s.C"  , myName.Data() ) );
   //
 }
 

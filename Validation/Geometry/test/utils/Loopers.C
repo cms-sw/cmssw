@@ -49,19 +49,19 @@ void Loopers::Loop()
     nb = fChain->GetEntry(jentry);   nbytes += nb;
     //
     
-    double phiSum   = 0.0; // phi_i
+    double phiSum   = 1e-11; // phi_i [protection against division by zero]
     double phi_init = 0.0;
     double phi_last = 0.0;
     unsigned int n_loops = 0;
     // Density
-    double pathSum     = 0.0; // x_i
+    double pathSum     = 1e-11; // x_i
     double normDensSum = 0.0; // rho_i x x_i
     double pathSum_211  = 0.0; // x_i
     double pathSum_13   = 0.0; // x_i
     double pathSum_11   = 0.0; // x_i
     double pathSum_2212 = 0.0; // x_i
     // Lambda0
-    double nuclSum     = 0.0; // x_i / l0_i
+    double nuclSum     = 1e-11; // x_i / l0_i
     // Hadronic Interactions
     unsigned int iHadronicInteractions = 0;
     double energyLossHad = 0.0;
@@ -297,10 +297,7 @@ void Loopers::Loop()
 
 void Loopers::MakePlots(TString suffix) { 
   //
-  TGaxis::SetMaxDigits(3);
-  gStyle->SetOptStat(0);
-  gStyle->SetOptFit(0);
-  gStyle->SetOptLogy(0);
+  rootStyle();
   //
   //
   // canvas
@@ -761,6 +758,19 @@ void Loopers::MakePlots(TString suffix) {
   can_Gigi.SaveAs( Form("%s/Loopers_ProductionEnergy_vs_SecondaryParticle_%s.gif",  theDirName.Data(), suffix.Data() ) );
   //
   
+  // Draw
+  can_Gigi.cd();
+  hist_productionEnergy_vs_secondaryParticle->SetLineColor(kBlack);
+  hist_productionEnergy_vs_secondaryParticle->SetMarkerColor(kBlue);
+  hist_productionEnergy_vs_secondaryParticle->SetMarkerStyle(20);
+  hist_productionEnergy_vs_secondaryParticle->Draw("AXIS");
+  hist_productionEnergy_vs_secondaryParticle->ProfileX()->Draw("E1,SAME");
+  // Store
+  can_Gigi.Update();
+  can_Gigi.SaveAs( Form("%s/Loopers_ProductionEnergy_vs_SecondaryParticle_profile_%s.eps",  theDirName.Data(), suffix.Data() ) );
+  can_Gigi.SaveAs( Form("%s/Loopers_ProductionEnergy_vs_SecondaryParticle_profile_%s.gif",  theDirName.Data(), suffix.Data() ) );
+  //
+  
   // Prepare Axes Labels
   hist_bx_vs_secondaryParticle->GetXaxis()->SetBinLabel( 1,"#pi^{#pm}");
   hist_bx_vs_secondaryParticle->GetXaxis()->SetBinLabel( 2,"#mu^{#pm}");
@@ -768,6 +778,7 @@ void Loopers::MakePlots(TString suffix) {
   hist_bx_vs_secondaryParticle->GetXaxis()->SetBinLabel( 4,"p/#bar{p}");
   // Draw
   can_Gigi.cd();
+  hist_bx_vs_secondaryParticle->GetYaxis()->SetRangeUser(0.,5.);
   hist_bx_vs_secondaryParticle->SetLineColor(kBlue);
   hist_bx_vs_secondaryParticle->SetFillColor(kBlue);
   hist_bx_vs_secondaryParticle->Draw("BOX");
@@ -778,12 +789,89 @@ void Loopers::MakePlots(TString suffix) {
   //  theLogFile << "\t Mean = " << hist_bx_vs_secondaryParticle->GetMean()  << endl;
   //  theLogFile << "\t  RMS = " << hist_bx_vs_secondaryParticle->GetRMS()   << endl;
   //
+
   // Store
   can_Gigi.Update();
   can_Gigi.SaveAs( Form("%s/Loopers_bx_vs_SecondaryParticle_%s.eps",  theDirName.Data(), suffix.Data() ) );
   can_Gigi.SaveAs( Form("%s/Loopers_bx_vs_SecondaryParticle_%s.gif",  theDirName.Data(), suffix.Data() ) );
   //
+  // Draw
+  can_Gigi.cd();
+  hist_bx_vs_secondaryParticle->SetLineColor(kBlack);
+  hist_bx_vs_secondaryParticle->SetMarkerColor(kBlue);
+  hist_bx_vs_secondaryParticle->SetMarkerStyle(20);
+  hist_bx_vs_secondaryParticle->Draw("AXIS");
+  hist_bx_vs_secondaryParticle->ProfileX()->Draw("E1,SAME");
+  // Store
+  can_Gigi.Update();
+  can_Gigi.SaveAs( Form("%s/Loopers_bx_vs_SecondaryParticle_profile_%s.eps",  theDirName.Data(), suffix.Data() ) );
+  can_Gigi.SaveAs( Form("%s/Loopers_bx_vs_SecondaryParticle_profile_%s.gif",  theDirName.Data(), suffix.Data() ) );
+  //
+
+  // only 1/2 pi/mu
+  hist_bx_vs_secondaryParticle->GetXaxis()->SetRangeUser(0.5,1.5);
+  hist_bx_vs_secondaryParticle->Draw("BOX");
+  // Store
+  can_Gigi.Update();
+  can_Gigi.SaveAs( Form("%s/Loopers_bx_vs_SecondaryParticle_pimu_%s.eps",  theDirName.Data(), suffix.Data() ) );
+  can_Gigi.SaveAs( Form("%s/Loopers_bx_vs_SecondaryParticle_pimu_%s.gif",  theDirName.Data(), suffix.Data() ) );
+  //
+  // only 4 proton
+  hist_bx_vs_secondaryParticle->GetXaxis()->SetRangeUser(3.5,4.5);
+  hist_bx_vs_secondaryParticle->Draw("BOX");
+  // Store
+  can_Gigi.Update();
+  can_Gigi.SaveAs( Form("%s/Loopers_bx_vs_SecondaryParticle_p_%s.eps",  theDirName.Data(), suffix.Data() ) );
+  can_Gigi.SaveAs( Form("%s/Loopers_bx_vs_SecondaryParticle_p_%s.gif",  theDirName.Data(), suffix.Data() ) );
+  //
+  // only 4 proton
+  hist_bx_vs_secondaryParticle->GetXaxis()->SetRangeUser(3.5,4.5);
+  hist_bx_vs_secondaryParticle->ProjectionY(" ",4,4)->GetXaxis()->SetRangeUser(0.,5.); // bx axis
+  hist_bx_vs_secondaryParticle->ProjectionY(" ",4,4)->Draw();
+  // Store
+  can_Gigi.Update();
+  can_Gigi.SaveAs( Form("%s/Loopers_bx_vs_SecondaryParticle_projection_p_%s.eps",  theDirName.Data(), suffix.Data() ) );
+  can_Gigi.SaveAs( Form("%s/Loopers_bx_vs_SecondaryParticle_projection_p_%s.gif",  theDirName.Data(), suffix.Data() ) );
+  //
   
+  
+}
+
+void Loopers::rootStyle() {
+  // rrStyle
+  TStyle* rrStyle = new TStyle("rootStyle","rootStyle");
+  TGaxis::SetMaxDigits(3);          // to avoid too much decimal digits
+  rrStyle->SetOptStat(0000);        // general statistics
+  rrStyle->SetOptFit(1111);         // fit statistics
+  rrStyle->SetOptLogy(0);           // logscale
+  rrStyle->SetCanvasColor(kWhite);  // white canvas
+  rrStyle->SetHistFillColor(34);    // histo: blue gray filling
+  rrStyle->SetFuncColor(146);       // function: dark red line
+  //
+  rrStyle->SetLabelSize(0.04,"x,y,z");
+  rrStyle->SetTitleSize(0.05,"x,y,z");
+  rrStyle->SetTitleOffset(0.8,"x,y,z");
+  rrStyle->SetTitleFontSize(0.06);
+  //
+  rrStyle->SetHistLineWidth(1);
+  //
+  rrStyle->SetPaintTextFormat("g");
+  //
+  rrStyle->SetTitleBorderSize(0);
+  rrStyle->SetTitleFillColor(0);
+  rrStyle->SetTitleFont(12,"pad");
+  rrStyle->SetTitleFontSize(0.04);
+  rrStyle->SetTitleX(0.075);
+  rrStyle->SetTitleY(0.950);
+  //
+  rrStyle->SetLegendBorderSize(0); // no legend border
+  rrStyle->SetFillColor(0); // all the filling colors are white
+  //
+  
+  // ROOT macro
+  gROOT->SetBatch();
+  gROOT->SetStyle("rootStyle");
+  //
 }
 
 void Loopers::helpfulCommands() {
