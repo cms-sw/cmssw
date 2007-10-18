@@ -6,15 +6,12 @@
  * Initial Implementation based on Kurt's ConsumerPipe
  * make a common class later when all this works
  *
- * $Id: DQMConsumerPipe.cc,v 1.4 2007/05/16 22:55:03 hcheung Exp $
+ * $Id: DQMConsumerPipe.cc,v 1.5 2007/10/14 14:24:48 hcheung Exp $
  */
 
 #include "EventFilter/StorageManager/interface/DQMConsumerPipe.h"
-#include "EventFilter/StorageManager/interface/SMCurlInterface.h"
 #include "FWCore/Utilities/interface/DebugMacros.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-
-#include "curl/curl.h"
 
 // keep this for debugging
 //#include "IOPool/Streamer/interface/DumpTools.h"
@@ -39,6 +36,8 @@ boost::mutex DQMConsumerPipe::rootIdLock_;
 DQMConsumerPipe::DQMConsumerPipe(std::string name, std::string priority,
                            int activeTimeout, int idleTimeout,
                            std::string folderName):
+  han_(curl_easy_init()),
+  headers_(),
   consumerName_(name),consumerPriority_(priority),
   topFolderName_(folderName),
   pushEventFailures_(0)
@@ -55,6 +54,26 @@ DQMConsumerPipe::DQMConsumerPipe(std::string name, std::string priority,
   boost::mutex::scoped_lock scopedLockForRootId(rootIdLock_);
   consumerId_ = rootId_;
   rootId_++;
+
+  if(han_==0)
+  {
+    edm::LogError("DQMConsumerPipe") << "Could not create curl handle";
+    std::cout << "Could not create curl handle" << std::endl;
+    // throw exception here when we can make the SM go to a fail state from
+    // another thread
+  } else {
+    headers_ = curl_slist_append(headers_, "Content-Type: application/octet-stream");
+    headers_ = curl_slist_append(headers_, "Content-Transfer-Encoding: binary");
+    // Avoid the Expect: 100 continue automatic header that gives a 2 sec delay
+    // for pthttp but we don't need the Expect: 100 continue anyway
+    headers_ = curl_slist_append(headers_, "Expect:");
+    setopt(han_, CURLOPT_HTTPHEADER, headers_);
+    setopt(han_, CURLOPT_URL, consumerName_.c_str());
+    setopt(han_, CURLOPT_WRITEFUNCTION, func);
+    // debug options
+    //setopt(han_,CURLOPT_VERBOSE, 1);
+    //setopt(han_,CURLOPT_TCP_NODELAY, 1);
+  }
 }
 
 /**
@@ -64,6 +83,8 @@ DQMConsumerPipe::~DQMConsumerPipe()
 {
   FDEBUG(5) << "Executing destructor for DQM consumer pipe with ID = " <<
     consumerId_ << std::endl;
+  curl_slist_free_all(headers_);
+  curl_easy_cleanup(han_);
 }
 
 /**
@@ -187,32 +208,37 @@ bool DQMConsumerPipe::pushEvent()
   stor::ReadData data;
 
   data.d_.clear();
-  CURL* han = curl_easy_init();
-  if(han==0)
+  // check if curl handle was obtained (at ctor) if not try again
+  if(han_==0)
   {
-    edm::LogError("pushDQMEvent") << "Could not create curl handle";
-    return false;
+    han_ = curl_easy_init();
+    if(han_==0)
+    {
+      edm::LogError("pushEvent") << "Could not create curl handle";
+      return false;
+    }
+    headers_ = curl_slist_append(headers_, "Content-Type: application/octet-stream");
+    headers_ = curl_slist_append(headers_, "Content-Transfer-Encoding: binary");
+    // Avoid the Expect: 100 continue automatic header that gives a 2 sec delay
+    headers_ = curl_slist_append(headers_, "Expect:");
+    setopt(han_, CURLOPT_HTTPHEADER, headers_);
+    setopt(han_, CURLOPT_URL, consumerName_.c_str());
+    setopt(han_, CURLOPT_WRITEFUNCTION, func);
   }
-  // set the standard http request options
-  setopt(han,CURLOPT_URL,consumerName_.c_str());
-  setopt(han,CURLOPT_WRITEFUNCTION,func);
-  setopt(han,CURLOPT_WRITEDATA,&data);
+  setopt(han_,CURLOPT_WRITEDATA,&data);
 
   // build the event message
   DQMEventMsgView msgView(&(*latestEvent_)[0]);
 
   // add the request message as a http post
-  setopt(han, CURLOPT_POSTFIELDS, msgView.startAddress());
-  setopt(han, CURLOPT_POSTFIELDSIZE, msgView.size());
-  struct curl_slist *headers=NULL;
-  headers = curl_slist_append(headers, "Content-Type: application/octet-stream");
-  headers = curl_slist_append(headers, "Content-Transfer-Encoding: binary");
-  setopt(han, CURLOPT_HTTPHEADER, headers);
+  setopt(han_, CURLOPT_POSTFIELDS, msgView.startAddress());
+  setopt(han_, CURLOPT_POSTFIELDSIZE, msgView.size());
 
-  // send the HTTP POST, read the reply, and cleanup before going on
-  CURLcode messageStatus = curl_easy_perform(han);
-  curl_slist_free_all(headers);
-  curl_easy_cleanup(han);
+  // send the HTTP POST, read the reply
+  // explicitly close connection when using pthttp transport or sometimes it hangs
+  // because somtimes curl does not see that the connection was closed and tries to reuse it
+  setopt(han_,CURLOPT_FORBID_REUSE, 1);
+  CURLcode messageStatus = curl_easy_perform(han_);
 
   if(messageStatus!=0)
   {
