@@ -3,16 +3,28 @@
 // Class:      SiStripDetInfoFileReader
 // Original Author:  G. Bruno
 //         Created:  Mon May 20 10:04:31 CET 2007
-// $Id: SiStripDetInfoFileReader.cc,v 1.4 2007/06/13 14:03:35 gbruno Exp $
+// $Id: SiStripDetInfoFileReader.cc,v 1.1 2007/07/09 11:24:03 gbruno Exp $
 
 #include "CalibTracker/SiStripCommon/interface/SiStripDetInfoFileReader.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Exception.h"
-//#include "FWCore/ParameterSet/interface/FileInPath.h"
+#include "FWCore/ParameterSet/interface/FileInPath.h"
 
 using namespace cms;
 using namespace std;
 
+SiStripDetInfoFileReader& SiStripDetInfoFileReader::operator=(const SiStripDetInfoFileReader &copy) {
+  detData_=copy.detData_;
+  detThickness_=copy.detThickness_;
+  detIds_=copy.detIds_;
+  return *this;  
+}
+
+SiStripDetInfoFileReader::SiStripDetInfoFileReader(const SiStripDetInfoFileReader& copy) {
+  detData_=copy.detData_;
+  detThickness_=copy.detThickness_;
+  detIds_=copy.detIds_;
+}
 
 SiStripDetInfoFileReader::SiStripDetInfoFileReader(std::string filePath) {
 

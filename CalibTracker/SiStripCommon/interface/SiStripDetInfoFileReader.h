@@ -15,7 +15,7 @@
 //
 // Original Author:  G. Bruno
 //         Created:  Mon Nov 20 10:04:31 CET 2006
-// $Id: SiStripDetInfoFileReader.h,v 1.1 2007/06/13 14:03:35 gbruno Exp $
+// $Id: SiStripDetInfoFileReader.h,v 1.1 2007/07/09 11:24:02 gbruno Exp $
 //
 //
 
@@ -30,9 +30,13 @@ class SiStripDetInfoFileReader  {
 
 public:
 
+  explicit SiStripDetInfoFileReader(){};
   explicit SiStripDetInfoFileReader(std::string filePath);
+  explicit SiStripDetInfoFileReader(const SiStripDetInfoFileReader&);
+
   ~SiStripDetInfoFileReader();
 
+  SiStripDetInfoFileReader& operator=(const SiStripDetInfoFileReader &copy);
 
   const std::vector<uint32_t> & getAllDetIds() const;
 
