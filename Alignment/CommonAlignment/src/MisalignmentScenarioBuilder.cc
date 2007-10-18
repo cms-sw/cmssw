@@ -1,9 +1,9 @@
 /// \file
 ///
-/// $Date: 2007/06/07 07:27:48 $
-/// $Revision: 1.3 $
+/// $Date: 2007/10/08 13:21:29 $
+/// $Revision: 1.4 $
 ///
-/// $Author: fronga $
+/// $Author: cklae $
 /// \author Frederic Ronga - CERN-PH-CMG
 
 #include <string>
@@ -38,20 +38,20 @@ void MisalignmentScenarioBuilder::decodeMovements_( const edm::ParameterSet& pSe
 													std::string levelName )
 {
 
-  indent += " "; // For indented output!
+  indent_ += " "; // For indented output!
 
   // Retrieve parameters for all components at this level
   std::ostringstream name;
   name << levelName << "s";
   edm::ParameterSet globalParameters = this->getParameterSet_( name.str(), pSet );
   if ( !globalParameters.empty() )
-	LogDebug("PrintParameters") << indent << " *** " << levelName << ": found "
+	LogDebug("PrintParameters") << indent_ << " *** " << levelName << ": found "
 								<< globalParameters.getParameterNames().size() 
 								<< " global parameters" << std::endl;
   
   // Propagate down parameters from upper level
   this->propagateParameters_( pSet, name.str(), globalParameters );
-  LogDebug("PrintParameters") << indent << " global parameter is now:" << std::endl;
+  LogDebug("PrintParameters") << indent_ << " global parameter is now:" << std::endl;
   this->printParameters_( globalParameters, true );
 
   // Loop on alignables
@@ -65,18 +65,18 @@ void MisalignmentScenarioBuilder::decodeMovements_( const edm::ParameterSet& pSe
 	  name.str("");
 	  name << levelName << iComponent;
 	  edm::ParameterSet localParameters = this->getParameterSet_( name.str(), pSet );
-	  LogDebug("PrintParameters") << indent << " ** " << name.str() << ": found "
+	  LogDebug("PrintParameters") << indent_ << " ** " << name.str() << ": found "
 								  << localParameters.getParameterNames().size() 
 								  << " local parameters"  << std::endl;
 	  this->mergeParameters_( localParameters, globalParameters );
 	  
 	  // Retrieve and apply parameters
-	  LogDebug("PrintParameters")  << indent << " parameters to apply:" << std::endl;
+	  LogDebug("PrintParameters")  << indent_ << " parameters to apply:" << std::endl;
 	  this->printParameters_( localParameters, true );
 	  if ( theModifier.modify( (*iter), localParameters ) )
 		{
 		  theModifierCounter++;
-		  LogDebug("PrintParameters") << indent << "Movements applied to " << name.str();
+		  LogDebug("PrintParameters") << indent_ << "Movements applied to " << name.str();
 		}
 
 	  // Apply movements to components
@@ -87,7 +87,7 @@ void MisalignmentScenarioBuilder::decodeMovements_( const edm::ParameterSet& pSe
 		this->decodeMovements_( localParameters, (*iter)->components() );
 	}
 
-  indent = indent.substr( 0, indent.length()-1 );
+  indent_ = indent_.substr( 0, indent_.length()-1 );
 
 }
 
@@ -144,7 +144,7 @@ void MisalignmentScenarioBuilder::propagateParameters_( const edm::ParameterSet&
 		iter != parameterNames.end(); iter++ )
 	if ( theModifier.isPropagated( *iter ) )
 	  {
-		LogDebug("PropagateParameters") << indent << " - adding parameter " << (*iter) << std::endl;
+		LogDebug("PropagateParameters") << indent_ << " - adding parameter " << (*iter) << std::endl;
 		subSet.insert( false, (*iter), pSet.retrieve(*iter) );
 	  }
 	  
@@ -160,12 +160,12 @@ void MisalignmentScenarioBuilder::propagateParameters_( const edm::ParameterSet&
                             this->rootName_(globalName) ) == 0 )
           {
             // Parameter for this level: skip
-            LogDebug("PropagateParameters") << indent << " - skipping PSet " << (*it) << std::endl;
+            LogDebug("PropagateParameters") << indent_ << " - skipping PSet " << (*it) << std::endl;
           }
         else if ( this->isTopLevel_(*it) )
           {
             // Top-level parameters should not be propagated
-            LogDebug("PropagateParameters") << indent 
+            LogDebug("PropagateParameters") << indent_ 
                                             << " - skipping top-level PSet " << (*it) << std::endl;
           }
         else if ( theAlignableObjectId.nameToType( rootName ) == align::invalid )
@@ -177,7 +177,7 @@ void MisalignmentScenarioBuilder::propagateParameters_( const edm::ParameterSet&
           {
             // Pass down any other: in order to merge PSets, create dummy PSet
             // only containing this PSet and merge it recursively.
-            LogDebug("PropagateParameters") << indent << " - adding PSet " << (*it) << std::endl;
+            LogDebug("PropagateParameters") << indent_ << " - adding PSet " << (*it) << std::endl;
             edm::ParameterSet m_subSet;
             m_subSet.addParameter<edm::ParameterSet>( (*it), 
                                                       pSet.getParameter<edm::ParameterSet>(*it) );
@@ -230,7 +230,7 @@ void MisalignmentScenarioBuilder::printParameters_( const edm::ParameterSet& pSe
   for ( std::vector<std::string>::iterator iter = parameterNames.begin();
 		iter != parameterNames.end(); iter++ )
 	if ( pSet.retrieve( *iter ).typeCode() != 'P' || showPsets )
-	  LogDebug("PrintParameters") << indent << "   " << (*iter) << " = " 
+	  LogTrace("PrintParameters") << indent_ << "   " << (*iter) << " = " 
 				<< pSet.retrieve( *iter ).toString() << std::endl;
 
 }

@@ -22,15 +22,15 @@ AlignableDet::AlignableDet( const GeomDet* geomDet ) :
   }
   else // Is a compositeDet: push back all components
   {
-    const std::vector< const GeomDet*>& geomDets = geomDet->components();
+    const std::vector<const GeomDet*>& geomDets = geomDet->components();
     for ( std::vector<const GeomDet*>::const_iterator idet=geomDets.begin(); 
-	  idet != geomDets.end(); ++idet )
-    {
-      addComponent( new AlignableDetUnit( (*idet)->geographicalId().rawId(),
-					  (*idet)->surface() ) );
-    }
+          idet != geomDets.end(); ++idet )
+      {
+        addComponent( new AlignableDetUnit( (*idet)->geographicalId().rawId(),
+                                            (*idet)->surface() ) );
+      }
   }
-
+  
 }
 
 

@@ -9,9 +9,10 @@
  *  alignable based on its id.
  *  The number of an alignable is given by its position within its parent.
  *  User gets a counter using its structure type via Counters::get(type).
- *
- *  $Date: 2007/04/09 00:40:21 $
- *  $Revision: 1.7 $
+ *  Each sub-system has its own concrete counter class implementation.
+ *  
+ *  $Date: 2007/10/08 13:36:11 $
+ *  $Revision: 1.1 $
  *  \author Chung Khim Lae
  */
 
@@ -29,17 +30,17 @@ class Counters
 {
   public:
 
-  /// Get a counter based on its structure type.
-  static align::Counter get(
-			    align::StructureType
-			    );
-
-  private:
-
   /// Build the counters map.
-  Counters();
+  Counters() {}
 
-  static std::map<align::StructureType, align::Counter> theCounters;
+  virtual ~Counters() {}
+
+  /// Get a counter based on its structure type.
+  virtual align::Counter get( align::StructureType ) const;
+
+protected:
+  std::map<align::StructureType, align::Counter> theCounters;
+
 };
 
 #endif

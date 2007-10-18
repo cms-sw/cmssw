@@ -3,10 +3,10 @@
 
 /// \class MisalignmentScenarioBuilder
 ///
-/// $Date: 2007/04/10 08:41:45 $
-/// $Revision: 1.2 $
+/// $Date: 2007/10/08 13:21:29 $
+/// $Revision: 1.3 $
 ///
-/// $Author: fronga $
+/// $Author: cklae $
 /// \author Frederic Ronga - CERN-PH-CMG
 
 #include <vector>
@@ -77,7 +77,7 @@ protected: // Members
   
   int theModifierCounter;                  ///< Counter for applied modification
 
-  std::string indent;                      ///< Depth in hierarchy
+  std::string indent_;                     ///< Depth in hierarchy
   
 
 };

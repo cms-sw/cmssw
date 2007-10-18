@@ -1,7 +1,7 @@
 /** \file Alignable.cc
  *
- *  $Date: 2007/06/25 08:49:49 $
- *  $Revision: 1.16 $
+ *  $Date: 2007/10/08 13:21:29 $
+ *  $Revision: 1.18 $
  *  (last update by $Author: cklae $)
  */
 
@@ -21,7 +21,7 @@ Alignable::Alignable(align::ID id, const AlignableSurface& surf):
 {
 }
 
-
+//__________________________________________________________________________________________________
 Alignable::Alignable(align::ID id, const RotationType& rot):
   theId(id),
   theSurface(PositionType(), rot),

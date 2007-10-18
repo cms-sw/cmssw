@@ -17,46 +17,41 @@
  *  AlignSetup owns all the objects it holds. It deletes all the objects
  *  on destruction.
  *
- *  $Date: 2007/04/07 03:29:38 $
- *  $Revision: 1.4 $
+ *  $Date: 2007/10/08 13:36:11 $
+ *  $Revision: 1.1 $
  *  \author Chung Khim Lae
  */
 
 #include <map>
 
 #include "FWCore/Utilities/interface/Exception.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 template <class Type>
 class AlignSetup
 {
   typedef typename std::map<std::string, Type> Container;
 
-  public:
+public:
+
+  /// Constructor
+  AlignSetup() {}
 
   /// Get an object from map using its name.
   /// A new object is default-constructed if the name does not exist.
-  /// Can change object in the map.
-  static Type& get(
-		   const std::string& name = ""
-		   );
+  Type& get( const std::string& name = "" );
 
   /// Find and return an object from map using its name.
   /// Throw an exception if the name does not exist.
-  /// Cannot change object in the map.
-  static const Type& find(
-			  const std::string& name = ""
-			  );
+  Type& find( const std::string& name = "" );
 
-  private:
+  /// Print the name of all stored data
+  void dump( void ) const;
 
-  /// Hide constructor.
-  AlignSetup();
-
-  static Container theStore;
+private:
+  Container theStore;
 };
 
-template <class Type>
-typename AlignSetup<Type>::Container AlignSetup<Type>::theStore;
 
 template <class Type>
 Type& AlignSetup<Type>::get(const std::string& name)
@@ -65,17 +60,26 @@ Type& AlignSetup<Type>::get(const std::string& name)
 }
 
 template <class Type>
-const Type& AlignSetup<Type>::find(const std::string& name)		     
+Type& AlignSetup<Type>::find(const std::string& name)		     
 {
-  typename Container::const_iterator o = theStore.find(name);
+  typename Container::iterator o = theStore.find(name);
 
   if (theStore.end() == o)
-  {
-    throw cms::Exception("AlignSetupError")
-      << "Cannot find an object of name " << name << " in AlignSetup.";
-  }
-
+    {
+      throw cms::Exception("AlignSetupError")
+        << "Cannot find an object of name " << name << " in AlignSetup.";
+    }
+  
   return o->second;
+}
+
+template <class Type>
+void AlignSetup<Type>::dump( void ) const
+{
+  edm::LogInfo("AlignSetup") << "Printing out AlignSetup: ";
+  for ( typename Container::const_iterator it = theStore.begin();
+        it != theStore.end(); ++it )
+    edm::LogVerbatim("AlignSetup") << it->first << std::endl;
 }
 
 #endif
