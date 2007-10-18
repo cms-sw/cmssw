@@ -1,8 +1,8 @@
 /*
  * \file EBClusterClient.cc
  *
- * $Date: 2007/09/06 18:59:05 $
- * $Revision: 1.34 $
+ * $Date: 2007/09/07 22:30:04 $
+ * $Revision: 1.35 $
  * \author G. Della Ricca
  * \author F. Cossutti
  * \author E. Di Marco
@@ -63,23 +63,27 @@ EBClusterClient::EBClusterClient(const ParameterSet& ps){
   h01_[2] = 0;
 
   h02_[0] = 0;
+  h02ProjEta_[0] = 0;
+  h02ProjPhi_[0] = 0;    
   h02_[1] = 0;
+  h02ProjEta_[1] = 0;
+  h02ProjPhi_[1] = 0;
 
   h03_ = 0;
+  h03ProjEta_ = 0;
+  h03ProjPhi_ = 0;
+
   h04_ = 0;
+  h04ProjEta_ = 0;
+  h04ProjPhi_ = 0;
 
   i01_[0] = 0;
   i01_[1] = 0;
   i01_[2] = 0;
 
-  i02_[0] = 0;
-  i02_[1] = 0;
-
-  i03_ = 0;
-  i04_ = 0;
-
   s01_[0] = 0;
   s01_[1] = 0;
+  s01_[2] = 0;
 
 }
 
@@ -150,23 +154,26 @@ void EBClusterClient::cleanup(void) {
     if ( h01_[2] ) delete h01_[2];
 
     if ( h02_[0] ) delete h02_[0];
+    if ( h02ProjEta_[0] ) delete h02ProjEta_[0];
+    if ( h02ProjPhi_[0] ) delete h02ProjPhi_[0];
     if ( h02_[1] ) delete h02_[1];
+    if ( h02ProjEta_[1] ) delete h02ProjEta_[1];
+    if ( h02ProjPhi_[1] ) delete h02ProjPhi_[1];
 
     if ( h03_ ) delete h03_;
+    if ( h03ProjEta_ ) delete h03ProjEta_;
+    if ( h03ProjPhi_ ) delete h03ProjPhi_;
     if ( h04_ ) delete h04_;
+    if ( h04ProjEta_ ) delete h04ProjEta_;
+    if ( h04ProjPhi_ ) delete h04ProjPhi_;
 
     if ( i01_[0] ) delete i01_[0];
     if ( i01_[1] ) delete i01_[1];
     if ( i01_[2] ) delete i01_[2];
 
-    if ( i02_[0] ) delete i02_[0];
-    if ( i02_[1] ) delete i02_[1];
-
-    if ( i03_ ) delete i03_;
-    if ( i04_ ) delete i04_;
-
     if ( s01_[0] ) delete s01_[0];
     if ( s01_[1] ) delete s01_[1];
+    if ( s01_[2] ) delete s01_[2];
 
   }
 
@@ -175,23 +182,26 @@ void EBClusterClient::cleanup(void) {
   h01_[2] = 0;
 
   h02_[0] = 0;
+  h02ProjEta_[0] = 0;
+  h02ProjPhi_[0] = 0;
   h02_[1] = 0;
+  h02ProjEta_[1] = 0;
+  h02ProjPhi_[1] = 0;
 
   h03_ = 0;
+  h03ProjEta_ = 0;
+  h03ProjPhi_ = 0;
   h04_ = 0;
+  h04ProjEta_ = 0;
+  h04ProjPhi_ = 0;
 
   i01_[0] = 0;
   i01_[1] = 0;
   i01_[2] = 0;
 
-  i02_[0] = 0;
-  i02_[1] = 0;
-
-  i03_ = 0;
-  i04_ = 0;
-
   s01_[0] = 0;
   s01_[1] = 0;
+  s01_[2] = 0;
 
 }
 
@@ -230,28 +240,43 @@ void EBClusterClient::subscribe(void){
   sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT island BC size map");
   mui_->subscribe(histo);
 
-  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT island SC energy");
+  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT island BC energy projection eta");
   mui_->subscribe(histo);
 
-  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT island SC number");
+  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT island BC energy projection phi");
   mui_->subscribe(histo);
 
-  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT island SC size");
+  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT island BC number projection eta");
   mui_->subscribe(histo);
 
-  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT island SC energy map");
+  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT island BC number projection phi");
   mui_->subscribe(histo);
 
-  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT island SC number map");
+  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT island BC ET projection eta");
   mui_->subscribe(histo);
 
-  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT island SC ET map");
+  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT island BC ET projection phi");
   mui_->subscribe(histo);
 
-  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT island SC size map");
+  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT island BC size projection eta");
   mui_->subscribe(histo);
 
-  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT hybrid S1toE");
+  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT island BC size projection phi");
+  mui_->subscribe(histo);
+
+  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT hybrid SC energy");
+  mui_->subscribe(histo);
+
+  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT hybrid SC number");
+  mui_->subscribe(histo);
+
+  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT hybrid SC size");
+  mui_->subscribe(histo);
+
+  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT hybrid s1s9");
+  mui_->subscribe(histo);
+
+  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT hybrid s9s25");
   mui_->subscribe(histo);
 
   sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT dicluster invariant mass");
@@ -284,28 +309,43 @@ void EBClusterClient::subscribeNew(void){
   sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT island BC size map");
   mui_->subscribeNew(histo);
 
-  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT island SC energy");
+  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT island BC energy projection eta");
   mui_->subscribeNew(histo);
 
-  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT island SC number");
+  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT island BC energy projection phi");
   mui_->subscribeNew(histo);
 
-  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT island SC size");
+  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT island BC number projection eta");
   mui_->subscribeNew(histo);
 
-  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT island SC energy map");
+  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT island BC number projection phi");
   mui_->subscribeNew(histo);
 
-  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT island SC ET map");
+  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT island BC ET projection eta");
   mui_->subscribeNew(histo);
 
-  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT island SC number map");
+  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT island BC ET projection phi");
   mui_->subscribeNew(histo);
 
-  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT island SC size map");
+  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT island BC size projection eta");
   mui_->subscribeNew(histo);
 
-  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT hybrid S1toE");
+  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT island BC size projection phi");
+  mui_->subscribeNew(histo);
+
+  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT hybrid SC energy");
+  mui_->subscribeNew(histo);
+
+  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT hybrid SC number");
+  mui_->subscribeNew(histo);
+
+  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT hybrid SC size");
+  mui_->subscribeNew(histo);
+
+  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT hybrid s1s9");
+  mui_->subscribeNew(histo);
+
+  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT hybrid s9s25");
   mui_->subscribeNew(histo);
 
   sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT dicluster invariant mass");
@@ -340,28 +380,43 @@ void EBClusterClient::unsubscribe(void){
   sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT island BC size map");
   mui_->unsubscribe(histo);
 
-  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT island SC energy");
+  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT island BC energy projection eta");
   mui_->unsubscribe(histo);
 
-  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT island SC number");
+  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT island BC energy projection phi");
   mui_->unsubscribe(histo);
 
-  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT island SC size");
+  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT island BC number projection eta");
   mui_->unsubscribe(histo);
 
-  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT island SC energy map");
+  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT island BC number projection phi");
   mui_->unsubscribe(histo);
 
-  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT island SC ET map");
+  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT island BC ET projection eta");
   mui_->unsubscribe(histo);
 
-  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT island SC number map");
+  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT island BC ET projection phi");
   mui_->unsubscribe(histo);
 
-  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT island SC size map");
+  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT island BC size projection eta");
   mui_->unsubscribe(histo);
 
-  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT hybrid S1toE");
+  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT island BC size projection phi");
+  mui_->unsubscribe(histo);
+
+  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT hybrid SC energy");
+  mui_->unsubscribe(histo);
+
+  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT hybrid SC number");
+  mui_->unsubscribe(histo);
+
+  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT hybrid SC size");
+  mui_->unsubscribe(histo);
+
+  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT hybrid s1s9");
+  mui_->unsubscribe(histo);
+
+  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT hybrid s9s25");
   mui_->unsubscribe(histo);
 
   sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT dicluster invariant mass");
@@ -413,41 +468,61 @@ void EBClusterClient::analyze(void){
   me = dbe_->get(histo);
   h04_ = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h04_ );
 
-  sprintf(histo, (prefixME_+"EcalBarrel/EBClusterTask/EBCLT island SC energy").c_str());
+  sprintf(histo, (prefixME_+"EcalBarrel/EBClusterTask/EBCLT island BC energy projection eta").c_str());
+  me = dbe_->get(histo);
+  h02ProjEta_[0] = UtilsClient::getHisto<TProfile*>( me, cloneME_, h02ProjEta_[0] );
+
+  sprintf(histo, (prefixME_+"EcalBarrel/EBClusterTask/EBCLT island BC energy projection phi").c_str());
+  me = dbe_->get(histo);
+  h02ProjPhi_[0] = UtilsClient::getHisto<TProfile*>( me, cloneME_, h02ProjPhi_[0] );
+
+  sprintf(histo, (prefixME_+"EcalBarrel/EBClusterTask/EBCLT island BC ET projection eta").c_str());
+  me = dbe_->get(histo);
+  h02ProjEta_[1] = UtilsClient::getHisto<TProfile*>( me, cloneME_, h02ProjEta_[1] );
+
+  sprintf(histo, (prefixME_+"EcalBarrel/EBClusterTask/EBCLT island BC ET projection phi").c_str());
+  me = dbe_->get(histo);
+  h02ProjPhi_[1] = UtilsClient::getHisto<TProfile*>( me, cloneME_, h02ProjPhi_[1] );
+
+  sprintf(histo, (prefixME_+"EcalBarrel/EBClusterTask/EBCLT island BC number projection eta").c_str());
+  me = dbe_->get(histo);
+  h03ProjEta_ = UtilsClient::getHisto<TH1F*>( me, cloneME_, h03ProjEta_ );
+
+  sprintf(histo, (prefixME_+"EcalBarrel/EBClusterTask/EBCLT island BC number projection phi").c_str());
+  me = dbe_->get(histo);
+  h03ProjPhi_ = UtilsClient::getHisto<TH1F*>( me, cloneME_, h03ProjPhi_ );
+
+  sprintf(histo, (prefixME_+"EcalBarrel/EBClusterTask/EBCLT island BC size projection eta").c_str());
+  me = dbe_->get(histo);
+  h04ProjEta_ = UtilsClient::getHisto<TProfile*>( me, cloneME_, h04ProjEta_ );
+
+  sprintf(histo, (prefixME_+"EcalBarrel/EBClusterTask/EBCLT island BC size projection phi").c_str());
+  me = dbe_->get(histo);
+  h04ProjPhi_ = UtilsClient::getHisto<TProfile*>( me, cloneME_, h04ProjPhi_ );
+
+  sprintf(histo, (prefixME_+"EcalBarrel/EBClusterTask/EBCLT hybrid SC energy").c_str());
   me = dbe_->get(histo);
   i01_[0] = UtilsClient::getHisto<TH1F*>( me, cloneME_, i01_[0] );
 
-  sprintf(histo, (prefixME_+"EcalBarrel/EBClusterTask/EBCLT island SC number").c_str());
+  sprintf(histo, (prefixME_+"EcalBarrel/EBClusterTask/EBCLT hybrid SC number").c_str());
   me = dbe_->get(histo);
   i01_[1] = UtilsClient::getHisto<TH1F*>( me, cloneME_, i01_[1] );
 
-  sprintf(histo, (prefixME_+"EcalBarrel/EBClusterTask/EBCLT island SC size").c_str());
+  sprintf(histo, (prefixME_+"EcalBarrel/EBClusterTask/EBCLT hybrid SC size").c_str());
   me = dbe_->get(histo);
   i01_[2] = UtilsClient::getHisto<TH1F*>( me, cloneME_, i01_[2] );
 
-  sprintf(histo, (prefixME_+"EcalBarrel/EBClusterTask/EBCLT island SC energy map").c_str());
-  me = dbe_->get(histo);
-  i02_[0] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, i02_[0] );
-
-  sprintf(histo, (prefixME_+"EcalBarrel/EBClusterTask/EBCLT island SC ET map").c_str());
-  me = dbe_->get(histo);
-  i02_[1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, i02_[1] );
-
-  sprintf(histo, (prefixME_+"EcalBarrel/EBClusterTask/EBCLT island SC number map").c_str());
-  me = dbe_->get(histo);
-  i03_ = UtilsClient::getHisto<TH2F*>( me, cloneME_, i03_ );
-
-  sprintf(histo, (prefixME_+"EcalBarrel/EBClusterTask/EBCLT island SC size map").c_str());
-  me = dbe_->get(histo);
-  i04_ = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, i04_ );
-
-  sprintf(histo, (prefixME_+"EcalBarrel/EBClusterTask/EBCLT hybrid S1toE").c_str());
+  sprintf(histo, (prefixME_+"EcalBarrel/EBClusterTask/EBCLT hybrid s1s9").c_str());
   me = dbe_->get(histo);
   s01_[0] = UtilsClient::getHisto<TH1F*>( me, cloneME_, s01_[0] );
 
-  sprintf(histo, (prefixME_+"EcalBarrel/EBClusterTask/EBCLT dicluster invariant mass").c_str());
+  sprintf(histo, (prefixME_+"EcalBarrel/EBClusterTask/EBCLT hybrid s9s25").c_str());
   me = dbe_->get(histo);
   s01_[1] = UtilsClient::getHisto<TH1F*>( me, cloneME_, s01_[1] );
+
+  sprintf(histo, (prefixME_+"EcalBarrel/EBClusterTask/EBCLT dicluster invariant mass").c_str());
+  me = dbe_->get(histo);
+  s01_[2] = UtilsClient::getHisto<TH1F*>( me, cloneME_, s01_[2] );
 
 }
 
@@ -519,9 +594,9 @@ void EBClusterClient::htmlOutput(int run, string htmlDir, string htmlName){
 
   TGaxis Xaxis(-M_PI*(9+1.5)/9, -1.479, M_PI*(9-1.5)/9, -1.479, -M_PI*(9+1.5)/9, M_PI*(9-1.5)/9, 40306, "N");
 
-  string imgNameB[3], imgNameBMap[4], imgNameS[3], imgNameSMap[4];
-  string imgNameBXproj[4], imgNameBYproj[4], imgNameSXproj[4], imgNameSYproj[4];
-  string imgNameHL[2], imgName, meName;
+  string imgNameB[3], imgNameBMap[4], imgNameS[3];
+  string imgNameBXproj[4], imgNameBYproj[4];
+  string imgNameHL[3], imgName, meName;
 
   TCanvas* cEne = new TCanvas("cEne", "Temp", csize1D, csize1D);
   TCanvas* cMap = new TCanvas("cMap", "Temp", int(360./170.*csize2D), csize2D);
@@ -529,8 +604,10 @@ void EBClusterClient::htmlOutput(int run, string htmlDir, string htmlName){
   TH1F* obj1f;
   TProfile2D* objp;
   TH2F* obj2f;
-  TH1D* obj1dX;
-  TH1D* obj1dY;
+  TProfile* obj1pX;
+  TProfile* obj1pY;
+  TH1F* obj1fX;
+  TH1F* obj1fY;
 
   gStyle->SetPaintTextFormat("+g");
 
@@ -634,25 +711,27 @@ void EBClusterClient::htmlOutput(int run, string htmlDir, string htmlName){
       sprintf(projYName,"%s_py",meName.c_str());
       imgNameBYproj[iCanvas-1] = string(projYName) + ".png";
 
-      obj1dX = objp->ProjectionX(projXName,1,objp->GetNbinsY(),"e");
-      obj1dY = objp->ProjectionY(projYName,1,objp->GetNbinsX(),"e");
+      obj1pX = (iCanvas!=3) ? h02ProjEta_[iCanvas-1] : h04ProjEta_;
+      obj1pY = (iCanvas!=3) ? h02ProjPhi_[iCanvas-1] : h04ProjPhi_;
 
-      cEne->cd();
-      gStyle->SetOptStat("emr");
-      obj1dX->GetXaxis()->SetNdivisions(40306, kFALSE);
-      obj1dY->GetXaxis()->SetNdivisions(6, kFALSE);
+      if (obj1pX && obj1pY) {
+	cEne->cd();
+	gStyle->SetOptStat("emr");
+	obj1pX->GetXaxis()->SetNdivisions(40306, kFALSE);
+	obj1pY->GetXaxis()->SetNdivisions(6, kFALSE);
 
-      imgName = htmlDir + imgNameBXproj[iCanvas-1];
-      obj1dX->SetStats(kTRUE);
-      obj1dX->Draw("pe");
-      cEne->Update();
-      cEne->SaveAs(imgName.c_str());
+	imgName = htmlDir + imgNameBXproj[iCanvas-1];
+	obj1pX->SetStats(kTRUE);
+	obj1pX->Draw("pe");
+	cEne->Update();
+	cEne->SaveAs(imgName.c_str());
 
-      imgName = htmlDir + imgNameBYproj[iCanvas-1];
-      obj1dY->SetStats(kTRUE);
-      obj1dY->Draw("pe");
-      cEne->Update();
-      cEne->SaveAs(imgName.c_str());
+	imgName = htmlDir + imgNameBYproj[iCanvas-1];
+	obj1pY->SetStats(kTRUE);
+	obj1pY->Draw("pe");
+	cEne->Update();
+	cEne->SaveAs(imgName.c_str());
+      }
     }
   }
 
@@ -694,26 +773,27 @@ void EBClusterClient::htmlOutput(int run, string htmlDir, string htmlName){
     sprintf(projYName,"%s_py",meName.c_str());
     imgNameBYproj[3] = string(projYName) + ".png";
 
-    obj1dX = obj2f->ProjectionX(projXName,1,obj2f->GetNbinsY(),"e");
-    obj1dY = obj2f->ProjectionY(projYName,1,obj2f->GetNbinsX(),"e");
+    obj1fX = h03ProjEta_;
+    obj1fY = h03ProjPhi_;
 
-    cEne->cd();
-    gStyle->SetOptStat("emr");
-    obj1dX->GetXaxis()->SetNdivisions(40306, kFALSE);
-    obj1dY->GetXaxis()->SetNdivisions(6, kFALSE);
+    if(obj1fX && obj1fY) {
+      cEne->cd();
+      gStyle->SetOptStat("emr");
+      obj1fX->GetXaxis()->SetNdivisions(40306, kFALSE);
+      obj1fY->GetXaxis()->SetNdivisions(6, kFALSE);
 
-    imgName = htmlDir + imgNameBXproj[3];
-    obj1dX->SetStats(kTRUE);
-    obj1dX->Draw("pe");
-    cEne->Update();
-    cEne->SaveAs(imgName.c_str());
+      imgName = htmlDir + imgNameBXproj[3];
+      obj1fX->SetStats(kTRUE);
+      obj1fX->Draw("pe");
+      cEne->Update();
+      cEne->SaveAs(imgName.c_str());
 
-    imgName = htmlDir + imgNameBYproj[3];
-    obj1dY->SetStats(kTRUE);
-    obj1dY->Draw("pe");
-    cEne->Update();
-    cEne->SaveAs(imgName.c_str());
-
+      imgName = htmlDir + imgNameBYproj[3];
+      obj1fY->SetStats(kTRUE);
+      obj1fY->Draw("pe");
+      cEne->Update();
+      cEne->SaveAs(imgName.c_str());
+    }
   }
 
   htmlFile << "<table border=\"0\" cellspacing=\"0\" " << endl;
@@ -786,10 +866,8 @@ void EBClusterClient::htmlOutput(int run, string htmlDir, string htmlName){
   htmlFile << "</table>" << endl;
   htmlFile << "<br>" << endl;
 
-  // ====================================================================
-  // super clusters
-  // ====================================================================
-
+  //   // super clusters
+  // 
   for ( int iCanvas = 1; iCanvas <= 3; iCanvas++ ) {
 
     imgNameS[iCanvas-1] = "";
@@ -833,6 +911,7 @@ void EBClusterClient::htmlOutput(int run, string htmlDir, string htmlName){
   htmlFile << "cellpadding=\"10\" align=\"center\"> " << endl;
   htmlFile << "<tr align=\"center\">" << endl;
 
+
   for ( int iCanvas = 1; iCanvas <= 3; iCanvas++ ) {
 
     if ( imgNameS[iCanvas-1].size() != 0 )
@@ -846,203 +925,12 @@ void EBClusterClient::htmlOutput(int run, string htmlDir, string htmlName){
   htmlFile << "</table>" << endl;
   htmlFile << "<br>" << endl;
 
-  for ( int iCanvas = 1; iCanvas <= 3; iCanvas++ ) {
-
-    imgNameSMap[iCanvas-1] = "";
-
-    objp = (iCanvas!=3) ? i02_[iCanvas-1] : i04_;
-
-    if ( objp ) {
-
-      meName = objp->GetName();
-
-      for ( unsigned int i = 0; i < meName.size(); i++ ) {
-        if ( meName.substr(i, 1) == " " )  {
-          meName.replace(i, 1 ,"_" );
-        }
-      }
-      imgNameSMap[iCanvas-1] = meName + ".png";
-      imgName = htmlDir + imgNameSMap[iCanvas-1];
-
-      cMap->cd();
-      gStyle->SetOptStat(" ");
-      gStyle->SetPalette(10, pCol4);
-      objp->GetXaxis()->SetNdivisions( 40118, kFALSE);
-      objp->GetYaxis()->SetNdivisions(170102, kFALSE);
-      cMap->SetGridx();
-      cMap->SetGridy();
-      objp->Draw("colz");
-      labelGrid.Draw("text,same");
-      Xaxis.Draw();
-      cMap->Update();
-      objp->GetXaxis()->SetLabelColor(0);
-      cMap->SaveAs(imgName.c_str());
-      objp->GetXaxis()->SetLabelColor(1);
-
-      char projXName[100];
-      char projYName[100];
-      sprintf(projXName,"%s_px",meName.c_str());
-      imgNameSXproj[iCanvas-1] = string(projXName) + ".png";
-      sprintf(projYName,"%s_py",meName.c_str());
-      imgNameSYproj[iCanvas-1] = string(projYName) + ".png";
-
-      obj1dX = objp->ProjectionX(projXName,1,objp->GetNbinsY(),"e");
-      obj1dY = objp->ProjectionY(projYName,1,objp->GetNbinsX(),"e");
-
-      cEne->cd();
-      gStyle->SetOptStat("emr");
-      obj1dX->GetXaxis()->SetNdivisions(40306, kFALSE);
-      obj1dY->GetXaxis()->SetNdivisions(6, kFALSE);
-
-      imgName = htmlDir + imgNameSXproj[iCanvas-1];
-      obj1dX->SetStats(kTRUE);
-      obj1dX->Draw("pe");
-      cEne->Update();
-      cEne->SaveAs(imgName.c_str());
-
-      imgName = htmlDir + imgNameSYproj[iCanvas-1];
-      obj1dY->SetStats(kTRUE);
-      obj1dY->Draw("pe");
-      cEne->Update();
-      cEne->SaveAs(imgName.c_str());
-    }
-  }
-
-  imgNameSMap[3] = "";
-
-  obj2f = i03_;
-
-  if ( obj2f ) {
-
-    meName = obj2f->GetName();
-
-    for ( unsigned int i = 0; i < meName.size(); i++ ) {
-      if ( meName.substr(i, 1) == " " )  {
-        meName.replace(i, 1 ,"_" );
-      }
-    }
-    imgNameSMap[3] = meName + ".png";
-    imgName = htmlDir + imgNameSMap[3];
-
-    cMap->cd();
-    gStyle->SetOptStat(" ");
-    gStyle->SetPalette(10, pCol4);
-    obj2f->GetXaxis()->SetNdivisions( 40118, kFALSE);
-    obj2f->GetYaxis()->SetNdivisions(170102, kFALSE);
-    cMap->SetGridx();
-    cMap->SetGridy();
-    obj2f->Draw("colz");
-    labelGrid.Draw("text,same");
-    Xaxis.Draw();
-    cMap->Update();
-    obj2f->GetXaxis()->SetLabelColor(0);
-    cMap->SaveAs(imgName.c_str());
-    obj2f->GetXaxis()->SetLabelColor(1);
-
-    char projXName[100];
-    char projYName[100];
-    sprintf(projXName,"%s_px",meName.c_str());
-    imgNameSXproj[3] = string(projXName) + ".png";
-    sprintf(projYName,"%s_py",meName.c_str());
-    imgNameSYproj[3] = string(projYName) + ".png";
-
-    obj1dX = obj2f->ProjectionX(projXName,1,obj2f->GetNbinsY(),"e");
-    obj1dY = obj2f->ProjectionY(projYName,1,obj2f->GetNbinsX(),"e");
-
-    cEne->cd();
-    gStyle->SetOptStat("emr");
-    obj1dX->GetXaxis()->SetNdivisions(40306, kFALSE);
-    obj1dY->GetXaxis()->SetNdivisions(6, kFALSE);
-
-    imgName = htmlDir + imgNameSXproj[3];
-    obj1dX->SetStats(kTRUE);
-    obj1dX->Draw("pe");
-    cEne->Update();
-    cEne->SaveAs(imgName.c_str());
-
-    imgName = htmlDir + imgNameSYproj[3];
-    obj1dY->SetStats(kTRUE);
-    obj1dY->Draw("pe");
-    cEne->Update();
-    cEne->SaveAs(imgName.c_str());
-
-  }
-
-  htmlFile << "<table border=\"0\" cellspacing=\"0\" " << endl;
-  htmlFile << "cellpadding=\"10\" align=\"center\"> " << endl;
-  htmlFile << "<tr align=\"center\">" << endl;
-
-  for ( int iCanvas = 1; iCanvas <= 2; iCanvas++ ) {
-
-    if ( imgNameSMap[iCanvas-1].size() != 0 )
-      htmlFile << "<td><img src=\"" << imgNameSMap[iCanvas-1] << "\"></td>" << endl;
-    else
-      htmlFile << "<td><img src=\"" << " " << "\"></td>" << endl;
-
-  }
-
-  htmlFile << "</tr>" << endl;
-  htmlFile << "</table>" << endl;
-  htmlFile << "<br>" << endl;
-
-  htmlFile << "<table border=\"0\" cellspacing=\"0\" " << endl;
-  htmlFile << "cellpadding=\"10\" align=\"center\"> " << endl;
-  htmlFile << "<tr align=\"center\">" << endl;
-
-  for ( int iCanvas = 3; iCanvas <= 4; iCanvas++ ) {
-
-    if ( imgNameSMap[iCanvas-1].size() != 0 )
-      htmlFile << "<td><img src=\"" << imgNameSMap[iCanvas-1] << "\"></td>" << endl;
-    else
-      htmlFile << "<td><img src=\"" << " " << "\"></td>" << endl;
-
-  }
-
-  htmlFile << "</tr>" << endl;
-  htmlFile << "</table>" << endl;
-  htmlFile << "<br>" << endl;
-
-  // projections X...
-  htmlFile << "<table border=\"0\" cellspacing=\"0\" " << endl;
-  htmlFile << "cellpadding=\"10\" align=\"center\"> " << endl;
-  htmlFile << "<tr align=\"center\">" << endl;
-
-  for ( int iCanvas = 1; iCanvas <= 4; iCanvas++ ) {
-
-    if ( imgNameSXproj[iCanvas-1].size() != 0 )
-      htmlFile << "<td><img src=\"" << imgNameSXproj[iCanvas-1] << "\"></td>" << endl;
-    else
-      htmlFile << "<td><img src=\"" << " " << "\"></td>" << endl;
-
-  }
-
-  htmlFile << "</tr>" << endl;
-  htmlFile << "</table>" << endl;
-  htmlFile << "<br>" << endl;
-
-  // projections Y...
-  htmlFile << "<table border=\"0\" cellspacing=\"0\" " << endl;
-  htmlFile << "cellpadding=\"10\" align=\"center\"> " << endl;
-  htmlFile << "<tr align=\"center\">" << endl;
-
-  for ( int iCanvas = 1; iCanvas <= 4; iCanvas++ ) {
-
-    if ( imgNameSYproj[iCanvas-1].size() != 0 )
-      htmlFile << "<td><img src=\"" << imgNameSYproj[iCanvas-1] << "\"></td>" << endl;
-    else
-      htmlFile << "<td><img src=\"" << " " << "\"></td>" << endl;
-
-  }
-
-  htmlFile << "</tr>" << endl;
-  htmlFile << "</table>" << endl;
-  htmlFile << "<br>" << endl;
 
   // ===========================================================================
   // Higher Level variables
   // ===========================================================================
 
-  for( int iCanvas = 1; iCanvas <= 2; iCanvas++ ) {
+  for( int iCanvas = 1; iCanvas <= 3; iCanvas++ ) {
 
     imgNameHL[iCanvas-1] = "";
 
@@ -1057,17 +945,20 @@ void EBClusterClient::htmlOutput(int run, string htmlDir, string htmlName){
           meName.replace(i, 1, "_");
         }
       }
+
       imgNameHL[iCanvas-1] = meName + ".png";
       imgName = htmlDir + imgNameHL[iCanvas-1];
 
       cEne->cd();
       gStyle->SetOptStat("euomr");
       obj1f->SetStats(kTRUE);
+
       if ( obj1f->GetMaximum(histMax) > 0. ) {
         gPad->SetLogy(1);
       } else {
         gPad->SetLogy(0);
       }
+
       obj1f->Draw();
       cEne->Update();
       cEne->SaveAs(imgName.c_str());
@@ -1085,8 +976,8 @@ void EBClusterClient::htmlOutput(int run, string htmlDir, string htmlName){
   htmlFile << "cellpadding=\"10\" align=\"center\"> " << endl;
   htmlFile << "<tr align=\"center\">" << endl;
 
-  // for now only E1/Etot
-  for ( int iCanvas = 1; iCanvas <= 2; iCanvas++ ) {
+  // cluster shapes and invariant mass
+  for ( int iCanvas = 1; iCanvas <= 3; iCanvas++ ) {
 
     if ( imgNameHL[iCanvas-1].size() != 0 )
       htmlFile << "<td><img src=\"" << imgNameHL[iCanvas-1] << "\"></td>" << endl;

@@ -4,8 +4,8 @@
 /*
  * \file EBClusterClient.h
  *
- * $Date: 2007/08/17 09:05:06 $
- * $Revision: 1.12 $
+ * $Date: 2007/09/07 22:30:03 $
+ * $Revision: 1.13 $
  * \author G. Della Ricca
  * \author F. Cossutti
  * \author E. Di Marco
@@ -102,15 +102,14 @@ DaqMonitorBEInterface* dbe_;
 
 TH1F* h01_[3];
 TProfile2D* h02_[2];
+TProfile* h02ProjEta_[2], *h02ProjPhi_[2]; 
 TH2F* h03_;
+TH1F* h03ProjEta_, *h03ProjPhi_;
 TProfile2D* h04_;
-
+TProfile* h04ProjEta_, *h04ProjPhi_;
 TH1F* i01_[3];
-TProfile2D* i02_[2];
-TH2F* i03_;
-TProfile2D* i04_;
 
-TH1F* s01_[2];
+TH1F* s01_[3];
 
 };
 
