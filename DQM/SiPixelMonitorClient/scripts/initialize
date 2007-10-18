@@ -68,7 +68,10 @@ copy("$ENV{PWD}/../test/source_client.cfg", "$ENV{PWD}/cfg/source_client.cfg");
 # make source xml input
 
 copy("$ENV{PWD}/../test/MESubscriptionList.xml", "$ENV{PWD}/cfg/.");
-copy("$ENV{PWD}/../test/sipixel_qualitytest_config.xml", "$ENV{PWD}/cfg/.");
+copy("$ENV{PWD}/../test/sipixel_qualitytest_config_digi_cluster.xml", "$ENV{PWD}/cfg/sipixel_qualitytest_config.xml");
+copy("$ENV{PWD}/../test/sipixel_monitorelement_config_digi_cluster.xml", "$ENV{PWD}/cfg/sipixel_monitorelement_config.xml");
+copy("$ENV{PWD}/../test/sipixel_qualitytest_config_digi_cluster.xml", "$ENV{PWD}/../test/sipixel_qualitytest_config.xml");
+copy("$ENV{PWD}/../test/sipixel_monitorelement_config_digi_cluster.xml", "$ENV{PWD}/../test/sipixel_monitorelement_config.xml");
 copy("$ENV{PWD}/../test/trackermap.txt", "$ENV{PWD}/.");
 copy("$ENV{PWD}/../test/tracker.dat", "$ENV{PWD}/.");
 copy("$ENV{PWD}/../test/TrackerMapHeader.txt", "$ENV{PWD}/.");
@@ -471,6 +474,7 @@ sub makeCtlDestroy
     $result = $result . "`rm -rf Online.html TrackerMapFrame.html TrackerMapHeader.txt TrackerMapME.html rightEmbedded.html loader.html "
           . "\*.png css_files js_files images WebLib.js `;\n\n";
     $result = $result . "`rm -rf tracker.dat  trackermap.txt test.xml svgmap.xml`;\n\n";
+    $result = $result . "`rm -rf sipixel_monitorelement_config.xml sipixel_qualitytest_config.xml`;\n\n";
     $result = $result . "print \"FUShmCleanUp_t ...\\n\";\n\n";
     $result = $result . "`FUShmCleanUp_t`;\n\n";
     $result = $result . "print \"XDAQ session destroyed!\\n\";\n\n";

@@ -1,6 +1,9 @@
 #include "DQM/SiPixelMonitorClient/interface/SiPixelUtility.h"
 #include "DQM/SiPixelMonitorClient/interface/SiPixelContinuousPalette.h"
 #include "DQMServices/Core/interface/QTestStatus.h"
+
+#include "TGaxis.h"
+#include "TF1.h"
 using namespace std;
 //
 // Get a list of MEs in a folder
@@ -130,3 +133,262 @@ int SiPixelUtility::getStatus(MonitorElement* me) {
   return status;
 }
 
+
+vector<string> SiPixelUtility::getQTestNameList(MonitorElement* me){
+  vector<string> qtestNameList;
+  return qtestNameList;
+}
+
+int SiPixelUtility::computeErrorCode(int status){
+  int code = 0;
+  switch(status){
+  case dqm::qstatus::INSUF_STAT:
+    code = 1;
+    break;
+  case dqm::qstatus::WARNING:
+    code = 2;
+    break;
+  case dqm::qstatus::ERROR:
+    code = 3;
+    break;
+  } // end switch
+
+  return code;
+
+}
+
+int SiPixelUtility::computeErrorCode(DaqMonitorBEInterface * bei,
+				     string                & module_path){
+  int status = bei->getStatus(module_path);
+  
+  int code = -1;
+  switch(status){
+  case dqm::qstatus::STATUS_OK:
+    code = 0;
+    break;
+  case dqm::qstatus::INSUF_STAT:
+    code = 1;
+    break;
+  case dqm::qstatus::WARNING:
+    code = 2;
+    break;
+  case dqm::qstatus::ERROR:
+    code = 3;
+    break;
+  } // end of switch
+  
+  return code;
+
+}
+
+
+
+int SiPixelUtility::computeHistoBin(string & module_path){ 
+
+  int module_bin = 0;
+
+  int module       = 0;
+  int shell        = 0;   
+  int layer	   = 0;  
+  int ladder	   = 0;  
+  int halfcylinder = 0;  
+  int disk	   = 0;  
+  int blade	   = 0;  
+  int panel        = 0;  
+
+  int nbinShell        = 192;
+  int nbinLayer	       = 0;  
+  int nbinLadder       = 4;
+
+  int nbinHalfcylinder = 168;  
+  int nbinDisk	       = 84;  
+  int nbinBlade	       = 7;  
+  int nbinPanel        = 0;  
+
+  vector<string> subDirVector;
+  SiPixelUtility::split(module_path,subDirVector,"/");
+
+  for (vector<string>::const_iterator it = subDirVector.begin();
+       it != subDirVector.end(); it++) {
+    if((*it).find("Collector") != string::npos ||
+       (*it).find("Collated") != string::npos ||
+       (*it).find("FU") != string::npos ||
+       (*it).find("Tracker") != string::npos ||
+       (*it).find("PixelBarrel") != string::npos ||
+       (*it).find("PixelEndcap") != string::npos) continue;
+    
+    if((*it).find("Module") != string::npos){
+      module = atoi((*it).substr((*it).find("_")+1).c_str());
+    }
+    
+    if((*it).find("Shell") != string::npos){
+      if((*it).find("mI") != string::npos) shell = 1;
+      if((*it).find("mO") != string::npos) shell = 2;
+      if((*it).find("pI") != string::npos) shell = 3;
+      if((*it).find("pO") != string::npos) shell = 4;
+    }
+    if((*it).find("Layer") != string::npos){
+      layer = atoi((*it).substr((*it).find("_")+1).c_str());
+      if(layer==1){
+	nbinLayer = 0;
+      }
+      if(layer==2){
+	nbinLayer = 40;
+      }
+      if(layer==3){
+	nbinLayer = 40+64;
+      }
+    }
+    if((*it).find("Ladder") != string::npos){
+      ladder = atoi((*it).substr((*it).find("_")+1,2).c_str()); 
+    }
+    if((*it).find("HalfCylinder") != string::npos){
+      if((*it).find("mI") != string::npos) halfcylinder = 1;
+      if((*it).find("mO") != string::npos) halfcylinder = 2;
+      if((*it).find("pI") != string::npos) halfcylinder = 3;
+      if((*it).find("pO") != string::npos) halfcylinder = 4;
+    }
+    if((*it).find("Disk") != string::npos){
+      disk = atoi((*it).substr((*it).find("_")+1).c_str());
+    }
+    if((*it).find("Blade") != string::npos){
+      blade = atoi((*it).substr((*it).find("_")+1,2).c_str()); 
+    }
+    if((*it).find("Panel") != string::npos){
+      panel = atoi((*it).substr((*it).find("_")+1).c_str()); 
+      if(panel==1) nbinPanel = 0;
+      if(panel==2) nbinPanel = 4;
+    }
+  }
+  if(module_path.find("PixelBarrel") != string::npos){
+    module_bin =  module + 
+      (ladder-1)*nbinLadder +
+      nbinLayer +
+      (shell -1)*nbinShell;
+  }
+  if(module_path.find("PixelEndcap") != string::npos){
+    module_bin =  module +
+      (panel       -1)*nbinPanel +
+      (blade       -1)*nbinBlade +
+      (disk        -1)*nbinDisk +
+      (halfcylinder-1)*nbinHalfcylinder;
+  }
+  
+  return module_bin;
+
+  //  cout << "leaving SiPixelInformationExtractor::computeHistoBin" << endl;
+}
+
+
+void SiPixelUtility::fillPaveText(TPaveText                 * pave,
+				  map<string,pair<int,double> >  messages){
+
+  TText* sourceCodeOnCanvas;
+  for(map<string, pair<int,double> >::iterator it =  messages.begin();
+                                            it != messages.end();
+                                            it++){
+    string message = it->first;
+    int    color   = (it->second).first;
+    double size    = (it->second).second;
+    sourceCodeOnCanvas = pave->AddText(message.c_str());
+    sourceCodeOnCanvas->SetTextColor(color);
+    sourceCodeOnCanvas->SetTextSize(size);
+    sourceCodeOnCanvas->SetTextFont(112);    
+
+  }
+}
+
+map<string,string> SiPixelUtility::sourceCodeMap(){
+
+  map<string,string> sourceCode;
+  for(int iSource=0; iSource<5;iSource++){
+    string type;
+    string    code;
+    switch(iSource){
+    case 0: type = "RAW"; code = "1    ";
+      break;
+    case 1: type = "DIG"; code = "10   ";
+      break;
+    case 2: type = "CLU"; code = "100  ";
+      break;
+    case 3: type = "TRK"; code = "1000 ";
+      break;
+    case 4: type = "REC"; code = "10000";
+      break;
+    } // end of switch
+    sourceCode[type]=code;
+  }
+  return sourceCode;
+  
+}
+
+
+//void SiPixelUtility::createSourceLegendMessages(map<string,pair<int,double> > & messages){
+//
+//  string code;
+//  string type;
+//  pair<int,double> color_size;
+//  int color = 1;
+//  double size  = 0.03;
+//  color_size.first  = color;
+//  color_size.second = size;
+//  
+//  string messageString;
+//  map<string,string> sourceCodeMap = sourceCodeMap();  
+//  for(map<string,string>::iterator sourceCodeItr =  sourceCodeMap.begin();
+//                                   sourceCodeItr != sourceCodeMap.end();
+//                                   sourceCodeItr++){
+//    messageString = sourceCodeItr->first + ": " + sourceCodeItr->second;
+//    messages[messageString] = color_size;
+//  }
+//}
+
+void SiPixelUtility::createStatusLegendMessages(map<string,pair<int,double> > & messages){
+  for(int iStatus=1; iStatus<5;iStatus++){
+    pair<int,double> color_size;
+    int color = 1;
+    double size  = 0.03;
+    string code;
+    string type;
+    color_size.second = size;
+    switch(iStatus){
+    case 1: code = "1"; type = "INSUF_STAT"; color = kBlue;
+      break;
+    case 2: code = "2"; type = "WARNING(S)"; color = kYellow;
+      break;
+    case 3: code = "3"; type = "ERROR(S)  "; color = kRed;
+      break;
+    case 4: code = "4"; type = "ERRORS    "; color = kMagenta;
+      break;
+    } // end of switch
+    string messageString = code + ": " + type;
+    color_size.first = color;
+    messages[messageString] = color_size;
+  }
+}
+
+//------------------------------------------------------------------------------
+//
+// -- Set Drawing Option
+//
+void SiPixelUtility::setDrawingOption(TH1   * hist, 
+				      float   xlow, 
+				      float   xhigh) {
+  if (!hist) return;
+
+  TAxis* xa = hist->GetXaxis();
+  TAxis* ya = hist->GetYaxis();
+
+  xa->SetTitleOffset(0.7);
+  xa->SetTitleSize(0.06);
+  xa->SetLabelSize(0.04);
+  //  xa->SetLabelColor(0);
+
+  ya->SetTitleOffset(0.7);
+  ya->SetTitleSize(0.06);
+
+
+  if (xlow != -1 &&  xhigh != -1.0) {
+    xa->SetRangeUser(xlow, xhigh);
+  }
+}

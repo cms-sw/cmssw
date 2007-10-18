@@ -153,7 +153,7 @@ void SiPixelActionExecutor::createSummary(DaqMonitorBEInterface* bei) {
   bei->cd();
   fillEndcapSummary(bei, endcap_structure_name, endcap_me_names);
   bei->cd();
-  if(source_type_==0||source_type_>4){//do this only if RawData source is present
+  if(source_type_==0||source_type_==5){//do this only if RawData source is present
     string federror_structure_name;
     vector<string> federror_me_names;
     if (!configParser_->getMENamesForFEDErrorSummary(federror_structure_name, federror_me_names)){

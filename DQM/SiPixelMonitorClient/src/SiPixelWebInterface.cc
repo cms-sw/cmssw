@@ -94,8 +94,9 @@ void SiPixelWebInterface::handleCustomRequest(xgi::Input  * in,
 
   if (requestID == "IsReady") {	                  // <-----------------
     theActionFlag = NoAction;    
-    if ((*mui_p)->getNumUpdates() > 2) infoExtractor_->readLayoutNames(out);
-    else returnReplyXml(out, "ReadyState", "wait");
+    //if ((*mui_p)->getNumUpdates() > 2) infoExtractor_->readLayoutNames(out);
+    //else returnReplyXml(out, "ReadyState", "wait");
+    returnReplyXml(out, "ReadyState", "wait");
 
   } else  if (requestID == "SubscribeAll") {		  // <-----------------
    theActionFlag = SubscribeAll;
@@ -288,11 +289,11 @@ void SiPixelWebInterface::handleEDARequest(xgi::Input* in,xgi::Output* out, int 
 
   if (requestID == "IsReady") {
     theActionFlag = NoAction;    
-    if (niter > 2) {
-      infoExtractor_->readLayoutNames(out);
-    } else {
+    //if (niter > 2) {
+    //  infoExtractor_->readLayoutNames(out);
+    //} else {
       returnReplyXml(out, "ReadyState", "wait");
-    }
+    //}
   } else if (requestID == "CheckQTResults") {
     //out->getHTTPResponseHeader().addHeader("Content-Type", "text/plain");
     //*out <<  actionExecutor_->getQTestSummary(bei) << endl;
@@ -450,12 +451,9 @@ void SiPixelWebInterface::handleEDARequest(xgi::Input* in,xgi::Output* out, int 
 void SiPixelWebInterface::configureCustomRequest(xgi::Input * in, 
                                                  xgi::Output * out) 
 						 throw (xgi::exception::Exception){
-  DaqMonitorBEInterface * bei = (*mui_p)->getBEInterface();
   seal::Callback action(seal::CreateCallback(this, 
                       &SiPixelWebInterface::performAction));
-  // non-backward compatible MUI<->BEI change:
   (*mui_p)->addCallback(action);
-  //bei->addCallback(action);
 }
 
 //
@@ -637,15 +635,15 @@ void SiPixelWebInterface::performAction() {
     }
   case SiPixelWebInterface::PlotHistogramFromLayout :
     {
-      actionExecutor_->createSummary(bei);
-      actionExecutor_->checkQTestResults(bei);
-      infoExtractor_->plotHistosFromLayoutForSlideShow(bei);
+      //actionExecutor_->createSummary(bei);
+      //actionExecutor_->checkQTestResults(bei);
+      //infoExtractor_->plotHistosFromLayoutForSlideShow(bei);
       break;
     }
   case SiPixelWebInterface::PlotErrorOverviewHistogram :
     {
-      actionExecutor_->checkQTestResults(bei);
-      infoExtractor_->plotErrorOverviewHistos(bei);
+      //actionExecutor_->checkQTestResults(bei);
+      //infoExtractor_->plotErrorOverviewHistos(bei);
       break;
     }
   case SiPixelWebInterface::NoAction :
