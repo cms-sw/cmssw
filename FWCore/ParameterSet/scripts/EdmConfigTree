@@ -1,0 +1,107 @@
+#!/bin/bash
+
+function findFile(){
+    # finds the first occurence of the sought file in CMSSW_SEARCH_PATH
+    # argument 1: the sought file
+
+    IFS=:
+    for SEARCH_PATH in $CMSSW_SEARCH_PATH; do
+	[ -f $SEARCH_PATH/$1 ] && FOUND_FILE=$SEARCH_PATH/$1 && return 0
+    done    
+
+    # Not found.
+    FOUND_FILE=""
+    return 1
+}
+
+function findInFile(){
+    # Finds all occurrences of the sought expression in the file.
+    # Invokes itself on all included files too.
+    # argument 1: indent
+    # argument 2: the searched file
+    # argument 3: the sought expression
+
+    local INDENT="$1	"
+
+    #
+    # First list all occurrences in this file:
+    #
+    if [ ${#3} -ne 0 ]; then
+	grep $3 $2 | while read LINE_WITH_MATCH; do
+	    echo -n "$INDENT"
+	    echo "     $LINE_WITH_MATCH" | grep --color $3
+	done
+    fi
+
+    #
+    # Now find all 'include'-d files and search them too
+    #
+
+    # We don't want descend into commented-out include files. Get rid of comments in four steps:
+    #   1) hide number signs (#)
+    #   2) use c preprocessor to remove /*multi-line*/ and //inline comments 
+    #   3) restore #s
+    #   4) remove #inline comments ( keeping in mind that a quoted # in a 'string' or "string" does not imply inline comment )
+    sed -e 's/N/Nn/g;s/#/NS/g' $2 | \
+	cpp -P -w  - - | \
+	sed -e 's/NS/#/g;s/Nn/N/g' | \
+	sed -e "s:^\(\(\([^\"'#]*\"[^\"]*\"[^\"'#]*\)\|\([^\"'#]*'[^']*'[^\"'#]*\)\)*\)#*.*$:\1:" | \
+	grep "include[[:space:]]*[\"'][[:alnum:]\./_-+~]\+[\"'][[:space:]]*$" | \
+	while read INCLUDE_LINE; do
+	    INCLUDED_FILE=$(echo $INCLUDE_LINE | sed -e "s:^\(.*\)include[[:space:]]*[\"']\([[:alnum:]\./_-+~]\+\)[\"'][[:space:]]*$:\2:")
+	    if findFile $INCLUDED_FILE; then
+		[ $SHOW_ABSOLUTE_PATH == "true" ] && NAME_TO_SHOW=FOUND_FILE || NAME_TO_SHOW=INCLUDED_FILE
+		echo "$INDENT [1;44m [0m [33m${!NAME_TO_SHOW%%*([^/])}[0m${!NAME_TO_SHOW##*/}"
+		findInFile $INDENT $FOUND_FILE $3
+	    else
+		echo -n "$INDENT [1;44m [0m [33m${INCLUDED_FILE%%*([^/])}[0m${INCLUDED_FILE##*/} "
+                echo "[43m not found in CMSSW_SEARCH_PATH [0m"
+	    fi
+    done
+    
+}
+
+if [ $# -eq 0 ] || [ $# -gt 2 ]; then
+    echo "edmConfigTree displays the complete tree of include files in a given CMSSW configuration file,"
+    echo "and optionally searches them recursively for a regular expression."
+    echo
+    echo "Usage:"
+    echo "           [34medmConfigTree [regex] configuration_file[0m"
+    echo "               regex             :    regular expression, as with grep"
+    echo "               configuration_file:    CMSSW configuration file"
+    echo "                                      (Give absolute path to display included files' resolved absolute path.)"
+    echo "           Note that the shell variable CMSSW_SEARCH_PATH must be set before edmConfigTree is invoked."
+    echo
+    echo "Examples:"
+    echo "           Display the tree of all included files in EvtGen+DetSim+Digi.cfg:"
+    echo "                 [34medmConfigTree EvtGen+DetSim+Digi.cfg[0m"
+    echo "           Display with absolute paths the tree of all included files in EvtGen+DetSim+Digi.cfg:"
+    echo "                 [34medmConfigTree \$PWD/EvtGen+DetSim+Digi.cfg[0m"
+    echo "           Recursively search all included files for \"Verbosity\":"
+    echo "                 [34medmConfigTree Verbosity EvtGen+DetSim+Digi.cfg[0m"
+    echo "           Recursively search all included files for \"Time\" or \"time\":"
+    echo "                 [34medmConfigTree \"[Tt]ime\" EvtGen+DetSim+Digi.cfg[0m"
+    exit 1
+fi
+
+if [ ${#CMSSW_SEARCH_PATH} -eq 0 ]; then
+    echo "CMSSW_SEARCH_PATH is not set. Exiting."
+    exit 1
+fi
+
+# set extglob for extended pattern matching features in parameter expansion
+shopt -s extglob
+
+if [ $# -eq 1 ]; then
+    FILE=$1
+    [ ${FILE:0:1} == "/" ] && SHOW_ABSOLUTE_PATH=true || SHOW_ABSOLUTE_PATH=false
+    echo " [1;44m [0m [33m${FILE%%*([^/])}[0m${FILE##*/}"
+    findInFile "" $1
+fi
+
+if [ $# -eq 2 ]; then
+    FILE=$2
+    [ ${FILE:0:1} == "/" ] && SHOW_ABSOLUTE_PATH=true || SHOW_ABSOLUTE_PATH=false
+    echo " [1;44m [0m [33m${FILE%%*([^/])}[0m${FILE##*/}"
+    findInFile "" $2 $1
+fi
