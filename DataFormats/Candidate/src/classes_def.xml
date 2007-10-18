@@ -82,6 +82,11 @@
   <class name="std::map<unsigned int,edm::helpers::KeyVal<edm::Ref<edm::OwnVector<reco::Candidate,edm::ClonePolicy<reco::Candidate> >,reco::Candidate,edm::refhelper::FindUsingAdvance<edm::OwnVector<reco::Candidate,edm::ClonePolicy<reco::Candidate> >,reco::Candidate> >,edm::Ref<edm::OwnVector<reco::Candidate,edm::ClonePolicy<reco::Candidate> >,reco::Candidate,edm::refhelper::FindUsingAdvance<edm::OwnVector<reco::Candidate,edm::ClonePolicy<reco::Candidate> >,reco::Candidate> > > >" />
 
 
+  <class name="edm::reftobase::Holder<reco::Candidate, reco::CompositeCandidateRef>" />
+  <class name="edm::reftobase::RefHolder<reco::CompositeCandidateRef>" />
+  <class name="edm::reftobase::VectorHolder<reco::Candidate, reco::CompositeCandidateRefVector>" />
+  <class name="edm::reftobase::RefVectorHolder<reco::CompositeCandidateRefVector>" />
+
 </selection>
 <exclusion>
   <class name="edm::OwnVector<reco::Candidate, edm::ClonePolicy<reco::Candidate> >">

@@ -9,11 +9,12 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: CompositeCandidate.h,v 1.20 2007/10/15 11:51:25 llista Exp $
+ * \version $Id: CompositeCandidate.h,v 1.22 2007/10/15 12:44:33 llista Exp $
  *
  */
 
 #include "DataFormats/Candidate/interface/iterator_imp_specific.h"
+#include "DataFormats/Candidate/interface/CompositeCandidateFwd.h"
 
 namespace reco {
 

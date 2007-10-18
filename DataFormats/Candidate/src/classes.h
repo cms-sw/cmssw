@@ -13,6 +13,10 @@
 #include "DataFormats/Candidate/interface/CandMatchMap.h"
 #include "DataFormats/Candidate/interface/CandMatchMapMany.h"
 #include "DataFormats/Candidate/interface/CandAssociation.h"
+#include "DataFormats/Common/interface/RefHolder.h"
+#include "DataFormats/Common/interface/Holder.h"
+#include "DataFormats/Common/interface/RefVectorHolder.h"
+#include "DataFormats/Common/interface/VectorHolder.h"
 
 namespace {
   namespace {
@@ -58,5 +62,12 @@ namespace {
     reco::CandMatchMapMany::const_iterator cmm3it;
     edm::Wrapper<reco::CandMatchMapMany> wcmm3;
     edm::Wrapper<std::vector<reco::CandidateBaseRef> > wvrb1;
+
+    edm::Wrapper<reco::CompositeCandidateCollection> wcc1;
+    edm::reftobase::Holder<reco::Candidate, reco::CompositeCandidateRef> hcc1;
+    edm::reftobase::RefHolder<reco::CompositeCandidateRef> hcc2;
+    edm::reftobase::VectorHolder<reco::Candidate, reco::CompositeCandidateRefVector> hcc3;
+    edm::reftobase::RefVectorHolder<reco::CompositeCandidateRefVector> hcc4;
+    
   }
 }

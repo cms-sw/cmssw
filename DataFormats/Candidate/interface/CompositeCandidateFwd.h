@@ -1,9 +1,9 @@
-#ifndef Candidate_CandidateFwd_h
-#define Candidate_CandidateFwd_h
+#ifndef Candidate_CompositeCandidateFwd_h
+#define Candidate_CompositeCandidateFwd_h
 #include "DataFormats/Common/interface/OwnVector.h"
 
 namespace reco {
-  class Candidate;
+  class CompositeCandidate;
 }
 
 #include "DataFormats/Common/interface/Ref.h"
@@ -16,21 +16,21 @@ namespace reco {
 
 namespace reco {
   /// collection of Candidate objects
-  typedef edm::OwnVector<Candidate> CandidateCollection;
+  typedef edm::OwnVector<CompositeCandidate> CompositeCandidateCollection;
   /// view of a collection containing candidates
-  typedef edm::View<Candidate> CandidateView;
+  typedef edm::View<CompositeCandidate> CompositeCandidateView;
   /// persistent reference to an object in a collection of Candidate objects
-  typedef edm::Ref<CandidateCollection> CandidateRef;
+  typedef edm::Ref<CompositeCandidateCollection> CompositeCandidateRef;
   /// persistent reference to an object in a collection of Candidate objects
-  typedef edm::RefToBase<Candidate> CandidateBaseRef;
+  typedef edm::RefToBase<CompositeCandidate> CompositeCandidateBaseRef;
   /// vector of references to objects in the same  collection of Candidate objects
-  typedef edm::RefVector<CandidateCollection> CandidateRefVector;
+  typedef edm::RefVector<CompositeCandidateCollection> CompositeCandidateRefVector;
   /// vector of references to objects in the same collection of Candidate objects via base type
-  typedef edm::RefToBaseVector<Candidate> CandidateBaseRefVector;
+  typedef edm::RefToBaseVector<CompositeCandidate> CompositeCandidateBaseRefVector;
   /// reference to a collection of Candidate objects
-  typedef edm::RefProd<CandidateCollection> CandidateRefProd;
+  typedef edm::RefProd<CompositeCandidateCollection> CompositeCandidateRefProd;
   /// vector of references to objects in the same collection of Candidate objects via base type
-  typedef edm::RefToBaseProd<Candidate> CandidateBaseRefProd;
+  typedef edm::RefToBaseProd<CompositeCandidate> CompositeCandidateBaseRefProd;
 }
 
 #endif
