@@ -1,8 +1,8 @@
 /*
  * \file EBSummaryClient.cc
  *
- * $Date: 2007/10/18 08:11:06 $
- * $Revision: 1.58 $
+ * $Date: 2007/10/18 09:43:36 $
+ * $Revision: 1.59 $
  * \author G. Della Ricca
  *
 */
@@ -1294,7 +1294,7 @@ void EBSummaryClient::htmlOutput(int run, string htmlDir, string htmlName){
   obj2f = 0;
   obj2f = UtilsClient::getHisto<TH2F*>( meCosmic_ );
 
-  if ( obj2f ) {
+  if ( obj2f && obj2f->GetEntries() != 0 ) {
 
     meName = obj2f->GetName();
 
@@ -1329,7 +1329,7 @@ void EBSummaryClient::htmlOutput(int run, string htmlDir, string htmlName){
   obj2f = 0;
   obj2f = UtilsClient::getHisto<TH2F*>( meTiming_ );
   
-  if ( obj2f ) {
+  if ( obj2f && obj2f->GetEntries() != 0 ) {
   
     meName = obj2f->GetName();
 

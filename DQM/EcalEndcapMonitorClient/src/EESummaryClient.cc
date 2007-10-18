@@ -1,8 +1,8 @@
 /*
  * \file EESummaryClient.cc
  *
- * $Date: 2007/10/18 09:43:53 $
- * $Revision: 1.34 $
+ * $Date: 2007/10/18 09:45:45 $
+ * $Revision: 1.35 $
  * \author G. Della Ricca
  *
 */
@@ -1413,7 +1413,7 @@ void EESummaryClient::htmlOutput(int run, string htmlDir, string htmlName){
   obj2f = 0;
   obj2f = UtilsClient::getHisto<TH2F*>( meLaserL1_[0] );
 
-  if ( obj2f ) {
+  if ( obj2f && obj2f->GetEntries() != 0 ) {
 
     meName = obj2f->GetName();
 
@@ -1454,7 +1454,7 @@ void EESummaryClient::htmlOutput(int run, string htmlDir, string htmlName){
   obj2f = 0;
   obj2f = UtilsClient::getHisto<TH2F*>( meLaserL1_[1] );
 
-  if ( obj2f ) {
+  if ( obj2f && obj2f->GetEntries() != 0 ) {
 
     meName = obj2f->GetName();
 
@@ -1500,7 +1500,7 @@ void EESummaryClient::htmlOutput(int run, string htmlDir, string htmlName){
   obj2f = 0;
   obj2f = UtilsClient::getHisto<TH2F*>( meLed_[0] );
 
-  if ( obj2f ) {
+  if ( obj2f && obj2f->GetEntries() != 0 ) {
 
     meName = obj2f->GetName();
 
@@ -1541,7 +1541,7 @@ void EESummaryClient::htmlOutput(int run, string htmlDir, string htmlName){
   obj2f = 0;
   obj2f = UtilsClient::getHisto<TH2F*>( meLed_[1] );
   
-  if ( obj2f ) {
+  if ( obj2f && obj2f->GetEntries() != 0 ) {
   
     meName = obj2f->GetName();
   
@@ -1587,7 +1587,7 @@ void EESummaryClient::htmlOutput(int run, string htmlDir, string htmlName){
   obj2f = 0;
   obj2f = UtilsClient::getHisto<TH2F*>( mePedestal_[0] );
 
-  if ( obj2f ) {
+  if ( obj2f && obj2f->GetEntries() != 0 ) {
 
     meName = obj2f->GetName();
 
@@ -1628,10 +1628,10 @@ void EESummaryClient::htmlOutput(int run, string htmlDir, string htmlName){
   obj2f = 0;
   obj2f = UtilsClient::getHisto<TH2F*>( mePedestal_[1] );
   
-  if ( obj2f ) {
-  
+  if ( obj2f && obj2f->GetEntries() != 0 ) {
+
     meName = obj2f->GetName();
-  
+
     for ( unsigned int i = 0; i < meName.size(); i++ ) {
       if ( meName.substr(i, 1) == " " )  {
         meName.replace(i, 1 ,"_" );
@@ -1674,7 +1674,7 @@ void EESummaryClient::htmlOutput(int run, string htmlDir, string htmlName){
   obj2f = 0;
   obj2f = UtilsClient::getHisto<TH2F*>( meTestPulse_[0] );
 
-  if ( obj2f ) {
+  if ( obj2f && obj2f->GetEntries() != 0 ) {
 
     meName = obj2f->GetName();
 
@@ -1715,7 +1715,7 @@ void EESummaryClient::htmlOutput(int run, string htmlDir, string htmlName){
   obj2f = 0;
   obj2f = UtilsClient::getHisto<TH2F*>( meTestPulse_[1] );
   
-  if ( obj2f ) {
+  if ( obj2f && obj2f->GetEntries() != 0 ) {
   
     meName = obj2f->GetName();
   
@@ -1761,7 +1761,7 @@ void EESummaryClient::htmlOutput(int run, string htmlDir, string htmlName){
   obj2f = 0;
   obj2f = UtilsClient::getHisto<TH2F*>( meCosmic_[0] );
 
-  if ( obj2f ) {
+  if ( obj2f && obj2f->GetEntries() != 0 ) {
 
     meName = obj2f->GetName();
 
@@ -1802,7 +1802,7 @@ void EESummaryClient::htmlOutput(int run, string htmlDir, string htmlName){
   obj2f = 0;
   obj2f = UtilsClient::getHisto<TH2F*>( meCosmic_[1] );
 
-  if ( obj2f ) {
+  if ( obj2f && obj2f->GetEntries() != 0 ) {
 
     meName = obj2f->GetName();
 
@@ -1843,7 +1843,7 @@ void EESummaryClient::htmlOutput(int run, string htmlDir, string htmlName){
   obj2f = 0;
   obj2f = UtilsClient::getHisto<TH2F*>( meTiming_[0] );
 
-  if ( obj2f ) {
+  if ( obj2f && obj2f->GetEntries() != 0 ) {
     
     meName = obj2f->GetName();
 
@@ -1884,7 +1884,7 @@ void EESummaryClient::htmlOutput(int run, string htmlDir, string htmlName){
   obj2f = 0;
   obj2f = UtilsClient::getHisto<TH2F*>( meTiming_[1] );
   
-  if ( obj2f ) {
+  if ( obj2f && obj2f->GetEntries() != 0 ) {
     
     meName = obj2f->GetName();
 
