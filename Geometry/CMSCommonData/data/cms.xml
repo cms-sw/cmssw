@@ -8,6 +8,7 @@
  <Constant name="HallR"        value="[cmsextent:HallR]"/>
  <Constant name="CMSR1"        value="[cmsextent:CMSR1]"/>
  <Constant name="CMSR2"        value="[cmsextent:CMSR2]"/>
+ <Constant name="CMSZ1"        value="[cmsextent:CMSZ1]"/>
  <Constant name="CMSZ2"        value="[cmsextent:CMSZ2]"/>
  <Constant name="TrackCalorR"  value="1.233*m"/>
  <Constant name="CalorMuonR"   value="2.950*m"/>
@@ -71,13 +72,21 @@
 <SolidSection label="cms.xml">
  <Tubs name="OCMS" rMin="[Rmin]" rMax="[HallR]" dz="[HallZ]" 
                    startPhi="0*deg" deltaPhi="360*deg"/>
+ <Polycone name="OCMS" startPhi="0*deg" deltaPhi="360*deg" >
+  <ZSection z="-[CMSZ1]"  rMin="[Rmin]"  rMax="[CMSR2]" />
+  <ZSection z="-[HallZ]"  rMin="[Rmin]"  rMax="[CMSR2]" /> 
+  <ZSection z="-[HallZ]"  rMin="[Rmin]"  rMax="[HallR]" />
+  <ZSection z="[HallZ]"   rMin="[Rmin]"  rMax="[HallR]" />
+  <ZSection z="[HallZ]"   rMin="[Rmin]"  rMax="[CMSR2]" />
+  <ZSection z="[CMSZ1]"   rMin="[Rmin]"  rMax="[CMSR2]" />
+ </Polycone> 
  <Polycone name="CMSE" startPhi="0*deg" deltaPhi="360*deg" >
-  <ZSection z="-[HallZ]"  rMin="[Rmin]"  rMax="[CMSR2]" />
+  <ZSection z="-[CMSZ1]"  rMin="[Rmin]"  rMax="[CMSR2]" />
   <ZSection z="-[CMSZ2]"  rMin="[Rmin]"  rMax="[CMSR2]" /> 
   <ZSection z="-[CMSZ2]"  rMin="[Rmin]"  rMax="[CMSR1]" />
   <ZSection z="[CMSZ2]"   rMin="[Rmin]"  rMax="[CMSR1]" />
   <ZSection z="[CMSZ2]"   rMin="[Rmin]"  rMax="[CMSR2]" />
-  <ZSection z="[HallZ]"   rMin="[Rmin]"  rMax="[CMSR2]" />
+  <ZSection z="[CMSZ1]"   rMin="[Rmin]"  rMax="[CMSR2]" />
  </Polycone> 
 </SolidSection>
 
