@@ -13,7 +13,7 @@
 //
 // Original Author:  Chi Nhan Nguyen
 //         Created:  Mon Feb 19 13:25:24 CST 2007
-// $Id: FastL1GlobalAlgo.cc,v 1.24 2007/10/15 19:04:17 smaruyam Exp $
+// $Id: FastL1GlobalAlgo.cc,v 1.25 2007/10/16 16:03:20 chinhan Exp $
 //
 
 // No BitInfos for release versions
@@ -175,7 +175,7 @@ FastL1GlobalAlgo::findJets() {
 	if (isTauJet(i) && (i%22)>3 && (i%22)<18 ) {
 	  addJet(i,true);    
 	} else {
-  if (m_DoBitInfo) m_Regions[i].BitInfo.setIsolationVeto ( true);
+//  if (m_DoBitInfo) m_Regions[i].BitInfo.setIsolationVeto ( true);
 	  addJet(i,false);    
 	}
       }
@@ -370,8 +370,8 @@ FastL1GlobalAlgo::FillMET(edm::Event const& e) {
       double HThres = 0.;
       double EBthres = m_L1Config.TowerEBThreshold;
       double HBthres = m_L1Config.TowerHBThreshold;
-      double EEthres = m_L1Config.TowerEBThreshold;
-      double HEthres = m_L1Config.TowerEEThreshold;
+      double EEthres = m_L1Config.TowerEEThreshold;
+      double HEthres = m_L1Config.TowerHEThreshold;
 
       //if(std::abs(candidate->eta())<1.479) {
       if(std::abs(candidate->eta())<2.322) {
@@ -827,7 +827,8 @@ FastL1GlobalAlgo::isTauJet(int cRgn) {
   if ((cRgn%22)<4 || (cRgn%22)>17)  
     return false;
 
-  if (m_Regions[cRgn].GetTauBit()) 
+  if (m_Regions[cRgn].GetTauBit())
+// if (m_DoBitInfo) m_Regions[cRgn].BitInfo.setTauVeto ( true);
     return false;
 
   int nwid = m_Regions[cRgn].GetNWId();
@@ -858,10 +859,12 @@ FastL1GlobalAlgo::isTauJet(int cRgn) {
 	m_Regions[neid].GetTauBit() ||
 	m_Regions[eid].GetTauBit()  ||
 	m_Regions[seid].GetTauBit() ||
-	m_Regions[sid].GetTauBit()  ||
-	m_Regions[cRgn].GetTauBit()
-	) 
+	m_Regions[sid].GetTauBit() // ||
+//	m_Regions[cRgn].GetTauBit()
+	){
+ if (m_DoBitInfo) m_Regions[cRgn].BitInfo.setIsolationVeto ( true); 
       return false;
+}
     else return true;
   }
   // east border:
@@ -880,10 +883,12 @@ FastL1GlobalAlgo::isTauJet(int cRgn) {
 	m_Regions[nwid].GetTauBit() ||
 	m_Regions[wid].GetTauBit()  ||
 	m_Regions[swid].GetTauBit() ||
-	m_Regions[sid].GetTauBit()  ||
-	m_Regions[cRgn].GetTauBit()
-	) 
+	m_Regions[sid].GetTauBit()  //||
+//	m_Regions[cRgn].GetTauBit()
+	) {
+ if (m_DoBitInfo) m_Regions[cRgn].BitInfo.setIsolationVeto ( true);
       return false;
+}
     else return true;
   }
 
@@ -914,10 +919,12 @@ FastL1GlobalAlgo::isTauJet(int cRgn) {
       m_Regions[eid].GetTauBit()  ||
       m_Regions[swid].GetTauBit() ||
       m_Regions[seid].GetTauBit() ||
-      m_Regions[sid].GetTauBit()  ||
-      m_Regions[cRgn].GetTauBit()
-      ) 
+      m_Regions[sid].GetTauBit()  //||
+//      m_Regions[cRgn].GetTauBit()
+      ) {
+ if (m_DoBitInfo) m_Regions[cRgn].BitInfo.setIsolationVeto ( true);
     return false;
+}
   else return true;
 
 
@@ -1294,10 +1301,11 @@ FastL1GlobalAlgo::isMaxEtRgn_Window33(int crgn) {
   double soet = m_Regions[sid].SumEt();
   double seet = m_Regions[seid].SumEt();
 
-  if ( cenet > nwet &&  cenet > noet &&
-       cenet > neet &&  cenet >= eaet &&
+  if ( (crgn%22) <= 10)
+if(    cenet > nwet &&  cenet > noet &&
+       cenet >= neet &&  cenet >= eaet &&
        cenet > weet &&  cenet >= soet &&
-       cenet >= swet &&  cenet >= seet ) 
+       cenet > swet &&  cenet >= seet ) 
     {
 
       double cene = m_Regions.at(crgn).SumE();
@@ -1323,8 +1331,38 @@ FastL1GlobalAlgo::isMaxEtRgn_Window33(int crgn) {
       m_Regions.at(crgn).SetJetEt3x3(cenet);
       
       return true;
-    } else { return false; }
+    } //else { return false; }
 
+  if ( (crgn%22) > 10)
+if(    cenet >= nwet &&  cenet > noet &&
+       cenet > neet &&  cenet > eaet &&
+       cenet >= weet &&  cenet >= soet &&
+       cenet >= swet &&  cenet > seet )
+    { 
+ 
+      double cene = m_Regions.at(crgn).SumE();
+      double nwe =  m_Regions[nwid].SumE();
+      double noe = m_Regions[nid].SumE();
+      double nee = m_Regions[neid].SumE();
+      double wee = m_Regions[wid].SumE();
+      double eae = m_Regions[eid].SumE();
+      double swe = m_Regions[swid].SumE();
+      double soe = m_Regions[sid].SumE();
+      double see = m_Regions[seid].SumE();
+ 
+      double jE = cene + nwe + noe + nee + wee + eae + swe + soe + see;
+      double jEt = cenet + nwet + noet + neet + weet + eaet + swet + soet + seet;
+ 
+      m_Regions.at(crgn).SetJetE(jE);
+      m_Regions.at(crgn).SetJetEt(jEt);
+ 
+      m_Regions.at(crgn).SetJetE3x3(cene);
+      m_Regions.at(crgn).SetJetEt3x3(cenet);
+       
+      return true; 
+    } 
+
+return false;
 }
 
 
