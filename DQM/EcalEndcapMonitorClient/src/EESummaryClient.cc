@@ -1,8 +1,8 @@
 /*
  * \file EESummaryClient.cc
  *
- * $Date: 2007/10/18 08:17:31 $
- * $Revision: 1.33 $
+ * $Date: 2007/10/18 09:43:53 $
+ * $Revision: 1.34 $
  * \author G. Della Ricca
  *
 */
@@ -756,6 +756,7 @@ void EESummaryClient::analyze(void){
     TH2F* h2;
     TProfile2D* h2d;
 
+    // fill the gain value priority map<id,priority>
     std::map<float,float> priority;
     priority.insert( make_pair(0,3) );
     priority.insert( make_pair(1,1) );
