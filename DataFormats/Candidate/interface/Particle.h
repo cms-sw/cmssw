@@ -7,7 +7,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: Particle.h,v 1.21 2007/10/15 12:44:33 llista Exp $
+ * \version $Id: Particle.h,v 1.22 2007/10/15 18:13:26 llista Exp $
  *
  */
 #include "DataFormats/Math/interface/Point3D.h"
@@ -103,6 +103,12 @@ namespace reco {
       // the following implementation is suboptimal, 
       // but will be changed as we move to internal polar coordinates
       PolarLorentzVector p4 = polarP4(); p4.SetM(m); p4_ = p4; clearCache(); 
+    }
+    /// set longitudinal momentum
+    void setPz( double pz ) { 
+      // the following implementation is suboptimal, 
+      // but will be changed as we move to internal polar coordinates
+      p4_.SetPz(pz); clearCache(); 
     }
     /// vertex position
     const Point & vertex() const { return vertex_; }
