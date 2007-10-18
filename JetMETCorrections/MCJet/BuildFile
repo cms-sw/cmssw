@@ -6,6 +6,4 @@
 <use name=JetMETCorrections/Objects>
 <use name=DataFormats/Common>
 <export>
-   <lib name=JetMETCorrectionsMCJet>
-   <use name=JetMETCorrections/Objects>
 </export>

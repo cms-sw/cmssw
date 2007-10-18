@@ -11,7 +11,7 @@
 #include <cmath>
 #include <functional>
 
-#include "JetMETCorrections/MCJet/src/SimJetResponseAnalysis.h"
+#include "SimJetResponseAnalysis.h"
 
 
 #include "FWCore/Framework/interface/Event.h"
@@ -29,8 +29,8 @@
 #include "DataFormats/JetReco/interface/GenJetCollection.h"
 
 
-#include "JetMETCorrections/MCJet/src/CaloTowerBoundriesMC.h"
-#include "JetMETCorrections/MCJet/src/JetUtilMC.h"
+#include "CaloTowerBoundriesMC.h"
+#include "JetUtilMC.h"
 
 typedef CaloJetCollection::const_iterator CalJetIter;
 typedef GenJetCollection::const_iterator GenJetIter;

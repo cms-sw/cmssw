@@ -1,7 +1,10 @@
 <use name=FWCore/Framework>
 <use name=FWCore/ParameterSet>
+<use name=DataFormats/Common>
+<use name=Geometry/Records>
+<use name=DataFormats/JetReco>
+<use name=DataFormats/METReco>
 <use name=root>
-<use name=JetMETCorrections/MCJet>
 <library file="*.cc" name=JetMETCorrectionsMCJetPlugins>
       <flags EDM_PLUGIN=1>
 </library>
