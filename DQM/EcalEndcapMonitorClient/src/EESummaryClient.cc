@@ -1,8 +1,8 @@
 /*
  * \file EESummaryClient.cc
  *
- * $Date: 2007/09/08 15:01:21 $
- * $Revision: 1.31 $
+ * $Date: 2007/09/27 15:32:12 $
+ * $Revision: 1.32 $
  * \author G. Della Ricca
  *
 */
@@ -98,6 +98,8 @@ EESummaryClient::EESummaryClient(const ParameterSet& ps){
 
   meCosmic_[0]         = 0;
   meCosmic_[1]         = 0;
+  meTiming_[0]         = 0;
+  meTiming_[1]         = 0;
 
   qtg01_[0] = 0;
   qtg01_[1] = 0;
@@ -124,6 +126,8 @@ EESummaryClient::EESummaryClient(const ParameterSet& ps){
 
   qtg08_[0] = 0;
   qtg08_[1] = 0;
+  qtg09_[0] = 0;
+  qtg09_[1] = 0;
 
   qtg99_[0] = 0;
   qtg99_[1] = 0;
@@ -220,6 +224,12 @@ void EESummaryClient::beginJob(MonitorUserInterface* mui){
     sprintf(qtname, "EECT EE + summary quality test");
     qtg08_[1] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (dbe_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
 
+    sprintf(qtname, "EETMT EE - summary quality test");
+    qtg09_[0] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (dbe_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
+
+    sprintf(qtname, "EETMT EE + summary quality test");
+    qtg09_[1] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (dbe_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
+
     sprintf(qtname, "EE global summary quality test EE -");
     qtg99_[0] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (dbe_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
 
@@ -249,8 +259,10 @@ void EESummaryClient::beginJob(MonitorUserInterface* mui){
     qtg07_[1]->setMeanRange(1., 6.);
     qtg07PN_[1]->setMeanRange(1., 6.);
 
+//    qtg08_[0]->setMeanRange(1., 6.);
 //    qtg08_[1]->setMeanRange(1., 6.);
-//    qtg08_[1]->setMeanRange(1., 6.);
+//    qtg09_[0]->setMeanRange(1., 6.);
+//    qtg09_[1]->setMeanRange(1., 6.);
 
     qtg99_[0]->setMeanRange(1., 6.);
     qtg99_[1]->setMeanRange(1., 6.);
@@ -280,6 +292,8 @@ void EESummaryClient::beginJob(MonitorUserInterface* mui){
 
 //    qtg08_[0]->setErrorProb(1.00);
 //    qtg08_[1]->setErrorProb(1.00);
+//    qtg09_[0]->setErrorProb(1.00);
+//    qtg09_[1]->setErrorProb(1.00);
 
     qtg99_[0]->setErrorProb(1.00);
     qtg99_[1]->setErrorProb(1.00);
@@ -415,12 +429,20 @@ void EESummaryClient::setup(void) {
   meTestPulsePN_[1] = dbe_->book2D(histo, histo, 90, 0., 90., 20, -10., 10.);
 
   if( meCosmic_[0] ) dbe_->removeElement( meCosmic_[0]->getName() );
-  sprintf(histo, "EETPT EE - cosmic quality summary");
+  sprintf(histo, "EECT EE - cosmic quality summary");
   meCosmic_[0] = dbe_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
 
   if( meCosmic_[1] ) dbe_->removeElement( meCosmic_[1]->getName() );
-  sprintf(histo, "EETPT EE + cosmic quality summary");
+  sprintf(histo, "EECT EE + cosmic quality summary");
   meCosmic_[1] = dbe_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
+
+  if( meTiming_[0] ) dbe_->removeElement( meTiming_[0]->getName() );
+  sprintf(histo, "EETPT EE - timing quality summary");
+  meTiming_[0] = dbe_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
+
+  if( meTiming_[1] ) dbe_->removeElement( meTiming_[1]->getName() );
+  sprintf(histo, "EETPT EE + timing quality summary");
+  meTiming_[1] = dbe_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
 
   if( meGlobalSummary_[0] ) dbe_->removeElement( meGlobalSummary_[0]->getName() );
   sprintf(histo, "EE global summary EE -");
@@ -508,6 +530,12 @@ void EESummaryClient::cleanup(void) {
   if ( meCosmic_[1] ) dbe_->removeElement( meCosmic_[1]->getName() );
   meCosmic_[1] = 0;
 
+  if ( meTiming_[0] ) dbe_->removeElement( meTiming_[0]->getName() );
+  meTiming_[0] = 0;
+
+  if ( meTiming_[1] ) dbe_->removeElement( meTiming_[1]->getName() );
+  meTiming_[1] = 0;
+
   if ( meGlobalSummary_[0] ) dbe_->removeElement( meGlobalSummary_[0]->getName() );
   meGlobalSummary_[0] = 0;
 
@@ -545,6 +573,8 @@ bool EESummaryClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRun
 
 //  UtilsClient::printBadChannels(qtg08_[0]);
 //  UtilsClient::printBadChannels(qtg08_[1]);
+//  UtilsClient::printBadChannels(qtg09_[0]);
+//  UtilsClient::printBadChannels(qtg09_[1]);
 
 //  UtilsClient::printBadChannels(qtg99_[0]);
 //  UtilsClient::printBadChannels(qtg99_[1]);
@@ -608,6 +638,10 @@ void EESummaryClient::subscribe(void){
   if ( qtg08_[0] ) dbe_->useQTest(histo, qtg08_[0]->getName());
   sprintf(histo, "EcalBarrel/EESummaryClient/EECT EE + cosmic quality summary");
   if ( qtg08_[1] ) dbe_->useQTest(histo, qtg08_[1]->getName());
+  sprintf(histo, "EcalBarrel/EESummaryClient/EETMT EE - timing quality summary");
+  if ( qtg09_[0] ) dbe_->useQTest(histo, qtg09_[0]->getName());
+  sprintf(histo, "EcalBarrel/EESummaryClient/EETMT EE + timing quality summary");
+  if ( qtg09_[1] ) dbe_->useQTest(histo, qtg09_[1]->getName());
 
   sprintf(histo, "EcalEndcap/EESummaryClient/EE global summary EE -");
   if ( qtg99_[0] ) dbe_->useQTest(histo, qtg99_[0]->getName());
@@ -659,6 +693,8 @@ void EESummaryClient::analyze(void){
 
       meCosmic_[0]->setBinContent( ix, iy, -1. );
       meCosmic_[1]->setBinContent( ix, iy, -1. );
+      meTiming_[0]->setBinContent( ix, iy, -1. );
+      meTiming_[1]->setBinContent( ix, iy, -1. );
 
       meGlobalSummary_[0]->setBinContent( ix, iy, -1. );
       meGlobalSummary_[1]->setBinContent( ix, iy, -1. );
@@ -698,6 +734,8 @@ void EESummaryClient::analyze(void){
 
   meCosmic_[0]->setEntries( 0 );
   meCosmic_[1]->setEntries( 0 );
+  meTiming_[0]->setEntries( 0 );
+  meTiming_[1]->setEntries( 0 );
 
   for ( unsigned int i=0; i<clients_.size(); i++ ) {
 
@@ -710,6 +748,7 @@ void EESummaryClient::analyze(void){
     EETestPulseClient* eetpc = dynamic_cast<EETestPulseClient*>(clients_[i]);
 
     EECosmicClient* eecc = dynamic_cast<EECosmicClient*>(clients_[i]);
+    EETimingClient* eetmc = dynamic_cast<EETimingClient*>(clients_[i]);
 
     MonitorElement* me;
     MonitorElement *me_01, *me_02, *me_03;
@@ -943,6 +982,24 @@ void EESummaryClient::analyze(void){
 
           }
 
+          if ( eetmc ) {
+
+            me = eetmc->meg01_[ism-1];
+
+            if ( me ) {
+    
+              float xval = me->getBinContent( ix, iy );
+
+              if ( ism >= 1 && ism <= 9 ) {
+                if ( Numbers::validEE(ism, 101 - jx, jy) ) meTiming_[0]->setBinContent( jx, jy, xval );
+              } else {
+                if ( Numbers::validEE(ism, jx, jy) ) meTiming_[1]->setBinContent( jx, jy, xval );
+              } 
+
+            }
+
+          }
+
         }
       }
 
@@ -1089,6 +1146,7 @@ void EESummaryClient::htmlOutput(int run, string htmlDir, string htmlName){
   string imgNameMapP[2], imgNameMapP_PN[2];
   string imgNameMapTP[2], imgNameMapTP_PN[2];
   string imgNameMapC[2];
+  string imgNameMapTM[2];
   string imgName, meName;
   string imgNameMapGS[2];
 
@@ -1779,6 +1837,88 @@ void EESummaryClient::htmlOutput(int run, string htmlDir, string htmlName){
 
   }
 
+  imgNameMapTM[0] = "";
+
+  obj2f = 0;
+  obj2f = UtilsClient::getHisto<TH2F*>( meTiming_[0] );
+
+  if ( obj2f ) {
+    
+    meName = obj2f->GetName();
+
+    for ( unsigned int i = 0; i < meName.size(); i++ ) {
+      if ( meName.substr(i, 1) == " " )  {
+        meName.replace(i, 1 ,"_" );
+      }
+    }
+    imgNameMapTM[0] = meName + ".png";
+    imgName = htmlDir + imgNameMapTM[0];
+    
+    cMap->cd();
+    gStyle->SetOptStat(" ");
+    gStyle->SetPalette(6, pCol3);
+    cMap->SetGridx();
+    cMap->SetGridy();
+    obj2f->SetMinimum(-0.00000001);
+    obj2f->SetMaximum(6.0);
+    obj2f->GetXaxis()->SetLabelSize(0.03);
+    obj2f->GetYaxis()->SetLabelSize(0.03);
+    obj2f->Draw("col");
+    labelGrid1.Draw("text,same");
+    cMap->SetBit(TGraph::kClipFrame);
+    TLine l;
+    l.SetLineWidth(1);
+    for ( int i=0; i<201; i=i+1){
+      if ( (Numbers::ixSectorsEE[i]!=0 || Numbers::iySectorsEE[i]!=0) && (Numbers::ixSectorsEE[i+1]!=0 || Numbers::iySectorsEE[i+1]!=0) ) {
+        l.DrawLine(Numbers::ixSectorsEE[i], Numbers::iySectorsEE[i], Numbers::ixSectorsEE[i+1], Numbers::iySectorsEE[i+1]);
+      } 
+    }
+    cMap->Update();
+    cMap->SaveAs(imgName.c_str());
+
+  }
+
+  imgNameMapTM[1] = "";
+
+  obj2f = 0;
+  obj2f = UtilsClient::getHisto<TH2F*>( meTiming_[1] );
+  
+  if ( obj2f ) {
+    
+    meName = obj2f->GetName();
+
+    for ( unsigned int i = 0; i < meName.size(); i++ ) {
+      if ( meName.substr(i, 1) == " " )  {
+        meName.replace(i, 1 ,"_" );
+      }
+    }
+    imgNameMapTM[1] = meName + ".png";
+    imgName = htmlDir + imgNameMapTM[1];
+
+    cMap->cd();
+    gStyle->SetOptStat(" ");
+    gStyle->SetPalette(6, pCol3);
+    cMap->SetGridx();
+    cMap->SetGridy();
+    obj2f->SetMinimum(-0.00000001);
+    obj2f->SetMaximum(6.0);
+    obj2f->GetXaxis()->SetLabelSize(0.03);
+    obj2f->GetYaxis()->SetLabelSize(0.03);
+    obj2f->Draw("col");
+    labelGrid1.Draw("text,same");
+    cMap->SetBit(TGraph::kClipFrame);
+    TLine l;
+    l.SetLineWidth(1);
+    for ( int i=0; i<201; i=i+1){
+      if ( (Numbers::ixSectorsEE[i]!=0 || Numbers::iySectorsEE[i]!=0) && (Numbers::ixSectorsEE[i+1]!=0 || Numbers::iySectorsEE[i+1]!=0) ) {
+        l.DrawLine(Numbers::ixSectorsEE[i], Numbers::iySectorsEE[i], Numbers::ixSectorsEE[i+1], Numbers::iySectorsEE[i+1]);
+      }
+    }
+    cMap->Update();
+    cMap->SaveAs(imgName.c_str());
+
+  }
+
   imgNameMapGS[0] = "";
 
   obj2f = 0;
@@ -1951,6 +2091,17 @@ void EESummaryClient::htmlOutput(int run, string htmlDir, string htmlName){
     htmlFile << "<br>" << endl;
   }
 
+  if ( imgNameMapTM[0].size() != 0  || imgNameMapTM[1].size() != 0 ) {
+    htmlFile << "<table border=\"0\" cellspacing=\"0\" " << endl;
+    htmlFile << "cellpadding=\"10\" align=\"center\"> " << endl;
+    htmlFile << "<tr align=\"center\">" << endl;
+    htmlFile << "<td><img src=\"" << imgNameMapTM[0] << "\" usemap=\"#Timing_0\" border=0></td>" << endl;
+    htmlFile << "<td><img src=\"" << imgNameMapTM[1] << "\" usemap=\"#Timing_1\" border=0></td>" << endl;
+    htmlFile << "</tr>" << endl;
+    htmlFile << "</table>" << endl;
+    htmlFile << "<br>" << endl;
+  }
+
   delete cMap;
 
   gStyle->SetPaintTextFormat();
@@ -1964,6 +2115,7 @@ void EESummaryClient::htmlOutput(int run, string htmlDir, string htmlName){
   if ( imgNameMapTP[0].size() != 0 || imgNameMapTP[1].size() != 0 ) this->writeMap( htmlFile, "TestPulse" );
 
   if ( imgNameMapC[0].size() != 0 || imgNameMapC[1].size() != 0 ) this->writeMap( htmlFile, "Cosmic" );
+  if ( imgNameMapTM[0].size() != 0 || imgNameMapTM[1].size() != 0 ) this->writeMap( htmlFile, "Timing" );
 
   // html page footer
   htmlFile << "</body> " << endl;
@@ -1988,6 +2140,7 @@ void EESummaryClient::writeMap( std::ofstream& hf, std::string mapname ) {
   refhtml["TestPulse"] = "EETestPulseClient.html";
 
   refhtml["Cosmic"] = "EECosmicClient.html";
+  refhtml["Timing"] = "EETimingClient.html";
 
   const int A0 =  38;
   const int A1 = 334;

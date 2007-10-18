@@ -4,8 +4,8 @@
 /*
  * \file EESummaryClient.h
  *
- * $Date: 2007/09/07 22:30:06 $
- * $Revision: 1.5 $
+ * $Date: 2007/09/08 05:15:35 $
+ * $Revision: 1.6 $
  * \author G. Della Ricca
  *
 */
@@ -117,6 +117,7 @@ MonitorElement* meTestPulse_[2];
 MonitorElement* meTestPulsePN_[2];
 
 MonitorElement* meCosmic_[2];
+MonitorElement* meTiming_[2];
 
 MEContentsTH2FWithinRangeROOT* qtg01_[2];
 MEContentsTH2FWithinRangeROOT* qtg02_[2];
@@ -131,6 +132,7 @@ MEContentsTH2FWithinRangeROOT* qtg07_[2];
 MEContentsTH2FWithinRangeROOT* qtg07PN_[2];
 
 MEContentsTH2FWithinRangeROOT* qtg08_[2];
+MEContentsTH2FWithinRangeROOT* qtg09_[2];
 
 MonitorElement* meGlobalSummary_[2];
 
