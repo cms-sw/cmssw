@@ -10,6 +10,7 @@
 #include "RecoEcal/EgammaClusterProducers/interface/PreshowerAnalyzer.h"
 #include "RecoEcal/EgammaClusterProducers/interface/PiZeroDiscriminatorProducer.h"
 #include "RecoEcal/EgammaClusterProducers/interface/RecHitFilter.h"
+#include "RecoEcal/EgammaClusterProducers/interface/PreshowerClusterShapeProducer.h"
 
 DEFINE_SEAL_MODULE();
 
@@ -23,3 +24,4 @@ DEFINE_ANOTHER_FWK_MODULE(PreshowerClusterProducer);
 DEFINE_ANOTHER_FWK_MODULE(PreshowerAnalyzer);
 DEFINE_ANOTHER_FWK_MODULE(PiZeroDiscriminatorProducer);
 DEFINE_ANOTHER_FWK_MODULE(RecHitFilter);
+DEFINE_ANOTHER_FWK_MODULE(PreshowerClusterShapeProducer);
