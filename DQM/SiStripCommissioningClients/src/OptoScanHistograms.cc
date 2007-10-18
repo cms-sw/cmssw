@@ -82,7 +82,9 @@ void OptoScanHistograms::histoAnalysis( bool debug ) {
     if ( anal->isValid() ) { valid++; }
     if ( debug ) {
       std::stringstream ss;
-      anal->print( ss, anal->gain() ); 
+      //al->print( ss, anal->gain() ); //@@ temporarily removed for ana
+      ss << " Gain setting " << anal->gain() << " is optimum setting!" << std::endl;
+      for ( uint16_t igain = 0; igain < 4; ++igain ) { anal->print( ss, igain ); }
       if ( anal->isValid() ) { LogTrace(mlDqmClient_) << ss.str(); }
       else { edm::LogWarning(mlDqmClient_) << ss.str(); }
       if ( !anal->getErrorCodes().empty() ) { 
