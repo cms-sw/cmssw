@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2007/04/19 14:55:52 $
- *  $Revision: 1.1 $
+ *  $Date: 2007/05/02 15:49:01 $
+ *  $Revision: 1.2 $
  *  \author N. Amapane - CERN
  */
 
@@ -15,8 +15,8 @@
 // Alignments
 #include "CondFormats/Alignment/interface/Alignments.h"
 #include "CondFormats/Alignment/interface/AlignmentErrors.h"
-#include "CondFormats/DataRecord/interface/DTAlignmentRcd.h"
-#include "CondFormats/DataRecord/interface/DTAlignmentErrorRcd.h"
+#include "CondFormats/AlignmentRecord/interface/DTAlignmentRcd.h"
+#include "CondFormats/AlignmentRecord/interface/DTAlignmentErrorRcd.h"
 #include "Geometry/TrackingGeometryAligner/interface/GeometryAligner.h"
 #include "DataFormats/TrackingRecHit/interface/AlignmentPositionError.h"
 

@@ -1,6 +1,6 @@
 < name="DTGeometryESModule" file="DTGeometryESModule.cc">
  <use name=CondFormats/Alignment>
- <use name=CondFormats/DataRecord>
+ <use name=CondFormats/AlignmentRecord>
  <use name=DataFormats/TrackingRecHit>
  <use name=DetectorDescription/Core>
  <use name=FWCore/Framework>

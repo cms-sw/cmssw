@@ -2,14 +2,13 @@
 <library file="*.cc" name=GeometryTrackerGeometryBuilderPlugins>
 <use name=CondFormats/Alignment>
 <use name=CondFormats/IdealGeometryObjects>
-<use name=CondFormats/DataRecord>
+<use name=CondFormats/AlignmentRecord>
 <use name=DetectorDescription/Core>
 <use name=FWCore/Framework>
 <use name=FWCore/ParameterSet>
 <use name=Geometry/Records>
 <use name=Geometry/TrackerGeometryBuilder>
 <use name=Geometry/TrackerNumberingBuilder>
-<use name=Geometry/TrackingGeometryAligner>
 <use name=boost>
 <flags EDM_PLUGIN=1>
 </library>
