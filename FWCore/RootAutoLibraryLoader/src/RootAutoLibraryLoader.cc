@@ -2,13 +2,13 @@
 //
 // Package:     LibraryLoader
 // Class  :     RootAutoLibraryLoader
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //
-// Original Author:  
+// Original Author:
 //         Created:  Wed Nov 30 14:55:01 EST 2005
-// $Id: RootAutoLibraryLoader.cc,v 1.9 2007/08/20 14:00:41 chrjones Exp $
+// $Id: RootAutoLibraryLoader.cc,v 1.10 2007/10/18 18:41:26 wmtan Exp $
 //
 
 // system include files
@@ -47,9 +47,9 @@ extern CallbackPtr G__p_class_autoloading;
 
 namespace edm {
 
-static 
+static
 bool loadLibraryForClass(const char* classname)
-{  
+{
   //std::cout <<"loadLibaryForClass"<<std::endl;
   if(0 == classname) {
     return false;
@@ -58,32 +58,41 @@ bool loadLibraryForClass(const char* classname)
   static const std::string cPrefix("LCGReflex/");
   //std::cout <<"asking to find "<<cPrefix+classname<<std::endl;
   try {
-    if( edmplugin::PluginCapabilities::get()->tryToLoad(cPrefix+classname) ) {
+    if(edmplugin::PluginCapabilities::get()->tryToLoad(cPrefix+classname)) {
       ROOT::Reflex::Type t = ROOT::Reflex::Type::ByName(classname);
-      if(ROOT::Reflex::Type() != t) {
-        if(!t.IsComplete()) {
-          // this message happens too often (to many false positives) to be useful plus ROOT will complain about a missing dictionary 
-          //std::cerr <<"Warning: Reflex knows about type '"<<classname<<"' but has no dictionary for it."<<std::endl;
-          return false;
-        }
-        //std::cout <<"loaded "<<classname<<std::endl;
-        return true;
+      if (ROOT::Reflex::Type() == t) {
+        //would be nice to issue a warning here
+	return false;
+      }
+      if(!t.IsComplete()) {
+        //would be nice to issue a warning here.  Not sure the remainder of this comment is correct.
+        // this message happens too often (too many false positives) to be useful plus ROOT will complain about a missing dictionary
+        //std::cerr <<"Warning: Reflex knows about type '"<<classname<<"' but has no dictionary for it."<<std::endl;
+        return false;
       }
     } else {
       //see if adding a std namespace helps
       std::string name = root::stdNamespaceAdder(classname);
       //std::cout <<"see if std helps"<<std::endl;
-      if (not edmplugin::PluginCapabilities::get()->tryToLoad(cPrefix+name) ) {
-        //Would be good to add debug messages here
+      if (not edmplugin::PluginCapabilities::get()->tryToLoad(cPrefix+name)) {
+        // Too many false positives on built-in types here.
         return false;
       }
-      ROOT::Reflex::Type t = ROOT::Reflex::Type::ByName(classname);
-      return ROOT::Reflex::Type() != t;
+      ROOT::Reflex::Type t = ROOT::Reflex::Type::ByName(name);
+      if (ROOT::Reflex::Type() == t) {
+        t = ROOT::Reflex::Type::ByName(classname);
+        if (ROOT::Reflex::Type() == t) {
+          //would be nice to issue a warning here
+          return false;
+        }
+      }
     }
   } catch(cms::Exception& e) {
-    //would be nice to make ROOT issue a warning here
+    //would be nice to issue a warning here
+    return false;
   }
-  return false;
+  //std::cout <<"loaded "<<classname<<std::endl;
+  return true;
 }
 
 //Based on code in ROOT's TCint.cxx file
@@ -99,7 +108,7 @@ static int ALL_AutoLoadCallback(char *c, char *l) {
   int result = loadLibraryForClass(c) ? 1:0;
   G__setgvp(varp);
   //NOTE: the check for the library is done since we can have a failure
-  // if a CMS library has an incomplete set of Reflex dictionaries where 
+  // if a CMS library has an incomplete set of Reflex dictionaries where
   // the remaining dictionaries can be found by Cint.  If the library with
   // the Reflex dictionaries is loaded first, then the Cint library then any
   // requests for a Reflex::Type from the Reflex library will fail because for
@@ -113,15 +122,15 @@ static int ALL_AutoLoadCallback(char *c, char *l) {
   return result;
 }
 
-static std::string 
+static std::string
 classNameForRoot(const std::string& iCapName)
 {
   //need to remove any 'std::' since ROOT ignores it
   static const boost::regex ex("std::");
   const std::string to("");
-  
+
   return regex_replace(iCapName, ex, to, boost::match_default | boost::format_sed);
-  
+
   return iCapName;
 }
 
@@ -138,7 +147,7 @@ namespace {
 static
 void registerTypes() {
   edmplugin::PluginManager*db =  edmplugin::PluginManager::get();
-  
+
   typedef edmplugin::PluginManager::CategoryToInfos CatToInfos;
 
   CatToInfos::const_iterator itFound = db->categoryToInfos().find("Capability");
@@ -157,7 +166,7 @@ void registerTypes() {
   std::string lastClass;
   static const std::string cPrefix("LCGReflex/");
   for (edmplugin::PluginManager::Infos::const_iterator itInfo = itFound->second.begin(),
-       itInfoEnd = itFound->second.end(); 
+       itInfoEnd = itFound->second.end();
        itInfo != itInfoEnd; ++itInfo)
   {
     if (lastClass == itInfo->name_) {
@@ -170,12 +179,12 @@ void registerTypes() {
     }
   }
   //std::sort(classes.begin(), classes.end(), std::greater<std::string>());
-  //std::sort(classes.begin(), classes.end(), CompareFirst() );
+  //std::sort(classes.begin(), classes.end(), CompareFirst());
   //the values are already sorted by less, so just need to reverse to get greater
   for(ClassAndLibraries::reverse_iterator itClass = classes.rbegin(), itClassEnd = classes.rend();
       itClass != itClassEnd;
       ++itClass) {
-    
+
     const std::string& className = itClass->first;
     const std::string& libraryName = itClass->second;
     //need to register namespaces and figure out if we have an embedded class
@@ -203,13 +212,13 @@ RootAutoLibraryLoader::RootAutoLibraryLoader() :
    edm::AssertHandler h();
    gROOT->AddClassGenerator(this);
    ROOT::Cintex::Cintex::Enable();
-   
+
    //std::cout <<"my loader"<<std::endl;
    //remember if the callback was already set so we can chain together our results
    gPrevious = G__p_class_autoloading;
    G__set_class_autoloading_callback(&ALL_AutoLoadCallback);
    registerTypes();
-   
+
    edm::setCacheStreamers();
 }
 
@@ -231,7 +240,7 @@ RootAutoLibraryLoader::GetClass(const char* classname, Bool_t load)
      //std::cout <<" going to call loadLibraryForClass"<<std::endl;
      if (loadLibraryForClass(classname)) {
        //use this to check for infinite recursion attempt
-       classNameAttemptingToLoad_ = classname;    
+       classNameAttemptingToLoad_ = classname;
        // This next call will create the TClass object for the class.
        // It will also attempt to load the dictionary for the class
        // if the second argument is kTRUE. This is the default, so it
@@ -273,24 +282,24 @@ RootAutoLibraryLoader::loadAll()
   enable();
 
   edmplugin::PluginManager*db =  edmplugin::PluginManager::get();
-  
+
   typedef edmplugin::PluginManager::CategoryToInfos CatToInfos;
-  
+
   CatToInfos::const_iterator itFound = db->categoryToInfos().find("Capability");
-  
+
   if(itFound == db->categoryToInfos().end()) {
     return;
   }
   std::string lastClass;
   const std::string cPrefix("LCGReflex/");
   for (edmplugin::PluginManager::Infos::const_iterator itInfo = itFound->second.begin(),
-       itInfoEnd = itFound->second.end(); 
+       itInfoEnd = itFound->second.end();
        itInfo != itInfoEnd; ++itInfo)
   {
     if (lastClass == itInfo->name_) {
       continue;
     }
-    
+
     lastClass = itInfo->name_;
     edmplugin::PluginCapabilities::get()->load(lastClass);
     //NOTE: since we have the library already, we could be more efficient if we just load it ourselves
