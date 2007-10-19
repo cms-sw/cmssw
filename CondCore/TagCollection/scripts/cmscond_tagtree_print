@@ -1,0 +1,93 @@
+#!/usr/bin/env python
+from ConfigParser import ConfigParser
+from copy import copy
+from optparse import OptionParser, Option, OptionValueError
+import coral
+from CondCore.TagCollection import Node,tagInventory,TagTree
+class tagTreePrinter:
+    def __init__(self):
+        """
+        Class print tag tree
+        usage: %prog [options]
+        -c, --connect=connectstring: connection string to the tag DB (required)
+        -u, --user=user: user name
+        -p, --password=password: password
+        -P, --path=path: path to authentication.xml
+        -a, --all: print summary of all
+        -t, --tag: tag to print
+        -v, --verbose: switch on verbose mode
+        -h, --help: print usage
+        """
+        self.__parser=OptionParser()
+        self.__connectstring=''
+        self.__user=''
+        self.__password=''
+        self.__authpath='.'
+        self.__tag=''
+        self.__all=True
+        self.__verbose=False
+    def parsecmdln(self):
+        """
+        Parse commandline
+        """
+        usage = "usage: \%prog [options] \n"
+        self.__parser.add_option("-c","--connect",action="store",dest="connectstring",type="string",help="connection string to the tag DB")
+        self.__parser.add_option("-u","--user",action="store",dest="user",type="string",help="user name")
+        self.__parser.add_option("-p","--password",action="store",dest="password",type="string",help="password")
+        self.__parser.add_option("-P","--path",action="store",dest="authpath",type="string",help="path to authentication.xml")
+        self.__parser.add_option("-a","--all",action="store_true",dest="all",help="print all tags")
+        self.__parser.add_option("-t","--tag",action="store",dest="tag",type="string",help="tag to print")
+        self.__parser.add_option("-v","--verbose",action="store_true",dest="verbose",help="verbose mode")
+        self.__parser.set_defaults(connectstring='')
+        self.__parser.set_defaults(user='')
+        self.__parser.set_defaults(password='')
+        self.__parser.set_defaults(authpath='.')
+        self.__parser.set_defaults(tag='')
+        self.__parser.set_defaults(all=False)
+        self.__parser.set_defaults(verbose=False)
+        (options, args) = self.__parser.parse_args()
+        self.__connectstring=self.__parser.values.connectstring
+        self.__user=self.__parser.values.user
+        self.__password=self.__parser.values.password
+        self.__authpath=self.__parser.values.authpath
+        self.__all=self.__parser.values.all
+        self.__tag=self.__parser.values.tag
+        self.__verbose=self.__parser.values.verbose
+        if self.__parser.values.verbose is True:
+            print 'connectstring: ',self.__connectstring
+            print 'user: ',self.__user
+            print 'password: ',self.__password
+            print 'authpath: ',self.__authpath
+            print 'print all: ',self.__all
+            print 'tag: ',self.__tag
+    def printme(self):
+        """
+        print requested tag inventory entry or all
+        """
+        context = coral.Context()
+        if self.__verbose is True:
+            context.setVerbosityLevel( 'DEBUG' )
+        else:
+            context.setVerbosityLevel( 'ERROR' )
+        svc = coral.ConnectionService( context )
+        session = svc.connect( self.__connectstring,accessMode = coral.access_ReadOnly )
+        mytree=TagTree.tagTree(session)
+        try:
+            if self.__all is True:
+                print 'here'
+                result=mytree.getSubtree('ROOT')
+                print result 
+            else:
+                result=mytree.getSubtree(self.__tag)
+                print result
+            del session
+        except Exception, e:
+            print str(e)
+            del session
+        
+if __name__ == "__main__":
+    tagprinter=tagTreePrinter() 
+    tagprinter.parsecmdln()
+    tagprinter.printme()
+    
+
