@@ -18,7 +18,7 @@ detector segment (detID)
 //
 // Original Author:  Vincenzo Chiochia
 //         Created:  
-// $Id: SiPixelDigiModule.h,v 1.6 2007/04/04 13:57:04 chiochia Exp $
+// $Id: SiPixelRecHitModule.h,v 1.1 2007/10/10 03:37:27 krose Exp $
 //
 //  Adapted by: Keith Rose
 //  for use in SiPixelMonitorRecHit package
@@ -45,16 +45,13 @@ class SiPixelRecHitModule {
   /// Book histograms
   void book(const edm::ParameterSet& iConfig);
   /// Fill histograms
-  void fill(const float& rechit_x, const float& rechit_y, const float& x_res, const float& y_res, const float& x_pull, const float& y_pull);
+  void fill(const float& rechit_x, const float& rechit_y, const int& sizeX, const int& sizeY);
   
  private:
 
   uint32_t id_;
   MonitorElement* meXYPos_;
-  MonitorElement* meXRes_;
-  MonitorElement* meYRes_;
-  MonitorElement* meXPull_;
-  MonitorElement* meYPull_;
-  
+  MonitorElement* meClustX_;
+  MonitorElement* meClustY_;  
 };
 #endif

@@ -3,8 +3,6 @@
 <use name=FWCore/ParameterSet>
 <use name=DQMServices/CoreROOT>
 <use name=DQM/SiPixelCommon>
-<use name=SimTracker/TrackerHitAssociation>
-<use name=SimDataFormats/TrackerDigiSimLink>
 <use name=DataFormats/SiStripDetId>
 <use name=Geometry/CommonDetUnit>
 <use name=Geometry/Records>
@@ -17,8 +15,6 @@
    <use name=FWCore/PluginManager>
    <use name=FWCore/ParameterSet>
    <use name=DataFormats/SiStripDetId>
-   <use name=SimTracker/TrackerDigiSimLink>
-   <use name=SimTracker/TrackerHitAssociation>
    <use name=DQMServices/CoreROOT>
    <use name=DQM/SiPixelCommon>
    <use name=Geometry/CommonDetUnit>

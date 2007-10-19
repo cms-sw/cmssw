@@ -14,7 +14,7 @@
 //
 // Original Author:  Vincenzo Chiochia
 //         Created:  
-// $Id: SiPixelDigiSource.cc,v 1.15 2007/09/04 18:21:30 merkelp Exp $
+// $Id: SiPixelRecHitSource.cc,v 1.1 2007/10/10 03:37:30 krose Exp $
 //
 //
 // Adapted by:  Keith Rose
@@ -36,14 +36,12 @@
 #include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
 #include "Geometry/CommonTopologies/interface/PixelTopology.h"
 // DataFormats
-#include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
-#include "DataFormats/SiPixelDigi/interface/PixelDigi.h"
+#include "DataFormats/SiPixelCluster/interface/SiPixelCluster.h"
+
+
 #include "DataFormats/Common/interface/DetSetVector.h"
-// SimHit stuff
-#include "SimDataFormats/TrackingHit/interface/PSimHit.h"
-#include "SimTracker/TrackerHitAssociation/interface/TrackerHitAssociator.h"
 //
 #include <boost/cstdint.hpp>
 #include <string>
@@ -73,10 +71,10 @@ void SiPixelRecHitSource::beginJob(const edm::EventSetup& iSetup){
 
   LogInfo ("PixelDQM") << " SiPixelRecHitSource::beginJob - Initialisation ... " << std::endl;
   eventNo = 0;
-	cout << "0" << endl;
+	
   // Build map
   buildStructure(iSetup);
-	cout << "1" << endl;
+	
   // Book Monitoring Elements
   bookMEs();
 
@@ -84,10 +82,11 @@ void SiPixelRecHitSource::beginJob(const edm::EventSetup& iSetup){
 
 
 void SiPixelRecHitSource::endJob(void){
+  cout << "here" << endl;
   cout << " SiPixelDigiSource::endJob - Saving Root File " << std::endl;
   std::string outputFile = conf_.getParameter<std::string>("outputFile");
   cout << "ending" << endl;
-  theDMBE->save( outputFile.c_str() );
+  theDMBE->save( outputFile );
   cout << "last" << endl;
 }
 
@@ -102,7 +101,6 @@ void SiPixelRecHitSource::analyze(const edm::Event& iEvent, const edm::EventSetu
   edm::Handle<SiPixelRecHitCollection>  recHitColl;
   iEvent.getByLabel( src_, recHitColl );
 
-  TrackerHitAssociator associate(iEvent, conf_ );
   std::map<uint32_t,SiPixelRecHitModule*>::iterator struct_iter;
   for (struct_iter = thePixelStructure.begin() ; struct_iter != thePixelStructure.end() ; struct_iter++) {
     uint32_t TheID = (*struct_iter).first;
@@ -112,73 +110,34 @@ void SiPixelRecHitSource::analyze(const edm::Event& iEvent, const edm::EventSetu
     
 	SiPixelRecHitCollection::const_iterator pixelrechitRangeIteratorEnd = pixelrechitRange.second;
       SiPixelRecHitCollection::const_iterator pixeliter = pixelrechitRangeIteratorBegin;
-      std::vector<PSimHit> matched;
-	if( pixelrechitRangeIteratorBegin == pixelrechitRangeIteratorEnd) {cout << "oops" << endl;}
-      float x_res = 0;
-      float y_res = 0;
+
+      // if( pixelrechitRangeIteratorBegin == pixelrechitRangeIteratorEnd) {cout << "oops" << endl;}
       float rechit_x = 0;
       float rechit_y = 0;
-      float x_pull = 0;
-      float y_pull = 0;
 
   for ( ; pixeliter != pixelrechitRangeIteratorEnd; pixeliter++) 
 	{
-	  matched.clear();
-	  matched = associate.associateHit(*pixeliter);
-	cout << "dd" << endl;	  
-	  if ( !matched.empty() ) 
-	    {
-		cout << "ee" << endl;
-	      float closest = 9999.9;
-	      std::vector<PSimHit>::const_iterator closestit = matched.begin();
-	      LocalPoint lp = pixeliter->localPosition();
-	      rechit_x = lp.x();
-	      rechit_y = lp.y();
-	      LocalError lerr = pixeliter->localPositionError();
-	      float lerr_x = sqrt(lerr.xx());
-	      float lerr_y = sqrt(lerr.yy());
-      //loop over sim hits and fill closet
-	      for (std::vector<PSimHit>::const_iterator m = matched.begin(); m<matched.end(); m++) 
-		{
-	cout << "ff" << endl;
-		  float sim_x1 = (*m).entryPoint().x();
-		  float sim_x2 = (*m).exitPoint().x();
-		  float sim_xpos = 0.5*(sim_x1+sim_x2);
+	  
 
-		  float sim_y1 = (*m).entryPoint().y();
-		  float sim_y2 = (*m).exitPoint().y();
-		  float sim_ypos = 0.5*(sim_y1+sim_y2);
-		  
-		  float x_resa = fabs(sim_xpos - rechit_x);
-		  float y_resa = fabs(sim_ypos - rechit_y);
 
-		  
-		  
-		  float dist = sqrt(x_resa*x_resa + y_resa*y_resa);
-
-		  if ( dist < closest ) 
-		    {
-		      closest = x_resa;
-		      closestit = m;
-		    }
-		} // end sim hit loop
-		
-		cout << (*closestit).entryPoint().x() << endl;
-	      float sim_x1 = (*closestit).entryPoint().x();
-	      float sim_x2 = (*closestit).exitPoint().x();
-	      float sim_y1 = (*closestit).entryPoint().y();
-	      float sim_y2 = (*closestit).exitPoint().y();
-	      float sim_xpos = .5*(sim_x1+sim_x2);
-	      float sim_ypos = .5*(sim_y1+sim_y2);
-	      x_res = (rechit_x - sim_xpos) * 10000;
-		cout << x_res << endl;
-	      y_res = (rechit_y - sim_ypos) * 10000;
-	      x_pull = (rechit_x - sim_xpos) / lerr_x;
-	      y_pull = (rechit_y - sim_ypos) / lerr_y;
-	      (*struct_iter).second->fill(rechit_x, rechit_y, x_res, y_res, x_pull, y_pull);
-	    }
+	  cout << TheID << endl;
+	  edm::Ref<edm::DetSetVector<SiPixelCluster>, SiPixelCluster> const& clust = pixeliter->cluster();
+	  int sizeX = (*clust).sizeX();
+	  //cout << sizeX << endl;
+	  int sizeY = (*clust).sizeY();
+	  //cout << sizeY << endl;
+	  LocalPoint lp = pixeliter->localPosition();
+	  rechit_x = lp.x();
+	  rechit_y = lp.y();
+	  
+	  LocalError lerr = pixeliter->localPositionError();
+	  //  float lerr_x = sqrt(lerr.xx());
+	  //  float lerr_y = sqrt(lerr.yy());
+	  //cout << "hh" << endl;
+	  (*struct_iter).second->fill(rechit_x, rechit_y, sizeX, sizeY);
+	  //cout << "ii" << endl;
+	
 	}
-    
     
   }
 
@@ -205,8 +164,8 @@ void SiPixelRecHitSource::buildStructure(const edm::EventSetup& iSetup){
     if(dynamic_cast<PixelGeomDetUnit*>((*it))!=0){
 
       DetId detId = (*it)->geographicalId();
-      const GeomDetUnit      * geoUnit = pDD->idToDetUnit( detId );
-      const PixelGeomDetUnit * pixDet  = dynamic_cast<const PixelGeomDetUnit*>(geoUnit);
+      // const GeomDetUnit      * geoUnit = pDD->idToDetUnit( detId );
+      //const PixelGeomDetUnit * pixDet  = dynamic_cast<const PixelGeomDetUnit*>(geoUnit);
 
      	  
 	  
