@@ -37,7 +37,7 @@ OptoScanAnalysis::OptoScanAnalysis( const uint32_t& key )
     threshold_(4,sistrip::invalid_), 
     tickHeight_(4,sistrip::invalid_),
     baseSlope_(4,sistrip::invalid_),
-    histos_( 4, std::vector<Histo>( 2, Histo(0,"") ) )
+    histos_( 4, std::vector<Histo>( 3, Histo(0,"") ) )
 {;}
 
 // ----------------------------------------------------------------------------
@@ -53,7 +53,7 @@ OptoScanAnalysis::OptoScanAnalysis()
     threshold_(4,sistrip::invalid_), 
     tickHeight_(4,sistrip::invalid_),
     baseSlope_(4,sistrip::invalid_),
-    histos_( 4, std::vector<Histo>( 2, Histo(0,"") ) )
+    histos_( 4, std::vector<Histo>( 3, Histo(0,"") ) )
 {;}
 
 // ----------------------------------------------------------------------------
@@ -69,7 +69,7 @@ void OptoScanAnalysis::reset() {
   tickHeight_ = VFloat(4,sistrip::invalid_);
   baseSlope_  = VFloat(4,sistrip::invalid_);
   histos_.clear();
-  histos_.resize( 4, std::vector<Histo>( 2, Histo(0,"") ) );
+  histos_.resize( 4, std::vector<Histo>( 3, Histo(0,"") ) );
 }
   
 // ----------------------------------------------------------------------------
@@ -77,7 +77,7 @@ void OptoScanAnalysis::reset() {
 void OptoScanAnalysis::extract( const std::vector<TH1*>& histos ) { 
 
   // Check number of histograms
-  if ( histos.size() != 8 ) {
+  if ( histos.size() != 12 ) {
     addErrorCode(sistrip::numberOfHistos_);
   }
   
@@ -111,10 +111,21 @@ void OptoScanAnalysis::extract( const std::vector<TH1*>& histos ) {
       ss << title.extraInfo().substr( title.extraInfo().find(sistrip::digital_) + sistrip::digital_.size(), 1 );
       ss >> std::dec >> digital;
     }
-
-    if ( gain <= 3 && digital <= 1 ) {
-      histos_[gain][digital].first = *ihis; 
-      histos_[gain][digital].second = (*ihis)->GetName();
+    bool baseline_rms = false;
+    if ( title.extraInfo().find(sistrip::baselineRms_) != std::string::npos ) {
+      baseline_rms = true;
+    }
+    
+    if ( gain <= 3 ) { 
+      if ( digital <= 1 ) {
+	histos_[gain][digital].first = *ihis; 
+	histos_[gain][digital].second = (*ihis)->GetName();
+      } else if ( baseline_rms ) {
+	histos_[gain][2].first = *ihis; 
+	histos_[gain][2].second = (*ihis)->GetName();
+      } else {
+	addErrorCode(sistrip::unexpectedExtraInfo_);
+      }
     } else {
       addErrorCode(sistrip::unexpectedExtraInfo_);
     }
