@@ -319,6 +319,8 @@ void EcalRawToDigiDev::produce(edm::Event& e, const edm::EventSetup& es) {
       e.put(productInvalidGainsSwitch, "EcalIntegrityGainSwitchErrors");
       e.put(productInvalidGainsSwitchStay, "EcalIntegrityGainSwitchStayErrors");
       e.put(productInvalidChIds, "EcalIntegrityChIdErrors");
+      e.put(productInvalidTTIds,"EcalIntegrityTTIdErrors");
+      e.put(productInvalidBlockLengths,"EcalIntegrityBlockSizeErrors");
       e.put(productPnDiodeDigis);
     }
     if(memUnpacking_){
@@ -334,8 +336,6 @@ void EcalRawToDigiDev::produce(edm::Event& e, const edm::EventSetup& es) {
     if(tccUnpacking_){
       e.put(productEBTps,"EBTT"); //note change the name
       e.put(productEETps,"EETT"); //note change the name
-      e.put(productInvalidTTIds,"EcalIntegrityTTIdErrors");
-      e.put(productInvalidBlockLengths,"EcalIntegrityBlockSizeErrors");
     }
   }
   
