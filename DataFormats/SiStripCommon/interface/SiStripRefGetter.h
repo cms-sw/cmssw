@@ -8,8 +8,8 @@
 #include "boost/concept_check.hpp"
 #include "boost/iterator/indirect_iterator.hpp"
 #include "DataFormats/Common/interface/traits.h"
-#include "DataFormats/Common/interface/DetSet.h"
 #include "DataFormats/Common/interface/Ref.h"
+#include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/SiStripCommon/interface/SiStripLazyGetter.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/Utilities/interface/GCCPrerequisite.h"
@@ -20,17 +20,32 @@ namespace edm {
 
   template <class T> class SiStripRefGetter;
 
-  //------------------------------------------------------------
-
-  /// Returns pointer to T within record.
   template<typename T>
-    struct FindValue : public std::binary_function< const SiStripRefGetter<T>&, typename std::vector<T>::const_iterator, const T* > {
-      typedef FindValue<T> self;
-      typename self::result_type operator()(typename self::first_argument_type container, typename self::second_argument_type iter) const {
-        return &(*iter);
-      }
+    class FindValue : public std::binary_function< const SiStripRefGetter<T>&, typename std::vector<T>::const_iterator, const T* > 
+    {
+      public :
+	typedef FindValue<T> self;
+	typename self::result_type operator()
+	(typename self::first_argument_type container, typename self::second_argument_type iter) const 
+	{
+	  return &(*iter);
+	}
     };
 
+  //------------------------------------------------------------
+  
+  class RegionRecord
+    {
+    public: 
+      RegionRecord(uint32_t nregions) : regions_(nregions/32+1,0) {}
+      ~RegionRecord() {}
+      void record(uint32_t region) {regions_[region/32]|1<<(regions_[region/32]%32);}
+      bool recorded(uint32_t region) const {return regions_[region/32]&1<<(regions_[region/32]%32);}
+    private:
+      RegionRecord();
+      std::vector<uint32_t> regions_;
+    };
+  
   //------------------------------------------------------------
 
   template <class T>
@@ -50,33 +65,20 @@ namespace edm {
     typedef std::vector<region_ref> collection_type;
     typedef boost::indirect_iterator<typename collection_type::const_iterator> const_iterator;
 
-    SiStripRefGetter() : sets_() {}
+    /// Default constructor. Default maximum region number 50,000.
+    SiStripRefGetter(uint32_t=50000);
     
-    template <typename THandle>
-      SiStripRefGetter(const THandle& iHandle, const std::vector<uint32_t>& iRegions) : sets_() {
-        sets_.reserve(iRegions.size());
-	regions_.reserve(iRegions.size());
-        for (std::vector<uint32_t>::const_iterator iRegion = iRegions.begin();
-	    iRegion != iRegions.end();
-            ++iRegion) {
-          //the last 'false' says to not get the data right now
-          sets_.push_back(region_ref(iHandle, *iRegion, false));
-        }
-	regions_ = iRegions;
-      }
-
-    /// Add a new region to the end of the collection.
-    template <typename THandle>
-      void push_back(const THandle& iHandle, const uint32_t& iRegion) {
-      sets_.push_back(region_ref(iHandle, iRegion, false));
-      regions_.push_back(iRegion);
-    }
+    /// Constructor with regions.
+    SiStripRefGetter(const edm::Handle< SiStripLazyGetter<T> >&, const std::vector<uint32_t>&);
 
     /// Reserve memory for sets_ collection.
     void reserve(uint32_t);
 
-    /// Swap contents of class
+    /// Swap contents of class.
     void swap(SiStripRefGetter& other);
+
+    /// Add a new region to the end of the collection.
+    void push_back(const edm::Handle<SiStripLazyGetter<T> >&, const uint32_t&);
 
     /// Return true if we contain no 'region_ref's (one per Region).
     bool empty() const;
@@ -84,8 +86,8 @@ namespace edm {
     /// Return the number of contained 'region_ref's (one per Region).
     uint32_t size() const;
 
-    /// Return a reference to the RegionIndex<T> for a given index.
-    const RegionIndex<T>& operator[](uint32_t index) const;
+    /// Return a reference to the RegionIndex<T> for a given region.
+    const RegionIndex<T>& operator[](uint32_t) const;
 
     /// Returns a reference to the last RegionIndex<T> added to the 
     /// collection, or throws an exception if empty.
@@ -93,7 +95,7 @@ namespace edm {
     
     /// Returns start end end iterators for values of a given det-id 
     /// within the last RegionIndex<T> added to the collection.
-    record_pair back(uint32_t index) const;
+    record_pair back(uint32_t) const;
 
     /// Return an iterator to the first RegionIndex<T>.
     const_iterator begin() const;
@@ -106,9 +108,25 @@ namespace edm {
 
   private:
 
-    collection_type   sets_;
-    std::vector<uint32_t> regions_;
+    collection_type sets_;
+    RegionRecord regions_;
   };
+  
+  template <class T>
+    inline
+    SiStripRefGetter<T>::SiStripRefGetter(uint32_t maxindex) : sets_(), regions_(maxindex)
+    {}
+
+  template <class T>
+    inline
+    SiStripRefGetter<T>::SiStripRefGetter(const edm::Handle< SiStripLazyGetter<T> >& getter, const std::vector<uint32_t>& interest) : sets_(), regions_(getter->regions()) 
+    {
+      sets_.reserve(interest.size());
+      for (uint32_t index=0;index<interest.size();index++) {
+	sets_.push_back(region_ref(getter, index, false));
+	regions_.record(index);
+      }
+    }
   
   template <class T>
     inline
@@ -125,6 +143,15 @@ namespace edm {
     {
       sets_.swap(other.sets_);
     }
+
+   template <class T>
+     inline
+     void 
+     SiStripRefGetter<T>::push_back(const edm::Handle< SiStripLazyGetter<T> >& getter, const uint32_t& index)
+     {
+       sets_.push_back(region_ref(getter, index, false));
+       regions_.record(index);
+     }
   
   template <class T>
     inline
@@ -190,7 +217,7 @@ namespace edm {
     bool 
     SiStripRefGetter<T>::find(uint32_t index) const
     {
-      return std::find(regions_.begin(),regions_.end(),index)!=regions_.end();
+      return regions_.recorded(index);
     }
 
   template <class T>
