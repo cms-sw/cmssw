@@ -14,6 +14,7 @@ class tagTreePrinter:
         -p, --password=password: password
         -P, --path=path: path to authentication.xml
         -a, --all: print summary of all
+        -l, --leaf: print only leaf tags
         -t, --tag: tag to print
         -v, --verbose: switch on verbose mode
         -h, --help: print usage
@@ -24,7 +25,8 @@ class tagTreePrinter:
         self.__password=''
         self.__authpath='.'
         self.__tag=''
-        self.__all=True
+        self.__all=False
+        self.__leafonly=False
         self.__verbose=False
     def parsecmdln(self):
         """
@@ -36,6 +38,7 @@ class tagTreePrinter:
         self.__parser.add_option("-p","--password",action="store",dest="password",type="string",help="password")
         self.__parser.add_option("-P","--path",action="store",dest="authpath",type="string",help="path to authentication.xml")
         self.__parser.add_option("-a","--all",action="store_true",dest="all",help="print all tags")
+        self.__parser.add_option("-l","--leaf",action="store_true",dest="leaf",help="print leaf tags")
         self.__parser.add_option("-t","--tag",action="store",dest="tag",type="string",help="tag to print")
         self.__parser.add_option("-v","--verbose",action="store_true",dest="verbose",help="verbose mode")
         self.__parser.set_defaults(connectstring='')
@@ -44,6 +47,7 @@ class tagTreePrinter:
         self.__parser.set_defaults(authpath='.')
         self.__parser.set_defaults(tag='')
         self.__parser.set_defaults(all=False)
+        self.__parser.set_defaults(leaf=False)
         self.__parser.set_defaults(verbose=False)
         (options, args) = self.__parser.parse_args()
         self.__connectstring=self.__parser.values.connectstring
@@ -51,6 +55,7 @@ class tagTreePrinter:
         self.__password=self.__parser.values.password
         self.__authpath=self.__parser.values.authpath
         self.__all=self.__parser.values.all
+        self.__leaf=self.__parser.values.leaf
         self.__tag=self.__parser.values.tag
         self.__verbose=self.__parser.values.verbose
         if self.__parser.values.verbose is True:
@@ -59,6 +64,7 @@ class tagTreePrinter:
             print 'password: ',self.__password
             print 'authpath: ',self.__authpath
             print 'print all: ',self.__all
+            print 'print leaf: ',self.__leaf
             print 'tag: ',self.__tag
     def printme(self):
         """
@@ -74,7 +80,6 @@ class tagTreePrinter:
         mytree=TagTree.tagTree(session)
         try:
             if self.__all is True:
-                print 'here'
                 result=mytree.getSubtree('ROOT')
                 print result 
             else:

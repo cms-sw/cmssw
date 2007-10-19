@@ -213,7 +213,27 @@ class tagTree(object):
         result=[]
         try:
             if label=='ROOT' :
-                pass
+                transaction=self.__session.transaction()
+                transaction.start(True)
+                schema = self.__session.nominalSchema()
+                query = schema.tableHandle(self.__tagTreeTableName).newQuery()
+                for columnName in self.__tagTreeTableColumns:
+                    query.addToOutputList(columnName)
+                cursor = query.execute()
+                while ( cursor.next() ):
+                    resultNode=Node.Node()
+                    resultNode.tagid=cursor.currentRow()['tagid'].data()
+                    resultNode.nodeid=cursor.currentRow()['nodeid'].data()
+                    resultNode.nodelabel=cursor.currentRow()['nodelabel'].data()
+                    resultNode.lft=cursor.currentRow()['lft'].data()
+                    resultNode.rgt=cursor.currentRow()['rgt'].data()
+                    resultNode.parentid=cursor.currentRow()['parentid'].data()
+                    resultNode.globalsince=cursor.currentRow()['globalsince'].data()
+                    resultNode.globaltill=cursor.currentRow()['globaltill'].data()
+                    result.append(resultNode)
+                transaction.commit()
+                del query
+                return result
             else:
                 me=self.getNode(label)
                 parentlft=me.lft
