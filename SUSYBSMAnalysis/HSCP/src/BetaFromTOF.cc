@@ -13,7 +13,7 @@
 //
 // Original Author:  Traczyk Piotr
 //         Created:  Thu Oct 11 15:01:28 CEST 2007
-// $Id: BetaFromTOF.cc,v 1.1 2007/10/11 15:14:20 ptraczyk Exp $
+// $Id: BetaFromTOF.cc,v 1.1 2007/10/15 13:30:42 ptraczyk Exp $
 //
 //
 
@@ -114,8 +114,8 @@ class BetaFromTOF : public edm::EDProducer {
       edm::InputTag MuonTags_; 
       edm::InputTag DTSegmentTags_; 
 
-  int thePartID;
-  bool debug;
+  int theHitsMin;
+  bool debug,onlyMatched;
 
   Handle<reco::TrackCollection> TKTrackCollection;
   Handle<reco::TrackCollection> STATrackCollection;
@@ -137,11 +137,11 @@ class BetaFromTOF : public edm::EDProducer {
 //
 BetaFromTOF::BetaFromTOF(const edm::ParameterSet& iConfig)
   :
-  TKtrackTags_(iConfig.getUntrackedParameter<edm::InputTag>("TKtracks")),
-  STAtrackTags_(iConfig.getUntrackedParameter<edm::InputTag>("STAtracks")),
   MuonTags_(iConfig.getUntrackedParameter<edm::InputTag>("Muons")),
   DTSegmentTags_(iConfig.getUntrackedParameter<edm::InputTag>("DTsegments")),
-  debug(iConfig.getParameter<bool>("debug"))
+  debug(iConfig.getParameter<bool>("debug")),
+  onlyMatched(iConfig.getParameter<bool>("OnlyMatched")),
+  theHitsMin(iConfig.getParameter<int>("HitsMin"))
 {
   // service parameters
   ParameterSet serviceParameters = iConfig.getParameter<ParameterSet>("ServiceParameters");
@@ -174,22 +174,6 @@ BetaFromTOF::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   if (debug) 
     cout << " *** Beta from TOF Start ***" << endl;
 
-//  iEvent.getByLabel( TKtrackTags_, TKTrackCollection);
-//  const reco::TrackCollection tkTC = *(TKTrackCollection.product());
-
-  iEvent.getByLabel( STAtrackTags_, STATrackCollection);
-  const reco::TrackCollection staTC = *(STATrackCollection.product());
-
-  iEvent.getByLabel( MuonTags_, GLBTrackCollection);
-  const reco::TrackCollection glbTC = *(GLBTrackCollection.product());
-  
-  // Get the DT-Segment collection from the Event
-  edm::Handle<DTRecSegment4DCollection> dtRecHits;
-  iEvent.getByLabel(DTSegmentTags_, dtRecHits);  
-
-  if (debug) 
-    cout << "DT Segment collection size: " << dtRecHits->size() << endl;
-
   ESHandle<GlobalTrackingGeometry> theTrackingGeometry;
   iSetup.get<GlobalTrackingGeometryRecord>().get(theTrackingGeometry);
 
@@ -198,20 +182,40 @@ BetaFromTOF::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
   vector<float> *outputCollection = new vector<float>;
 
-  cout << " *** Analyzing HSCP *** " << endl;
+//  iEvent.getByLabel( TKtrackTags_, TKTrackCollection);
+//  const reco::TrackCollection tkTC = *(TKTrackCollection.product());
 
-//  for (TrackCollection::const_iterator candTrack = glbTC.begin(); candTrack != glbTC.end(); ++candTrack) {
-  for (TrackCollection::const_iterator candTrack = staTC.begin(); candTrack != staTC.end(); ++candTrack) {
+  Handle<reco::MuonCollection> allMuons;
+  iEvent.getByLabel(MuonTags_,allMuons);
+  const reco::MuonCollection & muons = * allMuons.product();
+  if (debug) 
+    cout << "     Muon collection size: " << muons.size() << endl;
+
+  // Get the DT-Segment collection from the Event
+  edm::Handle<DTRecSegment4DCollection> dtRecHits;
+  iEvent.getByLabel(DTSegmentTags_, dtRecHits);  
+  if (debug) 
+    cout << "DT Segment collection size: " << dtRecHits->size() << endl;
+       
+  for(reco::MuonCollection::const_iterator mi = muons.begin(); mi != muons.end() ; mi++) {
+    TrackRef tkMuon = mi->track();
+    TrackRef staMuon = mi->standAloneMuon();
+    TrackRef combMuon = mi->combinedMuon();
+
+    const Track* candTrack = staMuon.get();
 
     segmVect dtSegments;
+    double betaMeasurements[4]={0,0,0,0};
 
-    cout << " STA Track:   RecHits: " << (*candTrack).recHitsSize() << " momentum: " << (*candTrack).p() << endl;
+    if (debug) 
+      cout << " STA Track:   RecHits: " << (*candTrack).recHitsSize() 
+           << " momentum: " << (*candTrack).p() << endl;
 
     for (trackingRecHit_iterator hi=(*candTrack).recHitsBegin(); hi!=(*candTrack).recHitsEnd(); hi++)
 
       if (( (*hi)->geographicalId().subdetId() == MuonSubdetId::DT ) && ((*hi)->geographicalId().det() == 2)) {
   
-        cout << "Hit dim: " << (*hi)->dimension();
+//        if (debug) cout << "Hit dim: " << (*hi)->dimension() << endl;
 
         // Create the ChamberId
         DetId id = (*hi)->geographicalId();
@@ -227,34 +231,60 @@ BetaFromTOF::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
         DTRecSegment4DCollection::range range = dtRecHits->get(chamberId);
   
         for (DTRecSegment4DCollection::const_iterator rechit = range.first; rechit!=range.second;++rechit){
+
           // match with the current recHit
           if ((rechit->localPosition()-(*hi)->localPosition()).mag()<0.01) {
-            double t0, dist, invbeta;
-	    bool matched = rechit->hasPhi() && rechit->hasZed();
 
-	    if (rechit->hasPhi()) {
-	      const DTRecSegment2D* si = dynamic_cast<const DTRecSegment2D*>(rechit->phiSegment());
-              const GeomDet* geomDet = theTrackingGeometry->idToDet(si->geographicalId());
-              dist = geomDet->toGlobal(si->localPosition()).mag();
-	      t0 = si->t0();
-	      
-	      invbeta=1.+t0/dist*30.;
-	      cout << " Station " << station << "   Phi 1/beta = " << invbeta << endl;
-	    }
+            // Check if both phi and theta segments exist in the 4D Segment
+	    if ((rechit->hasPhi() && rechit->hasZed()) || !onlyMatched) {
+
+              double t0, dist, ibphi=0, ibtheta=0;
+
+  	      if (rechit->hasPhi()) {
+	        const DTRecSegment2D* si = dynamic_cast<const DTRecSegment2D*>(rechit->phiSegment());
+                const GeomDet* geomDet = theTrackingGeometry->idToDet(si->geographicalId());
+                dist = geomDet->toGlobal(si->localPosition()).mag();
+  	        t0 = si->t0();
+    	        if (si->specificRecHits().size()>=theHitsMin) ibphi=1.+t0/dist*30.;
+    	        ibtheta=ibphi;
+  	        if (debug) cout << " Station " << station << "   Phi 1/beta = " << ibphi << endl;
+  	      }
 	    
-	    if (rechit->hasZed()) {
-	      const DTRecSegment2D* si = dynamic_cast<const DTRecSegment2D*>(rechit->zSegment());
-              const GeomDet* geomDet = theTrackingGeometry->idToDet(si->geographicalId());
-              dist = geomDet->toGlobal(si->localPosition()).mag();
-	      t0 = si->t0();
-
-	      invbeta=1.+t0/dist*30.;
-	      cout << " Station " << station << " Theta 1/beta = " << invbeta << endl;
-	    }  
+	      if (rechit->hasZed()) {
+	        const DTRecSegment2D* si = dynamic_cast<const DTRecSegment2D*>(rechit->zSegment());
+                const GeomDet* geomDet = theTrackingGeometry->idToDet(si->geographicalId());
+                dist = geomDet->toGlobal(si->localPosition()).mag();
+  	        t0 = si->t0();
+	        if (si->specificRecHits().size()>=theHitsMin) ibtheta=1.+t0/dist*30.;
+	        if (!ibphi) ibphi=ibtheta;
+ 	        if (debug) cout << " Station " << station << " Theta 1/beta = " << ibtheta << endl;
+	      }  
+	      
+	      // Compute the inverse beta for this station by averaging phi and theta calculations
+	      // (for the segments that passed the cut on number of hits)
+	      // TODO: A weighted average?
+	      betaMeasurements[station-1]=(ibphi+ibtheta)/2.;
+	    }
           }
         } // rechit
     } // hi
     
+    double invbeta=0;    
+    int mcount=0;
+    
+    // Average the nonzero measurements from the muon stations
+    for (int s=0;s<4;s++) 
+      if (betaMeasurements[s]) {
+        invbeta+=betaMeasurements[s];
+        mcount++;
+      }
+    
+    if (mcount) invbeta/=mcount;
+    
+    if (debug)
+      cout << " Measured 1/beta: " << invbeta << endl;
+
+    outputCollection->push_back(invbeta);
     
   }  //candTrack
 
