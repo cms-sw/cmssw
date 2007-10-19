@@ -1,8 +1,8 @@
 /*
  * \file EBTimingClient.cc
  *
- * $Date: 2007/10/18 09:43:37 $
- * $Revision: 1.43 $
+ * $Date: 2007/10/19 12:49:17 $
+ * $Revision: 1.44 $
  * \author G. Della Ricca
  *
 */
@@ -308,6 +308,8 @@ bool EBTimingClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunI
 
           t.setTimingMean(mean01);
           t.setTimingRMS(rms01);
+
+          status = status && UtilsClient::getBinQual(meg01_[ism-1], ie, ip);
 
           int ic = Numbers::indexEB(ism, ie, ip);
 

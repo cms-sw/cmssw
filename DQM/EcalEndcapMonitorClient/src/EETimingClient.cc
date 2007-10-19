@@ -1,8 +1,8 @@
 /*
  * \file EETimingClient.cc
  *
- * $Date: 2007/10/18 09:43:53 $
- * $Revision: 1.29 $
+ * $Date: 2007/10/19 12:49:18 $
+ * $Revision: 1.30 $
  * \author G. Della Ricca
  *
 */
@@ -325,6 +325,8 @@ bool EETimingClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunI
 
           t.setTimingMean(mean01);
           t.setTimingRMS(rms01);
+
+          status = status && UtilsClient::getBinQual(meg01_[ism-1], ix, iy);
 
           int ic = Numbers::indexEE(ism, ix, iy);
 
