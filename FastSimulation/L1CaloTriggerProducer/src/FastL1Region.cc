@@ -13,7 +13,7 @@
 //
 // Original Author:  Chi Nhan Nguyen
 //         Created:  Mon Feb 19 13:25:24 CST 2007
-// $Id: FastL1Region.cc,v 1.16 2007/09/27 20:12:03 chinhan Exp $
+// $Id: FastL1Region.cc,v 1.17 2007/10/16 16:03:36 chinhan Exp $
 //
 
 // No BitInfos for release versions
@@ -294,8 +294,8 @@ FastL1Region::FillTower(const CaloTower& t, int& tid)
   double HThres = 0.;
   double EBthres = Config.TowerEBThreshold;
   double HBthres = Config.TowerHBThreshold;
-  double EEthres = Config.TowerEBThreshold;
-  double HEthres = Config.TowerEEThreshold;
+  double EEthres = Config.TowerEEThreshold;
+  double HEthres = Config.TowerHEThreshold;
   
   if(std::abs(t.eta())<2.322) {
     EThres = EBthres;
@@ -333,8 +333,8 @@ FastL1Region::FillTower_Scaled(const CaloTower& t, int& tid, bool doRCTTrunc)
   double HThres = 0.;
   double EBthres = Config.TowerEBThreshold;
   double HBthres = Config.TowerHBThreshold;
-  double EEthres = Config.TowerEBThreshold;
-  double HEthres = Config.TowerEEThreshold;
+  double EEthres = Config.TowerEEThreshold;
+  double HEthres = Config.TowerHEThreshold;
   
   if(std::abs(t.eta())<2.322) {
     EThres = EBthres;
