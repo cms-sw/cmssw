@@ -1,8 +1,8 @@
  /*
  * \file DTDigiForNoiseTask.cc
  * 
- * $Date: 2007/10/09 08:34:01 $
- * $Revision: 1.1 $
+ * $Date: 2007/10/09 14:26:42 $
+ * $Revision: 1.2 $
  * \author G. Mila - INFN Torino
  *
  */
@@ -38,13 +38,11 @@ using namespace edm;
 using namespace std;
 
 
-DTDigiForNoiseTask::DTDigiForNoiseTask(const edm::ParameterSet& ps){
+DTDigiForNoiseTask::DTDigiForNoiseTask(const edm::ParameterSet& ps) : DQMAnalyzer(ps) {
 
   debug = ps.getUntrackedParameter<bool>("debug", "false");
   if(debug)
     cout<<"[DTDigiForNoiseTask]: Constructor"<<endl;
-
-  outputFile = ps.getUntrackedParameter<string>("outputFile", "DTDigiForNoiseTask.root");
 
   parameters = ps;
   
@@ -70,15 +68,16 @@ void DTDigiForNoiseTask::endJob(){
 
   if(debug)
     cout<<"[DTDigiForNoiseTask] endjob called!"<<endl;
-
-  if ( (outputFile.size() != 0) && (parameters.getUntrackedParameter<bool>("writeHisto", true)) ) 
-    dbe->save(outputFile);
   
   dbe->rmdir("DT/DTDigiForNoiseTask");
+
+  DQMAnalyzer::endJob();
 }
 
 
 void DTDigiForNoiseTask::beginJob(const edm::EventSetup& context){
+
+  DQMAnalyzer::beginJob(context);
 
   if(debug)
     cout<<"[DTDigiForNoiseTask]: BeginJob"<<endl;
@@ -91,7 +90,9 @@ void DTDigiForNoiseTask::beginJob(const edm::EventSetup& context){
 }
 
 
-void DTDigiForNoiseTask::beginLuminosityBlock(LuminosityBlock const& lumiSeg, EventSetup const& context) {
+void DTDigiForNoiseTask::beginLuminosityBlock(LuminosityBlock const& lumiSeg, EventSetup const& context) {  
+
+  DQMAnalyzer::beginLuminosityBlock(lumiSeg,context);
 
   if(debug)
     cout<<"[DTDigiForNoiseTask]: Begin of LS transition"<<endl;
@@ -150,6 +151,8 @@ void DTDigiForNoiseTask::bookHistos(const DTLayerId& lId) {
 
 void DTDigiForNoiseTask::analyze(const edm::Event& e, const edm::EventSetup& c){
   
+  DQMAnalyzer::analyze(e,c);
+
   nevents++;
   //  cout << "events:  " << nevents << endl;
   if (nevents%1000 == 0 && debug) {}

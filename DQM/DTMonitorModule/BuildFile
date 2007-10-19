@@ -1,6 +1,7 @@
 <flags EDM_PLUGIN=1>
 <use name=FWCore/Framework>
 <use name=DQMServices/CoreROOT>
+<use name=DQMServices/Components>
 <use name=DataFormats/FEDRawData>
 <use name=DataFormats/DTDigi>
 <use name=DataFormats/L1DTTrackFinder>
