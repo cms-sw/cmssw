@@ -1,8 +1,8 @@
 /*
  * \file EBTimingClient.cc
  *
- * $Date: 2007/10/17 15:58:42 $
- * $Revision: 1.42 $
+ * $Date: 2007/10/18 09:43:37 $
+ * $Revision: 1.43 $
  * \author G. Della Ricca
  *
 */
@@ -24,13 +24,15 @@
 
 #include "OnlineDB/EcalCondDB/interface/RunTag.h"
 #include "OnlineDB/EcalCondDB/interface/RunIOV.h"
-#include "OnlineDB/EcalCondDB/interface/MonPedestalsOnlineDat.h"
+#include "OnlineDB/EcalCondDB/interface/MonTimingCrystalDat.h"
+#include "OnlineDB/EcalCondDB/interface/MonTimingTTDat.h"
 #include "OnlineDB/EcalCondDB/interface/RunCrystalErrorsDat.h"
 
 #include "CondTools/Ecal/interface/EcalErrorDictionary.h"
 
 #include "DQM/EcalCommon/interface/EcalErrorMask.h"
 #include <DQM/EcalCommon/interface/UtilsClient.h>
+#include <DQM/EcalCommon/interface/LogicID.h>
 #include <DQM/EcalCommon/interface/Numbers.h>
 
 #include <DQM/EcalBarrelMonitorClient/interface/EBTimingClient.h>
@@ -266,6 +268,11 @@ bool EBTimingClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunI
 
   bool status = true;
 
+  EcalLogicID ecid;
+
+  MonTimingCrystalDat t;
+  map<EcalLogicID, MonTimingCrystalDat> dataset;
+
   for ( unsigned int i=0; i<superModules_.size(); i++ ) {
 
     int ism = superModules_[i];
@@ -276,6 +283,58 @@ bool EBTimingClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunI
 
 //    UtilsClient::printBadChannels(qtg01_[ism-1]);
 
+    float num01;
+    float mean01;
+    float rms01;
+
+    for ( int ie = 1; ie <= 85; ie++ ) {
+      for ( int ip = 1; ip <= 20; ip++ ) {
+
+        bool update01;
+
+        update01 = UtilsClient::getBinStats(h01_[ism-1], ie, ip, num01, mean01, rms01);
+
+        if ( update01 ) {
+
+          if ( ie == 1 && ip == 1 ) {
+
+            cout << "Preparing dataset for SM=" << ism << endl;
+
+            cout << "crystal (" << ie << "," << ip << ") " << num01  << " " << mean01 << " " << rms01  << endl;
+
+            cout << endl;
+
+          }
+
+          t.setTimingMean(mean01);
+          t.setTimingRMS(rms01);
+
+          int ic = Numbers::indexEB(ism, ie, ip);
+
+          if ( econn ) {
+            try {
+              ecid = LogicID::getEcalLogicID("EB_crystal_number", Numbers::iSM(ism, EcalBarrel), ic);
+              dataset[ecid] = t;
+            } catch (runtime_error &e) {
+              cerr << e.what() << endl;
+            }
+          }
+
+        }
+
+      }
+    }
+
+  }
+
+  if ( econn ) {
+    try {
+      cout << "Inserting MonTimingCrystalDat ... " << flush;
+      if ( dataset.size() != 0 ) econn->insertDataArraySet(&dataset, moniov);
+      cout << "done." << endl;
+    } catch (runtime_error &e) {
+      cerr << e.what() << endl;
+    }
   }
 
   return status;

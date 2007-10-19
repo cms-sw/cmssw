@@ -1,8 +1,8 @@
 /*
  * \file EETimingClient.cc
  *
- * $Date: 2007/10/17 15:58:45 $
- * $Revision: 1.28 $
+ * $Date: 2007/10/18 09:43:53 $
+ * $Revision: 1.29 $
  * \author G. Della Ricca
  *
 */
@@ -26,13 +26,15 @@
 
 #include "OnlineDB/EcalCondDB/interface/RunTag.h"
 #include "OnlineDB/EcalCondDB/interface/RunIOV.h"
-#include "OnlineDB/EcalCondDB/interface/MonPedestalsOnlineDat.h"
+#include "OnlineDB/EcalCondDB/interface/MonTimingCrystalDat.h"
+#include "OnlineDB/EcalCondDB/interface/MonTimingTTDat.h"
 #include "OnlineDB/EcalCondDB/interface/RunCrystalErrorsDat.h"
 
 #include "CondTools/Ecal/interface/EcalErrorDictionary.h"
 
 #include "DQM/EcalCommon/interface/EcalErrorMask.h"
 #include <DQM/EcalCommon/interface/UtilsClient.h>
+#include <DQM/EcalCommon/interface/LogicID.h>
 #include <DQM/EcalCommon/interface/Numbers.h>
 
 #include <DQM/EcalEndcapMonitorClient/interface/EETimingClient.h>
@@ -276,6 +278,11 @@ bool EETimingClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunI
 
   bool status = true;
 
+  EcalLogicID ecid;
+
+  MonTimingCrystalDat t;
+  map<EcalLogicID, MonTimingCrystalDat> dataset;
+
   for ( unsigned int i=0; i<superModules_.size(); i++ ) {
 
     int ism = superModules_[i];
@@ -286,6 +293,67 @@ bool EETimingClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunI
 
 //    UtilsClient::printBadChannels(qtg01_[ism-1]);
 
+    float num01; 
+    float mean01;
+    float rms01;
+
+    for ( int ix = 1; ix <= 50; ix++ ) {
+      for ( int iy = 1; iy <= 50; iy++ ) {
+
+        int jx = ix + Numbers::ix0EE(ism);
+        int jy = iy + Numbers::iy0EE(ism);
+
+        if ( ism >= 1 && ism <= 9 ) jx = 101 - jx;
+
+        if ( ! Numbers::validEE(ism, jx, jy) ) continue;
+
+        bool update01;
+
+        update01 = UtilsClient::getBinStats(h01_[ism-1], ix, iy, num01, mean01, rms01);
+
+        if ( update01 ) {
+
+          if ( ix == 1 && iy == 1 ) {
+
+            cout << "Preparing dataset for SM=" << ism << endl;
+
+            cout << "crystal (" << ix << "," << iy << ") " << num01  << " " << mean01 << " " << rms01  << endl;
+
+            cout << endl;
+    
+          }
+
+          t.setTimingMean(mean01);
+          t.setTimingRMS(rms01);
+
+          int ic = Numbers::indexEE(ism, ix, iy);
+
+          if ( ic == -1 ) continue;
+
+          if ( econn ) {
+            try {
+              ecid = LogicID::getEcalLogicID("EE_crystal_number", Numbers::iSM(ism, EcalEndcap), ic);
+              dataset[ecid] = t;
+            } catch (runtime_error &e) {
+              cerr << e.what() << endl;
+            }
+          }
+
+        }
+
+      }
+    }
+
+  }
+
+  if ( econn ) {
+    try {
+      cout << "Inserting MonTimingCrystalDat ... " << flush;
+      if ( dataset.size() != 0 ) econn->insertDataArraySet(&dataset, moniov);
+      cout << "done." << endl; 
+    } catch (runtime_error &e) {
+      cerr << e.what() << endl;
+    }
   }
 
   return status;
