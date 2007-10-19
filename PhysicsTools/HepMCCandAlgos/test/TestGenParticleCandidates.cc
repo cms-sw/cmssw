@@ -1,0 +1,45 @@
+#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "DataFormats/Common/interface/Handle.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/InputTag.h"
+#include "DataFormats/Candidate/interface/Candidate.h"
+#include "FWCore/Utilities/interface/EDMException.h"
+using namespace std;
+using namespace edm;
+using namespace reco;
+
+class TestGenParticleCandidates : public EDAnalyzer {
+private: 
+  bool dumpHepMC_;
+public:
+  explicit TestGenParticleCandidates( const ParameterSet & cfg ) : 
+    src_( cfg.getParameter<InputTag>( "src" ) ) {
+  }
+private:
+  void analyze( const Event & evt, const EventSetup & ) {
+    Handle<CandidateCollection> gen;
+    evt.getByLabel( src_, gen );
+    size_t n = gen->size();
+    if (n == 0) 
+      throw Exception(errors::EventCorruption) 
+	<< "No particles in genParticleCandidates";
+    for(size_t i = 0; i < n; ++ i) {
+      const Candidate & p = (*gen)[i];
+      size_t nd = p.numberOfDaughters();
+      for(size_t j = 0; j < nd; ++ j ) {
+	const Candidate * d = p.daughter(j);
+	if(d->mother()!=&p) 
+	  throw Exception(errors::EventCorruption) 
+	    << "Inconsistent mother/daughter relation";
+       }
+    }
+  }    
+  InputTag src_;
+};
+
+#include "FWCore/Framework/interface/MakerMacros.h"
+
+DEFINE_FWK_MODULE( TestGenParticleCandidates );
+
+
