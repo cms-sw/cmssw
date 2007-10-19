@@ -14,6 +14,7 @@
 
 #include <iostream>
 #include <fstream>
+#include <sstream>
 
 
 SiStripGainFromAsciiFile::SiStripGainFromAsciiFile(const edm::ParameterSet& iConfig) : ConditionDBWriter<SiStripApvGain>::ConditionDBWriter<SiStripApvGain>(iConfig){
@@ -30,26 +31,31 @@ SiStripGainFromAsciiFile::~SiStripGainFromAsciiFile(){
   edm::LogInfo("SiStripGainFromAsciiFile::~SiStripGainFromAsciiFile");
 }
 
-void SiStripGainFromAsciiFile::algoAnalyze(const edm::Event & event, const edm::EventSetup& iSetup){
+SiStripApvGain * SiStripGainFromAsciiFile::getNewObject(){
   
-  edm::LogInfo("SiStripGainFromAsciiFile") <<"SiStripGainFromAsciiFile::getNewObject called"<<std::endl;
+  edm::LogInfo("SiStripGainFromAsciiFile") <<" [SiStripGainFromAsciiFile::getNewObject]"<<std::endl;
 
-  obj = new SiStripApvGain();
+  SiStripApvGain* obj = new SiStripApvGain();
 
   uint32_t detid;
   FibersGain FG;
 
+  std::stringstream ss;
+  ss.str("");
+  ss << "[SiStripGainFromAsciiFile::getNewObject]\n Reading Ascii File\n";
   std::ifstream infile;
   infile.open (Asciifilename_.c_str());
   if (infile.is_open()){
     while (infile.good()){
       infile >> detid >> FG.fiber[0] >> FG.fiber[1] >> FG.fiber[2];
-      edm::LogInfo("SiStripGainFromAsciiFile" ) << detid << " " <<  FG.fiber[0] << " " <<  FG.fiber[1] << " " <<  FG.fiber[2] << std::endl;
+      ss << detid << " " <<  FG.fiber[0] << " " <<  FG.fiber[1] << " " <<  FG.fiber[2] << std::endl;
       GainsMap.insert(std::pair<unsigned int,FibersGain>(detid,FG));
     }
     infile.close();
+    edm::LogInfo("SiStripGainFromAsciiFile") << ss.str();
   } else  {
-    edm::LogError("SiStripGainFromAsciiFile")<< "Error opening file";
+    edm::LogError("SiStripGainFromAsciiFile")<< " [SiStripGainFromAsciiFile::getNewObject] Error opening file " << Asciifilename_ << std::endl;
+    assert(0);
   }
   
   
@@ -58,6 +64,8 @@ void SiStripGainFromAsciiFile::algoAnalyze(const edm::Event & event, const edm::
   
   const std::vector<uint32_t> DetIds = reader.getAllDetIds();
   
+  ss.str("");
+  ss << "[SiStripGainFromAsciiFile::getNewObject]\n Filling SiStripApvGain object";
   short nApvPair;
   for(std::vector<uint32_t>::const_iterator it=DetIds.begin(); it!=DetIds.end(); it++){
 
@@ -66,16 +74,16 @@ void SiStripGainFromAsciiFile::algoAnalyze(const edm::Event & event, const edm::
 
     nApvPair=reader.getNumberOfApvsAndStripLength(*it).first/2;
     
-    edm::LogInfo("SiStripGainFromAsciiFile" ) << "Looking at detid " << *it << " nApvPairs  " << nApvPair << std::endl;
+    ss << "Looking at detid " << *it << " nApvPairs  " << nApvPair << std::endl;
 
     __gnu_cxx::hash_map< unsigned int,FibersGain>::const_iterator iter=GainsMap.find(*it);
-
+    
     if (iter!=GainsMap.end()){
       FG = iter->second;
-      edm::LogInfo("SiStripGainFromAsciiFile" )<< *it << " " <<  FG.fiber[0] << " " <<  FG.fiber[1] << " " <<  FG.fiber[2] << std::endl;
+      ss << " " <<  FG.fiber[0] << " " <<  FG.fiber[1] << " " <<  FG.fiber[2] << std::endl;
     }
     else {
-      edm::LogInfo("SiStripGainFromAsciiFile" )<< "Hard reset for detid " << *it << std::endl;
+      ss << "Hard reset for detid " << *it << std::endl;
       FG.hard_reset(referenceValue_);
     }
     
@@ -94,14 +102,20 @@ void SiStripGainFromAsciiFile::algoAnalyze(const edm::Event & event, const edm::
       DetGainsVector.push_back(FG.fiber[2]/referenceValue_);  
       DetGainsVector.push_back(FG.fiber[2]/referenceValue_);  
     } else {
-      edm::LogError("SiStripGainFromAsciiFile") << " ERROR for detid " << *it << " not expected number of APV pairs " << nApvPair <<std::endl;
+      edm::LogError("SiStripGainFromAsciiFile") << " SiStripGainFromAsciiFile::getNewObject] ERROR for detid " << *it << " not expected number of APV pairs " << nApvPair <<std::endl;
     }
     
     SiStripApvGain::Range range(DetGainsVector.begin(),DetGainsVector.end());
-    if ( ! obj->put(*it,range) )
-      edm::LogError("SiStripGainCalculator")<<"[SiStripGainCalculator::beginJob] detid already exists"<<std::endl;
+    if ( ! obj->put(*it,range) ){
+      edm::LogError("SiStripGainFromAsciiFile")<<" [SiStripGainFromAsciiFile::getNewObject] detid already exists"<<std::endl;
+      ss <<" [SiStripGainFromAsciiFile::getNewObject] detid already exists"<<std::endl;
+    }
   }
+  edm::LogInfo("SiStripGainFromAsciiFile") << ss.str();
+
+  return obj;
 }
+
 
 
 
