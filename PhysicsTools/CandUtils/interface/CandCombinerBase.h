@@ -20,12 +20,14 @@ namespace combiner {
     struct CandRefHelper<reco::CandidateCollection> {
       typedef reco::CandidateRef Ref;
       typedef reco::CandidateRefProd RefProd;
+      typedef reco::CandidateCollection OutputCollection;
     };  
 
     template<>
     struct CandRefHelper<reco::CandidateView> {
       typedef reco::CandidateBaseRef Ref;
       typedef reco::CandidateBaseRefProd RefProd;
+      typedef reco::CompositeCandidateCollection OutputCollection;
     };  
 
     template<typename OutputCollection>
@@ -44,18 +46,17 @@ namespace combiner {
       static reco::CompositeCandidate & make( value_type & v ) { return v; }
     };
 
-
   }
 }
 
 template<typename InputCollection,
-	 typename OutputCollection = reco::CandidateCollection>
+	 typename OutputCollection = typename combiner::helpers::CandRefHelper<InputCollection>::OutputCollection>
 class CandCombinerBase {
 public:
   typedef typename combiner::helpers::template CandRefHelper<InputCollection>::RefProd RefProd;
   typedef typename combiner::helpers::template CandRefHelper<InputCollection>::Ref Ref;
   typedef InputCollection Collection;
-  typedef combiner::helpers::CandCompHelper<reco::CandidateCollection> OutputHelper;
+  typedef combiner::helpers::CandCompHelper<OutputCollection> OutputHelper;
   typedef typename OutputHelper::value_type value_type;
  /// default construct
   CandCombinerBase();

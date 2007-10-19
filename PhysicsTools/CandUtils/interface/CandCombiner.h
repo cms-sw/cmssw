@@ -37,7 +37,7 @@ template<typename InputCollection,
 	 typename PairSelector = AnyPairSelector,
 	 typename Cloner = combiner::helpers::NormalClone, 
 	 typename Setup = AddFourMomenta,
-         typename OutputCollection = reco::CandidateCollection>
+         typename OutputCollection = typename combiner::helpers::CandRefHelper<InputCollection>::OutputCollection>
 class CandCombiner : public CandCombinerBase<InputCollection, OutputCollection> {
 public:
   typedef CandCombinerBase<InputCollection, OutputCollection> base;
