@@ -1,6 +1,6 @@
 #include "DQM/SiStripMonitorClient/interface/SiStripClient.h"
 #include "DQM/SiStripMonitorClient/interface/SiStripActionExecutor.h"
-#include "DQM/SiStripMonitorClient/interface/TrackerMapCreator.h"
+#include "DQM/SiStripMonitorClient/interface/SiStripTrackerMapCreator.h"
 #include <SealBase/Callback.h>
 
 SiStripClient::SiStripClient(xdaq::ApplicationStub *stub) 
@@ -16,7 +16,7 @@ SiStripClient::SiStripClient(xdaq::ApplicationStub *stub)
   webInterface_p->createAll();
   xgi::bind(this, &SiStripClient::handleWebRequest, "Request");
   trackerMapCreator_ = 0;
-  trackerMapCreator_ = new TrackerMapCreator();
+  trackerMapCreator_ = new SiStripTrackerMapCreator();
 }
 
 /*

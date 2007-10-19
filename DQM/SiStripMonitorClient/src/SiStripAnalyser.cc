@@ -1,8 +1,8 @@
 /*
  * \file SiStripAnalyser.cc
  * 
- * $Date: 2007/09/19 14:25:54 $
- * $Revision: 1.10 $
+ * $Date: 2007/09/27 22:31:52 $
+ * $Revision: 1.11 $
  * \author  S. Dutta INFN-Pisa
  *
  */
@@ -22,7 +22,7 @@
 #include "CondFormats/SiStripObjects/interface/SiStripFedCabling.h"
 
 #include "DQM/SiStripMonitorClient/interface/SiStripWebInterface.h"
-#include "DQM/SiStripMonitorClient/interface/TrackerMapCreator.h"
+#include "DQM/SiStripMonitorClient/interface/SiStripTrackerMapCreator.h"
 #include "DQM/SiStripMonitorClient/interface/SiStripUtility.h"
 
 #include <SealBase/Callback.h>
@@ -98,7 +98,7 @@ void SiStripAnalyser::beginJob(const edm::EventSetup& eSetup){
   staticUpdateFrequency_ = parameters.getUntrackedParameter<int>("StaticUpdateFrequency",10);
   // Get Fed cabling
   eSetup.get<SiStripFedCablingRcd>().get(fedCabling_);
-  trackerMapCreator_ = new TrackerMapCreator();
+  trackerMapCreator_ = new SiStripTrackerMapCreator();
   if (trackerMapCreator_->readConfiguration()) {
     tkMapFrequency_ = trackerMapCreator_->getFrequency();
   }
