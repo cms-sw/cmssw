@@ -39,129 +39,89 @@ SiStripBadStripFromASCIIFile::SiStripBadStripFromASCIIFile( const edm::Parameter
  }
 
 
-
-void SiStripBadStripFromASCIIFile::algoBeginJob( const edm::EventSetup& iSetup ) {
-  p_channelflag p_chanflag;
-  v_channelflag v_chanflag;
-  
-  unsigned int detid;
-  short flag;
-  short channel;
-  
-
-
-
-  // open filename from constructor
-  ifstream infile((fp_.fullPath()).c_str());
-  if(!infile){std::cout << "Problem while trying to open File: " << (fp_.fullPath()).c_str() << std::endl;}
-
-
-
-  unsigned int detid_temp=0;
-  bool first_detid = true;
-  v_allbadstrips.clear();
-
-  while(!infile.eof()){
-
-    // get data from file: 
-    infile >> detid >> channel >> flag;
-    if(detid_temp==detid || first_detid){
-      p_chanflag=p_channelflag(channel, flag);
-      v_chanflag.push_back(p_chanflag);
-    }
-    else{
-     
-      v_allbadstrips.push_back(p_detidchannelflag(detid_temp,v_chanflag));
-      v_chanflag.clear();
-      p_chanflag=p_channelflag(channel, flag);
-      v_chanflag.push_back(p_chanflag);
-         }
-   
-    if(first_detid) first_detid = false;
-    detid_temp=detid;
-
-  }
-
-
-
- 
-
-
-
-
-
-
-    
-   
-     
-}  
-
-
 SiStripBadStrip *SiStripBadStripFromASCIIFile::getNewObject() {
 
   SiStripBadStrip* SiStripBadStrip_ = new SiStripBadStrip();
+
+   // open file and fill DB
+  ifstream infile((fp_.fullPath()).c_str());
+  if(!infile){std::cout << "Problem while trying to open File: " << (fp_.fullPath()).c_str() << std::endl;}
   
-  // loop over detids from construction db 
-  for(v_detidallbadstrips::const_iterator it = v_allbadstrips.begin(); it != v_allbadstrips.end(); it++){
-    std::vector<unsigned int> theSiStripVector;
+
+  //variables needed for reading file and filling of SiStripBadStripObject
+  uint32_t detid;
+  short flag;
+  short channel;
+ 
+  bool firstrun=true;
+  short tempchannel=0;
+  int count =0;
+  std::vector<unsigned int> theSiStripVector;
+  uint32_t tempflag=0;
+  uint32_t tempdetid=0;
 
 
-    int tempconsecstrips=0;
+   while(!infile.eof()){
+
+    // get data from file: 
+    infile >> detid >> channel >> flag;
+
     unsigned int theBadStripRange=0;
-    int count=0;
-    uint32_t tempflag=0;
 
-    for(v_channelflag::const_iterator itstrip=(it->second.begin()); itstrip!=(it->second.end()); itstrip++){
-     
-      if(itstrip==it->second.begin()){
-	tempconsecstrips=itstrip->first;
-	tempflag=itstrip->second;
-      }
-     
-	  
-      if (itstrip->first!=tempconsecstrips+count){
-	
-	  // firstbadstrip               nconsecutivebadstrips     flag
-	  theBadStripRange = SiStripBadStrip_->encode(tempconsecstrips, count, tempflag); 
+    // first loop ?
+    if(firstrun) {
+      tempdetid=detid;
+      tempchannel=channel;
+      tempflag=flag;
+      count =0;
+      firstrun=false;
+    }
+
+
+    if(detid==tempdetid){
+      if (channel!=tempchannel+count || flag != tempflag){
+	                                  // 1.badstrip, nconsectrips, flag
+	  theBadStripRange = SiStripBadStrip_->encode(tempchannel, count, tempflag); 
 		
-	  edm::LogInfo("SiStripBadStripFromASCIIFile")<< "detid " << it->first << " \t"
-							   << " firstBadStrip " << tempconsecstrips << "\t "
+	  edm::LogInfo("SiStripBadStripFromASCIIFile")<< "detid " << tempdetid << " \t"
+							   << " firstBadStrip " << tempchannel << "\t "
 							   << " NconsecutiveBadStrips " << count  << "\t "
 	                                                   <<"flag " << tempflag << "\t"
 							   << " packed integer " << std::hex << theBadStripRange  << std::dec
-							   << std::endl; 	    
-	    
+						           << std::endl; 	    
+
 	  theSiStripVector.push_back(theBadStripRange);
 	  count=1;
-	  tempconsecstrips=itstrip->first;
-	  tempflag=itstrip->second;
+	  tempchannel=channel;
+	  tempflag=flag;
 	  	
-      }else{count++;           }
-	    
-    
+      }else{count++;}
     }
-      
-     // firstbadstrip               nconsecutivebadstrips     flag
-	  theBadStripRange = SiStripBadStrip_->encode(tempconsecstrips, count, tempflag); 
-		
-	  edm::LogInfo("SiStripBadStripFromASCIIFile")<< "detid " << it->first << " \t"
-							   << " firstBadStrip " << tempconsecstrips << "\t "
+    
+    if(detid!=tempdetid){
+                                                    // 1.badstrip, nconsectrips, flag
+	  theBadStripRange = SiStripBadStrip_->encode(tempchannel, count, tempflag); 
+	  edm::LogInfo("SiStripBadStripFromASCIIFile")<< "detid " << tempdetid << " \t"
+							   << " firstBadStrip " << tempchannel << "\t "
 							   << " NconsecutiveBadStrips " << count  << "\t "
 	                                                   <<"flag " << tempflag << "\t"
 							   << " packed integer " << std::hex << theBadStripRange  << std::dec
 							   << std::endl; 	    
-	    
+	  
 	  theSiStripVector.push_back(theBadStripRange);
 	  
-
-	  count=0;
-          
-    // populate db  object
-    SiStripBadStrip::Range range(theSiStripVector.begin(),theSiStripVector.end());
-    if ( ! SiStripBadStrip_->put(it->first,range) )
-      edm::LogError("SiStripBadStripFromASCIIFile")<<"[SiStripBadStripFromASCIIFile::analyze] detid already exists"<<std::endl;
-  }
+	  // populate db  object
+	  SiStripBadStrip::Range range(theSiStripVector.begin(),theSiStripVector.end());
+    if ( ! SiStripBadStrip_->put(tempdetid,range) )
+      edm::LogError("SiStripBadStripFromASCIIFile")<<"[SiStripBadStripFromASCIIFile::GetNewObject] detid already exists"<<std::endl;
+    theSiStripVector.clear();
     
-  SiStripBadStrip* obj=new SiStripBadStrip;
-  return obj;
+    count=1;
+    tempdetid=detid;
+    tempchannel=channel;
+    tempflag=flag;
+    }
+   }
+ 
+  return SiStripBadStrip_;
 }
