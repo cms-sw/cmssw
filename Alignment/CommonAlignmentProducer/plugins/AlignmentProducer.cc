@@ -1,9 +1,9 @@
 /// \file AlignmentProducer.cc
 ///
 ///  \author    : Frederic Ronga
-///  Revision   : $Revision: 1.14 $
-///  last update: $Date: 2007/09/10 12:52:59 $
-///  by         : $Author: covarell $
+///  Revision   : $Revision: 1.15 $
+///  last update: $Date: 2007/10/03 08:54:12 $
+///  by         : $Author: fronga $
 
 #include "Alignment/CommonAlignmentProducer/plugins/AlignmentProducer.h"
 
@@ -192,7 +192,7 @@ void AlignmentProducer::beginOfJob( const edm::EventSetup& iSetup )
   // Create alignable tracker and muon 
   if (doTracker_)
   {
-    theAlignableTracker = new AlignableTracker( &(*theGeometricDet), &(*theTracker) );
+    theAlignableTracker = new AlignableTracker( &(*theTracker) );
 
     if (useSurvey_)
     {
@@ -559,21 +559,20 @@ void AlignmentProducer::createGeometries_( const edm::EventSetup& iSetup )
    iSetup.get<IdealGeometryRecord>().get( cpv );
 
    if (doTracker_) {
-      iSetup.get<IdealGeometryRecord>().get( theGeometricDet );
-      TrackerGeomBuilderFromGeometricDet trackerBuilder;
-      theTracker = boost::shared_ptr<TrackerGeometry>( trackerBuilder.build(&(*theGeometricDet)) );
+     edm::ESHandle<GeometricDet> geometricDet;
+     iSetup.get<IdealGeometryRecord>().get( geometricDet );
+     TrackerGeomBuilderFromGeometricDet trackerBuilder;
+     theTracker = boost::shared_ptr<TrackerGeometry>( trackerBuilder.build(&(*geometricDet)) );
    }
 
    if (doMuon_) {
-      edm::ESHandle<MuonDDDConstants> mdc;
-      iSetup.get<MuonNumberingRecord>().get(mdc);
-      DTGeometryBuilderFromDDD DTGeometryBuilder;
-      CSCGeometryBuilderFromDDD CSCGeometryBuilder;
-      theMuonDT = boost::shared_ptr<DTGeometry>(DTGeometryBuilder.build(&(*cpv), *mdc));
-
-      //theMuonCSC = boost::shared_ptr<CSCGeometry>(CSCGeometryBuilder.build(&(*cpv), *mdc));
-      theMuonCSC = boost::shared_ptr<CSCGeometry>( new CSCGeometry );
-      CSCGeometryBuilder.build( theMuonCSC, &(*cpv), *mdc );
+     edm::ESHandle<MuonDDDConstants> mdc;
+     iSetup.get<MuonNumberingRecord>().get(mdc);
+     DTGeometryBuilderFromDDD DTGeometryBuilder;
+     CSCGeometryBuilderFromDDD CSCGeometryBuilder;
+     theMuonDT = boost::shared_ptr<DTGeometry>(DTGeometryBuilder.build(&(*cpv), *mdc));
+     theMuonCSC = boost::shared_ptr<CSCGeometry>( new CSCGeometry );
+     CSCGeometryBuilder.build( theMuonCSC, &(*cpv), *mdc );
    }
 }
 

@@ -7,9 +7,9 @@
 /// Description : calls alignment algorithms
 ///
 ///  \author    : Frederic Ronga
-///  Revision   : $Revision: 1.5 $
-///  last update: $Date: 2007/07/03 18:36:13 $
-///  by         : $Author: cklae $
+///  Revision   : $Revision: 1.6 $
+///  last update: $Date: 2007/07/09 14:33:20 $
+///  by         : $Author: pivarski $
 
 #include <vector>
 
@@ -100,7 +100,6 @@ class AlignmentProducer : public edm::ESProducerLooper
 
   AlignableTracker* theAlignableTracker;
   AlignableMuon* theAlignableMuon;
-  edm::ESHandle<GeometricDet> theGeometricDet; // Needed for AlignableTracker 
 
   boost::shared_ptr<TrackerGeometry> theTracker;
   boost::shared_ptr<DTGeometry> theMuonDT;
