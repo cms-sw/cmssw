@@ -13,7 +13,7 @@
 //
 // Original Author:  Rizzi Andrea
 //         Created:  Mon Sep 24 09:30:06 CEST 2007
-// $Id: HSCPAnalyzer.cc,v 1.5 2007/10/15 16:34:57 arizzi Exp $
+// $Id: HSCPAnalyzer.cc,v 1.6 2007/10/16 10:22:55 arizzi Exp $
 //
 //
 
@@ -87,6 +87,11 @@ class HSCPAnalyzer : public edm::EDAnalyzer {
       TH2F * h_dedxFitCtrl;
       TH1F * h_dedxMIP;
       TH1F * h_dedxFitMIP;
+// RECO TOF
+      TH2F * h_tofBetap;
+      TH2F * h_tofMassp;
+      TH1F * h_tofMass;
+      TH1F * h_tofMass2;
 //ANALYSIS
       TH1F * h_pSpectrumAfterSelection[6]; 
       TH1F * h_massAfterSelection[6];
@@ -154,7 +159,12 @@ HSCPAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
    Handle<reco::MuonCollection> pIn;
    iEvent.getByLabel("muons",pIn);
    const reco::MuonCollection & muons = * pIn.product();
+
+   Handle<vector<float> >  betaRecoH;
+   iEvent.getByLabel("betaFromTOF",betaRecoH);
+   const vector<float> & betaReco = *betaRecoH.product();
  
+   int i=0;
    reco::MuonCollection::const_iterator muonIt = muons.begin();
    for(; muonIt != muons.end() ; ++muonIt)
     {
@@ -163,6 +173,20 @@ HSCPAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       TrackRef combMuon = muonIt->combinedMuon();
       if(tkMuon.isNonnull())
            h_pt->Fill(tkMuon->pt(),w); 
+
+      double p = staMuon->p();
+      double invbeta = betaReco.at(i);
+      double mass = p*sqrt(invbeta*invbeta-1);
+      double mass2 = p*p*(invbeta*invbeta-1);
+           
+      cout << " Muon p: " << p << " invBeta: " << invbeta << " Mass: " << mass << endl;
+      
+      h_tofBetap->Fill(p,invbeta,w);
+      h_tofMassp->Fill(p,mass,w);
+      h_tofMass->Fill(mass,w);
+      h_tofMass2->Fill(mass2,w);
+      
+      i++;
     }
 
 
@@ -263,6 +287,9 @@ HSCPAnalyzer::beginJob(const edm::EventSetup&)
 {
   edm::Service<TFileService> fs;
 
+  float minBeta = 0.8l;
+  float maxBeta = 3.;
+
 //------------ RECO DEDX ----------------
   TFileDirectory subDir = fs->mkdir( "RecoDeDx" );
   h_pt =  subDir.make<TH1F>( "mu_pt"  , "p_{t}", 100,  0., 1500. );
@@ -280,6 +307,12 @@ HSCPAnalyzer::beginJob(const edm::EventSetup&)
   h_dedxMassProton =  subDir.make<TH1F>( "massProton"  , "Proton Mass (dedx)", 100,  0., 2.);
   h_dedxMassProtonFit =  subDir.make<TH1F>( "massProton_FIT"  , "Proton Mass (dedx)", 100,  0., 2.);
 
+//------------ RECO TOF ----------------
+  TFileDirectory subDirTof = fs->mkdir( "RecoTOF" );
+  h_tofBetap =  subDirTof.make<TH2F>("tof_beta_p","1/#beta vs p",100,0,1500,100,minBeta,maxBeta );
+  h_tofMassp =  subDirTof.make<TH2F>("tof_mass_p","Mass vs p", 100,0,1500,100,0,1000);
+  h_tofMass =  subDirTof.make<TH1F>("tof_mass","Mass from DT TOF",100,0,1000);
+  h_tofMass2 =  subDirTof.make<TH1F>("tof_mass2","Mass squared from DT TOF",100,-10000,100000);
 
 //-------- Analysis ----------------
  TFileDirectory subDirAn =  fs->mkdir( "Analysis" );
