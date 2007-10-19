@@ -1,9 +1,12 @@
-#ifndef Tracker_VertexDistance_H
-#define Tracker_VertexDistance_H
+#ifndef VertexDistance_H
+#define VertexDistance_H
 
 #include "DataFormats/GeometryCommonDetAlgo/interface/Measurement1D.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
-#include "DataFormats/GeometryVector/interface/GlobalVector.h"
+#include "Geometry/Vector/interface/GlobalVector.h"
+#include "Geometry/CommonDetAlgo/interface/AlgebraicObjects.h"
+#include "Geometry/Vector/interface/GlobalPoint.h"
+#include "Geometry/CommonDetAlgo/interface/GlobalError.h"
 
 /** \class VertexDistance
  *  Abstact class which defines a distance and compatibility between vertices.
@@ -16,8 +19,17 @@ class VertexDistance {
 
   virtual ~VertexDistance() {}
 
-  virtual Measurement1D distance(const reco::Vertex &, 
-				 const reco::Vertex &) const = 0;
+  Measurement1D distance(const reco::Vertex &, 
+			 const reco::Vertex &) const;
+
+  Measurement1D distance(const VertexState &, 
+			 const VertexState &) const;
+
+  Measurement1D distance(const reco::Vertex &, 
+			 const VertexState &) const;
+
+  Measurement1D distance(const VertexState &, 
+			 const reco::Vertex &) const;
 
   /**
    * The signed distance is computed using a vector
@@ -36,15 +48,29 @@ class VertexDistance {
 				       const GlobalVector & momentum) const = 0;
 
   virtual float compatibility (const reco::Vertex &, 
-			       const reco::Vertex &) const = 0;
-
-  virtual Measurement1D distance(const VertexState &, 
-				 const VertexState &) const = 0;
+			       const reco::Vertex &) const;
 
   virtual float compatibility (const VertexState &, 
-			       const VertexState &) const = 0;
+			       const VertexState &) const;
+
+  virtual float compatibility(const reco::Vertex &, 
+			 const VertexState &) const;
+
+  virtual float compatibility(const VertexState &, 
+			 const reco::Vertex &) const;
 
   virtual VertexDistance * clone() const = 0;
+
+protected: 
+  virtual Measurement1D distance(const GlobalPoint & vtx1Position, 
+				 const GlobalError & vtx1PositionError, 
+				 const GlobalPoint & vtx2Position, 
+				 const GlobalError & vtx2PositionError) const = 0;
+
+  virtual float compatibility(const GlobalPoint & vtx1Position, 
+			      const GlobalError & vtx1PositionError, 
+			      const GlobalPoint & vtx2Position, 
+			      const GlobalError & vtx2PositionError) const = 0;
 
 };
 #endif  //  Tracker_VertexDistance_H

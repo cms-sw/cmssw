@@ -16,8 +16,6 @@ class VertexDistance3D : public VertexDistance {
 public:
   VertexDistance3D() : theNullMatrix(3, 0) {}
 
-  virtual Measurement1D distance(const reco::Vertex &, 
-				 const reco::Vertex &) const;
   /**
    * The signed distance is computed using a vector
    * from the primary to the secondary vertex and
@@ -29,18 +27,13 @@ public:
   virtual Measurement1D signedDistance(const reco::Vertex &primVtx , 
 				 const reco::Vertex &secVtx,
 				 const GlobalVector & momentum) const;
-  virtual float compatibility (const reco::Vertex &, 
-			       const reco::Vertex &) const;
-
-  virtual Measurement1D distance(const VertexState &, const VertexState &) const;
-
-  virtual float compatibility (const VertexState &, const VertexState &) const;
 
   virtual VertexDistance3D * clone() const
   {
     return new VertexDistance3D(*this);
   }
 
+  using VertexDistance::distance;
 
 private:
 

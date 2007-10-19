@@ -1,29 +1,8 @@
 #include "RecoVertex/VertexTools/interface/VertexDistance3D.h"
-#include "DataFormats/GeometryVector/interface/GlobalVector.h"
-#include "RecoVertex/VertexPrimitives/interface/VertexState.h"
-#include "RecoVertex/VertexPrimitives/interface/ConvertError.h"
-#include "FWCore/Utilities/interface/Exception.h"
 #include <cfloat>
 
 
 using namespace reco;
-
-Measurement1D VertexDistance3D::distance(const VertexState & vtx1, 
-					 const VertexState & vtx2) const
-{
-  return distance(vtx1.position(), vtx1.error(),
-  		  vtx2.position(), vtx2.error());
-}
-
-
-Measurement1D 
-VertexDistance3D::distance(const Vertex & vtx1, const Vertex & vtx2) const
-{
-  return distance(GlobalPoint(Basic3DVector<float> (vtx1.position())), 
-		  RecoVertex::convertError(vtx1.covariance()),
-  		  GlobalPoint(Basic3DVector<float> (vtx2.position())), 
-		  RecoVertex::convertError(vtx2.covariance()));
-}
 
 Measurement1D
 VertexDistance3D::signedDistance(const Vertex& vtx1, const Vertex & vtx2,
@@ -62,23 +41,6 @@ VertexDistance3D::distance(const GlobalPoint & vtx1Position,
      return Measurement1D(dist,err);
 }
 
-
-float VertexDistance3D::compatibility(const VertexState & vtx1, 
-				      const VertexState & vtx2) const
-{
-  return compatibility(vtx1.position(), vtx1.error(),
-		       vtx2.position(), vtx2.error());
-}
-
-
-float VertexDistance3D::compatibility(const Vertex & vtx1, 
-				      const Vertex & vtx2) const
-{
-  return compatibility(GlobalPoint(Basic3DVector<float> (vtx1.position())), 
-		       RecoVertex::convertError(vtx1.covariance()),
-		       GlobalPoint(Basic3DVector<float> (vtx2.position())), 
-		       RecoVertex::convertError(vtx2.covariance()));
-}
 
 
 float 
