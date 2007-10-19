@@ -1,8 +1,8 @@
 /// \file AlignmentProducer.cc
 ///
 ///  \author    : Frederic Ronga
-///  Revision   : $Revision: 1.15 $
-///  last update: $Date: 2007/10/03 08:54:12 $
+///  Revision   : $Revision: 1.16 $
+///  last update: $Date: 2007/10/19 11:30:10 $
 ///  by         : $Author: fronga $
 
 #include "Alignment/CommonAlignmentProducer/plugins/AlignmentProducer.h"
@@ -454,15 +454,14 @@ AlignmentProducer::duringLoop( const edm::Event& event,
   
   // Retrieve trajectories and tracks from the event
   // -> merely skip if collection is empty
-  try {
-    edm::InputTag tjTag = theParameterSet.getParameter<edm::InputTag>("tjTkAssociationMapTag");
-    edm::Handle<TrajTrackAssociationCollection> m_TrajTracksMap;
-    event.getByLabel( tjTag, m_TrajTracksMap );
+  edm::InputTag tjTag = theParameterSet.getParameter<edm::InputTag>("tjTkAssociationMapTag");
+  edm::Handle<TrajTrackAssociationCollection> m_TrajTracksMap;
+  if ( event.getByLabel( tjTag, m_TrajTracksMap ) ) {
     
     // Form pairs of trajectories and tracks
     ConstTrajTrackPairCollection trajTracks;
     for ( TrajTrackAssociationCollection::const_iterator iPair = m_TrajTracksMap->begin();
-	  iPair != m_TrajTracksMap->end(); iPair++ )
+          iPair != m_TrajTracksMap->end(); iPair++ )
       trajTracks.push_back( ConstTrajTrackPair( &(*(*iPair).key), &(*(*iPair).val) ) );
     
     // Run the alignment algorithm
@@ -471,13 +470,11 @@ AlignmentProducer::duringLoop( const edm::Event& event,
     for (std::vector<AlignmentMonitorBase*>::const_iterator monitor = theMonitors.begin();  monitor != theMonitors.end();  ++monitor) {
       (*monitor)->duringLoop(setup, trajTracks);
     }
-    
-  } catch(const edm::Exception& e) {
-    if ( e.categoryCode() != edm::errors::ProductNotFound ) {
-      // Not an empty track collection
-      throw;
-    }
+  } else {
+    edm::LogInfo("Alignment") << "@SUB=AlignmentProducer::duringLoop" 
+                              << "No track collection found: skipping event";
   }
+  
 
   return kContinue;
 }
