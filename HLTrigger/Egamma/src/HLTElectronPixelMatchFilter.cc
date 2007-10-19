@@ -1,6 +1,6 @@
 /** \class HLTElectronPixelMatchFilter
  *
- * $Id: HLTElectronPixelMatchFilter.cc,v 1.5 2007/09/20 00:05:22 ratnik Exp $
+ * $Id: HLTElectronPixelMatchFilter.cc,v 1.6 2007/10/16 14:37:37 ghezzi Exp $
  *
  *  \author Monica Vazquez Acosta (CERN)
  *
@@ -36,11 +36,11 @@ HLTElectronPixelMatchFilter::HLTElectronPixelMatchFilter(const edm::ParameterSet
 {
   candTag_            = iConfig.getParameter< edm::InputTag > ("candTag");
 
-  L1IsoPixelmapbarrelTag_  = iConfig.getParameter< edm::InputTag > ("L1IsoPixelmapbarrelTag");
-  L1IsoPixelmapendcapTag_  = iConfig.getParameter< edm::InputTag > ("L1IsoPixelmapendcapTag");
+  L1IsoPixelSeedsTag_  = iConfig.getParameter< edm::InputTag > ("L1IsoPixelSeedsTag");
+  //L1IsoPixelmapendcapTag_  = iConfig.getParameter< edm::InputTag > ("L1IsoPixelmapendcapTag");
 
-  L1NonIsoPixelmapbarrelTag_  = iConfig.getParameter< edm::InputTag > ("L1NonIsoPixelmapbarrelTag");
-  L1NonIsoPixelmapendcapTag_  = iConfig.getParameter< edm::InputTag > ("L1NonIsoPixelmapendcapTag");
+  L1NonIsoPixelSeedsTag_  = iConfig.getParameter< edm::InputTag > ("L1NonIsoPixelSeedsTag");
+  // L1NonIsoPixelmapendcapTag_  = iConfig.getParameter< edm::InputTag > ("L1NonIsoPixelmapendcapTag");
 
   npixelmatchcut_     = iConfig.getParameter<double> ("npixelmatchcut");
   ncandcut_           = iConfig.getParameter<int> ("ncandcut");
@@ -68,18 +68,18 @@ HLTElectronPixelMatchFilter::filter(edm::Event& iEvent, const edm::EventSetup& i
   iEvent.getByLabel (candTag_,recoecalcands);
   
   //get hold of the pixel seed - supercluster association map
-  edm::Handle<reco::ElectronPixelSeedCollection> L1IsoBarrelSeeds;
-  iEvent.getByLabel (L1IsoPixelmapbarrelTag_,L1IsoBarrelSeeds);
+  edm::Handle<reco::ElectronPixelSeedCollection> L1IsoSeeds;
+  iEvent.getByLabel (L1IsoPixelSeedsTag_,L1IsoSeeds);
   
   //get hold of the pixel seed - supercluster association map
-  edm::Handle<reco::ElectronPixelSeedCollection> L1IsoEndcapSeeds;
-  iEvent.getByLabel (L1IsoPixelmapendcapTag_,L1IsoEndcapSeeds);
+  //  edm::Handle<reco::ElectronPixelSeedCollection> L1IsoEndcapSeeds;
+  //iEvent.getByLabel (L1IsoPixelmapendcapTag_,L1IsoEndcapSeeds);
 
-  edm::Handle<reco::ElectronPixelSeedCollection> L1NonIsoBarrelSeeds;
-  edm::Handle<reco::ElectronPixelSeedCollection> L1NonIsoEndcapSeeds;
+  edm::Handle<reco::ElectronPixelSeedCollection> L1NonIsoSeeds;
+  //edm::Handle<reco::ElectronPixelSeedCollection> L1NonIsoEndcapSeeds;
   if(!doIsolated_){
-    iEvent.getByLabel (L1NonIsoPixelmapbarrelTag_,L1NonIsoBarrelSeeds);
-    iEvent.getByLabel (L1NonIsoPixelmapendcapTag_,L1NonIsoEndcapSeeds);
+    iEvent.getByLabel (L1NonIsoPixelSeedsTag_,L1NonIsoSeeds);
+    // iEvent.getByLabel (L1NonIsoPixelmapendcapTag_,L1NonIsoEndcapSeeds);
   }
   
   // look at all egammas,  check cuts and add to filter object
@@ -91,43 +91,43 @@ HLTElectronPixelMatchFilter::filter(edm::Event& iEvent, const edm::EventSetup& i
     reco::SuperClusterRef recr2 = recr->superCluster();
     int nmatch = 0;
 
-    for(reco::ElectronPixelSeedCollection::const_iterator itb = L1IsoBarrelSeeds->begin(); 
-	itb != L1IsoBarrelSeeds->end(); itb++){
-      const reco::SuperClusterRef & scRef=itb->superCluster();
+    for(reco::ElectronPixelSeedCollection::const_iterator it = L1IsoSeeds->begin(); 
+	it != L1IsoSeeds->end(); it++){
+      const reco::SuperClusterRef & scRef=it->superCluster();
 
       if(&(*recr2) ==  &(*scRef)) {
 	nmatch++;
       }
     }
     
-    for(reco::ElectronPixelSeedCollection::const_iterator ite = L1IsoEndcapSeeds->begin(); 
-	ite != L1IsoEndcapSeeds->end(); ite++){
-       const reco::SuperClusterRef & scRef=ite->superCluster();
-      if(&(*recr2) ==  &(*scRef)) {
-	nmatch++;
-      }
-    }
+//     for(reco::ElectronPixelSeedCollection::const_iterator ite = L1IsoEndcapSeeds->begin(); 
+// 	ite != L1IsoEndcapSeeds->end(); ite++){
+//        const reco::SuperClusterRef & scRef=ite->superCluster();
+//       if(&(*recr2) ==  &(*scRef)) {
+// 	nmatch++;
+//       }
+//     }
 
     if(!doIsolated_){
 
-      for(reco::ElectronPixelSeedCollection::const_iterator itb = L1NonIsoBarrelSeeds->begin(); 
-	  itb != L1NonIsoBarrelSeeds->end(); itb++){
-	const reco::SuperClusterRef & scRef=itb->superCluster();
+      for(reco::ElectronPixelSeedCollection::const_iterator it = L1NonIsoSeeds->begin(); 
+	  it != L1NonIsoSeeds->end(); it++){
+	const reco::SuperClusterRef & scRef=it->superCluster();
       
 	if(&(*recr2) ==  &(*scRef)) {
 	  nmatch++;
 	}
       }
 
-      for(reco::ElectronPixelSeedCollection::const_iterator ite = L1NonIsoEndcapSeeds->begin(); 
-	  ite != L1NonIsoEndcapSeeds->end(); ite++){
+//       for(reco::ElectronPixelSeedCollection::const_iterator ite = L1NonIsoEndcapSeeds->begin(); 
+// 	  ite != L1NonIsoEndcapSeeds->end(); ite++){
       
-	const reco::SuperClusterRef & scRef=ite->superCluster();
+// 	const reco::SuperClusterRef & scRef=ite->superCluster();
       
-	if(&(*recr2) ==  &(*scRef)) {
-	  nmatch++;
-	}
-      } 
+// 	if(&(*recr2) ==  &(*scRef)) {
+// 	  nmatch++;
+// 	}
+//       } 
 
     }
 
