@@ -53,7 +53,8 @@ public:
 
   // create electrons from superclusters, tracks and Hcal rechits
   void process(edm::Handle<reco::GsfTrackCollection> tracksH,
-	       const reco::BasicClusterShapeAssociationCollection *shpAss,
+	       const reco::BasicClusterShapeAssociationCollection *shpAssBarrel,
+	       const reco::BasicClusterShapeAssociationCollection *shpAssEndcap,
 	       HBHERecHitMetaCollection *mhbhe,
 	       reco::PixelMatchGsfElectronCollection & outEle);
    
@@ -95,14 +96,12 @@ public:
   // input configuration
   std::string hbheLabel_;
   std::string hbheInstanceName_;
-  std::string trackBarrelLabel_;
-  std::string trackEndcapLabel_;
-  std::string trackBarrelInstanceName_;
-  std::string trackEndcapInstanceName_;
   std::string assBarrelShapeLabel_;
   std::string assBarrelShapeInstanceName_;
   std::string assEndcapShapeLabel_;
   std::string assEndcapShapeInstanceName_;
+  std::string trackLabel_;
+  std::string trackInstanceName_;
 
   edm::ESHandle<MagneticField>                theMagField;
   edm::ESHandle<CaloGeometry>                 theCaloGeom;
@@ -111,6 +110,8 @@ public:
   const MultiTrajectoryStateTransform *mtsTransform_;
   const GsfPropagatorAdapter *geomPropBw_;
   const GsfPropagatorAdapter *geomPropFw_;
+
+  int subdet_; //subdetector for this cluster
 };
 
 #endif // PixelMatchElectronAlgo_H

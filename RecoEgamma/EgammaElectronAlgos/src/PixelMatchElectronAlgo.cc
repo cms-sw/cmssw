@@ -12,7 +12,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Thu july 6 13:22:06 CEST 2006
-// $Id: PixelMatchElectronAlgo.cc,v 1.51 2007/10/12 11:35:27 uberthon Exp $
+// $Id: PixelMatchElectronAlgo.cc,v 1.52 2007/10/15 13:29:35 uberthon Exp $
 //
 //
 
@@ -99,10 +99,8 @@ PixelMatchElectronAlgo::PixelMatchElectronAlgo(const edm::ParameterSet& conf,
   ParameterSet tise_params = conf.getParameter<ParameterSet>("TransientInitialStateEstimatorParameters") ;
   hbheLabel_ = conf.getParameter<string>("hbheModule");
   hbheInstanceName_ = conf.getParameter<string>("hbheInstance");
-  trackBarrelLabel_ = conf.getParameter<string>("TrackBarrelLabel");
-  trackBarrelInstanceName_ = conf.getParameter<string>("TrackBarrelProducer");
-  trackEndcapLabel_ = conf.getParameter<string>("TrackEndcapLabel");
-  trackEndcapInstanceName_ = conf.getParameter<string>("TrackEndcapProducer");
+  trackLabel_ = conf.getParameter<string>("TrackLabel");
+  trackInstanceName_ = conf.getParameter<string>("TrackProducer");
   assBarrelShapeInstanceName_ = conf.getParameter<string>("AssocShapeBarrelProducer");
   assBarrelShapeLabel_ = conf.getParameter<string>("AssocShapeBarrelLabel");
   assEndcapShapeInstanceName_ = conf.getParameter<string>("AssocShapeEndcapProducer");
@@ -136,17 +134,15 @@ void PixelMatchElectronAlgo::setupES(const edm::EventSetup& es) {
 void  PixelMatchElectronAlgo::run(Event& e, PixelMatchGsfElectronCollection & outEle) {
 
   // get the input 
-  edm::Handle<GsfTrackCollection> tracksBarrelH;
-  edm::Handle<GsfTrackCollection> tracksEndcapH;
-  // to check existance
+   edm::Handle<GsfTrackCollection> tracksH;
+  // to check existence
   edm::Handle<HBHERecHitCollection> hbhe;
   HBHERecHitMetaCollection *mhbhe=0;
   if (hOverEConeSize_ > 0.) {
     e.getByLabel(hbheLabel_,hbheInstanceName_,hbhe);  
     mhbhe=  new HBHERecHitMetaCollection(*hbhe);
   }
-  e.getByLabel(trackBarrelLabel_,trackBarrelInstanceName_,tracksBarrelH);
-  e.getByLabel(trackEndcapLabel_,trackEndcapInstanceName_,tracksEndcapH);
+  e.getByLabel(trackLabel_,trackInstanceName_,tracksH);
   
   edm::Handle<BasicClusterShapeAssociationCollection> barrelShapeAssocH;
   edm::Handle<BasicClusterShapeAssociationCollection> endcapShapeAssocH;
@@ -154,16 +150,15 @@ void  PixelMatchElectronAlgo::run(Event& e, PixelMatchGsfElectronCollection & ou
   e.getByLabel(assEndcapShapeLabel_,assEndcapShapeInstanceName_,endcapShapeAssocH);
 
   // create electrons from tracks in 2 steps: barrel + endcap
-  const BasicClusterShapeAssociationCollection *shpAss=&(*barrelShapeAssocH);
-  process(tracksBarrelH,shpAss,mhbhe,outEle);
-  shpAss=&(*endcapShapeAssocH);
-  process(tracksEndcapH,shpAss,mhbhe,outEle);
+  const BasicClusterShapeAssociationCollection *shpAssBarrel=&(*barrelShapeAssocH);
+  const BasicClusterShapeAssociationCollection *shpAssEndcap=&(*endcapShapeAssocH);
+  process(tracksH,shpAssBarrel,shpAssEndcap,mhbhe,outEle);
   delete mhbhe;
   std::ostringstream str;
 
   str << "========== PixelMatchElectronAlgo Info ==========";
   str << "Event " << e.id();
-  str << "Number of final electron tracks: " << tracksBarrelH.product()->size()+ tracksEndcapH.product()->size();
+  str << "Number of final electron tracks: " << tracksH.product()->size();
   str << "Number of final electrons: " << outEle.size();
   for (vector<PixelMatchGsfElectron>::const_iterator it = outEle.begin(); it != outEle.end(); it++) {
     str << "New electron with charge, pt, eta, phi : "  << it->charge() << " , " 
@@ -176,7 +171,8 @@ void  PixelMatchElectronAlgo::run(Event& e, PixelMatchGsfElectronCollection & ou
 }
 
 void PixelMatchElectronAlgo::process(edm::Handle<GsfTrackCollection> tracksH,
-		        const BasicClusterShapeAssociationCollection *shpAss,
+		        const BasicClusterShapeAssociationCollection *shpAssBarrel,
+		        const BasicClusterShapeAssociationCollection *shpAssEndcap,
                         HBHERecHitMetaCollection *mhbhe,
 		        PixelMatchGsfElectronCollection & outEle) {
 
@@ -191,15 +187,22 @@ void PixelMatchElectronAlgo::process(edm::Handle<GsfTrackCollection> tracksH,
     ElectronPixelSeedRef elseed=seed.castTo<ElectronPixelSeedRef>();
     const SuperClusterRef & scRef=elseed->superCluster();
     const SuperCluster theClus=*scRef;
+   std::vector<DetId> vecId=theClus.getHitsByDetId();
+   subdet_ =vecId[0].subdetId();  
 
-    //get ref to ClusterShape for seed BasicCluster of SuperCluster
-    seedShpItr = shpAss->find(scRef->seed());
-    assert(seedShpItr != shpAss->end());
+   //get ref to ClusterShape for seed BasicCluster of SuperCluster
+   if (subdet_==EcalEndcap) {
+     seedShpItr = shpAssEndcap->find(scRef->seed());
+     assert(seedShpItr != shpAssEndcap->end());
+   }else if (subdet_==EcalBarrel) {
+     seedShpItr = shpAssBarrel->find(scRef->seed());
+     assert(seedShpItr != shpAssBarrel->end());
+   }
     const reco::ClusterShapeRef& seedShapeRef = seedShpItr->val;
 
-    // calculate HoE
-    double HoE;
-    if (mhbhe) {
+   // calculate HoE
+   double HoE;
+   if (mhbhe) {
       CaloConeSelector sel(hOverEConeSize_, theCaloGeom.product(), DetId::Hcal);
       GlobalPoint pclu(theClus.x(),theClus.y(),theClus.z());
       double hcalEnergy = 0.;
@@ -297,16 +300,14 @@ bool PixelMatchElectronAlgo::preSelection(const SuperCluster& clus, const Global
 
   // E/p cut
   LogDebug("") << "E/p : " << clus.energy()/tsosVtxMom.mag();
-  std::vector<DetId> vecId=clus.getHitsByDetId();
-  int subdet =vecId[0].subdetId();  
   double rt2 = clus.x()*clus.x() + clus.y()*clus.y();
   double r2 = rt2 + clus.z()*clus.z();
   // no E/p preselection for high pT electrons
   if (!highPtPreselection_ || clus.energy()*sqrt(rt2/r2) <= highPtMin_) {
-    if ((subdet==EcalBarrel) && (clus.energy()/tsosVtxMom.mag() > maxEOverPBarrel_)) return false;
-    if ((subdet==EcalEndcap) && (clus.energy()/tsosVtxMom.mag() > maxEOverPEndcaps_)) return false;
-    if ((subdet==EcalBarrel) && (clus.energy()/tsosVtxMom.mag() < minEOverPBarrel_)) return false;
-    if ((subdet==EcalEndcap) && (clus.energy()/tsosVtxMom.mag() < minEOverPEndcaps_)) return false;
+    if ((subdet_==EcalBarrel) && (clus.energy()/tsosVtxMom.mag() > maxEOverPBarrel_)) return false;
+    if ((subdet_==EcalEndcap) && (clus.energy()/tsosVtxMom.mag() > maxEOverPEndcaps_)) return false;
+    if ((subdet_==EcalBarrel) && (clus.energy()/tsosVtxMom.mag() < minEOverPBarrel_)) return false;
+    if ((subdet_==EcalEndcap) && (clus.energy()/tsosVtxMom.mag() < minEOverPEndcaps_)) return false;
   }
   LogDebug("") << "E/p criteria is satisfied ";
 

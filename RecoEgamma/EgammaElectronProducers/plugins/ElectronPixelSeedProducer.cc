@@ -13,7 +13,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: ElectronPixelSeedProducer.cc,v 1.3 2007/10/12 11:30:42 uberthon Exp $
+// $Id: ElectronPixelSeedProducer.cc,v 1.5 2007/10/15 13:29:53 uberthon Exp $
 //
 //
 
@@ -61,8 +61,7 @@ ElectronPixelSeedProducer::ElectronPixelSeedProducer(const edm::ParameterSet& iC
   instanceName_[1]=iConfig.getParameter<std::string>("superClusterEndcapLabel");
 
   //register your products
-  produces<ElectronPixelSeedCollection>(label_[0]);
-  produces<ElectronPixelSeedCollection>(label_[1]);
+  produces<ElectronPixelSeedCollection>();
 }
 
 
@@ -83,30 +82,23 @@ void ElectronPixelSeedProducer::produce(edm::Event& e, const edm::EventSetup& iS
   LogDebug("entering");
   LogDebug("")  <<"[ElectronPixelSeedProducer::produce] entering " ;
 
-  std::auto_ptr<ElectronPixelSeedCollection> pSeeds[2];
-  pSeeds[0]=  std::auto_ptr<ElectronPixelSeedCollection>(new ElectronPixelSeedCollection);
-  pSeeds[1]=  std::auto_ptr<ElectronPixelSeedCollection>(new ElectronPixelSeedCollection);
+  ElectronPixelSeedCollection *seeds= new ElectronPixelSeedCollection;
+  std::auto_ptr<ElectronPixelSeedCollection> pSeeds;
  
   // loop over barrel + endcap
   for (unsigned int i=0; i<2; i++) {  
     // invoke algorithm
     edm::Handle<SuperClusterCollection> clusters;
-    e.getByLabel(label_[i],instanceName_[i],clusters);
-    matcher_->run(e,iSetup,clusters,*pSeeds[i]);
-  
- 
-    // convert ElectronPixelSeeds into trajectorySeeds 
-    // we have first to create AND put the TrajectorySeedCollection
-    // in order to get a working Handle
-    // if not there is a problem when inserting into the map
+    if (e.getByLabel(label_[i],instanceName_[i],clusters))     matcher_->run(e,iSetup,clusters,*seeds);
+  }
 
-    for (ElectronPixelSeedCollection::iterator is=pSeeds[i]->begin(); is!=pSeeds[i]->end();is++) {
+  // store the accumulated result
+  pSeeds=  std::auto_ptr<ElectronPixelSeedCollection>(seeds);
+  for (ElectronPixelSeedCollection::iterator is=pSeeds->begin(); is!=pSeeds->end();is++) {
       LogDebug("")  << "new seed with " << (*is).nHits() << " hits, charge " << (*is).getCharge() <<
 	" and cluster energy " << (*is).superCluster()->energy() << " PID "<<(*is).superCluster().id();
-    }
-
-    e.put(pSeeds[i],label_[i]);
   }
+  e.put(pSeeds);
 
 }
 
