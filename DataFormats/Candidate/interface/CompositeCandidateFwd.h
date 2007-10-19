@@ -16,7 +16,7 @@ namespace reco {
 
 namespace reco {
   /// collection of Candidate objects
-  typedef edm::OwnVector<CompositeCandidate> CompositeCandidateCollection;
+  typedef std::vector<CompositeCandidate> CompositeCandidateCollection;
   /// view of a collection containing candidates
   typedef edm::View<CompositeCandidate> CompositeCandidateView;
   /// persistent reference to an object in a collection of Candidate objects
