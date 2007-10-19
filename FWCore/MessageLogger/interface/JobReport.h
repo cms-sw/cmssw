@@ -19,7 +19,7 @@ through the MessageLogger.
 
 //
 // Original Author:  Marc Paterno
-// $Id: JobReport.h,v 1.18 2007/09/28 18:56:57 evansde Exp $
+// $Id: JobReport.h,v 1.19 2007/10/19 08:14:05 chrjones Exp $
 //
 
 #include <cstddef>
@@ -401,8 +401,8 @@ namespace edm {
      * If something outside these classes requires access to the 
      * same formatting then we need to refactor it into a common library
      */
-  template <typename T>
-  std::ostream& formatFile(const T& f, std::ostream& os) {
+  template <typename S, typename T>
+  S& formatFile(const T& f, S& os) {
 
     if (f.fileHasBeenClosed) {
       os << "\n<State  Value=\"closed\"/>";

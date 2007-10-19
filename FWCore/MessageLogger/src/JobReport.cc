@@ -6,7 +6,7 @@
 // 
 //
 // Original Author:  Marc Paterno
-// $Id: JobReport.cc,v 1.23 2007/09/28 18:56:58 evansde Exp $
+// $Id: JobReport.cc,v 1.24 2007/10/19 08:14:13 chrjones Exp $
 //
 
 
@@ -27,11 +27,12 @@ namespace edm
      * If something outside these classes requires access to the 
      * same formatting then we need to refactor it into a common library
      */
-    ostream& 
-    operator<< (ostream& os, JobReport::InputFile const& f) {
+  template <typename S>
+    S& 
+    print (S& os, JobReport::InputFile const& f) {
       
       os << "\n<InputFile>";
-      formatFile<JobReport::InputFile>(f, os);
+      formatFile(f, os);
       os << "\n<InputSourceClass>" << f.inputSourceClassName 
 	 << "</InputSourceClass>";
       os << "\n<EventsRead>" << f.numEventsRead << "</EventsRead>";
@@ -40,9 +41,10 @@ namespace edm
     }
 
 
-    ostream& 
-    operator<< (ostream& os, JobReport::OutputFile const& f) {
-      formatFile<JobReport::OutputFile>(f, os);           
+  template <typename S>
+    S& 
+    print (S& os, JobReport::OutputFile const& f) {
+      formatFile(f, os);           
       os << "\n<OutputModuleClass>" 
 			<< f.outputModuleClassName 
 			<< "</OutputModuleClass>";
@@ -59,8 +61,9 @@ namespace edm
       return os;      
     }
 
-    ostream&
-    operator<< (std::ostream& os, 
+  template <typename S>
+    S&
+    print (S& os, 
 		JobReport::LumiSectionReport const& rep){
       os << "\n<LumiSection>\n"
 	 << "<LumiSectionNumber Value=\""
@@ -75,6 +78,27 @@ namespace edm
 	return os;
      }
 
+  std::ostream& operator<< (std::ostream& os, JobReport::InputFile const& f) {
+    return print(os,f);
+  }
+  std::ostream& operator<< (std::ostream& os, JobReport::OutputFile const& f){
+    return print(os,f);
+  }
+  std::ostream& operator<< (std::ostream& os, JobReport::LumiSectionReport const& rep) {
+    return print(os,rep);
+  }
+
+  //To talk to MessageLogger directly
+  edm::MessageSender& operator<< (edm::MessageSender& os, JobReport::InputFile const& f) {
+    return print(os,f);
+  }
+  edm::MessageSender& operator<< (edm::MessageSender& os, JobReport::OutputFile const& f){
+    return print(os,f);
+  }
+  edm::MessageSender& operator<< (edm::MessageSender& os, JobReport::LumiSectionReport const& rep) {
+    return print(os,rep);
+  }
+  
 
     JobReport::InputFile& JobReport::JobReportImpl::getInputFileForToken(JobReport::Token t) {
 	if (t >= inputFiles_.size() ) {
