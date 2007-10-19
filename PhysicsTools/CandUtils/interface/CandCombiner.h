@@ -133,8 +133,8 @@ private:
     return selectPair_( c1, c2 );
   } 
   /// set kinematics to reconstructed composite
-  virtual void setup( reco::Candidate * c ) const {
-    setup_.set( * c );
+  virtual void setup( reco::Candidate & c ) const {
+    setup_.set( c );
   }
   /// add candidate daughter
   virtual void addDaughter( reco::CompositeCandidate & cmp, const Ref & c ) const {
