@@ -47,7 +47,7 @@ class tagInventoryPrinter:
         self.__parser.set_defaults(password='')
         self.__parser.set_defaults(authpath='.')
         self.__parser.set_defaults(tag='')
-        self.__parser.set_defaults(all=True)
+        self.__parser.set_defaults(all=False)
         self.__parser.set_defaults(verbose=False)
         (options, args) = self.__parser.parse_args()
         if self.__parser.values.filename!='':
@@ -92,9 +92,11 @@ class tagInventoryPrinter:
         try:
             if self.__all is True:
                 result=inv.getAllEntries()
-                print result 
+                for r in result:
+                    print '%s\t%s'%(r.tagid,r.tagname)
             else:
                 result=inv.getEntryByName(self.__tag)
+                print '%s\t%s\n ##pfn:%s\n ##objectname:%s\n ##recordname:%s\n ##labelname:%s\n ##timetype:%s\n ##comment:%s'%(result.tagid,result.tagname,result.pfn,result.objectname,result.recordname,result.labelname,result.timetype,result.comment)
             del session
         except Exception, e:
             print str(e)
