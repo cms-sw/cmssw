@@ -567,9 +567,9 @@ long CSCDCCExaminer::check(const unsigned short* &buffer, long length){
     // == ALCT Trailer found
 	if(
         // New ALCT data format:
-        ( buf0[0]==0xDE0D && (buf0[1]&0xF000)==0xD000 && (buf0[2]&0xF000)==0xD000 && (buf0[3]&0xF000)==0xD000 ) ||
-        // Old ALCT data format:
-        ( (buf0[0]&0x0800)==0x0000 && (buf0[1]&0xF800)==0xD000 && (buf0[2]&0xFFFF)==0xDE0D && (buf0[3]&0xF000)==0xD000 )
+        ( buf0[0]==0xDE0D && (buf0[1]&0xF800)==0xD000 && (buf0[2]&0xF800)==0xD000 && (buf0[3]&0xF000)==0xD000 && fALCT_Format2007 ) ||
+        // Old ALCT data format; last check is added to avoid confusion with new TMB header (may not be needed):
+        ( (buf0[0]&0x0800)==0x0000 && (buf0[1]&0xF800)==0xD000 && (buf0[2]&0xFFFF)==0xDE0D && (buf0[3]&0xF000)==0xD000 && !fALCT_Format2007 && !(fTMB_Header&&fTMB_Format2007) )
     ){
       // should've been (buf0[0]&0xF800)==0xD000 - see comments for sERROR[11]
 
@@ -644,8 +644,11 @@ long CSCDCCExaminer::check(const unsigned short* &buffer, long length){
     }
 
     // == TMB Trailer found
-    if(((buf0[0]&0xF000)==0xD000 && (buf0[1]&0xF000)==0xD000 && (buf0[2]&0xFFFF)==0xDE0F && (buf0[3]&0xF000)==0xD000 ) ||
-       ( buf0[0]==        0xDE0F && (buf0[1]&0xF000)==0xD000 && (buf0[2]&0xF000)==0xD000 && (buf0[3]&0xF000)==0xD000 )
+    if(
+       // Old TMB data format; last condition in needed not to confuse if with new ALCT data header
+       ((buf0[0]&0xF000)==0xD000 && (buf0[1]&0xF000)==0xD000 && (buf0[2]&0xFFFF)==0xDE0F && (buf0[3]&0xF000)==0xD000 && !fTMB_Format2007 && !(fALCT_Header&&fALCT_Format2007)) ||
+       // New TMB data format
+       ( buf0[0]==        0xDE0F && (buf0[1]&0xF000)==0xD000 && (buf0[2]&0xF000)==0xD000 && (buf0[3]&0xF000)==0xD000 &&  fTMB_Format2007 )
     ){
 
       // Second TMB -> Lost both previous DMB Trailer and current DMB Header
