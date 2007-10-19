@@ -4,8 +4,8 @@
 /*
  * \file EBSummaryClient.h
  *
- * $Date: 2007/09/08 05:15:30 $
- * $Revision: 1.15 $
+ * $Date: 2007/10/18 08:11:05 $
+ * $Revision: 1.16 $
  * \author G. Della Ricca
  *
 */
@@ -116,6 +116,8 @@ MonitorElement* meTestPulsePN_;
 
 MonitorElement* meCosmic_;
 MonitorElement* meTiming_;
+MonitorElement* meEtTPG_;
+MonitorElement* meEmulError_;
 
 MEContentsTH2FWithinRangeROOT* qtg01_;
 MEContentsTH2FWithinRangeROOT* qtg02_;
@@ -129,6 +131,8 @@ MEContentsTH2FWithinRangeROOT* qtg06PN_;
 
 MEContentsTH2FWithinRangeROOT* qtg07_;
 MEContentsTH2FWithinRangeROOT* qtg08_;
+MEContentsTH2FWithinRangeROOT* qtg09_;
+MEContentsTH2FWithinRangeROOT* qtg10_;
 
 MonitorElement* meGlobalSummary_;
 

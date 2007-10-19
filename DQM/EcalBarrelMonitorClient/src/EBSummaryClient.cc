@@ -1,8 +1,8 @@
 /*
  * \file EBSummaryClient.cc
  *
- * $Date: 2007/10/18 09:43:36 $
- * $Revision: 1.59 $
+ * $Date: 2007/10/18 10:00:39 $
+ * $Revision: 1.60 $
  * \author G. Della Ricca
  *
 */
@@ -81,6 +81,8 @@ EBSummaryClient::EBSummaryClient(const ParameterSet& ps){
 
   meCosmic_         = 0;
   meTiming_         = 0;
+  meEtTPG_          = 0;
+  meEmulError_      = 0;
 
   qtg01_ = 0;
   qtg02_ = 0;
@@ -94,6 +96,8 @@ EBSummaryClient::EBSummaryClient(const ParameterSet& ps){
 
   qtg07_ = 0;
   qtg08_ = 0;
+  qtg09_ = 0;
+  qtg10_ = 0;
 
   qtg99_  = 0;
 
@@ -150,6 +154,12 @@ void EBSummaryClient::beginJob(MonitorUserInterface* mui){
     sprintf(qtname, "EBTMT summary quality test");
     qtg08_ = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (dbe_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
 
+    sprintf(qtname, "EBTTT ET summary quality test");
+//     qtg09_ = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (dbe_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
+
+    sprintf(qtname, "EBTTT emulator error summary quality test");
+    qtg10_ = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (dbe_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
+
     sprintf(qtname, "EB global summary quality test");
     qtg99_ = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (dbe_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
 
@@ -164,7 +174,9 @@ void EBSummaryClient::beginJob(MonitorUserInterface* mui){
     qtg06PN_->setMeanRange(1., 6.);
 
 //    qtg07_->setMeanRange(1., 6.);
-//    qtg08_->setMeanRange(1., 6.);
+    qtg08_->setMeanRange(1., 6.);
+//    qtg09_->setMeanRange(1., 6.); 
+    qtg10_->setMeanRange(1., 6.);
 
     qtg99_->setMeanRange(1., 6.);
 
@@ -179,7 +191,9 @@ void EBSummaryClient::beginJob(MonitorUserInterface* mui){
     qtg06PN_->setErrorProb(1.00);
 
 //    qtg07_->setErrorProb(1.00);
-//    qtg08_->setErrorProb(1.00);
+    qtg08_->setErrorProb(1.00);
+//    qtg09_->setErrorProb(1.00);
+    qtg10_->setErrorProb(1.00);
 
     qtg99_->setErrorProb(1.00);
 
@@ -269,6 +283,14 @@ void EBSummaryClient::setup(void) {
   sprintf(histo, "EBTMT timing quality summary");
   meTiming_ = dbe_->book2D(histo, histo, 360, 0., 360., 170, -85., 85.);
 
+  if( meEtTPG_ ) dbe_->removeElement( meEtTPG_->getName() );
+  sprintf(histo, "EBTTT ET trigger tower quality summary");
+  meEtTPG_ = dbe_->book3D(histo, histo, 72, 0., 72., 34, -17., 17., 128, 0., 512.);
+
+  if( meEmulError_ ) dbe_->removeElement( meEmulError_->getName() );
+  sprintf(histo, "EBTTT emulator error quality summary");
+  meEmulError_ = dbe_->book2D(histo, histo, 72, 0., 72., 34, -17., 17.);
+
   if( meGlobalSummary_ ) dbe_->removeElement( meGlobalSummary_->getName() );
   sprintf(histo, "EB global summary");
   meGlobalSummary_ = dbe_->book2D(histo, histo, 360, 0., 360., 170, -85., 85.);
@@ -311,6 +333,12 @@ void EBSummaryClient::cleanup(void) {
 
   if ( meTiming_ ) dbe_->removeElement( meTiming_->getName() );
   meTiming_ = 0;
+
+  if ( meEtTPG_ ) dbe_->removeElement( meEtTPG_->getName() );
+  meEtTPG_ = 0;
+
+  if ( meEmulError_ ) dbe_->removeElement( meEmulError_->getName() );
+  meEmulError_ = 0;
 
   if ( meGlobalSummary_ ) dbe_->removeElement( meGlobalSummary_->getName() );
   meGlobalSummary_ = 0;
@@ -369,6 +397,10 @@ void EBSummaryClient::subscribe(void){
   if ( qtg07_ ) dbe_->useQTest(histo, qtg07_->getName());
   sprintf(histo, "EcalBarrel/EBSummaryClient/EBTMT timing quality summary");
   if ( qtg08_ ) dbe_->useQTest(histo, qtg08_->getName());
+  sprintf(histo, "EcalBarrel/EBSummaryClient/EBTTT ET trigger tower quality summary");
+//   if ( qtg09_ ) dbe_->useQTest(histo, qtg09_->getName());
+  sprintf(histo, "EcalBarrel/EBSummaryClient/EBTTT emulator error quality summary");
+  if ( qtg10_ ) dbe_->useQTest(histo, qtg10_->getName());
 
   sprintf(histo, "EcalBarrel/EBSummaryClient/EB global summary");
   if ( qtg99_ ) dbe_->useQTest(histo, qtg99_->getName());
@@ -426,6 +458,15 @@ void EBSummaryClient::analyze(void){
     }
   }
 
+  for (int iex = 1; iex <= 34; iex++ ) {
+    for (int ipx = 1; ipx <= 72; ipx++ ) {
+      for (int en = 0; en <= 128; en++ ) {
+	meEtTPG_->setBinContent( ipx, iex, en, -1. );
+      }
+      meEmulError_->setBinContent( ipx, iex, -1. ); 
+    }
+  }
+
   meLaserL1_->setEntries( 0 );
   meLaserL1PN_->setEntries( 0 );
   mePedestal_->setEntries( 0 );
@@ -435,6 +476,8 @@ void EBSummaryClient::analyze(void){
 
   meCosmic_->setEntries( 0 );
   meTiming_->setEntries( 0 );
+  meEtTPG_->setEntries( 0 );
+  meEmulError_->setEntries( 0 );
 
   for ( unsigned int i=0; i<clients_.size(); i++ ) {
 
@@ -447,10 +490,11 @@ void EBSummaryClient::analyze(void){
 
     EBCosmicClient* ebcc = dynamic_cast<EBCosmicClient*>(clients_[i]);
     EBTimingClient* ebtmc = dynamic_cast<EBTimingClient*>(clients_[i]);
+    EBTriggerTowerClient* ebtpgc = dynamic_cast<EBTriggerTowerClient*>(clients_[i]);
 
     MonitorElement* me;
     MonitorElement *me_01, *me_02, *me_03;
-    MonitorElement *me_04, *me_05;
+    MonitorElement *me_04, *me_05, *me_06, *me_07;
     TH2F* h2;
     TProfile2D* h2d;
 
@@ -855,9 +899,73 @@ void EBSummaryClient::analyze(void){
 	  
 	}
       }
-    }
 
-  }
+      for (int ie = 1; ie <= 17; ie++ ) {
+	for (int ip = 1; ip <= 4; ip++ ) {
+	  
+	  if ( ebtpgc ) {
+	      
+	    me_06 = ebtpgc->meh02_[ism-1];
+	    
+	    bool hasRealDigi = false;
+
+	    if ( me_06 ) {
+
+	      for(int en = 1; en <= 128; en++) {
+		
+		float xval = me_06->getBinContent( ie, ip, en );
+		
+		if(xval!=0) { hasRealDigi = true; }
+		
+		int iex;
+		int ipx;
+		
+		if ( ism <= 18 ) {
+		  iex = 1+(17-ie);
+		  ipx = ip+4*(ism-1);
+		} else {
+		  iex = 17+ie;
+		  ipx = 1+(4-ip)+4*(ism-19);
+		}
+		
+		meEtTPG_->setBinContent( ipx, iex, en, xval );
+		
+	      }
+	    }
+
+	    me_07 = ebtpgc->mel01_[ism-1];
+
+	    if ( me_07 ) {
+
+	      float xval = -1;
+	      float emulErrorVal = me_07->getBinContent( ie, ip );
+
+	      if(!hasRealDigi) xval = 2;
+	      else if(hasRealDigi && emulErrorVal!=0) xval = 0;
+	      else xval = 1;
+
+	      int iex;
+	      int ipx;
+
+	      if ( ism <= 18 ) {
+		iex = 1+(17-ie);   
+		ipx = ip+4*(ism-1);
+	      } else {
+		iex = 17+ie;
+		ipx = 1+(4-ip)+4*(ism-19);
+	      }
+
+	      meEmulError_->setBinContent( ipx, iex, xval );
+
+	    }
+
+	  }
+	} 
+      }
+
+    } // loop on SM
+
+  } // loop on clients
 
   // The global-summary
   // right now a summary of Integrity and PO
@@ -947,6 +1055,15 @@ void EBSummaryClient::htmlOutput(int run, string htmlDir, string htmlName){
   labelGridPN.SetMarkerSize(4);
   labelGridPN.SetMinimum(-18.01);
 
+  TH2C labelGridTPG("labelGridTPG","label grid for SM", 18, 0., 72., 2, -17., 17.);
+  for ( short sm=0; sm<36; sm++ ) {
+    int x = 1 + sm%18;
+    int y = 1 + sm/18;
+    labelGridTPG.SetBinContent(x, y, Numbers::iEB(sm+1));
+  }
+  labelGridTPG.SetMarkerSize(2);
+  labelGridTPG.SetMinimum(-18.01);
+
   string imgNameMapI, imgNameMapO;
   string imgNameMapPO;
   string imgNameMapLL1, imgNameMapLL1_PN;
@@ -954,6 +1071,8 @@ void EBSummaryClient::htmlOutput(int run, string htmlDir, string htmlName){
   string imgNameMapTP, imgNameMapTP_PN;
   string imgNameMapC;
   string imgNameMapTM;
+  string imgNameMapEtTPG;
+  string imgNameMapEmulError;
   string imgName, meName;
   string imgNameMapGS;
 
@@ -967,6 +1086,8 @@ void EBSummaryClient::htmlOutput(int run, string htmlDir, string htmlName){
   float saveTitleOffset = gStyle->GetTitleX();
 
   TH2F* obj2f;
+  TH3F* obj3f;
+  TProfile2D* obj2p;
 
   imgNameMapI = "";
 
@@ -1359,6 +1480,83 @@ void EBSummaryClient::htmlOutput(int run, string htmlDir, string htmlName){
 
   }
 
+  imgNameMapEmulError = "";
+
+  obj2f = 0;
+  obj2f = UtilsClient::getHisto<TH2F*>( meEmulError_ );
+  
+  if ( obj2f && obj2f->GetEntries() != 0 ) {
+  
+    meName = obj2f->GetName();
+
+    for ( unsigned int i = 0; i < meName.size(); i++ ) {
+      if ( meName.substr(i, 1) == " " )  {
+        meName.replace(i, 1 ,"_" ); 
+      }
+    }
+    imgNameMapEmulError = meName + ".png";
+    imgName = htmlDir + imgNameMapEmulError;
+
+    cMap->cd();
+    gStyle->SetOptStat(" ");
+    gStyle->SetPalette(6, pCol3);
+    obj2f->GetXaxis()->SetNdivisions(18, kFALSE);
+    obj2f->GetYaxis()->SetNdivisions(2);
+    cMap->SetGridx();
+    cMap->SetGridy();
+    obj2f->SetMinimum(-0.00000001);
+    obj2f->SetMaximum(6.0);
+    obj2f->GetXaxis()->SetLabelSize(0.03);
+    obj2f->GetYaxis()->SetLabelSize(0.03);
+    obj2f->Draw("col");
+    labelGridTPG.Draw("text,same");
+    cMap->Update();
+    cMap->SaveAs(imgName.c_str());
+
+  }
+
+  imgNameMapEtTPG = "";
+
+  obj3f = 0;
+  obj3f = UtilsClient::getHisto<TH3F*>( meEtTPG_ );
+  if ( obj3f && obj3f->GetEntries() != 0 ) {
+  
+    meName = obj3f->GetName();
+
+    for ( unsigned int i = 0; i < meName.size(); i++ ) {
+      if ( meName.substr(i, 1) == " " )  {
+        meName.replace(i, 1 ,"_" ); 
+      }
+    }
+    imgNameMapEtTPG = meName + ".png";
+    imgName = htmlDir + imgNameMapEtTPG;
+
+    obj2p = obj3f->Project3DProfile("yx");
+
+    cMap->cd();
+    gStyle->SetOptStat(" ");
+    gStyle->SetPalette(10, pCol4);
+    obj2p->GetXaxis()->SetNdivisions(18, kFALSE);
+    obj2p->GetYaxis()->SetNdivisions(2);
+
+    std::string projname(obj2p->GetName());
+    string::size_type loc = projname.find( "_pyx", 0 );
+    projname.replace( loc, projname.length(), "");
+    obj2p->SetTitle(projname.c_str());
+
+    cMap->SetGridx();
+    cMap->SetGridy();
+    obj2p->GetXaxis()->SetLabelSize(0.03);
+    obj2p->GetYaxis()->SetLabelSize(0.03);
+    obj2p->GetZaxis()->SetLabelSize(0.03); 
+    obj2p->Draw("colz");
+
+    labelGridTPG.Draw("text,same");
+    cMap->Update();
+    cMap->SaveAs(imgName.c_str());
+    delete obj2p;
+  }
+
   imgNameMapGS = "";
 
   obj2f = 0;
@@ -1507,6 +1705,26 @@ void EBSummaryClient::htmlOutput(int run, string htmlDir, string htmlName){
     htmlFile << "<br>" << endl;
   }
 
+  if ( imgNameMapEmulError.size() != 0 ) {
+    htmlFile << "<table border=\"0\" cellspacing=\"0\" " << endl;
+    htmlFile << "cellpadding=\"10\" align=\"center\"> " << endl;
+    htmlFile << "<tr align=\"center\">" << endl;
+    htmlFile << "<td><img src=\"" << imgNameMapEmulError << "\" usemap=\"#TriggerTower\" border=0></td>" << endl;
+    htmlFile << "</tr>" << endl;
+    htmlFile << "</table>" << endl;
+    htmlFile << "<br>" << endl;
+  }
+
+  if ( imgNameMapEtTPG.size() != 0 ) {
+    htmlFile << "<table border=\"0\" cellspacing=\"0\" " << endl;
+    htmlFile << "cellpadding=\"10\" align=\"center\"> " << endl;
+    htmlFile << "<tr align=\"center\">" << endl;
+    htmlFile << "<td><img src=\"" << imgNameMapEtTPG << "\" usemap=\"#TriggerTower\" border=0></td>" << endl;
+    htmlFile << "</tr>" << endl;
+    htmlFile << "</table>" << endl;
+    htmlFile << "<br>" << endl;
+  }
+
   delete cMap;
   delete cMapPN;
 
@@ -1521,6 +1739,8 @@ void EBSummaryClient::htmlOutput(int run, string htmlDir, string htmlName){
 
   if ( imgNameMapC.size() != 0 ) this->writeMap( htmlFile, "Cosmic" );
   if ( imgNameMapTM.size() != 0 ) this->writeMap( htmlFile, "Timing" );
+  if ( imgNameMapEtTPG.size() != 0 ) this->writeMap( htmlFile, "TriggerTower" );
+  if ( imgNameMapEmulError.size() != 0 ) this->writeMap( htmlFile, "TriggerTower" );
 
   // html page footer
   htmlFile << "</body> " << endl;
@@ -1545,6 +1765,7 @@ void EBSummaryClient::writeMap( std::ofstream& hf, std::string mapname ) {
 
   refhtml["Cosmic"] = "EBCosmicClient.html";
   refhtml["Timing"] = "EBTimingClient.html";
+  refhtml["TriggerTower"] = "EBTriggerTowerClient.html";
 
   const int A0 =  85;
   const int A1 = 759;
