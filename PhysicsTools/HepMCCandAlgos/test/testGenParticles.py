@@ -19,7 +19,7 @@ from PhysicsTools.HepMCCandAlgos.data.h4l_cff import pythiaSource
 process.source = pythiaSource
 
 process.testGenParticles = EDAnalyzer( "TestGenParticleCandidates",
-  src = InputTag("src")
+  src = InputTag("genParticleCandidates")
 )
   
 process.out = OutputModule( "PoolOutputModule",
