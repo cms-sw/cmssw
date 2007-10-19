@@ -12,9 +12,15 @@ class TopGenEvent {
 
   const reco::CandidateCollection& particles() const { return *parts_; }
   const std::vector<const reco::Candidate*> initialPartons() const { return initPartons_;}
+  std::vector<const reco::Candidate*> lightQuarks(bool plusB=false) const;
   const reco::Candidate* candidate(int) const;
-  
-  //common getters
+
+  int numberOfLeptons() const;
+  int numberOfBQuarks() const;
+
+  const reco::Candidate* singleLepton() const;
+  const reco::Candidate* singleNeutrino() const;
+
   const reco::Candidate* eMinus() const   { return candidate( 11 );}
   const reco::Candidate* ePlus() const    { return candidate(-11 );}
   const reco::Candidate* muMinus() const  { return candidate( 13 );}
@@ -28,15 +34,6 @@ class TopGenEvent {
   const reco::Candidate* b() const        { return candidate(  5 );}
   const reco::Candidate* bBar() const     { return candidate( -5 );}
 
- protected:
-  
-  bool isLepton(const reco::Candidate& part) const 
-  {return (abs(part.pdgId())==11 || abs(part.pdgId())==13 || abs(part.pdgId())==15);}
-  bool isNeutrino(const reco::Candidate& part) const 
-  {return (abs(part.pdgId())==12 || abs(part.pdgId())==14 || abs(part.pdgId())==16);}
-  double flavour(const reco::Candidate& part) const 
-  {return (double)(part.pdgId() / abs(part.pdgId()) );}
-  
  protected:
 
   reco::CandidateRefProd parts_;                    //top decay chain

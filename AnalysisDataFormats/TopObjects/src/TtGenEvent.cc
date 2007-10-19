@@ -1,7 +1,8 @@
 //
-// $Id: TtGenEvent.cc,v 1.14 2007/10/15 16:01:37 delaer Exp $
+// $Id: TtGenEvent.cc,v 1.15 2007/10/15 16:34:50 delaer Exp $
 //
 #include "FWCore/Utilities/interface/EDMException.h"
+#include "PhysicsTools/CandUtils/interface/pdgIdUtils.h"
 #include "AnalysisDataFormats/TopObjects/interface/TtGenEvent.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticleCandidate.h"
 
@@ -19,63 +20,6 @@ TtGenEvent::~TtGenEvent()
 {
 }
 
-int
-TtGenEvent::numberOfLeptons() const
-{
-  int lep=0;
-  const reco::CandidateCollection & partsColl = *parts_;
-  for (unsigned int i = 0; i < partsColl.size(); ++i) {
-    if (isLepton(partsColl[i])) {
-      ++lep;
-    }
-  }  
-  return lep;
-}
-
-int
-TtGenEvent::numberOfBQuarks() const
-{
-  int bq=0;
-  const reco::CandidateCollection & partsColl = *parts_;
-  for (unsigned int i = 0; i < partsColl.size(); ++i) {
-    if (abs(partsColl[i].pdgId())==5) {// &&
-      //abs(partsColl[i].mother()->pdgId())==6) {
-      ++bq;
-    }
-  }  
-  return bq;
-}
-
-const reco::Candidate* 
-TtGenEvent::singleLepton() const 
-{
-  const reco::Candidate* cand = 0;
-  if (numberOfLeptons() == 1) {
-    const reco::CandidateCollection & partsColl = *parts_;
-    for (unsigned int i = 0; i < partsColl.size(); ++i) {
-      if (isLepton(partsColl[i])) {
-        cand = &partsColl[i];
-      }
-    }
-  }
-  return cand;
-}
-
-const reco::Candidate* 
-TtGenEvent::singleNeutrino() const 
-{
-  const reco::Candidate* cand=0;
-  if (numberOfLeptons()==1) {
-    const reco::CandidateCollection & partsColl = *parts_;
-    for (unsigned int i = 0; i < partsColl.size(); ++i) {
-      if (isNeutrino(partsColl[i])) {
-        cand = &partsColl[i];
-      }
-    }
-  }
-  return cand;
-}
-
 const reco::Candidate* 
 TtGenEvent::hadronicDecayQuark() const 
 {
@@ -83,7 +27,7 @@ TtGenEvent::hadronicDecayQuark() const
   if (singleLepton()) {
     const reco::CandidateCollection & partsColl = *parts_;
     for (unsigned int i = 0; i < partsColl.size(); ++i) {
-      if (abs(partsColl[i].pdgId()) < 5 && flavour(partsColl[i])>0) {
+      if (abs(partsColl[i].pdgId()) < 5 && reco::flavour(partsColl[i])>0) {
         cand = &partsColl[i];
       }
     }
@@ -98,7 +42,7 @@ TtGenEvent::hadronicDecayQuarkBar() const
   if (singleLepton()) {
     const reco::CandidateCollection & partsColl = *parts_;
     for (unsigned int i = 0; i < partsColl.size(); ++i) {
-      if (abs(partsColl[i].pdgId()) < 5 && flavour(partsColl[i])<0) {
+      if (abs(partsColl[i].pdgId()) < 5 && reco::flavour(partsColl[i])<0) {
         cand = &partsColl[i];
       }
     }
@@ -115,7 +59,7 @@ TtGenEvent::hadronicDecayB() const
     const reco::Candidate & singleLep = *singleLepton();
     for (unsigned int i = 0; i < partsColl.size(); ++i) {
       if (abs(partsColl[i].pdgId())==5 && 
-	  flavour(singleLep)==flavour(partsColl[i])) {
+	  reco::flavour(singleLep)==reco::flavour(partsColl[i])) {
         cand = &partsColl[i];
       }
     }
@@ -132,7 +76,7 @@ TtGenEvent::hadronicDecayW() const
     const reco::Candidate & singleLep = *singleLepton();
     for (unsigned int i = 0; i < partsColl.size(); ++i) {
       if (abs(partsColl[i].pdgId())==24 && 
-          flavour(singleLep) != - flavour(partsColl[i])) { // PDG Id:13=mu- 24=W+ (+24)->(-13) (-24)->(+13) opposite sign
+          reco::flavour(singleLep) != - reco::flavour(partsColl[i])) { // PDG Id:13=mu- 24=W+ (+24)->(-13) (-24)->(+13) opposite sign
 	cand = &partsColl[i];
       }
     }
@@ -149,7 +93,7 @@ TtGenEvent::hadronicDecayTop() const
     const reco::Candidate & singleLep = *singleLepton();
     for (unsigned int i = 0; i < partsColl.size(); ++i) {
       if (abs(partsColl[i].pdgId())==6 &&
-          flavour(singleLep)==flavour(partsColl[i])) {
+          reco::flavour(singleLep)==reco::flavour(partsColl[i])) {
         cand = &partsColl[i];
       }
     }
@@ -166,7 +110,7 @@ TtGenEvent::leptonicDecayB() const
     const reco::Candidate & singleLep = *singleLepton();
     for (unsigned int i = 0; i < partsColl.size(); ++i) {
       if (abs(partsColl[i].pdgId())==5 &&
-          flavour(singleLep)!=flavour(partsColl[i])) {
+          reco::flavour(singleLep)!=reco::flavour(partsColl[i])) {
         cand = &partsColl[i];
       }
     }
@@ -183,7 +127,7 @@ TtGenEvent::leptonicDecayW() const
     const reco::Candidate & singleLep = *singleLepton();
     for (unsigned int i = 0; i < partsColl.size(); ++i) {
       if (abs(partsColl[i].pdgId())==24 &&
-          flavour(singleLep) == - flavour(partsColl[i])) { // PDG Id:13=mu- 24=W+ (+24)->(-13) (-24)->(+13) opposite sign
+          reco::flavour(singleLep) == - reco::flavour(partsColl[i])) { // PDG Id:13=mu- 24=W+ (+24)->(-13) (-24)->(+13) opposite sign
         cand = &partsColl[i];
       }
     }
@@ -200,7 +144,7 @@ TtGenEvent::leptonicDecayTop() const
     const reco::Candidate & singleLep = *singleLepton();
     for (unsigned int i = 0; i < partsColl.size(); ++i) {
       if (abs(partsColl[i].pdgId())==6 &&
-          flavour(singleLep)!=flavour(partsColl[i])) {
+          reco::flavour(singleLep)!=reco::flavour(partsColl[i])) {
         cand = &partsColl[i];
       }
     }
@@ -214,7 +158,7 @@ TtGenEvent::lepton() const
   const reco::Candidate* cand=0;
   const reco::CandidateCollection & partsColl = *parts_;
   for (unsigned int i = 0; i < partsColl.size(); ++i) {
-    if (isLepton(partsColl[i]) && flavour(partsColl[i])>0) {
+    if (reco::isLepton(partsColl[i]) && reco::flavour(partsColl[i])>0) {
       cand = &partsColl[i];
     }  
   }
@@ -227,7 +171,7 @@ TtGenEvent::neutrino() const
   const reco::Candidate* cand=0;
   const reco::CandidateCollection & partsColl = *parts_;
   for (unsigned int i = 0; i < partsColl.size(); ++i) {
-    if (isNeutrino(partsColl[i]) && flavour(partsColl[i])>0) {
+    if (reco::isNeutrino(partsColl[i]) && reco::flavour(partsColl[i])>0) {
       cand = &partsColl[i];
     }  
   }
@@ -240,7 +184,7 @@ TtGenEvent::leptonBar() const
   const reco::Candidate* cand=0;
   const reco::CandidateCollection & partsColl = *parts_;
   for (unsigned int i = 0; i < partsColl.size(); ++i) {
-    if (isLepton(partsColl[i]) && flavour(partsColl[i])<0) {
+    if (reco::isLepton(partsColl[i]) && reco::flavour(partsColl[i])<0) {
       cand = &partsColl[i];
     }  
   }
@@ -253,7 +197,7 @@ TtGenEvent::neutrinoBar() const
   const reco::Candidate* cand=0;
   const reco::CandidateCollection & partsColl = *parts_;
   for (unsigned int i = 0; i < partsColl.size(); ++i) {
-    if (isNeutrino(partsColl[i]) && flavour(partsColl[i])<0) {
+    if (reco::isNeutrino(partsColl[i]) && reco::flavour(partsColl[i])<0) {
       cand = &partsColl[i];
     }  
   }
@@ -266,8 +210,8 @@ TtGenEvent::quarkFromTop() const
   const reco::Candidate* cand=0;
   const reco::CandidateCollection & partsColl = *parts_;
   for (unsigned int i = 0; i < partsColl.size(); ++i) {
-    if (partsColl[i].mother() && flavour(*(partsColl[i].mother()))<0 &&
-        abs(partsColl[i].pdgId())<5 && flavour(partsColl[i])>0) {
+    if (partsColl[i].mother() && reco::flavour(*(partsColl[i].mother()))<0 &&
+        abs(partsColl[i].pdgId())<5 && reco::flavour(partsColl[i])>0) {
       cand = &partsColl[i];
     }
   }
@@ -280,8 +224,8 @@ TtGenEvent::quarkFromTopBar() const
   const reco::Candidate* cand=0;
   const reco::CandidateCollection & partsColl = *parts_;
   for (unsigned int i = 0; i < partsColl.size(); ++i) {
-    if (partsColl[i].mother() && flavour(*(partsColl[i].mother()))<0 &&
-        abs(partsColl[i].pdgId())<5 && flavour(partsColl[i])<0) {
+    if (partsColl[i].mother() && reco::flavour(*(partsColl[i].mother()))<0 &&
+        abs(partsColl[i].pdgId())<5 && reco::flavour(partsColl[i])<0) {
       cand = &partsColl[i];
     }
   }
@@ -294,8 +238,8 @@ TtGenEvent::quarkFromAntiTop() const
   const reco::Candidate* cand=0;
   const reco::CandidateCollection & partsColl = *parts_;
   for (unsigned int i = 0; i < partsColl.size(); ++i) {
-    if (partsColl[i].mother() && flavour(*(partsColl[i].mother()))>0 &&
-        abs(partsColl[i].pdgId())<5 && flavour(partsColl[i])>0) {
+    if (partsColl[i].mother() && reco::flavour(*(partsColl[i].mother()))>0 &&
+        abs(partsColl[i].pdgId())<5 && reco::flavour(partsColl[i])>0) {
       cand = &partsColl[i];
     }  
   }
@@ -308,27 +252,10 @@ TtGenEvent::quarkFromAntiTopBar() const
   const reco::Candidate* cand=0;
   const reco::CandidateCollection & partsColl = *parts_;
   for (unsigned int i = 0; i < partsColl.size(); ++i) {
-    if (partsColl[i].mother() && flavour(*(partsColl[i].mother()))>0 &&
-        abs(partsColl[i].pdgId())<5 && flavour(partsColl[i])<0) {
+    if (partsColl[i].mother() && reco::flavour(*(partsColl[i].mother()))>0 &&
+        abs(partsColl[i].pdgId())<5 && reco::flavour(partsColl[i])<0) {
       cand = &partsColl[i];
     }  
   }
   return cand;
 }
-
-std::vector<const reco::Candidate*> 
-TtGenEvent::lightQuarks(bool plusB) const 
-{
-  std::vector<const reco::Candidate*> lightQuarks;
-  reco::CandidateCollection::const_iterator part = parts_->begin();
-  for ( ; part < parts_->end(); ++part) {
-    if( (plusB && abs(part->pdgId())==5) || (abs(part->pdgId())<5) ) {
-      if( dynamic_cast<const reco::GenParticleCandidate*>( &(*part) ) == 0){
-	throw edm::Exception( edm::errors::InvalidReference, "Not a GenParticleCandidate" );
-      }
-      lightQuarks.push_back( part->clone() );
-    }
-  }  
-  return lightQuarks;
-}
-
