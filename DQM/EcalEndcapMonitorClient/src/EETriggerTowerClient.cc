@@ -1,8 +1,8 @@
 /*
  * \file EETriggerTowerClient.cc
  *
- * $Date: 2007/10/10 09:46:40 $
- * $Revision: 1.15 $
+ * $Date: 2007/10/18 09:43:53 $
+ * $Revision: 1.16 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -533,7 +533,8 @@ void EETriggerTowerClient::htmlOutput(int run, string htmlDir, string htmlName){
   htmlFile[0] << "<hr>" << std::endl;
   htmlFile[0] << "<table border=1>" << std::endl;
   for ( unsigned int i=0; i<superModules_.size(); i ++ ) {
-    htmlFile[0] << "<td bgcolor=white><a href=""#" << superModules_[i] << ">"
+    htmlFile[0] << "<td bgcolor=white><a href=""#"
+                << Numbers::sEE(superModules_[i]).c_str() << ">"
                 << setfill( '0' ) << setw(2) << superModules_[i] << "</a></td>";
   }
   htmlFile[0] << std::endl << "</table>" << std::endl;

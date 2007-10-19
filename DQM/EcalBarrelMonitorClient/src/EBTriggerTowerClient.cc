@@ -1,8 +1,8 @@
 /*
  * \file EBTriggerTowerClient.cc
  *
- * $Date: 2007/09/07 22:30:04 $
- * $Revision: 1.50 $
+ * $Date: 2007/10/18 09:43:38 $
+ * $Revision: 1.51 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -531,7 +531,8 @@ void EBTriggerTowerClient::htmlOutput(int run, string htmlDir, string htmlName){
   htmlFile[0] << "<hr>" << std::endl;
   htmlFile[0] << "<table border=1>" << std::endl;
   for ( unsigned int i=0; i<superModules_.size(); i ++ ) {
-    htmlFile[0] << "<td bgcolor=white><a href=""#" << superModules_[i] << ">"
+    htmlFile[0] << "<td bgcolor=white><a href=""#"
+                << Numbers::sEB(superModules_[i]).c_str() << ">"
                 << setfill( '0' ) << setw(2) << superModules_[i] << "</a></td>";
   }
   htmlFile[0] << std::endl << "</table>" << std::endl;
