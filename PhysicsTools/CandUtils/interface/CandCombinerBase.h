@@ -12,7 +12,7 @@
 
 namespace combiner {
   namespace helpers {
-    template<typename Collection>
+    template<typename InputCollection>
     struct CandRefHelper {
     };
 
@@ -28,6 +28,23 @@ namespace combiner {
       typedef reco::CandidateBaseRefProd RefProd;
     };  
 
+    template<typename OutputCollection>
+    struct CandCompHelper {
+    };  
+
+    template<>
+    struct CandCompHelper<reco::CandidateCollection> {
+      typedef reco::CompositeCandidate * value_type;
+      static reco::CompositeCandidate & make( value_type & v ) { v = new reco::CompositeCandidate; return *v; }
+    };
+
+    template<>
+    struct CandCompHelper<reco::CompositeCandidateCollection> {
+      typedef reco::CompositeCandidate value_type;
+      static reco::CompositeCandidate & make( value_type & v ) { return v; }
+    };
+
+
   }
 }
 
@@ -38,6 +55,8 @@ public:
   typedef typename combiner::helpers::template CandRefHelper<InputCollection>::RefProd RefProd;
   typedef typename combiner::helpers::template CandRefHelper<InputCollection>::Ref Ref;
   typedef InputCollection Collection;
+  typedef combiner::helpers::CandCompHelper<reco::CandidateCollection> OutputHelper;
+  typedef typename OutputHelper::value_type value_type;
  /// default construct
   CandCombinerBase();
   /// construct from two charge values
@@ -174,9 +193,10 @@ CandCombinerBase<InputCollection, OutputCollection>::combine( const std::vector<
 	  const reco::Candidate & c2 = cands[ i2 ];
 	  if ( preselect( c1, c2 ) ) {
 	    Ref cr2( src2, i2 );
-	    reco::CompositeCandidate * c = new reco::CompositeCandidate;
-	    combine( *c, cr1, cr2 );
-	    if ( select( * c ) )
+	    value_type c; 
+	    reco::CompositeCandidate & r = OutputHelper::make(c);
+	    combine( r, cr1, cr2 );
+	    if ( select( r ) )
 	      comps->push_back( c );
 	  }
 	}
@@ -191,9 +211,10 @@ CandCombinerBase<InputCollection, OutputCollection>::combine( const std::vector<
 	  const reco::Candidate & c2 = cands2[ i2 ];
 	  if ( preselect( c1, c2 ) ) {
 	    Ref cr2( src2, i2 );
-	    reco::CompositeCandidate * c = new reco::CompositeCandidate;
-	    combine( *c, cr1, cr2 );
-	    if ( select( * c ) )
+	    value_type c;
+	    reco::CompositeCandidate & r = OutputHelper::make(c);
+	    combine( r, cr1, cr2 );
+	    if ( select( r ) )
 	      comps->push_back( c );
 	  }
 	}
@@ -226,9 +247,10 @@ CandCombinerBase<InputCollection, OutputCollection>::combine( const RefProd & sr
       const reco::Candidate & c2 = cands[ i2 ];
       if ( preselect( c1, c2 ) ) {
 	Ref cr2( src, i2 );
-	reco::CompositeCandidate * c = new reco::CompositeCandidate;
-	combine( *c, cr1, cr2 );
-	if ( select( *c ) )
+	value_type c;
+	reco::CompositeCandidate & r =OutputHelper::make(c);
+	combine( r, cr1, cr2 );
+	if ( select( r ) )
 	  comps->push_back( c );
       }
     } 
@@ -295,13 +317,14 @@ void CandCombinerBase<InputCollection, OutputCollection>::combine( size_t collec
       }
     }
     if ( decayType != wrongDecay ) { 
-      std::auto_ptr<reco::CompositeCandidate> cmp( new reco::CompositeCandidate );
+      value_type c;
+      reco::CompositeCandidate & r = OutputHelper::make(c);
       for( typename CandStack::const_iterator i = stack.begin(); i != stack.end(); ++ i ) {
-	addDaughter( * cmp.get(), i->first.first );
+	addDaughter( r, i->first.first );
       }
-      setup( *cmp );
-      if ( select( * cmp ) )
-	comps->push_back( cmp );
+      setup( r );
+      if ( select( r ) )
+	comps->push_back( c );
     }
   } else {
     const RefProd & srcRef = * collBegin;
