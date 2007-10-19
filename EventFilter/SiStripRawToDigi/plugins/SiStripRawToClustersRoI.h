@@ -101,5 +101,5 @@ class SiStripRawToClustersRoI : public edm::EDProducer {
   double bjetdphi_;
 };
 
-#endif //  EventFilter_SiStripRawToDigi_SiStripRawToClustersRoI_H
+#endif 
 

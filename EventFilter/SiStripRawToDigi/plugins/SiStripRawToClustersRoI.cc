@@ -91,7 +91,7 @@ void SiStripRawToClustersRoI::produce(edm::Event& event, const edm::EventSetup& 
   
   if (random_) {random(*refgetter,lazygetter);}
   
-  /* Seeded by L2 electrons */
+  /* Seeded by L2 electrons. */
 
   if (electrons_) {
       try {
@@ -104,7 +104,7 @@ void SiStripRawToClustersRoI::produce(edm::Event& event, const edm::EventSetup& 
       } catch(...) {}
   }
 
-  /* Seeded by L2 muons */
+  /* Seeded by L2 muons. */
 
   if (muons_) {
       try {
@@ -114,7 +114,7 @@ void SiStripRawToClustersRoI::produce(edm::Event& event, const edm::EventSetup& 
       } catch(...) {}
     }
   
-  /* Seeded by L2 taujets */
+  /* Seeded by L2 taujets. */
 
   if (taujets_) {
       try {
@@ -124,7 +124,7 @@ void SiStripRawToClustersRoI::produce(edm::Event& event, const edm::EventSetup& 
       } catch(...) {}
     }
   
-  /* Seeded by L2 bjets */
+  /* Seeded by L2 bjets. */
 
   if (bjets_) {
       try {
