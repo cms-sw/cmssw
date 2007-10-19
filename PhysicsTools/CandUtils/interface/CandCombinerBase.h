@@ -70,7 +70,7 @@ private:
   /// verify that the two candidate don't overlap and check charge
   bool preselect( const reco::Candidate &, const reco::Candidate & ) const;
   /// returns a composite candidate combined from two daughters
-  reco::Candidate * combine( const Ref &, const Ref & ) const;
+  void combine( reco::CompositeCandidate *& , const Ref &, const Ref & ) const;
   /// temporary candidate stack
   typedef std::vector<std::pair<std::pair<Ref, size_t>, typename std::vector<RefProd>::const_iterator> > CandStack;
   typedef std::vector<int> ChargeStack;
@@ -87,7 +87,7 @@ private:
   /// set kinematics to reconstructed composite
   virtual void setup( reco::Candidate * ) const = 0;
   /// add candidate daughter
-  virtual void addDaughter( reco::CompositeCandidate * cmp, const Ref & c ) const = 0;
+  virtual void addDaughter( reco::CompositeCandidate & cmp, const Ref & c ) const = 0;
   /// flag to specify the checking of electric charge
   bool checkCharge_;
   /// electric charges of the daughters
@@ -146,12 +146,11 @@ bool CandCombinerBase<InputCollection, OutputCollection>::preselect( const reco:
 }
 
 template<typename InputCollection, typename OutputCollection>
-reco::Candidate * CandCombinerBase<InputCollection, OutputCollection>::combine( const Ref & c1, const Ref & c2 ) const {
-  reco::CompositeCandidate * cmp( new reco::CompositeCandidate );
-  addDaughter( cmp, c1 );
-  addDaughter( cmp, c2 );
+void CandCombinerBase<InputCollection, OutputCollection>::combine( reco::CompositeCandidate * & cmp, const Ref & c1, const Ref & c2 ) const {
+  cmp = new reco::CompositeCandidate;
+  addDaughter( * cmp, c1 );
+  addDaughter( * cmp, c2 );
   setup( cmp );
-  return cmp;
 }
 
 template<typename InputCollection, typename OutputCollection>
@@ -176,9 +175,10 @@ CandCombinerBase<InputCollection, OutputCollection>::combine( const std::vector<
 	  const reco::Candidate & c2 = cands[ i2 ];
 	  if ( preselect( c1, c2 ) ) {
 	    Ref cr2( src2, i2 );
-	    std::auto_ptr<reco::Candidate> c( combine( cr1, cr2 ) );
+	    reco::CompositeCandidate * c;
+	    combine( c, cr1, cr2 );
 	    if ( select( * c ) )
-	      comps->push_back( c.release() );
+	      comps->push_back( c );
 	  }
 	}
       }
@@ -192,9 +192,10 @@ CandCombinerBase<InputCollection, OutputCollection>::combine( const std::vector<
 	  const reco::Candidate & c2 = cands2[ i2 ];
 	  if ( preselect( c1, c2 ) ) {
 	    Ref cr2( src2, i2 );
-	    std::auto_ptr<reco::Candidate> c( combine( cr1, cr2 ) );
+	    reco::CompositeCandidate * c;
+	    combine( c, cr1, cr2 );
 	    if ( select( * c ) )
-	      comps->push_back( c.release() );
+	      comps->push_back( c );
 	  }
 	}
       }
@@ -226,9 +227,10 @@ CandCombinerBase<InputCollection, OutputCollection>::combine( const RefProd & sr
       const reco::Candidate & c2 = cands[ i2 ];
       if ( preselect( c1, c2 ) ) {
 	Ref cr2( src, i2 );
-	std::auto_ptr<reco::Candidate> c( combine( cr1, cr2 ) );
+	reco::CompositeCandidate * c;
+	combine( c, cr1, cr2 );
 	if ( select( * c ) )
-	  comps->push_back( c.release() );
+	  comps->push_back( c );
       }
     } 
   }
@@ -296,7 +298,7 @@ void CandCombinerBase<InputCollection, OutputCollection>::combine( size_t collec
     if ( decayType != wrongDecay ) { 
       std::auto_ptr<reco::CompositeCandidate> cmp( new reco::CompositeCandidate );
       for( typename CandStack::const_iterator i = stack.begin(); i != stack.end(); ++ i ) {
-	addDaughter( cmp.get(), i->first.first );
+	addDaughter( * cmp.get(), i->first.first );
       }
       setup( cmp.get() );
       if ( select( * cmp ) )

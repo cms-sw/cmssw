@@ -137,8 +137,8 @@ private:
     setup_.set( * c );
   }
   /// add candidate daughter
-  virtual void addDaughter( reco::CompositeCandidate * cmp, const Ref & c ) const {
-    Cloner::addDaughter( * cmp, c );
+  virtual void addDaughter( reco::CompositeCandidate & cmp, const Ref & c ) const {
+    Cloner::addDaughter( cmp, c );
   }
   /// candidate selector
   Selector select_; 
