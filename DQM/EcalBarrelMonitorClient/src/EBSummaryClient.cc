@@ -1,8 +1,8 @@
 /*
  * \file EBSummaryClient.cc
  *
- * $Date: 2007/10/18 10:00:39 $
- * $Revision: 1.60 $
+ * $Date: 2007/10/19 17:50:15 $
+ * $Revision: 1.61 $
  * \author G. Della Ricca
  *
 */
@@ -494,9 +494,10 @@ void EBSummaryClient::analyze(void){
 
     MonitorElement* me;
     MonitorElement *me_01, *me_02, *me_03;
-    MonitorElement *me_04, *me_05, *me_06, *me_07;
+    MonitorElement *me_04, *me_05;
     TH2F* h2;
     TProfile2D* h2d;
+    TH3F* h3;
 
     // fill the gain value priority map<id,priority>
     std::map<float,float> priority;
@@ -905,17 +906,17 @@ void EBSummaryClient::analyze(void){
 	  
 	  if ( ebtpgc ) {
 	      
-	    me_06 = ebtpgc->meh02_[ism-1];
-	    
+	    h3 = ebtpgc->h01_[ism-1];
+
 	    bool hasRealDigi = false;
 
-	    if ( me_06 ) {
+	    if ( h3 ) {
 
 	      for(int en = 1; en <= 128; en++) {
 		
-		float xval = me_06->getBinContent( ie, ip, en );
+		float xval = h3->GetBinContent( ie, ip, en );
 		
-		if(xval!=0) { hasRealDigi = true; }
+		if(xval!=0) hasRealDigi = true; 
 		
 		int iex;
 		int ipx;
@@ -929,16 +930,15 @@ void EBSummaryClient::analyze(void){
 		}
 		
 		meEtTPG_->setBinContent( ipx, iex, en, xval );
-		
 	      }
 	    }
 
-	    me_07 = ebtpgc->mel01_[ism-1];
+	    h2 = ebtpgc->l01_[ism-1];
 
-	    if ( me_07 ) {
+	    if ( h2 ) {
 
 	      float xval = -1;
-	      float emulErrorVal = me_07->getBinContent( ie, ip );
+	      float emulErrorVal = h2->GetBinContent( ie, ip );
 
 	      if(!hasRealDigi) xval = 2;
 	      else if(hasRealDigi && emulErrorVal!=0) xval = 0;
@@ -1483,6 +1483,7 @@ void EBSummaryClient::htmlOutput(int run, string htmlDir, string htmlName){
   imgNameMapEmulError = "";
 
   obj2f = 0;
+  //  obj2f = UtilsClient::getHisto<TH2F*>( meEmulError_, true, obj2f );
   obj2f = UtilsClient::getHisto<TH2F*>( meEmulError_ );
   
   if ( obj2f && obj2f->GetEntries() != 0 ) {
@@ -1518,7 +1519,9 @@ void EBSummaryClient::htmlOutput(int run, string htmlDir, string htmlName){
   imgNameMapEtTPG = "";
 
   obj3f = 0;
+  //  obj3f = UtilsClient::getHisto<TH3F*>( meEtTPG_, true, obj3f );
   obj3f = UtilsClient::getHisto<TH3F*>( meEtTPG_ );
+
   if ( obj3f && obj3f->GetEntries() != 0 ) {
   
     meName = obj3f->GetName();
