@@ -1,3 +1,8 @@
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeomBuilderFromGeometricDet.h"
+
 #include "Alignment/CommonAlignment/interface/SurveyDet.h"
 #include "Alignment/TrackerAlignment/interface/AlignableTracker.h"
 
@@ -17,7 +22,11 @@ SurveyMisalignmentInput::SurveyMisalignmentInput(const edm::ParameterSet& cfg):
 
 void SurveyMisalignmentInput::beginJob(const edm::EventSetup& setup)
 {
-  addComponent(new AlignableTracker);
+
+  edm::ESHandle<GeometricDet>  geom;
+  setup.get<IdealGeometryRecord>().get(geom);	 
+  TrackerGeometry* tracker = TrackerGeomBuilderFromGeometricDet().build(&*geom);
+  addComponent(new AlignableTracker( tracker ) );
 
   edm::LogInfo("SurveyMisalignmentInput") << "Starting!";
   // Retrieve alignment[Error]s from DBase

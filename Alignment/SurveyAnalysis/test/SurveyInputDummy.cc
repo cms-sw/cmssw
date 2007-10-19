@@ -1,4 +1,8 @@
 #include "TRandom3.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeomBuilderFromGeometricDet.h"
 
 #include "Alignment/CommonAlignment/interface/AlignableObjectId.h"
 #include "Alignment/CommonAlignment/interface/SurveyDet.h"
@@ -28,7 +32,10 @@ SurveyInputDummy::SurveyInputDummy(const edm::ParameterSet& cfg)
 
 void SurveyInputDummy::beginJob(const edm::EventSetup& setup)
 {
-  Alignable* ali = new AlignableTracker;
+  edm::ESHandle<GeometricDet>  geom;
+  setup.get<IdealGeometryRecord>().get(geom);	 
+  TrackerGeometry* tracker = TrackerGeomBuilderFromGeometricDet().build(&*geom);
+  Alignable* ali = new AlignableTracker( tracker );
 
   addSurveyInfo(ali);
   addComponent(ali);

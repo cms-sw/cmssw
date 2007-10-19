@@ -2,6 +2,10 @@
 #include "Alignment/TrackerAlignment/interface/AlignableTracker.h"
 #include "Alignment/TrackerAlignment/interface/TrackerAlignableId.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeomBuilderFromGeometricDet.h"
 
 #include "Alignment/SurveyAnalysis/plugins/SurveyInputTrackerFromDB.h"
 
@@ -10,7 +14,7 @@ SurveyInputTrackerFromDB::SurveyInputTrackerFromDB(const edm::ParameterSet& cfg)
 {
 }
 
-void SurveyInputTrackerFromDB::beginJob(const edm::EventSetup&)
+void SurveyInputTrackerFromDB::beginJob(const edm::EventSetup& setup )
 {
 
 //  std::cout << "***************ENTERING BEGIN JOB******************" << std::endl;
@@ -20,7 +24,11 @@ void SurveyInputTrackerFromDB::beginJob(const edm::EventSetup&)
   dataReader.readFile( textFileName );
   uIdMap = dataReader.UniqueIdMap();
 
-  addComponent( new AlignableTracker );
+  edm::ESHandle<GeometricDet>  geom;
+  setup.get<IdealGeometryRecord>().get(geom);	 
+  TrackerGeometry* tracker = TrackerGeomBuilderFromGeometricDet().build(&*geom);
+  
+  addComponent( new AlignableTracker( tracker ) );
   addSurveyInfo( detector() );
 //  std::cout << "*************END BEGIN JOB***************" << std::endl;
 }
@@ -35,8 +43,6 @@ void SurveyInputTrackerFromDB::addSurveyInfo(Alignable* ali)
 	
   for (unsigned int i = 0; i < nComp; ++i) addSurveyInfo(comp[i]);
 	
-  static TrackerAlignableId uid;
-
   align::ErrorMatrix error;
 	
   //if (ali->alignableObjectId() != AlignableObjectId::AlignableDetUnit){
