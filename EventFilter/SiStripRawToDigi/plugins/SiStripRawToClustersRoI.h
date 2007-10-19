@@ -50,9 +50,6 @@ class SiStripRawToClustersRoI : public edm::EDProducer {
 
   /** Defines regions of interest randomly */
   void random(RefGetter&, edm::Handle<LazyGetter>&) const;
-
-  /** Defines ALL regions of interest */
-  void global(RefGetter&, edm::Handle<LazyGetter>&) const;
   
   /** Defines regions of interest by superclusters */
   void electrons(const reco::SuperClusterCollection&, RefGetter&, edm::Handle<LazyGetter>&) const;

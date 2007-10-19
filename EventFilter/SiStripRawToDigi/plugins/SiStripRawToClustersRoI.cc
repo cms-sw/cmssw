@@ -5,7 +5,7 @@
 using namespace std;
 using namespace sistrip;
 
-SiStripRawToClustersRoI::SiStripRawToClustersRoI( const edm::ParameterSet& conf ) :
+SiStripRawToClustersRoI::SiStripRawToClustersRoI(const edm::ParameterSet& conf) :
 
   cabling_(),
   allregions_(),
@@ -49,7 +49,7 @@ SiStripRawToClustersRoI::~SiStripRawToClustersRoI() {
     << " Destructing object...";
 }
 
-void SiStripRawToClustersRoI::beginJob( const edm::EventSetup& setup) {
+void SiStripRawToClustersRoI::beginJob(const edm::EventSetup& setup) {
 
   LogTrace(mlRawToCluster_) 
     << "[SiStripRawToClustersRoI::"
@@ -71,34 +71,29 @@ void SiStripRawToClustersRoI::beginJob( const edm::EventSetup& setup) {
 
 void SiStripRawToClustersRoI::endJob() {}
 
-void SiStripRawToClustersRoI::produce( edm::Event& event, const edm::EventSetup& setup ) {
+void SiStripRawToClustersRoI::produce(edm::Event& event, const edm::EventSetup& setup) {
   
   edm::Handle< LazyGetter > lazygetter;
   event.getByLabel(inputModuleLabel_,"",lazygetter);
   
   /* All regions */
-
-  if (global_) 
-    {
-      std::auto_ptr<RefGetter> globalrefgetter(new RefGetter(lazygetter,allregions_));
-      event.put(globalrefgetter);
-      return;
-    }
   
-  std::auto_ptr<RefGetter> refgetter(new RefGetter());
+  if (global_) {
+    std::auto_ptr<RefGetter> globalrefgetter(new RefGetter(lazygetter,allregions_));
+    event.put(globalrefgetter);
+    return;
+  }
+  
+  std::auto_ptr<RefGetter> refgetter(new RefGetter(allregions_.size()));
   refgetter->reserve(10000);
   
   /* Random region number. Starts from 0. */
-
-  if (random_) 
-    {
-      random(*refgetter,lazygetter);
-    }
+  
+  if (random_) {random(*refgetter,lazygetter);}
   
   /* Seeded by L2 electrons */
 
-  if (electrons_) 
-    {
+  if (electrons_) {
       try {
 	edm::Handle<reco::SuperClusterCollection> barrelcollection;
 	edm::Handle<reco::SuperClusterCollection> endcapcollection;
@@ -111,8 +106,7 @@ void SiStripRawToClustersRoI::produce( edm::Event& event, const edm::EventSetup&
 
   /* Seeded by L2 muons */
 
-  if (muons_) 
-    {
+  if (muons_) {
       try {
 	edm::Handle<reco::TrackCollection> collection;
 	event.getByLabel(muonL2_,collection);
@@ -122,8 +116,7 @@ void SiStripRawToClustersRoI::produce( edm::Event& event, const edm::EventSetup&
   
   /* Seeded by L2 taujets */
 
-  if (taujets_) 
-    {
+  if (taujets_) {
       try {
 	edm::Handle<reco::CaloJetCollection> collection;
 	event.getByLabel(taujetL2_,collection);
@@ -133,8 +126,7 @@ void SiStripRawToClustersRoI::produce( edm::Event& event, const edm::EventSetup&
   
   /* Seeded by L2 bjets */
 
-  if (bjets_) 
-    {
+  if (bjets_) {
       try {
 	edm::Handle<reco::CaloJetCollection> collection;
 	event.getByLabel(bjetL2_,collection);
@@ -155,19 +147,6 @@ void SiStripRawToClustersRoI::random(RefGetter& refgetter, edm::Handle<LazyGette
   uint32_t total = cabling_->getRegionCabling().size();
   uint32_t required = static_cast<uint32_t>(RandFlat::shoot()*(total+1));
   for (uint32_t iregion = 0; iregion < required; iregion++) {
-    for (uint32_t isubdet = 0; isubdet < SiStripRegionCabling::ALLSUBDETS; isubdet++) {
-      SubDet subdet = static_cast<SubDet>(isubdet);
-      for (uint32_t ilayer = 0; ilayer < SiStripRegionCabling::ALLLAYERS; ilayer++) {
-	if (!physicalLayer(subdet,ilayer)) break;
-	cabling_->updateSiStripRefGetter<SiStripCluster>(refgetter,lazygetter,SiStripRegionCabling::elementIndex(iregion,subdet,ilayer));
-      }
-    }
-  }
-}
-
-void SiStripRawToClustersRoI::global(RefGetter& refgetter, edm::Handle<LazyGetter>& lazygetter) const {
-  
-  for (uint32_t iregion = 0; iregion < cabling_->getRegionCabling().size(); iregion++) {
     for (uint32_t isubdet = 0; isubdet < SiStripRegionCabling::ALLSUBDETS; isubdet++) {
       SubDet subdet = static_cast<SubDet>(isubdet);
       for (uint32_t ilayer = 0; ilayer < SiStripRegionCabling::ALLLAYERS; ilayer++) {

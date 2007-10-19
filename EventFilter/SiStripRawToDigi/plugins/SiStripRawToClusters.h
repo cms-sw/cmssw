@@ -36,9 +36,6 @@ class SiStripRawToClusters : public edm::EDProducer {
   
  private: 
 
-  /** Record of all region numbers */
-  std::vector<uint32_t> allregions_;
-
   /** Raw data labels */
   std::string productLabel_;
   std::string productInstance_;
