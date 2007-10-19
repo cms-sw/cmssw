@@ -393,6 +393,8 @@ void EcalElectronicsMapper::fillMaps(){
         uint rawid = (mappingBuilder_->getTrigTowerDetId(tccId, feChannel)).rawId();
         EcalTrigTowerDetId * ttDetId = new EcalTrigTowerDetId(rawid);
         ttDetIds_[tccId-1][feChannel-1] = ttDetId;
+	EcalElectronicsId * ttEleId = new EcalElectronicsId(smId, feChannel, 1, 1);
+	ttEleIds_[tccId-1][feChannel-1] = ttEleId;
         EcalTriggerPrimitiveDigi * tp     = new EcalTriggerPrimitiveDigi(*ttDetId);
         tp->setSize(numbTriggerTSamples_);
         for(uint i=0;i<numbTriggerTSamples_;i++){
