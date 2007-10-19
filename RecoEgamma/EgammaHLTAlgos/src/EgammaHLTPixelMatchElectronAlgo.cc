@@ -10,7 +10,7 @@
 */
 //
 // Original Author:  Monica Vazquez Acosta (CERN)
-// $Id: EgammaHLTPixelMatchElectronAlgo.cc,v 1.7 2007/10/15 16:35:46 ghezzi Exp $
+// $Id: EgammaHLTPixelMatchElectronAlgo.cc,v 1.8 2007/10/16 09:15:00 ghezzi Exp $
 //
 //
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
@@ -68,10 +68,11 @@ void EgammaHLTPixelMatchElectronAlgo::setupES(const edm::EventSetup& es, const e
   es.get<CkfComponentsRecord>().get(trajectoryBuilderName,theTrajectoryBuilderHandle);
   theCkfTrajectoryBuilder = theTrajectoryBuilderHandle.product();    
 
-  trackBarrelLabel_ = conf.getParameter<string>("TrackBarrelLabel");
-  trackBarrelInstanceName_ = conf.getParameter<string>("TrackBarrelProducer");
-  trackEndcapLabel_ = conf.getParameter<string>("TrackEndcapLabel");
-  trackEndcapInstanceName_ = conf.getParameter<string>("TrackEndcapProducer");
+  trackLabel_ = conf.getParameter<string>("TrackLabel");
+  trackInstanceName_ = conf.getParameter<string>("TrackProducer");
+  //trackEndcapLabel_ = conf.getParameter<string>("TrackEndcapLabel");
+  //trackEndcapInstanceName_ = conf.getParameter<string>("TrackEndcapProducer");
+
   // assBarrelLabel_ = conf.getParameter<string>("SCLBarrelLabel");
   // assBarrelInstanceName_ = conf.getParameter<string>("SCLBarrelProducer");
   //assEndcapLabel_ = conf.getParameter<string>("SCLEndcapLabel");
@@ -81,10 +82,10 @@ void EgammaHLTPixelMatchElectronAlgo::setupES(const edm::EventSetup& es, const e
 void  EgammaHLTPixelMatchElectronAlgo::run(Event& e, ElectronCollection & outEle) {
 
   // get the input 
-  edm::Handle<TrackCollection> tracksBarrelH;
-  edm::Handle<TrackCollection> tracksEndcapH;
-  e.getByLabel(trackBarrelLabel_,trackBarrelInstanceName_,tracksBarrelH);
-  e.getByLabel(trackEndcapLabel_,trackEndcapInstanceName_,tracksEndcapH);
+  edm::Handle<TrackCollection> tracksH;
+  //  edm::Handle<TrackCollection> tracksEndcapH;
+  e.getByLabel(trackLabel_,trackInstanceName_,tracksH);
+  //e.getByLabel(trackEndcapLabel_,trackEndcapInstanceName_,tracksEndcapH);
 
   //  edm::Handle<SeedSuperClusterAssociationCollection> barrelH;
   // edm::Handle<SeedSuperClusterAssociationCollection> endcapH;
@@ -93,9 +94,9 @@ void  EgammaHLTPixelMatchElectronAlgo::run(Event& e, ElectronCollection & outEle
   
   // create electrons from tracks in 2 steps: barrel + endcap
   //const SeedSuperClusterAssociationCollection  *sclAss=&(*barrelH);
-  process(tracksBarrelH,outEle);
+  process(tracksH,outEle);
   //sclAss=&(*endcapH);
-  process(tracksEndcapH,outEle);
+  //process(tracksEndcapH,outEle);
 
   return;
 }

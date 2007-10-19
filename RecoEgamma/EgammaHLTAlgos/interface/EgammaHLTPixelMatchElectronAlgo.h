@@ -92,10 +92,10 @@ public:
   //bool compareHits(const TrackingRecHit& rh1, const TrackingRecHit & rh2) const ;
 
   // input configuration
-  std::string trackBarrelLabel_;
-  std::string trackEndcapLabel_;
-  std::string trackBarrelInstanceName_;
-  std::string trackEndcapInstanceName_;
+  std::string trackLabel_;
+  //std::string trackEndcapLabel_;
+  std::string trackInstanceName_;
+  //std::string trackEndcapInstanceName_;
   // std::string assBarrelLabel_;
   // std::string assBarrelInstanceName_;
   //std::string assEndcapLabel_;
