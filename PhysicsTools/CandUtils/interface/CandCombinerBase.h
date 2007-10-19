@@ -37,7 +37,9 @@ namespace combiner {
     template<>
     struct CandCompHelper<reco::CandidateCollection> {
       typedef reco::CompositeCandidate * value_type;
-      static reco::CompositeCandidate & make( value_type & v ) { v = new reco::CompositeCandidate; return *v; }
+      static reco::CompositeCandidate & make( value_type & v ) { 
+	v = new reco::CompositeCandidate; return *v; 
+      }
     };
 
     template<>

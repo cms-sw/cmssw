@@ -34,10 +34,10 @@ namespace combiner {
 
 template<typename InputCollection,
          typename Selector, 
+	 typename OutputCollection = typename combiner::helpers::CandRefHelper<InputCollection>::OutputCollection,
 	 typename PairSelector = AnyPairSelector,
 	 typename Cloner = combiner::helpers::NormalClone, 
-	 typename Setup = AddFourMomenta,
-         typename OutputCollection = typename combiner::helpers::CandRefHelper<InputCollection>::OutputCollection>
+	 typename Setup = AddFourMomenta>
 class CandCombiner : public CandCombinerBase<InputCollection, OutputCollection> {
 public:
   typedef CandCombinerBase<InputCollection, OutputCollection> base;
