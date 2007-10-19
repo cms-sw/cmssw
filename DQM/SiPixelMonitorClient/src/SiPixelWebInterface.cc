@@ -637,7 +637,7 @@ void SiPixelWebInterface::performAction() {
     {
       //actionExecutor_->createSummary(bei);
       //actionExecutor_->checkQTestResults(bei);
-      //infoExtractor_->plotHistosFromLayoutForSlideShow(bei);
+     // infoExtractor_->plotHistosFromLayoutForSlideShow(bei);
       break;
     }
   case SiPixelWebInterface::PlotErrorOverviewHistogram :

@@ -127,7 +127,6 @@
    {
      var queryString;
      var url = WebLib.getApplicationURL2();
-     url += "/Request?";
      queryString = "RequestID=IsReady";
      url += queryString;
      WebLib.makeRequest(url, FillReadyState);
@@ -253,49 +252,39 @@
                       width:  300px;">
         <div class = "dhtmlgoodies_aTab">
          <div class = "bloc" 
-              id    = "bloc2_3"
-          <!-- These are the expert action buttons: -->
-          <input name	 = "subscribe"
-           	 id	 = "subscribe_all"
-           	 class   = "controlButton"
-           	 value   = "Subscribe All"
-           	 onClick = "ClientActions.SubscribeAll()"
-           	 type	 = "submit">
+              id    = "bloc2_2"
+          <!-- These are the Summary Canvas buttons: -->
+          <label id	 = "summary_canvas"
+          	 style   = "margin-left:2%">
+              Status Summary:
+          </label>
+          <input name	 = "PixelSummaryOverviewShow" 
+          	 id	 = "pixel_summary_overview_show"
+          	 class   = "controlButton"
+          	 value   = "SiPixel" 
+          	 onClick = "IMGC.updateIMGC('Collector/Collated/Tracker')"
+          	 type	 = "submit">
           </input>
-          <input name	 = "collate"
-           	 id	 = "collate_me"
-           	 class   = "controlButton"
-           	 value   = "Collate MEs"
-           	 onClick = "ClientActions.CollateME()"
-           	 type	 = "submit">
+          <input name	 = "BarrelSummaryOverviewShow" 
+          	 id	 = "barrel_summary_overview_show"
+          	 class   = "controlButton"
+          	 value   = "Barrel" 
+          	 onClick = "IMGC.updateIMGC('Collector/Collated/Tracker/PixelBarrel')"
+          	 type	 = "submit">
           </input>
-          <input name	 = "summary"
-           	 id	 = "create_summary"
-           	 class   = "controlButton"
-           	 value   = "Update Summary"
-           	 onClick = "ClientActions.CreateSummary()"
-           	 type	 = "submit">
-          </input>
-          <input name	 = "QtestResult"
-           	 id	 = "check_qtest_result"
-           	 class   = "controlButton"
-           	 value   = "Update QTests"
-           	 onClick = "ClientActions.CheckQualityTestResults()"
-           	 type	 = "submit">
-          </input>
-          <input name	 = "save"
-           	 id	 = "save_to_file"
-           	 class   = "controlButton"
-           	 value   = "Save All"
-           	 onClick = "ClientActions.SaveToFile()"
-           	 type	 = "submit">
+          <input name	 = "EndcapSummaryOverviewShow" 
+          	 id	 = "endcap_summary_overview_show"
+          	 class   = "controlButton"
+          	 value   = "Endcap" 
+          	 onClick = "IMGC.updateIMGC('Collector/Collated/Tracker/PixelEndcap')"
+          	 type	 = "submit">
           </input>
          </div>
         </div>
        
         <div class = "dhtmlgoodies_aTab">
          <div class = "bloc" 
-              id    = "bloc2_7">
+              id    = "bloc2_3">
          <input name	= "listMECommand"
          	id	= "list_ME_command"
          	class	= "controlButton"
@@ -350,6 +339,47 @@
          </select>
         </div> 
       </div>
+        <div class = "dhtmlgoodies_aTab">
+         <div class = "bloc" 
+              id    = "bloc2_4"
+          <!-- These are the expert action buttons: -->
+          <input name	 = "subscribe"
+           	 id	 = "subscribe_all"
+           	 class   = "controlButton"
+           	 value   = "Subscribe All"
+           	 onClick = "ClientActions.SubscribeAll()"
+           	 type	 = "submit">
+          </input>
+          <input name	 = "collate"
+           	 id	 = "collate_me"
+           	 class   = "controlButton"
+           	 value   = "Collate MEs"
+           	 onClick = "ClientActions.CollateME()"
+           	 type	 = "submit">
+          </input>
+          <input name	 = "summary"
+           	 id	 = "create_summary"
+           	 class   = "controlButton"
+           	 value   = "Update Summary"
+           	 onClick = "ClientActions.CreateSummary()"
+           	 type	 = "submit">
+          </input>
+          <input name	 = "QtestResult"
+           	 id	 = "check_qtest_result"
+           	 class   = "controlButton"
+           	 value   = "Update QTests"
+           	 onClick = "ClientActions.CheckQualityTestResults()"
+           	 type	 = "submit">
+          </input>
+          <input name	 = "save"
+           	 id	 = "save_to_file"
+           	 class   = "controlButton"
+           	 value   = "Save All"
+           	 onClick = "ClientActions.SaveToFile()"
+           	 type	 = "submit">
+          </input>
+         </div>
+        </div>
      </fieldset>
 
      <!-- Following is the area to display the trees: -->
@@ -362,9 +392,9 @@
         	    width:  300px;">
        <div class = "dhtmlgoodies_aTab">
         <div class = "bloc" 
-             id    = "bloc2_4">
+             id    = "bloc2_5">
          <div class = "bloc" 
-              id    = "bloc2_4_1">
+              id    = "bloc2_5_1">
           <label id    = "structures"
                  style = "margin-left:1%">
            Sub-Detectors:
@@ -412,9 +442,9 @@
              
        <div class = "dhtmlgoodies_aTab">
         <div class = "bloc" 
-             id	   = "bloc2_5">
+             id	   = "bloc2_6">
          <div class = "bloc" 
-              id    = "bloc2_5_1">
+              id    = "bloc2_6_1">
           <label id    = "structures"
                  class = "label">
            Sub-Detectors:
@@ -461,9 +491,9 @@
 
        <div class = "dhtmlgoodies_aTab">
         <div class = "bloc" 
-           id	 = "bloc2_6">
+           id	 = "bloc2_7">
          <div class = "bloc" 
-            id    = "bloc2_6_1">
+            id    = "bloc2_7_1">
           <label id    = "alarm_structures"
                  class = "label">
            Sub-Detectors:
@@ -507,8 +537,7 @@
   </form>
   
   <script type="text/javascript">
-   //initTabs('dhtmlgoodies_tabView1', Array('Summary Slideshow','Expert Actions'), 0, '99.5%','100%');
-   initTabs('dhtmlgoodies_tabView1', Array('Expert Actions','TrackerMaps'), 0, '99.5%','100%');
+   initTabs('dhtmlgoodies_tabView1', Array('Summary Slides','TrackerMaps','Expert Actions'), 0, '99.5%','100%');
    initTabs('dhtmlgoodies_tabView2', Array('Single Module View','Summary View','Alarm View'), 0, '99.5%','100%');
   </script>
   
