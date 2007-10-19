@@ -1,11 +1,11 @@
-/*! \file TrackerMapCreator.cc
+/*! \file SiPixelTrackerMapCreator.cc
  *
  *  \brief This class represents ...
  *  
  *  (Documentation under development)
  *  
  */
-#include "DQM/SiPixelMonitorClient/interface/TrackerMapCreator.h"
+#include "DQM/SiPixelMonitorClient/interface/SiPixelTrackerMapCreator.h"
 #include "DQM/SiPixelMonitorClient/interface/SiPixelUtility.h"
 #include "DQM/SiPixelMonitorClient/interface/SiPixelInformationExtractor.h"
 #include "DQM/SiPixelMonitorClient/interface/ANSIColors.h"
@@ -22,11 +22,11 @@ using namespace std;
 //==============================================================================
 // -- Constructor
 // 
-TrackerMapCreator::TrackerMapCreator(string themEName, 
-                                     string theTKType) 
+SiPixelTrackerMapCreator::SiPixelTrackerMapCreator(string themEName, 
+                                                   string theTKType) 
 {
   cout << ACYellow << ACBold 
-       << "[TrackerMapCreator::TrackerMapCreator()]" 
+       << "[SiPixelTrackerMapCreator::SiPixelTrackerMapCreator()]" 
        << ACPlain << " ctor" << endl ;
        
   mEName = themEName ;
@@ -43,12 +43,12 @@ TrackerMapCreator::TrackerMapCreator(string themEName,
 //==============================================================================
 // -- Destructor
 //
-TrackerMapCreator::~TrackerMapCreator() 
+SiPixelTrackerMapCreator::~SiPixelTrackerMapCreator() 
 {
   if (trackerMap)     delete trackerMap;
   if (infoExtractor_) delete infoExtractor_;
   cout << ACYellow << ACBold 
-       << "[TrackerMapCreator::~TrackerMapCreator()]" 
+       << "[SiPixelTrackerMapCreator::~SiPixelTrackerMapCreator()]" 
        << ACPlain << " dtor" << endl ;
 }
 
@@ -56,16 +56,14 @@ TrackerMapCreator::~TrackerMapCreator()
 /*! \brief (Documentation under construction).
  *  
  */
-//void TrackerMapCreator::create(MonitorUserInterface * mui) 
-void TrackerMapCreator::create(DaqMonitorBEInterface * bei) 
+void SiPixelTrackerMapCreator::create(DaqMonitorBEInterface * bei) 
 {
 //   cout << ACYellow << ACBold
-//        << "[TrackerMapCreator::create()] "
+//        << "[SiPixelTrackerMapCreator::create()] "
 //        << ACPlain 
 //        << " Creating tracker map for ME: " 
 //        << mEName 
 //        << endl;
-//  DaqMonitorBEInterface * bei = mui->getBEInterface();
 
   vector<MonitorElement*> mEList ;
   map<string, int>        mEHash ;
@@ -89,7 +87,7 @@ void TrackerMapCreator::create(DaqMonitorBEInterface * bei)
   if( !innerFrame )
   {
    cout << ACRed << ACBold
-   	<< "[TrackerMapCreator::create()] "
+   	<< "[SiPixelTrackerMapCreator::create()] "
    	<< ACCyan << ACBold
    	<< "Could not open rightEmbedded.html"
    	<< ACPlain
@@ -170,7 +168,7 @@ void TrackerMapCreator::create(DaqMonitorBEInterface * bei)
 //==============================================================================
 // -- Draw Monitor Elements
 //
-void TrackerMapCreator::paintTkMap(MonitorElement * mE) 
+void SiPixelTrackerMapCreator::paintTkMap(MonitorElement * mE) 
 {
   double sts;
   int    rval, gval, bval, detId;
@@ -184,10 +182,9 @@ void TrackerMapCreator::paintTkMap(MonitorElement * mE)
 //==============================================================================
 // -- get Tracker Map ME 
 //
-//MonitorElement* TrackerMapCreator::getTkMapMe(MonitorUserInterface* mui,
-MonitorElement* TrackerMapCreator::getTkMapMe(DaqMonitorBEInterface* bei,
-                                              string& me_name, 
-					      int ndet) 
+MonitorElement* SiPixelTrackerMapCreator::getTkMapMe(DaqMonitorBEInterface* bei,
+                                                     string& me_name, 
+					             int ndet) 
 {
 /*
   string new_name = "TrackerMap_for_" + me_name;
@@ -208,12 +205,10 @@ MonitorElement* TrackerMapCreator::getTkMapMe(DaqMonitorBEInterface* bei,
 //==============================================================================
 // -- Browse through monitorable and get values needed by TrackerMap
 //
-//bool TrackerMapCreator::exploreMuiStructure(MonitorUserInterface* mui) 
-bool TrackerMapCreator::exploreBeiStructure(DaqMonitorBEInterface* bei) 
+bool SiPixelTrackerMapCreator::exploreBeiStructure(DaqMonitorBEInterface* bei) 
 {
-  //DaqMonitorBEInterface * bei = mui->getBEInterface();
   cout << ACCyan << ACBold
-       << "[TrackerMapCreator::create()] "
+       << "[SiPixelTrackerMapCreator::create()] "
        << ACRed << ACReverse 
        << "List of histograms in"
        << ACPlain
@@ -228,7 +223,7 @@ bool TrackerMapCreator::exploreBeiStructure(DaqMonitorBEInterface* bei)
   for (vector<string>::const_iterator it = histoList.begin(); it != histoList.end(); it++) 
   {
    cout << ACCyan << ACBold
-   	<< "[TrackerMapCreator::create()] "
+   	<< "[SiPixelTrackerMapCreator::create()] "
    	<< ACRed << ACReverse 
    	<< "Histogram:"
    	<< ACPlain
@@ -243,7 +238,7 @@ bool TrackerMapCreator::exploreBeiStructure(DaqMonitorBEInterface* bei)
   {
     bei->cd(*it);
     cout << ACCyan << ACBold
-    	 << "[TrackerMapCreator::create()] "
+    	 << "[SiPixelTrackerMapCreator::create()] "
     	 << ACRed << ACBold 
     	 << "Moved down to"
     	 << ACPlain
@@ -254,7 +249,7 @@ bool TrackerMapCreator::exploreBeiStructure(DaqMonitorBEInterface* bei)
     exploreBeiStructure(bei);
     bei->goUp();
     cout << ACCyan << ACBold
-    	 << "[TrackerMapCreator::create()] "
+    	 << "[SiPixelTrackerMapCreator::create()] "
     	 << ACRed << ACBold 
     	 << "Now back to"
     	 << ACPlain

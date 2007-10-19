@@ -1,7 +1,7 @@
 #include "DQM/SiPixelMonitorClient/interface/ANSIColors.h"
 #include "DQM/SiPixelMonitorClient/interface/SiPixelActionExecutor.h"
 #include "DQM/SiPixelMonitorClient/interface/SiPixelUtility.h"
-#include "DQM/SiPixelMonitorClient/interface/TrackerMapCreator.h"
+#include "DQM/SiPixelMonitorClient/interface/SiPixelTrackerMapCreator.h"
 #include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DQM/SiStripCommon/interface/ExtractTObject.h"
@@ -117,7 +117,7 @@ void SiPixelActionExecutor::createTkMap(DaqMonitorBEInterface* bei,
 					string theTKType) 
 {
  
-  TrackerMapCreator tkmap_creator(mEName,theTKType);
+  SiPixelTrackerMapCreator tkmap_creator(mEName,theTKType);
   tkmap_creator.create(bei);
   
 //   cout << ACYellow << ACBold 

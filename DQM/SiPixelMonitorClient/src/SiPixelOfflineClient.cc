@@ -13,7 +13,7 @@
 //
 // Original Author:  Samvel Khalatyan (ksamdev at gmail dot com)
 //	   Created:  Wed Oct  5 16:42:34 CET 2006
-// $Id: SiPixelOfflineClient.cc,v 1.1 2007/09/21 17:26:23 merkelp Exp $
+// $Id: SiPixelOfflineClient.cc,v 1.2 2007/10/05 21:01:59 merkelp Exp $
 //
 //
 
@@ -39,7 +39,7 @@
 #include "DQMServices/WebComponents/interface/WebPage.h"
 
 #include "DQM/SiPixelMonitorClient/interface/SiPixelWebInterface.h"
-#include "DQM/SiPixelMonitorClient/interface/TrackerMapCreator.h"
+#include "DQM/SiPixelMonitorClient/interface/SiPixelTrackerMapCreator.h"
 #include "DQM/SiPixelMonitorClient/interface/SiPixelUtility.h"
 
 #include <SealBase/Callback.h>
@@ -128,7 +128,7 @@ void SiPixelOfflineClient::beginJob( const edm::EventSetup& es_) {
   
   collFlag_ = parameters_.getUntrackedParameter<int>("CollationFlag",0);
   
-  //tkMapCreator_ = new TrackerMapCreator();
+  //tkMapCreator_ = new SiPixelTrackerMapCreator();
   //if(tkMapCreator_->readConfiguration()) tkMapFreq_ = tkMapCreator_->getFrequency();
   
   //Setup quality tests:

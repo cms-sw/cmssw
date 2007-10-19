@@ -17,7 +17,7 @@
 #include "DQMServices/WebComponents/interface/WebPage.h"
 
 #include "DQM/SiPixelMonitorClient/interface/SiPixelWebInterface.h"
-#include "DQM/SiPixelMonitorClient/interface/TrackerMapCreator.h"
+#include "DQM/SiPixelMonitorClient/interface/SiPixelTrackerMapCreator.h"
 #include "DQM/SiPixelMonitorClient/interface/SiPixelUtility.h"
 
 #include <SealBase/Callback.h>
@@ -104,7 +104,7 @@ void SiPixelEDAClient::beginJob(const edm::EventSetup& eSetup){
           collationFlag_ = parameters.getUntrackedParameter<int>("CollationtionFlag",0);
          outputFilePath_ = parameters.getUntrackedParameter<string>("OutputFilePath",".");
   staticUpdateFrequency_ = parameters.getUntrackedParameter<int>("StaticUpdateFrequency",10);
- // trackerMapCreator_ = new TrackerMapCreator();
+ // trackerMapCreator_ = new SiPixelTrackerMapCreator();
 //  if (trackerMapCreator_->readConfiguration()) {
 //    tkMapFrequency_ = trackerMapCreator_->getFrequency();
  // }
