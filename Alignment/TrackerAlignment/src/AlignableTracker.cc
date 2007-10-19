@@ -50,8 +50,9 @@ void AlignableTracker::detsToAlignables( const TrackingGeometry::DetContainer& d
 
   for (unsigned int i = 0; i < nDet; ++i)
   {
+    // skip components of glued det
     SiStripDetId detId = dets[i]->geographicalId();
-    if ( !detId.glued() ) // skip components of glued det
+    if ( detId.subdetId() < SiStripDetId::TIB || !detId.glued() )
       alis.push_back( new AlignableDet(dets[i]) );
   }
 
