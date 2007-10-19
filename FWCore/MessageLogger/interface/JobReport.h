@@ -19,7 +19,7 @@ through the MessageLogger.
 
 //
 // Original Author:  Marc Paterno
-// $Id: JobReport.h,v 1.17 2007/06/14 02:25:48 wmtan Exp $
+// $Id: JobReport.h,v 1.18 2007/09/28 18:56:57 evansde Exp $
 //
 
 #include <cstddef>
@@ -158,14 +158,14 @@ namespace edm {
 	 * Associate a Lumi Section to all open output files
 	 *
 	 */
-	void associateLumiSection(LumiSectionReport  rep);
+	void associateLumiSection(const LumiSectionReport&  rep);
 
         /*
          * Write an InputFile object to the Logger 
          * Generate XML string for InputFile instance and dispatch to 
          * job report via MessageLogger
          */
-        void writeInputFile(InputFile & f);
+        void writeInputFile(const InputFile & f);
         /*
          * Write an OutputFile object to the Logger 
          * Generate an XML string for the OutputFile provided and
@@ -180,14 +180,14 @@ namespace edm {
          * output file due to filtering etc.
          *
          */
-        void writeOutputFile(OutputFile & f);
+        void writeOutputFile(const OutputFile & f);
         
 
 	/*
 	 * Add Generator info to the map of gen info stored in this 
 	 * instance.
 	 */
-	void addGeneratorInfo(std::string name, std::string value);
+	void addGeneratorInfo(const std::string& name, const std::string& value);
 	
 	/*
 	 * Write out generator info to the job report
@@ -342,19 +342,19 @@ namespace edm {
       /// Invoked by the Timing service to send an end of job 
       /// summary about time taken for inclusion in the job report
       ///
-      void reportTimingInfo(std::map<std::string, double> & timingData);
+      void reportTimingInfo(std::map<std::string, double> const & timingData);
 
       /// Report Storage Statistics
-      void reportStorageStats(std::string & data); 
+      void reportStorageStats(std::string const & data); 
 
       /// Override the list of input files seen by an output file
       /// for use with EdmFastMerge 
-      void overrideContributingInputs(Token outputToken, std::vector<Token> inputTokens);
+      void overrideContributingInputs(Token outputToken, std::vector<Token> const& inputTokens);
       
       /// Report key/value style generator/lumi information
       /// Eg:  reportGeneratorInfo("CrossSection" , "ValueHere")
       /// No special chars in the value string. 
-      void reportGeneratorInfo(std::string  name, std::string  value);
+      void reportGeneratorInfo(std::string const&  name, std::string const&  value);
       
 
 
@@ -362,7 +362,7 @@ namespace edm {
       /// Report PSetHash
       ///
       ///
-      void reportPSetHash(std::string hashValue);
+      void reportPSetHash(std::string const& hashValue);
       
 
       ///
@@ -372,12 +372,12 @@ namespace edm {
       /// for a specific module
       /// Each one requires a performance metric class such 
       /// as Timing, Memory, CPU, Trigger etc.
-      void reportPerformanceSummary(std::string  metricClass,
-				    std::map<std::string, std::string> & metrics);
+      void reportPerformanceSummary(std::string const&  metricClass,
+				    std::map<std::string, std::string> const& metrics);
       
-      void reportPerformanceForModule(std::string  metricClass,
-				      std::string  moduleName,
-				      std::map<std::string, std::string> & metrics);
+      void reportPerformanceForModule(std::string const&  metricClass,
+				      std::string const&  moduleName,
+				      std::map<std::string, std::string> const& metrics);
 
       
 
@@ -402,7 +402,7 @@ namespace edm {
      * same formatting then we need to refactor it into a common library
      */
   template <typename T>
-  std::ostream& formatFile(T f, std::ostream& os) {
+  std::ostream& formatFile(const T& f, std::ostream& os) {
 
     if (f.fileHasBeenClosed) {
       os << "\n<State  Value=\"closed\"/>";
@@ -415,13 +415,13 @@ namespace edm {
     os << "\n<ModuleLabel>" << f.moduleLabel << "</ModuleLabel>";
     os << "\n<GUID>" << f.guid << "</GUID>";
     os << "\n<Runs>";
-    std::set<JobReport::RunNumber>::iterator iRun;
+    std::set<JobReport::RunNumber>::const_iterator iRun;
     for ( iRun = f.runsSeen.begin(); iRun != f.runsSeen.end(); iRun++) {
       os << "\n  <Run>" << *iRun << "</Run>";
     }
     os << "\n</Runs>";
     os << "\n<Branches>";
-    std::vector<std::string>::iterator iBranch;
+    std::vector<std::string>::const_iterator iBranch;
     for (iBranch = f.branchNames.begin(); 
         iBranch != f.branchNames.end(); 
         iBranch++) {

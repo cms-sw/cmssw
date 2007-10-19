@@ -6,7 +6,7 @@
 // 
 //
 // Original Author:  Marc Paterno
-// $Id: JobReport.cc,v 1.22 2007/06/14 02:25:49 wmtan Exp $
+// $Id: JobReport.cc,v 1.23 2007/09/28 18:56:58 evansde Exp $
 //
 
 
@@ -168,7 +168,7 @@ namespace edm
      * Generate XML string forJobReport::InputFile instance and dispatch to 
      * job report via MessageLogger
      */
-    void JobReport::JobReportImpl::writeInputFile(JobReport::InputFile & f){
+    void JobReport::JobReportImpl::writeInputFile(JobReport::InputFile const& f){
 	LogInfo("FwkJob") << f;
     }
     
@@ -186,12 +186,12 @@ namespace edm
      * output file due to filtering etc.
      *
      */
-    void JobReport::JobReportImpl::writeOutputFile(JobReport::OutputFile & f) {
+    void JobReport::JobReportImpl::writeOutputFile(JobReport::OutputFile const& f) {
 	LogInfo("FwkJob") << "\n<File>";
 	LogInfo("FwkJob") << f;
 	
 	LogInfo("FwkJob") << "\n<LumiSections>";
-	std::vector<JobReport::LumiSectionReport>::iterator iLumi;
+	std::vector<JobReport::LumiSectionReport>::const_iterator iLumi;
 	for (iLumi = f.lumiSections.begin();
 	     iLumi != f.lumiSections.end(); iLumi++){
 	  LogInfo("FwkJob") << *iLumi;
@@ -199,7 +199,7 @@ namespace edm
 	LogInfo("FwkJob") << "\n</LumiSections>\n";
 	  
 	LogInfo("FwkJob") << "\n<Inputs>";
- 	std::vector<JobReport::Token>::iterator iInput;
+ 	std::vector<JobReport::Token>::const_iterator iInput;
  	for (iInput = f.contributingInputs.begin(); 
  	     iInput != f.contributingInputs.end(); iInput++) {
  	    JobReport::InputFile inpFile = inputFiles_[*iInput];
@@ -231,8 +231,8 @@ namespace edm
       }
     }
 
-  void JobReport::JobReportImpl::addGeneratorInfo(std::string name, 
-						  std::string value){
+  void JobReport::JobReportImpl::addGeneratorInfo(std::string const& name, 
+						  std::string const& value){
     
     generatorInfo_[name] = value;
   }
@@ -250,7 +250,7 @@ namespace edm
     
   }
 
-  void JobReport::JobReportImpl::associateLumiSection(JobReport::LumiSectionReport  rep){
+  void JobReport::JobReportImpl::associateLumiSection(JobReport::LumiSectionReport const&  rep){
     std::vector<Token> openFiles = openOutputFiles();
     std::vector<Token>::iterator iToken;
     for (iToken = openFiles.begin(); iToken != openFiles.end(); iToken++){
@@ -511,7 +511,7 @@ namespace edm
 
     void
     JobReport::overrideContributingInputs(Token outputToken, 
-					  std::vector<Token> inputTokens)
+					  std::vector<Token> const& inputTokens)
     {
        // Get the required output file instance using the token
       JobReport::OutputFile& f = impl_->getOutputFileForToken(outputToken);
@@ -575,14 +575,14 @@ namespace edm
   }
 
   void 
-  JobReport::reportTimingInfo(std::map<std::string, double> & timingData){
+  JobReport::reportTimingInfo(std::map<std::string, double> const& timingData){
 
 
     std::ostringstream msg;
     msg << "<TimingService>\n";
     
 
-    std::map<std::string, double>::iterator pos;
+    std::map<std::string, double>::const_iterator pos;
     for (pos = timingData.begin(); pos != timingData.end(); ++pos){
       msg <<  "  <" << pos->first 
 	  <<  "  Value=\"" << pos->second  << "\" />"
@@ -593,7 +593,7 @@ namespace edm
   }
   
   void
-  JobReport::reportStorageStats(std::string & data)
+  JobReport::reportStorageStats(std::string const& data)
   {
     
     std::ostringstream msg;
@@ -603,14 +603,14 @@ namespace edm
     LogInfo("FwkJob") << msg.str();    
   }
   void
-  JobReport::reportGeneratorInfo(std::string  name, std::string  value)
+  JobReport::reportGeneratorInfo(std::string const&  name, std::string const&  value)
   {
     
     impl_->addGeneratorInfo(name, value);
   }
 
   void
-  JobReport::reportPSetHash(std::string hashValue)
+  JobReport::reportPSetHash(std::string const& hashValue)
   {
     std::ostringstream msg;
     msg << "<PSetHash>"
@@ -621,14 +621,14 @@ namespace edm
 
 
   void 
-  JobReport::reportPerformanceSummary(std::string metricClass,
-				      std::map<std::string, std::string> & metrics)
+  JobReport::reportPerformanceSummary(std::string const& metricClass,
+				      std::map<std::string, std::string> const& metrics)
   {
     std::ostringstream msg;
     msg << "<PerformanceReport>\n"
         << "  <PerformanceSummary Metric=\"" << metricClass << "\">\n";
     
-    std::map<std::string, std::string>::iterator iter;
+    std::map<std::string, std::string>::const_iterator iter;
     for( iter = metrics.begin(); iter != metrics.end(); ++iter ) {
       msg << "    <Metric Name=\"" << iter->first << "\" " 
 	  <<"Value=\"" << iter->second << "\"/>\n";
@@ -640,16 +640,16 @@ namespace edm
   }
       
   void 
-  JobReport::reportPerformanceForModule(std::string  metricClass,
-					std::string  moduleName,
-					std::map<std::string, std::string> & metrics)
+  JobReport::reportPerformanceForModule(std::string const&  metricClass,
+					std::string const&  moduleName,
+					std::map<std::string, std::string> const& metrics)
   {
     std::ostringstream msg;
     msg << "<PerformanceReport>\n"
         << "  <PerformanceModule Metric=\"" << metricClass << "\" "
 	<< " Module=\""<< moduleName << "\" >\n";
     
-    std::map<std::string, std::string>::iterator iter;
+    std::map<std::string, std::string>::const_iterator iter;
     for( iter = metrics.begin(); iter != metrics.end(); ++iter ) {
       msg << "    <Metric Name=\"" << iter->first << "\" " 
 	  <<"Value=\"" << iter->second << "\"/>\n";
