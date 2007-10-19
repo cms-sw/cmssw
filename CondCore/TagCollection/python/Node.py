@@ -2,7 +2,6 @@ class Node(object):
     def __init__( self ):
         """__init__
         """
-        self.__dict__.setdefault('isLeaf',False)
         self.__dict__.setdefault('nodeid',0)
         self.__dict__.setdefault('nodelabel','ROOT')
         self.__dict__.setdefault('lft',0)
@@ -10,6 +9,7 @@ class Node(object):
         self.__dict__.setdefault('parentid',0)
         self.__dict__.setdefault('globalsince',0)
         self.__dict__.setdefault('globaltill',0)
+        self.__dict__.setdefault('tagid',0)
        # self.__dict__.setdefault('comment','')
     def __repr__( self ):
         """__repr__
@@ -30,9 +30,9 @@ class LeafNode(Node):
         """__init__
         """
         super(Node,self).__init__()
-        super(Node,self).__setattr__( 'isLeaf',True )
-        self.__dict__.setdefault('tagid',0)
+        super(Node,self).__setattr__( 'tagid',0 )
         self.__dict__.setdefault('tagname','')
+        #self.__dict__.setdefault('tagid',0)
         self.__dict__.setdefault('pfn','')
         self.__dict__.setdefault('recordname','')
         self.__dict__.setdefault('objectname','')
@@ -59,5 +59,5 @@ if __name__ == "__main__":
         print 'unexpected error'
         print str(er)
     leaf=LeafNode()
-    print leaf.__class__.__name__,'isLeaf',str(leaf.isLeaf)
-    print node.__class__.__name__,'isLeaf',str(node.isLeaf)
+    print leaf.__class__.__name__,'isLeaf',str(leaf.tagid)
+    print node.__class__.__name__,'isLeaf',str(node.tagid)

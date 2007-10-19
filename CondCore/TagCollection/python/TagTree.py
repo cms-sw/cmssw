@@ -63,8 +63,7 @@ class tagTree(object):
             nodelabel=node.nodelabel
             globalsince=node.globalsince
             globaltill=node.globaltill
-            if node.isLeaf:
-                tagid=node.tagid
+            tagid=node.tagid
             lft=0
             rgt=0
             if parentLabel == 'ROOT':
@@ -114,6 +113,7 @@ class tagTree(object):
             query.setCondition( condition, conditionData)
             cursor = query.execute()
             while ( cursor.next() ):
+                result.tagid=cursor.currentRow()['tagid'].data()
                 result.nodeid=cursor.currentRow()['nodeid'].data()
                 result.nodelabel=cursor.currentRow()['nodelabel'].data()
                 result.lft=cursor.currentRow()['lft'].data()
@@ -186,6 +186,7 @@ class tagTree(object):
             cursor = query.execute()
             while ( cursor.next() ):
                 resultNode=Node.Node()
+                resultNode.tagid=cursor.currentRow()['tagid'].data()
                 resultNode.nodeid=cursor.currentRow()['nodeid'].data()
                 resultNode.nodelabel=cursor.currentRow()['nodelabel'].data()
                 resultNode.lft=cursor.currentRow()['lft'].data()
@@ -234,6 +235,7 @@ class tagTree(object):
                 cursor = query.execute()
                 while ( cursor.next() ):
                     resultNode=Node.Node()
+                    resultNode.tagid=cursor.currentRow()['p1.tagid'].data()
                     resultNode.nodeid=cursor.currentRow()['p1.nodeid'].data()
                     resultNode.nodelabel=cursor.currentRow()['p1.nodelabel'].data()
                     resultNode.lft=cursor.currentRow()['p1.lft'].data()

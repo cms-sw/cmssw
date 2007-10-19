@@ -3,7 +3,7 @@ from ConfigParser import ConfigParser
 from copy import copy
 from optparse import OptionParser, Option, OptionValueError
 import coral
-from CondCore.TagCollection import Node,TagTree
+from CondCore.TagCollection import Node,TagTree,tagInventory
 def convertnodedata(value):
     mynodedata={}
     datastr=value.strip()
@@ -11,11 +11,11 @@ def convertnodedata(value):
     endbrack=datastr.find('}')
     metagdatastr=datastr[startbrack+1:endbrack]
     mynodedata['nodelabel']=datastr[0:startbrack]
-    metadatalist=metadatastr.split(',')
+    metadatalist=metagdatastr.split(',')
     for pair in metadatalist:
         mydata=pair.split(':')
-        mytagdata[mydata[0]]=mydata[1]
-    return mytagdata
+        mynodedata[mydata[0]]=mydata[1]
+    return mynodedata
 def check_nodedata(option, opt, value):
     try:
         return convertnodedata(value)
@@ -71,6 +71,7 @@ class tagTreeBuilder:
         self.__parser.set_defaults(authpath='.')
         self.__parser.set_defaults(nodedata={})
         self.__parser.set_defaults(verbose=False)
+        self.__parser.set_defaults(isleaf=True)
         (options, args) = self.__parser.parse_args()
         if self.__parser.values.filename!='':
             configparser=ConfigParser()
@@ -115,14 +116,34 @@ class tagTreeBuilder:
         svc = coral.ConnectionService( context )
         session = svc.connect( self.__connectstring,accessMode = coral.access_Update )
         try:
-            mytree=tagTree.tagTree(session)
-            mytree.createTagTreeTable()
             mynode=Node.Node()
-            mynode.isLeaf=self.__isleaf
-            mynode.nodelabel=self.__nodedata['nodelabel']
-            mynode.globalsince=self.__nodedata['globalsince']
-            mynode.globaltill=self.__nodedata['globaltill']
-            mytree.insertNode(mynode,self.__nodedata['parentlabel'])
+            if self.__isleaf is True:
+                inv=tagInventory.tagInventory(session)
+                print 'toget ',self.__nodedata['nodelabel']
+                result=inv.getEntryByName(self.__nodedata['nodelabel'])
+                print result
+                mytree=TagTree.tagTree(session)
+                mytree.createTagTreeTable()
+                print 'about to insert'
+                mynode.globalsince=0
+                mynode.globaltill=0
+                print 'parent',self.__nodedata['parentlabel']
+                mynode.nodelabel='mytag'
+                mynode.tagid=result.tagid
+                print mynode
+                mytree.insertNode(mynode,self.__nodedata['parentlabel'])
+                print 'end'
+            else:
+                mynode=Node.Node()
+                mynode.nodelabel=self.__nodedata['nodelabel']
+                print mynode.nodelabel
+                mynode.globalsince=self.__nodedata['globalsince']
+                print mynode.globalsince
+                mynode.globaltill=self.__nodedata['globaltill']
+                print mynode.globaltill
+                mytree=TagTree.tagTree(session)
+                mytree.createTagTreeTable()
+                mytree.insertNode(mynode,self.__nodedata['parentlabel'])
             del session
         except Exception, e:
             print str(e)
