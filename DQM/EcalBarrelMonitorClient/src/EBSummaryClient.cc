@@ -1,8 +1,8 @@
 /*
  * \file EBSummaryClient.cc
  *
- * $Date: 2007/10/19 23:56:05 $
- * $Revision: 1.62 $
+ * $Date: 2007/10/20 07:41:40 $
+ * $Revision: 1.63 $
  * \author G. Della Ricca
  *
 */
@@ -1055,14 +1055,14 @@ void EBSummaryClient::htmlOutput(int run, string htmlDir, string htmlName){
   labelGridPN.SetMarkerSize(4);
   labelGridPN.SetMinimum(-18.01);
 
-  TH2C labelGridTPG("labelGridTPG","label grid for SM", 18, 0., 72., 2, -17., 17.);
+  TH2C labelGridTT("labelGridTT","label grid for SM", 18, 0., 72., 2, -17., 17.);
   for ( short sm=0; sm<36; sm++ ) {
     int x = 1 + sm%18;
     int y = 1 + sm/18;
-    labelGridTPG.SetBinContent(x, y, Numbers::iEB(sm+1));
+    labelGridTT.SetBinContent(x, y, Numbers::iEB(sm+1));
   }
-  labelGridTPG.SetMarkerSize(2);
-  labelGridTPG.SetMinimum(-18.01);
+  labelGridTT.SetMarkerSize(2);
+  labelGridTT.SetMinimum(-18.01);
 
   string imgNameMapI, imgNameMapO;
   string imgNameMapPO;
@@ -1509,7 +1509,7 @@ void EBSummaryClient::htmlOutput(int run, string htmlDir, string htmlName){
     obj2f->GetXaxis()->SetLabelSize(0.03);
     obj2f->GetYaxis()->SetLabelSize(0.03);
     obj2f->Draw("col");
-    labelGridTPG.Draw("text,same");
+    labelGridTT.Draw("text,same");
     cMap->Update();
     cMap->SaveAs(imgName.c_str());
 
@@ -1552,7 +1552,7 @@ void EBSummaryClient::htmlOutput(int run, string htmlDir, string htmlName){
     obj2p->GetZaxis()->SetLabelSize(0.03); 
     obj2p->Draw("colz");
 
-    labelGridTPG.Draw("text,same");
+    labelGridTT.Draw("text,same");
     cMap->Update();
     cMap->SaveAs(imgName.c_str());
     delete obj2p;
