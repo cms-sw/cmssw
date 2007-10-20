@@ -7,7 +7,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: Particle.h,v 1.22 2007/10/15 18:13:26 llista Exp $
+ * \version $Id: Particle.h,v 1.23 2007/10/18 17:43:15 llista Exp $
  *
  */
 #include "DataFormats/Math/interface/Point3D.h"
@@ -95,9 +95,11 @@ namespace reco {
     /// repidity
     double rapidity() const { cache(); return p4Cache_.Rapidity(); }
     /// repidity
-    double y() const { cache(); return p4Cache_.Rapidity(); }
+    double y() const { return rapidity(); }
     /// set 4-momentum
     void setP4( const LorentzVector & p4 ) { p4_ = p4; clearCache(); }
+    /// set 4-momentum
+    void setP4( const PolarLorentzVector & p4 ) { p4_ = LorentzVector(p4); clearCache(); }
     /// set particle mass
     void setMass( double m ) { 
       // the following implementation is suboptimal, 
