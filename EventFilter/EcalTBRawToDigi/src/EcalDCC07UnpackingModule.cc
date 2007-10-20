@@ -1,7 +1,7 @@
-/* \file EcalDCC07UnpackingModule.h
+/* \file EcalDCCTB07UnpackingModule.h
  *
- *  $Date: 2007/07/20 22:39:29 $
- *  $Revision: 1.5 $
+ *  $Date: 2007/07/25 12:31:06 $
+ *  $Revision: 1.6 $
  *  \author Y. Maravin
  *  \author G. Franzoni
  *  \author G. Della Ricca
@@ -40,7 +40,7 @@
 #define TABLE_FED_ID 42
 #define MATACQ_FED_ID 43
 
-EcalDCC07UnpackingModule::EcalDCC07UnpackingModule(const edm::ParameterSet& pset){
+EcalDCCTB07UnpackingModule::EcalDCCTB07UnpackingModule(const edm::ParameterSet& pset){
 
   std::string tbName = pset.getUntrackedParameter<std::string >("tbName", std::string("h2") );
 
@@ -60,14 +60,14 @@ EcalDCC07UnpackingModule::EcalDCC07UnpackingModule(const edm::ParameterSet& pset
 
   // check if vectors are filled
   if ( ics.size() == 0 || towerIDs.size() == 0 || stripIDs.size() == 0 || channelIDs.size() == 0 ){
-    edm::LogError("EcalDCC07UnpackingModule") << "Some of the mapping info is missing! Check config files! " <<
+    edm::LogError("EcalDCCTB07UnpackingModule") << "Some of the mapping info is missing! Check config files! " <<
       " Size of IC vector is " << ics.size() <<
       " Size of Tower ID vector is " << towerIDs.size() <<
       " Size of Strip ID vector is " << stripIDs.size() <<
       " Size of Channel ID vector is " << channelIDs.size();
   }
   if ( statusIDs.size() == 0 || ccuIDs.size() == 0 || positionIDs.size() == 0 ) {
-    edm::LogError("EcalDCC07UnpackingModule") << "Some of the mapping info is missing! Check config files! " <<
+    edm::LogError("EcalDCCTB07UnpackingModule") << "Some of the mapping info is missing! Check config files! " <<
       " Size of status ID vector is " << statusIDs.size() <<
       " Size of ccu ID vector is " << ccuIDs.size() <<
       " positionIDs size is " << positionIDs.size();
@@ -77,7 +77,7 @@ EcalDCC07UnpackingModule::EcalDCC07UnpackingModule(const edm::ParameterSet& pset
   if ( ics.size() != towerIDs.size() || ics.size() != stripIDs.size() || ics.size() != channelIDs.size() ||
        towerIDs.size() != stripIDs.size() || towerIDs.size() != channelIDs.size() ||
        stripIDs.size() != channelIDs.size() )
-    edm::LogError("EcalDCC07UnpackingModule") << "Mapping information is corrupted. " <<
+    edm::LogError("EcalDCCTB07UnpackingModule") << "Mapping information is corrupted. " <<
       "Tower/DQM position/strip/channel vectors are of different size! Check cfi files! \n" <<
       " Size of IC vector is " << ics.size() <<
       " Size of Tower ID vector is " << towerIDs.size() <<
@@ -86,7 +86,7 @@ EcalDCC07UnpackingModule::EcalDCC07UnpackingModule(const edm::ParameterSet& pset
   
   if ( statusIDs.size() != ccuIDs.size() || statusIDs.size() != positionIDs.size() ||
        ccuIDs.size() != positionIDs.size() ) 
-    edm::LogError("EcalDCC07UnpackingModule") << "Mapping information is corrupted. " <<
+    edm::LogError("EcalDCCTB07UnpackingModule") << "Mapping information is corrupted. " <<
       "Status/CCU ID/DQM position vectors are of different size! Check cfi files! \n" <<
       " Size of status ID vector is " << statusIDs.size() <<
       " Size of ccu ID vector is " << ccuIDs.size() <<
@@ -124,10 +124,10 @@ EcalDCC07UnpackingModule::EcalDCC07UnpackingModule(const edm::ParameterSet& pset
   }
 
   formatter_ = new EcalTB07DaqFormatter(tbName, cryIcMap, tbStatusToLocation, tbTowerIDToLocation);
-  ecalSupervisorFormatter_ = new EcalSupervisorDataFormatter();
+  ecalSupervisorFormatter_ = new EcalSupervisorTBDataFormatter();
   camacTBformatter_ = new CamacTBDataFormatter();
   tableFormatter_ = new TableDataFormatter();
-  matacqFormatter_ = new MatacqDataFormatter();
+  matacqFormatter_ = new MatacqTBDataFormatter();
 
 
   // digis
@@ -161,21 +161,21 @@ EcalDCC07UnpackingModule::EcalDCC07UnpackingModule(const edm::ParameterSet& pset
 }
 
 
-EcalDCC07UnpackingModule::~EcalDCC07UnpackingModule(){
+EcalDCCTB07UnpackingModule::~EcalDCCTB07UnpackingModule(){
 
   delete formatter_;
 
 }
 
-void EcalDCC07UnpackingModule::beginJob(const edm::EventSetup& c){
+void EcalDCCTB07UnpackingModule::beginJob(const edm::EventSetup& c){
 
 }
 
-void EcalDCC07UnpackingModule::endJob(){
+void EcalDCCTB07UnpackingModule::endJob(){
 
 }
 
-void EcalDCC07UnpackingModule::produce(edm::Event & e, const edm::EventSetup& c){
+void EcalDCCTB07UnpackingModule::produce(edm::Event & e, const edm::EventSetup& c){
 
   edm::Handle<FEDRawDataCollection> rawdata;
   e.getByType(rawdata);
@@ -242,9 +242,9 @@ void EcalDCC07UnpackingModule::produce(edm::Event & e, const edm::EventSetup& c)
 
   for (int id= 0; id<=FEDNumbering::lastFEDId(); ++id){ 
 
-    //    edm::LogInfo("EcalDCC07UnpackingModule") << "EcalDCC07UnpackingModule::Got FED ID "<< id <<" ";
+    //    edm::LogInfo("EcalDCCTB07UnpackingModule") << "EcalDCCTB07UnpackingModule::Got FED ID "<< id <<" ";
     const FEDRawData& data = rawdata->FEDData(id);
-    //    edm::LogInfo("EcalDCC07UnpackingModule") << " Fed data size " << data.size() ;
+    //    edm::LogInfo("EcalDCCTB07UnpackingModule") << " Fed data size " << data.size() ;
    
     //std::cout <<"1 Fed id: "<<dec<<id<< " Fed data size: " <<data.size() << std::endl;
 //    const unsigned char * pData = data.data();
@@ -282,7 +282,7 @@ void EcalDCC07UnpackingModule::produce(edm::Event & e, const edm::EventSetup& c)
 	    (*productHeader).setTriggerMask(0x2000);
 	  else if ( runType == 9 || runType == 10 || runType == 11 ) //pedestal runs
 	    (*productHeader).setTriggerMask(0x800);
-	  LogDebug("EcalDCC07UnpackingModule") << "Event type is " << (*productHeader).eventType() << " dbEventType " << (*productHeader).dbEventType();
+	  LogDebug("EcalDCCTB07UnpackingModule") << "Event type is " << (*productHeader).eventType() << " dbEventType " << (*productHeader).dbEventType();
 	} 
       else if ( id == ECAL_SUPERVISOR_FED_ID )
 	ecalSupervisorFormatter_->interpretRawData(data, *productHeader);
@@ -321,14 +321,14 @@ void EcalDCC07UnpackingModule::produce(edm::Event & e, const edm::EventSetup& c)
   e.put(productTdc);
   e.put(productHeader);
 
-  } catch (ECALParserException &e) {
-    std::cout << "[EcalDCC07UnpackingModule] " << e.what() << std::endl;
-  } catch (ECALParserBlockException &e) {
-    std::cout << "[EcalDCC07UnpackingModule] " << e.what() << std::endl;
+  } catch (ECALTBParserException &e) {
+    std::cout << "[EcalDCCTB07UnpackingModule] " << e.what() << std::endl;
+  } catch (ECALTBParserBlockException &e) {
+    std::cout << "[EcalDCCTB07UnpackingModule] " << e.what() << std::endl;
   } catch (cms::Exception &e) {
-    std::cout << "[EcalDCC07UnpackingModule] " << e.what() << std::endl;
+    std::cout << "[EcalDCCTB07UnpackingModule] " << e.what() << std::endl;
   } catch (...) {
-    std::cout << "[EcalDCC07UnpackingModule] Unknown exception ..." << std::endl;
+    std::cout << "[EcalDCCTB07UnpackingModule] Unknown exception ..." << std::endl;
   }
 
 }

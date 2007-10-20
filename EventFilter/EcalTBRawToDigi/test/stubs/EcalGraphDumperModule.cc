@@ -3,8 +3,8 @@
  * module dumping TGraph with 10 data frames
  *   
  * 
- * $Date: 2007/08/10 17:11:40 $
- * $Revision: 1.3 $
+ * $Date: 2007/08/17 13:58:24 $
+ * $Revision: 1.5 $
  * \author N. Amapane - S. Argiro'
  * \author G. Franzoni
  *
@@ -194,7 +194,7 @@ void EcalGraphDumperModule::analyze( const edm::Event & e, const  edm::EventSetu
       if (icIter == listAllChannels.end()) { continue; }
 	    
 
-      for ( unsigned int i=0; i< (*digiItr).size() ; ++i ) {
+      for (int i=0; i< (*digiItr).size() ; ++i ) {
         EBDataFrame df( *digiItr );
 	ordinate[i] = df.sample(i).adc();
       }

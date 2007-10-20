@@ -9,16 +9,16 @@
 
 
 
-DCCTowerBlock::DCCTowerBlock(
- 	DCCEventBlock * dccBlock, 
-	DCCDataParser * parser, 
+DCCTBTowerBlock::DCCTBTowerBlock(
+ 	DCCTBEventBlock * dccBlock, 
+	DCCTBDataParser * parser, 
 	ulong * buffer, 
 	ulong numbBytes,
 	ulong wordsToEnd,
 	ulong wordEventOffset,
 	ulong expectedTowerID
 )
-: DCCBlockPrototype(parser,"TOWERHEADER", buffer, numbBytes,wordsToEnd, wordEventOffset ) 
+: DCCTBBlockPrototype(parser,"TOWERHEADER", buffer, numbBytes,wordsToEnd, wordEventOffset ) 
  , dccBlock_(dccBlock), expectedTowerID_(expectedTowerID)
 {
 	
@@ -37,7 +37,7 @@ DCCTowerBlock::DCCTowerBlock(
  }
  
  
- void DCCTowerBlock::parseXtalData(){
+ void DCCTBTowerBlock::parseXtalData(){
 	
 	ulong numbBytes = blockSize_;
 	ulong wordsToEnd =wordsToEndOfEvent_;
@@ -99,9 +99,9 @@ DCCTowerBlock::DCCTowerBlock(
 		
 		
 		if(!zs){ 	
-			xtalBlocks_.push_back(  new DCCXtalBlock( parser_, dataP_, xtalBlockSize, wordsToEnd-wordCounter_,wordCounter_+wordEventOffset_,xtalID, stripID) );
+			xtalBlocks_.push_back(  new DCCTBXtalBlock( parser_, dataP_, xtalBlockSize, wordsToEnd-wordCounter_,wordCounter_+wordEventOffset_,xtalID, stripID) );
 		}else{
-			xtalBlocks_.push_back(  new DCCXtalBlock( parser_, dataP_, xtalBlockSize, wordsToEnd-wordCounter_,wordCounter_+wordEventOffset_,0,0));
+			xtalBlocks_.push_back(  new DCCTBXtalBlock( parser_, dataP_, xtalBlockSize, wordsToEnd-wordCounter_,wordCounter_+wordEventOffset_,0,0));
 		}
 		
 		increment(xtalBlockSize/4-1);
@@ -116,15 +116,15 @@ DCCTowerBlock::DCCTowerBlock(
 
 
 
-DCCTowerBlock::~DCCTowerBlock(){
-	std::vector<DCCXtalBlock *>::iterator it;
+DCCTBTowerBlock::~DCCTBTowerBlock(){
+	std::vector<DCCTBXtalBlock *>::iterator it;
 	for(it=xtalBlocks_.begin();it!=xtalBlocks_.end();it++){ delete (*it);}
 	xtalBlocks_.clear();
 }
 
 
 
-void DCCTowerBlock::dataCheck(){
+void DCCTBTowerBlock::dataCheck(){
 	std::string checkErrors("");	
 	
 	
@@ -158,9 +158,9 @@ void DCCTowerBlock::dataCheck(){
 } 
 
 
-std::vector< DCCXtalBlock * > DCCTowerBlock::xtalBlocksById(ulong stripId, ulong xtalId){
-	std::vector<DCCXtalBlock *> myVector;	
-	std::vector<DCCXtalBlock *>::iterator it;
+std::vector< DCCTBXtalBlock * > DCCTBTowerBlock::xtalBlocksById(ulong stripId, ulong xtalId){
+	std::vector<DCCTBXtalBlock *> myVector;	
+	std::vector<DCCTBXtalBlock *>::iterator it;
 	
 	for( it = xtalBlocks_.begin(); it!= xtalBlocks_.end(); it++ ){
 		try{
@@ -170,16 +170,16 @@ std::vector< DCCXtalBlock * > DCCTowerBlock::xtalBlocksById(ulong stripId, ulong
 			
 			if(xtalIdCheck.first && stripIdCheck.first ){ myVector.push_back( (*it) ); }
 			
-		}catch (ECALParserBlockException &e){/*ignore*/ }
+		}catch (ECALTBParserBlockException &e){/*ignore*/ }
 	}
 	
 	return myVector;
 }
 
-int DCCTowerBlock::towerID() {
+int DCCTBTowerBlock::towerID() {
   int result=-1;
 
-  for(std::set<DCCDataField *,DCCDataFieldComparator>::iterator it = mapperFields_->begin(); it!= mapperFields_->end(); it++){
+  for(std::set<DCCTBDataField *,DCCTBDataFieldComparator>::iterator it = mapperFields_->begin(); it!= mapperFields_->end(); it++){
     if ( (*it)->name() == "TT/SC ID" ) 
       result=getDataField( (*it)->name() )  ;
     

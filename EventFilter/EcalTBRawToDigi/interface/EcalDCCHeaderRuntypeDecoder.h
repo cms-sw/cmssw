@@ -1,13 +1,13 @@
 // Date   : 13/06/2005
 
-#ifndef ECALDCCHEADERRUNTYPE_DECODER_H
-#define ECALDCCHEADERRUNTYPE_DECODER_H
+#ifndef ECALDCCTBHEADERRUNTYPE_DECODER_H
+#define ECALDCCTBHEADERRUNTYPE_DECODER_H
 #include <DataFormats/EcalRawData/interface/EcalDCCHeaderBlock.h>
-class EcalDCCHeaderRuntypeDecoder
+class EcalDCCTBHeaderRuntypeDecoder
 {
  public:
-  EcalDCCHeaderRuntypeDecoder();
-  ~EcalDCCHeaderRuntypeDecoder();
+  EcalDCCTBHeaderRuntypeDecoder();
+  ~EcalDCCTBHeaderRuntypeDecoder();
   bool Decode( ulong headerWord,   EcalDCCHeaderBlock * theHeader);
   protected:
   bool WasDecodingOk_;

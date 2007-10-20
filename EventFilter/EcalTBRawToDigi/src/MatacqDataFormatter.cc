@@ -1,5 +1,5 @@
 // -*- Mode: C++; c-basic-offset: 2; indent-tabs-mode: t; tab-width: 8; -*-
-// $Id: MatacqDataFormatter.cc,v 1.4 2006/11/11 21:01:43 pgras Exp $
+// $Id: MatacqTBDataFormatter.cc,v 1.5 2007/04/12 08:36:47 franzoni Exp $
 
 #include "EventFilter/EcalTBRawToDigi/src/MatacqDataFormatter.h"
 #include "DataFormats/FEDRawData/interface/FEDRawData.h"
@@ -17,7 +17,7 @@
 
 //#define MATACQ_DEBUG
 
-void  MatacqDataFormatter::interpretRawData(const FEDRawData & data, EcalMatacqDigiCollection& matacqDigiCollection) {
+void  MatacqTBDataFormatter::interpretRawData(const FEDRawData & data, EcalMatacqDigiCollection& matacqDigiCollection) {
 #if MATACQ_DEBUG
   std::cout << "****************************************************************\n";
   std::cout << "********************** MATACQ decoder **************************\n";
@@ -32,7 +32,7 @@ void  MatacqDataFormatter::interpretRawData(const FEDRawData & data, EcalMatacqD
   std::cout << "======================================================================\n";
 #endif //MATACQ_DEBUG defined
   
-  MatacqRawEvent matacq(data.data(), data.size());
+  MatacqTBRawEvent matacq(data.data(), data.size());
 
 #if MATACQ_DEBUG
   printData(std::cout, matacq);
@@ -49,7 +49,7 @@ void  MatacqDataFormatter::interpretRawData(const FEDRawData & data, EcalMatacqD
   //FIXME: the interpretRawData method should fill an EcalMatacqDigiCollection
   //instead of an EcalMatacqDigi because Matacq channels are several.
   //In the meamtime copy only the first channel appearing in data:
-  const std::vector<MatacqRawEvent::ChannelData>& chData = matacq.getChannelData();
+  const std::vector<MatacqTBRawEvent::ChannelData>& chData = matacq.getChannelData();
   for(unsigned iCh=0; iCh < chData.size(); ++iCh){
     //copy time samples into a vector:
     samples.resize(chData[iCh].nSamples);
@@ -63,7 +63,7 @@ void  MatacqDataFormatter::interpretRawData(const FEDRawData & data, EcalMatacqD
   }
 }
 
-void MatacqDataFormatter::printData(std::ostream& out, const MatacqRawEvent& matacq) const{
+void MatacqTBDataFormatter::printData(std::ostream& out, const MatacqTBRawEvent& matacq) const{
   std::cout << "FED id: " << std::hex << "0x" << matacq.getFedId() << std::dec << "\n";
   std::cout << "Event id (lv1): " 
        << std::hex << "0x" << matacq.getEventId() << std::dec << "\n";
@@ -88,7 +88,7 @@ void MatacqDataFormatter::printData(std::ostream& out, const MatacqRawEvent& mat
   time_t timeStamp = matacq.getTimeStamp();
   std::cout << "Data acquired on : " << ctime(&timeStamp);
 
-  const std::vector<MatacqRawEvent::ChannelData>& channels = matacq.getChannelData();
+  const std::vector<MatacqTBRawEvent::ChannelData>& channels = matacq.getChannelData();
   for(unsigned i=0; i< channels.size(); ++i){
     std::cout << "-------------------------------------- Channel "
 	 << channels[i].chId
@@ -96,7 +96,7 @@ void MatacqDataFormatter::printData(std::ostream& out, const MatacqRawEvent& mat
 	 << " samples --------------------------------------\n";
     
     for(int iSample = 0; iSample<channels[i].nSamples; ++iSample){
-      MatacqRawEvent::int16le_t adc = (channels[i].samples)[iSample];
+      MatacqTBRawEvent::int16le_t adc = (channels[i].samples)[iSample];
       std::cout << std::setw(4) << adc
 	   << ((iSample%20==19)?"\n":" ");
     }

@@ -1,7 +1,7 @@
 /* \file EcalDCCUnpackingModule.h
  *
- *  $Date: 2007/06/28 13:08:10 $
- *  $Revision: 1.37 $
+ *  $Date: 2007/06/28 13:51:30 $
+ *  $Revision: 1.38 $
  *  \author N. Marinelli
  *  \author G. Della Ricca
  *  \author G. Franzoni
@@ -41,13 +41,13 @@
 #define TABLE_FED_ID 42
 #define MATACQ_FED_ID 43
 
-EcalDCCUnpackingModule::EcalDCCUnpackingModule(const edm::ParameterSet& pset){
+EcalDCCTBUnpackingModule::EcalDCCTBUnpackingModule(const edm::ParameterSet& pset){
 
   formatter_ = new EcalTBDaqFormatter();
-  ecalSupervisorFormatter_ = new EcalSupervisorDataFormatter();
+  ecalSupervisorFormatter_ = new EcalSupervisorTBDataFormatter();
   camacTBformatter_ = new CamacTBDataFormatter();
   tableFormatter_ = new TableDataFormatter();
-  matacqFormatter_ = new MatacqDataFormatter();
+  matacqFormatter_ = new MatacqTBDataFormatter();
 
   // digis
   produces<EBDigiCollection>("ebDigis");
@@ -79,21 +79,21 @@ EcalDCCUnpackingModule::EcalDCCUnpackingModule(const edm::ParameterSet& pset){
 }
 
 
-EcalDCCUnpackingModule::~EcalDCCUnpackingModule(){
+EcalDCCTBUnpackingModule::~EcalDCCTBUnpackingModule(){
 
   delete formatter_;
 
 }
 
-void EcalDCCUnpackingModule::beginJob(const edm::EventSetup& c){
+void EcalDCCTBUnpackingModule::beginJob(const edm::EventSetup& c){
 
 }
 
-void EcalDCCUnpackingModule::endJob(){
+void EcalDCCTBUnpackingModule::endJob(){
 
 }
 
-void EcalDCCUnpackingModule::produce(edm::Event & e, const edm::EventSetup& c){
+void EcalDCCTBUnpackingModule::produce(edm::Event & e, const edm::EventSetup& c){
 
   edm::Handle<FEDRawDataCollection> rawdata;
   e.getByType(rawdata);
@@ -157,9 +157,9 @@ void EcalDCCUnpackingModule::produce(edm::Event & e, const edm::EventSetup& c){
 
   for (int id= 0; id<=FEDNumbering::lastFEDId(); ++id){ 
 
-    //    edm::LogInfo("EcalDCCUnpackingModule") << "EcalDCCUnpackingModule::Got FED ID "<< id <<" ";
+    //    edm::LogInfo("EcalDCCTBUnpackingModule") << "EcalDCCTBUnpackingModule::Got FED ID "<< id <<" ";
     const FEDRawData& data = rawdata->FEDData(id);
-    //    edm::LogInfo("EcalDCCUnpackingModule") << " Fed data size " << data.size() ;
+    //    edm::LogInfo("EcalDCCTBUnpackingModule") << " Fed data size " << data.size() ;
    
     //std::cout <<"1 Fed id: "<<dec<<id<< " Fed data size: " <<data.size() << std::endl;
 //    const unsigned char * pData = data.data();
@@ -196,7 +196,7 @@ void EcalDCCUnpackingModule::produce(edm::Event & e, const edm::EventSetup& c){
 	    (*productHeader).setTriggerMask(0x2000);
 	  else if ( runType == 9 || runType == 10 || runType == 11 ) //pedestal runs
 	    (*productHeader).setTriggerMask(0x800);
-	  LogDebug("EcalDCCUnpackingModule") << "Event type is " << (*productHeader).eventType() << " dbEventType " << (*productHeader).dbEventType();
+	  LogDebug("EcalDCCTBUnpackingModule") << "Event type is " << (*productHeader).eventType() << " dbEventType " << (*productHeader).dbEventType();
 	} 
       else if ( id == ECAL_SUPERVISOR_FED_ID )
 	ecalSupervisorFormatter_->interpretRawData(data, *productHeader);
@@ -234,14 +234,14 @@ void EcalDCCUnpackingModule::produce(edm::Event & e, const edm::EventSetup& c){
   e.put(productTdc);
   e.put(productHeader);
 
-  } catch (ECALParserException &e) {
-    std::cout << "[EcalDCCUnpackingModule] " << e.what() << std::endl;
-  } catch (ECALParserBlockException &e) {
-    std::cout << "[EcalDCCUnpackingModule] " << e.what() << std::endl;
+  } catch (ECALTBParserException &e) {
+    std::cout << "[EcalDCCTBUnpackingModule] " << e.what() << std::endl;
+  } catch (ECALTBParserBlockException &e) {
+    std::cout << "[EcalDCCTBUnpackingModule] " << e.what() << std::endl;
   } catch (cms::Exception &e) {
-    std::cout << "[EcalDCCUnpackingModule] " << e.what() << std::endl;
+    std::cout << "[EcalDCCTBUnpackingModule] " << e.what() << std::endl;
   } catch (...) {
-    std::cout << "[EcalDCCUnpackingModule] Unknown exception ..." << std::endl;
+    std::cout << "[EcalDCCTBUnpackingModule] Unknown exception ..." << std::endl;
   }
 
 }

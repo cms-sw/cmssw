@@ -1,21 +1,21 @@
-#ifndef MatacqDataFormatter_H
-#define MatacqDataFormatter_H
+#ifndef MatacqTBDataFormatter_H
+#define MatacqTBDataFormatter_H
 /** \class MatacqDataFormatter
  *
- *  $Id: MatacqDataFormatter.h,v 1.3 2006/09/08 13:23:38 pgras Exp $
+ *  $Id: MatacqTBDataFormatter.h,v 1.4 2006/09/21 12:22:36 pgras Exp $
  */
 
 #include <ostream>
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include  "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
 
-class MatacqRawEvent;
+class MatacqTBRawEvent;
 class FEDRawData;
 
-class MatacqDataFormatter{
+class MatacqTBDataFormatter{
 public:
-  MatacqDataFormatter() {};
-  virtual ~MatacqDataFormatter(){LogDebug("EcalTBRawToDigi") << "@SUB=MatacqDataFormatter" << "\n"; };
+  MatacqTBDataFormatter() {};
+  virtual ~MatacqTBDataFormatter(){LogDebug("EcalTBRawToDigi") << "@SUB=MatacqTBDataFormatter" << "\n"; };
   
   /** Callback method for decoding raw data
    * @param data raw data
@@ -26,7 +26,7 @@ public:
 			 EcalMatacqDigiCollection& matacqDigiCollection);
   
 private:
-  void printData(std::ostream& out, const MatacqRawEvent& event) const;
+  void printData(std::ostream& out, const MatacqTBRawEvent& event) const;
 };
 #endif
 

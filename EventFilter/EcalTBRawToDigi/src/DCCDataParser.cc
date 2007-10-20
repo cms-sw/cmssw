@@ -1,16 +1,15 @@
-
 #include "DCCDataParser.h"
 
 
 
 /*----------------------------------------------*/
-/* DCCDataParser::DCCDataParser                 */
+/* DCCTBDataParser::DCCTBDataParser                 */
 /* class constructor                            */
 /*----------------------------------------------*/
-DCCDataParser::DCCDataParser(std::vector<ulong> parserParameters, bool parseInternalData,bool debug):
+DCCTBDataParser::DCCTBDataParser(std::vector<ulong> parserParameters, bool parseInternalData,bool debug):
   buffer_(0),parseInternalData_(parseInternalData),debug_(debug), parameters(parserParameters){
 	
-  mapper_ = new DCCDataMapper(this);       //build a new data mapper
+  mapper_ = new DCCTBDataMapper(this);       //build a new data mapper
   resetErrorCounters();                    //restart error counters
   computeBlockSizes();                     //calculate block sizes
   
@@ -18,10 +17,10 @@ DCCDataParser::DCCDataParser(std::vector<ulong> parserParameters, bool parseInte
 
 
 /*----------------------------------------------*/
-/* DCCDataParser::resetErrorCounters            */
+/* DCCTBDataParser::resetErrorCounters            */
 /* resets error counters                        */
 /*----------------------------------------------*/
-void DCCDataParser::resetErrorCounters(){
+void DCCTBDataParser::resetErrorCounters(){
   //set error counters to 0
   errors_["DCC::BOE"] = 0;               //begin of event (header B[60-63])
   errors_["DCC::EOE"] = 0;               //end of event (trailer B[60-63])
@@ -30,10 +29,10 @@ void DCCDataParser::resetErrorCounters(){
 
 
 /*----------------------------------------------*/
-/* DCCDataParser::computeBlockSizes             */
+/* DCCTBDataParser::computeBlockSizes             */
 /* calculate the size of TCC and SR blocks      */
 /*----------------------------------------------*/
-void DCCDataParser::computeBlockSizes(){
+void DCCTBDataParser::computeBlockSizes(){
   ulong nTT = numbTTs();                                      //gets the number of the trigger towers (default:68)  
   ulong tSamples = numbTriggerSamples();                      //gets the number of trigger time samples (default: 1)
   ulong nSr = numbSRF();                                      //gests the number of SR flags (default:68)
@@ -56,10 +55,10 @@ void DCCDataParser::computeBlockSizes(){
 
 
 /*------------------------------------------------*/
-/* DCCDataParser::parseFile                       */
+/* DCCTBDataParser::parseFile                       */
 /* reada data from file and parse it              */
 /*------------------------------------------------*/
-void DCCDataParser::parseFile(std::string fileName, bool singleEvent){
+void DCCTBDataParser::parseFile(std::string fileName, bool singleEvent){
 	
   std::ifstream inputFile;                            //open file as input
   inputFile.open(fileName.c_str());
@@ -67,7 +66,7 @@ void DCCDataParser::parseFile(std::string fileName, bool singleEvent){
   resetErrorCounters();                          //reset error counters
 
   //for debug purposes
-  //cout << "Now in DCCDataParser::parseFile " << endl;
+  //cout << "Now in DCCTBDataParser::parseFile " << endl;
 
 	
   //if file opened correctly read data to a buffer and parse it
@@ -103,16 +102,16 @@ void DCCDataParser::parseFile(std::string fileName, bool singleEvent){
   }
   else{ 
     std::string errorMessage = std::string(" Error::Unable to open file :") + fileName;
-    throw ECALParserException(errorMessage);
+    throw ECALTBParserException(errorMessage);
   }
 }
 
 
 /*----------------------------------------------------------*/
-/* DCCDataParser::parseBuffer                               */
+/* DCCTBDataParser::parseBuffer                               */
 /* parse data from a buffer                                 */
 /*----------------------------------------------------------*/
-void DCCDataParser::parseBuffer(ulong * buffer, ulong bufferSize, bool singleEvent){
+void DCCTBDataParser::parseBuffer(ulong * buffer, ulong bufferSize, bool singleEvent){
 	
   resetErrorCounters();                           //reset error counters
 	
@@ -121,13 +120,13 @@ void DCCDataParser::parseBuffer(ulong * buffer, ulong bufferSize, bool singleEve
   //clear stored data
   processedEvent_ = 0;
   events_.clear();
-  std::vector<DCCEventBlock *>::iterator it;
+  std::vector<DCCTBEventBlock *>::iterator it;
   for( it = dccEvents_.begin(); it!=dccEvents_.end(); it++ ) { delete *it; }
   dccEvents_.clear();
   eventErrors_ = "";
 	
   //for debug purposes
-  //cout << endl << "Now in DCCDataParser::parseBuffer" << endl;
+  //cout << endl << "Now in DCCTBDataParser::parseBuffer" << endl;
   //cout << endl << "Buffer Size:" << dec << bufferSize << endl;
 	
   //check if we have a coherent buffer size
@@ -137,7 +136,7 @@ void DCCDataParser::parseBuffer(ulong * buffer, ulong bufferSize, bool singleEve
     fatalError += "\n Fatal error at event = " + getDecString(events_.size()+1);
     fatalError += "\n Buffer Size of = "+ getDecString(bufferSize) + "[bytes] is not divisible by 8 ... ";
     fatalError += "\n ======================================================================";
-    throw ECALParserException(fatalError);
+    throw ECALTBParserException(fatalError);
   }
   if ( bufferSize < EMPTYEVENTSIZE ){
     std::string fatalError ;
@@ -145,7 +144,7 @@ void DCCDataParser::parseBuffer(ulong * buffer, ulong bufferSize, bool singleEve
     fatalError += "\n Fatal error at event = " + getDecString(events_.size()+1);
     fatalError += "\n Buffer Size of = "+ getDecString(bufferSize) + "[bytes] is less than an empty event ... ";
     fatalError += "\n ======================================================================";
-    throw ECALParserException(fatalError);
+    throw ECALTBParserException(fatalError);
   }
 
   ulong *myPointer =  buffer_;                        
@@ -183,7 +182,7 @@ void DCCDataParser::parseBuffer(ulong * buffer, ulong bufferSize, bool singleEve
     
     if (parseInternalData_){ 
       //build a new event block from buffer
-      DCCEventBlock *myBlock = new DCCEventBlock(this,myPointer,eventLength*8, eventLength*2 -1 ,wordIndex,0);
+      DCCTBEventBlock *myBlock = new DCCTBEventBlock(this,myPointer,eventLength*8, eventLength*2 -1 ,wordIndex,0);
       
       //add event to dccEvents vector
       dccEvents_.push_back(myBlock);
@@ -207,7 +206,7 @@ void DCCDataParser::parseBuffer(ulong * buffer, ulong bufferSize, bool singleEve
 
 
 /*---------------------------------------------*/
-/* DCCDataParser::checkEventLength             */
+/* DCCTBDataParser::checkEventLength             */
 /* check if event length is consistent with    */
 /* the words written in buffer                 */
 /* returns a 3 bit error mask codified as:     */
@@ -216,7 +215,7 @@ void DCCDataParser::parseBuffer(ulong * buffer, ulong bufferSize, bool singleEve
 /*   bit 3 - EOE Error                         */
 /* and the event length                        */
 /*---------------------------------------------*/
-std::pair<ulong,ulong> DCCDataParser::checkEventLength(ulong *pointerToEvent, ulong bytesToEnd, bool singleEvent){
+std::pair<ulong,ulong> DCCTBDataParser::checkEventLength(ulong *pointerToEvent, ulong bytesToEnd, bool singleEvent){
 	
   std::pair<ulong,ulong> result;    //returns error mask and event length 
   ulong errorMask(0);          //error mask to return
@@ -261,7 +260,7 @@ std::pair<ulong,ulong> DCCDataParser::checkEventLength(ulong *pointerToEvent, ul
 
     fatalError +="\n ======================================================================";
 
-    throw ECALParserException(fatalError);
+    throw ECALTBParserException(fatalError);
   }
 
   //check end of event (EOE bits field) 
@@ -282,10 +281,10 @@ std::pair<ulong,ulong> DCCDataParser::checkEventLength(ulong *pointerToEvent, ul
 
 
 /*----------------------------------------------*/
-/* DCCDataParser::index                         */
+/* DCCTBDataParser::index                         */
 /* build an index string                        */
 /*----------------------------------------------*/
-std::string DCCDataParser::index(ulong position){
+std::string DCCTBDataParser::index(ulong position){
 
   char indexBuffer[20];
   sprintf(indexBuffer,"W[%08lu]",position);        //build an index string for display purposes, p.e.  W[15] 
@@ -295,10 +294,10 @@ std::string DCCDataParser::index(ulong position){
 
 
 /*-----------------------------------------------*/
-/* DCCDataParser::getDecString                   */
+/* DCCTBDataParser::getDecString                   */
 /* print decimal data to a string                */
 /*-----------------------------------------------*/
-std::string DCCDataParser::getDecString(ulong data){
+std::string DCCTBDataParser::getDecString(ulong data){
 	
   char buffer[10];
   sprintf(buffer,"%lu",data);
@@ -308,10 +307,10 @@ std::string DCCDataParser::getDecString(ulong data){
 
 
 /*-------------------------------------------------*/
-/* DCCDataParser::getHexString                     */
+/* DCCTBDataParser::getHexString                     */
 /* print data in hexadecimal base to a string      */
 /*-------------------------------------------------*/
-std::string DCCDataParser::getHexString(ulong data){
+std::string DCCTBDataParser::getHexString(ulong data){
 	
   char buffer[10];
   sprintf(buffer,"0x%08x",(uint)(data));
@@ -321,10 +320,10 @@ std::string DCCDataParser::getHexString(ulong data){
 
 
 /*------------------------------------------------*/
-/* DCCDataParser::getIndexedData                  */
+/* DCCTBDataParser::getIndexedData                  */
 /* build a string with index and data             */
 /*------------------------------------------------*/
-std::string DCCDataParser::getIndexedData(ulong position, ulong *pointer){
+std::string DCCTBDataParser::getIndexedData(ulong position, ulong *pointer){
   std::string ret;
   
   //char indexBuffer[20];
@@ -340,13 +339,13 @@ std::string DCCDataParser::getIndexedData(ulong position, ulong *pointer){
 
 
 /*-------------------------------------------------*/
-/* DCCDataParser::~DCCDataParser                   */
+/* DCCTBDataParser::~DCCTBDataParser                   */
 /* destructor                                      */
 /*-------------------------------------------------*/
-DCCDataParser::~DCCDataParser(){
+DCCTBDataParser::~DCCTBDataParser(){
   
-  // delete DCCEvents if any...
-  std::vector<DCCEventBlock *>::iterator it;
+  // delete DCCTBEvents if any...
+  std::vector<DCCTBEventBlock *>::iterator it;
   for(it=dccEvents_.begin();it!=dccEvents_.end();it++){delete *it;}
   dccEvents_.clear();
     

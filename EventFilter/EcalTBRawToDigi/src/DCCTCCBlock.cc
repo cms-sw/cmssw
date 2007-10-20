@@ -7,18 +7,18 @@
 #include "DCCTCCBlock.h"
 
 /*-------------------------------------------------*/
-/* DCCTCCBlock::DCCTCCBlock                        */
+/* DCCTBTCCBlock::DCCTBTCCBlock                        */
 /* class constructor                               */
 /*-------------------------------------------------*/
-DCCTCCBlock::DCCTCCBlock(
-	DCCEventBlock * dccBlock,
-	DCCDataParser * parser, 
+DCCTBTCCBlock::DCCTBTCCBlock(
+	DCCTBEventBlock * dccBlock,
+	DCCTBDataParser * parser, 
 	ulong * buffer, 
 	ulong numbBytes,  
 	ulong wordsToEnd,
 	ulong wordEventOffset,
 	ulong expectedId) : 
-  DCCBlockPrototype(parser,"TCC", buffer, numbBytes, wordsToEnd, wordEventOffset),dccBlock_(dccBlock), expectedId_(expectedId){
+  DCCTBBlockPrototype(parser,"TCC", buffer, numbBytes, wordsToEnd, wordEventOffset),dccBlock_(dccBlock), expectedId_(expectedId){
 
   //Reset error counters
   errors_["TCC::HEADER"]  = 0;
@@ -37,10 +37,10 @@ DCCTCCBlock::DCCTCCBlock(
 }
  
 /*---------------------------------------------------*/
-/* DCCTCCBlock::dataCheck                            */
+/* DCCTBTCCBlock::dataCheck                            */
 /* check data with data fields                       */
 /*---------------------------------------------------*/
-void DCCTCCBlock::dataCheck(){
+void DCCTBTCCBlock::dataCheck(){
   std::pair <bool,std::string> res;            //check result
   std::string checkErrors("");            //error string
 
@@ -79,15 +79,15 @@ void DCCTCCBlock::dataCheck(){
 
 
 /*--------------------------------------------------*/
-/* DCCTCCBlock::increment                           */
+/* DCCTBTCCBlock::increment                           */
 /* increment a TCC block                            */
 /*--------------------------------------------------*/
 
-void  DCCTCCBlock::increment(ulong numb){
+void  DCCTBTCCBlock::increment(ulong numb){
   //if no debug is required increments the number of blocks
   //otherwise checks if block id is really B'011'=3
   if(!parser_->debug()){ 
-    DCCBlockPrototype::increment(numb); 
+    DCCTBBlockPrototype::increment(numb); 
   }
   else {
     for(ulong counter=0; counter<numb; counter++, dataP_++, wordCounter_++){
@@ -104,7 +104,7 @@ void  DCCTCCBlock::increment(ulong numb){
 
 
 
-std::vector< std::pair<int,bool> > DCCTCCBlock::triggerSamples() {
+std::vector< std::pair<int,bool> > DCCTBTCCBlock::triggerSamples() {
   std::vector< std::pair<int,bool> > data;
 
   for(unsigned int i=1;i <= parser_->numbTTs();i++){
@@ -121,7 +121,7 @@ std::vector< std::pair<int,bool> > DCCTCCBlock::triggerSamples() {
 
 
 
-std::vector<int> DCCTCCBlock::triggerFlags() {
+std::vector<int> DCCTBTCCBlock::triggerFlags() {
   std::vector<int> data;
 
   for(unsigned int i=1; i<= parser_->numbTTs();i++){

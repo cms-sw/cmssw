@@ -1,12 +1,12 @@
 // -*- Mode: C++; c-basic-offset: 2; indent-tabs-mode: t; tab-width: 8; -*-
 /*
- * $Id: MatacqRawEvent.cc,v 1.2 2006/09/12 18:11:54 pgras Exp $
+ * $Id: MatacqTBRawEvent.cc,v 1.3 2007/04/12 08:36:47 franzoni Exp $
  * Original author: Ph. Gras CEA/Saclay 
  */
 
 /**
  * \file
- * Implementation of the MatacqRawEvent class
+ * Implementation of the MatacqTBRawEvent class
  */
 
 #include <unistd.h>
@@ -21,18 +21,18 @@
 #include "EventFilter/EcalTBRawToDigi/src/MatacqRawEvent.h"
 
 
-const MatacqRawEvent::field32spec_t MatacqRawEvent::fov32             = {0, 0x000000F0};
-const MatacqRawEvent::field32spec_t MatacqRawEvent::fedId32           = {0, 0x000FFF00};
-const MatacqRawEvent::field32spec_t MatacqRawEvent::bxId32            = {0, 0xFFF00000};
-const MatacqRawEvent::field32spec_t MatacqRawEvent::lv132             = {1, 0x00FFFFFF};
-const MatacqRawEvent::field32spec_t MatacqRawEvent::triggerType32     = {1, 0x0F000000};
-const MatacqRawEvent::field32spec_t MatacqRawEvent::boeType32         = {1, 0xF0000000};
-const MatacqRawEvent::field32spec_t MatacqRawEvent::dccLen32          = {2, 0x00FFFFFF};
-const MatacqRawEvent::field32spec_t MatacqRawEvent::dccErrors32       = {2, 0xFF000000};
-const MatacqRawEvent::field32spec_t MatacqRawEvent::runNum32          = {3, 0x00FFFFFF};
-const MatacqRawEvent::field32spec_t MatacqRawEvent::h1Marker32        = {3, 0xF0000000};
+const MatacqTBRawEvent::field32spec_t MatacqTBRawEvent::fov32             = {0, 0x000000F0};
+const MatacqTBRawEvent::field32spec_t MatacqTBRawEvent::fedId32           = {0, 0x000FFF00};
+const MatacqTBRawEvent::field32spec_t MatacqTBRawEvent::bxId32            = {0, 0xFFF00000};
+const MatacqTBRawEvent::field32spec_t MatacqTBRawEvent::lv132             = {1, 0x00FFFFFF};
+const MatacqTBRawEvent::field32spec_t MatacqTBRawEvent::triggerType32     = {1, 0x0F000000};
+const MatacqTBRawEvent::field32spec_t MatacqTBRawEvent::boeType32         = {1, 0xF0000000};
+const MatacqTBRawEvent::field32spec_t MatacqTBRawEvent::dccLen32          = {2, 0x00FFFFFF};
+const MatacqTBRawEvent::field32spec_t MatacqTBRawEvent::dccErrors32       = {2, 0xFF000000};
+const MatacqTBRawEvent::field32spec_t MatacqTBRawEvent::runNum32          = {3, 0x00FFFFFF};
+const MatacqTBRawEvent::field32spec_t MatacqTBRawEvent::h1Marker32        = {3, 0xF0000000};
 
-void MatacqRawEvent::setRawData(const unsigned char* pData, size_t maxSize){
+void MatacqTBRawEvent::setRawData(const unsigned char* pData, size_t maxSize){
   error = 0;
   int16le_t* begin16 = (int16le_t*) pData;
   int16le_t* pData16 = begin16;
@@ -101,7 +101,7 @@ void MatacqRawEvent::setRawData(const unsigned char* pData, size_t maxSize){
   }
 }
 
-int MatacqRawEvent::read32(uint32le_t* pData, field32spec_t spec32) const{
+int MatacqTBRawEvent::read32(uint32le_t* pData, field32spec_t spec32) const{
   int result =  pData[spec32.offset] & spec32.mask;
   int mask = spec32.mask;
   while((mask&0x1) == 0){

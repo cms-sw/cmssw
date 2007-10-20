@@ -1,7 +1,7 @@
 /*  
  *
- *  $Date: 2007/08/17 13:58:21 $
- *  $Revision: 1.57 $
+ *  $Date: 2007/08/20 07:57:25 $
+ *  $Revision: 1.58 $
  *  \author  N. Marinelli IASA 
  *  \author G. Della Ricca
  *  \author G. Franzoni
@@ -45,7 +45,7 @@ EcalTBDaqFormatter::EcalTBDaqFormatter () {
   parameters.push_back(3);  // parameters[8] is the tcc3 id
   parameters.push_back(4);  // parameters[9] is the tcc4 id
 
-  theParser_ = new DCCDataParser(parameters);
+  theParser_ = new DCCTBDataParser(parameters);
 
 }
 
@@ -80,10 +80,10 @@ void EcalTBDaqFormatter::interpretRawData(const FEDRawData & fedData ,
 
   theParser_->parseBuffer( reinterpret_cast<ulong*>(const_cast<unsigned char*>(pData)), static_cast<ulong>(length), shit );
   
-  std::vector< DCCEventBlock * > &   dccEventBlocks = theParser_->dccEvents();
+  std::vector< DCCTBEventBlock * > &   dccEventBlocks = theParser_->dccEvents();
 
-  // Access each DCC block
-  for( std::vector< DCCEventBlock * >::iterator itEventBlock = dccEventBlocks.begin(); 
+  // Access each DCCTB block
+  for( std::vector< DCCTBEventBlock * >::iterator itEventBlock = dccEventBlocks.begin(); 
        itEventBlock != dccEventBlocks.end(); 
        itEventBlock++){
     
@@ -138,9 +138,9 @@ void EcalTBDaqFormatter::interpretRawData(const FEDRawData & fedData ,
     theDCCheader.setTccStatus(theTCCs);
 
 
-    std::vector< DCCTCCBlock * > tccBlocks = (*itEventBlock)->tccBlocks();
+    std::vector< DCCTBTCCBlock * > tccBlocks = (*itEventBlock)->tccBlocks();
     
-    for(    std::vector< DCCTCCBlock * >::iterator itTCCBlock = tccBlocks.begin(); 
+    for(    std::vector< DCCTBTCCBlock * >::iterator itTCCBlock = tccBlocks.begin(); 
 	    itTCCBlock != tccBlocks.end(); 
 	    itTCCBlock ++)
       {
@@ -159,7 +159,7 @@ void EcalTBDaqFormatter::interpretRawData(const FEDRawData & fedData ,
 		int phiTT = (i) % kTowersInPhi +1;
 
 		// follow HB convention in iphi
-		phiTT=3-phiTT; 
+		phiTT=3-phiTT;
 		if(phiTT<=0)phiTT=phiTT+72;
 
 		EcalTriggerPrimitiveSample theSample(TpSamples[i].first, TpSamples[i].second, TpFlags[i]);
@@ -203,13 +203,13 @@ void EcalTBDaqFormatter::interpretRawData(const FEDRawData & fedData ,
       }
     theDCCheader.setTriggerTowerStatus(theTTstatus);
     
-    EcalDCCHeaderRuntypeDecoder theRuntypeDecoder;
+    EcalDCCTBHeaderRuntypeDecoder theRuntypeDecoder;
     ulong DCCruntype = (*itEventBlock)->getDataField("RUN TYPE");
     theRuntypeDecoder.Decode(DCCruntype, &theDCCheader);
     //DCCHeader filled!
     DCCheaderCollection.push_back(theDCCheader);
     
-    std::vector< DCCTowerBlock * > dccTowerBlocks = (*itEventBlock)->towerBlocks();
+    std::vector< DCCTBTowerBlock * > dccTowerBlocks = (*itEventBlock)->towerBlocks();
     LogDebug("EcalTBRawToDigi") << "@SUBS=EcalTBDaqFormatter::interpretRawData"
 				<< "dccTowerBlocks size " << dccTowerBlocks.size();
 
@@ -256,7 +256,7 @@ void EcalTBDaqFormatter::interpretRawData(const FEDRawData & fedData ,
 
 
     // Access the Tower block    
-    for( std::vector< DCCTowerBlock * >::iterator itTowerBlock = dccTowerBlocks.begin(); 
+    for( std::vector< DCCTBTowerBlock * >::iterator itTowerBlock = dccTowerBlocks.begin(); 
          itTowerBlock!= dccTowerBlocks.end(); 
          itTowerBlock++){
 
@@ -272,7 +272,7 @@ void EcalTBDaqFormatter::interpretRawData(const FEDRawData & fedData ,
       int phiTT = (_ExpectedTowers[_expTowersIndex]-1) % kTowersInPhi +1;
 
       // follow HB convention in iphi
-      phiTT=3-phiTT; 
+      phiTT=3-phiTT;
       if(phiTT<=0)phiTT=phiTT+72;
 
       EcalTrigTowerDetId idtt(1, EcalBarrel, etaTT, phiTT, 0);
@@ -317,7 +317,7 @@ void EcalTBDaqFormatter::interpretRawData(const FEDRawData & fedData ,
 	    (*itTowerBlock)->towerID() < (kTriggerTowers+1) 	    )
  	{
 	  
-	  std::vector<DCCXtalBlock * > & xtalDataBlocks = (*itTowerBlock)->xtalBlocks();	
+	  std::vector<DCCTBXtalBlock * > & xtalDataBlocks = (*itTowerBlock)->xtalBlocks();	
 	  
 	  // if there is no zero suppression, tower block must have have 25 channels in it
 	  if (  (!dataIsSuppressed)   &&   (xtalDataBlocks.size() != kChannelsPerTower)   )
@@ -341,7 +341,7 @@ void EcalTBDaqFormatter::interpretRawData(const FEDRawData & fedData ,
 	  short expCryInTower =0;
 
 	  // Access the Xstal data
-	  for( std::vector< DCCXtalBlock * >::iterator itXtalBlock = xtalDataBlocks.begin(); 
+	  for( std::vector< DCCTBXtalBlock * >::iterator itXtalBlock = xtalDataBlocks.begin(); 
 	       itXtalBlock!= xtalDataBlocks.end(); 
 	       itXtalBlock++){ //loop on crys of a  tower
 
@@ -461,12 +461,9 @@ void EcalTBDaqFormatter::interpretRawData(const FEDRawData & fedData ,
 	    int  sm = 1;
 	    EBDetId  id(sm, ic,1);                 
 	    
-	    // here data frame go into the Event
-            // removed later on (with a pop_back()) if gain==0 or if forbidden-gain-switch
-	    digicollection.push_back( id );
-	    EBDataFrame theFrame ( digicollection.back() );
+	    EBDataFrame theFrame ( id );
 	    std::vector<int> xtalDataSamples = (*itXtalBlock)->xtalDataSamples();   
-	    //theFrame.setSize(xtalDataSamples.size()); // if needed, to be changed when constructing digicollection
+	    theFrame.setSize(xtalDataSamples.size());
       
       
 
@@ -497,7 +494,6 @@ void EcalTBDaqFormatter::interpretRawData(const FEDRawData & fedData ,
 	      gaincollection.push_back(id);
 	      
 	      // there has been a gain==0, dataframe not to go to the Event
-              digicollection.pop_back();
 	      continue; //	      expCryInTower already incremented
 	    }
 
@@ -570,12 +566,14 @@ void EcalTBDaqFormatter::interpretRawData(const FEDRawData & fedData ,
 	     
 
 	      // there has been a forbidden gain transition,  dataframe not to go to the Event
-              digicollection.pop_back();
 	      continue; //	      expCryInTower already incremented
 
 	    }// END of:   'if there is a forbidden gain transition'
 
 
+	    // here (already continued if gain==0 or if forbidden-gain-switch),
+	    // data frame needs go to the Event
+	    digicollection.push_back(theFrame);
 	    
 	  }// end loop on crystals within a tower block
 	  
@@ -634,7 +632,7 @@ void EcalTBDaqFormatter::interpretRawData(const FEDRawData & fedData ,
 
 
 
-void EcalTBDaqFormatter::DecodeMEM( DCCTowerBlock *  towerblock,  EcalPnDiodeDigiCollection & pndigicollection ,
+void EcalTBDaqFormatter::DecodeMEM( DCCTBTowerBlock *  towerblock,  EcalPnDiodeDigiCollection & pndigicollection ,
 				    EcalElectronicsIdCollection & memttidcollection,  EcalElectronicsIdCollection &  memblocksizecollection,
 				    EcalElectronicsIdCollection & memgaincollection,  EcalElectronicsIdCollection & memchidcollection)
 {
@@ -665,8 +663,8 @@ void EcalTBDaqFormatter::DecodeMEM( DCCTowerBlock *  towerblock,  EcalPnDiodeDig
   /******************************************************************************
    // getting the raw hits from towerBlock while checking tt and ch data structure 
    ******************************************************************************/
-  std::vector<DCCXtalBlock *> & dccXtalBlocks = towerblock->xtalBlocks();
-  std::vector<DCCXtalBlock*>::iterator itXtal;
+  std::vector<DCCTBXtalBlock *> & dccXtalBlocks = towerblock->xtalBlocks();
+  std::vector<DCCTBXtalBlock*>::iterator itXtal;
 
   // checking mem tower block fo size
   if (dccXtalBlocks.size() != kChannelsPerTower)

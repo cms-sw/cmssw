@@ -1,8 +1,8 @@
 // -*- Mode: C++; c-basic-offset: 2; indent-tabs-mode: t; tab-width: 8; -*-
-//$Id: MatacqRawEvent.h,v 1.1 2006/09/12 17:22:39 pgras Exp $
+//$Id: MatacqTBRawEvent.h,v 1.2 2006/09/12 18:11:54 pgras Exp $
 
-#ifndef MATACQRAWEVENT_H
-#define MATACQRAWEVENT_H
+#ifndef MATACQTBRAWEVENT_H
+#define MATACQTBRAWEVENT_H
 
 #include <inttypes.h>
 
@@ -24,7 +24,7 @@
 /** Wrapper for matacq raw event fragments. This class provides the
  * method to interpret the data. 
  */
-class MatacqRawEvent{
+class MatacqTBRawEvent{
   //typedefs, enums and static constants
 public:
   enum matacqError_t {
@@ -120,7 +120,7 @@ public:
    * @throw std::exception if the data cannot be decoded due to data corruption
    * or truncation.
    */
-  MatacqRawEvent(const unsigned char* dataBuffer, size_t bufferSize){
+  MatacqTBRawEvent(const unsigned char* dataBuffer, size_t bufferSize){
     setRawData(dataBuffer, bufferSize);
   }
   //methods

@@ -13,15 +13,15 @@
 #include <iomanip>
 #include <sstream>
 
-DCCEventBlock::DCCEventBlock(
-	DCCDataParser * parser, 
+DCCTBEventBlock::DCCTBEventBlock(
+	DCCTBDataParser * parser, 
 	ulong * buffer, 
 	ulong numbBytes, 
 	ulong wordsToEnd, 
 	ulong wordBufferOffset , 
 	ulong wordEventOffset 
 ) : 
-DCCBlockPrototype(parser,"DCCHEADER", buffer, numbBytes,wordsToEnd)
+DCCTBBlockPrototype(parser,"DCCHEADER", buffer, numbBytes,wordsToEnd)
 ,dccTrailerBlock_(0),srpBlock_(0),wordBufferOffset_(wordBufferOffset) {
 	
 	
@@ -35,7 +35,7 @@ DCCBlockPrototype(parser,"DCCHEADER", buffer, numbBytes,wordsToEnd)
 	try{ 
 	
 		// Get data fields from the mapper and retrieve data ///	
-		if(numbBytes == DCCDataParser::EMPTYEVENTSIZE ){
+		if(numbBytes == DCCTBDataParser::EMPTYEVENTSIZE ){
 			mapperFields_ = parser_->mapper()->emptyEventFields();
 			emptyEvent = true;
 		}else{
@@ -44,7 +44,7 @@ DCCBlockPrototype(parser,"DCCHEADER", buffer, numbBytes,wordsToEnd)
 		}
 		
 		try{ parseData(); }
-		catch (ECALParserBlockException &e){/*ignore*/}
+		catch (ECALTBParserBlockException &e){/*ignore*/}
 		///////////////////////////////////////////////////////
 		
 
@@ -69,7 +69,7 @@ DCCBlockPrototype(parser,"DCCHEADER", buffer, numbBytes,wordsToEnd)
 				wToEnd = numbBytes/4-wordCounter_-1;	
 				
 				// Build SRP Block //////////////////////////////////////////////////////////////////////
-				srpBlock_ = new DCCSRPBlock( this, parser_, dataP_, parser_->srpBlockSize(), wToEnd,wordCounter_);
+				srpBlock_ = new DCCTBSRPBlock( this, parser_, dataP_, parser_->srpBlockSize(), wToEnd,wordCounter_);
 				//////////////////////////////////////////////////////////////////////////////////////////
 		
 				increment((parser_->srpBlockSize())/4-1);
@@ -81,7 +81,7 @@ DCCBlockPrototype(parser,"DCCHEADER", buffer, numbBytes,wordsToEnd)
 
 			// Build TCC blocks ////////////////////////////////////////////////////////////////////////////////////////
 			for(ulong i=1; i<=4;i++){
-			  ulong tcc_ch;  ulong  tccId ;
+			  ulong tcc_ch=0;  ulong  tccId=0;
 				if( i == 1){ tccId = parser_->tcc1Id();}
 				if( i == 2){ tccId = parser_->tcc2Id();}
 				if( i == 3){ tccId = parser_->tcc3Id();}	
@@ -103,7 +103,7 @@ DCCBlockPrototype(parser,"DCCHEADER", buffer, numbBytes,wordsToEnd)
 				
 					
 					// Build TCC Block /////////////////////////////////////////////////////////////////////////////////
-					tccBlocks_.push_back(  new DCCTCCBlock( this, parser_, dataP_,parser_->tccBlockSize(), wToEnd,wordCounter_, tccId));
+					tccBlocks_.push_back(  new DCCTBTCCBlock( this, parser_, dataP_,parser_->tccBlockSize(), wToEnd,wordCounter_, tccId));
 					//////////////////////////////////////////////////////////////////////////////////////////////////////	
 					
 					increment((parser_->tccBlockSize())/4-1);
@@ -123,7 +123,7 @@ DCCBlockPrototype(parser,"DCCHEADER", buffer, numbBytes,wordsToEnd)
 			// TODO :: implement other triggers
 			else{
 			  std::string error = std::string("\n DCC::HEADER TRIGGER TYPE = ")+parser_->getDecString(triggerType)+std::string(" is not a valid type !");
-				ECALParserBlockException a(error);
+				ECALTBParserBlockException a(error);
 				throw a;
 			}
 			////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -158,7 +158,7 @@ DCCBlockPrototype(parser,"DCCHEADER", buffer, numbBytes,wordsToEnd)
 					
 					// Instantiate a new tower block//////////////////////////////////////////////////////////////////////////
 					wToEnd = numbBytes/4-wordCounter_-1;
-					DCCTowerBlock * towerBlock = new DCCTowerBlock(this,parser_,dataP_,TOWERHEADER_SIZE,wToEnd,wordCounter_,i); 
+					DCCTBTowerBlock * towerBlock = new DCCTBTowerBlock(this,parser_,dataP_,TOWERHEADER_SIZE,wToEnd,wordCounter_,i); 
 					towerBlocks_.push_back (towerBlock);
 					towerBlock->parseXtalData();
 					//////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -176,13 +176,13 @@ DCCBlockPrototype(parser,"DCCHEADER", buffer, numbBytes,wordsToEnd)
 			// go to the begining of the block ////////////////////////////////////////////////////////////////////			
 			increment(1," (while trying to create a DCC TRAILER Block !)");
 			wToEnd = numbBytes/4-wordCounter_-1;
-			dccTrailerBlock_ = new DCCTrailerBlock(parser_,dataP_,TRAILER_SIZE,wToEnd,wordCounter_,blockSize_/8,0);
+			dccTrailerBlock_ = new DCCTBTrailerBlock(parser_,dataP_,TRAILER_SIZE,wToEnd,wordCounter_,blockSize_/8,0);
 			//////////////////////////////////////////////////////////////////////////////////////////////////////
 			
 		}
 	
-	}catch( ECALParserException & e){}
-	catch( ECALParserBlockException & e){
+	}catch( ECALTBParserException & e){}
+	catch( ECALTBParserBlockException & e){
 	  // ulong nEv = (parser_->dccEvents()).size() +1;
 	  errorString_ += std::string(e.what());
 	  blockError_=true;
@@ -195,13 +195,13 @@ DCCBlockPrototype(parser,"DCCHEADER", buffer, numbBytes,wordsToEnd)
 
 
 
-DCCEventBlock::~DCCEventBlock(){
+DCCTBEventBlock::~DCCTBEventBlock(){
 	
-	std::vector<DCCTCCBlock *>::iterator it1;
+	std::vector<DCCTBTCCBlock *>::iterator it1;
 	for(it1=tccBlocks_.begin();it1!=tccBlocks_.end();it1++){ delete (*it1);}
 	tccBlocks_.clear();
 	
-	std::vector<DCCTowerBlock *>::iterator it2;
+	std::vector<DCCTBTowerBlock *>::iterator it2;
 	for(it2=towerBlocks_.begin();it2!=towerBlocks_.end();it2++){ delete (*it2);}
 	towerBlocks_.clear();
 	
@@ -212,7 +212,7 @@ DCCEventBlock::~DCCEventBlock(){
 
 
 
-void DCCEventBlock::dataCheck(){
+void DCCTBEventBlock::dataCheck(){
 	
 	
 	std::string checkErrors("");
@@ -265,7 +265,7 @@ void DCCEventBlock::dataCheck(){
 
 
 
-void  DCCEventBlock::displayEvent(std::ostream & os){
+void  DCCTBEventBlock::displayEvent(std::ostream & os){
 
   os << "\n\n\n\n\n >>>>>>>>>>>>>>>>>>>> Event started at word position " << std::dec << wordBufferOffset_ <<" <<<<<<<<<<<<<<<<<<<<"<<std::endl;
   	
@@ -280,20 +280,20 @@ void  DCCEventBlock::displayEvent(std::ostream & os){
 		
 		
 	// Display TCC Block Contents ///////////////////////////////
-	std::vector<DCCTCCBlock *>::iterator it1;
+	std::vector<DCCTBTCCBlock *>::iterator it1;
 	for( it1 = tccBlocks_.begin(); it1!= tccBlocks_.end(); it1++){
 		(*it1)->displayData(os);
 	}
 	
 	// Display Towers Blocks /////////////////////////////////////
-	std::vector<DCCTowerBlock *>::iterator it2;
+	std::vector<DCCTBTowerBlock *>::iterator it2;
 	for(it2 = towerBlocks_.begin();it2!=towerBlocks_.end();it2++){
 			
 		(*it2)->displayData(os);
 			
 		// Display Xtal Data /////////////////////////////////////
-		std::vector<DCCXtalBlock * > &xtalBlocks = (*it2)->xtalBlocks();
-		std::vector<DCCXtalBlock * >::iterator it3;
+		std::vector<DCCTBXtalBlock * > &xtalBlocks = (*it2)->xtalBlocks();
+		std::vector<DCCTBXtalBlock * >::iterator it3;
 		for(it3 = xtalBlocks.begin();it3!=xtalBlocks.end();it3++){
 			(*it3)->displayData(os);
 		}	
@@ -305,10 +305,10 @@ void  DCCEventBlock::displayEvent(std::ostream & os){
 }
 
 
-std::pair<bool,std::string> DCCEventBlock::compare(DCCEventBlock * block){
+std::pair<bool,std::string> DCCTBEventBlock::compare(DCCTBEventBlock * block){
 	
 	// DCC Header comparision /////////////////////////////// 
-	std::pair<bool,std::string> ret(DCCBlockPrototype::compare(block));
+	std::pair<bool,std::string> ret(DCCTBBlockPrototype::compare(block));
 	/////////////////////////////////////////////////////////
 	
 	  std::stringstream out;
@@ -348,10 +348,10 @@ std::pair<bool,std::string> DCCEventBlock::compare(DCCEventBlock * block){
 		   <<"\n =====================================================================";
 	}
 	
-	std::vector<DCCTCCBlock *>::iterator it1Tcc    = tccBlocks_.begin();
-	std::vector<DCCTCCBlock *>::iterator it1TccEnd = tccBlocks_.end();
-	std::vector<DCCTCCBlock *>::iterator it2Tcc    = block->tccBlocks().begin();
-	std::vector<DCCTCCBlock *>::iterator it2TccEnd = block->tccBlocks().end();
+	std::vector<DCCTBTCCBlock *>::iterator it1Tcc    = tccBlocks_.begin();
+	std::vector<DCCTBTCCBlock *>::iterator it1TccEnd = tccBlocks_.end();
+	std::vector<DCCTBTCCBlock *>::iterator it2Tcc    = block->tccBlocks().begin();
+	std::vector<DCCTBTCCBlock *>::iterator it2TccEnd = block->tccBlocks().end();
 	
 	for( ; it1Tcc!=it1TccEnd && it2Tcc!=it2TccEnd; it1Tcc++, it2Tcc++){
 		std::pair<bool,std::string> temp( (*it1Tcc)->compare( *it2Tcc ) );
@@ -374,10 +374,10 @@ std::pair<bool,std::string> DCCEventBlock::compare(DCCEventBlock * block){
 		   <<"\n =====================================================================";
 	}
 	
-	std::vector<DCCTowerBlock *>::iterator it1Tower    = towerBlocks_.begin();
-	std::vector<DCCTowerBlock *>::iterator it1TowerEnd  = towerBlocks_.end();
-	std::vector<DCCTowerBlock *>::iterator it2Tower    = (block->towerBlocks()).begin();
-	std::vector<DCCTowerBlock *>::iterator it2TowerEnd = (block->towerBlocks()).end();
+	std::vector<DCCTBTowerBlock *>::iterator it1Tower    = towerBlocks_.begin();
+	std::vector<DCCTBTowerBlock *>::iterator it1TowerEnd  = towerBlocks_.end();
+	std::vector<DCCTBTowerBlock *>::iterator it2Tower    = (block->towerBlocks()).begin();
+	std::vector<DCCTBTowerBlock *>::iterator it2TowerEnd = (block->towerBlocks()).end();
 	
 	for( ; it1Tower!=it1TowerEnd && it2Tower!=it2TowerEnd; it1Tower++, it2Tower++){
 		
@@ -386,8 +386,8 @@ std::pair<bool,std::string> DCCEventBlock::compare(DCCEventBlock * block){
 		out<<temp.second;
 
 		// Xtal Block comparision ////////////////////////////
-		std::vector<DCCXtalBlock *> xtalBlocks1( (*it1Tower)->xtalBlocks());
-		std::vector<DCCXtalBlock *> xtalBlocks2( (*it2Tower)->xtalBlocks());
+		std::vector<DCCTBXtalBlock *> xtalBlocks1( (*it1Tower)->xtalBlocks());
+		std::vector<DCCTBXtalBlock *> xtalBlocks2( (*it2Tower)->xtalBlocks());
 		// check number of xtal blocks 
     	int numbXtalBlocks_a = xtalBlocks1.size();
 		int numbXtalBlocks_b = xtalBlocks2.size();
@@ -400,10 +400,10 @@ std::pair<bool,std::string> DCCEventBlock::compare(DCCEventBlock * block){
 		  	   <<"\n =====================================================================";
 		}
 		
-		std::vector<DCCXtalBlock *>::iterator it1Xtal    = xtalBlocks1.begin();
-		std::vector<DCCXtalBlock *>::iterator it1XtalEnd = xtalBlocks1.end();
-		std::vector<DCCXtalBlock *>::iterator it2Xtal    = xtalBlocks1.begin();
-		std::vector<DCCXtalBlock *>::iterator it2XtalEnd = xtalBlocks2.end();
+		std::vector<DCCTBXtalBlock *>::iterator it1Xtal    = xtalBlocks1.begin();
+		std::vector<DCCTBXtalBlock *>::iterator it1XtalEnd = xtalBlocks1.end();
+		std::vector<DCCTBXtalBlock *>::iterator it2Xtal    = xtalBlocks1.begin();
+		std::vector<DCCTBXtalBlock *>::iterator it2XtalEnd = xtalBlocks2.end();
 		
 		for( ; it1Xtal!=it1XtalEnd && it2Xtal!=it2XtalEnd; it1Xtal++, it2Xtal++){
 			std::pair<bool,std::string> temp( (*it1Xtal)->compare( *it2Xtal ) );
@@ -434,14 +434,14 @@ std::pair<bool,std::string> DCCEventBlock::compare(DCCEventBlock * block){
 		
 		
 
-bool DCCEventBlock::eventHasErrors(){
+bool DCCTBEventBlock::eventHasErrors(){
 	
 	bool ret(false);
 	ret = blockError() ;
 	
 
 	// See if we have errors in the  TCC Block Contents ///////////////////////////////
-	std::vector<DCCTCCBlock *>::iterator it1;
+	std::vector<DCCTBTCCBlock *>::iterator it1;
 	for( it1 = tccBlocks_.begin(); it1!= tccBlocks_.end(); it1++){
 		ret |= (*it1)->blockError();
 	}
@@ -453,14 +453,14 @@ bool DCCEventBlock::eventHasErrors(){
 
 	
 	// See if we have errors in the Trigger Blocks ///////////////
-	std::vector<DCCTowerBlock *>::iterator it2;
+	std::vector<DCCTBTowerBlock *>::iterator it2;
 	for(it2 = towerBlocks_.begin();it2!=towerBlocks_.end();it2++){
 			
 		ret |= (*it2)->blockError();
 			
 		// See if we have errors in the Xtal Data /////////////////
-		std::vector<DCCXtalBlock * > & xtalBlocks = (*it2)->xtalBlocks();
-		std::vector<DCCXtalBlock * >::iterator it3;
+		std::vector<DCCTBXtalBlock * > & xtalBlocks = (*it2)->xtalBlocks();
+		std::vector<DCCTBXtalBlock * >::iterator it3;
 		for(it3 = xtalBlocks.begin();it3!=xtalBlocks.end();it3++){
 			ret |= (*it3)->blockError();
 		}
@@ -479,7 +479,7 @@ bool DCCEventBlock::eventHasErrors(){
 }
 
 
-std::string DCCEventBlock::eventErrorString(){
+std::string DCCTBEventBlock::eventErrorString(){
 	
 	std::string ret("");
 	
@@ -496,7 +496,7 @@ std::string DCCEventBlock::eventErrorString(){
 	
 		// TODO ::
 		// See if we have errors in the  TCC Block Contents /////////////
-		std::vector<DCCTCCBlock *>::iterator it1;
+		std::vector<DCCTBTCCBlock *>::iterator it1;
 		for( it1 = tccBlocks_.begin(); it1!= tccBlocks_.end(); it1++){
 			ret += (*it1)->errorString();
 		}
@@ -507,15 +507,15 @@ std::string DCCEventBlock::eventErrorString(){
 	
 	
 		// See if we have errors in the Tower Blocks ///////////////////////////////////////////////////
-		std::vector<DCCTowerBlock *>::iterator it2;
+		std::vector<DCCTBTowerBlock *>::iterator it2;
 		
 		for(it2 = towerBlocks_.begin();it2!=towerBlocks_.end();it2++){
 			
 			ret += (*it2)->errorString();
 			
 			// See if we have errors in the Xtal Data /////////////////
-			std::vector<DCCXtalBlock * > & xtalBlocks = (*it2)->xtalBlocks();
-			std::vector<DCCXtalBlock * >::iterator it3;
+			std::vector<DCCTBXtalBlock * > & xtalBlocks = (*it2)->xtalBlocks();
+			std::vector<DCCTBXtalBlock * >::iterator it3;
 		
 		
 			std::string temp;
@@ -546,9 +546,9 @@ std::string DCCEventBlock::eventErrorString(){
 
 
 
-std::vector< DCCTowerBlock * > DCCEventBlock::towerBlocksById(ulong towerId){
-	std::vector<DCCTowerBlock *> myVector;	
-	std::vector<DCCTowerBlock *>::iterator it;
+std::vector< DCCTBTowerBlock * > DCCTBEventBlock::towerBlocksById(ulong towerId){
+	std::vector<DCCTBTowerBlock *> myVector;	
+	std::vector<DCCTBTowerBlock *>::iterator it;
 	
 	for( it = towerBlocks_.begin(); it!= towerBlocks_.end(); it++ ){
 		try{
@@ -556,7 +556,7 @@ std::vector< DCCTowerBlock * > DCCEventBlock::towerBlocksById(ulong towerId){
 			std::pair<bool,std::string> idCheck   = (*it)->checkDataField("TT/SC ID",towerId);
 			
 			if(idCheck.first ){ myVector.push_back( (*it) ); }
-		}catch (ECALParserBlockException &e){/*ignore*/}
+		}catch (ECALTBParserBlockException &e){/*ignore*/}
 	}
 	
 	return myVector;

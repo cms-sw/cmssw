@@ -3,8 +3,8 @@
  * dummy module  for the test of  DaqFileInputService
  *   
  * 
- * $Date: 2006/10/26 23:35:39 $
- * $Revision: 1.5 $
+ * $Date: 2007/04/12 08:36:47 $
+ * $Revision: 1.6 $
  *
  * \author A. Ghezzi
  *
@@ -38,7 +38,7 @@ class EcalDCCHeaderDumperModule: public edm::EDAnalyzer{
 
     for ( EcalRawDataCollection::const_iterator headerItr= DCCHeaders->begin();headerItr != DCCHeaders->end(); 
 	  ++headerItr ) {
-      int nevt =headerItr->getLV1(); 
+      //      int nevt =headerItr->getLV1(); 
       bool skip = false;
       //LASER
 //       bool skip = nevt > 3 && nevt < 620;

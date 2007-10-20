@@ -4,8 +4,8 @@
 /* Author : N.Almeida (LIP)         Date   : 30/05/2004     */
 /*----------------------------------------------------------*/
 
-#ifndef DCCDATAPARSER_HH
-#define DCCDATAPARSER_HH
+#ifndef DCCTBDATAPARSER_HH
+#define DCCTBDATAPARSER_HH
 
 #include <fstream>                   //STL
 #include <iostream>
@@ -20,11 +20,11 @@
 #include "DCCDataMapper.h"
 
 
-class DCCDataMapper;
-class DCCEventBlock;
+class DCCTBDataMapper;
+class DCCTBEventBlock;
 
 
-class DCCDataParser{
+class DCCTBDataParser{
 
 public : 
   
@@ -39,7 +39,7 @@ public :
      5 - SR id
      [6-9] - TCC[6-9] id
   */
-  DCCDataParser( std::vector<ulong> parserParameters , bool parseInternalData = true, bool debug = true);
+  DCCTBDataParser( std::vector<ulong> parserParameters , bool parseInternalData = true, bool debug = true);
   
   /**
     Parse data from file 
@@ -52,9 +52,9 @@ public :
   void parseBuffer( ulong * buffer, ulong bufferSize, bool singleEvent = false);
 
   /**
-     Get method for DCCDataMapper
+     Get method for DCCTBDataMapper
   */
-  DCCDataMapper *mapper();
+  DCCTBDataMapper *mapper();
 		
   /**
      Check if EVENT LENGTH is coeherent and if BOE/EOE are correctly written
@@ -98,7 +98,7 @@ public :
   /**
      Get method for DCCEventBlocks vector
    */
-  std::vector<DCCEventBlock *> & dccEvents();
+  std::vector<DCCTBEventBlock *> & dccEvents();
 
   /**
      Get method for error counters map
@@ -133,7 +133,7 @@ public :
   /**
      Class destructor
   */
-  ~DCCDataParser();
+  ~DCCTBDataParser();
 
   enum DCCDataParserGlobalFields{
     EMPTYEVENTSIZE = 32                   //bytes
@@ -150,9 +150,9 @@ protected :
 
   ulong processedEvent_;
   std::string eventErrors_;
-  DCCDataMapper *mapper_;
+  DCCTBDataMapper *mapper_;
   
-  std::vector<DCCEventBlock *> dccEvents_;
+  std::vector<DCCTBEventBlock *> dccEvents_;
   
   // std::pair< errorMask, std::pair< pointer to event, event size (number of DW)> >
   std::vector< std::pair< ulong, std::pair<ulong *, ulong> > > events_;
@@ -162,7 +162,7 @@ protected :
   std::map<std::string,ulong> errors_;        //errors map
   std::vector<ulong> parameters;         //parameters vector
 
-  enum DCCDataParserFields{
+  enum DCCTBDataParserFields{
     EVENTLENGTHMASK = 0xFFFFFF,
     
     BOEBEGIN = 28,                  //begin of event (on 32 bit string starts at bit 28)
@@ -176,29 +176,29 @@ protected :
 		
 };
 
-inline DCCDataMapper *DCCDataParser::mapper() { return mapper_;}
+inline DCCTBDataMapper *DCCTBDataParser::mapper() { return mapper_;}
 
-inline std::vector<ulong> DCCDataParser::parserParameters() { return parameters; }
-inline ulong DCCDataParser::numbXtalSamples()     { return parameters[0]; }
-inline ulong DCCDataParser::numbTriggerSamples()  { return parameters[1]; }
-inline ulong DCCDataParser::numbTTs()             { return parameters[2]; }
-inline ulong DCCDataParser::numbSRF()             { return parameters[3]; }
-inline ulong DCCDataParser::dccId()               { return parameters[4]; }
-inline ulong DCCDataParser::srpId()               { return parameters[5]; }
-inline ulong DCCDataParser::tcc1Id()              { return parameters[6]; } 
-inline ulong DCCDataParser::tcc2Id()              { return parameters[7]; } 
-inline ulong DCCDataParser::tcc3Id()              { return parameters[8]; } 
-inline ulong DCCDataParser::tcc4Id()              { return parameters[9]; }
+inline std::vector<ulong> DCCTBDataParser::parserParameters() { return parameters; }
+inline ulong DCCTBDataParser::numbXtalSamples()     { return parameters[0]; }
+inline ulong DCCTBDataParser::numbTriggerSamples()  { return parameters[1]; }
+inline ulong DCCTBDataParser::numbTTs()             { return parameters[2]; }
+inline ulong DCCTBDataParser::numbSRF()             { return parameters[3]; }
+inline ulong DCCTBDataParser::dccId()               { return parameters[4]; }
+inline ulong DCCTBDataParser::srpId()               { return parameters[5]; }
+inline ulong DCCTBDataParser::tcc1Id()              { return parameters[6]; } 
+inline ulong DCCTBDataParser::tcc2Id()              { return parameters[7]; } 
+inline ulong DCCTBDataParser::tcc3Id()              { return parameters[8]; } 
+inline ulong DCCTBDataParser::tcc4Id()              { return parameters[9]; }
 
-inline void  DCCDataParser::setParameters( std::vector<ulong> newParameters ){ parameters = newParameters; computeBlockSizes();}
+inline void  DCCTBDataParser::setParameters( std::vector<ulong> newParameters ){ parameters = newParameters; computeBlockSizes();}
 
-inline ulong DCCDataParser::srpBlockSize()        { return srpBlockSize_; } 
-inline ulong DCCDataParser::tccBlockSize()        { return tccBlockSize_; } 
+inline ulong DCCTBDataParser::srpBlockSize()        { return srpBlockSize_; } 
+inline ulong DCCTBDataParser::tccBlockSize()        { return tccBlockSize_; } 
 
-inline bool DCCDataParser::debug()                          { return debug_;     }
-inline std::vector<DCCEventBlock *> &DCCDataParser::dccEvents()  { return dccEvents_;    }
-inline std::map<std::string,ulong> &DCCDataParser::errorCounters()    { return errors_;       }
-inline std::vector< std::pair< ulong, std::pair<ulong *, ulong> > > DCCDataParser::events() { return events_;   }
+inline bool DCCTBDataParser::debug()                          { return debug_;     }
+inline std::vector<DCCTBEventBlock *> &DCCTBDataParser::dccEvents()  { return dccEvents_;    }
+inline std::map<std::string,ulong> &DCCTBDataParser::errorCounters()    { return errors_;       }
+inline std::vector< std::pair< ulong, std::pair<ulong *, ulong> > > DCCTBDataParser::events() { return events_;   }
 
 
 #endif
