@@ -4,9 +4,8 @@
 <use name=hepmc>
 <use name=clhep>
 <use name=pythia6>
-#<use name=lhapdf>
-<lib name=lhapdf>
-<lib name=lhapdf_dummy>
+<use name=f77compiler>
+<use name=lhapdf>
 <flags EDM_PLUGIN=1>
 <export>
  <lib name=GeneratorInterfaceExhumeInterface>
@@ -16,12 +15,8 @@
  <use name=hepmc>
  <use name=clhep>
  <use name=pythia6>
- #<use name=lhapdf>
- <lib name=lhapdf>
- <lib name=lhapdf_dummy>
+ <use name=lhapdf>
 </export>
 
- <lib name=g2c></lib>
- <lib name=m></lib>
 
 
