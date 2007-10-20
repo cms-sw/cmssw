@@ -13,7 +13,7 @@
 //
 // Original Author:  Samvel Khalatyan (ksamdev at gmail dot com)
 //         Created:  Wed Oct  5 16:42:34 CET 2006
-// $Id: SiStripOfflineDQM.cc,v 1.11 2007/08/17 17:03:52 dutta Exp $
+// $Id: SiStripOfflineDQM.cc,v 1.12 2007/09/09 18:33:18 dutta Exp $
 //
 //
 
@@ -124,4 +124,6 @@ void SiStripOfflineDQM::endJob() {
     LogInfo( "SiStripOfflineDQM") << "[endJob] done";
   }
 }
+#include "FWCore/Framework/interface/MakerMacros.h"
+DEFINE_FWK_MODULE(SiStripOfflineDQM);
 

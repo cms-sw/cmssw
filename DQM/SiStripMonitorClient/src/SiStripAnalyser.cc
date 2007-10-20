@@ -1,8 +1,8 @@
 /*
  * \file SiStripAnalyser.cc
  * 
- * $Date: 2007/09/27 22:31:52 $
- * $Revision: 1.11 $
+ * $Date: 2007/10/19 17:42:25 $
+ * $Revision: 1.12 $
  * \author  S. Dutta INFN-Pisa
  *
  */
@@ -221,3 +221,5 @@ void SiStripAnalyser::defaultWebPage(xgi::Input *in, xgi::Output *out)
   sistripWebInterface_->handleAnalyserRequest(in, out,DQMAnalyzer::getNumLumiSecs());
 
 }
+#include "FWCore/Framework/interface/MakerMacros.h"
+DEFINE_FWK_MODULE(SiStripAnalyser);
