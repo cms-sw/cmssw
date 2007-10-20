@@ -22,7 +22,6 @@
 </library>
 <library file=BeamSpotFakeConditions.cc name=BeamSpotFakeConditions>
 	 <flags LDFLAGS="-lXMLIO">
-	 <flags CXXFLAGS="-fpermissive">
 	 <flags EDM_PLUGIN=1>
 </library>
 <library file=BeamSpotFromDB.cc name=BeamSpotFromDB>
@@ -37,6 +36,5 @@
   <use name=CondFormats/BTauObjects>
   <use name=rootcore> 
   <flags LDFLAGS="-lXMLIO"> 
-  <flags CXXFLAGS="-fpermissive"> 
   <flags EDM_PLUGIN=1>   
 </library>
