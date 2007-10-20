@@ -4,7 +4,7 @@
  *
  * \author Luca Lista, INFN 
  *
- * \version $Id$
+ * \version $Id: CandMapTrait.h,v 1.1 2007/09/17 14:18:33 llista Exp $
  *
  */
 namespace reco {
@@ -27,6 +27,18 @@ namespace reco {
     template<>
     struct CandMapTrait<CandidateView, CandidateView> {
       typedef edm::AssociationMap<edm::OneToOneGeneric<CandidateView, CandidateView> > type;
+    };
+
+    template<typename C>
+    struct CandRefTrait{
+      typedef edm::Ref<C> ref_type;
+      typedef edm::RefProd<C> refProd_type;
+    };
+
+    template<typename T>
+    struct CandRefTrait<edm::View<T> >{
+      typedef edm::RefToBase<T> ref_type;
+      typedef edm::RefToBaseProd<T> refProd_type;
     };
   }
 }

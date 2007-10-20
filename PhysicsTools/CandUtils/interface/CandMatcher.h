@@ -17,6 +17,10 @@ class CandMatcherBase {
 public:
   /// map type
   typedef typename reco::helper::CandMapTrait<C1, C2>::type map_type;
+  /// ref type
+  typedef typename reco::helper::CandRefTrait<C2>::ref_type ref_type;
+  /// refProd type
+  typedef typename reco::helper::CandRefTrait<C2>::refProd_type refProd_type;
   /// map vector
   typedef std::vector<const map_type *> map_vector;
   /// concrete candidate reference type
@@ -30,7 +34,7 @@ public:
  /// destructor
   virtual ~CandMatcherBase();
   /// get match from transient reference
-  reco::CandidateRef operator()( const reco::Candidate & ) const;
+  ref_type operator()( const reco::Candidate & ) const;
 
 protected:
   /// get ultimate daughter (can skip status = 3 in MC)
@@ -46,11 +50,11 @@ private:
   /// pointers to stored maps
   std::vector<const map_type *> maps_;
   /// reference to matched collectino
-  reco::CandidateRefProd matched_;
+  refProd_type matched_;
   /// pointer map type
   typedef std::map<const reco::Candidate *, reference_type> CandRefMap;
   /// pointer map type
-  typedef std::map<const reco::Candidate *, reco::CandidateRef> MatchedRefMap;
+  typedef std::map<const reco::Candidate *, ref_type> MatchedRefMap;
   /// pointer map of candidates (e.g.: reco)
   CandRefMap candRefs_;
   /// pointer map of matched candidates (e.g.: MC truth)
@@ -116,10 +120,10 @@ void CandMatcherBase<C1, C2>::initMaps() {
     for( size_t i = 0; i < cands->size(); ++ i ) {
       candRefs_[ & (*cands)[ i ] ] = reference_type( cands, i );
     } 
-    const CandidateCollection & matched = * matched_;
+    const C2 & matched = * matched_;
     size_t matchedSize = matched.size();
     for( size_t i = 0; i < matchedSize; ++ i )
-      matchedRefs_[ & matched[ i ] ] = CandidateRef( matched_, i );
+      matchedRefs_[ & matched[ i ] ] = ref_type( matched_, i );
     matchedMothers_.resize( matchedSize );
     for( size_t i = 0; i < matchedSize; ++ i ) {
       const Candidate & c = matched[ i ];
@@ -143,22 +147,22 @@ CandMatcherBase<C1, C2>::~CandMatcherBase() {
 }
 
 template<typename C1, typename C2>
-reco::CandidateRef CandMatcherBase<C1, C2>::operator()( const reco::Candidate & c ) const {
+typename CandMatcherBase<C1, C2>::ref_type CandMatcherBase<C1, C2>::operator()( const reco::Candidate & c ) const {
   using namespace reco;
   using namespace std;
   if ( c.hasMasterClone() )
     return (*this)( * c.masterClone() );
   unsigned int nDau = c.numberOfDaughters();
-  const CandidateCollection & matched = * matched_;
+  const C2 & matched = * matched_;
   if ( nDau > 0 ) {
     // check for composite candidate c
     // navigate to daughters and find parent matches
     set<size_t> momsIntersection, momDaughters, tmp;
     for( Candidate::const_iterator d = c.begin(); d != c.end(); ++ d ) {
       // check here generically if status == 3, then descend down to one more level
-      CandidateRef m = (*this)( * d );
+      ref_type m = (*this)( * d );
       // if a daughter does not match, return a null ref.
-      if ( m.isNull() ) return CandidateRef();
+      if ( m.isNull() ) return ref_type();
       // get matched mother indices (fetched previously)
       const set<size_t> & allMomDaughters = matchedMothers_[ m.key() ];
       momDaughters.clear();
@@ -169,7 +173,7 @@ reco::CandidateRef CandMatcherBase<C1, C2>::operator()( const reco::Candidate & 
 	  momDaughters.insert( m );
       }
       // if no mother was found return null reference
-      if ( momDaughters.size() == 0 ) return CandidateRef();
+      if ( momDaughters.size() == 0 ) return ref_type();
       // the first time, momsIntersection is set to momDaughters
       if ( momsIntersection.size() == 0 ) momsIntersection = momDaughters;
       else {
@@ -179,12 +183,12 @@ reco::CandidateRef CandMatcherBase<C1, C2>::operator()( const reco::Candidate & 
 			 inserter( tmp, tmp.begin() ) );
 	swap( momsIntersection, tmp );
       }
-      if ( momsIntersection.size() == 0 ) return CandidateRef();
+      if ( momsIntersection.size() == 0 ) return ref_type();
     }
     // if multiple mothers are found, return a null reference
-    if ( momsIntersection.size() > 1 ) return CandidateRef();
+    if ( momsIntersection.size() > 1 ) return ref_type();
     // return a reference to the unique mother
-    return CandidateRef( matched_, * momsIntersection.begin() );
+    return ref_type( matched_, * momsIntersection.begin() );
   } else {
     // check for non-composite (leaf) candidate 
     // if one of the maps contains the candidate c
@@ -199,7 +203,7 @@ reco::CandidateRef CandMatcherBase<C1, C2>::operator()( const reco::Candidate & 
 	}
       }
     }
-    return CandidateRef();
+    return ref_type();
   }
 }
 
