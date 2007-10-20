@@ -1,8 +1,8 @@
 /*
  * \file EBSummaryClient.cc
  *
- * $Date: 2007/10/19 17:50:15 $
- * $Revision: 1.61 $
+ * $Date: 2007/10/19 23:56:05 $
+ * $Revision: 1.62 $
  * \author G. Della Ricca
  *
 */
@@ -81,8 +81,8 @@ EBSummaryClient::EBSummaryClient(const ParameterSet& ps){
 
   meCosmic_         = 0;
   meTiming_         = 0;
-  meEtTPG_          = 0;
-  meEmulError_      = 0;
+  meTriggerTowerEt_          = 0;
+  meTriggerTowerEmulError_      = 0;
 
   qtg01_ = 0;
   qtg02_ = 0;
@@ -283,13 +283,13 @@ void EBSummaryClient::setup(void) {
   sprintf(histo, "EBTMT timing quality summary");
   meTiming_ = dbe_->book2D(histo, histo, 360, 0., 360., 170, -85., 85.);
 
-  if( meEtTPG_ ) dbe_->removeElement( meEtTPG_->getName() );
+  if( meTriggerTowerEt_ ) dbe_->removeElement( meTriggerTowerEt_->getName() );
   sprintf(histo, "EBTTT ET trigger tower quality summary");
-  meEtTPG_ = dbe_->book3D(histo, histo, 72, 0., 72., 34, -17., 17., 128, 0., 512.);
+  meTriggerTowerEt_ = dbe_->book3D(histo, histo, 72, 0., 72., 34, -17., 17., 128, 0., 512.);
 
-  if( meEmulError_ ) dbe_->removeElement( meEmulError_->getName() );
+  if( meTriggerTowerEmulError_ ) dbe_->removeElement( meTriggerTowerEmulError_->getName() );
   sprintf(histo, "EBTTT emulator error quality summary");
-  meEmulError_ = dbe_->book2D(histo, histo, 72, 0., 72., 34, -17., 17.);
+  meTriggerTowerEmulError_ = dbe_->book2D(histo, histo, 72, 0., 72., 34, -17., 17.);
 
   if( meGlobalSummary_ ) dbe_->removeElement( meGlobalSummary_->getName() );
   sprintf(histo, "EB global summary");
@@ -334,11 +334,11 @@ void EBSummaryClient::cleanup(void) {
   if ( meTiming_ ) dbe_->removeElement( meTiming_->getName() );
   meTiming_ = 0;
 
-  if ( meEtTPG_ ) dbe_->removeElement( meEtTPG_->getName() );
-  meEtTPG_ = 0;
+  if ( meTriggerTowerEt_ ) dbe_->removeElement( meTriggerTowerEt_->getName() );
+  meTriggerTowerEt_ = 0;
 
-  if ( meEmulError_ ) dbe_->removeElement( meEmulError_->getName() );
-  meEmulError_ = 0;
+  if ( meTriggerTowerEmulError_ ) dbe_->removeElement( meTriggerTowerEmulError_->getName() );
+  meTriggerTowerEmulError_ = 0;
 
   if ( meGlobalSummary_ ) dbe_->removeElement( meGlobalSummary_->getName() );
   meGlobalSummary_ = 0;
@@ -461,9 +461,9 @@ void EBSummaryClient::analyze(void){
   for (int iex = 1; iex <= 34; iex++ ) {
     for (int ipx = 1; ipx <= 72; ipx++ ) {
       for (int en = 0; en <= 128; en++ ) {
-	meEtTPG_->setBinContent( ipx, iex, en, -1. );
+	meTriggerTowerEt_->setBinContent( ipx, iex, en, -1. );
       }
-      meEmulError_->setBinContent( ipx, iex, -1. ); 
+      meTriggerTowerEmulError_->setBinContent( ipx, iex, -1. ); 
     }
   }
 
@@ -476,8 +476,8 @@ void EBSummaryClient::analyze(void){
 
   meCosmic_->setEntries( 0 );
   meTiming_->setEntries( 0 );
-  meEtTPG_->setEntries( 0 );
-  meEmulError_->setEntries( 0 );
+  meTriggerTowerEt_->setEntries( 0 );
+  meTriggerTowerEmulError_->setEntries( 0 );
 
   for ( unsigned int i=0; i<clients_.size(); i++ ) {
 
@@ -490,7 +490,7 @@ void EBSummaryClient::analyze(void){
 
     EBCosmicClient* ebcc = dynamic_cast<EBCosmicClient*>(clients_[i]);
     EBTimingClient* ebtmc = dynamic_cast<EBTimingClient*>(clients_[i]);
-    EBTriggerTowerClient* ebtpgc = dynamic_cast<EBTriggerTowerClient*>(clients_[i]);
+    EBTriggerTowerClient* ebtttc = dynamic_cast<EBTriggerTowerClient*>(clients_[i]);
 
     MonitorElement* me;
     MonitorElement *me_01, *me_02, *me_03;
@@ -769,6 +769,68 @@ void EBSummaryClient::analyze(void){
         }
       }
 
+      for (int ie = 1; ie <= 17; ie++ ) {
+	for (int ip = 1; ip <= 4; ip++ ) {
+	  
+	  if ( ebtttc ) {
+	      
+	    h3 = ebtttc->h01_[ism-1];
+
+	    bool hasRealDigi = false;
+
+	    if ( h3 ) {
+
+	      for(int en = 1; en <= 128; en++) {
+		
+		float xval = h3->GetBinContent( ie, ip, en );
+		
+		if(xval!=0) hasRealDigi = true; 
+		
+		int iex;
+		int ipx;
+		
+		if ( ism <= 18 ) {
+		  iex = 1+(17-ie);
+		  ipx = ip+4*(ism-1);
+		} else {
+		  iex = 17+ie;
+		  ipx = 1+(4-ip)+4*(ism-19);
+		}
+		
+		meTriggerTowerEt_->setBinContent( ipx, iex, en, xval );
+	      }
+	    }
+
+	    h2 = ebtttc->l01_[ism-1];
+
+	    if ( h2 ) {
+
+	      float xval = -1;
+	      float emulErrorVal = h2->GetBinContent( ie, ip );
+
+	      if(!hasRealDigi) xval = 2;
+	      else if(hasRealDigi && emulErrorVal!=0) xval = 0;
+	      else xval = 1;
+
+	      int iex;
+	      int ipx;
+
+	      if ( ism <= 18 ) {
+		iex = 1+(17-ie);   
+		ipx = ip+4*(ism-1);
+	      } else {
+		iex = 17+ie;
+		ipx = 1+(4-ip)+4*(ism-19);
+	      }
+
+	      meTriggerTowerEmulError_->setBinContent( ipx, iex, xval );
+
+	    }
+
+	  }
+	} 
+      }
+
       // PN's summaries
       for( int i = 1; i <= 10; i++ ) {
 	for( int j = 1; j <= 5; j++ ) { 
@@ -901,68 +963,6 @@ void EBSummaryClient::analyze(void){
 	}
       }
 
-      for (int ie = 1; ie <= 17; ie++ ) {
-	for (int ip = 1; ip <= 4; ip++ ) {
-	  
-	  if ( ebtpgc ) {
-	      
-	    h3 = ebtpgc->h01_[ism-1];
-
-	    bool hasRealDigi = false;
-
-	    if ( h3 ) {
-
-	      for(int en = 1; en <= 128; en++) {
-		
-		float xval = h3->GetBinContent( ie, ip, en );
-		
-		if(xval!=0) hasRealDigi = true; 
-		
-		int iex;
-		int ipx;
-		
-		if ( ism <= 18 ) {
-		  iex = 1+(17-ie);
-		  ipx = ip+4*(ism-1);
-		} else {
-		  iex = 17+ie;
-		  ipx = 1+(4-ip)+4*(ism-19);
-		}
-		
-		meEtTPG_->setBinContent( ipx, iex, en, xval );
-	      }
-	    }
-
-	    h2 = ebtpgc->l01_[ism-1];
-
-	    if ( h2 ) {
-
-	      float xval = -1;
-	      float emulErrorVal = h2->GetBinContent( ie, ip );
-
-	      if(!hasRealDigi) xval = 2;
-	      else if(hasRealDigi && emulErrorVal!=0) xval = 0;
-	      else xval = 1;
-
-	      int iex;
-	      int ipx;
-
-	      if ( ism <= 18 ) {
-		iex = 1+(17-ie);   
-		ipx = ip+4*(ism-1);
-	      } else {
-		iex = 17+ie;
-		ipx = 1+(4-ip)+4*(ism-19);
-	      }
-
-	      meEmulError_->setBinContent( ipx, iex, xval );
-
-	    }
-
-	  }
-	} 
-      }
-
     } // loop on SM
 
   } // loop on clients
@@ -1071,8 +1071,8 @@ void EBSummaryClient::htmlOutput(int run, string htmlDir, string htmlName){
   string imgNameMapTP, imgNameMapTP_PN;
   string imgNameMapC;
   string imgNameMapTM;
-  string imgNameMapEtTPG;
-  string imgNameMapEmulError;
+  string imgNameMapTTEt;
+  string imgNameMapTTEmulError;
   string imgName, meName;
   string imgNameMapGS;
 
@@ -1480,11 +1480,10 @@ void EBSummaryClient::htmlOutput(int run, string htmlDir, string htmlName){
 
   }
 
-  imgNameMapEmulError = "";
+  imgNameMapTTEmulError = "";
 
   obj2f = 0;
-  //  obj2f = UtilsClient::getHisto<TH2F*>( meEmulError_, true, obj2f );
-  obj2f = UtilsClient::getHisto<TH2F*>( meEmulError_ );
+  obj2f = UtilsClient::getHisto<TH2F*>( meTriggerTowerEmulError_ );
   
   if ( obj2f && obj2f->GetEntries() != 0 ) {
   
@@ -1495,8 +1494,8 @@ void EBSummaryClient::htmlOutput(int run, string htmlDir, string htmlName){
         meName.replace(i, 1 ,"_" ); 
       }
     }
-    imgNameMapEmulError = meName + ".png";
-    imgName = htmlDir + imgNameMapEmulError;
+    imgNameMapTTEmulError = meName + ".png";
+    imgName = htmlDir + imgNameMapTTEmulError;
 
     cMap->cd();
     gStyle->SetOptStat(" ");
@@ -1516,11 +1515,10 @@ void EBSummaryClient::htmlOutput(int run, string htmlDir, string htmlName){
 
   }
 
-  imgNameMapEtTPG = "";
+  imgNameMapTTEt = "";
 
   obj3f = 0;
-  //  obj3f = UtilsClient::getHisto<TH3F*>( meEtTPG_, true, obj3f );
-  obj3f = UtilsClient::getHisto<TH3F*>( meEtTPG_ );
+  obj3f = UtilsClient::getHisto<TH3F*>( meTriggerTowerEt_ );
 
   if ( obj3f && obj3f->GetEntries() != 0 ) {
   
@@ -1531,8 +1529,8 @@ void EBSummaryClient::htmlOutput(int run, string htmlDir, string htmlName){
         meName.replace(i, 1 ,"_" ); 
       }
     }
-    imgNameMapEtTPG = meName + ".png";
-    imgName = htmlDir + imgNameMapEtTPG;
+    imgNameMapTTEt = meName + ".png";
+    imgName = htmlDir + imgNameMapTTEt;
 
     obj2p = obj3f->Project3DProfile("yx");
 
@@ -1708,21 +1706,21 @@ void EBSummaryClient::htmlOutput(int run, string htmlDir, string htmlName){
     htmlFile << "<br>" << endl;
   }
 
-  if ( imgNameMapEmulError.size() != 0 ) {
+  if ( imgNameMapTTEmulError.size() != 0 ) {
     htmlFile << "<table border=\"0\" cellspacing=\"0\" " << endl;
     htmlFile << "cellpadding=\"10\" align=\"center\"> " << endl;
     htmlFile << "<tr align=\"center\">" << endl;
-    htmlFile << "<td><img src=\"" << imgNameMapEmulError << "\" usemap=\"#TriggerTower\" border=0></td>" << endl;
+    htmlFile << "<td><img src=\"" << imgNameMapTTEmulError << "\" usemap=\"#TriggerTower\" border=0></td>" << endl;
     htmlFile << "</tr>" << endl;
     htmlFile << "</table>" << endl;
     htmlFile << "<br>" << endl;
   }
 
-  if ( imgNameMapEtTPG.size() != 0 ) {
+  if ( imgNameMapTTEt.size() != 0 ) {
     htmlFile << "<table border=\"0\" cellspacing=\"0\" " << endl;
     htmlFile << "cellpadding=\"10\" align=\"center\"> " << endl;
     htmlFile << "<tr align=\"center\">" << endl;
-    htmlFile << "<td><img src=\"" << imgNameMapEtTPG << "\" usemap=\"#TriggerTower\" border=0></td>" << endl;
+    htmlFile << "<td><img src=\"" << imgNameMapTTEt << "\" usemap=\"#TriggerTower\" border=0></td>" << endl;
     htmlFile << "</tr>" << endl;
     htmlFile << "</table>" << endl;
     htmlFile << "<br>" << endl;
@@ -1742,8 +1740,8 @@ void EBSummaryClient::htmlOutput(int run, string htmlDir, string htmlName){
 
   if ( imgNameMapC.size() != 0 ) this->writeMap( htmlFile, "Cosmic" );
   if ( imgNameMapTM.size() != 0 ) this->writeMap( htmlFile, "Timing" );
-  if ( imgNameMapEtTPG.size() != 0 ) this->writeMap( htmlFile, "TriggerTower" );
-  if ( imgNameMapEmulError.size() != 0 ) this->writeMap( htmlFile, "TriggerTower" );
+  if ( imgNameMapTTEt.size() != 0 ) this->writeMap( htmlFile, "TriggerTower" );
+  if ( imgNameMapTTEmulError.size() != 0 ) this->writeMap( htmlFile, "TriggerTower" );
 
   // html page footer
   htmlFile << "</body> " << endl;
