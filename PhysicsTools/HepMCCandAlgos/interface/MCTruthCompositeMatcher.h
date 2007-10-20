@@ -9,7 +9,7 @@
 #include "FWCore/ParameterSet/interface/InputTag.h"
 #include "PhysicsTools/HepMCCandAlgos/interface/MCCandMatcher.h"
 
-template<typename C1, typename C2 = reco::CandidateCollection>
+template<typename C1, typename C2 = C1>
 class MCTruthCompositeMatcher : public edm::EDProducer {
 public:
   explicit MCTruthCompositeMatcher( const edm::ParameterSet & );
@@ -43,7 +43,7 @@ void MCTruthCompositeMatcher<C1, C2>::produce( edm::Event & evt , const edm::Eve
   using namespace std;
   typedef typename CandMatcher<C1, C2>::reference_type reference_type;
   Handle<C1> cands;
-  evt.getByLabel( src_, cands );
+  evt.getByLabel(src_, cands);
   
   size_t nMaps = matchMaps_.size();
   std::vector<const map_type *> maps;
@@ -57,7 +57,7 @@ void MCTruthCompositeMatcher<C1, C2>::produce( edm::Event & evt , const edm::Eve
   auto_ptr<map_type> matchMap( new map_type );
   for( size_t i = 0; i != cands->size(); ++ i ) {
     const typename C1::value_type & cand = ( * cands )[ i ];
-    CandidateRef mc = match( cand );
+    reference_type mc(match( cand ));
     if ( mc.isNonnull() ) {
       matchMap->insert( reference_type( cands, i ), mc );      
     }
