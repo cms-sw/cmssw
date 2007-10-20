@@ -109,6 +109,11 @@ namespace {
 
     std::vector<reco::CaloMuon> smv1;
     edm::Wrapper<std::vector<reco::CaloMuon> > smc1;
+
+    edm::reftobase::Holder<reco::Candidate, reco::MuonRef> hcc1;
+    edm::reftobase::RefHolder<reco::MuonRef> hcc2;
+    edm::reftobase::VectorHolder<reco::Candidate, reco::MuonRefVector> hcc3;
+    edm::reftobase::RefVectorHolder<reco::MuonRefVector> hcc4;
   }
 }
 

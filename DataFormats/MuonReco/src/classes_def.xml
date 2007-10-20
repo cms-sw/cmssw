@@ -81,5 +81,9 @@
   <class name="std::vector<reco::CaloMuon>"/>
   <class name="edm::Wrapper<std::vector<reco::CaloMuon> >"/>
 
+  <class name="edm::reftobase::Holder<reco::Candidate, reco::MuonRef>" />
+  <class name="edm::reftobase::RefHolder<reco::MuonRef>" />
+  <class name="edm::reftobase::VectorHolder<reco::Candidate, reco::MuonRefVector>" />
+  <class name="edm::reftobase::RefVectorHolder<reco::MuonRefVector>" />
 </lcgdict>
 
