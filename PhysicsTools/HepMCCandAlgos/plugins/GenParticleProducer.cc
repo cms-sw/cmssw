@@ -5,7 +5,7 @@
  * Convert HepMC GenEvent format into a collection of type
  * CandidateCollection containing objects of type GenParticle
  *
- * \version $Id: GenParticleProducer.cc,v 1.4 2007/09/14 09:54:48 llista Exp $
+ * \version $Id: GenParticleProducer.cc,v 1.5 2007/10/19 15:17:19 llista Exp $
  *
  */
 #include "FWCore/Framework/interface/EDProducer.h"
@@ -35,6 +35,8 @@ class GenParticleProducer : public edm::EDProducer {
   edm::InputTag src_;
   /// unknown code treatment flag
   bool abortOnUnknownPDGCode_;
+  /// save bar-codes
+  bool saveBarCodes_;
   /// charge indices
   std::vector<int> chargeP_, chargeM_;
   std::map<int, int> chargeMap_;
@@ -57,20 +59,19 @@ using namespace reco;
 using namespace std;
 using namespace HepMC;
 
-static const int protonId = 2212;
-static const int gluonId = 21;
-static const int uId = 1;
-static const int tId = 6;
-static const int stringId = 92;
-static const int clusterId = 92;
 static const int PDGCacheMax = 32768;
 static const double mmToCm = 0.1;
 
-GenParticleProducer::GenParticleProducer( const ParameterSet & p ) :
-  src_( p.getParameter<InputTag>( "src" ) ),
-  abortOnUnknownPDGCode_( p.getUntrackedParameter<bool>( "abortOnUnknownPDGCode", true ) ),
+GenParticleProducer::GenParticleProducer( const ParameterSet & cfg ) :
+  src_( cfg.getParameter<InputTag>( "src" ) ),
+  abortOnUnknownPDGCode_( cfg.getUntrackedParameter<bool>( "abortOnUnknownPDGCode", true ) ),
+  saveBarCodes_( cfg.getUntrackedParameter<bool>( "saveBarCodes", false ) ),
   chargeP_( PDGCacheMax, 0 ), chargeM_( PDGCacheMax, 0 ) {
   produces<GenParticleCollection>();
+  if( saveBarCodes_ ) {
+    std::string alias( cfg.getParameter<std::string>( "@module_label" ) );
+    produces<vector<int> >().setBranchAlias( alias + "BarCodes" );
+  }				  
 }
 
 GenParticleProducer::~GenParticleProducer() { 
@@ -119,22 +120,24 @@ void GenParticleProducer::produce( Event& evt, const EventSetup& es ) {
   vector<const HepMC::GenParticle *> particles( size );
   map<int, size_t> barcodes;
 
+  auto_ptr<GenParticleCollection> candsPtr( new GenParticleCollection( size ) );
+  auto_ptr<vector<int> > barCodeVector( new vector<int>( size ) );
+  const GenParticleRefProd ref = evt.getRefBeforePut<GenParticleCollection>();
+  GenParticleCollection & cands = * candsPtr;
+
   /// fill indices
   GenEvent::particle_const_iterator begin = mc->particles_begin(), end = mc->particles_end();
   size_t idx = 0;
   for( GenEvent::particle_const_iterator p = begin; p != end; ++ p ) {
     const HepMC::GenParticle * particle = * p;
-    size_t i = particle->barcode();
-    if( barcodes.find(i) != barcodes.end() )
+    size_t barCode = particle->barcode();
+    if( barcodes.find(barCode) != barcodes.end() )
       throw cms::Exception( "WrongReference" )
 	<< "barcodes are duplicated! " << endl;
-    particles[ idx ] = particle;
-    barcodes.insert( make_pair(i, idx ++) );
+    particles[idx] = particle;
+    (*barCodeVector)[idx] = barCode;
+    barcodes.insert( make_pair(barCode, idx ++) );
   }
-
-  auto_ptr<GenParticleCollection> candsPtr( new GenParticleCollection( size ) );
-  const GenParticleRefProd ref = evt.getRefBeforePut<GenParticleCollection>();
-  GenParticleCollection & cands = * candsPtr;
 
   // fill output collection and save association
   for( size_t i = 0; i < particles.size(); ++ i ) {
@@ -176,6 +179,7 @@ void GenParticleProducer::produce( Event& evt, const EventSetup& es ) {
   }
 
   evt.put( candsPtr );
+  if(saveBarCodes_) evt.put( barCodeVector );
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"
