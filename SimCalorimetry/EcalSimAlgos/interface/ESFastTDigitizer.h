@@ -54,7 +54,6 @@ class ESFastTDigitizer
         << "Reference histos file not opened" ;
       return ;
     }
-    std::cout << "ESFastTDigitizer: reading reference distribution from " << edm::FileInPath(refFile_).fullPath().c_str() << std::endl;
     
     // number of bins
     char buffer[200];
