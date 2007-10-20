@@ -3,6 +3,7 @@
    <use name=FWCore/Framework>
    <use name=Geometry/Records>
    <use name=MagneticField/Records>
+   <use name=CondFormats/DataRecord>
 </export>
 
 <use name=FWCore/Utilities>
@@ -11,3 +12,4 @@
 <use name=MagneticField/Records>
 <use name=clhep>
 <use name=boost>
+<use name=CondFormats/DataRecord>
