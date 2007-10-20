@@ -8,6 +8,9 @@
 <use name=RecoVertex/VertexTools>
 <use name=RecoVertex/KalmanVertexFit>
 
+<use name=SimTracker/TrackAssociation>
+<use name=SimTracker/Records>
+
 <use name=CLHEP>
 <use name=root>
 
