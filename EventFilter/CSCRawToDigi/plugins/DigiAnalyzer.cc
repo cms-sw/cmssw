@@ -87,6 +87,8 @@ void DigiAnalyzer::analyze(edm::Event const& e, edm::EventSetup const& iSetup) {
  
   for (CSCStripDigiCollection::DigiRangeIterator j=strips->begin(); j!=strips->end(); j++) {
     std::vector<CSCStripDigi>::const_iterator digiItr = (*j).second.first;
+    CSCDetId const cscDetId=(*j).first;
+    std::cout<<cscDetId<<std::endl;
     std::vector<CSCStripDigi>::const_iterator last = (*j).second.second;
     for( ; digiItr != last; ++digiItr) {
       digiItr->print();
@@ -95,6 +97,8 @@ void DigiAnalyzer::analyze(edm::Event const& e, edm::EventSetup const& iSetup) {
 
 
   for (CSCWireDigiCollection::DigiRangeIterator j=wires->begin(); j!=wires->end(); j++) {
+    CSCDetId const cscDetId=(*j).first;
+    std::cout<<cscDetId<<std::endl;
     std::vector<CSCWireDigi>::const_iterator digiItr = (*j).second.first;
     std::vector<CSCWireDigi>::const_iterator last = (*j).second.second;
     for( ; digiItr != last; ++digiItr) {

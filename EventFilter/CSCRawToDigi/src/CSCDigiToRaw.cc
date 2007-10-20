@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2007/10/13 15:19:53 $
- *  $Revision: 1.13 $
+ *  $Date: 2007/10/14 00:30:54 $
+ *  $Revision: 1.14 $
  *  \author A. Tumanov - Rice
  */
 
@@ -45,6 +45,7 @@ CSCDigiToRaw::fillChamberDataMap(const CSCStripDigiCollection & stripDigis,
     {
       CSCDetId const cscDetId=(*j).first;
       CSCDetId chamberID =cscDetId.chamberId();
+      //std::cout<<"strip id"<<cscDetId<<std::endl;
       /// find the entry into the map
       map<CSCDetId, CSCEventData>::iterator chamberMapItr = chamberMap.find(chamberID);
       if(chamberMapItr == chamberMap.end())
@@ -81,6 +82,7 @@ CSCDigiToRaw::fillChamberDataMap(const CSCStripDigiCollection & stripDigis,
     {
       CSCDetId const cscDetId=(*j).first;
       CSCDetId chamberID =cscDetId.chamberId();
+      //std::cout<<"wire id"<<cscDetId<<std::endl;
       /// find the entry into the map
       map<CSCDetId, CSCEventData>::iterator chamberMapItr = chamberMap.find(chamberID);
       if(chamberMapItr == chamberMap.end())
@@ -110,6 +112,7 @@ CSCDigiToRaw::fillChamberDataMap(const CSCStripDigiCollection & stripDigis,
 	}
     }
 
+  //std::cout<<"finished iterating and about to return the map size "<<chamberMap.size()<<std::endl;
   return chamberMap;
 }
 
@@ -181,7 +184,7 @@ void CSCDigiToRaw::createFedBuffers(const CSCStripDigiCollection& stripDigis,
 		  }
 	      }
 	  }
-      } else { edm::LogError("CSCDigiToRaw") <<"invalid CSCDetId==0";}
+      } else if (chamberDataMap.size()) { edm::LogError("CSCDigiToRaw") <<"invalid CSCDetId==0";}
     }
 }
 
