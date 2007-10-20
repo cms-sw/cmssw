@@ -1,4 +1,4 @@
-// Last commit: $Id: FedDescriptions.cc,v 1.9 2007/05/24 15:35:51 bainbrid Exp $
+// Last commit: $Id: FedDescriptions.cc,v 1.10 2007/07/13 14:10:33 bainbrid Exp $
 // Latest tag:  $Name: HEAD $
 // Location:    $Source: /cvs_server/repositories/CMSSW/CMSSW/OnlineDB/SiStripConfigDb/src/FedDescriptions.cc,v $
 
@@ -18,8 +18,15 @@ const SiStripConfigDb::FedDescriptions& SiStripConfigDb::getFedDescriptions() {
   
   try {
     deviceFactory(__func__)->setUsingStrips( usingStrips_ );
+
+    //@@ handle fact that "latest" version for FED is signified by "-1", not "0"!
+    int16_t major = -1;
+    int16_t minor = -1;
+    if ( dbParams_.major_ > 0 ) { major = dbParams_.major_; }
+    if ( dbParams_.minor_ > 0 ) { major = dbParams_.minor_; }
     feds_ = *( deviceFactory(__func__)->getFed9UDescriptions( dbParams_.partition_, 
-							      -1, -1 ) ); //partition_.major_, partition_.minor_ ) );
+							      major, 
+							      minor ) );
     resetFeds_ = false;
   }
   catch (... ) {
