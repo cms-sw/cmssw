@@ -1,8 +1,8 @@
 /*
  * \file EESummaryClient.cc
  *
- * $Date: 2007/10/21 17:28:56 $
- * $Revision: 1.38 $
+ * $Date: 2007/10/21 17:38:57 $
+ * $Revision: 1.39 $
  * \author G. Della Ricca
  *
 */
@@ -785,7 +785,7 @@ void EESummaryClient::analyze(void){
 
   for ( int ix = 1; ix <= 100; ix++ ) {
     for ( int iy = 1; iy <= 100; iy++ ) {
-      for (int en = 0; en <= 128; en++ ) {
+      for (int en = 1; en <= 128; en++ ) {
         meTriggerTowerEt_[0]->setBinContent( ix, iy, en, -1. );
         meTriggerTowerEt_[1]->setBinContent( ix, iy, en, -1. );
       }
