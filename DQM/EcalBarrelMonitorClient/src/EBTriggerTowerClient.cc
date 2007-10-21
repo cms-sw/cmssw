@@ -1,8 +1,8 @@
 /*
  * \file EBTriggerTowerClient.cc
  *
- * $Date: 2007/10/19 21:13:11 $
- * $Revision: 1.52 $
+ * $Date: 2007/10/21 17:23:58 $
+ * $Revision: 1.53 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -443,7 +443,7 @@ void EBTriggerTowerClient::analyze(const char* nameext,
     }
     else {
       i02_[ism-1] = UtilsClient::getHisto<TH3F*>( me, cloneME_, i02_[ism-1] );
-      if(i02_[ism-1])  i02_[ism-1]->SetEntries(1.+i02_[ism-1]->GetEntries());
+      if(i02_[ism-1]) i02_[ism-1]->SetEntries(1.+i02_[ism-1]->GetEntries());
       mei02_[ism-1] = me;
     }
 

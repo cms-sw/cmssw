@@ -1,8 +1,8 @@
 /*
  * \file EETriggerTowerClient.cc
  *
- * $Date: 2007/10/19 21:13:13 $
- * $Revision: 1.17 $
+ * $Date: 2007/10/21 17:23:58 $
+ * $Revision: 1.18 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -445,7 +445,7 @@ void EETriggerTowerClient::analyze(const char* nameext,
     }
     else {
       i02_[ism-1] = UtilsClient::getHisto<TH3F*>( me, cloneME_, i02_[ism-1] );
-      if(i02_[ism-1])  i02_[ism-1]->SetEntries(1.+i02_[ism-1]->GetEntries());
+      if(i02_[ism-1]) i02_[ism-1]->SetEntries(1.+i02_[ism-1]->GetEntries());
       mei02_[ism-1] = me;
     }
 
