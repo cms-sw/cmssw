@@ -1,8 +1,8 @@
 /*
  * \file EESummaryClient.cc
  *
- * $Date: 2007/10/18 10:00:39 $
- * $Revision: 1.36 $
+ * $Date: 2007/10/21 16:19:47 $
+ * $Revision: 1.37 $
  * \author G. Della Ricca
  *
 */
@@ -883,9 +883,9 @@ void EESummaryClient::analyze(void){
               float xval = h2->GetBinContent( ix, iy );
 
               if ( ism >= 1 && ism <= 9 ) {
-                if ( Numbers::validEE(ism, 101 - jx, jy) ) meOccupancy_[0]->setBinContent( jx, jy, xval );
+                if ( xval != 0 ) meOccupancy_[0]->setBinContent( jx, jy, xval );
               } else {
-                if ( Numbers::validEE(ism, jx, jy) ) meOccupancy_[1]->setBinContent( jx, jy, xval );
+                if ( xval != 0 ) meOccupancy_[1]->setBinContent( jx, jy, xval );
               }
 
             }
@@ -1059,9 +1059,9 @@ void EESummaryClient::analyze(void){
               float xval = h2d->GetBinContent( ix, iy );
 
               if ( ism >= 1 && ism <= 9 ) {
-                if ( Numbers::validEE(ism, 101 - jx, jy) ) meCosmic_[0]->setBinContent( jx, jy, xval );
+                if ( xval != 0 ) meCosmic_[0]->setBinContent( jx, jy, xval );
               } else {
-                if ( Numbers::validEE(ism, jx, jy) ) meCosmic_[1]->setBinContent( jx, jy, xval );
+                if ( xval != 0 ) meCosmic_[1]->setBinContent( jx, jy, xval );
               }
 
             }
@@ -1110,9 +1110,9 @@ void EESummaryClient::analyze(void){
                 if(xval!=0) hasRealDigi = true;
                 
                 if ( ism >= 1 && ism <= 9 ) {
-                  if ( Numbers::validEE(ism, 101 - jx, jy) ) meTriggerTowerEt_[0]->setBinContent( jx, jy, en, xval );
+                  if ( xval != 0 ) meTriggerTowerEt_[0]->setBinContent( jx, jy, en, xval );
                 } else {
-                  if ( Numbers::validEE(ism, jx, jy) ) meTriggerTowerEt_[1]->setBinContent( jx, jy, en, xval );
+                  if ( xval != 0 ) meTriggerTowerEt_[1]->setBinContent( jx, jy, en, xval );
                 }
 
               }
@@ -1120,7 +1120,7 @@ void EESummaryClient::analyze(void){
 
             h2 = eetttc->l01_[ism-1];
 
-            if ( h2 && h3 ) {
+            if ( h2 ) {
               float xval = -1;
               float emulErrorVal = h2->GetBinContent( ix, iy );
 
@@ -1129,9 +1129,9 @@ void EESummaryClient::analyze(void){
               else xval = 1;
 
               if ( ism >= 1 && ism <= 9 ) {
-                if ( Numbers::validEE(ism, 101 - jx, jy) ) meTriggerTowerEmulError_[0]->setBinContent( jx, jy, xval );
+                if ( xval != 2 ) meTriggerTowerEmulError_[0]->setBinContent( jx, jy, xval );
               } else {
-                if ( Numbers::validEE(ism, jx, jy) ) meTriggerTowerEmulError_[1]->setBinContent( jx, jy, xval );
+                if ( xval != 2 ) meTriggerTowerEmulError_[1]->setBinContent( jx, jy, xval );
               }
 
             }
@@ -1166,6 +1166,37 @@ void EESummaryClient::analyze(void){
       }
 
     } // loop on SM
+
+    // fix TPG quality plots
+
+    for ( unsigned int i=0; i<superModules_.size(); i++ ) {
+
+      int ism = superModules_[i];
+
+      for ( int ix = 1; ix <= 50; ix++ ) {
+        for ( int iy = 1; iy <= 50; iy++ ) {
+    
+          int jx = ix + Numbers::ix0EE(ism);
+          int jy = iy + Numbers::iy0EE(ism);
+
+          if ( eetttc ) {
+
+            if ( ism >= 1 && ism <= 9 ) { 
+              if ( meTriggerTowerEmulError_[0]->getBinContent( jx, jy ) == -1 ) {
+                if ( Numbers::validEE(ism, 101 - jx, jy) ) meTriggerTowerEmulError_[0]->setBinContent( jx, jy, 2 );
+              }
+            } else { 
+              if ( meTriggerTowerEmulError_[1]->getBinContent( jx, jy ) == -1 ) {
+                if ( Numbers::validEE(ism, jx, jy) ) meTriggerTowerEmulError_[1]->setBinContent( jx, jy, 2 );
+              }
+            }
+
+          }
+
+        }
+      }
+
+    }
 
   } // loop on clients
 
@@ -2197,6 +2228,7 @@ void EESummaryClient::htmlOutput(int run, string htmlDir, string htmlName){
 
     cMap->SetGridx();
     cMap->SetGridy();
+    obj2p->SetMinimum(0.0);
     obj2p->GetXaxis()->SetLabelSize(0.03);
     obj2p->GetYaxis()->SetLabelSize(0.03);
     obj2p->GetZaxis()->SetLabelSize(0.03);
@@ -2245,6 +2277,7 @@ void EESummaryClient::htmlOutput(int run, string htmlDir, string htmlName){
 
     cMap->SetGridx();
     cMap->SetGridy();
+    obj2p->SetMinimum(0.0);
     obj2p->GetXaxis()->SetLabelSize(0.03);
     obj2p->GetYaxis()->SetLabelSize(0.03);
     obj2p->GetZaxis()->SetLabelSize(0.03);
