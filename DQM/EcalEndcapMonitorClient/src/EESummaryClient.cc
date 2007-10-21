@@ -1,8 +1,8 @@
 /*
  * \file EESummaryClient.cc
  *
- * $Date: 2007/10/21 17:38:57 $
- * $Revision: 1.39 $
+ * $Date: 2007/10/21 17:43:19 $
+ * $Revision: 1.40 $
  * \author G. Della Ricca
  *
 */
@@ -770,8 +770,8 @@ void EESummaryClient::analyze(void){
     }
   }
 
-  for (int ix = 1; ix <= 20; ix++ ) {
-    for(int iy = 1; iy <= 90; iy++ ) {
+  for ( int ix = 1; ix <= 20; ix++ ) {
+    for ( int iy = 1; iy <= 90; iy++ ) {
 
       meLaserL1PN_[0]->setBinContent( ix, iy, -1. );
       meLaserL1PN_[1]->setBinContent( ix, iy, -1. );
@@ -785,7 +785,7 @@ void EESummaryClient::analyze(void){
 
   for ( int ix = 1; ix <= 100; ix++ ) {
     for ( int iy = 1; iy <= 100; iy++ ) {
-      for (int en = 1; en <= 128; en++ ) {
+      for ( int en = 1; en <= 128; en++ ) {
         meTriggerTowerEt_[0]->setBinContent( ix, iy, en, -1. );
         meTriggerTowerEt_[1]->setBinContent( ix, iy, en, -1. );
       }
@@ -1103,7 +1103,7 @@ void EESummaryClient::analyze(void){
 
             if ( h3 ) {
 
-              for(int en = 1; en <= 128; en++) {
+              for( int en = 1; en <= 128; en++ ) {
 
                 float xval = h3->GetBinContent( ix, iy, en );
 

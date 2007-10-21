@@ -1,8 +1,8 @@
 /*
  * \file EBSummaryClient.cc
  *
- * $Date: 2007/10/21 17:08:26 $
- * $Revision: 1.71 $
+ * $Date: 2007/10/21 17:43:19 $
+ * $Revision: 1.72 $
  * \author G. Della Ricca
  *
 */
@@ -449,8 +449,8 @@ void EBSummaryClient::analyze(void){
     }
   }
 
-  for (int iex = 1; iex <= 20; iex++ ) {
-    for(int ipx = 1; ipx <= 90; ipx++ ) {
+  for ( int iex = 1; iex <= 20; iex++ ) {
+    for ( int ipx = 1; ipx <= 90; ipx++ ) {
       
       meLaserL1PN_->setBinContent( ipx, iex, -1. );
       mePedestalPN_->setBinContent( ipx, iex, -1. );
@@ -459,9 +459,9 @@ void EBSummaryClient::analyze(void){
     }
   }
 
-  for (int iex = 1; iex <= 34; iex++ ) {
-    for (int ipx = 1; ipx <= 72; ipx++ ) {
-      for (int en = 1; en <= 128; en++ ) {
+  for ( int iex = 1; iex <= 34; iex++ ) {
+    for ( int ipx = 1; ipx <= 72; ipx++ ) {
+      for ( int en = 1; en <= 128; en++ ) {
         meTriggerTowerEt_->setBinContent( ipx, iex, en, -1. );
       }
       meTriggerTowerEmulError_->setBinContent( ipx, iex, -1. ); 
@@ -784,7 +784,7 @@ void EBSummaryClient::analyze(void){
 
             if ( h3 ) {
 
-              for(int en = 1; en <= 128; en++) {
+              for ( int en = 1; en <= 128; en++ ) {
                 
                 float xval = h3->GetBinContent( ie, ip, en );
                 
