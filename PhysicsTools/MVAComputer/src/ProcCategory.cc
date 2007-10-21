@@ -10,7 +10,7 @@
 //
 // Author:      Christophe Saout
 // Created:     Sun Sep 16 04:05 CEST 2007
-// $Id: ProcCategory.cc,v 1.1 2007/09/16 22:55:34 saout Exp $
+// $Id: ProcCategory.cc,v 1.2 2007/10/07 02:48:39 saout Exp $
 //
 
 #include <algorithm>
@@ -74,15 +74,13 @@ void ProcCategory::configure(ConfIterator iter, unsigned int n)
 void ProcCategory::eval(ValueIterator iter, unsigned int n) const
 {
 	unsigned int category = 0;
-	unsigned int size = 1;
 	for(std::vector<BinLimits>::const_iterator vars =
 					calib->variableBinLimits.begin();
 	    vars != calib->variableBinLimits.end(); vars++, ++iter) {
-		category *= size;
 		unsigned int idx = std::upper_bound(vars->begin(), vars->end(),
 		                                    *iter) - vars->begin();
+		category *= vars->size() + 1;
 		category += idx;
-		size = vars->size() + 1;
 	}
 
 	iter(calib->categoryMapping[category]);
