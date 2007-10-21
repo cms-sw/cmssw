@@ -360,6 +360,7 @@ bool EBSummaryClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRun
 //  UtilsClient::printBadChannels(qtg06PN_);
 
 //  UtilsClient::printBadChannels(qtg07_);
+//  UtilsClient::printBadChannels(qtg08_);
 //  UtilsClient::printBadChannels(qtg09_);
 
 //  UtilsClient::printBadChannels(qtg99_);
