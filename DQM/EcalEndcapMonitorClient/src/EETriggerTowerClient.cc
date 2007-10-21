@@ -1,8 +1,8 @@
 /*
  * \file EETriggerTowerClient.cc
  *
- * $Date: 2007/10/18 09:43:53 $
- * $Revision: 1.16 $
+ * $Date: 2007/10/19 21:13:13 $
+ * $Revision: 1.17 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -440,7 +440,7 @@ void EETriggerTowerClient::analyze(const char* nameext,
     me = dbe_->get(histo);
     if(!emulated) {
       i01_[ism-1] = UtilsClient::getHisto<TH3F*>( me, cloneME_, i01_[ism-1] );
-      if(i01_[ism-1])  i01_[ism-1]->SetEntries(1.+i01_[ism-1]->GetEntries());
+      if(i01_[ism-1]) i01_[ism-1]->SetEntries(1.+i01_[ism-1]->GetEntries());
       mei01_[ism-1] = me;
     }
     else {
@@ -453,12 +453,12 @@ void EETriggerTowerClient::analyze(const char* nameext,
     me = dbe_->get(histo);
     if(!emulated) {
       j01_[ism-1] = UtilsClient::getHisto<TH3F*>( me, cloneME_, j01_[ism-1] );
-      if(j01_[ism-1])  j01_[ism-1]->SetEntries(1.+j01_[ism-1]->GetEntries());
+      if(j01_[ism-1]) j01_[ism-1]->SetEntries(1.+j01_[ism-1]->GetEntries());
       mej01_[ism-1] = me;
     }
     else {
       j02_[ism-1] = UtilsClient::getHisto<TH3F*>( me, cloneME_, j02_[ism-1] );
-      if(j02_[ism-1])  j02_[ism-1]->SetEntries(1.+j02_[ism-1]->GetEntries());
+      if(j02_[ism-1]) j02_[ism-1]->SetEntries(1.+j02_[ism-1]->GetEntries());
       mej02_[ism-1] = me;
     }
 
@@ -466,19 +466,19 @@ void EETriggerTowerClient::analyze(const char* nameext,
       sprintf(histo, (prefixME_+"EcalEndcap/%s/EETTT EmulError %s %s").c_str(), folder, nameext, Numbers::sEE(ism).c_str());
       me = dbe_->get(histo);
       l01_[ism-1] = UtilsClient::getHisto<TH2F*>( me, cloneME_, l01_[ism-1] );
-      if(l01_[ism-1])  l01_[ism-1]->SetEntries(1.+l01_[ism-1]->GetEntries());
+      if(l01_[ism-1]) l01_[ism-1]->SetEntries(1.+l01_[ism-1]->GetEntries());
       mel01_[ism-1] = me;
       
       sprintf(histo, (prefixME_+"EcalEndcap/%s/EETTT EmulFlagError %s %s").c_str(), folder, nameext, Numbers::sEE(ism).c_str());
       me = dbe_->get(histo);
       m01_[ism-1] = UtilsClient::getHisto<TH3F*>( me, cloneME_, m01_[ism-1] );
-      if(m01_[ism-1])  m01_[ism-1]->SetEntries(1.+m01_[ism-1]->GetEntries());
+      if(m01_[ism-1]) m01_[ism-1]->SetEntries(1.+m01_[ism-1]->GetEntries());
       mem01_[ism-1] = me;
 
       sprintf(histo, (prefixME_+"EcalEndcap/%s/EETTT EmulFineGrainVetoError %s %s").c_str(), folder, nameext, Numbers::sEE(ism).c_str());
       me = dbe_->get(histo);
       n01_[ism-1] = UtilsClient::getHisto<TH3F*>( me, cloneME_, n01_[ism-1] );
-      if(n01_[ism-1])  n01_[ism-1]->SetEntries(1.+n01_[ism-1]->GetEntries());
+      if(n01_[ism-1]) n01_[ism-1]->SetEntries(1.+n01_[ism-1]->GetEntries());
       men01_[ism-1] = me;
       
     }
