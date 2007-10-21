@@ -217,6 +217,8 @@ CaloGeometryAnalyzer::build( const CaloGeometry& cg,
 			     int subdetn, 
 			     const char* name) 
 {
+   std::cout<<"Name now is "<<name<<std::endl ;
+
    const std::string fnameCtr  ( std::string( name ) + ".ctr" ) ;
    const std::string fnameCor  ( std::string( name ) + ".cor" ) ;
    const std::string fnameRoot ( std::string( name ) + ".C" ) ;
