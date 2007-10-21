@@ -1,8 +1,8 @@
 /*
  * \file EESummaryClient.cc
  *
- * $Date: 2007/10/18 09:45:45 $
- * $Revision: 1.35 $
+ * $Date: 2007/10/18 10:00:39 $
+ * $Revision: 1.36 $
  * \author G. Della Ricca
  *
 */
@@ -100,6 +100,10 @@ EESummaryClient::EESummaryClient(const ParameterSet& ps){
   meCosmic_[1]         = 0;
   meTiming_[0]         = 0;
   meTiming_[1]         = 0;
+  meTriggerTowerEt_[0]        = 0;
+  meTriggerTowerEt_[1]        = 0;
+  meTriggerTowerEmulError_[0] = 0;
+  meTriggerTowerEmulError_[1] = 0;
 
   qtg01_[0] = 0;
   qtg01_[1] = 0;
@@ -128,6 +132,10 @@ EESummaryClient::EESummaryClient(const ParameterSet& ps){
   qtg08_[1] = 0;
   qtg09_[0] = 0;
   qtg09_[1] = 0;
+  qtg10_[0] = 0;
+  qtg10_[1] = 0;
+  qtg11_[0] = 0;
+  qtg11_[1] = 0;
 
   qtg99_[0] = 0;
   qtg99_[1] = 0;
@@ -230,6 +238,18 @@ void EESummaryClient::beginJob(MonitorUserInterface* mui){
     sprintf(qtname, "EETMT EE + summary quality test");
     qtg09_[1] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (dbe_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
 
+    sprintf(qtname, "EETTT EE - Et summary quality test");
+//     qtg10_[0] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (dbe_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
+
+    sprintf(qtname, "EETTT EE + Et summary quality test");
+//     qtg10_[1] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (dbe_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
+
+    sprintf(qtname, "EETTT EE - emulator error summary quality test");
+    qtg11_[0] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (dbe_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
+
+    sprintf(qtname, "EETTT EE + emulator error summary quality test");
+    qtg11_[1] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (dbe_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
+
     sprintf(qtname, "EE global summary quality test EE -");
     qtg99_[0] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (dbe_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
 
@@ -263,6 +283,10 @@ void EESummaryClient::beginJob(MonitorUserInterface* mui){
 //    qtg08_[1]->setMeanRange(1., 6.);
 //    qtg09_[0]->setMeanRange(1., 6.);
 //    qtg09_[1]->setMeanRange(1., 6.);
+//    qtg10[0]_->setMeanRange(1., 6.);
+//    qtg10[1]_->setMeanRange(1., 6.);
+    qtg11_[0]->setMeanRange(1., 6.);
+    qtg11_[1]->setMeanRange(1., 6.);
 
     qtg99_[0]->setMeanRange(1., 6.);
     qtg99_[1]->setMeanRange(1., 6.);
@@ -294,6 +318,10 @@ void EESummaryClient::beginJob(MonitorUserInterface* mui){
 //    qtg08_[1]->setErrorProb(1.00);
 //    qtg09_[0]->setErrorProb(1.00);
 //    qtg09_[1]->setErrorProb(1.00);
+//    qtg10_[0]->setErrorProb(1.00);
+//    qtg10_[1]->setErrorProb(1.00);
+    qtg11_[0]->setErrorProb(1.00);
+    qtg11_[1]->setErrorProb(1.00);
 
     qtg99_[0]->setErrorProb(1.00);
     qtg99_[1]->setErrorProb(1.00);
@@ -444,6 +472,22 @@ void EESummaryClient::setup(void) {
   sprintf(histo, "EETPT EE + timing quality summary");
   meTiming_[1] = dbe_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
 
+  if( meTriggerTowerEt_[0] ) dbe_->removeElement( meTriggerTowerEt_[0]->getName() );
+  sprintf(histo, "EETTT EE - Et trigger tower quality summary");
+  meTriggerTowerEt_[0] = dbe_->book3D(histo, histo, 100, 0., 100., 100, 0., 100., 128, 0., 512.);
+  
+  if( meTriggerTowerEt_[1] ) dbe_->removeElement( meTriggerTowerEt_[1]->getName() );
+  sprintf(histo, "EETTT EE + Et trigger tower quality summary");
+  meTriggerTowerEt_[1] = dbe_->book3D(histo, histo, 100, 0., 100., 100, 0., 100., 128, 0., 512.);
+  
+  if( meTriggerTowerEmulError_[0] ) dbe_->removeElement( meTriggerTowerEmulError_[0]->getName() );
+  sprintf(histo, "EETTT EE - emulator error quality summary");
+  meTriggerTowerEmulError_[0] = dbe_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
+
+  if( meTriggerTowerEmulError_[1] ) dbe_->removeElement( meTriggerTowerEmulError_[1]->getName() );
+  sprintf(histo, "EETTT EE + emulator error quality summary");
+  meTriggerTowerEmulError_[1] = dbe_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
+
   if( meGlobalSummary_[0] ) dbe_->removeElement( meGlobalSummary_[0]->getName() );
   sprintf(histo, "EE global summary EE -");
   meGlobalSummary_[0] = dbe_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
@@ -536,6 +580,18 @@ void EESummaryClient::cleanup(void) {
   if ( meTiming_[1] ) dbe_->removeElement( meTiming_[1]->getName() );
   meTiming_[1] = 0;
 
+  if ( meTriggerTowerEt_[0] ) dbe_->removeElement( meTriggerTowerEt_[0]->getName() );
+  meTriggerTowerEt_[0] = 0;
+
+  if ( meTriggerTowerEt_[1] ) dbe_->removeElement( meTriggerTowerEt_[1]->getName() );
+  meTriggerTowerEt_[1] = 0;
+
+  if ( meTriggerTowerEmulError_[0] ) dbe_->removeElement( meTriggerTowerEmulError_[0]->getName() );
+  meTriggerTowerEmulError_[0] = 0;
+
+  if ( meTriggerTowerEmulError_[1] ) dbe_->removeElement( meTriggerTowerEmulError_[1]->getName() );
+  meTriggerTowerEmulError_[1] = 0;
+
   if ( meGlobalSummary_[0] ) dbe_->removeElement( meGlobalSummary_[0]->getName() );
   meGlobalSummary_[0] = 0;
 
@@ -575,6 +631,10 @@ bool EESummaryClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRun
 //  UtilsClient::printBadChannels(qtg08_[1]);
 //  UtilsClient::printBadChannels(qtg09_[0]);
 //  UtilsClient::printBadChannels(qtg09_[1]);
+//  UtilsClient::printBadChannels(qtg10_[0]);
+//  UtilsClient::printBadChannels(qtg10_[1]);
+//  UtilsClient::printBadChannels(qtg11_[0]);
+//  UtilsClient::printBadChannels(qtg11_[1]);
 
 //  UtilsClient::printBadChannels(qtg99_[0]);
 //  UtilsClient::printBadChannels(qtg99_[1]);
@@ -601,47 +661,55 @@ void EESummaryClient::subscribe(void){
   if ( qtg03_[0] ) dbe_->useQTest(histo, qtg03_[0]->getName());
   sprintf(histo, "EcalEndcap/EESummaryClient/EEPOT EE + pedestal quality summary G12");
   if ( qtg03_[1] ) dbe_->useQTest(histo, qtg03_[1]->getName());
-  sprintf(histo, "EcalBarrel/EESummaryClient/EELT EE - laser quality summary L1");
+  sprintf(histo, "EcalEndcap/EESummaryClient/EELT EE - laser quality summary L1");
   if ( qtg04_[0] ) dbe_->useQTest(histo, qtg04_[0]->getName());
-  sprintf(histo, "EcalBarrel/EESummaryClient/EELT EE + laser quality summary L1");
+  sprintf(histo, "EcalEndcap/EESummaryClient/EELT EE + laser quality summary L1");
   if ( qtg04_[1] ) dbe_->useQTest(histo, qtg04_[1]->getName());
-  sprintf(histo, "EcalBarrel/EESummaryClient/EELT EE - PN laser quality summary L1");
+  sprintf(histo, "EcalEndcap/EESummaryClient/EELT EE - PN laser quality summary L1");
   if ( qtg04PN_[0] ) dbe_->useQTest(histo, qtg04PN_[0]->getName());
-  sprintf(histo, "EcalBarrel/EESummaryClient/EELT EE + PN laser quality summary L1");
+  sprintf(histo, "EcalEndcap/EESummaryClient/EELT EE + PN laser quality summary L1");
   if ( qtg04PN_[1] ) dbe_->useQTest(histo, qtg04PN_[1]->getName());
-  sprintf(histo, "EcalBarrel/EESummaryClient/EELDT EE - led quality summary");
+  sprintf(histo, "EcalEndcap/EESummaryClient/EELDT EE - led quality summary");
   if ( qtg05_[0] ) dbe_->useQTest(histo, qtg05_[1]->getName());
-  sprintf(histo, "EcalBarrel/EESummaryClient/EELDT EE + led quality summary");
+  sprintf(histo, "EcalEndcap/EESummaryClient/EELDT EE + led quality summary");
   if ( qtg05_[1] ) dbe_->useQTest(histo, qtg05_[1]->getName());
-  sprintf(histo, "EcalBarrel/EESummaryClient/EELDT EE - PN led quality summary");
+  sprintf(histo, "EcalEndcap/EESummaryClient/EELDT EE - PN led quality summary");
   if ( qtg05PN_[0] ) dbe_->useQTest(histo, qtg05PN_[0]->getName());
-  sprintf(histo, "EcalBarrel/EESummaryClient/EELDT EE + PN led quality summary");
+  sprintf(histo, "EcalEndcap/EESummaryClient/EELDT EE + PN led quality summary");
   if ( qtg05PN_[1] ) dbe_->useQTest(histo, qtg05PN_[1]->getName());
-  sprintf(histo, "EcalBarrel/EESummaryClient/EEPT EE - PN pedestal quality summary");
+  sprintf(histo, "EcalEndcap/EESummaryClient/EEPT EE - PN pedestal quality summary");
   if ( qtg06_[0] ) dbe_->useQTest(histo, qtg06_[0]->getName());
-  sprintf(histo, "EcalBarrel/EESummaryClient/EEPT EE + PN pedestal quality summary");
+  sprintf(histo, "EcalEndcap/EESummaryClient/EEPT EE + PN pedestal quality summary");
   if ( qtg06_[1] ) dbe_->useQTest(histo, qtg06_[1]->getName());
-  sprintf(histo, "EcalBarrel/EESummaryClient/EEPT EE - PN pedestal quality summary");
+  sprintf(histo, "EcalEndcap/EESummaryClient/EEPT EE - PN pedestal quality summary");
   if ( qtg06PN_[0] ) dbe_->useQTest(histo, qtg06PN_[0]->getName());
-  sprintf(histo, "EcalBarrel/EESummaryClient/EEPT EE + PN pedestal quality summary");
+  sprintf(histo, "EcalEndcap/EESummaryClient/EEPT EE + PN pedestal quality summary");
   if ( qtg06PN_[1] ) dbe_->useQTest(histo, qtg06PN_[1]->getName());
-  sprintf(histo, "EcalBarrel/EESummaryClient/EETPT EE - test pulse quality summary");
+  sprintf(histo, "EcalEndcap/EESummaryClient/EETPT EE - test pulse quality summary");
   if ( qtg07_[0] ) dbe_->useQTest(histo, qtg07_[0]->getName());
-  sprintf(histo, "EcalBarrel/EESummaryClient/EETPT EE + test pulse quality summary");
+  sprintf(histo, "EcalEndcap/EESummaryClient/EETPT EE + test pulse quality summary");
   if ( qtg07_[1] ) dbe_->useQTest(histo, qtg07_[1]->getName());
-  sprintf(histo, "EcalBarrel/EESummaryClient/EETPT EE - PN test pulse quality summary");
+  sprintf(histo, "EcalEndcap/EESummaryClient/EETPT EE - PN test pulse quality summary");
   if ( qtg07PN_[0] ) dbe_->useQTest(histo, qtg07PN_[0]->getName());
-  sprintf(histo, "EcalBarrel/EESummaryClient/EETPT EE + PN test pulse quality summary");
+  sprintf(histo, "EcalEndcap/EESummaryClient/EETPT EE + PN test pulse quality summary");
   if ( qtg07PN_[1] ) dbe_->useQTest(histo, qtg07PN_[1]->getName());
 
-  sprintf(histo, "EcalBarrel/EESummaryClient/EECT EE - cosmic quality summary");
+  sprintf(histo, "EcalEndcap/EESummaryClient/EECT EE - cosmic quality summary");
   if ( qtg08_[0] ) dbe_->useQTest(histo, qtg08_[0]->getName());
-  sprintf(histo, "EcalBarrel/EESummaryClient/EECT EE + cosmic quality summary");
+  sprintf(histo, "EcalEndcap/EESummaryClient/EECT EE + cosmic quality summary");
   if ( qtg08_[1] ) dbe_->useQTest(histo, qtg08_[1]->getName());
-  sprintf(histo, "EcalBarrel/EESummaryClient/EETMT EE - timing quality summary");
+  sprintf(histo, "EcalEndcap/EESummaryClient/EETMT EE - timing quality summary");
   if ( qtg09_[0] ) dbe_->useQTest(histo, qtg09_[0]->getName());
-  sprintf(histo, "EcalBarrel/EESummaryClient/EETMT EE + timing quality summary");
+  sprintf(histo, "EcalEndcap/EESummaryClient/EETMT EE + timing quality summary");
   if ( qtg09_[1] ) dbe_->useQTest(histo, qtg09_[1]->getName());
+  sprintf(histo, "EcalEndcap/EESummaryClient/EETTT EE - Et trigger tower quality summary");
+//   if ( qtg10_[0] ) dbe_->useQTest(histo, qtg10_[0]->getName());
+  sprintf(histo, "EcalEndcap/EESummaryClient/EETTT EE + Et trigger tower quality summary");
+//   if ( qtg10_[1] ) dbe_->useQTest(histo, qtg10_[1]->getName());
+  sprintf(histo, "EcalEndcap/EESummaryClient/EETTT EE + emulator error quality summary"); 
+  if ( qtg11_[0] ) dbe_->useQTest(histo, qtg11_[0]->getName());
+  sprintf(histo, "EcalEndcap/EESummaryClient/EETTT EE - emulator error quality summary"); 
+  if ( qtg11_[1] ) dbe_->useQTest(histo, qtg11_[1]->getName());
 
   sprintf(histo, "EcalEndcap/EESummaryClient/EE global summary EE -");
   if ( qtg99_[0] ) dbe_->useQTest(histo, qtg99_[0]->getName());
@@ -715,6 +783,17 @@ void EESummaryClient::analyze(void){
     }
   }
 
+  for ( int ix = 1; ix <= 100; ix++ ) {
+    for ( int iy = 1; iy <= 100; iy++ ) {
+      for (int en = 0; en <= 128; en++ ) {
+        meTriggerTowerEt_[0]->setBinContent( ix, iy, en, -1. );
+        meTriggerTowerEt_[1]->setBinContent( ix, iy, en, -1. );
+      }
+      meTriggerTowerEmulError_[0]->setBinContent( ix, iy, -1. );
+      meTriggerTowerEmulError_[1]->setBinContent( ix, iy, -1. );
+    }
+  }
+
   meLaserL1_[0]->setEntries( 0 );
   meLaserL1_[1]->setEntries( 0 );
   meLaserL1PN_[0]->setEntries( 0 );
@@ -736,6 +815,10 @@ void EESummaryClient::analyze(void){
   meCosmic_[1]->setEntries( 0 );
   meTiming_[0]->setEntries( 0 );
   meTiming_[1]->setEntries( 0 );
+  meTriggerTowerEt_[0]->setEntries( 0 );
+  meTriggerTowerEt_[1]->setEntries( 0 );
+  meTriggerTowerEmulError_[0]->setEntries( 0 );
+  meTriggerTowerEmulError_[1]->setEntries( 0 );
 
   for ( unsigned int i=0; i<clients_.size(); i++ ) {
 
@@ -749,12 +832,14 @@ void EESummaryClient::analyze(void){
 
     EECosmicClient* eecc = dynamic_cast<EECosmicClient*>(clients_[i]);
     EETimingClient* eetmc = dynamic_cast<EETimingClient*>(clients_[i]);
+    EETriggerTowerClient* eetttc = dynamic_cast<EETriggerTowerClient*>(clients_[i]);
 
     MonitorElement* me;
     MonitorElement *me_01, *me_02, *me_03;
 //    MonitorElement *me_04, *me_05;
     TH2F* h2;
     TProfile2D* h2d;
+    TH3F* h3;
 
     // fill the gain value priority map<id,priority>
     std::map<float,float> priority;
@@ -1004,9 +1089,85 @@ void EESummaryClient::analyze(void){
         }
       }
 
-    }
+      for ( int ix = 1; ix <= 50; ix++ ) {
+        for ( int iy = 1; iy <= 50; iy++ ) {
 
-  }
+          int jx = ix + Numbers::ix0EE(ism);
+          int jy = iy + Numbers::iy0EE(ism);
+
+          if ( eetttc ) {
+
+            h3 = eetttc->h01_[ism-1];
+
+            bool hasRealDigi = false;
+
+            if ( h3 ) {
+
+              for(int en = 1; en <= 128; en++) {
+
+                float xval = h3->GetBinContent( ix, iy, en );
+
+                if(xval!=0) hasRealDigi = true;
+                
+                if ( ism >= 1 && ism <= 9 ) {
+                  if ( Numbers::validEE(ism, 101 - jx, jy) ) meTriggerTowerEt_[0]->setBinContent( jx, jy, en, xval );
+                } else {
+                  if ( Numbers::validEE(ism, jx, jy) ) meTriggerTowerEt_[1]->setBinContent( jx, jy, en, xval );
+                }
+
+              }
+            }
+
+            h2 = eetttc->l01_[ism-1];
+
+            if ( h2 && h3 ) {
+              float xval = -1;
+              float emulErrorVal = h2->GetBinContent( ix, iy );
+
+              if(!hasRealDigi) xval = 2;
+              else if(hasRealDigi && emulErrorVal!=0) xval = 0;
+              else xval = 1;
+
+              if ( ism >= 1 && ism <= 9 ) {
+                if ( Numbers::validEE(ism, 101 - jx, jy) ) meTriggerTowerEmulError_[0]->setBinContent( jx, jy, xval );
+              } else {
+                if ( Numbers::validEE(ism, jx, jy) ) meTriggerTowerEmulError_[1]->setBinContent( jx, jy, xval );
+              }
+
+            }
+
+          }
+
+        }
+      }
+
+      // PN's summaries
+      for( int i = 1; i <= 10; i++ ) {
+        for( int j = 1; j <= 5; j++ ) {
+
+          if ( eepc ) {
+
+          }
+
+          if ( eetpc ) {
+
+          }
+
+          if ( eelc ) {
+
+          }
+
+          if ( eeldc ) {
+
+
+          }
+
+        }
+      }
+
+    } // loop on SM
+
+  } // loop on clients
 
   // The global-summary
   // right now a summary of Integrity and PO
@@ -1148,6 +1309,8 @@ void EESummaryClient::htmlOutput(int run, string htmlDir, string htmlName){
   string imgNameMapTP[2], imgNameMapTP_PN[2];
   string imgNameMapC[2];
   string imgNameMapTM[2];
+  string imgNameMapTTEt[2];
+  string imgNameMapTTEmulError[2];
   string imgName, meName;
   string imgNameMapGS[2];
 
@@ -1159,6 +1322,8 @@ void EESummaryClient::htmlOutput(int run, string htmlDir, string htmlName){
   gStyle->SetTitleFontSize(14);
 
   TH2F* obj2f;
+  TH3F* obj3f;
+  TProfile2D* obj2p;
 
   gStyle->SetPaintTextFormat("+g");
 
@@ -1920,6 +2085,184 @@ void EESummaryClient::htmlOutput(int run, string htmlDir, string htmlName){
 
   }
 
+  imgNameMapTTEmulError[0] = "";
+  
+  obj2f = 0;
+  obj2f = UtilsClient::getHisto<TH2F*>( meTriggerTowerEmulError_[0] );
+  
+  if ( obj2f && obj2f->GetEntries() != 0 ) {
+
+    meName = obj2f->GetName();
+
+    for ( unsigned int i = 0; i < meName.size(); i++ ) {
+      if ( meName.substr(i, 1) == " " )  {
+        meName.replace(i, 1 ,"_" );
+      }
+    }
+    imgNameMapTTEmulError[0] = meName + ".png";
+    imgName = htmlDir + imgNameMapTTEmulError[0];
+
+    cMap->cd();
+    gStyle->SetOptStat(" ");
+    gStyle->SetPalette(6, pCol3);
+    cMap->SetGridx();
+    cMap->SetGridy();
+    obj2f->SetMinimum(-0.00000001);
+    obj2f->SetMaximum(6.0);
+    obj2f->GetXaxis()->SetLabelSize(0.03);
+    obj2f->GetYaxis()->SetLabelSize(0.03);
+    obj2f->Draw("col");
+    labelGrid1.Draw("text,same");
+    cMap->SetBit(TGraph::kClipFrame);
+    TLine l;
+    l.SetLineWidth(1);
+    for ( int i=0; i<201; i=i+1){
+      if ( (Numbers::ixSectorsEE[i]!=0 || Numbers::iySectorsEE[i]!=0) && (Numbers::ixSectorsEE[i+1]!=0 || Numbers::iySectorsEE[i+1]!=0) ) {
+        l.DrawLine(Numbers::ixSectorsEE[i], Numbers::iySectorsEE[i], Numbers::ixSectorsEE[i+1], Numbers::iySectorsEE[i+1]);
+      }
+    }
+    cMap->Update();
+    cMap->SaveAs(imgName.c_str());
+
+  }
+
+  imgNameMapTTEmulError[1] = "";
+
+  obj2f = 0;
+  obj2f = UtilsClient::getHisto<TH2F*>( meTriggerTowerEmulError_[1] );
+
+  if ( obj2f && obj2f->GetEntries() != 0 ) {
+
+    meName = obj2f->GetName();
+
+    for ( unsigned int i = 0; i < meName.size(); i++ ) {
+      if ( meName.substr(i, 1) == " " )  {
+        meName.replace(i, 1 ,"_" );
+      }
+    }
+    imgNameMapTTEmulError[1] = meName + ".png";
+    imgName = htmlDir + imgNameMapTTEmulError[1];
+    
+    cMap->cd();
+    gStyle->SetOptStat(" ");
+    gStyle->SetPalette(6, pCol3);
+    cMap->SetGridx();
+    cMap->SetGridy();
+    obj2f->SetMinimum(-0.00000001);
+    obj2f->SetMaximum(6.0);
+    obj2f->GetXaxis()->SetLabelSize(0.03);
+    obj2f->GetYaxis()->SetLabelSize(0.03);
+    obj2f->Draw("col");
+    labelGrid1.Draw("text,same");
+    cMap->SetBit(TGraph::kClipFrame);
+    TLine l;
+    l.SetLineWidth(1);
+    for ( int i=0; i<201; i=i+1){
+      if ( (Numbers::ixSectorsEE[i]!=0 || Numbers::iySectorsEE[i]!=0) && (Numbers::ixSectorsEE[i+1]!=0 || Numbers::iySectorsEE[i+1]!=0) ) {
+        l.DrawLine(Numbers::ixSectorsEE[i], Numbers::iySectorsEE[i], Numbers::ixSectorsEE[i+1], Numbers::iySectorsEE[i+1]);
+      }
+    }
+    cMap->Update();
+    cMap->SaveAs(imgName.c_str());
+
+  }
+
+  imgNameMapTTEt[0] = "";
+
+  obj3f = 0;
+  obj3f = UtilsClient::getHisto<TH3F*>( meTriggerTowerEt_[0] );
+
+  if ( obj3f && obj3f->GetEntries() != 0 ) {
+
+    meName = obj3f->GetName();
+
+    for ( unsigned int i = 0; i < meName.size(); i++ ) {
+      if ( meName.substr(i, 1) == " " )  {
+        meName.replace(i, 1 ,"_" );
+      }
+    }
+    imgNameMapTTEt[0] = meName + ".png";
+    imgName = htmlDir + imgNameMapTTEt[0];
+
+    obj2p = obj3f->Project3DProfile("yx");
+
+    cMap->cd();
+    gStyle->SetOptStat(" ");
+    gStyle->SetPalette(10, pCol4);
+
+    std::string projname(obj2p->GetName());
+    string::size_type loc = projname.find( "_pyx", 0 );
+    projname.replace( loc, projname.length(), "");
+    obj2p->SetTitle(projname.c_str());
+
+    cMap->SetGridx();
+    cMap->SetGridy();
+    obj2p->GetXaxis()->SetLabelSize(0.03);
+    obj2p->GetYaxis()->SetLabelSize(0.03);
+    obj2p->GetZaxis()->SetLabelSize(0.03);
+    obj2p->Draw("colz");
+    labelGrid1.Draw("text,same");
+    cMap->SetBit(TGraph::kClipFrame);
+    TLine l;
+    l.SetLineWidth(1);
+    for ( int i=0; i<201; i=i+1){
+      if ( (Numbers::ixSectorsEE[i]!=0 || Numbers::iySectorsEE[i]!=0) && (Numbers::ixSectorsEE[i+1]!=0 || Numbers::iySectorsEE[i+1]!=0) ) {
+        l.DrawLine(Numbers::ixSectorsEE[i], Numbers::iySectorsEE[i], Numbers::ixSectorsEE[i+1], Numbers::iySectorsEE[i+1]); 
+      }
+    }
+    cMap->Update();
+    cMap->SaveAs(imgName.c_str());
+    delete obj2p;
+  }
+
+  imgNameMapTTEt[1] = "";
+
+  obj3f = 0;
+  obj3f = UtilsClient::getHisto<TH3F*>( meTriggerTowerEt_[1] );
+
+  if ( obj3f && obj3f->GetEntries() != 0 ) {
+
+    meName = obj3f->GetName();
+
+    for ( unsigned int i = 0; i < meName.size(); i++ ) {
+      if ( meName.substr(i, 1) == " " )  {
+        meName.replace(i, 1 ,"_" );
+      }
+    }
+    imgNameMapTTEt[1] = meName + ".png";
+    imgName = htmlDir + imgNameMapTTEt[1];
+
+    obj2p = obj3f->Project3DProfile("yx");
+
+    cMap->cd();
+    gStyle->SetOptStat(" ");
+    gStyle->SetPalette(10, pCol4);
+
+    std::string projname(obj2p->GetName());
+    string::size_type loc = projname.find( "_pyx", 0 );
+    projname.replace( loc, projname.length(), "");
+    obj2p->SetTitle(projname.c_str());
+
+    cMap->SetGridx();
+    cMap->SetGridy();
+    obj2p->GetXaxis()->SetLabelSize(0.03);
+    obj2p->GetYaxis()->SetLabelSize(0.03);
+    obj2p->GetZaxis()->SetLabelSize(0.03);
+    obj2p->Draw("colz");
+    labelGrid1.Draw("text,same");
+    cMap->SetBit(TGraph::kClipFrame);
+    TLine l;
+    l.SetLineWidth(1);
+    for ( int i=0; i<201; i=i+1){
+      if ( (Numbers::ixSectorsEE[i]!=0 || Numbers::iySectorsEE[i]!=0) && (Numbers::ixSectorsEE[i+1]!=0 || Numbers::iySectorsEE[i+1]!=0) ) {
+        l.DrawLine(Numbers::ixSectorsEE[i], Numbers::iySectorsEE[i], Numbers::ixSectorsEE[i+1], Numbers::iySectorsEE[i+1]);
+      }
+    }
+    cMap->Update();
+    cMap->SaveAs(imgName.c_str());
+    delete obj2p;
+  }
+
   imgNameMapGS[0] = "";
 
   obj2f = 0;
@@ -2103,6 +2446,28 @@ void EESummaryClient::htmlOutput(int run, string htmlDir, string htmlName){
     htmlFile << "<br>" << endl;
   }
 
+  if ( imgNameMapTTEmulError[0].size() != 0 || imgNameMapTTEmulError[1].size() != 0 ) {
+    htmlFile << "<table border=\"0\" cellspacing=\"0\" " << endl;
+    htmlFile << "cellpadding=\"10\" align=\"center\"> " << endl;
+    htmlFile << "<tr align=\"center\">" << endl;
+    htmlFile << "<td><img src=\"" << imgNameMapTTEmulError[0] << "\" usemap=\"#TriggerTower_0\" border=0></td>" << endl;
+    htmlFile << "<td><img src=\"" << imgNameMapTTEmulError[1] << "\" usemap=\"#TriggerTower_1\" border=0></td>" << endl;
+    htmlFile << "</tr>" << endl;
+    htmlFile << "</table>" << endl;
+    htmlFile << "<br>" << endl;
+  }
+
+  if ( imgNameMapTTEt[0].size() != 0 || imgNameMapTTEt[1].size() != 0 ) {
+    htmlFile << "<table border=\"0\" cellspacing=\"0\" " << endl;
+    htmlFile << "cellpadding=\"10\" align=\"center\"> " << endl;
+    htmlFile << "<tr align=\"center\">" << endl;
+    htmlFile << "<td><img src=\"" << imgNameMapTTEt[0] << "\" usemap=\"#TriggerTower_0\" border=0></td>" << endl;
+    htmlFile << "<td><img src=\"" << imgNameMapTTEt[1] << "\" usemap=\"#TriggerTower_1\" border=0></td>" << endl;
+    htmlFile << "</tr>" << endl;
+    htmlFile << "</table>" << endl;
+    htmlFile << "<br>" << endl;
+  }
+
   delete cMap;
 
   gStyle->SetPaintTextFormat();
@@ -2117,6 +2482,8 @@ void EESummaryClient::htmlOutput(int run, string htmlDir, string htmlName){
 
   if ( imgNameMapC[0].size() != 0 || imgNameMapC[1].size() != 0 ) this->writeMap( htmlFile, "Cosmic" );
   if ( imgNameMapTM[0].size() != 0 || imgNameMapTM[1].size() != 0 ) this->writeMap( htmlFile, "Timing" );
+  if ( imgNameMapTTEt[0].size() != 0 || imgNameMapTTEt[1].size() != 0 ) this->writeMap( htmlFile, "TriggerTower" );
+  if ( imgNameMapTTEmulError[0].size() != 0 || imgNameMapTTEmulError[1].size() != 0 ) this->writeMap( htmlFile, "TriggerTower" );
 
   // html page footer
   htmlFile << "</body> " << endl;
@@ -2142,6 +2509,7 @@ void EESummaryClient::writeMap( std::ofstream& hf, std::string mapname ) {
 
   refhtml["Cosmic"] = "EECosmicClient.html";
   refhtml["Timing"] = "EETimingClient.html";
+  refhtml["TriggerTower"] = "EETriggerTowerClient.html";
 
   const int A0 =  38;
   const int A1 = 334;
