@@ -1,8 +1,8 @@
 /*
  * \file EBSummaryClient.cc
  *
- * $Date: 2007/10/20 08:06:15 $
- * $Revision: 1.64 $
+ * $Date: 2007/10/21 15:36:44 $
+ * $Revision: 1.69 $
  * \author G. Della Ricca
  *
 */
@@ -462,7 +462,7 @@ void EBSummaryClient::analyze(void){
   for (int iex = 1; iex <= 34; iex++ ) {
     for (int ipx = 1; ipx <= 72; ipx++ ) {
       for (int en = 0; en <= 128; en++ ) {
-	meTriggerTowerEt_->setBinContent( ipx, iex, en, -1. );
+        meTriggerTowerEt_->setBinContent( ipx, iex, en, -1. );
       }
       meTriggerTowerEmulError_->setBinContent( ipx, iex, -1. ); 
     }
@@ -508,7 +508,7 @@ void EBSummaryClient::analyze(void){
     priority.insert( make_pair(3,2) );
     priority.insert( make_pair(4,3) );
     priority.insert( make_pair(5,1) );
-	  
+          
     for ( unsigned int i=0; i<superModules_.size(); i++ ) {
 
       int ism = superModules_[i];
@@ -528,7 +528,7 @@ void EBSummaryClient::analyze(void){
               int ipx;
 
               if ( ism <= 18 ) {
-		iex = 1+(85-ie);
+                iex = 1+(85-ie);
                 ipx = ip+20*(ism-1);
               } else {
                 iex = 85+ie;
@@ -549,7 +549,7 @@ void EBSummaryClient::analyze(void){
               int ipx;
 
               if ( ism <= 18 ) {
-		iex = 1+(85-ie);
+                iex = 1+(85-ie);
                 ipx = ip+20*(ism-1);
               } else {
                 iex = 85+ie;
@@ -574,7 +574,7 @@ void EBSummaryClient::analyze(void){
               int ipx;
 
               if ( ism <= 18 ) {
-		iex = 1+(85-ie);
+                iex = 1+(85-ie);
                 ipx = ip+20*(ism-1);
               } else {
                 iex = 85+ie;
@@ -599,7 +599,7 @@ void EBSummaryClient::analyze(void){
               int ipx;
 
               if ( ism <= 18 ) {
-		iex = 1+(85-ie);
+                iex = 1+(85-ie);
                 ipx = ip+20*(ism-1);
               } else {
                 iex = 85+ie;
@@ -614,108 +614,111 @@ void EBSummaryClient::analyze(void){
 
           }
 
-	  if ( ebpc ) {
-	    
-	    me_01 = ebpc->meg01_[ism-1];
-	    me_02 = ebpc->meg02_[ism-1];
-	    me_03 = ebpc->meg03_[ism-1];
-	    
-	    if (me_01 && me_02 && me_03 ) {
-	      float xval=2;
-	      float val_01=me_01->getBinContent(ie,ip);
-	      float val_02=me_02->getBinContent(ie,ip);
-	      float val_03=me_03->getBinContent(ie,ip);
+          if ( ebpc ) {
+            
+            me_01 = ebpc->meg01_[ism-1];
+            me_02 = ebpc->meg02_[ism-1];
+            me_03 = ebpc->meg03_[ism-1];
+            
+            if (me_01 && me_02 && me_03 ) {
+              float xval=2;
+              float val_01=me_01->getBinContent(ie,ip);
+              float val_02=me_02->getBinContent(ie,ip);
+              float val_03=me_03->getBinContent(ie,ip);
 
-	      std::vector<float> maskedVal, unmaskedVal;
-	      (val_01>2) ? maskedVal.push_back(val_01) : unmaskedVal.push_back(val_01);
-	      (val_02>2) ? maskedVal.push_back(val_02) : unmaskedVal.push_back(val_02);
-	      (val_03>2) ? maskedVal.push_back(val_03) : unmaskedVal.push_back(val_03);
-	      
-	      float brightColor=-1, darkColor=-1;
-	      float maxPriority=-1;
-	      std::vector<float>::const_iterator Val;
-	      for(Val=unmaskedVal.begin(); Val<unmaskedVal.end(); Val++) {
-		if(priority[*Val]>maxPriority) brightColor=*Val;
-	      }
-	      maxPriority=-1;
-	      for(Val=maskedVal.begin(); Val<maskedVal.end(); Val++) {
-		if(priority[*Val]>maxPriority) darkColor=*Val;
-	      }
-	      if(unmaskedVal.size()==3)  xval = brightColor;
-	      else if(maskedVal.size()==3)  xval = darkColor;
-	      else {
-		if(brightColor==1 && darkColor==5) xval = 5;
-		else xval = brightColor;
-	      }
+              std::vector<float> maskedVal, unmaskedVal;
+              (val_01>2) ? maskedVal.push_back(val_01) : unmaskedVal.push_back(val_01);
+              (val_02>2) ? maskedVal.push_back(val_02) : unmaskedVal.push_back(val_02);
+              (val_03>2) ? maskedVal.push_back(val_03) : unmaskedVal.push_back(val_03);
+              
+              float brightColor=-1, darkColor=-1;
+              float maxPriority=-1;
+              std::vector<float>::const_iterator Val;
+              for(Val=unmaskedVal.begin(); Val<unmaskedVal.end(); Val++) {
+                if(priority[*Val]>maxPriority) brightColor=*Val;
+              }
+              maxPriority=-1;
+              for(Val=maskedVal.begin(); Val<maskedVal.end(); Val++) {
+                if(priority[*Val]>maxPriority) darkColor=*Val;
+              }
+              if(unmaskedVal.size()==3)  xval = brightColor;
+              else if(maskedVal.size()==3)  xval = darkColor;
+              else {
+                if(brightColor==1 && darkColor==5) xval = 5;
+                else xval = brightColor;
+              }
 
               int iex;
               int ipx;
-	      
+              
               if ( ism <= 18 ) {
-		iex = 1+(85-ie);
+                iex = 1+(85-ie);
                 ipx = ip+20*(ism-1);
               } else {
                 iex = 85+ie;
                 ipx = 1+(20-ip)+20*(ism-19);
               }
-	      if ( me_01->getEntries() != 0 && me_02->getEntries() != 0 && me_03->getEntries() != 0 ) {
-		mePedestal_->setBinContent( ipx, iex, xval );
-	      }
-	    }
 
+              if ( me_01->getEntries() != 0 && me_02->getEntries() != 0 && me_03->getEntries() != 0 ) {
+                mePedestal_->setBinContent( ipx, iex, xval );
+              }
 
-	  }
+            }
 
-	  if ( ebtpc ) {
-	    
-	    me_01 = ebtpc->meg01_[ism-1];
-	    me_02 = ebtpc->meg02_[ism-1];
-	    me_03 = ebtpc->meg03_[ism-1];
-	    
-	    if (me_01 && me_02 && me_03 ) {
-	      float xval=2;
-	      float val_01=me_01->getBinContent(ie,ip);
-	      float val_02=me_02->getBinContent(ie,ip);
-	      float val_03=me_03->getBinContent(ie,ip);
+          }
 
-	      std::vector<float> maskedVal, unmaskedVal;
-	      (val_01>2) ? maskedVal.push_back(val_01) : unmaskedVal.push_back(val_01);
-	      (val_02>2) ? maskedVal.push_back(val_02) : unmaskedVal.push_back(val_02);
-	      (val_03>2) ? maskedVal.push_back(val_03) : unmaskedVal.push_back(val_03);
+          if ( ebtpc ) {
+            
+            me_01 = ebtpc->meg01_[ism-1];
+            me_02 = ebtpc->meg02_[ism-1];
+            me_03 = ebtpc->meg03_[ism-1];
+            
+            if (me_01 && me_02 && me_03 ) {
+              float xval=2;
+              float val_01=me_01->getBinContent(ie,ip);
+              float val_02=me_02->getBinContent(ie,ip);
+              float val_03=me_03->getBinContent(ie,ip);
 
-	      float brightColor=-1, darkColor=-1;
-	      float maxPriority=-1;
-	      std::vector<float>::const_iterator Val;
-	      for(Val=unmaskedVal.begin(); Val<unmaskedVal.end(); Val++) {
-		if(priority[*Val]>maxPriority) brightColor=*Val;
-	      }
-	      maxPriority=-1;
-	      for(Val=maskedVal.begin(); Val<maskedVal.end(); Val++) {
-		if(priority[*Val]>maxPriority) darkColor=*Val;
-	      }
-	      if(unmaskedVal.size()==3) xval = brightColor;
-	      else if(maskedVal.size()==3) xval = darkColor;
-	      else {
-		if(brightColor==1 && darkColor==5) xval = 5;
-		else xval = brightColor;
-	      }
-	      
+              std::vector<float> maskedVal, unmaskedVal;
+              (val_01>2) ? maskedVal.push_back(val_01) : unmaskedVal.push_back(val_01);
+              (val_02>2) ? maskedVal.push_back(val_02) : unmaskedVal.push_back(val_02);
+              (val_03>2) ? maskedVal.push_back(val_03) : unmaskedVal.push_back(val_03);
+
+              float brightColor=-1, darkColor=-1;
+              float maxPriority=-1;
+              std::vector<float>::const_iterator Val;
+              for(Val=unmaskedVal.begin(); Val<unmaskedVal.end(); Val++) {
+                if(priority[*Val]>maxPriority) brightColor=*Val;
+              }
+              maxPriority=-1;
+              for(Val=maskedVal.begin(); Val<maskedVal.end(); Val++) {
+                if(priority[*Val]>maxPriority) darkColor=*Val;
+              }
+              if(unmaskedVal.size()==3) xval = brightColor;
+              else if(maskedVal.size()==3) xval = darkColor;
+              else {
+                if(brightColor==1 && darkColor==5) xval = 5;
+                else xval = brightColor;
+              }
+              
               int iex;
               int ipx;
-	      
+              
               if ( ism <= 18 ) {
-		iex = 1+(85-ie);
+                iex = 1+(85-ie);
                 ipx = ip+20*(ism-1);
               } else {
                 iex = 85+ie;
                 ipx = 1+(20-ip)+20*(ism-19);
               }
-	      if ( me_01->getEntries() != 0 && me_02->getEntries() != 0 && me_03->getEntries() != 0 ) {
-		meTestPulse_->setBinContent( ipx, iex, xval );
-	      }
-	    }
-	    
-	  }
+
+              if ( me_01->getEntries() != 0 && me_02->getEntries() != 0 && me_03->getEntries() != 0 ) {
+                meTestPulse_->setBinContent( ipx, iex, xval );
+              }
+
+            }
+            
+          }
 
           if ( ebcc ) {
 
@@ -771,197 +774,204 @@ void EBSummaryClient::analyze(void){
       }
 
       for (int ie = 1; ie <= 17; ie++ ) {
-	for (int ip = 1; ip <= 4; ip++ ) {
-	  
-	  if ( ebtttc ) {
-	      
-	    h3 = ebtttc->h01_[ism-1];
+        for (int ip = 1; ip <= 4; ip++ ) {
+          
+          if ( ebtttc ) {
+              
+            h3 = ebtttc->h01_[ism-1];
 
-	    bool hasRealDigi = false;
+            bool hasRealDigi = false;
 
-	    if ( h3 ) {
+            if ( h3 ) {
 
-	      for(int en = 1; en <= 128; en++) {
-		
-		float xval = h3->GetBinContent( ie, ip, en );
-		
-		if(xval!=0) hasRealDigi = true; 
-		
-		int iex;
-		int ipx;
-		
-		if ( ism <= 18 ) {
-		  iex = 1+(17-ie);
-		  ipx = ip+4*(ism-1);
-		} else {
-		  iex = 17+ie;
-		  ipx = 1+(4-ip)+4*(ism-19);
-		}
-		
-		meTriggerTowerEt_->setBinContent( ipx, iex, en, xval );
-	      }
-	    }
+              for(int en = 1; en <= 128; en++) {
+                
+                float xval = h3->GetBinContent( ie, ip, en );
+                
+                if(xval!=0) hasRealDigi = true; 
+                
+                int iex;
+                int ipx;
+                
+                if ( ism <= 18 ) {
+                  iex = 1+(17-ie);
+                  ipx = ip+4*(ism-1);
+                } else {
+                  iex = 17+ie;
+                  ipx = 1+(4-ip)+4*(ism-19);
+                }
+                
+                meTriggerTowerEt_->setBinContent( ipx, iex, en, xval );
 
-	    h2 = ebtttc->l01_[ism-1];
+              }
+            }
 
-	    if ( h2 ) {
+            h2 = ebtttc->l01_[ism-1];
 
-	      float xval = -1;
-	      float emulErrorVal = h2->GetBinContent( ie, ip );
+            if ( h2 ) {
 
-	      if(!hasRealDigi) xval = 2;
-	      else if(hasRealDigi && emulErrorVal!=0) xval = 0;
-	      else xval = 1;
+              float xval = -1;
+              float emulErrorVal = h2->GetBinContent( ie, ip );
 
-	      int iex;
-	      int ipx;
+              if(!hasRealDigi) xval = 2;
+              else if(hasRealDigi && emulErrorVal!=0) xval = 0;
+              else xval = 1;
 
-	      if ( ism <= 18 ) {
-		iex = 1+(17-ie);   
-		ipx = ip+4*(ism-1);
-	      } else {
-		iex = 17+ie;
-		ipx = 1+(4-ip)+4*(ism-19);
-	      }
+              int iex;
+              int ipx;
 
-	      meTriggerTowerEmulError_->setBinContent( ipx, iex, xval );
+              if ( ism <= 18 ) {
+                iex = 1+(17-ie);   
+                ipx = ip+4*(ism-1);
+              } else {
+                iex = 17+ie;
+                ipx = 1+(4-ip)+4*(ism-19);
+              }
 
-	    }
+              meTriggerTowerEmulError_->setBinContent( ipx, iex, xval );
 
-	  }
-	} 
+            }
+
+          }
+        } 
       }
 
       // PN's summaries
       for( int i = 1; i <= 10; i++ ) {
-	for( int j = 1; j <= 5; j++ ) { 
+        for( int j = 1; j <= 5; j++ ) { 
 
-	  if ( ebpc ) {
+          if ( ebpc ) {
 
-	    me_04 = ebpc->meg04_[ism-1];
-	    me_05 = ebpc->meg05_[ism-1];
-	    
-	    if( me_04 && me_05) {
-	      float xval=2;
-	      float val_04=me_04->getBinContent(i,1);
-	      float val_05=me_05->getBinContent(i,1);
-	      
-	      std::vector<float> maskedVal, unmaskedVal;
-	      (val_04>2) ? maskedVal.push_back(val_04) : unmaskedVal.push_back(val_04);
-	      (val_05>2) ? maskedVal.push_back(val_05) : unmaskedVal.push_back(val_05);
-	      
-	      float brightColor=-1, darkColor=-1;
-	      float maxPriority=-1;
-	      
-	      std::vector<float>::const_iterator Val;
-	      for(Val=unmaskedVal.begin(); Val<unmaskedVal.end(); Val++) {
-		if(priority[*Val]>maxPriority) brightColor=*Val;
-	      }
-	      maxPriority=-1;
-	      for(Val=maskedVal.begin(); Val<maskedVal.end(); Val++) {
-		if(priority[*Val]>maxPriority) darkColor=*Val;
-	      }
-	      if(unmaskedVal.size()==2)  xval = brightColor;
-	      else if(maskedVal.size()==2)  xval = darkColor;
-	      else {
-		if(brightColor==1 && darkColor==5) xval = 5;
-		else xval = brightColor;
-	      }
-	      
-	      int iex;
-	      int ipx;
-	      
-	      if(ism<=18) {
-		iex = i;
-		ipx = j+5*(ism-1);
-	      }
-	      else {
-		iex = i+10;
-		ipx = j+5*(ism-19);
-	      }
-	      if ( me_04->getEntries() != 0 && me_05->getEntries() != 0 ) {
-		mePedestalPN_->setBinContent( ipx, iex, xval );
-	      }
-	    }
+            me_04 = ebpc->meg04_[ism-1];
+            me_05 = ebpc->meg05_[ism-1];
+            
+            if( me_04 && me_05) {
+              float xval=2;
+              float val_04=me_04->getBinContent(i,1);
+              float val_05=me_05->getBinContent(i,1);
+              
+              std::vector<float> maskedVal, unmaskedVal;
+              (val_04>2) ? maskedVal.push_back(val_04) : unmaskedVal.push_back(val_04);
+              (val_05>2) ? maskedVal.push_back(val_05) : unmaskedVal.push_back(val_05);
+              
+              float brightColor=-1, darkColor=-1;
+              float maxPriority=-1;
+              
+              std::vector<float>::const_iterator Val;
+              for(Val=unmaskedVal.begin(); Val<unmaskedVal.end(); Val++) {
+                if(priority[*Val]>maxPriority) brightColor=*Val;
+              }
+              maxPriority=-1;
+              for(Val=maskedVal.begin(); Val<maskedVal.end(); Val++) {
+                if(priority[*Val]>maxPriority) darkColor=*Val;
+              }
+              if(unmaskedVal.size()==2)  xval = brightColor;
+              else if(maskedVal.size()==2)  xval = darkColor;
+              else {
+                if(brightColor==1 && darkColor==5) xval = 5;
+                else xval = brightColor;
+              }
+              
+              int iex;
+              int ipx;
+              
+              if(ism<=18) {
+                iex = i;
+                ipx = j+5*(ism-1);
+              }
+              else {
+                iex = i+10;
+                ipx = j+5*(ism-19);
+              }
 
-	  }
+              if ( me_04->getEntries() != 0 && me_05->getEntries() != 0 ) {
+                mePedestalPN_->setBinContent( ipx, iex, xval );
+              }
 
-	  if ( ebtpc ) {
+            }
 
-	    me_04 = ebtpc->meg04_[ism-1];
-	    me_05 = ebtpc->meg05_[ism-1];
-	    
-	    if( me_04 && me_05) {
-	      float xval=2;
-	      float val_04=me_04->getBinContent(i,1);
-	      float val_05=me_05->getBinContent(i,1);
-	      
-	      std::vector<float> maskedVal, unmaskedVal;
-	      (val_04>2) ? maskedVal.push_back(val_04) : unmaskedVal.push_back(val_04);
-	      (val_05>2) ? maskedVal.push_back(val_05) : unmaskedVal.push_back(val_05);
-	      
-	      float brightColor=-1, darkColor=-1;
-	      float maxPriority=-1;
-	      
-	      std::vector<float>::const_iterator Val;
-	      for(Val=unmaskedVal.begin(); Val<unmaskedVal.end(); Val++) {
-		if(priority[*Val]>maxPriority) brightColor=*Val;
-	      }
-	      maxPriority=-1;
-	      for(Val=maskedVal.begin(); Val<maskedVal.end(); Val++) {
-		if(priority[*Val]>maxPriority) darkColor=*Val;
-	      }
-	      if(unmaskedVal.size()==2)  xval = brightColor;
-	      else if(maskedVal.size()==2)  xval = darkColor;
-	      else {
-		if(brightColor==1 && darkColor==5) xval = 5;
-		else xval = brightColor;
-	      }
-	      
-	      int iex;
-	      int ipx;
-	      
-	      if(ism<=18) {
-		iex = i;
-		ipx = j+5*(ism-1);
-	      }
-	      else {
-		iex = i+10;
-		ipx = j+5*(ism-19);
-	      }
-	      if ( me_04->getEntries() != 0 && me_05->getEntries() != 0 ) {
-		meTestPulsePN_->setBinContent( ipx, iex, xval );
-	      }
-	    }
-	  }
+          }
 
-	  if ( eblc ) {
+          if ( ebtpc ) {
 
-	    me = eblc->meg09_[ism-1];
+            me_04 = ebtpc->meg04_[ism-1];
+            me_05 = ebtpc->meg05_[ism-1];
+            
+            if( me_04 && me_05) {
+              float xval=2;
+              float val_04=me_04->getBinContent(i,1);
+              float val_05=me_05->getBinContent(i,1);
+              
+              std::vector<float> maskedVal, unmaskedVal;
+              (val_04>2) ? maskedVal.push_back(val_04) : unmaskedVal.push_back(val_04);
+              (val_05>2) ? maskedVal.push_back(val_05) : unmaskedVal.push_back(val_05);
+              
+              float brightColor=-1, darkColor=-1;
+              float maxPriority=-1;
+              
+              std::vector<float>::const_iterator Val;
+              for(Val=unmaskedVal.begin(); Val<unmaskedVal.end(); Val++) {
+                if(priority[*Val]>maxPriority) brightColor=*Val;
+              }
+              maxPriority=-1;
+              for(Val=maskedVal.begin(); Val<maskedVal.end(); Val++) {
+                if(priority[*Val]>maxPriority) darkColor=*Val;
+              }
+              if(unmaskedVal.size()==2)  xval = brightColor;
+              else if(maskedVal.size()==2)  xval = darkColor;
+              else {
+                if(brightColor==1 && darkColor==5) xval = 5;
+                else xval = brightColor;
+              }
+              
+              int iex;
+              int ipx;
+              
+              if(ism<=18) {
+                iex = i;
+                ipx = j+5*(ism-1);
+              }
+              else {
+                iex = i+10;
+                ipx = j+5*(ism-19);
+              }
 
-	    if( me ) {
+              if ( me_04->getEntries() != 0 && me_05->getEntries() != 0 ) {
+                meTestPulsePN_->setBinContent( ipx, iex, xval );
+              }
 
-	      float xval = me->getBinContent(i,1);
-	      
-	      int iex;
-	      int ipx;
-	      
-	      if(ism<=18) {
-		iex = i;
-		ipx = j+5*(ism-1);
-	      }
-	      else {
-		iex = i+10;
-		ipx = j+5*(ism-19);
-	      }
-	      if ( me->getEntries() != 0 && me->getEntries() != 0 ) {
-		meLaserL1PN_->setBinContent( ipx, iex, xval );
-	      }
-	    }
+            }
+          }
 
-	  }
-	  
-	}
+          if ( eblc ) {
+
+            me = eblc->meg09_[ism-1];
+
+            if( me ) {
+
+              float xval = me->getBinContent(i,1);
+              
+              int iex;
+              int ipx;
+              
+              if(ism<=18) {
+                iex = i;
+                ipx = j+5*(ism-1);
+              }
+              else {
+                iex = i+10;
+                ipx = j+5*(ism-19);
+              }
+
+              if ( me->getEntries() != 0 && me->getEntries() != 0 ) {
+                meLaserL1PN_->setBinContent( ipx, iex, xval );
+              }
+
+            }
+
+          }
+          
+        }
       }
 
     } // loop on SM
@@ -975,19 +985,19 @@ void EBSummaryClient::analyze(void){
 
       if(meIntegrity_ && mePedestalOnline_) {
 
-	float xval = 2;
-	float val_in = meIntegrity_->getBinContent(ipx,iex);
-	float val_po = mePedestalOnline_->getBinContent(ipx,iex);
-	
-	// turn each dark color to bright green
-	if(val_in>2) val_in=1;
-	if(val_po>2) val_po=1;
+        float xval = 2;
+        float val_in = meIntegrity_->getBinContent(ipx,iex);
+        float val_po = mePedestalOnline_->getBinContent(ipx,iex);
+        
+        // turn each dark color to bright green
+        if(val_in>2) val_in=1;
+        if(val_po>2) val_po=1;
 
-	if(val_in==0) xval=0;
-	else if(val_in==2) xval=2;
-	else xval=val_po;
+        if(val_in==0) xval=0;
+        else if(val_in==2) xval=2;
+        else xval=val_po;
 
-	meGlobalSummary_->setBinContent( ipx, iex, xval );
+        meGlobalSummary_->setBinContent( ipx, iex, xval );
 
       }
 
