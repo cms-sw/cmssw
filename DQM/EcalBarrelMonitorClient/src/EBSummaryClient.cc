@@ -1552,7 +1552,6 @@ void EBSummaryClient::htmlOutput(int run, string htmlDir, string htmlName){
     obj2p->GetYaxis()->SetLabelSize(0.03);
     obj2p->GetZaxis()->SetLabelSize(0.03); 
     obj2p->Draw("colz");
-
     labelGridTT.Draw("text,same");
     cMap->Update();
     cMap->SaveAs(imgName.c_str());
