@@ -1,8 +1,8 @@
 /*
  * \file EBSummaryClient.cc
  *
- * $Date: 2007/10/21 17:43:19 $
- * $Revision: 1.72 $
+ * $Date: 2007/10/21 17:47:03 $
+ * $Revision: 1.73 $
  * \author G. Della Ricca
  *
 */
@@ -434,14 +434,14 @@ void EBSummaryClient::analyze(void){
     for ( int ipx = 1; ipx <= 360; ipx++ ) {
 
       meIntegrity_->setBinContent( ipx, iex, -1. );
-      meOccupancy_->setBinContent( ipx, iex, -1. );
+      meOccupancy_->setBinContent( ipx, iex, 0. );
       mePedestalOnline_->setBinContent( ipx, iex, -1. );
 
       meLaserL1_->setBinContent( ipx, iex, -1. );
       mePedestal_->setBinContent( ipx, iex, -1. );
       meTestPulse_->setBinContent( ipx, iex, -1. );
 
-      meCosmic_->setBinContent( ipx, iex, -1. );
+      meCosmic_->setBinContent( ipx, iex, 0. );
       meTiming_->setBinContent( ipx, iex, -1. );
 
       meGlobalSummary_->setBinContent( ipx, iex, -1. );
@@ -462,7 +462,7 @@ void EBSummaryClient::analyze(void){
   for ( int iex = 1; iex <= 34; iex++ ) {
     for ( int ipx = 1; ipx <= 72; ipx++ ) {
       for ( int en = 1; en <= 128; en++ ) {
-        meTriggerTowerEt_->setBinContent( ipx, iex, en, -1. );
+        meTriggerTowerEt_->setBinContent( ipx, iex, en, 0. );
       }
       meTriggerTowerEmulError_->setBinContent( ipx, iex, -1. ); 
     }

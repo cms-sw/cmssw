@@ -1,8 +1,8 @@
 /*
  * \file EESummaryClient.cc
  *
- * $Date: 2007/10/21 17:43:19 $
- * $Revision: 1.40 $
+ * $Date: 2007/10/21 17:47:03 $
+ * $Revision: 1.41 $
  * \author G. Della Ricca
  *
 */
@@ -745,8 +745,8 @@ void EESummaryClient::analyze(void){
 
       meIntegrity_[0]->setBinContent( ix, iy, -1. );
       meIntegrity_[1]->setBinContent( ix, iy, -1. );
-      meOccupancy_[0]->setBinContent( ix, iy, -1. );
-      meOccupancy_[1]->setBinContent( ix, iy, -1. );
+      meOccupancy_[0]->setBinContent( ix, iy, 0. );
+      meOccupancy_[1]->setBinContent( ix, iy, 0. );
       mePedestalOnline_[0]->setBinContent( ix, iy, -1. );
       mePedestalOnline_[1]->setBinContent( ix, iy, -1. );
 
@@ -759,8 +759,8 @@ void EESummaryClient::analyze(void){
       meTestPulse_[0]->setBinContent( ix, iy, -1. );
       meTestPulse_[1]->setBinContent( ix, iy, -1. );
 
-      meCosmic_[0]->setBinContent( ix, iy, -1. );
-      meCosmic_[1]->setBinContent( ix, iy, -1. );
+      meCosmic_[0]->setBinContent( ix, iy, 0. );
+      meCosmic_[1]->setBinContent( ix, iy, 0. );
       meTiming_[0]->setBinContent( ix, iy, -1. );
       meTiming_[1]->setBinContent( ix, iy, -1. );
 
@@ -786,8 +786,8 @@ void EESummaryClient::analyze(void){
   for ( int ix = 1; ix <= 100; ix++ ) {
     for ( int iy = 1; iy <= 100; iy++ ) {
       for ( int en = 1; en <= 128; en++ ) {
-        meTriggerTowerEt_[0]->setBinContent( ix, iy, en, -1. );
-        meTriggerTowerEt_[1]->setBinContent( ix, iy, en, -1. );
+        meTriggerTowerEt_[0]->setBinContent( ix, iy, en, 0. );
+        meTriggerTowerEt_[1]->setBinContent( ix, iy, en, 0. );
       }
       meTriggerTowerEmulError_[0]->setBinContent( ix, iy, -1. );
       meTriggerTowerEmulError_[1]->setBinContent( ix, iy, -1. );
