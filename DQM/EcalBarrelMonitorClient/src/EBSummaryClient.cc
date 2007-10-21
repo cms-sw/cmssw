@@ -154,7 +154,7 @@ void EBSummaryClient::beginJob(MonitorUserInterface* mui){
     sprintf(qtname, "EBTMT summary quality test");
     qtg08_ = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (dbe_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
 
-    sprintf(qtname, "EBTTT ET summary quality test");
+    sprintf(qtname, "EBTTT Et summary quality test");
 //     qtg09_ = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (dbe_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
 
     sprintf(qtname, "EBTTT emulator error summary quality test");
@@ -284,7 +284,7 @@ void EBSummaryClient::setup(void) {
   meTiming_ = dbe_->book2D(histo, histo, 360, 0., 360., 170, -85., 85.);
 
   if( meTriggerTowerEt_ ) dbe_->removeElement( meTriggerTowerEt_->getName() );
-  sprintf(histo, "EBTTT ET trigger tower quality summary");
+  sprintf(histo, "EBTTT Et trigger tower quality summary");
   meTriggerTowerEt_ = dbe_->book3D(histo, histo, 72, 0., 72., 34, -17., 17., 128, 0., 512.);
 
   if( meTriggerTowerEmulError_ ) dbe_->removeElement( meTriggerTowerEmulError_->getName() );
@@ -397,7 +397,7 @@ void EBSummaryClient::subscribe(void){
   if ( qtg07_ ) dbe_->useQTest(histo, qtg07_->getName());
   sprintf(histo, "EcalBarrel/EBSummaryClient/EBTMT timing quality summary");
   if ( qtg08_ ) dbe_->useQTest(histo, qtg08_->getName());
-  sprintf(histo, "EcalBarrel/EBSummaryClient/EBTTT ET trigger tower quality summary");
+  sprintf(histo, "EcalBarrel/EBSummaryClient/EBTTT Et trigger tower quality summary");
 //   if ( qtg09_ ) dbe_->useQTest(histo, qtg09_->getName());
   sprintf(histo, "EcalBarrel/EBSummaryClient/EBTTT emulator error quality summary");
   if ( qtg10_ ) dbe_->useQTest(histo, qtg10_->getName());
