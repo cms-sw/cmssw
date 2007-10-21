@@ -2,8 +2,8 @@
 /*
  * \file EEIntegrityClient.cc
  *
- * $Date: 2007/10/17 15:58:45 $
- * $Revision: 1.29 $
+ * $Date: 2007/10/18 09:43:42 $
+ * $Revision: 1.30 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -1113,16 +1113,13 @@ void EEIntegrityClient::analyze(void){
           update1 = true;
         }
 
-        int iet = 1 + ((ix-1)/5);
-        int ipt = 1 + ((iy-1)/5);
-
         if ( h05_[ism-1] ) {
-          num05  = h05_[ism-1]->GetBinContent(iet, ipt);
+          num05  = h05_[ism-1]->GetBinContent(ix, iy);
           update2 = true;
         }
 
         if ( h06_[ism-1] ) {
-          num06  = h06_[ism-1]->GetBinContent(iet, ipt);
+          num06  = h06_[ism-1]->GetBinContent(ix, iy);
           update2 = true;
         }
 
@@ -1201,9 +1198,7 @@ void EEIntegrityClient::analyze(void){
 
             EcalLogicID ecid = m->first;
 
-            int iet = 1 + ((ix-1)/5);
-            int ipt = 1 + ((iy-1)/5);
-            int itt = (ipt-1) + 4*(iet-1) + 1;
+            int itt = Numbers::iTT(ism, EcalEndcap, ix, iy);
 
             if ( ecid.getID1() == Numbers::iSM(ism, EcalEndcap) && ecid.getID2() == itt ) {
               if ( (m->second).getErrorBits() & bits02 ) {

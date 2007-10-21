@@ -2,8 +2,8 @@
 /*
  * \file EBIntegrityClient.cc
  *
- * $Date: 2007/10/17 15:58:42 $
- * $Revision: 1.159 $
+ * $Date: 2007/10/18 09:43:34 $
+ * $Revision: 1.160 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -1166,9 +1166,7 @@ void EBIntegrityClient::analyze(void){
 
             EcalLogicID ecid = m->first;
 
-            int iet = 1 + ((ie-1)/5);
-            int ipt = 1 + ((ip-1)/5);
-            int itt = (ipt-1) + 4*(iet-1) + 1;
+            int itt = Numbers::iTT(ism, EcalBarrel, ie, ip);
 
             if ( ecid.getID1() == Numbers::iSM(ism, EcalBarrel) && ecid.getID2() == itt ) {
               if ( (m->second).getErrorBits() & bits02 ) {

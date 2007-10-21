@@ -1,11 +1,11 @@
-// $Id: Numbers.h,v 1.13 2007/10/15 16:26:41 dellaric Exp $
+// $Id: Numbers.h,v 1.14 2007/10/17 15:58:43 dellaric Exp $
 
 /*!
   \file Numbers.h
   \brief Some "id" conversions
   \author B. Gobbo 
-  \version $Revision: 1.13 $
-  \date $Date: 2007/10/15 16:26:41 $
+  \version $Revision: 1.14 $
+  \date $Date: 2007/10/17 15:58:43 $
 */
 
 #ifndef Numbers_H
@@ -36,39 +36,41 @@ class Numbers {
 
  public:
 
-  static void        initGeometry( const edm::EventSetup& setup );
+  static void initGeometry( const edm::EventSetup& setup );
 
-  static int         iEB( const int ism ) throw( std::runtime_error );
+  static int iEB( const int ism ) throw( std::runtime_error );
 
   static std::string sEB( const int ism ) throw( std::runtime_error );
 
-  static int         iEE( const int ism ) throw( std::runtime_error );
+  static int iEE( const int ism ) throw( std::runtime_error );
 
   static std::string sEE( const int ism ) throw( std::runtime_error );
 
-  static int         iSM( const int ism, const int subdet ) throw( std::runtime_error );
+  static int iSM( const int ism, const int subdet ) throw( std::runtime_error );
 
-  static int         iSM( const EBDetId& id ) throw( std::runtime_error );
+  static int iSM( const EBDetId& id ) throw( std::runtime_error );
 
-  static int         iSM( const EEDetId& id ) throw( std::runtime_error );
+  static int iSM( const EEDetId& id ) throw( std::runtime_error );
 
-  static int         iSM( const EcalTrigTowerDetId& id ) throw( std::runtime_error );
+  static int iSM( const EcalTrigTowerDetId& id ) throw( std::runtime_error );
 
-  static int         iSM( const EcalElectronicsId&  id );
+  static int iSM( const EcalElectronicsId& id );
 
-  static int         iSM( const EcalPnDiodeDetId&   id );
+  static int iSM( const EcalPnDiodeDetId& id );
 
-  static int         iSM( const EcalDCCHeaderBlock& id, const int subdet );
+  static int iSM( const EcalDCCHeaderBlock& id, const int subdet );
 
-  static int         iTT( const EcalTrigTowerDetId& id ) throw( std::runtime_error );
+  static int iTT( const int ism, const int subdet, const int i1, const int i2 ) throw( std::runtime_error );
 
-  static int         indexEB( const int ism, const int ie, const int ip );
+  static int iTT( const EcalTrigTowerDetId& id ) throw( std::runtime_error );
 
-  static int         indexEE( const int ism, const int ix, const int iy );
+  static int indexEB( const int ism, const int ie, const int ip );
 
-  static int         icEB( const int ism, const int ix, const int iy );
+  static int indexEE( const int ism, const int ix, const int iy );
 
-  static int         icEE( const int ism, const int ix, const int iy );
+  static int icEB( const int ism, const int ix, const int iy );
+
+  static int icEE( const int ism, const int ix, const int iy );
 
   static std::vector<DetId> crystals( const EcalTrigTowerDetId& id ) throw( std::runtime_error );
 

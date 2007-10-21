@@ -1,11 +1,11 @@
-// $Id: Numbers.cc,v 1.27 2007/10/17 14:12:05 dellaric Exp $
+// $Id: Numbers.cc,v 1.28 2007/10/17 15:58:44 dellaric Exp $
 
 /*!
   \file Numbers.cc
   \brief Some "id" conversions
   \author B. Gobbo 
-  \version $Revision: 1.27 $
-  \date $Date: 2007/10/17 14:12:05 $
+  \version $Revision: 1.28 $
+  \date $Date: 2007/10/17 15:58:44 $
 */
 
 #include <sstream>
@@ -234,15 +234,16 @@ int Numbers::iSM( const EcalTrigTowerDetId& id ) throw( std::runtime_error ) {
     throw( std::runtime_error( s.str() ) );
 
   } else {
-    if( id.subDet() == EcalBarrel ) {
-      return( Numbers::iSM( id.iDCC(), id.subDet() ) );
-    } else if( id.subDet() ==  EcalEndcap) {
+    int subdet = id.subDet();
+    if( subdet == EcalBarrel ) {
+      return( Numbers::iSM( id.iDCC(), subdet ) );
+    } else if( subdet ==  EcalEndcap) {
       std::ostringstream s;
       s << "ECAL Geometry not available";
       throw( std::runtime_error( s.str() ) );
     } else {
       std::ostringstream s;
-      s << "Invalid subdetector: subdet = " << id.subDet();
+      s << "Invalid subdetector: subdet = " << subdet;
       throw( std::runtime_error( s.str() ) );
     }
   }
@@ -252,7 +253,8 @@ int Numbers::iSM( const EcalTrigTowerDetId& id ) throw( std::runtime_error ) {
 //-------------------------------------------------------------------------
 
 int Numbers::iSM( const EcalElectronicsId& id ) {
-  return( Numbers::iSM( id.dccId(), id.subdet() ) );
+  int subdet = id.subdet();
+  return( Numbers::iSM( id.dccId(), subdet ) );
 }
 
 //-------------------------------------------------------------------------
@@ -284,21 +286,64 @@ int Numbers::iSM( const EcalDCCHeaderBlock& id, const int subdet ) {
 
 //-------------------------------------------------------------------------
 
+int Numbers::iTT( const int ism, const int subdet, const int i1, const int i2 ) throw( std::runtime_error ) {
+
+  if( subdet == EcalBarrel ) {
+
+    int iet = 1 + ((i1-1)/5);
+    int ipt = 1 + ((i2-1)/5);
+
+    return( (ipt-1) + 4*(iet-1) + 1 );
+
+  } else if( subdet == EcalEndcap ) {
+
+    int iz = 0;
+
+    if( ism >=  1 && ism <=  9 ) iz = -1;
+    if( ism >= 10 && ism <= 18 ) iz = +1;
+
+    if( EEDetId::validDetId(i1, i2, iz) ) {
+
+      EEDetId id(i1, i2, iz, EEDetId::XYMODE);
+
+      if( Numbers::map ) {
+        EcalElectronicsId eid = Numbers::map->getElectronicsId(id);
+        return( eid.towerId() );
+      } else {
+        std::ostringstream s;
+        s << "ECAL Geometry not available";
+        throw( std::runtime_error( s.str() ) );
+      }
+
+    }
+
+    return( -1 );
+
+  } else {
+    std::ostringstream s;
+    s << "Invalid subdetector: subdet = " << subdet;
+    throw( std::runtime_error( s.str() ) );
+  }
+
+}
+
+//-------------------------------------------------------------------------
+
 int Numbers::iTT( const EcalTrigTowerDetId& id ) throw( std::runtime_error ) {
 
   if( Numbers::map ) {
     return( Numbers::map->iTT(id) );
   } else {
-    int isubdet = id.subDet();
-    if( isubdet == EcalBarrel ) {
+    int subdet = id.subDet();
+    if( subdet == EcalBarrel ) {
       return( id.iTT() );
-    } else if( isubdet ==  EcalEndcap) {
+    } else if( subdet ==  EcalEndcap) {
       std::ostringstream s;
       s << "ECAL Geometry not available";
       throw( std::runtime_error( s.str() ) );
     } else {
       std::ostringstream s;
-      s << "Invalid subdetector: iSubdet = " << isubdet;
+      s << "Invalid subdetector: subdet = " << subdet;
       throw( std::runtime_error( s.str() ) );
     }
   }
