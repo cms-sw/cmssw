@@ -39,8 +39,8 @@ namespace edm {
     public: 
       RegionRecord(uint32_t nregions) : regions_(nregions/32+1,0) {}
       ~RegionRecord() {}
-      void record(uint32_t region) {regions_[region/32]|1<<(regions_[region/32]%32);}
-      bool recorded(uint32_t region) const {return regions_[region/32]&1<<(regions_[region/32]%32);}
+      void record(uint32_t region) {regions_[region/32] = regions_[region/32]|(1<<region%32);}
+      bool recorded(uint32_t region) const {return (regions_[region/32]>>(region%32))&1;}
     private:
       RegionRecord();
       std::vector<uint32_t> regions_;
@@ -123,8 +123,8 @@ namespace edm {
     {
       sets_.reserve(interest.size());
       for (uint32_t index=0;index<interest.size();index++) {
-	sets_.push_back(region_ref(getter, index, false));
-	regions_.record(index);
+	sets_.push_back(region_ref(getter,interest[index],false));
+	regions_.record(interest[index]);
       }
     }
   
