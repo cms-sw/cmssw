@@ -55,7 +55,17 @@ class CaloGeometryAnalyzer : public edm::EDAnalyzer {
       virtual void analyze( const edm::Event&, const edm::EventSetup& );
    private:
       // ----------member data ---------------------------
-  void build(const CaloGeometry& cg, DetId::Detector det, int subdetn, const char* name);
+      void build( const CaloGeometry& cg , 
+		  DetId::Detector     det, 
+		  int                 subdetn, 
+		  const char*         name);
+
+      void ctrcor( const DetId::Detector   det     , 
+		   const int               subdetn , 
+		   const DetId&            did     ,
+		   const CaloCellGeometry& cell ,
+		   std::fstream&           fCtr    ,
+		   std::fstream&           fCor       );
   int pass_;
   //  bool fullEcalDump_;
 
@@ -119,6 +129,89 @@ CaloGeometryAnalyzer::gid( unsigned int ix,
 }
 
 void 
+CaloGeometryAnalyzer::ctrcor( const DetId::Detector   det     , 
+			      const int               subdetn , 
+			      const DetId&            did     ,
+			      const CaloCellGeometry& cell    ,
+			      std::fstream&           fCtr    ,
+			      std::fstream&           fCor       )
+{
+   if( det     == DetId::Ecal &&
+       subdetn == EcalBarrel     )
+   {
+      const EBDetId ebid ( did ) ;
+      const int ie  ( ebid.ieta() ) ;
+      const int ip  ( ebid.iphi() ) ;
+      fCtr << std::setw(4) << ie
+	   << std::setw(4) << ip ;
+      fCor << std::setw(4) << ie
+	   << std::setw(4) << ip ;
+   }
+   if( det     == DetId::Ecal &&
+       subdetn == EcalEndcap     )
+   {
+      const EEDetId eeid ( did ) ;
+      const int ix ( eeid.ix() ) ;
+      const int iy ( eeid.iy() ) ;
+//      const int iz ( eeid.zside() ) ;
+      fCtr << std::setw(4) << ix
+	   << std::setw(4) << iy ;
+      fCor << std::setw(4) << ix
+	   << std::setw(4) << iy ;
+   }
+   if( det     == DetId::Ecal &&
+       subdetn == EcalPreshower     )
+   {
+      const ESDetId esid ( did ) ;
+      const int pl ( esid.plane() ) ;
+      const int ix ( esid.six() ) ;
+      const int iy ( esid.siy() ) ;
+//      const int iz ( esid.zside() ) ;
+      const int st ( esid.strip() ) ;
+      fCtr << std::setw(4) << pl
+	   << std::setw(4) << ix
+	   << std::setw(4) << iy
+	   << std::setw(4) << st ;
+      fCor << std::setw(4) << pl
+	   << std::setw(4) << ix
+	   << std::setw(4) << iy
+	   << std::setw(4) << st ;
+   }
+   if( det     == DetId::Hcal    ) 
+   {
+      const HcalDetId hcid ( did ) ;
+      const int ie ( hcid.ieta() ) ;
+      const int ip ( hcid.iphi() ) ;
+      const int de ( hcid.depth() ) ;
+//      const int iz ( hcid.zside() ) ;
+      fCtr << std::setw(4) << ie
+	   << std::setw(4) << ip
+	   << std::setw(4) << de ;
+   }
+
+   fCtr << std::fixed << std::setw(12) << std::setprecision(4)
+	<< cell.getPosition().x()
+	<< std::fixed << std::setw(12) << std::setprecision(4)
+	<< cell.getPosition().y()
+	<< std::fixed << std::setw(12) << std::setprecision(4)
+	<< cell.getPosition().z()
+	<< std::endl ;
+
+   const CaloCellGeometry::CornersVec& co ( cell.getCorners() ) ;
+
+   for( unsigned int j ( 0 ) ; j < co.size() ; ++(++(++j)) )
+   {
+      fCor << std::fixed << std::setw(10) << std::setprecision(4)
+	   << co[j].x()
+	   << std::fixed << std::setw(10) << std::setprecision(4)
+	   << co[j].y()
+	   << std::fixed << std::setw(10) << std::setprecision(4)
+	   << co[j].z() ;
+   }
+   fCor << std::endl ;
+}
+
+void 
 CaloGeometryAnalyzer::build( const CaloGeometry& cg, 
 			     DetId::Detector det, 
 			     int subdetn, 
@@ -144,42 +237,18 @@ CaloGeometryAnalyzer::build( const CaloGeometry& cg,
    for (std::vector<DetId>::iterator i=ids.begin(); i!=ids.end(); i++) {
       n++;
       const CaloCellGeometry* cell=geom->getGeometry(*i);
+
+      ctrcor( det,
+	      subdetn,
+	      *i,
+	      *cell,
+	      fCtr,
+	      fCor  ) ;
+
       if (det == DetId::Ecal)
       {
 	 if (subdetn == EcalBarrel)
 	 {
-	    const EBDetId did ( *i ) ;
-	    //const int iea ( did.ietaAbs() ) ;
-	    const int ie  ( did.ieta() ) ;
-	    const int ip  ( did.iphi() ) ;
-//	    const int ism ( did.ism() ) ;
-//	    if( 1==ism || 35==ism )
-	    {
-	       fCtr << std::setw(4) << ie
-		    << std::setw(4) << ip
-		    << std::fixed << std::setw(12) << std::setprecision(4)
-		    << cell->getPosition().x()
-		    << std::fixed << std::setw(12) << std::setprecision(4)
-		    << cell->getPosition().y()
-		    << std::fixed << std::setw(12) << std::setprecision(4)
-		    << cell->getPosition().z()
-		    << std::endl ;
-
-	       const CaloCellGeometry::CornersVec& co ( cell->getCorners() ) ;
-	       fCor << std::setw(4) << ie
-		    << std::setw(4) << ip ;
-
-	       for( unsigned int j ( 0 ) ; j < co.size() ; ++(++(++j)) )
-	       {
-		  fCor << std::fixed << std::setw(10) << std::setprecision(4)
-		       << co[j].x()
-		       << std::fixed << std::setw(10) << std::setprecision(4)
-		       << co[j].y()
-		       << std::fixed << std::setw(10) << std::setprecision(4)
-		       << co[j].z() ;
-	       }
-	       fCor << std::endl ;
-	    }
 	    f << "  // " << EBDetId(*i) << std::endl;
 	    
 	    f << "  // Checking getClosestCell for position " << dynamic_cast<const TruncatedPyramid*>(cell)->getPosition(0.) << std::endl;
@@ -189,42 +258,11 @@ CaloGeometryAnalyzer::build( const CaloGeometry& cg,
 	 }
 	 if (subdetn == EcalEndcap)
 	 {
-	    const TruncatedPyramid* tp ( dynamic_cast<const TruncatedPyramid*>(cell) ) ;
 	    const EEDetId did ( *i ) ;
 	    const int ix ( did.ix() ) ;
 	    const int iy ( did.iy() ) ;
 	    const int iz ( did.zside() ) ;
-//	    if( ( ( ix == 50 || ix == 51 ) &&
-//		  ( iy ==  5 || iy == 95 )  ) ||
-//		( ( iy == 50 || iy == 51 ) &&
-//		  ( ix ==  5 || ix == 95 )  )    )
-	    {
-	       fCtr << std::setw(4) << ix
-		    << std::setw(4) << iy
-		    << std::fixed << std::setw(12) << std::setprecision(4)
-		    << cell->getPosition().x()
-		    << std::fixed << std::setw(12) << std::setprecision(4)
-		    << cell->getPosition().y()
-		    << std::fixed << std::setw(12) << std::setprecision(4)
-		    << cell->getPosition().z()      
-		    << std::endl ;
-
-	       const CaloCellGeometry::CornersVec& co ( cell->getCorners() ) ;
-
-	       fCor << std::setw(4) << ix
-		    << std::setw(4) << iy ;
-
-	       for( unsigned int j ( 0 ) ; j < co.size() ; ++(++(++j)) )
-	       {
-		  fCor << std::fixed << std::setw(10) << std::setprecision(4)
-		       << co[j].x()
-		       << std::fixed << std::setw(10) << std::setprecision(4)
-		       << co[j].y()
-		       << std::fixed << std::setw(10) << std::setprecision(4)
-		       << co[j].z() ;
-	       }
-	       fCor << std::endl ;
-	    }
+	    const TruncatedPyramid* tp ( dynamic_cast<const TruncatedPyramid*>(cell) ) ;
 	    f << "  // Checking getClosestCell for position " << tp->getPosition(0.) << std::endl;
 
 	    const EEDetId closestCell ( geom->getClosestCell( tp->getPosition(0.) ) ) ;
