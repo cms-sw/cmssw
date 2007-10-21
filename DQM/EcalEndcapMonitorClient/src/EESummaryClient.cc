@@ -1,8 +1,8 @@
 /*
  * \file EESummaryClient.cc
  *
- * $Date: 2007/10/21 16:19:47 $
- * $Revision: 1.37 $
+ * $Date: 2007/10/21 17:28:56 $
+ * $Revision: 1.38 $
  * \author G. Della Ricca
  *
 */
@@ -1121,6 +1121,7 @@ void EESummaryClient::analyze(void){
             h2 = eetttc->l01_[ism-1];
 
             if ( h2 ) {
+
               float xval = -1;
               float emulErrorVal = h2->GetBinContent( ix, iy );
 
@@ -1128,10 +1129,13 @@ void EESummaryClient::analyze(void){
               else if(hasRealDigi && emulErrorVal!=0) xval = 0;
               else xval = 1;
 
+              // see fix below
+              if ( xval == 2 ) continue;
+
               if ( ism >= 1 && ism <= 9 ) {
-                if ( xval != 2 ) meTriggerTowerEmulError_[0]->setBinContent( jx, jy, xval );
+                meTriggerTowerEmulError_[0]->setBinContent( jx, jy, xval );
               } else {
-                if ( xval != 2 ) meTriggerTowerEmulError_[1]->setBinContent( jx, jy, xval );
+                meTriggerTowerEmulError_[1]->setBinContent( jx, jy, xval );
               }
 
             }

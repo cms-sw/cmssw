@@ -1,8 +1,8 @@
 /*
  * \file EBSummaryClient.cc
  *
- * $Date: 2007/10/21 16:15:49 $
- * $Revision: 1.70 $
+ * $Date: 2007/10/21 17:08:26 $
+ * $Revision: 1.71 $
  * \author G. Della Ricca
  *
 */
@@ -461,7 +461,7 @@ void EBSummaryClient::analyze(void){
 
   for (int iex = 1; iex <= 34; iex++ ) {
     for (int ipx = 1; ipx <= 72; ipx++ ) {
-      for (int en = 0; en <= 128; en++ ) {
+      for (int en = 1; en <= 128; en++ ) {
         meTriggerTowerEt_->setBinContent( ipx, iex, en, -1. );
       }
       meTriggerTowerEmulError_->setBinContent( ipx, iex, -1. ); 
