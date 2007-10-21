@@ -1,8 +1,8 @@
 /*
  * \file EBSummaryClient.cc
  *
- * $Date: 2007/10/21 15:36:44 $
- * $Revision: 1.69 $
+ * $Date: 2007/10/21 16:15:49 $
+ * $Revision: 1.70 $
  * \author G. Della Ricca
  *
 */
@@ -1558,6 +1558,7 @@ void EBSummaryClient::htmlOutput(int run, string htmlDir, string htmlName){
 
     cMap->SetGridx();
     cMap->SetGridy();
+    obj2f->SetMinimum(0.0);
     obj2p->GetXaxis()->SetLabelSize(0.03);
     obj2p->GetYaxis()->SetLabelSize(0.03);
     obj2p->GetZaxis()->SetLabelSize(0.03); 
