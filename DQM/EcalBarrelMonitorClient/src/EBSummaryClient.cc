@@ -1,8 +1,8 @@
 /*
  * \file EBSummaryClient.cc
  *
- * $Date: 2007/10/20 07:41:40 $
- * $Revision: 1.63 $
+ * $Date: 2007/10/20 08:06:15 $
+ * $Revision: 1.64 $
  * \author G. Della Ricca
  *
 */
@@ -82,7 +82,7 @@ EBSummaryClient::EBSummaryClient(const ParameterSet& ps){
   meCosmic_         = 0;
   meTiming_         = 0;
   meTriggerTowerEt_          = 0;
-  meTriggerTowerEmulError_      = 0;
+  meTriggerTowerEmulError_   = 0;
 
   qtg01_ = 0;
   qtg02_ = 0;
