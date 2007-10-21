@@ -81,8 +81,8 @@ EBSummaryClient::EBSummaryClient(const ParameterSet& ps){
 
   meCosmic_         = 0;
   meTiming_         = 0;
-  meTriggerTowerEt_          = 0;
-  meTriggerTowerEmulError_   = 0;
+  meTriggerTowerEt_        = 0;
+  meTriggerTowerEmulError_ = 0;
 
   qtg01_ = 0;
   qtg02_ = 0;
