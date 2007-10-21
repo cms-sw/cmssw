@@ -1,7 +1,5 @@
 <export>
   <lib name=PhysicsToolsUtilities>
   <use name=DataFormats/Math>
-  <use name=boost>
 </export>
 <use name=DataFormats/Math>
-<use name=boost>
