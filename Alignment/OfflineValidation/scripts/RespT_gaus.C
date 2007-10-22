@@ -33,14 +33,17 @@ Canv->cd();
 TFile f0("../../singlemu_310607/Misalignment_scenarioIdeal_singlemu131.root");  
 TTree *MyTree=Tracks;
 
-TFile f1("Misalignment_SurveyLASOnlyScenario_refitter_zmumu_singlemuSurveyLASCosmics.root");
+TFile f1("../../SurveyLAS/singlemu/Misalignment_SurveyLASOnlyScenario_refitter_singlemu.root");
 TTree *MyTree2=Tracks;
 
-TFile f2("../../singlemu_310607/Misalignment10.root");
+TFile f2("Misalignment_SurveyLASOnlyScenario_refitter_zmumu_singlemuSurveyLASCosmics.root");
 TTree *MyTree3=Tracks;
 
-TFile f3("../../singlemu_310607/Misalignment100.root");
+TFile f3("../../singlemu_310607/Misalignment10.root");
 TTree *MyTree4=Tracks;
+
+TFile f4("../../singlemu_310607/Misalignment100.root");
+TTree *MyTree5=Tracks;
 
 
 int nbin=25;
@@ -250,7 +253,7 @@ hframe_scen3->SetYTitle("#sigma(p_{T})/p_{T}");
 hframe_scen3->Draw();
 gr_scen3 = new TGraphErrors(25,etabin,sigma,erretabin,errsigma);
 gr_scen3->SetMarkerColor(5);
-gr_scen3->SetMarkerStyle(22);
+gr_scen3->SetMarkerStyle(23);
 gr_scen3->Draw("P");
 Canv->Update();
 //Canv->SaveAs("SigmapT_gaus_scen3.eps");
@@ -261,67 +264,68 @@ Canv->Update();
 // d0 resolution scen1_NOAPE
 /////////////////////////////////////////////////////////////////////
 
-// for (int i=1;i<=nbin;i++){
-//   binstart=0.1*(i-1);
-//   binstop = 0.1*i;
-//   etabin[i-1]= (binstop-binstart)/2.+binstart;
-//   erretabin[i-1]=(binstop-binstart)/2.;
-//   cout << "binstart=" << binstart << " binstop is=" << binstop << " eta is " << etabin[i-1] << endl;
-//   sprintf(cutname,"abs(eta)>=%f && abs(eta)<%f && eff==1 && TrackID==13",binstart, binstop);
-//   cout << "cutname is " << cutname <<endl;
-//   TH1F *resd0= new TH1F("d0","d0",500,-0.3,0.3);  
-//   MyTree4->Project("d0","(respt/pt)",cutname);
-//   resd0->Fit("gaus");
-//   meanorig[i-1]=1.*resd0->GetMean();
-//   rms[i-1]=1.*resd0->GetRMS();
-//   cost[i-1]=gaus->GetParameter(0);
-//   mean[i-1]=1*gaus->GetParameter(1);
-//   sigma[i-1]=1*gaus->GetParameter(2);
-//   errsigma[i-1]=1*gaus->GetParError(2);
-//   entry[i-1]=resd0->GetEntries();
-//   chiq[i-1]=(gaus->GetChisquare()) /(gaus->GetNDF());
-//   cout << "mean is= " << mean[i-1] << " sigma is= " << sigma[i-1]/(sqrt(entry[i-1])) << " Entries= " << entry[i-1] << endl;
-//   delete resd0;
-// }
+for (int i=1;i<=nbin;i++){
+  binstart=0.1*(i-1);
+  binstop = 0.1*i;
+  etabin[i-1]= (binstop-binstart)/2.+binstart;
+  erretabin[i-1]=(binstop-binstart)/2.;
+  cout << "binstart=" << binstart << " binstop is=" << binstop << " eta is " << etabin[i-1] << endl;
+  sprintf(cutname,"abs(eta)>=%f && abs(eta)<%f && eff==1 && TrackID==13",binstart, binstop);
+  cout << "cutname is " << cutname <<endl;
+  TH1F *resd0= new TH1F("d0","d0",500,-0.3,0.3);  
+  MyTree5->Project("d0","(respt/pt)",cutname);
+  resd0->Fit("gaus");
+  meanorig[i-1]=1.*resd0->GetMean();
+  rms[i-1]=1.*resd0->GetRMS();
+  cost[i-1]=gaus->GetParameter(0);
+  mean[i-1]=1*gaus->GetParameter(1);
+  sigma[i-1]=1*gaus->GetParameter(2);
+  errsigma[i-1]=1*gaus->GetParError(2);
+  entry[i-1]=resd0->GetEntries();
+  chiq[i-1]=(gaus->GetChisquare()) /(gaus->GetNDF());
+  cout << "mean is= " << mean[i-1] << " sigma is= " << sigma[i-1]/(sqrt(entry[i-1])) << " Entries= " << entry[i-1] << endl;
+  delete resd0;
+}
 
-// for (int i=0;i<nbin;i++){
-//   binstart=0.1*(i);
-//   binstop = 0.1*(i+1);
-//   cout << "binstart= " << binstart << " binstop= " << binstop << endl;
-//   cout << " etabin=" << etabin[i] << " Vector mean/sigma are "<< mean[i] << " +/- " << sigma[i] << endl;
-//   cout << " ErrOnSigma =" << errsigma[i] << " Mean/RMS orig =" << meanorig[i] << " +/-" << rms[i] << endl;
-// }
+for (int i=0;i<nbin;i++){
+  binstart=0.1*(i);
+  binstop = 0.1*(i+1);
+  cout << "binstart= " << binstart << " binstop= " << binstop << endl;
+  cout << " etabin=" << etabin[i] << " Vector mean/sigma are "<< mean[i] << " +/- " << sigma[i] << endl;
+  cout << " ErrOnSigma =" << errsigma[i] << " Mean/RMS orig =" << meanorig[i] << " +/-" << rms[i] << endl;
+}
 
-// hframe_scen1_NOAPE = new TH2F("hframe_scen2","SigmapT/pT_gaus_scen2",25,0.,2.5,100,0.0085,0.4);
-// hframe_scen1_NOAPE ->SetTitle("#sigma(p_{T})/p_{T} vs #eta, p_{T} = 100 GeV/c");
-// hframe_scen1_NOAPE ->SetXTitle("#eta");
-// hframe_scen1_NOAPE ->SetYTitle("#sigma(p_{T})/p_{T}");
-// hframe_scen1_NOAPE ->Draw();
-// gr_scen1_NOAPE = new TGraphErrors(25,etabin,sigma,erretabin,errsigma);
-// gr_scen1_NOAPE ->SetMarkerColor(6);
-// gr_scen1_NOAPE ->SetMarkerStyle(22);
-// gr_scen1_NOAPE ->Draw("P");
-// Canv->Update();
-// //Canv->SaveAs("SigmapT_gaus_scen2.eps");
-// //Canv->WaitPrimitive();
+hframe_scen1_NOAPE = new TH2F("hframe_scen1_noAPE","SigmapT/pT_gaus_scen1_NOAPE",25,0.,2.5,100,0.0085,0.4);
+hframe_scen1_NOAPE ->SetTitle("#sigma(p_{T})/p_{T} vs #eta, p_{T} = 100 GeV/c");
+hframe_scen1_NOAPE ->SetXTitle("#eta");
+hframe_scen1_NOAPE ->SetYTitle("#sigma(p_{T})/p_{T}");
+hframe_scen1_NOAPE ->Draw();
+gr_scen1_NOAPE = new TGraphErrors(25,etabin,sigma,erretabin,errsigma);
+gr_scen1_NOAPE ->SetMarkerColor(6);
+gr_scen1_NOAPE ->SetMarkerStyle(24);
+gr_scen1_NOAPE ->Draw("P");
+Canv->Update();
+//Canv->SaveAs("SigmapT_gaus_scen2.eps");
+//Canv->WaitPrimitive();
 
 
 gr->Draw("P");
 gr_scen1->Draw("Psame");
 gr_scen2->Draw("Psame");
 gr_scen3->Draw("Psame");
-//gr_scen1_NOAPE->Draw("Psame");
+gr_scen1_NOAPE->Draw("Psame");
 
 TLegend *leg1 = new TLegend(0.1,0.76,0.47,0.9);                            
 leg1->SetTextAlign(32);
 leg1->SetTextColor(1);
-leg1->SetTextSize(0.032);
+leg1->SetTextSize(0.025);
 
 leg1->AddEntry(gr,"perfect alignment", "P");
-leg1->AddEntry(gr_scen1,"SurveyLASCosmics alignment", "P");
-leg1->AddEntry(gr_scen2,"10 pb-1  alignment", "P");
-leg1->AddEntry(gr_scen3,"100 pb-1  alignment", "P");
-//leg1->AddEntry(gr_scen2,"short-term alignment, NO APE", "P");
+leg1->AddEntry(gr_scen1,"SurveyLAS alignment", "P");
+leg1->AddEntry(gr_scen2,"SurveyLASCosmics alignment", "P");
+leg1->AddEntry(gr_scen3,"10 pb-1  alignment", "P");
+leg1->AddEntry(gr_scen1_NOAPE,"100 pb-1  alignment", "P");
+
 
 leg1->Draw();
 

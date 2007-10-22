@@ -4,7 +4,8 @@ class Plots{
   public:
   Plots();
 
-  void Legend(TString histoname1,TString histoname2,TString histoname3, TH1F *histo1, TH1F *histo2, TH1F *histo3);  void Save();
+  void Legend(TString histoname1,TString histoname2,TString histoname3, TString histoname4, TString histoname5, TH1F *histo1, TH1F *histo2, TH1F *histo3,  TH1F *histo4, TH1F *histo5 );  
+  void Save();
   
   float convert(float num);
 
@@ -47,22 +48,24 @@ c1->SetFrameFillColor(0);
 c1->SetLogy(0);
 c1->cd(); 
 
-TFile *f[4];
-TTree *MyTree[4];
-
+TFile *f[5];
+TTree *MyTree[5];
 
 
 f[0]= new TFile("../../singlemu_310607/Misalignment_scenarioIdeal_singlemu131.root");
 MyTree[0]=Tracks;
- 
-f[1]=new TFile("Misalignment_SurveyLASOnlyScenario_refitter_zmumu_singlemuSurveyLASCosmics.root");
+
+f[1]=new TFile("../../SurveyLAS/singlemu/Misalignment_SurveyLASOnlyScenario_refitter_singlemu.root");
 MyTree[1]=Tracks;
  
-f[2]=new TFile("../../singlemu_310607/Misalignment10.root");
+f[2]=new TFile("Misalignment_SurveyLASOnlyScenario_refitter_zmumu_singlemuSurveyLASCosmics.root");
 MyTree[2]=Tracks;
  
-f[3]=new TFile("../../singlemu_310607/Misalignment100.root");
+f[3]=new TFile("../../singlemu_310607/Misalignment10.root");
 MyTree[3]=Tracks;
+ 
+f[4]=new TFile("../../singlemu_310607/Misalignment100.root");
+MyTree[4]=Tracks;
 
 
 ////&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
@@ -72,9 +75,9 @@ MyTree[3]=Tracks;
 //&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
 char histoname[128];
 char name[128];
-TH1F *Resd0[4];
+TH1F *Resd0[5];
 
-for(int i=0; i<4; i++){
+for(int i=0; i<5; i++){
   sprintf(name,"Resd0[%d]",i);
   Resd0[i] = new TH1F(name,name,100,-0.03,0.03);
   sprintf(histoname,"Resd0[%d]",i);
@@ -82,8 +85,8 @@ for(int i=0; i<4; i++){
 
   cout << "Entries " << Resd0[i]->GetEntries() <<endl;
   Resd0[i]->Scale(1/Resd0[i]->GetEntries());
-  Resd0[i]->SetTitle("#sigma(d_{0})");    
-  Resd0[i]->SetXTitle("#sigma(d_{0}) ");
+  Resd0[i]->SetTitle("#Delta(d_{0})");    
+  Resd0[i]->SetXTitle("#Delta(d_{0}) ");
   Resd0[i]->SetYTitle("arb. units");
   
   Resd0[i]->SetLineColor(i+2);
@@ -95,7 +98,7 @@ for(int i=0; i<4; i++){
   c1->Update();
 }
 
-Legend("Resd0[0]","Resd0[1]","Resd0[2]","Resd0[3]",Resd0[0],Resd0[1],Resd0[2],Resd0[3]);
+Legend("Resd0[0]","Resd0[1]","Resd0[2]","Resd0[3]","Resd0[4]",Resd0[0],Resd0[1],Resd0[2],Resd0[3],Resd0[4]);
 
 c1->SaveAs("Residuald0_mu.eps");
 c1->SaveAs("Residuald0_mu.gif");
@@ -106,23 +109,38 @@ delete c1;
 
 }
 
-void Plots::Legend(TString histoname1,TString histoname2,TString histoname3, TString histoname4, TH1F *histo1, TH1F *histo2, TH1F *histo3, TH1F *histo4)
+void Plots::Legend(TString histoname1,TString histoname2,TString histoname3, TString histoname4, TString histoname5, TH1F *histo1, TH1F *histo2, TH1F *histo3, TH1F *histo4,  TH1F *histo5)
 {
 
-TLegend *leg = new TLegend(0.45,0.77.,1.,0.9); 
+TLegend *leg = new TLegend(0.47,0.87.,1.,1.); 
 leg->SetTextAlign(32);
 leg->SetTextColor(1);
 leg->SetTextSize(0.020);
 
 char  label[128];
-sprintf(label,"perfect alignment;      mean = %1.3f, RMS = %1.3f",convert(histo1->GetMean()),convert(histo1->GetRMS()));
+// sprintf(label,"perfect alignment;      mean = %1.3f, RMS = %1.3f",convert(histo1->GetMean()),convert(histo1->GetRMS()));
+// leg->AddEntry(histoname1, label, "l");
+// sprintf(label,"SurveyLAS alignment; mean = %1.3f, RMS = %1.3f",convert(histo2->GetMean()),convert(histo2->GetRMS()));
+// leg->AddEntry(histoname2, label, "l");
+// sprintf(label,"SurveyLASCosmics alignment; mean = %1.3f, RMS = %1.3f",convert(histo3->GetMean()),convert(histo3->GetRMS()));
+// leg->AddEntry(histoname3, label, "l");
+// sprintf(label,"10 pb-1 alignment;  mean = %1.3f, RMS = %1.3f",convert(histo4->GetMean()),convert(histo4->GetRMS()));
+// leg->AddEntry(histoname4, label, "l");
+// sprintf(label,"100 pb-1 alignment;  mean = %1.3f, RMS = %1.3f",convert(histo5->GetMean()),convert(histo5->GetRMS()));
+// leg->AddEntry(histoname5, label, "l");
+
+
+sprintf(label,"perfect alignment;      mean = %1.4f, RMS = %1.4f",(histo1->GetMean()),histo1->GetRMS());
 leg->AddEntry(histoname1, label, "l");
-sprintf(label,"SurveyLASCosmics alignment; mean = %1.3f, RMS = %1.3f",convert(histo2->GetMean()),convert(histo2->GetRMS()));
+sprintf(label,"SurveyLAS alignment; mean = %1.4f, RMS = %1.4f",(histo2->GetMean()),histo2->GetRMS());
 leg->AddEntry(histoname2, label, "l");
-sprintf(label,"10 pb-1 alignment;  mean = %1.3f, RMS = %1.3f",convert(histo3->GetMean()),convert(histo3->GetRMS()));
+sprintf(label,"SurveyLASCosmics alignment; mean = %1.4f, RMS = %1.4f",(histo3->GetMean()),histo3->GetRMS());
 leg->AddEntry(histoname3, label, "l");
-sprintf(label,"100 pb-1 alignment;  mean = %1.3f, RMS = %1.3f",convert(histo4->GetMean()),convert(histo4->GetRMS()));
+sprintf(label,"10 pb-1 alignment;  mean = %1.4f, RMS = %1.4f",(histo4->GetMean()),histo4->GetRMS());
 leg->AddEntry(histoname4, label, "l");
+sprintf(label,"100 pb-1 alignment;  mean = %1.4f, RMS = %1.4f",(histo5->GetMean()),histo5->GetRMS());
+leg->AddEntry(histoname5, label, "l");
+
 leg->Draw();
 
 }

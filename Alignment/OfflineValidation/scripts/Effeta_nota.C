@@ -39,18 +39,20 @@ c1->cd();
 TFile f0("../../singlemu_310607/Misalignment_scenarioIdeal_singlemu131.root");  
 TTree *MyTree=Tracks;
 
-// TFile f2("Misalignment_SurveyLASOnlyScenario_refitter_singlemu.root");
-TFile f2("Misalignment_SurveyLASOnlyScenario_refitter_zmumu_singlemuSurveyLASCosmics.root");
+TFile f1("../../SurveyLAS/singlemu/Misalignment_SurveyLASOnlyScenario_refitter_singlemu.root");
 TTree *MyTree2=Tracks;
 
-TFile f3("../../singlemu_310607/Misalignment10.root");
+TFile f2("Misalignment_SurveyLASOnlyScenario_refitter_zmumu_singlemuSurveyLASCosmics.root");
 TTree *MyTree3=Tracks;
 
-TFile f4("../../singlemu_310607/Misalignment100.root");
+TFile f3("../../singlemu_310607/Misalignment10.root");
 TTree *MyTree4=Tracks;
 
-TFile f5("../../SurveyLAS/singlemu/Misalignment_SurveyLASOnlyScenario_refitter_singlemu_NOAPE.root");
+TFile f4("../../singlemu_310607/Misalignment100.root");
 TTree *MyTree5=Tracks;
+
+TFile f5("../../singlemu_310607/Misalignment_scenario10_refitter_singlemu_noape.root");
+TTree *MyTree6=Tracks;
 
 ////&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
 
@@ -228,12 +230,57 @@ for (int k=1; k<81; k++){
   err=0.;
 }
 
-Effeta_scen3->SetMarkerStyle(22);
+Effeta_scen3->SetMarkerStyle(23);
 Effeta_scen3->SetMarkerColor(5);
 Effeta_scen3->SetMarkerSize(0.9);
 Effeta_scen3->SetLineColor(1);
 Effeta_scen3->SetLineWidth(1);
 Effeta_scen3->Draw("P"); 
+c1->Update();
+//c1->WaitPrimitive();
+
+
+// // //&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+// // /// EFFICIENCIES VS ETA SCEN 2
+// // //&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+
+TH1F *etazero_scen4 = new TH1F("etazero_scen4","eta zero",80,0.,2.5); 
+TH1F *etauno_scen4 = new TH1F("etauno_scen4","eta uno",80,0.,2.5); 
+
+MyTree4->Project("etazero_scen4","abs(eta)");
+MyTree4->Project("etauno_scen4","abs(eta)","eff==1");
+TH1F *Effeta_scen4 = etazero_scen4->Clone("Efficiency vs #eta");
+
+Effeta_scen4->Reset();
+Effeta_scen4->Divide(etauno_scen4,etazero_scen4,1,1); 
+Effeta_scen4->Sumw2();
+
+float MC_bin=0.,Eff_bin=0.,err=0.;
+for (int k=1; k<81; k++){
+  MC_bin = etazero_scen4->GetBinContent(k);
+  Eff_bin = Effeta_scen4->GetBinContent(k);
+  if (MC_bin != 0.) {
+    err=Eff_bin*(1.-Eff_bin)/MC_bin;
+    if (err >0) {
+      err=sqrt(err);
+    }      
+    else {
+      err=0.0001;  
+    }
+  }
+  Effeta_scen4->SetBinError(k,err);
+  
+  MC_bin=0.;
+  Eff_bin=0.;
+  err=0.;
+}
+
+Effeta_scen4->SetMarkerStyle(24);
+Effeta_scen4->SetMarkerColor(6);
+Effeta_scen4->SetMarkerSize(0.9);
+Effeta_scen4->SetLineColor(1);
+Effeta_scen4->SetLineWidth(1);
+Effeta_scen4->Draw("P"); 
 c1->Update();
 //c1->WaitPrimitive();
 
@@ -245,8 +292,8 @@ c1->Update();
  TH1F *etazero_scen1_noErr = new TH1F("etazero_scen1_noErr","eta zero",80,0.,2.5); 
  TH1F *etauno_scen1_noErr = new TH1F("etauno_scen1_noErr","eta uno",80,0.,2.5); 
 
- MyTree5->Project("etazero_scen1_noErr","abs(eta)");
- MyTree5->Project("etauno_scen1_noErr","abs(eta)","eff==1");
+ MyTree6->Project("etazero_scen1_noErr","abs(eta)");
+ MyTree6->Project("etauno_scen1_noErr","abs(eta)","eff==1");
  TH1F *Effeta_scen1_noErr = etazero_scen1_noErr->Clone("Efficiency vs #eta");
 
  Effeta_scen1_noErr->Reset();
@@ -273,8 +320,8 @@ c1->Update();
    err=0.;
  }
 
- Effeta_scen1_noErr->SetMarkerStyle(23);
- Effeta_scen1_noErr->SetMarkerColor(6);
+ Effeta_scen1_noErr->SetMarkerStyle(26);
+ Effeta_scen1_noErr->SetMarkerColor(7);
  Effeta_scen1_noErr->SetMarkerSize(0.9);
  Effeta_scen1_noErr->SetLineColor(1);
  Effeta_scen1_noErr->SetLineWidth(1);
@@ -296,18 +343,20 @@ Effeta_scen1_noErr->SetYTitle("Global Efficiency");
 Effeta_scen1->Draw("same");
 Effeta_scen2->Draw("same");
 Effeta_scen3->Draw("same");
-// Effeta_scen1_noErr->Draw("same");
+Effeta_scen4->Draw("same");
+
 
 TLegend *leg1 = new TLegend(0.55,0.11,0.88,0.22); 
 leg1->SetTextAlign(32);
 leg1->SetTextColor(1);
-leg1->SetTextSize(0.023);
+leg1->SetTextSize(0.02);
 
 leg1->AddEntry(Effeta,"perfect alignment", "P");
-leg1->AddEntry(Effeta_scen1,"SurveyLASCosmics alignment;  APE used", "P");
-leg1->AddEntry(Effeta_scen2,"10 pb-1 alignment;   APE used", "P");
-leg1->AddEntry(Effeta_scen3,"100 pb-1 alignment;   APE used", "P");
-leg1->AddEntry(Effeta_scen1_noErr,"SurveyLAS alignment; APE not used", "P");
+leg1->AddEntry(Effeta_scen1,"SurveyLAS alignment", "P");
+leg1->AddEntry(Effeta_scen2,"SurveyLASCosmics alignment", "P");
+leg1->AddEntry(Effeta_scen3,"10 pb-1 alignment", "P");
+leg1->AddEntry(Effeta_scen4,"100 pb-1 alignment", "P");
+leg1->AddEntry(Effeta_scen1_noErr,"10 pb-1 alignment; APE not used", "P");
 
 leg1->Draw();
 

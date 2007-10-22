@@ -30,17 +30,21 @@ Canv->SetLogy(1);
 Canv->SetGrid(1,1);
 Canv->cd(); 
 
-TFile f0("../../singlemu_310607/Misalignment_scenarioIdeal_singlemu131.root");
+TFile f0("../../singlemu_310607/Misalignment_scenarioIdeal_singlemu131.root");  
 TTree *MyTree=Tracks;
-  
-TFile f1("Misalignment_SurveyLASOnlyScenario_refitter_zmumu_singlemuSurveyLASCosmics.root");
+
+TFile f1("../../SurveyLAS/singlemu/Misalignment_SurveyLASOnlyScenario_refitter_singlemu.root");
 TTree *MyTree2=Tracks;
-  
-TFile f2("../../singlemu_310607/Misalignment10.root");
+
+TFile f2("Misalignment_SurveyLASOnlyScenario_refitter_zmumu_singlemuSurveyLASCosmics.root");
 TTree *MyTree3=Tracks;
-  
-TFile f3("../../singlemu_310607/Misalignment100.root");
+
+TFile f3("../../singlemu_310607/Misalignment10.root");
 TTree *MyTree4=Tracks;
+
+TFile f4("../../singlemu_310607/Misalignment100.root");
+TTree *MyTree5=Tracks;
+
 
 
 int nbin=25;
@@ -102,7 +106,7 @@ for (int i=0;i<nbin;i++){
   cout << " ErrOnSigma =" << errsigma[i] << " Mean/RMS orig =" << meanorig[i] << " +/-" << rms[i] << endl;
 }
 
-hframe = new TH2F("hframe","Resphi_gaus",25,0.,2.5,100,0.00005,0.001);
+hframe = new TH2F("hframe","Resphi_gaus",25,0.,2.5,100,0.00005,0.002);
 hframe->SetTitle("#sigma(#phi) vs #eta, p_{T} = 100 GeV/c");
 hframe->SetXTitle("#eta");
 hframe->SetYTitle("#sigma(#phi) [rad]");
@@ -126,7 +130,7 @@ for (int i=1;i<=nbin;i++){
   cout << "binstart=" << binstart << " binstop is=" << binstop << " eta is " << etabin[i-1] << endl;
   sprintf(cutname,"abs(eta)>=%f && abs(eta)<%f && eff==1 && TrackID==13",binstart, binstop);
   cout << "cutname is " << cutname <<endl;
-  TH1F *resd0= new TH1F("d0","d0",500,-0.0015.,0.0015);   
+  TH1F *resd0= new TH1F("d0","d0",250,-0.0015.,0.0015);   
   MyTree2->Project("d0","(resphi)",cutname);
   resd0->Fit("gaus");
   meanorig[i-1]=1.*resd0->GetMean();
@@ -149,7 +153,7 @@ for (int i=0;i<nbin;i++){
   cout << " ErrOnSigma =" << errsigma[i] << " Mean/RMS orig =" << meanorig[i] << " +/-" << rms[i] << endl;
 }
 
-hframe_scen1 = new TH2F("hframe_scen1","Resphi_gaus_scen1",25,0.,2.5,100,0.00005,0.001);
+hframe_scen1 = new TH2F("hframe_scen1","Resphi_gaus_scen1",25,0.,2.5,100,0.00005,0.002);
 hframe_scen1->SetTitle("#sigma(#phi) vs #eta, p_{T} = 100 GeV/c");
 hframe_scen1->SetXTitle("#eta");
 hframe_scen1->SetYTitle("#sigma(#phi) [rad]");
@@ -173,7 +177,7 @@ for (int i=1;i<=nbin;i++){
   cout << "binstart=" << binstart << " binstop is=" << binstop << " eta is " << etabin[i-1] << endl;
   sprintf(cutname,"abs(eta)>=%f && abs(eta)<%f && eff==1 && TrackID==13",binstart, binstop);
   cout << "cutname is " << cutname <<endl;
-  TH1F *resd0= new TH1F("d0","d0",500,-0.0015.,0.0015);   
+  TH1F *resd0= new TH1F("d0","d0",250,-0.0015,0.0015);   
   MyTree3->Project("d0","(resphi)",cutname);
   resd0->Fit("gaus");
   meanorig[i-1]=1.*resd0->GetMean();
@@ -196,7 +200,7 @@ for (int i=0;i<nbin;i++){
   cout << " ErrOnSigma =" << errsigma[i] << " Mean/RMS orig =" << meanorig[i] << " +/-" << rms[i] << endl;
 }
 
-hframe_scen2 = new TH2F("hframe_scen1","Resphi_gaus_scen2",25,0.,2.5,100,0.00005,0.001);
+hframe_scen2 = new TH2F("hframe_scen2","Resphi_gaus_scen2",25,0.,2.5,100,0.00005,0.001);
 hframe_scen2->SetTitle("#sigma(#phi) vs #eta, p_{T} = 100 GeV/c");
 hframe_scen2->SetXTitle("#eta");
 hframe_scen2->SetYTitle("#sigma(#phi) [rad]");
@@ -210,7 +214,7 @@ Canv->Update();
 //Canv->WaitPrimitive();
 
 // //////////////////////////////////////////////////////////////////
-// d0 resolution scen2
+// d0 resolution scen3
 /////////////////////////////////////////////////////////////////////
 for (int i=1;i<=nbin;i++){
   binstart=0.1*(i-1);
@@ -243,35 +247,83 @@ for (int i=0;i<nbin;i++){
   cout << " ErrOnSigma =" << errsigma[i] << " Mean/RMS orig =" << meanorig[i] << " +/-" << rms[i] << endl;
 }
 
-hframe_scen3 = new TH2F("hframe_scen1","Resphi_gaus_scen3",25,0.,2.5,100,0.00005,0.001);
+hframe_scen3 = new TH2F("hframe_scen3","Resphi_gaus_scen3",25,0.,2.5,100,0.00005,0.002);
 hframe_scen3->SetTitle("#sigma(#phi) vs #eta, p_{T} = 100 GeV/c");
 hframe_scen3->SetXTitle("#eta");
 hframe_scen3->SetYTitle("#sigma(#phi) [rad]");
 hframe_scen3->Draw();
 gr_scen3 = new TGraphErrors(25,etabin,sigma,erretabin,errsigma);
 gr_scen3->SetMarkerColor(5);
-gr_scen3->SetMarkerStyle(22);
+gr_scen3->SetMarkerStyle(23);
 gr_scen3->Draw("P");
 Canv->Update();
 //Canv->SaveAs("Resphi_gaus_scen3.eps");
 //Canv->WaitPrimitive();
 
 
+// //////////////////////////////////////////////////////////////////
+// d0 resolution scen4
+/////////////////////////////////////////////////////////////////////
+for (int i=1;i<=nbin;i++){
+  binstart=0.1*(i-1);
+  binstop = 0.1*i;
+  etabin[i-1]= (binstop-binstart)/2.+binstart;
+  erretabin[i-1]=(binstop-binstart)/2.;
+  cout << "binstart=" << binstart << " binstop is=" << binstop << " eta is " << etabin[i-1] << endl;
+  sprintf(cutname,"abs(eta)>=%f && abs(eta)<%f && eff==1 && TrackID==13",binstart, binstop);
+  cout << "cutname is " << cutname <<endl;
+  TH1F *resd0= new TH1F("d0","d0",500,-0.0015.,0.0015);   
+  MyTree5->Project("d0","(resphi)",cutname);
+  resd0->Fit("gaus");
+  meanorig[i-1]=1.*resd0->GetMean();
+  rms[i-1]=1.*resd0->GetRMS();
+  cost[i-1]=gaus->GetParameter(0);
+  mean[i-1]=1*gaus->GetParameter(1);
+  sigma[i-1]=1*gaus->GetParameter(2);
+  errsigma[i-1]=1*gaus->GetParError(2);
+  entry[i-1]=resd0->GetEntries();
+  //chiq[i-1]=(gaus->GetChisquare()) /(gaus->GetNDF());
+  cout << "mean is= " << mean[i-1] << " sigma is= " << sigma[i-1]/(sqrt(entry[i-1])) << " Entries= " << entry[i-1] << endl;
+  delete resd0;
+}
+
+for (int i=0;i<nbin;i++){
+  binstart=0.1*(i);
+  binstop = 0.1*(i+1);
+  cout << "binstart= " << binstart << " binstop= " << binstop << endl;
+  cout << " etabin=" << etabin[i] << " Vector mean/sigma are "<< mean[i] << " +/- " << sigma[i] << endl;
+  cout << " ErrOnSigma =" << errsigma[i] << " Mean/RMS orig =" << meanorig[i] << " +/-" << rms[i] << endl;
+}
+
+hframe_scen4 = new TH2F("hframe_scen4","Resphi_gaus_scen4",25,0.,2.5,100,0.00005,0.002);
+hframe_scen4->SetTitle("#sigma(#phi) vs #eta, p_{T} = 100 GeV/c");
+hframe_scen4->SetXTitle("#eta");
+hframe_scen4->SetYTitle("#sigma(#phi) [rad]");
+hframe_scen4->Draw();
+gr_scen4 = new TGraphErrors(25,etabin,sigma,erretabin,errsigma);
+gr_scen4->SetMarkerColor(6);
+gr_scen4->SetMarkerStyle(24);
+gr_scen4->Draw("P");
+Canv->Update();
+//Canv->SaveAs("Resphi_gaus_scen3.eps");
+//Canv->WaitPrimitive();
+
 gr->Draw("P");
 gr_scen1->Draw("Psame");
 gr_scen2->Draw("Psame");
 gr_scen3->Draw("Psame");
+gr_scen4->Draw("Psame");
 
-
-TLegend *leg1 = new TLegend(0.1,0.76,0.47,0.9); 
+TLegend *leg1 = new TLegend(0.1,0.76,0.57,0.9); 
 leg1->SetTextAlign(32);
 leg1->SetTextColor(1);
-leg1->SetTextSize(0.037);
+leg1->SetTextSize(0.025);
 
 leg1->AddEntry(gr,"perfect alignment", "P");
-leg1->AddEntry(gr_scen1,"SurveyLASCosmics alignment", "P");
-leg1->AddEntry(gr_scen2,"10 pb-1  alignment", "P");
-leg1->AddEntry(gr_scen3,"100 pb-1  alignment", "P");
+leg1->AddEntry(gr_scen1,"SurveyLAS alignment", "P");
+leg1->AddEntry(gr_scen2,"SurveyLASCosmics alignment", "P");
+leg1->AddEntry(gr_scen3,"10 pb-1  alignment", "P");
+leg1->AddEntry(gr_scen4,"100 pb-1  alignment", "P");
 
 
 leg1->Draw();
