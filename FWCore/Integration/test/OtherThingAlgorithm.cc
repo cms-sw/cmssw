@@ -21,6 +21,7 @@ namespace edmtest {
       element.a = i;
       element.refProd = edm::RefProd<ThingCollection>(parent);
       element.ref = edm::Ref<ThingCollection>(element.refProd, i);
+      element.ptr = edm::Ptr<Thing>(parent, i);
       element.refVec.push_back(element.ref);
       element.refVec.push_back(element.ref);
       element.refVec.push_back(edm::Ref<ThingCollection>(parent, 19-i));

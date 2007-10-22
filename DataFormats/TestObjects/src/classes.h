@@ -51,5 +51,7 @@ struct dictionary {
 
   edm::reftobase::Holder<edmtest::Thing,edm::Ref<std::vector<edmtest::Thing> > > bhThing;
   edm::RefToBaseProd<edmtest::Thing> rtbpThing;
+  
+  edm::Ptr<edmtest::Thing> ptrThing;
 };
 }
