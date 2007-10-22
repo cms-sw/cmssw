@@ -28,7 +28,7 @@ TopGenEvent::numberOfLeptons() const
   int lep=0;
   const reco::CandidateCollection & partsColl = *parts_;
   for (unsigned int i = 0; i < partsColl.size(); ++i) {
-    if (reco::isLepton(partsColl[i])) {
+    if (reco::isLepton(partsColl[i])&&(partsColl[i].status()==3)) {
       ++lep;
     }
   }  
@@ -56,7 +56,7 @@ TopGenEvent::singleLepton() const
   if (numberOfLeptons() == 1) {
     const reco::CandidateCollection & partsColl = *parts_;
     for (unsigned int i = 0; i < partsColl.size(); ++i) {
-      if (reco::isLepton(partsColl[i])) {
+      if (reco::isLepton(partsColl[i])&&(partsColl[i].status()==3)) {
         cand = &partsColl[i];
       }
     }
@@ -71,7 +71,7 @@ TopGenEvent::singleNeutrino() const
   if (numberOfLeptons()==1) {
     const reco::CandidateCollection & partsColl = *parts_;
     for (unsigned int i = 0; i < partsColl.size(); ++i) {
-      if (reco::isNeutrino(partsColl[i])) {
+      if (reco::isNeutrino(partsColl[i])&&(partsColl[i].status()==3)) {
         cand = &partsColl[i];
       }
     }

@@ -1,5 +1,5 @@
 //
-// $Id: TtGenEvent.cc,v 1.15 2007/10/15 16:34:50 delaer Exp $
+// $Id: TtGenEvent.cc,v 1.16 2007/10/19 12:31:53 rwolf Exp $
 //
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "PhysicsTools/CandUtils/interface/pdgIdUtils.h"
@@ -158,7 +158,7 @@ TtGenEvent::lepton() const
   const reco::Candidate* cand=0;
   const reco::CandidateCollection & partsColl = *parts_;
   for (unsigned int i = 0; i < partsColl.size(); ++i) {
-    if (reco::isLepton(partsColl[i]) && reco::flavour(partsColl[i])>0) {
+    if (reco::isLepton(partsColl[i]) && reco::flavour(partsColl[i])>0&&(partsColl[i].status()==3)) {
       cand = &partsColl[i];
     }  
   }
@@ -171,7 +171,7 @@ TtGenEvent::neutrino() const
   const reco::Candidate* cand=0;
   const reco::CandidateCollection & partsColl = *parts_;
   for (unsigned int i = 0; i < partsColl.size(); ++i) {
-    if (reco::isNeutrino(partsColl[i]) && reco::flavour(partsColl[i])>0) {
+    if (reco::isNeutrino(partsColl[i]) && reco::flavour(partsColl[i])>0&&(partsColl[i].status()==3)) {
       cand = &partsColl[i];
     }  
   }
@@ -184,7 +184,7 @@ TtGenEvent::leptonBar() const
   const reco::Candidate* cand=0;
   const reco::CandidateCollection & partsColl = *parts_;
   for (unsigned int i = 0; i < partsColl.size(); ++i) {
-    if (reco::isLepton(partsColl[i]) && reco::flavour(partsColl[i])<0) {
+    if (reco::isLepton(partsColl[i]) && reco::flavour(partsColl[i])<0&&(partsColl[i].status()==3)) {
       cand = &partsColl[i];
     }  
   }
@@ -197,7 +197,7 @@ TtGenEvent::neutrinoBar() const
   const reco::Candidate* cand=0;
   const reco::CandidateCollection & partsColl = *parts_;
   for (unsigned int i = 0; i < partsColl.size(); ++i) {
-    if (reco::isNeutrino(partsColl[i]) && reco::flavour(partsColl[i])<0) {
+    if (reco::isNeutrino(partsColl[i]) && reco::flavour(partsColl[i])<0&&(partsColl[i].status()==3)) {
       cand = &partsColl[i];
     }  
   }
