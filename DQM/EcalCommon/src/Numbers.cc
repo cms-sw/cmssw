@@ -1,11 +1,11 @@
-// $Id: Numbers.cc,v 1.28 2007/10/17 15:58:44 dellaric Exp $
+// $Id: Numbers.cc,v 1.29 2007/10/21 09:30:44 dellaric Exp $
 
 /*!
   \file Numbers.cc
   \brief Some "id" conversions
   \author B. Gobbo 
-  \version $Revision: 1.28 $
-  \date $Date: 2007/10/17 15:58:44 $
+  \version $Revision: 1.29 $
+  \date $Date: 2007/10/21 09:30:44 $
 */
 
 #include <sstream>
@@ -178,7 +178,7 @@ int Numbers::iSM( const EBDetId& id ) throw( std::runtime_error ) {
     if( idcc >= 10 && idcc <= 45 ) return( idcc - 9 );
 
     std::ostringstream s;
-    s << "Wrong DCC id: iDCC = " << idcc;
+    s << "Wrong DCC id: dcc = " << idcc;
     throw( std::runtime_error( s.str() ) );
 
   } else {
@@ -202,7 +202,7 @@ int Numbers::iSM( const EEDetId& id ) throw( std::runtime_error ) {
     if( idcc >= 46 && idcc <= 54 ) return( idcc - 45 + 9 );
 
     std::ostringstream s;
-    s << "Wrong DCC id: iDCC = " << idcc;
+    s << "Wrong DCC id: dcc = " << idcc;
     throw( std::runtime_error( s.str() ) );
 
   } else {
@@ -230,13 +230,24 @@ int Numbers::iSM( const EcalTrigTowerDetId& id ) throw( std::runtime_error ) {
     if( idcc >= 46 && idcc <= 54 ) return( idcc - 45 + 9 );
 
     std::ostringstream s;
-    s << "Wrong DCC id: iDCC = " << idcc;
+    s << "Wrong DCC id: dcc = " << idcc;
     throw( std::runtime_error( s.str() ) );
 
   } else {
     int subdet = id.subDet();
     if( subdet == EcalBarrel ) {
-      return( Numbers::iSM( id.iDCC(), subdet ) );
+
+      int idcc = id.iDCC();
+
+//     // EB-/EB+
+//     if( idcc >= 10 && idcc <= 45 ) return( idcc - 9 );
+
+      return( Numbers::iSM( idcc, subdet ) );
+
+//      std::ostringstream s;
+//      s << "Wrong DCC id: dcc = " << idcc;
+//      throw( std::runtime_error( s.str() ) );
+
     } else if( subdet ==  EcalEndcap) {
       std::ostringstream s;
       s << "ECAL Geometry not available";
@@ -253,14 +264,43 @@ int Numbers::iSM( const EcalTrigTowerDetId& id ) throw( std::runtime_error ) {
 //-------------------------------------------------------------------------
 
 int Numbers::iSM( const EcalElectronicsId& id ) {
-  int subdet = id.subdet();
-  return( Numbers::iSM( id.dccId(), subdet ) );
+
+  int idcc = id.dccId();
+
+  // EE-
+  if( idcc >=  1 && idcc <=  9 ) return( idcc );
+
+  // EB-/EB+
+  if( idcc >= 10 && idcc <= 45 ) return( idcc - 9 );
+
+  // EE+
+  if( idcc >= 46 && idcc <= 54 ) return( idcc - 45 + 9 );
+
+  std::ostringstream s;
+  s << "Wrong DCC id: dcc = " << idcc;
+  throw( std::runtime_error( s.str() ) );
+
 }
 
 //-------------------------------------------------------------------------
 
 int Numbers::iSM( const EcalPnDiodeDetId& id ) {
-  return( Numbers::iSM( id.iDCCId(), id.iEcalSubDetectorId() ) );
+
+  int idcc = id.iDCCId();
+
+  // EE-
+  if( idcc >=  1 && idcc <=  9 ) return( idcc );
+
+  // EB-/EB+
+  if( idcc >= 10 && idcc <= 45 ) return( idcc - 9 );
+
+  // EE+
+  if( idcc >= 46 && idcc <= 54 ) return( idcc - 45 + 9 );
+
+  std::ostringstream s;
+  s << "Wrong DCC id: dcc = " << idcc;
+  throw( std::runtime_error( s.str() ) );
+
 }
 
 //-------------------------------------------------------------------------
@@ -279,7 +319,7 @@ int Numbers::iSM( const EcalDCCHeaderBlock& id, const int subdet ) {
   if( idcc >= 46 && idcc <= 54 ) return( idcc - 45 + 9 );
 
   std::ostringstream s;
-  s << "Wrong DCC id: iDCC = " << idcc;
+  s << "Wrong DCC id: dcc = " << idcc;
   throw( std::runtime_error( s.str() ) );
 
 }
