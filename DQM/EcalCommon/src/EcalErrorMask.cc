@@ -1,11 +1,11 @@
-// $Id: EcalErrorMask.cc,v 1.6 2007/05/22 15:42:42 benigno Exp $
+// $Id: EcalErrorMask.cc,v 1.7 2007/05/23 09:25:18 benigno Exp $
 
 /*!
   \file EcalErrorMask.cc
   \brief Error mask from text file or database
   \author B. Gobbo
-  \version $Revision: 1.6 $
-  \date $Date: 2007/05/22 15:42:42 $
+  \version $Revision: 1.7 $
+  \date $Date: 2007/05/23 09:25:18 $
 */
 
 #include "DQM/EcalCommon/interface/EcalErrorMask.h"
@@ -77,7 +77,7 @@ void EcalErrorMask::readFile( std::string inFile, bool verbose, bool verifySynta
 
     if( verbose ) std::cout << is.str() << std::endl;
 
-    // get SM number (1...36 or EB+1...EB-18)
+    // get SM number (1...36 or EB-18...EB+18 or EE-09...EE+09)
     //int sm; is >> sm;
     std::string ssm; is >> ssm;
     int sm;
@@ -85,11 +85,15 @@ void EcalErrorMask::readFile( std::string inFile, bool verbose, bool verifySynta
       sm = atoi( ssm.substr(2, ssm.size()-2).c_str() );
       sm = (sm>0) ? sm : 18-sm;
     }
+    else if( ssm.substr( 0, 2 ) == "EE" ) {
+      sm = atoi( ssm.substr(2, ssm.size()-2).c_str() );
+      sm = (sm>0) ? sm : 18-sm;
+    }
     else {
       sm = atoi( ssm.c_str() );
     }
 
-    if( sm < 1 || sm > 36 ) {
+    if( !(sm >= 1 && sm <= 36) ) {
       std::ostringstream os;
       os << "line " << linecount << " --> SM must be a number between 1 and 36: " << sm << std::ends;
       if( verifySyntax ) {
@@ -403,6 +407,22 @@ std::string EcalErrorMask::sEB( int sm ) {
   if( sm > 18 ) sm = 18-sm;
   std::ostringstream s;
   s << "EB" << std::setw(3) << std::setfill('0')
+    << std::setiosflags( std::ios::showpos )
+    << std::setiosflags( std::ios::internal )
+    << sm
+    << std::resetiosflags( std::ios::showpos )
+    << std::resetiosflags( std::ios::internal )
+    << std::ends;
+  return( s.str() );
+
+}
+
+//---------------------------------------------------------------------------------------------
+
+std::string EcalErrorMask::sEE( int sm ) {
+  if( sm > 9 ) sm = 9-sm;
+  std::ostringstream s;
+  s << "EE" << std::setw(3) << std::setfill('0')
     << std::setiosflags( std::ios::showpos )
     << std::setiosflags( std::ios::internal )
     << sm
