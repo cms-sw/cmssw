@@ -9,7 +9,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: CompositeCandidate.h,v 1.22 2007/10/15 12:44:33 llista Exp $
+ * \version $Id: CompositeCandidate.h,v 1.23 2007/10/18 16:02:56 llista Exp $
  *
  */
 
@@ -48,7 +48,7 @@ namespace reco {
     /// last daughter const_iterator
     virtual iterator end();
     /// number of daughters
-    virtual size_t numberOfDaughters() const;
+    virtual size_type numberOfDaughters() const;
     /// return daughter at a given position, i = 0, ... numberOfDaughters() - 1 (read only mode)
     virtual const Candidate * daughter( size_type ) const;
     /// return daughter at a given position, i = 0, ... numberOfDaughters() - 1
@@ -60,9 +60,9 @@ namespace reco {
     /// clear daughters
     void clearDaughters() { dau.clear(); }
     /// number of mothers (zero or one in most of but not all the cases)
-    virtual unsigned int numberOfMothers() const;
+    virtual size_type numberOfMothers() const;
     /// return pointer to mother
-    virtual const Candidate * mother( size_t i = 0 ) const;
+    virtual const Candidate * mother( size_type i = 0 ) const;
 
   private:
     // const iterator implementation

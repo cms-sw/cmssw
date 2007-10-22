@@ -6,7 +6,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: Candidate.h,v 1.35 2007/10/17 08:01:38 llista Exp $
+ * \version $Id: Candidate.h,v 1.36 2007/10/22 14:01:00 llista Exp $
  *
  */
 #include "DataFormats/Candidate/interface/Particle.h"
@@ -50,15 +50,15 @@ namespace reco {
     /// last daughter iterator
     virtual iterator end() = 0;
     /// number of daughters
-    virtual size_t numberOfDaughters() const = 0;
+    virtual size_type numberOfDaughters() const = 0;
     /// return daughter at a given position, i = 0, ... numberOfDaughters() - 1 (read only mode)
     virtual const Candidate * daughter( size_type i ) const = 0;
     /// return daughter at a given position, i = 0, ... numberOfDaughters() - 1
     virtual Candidate * daughter( size_type i ) = 0;
     /// number of mothers (zero or one in most of but not all the cases)
-    virtual size_t numberOfMothers() const = 0;
+    virtual size_type numberOfMothers() const = 0;
     /// return pointer to mother
-    virtual const Candidate * mother( size_t i = 0 ) const = 0;
+    virtual const Candidate * mother( size_type i = 0 ) const = 0;
     /// returns true if this candidate has a reference to a master clone.
     /// This only happens if the concrete Candidate type is ShallowCloneCandidate
     virtual bool hasMasterClone() const;
@@ -79,22 +79,22 @@ namespace reco {
       else return reco::get<T, Tag>( * this ); 
     }
     /// get a component
-    template<typename T> T get( size_t i ) const { 
+    template<typename T> T get( size_type i ) const { 
       if ( hasMasterClone() ) return masterClone()->get<T>( i );
       else return reco::get<T>( * this, i ); 
     }
     /// get a component
-    template<typename T, typename Tag> T get( size_t i ) const { 
+    template<typename T, typename Tag> T get( size_type i ) const { 
       if ( hasMasterClone() ) return masterClone()->get<T, Tag>( i );
       else return reco::get<T, Tag>( * this, i ); 
     }
     /// number of components
-    template<typename T> size_t numberOf() const { 
+    template<typename T> size_type numberOf() const { 
       if ( hasMasterClone() ) return masterClone()->numberOf<T>();
       else return reco::numberOf<T>( * this ); 
     }
     /// number of components
-    template<typename T, typename Tag> size_t numberOf() const { 
+    template<typename T, typename Tag> size_type numberOf() const { 
       if ( hasMasterClone() ) return masterClone()->numberOf<T, Tag>();
       else return reco::numberOf<T, Tag>( * this ); 
     }

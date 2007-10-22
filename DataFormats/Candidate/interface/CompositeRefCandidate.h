@@ -9,7 +9,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: CompositeRefCandidate.h,v 1.18 2007/10/15 11:51:25 llista Exp $
+ * \version $Id: CompositeRefCandidate.h,v 1.20 2007/10/15 12:44:33 llista Exp $
  *
  */
 
@@ -68,7 +68,7 @@ namespace reco {
     /// number of mothers (zero or one in most of but not all the cases)
     virtual size_t numberOfMothers() const;
     /// return pointer to mother
-    virtual const Candidate * mother( unsigned int i = 0 ) const;
+    virtual const Candidate * mother( size_t i = 0 ) const;
 
   private:
     /// const iterator implementation
