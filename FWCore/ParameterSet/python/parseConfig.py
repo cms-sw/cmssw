@@ -1906,6 +1906,25 @@ process RECO = {
 """)
             self.assertEqual(t[0].outputStuff.outputCommands,["drop *","keep blah_*_*_*"])
 
+            _allUsingLabels = set()
+            t=process.parseString("""
+process RECO = {
+  module i = iterativeCone5CaloJets from "FWCore/ParameterSet/test/chainIncludeModule.cfi"
+}
+""")
+            self.assertEqual(t[0].i.jetType.value(), "CaloJet")
+
+
+            _allUsingLabels = set()
+            t=process.parseString("""
+process RECO = {
+  include "FWCore/ParameterSet/test/chainIncludeBlock.cfi"
+  module i = iterativeConeNoBlock from "FWCore/ParameterSet/test/chainIncludeModule2.cfi"
+}
+""")
+            self.assertEqual(t[0].i.jetType.value(), "CaloJet")
+
+
 
             _allUsingLabels = set()
             t=process.parseString("""
