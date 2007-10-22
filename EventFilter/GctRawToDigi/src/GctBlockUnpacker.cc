@@ -42,9 +42,11 @@ GctBlockUnpacker::GctBlockUnpacker() :
     blockUnpackFn_[0x00] = &GctBlockUnpacker::blockDoNothing;
     blockUnpackFn_[0x58] = &GctBlockUnpacker::blockToGctJetCand;
     blockUnpackFn_[0x59] = &GctBlockUnpacker::blockDoNothing;
+    blockUnpackFn_[0x5a] = &GctBlockUnpacker::blockToGctJetCounts;
     blockUnpackFn_[0x5f] = &GctBlockUnpacker::blockDoNothing;
     blockUnpackFn_[0x68] = &GctBlockUnpacker::blockToGctEmCand;
     blockUnpackFn_[0x69] = &GctBlockUnpacker::blockToGctInternEmCand;
+    blockUnpackFn_[0x6a] = &GctBlockUnpacker::blockToGctEnergySums;
     blockUnpackFn_[0x6b] = &GctBlockUnpacker::blockDoNothing;
     blockUnpackFn_[0x6f] = &GctBlockUnpacker::blockDoNothing; 
     blockUnpackFn_[0x80] = &GctBlockUnpacker::blockToGctInternEmCand;
@@ -301,4 +303,43 @@ void GctBlockUnpacker::blockToGctJetCand(const unsigned char * d, const GctBlock
       gctJets_.at(iCat)->push_back(L1GctJetCand(p[cand0Offset + timeSampleOffset + 1], tauflag, forwardFlag, id, 3, bx));      
     }
   }
+}
+
+void GctBlockUnpacker::blockToGctJetCounts(const unsigned char * d, const GctBlockHeader& hdr)
+{
+  LogDebug("GCT") << "Unpacking GCT output Jet Counts" << std::endl;
+  
+  /* 
+   * Note that we are only unpacking one timesample of these, because the dataformat for
+   * jet counts does not have timesample support (and nor is it ever likely to). 
+   */
+  
+  // Re-interpret block payload pointer to 32 bits so it sees six jet counts at a time.
+  // p points to the start of the block payload, at the first six jet counts in timesample 0.
+  const uint32_t * p = reinterpret_cast<const uint32_t *>(d);
+
+  // The call to hdr.nSamples() in the below line gives the offset from the start of the block
+  // payload for a 32-bit pointer to get to the second set of six jet counts in timesample 0.
+  *gctJetCounts_ = L1GctJetCounts(p[0], p[hdr.nSamples()]);
+}
+
+void GctBlockUnpacker::blockToGctEnergySums(const unsigned char * d, const GctBlockHeader& hdr)
+{
+  LogDebug("GCT") << "Unpacking GCT output Energy Sums" << std::endl;
+  
+  /* 
+   * Note that we are only unpacking one timesample of these, because the relevant dataformats
+   * do not have timesample support (and nor are they ever likely to). 
+   */
+  
+  // Re-interpret block payload pointer to both 16 and 32 bits.
+  const uint16_t * p16 = reinterpret_cast<const uint16_t *>(d);  // For getting Et + Ht (16-bit raw data each)
+  const uint32_t * p32 = reinterpret_cast<const uint32_t *>(d);  // For getting Missing Et (32-bit raw data)
+  
+  *gctEtTotal_ = L1GctEtTotal(p16[0]);  // Et total (first 16 bits in block payload for timesample 0)
+  *gctEtHad_ = L1GctEtHad(p16[1]);  // Et hadronic (second 16 bits in block payload for timesample 0)
+  
+  // The call to hdr.nSamples() in the below line gives the offset from the start of the block
+  // payload for a 32-bit pointer to get to the missing Et data in timesample 0.
+  *gctEtMiss_ = L1GctEtMiss(p32[hdr.nSamples()]);    
 }

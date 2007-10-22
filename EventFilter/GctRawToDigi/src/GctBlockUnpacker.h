@@ -12,6 +12,8 @@
 
 #include "DataFormats/L1CaloTrigger/interface/L1CaloCollections.h"
 #include "DataFormats/L1GlobalCaloTrigger/interface/L1GctCollections.h"
+#include "DataFormats/L1GlobalCaloTrigger/interface/L1GctEtSums.h"
+#include "DataFormats/L1GlobalCaloTrigger/interface/L1GctJetCounts.h"
 
 #include "L1Trigger/TextToDigi/src/SourceCardRouting.h"
 
@@ -39,6 +41,11 @@ class GctBlockUnpacker
   void setTauJetCollection(L1GctJetCandCollection* coll) { gctJets_.at(TAU_JETS) = coll; }
   void setForwardJetCollection(L1GctJetCandCollection* coll) { gctJets_.at(FORWARD_JETS) = coll; }
   void setCentralJetCollection(L1GctJetCandCollection* coll) { gctJets_.at(CENTRAL_JETS) = coll; }
+  /// These objects will have the unpacked values assigned to them.
+  void setJetCounts(L1GctJetCounts* jetCounts) { gctJetCounts_ = jetCounts; }
+  void setEtTotal(L1GctEtTotal* etTotal) { gctEtTotal_ = etTotal; }
+  void setEtHad(L1GctEtHad* etHad) { gctEtHad_ = etHad; }
+  void setEtMiss(L1GctEtMiss* etMiss) { gctEtMiss_ = etMiss; }
 
   // get digis from block
   void convertBlock(const unsigned char * d, GctBlockHeader& hdr);
@@ -84,13 +91,16 @@ class GctBlockUnpacker
   // collections of RCT objects
   L1CaloEmCollection* rctEm_;  ///< RCT EM cands
 
-  // collections of output objects
+  // Output object pointers (collections should be empty, and will be filled)
   L1GctEmCandCollection* gctIsoEm_;  ///< GCT output isolated EM cands.
   L1GctEmCandCollection* gctNonIsoEm_;  ///< GCT output non-isolated EM cands.
   L1GctInternEmCandCollection* gctInternEm_;  ///< GCT internal EM Cands.  
   L1GctFibreCollection* gctFibres_;  ///< Fibre data.
-  GctJetCandCollections gctJets_;  /// Vector of pointers to the various jet candidate collections.
-
+  GctJetCandCollections gctJets_;  ///< Vector of pointers to the various jet candidate collections.
+  L1GctJetCounts* gctJetCounts_;  ///< Jet counts
+  L1GctEtTotal* gctEtTotal_;  ///< Total Et
+  L1GctEtHad* gctEtHad_;  /// Total Ht
+  L1GctEtMiss* gctEtMiss_;  /// Missing Et
 
   // PRIVATE METHODS
   // convert functions for each type of block
@@ -111,6 +121,12 @@ class GctBlockUnpacker
   
   /// Unpack GCT Jet Candidates.
   void blockToGctJetCand(const unsigned char * d, const GctBlockHeader& hdr);
+  
+  /// Unpack GCT Jet Counts
+  void blockToGctJetCounts(const unsigned char * d, const GctBlockHeader& hdr);
+  
+  /// Unpack GCT Energy Sums (Et, Ht, and Missing Et)
+  void blockToGctEnergySums(const unsigned char * d, const GctBlockHeader& hdr);
   
   /// Do nothing
   void blockDoNothing(const unsigned char * d, const GctBlockHeader& hdr) {}

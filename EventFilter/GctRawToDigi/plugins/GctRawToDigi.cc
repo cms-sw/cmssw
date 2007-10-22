@@ -127,11 +127,12 @@ void GctRawToDigi::unpack(const FEDRawData& d, edm::Event& e)
   std::auto_ptr<L1GctJetCandCollection> gctCenJets ( new L1GctJetCandCollection() ); gctCenJets->reserve(4);
   std::auto_ptr<L1GctJetCandCollection> gctForJets ( new L1GctJetCandCollection() ); gctForJets->reserve(4);
   std::auto_ptr<L1GctJetCandCollection> gctTauJets ( new L1GctJetCandCollection() ); gctTauJets->reserve(4);
-  
+  std::auto_ptr<L1GctJetCounts> jetCounts( new L1GctJetCounts() );
   std::auto_ptr<L1GctEtTotal> etTotResult( new L1GctEtTotal() );
   std::auto_ptr<L1GctEtHad> etHadResult( new L1GctEtHad() );
   std::auto_ptr<L1GctEtMiss> etMissResult( new L1GctEtMiss() );
 
+  // Fibres
   std::auto_ptr<L1GctFibreCollection> gctFibres( new L1GctFibreCollection() );
 
   // Setup blockUnpacker
@@ -143,6 +144,10 @@ void GctRawToDigi::unpack(const FEDRawData& d, edm::Event& e)
   blockUnpacker_.setCentralJetCollection( gctCenJets.get() );
   blockUnpacker_.setForwardJetCollection( gctForJets.get() );
   blockUnpacker_.setTauJetCollection( gctTauJets.get() );
+  blockUnpacker_.setJetCounts( jetCounts.get() );
+  blockUnpacker_.setEtTotal( etTotResult.get() );
+  blockUnpacker_.setEtHad( etHadResult.get() );
+  blockUnpacker_.setEtMiss( etMissResult.get() );
 
   // Unpacking variables
   const unsigned char * data = d.data();
@@ -178,6 +183,9 @@ void GctRawToDigi::unpack(const FEDRawData& d, edm::Event& e)
     os << "Read " << gctIsoEm.get()->size() << " GCT iso EM candidates" << endl;
     os << "Read " << gctNonIsoEm.get()->size() << " GCT non-iso EM candidates" << endl;
     os << "Read " << gctInternEm.get()->size() << " GCT intermediate EM candidates" << endl;
+    os << "Read " << gctCenJets.get()->size() << " GCT central jet candidates" << endl;
+    os << "Read " << gctForJets.get()->size() << " GCT forward jet candidates" << endl;
+    os << "Read " << gctTauJets.get()->size() << " Gct tau jet candidates" << endl;
     
     edm::LogVerbatim("GCT") << os.str();
   }
@@ -195,8 +203,14 @@ void GctRawToDigi::unpack(const FEDRawData& d, edm::Event& e)
     e.put(gctCenJets,"cenJets");
     e.put(gctForJets,"forJets");
     e.put(gctTauJets,"tauJets");
+    e.put(jetCounts);
   }
-  if (doEtSums_)   { }
+  if (doEtSums_)
+  {
+    e.put(etTotResult);
+    e.put(etHadResult);
+    e.put(etMissResult);
+  }
   if (doInternEm_) { e.put(gctInternEm); }
   if (doFibres_)   { e.put(gctFibres); }
 

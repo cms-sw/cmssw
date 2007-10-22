@@ -93,17 +93,28 @@ GctDigiToRaw::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   blockPacker_.setBcId(bx);
   blockPacker_.setEvId(eventNumber);
  
+  // The gct input label string
+  const std::string gctInputLabelStr = gctInputLabel_.label();
+  
   // get digis
   edm::Handle<L1GctEmCandCollection> isoEm;
-  iEvent.getByLabel(gctInputLabel_.label(), "isoEm", isoEm);
+  iEvent.getByLabel(gctInputLabelStr, "isoEm", isoEm);
   edm::Handle<L1GctEmCandCollection> nonIsoEm;
-  iEvent.getByLabel(gctInputLabel_.label(), "nonIsoEm", nonIsoEm);
+  iEvent.getByLabel(gctInputLabelStr, "nonIsoEm", nonIsoEm);
   edm::Handle<L1GctJetCandCollection> cenJets;
-  iEvent.getByLabel(gctInputLabel_.label(), "cenJets", cenJets);
+  iEvent.getByLabel(gctInputLabelStr, "cenJets", cenJets);
   edm::Handle<L1GctJetCandCollection> forJets;
-  iEvent.getByLabel(gctInputLabel_.label(), "forJets", forJets);
+  iEvent.getByLabel(gctInputLabelStr, "forJets", forJets);
   edm::Handle<L1GctJetCandCollection> tauJets;
-  iEvent.getByLabel(gctInputLabel_.label(), "tauJets", tauJets);
+  iEvent.getByLabel(gctInputLabelStr, "tauJets", tauJets);
+  edm::Handle<L1GctJetCounts> jetCounts;
+  iEvent.getByLabel(gctInputLabelStr, "", jetCounts);
+  edm::Handle<L1GctEtTotal> etTotal;
+  iEvent.getByLabel(gctInputLabelStr, "", etTotal);
+  edm::Handle<L1GctEtHad> etHad;
+  iEvent.getByLabel(gctInputLabelStr, "", etHad);
+  edm::Handle<L1GctEtMiss> etMiss;
+  iEvent.getByLabel(gctInputLabelStr, "", etMiss);
   
   // create the raw data collection
   std::auto_ptr<FEDRawDataCollection> rawColl(new FEDRawDataCollection()); 
@@ -112,7 +123,7 @@ GctDigiToRaw::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   FEDRawData& fedRawData=rawColl->FEDData(fedId_);
  
   // set the size & make pointers to the header, beginning of payload, and footer.
-  const unsigned int rawSize = 64;  // MUST BE MULTIPLE OF 8! (slink packets are 64 bit, but using 8-bit data struct).
+  const unsigned int rawSize = 88;  // MUST BE MULTIPLE OF 8! (slink packets are 64 bit, but using 8-bit data struct).
   fedRawData.resize(rawSize);
   unsigned char * pHeader = fedRawData.data();  
   unsigned char * pPayload = pHeader + 8;
@@ -122,20 +133,26 @@ GctDigiToRaw::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   FEDHeader fedHeader(pHeader);
   fedHeader.set(pHeader, 1, eventNumber, bx, fedId_);  // what should the bx_ID be?
  
-  // pack GCT Jet output digis
-  blockPacker_.writeGctJetBlock(pPayload, cenJets.product(), forJets.product(), tauJets.product());
+  // Pack GCT Jet Cand output digis
+  blockPacker_.writeGctJetCandsBlock(pPayload, cenJets.product(), forJets.product(), tauJets.product());
+  
+  // Pack GCT Jet Count digi; payload offset of 28 needed to get to the jet counts block header.
+  blockPacker_.writeGctJetCountsBlock(pPayload + 28, jetCounts.product());
  
-  // pack GCT EM output digis. Add offset of 28 to start of Slink payload to get EM block header position.
-  blockPacker_.writeGctEmBlock(pPayload + 28, isoEm.product(), nonIsoEm.product());      
+  // Pack GCT EM Cand output digis; payload offset of 40 needed to get to the EM cands block header.
+  blockPacker_.writeGctEmBlock(pPayload + 40, isoEm.product(), nonIsoEm.product());
+  
+  // Pack GCT Energy Sum digis; payload offset of 60 needed to get to the Energy Sums block header.
+  blockPacker_.writeGctEnergySumsBlock(pPayload + 60, etTotal.product(), etHad.product(), etMiss.product());
  
-  // write footer (exactly as told by Marco Zanetti)
+  // Write CDF footer (exactly as told by Marco Zanetti)
   FEDTrailer fedTrailer(pFooter);
   fedTrailer.set(pFooter, rawSize/8, evf::compute_crc(pHeader, rawSize), 0, 0);
  
-  // debug output
-  if (verbose_) print(fedRawData);
+  // Debug output.
+  if (verbose_) { print(fedRawData); }
  
-  // put the collection in the event
+  // Put the collection in the event.
   iEvent.put(rawColl);
 }
 
