@@ -195,24 +195,12 @@ L1GctJetLeafCard::eyComponent(const L1GctJetLeafCard::etTotalType etStrip, const
 L1GctJetLeafCard::etComponentType
 L1GctJetLeafCard::rotateEtValue(const L1GctJetLeafCard::etTotalType etStrip, const unsigned fact) const {
   // These factors correspond to the sine of angles from -90 degrees to
-  // 90 degrees in 10 degree steps, multiplied by 256 and written in 20 bits
-  //const int factors[19] = {0xfff00, 0xfff04, 0xfff0f, 0xfff22, 0xfff3c,
-//			   0xfff5b, 0xfff80, 0xfffa8, 0xfffd4, 0x00000,
-//			   0x0002c, 0x00058, 0x00080, 0x000a5, 0x000c4,
-//			   0x000de, 0x000f1, 0x000fc, 0x00100};
-  // These factors correspond to the sine of angles from -90 degrees to
   // 90 degrees in 10 degree steps, multiplied by 512 and written in 20 bits
   const int factors[19] = {0xffe00, 0xffe08, 0xffe1f, 0xffe45, 0xffe78,
 			   0xffeb7, 0xfff00, 0xfff51, 0xfffa7, 0x00000,
 			   0x00059, 0x000af, 0x00100, 0x00149, 0x00188,
 			   0x001bb, 0x001e1, 0x001f8, 0x00200};
-  // These factors correspond to the sine of angles from -85 degrees to
-  // 85 degrees in 10 degree steps, multiplied by 256 and written in 20 bits
-//  const int factors[18] = {0xfff01, 0xfff09, 0xfff18, 0xfff2e, 0xfff4b,
-//			   0xfff6d, 0xfff94, 0xfffbe, 0xfffea, 0x00016,
-//			   0x00042, 0x0006c, 0x00093, 0x000b5, 0x000d2,
-//			   0x000e8, 0x000f7, 0x000ff};
-  const int maxEt=1<<(etStrip.size());
+  const int maxEt=1<<etComponentSize;
   int myValue, myFact;
 
   if (fact >= 36) {
@@ -223,7 +211,6 @@ L1GctJetLeafCard::rotateEtValue(const L1GctJetLeafCard::etTotalType etStrip, con
 
   // Choose the required multiplication factor
   if (fact>18) { myFact = factors[(36-fact)]; }
-  //if (fact>=18) { myFact = factors[(35-fact)]; }
   else { myFact = factors[fact]; }
 
   // Multiply the 12-bit Et value by the 20-bit factor.
