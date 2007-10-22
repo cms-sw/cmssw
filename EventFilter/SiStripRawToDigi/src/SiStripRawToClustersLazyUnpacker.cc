@@ -17,7 +17,7 @@ SiStripRawToClustersLazyUnpacker::SiStripRawToClustersLazyUnpacker(const SiStrip
   regions_(&(regioncabling.getRegionCabling())),
   clusterizer_(&clustfact),
   fedEvents_(),
-  rawToDigi_(-1,0,0,0,0)
+  rawToDigi_(0,0,0,0,0)
 
 {
   fedEvents_.assign(1024,static_cast<Fed9U::Fed9UEvent*>(0));
