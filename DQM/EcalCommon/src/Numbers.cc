@@ -1,11 +1,11 @@
-// $Id: Numbers.cc,v 1.29 2007/10/21 09:30:44 dellaric Exp $
+// $Id: Numbers.cc,v 1.30 2007/10/22 17:56:52 dellaric Exp $
 
 /*!
   \file Numbers.cc
   \brief Some "id" conversions
   \author B. Gobbo 
-  \version $Revision: 1.29 $
-  \date $Date: 2007/10/21 09:30:44 $
+  \version $Revision: 1.30 $
+  \date $Date: 2007/10/22 17:56:52 $
 */
 
 #include <sstream>
@@ -239,10 +239,10 @@ int Numbers::iSM( const EcalTrigTowerDetId& id ) throw( std::runtime_error ) {
 
       int idcc = id.iDCC();
 
+      return( Numbers::iSM( idcc, subdet ) );
+
 //     // EB-/EB+
 //     if( idcc >= 10 && idcc <= 45 ) return( idcc - 9 );
-
-      return( Numbers::iSM( idcc, subdet ) );
 
 //      std::ostringstream s;
 //      s << "Wrong DCC id: dcc = " << idcc;
