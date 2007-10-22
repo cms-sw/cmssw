@@ -6,7 +6,7 @@
 RefVector: A template for a vector of interproduct references.
 	Each vector element is a reference to a member of the same product.
 
-$Id: RefVector.h,v 1.30 2007/09/14 09:43:32 llista Exp $
+$Id: RefVector.h,v 1.31 2007/10/02 10:48:30 llista Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -256,4 +256,21 @@ namespace edm {
 
 }
 
+#include "DataFormats/Common/interface/GetProduct.h"
+namespace edm {
+  namespace detail {
+    
+    template<typename C, typename T, typename F>
+    struct GetProduct<RefVector<C, T, F> > {
+      typedef T element_type;
+      typedef typename RefVector<C, T, F>::const_iterator iter;
+      static const element_type * address( const iter & i ) {
+	return &**i;
+      }
+      static const C * product( const RefVector<C, T, F> & coll ) {
+	return coll.product();
+      }
+    };
+  }
+}
 #endif
