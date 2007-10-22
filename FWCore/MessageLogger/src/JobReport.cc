@@ -4,9 +4,13 @@
 // Package:     Services
 // Class  :     MessageLogger
 // 
+// 10/23/07 mf	In an attempt to get clues about (or ene) the
+//		does-not-output-branches behavior, changed the
+//		generic os<< lines in JobReport::JobReportImpl::writeOutputFile
+//		to direct use of LogInfo.
 //
 // Original Author:  Marc Paterno
-// $Id: JobReport.cc,v 1.24 2007/10/19 08:14:13 chrjones Exp $
+// $Id: JobReport.cc,v 1.25 2007/10/19 14:34:28 chrjones Exp $
 //
 
 
@@ -212,7 +216,35 @@ namespace edm
      */
     void JobReport::JobReportImpl::writeOutputFile(JobReport::OutputFile const& f) {
 	LogInfo("FwkJob") << "\n<File>";
-	LogInfo("FwkJob") << f;
+
+
+// Was:	LogInfo("FwkJob") << f;
+
+	if (f.fileHasBeenClosed) {
+	  LogInfo("FwkJob") << "\n<State  Value=\"closed\"/>";
+	} else {
+	  LogInfo("FwkJob") << "\n<State  Value=\"open\"/>";
+	}
+	LogInfo("FwkJob") << "\n<LFN>" << f.logicalFileName << "</LFN>";
+	LogInfo("FwkJob") << "\n<PFN>" << f.physicalFileName << "</PFN>";
+	LogInfo("FwkJob") << "\n<Catalog>" << f.catalog << "</Catalog>";
+	LogInfo("FwkJob") << "\n<ModuleLabel>" << f.moduleLabel << "</ModuleLabel>";
+	LogInfo("FwkJob") << "\n<GUID>" << f.guid << "</GUID>";
+	LogInfo("FwkJob") << "\n<Runs>";
+	std::set<JobReport::RunNumber>::const_iterator iRun;
+	for ( iRun = f.runsSeen.begin(); iRun != f.runsSeen.end(); iRun++) {
+	  LogInfo("FwkJob") << "\n  <Run>" << *iRun << "</Run>";
+	}
+	LogInfo("FwkJob") << "\n</Runs>";
+	LogInfo("FwkJob") << "\n<Branches>";
+	std::vector<std::string>::const_iterator iBranch;
+	for (iBranch = f.branchNames.begin(); 
+            iBranch != f.branchNames.end(); 
+            iBranch++) {
+	  LogInfo("FwkJob") << "\n  <Branch>" << *iBranch << "</Branch>";
+	}
+	LogInfo("FwkJob") << "\n</Branches>";
+
 	
 	LogInfo("FwkJob") << "\n<LumiSections>";
 	std::vector<JobReport::LumiSectionReport>::const_iterator iLumi;
