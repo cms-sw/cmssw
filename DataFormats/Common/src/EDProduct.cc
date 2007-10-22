@@ -1,6 +1,6 @@
 /*----------------------------------------------------------------------
   
-$Id: EDProduct.cc,v 1.6 2007/07/09 07:28:51 llista Exp $
+$Id: EDProduct.cc,v 1.7 2007/08/06 22:16:50 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -25,4 +25,12 @@ namespace edm {
 
     do_fillView(id, pointers, helpers);
   }
+  
+  void EDProduct::setPtr(const std::type_info& iToType,
+                         unsigned long iIndex,
+                         void const*& oPtr) const
+{
+  do_setPtr(iToType, iIndex, oPtr);
+}
+  
 }
