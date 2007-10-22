@@ -6,7 +6,7 @@ import coral
 from CondCore.TagCollection import Node,TagTree,tagInventory
 def convertnodedata(value):
     mynodedata={}
-    datastr=value.strip()
+    datastr=('').join(value.split(' '))
     startbrack=datastr.find('{')
     endbrack=datastr.find('}')
     metagdatastr=datastr[startbrack+1:endbrack]
