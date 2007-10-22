@@ -2,8 +2,8 @@
 /*
  * \file EBIntegrityClient.cc
  *
- * $Date: 2007/10/22 13:50:55 $
- * $Revision: 1.162 $
+ * $Date: 2007/10/22 13:52:15 $
+ * $Revision: 1.163 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -565,7 +565,7 @@ bool EBIntegrityClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
           }
           c2.setTaskStatus(val);
 
-          int itt = Numbers::iTT(ism, EcalBarrel, iet, ipt);
+          int itt = Numbers::iTT(ism, EcalBarrel, 1+5*(iet-1), 1+5*(ipt-1));
 
           if ( econn ) {
             try {
