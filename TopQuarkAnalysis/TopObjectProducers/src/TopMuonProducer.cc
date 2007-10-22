@@ -1,5 +1,5 @@
 //
-// $Id: TopMuonProducer.cc,v 1.20 2007/10/16 16:01:44 lowette Exp $
+// $Id: TopMuonProducer.cc,v 1.21 2007/10/20 11:37:16 lowette Exp $
 //
 
 #include "TopQuarkAnalysis/TopObjectProducers/interface/TopMuonProducer.h"
@@ -83,15 +83,19 @@ void TopMuonProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetu
   // prepare isolation calculation
   edm::Handle<reco::MuIsoDepositAssociationMap> trackerIso;
   if (doTrkIso_) {
-    iEvent.getByLabel(trackIsoSrc_, trackerIso);
+    if (hocalIsoSrc_.label() == "famos") { // switch off for full sim, since we switched back to using muon-obj embedded info
+      iEvent.getByLabel(trackIsoSrc_, trackerIso);
+    }
   }
   edm::Handle<reco::MuIsoDepositAssociationMap> ecalIso;
   edm::Handle<reco::MuIsoDepositAssociationMap> hcalIso;
   edm::Handle<reco::MuIsoDepositAssociationMap> hocalIso;
   if (doCalIso_) {
-    iEvent.getByLabel(ecalIsoSrc_, ecalIso);
-    iEvent.getByLabel(hcalIsoSrc_, hcalIso);
-    if (hocalIsoSrc_.label() != "famos") iEvent.getByLabel(hocalIsoSrc_, hocalIso);
+    if (hocalIsoSrc_.label() == "famos") { // switch off for full sim, since we switched back to using muon-obj embedded info
+      iEvent.getByLabel(ecalIsoSrc_, ecalIso);
+      iEvent.getByLabel(hcalIsoSrc_, hcalIso);
+      if (hocalIsoSrc_.label() != "famos") iEvent.getByLabel(hocalIsoSrc_, hocalIso);
+    }
   }
 
   // prepare LR calculation
