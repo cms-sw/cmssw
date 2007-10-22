@@ -6,7 +6,7 @@
 Several fillView function templates, to provide View support for 
 Standard Library containers.
 
-$Id: FillView.h,v 1.6 2007/09/17 14:15:21 llista Exp $
+$Id: FillView.h,v 1.7 2007/10/02 10:48:30 llista Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -17,6 +17,7 @@ $Id: FillView.h,v 1.6 2007/09/17 14:15:21 llista Exp $
 #include <set>
 #include "DataFormats/Common/interface/RefTraits.h"
 #include "DataFormats/Common/interface/RefVectorTraits.h"
+#include "DataFormats/Common/interface/GetProduct.h"
 
 namespace edm {
   template<typename C, typename T, typename F> class RefVector;
@@ -46,29 +47,6 @@ namespace edm {
 
 namespace edm {
   namespace detail {
-    template<typename COLLECTION>
-    struct GetProduct {
-      typedef typename COLLECTION::value_type element_type;
-      typedef typename COLLECTION::const_iterator iter;
-      static const element_type * address( const iter & i ) {
-	return &*i;
-      }
-      static const COLLECTION * product( const COLLECTION & coll ) {
-	return & coll;
-      }
-    };
-
-    template<typename C, typename T, typename F>
-    struct GetProduct<RefVector<C, T, F> > {
-     typedef T element_type;
-      typedef typename RefVector<C, T, F>::const_iterator iter;
-      static const element_type * address( const iter & i ) {
-	return &**i;
-      }
-      static const C * product( const RefVector<C, T, F> & coll ) {
-	return coll.product();
-      }
-    };
 
     template <class COLLECTION>
     void
