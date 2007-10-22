@@ -10,7 +10,7 @@ ESZeroSuppressionProducer::ESZeroSuppressionProducer(const edm::ParameterSet& ps
   ESGain = ps.getUntrackedParameter<int>("ESGain", 1);
   ESBaseline = ps.getUntrackedParameter<int>("ESBaseline", 1000);
   ESMIPADC = ps.getUntrackedParameter<double>("ESMIPADC", 9);
-  ESMIPkeV = ps.getUntrackedParameter<double>("ESMIPkeV", 78.47);
+  ESMIPkeV = ps.getUntrackedParameter<double>("ESMIPkeV", 81.08);
   ESNoiseSigma = ps.getUntrackedParameter<double>("ESNoiseSigma", 3);
 
   if (ESGain == 0)
