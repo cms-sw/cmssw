@@ -2,8 +2,8 @@
 /*
  * \file EEIntegrityClient.cc
  *
- * $Date: 2007/10/18 09:43:42 $
- * $Revision: 1.30 $
+ * $Date: 2007/10/21 09:30:44 $
+ * $Revision: 1.31 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -538,13 +538,21 @@ bool EEIntegrityClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
         }
 
         if ( h05_[ism-1] ) {
-          num05  = h05_[ism-1]->GetBinContent(ixt, iyt);
-          if ( num05 > 0 ) update1 = true;
+          for ( int ix = 1 + 5*(ixt-1); ix <= 5*ixt; ix++ ) {
+            for ( int iy = 1 + 5*(iyt-1); iy <= 5*iyt; iy++ ) {
+              num05  = h05_[ism-1]->GetBinContent(ix, iy);
+              if ( num05 > 0 ) update1 = true;
+            } 
+          }
         }
 
         if ( h06_[ism-1] ) {
-          num06  = h06_[ism-1]->GetBinContent(ixt, iyt);
-          if ( num06 > 0 ) update1 = true;
+          for ( int ix = 1 + 5*(ixt-1); ix <= 5*ixt; ix++ ) {
+            for ( int iy = 1 + 5*(iyt-1); iy <= 5*iyt; iy++ ) {
+              num06  = h06_[ism-1]->GetBinContent(ix, iy);
+              if ( num06 > 0 ) update1 = true;
+            } 
+          }
         }
 
         if ( update0 || update1 ) {
@@ -584,7 +592,7 @@ bool EEIntegrityClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
           }
           c2.setTaskStatus(val);
 
-          int itt = (iyt-1) + 4*(ixt-1) + 1;
+          int itt = Numbers::iTT(ism, EcalEndcap, 1+5*(ixt-1), 1+5*(iyt-1));
 
           if ( econn ) {
             try {
