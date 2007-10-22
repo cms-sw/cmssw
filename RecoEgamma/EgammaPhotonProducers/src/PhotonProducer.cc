@@ -115,14 +115,10 @@ void PhotonProducer::produce(edm::Event& theEvent, const edm::EventSetup& theEve
   const CaloSubdetectorGeometry *endcapGeometry = geoHandle->getSubdetectorGeometry(DetId::Ecal, EcalEndcap);
   const CaloSubdetectorGeometry *preshowerGeometry = geoHandle->getSubdetectorGeometry(DetId::Ecal, EcalPreshower);
 
-  // Get association map linking SuperClusters to ElectronPixelSeeds
-  Handle<reco::ElectronPixelSeedCollection> barrelPixelSeedHandle;
-  theEvent.getByLabel(pixelSeedProducer_, scHybridBarrelProducer_, barrelPixelSeedHandle);
-  const reco::ElectronPixelSeedCollection& barrelPixelSeeds = *barrelPixelSeedHandle;
-
-  Handle<reco::ElectronPixelSeedCollection> endcapPixelSeedHandle;
-  theEvent.getByLabel(pixelSeedProducer_, scIslandEndcapProducer_, endcapPixelSeedHandle);
-  const reco::ElectronPixelSeedCollection& endcapPixelSeeds = *endcapPixelSeedHandle;
+  // Get ElectronPixelSeeds
+  Handle<reco::ElectronPixelSeedCollection> pixelSeedHandle;
+  theEvent.getByLabel(pixelSeedProducer_, pixelSeedHandle);
+  const reco::ElectronPixelSeedCollection& pixelSeeds = *pixelSeedHandle;
 
   // Get the primary event vertex
   Handle<reco::VertexCollection> vertexHandle;
@@ -138,8 +134,8 @@ void PhotonProducer::produce(edm::Event& theEvent, const edm::EventSetup& theEve
 
   int iSC=0; // index in photon collection
   // Loop over barrel and endcap SC collections and fill the  photon collection
-  fillPhotonCollection(scBarrelHandle,barrelClShpMap,barrelGeometry,preshowerGeometry,barrelRecHits,barrelPixelSeeds,vtx,outputPhotonCollection,iSC);
-  fillPhotonCollection(scEndcapHandle,endcapClShpMap,endcapGeometry,preshowerGeometry,endcapRecHits,endcapPixelSeeds,vtx,outputPhotonCollection,iSC);
+  fillPhotonCollection(scBarrelHandle,barrelClShpMap,barrelGeometry,preshowerGeometry,barrelRecHits,pixelSeeds,vtx,outputPhotonCollection,iSC);
+  fillPhotonCollection(scEndcapHandle,endcapClShpMap,endcapGeometry,preshowerGeometry,endcapRecHits,pixelSeeds,vtx,outputPhotonCollection,iSC);
 
   // put the product in the event
   edm::LogInfo("PhotonProducer") << " Put in the event " << iSC << " Photon Candidates \n";
