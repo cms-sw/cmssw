@@ -3,7 +3,8 @@ from ConfigParser import ConfigParser
 from copy import copy
 from optparse import OptionParser, Option, OptionValueError
 import coral
-from CondCore.TagCollection import Node,tagTree
+from CondCore.TagCollection import Node
+from CondCore.TagCollection import TagTree
 class tagTreeDelete:
     def __init__(self):
         """
@@ -84,7 +85,7 @@ class tagTreeDelete:
             else:
                 if len(self.__node) != 0:
                     tree.deleteSubtree(self.__node)
-                else if len(self.__tag) != 0:
+                elif len(self.__tag) != 0:
                     tree.deleteNode(self.__tag)
             del session
         except Exception, e:
