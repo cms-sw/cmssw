@@ -21,11 +21,12 @@ class L1GctEtHad {
   enum numberOfBits {
     kEtHadNBits    = 12,
     kEtHadOFlowBit = 1 << kEtHadNBits,
-    kEtHadMaxValue = kEtHadOFlowBit - 1
+    kEtHadMaxValue = kEtHadOFlowBit - 1,
+    kRawCtorMask   = kEtHadOFlowBit | kEtHadMaxValue
   };
 
   L1GctEtHad();
-  L1GctEtHad(uint16_t data);
+  L1GctEtHad(uint16_t rawData);
   L1GctEtHad(unsigned et, bool oflow);
   virtual ~L1GctEtHad();
 

@@ -19,8 +19,8 @@ L1GctJetCand::L1GctJetCand() :
 }
 
 //constructor for GT
-L1GctJetCand::L1GctJetCand(uint16_t data, bool isTau, bool isFor) :
-  m_data(data),
+L1GctJetCand::L1GctJetCand(uint16_t rawData, bool isTau, bool isFor) :
+  m_data(rawData & 0x7fff), // 0x7fff is to mask off bit 15, which is not data that needs to be stored
   m_isTau(isTau),
   m_isFor(isFor),
   m_source(0),
@@ -29,8 +29,8 @@ L1GctJetCand::L1GctJetCand(uint16_t data, bool isTau, bool isFor) :
 }
 
 //constructor for GCT unpacker
-L1GctJetCand::L1GctJetCand(uint16_t data, bool isTau, bool isFor, uint16_t block, uint16_t index, int16_t bx) : 
-  m_data(data),
+L1GctJetCand::L1GctJetCand(uint16_t rawData, bool isTau, bool isFor, uint16_t block, uint16_t index, int16_t bx) : 
+  m_data(rawData & 0x7fff), // 0x7fff is to mask off bit 15, which is not data that needs to be stored
   m_isTau(isTau),
   m_isFor(isFor),
   m_source( ((block&0xff)<<8) | (index&0xff) ),

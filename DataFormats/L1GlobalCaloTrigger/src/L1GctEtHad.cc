@@ -1,8 +1,10 @@
 
 #include "DataFormats/L1GlobalCaloTrigger/interface/L1GctEtHad.h"
 
-L1GctEtHad::L1GctEtHad() : m_data(0) { } 
-L1GctEtHad::L1GctEtHad(uint16_t data) : m_data(data) { }
+L1GctEtHad::L1GctEtHad() : m_data(0) { }
+
+L1GctEtHad::L1GctEtHad(uint16_t rawData) : m_data(rawData & kRawCtorMask) { }
+
 L1GctEtHad::L1GctEtHad(unsigned et, bool oflow) {
   m_data = (et & kEtHadMaxValue) | ((oflow || et>kEtHadMaxValue) ? kEtHadOFlowBit : 0);
 }
