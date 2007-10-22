@@ -66,6 +66,13 @@ namespace edmtest {
       } else {
         throw cms::Exception("Inconsistent Data", "OtherThingAnalyzer::analyze") << "ITEM " << i << " has incorrect value " << tc.a << '\n';
       }
+      int const& xPtr = otherThing.ptr->a;
+      if (tc.a == i && xPtr == i) {
+        edm::LogInfo("OtherThingAnalyzer") << " ITEM " << i << " LABEL " << label << " dereferenced from edm:Ptr successfully.\n";
+      } else {
+        throw cms::Exception("Inconsistent Data", "OtherThingAnalyzer::analyze") << "ITEM " << i << " has incorrect edm::Ptr value " << tc.a << '\n';
+      }
+      
       const edm::View<Thing>& viewThing = *otherThing.refToBaseProd;
       const edm::View<Thing>::size_type viewSize1 = viewThing.size();
       const edm::View<Thing>::size_type viewSize2 = otherThing.refToBaseProd->size();

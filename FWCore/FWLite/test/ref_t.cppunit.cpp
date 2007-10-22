@@ -2,7 +2,7 @@
 
 Test program for edm::Ref use in ROOT.
 
-$Id: ref_t.cppunit.cpp,v 1.13 2007/08/02 23:24:08 ratnik Exp $
+$Id: ref_t.cppunit.cpp,v 1.14 2007/10/09 18:04:45 chrjones Exp $
  ----------------------------------------------------------------------*/
 
 #include <iostream>
@@ -100,6 +100,14 @@ static void checkMatch(const edmtest::OtherThingCollection* pOthers,
     }
     CPPUNIT_ASSERT( itOther->refToBase.get()->a == itThing->a);
 
+    CPPUNIT_ASSERT(itOther->ptr.key() == static_cast<unsigned int>(itThing - pThings->begin()));
+    //std::cout <<" ref "<<itOther->ref.get()->a<<" thing "<<itThing->a<<std::endl;
+    if(itOther->ptr.get()->a != itThing->a) {
+      std::cout <<" *PROBLEM: ptr "<<itOther->ptr.get()->a<<"!= thing "<<itThing->a<<std::endl;
+    }
+    CPPUNIT_ASSERT( itOther->ptr.get()->a == itThing->a);
+    
+    
     if(itView->a != itThing->a) {
       std::cout <<" *PROBLEM: RefToBaseProd "<<itView->a<<"!= thing "<<itThing->a<<std::endl;
     }
