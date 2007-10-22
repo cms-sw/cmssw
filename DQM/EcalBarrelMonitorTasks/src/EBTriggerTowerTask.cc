@@ -1,8 +1,8 @@
 /*
  * \file EBTriggerTowerTask.cc
  *
- * $Date: 2007/10/04 11:24:16 $
- * $Revision: 1.42 $
+ * $Date: 2007/10/04 11:48:46 $
+ * $Revision: 1.43 $
  * \author G. Della Ricca
  *
 */
@@ -349,8 +349,6 @@ EBTriggerTowerTask::processDigis( const Handle<EcalTrigPrimDigiCollection>&
 
     float xiet = iet+0.5;
     float xipt = ipt+0.5;
-
-//cout << " sm, tt, eta, phi "<<ismt<<" "<<itt<<" "<<iet<<" "<<ipt<<endl;
 
     str<<"det id = "<<idt.rawId()<<" "
        <<idt<<" sm, tt, eta, phi "<<ismt<<" "<<itt<<" "<<iet<<" "<<ipt<<endl;
