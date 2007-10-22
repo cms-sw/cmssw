@@ -16,7 +16,7 @@ if(all4DSegments->size()>0){
     scounter[segment->chamberId()]++;
   }    
   
-  std::cout<<"MB4 \t Loop over all the 4D Segments"<<std::endl;
+  std::cout<<"MB4 \t Loop over all the Segments"<<std::endl;
   for (segment = all4DSegments->begin(); segment != all4DSegments->end(); ++segment){ 
     
     DTChamberId DTId = segment->chamberId();
@@ -62,7 +62,7 @@ if(all4DSegments->size()>0){
 	  for(segMB3=all4DSegments->begin();segMB3!=all4DSegments->end();++segMB3){
 	    DTChamberId dtid3 = segMB3->chamberId();
 	    
-	    if(dtid3.station()==3&&dtid3.sector()==DTId.sector()&&dtid3.wheel()==DTId.wheel()&&scounter[dtid3] == 1){
+	    if(dtid3.station()==3&&dtid3.sector()==DTId.sector()&&dtid3.wheel()==DTId.wheel()&&scounter[dtid3] == 1&&segMB3->dimension()==4){
 	      
 	      const GeomDet* gdet3=dtGeo->idToDet(segMB3->geographicalId());
 	      const BoundPlane & DTSurface3 = gdet3->surface();
@@ -230,7 +230,7 @@ if(all4DSegments->size()>0){
 		compatiblesegments=false;
 		std::cout<<"MB4 \t \t I found segments in MB4 and MB3 same wheel and sector but not compatibles Diferent Directions"<<std::endl;
 	      }
-	    }//if dtid3.station()==3&&dtid3.sector()==DTId.sector()&&dtid3.wheel()==DTId.wheel()
+	    }//if dtid3.station()==3&&dtid3.sector()==DTId.sector()&&dtid3.wheel()==DTId.wheel()&&segMB3->dim()==4
 	  }//lood over all the segments looking for one in MB3 
 	}//Is the station 4? for this segment
 	else{
