@@ -1,5 +1,5 @@
 //
-// $Id: TtSemiEvtSolution.h,v 1.19 2007/09/20 18:12:22 lowette Exp $
+// $Id: TtSemiEvtSolution.h,v 1.20 2007/10/03 23:29:40 lowette Exp $
 //
 
 #ifndef TopObjects_TtSemiEvtSolution_h
@@ -46,7 +46,7 @@ class TtSemiEvtSolution {
     TopElectron               getElectron() const;
     TopMET                    getNeutrino() const;
     // methods to get the MC matched particles
-    const TtGenEvent &        getGenEvent() const { return *theGenEvt_; }
+    const edm::RefProd<TtGenEvent> & getGenEvent() const;
     const reco::Candidate *   getGenHadt() const;
     const reco::Candidate *   getGenHadW() const;
     const reco::Candidate *   getGenHadb() const;
