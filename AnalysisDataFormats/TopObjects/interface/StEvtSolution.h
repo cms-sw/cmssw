@@ -1,5 +1,5 @@
 //
-// $Id: StEvtSolution.h,v 1.6 2007/09/19 23:05:05 lowette Exp $
+// $Id: StEvtSolution.h,v 1.7 2007/09/20 18:12:21 lowette Exp $
 //
 
 #ifndef TopObjects_StEvtSolution_h
@@ -37,7 +37,7 @@ class StEvtSolution {
     reco::Particle getLepW()     const;  
     reco::Particle getLept()     const;
     // methods to get the MC matched particles
-    const StGenEvent      & getGenEvent()    const;
+    const edm::RefProd<StGenEvent> & getGenEvent() const;
     const reco::Candidate * getGenBottom()   const;
 //    const reco::Candidate * getGenLight()    const; // not implemented yet
     const reco::Candidate * getGenLepton()   const;

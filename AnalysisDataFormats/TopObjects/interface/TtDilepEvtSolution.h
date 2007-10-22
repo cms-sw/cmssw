@@ -1,5 +1,5 @@
 //
-// $Id: TtDilepEvtSolution.h,v 1.9 2007/10/12 14:18:37 delaer Exp $
+// $Id: TtDilepEvtSolution.h,v 1.10 2007/10/17 15:58:02 delaer Exp $
 //
 
 #ifndef TopObjects_TtDilepEvtSolution_h
@@ -42,7 +42,7 @@ class TtDilepEvtSolution {
     TopTau      getTaum() const;
     TopMET      getMET() const;
     // methods to get the MC matched particles
-    const TtGenEvent &      getGenEvent() const;
+    const edm::RefProd<TtGenEvent> & getGenEvent() const;
     const reco::Candidate * getGenT() const;
     const reco::Candidate * getGenWp() const;
     const reco::Candidate * getGenB() const;

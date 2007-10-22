@@ -1,5 +1,5 @@
 //
-// $Id: TtHadEvtSolution.cc,v 1.2 2007/10/06 20:28:52 mfhansen Exp $
+// $Id: TtHadEvtSolution.cc,v 1.3 2007/10/07 15:25:21 mfhansen Exp $
 // adapted TtSemiEvtSolution.cc,v 1.13 2007/07/05 23:43:08 lowette Exp 
 // for fully hadronic channel
 
@@ -44,14 +44,13 @@ TopJet      TtHadEvtSolution::getHadj() const     { return *hadj_; }
 TopJet      TtHadEvtSolution::getHadk() const     { return *hadk_; }
 
 // methods to get the MC matched particles
-// FIXME: provide defaults if the genevent is invalid
-
-const reco::Candidate * TtHadEvtSolution::getGenHadb() const { return theGenEvt_->b(); }
-const reco::Candidate * TtHadEvtSolution::getGenHadbbar() const { return theGenEvt_->bBar(); }
-const reco::Candidate * TtHadEvtSolution::getGenHadp() const { return theGenEvt_->quarkFromTop(); }
-const reco::Candidate * TtHadEvtSolution::getGenHadq() const { return theGenEvt_->quarkFromTopBar(); }
-const reco::Candidate * TtHadEvtSolution::getGenHadj() const { return theGenEvt_->quarkFromAntiTop(); }
-const reco::Candidate * TtHadEvtSolution::getGenHadk() const { return theGenEvt_->quarkFromAntiTopBar(); }
+const edm::RefProd<TtGenEvent> & TtHadEvtSolution::getGenEvent() const { return theGenEvt_; }
+const reco::Candidate * TtHadEvtSolution::getGenHadb() const { if (!theGenEvt_) return 0; else return theGenEvt_->b(); }
+const reco::Candidate * TtHadEvtSolution::getGenHadbbar() const { if (!theGenEvt_) return 0; else return theGenEvt_->bBar(); }
+const reco::Candidate * TtHadEvtSolution::getGenHadp() const { if (!theGenEvt_) return 0; else return theGenEvt_->quarkFromTop(); }
+const reco::Candidate * TtHadEvtSolution::getGenHadq() const { if (!theGenEvt_) return 0; else return theGenEvt_->quarkFromTopBar(); }
+const reco::Candidate * TtHadEvtSolution::getGenHadj() const { if (!theGenEvt_) return 0; else return theGenEvt_->quarkFromAntiTop(); }
+const reco::Candidate * TtHadEvtSolution::getGenHadk() const { if (!theGenEvt_) return 0; else return theGenEvt_->quarkFromAntiTopBar(); }
 
 // return functions for non-calibrated fourvectors
 // By definition pq and b are the top quark, jk and bbar the anti-top - check it makes sense ....

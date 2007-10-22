@@ -1,5 +1,5 @@
 //
-// $Id: TtSemiEvtSolution.cc,v 1.18 2007/10/03 23:29:45 lowette Exp $
+// $Id: TtSemiEvtSolution.cc,v 1.19 2007/10/22 08:24:24 lowette Exp $
 //
 
 #include "AnalysisDataFormats/TopObjects/interface/TtSemiEvtSolution.h"
@@ -43,16 +43,16 @@ TopMET      TtSemiEvtSolution::getNeutrino() const { return *neutrino_; }
 
 // methods to get the MC matched particles
 const edm::RefProd<TtGenEvent> & TtSemiEvtSolution::getGenEvent() const { return theGenEvt_; }
-const reco::Candidate * TtSemiEvtSolution::getGenHadt() const { return this->getGenEvent()->hadronicDecayTop(); }
-const reco::Candidate * TtSemiEvtSolution::getGenHadW() const { return this->getGenEvent()->hadronicDecayW(); }
-const reco::Candidate * TtSemiEvtSolution::getGenHadb() const { return this->getGenEvent()->hadronicDecayB(); }
-const reco::Candidate * TtSemiEvtSolution::getGenHadp() const { return this->getGenEvent()->hadronicDecayQuark(); }
-const reco::Candidate * TtSemiEvtSolution::getGenHadq() const { return this->getGenEvent()->hadronicDecayQuarkBar(); }
-const reco::Candidate * TtSemiEvtSolution::getGenLept() const { return this->getGenEvent()->leptonicDecayTop(); }
-const reco::Candidate * TtSemiEvtSolution::getGenLepW() const { return this->getGenEvent()->leptonicDecayW(); }
-const reco::Candidate * TtSemiEvtSolution::getGenLepb() const { return this->getGenEvent()->leptonicDecayB(); }
-const reco::Candidate * TtSemiEvtSolution::getGenLepl() const { return this->getGenEvent()->singleLepton(); }
-const reco::Candidate * TtSemiEvtSolution::getGenLepn() const { return this->getGenEvent()->singleNeutrino(); }
+const reco::Candidate * TtSemiEvtSolution::getGenHadt() const { if (!theGenEvt_) return 0; else return this->getGenEvent()->hadronicDecayTop(); }
+const reco::Candidate * TtSemiEvtSolution::getGenHadW() const { if (!theGenEvt_) return 0; else return this->getGenEvent()->hadronicDecayW(); }
+const reco::Candidate * TtSemiEvtSolution::getGenHadb() const { if (!theGenEvt_) return 0; else return this->getGenEvent()->hadronicDecayB(); }
+const reco::Candidate * TtSemiEvtSolution::getGenHadp() const { if (!theGenEvt_) return 0; else return this->getGenEvent()->hadronicDecayQuark(); }
+const reco::Candidate * TtSemiEvtSolution::getGenHadq() const { if (!theGenEvt_) return 0; else return this->getGenEvent()->hadronicDecayQuarkBar(); }
+const reco::Candidate * TtSemiEvtSolution::getGenLept() const { if (!theGenEvt_) return 0; else return this->getGenEvent()->leptonicDecayTop(); }
+const reco::Candidate * TtSemiEvtSolution::getGenLepW() const { if (!theGenEvt_) return 0; else return this->getGenEvent()->leptonicDecayW(); }
+const reco::Candidate * TtSemiEvtSolution::getGenLepb() const { if (!theGenEvt_) return 0; else return this->getGenEvent()->leptonicDecayB(); }
+const reco::Candidate * TtSemiEvtSolution::getGenLepl() const { if (!theGenEvt_) return 0; else return this->getGenEvent()->singleLepton(); }
+const reco::Candidate * TtSemiEvtSolution::getGenLepn() const { if (!theGenEvt_) return 0; else return this->getGenEvent()->singleNeutrino(); }
 
 
 // return functions for non-calibrated fourvectors

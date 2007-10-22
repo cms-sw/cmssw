@@ -1,5 +1,5 @@
 //
-// $Id$
+// $Id: StEvtSolution.cc,v 1.6 2007/09/19 23:05:08 lowette Exp $
 //
 
 #include "AnalysisDataFormats/TopObjects/interface/StEvtSolution.h"
@@ -54,14 +54,14 @@ reco::Particle StEvtSolution::getLept()     const {
 
 // methods to get the MC matched particles
 // FIXME: provide defaults if the genevent is invalid
-const StGenEvent      & StEvtSolution::getGenEvent()    const { return *theGenEvt_; }
-const reco::Candidate * StEvtSolution::getGenBottom()   const { return theGenEvt_->decayB(); }
+const edm::RefProd<StGenEvent> & StEvtSolution::getGenEvent() const { return theGenEvt_; }
+const reco::Candidate * StEvtSolution::getGenBottom()   const { if (!theGenEvt_) return 0; else return theGenEvt_->decayB(); }
 // not implemented yet
-//const reco::Candidate * StEvtSolution::getGenLight()    const { return theGenEvt_->recoilQuark(); }
-const reco::Candidate * StEvtSolution::getGenLepton()   const { return theGenEvt_->singleLepton(); }
-const reco::Candidate * StEvtSolution::getGenNeutrino() const { return theGenEvt_->singleNeutrino(); }
-const reco::Candidate * StEvtSolution::getGenLepW()     const { return theGenEvt_->singleW(); }
-const reco::Candidate * StEvtSolution::getGenLept()     const { return theGenEvt_->singleTop(); }
+//const reco::Candidate * StEvtSolution::getGenLight()    const { if (!theGenEvt_) return 0; else return theGenEvt_->recoilQuark(); }
+const reco::Candidate * StEvtSolution::getGenLepton()   const { if (!theGenEvt_) return 0; else return theGenEvt_->singleLepton(); }
+const reco::Candidate * StEvtSolution::getGenNeutrino() const { if (!theGenEvt_) return 0; else return theGenEvt_->singleNeutrino(); }
+const reco::Candidate * StEvtSolution::getGenLepW()     const { if (!theGenEvt_) return 0; else return theGenEvt_->singleW(); }
+const reco::Candidate * StEvtSolution::getGenLept()     const { if (!theGenEvt_) return 0; else return theGenEvt_->singleTop(); }
 
 
 // return functions for reconstructed fourvectors

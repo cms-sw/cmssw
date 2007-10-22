@@ -1,7 +1,7 @@
 #ifndef TopObjects_TtHadEvtSolution_h
 #define TopObjects_TtHadEvtSolution_h
 //
-// $Id: TtHadEvtSolution.h,v 1.2 2007/10/06 20:28:40 mfhansen Exp $
+// $Id: TtHadEvtSolution.h,v 1.3 2007/10/07 15:25:01 mfhansen Exp $
 // adapted TtSemiEvtSolution.h,v 1.14 2007/07/06 03:07:47 lowette Exp 
 // for fully hadronic channel
 
@@ -41,7 +41,7 @@ class TtHadEvtSolution {
     TopJet                    getHadk() const;
 
     // methods to get the MC matched particles
-    const TtGenEvent &        getGenEvent() const { return *theGenEvt_; }
+    const edm::RefProd<TtGenEvent> & getGenEvent() const;
     const reco::Candidate *   getGenHadb() const;
     const reco::Candidate *   getGenHadp() const;
     const reco::Candidate *   getGenHadq() const;
