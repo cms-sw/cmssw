@@ -124,8 +124,8 @@ EcalRawToDigiDev::EcalRawToDigiDev(edm::ParameterSet const& conf):
   produces<EBDetIdCollection>("EcalIntegrityChIdErrors");
 
   // Integrity Errors
-  produces<EcalTrigTowerDetIdCollection>("EcalIntegrityTTIdErrors");
-  produces<EcalTrigTowerDetIdCollection>("EcalIntegrityBlockSizeErrors");
+  produces<EcalElectronicsIdCollection>("EcalIntegrityTTIdErrors");
+  produces<EcalElectronicsIdCollection>("EcalIntegrityBlockSizeErrors");
  
   // Mem channels' integrity
   produces<EcalElectronicsIdCollection>("EcalIntegrityMemTtIdErrors");
