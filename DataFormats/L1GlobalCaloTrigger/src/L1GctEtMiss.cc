@@ -2,8 +2,14 @@
 #include "DataFormats/L1GlobalCaloTrigger/interface/L1GctEtMiss.h"
 
 L1GctEtMiss::L1GctEtMiss() : m_data(0) { } 
-L1GctEtMiss::L1GctEtMiss(uint32_t data) : m_data(data) { }
-L1GctEtMiss::L1GctEtMiss(unsigned et, unsigned phi, bool oflow) {
+
+// The raw data is masked off so as only the MET magnitude, overflow + phi bits are stored.
+// This is because the raw data stream also contains a BC0 flag on bit 31, and bit 15 is always
+// set to 1.  This data is masked off so as to match an L1GctEtMiss object constructed using
+// the L1GctEtMiss(unsigned et, unsigned phi, bool oflow) constructor.
+L1GctEtMiss::L1GctEtMiss(uint32_t rawData) : m_data(rawData & kRawCtorMask) { }
+
+L1GctEtMiss::L1GctEtMiss(unsigned et, unsigned phi, bool oflow) : m_data(0) {
   if ((et <= kEtMissMaxValue) && (phi < kEtMissPhiNBins)) {
     m_data = et | (oflow ? kEtMissOFlowBit : 0) | ((phi & kETMissPhiMask)<<kEtMissPhiShift) ;
   } else {

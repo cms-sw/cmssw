@@ -21,7 +21,12 @@ class L1GctJetCounts {
   /// default constructor
   L1GctJetCounts();
 
-  /// constructor for unpacking
+  /// Constructor for unpacking.
+  /*! Expects three 5-bit jet counts in bits 14:0, and then
+   *  three more 5-bit jet counts in bits 30:16 for both of
+   *  the arguments; this is because in the raw format bit
+   *  31 is a BC0 flag, and bit 15 is always 1. Thus, jet
+   *  count 0 should be in bits 4:0 of the data0 argument. */
   L1GctJetCounts(uint32_t data0, uint32_t data1);
 
   /// constructor for emulator
