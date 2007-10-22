@@ -1,5 +1,5 @@
-#ifndef GlobalRecHitsProducer_h
-#define GlobalRecHitsProducer_h
+#ifndef GlobalRecHitsAnalyzer_h
+#define GlobalRecHitsAnalyzer_h
 
 /** \class GlobalHitsProducer
  *  
@@ -13,7 +13,7 @@
  */
 
 // framework & common header files
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -24,7 +24,6 @@
 #include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
 #include "DQMServices/Daemon/interface/MonitorDaemon.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-
 
 
 //#include "DataFormats/Common/interface/Provenance.h"
@@ -128,7 +127,7 @@
 #include "Geometry/RPCGeometry/interface/RPCRoll.h"
 
 // event info
-#include "SimDataFormats/ValidationFormats/interface/PValidationFormats.h"
+//#include "SimDataFormats/ValidationFormats/interface/PValidationFormats.h"
 #include "SimDataFormats/CrossingFrame/interface/CrossingFrame.h"
 #include "SimDataFormats/CrossingFrame/interface/MixCollection.h"
 #include "SimDataFormats/CaloHit/interface/PCaloHit.h"
@@ -154,37 +153,36 @@
 
 #include "TString.h"
 
-class PGlobalRecHit;
 
-class GlobalRecHitsProducer : public edm::EDProducer
+class GlobalRecHitsAnalyzer : public edm::EDAnalyzer
 {
 
  public:
 
-  typedef std::vector<float> FloatVector;
-  typedef std::vector<double> DoubleVector;
-  typedef std::vector<int> IntVector;
+  //typedef std::vector<float> FloatVector;
+  //typedef std::vector<double> DoubleVector;
+  //typedef std::vector<int> IntVector;
   typedef std::map<uint32_t,float,std::less<uint32_t> > MapType;
 
-  explicit GlobalRecHitsProducer(const edm::ParameterSet&);
-  virtual ~GlobalRecHitsProducer();
+  explicit GlobalRecHitsAnalyzer(const edm::ParameterSet&);
+  virtual ~GlobalRecHitsAnalyzer();
   virtual void beginJob(const edm::EventSetup&);
   virtual void endJob();  
-  virtual void produce(edm::Event&, const edm::EventSetup&);
+  virtual void analyze(const edm::Event&, const edm::EventSetup&);
   
  private:
 
   // production related methods
-  void fillECal(edm::Event&, const edm::EventSetup&);
-  void storeECal(PGlobalRecHit&);
-  void fillHCal(edm::Event&, const edm::EventSetup&);
-  void storeHCal(PGlobalRecHit&);
-  void fillTrk(edm::Event&, const edm::EventSetup&);
-  void storeTrk(PGlobalRecHit&);
-  void fillMuon(edm::Event&, const edm::EventSetup&);
-  void storeMuon(PGlobalRecHit&);  
+  void fillECal(const edm::Event&, const edm::EventSetup&);
+  //void storeECal(PGlobalRecHit&);
+  void fillHCal(const edm::Event&, const edm::EventSetup&);
+  //void storeHCal(PGlobalRecHit&);
+  void fillTrk(const edm::Event&, const edm::EventSetup&);
+  //void storeTrk(PGlobalRecHit&);
+  void fillMuon(const edm::Event&, const edm::EventSetup&);
+  //void storeMuon(PGlobalRecHit&);  
 
-  void clear();
+  //void clear();
 
  private:
 
@@ -196,17 +194,14 @@ class GlobalRecHitsProducer : public edm::EDProducer
   bool getAllProvenances;
   bool printProvenanceInfo;
 
+  DaqMonitorBEInterface *dbe;
+  std::string outputfile;
+
   // Electromagnetic info
   // ECal info
  
-  FloatVector EBRE; 
-  FloatVector EBSHE;
-
-  FloatVector EERE; 
-  FloatVector EESHE;
-
-  FloatVector ESRE; 
-  FloatVector ESSHE;
+  MonitorElement *mehEcaln[3];
+  MonitorElement *mehEcalRes[3];
 
   edm::InputTag ECalEBSrc_;
   edm::InputTag ECalUncalEBSrc_;
@@ -216,50 +211,17 @@ class GlobalRecHitsProducer : public edm::EDProducer
 
   // HCal info
 
-  FloatVector HBCalREC;
-  FloatVector HBCalR;
-  FloatVector HBCalSHE;
-
-  FloatVector HECalREC;
-  FloatVector HECalR;
-  FloatVector HECalSHE;
-
-  FloatVector HOCalREC;
-  FloatVector HOCalR;
-  FloatVector HOCalSHE;
-
-  FloatVector HFCalREC;
-  FloatVector HFCalR;
-  FloatVector HFCalSHE;
+  MonitorElement *mehHcaln[4];
+  MonitorElement *mehHcalRes[4];
 
   edm::InputTag HCalSrc_;
 
   // Tracker info
   // SiStrip
   
-  FloatVector TIBL1RX, TIBL2RX, TIBL3RX, TIBL4RX;
-  FloatVector TIBL1RY, TIBL2RY, TIBL3RY, TIBL4RY;
-  FloatVector TIBL1SX, TIBL2SX, TIBL3SX, TIBL4SX;
-  FloatVector TIBL1SY, TIBL2SY, TIBL3SY, TIBL4SY;
-
-  FloatVector TOBL1RX, TOBL2RX, TOBL3RX, TOBL4RX;
-  FloatVector TOBL1RY, TOBL2RY, TOBL3RY, TOBL4RY;
-  FloatVector TOBL1SX, TOBL2SX, TOBL3SX, TOBL4SX;
-  FloatVector TOBL1SY, TOBL2SY, TOBL3SY, TOBL4SY;
-
-  FloatVector TIDW1RX, TIDW2RX, TIDW3RX;
-  FloatVector TIDW1RY, TIDW2RY, TIDW3RY;
-  FloatVector TIDW1SX, TIDW2SX, TIDW3SX;
-  FloatVector TIDW1SY, TIDW2SY, TIDW3SY;
-
-  FloatVector TECW1RX, TECW2RX, TECW3RX, TECW4RX, TECW5RX, TECW6RX, TECW7RX,
-    TECW8RX;
-  FloatVector TECW1RY, TECW2RY, TECW3RY, TECW4RY, TECW5RY, TECW6RY, TECW7RY,
-    TECW8RY;
-  FloatVector TECW1SX, TECW2SX, TECW3SX, TECW4SX, TECW5SX, TECW6SX, TECW7SX,
-    TECW8SX;
-  FloatVector TECW1SY, TECW2SY, TECW3SY, TECW4SY, TECW5SY, TECW6SY, TECW7SY,
-    TECW8SY;
+  MonitorElement *mehSiStripn[19];
+  MonitorElement *mehSiStripResX[19];
+  MonitorElement *mehSiStripResY[19];
 
   edm::InputTag SiStripSrc_;
 
@@ -272,23 +234,21 @@ class GlobalRecHitsProducer : public edm::EDProducer
 
   // SiPxl
 
-  FloatVector BRL1RX, BRL2RX, BRL3RX;
-  FloatVector BRL1RY, BRL2RY, BRL3RY;
-  FloatVector BRL1SX, BRL2SX, BRL3SX;
-  FloatVector BRL1SY, BRL2SY, BRL3SY;
-
-  FloatVector FWD1pRX, FWD1nRX, FWD2pRX, FWD2nRX;
-  FloatVector FWD1pRY, FWD1nRY, FWD2pRY, FWD2nRY;
-  FloatVector FWD1pSX, FWD1nSX, FWD2pSX, FWD2nSX;
-  FloatVector FWD1pSY, FWD1nSY, FWD2pSY, FWD2nSY;
+  MonitorElement *mehSiPixeln[7];
+  MonitorElement *mehSiPixelResX[7];
+  MonitorElement *mehSiPixelResY[7];
 
   edm::InputTag SiPxlSrc_;
 
   // Muon info
   // DT
 
-  FloatVector DTRHD;
-  FloatVector DTSHD;
+  MonitorElement *mehDtMuonn;
+  MonitorElement *mehCSCn;
+  MonitorElement *mehRPCn;
+  MonitorElement *mehDtMuonRes;
+  MonitorElement *mehCSCResRDPhi;
+  MonitorElement *mehRPCResX;
 
   edm::InputTag MuDTSrc_;
   edm::InputTag MuDTSimSrc_;
@@ -324,10 +284,7 @@ class GlobalRecHitsProducer : public edm::EDProducer
 		 int step);
 
   // CSC
-
-  FloatVector CSCRHPHI;
-  FloatVector CSCRHPERP;
-  FloatVector CSCSHPHI;
+  //Defined above....
 
   edm::InputTag MuCSCSrc_;
 
@@ -337,8 +294,7 @@ class GlobalRecHitsProducer : public edm::EDProducer
 
   // RPC
 
-  FloatVector RPCRHX;
-  FloatVector RPCSHX;
+  //Defined above...
 
   edm::InputTag MuRPCSrc_;
   edm::InputTag MuRPCSimSrc_;
