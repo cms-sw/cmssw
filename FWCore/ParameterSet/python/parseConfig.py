@@ -529,6 +529,12 @@ class _MakeFrom(object):
         except Exception, e:
             raise pp.ParseFatalException(s,loc,label+" contains the error "+str(e)
                                          +"\n from file "+_fileStack[-1])
+        #try to resolve any usings, but don't get upset if you can't.
+        try:
+            _findAndHandleProcessUsingBlock(values)
+        except Exception, e:
+            pass
+
         d = dict(values)
         if label not in d:
             raise pp.ParseFatalException(s,loc,"the file "+inc.fileName+" does not contain a "+label
