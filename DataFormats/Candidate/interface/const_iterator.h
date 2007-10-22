@@ -13,9 +13,9 @@ namespace reco {
     struct iterator;
 
     struct const_iterator {
-      typedef Candidate value_type;
-      typedef Candidate * pointer;
-      typedef Candidate & reference;
+      typedef const Candidate value_type;
+      typedef const Candidate * pointer;
+      typedef const Candidate & reference;
       typedef ptrdiff_t difference_type;
       typedef std::vector<int>::const_iterator::iterator_category iterator_category;
       const_iterator() : i( 0 ) { }

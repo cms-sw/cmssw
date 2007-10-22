@@ -6,7 +6,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: Candidate.h,v 1.34 2007/10/15 12:44:32 llista Exp $
+ * \version $Id: Candidate.h,v 1.35 2007/10/17 08:01:38 llista Exp $
  *
  */
 #include "DataFormats/Candidate/interface/Particle.h"
@@ -14,6 +14,7 @@
 #include "DataFormats/Candidate/interface/const_iterator.h"
 #include "DataFormats/Candidate/interface/iterator.h"
 #include "DataFormats/Candidate/interface/CandidateFwd.h"
+#include "boost/iterator/filter_iterator.hpp"
 
 namespace reco {
   
@@ -98,6 +99,19 @@ namespace reco {
       else return reco::numberOf<T, Tag>( * this ); 
     }
 
+    template<typename S> 
+    struct daughter_iterator {
+      typedef boost::filter_iterator<S, const_iterator> type;
+    };
+
+    template<typename S>
+    typename daughter_iterator<S>::type beginFilter( const S & s ) const {
+      return boost::make_filter_iterator(s, begin(), end());
+    }
+    template<typename S>
+    typename daughter_iterator<S>::type endFilter( const S & s ) const {
+      return boost::make_filter_iterator(s, end(), end());
+    }
   private:
     /// check overlap with another Candidate
     virtual bool overlap( const Candidate & ) const = 0;
