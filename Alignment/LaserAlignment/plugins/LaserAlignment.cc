@@ -1,8 +1,8 @@
 /** \file LaserAlignment.cc
  *  LAS reconstruction module
  *
- *  $Date: 2007/05/08 07:59:43 $
- *  $Revision: 1.14 $
+ *  $Date: 2007/10/11 09:19:37 $
+ *  $Revision: 1.15 $
  *  \author Maarten Thomas
  */
 
@@ -198,8 +198,7 @@ void LaserAlignment::beginJob(const edm::EventSetup& theSetup)
 
   // Create the alignable hierarchy
   LogDebug("LaserAlignment:beginJob()") << " create the alignable hierarchy ";
-  theAlignableTracker = new AlignableTracker( &(*gD),
-					      &(*theTrackerGeometry) );
+  theAlignableTracker = new AlignableTracker( &(*theTrackerGeometry) );
 
 }
 
