@@ -37,12 +37,17 @@
 </RotationSection>
 <SolidSection label="mf.xml">
  <Polycone name="ME" startPhi="0*deg" deltaPhi="360*deg" >
-  <ZSection z="5.541*m  "  rMin="55.41*cm "  rMax="2.95*m  " />
-  <ZSection z="6.5*m  "  rMin="65*cm "  rMax="2.95*m  " />
-  <ZSection z="6.5*m  "  rMin="65*cm "  rMax="3.65*m  " />
-  <ZSection z="6.61*m  "  rMin="66.1*cm "  rMax="3.65*m  " />
-  <ZSection z="6.61*m  "  rMin="66.1*cm "  rMax="8.3*m  " />
-  <ZSection z="10.86*m  "  rMin="1.086*m  "  rMax="8.3*m  " />
+  <ZSection z="[cms:CalorBeamZ2]" rMin="[cms:CalorBeamR2]" rMax="[cms:CalorMuonR]"/>
+  <ZSection z="[cms:MuonBeamZ0]"  rMin="[cms:MuonBeamR0]"  rMax="[cms:CalorMuonR]"/>
+  <ZSection z="[cms:MuonBeamZ0]"  rMin="[cms:MERmin0]"  rMax="[cms:CalorMuonR]"/>
+  <ZSection z="[cms:MuonBeamZ0]"  rMin="[cms:MERmin0]"  rMax="[cms:MBarRmin]"/>
+  <ZSection z="[cms:MEndcapZ0]"   rMin="[cms:MERmin1]"  rMax="[cms:MBarRmin]"/>
+  <ZSection z="[cms:MBarZ]"       rMin="[cms:MERmin1]"  rMax="[cms:MBarRmin]"/>
+  <ZSection z="[cms:MBarZ]"       rMin="[cms:MERmin1]"     rMax="[cms:CMSR1]"/>
+  <ZSection z="[cms:MEndcapZ1]"   rMin="[cms:MERmin2]"     rMax="[cms:CMSR1]"/>
+  <ZSection z="[cms:TotemMuonZ1]" rMin="[cms:TotemMuonR1]" rMax="[cms:CMSR1]"/>
+  <ZSection z="[cms:TotemMuonZ1]" rMin="[cms:TotemMuonR2]" rMax="[cms:CMSR1]"/>
+  <ZSection z="[cms:MuonBeamZ2]"  rMin="[cms:MERmin3]"     rMax="[cms:CMSR1]"/>
  </Polycone> 
  <Polycone name="SupportTubeForHE" startPhi="0*deg" deltaPhi="360*deg" >
   <ZSection z="5.541*m  "  rMin="67.5*cm "  rMax="2.51*m  " />
