@@ -13,10 +13,8 @@
  *
  ************************************************************/
 
-#include "DataFormats/EgammaReco/interface/ElectronPixelSeed.h"  
-#include "DataFormats/EgammaReco/interface/ElectronPixelSeedFwd.h"  
+#include "RecoEgamma/EgammaElectronAlgos/interface/ElectronSeedGenerator.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHitCollection.h"
-#include "DataFormats/EgammaReco/interface/SuperCluster.h"
 
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
 #include "TrackingTools/PatternTools/interface/TrajectoryStateUpdator.h"
@@ -24,10 +22,6 @@
 #include "RecoTracker/TransientTrackingRecHit/interface/TSiPixelRecHit.h"
 #include "RecoTracker/TkDetLayers/interface/GeometricSearchTracker.h"
 
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/ValidityInterval.h"
 
 class PropagatorWithMaterial;
 class KFUpdator;
@@ -35,7 +29,7 @@ class PixelHitMatcher;
 class MeasurementTracker;
 class NavigationSchool;
 
-class ElectronPixelSeedGenerator
+class ElectronPixelSeedGenerator: public ElectronSeedGenerator
 {
 public:
 

@@ -12,7 +12,7 @@
  *
  ************************************************************/
 
-#include "DataFormats/EgammaCandidates/interface/PixelMatchGsfElectron.h"
+#include "DataFormats/EgammaCandidates/interface/PixelMatchGsfElectronFwd.h"
 #include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
 #include "DataFormats/EgammaReco/interface/BasicClusterShapeAssociation.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrackFwd.h"
@@ -57,13 +57,35 @@ public:
 	       const reco::BasicClusterShapeAssociationCollection *shpAssEndcap,
 	       HBHERecHitMetaCollection *mhbhe,
 	       reco::PixelMatchGsfElectronCollection & outEle);
-   
-  // preselection method
-  bool preSelection(const reco::SuperCluster& clus, const GlobalVector&, const GlobalPoint&,double HoE);
+  void process(edm::Handle<reco::GsfTrackCollection> tracksH,
+	       edm::Handle<reco::SuperClusterCollection> superClustersBarrelH,
+	       edm::Handle<reco::SuperClusterCollection> superClustersEndcapH,
+	       const reco::BasicClusterShapeAssociationCollection *shpAssBarrel,
+	       const reco::BasicClusterShapeAssociationCollection *shpAssEndcap,
+	       HBHERecHitMetaCollection *mhbhe,
+	       reco::PixelMatchGsfElectronCollection & outEle);
   
+  
+  // preselection method
+  //  bool preSelection(const reco::SuperCluster& clus, const GlobalVector&, const GlobalPoint&,double HoE);
+  bool preSelection(const reco::SuperCluster& clus);
+
+  // interface to be improved...
+  void createElectron(const reco::SuperClusterRef & scRef,
+                      const reco::GsfTrackRef &trackRef,const reco::ClusterShapeRef& seedShapeRef,
+                      reco::PixelMatchGsfElectronCollection & outEle);  
 
   //Gsf mode calculations
   GlobalVector computeMode(const TrajectoryStateOnSurface &tsos);
+
+  // associations
+  const reco::SuperClusterRef getAssociation(const reco::GsfTrackRef & trackRef);
+  const reco::GsfTrackRef
+    superClusterMatching(reco::SuperClusterRef sc, edm::Handle<reco::GsfTrackCollection> tracks);
+
+  // intermediate calculations
+  void hOverE(const reco::SuperClusterRef & scRef,HBHERecHitMetaCollection *mhbhe);
+  bool calculateTSOS(const reco::GsfTrack &t,const reco::SuperCluster & theClus);
 
   //ecaleta, ecalphi: in fine to be replaced by propagators
   float ecalEta(float EtaParticle , float Zvertex, float plane_Radius);
@@ -111,7 +133,18 @@ public:
   const GsfPropagatorAdapter *geomPropBw_;
   const GsfPropagatorAdapter *geomPropFw_;
 
+  // internal variables 
   int subdet_; //subdetector for this cluster
+  GlobalPoint sclPos_;
+  GlobalVector vtxMom_;
+  double HoE_;
+  TrajectoryStateOnSurface innTSOS_;
+  TrajectoryStateOnSurface outTSOS_;
+  TrajectoryStateOnSurface vtxTSOS_;
+  TrajectoryStateOnSurface sclTSOS_;
+  TrajectoryStateOnSurface seedTSOS_;
+
+  unsigned int processType_;
 };
 
 #endif // PixelMatchElectronAlgo_H

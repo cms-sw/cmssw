@@ -13,7 +13,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: ElectronPixelSeedProducer.cc,v 1.5 2007/10/15 13:29:53 uberthon Exp $
+// $Id: ElectronPixelSeedProducer.cc,v 1.6 2007/10/19 11:44:24 uberthon Exp $
 //
 //
 
@@ -26,6 +26,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "RecoEgamma/EgammaElectronAlgos/interface/ElectronPixelSeedGenerator.h"
+#include "RecoEgamma/EgammaElectronAlgos/interface/SubSeedGenerator.h"
 #include "DataFormats/EgammaReco/interface/ElectronPixelSeed.h"
 #include "DataFormats/EgammaReco/interface/ElectronPixelSeedFwd.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHitCollection.h"
@@ -34,24 +35,27 @@
 
 #include "ElectronPixelSeedProducer.h"
 
-#include <iostream>
+#include <string>
 
 using namespace reco;
  
 ElectronPixelSeedProducer::ElectronPixelSeedProducer(const edm::ParameterSet& iConfig) : conf_(iConfig)
 {
 
-  matcher_ = new ElectronPixelSeedGenerator(iConfig.getParameter<double>("ePhiMin1"),
-					    iConfig.getParameter<double>("ePhiMax1"),
-					    iConfig.getParameter<double>("pPhiMin1"),
-					    iConfig.getParameter<double>("pPhiMax1"),
-					    iConfig.getParameter<double>("pPhiMin2"),
-					    iConfig.getParameter<double>("pPhiMax2"),
-					    iConfig.getParameter<double>("ZMin1"),
-					    iConfig.getParameter<double>("ZMax1"),
-					    iConfig.getParameter<double>("ZMin2"),
-					    iConfig.getParameter<double>("ZMax2"),
-                                            iConfig.getParameter<bool>("dynamicPhiRoad") );
+  std::string algo = iConfig.getParameter<std::string>("SeedAlgo");
+  edm::ParameterSet pset = iConfig.getParameter<edm::ParameterSet>("SeedConfiguration");
+  if (algo=="FilteredSeed") matcher_= new SubSeedGenerator(pset.getParameter<std::string>("initialSeedProducer"),pset.getParameter<std::string>("initialSeedLabel"));
+  else matcher_ = new ElectronPixelSeedGenerator(pset.getParameter<double>("ePhiMin1"),
+					    pset.getParameter<double>("ePhiMax1"),
+					    pset.getParameter<double>("pPhiMin1"),
+					    pset.getParameter<double>("pPhiMax1"),
+					    pset.getParameter<double>("pPhiMin2"),
+					    pset.getParameter<double>("pPhiMax2"),
+					    pset.getParameter<double>("ZMin1"),
+					    pset.getParameter<double>("ZMax1"),
+					    pset.getParameter<double>("ZMin2"),
+					    pset.getParameter<double>("ZMax2"),
+                                            pset.getParameter<bool>("dynamicPhiRoad") );
 					      
  
  //  get labels from config'
