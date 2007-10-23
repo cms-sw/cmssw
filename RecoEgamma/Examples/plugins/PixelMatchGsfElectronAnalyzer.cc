@@ -13,7 +13,7 @@
 //
 // Original Author:  Ursula Berthon
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: PixelMatchGsfElectronAnalyzer.cc,v 1.7 2007/09/12 08:33:27 charlot Exp $
+// $Id: PixelMatchGsfElectronAnalyzer.cc,v 1.8 2007/09/12 14:52:59 futyand Exp $
 //
 //
 
@@ -72,6 +72,10 @@ PixelMatchGsfElectronAnalyzer::~PixelMatchGsfElectronAnalyzer()
 
 void PixelMatchGsfElectronAnalyzer::beginJob(edm::EventSetup const&iSetup){
 
+  // histos limits, setting for HZZ4l, mH=190
+  double pTmax=100.;
+  double pmax=300.;
+  
   // mc truth  
 
   h_mcNum              = new TH1F( "h_mcNum",              "# mc particles",    20, 0., 20. );
@@ -85,15 +89,15 @@ void PixelMatchGsfElectronAnalyzer::beginJob(edm::EventSetup const&iSetup){
   // mc  
   h_simEta             = new TH1F( "h_mc_eta",             "mc #eta",           50, -2.5, 2.5); 
   h_simAbsEta             = new TH1F( "h_mc_abseta",             "mc |#eta|",           25, 0., 2.5); 
-  h_simP               = new TH1F( "h_mc_P",               "mc p",              50, 0., 200.); 
-  h_simPt               = new TH1F( "h_mc_Pt",               "mc pt",            9, 5., 50.); 
+  h_simP               = new TH1F( "h_mc_P",               "mc p",              50, 0., pmax); 
+  h_simPt               = new TH1F( "h_mc_Pt",               "mc pt",            19, 5., pTmax); 
 
   // ctf tracks
   h_ctf_foundHitsVsEta      = new TH2F( "h_ctf_foundHitsVsEta",      "ctf track # found hits vs eta",  50,-2.5,2.5,20,0.,20.);
   h_ctf_lostHitsVsEta       = new TH2F( "h_ctf_lostHitsVsEta",       "ctf track # lost hits vs eta",   50,-2.5,2.5,10,0.,10.);
   
   // all electrons  
-  h_ele_vertexPt_all       = new TH1F( "h_ele_vertexPt_all",       "all ele p_{T} at vertex",  9, 5., 50. );
+  h_ele_vertexPt_all       = new TH1F( "h_ele_vertexPt_all",       "all ele p_{T} at vertex",  19, 5., pTmax );
   h_ele_vertexEta_all      = new TH1F( "h_ele_vertexEta_all",      "all ele #eta at vertex",    50, -2.5, 2.5 );
 
   // matched electrons
@@ -101,11 +105,11 @@ void PixelMatchGsfElectronAnalyzer::beginJob(edm::EventSetup const&iSetup){
   h_ele_chargeVsEta    = new TH2F( "h_ele_chargeVsEta",         "ele charge vs eta", 50,-2.5,2.5,5,-2.,2.);   
   h_ele_chargeVsPhi    = new TH2F( "h_ele_chargeVsPhi",         "ele charge vs phi", 50,-3.15,3.15,5,-2.,2.);   
   h_ele_chargeVsPt    = new TH2F( "h_ele_chargeVsPt",         "ele charge vs pt", 50,0.,100.,5,-2.,2.);   
-  h_ele_vertexP        = new TH1F( "h_ele_vertexP",        "ele p at vertex",       50, 0., 200. );
-  h_ele_vertexPt       = new TH1F( "h_ele_vertexPt",       "ele p_{T} at vertex",  50, 0., 50. );
-  h_ele_vertexPtVsEta   = new TH2F( "h_ele_vertexPtVsEta",       "ele p_{T} at vertex vs eta",50,-2.5,2.5,80,0.,20.);
-  h_ele_vertexPtVsPhi   = new TH2F( "h_ele_vertexPtVsPhi",       "ele p_{T} at vertex vs phi",50,-3.15,3.15,80,0.,20.);
-  h_ele_simPt_matched       = new TH1F( "h_ele_simPt_matched",       "sim p_{T}, matched electrons",  9, 5., 50. );
+  h_ele_vertexP        = new TH1F( "h_ele_vertexP",        "ele p at vertex",       50, 0., pmax );
+  h_ele_vertexPt       = new TH1F( "h_ele_vertexPt",       "ele p_{T} at vertex",  50, 0., pTmax );
+  h_ele_vertexPtVsEta   = new TH2F( "h_ele_vertexPtVsEta",       "ele p_{T} at vertex vs eta",50,-2.5,2.5,50,0.,pTmax);
+  h_ele_vertexPtVsPhi   = new TH2F( "h_ele_vertexPtVsPhi",       "ele p_{T} at vertex vs phi",50,-3.15,3.15,50,0.,pTmax);
+  h_ele_simPt_matched       = new TH1F( "h_ele_simPt_matched",       "sim p_{T}, matched electrons",  19, 5., pTmax );
   h_ele_vertexEta      = new TH1F( "h_ele_vertexEta",      "ele #eta at vertex",    50, -2.5, 2.5 );
   h_ele_vertexEtaVsPhi  = new TH2F( "h_ele_vertexEtaVsPhi",      "ele #eta at vertex vs phi",50,-2.5,2.5,50,-3.15,3.15 );
   h_ele_simAbsEta_matched      = new TH1F( "h_ele_simAbsEta_matched",      "sim |#eta|, matched electrons",    25, 0., 2.5 );
@@ -117,30 +121,30 @@ void PixelMatchGsfElectronAnalyzer::beginJob(edm::EventSetup const&iSetup){
   h_ele_vertexTIP      = new TH1F( "h_ele_vertexTIP",      "ele TIP",    90,  0., 0.15  );
   h_ele_vertexTIPVsEta      = new TH2F( "h_ele_vertexTIPVsEta",      "ele TIP vs eta", 50,-2.5,2.5, 45,  0.,0.15  );
   h_ele_vertexTIPVsPhi      = new TH2F( "h_ele_vertexTIPVsPhi",      "ele TIP vs phi", 50,-3.15,3.15, 45,  0.,0.15  );
-  h_ele_vertexTIPVsPt      = new TH2F( "h_ele_vertexTIPVsPt",      "ele TIP vs Pt", 50,0.,100., 45,  0.,0.15  );
+  h_ele_vertexTIPVsPt      = new TH2F( "h_ele_vertexTIPVsPt",      "ele TIP vs Pt", 50,0.,pTmax, 45,  0.,0.15  );
   h_ele_PoPtrue        = new TH1F( "h_ele_PoPtrue",        "ele track, P/Ptrue @ vertex", 75, 0.,1.5);
   h_ele_PoPtrueVsEta   = new TH2F( "h_ele_PoPtrueVsEta",        "ele track, P/Ptrue @ vertex vs phi", 50,-2.5,2.5, 50, 0.,1.5);
   h_ele_PoPtrueVsPhi   = new TH2F( "h_ele_PoPtrueVsPhi",        "ele track, P/Ptrue @ vertex vs pt", 50,-3.15,3.15, 50, 0.,1.5);
-  h_ele_PoPtrueVsPt   = new TH2F( "h_ele_PoPtrueVsPt",        "ele track, P/Ptrue @ vertex vs eta", 50,0.,100., 50, 0.,1.5);
+  h_ele_PoPtrueVsPt   = new TH2F( "h_ele_PoPtrueVsPt",        "ele track, P/Ptrue @ vertex vs eta", 50,0.,pTmax, 50, 0.,1.5);
   h_ele_PoPtrue_barrel         = new TH1F( "h_ele_PoPtrue_barrel",        "ele track, P/Ptrue @ vertex, barrel", 75, 0.,1.5);
   h_ele_PoPtrue_endcaps        = new TH1F( "h_ele_PoPtrue_endcaps",        "ele track, P/Ptrue @ vertex, endcaps", 75, 0.,1.5);
   h_ele_EtaMnEtaTrue   = new TH1F( "h_ele_EtaMnEtaTrue",   "ele #eta_{rec} - #eta_{sim} @ vertex",50,-0.005,0.005);
   h_ele_EtaMnEtaTrueVsEta   = new TH2F( "h_ele_EtaMnEtaTrueVsEta",   "ele #eta_{rec} - #eta_{sim} @ vertex vs eta",50,-2.5,2.5,50,-0.005,0.005);
   h_ele_EtaMnEtaTrueVsPhi   = new TH2F( "h_ele_EtaMnEtaTrueVsPhi",   "ele #eta_{rec} - #eta_{sim} @ vertex vs phi",50,-3.15,3.15,50,-0.005,0.005);
-  h_ele_EtaMnEtaTrueVsPt   = new TH2F( "h_ele_EtaMnEtaTrueVsPt",   "ele #eta_{rec} - #eta_{sim} @ vertex vs pt",50,0.,100.,50,-0.005,0.005);
+  h_ele_EtaMnEtaTrueVsPt   = new TH2F( "h_ele_EtaMnEtaTrueVsPt",   "ele #eta_{rec} - #eta_{sim} @ vertex vs pt",50,0.,pTmax,50,-0.005,0.005);
   h_ele_PhiMnPhiTrue   = new TH1F( "h_ele_PhiMnPhiTrue",   "ele #phi_{rec} - #phi_{sim} @ vertex",50,-0.01,0.01);
   h_ele_PhiMnPhiTrue2   = new TH1F( "h_ele_PhiMnPhiTrue2",   "ele #phi_{rec} - #phi_{sim} @ vertex",50,-0.2,0.2);
   h_ele_PhiMnPhiTrueVsEta   = new TH2F( "h_ele_PhiMnPhiTrueVsEta",   "ele #phi_{rec} - #phi_{sim} @ vertex vs eta",50,-2.5,2.5,50,-0.01,0.01);
   h_ele_PhiMnPhiTrueVsPhi   = new TH2F( "h_ele_PhiMnPhiTrueVsPhi",   "ele #phi_{rec} - #phi_{sim} @ vertex vs phi",50,-3.15,3.15,50,-0.01,0.01);
-  h_ele_PhiMnPhiTrueVsPt   = new TH2F( "h_ele_PhiMnPhiTrueVsPt",   "ele #phi_{rec} - #phi_{sim} @ vertex vs pt",50,0.,100.,50,-0.01,0.01);
+  h_ele_PhiMnPhiTrueVsPt   = new TH2F( "h_ele_PhiMnPhiTrueVsPt",   "ele #phi_{rec} - #phi_{sim} @ vertex vs pt",50,0.,pTmax,50,-0.01,0.01);
 
   // matched electron, superclusters
-  histSclEn_ = new TH1F("h_scl_energy","ele supercluster energy",100,0.,100.);
-  histSclEoEtrue_barrel = new TH1F("h_scl_EoEtrue, barrel","ele supercluster energy over true energy, barrel",100,0.2,1.2);
-  histSclEoEtrue_endcaps = new TH1F("h_scl_EoEtrue, endcaps","ele supercluster energy over true energy, endcaps",100,0.2,1.2);
-  histSclEt_ = new TH1F("h_scl_et","ele supercluster transverse energy",150,0.,15.);
-  histSclEtVsEta_ = new TH2F("h_scl_etVsEta","ele supercluster transverse energy vs eta",50,-2.5,2.5,50,0.,100.);
-  histSclEtVsPhi_ = new TH2F("h_scl_etVsPhi","ele supercluster transverse energy vs phi",50,-3.16,3.16,50,0.,100.);
+  histSclEn_ = new TH1F("h_scl_energy","ele supercluster energy",50,0.,pmax);
+  histSclEoEtrue_barrel = new TH1F("h_scl_EoEtrue, barrel","ele supercluster energy over true energy, barrel",50,0.2,1.2);
+  histSclEoEtrue_endcaps = new TH1F("h_scl_EoEtrue, endcaps","ele supercluster energy over true energy, endcaps",50,0.2,1.2);
+  histSclEt_ = new TH1F("h_scl_et","ele supercluster transverse energy",50,0.,pTmax);
+  histSclEtVsEta_ = new TH2F("h_scl_etVsEta","ele supercluster transverse energy vs eta",50,-2.5,2.5,50,0.,pTmax);
+  histSclEtVsPhi_ = new TH2F("h_scl_etVsPhi","ele supercluster transverse energy vs phi",50,-3.16,3.16,50,0.,pTmax);
   histSclEtaVsPhi_ = new TH2F("h_scl_etaVsPhi","ele supercluster eta vs phi",50,-3.16,3.16,50,-2.5,2.5);
   histSclEta_ = new TH1F("h_scl_eta","ele supercluster eta",100,-2.5,2.5);
   histSclPhi_ = new TH1F("h_scl_phi","ele supercluster phi",100,-3.5,3.5);
@@ -149,57 +153,57 @@ void PixelMatchGsfElectronAnalyzer::beginJob(edm::EventSetup const&iSetup){
   h_ele_foundHits      = new TH1F( "h_ele_foundHits",      "ele track # found hits",      20, 0., 20. );
   h_ele_foundHitsVsEta      = new TH2F( "h_ele_foundHitsVsEta",      "ele track # found hits vs eta",  50,-2.5,2.5,20,0.,20.);
   h_ele_foundHitsVsPhi      = new TH2F( "h_ele_foundHitsVsPhi",      "ele track # found hits vs phi",  50,-3.15,3.15,20,0.,20.);
-  h_ele_foundHitsVsPt      = new TH2F( "h_ele_foundHitsVsPt",      "ele track # found hits vs pt",  50,0.,100.,20,0.,20.);
+  h_ele_foundHitsVsPt      = new TH2F( "h_ele_foundHitsVsPt",      "ele track # found hits vs pt",  50,0.,pTmax,20,0.,20.);
   h_ctf_foundHits      = new TH1F( "h_ctf_foundHits",      "ctf track # found hits",      20, 0., 20. );
   h_ele_lostHits       = new TH1F( "h_ele_lostHits",       "ele track # lost hits",       5, 0., 5. );
   h_ele_lostHitsVsEta       = new TH2F( "h_ele_lostHitsVsEta",       "ele track # lost hits vs eta",   50,-2.5,2.5,10,0.,10.);
   h_ele_lostHitsVsPhi       = new TH2F( "h_ele_lostHitsVsPhi",       "ele track # lost hits vs eta",   50,-3.15,3.15,10,0.,10.);
-  h_ele_lostHitsVsPt       = new TH2F( "h_ele_lostHitsVsPt",       "ele track # lost hits vs eta",   50,0.,100.,10,0.,10.);
+  h_ele_lostHitsVsPt       = new TH2F( "h_ele_lostHitsVsPt",       "ele track # lost hits vs eta",   50,0.,pTmax,10,0.,10.);
   h_ele_chi2           = new TH1F( "h_ele_chi2",           "ele track #chi^{2}",         100, 0., 15. );   
   h_ele_chi2VsEta           = new TH2F( "h_ele_chi2VsEta",           "ele track #chi^{2} vs eta",  50,-2.5,2.5,50,0.,15.);   
   h_ele_chi2VsPhi           = new TH2F( "h_ele_chi2VsPhi",           "ele track #chi^{2} vs phi",  50,-3.15,3.15,50,0.,15.);   
-  h_ele_chi2VsPt           = new TH2F( "h_ele_chi2VsPt",           "ele track #chi^{2} vs pt",  50,0.,100.,50,0.,15.);   
-  h_ele_PinMnPout      = new TH1F( "h_ele_PinMnPout",      "ele track inner p - outer p, mean"   ,50,0.,100.);
+  h_ele_chi2VsPt           = new TH2F( "h_ele_chi2VsPt",           "ele track #chi^{2} vs pt",  50,0.,pTmax,50,0.,15.);   
+  h_ele_PinMnPout      = new TH1F( "h_ele_PinMnPout",      "ele track inner p - outer p, mean"   ,50,0.,200.);
   h_ele_PinMnPout_mode      = new TH1F( "h_ele_PinMnPout_mode",      "ele track inner p - outer p, mode"   ,50,0.,100.);
   h_ele_PinMnPoutVsEta_mode = new TH2F( "h_ele_PinMnPoutVsEta_mode",      "ele track inner p - outer p vs eta, mode" ,50, -2.5,2.5,50,0.,100.);
   h_ele_PinMnPoutVsPhi_mode = new TH2F( "h_ele_PinMnPoutVsPhi_mode",      "ele track inner p - outer p vs phi, mode" ,50, -3.15,3.15,50,0.,100.);
-  h_ele_PinMnPoutVsPt_mode = new TH2F( "h_ele_PinMnPoutVsPt_mode",      "ele track inner p - outer p vs pt, mode" ,50, 0.,100.,50,0.,100.);
-  h_ele_PinMnPoutVsE_mode = new TH2F( "h_ele_PinMnPoutVsE_mode",      "ele track inner p - outer p vs E, mode" ,50, 0.,300.,50,0.,100.);
+  h_ele_PinMnPoutVsPt_mode = new TH2F( "h_ele_PinMnPoutVsPt_mode",      "ele track inner p - outer p vs pt, mode" ,50, 0.,pTmax,50,0.,100.);
+  h_ele_PinMnPoutVsE_mode = new TH2F( "h_ele_PinMnPoutVsE_mode",      "ele track inner p - outer p vs E, mode" ,50, 0.,200.,50,0.,100.);
   h_ele_PinMnPoutVsChi2_mode = new TH2F( "h_ele_PinMnPoutVsChi2_mode",      "ele track inner p - outer p vs track chi2, mode" ,50, 0.,20.,50,0.,100.);
-  h_ele_outerP         = new TH1F( "h_ele_outerP",         "ele track outer p, mean",          50, 0., 80. );
-  h_ele_outerP_mode         = new TH1F( "h_ele_outerP_mode",         "ele track outer p, mode",          50, 0., 80. );
-  h_ele_outerPVsEta_mode         = new TH2F( "h_ele_outerPVsEta_mode",         "ele track outer p vs eta mode",  50,-2.5,2.5,40,0.,80.);
-  h_ele_outerPt        = new TH1F( "h_ele_outerPt",        "ele track outer p_{T}, mean",      80, 0., 20. );
-  h_ele_outerPt_mode        = new TH1F( "h_ele_outerPt_mode",        "ele track outer p_{T}, mode",      80, 0., 20. );
-  h_ele_outerPtVsEta_mode        = new TH2F( "h_ele_outerPtVsEta_mode", "ele track outer p_{T} vs eta, mode", 50,-2.5,2.5,50,0.,20.);
-  h_ele_outerPtVsPhi_mode        = new TH2F( "h_ele_outerPtVsPhi_mode", "ele track outer p_{T} vs phi, mode", 50,-3.15,3.15,50,0.,20.);
-  h_ele_outerPtVsPt_mode        = new TH2F( "h_ele_outerPtVsPt_mode", "ele track outer p_{T} vs pt, mode", 50,0.,100.,50,0.,20.);
+  h_ele_outerP         = new TH1F( "h_ele_outerP",         "ele track outer p, mean",          50, 0., pmax );
+  h_ele_outerP_mode         = new TH1F( "h_ele_outerP_mode",         "ele track outer p, mode",          50, 0., pmax );
+  h_ele_outerPVsEta_mode         = new TH2F( "h_ele_outerPVsEta_mode",         "ele track outer p vs eta mode", 50,-2.5,2.5,50,0.,pmax);
+  h_ele_outerPt        = new TH1F( "h_ele_outerPt",        "ele track outer p_{T}, mean",      100, 0., pTmax );
+  h_ele_outerPt_mode        = new TH1F( "h_ele_outerPt_mode",        "ele track outer p_{T}, mode",      100, 0., pTmax );
+  h_ele_outerPtVsEta_mode        = new TH2F( "h_ele_outerPtVsEta_mode", "ele track outer p_{T} vs eta, mode", 50,-2.5,2.5,50,0.,pTmax);
+  h_ele_outerPtVsPhi_mode        = new TH2F( "h_ele_outerPtVsPhi_mode", "ele track outer p_{T} vs phi, mode", 50,-3.15,3.15,50,0.,pTmax);
+  h_ele_outerPtVsPt_mode        = new TH2F( "h_ele_outerPtVsPt_mode", "ele track outer p_{T} vs pt, mode", 50,0.,100.,50,0.,pTmax);
   
   // matched electrons, matching 
-  h_ele_EoP            = new TH1F( "h_ele_EoP",            "ele E/P_{vertex}",        90,0.,3.);
+  h_ele_EoP            = new TH1F( "h_ele_EoP",            "ele E/P_{vertex}",        100,0.,5.);
   h_ele_EoPVsEta            = new TH2F( "h_ele_EoPVsEta",            "ele E/P_{vertex} vs eta",  50,-2.5,2.5 ,50,0.,3.);
   h_ele_EoPVsPhi            = new TH2F( "h_ele_EoPVsPhi",            "ele E/P_{vertex} vs phi",  50,-3.15,3.15 ,50,0.,3.);
-  h_ele_EoPVsE            = new TH2F( "h_ele_EoPVsE",            "ele E/P_{vertex} vs E",  50,0.,300. ,50,0.,3.);
-  h_ele_EoPout         = new TH1F( "h_ele_EoPout",         "ele E/P_{out}",           90,0.,3.);
-  h_ele_EoPoutVsEta         = new TH2F( "h_ele_EoPoutVsEta",         "ele E/P_{out} vs eta",    50,-2.5,2.5 ,50,0.,3.);
-  h_ele_EoPoutVsPhi         = new TH2F( "h_ele_EoPoutVsPhi",         "ele E/P_{out} vs phi",    50,-3.15,3.15 ,50,0.,3.);
-  h_ele_EoPoutVsE         = new TH2F( "h_ele_EoPoutVsE",         "ele E/P_{out} vs E",    50,0.,300. ,50,0.,3.);
+  h_ele_EoPVsE            = new TH2F( "h_ele_EoPVsE",            "ele E/P_{vertex} vs E",  50,0.,pmax ,50,0.,5.);
+  h_ele_EoPout         = new TH1F( "h_ele_EoPout",         "ele E/P_{out}",           100,0.,5.);
+  h_ele_EoPoutVsEta         = new TH2F( "h_ele_EoPoutVsEta",         "ele E/P_{out} vs eta",    50,-2.5,2.5 ,50,0.,5.);
+  h_ele_EoPoutVsPhi         = new TH2F( "h_ele_EoPoutVsPhi",         "ele E/P_{out} vs phi",    50,-3.15,3.15 ,50,0.,5.);
+  h_ele_EoPoutVsE         = new TH2F( "h_ele_EoPoutVsE",         "ele E/P_{out} vs E",    50,0.,pmax,50,0.,5.);
   h_ele_dEtaSc_propVtx = new TH1F( "h_ele_dEtaSc_propVtx", "ele #eta_{sc} - #eta_{tr} - prop from vertex",      100,-0.05,0.05);
   h_ele_dEtaScVsEta_propVtx = new TH2F( "h_ele_dEtaScVsEta_propVtx", "ele #eta_{sc} - #eta_{tr} vs eta, prop from vertex", 50,-2.5,2.5,50,-0.05,0.05);
   h_ele_dEtaScVsPhi_propVtx = new TH2F( "h_ele_dEtaScVsPhi_propVtx", "ele #eta_{sc} - #eta_{tr} vs phi, prop from vertex", 50,-3.15,3.15,50,-0.05,0.05);
-  h_ele_dEtaScVsPt_propVtx = new TH2F( "h_ele_dEtaScVsPt_propVtx", "ele #eta_{sc} - #eta_{tr} vs pt, prop from vertex", 50,0.,100.,50,-0.05,0.05);
+  h_ele_dEtaScVsPt_propVtx = new TH2F( "h_ele_dEtaScVsPt_propVtx", "ele #eta_{sc} - #eta_{tr} vs pt, prop from vertex", 50,0.,pTmax,50,-0.05,0.05);
   h_ele_dPhiSc_propVtx = new TH1F( "h_ele_dPhiSc_propVtx", "ele #phi_{sc} - #phi_{tr} - prop from vertex",      100,-0.2,0.2);
   h_ele_dPhiScVsEta_propVtx = new TH2F( "h_ele_dPhiScVsEta_propVtx", "ele #phi_{sc} - #phi_{tr} vs eta, prop from vertex", 50,-2.5,2.5,50,-0.2,0.2);
   h_ele_dPhiScVsPhi_propVtx = new TH2F( "h_ele_dPhiScVsPhi_propVtx", "ele #phi_{sc} - #phi_{tr} vs phi, prop from vertex", 50,-3.15,3.15,50,-0.2,0.2);
-  h_ele_dPhiScVsPt_propVtx = new TH2F( "h_ele_dPhiScVsPt_propVtx", "ele #phi_{sc} - #phi_{tr} vs pt, prop from vertex", 50,0.,100.,50,-0.2,0.2);
+  h_ele_dPhiScVsPt_propVtx = new TH2F( "h_ele_dPhiScVsPt_propVtx", "ele #phi_{sc} - #phi_{tr} vs pt, prop from vertex", 50,0.,pTmax,50,-0.2,0.2);
   h_ele_dEtaCl_propOut = new TH1F( "h_ele_dEtaCl_propOut", "ele #eta_{cl} - #eta_{tr} - prop from outermost",   100,-0.05,0.05);
   h_ele_dEtaClVsEta_propOut = new TH2F( "h_ele_dEtaClVsEta_propOut", "ele #eta_{cl} - #eta_{tr} vs eta, prop from out", 50,-2.5,2.5,50,-0.05,0.05);
   h_ele_dEtaClVsPhi_propOut = new TH2F( "h_ele_dEtaClVsPhi_propOut", "ele #eta_{cl} - #eta_{tr} vs phi, prop from out", 50,-3.15,3.15,50,-0.05,0.05);
-  h_ele_dEtaClVsPt_propOut = new TH2F( "h_ele_dEtaScVsPt_propOut", "ele #eta_{cl} - #eta_{tr} vs pt, prop from out", 50,0.,100.,50,-0.05,0.05);
+  h_ele_dEtaClVsPt_propOut = new TH2F( "h_ele_dEtaScVsPt_propOut", "ele #eta_{cl} - #eta_{tr} vs pt, prop from out", 50,0.,pTmax,50,-0.05,0.05);
   h_ele_dPhiCl_propOut = new TH1F( "h_ele_dPhiCl_propOut", "ele #phi_{cl} - #phi_{tr} - prop from outermost",   100,-0.2,0.2);
   h_ele_dPhiClVsEta_propOut = new TH2F( "h_ele_dPhiClVsEta_propOut", "ele #phi_{cl} - #phi_{tr} vs eta, prop from out", 50,-2.5,2.5,50,-0.2,0.2);
   h_ele_dPhiClVsPhi_propOut = new TH2F( "h_ele_dPhiClVsPhi_propOut", "ele #phi_{cl} - #phi_{tr} vs phi, prop from out", 50,-3.15,3.15,50,-0.2,0.2);
-  h_ele_dPhiClVsPt_propOut = new TH2F( "h_ele_dPhiSClsPt_propOut", "ele #phi_{cl} - #phi_{tr} vs pt, prop from out", 50,0.,100.,50,-0.2,0.2);
+  h_ele_dPhiClVsPt_propOut = new TH2F( "h_ele_dPhiSClsPt_propOut", "ele #phi_{cl} - #phi_{tr} vs pt, prop from out", 50,0.,pTmax,50,-0.2,0.2);
   
   h_ele_HoE = new TH1F("h_ele_HoE", "ele H/E", 100, 0., 1.) ;
   h_ele_HoEVsEta = new TH2F("h_ele_HoEVsEta", "ele H/E vs eta", 50, -2.5, 2.5, 50, 0., 1.) ;
@@ -213,18 +217,18 @@ void PixelMatchGsfElectronAnalyzer::beginJob(edm::EventSetup const&iSetup){
   h_ele_eta_bbrem = new TH1F( "h_ele_eta_bbrem", "electron eta bbrem",  50,0.0,2.5);
   h_ele_eta_narrow = new TH1F( "h_ele_eta_narrow", "electron eta narrow",  50,0.0,2.5);
   h_ele_eta_shower = new TH1F( "h_ele_eta_show", "electron eta showering",  50,0.0,2.5);
-  h_ele_PinVsPoutGolden_mode = new TH2F( "h_ele_PinVsPoutGolden_mode",      "ele track inner p vs outer p vs eta, golden, mode" ,50,0.,100.,50,0.,100.);
-  h_ele_PinVsPoutShowering0_mode = new TH2F( "h_ele_PinVsPoutShowering0_mode",      "ele track inner p vs outer p vs eta, showering0, mode" ,50,0.,100.,50,0.,100.);
-  h_ele_PinVsPoutShowering1234_mode = new TH2F( "h_ele_PinVsPoutShowering1234_mode",      "ele track inner p vs outer p vs eta, showering1234, mode" ,50,0.,100.,50,0.,100.);
-  h_ele_PinVsPoutGolden_mean = new TH2F( "h_ele_PinVsPoutGolden_mean",      "ele track inner p vs outer p vs eta, golden, mean" ,50,0.,100.,50,0.,100.);
-  h_ele_PinVsPoutShowering0_mean = new TH2F( "h_ele_PinVsPoutShowering0_mean",      "ele track inner p vs outer p vs eta, showering0, mean" ,50,0.,100.,50,0.,100.);
-  h_ele_PinVsPoutShowering1234_mean = new TH2F( "h_ele_PinVsPoutShowering1234_mean",      "ele track inner p vs outer p vs eta, showering1234, mean" ,50,0.,100.,50,0.,100.);
-  h_ele_PtinVsPtoutGolden_mode = new TH2F( "h_ele_PtinVsPtoutGolden_mode",      "ele track inner pt vs outer pt vs eta, golden, mode" ,50,0.,12.,50,0.,12.);
-  h_ele_PtinVsPtoutShowering0_mode = new TH2F( "h_ele_PtinVsPtoutShowering0_mode",      "ele track inner pt vs outer pt vs eta, showering0, mode" ,50,0.,12.,50,0.,12.);
-  h_ele_PtinVsPtoutShowering1234_mode = new TH2F( "h_ele_PtinVsPtoutShowering1234_mode",      "ele track inner pt vs outer pt vs eta, showering1234, mode" ,50,0.,12.,50,0.,12.);
-  h_ele_PtinVsPtoutGolden_mean = new TH2F( "h_ele_PtinVsPtoutGolden_mean",      "ele track inner pt vs outer pt vs eta, golden, mean" ,50,0.,12.,50,0.,12.);
-  h_ele_PtinVsPtoutShowering0_mean = new TH2F( "h_ele_PtinVsPtoutShowering0_mean",      "ele track inner pt vs outer pt vs eta, showering0, mean" ,50,0.,12.,50,0.,12.);
-  h_ele_PtinVsPtoutShowering1234_mean = new TH2F( "h_ele_PtinVsPtoutShowering1234_mean",      "ele track inner pt vs outer pt vs eta, showering1234, mean" ,50,0.,12.,50,0.,12.);
+  h_ele_PinVsPoutGolden_mode = new TH2F( "h_ele_PinVsPoutGolden_mode",      "ele track inner p vs outer p vs eta, golden, mode" ,50,0.,pmax,50,0.,pmax);
+  h_ele_PinVsPoutShowering0_mode = new TH2F( "h_ele_PinVsPoutShowering0_mode",      "ele track inner p vs outer p vs eta, showering0, mode" ,50,0.,pmax,50,0.,pmax);
+  h_ele_PinVsPoutShowering1234_mode = new TH2F( "h_ele_PinVsPoutShowering1234_mode",      "ele track inner p vs outer p vs eta, showering1234, mode" ,50,0.,pmax,50,0.,pmax);
+  h_ele_PinVsPoutGolden_mean = new TH2F( "h_ele_PinVsPoutGolden_mean",      "ele track inner p vs outer p vs eta, golden, mean" ,50,0.,pmax,50,0.,pmax);
+  h_ele_PinVsPoutShowering0_mean = new TH2F( "h_ele_PinVsPoutShowering0_mean",      "ele track inner p vs outer p vs eta, showering0, mean" ,50,0.,pmax,50,0.,pmax);
+  h_ele_PinVsPoutShowering1234_mean = new TH2F( "h_ele_PinVsPoutShowering1234_mean",      "ele track inner p vs outer p vs eta, showering1234, mean" ,50,0.,pmax,50,0.,pmax);
+  h_ele_PtinVsPtoutGolden_mode = new TH2F( "h_ele_PtinVsPtoutGolden_mode",      "ele track inner pt vs outer pt vs eta, golden, mode" ,50,0.,pTmax,50,0.,pTmax);
+  h_ele_PtinVsPtoutShowering0_mode = new TH2F( "h_ele_PtinVsPtoutShowering0_mode",      "ele track inner pt vs outer pt vs eta, showering0, mode" ,50,0.,pTmax,50,0.,pTmax);
+  h_ele_PtinVsPtoutShowering1234_mode = new TH2F( "h_ele_PtinVsPtoutShowering1234_mode",      "ele track inner pt vs outer pt vs eta, showering1234, mode" ,50,0.,pTmax,50,0.,pTmax);
+  h_ele_PtinVsPtoutGolden_mean = new TH2F( "h_ele_PtinVsPtoutGolden_mean",      "ele track inner pt vs outer pt vs eta, golden, mean" ,50,0.,pTmax,50,0.,pTmax);
+  h_ele_PtinVsPtoutShowering0_mean = new TH2F( "h_ele_PtinVsPtoutShowering0_mean",      "ele track inner pt vs outer pt vs eta, showering0, mean" ,50,0.,pTmax,50,0.,pTmax);
+  h_ele_PtinVsPtoutShowering1234_mean = new TH2F( "h_ele_PtinVsPtoutShowering1234_mean",      "ele track inner pt vs outer pt vs eta, showering1234, mean" ,50,0.,pTmax,50,0.,pTmax);
   histSclEoEtrueGolden_barrel = new TH1F("h_scl_EoEtrue golden, barrel","ele supercluster energy over true energy, golden, barrel",100,0.2,1.2);
   histSclEoEtrueGolden_endcaps = new TH1F("h_scl_EoEtrue golden, endcaps","ele supercluster energy over true energy, golden, endcaps",100,0.2,1.2);
   histSclEoEtrueShowering0_barrel = new TH1F("h_scl_EoEtrue showering0, barrel","ele supercluster energy over true energy, showering0, barrel",100,0.2,1.2);
@@ -331,7 +335,7 @@ PixelMatchGsfElectronAnalyzer::endJob(){
 void
 PixelMatchGsfElectronAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-
+  std::cout << "analyzing new event " << std::endl;
   // get electrons
   
   edm::Handle<PixelMatchGsfElectronCollection> gsfElectrons;
