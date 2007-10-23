@@ -24,54 +24,36 @@ void CSCDigiDump::analyze(edm::Event const& e, edm::EventSetup const& c) {
   edm::Handle<CSCComparatorDigiCollection> comparators;
 
 
-  try {
-    e.getByLabel(wireDigiTag_, wires);
-      for (CSCWireDigiCollection::DigiRangeIterator j=wires->begin(); j!=wires->end(); j++) {
-        std::vector<CSCWireDigi>::const_iterator digiItr = (*j).second.first;
-        std::vector<CSCWireDigi>::const_iterator last = (*j).second.second;
-        for( ; digiItr != last; ++digiItr) {
-           digiItr->print();
-        }
-      }
-
-  } catch (...) {
-    edm::LogError("CSCDigiDump") << "Cannot get wires by label " << wireDigiTag_.encode();
+  e.getByLabel(wireDigiTag_, wires);
+  for (CSCWireDigiCollection::DigiRangeIterator j=wires->begin(); j!=wires->end(); j++) {
+    std::vector<CSCWireDigi>::const_iterator digiItr = (*j).second.first;
+    std::vector<CSCWireDigi>::const_iterator last = (*j).second.second;
+    for( ; digiItr != last; ++digiItr) {
+       digiItr->print();
+    }
   }
 
+  e.getByLabel(stripDigiTag_, strips);
 
-  try {
-    e.getByLabel(stripDigiTag_, strips);
-
-      for (CSCStripDigiCollection::DigiRangeIterator j=strips->begin(); j!=strips->end(); j++) {
-        std::vector<CSCStripDigi>::const_iterator digiItr = (*j).second.first;
-        std::vector<CSCStripDigi>::const_iterator last = (*j).second.second;
-        for( ; digiItr != last; ++digiItr) {
-           digiItr->print();
-        }
-      }
-
-  } catch (...) {
-     edm::LogError("CSCDigiDump") << "Cannot get strips by label " << stripDigiTag_.encode();
+  for (CSCStripDigiCollection::DigiRangeIterator j=strips->begin(); j!=strips->end(); j++) {
+    std::vector<CSCStripDigi>::const_iterator digiItr = (*j).second.first;
+    std::vector<CSCStripDigi>::const_iterator last = (*j).second.second;
+    for( ; digiItr != last; ++digiItr) {
+       digiItr->print();
+    }
   }
 
+  e.getByLabel(comparatorDigiTag_, comparators);
 
-  try {
-    e.getByLabel(comparatorDigiTag_, comparators);
-
-      for (CSCComparatorDigiCollection::DigiRangeIterator j=comparators->begin(); 
-           j!=comparators->end(); j++) 
-      {
-        std::vector<CSCComparatorDigi>::const_iterator digiItr = (*j).second.first;
-        std::vector<CSCComparatorDigi>::const_iterator last = (*j).second.second;
-        for( ; digiItr != last; ++digiItr) {
-           digiItr->print();
-        }
-      }
-
-  } catch (...) {
-    edm::LogError("CSCDigiDump") << "Cannot get comparators  by label " << comparatorDigiTag_.encode();
+  for (CSCComparatorDigiCollection::DigiRangeIterator j=comparators->begin(); 
+       j!=comparators->end(); j++) 
+  {
+    std::vector<CSCComparatorDigi>::const_iterator digiItr = (*j).second.first;
+    std::vector<CSCComparatorDigi>::const_iterator last = (*j).second.second;
+    for( ; digiItr != last; ++digiItr) {
+       digiItr->print();
+    }
   }
-
 }
 
 
