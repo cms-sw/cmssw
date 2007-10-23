@@ -7,7 +7,7 @@
 #include "Alignment/TrackerAlignment/interface/AlignableTracker.h"
 
 #include "CondFormats/Alignment/interface/Alignments.h"
-#include "CondFormats/DataRecord/interface/TrackerAlignmentRcd.h"
+#include "CondFormats/AlignmentRecord/interface/TrackerAlignmentRcd.h"
 
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
