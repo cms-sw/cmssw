@@ -21,13 +21,14 @@
  <Constant name="CalorBeamR1"  value="8.00*cm"/>
  <Constant name="CalorBeamR2"  value="8.93*cm"/>
  <Constant name="MuonBeamZ0"   value="6.50*m"/>
- <Constant name="MuonBeamZ1"   value="7.50*m"/>
+ <Constant name="MuonBeamZ1"   value="7.499*m"/>
  <Constant name="MuonBeamZ2"   value="10.86*m"/>
  <Constant name="MuonBeamR0"   value="10.50*cm"/>
  <Constant name="MuonBeamR1"   value="11.785*cm"/>
- <Constant name="MuonBeamR2"   value="75.00*cm"/>
+ <Constant name="MuonBeamR2"   value="76.80*cm"/>
  <Constant name="TotemMuonZ1"  value="10.165*m"/>
- <Constant name="TotemMuonR1"  value="1.0165*m"/>
+ <Constant name="TotemMuonZ2"  value="10.50*m"/>
+ <Constant name="TotemMuonR1"  value="1.0411*m"/>
  <Constant name="TotemMuonR2"  value="1.1300*m"/>
  <Constant name="TotemBeamZ1"  value="7.9500*m"/>
  <Constant name="TotemBeamZ2"  value="13.381*m"/>
@@ -67,6 +68,12 @@
  <Constant name="MBRingZ"      value="1.268*m"/>
  <Constant name="MBRing1Zpos"  value="2.686*m"/>
  <Constant name="MBRing2Zpos"  value="5.342*m"/>
+ <Constant name="MEndcapZ0"    value="6.59*m"/>
+ <Constant name="MEndcapZ1"    value="6.835*m"/>
+ <Constant name="MERmin0"      value="66.569*cm"/>
+ <Constant name="MERmin1"      value="67.50*cm"/>
+ <Constant name="MERmin2"      value="70.00*cm"/>
+ <Constant name="MERmin3"      value="108.60*cm"/>
 </ConstantsSection>
 
 <SolidSection label="cms.xml">
