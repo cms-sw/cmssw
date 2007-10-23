@@ -92,6 +92,8 @@ class tagTreeBuilder:
             self.__nodedata=self.__parser.values.nodedata
             self.__isleaf=self.__parser.values.isleaf
             self.__verbose=self.__parser.values.verbose
+        if len(self.__nodedata['parent'])==0:
+            raise ValueError, "empty parent node for \'"+self.__nodedata['nodelabel']+"\'"
         if self.__parser.values.verbose is True:
             print 'config file: ',self.__parser.values.filename
             print 'connectstring: ',self.__connectstring
@@ -105,7 +107,6 @@ class tagTreeBuilder:
         Add node in the tag tree
         """
         if len(self.__nodedata) == 0 :
-            print 'nothing to add'
             return
         context = coral.Context()
         if self.__verbose is True:

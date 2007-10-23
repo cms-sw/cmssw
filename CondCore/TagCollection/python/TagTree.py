@@ -73,6 +73,8 @@ class tagTree(object):
                 parentid=0
             else:
                 parentNode=self.getNode(parentLabel)
+                if parentNode.empty():
+                    raise ValueError,"non-existing parent node "+parentLabel
                 parentid=parentNode.nodeid
             nodelabel=node.nodelabel
             globalsince=node.globalsince
@@ -101,6 +103,42 @@ class tagTree(object):
                               tabrowValueDict)
             generator.incrementNextID(generator.getIDTableName(self.__tagTreeTableName))
             transaction.commit()
+        except coral.Exception, er:
+            transaction.rollback()
+            raise Exception, str(er)
+        except Exception, er:
+            transaction.rollback()
+            raise Exception, str(er)
+        
+    def getNodeById( self, nodeid ):
+        """return result of query "select * from treetable where nodeid=:nodeid" in Node structure \n
+        Input: id of the node to get.\n
+        Output: selected node 
+        """
+        result=Node.Node()
+        transaction=self.__session.transaction()
+        try:
+            transaction.start(True)
+            schema = self.__session.nominalSchema()
+            query = schema.tableHandle(self.__tagTreeTableName).newQuery()
+            condition = 'nodeid =:nodeid'
+            conditionData = coral.AttributeList()
+            conditionData.extend( 'nodeid','unsigned int' )
+            conditionData['nodeid'].setData(nodeid)
+            query.setCondition( condition, conditionData)
+            cursor = query.execute()
+            while ( cursor.next() ):
+                result.tagid=cursor.currentRow()['tagid'].data()
+                result.nodeid=cursor.currentRow()['nodeid'].data()
+                result.nodelabel=cursor.currentRow()['nodelabel'].data()
+                result.lft=cursor.currentRow()['lft'].data()
+                result.rgt=cursor.currentRow()['rgt'].data()
+                result.parentid=cursor.currentRow()['parentid'].data()
+                result.globalsince=cursor.currentRow()['globalsince'].data()
+                result.globaltill=cursor.currentRow()['globaltill'].data()
+            transaction.commit()
+            del query
+            return result
         except coral.Exception, er:
             transaction.rollback()
             raise Exception, str(er)

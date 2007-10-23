@@ -23,6 +23,10 @@ class Node(object):
         if not name in self.__dict__:
             raise AttributeError("Unknown attribute "+name)
         return self.__dict__[name]
+    def empty( self ):
+        if self.__dict__['nodeid']==0:
+            return True
+        return False
 class LeafNode(Node):
     """The leaf node
     """

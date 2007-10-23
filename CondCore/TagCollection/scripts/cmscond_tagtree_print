@@ -79,12 +79,33 @@ class tagTreePrinter:
         session = svc.connect( self.__connectstring,accessMode = coral.access_ReadOnly )
         mytree=TagTree.tagTree(session)
         try:
-            if self.__all is True:
+            if self.__leaf is True:
+               result=mytree.getAllLeaves()
+               for r in result:
+                   if r.parentid !=0:
+                       parentnode=mytree.getNodeById(r.parentid)
+                       parentname=parentnode.nodelabel
+                       print 'leafnode:%s\t parent:%s'%(r.nodelabel,parentname)
+                   else:
+                       print 'leafnode:%s\t parent:%s'%(r.nodelabel,'ROOT')
+            elif self.__all is True:
                 result=mytree.getSubtree('ROOT')
-                print result 
+                for r in result:
+                    if r.parentid !=0:
+                        parentnode=mytree.getNodeById(r.parentid)
+                        parentname=parentnode.nodelabel
+                        print 'node:%s\t parent:%s'%(r.nodelabel,parentname)
+                    else:
+                        print 'node:%s\t parent:%s'%(r.nodelabel,'ROOT')
             else:
                 result=mytree.getSubtree(self.__tag)
-                print result
+                for r in result:
+                    if r.parentid !=0:
+                        parentnode=mytree.getNodeById(r.parentid)
+                        parentname=parentnode.nodelabel
+                        print 'node:%s\t parent:%s'%(r.nodelabel,parentname)
+                    else:
+                        print 'node:%s\t parent:%s'%(r.nodelabel,'ROOT')
             del session
         except Exception, e:
             print str(e)
