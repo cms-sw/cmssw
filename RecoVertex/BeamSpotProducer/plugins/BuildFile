@@ -27,14 +27,3 @@
 <library file=BeamSpotFromDB.cc name=BeamSpotFromDB>
 	 <flags EDM_PLUGIN=1>
 </library>
-
-<library file=BeamSpotFakeConditionsWriter.cc name=BeamSpotFakeConditionsWriter> 
-  <use name=FWCore/ParameterSet>
-  <use name=FWCore/ServiceRegistry>
-  <use name=FWCore/Utilities>
-  <use name=CondFormats/DataRecord>
-  <use name=CondFormats/BTauObjects>
-  <use name=rootcore> 
-  <flags LDFLAGS="-lXMLIO"> 
-  <flags EDM_PLUGIN=1>   
-</library>
