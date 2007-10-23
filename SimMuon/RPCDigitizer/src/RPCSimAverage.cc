@@ -112,6 +112,8 @@ RPCSimAverage::RPCSimAverage(const edm::ParameterSet& config) :
 
 RPCSimAverage::~RPCSimAverage(){
   delete infile;
+//   delete flatDistribution; 
+  //  delete poissonDistribution_;
 }
 
 int RPCSimAverage::getClSize(float posX)
@@ -123,7 +125,7 @@ int RPCSimAverage::getClSize(float posX)
   double func=0.0;
   std::vector<double> sum_clsize;
 
-  double rr_cl = RandFlat::shoot();
+  double rr_cl = flatDistribution->fire();
   if(0.0 <= posX && posX < 0.2)  {
     func = (clsMap[1])[(clsMap[1]).size()-1]*(rr_cl);
     sum_clsize = clsMap[1];
@@ -257,15 +259,20 @@ void RPCSimAverage::simulateNoise(const RPCRoll* roll)
     }
   
   double ave = rate*nbxing*gate*area*1.0e-9;
-  
-  N_hits = RandPoissonQ::shoot(ave);
-  for (int i = 0; i < N_hits; i++ ){
-      int strip = RandFlat::shootInt(nstrips);
-      int time_hit;
+  poissonDistribution_ = new CLHEP::RandPoissonQ(rndEngine, ave);
+  N_hits = poissonDistribution_->fire();
 
-      time_hit = (static_cast<int>(RandFlat::shoot(nbxing*gate)/gate)) - nbxing/2;
-      
-      std::pair<int, int> digi(strip,time_hit);
-      strips.insert(digi);
+  for (int i = 0; i < N_hits; i++ ){
+
+    flatDistribution = new CLHEP::RandFlat(rndEngine, nstrips);
+    int strip = static_cast<int>(flatDistribution->fire());
+    int time_hit;
+
+    flatDistribution = new CLHEP::RandFlat(rndEngine, (nbxing*gate)/gate);
+    time_hit = (static_cast<int>(flatDistribution->fire())) - nbxing/2;
+    
+    std::pair<int, int> digi(strip,time_hit);
+    strips.insert(digi);
   }
+
 }

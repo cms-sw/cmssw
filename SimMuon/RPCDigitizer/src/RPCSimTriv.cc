@@ -58,9 +58,7 @@ RPCSimTriv::simulate(const RPCRoll* roll,
       //    const LocalPoint& exit=_hit->exitPoint();
 
       std::pair<int, int> digi(topology.channel(entr)+1,
-			       _rpcSync->getDigiBx(&(*_hit), 
-						   topology.channel(entr)+1, 
-						   topology.channel(entr)+1));
+			       _rpcSync->getSimHitBx(&(*_hit)));
       //	std::cout<<"STRIP: "<<*i<<"  "<<"BX: "<<bx<<std::endl;
       strips.insert(digi);
     }
