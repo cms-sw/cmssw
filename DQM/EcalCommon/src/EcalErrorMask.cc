@@ -1,11 +1,11 @@
-// $Id: EcalErrorMask.cc,v 1.7 2007/05/23 09:25:18 benigno Exp $
+// $Id: EcalErrorMask.cc,v 1.8 2007/10/22 17:10:39 dellaric Exp $
 
 /*!
   \file EcalErrorMask.cc
   \brief Error mask from text file or database
   \author B. Gobbo
-  \version $Revision: 1.7 $
-  \date $Date: 2007/05/23 09:25:18 $
+  \version $Revision: 1.8 $
+  \date $Date: 2007/10/22 17:10:39 $
 */
 
 #include "DQM/EcalCommon/interface/EcalErrorMask.h"
@@ -95,7 +95,7 @@ void EcalErrorMask::readFile( std::string inFile, bool verbose, bool verifySynta
 
     if( !(sm >= 1 && sm <= 36) ) {
       std::ostringstream os;
-      os << "line " << linecount << " --> SM must be a number between 1 and 36: " << sm << std::ends;
+      os << "line " << linecount << " --> SM must be a number between 1 and 36, or between 1 and 18: " << sm << std::ends;
       if( verifySyntax ) {
 	std::cerr << os.str() << std::endl;
 	nerrors++;
