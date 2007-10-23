@@ -165,8 +165,10 @@ void TrackingTruthProducer::produce(Event &event, const EventSetup &) {
     for (hitItr iHit  = simTrack_hit.lower_bound(trackId);
                 iHit != simTrack_hit.upper_bound(trackId); ++iHit) {
       PSimHit hit = iHit->second;
-      //change for the new methods of HepLorentzVector
-      float pratio = hit.pabs()/(itP->momentum().P());
+      //change for the new methods of LorentzVector
+      float pratio = hit.pabs()/theMomentum.P();
+      //std::cout << "DELTA CUT: hit mom = " << hit.pabs() << "\tTPmom = " << theMomentum.P()<< std::endl;
+     
 
 // Discard hits from delta rays if requested
 
