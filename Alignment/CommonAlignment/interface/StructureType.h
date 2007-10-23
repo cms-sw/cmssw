@@ -7,8 +7,8 @@
  *
  *  Basically list the levels in the detector's hierarchy.
  *
- *  $Date: 2007/04/09 00:40:21 $
- *  $Revision: 1.7 $
+ *  $Date: 2007/10/08 13:36:11 $
+ *  $Revision: 1.1 $
  *  \author Chung Khim Lae
  */
 
@@ -71,7 +71,7 @@ namespace align
     Tracker,
 
     // Muon Detector, not touching these now
-    AlignableDTBarrel = 40,
+    AlignableDTBarrel = 100,
     AlignableDTWheel,
     AlignableDTStation,
     AlignableDTChamber,
