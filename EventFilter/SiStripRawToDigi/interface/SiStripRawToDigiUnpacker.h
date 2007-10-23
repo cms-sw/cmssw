@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripRawToDigiUnpacker.h,v 1.15 2007/04/23 15:33:50 pwing Exp $
+// Last commit: $Id: SiStripRawToDigiUnpacker.h,v 1.16 2007/06/14 18:39:33 pwing Exp $
 
 #ifndef EventFilter_SiStripRawToDigi_SiStripRawToDigiUnpacker_H
 #define EventFilter_SiStripRawToDigi_SiStripRawToDigiUnpacker_H
@@ -57,6 +57,8 @@ class SiStripRawToDigiUnpacker {
 		   SiStripEventSummary&,
 		   const uint32_t& event );
 
+  void locateStartOfFedBuffer( const uint16_t& fed_id, const FEDRawData& input, FEDRawData& output );
+
  private:
   
   /** Private default constructor. */
@@ -68,7 +70,6 @@ class SiStripRawToDigiUnpacker {
   inline sistrip::FedBufferFormat fedBufferFormat( const uint16_t& register_value );
   inline sistrip::FedReadoutMode fedReadoutMode( const uint16_t& register_value );
 
-  void locateStartOfFedBuffer( const uint16_t& fed_id, const FEDRawData& input, FEDRawData& output );
   void dumpRawData( uint16_t fed_id, const FEDRawData&, std::stringstream& );
   
   /** Catches all possible exceptions and rethrows them as
