@@ -4,6 +4,7 @@
 #include "DataFormats/Math/interface/Point3D.h"
 #include "DataFormats/Math/interface/Vector.h"
 #include "DataFormats/Math/interface/Error.h"
+#include "DataFormats/Math/interface/Matrix.h"
 #include "DataFormats/Common/interface/Wrapper.h"
 #include "DataFormats/Common/interface/Ref.h"
 #include "DataFormats/Common/interface/RefProd.h"
@@ -238,5 +239,11 @@ namespace {
     ROOT::Math::RowOffsets<4> ro4;
     ROOT::Math::RowOffsets<5> ro5;
     ROOT::Math::RowOffsets<6> ro6;
+
+    //Used by ECAL Weights reconstruction
+    math::Matrix<3,10>::type mw; 
+    math::Matrix<10,10>::type mcw; 
+    ROOT::Math::MatRepStd<double, 3 ,10> smdw;
+    ROOT::Math::MatRepStd<double, 10 , 10> smdcw;
    }
 }

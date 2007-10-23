@@ -8,8 +8,8 @@
  *  \author A. Vitelli - INFN Torino
  *  \author porting R. Bellan - INFN Torino
  *
- *  $Date: 2006/08/01 15:53:04 $
- *  $Revision: 1.8 $
+ *  $Date: 2006/07/05 09:32:45 $
+ *  $Revision: 1.7 $
  *  
  */
 
@@ -53,7 +53,6 @@ private:
 			    const edm::EventSetup& eSetup) const;
   
   float computePt(MuonTransientTrackingRecHit::ConstMuonRecHitPointer muon, const MagneticField *field) const;
-  void analyze() const;
   
   MuonTransientTrackingRecHit::MuonRecHitContainer theRhits;
  

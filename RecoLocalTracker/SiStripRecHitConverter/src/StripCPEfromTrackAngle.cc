@@ -36,9 +36,11 @@ StripClusterParameterEstimator::LocalValues StripCPEfromTrackAngle::localParamet
   LocalVector trackDir = atrackUnit;
       
   if(drift.z() == 0.) {
+    //  if(drift.z() == 0.||cl.amplitudes().size()==1) {
     edm::LogError("StripCPE") <<"No drift towards anodes !!!";
     eresult = topol.localError(cl.barycenter(),1/12.);
-    return std::make_pair(position+drift*(thickness/2),eresult);
+    //  LocalPoint  result=LocalPoint(position.x()-drift.x()/2,position.y()-drift.y()/2,0);
+    return std::make_pair(position-drift*(thickness/2),eresult);
   }	 
 
   if(trackDir.z()*drift.z() > 0.) trackDir *= -1.;
@@ -88,7 +90,7 @@ StripClusterParameterEstimator::LocalValues StripCPEfromTrackAngle::localParamet
   uerr =(uProj-P1)*(uProj-P1)*(P2-P3)/(P1*P1)+P3;
   
   MeasurementError merror=MeasurementError( uerr*uerr, 0., 1./12.);
-  LocalPoint result=LocalPoint(position.x()+drift.x()/2,position.y()+drift.y()/2,0);
+  LocalPoint result=LocalPoint(position.x()-drift.x()/2,position.y()-drift.y()/2,0);
   MeasurementPoint mpoint=topol.measurementPosition(result);
   eresult=topol.localError(mpoint,merror);
 return std::make_pair(result,eresult);

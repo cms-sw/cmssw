@@ -1,3 +1,13 @@
+2007-05-24  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
+
+	* tag V00-04-05
+	* adapt to ShmBuffer V00-04-00: fuResourceId -> index
+
+2007-04-30  Emilio Meschi  <emilio.meschi@cern.ch>
+
+	* tag V00-04-04
+	* remove shmem segment initialization from constructor
+
 2007-03-26  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
 
 	* tag V00-04-01

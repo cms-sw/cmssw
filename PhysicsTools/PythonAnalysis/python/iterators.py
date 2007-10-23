@@ -32,7 +32,7 @@ def iteratorForSizedObjects(self):
 def iteratorForBeginEnd(self):
     """dynamically added iterator"""
     it = self._begin
-    while (it != end):
+    while (it != self.end):
         yield begin.__deref__()  #*b
         begin.__preinc__()       #++b
 

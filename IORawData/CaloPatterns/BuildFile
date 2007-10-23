@@ -5,6 +5,9 @@
 <use name=DataFormats/HcalDigi>
 <use name=CondFormats/DataRecord>
 <use name=CondFormats/HcalObjects>
+<use name=root>
+<use name=boost_filesystem>
+<use name=CalibCalorimetry/HcalAlgos>
 <flags SEAL_PLUGIN_NAME="IORawDataCaloPatterns">
 <export>
   <use name=xerces-c>
@@ -12,5 +15,8 @@
   <use name=FWCore/Utilities>
   <use name=DataFormats/HcalDetId>
   <use name=DataFormats/HcalDigi>
+  <use name=root>
+  <use name=boost_filesystem>
+  <use name=CalibCalorimetry/HcalAlgos>
   <lib name=IORawDataCaloPatterns>
 </export>

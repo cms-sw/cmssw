@@ -84,7 +84,7 @@ void HcalTBClient::beginJob(void){
   jevt_ = 0;
   this->setup();
   this->subscribe();
-  this->resetME();
+  this->resetAllME();
   return;
 }
 
@@ -95,7 +95,7 @@ void HcalTBClient::beginRun(void){
   jevt_ = 0;
   this->setup();
   this->subscribe();
-  this->resetME();
+  this->resetAllME();
   return;
 }
 
@@ -110,8 +110,7 @@ void HcalTBClient::endJob(void) {
 void HcalTBClient::endRun(void) {
 
   if ( verbose_ ) cout << "HcalTBClient: endRun, jevt = " << jevt_ << endl;
-  //  this->resetME();
-  //  this->unsubscribe();
+
   this->cleanup();
   return;
 }
@@ -392,17 +391,7 @@ void HcalTBClient::report(){
   return;
 }
 
-void HcalTBClient::resetME(){
-  
-  //  MonitorElement* me;
-  //  char name[150];     
-  for(int i=0; i<3; i++){
-    /*
-    sprintf(name,"Collector/%s/HcalMonitor/TBMonitor/%s Data Format Error Words",process_.c_str(),type.c_str());
-    me = mui_->get(name);
-    if(me) mui_->softReset(me);
-    */
-  }
+void HcalTBClient::resetAllME(){
   return;
 }
 

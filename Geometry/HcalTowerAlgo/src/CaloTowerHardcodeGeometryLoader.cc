@@ -12,7 +12,7 @@ std::auto_ptr<CaloSubdetectorGeometry> CaloTowerHardcodeGeometryLoader::load() {
   // simple loop
   for (int ieta=-limits.lastHFRing(); ieta<=limits.lastHFRing(); ieta++) {
     for (int iphi=1; iphi<=72; iphi++) {
-      if (abs(ieta)>=limits.firstHFQuadPhiRing() && ((iphi-1)%4)!=0) continue;
+      if (abs(ieta)>=limits.firstHFQuadPhiRing() && ((iphi-1)%4)==0) continue;
       if (abs(ieta)>=limits.firstHEDoublePhiRing() && ((iphi-1)%2)!=0) continue;
       geom->addCell(CaloTowerDetId(ieta,iphi),makeCell(ieta,iphi));
       n++;

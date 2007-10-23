@@ -1,8 +1,8 @@
 /**
  * \file EBPedOffset.cc
  *
- * $Date: 2007/02/08 17:33:55 $
- * $Revision: 1.9 $
+ * $Date: 2007/04/23 07:41:33 $
+ * $Revision: 1.17 $
  * \author P. Govoni (pietro.govoni@cernNOSPAM.ch)
  * Last updated: @DATE@ @AUTHOR@
  *
@@ -70,12 +70,11 @@ EBPedOffset::EBPedOffset (const ParameterSet& paramSet) :
   m_run (paramSet.getParameter<int> ("run")) ,
   m_plotting (paramSet.getParameter<std::string> ("plotting"))    
 {
-  std::cout << "[EBPedOffSet][ctor] reading "
-            << "\n[EBPedOffSet][ctor] m_DACmin: " << m_DACmin
-            << "\n[EBPedOffSet][ctor] m_DACmax: " << m_DACmax
-            << "\n[EBPedOffSet][ctor] m_RMSmax: " << m_RMSmax
-            << "\n[EBPedOffSet][ctor] m_bestPed: " << m_bestPed
-            << std::endl ;
+  edm::LogInfo ("EBPedOffset") << " reading "
+                               << " m_DACmin: " << m_DACmin
+                               << " m_DACmax: " << m_DACmax
+                               << " m_RMSmax: " << m_RMSmax
+                               << " m_bestPed: " << m_bestPed ;
 }
 
 
@@ -102,7 +101,7 @@ EBPedOffset::~EBPedOffset ()
 //! begin the job
 void EBPedOffset::beginJob (EventSetup const& eventSetup)
 {
-   std::cout << "[EBPedOffset][beginJob] " << std::endl ;
+   LogDebug ("EBPedOffset") << "entering beginJob..." ;
 }
 
 
@@ -113,8 +112,7 @@ void EBPedOffset::beginJob (EventSetup const& eventSetup)
 void EBPedOffset::analyze (Event const& event, 
                            EventSetup const& eventSetup) 
 {
-   std::cout << "[EBPedOffset][analyze] "
-    << std::endl;
+   LogDebug ("EBPedOffset") << "entering analyze ..." ;
 
    // get the headers
    // (one header for each supermodule)
@@ -122,8 +120,8 @@ void EBPedOffset::analyze (Event const& event,
    try {
      event.getByLabel (m_headerProducer, DCCHeaders) ;
    } catch ( std::exception& ex ) {
-     std::cerr << "Error! can't get the product " << m_headerProducer.c_str () 
-               << std::endl ;
+     edm::LogError ("EBPedOffset") << "Error! can't get the product " 
+                                  << m_headerProducer.c_str () ;
    }
 
    std::map <int,int> DACvalues ;
@@ -143,11 +141,11 @@ void EBPedOffset::analyze (Event const& event,
    // (one digi for each crystal)
    Handle<EBDigiCollection> pDigis;
    try {
-     event.getByLabel (m_digiProducer, pDigis) ;
+     event.getByLabel (m_digiProducer, m_digiCollection, pDigis) ;
    } catch ( std::exception& ex ) 
    {
-     std::cerr << "Error! can't get the product " << m_digiCollection.c_str () 
-               << std::endl ;
+     edm::LogError ("EBPedOffset") << "Error! can't get the product " 
+                                   << m_digiCollection.c_str () ; 
    }
    
    // loop over the digis
@@ -187,9 +185,8 @@ void EBPedOffset::endJob ()
       m_pedResult[smPeds->first] = 
         new TPedResult ((smPeds->second)->terminate (m_DACmin, m_DACmax)) ;
     } 
-  std::cout << "[EBPedOffset][endJob] results map size " 
-            << m_pedResult.size ()
-            << std::endl ;
+  edm::LogInfo ("EBPedOffset") << " results map size " 
+                               << m_pedResult.size () ;
   writeXMLFile (m_xmlFile) ;
 
   if (m_plotting != '0') makePlots () ;
@@ -204,7 +201,7 @@ void EBPedOffset::endJob ()
 //!FIXME divide into sub-tasks
 void EBPedOffset::writeDb () 
 {
-  std::cout << "[EBPedOffset][writeDb] entering" << std::endl ;
+  LogDebug ("EBPedOffset") << " entering writeDb ..." ;
 
   // connect to the database
   EcalCondDBInterface* DBconnection ;
@@ -212,7 +209,7 @@ void EBPedOffset::writeDb ()
     DBconnection = new EcalCondDBInterface (m_dbHostName, m_dbName, 
                                             m_dbUserName, m_dbPassword, m_dbHostPort) ; 
   } catch (runtime_error &e) {
-    cerr << e.what() << endl ;
+    edm::LogError ("EBPedOffset") << e.what() ;
     return ;
   }
 
@@ -222,10 +219,10 @@ void EBPedOffset::writeDb ()
   RunTypeDef rundef ;
   locdef.setLocation (m_location) ;
 
-  //runtag.setGeneralTag ("PEDESTAL-OFFSET") ;
-  //rundef.setRunType ("PEDESTAL-OFFSET") ;
-  rundef.setRunType ("TEST") ;
-  runtag.setGeneralTag ("TEST") ;
+  runtag.setGeneralTag ("PEDESTAL-OFFSET") ;
+  rundef.setRunType ("PEDESTAL-OFFSET") ;
+  //rundef.setRunType ("TEST") ;
+  //runtag.setGeneralTag ("TEST") ;
 
   runtag.setLocationDef (locdef) ;
   runtag.setRunTypeDef (rundef) ;
@@ -241,7 +238,7 @@ void EBPedOffset::writeDb ()
   montag.setMonVersionDef (monverdef) ;
   montag.setGeneralTag ("CMSSW") ;
 
-  subrun_t subrun = 8 ; //hardcoded!
+  subrun_t subrun = 1 ; //hardcoded!
   
   MonRunIOV moniov ;
 
@@ -258,11 +255,11 @@ void EBPedOffset::writeDb ()
       moniov.setSubRunNumber(subrun);
       moniov.setSubRunStart(startSubRun);
       moniov.setMonRunTag(montag);
-      std::cout<<"creating a new MonRunIOV"<<std::endl;
+      LogDebug ("EBPedOffset") <<" creating a new MonRunIOV" ;
     }
     else{
-      std::cout<<" no MonRunIOV existing in the DB"<<std::endl;
-      std::cout<<" the result will not be stored into the DB"<<std::endl;
+      edm::LogError ("EBPedOffset") << " no MonRunIOV existing in the DB" ;
+      edm::LogError ("EBPedOffset") << " the result will not be stored into the DB" ;
       if ( DBconnection ) {delete DBconnection;}
       return;
     }
@@ -296,7 +293,7 @@ void EBPedOffset::writeDb ()
                                                      result->first, xtal+1) ;
                 DBdataset[ecid] = DBtable ;
               } catch (runtime_error &e) {
-                cerr << e.what() << endl ;
+                edm::LogError ("EBPedOffset") << e.what() ;
               }
 	    }
         } // loop over the crystals
@@ -305,11 +302,11 @@ void EBPedOffset::writeDb ()
   // insert the map of tables in the database
   if ( DBconnection ) {
     try {
-      cout << "Inserting dataset ... " << flush;
+      LogDebug ("EBPedOffset") << "Inserting dataset ... " << flush;
       if ( DBdataset.size() != 0 ) DBconnection->insertDataSet (&DBdataset, &moniov) ;
-      cout << "done." << endl ;
+      LogDebug ("EBPedOffset") << "done." ;
     } catch (runtime_error &e) {
-      cerr << e.what () << endl ;
+      edm::LogError ("EBPedOffset") << e.what () ;
     }
   }
 
@@ -351,7 +348,7 @@ void EBPedOffset::writeXMLFile (std::string fileName)
   xml_outfile<<"<offsets>"<<std::endl;
   xml_outfile << "<PEDESTAL_OFFSET_RELEASE VERSION_ID = \"SM1_VER1\"> \n" ;
   xml_outfile << "  <RELEASE_ID>RELEASE_1</RELEASE_ID>\n" ;
-  xml_outfile << "  <SUPERMODULE> " << "-1" << " </SUPERMODULE>\n" ;
+  xml_outfile << "  <SUPERMODULE>" << "-1" << "</SUPERMODULE>\n" ;
   xml_outfile << "  <TIME_STAMP> 070705 </TIME_STAMP>" << std::endl ;
 
   // loop over the super-modules
@@ -366,9 +363,7 @@ void EBPedOffset::writeXMLFile (std::string fileName)
             xml_outfile << "    <HIGH>" << ((smRes->second)->m_DACvalue)[0][xtal] << "</HIGH>\n" ;
             xml_outfile << "    <MED>" << ((smRes->second)->m_DACvalue)[1][xtal] << "</MED>\n" ;
             xml_outfile << "    <LOW>" << ((smRes->second)->m_DACvalue)[2][xtal] << "</LOW>\n" ;
-            xml_outfile << "    <SUPERMODULE> " << m_SMnum << " </SUPERMODULE>\n" ;
-// FIXME the right version below, waiting for the fix in CMSSW
-//             xml_outfile << "    <SUPERMODULE> " << smRes->first << " </SUPERMODULE>\n" ;
+            xml_outfile << "    <SUPERMODULE> " << smRes->first << " </SUPERMODULE>\n" ;
             xml_outfile << "    <CRYSTAL> "<< xtal+1 << " </CRYSTAL>\n" ;
             xml_outfile << "  </PEDESTAL_OFFSET>" << std::endl ;            
          } // loop over the crystals
@@ -388,11 +383,10 @@ void EBPedOffset::writeXMLFile (std::string fileName)
 //! create the plots of the DAC pedestal trend
 void EBPedOffset::makePlots () 
 {
-  std::cout << "[EBPedOffset][makePlots] entering" << std::endl ;
+  LogDebug ("EBPedOffset") << " entering makePlots ..." ;
 
-  std::cout << "[EBPedOffset][makePlots] map size " 
-            << m_pedValues.size ()
-            << std::endl ;
+  edm::LogInfo ("EBPedOffset") << " map size: " 
+                               << m_pedValues.size () ;
 
   // create the ROOT file
   TFile * rootFile = new TFile (m_plotting.c_str (),"RECREATE") ;
@@ -412,8 +406,8 @@ void EBPedOffset::makePlots ()
 
   rootFile->Close () ;
   delete rootFile ;
-  
-  std::cout << "[EBPedOffset][makePlots] DONE" << std::endl ;
+ 
+  LogDebug ("EBPedOffset") << " DONE" ; 
 }
 
 

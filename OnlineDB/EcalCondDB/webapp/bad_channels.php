@@ -116,14 +116,38 @@ foreach ($tables[$taskcode] as $table) {
 
 
 function add_xtal_headers() {
-  echo "<th>eta</th><th>phi</th>";
+  echo "<th>eta</th><th>phi</th><th>tower</th><th>strip</th><th>crystal in strip</th>";
 }
 
 function add_xtal_columns($xtal) {
-  $eta = 1+floor(($xtal -1)/20);
-  $phi = 1+($xtal -1) % 20;
+  $eta = 1 + floor(($xtal -1)/20);
+  $phi = 1 + ($xtal -1)%20;
+  $tower = 1 + 4*floor(($eta -1)/5) + floor(($phi -1)/5);
 
-  echo "<td>$eta</td><td>$phi</td>";
+  $nxtal = 1;
+  $strip = 1;
+
+  if ( ($tower > 12 && $tower < 21 ) || ($tower > 28 && $tower < 37) ||
+       ($tower > 44 && $tower < 53 ) || ($tower > 60 && $tower < 69) ) {
+    $cryInTower = (($eta -1)%5)*5;
+    if ( (($eta -1)%5)%2 == 0 ) {
+      $cryInTower += ($phi -1)%5;
+    } else{
+      $cryInTower += 5 - 1 - ($phi -1)%5;
+    }
+  } else {
+    $cryInTower = (5 - 1 - ($eta -1)%5)*5;
+    if ( (($eta-1)%5)%2 == 0 ) {
+      $cryInTower += 5 - 1 - ($phi -1)%5;
+    } else{
+      $cryInTower += ($phi -1)%5;
+    }
+  }
+
+  $nxtal = $cryInTower%5 + 1;
+  $strip = floor($cryInTower/5) + 1;
+
+  echo "<td>$eta</td><td>$phi</td><td>$tower</td><td>$strip</td><td>$nxtal</td>";
 }
 
 function reorder_columns($table, $col_headers) {

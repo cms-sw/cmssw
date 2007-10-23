@@ -12,7 +12,8 @@
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/L1Trigger/interface/L1ParticleMap.h"
 #include "DataFormats/JetReco/interface/CaloJetCollection.h"
-
+#include <map>
+#include <vector>
 
 class L2TauJetsProvider: public edm::EDProducer {
  public:
@@ -27,7 +28,7 @@ class L2TauJetsProvider: public edm::EDProducer {
   edm::InputTag l1Particles;
   double mEt_ExtraTau;
   double mEt_LeptonTau;
-  map<int, const reco::CaloJet> myL2L1JetsMap; //first is # L1Tau , second is L2 jets
+  std::map<int, const reco::CaloJet> myL2L1JetsMap; //first is # L1Tau , second is L2 jets
 
 };
 #endif

@@ -14,8 +14,10 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "CLHEP/HepMC/GenEvent.h"
-#include "CLHEP/HepMC/GenParticle.h"
+#include "HepMC/GenEvent.h"
+#include "HepMC/GenParticle.h"
+
+//#include "CLHEP/Vector/LorentzVector.h"
 
 #include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
 
@@ -51,17 +53,19 @@ PomwigAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
    //std::vector<HepMC::GenParticle*> protons;
    HepMC::GenParticle* proton1 = 0;
    HepMC::GenParticle* proton2 = 0;	
+   double pz1max = 0.;
+   double pz2min = 0.;
    for(HepMC::GenEvent::particle_iterator it = evt->particles_begin(); it != evt->particles_end(); ++it) {
-     if(((*it)->pdg_id() == 2212)&&((*it)->status() == 1)&&((*it)->momentum().pz() > 5200.)){
-	proton1 = *it;
-     } else if(((*it)->pdg_id() == 2212)&&((*it)->status() == 1)&&((*it)->momentum().pz() < -5200.)){
-     	proton2 = *it;
+     double pz = (*it)->momentum().pz();
+     if(((*it)->pdg_id() == 2212)&&((*it)->status() == 1)&&(pz > 5200.)){
+	if(pz > pz1max){proton1 = *it;pz1max=pz;}
+     } else if(((*it)->pdg_id() == 2212)&&((*it)->status() == 1)&&(pz < -5200.)){
+     	if(pz < pz2min){proton2 = *it;pz2min=pz;}
      }		
    }
    if(proton1){
 		std::cout << "Proton 1: " << proton1->momentum().perp() << "  " << proton1->momentum().pseudoRapidity() << "  " << proton1->momentum().phi() << std::endl;
-		HepLorentzVector proton1in(0.,0.,7000.,7000.);
-   		double t1 = (proton1->momentum() - proton1in).m2();
+   		double t1 = -proton1->momentum().perp2();
    		double xigen1 = 1 - proton1->momentum().pz()/7000.;
 		hist_t->Fill(t1);
 		hist_xigen->Fill(xigen1);
@@ -69,8 +73,7 @@ PomwigAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
    if(proton2){
 	std::cout << "Proton 2: " << proton2->momentum().perp() << "  " << proton2->momentum().pseudoRapidity() << "  " << proton2->momentum().phi() << std::endl;	
-	HepLorentzVector proton2in(0.,0.,-7000.,7000.);
-   	double t2 = (proton2->momentum() - proton2in).m2();
+   	double t2 = -proton2->momentum().perp2();
    	double xigen2 = 1 + proton2->momentum().pz()/7000.;
 	hist_t->Fill(t2);
         hist_xigen->Fill(xigen2);

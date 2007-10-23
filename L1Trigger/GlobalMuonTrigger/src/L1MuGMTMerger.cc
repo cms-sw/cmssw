@@ -123,14 +123,14 @@ void L1MuGMTMerger::reset() {
 //
 void L1MuGMTMerger::print() const {
 
-  edm::LogVerbatim("GMT_Merger_info") << endl;
+  edm::LogVerbatim("GMT_Merger_info") << " ";
 
   std::vector<L1MuGMTExtendedCand*>::const_iterator iter;
   for ( iter = m_MuonCands.begin(); iter != m_MuonCands.end(); iter++ ) {
     if ( *iter && !(*iter)->empty() ) (*iter)->print();
   }
   
-  edm::LogVerbatim("GMT_Merger_info") << endl;
+  edm::LogVerbatim("GMT_Merger_info") << " ";
 
 }
 

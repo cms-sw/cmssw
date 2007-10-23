@@ -1,9 +1,9 @@
 /** \class EcalAnalFitUncalibRecHitProducer
  *   produce ECAL uncalibrated rechits from dataframes with the analytical fit method
  *
-  *  $Id: EcalAnalFitUncalibRecHitProducer.cc,v 1.11 2006/08/23 15:47:01 meridian Exp $
-  *  $Date: 2006/08/23 15:47:01 $
-  *  $Revision: 1.11 $
+  *  $Id: EcalAnalFitUncalibRecHitProducer.cc,v 1.12 2007/03/09 10:15:04 meridian Exp $
+  *  $Date: 2007/03/09 10:15:04 $
+  *  $Revision: 1.12 $
   *  \author Shahram Rahatlou, University of Rome & INFN, Sept 2005
   *
   */
@@ -115,9 +115,6 @@ EcalAnalFitUncalibRecHitProducer::produce(edm::Event& evt, const edm::EventSetup
    EcalGainRatios::EcalGainRatioMap::const_iterator gainIter; // gain iterator
    EcalMGPAGainRatio aGain; // gain object for a single xtal
 
-   std::vector<HepMatrix> weights;
-   std::vector<HepSymMatrix> chi2mat;
-
    if (EBdigis)
      {
        for(EBDigiCollection::const_iterator itdg = EBdigis->begin(); itdg != EBdigis->end(); ++itdg) {
@@ -133,8 +130,9 @@ EcalAnalFitUncalibRecHitProducer::produce(edm::Event& evt, const edm::EventSetup
 	     ;
 	   continue;
 	 }
-	 std::vector<double> pedVec;
-	 pedVec.push_back(aped.mean_x12);pedVec.push_back(aped.mean_x6);pedVec.push_back(aped.mean_x1);
+	 double pedVec[3];
+	 pedVec[0]=aped.mean_x12;pedVec[1]=aped.mean_x6;pedVec[2]=aped.mean_x1;
+
 
 	 // find gain ratios
 	 LogDebug("EcalUncalibRecHitDebug") << "looking up gainRatios for crystal: " << EBDetId(itdg->id()) ;
@@ -147,11 +145,11 @@ EcalAnalFitUncalibRecHitProducer::produce(edm::Event& evt, const edm::EventSetup
 	     ;
 	   continue;
 	 }
-	 std::vector<double> gainRatios;
-	 gainRatios.push_back(1.);gainRatios.push_back(aGain.gain12Over6());gainRatios.push_back(aGain.gain6Over1()*aGain.gain12Over6());
+	 double gainRatios[3];
+	 gainRatios[0]=1.;gainRatios[1]=aGain.gain12Over6();gainRatios[2]=aGain.gain6Over1()*aGain.gain12Over6();
 
 	 EcalUncalibratedRecHit aHit =
-	   EBalgo_.makeRecHit(*itdg, pedVec, gainRatios, weights, chi2mat);
+	   EBalgo_.makeRecHit(*itdg, pedVec, gainRatios, 0 ,0);
 
 	 EBuncalibRechits->push_back( aHit );
 	 
@@ -180,8 +178,8 @@ EcalAnalFitUncalibRecHitProducer::produce(edm::Event& evt, const edm::EventSetup
 	     ;
 	   continue;
 	 }
-	 std::vector<double> pedVec;
-	 pedVec.push_back(aped.mean_x12);pedVec.push_back(aped.mean_x6);pedVec.push_back(aped.mean_x1);
+	 double pedVec[3];
+	 pedVec[0]=aped.mean_x12;pedVec[1]=aped.mean_x6;pedVec[2]=aped.mean_x1;
 
 	 // find gain ratios
 	 LogDebug("EcalUncalibRecHitDebug") << "looking up gainRatios for crystal: " << EEDetId(itdg->id()) ;
@@ -194,11 +192,11 @@ EcalAnalFitUncalibRecHitProducer::produce(edm::Event& evt, const edm::EventSetup
 	     ;
 	   continue;
 	 }
-	 std::vector<double> gainRatios;
-	 gainRatios.push_back(1.);gainRatios.push_back(aGain.gain12Over6());gainRatios.push_back(aGain.gain6Over1()*aGain.gain12Over6());
+	 double gainRatios[3];
+	 gainRatios[0]=1.;gainRatios[1]=aGain.gain12Over6();gainRatios[2]=aGain.gain6Over1()*aGain.gain12Over6();
 	 
 	 EcalUncalibratedRecHit aHit =
-	   EEalgo_.makeRecHit(*itdg, pedVec, gainRatios, weights, chi2mat);
+	   EEalgo_.makeRecHit(*itdg, pedVec, gainRatios, 0, 0);
 	 EEuncalibRechits->push_back( aHit );
 	 
 	 if(aHit.amplitude()>0.) {

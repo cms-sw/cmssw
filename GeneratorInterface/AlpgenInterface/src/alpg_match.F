@@ -12,7 +12,7 @@ c process code
 c--event file data
       integer Nunit,NunitOut,NunitIni
 *      character*100 filename,tmpstr,tmpstr1
-      character*100 filename 
+      character*512 filename 
 c total number of input events
       common/AHio/Nunit,NunitOut,NunitIni,filename
 c inputs for the matching algorithm
@@ -330,7 +330,7 @@ c process code
       integer itopprc
 c--event file data
       integer Nunit,NunitOut,NunitIni
-      character*100 filename,tmpstr,tmpstr1
+      character*512 filename,tmpstr,tmpstr1
 c total number of input events
       common/AHio/Nunit,NunitOut,NunitIni,filename
 c inputs for the matching algorithm
@@ -438,8 +438,8 @@ c      CHARACTER XXX*500, PROCESS*500
 	WRITE(*,*)'        does not have to less than 1. So it set to 1.'
 	FIREVT=1
       ENDIF
-      CALL STRCATH(FILENAME,'-pyt.dat',TMPSTR1)
-      CALL STRCATH('./',TMPSTR1,TMPSTR)
+      CALL STRCATH(FILENAME,'-pyt.dat',TMPSTR)
+cc      CALL STRCATH('./',TMPSTR1,TMPSTR)
       WRITE(*,*) 'NAME OF TXT FILE CONTAINING GENERATION PARAMETERS', 
      +     TMPSTR
       WRITE(*,*) '!!WARNING!!If the file already exists the program' 
@@ -595,7 +595,7 @@ c process code
       integer itopprc
 c--event file data
       integer Nunit,NunitOut,NunitIni
-      character*100 filename 
+      character*512 filename 
 *      character*100 filename,tmpstr,tmpstr1
 c total number of input events
       common/AHio/Nunit,NunitOut,NunitIni,filename
@@ -691,7 +691,7 @@ c process code
       integer itopprc
 c--event file data
       integer Nunit,NunitOut,NunitIni
-      character*100 filename 
+      character*512 filename 
 c      character*100 filename,tmpstr,tmpstr1
 c total number of input events
       common/AHio/Nunit,NunitOut,NunitIni,filename
@@ -1307,6 +1307,7 @@ C----------------------------------------------------------------------
           write(*,*) 'l1=',l1,' str1=',str1
           write(*,*) 'l2=',l2,' str2=',str2
           write(*,*) 'l=',l
+	  write(*,*) 'Maximum length of string is 512 characters!'
           stop
       endif
       if(l1.ne.0) str(1:l1)=str1(1:l1)
@@ -1701,7 +1702,7 @@ c process code
       integer itopprc
 c--event file data
       integer Nunit,NunitOut,NunitIni
-      character*100 filename 
+      character*512 filename 
 c      character*100 filename,tmpstr,tmpstr1
 c total number of input events
       common/AHio/Nunit,NunitOut,NunitIni,filename

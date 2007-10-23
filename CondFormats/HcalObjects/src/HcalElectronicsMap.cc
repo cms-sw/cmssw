@@ -3,8 +3,8 @@
 \author Fedor Ratnikov (UMd)
 POOL object to store mapping for Hcal channels
 $Author: ratnikov
-$Date: 2007/02/19 04:06:34 $
-$Revision: 1.16 $
+$Date: 2007/02/19 23:33:42 $
+$Revision: 1.17 $
 */
 
 #include <iostream>
@@ -191,7 +191,10 @@ bool HcalElectronicsMap::mapEId2tId (HcalElectronicsId fElectronicsId, HcalTrigT
     return true;
   }
   else {
-    return setMapping (DetId (), fElectronicsId, fTriggerId);
+    bool retval=setMapping (DetId (), fElectronicsId, fTriggerId);
+    // resort (almost certainly needed)
+    sortByElectronicsId();
+    return retval;
   }
 }
 
@@ -208,7 +211,10 @@ bool HcalElectronicsMap::mapEId2chId (HcalElectronicsId fElectronicsId, DetId fI
     }
     return true;
   }
-  return setMapping (fId, fElectronicsId, 0);
+  bool retval=setMapping (fId, fElectronicsId, 0);
+  // resort (almost certainly needed)
+  sortByElectronicsId();
+  return retval;
 }
 
 void HcalElectronicsMap::sortById () const {

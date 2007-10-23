@@ -1,8 +1,8 @@
 /*
  * \file L1TCSCTF.cc
  *
- * $Date: 2007/02/20 21:42:10 $
- * $Revision: 1.2 $
+ * $Date: 2007/02/22 19:43:53 $
+ * $Revision: 1.3 $
  * \author J. Berryhill
  *
  */
@@ -118,7 +118,17 @@ void L1TCSCTF::analyze(const Event& e, const EventSetup& c)
 
 
   edm::Handle<std::vector<L1MuRegionalCand> > pCSCTFtracks;  
+ 
+
+  try {
   e.getByLabel(csctfSource_,pCSCTFtracks);
+  }
+  catch (...) {
+    edm::LogInfo("L1TCSCTF") << "can't find L1MuGMTRegionalCand with label "
+			       << csctfSource_.label() ;
+    return;
+  }
+
   int ncsctftrack = 0;
    for( vector<L1MuRegionalCand>::const_iterator 
         CSCTFtrackItr =  pCSCTFtracks->begin() ;

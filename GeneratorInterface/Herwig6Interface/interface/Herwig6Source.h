@@ -15,6 +15,8 @@
 #include <string>
 #include "HepMC/GenEvent.h"
 
+class Run;
+
 namespace edm
 {
   class Herwig6Source : public GeneratedInputSource {
@@ -24,6 +26,7 @@ namespace edm
     Herwig6Source(const ParameterSet &, const InputSourceDescription &);
     virtual ~Herwig6Source();
 
+    void endRun( Run& r);
 
   private:
 
@@ -44,6 +47,11 @@ namespace edm
     bool doMPInteraction_;
     bool printCards_;
     int numTrials_;
+
+    double extCrossSect;
+    double intCrossSect;
+    double extFilterEff;
+
   };
 } 
 

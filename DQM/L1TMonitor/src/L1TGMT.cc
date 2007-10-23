@@ -1,8 +1,8 @@
 /*
  * \file L1TGMT.cc
  *
- * $Date: 2007/02/20 21:42:10 $
- * $Revision: 1.2 $
+ * $Date: 2007/02/22 19:43:53 $
+ * $Revision: 1.3 $
  * \author J. Berryhill
  *
  */
@@ -116,7 +116,17 @@ void L1TGMT::analyze(const Event& e, const EventSetup& c)
 
 
   edm::Handle<L1MuGMTReadoutCollection> pCollection;
+
+
+  try {
   e.getByLabel(gmtSource_,pCollection);
+  }
+  catch (...) {
+    edm::LogInfo("L1TGMT") << "can't find L1MuGMTReadoutCollection with label "
+			       << gmtSource_.label() ;
+    return;
+  }
+
   int ngmttrack = 0;
   for( vector<L1MuGMTReadoutRecord>::const_iterator 
        RRItr = pCollection->getRecords().begin() ;

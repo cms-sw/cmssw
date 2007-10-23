@@ -2,18 +2,17 @@
 #define Alignment_CommonAlignmentParametrization_CompositeAlignmentDerivativesExtractor_H
 
 #include "DataFormats/CLHEP/interface/AlgebraicObjects.h"
+#include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
+#include "Alignment/CommonAlignment/interface/Alignable.h"
+#include "Alignment/CommonAlignment/interface/AlignableDet.h"
 
 /// \class CompositeAlignmentDerivativesExtractor
 ///
 /// A helper class to extract derivatives from composite alignable objects
 ///
-///  $Date: 2007/03/02 12:17:09 $
-///  $Revision: 1.3 $
-/// (last update by $Author: fronga $)
-
-class Alignable;
-class AlignableDet;
-class TrajectoryStateOnSurface;
+///  $Date: 2006/10/19 14:11:04 $
+///  $Revision: 1.2 $
+/// (last update by $Author: flucke $)
 
 class CompositeAlignmentDerivativesExtractor
 {

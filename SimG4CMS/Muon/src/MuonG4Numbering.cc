@@ -1,6 +1,7 @@
 #include "SimG4CMS/Muon/interface/MuonG4Numbering.h"
 #include "Geometry/MuonNumbering/interface/MuonBaseNumber.h"
 #include "Geometry/MuonNumbering/interface/MuonDDDConstants.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "G4VPhysicalVolume.hh"
 #include "G4VTouchable.hh"
@@ -8,7 +9,6 @@
 
 #include <iostream>
 
-//#define DEBUG
 MuonG4Numbering::MuonG4Numbering(const DDCompactView& cpv){
   MuonDDDConstants muonConstants(cpv);
   theLevelPart=muonConstants.getValue("level");
@@ -35,13 +35,11 @@ MuonG4Numbering::MuonG4Numbering(const DDCompactView& cpv){
 	 <<theStartCopyNo<<std::endl;
   }
 
-#ifdef DEBUG
-  std::cout << "MuonG4Numbering configured with"<<std::endl;
-  std::cout << "Level = "<<theLevelPart<<" ";
-  std::cout << "Super = "<<theSuperPart<<" ";
-  std::cout << "Base = "<<theBasePart<<" ";
-  std::cout << "StartCopyNo = "<<theStartCopyNo<<std::endl;
-#endif
+  LogDebug("MuonSimDebug") << "MuonG4Numbering configured with"<<std::endl;
+  LogDebug("MuonSimDebug") << "Level = "<<theLevelPart<<" ";
+  LogDebug("MuonSimDebug") << "Super = "<<theSuperPart<<" ";
+  LogDebug("MuonSimDebug") << "Base = "<<theBasePart<<" ";
+  LogDebug("MuonSimDebug") << "StartCopyNo = "<<theStartCopyNo<<std::endl;
 
 }
 
@@ -54,9 +52,7 @@ MuonBaseNumber MuonG4Numbering::PhysicalVolumeToBaseNumber(const G4Step* aStep)
   for( int ii = 0; ii < touch->GetHistoryDepth(); ii++ ){
     G4VPhysicalVolume* vol = touch->GetVolume(ii);
     int copyno=vol->GetCopyNo();
-#ifdef DEBUG
-    std::cout << "MG4N: " << vol->GetName()<<" "<<copyno<<std::endl;
-#endif
+    LogDebug("MuonSimDebug") << "MuonG4Numbering: " << vol->GetName()<<" "<<copyno<<std::endl;
     if (copyNoRelevant(copyno)) {
       num.addBase(getCopyNoLevel(copyno),
 		  getCopyNoSuperNo(copyno),

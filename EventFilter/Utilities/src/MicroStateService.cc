@@ -38,11 +38,13 @@ namespace evf{
 
   void MicroStateService::postBeginJob()
   {
+    boost::mutex::scoped_lock sl(lock_);
     microstate1_ = "BJD";
   }
 
   void MicroStateService::postEndJob()
   {
+    boost::mutex::scoped_lock sl(lock_);
     microstate1_ = "EJ";
     microstate2_ = "done";
   }
@@ -50,6 +52,7 @@ namespace evf{
   void MicroStateService::preEventProcessing(const edm::EventID& iID,
 					     const edm::Timestamp& iTime)
   {
+    boost::mutex::scoped_lock sl(lock_);
     microstate1_ = "PRO";
   }
 
@@ -58,21 +61,37 @@ namespace evf{
   }
   void MicroStateService::preSource()
   {
+    boost::mutex::scoped_lock sl(lock_);
     microstate2_ = "IN";
   }
 
   void MicroStateService::postSource()
   {
+    boost::mutex::scoped_lock sl(lock_);
     microstate2_ = "IND";
   }
 
   void MicroStateService::preModule(const edm::ModuleDescription& desc)
   {
+    boost::mutex::scoped_lock sl(lock_);
     microstate2_ = desc.moduleLabel_;
   }
 
   void MicroStateService::postModule(const edm::ModuleDescription& desc)
   {
   }
+  
+  std::string MicroStateService::getMicroState1()
+  { 
+	boost::mutex::scoped_lock sl(lock_);
+	return microstate1_;
+  }
+
+  std::string MicroStateService::getMicroState2()
+  { 
+	boost::mutex::scoped_lock sl(lock_);
+	return microstate2_;
+  }
+
 } //end namespace evf
 

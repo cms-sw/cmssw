@@ -1,8 +1,8 @@
 /*
  * \file L1TDTTF.cc
  *
- * $Date: 2007/02/19 19:24:09 $
- * $Revision: 1.1 $
+ * $Date: 2007/02/22 19:43:53 $
+ * $Revision: 1.2 $
  * \author J. Berryhill
  *
  */
@@ -116,7 +116,16 @@ void L1TDTTF::analyze(const Event& e, const EventSetup& c)
 
 
   edm::Handle<std::vector<L1MuRegionalCand> > L1DTTFTracks;  
+
+  try {
   e.getByLabel(dttfSource_,L1DTTFTracks);
+  }
+  catch (...) {
+    edm::LogInfo("L1TDTTF") << "can't find L1DTTFTracks with label "
+			       << dttfSource_.label() ;
+    return;
+  }
+
   std::cout << "DT TF collection size: " << L1DTTFTracks->size()
    	    << std::endl;
   int ndttftrack = 0;

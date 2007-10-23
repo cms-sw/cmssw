@@ -5,8 +5,8 @@
 //   Description:  GMT MIP & ISO bit assignment unit
 //
 //
-//   $Date: 2006/08/21 14:23:13 $
-//   $Revision: 1.2 $
+//   $Date: 2007/03/23 18:51:35 $
+//   $Revision: 1.3 $
 //
 //   Author :
 //   H. Sakulin                CERN EP 
@@ -183,14 +183,14 @@ void L1MuGMTMipIsoAU::print() const {
   for ( iter = m_MIP.begin(); iter != m_MIP.end(); iter++ ) {
     outmip << (*iter) << "  ";
   }
-  edm::LogVerbatim("GMT_MipIso_info") << outmip.str() << endl << endl;
+  edm::LogVerbatim("GMT_MipIso_info") << outmip.str();
 
   std::stringstream outiso;
   outiso << "Assigned ISO bits : ";
   for ( iter = m_ISO.begin(); iter != m_ISO.end(); iter++ ) {
     outiso << (*iter) << "  ";
   }
-  edm::LogVerbatim("GMT_MipIso_info") << outiso.str() << endl << endl;
+  edm::LogVerbatim("GMT_MipIso_info") << outiso.str();
 }
 
 
@@ -239,7 +239,7 @@ void L1MuGMTMipIsoAU::assignMIP() {
 	      m_MIP_EPUs[imuon]->isSelected(ieta) ) {
 	    tmpMIP |= mip(ieta, iphi);
 	    if ( L1MuGMTConfig::Debug(3) ) edm::LogVerbatim("GMT_MipIso_info") << "L1MuGMTMipIsoAU::assignMIP() checking calo region phi=" << 
-	      iphi << ", eta="  << ieta << endl;
+	      iphi << ", eta="  << ieta;
 	  }
 	}
       m_MIP[imuon] = tmpMIP;
@@ -268,11 +268,11 @@ void L1MuGMTMipIsoAU::assignISO() {
 	    tmpISO &= isol(ieta, iphi);
 	    any  = true;
 	    if ( L1MuGMTConfig::Debug(3) ) edm::LogVerbatim("GMT_MipIso_info") << "L1MuGMTMipIsoAU::assignISO() checking calo region phi=" << 
-	      iphi << ", eta="  << ieta << endl;
+	      iphi << ", eta="  << ieta;
 	  }
 	}
       if (any) m_ISO[imuon] = tmpISO;
-      else edm::LogWarning("MipISOProblem") << "L1MuGMTMipIsoAU::assignISO(): no calo region was checked!!" << endl; 
+      else edm::LogWarning("MipISOProblem") << "L1MuGMTMipIsoAU::assignISO(): no calo region was checked!!"; 
 
       m_gmt.DebugBlockForFill()->SetIsMIPISO( m_ISO_PPUs[imuon]->id(), m_ISO[imuon]?1:0) ;      
     }

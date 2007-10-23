@@ -3,7 +3,6 @@
 <use name=DataFormats/Common>
 <use name=DataFormats/HLTReco>
 ### <use name=FWCore/MessageLogger>
-<use name=Foundation/PluginManager>
 <use name=DQMServices/CoreROOT>
 <use name=root>
 
@@ -14,7 +13,6 @@
     <use name=DataFormats/Common>
     <use name=DataFormats/HLTReco>
 ###    <use name=FWCore/MessageLogger>
-    <use name=Foundation/PluginManager>
     <use name=DQMServices/CoreROOT>
     <use name=root>	 	
 </export>

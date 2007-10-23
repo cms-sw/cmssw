@@ -3,8 +3,9 @@
 <use name=SimDataFormats/HepMCProduct>
 <use name=clhep> 
 <use name=hepmc>
-<use name=herwig6_510>
+<use name=herwig>
 <use name=lhapdf>
+<use name=jimmy>
 <flags SEAL_PLUGIN_NAME="GeneratorInterfaceHerwig6Interface">
 <export>
  <lib name=GeneratorInterfaceHerwig6Interface>
@@ -13,8 +14,9 @@
  <use name=SimDataFormats/HepMCProduct>
  <use name=clhep>
  <use name=hepmc> 
- <use name=herwig6_510>
+ <use name=herwig>
  <use name=lhapdf>
+ <use name=jimmy>
 </export>
 
  <lib name=g2c></lib>

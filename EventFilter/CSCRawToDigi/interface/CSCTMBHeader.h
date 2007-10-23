@@ -4,6 +4,7 @@
 #include <iostream>
 #include <iosfwd>
 #include <vector>
+#include "DataFormats/CSCDigi/interface/CSCTMBStatusDigi.h"
 
 class CSCCLCTDigi;
 class CSCDMBHeader;
@@ -12,6 +13,13 @@ class CSCTMBHeader {
 
  public:
   CSCTMBHeader();
+  CSCTMBHeader(const CSCTMBStatusDigi & digi)
+    {
+      memcpy(this, digi.header(), sizeInBytes()); 
+    }
+
+  uint16_t sizeInBytes() const {return 54;}
+
   /// fills fields like bxn and l1a
   void setEventInformation(const CSCDMBHeader &);
   short unsigned int FIFOMode()        const {return fifoMode;}
@@ -42,6 +50,15 @@ class CSCTMBHeader {
   short unsigned int MPCAcceptLCT1()   const {return mpcAcceptLCT1;}
   short unsigned int HSThresh()        const {return hs_thresh;}
   short unsigned int DSThresh()        const {return ds_thresh;}
+
+
+  short unsigned int RPCExists()       const {return rpc_exists;}
+  short unsigned int RDRPCList()       const {return rd_rpc_list;}
+  short unsigned int RDNRPCs()         const {return rd_nrpcs;}
+  short unsigned int RPCReadEnable()   const {return rpc_read_enable;}
+  short unsigned int NLayersHit()      const {return r_nlayers_hit_vec;}
+  short unsigned int PopL1AMatch()     const {return pop_l1a_match_win;}
+
   
   short unsigned int MPC_Muon0_wire()          const {return MPC_Muon0_wire_;}
   short unsigned int MPC_Muon0_clct_pattern()  const {return MPC_Muon0_clct_pattern_;}
@@ -224,9 +241,17 @@ private:
   unsigned buffer_info_2:16;
   unsigned buffer_info_3:16;
   unsigned alct_delay:4,clct_width:4,mpc_tx_delay:4,reserved_21:4;
-  unsigned buffer_info_5:16;
-  unsigned buffer_info_6:16;
-  unsigned buffer_info_7:16;
+
+  unsigned rpc_exists:2;
+  unsigned rd_rpc_list:2;
+  unsigned rd_nrpcs:2;
+  unsigned rpc_read_enable:1;
+  unsigned r_nlayers_hit_vec:3;
+  unsigned pop_l1a_match_win:4;
+  unsigned reserved_22:2;
+  
+  unsigned bd_status :14;  unsigned reserved_23:2;
+  unsigned uptime :14;  unsigned reserved_24:2;
   unsigned firmRevCode:14, reserved_25:2;
   /// constant 6e0b
   unsigned e0bline:16;

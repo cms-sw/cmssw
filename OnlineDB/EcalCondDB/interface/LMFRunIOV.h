@@ -29,6 +29,7 @@ class LMFRunIOV : public IIOV {
   Tm getSubRunStart() const;
   void setSubRunEnd(Tm end);
   Tm getSubRunEnd() const;
+  void setID(int id);
 
   // Methods from IUniqueDBObject
   int fetchID() throw(std::runtime_error);

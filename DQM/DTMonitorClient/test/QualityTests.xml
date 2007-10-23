@@ -56,6 +56,77 @@
 </QTEST>
 
 
+<QTEST name="OccupancyDiffInRange">
+	<TYPE>DeadChannel</TYPE>	
+	<PARAM name="threshold">0.05</PARAM>
+	<PARAM name="error">0.30</PARAM>
+	<PARAM name="warning">0.70</PARAM>
+</QTEST>
+
+
+<QTEST name="ChEfficiencyInRangeX">
+	<TYPE>ContentsYRange</TYPE>	
+	<PARAM name="ymin">0,98</PARAM>
+	<PARAM name="ymax">1.00</PARAM>
+	<PARAM name="error">0.30</PARAM>
+	<PARAM name="warning">0.70</PARAM>
+</QTEST>
+
+
+<QTEST name="ChEfficiencyInRangeY">
+	<TYPE>ContentsYRange</TYPE>	
+	<PARAM name="ymin">0,98</PARAM>
+	<PARAM name="ymax">1.00</PARAM>
+	<PARAM name="error">0.30</PARAM>
+	<PARAM name="warning">0.70</PARAM>
+</QTEST>
+
+
+<QTEST name="NoiseMeanInRange">
+	<TYPE>ContentsYRange</TYPE>	
+	<PARAM name="ymin">0.00</PARAM>
+	<PARAM name="ymax">0.02</PARAM>
+	<PARAM name="error">0.30</PARAM>
+	<PARAM name="warning">0.70</PARAM>
+</QTEST>
+
+
+<QTEST name="ChambTrigEffInRangePhi">
+	<TYPE>ContentsYRange</TYPE>	
+	<PARAM name="ymin">0.5</PARAM>
+	<PARAM name="ymax">1.00</PARAM>
+	<PARAM name="error">0.50</PARAM>
+	<PARAM name="warning">0.80</PARAM>
+</QTEST>
+
+
+<QTEST name="SectorTrigEffInRangePhi">
+	<TYPE>ContentsYRange</TYPE>	
+	<PARAM name="ymin">0.5</PARAM>
+	<PARAM name="ymax">1.00</PARAM>
+	<PARAM name="error">0.95</PARAM>
+	<PARAM name="warning">0.95</PARAM>
+</QTEST>
+
+
+<QTEST name="ChambTrigEffInRangeTheta">
+	<TYPE>ContentsYRange</TYPE>	
+	<PARAM name="ymin">0.5</PARAM>
+	<PARAM name="ymax">1.00</PARAM>
+	<PARAM name="error">0.50</PARAM>
+	<PARAM name="warning">0.80</PARAM>
+</QTEST>
+
+
+<QTEST name="SectorTrigEffInRangeTheta">
+	<TYPE>ContentsYRange</TYPE>	
+	<PARAM name="ymin">0.5</PARAM>
+	<PARAM name="ymax">1.00</PARAM>
+	<PARAM name="error">0.95</PARAM>
+	<PARAM name="warning">0.95</PARAM>
+</QTEST>
+
+
 <LINK name="*tTrigTest*">
 	<TestName activate="true">tTrigOffSet</TestName>
 </LINK>
@@ -72,12 +143,44 @@
 	<TestName activate="true">ResidualsSigmaInRange</TestName>
 </LINK>
 
-<LINK name="*Efficiency*">
+<LINK name="*Efficiency_*">
 	<TestName activate="true">EfficiencyInRange</TestName>
 </LINK>
 
-<LINK name="*Efficiency*">
+<LINK name="*Efficiency_*">
 	<TestName activate="true">UnassEfficiencyInRange</TestName>
+</LINK>
+
+<LINK name="*OccupancyDiff*">
+	<TestName activate="true">OccupancyDiffInRange</TestName>
+</LINK>
+
+<LINK name="*xEfficiency_*">
+	<TestName activate="true">ChEfficiencyInRangeX</TestName>
+</LINK>
+
+<LINK name="*yEfficiency_*">
+	<TestName activate="true">ChEfficiencyInRangeY</TestName>
+</LINK>
+
+<LINK name="*MeanDigiPerEvent*">
+	<TestName activate="true">NoiseMeanInRange</TestName>
+</LINK>
+
+<LINK name="*TrigEffPos_Phi*">
+	<TestName activate="true">ChambTrigEffInRangePhi</TestName>
+</LINK>
+
+<LINK name="*TrigEff_Phi*">
+	<TestName activate="true">SectorTrigEffInRangePhi</TestName>
+</LINK>
+
+<LINK name="*TrigEffPos_Theta*">
+	<TestName activate="true">ChambTrigEffInRangeTheta</TestName>
+</LINK>
+
+<LINK name="*TrigEff_Theta*">
+	<TestName activate="true">SectorTrigEffInRangeTheta</TestName>
 </LINK>
 
 

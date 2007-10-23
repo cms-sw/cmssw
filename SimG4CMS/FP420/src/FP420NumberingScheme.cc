@@ -71,29 +71,9 @@ unsigned int FP420NumberingScheme::getUnitID(const G4Step* aStep) const {
     int station  = 0;
     int plane = 0;
     for (int ich=0; ich  <  level; ich++) {
-      /*
-      // old set up configuration with equidistant stations 
+      // pipe steel    
       if(name[ich] == "FP420Ex") {
 	stationgen   = copyno[ich];
-      } else if(name[ich] == "SISTATION") {
-	station   = stationgen;
-      } else if(name[ich] == "SIPLANE") {
-	plane   = copyno[ich];
-      } else if(name[ich] == "SIDETL") {
-	zside   = 1;
-      } else if(name[ich] == "SIDETR") {
-	zside   = 2;
-      }
-*/
-      // new and old set up configurations are possible:
-      if(name[ich] == "FP420Ex") {
-	stationgen   = copyno[ich];
-      } else if(name[ich] == "FP420Ex1") {
-	stationgen   = 1;
-      } else if(name[ich] == "FP420Ex2") {
-	stationgen   = 2;
-      } else if(name[ich] == "FP420Ex3") {
-	stationgen   = 3;
       } else if(name[ich] == "SISTATION") {
 	station   = stationgen;
       } else if(name[ich] == "SIPLANE") {
@@ -107,7 +87,7 @@ unsigned int FP420NumberingScheme::getUnitID(const G4Step* aStep) const {
 //      cout.testOut << "FP420NumberingScheme  " << "ich=" << ich  << "copyno" 
 //		   << copyno[ich] << "name="  << name[ich] << endl;
 #endif
-    }
+     }
     // use for FP420 number 1 
     // 0 is as defauld for every below:
     // Z index X = 1; Y = 2 

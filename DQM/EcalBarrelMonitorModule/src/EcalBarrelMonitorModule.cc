@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorModule.cc
  *
- * $Date: 2007/03/25 07:57:49 $
- * $Revision: 1.129 $
+ * $Date: 2007/06/02 10:50:10 $
+ * $Revision: 1.135 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -47,11 +47,20 @@ EcalBarrelMonitorModule::EcalBarrelMonitorModule(const ParameterSet& ps){
   cout << " *** Ecal Barrel Generic Monitor ***" << endl;
   cout << endl;
 
-  // this should come from the EcalBarrel run header
+  // this should come from the event header
   runNumber_ = ps.getUntrackedParameter<int>("runNumber", 0);
+
+  fixedRunNumber_ = false;
+  if ( runNumber_ != 0 ) fixedRunNumber_ = true;
+
+  if ( fixedRunNumber_ ) {
+    LogInfo("EcalBarrelMonitor") << " using fixed Run Number = " << runNumber_ << endl;
+  }
+
+  // this should come from the event header
   evtNumber_ = 0;
 
-  // this should come from the EcalBarrel run header
+  // this should come from the EcalBarrel event header
   runType_ = ps.getUntrackedParameter<int>("runType", -1);
   evtType_ = runType_;
 
@@ -73,8 +82,6 @@ EcalBarrelMonitorModule::EcalBarrelMonitorModule(const ParameterSet& ps){
     LogInfo("EcalBarrelMonitor") << " verbose switch is OFF";
   }
 
-  dbe_ = 0;
-
   // get hold of back-end interface
   dbe_ = Service<DaqMonitorBEInterface>().operator->();
 
@@ -84,6 +91,14 @@ EcalBarrelMonitorModule::EcalBarrelMonitorModule(const ParameterSet& ps){
     } else {
       dbe_->setVerbose(0);
     }
+  }
+
+  enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", true);
+
+  if ( enableCleanup_ ) {
+    LogInfo("EcalBarrelMonitor") << " enableCleanup switch is ON";
+  } else {
+    LogInfo("EcalBarrelMonitor") << " enableCleanup switch is OFF";
   }
 
   // MonitorDaemon switch
@@ -191,6 +206,8 @@ void EcalBarrelMonitorModule::setup(void){
 
 void EcalBarrelMonitorModule::cleanup(void){
 
+  if ( ! enableCleanup_ ) return;
+
   if ( dbe_ ) {
 
     dbe_->setCurrentFolder("EcalBarrel/EcalInfo");
@@ -270,9 +287,7 @@ void EcalBarrelMonitorModule::analyze(const Event& e, const EventSetup& c){
 
   LogInfo("EcalBarrelMonitor") << "processing event " << ievt_;
 
-  if ( runNumber_ == 0 ) {
-    if ( e.id().run() != 0 ) runNumber_ = e.id().run();
-  }
+  if ( ! fixedRunNumber_ ) runNumber_ = e.id().run();
 
   evtNumber_ = e.id().event();
 
@@ -297,15 +312,15 @@ void EcalBarrelMonitorModule::analyze(const Event& e, const EventSetup& c){
 
       meEBDCC_->Fill((dcch.id()+1)+0.5);
 
-      if ( runNumber_ == 0 ) {
-        if ( dcch.getRunNumber() != 0 ) runNumber_ = dcch.getRunNumber();
-      }
+      if ( ! fixedRunNumber_ ) runNumber_ = dcch.getRunNumber();
+
+      evtNumber_ = dcch.getLV1();
 
       if ( dcch.getRunType() != -1 ) runType_ = dcch.getRunType();
 
       if ( dcch.getRunType() != -1 ) evtType_ = dcch.getRunType();
 
-      if ( evtType_ < 0 || evtType_ > 12 ) {
+      if ( evtType_ < 0 || evtType_ > 22 ) {
         LogWarning("EcalBarrelMonitor") << "Unknown event type = " << evtType_;
         evtType_ = -1;
       }
@@ -326,9 +341,9 @@ void EcalBarrelMonitorModule::analyze(const Event& e, const EventSetup& c){
 
       meEBDCC_->Fill(1);
 
-      if ( runNumber_ == 0 ) {
-        if ( evtHeader->runNumber() != 0 ) runNumber_ = evtHeader->runNumber();
-      }
+      if ( ! fixedRunNumber_ ) runNumber_ = evtHeader->runNumber();
+
+      evtNumber_ = evtHeader->eventNumber();
 
       runType_ = EcalDCCHeaderBlock::BEAMH4;
 

@@ -232,6 +232,15 @@ function get_monselect_headers() {
 	       'NUM_EVENTS' => 'Num Events');
 }
 
+/* Returns an associative array of headers for the LMF query
+   returns array($db_handle => $header) */
+function get_lmfselect_headers() {
+  return array('SUBRUN_NUM' => 'Subrun',
+	       'GEN_TAG' => 'General Tag',
+	       'SUBRUN_START' => 'Subrun Start',
+	       'SUBRUN_END' => 'Subrun End');
+}
+
 /* Returns an associative array of the monitoring query.
    input is an IOV_ID from RUN_IOV */
 function fetch_mon_data($run_iov_id) {
@@ -246,6 +255,27 @@ function fetch_mon_data($run_iov_id) {
             join mon_run_dat mdat on mdat.iov_id = miov.iov_id
            where miov.run_iov_id = :run_iov_id
            order by miov.subrun_num asc";
+  
+  $stmt = oci_parse($conn, $sql);
+
+  oci_bind_by_name($stmt, ':run_iov_id', $run_iov_id);
+  oci_execute($stmt);
+  oci_fetch_all($stmt, $results);
+  
+  return $results;
+}
+
+/* Returns an associative array of the monitoring query.
+   input is an IOV_ID from RUN_IOV */
+function fetch_las_data($run_iov_id) {
+  global $conn;
+
+  $sql = "select liov.iov_id, liov.subrun_num, liov.subrun_start, liov.subrun_end, ltag.gen_tag,
+                 dat_exists('LMF', liov.iov_id) dat_exists 
+            from lmf_run_iov liov
+            join lmf_run_tag ltag on ltag.tag_id = liov.tag_id 
+           where liov.run_iov_id = :run_iov_id
+           order by liov.subrun_num asc";
   
   $stmt = oci_parse($conn, $sql);
 
@@ -531,7 +561,7 @@ function db_fetch_plot_params($table, $field) {
   global $conn;
   
   $sql = "select t.filled_by, t.content_explanation table_content, t.logic_id_name, t.map_by_logic_id_name, t.logic_id_explanation, 
-                f.is_plottable, f.field_type, f.content_explanation field_content, f.label
+                f.is_plottable, f.field_type, f.content_explanation field_content, f.label, f.histo_min, f.histo_max
            from cond_table_meta t join cond_field_meta f on t.def_id = f.tab_id 
           where t.table_name = :1 and f.field_name = :2";
   
@@ -595,31 +625,30 @@ function db_make_rootplot($table, $field, $iov_id, $plottype, $name) {
                      order by cv.id1, cv.id2, cv.id3)";
     $xtitle = $plot_params['LOGIC_ID_EXPLANATION'];
     $ytitle = $plot_params['LABEL'];
-  } elseif ($plottype == 'map') {
-    if (!$map_name) { echo "No map_name.";  return 0; } // Cannot map without an _index type mapping
+  } elseif ($plottype == 'map_all') {
+    //    if (!$map_name) { echo "No map_name.";  return 0; } // Cannot map without an _index type mapping
     $type = 'Map'; $grp = 1;
-    $sql = "select id1name, id1, i, j, $field
-              from (select vd.id1name, cv.id1, cv.id2 i, cv.id3 j, d.$field from $table d, channelview cv, viewdescription vd
+    $sql = "select id1name, id1, rownum, $field
+              from (select vd.id1name, cv.id1, d.$field from $table d, channelview cv, viewdescription vd
                      where d.iov_id = :iov_id 
                        and d.logic_id = cv.logic_id
-                       and cv.name = '$map_name'
-                       and cv.maps_to = '$chan_name'
+                       and cv.name = 'EB_crystal_number'
                        and cv.name = vd.name
                      order by cv.id1, cv.id2, cv.id3)";
-    echo "SQL:  $sql";
     $xtitle = "";
     $ytitle = "";
   } else { die("Unknown plottype"); }
 
   $stmt = oci_parse($conn, $sql);
-  
+
   oci_bind_by_name($stmt, ':iov_id', $iov_id);
   oci_execute($stmt);
-  
+
   $n = 0;
   $names = array();
   $rptitle = $title;
   $rpname = $name;
+
   while ($row = oci_fetch_row($stmt)) {
     // Augment titles and file names if there is grouping
     if ($grp) {
@@ -642,12 +671,16 @@ function db_make_rootplot($table, $field, $iov_id, $plottype, $name) {
 	$rpname = $name.".$grp_name$curr_grp";
       }
 
-      $rootplot = get_rootplot_handle("-T \"$rptitle\" -X \"$xtitle\" -Y \"$ytitle\" $type $fmt $rpname");
+      $histo_min = $plot_params['HISTO_MIN'];
+      $histo_max = $plot_params['HISTO_MAX'];
+
+      $rootplot = get_rootplot_handle("-T \"$rptitle\" -X \"$xtitle\" -Y \"$ytitle\" $type $fmt $rpname $histo_min $histo_max");
       if ( ! $rootplot || get_rootplot_error() ) { return 0; }
     }
 
     // Write a row of data to the rootplot handle
     $dataline = join(' ', $row)."\n";
+
     fwrite($rootplot, $dataline);
 
     // Increment

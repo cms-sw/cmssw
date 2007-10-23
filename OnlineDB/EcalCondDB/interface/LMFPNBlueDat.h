@@ -31,6 +31,9 @@ class LMFPNBlueDat : public IDataItem {
 
   void writeDB(const EcalLogicID* ecid, const LMFPNBlueDat* item, LMFRunIOV* iov)
     throw(std::runtime_error);
+  
+  void writeArrayDB(const std::map< EcalLogicID, LMFPNBlueDat >* data, LMFRunIOV* iov)
+     throw(runtime_error);
 
   void fetchData(std::map< EcalLogicID, LMFPNBlueDat >* fillVec, LMFRunIOV* iov)
      throw(std::runtime_error);

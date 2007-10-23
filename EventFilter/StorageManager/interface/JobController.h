@@ -1,9 +1,10 @@
 #ifndef HLT_JOB_CNTLER_HPP
 #define HLT_JOB_CNTLER_HPP
-// $Id:$
+// $Id: JobController.h,v 1.16.2.1 2007/05/08 00:12:16 hcheung Exp $
 
 #include "EventFilter/StorageManager/interface/FragmentCollector.h"
 #include "EventFilter/StorageManager/interface/EventServer.h"
+#include "EventFilter/StorageManager/interface/DQMEventServer.h"
 
 #include "IOPool/Streamer/interface/EventBuffer.h"
 #include "IOPool/Streamer/interface/EventMessage.h"
@@ -41,13 +42,6 @@ namespace stor
     edm::EventBuffer& getFragmentQueue()
     { return collector_->getFragmentQueue(); }
 
-    bool isEmpty() { return collector_->esbuf_isEmpty(); }
-    bool isFull() { return collector_->esbuf_isFull(); }
-    EventMsgView pop_front() {return collector_->esbuf_pop_front();}
-    void push_back(EventMsgView msg) 
-      { collector_->esbuf_push_back(msg); }
-
-    void set_oneinN(int N) { collector_->set_esbuf_oneinN(N); }
     void setEventServer(boost::shared_ptr<EventServer>& es)
     {
       if (collector_.get() != NULL) collector_->setEventServer(es);
@@ -55,10 +49,25 @@ namespace stor
     }
     boost::shared_ptr<EventServer>& getEventServer() { return eventServer_; }
 
-    void set_outoption(bool stream_only)      { collector_->set_outoption(stream_only);}
+    void setDQMEventServer(boost::shared_ptr<DQMEventServer>& es)
+    {
+      if (collector_.get() != NULL) collector_->setDQMEventServer(es);
+      DQMeventServer_ = es;
+    }
+    boost::shared_ptr<DQMEventServer>& getDQMEventServer() { return DQMeventServer_; }
+
     void setNumberOfFileSystems(int disks)    { collector_->setNumberOfFileSystems(disks); }
     void setFileCatalog(std::string catalog)  { collector_->setFileCatalog(catalog); }
     void setSourceId(std::string sourceId)    { collector_->setSourceId(sourceId); }
+    void setCollateDQM(bool collateDQM)       { collector_->setCollateDQM(collateDQM);}
+    void setArchiveDQM(bool archiveDQM)       { collector_->setArchiveDQM(archiveDQM);}
+    void setPurgeTimeDQM(int purgeTimeDQM)    { collector_->setPurgeTimeDQM(purgeTimeDQM);}
+    void setReadyTimeDQM(int readyTimeDQM)    { collector_->setReadyTimeDQM(readyTimeDQM);}
+    void setFilePrefixDQM(std::string filePrefixDQM)  { collector_->setFilePrefixDQM(filePrefixDQM);}
+    void setUseCompressionDQM(bool useCompressionDQM)
+    { collector_->setUseCompressionDQM(useCompressionDQM);}
+    void setCompressionLevelDQM(bool compressionLevelDQM)
+    { collector_->setCompressionLevelDQM(compressionLevelDQM);}
 
     std::list<std::string>& get_filelist() { return collector_->get_filelist(); }
     std::list<std::string>& get_currfiles() { return collector_->get_currfiles(); }
@@ -70,6 +79,7 @@ namespace stor
 
     boost::shared_ptr<FragmentCollector> collector_;
     boost::shared_ptr<EventServer> eventServer_;
+    boost::shared_ptr<DQMEventServer> DQMeventServer_;
 
     boost::shared_ptr<boost::thread> me_;
   };

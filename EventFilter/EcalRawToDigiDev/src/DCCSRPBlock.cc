@@ -32,10 +32,10 @@ void DCCSRPBlock::unpack(uint64_t ** data, uint * dwToEnd, uint numbFlags ){
   
   // Check SRP Length
   if( (*dwToEnd_) < blockLength_ ){
-    ostringstream output;
+    std::ostringstream output;
     output<<"EcalRawToDigi@SUB=DCCSRPBlock::unpack"
       <<"\n Unable to unpack SRP block for event "<<event_->l1A()<<" in dcc <<"<<mapper_->getActiveDCC()
-      <<"\n Only "<<((*dwToEnd_)*8)<<" bytes are available while "<<(blockLength_*8)<<" are needed!"<<endl;
+      <<"\n Only "<<((*dwToEnd_)*8)<<" bytes are available while "<<(blockLength_*8)<<" are needed!";
     //Note : add to error collection 
     throw ECALUnpackerException(output.str());
   }
@@ -57,7 +57,7 @@ void DCCSRPBlock::unpack(uint64_t ** data, uint * dwToEnd, uint numbFlags ){
     uint dccL1 = ( event_->l1A() ) & SRP_BX_MASK;
     uint dccBx = ( event_->bx()  ) & SRP_L1_MASK;
     if( dccBx != bx_ || dccL1 != l1_ ){
-      ostringstream output;
+      std::ostringstream output;
       output<<"EcalRawToDigi@SUB=DCCSRPBlock::unpack"
         <<"\nSynchronization error for SRP block in event "<<event_->l1A()<<" with bx "<<event_->bx()<<" in dcc <<"<<mapper_->getActiveDCC()
         <<"\n SRP local l1A is  "<<l1_<<" and local bx is "<<bx_;
@@ -75,7 +75,7 @@ void DCCSRPBlock::unpack(uint64_t ** data, uint * dwToEnd, uint numbFlags ){
 
 
 
-void DCCSRPBlock::display(ostream& o){
+void DCCSRPBlock::display(std::ostream& o){
 
   o<<"\n Unpacked Info for SRP Block"
   <<"\n DW1 ============================="

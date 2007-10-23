@@ -146,6 +146,7 @@ TrackAssociatorByHits::associateRecoToSim(edm::Handle<reco::TrackCollection>& tr
       }
     }
   delete associate;
+  outputCollection.post_insert();
   return outputCollection;
 }
 
@@ -271,6 +272,7 @@ TrackAssociatorByHits::associateSimToReco(edm::Handle<reco::TrackCollection>& tr
       }
     }
   delete associate;
+  outputCollection.post_insert();
   return outputCollection;
 }
 

@@ -15,11 +15,11 @@ public:
   /**
    *   App constructor; Makes the database connection
    */
-  CondDBApp(string host, string sid, string user, string pass)
+  CondDBApp(string sid, string user, string pass)
   {
     try {
       cout << "Making connection..." << flush;
-      econn = new EcalCondDBInterface( host, sid, user, pass );
+      econn = new EcalCondDBInterface( sid, user, pass );
       cout << "Done." << endl;
     } catch (runtime_error &e) {
       cerr << e.what() << endl;
@@ -279,7 +279,7 @@ int main (int argc, char* argv[])
   pass = argv[4];
 
   try {
-    CondDBApp app(host, sid, user, pass);
+    CondDBApp app(sid, user, pass);
 
     app.testWrite();
     app.testAllTables();

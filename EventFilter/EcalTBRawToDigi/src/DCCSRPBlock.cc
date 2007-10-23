@@ -34,9 +34,9 @@ DCCSRPBlock::DCCSRPBlock(
 
 void DCCSRPBlock::dataCheck(){ 
 	
-	string checkErrors("");
+	std::string checkErrors("");
 
-	pair <bool,string> res;
+	std::pair <bool,std::string> res;
 	
 	res = checkDataField("BX", BXMASK & (dccBlock_->getDataField("BX")));
 	if(!res.first){ checkErrors += res.second; (errors_["SRP::HEADER"])++; }
@@ -50,7 +50,7 @@ void DCCSRPBlock::dataCheck(){
 	
 	if(checkErrors!=""){
 		errorString_ +="\n ======================================================================\n"; 		
-		errorString_ += string(" ") + name_ + string(" data fields checks errors : ") ;
+		errorString_ += std::string(" ") + name_ + std::string(" data fields checks errors : ") ;
 		errorString_ += checkErrors ;
 		errorString_ += "\n ======================================================================";
 		blockError_ = true;	
@@ -67,8 +67,8 @@ void  DCCSRPBlock::increment(ulong numb){
 			ulong blockID = (*dataP_)>>BPOSITION_BLOCKID;
 			if( blockID != BLOCKID ){
 				(errors_["SRP::BLOCKID"])++;
-				//errorString_ += string("\n") + parser_->index(nunb)+(" blockId has value ") + parser_->getDecString(blockID);
-				//errorString  += string(", while ")+parser_->getDecString(BLOCKID)+string(" is expected");
+				//errorString_ += std::string("\n") + parser_->index(nunb)+(" blockId has value ") + parser_->getDecString(blockID);
+				//errorString  += std::string(", while ")+parser_->getDecString(BLOCKID)+std::string(" is expected");
 			}
 		}
 	}

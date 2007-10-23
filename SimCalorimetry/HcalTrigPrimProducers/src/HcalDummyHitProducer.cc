@@ -1,4 +1,3 @@
-using namespace std;
 #include "SimCalorimetry/HcalTrigPrimProducers/src/HcalDummyHitProducer.h"
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "DataFormats/Common/interface/Handle.h"
@@ -13,6 +12,7 @@ using namespace std;
 #include "SimDataFormats/CaloHit/interface/PCaloHit.h"
 #include "SimDataFormats/CaloHit/interface/PCaloHitContainer.h"
 #include "SimCalorimetry/CaloSimAlgos/interface/CaloVSimParameterMap.h"
+using namespace std;
 
 HcalDummyHitProducer::HcalDummyHitProducer(const edm::ParameterSet& ps)
   : theParameterMap(new HcalSimParameterMap())   

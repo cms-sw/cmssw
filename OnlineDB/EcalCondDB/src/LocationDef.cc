@@ -1,6 +1,7 @@
 #include <string>
 #include "OnlineDB/Oracle/interface/Oracle.h"
 
+
 #include "OnlineDB/EcalCondDB/interface/LocationDef.h"
 
 using namespace std;

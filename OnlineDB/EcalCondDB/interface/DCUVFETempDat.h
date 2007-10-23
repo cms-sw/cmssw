@@ -28,6 +28,9 @@ class DCUVFETempDat : public IDataItem {
   void writeDB(const EcalLogicID* ecid, const DCUVFETempDat* item, DCUIOV* iov)
     throw(std::runtime_error);
 
+  void writeArrayDB(const std::map< EcalLogicID, DCUVFETempDat>* data, DCUIOV* iov)
+    throw(std::runtime_error);
+
   void fetchData(std::map< EcalLogicID, DCUVFETempDat >* fillVec, DCUIOV* iov)
      throw(std::runtime_error);
 

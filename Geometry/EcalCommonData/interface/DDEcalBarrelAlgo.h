@@ -79,7 +79,7 @@ class DDEcalBarrelAlgo : public DDAlgorithm {
       const std::vector<double>& vecSpmHere()  const { return m_vecSpmHere ; }
       DDName                     spmCutName()  const { return ddname( m_SpmCutName ) ; }
       double                     spmCutThick() const { return m_SpmCutThick ; }
-      double                     spmCutShow()  const { return m_SpmCutShow ; } 
+      int                        spmCutShow()  const { return m_SpmCutShow ; } 
       double                     spmCutRM()    const { return m_SpmCutRM ; }
       double                     spmCutRP()    const { return m_SpmCutRP ; }
       const std::vector<double>& vecSpmCutTM() const { return m_vecSpmCutTM ; }
@@ -426,7 +426,7 @@ private:
       std::vector<double> m_vecSpmHere  ; // Bit saying if a supermodule is present or not
       std::string         m_SpmCutName  ; // Name of cut box
       double              m_SpmCutThick ; // Box thickness
-      double              m_SpmCutShow  ; // Non-zero means show the box on display (testing only)
+      int                 m_SpmCutShow  ; // Non-zero means show the box on display (testing only)
       std::vector<double> m_vecSpmCutTM ; // Translation for minus phi cut box
       std::vector<double> m_vecSpmCutTP ; // Translation for plus  phi cut box      
       double              m_SpmCutRM    ; // Rotation for minus phi cut box

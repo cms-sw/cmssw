@@ -29,6 +29,7 @@ class HcalTopologyIdealEP : public edm::ESProducer {
 private:
       // ----------member data ---------------------------
   std::string m_restrictions;
+  bool m_h2mode;
 };
 
 

@@ -18,7 +18,7 @@
  * - DQMServices/NodeROOT/src/SenderBase.cc
  * - DQMServices/NodeROOT/src/ReceiverBase.cc
  *
- * $Id$
+ * $Id: FUShmDQMOutputService.cc,v 1.2.2.1 2007/04/27 14:08:54 meschi Exp $
  */
 
 #include "EventFilter/Modules/interface/FUShmDQMOutputService.h"
@@ -44,7 +44,8 @@ using namespace std;
  * FUShmDQMOutputService constructor.
  */
 FUShmDQMOutputService::FUShmDQMOutputService(const edm::ParameterSet &pset,
-                                   edm::ActivityRegistry &actReg)
+					     edm::ActivityRegistry &actReg) : 
+  shmBuffer_(0)  
 {
   if (DSS_DEBUG) {cout << "FUShmDQMOutputService Constructor" << endl;}
 
@@ -90,15 +91,21 @@ FUShmDQMOutputService::FUShmDQMOutputService(const edm::ParameterSet &pset,
   initializationIsNeeded_ = true;
   useCompression_ = pset.getParameter<bool>("useCompression");
   compressionLevel_ = pset.getParameter<int>("compressionLevel");
+  // the default for lumiSectionInterval_ is 0, meaning get it from the event
+  // otherwise we get a fake one that should match the fake lumi block
+  // for events (if any) as long as the time between lumi blocks is larger
+  // than the time difference between creating this service and the 
+  // FUShmOutputModule event output module
   lumiSectionInterval_ =
-    pset.getUntrackedParameter<int>("lumiSectionInterval", 60); // seconds
-  if (lumiSectionInterval_ < 1) {lumiSectionInterval_ = 1;}
+    pset.getUntrackedParameter<int>("lumiSectionInterval", 0); // seconds
+  if (lumiSectionInterval_ < 1) {lumiSectionInterval_ = 0;}
 
-  shmBuffer_ = evf::FUShmBuffer::getShmBuffer();
-  if(!shmBuffer_) edm::LogError("FUDQMShmOutputService") 
-      << " Error getting shared memory buffer in constructor. " 
-      << " Make sure you configure the ResourceBroker before the FUEventProcessor! "
-      << " Will try again at first output. This could be fatal!";
+  // for fake test luminosity sections
+  struct timeval now;
+  struct timezone dummyTZ;
+  gettimeofday(&now, &dummyTZ);
+  // we will count lumi section numbers from this time
+  timeInSecSinceUTC_ = static_cast<double>(now.tv_sec) + (static_cast<double>(now.tv_usec)/1000000.0);
 
 }
 
@@ -121,11 +128,19 @@ FUShmDQMOutputService::~FUShmDQMOutputService(void)
 void FUShmDQMOutputService::postEventProcessing(const edm::Event &event,
                                            const edm::EventSetup &eventSetup)
 {
-  // Should really use the same fake lumi section as event output!
-  // 06-Mar-2006, KAB: fake the luminosity section until the real one is available
-  time_t now = time(NULL);
-  //edm::LuminosityBlockID thisLumiSection=(int) (now / lumiSectionInterval_);
-  unsigned int thisLumiSection = (int) (now / lumiSectionInterval_);
+  // fake the luminosity section if we don't want to use the real one
+  unsigned int thisLumiSection = 0;
+  if(lumiSectionInterval_ == 0)
+    thisLumiSection = event.luminosityBlock();
+  else {
+    // match the code in Event output module to get the same (almost) lumi number
+    struct timeval now;
+    struct timezone dummyTZ;
+    gettimeofday(&now, &dummyTZ);
+    double timeInSec = static_cast<double>(now.tv_sec) + (static_cast<double>(now.tv_usec)/1000000.0) - timeInSecSinceUTC_;
+    // what about overflows?
+    if(lumiSectionInterval_ > 0) thisLumiSection = static_cast<uint32>(timeInSec/lumiSectionInterval_);
+  }
 
   if (DSS_DEBUG) {
     cout << "FUShmDQMOutputService::postEventProcessing called, event number "
@@ -138,7 +153,22 @@ void FUShmDQMOutputService::postEventProcessing(const edm::Event &event,
     initializationIsNeeded_ = false;
     lumiSectionOfPreviousUpdate_ = thisLumiSection;
     firstLumiSectionSeen_ = thisLumiSection;
+
+    // for when a run(job) had ended and we start a new run(job)
+    // for fake test luminosity sections
+    struct timeval now;
+    struct timezone dummyTZ;
+    gettimeofday(&now, &dummyTZ);
+    // we will count lumi section numbers from this time
+    timeInSecSinceUTC_ = static_cast<double>(now.tv_sec) + (static_cast<double>(now.tv_usec)/1000000.0);
   }
+
+  // We send a DQMEvent when the correct number of luminosity sections have passed
+  // but this will occur here for the first event of a new lumi section which
+  // means the data for the first event of this new lumi section is always added to the
+  // to the DQM data for the update for the previous lumi section - beware!
+  // Can only correct in this postEventProcessing stage if we knew this is the last
+  // event of a lumi section. (There is no preEventProcessing possibility?)
 
   // only continue if the correct number of luminosity sections have passed
   int lsDelta = (int) (thisLumiSection - lumiSectionOfPreviousUpdate_);
@@ -148,10 +178,11 @@ void FUShmDQMOutputService::postEventProcessing(const edm::Event &event,
   // calculate the update ID and lumi ID for this update
   int fullLsDelta = (int) (thisLumiSection - firstLumiSectionSeen_);
   double fullUpdateRatio = ((double) fullLsDelta) / lumiSectionsPerUpdate_;
+  // this is the update number starting from zero
   uint32 updateNumber = -1 + (uint32) fullUpdateRatio;
-  //edm::LuminosityBlockID lumiSectionTag = firstLumiSectionSeen_ +
+  // this is the actual luminosity section number for the beginning lumi section of this update
   unsigned int lumiSectionTag = firstLumiSectionSeen_ +
-    ((int) (updateNumber * lumiSectionsPerUpdate_)) - 1;
+    ((int) (updateNumber * lumiSectionsPerUpdate_));
 
   // retry the lookup of the backend interface, if needed
   if (bei == NULL) {
@@ -210,6 +241,7 @@ void FUShmDQMOutputService::postEventProcessing(const edm::Event &event,
     // create the message
     DQMEventMsgBuilder dqmMsgBuilder(&messageBuffer_[0], messageBuffer_.size(),
                                      event.id().run(), event.id().event(),
+                                     event.time(),
                                      lumiSectionTag, updateNumber,
                                      edm::getReleaseVersion(), dirName,
                                      toTable);
@@ -301,6 +333,8 @@ void FUShmDQMOutputService::postEndJobProcessing()
   if (DSS_DEBUG) {
     cout << "FUShmDQMOutputService::postEndJobProcessing called" << endl;
   }
+  // since the service is not destroyed we need to take care of endjob items here
+  initializationIsNeeded_ = true;
 }
 
 /**
@@ -396,9 +430,14 @@ void FUShmDQMOutputService::writeShmDQMData(DQMEventMsgBuilder const& dqmMsgBuil
     std::cout << "Folder = " << topFolder << " crc = " << crc << std::endl;
   }
 
-  bool ret = shmBuffer_->writeDqmEventData(runid, eventid,
+  if(!shmBuffer_) {
+    edm::LogError("FUDQMShmOutputService") 
+      << " Error writing to shared memory as shm is not available";
+  } else {
+    bool ret = shmBuffer_->writeDqmEventData(runid, eventid,
                (unsigned int)crc, buffer, size);
-  if(!ret) edm::LogError("FUShmDQMOutputService") << " Error with writing data to ShmBuffer";
+    if(!ret) edm::LogError("FUShmDQMOutputService") << " Error with writing data to ShmBuffer";
+  }
 
 }
 
@@ -495,4 +534,29 @@ void FUShmDQMOutputService::postModuleConstructionProcessing(const edm::ModuleDe
     cout << "FUShmDQMOutputService::postModuleConstructionProcessing called for "
          << moduleDesc.moduleName() << endl;
   }
+}
+
+bool FUShmDQMOutputService::attachToShm()
+{
+  if(0==shmBuffer_) {
+    shmBuffer_ = evf::FUShmBuffer::getShmBuffer();
+    if (0==shmBuffer_) {
+      edm::LogError("FUDQMShmOutputService")<<"Failed to attach to shared memory";
+      return false;
+    }
+    return true;    
+  }
+  return false;
+
+}
+
+
+
+bool FUShmDQMOutputService::detachFromShm()
+{
+  if(0!=shmBuffer_) {
+    shmdt(shmBuffer_);
+    shmBuffer_ = 0;
+  }
+  return true;
 }

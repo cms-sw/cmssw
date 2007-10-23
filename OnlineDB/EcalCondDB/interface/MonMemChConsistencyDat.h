@@ -43,6 +43,10 @@ class MonMemChConsistencyDat : public IDataItem {
   void writeDB(const EcalLogicID* ecid, const MonMemChConsistencyDat* item, MonRunIOV* iov)
     throw(std::runtime_error);
 
+  void writeArrayDB(const std::map< EcalLogicID, MonMemChConsistencyDat >* data, MonRunIOV* iov)
+    throw(std::runtime_error);
+
+
   void fetchData(std::map< EcalLogicID, MonMemChConsistencyDat >* fillVec, MonRunIOV* iov)
      throw(std::runtime_error);
 

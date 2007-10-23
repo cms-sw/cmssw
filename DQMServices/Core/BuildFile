@@ -1,10 +1,10 @@
-<export>
- <lib name=DQMServicesCore>
- <use name=FWCore/ParameterSet>
- <use name=Utilities/Threads>
- <use name=boost>
-</export>
 <use name=FWCore/ParameterSet>
 <use name=FWCore/Utilities>
-<use name=Utilities/General>
 <use name=boost>
+<use name=Utilities/General>
+<export>
+ <use name=FWCore/ParameterSet>
+ <use name=FWCore/Utilities>
+ <use name=Utilities/General>
+ <lib name=DQMServicesCore>
+</export>

@@ -13,7 +13,7 @@
 //
 // Original Author:  Samvel Khalatyan (ksamdev at gmail dot com)
 //         Created:  Wed Oct  5 16:42:34 CET 2006
-// $Id: SiStripOfflineDQM.cc,v 1.8 2007/03/12 19:49:16 samvel Exp $
+// $Id: SiStripOfflineDQM.cc,v 1.9 2007/03/12 22:32:14 samvel Exp $
 //
 //
 
@@ -41,7 +41,7 @@ SiStripOfflineDQM::SiStripOfflineDQM( const edm::ParameterSet &roPARAMETER_SET)
     bSAVE_IN_FILE_( roPARAMETER_SET.getUntrackedParameter<bool>( "bOutputMEsInRootFile")),
     oOUT_FILE_NAME_( roPARAMETER_SET.getUntrackedParameter<std::string>( "oOutputFile")),
     poMui_( new MonitorUIRoot()),
-    oActionExecutor_( roPARAMETER_SET) {
+    oActionExecutor_() {
 
   // Create MessageSender
   LogInfo( "SiStripOfflineDQM");
@@ -91,9 +91,26 @@ void SiStripOfflineDQM::endJob() {
   }
 
   poMui_->runQTests();
-  LogInfo( "SiStripOfflineDQM") << oActionExecutor_.getQTestSummary( poMui_);
-  LogInfo( "SiStripOfflineDQM") << oActionExecutor_.getQTestSummaryLite( poMui_);
 
+  LogInfo( "SiStripOfflineDQM")
+    << "Summary";
+  LogInfo( "SiStripOfflineDQM")
+    << oActionExecutor_.getQTestSummary( poMui_);
+
+  LogInfo( "SiStripOfflineDQM")
+    << "SummaryLite";
+  LogInfo( "SiStripOfflineDQM")
+    << oActionExecutor_.getQTestSummaryLite( poMui_);
+
+  LogInfo( "SiStripOfflineDQM")
+    << "SummaryXML";
+  LogInfo( "SiStripOfflineDQM")
+    << oActionExecutor_.getQTestSummaryXML( poMui_);
+
+  LogInfo( "SiStripOfflineDQM")
+    << "SummaryXMLLite";
+  LogInfo( "SiStripOfflineDQM")
+    << oActionExecutor_.getQTestSummaryXMLLite( poMui_);
 
   oActionExecutor_.createSummary( poMui_);
 

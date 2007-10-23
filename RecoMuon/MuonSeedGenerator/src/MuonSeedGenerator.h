@@ -38,9 +38,9 @@ class MuonSeedGenerator: public edm::EDProducer {
 
  private:
   void complete(MuonSeedFinder& seed, MuonTransientTrackingRecHit::MuonRecHitContainer &recHits, bool* used=0) const;
-  void checkAndFill(MuonSeedFinder& seedFinder, const edm::EventSetup& eSetup);
-  void fill(MuonSeedFinder& seedFinder, const edm::EventSetup& eSetup);
-
+  void checkAndFill(MuonSeedFinder& Theseed, const edm::EventSetup& eSetup);
+  void fill(MuonSeedFinder& theSeed, const edm::EventSetup& eSetup);
+  
   // FIXME: change in OwnVector?
   std::vector<TrajectorySeed> theSeeds;
 

@@ -1,8 +1,8 @@
 /*
  * \file EELaserClient.cc
  *
- * $Date: 2007/03/26 17:35:04 $
- * $Revision: 1.149 $
+ * $Date: 2007/06/11 17:42:39 $
+ * $Revision: 1.14 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -40,9 +40,12 @@
 
 #include "CondTools/Ecal/interface/EcalErrorDictionary.h"
 
-#include "DQM/EcalEndcapMonitorClient/interface/EcalErrorMask.h"
+#include "DQM/EcalCommon/interface/EcalErrorMask.h"
+#include <DQM/EcalCommon/interface/UtilsClient.h>
+#include <DQM/EcalCommon/interface/LogicID.h>
+#include <DQM/EcalCommon/interface/Numbers.h>
+
 #include <DQM/EcalEndcapMonitorClient/interface/EELaserClient.h>
-#include <DQM/EcalEndcapMonitorClient/interface/EEMUtilsClient.h>
 
 using namespace cms;
 using namespace edm;
@@ -68,9 +71,9 @@ EELaserClient::EELaserClient(const ParameterSet& ps){
   // prefix to ME paths
   prefixME_ = ps.getUntrackedParameter<string>("prefixME", "");
 
-  // vector of selected Super Modules (Defaults to all 36).
-  superModules_.reserve(36);
-  for ( unsigned int i = 1; i < 37; i++ ) superModules_.push_back(i);
+  // vector of selected Super Modules (Defaults to all 18).
+  superModules_.reserve(18);
+  for ( unsigned int i = 1; i < 19; i++ ) superModules_.push_back(i);
   superModules_ = ps.getUntrackedParameter<vector<int> >("superModules", superModules_);
 
   for ( unsigned int i=0; i<superModules_.size(); i++ ) {
@@ -197,7 +200,16 @@ EELaserClient::EELaserClient(const ParameterSet& ps){
     meaopn06_[ism-1] = 0;
     meaopn07_[ism-1] = 0;
     meaopn08_[ism-1] = 0;
-
+    
+    mepnprms01_[ism-1] = 0;
+    mepnprms02_[ism-1] = 0;
+    mepnprms03_[ism-1] = 0;
+    mepnprms04_[ism-1] = 0;
+    mepnprms05_[ism-1] = 0;
+    mepnprms06_[ism-1] = 0;
+    mepnprms07_[ism-1] = 0;
+    mepnprms08_[ism-1] = 0;
+    
     qth01_[ism-1] = 0;
     qth02_[ism-1] = 0;
     qth03_[ism-1] = 0;
@@ -230,8 +242,16 @@ EELaserClient::EELaserClient(const ParameterSet& ps){
 
   amplitudeThresholdPnG01_ = 50.;
   amplitudeThresholdPnG16_ = 50.;
-  pedestalThresholdPn_ = 200.;
-
+  
+  pedPnExpectedMean_[0] = 750.0;
+  pedPnExpectedMean_[1] = 750.0;
+  
+  pedPnDiscrepancyMean_[0] = 100.0;
+  pedPnDiscrepancyMean_[1] = 100.0;
+  
+  pedPnRMSThreshold_[0] = 1.0; // value at h4; expected nominal: 0.5
+  pedPnRMSThreshold_[1] = 3.0; // value at h4; expected nominal: 1.6
+  
 }
 
 EELaserClient::~EELaserClient(){
@@ -255,76 +275,76 @@ void EELaserClient::beginJob(MonitorUserInterface* mui){
 
       int ism = superModules_[i];
 
-      sprintf(qtname, "EELT laser quality SM%02d L1A", ism);
+      sprintf(qtname, "EELT laser quality %s L1A", Numbers::sEE(ism).c_str());
       qth01_[ism-1] = dynamic_cast<MEContentsProf2DWithinRangeROOT*> (mui_->createQTest(ContentsProf2DWithinRangeROOT::getAlgoName(), qtname));
 
-      sprintf(qtname, "EELT laser quality SM%02d L2A", ism);
+      sprintf(qtname, "EELT laser quality %s L2A", Numbers::sEE(ism).c_str());
       qth02_[ism-1] = dynamic_cast<MEContentsProf2DWithinRangeROOT*> (mui_->createQTest(ContentsProf2DWithinRangeROOT::getAlgoName(), qtname));
 
-      sprintf(qtname, "EELT laser quality SM%02d L3A", ism);
+      sprintf(qtname, "EELT laser quality %s L3A", Numbers::sEE(ism).c_str());
       qth03_[ism-1] = dynamic_cast<MEContentsProf2DWithinRangeROOT*> (mui_->createQTest(ContentsProf2DWithinRangeROOT::getAlgoName(), qtname));
 
-      sprintf(qtname, "EELT laser quality SM%02d L4A", ism);
+      sprintf(qtname, "EELT laser quality %s L4A", Numbers::sEE(ism).c_str());
       qth04_[ism-1] = dynamic_cast<MEContentsProf2DWithinRangeROOT*> (mui_->createQTest(ContentsProf2DWithinRangeROOT::getAlgoName(), qtname));
 
-      sprintf(qtname, "EELT laser quality SM%02d L1B", ism);
+      sprintf(qtname, "EELT laser quality %s L1B", Numbers::sEE(ism).c_str());
       qth05_[ism-1] = dynamic_cast<MEContentsProf2DWithinRangeROOT*> (mui_->createQTest(ContentsProf2DWithinRangeROOT::getAlgoName(), qtname));
 
-      sprintf(qtname, "EELT laser quality SM%02d L2B", ism);
+      sprintf(qtname, "EELT laser quality %s L2B", Numbers::sEE(ism).c_str());
       qth06_[ism-1] = dynamic_cast<MEContentsProf2DWithinRangeROOT*> (mui_->createQTest(ContentsProf2DWithinRangeROOT::getAlgoName(), qtname));
 
-      sprintf(qtname, "EELT laser quality SM%02d L3B", ism);
+      sprintf(qtname, "EELT laser quality %s L3B", Numbers::sEE(ism).c_str());
       qth07_[ism-1] = dynamic_cast<MEContentsProf2DWithinRangeROOT*> (mui_->createQTest(ContentsProf2DWithinRangeROOT::getAlgoName(), qtname));
 
-      sprintf(qtname, "EELT laser quality SM%02d L4B", ism);
+      sprintf(qtname, "EELT laser quality %s L4B", Numbers::sEE(ism).c_str());
       qth08_[ism-1] = dynamic_cast<MEContentsProf2DWithinRangeROOT*> (mui_->createQTest(ContentsProf2DWithinRangeROOT::getAlgoName(), qtname));
 
-      sprintf(qtname, "EELT laser amplitude quality PNs SM%02d L1 G01", ism);
+      sprintf(qtname, "EELT laser amplitude quality PNs %s L1 G01", Numbers::sEE(ism).c_str());
       qth09_[ism-1] = dynamic_cast<MEContentsProf2DWithinRangeROOT*> (mui_->createQTest(ContentsProf2DWithinRangeROOT::getAlgoName(), qtname));
 
-      sprintf(qtname, "EELT laser amplitude quality PNs SM%02d L2 G01", ism);
+      sprintf(qtname, "EELT laser amplitude quality PNs %s L2 G01", Numbers::sEE(ism).c_str());
       qth10_[ism-1] = dynamic_cast<MEContentsProf2DWithinRangeROOT*> (mui_->createQTest(ContentsProf2DWithinRangeROOT::getAlgoName(), qtname));
 
-      sprintf(qtname, "EELT laser amplitude quality PNs SM%02d L3 G01", ism);
+      sprintf(qtname, "EELT laser amplitude quality PNs %s L3 G01", Numbers::sEE(ism).c_str());
       qth11_[ism-1] = dynamic_cast<MEContentsProf2DWithinRangeROOT*> (mui_->createQTest(ContentsProf2DWithinRangeROOT::getAlgoName(), qtname));
 
-      sprintf(qtname, "EELT laser amplitude quality PNs SM%02d L4 G01", ism);
+      sprintf(qtname, "EELT laser amplitude quality PNs %s L4 G01", Numbers::sEE(ism).c_str());
       qth12_[ism-1] = dynamic_cast<MEContentsProf2DWithinRangeROOT*> (mui_->createQTest(ContentsProf2DWithinRangeROOT::getAlgoName(), qtname));
 
-      sprintf(qtname, "EELT laser pedestal quality PNs SM%02d L1 G01", ism);
+      sprintf(qtname, "EELT laser pedestal quality PNs %s L1 G01", Numbers::sEE(ism).c_str());
       qth13_[ism-1] = dynamic_cast<MEContentsProf2DWithinRangeROOT*> (mui_->createQTest(ContentsProf2DWithinRangeROOT::getAlgoName(), qtname));
 
-      sprintf(qtname, "EELT laser pedestal quality PNs SM%02d L2 G01", ism);
+      sprintf(qtname, "EELT laser pedestal quality PNs %s L2 G01", Numbers::sEE(ism).c_str());
       qth14_[ism-1] = dynamic_cast<MEContentsProf2DWithinRangeROOT*> (mui_->createQTest(ContentsProf2DWithinRangeROOT::getAlgoName(), qtname));
 
-      sprintf(qtname, "EELT laser pedestal quality PNs SM%02d L3 G01", ism);
+      sprintf(qtname, "EELT laser pedestal quality PNs %s L3 G01", Numbers::sEE(ism).c_str());
       qth15_[ism-1] = dynamic_cast<MEContentsProf2DWithinRangeROOT*> (mui_->createQTest(ContentsProf2DWithinRangeROOT::getAlgoName(), qtname));
 
-      sprintf(qtname, "EELT laser pedestal quality PNs SM%02d L4 G01", ism);
+      sprintf(qtname, "EELT laser pedestal quality PNs %s L4 G01", Numbers::sEE(ism).c_str());
       qth16_[ism-1] = dynamic_cast<MEContentsProf2DWithinRangeROOT*> (mui_->createQTest(ContentsProf2DWithinRangeROOT::getAlgoName(), qtname));
 
-      sprintf(qtname, "EELT laser amplitude quality PNs SM%02d L1 G16", ism);
+      sprintf(qtname, "EELT laser amplitude quality PNs %s L1 G16", Numbers::sEE(ism).c_str());
       qth17_[ism-1] = dynamic_cast<MEContentsProf2DWithinRangeROOT*> (mui_->createQTest(ContentsProf2DWithinRangeROOT::getAlgoName(), qtname));
 
-      sprintf(qtname, "EELT laser amplitude quality PNs SM%02d L2 G16", ism);
+      sprintf(qtname, "EELT laser amplitude quality PNs %s L2 G16", Numbers::sEE(ism).c_str());
       qth18_[ism-1] = dynamic_cast<MEContentsProf2DWithinRangeROOT*> (mui_->createQTest(ContentsProf2DWithinRangeROOT::getAlgoName(), qtname));
 
-      sprintf(qtname, "EELT laser amplitude quality PNs SM%02d L3 G16", ism);
+      sprintf(qtname, "EELT laser amplitude quality PNs %s L3 G16", Numbers::sEE(ism).c_str());
       qth19_[ism-1] = dynamic_cast<MEContentsProf2DWithinRangeROOT*> (mui_->createQTest(ContentsProf2DWithinRangeROOT::getAlgoName(), qtname));
 
-      sprintf(qtname, "EELT laser amplitude quality PNs SM%02d L4 G16", ism);
+      sprintf(qtname, "EELT laser amplitude quality PNs %s L4 G16", Numbers::sEE(ism).c_str());
       qth20_[ism-1] = dynamic_cast<MEContentsProf2DWithinRangeROOT*> (mui_->createQTest(ContentsProf2DWithinRangeROOT::getAlgoName(), qtname));
 
-      sprintf(qtname, "EELT laser pedestal quality PNs SM%02d L1 G16", ism);
+      sprintf(qtname, "EELT laser pedestal quality PNs %s L1 G16", Numbers::sEE(ism).c_str());
       qth21_[ism-1] = dynamic_cast<MEContentsProf2DWithinRangeROOT*> (mui_->createQTest(ContentsProf2DWithinRangeROOT::getAlgoName(), qtname));
 
-      sprintf(qtname, "EELT laser pedestal quality PNs SM%02d L2 G16", ism);
+      sprintf(qtname, "EELT laser pedestal quality PNs %s L2 G16", Numbers::sEE(ism).c_str());
       qth22_[ism-1] = dynamic_cast<MEContentsProf2DWithinRangeROOT*> (mui_->createQTest(ContentsProf2DWithinRangeROOT::getAlgoName(), qtname));
 
-      sprintf(qtname, "EELT laser pedestal quality PNs SM%02d L3 G16", ism);
+      sprintf(qtname, "EELT laser pedestal quality PNs %s L3 G16", Numbers::sEE(ism).c_str());
       qth23_[ism-1] = dynamic_cast<MEContentsProf2DWithinRangeROOT*> (mui_->createQTest(ContentsProf2DWithinRangeROOT::getAlgoName(), qtname));
 
-      sprintf(qtname, "EELT laser pedestal quality PNs SM%02d L4 G16", ism);
+      sprintf(qtname, "EELT laser pedestal quality PNs %s L4 G16", Numbers::sEE(ism).c_str());
       qth24_[ism-1] = dynamic_cast<MEContentsProf2DWithinRangeROOT*> (mui_->createQTest(ContentsProf2DWithinRangeROOT::getAlgoName(), qtname));
 
       qth01_[ism-1]->setMeanRange(100.0, 4096.0*12.);
@@ -340,19 +360,26 @@ void EELaserClient::beginJob(MonitorUserInterface* mui){
       qth10_[ism-1]->setMeanRange(amplitudeThresholdPnG01_, 4096.0);
       qth11_[ism-1]->setMeanRange(amplitudeThresholdPnG01_, 4096.0);
       qth12_[ism-1]->setMeanRange(amplitudeThresholdPnG01_, 4096.0);
-      qth13_[ism-1]->setMeanRange(pedestalThresholdPn_, 4096.0);
-      qth14_[ism-1]->setMeanRange(pedestalThresholdPn_, 4096.0);
-      qth15_[ism-1]->setMeanRange(pedestalThresholdPn_, 4096.0);
-      qth16_[ism-1]->setMeanRange(pedestalThresholdPn_, 4096.0);
+      qth13_[ism-1]->setMeanRange(pedPnExpectedMean_[0] - pedPnDiscrepancyMean_[0],
+				  pedPnExpectedMean_[0] + pedPnDiscrepancyMean_[0]);
+      qth14_[ism-1]->setMeanRange(pedPnExpectedMean_[0] - pedPnDiscrepancyMean_[0],
+				  pedPnExpectedMean_[0] + pedPnDiscrepancyMean_[0]);
+      qth15_[ism-1]->setMeanRange(pedPnExpectedMean_[0] - pedPnDiscrepancyMean_[0],
+				  pedPnExpectedMean_[0] + pedPnDiscrepancyMean_[0]);
+      qth16_[ism-1]->setMeanRange(pedPnExpectedMean_[0] - pedPnDiscrepancyMean_[0],
+				  pedPnExpectedMean_[0] + pedPnDiscrepancyMean_[0]);
       qth17_[ism-1]->setMeanRange(amplitudeThresholdPnG16_, 4096.0);
       qth18_[ism-1]->setMeanRange(amplitudeThresholdPnG16_, 4096.0);
       qth19_[ism-1]->setMeanRange(amplitudeThresholdPnG16_, 4096.0);
       qth20_[ism-1]->setMeanRange(amplitudeThresholdPnG16_, 4096.0);
-      qth21_[ism-1]->setMeanRange(pedestalThresholdPn_, 4096.0);
-      qth22_[ism-1]->setMeanRange(pedestalThresholdPn_, 4096.0);
-      qth23_[ism-1]->setMeanRange(pedestalThresholdPn_, 4096.0);
-      qth24_[ism-1]->setMeanRange(pedestalThresholdPn_, 4096.0);
-
+      qth21_[ism-1]->setMeanRange(pedPnExpectedMean_[1] - pedPnDiscrepancyMean_[1],
+				  pedPnExpectedMean_[1] + pedPnDiscrepancyMean_[1]);
+      qth22_[ism-1]->setMeanRange(pedPnExpectedMean_[1] - pedPnDiscrepancyMean_[1],
+				  pedPnExpectedMean_[1] + pedPnDiscrepancyMean_[1]);
+      qth23_[ism-1]->setMeanRange(pedPnExpectedMean_[1] - pedPnDiscrepancyMean_[1],
+				  pedPnExpectedMean_[1] + pedPnDiscrepancyMean_[1]);
+      qth24_[ism-1]->setMeanRange(pedPnExpectedMean_[1] - pedPnDiscrepancyMean_[1],
+				  pedPnExpectedMean_[1] + pedPnDiscrepancyMean_[1]);
       qth01_[ism-1]->setMeanTolerance(percentVariation_);
       qth02_[ism-1]->setMeanTolerance(percentVariation_);
       qth03_[ism-1]->setMeanTolerance(percentVariation_);
@@ -366,19 +393,18 @@ void EELaserClient::beginJob(MonitorUserInterface* mui){
       qth10_[ism-1]->setRMSRange(0.0, 4096.0);
       qth11_[ism-1]->setRMSRange(0.0, 4096.0);
       qth12_[ism-1]->setRMSRange(0.0, 4096.0);
-      qth13_[ism-1]->setRMSRange(0.0, 4096.0);
-      qth14_[ism-1]->setRMSRange(0.0, 4096.0);
-      qth15_[ism-1]->setRMSRange(0.0, 4096.0);
-      qth16_[ism-1]->setRMSRange(0.0, 4096.0);
+      qth13_[ism-1]->setRMSRange(0.0, pedPnRMSThreshold_[0]);
+      qth14_[ism-1]->setRMSRange(0.0, pedPnRMSThreshold_[0]);
+      qth15_[ism-1]->setRMSRange(0.0, pedPnRMSThreshold_[0]);
+      qth16_[ism-1]->setRMSRange(0.0, pedPnRMSThreshold_[0]);
       qth17_[ism-1]->setRMSRange(0.0, 4096.0);
       qth18_[ism-1]->setRMSRange(0.0, 4096.0);
       qth19_[ism-1]->setRMSRange(0.0, 4096.0);
       qth20_[ism-1]->setRMSRange(0.0, 4096.0);
-      qth21_[ism-1]->setRMSRange(0.0, 4096.0);
-      qth22_[ism-1]->setRMSRange(0.0, 4096.0);
-      qth23_[ism-1]->setRMSRange(0.0, 4096.0);
-      qth24_[ism-1]->setRMSRange(0.0, 4096.0);
-
+      qth21_[ism-1]->setRMSRange(0.0, pedPnRMSThreshold_[1]);
+      qth22_[ism-1]->setRMSRange(0.0, pedPnRMSThreshold_[1]);
+      qth23_[ism-1]->setRMSRange(0.0, pedPnRMSThreshold_[1]);
+      qth24_[ism-1]->setRMSRange(0.0, pedPnRMSThreshold_[1]);
       qth01_[ism-1]->setMinimumEntries(10*1700);
       qth02_[ism-1]->setMinimumEntries(10*1700);
       qth03_[ism-1]->setMinimumEntries(10*1700);
@@ -482,167 +508,192 @@ void EELaserClient::setup(void) {
     int ism = superModules_[i];
 
     if ( meg01_[ism-1] ) bei->removeElement( meg01_[ism-1]->getName() );
-    sprintf(histo, "EELT laser quality L1 SM%02d", ism);
+    sprintf(histo, "EELT laser quality L1 %s", Numbers::sEE(ism).c_str());
     meg01_[ism-1] = bei->book2D(histo, histo, 85, 0., 85., 20, 0., 20.);
     if ( meg02_[ism-1] ) bei->removeElement( meg02_[ism-1]->getName() );
-    sprintf(histo, "EELT laser quality L2 SM%02d", ism);
+    sprintf(histo, "EELT laser quality L2 %s", Numbers::sEE(ism).c_str());
     meg02_[ism-1] = bei->book2D(histo, histo, 85, 0., 85., 20, 0., 20.);
     if ( meg03_[ism-1] ) bei->removeElement( meg03_[ism-1]->getName() );
-    sprintf(histo, "EELT laser quality L3 SM%02d", ism);
+    sprintf(histo, "EELT laser quality L3 %s", Numbers::sEE(ism).c_str());
     meg03_[ism-1] = bei->book2D(histo, histo, 85, 0., 85., 20, 0., 20.);
     if ( meg04_[ism-1] ) bei->removeElement( meg04_[ism-1]->getName() );
-    sprintf(histo, "EELT laser quality L4 SM%02d", ism);
+    sprintf(histo, "EELT laser quality L4 %s", Numbers::sEE(ism).c_str());
     meg04_[ism-1] = bei->book2D(histo, histo, 85, 0., 85., 20, 0., 20.);
 
     if ( meg05_[ism-1] ) bei->removeElement( meg05_[ism-1]->getName() );
-    sprintf(histo, "EELT laser quality L1 PNs SM%02d G01", ism);
+    sprintf(histo, "EELT laser quality L1 PNs %s G01", Numbers::sEE(ism).c_str());
     meg05_[ism-1] = bei->book2D(histo, histo, 10, 0., 10., 1, 0., 5.);
     if ( meg06_[ism-1] ) bei->removeElement( meg06_[ism-1]->getName() );
-    sprintf(histo, "EELT laser quality L2 PNs SM%02d G01", ism);
+    sprintf(histo, "EELT laser quality L2 PNs %s G01", Numbers::sEE(ism).c_str());
     meg06_[ism-1] = bei->book2D(histo, histo, 10, 0., 10., 1, 0., 5.);
     if ( meg07_[ism-1] ) bei->removeElement( meg07_[ism-1]->getName() );
-    sprintf(histo, "EELT laser quality L3 PNs SM%02d G01", ism);
+    sprintf(histo, "EELT laser quality L3 PNs %s G01", Numbers::sEE(ism).c_str());
     meg07_[ism-1] = bei->book2D(histo, histo, 10, 0., 10., 1, 0., 5.);
     if ( meg08_[ism-1] ) bei->removeElement( meg08_[ism-1]->getName() );
-    sprintf(histo, "EELT laser quality L4 PNs SM%02d G01", ism);
+    sprintf(histo, "EELT laser quality L4 PNs %s G01", Numbers::sEE(ism).c_str());
     meg08_[ism-1] = bei->book2D(histo, histo, 10, 0., 10., 1, 0., 5.);
     if ( meg09_[ism-1] ) bei->removeElement( meg09_[ism-1]->getName() );
-    sprintf(histo, "EELT laser quality L1 PNs SM%02d G16", ism);
+    sprintf(histo, "EELT laser quality L1 PNs %s G16", Numbers::sEE(ism).c_str());
     meg09_[ism-1] = bei->book2D(histo, histo, 10, 0., 10., 1, 0., 5.);
     if ( meg10_[ism-1] ) bei->removeElement( meg10_[ism-1]->getName() );
-    sprintf(histo, "EELT laser quality L2 PNs SM%02d G16", ism);
+    sprintf(histo, "EELT laser quality L2 PNs %s G16", Numbers::sEE(ism).c_str());
     meg10_[ism-1] = bei->book2D(histo, histo, 10, 0., 10., 1, 0., 5.);
     if ( meg11_[ism-1] ) bei->removeElement( meg11_[ism-1]->getName() );
-    sprintf(histo, "EELT laser quality L3 PNs SM%02d G16", ism);
+    sprintf(histo, "EELT laser quality L3 PNs %s G16", Numbers::sEE(ism).c_str());
     meg11_[ism-1] = bei->book2D(histo, histo, 10, 0., 10., 1, 0., 5.);
     if ( meg12_[ism-1] ) bei->removeElement( meg12_[ism-1]->getName() );
-    sprintf(histo, "EELT laser quality L4 PNs SM%02d G16", ism);
+    sprintf(histo, "EELT laser quality L4 PNs %s G16", Numbers::sEE(ism).c_str());
     meg12_[ism-1] = bei->book2D(histo, histo, 10, 0., 10., 1, 0., 5.);
 
     if ( mea01_[ism-1] ) bei->removeElement( mea01_[ism-1]->getName() );;
-    sprintf(histo, "EELT amplitude L1A SM%02d", ism);
+    sprintf(histo, "EELT amplitude L1A %s", Numbers::sEE(ism).c_str());
     mea01_[ism-1] = bei->book1D(histo, histo, 1700, 0., 1700.);
     if ( mea02_[ism-1] ) bei->removeElement( mea02_[ism-1]->getName() );
-    sprintf(histo, "EELT amplitude L2A SM%02d", ism);
+    sprintf(histo, "EELT amplitude L2A %s", Numbers::sEE(ism).c_str());
     mea02_[ism-1] = bei->book1D(histo, histo, 1700, 0., 1700.);
     if ( mea03_[ism-1] ) bei->removeElement( mea03_[ism-1]->getName() );
-    sprintf(histo, "EELT amplitude L3A SM%02d", ism);
+    sprintf(histo, "EELT amplitude L3A %s", Numbers::sEE(ism).c_str());
     mea03_[ism-1] = bei->book1D(histo, histo, 1700, 0., 1700.);
     if ( mea04_[ism-1] ) bei->removeElement( mea04_[ism-1]->getName() );
-    sprintf(histo, "EELT amplitude L4A SM%02d", ism);
+    sprintf(histo, "EELT amplitude L4A %s", Numbers::sEE(ism).c_str());
     mea04_[ism-1] = bei->book1D(histo, histo, 1700, 0., 1700.);
     if ( mea05_[ism-1] ) bei->removeElement( mea05_[ism-1]->getName() );;
-    sprintf(histo, "EELT amplitude L1B SM%02d", ism);
+    sprintf(histo, "EELT amplitude L1B %s", Numbers::sEE(ism).c_str());
     mea05_[ism-1] = bei->book1D(histo, histo, 1700, 0., 1700.);
     if ( mea06_[ism-1] ) bei->removeElement( mea06_[ism-1]->getName() );
-    sprintf(histo, "EELT amplitude L2B SM%02d", ism);
+    sprintf(histo, "EELT amplitude L2B %s", Numbers::sEE(ism).c_str());
     mea06_[ism-1] = bei->book1D(histo, histo, 1700, 0., 1700.);
     if ( mea07_[ism-1] ) bei->removeElement( mea07_[ism-1]->getName() );
-    sprintf(histo, "EELT amplitude L3B SM%02d", ism);
+    sprintf(histo, "EELT amplitude L3B %s", Numbers::sEE(ism).c_str());
     mea07_[ism-1] = bei->book1D(histo, histo, 1700, 0., 1700.);
     if ( mea08_[ism-1] ) bei->removeElement( mea08_[ism-1]->getName() );
-    sprintf(histo, "EELT amplitude L4B SM%02d", ism);
+    sprintf(histo, "EELT amplitude L4B %s", Numbers::sEE(ism).c_str());
     mea08_[ism-1] = bei->book1D(histo, histo, 1700, 0., 1700.);
 
     if ( met01_[ism-1] ) bei->removeElement( met01_[ism-1]->getName() );
-    sprintf(histo, "EELT timing L1A SM%02d", ism);
+    sprintf(histo, "EELT timing L1A %s", Numbers::sEE(ism).c_str());
     met01_[ism-1] = bei->book1D(histo, histo, 1700, 0., 1700.);
     if ( met02_[ism-1] ) bei->removeElement( met02_[ism-1]->getName() );
-    sprintf(histo, "EELT timing L2A SM%02d", ism);
+    sprintf(histo, "EELT timing L2A %s", Numbers::sEE(ism).c_str());
     met02_[ism-1] = bei->book1D(histo, histo, 1700, 0., 1700.);
     if ( met03_[ism-1] ) bei->removeElement( met03_[ism-1]->getName() );
-    sprintf(histo, "EELT timing L3A SM%02d", ism);
+    sprintf(histo, "EELT timing L3A %s", Numbers::sEE(ism).c_str());
     met03_[ism-1] = bei->book1D(histo, histo, 1700, 0., 1700.);
     if ( met04_[ism-1] ) bei->removeElement( met04_[ism-1]->getName() );
-    sprintf(histo, "EELT timing L4A SM%02d", ism);
+    sprintf(histo, "EELT timing L4A %s", Numbers::sEE(ism).c_str());
     met04_[ism-1] = bei->book1D(histo, histo, 1700, 0., 1700.);
     if ( met05_[ism-1] ) bei->removeElement( met05_[ism-1]->getName() );
-    sprintf(histo, "EELT timing L1B SM%02d", ism);
+    sprintf(histo, "EELT timing L1B %s", Numbers::sEE(ism).c_str());
     met05_[ism-1] = bei->book1D(histo, histo, 1700, 0., 1700.);
     if ( met06_[ism-1] ) bei->removeElement( met06_[ism-1]->getName() );
-    sprintf(histo, "EELT timing L2B SM%02d", ism);
+    sprintf(histo, "EELT timing L2B %s", Numbers::sEE(ism).c_str());
     met06_[ism-1] = bei->book1D(histo, histo, 1700, 0., 1700.);
     if ( met07_[ism-1] ) bei->removeElement( met07_[ism-1]->getName() );
-    sprintf(histo, "EELT timing L3B SM%02d", ism);
+    sprintf(histo, "EELT timing L3B %s", Numbers::sEE(ism).c_str());
     met07_[ism-1] = bei->book1D(histo, histo, 1700, 0., 1700.);
     if ( met08_[ism-1] ) bei->removeElement( met08_[ism-1]->getName() );
-    sprintf(histo, "EELT timing L4B SM%02d", ism);
+    sprintf(histo, "EELT timing L4B %s", Numbers::sEE(ism).c_str());
     met08_[ism-1] = bei->book1D(histo, histo, 1700, 0., 1700.);
 
     if ( metav01_[ism-1] ) bei->removeElement( metav01_[ism-1]->getName() );
-    sprintf(histo, "EELT timing mean L1A SM%02d", ism);
+    sprintf(histo, "EELT timing mean L1A %s", Numbers::sEE(ism).c_str());
     metav01_[ism-1] = bei->book1D(histo, histo, 100, 0., 10.);
     if ( metav02_[ism-1] ) bei->removeElement( metav02_[ism-1]->getName() );
-    sprintf(histo, "EELT timing mean L2A SM%02d", ism);
+    sprintf(histo, "EELT timing mean L2A %s", Numbers::sEE(ism).c_str());
     metav02_[ism-1] = bei->book1D(histo, histo, 100, 0., 10.);
     if ( metav03_[ism-1] ) bei->removeElement( metav03_[ism-1]->getName() );
-    sprintf(histo, "EELT timing mean L3A SM%02d", ism);
+    sprintf(histo, "EELT timing mean L3A %s", Numbers::sEE(ism).c_str());
     metav03_[ism-1] = bei->book1D(histo, histo, 100, 0., 10.);
     if ( metav04_[ism-1] ) bei->removeElement( metav04_[ism-1]->getName() );
-    sprintf(histo, "EELT timing mean L4A SM%02d", ism);
+    sprintf(histo, "EELT timing mean L4A %s", Numbers::sEE(ism).c_str());
     metav04_[ism-1] = bei->book1D(histo, histo, 100, 0., 10.);
     if ( metav05_[ism-1] ) bei->removeElement( metav05_[ism-1]->getName() );
-    sprintf(histo, "EELT timing mean L1B SM%02d", ism);
+    sprintf(histo, "EELT timing mean L1B %s", Numbers::sEE(ism).c_str());
     metav05_[ism-1] = bei->book1D(histo, histo, 100, 0., 10.);
     if ( metav06_[ism-1] ) bei->removeElement( metav06_[ism-1]->getName() );
-    sprintf(histo, "EELT timing mean L2B SM%02d", ism);
+    sprintf(histo, "EELT timing mean L2B %s", Numbers::sEE(ism).c_str());
     metav06_[ism-1] = bei->book1D(histo, histo, 100, 0., 10.);
     if ( metav07_[ism-1] ) bei->removeElement( metav07_[ism-1]->getName() );
-    sprintf(histo, "EELT timing mean L3B SM%02d", ism);
+    sprintf(histo, "EELT timing mean L3B %s", Numbers::sEE(ism).c_str());
     metav07_[ism-1] = bei->book1D(histo, histo, 100, 0., 10.);
     if ( metav08_[ism-1] ) bei->removeElement( metav08_[ism-1]->getName() );
-    sprintf(histo, "EELT timing mean L4B SM%02d", ism);
+    sprintf(histo, "EELT timing mean L4B %s", Numbers::sEE(ism).c_str());
     metav08_[ism-1] = bei->book1D(histo, histo, 100, 0., 10.);
 
     if ( metrms01_[ism-1] ) bei->removeElement( metrms01_[ism-1]->getName() );
-    sprintf(histo, "EELT timing rms L1A SM%02d", ism);
+    sprintf(histo, "EELT timing rms L1A %s", Numbers::sEE(ism).c_str());
     metrms01_[ism-1] = bei->book1D(histo, histo, 100, 0., 0.5);
     if ( metrms02_[ism-1] ) bei->removeElement( metrms02_[ism-1]->getName() );
-    sprintf(histo, "EELT timing rms L2A SM%02d", ism);
+    sprintf(histo, "EELT timing rms L2A %s", Numbers::sEE(ism).c_str());
     metrms02_[ism-1] = bei->book1D(histo, histo, 100, 0., 0.5);
     if ( metrms03_[ism-1] ) bei->removeElement( metrms03_[ism-1]->getName() );
-    sprintf(histo, "EELT timing rms L3A SM%02d", ism);
+    sprintf(histo, "EELT timing rms L3A %s", Numbers::sEE(ism).c_str());
     metrms03_[ism-1] = bei->book1D(histo, histo, 100, 0., 0.5);
     if ( metrms04_[ism-1] ) bei->removeElement( metrms04_[ism-1]->getName() );
-    sprintf(histo, "EELT timing rms L4A SM%02d", ism);
+    sprintf(histo, "EELT timing rms L4A %s", Numbers::sEE(ism).c_str());
     metrms04_[ism-1] = bei->book1D(histo, histo, 100, 0., 0.5);
     if ( metrms05_[ism-1] ) bei->removeElement( metrms05_[ism-1]->getName() );
-    sprintf(histo, "EELT timing rms L1B SM%02d", ism);
+    sprintf(histo, "EELT timing rms L1B %s", Numbers::sEE(ism).c_str());
     metrms05_[ism-1] = bei->book1D(histo, histo, 100, 0., 0.5);
     if ( metrms06_[ism-1] ) bei->removeElement( metrms06_[ism-1]->getName() );
-    sprintf(histo, "EELT timing rms L2B SM%02d", ism);
+    sprintf(histo, "EELT timing rms L2B %s", Numbers::sEE(ism).c_str());
     metrms06_[ism-1] = bei->book1D(histo, histo, 100, 0., 0.5);
     if ( metrms07_[ism-1] ) bei->removeElement( metrms07_[ism-1]->getName() );
-    sprintf(histo, "EELT timing rms L3B SM%02d", ism);
+    sprintf(histo, "EELT timing rms L3B %s", Numbers::sEE(ism).c_str());
     metrms07_[ism-1] = bei->book1D(histo, histo, 100, 0., 0.5);
     if ( metrms08_[ism-1] ) bei->removeElement( metrms08_[ism-1]->getName() );
-    sprintf(histo, "EELT timing rms L4B SM%02d", ism);
+    sprintf(histo, "EELT timing rms L4B %s", Numbers::sEE(ism).c_str());
     metrms08_[ism-1] = bei->book1D(histo, histo, 100, 0., 0.5);
 
     if ( meaopn01_[ism-1] ) bei->removeElement( meaopn01_[ism-1]->getName() );
-    sprintf(histo, "EELT amplitude over PN L1A SM%02d", ism);
+    sprintf(histo, "EELT amplitude over PN L1A %s", Numbers::sEE(ism).c_str());
     meaopn01_[ism-1] = bei->book1D(histo, histo, 1700, 0., 1700.);
     if ( meaopn02_[ism-1] ) bei->removeElement( meaopn02_[ism-1]->getName() );
-    sprintf(histo, "EELT amplitude over PN L2A SM%02d", ism);
+    sprintf(histo, "EELT amplitude over PN L2A %s", Numbers::sEE(ism).c_str());
     meaopn02_[ism-1] = bei->book1D(histo, histo, 1700, 0., 1700.);
     if ( meaopn03_[ism-1] ) bei->removeElement( meaopn03_[ism-1]->getName() );
-    sprintf(histo, "EELT amplitude over PN L3A SM%02d", ism);
+    sprintf(histo, "EELT amplitude over PN L3A %s", Numbers::sEE(ism).c_str());
     meaopn03_[ism-1] = bei->book1D(histo, histo, 1700, 0., 1700.);
     if ( meaopn04_[ism-1] ) bei->removeElement( meaopn04_[ism-1]->getName() );
-    sprintf(histo, "EELT amplitude over PN L4A SM%02d", ism);
+    sprintf(histo, "EELT amplitude over PN L4A %s", Numbers::sEE(ism).c_str());
     meaopn04_[ism-1] = bei->book1D(histo, histo, 1700, 0., 1700.);
     if ( meaopn05_[ism-1] ) bei->removeElement( meaopn05_[ism-1]->getName() );
-    sprintf(histo, "EELT amplitude over PN L1B SM%02d", ism);
+    sprintf(histo, "EELT amplitude over PN L1B %s", Numbers::sEE(ism).c_str());
     meaopn05_[ism-1] = bei->book1D(histo, histo, 1700, 0., 1700.);
     if ( meaopn06_[ism-1] ) bei->removeElement( meaopn06_[ism-1]->getName() );
-    sprintf(histo, "EELT amplitude over PN L2B SM%02d", ism);
+    sprintf(histo, "EELT amplitude over PN L2B %s", Numbers::sEE(ism).c_str());
     meaopn06_[ism-1] = bei->book1D(histo, histo, 1700, 0., 1700.);
     if ( meaopn07_[ism-1] ) bei->removeElement( meaopn07_[ism-1]->getName() );
-    sprintf(histo, "EELT amplitude over PN L3B SM%02d", ism);
+    sprintf(histo, "EELT amplitude over PN L3B %s", Numbers::sEE(ism).c_str());
     meaopn07_[ism-1] = bei->book1D(histo, histo, 1700, 0., 1700.);
     if ( meaopn08_[ism-1] ) bei->removeElement( meaopn08_[ism-1]->getName() );
-    sprintf(histo, "EELT amplitude over PN L4B SM%02d", ism);
+    sprintf(histo, "EELT amplitude over PN L4B %s", Numbers::sEE(ism).c_str());
     meaopn08_[ism-1] = bei->book1D(histo, histo, 1700, 0., 1700.);
+    
+    if ( mepnprms01_[ism-1] ) bei->removeElement( mepnprms01_[ism-1]->getName() );
+    sprintf(histo, "EEPDT PNs pedestal rms %s G01 L1", Numbers::sEE(ism).c_str());
+    mepnprms01_[ism-1] = bei->book1D(histo, histo, 100, 0., 10.);
+    if ( mepnprms02_[ism-1] ) bei->removeElement( mepnprms02_[ism-1]->getName() );
+    sprintf(histo, "EEPDT PNs pedestal rms %s G01 L2", Numbers::sEE(ism).c_str());
+    mepnprms02_[ism-1] = bei->book1D(histo, histo, 100, 0., 10.);
+    if ( mepnprms03_[ism-1] ) bei->removeElement( mepnprms03_[ism-1]->getName() );
+    sprintf(histo, "EEPDT PNs pedestal rms %s G01 L3", Numbers::sEE(ism).c_str());
+    mepnprms03_[ism-1] = bei->book1D(histo, histo, 100, 0., 10.);
+    if ( mepnprms04_[ism-1] ) bei->removeElement( mepnprms04_[ism-1]->getName() );
+    sprintf(histo, "EEPDT PNs pedestal rms %s G01 L4", Numbers::sEE(ism).c_str());
+    mepnprms04_[ism-1] = bei->book1D(histo, histo, 100, 0., 10.);
+    if ( mepnprms05_[ism-1] ) bei->removeElement( mepnprms05_[ism-1]->getName() );
+    sprintf(histo, "EEPDT PNs pedestal rms %s G16 L1", Numbers::sEE(ism).c_str());
+    mepnprms05_[ism-1] = bei->book1D(histo, histo, 100, 0., 10.);
+    if ( mepnprms06_[ism-1] ) bei->removeElement( mepnprms06_[ism-1]->getName() );
+    sprintf(histo, "EEPDT PNs pedestal rms %s G16 L2", Numbers::sEE(ism).c_str());
+    mepnprms06_[ism-1] = bei->book1D(histo, histo, 100, 0., 10.);
+    if ( mepnprms07_[ism-1] ) bei->removeElement( mepnprms07_[ism-1]->getName() );
+    sprintf(histo, "EEPDT PNs pedestal rms %s G16 L3", Numbers::sEE(ism).c_str());
+    mepnprms07_[ism-1] = bei->book1D(histo, histo, 100, 0., 10.);
+    if ( mepnprms08_[ism-1] ) bei->removeElement( mepnprms08_[ism-1]->getName() );
+    sprintf(histo, "EEPDT PNs pedestal rms %s G16 L4", Numbers::sEE(ism).c_str());
+    mepnprms08_[ism-1] = bei->book1D(histo, histo, 100, 0., 10.);
 
   }
 
@@ -650,19 +701,19 @@ void EELaserClient::setup(void) {
 
     int ism = superModules_[i];
 
-    EEMUtilsClient::resetHisto( meg01_[ism-1] );
-    EEMUtilsClient::resetHisto( meg02_[ism-1] );
-    EEMUtilsClient::resetHisto( meg03_[ism-1] );
-    EEMUtilsClient::resetHisto( meg04_[ism-1] );
+    UtilsClient::resetHisto( meg01_[ism-1] );
+    UtilsClient::resetHisto( meg02_[ism-1] );
+    UtilsClient::resetHisto( meg03_[ism-1] );
+    UtilsClient::resetHisto( meg04_[ism-1] );
 
-    EEMUtilsClient::resetHisto( meg05_[ism-1] );
-    EEMUtilsClient::resetHisto( meg06_[ism-1] );
-    EEMUtilsClient::resetHisto( meg07_[ism-1] );
-    EEMUtilsClient::resetHisto( meg08_[ism-1] );
-    EEMUtilsClient::resetHisto( meg09_[ism-1] );
-    EEMUtilsClient::resetHisto( meg10_[ism-1] );
-    EEMUtilsClient::resetHisto( meg11_[ism-1] );
-    EEMUtilsClient::resetHisto( meg12_[ism-1] );
+    UtilsClient::resetHisto( meg05_[ism-1] );
+    UtilsClient::resetHisto( meg06_[ism-1] );
+    UtilsClient::resetHisto( meg07_[ism-1] );
+    UtilsClient::resetHisto( meg08_[ism-1] );
+    UtilsClient::resetHisto( meg09_[ism-1] );
+    UtilsClient::resetHisto( meg10_[ism-1] );
+    UtilsClient::resetHisto( meg11_[ism-1] );
+    UtilsClient::resetHisto( meg12_[ism-1] );
 
     for ( int ie = 1; ie <= 85; ie++ ) {
       for ( int ip = 1; ip <= 20; ip++ ) {
@@ -688,51 +739,60 @@ void EELaserClient::setup(void) {
 
     }
 
-    EEMUtilsClient::resetHisto( mea01_[ism-1] );
-    EEMUtilsClient::resetHisto( mea02_[ism-1] );
-    EEMUtilsClient::resetHisto( mea03_[ism-1] );
-    EEMUtilsClient::resetHisto( mea04_[ism-1] );
-    EEMUtilsClient::resetHisto( mea05_[ism-1] );
-    EEMUtilsClient::resetHisto( mea06_[ism-1] );
-    EEMUtilsClient::resetHisto( mea07_[ism-1] );
-    EEMUtilsClient::resetHisto( mea08_[ism-1] );
+    UtilsClient::resetHisto( mea01_[ism-1] );
+    UtilsClient::resetHisto( mea02_[ism-1] );
+    UtilsClient::resetHisto( mea03_[ism-1] );
+    UtilsClient::resetHisto( mea04_[ism-1] );
+    UtilsClient::resetHisto( mea05_[ism-1] );
+    UtilsClient::resetHisto( mea06_[ism-1] );
+    UtilsClient::resetHisto( mea07_[ism-1] );
+    UtilsClient::resetHisto( mea08_[ism-1] );
 
-    EEMUtilsClient::resetHisto( met01_[ism-1] );
-    EEMUtilsClient::resetHisto( met02_[ism-1] );
-    EEMUtilsClient::resetHisto( met03_[ism-1] );
-    EEMUtilsClient::resetHisto( met04_[ism-1] );
-    EEMUtilsClient::resetHisto( met05_[ism-1] );
-    EEMUtilsClient::resetHisto( met06_[ism-1] );
-    EEMUtilsClient::resetHisto( met07_[ism-1] );
-    EEMUtilsClient::resetHisto( met08_[ism-1] );
+    UtilsClient::resetHisto( met01_[ism-1] );
+    UtilsClient::resetHisto( met02_[ism-1] );
+    UtilsClient::resetHisto( met03_[ism-1] );
+    UtilsClient::resetHisto( met04_[ism-1] );
+    UtilsClient::resetHisto( met05_[ism-1] );
+    UtilsClient::resetHisto( met06_[ism-1] );
+    UtilsClient::resetHisto( met07_[ism-1] );
+    UtilsClient::resetHisto( met08_[ism-1] );
 
-    EEMUtilsClient::resetHisto( metav01_[ism-1] );
-    EEMUtilsClient::resetHisto( metav02_[ism-1] );
-    EEMUtilsClient::resetHisto( metav03_[ism-1] );
-    EEMUtilsClient::resetHisto( metav04_[ism-1] );
-    EEMUtilsClient::resetHisto( metav05_[ism-1] );
-    EEMUtilsClient::resetHisto( metav06_[ism-1] );
-    EEMUtilsClient::resetHisto( metav07_[ism-1] );
-    EEMUtilsClient::resetHisto( metav08_[ism-1] );
+    UtilsClient::resetHisto( metav01_[ism-1] );
+    UtilsClient::resetHisto( metav02_[ism-1] );
+    UtilsClient::resetHisto( metav03_[ism-1] );
+    UtilsClient::resetHisto( metav04_[ism-1] );
+    UtilsClient::resetHisto( metav05_[ism-1] );
+    UtilsClient::resetHisto( metav06_[ism-1] );
+    UtilsClient::resetHisto( metav07_[ism-1] );
+    UtilsClient::resetHisto( metav08_[ism-1] );
 
-    EEMUtilsClient::resetHisto( metrms01_[ism-1] );
-    EEMUtilsClient::resetHisto( metrms02_[ism-1] );
-    EEMUtilsClient::resetHisto( metrms03_[ism-1] );
-    EEMUtilsClient::resetHisto( metrms04_[ism-1] );
-    EEMUtilsClient::resetHisto( metrms05_[ism-1] );
-    EEMUtilsClient::resetHisto( metrms06_[ism-1] );
-    EEMUtilsClient::resetHisto( metrms07_[ism-1] );
-    EEMUtilsClient::resetHisto( metrms08_[ism-1] );
+    UtilsClient::resetHisto( metrms01_[ism-1] );
+    UtilsClient::resetHisto( metrms02_[ism-1] );
+    UtilsClient::resetHisto( metrms03_[ism-1] );
+    UtilsClient::resetHisto( metrms04_[ism-1] );
+    UtilsClient::resetHisto( metrms05_[ism-1] );
+    UtilsClient::resetHisto( metrms06_[ism-1] );
+    UtilsClient::resetHisto( metrms07_[ism-1] );
+    UtilsClient::resetHisto( metrms08_[ism-1] );
 
-    EEMUtilsClient::resetHisto( meaopn01_[ism-1] );
-    EEMUtilsClient::resetHisto( meaopn02_[ism-1] );
-    EEMUtilsClient::resetHisto( meaopn03_[ism-1] );
-    EEMUtilsClient::resetHisto( meaopn04_[ism-1] );
-    EEMUtilsClient::resetHisto( meaopn05_[ism-1] );
-    EEMUtilsClient::resetHisto( meaopn06_[ism-1] );
-    EEMUtilsClient::resetHisto( meaopn07_[ism-1] );
-    EEMUtilsClient::resetHisto( meaopn08_[ism-1] );
-
+    UtilsClient::resetHisto( meaopn01_[ism-1] );
+    UtilsClient::resetHisto( meaopn02_[ism-1] );
+    UtilsClient::resetHisto( meaopn03_[ism-1] );
+    UtilsClient::resetHisto( meaopn04_[ism-1] );
+    UtilsClient::resetHisto( meaopn05_[ism-1] );
+    UtilsClient::resetHisto( meaopn06_[ism-1] );
+    UtilsClient::resetHisto( meaopn07_[ism-1] );
+    UtilsClient::resetHisto( meaopn08_[ism-1] );
+    
+    UtilsClient::resetHisto( mepnprms01_[ism-1] );
+    UtilsClient::resetHisto( mepnprms02_[ism-1] );
+    UtilsClient::resetHisto( mepnprms03_[ism-1] );
+    UtilsClient::resetHisto( mepnprms04_[ism-1] );
+    UtilsClient::resetHisto( mepnprms05_[ism-1] );
+    UtilsClient::resetHisto( mepnprms06_[ism-1] );
+    UtilsClient::resetHisto( mepnprms07_[ism-1] );
+    UtilsClient::resetHisto( mepnprms08_[ism-1] );
+    
   }
 
 }
@@ -977,6 +1037,23 @@ void EELaserClient::cleanup(void) {
     if ( meaopn08_[ism-1] ) bei->removeElement( meaopn08_[ism-1]->getName() );
     meaopn08_[ism-1] = 0;
 
+    if ( mepnprms01_[ism-1] ) bei->removeElement( mepnprms01_[ism-1]->getName() );
+    mepnprms01_[ism-1] = 0;
+    if ( mepnprms02_[ism-1] ) bei->removeElement( mepnprms02_[ism-1]->getName() );
+    mepnprms02_[ism-1] = 0;
+    if ( mepnprms03_[ism-1] ) bei->removeElement( mepnprms03_[ism-1]->getName() );
+    mepnprms03_[ism-1] = 0;
+    if ( mepnprms04_[ism-1] ) bei->removeElement( mepnprms04_[ism-1]->getName() );
+    mepnprms04_[ism-1] = 0;
+    if ( mepnprms05_[ism-1] ) bei->removeElement( mepnprms05_[ism-1]->getName() );
+    mepnprms05_[ism-1] = 0;
+    if ( mepnprms06_[ism-1] ) bei->removeElement( mepnprms06_[ism-1]->getName() );
+    mepnprms06_[ism-1] = 0;
+    if ( mepnprms07_[ism-1] ) bei->removeElement( mepnprms07_[ism-1]->getName() );
+    mepnprms07_[ism-1] = 0;
+    if ( mepnprms08_[ism-1] ) bei->removeElement( mepnprms08_[ism-1]->getName() );
+    mepnprms08_[ism-1] = 0;
+
   }
 
 }
@@ -985,31 +1062,31 @@ bool EELaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
 
   bool status = true;
 
-  EEMUtilsClient::printBadChannels(qth01_[ism-1]);
-  EEMUtilsClient::printBadChannels(qth05_[ism-1]);
-  EEMUtilsClient::printBadChannels(qth02_[ism-1]);
-  EEMUtilsClient::printBadChannels(qth06_[ism-1]);
-  EEMUtilsClient::printBadChannels(qth03_[ism-1]);
-  EEMUtilsClient::printBadChannels(qth07_[ism-1]);
-  EEMUtilsClient::printBadChannels(qth04_[ism-1]);
-  EEMUtilsClient::printBadChannels(qth08_[ism-1]);
+  UtilsClient::printBadChannels(qth01_[ism-1]);
+  UtilsClient::printBadChannels(qth05_[ism-1]);
+  UtilsClient::printBadChannels(qth02_[ism-1]);
+  UtilsClient::printBadChannels(qth06_[ism-1]);
+  UtilsClient::printBadChannels(qth03_[ism-1]);
+  UtilsClient::printBadChannels(qth07_[ism-1]);
+  UtilsClient::printBadChannels(qth04_[ism-1]);
+  UtilsClient::printBadChannels(qth08_[ism-1]);
 
-  EEMUtilsClient::printBadChannels(qth09_[ism-1]);
-  EEMUtilsClient::printBadChannels(qth10_[ism-1]);
-  EEMUtilsClient::printBadChannels(qth11_[ism-1]);
-  EEMUtilsClient::printBadChannels(qth12_[ism-1]);
-  EEMUtilsClient::printBadChannels(qth13_[ism-1]);
-  EEMUtilsClient::printBadChannels(qth14_[ism-1]);
-  EEMUtilsClient::printBadChannels(qth15_[ism-1]);
-  EEMUtilsClient::printBadChannels(qth16_[ism-1]);
-  EEMUtilsClient::printBadChannels(qth17_[ism-1]);
-  EEMUtilsClient::printBadChannels(qth18_[ism-1]);
-  EEMUtilsClient::printBadChannels(qth19_[ism-1]);
-  EEMUtilsClient::printBadChannels(qth20_[ism-1]);
-  EEMUtilsClient::printBadChannels(qth21_[ism-1]);
-  EEMUtilsClient::printBadChannels(qth22_[ism-1]);
-  EEMUtilsClient::printBadChannels(qth23_[ism-1]);
-  EEMUtilsClient::printBadChannels(qth24_[ism-1]);
+  UtilsClient::printBadChannels(qth09_[ism-1]);
+  UtilsClient::printBadChannels(qth10_[ism-1]);
+  UtilsClient::printBadChannels(qth11_[ism-1]);
+  UtilsClient::printBadChannels(qth12_[ism-1]);
+  UtilsClient::printBadChannels(qth13_[ism-1]);
+  UtilsClient::printBadChannels(qth14_[ism-1]);
+  UtilsClient::printBadChannels(qth15_[ism-1]);
+  UtilsClient::printBadChannels(qth16_[ism-1]);
+  UtilsClient::printBadChannels(qth17_[ism-1]);
+  UtilsClient::printBadChannels(qth18_[ism-1]);
+  UtilsClient::printBadChannels(qth19_[ism-1]);
+  UtilsClient::printBadChannels(qth20_[ism-1]);
+  UtilsClient::printBadChannels(qth21_[ism-1]);
+  UtilsClient::printBadChannels(qth22_[ism-1]);
+  UtilsClient::printBadChannels(qth23_[ism-1]);
+  UtilsClient::printBadChannels(qth24_[ism-1]);
 
   EcalLogicID ecid;
   MonLaserBlueDat apd_bl;
@@ -1037,31 +1114,31 @@ bool EELaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
       float mean01, mean02, mean03, mean04, mean05, mean06, mean07, mean08;
       float rms01, rms02, rms03, rms04, rms05, rms06, rms07, rms08;
 
-      update01 = EEMUtilsClient::getBinStats(h01_[ism-1], ie, ip, num01, mean01, rms01);
-      update02 = EEMUtilsClient::getBinStats(h02_[ism-1], ie, ip, num02, mean02, rms02);
-      update03 = EEMUtilsClient::getBinStats(h03_[ism-1], ie, ip, num03, mean03, rms03);
-      update04 = EEMUtilsClient::getBinStats(h04_[ism-1], ie, ip, num04, mean04, rms04);
-      update05 = EEMUtilsClient::getBinStats(h05_[ism-1], ie, ip, num05, mean05, rms05);
-      update06 = EEMUtilsClient::getBinStats(h06_[ism-1], ie, ip, num06, mean06, rms06);
-      update07 = EEMUtilsClient::getBinStats(h07_[ism-1], ie, ip, num07, mean07, rms07);
-      update08 = EEMUtilsClient::getBinStats(h08_[ism-1], ie, ip, num08, mean08, rms08);
+      update01 = UtilsClient::getBinStats(h01_[ism-1], ie, ip, num01, mean01, rms01);
+      update02 = UtilsClient::getBinStats(h02_[ism-1], ie, ip, num02, mean02, rms02);
+      update03 = UtilsClient::getBinStats(h03_[ism-1], ie, ip, num03, mean03, rms03);
+      update04 = UtilsClient::getBinStats(h04_[ism-1], ie, ip, num04, mean04, rms04);
+      update05 = UtilsClient::getBinStats(h05_[ism-1], ie, ip, num05, mean05, rms05);
+      update06 = UtilsClient::getBinStats(h06_[ism-1], ie, ip, num06, mean06, rms06);
+      update07 = UtilsClient::getBinStats(h07_[ism-1], ie, ip, num07, mean07, rms07);
+      update08 = UtilsClient::getBinStats(h08_[ism-1], ie, ip, num08, mean08, rms08);
 
       if ( ! update01 )
-        update01 = EEMUtilsClient::getBinStats(h13_[ism-1], ie, ip, num01, mean01, rms01);
+        update01 = UtilsClient::getBinStats(h13_[ism-1], ie, ip, num01, mean01, rms01);
       if ( ! update02 )
-        update02 = EEMUtilsClient::getBinStats(h14_[ism-1], ie, ip, num02, mean02, rms02);
+        update02 = UtilsClient::getBinStats(h14_[ism-1], ie, ip, num02, mean02, rms02);
       if ( ! update03 )
-        update03 = EEMUtilsClient::getBinStats(h15_[ism-1], ie, ip, num03, mean03, rms03);
+        update03 = UtilsClient::getBinStats(h15_[ism-1], ie, ip, num03, mean03, rms03);
       if ( ! update04 )
-        update04 = EEMUtilsClient::getBinStats(h16_[ism-1], ie, ip, num04, mean04, rms04);
+        update04 = UtilsClient::getBinStats(h16_[ism-1], ie, ip, num04, mean04, rms04);
       if ( ! update05 )
-        update05 = EEMUtilsClient::getBinStats(h17_[ism-1], ie, ip, num05, mean05, rms05);
+        update05 = UtilsClient::getBinStats(h17_[ism-1], ie, ip, num05, mean05, rms05);
       if ( ! update06 )
-        update06 = EEMUtilsClient::getBinStats(h18_[ism-1], ie, ip, num06, mean06, rms06);
+        update06 = UtilsClient::getBinStats(h18_[ism-1], ie, ip, num06, mean06, rms06);
       if ( ! update07 )
-        update07 = EEMUtilsClient::getBinStats(h19_[ism-1], ie, ip, num07, mean07, rms07);
+        update07 = UtilsClient::getBinStats(h19_[ism-1], ie, ip, num07, mean07, rms07);
       if ( ! update08 )
-        update08 = EEMUtilsClient::getBinStats(h20_[ism-1], ie, ip, num08, mean08, rms08);
+        update08 = UtilsClient::getBinStats(h20_[ism-1], ie, ip, num08, mean08, rms08);
 
       if ( update01 || update02 ) {
 
@@ -1087,13 +1164,13 @@ bool EELaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
           apd_bl.setTaskStatus(false);
         }
 
-        status = status && EEMUtilsClient::getBinQual(meg01_[ism-1], ie, ip);
+        status = status && UtilsClient::getBinQual(meg01_[ism-1], ie, ip);
 
         int ic = (ip-1) + 20*(ie-1) + 1;
 
         if ( econn ) {
           try {
-            ecid = econn->getEcalLogicID("EE_crystal_number", ism, ic);
+            ecid = LogicID::getEcalLogicID("EB_crystal_number", Numbers::iSM(ism), ic);
             dataset1_bl[ecid] = apd_bl;
           } catch (runtime_error &e) {
             cerr << e.what() << endl;
@@ -1126,13 +1203,13 @@ bool EELaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
           apd_ir.setTaskStatus(false);
         }
 
-        status = status && EEMUtilsClient::getBinQual(meg02_[ism-1], ie, ip);
+        status = status && UtilsClient::getBinQual(meg02_[ism-1], ie, ip);
 
         int ic = (ip-1) + 20*(ie-1) + 1;
 
         if ( econn ) {
           try {
-            ecid = econn->getEcalLogicID("EE_crystal_number", ism, ic);
+            ecid = LogicID::getEcalLogicID("EB_crystal_number", Numbers::iSM(ism), ic);
             dataset1_ir[ecid] = apd_ir;
           } catch (runtime_error &e) {
             cerr << e.what() << endl;
@@ -1165,13 +1242,13 @@ bool EELaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
           apd_gr.setTaskStatus(false);
         }
 
-        status = status && EEMUtilsClient::getBinQual(meg03_[ism-1], ie, ip);
+        status = status && UtilsClient::getBinQual(meg03_[ism-1], ie, ip);
 
         int ic = (ip-1) + 20*(ie-1) + 1;
 
         if ( econn ) {
           try {
-            ecid = econn->getEcalLogicID("EE_crystal_number", ism, ic);
+            ecid = LogicID::getEcalLogicID("EB_crystal_number", Numbers::iSM(ism), ic);
             dataset1_gr[ecid] = apd_gr;
           } catch (runtime_error &e) {
             cerr << e.what() << endl;
@@ -1204,13 +1281,13 @@ bool EELaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
           apd_rd.setTaskStatus(false);
         }
 
-        status = status && EEMUtilsClient::getBinQual(meg04_[ism-1], ie, ip);
+        status = status && UtilsClient::getBinQual(meg04_[ism-1], ie, ip);
 
         int ic = (ip-1) + 20*(ie-1) + 1;
 
         if ( econn ) {
           try {
-            ecid = econn->getEcalLogicID("EE_crystal_number", ism, ic);
+            ecid = LogicID::getEcalLogicID("EB_crystal_number", Numbers::iSM(ism), ic);
             dataset1_rd[ecid] = apd_rd;
           } catch (runtime_error &e) {
             cerr << e.what() << endl;
@@ -1270,22 +1347,22 @@ bool EELaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
     float rms01, rms02, rms03, rms04, rms05, rms06, rms07, rms08;
     float rms09, rms10, rms11, rms12, rms13, rms14, rms15, rms16;
 
-    update01 = EEMUtilsClient::getBinStats(i01_[ism-1], 1, i, num01, mean01, rms01);
-    update02 = EEMUtilsClient::getBinStats(i02_[ism-1], 1, i, num02, mean02, rms02);
-    update03 = EEMUtilsClient::getBinStats(i03_[ism-1], 1, i, num03, mean03, rms03);
-    update04 = EEMUtilsClient::getBinStats(i04_[ism-1], 1, i, num04, mean04, rms04);
-    update05 = EEMUtilsClient::getBinStats(i05_[ism-1], 1, i, num05, mean05, rms05);
-    update06 = EEMUtilsClient::getBinStats(i06_[ism-1], 1, i, num06, mean06, rms06);
-    update07 = EEMUtilsClient::getBinStats(i07_[ism-1], 1, i, num07, mean07, rms07);
-    update08 = EEMUtilsClient::getBinStats(i08_[ism-1], 1, i, num08, mean08, rms08);
-    update09 = EEMUtilsClient::getBinStats(i09_[ism-1], 1, i, num09, mean09, rms09);
-    update10 = EEMUtilsClient::getBinStats(i10_[ism-1], 1, i, num10, mean10, rms10);
-    update11 = EEMUtilsClient::getBinStats(i11_[ism-1], 1, i, num11, mean11, rms11);
-    update12 = EEMUtilsClient::getBinStats(i12_[ism-1], 1, i, num12, mean12, rms12);
-    update13 = EEMUtilsClient::getBinStats(i13_[ism-1], 1, i, num13, mean13, rms13);
-    update14 = EEMUtilsClient::getBinStats(i14_[ism-1], 1, i, num14, mean14, rms14);
-    update15 = EEMUtilsClient::getBinStats(i15_[ism-1], 1, i, num15, mean15, rms15);
-    update16 = EEMUtilsClient::getBinStats(i16_[ism-1], 1, i, num16, mean16, rms16);
+    update01 = UtilsClient::getBinStats(i01_[ism-1], 1, i, num01, mean01, rms01);
+    update02 = UtilsClient::getBinStats(i02_[ism-1], 1, i, num02, mean02, rms02);
+    update03 = UtilsClient::getBinStats(i03_[ism-1], 1, i, num03, mean03, rms03);
+    update04 = UtilsClient::getBinStats(i04_[ism-1], 1, i, num04, mean04, rms04);
+    update05 = UtilsClient::getBinStats(i05_[ism-1], 1, i, num05, mean05, rms05);
+    update06 = UtilsClient::getBinStats(i06_[ism-1], 1, i, num06, mean06, rms06);
+    update07 = UtilsClient::getBinStats(i07_[ism-1], 1, i, num07, mean07, rms07);
+    update08 = UtilsClient::getBinStats(i08_[ism-1], 1, i, num08, mean08, rms08);
+    update09 = UtilsClient::getBinStats(i09_[ism-1], 1, i, num09, mean09, rms09);
+    update10 = UtilsClient::getBinStats(i10_[ism-1], 1, i, num10, mean10, rms10);
+    update11 = UtilsClient::getBinStats(i11_[ism-1], 1, i, num11, mean11, rms11);
+    update12 = UtilsClient::getBinStats(i12_[ism-1], 1, i, num12, mean12, rms12);
+    update13 = UtilsClient::getBinStats(i13_[ism-1], 1, i, num13, mean13, rms13);
+    update14 = UtilsClient::getBinStats(i14_[ism-1], 1, i, num14, mean14, rms14);
+    update15 = UtilsClient::getBinStats(i15_[ism-1], 1, i, num15, mean15, rms15);
+    update16 = UtilsClient::getBinStats(i16_[ism-1], 1, i, num16, mean16, rms16);
 
     if ( update01 || update05 || update09 || update13 ) {
 
@@ -1319,12 +1396,12 @@ bool EELaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
         pn_bl.setTaskStatus(false);
       }
 
-      status = status && ( EEMUtilsClient::getBinQual(meg05_[ism-1], i, 1) ||
-                           EEMUtilsClient::getBinQual(meg09_[ism-1], i, 1) );
+      status = status && ( UtilsClient::getBinQual(meg05_[ism-1], i, 1) ||
+                           UtilsClient::getBinQual(meg09_[ism-1], i, 1) );
 
       if ( econn ) {
         try {
-          ecid = econn->getEcalLogicID("EE_LM_PN", ism, i-1);
+          ecid = LogicID::getEcalLogicID("EB_LM_PN", Numbers::iSM(ism), i-1);
           dataset2_bl[ecid] = pn_bl;
         } catch (runtime_error &e) {
           cerr << e.what() << endl;
@@ -1365,12 +1442,12 @@ bool EELaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
         pn_ir.setTaskStatus(false);
       }
 
-      status = status && ( EEMUtilsClient::getBinQual(meg06_[ism-1], i, 1) ||
-                           EEMUtilsClient::getBinQual(meg10_[ism-1], i, 1) );
+      status = status && ( UtilsClient::getBinQual(meg06_[ism-1], i, 1) ||
+                           UtilsClient::getBinQual(meg10_[ism-1], i, 1) );
 
       if ( econn ) {
         try {
-          ecid = econn->getEcalLogicID("EE_LM_PN", ism, i-1);
+          ecid = LogicID::getEcalLogicID("EB_LM_PN", Numbers::iSM(ism), i-1);
           dataset2_ir[ecid] = pn_ir;
         } catch (runtime_error &e) {
           cerr << e.what() << endl;
@@ -1411,12 +1488,12 @@ bool EELaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
         pn_gr.setTaskStatus(false);
       }
 
-      status = status && ( EEMUtilsClient::getBinQual(meg07_[ism-1], i, 1) ||
-                           EEMUtilsClient::getBinQual(meg11_[ism-1], i, 1) );
+      status = status && ( UtilsClient::getBinQual(meg07_[ism-1], i, 1) ||
+                           UtilsClient::getBinQual(meg11_[ism-1], i, 1) );
 
       if ( econn ) {
         try {
-          ecid = econn->getEcalLogicID("EE_LM_PN", ism, i-1);
+          ecid = LogicID::getEcalLogicID("EB_LM_PN", Numbers::iSM(ism), i-1);
           dataset2_gr[ecid] = pn_gr;
         } catch (runtime_error &e) {
           cerr << e.what() << endl;
@@ -1457,12 +1534,12 @@ bool EELaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
         pn_rd.setTaskStatus(false);
       }
 
-      status = status && ( EEMUtilsClient::getBinQual(meg08_[ism-1], i, 1) ||
-                           EEMUtilsClient::getBinQual(meg12_[ism-1], i, 1) );
+      status = status && ( UtilsClient::getBinQual(meg08_[ism-1], i, 1) ||
+                           UtilsClient::getBinQual(meg12_[ism-1], i, 1) );
 
       if ( econn ) {
         try {
-          ecid = econn->getEcalLogicID("EE_LM_PN", ism, i-1);
+          ecid = LogicID::getEcalLogicID("EB_LM_PN", Numbers::iSM(ism), i-1);
           dataset2_rd[ecid] = pn_rd;
         } catch (runtime_error &e) {
           cerr << e.what() << endl;
@@ -1500,106 +1577,106 @@ void EELaserClient::subscribe(void){
 
     unsigned int ism = superModules_[i];
 
-    sprintf(histo, "*/EcalEndcap/EELaserTask/Laser1/EELT amplitude SM%02d L1A", ism);
+    sprintf(histo, "*/EcalEndcap/EELaserTask/Laser1/EELT amplitude %s L1A", Numbers::sEE(ism).c_str());
     mui_->subscribe(histo, ism);
-    sprintf(histo, "*/EcalEndcap/EELaserTask/Laser1/EELT timing SM%02d L1A", ism);
+    sprintf(histo, "*/EcalEndcap/EELaserTask/Laser1/EELT timing %s L1A", Numbers::sEE(ism).c_str());
     mui_->subscribe(histo, ism);
-    sprintf(histo, "*/EcalEndcap/EELaserTask/Laser1/EELT amplitude over PN SM%02d L1A", ism);
+    sprintf(histo, "*/EcalEndcap/EELaserTask/Laser1/EELT amplitude over PN %s L1A", Numbers::sEE(ism).c_str());
     mui_->subscribe(histo, ism);
-    sprintf(histo, "*/EcalEndcap/EELaserTask/Laser2/EELT amplitude SM%02d L2A", ism);
+    sprintf(histo, "*/EcalEndcap/EELaserTask/Laser2/EELT amplitude %s L2A", Numbers::sEE(ism).c_str());
     mui_->subscribe(histo, ism);
-    sprintf(histo, "*/EcalEndcap/EELaserTask/Laser2/EELT timing SM%02d L2A", ism);
+    sprintf(histo, "*/EcalEndcap/EELaserTask/Laser2/EELT timing %s L2A", Numbers::sEE(ism).c_str());
     mui_->subscribe(histo, ism);
-    sprintf(histo, "*/EcalEndcap/EELaserTask/Laser2/EELT amplitude over PN SM%02d L2A", ism);
+    sprintf(histo, "*/EcalEndcap/EELaserTask/Laser2/EELT amplitude over PN %s L2A", Numbers::sEE(ism).c_str());
     mui_->subscribe(histo, ism);
-    sprintf(histo, "*/EcalEndcap/EELaserTask/Laser3/EELT amplitude SM%02d L3A", ism);
+    sprintf(histo, "*/EcalEndcap/EELaserTask/Laser3/EELT amplitude %s L3A", Numbers::sEE(ism).c_str());
     mui_->subscribe(histo, ism);
-    sprintf(histo, "*/EcalEndcap/EELaserTask/Laser3/EELT timing SM%02d L3A", ism);
+    sprintf(histo, "*/EcalEndcap/EELaserTask/Laser3/EELT timing %s L3A", Numbers::sEE(ism).c_str());
     mui_->subscribe(histo, ism);
-    sprintf(histo, "*/EcalEndcap/EELaserTask/Laser3/EELT amplitude over PN SM%02d L3A", ism);
+    sprintf(histo, "*/EcalEndcap/EELaserTask/Laser3/EELT amplitude over PN %s L3A", Numbers::sEE(ism).c_str());
     mui_->subscribe(histo, ism);
-    sprintf(histo, "*/EcalEndcap/EELaserTask/Laser4/EELT amplitude SM%02d L4A", ism);
+    sprintf(histo, "*/EcalEndcap/EELaserTask/Laser4/EELT amplitude %s L4A", Numbers::sEE(ism).c_str());
     mui_->subscribe(histo, ism);
-    sprintf(histo, "*/EcalEndcap/EELaserTask/Laser4/EELT timing SM%02d L4A", ism);
+    sprintf(histo, "*/EcalEndcap/EELaserTask/Laser4/EELT timing %s L4A", Numbers::sEE(ism).c_str());
     mui_->subscribe(histo, ism);
-    sprintf(histo, "*/EcalEndcap/EELaserTask/Laser4/EELT amplitude over PN SM%02d L4A", ism);
-    mui_->subscribe(histo, ism);
-
-    sprintf(histo, "*/EcalEndcap/EELaserTask/Laser1/EELT amplitude SM%02d L1B", ism);
-    mui_->subscribe(histo, ism);
-    sprintf(histo, "*/EcalEndcap/EELaserTask/Laser1/EELT timing SM%02d L1B", ism);
-    mui_->subscribe(histo, ism);
-    sprintf(histo, "*/EcalEndcap/EELaserTask/Laser1/EELT amplitude over PN SM%02d L1B", ism);
-    mui_->subscribe(histo, ism);
-    sprintf(histo, "*/EcalEndcap/EELaserTask/Laser2/EELT amplitude SM%02d L2B", ism);
-    mui_->subscribe(histo, ism);
-    sprintf(histo, "*/EcalEndcap/EELaserTask/Laser2/EELT timing SM%02d L2B", ism);
-    mui_->subscribe(histo, ism);
-    sprintf(histo, "*/EcalEndcap/EELaserTask/Laser2/EELT amplitude over PN SM%02d L2B", ism);
-    mui_->subscribe(histo, ism);
-    sprintf(histo, "*/EcalEndcap/EELaserTask/Laser3/EELT amplitude SM%02d L3B", ism);
-    mui_->subscribe(histo, ism);
-    sprintf(histo, "*/EcalEndcap/EELaserTask/Laser3/EELT timing SM%02d L3B", ism);
-    mui_->subscribe(histo, ism);
-    sprintf(histo, "*/EcalEndcap/EELaserTask/Laser3/EELT amplitude over PN SM%02d L3B", ism);
-    mui_->subscribe(histo, ism);
-    sprintf(histo, "*/EcalEndcap/EELaserTask/Laser4/EELT amplitude SM%02d L4B", ism);
-    mui_->subscribe(histo, ism);
-    sprintf(histo, "*/EcalEndcap/EELaserTask/Laser4/EELT timing SM%02d L4B", ism);
-    mui_->subscribe(histo, ism);
-    sprintf(histo, "*/EcalEndcap/EELaserTask/Laser4/EELT amplitude over PN SM%02d L4B", ism);
+    sprintf(histo, "*/EcalEndcap/EELaserTask/Laser4/EELT amplitude over PN %s L4A", Numbers::sEE(ism).c_str());
     mui_->subscribe(histo, ism);
 
-    sprintf(histo, "*/EcalEndcap/EELaserTask/Laser1/EELT shape SM%02d L1A", ism);
+    sprintf(histo, "*/EcalEndcap/EELaserTask/Laser1/EELT amplitude %s L1B", Numbers::sEE(ism).c_str());
     mui_->subscribe(histo, ism);
-    sprintf(histo, "*/EcalEndcap/EELaserTask/Laser2/EELT shape SM%02d L2A", ism);
+    sprintf(histo, "*/EcalEndcap/EELaserTask/Laser1/EELT timing %s L1B", Numbers::sEE(ism).c_str());
     mui_->subscribe(histo, ism);
-    sprintf(histo, "*/EcalEndcap/EELaserTask/Laser3/EELT shape SM%02d L3A", ism);
+    sprintf(histo, "*/EcalEndcap/EELaserTask/Laser1/EELT amplitude over PN %s L1B", Numbers::sEE(ism).c_str());
     mui_->subscribe(histo, ism);
-    sprintf(histo, "*/EcalEndcap/EELaserTask/Laser4/EELT shape SM%02d L4A", ism);
+    sprintf(histo, "*/EcalEndcap/EELaserTask/Laser2/EELT amplitude %s L2B", Numbers::sEE(ism).c_str());
     mui_->subscribe(histo, ism);
-
-    sprintf(histo, "*/EcalEndcap/EELaserTask/Laser1/EELT shape SM%02d L1B", ism);
+    sprintf(histo, "*/EcalEndcap/EELaserTask/Laser2/EELT timing %s L2B", Numbers::sEE(ism).c_str());
     mui_->subscribe(histo, ism);
-    sprintf(histo, "*/EcalEndcap/EELaserTask/Laser2/EELT shape SM%02d L2B", ism);
+    sprintf(histo, "*/EcalEndcap/EELaserTask/Laser2/EELT amplitude over PN %s L2B", Numbers::sEE(ism).c_str());
     mui_->subscribe(histo, ism);
-    sprintf(histo, "*/EcalEndcap/EELaserTask/Laser3/EELT shape SM%02d L3B", ism);
+    sprintf(histo, "*/EcalEndcap/EELaserTask/Laser3/EELT amplitude %s L3B", Numbers::sEE(ism).c_str());
     mui_->subscribe(histo, ism);
-    sprintf(histo, "*/EcalEndcap/EELaserTask/Laser4/EELT shape SM%02d L4B", ism);
+    sprintf(histo, "*/EcalEndcap/EELaserTask/Laser3/EELT timing %s L3B", Numbers::sEE(ism).c_str());
     mui_->subscribe(histo, ism);
-
-    sprintf(histo, "*/EcalEndcap/EEPnDiodeTask/Laser1/Gain01/EEPDT PNs amplitude SM%02d G01 L1", ism);
+    sprintf(histo, "*/EcalEndcap/EELaserTask/Laser3/EELT amplitude over PN %s L3B", Numbers::sEE(ism).c_str());
     mui_->subscribe(histo, ism);
-    sprintf(histo, "*/EcalEndcap/EEPnDiodeTask/Laser2/Gain01/EEPDT PNs amplitude SM%02d G01 L2", ism);
+    sprintf(histo, "*/EcalEndcap/EELaserTask/Laser4/EELT amplitude %s L4B", Numbers::sEE(ism).c_str());
     mui_->subscribe(histo, ism);
-    sprintf(histo, "*/EcalEndcap/EEPnDiodeTask/Laser3/Gain01/EEPDT PNs amplitude SM%02d G01 L3", ism);
+    sprintf(histo, "*/EcalEndcap/EELaserTask/Laser4/EELT timing %s L4B", Numbers::sEE(ism).c_str());
     mui_->subscribe(histo, ism);
-    sprintf(histo, "*/EcalEndcap/EEPnDiodeTask/Laser4/Gain01/EEPDT PNs amplitude SM%02d G01 L4", ism);
-    mui_->subscribe(histo, ism);
-    sprintf(histo, "*/EcalEndcap/EEPnDiodeTask/Laser1/Gain01/EEPDT PNs pedestal SM%02d G01 L1", ism);
-    mui_->subscribe(histo, ism);
-    sprintf(histo, "*/EcalEndcap/EEPnDiodeTask/Laser2/Gain01/EEPDT PNs pedestal SM%02d G01 L2", ism);
-    mui_->subscribe(histo, ism);
-    sprintf(histo, "*/EcalEndcap/EEPnDiodeTask/Laser3/Gain01/EEPDT PNs pedestal SM%02d G01 L3", ism);
-    mui_->subscribe(histo, ism);
-    sprintf(histo, "*/EcalEndcap/EEPnDiodeTask/Laser4/Gain01/EEPDT PNs pedestal SM%02d G01 L4", ism);
+    sprintf(histo, "*/EcalEndcap/EELaserTask/Laser4/EELT amplitude over PN %s L4B", Numbers::sEE(ism).c_str());
     mui_->subscribe(histo, ism);
 
-    sprintf(histo, "*/EcalEndcap/EEPnDiodeTask/Laser1/Gain16/EEPDT PNs amplitude SM%02d G16 L1", ism);
+    sprintf(histo, "*/EcalEndcap/EELaserTask/Laser1/EELT shape %s L1A", Numbers::sEE(ism).c_str());
     mui_->subscribe(histo, ism);
-    sprintf(histo, "*/EcalEndcap/EEPnDiodeTask/Laser2/Gain16/EEPDT PNs amplitude SM%02d G16 L2", ism);
+    sprintf(histo, "*/EcalEndcap/EELaserTask/Laser2/EELT shape %s L2A", Numbers::sEE(ism).c_str());
     mui_->subscribe(histo, ism);
-    sprintf(histo, "*/EcalEndcap/EEPnDiodeTask/Laser3/Gain16/EEPDT PNs amplitude SM%02d G16 L3", ism);
+    sprintf(histo, "*/EcalEndcap/EELaserTask/Laser3/EELT shape %s L3A", Numbers::sEE(ism).c_str());
     mui_->subscribe(histo, ism);
-    sprintf(histo, "*/EcalEndcap/EEPnDiodeTask/Laser4/Gain16/EEPDT PNs amplitude SM%02d G16 L4", ism);
+    sprintf(histo, "*/EcalEndcap/EELaserTask/Laser4/EELT shape %s L4A", Numbers::sEE(ism).c_str());
     mui_->subscribe(histo, ism);
-    sprintf(histo, "*/EcalEndcap/EEPnDiodeTask/Laser1/Gain16/EEPDT PNs pedestal SM%02d G16 L1", ism);
+
+    sprintf(histo, "*/EcalEndcap/EELaserTask/Laser1/EELT shape %s L1B", Numbers::sEE(ism).c_str());
     mui_->subscribe(histo, ism);
-    sprintf(histo, "*/EcalEndcap/EEPnDiodeTask/Laser2/Gain16/EEPDT PNs pedestal SM%02d G16 L2", ism);
+    sprintf(histo, "*/EcalEndcap/EELaserTask/Laser2/EELT shape %s L2B", Numbers::sEE(ism).c_str());
     mui_->subscribe(histo, ism);
-    sprintf(histo, "*/EcalEndcap/EEPnDiodeTask/Laser3/Gain16/EEPDT PNs pedestal SM%02d G16 L3", ism);
+    sprintf(histo, "*/EcalEndcap/EELaserTask/Laser3/EELT shape %s L3B", Numbers::sEE(ism).c_str());
     mui_->subscribe(histo, ism);
-    sprintf(histo, "*/EcalEndcap/EEPnDiodeTask/Laser4/Gain16/EEPDT PNs pedestal SM%02d G16 L4", ism);
+    sprintf(histo, "*/EcalEndcap/EELaserTask/Laser4/EELT shape %s L4B", Numbers::sEE(ism).c_str());
+    mui_->subscribe(histo, ism);
+
+    sprintf(histo, "*/EcalEndcap/EELaserTask/Laser1/PN/Gain01/EEPDT PNs amplitude %s G01 L1", Numbers::sEE(ism).c_str());
+    mui_->subscribe(histo, ism);
+    sprintf(histo, "*/EcalEndcap/EELaserTask/Laser2/PN/Gain01/EEPDT PNs amplitude %s G01 L2", Numbers::sEE(ism).c_str());
+    mui_->subscribe(histo, ism);
+    sprintf(histo, "*/EcalEndcap/EELaserTask/Laser3/PN/Gain01/EEPDT PNs amplitude %s G01 L3", Numbers::sEE(ism).c_str());
+    mui_->subscribe(histo, ism);
+    sprintf(histo, "*/EcalEndcap/EELaserTask/Laser4/PN/Gain01/EEPDT PNs amplitude %s G01 L4", Numbers::sEE(ism).c_str());
+    mui_->subscribe(histo, ism);
+    sprintf(histo, "*/EcalEndcap/EELaserTask/Laser1/PN/Gain01/EEPDT PNs pedestal %s G01 L1", Numbers::sEE(ism).c_str());
+    mui_->subscribe(histo, ism);
+    sprintf(histo, "*/EcalEndcap/EELaserTask/Laser2/PN/Gain01/EEPDT PNs pedestal %s G01 L2", Numbers::sEE(ism).c_str());
+    mui_->subscribe(histo, ism);
+    sprintf(histo, "*/EcalEndcap/EELaserTask/Laser3/PN/Gain01/EEPDT PNs pedestal %s G01 L3", Numbers::sEE(ism).c_str());
+    mui_->subscribe(histo, ism);
+    sprintf(histo, "*/EcalEndcap/EELaserTask/Laser4/PN/Gain01/EEPDT PNs pedestal %s G01 L4", Numbers::sEE(ism).c_str());
+    mui_->subscribe(histo, ism);
+
+    sprintf(histo, "*/EcalEndcap/EELaserTask/Laser1/PN/Gain16/EEPDT PNs amplitude %s G16 L1", Numbers::sEE(ism).c_str());
+    mui_->subscribe(histo, ism);
+    sprintf(histo, "*/EcalEndcap/EELaserTask/Laser2/PN/Gain16/EEPDT PNs amplitude %s G16 L2", Numbers::sEE(ism).c_str());
+    mui_->subscribe(histo, ism);
+    sprintf(histo, "*/EcalEndcap/EELaserTask/Laser3/PN/Gain16/EEPDT PNs amplitude %s G16 L3", Numbers::sEE(ism).c_str());
+    mui_->subscribe(histo, ism);
+    sprintf(histo, "*/EcalEndcap/EELaserTask/Laser4/PN/Gain16/EEPDT PNs amplitude %s G16 L4", Numbers::sEE(ism).c_str());
+    mui_->subscribe(histo, ism);
+    sprintf(histo, "*/EcalEndcap/EELaserTask/Laser1/PN/Gain16/EEPDT PNs pedestal %s G16 L1", Numbers::sEE(ism).c_str());
+    mui_->subscribe(histo, ism);
+    sprintf(histo, "*/EcalEndcap/EELaserTask/Laser2/PN/Gain16/EEPDT PNs pedestal %s G16 L2", Numbers::sEE(ism).c_str());
+    mui_->subscribe(histo, ism);
+    sprintf(histo, "*/EcalEndcap/EELaserTask/Laser3/PN/Gain16/EEPDT PNs pedestal %s G16 L3", Numbers::sEE(ism).c_str());
+    mui_->subscribe(histo, ism);
+    sprintf(histo, "*/EcalEndcap/EELaserTask/Laser4/PN/Gain16/EEPDT PNs pedestal %s G16 L4", Numbers::sEE(ism).c_str());
     mui_->subscribe(histo, ism);
 
   }
@@ -1612,244 +1689,244 @@ void EELaserClient::subscribe(void){
 
       int ism = superModules_[i];
 
-      sprintf(histo, "EELT amplitude SM%02d L1A", ism);
+      sprintf(histo, "EELT amplitude %s L1A", Numbers::sEE(ism).c_str());
       me_h01_[ism-1] = mui_->collateProf2D(histo, histo, "EcalEndcap/Sums/EELaserTask/Laser1");
-      sprintf(histo, "*/EcalEndcap/EELaserTask/Laser1/EELT amplitude SM%02d L1A", ism);
+      sprintf(histo, "*/EcalEndcap/EELaserTask/Laser1/EELT amplitude %s L1A", Numbers::sEE(ism).c_str());
       mui_->add(me_h01_[ism-1], histo);
 
-      sprintf(histo, "EELT amplitude over PN SM%02d L1A", ism);
+      sprintf(histo, "EELT amplitude over PN %s L1A", Numbers::sEE(ism).c_str());
       me_h02_[ism-1] = mui_->collateProf2D(histo, histo, "EcalEndcap/Sums/EELaserTask/Laser1");
-      sprintf(histo, "*/EcalEndcap/EELaserTask/Laser1/EELT amplitude over PN SM%02d L1A", ism);
+      sprintf(histo, "*/EcalEndcap/EELaserTask/Laser1/EELT amplitude over PN %s L1A", Numbers::sEE(ism).c_str());
       mui_->add(me_h02_[ism-1], histo);
 
-      sprintf(histo, "EELT amplitude SM%02d L2A", ism);
+      sprintf(histo, "EELT amplitude %s L2A", Numbers::sEE(ism).c_str());
       me_h03_[ism-1] = mui_->collateProf2D(histo, histo, "EcalEndcap/Sums/EELaserTask/Laser2");
-      sprintf(histo, "*/EcalEndcap/EELaserTask/Laser2/EELT amplitude SM%02d L2A", ism);
+      sprintf(histo, "*/EcalEndcap/EELaserTask/Laser2/EELT amplitude %s L2A", Numbers::sEE(ism).c_str());
       mui_->add(me_h03_[ism-1], histo);
 
-      sprintf(histo, "EELT amplitude over PN SM%02d L2A", ism);
+      sprintf(histo, "EELT amplitude over PN %s L2A", Numbers::sEE(ism).c_str());
       me_h04_[ism-1] = mui_->collateProf2D(histo, histo, "EcalEndcap/Sums/EELaserTask/Laser2");
-      sprintf(histo, "*/EcalEndcap/EELaserTask/Laser2/EELT amplitude over PN SM%02d L2A", ism);
+      sprintf(histo, "*/EcalEndcap/EELaserTask/Laser2/EELT amplitude over PN %s L2A", Numbers::sEE(ism).c_str());
       mui_->add(me_h04_[ism-1], histo);
 
-      sprintf(histo, "EELT amplitude SM%02d L3A", ism);
+      sprintf(histo, "EELT amplitude %s L3A", Numbers::sEE(ism).c_str());
       me_h05_[ism-1] = mui_->collateProf2D(histo, histo, "EcalEndcap/Sums/EELaserTask/Laser3");
-      sprintf(histo, "*/EcalEndcap/EELaserTask/Laser3/EELT amplitude SM%02d L3A", ism);
+      sprintf(histo, "*/EcalEndcap/EELaserTask/Laser3/EELT amplitude %s L3A", Numbers::sEE(ism).c_str());
       mui_->add(me_h05_[ism-1], histo);
 
-      sprintf(histo, "EELT amplitude over PN SM%02d L3A", ism);
+      sprintf(histo, "EELT amplitude over PN %s L3A", Numbers::sEE(ism).c_str());
       me_h06_[ism-1] = mui_->collateProf2D(histo, histo, "EcalEndcap/Sums/EELaserTask/Laser3");
-      sprintf(histo, "*/EcalEndcap/EELaserTask/Laser3/EELT amplitude over PN SM%02d L3A", ism);
+      sprintf(histo, "*/EcalEndcap/EELaserTask/Laser3/EELT amplitude over PN %s L3A", Numbers::sEE(ism).c_str());
       mui_->add(me_h06_[ism-1], histo);
 
-      sprintf(histo, "EELT amplitude SM%02d L4A", ism);
+      sprintf(histo, "EELT amplitude %s L4A", Numbers::sEE(ism).c_str());
       me_h07_[ism-1] = mui_->collateProf2D(histo, histo, "EcalEndcap/Sums/EELaserTask/Laser4");
-      sprintf(histo, "*/EcalEndcap/EELaserTask/Laser4/EELT amplitude SM%02d L4A", ism);
+      sprintf(histo, "*/EcalEndcap/EELaserTask/Laser4/EELT amplitude %s L4A", Numbers::sEE(ism).c_str());
       mui_->add(me_h07_[ism-1], histo);
 
-      sprintf(histo, "EELT amplitude over PN SM%02d L4A", ism);
+      sprintf(histo, "EELT amplitude over PN %s L4A", Numbers::sEE(ism).c_str());
       me_h08_[ism-1] = mui_->collateProf2D(histo, histo, "EcalEndcap/Sums/EELaserTask/Laser4");
-      sprintf(histo, "*/EcalEndcap/EELaserTask/Laser4/EELT amplitude over PN SM%02d L4A", ism);
+      sprintf(histo, "*/EcalEndcap/EELaserTask/Laser4/EELT amplitude over PN %s L4A", Numbers::sEE(ism).c_str());
       mui_->add(me_h08_[ism-1], histo);
 
-      sprintf(histo, "EELT timing SM%02d L1A", ism);
+      sprintf(histo, "EELT timing %s L1A", Numbers::sEE(ism).c_str());
       me_h09_[ism-1] = mui_->collateProf2D(histo, histo, "EcalEndcap/Sums/EELaserTask/Laser1");
-      sprintf(histo, "*/EcalEndcap/EELaserTask/Laser1/EELT timing SM%02d L1A", ism);
+      sprintf(histo, "*/EcalEndcap/EELaserTask/Laser1/EELT timing %s L1A", Numbers::sEE(ism).c_str());
       mui_->add(me_h09_[ism-1], histo);
 
-      sprintf(histo, "EELT timing SM%02d L2A", ism);
+      sprintf(histo, "EELT timing %s L2A", Numbers::sEE(ism).c_str());
       me_h10_[ism-1] = mui_->collateProf2D(histo, histo, "EcalEndcap/Sums/EELaserTask/Laser2");
-      sprintf(histo, "*/EcalEndcap/EELaserTask/Laser2/EELT timing SM%02d L2A", ism);
+      sprintf(histo, "*/EcalEndcap/EELaserTask/Laser2/EELT timing %s L2A", Numbers::sEE(ism).c_str());
       mui_->add(me_h10_[ism-1], histo);
 
-      sprintf(histo, "EELT timing SM%02d L3A", ism);
+      sprintf(histo, "EELT timing %s L3A", Numbers::sEE(ism).c_str());
       me_h11_[ism-1] = mui_->collateProf2D(histo, histo, "EcalEndcap/Sums/EELaserTask/Laser3");
-      sprintf(histo, "*/EcalEndcap/EELaserTask/Laser3/EELT timing SM%02d L3A", ism);
+      sprintf(histo, "*/EcalEndcap/EELaserTask/Laser3/EELT timing %s L3A", Numbers::sEE(ism).c_str());
       mui_->add(me_h11_[ism-1], histo);
 
-      sprintf(histo, "EELT timing SM%02d L4A", ism);
+      sprintf(histo, "EELT timing %s L4A", Numbers::sEE(ism).c_str());
       me_h12_[ism-1] = mui_->collateProf2D(histo, histo, "EcalEndcap/Sums/EELaserTask/Laser4");
-      sprintf(histo, "*/EcalEndcap/EELaserTask/Laser4/EELT timing SM%02d L4A", ism);
+      sprintf(histo, "*/EcalEndcap/EELaserTask/Laser4/EELT timing %s L4A", Numbers::sEE(ism).c_str());
       mui_->add(me_h12_[ism-1], histo);
 
-      sprintf(histo, "EELT amplitude SM%02d L1B", ism);
+      sprintf(histo, "EELT amplitude %s L1B", Numbers::sEE(ism).c_str());
       me_h13_[ism-1] = mui_->collateProf2D(histo, histo, "EcalEndcap/Sums/EELaserTask/Laser1");
-      sprintf(histo, "*/EcalEndcap/EELaserTask/Laser1/EELT amplitude SM%02d L1B", ism);
+      sprintf(histo, "*/EcalEndcap/EELaserTask/Laser1/EELT amplitude %s L1B", Numbers::sEE(ism).c_str());
       mui_->add(me_h13_[ism-1], histo);
 
-      sprintf(histo, "EELT amplitude over PN SM%02d L1B", ism);
+      sprintf(histo, "EELT amplitude over PN %s L1B", Numbers::sEE(ism).c_str());
       me_h14_[ism-1] = mui_->collateProf2D(histo, histo, "EcalEndcap/Sums/EELaserTask/Laser1");
-      sprintf(histo, "*/EcalEndcap/EELaserTask/Laser1/EELT amplitude over PN SM%02d L1B", ism);
+      sprintf(histo, "*/EcalEndcap/EELaserTask/Laser1/EELT amplitude over PN %s L1B", Numbers::sEE(ism).c_str());
       mui_->add(me_h14_[ism-1], histo);
 
-      sprintf(histo, "EELT amplitude SM%02d L2B", ism);
+      sprintf(histo, "EELT amplitude %s L2B", Numbers::sEE(ism).c_str());
       me_h15_[ism-1] = mui_->collateProf2D(histo, histo, "EcalEndcap/Sums/EELaserTask/Laser2");
-      sprintf(histo, "*/EcalEndcap/EELaserTask/Laser2/EELT amplitude SM%02d L2B", ism);
+      sprintf(histo, "*/EcalEndcap/EELaserTask/Laser2/EELT amplitude %s L2B", Numbers::sEE(ism).c_str());
       mui_->add(me_h15_[ism-1], histo);
 
-      sprintf(histo, "EELT amplitude over PN SM%02d L2B", ism);
+      sprintf(histo, "EELT amplitude over PN %s L2B", Numbers::sEE(ism).c_str());
       me_h16_[ism-1] = mui_->collateProf2D(histo, histo, "EcalEndcap/Sums/EELaserTask/Laser2");
-      sprintf(histo, "*/EcalEndcap/EELaserTask/Laser2/EELT amplitude over PN SM%02d L2B", ism);
+      sprintf(histo, "*/EcalEndcap/EELaserTask/Laser2/EELT amplitude over PN %s L2B", Numbers::sEE(ism).c_str());
       mui_->add(me_h16_[ism-1], histo);
 
-      sprintf(histo, "EELT amplitude SM%02d L3B", ism);
+      sprintf(histo, "EELT amplitude %s L3B", Numbers::sEE(ism).c_str());
       me_h17_[ism-1] = mui_->collateProf2D(histo, histo, "EcalEndcap/Sums/EELaserTask/Laser3");
-      sprintf(histo, "*/EcalEndcap/EELaserTask/Laser3/EELT amplitude SM%02d L3B", ism);
+      sprintf(histo, "*/EcalEndcap/EELaserTask/Laser3/EELT amplitude %s L3B", Numbers::sEE(ism).c_str());
       mui_->add(me_h17_[ism-1], histo);
 
-      sprintf(histo, "EELT amplitude over PN SM%02d L3B", ism);
+      sprintf(histo, "EELT amplitude over PN %s L3B", Numbers::sEE(ism).c_str());
       me_h18_[ism-1] = mui_->collateProf2D(histo, histo, "EcalEndcap/Sums/EELaserTask/Laser3");
-      sprintf(histo, "*/EcalEndcap/EELaserTask/Laser3/EELT amplitude over PN SM%02d L3B", ism);
+      sprintf(histo, "*/EcalEndcap/EELaserTask/Laser3/EELT amplitude over PN %s L3B", Numbers::sEE(ism).c_str());
       mui_->add(me_h18_[ism-1], histo);
 
-      sprintf(histo, "EELT amplitude SM%02d L4B", ism);
+      sprintf(histo, "EELT amplitude %s L4B", Numbers::sEE(ism).c_str());
       me_h19_[ism-1] = mui_->collateProf2D(histo, histo, "EcalEndcap/Sums/EELaserTask/Laser4");
-      sprintf(histo, "*/EcalEndcap/EELaserTask/Laser4/EELT amplitude SM%02d L4B", ism);
+      sprintf(histo, "*/EcalEndcap/EELaserTask/Laser4/EELT amplitude %s L4B", Numbers::sEE(ism).c_str());
       mui_->add(me_h19_[ism-1], histo);
 
-      sprintf(histo, "EELT amplitude over PN SM%02d L4B", ism);
+      sprintf(histo, "EELT amplitude over PN %s L4B", Numbers::sEE(ism).c_str());
       me_h20_[ism-1] = mui_->collateProf2D(histo, histo, "EcalEndcap/Sums/EELaserTask/Laser4");
-      sprintf(histo, "*/EcalEndcap/EELaserTask/Laser4/EELT amplitude over PN SM%02d L4B", ism);
+      sprintf(histo, "*/EcalEndcap/EELaserTask/Laser4/EELT amplitude over PN %s L4B", Numbers::sEE(ism).c_str());
       mui_->add(me_h20_[ism-1], histo);
 
-      sprintf(histo, "EELT timing SM%02d L1B", ism);
+      sprintf(histo, "EELT timing %s L1B", Numbers::sEE(ism).c_str());
       me_h21_[ism-1] = mui_->collateProf2D(histo, histo, "EcalEndcap/Sums/EELaserTask/Laser1");
-      sprintf(histo, "*/EcalEndcap/EELaserTask/Laser1/EELT timing SM%02d L1B", ism);
+      sprintf(histo, "*/EcalEndcap/EELaserTask/Laser1/EELT timing %s L1B", Numbers::sEE(ism).c_str());
       mui_->add(me_h21_[ism-1], histo);
 
-      sprintf(histo, "EELT timing SM%02d L2B", ism);
+      sprintf(histo, "EELT timing %s L2B", Numbers::sEE(ism).c_str());
       me_h22_[ism-1] = mui_->collateProf2D(histo, histo, "EcalEndcap/Sums/EELaserTask/Laser2");
-      sprintf(histo, "*/EcalEndcap/EELaserTask/Laser2/EELT timing SM%02d L2B", ism);
+      sprintf(histo, "*/EcalEndcap/EELaserTask/Laser2/EELT timing %s L2B", Numbers::sEE(ism).c_str());
       mui_->add(me_h22_[ism-1], histo);
 
-      sprintf(histo, "EELT timing SM%02d L3B", ism);
+      sprintf(histo, "EELT timing %s L3B", Numbers::sEE(ism).c_str());
       me_h23_[ism-1] = mui_->collateProf2D(histo, histo, "EcalEndcap/Sums/EELaserTask/Laser3");
-      sprintf(histo, "*/EcalEndcap/EELaserTask/Laser3/EELT timing SM%02d L3B", ism);
+      sprintf(histo, "*/EcalEndcap/EELaserTask/Laser3/EELT timing %s L3B", Numbers::sEE(ism).c_str());
       mui_->add(me_h23_[ism-1], histo);
 
-      sprintf(histo, "EELT timing SM%02d L4B", ism);
+      sprintf(histo, "EELT timing %s L4B", Numbers::sEE(ism).c_str());
       me_h24_[ism-1] = mui_->collateProf2D(histo, histo, "EcalEndcap/Sums/EELaserTask/Laser4");
-      sprintf(histo, "*/EcalEndcap/EELaserTask/Laser4/EELT timing SM%02d L4B", ism);
+      sprintf(histo, "*/EcalEndcap/EELaserTask/Laser4/EELT timing %s L4B", Numbers::sEE(ism).c_str());
       mui_->add(me_h24_[ism-1], histo);
 
-      sprintf(histo, "EELT shape SM%02d L1A", ism);
+      sprintf(histo, "EELT shape %s L1A", Numbers::sEE(ism).c_str());
       me_hs01_[ism-1] = mui_->collateProf2D(histo, histo, "EcalEndcap/Sums/EELaserTask/Laser1");
-      sprintf(histo, "*/EcalEndcap/EELaserTask/Laser1/EELT shape SM%02d L1A", ism);
+      sprintf(histo, "*/EcalEndcap/EELaserTask/Laser1/EELT shape %s L1A", Numbers::sEE(ism).c_str());
       mui_->add(me_hs01_[ism-1], histo);
 
-      sprintf(histo, "EELT shape SM%02d L2A", ism);
+      sprintf(histo, "EELT shape %s L2A", Numbers::sEE(ism).c_str());
       me_hs02_[ism-1] = mui_->collateProf2D(histo, histo, "EcalEndcap/Sums/EELaserTask/Laser2");
-      sprintf(histo, "*/EcalEndcap/EELaserTask/Laser2/EELT shape SM%02d L2A", ism);
+      sprintf(histo, "*/EcalEndcap/EELaserTask/Laser2/EELT shape %s L2A", Numbers::sEE(ism).c_str());
       mui_->add(me_hs02_[ism-1], histo);
 
-      sprintf(histo, "EELT shape SM%02d L3A", ism);
+      sprintf(histo, "EELT shape %s L3A", Numbers::sEE(ism).c_str());
       me_hs03_[ism-1] = mui_->collateProf2D(histo, histo, "EcalEndcap/Sums/EELaserTask/Laser3");
-      sprintf(histo, "*/EcalEndcap/EELaserTask/Laser3/EELT shape SM%02d L3A", ism);
+      sprintf(histo, "*/EcalEndcap/EELaserTask/Laser3/EELT shape %s L3A", Numbers::sEE(ism).c_str());
       mui_->add(me_hs03_[ism-1], histo);
 
-      sprintf(histo, "EELT shape SM%02d L4A", ism);
+      sprintf(histo, "EELT shape %s L4A", Numbers::sEE(ism).c_str());
       me_hs04_[ism-1] = mui_->collateProf2D(histo, histo, "EcalEndcap/Sums/EELaserTask/Laser4");
-      sprintf(histo, "*/EcalEndcap/EELaserTask/Laser4/EELT shape SM%02d L4A", ism);
+      sprintf(histo, "*/EcalEndcap/EELaserTask/Laser4/EELT shape %s L4A", Numbers::sEE(ism).c_str());
       mui_->add(me_hs04_[ism-1], histo);
 
-      sprintf(histo, "EELT shape SM%02d L1B", ism);
+      sprintf(histo, "EELT shape %s L1B", Numbers::sEE(ism).c_str());
       me_hs05_[ism-1] = mui_->collateProf2D(histo, histo, "EcalEndcap/Sums/EELaserTask/Laser1");
-      sprintf(histo, "*/EcalEndcap/EELaserTask/Laser1/EELT shape SM%02d L1B", ism);
+      sprintf(histo, "*/EcalEndcap/EELaserTask/Laser1/EELT shape %s L1B", Numbers::sEE(ism).c_str());
       mui_->add(me_hs05_[ism-1], histo);
 
-      sprintf(histo, "EELT shape SM%02d L2B", ism);
+      sprintf(histo, "EELT shape %s L2B", Numbers::sEE(ism).c_str());
       me_hs06_[ism-1] = mui_->collateProf2D(histo, histo, "EcalEndcap/Sums/EELaserTask/Laser2");
-      sprintf(histo, "*/EcalEndcap/EELaserTask/Laser2/EELT shape SM%02d L2B", ism);
+      sprintf(histo, "*/EcalEndcap/EELaserTask/Laser2/EELT shape %s L2B", Numbers::sEE(ism).c_str());
       mui_->add(me_hs06_[ism-1], histo);
 
-      sprintf(histo, "EELT shape SM%02d L3B", ism);
+      sprintf(histo, "EELT shape %s L3B", Numbers::sEE(ism).c_str());
       me_hs07_[ism-1] = mui_->collateProf2D(histo, histo, "EcalEndcap/Sums/EELaserTask/Laser3");
-      sprintf(histo, "*/EcalEndcap/EELaserTask/Laser3/EELT shape SM%02d L3B", ism);
+      sprintf(histo, "*/EcalEndcap/EELaserTask/Laser3/EELT shape %s L3B", Numbers::sEE(ism).c_str());
       mui_->add(me_hs07_[ism-1], histo);
 
-      sprintf(histo, "EELT shape SM%02d L4B", ism);
+      sprintf(histo, "EELT shape %s L4B", Numbers::sEE(ism).c_str());
       me_hs08_[ism-1] = mui_->collateProf2D(histo, histo, "EcalEndcap/Sums/EELaserTask/Laser4");
-      sprintf(histo, "*/EcalEndcap/EELaserTask/Laser4/EELT shape SM%02d L4B", ism);
+      sprintf(histo, "*/EcalEndcap/EELaserTask/Laser4/EELT shape %s L4B", Numbers::sEE(ism).c_str());
       mui_->add(me_hs08_[ism-1], histo);
 
-      sprintf(histo, "EEPDT PNs amplitude SM%02d G01 L1", ism);
-      me_i01_[ism-1] = mui_->collateProf2D(histo, histo, "EcalEndcap/Sums/EEPnDiodeTask/Laser1/Gain01");
-      sprintf(histo, "*/EcalEndcap/EEPnDiodeTask/Laser1/Gain01/EEPDT PNs amplitude SM%02d G01 L1", ism);
+      sprintf(histo, "EEPDT PNs amplitude %s G01 L1", Numbers::sEE(ism).c_str());
+      me_i01_[ism-1] = mui_->collateProf2D(histo, histo, "EcalEndcap/Sums/EELaserTask/Laser1/PN/Gain01");
+      sprintf(histo, "*/EcalEndcap/EELaserTask/Laser1/PN/Gain01/EEPDT PNs amplitude %s G01 L1", Numbers::sEE(ism).c_str());
       mui_->add(me_i01_[ism-1], histo);
 
-      sprintf(histo, "EEPDT PNs amplitude SM%02d G01 L2", ism);
-      me_i02_[ism-1] = mui_->collateProf2D(histo, histo, "EcalEndcap/Sums/EEPnDiodeTask/Laser2/Gain01");
-      sprintf(histo, "*/EcalEndcap/EEPnDiodeTask/Laser2/Gain01/EEPDT PNs amplitude SM%02d G01 L2", ism);
+      sprintf(histo, "EEPDT PNs amplitude %s G01 L2", Numbers::sEE(ism).c_str());
+      me_i02_[ism-1] = mui_->collateProf2D(histo, histo, "EcalEndcap/Sums/EELaserTask/Laser2/PN/Gain01");
+      sprintf(histo, "*/EcalEndcap/EELaserTask/Laser2/PN/Gain01/EEPDT PNs amplitude %s G01 L2", Numbers::sEE(ism).c_str());
       mui_->add(me_i02_[ism-1], histo);
 
-      sprintf(histo, "EEPDT PNs amplitude SM%02d G01 L3", ism);
-      me_i03_[ism-1] = mui_->collateProf2D(histo, histo, "EcalEndcap/Sums/EEPnDiodeTask/Laser3/Gain01");
-      sprintf(histo, "*/EcalEndcap/EEPnDiodeTask/Laser3/Gain01/EEPDT PNs amplitude SM%02d G01 L3", ism);
+      sprintf(histo, "EEPDT PNs amplitude %s G01 L3", Numbers::sEE(ism).c_str());
+      me_i03_[ism-1] = mui_->collateProf2D(histo, histo, "EcalEndcap/Sums/EELaserTask/Laser3/PN/Gain01");
+      sprintf(histo, "*/EcalEndcap/EELaserTask/Laser3/PN/Gain01/EEPDT PNs amplitude %s G01 L3", Numbers::sEE(ism).c_str());
       mui_->add(me_i03_[ism-1], histo);
 
-      sprintf(histo, "EEPDT PNs amplitude SM%02d G01 L4", ism);
-      me_i04_[ism-1] = mui_->collateProf2D(histo, histo, "EcalEndcap/Sums/EEPnDiodeTask/Laser4/Gain01");
-      sprintf(histo, "*/EcalEndcap/EEPnDiodeTask/Laser4/Gain01/EEPDT PNs amplitude SM%02d G01 L4", ism);
+      sprintf(histo, "EEPDT PNs amplitude %s G01 L4", Numbers::sEE(ism).c_str());
+      me_i04_[ism-1] = mui_->collateProf2D(histo, histo, "EcalEndcap/Sums/EELaserTask/Laser4/PN/Gain01");
+      sprintf(histo, "*/EcalEndcap/EELaserTask/Laser4/PN/Gain01/EEPDT PNs amplitude %s G01 L4", Numbers::sEE(ism).c_str());
       mui_->add(me_i04_[ism-1], histo);
 
-      sprintf(histo, "EEPDT PNs pedestal SM%02d G01 L1", ism);
-      me_i05_[ism-1] = mui_->collateProf2D(histo, histo, "EcalEndcap/Sums/EEPnDiodeTask/Laser1/Gain01");
-      sprintf(histo, "*/EcalEndcap/EEPnDiodeTask/Laser1/Gain01/EEPDT PNs pedestal SM%02d G01 L1", ism);
+      sprintf(histo, "EEPDT PNs pedestal %s G01 L1", Numbers::sEE(ism).c_str());
+      me_i05_[ism-1] = mui_->collateProf2D(histo, histo, "EcalEndcap/Sums/EELaserTask/Laser1/PN/Gain01");
+      sprintf(histo, "*/EcalEndcap/EELaserTask/Laser1/PN/Gain01/EEPDT PNs pedestal %s G01 L1", Numbers::sEE(ism).c_str());
       mui_->add(me_i05_[ism-1], histo);
 
-      sprintf(histo, "EEPDT PNs pedestal SM%02d G01 L2", ism);
-      me_i06_[ism-1] = mui_->collateProf2D(histo, histo, "EcalEndcap/Sums/EEPnDiodeTask/Laser2/Gain01");
-      sprintf(histo, "*/EcalEndcap/EEPnDiodeTask/Laser2/Gain01/EEPDT PNs pedestal SM%02d G01 L2", ism);
+      sprintf(histo, "EEPDT PNs pedestal %s G01 L2", Numbers::sEE(ism).c_str());
+      me_i06_[ism-1] = mui_->collateProf2D(histo, histo, "EcalEndcap/Sums/EELaserTask/Laser2/PN/Gain01");
+      sprintf(histo, "*/EcalEndcap/EELaserTask/Laser2/PN/Gain01/EEPDT PNs pedestal %s G01 L2", Numbers::sEE(ism).c_str());
       mui_->add(me_i06_[ism-1], histo);
 
-      sprintf(histo, "EEPDT PNs pedestal SM%02d G01 L3", ism);
-      me_i07_[ism-1] = mui_->collateProf2D(histo, histo, "EcalEndcap/Sums/EEPnDiodeTask/Laser3/Gain01");
-      sprintf(histo, "*/EcalEndcap/EEPnDiodeTask/Laser3/Gain01/EEPDT PNs pedestal SM%02d G01 L3", ism);
+      sprintf(histo, "EEPDT PNs pedestal %s G01 L3", Numbers::sEE(ism).c_str());
+      me_i07_[ism-1] = mui_->collateProf2D(histo, histo, "EcalEndcap/Sums/EELaserTask/Laser3/PN/Gain01");
+      sprintf(histo, "*/EcalEndcap/EELaserTask/Laser3/PN/Gain01/EEPDT PNs pedestal %s G01 L3", Numbers::sEE(ism).c_str());
       mui_->add(me_i07_[ism-1], histo);
 
-      sprintf(histo, "EEPDT PNs pedestal SM%02d G01 L4", ism);
-      me_i08_[ism-1] = mui_->collateProf2D(histo, histo, "EcalEndcap/Sums/EEPnDiodeTask/Laser4/Gain01");
-      sprintf(histo, "*/EcalEndcap/EEPnDiodeTask/Laser4/Gain01/EEPDT PNs pedestal SM%02d G01 L4", ism);
+      sprintf(histo, "EEPDT PNs pedestal %s G01 L4", Numbers::sEE(ism).c_str());
+      me_i08_[ism-1] = mui_->collateProf2D(histo, histo, "EcalEndcap/Sums/EELaserTask/Laser4/PN/Gain01");
+      sprintf(histo, "*/EcalEndcap/EELaserTask/Laser4/PN/Gain01/EEPDT PNs pedestal %s G01 L4", Numbers::sEE(ism).c_str());
       mui_->add(me_i08_[ism-1], histo);
 
-      sprintf(histo, "EEPDT PNs amplitude SM%02d G16 L1", ism);
-      me_i09_[ism-1] = mui_->collateProf2D(histo, histo, "EcalEndcap/Sums/EEPnDiodeTask/Laser1/Gain16");
-      sprintf(histo, "*/EcalEndcap/EEPnDiodeTask/Laser1/Gain16/EEPDT PNs amplitude SM%02d G16 L1", ism);
+      sprintf(histo, "EEPDT PNs amplitude %s G16 L1", Numbers::sEE(ism).c_str());
+      me_i09_[ism-1] = mui_->collateProf2D(histo, histo, "EcalEndcap/Sums/EELaserTask/Laser1/PN/Gain16");
+      sprintf(histo, "*/EcalEndcap/EELaserTask/Laser1/PN/Gain16/EEPDT PNs amplitude %s G16 L1", Numbers::sEE(ism).c_str());
       mui_->add(me_i09_[ism-1], histo);
 
-      sprintf(histo, "EEPDT PNs amplitude SM%02d G16 L2", ism);
-      me_i10_[ism-1] = mui_->collateProf2D(histo, histo, "EcalEndcap/Sums/EEPnDiodeTask/Laser2/Gain16");
-      sprintf(histo, "*/EcalEndcap/EEPnDiodeTask/Laser2/Gain16/EEPDT PNs amplitude SM%02d G16 L2", ism);
+      sprintf(histo, "EEPDT PNs amplitude %s G16 L2", Numbers::sEE(ism).c_str());
+      me_i10_[ism-1] = mui_->collateProf2D(histo, histo, "EcalEndcap/Sums/EELaserTask/Laser2/PN/Gain16");
+      sprintf(histo, "*/EcalEndcap/EELaserTask/Laser2/PN/Gain16/EEPDT PNs amplitude %s G16 L2", Numbers::sEE(ism).c_str());
       mui_->add(me_i10_[ism-1], histo);
 
-      sprintf(histo, "EEPDT PNs amplitude SM%02d G16 L3", ism);
-      me_i11_[ism-1] = mui_->collateProf2D(histo, histo, "EcalEndcap/Sums/EEPnDiodeTask/Laser3/Gain16");
-      sprintf(histo, "*/EcalEndcap/EEPnDiodeTask/Laser3/Gain16/EEPDT PNs amplitude SM%02d G16 L3", ism);
+      sprintf(histo, "EEPDT PNs amplitude %s G16 L3", Numbers::sEE(ism).c_str());
+      me_i11_[ism-1] = mui_->collateProf2D(histo, histo, "EcalEndcap/Sums/EELaserTask/Laser3/PN/Gain16");
+      sprintf(histo, "*/EcalEndcap/EELaserTask/Laser3/PN/Gain16/EEPDT PNs amplitude %s G16 L3", Numbers::sEE(ism).c_str());
       mui_->add(me_i11_[ism-1], histo);
 
-      sprintf(histo, "EEPDT PNs amplitude SM%02d G16 L4", ism);
-      me_i12_[ism-1] = mui_->collateProf2D(histo, histo, "EcalEndcap/Sums/EEPnDiodeTask/Laser4/Gain16");
-      sprintf(histo, "*/EcalEndcap/EEPnDiodeTask/Laser4/Gain16/EEPDT PNs amplitude SM%02d G16 L4", ism);
+      sprintf(histo, "EEPDT PNs amplitude %s G16 L4", Numbers::sEE(ism).c_str());
+      me_i12_[ism-1] = mui_->collateProf2D(histo, histo, "EcalEndcap/Sums/EELaserTask/Laser4/PN/Gain16");
+      sprintf(histo, "*/EcalEndcap/EELaserTask/Laser4/PN/Gain16/EEPDT PNs amplitude %s G16 L4", Numbers::sEE(ism).c_str());
       mui_->add(me_i12_[ism-1], histo);
 
-      sprintf(histo, "EEPDT PNs pedestal SM%02d G16 L1", ism);
-      me_i13_[ism-1] = mui_->collateProf2D(histo, histo, "EcalEndcap/Sums/EEPnDiodeTask/Laser1/Gain16");
-      sprintf(histo, "*/EcalEndcap/EEPnDiodeTask/Laser1/Gain16/EEPDT PNs pedestal SM%02d G16 L1", ism);
+      sprintf(histo, "EEPDT PNs pedestal %s G16 L1", Numbers::sEE(ism).c_str());
+      me_i13_[ism-1] = mui_->collateProf2D(histo, histo, "EcalEndcap/Sums/EELaserTask/Laser1/PN/Gain16");
+      sprintf(histo, "*/EcalEndcap/EELaserTask/Laser1/PN/Gain16/EEPDT PNs pedestal %s G16 L1", Numbers::sEE(ism).c_str());
       mui_->add(me_i13_[ism-1], histo);
 
-      sprintf(histo, "EEPDT PNs pedestal SM%02d G16 L2", ism);
-      me_i14_[ism-1] = mui_->collateProf2D(histo, histo, "EcalEndcap/Sums/EEPnDiodeTask/Laser2/Gain16");
-      sprintf(histo, "*/EcalEndcap/EEPnDiodeTask/Laser2/Gain16/EEPDT PNs pedestal SM%02d G16 L2", ism);
+      sprintf(histo, "EEPDT PNs pedestal %s G16 L2", Numbers::sEE(ism).c_str());
+      me_i14_[ism-1] = mui_->collateProf2D(histo, histo, "EcalEndcap/Sums/EELaserTask/Laser2/PN/Gain16");
+      sprintf(histo, "*/EcalEndcap/EELaserTask/Laser2/PN/Gain16/EEPDT PNs pedestal %s G16 L2", Numbers::sEE(ism).c_str());
       mui_->add(me_i14_[ism-1], histo);
 
-      sprintf(histo, "EEPDT PNs pedestal SM%02d G16 L3", ism);
-      me_i15_[ism-1] = mui_->collateProf2D(histo, histo, "EcalEndcap/Sums/EEPnDiodeTask/Laser3/Gain16");
-      sprintf(histo, "*/EcalEndcap/EEPnDiodeTask/Laser3/Gain16/EEPDT PNs pedestal SM%02d G16 L3", ism);
+      sprintf(histo, "EEPDT PNs pedestal %s G16 L3", Numbers::sEE(ism).c_str());
+      me_i15_[ism-1] = mui_->collateProf2D(histo, histo, "EcalEndcap/Sums/EELaserTask/Laser3/PN/Gain16");
+      sprintf(histo, "*/EcalEndcap/EELaserTask/Laser3/PN/Gain16/EEPDT PNs pedestal %s G16 L3", Numbers::sEE(ism).c_str());
       mui_->add(me_i15_[ism-1], histo);
 
-      sprintf(histo, "EEPDT PNs pedestal SM%02d G16 L4", ism);
-      me_i16_[ism-1] = mui_->collateProf2D(histo, histo, "EcalEndcap/Sums/EEPnDiodeTask/Laser4/Gain16");
-      sprintf(histo, "*/EcalEndcap/EEPnDiodeTask/Laser4/Gain16/EEPDT PNs pedestal SM%02d G16 L4", ism);
+      sprintf(histo, "EEPDT PNs pedestal %s G16 L4", Numbers::sEE(ism).c_str());
+      me_i16_[ism-1] = mui_->collateProf2D(histo, histo, "EcalEndcap/Sums/EELaserTask/Laser4/PN/Gain16");
+      sprintf(histo, "*/EcalEndcap/EELaserTask/Laser4/PN/Gain16/EEPDT PNs pedestal %s G16 L4", Numbers::sEE(ism).c_str());
       mui_->add(me_i16_[ism-1], histo);
 
     }
@@ -1861,152 +1938,152 @@ void EELaserClient::subscribe(void){
     int ism = superModules_[i];
 
     if ( collateSources_ ) {
-      sprintf(histo, "EcalEndcap/Sums/EELaserTask/Laser1/EELT amplitude SM%02d L1A", ism);
+      sprintf(histo, "EcalEndcap/Sums/EELaserTask/Laser1/EELT amplitude %s L1A", Numbers::sEE(ism).c_str());
       if ( qth01_[ism-1] ) mui_->useQTest(histo, qth01_[ism-1]->getName());
-      sprintf(histo, "EcalEndcap/Sums/EELaserTask/Laser2/EELT amplitude SM%02d L2A", ism);
+      sprintf(histo, "EcalEndcap/Sums/EELaserTask/Laser2/EELT amplitude %s L2A", Numbers::sEE(ism).c_str());
       if ( qth02_[ism-1] ) mui_->useQTest(histo, qth02_[ism-1]->getName());
-      sprintf(histo, "EcalEndcap/Sums/EELaserTask/Laser3/EELT amplitude SM%02d L3A", ism);
+      sprintf(histo, "EcalEndcap/Sums/EELaserTask/Laser3/EELT amplitude %s L3A", Numbers::sEE(ism).c_str());
       if ( qth03_[ism-1] ) mui_->useQTest(histo, qth03_[ism-1]->getName());
-      sprintf(histo, "EcalEndcap/Sums/EELaserTask/Laser4/EELT amplitude SM%02d L4A", ism);
+      sprintf(histo, "EcalEndcap/Sums/EELaserTask/Laser4/EELT amplitude %s L4A", Numbers::sEE(ism).c_str());
       if ( qth04_[ism-1] ) mui_->useQTest(histo, qth04_[ism-1]->getName());
-      sprintf(histo, "EcalEndcap/Sums/EELaserTask/Laser1/EELT amplitude SM%02d L1B", ism);
+      sprintf(histo, "EcalEndcap/Sums/EELaserTask/Laser1/EELT amplitude %s L1B", Numbers::sEE(ism).c_str());
       if ( qth05_[ism-1] ) mui_->useQTest(histo, qth05_[ism-1]->getName());
-      sprintf(histo, "EcalEndcap/Sums/EELaserTask/Laser2/EELT amplitude SM%02d L2B", ism);
+      sprintf(histo, "EcalEndcap/Sums/EELaserTask/Laser2/EELT amplitude %s L2B", Numbers::sEE(ism).c_str());
       if ( qth06_[ism-1] ) mui_->useQTest(histo, qth06_[ism-1]->getName());
-      sprintf(histo, "EcalEndcap/Sums/EELaserTask/Laser3/EELT amplitude SM%02d L3B", ism);
+      sprintf(histo, "EcalEndcap/Sums/EELaserTask/Laser3/EELT amplitude %s L3B", Numbers::sEE(ism).c_str());
       if ( qth07_[ism-1] ) mui_->useQTest(histo, qth07_[ism-1]->getName());
-      sprintf(histo, "EcalEndcap/Sums/EELaserTask/Laser4/EELT amplitude SM%02d L4B", ism);
+      sprintf(histo, "EcalEndcap/Sums/EELaserTask/Laser4/EELT amplitude %s L4B", Numbers::sEE(ism).c_str());
       if ( qth08_[ism-1] ) mui_->useQTest(histo, qth08_[ism-1]->getName());
-      sprintf(histo, "EcalEndcap/Sums/EEPnDiodeTask/Laser1/Gain01/EEPDT PNs amplitude SM%02d G01 L1", ism);
+      sprintf(histo, "EcalEndcap/Sums/EELaserTask/Laser1/PN/Gain01/EEPDT PNs amplitude %s G01 L1", Numbers::sEE(ism).c_str());
       if ( qth09_[ism-1] ) mui_->useQTest(histo, qth09_[ism-1]->getName());
-      sprintf(histo, "EcalEndcap/Sums/EEPnDiodeTask/Laser2/Gain01/EEPDT PNs amplitude SM%02d G01 L2", ism);
+      sprintf(histo, "EcalEndcap/Sums/EELaserTask/Laser2/PN/Gain01/EEPDT PNs amplitude %s G01 L2", Numbers::sEE(ism).c_str());
       if ( qth10_[ism-1] ) mui_->useQTest(histo, qth10_[ism-1]->getName());
-      sprintf(histo, "EcalEndcap/Sums/EEPnDiodeTask/Laser3/Gain01/EEPDT PNs amplitude SM%02d G01 L3", ism);
+      sprintf(histo, "EcalEndcap/Sums/EELaserTask/Laser3/PN/Gain01/EEPDT PNs amplitude %s G01 L3", Numbers::sEE(ism).c_str());
       if ( qth11_[ism-1] ) mui_->useQTest(histo, qth11_[ism-1]->getName());
-      sprintf(histo, "EcalEndcap/Sums/EEPnDiodeTask/Laser4/Gain01/EEPDT PNs amplitude SM%02d G01 L4", ism);
+      sprintf(histo, "EcalEndcap/Sums/EELaserTask/Laser4/PN/Gain01/EEPDT PNs amplitude %s G01 L4", Numbers::sEE(ism).c_str());
       if ( qth12_[ism-1] ) mui_->useQTest(histo, qth12_[ism-1]->getName());
-      sprintf(histo, "EcalEndcap/Sums/EEPnDiodeTask/Laser1/Gain01/EEPDT PNs pedestal SM%02d G01 L1", ism);
+      sprintf(histo, "EcalEndcap/Sums/EELaserTask/Laser1/PN/Gain01/EEPDT PNs pedestal %s G01 L1", Numbers::sEE(ism).c_str());
       if ( qth13_[ism-1] ) mui_->useQTest(histo, qth13_[ism-1]->getName());
-      sprintf(histo, "EcalEndcap/Sums/EEPnDiodeTask/Laser2/Gain01/EEPDT PNs pedestal SM%02d G01 L2", ism);
+      sprintf(histo, "EcalEndcap/Sums/EELaserTask/Laser2/PN/Gain01/EEPDT PNs pedestal %s G01 L2", Numbers::sEE(ism).c_str());
       if ( qth14_[ism-1] ) mui_->useQTest(histo, qth14_[ism-1]->getName());
-      sprintf(histo, "EcalEndcap/Sums/EEPnDiodeTask/Laser3/Gain01/EEPDT PNs pedestal SM%02d G01 L3", ism);
+      sprintf(histo, "EcalEndcap/Sums/EELaserTask/Laser3/PN/Gain01/EEPDT PNs pedestal %s G01 L3", Numbers::sEE(ism).c_str());
       if ( qth15_[ism-1] ) mui_->useQTest(histo, qth15_[ism-1]->getName());
-      sprintf(histo, "EcalEndcap/Sums/EEPnDiodeTask/Laser4/Gain01/EEPDT PNs pedestal SM%02d G01 L4", ism);
+      sprintf(histo, "EcalEndcap/Sums/EELaserTask/Laser4/PN/Gain01/EEPDT PNs pedestal %s G01 L4", Numbers::sEE(ism).c_str());
       if ( qth16_[ism-1] ) mui_->useQTest(histo, qth16_[ism-1]->getName());
-      sprintf(histo, "EcalEndcap/Sums/EEPnDiodeTask/Laser1/Gain16/EEPDT PNs amplitude SM%02d G16 L1", ism);
+      sprintf(histo, "EcalEndcap/Sums/EELaserTask/Laser1/PN/Gain16/EEPDT PNs amplitude %s G16 L1", Numbers::sEE(ism).c_str());
       if ( qth17_[ism-1] ) mui_->useQTest(histo, qth17_[ism-1]->getName());
-      sprintf(histo, "EcalEndcap/Sums/EEPnDiodeTask/Laser2/Gain16/EEPDT PNs amplitude SM%02d G16 L2", ism);
+      sprintf(histo, "EcalEndcap/Sums/EELaserTask/Laser2/PN/Gain16/EEPDT PNs amplitude %s G16 L2", Numbers::sEE(ism).c_str());
       if ( qth18_[ism-1] ) mui_->useQTest(histo, qth18_[ism-1]->getName());
-      sprintf(histo, "EcalEndcap/Sums/EEPnDiodeTask/Laser3/Gain16/EEPDT PNs amplitude SM%02d G16 L3", ism);
+      sprintf(histo, "EcalEndcap/Sums/EELaserTask/Laser3/PN/Gain16/EEPDT PNs amplitude %s G16 L3", Numbers::sEE(ism).c_str());
       if ( qth19_[ism-1] ) mui_->useQTest(histo, qth19_[ism-1]->getName());
-      sprintf(histo, "EcalEndcap/Sums/EEPnDiodeTask/Laser4/Gain16/EEPDT PNs amplitude SM%02d G16 L4", ism);
+      sprintf(histo, "EcalEndcap/Sums/EELaserTask/Laser4/PN/Gain16/EEPDT PNs amplitude %s G16 L4", Numbers::sEE(ism).c_str());
       if ( qth20_[ism-1] ) mui_->useQTest(histo, qth20_[ism-1]->getName());
-      sprintf(histo, "EcalEndcap/Sums/EEPnDiodeTask/Laser1/Gain16/EEPDT PNs pedestal SM%02d G16 L1", ism);
+      sprintf(histo, "EcalEndcap/Sums/EELaserTask/Laser1/PN/Gain16/EEPDT PNs pedestal %s G16 L1", Numbers::sEE(ism).c_str());
       if ( qth21_[ism-1] ) mui_->useQTest(histo, qth21_[ism-1]->getName());
-      sprintf(histo, "EcalEndcap/Sums/EEPnDiodeTask/Laser2/Gain16/EEPDT PNs pedestal SM%02d G16 L2", ism);
+      sprintf(histo, "EcalEndcap/Sums/EELaserTask/Laser2/PN/Gain16/EEPDT PNs pedestal %s G16 L2", Numbers::sEE(ism).c_str());
       if ( qth22_[ism-1] ) mui_->useQTest(histo, qth22_[ism-1]->getName());
-      sprintf(histo, "EcalEndcap/Sums/EEPnDiodeTask/Laser3/Gain16/EEPDT PNs pedestal SM%02d G16 L3", ism);
+      sprintf(histo, "EcalEndcap/Sums/EELaserTask/Laser3/PN/Gain16/EEPDT PNs pedestal %s G16 L3", Numbers::sEE(ism).c_str());
       if ( qth23_[ism-1] ) mui_->useQTest(histo, qth23_[ism-1]->getName());
-      sprintf(histo, "EcalEndcap/Sums/EEPnDiodeTask/Laser4/Gain16/EEPDT PNs pedestal SM%02d G16 L4", ism);
+      sprintf(histo, "EcalEndcap/Sums/EELaserTask/Laser4/PN/Gain16/EEPDT PNs pedestal %s G16 L4", Numbers::sEE(ism).c_str());
       if ( qth24_[ism-1] ) mui_->useQTest(histo, qth24_[ism-1]->getName());
     } else {
       if ( enableMonitorDaemon_ ) {
-        sprintf(histo, "*/EcalEndcap/EELaserTask/Laser1/EELT amplitude SM%02d L1A", ism);
+        sprintf(histo, "*/EcalEndcap/EELaserTask/Laser1/EELT amplitude %s L1A", Numbers::sEE(ism).c_str());
         if ( qth01_[ism-1] ) mui_->useQTest(histo, qth01_[ism-1]->getName());
-        sprintf(histo, "*/EcalEndcap/EELaserTask/Laser2/EELT amplitude SM%02d L2A", ism);
+        sprintf(histo, "*/EcalEndcap/EELaserTask/Laser2/EELT amplitude %s L2A", Numbers::sEE(ism).c_str());
         if ( qth02_[ism-1] ) mui_->useQTest(histo, qth02_[ism-1]->getName());
-        sprintf(histo, "*/EcalEndcap/EELaserTask/Laser3/EELT amplitude SM%02d L3A", ism);
+        sprintf(histo, "*/EcalEndcap/EELaserTask/Laser3/EELT amplitude %s L3A", Numbers::sEE(ism).c_str());
         if ( qth03_[ism-1] ) mui_->useQTest(histo, qth03_[ism-1]->getName());
-        sprintf(histo, "*/EcalEndcap/EELaserTask/Laser4/EELT amplitude SM%02d L4A", ism);
+        sprintf(histo, "*/EcalEndcap/EELaserTask/Laser4/EELT amplitude %s L4A", Numbers::sEE(ism).c_str());
         if ( qth04_[ism-1] ) mui_->useQTest(histo, qth04_[ism-1]->getName());
-        sprintf(histo, "*/EcalEndcap/EELaserTask/Laser1/EELT amplitude SM%02d L1B", ism);
+        sprintf(histo, "*/EcalEndcap/EELaserTask/Laser1/EELT amplitude %s L1B", Numbers::sEE(ism).c_str());
         if ( qth05_[ism-1] ) mui_->useQTest(histo, qth05_[ism-1]->getName());
-        sprintf(histo, "*/EcalEndcap/EELaserTask/Laser2/EELT amplitude SM%02d L2B", ism);
+        sprintf(histo, "*/EcalEndcap/EELaserTask/Laser2/EELT amplitude %s L2B", Numbers::sEE(ism).c_str());
         if ( qth06_[ism-1] ) mui_->useQTest(histo, qth06_[ism-1]->getName());
-        sprintf(histo, "*/EcalEndcap/EELaserTask/Laser3/EELT amplitude SM%02d L3B", ism);
+        sprintf(histo, "*/EcalEndcap/EELaserTask/Laser3/EELT amplitude %s L3B", Numbers::sEE(ism).c_str());
         if ( qth07_[ism-1] ) mui_->useQTest(histo, qth07_[ism-1]->getName());
-        sprintf(histo, "*/EcalEndcap/EELaserTask/Laser4/EELT amplitude SM%02d L4B", ism);
+        sprintf(histo, "*/EcalEndcap/EELaserTask/Laser4/EELT amplitude %s L4B", Numbers::sEE(ism).c_str());
         if ( qth08_[ism-1] ) mui_->useQTest(histo, qth08_[ism-1]->getName());
-        sprintf(histo, "*/EcalEndcap/EEPnDiodeTask/Laser1/Gain01/EEPDT PNs amplitude SM%02d G01 L1", ism);
+        sprintf(histo, "*/EcalEndcap/EELaserTask/Laser1/PN/Gain01/EEPDT PNs amplitude %s G01 L1", Numbers::sEE(ism).c_str());
         if ( qth09_[ism-1] ) mui_->useQTest(histo, qth09_[ism-1]->getName());
-        sprintf(histo, "*/EcalEndcap/EEPnDiodeTask/Laser2/Gain01/EEPDT PNs amplitude SM%02d G01 L2", ism);
+        sprintf(histo, "*/EcalEndcap/EELaserTask/Laser2/PN/Gain01/EEPDT PNs amplitude %s G01 L2", Numbers::sEE(ism).c_str());
         if ( qth10_[ism-1] ) mui_->useQTest(histo, qth10_[ism-1]->getName());
-        sprintf(histo, "*/EcalEndcap/EEPnDiodeTask/Laser3/Gain01/EEPDT PNs amplitude SM%02d G01 L3", ism);
+        sprintf(histo, "*/EcalEndcap/EELaserTask/Laser3/PN/Gain01/EEPDT PNs amplitude %s G01 L3", Numbers::sEE(ism).c_str());
         if ( qth11_[ism-1] ) mui_->useQTest(histo, qth11_[ism-1]->getName());
-        sprintf(histo, "*/EcalEndcap/EEPnDiodeTask/Laser4/Gain01/EEPDT PNs amplitude SM%02d G01 L4", ism);
+        sprintf(histo, "*/EcalEndcap/EELaserTask/Laser4/PN/Gain01/EEPDT PNs amplitude %s G01 L4", Numbers::sEE(ism).c_str());
         if ( qth12_[ism-1] ) mui_->useQTest(histo, qth12_[ism-1]->getName());
-        sprintf(histo, "*/EcalEndcap/EEPnDiodeTask/Laser1/Gain01/EEPDT PNs pedestal SM%02d G01 L1", ism);
+        sprintf(histo, "*/EcalEndcap/EELaserTask/Laser1/PN/Gain01/EEPDT PNs pedestal %s G01 L1", Numbers::sEE(ism).c_str());
         if ( qth13_[ism-1] ) mui_->useQTest(histo, qth13_[ism-1]->getName());
-        sprintf(histo, "*/EcalEndcap/EEPnDiodeTask/Laser2/Gain01/EEPDT PNs pedestal SM%02d G01 L2", ism);
+        sprintf(histo, "*/EcalEndcap/EELaserTask/Laser2/PN/Gain01/EEPDT PNs pedestal %s G01 L2", Numbers::sEE(ism).c_str());
         if ( qth14_[ism-1] ) mui_->useQTest(histo, qth14_[ism-1]->getName());
-        sprintf(histo, "*/EcalEndcap/EEPnDiodeTask/Laser3/Gain01/EEPDT PNs pedestal SM%02d G01 L3", ism);
+        sprintf(histo, "*/EcalEndcap/EELaserTask/Laser3/PN/Gain01/EEPDT PNs pedestal %s G01 L3", Numbers::sEE(ism).c_str());
         if ( qth15_[ism-1] ) mui_->useQTest(histo, qth15_[ism-1]->getName());
-        sprintf(histo, "*/EcalEndcap/EEPnDiodeTask/Laser4/Gain01/EEPDT PNs pedestal SM%02d G01 L4", ism);
+        sprintf(histo, "*/EcalEndcap/EELaserTask/Laser4/PN/Gain01/EEPDT PNs pedestal %s G01 L4", Numbers::sEE(ism).c_str());
         if ( qth16_[ism-1] ) mui_->useQTest(histo, qth16_[ism-1]->getName());
-        sprintf(histo, "*/EcalEndcap/EEPnDiodeTask/Laser1/Gain16/EEPDT PNs amplitude SM%02d G16 L1", ism);
+        sprintf(histo, "*/EcalEndcap/EELaserTask/Laser1/PN/Gain16/EEPDT PNs amplitude %s G16 L1", Numbers::sEE(ism).c_str());
         if ( qth17_[ism-1] ) mui_->useQTest(histo, qth17_[ism-1]->getName());
-        sprintf(histo, "*/EcalEndcap/EEPnDiodeTask/Laser2/Gain16/EEPDT PNs amplitude SM%02d G16 L2", ism);
+        sprintf(histo, "*/EcalEndcap/EELaserTask/Laser2/PN/Gain16/EEPDT PNs amplitude %s G16 L2", Numbers::sEE(ism).c_str());
         if ( qth18_[ism-1] ) mui_->useQTest(histo, qth18_[ism-1]->getName());
-        sprintf(histo, "*/EcalEndcap/EEPnDiodeTask/Laser3/Gain16/EEPDT PNs amplitude SM%02d G16 L3", ism);
+        sprintf(histo, "*/EcalEndcap/EELaserTask/Laser3/PN/Gain16/EEPDT PNs amplitude %s G16 L3", Numbers::sEE(ism).c_str());
         if ( qth19_[ism-1] ) mui_->useQTest(histo, qth19_[ism-1]->getName());
-        sprintf(histo, "*/EcalEndcap/EEPnDiodeTask/Laser4/Gain16/EEPDT PNs amplitude SM%02d G16 L4", ism);
+        sprintf(histo, "*/EcalEndcap/EELaserTask/Laser4/PN/Gain16/EEPDT PNs amplitude %s G16 L4", Numbers::sEE(ism).c_str());
         if ( qth20_[ism-1] ) mui_->useQTest(histo, qth20_[ism-1]->getName());
-        sprintf(histo, "*/EcalEndcap/EEPnDiodeTask/Laser1/Gain16/EEPDT PNs pedestal SM%02d G16 L1", ism);
+        sprintf(histo, "*/EcalEndcap/EELaserTask/Laser1/PN/Gain16/EEPDT PNs pedestal %s G16 L1", Numbers::sEE(ism).c_str());
         if ( qth21_[ism-1] ) mui_->useQTest(histo, qth21_[ism-1]->getName());
-        sprintf(histo, "*/EcalEndcap/EEPnDiodeTask/Laser2/Gain16/EEPDT PNs pedestal SM%02d G16 L2", ism);
+        sprintf(histo, "*/EcalEndcap/EELaserTask/Laser2/PN/Gain16/EEPDT PNs pedestal %s G16 L2", Numbers::sEE(ism).c_str());
         if ( qth22_[ism-1] ) mui_->useQTest(histo, qth22_[ism-1]->getName());
-        sprintf(histo, "*/EcalEndcap/EEPnDiodeTask/Laser3/Gain16/EEPDT PNs pedestal SM%02d G16 L3", ism);
+        sprintf(histo, "*/EcalEndcap/EELaserTask/Laser3/PN/Gain16/EEPDT PNs pedestal %s G16 L3", Numbers::sEE(ism).c_str());
         if ( qth23_[ism-1] ) mui_->useQTest(histo, qth23_[ism-1]->getName());
-        sprintf(histo, "*/EcalEndcap/EEPnDiodeTask/Laser4/Gain16/EEPDT PNs pedestal SM%02d G16 L4", ism);
+        sprintf(histo, "*/EcalEndcap/EELaserTask/Laser4/PN/Gain16/EEPDT PNs pedestal %s G16 L4", Numbers::sEE(ism).c_str());
         if ( qth24_[ism-1] ) mui_->useQTest(histo, qth24_[ism-1]->getName());
       } else {
-        sprintf(histo, "EcalEndcap/EELaserTask/Laser1/EELT amplitude SM%02d L1A", ism);
+        sprintf(histo, "EcalEndcap/EELaserTask/Laser1/EELT amplitude %s L1A", Numbers::sEE(ism).c_str());
         if ( qth01_[ism-1] ) mui_->useQTest(histo, qth01_[ism-1]->getName());
-        sprintf(histo, "EcalEndcap/EELaserTask/Laser2/EELT amplitude SM%02d L2A", ism);
+        sprintf(histo, "EcalEndcap/EELaserTask/Laser2/EELT amplitude %s L2A", Numbers::sEE(ism).c_str());
         if ( qth02_[ism-1] ) mui_->useQTest(histo, qth02_[ism-1]->getName());
-        sprintf(histo, "EcalEndcap/EELaserTask/Laser3/EELT amplitude SM%02d L3A", ism);
+        sprintf(histo, "EcalEndcap/EELaserTask/Laser3/EELT amplitude %s L3A", Numbers::sEE(ism).c_str());
         if ( qth03_[ism-1] ) mui_->useQTest(histo, qth03_[ism-1]->getName());
-        sprintf(histo, "EcalEndcap/EELaserTask/Laser4/EELT amplitude SM%02d L4A", ism);
+        sprintf(histo, "EcalEndcap/EELaserTask/Laser4/EELT amplitude %s L4A", Numbers::sEE(ism).c_str());
         if ( qth04_[ism-1] ) mui_->useQTest(histo, qth04_[ism-1]->getName());
-        sprintf(histo, "EcalEndcap/EELaserTask/Laser1/EELT amplitude SM%02d L1B", ism);
+        sprintf(histo, "EcalEndcap/EELaserTask/Laser1/EELT amplitude %s L1B", Numbers::sEE(ism).c_str());
         if ( qth05_[ism-1] ) mui_->useQTest(histo, qth05_[ism-1]->getName());
-        sprintf(histo, "EcalEndcap/EELaserTask/Laser2/EELT amplitude SM%02d L2B", ism);
+        sprintf(histo, "EcalEndcap/EELaserTask/Laser2/EELT amplitude %s L2B", Numbers::sEE(ism).c_str());
         if ( qth06_[ism-1] ) mui_->useQTest(histo, qth06_[ism-1]->getName());
-        sprintf(histo, "EcalEndcap/EELaserTask/Laser3/EELT amplitude SM%02d L3B", ism);
+        sprintf(histo, "EcalEndcap/EELaserTask/Laser3/EELT amplitude %s L3B", Numbers::sEE(ism).c_str());
         if ( qth07_[ism-1] ) mui_->useQTest(histo, qth07_[ism-1]->getName());
-        sprintf(histo, "EcalEndcap/EELaserTask/Laser4/EELT amplitude SM%02d L4B", ism);
+        sprintf(histo, "EcalEndcap/EELaserTask/Laser4/EELT amplitude %s L4B", Numbers::sEE(ism).c_str());
         if ( qth08_[ism-1] ) mui_->useQTest(histo, qth08_[ism-1]->getName());
-        sprintf(histo, "EcalEndcap/EEPnDiodeTask/Laser1/Gain01/EEPDT PNs amplitude SM%02d G01 L1", ism);
+        sprintf(histo, "EcalEndcap/EELaserTask/Laser1/PN/Gain01/EEPDT PNs amplitude %s G01 L1", Numbers::sEE(ism).c_str());
         if ( qth09_[ism-1] ) mui_->useQTest(histo, qth09_[ism-1]->getName());
-        sprintf(histo, "EcalEndcap/EEPnDiodeTask/Laser2/Gain01/EEPDT PNs amplitude SM%02d G01 L2", ism);
+        sprintf(histo, "EcalEndcap/EELaserTask/Laser2/PN/Gain01/EEPDT PNs amplitude %s G01 L2", Numbers::sEE(ism).c_str());
         if ( qth10_[ism-1] ) mui_->useQTest(histo, qth10_[ism-1]->getName());
-        sprintf(histo, "EcalEndcap/EEPnDiodeTask/Laser3/Gain01/EEPDT PNs amplitude SM%02d G01 L3", ism);
+        sprintf(histo, "EcalEndcap/EELaserTask/Laser3/PN/Gain01/EEPDT PNs amplitude %s G01 L3", Numbers::sEE(ism).c_str());
         if ( qth11_[ism-1] ) mui_->useQTest(histo, qth11_[ism-1]->getName());
-        sprintf(histo, "EcalEndcap/EEPnDiodeTask/Laser4/Gain01/EEPDT PNs amplitude SM%02d G01 L4", ism);
+        sprintf(histo, "EcalEndcap/EELaserTask/Laser4/PN/Gain01/EEPDT PNs amplitude %s G01 L4", Numbers::sEE(ism).c_str());
         if ( qth12_[ism-1] ) mui_->useQTest(histo, qth12_[ism-1]->getName());
-        sprintf(histo, "EcalEndcap/EEPnDiodeTask/Laser1/Gain01/EEPDT PNs pedestal SM%02d G01 L1", ism);
+        sprintf(histo, "EcalEndcap/EELaserTask/Laser1/PN/Gain01/EEPDT PNs pedestal %s G01 L1", Numbers::sEE(ism).c_str());
         if ( qth13_[ism-1] ) mui_->useQTest(histo, qth13_[ism-1]->getName());
-        sprintf(histo, "EcalEndcap/EEPnDiodeTask/Laser2/Gain01/EEPDT PNs pedestal SM%02d G01 L2", ism);
+        sprintf(histo, "EcalEndcap/EELaserTask/Laser2/PN/Gain01/EEPDT PNs pedestal %s G01 L2", Numbers::sEE(ism).c_str());
         if ( qth14_[ism-1] ) mui_->useQTest(histo, qth14_[ism-1]->getName());
-        sprintf(histo, "EcalEndcap/EEPnDiodeTask/Laser3/Gain01/EEPDT PNs pedestal SM%02d G01 L3", ism);
+        sprintf(histo, "EcalEndcap/EELaserTask/Laser3/PN/Gain01/EEPDT PNs pedestal %s G01 L3", Numbers::sEE(ism).c_str());
         if ( qth15_[ism-1] ) mui_->useQTest(histo, qth15_[ism-1]->getName());
-        sprintf(histo, "EcalEndcap/EEPnDiodeTask/Laser4/Gain01/EEPDT PNs pedestal SM%02d G01 L4", ism);
+        sprintf(histo, "EcalEndcap/EELaserTask/Laser4/PN/Gain01/EEPDT PNs pedestal %s G01 L4", Numbers::sEE(ism).c_str());
         if ( qth16_[ism-1] ) mui_->useQTest(histo, qth16_[ism-1]->getName());
-        sprintf(histo, "EcalEndcap/EEPnDiodeTask/Laser1/Gain16/EEPDT PNs amplitude SM%02d G16 L1", ism);
+        sprintf(histo, "EcalEndcap/EELaserTask/Laser1/PN/Gain16/EEPDT PNs amplitude %s G16 L1", Numbers::sEE(ism).c_str());
         if ( qth17_[ism-1] ) mui_->useQTest(histo, qth17_[ism-1]->getName());
-        sprintf(histo, "EcalEndcap/EEPnDiodeTask/Laser2/Gain16/EEPDT PNs amplitude SM%02d G16 L2", ism);
+        sprintf(histo, "EcalEndcap/EELaserTask/Laser2/PN/Gain16/EEPDT PNs amplitude %s G16 L2", Numbers::sEE(ism).c_str());
         if ( qth18_[ism-1] ) mui_->useQTest(histo, qth18_[ism-1]->getName());
-        sprintf(histo, "EcalEndcap/EEPnDiodeTask/Laser3/Gain16/EEPDT PNs amplitude SM%02d G16 L3", ism);
+        sprintf(histo, "EcalEndcap/EELaserTask/Laser3/PN/Gain16/EEPDT PNs amplitude %s G16 L3", Numbers::sEE(ism).c_str());
         if ( qth19_[ism-1] ) mui_->useQTest(histo, qth19_[ism-1]->getName());
-        sprintf(histo, "EcalEndcap/EEPnDiodeTask/Laser4/Gain16/EEPDT PNs amplitude SM%02d G16 L4", ism);
+        sprintf(histo, "EcalEndcap/EELaserTask/Laser4/PN/Gain16/EEPDT PNs amplitude %s G16 L4", Numbers::sEE(ism).c_str());
         if ( qth20_[ism-1] ) mui_->useQTest(histo, qth20_[ism-1]->getName());
-        sprintf(histo, "EcalEndcap/EEPnDiodeTask/Laser1/Gain16/EEPDT PNs pedestal SM%02d G16 L1", ism);
+        sprintf(histo, "EcalEndcap/EELaserTask/Laser1/PN/Gain16/EEPDT PNs pedestal %s G16 L1", Numbers::sEE(ism).c_str());
         if ( qth21_[ism-1] ) mui_->useQTest(histo, qth21_[ism-1]->getName());
-        sprintf(histo, "EcalEndcap/EEPnDiodeTask/Laser2/Gain16/EEPDT PNs pedestal SM%02d G16 L2", ism);
+        sprintf(histo, "EcalEndcap/EELaserTask/Laser2/PN/Gain16/EEPDT PNs pedestal %s G16 L2", Numbers::sEE(ism).c_str());
         if ( qth22_[ism-1] ) mui_->useQTest(histo, qth22_[ism-1]->getName());
-        sprintf(histo, "EcalEndcap/EEPnDiodeTask/Laser3/Gain16/EEPDT PNs pedestal SM%02d G16 L3", ism);
+        sprintf(histo, "EcalEndcap/EELaserTask/Laser3/PN/Gain16/EEPDT PNs pedestal %s G16 L3", Numbers::sEE(ism).c_str());
         if ( qth23_[ism-1] ) mui_->useQTest(histo, qth23_[ism-1]->getName());
-        sprintf(histo, "EcalEndcap/EEPnDiodeTask/Laser4/Gain16/EEPDT PNs pedestal SM%02d G16 L4", ism);
+        sprintf(histo, "EcalEndcap/EELaserTask/Laser4/PN/Gain16/EEPDT PNs pedestal %s G16 L4", Numbers::sEE(ism).c_str());
         if ( qth24_[ism-1] ) mui_->useQTest(histo, qth24_[ism-1]->getName());
       }
     }
@@ -2023,106 +2100,106 @@ void EELaserClient::subscribeNew(void){
 
     unsigned int ism = superModules_[i];
 
-    sprintf(histo, "*/EcalEndcap/EELaserTask/Laser1/EELT amplitude SM%02d L1A", ism);
+    sprintf(histo, "*/EcalEndcap/EELaserTask/Laser1/EELT amplitude %s L1A", Numbers::sEE(ism).c_str());
     mui_->subscribeNew(histo, ism);
-    sprintf(histo, "*/EcalEndcap/EELaserTask/Laser1/EELT timing SM%02d L1A", ism);
+    sprintf(histo, "*/EcalEndcap/EELaserTask/Laser1/EELT timing %s L1A", Numbers::sEE(ism).c_str());
     mui_->subscribeNew(histo, ism);
-    sprintf(histo, "*/EcalEndcap/EELaserTask/Laser1/EELT amplitude over PN SM%02d L1A", ism);
+    sprintf(histo, "*/EcalEndcap/EELaserTask/Laser1/EELT amplitude over PN %s L1A", Numbers::sEE(ism).c_str());
     mui_->subscribeNew(histo, ism);
-    sprintf(histo, "*/EcalEndcap/EELaserTask/Laser2/EELT amplitude SM%02d L2A", ism);
+    sprintf(histo, "*/EcalEndcap/EELaserTask/Laser2/EELT amplitude %s L2A", Numbers::sEE(ism).c_str());
     mui_->subscribeNew(histo, ism);
-    sprintf(histo, "*/EcalEndcap/EELaserTask/Laser2/EELT timing SM%02d L2A", ism);
+    sprintf(histo, "*/EcalEndcap/EELaserTask/Laser2/EELT timing %s L2A", Numbers::sEE(ism).c_str());
     mui_->subscribeNew(histo, ism);
-    sprintf(histo, "*/EcalEndcap/EELaserTask/Laser2/EELT amplitude over PN SM%02d L2A", ism);
+    sprintf(histo, "*/EcalEndcap/EELaserTask/Laser2/EELT amplitude over PN %s L2A", Numbers::sEE(ism).c_str());
     mui_->subscribeNew(histo, ism);
-    sprintf(histo, "*/EcalEndcap/EELaserTask/Laser3/EELT amplitude SM%02d L3A", ism);
+    sprintf(histo, "*/EcalEndcap/EELaserTask/Laser3/EELT amplitude %s L3A", Numbers::sEE(ism).c_str());
     mui_->subscribeNew(histo, ism);
-    sprintf(histo, "*/EcalEndcap/EELaserTask/Laser3/EELT timing SM%02d L3A", ism);
+    sprintf(histo, "*/EcalEndcap/EELaserTask/Laser3/EELT timing %s L3A", Numbers::sEE(ism).c_str());
     mui_->subscribeNew(histo, ism);
-    sprintf(histo, "*/EcalEndcap/EELaserTask/Laser3/EELT amplitude over PN SM%02d L3A", ism);
+    sprintf(histo, "*/EcalEndcap/EELaserTask/Laser3/EELT amplitude over PN %s L3A", Numbers::sEE(ism).c_str());
     mui_->subscribeNew(histo, ism);
-    sprintf(histo, "*/EcalEndcap/EELaserTask/Laser4/EELT amplitude SM%02d L4A", ism);
+    sprintf(histo, "*/EcalEndcap/EELaserTask/Laser4/EELT amplitude %s L4A", Numbers::sEE(ism).c_str());
     mui_->subscribeNew(histo, ism);
-    sprintf(histo, "*/EcalEndcap/EELaserTask/Laser4/EELT timing SM%02d L4A", ism);
+    sprintf(histo, "*/EcalEndcap/EELaserTask/Laser4/EELT timing %s L4A", Numbers::sEE(ism).c_str());
     mui_->subscribeNew(histo, ism);
-    sprintf(histo, "*/EcalEndcap/EELaserTask/Laser4/EELT amplitude over PN SM%02d L4A", ism);
-    mui_->subscribeNew(histo, ism);
-
-    sprintf(histo, "*/EcalEndcap/EELaserTask/Laser1/EELT amplitude SM%02d L1B", ism);
-    mui_->subscribeNew(histo, ism);
-    sprintf(histo, "*/EcalEndcap/EELaserTask/Laser1/EELT timing SM%02d L1B", ism);
-    mui_->subscribeNew(histo, ism);
-    sprintf(histo, "*/EcalEndcap/EELaserTask/Laser1/EELT amplitude over PN SM%02d L1B", ism);
-    mui_->subscribeNew(histo, ism);
-    sprintf(histo, "*/EcalEndcap/EELaserTask/Laser2/EELT amplitude SM%02d L2B", ism);
-    mui_->subscribeNew(histo, ism);
-    sprintf(histo, "*/EcalEndcap/EELaserTask/Laser2/EELT timing SM%02d L2B", ism);
-    mui_->subscribeNew(histo, ism);
-    sprintf(histo, "*/EcalEndcap/EELaserTask/Laser2/EELT amplitude over PN SM%02d L2B", ism);
-    mui_->subscribeNew(histo, ism);
-    sprintf(histo, "*/EcalEndcap/EELaserTask/Laser3/EELT amplitude SM%02d L3B", ism);
-    mui_->subscribeNew(histo, ism);
-    sprintf(histo, "*/EcalEndcap/EELaserTask/Laser3/EELT timing SM%02d L3B", ism);
-    mui_->subscribeNew(histo, ism);
-    sprintf(histo, "*/EcalEndcap/EELaserTask/Laser3/EELT amplitude over PN SM%02d L3B", ism);
-    mui_->subscribeNew(histo, ism);
-    sprintf(histo, "*/EcalEndcap/EELaserTask/Laser4/EELT amplitude SM%02d L4B", ism);
-    mui_->subscribeNew(histo, ism);
-    sprintf(histo, "*/EcalEndcap/EELaserTask/Laser4/EELT timing SM%02d L4B", ism);
-    mui_->subscribeNew(histo, ism);
-    sprintf(histo, "*/EcalEndcap/EELaserTask/Laser4/EELT amplitude over PN SM%02d L4B", ism);
+    sprintf(histo, "*/EcalEndcap/EELaserTask/Laser4/EELT amplitude over PN %s L4A", Numbers::sEE(ism).c_str());
     mui_->subscribeNew(histo, ism);
 
-    sprintf(histo, "*/EcalEndcap/EELaserTask/Laser1/EELT shape SM%02d L1A", ism);
+    sprintf(histo, "*/EcalEndcap/EELaserTask/Laser1/EELT amplitude %s L1B", Numbers::sEE(ism).c_str());
     mui_->subscribeNew(histo, ism);
-    sprintf(histo, "*/EcalEndcap/EELaserTask/Laser2/EELT shape SM%02d L2A", ism);
+    sprintf(histo, "*/EcalEndcap/EELaserTask/Laser1/EELT timing %s L1B", Numbers::sEE(ism).c_str());
     mui_->subscribeNew(histo, ism);
-    sprintf(histo, "*/EcalEndcap/EELaserTask/Laser3/EELT shape SM%02d L3A", ism);
+    sprintf(histo, "*/EcalEndcap/EELaserTask/Laser1/EELT amplitude over PN %s L1B", Numbers::sEE(ism).c_str());
     mui_->subscribeNew(histo, ism);
-    sprintf(histo, "*/EcalEndcap/EELaserTask/Laser4/EELT shape SM%02d L4A", ism);
+    sprintf(histo, "*/EcalEndcap/EELaserTask/Laser2/EELT amplitude %s L2B", Numbers::sEE(ism).c_str());
     mui_->subscribeNew(histo, ism);
-
-    sprintf(histo, "*/EcalEndcap/EELaserTask/Laser1/EELT shape SM%02d L1B", ism);
+    sprintf(histo, "*/EcalEndcap/EELaserTask/Laser2/EELT timing %s L2B", Numbers::sEE(ism).c_str());
     mui_->subscribeNew(histo, ism);
-    sprintf(histo, "*/EcalEndcap/EELaserTask/Laser2/EELT shape SM%02d L2B", ism);
+    sprintf(histo, "*/EcalEndcap/EELaserTask/Laser2/EELT amplitude over PN %s L2B", Numbers::sEE(ism).c_str());
     mui_->subscribeNew(histo, ism);
-    sprintf(histo, "*/EcalEndcap/EELaserTask/Laser3/EELT shape SM%02d L3B", ism);
+    sprintf(histo, "*/EcalEndcap/EELaserTask/Laser3/EELT amplitude %s L3B", Numbers::sEE(ism).c_str());
     mui_->subscribeNew(histo, ism);
-    sprintf(histo, "*/EcalEndcap/EELaserTask/Laser4/EELT shape SM%02d L4B", ism);
+    sprintf(histo, "*/EcalEndcap/EELaserTask/Laser3/EELT timing %s L3B", Numbers::sEE(ism).c_str());
     mui_->subscribeNew(histo, ism);
-
-    sprintf(histo, "*/EcalEndcap/EEPnDiodeTask/Laser1/Gain01/EEPDT PNs amplitude SM%02d G01 L1", ism);
+    sprintf(histo, "*/EcalEndcap/EELaserTask/Laser3/EELT amplitude over PN %s L3B", Numbers::sEE(ism).c_str());
     mui_->subscribeNew(histo, ism);
-    sprintf(histo, "*/EcalEndcap/EEPnDiodeTask/Laser2/Gain01/EEPDT PNs amplitude SM%02d G01 L2", ism);
+    sprintf(histo, "*/EcalEndcap/EELaserTask/Laser4/EELT amplitude %s L4B", Numbers::sEE(ism).c_str());
     mui_->subscribeNew(histo, ism);
-    sprintf(histo, "*/EcalEndcap/EEPnDiodeTask/Laser3/Gain01/EEPDT PNs amplitude SM%02d G01 L3", ism);
+    sprintf(histo, "*/EcalEndcap/EELaserTask/Laser4/EELT timing %s L4B", Numbers::sEE(ism).c_str());
     mui_->subscribeNew(histo, ism);
-    sprintf(histo, "*/EcalEndcap/EEPnDiodeTask/Laser4/Gain01/EEPDT PNs amplitude SM%02d G01 L4", ism);
-    mui_->subscribeNew(histo, ism);
-    sprintf(histo, "*/EcalEndcap/EEPnDiodeTask/Laser1/Gain01/EEPDT PNs pedestal SM%02d G01 L1", ism);
-    mui_->subscribeNew(histo, ism);
-    sprintf(histo, "*/EcalEndcap/EEPnDiodeTask/Laser2/Gain01/EEPDT PNs pedestal SM%02d G01 L2", ism);
-    mui_->subscribeNew(histo, ism);
-    sprintf(histo, "*/EcalEndcap/EEPnDiodeTask/Laser3/Gain01/EEPDT PNs pedestal SM%02d G01 L3", ism);
-    mui_->subscribeNew(histo, ism);
-    sprintf(histo, "*/EcalEndcap/EEPnDiodeTask/Laser4/Gain01/EEPDT PNs pedestal SM%02d G01 L4", ism);
+    sprintf(histo, "*/EcalEndcap/EELaserTask/Laser4/EELT amplitude over PN %s L4B", Numbers::sEE(ism).c_str());
     mui_->subscribeNew(histo, ism);
 
-    sprintf(histo, "*/EcalEndcap/EEPnDiodeTask/Laser1/Gain16/EEPDT PNs amplitude SM%02d G16 L1", ism);
+    sprintf(histo, "*/EcalEndcap/EELaserTask/Laser1/EELT shape %s L1A", Numbers::sEE(ism).c_str());
     mui_->subscribeNew(histo, ism);
-    sprintf(histo, "*/EcalEndcap/EEPnDiodeTask/Laser2/Gain16/EEPDT PNs amplitude SM%02d G16 L2", ism);
+    sprintf(histo, "*/EcalEndcap/EELaserTask/Laser2/EELT shape %s L2A", Numbers::sEE(ism).c_str());
     mui_->subscribeNew(histo, ism);
-    sprintf(histo, "*/EcalEndcap/EEPnDiodeTask/Laser3/Gain16/EEPDT PNs amplitude SM%02d G16 L3", ism);
+    sprintf(histo, "*/EcalEndcap/EELaserTask/Laser3/EELT shape %s L3A", Numbers::sEE(ism).c_str());
     mui_->subscribeNew(histo, ism);
-    sprintf(histo, "*/EcalEndcap/EEPnDiodeTask/Laser4/Gain16/EEPDT PNs amplitude SM%02d G16 L4", ism);
+    sprintf(histo, "*/EcalEndcap/EELaserTask/Laser4/EELT shape %s L4A", Numbers::sEE(ism).c_str());
     mui_->subscribeNew(histo, ism);
-    sprintf(histo, "*/EcalEndcap/EEPnDiodeTask/Laser1/Gain16/EEPDT PNs pedestal SM%02d G16 L1", ism);
+
+    sprintf(histo, "*/EcalEndcap/EELaserTask/Laser1/EELT shape %s L1B", Numbers::sEE(ism).c_str());
     mui_->subscribeNew(histo, ism);
-    sprintf(histo, "*/EcalEndcap/EEPnDiodeTask/Laser2/Gain16/EEPDT PNs pedestal SM%02d G16 L2", ism);
+    sprintf(histo, "*/EcalEndcap/EELaserTask/Laser2/EELT shape %s L2B", Numbers::sEE(ism).c_str());
     mui_->subscribeNew(histo, ism);
-    sprintf(histo, "*/EcalEndcap/EEPnDiodeTask/Laser3/Gain16/EEPDT PNs pedestal SM%02d G16 L3", ism);
+    sprintf(histo, "*/EcalEndcap/EELaserTask/Laser3/EELT shape %s L3B", Numbers::sEE(ism).c_str());
     mui_->subscribeNew(histo, ism);
-    sprintf(histo, "*/EcalEndcap/EEPnDiodeTask/Laser4/Gain16/EEPDT PNs pedestal SM%02d G16 L4", ism);
+    sprintf(histo, "*/EcalEndcap/EELaserTask/Laser4/EELT shape %s L4B", Numbers::sEE(ism).c_str());
+    mui_->subscribeNew(histo, ism);
+
+    sprintf(histo, "*/EcalEndcap/EELaserTask/Laser1/PN/Gain01/EEPDT PNs amplitude %s G01 L1", Numbers::sEE(ism).c_str());
+    mui_->subscribeNew(histo, ism);
+    sprintf(histo, "*/EcalEndcap/EELaserTask/Laser2/PN/Gain01/EEPDT PNs amplitude %s G01 L2", Numbers::sEE(ism).c_str());
+    mui_->subscribeNew(histo, ism);
+    sprintf(histo, "*/EcalEndcap/EELaserTask/Laser3/PN/Gain01/EEPDT PNs amplitude %s G01 L3", Numbers::sEE(ism).c_str());
+    mui_->subscribeNew(histo, ism);
+    sprintf(histo, "*/EcalEndcap/EELaserTask/Laser4/PN/Gain01/EEPDT PNs amplitude %s G01 L4", Numbers::sEE(ism).c_str());
+    mui_->subscribeNew(histo, ism);
+    sprintf(histo, "*/EcalEndcap/EELaserTask/Laser1/PN/Gain01/EEPDT PNs pedestal %s G01 L1", Numbers::sEE(ism).c_str());
+    mui_->subscribeNew(histo, ism);
+    sprintf(histo, "*/EcalEndcap/EELaserTask/Laser2/PN/Gain01/EEPDT PNs pedestal %s G01 L2", Numbers::sEE(ism).c_str());
+    mui_->subscribeNew(histo, ism);
+    sprintf(histo, "*/EcalEndcap/EELaserTask/Laser3/PN/Gain01/EEPDT PNs pedestal %s G01 L3", Numbers::sEE(ism).c_str());
+    mui_->subscribeNew(histo, ism);
+    sprintf(histo, "*/EcalEndcap/EELaserTask/Laser4/PN/Gain01/EEPDT PNs pedestal %s G01 L4", Numbers::sEE(ism).c_str());
+    mui_->subscribeNew(histo, ism);
+
+    sprintf(histo, "*/EcalEndcap/EELaserTask/Laser1/PN/Gain16/EEPDT PNs amplitude %s G16 L1", Numbers::sEE(ism).c_str());
+    mui_->subscribeNew(histo, ism);
+    sprintf(histo, "*/EcalEndcap/EELaserTask/Laser2/PN/Gain16/EEPDT PNs amplitude %s G16 L2", Numbers::sEE(ism).c_str());
+    mui_->subscribeNew(histo, ism);
+    sprintf(histo, "*/EcalEndcap/EELaserTask/Laser3/PN/Gain16/EEPDT PNs amplitude %s G16 L3", Numbers::sEE(ism).c_str());
+    mui_->subscribeNew(histo, ism);
+    sprintf(histo, "*/EcalEndcap/EELaserTask/Laser4/PN/Gain16/EEPDT PNs amplitude %s G16 L4", Numbers::sEE(ism).c_str());
+    mui_->subscribeNew(histo, ism);
+    sprintf(histo, "*/EcalEndcap/EELaserTask/Laser1/PN/Gain16/EEPDT PNs pedestal %s G16 L1", Numbers::sEE(ism).c_str());
+    mui_->subscribeNew(histo, ism);
+    sprintf(histo, "*/EcalEndcap/EELaserTask/Laser2/PN/Gain16/EEPDT PNs pedestal %s G16 L2", Numbers::sEE(ism).c_str());
+    mui_->subscribeNew(histo, ism);
+    sprintf(histo, "*/EcalEndcap/EELaserTask/Laser3/PN/Gain16/EEPDT PNs pedestal %s G16 L3", Numbers::sEE(ism).c_str());
+    mui_->subscribeNew(histo, ism);
+    sprintf(histo, "*/EcalEndcap/EELaserTask/Laser4/PN/Gain16/EEPDT PNs pedestal %s G16 L4", Numbers::sEE(ism).c_str());
     mui_->subscribeNew(histo, ism);
 
   }
@@ -2211,106 +2288,106 @@ void EELaserClient::unsubscribe(void){
 
     unsigned int ism = superModules_[i];
 
-    sprintf(histo, "*/EcalEndcap/EELaserTask/Laser1/EELT amplitude SM%02d L1A", ism);
+    sprintf(histo, "*/EcalEndcap/EELaserTask/Laser1/EELT amplitude %s L1A", Numbers::sEE(ism).c_str());
     mui_->unsubscribe(histo, ism);
-    sprintf(histo, "*/EcalEndcap/EELaserTask/Laser1/EELT timing SM%02d L1A", ism);
+    sprintf(histo, "*/EcalEndcap/EELaserTask/Laser1/EELT timing %s L1A", Numbers::sEE(ism).c_str());
     mui_->unsubscribe(histo, ism);
-    sprintf(histo, "*/EcalEndcap/EELaserTask/Laser1/EELT amplitude over PN SM%02d L1A", ism);
+    sprintf(histo, "*/EcalEndcap/EELaserTask/Laser1/EELT amplitude over PN %s L1A", Numbers::sEE(ism).c_str());
     mui_->unsubscribe(histo, ism);
-    sprintf(histo, "*/EcalEndcap/EELaserTask/Laser2/EELT amplitude SM%02d L2A", ism);
+    sprintf(histo, "*/EcalEndcap/EELaserTask/Laser2/EELT amplitude %s L2A", Numbers::sEE(ism).c_str());
     mui_->unsubscribe(histo, ism);
-    sprintf(histo, "*/EcalEndcap/EELaserTask/Laser2/EELT timing SM%02d L2A", ism);
+    sprintf(histo, "*/EcalEndcap/EELaserTask/Laser2/EELT timing %s L2A", Numbers::sEE(ism).c_str());
     mui_->unsubscribe(histo, ism);
-    sprintf(histo, "*/EcalEndcap/EELaserTask/Laser2/EELT amplitude over PN SM%02d L2A", ism);
+    sprintf(histo, "*/EcalEndcap/EELaserTask/Laser2/EELT amplitude over PN %s L2A", Numbers::sEE(ism).c_str());
     mui_->unsubscribe(histo, ism);
-    sprintf(histo, "*/EcalEndcap/EELaserTask/Laser3/EELT amplitude SM%02d L3A", ism);
+    sprintf(histo, "*/EcalEndcap/EELaserTask/Laser3/EELT amplitude %s L3A", Numbers::sEE(ism).c_str());
     mui_->unsubscribe(histo, ism);
-    sprintf(histo, "*/EcalEndcap/EELaserTask/Laser3/EELT timing SM%02d L3A", ism);
+    sprintf(histo, "*/EcalEndcap/EELaserTask/Laser3/EELT timing %s L3A", Numbers::sEE(ism).c_str());
     mui_->unsubscribe(histo, ism);
-    sprintf(histo, "*/EcalEndcap/EELaserTask/Laser3/EELT amplitude over PN SM%02d L3A", ism);
+    sprintf(histo, "*/EcalEndcap/EELaserTask/Laser3/EELT amplitude over PN %s L3A", Numbers::sEE(ism).c_str());
     mui_->unsubscribe(histo, ism);
-    sprintf(histo, "*/EcalEndcap/EELaserTask/Laser4/EELT amplitude SM%02d L4A", ism);
+    sprintf(histo, "*/EcalEndcap/EELaserTask/Laser4/EELT amplitude %s L4A", Numbers::sEE(ism).c_str());
     mui_->unsubscribe(histo, ism);
-    sprintf(histo, "*/EcalEndcap/EELaserTask/Laser4/EELT timing SM%02d L4A", ism);
+    sprintf(histo, "*/EcalEndcap/EELaserTask/Laser4/EELT timing %s L4A", Numbers::sEE(ism).c_str());
     mui_->unsubscribe(histo, ism);
-    sprintf(histo, "*/EcalEndcap/EELaserTask/Laser4/EELT amplitude over PN SM%02d L4A", ism);
-    mui_->unsubscribe(histo, ism);
-
-    sprintf(histo, "*/EcalEndcap/EELaserTask/Laser1/EELT amplitude SM%02d L1B", ism);
-    mui_->unsubscribe(histo, ism);
-    sprintf(histo, "*/EcalEndcap/EELaserTask/Laser1/EELT timing SM%02d L1B", ism);
-    mui_->unsubscribe(histo, ism);
-    sprintf(histo, "*/EcalEndcap/EELaserTask/Laser1/EELT amplitude over PN SM%02d L1B", ism);
-    mui_->unsubscribe(histo, ism);
-    sprintf(histo, "*/EcalEndcap/EELaserTask/Laser2/EELT amplitude SM%02d L2B", ism);
-    mui_->unsubscribe(histo, ism);
-    sprintf(histo, "*/EcalEndcap/EELaserTask/Laser2/EELT timing SM%02d L2B", ism);
-    mui_->unsubscribe(histo, ism);
-    sprintf(histo, "*/EcalEndcap/EELaserTask/Laser2/EELT amplitude over PN SM%02d L2B", ism);
-    mui_->unsubscribe(histo, ism);
-    sprintf(histo, "*/EcalEndcap/EELaserTask/Laser3/EELT amplitude SM%02d L3B", ism);
-    mui_->unsubscribe(histo, ism);
-    sprintf(histo, "*/EcalEndcap/EELaserTask/Laser3/EELT timing SM%02d L3B", ism);
-    mui_->unsubscribe(histo, ism);
-    sprintf(histo, "*/EcalEndcap/EELaserTask/Laser3/EELT amplitude over PN SM%02d L3B", ism);
-    mui_->unsubscribe(histo, ism);
-    sprintf(histo, "*/EcalEndcap/EELaserTask/Laser4/EELT amplitude SM%02d L4B", ism);
-    mui_->unsubscribe(histo, ism);
-    sprintf(histo, "*/EcalEndcap/EELaserTask/Laser4/EELT timing SM%02d L4B", ism);
-    mui_->unsubscribe(histo, ism);
-    sprintf(histo, "*/EcalEndcap/EELaserTask/Laser4/EELT amplitude over PN SM%02d L4B", ism);
+    sprintf(histo, "*/EcalEndcap/EELaserTask/Laser4/EELT amplitude over PN %s L4A", Numbers::sEE(ism).c_str());
     mui_->unsubscribe(histo, ism);
 
-    sprintf(histo, "*/EcalEndcap/EELaserTask/Laser1/EELT shape SM%02d L1A", ism);
+    sprintf(histo, "*/EcalEndcap/EELaserTask/Laser1/EELT amplitude %s L1B", Numbers::sEE(ism).c_str());
     mui_->unsubscribe(histo, ism);
-    sprintf(histo, "*/EcalEndcap/EELaserTask/Laser2/EELT shape SM%02d L2A", ism);
+    sprintf(histo, "*/EcalEndcap/EELaserTask/Laser1/EELT timing %s L1B", Numbers::sEE(ism).c_str());
     mui_->unsubscribe(histo, ism);
-    sprintf(histo, "*/EcalEndcap/EELaserTask/Laser3/EELT shape SM%02d L3A", ism);
+    sprintf(histo, "*/EcalEndcap/EELaserTask/Laser1/EELT amplitude over PN %s L1B", Numbers::sEE(ism).c_str());
     mui_->unsubscribe(histo, ism);
-    sprintf(histo, "*/EcalEndcap/EELaserTask/Laser4/EELT shape SM%02d L4A", ism);
+    sprintf(histo, "*/EcalEndcap/EELaserTask/Laser2/EELT amplitude %s L2B", Numbers::sEE(ism).c_str());
     mui_->unsubscribe(histo, ism);
-
-    sprintf(histo, "*/EcalEndcap/EELaserTask/Laser1/EELT shape SM%02d L1B", ism);
+    sprintf(histo, "*/EcalEndcap/EELaserTask/Laser2/EELT timing %s L2B", Numbers::sEE(ism).c_str());
     mui_->unsubscribe(histo, ism);
-    sprintf(histo, "*/EcalEndcap/EELaserTask/Laser2/EELT shape SM%02d L2B", ism);
+    sprintf(histo, "*/EcalEndcap/EELaserTask/Laser2/EELT amplitude over PN %s L2B", Numbers::sEE(ism).c_str());
     mui_->unsubscribe(histo, ism);
-    sprintf(histo, "*/EcalEndcap/EELaserTask/Laser3/EELT shape SM%02d L3B", ism);
+    sprintf(histo, "*/EcalEndcap/EELaserTask/Laser3/EELT amplitude %s L3B", Numbers::sEE(ism).c_str());
     mui_->unsubscribe(histo, ism);
-    sprintf(histo, "*/EcalEndcap/EELaserTask/Laser4/EELT shape SM%02d L4B", ism);
+    sprintf(histo, "*/EcalEndcap/EELaserTask/Laser3/EELT timing %s L3B", Numbers::sEE(ism).c_str());
     mui_->unsubscribe(histo, ism);
-
-    sprintf(histo, "*/EcalEndcap/EEPnDiodeTask/Laser1/Gain01/EEPDT PNs amplitude SM%02d G01 L1", ism);
+    sprintf(histo, "*/EcalEndcap/EELaserTask/Laser3/EELT amplitude over PN %s L3B", Numbers::sEE(ism).c_str());
     mui_->unsubscribe(histo, ism);
-    sprintf(histo, "*/EcalEndcap/EEPnDiodeTask/Laser2/Gain01/EEPDT PNs amplitude SM%02d G01 L2", ism);
+    sprintf(histo, "*/EcalEndcap/EELaserTask/Laser4/EELT amplitude %s L4B", Numbers::sEE(ism).c_str());
     mui_->unsubscribe(histo, ism);
-    sprintf(histo, "*/EcalEndcap/EEPnDiodeTask/Laser3/Gain01/EEPDT PNs amplitude SM%02d G01 L3", ism);
+    sprintf(histo, "*/EcalEndcap/EELaserTask/Laser4/EELT timing %s L4B", Numbers::sEE(ism).c_str());
     mui_->unsubscribe(histo, ism);
-    sprintf(histo, "*/EcalEndcap/EEPnDiodeTask/Laser4/Gain01/EEPDT PNs amplitude SM%02d G01 L4", ism);
-    mui_->unsubscribe(histo, ism);
-    sprintf(histo, "*/EcalEndcap/EEPnDiodeTask/Laser1/Gain01/EEPDT PNs pedestal SM%02d G01 L1", ism);
-    mui_->unsubscribe(histo, ism);
-    sprintf(histo, "*/EcalEndcap/EEPnDiodeTask/Laser2/Gain01/EEPDT PNs pedestal SM%02d G01 L2", ism);
-    mui_->unsubscribe(histo, ism);
-    sprintf(histo, "*/EcalEndcap/EEPnDiodeTask/Laser3/Gain01/EEPDT PNs pedestal SM%02d G01 L3", ism);
-    mui_->unsubscribe(histo, ism);
-    sprintf(histo, "*/EcalEndcap/EEPnDiodeTask/Laser4/Gain01/EEPDT PNs pedestal SM%02d G01 L4", ism);
+    sprintf(histo, "*/EcalEndcap/EELaserTask/Laser4/EELT amplitude over PN %s L4B", Numbers::sEE(ism).c_str());
     mui_->unsubscribe(histo, ism);
 
-    sprintf(histo, "*/EcalEndcap/EEPnDiodeTask/Laser1/Gain16/EEPDT PNs amplitude SM%02d G16 L1", ism);
+    sprintf(histo, "*/EcalEndcap/EELaserTask/Laser1/EELT shape %s L1A", Numbers::sEE(ism).c_str());
     mui_->unsubscribe(histo, ism);
-    sprintf(histo, "*/EcalEndcap/EEPnDiodeTask/Laser2/Gain16/EEPDT PNs amplitude SM%02d G16 L2", ism);
+    sprintf(histo, "*/EcalEndcap/EELaserTask/Laser2/EELT shape %s L2A", Numbers::sEE(ism).c_str());
     mui_->unsubscribe(histo, ism);
-    sprintf(histo, "*/EcalEndcap/EEPnDiodeTask/Laser3/Gain16/EEPDT PNs amplitude SM%02d G16 L3", ism);
+    sprintf(histo, "*/EcalEndcap/EELaserTask/Laser3/EELT shape %s L3A", Numbers::sEE(ism).c_str());
     mui_->unsubscribe(histo, ism);
-    sprintf(histo, "*/EcalEndcap/EEPnDiodeTask/Laser4/Gain16/EEPDT PNs amplitude SM%02d G16 L4", ism);
+    sprintf(histo, "*/EcalEndcap/EELaserTask/Laser4/EELT shape %s L4A", Numbers::sEE(ism).c_str());
     mui_->unsubscribe(histo, ism);
-    sprintf(histo, "*/EcalEndcap/EEPnDiodeTask/Laser1/Gain16/EEPDT PNs pedestal SM%02d G16 L1", ism);
+
+    sprintf(histo, "*/EcalEndcap/EELaserTask/Laser1/EELT shape %s L1B", Numbers::sEE(ism).c_str());
     mui_->unsubscribe(histo, ism);
-    sprintf(histo, "*/EcalEndcap/EEPnDiodeTask/Laser2/Gain16/EEPDT PNs pedestal SM%02d G16 L2", ism);
+    sprintf(histo, "*/EcalEndcap/EELaserTask/Laser2/EELT shape %s L2B", Numbers::sEE(ism).c_str());
     mui_->unsubscribe(histo, ism);
-    sprintf(histo, "*/EcalEndcap/EEPnDiodeTask/Laser3/Gain16/EEPDT PNs pedestal SM%02d G16 L3", ism);
+    sprintf(histo, "*/EcalEndcap/EELaserTask/Laser3/EELT shape %s L3B", Numbers::sEE(ism).c_str());
     mui_->unsubscribe(histo, ism);
-    sprintf(histo, "*/EcalEndcap/EEPnDiodeTask/Laser4/Gain16/EEPDT PNs pedestal SM%02d G16 L4", ism);
+    sprintf(histo, "*/EcalEndcap/EELaserTask/Laser4/EELT shape %s L4B", Numbers::sEE(ism).c_str());
+    mui_->unsubscribe(histo, ism);
+
+    sprintf(histo, "*/EcalEndcap/EELaserTask/Laser1/PN/Gain01/EEPDT PNs amplitude %s G01 L1", Numbers::sEE(ism).c_str());
+    mui_->unsubscribe(histo, ism);
+    sprintf(histo, "*/EcalEndcap/EELaserTask/Laser2/PN/Gain01/EEPDT PNs amplitude %s G01 L2", Numbers::sEE(ism).c_str());
+    mui_->unsubscribe(histo, ism);
+    sprintf(histo, "*/EcalEndcap/EELaserTask/Laser3/PN/Gain01/EEPDT PNs amplitude %s G01 L3", Numbers::sEE(ism).c_str());
+    mui_->unsubscribe(histo, ism);
+    sprintf(histo, "*/EcalEndcap/EELaserTask/Laser4/PN/Gain01/EEPDT PNs amplitude %s G01 L4", Numbers::sEE(ism).c_str());
+    mui_->unsubscribe(histo, ism);
+    sprintf(histo, "*/EcalEndcap/EELaserTask/Laser1/PN/Gain01/EEPDT PNs pedestal %s G01 L1", Numbers::sEE(ism).c_str());
+    mui_->unsubscribe(histo, ism);
+    sprintf(histo, "*/EcalEndcap/EELaserTask/Laser2/PN/Gain01/EEPDT PNs pedestal %s G01 L2", Numbers::sEE(ism).c_str());
+    mui_->unsubscribe(histo, ism);
+    sprintf(histo, "*/EcalEndcap/EELaserTask/Laser3/PN/Gain01/EEPDT PNs pedestal %s G01 L3", Numbers::sEE(ism).c_str());
+    mui_->unsubscribe(histo, ism);
+    sprintf(histo, "*/EcalEndcap/EELaserTask/Laser4/PN/Gain01/EEPDT PNs pedestal %s G01 L4", Numbers::sEE(ism).c_str());
+    mui_->unsubscribe(histo, ism);
+
+    sprintf(histo, "*/EcalEndcap/EELaserTask/Laser1/PN/Gain16/EEPDT PNs amplitude %s G16 L1", Numbers::sEE(ism).c_str());
+    mui_->unsubscribe(histo, ism);
+    sprintf(histo, "*/EcalEndcap/EELaserTask/Laser2/PN/Gain16/EEPDT PNs amplitude %s G16 L2", Numbers::sEE(ism).c_str());
+    mui_->unsubscribe(histo, ism);
+    sprintf(histo, "*/EcalEndcap/EELaserTask/Laser3/PN/Gain16/EEPDT PNs amplitude %s G16 L3", Numbers::sEE(ism).c_str());
+    mui_->unsubscribe(histo, ism);
+    sprintf(histo, "*/EcalEndcap/EELaserTask/Laser4/PN/Gain16/EEPDT PNs amplitude %s G16 L4", Numbers::sEE(ism).c_str());
+    mui_->unsubscribe(histo, ism);
+    sprintf(histo, "*/EcalEndcap/EELaserTask/Laser1/PN/Gain16/EEPDT PNs pedestal %s G16 L1", Numbers::sEE(ism).c_str());
+    mui_->unsubscribe(histo, ism);
+    sprintf(histo, "*/EcalEndcap/EELaserTask/Laser2/PN/Gain16/EEPDT PNs pedestal %s G16 L2", Numbers::sEE(ism).c_str());
+    mui_->unsubscribe(histo, ism);
+    sprintf(histo, "*/EcalEndcap/EELaserTask/Laser3/PN/Gain16/EEPDT PNs pedestal %s G16 L3", Numbers::sEE(ism).c_str());
+    mui_->unsubscribe(histo, ism);
+    sprintf(histo, "*/EcalEndcap/EELaserTask/Laser4/PN/Gain16/EEPDT PNs pedestal %s G16 L4", Numbers::sEE(ism).c_str());
     mui_->unsubscribe(histo, ism);
 
   }
@@ -2368,448 +2445,457 @@ void EELaserClient::analyze(void){
     int ism = superModules_[i];
 
     if ( collateSources_ ) {
-      sprintf(histo, "EcalEndcap/Sums/EELaserTask/Laser1/EELT amplitude SM%02d L1A", ism);
+      sprintf(histo, "EcalEndcap/Sums/EELaserTask/Laser1/EELT amplitude %s L1A", Numbers::sEE(ism).c_str());
     } else {
-      sprintf(histo, (prefixME_+"EcalEndcap/EELaserTask/Laser1/EELT amplitude SM%02d L1A").c_str(), ism);
+      sprintf(histo, (prefixME_+"EcalEndcap/EELaserTask/Laser1/EELT amplitude %s L1A").c_str(), Numbers::sEE(ism).c_str());
     }
     me = mui_->get(histo);
-    h01_[ism-1] = EEMUtilsClient::getHisto<TProfile2D*>( me, cloneME_, h01_[ism-1] );
+    h01_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h01_[ism-1] );
 
     if ( collateSources_ ) {
-      sprintf(histo, "EcalEndcap/Sums/EELaserTask/Laser1/EELT amplitude over PN SM%02d L1A", ism);
+      sprintf(histo, "EcalEndcap/Sums/EELaserTask/Laser1/EELT amplitude over PN %s L1A", Numbers::sEE(ism).c_str());
     } else {
-      sprintf(histo, (prefixME_+"EcalEndcap/EELaserTask/Laser1/EELT amplitude over PN SM%02d L1A").c_str(), ism);
+      sprintf(histo, (prefixME_+"EcalEndcap/EELaserTask/Laser1/EELT amplitude over PN %s L1A").c_str(), Numbers::sEE(ism).c_str());
     }
     me = mui_->get(histo);
-    h02_[ism-1] = EEMUtilsClient::getHisto<TProfile2D*>( me, cloneME_, h02_[ism-1] );
+    h02_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h02_[ism-1] );
 
     if ( collateSources_ ) {
-      sprintf(histo, "EcalEndcap/Sums/EELaserTask/Laser2/EELT amplitude SM%02d L2A", ism);
+      sprintf(histo, "EcalEndcap/Sums/EELaserTask/Laser2/EELT amplitude %s L2A", Numbers::sEE(ism).c_str());
     } else {
-      sprintf(histo, (prefixME_+"EcalEndcap/EELaserTask/Laser2/EELT amplitude SM%02d L2A").c_str(), ism);
+      sprintf(histo, (prefixME_+"EcalEndcap/EELaserTask/Laser2/EELT amplitude %s L2A").c_str(), Numbers::sEE(ism).c_str());
     }
     me = mui_->get(histo);
-    h03_[ism-1] = EEMUtilsClient::getHisto<TProfile2D*>( me, cloneME_, h03_[ism-1] );
+    h03_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h03_[ism-1] );
 
     if ( collateSources_ ) {
-      sprintf(histo, "EcalEndcap/Sums/EELaserTask/Laser2/EELT amplitude over PN SM%02d L2A", ism);
+      sprintf(histo, "EcalEndcap/Sums/EELaserTask/Laser2/EELT amplitude over PN %s L2A", Numbers::sEE(ism).c_str());
     } else {
-      sprintf(histo, (prefixME_+"EcalEndcap/EELaserTask/Laser2/EELT amplitude over PN SM%02d L2A").c_str(), ism);
+      sprintf(histo, (prefixME_+"EcalEndcap/EELaserTask/Laser2/EELT amplitude over PN %s L2A").c_str(), Numbers::sEE(ism).c_str());
     }
     me = mui_->get(histo);
-    h04_[ism-1] = EEMUtilsClient::getHisto<TProfile2D*>( me, cloneME_, h04_[ism-1] );
+    h04_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h04_[ism-1] );
 
     if ( collateSources_ ) {
-      sprintf(histo, "EcalEndcap/Sums/EELaserTask/Laser3/EELT amplitude SM%02d L3A", ism);
+      sprintf(histo, "EcalEndcap/Sums/EELaserTask/Laser3/EELT amplitude %s L3A", Numbers::sEE(ism).c_str());
     } else {
-      sprintf(histo, (prefixME_+"EcalEndcap/EELaserTask/Laser3/EELT amplitude SM%02d L3A").c_str(), ism);
+      sprintf(histo, (prefixME_+"EcalEndcap/EELaserTask/Laser3/EELT amplitude %s L3A").c_str(), Numbers::sEE(ism).c_str());
     }
     me = mui_->get(histo);
-    h05_[ism-1] = EEMUtilsClient::getHisto<TProfile2D*>( me, cloneME_, h05_[ism-1] );
+    h05_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h05_[ism-1] );
 
     if ( collateSources_ ) {
-      sprintf(histo, "EcalEndcap/Sums/EELaserTask/Laser3/EELT amplitude over PN SM%02d L3A", ism);
+      sprintf(histo, "EcalEndcap/Sums/EELaserTask/Laser3/EELT amplitude over PN %s L3A", Numbers::sEE(ism).c_str());
     } else {
-      sprintf(histo, (prefixME_+"EcalEndcap/EELaserTask/Laser3/EELT amplitude over PN SM%02d L3A").c_str(), ism);
+      sprintf(histo, (prefixME_+"EcalEndcap/EELaserTask/Laser3/EELT amplitude over PN %s L3A").c_str(), Numbers::sEE(ism).c_str());
     }
     me = mui_->get(histo);
-    h06_[ism-1] = EEMUtilsClient::getHisto<TProfile2D*>( me, cloneME_, h06_[ism-1] );
+    h06_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h06_[ism-1] );
 
     if ( collateSources_ ) {
-      sprintf(histo, "EcalEndcap/Sums/EELaserTask/Laser4/EELT amplitude SM%02d L4A", ism);
+      sprintf(histo, "EcalEndcap/Sums/EELaserTask/Laser4/EELT amplitude %s L4A", Numbers::sEE(ism).c_str());
     } else {
-      sprintf(histo, (prefixME_+"EcalEndcap/EELaserTask/Laser4/EELT amplitude SM%02d L4A").c_str(), ism);
+      sprintf(histo, (prefixME_+"EcalEndcap/EELaserTask/Laser4/EELT amplitude %s L4A").c_str(), Numbers::sEE(ism).c_str());
     }
     me = mui_->get(histo);
-    h07_[ism-1] = EEMUtilsClient::getHisto<TProfile2D*>( me, cloneME_, h07_[ism-1] );
+    h07_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h07_[ism-1] );
 
     if ( collateSources_ ) {
-      sprintf(histo, "EcalEndcap/Sums/EELaserTask/Laser4/EELT amplitude over PN SM%02d L4A", ism);
+      sprintf(histo, "EcalEndcap/Sums/EELaserTask/Laser4/EELT amplitude over PN %s L4A", Numbers::sEE(ism).c_str());
     } else {
-      sprintf(histo, (prefixME_+"EcalEndcap/EELaserTask/Laser4/EELT amplitude over PN SM%02d L4A").c_str(), ism);
+      sprintf(histo, (prefixME_+"EcalEndcap/EELaserTask/Laser4/EELT amplitude over PN %s L4A").c_str(), Numbers::sEE(ism).c_str());
     }
     me = mui_->get(histo);
-    h08_[ism-1] = EEMUtilsClient::getHisto<TProfile2D*>( me, cloneME_, h08_[ism-1] );
+    h08_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h08_[ism-1] );
 
     if ( collateSources_ ) {
-      sprintf(histo, "EcalEndcap/Sums/EELaserTask/Laser1/EELT timing SM%02d L1A", ism);
+      sprintf(histo, "EcalEndcap/Sums/EELaserTask/Laser1/EELT timing %s L1A", Numbers::sEE(ism).c_str());
     } else {
-      sprintf(histo, (prefixME_+"EcalEndcap/EELaserTask/Laser1/EELT timing SM%02d L1A").c_str(), ism);
+      sprintf(histo, (prefixME_+"EcalEndcap/EELaserTask/Laser1/EELT timing %s L1A").c_str(), Numbers::sEE(ism).c_str());
     }
     me = mui_->get(histo);
-    h09_[ism-1] = EEMUtilsClient::getHisto<TProfile2D*>( me, cloneME_, h09_[ism-1] );
+    h09_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h09_[ism-1] );
 
     if ( collateSources_ ) {
-      sprintf(histo, "EcalEndcap/Sums/EELaserTask/Laser2/EELT timing SM%02d L2A", ism);
+      sprintf(histo, "EcalEndcap/Sums/EELaserTask/Laser2/EELT timing %s L2A", Numbers::sEE(ism).c_str());
     } else {
-      sprintf(histo, (prefixME_+"EcalEndcap/EELaserTask/Laser2/EELT timing SM%02d L2A").c_str(), ism);
+      sprintf(histo, (prefixME_+"EcalEndcap/EELaserTask/Laser2/EELT timing %s L2A").c_str(), Numbers::sEE(ism).c_str());
     }
     me = mui_->get(histo);
-    h10_[ism-1] = EEMUtilsClient::getHisto<TProfile2D*>( me, cloneME_, h10_[ism-1] );
+    h10_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h10_[ism-1] );
 
     if ( collateSources_ ) {
-      sprintf(histo, "EcalEndcap/Sums/EELaserTask/Laser3/EELT timing SM%02d L3A", ism);
+      sprintf(histo, "EcalEndcap/Sums/EELaserTask/Laser3/EELT timing %s L3A", Numbers::sEE(ism).c_str());
     } else {
-      sprintf(histo, (prefixME_+"EcalEndcap/EELaserTask/Laser3/EELT timing SM%02d L3A").c_str(), ism);
+      sprintf(histo, (prefixME_+"EcalEndcap/EELaserTask/Laser3/EELT timing %s L3A").c_str(), Numbers::sEE(ism).c_str());
     }
     me = mui_->get(histo);
-    h11_[ism-1] = EEMUtilsClient::getHisto<TProfile2D*>( me, cloneME_, h11_[ism-1] );
+    h11_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h11_[ism-1] );
 
     if ( collateSources_ ) {
-      sprintf(histo, "EcalEndcap/Sums/EELaserTask/Laser4/EELT timing SM%02d L4A", ism);
+      sprintf(histo, "EcalEndcap/Sums/EELaserTask/Laser4/EELT timing %s L4A", Numbers::sEE(ism).c_str());
     } else {
-      sprintf(histo, (prefixME_+"EcalEndcap/EELaserTask/Laser4/EELT timing SM%02d L4A").c_str(), ism);
+      sprintf(histo, (prefixME_+"EcalEndcap/EELaserTask/Laser4/EELT timing %s L4A").c_str(), Numbers::sEE(ism).c_str());
     }
     me = mui_->get(histo);
-    h12_[ism-1] = EEMUtilsClient::getHisto<TProfile2D*>( me, cloneME_, h12_[ism-1] );
+    h12_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h12_[ism-1] );
 
     if ( collateSources_ ) {
-      sprintf(histo, "EcalEndcap/Sums/EELaserTask/Laser1/EELT amplitude SM%02d L1B", ism);
+      sprintf(histo, "EcalEndcap/Sums/EELaserTask/Laser1/EELT amplitude %s L1B", Numbers::sEE(ism).c_str());
     } else {
-      sprintf(histo, (prefixME_+"EcalEndcap/EELaserTask/Laser1/EELT amplitude SM%02d L1B").c_str(), ism);
+      sprintf(histo, (prefixME_+"EcalEndcap/EELaserTask/Laser1/EELT amplitude %s L1B").c_str(), Numbers::sEE(ism).c_str());
     }
     me = mui_->get(histo);
-    h13_[ism-1] = EEMUtilsClient::getHisto<TProfile2D*>( me, cloneME_, h13_[ism-1] );
+    h13_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h13_[ism-1] );
 
     if ( collateSources_ ) {
-      sprintf(histo, "EcalEndcap/Sums/EELaserTask/Laser1/EELT amplitude over PN SM%02d L1B", ism);
+      sprintf(histo, "EcalEndcap/Sums/EELaserTask/Laser1/EELT amplitude over PN %s L1B", Numbers::sEE(ism).c_str());
     } else {
-      sprintf(histo, (prefixME_+"EcalEndcap/EELaserTask/Laser1/EELT amplitude over PN SM%02d L1B").c_str(), ism);
+      sprintf(histo, (prefixME_+"EcalEndcap/EELaserTask/Laser1/EELT amplitude over PN %s L1B").c_str(), Numbers::sEE(ism).c_str());
     }
     me = mui_->get(histo);
-    h14_[ism-1] = EEMUtilsClient::getHisto<TProfile2D*>( me, cloneME_, h14_[ism-1] );
+    h14_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h14_[ism-1] );
 
     if ( collateSources_ ) {
-      sprintf(histo, "EcalEndcap/Sums/EELaserTask/Laser2/EELT amplitude SM%02d L2B", ism);
+      sprintf(histo, "EcalEndcap/Sums/EELaserTask/Laser2/EELT amplitude %s L2B", Numbers::sEE(ism).c_str());
     } else {
-      sprintf(histo, (prefixME_+"EcalEndcap/EELaserTask/Laser2/EELT amplitude SM%02d L2B").c_str(), ism);
+      sprintf(histo, (prefixME_+"EcalEndcap/EELaserTask/Laser2/EELT amplitude %s L2B").c_str(), Numbers::sEE(ism).c_str());
     }
     me = mui_->get(histo);
-    h15_[ism-1] = EEMUtilsClient::getHisto<TProfile2D*>( me, cloneME_, h15_[ism-1] );
+    h15_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h15_[ism-1] );
 
     if ( collateSources_ ) {
-      sprintf(histo, "EcalEndcap/Sums/EELaserTask/Laser2/EELT amplitude over PN SM%02d L2B", ism);
+      sprintf(histo, "EcalEndcap/Sums/EELaserTask/Laser2/EELT amplitude over PN %s L2B", Numbers::sEE(ism).c_str());
     } else {
-      sprintf(histo, (prefixME_+"EcalEndcap/EELaserTask/Laser2/EELT amplitude over PN SM%02d L2B").c_str(), ism);
+      sprintf(histo, (prefixME_+"EcalEndcap/EELaserTask/Laser2/EELT amplitude over PN %s L2B").c_str(), Numbers::sEE(ism).c_str());
     }
     me = mui_->get(histo);
-    h16_[ism-1] = EEMUtilsClient::getHisto<TProfile2D*>( me, cloneME_, h16_[ism-1] );
+    h16_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h16_[ism-1] );
 
     if ( collateSources_ ) {
-      sprintf(histo, "EcalEndcap/Sums/EELaserTask/Laser3/EELT amplitude SM%02d L3B", ism);
+      sprintf(histo, "EcalEndcap/Sums/EELaserTask/Laser3/EELT amplitude %s L3B", Numbers::sEE(ism).c_str());
     } else {
-      sprintf(histo, (prefixME_+"EcalEndcap/EELaserTask/Laser3/EELT amplitude SM%02d L3B").c_str(), ism);
+      sprintf(histo, (prefixME_+"EcalEndcap/EELaserTask/Laser3/EELT amplitude %s L3B").c_str(), Numbers::sEE(ism).c_str());
     }
     me = mui_->get(histo);
-    h17_[ism-1] = EEMUtilsClient::getHisto<TProfile2D*>( me, cloneME_, h17_[ism-1] );
+    h17_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h17_[ism-1] );
 
     if ( collateSources_ ) {
-      sprintf(histo, "EcalEndcap/Sums/EELaserTask/Laser3/EELT amplitude over PN SM%02d L3B", ism);
+      sprintf(histo, "EcalEndcap/Sums/EELaserTask/Laser3/EELT amplitude over PN %s L3B", Numbers::sEE(ism).c_str());
     } else {
-      sprintf(histo, (prefixME_+"EcalEndcap/EELaserTask/Laser3/EELT amplitude over PN SM%02d L3B").c_str(), ism);
+      sprintf(histo, (prefixME_+"EcalEndcap/EELaserTask/Laser3/EELT amplitude over PN %s L3B").c_str(), Numbers::sEE(ism).c_str());
     }
     me = mui_->get(histo);
-    h18_[ism-1] = EEMUtilsClient::getHisto<TProfile2D*>( me, cloneME_, h18_[ism-1] );
+    h18_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h18_[ism-1] );
 
     if ( collateSources_ ) {
-      sprintf(histo, "EcalEndcap/Sums/EELaserTask/Laser4/EELT amplitude SM%02d L4B", ism);
+      sprintf(histo, "EcalEndcap/Sums/EELaserTask/Laser4/EELT amplitude %s L4B", Numbers::sEE(ism).c_str());
     } else {
-      sprintf(histo, (prefixME_+"EcalEndcap/EELaserTask/Laser4/EELT amplitude SM%02d L4B").c_str(), ism);
+      sprintf(histo, (prefixME_+"EcalEndcap/EELaserTask/Laser4/EELT amplitude %s L4B").c_str(), Numbers::sEE(ism).c_str());
     }
     me = mui_->get(histo);
-    h19_[ism-1] = EEMUtilsClient::getHisto<TProfile2D*>( me, cloneME_, h19_[ism-1] );
+    h19_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h19_[ism-1] );
 
     if ( collateSources_ ) {
-      sprintf(histo, "EcalEndcap/Sums/EELaserTask/Laser4/EELT amplitude over PN SM%02d L4B", ism);
+      sprintf(histo, "EcalEndcap/Sums/EELaserTask/Laser4/EELT amplitude over PN %s L4B", Numbers::sEE(ism).c_str());
     } else {
-      sprintf(histo, (prefixME_+"EcalEndcap/EELaserTask/Laser4/EELT amplitude over PN SM%02d L4B").c_str(), ism);
+      sprintf(histo, (prefixME_+"EcalEndcap/EELaserTask/Laser4/EELT amplitude over PN %s L4B").c_str(), Numbers::sEE(ism).c_str());
     }
     me = mui_->get(histo);
-    h20_[ism-1] = EEMUtilsClient::getHisto<TProfile2D*>( me, cloneME_, h20_[ism-1] );
+    h20_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h20_[ism-1] );
 
     if ( collateSources_ ) {
-      sprintf(histo, "EcalEndcap/Sums/EELaserTask/Laser1/EELT timing SM%02d L1B", ism);
+      sprintf(histo, "EcalEndcap/Sums/EELaserTask/Laser1/EELT timing %s L1B", Numbers::sEE(ism).c_str());
     } else {
-      sprintf(histo, (prefixME_+"EcalEndcap/EELaserTask/Laser1/EELT timing SM%02d L1B").c_str(), ism);
+      sprintf(histo, (prefixME_+"EcalEndcap/EELaserTask/Laser1/EELT timing %s L1B").c_str(), Numbers::sEE(ism).c_str());
     }
     me = mui_->get(histo);
-    h21_[ism-1] = EEMUtilsClient::getHisto<TProfile2D*>( me, cloneME_, h21_[ism-1] );
+    h21_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h21_[ism-1] );
 
     if ( collateSources_ ) {
-      sprintf(histo, "EcalEndcap/Sums/EELaserTask/Laser2/EELT timing SM%02d L2B", ism);
+      sprintf(histo, "EcalEndcap/Sums/EELaserTask/Laser2/EELT timing %s L2B", Numbers::sEE(ism).c_str());
     } else {
-      sprintf(histo, (prefixME_+"EcalEndcap/EELaserTask/Laser2/EELT timing SM%02d L2B").c_str(), ism);
+      sprintf(histo, (prefixME_+"EcalEndcap/EELaserTask/Laser2/EELT timing %s L2B").c_str(), Numbers::sEE(ism).c_str());
     }
     me = mui_->get(histo);
-    h22_[ism-1] = EEMUtilsClient::getHisto<TProfile2D*>( me, cloneME_, h22_[ism-1] );
+    h22_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h22_[ism-1] );
 
     if ( collateSources_ ) {
-      sprintf(histo, "EcalEndcap/Sums/EELaserTask/Laser3/EELT timing SM%02d L3B", ism);
+      sprintf(histo, "EcalEndcap/Sums/EELaserTask/Laser3/EELT timing %s L3B", Numbers::sEE(ism).c_str());
     } else {
-      sprintf(histo, (prefixME_+"EcalEndcap/EELaserTask/Laser3/EELT timing SM%02d L3B").c_str(), ism);
+      sprintf(histo, (prefixME_+"EcalEndcap/EELaserTask/Laser3/EELT timing %s L3B").c_str(), Numbers::sEE(ism).c_str());
     }
     me = mui_->get(histo);
-    h23_[ism-1] = EEMUtilsClient::getHisto<TProfile2D*>( me, cloneME_, h23_[ism-1] );
+    h23_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h23_[ism-1] );
 
     if ( collateSources_ ) {
-      sprintf(histo, "EcalEndcap/Sums/EELaserTask/Laser4/EELT timing SM%02d L4B", ism);
+      sprintf(histo, "EcalEndcap/Sums/EELaserTask/Laser4/EELT timing %s L4B", Numbers::sEE(ism).c_str());
     } else {
-      sprintf(histo, (prefixME_+"EcalEndcap/EELaserTask/Laser4/EELT timing SM%02d L4B").c_str(), ism);
+      sprintf(histo, (prefixME_+"EcalEndcap/EELaserTask/Laser4/EELT timing %s L4B").c_str(), Numbers::sEE(ism).c_str());
     }
     me = mui_->get(histo);
-    h24_[ism-1] = EEMUtilsClient::getHisto<TProfile2D*>( me, cloneME_, h24_[ism-1] );
+    h24_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h24_[ism-1] );
 
     if ( collateSources_ ) {
-      sprintf(histo, "EcalEndcap/Sums/EELaserTask/Laser1/EELT shape SM%02d L1A", ism);
+      sprintf(histo, "EcalEndcap/Sums/EELaserTask/Laser1/EELT shape %s L1A", Numbers::sEE(ism).c_str());
     } else {
-      sprintf(histo, (prefixME_+"EcalEndcap/EELaserTask/Laser1/EELT shape SM%02d L1A").c_str(), ism);
+      sprintf(histo, (prefixME_+"EcalEndcap/EELaserTask/Laser1/EELT shape %s L1A").c_str(), Numbers::sEE(ism).c_str());
     }
     me = mui_->get(histo);
-    hs01_[ism-1] = EEMUtilsClient::getHisto<TProfile2D*>( me, cloneME_, hs01_[ism-1] );
+    hs01_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, hs01_[ism-1] );
 
     if ( collateSources_ ) {
-      sprintf(histo, "EcalEndcap/Sums/EELaserTask/Laser2/EELT shape SM%02d L2A", ism);
+      sprintf(histo, "EcalEndcap/Sums/EELaserTask/Laser2/EELT shape %s L2A", Numbers::sEE(ism).c_str());
     } else {
-      sprintf(histo, (prefixME_+"EcalEndcap/EELaserTask/Laser2/EELT shape SM%02d L2A").c_str(), ism);
+      sprintf(histo, (prefixME_+"EcalEndcap/EELaserTask/Laser2/EELT shape %s L2A").c_str(), Numbers::sEE(ism).c_str());
     }
     me = mui_->get(histo);
-    hs02_[ism-1] = EEMUtilsClient::getHisto<TProfile2D*>( me, cloneME_, hs02_[ism-1] );
+    hs02_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, hs02_[ism-1] );
 
     if ( collateSources_ ) {
-      sprintf(histo, "EcalEndcap/Sums/EELaserTask/Laser3/EELT shape SM%02d L3A", ism);
+      sprintf(histo, "EcalEndcap/Sums/EELaserTask/Laser3/EELT shape %s L3A", Numbers::sEE(ism).c_str());
     } else {
-      sprintf(histo, (prefixME_+"EcalEndcap/EELaserTask/Laser3/EELT shape SM%02d L3A").c_str(), ism);
+      sprintf(histo, (prefixME_+"EcalEndcap/EELaserTask/Laser3/EELT shape %s L3A").c_str(), Numbers::sEE(ism).c_str());
     }
     me = mui_->get(histo);
-    hs03_[ism-1] = EEMUtilsClient::getHisto<TProfile2D*>( me, cloneME_, hs03_[ism-1] );
+    hs03_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, hs03_[ism-1] );
 
     if ( collateSources_ ) {
-      sprintf(histo, "EcalEndcap/Sums/EELaserTask/Laser4/EELT shape SM%02d L4A", ism);
+      sprintf(histo, "EcalEndcap/Sums/EELaserTask/Laser4/EELT shape %s L4A", Numbers::sEE(ism).c_str());
     } else {
-      sprintf(histo, (prefixME_+"EcalEndcap/EELaserTask/Laser4/EELT shape SM%02d L4A").c_str(), ism);
+      sprintf(histo, (prefixME_+"EcalEndcap/EELaserTask/Laser4/EELT shape %s L4A").c_str(), Numbers::sEE(ism).c_str());
     }
     me = mui_->get(histo);
-    hs04_[ism-1] = EEMUtilsClient::getHisto<TProfile2D*>( me, cloneME_, hs04_[ism-1] );
+    hs04_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, hs04_[ism-1] );
 
     if ( collateSources_ ) {
-      sprintf(histo, "EcalEndcap/Sums/EELaserTask/Laser1/EELT shape SM%02d L1B", ism);
+      sprintf(histo, "EcalEndcap/Sums/EELaserTask/Laser1/EELT shape %s L1B", Numbers::sEE(ism).c_str());
     } else {
-      sprintf(histo, (prefixME_+"EcalEndcap/EELaserTask/Laser1/EELT shape SM%02d L1B").c_str(), ism);
+      sprintf(histo, (prefixME_+"EcalEndcap/EELaserTask/Laser1/EELT shape %s L1B").c_str(), Numbers::sEE(ism).c_str());
     }
     me = mui_->get(histo);
-    hs05_[ism-1] = EEMUtilsClient::getHisto<TProfile2D*>( me, cloneME_, hs05_[ism-1] );
+    hs05_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, hs05_[ism-1] );
 
     if ( collateSources_ ) {
-      sprintf(histo, "EcalEndcap/Sums/EELaserTask/Laser2/EELT shape SM%02d L2B", ism);
+      sprintf(histo, "EcalEndcap/Sums/EELaserTask/Laser2/EELT shape %s L2B", Numbers::sEE(ism).c_str());
     } else {
-      sprintf(histo, (prefixME_+"EcalEndcap/EELaserTask/Laser2/EELT shape SM%02d L2B").c_str(), ism);
+      sprintf(histo, (prefixME_+"EcalEndcap/EELaserTask/Laser2/EELT shape %s L2B").c_str(), Numbers::sEE(ism).c_str());
     }
     me = mui_->get(histo);
-    hs06_[ism-1] = EEMUtilsClient::getHisto<TProfile2D*>( me, cloneME_, hs06_[ism-1] );
+    hs06_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, hs06_[ism-1] );
 
     if ( collateSources_ ) {
-      sprintf(histo, "EcalEndcap/Sums/EELaserTask/Laser3/EELT shape SM%02d L3B", ism);
+      sprintf(histo, "EcalEndcap/Sums/EELaserTask/Laser3/EELT shape %s L3B", Numbers::sEE(ism).c_str());
     } else {
-      sprintf(histo, (prefixME_+"EcalEndcap/EELaserTask/Laser3/EELT shape SM%02d L3B").c_str(), ism);
+      sprintf(histo, (prefixME_+"EcalEndcap/EELaserTask/Laser3/EELT shape %s L3B").c_str(), Numbers::sEE(ism).c_str());
     }
     me = mui_->get(histo);
-    hs07_[ism-1] = EEMUtilsClient::getHisto<TProfile2D*>( me, cloneME_, hs07_[ism-1] );
+    hs07_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, hs07_[ism-1] );
 
     if ( collateSources_ ) {
-      sprintf(histo, "EcalEndcap/Sums/EELaserTask/Laser4/EELT shape SM%02d L4B", ism);
+      sprintf(histo, "EcalEndcap/Sums/EELaserTask/Laser4/EELT shape %s L4B", Numbers::sEE(ism).c_str());
     } else {
-      sprintf(histo, (prefixME_+"EcalEndcap/EELaserTask/Laser4/EELT shape SM%02d L4B").c_str(), ism);
+      sprintf(histo, (prefixME_+"EcalEndcap/EELaserTask/Laser4/EELT shape %s L4B").c_str(), Numbers::sEE(ism).c_str());
     }
     me = mui_->get(histo);
-    hs08_[ism-1] = EEMUtilsClient::getHisto<TProfile2D*>( me, cloneME_, hs08_[ism-1] );
+    hs08_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, hs08_[ism-1] );
 
     if ( collateSources_ ) {
-      sprintf(histo, "EcalEndcap/Sums/EEPnDiodeTask/Laser1/Gain01/EEPDT PNs amplitude SM%02d G01 L1", ism);
+      sprintf(histo, "EcalEndcap/Sums/EELaserTask/Laser1/PN/Gain01/EEPDT PNs amplitude %s G01 L1", Numbers::sEE(ism).c_str());
     } else {
-      sprintf(histo, (prefixME_+"EcalEndcap/EEPnDiodeTask/Laser1/Gain01/EEPDT PNs amplitude SM%02d G01 L1").c_str(), ism);
+      sprintf(histo, (prefixME_+"EcalEndcap/EELaserTask/Laser1/PN/Gain01/EEPDT PNs amplitude %s G01 L1").c_str(), Numbers::sEE(ism).c_str());
     }
     me = mui_->get(histo);
-    i01_[ism-1] = EEMUtilsClient::getHisto<TProfile2D*>( me, cloneME_, i01_[ism-1] );
+    i01_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, i01_[ism-1] );
 
     if ( collateSources_ ) {
-      sprintf(histo, "EcalEndcap/Sums/EEPnDiodeTask/Laser2/Gain01/EEPDT PNs amplitude SM%02d G01 L2", ism);
+      sprintf(histo, "EcalEndcap/Sums/EELaserTask/Laser2/PN/Gain01/EEPDT PNs amplitude %s G01 L2", Numbers::sEE(ism).c_str());
     } else {
-      sprintf(histo, (prefixME_+"EcalEndcap/EEPnDiodeTask/Laser2/Gain01/EEPDT PNs amplitude SM%02d G01 L2").c_str(), ism);
+      sprintf(histo, (prefixME_+"EcalEndcap/EELaserTask/Laser2/PN/Gain01/EEPDT PNs amplitude %s G01 L2").c_str(), Numbers::sEE(ism).c_str());
     }
     me = mui_->get(histo);
-    i02_[ism-1] = EEMUtilsClient::getHisto<TProfile2D*>( me, cloneME_, i02_[ism-1] );
+    i02_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, i02_[ism-1] );
 
     if ( collateSources_ ) {
-      sprintf(histo, "EcalEndcap/Sums/EEPnDiodeTask/Laser3/Gain01/EEPDT PNs amplitude SM%02d G01 L3", ism);
+      sprintf(histo, "EcalEndcap/Sums/EELaserTask/Laser3/PN/Gain01/EEPDT PNs amplitude %s G01 L3", Numbers::sEE(ism).c_str());
     } else {
-      sprintf(histo, (prefixME_+"EcalEndcap/EEPnDiodeTask/Laser3/Gain01/EEPDT PNs amplitude SM%02d G01 L3").c_str(), ism);
+      sprintf(histo, (prefixME_+"EcalEndcap/EELaserTask/Laser3/PN/Gain01/EEPDT PNs amplitude %s G01 L3").c_str(), Numbers::sEE(ism).c_str());
     }
     me = mui_->get(histo);
-    i03_[ism-1] = EEMUtilsClient::getHisto<TProfile2D*>( me, cloneME_, i03_[ism-1] );
+    i03_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, i03_[ism-1] );
 
     if ( collateSources_ ) {
-      sprintf(histo, "EcalEndcap/Sums/EEPnDiodeTask/Laser4/Gain01/EEPDT PNs amplitude SM%02d G01 L4", ism);
+      sprintf(histo, "EcalEndcap/Sums/EELaserTask/Laser4/PN/Gain01/EEPDT PNs amplitude %s G01 L4", Numbers::sEE(ism).c_str());
     } else {
-      sprintf(histo, (prefixME_+"EcalEndcap/EEPnDiodeTask/Laser4/Gain01/EEPDT PNs amplitude SM%02d G01 L4").c_str(), ism);
+      sprintf(histo, (prefixME_+"EcalEndcap/EELaserTask/Laser4/PN/Gain01/EEPDT PNs amplitude %s G01 L4").c_str(), Numbers::sEE(ism).c_str());
     }
     me = mui_->get(histo);
-    i04_[ism-1] = EEMUtilsClient::getHisto<TProfile2D*>( me, cloneME_, i04_[ism-1] );
+    i04_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, i04_[ism-1] );
 
     if ( collateSources_ ) {
-      sprintf(histo, "EcalEndcap/Sums/EEPnDiodeTask/Laser1/Gain01/EEPDT PNs pedestal SM%02d G01 L1", ism);
+      sprintf(histo, "EcalEndcap/Sums/EELaserTask/Laser1/PN/Gain01/EEPDT PNs pedestal %s G01 L1", Numbers::sEE(ism).c_str());
     } else {
-      sprintf(histo, (prefixME_+"EcalEndcap/EEPnDiodeTask/Laser1/Gain01/EEPDT PNs pedestal SM%02d G01 L1").c_str(), ism);
+      sprintf(histo, (prefixME_+"EcalEndcap/EELaserTask/Laser1/PN/Gain01/EEPDT PNs pedestal %s G01 L1").c_str(), Numbers::sEE(ism).c_str());
     }
     me = mui_->get(histo);
-    i05_[ism-1] = EEMUtilsClient::getHisto<TProfile2D*>( me, cloneME_, i05_[ism-1] );
+    i05_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, i05_[ism-1] );
 
     if ( collateSources_ ) {
-      sprintf(histo, "EcalEndcap/Sums/EEPnDiodeTask/Laser2/Gain01/EEPDT PNs pedestal SM%02d G01 L2", ism);
+      sprintf(histo, "EcalEndcap/Sums/EELaserTask/Laser2/PN/Gain01/EEPDT PNs pedestal %s G01 L2", Numbers::sEE(ism).c_str());
     } else {
-      sprintf(histo, (prefixME_+"EcalEndcap/EEPnDiodeTask/Laser2/Gain01/EEPDT PNs pedestal SM%02d G01 L2").c_str(), ism);
+      sprintf(histo, (prefixME_+"EcalEndcap/EELaserTask/Laser2/PN/Gain01/EEPDT PNs pedestal %s G01 L2").c_str(), Numbers::sEE(ism).c_str());
     }
     me = mui_->get(histo);
-    i06_[ism-1] = EEMUtilsClient::getHisto<TProfile2D*>( me, cloneME_, i06_[ism-1] );
+    i06_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, i06_[ism-1] );
 
     if ( collateSources_ ) {
-      sprintf(histo, "EcalEndcap/Sums/EEPnDiodeTask/Laser3/Gain01/EEPDT PNs pedestal SM%02d G01 L3", ism);
+      sprintf(histo, "EcalEndcap/Sums/EELaserTask/Laser3/PN/Gain01/EEPDT PNs pedestal %s G01 L3", Numbers::sEE(ism).c_str());
     } else {
-      sprintf(histo, (prefixME_+"EcalEndcap/EEPnDiodeTask/Laser3/Gain01/EEPDT PNs pedestal SM%02d G01 L3").c_str(), ism);
+      sprintf(histo, (prefixME_+"EcalEndcap/EELaserTask/Laser3/PN/Gain01/EEPDT PNs pedestal %s G01 L3").c_str(), Numbers::sEE(ism).c_str());
     }
     me = mui_->get(histo);
-    i07_[ism-1] = EEMUtilsClient::getHisto<TProfile2D*>( me, cloneME_, i07_[ism-1] );
+    i07_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, i07_[ism-1] );
 
     if ( collateSources_ ) {
-      sprintf(histo, "EcalEndcap/Sums/EEPnDiodeTask/Laser4/Gain01/EEPDT PNs pedestal SM%02d G01 L4", ism);
+      sprintf(histo, "EcalEndcap/Sums/EELaserTask/Laser4/PN/Gain01/EEPDT PNs pedestal %s G01 L4", Numbers::sEE(ism).c_str());
     } else {
-      sprintf(histo, (prefixME_+"EcalEndcap/EEPnDiodeTask/Laser4/Gain01/EEPDT PNs pedestal SM%02d G01 L4").c_str(), ism);
+      sprintf(histo, (prefixME_+"EcalEndcap/EELaserTask/Laser4/PN/Gain01/EEPDT PNs pedestal %s G01 L4").c_str(), Numbers::sEE(ism).c_str());
     }
     me = mui_->get(histo);
-    i08_[ism-1] = EEMUtilsClient::getHisto<TProfile2D*>( me, cloneME_, i08_[ism-1] );
+    i08_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, i08_[ism-1] );
 
     if ( collateSources_ ) {
-      sprintf(histo, "EcalEndcap/Sums/EEPnDiodeTask/Laser1/Gain16/EEPDT PNs amplitude SM%02d G16 L1", ism);
+      sprintf(histo, "EcalEndcap/Sums/EELaserTask/Laser1/PN/Gain16/EEPDT PNs amplitude %s G16 L1", Numbers::sEE(ism).c_str());
     } else {
-      sprintf(histo, (prefixME_+"EcalEndcap/EEPnDiodeTask/Laser1/Gain16/EEPDT PNs amplitude SM%02d G16 L1").c_str(), ism);
+      sprintf(histo, (prefixME_+"EcalEndcap/EELaserTask/Laser1/PN/Gain16/EEPDT PNs amplitude %s G16 L1").c_str(), Numbers::sEE(ism).c_str());
     }
     me = mui_->get(histo);
-    i09_[ism-1] = EEMUtilsClient::getHisto<TProfile2D*>( me, cloneME_, i09_[ism-1] );
+    i09_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, i09_[ism-1] );
 
     if ( collateSources_ ) {
-      sprintf(histo, "EcalEndcap/Sums/EEPnDiodeTask/Laser2/Gain16/EEPDT PNs amplitude SM%02d G16 L2", ism);
+      sprintf(histo, "EcalEndcap/Sums/EELaserTask/Laser2/PN/Gain16/EEPDT PNs amplitude %s G16 L2", Numbers::sEE(ism).c_str());
     } else {
-      sprintf(histo, (prefixME_+"EcalEndcap/EEPnDiodeTask/Laser2/Gain16/EEPDT PNs amplitude SM%02d G16 L2").c_str(), ism);
+      sprintf(histo, (prefixME_+"EcalEndcap/EELaserTask/Laser2/PN/Gain16/EEPDT PNs amplitude %s G16 L2").c_str(), Numbers::sEE(ism).c_str());
     }
     me = mui_->get(histo);
-    i10_[ism-1] = EEMUtilsClient::getHisto<TProfile2D*>( me, cloneME_, i10_[ism-1] );
+    i10_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, i10_[ism-1] );
 
     if ( collateSources_ ) {
-      sprintf(histo, "EcalEndcap/Sums/EEPnDiodeTask/Laser3/Gain16/EEPDT PNs amplitude SM%02d G16 L3", ism);
+      sprintf(histo, "EcalEndcap/Sums/EELaserTask/Laser3/PN/Gain16/EEPDT PNs amplitude %s G16 L3", Numbers::sEE(ism).c_str());
     } else {
-      sprintf(histo, (prefixME_+"EcalEndcap/EEPnDiodeTask/Laser3/Gain16/EEPDT PNs amplitude SM%02d G16 L3").c_str(), ism);
+      sprintf(histo, (prefixME_+"EcalEndcap/EELaserTask/Laser3/PN/Gain16/EEPDT PNs amplitude %s G16 L3").c_str(), Numbers::sEE(ism).c_str());
     }
     me = mui_->get(histo);
-    i11_[ism-1] = EEMUtilsClient::getHisto<TProfile2D*>( me, cloneME_, i11_[ism-1] );
+    i11_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, i11_[ism-1] );
 
     if ( collateSources_ ) {
-      sprintf(histo, "EcalEndcap/Sums/EEPnDiodeTask/Laser4/Gain16/EEPDT PNs amplitude SM%02d G16 L4", ism);
+      sprintf(histo, "EcalEndcap/Sums/EELaserTask/Laser4/PN/Gain16/EEPDT PNs amplitude %s G16 L4", Numbers::sEE(ism).c_str());
     } else {
-      sprintf(histo, (prefixME_+"EcalEndcap/EEPnDiodeTask/Laser4/Gain16/EEPDT PNs amplitude SM%02d G16 L4").c_str(), ism);
+      sprintf(histo, (prefixME_+"EcalEndcap/EELaserTask/Laser4/PN/Gain16/EEPDT PNs amplitude %s G16 L4").c_str(), Numbers::sEE(ism).c_str());
     }
     me = mui_->get(histo);
-    i12_[ism-1] = EEMUtilsClient::getHisto<TProfile2D*>( me, cloneME_, i12_[ism-1] );
+    i12_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, i12_[ism-1] );
 
     if ( collateSources_ ) {
-      sprintf(histo, "EcalEndcap/Sums/EEPnDiodeTask/Laser1/Gain16/EEPDT PNs pedestal SM%02d G16 L1", ism);
+      sprintf(histo, "EcalEndcap/Sums/EELaserTask/Laser1/PN/Gain16/EEPDT PNs pedestal %s G16 L1", Numbers::sEE(ism).c_str());
     } else {
-      sprintf(histo, (prefixME_+"EcalEndcap/EEPnDiodeTask/Laser1/Gain16/EEPDT PNs pedestal SM%02d G16 L1").c_str(), ism);
+      sprintf(histo, (prefixME_+"EcalEndcap/EELaserTask/Laser1/PN/Gain16/EEPDT PNs pedestal %s G16 L1").c_str(), Numbers::sEE(ism).c_str());
     }
     me = mui_->get(histo);
-    i13_[ism-1] = EEMUtilsClient::getHisto<TProfile2D*>( me, cloneME_, i13_[ism-1] );
+    i13_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, i13_[ism-1] );
 
     if ( collateSources_ ) {
-      sprintf(histo, "EcalEndcap/Sums/EEPnDiodeTask/Laser2/Gain16/EEPDT PNs pedestal SM%02d G16 L2", ism);
+      sprintf(histo, "EcalEndcap/Sums/EELaserTask/Laser2/PN/Gain16/EEPDT PNs pedestal %s G16 L2", Numbers::sEE(ism).c_str());
     } else {
-      sprintf(histo, (prefixME_+"EcalEndcap/EEPnDiodeTask/Laser2/Gain16/EEPDT PNs pedestal SM%02d G16 L2").c_str(), ism);
+      sprintf(histo, (prefixME_+"EcalEndcap/EELaserTask/Laser2/PN/Gain16/EEPDT PNs pedestal %s G16 L2").c_str(), Numbers::sEE(ism).c_str());
     }
     me = mui_->get(histo);
-    i14_[ism-1] = EEMUtilsClient::getHisto<TProfile2D*>( me, cloneME_, i14_[ism-1] );
+    i14_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, i14_[ism-1] );
 
     if ( collateSources_ ) {
-      sprintf(histo, "EcalEndcap/Sums/EEPnDiodeTask/Laser3/Gain16/EEPDT PNs pedestal SM%02d G16 L3", ism);
+      sprintf(histo, "EcalEndcap/Sums/EELaserTask/Laser3/PN/Gain16/EEPDT PNs pedestal %s G16 L3", Numbers::sEE(ism).c_str());
     } else {
-      sprintf(histo, (prefixME_+"EcalEndcap/EEPnDiodeTask/Laser3/Gain16/EEPDT PNs pedestal SM%02d G16 L3").c_str(), ism);
+      sprintf(histo, (prefixME_+"EcalEndcap/EELaserTask/Laser3/PN/Gain16/EEPDT PNs pedestal %s G16 L3").c_str(), Numbers::sEE(ism).c_str());
     }
     me = mui_->get(histo);
-    i15_[ism-1] = EEMUtilsClient::getHisto<TProfile2D*>( me, cloneME_, i15_[ism-1] );
+    i15_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, i15_[ism-1] );
 
     if ( collateSources_ ) {
-      sprintf(histo, "EcalEndcap/Sums/EEPnDiodeTask/Laser4/Gain16/EEPDT PNs pedestal SM%02d G16 L4", ism);
+      sprintf(histo, "EcalEndcap/Sums/EELaserTask/Laser4/PN/Gain16/EEPDT PNs pedestal %s G16 L4", Numbers::sEE(ism).c_str());
     } else {
-      sprintf(histo, (prefixME_+"EcalEndcap/EEPnDiodeTask/Laser4/Gain16/EEPDT PNs pedestal SM%02d G16 L4").c_str(), ism);
+      sprintf(histo, (prefixME_+"EcalEndcap/EELaserTask/Laser4/PN/Gain16/EEPDT PNs pedestal %s G16 L4").c_str(), Numbers::sEE(ism).c_str());
     }
     me = mui_->get(histo);
-    i16_[ism-1] = EEMUtilsClient::getHisto<TProfile2D*>( me, cloneME_, i16_[ism-1] );
+    i16_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, i16_[ism-1] );
 
-    EEMUtilsClient::resetHisto( meg01_[ism-1] );
-    EEMUtilsClient::resetHisto( meg02_[ism-1] );
-    EEMUtilsClient::resetHisto( meg03_[ism-1] );
-    EEMUtilsClient::resetHisto( meg04_[ism-1] );
+    UtilsClient::resetHisto( meg01_[ism-1] );
+    UtilsClient::resetHisto( meg02_[ism-1] );
+    UtilsClient::resetHisto( meg03_[ism-1] );
+    UtilsClient::resetHisto( meg04_[ism-1] );
 
-    EEMUtilsClient::resetHisto( meg05_[ism-1] );
-    EEMUtilsClient::resetHisto( meg06_[ism-1] );
-    EEMUtilsClient::resetHisto( meg07_[ism-1] );
-    EEMUtilsClient::resetHisto( meg08_[ism-1] );
-    EEMUtilsClient::resetHisto( meg09_[ism-1] );
-    EEMUtilsClient::resetHisto( meg10_[ism-1] );
-    EEMUtilsClient::resetHisto( meg11_[ism-1] );
-    EEMUtilsClient::resetHisto( meg12_[ism-1] );
+    UtilsClient::resetHisto( meg05_[ism-1] );
+    UtilsClient::resetHisto( meg06_[ism-1] );
+    UtilsClient::resetHisto( meg07_[ism-1] );
+    UtilsClient::resetHisto( meg08_[ism-1] );
+    UtilsClient::resetHisto( meg09_[ism-1] );
+    UtilsClient::resetHisto( meg10_[ism-1] );
+    UtilsClient::resetHisto( meg11_[ism-1] );
+    UtilsClient::resetHisto( meg12_[ism-1] );
 
-    EEMUtilsClient::resetHisto( mea01_[ism-1] );
-    EEMUtilsClient::resetHisto( mea02_[ism-1] );
-    EEMUtilsClient::resetHisto( mea03_[ism-1] );
-    EEMUtilsClient::resetHisto( mea04_[ism-1] );
-    EEMUtilsClient::resetHisto( mea05_[ism-1] );
-    EEMUtilsClient::resetHisto( mea06_[ism-1] );
-    EEMUtilsClient::resetHisto( mea07_[ism-1] );
-    EEMUtilsClient::resetHisto( mea08_[ism-1] );
+    UtilsClient::resetHisto( mea01_[ism-1] );
+    UtilsClient::resetHisto( mea02_[ism-1] );
+    UtilsClient::resetHisto( mea03_[ism-1] );
+    UtilsClient::resetHisto( mea04_[ism-1] );
+    UtilsClient::resetHisto( mea05_[ism-1] );
+    UtilsClient::resetHisto( mea06_[ism-1] );
+    UtilsClient::resetHisto( mea07_[ism-1] );
+    UtilsClient::resetHisto( mea08_[ism-1] );
 
-    EEMUtilsClient::resetHisto( met01_[ism-1] );
-    EEMUtilsClient::resetHisto( met02_[ism-1] );
-    EEMUtilsClient::resetHisto( met03_[ism-1] );
-    EEMUtilsClient::resetHisto( met04_[ism-1] );
-    EEMUtilsClient::resetHisto( met05_[ism-1] );
-    EEMUtilsClient::resetHisto( met06_[ism-1] );
-    EEMUtilsClient::resetHisto( met07_[ism-1] );
-    EEMUtilsClient::resetHisto( met08_[ism-1] );
+    UtilsClient::resetHisto( met01_[ism-1] );
+    UtilsClient::resetHisto( met02_[ism-1] );
+    UtilsClient::resetHisto( met03_[ism-1] );
+    UtilsClient::resetHisto( met04_[ism-1] );
+    UtilsClient::resetHisto( met05_[ism-1] );
+    UtilsClient::resetHisto( met06_[ism-1] );
+    UtilsClient::resetHisto( met07_[ism-1] );
+    UtilsClient::resetHisto( met08_[ism-1] );
 
-    EEMUtilsClient::resetHisto( metav01_[ism-1] );
-    EEMUtilsClient::resetHisto( metav02_[ism-1] );
-    EEMUtilsClient::resetHisto( metav03_[ism-1] );
-    EEMUtilsClient::resetHisto( metav04_[ism-1] );
-    EEMUtilsClient::resetHisto( metav05_[ism-1] );
-    EEMUtilsClient::resetHisto( metav06_[ism-1] );
-    EEMUtilsClient::resetHisto( metav07_[ism-1] );
-    EEMUtilsClient::resetHisto( metav08_[ism-1] );
+    UtilsClient::resetHisto( metav01_[ism-1] );
+    UtilsClient::resetHisto( metav02_[ism-1] );
+    UtilsClient::resetHisto( metav03_[ism-1] );
+    UtilsClient::resetHisto( metav04_[ism-1] );
+    UtilsClient::resetHisto( metav05_[ism-1] );
+    UtilsClient::resetHisto( metav06_[ism-1] );
+    UtilsClient::resetHisto( metav07_[ism-1] );
+    UtilsClient::resetHisto( metav08_[ism-1] );
 
-    EEMUtilsClient::resetHisto( metrms01_[ism-1] );
-    EEMUtilsClient::resetHisto( metrms02_[ism-1] );
-    EEMUtilsClient::resetHisto( metrms03_[ism-1] );
-    EEMUtilsClient::resetHisto( metrms04_[ism-1] );
-    EEMUtilsClient::resetHisto( metrms05_[ism-1] );
-    EEMUtilsClient::resetHisto( metrms06_[ism-1] );
-    EEMUtilsClient::resetHisto( metrms07_[ism-1] );
-    EEMUtilsClient::resetHisto( metrms08_[ism-1] );
+    UtilsClient::resetHisto( metrms01_[ism-1] );
+    UtilsClient::resetHisto( metrms02_[ism-1] );
+    UtilsClient::resetHisto( metrms03_[ism-1] );
+    UtilsClient::resetHisto( metrms04_[ism-1] );
+    UtilsClient::resetHisto( metrms05_[ism-1] );
+    UtilsClient::resetHisto( metrms06_[ism-1] );
+    UtilsClient::resetHisto( metrms07_[ism-1] );
+    UtilsClient::resetHisto( metrms08_[ism-1] );
 
-    EEMUtilsClient::resetHisto( meaopn01_[ism-1] );
-    EEMUtilsClient::resetHisto( meaopn02_[ism-1] );
-    EEMUtilsClient::resetHisto( meaopn03_[ism-1] );
-    EEMUtilsClient::resetHisto( meaopn04_[ism-1] );
-    EEMUtilsClient::resetHisto( meaopn05_[ism-1] );
-    EEMUtilsClient::resetHisto( meaopn06_[ism-1] );
-    EEMUtilsClient::resetHisto( meaopn07_[ism-1] );
-    EEMUtilsClient::resetHisto( meaopn08_[ism-1] );
+    UtilsClient::resetHisto( meaopn01_[ism-1] );
+    UtilsClient::resetHisto( meaopn02_[ism-1] );
+    UtilsClient::resetHisto( meaopn03_[ism-1] );
+    UtilsClient::resetHisto( meaopn04_[ism-1] );
+    UtilsClient::resetHisto( meaopn05_[ism-1] );
+    UtilsClient::resetHisto( meaopn06_[ism-1] );
+    UtilsClient::resetHisto( meaopn07_[ism-1] );
+    UtilsClient::resetHisto( meaopn08_[ism-1] );
 
+    UtilsClient::resetHisto( mepnprms01_[ism-1] );
+    UtilsClient::resetHisto( mepnprms02_[ism-1] );
+    UtilsClient::resetHisto( mepnprms03_[ism-1] );
+    UtilsClient::resetHisto( mepnprms04_[ism-1] );
+    UtilsClient::resetHisto( mepnprms05_[ism-1] );
+    UtilsClient::resetHisto( mepnprms06_[ism-1] );
+    UtilsClient::resetHisto( mepnprms07_[ism-1] );
+    UtilsClient::resetHisto( mepnprms08_[ism-1] );
+    
     float meanAmplL1A, meanAmplL2A, meanAmplL3A, meanAmplL4A;
     float meanAmplL1B, meanAmplL2B, meanAmplL3B, meanAmplL4B;
 
@@ -2838,14 +2924,14 @@ void EELaserClient::analyze(void){
         float mean01, mean02, mean03, mean04, mean05, mean06, mean07, mean08;
         float rms01, rms02, rms03, rms04, rms05, rms06, rms07, rms08;
 
-        update01 = EEMUtilsClient::getBinStats(h01_[ism-1], ie, ip, num01, mean01, rms01);
-        update02 = EEMUtilsClient::getBinStats(h03_[ism-1], ie, ip, num02, mean02, rms02);
-        update03 = EEMUtilsClient::getBinStats(h05_[ism-1], ie, ip, num03, mean03, rms03);
-        update04 = EEMUtilsClient::getBinStats(h07_[ism-1], ie, ip, num04, mean04, rms04);
-        update05 = EEMUtilsClient::getBinStats(h13_[ism-1], ie, ip, num05, mean05, rms05);
-        update06 = EEMUtilsClient::getBinStats(h15_[ism-1], ie, ip, num06, mean06, rms06);
-        update07 = EEMUtilsClient::getBinStats(h17_[ism-1], ie, ip, num07, mean07, rms07);
-        update08 = EEMUtilsClient::getBinStats(h19_[ism-1], ie, ip, num08, mean08, rms08);
+        update01 = UtilsClient::getBinStats(h01_[ism-1], ie, ip, num01, mean01, rms01);
+        update02 = UtilsClient::getBinStats(h03_[ism-1], ie, ip, num02, mean02, rms02);
+        update03 = UtilsClient::getBinStats(h05_[ism-1], ie, ip, num03, mean03, rms03);
+        update04 = UtilsClient::getBinStats(h07_[ism-1], ie, ip, num04, mean04, rms04);
+        update05 = UtilsClient::getBinStats(h13_[ism-1], ie, ip, num05, mean05, rms05);
+        update06 = UtilsClient::getBinStats(h15_[ism-1], ie, ip, num06, mean06, rms06);
+        update07 = UtilsClient::getBinStats(h17_[ism-1], ie, ip, num07, mean07, rms07);
+        update08 = UtilsClient::getBinStats(h19_[ism-1], ie, ip, num08, mean08, rms08);
 
         if ( update01 ) {
           meanAmplL1A += mean01;
@@ -2927,43 +3013,45 @@ void EELaserClient::analyze(void){
         float rms01, rms02, rms03, rms04, rms05, rms06, rms07, rms08;
         float rms09, rms10, rms11, rms12;
 
-        update01 = EEMUtilsClient::getBinStats(h01_[ism-1], ie, ip, num01, mean01, rms01);
-        update02 = EEMUtilsClient::getBinStats(h02_[ism-1], ie, ip, num02, mean02, rms02);
-        update03 = EEMUtilsClient::getBinStats(h03_[ism-1], ie, ip, num03, mean03, rms03);
-        update04 = EEMUtilsClient::getBinStats(h04_[ism-1], ie, ip, num04, mean04, rms04);
-        update05 = EEMUtilsClient::getBinStats(h05_[ism-1], ie, ip, num05, mean05, rms05);
-        update06 = EEMUtilsClient::getBinStats(h06_[ism-1], ie, ip, num06, mean06, rms06);
-        update07 = EEMUtilsClient::getBinStats(h07_[ism-1], ie, ip, num07, mean07, rms07);
-        update08 = EEMUtilsClient::getBinStats(h08_[ism-1], ie, ip, num08, mean08, rms08);
-        update09 = EEMUtilsClient::getBinStats(h09_[ism-1], ie, ip, num09, mean09, rms09);
-        update10 = EEMUtilsClient::getBinStats(h10_[ism-1], ie, ip, num10, mean10, rms10);
-        update11 = EEMUtilsClient::getBinStats(h11_[ism-1], ie, ip, num11, mean11, rms11);
-        update12 = EEMUtilsClient::getBinStats(h12_[ism-1], ie, ip, num12, mean12, rms12);
-
+        update01 = UtilsClient::getBinStats(h01_[ism-1], ie, ip, num01, mean01, rms01);
+        update02 = UtilsClient::getBinStats(h02_[ism-1], ie, ip, num02, mean02, rms02);
+        update03 = UtilsClient::getBinStats(h03_[ism-1], ie, ip, num03, mean03, rms03);
+        update04 = UtilsClient::getBinStats(h04_[ism-1], ie, ip, num04, mean04, rms04);
+        update05 = UtilsClient::getBinStats(h05_[ism-1], ie, ip, num05, mean05, rms05);
+        update06 = UtilsClient::getBinStats(h06_[ism-1], ie, ip, num06, mean06, rms06);
+        update07 = UtilsClient::getBinStats(h07_[ism-1], ie, ip, num07, mean07, rms07);
+        update08 = UtilsClient::getBinStats(h08_[ism-1], ie, ip, num08, mean08, rms08);
+        update09 = UtilsClient::getBinStats(h09_[ism-1], ie, ip, num09, mean09, rms09);
+        update10 = UtilsClient::getBinStats(h10_[ism-1], ie, ip, num10, mean10, rms10);
+        update11 = UtilsClient::getBinStats(h11_[ism-1], ie, ip, num11, mean11, rms11);
+        update12 = UtilsClient::getBinStats(h12_[ism-1], ie, ip, num12, mean12, rms12);
+	
+         // other SM half
+	
         if ( ! update01 )
-          update01 = EEMUtilsClient::getBinStats(h13_[ism-1], ie, ip, num01, mean01, rms01);
+          update01 = UtilsClient::getBinStats(h13_[ism-1], ie, ip, num01, mean01, rms01);
         if ( ! update02 )
-          update02 = EEMUtilsClient::getBinStats(h14_[ism-1], ie, ip, num02, mean02, rms02);
+          update02 = UtilsClient::getBinStats(h14_[ism-1], ie, ip, num02, mean02, rms02);
         if ( ! update03 )
-          update03 = EEMUtilsClient::getBinStats(h15_[ism-1], ie, ip, num03, mean03, rms03);
+          update03 = UtilsClient::getBinStats(h15_[ism-1], ie, ip, num03, mean03, rms03);
         if ( ! update04 )
-          update04 = EEMUtilsClient::getBinStats(h16_[ism-1], ie, ip, num04, mean04, rms04);
+          update04 = UtilsClient::getBinStats(h16_[ism-1], ie, ip, num04, mean04, rms04);
         if ( ! update05 )
-          update05 = EEMUtilsClient::getBinStats(h17_[ism-1], ie, ip, num05, mean05, rms05);
+          update05 = UtilsClient::getBinStats(h17_[ism-1], ie, ip, num05, mean05, rms05);
         if ( ! update06 )
-          update06 = EEMUtilsClient::getBinStats(h18_[ism-1], ie, ip, num06, mean06, rms06);
+          update06 = UtilsClient::getBinStats(h18_[ism-1], ie, ip, num06, mean06, rms06);
         if ( ! update07 )
-          update07 = EEMUtilsClient::getBinStats(h19_[ism-1], ie, ip, num07, mean07, rms07);
+          update07 = UtilsClient::getBinStats(h19_[ism-1], ie, ip, num07, mean07, rms07);
         if ( ! update08 )
-          update08 = EEMUtilsClient::getBinStats(h20_[ism-1], ie, ip, num08, mean08, rms08);
+          update08 = UtilsClient::getBinStats(h20_[ism-1], ie, ip, num08, mean08, rms08);
         if ( ! update09 )
-          update09 = EEMUtilsClient::getBinStats(h21_[ism-1], ie, ip, num09, mean09, rms09);
+          update09 = UtilsClient::getBinStats(h21_[ism-1], ie, ip, num09, mean09, rms09);
         if ( ! update10 )
-          update10 = EEMUtilsClient::getBinStats(h22_[ism-1], ie, ip, num10, mean10, rms10);
+          update10 = UtilsClient::getBinStats(h22_[ism-1], ie, ip, num10, mean10, rms10);
         if ( ! update11 )
-          update11 = EEMUtilsClient::getBinStats(h23_[ism-1], ie, ip, num11, mean11, rms11);
+          update11 = UtilsClient::getBinStats(h23_[ism-1], ie, ip, num11, mean11, rms11);
         if ( ! update12 )
-          update12 = EEMUtilsClient::getBinStats(h24_[ism-1], ie, ip, num12, mean12, rms12);
+          update12 = UtilsClient::getBinStats(h24_[ism-1], ie, ip, num12, mean12, rms12);
 
         if ( update01 ) {
 
@@ -3401,7 +3489,7 @@ void EELaserClient::analyze(void){
 
             int ic = (ip-1) + 20*(ie-1) + 1;
 
-            if ( ecid.getID1() == ism && ecid.getID2() == ic ) {
+            if ( ecid.getID1() == Numbers::iSM(ism) && ecid.getID2() == ic ) {
               if ( (m->second).getErrorBits() & bits01 ) {
                 if ( meg01_[ism-1] ) {
                   float val = int(meg01_[ism-1]->getBinContent(ie, ip)) % 3;
@@ -3463,22 +3551,22 @@ void EELaserClient::analyze(void){
       float rms01, rms02, rms03, rms04, rms05, rms06, rms07, rms08;
       float rms09, rms10, rms11, rms12, rms13, rms14, rms15, rms16;
 
-      update01 = EEMUtilsClient::getBinStats(i01_[ism-1], 1, i, num01, mean01, rms01);
-      update02 = EEMUtilsClient::getBinStats(i02_[ism-1], 1, i, num02, mean02, rms02);
-      update03 = EEMUtilsClient::getBinStats(i03_[ism-1], 1, i, num03, mean03, rms03);
-      update04 = EEMUtilsClient::getBinStats(i04_[ism-1], 1, i, num04, mean04, rms04);
-      update05 = EEMUtilsClient::getBinStats(i05_[ism-1], 1, i, num05, mean05, rms05);
-      update06 = EEMUtilsClient::getBinStats(i06_[ism-1], 1, i, num06, mean06, rms06);
-      update07 = EEMUtilsClient::getBinStats(i07_[ism-1], 1, i, num07, mean07, rms07);
-      update08 = EEMUtilsClient::getBinStats(i08_[ism-1], 1, i, num08, mean08, rms08);
-      update09 = EEMUtilsClient::getBinStats(i09_[ism-1], 1, i, num09, mean09, rms09);
-      update10 = EEMUtilsClient::getBinStats(i10_[ism-1], 1, i, num10, mean10, rms10);
-      update11 = EEMUtilsClient::getBinStats(i11_[ism-1], 1, i, num11, mean11, rms11);
-      update12 = EEMUtilsClient::getBinStats(i12_[ism-1], 1, i, num12, mean12, rms12);
-      update13 = EEMUtilsClient::getBinStats(i13_[ism-1], 1, i, num13, mean13, rms13);
-      update14 = EEMUtilsClient::getBinStats(i14_[ism-1], 1, i, num14, mean14, rms14);
-      update15 = EEMUtilsClient::getBinStats(i15_[ism-1], 1, i, num15, mean15, rms15);
-      update16 = EEMUtilsClient::getBinStats(i16_[ism-1], 1, i, num16, mean16, rms16);
+      update01 = UtilsClient::getBinStats(i01_[ism-1], 1, i, num01, mean01, rms01);
+      update02 = UtilsClient::getBinStats(i02_[ism-1], 1, i, num02, mean02, rms02);
+      update03 = UtilsClient::getBinStats(i03_[ism-1], 1, i, num03, mean03, rms03);
+      update04 = UtilsClient::getBinStats(i04_[ism-1], 1, i, num04, mean04, rms04);
+      update05 = UtilsClient::getBinStats(i05_[ism-1], 1, i, num05, mean05, rms05);
+      update06 = UtilsClient::getBinStats(i06_[ism-1], 1, i, num06, mean06, rms06);
+      update07 = UtilsClient::getBinStats(i07_[ism-1], 1, i, num07, mean07, rms07);
+      update08 = UtilsClient::getBinStats(i08_[ism-1], 1, i, num08, mean08, rms08);
+      update09 = UtilsClient::getBinStats(i09_[ism-1], 1, i, num09, mean09, rms09);
+      update10 = UtilsClient::getBinStats(i10_[ism-1], 1, i, num10, mean10, rms10);
+      update11 = UtilsClient::getBinStats(i11_[ism-1], 1, i, num11, mean11, rms11);
+      update12 = UtilsClient::getBinStats(i12_[ism-1], 1, i, num12, mean12, rms12);
+      update13 = UtilsClient::getBinStats(i13_[ism-1], 1, i, num13, mean13, rms13);
+      update14 = UtilsClient::getBinStats(i14_[ism-1], 1, i, num14, mean14, rms14);
+      update15 = UtilsClient::getBinStats(i15_[ism-1], 1, i, num15, mean15, rms15);
+      update16 = UtilsClient::getBinStats(i16_[ism-1], 1, i, num16, mean16, rms16);
 
       if ( update01 && update05 ) {
 
@@ -3487,9 +3575,14 @@ void EELaserClient::analyze(void){
         val = 1.;
         if ( mean01 < amplitudeThresholdPnG01_ )
           val = 0.;
-        if ( mean05 < pedestalThresholdPn_ )
+        if ( mean05 <  pedPnExpectedMean_[0] - pedPnDiscrepancyMean_[0] ||
+	     pedPnExpectedMean_[0] + pedPnDiscrepancyMean_[0] < mean05)
           val = 0.;
+        if ( rms05 > pedPnRMSThreshold_[0] )
+          val = 0.;
+
         if ( meg05_[ism-1] ) meg05_[ism-1]->setBinContent(i, 1, val);
+        if ( mepnprms01_[ism-1] ) mepnprms01_[ism-1]->Fill(rms05);
 
       }
 
@@ -3500,9 +3593,14 @@ void EELaserClient::analyze(void){
         val = 1.;
         if ( mean02 < amplitudeThresholdPnG01_ )
           val = 0.;
-        if ( mean06 < pedestalThresholdPn_ )
+        if ( mean06 <  pedPnExpectedMean_[0] - pedPnDiscrepancyMean_[0] ||
+	     pedPnExpectedMean_[0] + pedPnDiscrepancyMean_[0] < mean06)
           val = 0.;
-        if ( meg06_[ism-1] ) meg06_[ism-1]->setBinContent(i, 1, val);
+        if ( rms06 > pedPnRMSThreshold_[0] )
+          val = 0.;
+
+        if ( meg06_[ism-1] )           meg06_[ism-1]->setBinContent(i, 1, val);
+        if ( mepnprms02_[ism-1] ) mepnprms02_[ism-1]->Fill(rms06);
 
       }
 
@@ -3513,9 +3611,14 @@ void EELaserClient::analyze(void){
         val = 1.;
         if ( mean03 < amplitudeThresholdPnG01_ )
           val = 0.;
-        if ( mean07 < pedestalThresholdPn_ )
+      if ( mean07 <  pedPnExpectedMean_[0] - pedPnDiscrepancyMean_[0] ||
+	   pedPnExpectedMean_[0] + pedPnDiscrepancyMean_[0] < mean07)
           val = 0.;
-        if ( meg07_[ism-1] ) meg07_[ism-1]->setBinContent(i, 1, val);
+      if ( rms07 > pedPnRMSThreshold_[0] )
+          val = 0.;
+
+      if ( meg07_[ism-1] )           meg07_[ism-1]->setBinContent(i, 1, val);
+      if ( mepnprms03_[ism-1] ) mepnprms03_[ism-1]->Fill(rms07);
 
       }
 
@@ -3526,12 +3629,17 @@ void EELaserClient::analyze(void){
         val = 1.;
         if ( mean04 < amplitudeThresholdPnG01_ )
           val = 0.;
-        if ( mean08 < pedestalThresholdPn_ )
-          val = 0.;
-        if ( meg08_[ism-1] ) meg08_[ism-1]->setBinContent(i, 1, val);
-
+       if ( mean08 <  pedPnExpectedMean_[0] - pedPnDiscrepancyMean_[0] ||
+	    pedPnExpectedMean_[0] + pedPnDiscrepancyMean_[0] < mean08)
+           val = 0.;
+       if ( rms08 > pedPnRMSThreshold_[0] )
+           val = 0.;
+       
+       if ( meg08_[ism-1] )           meg08_[ism-1]->setBinContent(i, 1, val);
+       if ( mepnprms04_[ism-1] ) mepnprms04_[ism-1]->Fill(rms08);
+       
       }
-
+      
       if ( update09 && update13 ) {
 
         float val;
@@ -3539,9 +3647,14 @@ void EELaserClient::analyze(void){
         val = 1.;
         if ( mean09 < amplitudeThresholdPnG16_ )
           val = 0.;
-        if ( mean13 < pedestalThresholdPn_ )
+        if ( mean13 <  pedPnExpectedMean_[1] - pedPnDiscrepancyMean_[1] ||
+	     pedPnExpectedMean_[1] + pedPnDiscrepancyMean_[1] < mean13)
           val = 0.;
-        if ( meg09_[ism-1] ) meg09_[ism-1]->setBinContent(i, 1, val);
+        if ( rms13 > pedPnRMSThreshold_[1] )
+          val = 0.;
+	
+        if ( meg09_[ism-1] )           meg09_[ism-1]->setBinContent(i, 1, val);
+        if ( mepnprms05_[ism-1] ) mepnprms05_[ism-1]->Fill(rms13);
 
       }
 
@@ -3552,10 +3665,16 @@ void EELaserClient::analyze(void){
         val = 1.;
         if ( mean10 < amplitudeThresholdPnG16_ )
           val = 0.;
-        if ( mean14 < pedestalThresholdPn_ )
+	//        if ( mean14 < pedestalThresholdPn_ )
+       if ( mean14 <  pedPnExpectedMean_[1] - pedPnDiscrepancyMean_[1] ||
+	    pedPnExpectedMean_[1] + pedPnDiscrepancyMean_[1] < mean14)
+           val = 0.;
+       if ( rms14 > pedPnRMSThreshold_[1] )
           val = 0.;
-        if ( meg10_[ism-1] ) meg10_[ism-1]->setBinContent(i, 1, val);
-
+       
+       if ( meg10_[ism-1] )           meg10_[ism-1]->setBinContent(i, 1, val);
+       if ( mepnprms06_[ism-1] ) mepnprms06_[ism-1]->Fill(rms14);
+       
       }
 
       if ( update11 && update15 ) {
@@ -3565,9 +3684,15 @@ void EELaserClient::analyze(void){
         val = 1.;
         if ( mean11 < amplitudeThresholdPnG16_ )
           val = 0.;
-        if ( mean15 < pedestalThresholdPn_ )
+	//        if ( mean15 < pedestalThresholdPn_ )
+        if ( mean15 <  pedPnExpectedMean_[1] - pedPnDiscrepancyMean_[1] ||
+	     pedPnExpectedMean_[1] + pedPnDiscrepancyMean_[1] < mean15)
           val = 0.;
+        if ( rms15 > pedPnRMSThreshold_[1] )
+          val = 0.;
+
         if ( meg11_[ism-1] ) meg11_[ism-1]->setBinContent(i, 1, val);
+        if ( mepnprms07_[ism-1] ) mepnprms07_[ism-1]->Fill(rms15);
 
       }
 
@@ -3578,9 +3703,15 @@ void EELaserClient::analyze(void){
         val = 1.;
         if ( mean12 < amplitudeThresholdPnG16_ )
           val = 0.;
-        if ( mean16 < pedestalThresholdPn_ )
+	//        if ( mean16 < pedestalThresholdPn_ )
+        if ( mean16 <  pedPnExpectedMean_[1] - pedPnDiscrepancyMean_[1] ||
+  	              pedPnExpectedMean_[1] + pedPnDiscrepancyMean_[1] < mean16)
           val = 0.;
+        if ( rms16 > pedPnRMSThreshold_[1] )
+          val = 0.;
+
         if ( meg12_[ism-1] ) meg12_[ism-1]->setBinContent(i, 1, val);
+        if ( mepnprms08_[ism-1] ) mepnprms08_[ism-1]->Fill(rms16);
 
       }
 
@@ -3592,7 +3723,7 @@ void EELaserClient::analyze(void){
 
           EcalLogicID ecid = m->first;
 
-          if ( ecid.getID1() == ism && ecid.getID2() == i-1 ) {
+          if ( ecid.getID1() == Numbers::iSM(ism) && ecid.getID2() == i-1 ) {
             if ( (m->second).getErrorBits() & (bits01|bits02) ) {
               if ( meg05_[ism-1] ) {
                 float val = int(meg05_[ism-1]->getBinContent(i, 1)) % 3;
@@ -3772,7 +3903,8 @@ void EELaserClient::htmlOutput(int run, string htmlDir, string htmlName){
   htmlFile << "<br>" << endl;
   htmlFile << "<table border=1>" << std::endl;
   for ( unsigned int i=0; i<superModules_.size(); i ++ ) {
-    htmlFile << "<td bgcolor=white><a href=""#" << superModules_[i] << ">"
+    htmlFile << "<td bgcolor=white><a href=""#"
+	     << Numbers::sEE(superModules_[i]).c_str() << ">"
              << setfill( '0' ) << setw(2) << superModules_[i] << "</a></td>";
   }
   htmlFile << std::endl << "</table>" << std::endl;
@@ -3802,8 +3934,8 @@ void EELaserClient::htmlOutput(int run, string htmlDir, string htmlName){
   }
   dummy1.SetMarkerSize(2);
   dummy1.SetMinimum(0.1);
-
-  string imgNameQual[8], imgNameAmp[8], imgNameTim[8], imgNameTimav[8], imgNameTimrms[8], imgNameShape[8], imgNameAmpoPN[8], imgNameMEPnQualG01[8], imgNameMEPnG01[8], imgNameMEPnPedG01[8], imgNameMEPnQualG16[8], imgNameMEPnG16[8], imgNameMEPnPedG16[8], imgName, meName;
+  
+  string imgNameQual[8], imgNameAmp[8], imgNameTim[8], imgNameTimav[8], imgNameTimrms[8], imgNameShape[8], imgNameAmpoPN[8], imgNameMEPnQualG01[8], imgNameMEPnG01[8], imgNameMEPnPedG01[8], imgNameMEPnRmsPedG01[8], imgNameMEPnQualG16[8], imgNameMEPnG16[8], imgNameMEPnPedG16[8], imgNameMEPnRmsPedG16[8], imgName, meName;
 
   TCanvas* cQual   = new TCanvas("cQual", "Temp", 2*csize, csize);
   TCanvas* cAmp    = new TCanvas("cAmp", "Temp", csize, csize);
@@ -3839,16 +3971,16 @@ void EELaserClient::htmlOutput(int run, string htmlDir, string htmlName){
       obj2f = 0;
       switch ( iCanvas ) {
         case 1:
-          obj2f = EEMUtilsClient::getHisto<TH2F*>( meg01_[ism-1] );
+          obj2f = UtilsClient::getHisto<TH2F*>( meg01_[ism-1] );
           break;
         case 2:
-          obj2f = EEMUtilsClient::getHisto<TH2F*>( meg02_[ism-1] );
+          obj2f = UtilsClient::getHisto<TH2F*>( meg02_[ism-1] );
           break;
         case 3:
-          obj2f = EEMUtilsClient::getHisto<TH2F*>( meg03_[ism-1] );
+          obj2f = UtilsClient::getHisto<TH2F*>( meg03_[ism-1] );
           break;
         case 4:
-          obj2f = EEMUtilsClient::getHisto<TH2F*>( meg04_[ism-1] );
+          obj2f = UtilsClient::getHisto<TH2F*>( meg04_[ism-1] );
           break;
         case 5:
         case 6:
@@ -3895,28 +4027,28 @@ void EELaserClient::htmlOutput(int run, string htmlDir, string htmlName){
       obj1f = 0;
       switch ( iCanvas ) {
         case 1:
-          obj1f = EEMUtilsClient::getHisto<TH1F*>( mea01_[ism-1] );
+          obj1f = UtilsClient::getHisto<TH1F*>( mea01_[ism-1] );
           break;
         case 2:
-          obj1f = EEMUtilsClient::getHisto<TH1F*>( mea02_[ism-1] );
+          obj1f = UtilsClient::getHisto<TH1F*>( mea02_[ism-1] );
           break;
         case 3:
-          obj1f = EEMUtilsClient::getHisto<TH1F*>( mea03_[ism-1] );
+          obj1f = UtilsClient::getHisto<TH1F*>( mea03_[ism-1] );
           break;
         case 4:
-          obj1f = EEMUtilsClient::getHisto<TH1F*>( mea04_[ism-1] );
+          obj1f = UtilsClient::getHisto<TH1F*>( mea04_[ism-1] );
           break;
         case 5:
-          obj1f = EEMUtilsClient::getHisto<TH1F*>( mea05_[ism-1] );
+          obj1f = UtilsClient::getHisto<TH1F*>( mea05_[ism-1] );
           break;
         case 6:
-          obj1f = EEMUtilsClient::getHisto<TH1F*>( mea06_[ism-1] );
+          obj1f = UtilsClient::getHisto<TH1F*>( mea06_[ism-1] );
           break;
         case 7:
-          obj1f = EEMUtilsClient::getHisto<TH1F*>( mea07_[ism-1] );
+          obj1f = UtilsClient::getHisto<TH1F*>( mea07_[ism-1] );
           break;
         case 8:
-          obj1f = EEMUtilsClient::getHisto<TH1F*>( mea08_[ism-1] );
+          obj1f = UtilsClient::getHisto<TH1F*>( mea08_[ism-1] );
           break;
         default:
           break;
@@ -3957,28 +4089,28 @@ void EELaserClient::htmlOutput(int run, string htmlDir, string htmlName){
       obj1f = 0;
       switch ( iCanvas ) {
         case 1:
-          obj1f = EEMUtilsClient::getHisto<TH1F*>( met01_[ism-1] );
+          obj1f = UtilsClient::getHisto<TH1F*>( met01_[ism-1] );
           break;
         case 2:
-          obj1f = EEMUtilsClient::getHisto<TH1F*>( met02_[ism-1] );
+          obj1f = UtilsClient::getHisto<TH1F*>( met02_[ism-1] );
           break;
         case 3:
-          obj1f = EEMUtilsClient::getHisto<TH1F*>( met03_[ism-1] );
+          obj1f = UtilsClient::getHisto<TH1F*>( met03_[ism-1] );
           break;
         case 4:
-          obj1f = EEMUtilsClient::getHisto<TH1F*>( met04_[ism-1] );
+          obj1f = UtilsClient::getHisto<TH1F*>( met04_[ism-1] );
           break;
         case 5:
-          obj1f = EEMUtilsClient::getHisto<TH1F*>( met05_[ism-1] );
+          obj1f = UtilsClient::getHisto<TH1F*>( met05_[ism-1] );
           break;
         case 6:
-          obj1f = EEMUtilsClient::getHisto<TH1F*>( met06_[ism-1] );
+          obj1f = UtilsClient::getHisto<TH1F*>( met06_[ism-1] );
           break;
         case 7:
-          obj1f = EEMUtilsClient::getHisto<TH1F*>( met07_[ism-1] );
+          obj1f = UtilsClient::getHisto<TH1F*>( met07_[ism-1] );
           break;
         case 8:
-          obj1f = EEMUtilsClient::getHisto<TH1F*>( met08_[ism-1] );
+          obj1f = UtilsClient::getHisto<TH1F*>( met08_[ism-1] );
           break;
         default:
           break;
@@ -4015,28 +4147,28 @@ void EELaserClient::htmlOutput(int run, string htmlDir, string htmlName){
       obj1f = 0;
       switch ( iCanvas ) {
         case 1:
-          obj1f = EEMUtilsClient::getHisto<TH1F*>( metav01_[ism-1] );
+          obj1f = UtilsClient::getHisto<TH1F*>( metav01_[ism-1] );
           break;
         case 2:
-          obj1f = EEMUtilsClient::getHisto<TH1F*>( metav02_[ism-1] );
+          obj1f = UtilsClient::getHisto<TH1F*>( metav02_[ism-1] );
           break;
         case 3:
-          obj1f = EEMUtilsClient::getHisto<TH1F*>( metav03_[ism-1] );
+          obj1f = UtilsClient::getHisto<TH1F*>( metav03_[ism-1] );
           break;
         case 4:
-          obj1f = EEMUtilsClient::getHisto<TH1F*>( metav04_[ism-1] );
+          obj1f = UtilsClient::getHisto<TH1F*>( metav04_[ism-1] );
           break;
         case 5:
-          obj1f = EEMUtilsClient::getHisto<TH1F*>( metav05_[ism-1] );
+          obj1f = UtilsClient::getHisto<TH1F*>( metav05_[ism-1] );
           break;
         case 6:
-          obj1f = EEMUtilsClient::getHisto<TH1F*>( metav06_[ism-1] );
+          obj1f = UtilsClient::getHisto<TH1F*>( metav06_[ism-1] );
           break;
         case 7:
-          obj1f = EEMUtilsClient::getHisto<TH1F*>( metav07_[ism-1] );
+          obj1f = UtilsClient::getHisto<TH1F*>( metav07_[ism-1] );
           break;
         case 8:
-          obj1f = EEMUtilsClient::getHisto<TH1F*>( metav08_[ism-1] );
+          obj1f = UtilsClient::getHisto<TH1F*>( metav08_[ism-1] );
           break;
         default:
           break;
@@ -4057,6 +4189,7 @@ void EELaserClient::htmlOutput(int run, string htmlDir, string htmlName){
         cTimav->cd();
         gStyle->SetOptStat("euomr");
         obj1f->SetStats(kTRUE);
+        gPad->SetLogy(1);
         obj1f->Draw();
         cTimav->Update();
         cTimav->SaveAs(imgName.c_str());
@@ -4071,28 +4204,28 @@ void EELaserClient::htmlOutput(int run, string htmlDir, string htmlName){
       obj1f = 0;
       switch ( iCanvas ) {
         case 1:
-          obj1f = EEMUtilsClient::getHisto<TH1F*>( metrms01_[ism-1] );
+          obj1f = UtilsClient::getHisto<TH1F*>( metrms01_[ism-1] );
           break;
         case 2:
-          obj1f = EEMUtilsClient::getHisto<TH1F*>( metrms02_[ism-1] );
+          obj1f = UtilsClient::getHisto<TH1F*>( metrms02_[ism-1] );
           break;
         case 3:
-          obj1f = EEMUtilsClient::getHisto<TH1F*>( metrms03_[ism-1] );
+          obj1f = UtilsClient::getHisto<TH1F*>( metrms03_[ism-1] );
           break;
         case 4:
-          obj1f = EEMUtilsClient::getHisto<TH1F*>( metrms04_[ism-1] );
+          obj1f = UtilsClient::getHisto<TH1F*>( metrms04_[ism-1] );
           break;
         case 5:
-          obj1f = EEMUtilsClient::getHisto<TH1F*>( metrms05_[ism-1] );
+          obj1f = UtilsClient::getHisto<TH1F*>( metrms05_[ism-1] );
           break;
         case 6:
-          obj1f = EEMUtilsClient::getHisto<TH1F*>( metrms06_[ism-1] );
+          obj1f = UtilsClient::getHisto<TH1F*>( metrms06_[ism-1] );
           break;
         case 7:
-          obj1f = EEMUtilsClient::getHisto<TH1F*>( metrms07_[ism-1] );
+          obj1f = UtilsClient::getHisto<TH1F*>( metrms07_[ism-1] );
           break;
         case 8:
-          obj1f = EEMUtilsClient::getHisto<TH1F*>( metrms08_[ism-1] );
+          obj1f = UtilsClient::getHisto<TH1F*>( metrms08_[ism-1] );
           break;
         default:
           break;
@@ -4113,6 +4246,7 @@ void EELaserClient::htmlOutput(int run, string htmlDir, string htmlName){
         cTimrms->cd();
         gStyle->SetOptStat("euomr");
         obj1f->SetStats(kTRUE);
+        gPad->SetLogy(1);
         obj1f->Draw();
         cTimrms->Update();
         cTimrms->SaveAs(imgName.c_str());
@@ -4189,28 +4323,28 @@ void EELaserClient::htmlOutput(int run, string htmlDir, string htmlName){
       obj1f = 0;
       switch ( iCanvas ) {
         case 1:
-          obj1f = EEMUtilsClient::getHisto<TH1F*>( meaopn01_[ism-1] );
+          obj1f = UtilsClient::getHisto<TH1F*>( meaopn01_[ism-1] );
           break;
         case 2:
-          obj1f = EEMUtilsClient::getHisto<TH1F*>( meaopn02_[ism-1] );
+          obj1f = UtilsClient::getHisto<TH1F*>( meaopn02_[ism-1] );
           break;
         case 3:
-          obj1f = EEMUtilsClient::getHisto<TH1F*>( meaopn03_[ism-1] );
+          obj1f = UtilsClient::getHisto<TH1F*>( meaopn03_[ism-1] );
           break;
         case 4:
-          obj1f = EEMUtilsClient::getHisto<TH1F*>( meaopn04_[ism-1] );
+          obj1f = UtilsClient::getHisto<TH1F*>( meaopn04_[ism-1] );
           break;
         case 5:
-          obj1f = EEMUtilsClient::getHisto<TH1F*>( meaopn05_[ism-1] );
+          obj1f = UtilsClient::getHisto<TH1F*>( meaopn05_[ism-1] );
           break;
         case 6:
-          obj1f = EEMUtilsClient::getHisto<TH1F*>( meaopn06_[ism-1] );
+          obj1f = UtilsClient::getHisto<TH1F*>( meaopn06_[ism-1] );
           break;
         case 7:
-          obj1f = EEMUtilsClient::getHisto<TH1F*>( meaopn07_[ism-1] );
+          obj1f = UtilsClient::getHisto<TH1F*>( meaopn07_[ism-1] );
           break;
         case 8:
-          obj1f = EEMUtilsClient::getHisto<TH1F*>( meaopn08_[ism-1] );
+          obj1f = UtilsClient::getHisto<TH1F*>( meaopn08_[ism-1] );
           break;
         default:
           break;
@@ -4252,16 +4386,16 @@ void EELaserClient::htmlOutput(int run, string htmlDir, string htmlName){
       obj2f = 0;
       switch ( iCanvas ) {
       case 1:
-        obj2f = EEMUtilsClient::getHisto<TH2F*>( meg05_[ism-1] );
+        obj2f = UtilsClient::getHisto<TH2F*>( meg05_[ism-1] );
         break;
       case 2:
-        obj2f = EEMUtilsClient::getHisto<TH2F*>( meg06_[ism-1] );
+        obj2f = UtilsClient::getHisto<TH2F*>( meg06_[ism-1] );
         break;
       case 3:
-        obj2f = EEMUtilsClient::getHisto<TH2F*>( meg07_[ism-1] );
+        obj2f = UtilsClient::getHisto<TH2F*>( meg07_[ism-1] );
         break;
       case 4:
-        obj2f = EEMUtilsClient::getHisto<TH2F*>( meg08_[ism-1] );
+        obj2f = UtilsClient::getHisto<TH2F*>( meg08_[ism-1] );
         break;
         case 5:
         case 6:
@@ -4306,16 +4440,16 @@ void EELaserClient::htmlOutput(int run, string htmlDir, string htmlName){
       obj2f = 0;
       switch ( iCanvas ) {
       case 1:
-        obj2f = EEMUtilsClient::getHisto<TH2F*>( meg09_[ism-1] );
+        obj2f = UtilsClient::getHisto<TH2F*>( meg09_[ism-1] );
         break;
       case 2:
-        obj2f = EEMUtilsClient::getHisto<TH2F*>( meg10_[ism-1] );
+        obj2f = UtilsClient::getHisto<TH2F*>( meg10_[ism-1] );
         break;
       case 3:
-        obj2f = EEMUtilsClient::getHisto<TH2F*>( meg11_[ism-1] );
+        obj2f = UtilsClient::getHisto<TH2F*>( meg11_[ism-1] );
         break;
       case 4:
-        obj2f = EEMUtilsClient::getHisto<TH2F*>( meg12_[ism-1] );
+        obj2f = UtilsClient::getHisto<TH2F*>( meg12_[ism-1] );
         break;
         case 5:
         case 6:
@@ -4524,37 +4658,147 @@ void EELaserClient::htmlOutput(int run, string htmlDir, string htmlName){
         delete obj1d;
 
       }
+      
+      
+      imgNameMEPnRmsPedG01[iCanvas-1] = "";
+      
+      obj1f = 0;
+      switch ( iCanvas ) {
+      case 1:
+	if ( mepnprms01_[ism-1] ) obj1f =  UtilsClient::getHisto<TH1F*>(mepnprms01_[ism-1]);
+	break;
+      case 2:
+	if ( mepnprms02_[ism-1] ) obj1f =  UtilsClient::getHisto<TH1F*>(mepnprms02_[ism-1]);
+	break;
+      case 3:
+	if ( mepnprms03_[ism-1] ) obj1f =  UtilsClient::getHisto<TH1F*>(mepnprms03_[ism-1]);
+	break;
+      case 4:
+	if ( mepnprms04_[ism-1] ) obj1f =  UtilsClient::getHisto<TH1F*>(mepnprms04_[ism-1]);
+	break;
+      case 5:
+      case 6:
+      case 7:
+      case 8:
+	obj2f = 0;
+	break;
+      default:
+	break;
+      }
+      
+      if ( obj1f ) {
+  	
+	meName = obj1f->GetName();
+  	
+	for ( unsigned int i = 0; i < meName.size(); i++ ) {
+	  if ( meName.substr(i, 1) == " " )  {
+	    meName.replace(i, 1 ,"_" );
+	  }
+	}
+	imgNameMEPnRmsPedG01[iCanvas-1] = meName + ".png";
+	imgName = htmlDir + imgNameMEPnRmsPedG01[iCanvas-1];
+  	
+	cPed->cd();
+	gStyle->SetOptStat("euomr");
+	obj1f->SetStats(kTRUE);
+	//        if ( obj1f->GetMaximum(histMax) > 0. ) {
+	//          gPad->SetLogy(1);
+	//        } else {
+	//          gPad->SetLogy(0);
+	//        }
+	obj1f->SetMinimum(0.0);
+	obj1f->Draw();
+	cPed->Update();
+	cPed->SaveAs(imgName.c_str());
+	gPad->SetLogy(0);
 
+      }
+      
+      
+      imgNameMEPnRmsPedG16[iCanvas-1] = "";
+      
+      obj1f = 0;
+      switch ( iCanvas ) {
+      case 1:
+	if ( mepnprms05_[ism-1] ) obj1f =  UtilsClient::getHisto<TH1F*>(mepnprms05_[ism-1]);
+	break;
+      case 2:
+	if ( mepnprms06_[ism-1] ) obj1f =  UtilsClient::getHisto<TH1F*>(mepnprms06_[ism-1]);
+	break;
+      case 3:
+	if ( mepnprms07_[ism-1] ) obj1f =  UtilsClient::getHisto<TH1F*>(mepnprms07_[ism-1]);
+	break;
+      case 4:
+	if ( mepnprms08_[ism-1] ) obj1f =  UtilsClient::getHisto<TH1F*>(mepnprms08_[ism-1]);
+	break;
+      case 5:
+      case 6:
+      case 7:
+      case 8:
+	obj2f = 0;
+	break;
+      default:
+	break;
+      }
+      
+      if ( obj1f ) {
+  	
+	meName = obj1f->GetName();
+  	
+	for ( unsigned int i = 0; i < meName.size(); i++ ) {
+	  if ( meName.substr(i, 1) == " " )  {
+	    meName.replace(i, 1 ,"_" );
+	  }
+	}
+	imgNameMEPnRmsPedG16[iCanvas-1] = meName + ".png";
+	imgName = htmlDir + imgNameMEPnRmsPedG16[iCanvas-1];
+  	
+	cPed->cd();
+	gStyle->SetOptStat("euomr");
+	obj1f->SetStats(kTRUE);
+	//        if ( obj1f->GetMaximum(histMax) > 0. ) {
+	//          gPad->SetLogy(1);
+	//        } else {
+	//          gPad->SetLogy(0);
+	//        }
+	obj1f->SetMinimum(0.0);
+	obj1f->Draw();
+	cPed->Update();
+	cPed->SaveAs(imgName.c_str());
+	gPad->SetLogy(0);
+  	
+      }
+      
       imgNameMEPnPedG16[iCanvas-1] = "";
-
+      
       obj1d = 0;
       switch ( iCanvas ) {
-        case 1:
-          if ( i13_[ism-1] ) obj1d = i13_[ism-1]->ProjectionY("_py", 1, 1, "e");
-          break;
-        case 2:
-          if ( i14_[ism-1] ) obj1d = i14_[ism-1]->ProjectionY("_py", 1, 1, "e");
-          break;
-        case 3:
-          if ( i15_[ism-1] ) obj1d = i15_[ism-1]->ProjectionY("_py", 1, 1, "e");
-          break;
-        case 4:
-          if ( i16_[ism-1] ) obj1d = i16_[ism-1]->ProjectionY("_py", 1, 1, "e");
-          break;
-        case 5:
-        case 6:
-        case 7:
-        case 8:
-          obj2f = 0;
-          break;
-        default:
-          break;
+      case 1:
+	if ( i13_[ism-1] ) obj1d = i13_[ism-1]->ProjectionY("_py", 1, 1, "e");
+	break;
+      case 2:
+	if ( i14_[ism-1] ) obj1d = i14_[ism-1]->ProjectionY("_py", 1, 1, "e");
+	break;
+      case 3:
+	if ( i15_[ism-1] ) obj1d = i15_[ism-1]->ProjectionY("_py", 1, 1, "e");
+	break;
+      case 4:
+	if ( i16_[ism-1] ) obj1d = i16_[ism-1]->ProjectionY("_py", 1, 1, "e");
+	break;
+      case 5:
+      case 6:
+      case 7:
+      case 8:
+	obj2f = 0;
+	break;
+      default:
+	break;
       }
-
+      
       if ( obj1d ) {
-
+	
         meName = obj1d->GetName();
-
+	
         for ( unsigned int i = 0; i < meName.size(); i++ ) {
           if ( meName.substr(i, 1) == " " )  {
             meName.replace(i, 1 ,"_" );
@@ -4562,31 +4806,32 @@ void EELaserClient::htmlOutput(int run, string htmlDir, string htmlName){
         }
         imgNameMEPnPedG16[iCanvas-1] = meName + ".png";
         imgName = htmlDir + imgNameMEPnPedG16[iCanvas-1];
-
+	
         cPed->cd();
         gStyle->SetOptStat("euo");
         obj1d->SetStats(kTRUE);
-//        if ( obj1d->GetMaximum(histMax) > 0. ) {
-//          gPad->SetLogy(1);
-//        } else {
-//          gPad->SetLogy(0);
-//        }
+	//        if ( obj1d->GetMaximum(histMax) > 0. ) {
+	//          gPad->SetLogy(1);
+	//        } else {
+	//          gPad->SetLogy(0);
+	//        }
         obj1d->SetMinimum(0.0);
         obj1d->Draw();
         cPed->Update();
         cPed->SaveAs(imgName.c_str());
         gPad->SetLogy(0);
-
+	
         delete obj1d;
-
+	
       }
-
+      
     }
-
+    
     if( i>0 ) htmlFile << "<a href=""#top"">Top</a>" << std::endl;
     htmlFile << "<hr>" << std::endl;
-    htmlFile << "<h3><a name=""" << ism << """></a><strong>Supermodule&nbsp;&nbsp;"
-             << ism << "</strong></h3>" << endl;
+    htmlFile << "<h3><a name="""
+	     << Numbers::sEE(ism).c_str() << """></a><strong>"
+             << Numbers::sEE(ism).c_str() << "</strong></h3>" << endl;
     htmlFile << "<table border=\"0\" cellspacing=\"0\" " << endl;
     htmlFile << "cellpadding=\"10\" align=\"center\"> " << endl;
     htmlFile << "<tr align=\"center\">" << endl;
@@ -4774,6 +5019,11 @@ void EELaserClient::htmlOutput(int run, string htmlDir, string htmlName){
       if ( imgNameMEPnPedG01[iCanvas-1].size() != 0 )
         htmlFile << "<td><img src=\"" << imgNameMEPnPedG01[iCanvas-1] << "\"></td>" << endl;
       else
+       htmlFile << "<td><img src=\"" << " " << "\"></td>" << endl;
+
+      if ( imgNameMEPnRmsPedG01[iCanvas-1].size() != 0 )
+        htmlFile << "<td><img src=\"" << imgNameMEPnRmsPedG01[iCanvas-1] << "\"></td>" << endl;
+      else
         htmlFile << "<td><img src=\"" << " " << "\"></td>" << endl;
 
       if ( imgNameMEPnG01[iCanvas-1].size() != 0 )
@@ -4792,7 +5042,7 @@ void EELaserClient::htmlOutput(int run, string htmlDir, string htmlName){
       // skip unused wavelengths
       if ( iCanvas == 2 || iCanvas == 3 ) continue;
 
-      htmlFile << "<td colspan=\"2\">Laser " << iCanvas << " - PN Gain 1</td>" << endl;
+      htmlFile << "<td colspan=\"1\"> </td> <td colspan=\"1\">Laser " << iCanvas << " - PN Gain 1</td> <td colspan=\"1\">" << endl;
 
     }
 
@@ -4826,6 +5076,11 @@ void EELaserClient::htmlOutput(int run, string htmlDir, string htmlName){
       else
         htmlFile << "<td><img src=\"" << " " << "\"></td>" << endl;
 
+      if ( imgNameMEPnRmsPedG16[iCanvas-1].size() != 0 )
+        htmlFile << "<td><img src=\"" << imgNameMEPnRmsPedG16[iCanvas-1] << "\"></td>" << endl;
+      else
+        htmlFile << "<td><img src=\"" << " " << "\"></td>" << endl;
+
       if ( imgNameMEPnG16[iCanvas-1].size() != 0 )
         htmlFile << "<td><img src=\"" << imgNameMEPnG16[iCanvas-1] << "\"></td>" << endl;
       else
@@ -4840,7 +5095,7 @@ void EELaserClient::htmlOutput(int run, string htmlDir, string htmlName){
       // skip unused wavelengths
       if ( iCanvas == 2 || iCanvas == 3 ) continue;
 
-      htmlFile << "<td colspan=\"2\">Laser " << iCanvas << " - PN Gain 16</td>" << endl;
+      htmlFile << "<td colspan=\"1\"> </td> <td colspan=\"1\">Laser " << iCanvas << " - PN Gain 16</td> <td colspan=\"1\"> </td>" << endl;
 
     }
 

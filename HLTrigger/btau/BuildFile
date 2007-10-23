@@ -9,6 +9,7 @@
 <use name=Foundation/PluginManager>
 <use name=FWCore/ParameterSet>
 <use name=HLTrigger/HLTcore>
+<use name=RecoVertex/KalmanVertexFit>
 <flags SEAL_PLUGIN_NAME="HLTriggerbtau">
 <export>
    <lib name=HLTriggerbtau>

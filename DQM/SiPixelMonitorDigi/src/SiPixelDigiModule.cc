@@ -1,5 +1,6 @@
 #include "DQM/SiPixelMonitorDigi/interface/SiPixelDigiModule.h"
 #include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
+#include "DQM/SiPixelCommon/interface/SiPixelHistogramId.h"
 /// Framework
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
@@ -12,7 +13,9 @@
 //
 // Constructors
 //
-SiPixelDigiModule::SiPixelDigiModule() : id_(0) { }
+SiPixelDigiModule::SiPixelDigiModule() : id_(0),
+					 ncols_(416),
+					 nrows_(160) { }
 ///
 SiPixelDigiModule::SiPixelDigiModule(const uint32_t& id) : 
   id_(id),
@@ -34,25 +37,31 @@ SiPixelDigiModule::~SiPixelDigiModule() {}
 //
 // Book histograms
 //
-void SiPixelDigiModule::book() {
+void SiPixelDigiModule::book(const edm::ParameterSet& iConfig) {
 
+  std::string hid;
+  // Get collection name and instantiate Histo Id builder
+  edm::InputTag src = iConfig.getParameter<edm::InputTag>( "src" );
+  SiPixelHistogramId* theHistogramId = new SiPixelHistogramId( src.label() );
+  // Get DQM interface
   DaqMonitorBEInterface* theDMBE = edm::Service<DaqMonitorBEInterface>().operator->();
-
-  char hkey[80];  
   // Number of digis
-  sprintf(hkey, "ndigis_module_%i",id_);
-  meNDigis_ = theDMBE->book1D(hkey,"Number of Digis",50,0.,50.);
+  hid = theHistogramId->setHistoId("ndigis",id_);
+  //std::cout << hid << " " << theHistogramId->getDataCollection(hid) << " " << theHistogramId->getRawId(hid) << std::endl;
+  meNDigis_ = theDMBE->book1D(hid,"Number of Digis",50,0.,50.);
   meNDigis_->setAxisTitle("Number of digis",1);
   // Charge in ADC counts
-  sprintf(hkey, "adc_module_%i",id_);
-  meADC_ = theDMBE->book1D(hkey,"Digi charge",500,0.,500.);
+  hid = theHistogramId->setHistoId("adc",id_);
+  meADC_ = theDMBE->book1D(hid,"Digi charge",500,0.,500.);
   meADC_->setAxisTitle("ADC counts",1);
-
   // 2D hit map
-  sprintf(hkey, "pixdigis_module_%i",id_);
-  mePixDigis_ = theDMBE->book2D(hkey,"Digis per four pixels",208,0.,float(ncols_),80,0.,float(nrows_));
+  int nbinx = ncols_/2;
+  int nbiny = nrows_/2;
+  hid = theHistogramId->setHistoId("hitmap",id_);
+  mePixDigis_ = theDMBE->book2D(hid,"Number of Digis (1bin=four pixels)",nbinx,0.,float(ncols_),nbiny,0.,float(nrows_));
   mePixDigis_->setAxisTitle("Columns",1);
   mePixDigis_->setAxisTitle("Rows",2);
+  delete theHistogramId;
 }
 //
 // Fill histograms

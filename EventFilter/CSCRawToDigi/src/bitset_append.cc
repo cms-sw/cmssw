@@ -1,6 +1,5 @@
 ///this file contains additional dynamic_bitset methods
 
-
 #include "EventFilter/CSCRawToDigi/src/bitset_append.h" 
 #include <boost/dynamic_bitset.hpp>
 #include <iostream>
@@ -63,7 +62,7 @@ namespace bitset_utilities {
     unsigned char words[60000];
     bitsetToChar(bs, words);
     unsigned short * buf= (unsigned short *) words;
-    for (int unsigned i=0;i<bs.size()/16;i++) {
+    for (int unsigned i=0;i<bs.size()/16;++i) {
       printf("%04x %04x %04x %04x\n",buf[i+3],buf[i+2],buf[i+1],buf[i]);
       i+=3;
     }

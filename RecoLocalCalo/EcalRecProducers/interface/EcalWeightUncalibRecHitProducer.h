@@ -31,7 +31,7 @@ class EcalWeightUncalibRecHitProducer : public edm::EDProducer {
     EcalUncalibRecHitRecWeightsAlgo<EBDataFrame> EBalgo_;
     EcalUncalibRecHitRecWeightsAlgo<EEDataFrame> EEalgo_;
 
-    HepMatrix makeMatrixFromVectors(const std::vector< std::vector<EcalWeight> >& vecvec);
+    //    HepMatrix makeMatrixFromVectors(const std::vector< std::vector<EcalWeight> >& vecvec);
 
 /*     int nMaxPrintout_; // max # of printouts */
 /*     int counter_; // internal verbosity counter */

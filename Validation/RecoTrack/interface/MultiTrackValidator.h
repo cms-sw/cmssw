@@ -4,8 +4,8 @@
 /** \class MultiTrackValidator
  *  Class that prodecs histrograms to validate Track Reconstruction performances
  *
- *  $Date: 2007/03/26 15:01:35 $
- *  $Revision: 1.22 $
+ *  $Date: 2007/05/03 16:53:28 $
+ *  $Revision: 1.23.2.1 $
  *  \author cerati
  */
 
@@ -98,15 +98,15 @@ class MultiTrackValidator : public edm::EDAnalyzer {
   std::vector<MonitorElement*> h_assochi2, h_assochi2_prob;
 
   //chi2 and #hit vs eta: to be used with doProfileX
-  std::vector<TH2F*> chi2_vs_eta, nhits_vs_eta, nlosthits_vs_eta;
+  std::vector<MonitorElement*> chi2_vs_eta, nhits_vs_eta, nlosthits_vs_eta;
   std::vector<MonitorElement*>  h_chi2meanh, h_hits_eta, h_losthits_eta;
 
   //resolution of track params: to be used with fitslicesytool
-  std::vector<TH2F*> d0res_vs_eta, ptres_vs_eta, z0res_vs_eta, phires_vs_eta, cotThetares_vs_eta;
+  std::vector<MonitorElement*> d0res_vs_eta, ptres_vs_eta, z0res_vs_eta, phires_vs_eta, cotThetares_vs_eta;
   std::vector<MonitorElement*> h_d0rmsh, h_ptrmsh, h_z0rmsh, h_phirmsh, h_cotThetarmsh;
 
   //pulls of track params vs eta: to be used with fitslicesytool
-  std::vector<TH2F*> d0pull_vs_eta, ptpull_vs_eta, z0pull_vs_eta, phipull_vs_eta, thetapull_vs_eta;
+  std::vector<MonitorElement*> d0pull_vs_eta, ptpull_vs_eta, z0pull_vs_eta, phipull_vs_eta, thetapull_vs_eta;
   std::vector<MonitorElement*> h_d0pulleta, h_ptpulleta, h_z0pulleta, h_phipulleta, h_thetapulleta;
   
   std::vector< std::vector<double> > etaintervals;
@@ -133,7 +133,20 @@ class MultiTrackValidator : public edm::EDAnalyzer {
       throw cms::Exception("MultiTrackValidator") << "Different number of bins!";
     }    
   }
-  
+
+  void copy2D(TH2F* th2, MonitorElement * me){
+    if (th2->GetNbinsX()==me->getNbinsX()&&th2->GetNbinsY()==me->getNbinsY()){
+      for (int binX=0;binX!=me->getNbinsX();binX++){
+	for (int binY=0;binY!=me->getNbinsY();binY++){
+	  th2->SetBinContent(binX+1,binY+1,me->getBinContent(binX+1,binY+1));
+	  //th2->SetBinError(binY+1,binY+1,me->getBinError(binX+1,binY+1));
+	}
+      }
+    } else {
+      throw cms::Exception("MultiTrackValidator") << "Different number of bins!";
+    }        
+  }
+ 
 };
 
 

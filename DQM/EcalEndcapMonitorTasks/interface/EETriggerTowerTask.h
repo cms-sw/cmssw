@@ -4,8 +4,8 @@
 /*
  * \file EETriggerTowerTask.h
  *
- * $Date: 2007/03/20 12:37:26 $
- * $Revision: 1.5 $
+ * $Date: 2007/04/05 14:54:03 $
+ * $Revision: 1.3 $
  * \author G. Della Ricca
  *
 */
@@ -46,17 +46,21 @@ private:
 
 int ievt_;
 
+DaqMonitorBEInterface* dbe_;
+
+bool enableCleanup_;
+
 edm::InputTag EcalTrigPrimDigiCollection_;
 edm::InputTag EcalUncalibratedRecHitCollection_;
 
-MonitorElement* meEtMap_[36];
+MonitorElement* meEtMap_[18];
 
-MonitorElement* meVeto_[36];
+MonitorElement* meVeto_[18];
 
-MonitorElement* meFlags_[36];
+MonitorElement* meFlags_[18];
 
-MonitorElement* meEtMapT_[36][68];
-MonitorElement* meEtMapR_[36][68];
+MonitorElement* meEtMapT_[18][68];
+MonitorElement* meEtMapR_[18][68];
 
 bool init_;
 

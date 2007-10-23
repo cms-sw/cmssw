@@ -5,16 +5,17 @@
   *  Template used to compute amplitude, pedestal, time jitter, chi2 of a pulse
   *  using a weights method
   *
-  *  $Id: EcalUncalibRecHitRecAbsAlgo.h,v 1.1 2005/10/25 09:10:01 rahatlou Exp $
-  *  $Date: 2005/10/25 09:10:01 $
-  *  $Revision: 1.1 $
+  *  $Id: EcalUncalibRecHitRecAbsAlgo.h,v 1.3 2007/04/05 13:34:06 meridian Exp $
+  *  $Date: 2007/04/05 13:34:06 $
+  *  $Revision: 1.3 $
   *  \author R. Bruneliere - A. Zabi
   */
 
-#include "CLHEP/Matrix/Matrix.h"
-#include "CLHEP/Matrix/SymMatrix.h"
+#include "Math/SVector.h"
+#include "Math/SMatrix.h"
 #include <vector>
 #include "DataFormats/EcalRecHit/interface/EcalUncalibratedRecHit.h"
+#include "CondFormats/EcalObjects/interface/EcalWeightSet.h"
 
 template<class C> class EcalUncalibRecHitRecAbsAlgo
 {
@@ -30,10 +31,10 @@ template<class C> class EcalUncalibRecHitRecAbsAlgo
   /// make rechits from dataframes
 
   virtual EcalUncalibratedRecHit makeRecHit(const C& dataFrame, 
-					    const std::vector<double>& pedestals,
-					    const std::vector<double>& gainRatios,
-					    const std::vector<HepMatrix>& weights, 
-					    const std::vector<HepSymMatrix>& chi2Matrix) = 0;
+					    const double* pedestals,
+					    const double* gainRatios,
+					    const EcalWeightSet::EcalWeightMatrix** weights, 
+					    const EcalWeightSet::EcalChi2WeightMatrix** chi2Matrix) = 0;
 
 };
 #endif

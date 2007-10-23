@@ -3,8 +3,6 @@
 #include "RecoParticleFlow/PFAlgo/interface/PFBlock.h"
 #include "RecoParticleFlow/PFAlgo/interface/PFBlockElement.h"
 // #include "RecoParticleFlow/PFAlgo/interface/PFGeometry.h"
-#include "RecoParticleFlow/PFClusterTools/interface/PFEnergyCalibration.h"
-#include "RecoParticleFlow/PFClusterTools/interface/PFEnergyResolution.h"
 
 // #include "DataFormats/ParticleFlowReco/interface/PFRecHit.h"
 #include "DataFormats/ParticleFlowReco/interface/PFLayer.h"
@@ -178,15 +176,11 @@ PFProducer::PFProducer(const edm::ParameterSet& iConfig) :
     = iConfig.getParameter<double>("pf_nsigma_neutral");  
   PFBlock::setNsigmaNeutral(nsigma);
 
-  //energyCalibration_ = new PFEnergyCalibration(iConfig);
-  energyCalibration_ = new PFEnergyCalibration();
-  double calibParamECAL_slope_ = iConfig.getParameter<double>("pf_ECAL_calib_p1");
-  double calibParamECAL_offset_ = iConfig.getParameter<double>("pf_ECAL_calib_p0");
-  energyCalibration_->setCalibrationParametersEm(calibParamECAL_slope_, calibParamECAL_offset_); 
-  PFBlock::setEnergyCalibration(energyCalibration_);
-  //energyResolution_ = new PFEnergyResolution(iConfig);
-  energyResolution_ = new PFEnergyResolution();
-  PFBlock::setEnergyResolution(energyResolution_);
+  double ecalibP0
+    = iConfig.getParameter<double>("pf_ECAL_calib_p0");  
+  double ecalibP1
+    = iConfig.getParameter<double>("pf_ECAL_calib_p1");  
+  PFBlock::setEcalib(ecalibP0, ecalibP1);
   
   // mySimEvent =  new FSimEvent(vertexGenerator_, particleFilter_);
   mySimEvent =  new FSimEvent( particleFilter_ );
@@ -194,15 +188,7 @@ PFProducer::PFProducer(const edm::ParameterSet& iConfig) :
 
 
 
-PFProducer::~PFProducer() 
-{ 
-  delete mySimEvent; 
-  
-  delete energyCalibration_;
-  PFBlock::setEnergyCalibration(NULL);
-  delete energyResolution_;
-  PFBlock::setEnergyResolution(NULL);
-}
+PFProducer::~PFProducer() { delete mySimEvent; }
 
 
 void 
@@ -501,6 +487,9 @@ void PFProducer::produce(Event& iEvent,
     for(unsigned iefb = 0; iefb<allPFBs.size(); iefb++) {
       
       switch(pfReconMethod_) {
+      case 1:
+	allPFBs[iefb].reconstructParticles1();
+	break;
       case 2:
 	allPFBs[iefb].reconstructParticles2();
 	break;

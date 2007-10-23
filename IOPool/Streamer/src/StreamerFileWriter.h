@@ -34,6 +34,7 @@ namespace edm
     void doOutputEvent(EventMsgBuilder const& msg);
     void doOutputEvent(EventMsgView const& msg);
 
+    void start(){}
     void stop();
     // Returns the sizes of EOF records, call them after 
     // u called stop, just before destruction

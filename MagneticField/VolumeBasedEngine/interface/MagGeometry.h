@@ -4,8 +4,8 @@
 /** \class MagGeometry
  *  Entry point to the geometry of magnetic volumes.
  *
- *  $Date: 2007/02/03 16:07:07 $
- *  $Revision: 1.3 $
+ *  $Date: 2007/03/09 15:09:30 $
+ *  $Revision: 1.4 $
  *  \author N. Amapane - INFN Torino
  */
 
@@ -60,6 +60,10 @@ private:
 
   bool inBarrel(const GlobalPoint& gp) const;
 
+  bool trackerField(const GlobalPoint& gp, GlobalVector& bxyz) const ;
+
+  void ffunkti(float u, float* ff) const;
+
   mutable MagVolume * lastVolume; // Cache last volume found
 
   std::vector<MagBLayer *> theBLayers;
@@ -75,6 +79,7 @@ private:
   double tolerance;
   bool cacheLastVolume;
   bool timerOn;
+  bool useParametrizedTrackerField;
 };
 #endif
 

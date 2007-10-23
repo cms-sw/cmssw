@@ -18,9 +18,9 @@ void testTriggerGeometry() {
   // now test some cell mappings
   HcalDetId barrelDet(HcalBarrel, 1, 1, 1);
   HcalDetId endcapDet(HcalEndcap, 29, 1, 1);
-  HcalDetId forwardDet1(HcalForward, 29, 36, 1);
-  HcalDetId forwardDet2(HcalForward, 29, 36, 2);
-  HcalDetId forwardDet3(HcalForward, 40, 18, 1);
+  HcalDetId forwardDet1(HcalForward, 29, 71, 1);
+  HcalDetId forwardDet2(HcalForward, 29, 71, 2);
+  HcalDetId forwardDet3(HcalForward, 40, 71, 1);
 
   typedef std::vector<HcalTrigTowerDetId> TowerDets;
   TowerDets barrelTowers = trigTowers.towerIds(barrelDet);
@@ -32,7 +32,7 @@ void testTriggerGeometry() {
   assert(barrelTowers.size() ==1);
   assert(endcapTowers.size() ==2);
   assert(forwardTowers1.size() ==1);
-  assert(forwardTowers2.size() ==0);
+  assert(forwardTowers2.size() ==1);
   assert(forwardTowers3.size() ==1);
 
   std::cout << barrelTowers[0] << std::endl;
@@ -66,7 +66,7 @@ void testClosestCells() {
   HcalDetId endcapDet1(HcalEndcap, -17, 72, 1);
   HcalDetId endcapDet2(HcalEndcap, 29, 35, 1);
   HcalDetId forwardDet1(HcalForward, 30, 71, 1);
-  HcalDetId forwardDet3(HcalForward, -40, 69, 1);
+  HcalDetId forwardDet3(HcalForward, -40, 71, 1);
 
   testClosestCell(barrelDet, g.get());
   testClosestCell(barrelDet2, g.get());
@@ -107,7 +107,7 @@ int main() {
   ids=f->getValidDetIds(DetId::Hcal,HcalForward);
   for (std::vector<DetId>::iterator i=ids.begin(); i!=ids.end(); i++) {
     HcalDetId hid=(*i);
-    if (hid.iphi()!=1 && hid.iphi()!=2 && hid.iphi()!=3) continue;
+    //  if (hid.iphi()!=1 && hid.iphi()!=2 && hid.iphi()!=3) continue;
     std::cout << hid << std::endl;
     
     const CaloCellGeometry* geom=f->getGeometry(hid);
@@ -116,7 +116,6 @@ int main() {
       std::cout << "  " << *j << std::endl;
     }
   }
-
 
   std::cout << std::endl << " ENDCAP : " << std::endl;
   ids=e->getValidDetIds(DetId::Hcal,HcalEndcap);

@@ -7,7 +7,11 @@
  */
 
 #include "EventFilter/StorageManager/interface/ConsumerPipe.h"
+#include "EventFilter/StorageManager/interface/SMCurlInterface.h"
 #include "FWCore/Utilities/interface/DebugMacros.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
+#include "curl/curl.h"
 
 // keep this for debugging
 //#include "IOPool/Streamer/interface/DumpTools.h"
@@ -33,13 +37,16 @@ ConsumerPipe::ConsumerPipe(std::string name, std::string priority,
                            int activeTimeout, int idleTimeout,
                            boost::shared_ptr<edm::ParameterSet> parameterSet):
   consumerName_(name),consumerPriority_(priority),
-  requestParamSet_(parameterSet)
+  requestParamSet_(parameterSet),
+  pushEventFailures_(0)
 {
   // initialize the time values we use for defining "states"
   timeToIdleState_ = activeTimeout;
   timeToDisconnectedState_ = activeTimeout + idleTimeout;
   lastEventRequestTime_ = time(NULL);
   initializationDone = false;
+  pushMode_ = false;
+  if(consumerPriority_.compare("SMProxyServer") == 0) pushMode_ = true;
 
   // assign the consumer ID
   boost::mutex::scoped_lock scopedLockForRootId(rootIdLock_);
@@ -74,15 +81,11 @@ void ConsumerPipe::initializeSelection(InitMsgView const& initView)
   FDEBUG(5) << "Initializing consumer pipe, ID = " <<
     consumerId_ << std::endl;
 
-  // TODO: fetch the list of trigger names from the init message
-  //std::vector<std::string> triggerNameList;
-  //triggerNameList.push_back("kab1");
-  //triggerNameList.push_back("kab2");
-  //triggerNameList.push_back("kab3");
+  // fetch the list of trigger names from the init message
   Strings triggerNameList;
   initView.hltTriggerNames(triggerNameList);
 
-  // fake the process name (not yet available from the init message?)
+  // TODO fake the process name (not yet available from the init message?)
   std::string processName = "HLT";
 
   /* ---printout the trigger names in the INIT message
@@ -137,8 +140,7 @@ bool ConsumerPipe::isReadyForEvent() const
  */
 bool ConsumerPipe::wantsEvent(EventMsgView const& eventView) const
 {
-  // for now, take every event
-  // TODO - start using eventSelector_
+  // get trigger bits for this event and check using eventSelector_
   std::vector<unsigned char> hlt_out;
   hlt_out.resize(1 + (eventView.hltCount()-1)/4);
   eventView.hltTriggerBits(&hlt_out[0]);
@@ -156,10 +158,6 @@ bool ConsumerPipe::wantsEvent(EventMsgView const& eventView) const
   */
   int num_paths = eventView.hltCount();
   bool rc = (eventSelector_->wantAll() || eventSelector_->acceptEvent(&hlt_out[0], num_paths));
-  //std::cout << "====================== " << std::endl;
-  //std::cout << "return selector code = " << rc << std::endl;
-  //std::cout << "====================== " << std::endl;
-  //return true;
   return rc;
 }
 
@@ -171,6 +169,11 @@ void ConsumerPipe::putEvent(boost::shared_ptr< std::vector<char> > bufPtr)
   // update the local pointer to the most recent event
   boost::mutex::scoped_lock scopedLockForLatestEvent(latestEventLock_);
   latestEvent_ = bufPtr;
+  // if a push mode consumer actually push the event out to SMProxyServer
+  if(pushMode_) {
+    bool success = pushEvent();
+    if(!success) ++pushEventFailures_;
+  }
 }
 
 /**
@@ -200,4 +203,80 @@ boost::shared_ptr< std::vector<char> > ConsumerPipe::getEvent()
 
   // return the event
   return bufPtr;
+}
+
+bool ConsumerPipe::pushEvent()
+{
+  // push the next event out to a push mode consumer (SMProxyServer)
+  FDEBUG(5) << "pushing out event to " << consumerName_ << std::endl;
+  stor::ReadData data;
+
+  data.d_.clear();
+  CURL* han = curl_easy_init();
+  if(han==0)
+  {
+    edm::LogError("pushEvent") << "Could not create curl handle";
+    return false;
+  }
+  // set the standard http request options
+  setopt(han,CURLOPT_URL,consumerName_.c_str());
+  setopt(han,CURLOPT_WRITEFUNCTION,func);
+  setopt(han,CURLOPT_WRITEDATA,&data);
+
+  // build the event message
+  EventMsgView msgView(&(*latestEvent_)[0]);
+
+  // add the request message as a http post
+  setopt(han, CURLOPT_POSTFIELDS, msgView.startAddress());
+  setopt(han, CURLOPT_POSTFIELDSIZE, msgView.size());
+  struct curl_slist *headers=NULL;
+  headers = curl_slist_append(headers, "Content-Type: application/octet-stream");
+  headers = curl_slist_append(headers, "Content-Transfer-Encoding: binary");
+  setopt(han, CURLOPT_HTTPHEADER, headers);
+
+  // send the HTTP POST, read the reply, and cleanup before going on
+  CURLcode messageStatus = curl_easy_perform(han);
+  curl_slist_free_all(headers);
+  curl_easy_cleanup(han);
+
+  if(messageStatus!=0)
+  {
+    cerr << "curl perform failed for pushEvent" << endl;
+    edm::LogError("pushEvent") << "curl perform failed for pushEvent. "
+        << "Could not register: probably XDAQ not running on Storage Manager"
+        << " at " << consumerName_;
+    return false;
+  }
+  // should really read the message to see if okay (if we had made one!)
+  if(data.d_.length() == 0)
+  {
+    return true;
+  } else {
+    if(data.d_.length() > 0) {
+      std::vector<char> buf(1024);
+      int len = data.d_.length();
+      buf.resize(len);
+      for (int i=0; i<len ; i++) buf[i] = data.d_[i];
+      const unsigned int MAX_DUMP_LENGTH = 1000;
+      edm::LogError("pushEvent") << "========================================";
+      edm::LogError("pushEvent") << "Unexpected pushEvent response!";
+      if (data.d_.length() <= MAX_DUMP_LENGTH) {
+        edm::LogError("pushEvent") << "Here is the raw text that was returned:";
+        edm::LogError("pushEvent") << data.d_;
+      }
+      else {
+        edm::LogError("pushEvent") << "Here are the first " << MAX_DUMP_LENGTH <<
+          " characters of the raw text that was returned:";
+        edm::LogError("pushEvent") << (data.d_.substr(0, MAX_DUMP_LENGTH));
+      }
+      edm::LogError("pushEvent") << "========================================";
+    }
+  }
+  return false;
+}
+
+void ConsumerPipe::clearQueue()
+{
+  boost::mutex::scoped_lock scopedLockForLatestEvent(latestEventLock_);
+  latestEvent_.reset();
 }

@@ -5,8 +5,8 @@
 //   Description: L1 Global Muon Trigger
 //
 //
-//   $Date: 2006/05/15 13:56:01 $
-//   $Revision: 1.1 $
+//   $Date: 2007/03/07 11:38:35 $
+//   $Revision: 1.2 $
 //
 //   Author :
 //   Ivan Mikulec                    HEPHY Vienna
@@ -49,8 +49,6 @@ class L1MuGMTDebugBlock;
 //---------------------
 //-- Class Interface --
 //---------------------
-using namespace std;
-
 class L1MuGlobalMuonTrigger : public edm::EDProducer {
 
  public:
@@ -85,7 +83,7 @@ class L1MuGlobalMuonTrigger : public edm::EDProducer {
     /// get the GMT readout data for the triggered bx
     /// readout data contains input and output muons as well as MIP and Quiet bits
     /// for 3 or 5 bx around the triggered bx
-    auto_ptr<L1MuGMTReadoutCollection> getReadoutCollection();
+    std::auto_ptr<L1MuGMTReadoutCollection> getReadoutCollection();
 
     /// return a reference to the current record in the ring buffer
     L1MuGMTReadoutRecord* currentReadoutRecord () const { return m_ReadoutRingbuffer.back(); };
@@ -103,8 +101,8 @@ class L1MuGlobalMuonTrigger : public edm::EDProducer {
     L1MuGMTMerger*          m_Merger[2];
     L1MuGMTSorter*          m_Sorter;
 
-    vector<L1MuGMTExtendedCand> m_ExtendedCands;
-    vector<L1MuGMTReadoutRecord*> m_ReadoutRingbuffer;
+    std::vector<L1MuGMTExtendedCand> m_ExtendedCands;
+    std::vector<L1MuGMTReadoutRecord*> m_ReadoutRingbuffer;
 
     static L1MuGMTConfig* m_config;
 

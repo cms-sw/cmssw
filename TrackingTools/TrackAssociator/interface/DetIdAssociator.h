@@ -21,7 +21,7 @@
 //
 // Original Author:  Dmytro Kovalskyi
 //         Created:  Fri Apr 21 10:59:41 PDT 2006
-// $Id: DetIdAssociator.h,v 1.9 2007/03/26 05:31:31 dmytro Exp $
+// $Id: DetIdAssociator.h,v 1.10 2007/04/02 17:32:14 dmytro Exp $
 //
 //
 
@@ -42,6 +42,12 @@
 class DetIdAssociator{
  public:
    enum PropagationTarget { Barrel, ForwardEndcap, BackwardEndcap };
+   struct MapRange {
+      float dThetaPlus;
+      float dThetaMinus;
+      float dPhiPlus;
+      float dPhiMinus;
+   };
 	
    DetIdAssociator();
    DetIdAssociator(const int nPhi, const int nEta, const double etaBinSize);
@@ -57,6 +63,8 @@ class DetIdAssociator{
 						  const unsigned int iNEtaMinus,
 						  const unsigned int iNPhiPlus,
 						  const unsigned int iNPhiMinus);
+   virtual std::set<DetId> getDetIdsCloseToAPoint(const GlobalPoint& direction,
+						  const MapRange& mapRange);
    /// Preselect DetIds close to a point on the inner surface of the detector. 
    /// "d" defines the allowed range in theta-phi space:
    /// - theta is in [point.theta()-d, point.theta()+d]
@@ -124,7 +132,7 @@ class DetIdAssociator{
      double deltaPhi(fabs(point.phi()-center.phi()));
      if(deltaPhi>pi) deltaPhi = fabs(deltaPhi-pi*2.);
 
-     return sqrt(pow(point.eta()-center.eta(),2)+deltaPhi*deltaPhi) < distance;
+     return (point.eta()-center.eta())*(point.eta()-center.eta()) + deltaPhi*deltaPhi < distance*distance;
    };
    
    // map parameters

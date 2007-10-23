@@ -80,34 +80,33 @@ bool SiStripConfigParser::getFrequencyForTrackerMap(int& u_freq){
 //
 // -- Get List of MEs for the summary plot and the
 //
-bool SiStripConfigParser::getMENamesForSummary(string& structure_name,
-						vector<string>& me_names) {
+bool SiStripConfigParser::getMENamesForSummary(map<string, string>& me_names) {
   if (!doc) {
     cout << " SiStripConfigParser::Configuration File is not set!!! " << endl;
     return false;
   }
 
   me_names.clear();
-  unsigned int structureNodes = doc->getElementsByTagName(qtxml::_toDOMS("SubStructureLevel"))->getLength();
-  if (structureNodes == 0) return false;
+  unsigned int summaryNodes = doc->getElementsByTagName(qtxml::_toDOMS("SummaryPlot"))->getLength();
+  if (summaryNodes == 0) return false;
   /// Get Node
-  DOMNode* structureNode = doc->getElementsByTagName(qtxml::_toDOMS("SubStructureLevel"))->item(0);
- //Get QTEST name
-  if (! structureNode) return false;
-  DOMElement* structureElement = static_cast<DOMElement *>(structureNode);          
-  if (! structureElement) return false;		 
+  DOMNode* summaryNode = doc->getElementsByTagName(qtxml::_toDOMS("SummaryPlot"))->item(0);
+ //Get Summary ME name and type
+  if (! summaryNode) return false;
+  DOMElement* summaryElement = static_cast<DOMElement *>(summaryNode);          
+  if (! summaryElement) return false;		 
 		
-  structure_name = qtxml::_toString(structureElement->getAttribute(qtxml::_toDOMS("name"))); 
 
   DOMNodeList * meList 
-		  = structureElement->getElementsByTagName(qtxml::_toDOMS("MonElement"));
+		  = summaryElement->getElementsByTagName(qtxml::_toDOMS("MonElement"));
   for (unsigned int k = 0; k < meList->getLength(); k++) {
     DOMNode* meNode = meList->item(k);
     if (!meNode) return false;
     DOMElement* meElement = static_cast<DOMElement *>(meNode);          
     if (!meElement) return false;
     string me_name = qtxml::_toString(meElement->getAttribute (qtxml::_toDOMS ("name"))); 
-    me_names.push_back(me_name);    
+    string me_type = qtxml::_toString(meElement->getAttribute (qtxml::_toDOMS ("type"))); 
+    me_names.insert(pair<string,string>(me_name,me_type));    
   }
   if (me_names.size() == 0) return false;
   else return true;
@@ -122,15 +121,15 @@ bool SiStripConfigParser::getFrequencyForSummary(int& u_freq) {
     return false;
   }
 
-  unsigned int structureNodes = doc->getElementsByTagName(qtxml::_toDOMS("SubStructureLevel"))->getLength();
-  if (structureNodes == 0) return false;
+  unsigned int summaryNodes = doc->getElementsByTagName(qtxml::_toDOMS("SummaryPlot"))->getLength();
+  if (summaryNodes != 1 ) return false;
   /// Get Node
-  DOMNode* structureNode = doc->getElementsByTagName(qtxml::_toDOMS("SubStructureLevel"))->item(0);
+  DOMNode* summaryNode = doc->getElementsByTagName(qtxml::_toDOMS("SummaryPlot"))->item(0);
  //Get Node name
-  if (! structureNode) return false;
-  DOMElement* structureElement = static_cast<DOMElement *>(structureNode);          
-  if (! structureElement) return false;		 
+  if (! summaryNode) return false;
+  DOMElement* summaryElement = static_cast<DOMElement *>(summaryNode);          
+  if (! summaryElement) return false;		 
 		
-  u_freq = atoi(qtxml::_toString(structureElement->getAttribute(qtxml::_toDOMS("update_frequency"))).c_str());
+  u_freq = atoi(qtxml::_toString(summaryElement->getAttribute(qtxml::_toDOMS("update_frequency"))).c_str());
   return true;
 }

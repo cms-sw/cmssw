@@ -124,7 +124,7 @@ void OptOOpticalSquare::fastDeviatesLightRay( LightRay& lightray )
   //---------- Fast simulation of the light ray traversing
 void OptOOpticalSquare::fastTraversesLightRay( LightRay& lightray )
 {
-  //  if( ALIUtils::debug >=5 ) std::cerr << " WARNING there should be in an extra piece to make entering and exiting surfaces parallel (like in modified_rhomboid_prism) " << std::endl;
+  std::cerr << " WARNING  should be in an extra piece to make entering and exiting surfaces parallel (like in modified_rhomboid_prism) " << std::endl;
 
   calculateFaces( 0 );
 

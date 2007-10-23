@@ -70,3 +70,14 @@ void PreshowerStrip::hepTransform(const HepTransform3D &transformation)
   setPosition(GlobalPoint(newPosition.x(),newPosition.y(),newPosition.z()));
 
 }
+
+std::ostream& operator<<(std::ostream& s,const PreshowerStrip& cell) {
+  assert(cell.getCorners().size() == 8);
+  s  << "Center: " <<  cell.getPosition() << std::endl;
+  const std::vector<GlobalPoint>& corners=cell.getCorners(); 
+  //  vector<HepPoint3D> xtCorners=getCorners();
+  for ( unsigned int  ci=0; ci !=corners.size(); ci++) {
+    s  << "Corner: " << corners[ci] << std::endl;
+  }
+  return s;
+}

@@ -1,8 +1,8 @@
 /*
  * \file EBCosmicTask.cc
  *
- * $Date: 2007/03/20 12:37:26 $
- * $Revision: 1.67 $
+ * $Date: 2007/05/21 09:57:44 $
+ * $Revision: 1.72 $
  * \author G. Della Ricca
  *
 */
@@ -26,6 +26,8 @@
 #include "DataFormats/EcalRecHit/interface/EcalUncalibratedRecHit.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 
+#include <DQM/EcalCommon/interface/Numbers.h>
+
 #include <DQM/EcalBarrelMonitorTasks/interface/EBCosmicTask.h>
 
 using namespace cms;
@@ -35,6 +37,11 @@ using namespace std;
 EBCosmicTask::EBCosmicTask(const ParameterSet& ps){
 
   init_ = false;
+
+  // get hold of back-end interface
+  dbe_ = Service<DaqMonitorBEInterface>().operator->();
+
+  enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", true);
 
   EcalRawDataCollection_ = ps.getParameter<edm::InputTag>("EcalRawDataCollection");
   EcalRecHitCollection_ = ps.getParameter<edm::InputTag>("EcalRecHitCollection");
@@ -55,14 +62,9 @@ void EBCosmicTask::beginJob(const EventSetup& c){
 
   ievt_ = 0;
 
-  DaqMonitorBEInterface* dbe = 0;
-
-  // get hold of back-end interface
-  dbe = Service<DaqMonitorBEInterface>().operator->();
-
-  if ( dbe ) {
-    dbe->setCurrentFolder("EcalBarrel/EBCosmicTask");
-    dbe->rmdir("EcalBarrel/EBCosmicTask");
+  if ( dbe_ ) {
+    dbe_->setCurrentFolder("EcalBarrel/EBCosmicTask");
+    dbe_->rmdir("EcalBarrel/EBCosmicTask");
   }
 
 }
@@ -73,30 +75,25 @@ void EBCosmicTask::setup(void){
 
   Char_t histo[200];
 
-  DaqMonitorBEInterface* dbe = 0;
+  if ( dbe_ ) {
+    dbe_->setCurrentFolder("EcalBarrel/EBCosmicTask");
 
-  // get hold of back-end interface
-  dbe = Service<DaqMonitorBEInterface>().operator->();
-
-  if ( dbe ) {
-    dbe->setCurrentFolder("EcalBarrel/EBCosmicTask");
-
-    dbe->setCurrentFolder("EcalBarrel/EBCosmicTask/Cut");
+    dbe_->setCurrentFolder("EcalBarrel/EBCosmicTask/Cut");
     for (int i = 0; i < 36 ; i++) {
-      sprintf(histo, "EBCT energy cut SM%02d", i+1);
-      meCutMap_[i] = dbe->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096., "s");
+      sprintf(histo, "EBCT energy cut %s", Numbers::sEB(i+1).c_str());
+      meCutMap_[i] = dbe_->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096., "s");
     }
 
-    dbe->setCurrentFolder("EcalBarrel/EBCosmicTask/Sel");
+    dbe_->setCurrentFolder("EcalBarrel/EBCosmicTask/Sel");
     for (int i = 0; i < 36 ; i++) {
-      sprintf(histo, "EBCT energy sel SM%02d", i+1);
-      meSelMap_[i] = dbe->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096., "s");
+      sprintf(histo, "EBCT energy sel %s", Numbers::sEB(i+1).c_str());
+      meSelMap_[i] = dbe_->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096., "s");
     }
 
-    dbe->setCurrentFolder("EcalBarrel/EBCosmicTask/Spectrum");
+    dbe_->setCurrentFolder("EcalBarrel/EBCosmicTask/Spectrum");
     for (int i = 0; i < 36 ; i++) {
-      sprintf(histo, "EBCT energy spectrum SM%02d", i+1);
-      meSpectrumMap_[i] = dbe->book1D(histo, histo, 100, 0., 1.5);
+      sprintf(histo, "EBCT energy spectrum %s", Numbers::sEB(i+1).c_str());
+      meSpectrumMap_[i] = dbe_->book1D(histo, histo, 100, 0., 1.5);
     }
 
   }
@@ -105,29 +102,26 @@ void EBCosmicTask::setup(void){
 
 void EBCosmicTask::cleanup(void){
 
-  DaqMonitorBEInterface* dbe = 0;
+  if ( ! enableCleanup_ ) return;
 
-  // get hold of back-end interface
-  dbe = Service<DaqMonitorBEInterface>().operator->();
+  if ( dbe_ ) {
+    dbe_->setCurrentFolder("EcalBarrel/EBCosmicTask");
 
-  if ( dbe ) {
-    dbe->setCurrentFolder("EcalBarrel/EBCosmicTask");
-
-    dbe->setCurrentFolder("EcalBarrel/EBCosmicTask/Cut");
+    dbe_->setCurrentFolder("EcalBarrel/EBCosmicTask/Cut");
     for (int i = 0; i < 36 ; i++) {
-      if ( meCutMap_[i] ) dbe->removeElement( meCutMap_[i]->getName() );
+      if ( meCutMap_[i] ) dbe_->removeElement( meCutMap_[i]->getName() );
       meCutMap_[i] = 0;
     }
 
-    dbe->setCurrentFolder("EcalBarrel/EBCosmicTask/Sel");
+    dbe_->setCurrentFolder("EcalBarrel/EBCosmicTask/Sel");
     for (int i = 0; i < 36 ; i++) {
-      if ( meSelMap_[i] ) dbe->removeElement( meSelMap_[i]->getName() );
+      if ( meSelMap_[i] ) dbe_->removeElement( meSelMap_[i]->getName() );
       meSelMap_[i] = 0;
     }
 
-    dbe->setCurrentFolder("EcalBarrel/EBCosmicTask/Spectrum");
+    dbe_->setCurrentFolder("EcalBarrel/EBCosmicTask/Spectrum");
     for (int i = 0; i < 36 ; i++) {
-      if ( meSpectrumMap_[i] ) dbe->removeElement( meSpectrumMap_[i]->getName() );
+      if ( meSpectrumMap_[i] ) dbe_->removeElement( meSpectrumMap_[i]->getName() );
       meSpectrumMap_[i] = 0;
     }
 
@@ -159,13 +153,19 @@ void EBCosmicTask::analyze(const Event& e, const EventSetup& c){
 
       EcalDCCHeaderBlock dcch = (*dcchItr);
 
-      map<int, EcalDCCHeaderBlock>::iterator i = dccMap.find(dcch.id());
+      int ism = Numbers::iSM( dcch );
+
+      map<int, EcalDCCHeaderBlock>::iterator i = dccMap.find( ism );
       if ( i != dccMap.end() ) continue;
 
-      dccMap[dcch.id()] = dcch;
+      dccMap[ ism ] = dcch;
 
       if ( dcch.getRunType() == EcalDCCHeaderBlock::COSMIC ||
-           dcch.getRunType() == EcalDCCHeaderBlock::MTCC ) enable = true;
+           dcch.getRunType() == EcalDCCHeaderBlock::MTCC ||
+           dcch.getRunType() == EcalDCCHeaderBlock::COSMICS_GLOBAL ||
+           dcch.getRunType() == EcalDCCHeaderBlock::PHYSICS_GLOBAL ||
+           dcch.getRunType() == EcalDCCHeaderBlock::COSMICS_LOCAL ||
+           dcch.getRunType() == EcalDCCHeaderBlock::PHYSICS_LOCAL ) enable = true;
 
     }
 
@@ -198,7 +198,7 @@ void EBCosmicTask::analyze(const Event& e, const EventSetup& c){
       int ie = (ic-1)/20 + 1;
       int ip = (ic-1)%20 + 1;
 
-      int ism = id.ism();
+      int ism = Numbers::iSM( id );
 
       float xie = ie - 0.5;
       float xip = ip - 0.5;
@@ -207,7 +207,11 @@ void EBCosmicTask::analyze(const Event& e, const EventSetup& c){
       if ( i == dccMap.end() ) continue;
 
       if ( ! ( dccMap[ism].getRunType() == EcalDCCHeaderBlock::COSMIC ||
-               dccMap[ism].getRunType() == EcalDCCHeaderBlock::MTCC ) ) continue;
+               dccMap[ism].getRunType() == EcalDCCHeaderBlock::MTCC ||
+               dccMap[ism].getRunType() == EcalDCCHeaderBlock::COSMICS_GLOBAL ||
+               dccMap[ism].getRunType() == EcalDCCHeaderBlock::PHYSICS_GLOBAL ||
+               dccMap[ism].getRunType() == EcalDCCHeaderBlock::COSMICS_LOCAL ||
+               dccMap[ism].getRunType() == EcalDCCHeaderBlock::PHYSICS_LOCAL ) ) enable = true;
 
       LogDebug("EBCosmicTask") << " det id = " << id;
       LogDebug("EBCosmicTask") << " sm, eta, phi " << ism << " " << ie << " " << ip;

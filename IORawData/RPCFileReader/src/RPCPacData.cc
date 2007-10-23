@@ -46,7 +46,7 @@ void RPCPacData::fromRaw(unsigned int rawData) {
   return;
 }
 
-unsigned int RPCPacData::toRaw() const{		
+unsigned int RPCPacData::toRaw() {		
   unsigned int rawData = 0;
   unsigned int shift = 0;
 

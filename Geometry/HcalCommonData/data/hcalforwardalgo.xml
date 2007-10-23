@@ -24,7 +24,8 @@
  <Constant name="fibreR"      value="0.30*mm" />
  <Constant name="fibreLongL"  value="164.90*cm" />
  <Constant name="fibreShortL" value="([fibreLongL]-2*[shiftSF])" />
- <Constant name="fibreZ"      value="[fibreLongL]/2-[dzHF]" />
+ <Constant name="fibreLongZ"  value="[fibreLongL]/2-[dzHF]" />
+ <Constant name="fibreShortZ" value="[fibreShortL]/2-[dzHF]" />
 </ConstantsSection>
 
 <SolidSection label="hcalforwardalgo.xml">
@@ -37,8 +38,8 @@
                         bl2="[dxLowHF]" tl2="[dxTopHF]" h2="[dyHF]"
                         phi="0*deg"     theta="0*deg" />
  <Box name="HFBox"      dx="[boxDx]"    dy="[boxDy]"    dz="[dzHF]"/>
- <Box name="HFHoleS"    dx="[holeDx]"   dy="[holeDx]"   dz="[fibreShortL]/2"/>
- <Box name="HFHoleL"    dx="[holeDx]"   dy="[holeDx]"   dz="[fibreLongL]/2"/>
+ <Box name="HFHoleS"    dx="[holeDx]"   dy="[holeDx]"   dz="[dzHF]"/>
+ <Box name="HFHoleL"    dx="[holeDx]"   dy="[holeDx]"   dz="[dzHF]"/>
  <Tubs name="HFCladS"   rMin="0*fm"     rMax="[claddingR]"
        dz="[fibreShortL]/2" startPhi="0*deg" deltaPhi="360*deg"/>
  <Tubs name="HFCladL"   rMin="0*fm"     rMax="[claddingR]"
@@ -125,17 +126,17 @@
  <PosPart copyNumber="5001">
    <rParent name="hcalforwardalgo:HFHoleL"/>
    <rChild name="hcalforwardalgo:HFCladL"/>
-  <Translation x="0*fm" y="0*fm" z="[fibreZ]" />
+  <Translation x="0*fm" y="0*fm" z="[fibreLongZ]" />
  </PosPart>
  <PosPart copyNumber="5002">
    <rParent name="hcalforwardalgo:HFHoleS"/>
    <rChild name="hcalforwardalgo:HFCladS"/>
-  <Translation x="0*fm" y="0*fm" z="[fibreZ]" />
+  <Translation x="0*fm" y="0*fm" z="[fibreShortZ]" />
  </PosPart>
  <PosPart copyNumber="1">
    <rParent name="hcalforwardalgo:HFBox1"/>
    <rChild name="hcalforwardalgo:HFHoleS"/>
-  <Translation x="-[holeX]" y="0*fm" z="[shiftSF]" />
+  <Translation x="-[holeX]" y="0*fm" z="0*fm" />
  </PosPart>
  <PosPart copyNumber="1">
    <rParent name="hcalforwardalgo:HFBox1"/>
@@ -150,7 +151,7 @@
  <PosPart copyNumber="1">
    <rParent name="hcalforwardalgo:HFBox2"/>
    <rChild name="hcalforwardalgo:HFHoleS"/>
-  <Translation x="[holeX]" y="0*fm" z="[shiftSF]" />
+  <Translation x="[holeX]" y="0*fm" z="0*fm" />
  </PosPart>
 </PosPartSection>
 

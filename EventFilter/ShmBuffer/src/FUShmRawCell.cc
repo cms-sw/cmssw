@@ -72,8 +72,7 @@ FUShmRawCell::~FUShmRawCell()
 //______________________________________________________________________________
 void FUShmRawCell::initialize(unsigned int index)
 {
-  fuResourceId_=index;
-  nSkip_=0;
+  index_=index;
 }
 
 
@@ -145,7 +144,8 @@ unsigned int FUShmRawCell::eventSize() const
 //______________________________________________________________________________
 void FUShmRawCell::clear()
 {
-  nSkip_=0;
+  fuResourceId_=0xffffffff;
+  buResourceId_=0xffffffff;
   
   unsigned int* fedSizeAddr;
   fedSizeAddr=(unsigned int*)((unsigned int)this+fedSizeOffset_);

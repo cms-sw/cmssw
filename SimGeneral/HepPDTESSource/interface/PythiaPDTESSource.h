@@ -43,7 +43,13 @@ public:
 		       const edm::IOVSyncValue &,
 		       edm::ValidityInterval & );
 
+  // temporary solution to circumvent internal HepPDT translation
+
+  bool  cmsaddPythiaParticles( std::istream & pdfile, HepPDT::TableBuilder & tb );
+
+                                                                                                                                          
 private:
   edm::FileInPath pdtFileName;
+
 };
 #endif

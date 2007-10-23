@@ -58,10 +58,9 @@ void HLTMCtruth::analyze(const HepMC::GenEvent mctruth,
     if (&mctruth){
       for (HepMC::GenEvent::particle_const_iterator partIter = mctruth.particles_begin();
 	   partIter != mctruth.particles_end();++partIter) {
-	CLHEP::HepLorentzVector creation = (*partIter)->CreationVertex();
-	CLHEP::HepLorentzVector momentum = (*partIter)->Momentum();
-	HepPDT::ParticleID id = (*partIter)->particleID();  // electrons and positrons are 11 and -11
-	mcpid[nmc] = id.pid(); 
+	HepMC::ThreeVector creation = (*partIter)->production_vertex()->point3d();
+	HepMC::FourVector  momentum = (*partIter)->momentum();
+	mcpid[nmc] = (*partIter)->pdg_id(); // electrons and positrons are 11 and -11                                     
 	mcvx[nmc] = creation.x();  
 	mcvy[nmc] = creation.y();
 	mcvz[nmc] = creation.z();
