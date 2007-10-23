@@ -8,6 +8,7 @@
 <use name=CondFormats/EcalObjects>
 <use name=CondFormats/DataRecord>
 <use name=OnlineDB/EcalCondDB>
+<use name=CondCore/PopCon>
 
 
 <flags EDM_PLUGIN=1>
@@ -19,4 +20,5 @@
 <use name=CondCore/DBOutputService>
 <use name=CondFormats/EcalObjects>
 <use name=CondFormats/DataRecord>
+<use name=CondCore/PopCon>
 </export>
