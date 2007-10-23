@@ -70,6 +70,7 @@ int RPCNumberingScheme::baseNumberToUnitNumber(const MuonBaseNumber num) {
   int copy_id=0;
   int roll_id=0;
   int eta_id=0;
+  int r21_id=0;
   bool forward=0;
   
   int sector_copy=0;
@@ -155,9 +156,15 @@ int RPCNumberingScheme::baseNumberToUnitNumber(const MuonBaseNumber num) {
       } else if (level==theEPlaneLevel) {
 	const int plane_tag = num.getSuperNo(level);      
 	plane_id = plane_tag;
+	r21_id = num.getBaseNo(level);
       } else if (level==theESectorLevel) {
 	const int copyno = num.getBaseNo(level);
 	sector_id = copyno+1;
+	if (r21_id==1) {
+	  sector_id = sector_id*2-1;	  
+	}else if(r21_id=2){
+	  sector_id = sector_id*2;
+	}	
       } else if (level==theERollLevel) {
 	const int copyno = num.getBaseNo(level);
 	const int eta_tag = num.getSuperNo(level);      
