@@ -1,5 +1,6 @@
 #include "FWCore/ParameterSet/interface/PythonProcessDesc.h"
 #include "FWCore/ParameterSet/src/PythonModule.h"
+#include "FWCore/ParameterSet/src/PythonWrapper.h"
 #include <boost/python.hpp>
 #include <sstream>
 
@@ -33,7 +34,6 @@ PythonProcessDesc::PythonProcessDesc(const std::string & fileName)
   // make an instance in python-land
   scope(libModule).attr("processDesc") = ptr(this);
   scope(libModule).attr("processPSet") = ptr(&theProcessPSet);
-
   try {
       std::string initCommand("import FWCore.ParameterSet.Config as cms\n"
                           "fileDict = dict()\n"
@@ -50,13 +50,13 @@ PythonProcessDesc::PythonProcessDesc(const std::string & fileName)
                             Py_eval_input,
                             main_namespace.ptr(),
                             main_namespace.ptr()));
-
-  }catch(...) {
-    Py_Finalize();
-    throw;
   }
-  Py_Finalize();
+  catch( error_already_set ) {
+     edm::pythonToCppException("Configuration");
+     Py_Finalize();
+  }
 
+  Py_Finalize();
 }
 
 
