@@ -1,7 +1,7 @@
 /*  
  *
- *  $Date: 2007/08/20 07:57:25 $
- *  $Revision: 1.58 $
+ *  $Date: 2007/10/20 10:58:01 $
+ *  $Revision: 1.60 $
  *  \author  N. Marinelli IASA 
  *  \author G. Della Ricca
  *  \author G. Franzoni
@@ -52,8 +52,8 @@ EcalTBDaqFormatter::EcalTBDaqFormatter () {
 void EcalTBDaqFormatter::interpretRawData(const FEDRawData & fedData , 
 					  EBDigiCollection& digicollection, EcalPnDiodeDigiCollection & pndigicollection , 
 					  EcalRawDataCollection& DCCheaderCollection, 
-					  EBDetIdCollection & dccsizecollection , 
-					  EcalTrigTowerDetIdCollection & ttidcollection , EcalTrigTowerDetIdCollection & blocksizecollection,
+					  EBDetIdCollection & dccsizecollection,
+					  EcalElectronicsIdCollection & ttidcollection ,  EcalElectronicsIdCollection & blocksizecollection,
 					  EBDetIdCollection & chidcollection , EBDetIdCollection & gaincollection, 
 					  EBDetIdCollection & gainswitchcollection, EBDetIdCollection & gainswitchstaycollection, 
 					  EcalElectronicsIdCollection & memttidcollection,  EcalElectronicsIdCollection &  memblocksizecollection,
@@ -165,6 +165,7 @@ void EcalTBDaqFormatter::interpretRawData(const FEDRawData & fedData ,
 		EcalTriggerPrimitiveSample theSample(TpSamples[i].first, TpSamples[i].second, TpFlags[i]);
 		
 		EcalTrigTowerDetId idtt(1, EcalBarrel, etaTT, phiTT, 0);
+
 		EcalTriggerPrimitiveDigi thePrimitive(idtt);
 		thePrimitive.setSize(1);                          // hard coded
 		thePrimitive.setSample(0, theSample);
@@ -268,15 +269,7 @@ void EcalTBDaqFormatter::interpretRawData(const FEDRawData & fedData ,
       // compute eta/phi in order to have iTT = _ExpectedTowers[_expTowersIndex]
       // for the time being consider only zside>0
 
-      int etaTT = (_ExpectedTowers[_expTowersIndex]-1)  / kTowersInPhi +1;
-      int phiTT = (_ExpectedTowers[_expTowersIndex]-1) % kTowersInPhi +1;
-
-      // follow HB convention in iphi
-      phiTT=3-phiTT;
-      if(phiTT<=0)phiTT=phiTT+72;
-
-      EcalTrigTowerDetId idtt(1, EcalBarrel, etaTT, phiTT, 0);
-    
+      EcalElectronicsId idtt(28, _ExpectedTowers[_expTowersIndex], 1, 1);
 
       if (  !(tower == _ExpectedTowers[_expTowersIndex])	  )
         {	

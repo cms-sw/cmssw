@@ -1,7 +1,7 @@
 /* \file EcalDCCUnpackingModule.h
  *
- *  $Date: 2007/06/28 13:51:30 $
- *  $Revision: 1.38 $
+ *  $Date: 2007/10/20 10:58:01 $
+ *  $Revision: 1.39 $
  *  \author N. Marinelli
  *  \author G. Della Ricca
  *  \author G. Franzoni
@@ -63,8 +63,8 @@ EcalDCCTBUnpackingModule::EcalDCCTBUnpackingModule(const edm::ParameterSet& pset
 
   // crystals' integrity
   produces<EBDetIdCollection>("EcalIntegrityDCCSizeErrors");
-  produces<EcalTrigTowerDetIdCollection>("EcalIntegrityTTIdErrors");
-  produces<EcalTrigTowerDetIdCollection>("EcalIntegrityBlockSizeErrors");
+  produces<EcalElectronicsIdCollection>("EcalIntegrityTTIdErrors");
+  produces<EcalElectronicsIdCollection>("EcalIntegrityBlockSizeErrors");
   produces<EBDetIdCollection>("EcalIntegrityChIdErrors");
   produces<EBDetIdCollection>("EcalIntegrityGainErrors");
   produces<EBDetIdCollection>("EcalIntegrityGainSwitchErrors");
@@ -118,10 +118,10 @@ void EcalDCCTBUnpackingModule::produce(edm::Event & e, const edm::EventSetup& c)
   std::auto_ptr<EBDetIdCollection> productDCCSize(new EBDetIdCollection);
 
   // create the collection of Ecal Integrity TT Id
-  std::auto_ptr<EcalTrigTowerDetIdCollection> productTTId(new EcalTrigTowerDetIdCollection);
+  std::auto_ptr<EcalElectronicsIdCollection> productTTId(new EcalElectronicsIdCollection);
 
   // create the collection of Ecal Integrity TT Block Size
-  std::auto_ptr<EcalTrigTowerDetIdCollection> productBlockSize(new EcalTrigTowerDetIdCollection);
+  std::auto_ptr<EcalElectronicsIdCollection> productBlockSize(new EcalElectronicsIdCollection);
 
   // create the collection of Ecal Integrity Ch Id
   std::auto_ptr<EBDetIdCollection> productChId(new EBDetIdCollection);

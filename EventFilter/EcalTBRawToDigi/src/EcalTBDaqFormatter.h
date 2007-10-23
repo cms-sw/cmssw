@@ -2,8 +2,8 @@
 #define EcalTBDaqFormatter_H
 /** \class EcalTBDaqFormatter
  *
- *  $Date: 2007/04/12 08:36:47 $
- *  $Revision: 1.15 $
+ *  $Date: 2007/10/20 10:58:01 $
+ *  $Revision: 1.16 $
  *  \author N. Marinelli  IASA-Athens
  *  \author G. Della Ricca
  *  \author G. Franzoni
@@ -35,8 +35,8 @@ class EcalTBDaqFormatter   {
 
   void  interpretRawData( const FEDRawData & data , EBDigiCollection& digicollection , EcalPnDiodeDigiCollection & pndigicollection ,
 			  EcalRawDataCollection& DCCheaderCollection,
-			  EBDetIdCollection & dccsizecollection ,
-			  EcalTrigTowerDetIdCollection & ttidcollection , EcalTrigTowerDetIdCollection & blocksizecollection,
+			  EBDetIdCollection & dccsizecollection,
+			  EcalElectronicsIdCollection & ttidcollection , EcalElectronicsIdCollection & blocksizecollection,
 			  EBDetIdCollection & chidcollection , EBDetIdCollection & gaincollection ,
 			  EBDetIdCollection & gainswitchcollection , EBDetIdCollection & gainswitchstaycollection,
 			  EcalElectronicsIdCollection & memttidcollection,  EcalElectronicsIdCollection &  memblocksizecollection,
