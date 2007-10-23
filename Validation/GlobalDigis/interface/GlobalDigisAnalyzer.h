@@ -1,7 +1,7 @@
-#ifndef GlobalDigisProducer_h
-#define GlobalDigisProducer_h
+#ifndef GlobalDigisAnalyzer_h
+#define GlobalDigisAnalyzer_h
 
-/** \class GlobalDigiProducer
+/** \class GlobalDigiAnalyzer
  *  
  *  Class to fill PGlobalDigi object to be inserted into data stream 
  *  containing information about various sub-systems in global coordinates 
@@ -13,7 +13,7 @@
  */
 
 // framework & common header files
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -88,7 +88,7 @@
 #include "DataFormats/CSCDigi/interface/CSCWireDigiCollection.h"
 
 // event info
-#include "SimDataFormats/ValidationFormats/interface/PValidationFormats.h"
+//#include "SimDataFormats/ValidationFormats/interface/PValidationFormats.h"
 #include "SimDataFormats/CrossingFrame/interface/CrossingFrame.h"
 #include "SimDataFormats/CrossingFrame/interface/MixCollection.h"
 #include "SimDataFormats/CaloHit/interface/PCaloHit.h"
@@ -109,35 +109,34 @@
 
 class PGlobalDigi;
 
-class GlobalDigisProducer : public edm::EDProducer
+class GlobalDigisAnalyzer : public edm::EDAnalyzer
 {
 
  public:
-
   typedef std::vector<float> FloatVector;
   typedef std::vector<double> DoubleVector;
   typedef std::vector<int> IntVector;
   typedef std::map<uint32_t,float,std::less<uint32_t> > MapType;
 
-  explicit GlobalDigisProducer(const edm::ParameterSet&);
-  virtual ~GlobalDigisProducer();
+  explicit GlobalDigisAnalyzer(const edm::ParameterSet&);
+  virtual ~GlobalDigisAnalyzer();
   virtual void beginJob(const edm::EventSetup&);
   virtual void endJob();  
-  virtual void produce(edm::Event&, const edm::EventSetup&);
+  virtual void analyze(const edm::Event&, const edm::EventSetup&);
   
  private:
 
   // production related methods
-  void fillECal(edm::Event&, const edm::EventSetup&);
-  void storeECal(PGlobalDigi&);
-  void fillHCal(edm::Event&, const edm::EventSetup&);
-  void storeHCal(PGlobalDigi&);
-  void fillTrk(edm::Event&, const edm::EventSetup&);
-  void storeTrk(PGlobalDigi&);
-  void fillMuon(edm::Event&, const edm::EventSetup&);
-  void storeMuon(PGlobalDigi&);  
+  void fillECal(const edm::Event&, const edm::EventSetup&);
+  //void storeECal(PGlobalDigi&);
+  void fillHCal(const edm::Event&, const edm::EventSetup&);
+  //void storeHCal(PGlobalDigi&);
+  void fillTrk(const edm::Event&, const edm::EventSetup&);
+  //void storeTrk(PGlobalDigi&);
+  void fillMuon(const edm::Event&, const edm::EventSetup&);
+  //void storeMuon(PGlobalDigi&);  
 
-  void clear();
+  //void clear();
 
  private:
 
@@ -149,19 +148,22 @@ class GlobalDigisProducer : public edm::EDProducer
   bool getAllProvenances;
   bool printProvenanceInfo;
 
+  DaqMonitorBEInterface *dbe;
+  std::string outputfile;
+
   // Electromagnetic info
   // ECal info
  
-  IntVector EBCalmaxPos; 
-  DoubleVector EBCalAEE; 
-  FloatVector EBCalSHE;
+  MonitorElement *mehEcaln[2];
+  MonitorElement *mehEScaln;
+  MonitorElement *mehEcalAEE[2];
+  MonitorElement *mehEcalSHE[2];
+  MonitorElement *mehEcalMaxPos[2];
+  MonitorElement *mehEcalMultvAEE[2];
+  MonitorElement *mehEcalSHEvAEESHE[2];
+  MonitorElement *mehEScalADC[3];
 
-  IntVector EECalmaxPos; 
-  DoubleVector EECalAEE; 
-  FloatVector EECalSHE;
-
-  FloatVector ESCalADC0, ESCalADC1, ESCalADC2;
-  FloatVector ESCalSHE;
+ 
 
   edm::InputTag ECalEBSrc_;
   edm::InputTag ECalEESrc_;
@@ -173,72 +175,53 @@ class GlobalDigisProducer : public edm::EDProducer
 
   // HCal info
 
-  FloatVector HBCalAEE;
-  FloatVector HBCalSHE;
-
-  FloatVector HECalAEE;
-  FloatVector HECalSHE;
-
-  FloatVector HOCalAEE;
-  FloatVector HOCalSHE;
-
-  FloatVector HFCalAEE;
-  FloatVector HFCalSHE;
+  MonitorElement *mehHcaln[4];
+  MonitorElement *mehHcalAEE[4];
+  MonitorElement *mehHcalSHE[4];
+  MonitorElement *mehHcalAEESHE[4];
+  MonitorElement *mehHcalSHEvAEE[4];
 
   edm::InputTag HCalSrc_;
 
   // Tracker info
   // SiStrip
   
-  FloatVector TIBL1ADC, TIBL2ADC, TIBL3ADC, TIBL4ADC;
-  IntVector TIBL1Strip, TIBL2Strip, TIBL3Strip, TIBL4Strip;
-
-  FloatVector TOBL1ADC, TOBL2ADC, TOBL3ADC, TOBL4ADC;
-  IntVector TOBL1Strip, TOBL2Strip, TOBL3Strip, TOBL4Strip;
-
-  FloatVector TIDW1ADC, TIDW2ADC, TIDW3ADC;
-  IntVector TIDW1Strip, TIDW2Strip, TIDW3Strip;
-
-  FloatVector TECW1ADC, TECW2ADC, TECW3ADC, TECW4ADC, TECW5ADC, TECW6ADC, 
-    TECW7ADC, TECW8ADC;
-  IntVector TECW1Strip, TECW2Strip, TECW3Strip, TECW4Strip, TECW5Strip, 
-    TECW6Strip, TECW7Strip, TECW8Strip;
+  MonitorElement *mehSiStripn[19];
+  MonitorElement *mehSiStripADC[19];
+  MonitorElement *mehSiStripStrip[19];
 
   edm::InputTag SiStripSrc_;
 
   // SiPxl
 
-  FloatVector BRL1ADC, BRL2ADC, BRL3ADC;
-  IntVector BRL1Row, BRL2Row, BRL3Row;
-  IntVector BRL1Col, BRL2Col, BRL3Col;
-
-  FloatVector FWD1pADC, FWD1nADC, FWD2pADC, FWD2nADC;
-  IntVector FWD1pRow, FWD1nRow, FWD2pRow, FWD2nRow;
-  IntVector FWD1pCol, FWD1nCol, FWD2pCol, FWD2nCol;
+   MonitorElement *mehSiPixeln[7];
+  MonitorElement *mehSiPixelADC[7];
+  MonitorElement *mehSiPixelRow[7];
+  MonitorElement *mehSiPixelCol[7];
 
   edm::InputTag SiPxlSrc_;
 
   // Muon info
   // DT
 
-  IntVector MB1SLayer, MB2SLayer, MB3SLayer, MB4SLayer;
-  FloatVector MB1Time, MB2Time, MB3Time, MB4Time;
-  IntVector MB1Layer, MB2Layer, MB3Layer, MB4Layer;
+  MonitorElement *mehDtMuonn[4];
+  MonitorElement *mehDtMuonLayer[4];
+  MonitorElement *mehDtMuonTime[4];
+  MonitorElement *mehDtMuonTimevLayer[4];
 
   edm::InputTag MuDTSrc_;
 
   // CSC Strip
 
-  float theCSCStripPedestalSum;
-  int theCSCStripPedestalCount;
-
-  FloatVector CSCStripADC;
+  MonitorElement *mehCSCStripn;
+  MonitorElement *mehCSCStripADC;
+  MonitorElement *mehCSCWiren;
+  MonitorElement *mehCSCWireTime;
 
   edm::InputTag MuCSCStripSrc_;
+float theCSCStripPedestalSum;
+  int theCSCStripPedestalCount;
 
-  // CSC Wire
-
-  FloatVector CSCWireTime;
 
   edm::InputTag MuCSCWireSrc_;
 
@@ -286,4 +269,4 @@ static const int sdHcalTT         = 5;
 static const int sdHcalCalib      = 6;
 static const int sdHcalCompst     = 7;
 
-#endif //PGlobalDigisProducer_h
+#endif //PGlobalDigisAnalyzer_h

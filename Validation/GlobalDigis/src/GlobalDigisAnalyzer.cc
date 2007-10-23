@@ -1,4 +1,4 @@
-/** \file GlobalDigisProducer.cc
+/** \file GlobalDigisAnalyzer.cc
  *  
  *  See header file for description of class
  *
@@ -7,20 +7,20 @@
  *  \author M. Strang SUNY-Buffalo
  */
 
-#include "Validation/GlobalDigis/interface/GlobalDigisProducer.h"
+#include "Validation/GlobalDigis/interface/GlobalDigisAnalyzer.h"
 
-GlobalDigisProducer::GlobalDigisProducer(const edm::ParameterSet& iPSet) :
+GlobalDigisAnalyzer::GlobalDigisAnalyzer(const edm::ParameterSet& iPSet) :
   fName(""), verbosity(0), frequency(0), label(""), getAllProvenances(false),
   printProvenanceInfo(false), theCSCStripPedestalSum(0),
   theCSCStripPedestalCount(0), count(0)
 {
-  std::string MsgLoggerCat = "GlobalDigisProducer_GlobalDigisProducer";
+  std::string MsgLoggerCat = "GlobalDigisAnalyzer_GlobalDigisAnalyzer";
 
   // get information from parameter set
   fName = iPSet.getUntrackedParameter<std::string>("Name");
   verbosity = iPSet.getUntrackedParameter<int>("Verbosity");
   frequency = iPSet.getUntrackedParameter<int>("Frequency");
-  label = iPSet.getParameter<std::string>("Label");
+  outputfile = iPSet.getParameter<std::string>("outputFile");
   edm::ParameterSet m_Prov =
     iPSet.getParameter<edm::ParameterSet>("ProvenanceLookup");
   getAllProvenances = 
@@ -44,17 +44,17 @@ GlobalDigisProducer::GlobalDigisProducer(const edm::ParameterSet& iPSet) :
   verbosity %= 10;
 
   // create persistent object
-  produces<PGlobalDigi>(label);
+  //produces<PGlobalDigi>(label);
 
   // print out Parameter Set information being used
   if (verbosity >= 0) {
     edm::LogInfo(MsgLoggerCat) 
       << "\n===============================\n"
-      << "Initialized as EDProducer with parameter values:\n"
+      << "Initialized as EDAnalyzer with parameter values:\n"
       << "    Name          = " << fName << "\n"
       << "    Verbosity     = " << verbosity << "\n"
       << "    Frequency     = " << frequency << "\n"
-      << "    Label         = " << label << "\n"
+      << "    OutputFile   = " << outputfile << "\n"
       << "    GetProv       = " << getAllProvenances << "\n"
       << "    PrintProv     = " << printProvenanceInfo << "\n"
       << "    ECalEBSrc     = " << ECalEBSrc_.label() 
@@ -78,24 +78,366 @@ GlobalDigisProducer::GlobalDigisProducer(const edm::ParameterSet& iPSet) :
       << "===============================\n";
   }
 
+  //Put in analyzer stuff here.... Pasted from Rec Hits... 
+
+  dbe = 0;
+dbe = edm::Service<DaqMonitorBEInterface>().operator->();
+if (dbe) {
+    if (verbosity >= 0 ) {
+      dbe->setVerbose(1);
+    } else {
+      dbe->setVerbose(0);
+    }
+}
+if (dbe) {
+    if (verbosity >= 0 ) dbe->showDirStructure();
+  }
+
+ Char_t hname[100];
+ Char_t htitle[100];
+ 
+//monitor elements 
+
+//Si Strip  ***Done***
+ if(dbe)
+   {
+std::string SiStripString[19] = {"TECW1", "TECW2", "TECW3", "TECW4", "TECW5", "TECW6", "TECW7", "TECW8", "TIBL1", "TIBL2", "TIBL3", "TIBL4", "TIDW1", "TIDW2", "TIDW3", "TOBL1", "TOBL2", "TOBL3", "TOBL4"};
+for(int i = 0; i<19; ++i)
+{
+  mehSiStripn[i]=0;
+  mehSiStripADC[i]=0;
+  mehSiStripStrip[i]=0;
+}
+ std::string hcharname, hchartitle;
+dbe->setCurrentFolder("SiStrip");
+for(int amend = 0; amend < 19; ++amend)
+{ 
+  hcharname = "hSiStripn_"+SiStripString[amend];
+  hchartitle= SiStripString[amend]+"  Digis";
+  sprintf(hname, hcharname.c_str());
+  sprintf(htitle, hchartitle.c_str());
+  mehSiStripn[amend] = dbe->book1D(hname,htitle,500,0.,1000.);
+  mehSiStripn[amend]->setAxisTitle("Number of Digis",1);
+  mehSiStripn[amend]->setAxisTitle("Count",2);
+  hcharname = "hSiStripADC_"+SiStripString[amend];
+  hchartitle= SiStripString[amend]+" ADC";
+  sprintf(hname, hcharname.c_str());
+  sprintf(htitle, hchartitle.c_str());
+  mehSiStripADC[amend] = dbe->book1D(hname,htitle,150,0.0,300.);
+  mehSiStripADC[amend]->setAxisTitle("ADC",1);
+  mehSiStripADC[amend]->setAxisTitle("Count",2);
+  hcharname = "hSiStripStripADC_"+SiStripString[amend];
+  hchartitle= SiStripString[amend]+" Strip";
+  sprintf(hname, hcharname.c_str());
+  sprintf(htitle, hchartitle.c_str());
+  mehSiStripStrip[amend] = dbe->book1D(hname,htitle,200,0.0,800.);
+  mehSiStripStrip[amend]->setAxisTitle("Strip Number",1);
+  mehSiStripStrip[amend]->setAxisTitle("Count",2);
+}
+
+
+//HCal  **DONE**
+std::string HCalString[4] = {"HB", "HE", "HO","HF"}; 
+float calnUpper[4] = {3000.,3000.,3000.,2000.}; float calnLower[4]={2000.,2000.,2000.,1000.}; 
+float SHEUpper[4]={0.05,.05,0.05,20};
+float SHEvAEEUpper[4] = {5000, 5000, 5000, 20}; float SHEvAEELower[4] = {-5000, -5000, -5000, -20}; 
+int SHEvAEEnBins[4] = {200,200,200,40};
+double ProfileUpper[4] = {1.,1.,1.,20.};  
+
+for(int i =0; i<4; ++i)
+{
+  mehHcaln[i]=0;
+  mehHcalAEE[i]=0;
+  mehHcalSHE[i]=0;
+  mehHcalAEESHE[i]=0;
+  mehHcalSHEvAEE[i]=0;
+}
+dbe->setCurrentFolder("HCal");
+ 
+for(int amend = 0; amend < 4; ++amend)
+{
+  hcharname = "hHcaln_"+HCalString[amend];
+  hchartitle= HCalString[amend]+"  digis";
+  sprintf(hname, hcharname.c_str());
+  sprintf(htitle, hchartitle.c_str());
+  mehHcaln[amend] = dbe->book1D(hname,htitle, 1000, calnLower[amend], calnUpper[amend]);
+  mehHcaln[amend]->setAxisTitle("Number of Digis",1);
+  mehHcaln[amend]->setAxisTitle("Count",2);
+  hcharname = "hHcalAEE_"+HCalString[amend];
+  hchartitle= HCalString[amend]+"Cal AEE";
+  sprintf(hname, hcharname.c_str());
+  sprintf(htitle, hchartitle.c_str());
+  mehHcalAEE[amend] = dbe->book1D(hname,htitle, 60, -10., 50.);
+  mehHcalAEE[amend]->setAxisTitle("Analog Equivalent Energy",1);
+  mehHcalAEE[amend]->setAxisTitle("Count",2);
+  hcharname = "hHcalSHE_"+HCalString[amend];
+  hchartitle= HCalString[amend]+"Cal SHE";
+  sprintf(hname, hcharname.c_str());
+  sprintf(htitle, hchartitle.c_str());
+  mehHcalSHE[amend] = dbe->book1D(hname,htitle, 100, 0.0, SHEUpper[amend]);
+  mehHcalSHE[amend]->setAxisTitle("Simulated Hit Energy",1);
+  mehHcalSHE[amend]->setAxisTitle("Count",2);
+  hcharname = "hHcalAEESHE_"+HCalString[amend];
+  hchartitle= HCalString[amend]+"Cal AEE/SHE";
+  sprintf(hname, hcharname.c_str());
+  sprintf(htitle, hchartitle.c_str());
+  mehHcalAEESHE[amend] = dbe->book1D(hname, htitle, SHEvAEEnBins[amend], SHEvAEELower[amend], SHEvAEEUpper[amend]);
+  mehHcalAEESHE[amend]->setAxisTitle("ADC / SHE",1);
+  mehHcalAEESHE[amend]->setAxisTitle("Count",2);
+  
+  //************  Not sure how to do Profile ME **************
+
+  hcharname = "hHcalSHEvAEE_"+HCalString[amend];
+  hchartitle= HCalString[amend]+"Cal SHE vs. AEE";
+  sprintf(hname, hcharname.c_str());
+  sprintf(htitle, hchartitle.c_str());
+  mehHcalSHEvAEE[amend] = dbe->bookProfile(hname,htitle, 60, (float)-10., (float)50., 100, (float)0., (float)ProfileUpper[amend],"");
+  mehHcalSHEvAEE[amend]->setAxisTitle("AEE / SHE",1);
+  mehHcalSHEvAEE[amend]->setAxisTitle("SHE",2);
+
+}
+
+
+
+
+//Ecal **Done **
+std::string ECalString[2] = {"EB","EE"}; 
+
+for(int i =0; i<2; ++i)
+{
+  mehEcaln[i]=0;
+  mehEcalAEE[i]=0;
+  mehEcalSHE[i]=0;
+  mehEcalMaxPos[i]=0;
+  mehEcalMultvAEE[i]=0;
+  mehEcalSHEvAEESHE[i]=0;
+}
+dbe->setCurrentFolder("ECal");
+ 
+for(int amend = 0; amend < 2; ++amend)
+{
+  hcharname = "hEcaln_"+ECalString[amend];
+  hchartitle= ECalString[amend]+"  digis";
+  sprintf(hname, hcharname.c_str());
+  sprintf(htitle, hchartitle.c_str());
+  mehEcaln[amend] = dbe->book1D(hname,htitle, 300, 1000., 4000.);
+  mehEcaln[amend]->setAxisTitle("Number of Digis",1);
+  mehEcaln[amend]->setAxisTitle("Count",2);
+  hcharname = "hEcalAEE_"+ECalString[amend];
+  hchartitle= ECalString[amend]+"Cal AEE";
+  sprintf(hname, hcharname.c_str());
+  sprintf(htitle, hchartitle.c_str());
+  mehEcalAEE[amend] = dbe->book1D(hname,htitle, 100, 0., 1.);
+  mehEcalAEE[amend]->setAxisTitle("Analog Equivalent Energy",1);
+  mehEcalAEE[amend]->setAxisTitle("Count",2);
+  hcharname = "hEcalSHE_"+ECalString[amend];
+  hchartitle= ECalString[amend]+"Cal SHE";
+  sprintf(hname, hcharname.c_str());
+  sprintf(htitle, hchartitle.c_str());
+  mehEcalSHE[amend] = dbe->book1D(hname,htitle, 50, 0., 5.);
+  mehEcalSHE[amend]->setAxisTitle("Simulated Hit Energy",1);
+  mehEcalSHE[amend]->setAxisTitle("Count",2);
+  hcharname = "hEcalMaxPos_"+ECalString[amend];
+  hchartitle= ECalString[amend]+"Cal MaxPos";
+  sprintf(hname, hcharname.c_str());
+  sprintf(htitle, hchartitle.c_str());
+  mehEcalMaxPos[amend] = dbe->book1D(hname,htitle,10, 0., 10.);
+  mehEcalMaxPos[amend]->setAxisTitle("Maximum Position",1);
+  mehEcalMaxPos[amend]->setAxisTitle("Count",2);
+  
+  //************  Not sure how to do Profile ME **************
+  hcharname = "hEcalSHEvAEESHE_"+ECalString[amend];
+  hchartitle= ECalString[amend]+"Cal SHE vs. AEE/SHE";
+  sprintf(hname, hcharname.c_str());
+  sprintf(htitle, hchartitle.c_str());
+  mehEcalMultvAEE[amend] = dbe->bookProfile(hname,htitle, 100, (float)0., (float)10., 400, (float)0., (float)4000.,"");
+  mehEcalMultvAEE[amend]->setAxisTitle("Analog Equivalent Energy",1);
+  mehEcalMultvAEE[amend]->setAxisTitle("Number of Digis",2);
+  hcharname = "hEcalMultvAEE_"+ECalString[amend];
+  hchartitle= ECalString[amend]+"Cal Multi vs. AEE";
+  sprintf(hname, hcharname.c_str());
+  sprintf(htitle, hchartitle.c_str());
+  mehEcalSHEvAEESHE[amend] = dbe->bookProfile(hname,htitle,100, (float)0., (float)10., 50, (float)0., (float)5.,"");
+  mehEcalSHEvAEESHE[amend]->setAxisTitle("AEE / SHE",1);
+  mehEcalSHEvAEESHE[amend]->setAxisTitle("SHE",2);
+
+
+}
+  mehEScaln = 0;
+  hcharname = "hEcaln_ES";
+  hchartitle= "ESCAL  digis";
+  sprintf(hname, hcharname.c_str());
+  sprintf(htitle, hchartitle.c_str());
+  mehEScaln = dbe->book1D(hname,htitle, 100, 0., 500.);
+  mehEScaln->setAxisTitle("Number of Digis",1);
+  mehEScaln->setAxisTitle("Count",2);
+  std::string ADCNumber[3] = {"0", "1", "2"};
+  for(int i =0; i<3; ++i)
+    {
+      mehEScalADC[i] = 0;
+      hcharname = "hEcalADC"+ADCNumber[i]+"_ES";
+      hchartitle= "ESCAL  ADC"+ADCNumber[i];
+      sprintf(hname, hcharname.c_str());
+      sprintf(htitle, hchartitle.c_str());
+      mehEScalADC[i] = dbe->book1D(hname,htitle, 150, 950., 1500.);
+      mehEScalADC[i]->setAxisTitle("ADC"+ADCNumber[i],1);
+      mehEScalADC[i]->setAxisTitle("Count",2);
+
+    }
+
+//Si Pixels ***DONE***  
+std::string SiPixelString[7] = {"BRL1", "BRL2", "BRL3", "FWD1n", "FWD1p", "FWD2n", "FWD2p"};
+for(int j =0; j<7; ++j)
+{
+  mehSiPixeln[j]=0;
+  mehSiPixelADC[j]=0;
+  mehSiPixelRow[j]=0;
+  mehSiPixelCol[j]=0;
+}
+
+dbe->setCurrentFolder("SiPixels");
+for(int amend = 0; amend < 7; ++amend)
+{
+  hcharname = "hSiPixeln_"+SiPixelString[amend];
+  hchartitle= SiPixelString[amend]+" Digis";
+  sprintf(hname, hcharname.c_str());
+  sprintf(htitle, hchartitle.c_str());
+  if(amend<3) mehSiPixeln[amend] = dbe->book1D(hname,htitle,50,0.,100.);
+  else mehSiPixeln[amend] = dbe->book1D(hname,htitle,25,0.,50.);
+  mehSiPixeln[amend]->setAxisTitle("Number of Digis",1);
+  mehSiPixeln[amend]->setAxisTitle("Count",2);
+  hcharname = "hSiPixelADC_"+SiPixelString[amend];
+  hchartitle= SiPixelString[amend]+" ADC";
+  sprintf(hname, hcharname.c_str());
+  sprintf(htitle, hchartitle.c_str());
+  mehSiPixelADC[amend] = dbe->book1D(hname,htitle,150,0.0,300.);
+  mehSiPixelADC[amend]->setAxisTitle("ADC",1);
+  mehSiPixelADC[amend]->setAxisTitle("Count",2);
+  hcharname = "hSiPixelRow_"+SiPixelString[amend];
+  hchartitle= SiPixelString[amend]+" Row";
+  sprintf(hname, hcharname.c_str());
+  sprintf(htitle, hchartitle.c_str());
+  mehSiPixelRow[amend] = dbe->book1D(hname,htitle,100,0.0,100.);
+  mehSiPixelRow[amend]->setAxisTitle("Row Number",1);
+  mehSiPixelRow[amend]->setAxisTitle("Count",2);
+  hcharname = "hSiPixelColumn_"+SiPixelString[amend];
+  hchartitle= SiPixelString[amend]+" Column";
+  sprintf(hname, hcharname.c_str());
+  sprintf(htitle, hchartitle.c_str());
+  mehSiPixelCol[amend] = dbe->book1D(hname,htitle,200,0.0,500.);
+  mehSiPixelCol[amend]->setAxisTitle("Column Number",1);
+  mehSiPixelCol[amend]->setAxisTitle("Count",2);
+}
+//Muons ***DONE****
+dbe->setCurrentFolder("Muons");
+std::string MuonString[4] = {"MB1", "MB2", "MB3", "MB4"};
+
+for(int i =0; i < 4; ++i)
+{
+  mehDtMuonn[i] = 0;
+  mehDtMuonLayer[i] = 0;
+  mehDtMuonTime[i] = 0;
+  mehDtMuonTimevLayer[i] = 0;
+}
+
+for(int j = 0; j < 4; ++j)
+{
+  hcharname = "hDtMuonn_"+MuonString[j];
+  hchartitle= MuonString[j]+"  digis";
+  sprintf(hname,hcharname.c_str());
+  sprintf(htitle,hchartitle.c_str());
+  mehDtMuonn[j] = dbe->book1D(hname,htitle,25, 0., 50.);
+  mehDtMuonn[j]->setAxisTitle("Number of Digis",1);
+  mehDtMuonn[j]->setAxisTitle("Count",2);
+  hcharname = "hDtLayer_"+MuonString[j];
+  hchartitle= MuonString[j]+"  Layer";
+  sprintf(hname,hcharname.c_str());
+  sprintf(htitle,hchartitle.c_str());
+  mehDtMuonLayer[j] = dbe->book1D(hname,htitle,12, 1., 13.);
+  mehDtMuonLayer[j]->setAxisTitle("4 * (SuperLayer - 1) + Layer",1);
+  mehDtMuonLayer[j]->setAxisTitle("Count",2);
+  hcharname = "hDtMuonTime_"+MuonString[j];
+  hchartitle= MuonString[j]+"  Time";
+  sprintf(hname,hcharname.c_str());
+  sprintf(htitle,hchartitle.c_str());
+  mehDtMuonTime[j] = dbe->book1D(hname,htitle,300, 400., 1000.);
+  mehDtMuonTime[j]->setAxisTitle("Time",1);
+  mehDtMuonTime[j]->setAxisTitle("Count",2);
+  hcharname = "hDtMuonTimevLayer_"+MuonString[j];
+  hchartitle= MuonString[j]+"  Time vs. Layer";
+  sprintf(hname,hcharname.c_str());
+  sprintf(htitle,hchartitle.c_str());
+  mehDtMuonTimevLayer[j] = dbe->bookProfile(hname,htitle,12, 1., 13., 300, 400., 1000.,"");
+  mehDtMuonTimevLayer[j]->setAxisTitle("4 * (SuperLayer - 1) + Layer",1);
+  mehDtMuonTimevLayer[j]->setAxisTitle("Time",2);
+}
+
+//  ****  Have to do CSC and RPC now *****
+//CSC 
+mehCSCStripn = 0;
+hcharname = "hCSCStripn";
+hchartitle = "CSC Strip digis";
+sprintf(hname,hcharname.c_str());
+sprintf(htitle,hchartitle.c_str());
+mehCSCStripn = dbe->book1D(hname,htitle,25, 0., 50.);
+mehCSCStripn->setAxisTitle("Number of Digis",1);
+mehCSCStripn->setAxisTitle("Count",2);
+
+mehCSCStripADC = 0;
+hcharname = "hCSCStripADC";
+hchartitle = "CSC Strip ADC";
+sprintf(hname,hcharname.c_str());
+sprintf(htitle,hchartitle.c_str());
+mehCSCStripADC = dbe->book1D(hname,htitle, 110, 0., 1100.);
+mehCSCStripADC->setAxisTitle("ADC",1);
+mehCSCStripADC->setAxisTitle("Count",2);
+
+mehCSCWiren = 0;
+hcharname = "hCSCWiren";
+hchartitle = "CSC Wire digis";
+sprintf(hname,hcharname.c_str());
+sprintf(htitle,hchartitle.c_str());
+mehCSCWiren = dbe->book1D(hname,htitle,25, 0., 50.);
+mehCSCWiren->setAxisTitle("Number of Digis",1);
+mehCSCWiren->setAxisTitle("Count",2);
+
+
+
+mehCSCWireTime = 0;
+hcharname = "hCSCWireTime";
+hchartitle = "CSC Wire Time";
+sprintf(hname,hcharname.c_str());
+sprintf(htitle,hchartitle.c_str());
+mehCSCWireTime = dbe->book1D(hname,htitle,10, 0., 10.);
+mehCSCWireTime->setAxisTitle("Time",1);
+mehCSCWireTime->setAxisTitle("Count",2);
+ 
+
+}
+
+}
+
   // set default constants
   // ECal
-  ECalgainConv_[0] = 0.;
-  ECalgainConv_[1] = 1.;
-  ECalgainConv_[2] = 2.;
-  ECalgainConv_[3] = 12.;  
-  ECalbarrelADCtoGeV_ = 0.035;
-  ECalendcapADCtoGeV_ = 0.06;
 
+  //ECalgainConv_[0] = 0.;
+  //ECalgainConv_[1] = 1.;
+  //ECalgainConv_[2] = 2.;
+  //ECalgainConv_[3] = 12.;  
+  //ECalbarrelADCtoGeV_ = 0.035;
+  //ECalendcapADCtoGeV_ = 0.06;
+
+
+
+GlobalDigisAnalyzer::~GlobalDigisAnalyzer() 
+{
+
+  if (outputfile.size() != 0 && dbe) dbe->save(outputfile);
 }
 
-GlobalDigisProducer::~GlobalDigisProducer() 
+void GlobalDigisAnalyzer::beginJob(const edm::EventSetup& iSetup)
 {
-}
-
-void GlobalDigisProducer::beginJob(const edm::EventSetup& iSetup)
-{
-  std::string MsgLoggerCat = "GlobalDigisProducer_beginJob";
+  std::string MsgLoggerCat = "GlobalDigisAnalyzer_beginJob";
 
   // setup calorimeter constants from service
   edm::ESHandle<EcalADCToGeVConstant> pAgc;
@@ -125,23 +467,23 @@ void GlobalDigisProducer::beginJob(const edm::EventSetup& iSetup)
   }
 
   // clear storage vectors
-  clear();
+  //clear();
   return;
 }
 
-void GlobalDigisProducer::endJob()
+void GlobalDigisAnalyzer::endJob()
 {
-  std::string MsgLoggerCat = "GlobalDigisProducer_endJob";
+  std::string MsgLoggerCat = "GlobalDigisAnalyzer_endJob";
   if (verbosity >= 0)
     edm::LogInfo(MsgLoggerCat) 
       << "Terminating having processed " << count << " events.";
   return;
 }
 
-void GlobalDigisProducer::produce(edm::Event& iEvent, 
+void GlobalDigisAnalyzer::analyze(const edm::Event& iEvent, 
 				  const edm::EventSetup& iSetup)
 {
-  std::string MsgLoggerCat = "GlobalDigisProducer_produce";
+  std::string MsgLoggerCat = "GlobalDigisAnalyzer_analyze";
 
   // keep track of number of events processed
   ++count;
@@ -163,7 +505,7 @@ void GlobalDigisProducer::produce(edm::Event& iEvent,
   }
 
   // clear event holders
-  clear();
+  //clear();
 
   // look at information available in the event
   if (getAllProvenances) {
@@ -205,45 +547,37 @@ void GlobalDigisProducer::produce(edm::Event& iEvent,
 
   // call fill functions
   // gather Ecal information from event
-  fillECal(iEvent, iSetup);
+  fillECal(iEvent,  iSetup);
   // gather Hcal information from event
   fillHCal(iEvent, iSetup);
   // gather Track information from event
-  fillTrk(iEvent, iSetup);
+  fillTrk(iEvent,  iSetup);
   // gather Muon information from event
-  fillMuon(iEvent, iSetup);
+  fillMuon(iEvent,  iSetup);
 
   if (verbosity > 0)
     edm::LogInfo (MsgLoggerCat)
       << "Done gathering data from event.";
 
   // produce object to put into event
-  std::auto_ptr<PGlobalDigi> pOut(new PGlobalDigi);
+  //std::auto_ptr<PGlobalDigi> pOut(new PGlobalDigi);
 
   if (verbosity > 2)
     edm::LogInfo (MsgLoggerCat)
       << "Saving event contents:";
 
-  // call store functions
-  // store ECal information in produce
-  storeECal(*pOut);
-  // store HCal information in produce
-  storeHCal(*pOut);
-  // store Track information in produce
-  storeTrk(*pOut);
-  // store Muon information in produce
-  storeMuon(*pOut);
+ 
 
   // store information in event
-  iEvent.put(pOut,label);
+  //iEvent.put(pOut,label);
 
   return;
 }
 
-void GlobalDigisProducer::fillECal(edm::Event& iEvent, 
+void GlobalDigisAnalyzer::fillECal(const edm::Event& iEvent, 
 				   const edm::EventSetup& iSetup)
 {
-  std::string MsgLoggerCat = "GlobalDigisProducer_fillECal";
+  std::string MsgLoggerCat = "GlobalDigisAnalyzer_fillECal";
 
   TString eventout;
   if (verbosity > 0)
@@ -371,15 +705,21 @@ void GlobalDigisProducer::fillECal(edm::Event& iEvent,
 	* ECalgainConv_[(int)ebADCGains[Pmax]];
       
       // gather necessary information
-      EBCalAEE.push_back(Erec);
-      EBCalSHE.push_back(ebSimMap[ebid.rawId()]);
-      EBCalmaxPos.push_back(Pmax);
+      //EBCalAEE.push_back(Erec);
+      //EBCalSHE.push_back(ebSimMap[ebid.rawId()]);
+      //EBCalmaxPos.push_back(Pmax);
+      mehEcalMaxPos[0]->Fill(Pmax);
+      mehEcalSHE[0]->Fill(ebSimMap[ebid.rawId()]);
+      mehEcalAEE[0]->Fill(Erec);
+      mehEcalSHEvAEESHE[0]->Fill(Erec/ebSimMap[ebid.rawId()],ebSimMap[ebid.rawId()]);
+      mehEcalMultvAEE[0]->Fill(Pmax,(float)i);
     }
     
     if (verbosity > 1) {
       eventout += "\n          Number of EBDigis collected:.............. ";
       eventout += i;
     }
+    mehEcaln[0]->Fill((float)i);
   }
 
   /////////////////////////
@@ -436,14 +776,14 @@ void GlobalDigisProducer::fillECal(edm::Event& iEvent,
     eeADCCounts.reserve(EEDataFrame::MAXSAMPLES);
     eeADCGains.reserve(EEDataFrame::MAXSAMPLES);
 
-    int i = 0;
+    int inc = 0;
     //for (std::vector<EEDataFrame>::const_iterator digis =
     //   endcapDigi->begin();
     // digis != endcapDigi->end();
     // ++digis) {
     for (unsigned int digis=0; digis<EcalDigiEE->size(); ++digis){ 
     
-      ++i;
+      ++inc;
 
       EEDataFrame eedf = (*endcapDigi)[digis];
       int nrSamples = eedf.size();
@@ -494,17 +834,24 @@ void GlobalDigisProducer::fillECal(edm::Event& iEvent,
 	* ECalgainConv_[(int)eeADCGains[Pmax]];
 
       // gather necessary information
-      EECalAEE.push_back(Erec);
-      EECalSHE.push_back(eeSimMap[eeid.rawId()]);
-      EECalmaxPos.push_back(Pmax);
+      //EECalAEE.push_back(Erec);
+      //EECalSHE.push_back(eeSimMap[eeid.rawId()]);
+      //EECalmaxPos.push_back(Pmax);
+      mehEcalMaxPos[1]->Fill(Pmax);
+      mehEcalSHE[1]->Fill(eeSimMap[eeid.rawId()]);
+      mehEcalAEE[1]->Fill(Erec);
+      mehEcalSHEvAEESHE[1]->Fill(Erec/eeSimMap[eeid.rawId()],eeSimMap[eeid.rawId()]);
+      mehEcalMultvAEE[1]->Fill(Pmax,(float)inc);
+      
     }
     
     if (verbosity > 1) {
       eventout += "\n          Number of EEDigis collected:.............. ";
-      eventout += i;
+      eventout += inc;
     }
+  
+  mehEcaln[1]->Fill((float)inc);
   }
-
   /////////////////////////
   //extract ES information
   ////////////////////////
@@ -584,78 +931,34 @@ void GlobalDigisProducer::fillECal(edm::Event& iEvent,
 	esADCCounts[sample] = (thisSample.adc());
       }
       
-      ESCalADC0.push_back(esADCCounts[0]);
-      ESCalADC1.push_back(esADCCounts[1]);
-      ESCalADC2.push_back(esADCCounts[2]);
-      ESCalSHE.push_back(esSimMap[esid.rawId()]);
+      //ESCalADC0.push_back(esADCCounts[0]);
+      //ESCalADC1.push_back(esADCCounts[1]);
+      //ESCalADC2.push_back(esADCCounts[2]);
+      //ESCalSHE.push_back(esSimMap[esid.rawId()]);
+      mehEScalADC[0]->Fill(esADCCounts[0]);
+      mehEScalADC[1]->Fill(esADCCounts[1]);
+      mehEScalADC[2]->Fill(esADCCounts[2]);
+      
     }
     
     if (verbosity > 1) {
       eventout += "\n          Number of ESDigis collected:.............. ";
       eventout += i;
     }
+  
+  mehEScaln->Fill((float)i);
   }
-
   if (verbosity > 0)
     edm::LogInfo(MsgLoggerCat) << eventout << "\n";
 
   return;
 }
 
-void GlobalDigisProducer::storeECal(PGlobalDigi& product)
-{
-  std::string MsgLoggerCat = "GlobalDigisProducer_storeECal";
 
-  if (verbosity > 2) {
-    TString eventout("\n         nEBDigis     = ");
-    eventout += EBCalmaxPos.size();
-    for (unsigned int i = 0; i < EBCalmaxPos.size(); ++i) {
-      eventout += "\n      (maxPos, AEE, SHE) = (";
-      eventout += EBCalmaxPos[i];
-      eventout += ", ";
-      eventout += EBCalAEE[i];
-      eventout += ", ";
-      eventout += EBCalSHE[i];
-      eventout += ")";
-    }
-    eventout += "\n         nEEDigis     = ";
-    eventout += EECalmaxPos.size();
-    for (unsigned int i = 0; i < EECalmaxPos.size(); ++i) {
-      eventout += "\n      (maxPos, AEE, SHE) = (";
-      eventout += EECalmaxPos[i];
-      eventout += ", ";
-      eventout += EECalAEE[i];
-      eventout += ", ";
-      eventout += EECalSHE[i];
-      eventout += ")";
-    }
-    eventout += "\n         nESDigis          = ";
-    eventout += ESCalADC0.size();
-    for (unsigned int i = 0; i < ESCalADC0.size(); ++i) {
-      eventout += "\n      (ADC0, ADC1, ADC2, SHE) = (";
-      eventout += ESCalADC0[i];
-      eventout += ", ";
-      eventout += ESCalADC1[i];
-      eventout += ", ";
-      eventout += ESCalADC2[i];
-      eventout += ", ";
-      eventout += ESCalSHE[i];
-      eventout += ")";
-    }
-    edm::LogInfo(MsgLoggerCat) << eventout << "\n";
-  }
-
-  product.putEBCalDigis(EBCalmaxPos,EBCalAEE,EBCalSHE);
-  product.putEECalDigis(EECalmaxPos,EECalAEE,EECalSHE);
-  product.putESCalDigis(ESCalADC0,ESCalADC1,ESCalADC2,ESCalSHE);
-
-  return;
-}
-
-void GlobalDigisProducer::fillHCal(edm::Event& iEvent, 
+void GlobalDigisAnalyzer::fillHCal(const edm::Event& iEvent, 
 				   const edm::EventSetup& iSetup)
 {
-  std::string MsgLoggerCat = "GlobalDigisProducer_fillHCal";
+  std::string MsgLoggerCat = "GlobalDigisAnalyzer_fillHCal";
 
   TString eventout;
   if (verbosity > 0)
@@ -745,8 +1048,12 @@ void GlobalDigisProducer::fillHCal(edm::Event& iEvent,
 	  fDigiSum += (tool[ii] - calibrations.pedestal(capid));
 	}
 	
-	HBCalAEE.push_back(fDigiSum);
-	HBCalSHE.push_back(fHBEnergySimHits[cell.rawId()]);
+	//	HBCalAEE.push_back(fDigiSum);
+	//HBCalSHE.push_back(fHBEnergySimHits[cell.rawId()]);
+	mehHcalSHE[0]->Fill(fHFEnergySimHits[cell.rawId()]);
+	mehHcalAEE[0]->Fill(fDigiSum);
+	mehHcalAEESHE[0]->Fill(fDigiSum/fHFEnergySimHits[cell.rawId()]);
+	mehHcalSHEvAEE[0]->Fill(fDigiSum, fHFEnergySimHits[cell.rawId()]);
       }
 	
       // get HE info
@@ -759,8 +1066,12 @@ void GlobalDigisProducer::fillHCal(edm::Event& iEvent,
 	  fDigiSum += (tool[ii]-calibrations.pedestal(capid));
 	}
 	
-	HECalAEE.push_back(fDigiSum);
-	HECalSHE.push_back(fHEEnergySimHits[cell.rawId()]);
+	//HECalAEE.push_back(fDigiSum);
+	//HECalSHE.push_back(fHEEnergySimHits[cell.rawId()]);
+	mehHcalSHE[1]->Fill(fHFEnergySimHits[cell.rawId()]);
+	mehHcalAEE[1]->Fill(fDigiSum);
+	mehHcalAEESHE[1]->Fill(fDigiSum/fHFEnergySimHits[cell.rawId()]);
+	mehHcalSHEvAEE[1]->Fill(fDigiSum, fHFEnergySimHits[cell.rawId()]);
       }
     }
   }
@@ -769,12 +1080,13 @@ void GlobalDigisProducer::fillHCal(edm::Event& iEvent,
     eventout += "\n          Number of HBDigis collected:.............. ";
     eventout += iHB;
   }
+  mehHcaln[0]->Fill((float)iHB);
   
   if (verbosity > 1) {
     eventout += "\n          Number of HEDigis collected:.............. ";
     eventout += iHE;
   }
-
+ mehHcaln[1]->Fill((float)iHE);
   ////////////////////////
   // get HO information
   ///////////////////////
@@ -806,8 +1118,12 @@ void GlobalDigisProducer::fillHCal(edm::Event& iEvent,
 	fDigiSum += (tool[ii] - calibrations.pedestal(capid));
       }
 	
-      HOCalAEE.push_back(fDigiSum);
-      HOCalSHE.push_back(fHOEnergySimHits[cell.rawId()]);
+      //HOCalAEE.push_back(fDigiSum);
+      //HOCalSHE.push_back(fHOEnergySimHits[cell.rawId()]);
+      mehHcalSHE[2]->Fill(fHFEnergySimHits[cell.rawId()]);
+      mehHcalAEE[2]->Fill(fDigiSum);
+      mehHcalAEESHE[2]->Fill(fDigiSum/fHFEnergySimHits[cell.rawId()]);
+      mehHcalSHEvAEE[2]->Fill(fDigiSum, fHFEnergySimHits[cell.rawId()]);
     }
   }
 
@@ -815,6 +1131,7 @@ void GlobalDigisProducer::fillHCal(edm::Event& iEvent,
     eventout += "\n          Number of HODigis collected:.............. ";
     eventout += iHO;
   }
+  mehHcaln[2]->Fill((float)iHO);
 
   ////////////////////////
   // get HF information
@@ -847,8 +1164,12 @@ void GlobalDigisProducer::fillHCal(edm::Event& iEvent,
 	fDigiSum += (tool[ii] - calibrations.pedestal(capid));
       }
 	
-      HFCalAEE.push_back(fDigiSum);
-      HFCalSHE.push_back(fHFEnergySimHits[cell.rawId()]);
+      //HFCalAEE.push_back(fDigiSum);
+      //HFCalSHE.push_back(fHFEnergySimHits[cell.rawId()]);
+      mehHcalSHE[3]->Fill(fHFEnergySimHits[cell.rawId()]);
+      mehHcalAEE[3]->Fill(fDigiSum);
+      mehHcalAEESHE[3]->Fill(fDigiSum/fHFEnergySimHits[cell.rawId()]);
+      mehHcalSHEvAEE[3]->Fill(fDigiSum, fHFEnergySimHits[cell.rawId()]);
     }
   }
 
@@ -856,6 +1177,7 @@ void GlobalDigisProducer::fillHCal(edm::Event& iEvent,
     eventout += "\n          Number of HFDigis collected:.............. ";
     eventout += iHF;
   }
+  mehHcaln[3]->Fill((float)iHF);
 
   if (verbosity > 0)
     edm::LogInfo(MsgLoggerCat) << eventout << "\n";
@@ -863,63 +1185,12 @@ void GlobalDigisProducer::fillHCal(edm::Event& iEvent,
   return;
 }
 
-void GlobalDigisProducer::storeHCal(PGlobalDigi& product)
-{
-  std::string MsgLoggerCat = "GlobalDigisProducer_storeHCal";
 
-  if (verbosity > 2) {
-    TString eventout("\n         nHBDigis     = ");
-    eventout += HBCalAEE.size();
-    for (unsigned int i = 0; i < HBCalAEE.size(); ++i) {
-      eventout += "\n      (AEE, SHE) = (";
-      eventout += HBCalAEE[i];
-      eventout += ", ";
-      eventout += HBCalSHE[i];
-      eventout += ")";
-    }
-    eventout += "\n         nHEDigis     = ";
-    eventout += HECalAEE.size();
-    for (unsigned int i = 0; i < HECalAEE.size(); ++i) {
-      eventout += "\n      (AEE, SHE) = (";
-      eventout += HECalAEE[i];
-      eventout += ", ";
-      eventout += HECalSHE[i];
-      eventout += ")";
-    }
-    eventout += "\n         nHODigis     = ";
-    eventout += HOCalAEE.size();
-    for (unsigned int i = 0; i < HOCalAEE.size(); ++i) {
-      eventout += "\n      (AEE, SHE) = (";
-      eventout += HOCalAEE[i];
-      eventout += ", ";
-      eventout += HOCalSHE[i];
-      eventout += ")";
-    }
-    eventout += "\n         nHFDigis     = ";
-    eventout += HFCalAEE.size();
-    for (unsigned int i = 0; i < HFCalAEE.size(); ++i) {
-      eventout += "\n      (AEE, SHE) = (";
-      eventout += HFCalAEE[i];
-      eventout += ", ";
-      eventout += HFCalSHE[i];
-      eventout += ")";
-    }
 
-    edm::LogInfo(MsgLoggerCat) << eventout << "\n";
-  }
-
-  product.putHBCalDigis(HBCalAEE,HBCalSHE);
-  product.putHECalDigis(HECalAEE,HECalSHE);
-  product.putHOCalDigis(HOCalAEE,HOCalSHE);
-  product.putHFCalDigis(HFCalAEE,HFCalSHE);
-
-  return;
-}
-
-void GlobalDigisProducer::fillTrk(edm::Event& iEvent, 
+void GlobalDigisAnalyzer::fillTrk(const edm::Event& iEvent, 
 				   const edm::EventSetup& iSetup)
 {
-  std::string MsgLoggerCat = "GlobalDigisProducer_fillTrk";
+  std::string MsgLoggerCat = "GlobalDigisAnalyzer_fillTrk";
 
   TString eventout;
   if (verbosity > 0)
@@ -950,20 +1221,28 @@ void GlobalDigisProducer::fillTrk(edm::Event& iEvent,
       for (iter = begin; iter != end; ++iter) {
 	++nStripBrl;
 	if (tibid.layer() == 1) {
-	  TIBL1ADC.push_back((*iter).adc());
-	  TIBL1Strip.push_back((*iter).strip());
+	  //TIBL1ADC.push_back((*iter).adc());
+	  //TIBL1Strip.push_back((*iter).strip());
+	  mehSiStripADC[0]->Fill((*iter).adc());
+	  mehSiStripStrip[0]->Fill((*iter).strip());
 	}
 	if (tibid.layer() == 2) {
-	  TIBL2ADC.push_back((*iter).adc());
-	  TIBL2Strip.push_back((*iter).strip());
+	  //TIBL2ADC.push_back((*iter).adc());
+	  //TIBL2Strip.push_back((*iter).strip());
+	  mehSiStripADC[1]->Fill((*iter).adc());
+	  mehSiStripStrip[1]->Fill((*iter).strip());
 	}	
 	if (tibid.layer() == 3) {
-	  TIBL3ADC.push_back((*iter).adc());
-	  TIBL3Strip.push_back((*iter).strip());
+	  //TIBL3ADC.push_back((*iter).adc());
+	  //TIBL3Strip.push_back((*iter).strip());
+	  mehSiStripADC[2]->Fill((*iter).adc());
+	  mehSiStripStrip[2]->Fill((*iter).strip());
 	}
 	if (tibid.layer() == 4) {
-	  TIBL4ADC.push_back((*iter).adc());
-	  TIBL4Strip.push_back((*iter).strip());
+	  //TIBL4ADC.push_back((*iter).adc());
+	  //TIBL4Strip.push_back((*iter).strip());
+	  mehSiStripADC[3]->Fill((*iter).adc());
+	  mehSiStripStrip[3]->Fill((*iter).strip());
 	}
       }
     }
@@ -974,20 +1253,28 @@ void GlobalDigisProducer::fillTrk(edm::Event& iEvent,
       for (iter = begin; iter != end; ++iter) {
 	++nStripBrl;
 	if (tobid.layer() == 1) {
-	  TOBL1ADC.push_back((*iter).adc());
-	  TOBL1Strip.push_back((*iter).strip());
+	  //TOBL1ADC.push_back((*iter).adc());
+	  //TOBL1Strip.push_back((*iter).strip());
+	  mehSiStripADC[4]->Fill((*iter).adc());
+	  mehSiStripStrip[4]->Fill((*iter).strip());
 	}
 	if (tobid.layer() == 2) {
-	  TOBL2ADC.push_back((*iter).adc());
-	  TOBL2Strip.push_back((*iter).strip());
+	  //TOBL2ADC.push_back((*iter).adc());
+	  //TOBL2Strip.push_back((*iter).strip());
+	  mehSiStripADC[5]->Fill((*iter).adc());
+	  mehSiStripStrip[5]->Fill((*iter).strip());
 	}	
 	if (tobid.layer() == 3) {
-	  TOBL3ADC.push_back((*iter).adc());
-	  TOBL3Strip.push_back((*iter).strip());
+	  //TOBL3ADC.push_back((*iter).adc());
+	  //TOBL3Strip.push_back((*iter).strip());
+	  mehSiStripADC[6]->Fill((*iter).adc());
+	  mehSiStripStrip[6]->Fill((*iter).strip());
 	}
 	if (tobid.layer() == 4) {
-	  TOBL4ADC.push_back((*iter).adc());
-	  TOBL4Strip.push_back((*iter).strip());
+	  //TOBL4ADC.push_back((*iter).adc());
+	  //TOBL4Strip.push_back((*iter).strip());
+	  mehSiStripADC[7]->Fill((*iter).adc());
+	  mehSiStripStrip[7]->Fill((*iter).strip());
 	}
       }
     }    
@@ -998,16 +1285,22 @@ void GlobalDigisProducer::fillTrk(edm::Event& iEvent,
       for (iter = begin; iter != end; ++iter) {
 	++nStripFwd;
 	if (tidid.wheel() == 1) {
-	  TIDW1ADC.push_back((*iter).adc());
-	  TIDW1Strip.push_back((*iter).strip());
+	  //TIDW1ADC.push_back((*iter).adc());
+	  //TIDW1Strip.push_back((*iter).strip());
+	  mehSiStripADC[8]->Fill((*iter).adc());
+	  mehSiStripStrip[8]->Fill((*iter).strip());
 	}
 	if (tidid.wheel() == 2) {
-	  TIDW2ADC.push_back((*iter).adc());
-	  TIDW2Strip.push_back((*iter).strip());
+	  //TIDW2ADC.push_back((*iter).adc());
+	  //TIDW2Strip.push_back((*iter).strip());
+	  mehSiStripADC[9]->Fill((*iter).adc());
+	  mehSiStripStrip[9]->Fill((*iter).strip());
 	}
 	if (tidid.wheel() == 3) {
-	  TIDW3ADC.push_back((*iter).adc());
-	  TIDW3Strip.push_back((*iter).strip());
+	  //TIDW3ADC.push_back((*iter).adc());
+	  //TIDW3Strip.push_back((*iter).strip());
+	  mehSiStripADC[10]->Fill((*iter).adc());
+	  mehSiStripStrip[10]->Fill((*iter).strip());
 	}
       }
     }   
@@ -1018,36 +1311,52 @@ void GlobalDigisProducer::fillTrk(edm::Event& iEvent,
       for (iter = begin; iter != end; ++iter) {
 	++nStripFwd;
 	if (tecid.wheel() == 1) {
-	  TECW1ADC.push_back((*iter).adc());
-	  TECW1Strip.push_back((*iter).strip());
+	  //TECW1ADC.push_back((*iter).adc());
+	  //TECW1Strip.push_back((*iter).strip());
+	  mehSiStripADC[11]->Fill((*iter).adc());
+	  mehSiStripStrip[11]->Fill((*iter).strip());
 	}
 	if (tecid.wheel() == 2) {
-	  TECW2ADC.push_back((*iter).adc());
-	  TECW2Strip.push_back((*iter).strip());
+	  //TECW2ADC.push_back((*iter).adc());
+	  //TECW2Strip.push_back((*iter).strip());
+	  mehSiStripADC[12]->Fill((*iter).adc());
+	  mehSiStripStrip[12]->Fill((*iter).strip());
 	}
 	if (tecid.wheel() == 3) {
-	  TECW3ADC.push_back((*iter).adc());
-	  TECW3Strip.push_back((*iter).strip());
+	  //TECW3ADC.push_back((*iter).adc());
+	  //TECW3Strip.push_back((*iter).strip());
+	  mehSiStripADC[13]->Fill((*iter).adc());
+	  mehSiStripStrip[13]->Fill((*iter).strip());
 	}
 	if (tecid.wheel() == 4) {
-	  TECW4ADC.push_back((*iter).adc());
-	  TECW4Strip.push_back((*iter).strip());
+	  //TECW4ADC.push_back((*iter).adc());
+	  //TECW4Strip.push_back((*iter).strip());
+	  mehSiStripADC[14]->Fill((*iter).adc());
+	  mehSiStripStrip[14]->Fill((*iter).strip());
 	}
 	if (tecid.wheel() == 5) {
-	  TECW5ADC.push_back((*iter).adc());
-	  TECW5Strip.push_back((*iter).strip());
+	  //TECW5ADC.push_back((*iter).adc());
+	  //TECW5Strip.push_back((*iter).strip());
+	  mehSiStripADC[15]->Fill((*iter).adc());
+	  mehSiStripStrip[15]->Fill((*iter).strip());
 	}
 	if (tecid.wheel() == 6) {
-	  TECW6ADC.push_back((*iter).adc());
-	  TECW6Strip.push_back((*iter).strip());
+	  //TECW6ADC.push_back((*iter).adc());
+	  //TECW6Strip.push_back((*iter).strip());
+	  mehSiStripADC[16]->Fill((*iter).adc());
+	  mehSiStripStrip[16]->Fill((*iter).strip());
 	}
 	if (tecid.wheel() == 7) {
-	  TECW7ADC.push_back((*iter).adc());
-	  TECW7Strip.push_back((*iter).strip());
+	  //TECW7ADC.push_back((*iter).adc());
+	  //TECW7Strip.push_back((*iter).strip());
+	  mehSiStripADC[17]->Fill((*iter).adc());
+	  mehSiStripStrip[17]->Fill((*iter).strip());
 	}
 	if (tecid.wheel() == 8) {
-	  TECW8ADC.push_back((*iter).adc());
-	  TECW8Strip.push_back((*iter).strip());
+	  //TECW8ADC.push_back((*iter).adc());
+	  //TECW8Strip.push_back((*iter).strip());
+	  mehSiStripADC[18]->Fill((*iter).adc());
+	  mehSiStripStrip[18]->Fill((*iter).strip());
 	}
       }
     }     
@@ -1057,11 +1366,19 @@ void GlobalDigisProducer::fillTrk(edm::Event& iEvent,
     eventout += "\n          Number of BrlStripDigis collected:........ ";
     eventout += nStripBrl;
   }
+  for(int i = 0; i < 8; ++i)
+    {
+      mehSiStripn[i]->Fill((float)nStripBrl);
+    }
 
   if (verbosity > 1) {
     eventout += "\n          Number of FrwdStripDigis collected:....... ";
     eventout += nStripFwd;
   }
+  for(int i = 8; i < 19; ++i)
+    {
+      mehSiStripn[i]->Fill((float)nStripFwd);
+    }
 
   // get pixel information
   edm::Handle<edm::DetSetVector<PixelDigi> > pixelDigis;  
@@ -1088,19 +1405,28 @@ void GlobalDigisProducer::fillTrk(edm::Event& iEvent,
       for (iter = begin; iter != end; ++iter) {
 	++nPxlBrl;
 	if (bdetid.layer() == 1) {
-	  BRL1ADC.push_back((*iter).adc());
-	  BRL1Row.push_back((*iter).row());
-	  BRL1Col.push_back((*iter).column());	  
+	  //BRL1ADC.push_back((*iter).adc());
+	  //BRL1Row.push_back((*iter).row());
+	  //BRL1Col.push_back((*iter).column());
+	  mehSiPixelADC[0]->Fill((*iter).adc());
+	  mehSiPixelRow[0]->Fill((*iter).row());
+	  mehSiPixelCol[0]->Fill((*iter).column());
 	}
 	if (bdetid.layer() == 2) {
-	  BRL2ADC.push_back((*iter).adc());
-	  BRL2Row.push_back((*iter).row());
-	  BRL2Col.push_back((*iter).column());	  
+	  //BRL2ADC.push_back((*iter).adc());
+	  //BRL2Row.push_back((*iter).row());
+	  //BRL2Col.push_back((*iter).column());
+	  mehSiPixelADC[1]->Fill((*iter).adc());
+	  mehSiPixelRow[1]->Fill((*iter).row());
+	  mehSiPixelCol[1]->Fill((*iter).column());
 	}
 	if (bdetid.layer() == 3) {
-	  BRL3ADC.push_back((*iter).adc());
-	  BRL3Row.push_back((*iter).row());
-	  BRL3Col.push_back((*iter).column());	  
+	  //BRL3ADC.push_back((*iter).adc());
+	  //BRL3Row.push_back((*iter).row());
+	  //BRL3Col.push_back((*iter).column());
+	  mehSiPixelADC[2]->Fill((*iter).adc());
+	  mehSiPixelRow[2]->Fill((*iter).row());
+	  mehSiPixelCol[2]->Fill((*iter).column());
 	}
       }
     }
@@ -1112,26 +1438,38 @@ void GlobalDigisProducer::fillTrk(edm::Event& iEvent,
 	++nPxlFwd;
 	if (fdetid.disk() == 1) {
 	  if (fdetid.side() == 1) {
-	    FWD1nADC.push_back((*iter).adc());
-	    FWD1nRow.push_back((*iter).row());
-	    FWD1nCol.push_back((*iter).column());
+	    //FWD1nADC.push_back((*iter).adc());
+	    //FWD1nRow.push_back((*iter).row());
+	    //FWD1nCol.push_back((*iter).column());
+	    mehSiPixelADC[4]->Fill((*iter).adc());
+	    mehSiPixelRow[4]->Fill((*iter).row());
+	    mehSiPixelCol[4]->Fill((*iter).column());
 	  }
 	  if (fdetid.side() == 2) {
-	    FWD1pADC.push_back((*iter).adc());
-	    FWD1pRow.push_back((*iter).row());
-	    FWD1pCol.push_back((*iter).column());
+	    //FWD1pADC.push_back((*iter).adc());
+	    //FWD1pRow.push_back((*iter).row());
+	    //FWD1pCol.push_back((*iter).column());
+	    mehSiPixelADC[3]->Fill((*iter).adc());
+	    mehSiPixelRow[3]->Fill((*iter).row());
+	    mehSiPixelCol[3]->Fill((*iter).column());
 	  }
 	}
 	if (fdetid.disk() == 2) {
 	  if (fdetid.side() == 1) {
-	    FWD2nADC.push_back((*iter).adc());
-	    FWD2nRow.push_back((*iter).row());
-	    FWD2nCol.push_back((*iter).column());
+	    //FWD2nADC.push_back((*iter).adc());
+	    //FWD2nRow.push_back((*iter).row());
+	    //FWD2nCol.push_back((*iter).column());
+	    mehSiPixelADC[6]->Fill((*iter).adc());
+	    mehSiPixelRow[6]->Fill((*iter).row());
+	    mehSiPixelCol[6]->Fill((*iter).column());
 	  }
 	  if (fdetid.side() == 2) {
-	    FWD2pADC.push_back((*iter).adc());
-	    FWD2pRow.push_back((*iter).row());
-	    FWD2pCol.push_back((*iter).column());
+	    //FWD2pADC.push_back((*iter).adc());
+	    //FWD2pRow.push_back((*iter).row());
+	    //FWD2pCol.push_back((*iter).column());
+	    mehSiPixelADC[5]->Fill((*iter).adc());
+	    mehSiPixelRow[5]->Fill((*iter).row());
+	    mehSiPixelCol[5]->Fill((*iter).column());
 	  }
 	}
       }
@@ -1142,11 +1480,21 @@ void GlobalDigisProducer::fillTrk(edm::Event& iEvent,
     eventout += "\n          Number of BrlPixelDigis collected:........ ";
     eventout += nPxlBrl;
   }
+  for(int i = 0; i < 3; ++i)
+    {
+      mehSiPixeln[i]->Fill((float)nPxlBrl);
+    }
+
 
   if (verbosity > 1) {
     eventout += "\n          Number of FrwdPixelDigis collected:....... ";
     eventout += nPxlFwd;
   }
+  for(int i = 3; i < 7; ++i)
+    {
+      mehSiPixeln[i]->Fill((float)nPxlFwd);
+    }
+
 
   if (verbosity > 0)
     edm::LogInfo(MsgLoggerCat) << eventout << "\n";
@@ -1154,304 +1502,45 @@ void GlobalDigisProducer::fillTrk(edm::Event& iEvent,
   return;
 }
 
-void GlobalDigisProducer::storeTrk(PGlobalDigi& product)
-{
-  std::string MsgLoggerCat = "GlobalDigisProducer_storeTrk";
 
-  if (verbosity > 2) {
-
-    // strip output
-    TString eventout("\n         nTIBL1     = ");
-    eventout += TIBL1ADC.size();
-    for (unsigned int i = 0; i < TIBL1ADC.size(); ++i) {
-      eventout += "\n      (ADC, strip) = (";
-      eventout += TIBL1ADC[i];
-      eventout += ", ";
-      eventout += TIBL1Strip[i];
-      eventout += ")";
-    }
-    eventout += "\n         nTIBL2     = ";
-    eventout += TIBL2ADC.size();
-    for (unsigned int i = 0; i < TIBL2ADC.size(); ++i) {
-      eventout += "\n      (ADC, strip) = (";
-      eventout += TIBL2ADC[i];
-      eventout += ", ";
-      eventout += TIBL2Strip[i];
-      eventout += ")";
-    }
-    eventout += "\n         nTIBL3     = ";
-    eventout += TIBL3ADC.size();
-    for (unsigned int i = 0; i < TIBL3ADC.size(); ++i) {
-      eventout += "\n      (ADC, strip) = (";
-      eventout += TIBL3ADC[i];
-      eventout += ", ";
-      eventout += TIBL3Strip[i];
-      eventout += ")";
-    }
-    eventout += "\n         nTIBL4     = ";
-    eventout += TIBL4ADC.size();
-    for (unsigned int i = 0; i < TIBL4ADC.size(); ++i) {
-      eventout += "\n      (ADC, strip) = (";
-      eventout += TIBL4ADC[i];
-      eventout += ", ";
-      eventout += TIBL4Strip[i];
-      eventout += ")";
-    }
-    eventout += "\n         nTOBL1     = ";
-    eventout += TOBL1ADC.size();
-    for (unsigned int i = 0; i < TOBL1ADC.size(); ++i) {
-      eventout += "\n      (ADC, strip) = (";
-      eventout += TOBL1ADC[i];
-      eventout += ", ";
-      eventout += TOBL1Strip[i];
-      eventout += ")";
-    }
-    eventout += "\n         nTOBL2     = ";
-    eventout += TOBL2ADC.size();
-    for (unsigned int i = 0; i < TOBL2ADC.size(); ++i) {
-      eventout += "\n      (ADC, strip) = (";
-      eventout += TOBL2ADC[i];
-      eventout += ", ";
-      eventout += TOBL2Strip[i];
-      eventout += ")";
-    }
-    eventout += "\n         nTOBL3     = ";
-    eventout += TOBL3ADC.size();
-    for (unsigned int i = 0; i < TOBL3ADC.size(); ++i) {
-      eventout += "\n      (ADC, strip) = (";
-      eventout += TOBL3ADC[i];
-      eventout += ", ";
-      eventout += TOBL3Strip[i];
-      eventout += ")";
-    }
-    eventout += "\n         nTOBL4     = ";
-    eventout += TOBL4ADC.size();
-    for (unsigned int i = 0; i < TOBL4ADC.size(); ++i) {
-      eventout += "\n      (ADC, strip) = (";
-      eventout += TOBL4ADC[i];
-      eventout += ", ";
-      eventout += TOBL4Strip[i];
-      eventout += ")";
-    }
-    eventout += "\n         nTIDW1     = ";
-    eventout += TIDW1ADC.size();
-    for (unsigned int i = 0; i < TIDW1ADC.size(); ++i) {
-      eventout += "\n      (ADC, strip) = (";
-      eventout += TIDW1ADC[i];
-      eventout += ", ";
-      eventout += TIDW1Strip[i];
-      eventout += ")";
-    }
-    eventout += "\n         nTIDW2     = ";
-    eventout += TIDW2ADC.size();
-    for (unsigned int i = 0; i < TIDW2ADC.size(); ++i) {
-      eventout += "\n      (ADC, strip) = (";
-      eventout += TIDW2ADC[i];
-      eventout += ", ";
-      eventout += TIDW2Strip[i];
-      eventout += ")";
-    }
-    eventout += "\n         nTIDW3     = ";
-    eventout += TIDW3ADC.size();
-    for (unsigned int i = 0; i < TIDW3ADC.size(); ++i) {
-      eventout += "\n      (ADC, strip) = (";
-      eventout += TIDW3ADC[i];
-      eventout += ", ";
-      eventout += TIDW3Strip[i];
-      eventout += ")";
-    }
-    eventout += "\n         nTECW1     = ";
-    eventout += TECW1ADC.size();
-    for (unsigned int i = 0; i < TECW1ADC.size(); ++i) {
-      eventout += "\n      (ADC, strip) = (";
-      eventout += TECW1ADC[i];
-      eventout += ", ";
-      eventout += TECW1Strip[i];
-      eventout += ")";
-    }
-    eventout += "\n         nTECW2     = ";
-    eventout += TECW2ADC.size();
-    for (unsigned int i = 0; i < TECW2ADC.size(); ++i) {
-      eventout += "\n      (ADC, strip) = (";
-      eventout += TECW2ADC[i];
-      eventout += ", ";
-      eventout += TECW2Strip[i];
-      eventout += ")";
-    }
-    eventout += "\n         nTECW3     = ";
-    eventout += TECW3ADC.size();
-    for (unsigned int i = 0; i < TECW3ADC.size(); ++i) {
-      eventout += "\n      (ADC, strip) = (";
-      eventout += TECW3ADC[i];
-      eventout += ", ";
-      eventout += TECW3Strip[i];
-      eventout += ")";
-    }
-    eventout += "\n         nTECW4     = ";
-    eventout += TECW4ADC.size();
-    for (unsigned int i = 0; i < TECW4ADC.size(); ++i) {
-      eventout += "\n      (ADC, strip) = (";
-      eventout += TECW4ADC[i];
-      eventout += ", ";
-      eventout += TECW4Strip[i];
-      eventout += ")";
-    }
-    eventout += "\n         nTECW5     = ";
-    eventout += TECW5ADC.size();
-    for (unsigned int i = 0; i < TECW5ADC.size(); ++i) {
-      eventout += "\n      (ADC, strip) = (";
-      eventout += TECW5ADC[i];
-      eventout += ", ";
-      eventout += TECW5Strip[i];
-      eventout += ")";
-    }
-    eventout += "\n         nTECW6     = ";
-    eventout += TECW6ADC.size();
-    for (unsigned int i = 0; i < TECW6ADC.size(); ++i) {
-      eventout += "\n      (ADC, strip) = (";
-      eventout += TECW6ADC[i];
-      eventout += ", ";
-      eventout += TECW6Strip[i];
-      eventout += ")";
-    }
-    eventout += "\n         nTECW7     = ";
-    eventout += TECW7ADC.size();
-    for (unsigned int i = 0; i < TECW7ADC.size(); ++i) {
-      eventout += "\n      (ADC, strip) = (";
-      eventout += TECW7ADC[i];
-      eventout += ", ";
-      eventout += TECW7Strip[i];
-      eventout += ")";
-    }
-    eventout += "\n         nTECW8     = ";
-    eventout += TECW8ADC.size();
-    for (unsigned int i = 0; i < TECW8ADC.size(); ++i) {
-      eventout += "\n      (ADC, strip) = (";
-      eventout += TECW8ADC[i];
-      eventout += ", ";
-      eventout += TECW8Strip[i];
-      eventout += ")";
-    }
-
-    // pixel output
-    eventout += "\n         nBRL1     = ";
-    eventout += BRL1ADC.size();
-    for (unsigned int i = 0; i < BRL1ADC.size(); ++i) {
-      eventout += "\n      (ADC, row, column) = (";
-      eventout += BRL1ADC[i];
-      eventout += ", ";
-      eventout += BRL1Row[i];
-      eventout += ", ";
-      eventout += BRL1Col[i];
-      eventout += ")";
-    } 
-    eventout += "\n         nBRL2     = ";
-    eventout += BRL2ADC.size();
-    for (unsigned int i = 0; i < BRL2ADC.size(); ++i) {
-      eventout += "\n      (ADC, row, column) = (";
-      eventout += BRL2ADC[i];
-      eventout += ", ";
-      eventout += BRL2Row[i];
-      eventout += ", ";
-      eventout += BRL2Col[i];
-      eventout += ")";
-    } 
-    eventout += "\n         nBRL3     = ";
-    eventout += BRL3ADC.size();
-    for (unsigned int i = 0; i < BRL3ADC.size(); ++i) {
-      eventout += "\n      (ADC, row, column) = (";
-      eventout += BRL3ADC[i];
-      eventout += ", ";
-      eventout += BRL3Row[i];
-      eventout += ", ";
-      eventout += BRL3Col[i];
-      eventout += ")";
-    }    
-    eventout += "\n         nFWD1p     = ";
-    eventout += FWD1pADC.size();
-    for (unsigned int i = 0; i < FWD1pADC.size(); ++i) {
-      eventout += "\n      (ADC, row, column) = (";
-      eventout += FWD1pADC[i];
-      eventout += ", ";
-      eventout += FWD1pRow[i];
-      eventout += ", ";
-      eventout += FWD1pCol[i];
-      eventout += ")";
-    } 
-    eventout += "\n         nFWD1p     = ";
-    eventout += FWD1nADC.size();
-    for (unsigned int i = 0; i < FWD1nADC.size(); ++i) {
-      eventout += "\n      (ADC, row, column) = (";
-      eventout += FWD1nADC[i];
-      eventout += ", ";
-      eventout += FWD1nRow[i];
-      eventout += ", ";
-      eventout += FWD1nCol[i];
-      eventout += ")";
-    } 
-    eventout += "\n         nFWD1p     = ";
-    eventout += FWD2pADC.size();
-    for (unsigned int i = 0; i < FWD2pADC.size(); ++i) {
-      eventout += "\n      (ADC, row, column) = (";
-      eventout += FWD2pADC[i];
-      eventout += ", ";
-      eventout += FWD2pRow[i];
-      eventout += ", ";
-      eventout += FWD2pCol[i];
-      eventout += ")";
-    } 
-    eventout += "\n         nFWD2p     = ";
-    eventout += FWD2nADC.size();
-    for (unsigned int i = 0; i < FWD2nADC.size(); ++i) {
-      eventout += "\n      (ADC, row, column) = (";
-      eventout += FWD2nADC[i];
-      eventout += ", ";
-      eventout += FWD2nRow[i];
-      eventout += ", ";
-      eventout += FWD2nCol[i];
-      eventout += ")";
-    } 
-
-    edm::LogInfo(MsgLoggerCat) << eventout << "\n";  
-  }
 
   // strip output
-  product.putTIBL1Digis(TIBL1ADC,TIBL1Strip);
-  product.putTIBL2Digis(TIBL2ADC,TIBL2Strip);
-  product.putTIBL3Digis(TIBL3ADC,TIBL3Strip);
-  product.putTIBL4Digis(TIBL4ADC,TIBL4Strip);
-  product.putTOBL1Digis(TOBL1ADC,TOBL1Strip);
-  product.putTOBL2Digis(TOBL2ADC,TOBL2Strip);
-  product.putTOBL3Digis(TOBL3ADC,TOBL3Strip);
-  product.putTOBL4Digis(TOBL4ADC,TOBL4Strip);
-  product.putTIDW1Digis(TIDW1ADC,TIDW1Strip);
-  product.putTIDW2Digis(TIDW2ADC,TIDW2Strip);
-  product.putTIDW3Digis(TIDW3ADC,TIDW3Strip);
-  product.putTECW1Digis(TECW1ADC,TECW1Strip);
-  product.putTECW2Digis(TECW2ADC,TECW2Strip);
-  product.putTECW3Digis(TECW3ADC,TECW3Strip);
-  product.putTECW4Digis(TECW4ADC,TECW4Strip);
-  product.putTECW5Digis(TECW5ADC,TECW5Strip);
-  product.putTECW6Digis(TECW6ADC,TECW6Strip);  
-  product.putTECW7Digis(TECW7ADC,TECW7Strip);
-  product.putTECW8Digis(TECW8ADC,TECW8Strip);  
+// product.putTIBL1Digis(TIBL1ADC,TIBL1Strip);
+// product.putTIBL2Digis(TIBL2ADC,TIBL2Strip);
+// product.putTIBL3Digis(TIBL3ADC,TIBL3Strip);
+// product.putTIBL4Digis(TIBL4ADC,TIBL4Strip);
+// product.putTOBL1Digis(TOBL1ADC,TOBL1Strip);
+// product.putTOBL2Digis(TOBL2ADC,TOBL2Strip);
+// product.putTOBL3Digis(TOBL3ADC,TOBL3Strip);
+// product.putTOBL4Digis(TOBL4ADC,TOBL4Strip);
+// product.putTIDW1Digis(TIDW1ADC,TIDW1Strip);
+// product.putTIDW2Digis(TIDW2ADC,TIDW2Strip);
+// product.putTIDW3Digis(TIDW3ADC,TIDW3Strip);
+// product.putTECW1Digis(TECW1ADC,TECW1Strip);
+// product.putTECW2Digis(TECW2ADC,TECW2Strip);
+// product.putTECW3Digis(TECW3ADC,TECW3Strip);
+// product.putTECW4Digis(TECW4ADC,TECW4Strip);
+// product.putTECW5Digis(TECW5ADC,TECW5Strip);
+// product.putTECW6Digis(TECW6ADC,TECW6Strip);  
+// product.putTECW7Digis(TECW7ADC,TECW7Strip);
+// product.putTECW8Digis(TECW8ADC,TECW8Strip);  
 
   // pixel output
-  product.putBRL1Digis(BRL1ADC, BRL1Row, BRL1Col);
-  product.putBRL2Digis(BRL2ADC, BRL2Row, BRL2Col);
-  product.putBRL3Digis(BRL3ADC, BRL3Row, BRL3Col);
-  product.putFWD1pDigis(FWD1pADC, FWD1pRow, FWD1pCol);
-  product.putFWD1nDigis(FWD1nADC, FWD1nRow, FWD1nCol);
-  product.putFWD2pDigis(FWD2pADC, FWD2pRow, FWD2pCol);
-  product.putFWD2nDigis(FWD2nADC, FWD2nRow, FWD2nCol);
+//  product.putBRL1Digis(BRL1ADC, BRL1Row, BRL1Col);
+// product.putBRL2Digis(BRL2ADC, BRL2Row, BRL2Col);
+// product.putBRL3Digis(BRL3ADC, BRL3Row, BRL3Col);
+// product.putFWD1pDigis(FWD1pADC, FWD1pRow, FWD1pCol);
+// product.putFWD1nDigis(FWD1nADC, FWD1nRow, FWD1nCol);
+// product.putFWD2pDigis(FWD2pADC, FWD2pRow, FWD2pCol);
+// product.putFWD2nDigis(FWD2nADC, FWD2nRow, FWD2nCol);
 
-  return;
-}
+//return;
 
-void GlobalDigisProducer::fillMuon(edm::Event& iEvent, 
+
+void GlobalDigisAnalyzer::fillMuon(const edm::Event& iEvent, 
 				   const edm::EventSetup& iSetup)
 {
-  std::string MsgLoggerCat = "GlobalDigisProducer_fillMuon";
+  std::string MsgLoggerCat = "GlobalDigisAnalyzer_fillMuon";
   
   TString eventout;
   if (verbosity > 0)
@@ -1465,7 +1554,7 @@ void GlobalDigisProducer::fillMuon(edm::Event& iEvent,
       << "Unable to find dtDigis in event!";
     return;
   }  
-
+  int nDt0 = 0; int nDt1 = 0; int nDt2 = 0; int nDt3 = 0;
   int nDt = 0;
   DTDigiCollection::DigiRangeIterator detUnitIt;
   for (detUnitIt = dtDigis->begin(); detUnitIt != dtDigis->end(); 
@@ -1473,7 +1562,6 @@ void GlobalDigisProducer::fillMuon(edm::Event& iEvent,
     
     const DTLayerId& id = (*detUnitIt).first;
     const DTDigiCollection::Range& range = (*detUnitIt).second;
-
     for (DTDigiCollection::const_iterator digiIt = range.first;
 	 digiIt != range.second;
 	 ++digiIt) {
@@ -1482,33 +1570,53 @@ void GlobalDigisProducer::fillMuon(edm::Event& iEvent,
       
       DTWireId wireId(id,(*digiIt).wire());
       if (wireId.station() == 1) {
-	MB1SLayer.push_back(id.superlayer());
-	MB1Time.push_back((*digiIt).time());
-	MB1Layer.push_back(id.layer());
-      }
+      //MB1SLayer.push_back(id.superlayer());
+      //MB1Time.push_back((*digiIt).time());
+      //MB1Layer.push_back(id.layer());
+	mehDtMuonLayer[0]->Fill(id.layer());
+	mehDtMuonTime[0]->Fill((*digiIt).time());
+	mehDtMuonTimevLayer[0]->Fill(id.layer(),(*digiIt).time());
+	++nDt0;
+        }
       if (wireId.station() == 2) {
-	MB2SLayer.push_back(id.superlayer());
-	MB2Time.push_back((*digiIt).time());
-	MB2Layer.push_back(id.layer());
+	//MB2SLayer.push_back(id.superlayer());
+	//MB2Time.push_back((*digiIt).time());
+	//MB2Layer.push_back(id.layer());
+	mehDtMuonLayer[1]->Fill(id.layer());
+	mehDtMuonTime[1]->Fill((*digiIt).time());
+	mehDtMuonTimevLayer[1]->Fill(id.layer(),(*digiIt).time());
+	++nDt1;
       }
       if (wireId.station() == 3) {
-	MB3SLayer.push_back(id.superlayer());
-	MB3Time.push_back((*digiIt).time());
-	MB3Layer.push_back(id.layer());
+	//MB3SLayer.push_back(id.superlayer());
+	//MB3Time.push_back((*digiIt).time());
+	//MB3Layer.push_back(id.layer());
+	mehDtMuonLayer[2]->Fill(id.layer());
+	mehDtMuonTime[2]->Fill((*digiIt).time());
+	mehDtMuonTimevLayer[2]->Fill(id.layer(),(*digiIt).time());
+	++nDt2;
       }
       if (wireId.station() == 4) {
-	MB4SLayer.push_back(id.superlayer());
-	MB4Time.push_back((*digiIt).time());
-	MB4Layer.push_back(id.layer());
+	//MB4SLayer.push_back(id.superlayer());
+	//MB4Time.push_back((*digiIt).time());
+	//MB4Layer.push_back(id.layer());
+	mehDtMuonLayer[3]->Fill(id.layer());
+	mehDtMuonTime[3]->Fill((*digiIt).time());
+	mehDtMuonTimevLayer[3]->Fill(id.layer(),(*digiIt).time());
+	++nDt3;
       }
     }
   }
+    mehDtMuonn[0]->Fill((float)nDt0);
+    mehDtMuonn[1]->Fill((float)nDt1);
+    mehDtMuonn[2]->Fill((float)nDt2);
+    mehDtMuonn[3]->Fill((float)nDt3);
+  
                                                                      
   if (verbosity > 1) {
     eventout += "\n          Number of DtMuonDigis collected:.......... ";
     eventout += nDt;
   }
-
   // get CSC Strip information
   edm::Handle<CSCStripDigiCollection> strips;  
   iEvent.getByLabel(MuCSCStripSrc_, strips);
@@ -1516,7 +1624,7 @@ void GlobalDigisProducer::fillMuon(edm::Event& iEvent,
     edm::LogWarning(MsgLoggerCat)
       << "Unable to find muon strips in event!";
     return;
-  }  
+  }
 
   int nStrips = 0;
   for (CSCStripDigiCollection::DigiRangeIterator j = strips->begin();
@@ -1539,7 +1647,8 @@ void GlobalDigisProducer::fillMuon(edm::Event& iEvent,
       if (theCSCStripPedestalCount > 100) {
 	float pedestal = theCSCStripPedestalSum / theCSCStripPedestalCount;
 	if (adcCounts[5] > (pedestal + 100)) 
-	  CSCStripADC.push_back(adcCounts[4] - pedestal);	  
+	  //CSCStripADC.push_back(adcCounts[4] - pedestal);	
+	  mehCSCStripADC->Fill(adcCounts[4] - pedestal);
       }
     }
   }
@@ -1548,6 +1657,7 @@ void GlobalDigisProducer::fillMuon(edm::Event& iEvent,
     eventout += "\n          Number of CSCStripDigis collected:........ ";
     eventout += nStrips;
   }
+mehCSCStripn->Fill((float)nStrips);
 
   // get CSC Wire information
   edm::Handle<CSCWireDigiCollection> wires;  
@@ -1568,8 +1678,8 @@ void GlobalDigisProducer::fillMuon(edm::Event& iEvent,
 
     for ( ; digiItr != endDigi; ++digiItr) {
       ++nWires;
-
-      CSCWireTime.push_back(digiItr->getTimeBin());	  
+mehCSCWireTime->Fill(digiItr->getTimeBin());
+//CSCWireTime.push_back(digiItr->getTimeBin());	  
     }
   }
                                                         
@@ -1577,217 +1687,14 @@ void GlobalDigisProducer::fillMuon(edm::Event& iEvent,
     eventout += "\n          Number of CSCWireDigis collected:......... ";
     eventout += nWires;
   }
-
+mehCSCWiren->Fill((float)nWires);
   if (verbosity > 0)
     edm::LogInfo(MsgLoggerCat) << eventout << "\n";
   
   return;
 }
 
-void GlobalDigisProducer::storeMuon(PGlobalDigi& product)
-{
-  std::string MsgLoggerCat = "GlobalDigisProducer_storeMuon";
-  
-  if (verbosity > 2) {
 
-    // dt output
-    TString eventout("\n         nMB1     = ");
-    eventout += MB1SLayer.size();
-    for (unsigned int i = 0; i < MB1SLayer.size(); ++i) {
-      eventout += "\n      (slayer, time, layer) = (";
-      eventout += MB1SLayer[i];
-      eventout += ", ";
-      eventout += MB1Time[i];
-      eventout += ", ";
-      eventout += MB1Layer[i];
-      eventout += ")";
-    }
-    eventout += "\n         nMB2     = ";
-    eventout += MB2SLayer.size();
-    for (unsigned int i = 0; i < MB2SLayer.size(); ++i) {
-      eventout += "\n      (slayer, time, layer) = (";
-      eventout += MB2SLayer[i];
-      eventout += ", ";
-      eventout += MB2Time[i];
-      eventout += ", ";
-      eventout += MB2Layer[i];
-      eventout += ")";
-    }
-    eventout += "\n         nMB3     = ";
-    eventout += MB3SLayer.size();
-    for (unsigned int i = 0; i < MB3SLayer.size(); ++i) {
-      eventout += "\n      (slayer, time, layer) = (";
-      eventout += MB3SLayer[i];
-      eventout += ", ";
-      eventout += MB3Time[i];
-      eventout += ", ";
-      eventout += MB3Layer[i];
-      eventout += ")";
-    }
-    eventout += "\n         nMB2     = ";
-    eventout += MB4SLayer.size();
-    for (unsigned int i = 0; i < MB4SLayer.size(); ++i) {
-      eventout += "\n      (slayer, time, layer) = (";
-      eventout += MB4SLayer[i];
-      eventout += ", ";
-      eventout += MB4Time[i];
-      eventout += ", ";
-      eventout += MB4Layer[i];
-      eventout += ")";
-    }    
-
-    // CSC Strip
-    eventout += "\n         nCSCStrip     = ";
-    eventout += CSCStripADC.size();
-    for (unsigned int i = 0; i < CSCStripADC.size(); ++i) {
-      eventout += "\n      (adc) = (";
-      eventout += CSCStripADC[i];
-      eventout += ")";
-    }    
-
-    // CSC Wire
-    eventout += "\n         nCSCWire     = ";
-    eventout += CSCWireTime.size();
-    for (unsigned int i = 0; i < CSCWireTime.size(); ++i) {
-      eventout += "\n      (time) = (";
-      eventout += CSCWireTime[i];
-      eventout += ")";
-    }    
-
-    edm::LogInfo(MsgLoggerCat) << eventout << "\n";  
-  }
-  
-  product.putMB1Digis(MB1SLayer,MB1Time,MB1Layer);
-  product.putMB2Digis(MB2SLayer,MB2Time,MB2Layer);
-  product.putMB3Digis(MB3SLayer,MB3Time,MB3Layer);
-  product.putMB4Digis(MB4SLayer,MB4Time,MB4Layer);  
-
-  product.putCSCstripDigis(CSCStripADC);
-
-  product.putCSCwireDigis(CSCWireTime);
-
-  return;
-}
-
-void GlobalDigisProducer::clear()
-{
-  std::string MsgLoggerCat = "GlobalDigisProducer_clear";
-
-  if (verbosity > 0)
-    edm::LogInfo(MsgLoggerCat)
-      << "Clearing event holders"; 
-
-  // reset electromagnetic info
-  // EE info
-  EECalmaxPos.clear(); 
-  EECalAEE.clear(); 
-  EECalSHE.clear();
-  // EB info
-  EBCalmaxPos.clear(); 
-  EBCalAEE.clear(); 
-  EBCalSHE.clear();
-  // ES info
-  ESCalADC0.clear();
-  ESCalADC1.clear();
-  ESCalADC2.clear();
-  ESCalSHE.clear();
-
-  // reset HCal Info
-  HBCalAEE.clear();
-  HBCalSHE.clear();
-  HECalAEE.clear();
-  HECalSHE.clear();
-  HOCalAEE.clear();
-  HOCalSHE.clear();
-  HFCalAEE.clear();
-  HFCalSHE.clear();  
-
-  // reset Track Info
-  TIBL1ADC.clear(); 
-  TIBL2ADC.clear(); 
-  TIBL3ADC.clear(); 
-  TIBL4ADC.clear();
-  TIBL1Strip.clear(); 
-  TIBL2Strip.clear(); 
-  TIBL3Strip.clear(); 
-  TIBL4Strip.clear();
-  
-  TOBL1ADC.clear(); 
-  TOBL2ADC.clear(); 
-  TOBL3ADC.clear(); 
-  TOBL4ADC.clear();
-  TOBL1Strip.clear(); 
-  TOBL2Strip.clear(); 
-  TOBL3Strip.clear(); 
-  TOBL4Strip.clear();
-  
-  TIDW1ADC.clear(); 
-  TIDW2ADC.clear(); 
-  TIDW3ADC.clear();
-  TIDW1Strip.clear(); 
-  TIDW2Strip.clear(); 
-  TIDW3Strip.clear();
-  
-  TECW1ADC.clear(); 
-  TECW2ADC.clear(); 
-  TECW3ADC.clear(); 
-  TECW4ADC.clear(); 
-  TECW5ADC.clear(); 
-  TECW6ADC.clear(); 
-  TECW7ADC.clear(); 
-  TECW8ADC.clear();
-  TECW1Strip.clear(); 
-  TECW2Strip.clear(); 
-  TECW3Strip.clear(); 
-  TECW4Strip.clear(); 
-  TECW5Strip.clear(); 
-  TECW6Strip.clear(); 
-  TECW7Strip.clear(); 
-  TECW8Strip.clear();
-
-  BRL1ADC.clear();
-  BRL1Row.clear();
-  BRL1Col.clear();
-  BRL2ADC.clear();
-  BRL2Row.clear();
-  BRL2Col.clear();
-  BRL3ADC.clear();
-  BRL3Row.clear();
-  BRL3Col.clear();
-
-  FWD1pADC.clear();
-  FWD1pRow.clear();  
-  FWD1pCol.clear();
-  FWD1nADC.clear();
-  FWD1nRow.clear();  
-  FWD1nCol.clear();
-  FWD2pADC.clear();
-  FWD2pRow.clear();  
-  FWD2pCol.clear();
-  FWD2nADC.clear();
-  FWD2nRow.clear();  
-  FWD2nCol.clear();
-
-  //muon clear
-  MB1SLayer.clear();
-  MB1Time.clear();
-  MB1Layer.clear();
-  MB2SLayer.clear();
-  MB2Time.clear(); 
-  MB2Layer.clear(); 
-  MB3SLayer.clear();
-  MB3Time.clear();
-  MB3Layer.clear();
-  MB4SLayer.clear();
-  MB4Time.clear();
-  MB4Layer.clear();
-
-  CSCStripADC.clear();
-
-  CSCWireTime.clear();
-
-  return;
-}
 
 //define this as a plug-in
-//DEFINE_FWK_MODULE(GlobalDigisProducer);
+//DEFINE_FWK_MODULE(GlobalDigisAnalyzer);
