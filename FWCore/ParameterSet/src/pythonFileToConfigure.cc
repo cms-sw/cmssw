@@ -9,37 +9,8 @@
 
 #include <boost/python.hpp>
 #include "FWCore/ParameterSet/interface/pythonFileToConfigure.h"
+#include "FWCore/ParameterSet/src/PythonWrapper.h"
 #include "FWCore/Utilities/interface/Exception.h"
-
-
-static
-void
-pythonToCppException(const std::string& iType)
-{
-  using namespace boost::python;
-  PyObject *exc, *val, *trace;
-  PyErr_Fetch(&exc,&val,&trace);
-  handle<> hExc(allow_null(exc));
-  if(hExc) {
-    object oExc(hExc);
-  }
-  handle<> hVal(allow_null(val));
-  handle<> hTrace(allow_null(trace));
-  if(hTrace) {
-    object oTrace(hTrace);
-  }
-  
-  if(hVal) {
-    object oVal(hVal);
-    handle<> hStringVal(PyObject_Str(oVal.ptr()));
-    object stringVal( hStringVal );
-    
-    //PyErr_Print();
-    throw cms::Exception(iType) <<"python encountered the error: "<< PyString_AsString(stringVal.ptr())<<"\n";
-  } else {
-    throw cms::Exception(iType)<<" unknown python problem occurred.\n";
-  }
-}
 
 
 std::string edm::pythonFileToConfigure(const std::string& iPythonFileName)
@@ -63,7 +34,7 @@ std::string edm::pythonFileToConfigure(const std::string& iPythonFileName)
                                                           main_namespace.ptr(),
                                                           main_namespace.ptr()))));
     } catch(error_already_set) {
-      pythonToCppException("Configuration");
+      edm::pythonToCppException("Configuration");
     }
     try {
       std::string command("cms.findProcess(fileDict).dumpConfig()");
@@ -74,7 +45,7 @@ std::string edm::pythonFileToConfigure(const std::string& iPythonFileName)
       returnValue= extract<std::string>(result);
       
     }catch( error_already_set ) {
-      pythonToCppException("Configuration");
+      edm::pythonToCppException("Configuration");
     }
   }catch(...) {
     Py_Finalize();
