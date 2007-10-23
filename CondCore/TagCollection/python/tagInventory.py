@@ -12,6 +12,20 @@ class  tagInventory(object):
         self.__tagInventoryTableNotNullColumns = ['tagname','pfn','recordname','objectname','labelname']
         self.__tagInventoryTableUniqueColumns = ['tagname']
         self.__tagInventoryTablePK = ('tagid')
+    def existInventoryTable( self ):
+        """Check if inventory table exists
+        """
+        try:
+            transaction=self.__session.transaction()
+            transaction.start(True)
+            schema = self.__session.nominalSchema()
+            result=schema.existsTable(self.__tagInventoryTableName)
+            transaction.commit()
+            #print result
+        except Exception, er:
+            transaction.rollback()
+            raise Exception, str(er)
+        return result
     def createInventoryTable( self ):
         """Create tag inventory table. Existing table will be deleted. 
         """

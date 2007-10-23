@@ -111,7 +111,9 @@ class tagInventoryBuilder:
         session = svc.connect( self.__connectstring,accessMode = coral.access_Update )
         try:
             inv=tagInventory.tagInventory(session)
-            inv.createInventoryTable()
+            print 'about to create table'
+            if inv.existInventoryTable() is False:
+                inv.createInventoryTable()
             tagentry=Node.LeafNode()
             tagentry.tagname=self.__tagdata['tagname']
             tagentry.objectname=self.__tagdata['objectname']
