@@ -1,8 +1,8 @@
 /*
  * \file EEClusterClient.cc
  *
- * $Date: 2007/09/07 22:30:06 $
- * $Revision: 1.18 $
+ * $Date: 2007/10/18 08:33:38 $
+ * $Revision: 1.19 $
  * \author G. Della Ricca
  * \author E. Di Marco
  *
@@ -224,10 +224,10 @@ void EEClusterClient::subscribe(void){
   sprintf(histo, "*/EcalEndcap/EEClusterTask/EECLT BC energy");
   mui_->subscribe(histo);
 
-  sprintf(histo, "*/EcalEndcap/EEClusterTask/EECLT BC number");
+  sprintf(histo, "*/EcalEndcap/EEClusterTask/EECLT BC size");
   mui_->subscribe(histo);
 
-  sprintf(histo, "*/EcalEndcap/EEClusterTask/EECLT BC supercrystals");
+  sprintf(histo, "*/EcalEndcap/EEClusterTask/EECLT BC number");
   mui_->subscribe(histo);
 
   sprintf(histo, "*/EcalEndcap/EEClusterTask/EECLT BC energy map EE +");
@@ -305,10 +305,10 @@ void EEClusterClient::subscribe(void){
   sprintf(histo, "*/EcalEndcap/EEClusterTask/EECLT SC energy");
   mui_->subscribe(histo);
 
-  sprintf(histo, "*/EcalEndcap/EEClusterTask/EECLT SC number");
+  sprintf(histo, "*/EcalEndcap/EEClusterTask/EECLT SC size");
   mui_->subscribe(histo);
 
-  sprintf(histo, "*/EcalEndcap/EEClusterTask/EECLT SC size");
+  sprintf(histo, "*/EcalEndcap/EEClusterTask/EECLT SC number");
   mui_->subscribe(histo);
 
   sprintf(histo, "*/EcalEndcap/EEClusterTask/EECLT island s1s9");
@@ -329,10 +329,10 @@ void EEClusterClient::subscribeNew(void){
   sprintf(histo, "*/EcalEndcap/EEClusterTask/EECLT BC energy");
   mui_->subscribeNew(histo);
 
-  sprintf(histo, "*/EcalEndcap/EEClusterTask/EECLT BC number");
+  sprintf(histo, "*/EcalEndcap/EEClusterTask/EECLT BC size");
   mui_->subscribeNew(histo);
 
-  sprintf(histo, "*/EcalEndcap/EEClusterTask/EECLT BC supercrystals");
+  sprintf(histo, "*/EcalEndcap/EEClusterTask/EECLT BC number");
   mui_->subscribeNew(histo);
 
   sprintf(histo, "*/EcalEndcap/EEClusterTask/EECLT BC energy map EE +");
@@ -410,10 +410,10 @@ void EEClusterClient::subscribeNew(void){
   sprintf(histo, "*/EcalEndcap/EEClusterTask/EECLT SC energy");
   mui_->subscribeNew(histo);
 
-  sprintf(histo, "*/EcalEndcap/EEClusterTask/EECLT SC number");
+  sprintf(histo, "*/EcalEndcap/EEClusterTask/EECLT SC size");
   mui_->subscribeNew(histo);
 
-  sprintf(histo, "*/EcalEndcap/EEClusterTask/EECLT SC size");
+  sprintf(histo, "*/EcalEndcap/EEClusterTask/EECLT SC number");
   mui_->subscribeNew(histo);
 
   sprintf(histo, "*/EcalEndcap/EEClusterTask/EECLT island s1s9");
@@ -437,10 +437,10 @@ void EEClusterClient::unsubscribe(void){
   sprintf(histo, "*/EcalEndcap/EEClusterTask/EECLT BC energy");
   mui_->unsubscribe(histo);
 
-  sprintf(histo, "*/EcalEndcap/EEClusterTask/EECLT BC number");
+  sprintf(histo, "*/EcalEndcap/EEClusterTask/EECLT BC size");
   mui_->unsubscribe(histo);
 
-  sprintf(histo, "*/EcalEndcap/EEClusterTask/EECLT BC supercrystals");
+  sprintf(histo, "*/EcalEndcap/EEClusterTask/EECLT BC number");
   mui_->unsubscribe(histo);
 
   sprintf(histo, "*/EcalEndcap/EEClusterTask/EECLT BC energy map EE +");
@@ -518,10 +518,10 @@ void EEClusterClient::unsubscribe(void){
   sprintf(histo, "*/EcalEndcap/EEClusterTask/EECLT SC energy");
   mui_->unsubscribe(histo);
 
-  sprintf(histo, "*/EcalEndcap/EEClusterTask/EECLT SC number");
+  sprintf(histo, "*/EcalEndcap/EEClusterTask/EECLT SC size");
   mui_->unsubscribe(histo);
 
-  sprintf(histo, "*/EcalEndcap/EEClusterTask/EECLT SC size");
+  sprintf(histo, "*/EcalEndcap/EEClusterTask/EECLT SC number");
   mui_->unsubscribe(histo);
 
   sprintf(histo, "*/EcalEndcap/EEClusterTask/EECLT island s1s9");
@@ -555,11 +555,11 @@ void EEClusterClient::analyze(void){
   me = dbe_->get(histo);
   hBC1D_[0] = UtilsClient::getHisto<TH1F*>( me, cloneME_, hBC1D_[0] );
 
-  sprintf(histo, (prefixME_+"EcalEndcap/EEClusterTask/EECLT BC number").c_str());
+  sprintf(histo, (prefixME_+"EcalEndcap/EEClusterTask/EECLT BC size").c_str());
   me = dbe_->get(histo);
   hBC1D_[1] = UtilsClient::getHisto<TH1F*>( me, cloneME_, hBC1D_[1] );
 
-  sprintf(histo, (prefixME_+"EcalEndcap/EEClusterTask/EECLT BC supercrystals").c_str());
+  sprintf(histo, (prefixME_+"EcalEndcap/EEClusterTask/EECLT BC number").c_str());
   me = dbe_->get(histo);
   hBC1D_[2] = UtilsClient::getHisto<TH1F*>( me, cloneME_, hBC1D_[2] );
 
@@ -663,11 +663,11 @@ void EEClusterClient::analyze(void){
   me = dbe_->get(histo);
   hSC1D_[0] = UtilsClient::getHisto<TH1F*>( me, cloneME_, hSC1D_[0] );
 
-  sprintf(histo, (prefixME_+"EcalEndcap/EEClusterTask/EECLT SC number").c_str());
+  sprintf(histo, (prefixME_+"EcalEndcap/EEClusterTask/EECLT SC size").c_str());
   me = dbe_->get(histo);
   hSC1D_[1] = UtilsClient::getHisto<TH1F*>( me, cloneME_, hSC1D_[1] );
 
-  sprintf(histo, (prefixME_+"EcalEndcap/EEClusterTask/EECLT SC size").c_str());
+  sprintf(histo, (prefixME_+"EcalEndcap/EEClusterTask/EECLT SC number").c_str());
   me = dbe_->get(histo);
   hSC1D_[2] = UtilsClient::getHisto<TH1F*>( me, cloneME_, hSC1D_[2] );
 

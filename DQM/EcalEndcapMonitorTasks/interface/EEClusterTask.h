@@ -4,8 +4,8 @@
 /*
  * \file EEClusterTask.h
  *
- * $Date: 2007/05/24 16:57:53 $
- * $Revision: 1.5 $
+ * $Date: 2007/10/18 08:22:42 $
+ * $Revision: 1.6 $
  * \author G. Della Ricca
  *
  */
@@ -54,15 +54,15 @@ edm::InputTag BasicClusterCollection_;
 edm::InputTag SuperClusterCollection_;
  edm::InputTag ClusterShapeAssociation_;
 
-MonitorElement* meBCEne_, *meBCNum_, *meBCCry_;
+MonitorElement* meBCEne_, *meBCNum_, *meBCSiz_;
 
-MonitorElement* meBCEneFwdMap_, *meBCNumFwdMap_, *meBCETFwdMap_, *meBCCryFwdMap_;
-MonitorElement* meBCEneFwdMapProjR_, *meBCNumFwdMapProjR_, *meBCETFwdMapProjR_, *meBCCryFwdMapProjR_;
-MonitorElement* meBCEneFwdMapProjPhi_, *meBCNumFwdMapProjPhi_, *meBCETFwdMapProjPhi_, *meBCCryFwdMapProjPhi_;
+MonitorElement* meBCEneFwdMap_, *meBCNumFwdMap_, *meBCETFwdMap_, *meBCSizFwdMap_;
+MonitorElement* meBCEneFwdMapProjR_, *meBCNumFwdMapProjR_, *meBCETFwdMapProjR_, *meBCSizFwdMapProjR_;
+MonitorElement* meBCEneFwdMapProjPhi_, *meBCNumFwdMapProjPhi_, *meBCETFwdMapProjPhi_, *meBCSizFwdMapProjPhi_;
 
-MonitorElement* meBCEneBwdMap_, *meBCNumBwdMap_, *meBCETBwdMap_, *meBCCryBwdMap_;
-MonitorElement* meBCEneBwdMapProjR_, *meBCNumBwdMapProjR_, *meBCETBwdMapProjR_, *meBCCryBwdMapProjR_;
-MonitorElement* meBCEneBwdMapProjPhi_, *meBCNumBwdMapProjPhi_, *meBCETBwdMapProjPhi_, *meBCCryBwdMapProjPhi_;
+MonitorElement* meBCEneBwdMap_, *meBCNumBwdMap_, *meBCETBwdMap_, *meBCSizBwdMap_;
+MonitorElement* meBCEneBwdMapProjR_, *meBCNumBwdMapProjR_, *meBCETBwdMapProjR_, *meBCSizBwdMapProjR_;
+MonitorElement* meBCEneBwdMapProjPhi_, *meBCNumBwdMapProjPhi_, *meBCETBwdMapProjPhi_, *meBCSizBwdMapProjPhi_;
 
 MonitorElement* meSCEne_, *meSCNum_, *meSCSiz_;  
 
