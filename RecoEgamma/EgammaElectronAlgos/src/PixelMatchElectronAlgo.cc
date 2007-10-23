@@ -12,7 +12,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Thu july 6 13:22:06 CEST 2006
-// $Id: PixelMatchElectronAlgo.cc,v 1.53 2007/10/19 11:44:55 uberthon Exp $
+// $Id: PixelMatchElectronAlgo.cc,v 1.54 2007/10/23 11:25:24 uberthon Exp $
 //
 //
 
@@ -111,8 +111,8 @@ PixelMatchElectronAlgo::PixelMatchElectronAlgo(const edm::ParameterSet& conf,
 
   // get type of processing
   processType_=1;
-  if (conf.getParameter<string>("ElectronType")!="GlobalGsfElectron") processType_=2;
-  }
+  if (conf.getParameter<string>("ElectronType")=="GlobalGsfElectron") processType_=2;
+}
 
 PixelMatchElectronAlgo::~PixelMatchElectronAlgo() {
   delete geomPropBw_;
@@ -208,7 +208,7 @@ void PixelMatchElectronAlgo::process(edm::Handle<GsfTrackCollection> tracksH,
 
     const GsfTrack & t=(*tracks)[i];
     const GsfTrackRef trackRef = edm::Ref<GsfTrackCollection>(tracksH,i);
-    const SuperClusterRef & scRef=getAssociation(trackRef);
+    const SuperClusterRef & scRef=getTrSuperCluster(trackRef);
     const SuperCluster theClus=*scRef;
     std::vector<DetId> vecId=theClus.getHitsByDetId();
     subdet_ =vecId[0].subdetId();  
@@ -473,10 +473,9 @@ void PixelMatchElectronAlgo::hOverE(const SuperClusterRef & scRef,HBHERecHitMeta
 
 }
 
-const SuperClusterRef PixelMatchElectronAlgo::getAssociation(const GsfTrackRef & trackRef) {
+const SuperClusterRef PixelMatchElectronAlgo::getTrSuperCluster(const GsfTrackRef & trackRef) {
     edm::RefToBase<TrajectorySeed> seed = trackRef->extra()->seedRef();
     ElectronPixelSeedRef elseed=seed.castTo<ElectronPixelSeedRef>();
-    //    const SuperClusterRef & scRef=elseed->superCluster();
     return elseed->superCluster();
 }
 

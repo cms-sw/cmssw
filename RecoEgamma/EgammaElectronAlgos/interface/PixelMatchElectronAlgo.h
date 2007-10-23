@@ -79,7 +79,7 @@ public:
   GlobalVector computeMode(const TrajectoryStateOnSurface &tsos);
 
   // associations
-  const reco::SuperClusterRef getAssociation(const reco::GsfTrackRef & trackRef);
+  const reco::SuperClusterRef getTrSuperCluster(const reco::GsfTrackRef & trackRef);
   const reco::GsfTrackRef
     superClusterMatching(reco::SuperClusterRef sc, edm::Handle<reco::GsfTrackCollection> tracks);
 
