@@ -2,8 +2,8 @@
 #define EcalTB07DaqFormatter_H
 /** \class EcalTB07DaqFormatter
  *
- *  $Date: 2007/07/20 19:18:20 $
- *  $Revision: 1.4 $
+ *  $Date: 2007/10/20 10:58:01 $
+ *  $Revision: 1.5 $
  *  \author N. Marinelli  IASA-Athens
  *  \author G. Della Ricca
  *  \author G. Franzoni
@@ -34,11 +34,11 @@ class EcalTB07DaqFormatter   {
   virtual ~EcalTB07DaqFormatter(){LogDebug("EcalTB07RawToDigi") << "@SUB=EcalTB07DaqFormatter" << "\n"; };
 
   void  interpretRawData( const FEDRawData & data , EBDigiCollection& digicollection , EEDigiCollection& eeDigiCollection, 
-			  EcalPnDiodeDigiCollection & pndigicollection ,
+			  EcalPnDiodeDigiCollection & pndigicollection,
 			  EcalRawDataCollection& DCCheaderCollection,
-			  EBDetIdCollection & dccsizecollection ,
-			  EcalTrigTowerDetIdCollection & ttidcollection , EcalTrigTowerDetIdCollection & blocksizecollection,
-			  EBDetIdCollection & chidcollection , EBDetIdCollection & gaincollection ,
+			  EBDetIdCollection & dccsizecollection,
+			  EcalElectronicsIdCollection & ttidcollection , EcalElectronicsIdCollection & blocksizecollection,
+			  EBDetIdCollection & chidcollection , EBDetIdCollection & gaincollection,
 			  EBDetIdCollection & gainswitchcollection , EBDetIdCollection & gainswitchstaycollection,
 			  EcalElectronicsIdCollection & memttidcollection,  EcalElectronicsIdCollection &  memblocksizecollection,
 			  EcalElectronicsIdCollection & memgaincollection,  EcalElectronicsIdCollection & memchidcollection,

@@ -1,7 +1,7 @@
 /*  
  *
- *  $Date: 2007/08/20 07:57:25 $
- *  $Revision: 1.10 $
+ *  $Date: 2007/10/20 10:58:01 $
+ *  $Revision: 1.12 $
  *  \author  N. Marinelli IASA 
  *  \author G. Della Ricca
  *  \author G. Franzoni
@@ -73,11 +73,11 @@ EcalTB07DaqFormatter::EcalTB07DaqFormatter (std::string tbName,
 void EcalTB07DaqFormatter::interpretRawData(const FEDRawData & fedData , 
 					    EBDigiCollection& digicollection,
 					    EEDigiCollection& eeDigiCollection,
-					    EcalPnDiodeDigiCollection & pndigicollection , 
+					    EcalPnDiodeDigiCollection & pndigicollection, 
 					    EcalRawDataCollection& DCCheaderCollection, 
-					    EBDetIdCollection & dccsizecollection , 
-					    EcalTrigTowerDetIdCollection & ttidcollection , 
-					    EcalTrigTowerDetIdCollection & blocksizecollection,
+					    EBDetIdCollection & dccsizecollection, 
+					    EcalElectronicsIdCollection & ttidcollection, 
+					    EcalElectronicsIdCollection & blocksizecollection,
 					    EBDetIdCollection & chidcollection , EBDetIdCollection & gaincollection, 
 					    EBDetIdCollection & gainswitchcollection, EBDetIdCollection & gainswitchstaycollection, 
 					    EcalElectronicsIdCollection & memttidcollection,  
@@ -190,7 +190,7 @@ void EcalTB07DaqFormatter::interpretRawData(const FEDRawData & fedData ,
 		if(phiTT<=0)phiTT=phiTT+72;
 
 		EcalTriggerPrimitiveSample theSample(TpSamples[i].first, TpSamples[i].second, TpFlags[i]);
-		
+
 		EcalTrigTowerDetId idtt(1, EcalBarrel, etaTT, phiTT, 0);
 		EcalTriggerPrimitiveDigi thePrimitive(idtt);
 		thePrimitive.setSize(1);                          // hard coded
@@ -313,17 +313,9 @@ void EcalTB07DaqFormatter::interpretRawData(const FEDRawData & fedData ,
       // checking if tt in data is the same as tt expected 
       // else skip tower and increment problem counter
 	    
-      // compute eta/phi in order to have iTT = _ExpectedTowers[_expTowersIndex]
-      // for the time being consider only zside>0
+      // dccId set to 46 in order to match 'real' CMS positio at H2
 
-      int etaTT = (_ExpectedTowers[_expTowersIndex]-1)  / kTowersInPhi +1;
-      int phiTT = (_ExpectedTowers[_expTowersIndex]-1) % kTowersInPhi +1;
-
-      // follow HB convention in iphi
-      phiTT=3-phiTT;
-      if(phiTT<=0)phiTT=phiTT+72;
-
-      EcalTrigTowerDetId idtt(1, EcalBarrel, etaTT, phiTT, 0);
+      EcalElectronicsId idtt(46, _ExpectedTowers[_expTowersIndex], 1, 1);
     
 
       if (  !(tower == _ExpectedTowers[_expTowersIndex])	  )
