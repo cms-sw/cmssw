@@ -107,7 +107,7 @@
  <Box name="MEEQ" dx="15*cm " dy="2.5*cm " dz="30*cm "/>
  <Tubs name="AlgPinNarrowEnd" rMin="0*mm " rMax="4.06*mm " dz="18.8*mm " startPhi="0*deg" deltaPhi="360*deg"/>
  <Tubs name="AlgPinWideEnd" rMin="0*mm " rMax="4.06*mm " dz="18.8*mm " startPhi="0*deg" deltaPhi="360*deg"/>
-<!-- Remove comment brackets to restore RE1/1
+<!-- Remove comment brackets to restore RE1/1 -->
  <Tubs name="RR11" rMin="1.3*m  " rMax="2.51*m  " dz="4.5*cm " startPhi="0*deg" deltaPhi="360*deg"/>
  <Tubs name="RT1A" rMin="1.35*m  " rMax="2.46*m  " dz="2*cm " startPhi="-8*deg" deltaPhi="16*deg"/>
  <Trd1 name="RFAX" dz="52.6*cm " dy1="5.5*mm " dy2="5.5*mm " dx1="12.028*cm " dx2="21.233*cm " />
@@ -116,7 +116,7 @@
  <Trd1 name="REA2" dz="12*cm " dy1="1*mm " dy2="1*mm " dx1="15.834*cm " dx2="17.934*cm " />
  <Trd1 name="REA3" dz="10*cm " dy1="1*mm " dy2="1*mm " dx1="13.998*cm " dx2="15.747*cm " />
  <Trd1 name="REA4" dz="11*cm " dy1="1*mm " dy2="1*mm " dx1="11.985*cm " dx2="13.91*cm " />
-RE1/1 -->
+<!--RE1/1 -->
  <Tubs name="ZStopSpace" rMin="4.694*m  " rMax="4.955*m  " dz="32*cm " startPhi="0*deg" deltaPhi="360*deg"/>
  <Tubs name="ZStop_1_ZStopSpaceDivision" rMin="4.694*m  " rMax="4.955*m  " dz="32*cm " startPhi="346.25*deg" deltaPhi="3.0999999*deg"/>
  <Tubs name="ZStop_2_ZStopSpaceDivision" rMin="4.694*m  " rMax="4.955*m  " dz="32*cm " startPhi="10.75*deg" deltaPhi="3.0999999*deg"/>
@@ -150,7 +150,7 @@ RE1/1 -->
  <Trd1 name="ME12_ActiveGasVol" dz="87.245*cm " dy1="[ActiveGasVolHalfThick]" dy2="[ActiveGasVolHalfThick]" dx1="25.5*cm " dx2="41.87*cm " />
  <Trd1 name="ME_DeadGas_1_ME12_ActiveGasVol" dz="1.5*cm " dy1="[ActiveGasVolHalfThick]" dy2="[ActiveGasVolHalfThick]" dx1="36.68*cm " dx2="36.97*cm " />
  <Trd1 name="ME_DeadGas_2_ME12_ActiveGasVol" dz="1.5*cm " dy1="[ActiveGasVolHalfThick]" dy2="[ActiveGasVolHalfThick]" dx1="30.52*cm " dx2="30.8*cm " />
- <Tubs name="RR12Space" rMin="2.745*m  " rMax="4.644*m  " dz="5.5*mm" startPhi="0*deg" deltaPhi="360*deg"/>
+ <Tubs name="RR12" rMin="2.745*m  " rMax="4.644*m  " dz="5.5*mm" startPhi="0*deg" deltaPhi="360*deg"/>
  <Trd1 name="RFBX" dz="92*cm " dy1="5.5*mm " dy2="5.5*mm " dx1="21.251*cm " dx2="37.34*cm " />
  <Trd1 name="RHBX" dz="91.95*cm " dy1="5*mm " dy2="5*mm " dx1="21.201*cm " dx2="37.29*cm " />
  <Trd1 name="REB1" dz="26.75*cm " dy1="1*mm " dy2="1*mm " dx1="31.137*cm " dx2="35.23*cm " />
@@ -556,7 +556,7 @@ RE1/1 -->
   <rMaterial name="materials:StainlessSteel"/>
  </LogicalPart>
 
-<!-- Remove comment brackets to restore RE1/1
+<!-- Remove comment brackets to restore RE1/1 -->
  <LogicalPart name="RR11" category="unspecified">
   <rSolid name="RR11"/>
   <rMaterial name="materials:ME_free_space"/>
@@ -589,7 +589,7 @@ RE1/1 -->
   <rSolid name="REA4"/>
   <rMaterial name="materials:M_RPC_Gas"/>
  </LogicalPart>
-RE1/1 -->
+<!-- RE1/1 -->
 
  <LogicalPart name="ZStopSpace" category="unspecified">
   <rSolid name="ZStopSpace"/>
@@ -655,8 +655,8 @@ RE1/1 -->
   <rSolid name="ME_DeadGas_2_ME12_ActiveGasVol"/>
   <rMaterial name="materials:Dead_Argon CF_4 CO_2"/>
  </LogicalPart>
- <LogicalPart name="RR12Space" category="unspecified">
-  <rSolid name="RR12Space"/>
+ <LogicalPart name="RR12" category="unspecified">
+  <rSolid name="RR12"/>
   <rMaterial name="materials:ME_free_space"/>
  </LogicalPart>
  <LogicalPart name="RFBX" category="unspecified">
@@ -1619,7 +1619,7 @@ RE1/1 -->
  </PosPart>
 -->
 
-<!-- Remove comment brackets to restore RE1/1
+<!-- Remove comment brackets to restore RE1/1 -->
  <PosPart copyNumber="1">
    <rParent name="mf:ME1Ring"/>
    <rChild name="mf:RR11"/>
@@ -1877,7 +1877,7 @@ RE1/1 -->
   <rRotation name="rotations:000D"/>
   <Translation x="0*fm " y="0*fm " z="-41.55*cm " />
  </PosPart>
-RE1/1 -->
+<!-- RE1/1 -->
 
  <PosPart copyNumber="1">
    <rParent name="mf:ME"/>
@@ -1979,19 +1979,19 @@ RE1/1 -->
   <rRotation name="rotations:000D"/>
   <Translation x="0*fm " y="0*fm " z="-31.6*cm " />
  </PosPart>
- <PosPart copyNumber="1">
+ <PosPart copyNumber="2">
    <rParent name="mf:ME12Ring"/>
-   <rChild name="mf:RR12Space"/>
+   <rChild name="mf:RR12"/>
   <rRotation name="rotations:000D"/>
   <Translation x="0*fm " y="0*fm " z="306.3875*mm" />
  </PosPart>
-<PosPart copyNumber="2">
+<PosPart copyNumber="3">
    <rParent name="mf:ME12Ring"/>
-   <rChild name="mf:RR12Space"/>
+   <rChild name="mf:RR12"/>
   <rRotation name="rotations:R010"/>
   <Translation x="0*fm " y="0*fm " z="-3.7665*mm" />
  </PosPart>
- <Division name="RT1B" parent="RR12Space" axis="phi" offset="-10*deg" width="20*deg"/>
+ <Division name="RT1B" parent="RR12" axis="phi" offset="-10*deg" width="20*deg"/>
  <PosPart copyNumber="1">
    <rParent name="mf:RT1B"/>
    <rChild name="mf:RFBX"/>
