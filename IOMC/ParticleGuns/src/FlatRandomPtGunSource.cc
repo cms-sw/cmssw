@@ -1,6 +1,6 @@
 /*
- *  $Date: 2007/03/21 20:32:21 $
- *  $Revision: 1.14 $
+ *  $Date: 2007/05/28 09:53:16 $
+ *  $Revision: 1.15 $
  *  \author Julia Yarba
  */
 
@@ -13,9 +13,6 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-// #include "FWCore/Utilities/interface/Exception.h"
-
-// #include "CLHEP/Random/RandFlat.h"
 
 using namespace edm;
 using namespace std;
@@ -62,7 +59,6 @@ bool FlatRandomPtGunSource::produce(Event &e)
    //
    // 1st, primary vertex
    //
-   //HepMC::GenVertex* Vtx = new HepMC::GenVertex(CLHEP::HepLorentzVector(0.,0.,0.));
    HepMC::GenVertex* Vtx = new HepMC::GenVertex(HepMC::FourVector(0.,0.,0.));
 
    // loop over particles
@@ -71,9 +67,6 @@ bool FlatRandomPtGunSource::produce(Event &e)
    for (unsigned int ip=0; ip<fPartIDs.size(); ++ip)
    {
 
-       //double pt     = RandFlat::shoot(fMinPt, fMaxPt) ;
-       //double eta    = RandFlat::shoot(fMinEta, fMaxEta) ;
-       //double phi    = RandFlat::shoot(fMinPhi, fMaxPhi) ;
        double pt     = fRandomGenerator->fire(fMinPt, fMaxPt) ;
        double eta    = fRandomGenerator->fire(fMinEta, fMaxEta) ;
        double phi    = fRandomGenerator->fire(fMinPhi, fMaxPhi) ;
@@ -88,9 +81,6 @@ bool FlatRandomPtGunSource::produce(Event &e)
        double pz     = mom*cos(theta) ;
        double energy2= mom*mom + mass*mass ;
        double energy = sqrt(energy2) ; 
-       //CLHEP::Hep3Vector p(px,py,pz) ;
-       //HepMC::GenParticle* Part = 
-       //    new HepMC::GenParticle(CLHEP::HepLorentzVector(p,energy),PartID,1);
        HepMC::FourVector p(px,py,pz,energy) ;
        HepMC::GenParticle* Part = 
            new HepMC::GenParticle(p,PartID,1);
@@ -100,15 +90,12 @@ bool FlatRandomPtGunSource::produce(Event &e)
 
        if ( fAddAntiParticle )
        {
-          //CLHEP::Hep3Vector ap(-px,-py,-pz) ;
           HepMC::FourVector ap(-px,-py,-pz,energy) ;
 	  int APartID = -PartID ;
 	  if ( PartID == 22 || PartID == 23 )
 	  {
 	     APartID = PartID ;
 	  }	  
-	  //HepMC::GenParticle* APart =
-	  //   new HepMC::GenParticle(CLHEP::HepLorentzVector(ap,energy),APartID,1);
 	  HepMC::GenParticle* APart =
 	     new HepMC::GenParticle(ap,APartID,1);
 	  APart->suggest_barcode( barcode ) ;
