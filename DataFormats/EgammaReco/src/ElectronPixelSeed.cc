@@ -7,11 +7,18 @@ ElectronPixelSeed::ElectronPixelSeed( )
 {
 }
 
-ElectronPixelSeed::ElectronPixelSeed(edm::Ref<SuperClusterCollection>& seed, PTrajectoryStateOnDet & pts, recHitContainer & rh,  PropagationDirection & dir)
+ElectronPixelSeed::ElectronPixelSeed(edm::Ref<SuperClusterCollection>& scl, PTrajectoryStateOnDet & pts, recHitContainer & rh,  PropagationDirection & dir)
 : TrajectorySeed(pts,rh,dir)
 {
 
-  theSuperCluster = seed;
+  theSuperCluster = scl;
+}
+
+ElectronPixelSeed::ElectronPixelSeed(edm::Ref<SuperClusterCollection>& scl, const TrajectorySeed & seed)
+: TrajectorySeed(seed)
+{
+
+  theSuperCluster = scl;
 }
 
 ElectronPixelSeed::ElectronPixelSeed( const ElectronPixelSeed & seed )
