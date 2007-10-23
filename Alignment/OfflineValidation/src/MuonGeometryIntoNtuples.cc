@@ -13,7 +13,7 @@
 //
 // Original Author:  Jim Pivarski
 //         Created:  Mon Jul 16 16:56:34 CDT 2007
-// $Id: MuonGeometryIntoNtuples.cc,v 1.1 2007/09/21 16:57:19 pivarski Exp $
+// $Id: MuonGeometryIntoNtuples.cc,v 1.2 2007/09/21 17:12:51 pivarski Exp $
 //
 //
 
@@ -39,16 +39,17 @@
 #include "Geometry/DTGeometryBuilder/src/DTGeometryBuilderFromDDD.h"
 #include "Geometry/CSCGeometryBuilder/src/CSCGeometryBuilderFromDDD.h"
 #include "Geometry/TrackingGeometryAligner/interface/GeometryAligner.h"
-#include "CondFormats/DataRecord/interface/DTAlignmentRcd.h"
-#include "CondFormats/DataRecord/interface/DTAlignmentErrorRcd.h"
-#include "CondFormats/DataRecord/interface/CSCAlignmentRcd.h"
-#include "CondFormats/DataRecord/interface/CSCAlignmentErrorRcd.h"
+#include "CondFormats/AlignmentRecord/interface/DTAlignmentRcd.h"
+#include "CondFormats/AlignmentRecord/interface/DTAlignmentErrorRcd.h"
+#include "CondFormats/AlignmentRecord/interface/CSCAlignmentRcd.h"
+#include "CondFormats/AlignmentRecord/interface/CSCAlignmentErrorRcd.h"
 #include "CondFormats/Alignment/interface/SurveyErrors.h"
-#include "CondFormats/DataRecord/interface/DTSurveyRcd.h"
-#include "CondFormats/DataRecord/interface/DTSurveyErrorRcd.h"
-#include "CondFormats/DataRecord/interface/CSCSurveyRcd.h"
-#include "CondFormats/DataRecord/interface/CSCSurveyErrorRcd.h"
+#include "CondFormats/AlignmentRecord/interface/DTSurveyRcd.h"
+#include "CondFormats/AlignmentRecord/interface/DTSurveyErrorRcd.h"
+#include "CondFormats/AlignmentRecord/interface/CSCSurveyRcd.h"
+#include "CondFormats/AlignmentRecord/interface/CSCSurveyErrorRcd.h"
 #include "Alignment/CommonAlignment/interface/AlignableObjectId.h"
+#include "Alignment/CommonAlignment/interface/StructureType.h"
 #include "DataFormats/MuonDetId/interface/MuonSubdetId.h"
 #include "DataFormats/MuonDetId/interface/DTLayerId.h"
 #include "DataFormats/MuonDetId/interface/DTSuperLayerId.h"
@@ -409,21 +410,21 @@ void MuonGeometryIntoNtuples::recursiveWalk(Alignable *ali) {
 
    // Get a pointer to whatever ntuple we're filling (they're all so similar)
    TTree *tree;
-   if (ali->alignableObjectId() == AlignableObjectId::AlignableDTWheel) tree = m_dtWheels;
-   else if (ali->alignableObjectId() == AlignableObjectId::AlignableDTStation) tree = m_dtStations;
-   else if (ali->alignableObjectId() == AlignableObjectId::AlignableDTChamber) tree = m_dtChambers;
-   else if (ali->alignableObjectId() == AlignableObjectId::AlignableDTSuperLayer  ||
-	    (ali->alignableObjectId() == AlignableObjectId::AlignableDet  &&  ali->geomDetId().subdetId() == MuonSubdetId::DT)) tree = m_dtSuperLayers;
-   else if (ali->alignableObjectId() == AlignableObjectId::AlignableDTLayer  ||
-	    (ali->alignableObjectId() == AlignableObjectId::AlignableDetUnit  &&  ali->geomDetId().subdetId() == MuonSubdetId::DT)) tree = m_dtLayers;
-   else if (ali->alignableObjectId() == AlignableObjectId::AlignableCSCStation) tree = m_cscStations;
-   else if (ali->alignableObjectId() == AlignableObjectId::AlignableCSCChamber) tree = m_cscChambers;
-   else if (ali->alignableObjectId() == AlignableObjectId::AlignableCSCLayer  ||
-	    ((ali->alignableObjectId() == AlignableObjectId::AlignableDet  ||
-	      ali->alignableObjectId() == AlignableObjectId::AlignableDetUnit)  &&  ali->geomDetId().subdetId() == MuonSubdetId::CSC)) tree = m_cscLayers;
-   else if (ali->alignableObjectId() == AlignableObjectId::AlignableDTBarrel  ||
-	    ali->alignableObjectId() == AlignableObjectId::AlignableCSCEndcap  ||
-	    ali->alignableObjectId() == AlignableObjectId::AlignableMuon) {
+   if (ali->alignableObjectId() == align::AlignableDTWheel) tree = m_dtWheels;
+   else if (ali->alignableObjectId() == align::AlignableDTStation) tree = m_dtStations;
+   else if (ali->alignableObjectId() == align::AlignableDTChamber) tree = m_dtChambers;
+   else if (ali->alignableObjectId() == align::AlignableDTSuperLayer  ||
+	    (ali->alignableObjectId() == align::AlignableDet  &&  ali->geomDetId().subdetId() == MuonSubdetId::DT)) tree = m_dtSuperLayers;
+   else if (ali->alignableObjectId() == align::AlignableDTLayer  ||
+	    (ali->alignableObjectId() == align::AlignableDetUnit  &&  ali->geomDetId().subdetId() == MuonSubdetId::DT)) tree = m_dtLayers;
+   else if (ali->alignableObjectId() == align::AlignableCSCStation) tree = m_cscStations;
+   else if (ali->alignableObjectId() == align::AlignableCSCChamber) tree = m_cscChambers;
+   else if (ali->alignableObjectId() == align::AlignableCSCLayer  ||
+	    ((ali->alignableObjectId() == align::AlignableDet  ||
+	      ali->alignableObjectId() == align::AlignableDetUnit)  &&  ali->geomDetId().subdetId() == MuonSubdetId::CSC)) tree = m_cscLayers;
+   else if (ali->alignableObjectId() == align::AlignableDTBarrel  ||
+	    ali->alignableObjectId() == align::AlignableCSCEndcap  ||
+	    ali->alignableObjectId() == align::AlignableMuon) {
       // skip these
       return;
    }
