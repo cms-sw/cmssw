@@ -42,17 +42,17 @@ namespace reco {
 
     /// constructor from values
     PFRecHit(unsigned detId,
-	     int layer,
-	     double energy, 
-	     const math::XYZPoint& posxyz, 
-	     const math::XYZVector& axisxyz, 
-	     const std::vector< math::XYZPoint >& cornersxyz);
+             int layer,
+             double energy, 
+             const math::XYZPoint& posxyz, 
+             const math::XYZVector& axisxyz, 
+             const std::vector< math::XYZPoint >& cornersxyz);
 
     PFRecHit(unsigned detId,
-	     int layer,
-	     double energy, 
-	     double posx, double posy, double posz, 
-	     double axisx, double axisy, double axisz);    
+             int layer,
+             double energy, 
+             double posx, double posy, double posz, 
+             double axisx, double axisy, double axisz);    
 
     /// copy
     PFRecHit(const PFRecHit& other);
@@ -64,7 +64,7 @@ namespace reco {
     void calculatePositionREP();
 
     //C neighbours must be initialized correctly !!
-/*     void setNeighbours( const std::vector< unsigned >& neighbours ); */
+    /*     void setNeighbours( const std::vector< unsigned >& neighbours ); */
     void add4Neighbour( unsigned index );
     void add8Neighbour( unsigned index );
     
@@ -134,11 +134,11 @@ namespace reco {
     const std::vector< unsigned >& neighboursIds8() const 
       {return neighboursIds8_;}  
 
-/*     const std::vector< unsigned >& getNeighboursIds4() const  */
-/*       {return neighboursIds4_;}   */
+    /*     const std::vector< unsigned >& getNeighboursIds4() const  */
+    /*       {return neighboursIds4_;}   */
 
-/*     const std::vector< unsigned >& getNeighboursIds8() const  */
-/*       {return neighboursIds8_;}   */
+    /*     const std::vector< unsigned >& getNeighboursIds8() const  */
+    /*       {return neighboursIds8_;}   */
 
     /// is rechit 'id' a direct neighbour of this ? 
     /// id is the rechit index ! not the detId
@@ -164,7 +164,7 @@ namespace reco {
     bool operator< (const PFRecHit& rhs) const { return (energy_< rhs.energy_); }
 
     friend std::ostream& operator<<(std::ostream& out, 
-				    const reco::PFRecHit& hit);
+                                    const reco::PFRecHit& hit);
 
   private:
 

@@ -9,9 +9,9 @@ PFTrajectoryPoint::PFTrajectoryPoint() :
 
 
 PFTrajectoryPoint::PFTrajectoryPoint(int detId,
-				     int layer, 
-				     const math::XYZPoint& posxyz, 
-				     const math::XYZTLorentzVector& momentum) :
+                                     int layer, 
+                                     const math::XYZPoint& posxyz, 
+                                     const math::XYZTLorentzVector& momentum) :
   isTrackerLayer_(false),
   detId_(detId),
   layer_(layer),
@@ -43,7 +43,7 @@ bool   PFTrajectoryPoint::operator==(const reco::PFTrajectoryPoint& other) const
 }
 
 std::ostream& reco::operator<<(std::ostream& out, 
-			       const reco::PFTrajectoryPoint& trajPoint) {
+                               const reco::PFTrajectoryPoint& trajPoint) {
   if(!out) return out;
   
   const math::XYZPoint& posxyz = trajPoint.positionXYZ();

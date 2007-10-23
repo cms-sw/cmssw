@@ -33,7 +33,7 @@ namespace reco {
   public:
 
     typedef edm::OwnVector< reco::PFBlockElement >::const_iterator IE;
-/*     typedef std::vector< reco::PFBlockLink >::const_iterator IL; */
+    /*     typedef std::vector< reco::PFBlockLink >::const_iterator IL; */
     
     
     PFBlock() {}
@@ -52,7 +52,7 @@ namespace reco {
     /// set a link between elements of indices i1 and i2, of "distance" chi2
     /// the link is set in the linkData vector provided as an argument.
     void setLink(unsigned i1, unsigned i2, double chi2, 
-		 std::vector<double>& linkData ) const;
+                 std::vector<double>& linkData ) const;
 
 
     /// lock an element ( unlink it from the others )
@@ -63,14 +63,14 @@ namespace reco {
     /// elements are sorted by increasing chi2.
     /// if specified, only the elements of type "type" will be considered
     void associatedElements( unsigned i,
-			     std::vector<double>& linkData, 
-			     std::map<double, unsigned>& sortedAssociates,
-			     reco::PFBlockElement::Type type = PFBlockElement::NONE) const;  
+                             std::vector<double>& linkData, 
+                             std::map<double, unsigned>& sortedAssociates,
+                             reco::PFBlockElement::Type type = PFBlockElement::NONE) const;  
       
 
     /// \return chi2 of link
     double chi2( unsigned ie1, unsigned ie2, 
-		 const std::vector<double>& linkData ) const;
+                 const std::vector<double>& linkData ) const;
 
     /// \return elements
     const edm::OwnVector< reco::PFBlockElement >& elements() const 

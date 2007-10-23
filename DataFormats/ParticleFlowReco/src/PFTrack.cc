@@ -41,18 +41,18 @@ PFTrack::PFTrack(const PFTrack& other) :
 
 void PFTrack::addPoint(const PFTrajectoryPoint& trajPt) {
   
-//   cout<<"adding "<<trajPt<<endl;
+  //   cout<<"adding "<<trajPt<<endl;
 
   if (trajPt.isTrackerLayer()) {
     if (!indexOutermost_) { // first time a measurement is added
       if (trajectoryPoints_.size() < PFTrajectoryPoint::BeamPipeOrEndVertex + 1) {
-	PFTrajectoryPoint dummyPt;
-	for (unsigned iPt = trajectoryPoints_.size(); iPt < PFTrajectoryPoint::BeamPipeOrEndVertex + 1; iPt++)
-	  trajectoryPoints_.push_back(dummyPt);
+        PFTrajectoryPoint dummyPt;
+        for (unsigned iPt = trajectoryPoints_.size(); iPt < PFTrajectoryPoint::BeamPipeOrEndVertex + 1; iPt++)
+          trajectoryPoints_.push_back(dummyPt);
       } else if (trajectoryPoints_.size() > PFTrajectoryPoint::BeamPipeOrEndVertex + 1) {
-	// throw an exception here
-// 	edm::LogError("PFTrack")<<"trajectoryPoints_.size() is too large = " 
-// 				<<trajectoryPoints_.size()<<"\n";
+        // throw an exception here
+        //      edm::LogError("PFTrack")<<"trajectoryPoints_.size() is too large = " 
+        //                              <<trajectoryPoints_.size()<<"\n";
       }
       indexOutermost_ = indexInnermost_ = PFTrajectoryPoint::BeamPipeOrEndVertex + 1;
     } else 
@@ -61,7 +61,7 @@ void PFTrack::addPoint(const PFTrajectoryPoint& trajPt) {
   // Use push_back instead of insert in order to gain time
   trajectoryPoints_.push_back(trajPt);
 
-//   cout<<"adding point "<<*this<<endl;
+  //   cout<<"adding point "<<*this<<endl;
 }
 
 
@@ -90,7 +90,7 @@ const reco::PFTrajectoryPoint& PFTrack::extrapolatedPoint(unsigned layerid) cons
 
 
 ostream& reco::operator<<(ostream& out, 
-			  const PFTrack& track) {  
+                          const PFTrack& track) {  
   if (!out) return out;  
 
   const reco::PFTrajectoryPoint& closestApproach = 

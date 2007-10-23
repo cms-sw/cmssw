@@ -30,7 +30,7 @@ namespace reco {
 
     /// Define the different layers where the track can be propagated
     enum LayerType {
-       /// Point of closest approach from beam axis (initial point in the case of PFSimParticle)
+      /// Point of closest approach from beam axis (initial point in the case of PFSimParticle)
       ClosestApproach = 0,
       BeamPipeOrEndVertex = 1,       
       /// Preshower layer 1
@@ -55,9 +55,9 @@ namespace reco {
     /// \brief constructor from values. 
     /// set detId to -1 if this point is not from a tracker layer
     PFTrajectoryPoint(int detId,
-		      int layer,
-		      const math::XYZPoint& posxyz, 
-		      const math::XYZTLorentzVector& momentum); 
+                      int layer,
+                      const math::XYZPoint& posxyz, 
+                      const math::XYZTLorentzVector& momentum); 
 
     /// copy
     PFTrajectoryPoint(const PFTrajectoryPoint& other);

@@ -13,9 +13,9 @@ PFRecTrack::PFRecTrack() :
 
 
 PFRecTrack::PFRecTrack(double charge, 
-		       AlgoType_t algoType, 
-		       int trackId, 
-		       const reco::TrackRef& trackRef ) : 
+                       AlgoType_t algoType, 
+                       int trackId, 
+                       const reco::TrackRef& trackRef ) : 
   PFTrack(charge), 
   algoType_(algoType),
   trackId_(trackId), 
@@ -31,7 +31,7 @@ PFRecTrack::PFRecTrack(double charge, AlgoType_t algoType) :
 
 
 std::ostream& reco::operator<<(std::ostream& out, 
-			       const PFRecTrack& track) {  
+                               const PFRecTrack& track) {  
   if (!out) return out;  
   
   const reco::PFTrajectoryPoint& closestApproach = 

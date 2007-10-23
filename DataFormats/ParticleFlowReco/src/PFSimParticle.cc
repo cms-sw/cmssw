@@ -14,8 +14,8 @@ PFSimParticle::PFSimParticle() :
 
 
 PFSimParticle::PFSimParticle(double charge, int pdgCode,
-		       unsigned id, int motherId,
-			     const vector<int>& daughterIds) : 
+                             unsigned id, int motherId,
+                             const vector<int>& daughterIds) : 
   PFTrack(charge),
   pdgCode_(pdgCode), 
   id_(id), 
@@ -33,7 +33,7 @@ PFSimParticle::PFSimParticle(const PFSimParticle& other) :
 {}
 
 ostream& reco::operator<<(ostream& out, 
-			  const PFSimParticle& particle) {  
+                          const PFSimParticle& particle) {  
   if (!out) return out;  
 
   const reco::PFTrajectoryPoint& closestApproach = 
