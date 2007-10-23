@@ -25,16 +25,11 @@ HcalDigiAnalyzer::HcalDigiAnalyzer(edm::ParameterSet const& conf)
 namespace HcalDigiAnalyzerImpl {
   template<class Collection>
   void analyze(edm::Event const& e, HcalDigiStatistics & statistics) {
-    try {
-      edm::Handle<Collection> digis;
-      e.getByType(digis);
-      for(unsigned i = 0; i < digis->size(); ++i) {
-        std::cout << (*digis)[i] << std::endl;
-        statistics.analyze((*digis)[i]);
-      }
-    }
-    catch (...) {
-      edm::LogError("HcalDigiAnalyzer") << "Could not find Hcal Digi Container ";
+    edm::Handle<Collection> digis;
+    e.getByType(digis);
+    for(unsigned i = 0; i < digis->size(); ++i) {
+      std::cout << (*digis)[i] << std::endl;
+      statistics.analyze((*digis)[i]);
     }
   }
 }

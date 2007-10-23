@@ -22,15 +22,10 @@ HcalHitAnalyzer::HcalHitAnalyzer(edm::ParameterSet const& conf)
 namespace HcalHitAnalyzerImpl {
   template<class Collection>
   void analyze(edm::Event const& e, CaloHitAnalyzer & analyzer) {
-    try {
-      edm::Handle<Collection> recHits;
-      e.getByType(recHits);
-      for(unsigned i = 0 ; i < recHits->size(); ++i) {
-        analyzer.analyze((*recHits)[i].id().rawId(), (*recHits)[i].energy());
-      }
-    }
-    catch (...) {
-      edm::LogError("HcalHitAnalyzer") << "Could not find Hcal RecHitContainer ";
+    edm::Handle<Collection> recHits;
+    e.getByType(recHits);
+    for(unsigned i = 0 ; i < recHits->size(); ++i) {
+      analyzer.analyze((*recHits)[i].id().rawId(), (*recHits)[i].energy());
     }
   }
 }
