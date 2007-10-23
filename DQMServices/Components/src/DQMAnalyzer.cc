@@ -1,8 +1,8 @@
 /*
  * \file DQMAnalyzer.cc
  * 
- * $Date: 2007/10/11 22:41:12 $
- * $Revision: 1.2 $
+ * $Date: 2007/10/12 21:19:28 $
+ * $Revision: 1.3 $
  * \author M. Zanetti - CERN PH
  *
  */
@@ -132,11 +132,8 @@ void DQMAnalyzer::analyze(const Event& e, const EventSetup& c){
   //get elapsed time in minutes...
   gettimeofday(&psTime_.updateTV,NULL);
   double currTime =(psTime_.updateTV.tv_sec*1000.0+psTime_.updateTV.tv_usec/1000.0); //in milliseconds
-  printf("Now in MS: %f\n",currTime);
   currTime /= (60.0*1000.0); //in minutes
   psTime_.elapsedTime = currTime - psTime_.startTime;
-
-  printf("now: %f, start: %f, delta: %f\n",currTime,psTime_.startTime,psTime_.elapsedTime);
 
   // set counters and flags
   saved_ = false;
