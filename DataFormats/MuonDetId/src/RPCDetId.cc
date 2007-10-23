@@ -2,7 +2,7 @@
  * Impl of RPCDetId
  *
  * \author Ilaria Segoni
- * \version $Id: RPCDetId.cc,v 1.18 2007/07/26 07:20:18 innocent Exp $
+ * \version $Id: RPCDetId.cc,v 1.19 2007/08/07 22:41:20 ratnik Exp $
  * \date 02 Aug 2005
  */
 
@@ -86,12 +86,15 @@ RPCDetId::buildfromTrIndex(int trIndex)
   else {
     if ( ring == 1 && station > 1) {
       // 20 degree chambers
-      subsector = (sector_id-1)%3+1;
+      subsector = (sector_id/2-1)%3+1;
     }else {
       // 10 degree chambers
       subsector = (sector_id-1)%6+1;
     }
+    std::cout << "RE"<<station<<"/"<<ring<<" sector_id "<<sector_id
+	      << " sector "<<sector <<" sub "<<subsector<<std::endl;
   }
+
 
   int roll=trIndex%10;
   this->init(region,ring,station,sector,layer,subsector,roll);
