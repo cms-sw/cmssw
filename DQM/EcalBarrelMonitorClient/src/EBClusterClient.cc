@@ -1,8 +1,8 @@
 /*
  * \file EBClusterClient.cc
  *
- * $Date: 2007/10/18 08:20:13 $
- * $Revision: 1.36 $
+ * $Date: 2007/10/18 09:43:31 $
+ * $Revision: 1.37 $
  * \author G. Della Ricca
  * \author F. Cossutti
  * \author E. Di Marco
@@ -222,10 +222,10 @@ void EBClusterClient::subscribe(void){
   sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT island BC energy");
   mui_->subscribe(histo);
 
-  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT island BC number");
+  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT island BC size");
   mui_->subscribe(histo);
 
-  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT island BC crystals");
+  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT island BC number");
   mui_->subscribe(histo);
 
   sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT island BC energy map");
@@ -267,10 +267,10 @@ void EBClusterClient::subscribe(void){
   sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT hybrid SC energy");
   mui_->subscribe(histo);
 
-  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT hybrid SC number");
+  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT hybrid SC size");
   mui_->subscribe(histo);
 
-  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT hybrid SC size");
+  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT hybrid SC number");
   mui_->subscribe(histo);
 
   sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT hybrid s1s9");
@@ -291,10 +291,10 @@ void EBClusterClient::subscribeNew(void){
   sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT island BC energy");
   mui_->subscribeNew(histo);
 
-  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT island BC number");
+  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT island BC size");
   mui_->subscribeNew(histo);
 
-  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT island BC crystals");
+  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT island BC number");
   mui_->subscribeNew(histo);
 
   sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT island BC energy map");
@@ -336,10 +336,10 @@ void EBClusterClient::subscribeNew(void){
   sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT hybrid SC energy");
   mui_->subscribeNew(histo);
 
-  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT hybrid SC number");
+  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT hybrid SC size");
   mui_->subscribeNew(histo);
 
-  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT hybrid SC size");
+  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT hybrid SC number");
   mui_->subscribeNew(histo);
 
   sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT hybrid s1s9");
@@ -362,10 +362,10 @@ void EBClusterClient::unsubscribe(void){
   sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT island BC energy");
   mui_->unsubscribe(histo);
 
-  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT island BC number");
+  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT island BC size");
   mui_->unsubscribe(histo);
 
-  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT island BC crystals");
+  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT island BC number");
   mui_->unsubscribe(histo);
 
   sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT island BC energy map");
@@ -407,10 +407,10 @@ void EBClusterClient::unsubscribe(void){
   sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT hybrid SC energy");
   mui_->unsubscribe(histo);
 
-  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT hybrid SC number");
+  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT hybrid SC size");
   mui_->unsubscribe(histo);
 
-  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT hybrid SC size");
+  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT hybrid SC number");
   mui_->unsubscribe(histo);
 
   sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT hybrid s1s9");
@@ -444,11 +444,11 @@ void EBClusterClient::analyze(void){
   me = dbe_->get(histo);
   h01_[0] = UtilsClient::getHisto<TH1F*>( me, cloneME_, h01_[0] );
 
-  sprintf(histo, (prefixME_+"EcalBarrel/EBClusterTask/EBCLT island BC number").c_str());
+  sprintf(histo, (prefixME_+"EcalBarrel/EBClusterTask/EBCLT island BC size").c_str());
   me = dbe_->get(histo);
   h01_[1] = UtilsClient::getHisto<TH1F*>( me, cloneME_, h01_[1] );
 
-  sprintf(histo, (prefixME_+"EcalBarrel/EBClusterTask/EBCLT island BC crystals").c_str());
+  sprintf(histo, (prefixME_+"EcalBarrel/EBClusterTask/EBCLT island BC number").c_str());
   me = dbe_->get(histo);
   h01_[2] = UtilsClient::getHisto<TH1F*>( me, cloneME_, h01_[2] );
 
@@ -504,11 +504,11 @@ void EBClusterClient::analyze(void){
   me = dbe_->get(histo);
   i01_[0] = UtilsClient::getHisto<TH1F*>( me, cloneME_, i01_[0] );
 
-  sprintf(histo, (prefixME_+"EcalBarrel/EBClusterTask/EBCLT hybrid SC number").c_str());
+  sprintf(histo, (prefixME_+"EcalBarrel/EBClusterTask/EBCLT hybrid SC size").c_str());
   me = dbe_->get(histo);
   i01_[1] = UtilsClient::getHisto<TH1F*>( me, cloneME_, i01_[1] );
 
-  sprintf(histo, (prefixME_+"EcalBarrel/EBClusterTask/EBCLT hybrid SC size").c_str());
+  sprintf(histo, (prefixME_+"EcalBarrel/EBClusterTask/EBCLT hybrid SC number").c_str());
   me = dbe_->get(histo);
   i01_[2] = UtilsClient::getHisto<TH1F*>( me, cloneME_, i01_[2] );
 

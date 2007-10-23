@@ -4,8 +4,8 @@
 /*
  * \file EBClusterTask.h
  *
- * $Date: 2007/04/05 14:53:58 $
- * $Revision: 1.10 $
+ * $Date: 2007/10/18 08:18:41 $
+ * $Revision: 1.11 $
  * \author G. Della Ricca
  *
  */
@@ -56,12 +56,12 @@ edm::InputTag ClusterShapeAssociation_;
 
 MonitorElement* meBCEne_;
 MonitorElement* meBCNum_;
-MonitorElement* meBCCry_;
+MonitorElement* meBCSiz_;
 
 MonitorElement* meBCEneMap_, *meBCEneMapProjEta_, *meBCEneMapProjPhi_;
 MonitorElement* meBCNumMap_, *meBCNumMapProjEta_, *meBCNumMapProjPhi_;
 MonitorElement* meBCETMap_, *meBCETMapProjEta_, *meBCETMapProjPhi_;
-MonitorElement* meBCCryMap_, *meBCCryMapProjEta_, *meBCCryMapProjPhi_;
+MonitorElement* meBCSizMap_, *meBCSizMapProjEta_, *meBCSizMapProjPhi_;
 
 MonitorElement* meSCEne_;
 MonitorElement* meSCNum_;

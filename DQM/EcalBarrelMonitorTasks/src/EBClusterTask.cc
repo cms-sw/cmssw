@@ -1,8 +1,8 @@
 /*
  * \file EBClusterTask.cc
  *
- * $Date: 2007/10/18 16:36:35 $
- * $Revision: 1.29 $
+ * $Date: 2007/10/18 17:09:31 $
+ * $Revision: 1.30 $
  * \author G. Della Ricca
  * \author E. Di Marco
  *
@@ -61,22 +61,22 @@ EBClusterTask::EBClusterTask(const ParameterSet& ps){
   // histograms...
   meBCEne_ = 0;
   meBCNum_ = 0;
-  meBCCry_ = 0;
+  meBCSiz_ = 0;
 
   meBCEneMap_ = 0;
   meBCNumMap_ = 0;
   meBCETMap_  = 0;
-  meBCCryMap_ = 0;
+  meBCSizMap_ = 0;
 
   meBCEneMapProjEta_ = 0;
   meBCNumMapProjEta_ = 0;
   meBCETMapProjEta_  = 0;
-  meBCCryMapProjEta_ = 0;
+  meBCSizMapProjEta_ = 0;
 
   meBCEneMapProjPhi_ = 0;
   meBCNumMapProjPhi_ = 0;
   meBCETMapProjPhi_  = 0;
-  meBCCryMapProjPhi_ = 0;
+  meBCSizMapProjPhi_ = 0;
 
   meSCEne_ = 0;
   meSCNum_ = 0;
@@ -118,8 +118,8 @@ void EBClusterTask::setup(void){
     sprintf(histo, "EBCLT island BC number");
     meBCNum_ = dbe_->book1D(histo, histo, 100, 0., 100.);
 
-    sprintf(histo, "EBCLT island BC crystals");
-    meBCCry_ = dbe_->book1D(histo, histo, 100, 0., 100.);
+    sprintf(histo, "EBCLT island BC size");
+    meBCSiz_ = dbe_->book1D(histo, histo, 100, 0., 100.);
 
     sprintf(histo, "EBCLT island BC energy map");
     meBCEneMap_ = dbe_->bookProfile2D(histo, histo, 72, -M_PI*(9+1.5)/9, M_PI*(9-1.5)/9, 34, -1.479, 1.479, 100, 0., 500., "s");
@@ -131,7 +131,7 @@ void EBClusterTask::setup(void){
     meBCETMap_ = dbe_->bookProfile2D(histo, histo, 72, -M_PI*(9+1.5)/9, M_PI*(9-1.5)/9, 34, -1.479, 1.479, 100, 0., 500., "s");
 
     sprintf(histo, "EBCLT island BC size map");
-    meBCCryMap_ = dbe_->bookProfile2D(histo, histo, 72, -M_PI*(9+1.5)/9, M_PI*(9-1.5)/9, 34, -1.479, 1.479, 100, 0., 100., "s");
+    meBCSizMap_ = dbe_->bookProfile2D(histo, histo, 72, -M_PI*(9+1.5)/9, M_PI*(9-1.5)/9, 34, -1.479, 1.479, 100, 0., 100., "s");
 
     sprintf(histo, "EBCLT island BC energy projection eta");
     meBCEneMapProjEta_ = dbe_->bookProfile(histo, histo, 34, -1.479, 1.479, 100, 0., 500., "s");
@@ -152,10 +152,10 @@ void EBClusterTask::setup(void){
     meBCETMapProjPhi_ = dbe_->bookProfile(histo, histo, 72, -M_PI*(9+1.5)/9, M_PI*(9-1.5)/9, 100, 0., 500., "s");
 
     sprintf(histo, "EBCLT island BC size projection eta");
-    meBCCryMapProjEta_ = dbe_->bookProfile(histo, histo, 34, -1.479, 1.479, 100, 0., 100., "s");
+    meBCSizMapProjEta_ = dbe_->bookProfile(histo, histo, 34, -1.479, 1.479, 100, 0., 100., "s");
 
     sprintf(histo, "EBCLT island BC size projection phi");
-    meBCCryMapProjPhi_ = dbe_->bookProfile(histo, histo, 72, -M_PI*(9+1.5)/9, M_PI*(9-1.5)/9, 100, 0., 100., "s");
+    meBCSizMapProjPhi_ = dbe_->bookProfile(histo, histo, 72, -M_PI*(9+1.5)/9, M_PI*(9-1.5)/9, 100, 0., 100., "s");
 
     sprintf(histo, "EBCLT hybrid SC energy");
     meSCEne_ = dbe_->book1D(histo, histo, 100, 0., 150.);
@@ -192,8 +192,8 @@ void EBClusterTask::cleanup(void){
     if ( meBCNum_ ) dbe_->removeElement( meBCNum_->getName() );
     meBCNum_ = 0;
 
-    if ( meBCCry_ ) dbe_->removeElement( meBCCry_->getName() );
-    meBCCry_ = 0;
+    if ( meBCSiz_ ) dbe_->removeElement( meBCSiz_->getName() );
+    meBCSiz_ = 0;
 
     if ( meBCEneMap_ ) dbe_->removeElement( meBCEneMap_->getName() );
     meBCEneMap_ = 0;
@@ -204,8 +204,8 @@ void EBClusterTask::cleanup(void){
     if ( meBCETMap_ ) dbe_->removeElement( meBCETMap_->getName() );
     meBCETMap_ = 0;
 
-    if ( meBCCryMap_ ) dbe_->removeElement( meBCCryMap_->getName() );
-    meBCCryMap_ = 0;
+    if ( meBCSizMap_ ) dbe_->removeElement( meBCSizMap_->getName() );
+    meBCSizMap_ = 0;
 
     if ( meBCEneMapProjEta_ ) dbe_->removeElement( meBCEneMapProjEta_->getName() );
     meBCEneMapProjEta_ = 0;
@@ -225,11 +225,11 @@ void EBClusterTask::cleanup(void){
     if ( meBCETMapProjPhi_ ) dbe_->removeElement( meBCETMapProjPhi_->getName() );
     meBCETMapProjPhi_ = 0;
 
-    if ( meBCCryMapProjEta_ ) dbe_->removeElement( meBCCryMapProjEta_->getName() );
-    meBCCryMapProjEta_ = 0;
+    if ( meBCSizMapProjEta_ ) dbe_->removeElement( meBCSizMapProjEta_->getName() );
+    meBCSizMapProjEta_ = 0;
 
-    if ( meBCCryMapProjPhi_ ) dbe_->removeElement( meBCCryMapProjPhi_->getName() );
-    meBCCryMapProjPhi_ = 0;
+    if ( meBCSizMapProjPhi_ ) dbe_->removeElement( meBCSizMapProjPhi_->getName() );
+    meBCSizMapProjPhi_ = 0;
 
     if ( meSCEne_ ) dbe_->removeElement( meSCEne_->getName() );
     meSCEne_ = 0;
@@ -286,7 +286,7 @@ void EBClusterTask::analyze(const Event& e, const EventSetup& c){
       BasicCluster bcluster = *(bclusterItr);
 
       meBCEne_->Fill(bcluster.energy());
-      meBCCry_->Fill(float(bcluster.getHitsByDetId().size()));
+      meBCSiz_->Fill(float(bcluster.getHitsByDetId().size()));
 
       float xphi = bcluster.phi();
       if ( xphi > M_PI*(9-1.5)/9 ) xphi = xphi - M_PI*2;
@@ -299,9 +299,9 @@ void EBClusterTask::analyze(const Event& e, const EventSetup& c){
       meBCNumMapProjEta_->Fill(bcluster.eta());
       meBCNumMapProjPhi_->Fill(xphi);
 
-      meBCCryMap_->Fill(xphi, bcluster.eta(), float(bcluster.getHitsByDetId().size()));
-      meBCCryMapProjEta_->Fill(bcluster.eta(), float(bcluster.getHitsByDetId().size()));
-      meBCCryMapProjPhi_->Fill(xphi, float(bcluster.getHitsByDetId().size()));
+      meBCSizMap_->Fill(xphi, bcluster.eta(), float(bcluster.getHitsByDetId().size()));
+      meBCSizMapProjEta_->Fill(bcluster.eta(), float(bcluster.getHitsByDetId().size()));
+      meBCSizMapProjPhi_->Fill(xphi, float(bcluster.getHitsByDetId().size()));
 
       meBCETMap_->Fill(xphi, bcluster.eta(), float(bcluster.energy()) * sin(bcluster.position().theta()));
       meBCETMapProjEta_->Fill(bcluster.eta(), float(bcluster.energy()) * sin(bcluster.position().theta()));
