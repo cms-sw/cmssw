@@ -1,11 +1,11 @@
-// $Id: EcalErrorMask.h,v 1.2 2007/05/22 15:37:18 benigno Exp $
+// $Id: EcalErrorMask.h,v 1.3 2007/10/22 17:10:37 dellaric Exp $
 
 /*!
   \file EcalErrorMask.h
   \brief Error mask from text file or database
   \author B. Gobbo 
-  \version $Revision: 1.2 $
-  \date $Date: 2007/05/22 15:37:18 $
+  \version $Revision: 1.3 $
+  \date $Date: 2007/10/22 17:10:37 $
 */
 
 #ifndef EcalErrorMask_H
@@ -13,6 +13,9 @@
 
 #include <string>
 #include <map>
+
+#include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
+
 #include "OnlineDB/EcalCondDB/interface/RunCrystalErrorsDat.h"
 #include "OnlineDB/EcalCondDB/interface/RunTTErrorsDat.h"
 #include "OnlineDB/EcalCondDB/interface/RunPNErrorsDat.h"
