@@ -13,7 +13,7 @@
 //
 // Original Author:  Nicola De Filippis
 //         Created:  Thu Dec 14 13:13:32 CET 2006
-// $Id: ValidationMisalignedTracker.cc,v 1.1 2007/10/10 22:01:18 ndefilip Exp $
+// $Id: ValidationMisalignedTracker.cc,v 1.2 2007/10/17 13:25:15 ndefilip Exp $
 //
 //
 
@@ -37,7 +37,8 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h"
 #include "TrackingTools/PatternTools/interface/TSCPBuilderNoMaterial.h"
-
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+#include "Geometry/CommonDetUnit/interface/GeomDet.h"
 
 using namespace edm;
 using namespace std;
@@ -447,13 +448,13 @@ ValidationMisalignedTracker::analyze(const edm::Event& iEvent, const edm::EventS
 	    
 	    eta=simulatedTrack->momentum().eta();
 	    phi=simulatedTrack->momentum().phi();
-	    pt=simulatedTrack->momentum().perp();
+	    pt=simulatedTrack->momentum().pt();
 	    nhit=tp->matchedHit();
 	    
 
 	     cout << "3) Before assoc: SimTrack of type = " << simulatedTrack->type() 
 		    << " ,at eta = " << eta 
-		    << " ,with pt at vertex = " << simulatedTrack->momentum().perp() << " GeV/c"
+		    << " ,with pt at vertex = " << simulatedTrack->momentum().pt() << " GeV/c"
 		    << " ,d0 =" << d0 
 		    << " ,z0 =" << z0 
                     << " ,nhit=" << nhit
@@ -477,7 +478,7 @@ ValidationMisalignedTracker::analyze(const edm::Event& iEvent, const edm::EventS
 	      px[flag][count]=simulatedTrack->momentum().x();   
 	      py[flag][count]=simulatedTrack->momentum().y();
 	      pz[flag][count]=simulatedTrack->momentum().z();
-	      ptmu[flag][count]=simulatedTrack->momentum().perp(); 
+	      ptmu[flag][count]=simulatedTrack->momentum().pt(); 
 	      ene[flag][count]=simulatedTrack->momentum().e();
 	    }
 	    
@@ -776,7 +777,7 @@ ValidationMisalignedTracker::analyze(const edm::Event& iEvent, const edm::EventS
 	      fakecottheta=1./tan(faketheta);
 	      fakeeta=fakeassocTrack->momentum().eta();
 	      fakephi=fakeassocTrack->momentum().phi();
-	      fakept=fakeassocTrack->momentum().perp();
+	      fakept=fakeassocTrack->momentum().pt();
 	      fakenhit=tpr->matchedHit();
 
 	      cout << "4) After call to associator: the best SimTrack match is of type" << fakeassocTrack->type() 
