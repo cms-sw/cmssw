@@ -1,4 +1,4 @@
-// $Id: testCompositeCandidate.cc,v 1.3 2007/10/15 12:44:33 llista Exp $
+// $Id: testCompositeCandidate.cc,v 1.4 2007/10/22 14:01:00 llista Exp $
 #include <cppunit/extensions/HelperMacros.h>
 #include "DataFormats/Candidate/interface/LeafCandidate.h"
 #include "DataFormats/Candidate/interface/CompositeCandidate.h"
@@ -62,9 +62,9 @@ void testCompositeCandidate::checkAll() {
       d[ idx ++ ] = & * i;
     }
     CPPUNIT_ASSERT( d[ 0 ]->charge() == q1 );
-    CPPUNIT_ASSERT( d[ 0 ]->p4() == p1 );
+    CPPUNIT_ASSERT( (d[ 0 ]->p4() - p1).M2() < 1.e-4 );
     CPPUNIT_ASSERT( d[ 1 ]->charge() == q2 );
-    CPPUNIT_ASSERT( d[ 1 ]->p4() == p2 );
+    CPPUNIT_ASSERT( (d[ 1 ]->p4() - p2).M2() < 1.e-4 );
   }
   {
     std::vector<test::DummyCandidate> v;

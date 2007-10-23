@@ -1,6 +1,7 @@
-// $Id: testParticle.cc,v 1.4 2007/10/15 12:44:33 llista Exp $
+// $Id: testParticle.cc,v 1.5 2007/10/20 09:34:39 llista Exp $
 #include <cppunit/extensions/HelperMacros.h>
 #include "DataFormats/Candidate/interface/Particle.h"
+#include <iostream>
 
 class testParticle : public CppUnit::TestFixture {
   CPPUNIT_TEST_SUITE(testParticle);
