@@ -1,9 +1,11 @@
 /*
  * \file EETriggerTowerTask.cc
  *
- * $Date: 2007/10/04 11:24:17 $
- * $Revision: 1.9 $
+ * $Date: 2007/10/15 16:26:43 $
+ * $Revision: 1.10 $
+ * \author C. Bernet
  * \author G. Della Ricca
+ * \author E. Di Marco
  *
 */
 

@@ -1,9 +1,11 @@
 /*
  * \file EBTriggerTowerTask.cc
  *
- * $Date: 2007/10/04 11:48:46 $
- * $Revision: 1.43 $
+ * $Date: 2007/10/22 18:24:00 $
+ * $Revision: 1.44 $
+ * \author C. Bernet
  * \author G. Della Ricca
+ * \author E. Di Marco
  *
 */
 
