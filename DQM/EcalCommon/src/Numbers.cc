@@ -1,11 +1,11 @@
-// $Id: Numbers.cc,v 1.30 2007/10/22 17:56:52 dellaric Exp $
+// $Id: Numbers.cc,v 1.31 2007/10/22 18:01:47 dellaric Exp $
 
 /*!
   \file Numbers.cc
   \brief Some "id" conversions
   \author B. Gobbo 
-  \version $Revision: 1.30 $
-  \date $Date: 2007/10/22 17:56:52 $
+  \version $Revision: 1.31 $
+  \date $Date: 2007/10/22 18:01:47 $
 */
 
 #include <sstream>
@@ -171,6 +171,7 @@ int Numbers::iSM( const int ism, const int subdet ) throw( std::runtime_error ) 
 int Numbers::iSM( const EBDetId& id ) throw( std::runtime_error ) {
 
   if( Numbers::map ) {
+
     EcalElectronicsId eid = Numbers::map->getElectronicsId(id);
     int idcc = eid.dccId();
 
@@ -192,6 +193,7 @@ int Numbers::iSM( const EBDetId& id ) throw( std::runtime_error ) {
 int Numbers::iSM( const EEDetId& id ) throw( std::runtime_error ) {
 
   if( Numbers::map ) {
+
     EcalElectronicsId eid = Numbers::map->getElectronicsId(id);
     int idcc = eid.dccId();
 
@@ -218,6 +220,7 @@ int Numbers::iSM( const EEDetId& id ) throw( std::runtime_error ) {
 int Numbers::iSM( const EcalTrigTowerDetId& id ) throw( std::runtime_error ) {
 
   if( Numbers::map ) {
+
     int idcc = Numbers::map->DCCid(id);
 
     // EE-
@@ -234,24 +237,26 @@ int Numbers::iSM( const EcalTrigTowerDetId& id ) throw( std::runtime_error ) {
     throw( std::runtime_error( s.str() ) );
 
   } else {
+
     int subdet = id.subDet();
+
     if( subdet == EcalBarrel ) {
 
       int idcc = id.iDCC();
 
-      return( Numbers::iSM( idcc, subdet ) );
+      // EB-/EB+
+      if( idcc >= 10 && idcc <= 45 ) return( idcc - 9 );
 
-//     // EB-/EB+
-//     if( idcc >= 10 && idcc <= 45 ) return( idcc - 9 );
-
-//      std::ostringstream s;
-//      s << "Wrong DCC id: dcc = " << idcc;
-//      throw( std::runtime_error( s.str() ) );
+      std::ostringstream s;
+      s << "Wrong DCC id: dcc = " << idcc;
+      throw( std::runtime_error( s.str() ) );
 
     } else if( subdet ==  EcalEndcap) {
+
       std::ostringstream s;
       s << "ECAL Geometry not available";
       throw( std::runtime_error( s.str() ) );
+
     } else {
       std::ostringstream s;
       s << "Invalid subdetector: subdet = " << subdet;
@@ -372,15 +377,23 @@ int Numbers::iTT( const int ism, const int subdet, const int i1, const int i2 ) 
 int Numbers::iTT( const EcalTrigTowerDetId& id ) throw( std::runtime_error ) {
 
   if( Numbers::map ) {
+
     return( Numbers::map->iTT(id) );
+
   } else {
+
     int subdet = id.subDet();
+
     if( subdet == EcalBarrel ) {
+
       return( id.iTT() );
+
     } else if( subdet ==  EcalEndcap) {
+
       std::ostringstream s;
       s << "ECAL Geometry not available";
       throw( std::runtime_error( s.str() ) );
+
     } else {
       std::ostringstream s;
       s << "Invalid subdetector: subdet = " << subdet;
@@ -395,9 +408,12 @@ int Numbers::iTT( const EcalTrigTowerDetId& id ) throw( std::runtime_error ) {
 std::vector<DetId> Numbers::crystals( const EcalTrigTowerDetId& id ) throw( std::runtime_error ) {
 
   if( Numbers::map ) {
+
     int itcc = Numbers::map->TCCid(id);
     int itt = Numbers::map->iTT(id);
+
     return( Numbers::map->ttConstituents( itcc, itt ) );
+
   } else {
     std::ostringstream s;
     s << "ECAL Geometry not available";
@@ -411,9 +427,12 @@ std::vector<DetId> Numbers::crystals( const EcalTrigTowerDetId& id ) throw( std:
 std::vector<DetId> Numbers::crystals( const EcalElectronicsId& id ) throw( std::runtime_error ) {
 
   if( Numbers::map ) {
+
     int idcc = id.dccId();
     int itt = id.towerId();
+
     return( Numbers::map->dccTowerConstituents( idcc, itt ) );
+
   } else {
     std::ostringstream s;
     s << "ECAL Geometry not available";
@@ -425,7 +444,9 @@ std::vector<DetId> Numbers::crystals( const EcalElectronicsId& id ) throw( std::
 //-------------------------------------------------------------------------
 
 int Numbers::indexEB( const int ism, const int ie, const int ip ){
+
   return( (ip-1) + 20*(ie-1) + 1 );
+
 }
 
 //-------------------------------------------------------------------------
@@ -452,7 +473,9 @@ int Numbers::indexEE( const int ism, const int ix, const int iy ){
 //-------------------------------------------------------------------------
 
 int Numbers::icEB( const int ism, const int ie, const int ip ) {
+
   return( (ip-1) + 20*(ie-1) + 1 );
+
 }
 
 //-------------------------------------------------------------------------
