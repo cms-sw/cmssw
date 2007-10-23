@@ -36,7 +36,7 @@ sub show_help {
 }
 ################################################################################
 
-open LOG, ">> /nfshome0/klute/globalRun-06-2007/log/insert.log";
+open LOG, ">> /nfshome0/klute/globalRun-09-2007/log/insert.log";
 print LOG scalar localtime(time),' ',join(' ',@ARGV),"\n";
 close LOG;
 
