@@ -19,7 +19,7 @@
 //
 // Original Author:  Andrea Perrotta
 //         Created:  Mon Oct 30 14:37:24 CET 2006
-// $Id: ParamL3MuonProducer.cc,v 1.8 2007/10/01 14:37:54 aperrott Exp $
+// $Id: ParamL3MuonProducer.cc,v 1.9 2007/10/15 19:12:15 aperrott Exp $
 //
 //
 
@@ -65,6 +65,13 @@
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiTrackerGSRecHit2D.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiTrackerGSRecHit2DCollection.h"
+#include "DataFormats/MuonReco/interface/Muon.h"
+
+// Root
+#include <TRandom3.h>
+
+// constants, enums and typedefs
+typedef std::vector<L1MuGMTCand> L1MuonCollection;
 
 //
 // static data member definitions
@@ -98,7 +105,15 @@ ParamL3MuonProducer::ParamL3MuonProducer(const edm::ParameterSet& iConfig)
       "You must add the service in the configuration file\n"
       "or remove the module that requires it.";
   }
-  random = new RandomEngine(&(*rng));
+
+  bool useTRandom = iConfig.getParameter<bool>("UseTRandomEngine");
+  if ( !useTRandom ) { 
+    random = new RandomEngine(&(*rng));
+  } else {
+    TRandom3* anEngine = new TRandom3();
+    anEngine->SetSeed(rng->mySeed());
+    random = new RandomEngine(anEngine);
+  }
 
 }
 
@@ -109,7 +124,10 @@ ParamL3MuonProducer::~ParamL3MuonProducer()
   // do anything here that needs to be done at destruction time
   // (e.g. close files, deallocate resources etc.)
   
-  if ( random ) delete random;
+  if ( random ) { 
+    if ( random->theRootEngine() ) delete random->theRootEngine();
+    delete random;
+  }
 }
 
 
@@ -305,8 +323,10 @@ void ParamL3MuonProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
 	  hasL3 = myL3EfficiencyHandler->kill(mySimTrack);
 	  if (hasL3) {
 	    int myL3Charge = myTrackerTrack->charge();
-	    const math::PtEtaPhiMLorentzVector& myL3P4 =
-	      math::PtEtaPhiMLorentzVector( myL3PtSmearer->smear(mySimP4,myTrackerTrack->momentum()) );
+	    const math::XYZTLorentzVector& myL3P4 =
+	      myL3PtSmearer->smear(mySimP4,myTrackerTrack->momentum());
+	    // const math::PtEtaPhiMLorentzVector& myL3P4 =
+	    // math::PtEtaPhiMLorentzVector( myL3PtSmearer->smear(mySimP4,myTrackerTrack->momentum()) );
 	    math::XYZPoint myL3Vertex = myTrackerTrack->referencePoint();
 	    reco::Muon * thisL3MuonCand = new reco::Muon(myL3Charge,myL3P4,myL3Vertex);
 	    thisL3MuonCand->setTrack(myTrackerTrack);
@@ -329,8 +349,10 @@ void ParamL3MuonProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
 	//      }
 	if (hasGL) {
 	  int myGLCharge = myTrackerTrack->charge();
-	  const math::PtEtaPhiMLorentzVector& myGLP4 =
-	    math::PtEtaPhiMLorentzVector ( myGLPtSmearer->smear(mySimP4,myTrackerTrack->momentum()) );
+	  const math::XYZTLorentzVector& myGLP4 =
+	    myGLPtSmearer->smear(mySimP4,myTrackerTrack->momentum());
+	  // const math::PtEtaPhiMLorentzVector& myGLP4 =
+	  //  math::PtEtaPhiMLorentzVector ( myGLPtSmearer->smear(mySimP4,myTrackerTrack->momentum()) );
 	  math::XYZPoint myGLVertex = myTrackerTrack->referencePoint();
 	  reco::Muon * thisGLMuonCand = new reco::Muon(myGLCharge,myGLP4,myGLVertex);
 	  thisGLMuonCand->setTrack(myTrackerTrack);
@@ -375,7 +397,9 @@ void ParamL3MuonProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
       double pt = (*l1mu)->ptValue() + 1.e-6 ;
       double eta = (*l1mu)->etaValue();
       double phi = (*l1mu)->phiValue();
-      math::PtEtaPhiMLorentzVector myL1P4(pt,eta,phi,muonMassGeV_);
+      math::PtEtaPhiMLorentzVector PtEtaPhiMP4(pt,eta,phi,muonMassGeV_);
+      math::XYZTLorentzVector myL1P4(PtEtaPhiMP4);
+      // math::PtEtaPhiMLorentzVector myL1P4(pt,eta,phi,muonMassGeV_);
       mySimpleL1MuonExtraCands.push_back( l1extra::L1MuonParticle( (*l1mu)->charge(), myL1P4, *(*l1mu)) );
    }
     else if (debug_) std::cout << " Killed L1 muon candidate of rank " << rank

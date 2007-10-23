@@ -5,30 +5,49 @@
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
 #include "FastSimulation/Utilities/interface/RandomEngine.h"
 
-RandomEngine::RandomEngine(edm::RandomNumberGenerator* rng) : rng_(rng) 
+#include "TRandom3.h"
+
+RandomEngine::RandomEngine(edm::RandomNumberGenerator* rng) 
+  : 
+  rng_(rng), 
+  rootEngine_(0)
 {
-  engine = &(rng->getEngine()); 
-  flatDistribution_ = new CLHEP::RandFlat(*engine);
-  gaussianDistribution_ = new CLHEP::RandGaussQ(*engine);
-  poissonDistribution_ = new CLHEP::RandPoissonQ(*engine);
+  engine_ = &(rng->getEngine()); 
+  flatDistribution_ = new CLHEP::RandFlat(*engine_);
+  gaussianDistribution_ = new CLHEP::RandGaussQ(*engine_);
+  poissonDistribution_ = new CLHEP::RandPoissonQ(*engine_);
 }
+
+RandomEngine::RandomEngine(TRandom3* anEngine) 
+  : 
+  rng_(0), 
+  engine_(0),
+  rootEngine_(anEngine) 
+{}
 
 RandomEngine::~RandomEngine() 
 {
-  delete flatDistribution_;
-  delete gaussianDistribution_;
-  delete poissonDistribution_;
-  
+  if ( engine_ ) { 
+    delete flatDistribution_;
+    delete gaussianDistribution_;
+    delete poissonDistribution_;  
+  }
 }
 
 double
 RandomEngine::flatShoot(double xmin, double xmax) const{ 
-  return xmin + (xmax-xmin)*flatDistribution_->fire();
+  return engine_? 
+    xmin + (xmax-xmin)*flatDistribution_->fire() 
+    :
+    xmin + (xmax-xmin) * rootEngine_->Rndm();
 }
 
 double
 RandomEngine::gaussShoot(double mean, double sigma) const { 
-  return mean + sigma*gaussianDistribution_->fire();
+  return engine_?
+    mean + sigma*gaussianDistribution_->fire()
+    : 
+    rootEngine_->Gaus(mean,sigma);
 }
 
 unsigned int
@@ -37,8 +56,12 @@ RandomEngine::poissonShoot(double mean) const{
   // The above line does not work because RandPoissonQ::fire(double) calls
   // the static engine of CLHEP (hence with non-reproducibility effects...)
   // While waiting for a fix, here is the solution:
-  CLHEP::RandPoissonQ aPoissonDistribution(*engine,mean);
-  return aPoissonDistribution.fire();
+  if ( engine_ ) { 
+    CLHEP::RandPoissonQ aPoissonDistribution(*engine_,mean);
+    return aPoissonDistribution.fire();
+  } else {  
+    return rootEngine_->Poisson(mean);
+  }
 }
 
 
