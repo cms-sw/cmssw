@@ -1,19 +1,19 @@
 //-------------------------------------------------
 //
-/**  \class L1TriggerLutFile
+/**  \class DTTPGLutFile
  *
  *   Auxiliary class to handle Look-up table files
  *
  *
- *   $Date: 2006/07/19 10:32:51 $
- *   $Revision: 1.1 $
+ *   $Date: 2006/09/18 10:19:32 $
+ *   $Revision: 1.2 $
  *
  *   \author   N. Neumeister            CERN EP
  */
 //
 //--------------------------------------------------
-#ifndef L1_TRIGGER_LUT_FILE_H
-#define L1_TRIGGER_LUT_FILE_H
+#ifndef DTTPG_LUT_FILE_H
+#define DTTPG_LUT_FILE_H
 
 //---------------
 // C++ Headers --
@@ -34,21 +34,21 @@
 //              -- Class Interface --
 //              ---------------------
 
-class L1TriggerLutFile {
+class DTTPGLutFile {
 
   public:
  
     /// constructor
-    L1TriggerLutFile(const std::string name = "" );
+    DTTPGLutFile(const std::string name = "" );
     
     /// copy constructor
-    L1TriggerLutFile(const L1TriggerLutFile& ); 
+    DTTPGLutFile(const DTTPGLutFile& ); 
 
     /// destructor
-    virtual ~L1TriggerLutFile();
+    virtual ~DTTPGLutFile();
  
     /// assignment operator
-    L1TriggerLutFile& operator=(const L1TriggerLutFile&);
+    DTTPGLutFile& operator=(const DTTPGLutFile&);
 
     /// return filename
     inline std::string getName() const { return m_file; }

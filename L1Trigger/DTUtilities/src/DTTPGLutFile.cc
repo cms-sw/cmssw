@@ -1,13 +1,13 @@
 //-------------------------------------------------
 //
-//   Class: L1TriggerLutFile
+//   Class: DTTPGLutFile
 //
 //   Description: Auxiliary class for 
 //                Look-up table files
 //
 //
-//   $Date: 2006/07/19 10:33:17 $
-//   $Revision: 1.1 $
+//   $Date: 2006/09/18 10:17:51 $
+//   $Revision: 1.2 $
 //
 //   Author :
 //   N. Neumeister            CERN EP
@@ -18,7 +18,7 @@
 // This Class's Header --
 //-----------------------
 
-#include "L1Trigger/DTUtilities/interface/L1TriggerLutFile.h"
+#include "L1Trigger/DTUtilities/interface/DTTPGLutFile.h"
 
 //---------------
 // C++ Headers --
@@ -33,29 +33,29 @@ using namespace std;
 //-------------------------------
 
 // --------------------------------
-//       class L1TriggerLutFile
+//       class DTTPGLutFile
 //---------------------------------
 
 //----------------
 // Constructors --
 //----------------
 
-L1TriggerLutFile::L1TriggerLutFile(const string name) : m_file(name) {}
+DTTPGLutFile::DTTPGLutFile(const string name) : m_file(name) {}
 
-L1TriggerLutFile::L1TriggerLutFile(const L1TriggerLutFile& in) : m_file(in.m_file) {}
+DTTPGLutFile::DTTPGLutFile(const DTTPGLutFile& in) : m_file(in.m_file) {}
 
 
 //--------------
 // Destructor --
 //--------------
 
-L1TriggerLutFile::~L1TriggerLutFile() {}
+DTTPGLutFile::~DTTPGLutFile() {}
 
 //--------------
 // Operations --
 //--------------
 
-L1TriggerLutFile& L1TriggerLutFile::operator=(const L1TriggerLutFile& lut) {
+DTTPGLutFile& DTTPGLutFile::operator=(const DTTPGLutFile& lut) {
 
   m_file = lut.m_file;
   return *this;
@@ -63,7 +63,7 @@ L1TriggerLutFile& L1TriggerLutFile::operator=(const L1TriggerLutFile& lut) {
 }
 
 
-int L1TriggerLutFile::open() {
+int DTTPGLutFile::open() {
 
   const char* file_name = m_file.c_str();
   m_fin.open(file_name,ios::in);
@@ -78,7 +78,7 @@ int L1TriggerLutFile::open() {
 }
 
 
-void L1TriggerLutFile::ignoreLines(int n) {
+void DTTPGLutFile::ignoreLines(int n) {
 
   char buf[256];
   for ( int i = 0; i < n; i++ ) m_fin.getline(buf,256);
@@ -86,7 +86,7 @@ void L1TriggerLutFile::ignoreLines(int n) {
 }
 
 
-int L1TriggerLutFile::readInteger() { 
+int DTTPGLutFile::readInteger() { 
 
   int tmp = 0;
   m_fin >> tmp; 
@@ -95,7 +95,7 @@ int L1TriggerLutFile::readInteger() {
 }
 
 
-int L1TriggerLutFile::readHex() { 
+int DTTPGLutFile::readHex() { 
 
   int tmp = 0;
   m_fin >> hex >> tmp; 
@@ -104,7 +104,7 @@ int L1TriggerLutFile::readHex() {
 }
 
 
-string L1TriggerLutFile::readString() {
+string DTTPGLutFile::readString() {
 
   string tmp;
   m_fin >> tmp;
