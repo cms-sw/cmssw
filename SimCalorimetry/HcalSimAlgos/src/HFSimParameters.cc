@@ -28,7 +28,6 @@ HFSimParameters::HFSimParameters(const edm::ParameterSet & p)
 double HFSimParameters::photoelectronsToAnalog(const DetId & detId) const
 {
   // pe/fC = pe/GeV * GeV/fC  = (0.24 pe/GeV * 6 for photomult * 0.2146GeV/fC)
-  double result =  1./(theSamplingFactor * simHitToPhotoelectrons(detId) * fCtoGeV(detId));
   return 1./(theSamplingFactor * simHitToPhotoelectrons(detId) * fCtoGeV(detId));
 }
 
