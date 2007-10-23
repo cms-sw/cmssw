@@ -1,0 +1,10 @@
+<use name=TkOnlineSw>
+<use name=oracle>
+<use name=xdaq>
+
+<export>
+ <lib name=DQMSiStripMonitorHardware>
+ <use name=TkOnlineSw>
+ <use name=oracle>
+</export>
+
