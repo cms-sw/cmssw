@@ -30,7 +30,7 @@
 // Collaborating Class Headers --
 //-------------------------------
 
-#include "L1Trigger/DTUtilities/interface/L1TriggerLutFile.h"
+#include "L1Trigger/DTUtilities/interface/DTTPGLutFile.h"
 
 using namespace std;
 
@@ -84,7 +84,7 @@ int DTTracoLUTs::load() {
   string pos_file = _testfile + ".poslut";
  
   // open file for PSI 
-  L1TriggerLutFile filePSI(ang_file);
+  DTTPGLutFile filePSI(ang_file);
   if ( filePSI.open() != 0 ) return -1;
 
   // ignore comment lines 
@@ -102,7 +102,7 @@ int DTTracoLUTs::load() {
   filePSI.close();
  
   // open file for PHI 
-  L1TriggerLutFile filePHI(pos_file);
+  DTTPGLutFile filePHI(pos_file);
   if ( filePHI.open() != 0 ) return -1;
 
   // read file for PHI values    --->  phi is 12 bits, 11+sign(12..16), resolution 12 bits
