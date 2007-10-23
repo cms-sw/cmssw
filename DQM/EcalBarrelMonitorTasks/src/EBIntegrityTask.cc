@@ -1,8 +1,8 @@
 /*
  * \file EBIntegrityTask.cc
  *
- * $Date: 2007/10/15 03:53:06 $
- * $Revision: 1.47 $
+ * $Date: 2007/10/15 16:26:41 $
+ * $Revision: 1.48 $
  * \author G. Della Ricca
  *
  */
@@ -508,7 +508,7 @@ void EBIntegrityTask::analyze(const Event& e, const EventSetup& c){
 
       int itt = id.towerId();
 
-      int iet = (itt-1)%17 + 1;
+      int iet = (itt-1)/4 + 1;
       int ipt = (itt-1)%4 + 1;
 
       int ismt = Numbers::iSM( id );
@@ -539,7 +539,7 @@ void EBIntegrityTask::analyze(const Event& e, const EventSetup& c){
 
       int itt = id.towerId();
 
-      int iet = (itt-1)%17 + 1;
+      int iet = (itt-1)/4 + 1;
       int ipt = (itt-1)%4 + 1;
 
       int ismt = Numbers::iSM( id );
