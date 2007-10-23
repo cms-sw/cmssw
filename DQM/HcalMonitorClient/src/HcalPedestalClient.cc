@@ -24,7 +24,7 @@ HcalPedestalClient::HcalPedestalClient(const ParameterSet& ps, DaqMonitorBEInter
   // cloneME switch
   cloneME_ = ps.getUntrackedParameter<bool>("cloneME", true);
   // verbosity switch
-  verbose_ = ps.getUntrackedParameter<bool>("verbose", false);
+  debug_ = ps.getUntrackedParameter<bool>("debug", false);
   // per channel tests switch
   doPerChanTests_ = ps.getUntrackedParameter<bool>("DoPerChanTests", false);
   if(doPerChanTests_) 
@@ -36,7 +36,7 @@ HcalPedestalClient::HcalPedestalClient(const ParameterSet& ps, DaqMonitorBEInter
   else
     cout << "Plotting pedestals in subtracted format." << endl;
   // DQM default process name
-  process_ = ps.getUntrackedParameter<string>("processName", "HcalMonitor");
+  process_ = ps.getUntrackedParameter<string>("processName", "HcalMonitor/");
 
   /*
   nCrates_ = ps.getUntrackedParameter<int>("Crates", 0);
@@ -69,10 +69,12 @@ HcalPedestalClient::HcalPedestalClient(const ParameterSet& ps, DaqMonitorBEInter
   for(int i=0; i<4; i++) subDetsOn_[i] = false;
   
   for(unsigned int i=0; i<subdets.size(); i++){
+
     if(subdets[i]=="HB") subDetsOn_[0] = true;
     else if(subdets[i]=="HE") subDetsOn_[1] = true;
     else if(subdets[i]=="HF") subDetsOn_[2] = true;
     else if(subdets[i]=="HO") subDetsOn_[3] = true;
+
   }
 
 }
@@ -99,7 +101,7 @@ HcalPedestalClient::HcalPedestalClient(){
     pedMapRMSD_[i] = 0;
   }
   // verbosity switch
-  verbose_ = false;
+  debug_ = false;
   offline_ = true;
   for(int i=0; i<4; i++) subDetsOn_[i] = false;
   
@@ -113,7 +115,7 @@ HcalPedestalClient::~HcalPedestalClient(){
 
 void HcalPedestalClient::beginJob(const EventSetup& eventSetup){
 
-  if ( verbose_ ) cout << "HcalPedestalClient: beginJob" << endl;
+  if ( debug_ ) cout << "HcalPedestalClient: beginJob" << endl;
   eventSetup.get<HcalDbRecord>().get(conditions_);
 
   // get the hcal mapping
@@ -130,7 +132,7 @@ void HcalPedestalClient::beginJob(const EventSetup& eventSetup){
 
 void HcalPedestalClient::beginRun(void){
 
-  if ( verbose_ ) cout << "HcalPedestalClient: beginRun" << endl;
+  if ( debug_ ) cout << "HcalPedestalClient: beginRun" << endl;
 
   jevt_ = 0;
   this->setup();
@@ -140,7 +142,7 @@ void HcalPedestalClient::beginRun(void){
 
 void HcalPedestalClient::endJob(void) {
 
-  if ( verbose_ ) cout << "HcalPedestalClient: endJob, ievt = " << ievt_ << endl;
+  if ( debug_ ) cout << "HcalPedestalClient: endJob, ievt = " << ievt_ << endl;
 
   this->cleanup();
   return;
@@ -148,7 +150,7 @@ void HcalPedestalClient::endJob(void) {
 
 void HcalPedestalClient::endRun(void) {
 
-  if ( verbose_ ) cout << "HcalPedestalClient: endRun, jevt = " << jevt_ << endl;
+  if ( debug_ ) cout << "HcalPedestalClient: endRun, jevt = " << jevt_ << endl;
 
   this->cleanup();
   return;
@@ -248,7 +250,7 @@ void HcalPedestalClient::getErrors(map<string, vector<QReport*> > outE, map<stri
 
 void HcalPedestalClient::report(){
    if(!dbe_) return;
-  if ( verbose_ ) cout << "HcalPedestalClient: report" << endl;
+  if ( debug_ ) cout << "HcalPedestalClient: report" << endl;
   this->setup();
 
   char name[256];    
@@ -258,7 +260,7 @@ void HcalPedestalClient::report(){
     string s = me->valueString();
     ievt_ = -1;
     sscanf((s.substr(2,s.length()-2)).c_str(), "%d", &ievt_);
-    if ( verbose_ ) cout << "Found '" << name << "'" << endl;
+    if ( debug_ ) cout << "Found '" << name << "'" << endl;
   }
   getHistograms();
 
@@ -326,11 +328,12 @@ void HcalPedestalClient::getHistograms(){
     sprintf(name,"%sHcalMonitor/PedestalMonitor/%s/%s Pedestal Elec Error Map",process_.c_str(),type.c_str(),type.c_str());
     MonitorElement* meElecErr = dbe_->get(name);
     
-    if(!mePedRMS || !mePedMean) return;
-    if(!meSubRMS || !meSubMean) return;
-    if(!meCapRMS || !meCapMean) return;
-    if(!meQieRMS || !meQieMean) return;
-    if(i<3 && dbe_){
+    if(!mePedRMS || !mePedMean)continue;
+    if(!meSubRMS || !meSubMean)continue;
+    if(!meCapRMS || !meCapMean)continue;
+    if(!meQieRMS || !meQieMean)continue;
+    
+    if(dbe_){      
       dbe_->softReset(mePedRMS); dbe_->softReset(mePedMean);
       dbe_->softReset(meSubRMS); dbe_->softReset(meSubMean);
       dbe_->softReset(meCapRMS); dbe_->softReset(meCapMean);
@@ -439,35 +442,35 @@ void HcalPedestalClient::getHistograms(){
     }
 
     sprintf(name,"PedestalMonitor/%s/%s All Pedestal Values",type.c_str(),type.c_str());      
-    all_peds_[i] = getHisto(name, process_,dbe_,verbose_,cloneME_);
+    all_peds_[i] = getHisto(name, process_,dbe_,debug_,cloneME_);
     
-    ped_rms_[i] = getHisto(mePedRMS,verbose_,cloneME_);
-    ped_mean_[i] = getHisto(mePedMean,verbose_,cloneME_);
+    ped_rms_[i] = getHisto(mePedRMS,debug_,cloneME_);
+    ped_mean_[i] = getHisto(mePedMean,debug_,cloneME_);
 
-    sub_rms_[i] = getHisto(meSubRMS,verbose_,cloneME_);
-    sub_mean_[i] = getHisto(meSubMean,verbose_,cloneME_);
+    sub_rms_[i] = getHisto(meSubRMS,debug_,cloneME_);
+    sub_mean_[i] = getHisto(meSubMean,debug_,cloneME_);
     
-    capid_rms_[i] = getHisto(meCapRMS,verbose_,cloneME_);
-    capid_mean_[i] = getHisto(meCapMean,verbose_,cloneME_);
+    capid_rms_[i] = getHisto(meCapRMS,debug_,cloneME_);
+    capid_mean_[i] = getHisto(meCapMean,debug_,cloneME_);
     
-    qie_rms_[i] = getHisto(meQieRMS,verbose_,cloneME_);
-    qie_mean_[i] = getHisto(meQieMean,verbose_,cloneME_);
+    qie_rms_[i] = getHisto(meQieRMS,debug_,cloneME_);
+    qie_mean_[i] = getHisto(meQieMean,debug_,cloneME_);
     
-    err_map_geo_[i] = getHisto2(meGeoErr,verbose_,cloneME_);
-    err_map_elec_[i] = getHisto2(meElecErr,verbose_,cloneME_);
+    err_map_geo_[i] = getHisto2(meGeoErr,debug_,cloneME_);
+    err_map_elec_[i] = getHisto2(meElecErr,debug_,cloneME_);
     
   }
 
   for(int i=0; i<4; i++){
-    pedMapMeanD_[i] = getHisto2(meMeanMap_D[i],verbose_,cloneME_);
-    pedMapRMSD_[i] = getHisto2(meRMSMap_D[i],verbose_,cloneME_);
+    pedMapMeanD_[i] = getHisto2(meMeanMap_D[i],debug_,cloneME_);
+    pedMapRMSD_[i] = getHisto2(meRMSMap_D[i],debug_,cloneME_);
   }
   
-  pedMapMean_E[0] = getHisto2(meMeanMap_E[0],verbose_,cloneME_);
-  pedMapRMS_E[0] = getHisto2(meRMSMap_E[0],verbose_,cloneME_);
+  pedMapMean_E[0] = getHisto2(meMeanMap_E[0],debug_,cloneME_);
+  pedMapRMS_E[0] = getHisto2(meRMSMap_E[0],debug_,cloneME_);
 
-  pedMapMean_E[1] = getHisto2(meMeanMap_E[1],verbose_,cloneME_);
-  pedMapRMS_E[1] = getHisto2(meRMSMap_E[1],verbose_,cloneME_);
+  pedMapMean_E[1] = getHisto2(meMeanMap_E[1],debug_,cloneME_);
+  pedMapRMS_E[1] = getHisto2(meRMSMap_E[1],debug_,cloneME_);
 
   return;
 }
@@ -478,7 +481,7 @@ void HcalPedestalClient::analyze(void){
   int updates = 0;
   //  if(dbe_) dbe_->getNumUpdates();
   if ( updates % 10 == 0 ) {
-    if ( verbose_ ) cout << "HcalPedestalClient: " << updates << " updates" << endl;
+    if ( debug_ ) cout << "HcalPedestalClient: " << updates << " updates" << endl;
   }
   
   return;
@@ -490,7 +493,7 @@ void HcalPedestalClient::createTests(){
   char meTitle[250], name[250];    
   vector<string> params;
   
-  if(verbose_) printf("Creating Pedestal tests...\n");
+  if(debug_) printf("Creating Pedestal tests...\n");
   
   for(int i=0; i<4; i++){
     if(!subDetsOn_[i]) continue;

@@ -51,7 +51,7 @@ HcalLEDClient::HcalLEDClient(const ParameterSet& ps, DaqMonitorBEInterface* dbe)
 
 
   // DQM default process name
-  process_ = ps.getUntrackedParameter<string>("processName", "HcalMonitor");
+  process_ = ps.getUntrackedParameter<string>("processName", "HcalMonitor/");
 
   vector<string> subdets = ps.getUntrackedParameter<vector<string> >("subDetsOn");
   for(int i=0; i<4; i++) subDetsOn_[i] = false;
@@ -312,7 +312,7 @@ void HcalLEDClient::getHistograms(){
   meFEDunpacked = dbe_->get(name);
   if(meFEDunpacked){
     for(int b=1; b<=meFEDunpacked->getNbinsX(); b++){
-      if(meFEDunpacked->getBinContent(b)>0){
+      if(meFEDunpacked->getBinContent(b)!=0){
 	
 	int fedNum = b-1+700;
 	sprintf(name,"%sHcalMonitor/LEDMonitor/DCC %d Mean Shape Map",process_.c_str(),fedNum);
@@ -585,8 +585,6 @@ void HcalLEDClient::createTests(){
 void HcalLEDClient::resetAllME(){
   if(!dbe_) return;
   Char_t name[150];    
-  
-  printf("\n\n\n\n\n\nRESET ALL ME\n\n\n\n\n");
 
   for(int i=1; i<5; i++){
     sprintf(name,"%sHcalMonitor/LEDMonitor/LED Mean Time Depth %d",process_.c_str(),i);

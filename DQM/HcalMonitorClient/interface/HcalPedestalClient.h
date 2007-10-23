@@ -104,7 +104,7 @@ private:
 
   bool collateSources_;
   bool cloneME_;
-  bool verbose_;
+  bool debug_;
   bool offline_;
   bool doPerChanTests_;
   bool plotPedRAW_;

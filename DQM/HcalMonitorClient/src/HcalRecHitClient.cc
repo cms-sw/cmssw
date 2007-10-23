@@ -29,7 +29,7 @@ HcalRecHitClient::HcalRecHitClient(const ParameterSet& ps, DaqMonitorBEInterface
   cout << "Beam energy reco width set to " << beamE_thresh_ << endl;
 
   // DQM default process name
-  process_ = ps.getUntrackedParameter<string>("processName", "HcalMonitor");
+  process_ = ps.getUntrackedParameter<string>("processName", "HcalMonitor/");
 
   vector<string> subdets = ps.getUntrackedParameter<vector<string> >("subDetsOn");
   for(int i=0; i<4; i++) subDetsOn_[i] = false;

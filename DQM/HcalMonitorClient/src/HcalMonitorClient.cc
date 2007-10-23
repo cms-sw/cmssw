@@ -196,9 +196,11 @@ void HcalMonitorClient::endRun(const Run& r, const EventSetup& c) {
   if( debug_ ) printf("HcalMonitorClient: processed events: %d\n",ievt_);
 
   printf("==>Creating report after run end condition\n");
-  if(inputFile_.size()!=0) report(true);
-  else report(false);
-  
+  if(irun_>1){
+    if(inputFile_.size()!=0) report(true);
+    else report(false);
+  }
+
   if( hot_client_ )         hot_client_->endRun();
   if( dataformat_client_ ) dataformat_client_->endRun();
   if( digi_client_ )       digi_client_->endRun();
