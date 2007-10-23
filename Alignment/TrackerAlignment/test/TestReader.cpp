@@ -28,8 +28,8 @@
 
 #include "CondFormats/Alignment/interface/Alignments.h"
 #include "CondFormats/Alignment/interface/AlignmentErrors.h"
-#include "CondFormats/DataRecord/interface/TrackerAlignmentRcd.h"
-#include "CondFormats/DataRecord/interface/TrackerAlignmentErrorRcd.h"
+#include "CondFormats/AlignmentRecord/interface/TrackerAlignmentRcd.h"
+#include "CondFormats/AlignmentRecord/interface/TrackerAlignmentErrorRcd.h"
 
 //
 //
