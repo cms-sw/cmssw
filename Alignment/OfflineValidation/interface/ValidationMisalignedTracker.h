@@ -28,8 +28,6 @@
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Alignment/TrackerAlignment/interface/AlignableTracker.h"
-#include "Alignment/TrackerAlignment/interface/AlignableTrackerBarrelLayer.h"
-#include "Alignment/TrackerAlignment/interface/AlignableTrackerRod.h"
 
 #include "DataFormats/Candidate/interface/Particle.h"
 #include "SimDataFormats/EncodedEventId/interface/EncodedEventId.h"

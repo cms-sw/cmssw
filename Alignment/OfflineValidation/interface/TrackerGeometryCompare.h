@@ -14,8 +14,8 @@
  *   path p = { comparator }
  *
  *
- *  $Date: 2007/09/11 22:20:08 $
- *  $Revision: 1.1 $
+ *  $Date: 2007/10/11 15:11:17 $
+ *  $Revision: 1.3 $
  *  \author Nhan Tran
  */
 
@@ -23,11 +23,14 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "Alignment/TrackerAlignment/interface/AlignableTracker.h"
 #include "CondFormats/Alignment/interface/SurveyErrors.h"
+#include "Alignment/CommonAlignment/interface/StructureType.h"
 
 #include <algorithm>
 #include "TROOT.h"
 #include "TTree.h"
 #include "TFile.h"
+
+class AlignTransform;
 
 class TrackerGeometryCompare:
 public edm::EDAnalyzer
@@ -56,9 +59,9 @@ private:
 
 
 	//parameters
-	edm::ParameterSet m_params;
-	std::vector<AlignableObjectId::AlignableObjectIdType> theLevels;
-	std::vector<int> theSubDets;
+  edm::ParameterSet m_params;
+  std::vector<align::StructureType> theLevels;
+  std::vector<int> theSubDets;
 	
 	//compares two geometries
 	void compareGeometries(Alignable* refAli, Alignable* curAli);
