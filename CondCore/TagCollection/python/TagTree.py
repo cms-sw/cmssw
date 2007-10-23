@@ -12,6 +12,20 @@ class tagTree(object):
         self.__tagTreeTableNotNullColumns = ['nodelabel','lft','rgt','parentid']
         self.__tagTreeTableUniqueColumns = ['nodelabel','lft','rgt']
         self.__tagTreeTablePK = ('nodeid')
+    def existTagTreeTable( self ):
+        """Check if tree table exists
+        """
+        try:
+            transaction=self.__session.transaction()
+            transaction.start(True)
+            schema = self.__session.nominalSchema()
+            result=schema.existsTable(self.__tagTreeTableName)
+            transaction.commit()
+            #print result
+        except Exception, er:
+            transaction.rollback()
+            raise Exception, str(er)
+        return result
     def createTagTreeTable( self ):
         """Create tag tree table. Existing table will be deleted. 
         """

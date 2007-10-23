@@ -100,7 +100,7 @@ class tagInventoryBuilder:
         Add entry in the tag inventory
         """
         if len(self.__tagdata) == 0 :
-            print 'nothing to add'
+            #print 'nothing to add'
             return
         context = coral.Context()
         if self.__verbose is True:
@@ -111,7 +111,7 @@ class tagInventoryBuilder:
         session = svc.connect( self.__connectstring,accessMode = coral.access_Update )
         try:
             inv=tagInventory.tagInventory(session)
-            print 'about to create table'
+            #print 'about to create table'
             if inv.existInventoryTable() is False:
                 inv.createInventoryTable()
             tagentry=Node.LeafNode()

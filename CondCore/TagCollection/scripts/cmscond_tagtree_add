@@ -37,8 +37,8 @@ class tagTreeBuilder:
         -u, --user=user: user name
         -p, --password=password: password
         -P, --path=path: path to authentication.xml
-        -n, --node=node: nodelabel{parentlabel:string,globalsince:unsigned long long,globaltill:unsigned long long}
-        -l, --leafnode=leafnode: leafnodelabel{parentlabel:string}
+        -n, --node=node: nodelabel{parent:string,globalsince:unsigned long long,globaltill:unsigned long long}
+        -l, --isleaf=isleaf: is leaf node
         -v, --verbose: switch on verbose mode
         -h, --help: print usage
         """
@@ -71,7 +71,7 @@ class tagTreeBuilder:
         self.__parser.set_defaults(authpath='.')
         self.__parser.set_defaults(nodedata={})
         self.__parser.set_defaults(verbose=False)
-        self.__parser.set_defaults(isleaf=True)
+        self.__parser.set_defaults(isleaf=False)
         (options, args) = self.__parser.parse_args()
         if self.__parser.values.filename!='':
             configparser=ConfigParser()
@@ -116,34 +116,29 @@ class tagTreeBuilder:
         svc = coral.ConnectionService( context )
         session = svc.connect( self.__connectstring,accessMode = coral.access_Update )
         try:
+            mytree=TagTree.tagTree(session)
+            if mytree.existTagTreeTable() is False:
+                mytree.createTagTreeTable()                
             mynode=Node.Node()
+            mynode.globalsince=0
+            mynode.globaltill=0
+            mynode.tagid=0
             if self.__isleaf is True:
+                mynode.nodelabel=self.__nodedata['nodelabel']
                 inv=tagInventory.tagInventory(session)
-                print 'toget ',self.__nodedata['nodelabel']
                 result=inv.getEntryByName(self.__nodedata['nodelabel'])
-                print result
-                mytree=TagTree.tagTree(session)
-                mytree.createTagTreeTable()
-                print 'about to insert'
-                mynode.globalsince=0
-                mynode.globaltill=0
-                print 'parent',self.__nodedata['parentlabel']
-                mynode.nodelabel='mytag'
+                if result.tagid == 0:
+                    raise ValueError, "unknown tag \'"+self.__nodedata['nodelabel']+"\' in the inventory"
                 mynode.tagid=result.tagid
-                print mynode
-                mytree.insertNode(mynode,self.__nodedata['parentlabel'])
-                print 'end'
+                mytree.insertNode(mynode,self.__nodedata['parent'])
             else:
                 mynode=Node.Node()
                 mynode.nodelabel=self.__nodedata['nodelabel']
-                print mynode.nodelabel
-                mynode.globalsince=self.__nodedata['globalsince']
-                print mynode.globalsince
-                mynode.globaltill=self.__nodedata['globaltill']
-                print mynode.globaltill
-                mytree=TagTree.tagTree(session)
-                mytree.createTagTreeTable()
-                mytree.insertNode(mynode,self.__nodedata['parentlabel'])
+                if self.__nodedata.has_key('globalsince'):
+                    mynode.globalsince=self.__nodedata['globalsince']
+                if self.__nodedata.has_key('globaltill'):
+                    mynode.globaltill=self.__nodedata['globaltill']
+                mytree.insertNode(mynode,self.__nodedata['parent'])
             del session
         except Exception, e:
             print str(e)
