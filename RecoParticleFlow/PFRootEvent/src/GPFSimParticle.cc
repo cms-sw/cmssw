@@ -6,25 +6,25 @@
 
 
 //_______________________________________________________________________
-GPFSimParticle::GPFSimParticle() : part_(new reco::PFSimParticle())
+GPFSimParticle::GPFSimParticle() : GPFBase(0, 0, 0),part_(new reco::PFSimParticle())
 {}
 //________________________________________________________________________
-GPFSimParticle::GPFSimParticle(const reco::PFSimParticle *ptc, int size, double *x, double *y,
-                 double pt,int markerstyle, std::string option)
-		: TGraph(size,x,y), part_(ptc), pt_(pt), option_(option) 
+GPFSimParticle::GPFSimParticle(DisplayManager *display,int view, int ident, const reco::PFSimParticle *ptc, int size, double *x, double *y,
+                double pt,int markerstyle, std::string option)
+		: GPFBase(display,view,ident),
+		  TGraph(size,x,y), part_(ptc), pt_(pt), option_(option), color_(4) 
 {
     
   ResetBit(kCanDelete);
   
-  int    color = 4;
   int    linestyle = 2;
   double markersize = 0.8;
   
-  SetLineColor(color);
+  SetLineColor(color_);
   SetLineStyle(linestyle);
   SetMarkerStyle(markerstyle);
   SetMarkerSize(markersize);
-  SetMarkerColor(color);
+  SetMarkerColor(color_);
   
 }		     
 //____________________________________________________________________________________________________________
@@ -42,13 +42,29 @@ void GPFSimParticle::ExecuteEvent(Int_t event, Int_t px, Int_t py)
  switch (event) {
    case kButton1Down:
      Print();
+     display_->findAndDraw(origId_);
      break;
    default:break;
  }    
-     
 }
 //______________________________________________________________________________
-void GPFSimParticle::Draw()
+void GPFSimParticle::draw()
 {
  TGraph::Draw(option_.data());
 }
+//_______________________________________________________________________________
+void GPFSimParticle::setColor(int color)
+{
+  if (option_=="f") SetFillColor(color);
+  else              SetLineColor(color);
+  SetMarkerColor(color);
+}
+//_____________________________________________________________________________
+void GPFSimParticle::setInitialColor()
+{
+  if (option_=="f") SetFillColor(color_);
+  else              SetLineColor(color_);
+  SetMarkerColor(color_);
+}
+
+

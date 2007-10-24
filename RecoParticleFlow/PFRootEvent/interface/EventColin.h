@@ -3,6 +3,7 @@
 
 #include <vector>
 
+
 class EventColin {
   
  public:
@@ -11,6 +12,7 @@ class EventColin {
   void reset() {
     number_ = -1;
     particles_.clear();
+    candidates_.clear();
     clusters_.clear();
     clustersIsland_.clear();
     jetsMC_.clear();
@@ -74,11 +76,17 @@ class EventColin {
     std::vector<double> etrack;
   };
 
+
+
   void setNumber(int number) {number_ = number;}
   void setNTracks(int nTracks) {nTracks_ = nTracks;}
 
   void addParticle( const Particle& ptc ) {
     particles_.push_back(ptc);
+  }
+
+  void addCandidate( const Particle& ptc ) {
+    candidates_.push_back(ptc);
   }
 
   void addCluster( const Cluster& ptc ) {
@@ -108,7 +116,7 @@ class EventColin {
   void addBlock( const Block& b ) {
     blocks_.push_back( b );
   }
-  
+
 
   const std::vector<EventColin::Particle>& particles() 
     {return particles_;}
@@ -128,6 +136,7 @@ class EventColin {
   int                               number_;
   int                               nTracks_;
   std::vector<EventColin::Particle> particles_;
+  std::vector<EventColin::Particle> candidates_;
   std::vector<EventColin::Cluster>  clusters_;
   std::vector<EventColin::Cluster>  clustersIsland_;
   std::vector<EventColin::Jet>      jetsMC_;

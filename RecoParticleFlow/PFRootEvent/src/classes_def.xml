@@ -3,7 +3,7 @@
   <class name="PFRootEventManager">
     <field name="pdgTable_" transient="true"/>
   </class>
-  <class name="PFRootEventManagerColin"/>  
+  <class name="PFRootEventManagerColin"/>
   <class name="JetPFRootEventManager"/>
   <class name="TauEvent"/>
   <class name="NeutralEvent"/>
@@ -29,5 +29,5 @@
   <class name="std::vector<GPFTrack>"/>
   <class name="GPFSimParticle"/>
   <class name="std::vector<GPFSimParticle>"/>
+  <class name="GPFBase"/>
 </lcgdict>
-

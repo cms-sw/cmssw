@@ -5,14 +5,17 @@
 #include "RecoParticleFlow/PFRootEvent/interface/DisplayCommon.h"
 
 #include <TCanvas.h>
+#include <TObject.h>
 #include <TLine.h>
 #include <TBox.h>
 #include <string>
+#include <map>
 
 class GPFRecHit;
 class GPFCluster;
 class GPFTrack;
 class GPFSimParticle;
+class GPFBase;
 
 class DisplayManager {
   
@@ -25,6 +28,11 @@ class DisplayManager {
      void displayNext();
      void displayNextInteresting(int ientry);
      void displayPrevious();
+     void displayPFBlock(int blockNb) ;
+     void enableDrawPFBlock(bool state);
+     void findAndDraw(int ident);
+     //void findAndDrawbis(const int ident);
+     void findBlock(int ident) ;
      /// look for particle with index i in MC truth.
      void lookForGenParticle(unsigned barcode);
      /// look for rechit with max energy in ecal or hcal.
@@ -33,6 +41,7 @@ class DisplayManager {
      void updateDisplay();
      void unZoom();
      void printDisplay(const char* directory="" ) const;
+     
      //bool getGLoaded() {return isGraphicLoaded_;}  //util to DialogFrame ?
      
      //variables
@@ -47,6 +56,15 @@ class DisplayManager {
      bool drawClus_;
      bool drawClusterL_;
      bool drawParticles_;
+     bool drawPFBlocks_;
+     
+     bool redrawWithoutHits_;
+     
+     //---------------------- new graphic Container ----------------
+     //container of all the graphic Objects of one event 
+     std::multimap<int,GPFBase *>  graphicMap_;
+     //container of idents of objects within a PFBlock
+     std::multimap<int ,int>       blockIdentsMap_;
      
    private:
    
@@ -57,10 +75,13 @@ class DisplayManager {
      int    eventNb_;
      int    maxEvents_;
      double zoomFactor_;
+     //number of low bits indicating the object type in the map key
+     int    shiftId_;
 
     //-------------- draw Canvas --------------------------------------
     /// vector of canvas for x/y or r/z display
     std::vector<TCanvas*> displayView_;
+
     /// display pad xy size for (x,y) or (r,z) display
     std::vector<int>      viewSize_; 
         
@@ -81,13 +102,11 @@ class DisplayManager {
     //----------------  end Draw Canvas ------------------------------------
     
      /// graphic object containers     
-     std::vector< std::vector<GPFRecHit> >       vectGHits_;
-     std::vector< std::vector<GPFCluster> >      vectGClus_;
-     std::vector< std::vector<GPFTrack> >        vectGTracks_;
-     std::vector< std::vector<GPFSimParticle> >  vectGParts_;
-     std::vector<std::vector<TLine> >            vectGClusterLines_;
+    std::vector<std::vector<TLine> >            vectGClusterLines_;
      //number of clusterLines by cluster 
-     std::vector<std::vector<int> >              vectClusLNb_;
+    std::vector<std::vector<int> >              vectClusLNb_;
+    
+    std::vector<int>                            selectedGObj_;
      
      
     
@@ -100,13 +119,14 @@ class DisplayManager {
      
      
      //create graphicObjects
-     void createGRecHit(reco::PFRecHit& rh, double maxe, double phi0=0. , int color=4);
-     void createGCluster(const reco::PFCluster& cluster,double phi0 = 0.);
-     void createGTrack(reco::PFRecTrack &tr,const std::vector<reco::PFTrajectoryPoint>& points, 
- 		       double pt,double phi0, double sign, bool displayInitial, int linestyle);
+     void createGRecHit(reco::PFRecHit& rh,int ident, double maxe, double phi0=0. , int color=4);
+     void createGCluster(const reco::PFCluster& cluster,int ident, double phi0 = 0.);
+     void createGTrack(reco::PFRecTrack &tr,const std::vector<reco::PFTrajectoryPoint>& points,
+ 		       int ident,double pt,double phi0, double sign, bool displayInitial, int linestyle);
      void createGPart(const reco::PFSimParticle &ptc, const std::vector<reco::PFTrajectoryPoint>& points, 
- 		      double pt,double phi0, double sign, bool displayInitial, int markerstyle);
+ 		      int ident,double pt,double phi0, double sign, bool displayInitial, int markerstyle);
      void createGClusterLines(const reco::PFCluster& cluster,int viewType);		      
+     void drawGObject(int ident,int color,bool toInitialColor);
 
      //fill vectors with graphic Objects
      void loadGraphicObjects();
@@ -114,14 +134,9 @@ class DisplayManager {
      void loadGClusters();
      void loadGRecTracks();
      void loadGTrueParticles();
+     void loadGPFBlocks();
      
-     /// draw methods
-     void drawRecHits(int view,double enmin);
-     void drawClusters(int view,double enmin);
-     void drawTracks(int view,double ptmin);
-     void drawParts(int view,double ptmin);
-     void drawClusterLines(int clusIndex,int viewType,int &istart);
-     
+     void redraw();
 
      // methods
      double getMaxE(int layer) const;

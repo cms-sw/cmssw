@@ -1,4 +1,5 @@
 
+
 //#include "FWCore/Framework/interface/OrphanHandle.h"
 #include "DataFormats/Common/interface/OrphanHandle.h"
 //#include "DataFormats/Common/interface/ProductID.h"
@@ -63,6 +64,7 @@ PFRootEventManager::PFRootEventManager(const char* file)
   clustersPS_(new reco::PFClusterCollection),
   pfBlocks_(new reco::PFBlockCollection),
   pfCandidates_(new reco::PFCandidateCollection),
+//   pfCandidatesOther_(new reco::PFCandidateCollection),
   outFile_(0)
 {
   
@@ -407,19 +409,19 @@ void PFRootEventManager::readOptions(const char* file,
 
   // clustering preshower
 
-  double threshPSBarrel = 0.0001;
-  options_->GetOpt("clustering", "thresh_PS_Barrel", threshPSBarrel);
+  double threshPS = 0.0001;
+  options_->GetOpt("clustering", "thresh_PS", threshPS);
   
-  double threshSeedPSBarrel = 0.001;
-  options_->GetOpt("clustering", "thresh_Seed_PS_Barrel", 
-		   threshSeedPSBarrel);
+  double threshSeedPS = 0.001;
+  options_->GetOpt("clustering", "thresh_Seed_PS", 
+		   threshSeedPS);
+  
+  //Comment Michel: PSBarrel shall be removed?
+  double threshPSBarrel     = threshPS;
+  double threshSeedPSBarrel = threshSeedPS;
 
-  double threshPSEndcap = 0.0001;
-  options_->GetOpt("clustering", "thresh_PS_Endcap", threshPSEndcap);
-
-  double threshSeedPSEndcap = 0.001;
-  options_->GetOpt("clustering", "thresh_Seed_PS_Endcap",
-		   threshSeedPSEndcap);
+  double threshPSEndcap     = threshPS;
+  double threshSeedPSEndcap = threshSeedPS;
 
   double showerSigmaPS    = 0.1;
   options_->GetOpt("clustering", "shower_Sigma_PS",
@@ -473,34 +475,55 @@ void PFRootEventManager::readOptions(const char* file,
   options_->GetOpt("particle_flow", "resolution_map_HCAL_phi", map_HCAL_phi);
 
   //getting resolution maps
-  getMap(map_ECAL_eta);
-  getMap(map_ECAL_phi);
-  getMap(map_HCAL_eta);
-  getMap(map_HCAL_phi);
+  map_ECAL_eta = expand(map_ECAL_eta);
+  map_ECAL_phi = expand(map_ECAL_phi);
+  map_HCAL_eta = expand(map_HCAL_eta);
+  map_HCAL_phi = expand(map_HCAL_phi);
 
-
+  double DPtovPtCut = 999.;
+  options_->GetOpt("particle_flow", "DPtoverPt_Cut", DPtovPtCut);
   double chi2TrackECAL=100;
   options_->GetOpt("particle_flow", "chi2_ECAL_Track", chi2TrackECAL);
   double chi2TrackHCAL=100;
   options_->GetOpt("particle_flow", "chi2_HCAL_Track", chi2TrackHCAL);
   double chi2ECALHCAL=100;
   options_->GetOpt("particle_flow", "chi2_ECAL_HCAL", chi2ECALHCAL);
+  double chi2PSECAL=100;
+  options_->GetOpt("particle_flow", "chi2_PS_ECAL", chi2PSECAL);
+  double chi2PSTrack=100;
+  options_->GetOpt("particle_flow", "chi2_PS_Track", chi2PSTrack);
+  double chi2PSHV=100;
+  options_->GetOpt("particle_flow", "chi2_PSH_PSV", chi2PSHV);
+  bool   multiLink = false;
+  options_->GetOpt("particle_flow", "multilink", multiLink);
 
-
-  pfBlockAlgo_.setParameters( map_ECAL_eta.c_str(),
-			      map_ECAL_phi.c_str(),
-			      map_HCAL_eta.c_str(),
-			      map_HCAL_phi.c_str(),
-			      chi2TrackECAL,
-			      chi2TrackHCAL,
-			      chi2ECALHCAL );
+  try {
+    pfBlockAlgo_.setParameters( map_ECAL_eta.c_str(),
+				map_ECAL_phi.c_str(),
+				map_HCAL_eta.c_str(),
+				map_HCAL_phi.c_str(),
+				DPtovPtCut, 
+				chi2TrackECAL,
+				chi2TrackHCAL,
+				chi2ECALHCAL,
+				chi2PSECAL, 
+				chi2PSTrack,
+				chi2PSHV,
+				multiLink ); 
+  }  
+  catch( std::exception& err ) {
+    cerr<<err.what()<<". terminating."<<endl;
+    exit(1);
+  }
   
+
   bool blockAlgoDebug = false;
   options_->GetOpt("blockAlgo", "debug",  blockAlgoDebug);  
-
   pfBlockAlgo_.setDebug( blockAlgoDebug );
 
-
+  bool AlgoDebug = false;
+  options_->GetOpt("PFAlgo", "debug",  AlgoDebug);  
+  pfAlgo_.setDebug( AlgoDebug );
 
   double eCalibP0 = 0;
   double eCalibP1 = 1;
@@ -524,10 +547,35 @@ void PFRootEventManager::readOptions(const char* file,
 
   double mvaCut = 999999;
   options_->GetOpt("particle_flow", "mergedPhotons_mvaCut", mvaCut);
-    
   
-  pfAlgo_.setParameters( eCalibP0, eCalibP1, nSigmaECAL, nSigmaHCAL,
-			 mvaCut );
+  string mvaWeightFile = "";
+  options_->GetOpt("particle_flow", "mergedPhotons_mvaWeightFile", 
+		   mvaWeightFile);  
+  mvaWeightFile = expand( mvaWeightFile );
+
+  try {
+    pfAlgo_.setParameters( eCalibP0, eCalibP1, nSigmaECAL, nSigmaHCAL,
+			   mvaCut, mvaWeightFile.c_str() );
+//     pfAlgoOther_.setParameters( eCalibP0, eCalibP1, nSigmaECAL, nSigmaHCAL,
+// 			    mvaCut, mvaWeightFile.c_str() );
+  }
+  catch( std::exception& err ) {
+    cerr<<err.what()<<". terminating."<<endl;
+    exit(1);
+  }
+
+  int    algo = 2;
+  options_->GetOpt("particle_flow", "algorithm", algo);
+
+  pfAlgo_.setAlgo( algo );
+//   pfAlgoOther_.setAlgo( 1 );
+
+
+  bool pfAlgoDebug = false;
+  options_->GetOpt("particle_flow", "debug", pfAlgoDebug );  
+
+  pfAlgo_.setDebug( pfAlgoDebug );
+//   pfAlgoOther_.setDebug( pfAlgoDebug );
 
   // print flags -------------
 
@@ -872,18 +920,27 @@ bool PFRootEventManager::processEntry(int entry) {
 
   particleFlow();
 
+  // call print() in verbose mode
+  if( verbosity_ == VERBOSE ) print();
   double deltaEt=0;
-  if( goodevent && doJets_) 
-    deltaEt = makeJets(); 
+  // double deltaEt1=0;
+  if( goodevent && doJets_) { 
+    deltaEt  = makeJets( *pfCandidates_ ); 
+    // deltaEt1 = makeJets( *pfCandidatesOther_ ); 
+  }
   
-  if(outTree_) outTree_->Fill();
+  if(goodevent && outTree_) 
+    outTree_->Fill();
   
  
-  if( deltaEt>0.5 ) {
-    cout<<"delta E_t ="<<deltaEt<<endl;
-    return true;
-  }  
-  else return false;
+  if( verbosity_ == VERBOSE )
+     cout<<"delta E_t ="<<deltaEt<<endl;
+//      cout<<"delta E_t ="<<deltaEt<<" delta E_t Other ="<<deltaEt1<<endl;
+
+//   if( deltaEt>0.1 && fabs(deltaEt1)<0.05 ) {
+//     return true;
+//   }  
+//   else return false;
 //   //  if(trueParticles_.size() != 1 ) return false;
 //   else 
 //     return false;
@@ -1328,14 +1385,12 @@ PFRootEventManager::fillOutEventWithSimParticles(const reco::PFSimParticleCollec
   if(!outEvent_) return;
   
   for ( unsigned i=0;  i < trueParticles.size(); i++) {
-    
+
     const reco::PFSimParticle& ptc = trueParticles[i];
 
     unsigned ntrajpoints = ptc.nTrajectoryPoints();
-
-    if(ntrajpoints>2) { // decay before ecal -> 2 trajpoints only
-
-      
+    
+    if(ptc.daughterIds().empty() ) { // stable
       reco::PFTrajectoryPoint::LayerType ecalEntrance 
 	= reco::PFTrajectoryPoint::ECALEntrance;
 
@@ -1345,7 +1400,7 @@ PFRootEventManager::fillOutEventWithSimParticles(const reco::PFSimParticleCollec
 	// before ECAL has 3 points: initial, ecal entrance, hcal entrance
 	ecalEntrance = static_cast<reco::PFTrajectoryPoint::LayerType>(1);
       }
-      else continue; // endcap case we do not care;
+      // else continue; // endcap case we do not care;
 
       const reco::PFTrajectoryPoint& tpatecal 
 	= ptc.extrapolatedPoint( ecalEntrance );
@@ -1356,8 +1411,29 @@ PFRootEventManager::fillOutEventWithSimParticles(const reco::PFSimParticleCollec
       outptc.e = tpatecal.momentum().E();
       outptc.pdgCode = ptc.pdgCode();
     
+      
       outEvent_->addParticle(outptc);
     }  
+  }   
+}      
+
+void 
+PFRootEventManager::fillOutEventWithPFCandidates(const reco::PFCandidateCollection& pfCandidates ) {
+
+  if(!outEvent_) return;
+  
+  for ( unsigned i=0;  i < pfCandidates.size(); i++) {
+
+    const reco::PFCandidate& candidate = pfCandidates[i];
+    
+    EventColin::Particle outptc;
+    outptc.eta = candidate.eta();
+    outptc.phi = candidate.phi();    
+    outptc.e = candidate.energy();
+    outptc.pdgCode = candidate.particleId();
+    
+    
+    outEvent_->addCandidate(outptc);  
   }   
 }      
 
@@ -1415,7 +1491,10 @@ void PFRootEventManager::particleFlow() {
   
   edm::OrphanHandle< reco::PFClusterCollection > hcalh( clustersHCAL_.get(), 
 							edm::ProductID(3) );  
-  
+
+  edm::OrphanHandle< reco::PFClusterCollection > psh( clustersPS_.get(), 
+						      edm::ProductID(4) );   
+
 
   vector<bool> trackMask;
   fillTrackMask( trackMask, recTracks_ );
@@ -1423,9 +1502,11 @@ void PFRootEventManager::particleFlow() {
   fillClusterMask( ecalMask, *clustersECAL_ );
   vector<bool> hcalMask;
   fillClusterMask( hcalMask, *clustersHCAL_ );
- 
-  pfBlockAlgo_.setInput( trackh, ecalh, hcalh,
-			 trackMask, ecalMask, hcalMask );
+  vector<bool> psMask;
+  fillClusterMask( psMask, *clustersPS_ );
+  
+  pfBlockAlgo_.setInput( trackh, ecalh, hcalh, psh,
+			 trackMask, ecalMask, hcalMask, psMask ); 
   pfBlockAlgo_.findBlocks();
   
   if( debug_) cout<<pfBlockAlgo_<<endl;
@@ -1434,16 +1515,20 @@ void PFRootEventManager::particleFlow() {
 
 
   edm::OrphanHandle< reco::PFBlockCollection > blockh( pfBlocks_.get(), 
-						       edm::ProductID(4) );  
+						       edm::ProductID(5) );  
   
   pfAlgo_.reconstructParticles( blockh );
+//   pfAlgoOther_.reconstructParticles( blockh );
   if( debug_) cout<< pfAlgo_<<endl;
   pfCandidates_ = pfAlgo_.transferCandidates();
- 
+//   pfCandidatesOther_ = pfAlgoOther_.transferCandidates();
+  
+  fillOutEventWithPFCandidates( *pfCandidates_ );
+
   if( debug_) cout<<"PFRootEventManager::particleFlow stop"<<endl;
 }
 
-double PFRootEventManager::makeJets() {
+double PFRootEventManager::makeJets( const reco::PFCandidateCollection& candidates) {
   //std::cout << "building jets from MC particles," 
   //    << "PF particles and caloTowers" << std::endl;
   
@@ -1623,13 +1708,14 @@ double PFRootEventManager::makeJets() {
 // 	= pfBlocks_[iefb].particles();
 
   
-  for(unsigned i=0; i<pfCandidates_->size(); i++) {
+  
+  for(unsigned i=0; i<candidates.size(); i++) {
   
 //       if (jetsDebug_) 
 // 	cout << " there are " << recparticles.size() 
 // 	     << " particle in this block" << endl;
     
-    const reco::PFCandidate& candidate = (*pfCandidates_)[i];
+    const reco::PFCandidate& candidate = candidates[i];
 
     if (jetsDebug_) {
       cout << i << " " << candidate << endl;
@@ -1753,40 +1839,48 @@ void PFRootEventManager::lookForGenParticle(unsigned barcode) {
 
 
 
-void PFRootEventManager::getMap(string& map) {
+string PFRootEventManager::expand(const string& oldString) const {
 
+  string newString = oldString;
+ 
   string dollar = "$";
   string slash  = "/";
   
   // protection necessary or segv !!
-  int dollarPos = map.find(dollar,0);
-  if( dollarPos == -1 ) return;
+  int dollarPos = newString.find(dollar,0);
+  if( dollarPos == -1 ) return oldString;
 
-  int    lengh  = map.find(slash,0) - map.find(dollar,0) + 1;
+  int    lengh  = newString.find(slash,0) - newString.find(dollar,0) + 1;
   string env_variable =
-    map.substr( ( map.find(dollar,0) + 1 ), lengh -2);
-  //  cout << "var=" << env_variable << endl;
+    newString.substr( ( newString.find(dollar,0) + 1 ), lengh -2);
+  // the env var could be defined between { }
+  int begin = env_variable.find_first_of("{");
+  int end = env_variable.find_last_of("}");
+  
+  // cout << "var=" << env_variable << begin<<" "<<end<< endl;
+  
 
-  const char* name = env_variable.c_str();
-  string directory;
-  try{
-    // cout<<"call getenv"<<endl;
-    directory = getenv(name);
-    directory += "/";
-    // cout<<directory<<endl;
-  }
-  catch( const string& err ) {
-    cout<<err<<endl;
-    cout << "ERROR: YOU SHOULD SET THE VARIABLE "
-         << env_variable << endl;
-  }
+  env_variable = env_variable.substr( begin+1, end-1 );
+  // cout << "var=" << env_variable <<endl;
 
-  map.replace( 0, lengh , directory);
+
+  // cerr<<"call getenv "<<endl;
+  char* directory = getenv( env_variable.c_str() );
+
+  if(!directory) {
+    cerr<<"please define environment variable $"<<env_variable<<endl;
+    exit(1);
+  }
+  string sdir = directory;
+  sdir += "/";
+
+  newString.replace( 0, lengh , sdir);
 
   if (verbosity_ == VERBOSE ) {
-    cout << "Looking for resolution " << map << endl;
-    cout << map << endl;
+    cout << "expand " <<oldString<<" to "<< newString << endl;
   }
+
+  return newString;
 }
 
 void  PFRootEventManager::print(ostream& out) const {

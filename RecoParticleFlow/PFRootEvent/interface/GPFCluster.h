@@ -6,19 +6,25 @@
     from physical object PFCluster
 */  
  
+#include "RecoParticleFlow/PFRootEvent/interface/DisplayManager.h"
 #include "DataFormats/ParticleFlowReco/interface/PFCluster.h"
+#include "RecoParticleFlow/PFRootEvent/interface/GPFBase.h" 
 #include "TMarker.h"
 
 
-class GPFCluster : public TMarker {
+class GPFCluster : public GPFBase, public TMarker {
   public:
     GPFCluster() ;
-    GPFCluster(const reco::PFCluster* clus,
+    GPFCluster(DisplayManager *dm,int view, int ident, const reco::PFCluster* clus,
 	       double x,double y,int color);
     virtual ~GPFCluster() {;}
-    double  getEnergy() {return en_;}
     
-    //override ROOT method 
+    double           getEnergy() {return en_;}
+    virtual void     draw();
+    void             setColor(int newcolor);
+    void             setInitialColor();
+    
+    //overridden ROOT method 
     virtual void     Print();     // *MENU*
     virtual void     ExecuteEvent(Int_t event, Int_t px, Int_t py);
     
@@ -29,7 +35,10 @@ class GPFCluster : public TMarker {
 
   private:
     const reco::PFCluster*   clus_;
+    //energy
     double                   en_;
+    //Initial Color 
+    int                      color_;
     
 };  
 #endif

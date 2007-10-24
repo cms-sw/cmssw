@@ -1,6 +1,7 @@
 #include "DataFormats/ParticleFlowReco/interface/PFBlockElementCluster.h"
 #include "DataFormats/ParticleFlowReco/interface/PFCluster.h"
 #include "DataFormats/Common/interface/Ref.h" 
+#include "Math/Vector3D.h"
 
 #include <iomanip>
 

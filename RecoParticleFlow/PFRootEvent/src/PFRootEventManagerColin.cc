@@ -65,8 +65,9 @@ void PFRootEventManagerColin::readSpecificOptions(const char* file) {
     cerr<<"colin: undefined mode"<<endl;
     exit(1);
   }
-
 }
+
+
 
 
 
@@ -78,12 +79,8 @@ bool PFRootEventManagerColin::processEntry(int entry) {
     // cerr<<"event was not accepted"<<endl;
     // print();
     tauEvent_->rCode = 10;
-    outTreeMy_->Fill();
     return false; // event not accepted
   }
-//   else 
-//     cerr<<"event accepted"<<endl;
-  
 
   bool rvalue = false;
   switch(mode_) {
@@ -101,8 +98,11 @@ bool PFRootEventManagerColin::processEntry(int entry) {
   }
   outTreeMy_->Fill();
 
+
   return rvalue;
 }
+
+
 
 
 bool PFRootEventManagerColin::processNeutral() {
@@ -323,6 +323,7 @@ bool PFRootEventManagerColin::processHIGH_E_TAUS() {
     
     std::map<double, unsigned> sortedElems;
     block.associatedElements( iTrack, 
+			      block.linkData(),
 			      sortedElems );
     
     tauEvent_->nECAL=0;

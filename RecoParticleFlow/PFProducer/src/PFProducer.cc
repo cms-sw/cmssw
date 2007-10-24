@@ -44,11 +44,17 @@ PFProducer::PFProducer(const edm::ParameterSet& iConfig) {
   // energyResolution_ = new PFEnergyResolution();
   // PFBlock::setEnergyResolution(energyResolution_);
 
+  double mvaCut = iConfig.getParameter<double>("pf_mergedPhotons_mvaCut");
+  string mvaWeightFile 
+    = iConfig.getParameter<string>("pf_mergedPhotons_mvaWeightFile");
+  edm::FileInPath path_mvaWeightFile( mvaWeightFile.c_str() );
 
   pfAlgo_.setParameters( calibParamECAL_offset, 
 			 calibParamECAL_slope, 
 			 nSigmaECAL, 
-			 nSigmaHCAL );
+			 nSigmaHCAL, 
+			 mvaCut, 
+			 path_mvaWeightFile.fullPath().c_str() );
 
   verbose_ = 
     iConfig.getUntrackedParameter<bool>("verbose",false);

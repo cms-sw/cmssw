@@ -1,6 +1,6 @@
 void makeTauPlotTree(const char* pattern, 
 		     const char* label, 
-		     double relative = false) {
+		     int relative = 0) {
 
   
   gSystem->Load("libChain");
@@ -14,12 +14,14 @@ void makeTauPlotTree(const char* pattern,
   
   string pfhname = label;
   pfhname += "_PF";
-  string pfvar = "(jetsPF_.et - jetsMC_.et)/jetsMC_.et>>";
-  if(!relative) 
-     pfvar = "(jetsPF_.et - jetsMC_.et)>>";
-
+  string  pfvar = "(jetsPF_.et - jetsMC_.et)>>";
+  if(relative==1)   
+    pfvar = "(jetsPF_.et - jetsMC_.et)/jetsMC_.et>>";
+  else if (relative==2)
+    pfvar = "(jetsPF_.et - jetsMC_.et)/jetsPF_.et>>";
+  
   pfvar += pfhname;
-
+  
   
   int nbins = 100;
   double min = -1; 
@@ -41,9 +43,11 @@ void makeTauPlotTree(const char* pattern,
 
   string ehthname = label;
   ehthname += "_EHT";
-  string ehtvar = "(jetsEHT_.et - jetsMC_.et)/jetsMC_.et>>";
-  if(!relative) 
-    ehtvar = "(jetsEHT_.et - jetsMC_.et)>>";
+  string ehtvar = "(jetsEHT_.et - jetsMC_.et)>>";
+  if(relative==1)   
+    ehtvar = "(jetsEHT_.et - jetsMC_.et)/jetsMC_.et>>";
+  else if (relative==2)
+    ehtvar = "(jetsEHT_.et - jetsMC_.et)/jetsEHT_.et>>";
   ehtvar += ehthname;
 
   TH1F* h_deltaETvisible_MCEHT 
@@ -54,6 +58,9 @@ void makeTauPlotTree(const char* pattern,
 	     "", "", nentries);
   chain.Draw(ehtvar.c_str(), 
 	     "", "", nentries);
+
+  cout<<pfvar<<endl;
+  cout<<ehtvar<<endl;
 //   chain.Draw("(jetsPF_.et - jetsMC_.et)/jetsPF_.et>>h_deltaETvisible_MCPF");
 //   chain.Draw("(jetsEHT_.et - jetsMC_.et)/jetsEHT_.et>>h_deltaETvisible_MCEHT");
   h_deltaETvisible_MCPF->Draw();

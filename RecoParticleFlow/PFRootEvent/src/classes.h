@@ -10,13 +10,14 @@
 #include "RecoParticleFlow/PFRootEvent/interface/DialogFrame.h"
 #include "RecoParticleFlow/PFRootEvent/interface/DisplayManager.h"
 #include "RecoParticleFlow/PFRootEvent/interface/DisplayCommon.h"
-
-
-
-
-
-
-namespace { 
+#include "RecoParticleFlow/PFRootEvent/interface/GPFBase.h"
+ 
+ 
+ 
+ 
+ 
+ 
+namespace {
   namespace {
      GPFRecHit dummy1;
      std::vector<std::vector<GPFRecHit> > dummy2;
@@ -26,6 +27,6 @@ namespace {
      std::vector<std::vector<GPFTrack> > dummy6;
      GPFSimParticle dummy7;
      std::vector<std::vector<GPFSimParticle> > dummy8;
-     
+      
   }
 }

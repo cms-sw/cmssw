@@ -66,7 +66,7 @@ void PFBlock::lock(unsigned i, std::vector<double>& linkData ) const {
 
 
 void PFBlock::associatedElements( unsigned i, 
-                                  std::vector<double>& linkData, 
+                                  const std::vector<double>& linkData, 
                                   map<double, unsigned>& sortedAssociates,
                                   PFBlockElement::Type type ) 
   const {
