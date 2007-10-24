@@ -13,7 +13,7 @@
 //
 // Original Author:  Domenico GIORDANO
 //         Created:  Wed Oct  3 12:11:10 CEST 2007
-// $Id: SiStripQualityStatistics.cc,v 1.2 2007/10/11 12:54:14 giordano Exp $
+// $Id: SiStripQualityStatistics.cc,v 1.1 2007/10/18 09:35:19 giordano Exp $
 //
 //
 #include "CalibFormats/SiStripObjects/interface/SiStripQuality.h"
@@ -33,7 +33,9 @@
 
 SiStripQualityStatistics::SiStripQualityStatistics( const edm::ParameterSet& iConfig ):
   printdebug_(iConfig.getUntrackedParameter<bool>("printDebug",false)),
-  m_cacheID_(0){}
+  m_cacheID_(0), 
+  dataLabel_(iConfig.getUntrackedParameter<std::string>("dataLabel",""))
+{}
 
 void SiStripQualityStatistics::analyze( const edm::Event& e, const edm::EventSetup& iSetup){
 
@@ -47,7 +49,7 @@ void SiStripQualityStatistics::analyze( const edm::Event& e, const edm::EventSet
   m_cacheID_ = cacheID; 
 
   edm::ESHandle<SiStripQuality> SiStripQuality_;
-  iSetup.get<SiStripQualityRcd>().get(SiStripQuality_);
+  iSetup.get<SiStripQualityRcd>().get(dataLabel_,SiStripQuality_);
   
   //Global Info
   int NTkBadComponent[4]; //k: 0=BadModule, 1=BadFiber, 2=BadApv, 3=BadStrips

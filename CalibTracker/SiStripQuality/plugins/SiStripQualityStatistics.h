@@ -26,5 +26,6 @@ class SiStripQualityStatistics : public edm::EDAnalyzer {
  private:
   bool printdebug_;
   unsigned long long m_cacheID_;
+  std::string dataLabel_;
 };
 #endif
