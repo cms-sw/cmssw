@@ -164,9 +164,9 @@ void TrackerMap::drawModule(TmModule * mod, int key,int nlay, bool print_total, 
    if(palette==1){//palette1 1 - raibow
    float delta=(maxvalue-minvalue);
    float x =(mod->value-minvalue);
-   green= (int) ( x<delta/4 ? x : ( x > 3/4*delta ?  -255/(delta/4) * x + 4 * 255 : 255 ) );
-   red = (int) ( x<delta/2 ? 0 : ( x > 3/4*delta ?  255 : 255/(delta/4) * x - 510 ) );
-   blue = (int) ( x<delta/4 ? 255 : ( x > 1/2*delta ?  0 : -255/(delta/4) * x + 510 ) );
+   red = (int) ( x<(delta/2) ? 0 : ( x > ((3./4.)*delta) ?  255 : 255/(delta/4) * (x-(2./4.)*delta)  ) );
+   green= (int) ( x<delta/4 ? (x*255/(delta/4)) : ( x > ((3./4.)*delta) ?  255-255/(delta/4) *(x-(3./4.)*delta) : 255 ) );
+   blue = (int) ( x<delta/4 ? 255 : ( x > ((1./2.)*delta) ?  0 : 255-255/(delta/4) * (x-(1./4.)*delta) ) );
      }
      if (palette==2){//palette 2 yellow-green
      green = (int)((mod->value-minvalue)/(maxvalue-minvalue)*256.);
@@ -278,7 +278,7 @@ void TrackerMap::save(bool print_total, float minval, float maxval, string outpu
  cout << "Executing " << command1 << endl;
  system(command1);
   }
- if(filetype=="png"){
+ if(filetype=="pdf"){
  ostringstream commands;
  commands << "java -Xmx256m  -jar batik/batik-rasterizer.jar -w "<<width<<" -h "<< height << " " <<tempfilename<<" -m application/pdf"; 
  command1=commands.str().c_str();
@@ -373,9 +373,9 @@ void TrackerMap::drawPalette(ofstream * svgfile){
  if(palette==1){//palette1 1 - raibow
    float delta=(maxvalue-minvalue);
    float x =(val-minvalue);
-   green= (int) ( x<delta/4 ? x : ( x > 3/4*delta ?  -255/(delta/4) * x + 4 * 255 : 255 ) );
-   red = (int) ( x<delta/2 ? 0 : ( x > 3/4*delta ?  255 : 255/(delta/4) * x - 510 ) );
-   blue = (int) ( x<delta/4 ? 255 : ( x > 1/2*delta ?  0 : -255/(delta/4) * x + 510 ) );
+   red = (int) ( x<(delta/2) ? 0 : ( x > ((3./4.)*delta) ?  255 : 255/(delta/4) * (x-(2./4.)*delta)  ) );
+   green= (int) ( x<delta/4 ? (x*255/(delta/4)) : ( x > ((3./4.)*delta) ?  255-255/(delta/4) *(x-(3./4.)*delta) : 255 ) );
+   blue = (int) ( x<delta/4 ? 255 : ( x > ((1./2.)*delta) ?  0 : 255-255/(delta/4) * (x-(1./4.)*delta) ) );
      }
      if (palette==2){//palette 2 yellow-green
      green = (int)((val-minvalue)/(maxvalue-minvalue)*256.);
