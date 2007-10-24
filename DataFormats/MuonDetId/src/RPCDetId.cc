@@ -2,7 +2,7 @@
  * Impl of RPCDetId
  *
  * \author Ilaria Segoni
- * \version $Id: RPCDetId.cc,v 1.19 2007/08/07 22:41:20 ratnik Exp $
+ * \version $Id: RPCDetId.cc,v 1.20 2007/10/23 05:53:39 mmaggi Exp $
  * \date 02 Aug 2005
  */
 
@@ -91,8 +91,8 @@ RPCDetId::buildfromTrIndex(int trIndex)
       // 10 degree chambers
       subsector = (sector_id-1)%6+1;
     }
-    std::cout << "RE"<<station<<"/"<<ring<<" sector_id "<<sector_id
-	      << " sector "<<sector <<" sub "<<subsector<<std::endl;
+    // std::cout << "RE"<<station<<"/"<<ring<<" sector_id "<<sector_id
+    //	      << " sector "<<sector <<" sub "<<subsector<<std::endl;
   }
 
 
