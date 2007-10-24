@@ -13,10 +13,9 @@
 //
 // Original Author:  Domenico GIORDANO
 //         Created:  Wed Oct  3 12:11:10 CEST 2007
-// $Id: SiStripQualityStatistics.cc,v 1.1 2007/10/18 09:35:19 giordano Exp $
+// $Id: SiStripQualityStatistics.cc,v 1.2 2007/10/24 08:45:56 giordano Exp $
 //
 //
-#include "CalibFormats/SiStripObjects/interface/SiStripQuality.h"
 #include "CalibTracker/Records/interface/SiStripQualityRcd.h"
 
 #include "CalibTracker/SiStripQuality/plugins/SiStripQualityStatistics.h"
@@ -29,7 +28,7 @@
 #include <iostream>
 #include <stdio.h>
 #include <sys/time.h>
-#include <sstream>
+
 
 SiStripQualityStatistics::SiStripQualityStatistics( const edm::ParameterSet& iConfig ):
   printdebug_(iConfig.getUntrackedParameter<bool>("printDebug",false)),
@@ -50,19 +49,14 @@ void SiStripQualityStatistics::analyze( const edm::Event& e, const edm::EventSet
 
   edm::ESHandle<SiStripQuality> SiStripQuality_;
   iSetup.get<SiStripQualityRcd>().get(dataLabel_,SiStripQuality_);
-  
-  //Global Info
-  int NTkBadComponent[4]; //k: 0=BadModule, 1=BadFiber, 2=BadApv, 3=BadStrips
-  int NBadComponent[4][19][4];  
-  //legend: NBadComponent[i][j][k]= SubSystem i, layer/disk/wheel j, BadModule/Fiber/Apv k
-  //     i: 0=TIB, 1=TID, 2=TOB, 3=TEC
-  //     k: 0=BadModule, 1=BadFiber, 2=BadApv, 3=BadStrips
-
+    
   for(int i=0;i<4;++i){
     NTkBadComponent[i]=0;
-    for(int j=0;j<19;++j)
+    for(int j=0;j<19;++j){
+      ssV[i][j].str("");
       for(int k=0;k<4;++k)
 	NBadComponent[i][j][k]=0;
+    }
   }
 
   std::vector<SiStripQuality::BadComponent> BC = SiStripQuality_->getBadComponentList();
@@ -87,93 +81,42 @@ void SiStripQualityStatistics::analyze( const edm::Event& e, const edm::EventSet
 
     int component;
     SiStripDetId a(BC[i].detid);
-    if ( a.subdetId() == 3 ){
+    if ( a.subdetId() == SiStripDetId::TIB ){
       //&&&&&&&&&&&&&&&&&
       //TIB
       //&&&&&&&&&&&&&&&&&
       
       component=TIBDetId(BC[i].detid).layer();
-  
-      if (BC[i].BadModule){
-	NBadComponent[0][0][0]++;
-	NBadComponent[0][component][0]++;
-      }
-      if (BC[i].BadFibers){ 
-	NBadComponent[0][0][1]+= ( (BC[i].BadFibers>>2)&0x1 )+ ( (BC[i].BadFibers>>1)&0x1 ) + ( (BC[i].BadFibers)&0x1 );
-	NBadComponent[0][component][1]+= ( (BC[i].BadFibers>>2)&0x1 )+ ( (BC[i].BadFibers>>1)&0x1 ) + ( (BC[i].BadFibers)&0x1 );
-      }
-      if (BC[i].BadApvs){
-	NBadComponent[0][0][2]+= ( (BC[i].BadApvs>>5)&0x1 )+ ( (BC[i].BadApvs>>4)&0x1 ) + ( (BC[i].BadApvs>>3)&0x1 ) + 
-	  ( (BC[i].BadApvs>>2)&0x1 )+ ( (BC[i].BadApvs>>1)&0x1 ) + ( (BC[i].BadApvs)&0x1 );
-	NBadComponent[0][component][2]+= ( (BC[i].BadApvs>>5)&0x1 )+ ( (BC[i].BadApvs>>4)&0x1 ) + ( (BC[i].BadApvs>>3)&0x1 ) + 
-	  ( (BC[i].BadApvs>>2)&0x1 )+ ( (BC[i].BadApvs>>1)&0x1 ) + ( (BC[i].BadApvs)&0x1 );
-      }
 
-    } else if ( a.subdetId() == 4 ) {
+      SetBadComponents(0, component, BC[i]);         
+
+    } else if ( a.subdetId() == SiStripDetId::TID ) {
       //&&&&&&&&&&&&&&&&&
       //TID
       //&&&&&&&&&&&&&&&&&
 
       component=TIDDetId(BC[i].detid).side()==2?TIDDetId(BC[i].detid).wheel()+1:TIDDetId(BC[i].detid).wheel()+4;
-         
-      if (BC[i].BadModule){
-	NBadComponent[1][0][0]++;
-	NBadComponent[1][component][0]++;
-      }
-      if (BC[i].BadFibers){ 
-	NBadComponent[1][0][1]+= ( (BC[i].BadFibers>>2)&0x1 )+ ( (BC[i].BadFibers>>1)&0x1 ) + ( (BC[i].BadFibers)&0x1 );
-	NBadComponent[1][component][1]+= ( (BC[i].BadFibers>>2)&0x1 )+ ( (BC[i].BadFibers>>1)&0x1 ) + ( (BC[i].BadFibers)&0x1 );
-      }
-      if (BC[i].BadApvs){
-	NBadComponent[1][0][2]+= ( (BC[i].BadApvs>>5)&0x1 )+ ( (BC[i].BadApvs>>4)&0x1 ) + ( (BC[i].BadApvs>>3)&0x1 ) + 
-	  ( (BC[i].BadApvs>>2)&0x1 )+ ( (BC[i].BadApvs>>1)&0x1 ) + ( (BC[i].BadApvs)&0x1 );
-	NBadComponent[1][component][2]+= ( (BC[i].BadApvs>>5)&0x1 )+ ( (BC[i].BadApvs>>4)&0x1 ) + ( (BC[i].BadApvs>>3)&0x1 ) + 
-	  ( (BC[i].BadApvs>>2)&0x1 )+ ( (BC[i].BadApvs>>1)&0x1 ) + ( (BC[i].BadApvs)&0x1 );
-      }
 
-    } else if ( a.subdetId() == 5 ) {
+      SetBadComponents(1, component, BC[i]);         
+
+    } else if ( a.subdetId() == SiStripDetId::TOB ) {
       //&&&&&&&&&&&&&&&&&
       //TOB
       //&&&&&&&&&&&&&&&&&
 
       component=TOBDetId(BC[i].detid).layer();
   
-      if (BC[i].BadModule){
-	NBadComponent[2][0][0]++;
-	NBadComponent[2][component][0]++;
-      }
-      if (BC[i].BadFibers){ 
-	NBadComponent[2][0][1]+= ( (BC[i].BadFibers>>2)&0x1 )+ ( (BC[i].BadFibers>>1)&0x1 ) + ( (BC[i].BadFibers)&0x1 );
-	NBadComponent[2][component][1]+= ( (BC[i].BadFibers>>2)&0x1 )+ ( (BC[i].BadFibers>>1)&0x1 ) + ( (BC[i].BadFibers)&0x1 );
-      }
-      if (BC[i].BadApvs){
-	NBadComponent[2][0][2]+= ( (BC[i].BadApvs>>5)&0x1 )+ ( (BC[i].BadApvs>>4)&0x1 ) + ( (BC[i].BadApvs>>3)&0x1 ) + 
-	  ( (BC[i].BadApvs>>2)&0x1 )+ ( (BC[i].BadApvs>>1)&0x1 ) + ( (BC[i].BadApvs)&0x1 );
-	NBadComponent[2][component][2]+= ( (BC[i].BadApvs>>5)&0x1 )+ ( (BC[i].BadApvs>>4)&0x1 ) + ( (BC[i].BadApvs>>3)&0x1 ) + 
-	  ( (BC[i].BadApvs>>2)&0x1 )+ ( (BC[i].BadApvs>>1)&0x1 ) + ( (BC[i].BadApvs)&0x1 );
-      }
+      SetBadComponents(2, component, BC[i]);         
 
-    } else if ( a.subdetId() == 6 ) {
+    } else if ( a.subdetId() == SiStripDetId::TEC ) {
       //&&&&&&&&&&&&&&&&&
       //TEC
       //&&&&&&&&&&&&&&&&&
 
       component=TECDetId(BC[i].detid).side()==2?TECDetId(BC[i].detid).wheel()+1:TECDetId(BC[i].detid).wheel()+10;
       
-      if (BC[i].BadModule){
-	NBadComponent[3][0][0]++;
-	NBadComponent[3][component][0]++;
-      }
-      if (BC[i].BadFibers){ 
-	NBadComponent[3][0][1]+= ( (BC[i].BadFibers>>2)&0x1 )+ ( (BC[i].BadFibers>>1)&0x1 ) + ( (BC[i].BadFibers)&0x1 );
-	NBadComponent[3][component][1]+= ( (BC[i].BadFibers>>2)&0x1 )+ ( (BC[i].BadFibers>>1)&0x1 ) + ( (BC[i].BadFibers)&0x1 );
-      }
-      if (BC[i].BadApvs){
-	NBadComponent[3][0][2]+= ( (BC[i].BadApvs>>5)&0x1 )+ ( (BC[i].BadApvs>>4)&0x1 ) + ( (BC[i].BadApvs>>3)&0x1 ) + 
-	  ( (BC[i].BadApvs>>2)&0x1 )+ ( (BC[i].BadApvs>>1)&0x1 ) + ( (BC[i].BadApvs)&0x1 );
-	NBadComponent[3][component][2]+= ( (BC[i].BadApvs>>5)&0x1 )+ ( (BC[i].BadApvs>>4)&0x1 ) + ( (BC[i].BadApvs>>3)&0x1 ) + 
-	  ( (BC[i].BadApvs>>2)&0x1 )+ ( (BC[i].BadApvs>>1)&0x1 ) + ( (BC[i].BadApvs)&0x1 );
-      }
+      SetBadComponents(3, component, BC[i]);         
+
     }    
   }
 
@@ -219,8 +162,8 @@ void SiStripQualityStatistics::analyze( const edm::Event& e, const edm::EventSet
   //&&&&&&&&&&&&&&&&&&
 
   ss.str("");
-  ss << "Global Info\n------------";
-  ss << "\nBadComponent \tModules \tFibers \tApvs\tStrips\n--------------------------------";
+  ss << "\n-----------------\nGlobal Info\n-----------------";
+  ss << "\nBadComponent \t   Modules \tFibers \tApvs\tStrips\n----------------------------------------------------------------";
   ss << "\nTracker:\t\t"<<NTkBadComponent[0]<<"\t"<<NTkBadComponent[1]<<"\t"<<NTkBadComponent[2]<<"\t"<<NTkBadComponent[3];
   ss<< "\n";
   ss << "\nTIB:\t\t\t"<<NBadComponent[0][0][0]<<"\t"<<NBadComponent[0][0][1]<<"\t"<<NBadComponent[0][0][2]<<"\t"<<NBadComponent[0][0][3];
@@ -230,22 +173,74 @@ void SiStripQualityStatistics::analyze( const edm::Event& e, const edm::EventSet
   ss << "\n";
 
   for (int i=1;i<5;++i)
-    ss << "\nTIB Layer " << i << " :\t\t"<<NBadComponent[0][i][0]<<"\t"<<NBadComponent[0][i][1]<<"\t"<<NBadComponent[0][i][2]<<"\t"<<NBadComponent[0][i][3];
+    ss << "\nTIB Layer " << i   << " :\t\t"<<NBadComponent[0][i][0]<<"\t"<<NBadComponent[0][i][1]<<"\t"<<NBadComponent[0][i][2]<<"\t"<<NBadComponent[0][i][3];
   ss << "\n";
   for (int i=1;i<4;++i)
-    ss << "\nTID+ Disk " << i << " :\t\t"<<NBadComponent[1][i][0]<<"\t"<<NBadComponent[1][i][1]<<"\t"<<NBadComponent[1][i][2]<<"\t"<<NBadComponent[1][i][3];
+    ss << "\nTID+ Disk " << i   << " :\t\t"<<NBadComponent[1][i][0]<<"\t"<<NBadComponent[1][i][1]<<"\t"<<NBadComponent[1][i][2]<<"\t"<<NBadComponent[1][i][3];
   for (int i=4;i<7;++i)
     ss << "\nTID- Disk " << i-3 << " :\t\t"<<NBadComponent[1][i][0]<<"\t"<<NBadComponent[1][i][1]<<"\t"<<NBadComponent[1][i][2]<<"\t"<<NBadComponent[1][i][3];
   ss << "\n";
   for (int i=1;i<7;++i)
-    ss << "\nTOB Layer " << i << " :\t\t"<<NBadComponent[2][i][0]<<"\t"<<NBadComponent[2][i][1]<<"\t"<<NBadComponent[2][i][2]<<"\t"<<NBadComponent[2][i][3];
+    ss << "\nTOB Layer " << i   << " :\t\t"<<NBadComponent[2][i][0]<<"\t"<<NBadComponent[2][i][1]<<"\t"<<NBadComponent[2][i][2]<<"\t"<<NBadComponent[2][i][3];
   ss << "\n";
   for (int i=1;i<10;++i)
-    ss << "\nTEC+ Disk " << i << " :\t\t"<<NBadComponent[1][i][0]<<"\t"<<NBadComponent[1][i][1]<<"\t"<<NBadComponent[1][i][2]<<"\t"<<NBadComponent[1][i][3];
+    ss << "\nTEC+ Disk " << i   << " :\t\t"<<NBadComponent[3][i][0]<<"\t"<<NBadComponent[3][i][1]<<"\t"<<NBadComponent[3][i][2]<<"\t"<<NBadComponent[3][i][3];
   for (int i=10;i<19;++i)
-    ss << "\nTEC- Disk " << i-9 << " :\t\t"<<NBadComponent[1][i][0]<<"\t"<<NBadComponent[1][i][1]<<"\t"<<NBadComponent[1][i][2]<<"\t"<<NBadComponent[1][i][3];
+    ss << "\nTEC- Disk " << i-9 << " :\t\t"<<NBadComponent[3][i][0]<<"\t"<<NBadComponent[3][i][1]<<"\t"<<NBadComponent[3][i][2]<<"\t"<<NBadComponent[3][i][3];
+  ss<< "\n";
+
+  ss << "\n\t\t   Detid  Modules Fibers Apvs\n----------------------------------------------------------------";
+  for (int i=1;i<5;++i)
+    ss << "\nTIB Layer " << i << " :" << ssV[0][i].str();
+  ss << "\n";
+  for (int i=1;i<4;++i)
+    ss << "\nTID+ Disk " << i << " :" << ssV[1][i].str();
+  for (int i=4;i<7;++i)
+    ss << "\nTID- Disk " << i-3 << " :" << ssV[1][i].str();
+  ss << "\n";
+  for (int i=1;i<7;++i)
+    ss << "\nTOB Layer " << i << " :" << ssV[2][i].str();
+  ss << "\n";
+  for (int i=1;i<10;++i)
+    ss << "\nTEC+ Disk " << i << " :" << ssV[3][i].str();
+  for (int i=10;i<19;++i)
+    ss << "\nTEC- Disk " << i-9 << " :" << ssV[3][i].str();
 
 
   edm::LogInfo("SiStripQualityStatistics") << ss.str() << std::endl;
   
+}
+
+
+void SiStripQualityStatistics::SetBadComponents(int i, int component,SiStripQuality::BadComponent& BC){
+ 
+  ssV[i][component] << "\n\t\t " 
+		    << BC.detid 
+		    << " \t " << BC.BadModule << " \t " 
+		    << ( (BC.BadFibers)&0x1 ) << " " 
+		    << ( (BC.BadFibers>>1)&0x1 ) << " " 
+		    << ( (BC.BadFibers>>2)&0x1 )
+		    << " \t " 
+		    << ( (BC.BadApvs)&0x1 ) << " " 
+		    << ( (BC.BadApvs>>1)&0x1 ) << " " 
+		    << ( (BC.BadApvs>>2)&0x1 ) << " " 
+		    << ( (BC.BadApvs>>3)&0x1 ) << " " 
+		    << ( (BC.BadApvs>>4)&0x1 ) << " " 
+		    << ( (BC.BadApvs>>5)&0x1 ) << " " 
+    ;
+   
+  if (BC.BadModule){
+    NBadComponent[i][0][0]++;
+    NBadComponent[i][component][0]++;
+  }
+  if (BC.BadFibers){ 
+    NBadComponent[i][0][1]+= ( (BC.BadFibers>>2)&0x1 )+ ( (BC.BadFibers>>1)&0x1 ) + ( (BC.BadFibers)&0x1 );
+    NBadComponent[i][component][1]+= ( (BC.BadFibers>>2)&0x1 )+ ( (BC.BadFibers>>1)&0x1 ) + ( (BC.BadFibers)&0x1 );
+  }
+  if (BC.BadApvs){
+    NBadComponent[i][0][2]+= ( (BC.BadApvs>>5)&0x1 )+ ( (BC.BadApvs>>4)&0x1 ) + ( (BC.BadApvs>>3)&0x1 ) + 
+      ( (BC.BadApvs>>2)&0x1 )+ ( (BC.BadApvs>>1)&0x1 ) + ( (BC.BadApvs)&0x1 );
+    NBadComponent[i][component][2]+= ( (BC.BadApvs>>5)&0x1 )+ ( (BC.BadApvs>>4)&0x1 ) + ( (BC.BadApvs>>3)&0x1 ) + 
+      ( (BC.BadApvs>>2)&0x1 )+ ( (BC.BadApvs>>1)&0x1 ) + ( (BC.BadApvs)&0x1 );
+  }
 }
