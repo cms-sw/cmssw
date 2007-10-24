@@ -1,8 +1,8 @@
 /*
  * \file EBIntegrityTask.cc
  *
- * $Date: 2007/10/15 16:26:41 $
- * $Revision: 1.48 $
+ * $Date: 2007/10/23 10:03:40 $
+ * $Revision: 1.49 $
  * \author G. Della Ricca
  *
  */
@@ -46,8 +46,6 @@ EBIntegrityTask::EBIntegrityTask(const ParameterSet& ps){
   EBDetIdCollection2_ =  ps.getParameter<edm::InputTag>("EBDetIdCollection2");
   EBDetIdCollection3_ =  ps.getParameter<edm::InputTag>("EBDetIdCollection3");
   EBDetIdCollection4_ =  ps.getParameter<edm::InputTag>("EBDetIdCollection4");
-  EcalTrigTowerDetIdCollection1_ = ps.getParameter<edm::InputTag>("EcalTrigTowerDetIdCollection1");
-  EcalTrigTowerDetIdCollection2_ = ps.getParameter<edm::InputTag>("EcalTrigTowerDetIdCollection2");
   EcalElectronicsIdCollection1_ = ps.getParameter<edm::InputTag>("EcalElectronicsIdCollection1");
   EcalElectronicsIdCollection2_ = ps.getParameter<edm::InputTag>("EcalElectronicsIdCollection2");
   EcalElectronicsIdCollection3_ = ps.getParameter<edm::InputTag>("EcalElectronicsIdCollection3");
@@ -413,88 +411,6 @@ void EBIntegrityTask::analyze(const Event& e, const EventSetup& c){
 
   }
 
-// begin old stuff
-
-  try {
-
-    Handle<EcalTrigTowerDetIdCollection> ids5;
-    e.getByLabel(EcalTrigTowerDetIdCollection1_, ids5);
-
-    for ( EcalTrigTowerDetIdCollection::const_iterator idItr = ids5->begin(); idItr != ids5->end(); ++ idItr ) {
-
-      EcalTrigTowerDetId id = (*idItr);
-
-      if ( id.subDet() != EcalBarrel ) continue;
-
-      int iet = abs(id.ieta());
-      int ipt = id.iphi();
-
-      // phi_tower: change the range from global to SM-local
-      // phi==0 is in the middle of a SM
-      ipt = ipt + 2;
-      if ( ipt > 72 ) ipt = ipt - 72;
-      ipt = (ipt-1)%4 + 1;
-
-      // phi_tower: SM-local phi runs opposite to global in EB+
-      if ( id.zside() > 0 ) ipt = 5 - ipt;
-
-      int ismt = Numbers::iSM( id );
-
-      float xiet = iet - 0.5;
-      float xipt = ipt - 0.5;
-
-      if ( meIntegrityTTId[ismt-1] ) meIntegrityTTId[ismt-1]->Fill(xiet, xipt);
-
-    }
-
-  } catch ( exception& ex) {
-
-    LogWarning("EBIntegrityTask") << EcalTrigTowerDetIdCollection1_ << " not available";
-
-  }
-
-  try {
-
-    Handle<EcalTrigTowerDetIdCollection> ids6;
-    e.getByLabel(EcalTrigTowerDetIdCollection2_, ids6);
-
-    for ( EcalTrigTowerDetIdCollection::const_iterator idItr = ids6->begin(); idItr != ids6->end(); ++ idItr ) {
-
-      EcalTrigTowerDetId id = (*idItr);
-
-      if ( id.subDet() != EcalBarrel ) continue;
-
-      int iet = abs(id.ieta());
-      int ipt = id.iphi();
-
-      // phi_tower: change the range from global to SM-local
-      // phi==0 is in the middle of a SM
-      ipt = ipt + 2;
-      if ( ipt > 72 ) ipt  = ipt - 72;
-      ipt = (ipt-1)%4 + 1;
-
-      // phi_tower: SM-local phi runs opposite to global in EB+
-      if ( id.zside() > 0 ) ipt = 5 - ipt;
-
-      int ismt = Numbers::iSM( id );
-
-      float xiet = iet - 0.5;
-      float xipt = ipt - 0.5;
-
-      if ( meIntegrityTTBlockSize[ismt-1] ) meIntegrityTTBlockSize[ismt-1]->Fill(xiet, xipt);
-
-    }
-
-  } catch ( exception& ex) {
-
-    LogWarning("EBIntegrityTask") << EcalTrigTowerDetIdCollection2_ << " not available";
-
-  }
-
-// end old stuff
-
-// begin new stuff
-
   try {
 
     Handle<EcalElectronicsIdCollection> ids5;
@@ -556,8 +472,6 @@ void EBIntegrityTask::analyze(const Event& e, const EventSetup& c){
     LogWarning("EBIntegrityTask") << EcalElectronicsIdCollection2_ << " not available";
 
   }
-
-// end new stuff
 
   try {
 

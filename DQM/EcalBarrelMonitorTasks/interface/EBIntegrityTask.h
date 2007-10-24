@@ -4,8 +4,8 @@
 /*
  * \file EBIntegrityTask.h
  *
- * $Date: 2007/04/05 14:53:58 $
- * $Revision: 1.17 $
+ * $Date: 2007/10/15 16:26:41 $
+ * $Revision: 1.18 $
  * \author G. Della Ricca
  *
  */
@@ -56,8 +56,6 @@ edm::InputTag EBDetIdCollection1_;
 edm::InputTag EBDetIdCollection2_;
 edm::InputTag EBDetIdCollection3_;
 edm::InputTag EBDetIdCollection4_;
-edm::InputTag EcalTrigTowerDetIdCollection1_;
-edm::InputTag EcalTrigTowerDetIdCollection2_;
 edm::InputTag EcalElectronicsIdCollection1_;
 edm::InputTag EcalElectronicsIdCollection2_;
 edm::InputTag EcalElectronicsIdCollection3_;
