@@ -15,7 +15,7 @@
 //
 // Original Author:  G. Bruno
 //         Created:  Mon Nov 20 10:04:31 CET 2006
-// $Id: SiStripDetInfoFileReader.h,v 1.1 2007/07/09 11:24:02 gbruno Exp $
+// $Id: SiStripDetInfoFileReader.h,v 1.2 2007/10/18 08:45:23 giordano Exp $
 //
 //
 
@@ -30,6 +30,17 @@ class SiStripDetInfoFileReader  {
 
 public:
 
+  struct DetInfo{
+    
+    DetInfo(){};
+    DetInfo(unsigned short _nApvs, double _stripLength, float _thickness):
+    nApvs(_nApvs),stripLength(_stripLength),thickness(_thickness){};
+
+    unsigned short nApvs;
+    double stripLength;
+    float thickness;
+  };
+
   explicit SiStripDetInfoFileReader(){};
   explicit SiStripDetInfoFileReader(std::string filePath);
   explicit SiStripDetInfoFileReader(const SiStripDetInfoFileReader&);
@@ -38,12 +49,13 @@ public:
 
   SiStripDetInfoFileReader& operator=(const SiStripDetInfoFileReader &copy);
 
-  const std::vector<uint32_t> & getAllDetIds() const;
+  const std::vector<uint32_t> & getAllDetIds() const {return detIds_;}
 
-  const std::pair<unsigned short, double> & getNumberOfApvsAndStripLength(uint32_t detId) const;
+  const std::pair<unsigned short, double>  getNumberOfApvsAndStripLength(uint32_t detId) const;
 
   const float & getThickness(uint32_t detId) const;
 
+  const std::map<uint32_t, DetInfo > & getAllData() const {return detData_;}
 
 
 private:
@@ -52,8 +64,9 @@ private:
   std::ifstream inputFile_; 
   //  std::string filePath_;
 
-  std::map<uint32_t, std::pair<unsigned short, double> > detData_;
-  std::map<uint32_t, float > detThickness_;
+  std::map<uint32_t, DetInfo> detData_;
+  //  std::map<uint32_t, std::pair<unsigned short, double> > detData_;
+  //std::map<uint32_t, float > detThickness_;
   std::vector<uint32_t> detIds_;
 
 };

@@ -3,7 +3,7 @@
 // Class:      SiStripDetInfoFileReader
 // Original Author:  G. Bruno
 //         Created:  Mon May 20 10:04:31 CET 2007
-// $Id: SiStripDetInfoFileReader.cc,v 1.1 2007/07/09 11:24:03 gbruno Exp $
+// $Id: SiStripDetInfoFileReader.cc,v 1.2 2007/10/18 08:45:23 giordano Exp $
 
 #include "CalibTracker/SiStripCommon/interface/SiStripDetInfoFileReader.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -15,14 +15,12 @@ using namespace std;
 
 SiStripDetInfoFileReader& SiStripDetInfoFileReader::operator=(const SiStripDetInfoFileReader &copy) {
   detData_=copy.detData_;
-  detThickness_=copy.detThickness_;
   detIds_=copy.detIds_;
   return *this;  
 }
 
 SiStripDetInfoFileReader::SiStripDetInfoFileReader(const SiStripDetInfoFileReader& copy) {
   detData_=copy.detData_;
-  detThickness_=copy.detThickness_;
   detIds_=copy.detIds_;
 }
 
@@ -33,7 +31,6 @@ SiStripDetInfoFileReader::SiStripDetInfoFileReader(std::string filePath) {
 //   }
 
   detData_.clear();
-  detThickness_.clear();
   detIds_.clear();
 
   inputFile_.open(filePath.c_str());
@@ -58,15 +55,10 @@ SiStripDetInfoFileReader::SiStripDetInfoFileReader(std::string filePath) {
 
 	//       	edm::LogInfo("SiStripDetInfoFileReader::SiStripDetInfoFileReader") << detid <<" " <<numberOfAPVs <<" " <<stripLength << " "<< thickness<< endl;
 
-	std::map<uint32_t, std::pair<unsigned short, double> >::const_iterator it = detData_.find(detid);
+	std::map<uint32_t, DetInfo >::const_iterator it = detData_.find(detid);
 
-	std::map<uint32_t, float >::const_iterator it1 = detThickness_.find(detid);
-      
-	if(it==detData_.end() && it1 == detThickness_.end() ){
-
-	  detData_[detid]=pair<unsigned short, double>(numberOfAPVs, stripLength);
-	  detThickness_[detid]=thickness;
-
+	if(it==detData_.end()){
+	  detData_[detid]=DetInfo(numberOfAPVs, stripLength,thickness);
 	}
 	else{
 
@@ -116,22 +108,13 @@ SiStripDetInfoFileReader::~SiStripDetInfoFileReader(){
 }
 
 
+const std::pair<unsigned short, double>  SiStripDetInfoFileReader::getNumberOfApvsAndStripLength(uint32_t detId) const{
 
-const std::vector<uint32_t> & SiStripDetInfoFileReader::getAllDetIds() const{
-
-  return detIds_;
-
-}
-
-
-
-const std::pair<unsigned short, double> & SiStripDetInfoFileReader::getNumberOfApvsAndStripLength(uint32_t detId) const{
-
-  std::map<uint32_t, std::pair<unsigned short, double> >::const_iterator it = detData_.find(detId);
+  std::map<uint32_t, DetInfo >::const_iterator it = detData_.find(detId);
 
   if(it!=detData_.end()){
 
-    return (*it).second; 
+    return std::pair<unsigned short, double>(it->second.nApvs,it->second.stripLength); 
 
   }
   else{
@@ -144,16 +127,13 @@ const std::pair<unsigned short, double> & SiStripDetInfoFileReader::getNumberOfA
 
 }
 
-
-
-
 const float & SiStripDetInfoFileReader::getThickness(uint32_t detId) const{
 
-  std::map<uint32_t, float >::const_iterator it = detThickness_.find(detId);
+  std::map<uint32_t, DetInfo >::const_iterator it = detData_.find(detId);
 
-  if(it!=detThickness_.end()){
+  if(it!=detData_.end()){
 
-    return (*it).second; 
+    return it->second.thickness; 
 
   }
   else{
