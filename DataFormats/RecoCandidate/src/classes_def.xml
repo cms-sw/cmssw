@@ -38,6 +38,11 @@
   </class>
   <class name="edm::Wrapper<edm::AssociationMap<edm::OneToValue<std::vector<reco::RecoEcalCandidate>, float, unsigned int> > >" />
   <class name="edm::helpers::Key<edm::RefProd<std::vector<reco::RecoEcalCandidate> > >" />
+  <class name="edm::AssociationMap<edm::OneToOne<std::vector<reco::Track>,edm::OwnVector<reco::Candidate,edm::ClonePolicy<reco::Candidate> >,unsigned int> >">
+     <field name="transientMap_" transient="true" />
+  </class>
+  <class name="edm::helpers::KeyVal<edm::RefProd<std::vector<reco::Track> >,edm::RefProd<edm::OwnVector<reco::Candidate,edm::ClonePolicy<reco::Candidate> > > >" />
+  <class name="edm::Wrapper<edm::AssociationMap<edm::OneToOne<std::vector<reco::Track>,edm::OwnVector<reco::Candidate,edm::ClonePolicy<reco::Candidate> >,unsigned int> > >" />
 
 </lcgdict>
  

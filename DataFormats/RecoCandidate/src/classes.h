@@ -12,6 +12,7 @@
 #include "DataFormats/RecoCandidate/interface/RecoCaloTowerCandidate.h"
 #include "DataFormats/RecoCandidate/interface/RecoEcalCandidateIsolation.h"
 #include "DataFormats/RecoCandidate/interface/FitResult.h"
+#include "DataFormats/RecoCandidate/interface/TrackCandidateAssociation.h"
 #include "DataFormats/RecoCandidate/interface/CaloRecHitCandidate.h"
 #include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
 #include "DataFormats/HcalDetId/interface/HcalSubdetector.h" 
@@ -50,5 +51,7 @@ namespace {
     edm::RefToBase<CaloRecHit> rbh3;
 
     reco::FitResultCollection fr1;
+
+    edm::Wrapper<reco::TrackCandidateAssociation> tca1;
   }
 }
