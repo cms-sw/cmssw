@@ -1,4 +1,4 @@
-// $Id: $
+// $Id: MonitorElementsDb.h,v 1.1 2006/06/28 10:46:17 benigno Exp $
 
 #ifndef MonitorElementsDb_H
 #define MonitorElementsDb_H
@@ -7,8 +7,8 @@
   \file MonitorElementsDb.h
   \brief Generate a Monitor Element from DB data
   \author B. Gobbo 
-  \version $Revision: $
-  \date $Date: $
+  \version $Revision: 1.1 $
+  \date $Date: 2006/06/28 10:46:17 $
 */
 
 
@@ -33,6 +33,7 @@
 class MonitorElementsDb{
 
   friend class EcalBarrelMonitorDbModule;
+  friend class EcalEndcapMonitorDbModule;
 
  public:
 
