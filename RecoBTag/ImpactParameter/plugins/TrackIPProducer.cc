@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea Rizzi
 //         Created:  Thu Apr  6 09:56:23 CEST 2006
-// $Id: TrackIPProducer.cc,v 1.9 2007/10/12 09:31:37 arizzi Exp $
+// $Id: TrackIPProducer.cc,v 1.10 2007/10/24 09:07:32 fwyzard Exp $
 //
 //
 
@@ -188,7 +188,7 @@ TrackIPProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
          trackIp.ip3d=IPTools::signedImpactParameter3D(transientTrack,direction,*pv).second;
          trackIp.ip2d=IPTools::signedTransverseImpactParameter(transientTrack,direction,*pv).second;
          TrajectoryStateOnSurface closest = IPTools::closestApproachToJet(transientTrack.impactPointState(), *pv, direction,transientTrack.field());
-         if (closest.isValid())  trackIp.closestToJetAxis = closest.globalPosition();
+         if(closest.isValid())  trackIp.closestToJetAxis=closest.globalPosition();
          //TODO:cross check if it is the same using other methods
          trackIp.distanceToJetAxis=IPTools::jetTrackDistance(transientTrack,direction,*pv).second.value();
        
