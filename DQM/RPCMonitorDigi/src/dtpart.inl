@@ -44,12 +44,14 @@ if(all4DSegments->size()>0){
 	std::cout<<"\t \t yes"<<std::endl;
 	std::cout<<"\t \t DT Segment Dimension "<<segment->dimension()<<std::endl; 
 
-	Xo=segmentPosition.x();
-	Yo=segmentPosition.y();
-	dx=segmentDirection.x();
-	dy=segmentDirection.y();
-	dz=segmentDirection.z();
+	float Xo=segmentPosition.x();
+	float Yo=segmentPosition.y();
+	float dx=segmentDirection.x();
+	float dy=segmentDirection.y();
+	float dz=segmentDirection.z();
 	std::cout<<"\t \t Loop over all the rolls asociated to this DT"<<std::endl;
+	if(dtSector==13)dtSector=4;
+	if(dtSector==14)dtSector=10;
 	std::set<RPCDetId> rollsForThisDT = rollstoreDT[DTStationIndex(0,dtWheel,dtSector,dtStation)];
 	//Loop over all the rolls
 	
@@ -74,9 +76,9 @@ if(all4DSegments->size()>0){
 	  
 	  if(fabs(D)<MaxD){ 
 	    std::cout<<"\t \t \t yes"<<std::endl;
-	    X=Xo+dx*D/dz;
-	    Y=Yo+dy*D/dz;
-	    Z=D;
+	    float X=Xo+dx*D/dz;
+	    float Y=Yo+dy*D/dz;
+	    float Z=D;
 	    
 	    const RectangularStripTopology* top_= dynamic_cast<const RectangularStripTopology*> (&(rollasociated->topology()));
 	    LocalPoint xmin = top_->localPosition(0.);
