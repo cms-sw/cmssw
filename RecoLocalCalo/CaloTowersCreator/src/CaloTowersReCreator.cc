@@ -34,16 +34,19 @@ CaloTowersReCreator::CaloTowersReCreator(const edm::ParameterSet& conf) :
   caloLabel_(conf.getParameter<edm::InputTag>("caloLabel")),
   allowMissingInputs_(false)
 {
-  EBEScale=ctEScales.EBScale; 
-  EEEScale=ctEScales.EEScale; 
-  HBEScale=ctEScales.HBScale; 
-  HESEScale=ctEScales.HESScale; 
-  HEDEScale=ctEScales.HEDScale; 
-  HOEScale=ctEScales.HOScale; 
-  HF1EScale=ctEScales.HF1Scale; 
-  HF2EScale=ctEScales.HF2Scale; 
+  EBEScale=conf.getUntrackedParameter<double>("EBEScale",50.);
+  EEEScale=conf.getUntrackedParameter<double>("EEEScale",50.);
+  HBEScale=conf.getUntrackedParameter<double>("HBEScale",50.);
+  HESEScale=conf.getUntrackedParameter<double>("HESEScale",50.);
+  HEDEScale=conf.getUntrackedParameter<double>("HEDEScale",50.);
+  HOEScale=conf.getUntrackedParameter<double>("HOEScale",50.);
+  HF1EScale=conf.getUntrackedParameter<double>("HF1EScale",50.);
+  HF2EScale=conf.getUntrackedParameter<double>("HF2EScale",50.);
   if (ctEScales.instanceLabel=="") produces<CaloTowerCollection>();
   else produces<CaloTowerCollection>(ctEScales.instanceLabel);
+  //  two notes:
+  //  1) all this could go in a pset
+  //  2) not clear the instanceLabel thing
 }
 
 void CaloTowersReCreator::produce(edm::Event& e, const edm::EventSetup& c) {
