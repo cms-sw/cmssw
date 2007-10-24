@@ -1,19 +1,39 @@
 #include "CalibTracker/SiStripQuality/plugins/SiStripQualityHotStripIdentifier.h"
 
+#include "CalibFormats/SiStripObjects/interface/SiStripQuality.h"
 #include "CalibTracker/SiStripCommon/interface/SiStripDetInfoFileReader.h"
 
+#include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2D.h"
+#include "DataFormats/TrackerRecHit2D/interface/ProjectedSiStripRecHit2D.h"
+#include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2D.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
+#include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
 #include <iostream>
 #include <fstream>
+#include <sstream>
+
+//Insert here the include to the algos
+#include "CalibTracker/SiStripQuality/interface/SiStripHotStripAlgorithmFromClusterOccupancy.h"
 
 
-SiStripQualityHotStripIdentifier::SiStripQualityHotStripIdentifier(const edm::ParameterSet& iConfig) : ConditionDBWriter<SiStripBadStrip>::ConditionDBWriter<SiStripBadStrip>(iConfig){
 
-  edm::LogInfo("SiStripQualityHotStripIdentifier") << " ctor ";
-  fp_ = iConfig.getUntrackedParameter<edm::FileInPath>("file",edm::FileInPath("CalibTracker/SiStripCommon/data/SiStripDetInfo.dat"));
-  BadModuleList_ = iConfig.getUntrackedParameter<std::vector<uint32_t> >("BadModuleList");
-  printdebug_ = iConfig.getUntrackedParameter<bool>("printDebug",false);
-
+SiStripQualityHotStripIdentifier::SiStripQualityHotStripIdentifier(const edm::ParameterSet& iConfig) : 
+  ConditionDBWriter<SiStripBadStrip>::ConditionDBWriter<SiStripBadStrip>(iConfig),
+  conf_(iConfig), 
+  fp_(iConfig.getUntrackedParameter<edm::FileInPath>("file",edm::FileInPath("CalibTracker/SiStripCommon/data/SiStripDetInfo.dat"))),
+  Cluster_src_(iConfig.getParameter<edm::InputTag>( "Cluster_src" )),
+  Track_src_(iConfig.getUntrackedParameter<edm::InputTag>( "Track_src" )),
+  tracksCollection_in_EventTree(iConfig.getUntrackedParameter<bool>("RemoveTrackClusters",false))
+{
+  edm::LogInfo("SiStripQualityHotStripIdentifier") << " ctor ";  
   reader = new SiStripDetInfoFileReader(fp_.fullPath());  
+
+  edm::ParameterSet pset=iConfig.getUntrackedParameter< edm::ParameterSet > ("ClusterSelection",edm::ParameterSet());
+  MinClusterWidth_=pset.getUntrackedParameter<uint32_t>("minWidth",1);
+  MaxClusterWidth_=pset.getUntrackedParameter<uint32_t>("maxWidth",1000);
+
+  bookHistos();
 }
 
 
@@ -25,33 +45,153 @@ SiStripBadStrip* SiStripQualityHotStripIdentifier::getNewObject(){
 
   edm::LogInfo("SiStripQualityHotStripIdentifier") <<"SiStripQualityHotStripIdentifier::getNewObject called"<<std::endl;
   
-  SiStripBadStrip* obj = new SiStripBadStrip();
+  SiStripQuality* qobj = new SiStripQuality();
+  
+  edm::ParameterSet parameters=conf_.getParameter<edm::ParameterSet>("AlgoParameters");
+  std::string AlgoName = parameters.getParameter<std::string>("AlgoName");
+  if (AlgoName=="SiStripHotStripAlgorithmFromClusterOccupancy"){
+    
+    edm::LogInfo("SiStripQualityHotStripIdentifier") <<" [SiStripQualityHotStripIdentifier::getNewObject] call to SiStripHotStripAlgorithmFromClusterOccupancy"<<std::endl;
 
-  /*  
-  unsigned int firstBadStrip=0;
-  unsigned short NconsecutiveBadStrips;
-  unsigned int theBadStripRange; 
+    SiStripHotStripAlgorithmFromClusterOccupancy theIdentifier;
+    theIdentifier.setProbabilityThreshold(parameters.getUntrackedParameter<double>("ProbabilityThreshold",1.E-7));
+    theIdentifier.setMinNumEntries(parameters.getUntrackedParameter<uint32_t>("MinNumEntries",100));
+    theIdentifier.setMinNumEntriesPerStrip(parameters.getUntrackedParameter<uint32_t>("MinNumEntriesPerStrip",5));
 
-  for(std::vector<uint32_t>::const_iterator it=BadModuleList_.begin(); it!=BadModuleList_.end(); ++it){
-    
-    std::vector<unsigned int> theSiStripVector;
-    
-    NconsecutiveBadStrips=reader->getNumberOfApvsAndStripLength(*it).first*128;
-    theBadStripRange = obj->encode(firstBadStrip,NconsecutiveBadStrips);
-    if (printdebug_)
-      edm::LogInfo("SiStripQualityHotStripIdentifier") << " BadModule " << *it << " \t"
-						   << " firstBadStrip " << firstBadStrip << "\t "
-						   << " NconsecutiveBadStrips " << NconsecutiveBadStrips << "\t "
-						   << " packed integer " << std::hex << theBadStripRange  << std::dec
-						   << std::endl; 	    
-    
-    theSiStripVector.push_back(theBadStripRange);
-    SiStripBadStrip::Range range(theSiStripVector.begin(),theSiStripVector.end());
-    if ( ! obj->put(*it,range) )
-      edm::LogError("SiStripQualityHotStripIdentifier")<<"[SiStripQualityHotStripIdentifier::analyze] detid already exists"<<std::endl;
+    theIdentifier.extractBadStrips(qobj,ClusterPositionHistoMap);
+  } else {
+    edm::LogError("SiStripQualityHotStripIdentifier") <<" [SiStripQualityHotStripIdentifier::getNewObject] call for a unknow HotStrip identification algoritm"<<std::endl;
   }
-  */
-  return obj;
+
+  edm::LogInfo("SiStripQualityHotStripIdentifier") <<" [SiStripQualityHotStripIdentifier::getNewObject] copy SiStripObject in SiStripBadStrip"<<std::endl;
+  SiStripBadStrip* bobj=new SiStripBadStrip();//static_cast<SiStripBadStrip*>(obj);
+
+  std::stringstream ss;  
+  
+  SiStripBadStrip::RegistryIterator rIter=qobj->getRegistryVectorBegin();
+  SiStripBadStrip::RegistryIterator rIterEnd=qobj->getRegistryVectorEnd();
+  for(;rIter!=rIterEnd;++rIter){
+    ss<< " detid "<< rIter->detid<<std::endl;
+    SiStripBadStrip::Range range(qobj->getDataVectorBegin()+rIter->ibegin,qobj->getDataVectorBegin()+rIter->iend);
+    if ( ! bobj->put(rIter->detid,range) )
+      edm::LogError("SiStripQualityHotStripIdentifier")<<"[SiStripQualityHotStripIdentifier::getNewObject] detid already exists"<<std::endl;
+  }
+  edm::LogInfo("SiStripQualityHotStripIdentifier") <<" [SiStripQualityHotStripIdentifier::getNewObject] " << ss.str() << std::endl;
+  return bobj;
 }
 
 
+void SiStripQualityHotStripIdentifier::resetHistos(){
+  SiStrip::QualityHistosMap::iterator it=ClusterPositionHistoMap.begin();
+  SiStrip::QualityHistosMap::iterator iEnd=ClusterPositionHistoMap.end();
+  for (;it!=iEnd;++it){
+    it->second->Reset();
+  }
+}
+
+void SiStripQualityHotStripIdentifier::bookHistos(){
+  char hname[1024];
+  std::map<uint32_t, SiStripDetInfoFileReader::DetInfo >::const_iterator it =reader->getAllData().begin();
+  std::map<uint32_t, SiStripDetInfoFileReader::DetInfo >::const_iterator iEnd =reader->getAllData().end();
+  for(; it!=iEnd; ++it){
+    
+    sprintf(hname,"h_%d",it->first);
+    SiStrip::QualityHistosMap::iterator ref=ClusterPositionHistoMap.find(it->first);
+    if (ref==ClusterPositionHistoMap.end())
+      ClusterPositionHistoMap[it->first]=boost::shared_ptr<TH1F>(new TH1F(hname,hname,it->second.nApvs*128,-0.5,it->second.nApvs*128-0.5));
+    else 
+      edm::LogError("SiStripQualityHotStripIdentifier") <<" [SiStripQualityHotStripIdentifier::bookHistos] DetId " << it->first << " already found in map. Ignoring new data"<<std::endl;
+  }
+}
+
+void SiStripQualityHotStripIdentifier::fillHisto(uint32_t detid,float value){
+  
+  SiStrip::QualityHistosMap::iterator ref=ClusterPositionHistoMap.find(detid);
+  if (ref!=ClusterPositionHistoMap.end())
+    ref->second->Fill(value);
+  else
+    edm::LogError("SiStripQualityHotStripIdentifier") <<" [SiStripQualityHotStripIdentifier::fillHisto] Histogram not found in the list for DetId " << detid << " Ignoring data value "<< value <<std::endl;
+}
+
+
+void SiStripQualityHotStripIdentifier::algoAnalyze(const edm::Event& e, const edm::EventSetup& eSetup){
+
+  edm::Handle< edm::DetSetVector<SiStripCluster> >  dsv_SiStripCluster;
+  e.getByLabel( Cluster_src_, dsv_SiStripCluster);    
+      
+  edm::Handle<reco::TrackCollection> trackCollection;
+  if(tracksCollection_in_EventTree){
+    try{
+      e.getByLabel(Track_src_, trackCollection);
+    } catch ( cms::Exception& er ) {
+      edm::LogError("SiStripQualityHotStripIdentifier")<<" [SiStripQualityHotStripIdentifier::algoAnalyze] missing trackCollection with label " << Track_src_ << " " << er.what()<<std::endl;
+      tracksCollection_in_EventTree=false;
+    } catch ( ... ) {
+      edm::LogError("SiStripQualityHotStripIdentifier")<<" [SiStripQualityHotStripIdentifier::algoAnalyze] missing trackCollection with label " << Track_src_ << std::endl;
+      tracksCollection_in_EventTree=false;
+    }
+  }
+
+  std::set<const void*> vPSiStripCluster;    
+  //Perform track study
+  if (tracksCollection_in_EventTree){
+   
+    const reco::TrackCollection tC = *(trackCollection.product());
+    int i=0;
+    for (reco::TrackCollection::const_iterator track=tC.begin(); track!=tC.end(); track++){
+      LogTrace("SiStripQualityHotStripIdentifier")
+	<< "Track number "<< i+1 
+	<< "\n\tmomentum: " << track->momentum()
+	<< "\n\tPT: " << track->pt()
+	<< "\n\tvertex: " << track->vertex()
+	<< "\n\timpact parameter: " << track->d0()
+	<< "\n\tcharge: " << track->charge()
+	<< "\n\tnormalizedChi2: " << track->normalizedChi2() 
+	<<"\n\tFrom EXTRA : "
+	<<"\n\t\touter PT "<< track->outerPt()<<std::endl;
+
+      //Loop on rechits
+      for (trackingRecHit_iterator it = track->recHitsBegin();  it != track->recHitsEnd(); ++it){
+	const TrackingRecHit* recHit = &(**it);
+	
+	if (!recHit->isValid()){
+	  LogTrace("SiStripQualityHotStripIdentifier") <<"\t\t Invalid Hit "<<std::endl;
+	  continue;
+	}
+	
+	const SiStripRecHit2D* singleHit=dynamic_cast<const SiStripRecHit2D*>(recHit);
+	const SiStripMatchedRecHit2D* matchedHit=dynamic_cast<const SiStripMatchedRecHit2D*>(recHit);
+	const ProjectedSiStripRecHit2D* projectedHit=dynamic_cast<const ProjectedSiStripRecHit2D*>(recHit);
+
+	if(matchedHit){
+	  vPSiStripCluster.insert((void *)&*(matchedHit->monoHit()->cluster())); 
+	  vPSiStripCluster.insert((void *)&*(matchedHit->stereoHit()->cluster()));         
+	} else if(projectedHit){
+	  vPSiStripCluster.insert((void *)&*(projectedHit->originalHit().cluster())); 
+	} else if(singleHit){
+          vPSiStripCluster.insert((void*)&*(singleHit->cluster())); 
+	}else{
+	  LogTrace("SiStripQualityHotStripIdentifier") << "NULL hit" << std::endl;
+	}
+      }
+    }
+  }
+	
+  std::stringstream ss;   
+  //Loop on Det Clusters
+  edm::DetSetVector<SiStripCluster>::const_iterator DSViter=dsv_SiStripCluster->begin();
+  for (; DSViter!=dsv_SiStripCluster->end();DSViter++){
+    edm::DetSet<SiStripCluster>::const_iterator ClusIter = DSViter->data.begin();
+    edm::DetSet<SiStripCluster>::const_iterator ClusIterEnd = DSViter->data.end();
+    for(; ClusIter!=ClusIterEnd; ++ClusIter) {    
+      if (MinClusterWidth_<=ClusIter->amplitudes().size() && ClusIter->amplitudes().size()<=MaxClusterWidth_) {
+	if (std::find(vPSiStripCluster.begin(),vPSiStripCluster.end(),(void*) &*ClusIter) == vPSiStripCluster.end()){
+	  if ( edm::isDebugEnabled() ) 
+	    ss << " adding cluster to histo for detid " << DSViter->id << " with barycenter "<< ClusIter->barycenter() << std::endl;
+	  fillHisto(DSViter->id,ClusIter->barycenter());
+	}
+      }
+    }
+  }
+  LogTrace("SiStripQualityHotStripIdentifier") << ss.str();
+}
