@@ -112,8 +112,6 @@ RPCSimAverage::RPCSimAverage(const edm::ParameterSet& config) :
 
 RPCSimAverage::~RPCSimAverage(){
   delete infile;
-//   delete flatDistribution; 
-  //  delete poissonDistribution_;
 }
 
 int RPCSimAverage::getClSize(float posX)
@@ -264,7 +262,7 @@ void RPCSimAverage::simulateNoise(const RPCRoll* roll)
 
   for (int i = 0; i < N_hits; i++ ){
 
-    flatDistribution = new CLHEP::RandFlat(rndEngine, nstrips);
+    flatDistribution = new CLHEP::RandFlat(rndEngine, 1,nstrips);
     int strip = static_cast<int>(flatDistribution->fire());
     int time_hit;
 

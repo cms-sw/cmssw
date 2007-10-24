@@ -126,6 +126,8 @@ RPCSimParam::simulate(const RPCRoll* roll,
   }
 }
 
+RPCSimParam::~RPCSimParam(){}
+
 void RPCSimParam::simulateNoise(const RPCRoll* roll)
 {
 
@@ -152,15 +154,20 @@ void RPCSimParam::simulateNoise(const RPCRoll* roll)
     }
   
   double ave = rate*nbxing*gate*area*1.0e-9;
-  
-  N_hits = RandPoissonQ::shoot(ave);
+  poissonDistribution_ = new CLHEP::RandPoissonQ(rndEngine, ave);
+  N_hits = poissonDistribution_->fire();
+
   for (int i = 0; i < N_hits; i++ ){
-      int strip = RandFlat::shootInt(nstrips);
-      int time_hit = static_cast<int>(RandFlat::shoot((nbxing*gate))/gate);
-      std::pair<int, int> digi(strip,time_hit);
-      strips.insert(digi);
+
+    flatDistribution = new CLHEP::RandFlat(rndEngine, 1, nstrips);
+    int strip = static_cast<int>(flatDistribution->fire());
+    int time_hit;
+
+    flatDistribution = new CLHEP::RandFlat(rndEngine, (nbxing*gate)/gate);
+    time_hit = (static_cast<int>(flatDistribution->fire())) - nbxing/2;
+    
+    std::pair<int, int> digi(strip,time_hit);
+    strips.insert(digi);
   }
+
 }
-
-
-
