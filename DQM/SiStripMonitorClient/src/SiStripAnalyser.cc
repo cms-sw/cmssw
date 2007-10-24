@@ -1,8 +1,8 @@
 /*
  * \file SiStripAnalyser.cc
  * 
- * $Date: 2007/10/19 17:42:25 $
- * $Revision: 1.12 $
+ * $Date: 2007/10/20 08:51:37 $
+ * $Revision: 1.13 $
  * \author  S. Dutta INFN-Pisa
  *
  */
@@ -53,7 +53,7 @@ SiStripAnalyser::SiStripAnalyser(const edm::ParameterSet& ps) :
 
   tkMapFrequency_   = -1;
   summaryFrequency_ = -1;
-  fileSaveFrequency_ = parameters.getUntrackedParameter<int>("FileSaveFrequency",50); 
+  fileSaveFrequency_ = parameters_.getUntrackedParameter<int>("FileSaveFrequency",50); 
 
   // instantiate Monitor UI without connecting to any monitoring server
   // (i.e. "standalone mode")
@@ -93,9 +93,9 @@ void SiStripAnalyser::beginJob(const edm::EventSetup& eSetup){
   cout  << " Update Frequencies are " << tkMapFrequency_ << " " 
                                       << summaryFrequency_ << endl ;
 
-          collationFlag_ = parameters.getUntrackedParameter<int>("CollationtionFlag",0);
-         outputFilePath_ = parameters.getUntrackedParameter<string>("OutputFilePath",".");
-  staticUpdateFrequency_ = parameters.getUntrackedParameter<int>("StaticUpdateFrequency",10);
+          collationFlag_ = parameters_.getUntrackedParameter<int>("CollationtionFlag",0);
+         outputFilePath_ = parameters_.getUntrackedParameter<string>("OutputFilePath",".");
+  staticUpdateFrequency_ = parameters_.getUntrackedParameter<int>("StaticUpdateFrequency",10);
   // Get Fed cabling
   eSetup.get<SiStripFedCablingRcd>().get(fedCabling_);
   trackerMapCreator_ = new SiStripTrackerMapCreator();
@@ -106,9 +106,9 @@ void SiStripAnalyser::beginJob(const edm::EventSetup& eSetup){
 //
 // -- Begin Run
 //
-void SiStripAnalyser::beginRun(const edm::EventSetup& eSetup) {
+void SiStripAnalyser::beginRun(const Run& run, const edm::EventSetup& eSetup) {
   // call DQMAnalyzer in the beginning 
-  DQMAnalyzer::beginRun(eSetup);
+  DQMAnalyzer::beginRun(run, eSetup);
 
   // then do your thing
   edm::LogInfo ("SiStripAnalyser") <<"SiStripAnalyser:: Begining of Run";
@@ -138,7 +138,7 @@ void SiStripAnalyser::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, ed
 
   int nLumiSecs = DQMAnalyzer::getNumLumiSecs();
 
-  if ( nLumiSecs%PSprescale != 0 ) return;
+  if (nLumiSecs%prescaleLS_ != 0 ) return;
 
   eSetup.get<SiStripFedCablingRcd>().get(fedCabling_);
  
@@ -155,8 +155,8 @@ void SiStripAnalyser::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, ed
   // -- Create TrackerMap  according to the frequency
   if (tkMapFrequency_ != -1 && nLumiSecs%tkMapFrequency_ == 1) {
     cout << " Creating Tracker Map " << endl;
-    //    trackerMapCreator_->create(dbe);
-    trackerMapCreator_->create(fedCabling_, dbe);
+    //    trackerMapCreator_->create(dbe_);
+    trackerMapCreator_->create(fedCabling_, dbe_);
     sistripWebInterface_->setTkMapFlag(true);
 
   }
@@ -180,8 +180,7 @@ void SiStripAnalyser::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, ed
 //
 void SiStripAnalyser::endRun(edm::Run const& run, edm::EventSetup const& eSetup){
   edm::LogInfo ("SiStripAnalyser") <<"SiStripAnalyser:: End of Run";
-  //  DQMAnalyzer::endRun);
-  DQMAnalyzer::save("endRun");
+  DQMAnalyzer::endRun(run, eSetup);
 }
 //
 // -- End Job

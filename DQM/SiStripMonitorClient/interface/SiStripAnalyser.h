@@ -4,8 +4,8 @@
 /** \class SiStripAnalyser
  * *
  *  SiStrip SiStripAnalyser
- *  $Date: 2007/09/27 22:31:51 $
- *  $Revision: 1.9 $
+ *  $Date: 2007/10/19 17:42:24 $
+ *  $Revision: 1.10 $
  *  \author  S. Dutta INFN-Pisa
  *   
  */
@@ -45,7 +45,7 @@ protected:
   void beginJob(const edm::EventSetup& eSetup);
 
   /// BeginRun
-  void beginRun(const edm::EventSetup& eSetup);
+  void beginRun(const edm::Run& run, const edm::EventSetup& eSetup);
 
   /// Analyze
   void analyze(const edm::Event& e, const edm::EventSetup& eSetup);
