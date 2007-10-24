@@ -1,5 +1,5 @@
-#ifndef ESPEDESTALTBCLIENT_H
-#define ESPEDESTALTBCLIENT_H
+#ifndef ESTDCTBCLIENT_H
+#define ESTDCTBCLIENT_H
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include <FWCore/Framework/interface/EDAnalyzer.h>
@@ -14,8 +14,6 @@
 #include "DQMServices/Daemon/interface/MonitorDaemon.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
-#include "TF1.h"
-
 #include <memory>
 #include <iostream>
 #include <fstream>
@@ -23,15 +21,18 @@
 #include <vector>
 #include <map>
 
+#include "TH1F.h"
+#include "TH2F.h"
+
 using namespace edm;
 using namespace std;
 
-class ESPedestalTBClient: public EDAnalyzer{
+class ESTDCTBClient: public EDAnalyzer{
 
  public:
   
-  ESPedestalTBClient(const ParameterSet& ps);
-  virtual ~ESPedestalTBClient();
+  ESTDCTBClient(const ParameterSet& ps);
+  virtual ~ESTDCTBClient();
   
  protected:
   
@@ -42,7 +43,9 @@ class ESPedestalTBClient: public EDAnalyzer{
   void cleanup();
   void doQT();
 
-  string getMEName(const int & plane, const int & row, const int & col, const int & strip);
+  string getMEName(const string & meName);
+  string getMEName(const int & plane, const int & slot);
+
   void htmlOutput(int run, string htmlDir, string htmlName);
 
  private:
@@ -59,23 +62,11 @@ class ESPedestalTBClient: public EDAnalyzer{
   int run_;
   bool sta_;
   bool init_;
-  int gain_;
-  TF1 *fg;
 
   DaqMonitorBEInterface* dbe_;
 
-  MonitorElement* meMean_;
-  MonitorElement* meRMS_;
-  MonitorElement* meFitMean_;
-  MonitorElement* meFitRMS_;
-  MonitorElement* mePedCol_[2];
-  MonitorElement* mePedMeanRMS_[2][4][4];
-  MonitorElement* mePedRMS_[2][4][4];
-  MonitorElement* mePedFitMeanRMS_[2][4][4];
-  MonitorElement* mePedFitRMS_[2][4][4];
+  TH1F *hADC_[2][3];
 
-  double noisy_threshold_[2];
-  double bad_threshold_[2];
 };
 
 #endif

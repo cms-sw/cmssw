@@ -1,5 +1,5 @@
-#ifndef ESTDCCTTask_H
-#define ESTDCCTTask_H
+#ifndef ESTDCTBTask_H
+#define ESTDCTBTask_H
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
@@ -35,12 +35,12 @@
 using namespace std;
 using namespace edm;
 
-class ESTDCCTTask: public EDAnalyzer{
+class ESTDCTBTask: public EDAnalyzer{
 
  public:
 
-  ESTDCCTTask(const ParameterSet& ps);
-  virtual ~ESTDCCTTask();
+  ESTDCTBTask(const ParameterSet& ps);
+  virtual ~ESTDCTBTask();
 
  protected:
 
@@ -56,20 +56,13 @@ class ESTDCCTTask: public EDAnalyzer{
 
   DaqMonitorBEInterface* dbe_;
 
-  MonitorElement* meTDC_;
-  MonitorElement* meEloss_;
-  MonitorElement* meTDCADC_[2][6][3];
-  MonitorElement* meTDCADCT_[2][6];
+  MonitorElement* meADC_[2][3];
 
   string label_;
   string instanceName_;
-  string pedestalFile_;
 
   bool sta_;
   bool init_;
-
-  TFile *ped_;
-  TH1F* hist_[2][6][2][5];
 
 };
 

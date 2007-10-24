@@ -22,6 +22,7 @@
 
 #include <TROOT.h>
 #include <TFile.h>
+#include <TTree.h>
 #include <TF1.h>
 #include <TH1.h>
 #include <TH2.h>
@@ -47,6 +48,8 @@ class ESPedestalCMTBTask: public EDAnalyzer{
   void endJob(void);
   void setup(void);
   void cleanup(void);
+  void DoCommonModeItr(float data[], float *cm);
+  void DoCommonMode32(float det_data[], float *cm1);
   void DoCommonMode(float det_data[], float *cm1, float *cm2);
 
  private:
@@ -55,8 +58,17 @@ class ESPedestalCMTBTask: public EDAnalyzer{
 
   DaqMonitorBEInterface* dbe_;
 
-  MonitorElement* mePedestalCM_[2][4][4][32];
-  MonitorElement* meSensorCM_[2][4][4];
+  MonitorElement* mePedestalCM_S0_[2][4][4][32];
+  MonitorElement* mePedestalCM_S1_[2][4][4][32];
+  MonitorElement* mePedestalCM_S2_[2][4][4][32];
+
+  MonitorElement* meSensorCM_S0_[2][4][4];
+  MonitorElement* meSensorCM_S1_[2][4][4];
+  MonitorElement* meSensorCM_S2_[2][4][4];
+
+  MonitorElement* meADC_[2][3];
+  MonitorElement* meADCZS_[2][3];
+  MonitorElement* meOccupancy2D_[2][3];
 
   TH1F* hist_[2][4][4];
 
@@ -64,10 +76,20 @@ class ESPedestalCMTBTask: public EDAnalyzer{
   string instanceName_;
   string pedestalFile_;
 
+  TFile* ped_;
+
+//  TFile* test_;
+//  TTree* tree_;
+
+  bool doCM_;
   bool sta_;
   bool init_;
 
-  TFile* ped_;
+  int gain_;
+  int cmMethod_;
+
+  double zs_;
+  double sigma_;
 
 };
 

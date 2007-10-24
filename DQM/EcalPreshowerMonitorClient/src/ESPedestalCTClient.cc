@@ -223,7 +223,8 @@ void ESPedestalCTClient::doQT() {
 		meFitRMS_->Fill(fg->GetParameter(2));
 	      }
 	      
-	      if (hPedestal->GetRMS()>10) val = 7;
+	      //if (hPedestal->GetRMS()>10) val = 7;	      
+	      if (fg->GetParameter(2)>10 && hPedestal->GetMean()!=0) val = 7;	      
 	      else if (hPedestal->GetMean()==0) val = 5;
 	      else val = 4;
 	      mePedCol_[i][j]->setBinContent(abs(n-32-k*32), m+1, val) ;       

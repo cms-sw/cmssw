@@ -19,6 +19,7 @@ ESTDCCTTask::ESTDCCTTask(const ParameterSet& ps) {
   Char_t tmp[300];  
 
   meTDC_ = 0;
+  meEloss_ = 0;
 
   for (int i=0; i<2; ++i) 
     for (int j=0; j<6; ++j)
@@ -67,6 +68,9 @@ void ESTDCCTTask::setup(void){
     sprintf(hist, "ES TDC");
     meTDC_ = dbe_->book1D(hist, hist, 325, 700, 1025);
 
+    sprintf(hist, "ES Eloss");
+    meEloss_ = dbe_->book1D(hist, hist, 60, 0, 300);
+
     for (int i=0; i<2; ++i) {
 
       int zside = (i==0)?1:-1;
@@ -95,6 +99,9 @@ void ESTDCCTTask::cleanup(void){
     
     if ( meTDC_ ) dbe_->removeElement( meTDC_->getName() );
     meTDC_ = 0;
+
+    if ( meEloss_ ) dbe_->removeElement( meEloss_->getName() );
+    meEloss_ = 0;
 
     for (int i=0; i<2; ++i) {
       for (int j=0; j<6; ++j) {
@@ -179,8 +186,12 @@ void ESTDCCTTask::analyze(const Event& e, const EventSetup& c){
     float pedestal = hist_[i][j][k][iy-1]->GetBinContent(strip);
 
     for (int isam=0; isam<dataframe.size(); ++isam) {
+      double sampleT = (tdc[7]-800)*24.951/194.+isam*24.951;
       meTDCADC_[i][j][isam]->Fill(tdc[7], dataframe.sample(isam).adc()-pedestal);
-      meTDCADCT_[i][j]->Fill( (tdc[7]-800)*24.951/194.+isam*24.951, dataframe.sample(isam).adc()-pedestal)  ;
+      meTDCADCT_[i][j]->Fill( sampleT, dataframe.sample(isam).adc()-pedestal);
+      
+      if (sampleT>49.5 && sampleT<50.5 && isam==1 && (dataframe.sample(isam).adc()-pedestal)>30.) 
+	meEloss_->Fill(dataframe.sample(isam).adc()-pedestal);      
     }
     
   }

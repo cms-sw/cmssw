@@ -325,7 +325,7 @@ void ESPedestalCMCTTask::analyze(const Event& e, const EventSetup& c){
 	  if (hist_[i][j][k][m]->GetEntries() == 0) continue;
 	  
 	  for(int kk=0; kk<32; ++kk){
-	    float pedestal=hist_[i][j][k][m]->GetBinContent(kk+1);
+	    int pedestal = (int)hist_[i][j][k][m]->GetBinContent(kk+1);
 	    //printf("GaussMean=%f\n",pedestal);
 	    
 	    sensor_data_S0[kk]=sensor_data_S0[kk]-pedestal;   //Pedestal subtraction

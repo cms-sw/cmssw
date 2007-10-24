@@ -1,5 +1,5 @@
-#ifndef ESTDCCTTask_H
-#define ESTDCCTTask_H
+#ifndef ESOccupancyCTTask_H
+#define ESOccupancyCTTask_H
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
@@ -13,15 +13,15 @@
 #include "DQMServices/Daemon/interface/MonitorDaemon.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
-#include "TBDataFormats/ESTBRawData/interface/ESDCCHeaderBlock.h"
-#include "TBDataFormats/ESTBRawData/interface/ESKCHIPBlock.h"
-#include "TBDataFormats/ESTBRawData/interface/ESLocalRawDataCollections.h"
-#include "TBDataFormats/ESTBRawData/interface/ESRawDataCollections.h"
-
 #include "DataFormats/EcalDetId/interface/ESDetId.h"
 #include "DataFormats/EcalDigi/interface/ESDataFrame.h"
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
+
+#include "TBDataFormats/ESTBRawData/interface/ESDCCHeaderBlock.h"
+#include "TBDataFormats/ESTBRawData/interface/ESKCHIPBlock.h"
+#include "TBDataFormats/ESTBRawData/interface/ESLocalRawDataCollections.h"
+#include "TBDataFormats/ESTBRawData/interface/ESRawDataCollections.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -29,18 +29,15 @@
 #include <fstream>
 #include <vector>
 
-#include "TH1F.h"
-#include "TFile.h"
-
 using namespace std;
 using namespace edm;
 
-class ESTDCCTTask: public EDAnalyzer{
+class ESOccupancyCTTask: public EDAnalyzer{
 
  public:
 
-  ESTDCCTTask(const ParameterSet& ps);
-  virtual ~ESTDCCTTask();
+  ESOccupancyCTTask(const ParameterSet& ps);
+  virtual ~ESOccupancyCTTask();
 
  protected:
 
@@ -53,23 +50,19 @@ class ESTDCCTTask: public EDAnalyzer{
  private:
 
   int ievt_;
-
   DaqMonitorBEInterface* dbe_;
 
-  MonitorElement* meTDC_;
-  MonitorElement* meEloss_;
-  MonitorElement* meTDCADC_[2][6][3];
-  MonitorElement* meTDCADCT_[2][6];
+  MonitorElement* meEnergy_[2][6];
+  MonitorElement* meOccupancy1D_[2][6];
+  MonitorElement* meOccupancy2D_[2][6];
 
-  string label_;
+  string digilabel_;
+  string rechitlabel_;
   string instanceName_;
-  string pedestalFile_;
-
+  int gain_;
   bool sta_;
-  bool init_;
 
-  TFile *ped_;
-  TH1F* hist_[2][6][2][5];
+  bool init_;
 
 };
 

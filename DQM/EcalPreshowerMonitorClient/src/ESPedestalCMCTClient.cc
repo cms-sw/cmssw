@@ -126,11 +126,12 @@ void ESPedestalCMCTClient::analyze(const Event& e, const EventSetup& context){
   if ( ! init_ ) this->setup();
 
   int runNum = e.id().run();
+  Char_t runNum_s[50];
 
   if (runNum != run_) { 
 
     if (run_ > 0) {
-      Char_t runNum_s[50];
+
       sprintf(runNum_s, "%08d", run_);
       outputFile_ = htmlDir_+"/"+runNum_s+"/"+outputFileName_+"_"+runNum_s+".root";
       
@@ -144,6 +145,9 @@ void ESPedestalCMCTClient::analyze(const Event& e, const EventSetup& context){
 
     run_ = runNum; 
     count_ = 0;
+
+    sprintf(runNum_s, "%08d", run_);
+    outputFile_ = htmlDir_+"/"+runNum_s+"/"+outputFileName_+"_"+runNum_s+".root";    
   }
 
   count_++;
@@ -204,7 +208,7 @@ string ESPedestalCMCTClient::getMEName(const int & zside, const int & plane, con
   
   Char_t hist[500];
   if (type == 0)
-    sprintf(hist,"%sES/ESpedestalCMCTTask/ES Pedestal CM_S%d Z %d P %d Row %02d Col %02d Str %02d", rootFolder_.c_str(),slot,zside,plane,row,col,strip);
+    sprintf(hist,"%sES/ESPedestalCMCTTask/ES Pedestal CM_S%d Z %d P %d Row %02d Col %02d Str %02d", rootFolder_.c_str(),slot,zside,plane,row,col,strip);
   else 
     sprintf(hist,"%sES/ESPedestalCMCTTask/ES Sensor CM_S%d Z %d P %d Row %02d Col %02d", rootFolder_.c_str(),slot,zside,plane,row,col);
 
@@ -241,7 +245,11 @@ void ESPedestalCMCTClient::htmlOutput(int run, string htmlDir, string htmlName) 
   htmlFile << "<hr>" << endl;
   htmlFile << "<table border=1><tr><td bgcolor=red>This strip has problems</td>" << endl;
   htmlFile << "<td bgcolor=lime>This strip has NO problems</td>" << endl;
-  htmlFile << "<td bgcolor=yellow>This strip is missing</td></table>" << endl;
+  htmlFile << "<td bgcolor=yellow>This strip is missing</td></tr>"<<endl;
+  htmlFile << "<tr><td> \> "<<cmnThreshold_<<" ADC </td>"<<endl;
+  htmlFile << "<td> \< "<<cmnThreshold_<<" ADC </td>"<<endl;
+  htmlFile << "<td> </td></tr>"<<endl;
+  htmlFile << "</table>" << endl;
   htmlFile << "<br>" << endl;
 
   // make plots

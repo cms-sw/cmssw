@@ -162,6 +162,12 @@ void ESDataIntegrityClient::doQT() {
     hFlag2_ = dynamic_cast<TH1F*> (meT->operator->());      
   }
 
+  MonitorElement * meEvtLen =  dbe_->get(getMEName("ES Event Length"));
+  if (meEvtLen) {
+    meT = dynamic_cast<MonitorElementT<TNamed>*>(meEvtLen);
+    hEvtLen_ = dynamic_cast<TH1F*> (meT->operator->());
+  }
+
 }
 
 string ESDataIntegrityClient::getMEName(const string & meName) {
@@ -243,6 +249,26 @@ void ESDataIntegrityClient::htmlOutput(int run, string htmlDir, string htmlName)
   htmlFile << "</table>" << endl;
   htmlFile << "<br>" <<endl;
   
+  htmlFile << "<table border=\"1\" cellspacing=\"0\" " << endl;
+  htmlFile << "cellpadding=\"10\" > " << endl;
+  htmlFile << "<tr align=\"center\">" << endl;
+  htmlFile << "<td colspan=\"2\">Event Length</td>" << endl;
+  htmlFile << "</tr>" << endl;
+  htmlFile << "<tr align=\"center\">" << endl;
+  htmlFile << "<td>Length : </td>" << endl;
+  htmlFile << "<td>contribution : </td>" << endl;
+  htmlFile << "</tr>" << endl;
+  for (int i=1; i<=1500; ++i) {
+    if (hEvtLen_->GetBinContent(i, 1) != 0) {
+      htmlFile << "<tr align=\"center\">" << endl;
+      htmlFile << "<td>" << i-1 << "</td>" << endl;
+      htmlFile << "<td>" << hEvtLen_->GetBinContent(i, 1) << "</td>" << endl;
+      htmlFile << "</tr>" << endl; 
+    }
+  }
+  htmlFile << "</table>" << endl;
+  htmlFile << "<br>" <<endl;
+
   if (crcErrors != 0) {
     htmlFile << "<table border=\"1\" cellspacing=\"0\" " << endl;
     htmlFile << "cellpadding=\"10\" > " << endl;
@@ -336,6 +362,12 @@ void ESDataIntegrityClient::htmlOutput(int run, string htmlDir, string htmlName)
   htmlFile << "</body> " << endl;
   htmlFile << "</html> " << endl;
 
+  stringstream run_str; run_str << run;
+  if (detType_ == 1)
+    system(("/preshower/yannisp1/html/DQM_html_generator "+run_str.str()+" 1").c_str());
+  else if (detType_ == 2)
+    system(("/preshower/yannisp1/html/DQM_html_generator "+run_str.str()+" 2").c_str());
+  
   htmlFile.close();
 
 }

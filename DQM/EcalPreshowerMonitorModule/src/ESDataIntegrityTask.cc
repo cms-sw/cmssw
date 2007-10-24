@@ -73,6 +73,9 @@ void ESDataIntegrityTask::setup(void){
     sprintf(hist, "ES KCHIP Flag2");
     meFlag2_ = dbe_->book1D(hist, hist, 256, 0, 256);
 
+    sprintf(hist, "ES Event Length");
+    meEvtLen_ = dbe_->book1D(hist, hist, 1500, 0, 1500);
+
     sprintf(hist, "ES DCC FedId");
     fedIds_= dbe_->book1D(hist, hist, 50, 0, 50);
     sprintf(hist, "ES DCC FedId=1");
@@ -114,6 +117,9 @@ void ESDataIntegrityTask::cleanup(void){
 
     if ( meFlag2_ ) dbe_->removeElement( meFlag2_->getName() );
     meFlag2_ = 0;
+
+    if ( meEvtLen_ ) dbe_->removeElement( meEvtLen_->getName() );
+    meEvtLen_ = 0;
 
     if ( fedIds_)dbe_->removeElement(fedIds_->getName() );
     fedIds_ = 0;
@@ -215,11 +221,12 @@ void ESDataIntegrityTask::analyze(const Event& e, const EventSetup& c){
       if(dcc.getEV()!=-1)               DCCfedId10_->Fill(7);
     }
 
-    if ((dcc.fedId()>=40)&&(dcc.fedId()<=43)){   
+    if ((dcc.fedId()>=40)&&(dcc.fedId()<=43) || dcc.fedId()==550){   
       
       meDCCError_->Fill(dcc.getDCCErrors());
 
       if (detType_ == 2) {
+	meEvtLen_->Fill(dcc.getEventLength());
 	bc = dcc.getBX();
 	ev = dcc.getLV1();
       }
@@ -239,9 +246,13 @@ void ESDataIntegrityTask::analyze(const Event& e, const EventSetup& c){
       continue;    
     }
     
-    if (kchip.getBC() != bc) {
+    if ((kchip.getBC() != bc) && detType_==1) {
       meBC_->Fill(0);
-      cout<<"BC error : "<<kchip.getBC()<<" "<<bc<<" "<<kchip.fiberId()<<" "<<kchip.id()<<endl;
+      //cout<<"BC error : "<<kchip.getBC()<<" "<<bc<<" "<<kchip.fiberId()<<" "<<kchip.id()<<endl;
+      //} else if ((kchip.getBC() != (bc-8)) && detType_==2) {
+    } else if ((kchip.getBC() != bc) && detType_==2) {
+      meBC_->Fill(0);
+      //cout<<"BC error : "<<kchip.getBC()<<" "<<bc<<" "<<kchip.fiberId()<<" "<<kchip.id()<<endl;
     }
     else 
       meBC_->Fill(1);

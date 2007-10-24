@@ -66,6 +66,7 @@ class ESTDCCTClient: public EDAnalyzer{
   DaqMonitorBEInterface* dbe_;
 
   TH1F *hTDC_;
+  TH1F *hEloss_;
   TH2F *hTDCADC_[2][6][3];
   TH2F *hTDCADCT_[2][6];
 

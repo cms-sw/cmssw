@@ -1,4 +1,5 @@
 #include "DQM/EcalPreshowerMonitorModule/interface/ESPedestalTBTask.h"
+#include "TBDataFormats/HcalTBObjects/interface/HcalTBTriggerData.h"
 
 #include <iostream>
 
@@ -16,7 +17,7 @@ ESPedestalTBTask::ESPedestalTBTask(const ParameterSet& ps) {
 
   for (int i=0; i<2; ++i) 
     for (int j=0; j<4; ++j)
-      for (int k=0; k<4; ++k) 
+      for (int k=0; k<4; ++k)        
 	for (int m=0; m<32; ++m)
 	  mePedestal_[i][j][k][m] = 0;  
 
@@ -42,29 +43,27 @@ void ESPedestalTBTask::setup(void){
   
   init_ = true;
   
-  Char_t hist[200];
+  Char_t hist[300];
   
   dbe_ = Service<DaqMonitorBEInterface>().operator->();
   
   if ( dbe_ ) {   
     dbe_->setCurrentFolder("ES/ESPedestalTBTask");
     for (int i=0; i<2; ++i) {       
-      for (int j=30; j<34; ++j) {
-	for (int k=19; k<23; ++k) {
+      for (int j=0; j<4; ++j) {
+	for (int k=0; k<4; ++k) {
 	  for (int m=0; m<32; ++m) {
-	    sprintf(hist, "ES Pedestal Z 1 P %d Row %02d Col %02d Str %02d", i+1, j, k, m+1);      
-	    mePedestal_[i][j-30][k-19][m] = dbe_->book1D(hist, hist, 5000, 0, 5000);
+	    sprintf(hist, "ES Pedestal Z 1 P %d Col %02d Row %02d Str %02d", i+1, j+1, k+1, m+1);      
+	    mePedestal_[i][j][k][m] = dbe_->book1D(hist, hist, 5000, -0.5, 4999.5);
 	  }
 	}
       }
     }
   }
-
+  
 }
 
 void ESPedestalTBTask::cleanup(void){
-
-  if (sta_) return;
 
   dbe_ = Service<DaqMonitorBEInterface>().operator->();
 
@@ -75,14 +74,13 @@ void ESPedestalTBTask::cleanup(void){
       for (int j=0; j<4; ++j) {
 	for (int k=0; k<4; ++k) {
 	  for (int m=0; m<32; ++m) {
-	    if ( mePedestal_[i][j][k][m] ) dbe_->removeElement( mePedestal_[i][j][k][m]->getName() );
-	    mePedestal_[i][j][k][m] = 0;
+	      if ( mePedestal_[i][j][k][m] ) dbe_->removeElement( mePedestal_[i][j][k][m]->getName() );
+	      mePedestal_[i][j][k][m] = 0;
+	    }
 	  }
 	}
       }
-    }
-
-  }
+  }  
 
   init_ = false;
 
@@ -91,6 +89,8 @@ void ESPedestalTBTask::cleanup(void){
 void ESPedestalTBTask::endJob(void) {
 
   LogInfo("ESPedestalTBTask") << "analyzed " << ievt_ << " events";
+
+  if (sta_) return;
 
   if ( init_ ) this->cleanup();
 
@@ -101,12 +101,29 @@ void ESPedestalTBTask::analyze(const Event& e, const EventSetup& c){
   if ( ! init_ ) this->setup();
   ievt_++;
   
+  Handle<HcalTBTriggerData> trg;
+  try {
+    e.getByType(trg);
+  }
+  catch ( cms::Exception &e ) {
+    LogDebug("") << "ESPedestal : Error! can't get trigger information !" << std::endl;
+  }
+
+  int trgbit = 0;
+  if( trg->wasBeamTrigger() )             trgbit = 1;
+  if( trg->wasInSpillPedestalTrigger() )  trgbit = 2;
+  if( trg->wasOutSpillPedestalTrigger() ) trgbit = 3;
+  if( trg->wasLEDTrigger() )              trgbit = 4;
+  if( trg->wasLaserTrigger() )            trgbit = 5;
+
   Handle<ESDigiCollection> digis;
   try {
     e.getByLabel(label_, instanceName_, digis);
   } catch ( cms::Exception &e ) {
     LogDebug("") << "ESPedestal : Error! can't get collection !" << std::endl;
   } 
+
+  if (trgbit == 1 || trgbit == 4 || trgbit == 5) return;
 
   for (ESDigiCollection::const_iterator digiItr = digis->begin(); digiItr != digis->end(); ++digiItr ) {
 
@@ -118,11 +135,10 @@ void ESPedestalTBTask::analyze(const Event& e, const EventSetup& c){
     int iy    = id.siy();
     int strip = id.strip();
 
-    for (int i=0; i<dataframe.size(); ++i) {
-      //cout<<plane<<" "<<ix<<" "<<strip<<" "<<dataframe.sample(i).adc()<<endl;    
-      mePedestal_[plane-1][ix-30][iy-19][strip-1]->Fill(dataframe.sample(i).adc());
+    for (int isam=0; isam<dataframe.size(); ++isam) {
+      mePedestal_[plane-1][ix-1][iy-1][strip-1]->Fill(dataframe.sample(isam).adc());
     }
+    
   }
-  
-  //sleep(2);
+
 }

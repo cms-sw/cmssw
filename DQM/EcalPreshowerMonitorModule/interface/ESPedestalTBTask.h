@@ -48,7 +48,7 @@ class ESPedestalTBTask: public EDAnalyzer{
 
   DaqMonitorBEInterface* dbe_;
 
-  MonitorElement* mePedestal_[2][4][4][32];
+  MonitorElement* mePedestal_[2][4][4][32]; // plane, ix, iy, strip
 
   string label_;
   string instanceName_;

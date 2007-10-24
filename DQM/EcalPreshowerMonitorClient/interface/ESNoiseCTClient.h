@@ -1,5 +1,5 @@
-#ifndef ESPEDESTALTBCLIENT_H
-#define ESPEDESTALTBCLIENT_H
+#ifndef ESNOISECTCLIENT_H
+#define ESNOISECTCLIENT_H
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include <FWCore/Framework/interface/EDAnalyzer.h>
@@ -26,12 +26,12 @@
 using namespace edm;
 using namespace std;
 
-class ESPedestalTBClient: public EDAnalyzer{
+class ESNoiseCTClient: public EDAnalyzer{
 
  public:
   
-  ESPedestalTBClient(const ParameterSet& ps);
-  virtual ~ESPedestalTBClient();
+  ESNoiseCTClient(const ParameterSet& ps);
+  virtual ~ESNoiseCTClient();
   
  protected:
   
@@ -42,7 +42,7 @@ class ESPedestalTBClient: public EDAnalyzer{
   void cleanup();
   void doQT();
 
-  string getMEName(const int & plane, const int & row, const int & col, const int & strip);
+  string getMEName(const int & zside, const int & plane, const int & row, const int & col);
   void htmlOutput(int run, string htmlDir, string htmlName);
 
  private:
@@ -57,25 +57,12 @@ class ESPedestalTBClient: public EDAnalyzer{
   string htmlName_;
   int count_;
   int run_;
-  bool sta_;
   bool init_;
-  int gain_;
+  bool sta_;
   TF1 *fg;
 
   DaqMonitorBEInterface* dbe_;
 
-  MonitorElement* meMean_;
-  MonitorElement* meRMS_;
-  MonitorElement* meFitMean_;
-  MonitorElement* meFitRMS_;
-  MonitorElement* mePedCol_[2];
-  MonitorElement* mePedMeanRMS_[2][4][4];
-  MonitorElement* mePedRMS_[2][4][4];
-  MonitorElement* mePedFitMeanRMS_[2][4][4];
-  MonitorElement* mePedFitRMS_[2][4][4];
-
-  double noisy_threshold_[2];
-  double bad_threshold_[2];
 };
 
 #endif

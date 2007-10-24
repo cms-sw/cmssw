@@ -125,10 +125,16 @@ void ESTDCCTClient::doQT() {
   MonitorElementT<TNamed>* meT;
 
   MonitorElement * meTDC = dbe_->get(getMEName("ES TDC"));
-    
+  MonitorElement * meEloss = dbe_->get(getMEName("ES Eloss"));
+
   if (meTDC) {
     meT = dynamic_cast<MonitorElementT<TNamed>*>(meTDC);           
     hTDC_ = dynamic_cast<TH1F*> (meT->operator->());      
+  }
+
+  if (meEloss) {
+    meT = dynamic_cast<MonitorElementT<TNamed>*>(meEloss);  
+    hEloss_ = dynamic_cast<TH1F*> (meT->operator->());
   }
 
   for (int i=0; i<2; ++i) {
@@ -211,8 +217,9 @@ void ESTDCCTClient::htmlOutput(int run, string htmlDir, string htmlName) {
   gStyle->SetPalette(1, 0);
   gStyle->SetGridStyle(1);
 
-  TCanvas *cTDC = new TCanvas("cTDC", "cTDC", 300, 300);
-  cTDC->cd();
+  TCanvas *cTDC = new TCanvas("cTDC", "cTDC", 600, 300);
+  cTDC->Divide(2,1);
+  cTDC->cd(1);
   char tit[128]; sprintf(tit,"TDC");
   hTDC_->SetTitle(tit);
   hTDC_->SetLineColor(6);
@@ -224,7 +231,11 @@ void ESTDCCTClient::htmlOutput(int run, string htmlDir, string htmlName) {
   t->SetBorderSize(0);
   t->SetX1NDC(0.00); t->SetX2NDC(1);
   t->SetY1NDC(0.93); t->SetY2NDC(1);
-  
+  cTDC->cd(2);
+  hEloss_->SetFillColor(9);
+  hEloss_->SetLineWidth(0);  
+  hEloss_->Draw();
+
   histName = htmlDir+"/TDC.png";
   cTDC->SaveAs(histName.c_str());  
 

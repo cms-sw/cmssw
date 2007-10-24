@@ -55,6 +55,7 @@ class ESDataIntegrityTask: public EDAnalyzer{
   MonitorElement* meEC_;
   MonitorElement* meFlag1_;
   MonitorElement* meFlag2_;
+  MonitorElement* meEvtLen_;
 
   MonitorElement* fedIds_;
   MonitorElement* DCCfedId1_;
