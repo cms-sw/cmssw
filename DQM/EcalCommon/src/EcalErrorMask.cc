@@ -1,11 +1,11 @@
-// $Id: EcalErrorMask.cc,v 1.9 2007/10/23 06:51:26 dellaric Exp $
+// $Id: EcalErrorMask.cc,v 1.10 2007/10/23 07:09:48 dellaric Exp $
 
 /*!
   \file EcalErrorMask.cc
   \brief Error mask from text file or database
   \author B. Gobbo
-  \version $Revision: 1.9 $
-  \date $Date: 2007/10/23 06:51:26 $
+  \version $Revision: 1.10 $
+  \date $Date: 2007/10/23 07:09:48 $
 */
 
 #include "DQM/EcalCommon/interface/EcalErrorMask.h"
@@ -151,7 +151,7 @@ void EcalErrorMask::readFile( std::string inFile, bool verbose, bool verifySynta
       }
       if( !verifySyntax ) {
 	EcalLogicID id;
-	if(subdet == EcalBarrel) id = EcalLogicID( "EB_crystal_number", 1011000000+10000*sm+ic, sm, ic, 0 );
+        if(subdet == EcalBarrel) id = EcalLogicID( "EB_crystal_number", 1011000000+10000*sm+ic, sm, ic, 0 );
         if(subdet == EcalEndcap) id = EcalLogicID( "EE_crystal_number", 1011000000+10000*sm+ic, sm, ic, 0 );
 	std::map<EcalLogicID, RunCrystalErrorsDat>::iterator i = EcalErrorMask::mapCrystalErrors_.find( id );
 	if( i != mapCrystalErrors_.end() ) {
