@@ -51,9 +51,8 @@ if(all4DSegments->size()>0){
 	  
 	  std::cout<<"MB4 \t \t 2D in RB4"<<DTId<<" with D="<<segment->dimension()<<segmentPositionMB4<<std::endl;	  
 	  bool compatiblesegments=false;
-	  Xo=segmentPositionMB4.x();
-	  dx=segmentDirectionMB4.x();
-	  dz=segmentDirectionMB4.z();
+	  float dx=segmentDirectionMB4.x();
+	  float dz=segmentDirectionMB4.z();
 	  std::cout<<"MB4 \t \t Loop over all the segments in MB3"<<std::endl;	  
 	  DTRecSegment4DCollection::const_iterator segMB3;  
 	  
@@ -98,9 +97,9 @@ if(all4DSegments->size()>0){
 		  float Xo3=segMB3->localPosition().x();
 		  float Yo3=segMB3->localPosition().y();
 		  
-		  X=Xo3+dx3*D/dz3;
-		  Y=Yo3+dy3*D/dz3;
-		  Z=D;
+		  float X=Xo3+dx3*D/dz3;
+		  float Y=Yo3+dy3*D/dz3;
+		  float Z=D;
 		  
 		  const RectangularStripTopology* top_
 		    =dynamic_cast<const RectangularStripTopology*>(&(rollasociated->topology())); //Topologia roll asociado MB4

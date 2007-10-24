@@ -35,6 +35,7 @@ if(allCSCSegments->size()>0){
       int cscChamber = CSCId.chamber();
 
       int rpcRegion = 1; if(cscEndCap==2) rpcRegion= -1;
+      int rpcStation = cscStation;	
 
       LocalPoint segmentPosition= segment->localPosition();
       LocalVector segmentDirection=segment->localDirection();
@@ -42,11 +43,11 @@ if(allCSCSegments->size()>0){
       std::cout<<"\t \t We have one segment in this CSC "<<CSCId<<std::endl;
       std::cout<<"\t \t Its direction and postition is"<<segmentDirection<<""<<segmentPosition<<std::endl;
 	
-      Xo=segmentPosition.x();
-      Yo=segmentPosition.y();
-      dx=segmentDirection.x();
-      dy=segmentDirection.y();
-      dz=segmentDirection.z();
+      float Xo=segmentPosition.x();
+      float Yo=segmentPosition.y();
+      float dx=segmentDirection.x();
+      float dy=segmentDirection.y();
+      float dz=segmentDirection.z();
 
       std::cout<<"\t \t Getting chamber from Geometry"<<std::endl;
       const CSCChamber* TheChamber=cscGeo->chamber(CSCId); 
@@ -56,7 +57,7 @@ if(allCSCSegments->size()>0){
 	
       std::cout<<"\t \t Loop over all the rolls asociated to this CSC"<<std::endl;
 	
-      std::set<RPCDetId> rollsForThisCSC = rollstoreCSC[CSCStationIndex(rpcRegion)];
+      std::set<RPCDetId> rollsForThisCSC = rollstoreCSC[CSCStationIndex(rpcRegion,rpcStation)];
 	
       for (std::set<RPCDetId>::iterator iteraRoll = rollsForThisCSC.begin();iteraRoll != rollsForThisCSC.end(); iteraRoll++){
 	const RPCRoll* rollasociated = rpcGeo->roll(*iteraRoll);
@@ -100,9 +101,9 @@ if(allCSCSegments->size()>0){
             
 	  if(fabs(D)<MaxD){
 	    std::cout<<"\t \t \t yes"<<std::endl;
-	    X=Xo+dx*D/dz;
-	    Y=Yo+dy*D/dz;
-	    Z=D;
+	    float X=Xo+dx*D/dz;
+	    float Y=Yo+dy*D/dz;
+	    float Z=D;
 	    
 	    std::cout<<"\t \t \t X Predicted in CSCLocal= "<<X<<"cm"<<std::endl;
 	    std::cout<<"\t \t \t Y Predicted in CSCLocal= "<<Y<<"cm"<<std::endl;

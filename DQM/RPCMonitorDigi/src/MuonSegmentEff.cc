@@ -13,7 +13,7 @@
 //
 // Original Author:  Camilo Carrillo (Uniandes)
 //         Created:  Tue Oct  2 16:57:49 CEST 2007
-// $Id: MuonSegmentEff.cc,v 1.8 2007/10/08 16:58:35 carrillo Exp $
+// $Id: MuonSegmentEff.cc,v 1.9 2007/10/10 16:58:21 carrillo Exp $
 //
 //
 
@@ -106,18 +106,22 @@ private:
 
 class CSCStationIndex{
 public:
-  CSCStationIndex():_region(0){}
-  CSCStationIndex(int region):
+  CSCStationIndex():_region(0),_station(0){}
+  CSCStationIndex(int region,int station):
     _region(region){}
   ~CSCStationIndex(){}
   int region() const {return _region;}
+  int station() const {return _station;}
   bool operator<(const CSCStationIndex& cscind) const{
     if(cscind.region()!=this->region())
       return cscind.region()<this->region();
+    if(cscind.station()!=this->station())
+      return cscind.station()<this->station();
     return false;
   }
 private:
   int _region;
+  int _station;
 };
 
 
@@ -188,8 +192,6 @@ void MuonSegmentEff::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
   char meRPC [128];
   char meIdCSC [128];
 
-  float dx=0.,dy=0.,dz=0.,Xo=0.,Yo=0.,X=0.,Y=0.,Z=0.;
-  
   std::cout<<"New Event "<<iEvent.id().event()<<std::endl;
 
   std::cout <<"\t Getting the RPC Geometry"<<std::endl;
@@ -226,7 +228,8 @@ void MuonSegmentEff::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
 	else if(inclcsc){
 	  //std::cout<<"--Filling the EndCaps"<<rpcId<<std::endl;
 	  int region=rpcId.region();
-	  CSCStationIndex ind(region);
+	  int station=rpcId.station();
+	  CSCStationIndex ind(region,station);
 	  std::set<RPCDetId> myrolls;
 	  if (rollstoreCSC.find(ind)!=rollstoreCSC.end()) myrolls=rollstoreCSC[ind];
 	  myrolls.insert(rpcId);
