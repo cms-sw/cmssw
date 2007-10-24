@@ -44,11 +44,11 @@ protected:
   typedef FreeTrajectoryState         FTS;
   typedef TrajectoryStateOnSurface    TSOS;
   typedef TrajectoryMeasurement       TM;
-  typedef std::vector<Trajectory>     TrajectoryContainer;
   typedef std::pair<TSOS,std::vector<const DetLayer*> > StateAndLayers;
 
 public:
 
+  typedef std::vector<Trajectory>     TrajectoryContainer;
   typedef std::vector<TempTrajectory> TempTrajectoryContainer;
   typedef TrajectoryContainer::iterator TrajectoryIterator;
   
