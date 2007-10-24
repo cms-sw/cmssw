@@ -262,905 +262,860 @@
 <LogicalPartSection label="muonYoke.xml"> 
  <LogicalPart name="YN12p_a" category="unspecified"> 
   <rSolid name="YN12_a"/> 
-  <rMaterial name="materials:Iron"/> 
+  <rMaterial name="materials:AISI-1045-Steel"/> 
  </LogicalPart> 
  <LogicalPart name="YN12p_b" category="unspecified"> 
   <rSolid name="YN12_b"/> 
-  <rMaterial name="materials:Iron"/> 
+  <rMaterial name="materials:AISI-1045-Steel"/> 
  </LogicalPart> 
  <LogicalPart name="YN12p_c" category="unspecified"> 
   <rSolid name="YN12_c"/> 
-  <rMaterial name="materials:Iron"/> 
+  <rMaterial name="materials:AISI-1045-Steel"/> 
  </LogicalPart> 
  <LogicalPart name="YE1p_a" category="unspecified"> 
   <rSolid name="YE1_a"/> 
-  <rMaterial name="materials:Iron"/> 
+  <rMaterial name="materials:AISI-1045-Steel"/> 
  </LogicalPart> 
  <LogicalPart name="YE1p_b" category="unspecified"> 
   <rSolid name="YE1_b"/> 
-  <rMaterial name="materials:Iron"/> 
+  <rMaterial name="materials:AISI-1045-Steel"/> 
  </LogicalPart> 
- <LogicalPart name="YE12p" category="unspecified"> 
+ <LogicalPart name="YE12" category="unspecified"> 
   <rSolid name="YE12"/> 
-  <rMaterial name="materials:Iron"/> 
+  <rMaterial name="materials:AISI-1045-Steel"/> 
  </LogicalPart> 
-
-<!-- START COMMENT
-This is never placed and should be removed.
-    Michael Case
- <LogicalPart name="YE12n" category="unspecified"> 
-  <rSolid name="YE12"/> 
-  <rMaterial name="materials:Iron"/> 
- </LogicalPart> 
-END COMMENT -->
 
  <LogicalPart name="YE2p_a" category="unspecified"> 
   <rSolid name="YE2_a"/> 
-  <rMaterial name="materials:Iron"/> 
+  <rMaterial name="materials:AISI-1045-Steel"/> 
  </LogicalPart> 
  <LogicalPart name="YE2p_b" category="unspecified"> 
   <rSolid name="YE2_b"/> 
-  <rMaterial name="materials:Iron"/> 
+  <rMaterial name="materials:AISI-1045-Steel"/> 
  </LogicalPart> 
- <LogicalPart name="YE23p" category="unspecified"> 
+ <LogicalPart name="YE23" category="unspecified"> 
   <rSolid name="YE23"/> 
-  <rMaterial name="materials:Iron"/> 
+  <rMaterial name="materials:AISI-1045-Steel"/> 
  </LogicalPart> 
-
-<!-- START COMMENT
-This is never placed and should be removed.
-    Michael Case
- <LogicalPart name="YE23n" category="unspecified"> 
-  <rSolid name="YE23"/> 
-  <rMaterial name="materials:Iron"/> 
- </LogicalPart> 
-END COMMENT -->
 
  <LogicalPart name="YE3p_a" category="unspecified"> 
   <rSolid name="YE3_a"/> 
-  <rMaterial name="materials:Iron"/> 
+  <rMaterial name="materials:AISI-1045-Steel"/> 
  </LogicalPart> 
  <LogicalPart name="YE3p_b" category="unspecified"> 
   <rSolid name="YE3_b"/> 
-  <rMaterial name="materials:Iron"/> 
+  <rMaterial name="materials:AISI-1045-Steel"/> 
  </LogicalPart> 
- <LogicalPart name="YE34p" category="unspecified"> 
+ <LogicalPart name="YE34" category="unspecified"> 
   <rSolid name="YE34"/> 
-  <rMaterial name="materials:Iron"/> 
+  <rMaterial name="materials:AISI-1045-Steel"/> 
  </LogicalPart> 
 
-<!-- START COMMENT
-This is never placed and should be removed.
-    Michael Case
- <LogicalPart name="YE34n" category="unspecified"> 
-  <rSolid name="YE34"/> 
-  <rMaterial name="materials:Iron"/> 
- </LogicalPart> 
-END COMMENT -->
-
- <LogicalPart name="ShieldingME4p" category="unspecified"> 
+ <LogicalPart name="ShieldingME4" category="unspecified"> 
   <rSolid name="ShieldingME4"/> 
-  <rMaterial name="materials:Iron"/> 
+  <rMaterial name="materials:AISI-1045-Steel"/> 
  </LogicalPart> 
 
-<!-- START COMMENT
-This is never placed and should be removed.  
-    Michael Case
- <LogicalPart name="ShieldingME4n" category="unspecified"> 
-  <rSolid name="ShieldingME4"/> 
-  <rMaterial name="materials:Iron"/> 
- </LogicalPart> 
-END COMMENT-->
-
- <LogicalPart name="YE4p" category="unspecified"> 
+ <LogicalPart name="YE4" category="unspecified"> 
   <rSolid name="YE4"/> 
-  <rMaterial name="materials:Iron"/> 
+  <rMaterial name="materials:AISI-1045-Steel"/> 
  </LogicalPart> 
-
-<!-- START COMMENT
-This is never placed and should be removed.  
-    Michael Case
- <LogicalPart name="YE4n" category="unspecified"> 
-  <rSolid name="YE4"/> 
-  <rMaterial name="materials:Iron"/> 
- </LogicalPart> 
-END COMMENT-->
 
  <LogicalPart name="YB1_w0_b1" category="unspecified"> 
   <rSolid name="YB1_w0_b1"/> 
-  <rMaterial name="materials:Iron"/> 
+  <rMaterial name="materials:M_Steel-008"/> 
  </LogicalPart> 
  <LogicalPart name="YB1_w0_b4" category="unspecified"> 
   <rSolid name="YB1_w0_b1"/> 
-  <rMaterial name="materials:Iron"/> 
+  <rMaterial name="materials:M_Steel-008"/> 
  </LogicalPart> 
  <LogicalPart name="YB1_w0_b2" category="unspecified"> 
   <rSolid name="YB1_w0_b2"/> 
-  <rMaterial name="materials:Iron"/> 
+  <rMaterial name="materials:M_Steel-008"/> 
  </LogicalPart> 
  <LogicalPart name="YB1_w0_b5" category="unspecified"> 
   <rSolid name="YB1_w0_b2"/> 
-  <rMaterial name="materials:Iron"/> 
+  <rMaterial name="materials:M_Steel-008"/> 
  </LogicalPart> 
  <LogicalPart name="YB1_w0_b3" category="unspecified"> 
   <rSolid name="YB1_w0_b3"/> 
-  <rMaterial name="materials:Iron"/> 
+  <rMaterial name="materials:M_Steel-008"/> 
  </LogicalPart> 
  <LogicalPart name="YB1_w1P_b1" category="unspecified"> 
   <rSolid name="YB1_w1_b1"/> 
-  <rMaterial name="materials:Iron"/> 
+  <rMaterial name="materials:M_Steel-008"/> 
  </LogicalPart> 
  <LogicalPart name="YB1_w1N_b1" category="unspecified"> 
   <rSolid name="YB1_w1_b1"/> 
-  <rMaterial name="materials:Iron"/> 
+  <rMaterial name="materials:M_Steel-008"/> 
  </LogicalPart> 
  <LogicalPart name="YB1_w1P_b2" category="unspecified"> 
   <rSolid name="YB1_w1_b2"/> 
-  <rMaterial name="materials:Iron"/> 
+  <rMaterial name="materials:M_Steel-008"/> 
  </LogicalPart> 
  <LogicalPart name="YB1_w1N_b2" category="unspecified"> 
   <rSolid name="YB1_w1_b2"/> 
-  <rMaterial name="materials:Iron"/> 
+  <rMaterial name="materials:M_Steel-008"/> 
  </LogicalPart> 
  <LogicalPart name="YB1_w1P_b3" category="unspecified"> 
   <rSolid name="YB1_w1_b3"/> 
-  <rMaterial name="materials:Iron"/> 
+  <rMaterial name="materials:M_Steel-008"/> 
  </LogicalPart> 
  <LogicalPart name="YB1_w1N_b3" category="unspecified"> 
   <rSolid name="YB1_w1_b3"/> 
-  <rMaterial name="materials:Iron"/> 
+  <rMaterial name="materials:M_Steel-008"/> 
  </LogicalPart> 
  <LogicalPart name="YB1_w1P_b4" category="unspecified"> 
   <rSolid name="YB1_w1_b4"/> 
-  <rMaterial name="materials:Iron"/> 
+  <rMaterial name="materials:M_Steel-008"/> 
  </LogicalPart> 
  <LogicalPart name="YB1_w1N_b4" category="unspecified"> 
   <rSolid name="YB1_w1_b4"/> 
-  <rMaterial name="materials:Iron"/> 
+  <rMaterial name="materials:M_Steel-008"/> 
  </LogicalPart> 
  <LogicalPart name="YB1_w1P_b5" category="unspecified"> 
   <rSolid name="YB1_w1_b5"/> 
-  <rMaterial name="materials:Iron"/> 
+  <rMaterial name="materials:M_Steel-008"/> 
  </LogicalPart> 
  <LogicalPart name="YB1_w1N_b5" category="unspecified"> 
   <rSolid name="YB1_w1_b5"/> 
-  <rMaterial name="materials:Iron"/> 
+  <rMaterial name="materials:M_Steel-008"/> 
  </LogicalPart> 
  <LogicalPart name="YB1_w1P_b6" category="unspecified"> 
   <rSolid name="YB1_w1_b6"/> 
-  <rMaterial name="materials:Iron"/> 
+  <rMaterial name="materials:M_Steel-008"/> 
  </LogicalPart> 
  <LogicalPart name="YB1_w1N_b6" category="unspecified"> 
   <rSolid name="YB1_w1_b6"/> 
-  <rMaterial name="materials:Iron"/> 
+  <rMaterial name="materials:M_Steel-008"/> 
  </LogicalPart> 
  <LogicalPart name="YB1_w1P_b7" category="unspecified"> 
   <rSolid name="YB1_w1_b7"/> 
-  <rMaterial name="materials:Iron"/> 
+  <rMaterial name="materials:M_Steel-008"/> 
  </LogicalPart> 
  <LogicalPart name="YB1_w1N_b7" category="unspecified"> 
   <rSolid name="YB1_w1_b7"/> 
-  <rMaterial name="materials:Iron"/> 
+  <rMaterial name="materials:M_Steel-008"/> 
  </LogicalPart> 
  <LogicalPart name="YB1_w1P_b8" category="unspecified"> 
   <rSolid name="YB1_w1_b8"/> 
-  <rMaterial name="materials:Iron"/> 
+  <rMaterial name="materials:M_Steel-008"/> 
  </LogicalPart> 
  <LogicalPart name="YB1_w1N_b8" category="unspecified"> 
   <rSolid name="YB1_w1_b8"/> 
-  <rMaterial name="materials:Iron"/> 
+  <rMaterial name="materials:M_Steel-008"/> 
  </LogicalPart> 
  <LogicalPart name="YB1_w2P_b1" category="unspecified"> 
   <rSolid name="YB1_w2_b1"/> 
-  <rMaterial name="materials:Iron"/> 
+  <rMaterial name="materials:M_Steel-008"/> 
  </LogicalPart> 
  <LogicalPart name="YB1_w2N_b1" category="unspecified"> 
   <rSolid name="YB1_w2_b1"/> 
-  <rMaterial name="materials:Iron"/> 
+  <rMaterial name="materials:M_Steel-008"/> 
  </LogicalPart> 
  <LogicalPart name="YB1_w2P_b2" category="unspecified"> 
   <rSolid name="YB1_w2_b2"/> 
-  <rMaterial name="materials:Iron"/> 
+  <rMaterial name="materials:M_Steel-008"/> 
  </LogicalPart> 
  <LogicalPart name="YB1_w2N_b2" category="unspecified"> 
   <rSolid name="YB1_w2_b2"/> 
-  <rMaterial name="materials:Iron"/> 
+  <rMaterial name="materials:M_Steel-008"/> 
  </LogicalPart> 
  <LogicalPart name="YB1_w2P_b3" category="unspecified"> 
   <rSolid name="YB1_w2_b3"/> 
-  <rMaterial name="materials:Iron"/> 
+  <rMaterial name="materials:M_Steel-008"/> 
  </LogicalPart> 
  <LogicalPart name="YB1_w2N_b3" category="unspecified"> 
   <rSolid name="YB1_w2_b3"/> 
-  <rMaterial name="materials:Iron"/> 
+  <rMaterial name="materials:M_Steel-008"/> 
  </LogicalPart> 
  <LogicalPart name="YB1_w0_m1" category="unspecified"> 
   <rSolid name="YB1_w0_m"/> 
-  <rMaterial name="materials:Iron"/> 
+  <rMaterial name="materials:M_Steel-008"/> 
  </LogicalPart> 
  <LogicalPart name="YB1_w0_m2" category="unspecified"> 
   <rSolid name="YB1_w0_m"/> 
-  <rMaterial name="materials:Iron"/> 
+  <rMaterial name="materials:M_Steel-008"/> 
  </LogicalPart> 
  <LogicalPart name="YB1_w1P_m1" category="unspecified"> 
   <rSolid name="YB1_w1_m1"/> 
-  <rMaterial name="materials:Iron"/> 
+  <rMaterial name="materials:M_Steel-008"/> 
  </LogicalPart> 
  <LogicalPart name="YB1_w1N_m1" category="unspecified"> 
   <rSolid name="YB1_w1_m1"/> 
-  <rMaterial name="materials:Iron"/> 
+  <rMaterial name="materials:M_Steel-008"/> 
  </LogicalPart> 
  <LogicalPart name="YB1_w1P_m2" category="unspecified"> 
   <rSolid name="YB1_w1_m2"/> 
-  <rMaterial name="materials:Iron"/> 
+  <rMaterial name="materials:M_Steel-008"/> 
  </LogicalPart> 
  <LogicalPart name="YB1_w1N_m2" category="unspecified"> 
   <rSolid name="YB1_w1_m2"/> 
-  <rMaterial name="materials:Iron"/> 
+  <rMaterial name="materials:M_Steel-008"/> 
  </LogicalPart> 
  <LogicalPart name="YB1_w1P_m3" category="unspecified"> 
   <rSolid name="YB1_w1_m3"/> 
-  <rMaterial name="materials:Iron"/> 
+  <rMaterial name="materials:M_Steel-008"/> 
  </LogicalPart> 
  <LogicalPart name="YB1_w1N_m3" category="unspecified"> 
   <rSolid name="YB1_w1_m3"/> 
-  <rMaterial name="materials:Iron"/> 
+  <rMaterial name="materials:M_Steel-008"/> 
  </LogicalPart> 
  <LogicalPart name="YB1_w1P_m4" category="unspecified"> 
   <rSolid name="YB1_w1_m4"/> 
-  <rMaterial name="materials:Iron"/> 
+  <rMaterial name="materials:M_Steel-008"/> 
  </LogicalPart> 
  <LogicalPart name="YB1_w1N_m4" category="unspecified"> 
   <rSolid name="YB1_w1_m4"/> 
-  <rMaterial name="materials:Iron"/> 
+  <rMaterial name="materials:M_Steel-008"/> 
  </LogicalPart> 
  <LogicalPart name="YB1_w1P_m5" category="unspecified"> 
   <rSolid name="YB1_w1_m5"/> 
-  <rMaterial name="materials:Iron"/> 
+  <rMaterial name="materials:M_Steel-008"/> 
  </LogicalPart> 
  <LogicalPart name="YB1_w1N_m5" category="unspecified"> 
   <rSolid name="YB1_w1_m5"/> 
-  <rMaterial name="materials:Iron"/> 
+  <rMaterial name="materials:M_Steel-008"/> 
  </LogicalPart> 
  <LogicalPart name="YB1_w1P_m6" category="unspecified"> 
   <rSolid name="YB1_w1_m6"/> 
-  <rMaterial name="materials:Iron"/> 
+  <rMaterial name="materials:M_Steel-008"/> 
  </LogicalPart> 
  <LogicalPart name="YB1_w1N_m6" category="unspecified"> 
   <rSolid name="YB1_w1_m6"/> 
-  <rMaterial name="materials:Iron"/> 
+  <rMaterial name="materials:M_Steel-008"/> 
  </LogicalPart> 
  <LogicalPart name="YB1_w2P_m1" category="unspecified"> 
   <rSolid name="YB1_w2_m1"/> 
-  <rMaterial name="materials:Iron"/> 
+  <rMaterial name="materials:M_Steel-008"/> 
  </LogicalPart> 
  <LogicalPart name="YB1_w2N_m1" category="unspecified"> 
   <rSolid name="YB1_w2_m1"/> 
-  <rMaterial name="materials:Iron"/> 
+  <rMaterial name="materials:M_Steel-008"/> 
  </LogicalPart> 
  <LogicalPart name="YBSepar2_w0_1" category="unspecified"> 
   <rSolid name="YBSepar2_w0"/> 
-  <rMaterial name="materials:Iron"/> 
+  <rMaterial name="materials:M_Steel-008"/> 
  </LogicalPart> 
  <LogicalPart name="YBSepar2_w0_2" category="unspecified"> 
   <rSolid name="YBSepar2_w0"/> 
-  <rMaterial name="materials:Iron"/> 
+  <rMaterial name="materials:M_Steel-008"/> 
  </LogicalPart> 
  <LogicalPart name="YBSepar2_w1P" category="unspecified"> 
   <rSolid name="YBSepar2_w1"/> 
-  <rMaterial name="materials:Iron"/> 
+  <rMaterial name="materials:M_Steel-008"/> 
  </LogicalPart> 
  <LogicalPart name="YBSepar2_w1N" category="unspecified"> 
   <rSolid name="YBSepar2_w1"/> 
-  <rMaterial name="materials:Iron"/> 
+  <rMaterial name="materials:M_Steel-008"/> 
  </LogicalPart> 
  <LogicalPart name="YBSepar2_w2P" category="unspecified"> 
   <rSolid name="YBSepar2_w2"/> 
-  <rMaterial name="materials:Iron"/> 
+  <rMaterial name="materials:M_Steel-008"/> 
  </LogicalPart> 
  <LogicalPart name="YBSepar2_w2N" category="unspecified"> 
   <rSolid name="YBSepar2_w2"/> 
-  <rMaterial name="materials:Iron"/> 
+  <rMaterial name="materials:M_Steel-008"/> 
  </LogicalPart> 
  <LogicalPart name="YB2_w0_b1" category="unspecified"> 
   <rSolid name="YB2_w0_b1"/> 
-  <rMaterial name="materials:Iron"/> 
+  <rMaterial name="materials:M_Steel-008"/> 
  </LogicalPart> 
  <LogicalPart name="YB2_w0_b4" category="unspecified"> 
   <rSolid name="YB2_w0_b1"/> 
-  <rMaterial name="materials:Iron"/> 
+  <rMaterial name="materials:M_Steel-008"/> 
  </LogicalPart> 
  <LogicalPart name="YB2_w0_b2" category="unspecified"> 
   <rSolid name="YB2_w0_b2"/> 
-  <rMaterial name="materials:Iron"/> 
+  <rMaterial name="materials:M_Steel-008"/> 
  </LogicalPart> 
  <LogicalPart name="YB2_w0_b5" category="unspecified"> 
   <rSolid name="YB2_w0_b2"/> 
-  <rMaterial name="materials:Iron"/> 
+  <rMaterial name="materials:M_Steel-008"/> 
  </LogicalPart> 
  <LogicalPart name="YB2_w0_b3" category="unspecified"> 
   <rSolid name="YB2_w0_b3"/> 
-  <rMaterial name="materials:Iron"/> 
+  <rMaterial name="materials:M_Steel-008"/> 
  </LogicalPart> 
  <LogicalPart name="YB2_w0_b6" category="unspecified"> 
   <rSolid name="YB2_w0_b3"/> 
-  <rMaterial name="materials:Iron"/> 
+  <rMaterial name="materials:M_Steel-008"/> 
  </LogicalPart> 
  <LogicalPart name="YB2_w1P_b1" category="unspecified"> 
   <rSolid name="YB2_w1_b1"/> 
-  <rMaterial name="materials:Iron"/> 
+  <rMaterial name="materials:M_Steel-008"/> 
  </LogicalPart> 
  <LogicalPart name="YB2_w1N_b1" category="unspecified"> 
   <rSolid name="YB2_w1_b1"/> 
-  <rMaterial name="materials:Iron"/> 
+  <rMaterial name="materials:M_Steel-008"/> 
  </LogicalPart> 
  <LogicalPart name="YB2_w1P_b2" category="unspecified"> 
   <rSolid name="YB2_w1_b2"/> 
-  <rMaterial name="materials:Iron"/> 
+  <rMaterial name="materials:M_Steel-008"/> 
  </LogicalPart> 
  <LogicalPart name="YB2_w1N_b2" category="unspecified"> 
   <rSolid name="YB2_w1_b2"/> 
-  <rMaterial name="materials:Iron"/> 
+  <rMaterial name="materials:M_Steel-008"/> 
  </LogicalPart> 
  <LogicalPart name="YB2_w1P_b3" category="unspecified"> 
   <rSolid name="YB2_w1_b3"/> 
-  <rMaterial name="materials:Iron"/> 
+  <rMaterial name="materials:M_Steel-008"/> 
  </LogicalPart> 
  <LogicalPart name="YB2_w1N_b3" category="unspecified"> 
   <rSolid name="YB2_w1_b3"/> 
-  <rMaterial name="materials:Iron"/> 
+  <rMaterial name="materials:M_Steel-008"/> 
  </LogicalPart> 
  <LogicalPart name="YB2_w1P_b4" category="unspecified"> 
   <rSolid name="YB2_w1_b4"/> 
-  <rMaterial name="materials:Iron"/> 
+  <rMaterial name="materials:M_Steel-008"/> 
  </LogicalPart> 
  <LogicalPart name="YB2_w1N_b4" category="unspecified"> 
   <rSolid name="YB2_w1_b4"/> 
-  <rMaterial name="materials:Iron"/> 
+  <rMaterial name="materials:M_Steel-008"/> 
  </LogicalPart> 
  <LogicalPart name="YB2_w1P_b5" category="unspecified"> 
   <rSolid name="YB2_w1_b5"/> 
-  <rMaterial name="materials:Iron"/> 
+  <rMaterial name="materials:M_Steel-008"/> 
  </LogicalPart> 
  <LogicalPart name="YB2_w1N_b5" category="unspecified"> 
   <rSolid name="YB2_w1_b5"/> 
-  <rMaterial name="materials:Iron"/> 
+  <rMaterial name="materials:M_Steel-008"/> 
  </LogicalPart> 
  <LogicalPart name="YB2_w1P_b6" category="unspecified"> 
   <rSolid name="YB2_w1_b6"/> 
-  <rMaterial name="materials:Iron"/> 
+  <rMaterial name="materials:M_Steel-008"/> 
  </LogicalPart> 
  <LogicalPart name="YB2_w1N_b6" category="unspecified"> 
   <rSolid name="YB2_w1_b6"/> 
-  <rMaterial name="materials:Iron"/> 
+  <rMaterial name="materials:M_Steel-008"/> 
  </LogicalPart> 
  <LogicalPart name="YB2_w1P_b7" category="unspecified"> 
   <rSolid name="YB2_w1_b7"/> 
-  <rMaterial name="materials:Iron"/> 
+  <rMaterial name="materials:M_Steel-008"/> 
  </LogicalPart> 
  <LogicalPart name="YB2_w1N_b7" category="unspecified"> 
   <rSolid name="YB2_w1_b7"/> 
-  <rMaterial name="materials:Iron"/> 
+  <rMaterial name="materials:M_Steel-008"/> 
  </LogicalPart> 
  <LogicalPart name="YB2_w1P_b8" category="unspecified"> 
   <rSolid name="YB2_w1_b8"/> 
-  <rMaterial name="materials:Iron"/> 
+  <rMaterial name="materials:M_Steel-008"/> 
  </LogicalPart> 
  <LogicalPart name="YB2_w1N_b8" category="unspecified"> 
   <rSolid name="YB2_w1_b8"/> 
-  <rMaterial name="materials:Iron"/> 
+  <rMaterial name="materials:M_Steel-008"/> 
  </LogicalPart> 
  <LogicalPart name="YB2_w2P_b1" category="unspecified"> 
   <rSolid name="YB2_w2_b1"/> 
-  <rMaterial name="materials:Iron"/> 
+  <rMaterial name="materials:M_Steel-008"/> 
  </LogicalPart> 
  <LogicalPart name="YB2_w2N_b1" category="unspecified"> 
   <rSolid name="YB2_w2_b1"/> 
-  <rMaterial name="materials:Iron"/> 
+  <rMaterial name="materials:M_Steel-008"/> 
  </LogicalPart> 
  <LogicalPart name="YB2_w2P_b2" category="unspecified"> 
   <rSolid name="YB2_w2_b2"/> 
-  <rMaterial name="materials:Iron"/> 
+  <rMaterial name="materials:M_Steel-008"/> 
  </LogicalPart> 
  <LogicalPart name="YB2_w2N_b2" category="unspecified"> 
   <rSolid name="YB2_w2_b2"/> 
-  <rMaterial name="materials:Iron"/> 
+  <rMaterial name="materials:M_Steel-008"/> 
  </LogicalPart> 
  <LogicalPart name="YB2_w2P_b3" category="unspecified"> 
   <rSolid name="YB2_w2_b3"/> 
-  <rMaterial name="materials:Iron"/> 
+  <rMaterial name="materials:M_Steel-008"/> 
  </LogicalPart> 
  <LogicalPart name="YB2_w2N_b3" category="unspecified"> 
   <rSolid name="YB2_w2_b3"/> 
-  <rMaterial name="materials:Iron"/> 
+  <rMaterial name="materials:M_Steel-008"/> 
  </LogicalPart> 
  <LogicalPart name="YB2_w0_m1" category="unspecified"> 
   <rSolid name="YB2_w0_m"/> 
-  <rMaterial name="materials:Iron"/> 
+  <rMaterial name="materials:M_Steel-008"/> 
  </LogicalPart> 
  <LogicalPart name="YB2_w0_m2" category="unspecified"> 
   <rSolid name="YB2_w0_m"/> 
-  <rMaterial name="materials:Iron"/> 
+  <rMaterial name="materials:M_Steel-008"/> 
  </LogicalPart> 
  <LogicalPart name="YB2_w1P_m1" category="unspecified"> 
   <rSolid name="YB2_w1_m1"/> 
-  <rMaterial name="materials:Iron"/> 
+  <rMaterial name="materials:M_Steel-008"/> 
  </LogicalPart> 
  <LogicalPart name="YB2_w1N_m1" category="unspecified"> 
   <rSolid name="YB2_w1_m1"/> 
-  <rMaterial name="materials:Iron"/> 
+  <rMaterial name="materials:M_Steel-008"/> 
  </LogicalPart> 
  <LogicalPart name="YB2_w1P_m2" category="unspecified"> 
   <rSolid name="YB2_w1_m2"/> 
-  <rMaterial name="materials:Iron"/> 
+  <rMaterial name="materials:M_Steel-008"/> 
  </LogicalPart> 
  <LogicalPart name="YB2_w1N_m2" category="unspecified"> 
   <rSolid name="YB2_w1_m2"/> 
-  <rMaterial name="materials:Iron"/> 
+  <rMaterial name="materials:M_Steel-008"/> 
  </LogicalPart> 
  <LogicalPart name="YB2_w1P_m3" category="unspecified"> 
   <rSolid name="YB2_w1_m3"/> 
-  <rMaterial name="materials:Iron"/> 
+  <rMaterial name="materials:M_Steel-008"/> 
  </LogicalPart> 
  <LogicalPart name="YB2_w1N_m3" category="unspecified"> 
   <rSolid name="YB2_w1_m3"/> 
-  <rMaterial name="materials:Iron"/> 
+  <rMaterial name="materials:M_Steel-008"/> 
  </LogicalPart> 
  <LogicalPart name="YB2_w1P_m4" category="unspecified"> 
   <rSolid name="YB2_w1_m4"/> 
-  <rMaterial name="materials:Iron"/> 
+  <rMaterial name="materials:M_Steel-008"/> 
  </LogicalPart> 
  <LogicalPart name="YB2_w1N_m4" category="unspecified"> 
   <rSolid name="YB2_w1_m4"/> 
-  <rMaterial name="materials:Iron"/> 
+  <rMaterial name="materials:M_Steel-008"/> 
  </LogicalPart> 
  <LogicalPart name="YB2_w1P_m5" category="unspecified"> 
   <rSolid name="YB2_w1_m5"/> 
-  <rMaterial name="materials:Iron"/> 
+  <rMaterial name="materials:M_Steel-008"/> 
  </LogicalPart> 
  <LogicalPart name="YB2_w1N_m5" category="unspecified"> 
   <rSolid name="YB2_w1_m5"/> 
-  <rMaterial name="materials:Iron"/> 
+  <rMaterial name="materials:M_Steel-008"/> 
  </LogicalPart> 
  <LogicalPart name="YB2_w1P_m6" category="unspecified"> 
   <rSolid name="YB2_w1_m6"/> 
-  <rMaterial name="materials:Iron"/> 
+  <rMaterial name="materials:M_Steel-008"/> 
  </LogicalPart> 
  <LogicalPart name="YB2_w1N_m6" category="unspecified"> 
   <rSolid name="YB2_w1_m6"/> 
-  <rMaterial name="materials:Iron"/> 
+  <rMaterial name="materials:M_Steel-008"/> 
  </LogicalPart> 
  <LogicalPart name="YB2_w2P_m1" category="unspecified"> 
   <rSolid name="YB2_w2_m1"/> 
-  <rMaterial name="materials:Iron"/> 
+  <rMaterial name="materials:M_Steel-008"/> 
  </LogicalPart> 
  <LogicalPart name="YB2_w2N_m1" category="unspecified"> 
   <rSolid name="YB2_w2_m1"/> 
-  <rMaterial name="materials:Iron"/> 
+  <rMaterial name="materials:M_Steel-008"/> 
  </LogicalPart> 
  <LogicalPart name="YB2_w0_t1" category="unspecified"> 
   <rSolid name="YB2_w0_t1"/> 
-  <rMaterial name="materials:Iron"/> 
+  <rMaterial name="materials:M_Steel-008"/> 
  </LogicalPart> 
  <LogicalPart name="YB2_w0_t4" category="unspecified"> 
   <rSolid name="YB2_w0_t1"/> 
-  <rMaterial name="materials:Iron"/> 
+  <rMaterial name="materials:M_Steel-008"/> 
  </LogicalPart> 
  <LogicalPart name="YB2_w0_t2" category="unspecified"> 
   <rSolid name="YB2_w0_t2"/> 
-  <rMaterial name="materials:Iron"/> 
+  <rMaterial name="materials:M_Steel-008"/> 
  </LogicalPart> 
  <LogicalPart name="YB2_w0_t5" category="unspecified"> 
   <rSolid name="YB2_w0_t2"/> 
-  <rMaterial name="materials:Iron"/> 
+  <rMaterial name="materials:M_Steel-008"/> 
  </LogicalPart> 
  <LogicalPart name="YB2_w0_t3" category="unspecified"> 
   <rSolid name="YB2_w0_t3"/> 
-  <rMaterial name="materials:Iron"/> 
+  <rMaterial name="materials:M_Steel-008"/> 
  </LogicalPart> 
  <LogicalPart name="YB2_w0_t6" category="unspecified"> 
   <rSolid name="YB2_w0_t3"/> 
-  <rMaterial name="materials:Iron"/> 
+  <rMaterial name="materials:M_Steel-008"/> 
  </LogicalPart> 
  <LogicalPart name="YB2_w1P_t1" category="unspecified"> 
   <rSolid name="YB2_w1_t1"/> 
-  <rMaterial name="materials:Iron"/> 
+  <rMaterial name="materials:M_Steel-008"/> 
  </LogicalPart> 
  <LogicalPart name="YB2_w1N_t1" category="unspecified"> 
   <rSolid name="YB2_w1_t1"/> 
-  <rMaterial name="materials:Iron"/> 
+  <rMaterial name="materials:M_Steel-008"/> 
  </LogicalPart> 
  <LogicalPart name="YB2_w1P_t2" category="unspecified"> 
   <rSolid name="YB2_w1_t2"/> 
-  <rMaterial name="materials:Iron"/> 
+  <rMaterial name="materials:M_Steel-008"/> 
  </LogicalPart> 
  <LogicalPart name="YB2_w1N_t2" category="unspecified"> 
   <rSolid name="YB2_w1_t2"/> 
-  <rMaterial name="materials:Iron"/> 
+  <rMaterial name="materials:M_Steel-008"/> 
  </LogicalPart> 
  <LogicalPart name="YB2_w1P_t3" category="unspecified"> 
   <rSolid name="YB2_w1_t3"/> 
-  <rMaterial name="materials:Iron"/> 
+  <rMaterial name="materials:M_Steel-008"/> 
  </LogicalPart> 
  <LogicalPart name="YB2_w1N_t3" category="unspecified"> 
   <rSolid name="YB2_w1_t3"/> 
-  <rMaterial name="materials:Iron"/> 
+  <rMaterial name="materials:M_Steel-008"/> 
  </LogicalPart> 
  <LogicalPart name="YB2_w1P_t4" category="unspecified"> 
   <rSolid name="YB2_w1_t4"/> 
-  <rMaterial name="materials:Iron"/> 
+  <rMaterial name="materials:M_Steel-008"/> 
  </LogicalPart> 
  <LogicalPart name="YB2_w1N_t4" category="unspecified"> 
   <rSolid name="YB2_w1_t4"/> 
-  <rMaterial name="materials:Iron"/> 
+  <rMaterial name="materials:M_Steel-008"/> 
  </LogicalPart> 
  <LogicalPart name="YB2_w1P_t5" category="unspecified"> 
   <rSolid name="YB2_w1_t5"/> 
-  <rMaterial name="materials:Iron"/> 
+  <rMaterial name="materials:M_Steel-008"/> 
  </LogicalPart> 
  <LogicalPart name="YB2_w1N_t5" category="unspecified"> 
   <rSolid name="YB2_w1_t5"/> 
-  <rMaterial name="materials:Iron"/> 
+  <rMaterial name="materials:M_Steel-008"/> 
  </LogicalPart> 
  <LogicalPart name="YB2_w1P_t6" category="unspecified"> 
   <rSolid name="YB2_w1_t6"/> 
-  <rMaterial name="materials:Iron"/> 
+  <rMaterial name="materials:M_Steel-008"/> 
  </LogicalPart> 
  <LogicalPart name="YB2_w1N_t6" category="unspecified"> 
   <rSolid name="YB2_w1_t6"/> 
-  <rMaterial name="materials:Iron"/> 
+  <rMaterial name="materials:M_Steel-008"/> 
  </LogicalPart> 
  <LogicalPart name="YB2_w1P_t7" category="unspecified"> 
   <rSolid name="YB2_w1_t7"/> 
-  <rMaterial name="materials:Iron"/> 
+  <rMaterial name="materials:M_Steel-008"/> 
  </LogicalPart> 
  <LogicalPart name="YB2_w1N_t7" category="unspecified"> 
   <rSolid name="YB2_w1_t7"/> 
-  <rMaterial name="materials:Iron"/> 
+  <rMaterial name="materials:M_Steel-008"/> 
  </LogicalPart> 
  <LogicalPart name="YB2_w1P_t8" category="unspecified"> 
   <rSolid name="YB2_w1_t8"/> 
-  <rMaterial name="materials:Iron"/> 
+  <rMaterial name="materials:M_Steel-008"/> 
  </LogicalPart> 
  <LogicalPart name="YB2_w1N_t8" category="unspecified"> 
   <rSolid name="YB2_w1_t8"/> 
-  <rMaterial name="materials:Iron"/> 
+  <rMaterial name="materials:M_Steel-008"/> 
  </LogicalPart> 
  <LogicalPart name="YB2_w2P_t1" category="unspecified"> 
   <rSolid name="YB2_w2_t1"/> 
-  <rMaterial name="materials:Iron"/> 
+  <rMaterial name="materials:M_Steel-008"/> 
  </LogicalPart> 
  <LogicalPart name="YB2_w2N_t1" category="unspecified"> 
   <rSolid name="YB2_w2_t1"/> 
-  <rMaterial name="materials:Iron"/> 
+  <rMaterial name="materials:M_Steel-008"/> 
  </LogicalPart> 
  <LogicalPart name="YB2_w2P_t2" category="unspecified"> 
   <rSolid name="YB2_w2_t2"/> 
-  <rMaterial name="materials:Iron"/> 
+  <rMaterial name="materials:M_Steel-008"/> 
  </LogicalPart> 
  <LogicalPart name="YB2_w2N_t2" category="unspecified"> 
   <rSolid name="YB2_w2_t2"/> 
-  <rMaterial name="materials:Iron"/> 
+  <rMaterial name="materials:M_Steel-008"/> 
  </LogicalPart> 
  <LogicalPart name="YB2_w2P_t3" category="unspecified"> 
   <rSolid name="YB2_w2_t3"/> 
-  <rMaterial name="materials:Iron"/> 
+  <rMaterial name="materials:M_Steel-008"/> 
  </LogicalPart> 
  <LogicalPart name="YB2_w2N_t3" category="unspecified"> 
   <rSolid name="YB2_w2_t3"/> 
-  <rMaterial name="materials:Iron"/> 
+  <rMaterial name="materials:M_Steel-008"/> 
  </LogicalPart> 
  <LogicalPart name="YBSepar3_w0_1" category="unspecified"> 
   <rSolid name="YBSepar3_w0"/> 
-  <rMaterial name="materials:Iron"/> 
+  <rMaterial name="materials:M_Steel-008"/> 
  </LogicalPart> 
  <LogicalPart name="YBSepar3_w0_2" category="unspecified"> 
   <rSolid name="YBSepar3_w0"/> 
-  <rMaterial name="materials:Iron"/> 
+  <rMaterial name="materials:M_Steel-008"/> 
  </LogicalPart> 
  <LogicalPart name="YBSepar3_w1P" category="unspecified"> 
   <rSolid name="YBSepar3_w1"/> 
-  <rMaterial name="materials:Iron"/> 
+  <rMaterial name="materials:M_Steel-008"/> 
  </LogicalPart> 
  <LogicalPart name="YBSepar3_w1N" category="unspecified"> 
   <rSolid name="YBSepar3_w1"/> 
-  <rMaterial name="materials:Iron"/> 
+  <rMaterial name="materials:M_Steel-008"/> 
  </LogicalPart> 
  <LogicalPart name="YBSepar3_w2P" category="unspecified"> 
   <rSolid name="YBSepar3_w2"/> 
-  <rMaterial name="materials:Iron"/> 
+  <rMaterial name="materials:M_Steel-008"/> 
  </LogicalPart> 
  <LogicalPart name="YBSepar3_w2N" category="unspecified"> 
   <rSolid name="YBSepar3_w2"/> 
-  <rMaterial name="materials:Iron"/> 
+  <rMaterial name="materials:M_Steel-008"/> 
  </LogicalPart> 
  <LogicalPart name="YB3_w0_b1" category="unspecified"> 
   <rSolid name="YB3_w0_b1"/> 
-  <rMaterial name="materials:Iron"/> 
+  <rMaterial name="materials:M_Steel-008"/> 
  </LogicalPart> 
  <LogicalPart name="YB3_w0_b4" category="unspecified"> 
   <rSolid name="YB3_w0_b1"/> 
-  <rMaterial name="materials:Iron"/> 
+  <rMaterial name="materials:M_Steel-008"/> 
  </LogicalPart> 
  <LogicalPart name="YB3_w0_b2" category="unspecified"> 
   <rSolid name="YB3_w0_b2"/> 
-  <rMaterial name="materials:Iron"/> 
+  <rMaterial name="materials:M_Steel-008"/> 
  </LogicalPart> 
  <LogicalPart name="YB3_w0_b5" category="unspecified"> 
   <rSolid name="YB3_w0_b2"/> 
-  <rMaterial name="materials:Iron"/> 
+  <rMaterial name="materials:M_Steel-008"/> 
  </LogicalPart> 
  <LogicalPart name="YB3_w0_b3" category="unspecified"> 
   <rSolid name="YB3_w0_b3"/> 
-  <rMaterial name="materials:Iron"/> 
+  <rMaterial name="materials:M_Steel-008"/> 
  </LogicalPart> 
  <LogicalPart name="YB3_w0_b6" category="unspecified"> 
   <rSolid name="YB3_w0_b3"/> 
-  <rMaterial name="materials:Iron"/> 
+  <rMaterial name="materials:M_Steel-008"/> 
  </LogicalPart> 
  <LogicalPart name="YB3_w1P_b1" category="unspecified"> 
   <rSolid name="YB3_w1_b1"/> 
-  <rMaterial name="materials:Iron"/> 
+  <rMaterial name="materials:M_Steel-008"/> 
  </LogicalPart> 
  <LogicalPart name="YB3_w1N_b1" category="unspecified"> 
   <rSolid name="YB3_w1_b1"/> 
-  <rMaterial name="materials:Iron"/> 
+  <rMaterial name="materials:M_Steel-008"/> 
  </LogicalPart> 
  <LogicalPart name="YB3_w1P_b2" category="unspecified"> 
   <rSolid name="YB3_w1_b2"/> 
-  <rMaterial name="materials:Iron"/> 
+  <rMaterial name="materials:M_Steel-008"/> 
  </LogicalPart> 
  <LogicalPart name="YB3_w1N_b2" category="unspecified"> 
   <rSolid name="YB3_w1_b2"/> 
-  <rMaterial name="materials:Iron"/> 
+  <rMaterial name="materials:M_Steel-008"/> 
  </LogicalPart> 
  <LogicalPart name="YB3_w1P_b3" category="unspecified"> 
   <rSolid name="YB3_w1_b3"/> 
-  <rMaterial name="materials:Iron"/> 
+  <rMaterial name="materials:M_Steel-008"/> 
  </LogicalPart> 
  <LogicalPart name="YB3_w1N_b3" category="unspecified"> 
   <rSolid name="YB3_w1_b3"/> 
-  <rMaterial name="materials:Iron"/> 
+  <rMaterial name="materials:M_Steel-008"/> 
  </LogicalPart> 
  <LogicalPart name="YB3_w1P_b4" category="unspecified"> 
   <rSolid name="YB3_w1_b4"/> 
-  <rMaterial name="materials:Iron"/> 
+  <rMaterial name="materials:M_Steel-008"/> 
  </LogicalPart> 
  <LogicalPart name="YB3_w1N_b4" category="unspecified"> 
   <rSolid name="YB3_w1_b4"/> 
-  <rMaterial name="materials:Iron"/> 
+  <rMaterial name="materials:M_Steel-008"/> 
  </LogicalPart> 
  <LogicalPart name="YB3_w1P_b5" category="unspecified"> 
   <rSolid name="YB3_w1_b5"/> 
-  <rMaterial name="materials:Iron"/> 
+  <rMaterial name="materials:M_Steel-008"/> 
  </LogicalPart> 
  <LogicalPart name="YB3_w1N_b5" category="unspecified"> 
   <rSolid name="YB3_w1_b5"/> 
-  <rMaterial name="materials:Iron"/> 
+  <rMaterial name="materials:M_Steel-008"/> 
  </LogicalPart> 
  <LogicalPart name="YB3_w1P_b6" category="unspecified"> 
   <rSolid name="YB3_w1_b6"/> 
-  <rMaterial name="materials:Iron"/> 
+  <rMaterial name="materials:M_Steel-008"/> 
  </LogicalPart> 
  <LogicalPart name="YB3_w1N_b6" category="unspecified"> 
   <rSolid name="YB3_w1_b6"/> 
-  <rMaterial name="materials:Iron"/> 
+  <rMaterial name="materials:M_Steel-008"/> 
  </LogicalPart> 
  <LogicalPart name="YB3_w1P_b7" category="unspecified"> 
   <rSolid name="YB3_w1_b7"/> 
-  <rMaterial name="materials:Iron"/> 
+  <rMaterial name="materials:M_Steel-008"/> 
  </LogicalPart> 
  <LogicalPart name="YB3_w1N_b7" category="unspecified"> 
   <rSolid name="YB3_w1_b7"/> 
-  <rMaterial name="materials:Iron"/> 
+  <rMaterial name="materials:M_Steel-008"/> 
  </LogicalPart> 
  <LogicalPart name="YB3_w1P_b8" category="unspecified"> 
   <rSolid name="YB3_w1_b8"/> 
-  <rMaterial name="materials:Iron"/> 
+  <rMaterial name="materials:M_Steel-008"/> 
  </LogicalPart> 
  <LogicalPart name="YB3_w1N_b8" category="unspecified"> 
   <rSolid name="YB3_w1_b8"/> 
-  <rMaterial name="materials:Iron"/> 
+  <rMaterial name="materials:M_Steel-008"/> 
  </LogicalPart> 
  <LogicalPart name="YB3_w2P_b1" category="unspecified"> 
   <rSolid name="YB3_w2_b1"/> 
-  <rMaterial name="materials:Iron"/> 
+  <rMaterial name="materials:M_Steel-008"/> 
  </LogicalPart> 
  <LogicalPart name="YB3_w2N_b1" category="unspecified"> 
   <rSolid name="YB3_w2_b1"/> 
-  <rMaterial name="materials:Iron"/> 
+  <rMaterial name="materials:M_Steel-008"/> 
  </LogicalPart> 
  <LogicalPart name="YB3_w2P_b2" category="unspecified"> 
   <rSolid name="YB3_w2_b2"/> 
-  <rMaterial name="materials:Iron"/> 
+  <rMaterial name="materials:M_Steel-008"/> 
  </LogicalPart> 
  <LogicalPart name="YB3_w2N_b2" category="unspecified"> 
   <rSolid name="YB3_w2_b2"/> 
-  <rMaterial name="materials:Iron"/> 
+  <rMaterial name="materials:M_Steel-008"/> 
  </LogicalPart> 
  <LogicalPart name="YB3_w2P_b3" category="unspecified"> 
   <rSolid name="YB3_w2_b3"/> 
-  <rMaterial name="materials:Iron"/> 
+  <rMaterial name="materials:M_Steel-008"/> 
  </LogicalPart> 
  <LogicalPart name="YB3_w2N_b3" category="unspecified"> 
   <rSolid name="YB3_w2_b3"/> 
-  <rMaterial name="materials:Iron"/> 
+  <rMaterial name="materials:M_Steel-008"/> 
  </LogicalPart> 
  <LogicalPart name="YB3_w0_m1" category="unspecified"> 
   <rSolid name="YB3_w0_m"/> 
-  <rMaterial name="materials:Iron"/> 
+  <rMaterial name="materials:M_Steel-008"/> 
  </LogicalPart> 
  <LogicalPart name="YB3_w0_m2" category="unspecified"> 
   <rSolid name="YB3_w0_m"/> 
-  <rMaterial name="materials:Iron"/> 
+  <rMaterial name="materials:M_Steel-008"/> 
  </LogicalPart> 
  <LogicalPart name="YB3_w1P_m1" category="unspecified"> 
   <rSolid name="YB3_w1_m1"/> 
-  <rMaterial name="materials:Iron"/> 
+  <rMaterial name="materials:M_Steel-008"/> 
  </LogicalPart> 
  <LogicalPart name="YB3_w1N_m1" category="unspecified"> 
   <rSolid name="YB3_w1_m1"/> 
-  <rMaterial name="materials:Iron"/> 
+  <rMaterial name="materials:M_Steel-008"/> 
  </LogicalPart> 
  <LogicalPart name="YB3_w1P_m2" category="unspecified"> 
   <rSolid name="YB3_w1_m2"/> 
-  <rMaterial name="materials:Iron"/> 
+  <rMaterial name="materials:M_Steel-008"/> 
  </LogicalPart> 
  <LogicalPart name="YB3_w1N_m2" category="unspecified"> 
   <rSolid name="YB3_w1_m2"/> 
-  <rMaterial name="materials:Iron"/> 
+  <rMaterial name="materials:M_Steel-008"/> 
  </LogicalPart> 
  <LogicalPart name="YB3_w1P_m3" category="unspecified"> 
   <rSolid name="YB3_w1_m3"/> 
-  <rMaterial name="materials:Iron"/> 
+  <rMaterial name="materials:M_Steel-008"/> 
  </LogicalPart> 
  <LogicalPart name="YB3_w1N_m3" category="unspecified"> 
   <rSolid name="YB3_w1_m3"/> 
-  <rMaterial name="materials:Iron"/> 
+  <rMaterial name="materials:M_Steel-008"/> 
  </LogicalPart> 
  <LogicalPart name="YB3_w1P_m4" category="unspecified"> 
   <rSolid name="YB3_w1_m4"/> 
-  <rMaterial name="materials:Iron"/> 
+  <rMaterial name="materials:M_Steel-008"/> 
  </LogicalPart> 
  <LogicalPart name="YB3_w1N_m4" category="unspecified"> 
   <rSolid name="YB3_w1_m4"/> 
-  <rMaterial name="materials:Iron"/> 
+  <rMaterial name="materials:M_Steel-008"/> 
  </LogicalPart> 
  <LogicalPart name="YB3_w1P_m5" category="unspecified"> 
   <rSolid name="YB3_w1_m5"/> 
-  <rMaterial name="materials:Iron"/> 
+  <rMaterial name="materials:M_Steel-008"/> 
  </LogicalPart> 
  <LogicalPart name="YB3_w1N_m5" category="unspecified"> 
   <rSolid name="YB3_w1_m5"/> 
-  <rMaterial name="materials:Iron"/> 
+  <rMaterial name="materials:M_Steel-008"/> 
  </LogicalPart> 
  <LogicalPart name="YB3_w1P_m6" category="unspecified"> 
   <rSolid name="YB3_w1_m6"/> 
-  <rMaterial name="materials:Iron"/> 
+  <rMaterial name="materials:M_Steel-008"/> 
  </LogicalPart> 
  <LogicalPart name="YB3_w1N_m6" category="unspecified"> 
   <rSolid name="YB3_w1_m6"/> 
-  <rMaterial name="materials:Iron"/> 
+  <rMaterial name="materials:M_Steel-008"/> 
  </LogicalPart> 
  <LogicalPart name="YB3_w2P_m1" category="unspecified"> 
   <rSolid name="YB3_w2_m1"/> 
-  <rMaterial name="materials:Iron"/> 
+  <rMaterial name="materials:M_Steel-008"/> 
  </LogicalPart> 
  <LogicalPart name="YB3_w2N_m1" category="unspecified"> 
   <rSolid name="YB3_w2_m1"/> 
-  <rMaterial name="materials:Iron"/> 
+  <rMaterial name="materials:M_Steel-008"/> 
  </LogicalPart> 
  <LogicalPart name="YB3_w0_t1" category="unspecified"> 
   <rSolid name="YB3_w0_t1"/> 
-  <rMaterial name="materials:Iron"/> 
+  <rMaterial name="materials:M_Steel-008"/> 
  </LogicalPart> 
  <LogicalPart name="YB3_w0_t4" category="unspecified"> 
   <rSolid name="YB3_w0_t1"/> 
-  <rMaterial name="materials:Iron"/> 
+  <rMaterial name="materials:M_Steel-008"/> 
  </LogicalPart> 
  <LogicalPart name="YB3_w0_t2" category="unspecified"> 
   <rSolid name="YB3_w0_t2"/> 
-  <rMaterial name="materials:Iron"/> 
+  <rMaterial name="materials:M_Steel-008"/> 
  </LogicalPart> 
  <LogicalPart name="YB3_w0_t5" category="unspecified"> 
   <rSolid name="YB3_w0_t2"/> 
-  <rMaterial name="materials:Iron"/> 
+  <rMaterial name="materials:M_Steel-008"/> 
  </LogicalPart> 
  <LogicalPart name="YB3_w0_t3" category="unspecified"> 
   <rSolid name="YB3_w0_t3"/> 
-  <rMaterial name="materials:Iron"/> 
+  <rMaterial name="materials:M_Steel-008"/> 
  </LogicalPart> 
  <LogicalPart name="YB3_w0_t6" category="unspecified"> 
   <rSolid name="YB3_w0_t3"/> 
-  <rMaterial name="materials:Iron"/> 
+  <rMaterial name="materials:M_Steel-008"/> 
  </LogicalPart> 
  <LogicalPart name="YB3_w1P_t1" category="unspecified"> 
   <rSolid name="YB3_w1_t1"/> 
-  <rMaterial name="materials:Iron"/> 
+  <rMaterial name="materials:M_Steel-008"/> 
  </LogicalPart> 
  <LogicalPart name="YB3_w1N_t1" category="unspecified"> 
   <rSolid name="YB3_w1_t1"/> 
-  <rMaterial name="materials:Iron"/> 
+  <rMaterial name="materials:M_Steel-008"/> 
  </LogicalPart> 
  <LogicalPart name="YB3_w1P_t2" category="unspecified"> 
   <rSolid name="YB3_w1_t2"/> 
-  <rMaterial name="materials:Iron"/> 
+  <rMaterial name="materials:M_Steel-008"/> 
  </LogicalPart> 
  <LogicalPart name="YB3_w1N_t2" category="unspecified"> 
   <rSolid name="YB3_w1_t2"/> 
-  <rMaterial name="materials:Iron"/> 
+  <rMaterial name="materials:M_Steel-008"/> 
  </LogicalPart> 
  <LogicalPart name="YB3_w1P_t3" category="unspecified"> 
   <rSolid name="YB3_w1_t3"/> 
-  <rMaterial name="materials:Iron"/> 
+  <rMaterial name="materials:M_Steel-008"/> 
  </LogicalPart> 
  <LogicalPart name="YB3_w1N_t3" category="unspecified"> 
   <rSolid name="YB3_w1_t3"/> 
-  <rMaterial name="materials:Iron"/> 
+  <rMaterial name="materials:M_Steel-008"/> 
  </LogicalPart> 
  <LogicalPart name="YB3_w1P_t4" category="unspecified"> 
   <rSolid name="YB3_w1_t4"/> 
-  <rMaterial name="materials:Iron"/> 
+  <rMaterial name="materials:M_Steel-008"/> 
  </LogicalPart> 
  <LogicalPart name="YB3_w1N_t4" category="unspecified"> 
   <rSolid name="YB3_w1_t4"/> 
-  <rMaterial name="materials:Iron"/> 
+  <rMaterial name="materials:M_Steel-008"/> 
  </LogicalPart> 
  <LogicalPart name="YB3_w1P_t5" category="unspecified"> 
   <rSolid name="YB3_w1_t5"/> 
-  <rMaterial name="materials:Iron"/> 
+  <rMaterial name="materials:M_Steel-008"/> 
  </LogicalPart> 
  <LogicalPart name="YB3_w1N_t5" category="unspecified"> 
   <rSolid name="YB3_w1_t5"/> 
-  <rMaterial name="materials:Iron"/> 
+  <rMaterial name="materials:M_Steel-008"/> 
  </LogicalPart> 
  <LogicalPart name="YB3_w1P_t6" category="unspecified"> 
   <rSolid name="YB3_w1_t6"/> 
-  <rMaterial name="materials:Iron"/> 
+  <rMaterial name="materials:M_Steel-008"/> 
  </LogicalPart> 
  <LogicalPart name="YB3_w1N_t6" category="unspecified"> 
   <rSolid name="YB3_w1_t6"/> 
-  <rMaterial name="materials:Iron"/> 
+  <rMaterial name="materials:M_Steel-008"/> 
  </LogicalPart> 
  <LogicalPart name="YB3_w1P_t7" category="unspecified"> 
   <rSolid name="YB3_w1_t7"/> 
-  <rMaterial name="materials:Iron"/> 
+  <rMaterial name="materials:M_Steel-008"/> 
  </LogicalPart> 
  <LogicalPart name="YB3_w1N_t7" category="unspecified"> 
   <rSolid name="YB3_w1_t7"/> 
-  <rMaterial name="materials:Iron"/> 
+  <rMaterial name="materials:M_Steel-008"/> 
  </LogicalPart> 
  <LogicalPart name="YB3_w1P_t8" category="unspecified"> 
   <rSolid name="YB3_w1_t8"/> 
-  <rMaterial name="materials:Iron"/> 
+  <rMaterial name="materials:M_Steel-008"/> 
  </LogicalPart> 
  <LogicalPart name="YB3_w1N_t8" category="unspecified"> 
   <rSolid name="YB3_w1_t8"/> 
-  <rMaterial name="materials:Iron"/> 
+  <rMaterial name="materials:M_Steel-008"/> 
  </LogicalPart> 
  <LogicalPart name="YB3_w2P_t1" category="unspecified"> 
   <rSolid name="YB3_w2_t1"/> 
-  <rMaterial name="materials:Iron"/> 
+  <rMaterial name="materials:M_Steel-008"/> 
  </LogicalPart> 
  <LogicalPart name="YB3_w2N_t1" category="unspecified"> 
   <rSolid name="YB3_w2_t1"/> 
-  <rMaterial name="materials:Iron"/> 
+  <rMaterial name="materials:M_Steel-008"/> 
  </LogicalPart> 
  <LogicalPart name="YB3_w2P_t2" category="unspecified"> 
   <rSolid name="YB3_w2_t2"/> 
-  <rMaterial name="materials:Iron"/> 
+  <rMaterial name="materials:M_Steel-008"/> 
  </LogicalPart> 
  <LogicalPart name="YB3_w2N_t2" category="unspecified"> 
   <rSolid name="YB3_w2_t2"/> 
-  <rMaterial name="materials:Iron"/> 
+  <rMaterial name="materials:M_Steel-008"/> 
  </LogicalPart> 
  <LogicalPart name="YB3_w2P_t3" category="unspecified"> 
   <rSolid name="YB3_w2_t3"/> 
-  <rMaterial name="materials:Iron"/> 
+  <rMaterial name="materials:M_Steel-008"/> 
  </LogicalPart> 
  <LogicalPart name="YB3_w2N_t3" category="unspecified"> 
   <rSolid name="YB3_w2_t3"/> 
-  <rMaterial name="materials:Iron"/> 
+  <rMaterial name="materials:M_Steel-008"/> 
  </LogicalPart> 
 
  <LogicalPart name="CHIMHOLE_IRON_P" category="unspecified"> 
@@ -1174,92 +1129,92 @@ END COMMENT-->
 
  <LogicalPart name="YB1Chim_w1N_b3" category="unspecified"> 
   <rSolid name="YB1Chim_w1N_b3"/> 
-  <rMaterial name="materials:Iron"/> 
+  <rMaterial name="materials:M_Steel-008"/> 
  </LogicalPart> 
  <LogicalPart name="YB1Chim_w1N_b5" category="unspecified"> 
   <rSolid name="YB1Chim_w1N_b5"/> 
-  <rMaterial name="materials:Iron"/> 
+  <rMaterial name="materials:M_Steel-008"/> 
  </LogicalPart> 
  <LogicalPart name="YB1Chim_w1N_m3" category="unspecified"> 
   <rSolid name="YB1Chim_w1N_m3"/> 
-  <rMaterial name="materials:Iron"/> 
+  <rMaterial name="materials:M_Steel-008"/> 
  </LogicalPart> 
  <LogicalPart name="YB1Chim_w1N_m2" category="unspecified"> 
   <rSolid name="YB1Chim_w1N_m2"/> 
-  <rMaterial name="materials:Iron"/> 
+  <rMaterial name="materials:M_Steel-008"/> 
  </LogicalPart> 
  <LogicalPart name="YB1Chim_w1N_m4" category="unspecified"> 
   <rSolid name="YB1Chim_w1N_m4"/> 
-  <rMaterial name="materials:Iron"/> 
+  <rMaterial name="materials:M_Steel-008"/> 
  </LogicalPart> 
  <LogicalPart name="YB2Chim_w1N_b3" category="unspecified"> 
   <rSolid name="YB2Chim_w1N_b3"/> 
-  <rMaterial name="materials:Iron"/> 
+  <rMaterial name="materials:M_Steel-008"/> 
  </LogicalPart> 
  <LogicalPart name="YB2Chim_w1N_b5" category="unspecified"> 
   <rSolid name="YB2Chim_w1N_b5"/> 
-  <rMaterial name="materials:Iron"/> 
+  <rMaterial name="materials:M_Steel-008"/> 
  </LogicalPart> 
  <LogicalPart name="YB2Chim_w1N_m3" category="unspecified"> 
   <rSolid name="YB2Chim_w1N_m3"/> 
-  <rMaterial name="materials:Iron"/> 
+  <rMaterial name="materials:M_Steel-008"/> 
  </LogicalPart> 
  <LogicalPart name="YB2Chim_w1N_m2" category="unspecified"> 
   <rSolid name="YB2Chim_w1N_m2"/> 
-  <rMaterial name="materials:Iron"/> 
+  <rMaterial name="materials:M_Steel-008"/> 
  </LogicalPart> 
  <LogicalPart name="YB2Chim_w1N_m4" category="unspecified"> 
   <rSolid name="YB2Chim_w1N_m4"/> 
-  <rMaterial name="materials:Iron"/> 
+  <rMaterial name="materials:M_Steel-008"/> 
  </LogicalPart> 
  <LogicalPart name="YB2Chim_w1N_t3" category="unspecified"> 
   <rSolid name="YB2Chim_w1N_t3"/> 
-  <rMaterial name="materials:Iron"/> 
+  <rMaterial name="materials:M_Steel-008"/> 
  </LogicalPart> 
  <LogicalPart name="YB2Chim_w1N_t5" category="unspecified"> 
   <rSolid name="YB2Chim_w1N_t5"/> 
-  <rMaterial name="materials:Iron"/> 
+  <rMaterial name="materials:M_Steel-008"/> 
  </LogicalPart> 
  <LogicalPart name="YB3Chim_w1N_b3" category="unspecified"> 
   <rSolid name="YB3Chim_w1N_b3"/> 
-  <rMaterial name="materials:Iron"/> 
+  <rMaterial name="materials:M_Steel-008"/> 
  </LogicalPart> 
  <LogicalPart name="YB3Chim_w1N_b5" category="unspecified"> 
   <rSolid name="YB3Chim_w1N_b5"/> 
-  <rMaterial name="materials:Iron"/> 
+  <rMaterial name="materials:M_Steel-008"/> 
  </LogicalPart> 
  <LogicalPart name="YB3Chim_w1N_m3" category="unspecified"> 
   <rSolid name="YB3Chim_w1N_m3"/> 
-  <rMaterial name="materials:Iron"/> 
+  <rMaterial name="materials:M_Steel-008"/> 
  </LogicalPart> 
  <LogicalPart name="YB3Chim_w1N_m2" category="unspecified"> 
   <rSolid name="YB3Chim_w1N_m2"/> 
-  <rMaterial name="materials:Iron"/> 
+  <rMaterial name="materials:M_Steel-008"/> 
  </LogicalPart> 
  <LogicalPart name="YB3Chim_w1N_m4" category="unspecified"> 
   <rSolid name="YB3Chim_w1N_m4"/> 
-  <rMaterial name="materials:Iron"/> 
+  <rMaterial name="materials:M_Steel-008"/> 
  </LogicalPart> 
  <LogicalPart name="YB3Chim_w1N_t3" category="unspecified"> 
   <rSolid name="YB3Chim_w1N_t3"/> 
-  <rMaterial name="materials:Iron"/> 
+  <rMaterial name="materials:M_Steel-008"/> 
  </LogicalPart> 
  <LogicalPart name="YB3Chim_w1N_t5" category="unspecified"> 
   <rSolid name="YB3Chim_w1N_t5"/> 
-  <rMaterial name="materials:Iron"/> 
+  <rMaterial name="materials:M_Steel-008"/> 
  </LogicalPart> 
 
  <LogicalPart name="YB1Chim_w1P_m3" category="unspecified"> 
   <rSolid name="YB1Chim_w1P_m3"/> 
-  <rMaterial name="materials:Iron"/> 
+  <rMaterial name="materials:M_Steel-008"/> 
  </LogicalPart> 
  <LogicalPart name="YB2Chim_w1P_m3" category="unspecified"> 
   <rSolid name="YB2Chim_w1P_m3"/> 
-  <rMaterial name="materials:Iron"/> 
+  <rMaterial name="materials:M_Steel-008"/> 
  </LogicalPart> 
  <LogicalPart name="YB3Chim_w1P_m3" category="unspecified"> 
   <rSolid name="YB3Chim_w1P_m3"/> 
-  <rMaterial name="materials:Iron"/> 
+  <rMaterial name="materials:M_Steel-008"/> 
  </LogicalPart> 
 
 <!--- #### Non iron volumes --> 
@@ -1346,7 +1301,7 @@ END COMMENT-->
  </AlgoPosPart> 
  <AlgoPosPart algo="global:angular"> 
   <rParent name="mf:ME"/> 
-  <rChild name="YE12p"/> 
+  <rChild name="YE12"/> 
   <ParE name="n" value="12"/> 
   <ParE name="startAngle" value="0*deg"/> 
   <ParE name="rangeAngle" value="360*deg"/> 
@@ -1391,7 +1346,7 @@ END COMMENT-->
  </AlgoPosPart> 
  <AlgoPosPart algo="global:angular"> 
   <rParent name="mf:ME"/> 
-  <rChild name="YE23p"/> 
+  <rChild name="YE23"/> 
   <ParE name="n" value="12"/> 
   <ParE name="startAngle" value="0*deg"/> 
   <ParE name="rangeAngle" value="360*deg"/> 
@@ -1436,7 +1391,7 @@ END COMMENT-->
  </AlgoPosPart> 
  <AlgoPosPart algo="global:angular"> 
   <rParent name="mf:ME"/> 
-  <rChild name="YE34p"/> 
+  <rChild name="YE34"/> 
   <ParE name="n" value="12"/> 
   <ParE name="startAngle" value="0*deg"/> 
   <ParE name="rangeAngle" value="360*deg"/> 
@@ -1450,7 +1405,7 @@ END COMMENT-->
  </AlgoPosPart> 
  <AlgoPosPart algo="global:angular"> 
   <rParent name="mf:ME"/> 
-  <rChild name="ShieldingME4p"/> 
+  <rChild name="ShieldingME4"/> 
   <ParE name="n" value="12"/> 
   <ParE name="startAngle" value="0*deg"/> 
   <ParE name="rangeAngle" value="360*deg"/> 
@@ -1464,7 +1419,7 @@ END COMMENT-->
  </AlgoPosPart> 
  <AlgoPosPart algo="global:angular"> 
   <rParent name="mf:ME"/> 
-  <rChild name="YE4p"/> 
+  <rChild name="YE4"/> 
   <ParE name="n" value="12"/> 
   <ParE name="startAngle" value="0*deg"/> 
   <ParE name="rangeAngle" value="360*deg"/> 
