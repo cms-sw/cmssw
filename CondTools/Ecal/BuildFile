@@ -1,24 +1,18 @@
-<Flags CXXFLAGS=-g>
-
-<use name=boost>
-<use name=FWCore/Framework>
+<use name=CondCore/DBCommon>
+<use name=CondCore/DBOutputService>
+<use name=CondCore/PopCon>
+<use name=CondFormats/DataRecord>
+<use name=CondFormats/EcalObjects>
 <use name=DataFormats/Common>
 <use name=DataFormats/EcalDetId>
-<use name=CondCore/DBOutputService>
-<use name=CondFormats/EcalObjects>
-<use name=CondFormats/DataRecord>
+<use name=DataFormats/Provenance>
+<use name=FWCore/Framework>
+<use name=FWCore/MessageLogger>
+<use name=FWCore/ParameterSet>
+<use name=FWCore/PluginManager>
+<use name=FWCore/ServiceRegistry>
 <use name=OnlineDB/EcalCondDB>
-<use name=CondCore/PopCon>
-
-
+<use name=OnlineDB/Oracle>
+<use name=boost>
+<flags CXXFLAGS="-g">
 <flags EDM_PLUGIN=1>
-<export>
-<lib name=CondToolsEcal>
-<use name=FWCore/Framework>
-<use name=DataFormats/Common>
-<use name=DataFormats/EcalDetId>
-<use name=CondCore/DBOutputService>
-<use name=CondFormats/EcalObjects>
-<use name=CondFormats/DataRecord>
-<use name=CondCore/PopCon>
-</export>
