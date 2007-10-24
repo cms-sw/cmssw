@@ -1,11 +1,16 @@
+2007-10-23  Harry Cheung <cheung@fnal.gov>
+
+	* tag V03-07-10
+	* Fix of DQMInstance.cc from Billbadgett for number of digits for run and
+          lumi numbers, same convention as for event data files. Also to chmod to
+          DQM output root files to make them world readable.
+
 2007-10-18  Harry Cheung <cheung@fnal.gov>
 
 	* tag V03-07-09
 	* Fixed ConsumerPipe to avoid 2 sec/event delay in pushing events to the
           SMProxyServer, and also fix intermittent hang in pushing events when
           curl tries to reuse a dead connection
-
-          if we have requested DQM archiving
 
 2007-10-14  Harry Cheung <cheung@fnal.gov>
 
