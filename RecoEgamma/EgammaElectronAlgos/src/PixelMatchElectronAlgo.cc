@@ -12,7 +12,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Thu july 6 13:22:06 CEST 2006
-// $Id: PixelMatchElectronAlgo.cc,v 1.54 2007/10/23 11:25:24 uberthon Exp $
+// $Id: PixelMatchElectronAlgo.cc,v 1.55 2007/10/23 12:37:09 uberthon Exp $
 //
 //
 
@@ -84,12 +84,12 @@ PixelMatchElectronAlgo::PixelMatchElectronAlgo(const edm::ParameterSet& conf,
                                                double maxEOverPBarrel, double maxEOverPEndcaps, 
                                                double minEOverPBarrel, double minEOverPEndcaps,
                                                double hOverEConeSize, double maxHOverE, 
-                                               double maxDeltaEta, double maxDeltaPhi, double ptcut,
+                                               double maxDeltaEta, double maxDeltaPhi, double Etcut,
 					       bool highPtPresel, double highPtMin):  
   maxEOverPBarrel_(maxEOverPBarrel), maxEOverPEndcaps_(maxEOverPEndcaps), 
   minEOverPBarrel_(minEOverPBarrel), minEOverPEndcaps_(minEOverPEndcaps), 
   hOverEConeSize_(hOverEConeSize), maxHOverE_(maxHOverE), 
-  maxDeltaEta_(maxDeltaEta), maxDeltaPhi_(maxDeltaPhi), ptCut_(ptcut),
+  maxDeltaEta_(maxDeltaEta), maxDeltaPhi_(maxDeltaPhi), EtCut_(Etcut),
   highPtPreselection_(highPtPresel), highPtMin_(highPtMin)
 {   
  // this is the new version allowing to configurate the algo
@@ -245,16 +245,19 @@ bool PixelMatchElectronAlgo::preSelection(const SuperCluster& clus)
 
   LogDebug("")<< "========== preSelection ==========";
 
+  double rt2 = clus.x()*clus.x() + clus.y()*clus.y();
+  double r2 = rt2 + clus.z()*clus.z();
+  double Et =clus.energy()*sqrt(rt2/r2);
+
   // pt min
   LogDebug("") << "pT : " << vtxMom_.perp();
-  if (vtxMom_.perp() < ptCut_)   return false;
+  if (Et< EtCut_)   return false;
 
   // E/p cut
   LogDebug("") << "E/p : " << clus.energy()/vtxMom_.mag();
-  double rt2 = clus.x()*clus.x() + clus.y()*clus.y();
-  double r2 = rt2 + clus.z()*clus.z();
+
   // no E/p preselection for high pT electrons
-  if (!highPtPreselection_ || clus.energy()*sqrt(rt2/r2) <= highPtMin_) {
+  if (!highPtPreselection_ || Et <= highPtMin_) {
     if ((subdet_==EcalBarrel) && (clus.energy()/vtxMom_.mag() > maxEOverPBarrel_)) return false;
     if ((subdet_==EcalEndcap) && (clus.energy()/vtxMom_.mag() > maxEOverPEndcaps_)) return false;
     if ((subdet_==EcalBarrel) && (clus.energy()/vtxMom_.mag() < minEOverPBarrel_)) return false;

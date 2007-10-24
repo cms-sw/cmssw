@@ -41,7 +41,7 @@ public:
                          double maxEOverPBarrel, double maxEOverPEndcaps, 
                          double minEOverPBarrel, double minEOverPEndcaps,
                          double hOverEConeSize, double maxHOverE, 
-                         double maxDeltaEta, double maxDeltaPhi, double ptCut,
+                         double maxDeltaEta, double maxDeltaPhi, double EtCut,
 			 bool highPtPresel, double highPtMin);
 
   ~PixelMatchElectronAlgo();
@@ -109,7 +109,7 @@ public:
   double maxDeltaPhi_;
 
   // min pT
-  double ptCut_;
+  double EtCut_;
   
   // high pt preselection parameters
   bool highPtPreselection_;
