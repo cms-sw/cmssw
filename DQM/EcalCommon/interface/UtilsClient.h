@@ -1,11 +1,11 @@
-// $Id: UtilsClient.h,v 1.2 2007/06/11 12:41:18 dellaric Exp $
+// $Id: UtilsClient.h,v 1.3 2007/07/02 11:55:23 dellaric Exp $
 
 /*!
   \file UtilsClient.h
   \brief Ecal Monitor Utils for Client
   \author B. Gobbo 
-  \version $Revision: 1.2 $
-  \date $Date: 2007/06/11 12:41:18 $
+  \version $Revision: 1.3 $
+  \date $Date: 2007/07/02 11:55:23 $
 */
 
 #ifndef UtilsClient_H
@@ -60,12 +60,6 @@ class UtilsClient {
     }
     return ret;
   }
-
-  /*! \fn static void resetHisto( const MonitorElement* me )
-      \brief Reset the ROOT object contained by the monitoring element
-      \param me input Monitor Element.
-   */
-  static void resetHisto( const MonitorElement* me );
 
   /*! \fn template<class T> static void printBadChannels( const T* qth )
       \brief Print the bad channels associated to the quality test
