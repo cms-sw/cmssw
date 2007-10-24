@@ -1,3 +1,4 @@
+#include "SimG4Core/PhysicsLists/interface/G4Version.h"
 #include "SimG4Core/GFlash/interface/GFlash.h"
 #include "SimG4Core/GFlash/interface/CaloModel.h"
 #include "SimG4Core/GFlash/interface/ParametrisedPhysics.h"
@@ -28,7 +29,11 @@ GFlash::GFlash(G4LogicalVolumeToDDLogicalPartMap& map,
   RegisterPhysics(new ParametrisedPhysics("parametrised")); 
 
   // EM Physics
-  RegisterPhysics(new G4EmStandardPhysics("standard EM",ver));
+#ifndef G4V9
+    RegisterPhysics( new G4EmStandardPhysics("standard EM",ver));
+#else
+    RegisterPhysics( new G4EmStandardPhysics(ver,"standard EM"));
+#endif
 
   // Synchroton Radiation & GN Physics
   RegisterPhysics(new G4EmExtraPhysics("extra EM"));
