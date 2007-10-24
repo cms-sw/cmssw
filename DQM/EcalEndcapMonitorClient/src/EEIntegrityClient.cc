@@ -2,8 +2,8 @@
 /*
  * \file EEIntegrityClient.cc
  *
- * $Date: 2007/10/21 09:30:44 $
- * $Revision: 1.31 $
+ * $Date: 2007/10/22 14:18:35 $
+ * $Revision: 1.32 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -282,8 +282,8 @@ void EEIntegrityClient::setup(void) {
 
     int ism = superModules_[i];
 
-    UtilsClient::resetHisto( meg01_[ism-1] );
-    UtilsClient::resetHisto( meg02_[ism-1] );
+    meg01_[ism-1]->Reset();
+    meg02_[ism-1]->Reset();
 
     for ( int ix = 1; ix <= 50; ix++ ) {
       for ( int iy = 1; iy <= 50; iy++ ) {
@@ -1072,8 +1072,8 @@ void EEIntegrityClient::analyze(void){
     float num00;
 
     // integrity summary histograms
-    UtilsClient::resetHisto( meg01_[ism-1] );
-    UtilsClient::resetHisto( meg02_[ism-1] );
+    meg01_[ism-1]->Reset();
+    meg02_[ism-1]->Reset();
 
     num00 = 0.;
 

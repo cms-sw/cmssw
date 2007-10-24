@@ -1,8 +1,8 @@
 /*
  * \file EETestPulseClient.cc
  *
- * $Date: 2007/10/17 15:58:45 $
- * $Revision: 1.33 $
+ * $Date: 2007/10/18 09:43:53 $
+ * $Revision: 1.34 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -336,12 +336,12 @@ void EETestPulseClient::setup(void) {
 
     int ism = superModules_[i];
 
-    UtilsClient::resetHisto( meg01_[ism-1] );
-    UtilsClient::resetHisto( meg02_[ism-1] );
-    UtilsClient::resetHisto( meg03_[ism-1] );
+    meg01_[ism-1]->Reset();
+    meg02_[ism-1]->Reset();
+    meg03_[ism-1]->Reset();
 
-    UtilsClient::resetHisto( meg04_[ism-1] );
-    UtilsClient::resetHisto( meg05_[ism-1] );
+    meg04_[ism-1]->Reset();
+    meg05_[ism-1]->Reset();
 
     for ( int ix = 1; ix <= 50; ix++ ) {
       for ( int iy = 1; iy <= 50; iy++ ) {
@@ -371,13 +371,13 @@ void EETestPulseClient::setup(void) {
 
     }
 
-    UtilsClient::resetHisto( mea01_[ism-1] );
-    UtilsClient::resetHisto( mea02_[ism-1] );
-    UtilsClient::resetHisto( mea03_[ism-1] );
-    
-    UtilsClient::resetHisto( mer04_[ism-1] );
-    UtilsClient::resetHisto( mer05_[ism-1] );
-    
+    mea01_[ism-1]->Reset();
+    mea02_[ism-1]->Reset();
+    mea03_[ism-1]->Reset();
+
+    mer04_[ism-1]->Reset();
+    mer05_[ism-1]->Reset();
+
   }
   
 }
@@ -976,19 +976,19 @@ void EETestPulseClient::analyze(void){
     me = dbe_->get(histo);
     i04_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, i04_[ism-1] );
 
-    UtilsClient::resetHisto( meg01_[ism-1] );
-    UtilsClient::resetHisto( meg02_[ism-1] );
-    UtilsClient::resetHisto( meg03_[ism-1] );
+    meg01_[ism-1]->Reset();
+    meg02_[ism-1]->Reset();
+    meg03_[ism-1]->Reset();
 
-    UtilsClient::resetHisto( meg04_[ism-1] );
-    UtilsClient::resetHisto( meg05_[ism-1] );
+    meg04_[ism-1]->Reset();
+    meg05_[ism-1]->Reset();
 
-    UtilsClient::resetHisto( mea01_[ism-1] );
-    UtilsClient::resetHisto( mea02_[ism-1] );
-    UtilsClient::resetHisto( mea03_[ism-1] );
-    
-    UtilsClient::resetHisto( mer04_[ism-1] );
-    UtilsClient::resetHisto( mer05_[ism-1] );
+    mea01_[ism-1]->Reset();
+    mea02_[ism-1]->Reset();
+    mea03_[ism-1]->Reset();
+
+    mer04_[ism-1]->Reset();
+    mer05_[ism-1]->Reset();
 
     float meanAmpl01, meanAmpl02, meanAmpl03;
 

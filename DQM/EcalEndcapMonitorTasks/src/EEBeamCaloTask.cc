@@ -1,8 +1,8 @@
 /*
  * \file EEBeamCaloTask.cc
  *
- * $Date: 2007/08/14 17:44:47 $
- * $Revision: 1.11 $
+ * $Date: 2007/10/17 15:58:45 $
+ * $Revision: 1.12 $
  * \author A. Ghezzi
  *
  */
@@ -549,14 +549,14 @@ void EEBeamCaloTask::analyze(const Event& e, const EventSetup& c){
 
 
     //here the follwowing histos should be reset
-    //   for (int u=0;u<cryInArray_;u++){
-    //  UtilsClient::resetHisto( meBBCaloPulseProfMoving_[u] );
-    //  UtilsClient::resetHisto( meBBCaloPulseProfG12Moving_[u] );
-    //  UtilsClient::resetHisto( meBBCaloGainsMoving_[u] );
-    //  UtilsClient::resetHisto( meBBCaloEneMoving_[u] );
+    // for (int u=0;u<cryInArray_;u++){
+    //  meBBCaloPulseProfMoving_[u]->Reset();
+    //  meBBCaloPulseProfG12Moving_[u]->Reset();
+    //  meBBCaloGainsMoving_[u]->Reset();
+    //  meBBCaloEneMoving_[u]->Reset();
     // }
-    //UtilsClient::resetHisto( meBBCaloCryReadMoving_ );
-    UtilsClient::resetHisto( meBBCaloE3x3Moving_ );
+    // meBBCaloCryReadMoving_->Reset();
+    meBBCaloE3x3Moving_->Reset();
 
   }
 
@@ -586,14 +586,14 @@ void EEBeamCaloTask::analyze(const Event& e, const EventSetup& c){
 
       //here the follwowing histos should be reset
       for (int u=0;u<cryInArray_;u++){
-	UtilsClient::resetHisto( meBBCaloPulseProf_[u] );
-	UtilsClient::resetHisto( meBBCaloPulseProfG12_[u] );
-	UtilsClient::resetHisto( meBBCaloGains_[u] );
-	UtilsClient::resetHisto( meBBCaloEne_[u] );
+	meBBCaloPulseProf_[u]->Reset();
+	meBBCaloPulseProfG12_[u]->Reset();
+	meBBCaloGains_[u]->Reset();
+	meBBCaloEne_[u]->Reset();
       }
-      UtilsClient::resetHisto( meBBCaloCryRead_ );
-      UtilsClient::resetHisto( meBBCaloE3x3_ );
-      UtilsClient::resetHisto( meEEBCaloBeamCentered_ );
+      meBBCaloCryRead_->Reset();
+      meBBCaloE3x3_->Reset();
+      meEEBCaloBeamCentered_->Reset();
     }
   }
 

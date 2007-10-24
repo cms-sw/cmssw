@@ -1,8 +1,8 @@
 /*
  * \file EEPedestalClient.cc
  *
- * $Date: 2007/10/17 15:58:45 $
- * $Revision: 1.30 $
+ * $Date: 2007/10/18 09:43:52 $
+ * $Revision: 1.31 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -369,9 +369,9 @@ void EEPedestalClient::setup(void) {
 
     int ism = superModules_[i];
 
-    UtilsClient::resetHisto( meg01_[ism-1] );
-    UtilsClient::resetHisto( meg02_[ism-1] );
-    UtilsClient::resetHisto( meg03_[ism-1] );
+    meg01_[ism-1]->Reset();
+    meg02_[ism-1]->Reset();
+    meg03_[ism-1]->Reset();
 
     for ( int ix = 1; ix <= 50; ix++ ) {
       for ( int iy = 1; iy <= 50; iy++ ) {
@@ -401,24 +401,24 @@ void EEPedestalClient::setup(void) {
 
     }
 
-    UtilsClient::resetHisto( mep01_[ism-1] );
-    UtilsClient::resetHisto( mep02_[ism-1] );
-    UtilsClient::resetHisto( mep03_[ism-1] );
+    mep01_[ism-1]->Reset();
+    mep02_[ism-1]->Reset();
+    mep03_[ism-1]->Reset();
 
-    UtilsClient::resetHisto( mer01_[ism-1] );
-    UtilsClient::resetHisto( mer02_[ism-1] );
-    UtilsClient::resetHisto( mer03_[ism-1] );
+    mer01_[ism-1]->Reset();
+    mer02_[ism-1]->Reset();
+    mer03_[ism-1]->Reset();
     
-    UtilsClient::resetHisto( mer04_[ism-1] );
-    UtilsClient::resetHisto( mer05_[ism-1] );
+    mer04_[ism-1]->Reset();
+    mer05_[ism-1]->Reset();
     
-    UtilsClient::resetHisto( mes01_[ism-1] );
-    UtilsClient::resetHisto( mes02_[ism-1] );
-    UtilsClient::resetHisto( mes03_[ism-1] );
+    mes01_[ism-1]->Reset();
+    mes02_[ism-1]->Reset();
+    mes03_[ism-1]->Reset();
 
-    UtilsClient::resetHisto( met01_[ism-1] );
-    UtilsClient::resetHisto( met02_[ism-1] );
-    UtilsClient::resetHisto( met03_[ism-1] );
+    met01_[ism-1]->Reset();
+    met02_[ism-1]->Reset();
+    met03_[ism-1]->Reset();
 
     for ( int ix = 1; ix <= 50; ix++ ) {
       for ( int iy = 1; iy <= 50; iy++ ) {
@@ -978,31 +978,31 @@ void EEPedestalClient::analyze(void){
     me = dbe_->get(histo);
     i02_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, i02_[ism-1] );
 
-    UtilsClient::resetHisto( meg01_[ism-1] );
-    UtilsClient::resetHisto( meg02_[ism-1] );
-    UtilsClient::resetHisto( meg03_[ism-1] );
+    meg01_[ism-1]->Reset();
+    meg02_[ism-1]->Reset();
+    meg03_[ism-1]->Reset();
 
-    UtilsClient::resetHisto( meg04_[ism-1] );
-    UtilsClient::resetHisto( meg05_[ism-1] );
+    meg04_[ism-1]->Reset();
+    meg05_[ism-1]->Reset();
 
-    UtilsClient::resetHisto( mep01_[ism-1] );
-    UtilsClient::resetHisto( mep02_[ism-1] );
-    UtilsClient::resetHisto( mep03_[ism-1] );
+    mep01_[ism-1]->Reset();
+    mep02_[ism-1]->Reset();
+    mep03_[ism-1]->Reset();
 
-    UtilsClient::resetHisto( mer01_[ism-1] );
-    UtilsClient::resetHisto( mer02_[ism-1] );
-    UtilsClient::resetHisto( mer03_[ism-1] );
+    mer01_[ism-1]->Reset();
+    mer02_[ism-1]->Reset();
+    mer03_[ism-1]->Reset();
 
-    UtilsClient::resetHisto( mer04_[ism-1] );
-    UtilsClient::resetHisto( mer05_[ism-1] );
+    mer04_[ism-1]->Reset();
+    mer05_[ism-1]->Reset();
     
-    UtilsClient::resetHisto( mes01_[ism-1] );
-    UtilsClient::resetHisto( mes02_[ism-1] );
-    UtilsClient::resetHisto( mes03_[ism-1] );
+    mes01_[ism-1]->Reset();
+    mes02_[ism-1]->Reset();
+    mes03_[ism-1]->Reset();
 
-    UtilsClient::resetHisto( met01_[ism-1] );
-    UtilsClient::resetHisto( met02_[ism-1] );
-    UtilsClient::resetHisto( met03_[ism-1] );
+    met01_[ism-1]->Reset();
+    met02_[ism-1]->Reset();
+    met03_[ism-1]->Reset();
 
     for ( int ix = 1; ix <= 50; ix++ ) {
       for ( int iy = 1; iy <= 50; iy++ ) {

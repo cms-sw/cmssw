@@ -1,8 +1,8 @@
 /*
  * \file EBBeamHodoTask.cc
  *
- * $Date: 2007/05/14 11:46:44 $
- * $Revision: 1.39 $
+ * $Date: 2007/08/14 17:43:06 $
+ * $Revision: 1.40 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -447,13 +447,13 @@ void EBBeamHodoTask::analyze(const Event& e, const EventSetup& c){
   // if table has come to rest (from movement), reset concerned ME's
   if (resetNow_)
     {
-      UtilsClient::resetHisto(    meEvsXRecProf_ );
-      UtilsClient::resetHisto(    meEvsYRecProf_);
-      UtilsClient::resetHisto(    meEvsXRecHis_ );
-      UtilsClient::resetHisto(    meEvsYRecHis_ );
-      UtilsClient::resetHisto(    meCaloVsHodoXPos_  );
-      UtilsClient::resetHisto(    meCaloVsHodoYPos_  );
-      UtilsClient::resetHisto(    meCaloVsTDCTime_  );
+      meEvsXRecProf_->Reset();
+      meEvsYRecProf_->Reset();
+      meEvsXRecHis_->Reset();
+      meEvsYRecHis_->Reset();
+      meCaloVsHodoXPos_->Reset();
+      meCaloVsHodoYPos_->Reset();
+      meCaloVsTDCTime_->Reset();
 
       resetNow_ = false;
     }

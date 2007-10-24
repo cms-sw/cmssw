@@ -1,8 +1,8 @@
 /*
  * \file EBLaserClient.cc
  *
- * $Date: 2007/10/17 15:58:42 $
- * $Revision: 1.185 $
+ * $Date: 2007/10/18 09:43:34 $
+ * $Revision: 1.186 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -770,19 +770,19 @@ void EBLaserClient::setup(void) {
 
     int ism = superModules_[i];
 
-    UtilsClient::resetHisto( meg01_[ism-1] );
-    UtilsClient::resetHisto( meg02_[ism-1] );
-    UtilsClient::resetHisto( meg03_[ism-1] );
-    UtilsClient::resetHisto( meg04_[ism-1] );
+    meg01_[ism-1]->Reset();
+    meg02_[ism-1]->Reset();
+    meg03_[ism-1]->Reset();
+    meg04_[ism-1]->Reset();
 
-    UtilsClient::resetHisto( meg05_[ism-1] );
-    UtilsClient::resetHisto( meg06_[ism-1] );
-    UtilsClient::resetHisto( meg07_[ism-1] );
-    UtilsClient::resetHisto( meg08_[ism-1] );
-    UtilsClient::resetHisto( meg09_[ism-1] );
-    UtilsClient::resetHisto( meg10_[ism-1] );
-    UtilsClient::resetHisto( meg11_[ism-1] );
-    UtilsClient::resetHisto( meg12_[ism-1] );
+    meg05_[ism-1]->Reset();
+    meg06_[ism-1]->Reset();
+    meg07_[ism-1]->Reset();
+    meg08_[ism-1]->Reset();
+    meg09_[ism-1]->Reset();
+    meg10_[ism-1]->Reset();
+    meg11_[ism-1]->Reset();
+    meg12_[ism-1]->Reset();
 
     for ( int ie = 1; ie <= 85; ie++ ) {
       for ( int ip = 1; ip <= 20; ip++ ) {
@@ -808,59 +808,59 @@ void EBLaserClient::setup(void) {
 
     }
 
-    UtilsClient::resetHisto( mea01_[ism-1] );
-    UtilsClient::resetHisto( mea02_[ism-1] );
-    UtilsClient::resetHisto( mea03_[ism-1] );
-    UtilsClient::resetHisto( mea04_[ism-1] );
-    UtilsClient::resetHisto( mea05_[ism-1] );
-    UtilsClient::resetHisto( mea06_[ism-1] );
-    UtilsClient::resetHisto( mea07_[ism-1] );
-    UtilsClient::resetHisto( mea08_[ism-1] );
+    mea01_[ism-1]->Reset();
+    mea02_[ism-1]->Reset();
+    mea03_[ism-1]->Reset();
+    mea04_[ism-1]->Reset();
+    mea05_[ism-1]->Reset();
+    mea06_[ism-1]->Reset();
+    mea07_[ism-1]->Reset();
+    mea08_[ism-1]->Reset();
 
-    UtilsClient::resetHisto( met01_[ism-1] );
-    UtilsClient::resetHisto( met02_[ism-1] );
-    UtilsClient::resetHisto( met03_[ism-1] );
-    UtilsClient::resetHisto( met04_[ism-1] );
-    UtilsClient::resetHisto( met05_[ism-1] );
-    UtilsClient::resetHisto( met06_[ism-1] );
-    UtilsClient::resetHisto( met07_[ism-1] );
-    UtilsClient::resetHisto( met08_[ism-1] );
+    met01_[ism-1]->Reset();
+    met02_[ism-1]->Reset();
+    met03_[ism-1]->Reset();
+    met04_[ism-1]->Reset();
+    met05_[ism-1]->Reset();
+    met06_[ism-1]->Reset();
+    met07_[ism-1]->Reset();
+    met08_[ism-1]->Reset();
 
-    UtilsClient::resetHisto( metav01_[ism-1] );
-    UtilsClient::resetHisto( metav02_[ism-1] );
-    UtilsClient::resetHisto( metav03_[ism-1] );
-    UtilsClient::resetHisto( metav04_[ism-1] );
-    UtilsClient::resetHisto( metav05_[ism-1] );
-    UtilsClient::resetHisto( metav06_[ism-1] );
-    UtilsClient::resetHisto( metav07_[ism-1] );
-    UtilsClient::resetHisto( metav08_[ism-1] );
+    metav01_[ism-1]->Reset();
+    metav02_[ism-1]->Reset();
+    metav03_[ism-1]->Reset();
+    metav04_[ism-1]->Reset();
+    metav05_[ism-1]->Reset();
+    metav06_[ism-1]->Reset();
+    metav07_[ism-1]->Reset();
+    metav08_[ism-1]->Reset();
 
-    UtilsClient::resetHisto( metrms01_[ism-1] );
-    UtilsClient::resetHisto( metrms02_[ism-1] );
-    UtilsClient::resetHisto( metrms03_[ism-1] );
-    UtilsClient::resetHisto( metrms04_[ism-1] );
-    UtilsClient::resetHisto( metrms05_[ism-1] );
-    UtilsClient::resetHisto( metrms06_[ism-1] );
-    UtilsClient::resetHisto( metrms07_[ism-1] );
-    UtilsClient::resetHisto( metrms08_[ism-1] );
+    metrms01_[ism-1]->Reset();
+    metrms02_[ism-1]->Reset();
+    metrms03_[ism-1]->Reset();
+    metrms04_[ism-1]->Reset();
+    metrms05_[ism-1]->Reset();
+    metrms06_[ism-1]->Reset();
+    metrms07_[ism-1]->Reset();
+    metrms08_[ism-1]->Reset();
 
-    UtilsClient::resetHisto( meaopn01_[ism-1] );
-    UtilsClient::resetHisto( meaopn02_[ism-1] );
-    UtilsClient::resetHisto( meaopn03_[ism-1] );
-    UtilsClient::resetHisto( meaopn04_[ism-1] );
-    UtilsClient::resetHisto( meaopn05_[ism-1] );
-    UtilsClient::resetHisto( meaopn06_[ism-1] );
-    UtilsClient::resetHisto( meaopn07_[ism-1] );
-    UtilsClient::resetHisto( meaopn08_[ism-1] );
+    meaopn01_[ism-1]->Reset();
+    meaopn02_[ism-1]->Reset();
+    meaopn03_[ism-1]->Reset();
+    meaopn04_[ism-1]->Reset();
+    meaopn05_[ism-1]->Reset();
+    meaopn06_[ism-1]->Reset();
+    meaopn07_[ism-1]->Reset();
+    meaopn08_[ism-1]->Reset();
 
-    UtilsClient::resetHisto( mepnprms01_[ism-1] );
-    UtilsClient::resetHisto( mepnprms02_[ism-1] );
-    UtilsClient::resetHisto( mepnprms03_[ism-1] );
-    UtilsClient::resetHisto( mepnprms04_[ism-1] );
-    UtilsClient::resetHisto( mepnprms05_[ism-1] );
-    UtilsClient::resetHisto( mepnprms06_[ism-1] );
-    UtilsClient::resetHisto( mepnprms07_[ism-1] );
-    UtilsClient::resetHisto( mepnprms08_[ism-1] );
+    mepnprms01_[ism-1]->Reset();
+    mepnprms02_[ism-1]->Reset();
+    mepnprms03_[ism-1]->Reset();
+    mepnprms04_[ism-1]->Reset();
+    mepnprms05_[ism-1]->Reset();
+    mepnprms06_[ism-1]->Reset();
+    mepnprms07_[ism-1]->Reset();
+    mepnprms08_[ism-1]->Reset();
   }
 
 }
@@ -2549,73 +2549,73 @@ void EBLaserClient::analyze(void){
     me = dbe_->get(histo);
     i16_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, i16_[ism-1] );
 
-    UtilsClient::resetHisto( meg01_[ism-1] );
-    UtilsClient::resetHisto( meg02_[ism-1] );
-    UtilsClient::resetHisto( meg03_[ism-1] );
-    UtilsClient::resetHisto( meg04_[ism-1] );
+    meg01_[ism-1]->Reset();
+    meg02_[ism-1]->Reset();
+    meg03_[ism-1]->Reset();
+    meg04_[ism-1]->Reset();
 
-    UtilsClient::resetHisto( meg05_[ism-1] );
-    UtilsClient::resetHisto( meg06_[ism-1] );
-    UtilsClient::resetHisto( meg07_[ism-1] );
-    UtilsClient::resetHisto( meg08_[ism-1] );
-    UtilsClient::resetHisto( meg09_[ism-1] );
-    UtilsClient::resetHisto( meg10_[ism-1] );
-    UtilsClient::resetHisto( meg11_[ism-1] );
-    UtilsClient::resetHisto( meg12_[ism-1] );
+    meg05_[ism-1]->Reset();
+    meg06_[ism-1]->Reset();
+    meg07_[ism-1]->Reset();
+    meg08_[ism-1]->Reset();
+    meg09_[ism-1]->Reset();
+    meg10_[ism-1]->Reset();
+    meg11_[ism-1]->Reset();
+    meg12_[ism-1]->Reset();
 
-    UtilsClient::resetHisto( mea01_[ism-1] );
-    UtilsClient::resetHisto( mea02_[ism-1] );
-    UtilsClient::resetHisto( mea03_[ism-1] );
-    UtilsClient::resetHisto( mea04_[ism-1] );
-    UtilsClient::resetHisto( mea05_[ism-1] );
-    UtilsClient::resetHisto( mea06_[ism-1] );
-    UtilsClient::resetHisto( mea07_[ism-1] );
-    UtilsClient::resetHisto( mea08_[ism-1] );
+    mea01_[ism-1]->Reset();
+    mea02_[ism-1]->Reset();
+    mea03_[ism-1]->Reset();
+    mea04_[ism-1]->Reset();
+    mea05_[ism-1]->Reset();
+    mea06_[ism-1]->Reset();
+    mea07_[ism-1]->Reset();
+    mea08_[ism-1]->Reset();
 
-    UtilsClient::resetHisto( met01_[ism-1] );
-    UtilsClient::resetHisto( met02_[ism-1] );
-    UtilsClient::resetHisto( met03_[ism-1] );
-    UtilsClient::resetHisto( met04_[ism-1] );
-    UtilsClient::resetHisto( met05_[ism-1] );
-    UtilsClient::resetHisto( met06_[ism-1] );
-    UtilsClient::resetHisto( met07_[ism-1] );
-    UtilsClient::resetHisto( met08_[ism-1] );
+    met01_[ism-1]->Reset();
+    met02_[ism-1]->Reset();
+    met03_[ism-1]->Reset();
+    met04_[ism-1]->Reset();
+    met05_[ism-1]->Reset();
+    met06_[ism-1]->Reset();
+    met07_[ism-1]->Reset();
+    met08_[ism-1]->Reset();
 
-    UtilsClient::resetHisto( metav01_[ism-1] );
-    UtilsClient::resetHisto( metav02_[ism-1] );
-    UtilsClient::resetHisto( metav03_[ism-1] );
-    UtilsClient::resetHisto( metav04_[ism-1] );
-    UtilsClient::resetHisto( metav05_[ism-1] );
-    UtilsClient::resetHisto( metav06_[ism-1] );
-    UtilsClient::resetHisto( metav07_[ism-1] );
-    UtilsClient::resetHisto( metav08_[ism-1] );
+    metav01_[ism-1]->Reset();
+    metav02_[ism-1]->Reset();
+    metav03_[ism-1]->Reset();
+    metav04_[ism-1]->Reset();
+    metav05_[ism-1]->Reset();
+    metav06_[ism-1]->Reset();
+    metav07_[ism-1]->Reset();
+    metav08_[ism-1]->Reset();
 
-    UtilsClient::resetHisto( metrms01_[ism-1] );
-    UtilsClient::resetHisto( metrms02_[ism-1] );
-    UtilsClient::resetHisto( metrms03_[ism-1] );
-    UtilsClient::resetHisto( metrms04_[ism-1] );
-    UtilsClient::resetHisto( metrms05_[ism-1] );
-    UtilsClient::resetHisto( metrms06_[ism-1] );
-    UtilsClient::resetHisto( metrms07_[ism-1] );
-    UtilsClient::resetHisto( metrms08_[ism-1] );
+    metrms01_[ism-1]->Reset();
+    metrms02_[ism-1]->Reset();
+    metrms03_[ism-1]->Reset();
+    metrms04_[ism-1]->Reset();
+    metrms05_[ism-1]->Reset();
+    metrms06_[ism-1]->Reset();
+    metrms07_[ism-1]->Reset();
+    metrms08_[ism-1]->Reset();
 
-    UtilsClient::resetHisto( meaopn01_[ism-1] );
-    UtilsClient::resetHisto( meaopn02_[ism-1] );
-    UtilsClient::resetHisto( meaopn03_[ism-1] );
-    UtilsClient::resetHisto( meaopn04_[ism-1] );
-    UtilsClient::resetHisto( meaopn05_[ism-1] );
-    UtilsClient::resetHisto( meaopn06_[ism-1] );
-    UtilsClient::resetHisto( meaopn07_[ism-1] );
-    UtilsClient::resetHisto( meaopn08_[ism-1] );
+    meaopn01_[ism-1]->Reset();
+    meaopn02_[ism-1]->Reset();
+    meaopn03_[ism-1]->Reset();
+    meaopn04_[ism-1]->Reset();
+    meaopn05_[ism-1]->Reset();
+    meaopn06_[ism-1]->Reset();
+    meaopn07_[ism-1]->Reset();
+    meaopn08_[ism-1]->Reset();
 
-    UtilsClient::resetHisto( mepnprms01_[ism-1] );
-    UtilsClient::resetHisto( mepnprms02_[ism-1] );
-    UtilsClient::resetHisto( mepnprms03_[ism-1] );
-    UtilsClient::resetHisto( mepnprms04_[ism-1] );
-    UtilsClient::resetHisto( mepnprms05_[ism-1] );
-    UtilsClient::resetHisto( mepnprms06_[ism-1] );
-    UtilsClient::resetHisto( mepnprms07_[ism-1] );
-    UtilsClient::resetHisto( mepnprms08_[ism-1] );
+    mepnprms01_[ism-1]->Reset();
+    mepnprms02_[ism-1]->Reset();
+    mepnprms03_[ism-1]->Reset();
+    mepnprms04_[ism-1]->Reset();
+    mepnprms05_[ism-1]->Reset();
+    mepnprms06_[ism-1]->Reset();
+    mepnprms07_[ism-1]->Reset();
+    mepnprms08_[ism-1]->Reset();
 
     float meanAmplL1A, meanAmplL2A, meanAmplL3A, meanAmplL4A;
     float meanAmplL1B, meanAmplL2B, meanAmplL3B, meanAmplL4B;

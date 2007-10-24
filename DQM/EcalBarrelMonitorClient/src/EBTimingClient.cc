@@ -1,8 +1,8 @@
 /*
  * \file EBTimingClient.cc
  *
- * $Date: 2007/10/19 12:49:17 $
- * $Revision: 1.44 $
+ * $Date: 2007/10/19 12:56:24 $
+ * $Revision: 1.45 $
  * \author G. Della Ricca
  *
 */
@@ -208,7 +208,7 @@ void EBTimingClient::setup(void) {
 
     int ism = superModules_[i];
 
-    UtilsClient::resetHisto( meg01_[ism-1] );
+    meg01_[ism-1]->Reset();
 
     for ( int ie = 1; ie <= 85; ie++ ) {
       for ( int ip = 1; ip <= 20; ip++ ) {
@@ -218,9 +218,9 @@ void EBTimingClient::setup(void) {
       }
     }
 
-    UtilsClient::resetHisto( mea01_[ism-1] );
-    UtilsClient::resetHisto( mep01_[ism-1] );
-    UtilsClient::resetHisto( mer01_[ism-1] );
+    mea01_[ism-1]->Reset();
+    mep01_[ism-1]->Reset();
+    mer01_[ism-1]->Reset();
 
   }
 
@@ -452,10 +452,10 @@ void EBTimingClient::analyze(void){
     h01_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h01_[ism-1] );
     meh01_[ism-1] = me;
 
-    UtilsClient::resetHisto( meg01_[ism-1] );
-    UtilsClient::resetHisto( mea01_[ism-1] );
-    UtilsClient::resetHisto( mep01_[ism-1] );
-    UtilsClient::resetHisto( mer01_[ism-1] );
+    meg01_[ism-1]->Reset();
+    mea01_[ism-1]->Reset();
+    mep01_[ism-1]->Reset();
+    mer01_[ism-1]->Reset();
 
     for ( int ie = 1; ie <= 85; ie++ ) {
       for ( int ip = 1; ip <= 20; ip++ ) {

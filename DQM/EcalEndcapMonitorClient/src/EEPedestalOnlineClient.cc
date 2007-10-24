@@ -1,8 +1,8 @@
 /*
  * \file EEPedestalOnlineClient.cc
  *
- * $Date: 2007/10/17 15:58:45 $
- * $Revision: 1.29 $
+ * $Date: 2007/10/18 09:43:53 $
+ * $Revision: 1.30 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -203,7 +203,7 @@ void EEPedestalOnlineClient::setup(void) {
 
     int ism = superModules_[i];
 
-    UtilsClient::resetHisto( meg03_[ism-1] );
+    meg03_[ism-1]->Reset();
 
     for ( int ix = 1; ix <= 50; ix++ ) {
       for ( int iy = 1; iy <= 50; iy++ ) {
@@ -222,8 +222,8 @@ void EEPedestalOnlineClient::setup(void) {
       }
     }
 
-    UtilsClient::resetHisto( mep03_[ism-1] );
-    UtilsClient::resetHisto( mer03_[ism-1] );
+    mep03_[ism-1]->Reset();
+    mer03_[ism-1]->Reset();
 
   }
 
@@ -468,9 +468,9 @@ void EEPedestalOnlineClient::analyze(void){
     h03_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h03_[ism-1] );
     meh03_[ism-1] = me;
 
-    UtilsClient::resetHisto( meg03_[ism-1] );
-    UtilsClient::resetHisto( mep03_[ism-1] );
-    UtilsClient::resetHisto( mer03_[ism-1] );
+    meg03_[ism-1]->Reset();
+    mep03_[ism-1]->Reset();
+    mer03_[ism-1]->Reset();
 
     for ( int ix = 1; ix <= 50; ix++ ) {
       for ( int iy = 1; iy <= 50; iy++ ) {

@@ -1,8 +1,8 @@
 /*
  * \file EBBeamCaloClient.cc
  *
- * $Date: 2007/09/07 22:30:03 $
- * $Revision: 1.53 $
+ * $Date: 2007/10/18 09:43:26 $
+ * $Revision: 1.54 $
  * \author G. Della Ricca
  * \author A. Ghezzi
  *
@@ -165,7 +165,7 @@ void EBBeamCaloClient::setup(void) {
   sprintf(histo, "EBBCT quality");
   meEBBCaloRedGreen_ = dbe_->book2D(histo, histo, 85, 0., 85., 20, 0., 20.);
 
-  UtilsClient::resetHisto( meEBBCaloRedGreen_ );
+  meEBBCaloRedGreen_->Reset();
 
   for ( int ie = 1; ie <= 85; ie++ ) {
     for ( int ip = 1; ip <= 20; ip++ ) {
@@ -178,13 +178,13 @@ void EBBeamCaloClient::setup(void) {
   if ( meEBBCaloRedGreenReadCry_ ) dbe_->removeElement( meEBBCaloRedGreenReadCry_->getName() );
   sprintf(histo, "EBBCT quality read crystal errors");
   meEBBCaloRedGreenReadCry_ = dbe_->book2D(histo, histo, 1, 0., 1., 1, 0., 1.);
-  UtilsClient::resetHisto( meEBBCaloRedGreenReadCry_ );
+  meEBBCaloRedGreenReadCry_->Reset();
   meEBBCaloRedGreenReadCry_ ->setBinContent( 1, 1, 2. );
 
   if( meEBBCaloRedGreenSteps_ ) dbe_->removeElement( meEBBCaloRedGreenSteps_->getName() );
   sprintf(histo, "EBBCT quality entries or read crystals errors");
   meEBBCaloRedGreenSteps_ = dbe_->book2D(histo, histo, 86, 1., 87., 1, 0., 1.);
-  UtilsClient::resetHisto( meEBBCaloRedGreenSteps_ );
+  meEBBCaloRedGreenSteps_->Reset();
   for( int bin=1; bin <87; bin++){ meEBBCaloRedGreenSteps_->setBinContent( bin, 1, 2. );}
 
 }

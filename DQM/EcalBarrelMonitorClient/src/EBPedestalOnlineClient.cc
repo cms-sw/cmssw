@@ -1,8 +1,8 @@
 /*
  * \file EBPedestalOnlineClient.cc
  *
- * $Date: 2007/10/17 15:58:42 $
- * $Revision: 1.99 $
+ * $Date: 2007/10/18 09:43:36 $
+ * $Revision: 1.100 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -201,7 +201,7 @@ void EBPedestalOnlineClient::setup(void) {
 
     int ism = superModules_[i];
 
-    UtilsClient::resetHisto( meg03_[ism-1] );
+    meg03_[ism-1]->Reset();
 
     for ( int ie = 1; ie <= 85; ie++ ) {
       for ( int ip = 1; ip <= 20; ip++ ) {
@@ -211,8 +211,8 @@ void EBPedestalOnlineClient::setup(void) {
       }
     }
 
-    UtilsClient::resetHisto( mep03_[ism-1] );
-    UtilsClient::resetHisto( mer03_[ism-1] );
+    mep03_[ism-1]->Reset();
+    mer03_[ism-1]->Reset();
 
   }
 
@@ -447,9 +447,9 @@ void EBPedestalOnlineClient::analyze(void){
     h03_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h03_[ism-1] );
     meh03_[ism-1] = me;
 
-    UtilsClient::resetHisto( meg03_[ism-1] );
-    UtilsClient::resetHisto( mep03_[ism-1] );
-    UtilsClient::resetHisto( mer03_[ism-1] );
+    meg03_[ism-1]->Reset();
+    mep03_[ism-1]->Reset();
+    mer03_[ism-1]->Reset();
 
     for ( int ie = 1; ie <= 85; ie++ ) {
       for ( int ip = 1; ip <= 20; ip++ ) {

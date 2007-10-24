@@ -1,8 +1,8 @@
 /*
  * \file EETimingClient.cc
  *
- * $Date: 2007/10/19 12:49:18 $
- * $Revision: 1.30 $
+ * $Date: 2007/10/19 12:56:25 $
+ * $Revision: 1.31 $
  * \author G. Della Ricca
  *
 */
@@ -209,7 +209,7 @@ void EETimingClient::setup(void) {
 
     int ism = superModules_[i];
 
-    UtilsClient::resetHisto( meg01_[ism-1] );
+    meg01_[ism-1]->Reset();
 
     for ( int ix = 1; ix <= 50; ix++ ) {
       for ( int iy = 1; iy <= 50; iy++ ) {
@@ -228,9 +228,9 @@ void EETimingClient::setup(void) {
       }
     }
 
-    UtilsClient::resetHisto( mea01_[ism-1] );
-    UtilsClient::resetHisto( mep01_[ism-1] );
-    UtilsClient::resetHisto( mer01_[ism-1] );
+    mea01_[ism-1]->Reset();
+    mep01_[ism-1]->Reset();
+    mer01_[ism-1]->Reset();
 
   }
 
@@ -471,10 +471,10 @@ void EETimingClient::analyze(void){
     h01_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h01_[ism-1] );
     meh01_[ism-1] = me;
 
-    UtilsClient::resetHisto( meg01_[ism-1] );
-    UtilsClient::resetHisto( mea01_[ism-1] );
-    UtilsClient::resetHisto( mep01_[ism-1] );
-    UtilsClient::resetHisto( mer01_[ism-1] );
+    meg01_[ism-1]->Reset();
+    mea01_[ism-1]->Reset();
+    mep01_[ism-1]->Reset();
+    mer01_[ism-1]->Reset();
 
     for ( int ix = 1; ix <= 50; ix++ ) {
       for ( int iy = 1; iy <= 50; iy++ ) {

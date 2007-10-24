@@ -2,8 +2,8 @@
 /*
  * \file EBIntegrityClient.cc
  *
- * $Date: 2007/10/22 13:52:15 $
- * $Revision: 1.163 $
+ * $Date: 2007/10/22 14:15:55 $
+ * $Revision: 1.164 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -280,8 +280,8 @@ void EBIntegrityClient::setup(void) {
 
     int ism = superModules_[i];
 
-    UtilsClient::resetHisto( meg01_[ism-1] );
-    UtilsClient::resetHisto( meg02_[ism-1] );
+    meg01_[ism-1]->Reset();
+    meg02_[ism-1]->Reset();
 
     for ( int ie = 1; ie <= 85; ie++ ) {
       for ( int ip = 1; ip <= 20; ip++ ) {
@@ -1045,8 +1045,8 @@ void EBIntegrityClient::analyze(void){
     float num00;
 
     // integrity summary histograms
-    UtilsClient::resetHisto( meg01_[ism-1] );
-    UtilsClient::resetHisto( meg02_[ism-1] );
+    meg01_[ism-1]->Reset();
+    meg02_[ism-1]->Reset();
 
     num00 = 0.;
 

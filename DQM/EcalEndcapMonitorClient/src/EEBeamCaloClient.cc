@@ -1,8 +1,8 @@
 /*
  * \file EEBeamCaloClient.cc
  *
- * $Date: 2007/10/17 14:05:24 $
- * $Revision: 1.15 $
+ * $Date: 2007/10/18 09:43:39 $
+ * $Revision: 1.16 $
  * \author G. Della Ricca
  * \author A. Ghezzi
  *
@@ -165,7 +165,7 @@ void EEBeamCaloClient::setup(void) {
   sprintf(histo, "EEBCT quality");
   meEEBCaloRedGreen_ = dbe_->book2D(histo, histo, 85, 0., 85., 20, 0., 20.);
 
-  UtilsClient::resetHisto( meEEBCaloRedGreen_ );
+  meEEBCaloRedGreen_->Reset();
 
   for ( int ie = 1; ie <= 85; ie++ ) {
     for ( int ip = 1; ip <= 20; ip++ ) {
@@ -178,13 +178,13 @@ void EEBeamCaloClient::setup(void) {
   if ( meEEBCaloRedGreenReadCry_ ) dbe_->removeElement( meEEBCaloRedGreenReadCry_->getName() );
   sprintf(histo, "EEBCT quality read crystal errors");
   meEEBCaloRedGreenReadCry_ = dbe_->book2D(histo, histo, 1, 0., 1., 1, 0., 1.);
-  UtilsClient::resetHisto( meEEBCaloRedGreenReadCry_ );
+  meEEBCaloRedGreenReadCry_->Reset();
   meEEBCaloRedGreenReadCry_ ->setBinContent( 1, 1, 2. );
 
   if( meEEBCaloRedGreenSteps_ )  dbe_->removeElement( meEEBCaloRedGreenSteps_->getName() );
   sprintf(histo, "EEBCT quality entries or read crystals errors");
   meEEBCaloRedGreenSteps_ = dbe_->book2D(histo, histo, 86, 1., 87., 1, 0., 1.);
-  UtilsClient::resetHisto( meEEBCaloRedGreenSteps_ );
+  meEEBCaloRedGreenSteps_->Reset();
   for( int bin=1; bin <87; bin++){ meEEBCaloRedGreenSteps_->setBinContent( bin, 1, 2. );}
 
 }
