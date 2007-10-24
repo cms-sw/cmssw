@@ -17,7 +17,7 @@
 //
 // Author:      Domenico Giordano
 // Created:     Wed Sep 26 17:42:12 CEST 2007
-// $Id: SiStripQuality.h,v 1.2 2007/10/11 10:38:15 giordano Exp $
+// $Id: SiStripQuality.h,v 1.3 2007/10/18 08:42:17 giordano Exp $
 //
 
 
@@ -98,6 +98,8 @@ class SiStripQuality: public SiStripBadStrip {
   //...
   
   const std::vector<BadComponent>& getBadComponentList() const { return BadComponentVect; }   
+
+  void compact(unsigned int&,std::vector<unsigned int>&);
 
  private:
 

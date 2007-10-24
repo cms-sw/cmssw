@@ -1,7 +1,7 @@
  //
 // Author:      Domenico Giordano
 // Created:     Wed Sep 26 17:42:12 CEST 2007
-// $Id: SiStripQuality.cc,v 1.2 2007/10/11 10:38:15 giordano Exp $
+// $Id: SiStripQuality.cc,v 1.3 2007/10/18 08:42:18 giordano Exp $
 //
 #include "FWCore/Framework/interface/eventsetupdata_registration_macro.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripQuality.h"
@@ -71,7 +71,6 @@ SiStripQuality& SiStripQuality::operator -=(const SiStripQuality& other){
 	edm::LogError("SiStripQuality")<<"[" << __PRETTY_FUNCTION__ << "] " << std::endl;
     }
   }
-  toCleanUp=true;
   cleanUp(); 
   fillBadComponents(); 
   return *this; 
@@ -83,7 +82,7 @@ const SiStripQuality SiStripQuality::operator -(const SiStripQuality& other) con
 
 bool SiStripQuality::operator ==(const SiStripQuality& other) const{
   SiStripQuality a = (*this) - other ;
-  return a.getRegistryVectorBegin()==getRegistryVectorEnd();
+  return a.getRegistryVectorBegin()==a.getRegistryVectorEnd();
 }
 bool SiStripQuality::operator !=(const SiStripQuality& other) const { return !(*this == other) ; }
 
@@ -147,6 +146,14 @@ void SiStripQuality::add(const SiStripBadStrip* base){
 	edm::LogError("SiStripQuality")<<"[" << __PRETTY_FUNCTION__ << "] " << std::endl;
     }
   }
+}
+
+void SiStripQuality::compact(unsigned int& detid, std::vector<unsigned int>& vect){
+  std::vector<unsigned int> tmp=vect;
+  vect.clear();
+  std::stable_sort(tmp.begin(),tmp.end());
+  unsigned short Nstrips=reader->getNumberOfApvsAndStripLength(detid).first*128;
+  compact(tmp,vect,Nstrips);
 }
 
 bool SiStripQuality::put_replace(const uint32_t& DetId, Range input) {
