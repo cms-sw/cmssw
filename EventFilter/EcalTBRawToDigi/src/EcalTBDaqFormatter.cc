@@ -1,7 +1,7 @@
-/*  
+/*
  *
- *  $Date: 2007/10/20 10:58:01 $
- *  $Revision: 1.60 $
+ *  $Date: 2007/10/23 15:30:05 $
+ *  $Revision: 1.61 $
  *  \author  N. Marinelli IASA 
  *  \author G. Della Ricca
  *  \author G. Franzoni
@@ -245,7 +245,7 @@ void EcalTBDaqFormatter::interpretRawData(const FEDRawData & fedData ,
 				      << ") differs from expected (" << _numExpectedTowers 
 				      << ") skipping event"; 
 	
-        EBDetId idsm(1, 1 + 20 * dccID);
+        EBDetId idsm(1, 1);
         dccsizecollection.push_back(idsm);
 
 	return;
@@ -824,17 +824,14 @@ void EcalTBDaqFormatter::DecodeMEM( DCCTBTowerBlock *  towerblock,  EcalPnDiodeD
     // if present Pn has any of its 5 channels with problems, do not produce digi for it
     if (! pnIsOkInBlock [pnId-1] ) continue;
 
-    // fixme giof: second argumenti is DCCId, to be determined
-    EcalPnDiodeDetId PnId(1, 1, pnId +  kPnPerTowerBlock*mem_id);
+    // DccId set to 28 to be consistent with ism==1
+    EcalPnDiodeDetId PnId(1, 28, pnId +  kPnPerTowerBlock*mem_id);
     EcalPnDiodeDigi thePnDigi(PnId );
 
     thePnDigi.setSize(kSamplesPerPn);
 
     for (int sample =0; sample<kSamplesPerPn; sample++)
       {
-	//	int adc  = (data_MEM[(mem_id)*250 + (pnId-1)*kSamplesPerPn + sample ] & 0xfff);
-	//	int gain = (data_MEM[(mem_id)*250 + (pnId-1)*kSamplesPerPn + sample ] & 0x3000) /4096;;
-	//	EcalFEMSample thePnSample(adc, gain);
 	EcalFEMSample thePnSample( data_MEM[(mem_id)*250 + (pnId-1)*kSamplesPerPn + sample ] );
 	thePnDigi.setSample(sample,  thePnSample );  
       }

@@ -1,7 +1,7 @@
 /*  
  *
- *  $Date: 2007/10/20 10:58:01 $
- *  $Revision: 1.12 $
+ *  $Date: 2007/10/23 16:04:07 $
+ *  $Revision: 1.13 $
  *  \author  N. Marinelli IASA 
  *  \author G. Della Ricca
  *  \author G. Franzoni
@@ -191,7 +191,7 @@ void EcalTB07DaqFormatter::interpretRawData(const FEDRawData & fedData ,
 
 		EcalTriggerPrimitiveSample theSample(TpSamples[i].first, TpSamples[i].second, TpFlags[i]);
 
-		EcalTrigTowerDetId idtt(1, EcalBarrel, etaTT, phiTT, 0);
+		EcalTrigTowerDetId idtt(2, EcalBarrel, etaTT, phiTT, 0);
 		EcalTriggerPrimitiveDigi thePrimitive(idtt);
 		thePrimitive.setSize(1);                          // hard coded
 		thePrimitive.setSample(0, theSample);
@@ -285,10 +285,10 @@ void EcalTB07DaqFormatter::interpretRawData(const FEDRawData & fedData ,
 				      << "number of TowerBlocks found (" << dccTowerBlocks.size()
 				      << ") differs from expected (" << _numExpectedTowers 
 				      << ") skipping event"; 
-	
-        EBDetId idsm(1, 1 + 20 * dccID);
-        dccsizecollection.push_back(idsm);
 
+        EBDetId idsm(1, 1);
+        dccsizecollection.push_back(idsm);
+	
 	return;
 	
       }
@@ -886,17 +886,14 @@ void EcalTB07DaqFormatter::DecodeMEM( DCCTBTowerBlock *  towerblock,  EcalPnDiod
     // if present Pn has any of its 5 channels with problems, do not produce digi for it
     if (! pnIsOkInBlock [pnId-1] ) continue;
 
-    // fixme giof: second argumenti is DCCId, to be determined
-    EcalPnDiodeDetId PnId(1, 1, pnId +  kPnPerTowerBlock*mem_id);
+    // second argument is DccId which is set to 46 to match h2 data in global CMS geometry
+    EcalPnDiodeDetId PnId(2, 46, pnId +  kPnPerTowerBlock*mem_id);
     EcalPnDiodeDigi thePnDigi(PnId );
 
     thePnDigi.setSize(kSamplesPerPn);
 
     for (int sample =0; sample<kSamplesPerPn; sample++)
       {
-	//	int adc  = (data_MEM[(mem_id)*250 + (pnId-1)*kSamplesPerPn + sample ] & 0xfff);
-	//	int gain = (data_MEM[(mem_id)*250 + (pnId-1)*kSamplesPerPn + sample ] & 0x3000) /4096;;
-	//	EcalFEMSample thePnSample(adc, gain);
 	EcalFEMSample thePnSample( data_MEM[(mem_id)*250 + (pnId-1)*kSamplesPerPn + sample ] );
 	thePnDigi.setSample(sample,  thePnSample );  
       }
