@@ -1,5 +1,5 @@
 // ----------------------------------------------------------------------
-// $Id: Entry.cc,v 1.26 2007/07/23 23:42:35 wmtan Exp $
+// $Id: Entry.cc,v 1.27 2007/10/11 06:37:15 wmtan Exp $
 //
 // definition of Entry's function members
 // ----------------------------------------------------------------------
@@ -17,6 +17,7 @@
 #include <map>
 #include <sstream>
 #include <ostream>
+#include <assert.h>
 
 namespace edm {
   namespace pset {
