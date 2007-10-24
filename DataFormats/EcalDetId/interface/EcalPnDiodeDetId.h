@@ -18,7 +18,7 @@
    [9:4]   DCCId (relative to SubDetector. In barrel it is the SupermoduleId from 1-36)
    [3:0]   PnId (In barrel from 1-10 according CMS IN-2005/021)
 
-   $Id: EcalPnDiodeDetId.h,v 1.2 2006/03/14 15:52:54 meridian Exp $
+   $Id: EcalPnDiodeDetId.h,v 1.3 2007/07/31 15:20:00 ratnik Exp $
 */
 
 
@@ -36,7 +36,7 @@ class EcalPnDiodeDetId : public DetId {
   /** Assignment from a generic cell id */
   EcalPnDiodeDetId& operator=(const DetId& id);
 
-  static const int MAX_DCCID = 127; //To be updated with correct and final number
+  static const int MAX_DCCID = 54;
   static const int MIN_DCCID = 1;
   static const int MAX_PNID = 15; 
   static const int MIN_PNID = 1;
