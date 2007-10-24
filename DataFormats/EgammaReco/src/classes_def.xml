@@ -49,6 +49,12 @@
   <class name="edm::Wrapper<std::vector<reco::ElectronPixelSeed> >"/>
   <class name="edm::RefVector<std::vector<reco::ElectronPixelSeed>,reco::ElectronPixelSeed,edm::refhelper::FindUsingAdvance<std::vector<reco::ElectronPixelSeed>,reco::ElectronPixelSeed> >"/>
   <class name="edm::Wrapper<edm::RefVector<std::vector<reco::ElectronPixelSeed>,reco::ElectronPixelSeed,edm::refhelper::FindUsingAdvance<std::vector<reco::ElectronPixelSeed>,reco::ElectronPixelSeed> > >"/>
+  <class name="edm::RefToBase<reco::ElectronPixelSeed>"/>
+  <class name="edm::reftobase::BaseHolder<reco::ElectronPixelSeed>" />
+  <class name="edm::reftobase::IndirectHolder<reco::ElectronPixelSeed>" />
+  <class name="edm::reftobase::RefHolder<edm::Ref<std::vector<reco::ElectronPixelSeed>,reco::ElectronPixelSeed,edm::refhelper::FindUsingAdvance<std::vector<reco::ElectronPixelSeed>,reco::ElectronPixelSeed> > >"/>
+  <class name="edm::reftobase::Holder<reco::ElectronPixelSeed,edm::Ref<std::vector<reco::ElectronPixelSeed>,reco::ElectronPixelSeed,edm::refhelper::FindUsingAdvance<std::vector<reco::ElectronPixelSeed>,reco::ElectronPixelSeed> > >"/>
+
   
   <class name="reco::PreshowerCluster"/>
   <class name="std::vector<reco::PreshowerCluster>"/>

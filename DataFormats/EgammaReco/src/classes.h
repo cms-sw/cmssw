@@ -2,6 +2,8 @@
 #include "DataFormats/EgammaReco/interface/BasicCluster.h"
 #include "Math/Cartesian3D.h" 
 #include "DataFormats/Common/interface/RefProd.h" 
+#include "DataFormats/Common/interface/RefToBase.h"
+
 #include "DataFormats/EgammaReco/interface/BasicClusterFwd.h"
 #include "DataFormats/EgammaReco/interface/PreshowerClusterShape.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
@@ -65,6 +67,10 @@ namespace {
     edm::Ref<reco::ElectronPixelSeedCollection> r111;
     edm::RefProd<reco::ElectronPixelSeedCollection> rp111;
     edm::Wrapper<edm::RefVector<reco::ElectronPixelSeedCollection> > wrv111;
+    edm::RefToBase<reco::ElectronPixelSeed> rtb11;  
+    edm::reftobase::IndirectHolder<reco::ElectronPixelSeed> ih11;
+    edm::reftobase::Holder< reco::ElectronPixelSeed, edm::Ref<reco::ElectronPixelSeedCollection> > rbh11;
+    edm::reftobase::RefHolder< edm::Ref<reco::ElectronPixelSeedCollection> > rbrh11;
     
     reco::PreshowerClusterCollection ps5;
     edm::Wrapper<reco::PreshowerClusterCollection> psw5;
