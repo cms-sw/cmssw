@@ -1,5 +1,5 @@
 //
-// $Id: TtDilepEvtSolution.h,v 1.10 2007/10/17 15:58:02 delaer Exp $
+// $Id$
 //
 
 #ifndef TopObjects_TtDilepEvtSolution_h
@@ -61,8 +61,6 @@ class TtDilepEvtSolution {
     // method to get info on the W decays
     std::string getWpDecay() const { return wpDecay_; }
     std::string getWmDecay() const { return wmDecay_; }
-    // method to get the matching residual
-    double getResidual() const;
     // miscellaneous methods
     bool   getBestSol()      const { return bestSol_; }
     double getRecTopMass()   const {return topmass_; }
@@ -86,7 +84,6 @@ class TtDilepEvtSolution {
     void setBestSol(bool bs);
     void setRecTopMass(double j);
     void setRecWeightMax(double j);
-    inline bool isValid() const { return wpDecay_!="NotDefined" && wmDecay_!="NotDefined"; }
 
   private:
 
