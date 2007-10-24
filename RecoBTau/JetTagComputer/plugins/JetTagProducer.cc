@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea Rizzi
 //         Created:  Thu Apr  6 09:56:23 CEST 2006
-// $Id: JetTagProducer.cc,v 1.4 2007/10/07 02:50:04 saout Exp $
+// $Id: JetTagProducer.cc,v 1.5 2007/10/08 16:21:06 saout Exp $
 //
 //
 
@@ -73,11 +73,15 @@ JetTagProducer::~JetTagProducer()
 //
 // member functions
 //
-// ------------ method to set up the TagInfo mapping ------------
+// ------------ method called once each job just before starting event loop  ------------
+void
+JetTagProducer::beginJob(const edm::EventSetup& iSetup) {
+  edm::ESHandle<JetTagComputer> computer;
+  iSetup.get<JetTagComputerRecord>().get( m_jetTagComputer, computer );
+  m_computer = computer.product();
+  m_computer->setEventSetup(iSetup);
 
-void 
-JetTagProducer::setup(Event& iEvent)
-{
+  // finalize the JetTagProducer <-> JetTagComputer glue setup
   vector<string> inputLabels(m_computer->m_inputLabels);
 
   // backward compatible case, use default tagInfo
@@ -101,7 +105,7 @@ JetTagProducer::setup(Event& iEvent)
 // map helper
 namespace {
   struct JetRefCompare :
-	public std::binary_function<RefToBase<Jet>, RefToBase<Jet>, bool> {
+       public std::binary_function<RefToBase<Jet>, RefToBase<Jet>, bool> {
     inline bool operator () (const RefToBase<Jet> &j1,
                              const RefToBase<Jet> &j2) const
     { return j1.key() < j2.key(); }
@@ -112,14 +116,7 @@ namespace {
 void
 JetTagProducer::produce(Event& iEvent, const EventSetup& iSetup)
 {
-  ESHandle<JetTagComputer> computer;
-  iSetup.get<JetTagComputerRecord>().get( m_jetTagComputer, computer );
-  m_computer = computer.product();
   m_computer->setEventSetup(iSetup);
-
-  // finalize the JetTagProducer <-> JetTagComputer glue setup
-  if (!m_computer->m_setupDone)
-    setup(iEvent);
 
   // now comes the tricky part:
   // we need to collect all requested TagInfos belonging to the same jet
