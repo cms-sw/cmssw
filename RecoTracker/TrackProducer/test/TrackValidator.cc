@@ -150,10 +150,10 @@ std::cout << "In TrackValidator\n";
 	if (abs(simTrack->momentum().eta())>max || 
 	    abs(simTrack->momentum().eta())<min) continue;
 	st++;
-	h_ptSIM[w]->Fill(simTrack->momentum().perp());
+	h_ptSIM[w]->Fill(simTrack->momentum().pt());
 	h_etaSIM[w]->Fill(simTrack->momentum().eta());
 
-	h_vertposSIM[w]->Fill(simVC[simTrack->vertIndex()].position().perp());
+	h_vertposSIM[w]->Fill(simVC[simTrack->vertIndex()].position().pt());
 	
 	if (simTrack->type()!=partId) continue;
 	//compute number of tracks per eta interval
@@ -164,7 +164,7 @@ std::cout << "In TrackValidator\n";
 	    totSIM[w][i]++;
 	    bool doit=false;
 	    for (reco::TrackCollection::const_iterator track=tC.begin(); track!=tC.end(); track++){
-	      if (abs(track->pt()-simTrack->momentum().perp())<(simTrack->momentum().perp()*0.1)) doit=true; 
+	      if (abs(track->pt()-simTrack->momentum().pt())<(simTrack->momentum().pt()*0.1)) doit=true; 
 	    }
 	    if (doit) totREC[w][i]++;
 	  }
@@ -208,7 +208,7 @@ std::cout << "In TrackValidator\n";
 	double kres=1000;
 	for (SimTrackContainer::const_iterator simTrack=simTC.begin(); simTrack!=simTC.end(); simTrack++){
 	  if (simTrack->type()!=partId) continue;
-	  double tmp=track->track().pt()-simTrack->momentum().perp();
+	  double tmp=track->track().pt()-simTrack->momentum().pt();
 	  if (tC.size()>1) h_pt2[w]->Fill(tmp);
 	  if (abs(tmp)<abs(ptres)) {
 	    ptres=tmp; 
@@ -217,12 +217,13 @@ std::cout << "In TrackValidator\n";
 	    etares=track->initialFreeState().momentum().eta()-simTrack->momentum().eta();
 	    thetares=(tscp.perigeeParameters().theta()-simTrack->momentum().theta())/tscp.perigeeError().thetaError();
 	    phi0res=(tscp.perigeeParameters().phi()-simTrack->momentum().phi())/tscp.perigeeError().phiError();
-	    d0res=(tscp.perigeeParameters().transverseImpactParameter()-simVC[simTrack->vertIndex()].position().perp())/tscp.perigeeError().transverseImpactParameterError();
+	    d0res=(tscp.perigeeParameters().transverseImpactParameter()-simVC[simTrack->vertIndex()].position().pt())/tscp.perigeeError().transverseImpactParameterError();
 	    dzres=(tscp.perigeeParameters().longitudinalImpactParameter()-simVC[simTrack->vertIndex()].position().z())/tscp.perigeeError().longitudinalImpactParameterError();
 
-	    CLHEP::HepLorentzVector vertexPosition = simVC[simTrack->vertIndex()].position(); 
+	    
+	    const math::XYZTLorentzVectorD& vertexPosition = simVC[simTrack->vertIndex()].position();
 	    GlobalVector magField=theMF->inTesla(GlobalPoint(vertexPosition.x(),vertexPosition.y(),vertexPosition.z()));
-	    kres=(tscp.perigeeParameters().transverseCurvature()-(-track->charge()*2.99792458e-3 * magField.z()/simTrack->momentum().perp()))/
+	    kres=(tscp.perigeeParameters().transverseCurvature()-(-track->charge()*2.99792458e-3 * magField.z()/simTrack->momentum().pt()))/
 	    tscp.perigeeError().transverseCurvatureError();
 
 // 	    cout << "track->d0(): " << track->d0() << endl;
@@ -258,7 +259,7 @@ std::cout << "In TrackValidator\n";
 	    ptres=1000;
 	    if (abs(simTrack->momentum().eta())>etaintervals[w][i]&&
 		abs(simTrack->momentum().eta())<etaintervals[w][i+1]) {
-	      double tmp=track->track().pt()-simTrack->momentum().perp();
+	      double tmp=track->track().pt()-simTrack->momentum().pt();
 	      if (abs(tmp)<abs(ptres)) ptres=tmp;
 	    }
 	  }
@@ -274,7 +275,7 @@ std::cout << "In TrackValidator\n";
 	    ptres =1000;
 	    if (abs(simTrack->momentum().eta())>etaintervals[w][i]&&
 		abs(simTrack->momentum().eta())<etaintervals[w][i+1]) {
-	      double tmp=track->track().pt()-simTrack->momentum().perp();
+	      double tmp=track->track().pt()-simTrack->momentum().pt();
 	      if (abs(tmp)<abs(ptres)) etares=track->track().eta()-simTrack->momentum().eta();
 	    }
 	  }
