@@ -7,6 +7,7 @@
 #include <iostream>
 #include <string>
 #include <stdexcept>
+#include <assert.h>
 
 #include "DataFormats/EcalDetId/interface/EEDetId.h"
 
