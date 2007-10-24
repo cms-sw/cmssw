@@ -262,63 +262,63 @@
 <LogicalPartSection label="muonYoke.xml"> 
  <LogicalPart name="YN12p_a" category="unspecified"> 
   <rSolid name="YN12_a"/> 
-  <rMaterial name="materials:AISI-1045-Steel"/> 
+  <rMaterial name="materials:AISI-1018-Steel"/> 
  </LogicalPart> 
  <LogicalPart name="YN12p_b" category="unspecified"> 
   <rSolid name="YN12_b"/> 
-  <rMaterial name="materials:AISI-1045-Steel"/> 
+  <rMaterial name="materials:AISI-1018-Steel"/> 
  </LogicalPart> 
  <LogicalPart name="YN12p_c" category="unspecified"> 
   <rSolid name="YN12_c"/> 
-  <rMaterial name="materials:AISI-1045-Steel"/> 
+  <rMaterial name="materials:AISI-1018-Steel"/> 
  </LogicalPart> 
  <LogicalPart name="YE1p_a" category="unspecified"> 
   <rSolid name="YE1_a"/> 
-  <rMaterial name="materials:AISI-1045-Steel"/> 
+  <rMaterial name="materials:AISI-1018-Steel"/> 
  </LogicalPart> 
  <LogicalPart name="YE1p_b" category="unspecified"> 
   <rSolid name="YE1_b"/> 
-  <rMaterial name="materials:AISI-1045-Steel"/> 
+  <rMaterial name="materials:AISI-1018-Steel"/> 
  </LogicalPart> 
  <LogicalPart name="YE12" category="unspecified"> 
   <rSolid name="YE12"/> 
-  <rMaterial name="materials:AISI-1045-Steel"/> 
+  <rMaterial name="materials:AISI-1018-Steel"/> 
  </LogicalPart> 
 
  <LogicalPart name="YE2p_a" category="unspecified"> 
   <rSolid name="YE2_a"/> 
-  <rMaterial name="materials:AISI-1045-Steel"/> 
+  <rMaterial name="materials:AISI-1018-Steel"/> 
  </LogicalPart> 
  <LogicalPart name="YE2p_b" category="unspecified"> 
   <rSolid name="YE2_b"/> 
-  <rMaterial name="materials:AISI-1045-Steel"/> 
+  <rMaterial name="materials:AISI-1018-Steel"/> 
  </LogicalPart> 
  <LogicalPart name="YE23" category="unspecified"> 
   <rSolid name="YE23"/> 
-  <rMaterial name="materials:AISI-1045-Steel"/> 
+  <rMaterial name="materials:AISI-1018-Steel"/> 
  </LogicalPart> 
 
  <LogicalPart name="YE3p_a" category="unspecified"> 
   <rSolid name="YE3_a"/> 
-  <rMaterial name="materials:AISI-1045-Steel"/> 
+  <rMaterial name="materials:AISI-1018-Steel"/> 
  </LogicalPart> 
  <LogicalPart name="YE3p_b" category="unspecified"> 
   <rSolid name="YE3_b"/> 
-  <rMaterial name="materials:AISI-1045-Steel"/> 
+  <rMaterial name="materials:AISI-1018-Steel"/> 
  </LogicalPart> 
  <LogicalPart name="YE34" category="unspecified"> 
   <rSolid name="YE34"/> 
-  <rMaterial name="materials:AISI-1045-Steel"/> 
+  <rMaterial name="materials:AISI-1018-Steel"/> 
  </LogicalPart> 
 
  <LogicalPart name="ShieldingME4" category="unspecified"> 
   <rSolid name="ShieldingME4"/> 
-  <rMaterial name="materials:AISI-1045-Steel"/> 
+  <rMaterial name="materials:AISI-1018-Steel"/> 
  </LogicalPart> 
 
  <LogicalPart name="YE4" category="unspecified"> 
   <rSolid name="YE4"/> 
-  <rMaterial name="materials:AISI-1045-Steel"/> 
+  <rMaterial name="materials:AISI-1018-Steel"/> 
  </LogicalPart> 
 
  <LogicalPart name="YB1_w0_b1" category="unspecified"> 
