@@ -159,14 +159,14 @@ CSCCFEBConnectivityAnalyzer::~CSCCFEBConnectivityAnalyzer(){
     lines++;
     getline(filein,PSet);
     
-    if (lines==3){
+    if (lines==2){
       name=PSet;  
     }
   }
   
   //get name of run file from .cfg and name root output after that
   std::string::size_type runNameStart = name.find("\"",0);
-  std::string::size_type runNameEnd   = name.find("bin",0);
+  std::string::size_type runNameEnd   = name.find("raw",0);
   std::string::size_type rootStart    = name.find("Crosstalk",0);
   int nameSize = runNameEnd+2-runNameStart;
   int myRootSize = rootStart-runNameStart+8;
@@ -193,7 +193,7 @@ CSCCFEBConnectivityAnalyzer::~CSCCFEBConnectivityAnalyzer(){
   TCalibCFEBConnectEvt calib_evt;
   TFile calibfile(myNewName, "RECREATE");
   TTree calibtree("Calibration","Connectivity");
-  calibtree.Branch("EVENT", &calib_evt, "strip/I:layer/I:cham/I:ddu/I:adcMax/F:adcMin/F:diff/F:RMS/F");
+  calibtree.Branch("EVENT", &calib_evt, "strip/I:layer/I:cham/I:ddu/I:adcMax/F:adcMin/F:diff/F:RMS/F:id");
   
   for (int iii=0; iii<Nddu; iii++){
     for (int i=0; i<NChambers; i++){
@@ -207,6 +207,8 @@ CSCCFEBConnectivityAnalyzer::~CSCCFEBConnectivityAnalyzer(){
       map->crate_chamber(new_crateID,new_dmbID,&chamber_id,&chamber_num,&sector,&first_strip_index,&strips_per_layer,&chamber_index);
       std::cout<<"Data is for chamber:: "<< chamber_id<<" in sector:  "<<sector<<std::endl;
       
+      calib_evt.id = chamber_num;
+
       for (int j=0; j<LAYERS_con; j++){
 	for (int k=0; k<size[i]; k++){
 	  

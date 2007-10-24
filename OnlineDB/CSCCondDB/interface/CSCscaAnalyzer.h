@@ -28,6 +28,7 @@ class TCalibSCAEvt {
   Int_t cham;
   Int_t ddu;
   Float_t scaMeanVal;
+  Int_t id;
 };
 
 class CSCscaAnalyzer : public edm::EDAnalyzer {

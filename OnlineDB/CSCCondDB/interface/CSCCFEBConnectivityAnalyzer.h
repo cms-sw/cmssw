@@ -31,6 +31,7 @@ class TCalibCFEBConnectEvt {
   Float_t adcMin;
   Float_t diff;
   Float_t RMS;
+  Int_t id;
 };
 
 class CSCCFEBConnectivityAnalyzer : public edm::EDAnalyzer {

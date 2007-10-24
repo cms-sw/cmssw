@@ -200,7 +200,7 @@ CSCscaAnalyzer::~CSCscaAnalyzer(){
   TCalibSCAEvt calib_evt;
   TFile calibfile(myNewName, "RECREATE");
   TTree calibtree("Calibration","SCA");
-  calibtree.Branch("EVENT", &calib_evt, "strip/I:layer/I:cham/I:ddu/I:scaMeanVal/F");
+  calibtree.Branch("EVENT", &calib_evt, "strip/I:layer/I:cham/I:ddu/I:scaMeanVal/F:id/I");
   
   //DB object and map
   CSCobject *cn = new CSCobject();
@@ -219,6 +219,8 @@ CSCscaAnalyzer::~CSCscaAnalyzer(){
       map->crate_chamber(new_crateID,new_dmbID,&chamber_id,&chamber_num,&sector,&first_strip_index,&strips_per_layer,&chamber_index);
       std::cout<<"Data is for chamber:: "<< chamber_id<<" in sector:  "<<sector<<std::endl;
       
+      calib_evt.id = chamber_num;
+
       for (int layeriter=0; layeriter<LAYERS_sca; layeriter++){
 	int layer_id=chamber_num+layeriter+1;
 	for (int stripiter=0; stripiter<STRIPS_sca; stripiter++){
