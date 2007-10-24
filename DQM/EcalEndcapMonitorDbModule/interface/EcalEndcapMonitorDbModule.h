@@ -4,8 +4,8 @@
 /*
  * \file EcalEndcapMonitorDbModule.h
  *
- * $Date: 2006/06/28 10:46:17 $
- * $Revision: 1.5 $
+ * $Date: 2007/04/02 16:20:48 $
+ * $Revision: 1.1 $
  * \author G. Della Ricca
  *
 */
@@ -20,7 +20,7 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include <DQM/EcalEndcapMonitorDbModule/interface/MonitorElementsDb.h>
+#include <DQM/EcalBarrelMonitorDbModule/interface/MonitorElementsDb.h>
 
 #include <string>
 
