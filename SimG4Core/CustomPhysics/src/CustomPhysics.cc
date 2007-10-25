@@ -1,14 +1,9 @@
-#include "SimG4Core/PhysicsLists/interface/G4Version.h"
 #include "SimG4Core/CustomPhysics/interface/CustomPhysics.h"
 #include "SimG4Core/CustomPhysics/interface/CustomPhysicsList.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "G4DecayPhysics.hh"
-#ifndef G4V9
 #include "G4EmStandardPhysics71.hh"
-#else
-#include "G4EmStandardPhysics_option1.hh"
-#endif
 #include "G4EmExtraPhysics.hh"
 #include "G4IonPhysics.hh"
 #include "G4QStoppingPhysics.hh"
@@ -32,11 +27,7 @@ CustomPhysics::CustomPhysics(G4LogicalVolumeToDDLogicalPartMap& map,
 			      << hadPhys << "\n";
 
   // EM Physics
-#ifndef G4V9
-    RegisterPhysics( new G4EmStandardPhysics71("standard EM v71",ver));
-#else
-    RegisterPhysics( new G4EmStandardPhysics_option1(ver,"standard EM_opt1"));
-#endif
+  RegisterPhysics(new G4EmStandardPhysics71("standard EM v71",ver));
 
   // Synchroton Radiation & GN Physics
   RegisterPhysics(new G4EmExtraPhysics("extra EM"));
