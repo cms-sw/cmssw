@@ -3,6 +3,7 @@
 #include "RecoTauTag/HLTProducers/interface/IsolatedTauJetsSelector.h"
 #include "RecoTauTag/HLTProducers/interface/EMIsolatedTauJetsSelector.h"
 #include "RecoTauTag/HLTProducers/interface/L2TauJetsProvider.h"
+#include "RecoTauTag/HLTProducers/interface/HLTTauProducer.h"
 #include "RecoTauTag/HLTProducers/interface/CaloTowerCreatorForTauHLT.h"
 #include "RecoTauTag/HLTProducers/interface/HLTLeptonTauNonCollProducer.h"
 #include "RecoTauTag/HLTProducers/interface/HLTLeptonTauNonCollEMProducer.h"
@@ -19,4 +20,4 @@ DEFINE_ANOTHER_FWK_MODULE(L2TauJetsProvider);
 DEFINE_ANOTHER_FWK_MODULE(CaloTowerCreatorForTauHLT);
 DEFINE_ANOTHER_FWK_MODULE(HLTLeptonTauNonCollProducer);
 DEFINE_ANOTHER_FWK_MODULE(HLTLeptonTauNonCollEMProducer);
-
+DEFINE_ANOTHER_FWK_MODULE(HLTTauProducer);
