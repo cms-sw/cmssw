@@ -1,5 +1,5 @@
 //
-// $Id: TopElectronProducer.cc,v 1.25 2007/10/04 23:34:50 lowette Exp $
+// $Id: TopElectronProducer.cc,v 1.26 2007/10/16 15:16:31 jlamb Exp $
 //
 
 #include "TopQuarkAnalysis/TopObjectProducers/interface/TopElectronProducer.h"
@@ -76,10 +76,6 @@ void TopElectronProducer::produce(edm::Event & iEvent, const edm::EventSetup & i
   iEvent.getByLabel(electronSrc_, electronsHandle);
   std::vector<TopElectronType> electrons = *electronsHandle;
 
-  // remove ghosts
-  if (doGhostRemoval_) {
-    removeGhosts(electrons);
-  }
 
   // prepare the MC matching
   edm::Handle<reco::CandidateCollection> particles;
@@ -160,6 +156,14 @@ void TopElectronProducer::produce(edm::Event & iEvent, const edm::EventSetup & i
     topElectrons->push_back(TopElectron(anElectron));
   }
 
+  
+  // remove ghosts
+  if (doGhostRemoval_) {
+    removeEleDupes(topElectrons);
+    //removeGhosts(electrons);has bug, replaced with clunkier but working code.
+  }
+
+
   // sort electrons in pt
   std::sort(topElectrons->begin(), topElectrons->end(), pTComparator_);
 
@@ -178,8 +182,11 @@ void TopElectronProducer::produce(edm::Event & iEvent, const edm::EventSetup & i
 void TopElectronProducer::removeGhosts(std::vector<TopElectronType> & elecs) {
   std::vector<TopElectronType>::iterator cmp = elecs.begin();  
   std::vector<TopElectronType>::iterator ref = elecs.begin();  
+
+
   for( ; ref<elecs.end(); ++ref ){
     for( ; (cmp!=ref) && cmp<elecs.end(); ++cmp ){
+      
       if ((cmp->gsfTrack()==ref->gsfTrack()) || (cmp->superCluster()==ref->superCluster()) ){
 	//same track or super cluster is used
 	//keep the one with E/p closer to one	
@@ -278,3 +285,61 @@ void TopElectronProducer::setEgammaIso(TopElectron &anElectron,
   anElectron.setEgammaHcalIso((*hcalIsoHandle)[candRef]);
   
 }
+
+//it is possible that there are multiple electron objects in the collection that correspond to the same
+//real physics object - a supercluster with two tracks reconstructed to it, or a track that points to two different SC
+// (i would guess the latter doesn't actually happen).
+//NB triplicates also appear in the electron collection provided by egamma group, it is necessary to handle those correctly
+
+//this function removes the duplicates/triplicates/multiplicates from the input vector
+void TopElectronProducer::removeEleDupes(std::vector<TopElectron> *electrons) {
+  
+  //contains indices of duplicate electrons marked for removal
+  //I do it this way because removal during the loop is more confusing
+  std::vector<size_t> indicesToRemove;
+  
+  for (size_t ie=0;ie<electrons->size();ie++) {
+    if (find(indicesToRemove.begin(),indicesToRemove.end(),ie)!=indicesToRemove.end()) continue;//ignore if already marked for removal
+    
+    reco::GsfTrackRef thistrack=electrons->at(ie).gsfTrack();
+    reco::SuperClusterRef thissc=electrons->at(ie).superCluster();
+
+    for (size_t je=ie+1;je<electrons->size();je++) {
+      if (find(indicesToRemove.begin(),indicesToRemove.end(),je)!=indicesToRemove.end()) continue;//ignore if already marked for removal
+      
+      if ((thistrack==electrons->at(je).gsfTrack()) ||
+	  (thissc==electrons->at(je).superCluster()) ) {//we have a match, arbitrate and mark one for removal
+	//keep the one with E/P closer to unity
+	float diff1=fabs(electrons->at(ie).eSuperClusterOverP()-1);
+	float diff2=fabs(electrons->at(je).eSuperClusterOverP()-1);
+	
+	if (diff1<diff2) {
+	  indicesToRemove.push_back(je);
+	} else {
+	  indicesToRemove.push_back(ie);
+	}
+      }
+    }
+  }
+  //now remove the ones marked
+  //or in fact, copy the old vector into a tmp vector, clear the old vector, and copy
+  //back only the ones that aren't duplicates
+  //this is ugly but it will work
+  std::vector<TopElectron> tmp;
+  tmp.assign(electrons->begin(),electrons->end());
+  for (size_t ie=0;ie<electrons->size();ie++) {
+    if (find(indicesToRemove.begin(),indicesToRemove.end(),ie)!=indicesToRemove.end()) {
+      continue;
+    } else {
+      tmp.push_back(electrons->at(ie));
+    }
+  }
+  //copy back
+  electrons->clear();
+  electrons->assign(tmp.begin(),tmp.end());
+  
+  return;
+}
+
+
+
