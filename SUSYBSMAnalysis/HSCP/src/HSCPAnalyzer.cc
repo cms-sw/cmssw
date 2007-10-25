@@ -13,7 +13,7 @@
 //
 // Original Author:  Rizzi Andrea
 //         Created:  Mon Sep 24 09:30:06 CEST 2007
-// $Id: HSCPAnalyzer.cc,v 1.6 2007/10/16 10:22:55 arizzi Exp $
+// $Id: HSCPAnalyzer.cc,v 1.7 2007/10/19 15:41:36 ptraczyk Exp $
 //
 //
 
@@ -95,11 +95,19 @@ class HSCPAnalyzer : public edm::EDAnalyzer {
 //ANALYSIS
       TH1F * h_pSpectrumAfterSelection[6]; 
       TH1F * h_massAfterSelection[6];
+      TH2F * h_massVsMass;
+//Counters
+      double selected;
+      double selectedTOF;
+      double selectedDedx;
+      double tot;
  // SIM
       TH1F * h_simmu_pt; 
       TH1F * h_simmu_eta; 
       TH1F * h_simhscp_pt; 
       TH1F * h_simhscp_eta; 
+
+
       // ----------member data ---------------------------
 };
 
@@ -121,7 +129,10 @@ HSCPAnalyzer::HSCPAnalyzer(const edm::ParameterSet& iConfig)
     m_dedxSrc=iConfig.getParameter<InputTag>("dedxSrc");
     m_haveSimTracks=iConfig.getParameter<bool>("haveSimTracks");
     m_useWeights=iConfig.getParameter<bool>("useWeights");
-
+    tot =0;
+    selected = 0;
+    selectedTOF = 0;
+    selectedDedx = 0;
 }
 
 
@@ -144,6 +155,14 @@ HSCPAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
    using namespace edm;
    double w=1.;
+   //Event flags
+   int dedxSelectionLevel = -1;
+
+   // FIXME: Use candidate + errors 
+   vector<float> dedxMass,dedxP,dedxMPV;
+   vector<float> tofMass,tofP,tofValue;
+
+
    if(m_useWeights)
    {
        Handle<double>  weightH;
@@ -155,6 +174,8 @@ HSCPAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
        double s= * scaleH.product()      ;
        cout << "W: " << w << "   S: "<< s << endl;
    }
+
+   tot+=w;
 
    Handle<reco::MuonCollection> pIn;
    iEvent.getByLabel("muons",pIn);
@@ -185,7 +206,9 @@ HSCPAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       h_tofMassp->Fill(p,mass,w);
       h_tofMass->Fill(mass,w);
       h_tofMass2->Fill(mass2,w);
-      
+      tofMass.push_back(mass);
+      tofP.push_back(p);
+      tofValue.push_back(invbeta);
       i++;
     }
 
@@ -248,13 +271,33 @@ HSCPAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       {
         if(dedxFitVal > dedxFitCut[i]) 
         {
+         dedxSelectionLevel=i; 
          h_pSpectrumAfterSelection[i]->Fill(p,w);
          h_massAfterSelection[i]->Fill(mass2,w);      
+         dedxMass.push_back(mass2);
+         dedxP.push_back(p);
+         dedxMPV.push_back(dedxFitVal);
         }
       }  
 
         }
     }
+
+
+if(dedxMass.size() > 0 && tofMass.size() > 0 )
+{
+ if(find_if(dedxMass.begin(), dedxMass.end(), bind2nd(greater<float>(), 100.))!= dedxMass.end() &&
+    find_if(tofMass.begin(), tofMass.end(), bind2nd(greater<float>(), 100.))!= tofMass.end() )
+  selected+=w;
+  int i=max_element(tofValue.begin(), tofValue.end())-tofValue.begin();
+  int j=max_element(dedxMPV.begin(), dedxMPV.end())-dedxMPV.begin();
+  h_massVsMass->Fill(tofMass[i],dedxMass[j],w); 
+
+}
+
+if(find_if(dedxMass.begin(), dedxMass.end(), bind2nd(greater<float>(), 100.))!= dedxMass.end()) selectedDedx+=w;
+if(find_if(tofMass.begin(), tofMass.end(), bind2nd(greater<float>(), 100.))!= tofMass.end() ) selectedTOF+=w;
+
 
 if(m_haveSimTracks)
  {
@@ -325,6 +368,9 @@ HSCPAnalyzer::beginJob(const edm::EventSetup&)
    h_massAfterSelection[i] = subDirAn.make<TH1F>((string("massDedxSel")+sel.str()).c_str(),(string("Mass after selection #")+sel.str()).c_str(),300,0,1000);
 
   } 
+  
+  h_massVsMass =  subDirAn.make<TH2F>("tof_mass_vs_dedx_mass","Mass tof vs Mass dedx", 100,0,1200,100,0,1200);
+
 
 //------------ SIM ----------------
   TFileDirectory subDir2 = fs->mkdir( "Sim" );
@@ -378,6 +424,11 @@ HSCPAnalyzer::endJob() {
   cout << "    MIP  mean : " <<  mipMean << "    sigma : " << mipSigma << endl;
   for(int i=0;i<6;i++)   cout << "    " << (1-effPoints[i])*100 << "% @ dedx > " << dedxStdEff[i] << endl;
 
+  cout << endl;
+  cout << "Processed events: " << tot <<  endl;
+  cout << "Selected events: " << selected <<  endl;
+  cout << "Selected tof  events: " << selectedTOF <<  endl;
+  cout << "Selected dedx events: " << selectedDedx <<  endl;
 }
 
 double HSCPAnalyzer::cutMin(TH1F * h, double ci)
