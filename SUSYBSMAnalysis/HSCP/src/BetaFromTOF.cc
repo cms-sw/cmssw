@@ -13,7 +13,7 @@
 //
 // Original Author:  Traczyk Piotr
 //         Created:  Thu Oct 11 15:01:28 CEST 2007
-// $Id: BetaFromTOF.cc,v 1.1 2007/10/15 13:30:42 ptraczyk Exp $
+// $Id: BetaFromTOF.cc,v 1.2 2007/10/19 10:34:00 ptraczyk Exp $
 //
 //
 
@@ -185,6 +185,12 @@ BetaFromTOF::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 //  iEvent.getByLabel( TKtrackTags_, TKTrackCollection);
 //  const reco::TrackCollection tkTC = *(TKTrackCollection.product());
 
+  Handle<reco::TrackCollection> staMuonsH;
+  iEvent.getByLabel("standAloneMuons",staMuonsH);
+  const reco::TrackCollection & staMuons = * staMuonsH.product();
+  if (debug) 
+    cout << " STA Muon collection size: " << staMuons.size() << endl;
+
   Handle<reco::MuonCollection> allMuons;
   iEvent.getByLabel(MuonTags_,allMuons);
   const reco::MuonCollection & muons = * allMuons.product();
@@ -196,16 +202,19 @@ BetaFromTOF::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   iEvent.getByLabel(DTSegmentTags_, dtRecHits);  
   if (debug) 
     cout << "DT Segment collection size: " << dtRecHits->size() << endl;
-       
+
   for(reco::MuonCollection::const_iterator mi = muons.begin(); mi != muons.end() ; mi++) {
-    TrackRef tkMuon = mi->track();
     TrackRef staMuon = mi->standAloneMuon();
-    TrackRef combMuon = mi->combinedMuon();
 
-    const Track* candTrack = staMuon.get();
-
-    segmVect dtSegments;
     double betaMeasurements[4]={0,0,0,0};
+
+  for (reco::TrackCollection::const_iterator candTrack = staMuons.begin(); candTrack != staMuons.end(); ++candTrack) {
+    
+//    cout << " Old STA: eta=" << staMuon->momentum().eta() << "  phi=" << staMuon->momentum().phi() << endl;
+//    cout << " New STA: eta=" << candTrack->momentum().eta() << "  phi=" << candTrack->momentum().phi() << endl;
+//    cout << " Diff: " << (staMuon->momentum().unit()-candTrack->momentum().unit()) << endl;
+    if ((staMuon->momentum().unit()-candTrack->momentum().unit()).Mag2()>0.01) continue;
+//    const Track* candTrack = staMuon.get();
 
     if (debug) 
       cout << " STA Track:   RecHits: " << (*candTrack).recHitsSize() 
@@ -215,8 +224,6 @@ BetaFromTOF::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
       if (( (*hi)->geographicalId().subdetId() == MuonSubdetId::DT ) && ((*hi)->geographicalId().det() == 2)) {
   
-//        if (debug) cout << "Hit dim: " << (*hi)->dimension() << endl;
-
         // Create the ChamberId
         DetId id = (*hi)->geographicalId();
         DTChamberId chamberId(id.rawId());
@@ -247,7 +254,7 @@ BetaFromTOF::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   	        t0 = si->t0();
     	        if (si->specificRecHits().size()>=theHitsMin) ibphi=1.+t0/dist*30.;
     	        ibtheta=ibphi;
-  	        if (debug) cout << " Station " << station << "   Phi 1/beta = " << ibphi << endl;
+  	        if (debug) cout << " Station " << station << "   Phi 1/beta = " << ibphi << " t0 = " << t0 << endl;
   	      }
 	    
 	      if (rechit->hasZed()) {
@@ -257,7 +264,7 @@ BetaFromTOF::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   	        t0 = si->t0();
 	        if (si->specificRecHits().size()>=theHitsMin) ibtheta=1.+t0/dist*30.;
 	        if (!ibphi) ibphi=ibtheta;
- 	        if (debug) cout << " Station " << station << " Theta 1/beta = " << ibtheta << endl;
+ 	        if (debug) cout << " Station " << station << " Theta 1/beta = " << ibtheta << " t0 = " << t0 << endl;
 	      }  
 	      
 	      // Compute the inverse beta for this station by averaging phi and theta calculations
@@ -269,6 +276,10 @@ BetaFromTOF::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
         } // rechit
     } // hi
     
+    // End the loop over STA muons - since we already found the matching one
+    break;
+  }  //candTrack
+
     double invbeta=0;    
     int mcount=0;
     
@@ -285,9 +296,7 @@ BetaFromTOF::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
       cout << " Measured 1/beta: " << invbeta << endl;
 
     outputCollection->push_back(invbeta);
-    
-  }  //candTrack
-
+  } // mi
 
   std::auto_ptr<vector<float> > estimator(outputCollection);
   iEvent.put(estimator);
