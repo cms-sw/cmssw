@@ -14,6 +14,8 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripQuality.h"
+#include "CommonTools/TrackerMap/interface/TrackerMap.h"
+
 #include <sstream>
 
 class SiStripQualityStatistics : public edm::EDAnalyzer {
@@ -31,6 +33,7 @@ class SiStripQualityStatistics : public edm::EDAnalyzer {
   bool printdebug_;
   unsigned long long m_cacheID_;
   std::string dataLabel_;
+  std::string TkMapFileName_;
 
   //Global Info
   int NTkBadComponent[4]; //k: 0=BadModule, 1=BadFiber, 2=BadApv, 3=BadStrips
@@ -39,6 +42,8 @@ class SiStripQualityStatistics : public edm::EDAnalyzer {
   //     i: 0=TIB, 1=TID, 2=TOB, 3=TEC
   //     k: 0=BadModule, 1=BadFiber, 2=BadApv, 3=BadStrips
   std::stringstream ssV[4][19];
+
+  TrackerMap * tkMap;
 
 };
 #endif

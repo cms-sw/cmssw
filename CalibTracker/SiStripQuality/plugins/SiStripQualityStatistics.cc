@@ -13,7 +13,7 @@
 //
 // Original Author:  Domenico GIORDANO
 //         Created:  Wed Oct  3 12:11:10 CEST 2007
-// $Id: SiStripQualityStatistics.cc,v 1.2 2007/10/24 08:45:56 giordano Exp $
+// $Id: SiStripQualityStatistics.cc,v 1.3 2007/10/24 15:31:58 giordano Exp $
 //
 //
 #include "CalibTracker/Records/interface/SiStripQualityRcd.h"
@@ -33,7 +33,8 @@
 SiStripQualityStatistics::SiStripQualityStatistics( const edm::ParameterSet& iConfig ):
   printdebug_(iConfig.getUntrackedParameter<bool>("printDebug",false)),
   m_cacheID_(0), 
-  dataLabel_(iConfig.getUntrackedParameter<std::string>("dataLabel",""))
+  dataLabel_(iConfig.getUntrackedParameter<std::string>("dataLabel","")),
+  TkMapFileName_(iConfig.getUntrackedParameter<std::string>("TkMapFileName","TkMapBadComponents.svg"))
 {}
 
 void SiStripQualityStatistics::analyze( const edm::Event& e, const edm::EventSetup& iSetup){
@@ -58,6 +59,10 @@ void SiStripQualityStatistics::analyze( const edm::Event& e, const edm::EventSet
 	NBadComponent[i][j][k]=0;
     }
   }
+
+  if (tkMap)
+    delete tkMap;
+  tkMap=new TrackerMap( "BadComponents" );
 
   std::vector<SiStripQuality::BadComponent> BC = SiStripQuality_->getBadComponentList();
   
@@ -189,7 +194,7 @@ void SiStripQualityStatistics::analyze( const edm::Event& e, const edm::EventSet
     ss << "\nTEC- Disk " << i-9 << " :\t\t"<<NBadComponent[3][i][0]<<"\t"<<NBadComponent[3][i][1]<<"\t"<<NBadComponent[3][i][2]<<"\t"<<NBadComponent[3][i][3];
   ss<< "\n";
 
-  ss << "\n\t\t   Detid  Modules Fibers Apvs\n----------------------------------------------------------------";
+  ss << "\n----------------------------------------------------------------\n\t\t   Detid  \tModules Fibers Apvs\n----------------------------------------------------------------";
   for (int i=1;i<5;++i)
     ss << "\nTIB Layer " << i << " :" << ssV[0][i].str();
   ss << "\n";
@@ -208,7 +213,13 @@ void SiStripQualityStatistics::analyze( const edm::Event& e, const edm::EventSet
 
 
   edm::LogInfo("SiStripQualityStatistics") << ss.str() << std::endl;
-  
+  std::string filetype=TkMapFileName_,filename=TkMapFileName_;
+  std::stringstream sRun;
+  sRun << "_Run_"  <<  e.id().run() ;
+  filename.insert(filename.find("."),sRun.str());
+  tkMap->save(true,0,0,filename.c_str(),800,400);
+  filename.erase(filename.begin()+filename.find("."),filename.end());
+  tkMap->print(true,0,0,filename.c_str());
 }
 
 
@@ -228,19 +239,22 @@ void SiStripQualityStatistics::SetBadComponents(int i, int component,SiStripQual
 		    << ( (BC.BadApvs>>4)&0x1 ) << " " 
 		    << ( (BC.BadApvs>>5)&0x1 ) << " " 
     ;
-   
-  if (BC.BadModule){
-    NBadComponent[i][0][0]++;
-    NBadComponent[i][component][0]++;
-  }
-  if (BC.BadFibers){ 
-    NBadComponent[i][0][1]+= ( (BC.BadFibers>>2)&0x1 )+ ( (BC.BadFibers>>1)&0x1 ) + ( (BC.BadFibers)&0x1 );
-    NBadComponent[i][component][1]+= ( (BC.BadFibers>>2)&0x1 )+ ( (BC.BadFibers>>1)&0x1 ) + ( (BC.BadFibers)&0x1 );
-  }
+
   if (BC.BadApvs){
     NBadComponent[i][0][2]+= ( (BC.BadApvs>>5)&0x1 )+ ( (BC.BadApvs>>4)&0x1 ) + ( (BC.BadApvs>>3)&0x1 ) + 
       ( (BC.BadApvs>>2)&0x1 )+ ( (BC.BadApvs>>1)&0x1 ) + ( (BC.BadApvs)&0x1 );
     NBadComponent[i][component][2]+= ( (BC.BadApvs>>5)&0x1 )+ ( (BC.BadApvs>>4)&0x1 ) + ( (BC.BadApvs>>3)&0x1 ) + 
       ( (BC.BadApvs>>2)&0x1 )+ ( (BC.BadApvs>>1)&0x1 ) + ( (BC.BadApvs)&0x1 );
+    tkMap->fillc(BC.detid,0xff0000);
+  }
+  if (BC.BadFibers){ 
+    NBadComponent[i][0][1]+= ( (BC.BadFibers>>2)&0x1 )+ ( (BC.BadFibers>>1)&0x1 ) + ( (BC.BadFibers)&0x1 );
+    NBadComponent[i][component][1]+= ( (BC.BadFibers>>2)&0x1 )+ ( (BC.BadFibers>>1)&0x1 ) + ( (BC.BadFibers)&0x1 );
+    tkMap->fillc(BC.detid,0x0000ff);
+  }   
+  if (BC.BadModule){
+    NBadComponent[i][0][0]++;
+    NBadComponent[i][component][0]++;
+    tkMap->fillc(BC.detid,0x0);
   }
 }
