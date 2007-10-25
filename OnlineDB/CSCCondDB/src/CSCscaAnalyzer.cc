@@ -38,6 +38,16 @@ CSCscaAnalyzer::CSCscaAnalyzer(edm::ParameterSet const& conf) {
     for (int j=0;j<CHAMBERS_sca;j++){
       for (int k=0;k<LAYERS_sca;k++){
 	for (int l=0;l<STRIPS_sca;l++){
+	  scaNr[i][j][k][l]=0;
+	}
+      }
+    }
+  }
+
+  for (int i=0;i<DDU_sca;i++){
+    for (int j=0;j<CHAMBERS_sca;j++){
+      for (int k=0;k<LAYERS_sca;k++){
+	for (int l=0;l<STRIPS_sca;l++){
 	  for (int m=0;m<Number_sca;m++){
 	    value_adc[i][j][k][l][m]=0;
 	    value_adc_mean[i][j][k][l][m]=0.0;
@@ -59,8 +69,13 @@ void CSCscaAnalyzer::analyze(edm::Event const& e, edm::EventSetup const& iSetup)
   edm::Handle<FEDRawDataCollection> rawdata;
   e.getByType(rawdata); //before 0_7_0_pre4 use getByLabel("DaqSource", rawdata)
   //myevt=e.id().event();
-  counterzero=counterzero+1;
-  evt=(counterzero+1)/2;
+  //counterzero=counterzero+1;
+  //evt=(counterzero+1)/2;
+
+  if (NChambers !=0){
+    evt++;
+  }
+
 
   for (int id=FEDNumbering::getCSCFEDIds().first;
        id<=FEDNumbering::getCSCFEDIds().second; ++id){ //for each of our DCCs
@@ -125,8 +140,10 @@ void CSCscaAnalyzer::analyze(edm::Event const& e, edm::EventSetup const& iSetup)
 		    adc = digis[i].getADCCounts();
 		    if(strip>=icfeb*16+1 && strip<=icfeb*16+16){
 		      value_adc[iDDU][chamber][layer][strip][scaNumber] = adc[itime];
+		      scaNr[iDDU][chamber][layer][strip] = scaNumber;
 		    }
-		    value_adc_mean[iDDU][chamber][layer][strip][scaNumber] += adc[itime]/evt ;		 
+		    value_adc_mean[iDDU][chamber][layer][strip][scaNumber] += adc[itime]/evt ;
+		  
 		  }
 		}//8 timeslice
 	      }//layer
@@ -200,14 +217,14 @@ CSCscaAnalyzer::~CSCscaAnalyzer(){
   TCalibSCAEvt calib_evt;
   TFile calibfile(myNewName, "RECREATE");
   TTree calibtree("Calibration","SCA");
-  calibtree.Branch("EVENT", &calib_evt, "strip/I:layer/I:cham/I:ddu/I:scaMeanVal/F:id/I");
+  calibtree.Branch("EVENT", &calib_evt, "strip/I:layer/I:cham/I:ddu/I:scaMeanVal/F:id/I:scanumber/I");
   
   //DB object and map
   CSCobject *cn = new CSCobject();
   //CSCobject *cn1 = new CSCobject();
   cscmap *map = new cscmap();
   condbon *dbon = new condbon();
-  
+
   for (int dduiter=0;dduiter<Nddu;dduiter++){ 
     for (int cham=0;cham<myNcham;cham++){ 
       
@@ -234,7 +251,8 @@ CSCscaAnalyzer::~CSCscaAnalyzer(){
 	    calib_evt.layer=layeriter;
 	    calib_evt.cham=cham;
 	    calib_evt.ddu=dduiter;
-	    calib_evt.scaMeanVal=my_scaValueMean;
+	    calib_evt.scaMeanVal=my_scaValue;
+	    calib_evt.scanumber=scaNr[dduiter][cham][layeriter][stripiter];
     
 	    calibtree.Fill();
 	  }
