@@ -2,13 +2,13 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2007/06/18 15:29:12 $
- *  $Revision: 1.3 $
+ *  $Date: 2007/08/01 12:02:38 $
+ *  $Revision: 1.4 $
  *  \author S. Bolognesi and G. Cerminara - INFN Torino
  */
 
 
-#include "DTHitQualityUtils.h"
+#include "Validation/DTRecHits/interface/DTHitQualityUtils.h"
 #include "DataFormats/DetId/interface/DetId.h"
 #include "Geometry/DTGeometry/interface/DTGeometry.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
