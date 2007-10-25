@@ -198,11 +198,17 @@ if(!print_total)mod->value=mod->value*mod->count;//restore mod->value
   
 }
 
+void TrackerMap::save(bool print_total,float minval, float maxval,std::string s,int width, int height){
+  std::string filetype=s,filename=s;
+  filetype.erase(0,filetype.find(".")+1);
+  filename.erase(filename.begin()+filename.find("."),filename.end());
+  save(print_total,minval,maxval,filename,filetype,width,height);
+}
 
 //export  tracker map
 //print_total = true represent in color the total stored in the module
 //print_total = false represent in color the average  
-void TrackerMap::save(bool print_total, float minval, float maxval, string outputfilename,int width, int height, string filetype){
+void TrackerMap::save(bool print_total, float minval, float maxval, string outputfilename,string filetype,int width, int height){
   ostringstream outs;
   minvalue=minval; maxvalue=maxval;
   outs << outputfilename << ".svg";

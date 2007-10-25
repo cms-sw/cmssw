@@ -19,10 +19,12 @@ class TrackerMap {
   void build();
   void drawModule(TmModule * mod, int key, int layer, bool total, std::ofstream * file);
   void print(bool print_total=true,float minval=0., float maxval=0.,std::string s="svgmap");
-  void save(bool print_total=true,float minval=0., float maxval=0.,std::string s="svgmap",int width=1500, int height=800, std::string filetype="svg");
+  void save(bool print_total=true,float minval=0., float maxval=0.,std::string s="svgmap.svg",int width=1500, int height=800);
+  void save(bool print_total=true,float minval=0., float maxval=0.,std::string s="svgmap",std::string filetype="svg",int width=1500, int height=800);
   void fill_current_val(int idmod, float current_val );
   void fill(int layer , int ring, int nmod, float x );
   void fill(int idmod, float qty );
+  void fillc(int idmod, int RGBcode) {fillc(idmod,(RGBcode>>16) & 0xFF , (RGBcode>>8) & 0xFF, RGBcode & 0xFF);}
   void fillc(int idmod, int red, int green, int blue);
   void fillc(int layer,int ring, int nmod, int red, int green, int blue);
   void setText(int idmod , std::string s );
