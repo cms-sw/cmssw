@@ -20,7 +20,6 @@ class TrackerMap {
   void drawModule(TmModule * mod, int key, int layer, bool total, std::ofstream * file);
   void print(bool print_total=true,float minval=0., float maxval=0.,std::string s="svgmap");
   void save(bool print_total=true,float minval=0., float maxval=0.,std::string s="svgmap.svg",int width=1500, int height=800);
-  void save(bool print_total=true,float minval=0., float maxval=0.,std::string s="svgmap",std::string filetype="svg",int width=1500, int height=800);
   void fill_current_val(int idmod, float current_val );
   void fill(int layer , int ring, int nmod, float x );
   void fill(int idmod, float qty );
