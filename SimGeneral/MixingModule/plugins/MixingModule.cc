@@ -144,26 +144,32 @@ namespace edm
     e.getMany((*sel_),result_t);
     int str=result_t.size();
     if (str>1) LogWarning("MixingModule") << " Found "<<str<<" SimTrack collections in signal file, only first one will be stored!!!!!!";
-    edm::BranchDescription desc =result_t[0].provenance()->product();
-    LogDebug("MixingModule") <<" adding " << result_t[0].product()->size()<<" signal SimTracks";
-    cfTracks_->addSignals(result_t[0].product(),e.id());
+    if (str>0) {
+      edm::BranchDescription desc =result_t[0].provenance()->product();
+      LogDebug("MixingModule") <<" adding " << result_t[0].product()->size()<<" signal SimTracks";
+      cfTracks_->addSignals(result_t[0].product(),e.id());
+    }
 
     std::vector<edm::Handle<std::vector<SimVertex> > > result_v;
     e.getMany((*sel_),result_v);
     int sv=result_v.size();
     if (sv>1) LogWarning("MixingModule") << " Found "<<sv<<" SimVertex collections in signal file, only first one will be stored!!!!!!";
-    LogDebug("MixingModule") <<" adding " << result_v[0].product()->size()<<" signal Simvertices ";
-    cfVertices_->addSignals(result_v[0].product(),e.id());
+    if (sv>0) {
+      LogDebug("MixingModule") <<" adding " << result_v[0].product()->size()<<" signal Simvertices ";
+      cfVertices_->addSignals(result_v[0].product(),e.id());
+    }
     
     //HepMC - we are creating a dummy vector, to have the same storage (MixCollection!) + interfaces
     std::vector<edm::Handle<edm::HepMCProduct> > result_mc;
     e.getMany((*sel_),result_mc);
     int smc=result_v.size();
     if (smc>1) LogWarning("MixingModule") << " Found "<<smc<<" HepMCProducte in signal file, only first one will be stored!!!!!!";
-    LogDebug("MixingModule") <<" adding signal HepMCProduct";
-    std::vector<edm::HepMCProduct> vec;
-    vec.push_back(*(result_mc[0].product()));
-    cfHepMC_->addSignals(&vec,e.id());
+    if (smc>0) {
+      LogDebug("MixingModule") <<" adding signal HepMCProduct";
+      std::vector<edm::HepMCProduct> vec;
+      vec.push_back(*(result_mc[0].product()));
+      cfHepMC_->addSignals(&vec,e.id());
+    }
   }
 
   void MixingModule::addPileups(const int bcr, Event *e, unsigned int eventNr) {
@@ -240,21 +246,25 @@ namespace edm
     int str=result_t.size();
     if (str>1) LogWarning("MixingModule") <<"Too many SimTrack containers, should be only one!";
     LogDebug("MixingModule") <<result_t[0].product()->size()<<" pileup Simtracks added, eventNr "<<eventNr;
-    if (result_t[0].isValid()) {
-      cfTracks_->addPileups(bcr,result_t[0].product(),eventNr,vertexoffset);
+    if (str>0) {
+      if (result_t[0].isValid()) {
+	cfTracks_->addPileups(bcr,result_t[0].product(),eventNr,vertexoffset);
+      }
+      else  LogWarning("MixingModule") <<"Invalid simtracks in pileup";
     }
-    else  LogWarning("MixingModule") <<"Invalid simtracks in pileup";
 
     std::vector<edm::Handle<std::vector<SimVertex> > > result_v;
     e->getMany((*sel_),result_v);
     int sv=result_v.size();
     if (sv>1) LogWarning("MixingModule") <<"Too many SimVertex containers, should be only one!"; 
-    LogDebug("MixingModule") <<result_v[0].product()->size()<<" pileup Simvertices added";
-    if (result_v[0].isValid()) {
-      cfVertices_->addPileups(bcr,result_v[0].product(),eventNr);
+    if (sv>0) {
+      LogDebug("MixingModule") <<result_v[0].product()->size()<<" pileup Simvertices added";
+      if (result_v[0].isValid()) {
+	cfVertices_->addPileups(bcr,result_v[0].product(),eventNr);
+      }
+      else  LogWarning("MixingModule") <<"Invalid simvertices in signal";
+      vertexoffset+=result_v[0].product()->size();
     }
-    else  LogWarning("MixingModule") <<"Invalid simvertices in signal";
-    vertexoffset+=result_v[0].product()->size();
 
     //HepMCProduct
     //HepMC - we are creating a dummy vector, to have the same interfaces
@@ -262,10 +272,12 @@ namespace edm
     e->getMany((*sel_),result_mc);
     int smc=result_v.size();
     if (smc>1) LogWarning("MixingModule") <<"Too many HepMCProducts, should be only one!"; 
-    LogDebug("MixingModule") <<" pileup HepMCProduct added";
-    std::vector<edm::HepMCProduct> vec;
-    vec.push_back(*(result_mc[0].product()));
-    cfHepMC_->addPileups(bcr,&vec,eventNr);
+    if (smc>0) {
+      LogDebug("MixingModule") <<" pileup HepMCProduct added";
+      std::vector<edm::HepMCProduct> vec;
+      vec.push_back(*(result_mc[0].product()));
+      cfHepMC_->addPileups(bcr,&vec,eventNr);
+    }
   }
 
   void MixingModule::setBcrOffset() {
