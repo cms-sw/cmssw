@@ -161,7 +161,7 @@ void DigitizerFP420::produce(FP420G4HitCollection *   theCAFI, DigiCollectionFP4
 
 	collector= stripDigitizer_->run( SimHitMap[iu],
 					bfield,
-					iu,
+				        iu,
 					sScale
 					); // stripDigitizer_.run...  return 
 

@@ -2,7 +2,7 @@
 // File: InduceChargeFP420
 // Date: 12.2006
 // Description: InduceChargeFP420 for FP420
-// Modifications: 
+// Modifications:  Here - zside - has a sense of xytype of plane
 ///////////////////////////////////////////////////////////////////////////////
 #include "SimRomanPot/SimFP420/interface/InduceChargeFP420.h"
 #include <gsl/gsl_sf_erf.h>

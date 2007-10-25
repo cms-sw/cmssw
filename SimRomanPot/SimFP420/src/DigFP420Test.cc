@@ -83,6 +83,7 @@ DigFP420Test::DigFP420Test(const edm::ParameterSet & conf):conf_(conf),theDigiti
     dXXconst       = m_Anal.getParameter<double>("dXXFP420");//(BoxYshft+dYGap) + (YSi - YSiDet)/2. = 12.7
     dYYconst       = m_Anal.getParameter<double>("dYYFP420");//  XSiDet/2. = 5.0
     ElectronPerADC = m_Anal.getParameter<double>("ElectronFP420PerAdc");
+    xytype=2;
    
   if (verbosity > 0) {
    std::cout<<"============================================================================"<<std::endl;
@@ -102,8 +103,52 @@ DigFP420Test::DigFP420Test(const edm::ParameterSet & conf):conf_(conf),theDigiti
   //            X  | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | X                        station                                          .
   //                   8*13.3+ 2*6 = 118.4                                    center                                           .
   //                                                                                                                           .
+//
+	double zBlade = 5.00;
+	double gapBlade = 1.6;
+	ZSiPlane=2*(zBlade+gapBlade);
 
-  z1 = -150. + (118.4+10.)/2 + z420; // 10. -arbitrary //z1 - right after 1st Station
+	double ZKapton = 0.1;
+	ZSiStep=ZSiPlane+ZKapton;
+
+	double ZBoundDet = 0.020;
+	double ZSiElectr = 0.250;
+	double ZCeramDet = 0.500;
+//
+	ZSiDetL = 0.250;
+	ZSiDetR = 0.250;
+	ZGapLDet= zBlade/2-(ZSiDetL+ZSiElectr+ZBoundDet+ZCeramDet/2);
+
+  //  z1 = -150. + (118.4+10.)/2 + z420; // 10. -arbitrary //z1 - right after 1st Station
+  //  ZSiStation = 5*(2*(5.+1.6)+0.1)+2*6.+1.0 =  79.5  
+	double ZSiStation = (pn0-1)*(2*(zBlade+gapBlade)+ZKapton)+2*6.+0.0;   // =  78.5  
+  // 11.=e1, 12.=e2 in zzzrectangle.xml
+	  double eee1=11.;
+	  double eee2=12.;
+
+	  zinibeg = (eee1-eee2)/2.;
+  //////////////////////////zUnit = 8000.; // 2Stations
+  //zD2 = 1000.;  // dist between centers of 1st and 2nd stations
+  //zD3 = 8000.;  // dist between centers of 1st and 3rd stations
+  //z420= 420000.;
+
+  //                                                                                                                           .
+  //                                                                                                                           .
+  //  -300     -209.2             -150              -90.8                        0                                           +300
+  //                                                                                                                           .
+  //            X  | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | X                        station                                          .
+  //                   8*13.3+ 2*6 = 118.4                                    center                                           .
+  //                                                                                                                           .
+
+  // 10.mm -arbitrary to be right after end of Station 
+
+  //  z1 = -150. + (118.4+10.)/2 + z420; // z1 - right after 1st Station
+
+  z1 = zinibeg + (ZSiStation+10.)/2 + z420; // z1 - right after 1st Station
+
+
+
+
   z2 = z1+zD2;                       //z2 - right after 2nd Station
   z3 = z1+zD3;
   z4 = z1+2*zD3;
@@ -178,24 +223,11 @@ DigFP420Test::DigFP420Test(const edm::ParameterSet & conf):conf_(conf),theDigiti
 
 	//ENC = 1800;
 	//ENC = 3000;
-	ENC = 2160;
+	//ENC = 2160;
+	ENC = 960;
+
 	//	ElectronPerADC =300;
 	Thick300 = 0.300;
-//
-	double zBlade = 5.00;
-	double gapBlade = 1.6;
-	ZSiPlane=2*(zBlade+gapBlade);
-
-	double ZKapton = 0.1;
-	ZSiStep=ZSiPlane+ZKapton;
-
-	double ZBoundDet = 0.020;
-	double ZSiElectr = 0.250;
-	double ZCeramDet = 0.500;
-//
-	ZSiDetL = 0.250;
-	ZSiDetR = 0.250;
-	ZGapLDet= zBlade/2-(ZSiDetL+ZSiElectr+ZBoundDet+ZCeramDet/2);
 //
 
   // Initialization:
@@ -248,6 +280,7 @@ Fp420AnalysisHistManager::Fp420AnalysisHistManager(TString managername)
         fHistArray = new TObjArray();      // Array to store histos
         fHistNamesArray = new TObjArray(); // Array to store histos's names
 
+	TH1::AddDirectory(kFALSE);
         BookHistos();
 
         fHistArray->Compress();            // Removes empty space
@@ -1494,18 +1527,18 @@ void DigFP420Test::update(const EndOfEvent * evt) {
     std::cout << "DigFP420Test:ERROR: zside = " << zside  << " sector = " << sector  << " zmodule = " << zmodule  << " det = " << det  << std::endl;
     }
 
-    double kplane = -(pn0-1)/2+(zmodule-1); 
+    double kplane = -(pn0-1)/2-0.5+(zmodule-1); 
     double zdiststat = 0.;
     if(sector==2) zdiststat = zD2;
     if(sector==3) zdiststat = zD3;
-    double zcurrent = -150. + z420 +(ZSiStep-ZSiPlane)/2  + kplane*ZSiStep + zdiststat;  
-
+    double zcurrent = zinibeg + z420 +(ZSiStep-ZSiPlane)/2  + kplane*ZSiStep + zdiststat;  
+    
     if(zside==1){
       zcurrent += (ZGapLDet+ZSiDetL/2);
     }
     if(zside==2){
       zcurrent += (ZGapLDet+ZSiDetR/2)+ZSiPlane/2;
-                }     
+    }     
 
 //=======================================
 // SimHit position in Local reference frame - middle :
@@ -1531,7 +1564,7 @@ void DigFP420Test::update(const EndOfEvent * evt) {
       float numStrips,pitch;
 //=======================================
 // Y global
-	   if(zside==1) {
+	   if(xytype==1) {
 	     //UserNtuples->fillg24(losenergy,1.);
 	     if(losenergy > 0.00003) {
 	       themap1[unitID] += 1.;
@@ -1544,7 +1577,7 @@ void DigFP420Test::update(const EndOfEvent * evt) {
 	     themapxy[unitID]  = (numStrips-1)*pitch/2. + middle.x();// hit coordinate in l.r.f starting at bot edge of plate
 	   }
 	   //X
-	   if(zside==2){
+	   if(xytype==2){
 	     if(losenergy > 0.00003) {
 	       themap1[unitID] += 1.;
 	     }
@@ -1665,7 +1698,7 @@ void DigFP420Test::update(const EndOfEvent * evt) {
   for (;simHitIter != simHitIterEnd; ++simHitIter) {
     const HDigiFP420 istrip = *simHitIter;
     // Y:
-    if(zside==1){
+    if(xytype==1){
       //int iy= istrip.channel()/numStripsY;
       //int ix= istrip.channel() - iy*numStripsY;
       int iy= istrip.stripHW();
@@ -1698,7 +1731,7 @@ void DigFP420Test::update(const EndOfEvent * evt) {
       }
     }
     // X:
-    else if(zside==2){
+    else if(xytype==2){
           //int iy= istrip.channel()/numStripsX;
 	  //  int ix= istrip.channel() - iy*numStripsX;
       int iy= istrip.stripVW();
@@ -1732,7 +1765,7 @@ void DigFP420Test::update(const EndOfEvent * evt) {
     }
   //==================================
 #ifdef mydigidebug10
-       if(zside == 2) {
+       if(xytype == 2) {
   std::cout << " RecFP420Test::check: HDigiFP420::  " << std::endl;
   // std::cout << " strip number = " << (*simHitIter).strip() << "  adc = " << (*simHitIter).adc() << std::endl; // std::cout << " strip number = " << simHitIter->strip() << "  adc = " << simHitIter->adc() << std::endl;
   std::cout << " strip number = " << istrip.strip() << "  adc = " << istrip.adc() << std::endl;

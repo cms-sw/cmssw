@@ -49,7 +49,7 @@ public:
   edm::ParameterSet conf_;
   // Const Parameters needed by:
   //-- primary ionization
-  int    NumberOfSegments, verbosity; // 
+  int    NumberOfSegments, verbosity, xytype; // 
   // go from Geant energy GeV to number of electrons
 
   //-- drift
@@ -70,7 +70,7 @@ public:
   float theNoiseInElectrons;   // Noise (RMS) in units of electrons.  = 500
   float theStripThreshold;     // Strip threshold in units of noise.  = 5
   float theStripThresholdInE;  // Strip noise in electorns.  = 2500
-  bool peakMode; //  = false;
+  //  bool peakMode; //  = false;
   bool noNoise; //  = false; 
   bool addNoisyPixels;//  = true ;
   float tofCut;             // Cut on the particle TOF   = 100 or 50

@@ -17,7 +17,7 @@
 #include "CLHEP/Random/RandFlat.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-
+// Here zside = xytype - type of plate
 
 #include <vector>
 #include <iostream>
@@ -44,6 +44,7 @@ FP420DigiMain::FP420DigiMain(const edm::ParameterSet& conf):conf_(conf){
   thez420           = m_Anal.getParameter<double>("z420");
   thezD2            = m_Anal.getParameter<double>("zD2");
   thezD3            = m_Anal.getParameter<double>("zD3");
+  xytype=2;
 
   if(verbosity>0) {
     std::cout << "FP420DigiMain theElectronPerADC=" << theElectronPerADC << " theThreshold=" << theThreshold << " noNoise=" << noNoise << std::endl;
@@ -51,7 +52,9 @@ FP420DigiMain::FP420DigiMain(const edm::ParameterSet& conf):conf_(conf){
   // X (or Y)define type of sensor (zside=1 or 2 used to derive it: 1-Y, 2-X)
   // for every type there is normal pixel size=0.05 and Wide 0.400 mm
   Thick300 = 0.300;       // = 0.300 mm  normalized to 300micron Silicon
-  ENC= 2160.;             //          EquivalentNoiseCharge300um = 2160. + other sources of noise
+  //ENC= 2160.;             //          EquivalentNoiseCharge300um = 2160. + other sources of noise
+  ENC= 960.;             //          EquivalentNoiseCharge300um = 2160. + other sources of noise
+
   ldriftX = 0.050;        // in mm(zside=1)
   ldriftY = 0.050;        // in mm(zside=2)
   moduleThickness = 0.250; // mm(zside=1)(zside=2)
@@ -65,6 +68,9 @@ FP420DigiMain::FP420DigiMain(const edm::ParameterSet& conf):conf_(conf){
   pitchXW= 0.400;          // in mm(zside=2)
   numStripsYW = 51;        // Y plate number of W strips:50 *0.400=20mm (zside=1) - W have ortogonal projection
   numStripsXW = 26;        // X plate number of W strips:25 *0.400=10mm (zside=2) - W have ortogonal projection
+
+  tofCut = 100.;           // Cut on the particle TOF   = 100 or 50
+
   
   if(verbosity>0) {
     std::cout << "FP420DigiMain moduleThickness=" << moduleThickness << std::endl;
@@ -110,9 +116,12 @@ vector <HDigiFP420> FP420DigiMain::run(const std::vector<FP420G4Hit> &input,
   int  sector = (iu-1)/sScale + 1 ;
   int  zmodule = (iu - (sector - 1)*sScale - 1) /zScale + 1 ;
   int  zside = iu - (sector - 1)*sScale - (zmodule - 1)*zScale ;
+  if(verbosity>10) {
+    std::cout << "FP420DigiMain xytype=" << xytype << " zside=" << zside << " zmodule=" << zmodule << " sector=" << sector << std::endl;
+  }
   
   // Y:
-  if (zside ==1) {
+  if (xytype ==1) {
     numStrips = numStripsY;  // Y plate number of strips:200*0.050=10mm --> 100*0.100=10mm
     pitch= pitchY;
     ldrift = ldriftX; // because drift is in local coordinates which 90 degree rotated ( for correct timeNormalization & noiseRMS calculations)
@@ -120,7 +129,7 @@ vector <HDigiFP420> FP420DigiMain::run(const std::vector<FP420G4Hit> &input,
     pitchW= pitchYW;
   }
   // X:
-  if (zside ==2) {
+  if (xytype ==2) {
     numStrips = numStripsX;  // X plate number of strips:400*0.050=20mm --> 200*0.100=20mm
     pitch= pitchX;
     ldrift = ldriftY; // because drift is in local coordinates which 90 degree rotated ( for correct timeNormalization & noiseRMS calculations)
@@ -160,7 +169,7 @@ vector <HDigiFP420> FP420DigiMain::run(const std::vector<FP420G4Hit> &input,
     }
     // main part here (AZ):
     double  losenergy = ihit.getEnergyLoss();
-    //      float   tof = ihit.getTof();
+    float   tof = ihit.getTof();
 #ifdef mydigidebug1
     unsigned int unitID = ihit.getUnitID();
     //      int det, zside, sector, zmodule;
@@ -178,12 +187,12 @@ vector <HDigiFP420> FP420DigiMain::run(const std::vector<FP420G4Hit> &input,
     std::cout << "  bfield= " << bfield << std::endl;
 #endif
     
-    //        if ( abs(tof) < tofCut && losenergy>0) {
-    if ( losenergy>0) {
+    if ( abs(tof) < tofCut && losenergy>0) {
+      // if ( losenergy>0) {
       
       //   zside = 1 - Y strips;   =2 - X strips;
       //	  HitDigitizerFP420::hit_map_type _temp = theHitDigitizerFP420->processHit(ihit,bfield,zside,numStrips,pitch);
-      HitDigitizerFP420::hit_map_type _temp = theHitDigitizerFP420->processHit(ihit,bfield,zside,numStrips,pitch,numStripsW,pitchW,moduleThickness); 
+      HitDigitizerFP420::hit_map_type _temp = theHitDigitizerFP420->processHit(ihit,bfield,xytype,numStrips,pitch,numStripsW,pitchW,moduleThickness); 
       
       
       
@@ -194,7 +203,7 @@ vector <HDigiFP420> FP420DigiMain::run(const std::vector<FP420G4Hit> &input,
       
     }// if
     else {
-      std::cout << " *******FP420DigiMain: ERROR???  losenergy =  " <<  losenergy  << std::endl;
+      //    std::cout << " *******FP420DigiMain: ERROR???  losenergy =  " <<  losenergy  << std::endl;
     }
     // main part end (AZ) 
   } //for

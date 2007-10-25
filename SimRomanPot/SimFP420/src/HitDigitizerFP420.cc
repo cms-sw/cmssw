@@ -2,7 +2,7 @@
 // File: HitDigitizerFP420.cc
 // Date: 12.2006
 // Description: HitDigitizerFP420 for FP420
-// Modifications: 
+// Modifications: Here - zside - has a sense of xytype of plane
 ///////////////////////////////////////////////////////////////////////////////
 #include "SimRomanPot/SimFP420/interface/HitDigitizerFP420.h"
 #include "SimG4CMS/FP420/interface/FP420G4HitCollection.h"

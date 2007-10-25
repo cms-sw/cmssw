@@ -34,6 +34,7 @@ class ChargeDividerFP420 : public CDividerFP420{
   void fluctuateEloss(int particleId, float momentum, float eloss, float length, int NumberOfSegmentation, float elossVector[]);   
   //  static SimpleConfigurable<bool> peakMode;
   bool peakMode;
+  bool decoMode;
   //  static SimpleConfigurable<bool> fluctuateCharge;
   bool fluctuateCharge;
   //  static SimpleConfigurable<int>  chargeDivisionsPerStrip;

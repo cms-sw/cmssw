@@ -2,7 +2,7 @@
 // File: ChargeDrifterFP420
 // Date: 12.2006
 // Description: ChargeDrifterFP420 for FP420
-// Modifications: 
+// Modifications: Here - zside - has a sense of xytype of plane
 ///////////////////////////////////////////////////////////////////////////////
 #include "SimRomanPot/SimFP420/interface/ChargeDrifterFP420.h"
 using namespace std;

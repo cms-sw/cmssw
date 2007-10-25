@@ -181,6 +181,7 @@ private:
  int sn0;
  // Number of planes:
  int pn0;
+ int xytype;
  // shift of planes:
  bool UseHalfPitchShiftInY_, UseThirdPitchShiftInY_, UseForthPitchShiftInY_;
  bool UseHalfPitchShiftInX_, UseThirdPitchShiftInX_, UseForthPitchShiftInX_;
@@ -191,7 +192,7 @@ private:
  int numStripsX,numStripsY;
  int numStripsXW, numStripsYW;
 
- double	ZSiDetL, ZSiDetR, z420;
+ double	ZSiDetL, ZSiDetR, z420, zinibeg;
  double	ZGapLDet, ZBoundDet, ZSiStep, ZSiPlane;
  // double	zBlade, gapBlade, ZKapton, ZSiElectr, ZCeramDet;
 

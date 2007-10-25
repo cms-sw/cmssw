@@ -9,8 +9,9 @@
 using namespace std;
 #include<vector>
 //#define mydigidebug3
+//#define mydigidebug33
 
-
+// unpacking variable - zside - Left or Right planes
 
 //DigitizerFP420::DigitizerFP420(const edm::ParameterSet& conf):conf_(conf),stripDigitizer_(new FP420DigiMain(conf)) 
 ChargeDividerFP420::ChargeDividerFP420(double pit, double az420, double azD2, double azD3){
@@ -25,8 +26,8 @@ cout << "peakMode = " << peakMode << "fluctuateCharge=   "<< fluctuateCharge << 
 
   // Run APV in peak instead of deconvolution mode, which degrades the time resolution
 //  peakMode=true ; //     APVpeakmode
-  peakMode=false; //     APVconvolutionmode
-  
+  peakMode=false; //  peakMode=true -->  APVconvolutionmode
+  decoMode=false;//  decoMode=true -->  deconvolution mode
   // Enable interstrip Landau fluctuations within a cluster.
   fluctuateCharge=true;   
   
@@ -54,7 +55,8 @@ cout << "peakMode = " << peakMode << "fluctuateCharge=   "<< fluctuateCharge << 
   //            X  | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | X                        station                                          .
   //                   8*13.3+ 2*6 = 118.4                                    center                                           .
   //                                                                                                                           .
-  zStationBegPos[0] = -150. - (118.4+10.)/2 + z420; // 10. -arbitrary
+  //zStationBegPos[0] = -150. - (118.4+10.)/2 + z420; // 10. -arbitrary
+  zStationBegPos[0] = -40. + z420; // 5 superplanes per station 79.7mm: -40.- left edge of Station
   zStationBegPos[1] = zStationBegPos[0]+zD2;
   zStationBegPos[2] = zStationBegPos[0]+zD3;
   zStationBegPos[3] = zStationBegPos[0]+2*zD3;
@@ -87,7 +89,7 @@ std::cout << " CDividerFP420::ChargeDividerFP420:divide: direction= " << directi
 std::cout << " CDividerFP420::ChargeDividerFP420:divide: direction.mag = " << direction.mag() << std::endl;
 std::cout << " obtained as ExitLocalP = " << hit.getExitLocalP() << "  -  "<<  "  EntryLocalP = "  << hit.getEntryLocalP() << std::endl;
 std::cout << "  pitchcur= " << pitchcur << std::endl;
-std::cout << "  peakMode = " << peakMode << "  fluctuateCharge=   "<< fluctuateCharge <<  "  chargedivisionsPerHit = "  << chargedivisionsPerHit << "  deltaCut=   "<< deltaCut << std::endl;
+std::cout << "  peakMode = " << peakMode << "  decoMode = " << decoMode << "  fluctuateCharge=   "<< fluctuateCharge <<  "  chargedivisionsPerHit = "  << chargedivisionsPerHit << "  deltaCut=   "<< deltaCut << std::endl;
 #endif
 
   int NumberOfSegmentation =  
@@ -230,11 +232,17 @@ float ChargeDividerFP420::TimeResponse( const FP420G4Hit& hit ) {
 std::cout << "ChargeDividerFP420:TimeResponse: call of PeakShape" << std::endl;
 #endif
     return this->PeakShape( hit );
-  } else {
+  } else if (decoMode) {
 #ifdef mydigidebug3
 std::cout << "ChargeDividerFP420:TimeResponse: call of DeconvolutionShape" << std::endl;
 #endif
     return this->DeconvolutionShape( hit );
+  } else {
+#ifdef mydigidebug3
+std::cout << "ChargeDividerFP420:TimeResponse: no any  Shape" << std::endl;
+#endif
+    return hit.getEnergyLoss();
+
   }
 }
 float ChargeDividerFP420::PeakShape(const FP420G4Hit& hit){
@@ -324,7 +332,7 @@ float ChargeDividerFP420::DeconvolutionShape(const FP420G4Hit& hit){
   //  float theta    = acos(min(max(costheta,float(-1.)),float(1.)));
   float dist     = (zStationBegPos[sector-1] - hit.getVz()) / costheta;
   dist     = dist/10.;// mm  --> cm as light velocity = 30 cm/ns
-#ifdef mydigidebug3
+#ifdef mydigidebug33
 std::cout << "sector=" << sector << std::endl;
 std::cout << "zmodule=" << zmodule << std::endl;
 std::cout << "zStationBegPos[sector-1]=" << zStationBegPos[sector-1] << std::endl;
@@ -346,7 +354,7 @@ std::cout << "dist found =" << dist << std::endl;
   float readTimeNorm = -tofNorm;
   // return the energyLoss weighted with a gaussian centered at t0 
 //  return hit.energyLoss()*exp(-0.5*readTimeNorm*readTimeNorm);
-#ifdef mydigidebug3
+#ifdef mydigidebug33
 std::cout << "ChargeDividerFP420:DeconvolutionShape::dist=" << dist << std::endl;
 std::cout << "t0=" <<t0  << std::endl;
 std::cout << "hit.getTof()=" << hit.getTof() << std::endl;
@@ -356,5 +364,6 @@ std::cout << "exp(-0.5*readTimeNorm*readTimeNorm)=" << exp(-0.5*readTimeNorm*rea
 std::cout << "return=" << hit.getEnergyLoss()*exp(-0.5*readTimeNorm*readTimeNorm)  << std::endl;
 #endif
   return hit.getEnergyLoss()*exp(-0.5*readTimeNorm*readTimeNorm);
+  //  return hit.getEnergyLoss();
 }
 
