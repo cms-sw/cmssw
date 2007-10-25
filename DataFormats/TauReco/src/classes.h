@@ -6,6 +6,7 @@
 #include "DataFormats/TauReco/interface/BaseTau.h"
 #include "DataFormats/TauReco/interface/CaloTau.h"
 #include "DataFormats/TauReco/interface/PFTau.h"
+#include "DataFormats/TauReco/interface/HLTTau.h"
 #include "DataFormats/TauReco/interface/CaloTauDiscriminatorByIsolation.h"
 #include "DataFormats/TauReco/interface/PFTauDiscriminatorByIsolation.h"
 
@@ -70,5 +71,17 @@ namespace {
     edm::Wrapper<reco::PFTauDiscriminatorByIsolation>           pftdi_w;     
     std::pair<reco::PFTauRef, int>                              pftdi_p;
     std::vector<std::pair<reco::PFTauRef, int> >                pftdi_v;    
+
+
+    //Needed only in HLT-Open
+    std::vector<reco::HLTTau>                                  ht_v;
+    edm::Wrapper<std::vector<reco::HLTTau> >                   ht_w;
+    edm::Ref<std::vector<reco::HLTTau> >                       ht_r;
+    edm::RefProd<std::vector<reco::HLTTau> >                   ht_rp;
+    edm::RefVector<std::vector<reco::HLTTau> >                 ht_rv;
+
+
+
+
   }
 }
