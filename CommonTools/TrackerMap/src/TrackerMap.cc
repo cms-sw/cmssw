@@ -4,6 +4,11 @@
 #include <fstream>
 #include <iostream>
 #include <sstream>
+#include "TCanvas.h"
+#include "TPolyLine.h"
+#include "TStyle.h"
+#include "TColor.h"
+
 using namespace std;
 
 /**********************************************************
@@ -22,6 +27,7 @@ TrackerMap::TrackerMap(string s,int xsize1,int ysize1) {
   posrel=true;
   palette = 1;
   printflag=false;
+  temporary_file=false;
 
   ndet = 3; // number of detectors: pixel, inner silicon, outer silicon
   npart = 3; // number of detector parts: endcap -z, barrel, endcap +z
@@ -178,22 +184,29 @@ void TrackerMap::drawModule(TmModule * mod, int key,int nlay, bool print_total, 
 if(!print_total)mod->value=mod->value*mod->count;//restore mod->value
   
   if(mod->count > 0)
-    *svgfile <<"<svg:polygon detid=\""<<mod->idex<<"\" count=\""<<mod->count <<"\" value=\""<<mod->value<<"\" id=\""<<key<<"\" onclick=\"showData(evt);\" onmouseover=\"showData(evt);\" onmouseout=\"showData(evt);\" MESSAGE=\""<<mod->text<<"\" POS=\""<<mod->name<<" Id "<<mod->idex<<" \" fill=\"rgb("<<red<<","<<green<<","<<blue<<")\" points=\"";
+    if(temporary_file) *svgfile << red << " " << green << " " << blue << " "; else
+ *svgfile <<"<svg:polygon detid=\""<<mod->idex<<"\" count=\""<<mod->count <<"\" value=\""<<mod->value<<"\" id=\""<<key<<"\" onclick=\"showData(evt);\" onmouseover=\"showData(evt);\" onmouseout=\"showData(evt);\" MESSAGE=\""<<mod->text<<"\" POS=\""<<mod->name<<" Id "<<mod->idex<<" \" fill=\"rgb("<<red<<","<<green<<","<<blue<<")\" points=\"";
   else
+    if(temporary_file) *svgfile << 255 << " " << 255 << " " << 255 << " "; else
     *svgfile <<"<svg:polygon detid=\""<<mod->idex<<"\" count=\""<<mod->count <<"\" value=\""<<mod->value<<"\" id=\""<<key<<"\"  onclick=\"showData(evt);\" onmouseover=\"showData(evt);\" onmouseout=\"showData(evt);\" MESSAGE=\""<<mod->text<<"\" POS=\""<<mod->name<<" Id "<<mod->idex<<" \" fill=\"white\" points=\"";
+  if(temporary_file) *svgfile << np << " ";
   for(int k=0;k<np;k++){
+    if(temporary_file)*svgfile << xd[k] << " " << yd[k] << " " ; else
     *svgfile << xd[k] << "," << yd[k] << " " ;
   }
-  *svgfile <<"\" />" <<endl;
+  if(temporary_file)*svgfile << endl; else *svgfile <<"\" />" <<endl;
  } else {//color defined with fillc
   if(mod->red>255)mod->red=255;
   if(mod->green>255)mod->green=255;
   if(mod->blue>255)mod->blue=255;
+    if(temporary_file) *svgfile << mod->red << " " << mod->green << " " << mod->blue << " "; else
     *svgfile <<"<svg:polygon detid=\""<<mod->idex<<"\" count=\""<<mod->count <<"\" value=\""<<mod->value<<"\" id=\""<<key<<"\" onclick=\"showData(evt);\" onmouseover=\"showData(evt);\" onmouseout=\"showData(evt);\" MESSAGE=\""<<mod->text<<"\" POS=\""<<mod->name<<" Id "<<mod->idex<<" \" fill=\"rgb("<<mod->red<<","<<mod->green<<","<<mod->blue<<")\" points=\"";
+  if(temporary_file) *svgfile << np << " ";
   for(int k=0;k<np;k++){
+    if(temporary_file)*svgfile << xd[k] << " " << yd[k] << " " ; else
     *svgfile << xd[k] << "," << yd[k] << " " ;
   }
-  *svgfile <<"\" />" <<endl;
+  if(temporary_file)*svgfile << endl; else *svgfile <<"\" />" <<endl;
  }
   
 }
@@ -205,9 +218,11 @@ void TrackerMap::save(bool print_total,float minval, float maxval,std::string s,
   std::string filetype=s,outputfilename=s;
   filetype.erase(0,filetype.find(".")+1);
   outputfilename.erase(outputfilename.begin()+outputfilename.find("."),outputfilename.end());
+  temporary_file=true;
+  if(filetype=="svg")temporary_file=false;
   ostringstream outs;
   minvalue=minval; maxvalue=maxval;
-  outs << outputfilename << ".svg";
+  outs << outputfilename << ".coor";
   savefile = new ofstream(outs.str().c_str(),ios::out);
  if(!print_total){
   for (int layer=1; layer < 44; layer++){
@@ -238,6 +253,7 @@ void TrackerMap::save(bool print_total,float minval, float maxval,std::string s,
     }
   }
 }
+  if(!temporary_file){
   *savefile << "<?xml version=\"1.0\"  standalone=\"no\" ?>"<<endl;
   *savefile << "<svg  xmlns=\"http://www.w3.org/2000/svg\""<<endl;
   *savefile << "xmlns:svg=\"http://www.w3.org/2000/svg\" "<<endl;
@@ -245,6 +261,7 @@ void TrackerMap::save(bool print_total,float minval, float maxval,std::string s,
   *savefile << "<svg:svg id=\"mainMap\" x=\"0\" y=\"0\" viewBox=\"0 0 3000 1600"<<"\" width=\""<<width<<"\" height=\""<<height<<"\">"<<endl;
   *savefile << "<svg:rect fill=\"lightblue\" stroke=\"none\" x=\"0\" y=\"0\" width=\"3000\" height=\"1600\" /> "<<endl;
   *savefile << "<svg:g id=\"tracker\" transform=\"translate(10,1500) rotate(270)\" style=\"fill:none;stroke:black;stroke-width:0;\"> "<<endl;
+   }
   for (int layer=1; layer < 44; layer++){
     nlay=layer;
     defwindow(nlay);
@@ -258,44 +275,92 @@ void TrackerMap::save(bool print_total,float minval, float maxval,std::string s,
       }
     }
   }
-  *savefile << "</svg:g>"<<endl;
-  *savefile << " <svg:text id=\"Title\" class=\"normalText\"  x=\"300\" y=\"0\">"<<title<<"</svg:text>"<<endl;
+  if(!temporary_file){
+    *savefile << "</svg:g>"<<endl;
+    *savefile << " <svg:text id=\"Title\" class=\"normalText\"  x=\"300\" y=\"0\">"<<title<<"</svg:text>"<<endl;
+  }
   if(printflag)drawPalette(savefile);
-  *savefile << "</svg:svg>"<<endl;
-  *savefile << "</svg>"<<endl;
+  if(!temporary_file){
+    *savefile << "</svg:svg>"<<endl;
+    *savefile << "</svg>"<<endl;
+  }
   savefile->close(); 
 
- string tempfilename = outputfilename + ".svg";
- const char * command1;
- if(filetype=="png"){
- ostringstream commands;
- commands << "java -Xmx256m  -jar batik/batik-rasterizer.jar -w "<<width<<" -h "<< height << " " <<tempfilename; 
- command1=commands.str().c_str();
- cout << "Executing " << command1 << endl;
- system(command1);
+  const char * command1;
+  string tempfilename = outputfilename + ".coor";
+  if(filetype=="svg"){
+    string command = "mv "+tempfilename +" " +outputfilename + ".svg";
+    command1=command.c_str();
+    cout << "Executing " << command1 << endl;
+    system(command1);
   }
- if(filetype=="jpg"){
- ostringstream commands;
- commands << "java -Xmx256m  -jar batik/batik-rasterizer.jar -w "<<width<<" -h "<< height << " " <<tempfilename <<" -m image/jpeg -q 0.8 "; 
- command1=commands.str().c_str();
- cout << "Executing " << command1 << endl;
- system(command1);
+  if (temporary_file){ // create root trackermap image
+    int red,green,blue,npoints,colindex,ncolor;
+    double x[4],y[4];
+    ifstream tempfile(tempfilename.c_str(),ios::in);
+    TCanvas *MyC = new TCanvas("MyC", "TrackerMap",width,height);
+    gPad->SetFillColor(38);
+    
+    gPad->Range(0,0,3000,1600);
+    
+    //First  build palette
+    ncolor=0;
+    typedef std::map<int,int> ColorList;
+    ColorList colorList;
+    ColorList::iterator pos;
+    TColor *col;
+    while(!tempfile.eof()) {
+      tempfile  >> red >> green  >> blue >> npoints; 
+      colindex=red+green*1000+blue*1000000;
+      pos=colorList.find(colindex); 
+      if(pos == colorList.end()){ colorList[colindex]=ncolor+100; col =gROOT->GetColor(ncolor+100);
+if(col) col->SetRGB((Double_t)(red/255.),(Double_t)(green/255.),(Double_t)(blue/255.)); else TColor *c = new TColor(ncolor+100,(Double_t)(red/255.),(Double_t)(green/255.),(Double_t)(blue/255.));ncolor++;}
+      for (int i=0;i<npoints;i++){
+	tempfile >> x[i] >> y[i];  
+      }
+    }
+    if(ncolor>0 && ncolor<10000){
+      Int_t colors[10000];
+      for(int i=0;i<ncolor;i++){colors[i]=i+100;}
+      gStyle->SetPalette(ncolor,colors);
+    }
+    tempfile.clear();
+    tempfile.seekg(0,ios::beg);
+    cout << "created palette with " << ncolor << " colors" << endl;
+    while(!tempfile.eof()) {//create polylines
+      tempfile  >> red >> green  >> blue >> npoints; 
+      for (int i=0;i<npoints;i++){
+	tempfile >> x[i] >> y[i];  
+      }
+      TPolyLine* pline = new TPolyLine(npoints,y,x);
+      colindex=red+green*1000+blue*1000000;
+      pos=colorList.find(colindex); 
+      if(pos != colorList.end()){
+	pline->SetFillColor(colorList[colindex]);
+	pline->SetLineWidth(0);
+        pline->Draw("f");
+      }
+    }
+    
+    if(filetype=="png"){
+      string filename = outputfilename + ".png";
+      MyC->Print(filename.c_str());
+    }
+    if(filetype=="jpg"){
+      string filename = outputfilename + ".jpg";
+      MyC->Print(filename.c_str());
+    }
+    if(filetype=="pdf"){
+      string filename = outputfilename + ".pdf";
+      MyC->Print(filename.c_str());
+    }
+    string command = "rm "+tempfilename ;
+    command1=command.c_str();
+    cout << "Executing " << command1 << endl;
+    system(command1);
   }
- if(filetype=="pdf"){
- ostringstream commands;
- commands << "java -Xmx256m  -jar batik/batik-rasterizer.jar -w "<<width<<" -h "<< height << " " <<tempfilename<<" -m application/pdf"; 
- command1=commands.str().c_str();
- cout << "Executing " << command1 << endl;
- system(command1);
-  }
- if(filetype!="svg"){
- string command = "rm "+tempfilename;
- command1=command.c_str();
- cout << "Executing " << command1 << endl;
- system(command1);
-  }
-
-
+  
+  
 }
 
 
@@ -303,6 +368,7 @@ void TrackerMap::save(bool print_total,float minval, float maxval,std::string s,
 //print_total = true represent in color the total stored in the module
 //print_total = false represent in color the average  
 void TrackerMap::print(bool print_total, float minval, float maxval, string outputfilename){
+  temporary_file=false;
   ostringstream outs;
   minvalue=minval; maxvalue=maxval;
   outs << outputfilename << ".xml";
@@ -385,10 +451,10 @@ void TrackerMap::drawPalette(ofstream * svgfile){
          if (green > 255) green=255;
          red = 255; blue=0;green=255-green;
         }
-    *svgfile <<"<svg:rect  x=\""<<i<<"\" y=\"0\" width=\"1\" height=\"20\" fill=\"rgb("<<red<<","<<green<<","<<blue<<")\" />\n";
+    if(!temporary_file)*svgfile <<"<svg:rect  x=\""<<i<<"\" y=\"0\" width=\"1\" height=\"20\" fill=\"rgb("<<red<<","<<green<<","<<blue<<")\" />\n";
     if(i%50 == 0){
-       *svgfile <<"<svg:rect  x=\""<<i<<"\" y=\"10\" width=\"1\" height=\"10\" fill=\"black\" />\n";
-      if(i%100==0)*svgfile << " <svg:text  class=\"normalText\"  x=\""<<i<<"\" y=\"30\">" <<val<<"</svg:text>"<<endl;
+       if(!temporary_file)*svgfile <<"<svg:rect  x=\""<<i<<"\" y=\"10\" width=\"1\" height=\"10\" fill=\"black\" />\n";
+      if(i%100==0&&!temporary_file)*svgfile << " <svg:text  class=\"normalText\"  x=\""<<i<<"\" y=\"30\">" <<val<<"</svg:text>"<<endl;
        }
     val = val + dval;
    }

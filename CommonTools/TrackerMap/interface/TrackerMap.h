@@ -275,6 +275,7 @@ void defwindow(int num_lay){
   std::ifstream * jsfile;
   float minvalue,maxvalue;
   int number_modules;
+  bool temporary_file; 
   
  private:
   
