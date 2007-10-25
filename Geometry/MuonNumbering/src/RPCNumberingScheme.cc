@@ -3,7 +3,6 @@
 #include "Geometry/MuonNumbering/interface/MuonDDDConstants.h"
 #include "DetectorDescription/Core/interface/DDCompactView.h"
 #include "DataFormats/MuonDetId/interface/RPCDetId.h"
-
 #include <iostream>
 
 //#define LOCAL_DEBUG
@@ -70,7 +69,7 @@ int RPCNumberingScheme::baseNumberToUnitNumber(const MuonBaseNumber num) {
   int copy_id=0;
   int roll_id=0;
   int eta_id=0;
-  int r21_id=0;
+  int rr12_id=0;
   bool forward=0;
   
   int sector_copy=0;
@@ -150,19 +149,21 @@ int RPCNumberingScheme::baseNumberToUnitNumber(const MuonBaseNumber num) {
       }
 
     } else {
+      
       if (level==theRegionLevel) {
 	const int copyno = num.getBaseNo(level);
 	forward=(copyno == 0);
       } else if (level==theEPlaneLevel) {
-	const int plane_tag = num.getSuperNo(level);      
+	const int plane_tag = num.getSuperNo(level);
+	const int rr12_tag = num.getBaseNo(level);
 	plane_id = plane_tag;
-	r21_id = num.getBaseNo(level);
+	rr12_id = rr12_tag;
       } else if (level==theESectorLevel) {
 	const int copyno = num.getBaseNo(level);
 	sector_id = copyno+1;
-	if (r21_id==1) {
+	if (rr12_id==1) {
 	  sector_id = sector_id*2-1;	  
-	}else if(r21_id=2){
+	}else if(rr12_id==2){
 	  sector_id = sector_id*2;
 	}	
       } else if (level==theERollLevel) {
@@ -214,12 +215,14 @@ int RPCNumberingScheme::baseNumberToUnitNumber(const MuonBaseNumber num) {
   std::cout << " sector " << sector_id;
   std::cout << " plane " << plane_id;
   std::cout << " eta " << eta_id;
+  std::cout << " rr12 " << rr12_id;
 #endif
 
   // Build the actual numbering
   RPCDetId id;
   id.buildfromTrIndex(trIndex);
-
+  
+  
 #ifdef LOCAL_DEBUG
   std::cout << " DetId " << id;  
   std::cout << std::endl;
