@@ -3,7 +3,7 @@
 // Class  :     SiStripDetCabling
 // Original Author:  dkcira
 //         Created:  Wed Mar 22 12:24:33 CET 2006
-// $Id: SiStripDetCabling.cc,v 1.9 2007/08/22 14:01:18 bainbrid Exp $
+// $Id: SiStripDetCabling.cc,v 1.10 2007/10/25 15:00:56 bainbrid Exp $
 #include "FWCore/Framework/interface/eventsetupdata_registration_macro.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripDetCabling.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -82,7 +82,7 @@ void SiStripDetCabling::addDevices( const FedChannelConnection& conn,
 				    std::map< uint32_t, std::vector<FedChannelConnection> >& conns ){
   if ( conn.detId() && conn.detId() != sistrip::invalid32_ &&  // check for valid detid
        conn.apvPairNumber() != sistrip::invalid_ ) {           // check for valid apv pair number
-    if ( conn.apvPairNumber() < conns[conn.detId()].size() )   // check cached vector size is sufficient
+    if ( conn.apvPairNumber() >= conns[conn.detId()].size() )  // check cached vector size is sufficient
       conns[conn.detId()].resize( conn.apvPairNumber()+1 );    // if not, resize
     conns[conn.detId()][conn.apvPairNumber()] = conn;          // add latest connection object
   }
