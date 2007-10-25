@@ -9,6 +9,6 @@
  <use name=DataFormats/GeometryVector>
  <use name=DataFormats/DetId>
  <use name=DataFormats/MuonDetId>
- <use name=DataFormats/TrackingHit>
+ <use name=SimDataFormats/TrackingHit>
  <use name=root>
 </export>
