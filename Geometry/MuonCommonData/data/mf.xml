@@ -1979,13 +1979,13 @@
   <rRotation name="rotations:000D"/>
   <Translation x="0*fm " y="0*fm " z="-31.6*cm " />
  </PosPart>
- <PosPart copyNumber="2">
+ <PosPart copyNumber="3">
    <rParent name="mf:ME12Ring"/>
    <rChild name="mf:RR12"/>
-  <rRotation name="rotations:000D"/>
+  <rRotation name="rotations:R020"/>
   <Translation x="0*fm " y="0*fm " z="306.3875*mm" />
  </PosPart>
-<PosPart copyNumber="3">
+<PosPart copyNumber="2">
    <rParent name="mf:ME12Ring"/>
    <rChild name="mf:RR12"/>
   <rRotation name="rotations:R010"/>
