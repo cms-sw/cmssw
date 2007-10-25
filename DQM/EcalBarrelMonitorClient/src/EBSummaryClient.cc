@@ -1,8 +1,8 @@
 /*
  * \file EBSummaryClient.cc
  *
- * $Date: 2007/10/21 17:47:03 $
- * $Revision: 1.73 $
+ * $Date: 2007/10/21 18:02:16 $
+ * $Revision: 1.74 $
  * \author G. Della Ricca
  *
 */
@@ -285,7 +285,7 @@ void EBSummaryClient::setup(void) {
 
   if( meTriggerTowerEt_ ) dbe_->removeElement( meTriggerTowerEt_->getName() );
   sprintf(histo, "EBTTT Et trigger tower quality summary");
-  meTriggerTowerEt_ = dbe_->book3D(histo, histo, 72, 0., 72., 34, -17., 17., 128, 0., 512.);
+  meTriggerTowerEt_ = dbe_->book3D(histo, histo, 72, 0., 72., 34, -17., 17., 128, 0., 128.);
 
   if( meTriggerTowerEmulError_ ) dbe_->removeElement( meTriggerTowerEmulError_->getName() );
   sprintf(histo, "EBTTT emulator error quality summary");

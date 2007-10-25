@@ -1,8 +1,8 @@
 /*
  * \file EETriggerTowerTask.cc
  *
- * $Date: 2007/10/15 16:26:43 $
- * $Revision: 1.10 $
+ * $Date: 2007/10/23 15:41:50 $
+ * $Revision: 1.11 $
  * \author C. Bernet
  * \author G. Della Ricca
  * \author E. Di Marco
@@ -175,7 +175,7 @@ void EETriggerTowerTask::setup( DaqMonitorBEInterface* dbe,
     (*meEtMap)[i] = dbe->book3D(etMapNameSM.c_str(), etMapNameSM.c_str(),
 				50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50.,
 				50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50.,
-				128, 0, 512.);
+				128, 0, 128.);
     dbe->tag((*meEtMap)[i], i+1);
 
     string  fineGrainVetoNameSM = fineGrainVetoName;

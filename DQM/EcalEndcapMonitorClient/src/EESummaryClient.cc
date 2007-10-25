@@ -1,8 +1,8 @@
 /*
  * \file EESummaryClient.cc
  *
- * $Date: 2007/10/21 17:47:03 $
- * $Revision: 1.41 $
+ * $Date: 2007/10/21 18:02:16 $
+ * $Revision: 1.42 $
  * \author G. Della Ricca
  *
 */
@@ -474,11 +474,11 @@ void EESummaryClient::setup(void) {
 
   if( meTriggerTowerEt_[0] ) dbe_->removeElement( meTriggerTowerEt_[0]->getName() );
   sprintf(histo, "EETTT EE - Et trigger tower quality summary");
-  meTriggerTowerEt_[0] = dbe_->book3D(histo, histo, 100, 0., 100., 100, 0., 100., 128, 0., 512.);
+  meTriggerTowerEt_[0] = dbe_->book3D(histo, histo, 100, 0., 100., 100, 0., 100., 128, 0., 128.);
   
   if( meTriggerTowerEt_[1] ) dbe_->removeElement( meTriggerTowerEt_[1]->getName() );
   sprintf(histo, "EETTT EE + Et trigger tower quality summary");
-  meTriggerTowerEt_[1] = dbe_->book3D(histo, histo, 100, 0., 100., 100, 0., 100., 128, 0., 512.);
+  meTriggerTowerEt_[1] = dbe_->book3D(histo, histo, 100, 0., 100., 100, 0., 100., 128, 0., 128.);
   
   if( meTriggerTowerEmulError_[0] ) dbe_->removeElement( meTriggerTowerEmulError_[0]->getName() );
   sprintf(histo, "EETTT EE - emulator error quality summary");
