@@ -334,8 +334,12 @@ void FP420SD::CreateNewHit() {
   currentHit->setX(X);
   currentHit->setY(Y);
   currentHit->setZ(Z);
-
-  UpdateHit();
+  //AZ:12.10.2007
+  //  UpdateHit();
+  // buffer for next steps:
+  tsID           = tSliceID;
+  primID         = primaryID;
+  previousUnitID = unitID;
   
   StoreHit(currentHit);
 }	 
@@ -352,7 +356,8 @@ void FP420SD::UpdateHit() {
          << ", PostStepPoint=" << postStepPoint->GetPosition() << std::endl;
 #endif
     //AZ
-        currentHit->setEnergyLoss(Eloss);
+    //   currentHit->setEnergyLoss(Eloss);
+        currentHit->addEnergyLoss(Eloss);
   }  
 
 
@@ -398,40 +403,46 @@ void FP420SD::EndOfEvent(G4HCofThisEvent* ) {
     LogDebug("FP420Sim") << "entr theta " << aHit->getThetaAtEntry()<< "\n";
 #endif
 
-    Local3DPoint locExitPoint(0,0,0);
-    Local3DPoint locEntryPoint(aHit->getEntry().x(),
-			 aHit->getEntry().y(),
-			 aHit->getEntry().z());
+    //    Local3DPoint locExitPoint(0,0,0);
+    //  Local3DPoint locEntryPoint(aHit->getEntry().x(),
+    //	 aHit->getEntry().y(),
+    //	 aHit->getEntry().z());
+    Local3DPoint locExitPoint(aHit->getExitLocalP().x(),
+			 aHit->getExitLocalP().y(),
+			 aHit->getExitLocalP().z());
+    Local3DPoint locEntryPoint(aHit->getEntryLocalP().x(),
+			 aHit->getEntryLocalP().y(),
+			 aHit->getEntryLocalP().z());
     slave->processHits(PSimHit(locEntryPoint,locExitPoint,
-				  aHit->getPabs(),
-				  aHit->getTof(),
-				  aHit->getEnergyLoss(),
-				  aHit->getParticleType(),
-				  aHit->getUnitID(),
-				  aHit->getTrackID(),
-				  aHit->getThetaAtEntry(),
-				  aHit->getPhiAtEntry()));
-
-				  /*
-				  aHit->getEM(),
-				  aHit->getHadr(),
-				  aHit->getIncidentEnergy(),
-				  aHit->getTimeSlice(),
-				  aHit->getEntry(),
-				  aHit->getEntryLocalP(),
-				  aHit->getExitLocalP(),
-				  aHit->getParentId(),
-				  aHit->getX(), 
-				  aHit->getY(), 
-				  aHit->getZ(), 
-				  aHit->getVx(), 
-				  aHit->getVy(), 
-				  aHit->getVz() 
+			       aHit->getPabs(),
+			       aHit->getTof(),
+			       aHit->getEnergyLoss(),
+			       aHit->getParticleType(),
+			       aHit->getUnitID(),
+			       aHit->getTrackID(),
+			       aHit->getThetaAtEntry(),
+			       aHit->getPhiAtEntry()));
+    /*      
+			       aHit->getEM(),               -
+			       aHit->getHadr(),             -
+			       aHit->getIncidentEnergy(),   -
+			       aHit->getTimeSlice(),       -
+			       aHit->getEntry(),     -
+			       aHit->getParentId(),     
+			       aHit->getEntryLocalP(),  -
+			       aHit->getExitLocalP(),   -
+			       aHit->getX(),    -
+			       aHit->getY(),   -
+			       aHit->getZ(),   -
+			       aHit->getVx(),  -
+			       aHit->getVy(),  -
+			       aHit->getVz()));  -
 */
+
   }
   Summarize();
 }
-     
+
 
 void FP420SD::Summarize() {
 }

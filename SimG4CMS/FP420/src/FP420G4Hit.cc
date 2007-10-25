@@ -152,6 +152,7 @@ int FP420G4Hit::getParticleType() const {return theParticleType;}
 
 void FP420G4Hit::setPabs(float e) {thePabs = e;}
 void FP420G4Hit::setTof(float e) {theTof = e;}
+void FP420G4Hit::addEnergyLoss(float e) {theEnergyLoss += e;}
 void FP420G4Hit::setEnergyLoss(float e) {theEnergyLoss = e;}
 void FP420G4Hit::setParticleType(short i) {theParticleType = i;}
 
@@ -198,6 +199,16 @@ std::ostream& operator<<(std::ostream& os, const FP420G4Hit& hit) {
      << " hadrenergy = " << hit.getHadr() << std::endl
      << " EnergyLoss = " << hit.getEnergyLoss() << std::endl
      << " ParticleType = " << hit.getParticleType() << std::endl
+     << " ParticleType = " << hit.getParticleType() << std::endl
+     << " Theta at Entry = " << hit.getThetaAtEntry() << std::endl
+     << " Phi at Entry = " << hit.getPhiAtEntry() << std::endl
+     << " X at Entry = " << hit.getX() << std::endl
+     << " Y at Entry = " << hit.getY() << std::endl
+     << " Z at Entry = " << hit.getZ() << std::endl
+     << " VtxX = " << hit.getVx() << std::endl
+     << " VtxY = " << hit.getVy() << std::endl
+     << " VtxZ = " << hit.getVz() << std::endl
+     << " parentID = " << hit.getParentId() << std::endl
      << " Pabs = " << hit.getPabs() << std::endl
      << " Energy of primary particle (ID = " << hit.getTrackID()
      << ") = " << hit.getIncidentEnergy() << " (MeV)"<<std::endl
@@ -206,17 +217,6 @@ std::ostream& operator<<(std::ostream& os, const FP420G4Hit& hit) {
   os << "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
      << std::endl;
   return os;
-  /*
-    float thetaEntry = aHit->getThetaAtEntry();   
-    float phiEntry = aHit->getPhiAtEntry();
-    float xEntry = aHit->getX();
-    float yEntry = aHit->getY();
-    float zEntry = aHit->getZ();
-    int  parentID = aHit->getParentId();
-    float vxget = aHit->getVx();
-    float vyget = aHit->getVy();
-    float vzget = aHit->getVz();
-*/
 }
 
 

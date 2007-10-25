@@ -153,6 +153,7 @@ Fp420AnalysisHistManager::Fp420AnalysisHistManager(TString managername)
         fHistArray = new TObjArray();      // Array to store histos
         fHistNamesArray = new TObjArray(); // Array to store histos's names
 
+	TH1::AddDirectory(kFALSE);
         BookHistos();
 
         fHistArray->Compress();            // Removes empty space
@@ -1435,19 +1436,3 @@ void FP420Test::update(const EndOfEvent * evt) {
 }
 
 // ==========================================================================
-/*
-
-#include "Utilities/GenUtil/interface/PackageInitializer.h"
-#include "Utilities/UI/interface/PackageBuilderUI.h"
-
-#include "VisFramework/VisUtilities/interface/PackageInitializer.h"
-
-static PKBuilder<ObserveBeginOfRun> 	observeBeginOfRun("ObserveBeginOfRun");
-static PKBuilder<ObserveEndOfRun>   	observeEndOfRun("ObserveEndOfRun");
-static PKBuilder<ObserveBeginOfEvent> 	observeBeginOfEvent("ObserveBeginOfEvent");
-static PKBuilder<ObserveEndOfEvent>   	observeEndOfEvent("ObserveEndOfEvent");
-static PKBuilder<ObserveBeginOfTrack> 	observeBeginOfTrack("ObserveBeginOfTrack");
-static PKBuilder<ObserveEndOfTrack>   	observeEndOfTrack("ObserveEndOfTrack");
-static PKBuilder<ObserveStep>   	observeStep("ObserveStep");
-static PKBuilder<FP420Test>   		FP420Test("FP420Test");
-*/

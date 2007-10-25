@@ -1,3 +1,4 @@
+<use name=FWCore/PluginManager>
 <use name=SimG4Core/Watcher>
 <use name=SimG4Core/SensitiveDetector>
 <use name=SimG4Core/Notification>
@@ -16,7 +17,11 @@
 
 <export>
  <lib name=SimG4CMSFP420>
- <lib name=SimG4Core/Application>
+ <use name=SimG4Core/Application>
 </export>
 
-<Flags EDM_PLUGIN=1>
+<Flags SEAL_PLUGIN_NAME="SimG4CMSFP420">
+
+##<Flags EDM_PLUGIN=1>
+
+##<lib name=SimG4CMSFP420>

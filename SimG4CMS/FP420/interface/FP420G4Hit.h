@@ -72,6 +72,7 @@ public:
 
  void setPabs(float e)      ;
   void setTof(float e)  ;
+  void addEnergyLoss(float e) ;
   void setEnergyLoss(float e) ;
   void setParticleType(short i) ;
 
