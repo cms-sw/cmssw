@@ -18,6 +18,7 @@
 
 #include "DataFormats/L1GlobalCaloTrigger/interface/L1GctCollections.h"
 #include "DataFormats/L1GlobalCaloTrigger/interface/L1GctEtSums.h"
+#include "DataFormats/L1GlobalCaloTrigger/interface/L1GctJetCounts.h"
 
 using std::string;
 using std::ios;
@@ -207,8 +208,8 @@ void DumpGctDigis::doJets(const edm::Event& iEvent, const edm::InputTag& label) 
     outFile_ << (*tj) << endl;
   }
   
-  outFile_ << "Jet counts from : " << labelStr << endl; 
-  outFile_ << jetCounts.product() << endl << endl;
+  outFile_ << "\nJet counts from : " << labelStr << endl; 
+  outFile_ << *(jetCounts.product()) << endl << endl;
 
 }
 
@@ -253,7 +254,7 @@ void DumpGctDigis::doFibres(const edm::Event& iEvent, const edm::InputTag& label
   
 }
 
-void DumpGctDigis::doEnergySums(const edm::Event&, const edm::InputTag& label)
+void DumpGctDigis::doEnergySums(const edm::Event& iEvent, const edm::InputTag& label)
 {
   using namespace edm;
   
@@ -266,7 +267,7 @@ void DumpGctDigis::doEnergySums(const edm::Event&, const edm::InputTag& label)
   iEvent.getByLabel(label, etMiss);
   
   outFile_ << "Energy sums from: " << label.label() << endl;
-  outFile_ << etTotal.product() << endl;
-  outFile_ << etHad.product() << endl;
-  outFile_ << etMiss.product() << endl << endl;
+  outFile_ << *(etTotal.product()) << endl;
+  outFile_ << *(etHad.product()) << endl;
+  outFile_ << *(etMiss.product()) << endl << endl;
 }
