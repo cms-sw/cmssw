@@ -8,14 +8,14 @@
 //
 // Author:      Chris Jones
 // Created:     Wed Mar 30 14:27:26 EST 2005
-// $Id: EventSetupRecordIntervalFinder.cc,v 1.5 2005/10/03 23:20:48 chrjones Exp $
+// $Id: EventSetupRecordIntervalFinder.cc,v 1.6 2007/01/19 05:25:11 wmtan Exp $
 //
 
 // system include files
 
 // user include files
 #include "FWCore/Framework/interface/EventSetupRecordIntervalFinder.h"
-
+#include <cassert>
 
 //
 // constants, enums and typedefs
