@@ -1,5 +1,6 @@
 #include "CommonTools/TrackerMap/interface/TrackerMap.h"
 #include "CommonTools/TrackerMap/interface/TmModule.h"
+#include "FWCore/ParameterSet/interface/FileInPath.h"
 #include <fstream>
 #include <iostream>
 #include <sstream>
@@ -304,7 +305,7 @@ void TrackerMap::print(bool print_total, float minval, float maxval, string outp
   minvalue=minval; maxvalue=maxval;
   outs << outputfilename << ".xml";
   svgfile = new ofstream(outs.str().c_str(),ios::out);
-  jsfile = new ifstream("trackermap.txt",ios::in);
+  jsfile = new ifstream(edm::FileInPath("CommonTools/TrackerMap/test/trackermap.txt").fullPath().c_str(),ios::in);
 
   //copy javascript interface from trackermap.txt file
   string line;
@@ -470,7 +471,7 @@ void TrackerMap::build(){
   int iModule=0,old_layer=0, ntotMod =0;
   string name,dummys;
 
-  ifstream infile("tracker.dat",ios::in);
+  ifstream infile(edm::FileInPath("CommonTools/TrackerMap/test/tracker.dat").fullPath().c_str(),ios::in);
   while(!infile.eof()) {
     infile >> nmods >> pix_sil >> fow_bar >> layer >> ring >> nmod >> posx >> posy
 	   >> posz>> length >> width >> thickness
