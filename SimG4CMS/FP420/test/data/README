@@ -1,0 +1,11 @@
+execute command:
+
+cmsRun runFP420.cfg
+
+TheAnalysis.root will be produced 
+
+execute 
+
+root -b z1.C
+
+gv z1.ps
