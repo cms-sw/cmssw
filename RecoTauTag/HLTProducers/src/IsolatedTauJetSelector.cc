@@ -19,7 +19,7 @@ IsolatedTauJetsSelector::IsolatedTauJetsSelector(const edm::ParameterSet& iConfi
   dZ_vertex          = iConfig.getParameter<double>("DeltaZetTrackVertex");//To be modified
   useVertex          = iConfig.getParameter<bool>("UseVertex");
   vertexSrc          = iConfig.getParameter<edm::InputTag>("VertexSrc");
-
+  useInHLTOpen       = iConfig.getParameter<bool>("UseInHLTOpen");
  
   produces<reco::CaloJetCollection>();
   produces<reco::IsolatedTauTagInfoCollection>();  
@@ -55,12 +55,17 @@ void IsolatedTauJetsSelector::produce(edm::Event& iEvent, const edm::EventSetup&
       math::XYZVector jetDir(jetTracks->first->px(),jetTracks->first->py(),jetTracks->first->pz());   
       float discriminator = i->discriminator(jetDir, matching_cone, signal_cone, isolation_cone, pt_min_leadTrack, pt_min_isolation,  n_tracks_isolation_ring,dZ_vertex); 
       allExtendedCollection->push_back(*(i)); //to  be used in HLT Analyzers ...
-      if(discriminator > 0) {
+      if(useInHLTOpen) {
 	const CaloJet* pippo = dynamic_cast<const CaloJet*>((i->jet().get()));
 	jetCollectionTmp->push_back(*pippo );
 	extendedCollection->push_back(*(i)); //to  be used later
+      }else{
+	if(discriminator > 0) {
+	  const CaloJet* pippo = dynamic_cast<const CaloJet*>((i->jet().get()));
+	  jetCollectionTmp->push_back(*pippo );
+	  extendedCollection->push_back(*(i)); //to  be used later
+	}
       }
-
     }
      
   }
