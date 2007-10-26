@@ -69,15 +69,18 @@ TrackAssociatorByChi2::compareTracksParam(const TrackCollection& rtColl,
 }
 
 
-RecoToSimCollection TrackAssociatorByChi2::associateRecoToSim(edm::Handle<edm::View<reco::Track> >& tCH, 
+RecoToSimCollection TrackAssociatorByChi2::associateRecoToSim(edm::Handle<reco::TrackCollection>& tCH, 
 							      edm::Handle<TrackingParticleCollection>& tPCH,
 							      const edm::Event * e ) const{
 
   RecoToSimCollection  outputCollection;
   double chi2;
 
+  const TrackCollection tC = *(tCH.product());
+  const TrackingParticleCollection tPC= *(tPCH.product());
+
   int tindex=0;
-  for (edm::View<reco::Track>::const_iterator rt=tCH->begin(); rt!=tCH->end(); rt++, tindex++){
+  for (TrackCollection::const_iterator rt=tC.begin(); rt!=tC.end(); rt++, tindex++){
 
     LogDebug("TrackAssociator") << "=========LOOKING FOR ASSOCIATION===========" << "\n"
 				<< "rec::Track #"<<tindex<<" with pt=" << rt->pt() <<  "\n"
@@ -96,7 +99,7 @@ RecoToSimCollection TrackAssociatorByChi2::associateRecoToSim(edm::Handle<edm::V
     recoTrackCovMatrix.Invert();
 
     int tpindex =0;
-    for (TrackingParticleCollection::const_iterator tp=tPCH->begin(); tp!=tPCH->end(); tp++, ++tpindex){
+    for (TrackingParticleCollection::const_iterator tp=tPC.begin(); tp!=tPC.end(); tp++, ++tpindex){
 	
       //skip tps with a very small pt
       if (sqrt(tp->momentum().perp2())<0.5) continue;
@@ -127,7 +130,7 @@ RecoToSimCollection TrackAssociatorByChi2::associateRecoToSim(edm::Handle<edm::V
 				  << "chi2: " << chi2 << "\n";
 
       if (chi2<chi2cut) {
-	outputCollection.insert(edm::Ref<edm::View<reco::Track> >(tCH,tindex),
+	outputCollection.insert(reco::TrackRef(tCH,tindex), 
 				std::make_pair(edm::Ref<TrackingParticleCollection>(tPCH, tpindex),
 					       -chi2));//-chi2 because the Association Map is ordered using std::greater
       }
@@ -139,14 +142,17 @@ RecoToSimCollection TrackAssociatorByChi2::associateRecoToSim(edm::Handle<edm::V
 
 
 
-SimToRecoCollection TrackAssociatorByChi2::associateSimToReco(edm::Handle<edm::View<reco::Track> >& tCH, 
+SimToRecoCollection TrackAssociatorByChi2::associateSimToReco(edm::Handle<reco::TrackCollection>& tCH, 
 							      edm::Handle<TrackingParticleCollection>& tPCH,
 							      const edm::Event * e ) const {
   SimToRecoCollection  outputCollection;
   double chi2;
 
+  const TrackCollection tC = *(tCH.product());
+  const TrackingParticleCollection tPC= *(tPCH.product());
+
   int tpindex =0;
-  for (TrackingParticleCollection::const_iterator tp=tPCH->begin(); tp!=tPCH->end(); tp++, ++tpindex){
+  for (TrackingParticleCollection::const_iterator tp=tPC.begin(); tp!=tPC.end(); tp++, ++tpindex){
     
     //skip tps with a very small pt
     if (sqrt(tp->momentum().perp2())<0.5) continue;
@@ -161,7 +167,7 @@ SimToRecoCollection TrackAssociatorByChi2::associateSimToReco(edm::Handle<edm::V
     TrackBase::ParameterVector sParameters=parametersAtClosestApproach(vert, momAtVtx, tp->charge());
     
     int tindex=0;
-    for (edm::View<reco::Track>::const_iterator rt=tCH->begin(); rt!=tCH->end(); rt++, tindex++){
+    for (TrackCollection::const_iterator rt=tC.begin(); rt!=tC.end(); rt++, tindex++){
       
       TrackBase::ParameterVector rParameters = rt->parameters();
       TrackBase::CovarianceMatrix recoTrackCovMatrix = rt->covariance();
@@ -197,7 +203,7 @@ SimToRecoCollection TrackAssociatorByChi2::associateSimToReco(edm::Handle<edm::V
       
       if (chi2<chi2cut) {
 	outputCollection.insert(edm::Ref<TrackingParticleCollection>(tPCH, tpindex),
-				std::make_pair(edm::Ref<edm::View<reco::Track> >(tCH,tindex),
+				std::make_pair(reco::TrackRef(tCH,tindex),
 					       -chi2));//-chi2 because the Association Map is ordered using std::greater
       }
     }

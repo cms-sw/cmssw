@@ -69,12 +69,12 @@ class TrackAssociatorByChi2 : public TrackAssociatorBase {
 			    TrackingParticleCollection::const_iterator) const;
 
   /// compare reco to sim the handle of reco::Track and TrackingParticle collections
-  reco::RecoToSimCollection associateRecoToSim(edm::Handle<edm::View<reco::Track> >&, 
+  reco::RecoToSimCollection associateRecoToSim(edm::Handle<reco::TrackCollection>&, 
 					       edm::Handle<TrackingParticleCollection>&, 
 					       const edm::Event * event = 0) const;
   
   /// compare reco to sim the handle of reco::Track and TrackingParticle collections
-  reco::SimToRecoCollection associateSimToReco(edm::Handle<edm::View<reco::Track> >& , 
+  reco::SimToRecoCollection associateSimToReco(edm::Handle<reco::TrackCollection>&, 
 					       edm::Handle<TrackingParticleCollection>& ,
 					       const edm::Event * event = 0) const;
   
