@@ -77,8 +77,6 @@
 </ConstantsSection>
 
 <SolidSection label="cms.xml">
- <Tubs name="OCMS" rMin="[Rmin]" rMax="[HallR]" dz="[HallZ]" 
-                   startPhi="0*deg" deltaPhi="360*deg"/>
  <Polycone name="OCMS" startPhi="0*deg" deltaPhi="360*deg" >
   <ZSection z="-[CMSZ1]"  rMin="[Rmin]"  rMax="[CMSR2]" />
   <ZSection z="-[HallZ]"  rMin="[Rmin]"  rMax="[CMSR2]" /> 
