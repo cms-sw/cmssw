@@ -3,7 +3,7 @@
 
 #include <functional>
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
-#include "RecoTracker/CkfPattern/interface/TempTrajectory.h"
+#include "TrackingTools/PatternTools/interface/TempTrajectory.h"
 
 /** Defines an ordering of Trajectories in terms of "goodness"
  *  The comparison is done in terms of total chi**2 / ndf plus

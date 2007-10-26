@@ -2,7 +2,7 @@
 #define RecoTracker_CkfPattern_IntermediateTrajectoryCleaner_H
 
 #include "RecoTracker/CkfPattern/interface/BaseCkfTrajectoryBuilder.h"
-#include "RecoTracker/CkfPattern/interface/TempTrajectory.h"
+#include "TrackingTools/PatternTools/interface/TempTrajectory.h"
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
 
 class IntermediateTrajectoryCleaner {
