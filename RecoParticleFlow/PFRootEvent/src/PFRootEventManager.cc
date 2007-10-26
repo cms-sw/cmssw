@@ -512,7 +512,8 @@ void PFRootEventManager::readOptions(const char* file,
 				multiLink ); 
   }  
   catch( std::exception& err ) {
-    cerr<<err.what()<<". terminating."<<endl;
+    cerr<<"exception setting PFBlockAlgo parameters: "
+	<<err.what()<<". terminating."<<endl;
     exit(1);
   }
   
@@ -560,7 +561,8 @@ void PFRootEventManager::readOptions(const char* file,
 // 			    mvaCut, mvaWeightFile.c_str() );
   }
   catch( std::exception& err ) {
-    cerr<<err.what()<<". terminating."<<endl;
+    cerr<<"exception setting PFAlgo parameters: "
+	<<err.what()<<". terminating."<<endl;
     exit(1);
   }
 
@@ -937,7 +939,10 @@ bool PFRootEventManager::processEntry(int entry) {
      cout<<"delta E_t ="<<deltaEt<<endl;
 //      cout<<"delta E_t ="<<deltaEt<<" delta E_t Other ="<<deltaEt1<<endl;
 
-//   if( deltaEt>0.1 && fabs(deltaEt1)<0.05 ) {
+  
+  
+//   if( deltaEt>0.1 && deltaEt<0.2 ) {
+//     cout<<deltaEt<<endl;
 //     return true;
 //   }  
 //   else return false;

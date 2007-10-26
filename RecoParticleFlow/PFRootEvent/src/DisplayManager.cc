@@ -138,7 +138,11 @@ void DisplayManager::createGCluster(const reco::PFCluster& cluster,int ident, do
 
 
   int color = 4;
-  if( em_->getDisplayColorClusters() ) color = 2;
+  if( em_->getDisplayColorClusters() ) {
+    color = 2;
+    if ( cluster.layer()==PFLayer::PS1 || cluster.layer()==PFLayer::PS2 )
+      color = 5;
+  }
 
   const math::XYZPoint& xyzPos = cluster.positionXYZ();
   
