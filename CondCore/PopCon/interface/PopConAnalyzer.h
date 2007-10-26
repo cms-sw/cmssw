@@ -163,7 +163,7 @@ namespace popcon
 							else 
 							{
 								//Report an error 	
-								std::cerr << "State Corruption with no validation flag set, EXITING!!!\n";
+								std::cerr << "State Corruption, EXITING!!!\n";
 								logMsg="State corruption";
 								return;
 							}
