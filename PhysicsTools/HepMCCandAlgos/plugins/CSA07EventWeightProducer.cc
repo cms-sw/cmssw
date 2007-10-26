@@ -302,11 +302,13 @@ void CSA07EventWeightProducer::produce( Event& evt, const EventSetup& es ) {
     } else if(id_process == 0) {
       njet += -1;// take out the vector boson
       int indSample = FindIndex(njet,pT);
-      (*weight) = WCrossSection[indSample]/WNevents[indSample];
+      // factor 3 for 3 lepton flavours?
+      (*weight) = 3 * WCrossSection[indSample]/WNevents[indSample];
     } else if(id_process == 1) {
       njet += -1;// take out the vector boson
       int indSample = FindIndex(njet,pT);
-      (*weight) = ZCrossSection[indSample]/ZNevents[indSample];
+      // factor 3 for 3 lepton flavours?
+      (*weight) = 3 * ZCrossSection[indSample]/ZNevents[indSample];
     } // should wemake it crash if the process is not found?
 
     if (verbose) {
