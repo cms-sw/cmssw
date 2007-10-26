@@ -39,6 +39,9 @@ MultipleScatteringX0Data::~MultipleScatteringX0Data()
     theFile->Close();
     delete theFile;
   }
+  if (theData){
+    delete theData;
+  }
 }
 
 string MultipleScatteringX0Data::fileName()
