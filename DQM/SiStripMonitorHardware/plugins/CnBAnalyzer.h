@@ -38,152 +38,145 @@
 #include"DQMServices/Core/interface/MonitorElement.h"
 #include"FWCore/ServiceRegistry/interface/Service.h"
 
-//BinCounter 
+// BinCounter 
 #include "DQM/SiStripMonitorHardware/interface/BinCounters.h"
 
 using namespace std;
 
 class CnBAnalyzer : public edm::EDAnalyzer {
-   public:
-       CnBAnalyzer(const edm::ParameterSet&);
-      ~CnBAnalyzer();
+ public:
+  CnBAnalyzer(const edm::ParameterSet&);
+  ~CnBAnalyzer();
 
-      private:
+ private:
   
-      Fed9U::Fed9UDebugEvent* fedEvent_ ; // from the header file - fed event variable
-      void beginJob(const edm::EventSetup&) ;
-      void analyze(const edm::Event&, const edm::EventSetup&);
-      void endJob() ;
-      
+  Fed9U::Fed9UDebugEvent* fedEvent_ ; // from the header file - fed event variable
+  void beginJob(const edm::EventSetup&) ;
+  void analyze(const edm::Event&, const edm::EventSetup&);
+  void endJob() ;      
 
-//event counter
-	int eventCounter;
-	vector<BinCounters*> bc; //indexes APV Error BinCounters with FedId #
-//percentage stuff
-	 vector<double> apvPrct;
-        vector<double>::iterator pi;
+  // event counter
+  int eventCounter;
+  vector<BinCounters*> bc; //indexes APV Error BinCounters with FedId #
 
-//Nick Plot 1 - 2D - FED vs. Evt No. filling on every OOS
-	MonitorElement * oosFedEvent;
+  // percentage stuff
+  vector<double> apvPrct;
+  vector<double>::iterator pi;
 
-
+  // Nick Plot 1 - 2D - FED vs. Evt No. filling on every OOS
+  MonitorElement * oosFedEvent;
        	
-// back-end interface
-	DaqMonitorBEInterface * dbe;
+  // back-end interface
+  DaqMonitorBEInterface * dbe;
 
+  // vector for APV error and accomanying binCounters
+  vector<MonitorElement*> ApveErr; //indexes APV Error Histograms with FedId #
+  vector<BinCounters*> ApveErrCount; //indexes APV Error BinCounters with FedId #
 
-//vector for APV error and accomanying binCounters
-	vector<MonitorElement*> ApveErr; //indexes APV Error Histograms with FedId #
-	vector<BinCounters*> ApveErrCount; //indexes APV Error BinCounters with FedId #
+  // vector for fe majority apv error checking
+  vector<MonitorElement*> FeMajApvErr; //indexes APV Error Histograms with FedId #
+  vector<BinCounters*> FeMajApvErrCount; //indexes APV Error BinCounters with FedId #
 
-//vector for fe majority apv error checking
-	vector<MonitorElement*> FeMajApvErr; //indexes APV Error Histograms with FedId #
-	vector<BinCounters*> FeMajApvErrCount; //indexes APV Error BinCounters with FedId #
-
-
-//vector to hold the FE Synch Out Packet Values
-	vector<vector<unsigned long> > FsopLong;
-	vector<uint16_t> FsopShort; 
-
+  // vector to hold the FE Synch Out Packet Values
+  vector<vector<unsigned long> > FsopLong;
+  vector<uint16_t> FsopShort; 
 	
-//vectors for FEFPGA APVErrorB<APV0> status bits
-	vector<vector<vector<MonitorElement*> > > FiberStatusBits; //indexes Histograms with FedId # per FE FPGA
-	vector<vector<vector<BinCounters*> > > FiberStatusBitCount; //indexes BinCounters with FedId # per FEFPGA
+  // vectors for FEFPGA APVErrorB<APV0> status bits
+  vector<vector<vector<MonitorElement*> > > FiberStatusBits; //indexes Histograms with FedId # per FE FPGA
+  vector<vector<vector<BinCounters*> > > FiberStatusBitCount; //indexes BinCounters with FedId # per FEFPGA
 
-//fiber wrong header error histograms
-	vector<vector<MonitorElement*> > FiberWHApv; //indexes Histograms with FedId # per Fiber
-	vector<MonitorElement*> FeWHApv; //indexes APV Error Histograms with FedId # per FPGA
-	vector<MonitorElement*> FeLKErr; //indexes LK Error Histograms with FedId # per FPGA
-	vector<MonitorElement*> FeSYErr; //indexes SY Error Histograms with FedId # per FPGA
-	vector<MonitorElement*> FeRWHErr; //indexes RAW wrong header Error Histograms with FedId # per FPGA
+  // fiber wrong header error histograms
+  vector<vector<MonitorElement*> > FiberWHApv; //indexes Histograms with FedId # per Fiber
+  vector<MonitorElement*> FeWHApv; //indexes APV Error Histograms with FedId # per FPGA
+  vector<MonitorElement*> FeLKErr; //indexes LK Error Histograms with FedId # per FPGA
+  vector<MonitorElement*> FeSYErr; //indexes SY Error Histograms with FedId # per FPGA
+  vector<MonitorElement*> FeRWHErr; //indexes RAW wrong header Error Histograms with FedId # per FPGA
 
-//ME for the preliminary check of APV address accross feds (Mersi Plot 1)
-//for now write addreses to the histo and check to see that its a flat line 
-	MonitorElement *  AddCheck0;
+  // ME for the preliminary check of APV address accross feds (Mersi Plot 1)
+  // for now write addreses to the histo and check to see that its a flat line 
+  MonitorElement *  AddCheck0;
 
-//ME for % of FEs in synch globally over event number (Mersi Plot 2)
-	MonitorElement * AddConstPerEvent;
-	MonitorElement * ApvAddConstPerEvent;
-	MonitorElement * ApvAddConstPerEvent1;
-	MonitorElement * ApvAddConstPerEvent2;
-	MonitorElement * NoLock;
-	MonitorElement * BadHead;
-	MonitorElement * NoSynch;
+  // ME for % of FEs in synch globally over event number (Mersi Plot 2)
+  MonitorElement * AddConstPerEvent;
+  MonitorElement * ApvAddConstPerEvent;
+  MonitorElement * ApvAddConstPerEvent1;
+  MonitorElement * ApvAddConstPerEvent2;
+  MonitorElement * NoLock;
+  MonitorElement * BadHead;
+  MonitorElement * NoSynch;
 
-	int oos;
-	int nolock;
-	int goodFe;	
-	double prct;
+  int oos;
+  int nolock;
+  int goodFe;	
+  double prct;
 
-
-//ME Cumulative number of address errors per FED 
-	MonitorElement * CumNumber;
-	MonitorElement * CumNumber1;
-	MonitorElement * CumNumber2;//lock per fed
-	MonitorElement * CumNumber3;//sych per fed
-	MonitorElement * CumNumber4;//raw header error per fed
-
+  // ME Cumulative number of address errors per FED 
+  MonitorElement * CumNumber;
+  MonitorElement * CumNumber1;
+  MonitorElement * CumNumber2;//lock per fed
+  MonitorElement * CumNumber3;//sych per fed
+  MonitorElement * CumNumber4;//raw header error per fed
 	
-//set to 0 for buffer and non zero for FRL - SLINK readout - sompensates for additional DQA headers, etc.(K. Hahn request)
+  // Set to 0 for buffer and non zero for FRL - SLINK readout - compensates for additional DQA headers, etc.
+  // (K. Hahn request)
 	
-	int swapOn_;
-	int dump_;
-	int wordNumber_;
+  int swapOn_;
+  int dump_;
+  int wordNumber_;
 
-	int garb_;
+  int garb_;
 
-	int runNumber_; //number for event info for plots - 23 indicates simulation
+  // Number for event info for plots - 23 indicates simulation
+  int runNumber_;
 
-//histogram presentation variables	
+  // Histogram presentation variables	
 	
-	int percent_; // gives us percent readout
-	int N; // the modulo parameter
+  int percent_; // gives us percent readout
+  int N; // the modulo parameter
 
-	//ApveError % 
-	float apveErrorPercent;
+  // ApveError % 
+  float apveErrorPercent;
 	
-	//APVerrorB<APV0> for FE 8 %
-	float fe8apverrorBapv0Percent;
+  // APVerrorB<APV0> for FE 8 %
+  float fe8apverrorBapv0Percent;
 
-	//name of output file
-	string fileName_;
+  // Name of output file
+  string fileName_;
 
-//Nicks function
- bool getBit(int bitNumber, Fed9U::u32 FsopLongHi, Fed9U::u32 FsopLongLow, Fed9U::u16 FsopShort);
- MonitorElement * goodAPVsPerEvent_;
-      int APVProblemCounter_;
+  // Nick's function
+  bool getBit(int bitNumber, Fed9U::u32 FsopLongHi, Fed9U::u32 FsopLongLow, Fed9U::u16 FsopShort);
+  MonitorElement * goodAPVsPerEvent_;
+  int APVProblemCounter_;
 
+  // for Steve
+  // for the Out of Synch Per Fed Per Event
+  vector<MonitorElement*>  OosPerFed;
 
-//for Steve
-//for the Out of Synch Per Fed Per Event
-	vector<MonitorElement*>  OosPerFed;
+  // vector of addresses to get median valur for "golden address" which should match the apve address
+  vector<uint16_t> feMedianAddr;
+  uint16_t medianAddr; 	
 
+  vector<vector<int> > WHError;
+  vector<vector<int> > LKError;
+  vector<vector<int> > SYError;
+  vector<vector<int> > RWHError;
 
-//vector of addresses to get median valur for "golden address" which should match the apve address
-	vector<uint16_t> feMedianAddr;
-	uint16_t medianAddr; 	
+  vector<vector<uint16_t> > feMajorAddress;
+  int feEnabledCount;
+  int feEnable;
 
-	vector<vector<int> > WHError;
-	vector<vector<int> > LKError;
-	vector<vector<int> > SYError;
-	vector<vector<int> > RWHError;
+  int badApvCounter;
+  int goodApvCounter;
 
-	vector<vector<uint16_t> > feMajorAddress;
-	int feEnabledCount;
-	int feEnable;
+  int fedCounter;
 
-	int badApvCounter;
-	int goodApvCounter;
+  std::vector<uint16_t> fedIds_;
 
-	int fedCounter;
+  bool useCabling_;
 
-	std::vector<uint16_t> fedIds_;
+  bool firstEvent_;
 
-	bool useCabling_;
-
-	bool firstEvent_;
-
-	void histoNaming( const std::vector<uint16_t>& fed_ids, const int& runNumber );
+  void histoNaming( const std::vector<uint16_t>& fed_ids, const int& runNumber );
 
 };
 
