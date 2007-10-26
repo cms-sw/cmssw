@@ -15,13 +15,11 @@
 <use name=root>
 <use name=clhep>
 
+
 <export>
  <lib name=SimG4CMSFP420>
  <use name=SimG4Core/Application>
 </export>
 
-<Flags SEAL_PLUGIN_NAME="SimG4CMSFP420">
-
-##<Flags EDM_PLUGIN=1>
-
-##<lib name=SimG4CMSFP420>
+#<Flags EDM_PLUGIN=1>
+#<Flags SEAL_PLUGIN_NAME="SimG4CMSFP420">

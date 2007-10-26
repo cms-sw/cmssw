@@ -1,7 +1,7 @@
 execute command:
 
-cmsRun runFP420.cfg
-
+cmsRun runFP420.cfg   or
+cmsRun run3DTest.cfg
 TheAnalysis.root will be produced 
 
 execute 
