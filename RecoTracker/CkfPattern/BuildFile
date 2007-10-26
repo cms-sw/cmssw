@@ -41,11 +41,7 @@
 <use name=TrackingTools/PatternTools>
 <use name=TrackingTools/MaterialEffects>
 <use name=TrackingTools/TrajectoryCleaning>
-<<<<<<< BuildFile
- <use name=TrackingTools/TrajectoryFiltering>
-=======
 <use name=TrackingTools/TrajectoryFiltering>
->>>>>>> 1.13
 <use name=TrackingTools/TrackFitters>
 <use name=boost>
 <use name=root>
