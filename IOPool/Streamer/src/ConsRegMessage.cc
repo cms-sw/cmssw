@@ -8,6 +8,7 @@
 
 #include "IOPool/Streamer/interface/ConsRegMessage.h"
 #include "FWCore/Utilities/interface/Exception.h"
+#include <cassert>
 
 /**
  * Constructor for the consumer registration request builder.
