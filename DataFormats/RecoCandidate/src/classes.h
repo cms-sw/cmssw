@@ -12,15 +12,21 @@
 #include "DataFormats/RecoCandidate/interface/RecoCaloTowerCandidate.h"
 #include "DataFormats/RecoCandidate/interface/RecoEcalCandidateIsolation.h"
 #include "DataFormats/RecoCandidate/interface/FitResult.h"
-#include "DataFormats/RecoCandidate/interface/TrackCandidateAssociation.h"
 #include "DataFormats/RecoCandidate/interface/CaloRecHitCandidate.h"
 #include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
+#include "DataFormats/RecoCandidate/interface/TrackCandidateAssociation.h"
 #include "DataFormats/HcalDetId/interface/HcalSubdetector.h" 
 #include "DataFormats/HcalRecHit/interface/HcalRecHitFwd.h" 
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 #include "DataFormats/Common/interface/RefProd.h" 
 #include "DataFormats/Common/interface/Wrapper.h"
 #include "DataFormats/Common/interface/RefToBase.h"
+#include "DataFormats/Common/interface/Ref.h"
+#include "DataFormats/Common/interface/RefVector.h"
+#include "DataFormats/Common/interface/AssociationMap.h"
+#include "DataFormats/Common/interface/OneToValue.h"
+#include "DataFormats/Common/interface/OneToManyWithQuality.h"
+#include "SimTracker/TrackAssociation/interface/TrackAssociatorBase.h"
 
 namespace {
   namespace {
@@ -53,5 +59,20 @@ namespace {
     reco::FitResultCollection fr1;
 
     edm::Wrapper<reco::TrackCandidateAssociation> tca1;
+
+    reco::SimToRecoCollection ii1;
+    edm::Wrapper<reco::SimToRecoCollection > ii2;
+    reco::SimToRecoAssociation ii3;
+    reco::SimToRecoAssociationRef ii4;
+    reco::SimToRecoAssociationRefProd ii5;
+    reco::SimToRecoAssociationRefVector ii6;
+
+    reco::RecoToSimCollection jj1;
+    edm::Wrapper<reco::RecoToSimCollection > jj2;
+    reco::RecoToSimAssociation jj3;
+    reco::RecoToSimAssociationRef jj4;
+    reco::RecoToSimAssociationRefProd jj5;
+    reco::RecoToSimAssociationRefVector jj6;
+          
   }
 }
