@@ -49,17 +49,22 @@ void HLTTauProducer::produce(edm::Event& iEvent, const edm::EventSetup& iES)
   double metCut_= 1000.;
   for(unsigned int i=0 ;i !=tauL2.size(); i++ ) {
     double emIsol  = tauL2[i].pIsol(rmax_,rmin_);
-    int trackIsolationL25 = (int)tauL25[i].discriminator(matchingCone_, signalCone_, isolationCone_,ptMinLeadTk_,1.);
-    const TrackRef leadTkL25 = tauL25[i].leadingSignalTrack(matchingCone_, ptMinLeadTk_);
+
+    JetTracksAssociationRef jetTracks = tauL25[i].jtaRef();
+    math::XYZVector jetDirL25(jetTracks->first->px(),jetTracks->first->py(),jetTracks->first->pz());   
+
+    int trackIsolationL25 = (int)tauL25[i].discriminator(jetDirL25,matchingCone_, signalCone_, isolationCone_,ptMinLeadTk_,1.,0);
+    const TrackRef leadTkL25 = tauL25[i].leadingSignalTrack(jetDirL25,matchingCone_, ptMinLeadTk_);
     double ptLeadTkL25=0.;
     
     if(!leadTkL25) 
       {}else{
 	ptLeadTkL25 = (*leadTkL25).pt();
       }
-	
-    int  trackIsolationL3 = (int)tauL3[i].discriminator(matchingCone_, signalCone_, isolationCone_,ptMinLeadTk_,1.);
-    const TrackRef leadTkL3 = tauL3[i].leadingSignalTrack(matchingCone_, ptMinLeadTk_);
+    jetTracks = tauL3[i].jtaRef();
+    math::XYZVector jetDirL3(jetTracks->first->px(),jetTracks->first->py(),jetTracks->first->pz());	
+    int  trackIsolationL3 = (int)tauL3[i].discriminator(jetDirL3,matchingCone_, signalCone_, isolationCone_,ptMinLeadTk_,1.,0);
+    const TrackRef leadTkL3 = tauL3[i].leadingSignalTrack(jetDirL3,matchingCone_, ptMinLeadTk_);
     double ptLeadTkL3=0.;
     if(!leadTkL3) 
       {}else{
