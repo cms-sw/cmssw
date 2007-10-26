@@ -4,16 +4,18 @@
 <use name=SimDataFormats/TrackingHit>
 <use name=SimDataFormats/TrackerDigiSimLink>
 <use name=SimTracker/TrackerHitAssociation>
-//<use name=SimDataFormats/TrackingAnalysis>
 <use name=SimDataFormats/Track>
 <use name=DataFormats/TrackingRecHit>
 <use name=DataFormats/TrackReco>
 <use name=SimTracker/Records>
 <use name=TrackingTools/GeomPropagators>
 <use name=TrackingTools/PatternTools>
+<use name=SimDataFormats/TrackingAnalysis>
+<use name=DataFormats/RecoCandidate>
 <use name=clhep>
 <use name=boost>
 <use name=root>
+<use name=rootrflx>
 <export>
 <lib  name=SimTrackerTrackAssociation>
 <use name=FWCore/Framework>
@@ -28,6 +30,7 @@
 <use name=DataFormats/TrackReco>
 <use name=SimTracker/Records>
 <use name=TrackingTools/PatternTools>
+<use name=DataFormats/RecoCandidate>
 <use name=clhep>
 <use name=boost>
 <use name=root>
