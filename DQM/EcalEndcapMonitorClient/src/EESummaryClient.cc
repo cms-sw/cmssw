@@ -1,8 +1,8 @@
 /*
  * \file EESummaryClient.cc
  *
- * $Date: 2007/10/21 18:02:16 $
- * $Revision: 1.42 $
+ * $Date: 2007/10/25 22:40:00 $
+ * $Revision: 1.43 $
  * \author G. Della Ricca
  *
 */
@@ -474,11 +474,11 @@ void EESummaryClient::setup(void) {
 
   if( meTriggerTowerEt_[0] ) dbe_->removeElement( meTriggerTowerEt_[0]->getName() );
   sprintf(histo, "EETTT EE - Et trigger tower quality summary");
-  meTriggerTowerEt_[0] = dbe_->book3D(histo, histo, 100, 0., 100., 100, 0., 100., 128, 0., 128.);
+  meTriggerTowerEt_[0] = dbe_->book3D(histo, histo, 100, 0., 100., 100, 0., 100., 256, 0., 256.);
   
   if( meTriggerTowerEt_[1] ) dbe_->removeElement( meTriggerTowerEt_[1]->getName() );
   sprintf(histo, "EETTT EE + Et trigger tower quality summary");
-  meTriggerTowerEt_[1] = dbe_->book3D(histo, histo, 100, 0., 100., 100, 0., 100., 128, 0., 128.);
+  meTriggerTowerEt_[1] = dbe_->book3D(histo, histo, 100, 0., 100., 100, 0., 100., 256, 0., 256.);
   
   if( meTriggerTowerEmulError_[0] ) dbe_->removeElement( meTriggerTowerEmulError_[0]->getName() );
   sprintf(histo, "EETTT EE - emulator error quality summary");
@@ -785,7 +785,7 @@ void EESummaryClient::analyze(void){
 
   for ( int ix = 1; ix <= 100; ix++ ) {
     for ( int iy = 1; iy <= 100; iy++ ) {
-      for ( int en = 1; en <= 128; en++ ) {
+      for ( int en = 1; en <= 256; en++ ) {
         meTriggerTowerEt_[0]->setBinContent( ix, iy, en, 0. );
         meTriggerTowerEt_[1]->setBinContent( ix, iy, en, 0. );
       }
@@ -1103,7 +1103,7 @@ void EESummaryClient::analyze(void){
 
             if ( h3 ) {
 
-              for( int en = 1; en <= 128; en++ ) {
+              for( int en = 1; en <= 256; en++ ) {
 
                 float xval = h3->GetBinContent( ix, iy, en );
 

@@ -1,8 +1,8 @@
 /*
  * \file EBSummaryClient.cc
  *
- * $Date: 2007/10/21 18:02:16 $
- * $Revision: 1.74 $
+ * $Date: 2007/10/25 22:39:59 $
+ * $Revision: 1.75 $
  * \author G. Della Ricca
  *
 */
@@ -285,7 +285,7 @@ void EBSummaryClient::setup(void) {
 
   if( meTriggerTowerEt_ ) dbe_->removeElement( meTriggerTowerEt_->getName() );
   sprintf(histo, "EBTTT Et trigger tower quality summary");
-  meTriggerTowerEt_ = dbe_->book3D(histo, histo, 72, 0., 72., 34, -17., 17., 128, 0., 128.);
+  meTriggerTowerEt_ = dbe_->book3D(histo, histo, 72, 0., 72., 34, -17., 17., 256, 0., 256.);
 
   if( meTriggerTowerEmulError_ ) dbe_->removeElement( meTriggerTowerEmulError_->getName() );
   sprintf(histo, "EBTTT emulator error quality summary");
@@ -461,7 +461,7 @@ void EBSummaryClient::analyze(void){
 
   for ( int iex = 1; iex <= 34; iex++ ) {
     for ( int ipx = 1; ipx <= 72; ipx++ ) {
-      for ( int en = 1; en <= 128; en++ ) {
+      for ( int en = 1; en <= 256; en++ ) {
         meTriggerTowerEt_->setBinContent( ipx, iex, en, 0. );
       }
       meTriggerTowerEmulError_->setBinContent( ipx, iex, -1. ); 
@@ -784,7 +784,7 @@ void EBSummaryClient::analyze(void){
 
             if ( h3 ) {
 
-              for ( int en = 1; en <= 128; en++ ) {
+              for ( int en = 1; en <= 256; en++ ) {
                 
                 float xval = h3->GetBinContent( ie, ip, en );
                 
