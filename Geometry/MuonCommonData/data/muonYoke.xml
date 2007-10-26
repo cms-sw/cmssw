@@ -3358,9 +3358,9 @@
   <ParE name="center" value="0"/> 
   <ParE name="center" value="1.0639*m"/> 
  </AlgoPosPart> 
+ <PosPart copyNumber="3">
   <rParent name="muonBase:MBWheel_1N"/> 
   <rChild name="YB2Chim_w1N_t5"/> 
-  <PosPart copyNumber="3">
   <rRotation name="rotations:R330"/>
   <Translation x="5.93782*m*cos(56.6218*deg)" y="5.93782*m*sin(56.6218*deg)" z="1.0639*m" />
  </PosPart> 
@@ -3800,9 +3800,9 @@
   <ParE name="center" value="0"/> 
   <ParE name="center" value="1.0639*m"/> 
  </AlgoPosPart> 
+ <PosPart copyNumber="3">
   <rParent name="muonBase:MBWheel_1N"/> 
   <rChild name="YB3Chim_w1N_b3"/> 
-  <PosPart copyNumber="3">
   <rRotation name="rotations:R330"/>
   <Translation x="6.42703*m*cos(63.1208*deg)" y="6.42703*m*sin(63.1208*deg)" z="1.0639*m" />
  </PosPart> 
@@ -3910,9 +3910,9 @@
   <ParE name="center" value="0"/> 
   <ParE name="center" value="1.0639*m"/> 
  </AlgoPosPart> 
+ <PosPart copyNumber="3">
   <rParent name="muonBase:MBWheel_1N"/> 
   <rChild name="YB3Chim_w1N_b5"/> 
-  <PosPart copyNumber="3">
   <rRotation name="rotations:R330"/>
   <Translation x="6.42703*m*cos(56.8792*deg)" y="6.42703*m*sin(56.8792*deg)" z="1.0639*m" />
  </PosPart> 
@@ -4184,9 +4184,9 @@
   <ParE name="center" value="0"/> 
   <ParE name="center" value="1.0729*m"/> 
  </AlgoPosPart> 
+ <PosPart copyNumber="3">
   <rParent name="muonBase:MBWheel_1N"/> 
   <rChild name="YB3Chim_w1N_m2"/> 
-  <PosPart copyNumber="3">
   <rRotation name="rotations:R330"/>
   <Translation x="6.69415*m*cos(62.9962*deg)" y="6.69415*m*sin(62.9962*deg)" z="1.0729*m" />
  </PosPart> 
@@ -4220,9 +4220,9 @@
   <ParE name="center" value="0"/> 
   <ParE name="center" value="-1.0729*m"/> 
  </AlgoPosPart> 
+ <PosPart copyNumber="4">
   <rParent name="muonBase:MBWheel_1P"/> 
   <rChild name="YB3Chim_w1P_m3"/> 
-  <PosPart copyNumber="4">
   <rRotation name="rotations:000D"/>
   <Translation x="6.685*m*cos(90.*deg)" y="6.685*m*sin(90.*deg)" z="-1.0729*m" />
  </PosPart> 
@@ -4256,9 +4256,9 @@
   <ParE name="center" value="0"/> 
   <ParE name="center" value="1.0729*m"/> 
  </AlgoPosPart> 
+ <PosPart copyNumber="3">
   <rParent name="muonBase:MBWheel_1N"/> 
   <rChild name="YB3Chim_w1N_m3"/> 
-  <PosPart copyNumber="3">
   <rRotation name="rotations:R330"/>
   <Translation x="6.685*m*cos(60*deg)" y="6.685*m*sin(60*deg)" z="1.0729*m" />
  </PosPart> 
@@ -4306,9 +4306,9 @@
   <ParE name="center" value="0"/> 
   <ParE name="center" value="1.0729*m"/> 
  </AlgoPosPart> 
+ <PosPart copyNumber="3">
   <rParent name="muonBase:MBWheel_1N"/> 
   <rChild name="YB3Chim_w1N_m4"/> 
-  <PosPart copyNumber="3">
   <rRotation name="rotations:R330"/>
   <Translation x="6.69415*m*cos(57.0038*deg)" y="6.69415*m*sin(57.0038*deg)" z="1.0729*m" />
  </PosPart> 
@@ -4580,9 +4580,9 @@
   <ParE name="center" value="0"/> 
   <ParE name="center" value="1.0639*m"/> 
  </AlgoPosPart> 
+ <PosPart copyNumber="3">
   <rParent name="muonBase:MBWheel_1N"/> 
   <rChild name="YB3Chim_w1N_t3"/> 
-  <PosPart copyNumber="3">
   <rRotation name="rotations:R330"/>
   <Translation x="6.9613*m*cos(62.8811*deg)" y="6.9613*m*sin(62.8811*deg)" z="1.0639*m" />
  </PosPart> 
@@ -4690,9 +4690,9 @@
   <ParE name="center" value="0"/> 
   <ParE name="center" value="1.0639*m"/> 
  </AlgoPosPart> 
+ <PosPart copyNumber="3">
   <rParent name="muonBase:MBWheel_1N"/> 
   <rChild name="YB3Chim_w1N_t5"/> 
-  <PosPart copyNumber="3">
   <rRotation name="rotations:R330"/>
   <Translation x="6.9613*m*cos(57.1189*deg)" y="6.9613*m*sin(57.1189*deg)" z="1.0639*m" />
  </PosPart> 
