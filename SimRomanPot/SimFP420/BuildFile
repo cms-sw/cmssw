@@ -23,8 +23,8 @@
 <use name=hepmc>
 <use name=gsl>
 
-<Flags SEAL_PLUGIN_NAME="SimRomanPotSimFP420">
-
+## <Flags SEAL_PLUGIN_NAME="SimRomanPotSimFP420">
+##<Flags EDM_PLUGIN=1>
 <export>
 <lib name=SimRomanPotSimFP420>
 <use name=SimG4CMS/FP420>
