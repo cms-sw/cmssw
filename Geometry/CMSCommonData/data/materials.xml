@@ -4169,6 +4169,60 @@
     </MaterialFraction>
   </CompositeMaterial>
 
+  <CompositeMaterial name="Tk_Cable_1" density="942.8*mg/cm3" symbol=" " method="mixture by weight">
+    <MaterialFraction fraction="0.4364364">
+      <rMaterial name="materials:Copper"/>
+    </MaterialFraction>
+    <MaterialFraction fraction="0.19550706">
+      <rMaterial name="materials:Carbon"/>
+    </MaterialFraction>
+    <MaterialFraction fraction="0.031331664">
+      <rMaterial name="materials:Hydrogen"/>
+    </MaterialFraction>
+    <MaterialFraction fraction="0.060965631">
+      <rMaterial name="materials:Iron"/>
+    </MaterialFraction>
+    <MaterialFraction fraction="0.043156039">
+      <rMaterial name="materials:Oxygen"/>
+    </MaterialFraction>
+    <MaterialFraction fraction="0.041667015">
+      <rMaterial name="materials:Fluorine"/>
+    </MaterialFraction>
+    <MaterialFraction fraction="0.15813109">
+      <rMaterial name="materials:Aluminium"/>
+    </MaterialFraction>
+    <MaterialFraction fraction="0.032805106">
+      <rMaterial name="materials:Silicon"/>
+    </MaterialFraction>
+  </CompositeMaterial>
+
+  <CompositeMaterial name="Tk_square_bundles" density="971*mg/cm3" symbol=" " method="mixture by weight">
+    <MaterialFraction fraction="0.45591441">
+      <rMaterial name="materials:Copper"/>
+    </MaterialFraction>
+    <MaterialFraction fraction="0.20422984">
+      <rMaterial name="materials:Carbon"/>
+    </MaterialFraction>
+    <MaterialFraction fraction="0.032729696">
+      <rMaterial name="materials:Hydrogen"/>
+    </MaterialFraction>
+    <MaterialFraction fraction="0.063679098">
+      <rMaterial name="materials:Iron"/>
+    </MaterialFraction>
+    <MaterialFraction fraction="0.045081214">
+      <rMaterial name="materials:Oxygen"/>
+    </MaterialFraction>
+    <MaterialFraction fraction="0.043521896">
+      <rMaterial name="materials:Fluorine"/>
+    </MaterialFraction>
+    <MaterialFraction fraction="0.12057473">
+      <rMaterial name="materials:Aluminium"/>
+    </MaterialFraction>
+    <MaterialFraction fraction="0.03426911">
+      <rMaterial name="materials:Silicon"/>
+    </MaterialFraction>
+  </CompositeMaterial>
+
   <CompositeMaterial name="V_Air" density="1.205*mg/cm3" symbol=" " method="mixture by weight">
     <MaterialFraction fraction="0.7494">
       <rMaterial name="materials:Nitrogen"/>
