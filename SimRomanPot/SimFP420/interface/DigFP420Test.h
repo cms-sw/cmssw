@@ -23,8 +23,6 @@
 #include "SimRomanPot/SimFP420/interface/HDigiFP420.h"
 #include "SimRomanPot/SimFP420/interface/DigiCollectionFP420.h"
 
-//#include "SimRomanPot/SimFP420/interface/ClusterFP420.h"
-
 // ----------------------------------------------------------------
 
 #include "SimG4Core/Notification/interface/Observer.h"
@@ -103,8 +101,6 @@ class HDigiFP420;
 class DigitizerFP420;
 class DigiCollectionFP420;
 
-//class ClusterFP420;
-
 class BeginOfRun;
 class EndOfRun;
 class BeginOfEvent;
@@ -148,6 +144,7 @@ private:
   DigitizerFP420* theDigitizerFP420;
   DigiCollectionFP420 output;
 
+
   std::vector<HDigiFP420> collector;
 
   int iev;
@@ -167,7 +164,7 @@ private:
  int verbosity;
 
  // SumEnerDeposit - all deposited energy on all steps ;  SumStepl - length in steel !!!
- G4double      SumEnerDeposit, SumStepl, SumStepc;
+ G4double      SumEnerDeposit, SumEnerDeposit1, SumStepl, SumStepc;
  // numofpart - # particles produced along primary track
  int          numofpart;
  // last point of the primary track
@@ -181,22 +178,24 @@ private:
  int sn0;
  // Number of planes:
  int pn0;
- int xytype;
  // shift of planes:
  bool UseHalfPitchShiftInY_, UseThirdPitchShiftInY_, UseForthPitchShiftInY_;
  bool UseHalfPitchShiftInX_, UseThirdPitchShiftInX_, UseForthPitchShiftInX_;
+ bool UseHalfPitchShiftInYW_;
+ bool UseHalfPitchShiftInXW_;
 
  // detector:
  double ldriftX, ldriftY;
  double pitchX, pitchY;
+ double pitchXW, pitchYW;
  int numStripsX,numStripsY;
  int numStripsXW, numStripsYW;
 
- double	ZSiDetL, ZSiDetR, z420, zinibeg;
- double	ZGapLDet, ZBoundDet, ZSiStep, ZSiPlane;
+ double	ZSiDetL, ZSiDetR, z420;
+ double	ZGapLDet, ZBoundDet, ZSiStep, ZSiPlane, zinibeg;
  // double	zBlade, gapBlade, ZKapton, ZSiElectr, ZCeramDet;
 
- int ENC                ;
+ int ENC, xytype        ;
  float Thick300, dYYconst, dXXconst;
  double ElectronPerADC;
 private:
