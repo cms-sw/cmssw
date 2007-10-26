@@ -1,8 +1,9 @@
 #include "EventFilter/ESDigiToRaw/interface/ESDataFormatter.h"
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
 #include "DataFormats/EcalDetId/interface/EcalDetIdCollections.h"
-#include "DataFormats/FEDRawData/interface/FEDHeader.h"
-#include "DataFormats/FEDRawData/interface/FEDTrailer.h"
+#include "EventFilter/Utilities/interface/FEDHeader.h"
+#include "EventFilter/Utilities/interface/FEDTrailer.h"
+#include "EventFilter/Utilities/interface/Crc.h"
 
 const int ESDataFormatter::bDHEAD    = 2;
 const int ESDataFormatter::bDH       = 6;
@@ -217,8 +218,12 @@ FEDRawData * ESDataFormatter::DigiToRaw(int fedId, const Digis & digis) {
   }
 
   // trailer
-  FEDTrailer::set( reinterpret_cast<unsigned char*>(w), dataSize/sizeof(Word64), 0, 0, 0);
+  FEDTrailer::set( reinterpret_cast<unsigned char*>(w), dataSize/sizeof(Word64), 
+		   evf::compute_crc(reinterpret_cast<unsigned char*>(w), dataSize),
+		   0, 0);
   w++;
+  
+
 
   return rawData;
 
@@ -426,7 +431,9 @@ FEDRawData * ESDataFormatter::DigiToRawTB(int fedId, const Digis & digis) {
   }
 
   // trailer
-  FEDTrailer::set( reinterpret_cast<unsigned char*>(w), dataSize/sizeof(Word64), 0, 0, 0);
+  FEDTrailer::set( reinterpret_cast<unsigned char*>(w), dataSize/sizeof(Word64), 
+		   evf::compute_crc(reinterpret_cast<unsigned char*>(w), dataSize),
+		   0, 0);
   w++;
 
   return rawData;
