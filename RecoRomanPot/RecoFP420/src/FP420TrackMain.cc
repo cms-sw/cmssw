@@ -60,7 +60,9 @@ FP420TrackMain::FP420TrackMain(const edm::ParameterSet& conf):conf_(conf)  {
       // zD3_ = 8000.;  // dist between centers of 1st and 3rd stations
   
   UseHalfPitchShiftInX_= true;
+  UseHalfPitchShiftInXW_= true;
   UseHalfPitchShiftInY_= true;
+  UseHalfPitchShiftInYW_= true;
 
   pitchX_= 0.050;
   pitchY_= 0.050;// 
@@ -78,6 +80,10 @@ FP420TrackMain::FP420TrackMain(const edm::ParameterSet& conf):conf_(conf)  {
   double ZBoundDet = 0.020;
   double ZSiElectr = 0.250;
   double ZCeramDet = 0.500;
+
+  double eee1=11.;
+  double eee2=12.;
+  zinibeg_ = (eee1-eee2)/2.;
 //
   ZSiDetL_ = 0.250;
   ZSiDetR_ = 0.250;
@@ -86,8 +92,9 @@ FP420TrackMain::FP420TrackMain(const edm::ParameterSet& conf):conf_(conf)  {
 //
     if (verbosity > 1) {
       std::cout << "FP420TrackMain constructor::" << std::endl;
-      std::cout << " zD2=" << zD2_ << " zD3=" << zD3_ << std::endl;
+      std::cout << " zD2=" << zD2_ << " zD3=" << zD3_ << " zinibeg =" << zinibeg_ << std::endl;
       std::cout << " UseHalfPitchShiftInX=" << UseHalfPitchShiftInX_ << " UseHalfPitchShiftInY=" << UseHalfPitchShiftInY_ << std::endl;
+      std::cout << " UseHalfPitchShiftInXW=" << UseHalfPitchShiftInXW_ << " UseHalfPitchShiftInYW=" << UseHalfPitchShiftInYW_ << std::endl;
       std::cout << " pitchX=" << pitchX_ << " pitchY=" << pitchY_ << std::endl;
       std::cout << " pitchXW=" << pitchXW_ << " pitchYW=" << pitchYW_ << std::endl;
       std::cout << " zBlade=" << zBlade << " gapBlade=" << gapBlade << std::endl;
@@ -113,7 +120,8 @@ FP420TrackMain::FP420TrackMain(const edm::ParameterSet& conf):conf_(conf)  {
 						   ZGapLDet_, ZSiStep_,
 						   ZSiPlane_, ZSiDetL_, ZSiDetR_,
 						   UseHalfPitchShiftInX_, UseHalfPitchShiftInY_,
-						   dXX_,dYY_,chiCutX_,chiCutY_);
+						   UseHalfPitchShiftInXW_, UseHalfPitchShiftInYW_,
+						   dXX_,dYY_,chiCutX_,chiCutY_,zinibeg_);
 	validTrackerizer_ = true;
       } 
       else {
@@ -267,4 +275,4 @@ void FP420TrackMain::run(const ClusterCollectionFP420 &input, TrackCollectionFP4
 
 
 
-};
+}

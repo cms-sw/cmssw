@@ -40,6 +40,7 @@ FP420ClusterMain::FP420ClusterMain(const edm::ParameterSet& conf, int sn, int pn
     std::cout << " ClusterThreshold = " << ClusterThreshold << std::endl;
     std::cout << " MaxVoidsInCluster = " << MaxVoidsInCluster << std::endl;
   }
+  xytype=2;// only X types of planes
   ENC_ = 2160.;    // 
   Thick300 = 0.300;
   BadElectrodeProbability_ = 0.002;
@@ -54,10 +55,10 @@ FP420ClusterMain::FP420ClusterMain(const edm::ParameterSet& conf, int sn, int pn
   pitchX= 0.050;
   moduleThicknessY = 0.250; // mm
   moduleThicknessX = 0.250; // mm
-  numStripsY = 201;        // Y plate number of strips:200*0.050=10mm (zside=1)
-  numStripsX = 401;        // X plate number of strips:400*0.050=20mm (zside=2)
-  numStripsYW = 51;        // Y plate number of W strips:50 *0.400=20mm (zside=1) - W have ortogonal projection
-  numStripsXW = 26;        // X plate number of W strips:25 *0.400=10mm (zside=2) - W have ortogonal projection
+  numStripsY = 201;        // Y plate number of strips:200*0.050=10mm (xytype=1)
+  numStripsX = 401;        // X plate number of strips:400*0.050=20mm (xytype=2)
+  numStripsYW = 51;        // Y plate number of W strips:50 *0.400=20mm (xytype=1) - W have ortogonal projection
+  numStripsXW = 26;        // X plate number of W strips:25 *0.400=10mm (xytype=2) - W have ortogonal projection
   
   //  sn0 = 4;
   //  pn0 = 9;
@@ -148,14 +149,14 @@ void FP420ClusterMain::run(const DigiCollectionFP420 &input, ClusterCollectionFP
 #endif
 	  
 	  // Y:
-	  if (zside ==1) {
+	  if (xytype ==1) {
 	    numStrips = numStripsY*numStripsYW;  
 	    moduleThickness = moduleThicknessY; 
 	    pitch= pitchY;
 	    ldrift = ldriftX;
 	  }
 	  // X:
-	  if (zside ==2) {
+	  if (xytype ==2) {
 	    numStrips = numStripsX*numStripsXW;  
 	    moduleThickness = moduleThicknessX; 
 	    pitch= pitchX;
@@ -208,7 +209,7 @@ void FP420ClusterMain::run(const DigiCollectionFP420 &input, ClusterCollectionFP
 	      collector.clear();
 	      //	      std::vector<ClusterFP420> collector;
 	      //  collector = threeThreshold_->clusterizeDetUnit(digiRangeIteratorBegin,digiRangeIteratorEnd,detID,vnoise);
-	      collector = threeThreshold_->clusterizeDetUnitPixels(digiRangeIteratorBegin,digiRangeIteratorEnd,detID,vnoise,zside);
+	      collector = threeThreshold_->clusterizeDetUnitPixels(digiRangeIteratorBegin,digiRangeIteratorEnd,detID,vnoise,xytype);
 	      
 	      
 	    } else {
@@ -314,4 +315,4 @@ void FP420ClusterMain::run(const DigiCollectionFP420 &input, ClusterCollectionFP
 
 
   }// if ( validClusterizer_
-};
+}

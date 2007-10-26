@@ -47,7 +47,7 @@
 #include "CLHEP/Units/SystemOfUnits.h"
 #include "CLHEP/Units/PhysicalConstants.h"
 #include <stdio.h>
-#include <gsl/gsl_fit.h>
+//#include <gsl/gsl_fit.h>
 //#include <gsl/gsl_cdf.h>
 
 
@@ -71,6 +71,11 @@ enum ntfp420_elements {
 
 //================================================================
 CluFP420Test::CluFP420Test(const edm::ParameterSet & conf):conf_(conf),theDigitizerFP420(new DigitizerFP420(conf)){
+
+  //CluFP420Test::CluFP420Test(const edm::ParameterSet & conf):conf_(conf){
+
+
+
   //constructor
   edm::ParameterSet m_Anal = conf.getParameter<edm::ParameterSet>("CluFP420Test");
     verbosity    = m_Anal.getParameter<int>("Verbosity");
@@ -94,6 +99,29 @@ CluFP420Test::CluFP420Test(const edm::ParameterSet & conf):conf_(conf),theDigiti
   }
 	
 
+//
+	double zBlade = 5.00;
+	double gapBlade = 1.6;
+	ZSiPlane=2*(zBlade+gapBlade);
+
+	double ZKapton = 0.1;
+	ZSiStep=ZSiPlane+ZKapton;
+
+	double ZBoundDet = 0.020;
+	double ZSiElectr = 0.250;
+	double ZCeramDet = 0.500;
+//
+	ZSiDetL = 0.250;
+	ZSiDetR = 0.250;
+	ZGapLDet= zBlade/2-(ZSiDetL+ZSiElectr+ZBoundDet+ZCeramDet/2);
+//
+  //  ZSiStation = 5*(2*(5.+1.6)+0.1)+2*6.+1.0 =  79.5  
+	double ZSiStation = (pn0-1)*(2*(zBlade+gapBlade)+ZKapton)+2*6.+0.0;   // =  78.5  
+  // 11.=e1, 12.=e2 in zzzrectangle.xml
+	  double eee1=11.;
+	  double eee2=12.;
+
+	  zinibeg = (eee1-eee2)/2.;
   //////////////////////////zUnit = 8000.; // 2Stations
   //zD2 = 1000.;  // dist between centers of 1st and 2nd stations
   //zD3 = 8000.;  // dist between centers of 1st and 3rd stations
@@ -106,10 +134,15 @@ CluFP420Test::CluFP420Test(const edm::ParameterSet & conf):conf_(conf),theDigiti
   //            X  | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | X                        station                                          .
   //                   8*13.3+ 2*6 = 118.4                                    center                                           .
   //                                                                                                                           .
+  z1 = zinibeg + (ZSiStation+10.)/2 + z420; // z1 - right after 1st Station
 
-  z1 = -150. + (118.4+10.)/2 + z420; // 10. -arbitrary //z1 - right after 1st Station
+
+
+
+
+
   z2 = z1+zD2;                       //z2 - right after 2nd Station
-  z3 = z1+zD3;
+  z3 = z1+zD3;                       //z3 - right after 3rd   Station
   z4 = z1+2*zD3;
   //==================================
   if (verbosity > 0) {
@@ -184,29 +217,19 @@ CluFP420Test::CluFP420Test(const edm::ParameterSet & conf):conf_(conf),theDigiti
 
 	//ENC = 1800;
 	//ENC = 3000;
-	ENC = 2160;
+	//ENC = 2160;
+	ENC = 960;
+
+
 	//	ElectronPerADC =300;
 	Thick300 = 0.300;
-//
-	double zBlade = 5.00;
-	double gapBlade = 1.6;
-	ZSiPlane=2*(zBlade+gapBlade);
-
-	double ZKapton = 0.1;
-	ZSiStep=ZSiPlane+ZKapton;
-
-	double ZBoundDet = 0.020;
-	double ZSiElectr = 0.250;
-	double ZCeramDet = 0.500;
-//
-	ZSiDetL = 0.250;
-	ZSiDetR = 0.250;
-	ZGapLDet= zBlade/2-(ZSiDetL+ZSiElectr+ZBoundDet+ZCeramDet/2);
 //
 
   // Initialization:
 
 	theFP420NumberingScheme = new FP420NumberingScheme();
+	//	theDigitizerFP420 = new DigitizerFP420(conf);
+	//theDigitizerFP420 = new DigitizerFP420(conf_);
 	theClusterizerFP420 = new ClusterizerFP420(conf_);
 //
 }
@@ -314,6 +337,7 @@ void Fp420AnalysisHistManagerC::BookHistos()
     HistInit("NumberHitsOnlyMI", "Number Hits Only MI",   100,   0.,200. );
     HistInit("NHitsAll", "N Hits All",   100,   0.,100. );
 
+    HistInit("PrimaryXi0",   "Primary Xi0",        100,   0., 0.001);
     HistInit("PrimaryXi",   "Primary Xi",        100,   0.001, 1.);
     HistInit("PrimaryXiLog","Primary Xi Log",    50,  -3.,     0.);
     HistInit("PrimaryEta",  "Primary Eta",       50,   8.,    13. );
@@ -1119,15 +1143,15 @@ void CluFP420Test::update(const EndOfEvent * evt) {
   
   
 #ifdef ddebugprim
-  std::cout << " -------------------------------------------------------------" << std::endl;
-  std::cout << " -------------------------------------------------------------" << std::endl;
-  std::cout << " -------------------------------------------------------------" << std::endl;
+      std::cout << " -------------------------------------------------------------" << std::endl;
+      std::cout << " -------------------------------------------------------------" << std::endl;
+      std::cout << " -------------------------------------------------------------" << std::endl;
 #endif
   // prim.vertex:
   G4int nvertex = (*evt)()->GetNumberOfPrimaryVertex();
   
 #ifdef ddebugprim
-  if (nvertex !=1) std::cout << "CluFP420Test:NumberOfPrimaryVertex != 1 --> = " << nvertex<<std::endl;
+  if (nvertex !=1) std::cout << "RecFP420Test:NumberOfPrimaryVertex != 1 --> = " << nvertex<<std::endl;
   std::cout << "NumberOfPrimaryVertex:" << nvertex << std::endl;
 #endif
   int varia= 0,varia2= 0,varia3= 0;   // = 0 -all; =1 - MI; =2 - noMI
@@ -1143,30 +1167,35 @@ void CluFP420Test::update(const EndOfEvent * evt) {
 #ifdef ddebugprim
   std::cout << "zmilimit= :" << zmilimit << std::endl;
 #endif
-  // ==========================================================================================loop over vertexies
+// ==========================================================================================loop over vertexies
   double zref=-100., xref=-100., yref=-100., bxtrue=-100., bytrue=-100.,dref12=-100.,drefy12=-100.;
-  //ref = z1+8000.;     // info: center of 1st station at 0.
+    //ref = z1+8000.;     // info: center of 1st station at 0.
   double       xref2=-100., yref2=-100., bxtrue2=-100., bytrue2=-100.;
   double       xref3=-100., yref3=-100., bxtrue3=-100., bytrue3=-100.;
   double ZZZ420=-999999;
+  double zbegin = 420000. - ZZZ420 ;
+  double zfinis = 428000. - ZZZ420 ;
+  double  zref1 =    8000. ;     // zref1 is z of measurement base of the detector
   for (int iv = 0 ; iv<nvertex; ++iv) {
     G4PrimaryVertex* avertex = (*evt)()->GetPrimaryVertex(iv);
-    if (avertex == 0) std::cout<<"CluFP420Test:End Of Event ERR: pointer to vertex = 0"<< std::endl;
+    if (avertex == 0) std::cout<<"RecFP420Test:End Of Event ERR: pointer to vertex = 0"<< std::endl;
     G4int npart = avertex->GetNumberOfParticle();
     TheHistManager->GetHisto("ZZZall")->Fill(avertex->GetZ0());
-    
-    if(avertex->GetZ0() < 400000.){
+
+    //    if(avertex->GetZ0() < 400000.){
+    // 50 m
+    if(avertex->GetZ0() < 50000.){
       // temporary:
-      // if(npart==1) {
-      //	G4ThreeVector   mom  = avertex->GetPrimary(0)->GetMomentum();
-      //	if(mom.z()<-100000.){
-      //	  eta0 = -log(tan(mom.theta()/2));
-      //	  eta0 = -eta0;
-      //	  xi0 = 1.-mom.mag()/7000000.;
-      //	}
-      // }
+     // if(npart==1) {
+//	G4ThreeVector   mom  = avertex->GetPrimary(0)->GetMomentum();
+//	if(mom.z()<-100000.){
+//	  eta0 = -log(tan(mom.theta()/2));
+//	  eta0 = -eta0;
+//	  xi0 = 1.-mom.mag()/7000000.;
+//	}
+     // }
     }
-    // =======================================================over ZZZ420 vertexies
+// =======================================================over ZZZ420 vertexies
     else{
 #ifdef ddebugprim
       std::cout << "Vertex number :" <<iv << std::endl;
@@ -1175,223 +1204,238 @@ void CluFP420Test::update(const EndOfEvent * evt) {
       std::cout << "Vertex Y= :" <<(*evt)()->GetPrimaryVertex(iv)->GetY0() << std::endl;
       
 #endif
-      TheHistManager->GetHisto("ZZZ420")->Fill(ZZZ420);
-      XXX420 = avertex->GetX0();
-      YYY420 = avertex->GetY0();
-      ZZZ420 = avertex->GetZ0();
-      zref =    8000. + z420 - ZZZ420;     // info: center of 1st station at 0.
-      TheHistManager->GetHisto("XXX420")->Fill(XXX420);
-      TheHistManager->GetHisto("YYY420")->Fill(YYY420);
-      TheHistManager->GetHisto2("2DXY420")->Fill(XXX420,YYY420);
-      TheHistManager->GetHisto("npart420")->Fill(float(npart));
-      if(npart !=1)std::cout << "CluFP420Test::warning: NumberOfPrimaryPart != 1--> = " <<npart<<std::endl;
+    TheHistManager->GetHisto("ZZZ420")->Fill(ZZZ420);
+    XXX420 = avertex->GetX0();
+    YYY420 = avertex->GetY0();
+    ZZZ420 = avertex->GetZ0();
+    zbegin = z420 - ZZZ420;
+    zfinis = (z420+zref1) - ZZZ420;
+// info: center of 1st station is at  0.
+    zref =    zref1 + z420 - ZZZ420;     // zref is z from the vertex of Primary
+    TheHistManager->GetHisto("XXX420")->Fill(XXX420);
+    TheHistManager->GetHisto("YYY420")->Fill(YYY420);
+    TheHistManager->GetHisto2("2DXY420")->Fill(XXX420,YYY420);
+    TheHistManager->GetHisto("npart420")->Fill(float(npart));
+    if(npart !=1)std::cout << "RecFP420Test::warning: NumberOfPrimaryPart != 1--> = " <<npart<<std::endl;
 #ifdef ddebugprim
-      std::cout << "number of particles for Vertex = " << npart << std::endl;
+    std::cout << "zref = " << zref << "z420 = " << z420 << "ZZZ420 = " << ZZZ420 << std::endl;
+    std::cout << "number of particles for Vertex = " << npart << std::endl;
 #endif
-      if (npart==0)std::cout << "CluFP420Test: End Of Event ERR: no NumberOfParticle" << std::endl;
-      
-      // =============================================================loop over particles of ZZZ420 vertex
-      for (int i = 0 ; i<npart; ++i) {
+    if (npart==0)std::cout << "RecFP420Test: End Of Event ERR: no NumberOfParticle" << std::endl;
+    
+      // primary vertex:
+      //	 G4double vx=0.,vy=0.,vz=0.;
+      vx = avertex->GetX0();
+      vy = avertex->GetY0();
+      vz = avertex->GetZ0();
+      TheHistManager->GetHisto("VtxX")->Fill(vx);
+      TheHistManager->GetHisto("VtxY")->Fill(vy);
+      TheHistManager->GetHisto("VtxZ")->Fill(vz);
+  //  std::cout << "zref = " << zref << "z420 = " << z420 << "ZZZ420 = " << ZZZ420 << std::endl;
+    // =============================================================loop over particles of ZZZ420 vertex
+    for (int i = 0 ; i<npart; ++i) {
 #ifdef ddebugprim
-	std::cout << " -------------------------" << std::endl;
+      std::cout << " -------------------------" << std::endl;
 #endif
-	thePrim=avertex->GetPrimary(i);
-	G4ThreeVector   mom  = thePrim->GetMomentum();
-	// =====================================
-	//  avertex->GetTotalEnergy()    mom.mag()   mom.t()    mom.vect().mag() 
-	//    std::cout << "mom.mag() = " << mom.mag() << std::endl;
-	////    std::cout << "mom.t() = " << mom.t() << std::endl;
-	////    std::cout << "mom.vect().mag() = " << mom.vect().mag() << std::endl;
-	////    std::cout << "thePrim->GetTotalEnergy() = " << thePrim->GetTotalEnergy() << std::endl;
-	// =====================================
-	if(i==0){
-	  phi = mom.phi();
-	  if (phi < 0.) phi += twopi;
-	  phigrad = phi*180./pi;
-	  th     = mom.theta();
-	  eta = -log(tan(th/2));
-	  xi = 1.-mom.mag()/7000000.;
-	  
-	  bxtrue = tan(th)*cos(phi);
-	  bytrue = tan(th)*sin(phi);
-	  
-	  xref = vx + (zref-vz)*bxtrue;
-	  yref = vy + (zref-vz)*bytrue;
+      thePrim=avertex->GetPrimary(i);
+      G4ThreeVector   mom  = thePrim->GetMomentum();
+      // =====================================
+      //  avertex->GetTotalEnergy()    mom.mag()   mom.t()    mom.vect().mag() 
+//    std::cout << "mom.mag() = " << mom.mag() << std::endl;
+////    std::cout << "mom.t() = " << mom.t() << std::endl;
+////    std::cout << "mom.vect().mag() = " << mom.vect().mag() << std::endl;
+////    std::cout << "thePrim->GetTotalEnergy() = " << thePrim->GetTotalEnergy() << std::endl;
+      // =====================================
+      if(i==0){
+	phi = mom.phi();
+	if (phi < 0.) phi += twopi;
+	phigrad = phi*180./pi;
+	th     = mom.theta();
+	eta = -log(tan(th/2));
+	xi = 1.-mom.mag()/7000000.;
+
+	bxtrue = tan(th)*cos(phi);
+	bytrue = tan(th)*sin(phi);
+
+	xref = vx + zref*bxtrue;
+	yref = vy + zref*bytrue;
+//	std::cout << " xref = " << xref << " vx = " << vx << " zref = " << zref << " (zref-vz) = " << (zref-vz) << " vz = " << vz << " bxtrue = " << bxtrue << std::endl;
 #ifdef ddebugprim
-	  std::cout << "CluFP420Test: vx = " << XXX420 << " th=" << th << " phi=" << phi << " xref=" << xref << std::endl;
-	  std::cout << " tan(th) = " << tan(th) << " cos(phi)=" << cos(phi) << " bxtrue=" << bxtrue << std::endl;
+	std::cout << "xref = " << xref << "vx = " << vx << "vz = " << vz << "bxtrue = " << bxtrue << std::endl;
+	std::cout << "============================= " << std::endl;
+	std::cout << "RecFP420Test: vx = " << XXX420 << " th=" << th << " phi=" << phi << " xref=" << xref << std::endl;
+	std::cout << " tan(th) = " << tan(th) << " cos(phi)=" << cos(phi) << " bxtrue=" << bxtrue << std::endl;
 #endif
-	  //  if(  lastpo.z()< zmilimit || (lastpo.z()>zmilimit && lastpo.perp()> 100.) ) {
+	//  if(  lastpo.z()< zmilimit || (lastpo.z()>zmilimit && lastpo.perp()> 100.) ) {
 #ifdef ddebugprim
-	  std::cout << " lastpo.x()=" << lastpo.x() << std::endl;
-	  std::cout << " lastpo.y()=" << lastpo.y() << std::endl;
-	  std::cout << " lastpo.z()=" << lastpo.z() << std::endl;
+	std::cout << " lastpo.x()=" << lastpo.x() << std::endl;
+	std::cout << " lastpo.y()=" << lastpo.y() << std::endl;
+	std::cout << " lastpo.z()=" << lastpo.z() << std::endl;
 #endif
-	  if(  lastpo.z()< zmilimit ) {
-	    varia = 1;
-	  }
-	  else{
-	    varia = 2;
-	  } 
-	  
+	if(  lastpo.z()< zmilimit ) {
+	  varia = 1;
 	}
-	else if(i==1){
-	  phi2= mom.phi();
-	  if (phi2< 0.) phi2 += twopi;
-	  phigrad2 = phi2*180./pi;
-	  th2     = mom.theta();
-	  eta2 = -log(tan(th2/2));
-	  xi2 = 1.-mom.mag()/7000000.;
-	  // 2st primary track 
-	  bxtrue2= tan(th2)*cos(phi2);
-	  bytrue2= tan(th2)*sin(phi2);
-	  xref2= vx + (zref-vz)*bxtrue2;
-	  yref2= vy + (zref-vz)*bytrue2;
-#ifdef ddebugprim
-	  std::cout << "CluFP420Test: vx = " <<  XXX420<< " th2=" << th2 << " phi2=" << phi2 << " xref2=" << xref2 << std::endl;
-	  std::cout << " tan(th2) = " << tan(th2) << " cos(phi2)=" << cos(phi2) << " bxtrue2=" << bxtrue2 << std::endl;
-#endif
-	  
-	  //  if(  lastpo.z()< zmilimit || (lastpo.z()>zmilimit && lastpo.perp()> 100.) ) {
-	  if(  lastpo.z()< zmilimit  ) {
-	    varia2= 1;
-	  }
-	  else{
-	    varia2= 2;
-	  } 
-	  
-	}
-	else if(i==2){
-	  phi3 = mom.phi();
-	  if (phi3 < 0.) phi3 += twopi;
-	  phigrad3 = phi3*180./pi;
-	  th3     = mom.theta();
-	  eta3 = -log(tan(th3/2));
-	  xi3 = 1.-mom.mag()/7000000.;
-	  // 3rd primary track 
-	  bxtrue3= tan(th3)*cos(phi3);
-	  bytrue3= tan(th3)*sin(phi3);
-	  xref3= vx + (zref-vz)*bxtrue3;
-	  yref3= vy + (zref-vz)*bytrue3;
-	  
-	  
-	  if(  lastpo.z()< zmilimit || (lastpo.z()>zmilimit && lastpo.perp()> 100.) ) {
-	    varia3= 1;
-	  }
-	  else{
-	    varia3= 2;
-	  } 
-	  
-	}
-	else {
-	  std::cout << "CluFP420Test:WARNING i>3" << std::endl; 
-	}// if(i
-	// =====================================
+	else{
+	  varia = 2;
+	} 
 	
+      }
+      else if(i==1){
+	phi2= mom.phi();
+	if (phi2< 0.) phi2 += twopi;
+	phigrad2 = phi2*180./pi;
+	th2     = mom.theta();
+	eta2 = -log(tan(th2/2));
+        xi2 = 1.-mom.mag()/7000000.;
+	// 2st primary track 
+	bxtrue2= tan(th2)*cos(phi2);
+	bytrue2= tan(th2)*sin(phi2);
+	xref2= vx + zref*bxtrue2;
+	yref2= vy + zref*bytrue2;
+#ifdef ddebugprim
+	std::cout << "RecFP420Test: vx = " <<  XXX420<< " th2=" << th2 << " phi2=" << phi2 << " xref2=" << xref2 << std::endl;
+	std::cout << " tan(th2) = " << tan(th2) << " cos(phi2)=" << cos(phi2) << " bxtrue2=" << bxtrue2 << std::endl;
+#endif
+	
+	//  if(  lastpo.z()< zmilimit || (lastpo.z()>zmilimit && lastpo.perp()> 100.) ) {
+	if(  lastpo.z()< zmilimit  ) {
+	  varia2= 1;
+	}
+	else{
+	  varia2= 2;
+	} 
+	
+      }
+      else if(i==2){
+	phi3 = mom.phi();
+	if (phi3 < 0.) phi3 += twopi;
+	phigrad3 = phi3*180./pi;
+	th3     = mom.theta();
+	eta3 = -log(tan(th3/2));
+        xi3 = 1.-mom.mag()/7000000.;
+	// 3rd primary track 
+	bxtrue3= tan(th3)*cos(phi3);
+	bytrue3= tan(th3)*sin(phi3);
+	xref3= vx + zref*bxtrue3;
+	yref3= vy + zref*bytrue3;
+	
+
+	if(  lastpo.z()< zmilimit || (lastpo.z()>zmilimit && lastpo.perp()> 100.) ) {
+	  varia3= 1;
+	}
+	else{
+	  varia3= 2;
+	} 
+	
+      }
+      else {
+	std::cout << "RecFP420Test:WARNING i>3" << std::endl; 
+      }// if(i
+      // =====================================
+      
 #ifdef ddebugprim0
-	std::cout << " i=" << i << "CluFP420Test: at 420m mom = " << mom 
-		  << std::endl;
+      std::cout << " i=" << i << "RecFP420Test: at 420m mom = " << mom 
+		<< std::endl;
 #endif
-	// primary vertex:
-	//	 G4double vx=0.,vy=0.,vz=0.;
-	vx = avertex->GetX0();
-	vy = avertex->GetY0();
-	vz = avertex->GetZ0();
-	TheHistManager->GetHisto("VtxX")->Fill(vx);
-	TheHistManager->GetHisto("VtxY")->Fill(vy);
-	TheHistManager->GetHisto("VtxZ")->Fill(vz);
 #ifdef ddebugprim
-	std::cout << " -------------------------------------------------------------" << std::endl;
-	std::cout << "CluFP420Test: Vertex vx = " << vx << " vy=" << vy << " vz=" << vz << std::endl;
-	std::cout << " Vertex vx = " << vx << " vy=" << vy << "vz=" << vz << std::endl;
-	std::cout << " varia = " << varia << " varia2=" << varia2 << " i=" << i << std::endl;
+      std::cout << " -------------------------------------------------------------" << std::endl;
+      std::cout << "RecFP420Test: Vertex vx = " << vx << " vy=" << vy << " vz=" << vz << std::endl;
+      std::cout << " Vertex vx = " << vx << " vy=" << vy << "vz=" << vz << std::endl;
+      std::cout << " varia = " << varia << " varia2=" << varia2 << " i=" << i << std::endl;
 #endif
-      }// loop over particles of ZZZ420 vertex  (int i
-      
-      
-      
-      //                                                                              .
-      dref12 = abs(xref2 - xref);
-      drefy12 = abs(yref2 - yref);
+    }// loop over particles of ZZZ420 vertex  (int i
+
+
+
+    //                                                                              .
+    dref12 = abs(xref2 - xref);
+    drefy12 = abs(yref2 - yref);
 #ifdef ddebugprim
-      std::cout << " dref12 = " << dref12 << std::endl;
+    std::cout << " dref12 = " << dref12 << std::endl;
 #endif
-      
-      
+    
+
     }//if(fabs(ZZZ420)
   }// prim.vertex loop end
   //                                                                              preparations:
-  //temporary:
-  //  eta = eta0;
-  //  xi = xi0;
-  TheHistManager->GetHisto("PrimaryXi")->Fill(xi);
-  TheHistManager->GetHisto("PrimaryXiLog")->Fill(TMath::Log10(xi));
-  TheHistManager->GetHisto("PrimaryEta")->Fill(eta);
-  //                                                                              .
-  TheHistManager->GetHisto("xref")->Fill(xref);
-  TheHistManager->GetHisto("xref2")->Fill(xref2);
-  TheHistManager->GetHisto("dref12")->Fill(dref12);
-  TheHistManager->GetHisto("drefy12")->Fill(drefy12);
-  TheHistManager->GetHisto("yref")->Fill(yref);
-  TheHistManager->GetHisto("yref2")->Fill(yref2);
-  TheHistManager->GetHisto("thetaXmrad")->Fill(fabs(bxtrue)*1000.);
-  //	TheHistManager->GetHisto("thetaX2mrad")->Fill(fabs(bxtrue2)*1000.);
-  TheHistManager->GetHisto("thetaX2mrad")->Fill(fabs(bxtrue)*1000.);
-  
-  TheHistManager->GetHisto("PrimaryPhigrad")->Fill(phigrad);
-  // TheHistManager->GetHisto("PrimaryTh")->Fill(th*180./pi); / dergee
-  TheHistManager->GetHisto("PrimaryTh")->Fill(th*1000.);// mlrad
-  
-  TheHistManager->GetHisto("PrimaryLastpoZ")->Fill(lastpo.z());
-  if(lastpo.z() <  z4  ) {
-    TheHistManager->GetHisto("PrimaryLastpoX")->Fill(lastpo.x());
-    TheHistManager->GetHisto("PrimaryLastpoY")->Fill(lastpo.y());
-  }
-  if(numofpart >  4  ) {
-    TheHistManager->GetHisto("XLastpoNumofpart")->Fill(lastpo.x());
-    TheHistManager->GetHisto("YLastpoNumofpart")->Fill(lastpo.y());
-  }
-  
-  
-  //=========================== thePrim != 0 ================================================================================
-  //    if (thePrim != 0   && vz < -20.) {
-  
-  
-  //ask 1 tracks	  	  
-  
-  if ( thePrim != 0 && ZZZ420 != -999999.) {
-    //thePrim:	  
+//temporary:
+//  eta = eta0;
+//  xi = xi0;
+    TheHistManager->GetHisto("PrimaryXi0")->Fill(xi);
+    TheHistManager->GetHisto("PrimaryXi")->Fill(xi);
+    TheHistManager->GetHisto("PrimaryXiLog")->Fill(TMath::Log10(xi));
+    TheHistManager->GetHisto("PrimaryEta")->Fill(eta);
+    //                                                                              .
+    TheHistManager->GetHisto("xref")->Fill(xref);
+    TheHistManager->GetHisto("xref2")->Fill(xref2);
+    TheHistManager->GetHisto("dref12")->Fill(dref12);
+    TheHistManager->GetHisto("drefy12")->Fill(drefy12);
+    TheHistManager->GetHisto("yref")->Fill(yref);
+    TheHistManager->GetHisto("yref2")->Fill(yref2);
+    TheHistManager->GetHisto("thetaXmrad")->Fill(fabs(bxtrue)*1000.);
+    //	TheHistManager->GetHisto("thetaX2mrad")->Fill(fabs(bxtrue2)*1000.);
+    TheHistManager->GetHisto("thetaX2mrad")->Fill(fabs(bxtrue)*1000.);
+
+    TheHistManager->GetHisto("PrimaryPhigrad")->Fill(phigrad);
+    // TheHistManager->GetHisto("PrimaryTh")->Fill(th*180./pi); / dergee
+    TheHistManager->GetHisto("PrimaryTh")->Fill(th*1000.);// mlrad
     
-    //	     &&	varia == 2  
-    //	     && ((xref > -32. && xref < -12.) && (yref > -5. && yref < 5.))  
-    //	     &&	varia == 2  
-    //	     && ( fabs(bxtrue)*1000. > 0.1  && fabs(bxtrue)*1000.<0.4 )
-    
-    // ask 2 tracks		  
-    
-    
-    
-    /*	  
-      if ( thePrim != 0  && ZZZ420 != -999999.
-      && ((xref  > -32. && xref  < -12.) && (yref  > -5. && yref  < 5.))  
-      && ((xref2 > -32. && xref2 < -12.) && (yref2 > -5. && yref2 < 5.))  
-      && dref12 > 1.0 && drefy12 > 1.0       
-      ) {
-    */
-    
-    
-    //  &&	( varia == 2 && varia2 == 2 ) 
-    //  && dref12 > 1.       
-    //	     && (( fabs(bxtrue)*1000.>0.1)&&( fabs(bxtrue)*1000.<0.4) ) || (( fabs(bxtrue2)*1000. > 0.1)&&( fabs(bxtrue2)*1000.<0.4) )  
-    
-    
-    /////////////////////////////////////////////////////////////////
-    //      unsigned int clnumcut=1;// ask 2 tracks
-             unsigned int clnumcut=0;//ask 1 tracks
-    /////////////////////////////////////////////////////////////////
-    
-    
-    
+    TheHistManager->GetHisto("PrimaryLastpoZ")->Fill(lastpo.z());
+    if(lastpo.z() <  z4  ) {
+      TheHistManager->GetHisto("PrimaryLastpoX")->Fill(lastpo.x());
+      TheHistManager->GetHisto("PrimaryLastpoY")->Fill(lastpo.y());
+    }
+    if(numofpart >  4  ) {
+      TheHistManager->GetHisto("XLastpoNumofpart")->Fill(lastpo.x());
+      TheHistManager->GetHisto("YLastpoNumofpart")->Fill(lastpo.y());
+    }
+
+
+//=========================== thePrim != 0 ================================================================================
+//    if (thePrim != 0   && vz < -20.) {
+
+		  
+//ask 1 tracks	  	  
+		  
+//	    std::cout << " ZZZ420 = " << ZZZ420 << " thePrim=" << thePrim << std::endl;
+//	    std::cout << " xref = " << xref << " yref=" << yref << std::endl;
+//	  if((xref > -25. && xref < -5.) && (yref > -5. && yref < 5.)){
+//	    std::cout << " dref12 = " << dref12 << std::endl;
+//	  }
+
+
+
+//	if (ZZZ420 != -999999.
+
+
+	if ( thePrim != 0 && ZZZ420 != -999999.
+  	     && ((xref > -25. && xref < -5.) && (yref > -5. && yref < 5.))  
+			   ) {
+  	  
+
+//
+//	     &&	varia == 2  
+//	     && ((xref > -32. && xref < -12.) && (yref > -5. && yref < 5.))  
+//	     &&	varia == 2  
+//	     && ( fabs(bxtrue)*1000. > 0.1  && fabs(bxtrue)*1000.<0.4 )
+		  
+// ask 2 tracks		  
+/*
+	if ( thePrim != 0  && ZZZ420 != -999999.
+	     && ((xref  > -25. && xref  < -5.) && (yref  > -5. && yref  < 5.))  
+	     && ((xref2 > -25. && xref2 < -5.) && (yref2 > -5. && yref2 < 5.))  
+	     && dref12 > 1.0 && drefy12 > 1.0       
+	     ) {
+*/	  
+	  
+	  
+	  /////////////////////////////////////////////////////////////////
+	  //        unsigned int clnumcut=1;// ask 2 tracks
+	              unsigned int clnumcut=0;//ask 1 tracks
+	  /////////////////////////////////////////////////////////////////
+	    
+
+
     // ==========================================================================
     
     // hit map for FP420
@@ -1410,14 +1454,14 @@ void CluFP420Test::update(const EndOfEvent * evt) {
     G4HCofThisEvent* allHC = (*evt)()->GetHCofThisEvent();
     
     if (verbosity > 0) {
-      std::cout << "CluFP420Test:  accessed all HC" << std::endl;;
+      std::cout << "RecFP420Test:  accessed all HC" << std::endl;;
     }
     int CAFIid = G4SDManager::GetSDMpointer()->GetCollectionID("FP420SI");
     
     FP420G4HitCollection* theCAFI = (FP420G4HitCollection*) allHC->GetHC(CAFIid);
     if (verbosity > 0) {
       //std::cout << "FP420Test: theCAFI = " << theCAFI << std::endl;
-      std::cout << "CluFP420Test: theCAFI->entries = " << theCAFI->entries() << std::endl;
+      std::cout << "RecFP420Test: theCAFI->entries = " << theCAFI->entries() << std::endl;
     }
     TheHistManager->GetHisto("NHitsAll")->Fill(theCAFI->entries());
     
@@ -1498,7 +1542,7 @@ void CluFP420Test::update(const EndOfEvent * evt) {
 	double   zz=-999999.;
 	zz    = hitPoint.z();
 	if (verbosity > 2) {
-	  std::cout << "CluFP420Test:zHits = " << zz << std::endl;
+	  std::cout << "RecFP420Test:zHits = " << zz << std::endl;
 	}
 	themap[unitID] += losenergy;
 	totallosenergy += losenergy;
@@ -1515,14 +1559,14 @@ void CluFP420Test::update(const EndOfEvent * evt) {
 	
 	// zside=1,2 ; zmodule=1,10 ; sector=1,3
 	if(zside==0||sector==0||zmodule==0){
-	  std::cout << "CluFP420Test:ERROR: zside = " << zside  << " sector = " << sector  << " zmodule = " << zmodule  << " det = " << det  << std::endl;
+	  std::cout << "RecFP420Test:ERROR: zside = " << zside  << " sector = " << sector  << " zmodule = " << zmodule  << " det = " << det  << std::endl;
 	}
 	
 	double kplane = -(pn0-1)/2+(zmodule-1); 
 	double zdiststat = 0.;
 	if(sector==2) zdiststat = zD2;
 	if(sector==3) zdiststat = zD3;
-	double zcurrent = -150. + z420 +(ZSiStep-ZSiPlane)/2  + kplane*ZSiStep + zdiststat;  
+	double zcurrent = zinibeg      + z420 +(ZSiStep-ZSiPlane)/2  + kplane*ZSiStep + zdiststat;  
 	
 	if(zside==1){
 	  zcurrent += (ZGapLDet+ZSiDetL/2);
@@ -1538,7 +1582,7 @@ void CluFP420Test::update(const EndOfEvent * evt) {
 	
 	//
 	if (verbosity > 2) {
-	  std::cout << "CluFP420Test:check " << std::endl;
+	  std::cout << "RecFP420Test:check " << std::endl;
 	  std::cout << " zside = " <<zside<< " sector = " <<sector<< " zmodule = " << zmodule<< std::endl;
 	  std::cout << " hitPoint.z()+ mid.z() = " <<  double (hitPoint.z()+ mid.z()-z420) << std::endl;
 	  std::cout << " zcurrent = " << double (zcurrent-z420) << " det = " << det << std::endl;
@@ -1599,6 +1643,7 @@ void CluFP420Test::update(const EndOfEvent * evt) {
 	//     !!!!!!!!!!!!!
 	
       }  // for loop on all hits ENDED  ENDED  ENDED  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+      
       
       //     !!!!!!!!!!!!!
       //     !!!!!!!!!!!!!

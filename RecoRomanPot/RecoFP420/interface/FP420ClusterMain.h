@@ -74,6 +74,8 @@ class FP420ClusterMain
    int sn0;
  // Number of planes:
    int pn0;
+ // Type of planes:
+   int xytype;
 
    int verbosity;
 

@@ -98,6 +98,7 @@ void ClusterizerFP420::produce(DigiCollectionFP420 & input, ClusterCollectionFP4
   for (int sector=1; sector<sn0; sector++) {
     for (int zmodule=1; zmodule<pn0; zmodule++) {
       for (int zside=1; zside<3; zside++) {
+	// zside here defines just Left or Right planes, not their type !!!
 	//	  int sScale = 20;
 	int sScale = 2*(pn0-1);
 	//      int index = FP420NumberingScheme::packFP420Index(det, zside, sector, zmodule);

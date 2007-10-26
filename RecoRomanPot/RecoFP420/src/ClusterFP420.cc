@@ -7,6 +7,7 @@
 #include "RecoRomanPot/RecoFP420/interface/ClusterFP420.h"
 #include "SimRomanPot/SimFP420/interface/HDigiFP420.h"
 #include <iostream>
+#include <cmath>
 using namespace std;
 
 //#define mydigidebug10
@@ -16,6 +17,7 @@ using namespace std;
 static float const_ps1s2[3] =  {0.050,.0139,0.0045};// pitch, sigma_1channel, sigma_2channels - Narrow
 static float constW_ps1s2[3] = {0.400,.0920,0.0280};// pitch, sigma_1channel, sigma_2channels - Wide
 
+// sense of zside here is X or Y type planes. Now we are working with X only, i.e. zside=2
 ClusterFP420::ClusterFP420( unsigned int detid, unsigned int zside, const HDigiFP420Range& range, 
 			    float & cog ,float & err ) :
   detId_(detid), zside_(zside), firstStrip_(range.first->strip())
@@ -208,7 +210,7 @@ ClusterFP420::ClusterFP420( unsigned int detid, unsigned int zside, const HDigiF
 	int  mysn0 = 3;
 	
 	// number of planes 
-	int  mypn0 = 8;
+	int  mypn0 = 5;
 
 
 

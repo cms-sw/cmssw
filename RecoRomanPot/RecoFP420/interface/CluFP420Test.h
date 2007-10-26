@@ -203,7 +203,7 @@ private:
  int numStripsXW, numStripsYW;
 
  double	ZSiDetL, ZSiDetR, z420;
- double	ZGapLDet, ZBoundDet, ZSiStep, ZSiPlane;
+ double	ZGapLDet, ZBoundDet, ZSiStep, ZSiPlane, zinibeg;
  // double	zBlade, gapBlade, ZKapton, ZSiElectr, ZCeramDet;
 
  int ENC                ;

@@ -43,6 +43,9 @@ class FP420TrackMain
 	bool UseHalfPitchShiftInX_;
 	bool UseHalfPitchShiftInY_;
 
+	bool UseHalfPitchShiftInXW_;
+	bool UseHalfPitchShiftInYW_;
+
 	//double zUnit_; 
 	double z420_; 
 	double zD2_; 
@@ -63,6 +66,7 @@ class FP420TrackMain
 	double chiCutX_;
 	double chiCutY_;
 
+	double zinibeg_;
 
 };
 

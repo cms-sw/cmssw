@@ -9,6 +9,7 @@ using namespace std;
 //#define mycldebug0
 //#define mycldebug1
 
+// sense of zside here is X or Y type planes. Now we are working with X only, i.e. zside=2
 
 bool ClusterProducerFP420::badChannel( int channel, 
 				       const std::vector<short>& badChannels) const
@@ -135,9 +136,10 @@ std::vector<ClusterFP420> ClusterProducerFP420::clusterizeDetUnit( HDigiFP420Ite
       //
     }//for i++
     float sigmaNoise = sqrt(sigmaNoise2);
+    // define here cog,err,zside not used
     float cog;
     float err;
-    unsigned int zside=2;
+    unsigned int zside=2;// it can be even =1,although we are working with =2(Xtypes of planes)
     if (charge >= static_cast<int>( clusterThresholdInNoiseSigma()*sigmaNoise)) {
       rhits.push_back( ClusterFP420( detid, zside, ClusterFP420::HDigiFP420Range( cluster_digis.begin(),
 									   cluster_digis.end()), 
