@@ -15,7 +15,7 @@
 //
 // Original Author:  Victor Bazterra
 //         Created:  Tue Mar 13 14:15:40 CDT 2007
-// $Id: IpsTOA.cc,v 1.1 2007/09/24 22:51:46 bazterra Exp $
+// $Id: IpsTOA.cc,v 1.2 2007/10/10 19:02:53 bazterra Exp $
 //
 //
 
@@ -61,7 +61,6 @@
 
 #include "RecoVertex/PrimaryVertexProducer/interface/PrimaryVertexSorter.h"
 
-#include "SimTracker/TrackAssociation/test/testTrackAssociator.h"
 #include "SimTracker/Records/interface/TrackAssociatorRecord.h"
 
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
