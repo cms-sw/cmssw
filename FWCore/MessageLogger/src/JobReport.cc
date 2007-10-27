@@ -10,7 +10,7 @@
 //		to direct use of LogInfo.
 //
 // Original Author:  Marc Paterno
-// $Id: JobReport.cc,v 1.25 2007/10/19 14:34:28 chrjones Exp $
+// $Id: JobReport.cc,v 1.26 2007/10/22 21:10:17 fischler Exp $
 //
 
 
@@ -197,7 +197,10 @@ namespace edm
      * job report via MessageLogger
      */
     void JobReport::JobReportImpl::writeInputFile(JobReport::InputFile const& f){
-	LogInfo("FwkJob") << f;
+      if(ost_) {
+        *ost_ <<f<<std::flush;
+      }
+	//LogInfo("FwkJob") << f;
     }
     
     /*
@@ -215,57 +218,59 @@ namespace edm
      *
      */
     void JobReport::JobReportImpl::writeOutputFile(JobReport::OutputFile const& f) {
-	LogInfo("FwkJob") << "\n<File>";
+      if (ost_) {
+	*ost_ << "\n<File>";
 
 
 // Was:	LogInfo("FwkJob") << f;
 
 	if (f.fileHasBeenClosed) {
-	  LogInfo("FwkJob") << "\n<State  Value=\"closed\"/>";
+	  *ost_ << "\n<State  Value=\"closed\"/>";
 	} else {
-	  LogInfo("FwkJob") << "\n<State  Value=\"open\"/>";
+	  *ost_ << "\n<State  Value=\"open\"/>";
 	}
-	LogInfo("FwkJob") << "\n<LFN>" << f.logicalFileName << "</LFN>";
-	LogInfo("FwkJob") << "\n<PFN>" << f.physicalFileName << "</PFN>";
-	LogInfo("FwkJob") << "\n<Catalog>" << f.catalog << "</Catalog>";
-	LogInfo("FwkJob") << "\n<ModuleLabel>" << f.moduleLabel << "</ModuleLabel>";
-	LogInfo("FwkJob") << "\n<GUID>" << f.guid << "</GUID>";
-	LogInfo("FwkJob") << "\n<Runs>";
+	*ost_ << "\n<LFN>" << f.logicalFileName << "</LFN>";
+	*ost_ << "\n<PFN>" << f.physicalFileName << "</PFN>";
+	*ost_ << "\n<Catalog>" << f.catalog << "</Catalog>";
+	*ost_ << "\n<ModuleLabel>" << f.moduleLabel << "</ModuleLabel>";
+	*ost_ << "\n<GUID>" << f.guid << "</GUID>";
+	*ost_ << "\n<Runs>";
 	std::set<JobReport::RunNumber>::const_iterator iRun;
 	for ( iRun = f.runsSeen.begin(); iRun != f.runsSeen.end(); iRun++) {
-	  LogInfo("FwkJob") << "\n  <Run>" << *iRun << "</Run>";
+	  *ost_ << "\n  <Run>" << *iRun << "</Run>";
 	}
-	LogInfo("FwkJob") << "\n</Runs>";
-	LogInfo("FwkJob") << "\n<Branches>";
+	*ost_ << "\n</Runs>";
+	*ost_ << "\n<Branches>";
 	std::vector<std::string>::const_iterator iBranch;
 	for (iBranch = f.branchNames.begin(); 
             iBranch != f.branchNames.end(); 
             iBranch++) {
-	  LogInfo("FwkJob") << "\n  <Branch>" << *iBranch << "</Branch>";
+	  *ost_ << "\n  <Branch>" << *iBranch << "</Branch>";
 	}
-	LogInfo("FwkJob") << "\n</Branches>";
+	*ost_ << "\n</Branches>";
 
 	
-	LogInfo("FwkJob") << "\n<LumiSections>";
+	*ost_ << "\n<LumiSections>";
 	std::vector<JobReport::LumiSectionReport>::const_iterator iLumi;
 	for (iLumi = f.lumiSections.begin();
 	     iLumi != f.lumiSections.end(); iLumi++){
-	  LogInfo("FwkJob") << *iLumi;
+	  *ost_ << *iLumi;
 	}
-	LogInfo("FwkJob") << "\n</LumiSections>\n";
+	*ost_ << "\n</LumiSections>\n";
 	  
-	LogInfo("FwkJob") << "\n<Inputs>";
+	*ost_ << "\n<Inputs>";
  	std::vector<JobReport::Token>::const_iterator iInput;
  	for (iInput = f.contributingInputs.begin(); 
  	     iInput != f.contributingInputs.end(); iInput++) {
  	    JobReport::InputFile inpFile = inputFiles_[*iInput];
- 	    LogInfo("FwkJob") <<"\n<Input>";
- 	    LogInfo("FwkJob") <<"\n  <LFN>" << inpFile.logicalFileName << "</LFN>";
- 	    LogInfo("FwkJob") <<"\n  <PFN>" << inpFile.physicalFileName << "</PFN>";
- 	    LogInfo("FwkJob") <<"\n</Input>";
+ 	    *ost_ <<"\n<Input>";
+ 	    *ost_ <<"\n  <LFN>" << inpFile.logicalFileName << "</LFN>";
+ 	    *ost_ <<"\n  <PFN>" << inpFile.physicalFileName << "</PFN>";
+ 	    *ost_ <<"\n</Input>";
  	}
- 	LogInfo("FwkJob") << "\n</Inputs>";
- 	LogInfo("FwkJob") << "\n</File>";
+ 	*ost_ << "\n</Inputs>";
+ 	*ost_ << "\n</File>";
+      }
     }
     
     /*
@@ -294,16 +299,17 @@ namespace edm
   }
 
   void JobReport::JobReportImpl::writeGeneratorInfo(void){
-    LogInfo("FwkJob") << "\n<GeneratorInfo>";
-    std::map<std::string, std::string>::iterator pos;
-    for (pos = generatorInfo_.begin(); pos != generatorInfo_.end(); ++pos){
-      std::ostringstream msg;
-      msg << "\n<Data Name=\"" << pos->first
-			<< "\" Value=\"" << pos->second << "\"/>";
-      LogInfo("FwkJob") << msg.str();
+    if(ost_) {
+      *ost_ << "\n<GeneratorInfo>\n";
+      std::map<std::string, std::string>::iterator pos;
+      for (pos = generatorInfo_.begin(); pos != generatorInfo_.end(); ++pos){
+        std::ostringstream msg;
+        msg << "\n<Data Name=\"" << pos->first
+          << "\" Value=\"" << pos->second << "\"/>";
+        *ost_ << msg.str();
+      }
+      *ost_ << "</GeneratorInfo>\n";
     }
-    LogInfo("FwkJob") << "</GeneratorInfo>";
-    
   }
 
   void JobReport::JobReportImpl::associateLumiSection(JobReport::LumiSectionReport const&  rep){
@@ -348,12 +354,22 @@ namespace edm
   JobReport::~JobReport() {
     impl_->writeGeneratorInfo(); 
     impl_->flushFiles();
+    if(impl_->ost_) {
+      *(impl_->ost_)<<"</FrameworkJobReport>\n"<<std::flush;
+    }
   }
 
     JobReport::JobReport() :
-      impl_(new JobReportImpl) {
+      impl_(new JobReportImpl(0)) {
     }
 
+    JobReport::JobReport(ostream* iOstream) :
+       impl_(new JobReportImpl(iOstream) ) {
+         if(impl_->ost_) {
+           *(impl_->ost_)<<"<FrameworkJobReport>\n";
+         }
+       }
+  
     JobReport::Token
     JobReport::inputFileOpened(string const& physicalFileName,
 			       string const& logicalFileName,
@@ -577,11 +593,14 @@ namespace edm
 
     void 
     JobReport::reportSkippedEvent(unsigned int run, unsigned int event)
-    {
-      std::ostringstream msg;
-      msg << "<SkippedEvent Run=\"" << run << "\"";
-      msg << " Event=\"" << event << "\" />\n";
-      LogInfo("FwkJob") << msg.str();
+    { 
+      if(impl_->ost_) {
+        std::ostream& msg = *(impl_->ost_);
+        msg << "<SkippedEvent Run=\"" << run << "\"";
+        msg << " Event=\"" << event << "\" />\n";
+        msg <<std::flush;
+        //LogInfo("FwkJob") << msg.str();
+      }
     }
 
   void 
@@ -598,11 +617,14 @@ namespace edm
   JobReport::reportError(std::string const& shortDesc,
   			 std::string const& longDesc)
   {
-   std::ostringstream msg;
-   msg << "<FrameworkError ExitStatus=\"1\" Type=\"" << shortDesc <<"\" >\n";
-   msg << "  " << longDesc << "\n";
-   msg << "</FrameworkError>\n";
-   LogError("FwkJob") << msg.str();
+    if(impl_->ost_) {
+      std::ostream& msg =*(impl_->ost_);
+      msg << "<FrameworkError ExitStatus=\"1\" Type=\"" << shortDesc <<"\" >\n";
+      msg << "  " << longDesc << "\n";
+      msg << "</FrameworkError>\n";
+   //LogError("FwkJob") << msg.str();
+      msg << std::flush;
+    }
   }
    
 
@@ -612,51 +634,63 @@ namespace edm
 			 std::string const& longDesc,
 			 int const& exitCode)
   {
-    std::ostringstream msg;
-    msg << "<FrameworkError ExitStatus=\""<< exitCode 
+    if(impl_->ost_) {
+      std::ostream& msg = *(impl_->ost_);
+      //std::ostringstream msg;
+      msg << "<FrameworkError ExitStatus=\""<< exitCode 
     	<<"\" Type=\"" << shortDesc <<"\" >\n";
-    msg << "  " << longDesc << "\n";
-    msg << "</FrameworkError>\n";
-    LogError("FwkJob") << msg.str();
+      msg << "  " << longDesc << "\n";
+      msg << "</FrameworkError>\n";
+      //LogError("FwkJob") << msg.str();
+      msg <<std::flush;
+    }
   }
 
   void 
   JobReport::reportSkippedFile(std::string const& pfn, 
 			       std::string const& lfn) {
 
-    std::ostringstream msg;
-    msg << "<SkippedFile Pfn=\"" << pfn << "\"";
-    msg << " Lfn=\"" << lfn << "\" />\n";
-    LogInfo("FwkJob") << msg.str();
+    if(impl_->ost_) {
+      std::ostream& msg = *(impl_->ost_);
+      msg << "<SkippedFile Pfn=\"" << pfn << "\"";
+      msg << " Lfn=\"" << lfn << "\" />\n";
+      msg <<std::flush;
+      //LogInfo("FwkJob") << msg.str();
+
+    }
   }
 
   void 
   JobReport::reportTimingInfo(std::map<std::string, double> const& timingData){
 
-
-    std::ostringstream msg;
-    msg << "<TimingService>\n";
-    
-
-    std::map<std::string, double>::const_iterator pos;
-    for (pos = timingData.begin(); pos != timingData.end(); ++pos){
-      msg <<  "  <" << pos->first 
-	  <<  "  Value=\"" << pos->second  << "\" />"
-	  <<  "\n";
+    if(impl_->ost_) {
+      std::ostream& msg=*(impl_->ost_);
+      msg << "<TimingService>\n";
+      
+      
+      std::map<std::string, double>::const_iterator pos;
+      for (pos = timingData.begin(); pos != timingData.end(); ++pos){
+        msg <<  "  <" << pos->first 
+        <<  "  Value=\"" << pos->second  << "\" />"
+        <<  "\n";
+      }
+      msg << "</TimingService>\n";
+      //LogInfo("FwkJob") << msg.str();
+      msg << std::flush;
     }
-    msg << "</TimingService>\n";
-    LogInfo("FwkJob") << msg.str();
   }
   
   void
   JobReport::reportStorageStats(std::string const& data)
   {
-    
-    std::ostringstream msg;
-    msg << "<StorageStatistics>\n"
+    if(impl_->ost_) {
+      std::ostream& msg = *(impl_->ost_);
+      msg << "<StorageStatistics>\n"
         << data << "\n"
 	<<  "</StorageStatistics>\n";
-    LogInfo("FwkJob") << msg.str();    
+      //LogInfo("FwkJob") << msg.str();    
+      msg << std::flush;
+    }
   }
   void
   JobReport::reportGeneratorInfo(std::string const&  name, std::string const&  value)
@@ -668,11 +702,14 @@ namespace edm
   void
   JobReport::reportPSetHash(std::string const& hashValue)
   {
-    std::ostringstream msg;
-    msg << "<PSetHash>"
+    if(impl_->ost_){      
+      std::ostream& msg =*(impl_->ost_);
+      msg << "<PSetHash>"
         <<  hashValue 
 	<<  "</PSetHash>\n";
-    LogInfo("FwkJob") << msg.str();    
+      //LogInfo("FwkJob") << msg.str();    
+      msg << std::flush;
+    }
   }
 
 
@@ -680,19 +717,22 @@ namespace edm
   JobReport::reportPerformanceSummary(std::string const& metricClass,
 				      std::map<std::string, std::string> const& metrics)
   {
-    std::ostringstream msg;
-    msg << "<PerformanceReport>\n"
+    if(impl_->ost_){      
+      std::ostream& msg =*(impl_->ost_);
+      msg << "<PerformanceReport>\n"
         << "  <PerformanceSummary Metric=\"" << metricClass << "\">\n";
-    
-    std::map<std::string, std::string>::const_iterator iter;
-    for( iter = metrics.begin(); iter != metrics.end(); ++iter ) {
-      msg << "    <Metric Name=\"" << iter->first << "\" " 
-	  <<"Value=\"" << iter->second << "\"/>\n";
-    }
-
-    msg << "  </PerformanceSummary>\n"
+      
+      std::map<std::string, std::string>::const_iterator iter;
+      for( iter = metrics.begin(); iter != metrics.end(); ++iter ) {
+        msg << "    <Metric Name=\"" << iter->first << "\" " 
+        <<"Value=\"" << iter->second << "\"/>\n";
+      }
+      
+      msg << "  </PerformanceSummary>\n"
 	<< "</PerformanceReport>\n";
-    LogInfo("FwkJob") << msg.str();    
+      msg << std::flush;
+      //LogInfo("FwkJob") << msg.str();    
+    }
   }
       
   void 
@@ -700,20 +740,23 @@ namespace edm
 					std::string const&  moduleName,
 					std::map<std::string, std::string> const& metrics)
   {
-    std::ostringstream msg;
-    msg << "<PerformanceReport>\n"
+    if(impl_->ost_){      
+      std::ostream& msg =*(impl_->ost_);
+      msg << "<PerformanceReport>\n"
         << "  <PerformanceModule Metric=\"" << metricClass << "\" "
 	<< " Module=\""<< moduleName << "\" >\n";
-    
-    std::map<std::string, std::string>::const_iterator iter;
-    for( iter = metrics.begin(); iter != metrics.end(); ++iter ) {
-      msg << "    <Metric Name=\"" << iter->first << "\" " 
-	  <<"Value=\"" << iter->second << "\"/>\n";
-    }
-
-    msg << "  </PerformanceModule>\n"
+      
+      std::map<std::string, std::string>::const_iterator iter;
+      for( iter = metrics.begin(); iter != metrics.end(); ++iter ) {
+        msg << "    <Metric Name=\"" << iter->first << "\" " 
+        <<"Value=\"" << iter->second << "\"/>\n";
+      }
+      
+      msg << "  </PerformanceModule>\n"
 	<< "</PerformanceReport>\n";
-    LogInfo("FwkJob") << msg.str();    
+      msg << std::flush;
+      //LogInfo("FwkJob") << msg.str();    
+    }
   }
   
 

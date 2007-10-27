@@ -19,7 +19,7 @@ through the MessageLogger.
 
 //
 // Original Author:  Marc Paterno
-// $Id: JobReport.h,v 1.19 2007/10/19 08:14:05 chrjones Exp $
+// $Id: JobReport.h,v 1.20 2007/10/19 14:34:28 chrjones Exp $
 //
 
 #include <cstddef>
@@ -199,14 +199,19 @@ namespace edm {
          *  Flush all open files to logger in event of a problem.
          */
         void flushFiles(void);
+        
+        JobReportImpl(std::ostream* iOst): ost_(iOst) {}
 	
         std::vector<InputFile> inputFiles_;
         std::vector<OutputFile> outputFiles_;
 	std::map<std::string, std::string> generatorInfo_;
+        std::ostream* ost_;
       };
 
       JobReport();
-
+      //Does not take ownership of pointer
+      JobReport(std::ostream* outputStream);
+      
       ~JobReport();
          
       /// Report that an input file has been opened.
