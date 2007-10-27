@@ -25,6 +25,7 @@
 
 #include <vector>
 #include <iosfwd>
+#include <cassert>
 
 //TODO remove
 #include <iostream>
