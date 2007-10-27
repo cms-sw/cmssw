@@ -39,7 +39,7 @@ namespace pos{
     PixelCalibConfiguration(std::string filename="");
 
     // This must be run before using commands that require the ROC list.
-    void buildROCAndModuleLists(PixelNameTranslation* translation);
+    void buildROCAndModuleLists(const PixelNameTranslation* translation);
 
     void nextFECState(PixelFECConfigInterface* pixelFEC,
 		      PixelDetectorConfig* detconfig,

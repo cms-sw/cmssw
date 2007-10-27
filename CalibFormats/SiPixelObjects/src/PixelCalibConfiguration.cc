@@ -200,7 +200,7 @@ PixelCalibConfiguration::PixelCalibConfiguration(std::string filename):
 
 }
 
-void PixelCalibConfiguration::buildROCAndModuleLists(PixelNameTranslation* translation)
+void PixelCalibConfiguration::buildROCAndModuleLists(const PixelNameTranslation* translation)
 {
 	assert( translation != 0 );
 	
