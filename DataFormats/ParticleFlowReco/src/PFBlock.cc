@@ -25,48 +25,51 @@ void PFBlock::bookLinkData() {
   linkData_.reserve( dataSize );
 
   // initialize linkData_ to -1 (no link)
-  linkData_.insert( linkData_.begin(), dataSize, -1);
+  vector<double> chi2Data;
+  chi2Data.insert( chi2Data.begin(), NLINKTYPES, -1 );
+  linkData_.insert( linkData_.begin(), dataSize, chi2Data );
 }
 
 
 
 void PFBlock::setLink(unsigned i1, unsigned i2, double chi2,
-                      std::vector<double>& linkData ) const {
+                      LinkData& linkData, 
+		      LinkType type) const {
   
   assert( linkData.size() == linkDataSize() );
-  
+  assert( type<NLINKTYPES );
   
   unsigned index = 0;
   bool ok =  matrix2vector(i1,i2, index);
   if(ok)
-    linkData[index] = chi2;
+    linkData[index][type] = chi2;
   else 
     assert(0);
   
 }
 
 
-void PFBlock::lock(unsigned i, std::vector<double>& linkData ) const {
+// void PFBlock::lock(unsigned i, LinkData& linkData ) const {
   
-  assert( linkData.size() == linkDataSize() );
+//   assert( linkData.size() == linkDataSize() );
   
-  for(unsigned j=0; j<elements_.size(); j++) {
+//   for(unsigned j=0; j<elements_.size(); j++) {
     
-    if(i==j) continue;
+//     if(i==j) continue;
     
-    unsigned index = 0;
-    bool ok =  matrix2vector(i,j, index);
-    if(ok)
-      linkData[index] = -1;
-    else 
-      assert(0);
-  }
-}
+//     unsigned index = 0;
+//     bool ok =  matrix2vector(i,j, index);
+//     if(ok)
+//       linkData[index] = -1;
+//     else 
+//       assert(0);
+//   }
+// }
 
 
 
 void PFBlock::associatedElements( unsigned i, 
-                                  const std::vector<double>& linkData, 
+                                  const LinkData& linkData, 
                                   map<double, unsigned>& sortedAssociates,
                                   PFBlockElement::Type type ) 
   const {
@@ -128,15 +131,17 @@ bool PFBlock::matrix2vector( unsigned iindex, unsigned jindex,
 
 
 double PFBlock::chi2( unsigned ie1, unsigned ie2,
-                      const vector<double>& linkData ) const {
+                      const LinkData& linkData, 
+		      LinkType  type ) const {
   
+  assert( type<NLINKTYPES );
   
   double chi2 = -1;
 
   unsigned index = 0;
   if( matrix2vector(ie1, ie2, index) ) {
     assert( index<linkData.size() );
-    chi2 = linkData[index]; 
+    chi2 = linkData[index][type]; 
   }
   return chi2;
 }
