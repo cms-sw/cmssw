@@ -48,13 +48,13 @@ std::pair<int,double> ElectronTkIsolation::getIso(const reco::PixelMatchGsfElect
   double ptSum =0.;
   //Take the electron track
   reco::GsfTrackRef tmpTrack = electron->gsfTrack() ;
-  math::XYZVector tmpElectronMomentumAtVtx = (*tmpTrack).innerMomentum () ; 
+  math::XYZVector tmpElectronMomentumAtVtx = (*tmpTrack).momentum () ; 
 
   for ( reco::TrackCollection::const_iterator itrTr  = (*trackCollection_).begin() ; 
                                               itrTr != (*trackCollection_).end()   ; 
 	   			              ++itrTr ) 
     {
-	math::XYZVector tmpTrackMomentumAtVtx = (*itrTr).innerMomentum () ; 
+	math::XYZVector tmpTrackMomentumAtVtx = (*itrTr).momentum () ; 
 	double this_pt  = sqrt( tmpTrackMomentumAtVtx.Perp2 () );
 	if ( this_pt < ptLow_ ) 
 	  continue ;  

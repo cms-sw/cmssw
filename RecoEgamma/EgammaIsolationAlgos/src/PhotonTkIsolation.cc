@@ -60,7 +60,7 @@ std::pair<int,double> PhotonTkIsolation::getIso(const reco::Candidate* photon) c
 
   //loop over tracks
   for(reco::TrackCollection::const_iterator trItr = trackCollection_->begin(); trItr != trackCollection_->end(); ++trItr){
-    math::XYZVector tmpTrackMomentumAtVtx = (*trItr).innerMomentum () ; 
+    math::XYZVector tmpTrackMomentumAtVtx = (*trItr).momentum () ; 
     double this_pt  = sqrt( tmpTrackMomentumAtVtx.Perp2 () );
     if ( this_pt < etLow_ ) 
       continue ;  
