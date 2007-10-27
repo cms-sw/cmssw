@@ -300,8 +300,8 @@ TH1F *nhitzero_noErr = new TH1F("nhitzero_noErr","nhit zero",11,7.5,18.5);
 TH1F *nhituno_noErr = new TH1F("nhituno_noErr","nhit uno",11,7.5,18.5); 
 TH1F *nhitdue_noErr = new TH1F("nhitdue_noErr","nhit due",11,7.5,18.5); 
 
-MyTree2->Project("nhitzero_noErr","fakerecnhit");
-MyTree2->Project("nhituno_noErr","fakerecnhit","fake==1");
+MyTree5->Project("nhitzero_noErr","fakerecnhit");
+MyTree5->Project("nhituno_noErr","fakerecnhit","fake==1");
 
 nhitdue_noErr->Add(nhitzero_noErr,nhituno_noErr,1,-1);
 
