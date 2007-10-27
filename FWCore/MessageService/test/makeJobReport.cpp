@@ -24,6 +24,7 @@
 void work()
 {
 
+  /*
   // We must initialize the plug-in manager first
   try {
     edmplugin::PluginManager::configure(edmplugin::standard::config());
@@ -59,10 +60,13 @@ void work()
 
   edm::ParameterSet * params_p = new edm::ParameterSet();
   edm::MessageLoggerQ::MLqCFG(params_p);
+   */
   
   
   std::cout << "Testing JobReport" << std::endl;
-  edm::JobReport * theReport = new edm::JobReport(); 
+  std::ostringstream ost;
+  {
+  std::auto_ptr<edm::JobReport> theReport(new edm::JobReport(&ost) ); 
   
   
 
@@ -106,8 +110,8 @@ void work()
   theReport->outputFileClosed(outFile);
   
   //edm::LogInfo("FwkJob") << "Is anybody out there?";
-
-  
+  }
+  std::cout << ost.str()<<std::endl;
 
 }
 
