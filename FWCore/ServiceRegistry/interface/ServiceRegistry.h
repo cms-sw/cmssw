@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Sep  5 13:33:00 EDT 2005
-// $Id: ServiceRegistry.h,v 1.9 2005/10/11 19:30:37 chrjones Exp $
+// $Id: ServiceRegistry.h,v 1.10 2006/06/13 22:32:35 wmtan Exp $
 //
 
 // system include files
@@ -25,6 +25,7 @@
 #include "FWCore/ServiceRegistry/interface/ServiceToken.h"
 #include "FWCore/ServiceRegistry/interface/ServiceLegacy.h"
 #include "FWCore/ServiceRegistry/interface/ServicesManager.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 // forward declarations
 namespace edm {
