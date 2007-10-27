@@ -11,7 +11,6 @@
 #include <boost/shared_ptr.hpp>
 
 #include <TClass.h>
-#include <TBufferXML.h>
 
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Framework/interface/ESProducer.h"
@@ -54,35 +53,7 @@ BeamSpotFakeConditions::produce(const BeamSpotObjectsRcd &record){
 
 
 	if ( ! usedummy ) {
-		
-		std::ifstream xmlFile(xmlCalibration.fullPath().c_str());
-		if (!xmlFile.good())
-			throw cms::Exception("BeamSpotFakeConditions")
-				<< "File \"" << xmlCalibration.fullPath()
-				<< "\" could not be opened for reading."
-				<< std::endl;
-		
-		std::ostringstream ss;
-		ss << xmlFile.rdbuf();
-		xmlFile.close();
-		
-		TClass *classType = 0;
-		void *ptr = TBufferXML(TBuffer::kRead).ConvertFromXMLAny(
-			ss.str().c_str(), &classType, kTRUE, kFALSE);
-		if (!ptr)
-			throw cms::Exception("BeamSpotFakeConditions")
-				<< "Unknown error parsing XML serialization"
-				<< std::endl;
-		
-		if (std::strcmp(classType->GetName(),
-						"BeamSpotCalibration")) {
-			classType->Destructor(ptr);
-			throw cms::Exception("BeamSpotFakeConditions")
-				<< "Serialized object has wrong C++ type."
-				<< std::endl;
-		}
-
-		return ReturnType(static_cast<BeamSpotObjects*>(ptr));
+	  //TBufferXML code removed from here...		
 	}
 	else {
 
