@@ -4,7 +4,7 @@ This is a generic main that can be used with any plugin and a
 PSet script.   See notes in EventProcessor.cpp for details about
 it.
 
-$Id: cmsRun.cpp,v 1.44 2007/10/17 22:06:45 wmtan Exp $
+$Id: cmsRun.cpp,v 1.45 2007/10/17 22:37:26 wmtan Exp $
 
 ----------------------------------------------------------------------*/  
 
@@ -29,6 +29,7 @@ $Id: cmsRun.cpp,v 1.44 2007/10/17 22:06:45 wmtan Exp $
 #include "FWCore/PluginManager/interface/PresenceFactory.h"
 #include "FWCore/MessageLogger/interface/JobReport.h"
 #include "FWCore/ServiceRegistry/interface/ServiceRegistry.h"
+#include "FWCore/ServiceRegistry/interface/ServiceWrapper.h"
 
 
 static char const* const kParameterSetOpt = "parameter-set";
@@ -105,14 +106,6 @@ int main(int argc, char* argv[])
     return 1;
   }
 
-
-  //
-  // Make JobReport Service up front
-  // 
-  std::string jobReportFile = "FrameworkJobReport.xml";
-  std::auto_ptr<edm::JobReport> jobRep(new edm::JobReport());  
-  edm::ServiceToken jobReportToken = 
-           edm::ServiceRegistry::createContaining(jobRep);
   
   //
   // Specify default services to be enabled with their default parameters.
@@ -201,6 +194,27 @@ int main(int argc, char* argv[])
   }
 #endif
 
+  //
+  // Decide whether to enable creation of job report xml file 
+  //  We do this first so any errors will be reported
+  // 
+  std::auto_ptr<std::ofstream> jobReportStreamPtr;
+  if (vm.count("jobreport")) {
+    std::string jobReportFile = vm["jobreport"].as<std::string>();
+    jobReportStreamPtr = std::auto_ptr<std::ofstream>( new std::ofstream(jobReportFile.c_str()) );
+  } else if (vm.count("enablejobreport")) {
+    jobReportStreamPtr = std::auto_ptr<std::ofstream>( new std::ofstream("FrameworkJobReport.xml") );
+  } 
+  //
+  // Make JobReport Service up front
+  // 
+  //NOTE: JobReport must have a lifetime shorter than jobReportStreamPtr so that when the JobReport destructor
+  // is called jobReportStreamPtr is still valid
+  std::auto_ptr<edm::JobReport> jobRepPtr(new edm::JobReport(jobReportStreamPtr.get()));  
+  boost::shared_ptr<edm::serviceregistry::ServiceWrapper<edm::JobReport> > jobRep( new edm::serviceregistry::ServiceWrapper<edm::JobReport>(jobRepPtr) );
+  edm::ServiceToken jobReportToken = 
+    edm::ServiceRegistry::createContaining(jobRep);
+  
   std::string fileName(vm[kParameterSetOpt].as<std::string>());
   boost::shared_ptr<edm::ProcessDesc> processDesc;
   try {
@@ -212,7 +226,7 @@ int main(int argc, char* argv[])
     longDesc << "Problem with configuration file " << fileName
              <<  "\n" << iException.what();
     int exitCode = 7002;
-    jobRep->reportError(shortDesc, longDesc.str(), exitCode);
+    jobRep->get().reportError(shortDesc, longDesc.str(), exitCode);
     edm::LogSystem(shortDesc) << longDesc.str() << "\n";
     return exitCode;
   }
@@ -224,17 +238,6 @@ int main(int argc, char* argv[])
   if (vm.count("mode")) {
     std::string jobMode = vm["mode"].as<std::string>();
     edm::MessageDrop::instance()->jobMode = jobMode;
-  }  
-
-  //
-  // Decide whether to enable creation of job report xml file 
-  // 
-  if (vm.count("jobreport")) {
-    std::string jr_name = vm["jobreport"].as<std::string>();
-    edm::MessageDrop::instance()->jobreport_name = jr_name;
-  } else if (vm.count("enablejobreport")) {
-    std::string jr_name = "*";
-    edm::MessageDrop::instance()->jobreport_name = jr_name;
   }  
 
   if(vm.count(kStrictOpt))
@@ -262,19 +265,19 @@ int main(int argc, char* argv[])
   }
   catch (cms::Exception& e) {
     rc = 8001;
-    edm::printCmsException(e, kProgramName, jobRep.get(), rc);
+    edm::printCmsException(e, kProgramName, &(jobRep->get()), rc);
   }
   catch(std::bad_alloc& bda) {
     rc = 8004;
-    edm::printBadAllocException(kProgramName, jobRep.get(), rc);
+    edm::printBadAllocException(kProgramName, &(jobRep->get()), rc);
   }
   catch (std::exception& e) {
     rc = 8002;
-    edm::printStdException(e, kProgramName, jobRep.get(), rc);
+    edm::printStdException(e, kProgramName, &(jobRep->get()), rc);
   }
   catch (...) {
     rc = 8003;
-    edm::printUnknownException(kProgramName, jobRep.get(), rc);
+    edm::printUnknownException(kProgramName, &(jobRep->get()), rc);
   }
   
   return rc;
