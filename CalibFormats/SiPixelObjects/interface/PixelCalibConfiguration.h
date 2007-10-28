@@ -159,7 +159,7 @@ namespace pos{
     std::map<std::string, std::string> parameters_;
     //       name         value
 
-    unsigned int _bufferData;
+    bool _bufferData;
 
   };
 }

@@ -19,7 +19,7 @@ using namespace pos;
 PixelCalibConfiguration::PixelCalibConfiguration(std::string filename):
   PixelCalibBase(), PixelConfigBase("","","") {
 
-  _bufferData=1;
+  _bufferData=false;
   
     std::ifstream in(filename.c_str());
 
