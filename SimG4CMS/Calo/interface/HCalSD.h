@@ -41,6 +41,7 @@ private:
   uint32_t              setDetUnitId(int, G4ThreeVector, int, int);
   std::vector<double>   getDDDArray(const std::string&, const DDsvalues_type&);
   std::vector<G4String> getNames(DDFilteredView&);
+  bool                  isItHF(G4Step *);
   bool                  isItHF(G4String);
   bool                  isItFibre(G4String);
   bool                  isItPMT(G4String);
@@ -62,6 +63,7 @@ private:
   bool                  useHF, useShowerLibrary, useParam, usePMTHit;
   std::vector<double>   layer0wt;
   std::vector<G4String> hfNames;
+  std::vector<int>      hfLevels;
   std::vector<G4String> fibreNames;
   std::vector<G4String> matNames;
   std::vector<G4String> pmtNames;

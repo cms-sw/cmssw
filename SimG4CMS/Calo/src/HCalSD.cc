@@ -87,11 +87,19 @@ HCalSD::HCalSD(G4String name, const DDCompactView & cpv,
     filter0.setCriteria(ddv0,DDSpecificsFilter::equals);
     DDFilteredView fv0(cpv);
     fv0.addFilter(filter0);
-    if (fv0.firstChild()) hfNames = getNames(fv0);
+    hfNames = getNames(fv0);
+    fv0.firstChild();
+    DDsvalues_type sv0(fv0.mergedSpecifics());
+    std::vector<double> temp =  getDDDArray("Levels",sv0);
     edm::LogInfo("HcalSim") << "HCalSD: Names to be tested for " << attribute 
-			    << " = " << value << ":";
-    for (unsigned int i=0; i<hfNames.size(); i++)
-      edm::LogInfo("HcalSim") << "HCalSD:  (" << i << ") " << hfNames[i];
+			    << " = " << value << " has " << hfNames.size()
+			    << " elements";
+    for (unsigned int i=0; i<hfNames.size(); i++) {
+      int level = static_cast<int>(temp[i]);
+      hfLevels.push_back(level);
+      edm::LogInfo("HcalSim") << "HCalSD:  HF[" << i << "] = " << hfNames[i]
+			      << " at level " << hfLevels[i];
+    }
   
     // HF Fibre volume names
     value     = "HFFibre";
@@ -176,7 +184,7 @@ bool HCalSD::ProcessHits(G4Step * aStep, G4TouchableHistory * ) {
   } else {
     G4String nameVolume = 
       aStep->GetPreStepPoint()->GetPhysicalVolume()->GetName();
-    if (isItHF(nameVolume) || isItFibre(nameVolume)) {
+    if (isItHF(aStep)) {
       G4String parType =aStep->GetTrack()->GetDefinition()->GetParticleName();
       if (useParam) {
 	LogDebug("HcalSim") << "HCalSD: Hit from parametrization in " 
@@ -234,7 +242,7 @@ double HCalSD::getEnergyDeposit(G4Step* aStep) {
 	if ((pdg == 2212) && (ke < kmaxProton))     weight = 0;
 	if ((pdg == 2112) && (ke < kmaxNeutron))    weight = 0;
 	if (weight == 0) {
-	  LogDebug("EcalSim") << "Ignore Track " << theTrack->GetTrackID()
+	  LogDebug("HcalSim") << "Ignore Track " << theTrack->GetTrackID()
 			      << " Type " << theTrack->GetDefinition()->GetParticleName()
 			      << " Kinetic Energy " << ke << " MeV";
 	}
@@ -298,7 +306,7 @@ std::vector<double> HCalSD::getDDDArray(const std::string & str,
     LogDebug("HcalSim") << value;
     const std::vector<double> & fvec = value.doubles();
     int nval = fvec.size();
-    if (nval < 2) {
+    if (nval < 1) {
       edm::LogError("HcalSim") << "HCalSD : # of " << str << " bins " << nval
 			       << " < 2 ==> illegal";
       throw cms::Exception("Unknown", "HCalSD")
@@ -327,6 +335,18 @@ std::vector<G4String> HCalSD::getNames(DDFilteredView& fv) {
     dodet = fv.next();
   }
   return tmp;
+}
+
+bool HCalSD::isItHF (G4Step * aStep) {
+  const G4VTouchable* touch    = aStep->GetPreStepPoint()->GetTouchable();
+  int levels = ((touch->GetHistoryDepth())+1);
+  for (unsigned int it=0; it < hfNames.size(); it++) {
+    if (levels >= hfLevels[it]) {
+      G4String name = touch->GetVolume(levels-hfLevels[it])->GetName();
+      if (name == hfNames[it]) return true;
+    }
+  }
+  return false;
 }
 
 bool HCalSD::isItHF (G4String name) {
