@@ -10,7 +10,7 @@
 //		to direct use of LogInfo.
 //
 // Original Author:  Marc Paterno
-// $Id: JobReport.cc,v 1.26 2007/10/22 21:10:17 fischler Exp $
+// $Id: JobReport.cc,v 1.27 2007/10/27 21:47:59 chrjones Exp $
 //
 
 
@@ -220,36 +220,8 @@ namespace edm
     void JobReport::JobReportImpl::writeOutputFile(JobReport::OutputFile const& f) {
       if (ost_) {
 	*ost_ << "\n<File>";
+        *ost_ <<f;
 
-
-// Was:	LogInfo("FwkJob") << f;
-
-	if (f.fileHasBeenClosed) {
-	  *ost_ << "\n<State  Value=\"closed\"/>";
-	} else {
-	  *ost_ << "\n<State  Value=\"open\"/>";
-	}
-	*ost_ << "\n<LFN>" << f.logicalFileName << "</LFN>";
-	*ost_ << "\n<PFN>" << f.physicalFileName << "</PFN>";
-	*ost_ << "\n<Catalog>" << f.catalog << "</Catalog>";
-	*ost_ << "\n<ModuleLabel>" << f.moduleLabel << "</ModuleLabel>";
-	*ost_ << "\n<GUID>" << f.guid << "</GUID>";
-	*ost_ << "\n<Runs>";
-	std::set<JobReport::RunNumber>::const_iterator iRun;
-	for ( iRun = f.runsSeen.begin(); iRun != f.runsSeen.end(); iRun++) {
-	  *ost_ << "\n  <Run>" << *iRun << "</Run>";
-	}
-	*ost_ << "\n</Runs>";
-	*ost_ << "\n<Branches>";
-	std::vector<std::string>::const_iterator iBranch;
-	for (iBranch = f.branchNames.begin(); 
-            iBranch != f.branchNames.end(); 
-            iBranch++) {
-	  *ost_ << "\n  <Branch>" << *iBranch << "</Branch>";
-	}
-	*ost_ << "\n</Branches>";
-
-	
 	*ost_ << "\n<LumiSections>";
 	std::vector<JobReport::LumiSectionReport>::const_iterator iLumi;
 	for (iLumi = f.lumiSections.begin();
