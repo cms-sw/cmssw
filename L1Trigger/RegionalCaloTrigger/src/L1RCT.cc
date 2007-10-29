@@ -414,9 +414,9 @@ void L1RCT::saveRCTInput(ostream& os)
 	      // tower numbered from 1-32
 	      for(unsigned short iTower = 1; iTower < 33; iTower++)
 		{
-		  unsigned short ecal = barrel[iCrate][iCard][iTower] / 2;
-		  unsigned short hcal = barrel[iCrate][iCard][iTower+32] / 2;
-		  unsigned short fgbit = barrel[iCrate][iCard][iTower] & 1;
+		  unsigned short ecal = barrel[iCrate][iCard][iTower-1] / 2; // barrel vector counts tower 0-63, not 1-64
+		  unsigned short hcal = barrel[iCrate][iCard][iTower+32-1] / 2;
+		  unsigned short fgbit = barrel[iCrate][iCard][iTower-1] & 1;
 		  unsigned long lutOutput = rctLookupTables_->lookup(ecal, hcal, fgbit, iCrate, iCard, iTower);
 		  os
 		    << std::hex 
@@ -424,8 +424,8 @@ void L1RCT::saveRCTInput(ostream& os)
 		    << iCrate << "\t"
 		    << iCard << "\t"
 		    << iTower << "\t"
-		    << barrel[iCrate][iCard][iTower] << "\t"
-		    << barrel[iCrate][iCard][iTower+32] << "\t"
+		    << barrel[iCrate][iCard][iTower-1] << "\t"
+		    << barrel[iCrate][iCard][iTower+32-1] << "\t"
 		    << lutOutput
 		    << std::dec 
 		    << std::endl;
