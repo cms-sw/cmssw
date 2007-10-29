@@ -26,10 +26,6 @@ namespace reco {
     RecoCandidate( Charge q, const LorentzVector & p4, const Point & vtx = Point( 0, 0, 0 ),
 		   int pdgId = 0, int status = 0 ) : 
       LeafCandidate( q, p4, vtx, pdgId, status ) { }
-    /// constructor from values
-    RecoCandidate( Charge q, const PolarLorentzVector & p4, const Point & vtx = Point( 0, 0, 0 ),
-		   int pdgId = 0, int status = 0 ) : 
-      LeafCandidate( q, p4, vtx, pdgId, status ) { }
     /// destructor
     virtual ~RecoCandidate();
     /// check overlap with another candidate
@@ -64,7 +60,7 @@ namespace reco {
     }
 
   private:
-    template<typename T> friend struct component; 
+    template<typename T, typename, typename> friend struct component; 
   };
 
   /// stand alone muon component tag
