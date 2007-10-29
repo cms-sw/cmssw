@@ -11,6 +11,7 @@
   <class name="reco::LeafCandidate" />
   <class name="reco::CompositeCandidate"/>
   <class name="reco::CompositeRefCandidate" />
+  <class name="reco::CompositePtrCandidate" />
   <class name="reco::CompositeRefBaseCandidate" />
   <class name="reco::ShallowCloneCandidate" />
   <class name="reco::candidate::iterator" />
@@ -19,6 +20,7 @@
   <class name="reco::candidate::iterator_imp" />
 
   <class name="reco::CandidateRef" />
+  <class name="reco::CandidatePtr" />
   <class name="reco::CandidateRefVector" />
   <class name="reco::CandidateRefProd" />
 
@@ -29,6 +31,7 @@
 
   <class name="edm::RefToBase<reco::Candidate>" />
   <class name="std::vector<edm::RefToBase<reco::Candidate> >" />
+  <class name="std::vector<edm::Ptr<reco::Candidate> >" />
 
   <class name="edm::reftobase::BaseVectorHolder<reco::Candidate>" />
   <class name="edm::reftobase::BaseVectorHolder<reco::Candidate>::const_iterator_imp" />
