@@ -13,7 +13,7 @@
 //
 // Original Author:  Freya Blekman
 //         Created:  Mon May  7 14:22:37 CEST 2007
-// $Id: SiPixelGainCalibrationAnalysis.cc,v 1.15 2007/10/18 13:56:35 fblekman Exp $
+// $Id: SiPixelGainCalibrationAnalysis.cc,v 1.16 2007/10/29 12:45:05 friis Exp $
 //
 //
 
@@ -407,8 +407,9 @@ SiPixelGainCalibrationAnalysis::analyze(const edm::Event& iEvent, const edm::Eve
        std::vector<std::pair<uint32_t, uint32_t> > colrowpairs(0);
        std::vector<PixelROCGainCalibPixel> pixels(0,PixelROCGainCalibPixel(calib_->nVcal()));
        if(vcalvalues_.size()==0){
-	 for(uint32_t ivcal=calib_->vcal_first();ivcal<=calib_->vcal_last(); ivcal+=1){
-	   vcalvalues_.push_back(ivcal);
+	 std::cout << "using new vector..." << std::endl;
+	 for(std::vector<short>::const_iterator ivcal=calib_->VCalValues().begin(); ivcal != calib_->VCalValues().end(); ++ivcal) {
+	   vcalvalues_.push_back( (*ivcal) );
 	 }
        }
        edm::LogInfo("SiPixelGainCalibrationAnalysis") << " adding new Det ID " << detid << " at position " << detIDmap_.size() << std::endl;
