@@ -25,4 +25,5 @@
  <class name="std::vector<BlobComplexObjects>"/>
  <class name="BlobComplex"/>
 
+ <class pattern="*iterator*"/>
 </lcgdict>   
