@@ -18,6 +18,7 @@
 
 #include "CondFormats/SiStripObjects/interface/SiStripNoises.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripDetCabling.h"
+#include "CalibFormats/SiStripObjects/interface/SiStripQuality.h"
 
 #include <map>
 #include <vector>
@@ -42,8 +43,9 @@ public:
 		     const SiStripRecHitMatcher*  hitMatcher,
 		     const TrackerGeometry*  trackerGeom,
 		     const GeometricSearchTracker* geometricSearchTracker,
-		     const SiStripDetCabling *stripCabling,
-		     const SiStripNoises *stripNoises,
+                     const SiStripQuality *quality,
+		     /* const SiStripDetCabling *stripCabling, */
+		     const SiStripNoises *stripNoises, 
 		     bool  isRegional=false);
 
   virtual ~MeasurementTracker();
@@ -87,6 +89,7 @@ public:
   const SiStripRecHitMatcher*           theHitMatcher;
   const TrackerGeometry*                theTrackerGeom;
   const GeometricSearchTracker*         theGeometricSearchTracker;
+  const SiStripQuality*                 theStripQuality;
   mutable SiStripNoises*                dummyStripNoises;  // not const
 
   bool isRegional_;
@@ -104,7 +107,8 @@ public:
 
   void addStripDets( const TrackingGeometry::DetContainer& dets) const;
 
-  void initializeStripStatus (const SiStripDetCabling *stripCabling) const;
+  /* void initializeStripStatus (const SiStripDetCabling *stripCabling) const; // LEGACY, DEPRECATED */
+  void initializeStripStatus (const SiStripQuality *stripQuality) const;
   void initializeStripNoises (const SiStripNoises *stripNoises) const;
 };
 

@@ -17,8 +17,10 @@
 
 #include "CondFormats/DataRecord/interface/SiStripNoisesRcd.h"
 #include "CondFormats/SiStripObjects/interface/SiStripNoises.h"
+
 #include "CalibTracker/Records/interface/SiStripDetCablingRcd.h"
-#include "CalibFormats/SiStripObjects/interface/SiStripDetCabling.h"
+#include "CalibTracker/Records/interface/SiStripQualityRcd.h"
+#include "CalibFormats/SiStripObjects/interface/SiStripQuality.h"
 
 #include "CalibFormats/SiStripObjects/interface/SiStripRegionCabling.h"
 #include "RecoTracker/MeasurementDet/interface/OnDemandMeasurementTracker.h"
@@ -47,18 +49,21 @@ MeasurementTrackerESProducer::produce(const CkfComponentsRecord& iRecord)
 
   bool onDemand = pset_.getParameter<bool>("OnDemand");
 
+  /* vvvv LEGACY, WILL BE REMOVED vvvv */
   const SiStripNoises *ptr_stripNoises = 0;
   edm::ESHandle<SiStripNoises>	stripNoises;
   if (pset_.getParameter<bool>("UseStripNoiseDB")) {
      iRecord.getRecord<SiStripNoisesRcd>().get(stripNoises);
      ptr_stripNoises = stripNoises.product();	
   }
+  /* ^^^^ LEGACY, WILL BE REMOVED ^^^^ */
 
-  const SiStripDetCabling *ptr_stripCabling = 0;
-  edm::ESHandle<SiStripDetCabling>		stripCabling;
-  if (pset_.getParameter<bool>("UseStripCablingDB")) {
-    iRecord.getRecord<SiStripDetCablingRcd>().get(stripCabling);
-    ptr_stripCabling = stripCabling.product();	
+  const SiStripQuality *ptr_stripQuality = 0;
+  edm::ESHandle<SiStripQuality>	stripQuality;
+
+  if (pset_.getParameter<bool>("UseStripModuleQualityDB")) {
+    iRecord.getRecord<SiStripQualityRcd>().get(stripQuality);
+    ptr_stripQuality = stripQuality.product();	
   }
   
   edm::ESHandle<PixelClusterParameterEstimator> pixelCPE;
@@ -81,7 +86,7 @@ MeasurementTrackerESProducer::produce(const CkfComponentsRecord& iRecord)
 										      hitMatcher.product(),
 										      trackerGeom.product(),
 										      geometricSearchTracker.product(),
-										      ptr_stripCabling,
+										      ptr_stripQuality,
 										      ptr_stripNoises,
 										      regional) ); 
   }
@@ -98,7 +103,7 @@ MeasurementTrackerESProducer::produce(const CkfComponentsRecord& iRecord)
 												 hitMatcher.product(),
 												 trackerGeom.product(),
 												 geometricSearchTracker.product(),
-												 ptr_stripCabling,
+												 ptr_stripQuality,
 												 ptr_stripNoises,
 												 ptr_stripRegionCabling,
 												 regional) );

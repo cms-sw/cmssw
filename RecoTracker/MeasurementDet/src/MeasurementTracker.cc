@@ -48,7 +48,8 @@ MeasurementTracker::MeasurementTracker(const edm::ParameterSet&              con
 				       const SiStripRecHitMatcher*  hitMatcher,
 				       const TrackerGeometry*  trackerGeom,
 				       const GeometricSearchTracker* geometricSearchTracker,
-				       const SiStripDetCabling *stripCabling,
+				       const SiStripQuality *stripQuality,
+				       /*const SiStripDetCabling *stripCabling,*/
 				       const SiStripNoises *stripNoises,
 				       bool isRegional) :
   pset_(conf),lastEventNumberPixels(0),lastEventNumberStrips(0),
@@ -58,7 +59,7 @@ MeasurementTracker::MeasurementTracker(const edm::ParameterSet&              con
   ,dummyStripNoises(0), isRegional_(isRegional)
 {
   this->initialize();
-  this->initializeStripStatus(stripCabling);
+  this->initializeStripStatus(stripQuality);
   this->initializeStripNoises(stripNoises);
 }
 
@@ -379,6 +380,29 @@ void MeasurementTracker::initializeStripNoises(const SiStripNoises *noises) cons
     }                                                                                         
 }                                       
 
+void MeasurementTracker::initializeStripStatus(const SiStripQuality *quality) const {
+  if (quality)  {
+    //std::pair<double,double> t1,t2,t3; 
+    //TimeMe timer("[*GIO*] MTuSS TimeMe",false); t1 = timer.lap();
+    unsigned int on = 0, tot = 0; 
+    for (std::vector<TkStripMeasurementDet*>::const_iterator i=theStripDets.begin();
+	 i!=theStripDets.end(); i++) {
+      uint32_t detid = ((**i).geomDet().geographicalId()).rawId();
+      bool isOn = ! quality->IsModuleBad(detid);
+      (*i)->setActive(isOn);
+      tot++; on += (unsigned int) isOn;
+    }
+    //t2 = timer.lap();
+    //edm::LogInfo("[*GIO*] MTuSS") << "It took " << (t2.first - t1.first) << " s (total) to dispatch " << tot << " modules";
+    std::cout << ("[*GIO*] MTuSS") << " Total modules: " << tot << ", active " << on <<", inactive " << (tot - on) << std::endl;
+  } else {
+    for (std::vector<TkStripMeasurementDet*>::const_iterator i=theStripDets.begin();
+	 i!=theStripDets.end(); i++) {
+      (*i)->setActive(true);
+    }
+  }
+}
+/* LEGACY METHOD - Deprecated
 void MeasurementTracker::initializeStripStatus(const SiStripDetCabling *cabling) const {
   if (cabling)  {
     //std::pair<double,double> t1,t2,t3; 
@@ -409,4 +433,4 @@ void MeasurementTracker::initializeStripStatus(const SiStripDetCabling *cabling)
     }
   }
 }
-
+*/
