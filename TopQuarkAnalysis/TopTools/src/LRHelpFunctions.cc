@@ -2,7 +2,7 @@
 // Author:  Jan Heyninck
 // Created: Tue Apr  3 17:33:23 PDT 2007
 //
-// $Id: LRHelpFunctions.cc,v 1.10 2007/07/24 15:26:44 heyninck Exp $
+// $Id$
 //
 #include "TopQuarkAnalysis/TopTools/interface/LRHelpFunctions.h"
 #include "TopQuarkAnalysis/TopTools/test/tdrstyle.C"
@@ -342,25 +342,26 @@ void  LRHelpFunctions::fillLRBackgroundHist(double val){
 void  LRHelpFunctions::makeAndFitPurityHists(){
 
   for(int b=0; b<=hLRtotS->GetNbinsX(); b++) {
-
     if(!(hLRtotS->GetBinContent(b)==0 && hLRtotB->GetBinContent(b)==0)) {
-
-      hLRtotSoverSplusB->SetBinContent(b,hLRtotS->GetBinContent(b)/(hLRtotS->GetBinContent(b)+hLRtotB->GetBinContent(b)));
-
-      Float_t error = sqrt((pow(hLRtotS->GetBinContent(b)*hLRtotB->GetBinError(b),2)+pow(hLRtotB->GetBinContent(b)*hLRtotS->GetBinError(b),2)))/
-      				pow((hLRtotS->GetBinContent(b)+hLRtotB->GetBinContent(b)),2);
-
-      hLRtotSoverSplusB->SetBinError(b,error);
+      float Sint = hLRtotS->Integral(b, hLRtotS->GetNbinsX());
+      float Bint = hLRtotB->Integral(b, hLRtotB->GetNbinsX());
+      if (Sint + Bint == 0) {
+        hLRtotSoverSplusB->SetBinContent(b,-1);
+        hLRtotSoverSplusB->SetBinError(b,0);
+      } else {
+        hLRtotSoverSplusB->SetBinContent(b,1. * Sint / (Sint + Bint));
+        hLRtotSoverSplusB->SetBinError(b,sqrt((pow(Sint*sqrt(Bint),2)+pow(Bint*sqrt(Sint),2)))/pow((Sint+Bint),2));
+      }
     }
   }
-  hLRtotSoverSplusB -> Fit(fLRtotSoverSplusB->GetName(),"RQ");  
+  hLRtotSoverSplusB -> Fit(fLRtotSoverSplusB->GetName(),"RQ"); 
   
-  double Eff[100], Pur[100], LRVal[100];
+  double Eff[200], Pur[200], LRVal[200];
   for(int cut=0; cut<=hLRtotS->GetNbinsX(); cut ++){
- 	double LRcutVal = hLRtotS->GetBinCenter(cut+1);
-	Eff[cut]   = 1.- hLRtotS->Integral(0,cut+1)/hLRtotS->Integral(0,50);
-	Pur[cut]   = fLRtotSoverSplusB->Eval(LRcutVal);
-	LRVal[cut] = hLRtotS->GetBinCenter(cut+1);
+        double LRcutVal = hLRtotS->GetBinCenter(cut+1);
+        Eff[cut]   = 1.- hLRtotS->Integral(0,cut+1)/hLRtotS->Integral(0,hLRtotS->GetNbinsX());
+        Pur[cut]   = fLRtotSoverSplusB->Eval(LRcutVal);
+        LRVal[cut] = hLRtotS->GetBinCenter(cut+1);
   }
   hEffvsPur = new TGraph(hLRtotS->GetNbinsX(),Eff,Pur);
   hEffvsPur -> SetName("hEffvsPur");
