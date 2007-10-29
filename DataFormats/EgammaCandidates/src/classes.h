@@ -1,5 +1,5 @@
 //
-// $Id: classes.h,v 1.19 2007/09/23 11:37:00 futyand Exp $
+// $Id: classes.h,v 1.20 2007/10/20 14:52:44 llista Exp $
 //
 #include "DataFormats/Common/interface/Wrapper.h"
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
@@ -36,6 +36,7 @@
 #include "DataFormats/EgammaCandidates/interface/PMGsfElectronIsoCollection.h"
 #include "DataFormats/EgammaCandidates/interface/PMGsfElectronIsoNumCollection.h"
 #include "DataFormats/EgammaCandidates/interface/PhotonPi0DiscriminatorAssociation.h"
+#include "DataFormats/EgammaCandidates/interface/PhotonCandidateAssociation.h"
 
 #include "DataFormats/Common/interface/RefToBase.h"
 #include "DataFormats/Common/interface/AssociationMap.h"
@@ -125,5 +126,7 @@ namespace {
     edm::reftobase::RefHolder<reco::ConvertedPhotonRef> rb32;
     edm::reftobase::VectorHolder<reco::Candidate, reco::ConvertedPhotonRefVector> rb33;
     edm::reftobase::RefVectorHolder<reco::ConvertedPhotonRefVector> rb34;
+
+    edm::Wrapper<reco::PhotonCandidateAssociation> pca1;
   }
 }
