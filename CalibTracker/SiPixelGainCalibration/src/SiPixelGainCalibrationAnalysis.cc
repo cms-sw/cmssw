@@ -13,7 +13,7 @@
 //
 // Original Author:  Freya Blekman
 //         Created:  Mon May  7 14:22:37 CEST 2007
-// $Id: SiPixelGainCalibrationAnalysis.cc,v 1.14 2007/10/02 18:37:28 fblekman Exp $
+// $Id: SiPixelGainCalibrationAnalysis.cc,v 1.15 2007/10/18 13:56:35 fblekman Exp $
 //
 //
 
@@ -176,14 +176,12 @@ bool SiPixelGainCalibrationAnalysis::doFits(){
 	  //error = calibPixels_[detid][ipixel].geterroreff(ipoint,calib_->nTriggers());
 	  double responseForErrorCalc = response;
 	  if (response >= 1) {
-	     response = 1;
 	     responseForErrorCalc = 1.0 - 0.5/calib_->nTriggers();
 	     edm::LogInfo("INFO") << "WARNING: Efficiency greater than one for " << histname.Data() << std::endl;
 	  } else if (response <= 0) {
 	     response = 0;
-	     responseForErrorCalc = 0.5/calib_->nTriggers();
 	  }
-	  error = TMath::Sqrt(responseForErrorCalc*(1-responseForErrorCalc))/calib_->nTriggers();
+	  error = TMath::Sqrt(responseForErrorCalc*(1-responseForErrorCalc)/calib_->nTriggers());
 	}
 	gr.SetBinContent(ipoint,response);
 	gr.SetBinError(ipoint,error);
@@ -409,7 +407,7 @@ SiPixelGainCalibrationAnalysis::analyze(const edm::Event& iEvent, const edm::Eve
        std::vector<std::pair<uint32_t, uint32_t> > colrowpairs(0);
        std::vector<PixelROCGainCalibPixel> pixels(0,PixelROCGainCalibPixel(calib_->nVcal()));
        if(vcalvalues_.size()==0){
-	 for(uint32_t ivcal=calib_->vcal_first();ivcal<=calib_->vcal_last(); ivcal+=calib_->vcal_step()){
+	 for(uint32_t ivcal=calib_->vcal_first();ivcal<=calib_->vcal_last(); ivcal+=1){
 	   vcalvalues_.push_back(ivcal);
 	 }
        }
