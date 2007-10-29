@@ -13,7 +13,7 @@
 //
 // Original Author:  Brian Drell
 //         Created:  Fri May 18 22:57:40 CEST 2007
-// $Id: V0Fitter.h,v 1.3 2007/08/31 00:45:39 drell Exp $
+// $Id: V0Fitter.h,v 1.4 2007/09/27 19:50:06 drell Exp $
 //
 //
 
@@ -44,6 +44,7 @@
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
+#include "Geometry/TrackerGeometryBuilder/interface/GluedGeomDet.h"
 
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
 
@@ -120,7 +121,7 @@ class V0Fitter {
   std::ofstream mPiPiMassOut;
 
   inline void initFileOutput() {
-    mPiPiMassOut.open("mPiPi.txt");
+    mPiPiMassOut.open("mPiPi.txt", ios::app);
   }
   inline void cleanupFileOutput() {
     mPiPiMassOut.close();

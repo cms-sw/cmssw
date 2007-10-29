@@ -13,6 +13,7 @@
 <use name=FWCore/ParameterSet>
 <use name=MagneticField/Records>
 <use name=MagneticField/VolumeBasedEngine>
+<use name=PhysicsTools/CandUtils>
 <use name=RecoVertex/KalmanVertexFit>
 <use name=RecoVertex/VertexPrimitives>
 <use name=TrackingTools/TransientTrack>
@@ -32,6 +33,7 @@
   <use name=FWCore/ParameterSet>
   <use name=MagneticField/Records>
   <use name=MagneticField/VolumeBasedEngine>
+  <use name=PhysicsTools/CandUtils>
   <use name=RecoVertex/KalmanVertexFit>
   <use name=RecoVertex/VertexPrimitives>
   <use name=TrackingTools/TransientTrack>
