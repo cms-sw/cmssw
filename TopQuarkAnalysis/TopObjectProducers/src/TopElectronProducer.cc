@@ -1,5 +1,5 @@
 //
-// $Id: TopElectronProducer.cc,v 1.26 2007/10/16 15:16:31 jlamb Exp $
+// $Id: TopElectronProducer.cc,v 1.27 2007/10/25 17:37:45 jlamb Exp $
 //
 
 #include "TopQuarkAnalysis/TopObjectProducers/interface/TopElectronProducer.h"
@@ -322,11 +322,10 @@ void TopElectronProducer::removeEleDupes(std::vector<TopElectron> *electrons) {
     }
   }
   //now remove the ones marked
-  //or in fact, copy the old vector into a tmp vector, clear the old vector, and copy
-  //back only the ones that aren't duplicates
+  //or in fact, copy the old vector into a tmp vector, skipping the ones that are duplicates,
+  //then clear the original and copy back the contents of the tmp
   //this is ugly but it will work
   std::vector<TopElectron> tmp;
-  tmp.assign(electrons->begin(),electrons->end());
   for (size_t ie=0;ie<electrons->size();ie++) {
     if (find(indicesToRemove.begin(),indicesToRemove.end(),ie)!=indicesToRemove.end()) {
       continue;
