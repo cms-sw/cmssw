@@ -74,7 +74,7 @@ double EgammaTowerIsolation::getTowerEtSum(const reco::Candidate* photon) const
       
     double dr = deltaEta*deltaEta + deltaPhi*deltaPhi;
     if( dr < extRadius_*extRadius_ &&
-        dr > intRadius_*intRadius_ )
+        dr >= intRadius_*intRadius_ )
       {
 	ptSum += this_pt;
       }

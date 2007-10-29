@@ -55,14 +55,14 @@ std::pair<int,double> ElectronTkIsolation::getIso(const reco::PixelMatchGsfElect
 	   			              ++itrTr ) 
     {
 	math::XYZVector tmpTrackMomentumAtVtx = (*itrTr).momentum () ; 
-	double this_pt  = sqrt( tmpTrackMomentumAtVtx.Perp2 () );
+	double this_pt  = (*itrTr).pt();
 	if ( this_pt < ptLow_ ) 
 	  continue ;  
 	if (fabs( (*itrTr).dz() - (*tmpTrack).dz() ) > lip_ )
           continue ;
 	double dr = DeltaR(tmpTrackMomentumAtVtx,tmpElectronMomentumAtVtx) ;
 	if ( fabs(dr) < extRadius_ && 
-	     fabs(dr) > intRadius_ )
+	     fabs(dr) >= intRadius_ )
 	  {
 	    ++counter ;
 	    ptSum += this_pt;

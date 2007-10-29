@@ -23,17 +23,20 @@
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 #include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
-#include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/VertexReco/interface/Vertex.h"
+#include "DataFormats/Candidate/interface/Particle.h"
 
 using namespace ROOT::Math::VectorUtil ;
 
 PhotonTkIsolation::PhotonTkIsolation (double extRadius,
 				      double intRadius,
 				      double etLow,
+				      double lip,
 				      const reco::TrackCollection* trackCollection)   :
   extRadius_(extRadius),
   intRadius_(intRadius),
   etLow_(etLow),
+  lip_(lip),
   trackCollection_(trackCollection)  
 {
 }
@@ -45,7 +48,7 @@ PhotonTkIsolation::~PhotonTkIsolation ()
 
 
 // unified acces to isolations
-std::pair<int,double> PhotonTkIsolation::getIso(const reco::Candidate* photon) const  
+std::pair<int,double> PhotonTkIsolation::getIso(const reco::Candidate* photon ) const  
 {
   int counter  =0 ;
   double ptSum =0.;
@@ -54,19 +57,24 @@ std::pair<int,double> PhotonTkIsolation::getIso(const reco::Candidate* photon) c
   //Take the SC position
   reco::SuperClusterRef sc = photon->get<reco::SuperClusterRef>();
   math::XYZPoint theCaloPosition = sc.get()->position();
-  math::XYZVector mom (theCaloPosition.x () ,
-		    theCaloPosition.y () ,
-		    theCaloPosition.z () );
+  reco::Particle::Point vtxPos = photon->vertex();
+  math::XYZVector mom (theCaloPosition.x() - vtxPos.x(),
+		    theCaloPosition.y() - vtxPos.y(),
+		    theCaloPosition.z() - vtxPos.z());
 
   //loop over tracks
   for(reco::TrackCollection::const_iterator trItr = trackCollection_->begin(); trItr != trackCollection_->end(); ++trItr){
-    math::XYZVector tmpTrackMomentumAtVtx = (*trItr).momentum () ; 
-    double this_pt  = sqrt( tmpTrackMomentumAtVtx.Perp2 () );
+
+    //check z-distance of vertex 
+    if (fabs( (*trItr).dz() - photon->vertex().z() ) >= lip_ ) continue ;
+
+    math::XYZVector tmpTrackMomentumAtVtx = (*trItr).momentum () ;
+    double this_pt  = (*trItr).pt();
     if ( this_pt < etLow_ ) 
       continue ;  
     double dr = DeltaR(tmpTrackMomentumAtVtx,mom) ;
     if(fabs(dr) < extRadius_ &&
-       fabs(dr) > intRadius_ )
+       fabs(dr) >= intRadius_ )
       {
 	++counter;
 	ptSum += this_pt;
