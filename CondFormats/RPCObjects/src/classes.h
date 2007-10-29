@@ -4,6 +4,9 @@
 
 #include "CondFormats/RPCObjects/interface/FebConnectorSpec.h"
 #include "CondFormats/RPCObjects/interface/L1RPCConfig.h"
+
+#include "CondFormats/RPCObjects/interface/RPCdbData.h"
+
 namespace{
   std::vector<ChamberStripSpec> theStrips;
 }

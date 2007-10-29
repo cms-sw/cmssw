@@ -45,7 +45,12 @@
   <class name="std::vector<std::vector<std::vector<std::vector<RPCPattern::TQuality> > > >"/>
   <class name="std::vector<std::vector<std::vector<std::vector<RPCPattern> > > >"/>
 
+  <class name="RPCdbData"/>
+  <class name="RPCdbData::Item"/>
+  <class name="std::vector<RPCdbData::Item>"/>
+
   <class pattern="*vector*"/>
   <class pattern="*map*"/>
+
 
 </lcgdict>
