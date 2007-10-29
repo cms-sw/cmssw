@@ -23,6 +23,7 @@ Toy EDProducers and EDProducts for testing purposes only.
 
 using namespace std;
 std::ofstream DBNoiseMatrixFile("dbmatrix.dat",std::ios::out);
+int counter=0;
 
 namespace edmtest
 {
@@ -52,8 +53,8 @@ namespace edmtest
     std::vector<CSCDBNoiseMatrix::Item>::const_iterator it;
 
     for( it=myNoiseMatrix->matrix.begin();it!=myNoiseMatrix->matrix.end(); ++it ){
-      //std::cout<<"matrix elem33: "<<it->elem33<<" matrix elem34: "<<it->elem34<<std::endl;
-      DBNoiseMatrixFile<<it->elem33<<" "<<it->elem34<<"  "<<it->elem44<<"  "<<it->elem35<<" "<<it->elem45<<"  "<<it->elem55<<"  "<<it->elem46<<"  "<<it->elem56<<"  "<<it->elem66<<"  "<<it->elem57<<"  "<<it->elem67<<"  "<<it->elem77<<std::endl;
+      counter++;
+      DBNoiseMatrixFile<<it->counter<<"  "<<elem33<<" "<<it->elem34<<"  "<<it->elem44<<"  "<<it->elem35<<" "<<it->elem45<<"  "<<it->elem55<<"  "<<it->elem46<<"  "<<it->elem56<<"  "<<it->elem66<<"  "<<it->elem57<<"  "<<it->elem67<<"  "<<it->elem77<<std::endl;
     }
   }
   DEFINE_FWK_MODULE(CSCNoiseMatrixDBReadAnalyzer);
