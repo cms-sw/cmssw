@@ -13,7 +13,7 @@
 //
 // Original Author:  Domenico GIORDANO
 //         Created:  Wed Oct  3 12:11:10 CEST 2007
-// $Id: SiStripQualityStatistics.cc,v 1.4 2007/10/25 12:29:14 giordano Exp $
+// $Id: SiStripQualityStatistics.cc,v 1.5 2007/10/29 12:26:55 giordano Exp $
 //
 //
 #include "CalibTracker/Records/interface/SiStripQualityRcd.h"
@@ -34,8 +34,11 @@ SiStripQualityStatistics::SiStripQualityStatistics( const edm::ParameterSet& iCo
   printdebug_(iConfig.getUntrackedParameter<bool>("printDebug",false)),
   m_cacheID_(0), 
   dataLabel_(iConfig.getUntrackedParameter<std::string>("dataLabel","")),
-  TkMapFileName_(iConfig.getUntrackedParameter<std::string>("TkMapFileName","TkMapBadComponents.svg"))
-{}
+  TkMapFileName_(iConfig.getUntrackedParameter<std::string>("TkMapFileName","TkMapBadComponents.svg")),
+  fp_(iConfig.getUntrackedParameter<edm::FileInPath>("file",edm::FileInPath("CalibTracker/SiStripCommon/data/SiStripDetInfo.dat")))
+{  
+  reader = new SiStripDetInfoFileReader(fp_.fullPath());
+}
 
 void SiStripQualityStatistics::analyze( const edm::Event& e, const edm::EventSetup& iSetup){
 
@@ -163,6 +166,7 @@ void SiStripQualityStatistics::analyze( const edm::Event& e, const edm::EventSet
   //&&&&&&&&&&&&&&&&&&
 
   ss.str("");
+  ss << "\n-----------------\nNew IOV starting from run " <<   e.id().run() << "\n-----------------\n";
   ss << "\n-----------------\nGlobal Info\n-----------------";
   ss << "\nBadComponent \t   Modules \tFibers \tApvs\tStrips\n----------------------------------------------------------------";
   ss << "\nTracker:\t\t"<<NTkBadComponent[0]<<"\t"<<NTkBadComponent[1]<<"\t"<<NTkBadComponent[2]<<"\t"<<NTkBadComponent[3];
@@ -220,21 +224,30 @@ void SiStripQualityStatistics::analyze( const edm::Event& e, const edm::EventSet
 
 
 void SiStripQualityStatistics::SetBadComponents(int i, int component,SiStripQuality::BadComponent& BC){
-  
+
+  int napv=reader->getNumberOfApvsAndStripLength(BC.detid).first;
+
   ssV[i][component] << "\n\t\t " 
 		    << BC.detid 
 		    << " \t " << BC.BadModule << " \t " 
-		    << ( (BC.BadFibers)&0x1 ) << " " 
-		    << ( (BC.BadFibers>>1)&0x1 ) << " " 
-		    << ( (BC.BadFibers>>2)&0x1 )
-		    << " \t " 
+		    << ( (BC.BadFibers)&0x1 ) << " ";
+  if (napv==4)
+    ssV[i][component] << "x " <<( (BC.BadFibers>>1)&0x1 );
+  
+  if (napv==6)
+    ssV[i][component] << ( (BC.BadFibers>>1)&0x1 ) << " "
+		      << ( (BC.BadFibers>>2)&0x1 );
+  ssV[i][component] << " \t " 
 		    << ( (BC.BadApvs)&0x1 ) << " " 
-		    << ( (BC.BadApvs>>1)&0x1 ) << " " 
-		    << ( (BC.BadApvs>>2)&0x1 ) << " " 
-		    << ( (BC.BadApvs>>3)&0x1 ) << " " 
-		    << ( (BC.BadApvs>>4)&0x1 ) << " " 
-		    << ( (BC.BadApvs>>5)&0x1 ) << " " 
-    ;
+		    << ( (BC.BadApvs>>1)&0x1 ) << " ";
+  if (napv==4) 
+    ssV[i][component] << "x x " << ( (BC.BadApvs>>2)&0x1 ) << " " 
+		      << ( (BC.BadApvs>>3)&0x1 );
+  if (napv==6) 
+    ssV[i][component] << ( (BC.BadApvs>>2)&0x1 ) << " " 
+		      << ( (BC.BadApvs>>3)&0x1 ) << " " 
+		      << ( (BC.BadApvs>>4)&0x1 ) << " " 
+		      << ( (BC.BadApvs>>5)&0x1 ) << " "; 
 
   if (BC.BadApvs){
     NBadComponent[i][0][2]+= ( (BC.BadApvs>>5)&0x1 )+ ( (BC.BadApvs>>4)&0x1 ) + ( (BC.BadApvs>>3)&0x1 ) + 
