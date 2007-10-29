@@ -13,7 +13,7 @@
 //
 // Original Author:  Chi Nhan Nguyen
 //         Created:  Mon Feb 19 13:25:24 CST 2007
-// $Id: FastL1GlobalAlgo.cc,v 1.26 2007/10/18 10:14:03 smaruyam Exp $
+// $Id: FastL1GlobalAlgo.cc,v 1.27 2007/10/23 21:05:48 smaruyam Exp $
 //
 
 // No BitInfos for release versions
@@ -32,9 +32,12 @@ FastL1GlobalAlgo::FastL1GlobalAlgo(const edm::ParameterSet& iConfig)
   // Get L1 config
   m_L1Config.DoEMCorr = iConfig.getParameter<bool>("DoEMCorr");
   m_L1Config.DoJetCorr = iConfig.getParameter<bool>("DoJetCorr");
- m_DoBitInfo = iConfig.getParameter<bool>("DoBitInfo");
+  m_DoBitInfo = iConfig.getParameter<bool>("DoBitInfo");
+  m_NewIso = iConfig.getParameter<bool>("NewIso");
 
   // get uncompressed hcal et
+  m_IsolationEt = iConfig.getParameter<double>("IsolationEt");
+
   m_L1Config.HcalLUT = iConfig.getParameter<edm::FileInPath>("HcalLUT");
 
   m_L1Config.EMSeedEnThreshold = iConfig.getParameter<double>("EMSeedEnThreshold");
@@ -168,11 +171,20 @@ FastL1GlobalAlgo::findJets() {
 
     if (m_Regions.at(i).SumEt()>m_L1Config.JetSeedEtThreshold) {
       if (isMaxEtRgn_Window33(i)) {
+if (m_NewIso == false){ // old iso
 	if (isTauJet(i) && (i%22)>3 && (i%22)<18 ) {
 	  addJet(i,true);    
 	} else {
 	  addJet(i,false);    
 	}
+} // old iso
+if (m_NewIso == true) { // new iso
+        if (newTau(i) && (i%22)>3 && (i%22)<18 ) {
+          addJet(i,true);
+        } else {
+          addJet(i,false);
+        }
+}// new iso
       }
 else {  if (m_DoBitInfo) m_Regions[i].BitInfo.setMaxEt ( true);}
     } else {
@@ -1091,6 +1103,101 @@ FastL1GlobalAlgo::isEMCand(CaloTowerDetId cid, l1extra::L1EmParticle* ph,const e
   
   return 2;    
 }
+
+
+// Et Check
+bool
+FastL1GlobalAlgo::newTau(int cRgn) {
+
+  if ((cRgn%22)<4 || (cRgn%22)>17) return false;
+
+double iso_threshold =  m_IsolationEt; // arbitrarily set
+int shower_shape = 0;
+int new_isolation = 0;
+unsigned int iso_count = 0;
+
+  int nwid = m_Regions[cRgn].GetNWId();
+  int nid = m_Regions[cRgn].GetNorthId();
+  int neid = m_Regions[cRgn].GetNEId();
+  int wid = m_Regions[cRgn].GetWestId();
+  int eid = m_Regions[cRgn].GetEastId();
+  int swid = m_Regions[cRgn].GetSWId();
+  int sid = m_Regions[cRgn].GetSouthId();
+  int seid = m_Regions[cRgn].GetSEId();
+
+  if (m_Regions[cRgn].GetTauBit()) shower_shape = 1; // check center
+if((cRgn%22)==4  || (cRgn%22)==17 ) {
+  // west border
+  if ((cRgn%22)==4) {
+if( m_Regions[neid].SumEt() > iso_threshold) iso_count ++;
+if( m_Regions[nid].SumEt() > iso_threshold) iso_count ++;
+if( m_Regions[eid].SumEt() > iso_threshold) iso_count ++;
+if( m_Regions[seid].SumEt() > iso_threshold) iso_count ++;
+if( m_Regions[sid].SumEt() > iso_threshold) iso_count ++;
+
+    if (iso_count >= 2 ){
+ if (m_DoBitInfo){
+ m_Regions[cRgn].BitInfo.setIsolationVeto ( true);
+// m_Regions[cRgn].BitInfo.setIsolationCount ( iso_count);
+}
+new_isolation = 1;
+}
+else{ new_isolation = 2;}
+  } // west bd
+
+  // east border:
+  if ((cRgn%22)==17) {
+if( m_Regions[nwid].SumEt() > iso_threshold) iso_count ++;
+if( m_Regions[nid].SumEt() > iso_threshold) iso_count ++;
+if( m_Regions[wid].SumEt() > iso_threshold) iso_count ++;
+if( m_Regions[swid].SumEt() > iso_threshold) iso_count ++;
+if( m_Regions[sid].SumEt() > iso_threshold) iso_count ++;
+
+    if (iso_count >= 2 ){
+ if (m_DoBitInfo){
+ m_Regions[cRgn].BitInfo.setIsolationVeto ( true);
+// m_Regions[cRgn].BitInfo.setIsolationCount ( iso_count);
+}
+new_isolation = 1;
+}
+else{ new_isolation = 2;}
+  } // east bd
+
+// Closing 2x3 method
+if (new_isolation == 1 || shower_shape == 1 ) return false; // done at boarder
+if (new_isolation == 2 && shower_shape == 0) return true; // done at boarder
+}
+
+if ( (cRgn%22)>4 && (cRgn%22)<17){ // non-boarder
+  if (nwid==999 || neid==999 || nid==999 || swid==999 || seid==999 || sid==999 || wid==999 ||
+      eid==999 ) {
+    return false;
+  }
+
+if( m_Regions[neid].SumEt() > iso_threshold) iso_count ++;
+if( m_Regions[nid].SumEt() > iso_threshold) iso_count ++;
+if( m_Regions[eid].SumEt() > iso_threshold) iso_count ++;
+if( m_Regions[seid].SumEt() > iso_threshold) iso_count ++;
+if( m_Regions[sid].SumEt() > iso_threshold) iso_count ++;
+if( m_Regions[nwid].SumEt() > iso_threshold) iso_count ++;
+if( m_Regions[wid].SumEt() > iso_threshold) iso_count ++;
+if( m_Regions[swid].SumEt() > iso_threshold) iso_count ++;
+
+    if (iso_count >= 2 ){
+ if (m_DoBitInfo){
+ m_Regions[cRgn].BitInfo.setIsolationVeto ( true);
+// m_Regions[cRgn].BitInfo.setIsolationCount ( iso_count);
+}
+new_isolation = 1;
+}
+  else {new_isolation = 2;}
+
+if (new_isolation == 1 || shower_shape == 1) return false;
+if (new_isolation == 2 && shower_shape == 0) return true;
+}// non-boarder
+
+return true; // shouldn't reach here
+}//
 
 
 // is central region the highest Et Region?
