@@ -54,7 +54,7 @@ namespace edmtest
 
     for( it=myNoiseMatrix->matrix.begin();it!=myNoiseMatrix->matrix.end(); ++it ){
       counter++;
-      DBNoiseMatrixFile<<it->counter<<"  "<<elem33<<" "<<it->elem34<<"  "<<it->elem44<<"  "<<it->elem35<<" "<<it->elem45<<"  "<<it->elem55<<"  "<<it->elem46<<"  "<<it->elem56<<"  "<<it->elem66<<"  "<<it->elem57<<"  "<<it->elem67<<"  "<<it->elem77<<std::endl;
+      DBNoiseMatrixFile<<counter<<"  "<<it->elem33<<" "<<it->elem34<<"  "<<it->elem44<<"  "<<it->elem35<<" "<<it->elem45<<"  "<<it->elem55<<"  "<<it->elem46<<"  "<<it->elem56<<"  "<<it->elem66<<"  "<<it->elem57<<"  "<<it->elem67<<"  "<<it->elem77<<std::endl;
     }
   }
   DEFINE_FWK_MODULE(CSCNoiseMatrixDBReadAnalyzer);
