@@ -8,7 +8,7 @@
  <Constant name="dLTrap"      value="11.5*cm"/>
  <Constant name="rMinBSC"     value="22.5*cm"/>
  <Constant name="rMaxBSC"     value="45.4*cm"/>
- <Constant name="zposBSC"     value="[cms:MuonBeamZ2]-[dzBSC]"/>
+ <Constant name="zposBSC"     value="[forwardshield:FixShldZ1]-[dzBSC]"/>
  </ConstantsSection>
 
 <SolidSection label="brm.xml">
@@ -61,16 +61,10 @@
 
 <PosPartSection label="brm.xml">
  <PosPart copyNumber="1">
-   <rParent name="cms:CMSE"/>
+   <rParent name="forwardshield:OQUA"/>
    <rChild name="brm:BSC"/>
   <rRotation name="brmrotations:B45R"/>
   <Translation x="0*fm" y="0*fm" z="[zposBSC]" />
- </PosPart>
- <PosPart copyNumber="2">
-   <rParent name="cms:CMSE"/>
-   <rChild name="brm:BSC"/>
-  <rRotation name="brmrotations:B45R"/>
-  <Translation x="0*fm" y="0*fm" z="-[zposBSC]" />
  </PosPart>
  <PosPart copyNumber="1">
    <rParent name="brm:BSC"/>
