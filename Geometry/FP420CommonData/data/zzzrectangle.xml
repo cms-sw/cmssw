@@ -936,7 +936,7 @@
   <rRotation name="FP420Rot:FP420MAIN"/>
  </PosPart>
  <PosPart copyNumber="1">
-   <rParent name="zzzrectangle:EdgeIn"/>
+   <rParent name="zzzrectangle:EdgeOut"/>
    <rChild name="zzzrectangle:BellowsIn"/>
   <Translation x="0*fm" y="0*fm" z="0*fm" />
   <rRotation name="FP420Rot:FP420MAIN"/>

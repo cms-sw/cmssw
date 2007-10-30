@@ -3,51 +3,21 @@
 
 <ConstantsSection label="fp420.xml" eval="true">
  <Constant name="Rmin"         value="0*fm"/>
- <Constant name="HallZ"        value="500.0*m"/>
- <Constant name="HallR"        value="3.0*m"/>
  <Constant name="HfpZ"         value="30.0*m"/>
  <Constant name="HfpR"         value="1.0*m"/>
- <Constant name="ZMainShift" value="420.0*m"/>
+ <Constant name="ZMainShift"   value="420.0*m"/>
 </ConstantsSection>
 
 <SolidSection label="fp420.xml">
- <Tubs name="OCMS" rMin="[Rmin]" rMax="[HallR]" dz="[HallZ]" 
-                   startPhi="0*deg" deltaPhi="360*deg"/>
  <Tubs name="FP420E" rMin="[Rmin]" rMax="[HfpR]" dz="[HfpZ]" 
                    startPhi="0*deg" deltaPhi="360*deg"/>
 </SolidSection>
 
 <LogicalPartSection label="fp420.xml">
- <LogicalPart name="OCMS" category="unspecified">
-  <rSolid name="OCMS"/>
-  <rMaterial name="materialsfp420:Vacuum"/>
- </LogicalPart>
  <LogicalPart name="FP420E" category="unspecified">
   <rSolid name="FP420E"/>
   <rMaterial name="materialsfp420:Vacuum"/>
  </LogicalPart>
 </LogicalPartSection>
-
-<!--  -->
-<!--3D DETECTOR IS DESCRIBED IN POSITIVE Y DIRECTION  -->
-<!--  -->
-<!-- ONE HAVE TO PUT IT IN +(OR -) X -->
-<!--  -->
-<!--DO ROTATION IN 90 DEGREE USING  FP420R090 TO EXCHANGE X AND Y -->
-<!-- DETECTOR WILL LIE AT (-X) -->
-<!--  -->
-<!--DO ROTATION IN 270 DEGREE USING  FP420R270 TO EXCHANGE X AND Y -->
-<!-- DETECTOR WILL LIE AT (+X) -->
-<!--  -->
-<!--  -->
-<PosPartSection label="fp420.xml">
- <PosPart copyNumber="1">
-   <rParent name="fp420:OCMS"/>
-   <rChild name="fp420:FP420E"/>
-  <Translation x="0*fm" y="0*fm" z="[ZMainShift]" />
-  <rRotation name="FP420Rot:FP420R090"/>
- </PosPart>
-</PosPartSection>
-
 
 </DDDefinition>
