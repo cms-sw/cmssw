@@ -47,13 +47,11 @@ using namespace HepMC;
 
 FamosManager::FamosManager(edm::ParameterSet const & p)
     : iEvent(0),
-      //      myGenEvent(0),
       myPileUpSimulator(0),
       myCalorimetry(0),
       m_pUseMagneticField(p.getParameter<bool>("UseMagneticField")),
       m_Tracking(p.getParameter<bool>("SimulateTracking")),
       m_Calorimetry(p.getParameter<bool>("SimulateCalorimetry")),
-      m_PileUp(p.getParameter<bool>("SimulatePileUp")),
       m_TRandom(p.getParameter<bool>("UseTRandomEngine")),
       m_pRunNumber(p.getUntrackedParameter<int>("RunNumber",1)),
       m_pVerbose(p.getUntrackedParameter<int>("Verbosity",1))
@@ -92,12 +90,7 @@ FamosManager::FamosManager(edm::ParameterSet const & p)
 			  random);
 
   // Initialize PileUp Producer (if requested)
-  if ( m_PileUp ) {
-    myPileUpSimulator = 
-      new PileUpSimulator(mySimEvent,
-			  p.getParameter<edm::ParameterSet>("PileUpSimulator"),
-			  random);
-  }
+  myPileUpSimulator = new PileUpSimulator(mySimEvent);
 
   // Initialize Calorimetry Fast Simulation (if requested)
   if ( m_Calorimetry) 
@@ -169,7 +162,8 @@ void FamosManager::setupGeometryAndField(const edm::EventSetup & es)
 
 void 
 FamosManager::reconstruct(const HepMC::GenEvent* evt,
-			  const reco::CandidateCollection* particles) 
+			  const reco::CandidateCollection* particles,
+			  const HepMC::GenEvent* pu) 
 {
 
   //  myGenEvent = evt;
@@ -187,16 +181,13 @@ FamosManager::reconstruct(const HepMC::GenEvent* evt,
 
 
     //    mySimEvent->printMCTruth(*evt);
-    /* 
+    /*
     mySimEvent->print();
     std::cout << "----------------------------------------" << std::endl;
     */
 
     // Get the pileup events and add the particles to the main event
-    if ( myPileUpSimulator ) { 
-      myPileUpSimulator->produce();
-      myPileUpSimulator->save();
-    }
+    myPileUpSimulator->produce(pu);
 
     /*
     mySimEvent->print();
