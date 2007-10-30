@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue May  8 15:07:03 EDT 2007
-// $Id: Event.cc,v 1.9 2007/08/17 17:51:51 chrjones Exp $
+// $Id: Event.cc,v 1.10 2007/08/23 23:20:52 wmtan Exp $
 //
 
 // system include files
@@ -215,6 +215,34 @@ TBranch* findBranch(TTree* iTree, const std::string& iMainLabels, const std::str
   return iTree->GetBranch(branchName.c_str());
 }
 
+
+static
+void getBranchData(edm::EDProductGetter* iGetter,
+                   Long64_t iEventIndex,
+                   internal::Data& iData)
+{
+  GetterOperate op(iGetter);
+  
+  //WORK AROUND FOR ROOT!!
+  //Create a new instance so that we can clear any cache the object uses
+  //this slows the code down 
+  ROOT::Reflex::Object obj = iData.obj_;
+  iData.obj_ = iData.obj_.TypeOf().Construct();
+  iData.pObj_ = iData.obj_.Address();
+  iData.branch_->SetAddress(&(iData.pObj_));
+  //If a REF to this was requested in the past, we might as well do the work now
+  if(0!=iData.pProd_) {
+    //The type is the same so the offset will be the same
+    void* p = iData.pProd_;
+    iData.pProd_ = reinterpret_cast<edm::EDProduct*>(static_cast<char*>(iData.obj_.Address())+(static_cast<char*>(p)-static_cast<char*>(obj.Address())));
+  }
+  obj.Destruct();
+  //END OF WORK AROUND
+  
+  iData.branch_->GetEntry(iEventIndex);
+  iData.lastEvent_=iEventIndex;  
+}
+
 void 
 Event::getByLabel(const std::type_info& iInfo,
                   const char* iModuleLabel,
@@ -344,32 +372,11 @@ Event::getByLabel(const std::type_info& iInfo,
   if(eventIndex_ != itFind->second->lastEvent_) {
     //haven't gotten the data for this event
     //std::cout <<" getByLabel getting data"<<std::endl;
-
-    //Make sure the edm::Ref* talk to this Event
-    GetterOperate op(getter_.get());
-
-    //WORK AROUND FOR ROOT!!
-    //Create a new instance so that we can clear any cache the object uses
-    //this slows the code down 
-    ROOT::Reflex::Object obj = itFind->second->obj_;
-    itFind->second->obj_ = itFind->second->obj_.TypeOf().Construct();
-    itFind->second->pObj_ = itFind->second->obj_.Address();
-    itFind->second->branch_->SetAddress(&(itFind->second->pObj_));
-    //If a REF to this was requested in the past, we might as well do the work now
-    if(0!=itFind->second->pProd_) {
-      //The type is the same so the offset will be the same
-      void* p = itFind->second->pProd_;
-      itFind->second->pProd_ = reinterpret_cast<edm::EDProduct*>(static_cast<char*>(itFind->second->obj_.Address())+(static_cast<char*>(p)-static_cast<char*>(obj.Address())));
-    }
-    obj.Destruct();
-    //END OF WORK AROUND
-    
-    itFind->second->branch_->GetEntry(eventIndex_);
-    itFind->second->lastEvent_=eventIndex_;
+    getBranchData(getter_.get(), eventIndex_, *(itFind->second));
   }
   *pOData = itFind->second->obj_.Address();
-}
 
+}
 
 const edm::ProcessHistory& 
 Event::history() const
@@ -474,28 +481,7 @@ Event::getByProductID(edm::ProductID const& iID) const
   }
   if(eventIndex_ != itFound->second->lastEvent_) {
     //haven't gotten the data for this event
-    //std::cout <<" getByProductID getting data"<<std::endl;
-    //Make sure the edm::Ref* talk to this Event
-    GetterOperate op(getter_.get());
-
-    //WORK AROUND FOR ROOT!!
-    //Create a new instance so that we can clear any cache the object uses
-    //this slows the code down 
-    ROOT::Reflex::Object obj = itFound->second->obj_;
-    itFound->second->obj_ = itFound->second->obj_.TypeOf().Construct();
-    itFound->second->pObj_ = itFound->second->obj_.Address();
-    itFound->second->branch_->SetAddress(&(itFound->second->pObj_));
-    //If a REF to this was requested in the past, we might as well do the work now
-    if(0!=itFound->second->pProd_) {
-      //The type is the same so the offset will be the same
-      void* p = itFound->second->pProd_;
-      itFound->second->pProd_ = reinterpret_cast<edm::EDProduct*>(static_cast<char*>(itFound->second->obj_.Address())+(static_cast<char*>(p)-static_cast<char*>(obj.Address())));
-    }
-    obj.Destruct();
-    //END OF WORK AROUND
-    
-    itFound->second->branch_->GetEntry(eventIndex_);
-    itFound->second->lastEvent_=eventIndex_;
+    getBranchData(getter_.get(), eventIndex_, *(itFound->second));
   }  
   if(0==itFound->second->pProd_) {
     //std::cout <<"  need to convert"<<std::endl;
