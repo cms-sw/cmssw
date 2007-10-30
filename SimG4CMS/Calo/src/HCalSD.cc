@@ -210,8 +210,16 @@ bool HCalSD::ProcessHits(G4Step * aStep, G4TouchableHistory * ) {
 	}
       }
     } else if (isItPMT(nameVolume)) {
+      LogDebug("HcalSim") << "HCalSD: Hit from PMT parametrization from " 
+			  <<  nameVolume << " for Track " 
+			  << aStep->GetTrack()->GetTrackID() << " ("
+			  << aStep->GetTrack()->GetDefinition()->GetParticleName() << ")";
       if (usePMTHit && showerPMT) getHitPMT(aStep);
     } else {
+      LogDebug("HcalSim") << "HCalSD: Hit from PMT parametrization from " 
+			  <<  nameVolume << " for Track " 
+			  << aStep->GetTrack()->GetTrackID() << " ("
+			  << aStep->GetTrack()->GetDefinition()->GetParticleName() << ")";
       if (getStepInfo(aStep)) {
 	if (hitExists() == false && edepositEM+edepositHAD>0.) 
 	  currentHit = createNewHit();
@@ -443,7 +451,7 @@ void HCalSD::hitForFibre (G4Step* aStep) {
   theTrack      = aStep->GetTrack();
   int primaryID = setTrackID(aStep);
 
-  int det   = (preStepPoint->GetTouchable()->GetReplicaNumber(1))/1000;
+  int det   = 5;
   int nHit  = hfshower->getHits(aStep);
 
   G4String particleType = theTrack->GetDefinition()->GetParticleName();
@@ -495,7 +503,7 @@ void HCalSD::getFromParam (G4Step* aStep) {
     preStepPoint  = aStep->GetPreStepPoint();
     int primaryID = setTrackID(aStep);
    
-    int det   = (preStepPoint->GetTouchable()->GetReplicaNumber(1))/1000;
+    int det   = 5;
     LogDebug("HcalSim") << "HCalSD::getFromParam " << nHit << " hits for " 
 			<< GetName() << " of " << primaryID << " with " 
 			<<  aStep->GetTrack()->GetDefinition()->GetParticleName()
@@ -540,7 +548,7 @@ void HCalSD::getHitPMT (G4Step* aStep) {
     resetForNewPrimary(posGlobal, etrack);
 
     //
-    int    det       = 5;
+    int    det      = static_cast<int>(HcalForward);
     G4ThreeVector hitPoint = preStepPoint->GetPosition();   
     double rr       = (hitPoint.x()*hitPoint.x() + hitPoint.y()*hitPoint.y());
     double phi      = (rr == 0. ? 0. :atan2(hitPoint.y(),hitPoint.x()));
