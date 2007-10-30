@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Sat Jun 16 06:48:39 EDT 2007
-// $Id: ChainEvent.cc,v 1.1 2007/06/18 16:22:00 chrjones Exp $
+// $Id: ChainEvent.cc,v 1.2 2007/06/28 23:32:47 wmtan Exp $
 //
 
 // system include files
@@ -43,7 +43,7 @@ namespace fwlite {
         itEnd = iFileNames.end();
         it!=itEnd;
         ++it) {
-      file_ = boost::shared_ptr<TFile>(new TFile(it->c_str()));
+      file_ = boost::shared_ptr<TFile>(TFile::Open(it->c_str()));
       TTree* tree = dynamic_cast<TTree*>(file_->Get("Events"));
       if(0==tree) {
         throw cms::Exception("NotEdmFile")<<"The file "<<*it<<" has no 'Events' TTree and therefore is not an EDM ROOT file";
@@ -137,7 +137,7 @@ void
 ChainEvent::switchToFile(Long64_t iIndex)
 {
   eventIndex_= iIndex;
-  file_ = boost::shared_ptr<TFile>(new TFile(fileNames_[iIndex].c_str()));
+  file_ = boost::shared_ptr<TFile>(TFile::Open(fileNames_[iIndex].c_str()));
   event_ = boost::shared_ptr<Event>( new Event(file_.get()));
 }
 //
