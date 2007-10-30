@@ -1,8 +1,8 @@
  /*
  * \file DTDigiTask.cc
  * 
- * $Date: 2007/10/09 08:33:01 $
- * $Revision: 1.31 $
+ * $Date: 2007/10/09 13:31:25 $
+ * $Revision: 1.32 $
  * \author M. Zanetti - INFN Padova
  *
  */
@@ -312,10 +312,14 @@ void DTDigiTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 
   bool doSync = true;
 
-  if (!(layerExist((*(dtdigis->begin())).first))) {
-
+  int digiSize = 0;
+  for (DTDigiCollection::DigiRangeIterator dtLayerId_It=dtdigis->begin(); dtLayerId_It!=dtdigis->end(); ++dtLayerId_It){
+    digiSize++;
+  }
+  
+  if (digiSize == 0) {
     doSync = false;
-    cout << "Event " << nevents << " contains wrong layer ID " << endl;
+    cout << "Event " << nevents << " empty." << endl;
   }
 
   if (doSync) {
@@ -531,19 +535,3 @@ string DTDigiTask::triggerSource() {
 
 }
 
-bool DTDigiTask::layerExist(DTLayerId lId) {
-
-  bool res = true;
-  int sl = lId.superlayer();
-  int station = lId.station();
-  int sector = lId.sector();
-  int wheel = lId.wheel();
-
-  if ((sl < 1) || (sl > 3)) res = false;
-  if ((station < 1) || (station > 4)) res = false;
-  if ((sector < 1) || (sector > 14)) res = false;
-  if ((wheel < -2) || (wheel > 2)) res = false;
-
-  return res;
-
-}

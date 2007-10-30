@@ -4,8 +4,8 @@
 /*
  * \file DTDigiTask.h
  *
- * $Date: 2007/08/27 14:17:26 $
- * $Revision: 1.13 $
+ * $Date: 2007/09/20 07:19:09 $
+ * $Revision: 1.14 $
  * \author M. Zanetti - INFN Padova
  *
 */
@@ -71,8 +71,6 @@ protected:
 
   /// get the L1A source
   std::string triggerSource();
-
-  bool layerExist(DTLayerId lId);
 
 private:
 
