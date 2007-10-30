@@ -5,7 +5,7 @@
  *
  *
  *
- *  $Date: 2007/10/30 07:47:45 $
+ *  $Date: 2007/10/30 15:17:25 $
  *  $Revision: 1.1 $
  *
  *  \author Martin Grunewald
@@ -22,6 +22,7 @@ namespace reco
 {
 
   typedef math::PtEtaPhiMLorentzVectorF TrigFourMomentum;
+
 
   /// individual physics object (e.g., electron or muon or jet)
   class TrigObject {
@@ -46,6 +47,7 @@ namespace reco
     const int & getId() const {return objectId_;}
 
   };
+
 
   /// collection of physics objects (e.g., all electrons or all muons)
   class TrigCollection {
@@ -72,7 +74,9 @@ namespace reco
 
   };
 
+
   /// collection of physics object collections (all electrons and muons and...)
+  /// only needed if we want _one_ EDProduct containing _all_ collections!
   class TrigGlobalCollection {
 
   private:
@@ -84,9 +88,14 @@ namespace reco
     TrigGlobalCollection(): trigCollections_() { }
     TrigGlobalCollection(const std::vector<TrigCollection>& trigCollections):
       trigCollections_(trigCollections) { }
+    ///
+    void addCollection(const TrigCollection& trigCollection) {
+      trigCollections_.push_back(trigCollection);}
+    const TrigCollection& getCollection(int i) const {
+      return trigCollections_.at(i);
+    }
 
   };
-
 
 
   /// Pointer to a physics object within a collection
@@ -111,6 +120,7 @@ namespace reco
     int getIndex() const {return index_;}
 
   };
+
 
   /// Collection of pointers to physics objects belonging to a trigger path
   class TrigPathCollection {
@@ -137,18 +147,26 @@ namespace reco
 
   };
 
+
   /// Collection of pointer collections describing the trigger table
+  /// only needed if we want _one_ EDProduct containing _all_ collections!
   class TrigTableCollection {
 
   private:
     std::vector<TrigPathCollection> trigPathCollections_;
 
   public:
+    /// constructors
+    TrigTableCollection(): trigPathCollections_() { }
+    TrigTableCollection(const std::vector<TrigPathCollection>& trigPathCollections):
+      trigPathCollections_(trigPathCollections) { }
+    ///
     void addPathCollection(const TrigPathCollection& trigPathCollection) {
       trigPathCollections_.push_back(trigPathCollection);}
     const TrigPathCollection& getPathCollection(int i) const {
       return trigPathCollections_.at(i);
     }
+
   };
 
 }
