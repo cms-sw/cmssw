@@ -365,7 +365,7 @@ void DDTECModuleAlgo::execute() {
   if(isStereo){
     xpos = 0.5*topFrameBotWidth - bl2*cos(detTilt) - dz*sin(fabs(detTilt-fabs(thet)))/cos(fabs(thet));
     xpos = -xpos;
-    zpos = topFrameEndZ -topFrame2RHeight+ 0.5*sin(detTilt)*(topFrameBotWidth - topFrame2Width)-dz*cos(detTilt-fabs(thet))/cos(fabs(thet))-bl2*sin(detTilt);
+    zpos = topFrameEndZ -topFrame2RHeight+ 0.5*sin(detTilt)*(topFrameBotWidth - topFrame2Width)-dz*cos(detTilt-fabs(thet))/cos(fabs(thet))-bl2*sin(detTilt)-0.1*mm;
   }
   //position it
   doPos(sideFrameRight,xpos,ypos,zpos,waferRot);
