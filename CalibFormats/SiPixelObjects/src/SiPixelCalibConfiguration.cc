@@ -98,7 +98,7 @@ SiPixelCalibConfiguration::SiPixelCalibConfiguration(const pos::PixelCalibConfig
 
 uint32_t SiPixelCalibConfiguration::nRowPatterns() const{
  uint32_t nrows = 0;
- for(std::vector<short>::iterator i;i!=fRowPattern.end();++i){
+ for(std::vector<short>::const_iterator i=fRowPattern.begin();i!=fRowPattern.end();++i){
    if(*i == -1)
     nrows++;
   }
@@ -107,7 +107,7 @@ uint32_t SiPixelCalibConfiguration::nRowPatterns() const{
 uint32_t SiPixelCalibConfiguration::nColumnPatterns() const{
   uint32_t ncols = 0;
   
-  for(std::vector<short>::iterator i;i!=fColumnPattern.end();++i){
+  for(std::vector<short>::const_iterator i=fColumnPattern.begin();i!=fColumnPattern.end();++i){
     if(*i == -1)
     ncols++;
   }

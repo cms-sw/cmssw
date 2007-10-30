@@ -46,7 +46,7 @@ class SiPixelCalibConfiguration
   uint32_t nVcal() const {return fVCalValues.size();}
   uint32_t vcal_first() const {return (uint32_t) fVCalValues[0];}
   uint32_t vcal_last() const {return (uint32_t) fVCalValues[fVCalValues.size()-1];}
-  uint32_t vcal_step() const {return (uint32_t) (vcal_last()- vcal_first())/nVcal();}
+  uint32_t vcal_step() const {return (uint32_t) (1+vcal_last()- vcal_first())/nVcal();}
   uint32_t nTriggers() const {return (uint32_t) NTriggers();}
   // new access methods
   short vcalForEvent(const uint32_t & eventnumber) const;
