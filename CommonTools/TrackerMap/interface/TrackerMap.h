@@ -1,3 +1,5 @@
+#ifndef _TrackerMap_h_
+#define _TrackerMap_h_
 #include <string>
 #include <iostream>
 #include <fstream>
@@ -281,5 +283,5 @@ void defwindow(int num_lay){
   
   float oldz;
 };
-
+#endif
 

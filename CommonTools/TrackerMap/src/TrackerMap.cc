@@ -220,6 +220,7 @@ void TrackerMap::save(bool print_total,float minval, float maxval,std::string s,
   outputfilename.erase(outputfilename.begin()+outputfilename.find("."),outputfilename.end());
   temporary_file=true;
   if(filetype=="svg")temporary_file=false;
+
   ostringstream outs;
   minvalue=minval; maxvalue=maxval;
   outs << outputfilename << ".coor";
@@ -327,21 +328,21 @@ if(col) col->SetRGB((Double_t)(red/255.),(Double_t)(green/255.),(Double_t)(blue/
     tempfile.clear();
     tempfile.seekg(0,ios::beg);
     cout << "created palette with " << ncolor << " colors" << endl;
+    TPolyLine*  pline = new TPolyLine();
     while(!tempfile.eof()) {//create polylines
       tempfile  >> red >> green  >> blue >> npoints; 
       for (int i=0;i<npoints;i++){
 	tempfile >> x[i] >> y[i];  
       }
-      TPolyLine pline(npoints,y,x);
       colindex=red+green*1000+blue*1000000;
       pos=colorList.find(colindex); 
       if(pos != colorList.end()){
-	pline.SetFillColor(colorList[colindex]);
-	pline.SetLineWidth(0);
-        pline.Draw("f");
+	pline->SetFillColor(colorList[colindex]);
+	pline->SetLineWidth(0);
+        pline->DrawPolyLine(npoints,y,x,"f");
       }
     }
-    
+    MyC->Update();
     if(filetype=="png"){
       string filename = outputfilename + ".png";
       MyC->Print(filename.c_str());
@@ -360,6 +361,7 @@ if(col) col->SetRGB((Double_t)(red/255.),(Double_t)(green/255.),(Double_t)(blue/
     system(command1);
     MyC->Clear();
     delete MyC;
+    delete pline;
   }
   
   
