@@ -332,13 +332,13 @@ if(col) col->SetRGB((Double_t)(red/255.),(Double_t)(green/255.),(Double_t)(blue/
       for (int i=0;i<npoints;i++){
 	tempfile >> x[i] >> y[i];  
       }
-      TPolyLine* pline = new TPolyLine(npoints,y,x);
+      TPolyLine pline(npoints,y,x);
       colindex=red+green*1000+blue*1000000;
       pos=colorList.find(colindex); 
       if(pos != colorList.end()){
-	pline->SetFillColor(colorList[colindex]);
-	pline->SetLineWidth(0);
-        pline->Draw("f");
+	pline.SetFillColor(colorList[colindex]);
+	pline.SetLineWidth(0);
+        pline.Draw("f");
       }
     }
     
@@ -358,6 +358,8 @@ if(col) col->SetRGB((Double_t)(red/255.),(Double_t)(green/255.),(Double_t)(blue/
     command1=command.c_str();
     cout << "Executing " << command1 << endl;
     system(command1);
+    MyC->Clear();
+    delete MyC;
   }
   
   
