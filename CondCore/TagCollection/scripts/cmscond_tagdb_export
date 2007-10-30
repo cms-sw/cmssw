@@ -1,0 +1,18 @@
+#!/usr/bin/env python
+from ConfigParser import ConfigParser
+from optparse import OptionParser, Option, OptionValueError
+import coral
+from CondCore.TagCollection import exporter
+
+class tagdbExporter:
+   def __init__(self):
+        """
+	Class export the entire database schema 
+        usage: %prog [options]
+        -c, --connect=connectstring: connection string to the tag DB (required)
+        -u, --user=user: user name
+        -p, --password=password: password
+        -P, --path=path: path to authentication.xml
+        -v, --verbose: switch on verbose mode
+        -h, --help: print usage
+        """
