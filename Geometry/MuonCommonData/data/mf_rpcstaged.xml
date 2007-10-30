@@ -3505,7 +3505,7 @@ RE4 stage volumes -->
    <rParent name="mf_rpcstaged:ME3Ring"/>
    <rChild name="mf_rpcstaged:ME31Space"/>
   <rRotation name="rotations:R025"/>
-  <Translation x="0*fm " y="0*fm " z="45.8875mm " />
+  <Translation x="0*fm " y="0*fm " z="45.8875*mm " />
  </PosPart>
  <Division name="ME31SpaceDivision" parent="ME31Space" axis="phi" offset="-20*deg" width="40*deg"/>
  <PosPart copyNumber="1">
