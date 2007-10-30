@@ -54,6 +54,7 @@ namespace {
     TopObject<TopParticleType>                            to_part;
     TopLepton<TopElectronType>                            tl_el;
     TopLepton<TopMuonType>                                tl_mu;
+    TopLepton<TopTauType>                                 tl_tau;
     TopElectron                                           el; 
     TopTau                                                tau; 
     TopMuon                                               mu; 

@@ -25,6 +25,7 @@
   <class name="TopObject<TopParticleType>" />
   <class name="TopLepton<TopElectronType>" />
   <class name="TopLepton<TopMuonType>" />
+  <class name="TopLepton<TopTauType>" />
   <class name="TopElectron" />
   <class name="TopTau" />
   <class name="TopMuon" />

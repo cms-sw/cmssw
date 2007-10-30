@@ -1,23 +1,47 @@
-//
-// $Id: TopTau.h,v 1.1 2007/09/20 18:12:22 lowette Exp $
-//
-
 #ifndef TopObjects_TopTau_h
 #define TopObjects_TopTau_h
 
+/**
+  \class    TopTau TopTau.h "AnalysisDataFormats/TopObjects/interface/TopTau.h"
+  \brief    High-level top tau container
+
+   TopTau contains a tau as a TopObject, and provides the means to
+   store and retrieve the high-level additional information.
+
+  \author   Christophe Delaere
+  \version  $Id: TopTau.h,v 1.2 2007/10/04 15:41:54 delaer Exp $
+*/
 
 #include "DataFormats/TauReco/interface/BaseTau.h"
 #include "DataFormats/BTauReco/interface/IsolatedTauTagInfo.h"
 
 #include "AnalysisDataFormats/TopObjects/interface/TopLepton.h"
 
-
-//typedef reco::IsolatedTauTagInfo TopTauType;
 typedef reco::BaseTau TopTauType;
 
+class TopTau : public TopLepton<TopTauType> {
 
-/// definition of TopTau as a TopLepton of TopTauType
-typedef TopLepton<TopTauType> TopTau;
+  friend class TopTauProducer;
 
+  public:
+
+    TopTau();
+    TopTau(const TopTauType&);
+    virtual ~TopTau();
+
+    double getEmEnergyFraction() const { return emEnergyFraction_; }
+    double getEoverP() const { return eOverP_; }
+  
+  protected: 
+    
+    void setEmEnergyFraction(double fraction) { emEnergyFraction_ = fraction; }
+    void setEoverP(double EoP) { eOverP_ = EoP; } 
+  
+  private:
+
+    double emEnergyFraction_;
+    double eOverP_;
+  
+};
 
 #endif

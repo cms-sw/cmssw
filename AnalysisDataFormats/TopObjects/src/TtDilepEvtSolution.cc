@@ -1,5 +1,5 @@
 //
-// $Id$
+// $Id: TtDilepEvtSolution.cc,v 1.11 2007/10/24 21:12:35 lowette Exp $
 //
 
 #include "AnalysisDataFormats/TopObjects/interface/TtDilepEvtSolution.h"
@@ -35,6 +35,7 @@ TopTau      TtDilepEvtSolution::getTaum() const      { return *taum_; }
 TopMET      TtDilepEvtSolution::getMET() const       { return *met_; }
 
 
+// methods to get the MC matched particles
 const edm::RefProd<TtGenEvent> & TtDilepEvtSolution::getGenEvent() const { return theGenEvt_; }
 const reco::Candidate * TtDilepEvtSolution::getGenT() const    { if (!theGenEvt_) return 0; else return theGenEvt_->top(); }
 const reco::Candidate * TtDilepEvtSolution::getGenWp() const   { if (!theGenEvt_) return 0; else return theGenEvt_->wPlus(); }
@@ -46,7 +47,6 @@ const reco::Candidate * TtDilepEvtSolution::getGenWm() const   { if (!theGenEvt_
 const reco::Candidate * TtDilepEvtSolution::getGenBbar() const { if (!theGenEvt_) return 0; else return theGenEvt_->bBar(); }
 const reco::Candidate * TtDilepEvtSolution::getGenLepm() const { if (!theGenEvt_) return 0; else return theGenEvt_->lepton(); }
 const reco::Candidate * TtDilepEvtSolution::getGenNbar() const { if (!theGenEvt_) return 0; else return theGenEvt_->neutrinoBar(); }
-
 
 // methods to explicitly get reconstructed and calibrated objects 
 TopJetType TtDilepEvtSolution::getRecJetB() const    { return this->getJetB().getRecJet(); }
