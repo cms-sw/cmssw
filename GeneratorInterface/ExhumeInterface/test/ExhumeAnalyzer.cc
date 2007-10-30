@@ -11,24 +11,24 @@
 #include "CLHEP/Vector/LorentzVector.h"
 
 #include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "PhysicsTools/UtilAlgos/interface/TFileService.h"
 
 #include "TH1D.h"
 #include "TFile.h"
 
-ExhumeAnalyzer::ExhumeAnalyzer(const edm::ParameterSet& iConfig){}
-
-void ExhumeAnalyzer::beginJob(edm::EventSetup const&iSetup){
-	edm::Service<TFileService> fs;
-	hist_eta = fs->make<TH1D>("hist_eta","#eta system",100,-4.5,4.5);
-	hist_t1 = fs->make<TH1D>("hist_t1","t proton 1",100,-1.4,0);
-	hist_xigen1 = fs->make<TH1D>("hist_xigen1","#xi proton 1",100,0.,0.1);
-	hist_t2 = fs->make<TH1D>("hist_t1","t proton 1",100,-1.4,0);
-	hist_xigen2 = fs->make<TH1D>("hist_xigen2","#xi proton 2",100,0.,0.1);
-	hist_sHat = fs->make<TH1D>("hist_sHat", "Central inv. mass",100,118.,122.);
-	hist_MX = fs->make<TH1D>("hist_MX", "Missing mass",100,118.,122.);
+ExhumeAnalyzer::ExhumeAnalyzer(const edm::ParameterSet& iConfig){
+	outputFilename=iConfig.getUntrackedParameter<std::string>("OutputFilename","dummy.root");
+        std::cout << "Output file: " << outputFilename << std::endl;
+        hist_eta = new TH1D("hist_eta","#eta system",100,-4.5,4.5);
+        hist_t1 = new TH1D("hist_t1","t proton 1",100,-1.4,0);
+        hist_xigen1 = new TH1D("hist_xigen1","#xi proton 1",100,0.,0.1);
+        hist_t2 = new TH1D("hist_t1","t proton 1",100,-1.4,0);
+        hist_xigen2 = new TH1D("hist_xigen2","#xi proton 2",100,0.,0.1);
+        hist_sHat = new TH1D("hist_sHat", "Central inv. mass",100,118.,122.);
+        hist_MX = new TH1D("hist_MX", "Missing mass",100,118.,122.);
 }
+
+void ExhumeAnalyzer::beginJob(edm::EventSetup const&iSetup) {}
+
 ExhumeAnalyzer::~ExhumeAnalyzer() {}
 
 // ------------ method called to for each event  ------------
@@ -94,7 +94,18 @@ ExhumeAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 }
 
 // ------------ method called once each job just after ending the event loop  ------------
-void ExhumeAnalyzer::endJob() {}
+void ExhumeAnalyzer::endJob() {
+	// save histograms into file
+	TFile file(outputFilename.c_str(),"RECREATE");
+	hist_eta->Write();
+	hist_t1->Write();
+	hist_xigen1->Write();
+	hist_t2->Write();
+	hist_xigen2->Write();
+	hist_sHat->Write();
+	hist_MX->Write();	
+	file.Close();
+}
 
 //define this as a plug-in
 DEFINE_FWK_MODULE(ExhumeAnalyzer);
