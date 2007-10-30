@@ -2,7 +2,7 @@
 // Author:  Christophe Delaere
 // Created: Thu Jul  26 11:08:00 CEST 2007
 //
-// $Id: TopTauProducer.cc,v 1.9 2007/10/09 00:22:34 lowette Exp $
+// $Id: TopTauProducer.cc,v 1.10 2007/10/11 14:53:10 delaer Exp $
 //
 
 #include "TopQuarkAnalysis/TopObjectProducers/interface/TopTauProducer.h"
@@ -108,6 +108,12 @@ void TopTauProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
       if(!disc) continue;
       // construct the TopTau
       TopTau aTau(*thePFTau);
+      // set the additional variables
+      const reco::PFJet *pfJet = dynamic_cast<const reco::PFJet*>(thePFTau->pfTauTagInfoRef()->pfjetRef().get());
+      if(pfJet) {
+        aTau.setEmEnergyFraction(pfJet->chargedEmEnergyFraction()+pfJet->neutralEmEnergyFraction());
+        aTau.setEoverP(thePFTau->energy()/thePFTau->leadTrack()->p());
+      }
       // add the tau to the vector of TopTaus
       topTaus->push_back(TopTau(aTau));
     }
@@ -119,6 +125,12 @@ void TopTauProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
       if(!disc) continue;
       // construct the TopTau
       TopTau aTau(*theCaloTau);
+      // set the additional variables
+      const reco::CaloJet *tauJet = dynamic_cast<const reco::CaloJet*>(theCaloTau->caloTauTagInfoRef()->calojetRef().get());
+      if(tauJet) {
+        aTau.setEmEnergyFraction(tauJet->emEnergyFraction());
+        aTau.setEoverP(tauJet->energy()/theCaloTau->leadTrack()->p());
+      }
       // add the tau to the vector of TopTaus
       topTaus->push_back(TopTau(aTau));
     }
