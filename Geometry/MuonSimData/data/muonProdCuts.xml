@@ -20,7 +20,7 @@
     <PartSelector path="//YE1.*"/>  
     <PartSelector path="//YE2.*"/>  
     <PartSelector path="//YE3.*"/>  
-    <PartSelector path="//YE4.*"/>  
+<!-- if you want to re-stage YE4, then remove the comments around this element   <PartSelector path="//YE4.*"/>   -->
     <PartSelector path="//ShieldingME4.*"/>  
     <PartSelector path="//ShieldingBoronPoly.*"/>  
     <PartSelector path="//ME11SupportDisk"/>  
