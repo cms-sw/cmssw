@@ -1,5 +1,5 @@
 // File and Version Information:
-//      $Id: SprTrainedBagger.hh,v 1.5 2007/07/11 19:52:09 narsky Exp $
+//      $Id: SprTrainedBagger.hh,v 1.6 2007/10/25 22:11:08 narsky Exp $
 //
 // Description:
 //      Class SprTrainedBagger :
@@ -86,6 +86,8 @@ public:
       classifiers[i] = trained_[i].first;
   }
 
+  unsigned nClassifiers() const { return trained_.size(); }
+
   /*
     Local modifiers.
   */
@@ -93,7 +95,13 @@ public:
   void setDiscrete() { discrete_ = true; }
   bool discrete() const { return discrete_; }
 
+  // addition
+  SprTrainedBagger& operator+=(const SprTrainedBagger& other);
+
 private:
+  friend const SprTrainedBagger operator+(const SprTrainedBagger& l,
+					  const SprTrainedBagger& r);
+
   void destroy();
 
   std::vector<std::pair<const SprAbsTrainedClassifier*,bool> > trained_;
@@ -101,3 +109,4 @@ private:
 };
 
 #endif
+

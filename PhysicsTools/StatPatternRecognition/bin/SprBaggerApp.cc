@@ -1,4 +1,4 @@
-//$Id: SprBaggerApp.cc,v 1.4 2007/10/05 20:03:09 narsky Exp $
+//$Id: SprBaggerApp.cc,v 1.5 2007/10/25 22:11:09 narsky Exp $
 
 #include "PhysicsTools/StatPatternRecognition/interface/SprExperiment.hh"
 #include "PhysicsTools/StatPatternRecognition/interface/SprAbsFilter.hh"
@@ -56,6 +56,8 @@ void help(const char* prog)
   cout << "\t-K keep this fraction in training set and          " << endl;
   cout << "\t\t put the rest into validation set                " << endl;
   cout << "\t-D randomize training set split-up                 " << endl;
+  cout << "\t-G generate seed from time of day for bootstrap    " << endl;
+  cout << "\t\t (this option is required for parallelization)   " << endl;
   cout << "\t-t read validation/test data from a file           " << endl;
   cout << "\t\t (must be in same format as input data!!!        " << endl;
   cout << "\t-d frequency of print-outs for validation data     " << endl;
@@ -105,12 +107,13 @@ int main(int argc, char ** argv)
   bool split = false;
   double splitFactor = 0;
   bool splitRandomize = false;
+  bool initBootstrapFromTimeOfDay = false;
 
   // decode command line
   int c;
   extern char* optarg;
   //  extern int optind;
-  while((c = getopt(argc,argv,"ha:An:y:bg:m:v:f:r:K:Dt:d:w:V:z:")) != EOF ) {
+  while((c = getopt(argc,argv,"ha:An:y:bg:m:v:f:r:K:DGt:d:w:V:z:")) != EOF ) {
     switch( c )
       {
       case 'h' :
@@ -155,6 +158,9 @@ int main(int argc, char ** argv)
 	break;
       case 'D' :
 	splitRandomize = true;
+	break;
+      case 'G' :
+	initBootstrapFromTimeOfDay = true;
 	break;
       case 't' :
 	valFile = optarg;
@@ -427,6 +433,12 @@ int main(int argc, char ** argv)
     bagger.reset(new SprArcE4(filter.get(),cycles,discrete));
   else
     bagger.reset(new SprBagger(filter.get(),cycles,discrete));
+
+  // set seed for bootstrap if necessary
+  if( initBootstrapFromTimeOfDay && !bagger->initBootstrapFromTimeOfDay() ) {
+    cerr << "Unable to generate seed from time of day for Bagger." << endl;
+    return 4;
+  }
 
   // set validation
   if( valFilter.get()!=0 && !valFilter->empty() )

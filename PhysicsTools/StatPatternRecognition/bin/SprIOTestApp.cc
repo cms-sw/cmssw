@@ -1,4 +1,4 @@
-//$Id: SprIOTestApp.cc,v 1.1 2007/10/10 20:21:31 narsky Exp $
+//$Id: SprIOTestApp.cc,v 1.2 2007/10/29 22:10:40 narsky Exp $
 
 #include "PhysicsTools/StatPatternRecognition/interface/SprExperiment.hh"
 #include "PhysicsTools/StatPatternRecognition/interface/SprAbsFilter.hh"
@@ -31,9 +31,6 @@ void help(const char* prog)
   cout << "\t-A save output data in ascii instead of Root       " << endl;
   cout << "\t-y list of input classes (see SprAbsFilter.hh)     " << endl;
   cout << "\t-v verbose level (0=silent default,1,2)            " << endl;
-  cout << "\t-K keep this fraction in training set and          " << endl;
-  cout << "\t\t put the rest into validation set                " << endl;
-  cout << "\t-D randomize training set split-up                 " << endl;
   cout << "\t-V include only these input variables              " << endl;
   cout << "\t-z exclude input variables from the list           " << endl;
   cout << "\t-Z exclude input variables from the list, "
@@ -62,9 +59,6 @@ int main(int argc, char ** argv)
   string includeList, excludeList;
   string inputClassesString;
   string stringVarsDoNotFeed;
-  bool split = false;
-  double splitFactor = 0;
-  bool splitRandomize = false;
 
   // decode command line
   int c;
@@ -90,13 +84,6 @@ int main(int argc, char ** argv)
 	break;
       case 'v' :
 	verbose = (optarg==0 ? 0 : atoi(optarg));
-	break;
-      case 'K' :
-	split = true;
-	splitFactor = (optarg==0 ? 0 : atof(optarg));
-	break;
-      case 'D' :
-	splitRandomize = true;
 	break;
       case 'V' :
 	includeList = optarg;

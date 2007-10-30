@@ -1,4 +1,4 @@
-$Id: README,v 1.14 2007/08/30 17:54:37 narsky Exp $
+$Id: README,v 1.16 2007/10/22 21:23:40 narsky Exp $
  
 General description of the package:
 -----------------------------------
@@ -107,8 +107,8 @@ Contents
 5.  Treatment of input classes
 6.  Estimation of variable importance
 7.  Handling input variables
-8.  Data input
-9.  Output
+8.  Formats for data input and output
+9.  Computing output for trained classifiers
 10. Installation instructions
 11. How to use trained classifiers in your C++ code
 12. Working in Root-free environment
@@ -343,7 +343,7 @@ new data file at the end of the training routine and then read the
 training data with already adjusted weights from this file before
 resuming. For example:
 
-SprAdaBoostDecisionTreeApp -n 50 -M 1 -l 2000 -f tree_n50.spr -u reweighted_gauss2_uniform_2d_train.pat gauss2_uniform_2d_train.pat
+SprAdaBoostDecisionTreeApp -a 1 -n 50 -M 1 -l 2000 -f tree_n50.spr -u reweighted_gauss2_uniform_2d_train.pat gauss2_uniform_2d_train.pat
 
 And then:
 
@@ -494,7 +494,7 @@ supplied by the user at tree construction. Depending on the chosen
 optimization criterion, the tree performance can crucially depend on
 this parameter. Try, for example
 
-SprDecisionTreeApp -c 3 -n 1 -m -v 1 gauss2_uniform_2d_train.pat
+SprDecisionTreeApp -a 1 -c 3 -n 1 -m -v 1 gauss2_uniform_2d_train.pat
 
 The tree will produce an insane number of nodes and in the end display
 a message:
@@ -510,7 +510,7 @@ poor because the tree is over-trained.
 
 If you do now
 
-SprDecisionTreeApp -c 3 -n 5000 -m -v 1 gauss2_uniform_2d_train.pat
+SprDecisionTreeApp -a 1 -c 3 -n 5000 -m -v 1 gauss2_uniform_2d_train.pat
 
 you will get
 
@@ -521,7 +521,7 @@ the tree is under-trained. For this exercise, the optimal number of
 events per node happens to be around 200, which you can easily
 establish by looking at FOM computed on validation data:
 
-SprDecisionTreeApp -c 3 -n 200 -m -t gauss2_uniform_2d_valid.pat -v 1 gauss2_uniform_2d_train.pat
+SprDecisionTreeApp -a 1 -c 3 -n 200 -m -t gauss2_uniform_2d_valid.pat -v 1 gauss2_uniform_2d_train.pat
 
 Note that without merging ("-m" option on the command line) these
 results would be different.
@@ -639,12 +639,12 @@ numbers into ntuples.
 The executable is SprFisherLogitApp. It can store both training and
 validation data into ntuples simultaneously. For example, you can do
 
-SprFisherLogitApp -m 3 -l -o training.root -t gauss_uniform_2d_valid.pat -p validation.root gauss_uniform_2d_train.pat
+SprFisherLogitApp -A -a 2 -m 3 -l -o training.out -t lambda-test.pat -p validation.out lambda-train.pat
 
 (trains both linear and quadratic Fisher's (-m 3), as well as logistic
-regression (-l), on gauss_uniform_2d_train.pat and stores the training
-tuple into training.root; validates Fisher on
-gauss_uniform_2d_valid.pat and stores ntuple into validation.root)
+regression (-l), on lambda-train.pat and stores the training
+tuple into training.out; validates Fisher on
+lambda-test.pat and stores ntuple into validation.out)
 
 Command-line options -e, -u and -i are valid only for logistic
 regression. By default the starting point for logistic regression is
@@ -702,7 +702,7 @@ Training events are by default randomly permuted before training.
 
 Here are a few examples of how the executable can be used:
 
-SprStdBackpropApp -n 1 -N '2:4:2:1' -l 100 -L 0.1 -d 5 -t gauss2_uniform_2d_valid.pat -f net.spr gauss2_uniform_2d_train.pat
+SprStdBackpropApp -a 1 -n 1 -N '2:4:2:1' -l 100 -L 0.1 -d 5 -t gauss2_uniform_2d_valid.pat -f net.spr gauss2_uniform_2d_train.pat
 
 Trains a single NN with 100 cycles from scratch. The NN configuration
 is: 2 input nodes (must be always equal to the dimensionality of the
@@ -714,22 +714,22 @@ validation data every 5 cycles. Save NN configuration into net.spr.
 Suppose you trained SNNS on these data earlier and now want to
 convert SNNS configuration into SPR configuration. Do:
 
-SprStdBackpropApp -n 1 -S net.snns -l 0 -f net.spr gauss2_uniform_2d_train.pat
+SprStdBackpropApp -a 1 -n 1 -S net.snns -l 0 -f net.spr gauss2_uniform_2d_train.pat
 
 This simply converts SNNS format net.snns into SPR format net.spr.
 
 You can resume training from SNNS format directly:
 
-SprStdBackpropApp -n 1 -S net.snns -l 100 -L 0.01 -f net200.spr -d 5 -t gauss2_uniform_2d_valid.pat gauss2_uniform_2d_train.pat
+SprStdBackpropApp -a 1 -n 1 -S net.snns -l 100 -L 0.01 -f net200.spr -d 5 -t gauss2_uniform_2d_valid.pat gauss2_uniform_2d_train.pat
 
 or from the converted SPR net:
 
-SprStdBackpropApp -n 1 -R net.spr -l 100 -L 0.01 -f net200.spr -d 5 -t gauss2_uniform_2d_valid.pat gauss2_uniform_2d_train.pat
+SprStdBackpropApp -a 1 -n 1 -R net.spr -l 100 -L 0.01 -f net200.spr -d 5 -t gauss2_uniform_2d_valid.pat gauss2_uniform_2d_train.pat
 
 You can use the obtained NN configuration as a starting point for
 boosting:
 
-SprStdBackpropApp -n 10 -M 2 -E 0.1 -g 2 -R net200.spr -l 50 -L 0.01 -f boosted_net.spr -d 1 -t gauss2_uniform_2d_valid.pat gauss2_uniform_2d_train.pat
+SprStdBackpropApp -a 1 -n 10 -M 2 -E 0.1 -g 2 -R net200.spr -l 50 -L 0.01 -f boosted_net.spr -d 1 -t gauss2_uniform_2d_valid.pat gauss2_uniform_2d_train.pat
 
 This takes the saved network net200.spr and uses it as a first
 classifier in the boosting sequence. 10 more neural nets are trained
@@ -740,16 +740,16 @@ is more appropriate for boosting.
 Read the saved AdaBoost from a configuration file and run it on
 validation data (results are saved into save.out):
 
-SprStdBackpropApp -n 0 -r boosted_net.spr -o save.out gauss2_uniform_2d_valid.pat
+SprStdBackpropApp -a 1 -n 0 -r boosted_net.spr -o save.out gauss2_uniform_2d_valid.pat
 
 Do the same thing for a single NN you obtained earlier:
 
-SprStdBackpropApp -n 1 -l 0 -R net200.spr -o save.out gauss2_uniform_2d_valid.pat
+SprStdBackpropApp -a 1 -n 1 -l 0 -R net200.spr -o save.out gauss2_uniform_2d_valid.pat
 
 If you would like to resume training from a saved AdaBoost
 configuration, the executable forces you to choose a network structure:
 
-SprStdBackpropApp -n 10 -M 2 -g 2 -E 0.1 -r boosted_net.spr -f boosted_net_2.spr -L 0.01 -l 50 -N '2:6:3:1' -d 1 -t gauss2_uniform_2d_valid.pat gauss2_uniform_2d_train.pat
+SprStdBackpropApp -a 1 -n 10 -M 2 -g 2 -E 0.1 -r boosted_net.spr -f boosted_net_2.spr -L 0.01 -l 50 -N '2:6:3:1' -d 1 -t gauss2_uniform_2d_valid.pat gauss2_uniform_2d_train.pat
 
 Note that the new structure 2:6:3:1 is different from 2:4:2:1 used
 earlier. 10 more neural nets will be trained using 2:6:3:1 and
@@ -787,7 +787,7 @@ The recommended sequence of actions looks like this:
 
 1) Train your favorite classifiers on the subsets:
 
-SprBaggerDecisionTreeApp -n 100 -l 10 -V 'x0,x2' -f save_1.spr train.pat
+SprBaggerDecisionTreeApp -a 2 -n 10 -l 10 -V 'x0,x2' -f save_1.spr lambda-train.pat
 
 For the 2nd classifier, you have to modify the executable to exclude
 unreasonable values of x3. On top of the executable code, put your
@@ -824,12 +824,12 @@ main():
 
 and modify the reader constructors to apply the constraint:
 
-  SprRootReader reader(&pre);
-  SprRootReader valReader(&pre);
+  SprSimpleReader reader(2,&pre);
+  SprSimpleReader valReader(2,&pre);
 
 Rebuild the executable by running 'make install' and run it:
 
-SprBaggerDecisionTreeApp -n 100 -l 10 -V 'x1,x3,x5' -f save_2.spr train.pat
+SprBaggerDecisionTreeApp -a 2 -n 10 -l 10 -V 'x1,x3,x5' -f save_2.spr lambda-train.pat
 
 Check the messages returned by the executable to make sure that you
 see as many input events after the pre-selection cuts are applied as
@@ -900,11 +900,11 @@ on data subsets.
 
 3) Train the combiner:
 
-SprCombinerApp -f global.spr 'classifier_1.config,classifier_2.config' global.config train.pat
+SprCombinerApp -a 2 -f global.spr 'classifier_1.config,classifier_2.config' global.config lambda-train.pat
 
 4) Study the performance of the combiner on test data:
 
-SprOutputWriterApp global.spr test.pat save.out
+SprOutputWriterApp -a 2 global.spr lambda-test.pat save.out
 
 Note that you do not need to specify explicitly input variables in
 steps 3 and 4. SprCombinerApp and SprOutputWriterApp know that
@@ -1012,7 +1012,7 @@ AdaBoost is designed to minimize the exponential loss. To choose the
 optimal leaf size, monitor the exponential loss for the validation
 data:
 
-unix> SprAdaBoostDecisionTreeApp -n 20 -l 100 -t gauss2_uniform_2d_valid.pat -d 1 gauss2_uniform_2d_train.pat
+unix> SprAdaBoostDecisionTreeApp -a 1 -n 20 -l 100 -t gauss2_uniform_2d_valid.pat -d 1 gauss2_uniform_2d_train.pat
 
 Validation Loss=0.52714 at cycle 1
 Validation Loss=0.46702 at cycle 2
@@ -1038,7 +1038,7 @@ Validation Loss=0.700659 at cycle 20
 The exponential loss increases. Probably L=100 is not a good
 choice. Let us try a larger L:
 
-unix> SprAdaBoostDecisionTreeApp -n 20 -l 8000 -t gauss2_uniform_2d_valid.pat -d 1 gauss2_uniform_2d_train.pat
+unix> SprAdaBoostDecisionTreeApp -a 1 -n 20 -l 8000 -t gauss2_uniform_2d_valid.pat -d 1 gauss2_uniform_2d_train.pat
 
 Validation Loss=0.815399 at cycle 1
 Validation Loss=0.803473 at cycle 2
@@ -1063,7 +1063,7 @@ Validation Loss=0.712872 at cycle 20
 
 Exponential loss decreases but we can do better. One more try:
 
-unix> SprAdaBoostDecisionTreeApp -n 20 -l 1500 -t gauss2_uniform_2d_valid.pat -d 1 gauss2_uniform_2d_train.pat
+unix> SprAdaBoostDecisionTreeApp -a 1 -n 20 -l 1500 -t gauss2_uniform_2d_valid.pat -d 1 gauss2_uniform_2d_train.pat
 
 Validation Loss=0.650332 at cycle 1
 Validation Loss=0.516325 at cycle 2
@@ -1100,7 +1100,7 @@ interested in the quadratic loss (-g 1 option of the executable).
 Naively, one could assume that the optimal value should be the same as
 for the booster:
 
-unix> SprBaggerDecisionTreeApp -g 1 -n 20 -l 1500 -t gauss2_uniform_2d_valid.pat -d 1 gauss2_uniform_2d_train.pat
+unix> SprBaggerDecisionTreeApp -a 1 -g 1 -n 20 -l 1500 -t gauss2_uniform_2d_valid.pat -d 1 gauss2_uniform_2d_train.pat
 
 Validation FOM=0.101408 at cycle 1
 Validation FOM=0.0958078 at cycle 2
@@ -1125,7 +1125,7 @@ Validation FOM=0.0838303 at cycle 20
 
 Let us try another choice for the leaf size: 50.
 
-unix> SprBaggerDecisionTreeApp -g 1 -n 20 -l 50 -t gauss2_uniform_2d_valid.pat -d 1 gauss2_uniform_2d_train.pat
+unix> SprBaggerDecisionTreeApp -a 1 -g 1 -n 20 -l 50 -t gauss2_uniform_2d_valid.pat -d 1 gauss2_uniform_2d_train.pat
 
 Validation FOM=0.084895 at cycle 1
 Validation FOM=0.0770321 at cycle 2
@@ -1151,7 +1151,7 @@ Validation FOM=0.0603946 at cycle 20
 Quadratic loss is less than in the previous trial. Most certainly,
 50 is a better option than 1500. Let us go even to smaller leaves:
 
-unix> SprBaggerDecisionTreeApp -g 1 -n 20 -l 5 -t gauss2_uniform_2d_valid.pat -d 1 gauss2_uniform_2d_train.pat
+unix> SprBaggerDecisionTreeApp -a 1 -g 1 -n 20 -l 5 -t gauss2_uniform_2d_valid.pat -d 1 gauss2_uniform_2d_train.pat
 
 Validation FOM=0.0875863 at cycle 1
 Validation FOM=0.080353 at cycle 2
@@ -1199,7 +1199,7 @@ piece. At the end, the FOM obtained by averaging the FOMs from all
 pieces is returned to the user. A typical application of the
 cross-validation algorithm would look like this:
 
-SprBaggerDecisionTreeApp -g 1 -n 20 -x 5 -q '5,10,20,50,100,1000,2000,5000' gauss2_uniform_2d_train.pat
+SprBaggerDecisionTreeApp -a 1 -g 1 -n 20 -x 5 -q '5,10,20,50,100,1000,2000,5000' gauss2_uniform_2d_train.pat
 
 This will train 20 bagged decision trees for each specified minimal
 node size. That is, the user will train 8 baggers, each using 20
@@ -1300,7 +1300,7 @@ to be included in the multi-class learning algorithm.
 
 As an example, try:
 
-> SprMultiClassApp -e 1 -y '0,1,2,3,4' -c multi.config -f save.spr -t gauss4_uniform_2d_valid.pat gauss4_uniform_2d_train.pat
+> SprMultiClassApp -a 1 -e 1 -y '0,1,2,3,4' -c multi.config -f save.spr -t gauss4_uniform_2d_valid.pat gauss4_uniform_2d_train.pat
 
 where multi.config consists of 2 lines:
 
@@ -1314,11 +1314,11 @@ specify the weak classifier to be used with AdaBoost.
 
 Also, try
 
-> SprMultiClassApp -e 2 -y '0,1,2,3,4' -c multi.config -f save.spr -t gauss4_uniform_2d_valid.pat gauss4_uniform_2d_train.pat
+> SprMultiClassApp -a 1 -e 2 -y '0,1,2,3,4' -c multi.config -f save.spr -t gauss4_uniform_2d_valid.pat gauss4_uniform_2d_train.pat
 
 and then
 
-> SprMultiClassApp -y '0,1,2,3,4' -r save.spr -o save.root gauss4_uniform_2d_valid.pat
+> SprMultiClassApp -a 1 -y '0,1,2,3,4' -r save.spr -o save.out gauss4_uniform_2d_valid.pat
 
 to see distributions for validation data.
 
@@ -1514,13 +1514,13 @@ tolerate.
 ---------------------------
 
 If input data are read from a Root file, the user specifies explicitly what
-variables are taken from the input ntuple. If input data are read from an ascii
-file, all variables included in the ascii file are by default read in. If you
+variables are taken from the input ntuple. If input data are read from an Ascii
+file, all variables included in the Ascii file are by default read in. If you
 want to exclude some of them, you can do so by using "-z" option of the
 executables. 
 
 "-V" command-line option of most executables lets the user include
-only specified variables. Again, it works only for ascii input.
+only specified variables. Again, it works only for Ascii input.
 
 Generally, it is the responsibility of the user to keep track of what
 variables were used for training and supply the same variables in the
@@ -1538,28 +1538,30 @@ what variables were used for training. You have to make sure that
 identical variables have identical names in training and test datasets.
 
 Sometimes you want to exclude variables from training but store them
-into the output root (or ascii) file. This can be done using "-Z"
+into the output root (or Ascii) file. This can be done using "-Z"
 option. The "-Z" option has no effect on variables used for training;
 it only asks the executable to exclude certain variables from
 computation of the classifier response which is stored into the output
 ntuple. A typical application of the "-Z" option would look like this:
 
-unix> SprAdaBoostDecisionTreeApp -n 100 -z 'var1,var2' -f save.spr train.pat
+unix> SprAdaBoostDecisionTreeApp -a 1 -n 100 -z 'var1,var2' -f save.spr train.pat
 
 and then
 
-unix> SprAdaBoostDecisionTreeApp -n 0 -Z 'var1,var2' -r save.spr -o test.root test.pat
+unix> SprAdaBoostDecisionTreeApp -a 1 -n 0 -Z 'var1,var2' -r save.spr -o test.root test.pat
 
 This will train boosted decision trees using all input variables except var1
 and var2 and then compute the classifier response for the test data and store
 these variables into test.root as well. For comparison,
 
-unix> SprAdaBoostDecisionTreeApp -n 0 -z 'var1,var2' -r save.spr -o test.root test.pat
+unix> SprAdaBoostDecisionTreeApp -a 1 -n 0 -z 'var1,var2' -r save.spr -o test.root test.pat
 
 would do the same thing without storing var1 and var2 into the output ntuple.
 
-Starting with SPR-6, the user can filter data and apply variable
-transformation as the data is read from a file. An example is shown in
+Starting with SPR-6, the user can filter data, apply variable
+transformation and compute the class label for each event defined as a
+function of the event coordinates. All these operations are performed
+as the data is being read from a file. An example is shown in
 exampleUserCuts.cc. Keep in mind that selection requirements are
 applied before transformations - you always cut on the untransformed
 values. These methods are implemented in SprPreFilter and they have
@@ -1574,18 +1576,18 @@ cuts and transformations have permanent effect - for example, events
 that do not pass these cuts never get stored in memory.
 
 
-8. Data input
--------------
+8. Formats for data input and output
+------------------------------------
 
-Input is implemented from ascii and Root files.
+Input is implemented from Ascii and Root files.
 
-The ascii input format is close to that of SNNS. There are two
+The Ascii input format is close to that of SNNS. There are two
 essential rules:
 - everything to the right of '#' is treated as comments
 - an input line must contain at least as many numbers as the dimensionality
   of the input space; these are considered point coordinates
 The point class can be supplied either on the same line or on a separate line.
-For details and acceptable ascii formats, see SprSimpleReader.hh.
+For details and acceptable Ascii formats, see SprSimpleReader.hh.
 
 If you have a *.pat file readable by SNNS, you can easily turn it
 into a file readable by SprSimpleReader. To do this,
@@ -1599,6 +1601,15 @@ The rest of the *.pat file can be kept as is.
 
 For details on Root input, see SprRootReader.hh.
 
+As of Sourceforge tag V07-02-00, if the package was built against
+Root, the user can choose between input and output from/to Ascii and
+Root files. For Ascii input, the user must specify -a flag for all
+executables with an appropriate integer mode. If -a is omitted or "-a
+0" is specified, the executable assumes that input data must be
+fetched from Root files. For output, the default choice is Root. To
+output data into Ascii files, the user must specify -A flag on the
+command line.
+
 
 9. Computing output for trained classifiers
 -------------------------------------------
@@ -1606,7 +1617,7 @@ For details on Root input, see SprRootReader.hh.
 Data, event weights and classifier outputs can be stored into tuples
 using SprDataFeeder. The feeder can work with any SprAbsWriter. At
 present there are 2 implemented writers, SprRootWriter, capable of
-storing data into Root, and SprAsciiWriter for data storage into ascii
+storing data into Root, and SprAsciiWriter for data storage into Ascii
 files. The feeder will feed all data points obtained from an input
 filter with classifier outputs to the writer. You can add as many
 classifiers to the output as you like using addClassifier() method of
@@ -1690,27 +1701,28 @@ the following sequence to assess the performance of classifiers:
 
 a) Train a bunch of classifiers, for example:
 
-SprBaggerDecisionTreeApp -n 100 -l 5 -f bagger.spr train.pat
-SprAdaBoostDecisionTreeApp -n 100 -l 1000 -f ada.spr train.pat
+SprBaggerDecisionTreeApp -a 1 -n 100 -l 5 -f bagger.spr train.pat
+SprAdaBoostDecisionTreeApp -a 1 -n 100 -l 1000 -f ada.spr train.pat
 
 b) Compute output for test data:
 
-SprOutputWriterApp -C 'ada,bag' 'ada.spr,bagger.spr' test.pat test.out
+SprOutputWriterApp -a 1 -A -C 'ada,bag' 'ada.spr,bagger.spr' test.pat test.out
 
-c) Analyze the ascii output:
+c) Analyze the Ascii output:
 
 SprOutputAnalyzerApp -C 'ada,bag' test.out 
 
 See comments in SprOutputAnalyzerApp.cc.
 
 If you built the package with Root, you can't use step (c) but, of
-course, you could and should use steps (a) and (b).
+course, you could and should use steps (a) and (b) (without the "-A"
+flag).
 
 For small data sets in not too many dimensions, you can combine all
 these steps in one and compare several classifiers using
 SprInteractiveAnalysisApp:
 
-SprInteractiveAnalysisApp train.pat test.pat
+SprInteractiveAnalysisApp -a 1 train.pat test.pat
 
 
 13. Working in Root environment

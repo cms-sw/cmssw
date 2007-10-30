@@ -1,4 +1,4 @@
-//$Id: SprPreFilter.cc,v 1.4 2007/07/29 21:58:20 narsky Exp $
+//$Id: SprPreFilter.cc,v 1.5 2007/10/22 21:23:41 narsky Exp $
 
 #include "PhysicsTools/StatPatternRecognition/interface/SprExperiment.hh"
 #include "PhysicsTools/StatPatternRecognition/interface/SprPreFilter.hh"
@@ -31,6 +31,15 @@ bool SprPreFilter::resetTransform()
 }
 
 
+bool SprPreFilter::resetClass()
+{
+  userClassVars_.clear();
+  userClassDefinition_ = 0;
+  classVarToIndex_.clear();
+  return true;
+}
+
+
 bool SprPreFilter::setVars(const std::vector<std::string>& vars) 
 {
   // check selection vars
@@ -44,6 +53,13 @@ bool SprPreFilter::setVars(const std::vector<std::string>& vars)
   if( !this->setVarIndex(vars,userTransformInputVars_,transformVarToIndex_) ) {
     cerr << "Unable to set transformation variables in SprPreFilter." << endl;
     this->resetTransform();
+    return false;
+  }
+
+  // check class vars
+  if( !this->setVarIndex(vars,userClassVars_,classVarToIndex_) ) {
+    cerr << "Unable to set class variables in SprPreFilter." << endl;
+    this->resetClass();
     return false;
   }
 
@@ -123,6 +139,25 @@ bool SprPreFilter::setTransform(SprPreVars inputVars,
   userTransformInputVars_  = inputVars();
   userTransformOutputVars_ = outputVars();
   userTransform_ = userTransform;
+
+  // exit
+  return true;
+}
+
+
+bool SprPreFilter::setClass(SprPreVars userVars,
+			    SprPreClassDefinition classDefinition)
+{
+  // supplying null pointers is equivalent to removing all reqs
+  if( userVars==0 || classDefinition==0 ) {
+    cout << "No class requirements will be applied by SprPreFilter."
+         << endl;
+    return this->resetClass();
+  }
+
+  // set selection and vars
+  userClassVars_ = userVars();
+  userClassDefinition_ = classDefinition;
 
   // exit
   return true;
@@ -228,4 +263,25 @@ bool SprPreFilter::transformVars(const std::vector<std::string>& input,
 
   // exit
   return true;
+}
+
+
+std::pair<int,bool> SprPreFilter::computeClass(
+				      const std::vector<double>& input) const
+{
+  // if no user class is defined, return 0
+  if( classVarToIndex_.empty() || userClassDefinition_==0 ) 
+    return pair<int,bool>(0,false);
+
+  // get vector of matched coordinates
+  int nVars = classVarToIndex_.size();
+  vector<double> v(nVars);
+  for( int i=0;i<nVars;i++ ) {
+    int index = classVarToIndex_[i];
+    assert( index < input.size() );
+    v[i] = input[index];
+  }
+
+  // run the user filter
+  return pair<int,bool>(userClassDefinition_(v),true);
 }

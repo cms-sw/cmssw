@@ -1,4 +1,4 @@
-//$Id: SprTrainedBagger.cc,v 1.6 2007/07/11 19:52:13 narsky Exp $
+//$Id: SprTrainedBagger.cc,v 1.7 2007/10/25 22:11:09 narsky Exp $
 
 #include "PhysicsTools/StatPatternRecognition/interface/SprExperiment.hh"
 #include "PhysicsTools/StatPatternRecognition/interface/SprTrainedBagger.hh"
@@ -101,3 +101,68 @@ bool SprTrainedBagger::generateCode(std::ostream& os) const
   return true; 
 } 
 
+
+SprTrainedBagger& SprTrainedBagger::operator+=(const SprTrainedBagger& other)
+{
+  // check vars
+  if( vars_.size() != other.vars_.size() ) {
+    cerr << "Unable to add Bagger: variable lists do not match." << endl;
+    return *this;
+  }
+  for( int i=0;i<vars_.size();i++ ) {
+    if( vars_[i] != other.vars_[i] ) {
+      cerr << "Unable to add Bagger: variable lists do not match." << endl;
+      cerr << "Variables " << i << ": " 
+	   << vars_[i] << " " << other.vars_[i] << endl;
+      return *this;
+    }
+  }
+
+  // check discreteness
+  if( discrete_ != other.discrete_ ) {
+    cerr << "Unable to add Bagger: discreteness does not match." << endl;
+    return *this;
+  }
+
+  // add
+  for( int i=0;i<other.trained_.size();i++ ) {
+    trained_.push_back(pair<const SprAbsTrainedClassifier*,
+		       bool>(other.trained_[i].first->clone(),true));
+  }
+  this->setCut(SprUtils::lowerBound(0.5));
+
+  // exit
+  return *this;
+}
+
+
+const SprTrainedBagger operator+(const SprTrainedBagger& l,
+				 const SprTrainedBagger& r)
+{
+  // check variable list
+  assert( l.vars_.size() == r.vars_.size() );
+  for( int i=0;i<l.vars_.size();i++ )
+    assert( l.vars_[i] == r.vars_[i] );
+
+  // add classifiers
+  vector<pair<const SprAbsTrainedClassifier*,bool> > trained;
+  for( int i=0;i<l.trained_.size();i++ ) {
+    trained.push_back(pair<const SprAbsTrainedClassifier*,
+		      bool>(l.trained_[i].first->clone(),true));
+  }
+  
+  for( int i=0;i<r.trained_.size();i++ ) {
+    trained.push_back(pair<const SprAbsTrainedClassifier*,
+		      bool>(r.trained_[i].first->clone(),true));
+  }
+
+  // add discrete
+  assert( l.discrete_ == r.discrete_ );
+
+  // make bagger and set cut
+  SprTrainedBagger newBagger(trained,l.discrete_);
+  newBagger.setCut(SprUtils::lowerBound(0.5));
+
+  // exit
+  return newBagger;
+}

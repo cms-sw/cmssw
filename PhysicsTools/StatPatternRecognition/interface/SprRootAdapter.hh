@@ -1,5 +1,5 @@
 // File and Version Information:
-//      $Id: SprRootAdapter.hh,v 1.2 2007/08/30 17:54:38 narsky Exp $
+//      $Id: SprRootAdapter.hh,v 1.5 2007/10/29 22:10:40 narsky Exp $
 //
 // Description:
 //      Class SprRootAdapter :
@@ -25,6 +25,9 @@ class SprAbsFilter;
 class SprAbsClassifier;
 class SprAbsTrainedClassifier;
 class SprPlotter;
+class SprMultiClassLearner;
+class SprTrainedMultiClassLearner;
+class SprMultiClassPlotter;
 class SprAbsTwoClassCriterion;
 class SprIntegerBootstrap;
 class SprAverageLoss;
@@ -41,6 +44,8 @@ public:
   // Choose input variables.
   // For the moment, this method only works for input Ascii data.
   // Must be called before datasets are loaded.
+  // Choosing input vars for Root data is handled by input configurations 
+  // files. See SprRootReader.hh for more info.
   void chooseVars(int nVars, const char vars[][200]);
   void chooseAllBut(int nVars, const char vars[][200]);
   void chooseAllVars();
@@ -75,7 +80,8 @@ public:
   // Return variables used for this classifier
   bool classifierVars(const char* classifierName, char vars[][200]) const;
 
-  // choose classes
+  // This method has to be called after training 
+  // and test data have been loaded.
   bool chooseClasses(const char* inputClassString);
 
   // return number of classes
@@ -141,6 +147,7 @@ public:
   // AdaBoost: 
   // An array of weak classifiers of length nClassifier 
   // is supplied by the user.
+  // mode represents AdaBoost mode: 1 = Discrete; 2 = Real; 3 = Epsilon
   SprAbsClassifier* addAdaBoost(const char* classifierName,
 				int nClassifier,
 				SprAbsClassifier** classifier,
@@ -182,6 +189,14 @@ public:
 				    unsigned nValidate,
 				    bool useArcE4=false);
 
+  // Set multi class learner.
+  // An array of nClass classes to be included in the multi-class
+  // algorithm needs to be supplied by the user.
+  SprMultiClassLearner* setMultiClassLearner(SprAbsClassifier* classifier,
+					     int nClass,
+					     const int* classes,
+					     const char* mode="One-vs-All");
+
   // remove a specific classifier
   void removeClassifier(const char* classifierName);
 
@@ -212,6 +227,9 @@ public:
 
   // compute trained classifier responses for test data
   bool test();
+
+  // save test data with computed classifier responses into a Root file
+  bool saveTestData(const char* filename) const;
 
   // Choose criterion to be computed in background-vs-signal plots.
   // Possible values are 
@@ -253,7 +271,7 @@ public:
   // a certain classifier. 
   // The user must book arrays of size nbin.
   bool histogram(const char* classifierName,
-		 double xlo, double dx, int nbin,
+		 double xlo, double xhi, int nbin,
 		 double* sig, double* sigerr,
 		 double* bgr, double* bgrerr) const;
 
@@ -263,20 +281,32 @@ public:
   bool correlation(int cls, double* corr, const char* datatype="train") const;
 
   // Estimate variable importance for a given classifier.
-  // The user muct book two arrays of size this->dim().
+  // The user must book 3 arrays of size this->dim() - for the list
+  // of variables, importance and error on importance.
   // nPerm defines number of permutations per each variable.
   // The greater nPerm, the better is the accuracy of the estimate,
   // and the longer it takes to compute.
   bool variableImportance(const char* classifierName,
                           unsigned nPerm,
                           char vars[][200],
-                          double* importance) const;
+                          double* importance,
+			  double* error) const;
+
+  // Returns classification table for the multi class learner
+  // for the selected subset of classes. The user must provide
+  // an array of nClass integers representing desired classes.
+  // The user must book classificationTable, 
+  // an array of doubles of size nClass*nClass.
+  bool multiClassTable(int nClass,
+		       const int* classes,
+		       double* classificationTable) const;
 
 private:
   bool checkData() const;
+  void clearPlotters();
   bool addTrainable(const char* classifierName, SprAbsClassifier* c);
-  bool remapVars();
   bool mapVars(SprAbsTrainedClassifier* t);
+  bool mapMCVars(const SprTrainedMultiClassLearner* t);
   static SprAbsTwoClassCriterion* makeCrit(const char* criterion);
 
   // variables
@@ -286,20 +316,25 @@ private:
   // data
   SprAbsFilter* trainData_;
   SprAbsFilter* testData_;
+  bool needToTest_;
 
   // classifiers
   std::map<std::string,SprAbsClassifier*> trainable_;
   std::map<std::string,SprAbsTrainedClassifier*> trained_;
+  SprMultiClassLearner* mcTrainable_;
+  SprTrainedMultiClassLearner* mcTrained_;
   std::map<SprAbsTrainedClassifier*,SprCoordinateMapper*> mapper_;
+  SprCoordinateMapper* mcMapper_;
 
   // plotter
   SprAbsTwoClassCriterion* showCrit_;
   SprPlotter* plotter_;
+  SprMultiClassPlotter* mcPlotter_;
 
   // various stuff to be cleaned
   std::vector<const SprAbsTwoClassCriterion*> crit_;
   std::vector<SprIntegerBootstrap*> bootstrap_;
-  std::vector<SprAbsClassifier*> aux_;
+  std::set<SprAbsClassifier*> aux_;
   std::vector<SprAverageLoss*> loss_;
 };
 

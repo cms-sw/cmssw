@@ -1,5 +1,5 @@
 // File and Version Information:
-//      $Id: SprTrainedMultiClassLearner.hh,v 1.5 2007/07/11 19:52:09 narsky Exp $
+//      $Id: SprTrainedMultiClassLearner.hh,v 1.6 2007/10/25 22:11:08 narsky Exp $
 //
 // Description:
 //      Class SprTrainedMultiClassLearner :
@@ -81,6 +81,10 @@ public:
 	       std::map<int,double>& output) const;
   int response(const SprPoint* input, 
 	       std::map<int,double>& output) const {
+    return this->response(input->x_,output);
+  }
+  int response(const SprPoint* input) const {
+    std::map<int,double> output;
     return this->response(input->x_,output);
   }
 

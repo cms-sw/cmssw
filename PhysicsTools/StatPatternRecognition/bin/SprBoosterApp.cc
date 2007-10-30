@@ -1,4 +1,4 @@
-//$Id: SprBoosterApp.cc,v 1.5 2007/10/05 20:03:09 narsky Exp $
+//$Id: SprBoosterApp.cc,v 1.6 2007/10/29 22:10:40 narsky Exp $
 
 #include "PhysicsTools/StatPatternRecognition/interface/SprExperiment.hh"
 #include "PhysicsTools/StatPatternRecognition/interface/SprAbsFilter.hh"
@@ -401,13 +401,11 @@ int main(int argc, char ** argv)
 				    &SprTransformation::logit));
       cout << "Per-event loss set to "
            << "Quadratic loss (y-f(x))^2 " << endl;
-      useStandardAB = true;
       break;
     case 2 :
       loss.reset(new SprAverageLoss(&SprLoss::exponential));
       cout << "Per-event loss set to "
            << "Exponential loss exp(-y*f(x)) " << endl;
-      useStandardAB = true;
       break;
     default :
       cout << "No per-event loss is chosen. Will use the default." << endl;

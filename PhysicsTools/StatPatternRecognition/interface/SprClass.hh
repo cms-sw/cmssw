@@ -1,6 +1,6 @@
 //------------------------------------------------------------------------
 // File and Version Information:
-//      $Id: SprClass.hh,v 1.5 2007/08/30 17:54:38 narsky Exp $
+//      $Id: SprClass.hh,v 1.6 2007/10/25 22:11:08 narsky Exp $
 //
 // Description:
 //      Class SprClass :
@@ -65,6 +65,11 @@ public:
 
   inline SprClass& operator=(int cls);
   inline SprClass& operator=(const SprClass& other);
+
+  // equality to integer
+  bool int_eq(int cls) const {
+    return this->operator==(cls);
+  }
 
   // accessor
   bool value(std::vector<int>& classes) const { 

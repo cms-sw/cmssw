@@ -1,3 +1,5 @@
+// $Id: spr_plot.C,v 1.5 2007/10/30 00:15:35 narsky Exp $
+
 void plotEffCurve(const char* canvas,
 		  int npts, const double* signalEff, const char* classifier,
 		  const double* bgrndEff, const double* bgrndErr,
@@ -38,11 +40,13 @@ void plotFOMCurve(const char* canvas, const char* title,
 void plotEffCurveMulti(const char* canvas,
 		       int ngraph, int npts, const double* signalEff, 
 		       const char classifiers[][200],
-		       const double* bgrndEff, const double* bgrndErr)
+		       const double* bgrndEff, const double* bgrndErr,
+		       double ymax, bool setMax=false)
 {
   TCanvas *c
     = new TCanvas(canvas,"SPR BgrndEff vs SignalEff",200,10,600,400);
   TMultiGraph *mg = new TMultiGraph();
+  if( setMax ) mg->SetMaximum(ymax);
   TLegend *leg = new TLegend(0.1,0.85,0.5,1.,
 			     "SPR BackgroundEff vs SignalEff","NDC");
   for( int i=0;i<ngraph;i++ ) {
@@ -84,36 +88,54 @@ void plotCorrelation(const char* canvas, const char* title,
 
 void plotImportance(const char* canvas, const char* title,
 		    const unsigned nVars,
-		    const char vars[][200], const double* importance)
+		    const char vars[][200], 
+		    const double* importance, const double* error,
+		    bool automaticRange=false)
 {
   TCanvas *c 
     = new TCanvas(canvas,"SPR Variable Importance",200,10,600,400);
   gStyle->SetPalette(1);
   TH1D* h1 = new TH1D("importance",title,nVars,0,nVars);
-  for( int i=0;i<nVars;i++ )
+  double ymin(0), ymax(0);
+  for( int i=0;i<nVars;i++ ) {
     h1->Fill(vars[i],importance[i]);
+    if( automaticRange ) {
+      ymin = ( ymin>importance[i] ? importance[i] : ymin );
+      ymax = ( ymax<importance[i] ? importance[i] : ymax );
+    }
+  }
+  if( automaticRange ) {
+    ymin = ( ymin<0 ? ymin*1.2 : ymin*0.8 );
+    ymax *= 1.2;
+  }
+  else {
+    ymin = 0.;
+    ymax = 1.;
+  }
+  for( int i=0;i<nVars;i++ )
+    h1->SetBinError(i+1,error[i]);
   h1->LabelsDeflate("X");
   h1->LabelsOption("v");
   h1->SetLineColor(4);
-  h1->SetFillColor(4);
+  h1->SetMarkerStyle(21);
+  h1->SetMarkerColor(4);
+  h1->SetLineWidth(2);
   TAxis* yaxis = h1->GetYaxis();
-  yaxis->SetRangeUser(0.,1.);
-  h1->SetBarWidth(0.8);
-  h1->SetBarOffset(0.1);
-  h1->Draw("B");
+  yaxis->SetRangeUser(ymin,ymax);
+  h1->Draw("E0P");
 }
 
 
 // Modes: linear or log
 plotHistogram(const char* canvas, const char* mode, const char* title,
-	      double xlo, double dx, int nbin,
+	      double xlo, double xhi, int nbin,
 	      double* sig, double* sigerr, double* bgr, double* bgrerr)
 {
   TCanvas *c 
     = new TCanvas(canvas,"SPR Classifier Output",200,10,600,400);
   gStyle->SetPalette(1);
   TLegend *leg = new TLegend(0.1,0.85,0.5,1.,"Classifier Output","NDC");
-  double xhi = xlo + nbin*dx;
+  double dx = (xhi-xlo) / nbin;
   TH1D* hs = new TH1D("signal",    title,nbin,xlo,xhi);
   TH1D* hb = new TH1D("background",title,nbin,xlo,xhi);
   leg->AddEntry(hs,"Signal","L");
@@ -191,4 +213,27 @@ plotClasses(const char* canvas, const char* title,
   TAxis* yaxis2 = hwt->GetYaxis();
   yaxis2->SetRangeUser(0.,1.1*maxWt);
   hwt->Draw("B");
+}
+
+
+void plotMultiClassTable(const char* canvas, const char* title,
+			 const int nClass, const char classes[][200], 
+			 const double* mcTable)
+{
+  TCanvas *c = 
+    new TCanvas(canvas,"SPR Assigned Class Label (Y) vs True Class Label (X)",
+		200,10,600,400);
+  gStyle->SetPalette(1);
+  gStyle->SetOptTitle(1);
+  gStyle->SetOptStat(0);
+  TH2D* h2 = new TH2D("MultiClass",title,nClass,0,nClass,nClass,0,nClass);
+  for( int i=0;i<nClass;i++ ) {
+    for( int j=0;j<nClass;j++ ) {
+      h2->Fill(classes[i],classes[j],mcTable[i*nClass+j]);
+    }
+  }
+  h2->LabelsDeflate("X");
+  h2->LabelsDeflate("Y");
+  h2->LabelsOption("v");
+  h2->Draw("Z COL");
 }

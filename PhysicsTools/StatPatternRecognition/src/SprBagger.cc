@@ -1,4 +1,4 @@
-//$Id: SprBagger.cc,v 1.8 2007/05/25 17:59:17 narsky Exp $
+//$Id: SprBagger.cc,v 1.9 2007/10/25 22:11:09 narsky Exp $
 
 #include "PhysicsTools/StatPatternRecognition/interface/SprExperiment.hh"
 #include "PhysicsTools/StatPatternRecognition/interface/SprBagger.hh"
@@ -431,5 +431,16 @@ bool SprBagger::setClasses(const SprClass& cls0, const SprClass& cls1)
   }
   cls0_ = cls0; cls1_ = cls1;
   cout << "Classes for Bagger reset to " << cls0_ << " " << cls1_ << endl;
+  return true;
+}
+
+
+bool SprBagger::initBootstrapFromTimeOfDay()
+{
+  if( bootstrap_ == 0 ) {
+    cerr << "No bootstrap object found for the Bagger." << endl;
+    return false;
+  }
+  bootstrap_->init(-1);
   return true;
 }

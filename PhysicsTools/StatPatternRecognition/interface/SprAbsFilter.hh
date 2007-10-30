@@ -1,6 +1,6 @@
 //------------------------------------------------------------------------
 // File and Version Information:
-//      $Id: SprAbsFilter.hh,v 1.9 2007/08/30 17:54:38 narsky Exp $
+//      $Id: SprAbsFilter.hh,v 1.10 2007/10/29 22:10:40 narsky Exp $
 //
 // Description:
 //      Class SprAbsFilter :
@@ -74,7 +74,7 @@ public:
   // specific reset
   virtual bool reset() = 0;
 
-  // filter input data
+  // Filter input data: applied to original data.
   virtual bool filter();
 
   // irreversible filter => events that do not pass this filter are permanently
@@ -121,9 +121,14 @@ public:
   bool chooseClassesFromString(const char* inputClassString) {
     return SprAbsFilter::decodeClassString(inputClassString,classes_);
   }
-  bool filterByClass(const char* inputClassString);
   static bool decodeClassString(const char* inputClassString,
 				std::vector<SprClass>& classes);
+
+  /*
+    filterByClass() is a special method that is applied not to the basic
+    data but to the current copy. It acts as a consecutive filter.
+  */
+  bool filterByClass(const char* inputClassString);
 
   // Define index range to look at part of data.
   // By default all data are looked at.

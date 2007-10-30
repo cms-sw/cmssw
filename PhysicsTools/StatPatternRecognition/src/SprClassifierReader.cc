@@ -1,4 +1,4 @@
-//$Id: SprClassifierReader.cc,v 1.8 2007/08/30 17:54:42 narsky Exp $
+//$Id: SprClassifierReader.cc,v 1.9 2007/10/25 22:11:09 narsky Exp $
 
 #include "PhysicsTools/StatPatternRecognition/interface/SprExperiment.hh"
 #include "PhysicsTools/StatPatternRecognition/interface/SprClassifierReader.hh"
@@ -1571,7 +1571,8 @@ bool SprClassifierReader::readTrainableConfig(
       int iCrit = 0;// criterion for decision tree optimization
       unsigned nFeatures = 0;// features to try for each decision split
       int nLeaf = 0;// events per leaf
-      ist >> iCrit >> nFeatures >> nLeaf;
+      int iRand = 0;// if negative, generate seed for bstrap from time of day
+      ist >> iCrit >> nFeatures >> nLeaf >> iRand;
 
       // make criterion
       SprAbsTwoClassCriterion* crit = 0;
@@ -1601,7 +1602,7 @@ bool SprClassifierReader::readTrainableConfig(
       // make bootstrap for feature sampling
       SprIntegerBootstrap* boot = 0;
       if( nFeatures > 0 ) {
-	boot = new SprIntegerBootstrap(data->dim(),nFeatures);
+	boot = new SprIntegerBootstrap(data->dim(),nFeatures,iRand);
 	bstraps.push_back(boot);
       }
       
@@ -1707,7 +1708,8 @@ bool SprClassifierReader::readTrainableConfig(
     //
     else if( classifierName=="Bagger" || classifierName=="ArcE4" ) {
       unsigned cycles = 0;
-      ist >> cycles;
+      int iRand = 0;
+      ist >> cycles >> iRand;
 
       // check cycles
       if( cycles == 0 ) {

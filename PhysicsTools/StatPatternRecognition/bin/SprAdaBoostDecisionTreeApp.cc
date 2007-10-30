@@ -1,4 +1,4 @@
-//$Id: SprAdaBoostDecisionTreeApp.cc,v 1.10 2007/10/05 20:03:09 narsky Exp $
+//$Id: SprAdaBoostDecisionTreeApp.cc,v 1.11 2007/10/29 22:10:40 narsky Exp $
 
 #include "PhysicsTools/StatPatternRecognition/interface/SprExperiment.hh"
 #include "PhysicsTools/StatPatternRecognition/interface/SprAbsFilter.hh"
@@ -474,20 +474,17 @@ int main(int argc, char ** argv)
 				    &SprTransformation::logit));
       cout << "Per-event loss set to "
            << "Quadratic loss (y-f(x))^2 " << endl;
-      useStandardAB = true;
       break;
     case 2 :
       loss.reset(new SprAverageLoss(&SprLoss::exponential));
       cout << "Per-event loss set to "
            << "Exponential loss exp(-y*f(x)) " << endl;
-      useStandardAB = true;
       break;
     case 3 :
       loss.reset(new SprAverageLoss(&SprLoss::correct_id,
 			       &SprTransformation::inftyRangeToDiscrete01));
       cout << "Per-event loss set to "
 	   << "Misid rate int(y==f(x)) " << endl;
-      useStandardAB = true;
       break;
     default :
       cout << "No per-event loss is chosen. Will use the default." << endl;
@@ -563,9 +560,6 @@ int main(int argc, char ** argv)
 	cout << nodeMinSize[0][i] << " ";
       cout << endl;
     }
-
-    // reset standard flag
-    if( loss.get() == 0 ) useStandardAB = false;
 
     // loop over nodes to prepare classifiers
     vector<SprDecisionTree*> trees(nodeMinSize[0].size());

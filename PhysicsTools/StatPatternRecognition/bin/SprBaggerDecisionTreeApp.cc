@@ -1,4 +1,4 @@
-//$Id: SprBaggerDecisionTreeApp.cc,v 1.11 2007/10/05 20:03:09 narsky Exp $
+//$Id: SprBaggerDecisionTreeApp.cc,v 1.12 2007/10/25 22:11:09 narsky Exp $
 
 #include "PhysicsTools/StatPatternRecognition/interface/SprExperiment.hh"
 #include "PhysicsTools/StatPatternRecognition/interface/SprAbsFilter.hh"
@@ -85,6 +85,7 @@ void help(const char* prog)
   cout << "\t-K keep this fraction in training set and          " << endl;
   cout << "\t\t put the rest into validation set                " << endl;
   cout << "\t-D randomize training set split-up                 " << endl;
+  cout << "\t-G generate seed from time of day for bootstrap    " << endl;
   cout << "\t-t read validation/test data from a file           " << endl;
   cout << "\t\t (must be in same format as input data!!!        " << endl;
   cout << "\t-d frequency of print-outs for validation data     " << endl;
@@ -143,12 +144,13 @@ int main(int argc, char ** argv)
   bool split = false;
   double splitFactor = 0;
   bool splitRandomize = false;
+  bool initBootstrapFromTimeOfDay = false;
 
   // decode command line
   int c;
   extern char* optarg;
   //  extern int optind;
-  while( (c = getopt(argc,argv,"hjko:a:An:l:s:y:bv:f:F:c:P:g:m:ir:K:Dt:d:w:V:z:Z:x:q:")) 
+  while( (c = getopt(argc,argv,"hjko:a:An:l:s:y:bv:f:F:c:P:g:m:ir:K:DGt:d:w:V:z:Z:x:q:")) 
 	 != EOF ) {
     switch( c )
       {
@@ -222,6 +224,9 @@ int main(int argc, char ** argv)
       case 'D' :
         splitRandomize = true;
         break;
+      case 'G' :
+	initBootstrapFromTimeOfDay = true;
+	break;
       case 't' :
 	valFile = optarg;
 	break;
@@ -529,7 +534,8 @@ int main(int argc, char ** argv)
     nFeaturesToSample = filter->dim();
   if( nFeaturesToSample > 0 ) {
     bootstrap.reset(new SprIntegerBootstrap(filter->dim(),nFeaturesToSample));
-    if( !resumeFile.empty() ) bootstrap->init(-1);
+    if( !resumeFile.empty() || initBootstrapFromTimeOfDay ) 
+      bootstrap->init(-1);
   }
 
   // make decision tree
@@ -591,6 +597,11 @@ int main(int argc, char ** argv)
 	bagger1 = new SprArcE4(filter.get(),cycles,discrete);
       else
 	bagger1 = new SprBagger(filter.get(),cycles,discrete);
+      if( initBootstrapFromTimeOfDay 
+	  && !bagger1->initBootstrapFromTimeOfDay() ) {
+	cerr << "Unable to generate seed from time of day for Bagger." << endl;
+	return 4;
+      }
       if( !bagger1->addTrainable(tree1) ) {
 	cerr << "Unable to add decision tree to Bagger for CV." << endl;
 	for( int j=0;j<trees.size();j++ ) {
@@ -640,6 +651,12 @@ int main(int argc, char ** argv)
     bagger.reset(new SprArcE4(filter.get(),cycles,discrete));
   else
     bagger.reset(new SprBagger(filter.get(),cycles,discrete));
+
+  // set seed for bootstrap if necessary
+  if( initBootstrapFromTimeOfDay && !bagger->initBootstrapFromTimeOfDay() ) {
+    cerr << "Unable to generate seed from time of day for Bagger." << endl;
+    return 4;
+  }
 
   // set validation
   if( valFilter.get()!=0 && !valFilter->empty() )

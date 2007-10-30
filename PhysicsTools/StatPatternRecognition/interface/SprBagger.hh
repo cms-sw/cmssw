@@ -1,4 +1,4 @@
-//$Id: SprBagger.hh,v 1.6 2007/02/12 23:13:58 narsky Exp $
+//$Id: SprBagger.hh,v 1.7 2007/10/25 22:11:08 narsky Exp $
 //
 // Description:
 //      Class SprBagger :
@@ -89,6 +89,12 @@ public:
     Choose two classes.
   */
   bool setClasses(const SprClass& cls0, const SprClass& cls1);
+
+  /*
+    Generates seed for bootstrap from tiem of day.
+    Useful for parallelization of the bagger.
+  */
+  bool initBootstrapFromTimeOfDay();
 
   //
   // Local methods for Bagger.

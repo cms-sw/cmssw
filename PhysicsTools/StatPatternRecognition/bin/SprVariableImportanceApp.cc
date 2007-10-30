@@ -1,4 +1,4 @@
-//$Id: SprVariableImportanceApp.cc,v 1.2 2007/10/05 20:03:10 narsky Exp $
+//$Id: SprVariableImportanceApp.cc,v 1.3 2007/10/29 22:10:40 narsky Exp $
 //
 // An executable to estimate the relative importance of variables.
 // See notes in README (Variable Selection).
@@ -12,15 +12,11 @@
 #include "PhysicsTools/StatPatternRecognition/interface/SprStringParser.hh"
 #include "PhysicsTools/StatPatternRecognition/interface/SprClass.hh"
 #include "PhysicsTools/StatPatternRecognition/interface/SprClassifierReader.hh"
+#include "PhysicsTools/StatPatternRecognition/interface/SprMultiClassReader.hh"
 #include "PhysicsTools/StatPatternRecognition/interface/SprCoordinateMapper.hh"
 #include "PhysicsTools/StatPatternRecognition/interface/SprAbsTrainedClassifier.hh"
-#include "PhysicsTools/StatPatternRecognition/interface/SprTrainedAdaBoost.hh"
-#include "PhysicsTools/StatPatternRecognition/interface/SprTrainedFisher.hh"
-#include "PhysicsTools/StatPatternRecognition/interface/SprTrainedLogitR.hh"
-#include "PhysicsTools/StatPatternRecognition/interface/SprAverageLoss.hh"
-#include "PhysicsTools/StatPatternRecognition/interface/SprLoss.hh"
-#include "PhysicsTools/StatPatternRecognition/interface/SprTransformation.hh"
-#include "PhysicsTools/StatPatternRecognition/interface/SprIntegerPermutator.hh"
+#include "PhysicsTools/StatPatternRecognition/interface/SprTrainedMultiClassLearner.hh"
+#include "PhysicsTools/StatPatternRecognition/interface/SprClassifierEvaluator.hh"
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -39,11 +35,13 @@ using namespace std;
 
 
 // sorts in descending order
-struct SVICmpPairSDSecond
-  : public binary_function<pair<string,double>,pair<string,double>,bool> {
-  bool operator()(const pair<string,double>& l, const pair<string,double>& r)
+struct SVICmpSDDSecond
+  : public binary_function<pair<string,pair<double,double> >,
+			   pair<string,pair<double,double> >,bool> {
+  bool operator()(const pair<string,pair<double,double> >& l, 
+		  const pair<string,pair<double,double> >& r)
     const {
-    return (l.second > r.second);
+    return (l.second.first > r.second.first);
   }
 };
 
@@ -57,11 +55,9 @@ void help(const char* prog)
   cout << "\t-y list of input classes (see SprAbsFilter.hh)     " << endl;
   cout << "\t-a input ascii file mode (see SprSimpleReader.hh)  " << endl;
   cout << "\t-v verbose level (0=silent default,1,2)            " << endl;
+  cout << "\t-m use multiclass learner                          " << endl;
   cout << "\t-n number of class permutations per variable (def=1)" << endl;
   cout << "\t-w scale all signal weights by this factor         " << endl;
-  cout << "\t-g per-event loss for (cross-)validation           " << endl;
-  cout << "\t\t 1 - quadratic loss (y-f(x))^2                   " << endl;
-  cout << "\t\t 2 - exponential loss exp(-y*f(x))               " << endl;
   cout << "\t-V include only these input variables              " << endl;
   cout << "\t-z exclude input variables from the list           " << endl;
   cout << "\t-M map variable lists from trained classifiers onto" << endl;
@@ -87,14 +83,14 @@ int main(int argc, char ** argv)
   string includeList, excludeList;
   string inputClassesString;
   bool mapTrainedVars = false;
-  int iLoss = 0;
   int nPerm = 1;
+  bool useMCLearner = false;
 
   // decode command line
   int c;
   extern char* optarg;
   extern int optind;
-  while( (c = getopt(argc,argv,"hy:a:n:v:w:g:V:z:M")) != EOF ) {
+  while( (c = getopt(argc,argv,"hy:a:mn:v:w:V:z:M")) != EOF ) {
     switch( c )
       {
       case 'h' :
@@ -105,6 +101,9 @@ int main(int argc, char ** argv)
 	break;
       case 'a' :
 	readMode = (optarg==0 ? 0 : atoi(optarg));
+	break;
+      case 'm' :
+	useMCLearner = true;
 	break;
       case 'n' :
 	nPerm = (optarg==0 ? 1 : atoi(optarg));
@@ -118,9 +117,6 @@ int main(int argc, char ** argv)
 	  sW = atof(optarg);
 	}
 	break;
-      case 'g' :
-        iLoss = (optarg==0 ? 0 : atoi(optarg));
-        break;
       case 'V' :
 	includeList = optarg;
 	break;
@@ -227,43 +223,38 @@ int main(int argc, char ** argv)
     filter->scaleWeights(inputClasses[1],sW);
   }
 
-  // make per-event loss
-  auto_ptr<SprAverageLoss> loss;
-  bool useStandard = false;
-  switch( iLoss )
-    {
-    case 1 :
-      loss.reset(new SprAverageLoss(&SprLoss::quadratic));
-      cout << "Per-event loss set to "
-           << "Quadratic loss (y-f(x))^2 " << endl;
-      useStandard = false;
-      break;
-    case 2 :
-      loss.reset(new SprAverageLoss(&SprLoss::exponential));
-      cout << "Per-event loss set to "
-           << "Exponential loss exp(-y*f(x)) " << endl;
-      useStandard = true;
-      break;
-    default :
-      loss.reset(new SprAverageLoss(&SprLoss::quadratic));
-      cout << "No per-event loss is chosen. Will use quadratic." << endl;
-      break;
-    }
-
   // read classifier configuration
-  auto_ptr<SprAbsTrainedClassifier> 
-    trained(SprClassifierReader::readTrained(configFile.c_str(),verbose));
-  if( trained.get() == 0 ) {
-    cerr << "Unable to read classifier configuration from file "
-	 << configFile.c_str() << endl;
-    return 3;
+  auto_ptr<SprAbsTrainedClassifier> trained;
+  auto_ptr<SprTrainedMultiClassLearner> mcTrained;
+  if( useMCLearner ) {
+    SprMultiClassReader multiReader;
+    if( !multiReader.read(configFile.c_str()) ) {
+      cerr << "Failed to read saved multi class learner from file "
+           << configFile.c_str() << endl;
+      return 3;
+    }
+    mcTrained.reset(multiReader.makeTrained());
+    cout << "Read classifier " << mcTrained->name().c_str()
+	 << " with dimensionality " << mcTrained->dim() << endl;
   }
-  cout << "Read classifier " << trained->name().c_str()
-       << " with dimensionality " << trained->dim() << endl;
+  else {
+    trained.reset(SprClassifierReader::readTrained(configFile.c_str(),
+						   verbose));
+    if( trained.get() == 0 ) {
+      cerr << "Unable to read classifier configuration from file "
+	   << configFile.c_str() << endl;
+      return 3;
+    }
+    cout << "Read classifier " << trained->name().c_str()
+	 << " with dimensionality " << trained->dim() << endl;
+  }
 
   // get a list of trained variables
   vector<string> trainedVars;
-  trained->vars(trainedVars);
+  if( trained.get() != 0 )
+    trained->vars(trainedVars);
+  else
+    mcTrained->vars(trainedVars);
   if( verbose > 0 ) {
     cout << "Variables:      " << endl;
     for( int j=0;j<trainedVars.size();j++ ) 
@@ -273,7 +264,8 @@ int main(int argc, char ** argv)
 
   // map trained-classifier variables onto data variables
   auto_ptr<SprCoordinateMapper> mapper;
-  if( mapTrainedVars || trained->name()=="Combiner" ) {
+  if( mapTrainedVars || 
+      (trained.get()!=0 && trained->name()=="Combiner") ) {
     mapper.reset(SprCoordinateMapper::createMapper(trainedVars,vars));
     if( mapper.get() == 0 ) {
       cerr << "Unable to map trained classifier vars onto data vars." << endl;
@@ -281,112 +273,31 @@ int main(int argc, char ** argv)
     }
   }
 
-  // switch classifier output range
-  if( useStandard ) {
-    if(      trained->name() == "AdaBoost" ) {
-      SprTrainedAdaBoost* specific 
-	= static_cast<SprTrainedAdaBoost*>(trained.get());
-      specific->useStandard();
-    }
-    else if( trained->name() == "Fisher" ) {
-      SprTrainedFisher* specific 
-	= static_cast<SprTrainedFisher*>(trained.get());
-      specific->useStandard();
-    }
-    else if( trained->name() == "LogitR" ) {
-      SprTrainedLogitR* specific 
-	= static_cast<SprTrainedLogitR*>(trained.get());
-      specific->useStandard();
-    }
+  // call evaluator
+  vector<SprClassifierEvaluator::NameAndValue> lossIncrease;
+  if( !SprClassifierEvaluator::variableImportance(filter.get(),
+						  trained.get(),
+						  mcTrained.get(),
+						  mapper.get(),
+						  nPerm,
+						  lossIncrease) ) {
+    cerr << "Unable to estimate variable importance." << endl;
+    return 5;
   }
-
-  //
-  // pass through all variables
-  //
-  bool first = true;
-  int N = filter->size();
-  SprIntegerPermutator permu(N);
-  int nVars = trainedVars.size();
-  vector<pair<string,double> > losses;
-
-  // make first pass without permutations
-  for( int n=0;n<N;n++ ) {
-    const SprPoint* p = (*(filter.get()))[n];
-    const SprPoint* mappedP = p;
-    int icls = -1;
-    if(      p->class_ == inputClasses[0] )
-      icls = 0;
-    else if( p->class_ == inputClasses[1] )
-      icls = 1;
-    else
-      continue;
-    if( mapper.get() != 0 ) mappedP = mapper->output(p);
-    loss->update(icls,trained->response(mappedP),filter->w(n));
-    if(  mapper.get() != 0 ) mapper->clear();
-  }
-  double nominalLoss = loss->value();
-
-  // loop over permutations
-  cout << "Will perform " << nPerm << " permutations per variable." << endl;
-  for( int d=0;d<nVars;d++ ) {
-    cout << "Permuting variable " << trainedVars[d].c_str() << endl;
-
-    // map this var
-    int mappedD = d;
-    if( mapper.get() != 0 )
-      mappedD = mapper->mappedIndex(d);
-    assert( mappedD>=0 && mappedD<filter->dim() );
-
-    // pass through all points permuting them
-    double aveLoss = 0;
-    for( int i=0;i<=nPerm;i++ ) {
-
-      // permute this variable
-      vector<unsigned> seq;
-      if( !permu.sequence(seq) ) {
-	cerr << "Unable to permute points." << endl;
-	return 5;
-      }
-      
-      // pass through points
-      loss->reset();
-      for( int n=0;n<N;n++ ) {
-	SprPoint p(*(*(filter.get()))[n]);
-	p.x_[mappedD] = (*(filter.get()))[seq[n]]->x_[mappedD];
-	const SprPoint* mappedP = &p;
-	int icls = -1;
-	if(      p.class_ == inputClasses[0] )
-	  icls = 0;
-	else if( p.class_ == inputClasses[1] )
-	  icls = 1;
-	else
-	  continue;
-	if( mapper.get() != 0 ) mappedP = mapper->output(&p);
-	loss->update(icls,trained->response(mappedP),filter->w(n));
-	if( mapper.get() != 0 ) mapper->clear();
-      }
-
-      // store loss
-      aveLoss += loss->value();
-    }// end loop over permutations
-
-    // get and store average loss
-    aveLoss = (aveLoss-nominalLoss)/nPerm;
-    losses.push_back(pair<string,double>(trainedVars[d],aveLoss));
-  }// end loop over variables
-  assert( losses.size() == nVars );
 
   //
   // process computed loss
   //
-  stable_sort(losses.begin(),losses.end(),SVICmpPairSDSecond());
+  stable_sort(lossIncrease.begin(),lossIncrease.end(),SVICmpSDDSecond());
   cout << "==========================================================" << endl;
   char t [200];
   sprintf(t,"%35s      %15s","Variable","Change in loss");
   cout << t << endl;
-  for( int d=0;d<nVars;d++ ) {
+  for( int d=0;d<lossIncrease.size();d++ ) {
     char s [200];
-    sprintf(s,"%35s      %15.10f",losses[d].first.c_str(),losses[d].second);
+    sprintf(s,"%35s      %15.10f +- %15.10f",
+	    lossIncrease[d].first.c_str(),
+	    lossIncrease[d].second.first,lossIncrease[d].second.second);
     cout << s << endl;
   }
   cout << "==========================================================" << endl;

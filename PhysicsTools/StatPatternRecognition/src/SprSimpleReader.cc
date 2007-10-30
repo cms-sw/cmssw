@@ -1,4 +1,4 @@
-//$Id: SprSimpleReader.cc,v 1.6 2007/07/24 23:05:12 narsky Exp $
+//$Id: SprSimpleReader.cc,v 1.7 2007/10/22 21:23:41 narsky Exp $
 
 #include "PhysicsTools/StatPatternRecognition/interface/SprExperiment.hh"
 #include "PhysicsTools/StatPatternRecognition/interface/SprSimpleReader.hh"
@@ -8,6 +8,7 @@
 #include "PhysicsTools/StatPatternRecognition/interface/SprPreFilter.hh"
 
 #include <algorithm>
+#include <utility>
 #include <cassert>
 #include <fstream>
 #include <iostream>
@@ -158,18 +159,30 @@ SprAbsFilter* SprSimpleReader::read(const char* filename)
 	icls = ( icls<=0 ? -1 : 1 );
 	icls = ( (icls*charge)<0 ? 0 : 1);
       }
+
+      // passes selection requirements?
       if( filter_!=0 && !filter_->pass(icls,v) ) continue;
+
+      // compute user-defined class
+      if( filter_!=0 ) {
+	pair<int,bool> computedClass = filter_->computeClass(v);
+	if( computedClass.second ) 
+	  icls = computedClass.first;
+      }
+
+      // transform coordinates
       if( filter_ != 0 ) {
 	vector<double> vNew;
-	if( filter_->transformCoords(v,vNew) ) {
+	if( filter_->transformCoords(v,vNew) )
 	  data->insert(icls,vNew);
-	  if( mode_ == 4 || mode_ == 6 ) weights.push_back(weight);
-	  continue;
+	else {
+	  cerr << "Pre-filter is unable to transform coordinates." << endl;
+	  return 0;
 	}
-	cerr << "Pre-filter is unable to transform coordinates." << endl;
-	return 0;
       }
-      data->insert(icls,v);
+      else
+	data->insert(icls,v);
+
       if( mode_ == 4 || mode_ == 6 ) weights.push_back(weight);
     }
     else {

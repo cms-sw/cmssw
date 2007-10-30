@@ -1,4 +1,4 @@
-//$Id: exampleUserCuts.cc,v 1.4 2007/10/05 20:03:10 narsky Exp $
+//$Id: exampleUserCuts.cc,v 1.5 2007/10/22 21:23:41 narsky Exp $
 
 #include "PhysicsTools/StatPatternRecognition/interface/SprExperiment.hh"
 #include "PhysicsTools/StatPatternRecognition/interface/SprAbsFilter.hh"
@@ -13,11 +13,29 @@
 using namespace std;
 
 //
-// Define user cuts and transformations here.
+// Specify user cuts, transformations and class definitions here.
 //
+
+/*
+  The following combination of 7 pre-filtering routines:
+     1) keeps only events with class 1, as specified in the input data
+     2) keeps only events with x0+x1>0
+     3) transforms 2D data (x0,x1) into 1D data (x0+x1) and names the new
+        input variable x1_plus_x2
+     4) redefines class for the input events in such a way that events
+        with x0+x1>2 are labeled as class 1 and all other events as class 0
+
+  That is, you start with 10k signal and 10k background 2D events and
+  end up with 390 signal and 2138 background 1D events. 
+
+  In case you have any doubt, run
+  awk '{ if( !($0~"#") && $3==1 && $1+$2>2 ) n++ } END { print n }' gauss2_uniform_2d_train.pat
+  to count the new signal events.
+*/
 
 // Define a list of input classes.
 // If accept all classes, return an empty vector.
+// The following selects class 1.
 vector<int> myClasses() {
   vector<int> classes(1);
   classes[0] = 1;
@@ -72,6 +90,26 @@ void myTransform(const std::vector<double>& in,
 }
 
 //
+// Specify user class definition.
+//
+
+// Define a list of variables used for user class definition.
+vector<string> varsForClass() {
+  vector<string> vars(2);
+  vars[0] = "x0";
+  vars[1] = "x1";
+  return vars;
+}
+
+// Give class definition. It will replace the class definition in the data.
+// Events with x0+x1>2 are signal and the rest of events are background.
+int myClass(const std::vector<double>& in) {
+  if( in[0]+in[1] > 2. ) 
+    return 1;
+  return 0;
+}
+
+//
 // End of user definitions.
 //
 
@@ -92,6 +130,10 @@ int main(int argc, char ** argv)
   }
   if( !pre.setTransform(inputVars,outputVars,myTransform) ) {
     cerr << "Unable to set pre-filter transform." << endl;
+    return 1;
+  }
+  if( !pre.setClass(varsForClass,myClass) ) {
+    cerr << "Unable to set pre-filter class definition." << endl;
     return 1;
   }
   //

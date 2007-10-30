@@ -1,5 +1,5 @@
 // File and Version Information:
-//      $Id: SprDataFeeder.hh,v 1.5 2007/05/23 21:18:58 narsky Exp $
+//      $Id: SprDataFeeder.hh,v 1.6 2007/10/29 22:10:40 narsky Exp $
 //
 // Description:
 //      Class SprDataFeeder :
@@ -54,6 +54,7 @@ public:
   // Add a new classifier.
   // If a mapper is provided, it overrides the default mapper
   // provided in the constructor.
+  // Note that the feeder takes ownership of mappers.
   bool addClassifier(const SprAbsTrainedClassifier* c, 
 		     const char* name,
 		     const std::vector<unsigned>& mapper);

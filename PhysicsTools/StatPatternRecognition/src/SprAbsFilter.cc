@@ -1,4 +1,4 @@
-//$Id: SprAbsFilter.cc,v 1.9 2007/08/30 17:54:38 narsky Exp $
+//$Id: SprAbsFilter.cc,v 1.10 2007/10/29 22:10:40 narsky Exp $
 
 #include "PhysicsTools/StatPatternRecognition/interface/SprExperiment.hh"
 #include "PhysicsTools/StatPatternRecognition/interface/SprAbsFilter.hh"
@@ -46,7 +46,8 @@ struct SAFCmpPairDIFirstNumber
     return (l.first < r);
   }
 };
-                                                                                                                   
+
+
 SprAbsFilter::SprAbsFilter(const SprData* data,
 			   bool ownData) 
   : 
@@ -675,8 +676,31 @@ bool SprAbsFilter::decodeClassString(const char* inputClassString,
 
 bool SprAbsFilter::filterByClass(const char* inputClassString)
 {
-  if( !this->chooseClassesFromString(inputClassString) ) return false;
-  return this->filter();
+  // decode the string
+  if( !this->chooseClassesFromString(inputClassString) ) 
+    return false;
+
+  // make a copy
+  SprData* copy = copy_->emptyCopy();
+
+  // loop through points and accept
+  vector<double> copyWeights;
+  for( int i=0;i<copy_->size();i++ ) {
+    SprPoint* p = (*copy_)[i];
+    if( this->category(p) ) {
+      copy->uncheckedInsert(p);
+      copyWeights.push_back(copyWeights_[i]);
+    }
+  }
+
+  // save copy
+  if( ownCopy_ ) delete copy_;
+  copy_ = copy;
+  ownCopy_ = true;
+  copyWeights_ = copyWeights;
+
+  // exit
+  return true;
 }
 
 
