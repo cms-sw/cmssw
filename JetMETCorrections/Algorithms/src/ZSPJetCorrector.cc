@@ -15,7 +15,7 @@ using namespace std;
 
 
 ZSPJetCorrector::ZSPJetCorrector (const edm::ParameterSet& fConfig) {
- std::string file="JetMETCorrections/ZSPJet/data/"+fConfig.getParameter <std::string> ("tagName")+".txt";
+ std::string file="CondFormats/JetMETObjects/data/"+fConfig.getParameter <std::string> ("tagName")+".txt";
  edm::FileInPath f1(file);
  mSimpleCorrector = new SimpleZSPJetCorrector (f1.fullPath());
 }
