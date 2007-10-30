@@ -3,16 +3,18 @@
 
 #include "DQMServices/UI/interface/MonitorUIRoot.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
-#include "CommonTools/TrackerMap/interface/FedTrackerMap.h"
+#include "CondFormats/SiStripObjects/interface/SiStripFedCabling.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+
 #include <fstream>
 #include <map>
 #include <vector>
 #include <string>
 
 class DaqMonitorBEInterface;
-class SiStripDetCabling;
-class SiStripFedCabling;
 
+class FedTrackerMap;
+class SiStripTrackerMap;
 class SiStripTrackerMapCreator {
 
  public:
@@ -34,7 +36,7 @@ class SiStripTrackerMapCreator {
   void paintTkMap(int det_id, std::map<MonitorElement*, int>& me_map);
   void paintFedTkMap(int fed_id, int fed_ch, std::map<MonitorElement*, int>& me_map);
 
-  TrackerMap* trackerMap_;
+  SiStripTrackerMap* trackerMap_;
   FedTrackerMap* fedTrackerMap_;
   std::vector<std::string> meNames_;
   std::string tkMapName_;

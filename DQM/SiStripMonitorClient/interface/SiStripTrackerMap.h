@@ -1,3 +1,5 @@
+#ifndef _SiStripTrackerMap_h_
+#define _SiStripTrackerMap_h_
 #include "CommonTools/TrackerMap/interface/TrackerMap.h"
 
 using namespace std ;
@@ -20,4 +22,4 @@ class SiStripTrackerMap : public TrackerMap
           bool firsttime;
 	  string title ;
 } ;
-
+#endif

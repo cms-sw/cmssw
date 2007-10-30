@@ -1,4 +1,6 @@
 #include "DQM/SiStripMonitorClient/interface/SiStripTrackerMapCreator.h"
+#include "DQM/SiStripMonitorClient/interface/SiStripTrackerMap.h"
+#include "CommonTools/TrackerMap/interface/FedTrackerMap.h"
 #include "CondFormats/SiStripObjects/interface/SiStripFedCabling.h"
 #include "DQM/SiStripMonitorClient/interface/SiStripUtility.h"
 #include "DQM/SiStripMonitorClient/interface/SiStripConfigParser.h"
@@ -47,7 +49,7 @@ bool SiStripTrackerMapCreator::readConfiguration() {
 //
 void SiStripTrackerMapCreator::create(DaqMonitorBEInterface* bei) {
   if (meNames_.size() == 0) return;
-  if (!trackerMap_) trackerMap_ = new TrackerMap(tkMapName_);
+  if (!trackerMap_) trackerMap_ = new SiStripTrackerMap(tkMapName_);
 
   vector<string> tempVec, contentVec;
   bei->getContents(tempVec);
@@ -97,10 +99,7 @@ void SiStripTrackerMapCreator::create(DaqMonitorBEInterface* bei) {
     }    
     paintTkMap(atoi(det_id.c_str()), local_mes);
   }
-  trackerMap_->print(true);  
-  delete trackerMap_;
-  trackerMap_ = 0;
-  
+  trackerMap_->printonline();  
 }
 //
 // -- Create Fed Tracker Map
@@ -185,7 +184,7 @@ int SiStripTrackerMapCreator::getMENames(vector<string>& me_names) {
 void SiStripTrackerMapCreator::create(const edm::ESHandle<SiStripFedCabling> fedcabling, DaqMonitorBEInterface* bei) {
 
   if (meNames_.size() == 0) return;
-  if (!trackerMap_)     trackerMap_    = new TrackerMap(tkMapName_);
+  if (!trackerMap_)     trackerMap_    = new SiStripTrackerMap(tkMapName_);
   if (!fedTrackerMap_ ) fedTrackerMap_ = new FedTrackerMap(fedcabling);
 
   const vector<uint16_t>& feds = fedcabling->feds(); 
@@ -219,7 +218,7 @@ void SiStripTrackerMapCreator::create(const edm::ESHandle<SiStripFedCabling> fed
       paintFedTkMap(iconn->fedId(), iconn->fedCh(),local_mes);      
     }
   }
-  trackerMap_->print();
+  trackerMap_->printonline();
   fedTrackerMap_->print();  
 }
 //
