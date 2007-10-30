@@ -6,7 +6,7 @@ TauElementsOperators::TauElementsOperators(BaseTau& theBaseTau) : BaseTau_(theBa
   
 double TauElementsOperators::computeConeSize(const TFormula& ConeSizeTFormula,double ConeSizeMin,double ConeSizeMax){
   double x=BaseTau_.energy();
-  double y=BaseTau_.et();
+  double y=BaseTau_.pt();
   double ConeSize=ConeSizeTFormula.Eval(x,y);
   if (ConeSize<ConeSizeMin)ConeSize=ConeSizeMin;
   if (ConeSize>ConeSizeMax)ConeSize=ConeSizeMax;
@@ -16,13 +16,13 @@ TFormula TauElementsOperators::computeConeSizeTFormula(const string& ConeSizeFor
   //--- check functional form 
   //    given as configuration parameter for matching and signal cone sizes;
   //
-  //    The size of a cone may depend on the energy "E" and/or transverse energy "ET" of the tau-jet candidate.
-  //    Any functional form that is supported by ROOT's TFormula class can be used (e.g. "3.0/E", "0.25/sqrt(ET)")
+  //    The size of a cone may depend on the energy "E" and/or transverse momentum "PT" of the tau-jet candidate.
+  //    Any functional form that is supported by ROOT's TFormula class can be used (e.g. "3.0/E", "0.25/sqrt(PT)")
   //
   //    replace "E"  by TFormula variable "x"
-  //            "ET"                      "y"
+  //            "PT"                      "y"
   string ConeSizeFormulaStr = ConeSizeFormula;
-  replaceSubStr(ConeSizeFormulaStr,"ET","y");
+  replaceSubStr(ConeSizeFormulaStr,"PT","y");
   replaceSubStr(ConeSizeFormulaStr,"E","x");
   TFormula ConeSizeTFormula;
   ConeSizeTFormula.SetName("ConeSize");
