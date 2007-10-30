@@ -53,5 +53,18 @@
   <class name="boost::transform_iterator<HLTPerformanceInfo::Path::Adapter,__gnu_cxx::__normal_iterator<const unsigned int*,std::vector<unsigned int> >,boost::use_default,boost::use_default>" />
   <class name="boost::transform_iterator<HLTPerformanceInfo::Path::Adapter,__gnu_cxx::__normal_iterator<const unsigned long*,std::vector<unsigned long> >,boost::use_default,boost::use_default>" />
 
+  <class name="reco::TrigObject"/>
+  <class name="reco::TrigCollection"/>
+  <class name="reco::TrigGlobalCollection"/>
+  <class name="reco::TrigPointer"/>
+  <class name="reco::TrigPathCollection"/>
+  <class name="reco::TrigTableCollection"/>
+
+  <class name="edm::Wrapper<reco::TrigObject>"/>
+  <class name="edm::Wrapper<reco::TrigCollection>"/>
+  <class name="edm::Wrapper<reco::TrigGlobalCollection>"/>
+  <class name="edm::Wrapper<reco::TrigPointer>"/>
+  <class name="edm::Wrapper<reco::TrigPathCollection>"/>
+  <class name="edm::Wrapper<reco::TrigTableCollection>"/>
 
 </lcgdict>

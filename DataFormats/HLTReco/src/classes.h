@@ -4,6 +4,7 @@
 #include "DataFormats/HLTReco/interface/HLTGlobalObject.h"
 #include "DataFormats/HLTReco/interface/ModuleTiming.h"
 #include "DataFormats/HLTReco/interface/HLTPerformanceInfo.h"
+#include "DataFormats/HLTReco/interface/HLTDataModel.h"
 #include "DataFormats/Common/interface/Wrapper.h"
 
 namespace {
@@ -62,5 +63,23 @@ namespace {
     std::vector<HLTPerformanceInfo::Path>::const_iterator pw11;
     HLTPerformanceInfo::Path::Adapter pw12;
     HLTPerformanceInfo::Path::const_iterator pw13;
+
+
+    reco::TrigObject to;
+    reco::TrigCollection tc;
+    reco::TrigGlobalCollection tg;
+
+    reco::TrigPointer tp;
+    reco::TrigPathCollection tpc;
+    reco::TrigTableCollection ttc;
+
+    edm::Wrapper<reco::TrigObject> wto;
+    edm::Wrapper<reco::TrigCollection> wtc;
+    edm::Wrapper<reco::TrigGlobalCollection> wtg;
+
+    edm::Wrapper<reco::TrigPointer> wtp;
+    edm::Wrapper<reco::TrigPathCollection> wtpc;
+    edm::Wrapper<reco::TrigTableCollection> wttc;
+
   }
 }
