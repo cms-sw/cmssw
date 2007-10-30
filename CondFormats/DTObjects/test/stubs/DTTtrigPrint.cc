@@ -42,6 +42,32 @@ namespace edmtest {
     context.get<DTTtrigRcd>().get(tTrig);
     std::cout << tTrig->version() << std::endl;
     std::cout << std::distance( tTrig->begin(), tTrig->end() ) << " data in the container" << std::endl;
+    DTTtrig::const_iterator iter = tTrig->begin();
+    DTTtrig::const_iterator iend = tTrig->end();
+    while ( iter != iend ) {
+      const DTTtrigId&   trigId   = iter->first;
+      const DTTtrigData& trigData = iter->second;
+      float trigTime;
+      float trigTrms;
+      tTrig->get( trigId.wheelId,
+                      trigId.stationId,
+                      trigId.sectorId,
+                      trigId.slId,
+                      trigId.layerId,
+                      trigId.cellId,
+                      trigTime, trigTrms );
+      std::cout << trigId.wheelId   << " "
+                << trigId.stationId << " "
+                << trigId.sectorId  << " "
+                << trigId.slId      << " -> "
+                << trigId.layerId   << " -> "
+                << trigId.cellId    << " -> "
+                << trigData.tTrig    << " "
+                << trigData.tTrms    << " -> "
+                << trigTime          << " "
+                << trigTrms          << std::endl;
+      iter++;
+    }
   }
   DEFINE_FWK_MODULE(DTTtrigPrint);
 }
