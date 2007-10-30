@@ -1,9 +1,8 @@
-#include "SimG4Core/PhysicsLists/interface/G4Version.h"
 #include "QGSPCMS_BERT.hh"
+#include "SimG4Core/PhysicsLists/interface/CMSEmStandardPhysics.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "G4DecayPhysics.hh"
-#include "G4EmStandardPhysics.hh"
 #include "G4EmExtraPhysics.hh"
 #include "G4IonPhysics.hh"
 #include "G4QStoppingPhysics.hh"
@@ -28,11 +27,7 @@ QGSPCMS_BERT::QGSPCMS_BERT(G4LogicalVolumeToDDLogicalPartMap& map,
 
   if (emPhys) {
     // EM Physics
-#ifndef G4V9
-    RegisterPhysics( new G4EmStandardPhysics("standard EM",ver));
-#else
-    RegisterPhysics( new G4EmStandardPhysics(ver,"standard EM"));
-#endif
+    RegisterPhysics( new CMSEmStandardPhysics("standard EM",ver));
 
     // Synchroton Radiation & GN Physics
     RegisterPhysics( new G4EmExtraPhysics("extra EM"));
