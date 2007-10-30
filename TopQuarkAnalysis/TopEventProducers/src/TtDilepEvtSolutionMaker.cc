@@ -1,5 +1,5 @@
 //
-// $Id: TtDilepEvtSolutionMaker.cc,v 1.9 2007/10/11 14:53:46 delaer Exp $
+// $Id: TtDilepEvtSolutionMaker.cc,v 1.10 2007/10/17 16:13:42 delaer Exp $
 //
 
 #include "TopQuarkAnalysis/TopEventProducers/interface/TtDilepEvtSolutionMaker.h"
@@ -32,6 +32,7 @@ TtDilepEvtSolutionMaker::TtDilepEvtSolutionMaker(const edm::ParameterSet & iConf
   mumuChannel_    = iConfig.getParameter<bool>         ("mumuChannel");
   mutauChannel_   = iConfig.getParameter<bool>         ("mutauChannel");
   etauChannel_    = iConfig.getParameter<bool>         ("etauChannel");
+  tautauChannel_  = iConfig.getParameter<bool>         ("tautauChannel");
   tmassbegin_     = iConfig.getParameter<double>       ("tmassbegin");
   tmassend_       = iConfig.getParameter<double>       ("tmassend");
   tmassstep_      = iConfig.getParameter<double>       ("tmassstep");
@@ -67,8 +68,10 @@ void TtDilepEvtSolutionMaker::produce(edm::Event & iEvent, const edm::EventSetup
   bool ee = false;
   bool etau = false;
   bool mutau = false;
+  bool tautau = false;
   bool leptonFoundEE = false;
   bool leptonFoundMM = false;
+  bool leptonFoundTT = false;
   bool leptonFoundEpMm = false;
   bool leptonFoundEmMp = false;
   bool leptonFoundEpTm = false;
@@ -77,7 +80,7 @@ void TtDilepEvtSolutionMaker::produce(edm::Event & iEvent, const edm::EventSetup
   bool leptonFoundMmTp = false;
   bool jetsFound = false;
   bool METFound = false;
-  int  JetVetoByTaus;
+  int  JetVetoByTaus = -1; //TODO: change this to have several taus (vector<int>)
   
   //select MET (TopMET vector is sorted on ET)
   if(mets->size()>=1) { METFound = true; }
@@ -212,10 +215,24 @@ void TtDilepEvtSolutionMaker::produce(edm::Event & iEvent, const edm::EventSetup
     }
     // select Jets (TopJet vector is sorted on ET)
     jetsFound = ((jets->size()>=3)||(jets->size()==2&&JetVetoByTaus<0));
+  } else if(taus->size()>1) {
+    tautau = true;
+    if(LepDiffCharge(&(*taus)[0],&(*taus)[1])) {
+      leptonFound = true;
+      leptonFoundTT = true;
+      if(HasPositiveCharge(&(*taus)[0])) {
+        selTaup = 0;
+	selTaum = 1;
+      }
+      else {
+        selTaup = 1;
+	selTaum = 0;
+      }
+    }
   }
  
   // Check that the above work makes sense
-  if(int(ee)+int(emu)+int(mumu)+int(etau)+int(mutau)>1) 
+  if(int(ee)+int(emu)+int(mumu)+int(etau)+int(mutau)+int(tautau)>1) 
     std::cout << "[TtDilepEvtSolutionMaker]: "
               << "Lepton selection criteria uncorrectly defined" << std::endl;
   
@@ -223,7 +240,8 @@ void TtDilepEvtSolutionMaker::produce(edm::Event & iEvent, const edm::EventSetup
                        ((leptonFoundEmMp || leptonFoundEpMm) && emuChannel_)  ||
                        (leptonFoundMM && mumuChannel_)                        ||
 		       ((leptonFoundMmTp || leptonFoundMpTm) && mutauChannel_)||
-		       ((leptonFoundEmTp || leptonFoundEpTm) && etauChannel_)   ;
+		       ((leptonFoundEmTp || leptonFoundEpTm) && etauChannel_) ||
+		       (leptonFoundTT && tautauChannel_)                        ;
                        
   std::vector<TtDilepEvtSolution> * evtsols = new std::vector<TtDilepEvtSolution>();
   if(correctLepton && METFound && jetsFound) {
@@ -268,13 +286,13 @@ void TtDilepEvtSolutionMaker::produce(edm::Event & iEvent, const edm::EventSetup
           yconstraint += (*muons)[selMuonm].py();
         }
 	// Set tau- in the event
-        if (leptonFoundEpTm || leptonFoundMpTm) {
+        if (leptonFoundEpTm || leptonFoundMpTm || leptonFoundTT) {
           asol.setTaum(taus, selTaum);
           xconstraint += (*taus)[selTaum].px();
           yconstraint += (*taus)[selTaum].py();
         }
 	// Set tau+ in the event
-        if (leptonFoundEmTp || leptonFoundMmTp) {
+        if (leptonFoundEmTp || leptonFoundMmTp || leptonFoundTT) {
           asol.setTaup(taus, selTaup);
           xconstraint += (*taus)[selTaup].px();
           yconstraint += (*taus)[selTaup].py();
