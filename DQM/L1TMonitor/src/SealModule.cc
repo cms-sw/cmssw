@@ -48,3 +48,6 @@ DEFINE_ANOTHER_FWK_MODULE(L1TGT);
 
 #include <DQM/L1TMonitor/interface/L1TCompare.h>
 DEFINE_ANOTHER_FWK_MODULE(L1TCompare);
+
+#include "DQM/L1TMonitor/interface/L1TDEMON.h"
+DEFINE_FWK_MODULE(L1TDEMON);
