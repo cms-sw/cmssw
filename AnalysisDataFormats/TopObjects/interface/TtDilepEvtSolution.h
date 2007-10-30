@@ -1,5 +1,5 @@
 //
-// $Id$
+// $Id: TtDilepEvtSolution.h,v 1.13 2007/10/24 21:12:31 lowette Exp $
 //
 
 #ifndef TopObjects_TtDilepEvtSolution_h
@@ -62,6 +62,7 @@ class TtDilepEvtSolution {
     std::string getWpDecay() const { return wpDecay_; }
     std::string getWmDecay() const { return wmDecay_; }
     // miscellaneous methods
+    double getResidual()     const;
     bool   getBestSol()      const { return bestSol_; }
     double getRecTopMass()   const {return topmass_; }
     double getRecWeightMax() const {return weightmax_; }
