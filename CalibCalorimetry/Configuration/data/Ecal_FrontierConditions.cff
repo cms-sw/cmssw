@@ -3,3 +3,17 @@
 #
 include "RecoLocalCalo/EcalRecProducers/data/getEcalConditions_frontier.cff"
 include "CalibCalorimetry/EcalLaserCorrection/data/ecalLaserCorrectionService.cfi"
+
+replace ecalConditions.connect="frontier://FrontierDev/CMS_COND_ECAL"				 
+
+# the following is needed to solve a temporary problem in intercalibcontants in 170p6
+
+replace ecalConditions.toGet = {
+	{ string record = "EcalPedestalsRcd"
+	    string tag = "EcalPedestals_trivial" },
+	{ string record = "EcalADCToGeVConstantRcd"
+	    string tag = "EcalADCToGeVConstant_trivial" },
+	{ string record = "EcalGainRatiosRcd"
+	    string tag = "EcalGainRatios_trivial" }
+     }
+replace src2.producedEcalIntercalibConstants = true
