@@ -10,7 +10,8 @@ class tagTree(object):
         self.__tagInventoryTableName = 'TAGINVENTORY_TABLE'
         self.__tagTreeTableColumns = {'nodeid':'unsigned long', 'nodelabel':'string', 'lft':'unsigned long', 'rgt':'unsigned long', 'parentid':'unsigned long', 'tagid':'unsigned long', 'globalsince':'unsigned long long', 'globaltill':'unsigned long long','comment':'string'}
         self.__tagTreeTableNotNullColumns = ['nodelabel','lft','rgt','parentid']
-        self.__tagTreeTableUniqueColumns = ['nodelabel','lft','rgt']
+        #self.__tagTreeTableUniqueColumns = ['nodelabel','lft','rgt']
+        self.__tagTreeTableUniqueColumns = ['nodelabel','lft']
         self.__tagTreeTablePK = ('nodeid')
     def existTagTreeTable( self ):
         """Check if tree table exists
@@ -428,9 +429,9 @@ class tagTree(object):
         inputData = coral.AttributeList()
         inputData.extend('parentrgt','unsigned long')
         inputData['parentrgt'].setData(parentrgt)
-        editor = tableHandle.dataEditor()
+        editor = tableHandle.dataEditor()        
         setClause = 'lft=lft+'+str(delta)
-        condition = 'rgt>:parentrgt'
+        condition = 'lft>:parentrgt'
         editor.updateRows(setClause, condition, inputData)
         setClause = 'rgt=rgt+'+str(delta)
         condition = 'rgt>=:parentrgt'
