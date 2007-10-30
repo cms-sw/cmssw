@@ -6,7 +6,7 @@ status=0
   
 rm -f u14_errors.log u14_warnings.log u14_infos.log u14_debugs.log u14_default.log u14_job_report.mxml 
 
-cmsRun -e -p $LOCAL_TEST_DIR/u14.cfg
+cmsRun -j u14_job_report.mxml -p $LOCAL_TEST_DIR/u14.cfg
  
 for file in u14_errors.log u14_warnings.log u14_infos.log u14_debugs.log u14_default.log u14_job_report.mxml   
 do
