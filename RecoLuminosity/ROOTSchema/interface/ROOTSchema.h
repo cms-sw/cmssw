@@ -46,7 +46,7 @@ public:
     HCAL_HLX::OCCUPANCY_SECTION *Occupancy;
     HCAL_HLX::LHC_SECTION       *LHC;
 
-    ROOTSchema(std::string, std::string, const int &);
+    ROOTSchema(unsigned int runNumber, unsigned int sectionNumber );
     ~ROOTSchema();
     void FillTree(const HCAL_HLX::LUMI_SECTION&);
 

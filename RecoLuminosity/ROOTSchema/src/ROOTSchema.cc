@@ -14,7 +14,7 @@ Date: 2007-10-05
 //
 
 
-ROOTSchema::ROOTSchema(std::string filename = "LumiSchema", std::string treename = "LumiTree" ,const int& runNumber = 0){  
+ROOTSchema::ROOTSchema(unsigned int runNumber = 0, unsigned int sectionNumber = 0){  
   
   #ifdef DEBUG
   cout << "In " << __PRETTY_FUNCTION__ << endl;
@@ -24,14 +24,37 @@ ROOTSchema::ROOTSchema(std::string filename = "LumiSchema", std::string treename
   Summary = NULL;
   BX = NULL;
   
-  std::ostringstream tempStreamer;
-  tempStreamer << std::dec << runNumber;
+  std::ostringstream runStream;
+  std::ostringstream sectionStream;
+  std::string filename;
 
-  filename = "data/" + filename + tempStreamer.str()  + ".root";
+  int i;
+  
+  runStream << std::dec << runNumber;
+  sectionStream << std::dec << sectionNumber;
+
+  filename = "LS_";
+  
+  for (i = 0; i < 5; i++){
+    runNumber /= 10;
+    if(runNumber == 0)
+      filename = filename + "0";
+  }
+  
+  filename = filename + runStream.str() + "_";
+
+  for (i = 0; i < 5; i++){
+    sectionNumber /= 10;
+    if(sectionNumber == 0)
+      filename = filename + "0";
+  }
+
+  filename = filename + sectionStream.str() + ".root";
+
   m_file   = new TFile(filename.c_str(), "RECREATE");  
   m_file->cd();
-
-  m_tree  = new TTree(treename.c_str(), "Lumi Section",1);
+  
+  m_tree  = new TTree("LumiTree","");
 
   Header  = new HCAL_HLX::LUMI_SECTION_HEADER;
   Summary = new HCAL_HLX::LUMI_SUMMARY;
