@@ -12,28 +12,19 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticleCandidate.h"
 
-namespace TopDecayID{
+namespace TopInitID{
   static const int status = 3;
-  static const int tID    = 6;
-  static const int bID    = 5;
-  static const int WID    = 24;
-  static const int tauID  = 15;
+  static const int tID    = 6; 
 }
 
-class TopDecaySubset : public edm::EDProducer {
+class TopInitSubset : public edm::EDProducer {
  public:
-  explicit TopDecaySubset(const edm::ParameterSet&);
-  ~TopDecaySubset();
+  explicit TopInitSubset(const edm::ParameterSet&);
+  ~TopInitSubset();
   
   virtual void produce(edm::Event&, const edm::EventSetup&);
   void fillOutput(const reco::CandidateCollection&, reco::CandidateCollection&);
-  void fillRefs(const reco::CandidateRefProd&, reco::CandidateCollection&);
 
-  reco::Particle::LorentzVector fourVector(const reco::Candidate&);
- protected:
-  void fillTree(int& index, const reco::Candidate&, reco::CandidateCollection&);
  private:
   edm::InputTag src_;  
-  std::map<int,std::vector<int> > refs_; //management of daughter
-                                         //indices for fillRefs
 };
