@@ -26,5 +26,10 @@ class cscmap1
   /* 'chamberid' is a decimal chamber identifier like 122090 */
   void chamber (int chamberid, CSCMapItem::MapItem *item);
 
+  /* 'crate' is either crateid (1-60) or crate logical number,
+   corresponding to position of crate: VME+1/11 -> 111
+                                       VME-3/04 -> 234       */
+  void cratedmb (int crate, int dmb, CSCMapItem::MapItem *item);
+
 }; // end of class cscmap1
 #endif
