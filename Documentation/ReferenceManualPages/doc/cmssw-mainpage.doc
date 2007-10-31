@@ -1,9 +1,4 @@
 /** \mainpage
-<center>
-<a href="https://twiki.cern.ch/twiki/bin/view/CMS/CMSSWReleaseSummary"> Release notes</a>
-</center>
-
-
 This is main page of the CMSSW Reference Manual.
 
 \htmlonly
@@ -27,6 +22,10 @@ This is main page of the CMSSW Reference Manual.
 </script>
 \endhtmlonly
 
+\section release Release notes
+- \ref ReleaseNotes "Release notes for main areas"
+- <a href="https://twiki.cern.ch/twiki/bin/view/CMS/CMSSWReleaseSummary"> Release announcements</a>
+
 \section config Configuration files
 - \ref Software_StandardSequences "Standard sequences for configuration files" 
 - \ref Configuration_Examples "Example configuration files" 
@@ -41,17 +40,17 @@ Definition of the event content (the packages where the contents are defined are
 </caption>
 <tr valign=top><th class="domain">Domain</th><th>Purpose</th><th class="contact">Contact</th></tr>
 <tr>
-  <td>  \endhtmlonly \ref RecoData "RECO Data"  \htmlonly  </td>
+  <td> <a href="https://twiki.cern.ch/twiki/bin/view/CMS/SWGuideRecoDataTable"> RECO Data </a> </td>
   <td>Reconstruction output</td>
-  <td class="contact"> 
+  <td class="contact">
     <a href="mailto:">Luca Lista</a>
     <a href="mailto:">Tommaso Boccali</a>
   </td>
 </tr>
 <tr>
-  <td>  \endhtmlonly \ref AodData "AOD Data"  \htmlonly  </td>
+  <td><a href="https://twiki.cern.ch/twiki/bin/view/CMS/SWGuideAodDataTable"> AOD Data  </a> </td>
   <td>Analysis input</td>
-  <td class="contact"> 
+  <td class="contact">
     <a href="mailto:">Luca Lista</a>
     <a href="mailto:">Tommaso Boccali</a>
   </td>
@@ -59,21 +58,22 @@ Definition of the event content (the packages where the contents are defined are
 <tr>
   <td>  \endhtmlonly \ref SimData "SIM Data"  \htmlonly  </td>
   <td>Simulation output and Monte Carlo truth</td>
-  <td class="contact"> 
+  <td class="contact">
     <a href="mailto:">Daniel Elvira</a>,
-    <a href="mailto:">Maya Stavrianakou</a>
+    <a href="mailto:">Fabio Cossutti</a>
   </td>
 </tr>
 <!-- still missing!
 <tr>
   <td>  \endhtmlonly \ref CondData "COND Data"  \htmlonly  </td>
   <td>Conditions data, including calibrations and alignments</td>
-  <td class="contact"> 
+  <td class="contact">
   </td>
 </tr>
 -->
 </table>
 \endhtmlonly
+
 
 \section funcv Functional View
 Definition of packages according to the different functionalities.
@@ -86,14 +86,16 @@ Definition of packages according to the different functionalities.
 <tr>
   <td>  \endhtmlonly \ref Framework "Framework and EDM"   \htmlonly  </td>
   <td>Core Framework and Event Data Model components</td>
-  <td class="contact"> 
+  <td class="contact">
     <a href="mailto:">Liz Sexton Kennedy</a>
   </td>
 </tr>
 <tr>
   <td>  \endhtmlonly \ref Reconstruction "Reconstruction"   \htmlonly  </td>
   <td>Reconstruction sofware</td>
-  <td class="contact"><a href="mailto:">Tommaso Boccali</a>
+  <td class="contact">
+    <a href="mailto:">Tommaso Boccali</a>
+    <a href="mailto:">Shahram Rahatlou</a>
   </td>
 </tr>
 <tr>
@@ -101,13 +103,15 @@ Definition of packages according to the different functionalities.
   <td>Simulation Software</td>
   <td class="contact">
     <a href="mailto:">Daniel Elvira</a>,
-    <a href="mailto:">Maya Stavrianakou</a>
+    <a href="mailto:">Fabio Cossutti</a>
   </td>
 </tr>
 <tr>
   <td>  \endhtmlonly \ref PhysicsTools "Physics Tools" \htmlonly  </td>
   <td>Physics Analysis Softare Tools</td>
-  <td class="contact"><a href="mailto:">Luca Lista</a>
+  <td class="contact">
+     <a href="mailto:">Luca Lista</a>
+     <a href="mailto:">Chris Jones</a>
   </td>
 </tr>
 <tr>
@@ -130,6 +134,7 @@ Definition of packages according to the different functionalities.
 </tr>
 </table>
 \endhtmlonly
+
 
 \section detv Detector View
 Definition of packages by detector.
