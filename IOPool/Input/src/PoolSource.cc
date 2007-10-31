@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: PoolSource.cc,v 1.64 2007/10/08 21:39:23 wmtan Exp $
+$Id: PoolSource.cc,v 1.66 2007/10/08 23:41:57 wmtan Exp $
 ----------------------------------------------------------------------*/
 #include "PoolSource.h"
 #include "RootFile.h"
@@ -32,8 +32,6 @@ namespace edm {
     if (matchMode == std::string("strict")) matchMode_ = BranchDescription::Strict;
     ClassFiller();
     if (primary()) {
-      TFile *filePtr = (fileIter_->fileName().empty() ? 0 : TFile::Open(fileIter_->fileName().c_str()));
-      if (filePtr != 0) filePtr->Close();
       init(*fileIter_);
       updateProductRegistry();
       setInitialPosition(pset);
