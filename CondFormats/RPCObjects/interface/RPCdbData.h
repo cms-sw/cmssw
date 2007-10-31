@@ -14,12 +14,13 @@ class RPCdbData {
   public:
 
   struct Item {
-    float val;
-    float rms;
+    int dpid;
+    float value;
   };
 
   std::vector<Item> Imon_rpc;
   std::vector<Item> Vmon_rpc;
+  std::vector<Item> Status_rpc;
 
   RPCdbData(){
     
