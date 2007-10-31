@@ -13,8 +13,8 @@
  *   in the muon system and the tracker.
  *
  *
- *  $Date: 2007/08/22 17:44:29 $
- *  $Revision: 1.3 $
+ *  $Date: 2007/10/22 15:01:44 $
+ *  $Revision: 1.4 $
  *
  *  Authors :
  *  N. Neumeister            Purdue University
@@ -76,6 +76,7 @@
 #include "RecoTracker/TkMSParametrization/interface/PixelRecoRange.h"
 
 #include "TrackingTools/TrackRefitter/interface/TrackTransformer.h"
+#include "DataFormats/Math/interface/deltaR.h"
 
 using namespace std;
 using namespace edm;
@@ -247,7 +248,13 @@ MuonCandidate::CandidateContainer GlobalTrajectoryBuilderBase::build(const Track
       refit[2] = ( refitted2.empty() )? 0 : &(*refitted2.begin());
       refit[3] = ( refitted3.empty() )? 0 : &(*refitted3.begin());
 
-      finalTrajectory = new MuonCandidate(new Trajectory(*chooseTrajectory(refit, theMuonHitsOption)), (*it)->muonTrack(), (*it)->trackerTrack(), new Trajectory(*(*it)->trackerTrajectory()));
+      const Trajectory * chosenTrajectory = chooseTrajectory(refit, theMuonHitsOption);
+      if (chosenTrajectory){
+	finalTrajectory = new MuonCandidate(new Trajectory(*chosenTrajectory), (*it)->muonTrack(), (*it)->trackerTrack(), new Trajectory(*(*it)->trackerTrajectory()));
+      }
+      else{
+	edm::LogError(theCategory)<<"could not choose a valid trajectory. skipping the muon. no final trajectory.";
+      }
 
       if ( finalTrajectory ) {
         refittedResult.push_back(finalTrajectory);
@@ -316,7 +323,7 @@ GlobalTrajectoryBuilderBase::chooseRegionalTrackerTracks(const TrackCand& staCan
 
   vector<TrackCand> result;
 
-  float deltaR = 1.0;
+  double deltaR_max = 1.0;
 
   vector<TrackCand>::const_iterator is;
   for ( is = tkTs.begin(); is != tkTs.end(); ++is ) {
@@ -324,13 +331,12 @@ GlobalTrajectoryBuilderBase::chooseRegionalTrackerTracks(const TrackCand& staCan
 //    bool inEtaRange = etaRange.inside(is->second->eta());
 //    bool inPhiRange = (fabs(Geom::Phi<float>(is->second->phi()) - Geom::Phi<float>(regionOfInterest.direction().phi())) < phiMargin.right() ) ? true : false ;
 
-    double deltaEta = regionOfInterest.direction().eta() - is->second->eta();
-    double deltaPhi = regionOfInterest.direction().phi() - is->second->phi();
-    double deltaR_tmp = sqrt( deltaEta*deltaEta + deltaPhi*deltaPhi );
+    double deltaR_tmp = deltaR( static_cast<double>(regionOfInterest.direction().eta()), is->second->eta(),
+				static_cast<double>(regionOfInterest.direction().phi()), is->second->phi());
 
     //for each trackCand in region, add trajectory and add to result
     //if( inEtaRange && inPhiRange ) {
-    if(deltaR_tmp < deltaR) {
+    if(deltaR_tmp < deltaR_max) {
       TrackCand tmpCand = TrackCand(*is);
       LogTrace(theCategory) << "Adding Traj to Tk";
       addTraj(tmpCand);
