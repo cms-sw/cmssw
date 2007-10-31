@@ -4223,6 +4223,12 @@
     </MaterialFraction>
   </CompositeMaterial>
 
+  <CompositeMaterial name="Tk_support" density="5.25617*g/cm3" symbol=" " method="mixture by weight">
+    <MaterialFraction fraction="1.00000000">
+      <rMaterial name="materials:Iron"/>
+    </MaterialFraction>
+  </CompositeMaterial>
+
   <CompositeMaterial name="V_Air" density="1.205*mg/cm3" symbol=" " method="mixture by weight">
     <MaterialFraction fraction="0.7494">
       <rMaterial name="materials:Nitrogen"/>
