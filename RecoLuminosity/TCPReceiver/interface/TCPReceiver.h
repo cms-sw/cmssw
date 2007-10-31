@@ -50,6 +50,7 @@ namespace HCAL_HLX{
     int Connect();
     int SetPort(unsigned short int);
     int SetMode(unsigned char);
+    void SetIP(std::string IP);
     int ReceiveLumiSection();
     int Disconnect();
 

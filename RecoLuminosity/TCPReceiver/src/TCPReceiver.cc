@@ -98,7 +98,8 @@ namespace HCAL_HLX{
       lumiSection.hdr.numOrbits = 3;
       lumiSection.hdr.numBunches = 4;
       lumiSection.hdr.numHLXs = 5;
-      lumiSection.hdr.bCMSLive = 6;
+      lumiSection.hdr.bCMSLive = true;
+      lumiSection.hdr.sectionNumber = 120;
        
       lumiSection.lumiSummary.DeadtimeNormalization = 7;
       lumiSection.lumiSummary.Normalization = 8;
@@ -158,8 +159,8 @@ namespace HCAL_HLX{
       lumiSection.hdr.numBunches = (rand() % 100);
       lumiSection.hdr.numHLXs = (rand() % 100);
       lumiSection.hdr.bCMSLive = true;
-    
- 
+      lumiSection.hdr.sectionNumber = (rand() %100);
+
       lumiSection.lumiSummary.DeadtimeNormalization = (rand() % 100);
       lumiSection.lumiSummary.Normalization = (rand() % 100);
       lumiSection.lumiSummary.InstantLumi = (rand() % 100);
@@ -228,6 +229,12 @@ namespace HCAL_HLX{
       return 201;
     acquireMode = mode;
     return 1;
+  }
+
+  void TCPReceiver::SetIP(std::string IP){
+
+    servIP = IP;
+
   }
   
   int TCPReceiver::Connect(){
