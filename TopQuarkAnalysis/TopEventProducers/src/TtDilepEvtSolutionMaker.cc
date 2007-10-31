@@ -1,5 +1,5 @@
 //
-// $Id: TtDilepEvtSolutionMaker.cc,v 1.11 2007/10/30 10:05:23 delaer Exp $
+// $Id: TtDilepEvtSolutionMaker.cc,v 1.12 2007/10/31 14:16:25 delaer Exp $
 //
 
 #include "TopQuarkAnalysis/TopEventProducers/interface/TtDilepEvtSolutionMaker.h"
@@ -256,9 +256,12 @@ void TtDilepEvtSolutionMaker::produce(edm::Event & iEvent, const edm::EventSetup
                        
   std::vector<TtDilepEvtSolution> * evtsols = new std::vector<TtDilepEvtSolution>();
   if(correctLepton && METFound && jetsFound) {
-    // protect against reading beyond array boundaries
-    unsigned int nrCombJets = nrCombJets_; // do not overwrite nrCombJets_
-    if (jets->size() < nrCombJets) nrCombJets = jets->size();
+    // protect against reading beyond array boundaries while discounting vetoed jets
+    unsigned int nrCombJets = 0; 
+    unsigned int numberOfJets = 0;
+    for(; nrCombJets<jets->size() && numberOfJets<nrCombJets_; ++nrCombJets) {
+      if(find(JetVetoByTaus.begin(),JetVetoByTaus.end(),int(nrCombJets))==JetVetoByTaus.end()) ++numberOfJets;
+    }
     // consider all permutations
     for (unsigned int ib = 0; ib < nrCombJets; ib++) {
       // skipped jet vetoed during components-flagging.
@@ -332,12 +335,13 @@ void TtDilepEvtSolutionMaker::produce(edm::Event & iEvent, const edm::EventSetup
     // flag the best solution (MC matching)
     if(matchToGenEvt_){
       double bestSolDR = 9999.;
-      int bestSol = 0;
+      int bestSol = -1;
+      double dR = 0.;
       for(size_t s=0; s<evtsols->size(); s++) {
-        double dR = (*evtsols)[s].getResidual();
+        dR = (*evtsols)[s].getResidual();
         if(dR<bestSolDR) { bestSolDR = dR; bestSol = s; }
       }
-      (*evtsols)[bestSol].setBestSol(true);
+      if(bestSol!=-1) (*evtsols)[bestSol].setBestSol(true);
     }
     // put the result in the event
     std::auto_ptr<std::vector<TtDilepEvtSolution> > pOut(evtsols);
