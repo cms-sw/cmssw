@@ -1122,6 +1122,8 @@ def _finalizeProcessFragment(values,usingLabels):
         for replace in replaces:
             if not isinstance(getattr(adapted,replace.rootLabel()),cms.PSet):
                 replace.do(adapted)
+        # maybe the user said something like 'replace a.b = {using bl}
+        _findAndHandleProcessUsingBlock(values)
     except Exception, e:
         raise RuntimeError("the configuration contains the error \n"+str(e))    
     #FIX: now need to create Sequences, Paths, EndPaths from the available
