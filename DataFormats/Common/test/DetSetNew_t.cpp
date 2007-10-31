@@ -505,7 +505,7 @@ void TestDetSet::toRangeMap() {
     for (int i=0; i<int(ids.size()); i++) {
       RM::range r = rm.get(ids[i]);
       DST df = *detsets.find(ids[i]);
-      CPPUNIT_ASSERT((r.second-r.first)==df.size());
+      CPPUNIT_ASSERT(static_cast<unsigned long>(r.second-r.first)==df.size());
       CPPUNIT_ASSERT(std::equal(r.first,r.second,df.begin()));
     }
   }
