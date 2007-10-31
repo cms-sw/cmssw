@@ -15,7 +15,7 @@
 //
 // Original Author:  Chi Nhan Nguyen
 //         Created:  Mon Feb 19 13:25:24 CST 2007
-// $Id: FastL1GlobalAlgo.h,v 1.11 2007/09/07 23:02:55 smaruyam Exp $
+// $Id: FastL1GlobalAlgo.h,v 1.12 2007/10/29 18:02:12 smaruyam Exp $
 //
 
 // system include files
@@ -123,7 +123,7 @@ class FastL1GlobalAlgo {
       FastL1RegionMap* m_RMap;
       bool m_DoBitInfo;
 
-      bool m_NewIso;
+      bool m_GctIso;
       double m_IsolationEt;
 
       FastL1Config m_L1Config;

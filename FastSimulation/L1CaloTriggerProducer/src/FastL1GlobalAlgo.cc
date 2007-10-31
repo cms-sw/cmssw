@@ -13,7 +13,7 @@
 //
 // Original Author:  Chi Nhan Nguyen
 //         Created:  Mon Feb 19 13:25:24 CST 2007
-// $Id: FastL1GlobalAlgo.cc,v 1.27 2007/10/23 21:05:48 smaruyam Exp $
+// $Id: FastL1GlobalAlgo.cc,v 1.28 2007/10/29 18:05:53 smaruyam Exp $
 //
 
 // No BitInfos for release versions
@@ -33,7 +33,7 @@ FastL1GlobalAlgo::FastL1GlobalAlgo(const edm::ParameterSet& iConfig)
   m_L1Config.DoEMCorr = iConfig.getParameter<bool>("DoEMCorr");
   m_L1Config.DoJetCorr = iConfig.getParameter<bool>("DoJetCorr");
   m_DoBitInfo = iConfig.getParameter<bool>("DoBitInfo");
-  m_NewIso = iConfig.getParameter<bool>("NewIso");
+  m_GctIso = iConfig.getParameter<bool>("GctIso");
 
   // get uncompressed hcal et
   m_IsolationEt = iConfig.getParameter<double>("IsolationEt");
@@ -171,14 +171,14 @@ FastL1GlobalAlgo::findJets() {
 
     if (m_Regions.at(i).SumEt()>m_L1Config.JetSeedEtThreshold) {
       if (isMaxEtRgn_Window33(i)) {
-if (m_NewIso == false){ // old iso
+if (m_GctIso == false){ // old iso
 	if (isTauJet(i) && (i%22)>3 && (i%22)<18 ) {
 	  addJet(i,true);    
 	} else {
 	  addJet(i,false);    
 	}
 } // old iso
-if (m_NewIso == true) { // new iso
+if (m_GctIso == true) { // new iso
         if (newTau(i) && (i%22)>3 && (i%22)<18 ) {
           addJet(i,true);
         } else {
