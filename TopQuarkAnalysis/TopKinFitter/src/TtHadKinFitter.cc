@@ -1,4 +1,4 @@
-// $Id: TtHadKinFitter.cc,v 1.2 2007/10/07 11:20:07 mfhansen Exp $ 
+// $Id: TtHadKinFitter.cc,v 1.4 2007/10/27 23:51:14 mfhansen Exp $ 
 
 #include "TopQuarkAnalysis/TopKinFitter/interface/TtHadKinFitter.h"
 
@@ -24,8 +24,7 @@ TtHadKinFitter::TtHadKinFitter() :
 
 
 /// constructor from configurables
-TtHadKinFitter::TtHadKinFitter(int jetParam, int maxNrIter, double maxDeltaS, double maxF, 
-			       std::vector<int> constraints) :
+TtHadKinFitter::TtHadKinFitter(int jetParam, int maxNrIter, double maxDeltaS, double maxF, std::vector<int> constraints) :
     jetParam_((Parametrization) jetParam), maxNrIter_(maxNrIter), maxDeltaS_(maxDeltaS),
     maxF_(maxF), constraints_(constraints) {
   setupFitter();
@@ -33,8 +32,7 @@ TtHadKinFitter::TtHadKinFitter(int jetParam, int maxNrIter, double maxDeltaS, do
 
 
 /// constructor from configurables
-TtHadKinFitter::TtHadKinFitter(Parametrization jetParam, int maxNrIter, double maxDeltaS, 
-			       double maxF, std::vector<int> constraints) :
+TtHadKinFitter::TtHadKinFitter(Parametrization jetParam, int maxNrIter, double maxDeltaS, double maxF, std::vector<int> constraints) :
     jetParam_(jetParam), maxNrIter_(maxNrIter), maxDeltaS_(maxDeltaS), maxF_(maxF), 
     constraints_(constraints) {
   setupFitter();
@@ -56,7 +54,7 @@ TtHadEvtSolution TtHadKinFitter::addKinFitInfo(TtHadEvtSolution * asol) {
 
   TMatrixD m1(3,3),  m2(3,3),  m3(3,3),  m4(3,3);
   TMatrixD m1b(4,4), m2b(4,4), m3b(4,4), m4b(4,4);
-  TMatrixD m5(3,3),  m5b(3,3), m6(3,3), m6b(3,3);
+  TMatrixD m5(3,3),  m5b(4,4), m6(3,3), m6b(4,4);
   m1.Zero();  m2.Zero();  m3.Zero();  m4.Zero();
   m1b.Zero(); m2b.Zero(); m3b.Zero(); m4b.Zero();
   m5.Zero();  m5b.Zero(), m6.Zero(), m6b.Zero();
@@ -388,4 +386,5 @@ vector<double> TtHadKinFitter::translateCovM(TMatrixD &V){
   }
   return covM;
 }
+
 
