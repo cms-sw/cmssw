@@ -1,5 +1,5 @@
 //
-// $Id: TtDilepEvtSolutionMaker.cc,v 1.10 2007/10/17 16:13:42 delaer Exp $
+// $Id: TtDilepEvtSolutionMaker.cc,v 1.11 2007/10/30 10:05:23 delaer Exp $
 //
 
 #include "TopQuarkAnalysis/TopEventProducers/interface/TtDilepEvtSolutionMaker.h"
@@ -12,6 +12,7 @@
 #include "TopQuarkAnalysis/TopKinFitter/interface/TtDilepKinSolver.h"
 
 #include <memory>
+#include <vector>
 
 
 /// constructor
@@ -80,7 +81,7 @@ void TtDilepEvtSolutionMaker::produce(edm::Event & iEvent, const edm::EventSetup
   bool leptonFoundMmTp = false;
   bool jetsFound = false;
   bool METFound = false;
-  int  JetVetoByTaus = -1; //TODO: change this to have several taus (vector<int>)
+  std::vector<int>  JetVetoByTaus;
   
   //select MET (TopMET vector is sorted on ET)
   if(mets->size()>=1) { METFound = true; }
@@ -165,17 +166,20 @@ void TtDilepEvtSolutionMaker::produce(edm::Event & iEvent, const edm::EventSetup
 	leptonFoundMmTp = true;
       }
       // loop over the vector of taus to find the first one (highest Pt)
-      // that has the charge opposite to the muon one
+      // that has the charge opposite to the muon one, and does not match in eta-phi
       for(std::vector<TopTau>::const_iterator tau = taus->begin(); tau < taus->end(); ++tau ) {
-        if(tau->charge()*expectedCharge>=0) { *tauIdx = tau-taus->begin(); leptonFound = true; }
+        if(tau->charge()*expectedCharge>=0 && DeltaR<reco::Particle>()(*tau,*(muons->begin()))>0.1) { 
+	  *tauIdx = tau-taus->begin(); 
+	  leptonFound = true; 
+	}
       }
       // check that one combination has been found
       if(!leptonFound) { leptonFoundMpTm = false; leptonFoundMmTp = false; } 
       // discard the jet that matches the tau (if one) 
       if(leptonFound) {
-        for(std::vector<TopJet>::const_iterator jet = jets->begin(); jet<jets->end() && JetVetoByTaus<0; ++jet) {
+        for(std::vector<TopJet>::const_iterator jet = jets->begin(); jet<jets->end(); ++jet) {
           if(DeltaR<reco::Particle>()(*(taus->begin()+*tauIdx),*jet)<0.1) {
-            JetVetoByTaus = jet-jets->begin();
+            JetVetoByTaus.push_back(jet-jets->begin());
           }
 	}
       }
@@ -206,15 +210,15 @@ void TtDilepEvtSolutionMaker::produce(edm::Event & iEvent, const edm::EventSetup
       if(!leptonFound) { leptonFoundEpTm = false; leptonFoundEmTp = false; } 
       // discard the jet that matches the tau (if one) 
       if(leptonFound) {
-        for(std::vector<TopJet>::const_iterator jet = jets->begin(); jet<jets->end() && JetVetoByTaus<0; ++jet) {
+        for(std::vector<TopJet>::const_iterator jet = jets->begin(); jet<jets->end(); ++jet) {
           if(DeltaR<reco::Particle>()(*(taus->begin()+*tauIdx),*jet)<0.1) {
-            JetVetoByTaus = jet-jets->begin();
+            JetVetoByTaus.push_back(jet-jets->begin());
           }
         }
       }
     }
     // select Jets (TopJet vector is sorted on ET)
-    jetsFound = ((jets->size()>=3)||(jets->size()==2&&JetVetoByTaus<0));
+    jetsFound = ((jets->size()-JetVetoByTaus.size())>=2);
   } else if(taus->size()>1) {
     tautau = true;
     if(LepDiffCharge(&(*taus)[0],&(*taus)[1])) {
@@ -229,6 +233,13 @@ void TtDilepEvtSolutionMaker::produce(edm::Event & iEvent, const edm::EventSetup
 	selTaum = 0;
       }
     }
+    for(std::vector<TopJet>::const_iterator jet = jets->begin(); jet<jets->end(); ++jet) {
+      if(DeltaR<reco::Particle>()((*taus)[0],*jet)<0.1 || DeltaR<reco::Particle>()((*taus)[1],*jet)<0.1) {
+        JetVetoByTaus.push_back(jet-jets->begin());
+      }
+    }
+    // select Jets (TopJet vector is sorted on ET)
+    jetsFound = ((jets->size()-JetVetoByTaus.size())>=2);
   }
  
   // Check that the above work makes sense
@@ -251,13 +262,13 @@ void TtDilepEvtSolutionMaker::produce(edm::Event & iEvent, const edm::EventSetup
     // consider all permutations
     for (unsigned int ib = 0; ib < nrCombJets; ib++) {
       // skipped jet vetoed during components-flagging.
-      if(int(ib)==JetVetoByTaus) continue;
+      if(find(JetVetoByTaus.begin(),JetVetoByTaus.end(),int(ib))!=JetVetoByTaus.end())continue;
       // second loop of the permutations
       for (unsigned int ibbar = 0; ibbar < nrCombJets; ibbar++) {
         // avoid the diagonal: b and bbar must be distinct jets
         if(ib==ibbar) continue;
 	// skipped jet vetoed during components-flagging.
-	if(int(ibbar)==JetVetoByTaus) continue;
+	if(find(JetVetoByTaus.begin(),JetVetoByTaus.end(),int(ibbar))!=JetVetoByTaus.end())continue;
 	// Build and save a solution
         TtDilepEvtSolution asol;
         double xconstraint = 0, yconstraint = 0;
