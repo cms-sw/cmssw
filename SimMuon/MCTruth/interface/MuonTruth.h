@@ -3,6 +3,7 @@
 
 #include "DataFormats/CSCRecHit/interface/CSCRecHit2D.h"
 #include "DataFormats/CSCDigi/interface/CSCStripDigi.h"
+#include "DataFormats/CSCDigi/interface/CSCWireDigi.h"
 #include "SimDataFormats/Track/interface/SimTrackContainer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "DataFormats/Common/interface/DetSetVector.h"
@@ -14,6 +15,7 @@ class MuonTruth
 {
 public:
   typedef edm::DetSetVector<StripDigiSimLink> DigiSimLinks;
+  typedef edm::DetSetVector<StripDigiSimLink> WireDigiSimLinks;
   typedef edm::DetSet<StripDigiSimLink> LayerLinks;
 
   MuonTruth();
@@ -21,7 +23,8 @@ public:
   void eventSetup(const edm::Event & event);
 
   void analyze(const CSCRecHit2D & recHit);
-  void analyze(const CSCStripDigi & stripDigi, int layerId);
+  void analyze(const CSCStripDigi & stripDigi, int rawDetIdCorrespondingToCSCLayer);
+  void analyze(const CSCWireDigi & wireDigi  , int rawDetIdCorrespondingToCSCLayer);
 
   /// analyze() must be called before any of the following
   float muonFraction();
@@ -46,6 +49,7 @@ private:
   const edm::SimTrackContainer * theSimTrackContainer;
 
   const DigiSimLinks  * theDigiSimLinks;
+  const DigiSimLinks  * theWireDigiSimLinks;
 
   PSimHitMap theSimHitMap;
 };

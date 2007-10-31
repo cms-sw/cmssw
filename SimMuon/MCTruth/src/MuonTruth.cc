@@ -7,6 +7,7 @@
 MuonTruth::MuonTruth()
 : theSimTrackContainer(0),
   theDigiSimLinks(0),
+  theWireDigiSimLinks(0),
   theSimHitMap("MuonCSCHits")
 {
 }
@@ -21,6 +22,11 @@ void MuonTruth::eventSetup(const edm::Event & event)
   edm::InputTag linksTag("muonCSCDigis" , "MuonCSCStripDigiSimLinks");
   event.getByLabel(linksTag, digiSimLinks);
   theDigiSimLinks = digiSimLinks.product();
+
+  edm::Handle<DigiSimLinks> wireDigiSimLinks;
+  edm::InputTag wireLinksTag("muonCSCDigis" , "MuonCSCWireDigiSimLinks");
+  event.getByLabel(wireLinksTag, wireDigiSimLinks);
+  theWireDigiSimLinks = wireDigiSimLinks.product();
 
   theSimHitMap.fill(event);
 }
@@ -131,9 +137,9 @@ void MuonTruth::analyze(const CSCRecHit2D & recHit)
 }
 
 
-void MuonTruth::analyze(const CSCStripDigi & stripDigi, int layerId)
+void MuonTruth::analyze(const CSCStripDigi & stripDigi, int rawDetIdCorrespondingToCSCLayer)
 {
-  theDetId = layerId;
+  theDetId = rawDetIdCorrespondingToCSCLayer;
   theChargeMap.clear();
   theTotalCharge = 0.;
 
@@ -145,12 +151,29 @@ void MuonTruth::analyze(const CSCStripDigi & stripDigi, int layerId)
 }
 
 
+void MuonTruth::analyze(const CSCWireDigi & wireDigi, int rawDetIdCorrespondingToCSCLayer) 
+{
+  theDetId = rawDetIdCorrespondingToCSCLayer;
+  theChargeMap.clear();
+  theTotalCharge = 0.;
+
+  WireDigiSimLinks::const_iterator layerLinks = theWireDigiSimLinks->find(theDetId);
+
+  if(layerLinks != theDigiSimLinks->end()) 
+  {
+    // In the simulation digis, the channel labels for wires and strips must be distinct, therefore:
+    int wireDigiInSimulation = wireDigi.getWireGroup() + 100;
+    //
+    addChannel(*layerLinks, wireDigiInSimulation, 1.);
+  }
+}
+//
 void MuonTruth::addChannel(const LayerLinks &layerLinks, int channel, float weight)
 {
   LayerLinks::const_iterator linkItr = layerLinks.begin(), 
                              lastLayerLink = layerLinks.end();
 
-  for( ; linkItr != lastLayerLink; ++linkItr)
+  for ( ; linkItr != lastLayerLink; ++linkItr)
   {
     int linkChannel = linkItr->channel();
     if(linkChannel == channel)
@@ -162,11 +185,11 @@ void MuonTruth::addChannel(const LayerLinks &layerLinks, int channel, float weig
       std::map<int, float>::const_iterator chargeMapItr = theChargeMap.find( simTrack );
       if(chargeMapItr == theChargeMap.end())
       {
-        theChargeMap[simTrack] = charge;
+	theChargeMap[simTrack] = charge;
       }
       else
       {
-        theChargeMap[simTrack] += charge;
+	theChargeMap[simTrack] += charge;
       }
     }
   }
