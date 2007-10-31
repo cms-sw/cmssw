@@ -1,5 +1,12 @@
+<use name=FWCore/Utilities>
+<use name=rootrflx>
+<use name=boost>
+<use name=DataFormats/Math>
+<!-- <flags CXXFLAGS="-DBOOST_SPIRIT_DEBUG -DBOOST_SPIRIT_DEBUG_OUT=std::cerr"> -->
 <export>
   <lib name=PhysicsToolsUtilities>
+  <use name=FWCore/Utilities>
+  <use name=rootrflx>
+  <use name=boost>
   <use name=DataFormats/Math>
 </export>
-<use name=DataFormats/Math>
