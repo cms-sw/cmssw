@@ -63,7 +63,7 @@ namespace {
   struct Dummy2 : public Dummy {
   };
 
-  typedef std::vector<Dummy> DummyCollection2;
+  typedef std::vector<Dummy2> DummyCollection2;
 }
 
 void testPtr::constructTest() {
@@ -178,6 +178,11 @@ void testPtr::constructTest() {
      CPPUNIT_ASSERT(&(*dummyPtr) == &dummyContainer[key]);
      CPPUNIT_ASSERT((dummyPtr.operator->()) == &dummyContainer[key]);
      CPPUNIT_ASSERT(dummyPtr->address() == dummyContainer[key].address());
+     
+     Ptr<Dummy2> dummy2Ptr(handle,key);
+     Ptr<Dummy> copyPtr(dummy2Ptr);
+     CPPUNIT_ASSERT(dummy2Ptr.key() == copyPtr.key());
+     CPPUNIT_ASSERT(dummy2Ptr.get() == static_cast<const Dummy*>(dummy2Ptr.get()));
    }
    
 }
