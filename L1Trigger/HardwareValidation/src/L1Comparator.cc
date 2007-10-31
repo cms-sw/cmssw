@@ -1,65 +1,109 @@
 #include "L1Trigger/HardwareValidation/interface/L1Comparator.h"
- 
+
+using namespace dedefs;
+
 L1Comparator::L1Comparator(const edm::ParameterSet& iConfig) {
 
-  ETP_data_Label_ = iConfig.getParameter<edm::InputTag>("ETP_dataLabel");
-  ETP_emul_Label_ = iConfig.getParameter<edm::InputTag>("ETP_emulLabel");
+  verbose_ = iConfig.getUntrackedParameter<int>("VerboseFlag",0);
 
-  HTP_data_Label_ = iConfig.getParameter<edm::InputTag>("HTP_dataLabel");
-  HTP_emul_Label_ = iConfig.getParameter<edm::InputTag>("HTP_emulLabel");
+  if(verbose())
+    std::cout << "\nL1COMPARATOR constructor...\n" << std::flush;
 
-  RCT_data_Label_ = iConfig.getParameter<edm::InputTag>("RCT_dataLabel");
-  RCT_emul_Label_ = iConfig.getParameter<edm::InputTag>("RCT_emulLabel");
-
-  GCT_data_Label_ = iConfig.getParameter<edm::InputTag>("GCT_dataLabel");
-  GCT_emul_Label_ = iConfig.getParameter<edm::InputTag>("GCT_emulLabel");
-
-  DTP_data_Label_ = iConfig.getParameter<edm::InputTag>("DTP_dataLabel");
-  DTP_emul_Label_ = iConfig.getParameter<edm::InputTag>("DTP_emulLabel");
-  DTF_data_Label_ = iConfig.getParameter<edm::InputTag>("DTF_dataLabel");
-  DTF_emul_Label_ = iConfig.getParameter<edm::InputTag>("DTF_emulLabel");
-  	
-  CTP_data_Label_ = iConfig.getParameter<edm::InputTag>("CTP_dataLabel");
-  CTP_emul_Label_ = iConfig.getParameter<edm::InputTag>("CTP_emulLabel");
-  CTF_data_Label_ = iConfig.getParameter<edm::InputTag>("CTF_dataLabel");
-  CTF_emul_Label_ = iConfig.getParameter<edm::InputTag>("CTF_emulLabel");
-
-  RPC_data_Label_ = iConfig.getParameter<edm::InputTag>("RPC_dataLabel");
-  RPC_emul_Label_ = iConfig.getParameter<edm::InputTag>("RPC_emulLabel");
-
-  LTC_data_Label_ = iConfig.getParameter<edm::InputTag>("LTC_dataLabel");
-  LTC_emul_Label_ = iConfig.getParameter<edm::InputTag>("LTC_emulLabel");
-
-  GMT_data_Label_ = iConfig.getParameter<edm::InputTag>("GMT_dataLabel");
-  GMT_emul_Label_ = iConfig.getParameter<edm::InputTag>("GMT_emulLabel");
-
-  GT_data_Label_  = iConfig.getParameter<edm::InputTag>("GT_dataLabel");
-  GT_emul_Label_  = iConfig.getParameter<edm::InputTag>("GT_emulLabel");
+  std::vector<unsigned int> dosys(0,DEnsys); 
+  dosys = 
+    iConfig.getUntrackedParameter<std::vector<unsigned int> >("COMPARE_COLLS", dosys);
   
-  std::vector<unsigned int> compColls 
-    = iConfig.getUntrackedParameter<std::vector<unsigned int> >("COMPARE_COLLS");
-  doEtp_ = (bool)compColls[ETP];
-  doHtp_ = (bool)compColls[HTP];
-  doRct_ = (bool)compColls[RCT];
-  doGct_ = (bool)compColls[GCT];
-  doDtp_ = (bool)compColls[DTP];
-  doDtf_ = (bool)compColls[DTF];
-  doCtp_ = (bool)compColls[CTP];
-  doCtf_ = (bool)compColls[CTF];
-  doRpc_ = (bool)compColls[RPC];
-  doLtc_ = (bool)compColls[LTC];
-  doGmt_ = (bool)compColls[GMTi];
-  doGt_  = (bool)compColls[GT];
+  if((int)dosys.size()!=DEnsys)
+    edm::LogError("L1Comparator") 
+      << "wrong selection of systems to be compared\n"
+      << "\t the size of the mask COMPARE_COLLS (" << dosys.size() 
+      << ") is not " << DEnsys << std::endl;
+  assert((int)dosys.size()==DEnsys);
   
-  dumpFileName = iConfig.getUntrackedParameter<std::string>("DumpFile");
-  dumpFile.open(dumpFileName.c_str(), std::ios::out);
-  if(!dumpFile.good())
+  for(int isys=0; isys<DEnsys; isys++)
+    if( dosys[isys]!=0 && dosys[isys]!=1 ) 
+      throw cms::Exception("Invalid configuration") 
+	<< "L1Comparator: comparison flag for system " << isys 
+	<< " is non boolean: " << dosys[isys] << ". Exiting.\n";
+    
+  for(int i=0; i<DEnsys; i++)
+    m_doSys[i] = dosys[i];
+  
+  if(verbose()) {
+    std::cout << "[L1Comparator] do sys? ";
+    for(int i=0; i<DEnsys; i++)
+      std::cout << m_doSys[i] << " ";
+    std::cout << std::endl;
+
+    std::cout << "[L1Comparator] list of systems to process: ";
+    for(int i=0; i<DEnsys; i++) 
+      if(m_doSys[i]) 
+	std::cout << SystLabel[i] << " ";
+    std::cout << std::endl;
+  }
+
+  ///assertions/temporary
+  assert(ETP==0); assert(HTP==1); assert(RCT== 2); assert(GCT== 3);
+  assert(DTP==4); assert(DTF==5); assert(CTP== 6); assert(CTF== 7);
+  assert(RPC==8); assert(LTC==9); assert(GMT==10); assert(GLT==11);
+
+  if(verbose())
+    std::cout << "[L1Comparator] debug print collection labels\n";
+  for(int sys=0; sys<DEnsys; sys++) {
+    std::string data_label = SystLabel[sys] + "sourceData";
+    std::string emul_label = SystLabel[sys] + "sourceEmul";
+    m_DEsource[sys][0] = iConfig.getParameter<edm::InputTag>(data_label);
+    m_DEsource[sys][1] = iConfig.getParameter<edm::InputTag>(emul_label);
+    if(sys==CTF) {
+      std::string data_label(""); data_label+="CTTsourceData";
+      std::string emul_label(""); emul_label+="CTTsourceEmul";
+      m_DEsource[sys][2] = iConfig.getParameter<edm::InputTag>(data_label);
+      m_DEsource[sys][3] = iConfig.getParameter<edm::InputTag>(emul_label);
+    }
+    if(m_doSys[sys] && verbose()) {
+      std::cout << " sys:"   << sys << " label:" << SystLabel[sys]  
+		<< "\n\tdt:" << data_label << " : " <<m_DEsource[sys][0]
+		<< "\n\tem:" << emul_label << " : " <<m_DEsource[sys][1]
+		<< std::endl;
+      if(sys==CTF) {
+	std::cout << "\tdt:"     << data_label << " : " <<m_DEsource[sys][2]
+     		  << "\n\tem:" << emul_label << " : " <<m_DEsource[sys][3]
+		  << std::endl;
+      }
+    }
+  }
+  
+  m_fedId = iConfig.getUntrackedParameter<int>("FEDid", 0);
+  m_FEDsource[0] = 
+    iConfig.getUntrackedParameter<edm::InputTag>("FEDsourceData",edm::InputTag());
+  m_FEDsource[1] = 
+    iConfig.getUntrackedParameter<edm::InputTag>("FEDsourceEmul",edm::InputTag());
+
+  m_dumpFileName = iConfig.getUntrackedParameter<std::string>("DumpFile","");
+  m_dumpFile.open(m_dumpFileName.c_str(), std::ios::out);
+  if(!m_dumpFile.good())
     throw cms::Exception("L1ComparatorDumpFileOpenError")
-      << " L1Comparator::L1Comparator : "
-      << " couldn't open dump file " << dumpFileName.c_str() << std::endl;
-  dumpMode = iConfig.getUntrackedParameter<int>("DumpMode");  
+      << " L1Comparator::L1Comparator() : "
+      << " couldn't open dump file " << m_dumpFileName.c_str() << std::endl;
 
-  all_match = true;
+  m_dumpMode = iConfig.getUntrackedParameter<int>("DumpMode",0);  
+
+  m_match = true;
+  dumpEvent_ = true;
+  nevt_=-1;
+
+  for(int i=0; i<DEnsys; i++) {
+    for(int j=0; j<2; j++) 
+      DEncand[i][j] = 0;
+    DEmatchEvt[i] = true;
+  }
+
+  m_dedigis.clear();
+  /// create d|e record product
+  produces<L1DataEmulRecord>().setBranchAlias("L1DataEmulRecord");  
+
+  if(verbose())
+    std::cout << "\nL1Comparator constructor...done.\n" << std::flush;
 }
 
 
@@ -68,38 +112,53 @@ L1Comparator::~L1Comparator(){}
 void L1Comparator::beginJob(const edm::EventSetup&) {}
 
 void L1Comparator::endJob() {
-  
-  dumpFile << "\n\n-------\n"
-	   << "Global data|emulator agreement: " 
-	   << all_match << std::endl;
-
-  dumpFile.close();
+  if(m_dumpMode)
+    m_dumpFile << "\n\n-------\n"
+	       << "Global data|emulator agreement: " 
+	       << m_match << std::endl;
+  m_dumpFile.close();
 }
 
 
 void
-L1Comparator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
-  
-  static int nevent = -1;
-  nevent++;
-  dumpFile << "\nEvent: " << nevent << std::endl;
+L1Comparator::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
+ 
+  nevt_++;
+  evtNum_ = iEvent.id().event();
+  runNum_ = iEvent.id().run();
 
-  ///  Get the data and emulated collections 
+  if(verbose())
+    std::cout << "\nL1COMPARATOR entry:" << nevt_ << " | evt:" << evtNum_ 
+	      << " | run:" << runNum_ << "\n" << std::flush;
 
-  // -- ECAL TP [electromagnetic calorimeter trigger primitives]
+  //flag whether event id has already been written to dumpFile
+  dumpEvent_ = true;
+
+  //reset event holder quantities
+  for(int i=0; i<DEnsys; i++) {
+    for(int j=0; j<2; j++) 
+      DEncand[i][j] = 0;
+    DEmatchEvt[i] = true;
+  }
+  m_dedigis.clear();
+
+
+  /// --  Get the data and emulated collections -----------------------------
+
+  // -- ETP [electromagnetic calorimeter trigger primitives]
   edm::Handle<EcalTrigPrimDigiCollection> ecal_tp_data;
   edm::Handle<EcalTrigPrimDigiCollection> ecal_tp_emul;
-  if(doEtp_) {
-    iEvent.getByLabel(ETP_data_Label_.label(),"", ecal_tp_data);
-    iEvent.getByLabel(ETP_emul_Label_.label(),"", ecal_tp_emul);
+  if(m_doSys[ETP]) {
+    iEvent.getByLabel(m_DEsource[ETP][0], ecal_tp_data);
+    iEvent.getByLabel(m_DEsource[ETP][1], ecal_tp_emul);
   }
 
-  // -- HCAL TP [hadronic calorimeter trigger primitives]
+  // -- HTP [hadronic calorimeter trigger primitives]
   edm::Handle<HcalTrigPrimDigiCollection> hcal_tp_data;
   edm::Handle<HcalTrigPrimDigiCollection> hcal_tp_emul;
-  if(doHtp_) {
-    iEvent.getByLabel(HTP_data_Label_, hcal_tp_data);
-    iEvent.getByLabel(HTP_emul_Label_, hcal_tp_emul);
+  if(m_doSys[HTP]) {
+    iEvent.getByLabel(m_DEsource[HTP][0], hcal_tp_data);
+    iEvent.getByLabel(m_DEsource[HTP][1], hcal_tp_emul);
   }
 
   // -- RCT [regional calorimeter trigger]
@@ -107,11 +166,11 @@ L1Comparator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   edm::Handle<L1CaloEmCollection> rct_em_emul;
   edm::Handle<L1CaloRegionCollection> rct_rgn_data;
   edm::Handle<L1CaloRegionCollection> rct_rgn_emul;
-  if(doRct_) {
-    iEvent.getByLabel(RCT_data_Label_, rct_em_data);
-    iEvent.getByLabel(RCT_emul_Label_, rct_em_emul);
-    iEvent.getByLabel(RCT_data_Label_, rct_rgn_data);
-    iEvent.getByLabel(RCT_emul_Label_, rct_rgn_emul);
+  if(m_doSys[RCT]) {
+    iEvent.getByLabel(m_DEsource[RCT][0], rct_em_data);
+    iEvent.getByLabel(m_DEsource[RCT][1], rct_em_emul);
+    iEvent.getByLabel(m_DEsource[RCT][0], rct_rgn_data);
+    iEvent.getByLabel(m_DEsource[RCT][1], rct_rgn_emul);
   }
 
   // -- GCT [global calorimeter trigger]
@@ -125,114 +184,238 @@ L1Comparator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   edm::Handle<L1GctJetCandCollection> gct_forjets_emul;
   edm::Handle<L1GctJetCandCollection> gct_taujets_data;
   edm::Handle<L1GctJetCandCollection> gct_taujets_emul;
-  if(doGct_) {
-    iEvent.getByLabel(GCT_data_Label_.label(),"isoEm",   gct_isolaem_data);
-    iEvent.getByLabel(GCT_emul_Label_.label(),"isoEm",   gct_isolaem_emul);
-    iEvent.getByLabel(GCT_data_Label_.label(),"nonIsoEm",gct_noisoem_data);
-    iEvent.getByLabel(GCT_emul_Label_.label(),"nonIsoEm",gct_noisoem_emul);
-    iEvent.getByLabel(GCT_data_Label_.label(),"cenJets", gct_cenjets_data);
-    iEvent.getByLabel(GCT_emul_Label_.label(),"cenJets", gct_cenjets_emul);
-    iEvent.getByLabel(GCT_data_Label_.label(),"forJets", gct_forjets_data);
-    iEvent.getByLabel(GCT_emul_Label_.label(),"forJets", gct_forjets_emul);
-    iEvent.getByLabel(GCT_data_Label_.label(),"tauJets", gct_taujets_data);
-    iEvent.getByLabel(GCT_emul_Label_.label(),"tauJets", gct_taujets_emul);
+  if(m_doSys[GCT]) {
+   iEvent.getByLabel(m_DEsource[GCT][0].label(),"isoEm",   gct_isolaem_data);
+   iEvent.getByLabel(m_DEsource[GCT][1].label(),"isoEm",   gct_isolaem_emul);
+   iEvent.getByLabel(m_DEsource[GCT][0].label(),"nonIsoEm",gct_noisoem_data);
+   iEvent.getByLabel(m_DEsource[GCT][1].label(),"nonIsoEm",gct_noisoem_emul);
+   iEvent.getByLabel(m_DEsource[GCT][0].label(),"cenJets", gct_cenjets_data);
+   iEvent.getByLabel(m_DEsource[GCT][1].label(),"cenJets", gct_cenjets_emul);
+   iEvent.getByLabel(m_DEsource[GCT][0].label(),"forJets", gct_forjets_data);
+   iEvent.getByLabel(m_DEsource[GCT][1].label(),"forJets", gct_forjets_emul);
+   iEvent.getByLabel(m_DEsource[GCT][0].label(),"tauJets", gct_taujets_data);
+   iEvent.getByLabel(m_DEsource[GCT][1].label(),"tauJets", gct_taujets_emul);
   }
 
-  // -- DTP [drift tube] trigger primitive
-
+  // -- DTP [drift tube trigger primitive]
   edm::Handle<L1MuDTChambPhContainer> dtp_ph_data_;
   edm::Handle<L1MuDTChambPhContainer> dtp_ph_emul_;
   edm::Handle<L1MuDTChambThContainer> dtp_th_data_;
   edm::Handle<L1MuDTChambThContainer> dtp_th_emul_;
-  if(doDtp_) {
-    iEvent.getByLabel(DTP_data_Label_,dtp_ph_data_);
-    iEvent.getByLabel(DTP_data_Label_,dtp_ph_emul_);
-    iEvent.getByLabel(DTP_data_Label_,dtp_th_data_);
-    iEvent.getByLabel(DTP_data_Label_,dtp_th_emul_);
+  if(m_doSys[DTP]) {
+    iEvent.getByLabel(m_DEsource[DTP][0],dtp_ph_data_);
+    iEvent.getByLabel(m_DEsource[DTP][1],dtp_ph_emul_);
+    iEvent.getByLabel(m_DEsource[DTP][0],dtp_th_data_);
+    iEvent.getByLabel(m_DEsource[DTP][1],dtp_th_emul_);
   }
   L1MuDTChambPhDigiCollection const* dtp_ph_data = dtp_ph_data_->getContainer();
   L1MuDTChambPhDigiCollection const* dtp_ph_emul = dtp_ph_emul_->getContainer();
   L1MuDTChambThDigiCollection const* dtp_th_data = dtp_th_data_->getContainer();
   L1MuDTChambThDigiCollection const* dtp_th_emul = dtp_th_emul_->getContainer();
-  //typedef std::vector<L1MuDTChambPhDigi>  Phi_Container;
-  //typedef std::vector<L1MuDTChambPhDigi>  L1MuDTChambPhDigiCollection; 
-  //edm::Handle<L1MuDTChambPhDigiCollection> dtp_ph_data;
-  //L1MuDTChambPhDigiCollection dtp_ph_data = static_cast<L1MuDTChambPhContainer::Phi_Container const*> ( dtp_ph_data_->getContainer());
 
-
-  // -- DTF [drift tube] track finder
+  // -- DTF [drift tube track finder]
   edm::Handle<L1MuRegionalCandCollection> dtf_data;
   edm::Handle<L1MuRegionalCandCollection> dtf_emul;
   edm::Handle<L1MuDTTrackContainer>       dtf_trk_data_;
   edm::Handle<L1MuDTTrackContainer>       dtf_trk_emul_;
-  if(doDtf_) {
-    iEvent.getByLabel(DTF_data_Label_.label(),"DT",dtf_data);
-    iEvent.getByLabel(DTF_emul_Label_.label(),"DT",dtf_emul);
-    iEvent.getByLabel(DTF_data_Label_.label(),"DTTF",dtf_trk_data_);
-    iEvent.getByLabel(DTF_emul_Label_.label(),"DTTF",dtf_trk_emul_);
+  L1MuRegionalCandCollection const* dtf_trk_data(new L1MuRegionalCandCollection);
+  L1MuRegionalCandCollection const* dtf_trk_emul(new L1MuRegionalCandCollection);
+  if(m_doSys[DTF]) {
+    iEvent.getByLabel(m_DEsource[DTF][0].label(),"DT",dtf_data);
+    iEvent.getByLabel(m_DEsource[DTF][1].label(),"DT",dtf_emul);
+    iEvent.getByLabel(m_DEsource[DTF][0].label(),"DTTF",dtf_trk_data_);
+    iEvent.getByLabel(m_DEsource[DTF][1].label(),"DTTF",dtf_trk_emul_);
+  }  
+  if(dtf_trk_data_.isValid())
+    dtf_trk_data = dtf_trk_data_->getContainer();
+  if(dtf_trk_emul_.isValid())
+    dtf_trk_emul = dtf_trk_emul_->getContainer();
+  
+  // -- CTP [cathod strip chamber trigger primitive]
+  edm::Handle<CSCALCTDigiCollection>          ctp_ano_data_;
+  edm::Handle<CSCALCTDigiCollection>          ctp_ano_emul_;
+  edm::Handle<CSCCLCTDigiCollection>          ctp_cat_data_;
+  edm::Handle<CSCCLCTDigiCollection>          ctp_cat_emul_;
+  edm::Handle<CSCCorrelatedLCTDigiCollection> ctp_lct_data_;
+  edm::Handle<CSCCorrelatedLCTDigiCollection> ctp_lct_emul_;
+  edm::Handle<CSCCorrelatedLCTDigiCollection> ctp_srt_data_;
+  edm::Handle<CSCCorrelatedLCTDigiCollection> ctp_srt_emul_;
+  CSCALCTDigiCollection_          const* ctp_ano_data = 0;
+  CSCALCTDigiCollection_          const* ctp_ano_emul = 0;
+  CSCCLCTDigiCollection_          const* ctp_cat_data = 0;
+  CSCCLCTDigiCollection_          const* ctp_cat_emul = 0;
+  CSCCorrelatedLCTDigiCollection_ const* ctp_lct_data = 0;
+  CSCCorrelatedLCTDigiCollection_ const* ctp_lct_emul = 0;
+  CSCCorrelatedLCTDigiCollection_ const* ctp_srt_data = 0;
+  CSCCorrelatedLCTDigiCollection_ const* ctp_srt_emul = 0;
+  if(m_doSys[CTP]) {
+    iEvent.getByLabel(m_DEsource[CTP][0]                    ,ctp_ano_data_);
+    iEvent.getByLabel(m_DEsource[CTP][1]                    ,ctp_ano_emul_);
+    iEvent.getByLabel(m_DEsource[CTP][0]                    ,ctp_cat_data_);
+    iEvent.getByLabel(m_DEsource[CTP][1]                    ,ctp_cat_emul_);
+    iEvent.getByLabel(m_DEsource[CTP][0]                    ,ctp_lct_data_);
+    iEvent.getByLabel(m_DEsource[CTP][1]                    ,ctp_lct_emul_);
+    iEvent.getByLabel(m_DEsource[CTP][0].label(),"MPCSORTED",ctp_srt_data_);
+    iEvent.getByLabel(m_DEsource[CTP][1].label(),"MPCSORTED",ctp_srt_emul_);
   }
-  L1MuRegionalCandCollection const* dtf_trk_data = dtf_trk_data_->getContainer();
-  L1MuRegionalCandCollection const* dtf_trk_emul = dtf_trk_emul_->getContainer();
-
-
-  // -- CSC trigger primitive
-  edm::Handle<CSCCorrelatedLCTDigiCollection> ctp_data_;
-  edm::Handle<CSCCorrelatedLCTDigiCollection> ctp_emul_;
-  if(doCtp_) {
-    iEvent.getByLabel(CTP_data_Label_,ctp_data_);
-    iEvent.getByLabel(CTP_emul_Label_,ctp_emul_);
+  ///place candidates into vectors
+  CSCALCTDigiCollection_ ctp_ano_data_v, ctp_ano_emul_v;
+  ctp_ano_data_v.clear(); ctp_ano_emul_v.clear();
+  if(ctp_ano_data_.isValid() && ctp_ano_emul_.isValid()) {
+    typedef CSCALCTDigiCollection::DigiRangeIterator mapIt;
+    typedef CSCALCTDigiCollection::const_iterator    vecIt;
+    for (mapIt mit = ctp_ano_data_->begin(); mit != ctp_ano_data_->end(); mit++)
+      for (vecIt vit = ctp_ano_data_->get((*mit).first).first; 
+	   vit != ctp_ano_data_->get((*mit).first).second; vit++) 
+	ctp_ano_data_v.push_back(*vit);
+    for (mapIt mit = ctp_ano_emul_->begin(); mit != ctp_ano_emul_->end(); mit++)
+      for (vecIt vit = ctp_ano_data_->get((*mit).first).first; 
+	   vit != ctp_ano_data_->get((*mit).first).second; vit++)
+	ctp_ano_emul_v.push_back(*vit);
   }
-  //CSCCorrelatedLCTDigiCollection_ * ctp_data__ = 0;
-  //CSCCorrelatedLCTDigiCollection_ * ctp_emul__ = 0;
-  //typedef CSCCorrelatedLCTDigiCollection::DigiRangeIterator ctpIt;
-  //typedef CSCCorrelatedLCTDigiCollection::const_iterator    ctpIt1;
-  //std::cout << "debug L1Comparator ctp 0" << std::endl;
-  //for (ctpIt ctpItr = ctp_data_->begin(); ctpItr != ctp_data_->end(); ctpItr++) {
-  //  CSCCorrelatedLCTDigiCollection::Range ctpRange = ctp_data_->get((*ctpItr).first);
-  //  for (ctpIt1 ctpItr1 = ctpRange.first; ctpItr1 != ctpRange.second; ctpItr1++) {
-  //    ctp_data__->push_back(*ctpItr1);
-  //  }
-  //}
-  //std::cout << "debug L1Comparator ctp 1" << std::endl; 
-  //for (ctpIt ctpItr = ctp_emul_->begin(); ctpItr != ctp_emul_->end(); ctpItr++) {
-  //  CSCCorrelatedLCTDigiCollection::Range ctpRange = ctp_emul_->get((*ctpItr).first);
-  //  for (ctpIt1 ctpItr1 = ctpRange.first; ctpItr1 != ctpRange.second; ctpItr1++) {
-  //    //ctp_emul__->push_back(*ctpItr1);
-  //  }
-  //}
-  //std::cout << "debug L1Comparator ctp 2" << std::endl; 
-  //CSCCorrelatedLCTDigiCollection_ const* ctp_data(ctp_data__);
-  //CSCCorrelatedLCTDigiCollection_ const* ctp_emul(ctp_emul__);
-  //std::cout << "debug L1Comparator ctp 3" << std::endl; 
-
-  // -- CSC track finder
-  edm::Handle<L1CSCTrackCollection> ctf_data;
-  edm::Handle<L1CSCTrackCollection> ctf_emul;
-  //edm::Handle<L1MuRegionalCandCollection> ctf_data;
-  //edm::Handle<L1MuRegionalCandCollection> ctf_emul;
-  if(doCtf_) {
-    iEvent.getByLabel(CTF_data_Label_,ctf_data);
-    iEvent.getByLabel(CTF_emul_Label_,ctf_emul);
+  ctp_ano_data =&ctp_ano_data_v;
+  ctp_ano_emul =&ctp_ano_emul_v;
+  CSCCLCTDigiCollection_ ctp_cat_data_v, ctp_cat_emul_v;
+  ctp_cat_data_v.clear(); ctp_cat_emul_v.clear();
+  if(ctp_cat_data_.isValid() && ctp_cat_emul_.isValid()) {
+    typedef CSCCLCTDigiCollection::DigiRangeIterator mapIt;
+    typedef CSCCLCTDigiCollection::const_iterator    vecIt;
+    for (mapIt mit = ctp_cat_data_->begin(); mit != ctp_cat_data_->end(); mit++)
+      for (vecIt vit = ctp_cat_data_->get((*mit).first).first; 
+	   vit != ctp_cat_data_->get((*mit).first).second; vit++) 
+	ctp_cat_data_v.push_back(*vit);
+    for (mapIt mit = ctp_cat_emul_->begin(); mit != ctp_cat_emul_->end(); mit++)
+      for (vecIt vit = ctp_cat_data_->get((*mit).first).first; 
+	   vit != ctp_cat_data_->get((*mit).first).second; vit++)
+	ctp_cat_emul_v.push_back(*vit);
   }
-
-  // -- RPC [resistive plate chambers] 
+  ctp_cat_data =&ctp_cat_data_v;
+  ctp_cat_emul =&ctp_cat_emul_v;
+  CSCCorrelatedLCTDigiCollection_ ctp_lct_data_v, ctp_lct_emul_v;
+  ctp_lct_data_v.clear(); ctp_lct_emul_v.clear();
+  if(ctp_lct_data_.isValid() && ctp_lct_emul_.isValid()) {
+    typedef CSCCorrelatedLCTDigiCollection::DigiRangeIterator mapIt;//map iterator
+    typedef CSCCorrelatedLCTDigiCollection::const_iterator    vecIt;//vec iterator
+    //loop over data (map<idx,vec_digi>)
+    for (mapIt mit = ctp_lct_data_->begin(); mit != ctp_lct_data_->end(); mit++)
+      //get vec_digi range(pair)  corresponding to idx of map
+      //loop over digi vector (ie between begin and end pointers in range)
+      //CSCCorrelatedLCTDigiCollection::Range ctpRange = ctp_lct_data_->get((*mit).first)
+      //for (vecIt vit = ctpRange.first; vit != ctpRange.second; vit++) {
+      for (vecIt vit = ctp_lct_data_->get((*mit).first).first; 
+	   vit != ctp_lct_data_->get((*mit).first).second; vit++) 
+	ctp_lct_data_v.push_back(*vit);
+    for (mapIt mit = ctp_lct_emul_->begin(); mit != ctp_lct_emul_->end(); mit++)
+      for (vecIt vit = ctp_lct_data_->get((*mit).first).first; 
+	   vit != ctp_lct_data_->get((*mit).first).second; vit++)
+	ctp_lct_emul_v.push_back(*vit);
+  }
+  ctp_lct_data =&ctp_lct_data_v;
+  ctp_lct_emul =&ctp_lct_emul_v;
+  CSCCorrelatedLCTDigiCollection_ ctp_srt_data_v, ctp_srt_emul_v;
+  ctp_srt_data_v.clear(); ctp_srt_emul_v.clear();
+  if(ctp_srt_data_.isValid() && ctp_srt_emul_.isValid()) {
+    typedef CSCCorrelatedLCTDigiCollection::DigiRangeIterator mapIt;
+    typedef CSCCorrelatedLCTDigiCollection::const_iterator    vecIt;
+    for (mapIt mit = ctp_srt_data_->begin(); mit != ctp_srt_data_->end(); mit++)
+      for (vecIt vit = ctp_srt_data_->get((*mit).first).first; 
+	   vit != ctp_srt_data_->get((*mit).first).second; vit++) 
+	ctp_srt_data_v.push_back(*vit);
+    for (mapIt mit = ctp_srt_emul_->begin(); mit != ctp_srt_emul_->end(); mit++)
+      for (vecIt vit = ctp_srt_data_->get((*mit).first).first; 
+	   vit != ctp_srt_data_->get((*mit).first).second; vit++)
+	ctp_srt_emul_v.push_back(*vit);
+  }
+  ctp_srt_data =&ctp_srt_data_v;
+  ctp_srt_emul =&ctp_srt_emul_v;
+  
+  // -- CTF [cathod strip chamber track finder]
+  edm::Handle<L1MuRegionalCandCollection> ctf_data, ctf_emul;
+  edm::Handle<L1CSCTrackCollection> ctf_trk_data_, ctf_trk_emul_; 
+  CSCCorrelatedLCTDigiCollection_ const* ctf_trk_data(new CSCCorrelatedLCTDigiCollection_);
+  CSCCorrelatedLCTDigiCollection_ const* ctf_trk_emul(new CSCCorrelatedLCTDigiCollection_);
+  L1MuRegionalCandCollection      const* ctf_trc_data(new L1MuRegionalCandCollection);
+  L1MuRegionalCandCollection      const* ctf_trc_emul(new L1MuRegionalCandCollection);
+  edm::Handle<L1CSCStatusDigiCollection> ctf_sta_data_;
+  edm::Handle<L1CSCStatusDigiCollection> ctf_sta_emul_;
+  L1CSCSPStatusDigiCollection_    const* ctf_sta_data(new L1CSCSPStatusDigiCollection_);
+  L1CSCSPStatusDigiCollection_    const* ctf_sta_emul(new L1CSCSPStatusDigiCollection_);
+  if(m_doSys[CTF]) {
+    try{
+      iEvent.getByLabel(m_DEsource[CTF][2],ctf_trk_data_);
+      iEvent.getByLabel(m_DEsource[CTF][3],ctf_trk_emul_);
+    } catch(...) {}
+    //note: unpacker different label: MounL1CSCTrackCollection
+    iEvent.getByLabel(m_DEsource[CTF][0].label(),"CSC",ctf_data);
+    iEvent.getByLabel(m_DEsource[CTF][1].label(),"CSC",ctf_emul);
+    //note: unpacker only
+    try {
+      iEvent.getByLabel(m_DEsource[CTF][0].label(),"MuonL1CSCStatusDigiCollection",ctf_sta_data_);
+      iEvent.getByLabel(m_DEsource[CTF][1].label(),"MuonL1CSCStatusDigiCollection",ctf_sta_emul_);
+    } catch(...) {}
+  }
+  if(ctf_sta_data_.isValid())
+    ctf_sta_data = &(ctf_sta_data_->second);
+  if(ctf_sta_emul_.isValid())
+    ctf_sta_emul = &(ctf_sta_emul_->second);
+  if(ctf_trk_data_.isValid() && ctf_trk_emul_.isValid()) {
+    typedef CSCCorrelatedLCTDigiCollection::DigiRangeIterator mapIt;//map iterator
+    typedef CSCCorrelatedLCTDigiCollection::const_iterator    vecIt;//vec iterator
+    CSCCorrelatedLCTDigiCollection_ ctf_trk_data_v, ctf_trk_emul_v; //vector
+    L1MuRegionalCandCollection      ctf_trc_data_v, ctf_trc_emul_v; //vector
+    typedef L1CSCTrackCollection::const_iterator ctcIt;
+    //loop over csc-tracks (ie pairs<l1track,digi_vec>)
+    for(ctcIt tcit=ctf_trk_data_->begin(); tcit!=ctf_trk_data_->end(); tcit++) {
+      //store the muon candidate
+      //csc::L1Track ttr = tcit->first;
+      //L1MuRegionalCand cand(ttr);    
+      //ctf_trc_data_v.push_back(tcit->first);
+      ctf_trc_data_v.push_back(L1MuRegionalCand(tcit->first.getDataWord(), tcit->first.bx()));
+      CSCCorrelatedLCTDigiCollection ldc = tcit->second; //muondigicollection=map
+      //get the lct-digi-collection (ie muon-digi-collection)
+      //loop over data (map<idx,vec_digi>)
+      for (mapIt mit = ldc.begin(); mit != ldc.end(); mit++)
+	//get vec_digi range(pair)  corresponding to idx of map
+	//loop over digi vector (ie between begin and end pointers in range)
+	//CSCCorrelatedLCTDigiCollection::Range ctpRange = ctp_lct_data_->get((*mit).first)
+	//for (vecIt vit = ctpRange.first; vit != ctpRange.second; vit++) {
+	for (vecIt vit = ctp_lct_data_->get((*mit).first).first; 
+	     vit != ctp_lct_data_->get((*mit).first).second; vit++) 
+	  ctf_trk_data_v.push_back(*vit);
+    }
+    ctf_trk_data = &ctf_trk_data_v;
+    ctf_trc_data = &ctf_trc_data_v;
+    //same for emulator collection
+    for(ctcIt tcit=ctf_trk_emul_->begin();tcit!=ctf_trk_emul_->end(); tcit++) {
+      ctf_trc_emul_v.push_back(L1MuRegionalCand(tcit->first.getDataWord(), tcit->first.bx()));
+      CSCCorrelatedLCTDigiCollection ldc = tcit->second;
+      for (mapIt mit = ldc.begin(); mit != ldc.end(); mit++)
+	for (vecIt vit = ctp_lct_emul_->get((*mit).first).first; 
+	     vit != ctp_lct_emul_->get((*mit).first).second; vit++) 
+	  ctf_trk_emul_v.push_back(*vit);
+    }
+    ctf_trk_emul = &ctf_trk_emul_v;
+    ctf_trc_emul = &ctf_trc_emul_v;
+  }
+  
+  // -- RPC [resistive plate chambers regional trigger] 
   edm::Handle<L1MuRegionalCandCollection> rpc_cen_data;
   edm::Handle<L1MuRegionalCandCollection> rpc_cen_emul;
   edm::Handle<L1MuRegionalCandCollection> rpc_for_data;
   edm::Handle<L1MuRegionalCandCollection> rpc_for_emul;
-  if(doRpc_) {
-    iEvent.getByLabel(RPC_data_Label_.label(),"RPCb",rpc_cen_data);
-    iEvent.getByLabel(RPC_emul_Label_.label(),"RPCb",rpc_cen_emul);
-    iEvent.getByLabel(RPC_data_Label_.label(),"RPCf",rpc_for_data);
-    iEvent.getByLabel(RPC_emul_Label_.label(),"RPCf",rpc_for_emul);
-  }
+  if(m_doSys[RPC]) {
+    iEvent.getByLabel(m_DEsource[RPC][0].label(),"RPCb",rpc_cen_data);
+    iEvent.getByLabel(m_DEsource[RPC][1].label(),"RPCb",rpc_cen_emul);
+    iEvent.getByLabel(m_DEsource[RPC][0].label(),"RPCf",rpc_for_data);
+    iEvent.getByLabel(m_DEsource[RPC][1].label(),"RPCf",rpc_for_emul);
+  } 
 
-  // -- LTC [local trigger controler]
+  // -- LTC [local trigger controller]
   edm::Handle<LTCDigiCollection> ltc_data;
   edm::Handle<LTCDigiCollection> ltc_emul;
-  if(doLtc_) {
-    iEvent.getByLabel(LTC_data_Label_,ltc_data);
-    iEvent.getByLabel(LTC_emul_Label_,ltc_emul);
+  if(m_doSys[LTC]) {
+    iEvent.getByLabel(m_DEsource[LTC][0],ltc_data);
+    iEvent.getByLabel(m_DEsource[LTC][1],ltc_emul);
   }
 
   // -- GMT [global muon trigger]
@@ -240,388 +423,826 @@ L1Comparator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   edm::Handle<L1MuGMTCandCollection> gmt_emul;
   edm::Handle<L1MuGMTReadoutCollection> gmt_rdt_data_;
   edm::Handle<L1MuGMTReadoutCollection> gmt_rdt_emul_;
-  if(doGmt_) {
-    iEvent.getByLabel(GMT_data_Label_, gmt_data);
-    iEvent.getByLabel(GMT_emul_Label_, gmt_emul);
-    iEvent.getByLabel(GMT_data_Label_, gmt_rdt_data_);
-    iEvent.getByLabel(GMT_emul_Label_, gmt_rdt_emul_);
+  L1MuRegionalCandCollection const* gmt_rdt_data(new L1MuRegionalCandCollection);
+  L1MuRegionalCandCollection const* gmt_rdt_emul(new L1MuRegionalCandCollection);
+  //tbd: may compare extended candidates
+  L1MuGMTCandCollection const *gmt_can_data(new L1MuGMTCandCollection);
+  L1MuGMTCandCollection const *gmt_can_emul(new L1MuGMTCandCollection);
+  if(m_doSys[GMT]) {
+    iEvent.getByLabel(m_DEsource[GMT][0], gmt_data);
+    iEvent.getByLabel(m_DEsource[GMT][1], gmt_emul);
+    iEvent.getByLabel(m_DEsource[GMT][0], gmt_rdt_data_);
+    iEvent.getByLabel(m_DEsource[GMT][1], gmt_rdt_emul_);
+  }  
+  L1MuGMTCandCollection      gmt_can_data_vec, gmt_can_emul_vec;
+  L1MuRegionalCandCollection gmt_rdt_data_vec, gmt_rdt_emul_vec;
+  gmt_can_data_vec.clear();  gmt_can_emul_vec.clear();
+  gmt_rdt_data_vec.clear();  gmt_rdt_emul_vec.clear();
+  if( gmt_rdt_data_.isValid() && gmt_rdt_emul_.isValid() ) {
+    typedef std::vector<L1MuGMTReadoutRecord>::const_iterator GmtRrIt;
+    //get record vector for data 
+    std::vector<L1MuGMTReadoutRecord> gmt_rdt_data_bx = gmt_rdt_data_->getRecords();
+    for(GmtRrIt igmtrr=gmt_rdt_data_bx.begin(); igmtrr!=gmt_rdt_data_bx.end(); igmtrr++) {
+      //get gmt cands
+      typedef std::vector<L1MuGMTExtendedCand>::const_iterator GmtECIt;
+      std::vector<L1MuGMTExtendedCand> gmc;
+      gmc = igmtrr->getGMTCands();
+      for(GmtECIt iter1=gmc.begin(); iter1!=gmc.end(); iter1++) {
+	L1MuGMTCand cand(iter1->getDataWord(),iter1->bx());
+	cand.setPhiValue(iter1->phiValue());
+	cand.setEtaValue(iter1->etaValue());
+	cand.setPtValue (iter1->ptValue ());
+	gmt_can_data_vec.push_back(cand);
+      }
+      //get reg cands
+      typedef L1MuRegionalCandCollection::const_iterator GmtRCIt;
+      L1MuRegionalCandCollection rmc;
+      rmc.clear();
+      rmc = igmtrr->getDTBXCands();
+      gmt_rdt_data_vec.insert(gmt_rdt_data_vec.end(),rmc.begin(),rmc.end());
+      rmc.clear();
+      rmc = igmtrr->getCSCCands();
+      gmt_rdt_data_vec.insert(gmt_rdt_data_vec.end(),rmc.begin(),rmc.end());
+      rmc.clear();
+      rmc = igmtrr->getBrlRPCCands();
+      gmt_rdt_data_vec.insert(gmt_rdt_data_vec.end(),rmc.begin(),rmc.end());
+      rmc.clear();
+      rmc = igmtrr->getFwdRPCCands();
+      gmt_rdt_data_vec.insert(gmt_rdt_data_vec.end(),rmc.begin(),rmc.end());
+    }
+    //get record vector for emul 
+    std::vector<L1MuGMTReadoutRecord> gmt_rdt_emul_bx = gmt_rdt_emul_->getRecords();
+    for(GmtRrIt igmtrr=gmt_rdt_emul_bx.begin(); igmtrr!=gmt_rdt_emul_bx.end(); igmtrr++) {
+      //get gmt cands
+      typedef std::vector<L1MuGMTExtendedCand>::const_iterator GmtECIt;
+      std::vector<L1MuGMTExtendedCand> gmc;
+      gmc = igmtrr->getGMTCands();
+      for(GmtECIt iter1=gmc.begin(); iter1!=gmc.end(); iter1++) {
+	gmt_can_emul_vec.push_back(L1MuGMTCand(iter1->getDataWord(),iter1->bx()));
+      }
+      //get reg cands
+      typedef L1MuRegionalCandCollection::const_iterator GmtRCIt;
+      L1MuRegionalCandCollection rmc;
+      rmc.clear();
+      rmc = igmtrr->getDTBXCands();
+      gmt_rdt_emul_vec.insert(gmt_rdt_emul_vec.end(),rmc.begin(),rmc.end());
+      rmc.clear();
+      rmc = igmtrr->getCSCCands();
+      gmt_rdt_emul_vec.insert(gmt_rdt_emul_vec.end(),rmc.begin(),rmc.end());
+      rmc.clear();
+      rmc = igmtrr->getBrlRPCCands();
+      gmt_rdt_emul_vec.insert(gmt_rdt_emul_vec.end(),rmc.begin(),rmc.end());
+      rmc.clear();
+      rmc = igmtrr->getFwdRPCCands();
+      gmt_rdt_emul_vec.insert(gmt_rdt_emul_vec.end(),rmc.begin(),rmc.end());
+    }
   }
-  //std::cout << "debug L1Comparator gmt 0" << std::endl; 
-  // get record for a given bx
-  //L1MuGMTReadoutRecordCollection * gmt_rdt_data__ = 0;
-  //L1MuGMTReadoutRecordCollection * gmt_rdt_emul__ = 0; 
-  //std::cout << "debug L1Comparator gmt 1" << std::endl; 
-  //const int NBX = 10; //?
-  //for(int nbx=1; nbx<NBX; nbx++) gmt_rdt_data__->push_back(gmt_rdt_data_->getRecord(nbx));
-  //for(int nbx=1; nbx<NBX; nbx++) gmt_rdt_emul__->push_back(gmt_rdt_emul_->getRecord(nbx));
-  //L1MuGMTReadoutRecordCollection const* gmt_rdt_data(gmt_rdt_data__);
-  //L1MuGMTReadoutRecordCollection const* gmt_rdt_emul(gmt_rdt_emul__);
-  //std::cout << "debug L1Comparator gmt 2" << std::endl; 
+  gmt_rdt_data = &gmt_rdt_data_vec;
+  gmt_rdt_emul = &gmt_rdt_emul_vec;
+  gmt_can_data = &gmt_can_data_vec;
+  gmt_can_emul = &gmt_can_emul_vec;
 
-  // -- GT [global trigger]
-  edm::Handle<L1GlobalTriggerReadoutRecord> gt_em_data;
-  edm::Handle<L1GlobalTriggerReadoutRecord> gt_em_emul;
-  if(doGt_) {
-    iEvent.getByLabel(GT_data_Label_, gt_em_data);
-    iEvent.getByLabel(GT_emul_Label_, gt_em_emul);
+  // -- GLT [global trigger]
+  edm::Handle<L1GlobalTriggerReadoutRecord>    glt_rdt_data;
+  edm::Handle<L1GlobalTriggerReadoutRecord>    glt_rdt_emul;
+  edm::Handle<L1GlobalTriggerEvmReadoutRecord> glt_evm_data;
+  edm::Handle<L1GlobalTriggerEvmReadoutRecord> glt_evm_emul;
+  edm::Handle<L1GlobalTriggerObjectMapRecord>  glt_obj_data;
+  edm::Handle<L1GlobalTriggerObjectMapRecord>  glt_obj_emul;
+  if(m_doSys[GLT]) {
+    iEvent.getByLabel(m_DEsource[GLT][0], glt_rdt_data);
+    iEvent.getByLabel(m_DEsource[GLT][1], glt_rdt_emul);
+    iEvent.getByLabel(m_DEsource[GLT][0], glt_evm_data);
+    iEvent.getByLabel(m_DEsource[GLT][1], glt_evm_emul);
+    iEvent.getByLabel(m_DEsource[GLT][0], glt_obj_data);
+    iEvent.getByLabel(m_DEsource[GLT][1], glt_obj_emul);
   }
   
-  etp_match = true;
-  htp_match = true;
-  rct_match = true;
-  gct_match = true;
-  dtp_match = true;
-  dtf_match = true;
-  ctp_match = true;
-  ctf_match = true;
-  rpc_match = true;
-  ltc_match = true;
-  gmt_match = true;
-  gt_match  = true;
+  ///--- done getting collections. --- 
 
-  char dumptofile[1000];
-  char ok[10];
+  //check collections validity
+  bool isValid[DEnsys];// = {false};
+  for(int i=0; i<DEnsys; i++) isValid[i]=false;
 
-  std::cout << "\n\nL1COMPARE debug Event:" << nevent << "\n\n" << std::endl;
+  isValid[ETP] = ((    ecal_tp_data .isValid()) && (    ecal_tp_emul .isValid()));
+  isValid[HTP] = ((    hcal_tp_data .isValid()) && (    hcal_tp_emul .isValid()));
+  isValid[RCT] = ((     rct_em_data .isValid()) && (     rct_em_emul .isValid()));
+  isValid[RCT]&= ((    rct_rgn_data .isValid()) && (    rct_rgn_emul .isValid()));
+  isValid[GCT] = ((gct_isolaem_data .isValid()) && (gct_isolaem_emul .isValid()));
+  isValid[GCT]&= ((gct_noisoem_data .isValid()) && (gct_noisoem_emul .isValid()));
+  isValid[GCT]&= ((gct_cenjets_data .isValid()) && (gct_cenjets_emul .isValid()));
+  isValid[GCT]&= ((gct_forjets_data .isValid()) && (gct_forjets_emul .isValid()));
+  isValid[GCT]&= ((gct_taujets_data .isValid()) && (gct_taujets_emul .isValid()));
+  isValid[DTP] = ((     dtp_ph_data_.isValid()) && (     dtp_ph_emul_.isValid()));
+  isValid[DTP]&= ((     dtp_th_data_.isValid()) && (     dtp_th_emul_.isValid()));
+  isValid[DTF] = ((        dtf_data .isValid()) && (        dtf_emul .isValid()));
+  isValid[DTF]&= ((    dtf_trk_data_.isValid()) && (    dtf_trk_emul_.isValid()));
+  isValid[CTP] = ((    ctp_ano_data_.isValid()) && (    ctp_ano_emul_.isValid()));
+  isValid[CTP]&= ((    ctp_cat_data_.isValid()) && (    ctp_cat_emul_.isValid()));
+  isValid[CTP]&= ((    ctp_lct_data_.isValid()) && (    ctp_lct_emul_.isValid()));
+  isValid[CTP]&= ((    ctp_srt_data_.isValid()) && (    ctp_srt_emul_.isValid()));
+  isValid[CTF] = ((        ctf_data .isValid()) && (        ctf_emul .isValid()));
+  isValid[CTF]&= ((   ctf_trk_data_ .isValid()) && (   ctf_trk_emul_ .isValid()));
+  isValid[CTF]&= ((   ctf_sta_data_ .isValid()) && (   ctf_sta_emul_ .isValid()));
+  isValid[RPC] = ((    rpc_cen_data .isValid()) && (    rpc_cen_emul .isValid()));
+  isValid[RPC]&= ((    rpc_for_data .isValid()) && (    rpc_for_emul .isValid()));
+  isValid[LTC] = ((        ltc_data .isValid()) && (        ltc_emul .isValid()));
+  isValid[GMT] = ((        gmt_data .isValid()) && (        gmt_emul .isValid()));
+  isValid[GMT]&= ((    gmt_rdt_data_.isValid()) && (    gmt_rdt_emul_.isValid()));
+  isValid[GLT] = ((    glt_rdt_data .isValid()) && (    glt_rdt_emul .isValid()));
+  isValid[GLT]&= ((    glt_evm_data .isValid()) && (    glt_evm_emul .isValid()));
+  isValid[GLT]&= ((    glt_obj_data .isValid()) && (    glt_obj_emul .isValid()));
 
-  // >>---- Ecal Trigger Primmitive ---- <<  
-  if(doEtp_) {
-    /// ETP 
-    //std::vector<>
-    //EcalTrigPrimDigiCollection const* ecal_tp_emul_ = ecal_tp_emul.product();
-    //EcalTrigPrimDigiCollection const* ecal_tp_data_ = ecal_tp_data.product();
-    ////static_const<EcalTrigPrimDigiCollection const*>(ecal_tp_emul_));
-    //DEcompare<EcalTrigPrimDigiCollection> EtpEmCompare(ecal_tp_data_, ecal_tp_emul_);
-    DEcompare<EcalTrigPrimDigiCollection> EtpEmCompare(ecal_tp_data, ecal_tp_emul);
-    etp_match &= EtpEmCompare.do_compare(dumpFile,dumpMode);
+
+  if(verbose()) {
+    std::cout << "L1Comparator sys isValid?  (evt:" << nevt_ << ") ";
+    for(int i=0; i<DEnsys; i++)
+      std::cout << isValid[i] << " ";
+    std::cout << std::endl;
   }
 
-  // >>---- Hcal Trigger Primmitive ---- <<  
-  if(doHtp_) {
-    /// HTP 
-      DEcompare<HcalTrigPrimDigiCollection> HtpEmCompare(hcal_tp_data, hcal_tp_emul);
-      htp_match &= HtpEmCompare.do_compare(dumpFile,dumpMode);
-  }
+  //reset flags...
+  for(int i=0; i<DEnsys; i++) isValid[i]=true;
 
-  // >>---- RCT ---- <<  
-  if(doRct_) {
-    /// RCT em
-    DEcompare<L1CaloEmCollection>     RctEmCompare(rct_em_data, rct_em_emul);
-    rct_match &= RctEmCompare.do_compare(dumpFile,dumpMode);
-    /// RCT regions
-    DEcompare<L1CaloRegionCollection> RctRgnCompare(rct_rgn_data, rct_rgn_emul);
-    rct_match &= RctRgnCompare.do_compare(dumpFile,dumpMode);
-    //debug&alternative computations
-    //bool rct_match_1 = compareCollections(rct_em_data, rct_em_emul);  
-    //bool rct_match_2 = CompareCollections<L1CaloEmCollection>(rct_em_data, rct_em_emul);
-  }
-  
-  // >>---- GCT ---- <<  
-  if(doGct_) {
-    if(gct_isolaem_data.isValid() || gct_isolaem_emul.isValid()) {
-      DEcompare<L1GctEmCandCollection>  GctIsolaEmCompare(gct_isolaem_data, gct_isolaem_emul);
-      gct_match &= GctIsolaEmCompare.do_compare(dumpFile,dumpMode);
+  if(verbose())
+    std::cout << "L1Comparator start processing the collections.\n" << std::flush;
+
+  ///processing : compare the pairs of collections 
+  if(m_doSys[ETP]&&isValid[ETP]) process<EcalTrigPrimDigiCollection>     (    ecal_tp_data,     ecal_tp_emul, ETP);
+  if(m_doSys[HTP]&&isValid[HTP]) process<HcalTrigPrimDigiCollection>     (    hcal_tp_data,     hcal_tp_emul, HTP);
+  if(m_doSys[RCT]&&isValid[RCT]) process<L1CaloEmCollection>             (     rct_em_data,      rct_em_emul, RCT);
+  if(m_doSys[RCT]&&isValid[RCT]) process<L1CaloRegionCollection>         (    rct_rgn_data,     rct_rgn_emul, RCT);
+  if(m_doSys[GCT]&&isValid[GCT]) process<L1GctEmCandCollection>          (gct_isolaem_data, gct_isolaem_emul, GCT);
+  if(m_doSys[GCT]&&isValid[GCT]) process<L1GctEmCandCollection>          (gct_noisoem_data, gct_noisoem_emul, GCT);
+  if(m_doSys[GCT]&&isValid[GCT]) process<L1GctJetCandCollection>         (gct_cenjets_data, gct_cenjets_emul, GCT);
+  if(m_doSys[GCT]&&isValid[GCT]) process<L1GctJetCandCollection>         (gct_forjets_data, gct_forjets_emul, GCT);
+  if(m_doSys[GCT]&&isValid[GCT]) process<L1GctJetCandCollection>         (gct_taujets_data, gct_taujets_emul, GCT);
+  if(m_doSys[DTP]&&isValid[DTP]) process<L1MuDTChambPhDigiCollection>    (     dtp_ph_data,      dtp_ph_emul, DTP);
+  if(m_doSys[DTP]&&isValid[DTP]) process<L1MuDTChambThDigiCollection>    (     dtp_th_data,      dtp_th_emul, DTP);
+  if(m_doSys[DTF]&&isValid[DTF]) process<L1MuRegionalCandCollection>     (        dtf_data,         dtf_emul, DTF);
+  if(m_doSys[DTF]&&isValid[DTF]) process<L1MuRegionalCandCollection>     (    dtf_trk_data,     dtf_trk_emul, DTF);
+  if(m_doSys[CTP]&&isValid[CTP]) process<CSCALCTDigiCollection_>         (    ctp_ano_data,     ctp_ano_emul, CTP);
+  if(m_doSys[CTP]&&isValid[CTP]) process<CSCCLCTDigiCollection_>         (    ctp_cat_data,     ctp_cat_emul, CTP);
+  if(m_doSys[CTP]&&isValid[CTP]) process<CSCCorrelatedLCTDigiCollection_>(    ctp_lct_data,     ctp_lct_emul, CTP);
+  if(m_doSys[CTP]&&isValid[CTP]) process<CSCCorrelatedLCTDigiCollection_>(    ctp_srt_data,     ctp_srt_emul, CTP);
+  if(m_doSys[CTF]&&isValid[CTF]) process<L1MuRegionalCandCollection>     (        ctf_data,         ctf_emul, CTF);
+  if(m_doSys[CTF]&&isValid[CTF]) process<CSCCorrelatedLCTDigiCollection_>(    ctf_trk_data,     ctf_trk_emul, CTF);
+  if(m_doSys[CTF]&&isValid[CTF]) process<L1MuRegionalCandCollection>     (    ctf_trc_data,     ctf_trc_emul, CTF);
+  if(m_doSys[CTF]&&isValid[CTF]) process<L1CSCSPStatusDigiCollection_>   (    ctf_sta_data,     ctf_sta_emul, CTF);
+  if(m_doSys[RPC]&&isValid[RPC]) process<L1MuRegionalCandCollection>     (    rpc_cen_data,     rpc_cen_emul, RPC);
+  if(m_doSys[RPC]&&isValid[RPC]) process<L1MuRegionalCandCollection>     (    rpc_for_data,     rpc_for_emul, RPC);
+  if(m_doSys[LTC]&&isValid[LTC]) process<LTCDigiCollection>              (        ltc_data,         ltc_emul, LTC);
+  if(m_doSys[GMT]&&isValid[GMT]) process<L1MuGMTCandCollection>          (        gmt_data,         gmt_emul, GMT);
+  if(m_doSys[GMT]&&isValid[GMT]) process<L1MuRegionalCandCollection>     (    gmt_rdt_data,     gmt_rdt_emul, GMT);
+  if(m_doSys[GMT]&&isValid[GMT]) process<L1MuGMTCandCollection>          (    gmt_can_data,     gmt_can_emul, GMT);
+
+  // >>---- GLT ---- <<  
+  if(m_doSys[GLT]) {
+    if(dumpEvent_) {
+      m_dumpFile << "\nEvent: " << nevt_ << std::endl;
+      dumpEvent_=false;
     }
-    if(gct_noisoem_data.isValid() || gct_noisoem_emul.isValid()) {
-      DEcompare<L1GctEmCandCollection>  GctNoIsoEmCompare(gct_noisoem_data, gct_noisoem_emul);
-      gct_match &= GctNoIsoEmCompare.do_compare(dumpFile,dumpMode);
-    }
-    if(gct_cenjets_data.isValid() || gct_cenjets_emul.isValid()) {
-      DEcompare<L1GctJetCandCollection> GctCenJetsCompare(gct_cenjets_data, gct_cenjets_emul);
-      gct_match &= GctCenJetsCompare.do_compare(dumpFile,dumpMode);
-    }
-    if(gct_forjets_data.isValid() || gct_forjets_emul.isValid()) {
-      DEcompare<L1GctJetCandCollection> GctForJetsCompare(gct_forjets_data, gct_forjets_emul);
-      gct_match &= GctForJetsCompare.do_compare(dumpFile,dumpMode);
-    }
-    if(gct_taujets_data.isValid() || gct_taujets_emul.isValid()) {
-      DEcompare<L1GctJetCandCollection> GctTauJetsCompare(gct_taujets_data, gct_taujets_emul);
-      gct_match &= GctTauJetsCompare.do_compare(dumpFile,dumpMode);
-    }
-    //debug&alternative computations
-    //bool gct_match_1 = compareCollections(gct_em_data, gct_em_emul);  
-    //bool gct_match_2 = CompareCollections<L1GctEmCandCollection>(gct_em_data, gct_em_emul);  
-  }
- 
-  // >>---- DTP ---- <<  
-  if(doDtp_) {
-    DEcompare<L1MuDTChambPhDigiCollection> DtpPhCompare(dtp_ph_data, dtp_ph_emul);
-    dtp_match &= DtpPhCompare.do_compare(dumpFile,dumpMode);
-    DEcompare<L1MuDTChambThDigiCollection> DtpThCompare(dtp_th_data, dtp_th_emul);
-    dtp_match &= DtpThCompare.do_compare(dumpFile,dumpMode);
-  }
-  // >>---- DTF ---- <<  
-  if(doDtf_) {
-    DEcompare<L1MuRegionalCandCollection> DtfCompare(dtf_data, dtf_emul);
-    dtf_match &= DtfCompare.do_compare(dumpFile,dumpMode);
-    DEcompare<L1MuRegionalCandCollection> DtfTrkCompare(dtf_trk_data, dtf_trk_emul);
-    dtf_match &= DtfTrkCompare.do_compare(dumpFile,dumpMode);
-  }
+    m_dumpFile << "\n  GT...\n";
 
-//  // >>---- CTP ---- <<  
-//  if(doCtp_) {
-//    DEcompare<CSCCorrelatedLCTDigiCollection_> CtpCompare(ctp_data, ctp_emul);
-//    ctp_match &= CtpCompare.do_compare(dumpFile,dumpMode);
-//  }
+    DEmatchEvt[GLT]  = compareCollections(glt_rdt_data, glt_rdt_emul);  
+    DEmatchEvt[GLT] &= compareCollections(glt_evm_data, glt_evm_emul);  
+    DEmatchEvt[GLT] &= compareCollections(glt_obj_data, glt_obj_emul);  
 
-  // >>---- CTF ---- <<  
-  if(doCtf_) {
-  //DEcompare<L1MuRegionalCandCollection> CtfCompare(ctf_data, ctf_emul);
-    DEcompare<L1CSCTrackCollection> CtfCompare(ctf_data, ctf_emul);
-    ctf_match &= CtfCompare.do_compare(dumpFile,dumpMode);
-  }
-
-  // >>---- RPC ---- <<  
-  if(doRpc_) {
-    DEcompare<L1MuRegionalCandCollection> RpcCenCompare(rpc_cen_data, rpc_cen_emul);
-    rpc_match &= RpcCenCompare.do_compare(dumpFile,dumpMode);
-    DEcompare<L1MuRegionalCandCollection> RpcForCompare(rpc_for_data, rpc_for_emul);
-    rpc_match &= RpcForCompare.do_compare(dumpFile,dumpMode);
-  }
-
-  // >>---- LTC ---- <<  
-  if(doLtc_) {
-    DEcompare<LTCDigiCollection> LtcCompare(ltc_data, ltc_emul);
-    ltc_match &= LtcCompare.do_compare(dumpFile,dumpMode);
-  }
-
-  // >>---- GMT ---- <<  
-//  if(doGmt_) {
-//    DEcompare<L1MuGMTCandCollection> GmtCompare(gmt_data, gmt_emul);
-//    gmt_match &= GmtCompare.do_compare(dumpFile,dumpMode);
-//    DEcompare<L1MuGMTReadoutRecordCollection> GmtRdtCompare(gmt_rdt_data, gmt_rdt_emul);
-//    gmt_match &= GmtRdtCompare.do_compare(dumpFile,dumpMode);
-//  }
-
-  // >>---- GT ---- <<  
-  if(doGt_) {
-    dumpFile << "\n  GT...\n";
-    gt_match &= compareCollections(gt_em_data, gt_em_emul);  
-    if(gt_match) sprintf(ok,"successful");
+    char ok[10];
+    char dumptofile[1000];
+    if(DEmatchEvt[GLT]) sprintf(ok,"successful");
     else         sprintf(ok,"failed");
     sprintf(dumptofile,"  ...GT data and emulator comparison: %s\n", ok); 
-    dumpFile<<dumptofile;
-    //DecisionWord gt_dec_data = gt_em_data->decisionWord();
-    //DecisionWord gt_dec_emul = gt_em_emul->decisionWord();
-    //DEcompare<DecisionWord> GtCompare(gt_dec_data, gt_dec_emul);
-    //gct_match &= GtCompare.do_compare(dumpFile);
+    m_dumpFile<<dumptofile;
   }
-  
-  dumpFile << std::flush;
+
+  if(verbose())
+    std::cout << "L1Comparator done processing all collections.\n" << std::flush;
+
+  if(verbose()) {
+    std::cout << "[L1Comparator] sys match? << evt." << nevt_ << ": ";
+    for(int i=0; i<DEnsys; i++)
+      std::cout << DEmatchEvt[i] << " ";
+    std::cout << std::endl;
+  }
 
 
   // >>---- Event match? ---- <<  
-  evt_match  = true;
-  evt_match &= etp_match;
-  evt_match &= rct_match;
-  evt_match &= gct_match;
-  evt_match &= gt_match;
- 
-  if(evt_match) sprintf(ok,"GOOD :]");
-  else      sprintf(ok,"BAD !!!"); 
- 
-  sprintf(dumptofile,"\n -> event data and emulator match... %s\n", ok);
-  dumpFile<<dumptofile;
 
+  bool evt_match  = true;
+  for(int i=0; i<DEnsys; i++)
+    evt_match &= DEmatchEvt[i];
+
+  
+  /* char ok[10];
+     if(evt_match) sprintf(ok,"GOOD :]");
+     else      sprintf(ok,"BAD !!!"); 
+     char dumptofile[1000];
+     sprintf(dumptofile,"\n -> event data and emulator match... %s\n", ok);
+     m_dumpFile<<dumptofile;
+  */
 
   // >>---- Global match? ---- <<  
-  all_match &= evt_match;
+  m_match &= evt_match;
+  m_dumpFile << std::flush;
 
+  // >>---- d|e record ---- <<  
+  std::auto_ptr<L1DataEmulRecord> record
+    (new L1DataEmulRecord(evt_match,m_doSys,DEmatchEvt,DEncand,m_dedigis));
+  if(verbose()) {
+    std::cout << "\n [L1Comparator] printing DErecord" 
+	      << "(entry:"<< nevt_ 
+	      << "|evt:"  << evtNum_
+	      << "|run:"  << runNum_ 
+	      << "):\n"    << std::flush;
+    std::cout << *record 
+	      << "\n" << std::flush;
+  }
+
+  iEvent.put(record);
+
+  /// further analysis
+  bool dorawdata = false;
+  if(dorawdata) {
+    edm::Handle<FEDRawDataCollection> raw_fedcoll_data;
+    edm::Handle<FEDRawDataCollection> raw_fedcoll_emul;
+    try {
+      iEvent.getByLabel(m_FEDsource[0], raw_fedcoll_data);
+      iEvent.getByLabel(m_FEDsource[1], raw_fedcoll_emul);
+    } catch(...) {}  
+    bool rawval=true;
+    rawval &= raw_fedcoll_data.isValid();
+    rawval &= raw_fedcoll_emul.isValid();
+    if(rawval) 
+      compareFedRawCollections(raw_fedcoll_data,raw_fedcoll_emul, m_fedId);
+  }
+  
+  if(verbose())
+    std::cout << "L1comparator::analize() end. " << nevt_ << std::endl;
+  
 }
 
+
+template <class T> 
+void L1Comparator::process(T const* data, T const* emul, const int sys) {
+
+  if(verbose())
+    std::cout << "L1Comparator::process -ing system:" << sys 
+	      << " (" << SystLabel[sys] << ")...\n" << std::flush;
+  if(verbose())
+  std::cout << "L1Comparator::process debug "
+	    << " (size "  << data->size() << "," <<emul->size() << ")"   
+	    << ".\n" << std::flush;
+
+  ///tmp: for getting a clean dump (avoid empty entries)
+  bool prt = false; 
+  if(!m_dumpMode)
+    prt = false;
+  else if(m_dumpMode==-1)
+    prt=true;
+  else if(m_dumpMode==1) {
+    DEcompare<T> tmp(data,emul);
+    if(tmp.get_ncand(0)==0 && tmp.get_ncand(1)==0)
+      prt=false;
+    else
+    prt = !tmp.do_compare(m_dumpFile,0);
+  }
+
+  //declare de compare object
+  DEcompare<T> cmp(data,emul);
+
+  int ndata = cmp.get_ncand(0);
+  int nemul = cmp.get_ncand(1);
+  
+  if(verbose())
+    std::cout << "L1Comparator::process " 
+	      << " system:" << SystLabel[sys] << "(id " << sys << ")" 
+	      << " type:"   << cmp.GetName(0) << "(" << cmp.de_type() << ")"
+	      << " ndata:"  << ndata
+	      << " nemul:"  << nemul
+	      << " (size "  << data->size() << "," <<emul->size() << ")"   
+	      << ".\n" << std::flush;
+  
+  if(ndata==0&&nemul==0) {
+    if(verbose())
+      std::cout << "L1Comparator::process " 
+		<< "empty collections -- exiting!\n" << std::flush;
+    //put empty digi
+    if(m_dedigis.size()==0)
+      m_dedigis.push_back(L1DataEmulDigi());
+    return;
+  }
+
+  m_dumpFile << std::setiosflags(std::ios::showpoint | std::ios::fixed 
+				 | std::ios::right | std::ios::adjustfield);
+  std::cout  << std::setiosflags(std::ios::showpoint | std::ios::fixed 
+				 | std::ios::right | std::ios::adjustfield);
+  
+  if(dumpEvent_ &&  prt ) {
+    m_dumpFile << "\nEntry: " << nevt_ 
+	       << " (event:"  << evtNum_
+	       << " | run:"   << runNum_ 
+	       << ")\n"       << std::flush;
+    dumpEvent_=false;
+  }
+  
+  if(prt)
+    m_dumpFile << "\n  sys:" << SystLabel[sys] 
+	       << " (" << sys << "), type:" << cmp.GetName() << " ...\n";
+  
+  if(verbose())
+    std::cout << "L1Comparator::process print:\n" << std::flush
+	      << cmp.print()
+	      << std::flush;
+  
+  ///perform comparison
+  DEmatchEvt[sys] &= cmp.do_compare(m_dumpFile,m_dumpMode);
+  
+  ///gather results
+  L1DEDigiCollection dg = cmp.getDEDigis();
+
+  if(verbose())
+    for(L1DEDigiCollection::iterator it=dg.begin(); it!=dg.end();it++)
+      std::cout << *it << "\n";
+
+  ///over-write system-id: needed eg for GMT input, CSC tf reg cand, CTP&CTF
+  for(L1DEDigiCollection::iterator it=dg.begin(); it!=dg.end();it++)
+    it->setSid(sys);
+
+  ///append d|e digis to the record's collection
+  m_dedigis.insert(m_dedigis.end(), dg.begin(), dg.end()); 
+  for(int i=0; i<2; i++)
+    DEncand[sys][i] += cmp.get_ncand(i);
+
+  if(verbose())
+    std::cout << "L1Comparator::process " 
+	      << " system:" << SystLabel[sys] 
+	      << " type:"   << cmp.GetName(0) 
+	      << " ndata:"  << DEncand[sys][0]
+	      << " nemul:"  << DEncand[sys][1]
+	      << " (size "  << data->size() << "," <<emul->size() << ")"   
+	      << " ndigis:" << dg.size()
+	      << " agree? " << DEmatchEvt[sys]
+	      << std::endl;
+
+  if(verbose())
+    std::cout << "L1Comparator::process -ing system:" 
+	      << sys << " (" << SystLabel[sys] << ")...done.\n" 
+	      << std::flush;
+}
 
 //--//--//--//--//--//--//--//--//--//--//--//--//--//--//--//--
 
-// --- empty candidate? ---
-bool isEmpty(const EcalTriggerPrimitiveDigi c) {
-  return  ((c[c.sampleOfInterest()].raw())==0);
-}
+bool
+L1Comparator::compareCollections(edm::Handle<L1GlobalTriggerReadoutRecord> data, 
+				 edm::Handle<L1GlobalTriggerReadoutRecord> emul) {
 
-bool isEmpty(const L1CaloEmCand c) {
-  return  ((c.raw())==0);
-}
-bool isEmpty(const L1CaloRegion c) {
-  return c.et()==0;
-  //tbd modify L1CaloRegion constructor: add accessor to data and detid
-}
-bool isEmpty(const L1GctEmCand c) {
-    return c.empty();
-}
+  m_dumpFile << "\n L1GlobalTriggerReadoutRecord candidates...\n";
 
-// --- print candidate ---
-std::string Print(const L1CaloEmCand c, int mode=0) {
-  if(mode==1)
-    return std::string("L1CaloEmCand");
-  std::stringstream ss;
-  ss << "0x" << std::setw(4) << std::setfill('0') << std::hex //<< showbase 
-     << c.raw() 
-     << std::setfill(' ') << std::dec << "  "
-     << c << std::endl; 
-  return ss.str();
-}
-
-std::string Print(const L1CaloRegion c, int mode=0) {
-  if(mode==1)
-    return std::string("L1CaloRegion");
-  std::stringstream ss;
-  ss << c << std::endl; 
-  return ss.str();
-}
-
-std::string Print(const L1GctEmCand c, int mode=0) {
-  if(mode==1)
-    return std::string("L1GctEmCand");
-  std::stringstream ss;
-  ss << std::setw(4) << std::setfill('0') << std::hex 
-     << "0x" << c.raw() 
-     << std::setfill(' ') << std::dec << "  "
-     << c << std::endl; 
-  return ss.str();
-}
-
-
-// --- alternative computations and cross checks ---- 
-
-bool L1Comparator::compareCollections(edm::Handle<L1CaloEmCollection> data, edm::Handle<L1CaloEmCollection> emul) {
   bool match = true;
-  int ndata = data->size();
-  int nemul = emul->size();
-  if(ndata!=nemul && false) {
-    match &= false;
-    dumpFile << "\t#cand mismatch"
-	     << "\tdata: " << ndata
- 	     << "\temul: " << nemul
-	     << std::endl;
-  }
-  std::auto_ptr<L1CaloEmCollection> data_good (new L1CaloEmCollection);
-  std::auto_ptr<L1CaloEmCollection> emul_good (new L1CaloEmCollection);
-  std::auto_ptr<L1CaloEmCollection> data_bad  (new L1CaloEmCollection);
-  std::auto_ptr<L1CaloEmCollection> emul_bad  (new L1CaloEmCollection);
-  L1CaloEmCollection::const_iterator itd;
-  L1CaloEmCollection::iterator ite; 
-  //emul_bad->reserve(emul->size());
-  //copy(emul->begin(),emul->end(),emul_bad->begin());
-  for(L1CaloEmCollection::const_iterator ite = emul->begin(); ite != emul->end(); ite++) 
-    emul_bad->push_back(*ite);
-  //loop needed to deal with differring order
-  DEutils<L1CaloEmCollection> de_utils;
-  for(itd = data->begin(); itd != data->end(); itd++) {
-    ite = de_utils.de_find(emul_bad->begin(),emul_bad->end(),*itd);
-    //ite = find(emul_bad->begin(),emul_bad->end(),*itd);
-    /// found data value?
-    if(ite!=emul->end()) { 
-      data_good->push_back(*itd);
-      emul_good->push_back(*ite);
-      ite=emul_bad->erase(ite);
-    } else {
-      data_bad->push_back(*itd);
-      match &= false;
+  
+  match &= (*data==*emul);
+  
+  if(m_dumpMode==0 && match)
+    return match;    
+  
+  //expand to check mismatching  stage
+
+  //need to create new objects due to lack of suitable accessors
+  // needed only for accessing gtPsbVector()
+  std::auto_ptr<L1GlobalTriggerReadoutRecord> 
+    data_( new L1GlobalTriggerReadoutRecord(*(data.product())));
+  std::auto_ptr<L1GlobalTriggerReadoutRecord> 
+    emul_( new L1GlobalTriggerReadoutRecord(*(emul.product())));
+
+  match = true;
+  m_dumpFile << "\tmatch stage: ";
+  match &= (data->gtfeWord()            == emul->gtfeWord()     );
+  m_dumpFile << " gtfeWord:" << match; 	        
+  match &= (data->gtFdlWord()           == emul->gtFdlWord()    );
+  m_dumpFile << " gtFdlWord:" << match; 	        
+  match &= (data->muCollectionRefProd() == emul->muCollectionRefProd());
+  m_dumpFile << " muCollectionRefProd:" << match; 
+  uint16_t dt_psb_bid=0, em_psb_bid=0;    
+  for(int idx=0; idx<(int)data_->gtPsbVector().size(); idx++)
+    if(data_->gtPsbVector().at(idx) != emul_->gtPsbVector().at(idx) ) {
+      //match &= false;
+      dt_psb_bid = data_->gtPsbVector().at(idx).boardId();
+      em_psb_bid = emul_->gtPsbVector().at(idx).boardId();
+      break;
     }
+  match &= (data->gtPsbWord(dt_psb_bid) == emul->gtPsbWord(em_psb_bid) );
+  //problem: vector not accessible from handle (only reference non-const)
+  //std::vector<L1GtPsbWord>& data_psbVec = data_->gtPsbVector();
+  //std::vector<L1GtPsbWord>& emul_psbVec = emul_->gtPsbVector();
+  m_dumpFile << " gtPsbWord("<<dt_psb_bid<<","<<em_psb_bid<<"):" << match << "\n"; 
+
+  ///todo: skip empty events
+
+  // gt decision
+  m_dumpFile << "\n\tGlobal decision: "
+    	   << data->decision() << " (data) "
+    	   << emul->decision() << " (emul) "
+	   << std::endl;
+
+  // gt decision word
+  m_dumpFile << "\n\tDecisionWord  (bits: 0:63, 127:64)";
+  int nbitword = 64; 
+  std::vector<bool> data_gtword = data->decisionWord();
+  std::vector<bool> emul_gtword = emul->decisionWord();
+  m_dumpFile << "\n\tdata: ";
+  for(int i=0; i<nbitword; i++) {
+    if (i%16==0) m_dumpFile << " ";
+    m_dumpFile << (data_gtword.at(nbitword-1-i)  ? '1' : '0');
   }
-  //debug
-  //std::cout << "\totherStats:" 
-  //     << " data_bad:"  << data_bad ->size()
-  //     << " emul_bad:"  << emul_bad ->size()
-  //     << " data_good:" << data_good->size()
-  //     << " emul_good:" << emul_good->size()
-  //     << std::endl;
-  for (int i=0; i<(int)data_bad->size(); i++) {
-    dumpCandidate(data_bad->at(i),emul_bad->at(i), dumpFile);
+  m_dumpFile << "\n\t      ";
+  for(int i=0; i<nbitword; i++) {
+    if (i%16==0) m_dumpFile << " ";
+    m_dumpFile << (data_gtword.at(nbitword*2-1-i)  ? '1' : '0');
   }
+  m_dumpFile << "\n\temul: ";
+  for(int i=0; i<nbitword; i++) {
+    if (i%16==0) m_dumpFile << " ";
+    m_dumpFile << (emul_gtword.at(nbitword-1-i)  ? '1' : '0');
+  }
+  m_dumpFile << "\n\t      ";
+  for(int i=0; i<nbitword; i++) {
+    if (i%16==0) m_dumpFile << " ";
+    m_dumpFile << (emul_gtword.at(nbitword*2-1-i)  ? '1' : '0');
+  }
+  m_dumpFile << std::endl;
+ 
+  m_dumpFile << "\n\tDecisionWordExtended  (bits: 0:63)";
+  std::vector<bool> data_decwext = data->gtFdlWord().gtDecisionWordExtended();
+  std::vector<bool> emul_decwext = emul->gtFdlWord().gtDecisionWordExtended();
+  m_dumpFile << "\n\tdata: ";
+  for(int i=0; i<nbitword; i++) {
+    if (i%16==0) m_dumpFile << " ";
+    m_dumpFile << (data_decwext.at(nbitword-1-i)  ? '1' : '0');
+  }
+  m_dumpFile << "\n\temul: ";
+  for(int i=0; i<nbitword; i++) {
+    if (i%16==0) m_dumpFile << " ";
+    m_dumpFile << (emul_decwext.at(nbitword-1-i)  ? '1' : '0');
+  }
+  m_dumpFile << std::endl;
+
+  m_dumpFile << "\n\tTechnical triggers (bits: 0:63)";
+  std::vector<bool> data_fdlttw = data->gtFdlWord().gtTechnicalTriggerWord();
+  std::vector<bool> emul_fdlttw = emul->gtFdlWord().gtTechnicalTriggerWord();
+  assert((int)data_fdlttw.size()==nbitword); 
+  m_dumpFile << "\n\tdata: ";
+  for(int i=0; i<nbitword; i++) {
+    if (i%16==0) m_dumpFile << " ";
+    m_dumpFile << (data_fdlttw.at(nbitword-1-i)  ? '1' : '0');
+  }
+  m_dumpFile << "\n\temul: ";
+  for(int i=0; i<nbitword; i++) {
+    if (i%16==0) m_dumpFile << " ";
+    m_dumpFile << (emul_fdlttw.at(nbitword-1-i)  ? '1' : '0');
+  }
+  m_dumpFile << std::endl;
+
+  m_dumpFile << "\n\tL1GtFdlWord";
+  m_dumpFile << "\n\tdata: "
+	   << " BoardId:"   << data->gtFdlWord().boardId()
+	   << " BxInEvent:" << data->gtFdlWord().bxInEvent()
+	   << " BxNr:"      << data->gtFdlWord().bxNr()
+	   << " EventNr:"   << data->gtFdlWord().eventNr()
+	   << " NoAlgo:"    << data->gtFdlWord().noAlgo()
+	   << " FinalOR:"   << data->gtFdlWord().finalOR()
+	   << " LocalBxNr:" << data->gtFdlWord().localBxNr();
+  m_dumpFile << "\n\temul: "
+	   << " BoardId:"   << emul->gtFdlWord().boardId()
+	   << " BxInEvent:" << emul->gtFdlWord().bxInEvent()
+	   << " BxNr:"      << emul->gtFdlWord().bxNr()
+	   << " EventNr:"   << emul->gtFdlWord().eventNr()
+	   << " NoAlgo:"    << emul->gtFdlWord().noAlgo()
+	   << " FinalOR:"   << emul->gtFdlWord().finalOR()
+	   << " LocalBxNr:" << emul->gtFdlWord().localBxNr()
+	   << std::endl;
+
+  m_dumpFile << "\n\tL1GtfeWord";
+  m_dumpFile << "\n\tdata: " 
+	   << " BoardId:"        << data->gtfeWord().boardId()
+	   << " RecordLength:"   << data->gtfeWord().recordLength()
+	   << " BxNr:"           << data->gtfeWord().bxNr() 
+	   << " SetupVersion:"   << data->gtfeWord().setupVersion()
+	   << " ActiveBoards:"   << data->gtfeWord().activeBoards()
+	   << " TotalTriggerNr:" << data->gtfeWord().totalTriggerNr();
+  m_dumpFile << "\n\temul: " 
+	   << " BoardId:"        << emul->gtfeWord().boardId()
+	   << " RecordLength:"   << emul->gtfeWord().recordLength()
+	   << " BxNr:"           << emul->gtfeWord().bxNr() 
+	   << " SetupVersion:"   << emul->gtfeWord().setupVersion()
+	   << " ActiveBoards:"   << emul->gtfeWord().activeBoards()
+	   << " TotalTriggerNr:" << emul->gtfeWord().totalTriggerNr()
+	   << std::endl;
+
+  //uint16_t psb_bid = (uint16_t)idx; //need to find relevant board-id to dump
+  m_dumpFile << "\n\tgtPsbWord";
+  m_dumpFile << "\n\tdata: "
+	   << " Board Id:"  << data->gtPsbWord(dt_psb_bid).boardId()
+	   << " BxInEvent:" << data->gtPsbWord(dt_psb_bid).bxInEvent()
+	   << " BxNr:"      << data->gtPsbWord(dt_psb_bid).bxNr()
+	   << " LocalBxNr:" << data->gtPsbWord(dt_psb_bid).localBxNr()
+	   << " EventNr:"   << data->gtPsbWord(dt_psb_bid).eventNr();
+  m_dumpFile << "\n\temul: "
+	   << " Board Id:"  << emul->gtPsbWord(em_psb_bid).boardId()
+	   << " BxInEvent:" << emul->gtPsbWord(em_psb_bid).bxInEvent()
+	   << " BxNr:"      << emul->gtPsbWord(em_psb_bid).bxNr()
+	   << " LocalBxNr:" << emul->gtPsbWord(em_psb_bid).localBxNr()
+	   << " EventNr:"   << emul->gtPsbWord(em_psb_bid).eventNr()
+	   << std::endl;
+  
+  // m_dumpFile << "\n\tA,B_Data_CH7:0"
+  //	   << " ...waiting for data accessors in dataformats!\n\n";
+  //#include "DataFormats/L1GlobalTrigger/src/L1GtPsbWord.cc"
+  
+  m_dumpFile << "\n\tA_Data_CH7:0";
+  m_dumpFile << "\n\tdata: ";
+  for (int i=0; i<8; ++i)
+    m_dumpFile << data->gtPsbWord(dt_psb_bid).aData(7-i) << " ";
+  m_dumpFile << "\n\temul: ";
+  for (int i=0; i<8; ++i)
+    m_dumpFile << emul->gtPsbWord(em_psb_bid).aData(7-i) << " ";
+  m_dumpFile << std::endl;
+  
+  m_dumpFile << "\n\tA_Data_CH7:0";
+  m_dumpFile << "\n\tdata: ";
+  for (int i=0; i<8; ++i)
+    m_dumpFile << data->gtPsbWord(dt_psb_bid).bData(7-i) << " ";
+  m_dumpFile << "\n\temul: ";
+  for (int i=0; i<8; ++i)
+    m_dumpFile << emul->gtPsbWord(em_psb_bid).bData(7-i) << " ";
+  m_dumpFile << "\n" << std::endl;
+
+
+  /// todo printL1Objects!
+
+  /// debug: print it all ()
+  if(false) {
+    m_dumpFile << "---debug: print full gt record---";
+    m_dumpFile << "\n\tdata: ";   
+    data->print(m_dumpFile);
+    m_dumpFile << "\n\temul: ";   
+    emul->print(m_dumpFile);
+    m_dumpFile << "\n"; 
+    m_dumpFile << "---debug: print full gt record Done.---\n\n";
+  }
+
+  char ok[10];
+  if(match) sprintf(ok,"successful");
+  else      sprintf(ok,"failed");
+  m_dumpFile << " ...L1GlobalTriggerReadoutRecord data and emulator comparison: " 
+	   << ok << std::endl;
+
   return match;
 }
 
-bool
-L1Comparator::compareCollections(edm::Handle<L1GctEmCandCollection> data, edm::Handle<L1GctEmCandCollection> emul) {
-   
-  bool match = true;
-  //count candidates
-  int ndata = data -> size();
-  int nemul = emul -> size();
-  if(ndata!=nemul) {
-    match &= false;
-    dumpFile << " #cand mismatch (4?)"
-	     << "\tdata: " << ndata
-	     << "\temul: " << nemul
-	     << std::endl;
-  }
-  
-  L1GctEmCandCollection::const_iterator itd = data -> begin();
-  L1GctEmCandCollection::const_iterator itm = emul -> begin();
-  
-  for (int i=0; i<4; i++) {
-    match &= dumpCandidate(*itd++,*itm++, dumpFile);
-  }  
-  return match;
-}
 
 bool
-L1Comparator::compareCollections(edm::Handle<L1GlobalTriggerReadoutRecord> data, edm::Handle<L1GlobalTriggerReadoutRecord> emul) {
-  //if(data!=emul) {
-  //  data->printGtDecision(dumpFile);
-  //  emul->printGtDecision(dumpFile);
-  //  return false;
-  //}     
-  //return true;
-  //data->print(); emul->print();
-  DecisionWord dword_data = data->decisionWord();
-  DecisionWord dword_emul = emul->decisionWord();
+L1Comparator::compareCollections(edm::Handle<L1GlobalTriggerEvmReadoutRecord> data, 
+				 edm::Handle<L1GlobalTriggerEvmReadoutRecord> emul) {
+
+  m_dumpFile << "\n  L1GlobalTriggerEvmReadoutRecord candidates...\n";
   
   bool match = true;
   match &= (*data==*emul);
-  //  match &= (dword_data==dword_emul);
   
-  std::vector<bool> bad_bits;
-  for(int i=0; i<128; i++) {
-    if(dword_data[i]!=dword_emul[i]) {
-      bad_bits.push_back(i); 
-      match &= false;
-    }
+  if(m_dumpMode==0 && match)
+    return match;
+  
+  // gt decision
+  m_dumpFile << "\n\tGlobal decision: "
+	     << data->decision() << " (data) "
+	     << emul->decision() << " (emul) "
+	     << std::endl;
+
+  // gt decision word
+  m_dumpFile << "\n\tDecisionWord  (bits: 0:63, 127:64)";
+  int nbitword = 64; 
+  std::vector<bool> data_gtword = data->decisionWord();
+  std::vector<bool> emul_gtword = emul->decisionWord();
+  m_dumpFile << "\n\tdata: ";
+  for(int i=0; i<nbitword; i++) {
+    if (i%16==0) m_dumpFile << " ";
+    m_dumpFile << (data_gtword.at(nbitword-1-i)  ? '1' : '0');
   }
-  std::vector<bool>::iterator itb;
-  std::vector<bool>::size_type idx;
-  if(!match) {
-    dumpFile << "\t mismatch in bits: ";
-    for(itb = bad_bits.begin(); itb != bad_bits.end(); itb++) 
-      dumpFile << *itb << " ";
-    dumpFile << "\n\tdata: ";   
-    for(idx=0; idx<dword_data.size(); idx++) {
-      dumpFile <<  dword_data[idx];
-      if(idx%4==0) dumpFile << " ";
-    } 
-    dumpFile << "\n\temul: ";
-    for(idx=0; idx<dword_emul.size(); idx++) {
-      dumpFile <<  dword_emul[idx];
-      if(idx%4==0) dumpFile << " ";
-    }
-    dumpFile << std::endl; 
+  m_dumpFile << "\n\t      ";
+  for(int i=0; i<nbitword; i++) {
+    if (i%16==0) m_dumpFile << " ";
+    m_dumpFile << (data_gtword.at(nbitword*2-1-i)  ? '1' : '0');
   }
+  m_dumpFile << "\n\temul: ";
+  for(int i=0; i<nbitword; i++) {
+    if (i%16==0) m_dumpFile << " ";
+    m_dumpFile << (emul_gtword.at(nbitword-1-i)  ? '1' : '0');
+  }
+  m_dumpFile << "\n\t      ";
+  for(int i=0; i<nbitword; i++) {
+    if (i%16==0) m_dumpFile << " ";
+    m_dumpFile << (emul_gtword.at(nbitword*2-1-i)  ? '1' : '0');
+  }
+  m_dumpFile << std::endl;
+
+  m_dumpFile << "\n\tDecisionWordExtended  (bits: 0:63)";
+  std::vector<bool> data_decwext = data->gtFdlWord().gtDecisionWordExtended();
+  std::vector<bool> emul_decwext = emul->gtFdlWord().gtDecisionWordExtended();
+  m_dumpFile << "\n\tdata: ";
+  for(int i=0; i<nbitword; i++) {
+    if (i%16==0) m_dumpFile << " ";
+    m_dumpFile << (data_decwext.at(nbitword-1-i)  ? '1' : '0');
+  }
+  m_dumpFile << "\n\temul: ";
+  for(int i=0; i<nbitword; i++) {
+    if (i%16==0) m_dumpFile << " ";
+    m_dumpFile << (emul_decwext.at(nbitword-1-i)  ? '1' : '0');
+  }
+  m_dumpFile << std::endl;
+
+  m_dumpFile << "\n\tTechnical triggers (bits: 0:63)";
+  std::vector<bool> data_fdlttw = data->gtFdlWord().gtTechnicalTriggerWord();
+  std::vector<bool> emul_fdlttw = emul->gtFdlWord().gtTechnicalTriggerWord();
+  assert((int)data_fdlttw.size()==nbitword); 
+  m_dumpFile << "\n\tdata: ";
+  for(int i=0; i<nbitword; i++) {
+    if (i%16==0) m_dumpFile << " ";
+    m_dumpFile << (data_fdlttw.at(nbitword-1-i)  ? '1' : '0');
+  }
+  m_dumpFile << "\n\temul: ";
+  for(int i=0; i<nbitword; i++) {
+    if (i%16==0) m_dumpFile << " ";
+    m_dumpFile << (emul_fdlttw.at(nbitword-1-i)  ? '1' : '0');
+  }
+  m_dumpFile << std::endl;
+
+  m_dumpFile << "\n\tL1GtFdlWord";
+  m_dumpFile << "\n\tdata: "
+	     << " BoardId:"   << data->gtFdlWord().boardId()
+	     << " BxInEvent:" << data->gtFdlWord().bxInEvent()
+	     << " BxNr:"      << data->gtFdlWord().bxNr()
+	     << " EventNr:"   << data->gtFdlWord().eventNr()
+	     << " NoAlgo:"    << data->gtFdlWord().noAlgo()
+	     << " FinalOR:"   << data->gtFdlWord().finalOR()
+	     << " LocalBxNr:" << data->gtFdlWord().localBxNr();
+  m_dumpFile << "\n\temul: "
+	     << " BoardId:"   << emul->gtFdlWord().boardId()
+	     << " BxInEvent:" << emul->gtFdlWord().bxInEvent()
+	     << " BxNr:"      << emul->gtFdlWord().bxNr()
+	     << " EventNr:"   << emul->gtFdlWord().eventNr()
+	     << " NoAlgo:"    << emul->gtFdlWord().noAlgo()
+	     << " FinalOR:"   << emul->gtFdlWord().finalOR()
+	     << " LocalBxNr:" << emul->gtFdlWord().localBxNr()
+	     << std::endl;
+
+  m_dumpFile << "\n\tL1GtfeWord";
+  m_dumpFile << "\n\tdata: " 
+	     << " BoardId:"        << data->gtfeWord().boardId()
+	     << " RecordLength:"   << data->gtfeWord().recordLength()
+	     << " BxNr:"           << data->gtfeWord().bxNr() 
+	     << " SetupVersion:"   << data->gtfeWord().setupVersion()
+	     << " ActiveBoards:"   << data->gtfeWord().activeBoards()
+	     << " TotalTriggerNr:" << data->gtfeWord().totalTriggerNr();
+  m_dumpFile << "\n\temul: " 
+	     << " BoardId:"        << emul->gtfeWord().boardId()
+	     << " RecordLength:"   << emul->gtfeWord().recordLength()
+	     << " BxNr:"           << emul->gtfeWord().bxNr() 
+	     << " SetupVersion:"   << emul->gtfeWord().setupVersion()
+	     << " ActiveBoards:"   << emul->gtfeWord().activeBoards()
+	     << " TotalTriggerNr:" << emul->gtfeWord().totalTriggerNr()
+	     << std::endl;
+
+  // -- tcs 
+  m_dumpFile << "\n\ttcsWord";
+  m_dumpFile << "\n\tdata:"
+	     << " DaqNr:"              << data->tcsWord().daqNr()
+	     << " TriggerType:"        << data->tcsWord().triggerType()
+	     << " Status:"             << data->tcsWord().status()
+	     << " BxNr:"               << data->tcsWord().bxNr()
+	     << " PartTrigNr:"         << data->tcsWord().partTrigNr()
+	     << " EventNr:"            << data->tcsWord().eventNr() << "\n\t"
+	     << " AssignedPartitions:" << data->tcsWord().assignedPartitions()
+	     << " PartRunNr:"          << data->tcsWord().partTrigNr()
+	     << " OrbitNr:"            << data->tcsWord().orbitNr();
+  m_dumpFile << "\n\temul:"	     	      				     
+	     << " DaqNr:"              << emul->tcsWord().daqNr()
+	     << " TriggerType:"        << emul->tcsWord().triggerType()
+	     << " Status:"             << emul->tcsWord().status()
+	     << " BxNr:"               << emul->tcsWord().bxNr()
+	     << " PartTrigNr:"         << emul->tcsWord().partTrigNr()
+	     << " EventNr:"            << emul->tcsWord().eventNr() << "\n\t"       
+	     << " AssignedPartitions:" << emul->tcsWord().assignedPartitions()
+	     << " PartRunNr:"          << emul->tcsWord().partTrigNr()
+	     << " OrbitNr:"            << emul->tcsWord().orbitNr()
+	     << "\n" << std::endl;
+
+  char ok[10];
+  if(match) sprintf(ok,"successful");
+  else      sprintf(ok,"failed");
+  m_dumpFile << " ...L1GlobalTriggerEvmReadoutRecord data and emulator comparison: " 
+	     << ok << std::endl;
+
   return match;
 }
 
-bool L1Comparator::dumpCandidate(L1CaloEmCand& dt, L1CaloEmCand& em, std::ostream& s) {
-  if( dt.raw() == em.raw()) 
-    return 1;
-  s<<dt<<std::endl; 
-  s<<em<<std::endl<<std::endl;
-  return 0;
+bool
+L1Comparator::compareCollections(edm::Handle<L1GlobalTriggerObjectMapRecord> data, 
+				 edm::Handle<L1GlobalTriggerObjectMapRecord> emul) {
+
+  m_dumpFile << "\n  L1GlobalTriggerObjectMapRecord candidates...\n";
+
+  bool match = true;
+  //match &= (*data==*emul);
+
+  const std::vector<L1GlobalTriggerObjectMap>& data_ovec = data->gtObjectMap();
+  const std::vector<L1GlobalTriggerObjectMap>& emul_ovec = emul->gtObjectMap();
+
+  for(int idx=0; idx<(int)data_ovec.size(); idx++) {
+    match &= ( data_ovec.at(idx).algoName()               == emul_ovec.at(idx).algoName()               );
+    match &= ( data_ovec.at(idx).algoBitNumber()          == emul_ovec.at(idx).algoBitNumber()	        );
+    match &= ( data_ovec.at(idx).algoGtlResult()          == emul_ovec.at(idx).algoGtlResult()	        );
+    match &= ( data_ovec.at(idx).algoLogicalExpression()  == emul_ovec.at(idx).algoLogicalExpression()  );
+    match &= ( data_ovec.at(idx).algoNumericalExpression()== emul_ovec.at(idx).algoNumericalExpression());
+    match &= ( data_ovec.at(idx).combinationVector()      == emul_ovec.at(idx).combinationVector()	);
+    match &= ( data_ovec.at(idx).objectTypeVector()       == emul_ovec.at(idx).objectTypeVector()       );
+  }
+
+  if(m_dumpMode==0 && match)
+    return match;
+  
+  // dump
+  int idx = 0;//?
+  m_dumpFile << "\n\tL1GlobalTriggerObjectMap";
+  m_dumpFile << "\n\tdata: "
+	     << " algorithmName:"         << data_ovec.at(idx).algoName()
+	     << " Bitnumber:"             << data_ovec.at(idx).algoBitNumber()
+	     << " GTLresult:"             << data_ovec.at(idx).algoGtlResult()
+	     << " combinationVectorSize:" << data_ovec.at(idx).combinationVector().size() 
+	     << " objectTypeVectorSize:"  << data_ovec.at(idx).objectTypeVector().size() << "\n\t"
+	     << " nlogicalExpression:"    << data_ovec.at(idx).algoLogicalExpression()   << "\n\t"
+	     << " numericalExpression:"   << data_ovec.at(idx).algoNumericalExpression();
+  m_dumpFile << "\n\temul: "
+	     << " algorithmName:"         << emul_ovec.at(idx).algoName()
+	     << " Bitnumber:"             << emul_ovec.at(idx).algoBitNumber()
+	     << " GTLresult:"             << emul_ovec.at(idx).algoGtlResult()
+	     << " combinationVectorSize:" << emul_ovec.at(idx).combinationVector().size() 
+	     << " objectTypeVectorSize:"  << emul_ovec.at(idx).objectTypeVector().size()  << "\n\t"
+	     << " logicalExpression:"     << emul_ovec.at(idx).algoLogicalExpression()    << "\n\t"
+	     << " numericalExpression:"   << emul_ovec.at(idx).algoNumericalExpression()
+	     << "\n" << std::endl;
+
+  /// todo: dump combinationVector(), objectTypeVector()
+  
+  char ok[10];
+  if(match) sprintf(ok,"successful");
+  else      sprintf(ok,"failed");
+  m_dumpFile << " ...L1GlobalTriggerObjectMapRecord data and emulator comparison: " 
+	     << ok << std::endl;
+  
+  return match;
 }
 
-bool 
-L1Comparator::dumpCandidate(const L1GctEmCand& dt, const L1GctEmCand& em, std::ostream& s) {
-  char nb[20]; sprintf(nb," ");
-  char dumptofile[1000];
-  sprintf(dumptofile,"  data: %s0x%x\tname:%s\trank:%d\tieta:%2d\tiphi:%2d\n", 
-	  nb,dt.raw(),dt.name().c_str(),dt.rank(),dt.etaIndex(),dt.phiIndex());
-  s<<dumptofile;
-  sprintf(dumptofile,"  emul: %s0x%x\tname:%s\trank:%d\tieta:%2d\tiphi:%2d\n\n", 
-	  nb,em.raw(),em.name().c_str(),em.rank(),em.etaIndex(),em.phiIndex());
-  s<<dumptofile;
-  return 0;
+
+bool
+L1Comparator::compareFedRawCollections(edm::Handle<FEDRawDataCollection> data, 
+				       edm::Handle<FEDRawDataCollection> emul, int fedId) {
+  if(verbose())
+    std::cout << "[L1Comparator]  fedraw start processing :" << std::endl << std::flush;
+  if(dumpEvent_) {
+    m_dumpFile << "\nEvent: " << nevt_ << std::endl;
+    dumpEvent_=false;
+  }
+  m_dumpFile << "\n  FEDRawData candidates...\n";
+  const FEDRawData& raw_fed_data = data->FEDData(fedId);
+  const FEDRawData& raw_fed_emul = emul->FEDData(fedId);
+  bool raw_match=true;
+  for(int i=0; i!=(int)raw_fed_data.size();i++) {
+    raw_match &= ( raw_fed_data.data()[i] == raw_fed_emul.data()[i] );
+  }
+  unsigned long dd = 0, de = 0;
+  for(int i=0; i<(int)raw_fed_data.size()/4;i++) {
+    dd=0; de=0;
+    for(int j=0; j<4; j++)
+      dd += ((raw_fed_data.data()[i*4+j]&0xff)<<(8*j));
+    for(int j=0; j<4; j++) 
+      de += ((raw_fed_emul.data()[i*4+j]&0xff)<<(8*j));
+    if(m_dumpMode==-1 || (m_dumpMode==1 && dd!=de) ) {
+      m_dumpFile << "\n\tdata: " << std::setw(8) << std::setfill('0') << std::hex << dd;
+      m_dumpFile << "\n\temul: " << std::setw(8) << std::setfill('0') << std::hex << de;
+    }
+    m_dumpFile << std::endl;
+  }
+  char ok[10];
+  if(raw_match) sprintf(ok,"successful");
+  else          sprintf(ok,"failed");
+  m_dumpFile << " ...FEDRawData data and emulator comparison: " 
+	     << ok << std::endl;
+  return raw_match;
 }
 
 template <class myCol> 
-  bool L1Comparator::CompareCollections( edm::Handle<myCol> data, edm::Handle<myCol> emul) {
+bool L1Comparator::CompareCollections( edm::Handle<myCol> data, edm::Handle<myCol> emul) {
   bool match = true;
   typedef typename myCol::size_type col_sz;
   typedef typename myCol::iterator col_it;
@@ -629,15 +1250,24 @@ template <class myCol>
   col_sz nemul = emul->size();
   if(ndata!=nemul) {
     match &= false;
-    dumpFile << " #cand mismatch!"
-	     << "\tdata: " << ndata
-	     << "\temul: " << nemul
-	     << std::endl;
+    m_dumpFile << " #cand mismatch!"
+	       << "\tdata: " << ndata
+	       << "\temul: " << nemul
+	       << std::endl;
   }
   col_it itd = data -> begin();
   col_it itm = emul -> begin();
   for (col_sz i=0; i<ndata; i++) {
-    match &= dumpCandidate(*itd++,*itm++, dumpFile);
+    match &= dumpCandidate(*itd++,*itm++, m_dumpFile);
   }  
   return match; 
+}
+
+template <class T> 
+bool L1Comparator::dumpCandidate( const T& dt, const T& em, std::ostream& s) {
+  if(dt==em)
+    return true;
+  s<<dt<<std::endl; 
+  s<<em<<std::endl<<std::endl;
+  return false;
 }
