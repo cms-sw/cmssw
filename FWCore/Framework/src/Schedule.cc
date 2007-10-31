@@ -805,6 +805,20 @@ namespace edm {
     for_all(all_output_workers_, boost::bind(&OutputWorker::openNewFileIfNeeded, _1));
   }
 
+  void Schedule::beginInputFile(FileBlock const& fb) {
+    for (AllOutputWorkers::const_iterator it = all_output_workers_.begin(), itEnd = all_output_workers_.end();
+      it != itEnd; ++it) {
+	(*it)->beginInputFile(fb); 
+      }
+  }
+
+  void Schedule::endInputFile(FileBlock const& fb) {
+    for (AllOutputWorkers::const_iterator it = all_output_workers_.begin(), itEnd = all_output_workers_.end();
+      it != itEnd; ++it) {
+	(*it)->endInputFile(fb); 
+      }
+  }
+
   void Schedule::beginJob(EventSetup const& es) {
     AllWorkers::iterator i(workersBegin()),e(workersEnd());
     for(; i != e; ++i) { (*i)->beginJob(es); }

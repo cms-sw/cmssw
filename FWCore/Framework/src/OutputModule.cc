@@ -1,6 +1,6 @@
 /*----------------------------------------------------------------------
 
-$Id: OutputModule.cc,v 1.44 2007/10/15 15:15:22 paterno Exp $
+$Id: OutputModule.cc,v 1.45 2007/10/15 22:35:24 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "FWCore/Framework/interface/OutputModule.h"
@@ -341,6 +341,16 @@ namespace edm {
     detail::CPCSentry sentry(current_context_, c);
     FDEBUG(2) << "endLuminosityBlock called\n";
     endLuminosityBlock(lbp);
+  }
+
+  void OutputModule::doBeginInputFile(FileBlock const& fb)
+  {
+    beginInputFile(fb);
+  }
+
+  void OutputModule::doEndInputFile(FileBlock const& fb)
+  {
+    endInputFile(fb);
   }
 
   void OutputModule::maybeEndFile()

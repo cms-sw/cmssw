@@ -4,7 +4,7 @@
 /*
   Author: Jim Kowalkowski  28-01-06
 
-  $Id: Schedule.h,v 1.28 2007/09/14 23:12:25 wmtan Exp $
+  $Id: Schedule.h,v 1.29 2007/09/20 19:35:23 wmtan Exp $
 
   A class for creating a schedule based on paths in the configuration file.
   The schedule is maintained as a sequence of paths.
@@ -141,6 +141,12 @@ namespace edm {
 
     // Call openNewFileIfNeeded() on all OutputModules
     void openNewOutputFilesIfNeeded();
+
+    // Call beginInputFile() on all OutputModules
+    void beginInputFile(FileBlock const& fb);
+
+    // Call endInputFile() on all OutputModules
+    void endInputFile(FileBlock const& fb);
 
     std::pair<double,double> timeCpuReal() const {
       return std::pair<double,double>(stopwatch_->cpuTime(),stopwatch_->realTime());

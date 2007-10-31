@@ -32,7 +32,7 @@ problems:
   where does the pluginmanager initialize call go?
 
 
-$Id: EventProcessor.h,v 1.43 2007/08/09 00:02:19 wmtan Exp $
+$Id: EventProcessor.h,v 1.44 2007/08/09 18:59:35 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -79,6 +79,7 @@ namespace edm {
     class StateSentry;
     class LuminosityBlockSentry;
     class RunSentry;
+    class InputFileSentry;
   }
     
   class EventProcessor
@@ -316,12 +317,14 @@ namespace edm {
   
     StatusCode processEvents(int & numberEventsToProcess);
     StatusCode processLumis(int & numberEventsToProcess, bool repeatable);
-    StatusCode processRuns(int numberEventsToProcess, bool repeatable,
+    StatusCode processRuns(int & numberEventsToProcess, bool repeatable);
+    StatusCode processInputFiles(int numberEventsToProcess, bool repeatable,
 		     event_processor::Msg m);
     StatusCode doneAsync(event_processor::Msg m);
     EventHelperDescription runOnce(boost::shared_ptr<RunPrincipal>& rp,
                                    boost::shared_ptr<LuminosityBlockPrincipal>& lbp);
     
+    boost::shared_ptr<FileBlock> beginInputFile();
     boost::shared_ptr<RunPrincipal> beginRun();
     boost::shared_ptr<LuminosityBlockPrincipal> beginLuminosityBlock(boost::shared_ptr<RunPrincipal> rp);
     std::auto_ptr<EventPrincipal> doOneEvent(boost::shared_ptr<LuminosityBlockPrincipal> lbp);
@@ -329,6 +332,7 @@ namespace edm {
     void procOneEvent(EventPrincipal *pep);
     void endLuminosityBlock(LuminosityBlockPrincipal *lbp);
     void endRun(RunPrincipal *rp);
+    void endInputFile(FileBlock const& fb);
 
     StatusCode waitForAsyncCompletion(unsigned int timeout_seconds);
 
@@ -374,6 +378,7 @@ namespace edm {
     volatile bool                                 id_set_;
     volatile pthread_t                            event_loop_id_;
     int                                           my_sig_num_;
+    boost::shared_ptr<FileBlock>                  fb_;
     boost::shared_ptr<RunPrincipal>               rp_;
     boost::shared_ptr<LuminosityBlockPrincipal>   lbp_;
     boost::shared_ptr<EDLooper>                   looper_;
@@ -381,6 +386,7 @@ namespace edm {
     friend class event_processor::StateSentry;
     friend class event_processor::LuminosityBlockSentry;
     friend class event_processor::RunSentry;
+    friend class event_processor::InputFileSentry;
   }; // class EventProcessor
 
   //--------------------------------------------------------------------

@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: InputSource.cc,v 1.29 2007/06/29 03:43:21 wmtan Exp $
+$Id: InputSource.cc,v 1.30 2007/07/31 23:58:55 wmtan Exp $
 ----------------------------------------------------------------------*/
 #include <cassert> 
 #include "FWCore/Framework/interface/InputSource.h"
@@ -8,6 +8,7 @@ $Id: InputSource.cc,v 1.29 2007/06/29 03:43:21 wmtan Exp $
 #include "FWCore/Framework/interface/LuminosityBlockPrincipal.h"
 #include "FWCore/Framework/interface/RunPrincipal.h"
 #include "FWCore/Framework/interface/LuminosityBlock.h"
+#include "FWCore/Framework/interface/FileBlock.h"
 #include "FWCore/Framework/interface/Run.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -48,7 +49,8 @@ namespace edm {
       moduleDescription_(desc.moduleDescription_),
       productRegistry_(createSharedPtrToStatic<ProductRegistry const>(desc.productRegistry_)),
       primary_(pset.getParameter<std::string>("@module_label") == std::string("@main_input")),
-      time_() {
+      time_(),
+      initialized_(false) {
     // Secondary input sources currently do not have a product registry.
     if (primary_) {
       assert(desc.productRegistry_ != 0);
@@ -80,6 +82,27 @@ namespace edm {
     if (!typeLabelList().empty()) {
       addToRegistry(typeLabelList().begin(), typeLabelList().end(), moduleDescription(), productRegistryUpdate());
     }
+  }
+
+  boost::shared_ptr<FileBlock>
+  InputSource::readFile() {
+    if (remainingEvents_ == 0) {
+      return boost::shared_ptr<FileBlock>();
+    }
+    return readFile_();
+  }
+
+  // Return a dummy FileBlock on the first call.
+  // Return a null pointer on subsequent calls.
+  // This function must be overridden for any input source that supports multiple input files
+  // if the framework needs to inform modules about each input file.
+  boost::shared_ptr<FileBlock>
+  InputSource::readFile_() {
+    if (initialized()) {
+      return boost::shared_ptr<FileBlock>();
+    }
+    setInitialized();
+    return boost::shared_ptr<FileBlock>(new FileBlock);
   }
 
   boost::shared_ptr<RunPrincipal>

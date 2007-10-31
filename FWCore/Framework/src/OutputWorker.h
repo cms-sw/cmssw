@@ -9,7 +9,7 @@ this object is to call the output module.
 According to our current definition, a single output module can only
 appear in one worker.
 
-$Id: OutputWorker.h,v 1.23 2007/09/11 21:57:19 paterno Exp $
+$Id: OutputWorker.h,v 1.24 2007/09/28 16:37:11 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include <memory>
@@ -44,6 +44,10 @@ namespace edm {
     void openNewFileIfNeeded();
 
     bool wantAllEvents() const;
+
+    void beginInputFile(FileBlock const& fb);
+
+    void endInputFile(FileBlock const& fb);
 
   private:
     virtual bool implDoWork(EventPrincipal& e, EventSetup const& c,

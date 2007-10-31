@@ -68,8 +68,7 @@ namespace edm {
       bool success_;
     };
 
-    class LuminosityBlockSentry
-    {
+    class LuminosityBlockSentry {
     public:
       LuminosityBlockSentry(EventProcessor* ep) : ep_(ep), success_(false) { }
       ~LuminosityBlockSentry() {
@@ -98,8 +97,7 @@ namespace edm {
       bool success_;
     };
 
-    class RunSentry
-    {
+    class RunSentry {
     public:
       RunSentry(EventProcessor* ep) : ep_(ep), success_(false)  { }
       ~RunSentry() {
@@ -107,6 +105,35 @@ namespace edm {
 	  try {
 	    ep_->endRun(ep_->rp_.get());  
 	    ep_->rp_.reset();
+	  }
+          catch (cms::Exception& e) {
+            printCmsException(e);
+          }
+          catch (std::bad_alloc& e) {
+	    printBadAllocException();
+          }
+          catch (std::exception& e) {
+            printStdException(e);
+          }
+          catch (...) {
+            printUnknownException();
+          }
+        }
+      }
+      void succeeded() {success_ = true;}
+    private:
+      EventProcessor* ep_;
+      bool success_;
+    };
+
+    class InputFileSentry {
+    public:
+      InputFileSentry(EventProcessor* ep) : ep_(ep), success_(false)  { }
+      ~InputFileSentry() {
+	if (!success_ && ep_->fb_) {
+	  try {
+	    ep_->endInputFile(*ep_->fb_);  
+	    ep_->fb_.reset();
 	  }
           catch (cms::Exception& e) {
             printCmsException(e);
@@ -534,6 +561,7 @@ namespace edm {
     id_set_(false),
     event_loop_id_(),
     my_sig_num_(getSigNum()),
+    fb_(),
     rp_(),
     lbp_(),
     looper_()
@@ -570,6 +598,7 @@ namespace edm {
     id_set_(false),
     event_loop_id_(),
     my_sig_num_(getSigNum()),
+    fb_(),
     rp_(),
     lbp_(),
     looper_()
@@ -606,6 +635,7 @@ namespace edm {
     id_set_(false),
     event_loop_id_(),
     my_sig_num_(getSigNum()),
+    fb_(),
     rp_(),
     lbp_(),
     looper_()
@@ -938,9 +968,57 @@ namespace edm {
   }
 
   EventProcessor::StatusCode
-  EventProcessor::processRuns(int numberEventsToProcess, bool repeatable, Msg m) {
-    bk::beginRuns(); // routine only for breakpointing
+  EventProcessor::processRuns(int & numberEventsToProcess, bool repeatable) {
     RunSentry runSentry(this);
+    bool got_sig = false;
+    StatusCode rc = epSuccess;
+
+    while(state_ == sRunning) {
+
+//  Lay on a lock
+      {
+        boost::mutex::scoped_lock sl(usr2_lock);
+        if(edm::shutdown_flag) {
+          changeState(mShutdownSignal);
+          rc = epSignal;
+          got_sig = true;
+          continue;
+        }
+      }
+
+      if(!rp_) {
+        rp_ = beginRun();
+        if(!rp_) {
+	  break;
+        }
+      }
+      rc = processLumis(numberEventsToProcess, repeatable);
+      if(repeatable && rc == epCountComplete) {
+	// Event count limit reached.  If repeatable,
+	// don't terminate run, so we keep our place.
+        continue;
+      }
+      endRun(rp_.get());
+      rp_.reset();
+    }
+
+    // check once more for shutdown signal
+    {
+      boost::mutex::scoped_lock sl(usr2_lock);
+      if(!got_sig && edm::shutdown_flag) {
+        changeState(mShutdownSignal);
+        rc = epSignal;
+      }
+    }
+
+    runSentry.succeeded();
+    return rc;
+  }
+
+  EventProcessor::StatusCode
+  EventProcessor::processInputFiles(int numberEventsToProcess, bool repeatable, Msg m) {
+    bk::beginRuns(); // routine only for breakpointing
+    InputFileSentry inputFileSentry(this);
     StateSentry toerror(this);
     changeState(m);
 
@@ -963,23 +1041,23 @@ namespace edm {
         }
       }
 
-      if(!rp_) {
-        rp_ = beginRun();
-        if(!rp_) {
+      if(!fb_) {
+        fb_ = beginInputFile();
+        if(!fb_) {
   	  changeState(mInputExhausted);
 	  rc = epInputComplete;
 	  continue;
         }
       }
-      rc = processLumis(numberEventsToProcess, repeatable);
+      rc = processRuns(numberEventsToProcess, repeatable);
       if(rc == epCountComplete) {
 	// Event count limit reached.  If repeatable,
 	// don't terminate run, so we keep our place.
         rc = epSuccess;
         if(repeatable) continue;
       }
-      endRun(rp_.get());
-      rp_.reset();
+      endInputFile(*fb_);
+      fb_.reset();
     }
 
     // check once more for shutdown signal
@@ -992,7 +1070,7 @@ namespace edm {
     }
 
     toerror.succeeded();
-    runSentry.succeeded();
+    inputFileSentry.succeeded();
     return rc;
   }
 
@@ -1024,6 +1102,18 @@ namespace edm {
       schedule_->runOneEvent(*rp, es, BranchActionBegin);
     }
     return rp;
+  }
+
+  boost::shared_ptr<FileBlock>
+  EventProcessor::beginInputFile() {
+    boost::shared_ptr<FileBlock> fb;
+    {
+      fb = input_->readFile();
+    }
+    if(fb) {
+      schedule_->beginInputFile(*fb);
+    }
+    return fb;
   }
 
   std::auto_ptr<EventPrincipal>
@@ -1088,6 +1178,11 @@ namespace edm {
     schedule_->maybeEndFile();
   }
 
+  void 
+  EventProcessor::endInputFile(FileBlock const& fb) {
+    schedule_->endInputFile(fb);
+  }
+
   EventProcessor::StatusCode
   EventProcessor::run(int numberEventsToProcess, bool repeatable)
   {
@@ -1099,7 +1194,7 @@ namespace edm {
        //make sure we are in the stop state
        changeState(mStopAsync);
     } else {
-       rc = processRuns(numberEventsToProcess, repeatable, mRunCount);
+       rc = processInputFiles(numberEventsToProcess, repeatable, mRunCount);
     }
     changeState(mFinished);
     return rc;
@@ -1522,7 +1617,7 @@ namespace edm {
     FDEBUG(2) << "asyncRun starting ......................\n";
 
     try {
-	rc = me->processRuns(-1, false, mRunAsync);
+	rc = me->processInputFiles(-1, false, mRunAsync);
     }
     catch (cms::Exception& e) {
       edm::LogError("FwkJob") << "cms::Exception caught in "
