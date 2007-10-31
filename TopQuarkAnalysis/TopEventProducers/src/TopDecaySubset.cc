@@ -97,7 +97,7 @@ void TopDecaySubset::fillOutput(const reco::CandidateCollection& src, reco::Cand
 	      sel.push_back( ptr );
 	      wDaughs.push_back( ++idx ); //push index of wBoson daughter
               if( wd->status()==TopDecayID::status && abs( wd->pdgId() )==TopDecayID::tauID ){ //is tau
-	        filltree(idx,*wd,sel);
+	        fillTree(idx,*wd,sel);
 	      }
 	    }
 	  }
@@ -129,7 +129,7 @@ void TopDecaySubset::fillRefs(const reco::CandidateRefProd& ref, reco::Candidate
   }
 }
 
-void TopDecaySubset::filltree(int& idx, const reco::Candidate& particle, reco::CandidateCollection& sel)
+void TopDecaySubset::fillTree(int& idx, const reco::Candidate& particle, reco::CandidateCollection& sel)
 {
   vector<int> daughters;
   int idx0 = idx;
@@ -140,7 +140,7 @@ void TopDecaySubset::filltree(int& idx, const reco::Candidate& particle, reco::C
     auto_ptr<Candidate> ptr( cand );
     sel.push_back( ptr );
     daughters.push_back( ++idx ); //push index of daughter
-    filltree(idx,*daughter,sel); // continue recursively
+    fillTree(idx,*daughter,sel);  //continue recursively
   }  
   if(daughters.size()) {
      refs_[ idx0 ] = daughters;
