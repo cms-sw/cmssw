@@ -16,7 +16,7 @@ def converttagdata(value):
     mytagdata['tagname']=cleanvalue[0:startbrack]
     metadatalist=metadatastr.split(',')
     for pair in metadatalist:
-        mydata=pair.split(':')
+        mydata=pair.split('=')
         mytagdata[mydata[0]]=mydata[1]
     return mytagdata
 def check_tagdata(option, opt, value):

@@ -13,7 +13,7 @@ def convertnodedata(value):
     mynodedata['nodelabel']=datastr[0:startbrack]
     metadatalist=metagdatastr.split(',')
     for pair in metadatalist:
-        mydata=pair.split(':')
+        mydata=pair.split('=')
         mynodedata[mydata[0]]=mydata[1]
     return mynodedata
 def check_nodedata(option, opt, value):
