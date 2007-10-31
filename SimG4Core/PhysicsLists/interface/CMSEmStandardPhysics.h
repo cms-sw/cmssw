@@ -1,20 +1,13 @@
-#ifndef SimG4Core_PhysicsLists_CMSEmStandardPhysics71_h
-#define SimG4Core_PhysicsLists_CMSEmStandardPhysics71_h
+#ifndef SimG4Core_PhysicsLists_CMSEmStandardPhysics_h
+#define SimG4Core_PhysicsLists_CMSEmStandardPhysics_h
 
-#include "SimG4Core/PhysicsLists/interface/G4Version.h"
-#ifndef G4V9
-#include "G4EmStandardPhysics71.hh"
+#include "G4EmStandardPhysics.hh"
 
-class CMSEmStandardPhysics71 : public G4EmStandardPhysics71 {
-#else
-#include "G4EmStandardPhysics_option1.hh"
-
-class CMSEmStandardPhysics71 : public G4EmStandardPhysics_option1 {
-#endif
+class CMSEmStandardPhysics : public G4EmStandardPhysics {
 
 public:
-  CMSEmStandardPhysics71(const G4String& name, G4int ver);
-  virtual ~CMSEmStandardPhysics71() {}
+  CMSEmStandardPhysics(const G4String& name, G4int ver);
+  virtual ~CMSEmStandardPhysics() {}
 };
 
 #endif
