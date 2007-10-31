@@ -25,7 +25,7 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include <exception>
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include <sstream>
+//#include <sstream>
 #include <cstdlib>
 #include "TagCollectionRetriever.h"
 //#include <iostream>
@@ -104,7 +104,6 @@ PoolDBESSource::PoolDBESSource( const edm::ParameterSet& iConfig ) :
   if( iConfig.exists("BlobStreamerName") ){
     blobstreamerName=iConfig.getUntrackedParameter<std::string>("BlobStreamerName");
     blobstreamerName.insert(0,"COND/Services/");
-    //std::cout<<"blobstreamerName "<<blobstreamerName<<std::endl;
     m_session->configuration().setBlobStreamer(blobstreamerName);
   }
   bool usetagDB=false;
@@ -166,6 +165,7 @@ PoolDBESSource::PoolDBESSource( const edm::ParameterSet& iConfig ) :
       }
       m.objectname=itFound->second;
       std::string datumName=m.recordname+"@"+m.objectname+"@"+m.labelname;
+      //std::cout<<"datumName "<<datumName<<std::endl;
       m_datumToToken.insert( std::make_pair<std::string,std::string>(datumName,"") );
       //fill in dummy tokens now, change in setIntervalFor
       DatumToToken::iterator pos=m_datumToToken.find(datumName);
@@ -223,18 +223,19 @@ PoolDBESSource::PoolDBESSource( const edm::ParameterSet& iConfig ) :
       usingRecordWithKey( recordKey );
       }    
     }
-    /*
-      std::map< std::string, cond::TagMetadata >::iterator it;
-      std::map< std::string, cond::TagMetadata >::iterator itBeg=m_tagCollection.begin();
-      std::map< std::string, cond::TagMetadata >::iterator itEnd=m_tagCollection.end();
-      for( it=itBeg; it!=itEnd; ++it ){
-      std::cout<<"tag "<<it->first<<std::endl;
-      std::cout<<"pfn "<<it->second.pfn<<std::endl;
-      std::cout<<"recordname "<<it->second.recordname<<std::endl;
-      std::cout<<"objectname "<<it->second.objectname<<std::endl;
-      std::cout<<"labelname "<<it->second.labelname<<std::endl;
-      }
-    */
+
+      std::map< std::string, cond::TagMetadata >::iterator jt;
+      std::map< std::string, cond::TagMetadata >::iterator jtBeg=m_tagCollection.begin();
+      std::map< std::string, cond::TagMetadata >::iterator jtEnd=m_tagCollection.end();
+      /*
+	for( jt=jtBeg; jt!=jtEnd; ++jt ){
+	std::cout<<"tag "<<jt->first<<std::endl;
+	std::cout<<"pfn "<<jt->second.pfn<<std::endl;
+	std::cout<<"recordname "<<jt->second.recordname<<std::endl;
+	std::cout<<"objectname "<<jt->second.objectname<<std::endl;
+	std::cout<<"labelname "<<jt->second.labelname<<std::endl;
+	}
+      */
   }
   this->fillRecordToIOVInfo();
   }catch(const std::exception& er){
@@ -250,6 +251,7 @@ PoolDBESSource::~PoolDBESSource()
 //
 void 
 PoolDBESSource::setIntervalFor( const edm::eventsetup::EventSetupRecordKey& iKey, const edm::IOVSyncValue& iTime, edm::ValidityInterval& oInterval ){
+  //std::cout<<"PoolDBESSource::setIntervalFor"<<std::endl;
   LogDebug ("PoolDBESSource")<<iKey.name();
   std::string recordname=iKey.name();
   std::string objectname("");
@@ -337,11 +339,18 @@ PoolDBESSource::registerProxies(const edm::eventsetup::EventSetupRecordKey& iRec
     edm::eventsetup::TypeTag type = edm::eventsetup::TypeTag::findType(itType->second);
     objectname=type.name();
     proxyname=buildName(recordname,objectname);
+    //std::cout<<"proxyname "<<proxyname<<std::endl;
     ProxyToIOVInfo::iterator pProxyToIOVInfo=m_proxyToIOVInfo.find( proxyname );
+    if(pProxyToIOVInfo==m_proxyToIOVInfo.end()){
+      throw cond::Exception(std::string("proxy ")+proxyname+"not found");
+    }
     for( std::vector<cond::IOVInfo>::iterator it=pProxyToIOVInfo->second.begin();it!=pProxyToIOVInfo->second.end(); ++it ){
       edm::eventsetup::IdTags iid( it->label.c_str() );
       std::string datumName=recordname+"@"+objectname+"@"+(it->label);
       std::map<std::string,std::string>::iterator pDatumToToken=m_datumToToken.find(datumName);
+      if( pDatumToToken==m_datumToToken.end() ){
+	throw cond::Exception(std::string("token not found for datum ")+datumName);
+      }
       if( type != defaultType ) {
 	cond::Connection* c=conHandler.getConnection(it->pfn);
 	boost::shared_ptr<edm::eventsetup::DataProxy> proxy(cond::ProxyFactory::get()->create( proxyname ,c,pDatumToToken) );
@@ -363,6 +372,7 @@ PoolDBESSource::newInterval(const edm::eventsetup::EventSetupRecordKey& iRecordT
 
 void 
 PoolDBESSource::fillRecordToIOVInfo(){
+  //std::cout<<"PoolDBESSource::fillRecordToIOVInfo"<<std::endl;
   std::map< std::string, cond::TagMetadata >::iterator it;
   std::map< std::string, cond::TagMetadata >::iterator itbeg=m_tagCollection.begin();
   std::map< std::string, cond::TagMetadata >::iterator itend=m_tagCollection.end();

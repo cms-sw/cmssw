@@ -16,7 +16,8 @@ cond::TagCollectionRetriever::TagCollectionRetriever( cond::CoralTransaction& co
 cond::TagCollectionRetriever::~TagCollectionRetriever(){}
 void 
 cond::TagCollectionRetriever::getTagCollection( const std::string& roottag,
-		       std::map< std::string, cond::TagMetadata >& result){
+						std::map< std::string, 
+						cond::TagMetadata >& result){
   coral::ITable& tagInventorytable=m_coraldb->nominalSchema().tableHandle(cond::TagDBNames::tagInventoryTable());
   coral::IQuery* query=m_coraldb->nominalSchema().newQuery();
   try{
