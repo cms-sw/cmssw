@@ -3,7 +3,7 @@
 #include "AnalysisDataFormats/TopObjects/interface/TopGenEvent.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticleCandidate.h"
 
-TopGenEvent::TopGenEvent(reco::CandidateRefProd& parts, std::vector<const reco::Candidate*> inits)
+TopGenEvent::TopGenEvent(reco::CandidateRefProd& parts, reco::CandidateRefProd& inits)
 {
   parts_ = parts; 
   initPartons_= inits;

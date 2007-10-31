@@ -7,11 +7,11 @@ class TopGenEvent {
  public:
 
   TopGenEvent(){};
-  TopGenEvent(reco::CandidateRefProd&, std::vector<const reco::Candidate*>);
+  TopGenEvent(reco::CandidateRefProd&, reco::CandidateRefProd&);
   virtual ~TopGenEvent(){};
 
   const reco::CandidateCollection& particles() const { return *parts_; }
-  const std::vector<const reco::Candidate*> initialPartons() const { return initPartons_;}
+  const reco::CandidateCollection& initialPartons() const { return *initPartons_;}
   std::vector<const reco::Candidate*> lightQuarks(bool plusB=false) const;
   const reco::Candidate* candidate(int) const;
 
@@ -36,8 +36,8 @@ class TopGenEvent {
 
  protected:
 
-  reco::CandidateRefProd parts_;                    //top decay chain
-  std::vector<const reco::Candidate*> initPartons_; //initial partons
+  reco::CandidateRefProd parts_;       //top decay chain
+  reco::CandidateRefProd initPartons_; //initial partons
 };
 
 #endif

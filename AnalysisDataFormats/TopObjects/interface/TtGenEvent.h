@@ -7,7 +7,7 @@ class TtGenEvent: public TopGenEvent {
  public:
   
   TtGenEvent();
-  TtGenEvent(reco::CandidateRefProd&, std::vector<const reco::Candidate*>);
+  TtGenEvent(reco::CandidateRefProd&, reco::CandidateRefProd&);
   virtual ~TtGenEvent();
 
   bool isFullHadronic() const { return (numberOfLeptons()==0);}

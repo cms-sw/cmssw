@@ -1,5 +1,5 @@
 //
-// $Id: TtGenEvent.cc,v 1.16 2007/10/19 12:31:53 rwolf Exp $
+// $Id: TtGenEvent.cc,v 1.17 2007/10/22 13:45:40 delaer Exp $
 //
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "PhysicsTools/CandUtils/interface/pdgIdUtils.h"
@@ -10,7 +10,7 @@ TtGenEvent::TtGenEvent()
 {
 }
 
-TtGenEvent::TtGenEvent(reco::CandidateRefProd & parts, std::vector<const reco::Candidate*> inits)
+TtGenEvent::TtGenEvent(reco::CandidateRefProd & parts, reco::CandidateRefProd & inits)
 {
   parts_ = parts;
   initPartons_= inits;
