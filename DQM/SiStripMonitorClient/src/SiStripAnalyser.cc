@@ -1,8 +1,8 @@
 /*
  * \file SiStripAnalyser.cc
  * 
- * $Date: 2007/10/20 08:51:37 $
- * $Revision: 1.13 $
+ * $Date: 2007/10/24 17:13:25 $
+ * $Revision: 1.14 $
  * \author  S. Dutta INFN-Pisa
  *
  */
@@ -147,21 +147,20 @@ void SiStripAnalyser::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, ed
                                << lumiSeg.luminosityBlock() << endl;
   cout << "====================================================== " << endl;
   // -- Create summary monitor elements according to the frequency
-  if (summaryFrequency_ != -1 && nLumiSecs%summaryFrequency_ == 1) {
+  if (summaryFrequency_ != -1 && nLumiSecs > 1 && nLumiSecs%summaryFrequency_ == 1) {
     cout << " Creating Summary " << endl;
     sistripWebInterface_->setActionFlag(SiStripWebInterface::Summary);
     sistripWebInterface_->performAction();
   }
   // -- Create TrackerMap  according to the frequency
-  if (tkMapFrequency_ != -1 && nLumiSecs%tkMapFrequency_ == 1) {
+  if (tkMapFrequency_ != -1 && nLumiSecs > 1 && nLumiSecs%tkMapFrequency_ == 1) {
     cout << " Creating Tracker Map " << endl;
     //    trackerMapCreator_->create(dbe_);
     trackerMapCreator_->create(fedCabling_, dbe_);
     sistripWebInterface_->setTkMapFlag(true);
-
   }
   // Create predefined plots
-  if (nLumiSecs%staticUpdateFrequency_  == 1) {
+  if (nLumiSecs > 1 && nLumiSecs%staticUpdateFrequency_  == 1) {
     cout << " Creating predefined plots " << endl;
     sistripWebInterface_->setActionFlag(SiStripWebInterface::PlotHistogramFromLayout);
     sistripWebInterface_->performAction();
