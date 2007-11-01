@@ -1,7 +1,7 @@
 /** \file CSCSegmentReader.cc
  *
- *  $Date: 2007/10/27 14:12:27 $
- *  $Revision: 1.16 $
+ *  $Date: 2007/11/01 18:10:03 $
+ *  $Revision: 1.17 $
  *  \author M. Sani
  *
  *  Modified by D. Fortin - UC Riverside
@@ -276,7 +276,7 @@ void CSCSegmentReader::simInfo(const edm::Handle<SimTrackContainer> simTracks) {
   for (SimTrackContainer::const_iterator it = simTracks->begin(); it != simTracks->end(); it++) {
         
     if (abs((*it).type()) == 13) {
-      hpt->Fill((*it).momentum().perp());
+      hpt->Fill((*it).momentum().pt());
       heta->Fill((*it).momentum().eta());
     }    
   }    
