@@ -40,7 +40,7 @@ class tagInventoryBuilder:
         -u, --user=user: user name
         -p, --password=password: password
         -P, --path=path: path to authentication.xml
-        -t, --tag=tagdata: \"tagname{pfn:string,objectname:string, recordname:string, labelname:string, timetype:string}\"
+        -t, --tag=tagdata: \"tagname{pfn=string,objectname=string, recordname=string, labelname=string, timetype=string}\"
         -v, --verbose: switch on verbose mode
         -h, --help: print usage
         """

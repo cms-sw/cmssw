@@ -30,14 +30,14 @@ class MyOption (Option):
 class tagTreeBuilder:
     def __init__(self):
         """
-        Class add node in the tag tree
+        Class add node to an existing tag tree
         usage: %prog [options]
         -f, --file=filename: configuration file
         -c, --connect=connectstring: connection string to the tag DB (required)
         -u, --user=user: user name
         -p, --password=password: password
         -P, --path=path: path to authentication.xml
-        -n, --node=node: nodelabel{parent:string,globalsince:unsigned long long,globaltill:unsigned long long}
+        -n, --node=node: nodelabel{parent=string,globalsince=unsigned long long,globaltill=unsigned long long}
         -l, --isleaf=isleaf: is leaf node
         -v, --verbose: switch on verbose mode
         -h, --help: print usage
@@ -61,7 +61,7 @@ class tagTreeBuilder:
         self.__parser.add_option("-u","--user",action="store",dest="user",type="string",help="user name")
         self.__parser.add_option("-p","--password",action="store",dest="password",type="string",help="password")
         self.__parser.add_option("-P","--path",action="store",dest="authpath",type="string",help="path to authentication.xml")
-        self.__parser.add_option("-n","--nodedata",action="store",dest="nodedata",type="nodedata",help="node data")
+        self.__parser.add_option("-n","--nodedata",action="store",dest="nodedata",type="nodedata",help="nodename{parent=string,globalsince=unsigned long long,globaltill=unsigned long long}")
         self.__parser.add_option("-l","--isleaf",action="store_true",dest="isleaf",help="is leaf node")
         self.__parser.add_option("-v","--verbose",action="store_true",dest="verbose",help="verbose mode")
         self.__parser.set_defaults(filename='')
@@ -119,7 +119,8 @@ class tagTreeBuilder:
         try:
             mytree=TagTree.tagTree(session)
             if mytree.existTagTreeTable() is False:
-                mytree.createTagTreeTable()                
+                #mytree.createTagTreeTable()
+                raise Exception,'non-existing tag tree table, use cmscond_tagtree_createroot to create the table and tree root first'
             mynode=Node.Node()
             mynode.globalsince=0
             mynode.globaltill=0
