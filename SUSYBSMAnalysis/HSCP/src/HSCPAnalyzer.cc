@@ -13,7 +13,7 @@
 //
 // Original Author:  Rizzi Andrea
 //         Created:  Mon Sep 24 09:30:06 CEST 2007
-// $Id: HSCPAnalyzer.cc,v 1.7 2007/10/19 15:41:36 ptraczyk Exp $
+// $Id: HSCPAnalyzer.cc,v 1.8 2007/10/25 09:07:54 arizzi Exp $
 //
 //
 
@@ -26,6 +26,7 @@
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/Run.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -42,6 +43,10 @@
 #include "SimDataFormats/Track/interface/SimTrack.h"
 #include "SimDataFormats/Track/interface/SimTrackContainer.h"
 #include "FWCore/ParameterSet/interface/InputTag.h"
+
+#include "SimDataFormats/HepMCProduct/interface/GenInfoProduct.h"
+#include "Math/GenVector/VectorUtil.h"
+
 
 #include <iostream>
 #include <vector>
@@ -107,6 +112,34 @@ class HSCPAnalyzer : public edm::EDAnalyzer {
       TH1F * h_simhscp_pt; 
       TH1F * h_simhscp_eta; 
 
+ class DTInfo
+  {
+    public:
+      TrackRef standaloneTrack;
+      TrackRef trackerTrack;
+      TrackRef combinedTrack;
+      float invBeta; 
+  };  
+ class TKInfo
+  {
+    public:
+      TrackRef track;
+      float invBeta2Fit;
+      float invBeta2;
+  };
+
+ class HSCParticle 
+  {
+   public:
+     DTInfo dt;
+     TKInfo tk;
+     float massTk() {return tk.track->p()*sqrt(tk.invBeta2-1);}
+     float massDt() {return dt.trackerTrack->p()*sqrt(dt.invBeta*dt.invBeta-1);}
+     bool hasDt;
+     bool hasTk;
+  };
+
+vector<HSCParticle> associate(vector<TKInfo> & dts, vector<DTInfo> & tks );
 
       // ----------member data ---------------------------
 };
@@ -153,15 +186,40 @@ HSCPAnalyzer::~HSCPAnalyzer()
 void
 HSCPAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
+
+
    using namespace edm;
+/* 
+Handle< double > genFilterEff;
+ iEvent.getByLabel( "genEventRunInfo", "FilterEfficiency", genFilterEff);
+ double filter_eff = *genFilterEff;
+ 
+ Handle< double > genCrossSect;
+ iEvent.getByLabel( "genEventRunInfo", "PreCalculatedCrossSection", genCrossSect); 
+ double external_cross_section = *genCrossSect;
+ 
+ Handle< double > agenCrossSect;
+ iEvent.getByLabel( "genEventRunInfo", "PreCalculatedCrossSection", agenCrossSect); 
+ double auto_cross_section = *agenCrossSect;
+  */
+  
+//double auto_cross_section = gi->cross_section(); // is automatically calculated at the end of each RUN --  units in nb
+//double external_cross_section = gi->external_cross_section(); // is the precalculated one written in the cfg file -- units is pb
+//double filter_eff = gi->filter_efficiency();
+
+//  cout << "auto Xsec: " << auto_cross_section << "nb    precalc Xsev "<< external_cross_section << "pb" << "    filter eff: "<<filter_eff <<endl;
+
    double w=1.;
    //Event flags
    int dedxSelectionLevel = -1;
 
    // FIXME: Use candidate + errors 
-   vector<float> dedxMass,dedxP,dedxMPV;
+   vector<float> dedxMass,dedxP,dedxMPV,dedxChi,dedxNHits,dedxMPV2;
    vector<float> tofMass,tofP,tofValue;
 
+ 
+   vector<DTInfo> dtInfos;
+   vector<TKInfo> tkInfos;
 
    if(m_useWeights)
    {
@@ -210,6 +268,13 @@ HSCPAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       tofP.push_back(p);
       tofValue.push_back(invbeta);
       i++;
+
+      DTInfo dt;
+      dt.trackerTrack=tkMuon;
+      dt.combinedTrack=combMuon;
+      dt.standaloneTrack=staMuon;
+      dt.invBeta = invbeta;
+      dtInfos.push_back(dt);
     }
 
 
@@ -221,7 +286,7 @@ HSCPAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
    const TrackDeDxEstimateCollection & dedx = *dedxH.product();
    const vector<float> & dedxFit = *dedxFitH.product();
-
+    cout << "Number of tracks with dedx: " << dedx.size() << endl; 
    for(size_t i=0; i<dedx.size() ; i++)
     {
       if(dedx[i].first->normalizedChi2() < 5 && dedx[i].first->numberOfValidHits()>=8)
@@ -267,31 +332,68 @@ HSCPAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     //Dedx for analsyis
     //FIXME: make it configurable
     double dedxFitCut[6] = {3.0,3.16,3.24,3.64,4.68,6.2};
-    for(int i=0;i<6;i++)
+    for(int ii=0;ii<6;ii++)
       {
-        if(dedxFitVal > dedxFitCut[i]) 
+        if(dedxFitVal > dedxFitCut[ii]) 
         {
-         dedxSelectionLevel=i; 
-         h_pSpectrumAfterSelection[i]->Fill(p,w);
-         h_massAfterSelection[i]->Fill(mass2,w);      
+         dedxSelectionLevel=ii; 
+         h_pSpectrumAfterSelection[ii]->Fill(p,w);
+         h_massAfterSelection[ii]->Fill(mass2,w);      
+        }
          dedxMass.push_back(mass2);
          dedxP.push_back(p);
          dedxMPV.push_back(dedxFitVal);
-        }
-      }  
+         dedxChi.push_back(dedx[i].first->normalizedChi2());
+         dedxNHits.push_back( dedx[i].first->numberOfValidHits());
+         dedxMPV2.push_back(dedxVal);
+      }
+
+      TKInfo tk;
+      tk.track=dedx[i].first;
+      tk.invBeta2 = k*dedxVal;
+      tk.invBeta2Fit = k*dedxFitVal;
+      tkInfos.push_back(tk);
+
+       
 
         }
     }
 
 
+vector<HSCParticle> candidates = associate(tkInfos,dtInfos);
+
+for(int i=0; i < candidates.size();i++)
+{
+  cout << candidates[i].massDt() << " " << candidates[i].massTk() << " " << candidates[i].tk.track->momentum() << " " <<  candidates[i].dt.combinedTrack->momentum() << endl;
+ if((candidates[i].dt.invBeta >1.1  )|| ( candidates[i].tk.invBeta2 > 1.3 && candidates[i].hasDt ) )
+ {
+  h_massVsMass->Fill(candidates[i].massDt(),candidates[i].massTk(),w);
+  if(candidates[i].massDt() + candidates[i].massTk() > 150)
+      cout << "CANDIDATE " <<  candidates[i].massDt() << " " << candidates[i].massTk() << " " << candidates[i].tk.track->momentum() << " " <<  candidates[i].dt.combinedTrack->momentum();
+      cout <<" dt beta: " << 1./candidates[i].dt.invBeta << " tk beta : "<< sqrt(1./candidates[i].tk.invBeta2) << " tk beta fit: "<< sqrt(1./candidates[i].tk.invBeta2Fit) <<  endl;
+ }
+
+} 
+
 if(dedxMass.size() > 0 && tofMass.size() > 0 )
 {
  if(find_if(dedxMass.begin(), dedxMass.end(), bind2nd(greater<float>(), 100.))!= dedxMass.end() &&
     find_if(tofMass.begin(), tofMass.end(), bind2nd(greater<float>(), 100.))!= tofMass.end() )
-  selected+=w;
+  {
+     selected+=w;
+  }
   int i=max_element(tofValue.begin(), tofValue.end())-tofValue.begin();
   int j=max_element(dedxMPV.begin(), dedxMPV.end())-dedxMPV.begin();
-  h_massVsMass->Fill(tofMass[i],dedxMass[j],w); 
+  if(tofValue[i] > 1.1 || dedxMPV[j] > 3.24)
+  if(tofP[i] > 50 && dedxP[j] > 50)
+   if((tofMass[i] + dedxMass[j]) > 150)  
+   {
+       
+     cout << "SIGNAL:" <<  " P: " << dedxP[j] <<  " Chi: " << dedxChi[j] << " #hit: " << dedxNHits[j]  << " MPV: " << dedxMPV[j] << " MPV2: " << dedxMPV2[j] << 
+         " m1 m2  " << tofMass[i] << " " << dedxMass[j] << " " << tot << endl;
+
+    }
+//   h_massVsMass->Fill(tofMass[i],dedxMass[j],w); 
 
 }
 
@@ -447,6 +549,84 @@ double HSCPAnalyzer::cutMin(TH1F * h, double ci)
  return h->GetBinCenter(0);
 }
 
+
+vector<HSCPAnalyzer::HSCParticle> HSCPAnalyzer::associate(vector<HSCPAnalyzer::TKInfo> & tks, vector<HSCPAnalyzer::DTInfo> & dts)
+{
+ float minTkP=50;
+ float maxTkBeta=0.9;
+
+ float minDtP=50;
+ 
+ float minDR=0.1;
+ float maxInvPtDiff=0.005; 
+
+ float minTkInvBeta2=1./(maxTkBeta*maxTkBeta);   
+ vector<HSCPAnalyzer::HSCParticle> result; 
+ for(int i=0;i<tks.size();i++)
+ {
+   if(tks[i].track->pt() > minTkP && tks[i].invBeta2 >= minTkInvBeta2 )
+    {
+       float min=1000;  
+       int found = -1;
+       for(int j=0;j<dts.size();j++)
+        {
+          float invDT=1./dts[j].combinedTrack->pt();
+          float invTK=1./tks[i].track->pt();
+          if(fabs(invDT-invTK) > maxInvPtDiff) continue;
+          float deltaR=ROOT::Math::VectorUtil::DeltaR(dts[j].combinedTrack->momentum(), tks[i].track->momentum());
+          if(deltaR > minDR || deltaR > min) continue;
+          min=deltaR;
+          found = j;
+       }
+     HSCParticle candidate; 
+     candidate.tk=tks[i];
+     candidate.hasDt=false;
+     if(found>=0 )
+       {
+     candidate.hasDt=true;
+        candidate.dt=dts[found];
+        dts.erase(dts.begin()+found);
+       }
+     result.push_back(candidate);
+     
+    }
+ }
+
+ for(int i=0;i<dts.size();i++)
+ {
+     if(dts[i].combinedTrack->pt() > minDtP  )
+    {
+       float min=1000;
+       int found = -1;
+       for(int j=0;j<tks.size();j++)
+        {
+          float invDT=1./dts[i].combinedTrack->pt();
+          float invTK=1./tks[j].track->pt();
+          if(fabs(invDT-invTK) > maxInvPtDiff) continue;
+          float deltaR=ROOT::Math::VectorUtil::DeltaR(dts[i].combinedTrack->momentum(), tks[j].track->momentum());
+          if(deltaR > minDR || deltaR > min) continue;
+          min=deltaR;
+          found = j;
+          cout << "At least two muons associated to the same track ?" << endl;
+       }
+     HSCParticle candidate;
+     candidate.dt=dts[i];
+     candidate.hasTk=false;
+     if(found>=0 )
+       {
+        candidate.hasTk=true;
+        candidate.tk=tks[found];
+        tks.erase(tks.begin()+found);
+       }
+     result.push_back(candidate);
+    }
+
+
+
+ }
+ return result;
+
+} 
 
 //define this as a plug-in
 DEFINE_FWK_MODULE(HSCPAnalyzer);
