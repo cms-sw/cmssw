@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2007/10/14 00:30:54 $
- *  $Revision: 1.14 $
+ *  $Date: 2007/10/20 18:18:25 $
+ *  $Revision: 1.15 $
  *  \author A. Tumanov - Rice
  */
 
@@ -131,7 +131,6 @@ void CSCDigiToRaw::createFedBuffers(const CSCStripDigiCollection& stripDigis,
   map<CSCDetId, CSCEventData> chamberDataMap 
     = fillChamberDataMap(stripDigis, wireDigis, mapping);
   
-
   int l1a=1; ///need to add increments or get it from lct digis 
   int bx = 0;///same as above
   //int startingFED = FEDNumbering::getCSCFEDIds().first;
@@ -158,8 +157,10 @@ void CSCDigiToRaw::createFedBuffers(const CSCStripDigiCollection& stripDigis,
 	for(map<CSCDetId, CSCEventData>::iterator chamberItr = chamberDataMap.begin();
 	    chamberItr != chamberDataMap.end(); ++chamberItr)
 	  {
+
 	    //std::cout<<"inside the pack loop" <<std::endl;
 	    int indexDCC = mapping->slink(chamberItr->first);
+
 	    //std::cout<<" indexDCC=" << indexDCC <<std::endl;
 	    //std::cout<<" idcc = " <<idcc<<std::endl;
 	    if (idcc==indexDCC) 
@@ -184,8 +185,26 @@ void CSCDigiToRaw::createFedBuffers(const CSCStripDigiCollection& stripDigis,
 		  }
 	      }
 	  }
-      } else if (chamberDataMap.size()) { edm::LogError("CSCDigiToRaw") <<"invalid CSCDetId==0";}
+      } else  if (chamberDataMap.size()) { edm::LogError("CSCDigiToRaw") <<"invalid CSCDetId==0";}
+      
     }
+
+  // FIXME: FEDRawData size set to 2*64 to add FED header and trailer
+  for (int idcc=FEDNumbering::getCSCFEDIds().first;
+       idcc<=FEDNumbering::getCSCFEDIds().second;++idcc) 
+    {
+      FEDRawData & fedRawData = fed_buffers.FEDData(idcc);
+      if(fedRawData.size()==0){
+	fedRawData.resize(16);
+	FEDHeader cscFEDHeader(fedRawData.data());
+	cscFEDHeader.set(fedRawData.data(), 0, e.id().event(), 0, idcc);
+	FEDTrailer cscFEDTrailer(fedRawData.data()+(fedRawData.size()-8));
+	cscFEDTrailer.set(fedRawData.data()+(fedRawData.size()-8), 
+			  fedRawData.size()/8, 
+			  evf::compute_crc(fedRawData.data(),fedRawData.size()), 0, 0);
+      }
+    }
+
 }
 
 
