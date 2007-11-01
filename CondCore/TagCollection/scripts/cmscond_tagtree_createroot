@@ -1,0 +1,95 @@
+#!/usr/bin/env python
+from ConfigParser import ConfigParser
+from copy import copy
+from optparse import OptionParser, Option, OptionValueError
+import coral
+from CondCore.TagCollection import Node,TagTree,tagInventory
+
+class tagTreeRootBuilder:
+    def __init__(self):
+        """
+        Class add node in the tag tree
+        usage: %prog [options]
+        -c, --connect=connectstring: connection string to the tag DB (required)
+        -u, --user=user: user name
+        -p, --password=password: password
+        -P, --path=path: path to authentication.xml
+        -r, --rootname=rootnodename
+        -a, --all: attach all tags in the inventory as leafs under the root
+        -v, --verbose: switch on verbose mode
+        -h, --help: print usage
+        """
+        self.__parser=OptionParser()
+        self.__connectstring=''
+        self.__user=''
+        self.__password=''
+        self.__authpath='.'
+        self.__rootname=''
+        self.__all=False
+        self.__verbose=False        
+    def parsecmdln(self):
+        """
+        Parse commandline
+        """
+        usage = "usage: \%prog [options] \n"
+        self.__parser.add_option("-c","--connect",action="store",dest="connectstring",type="string",help="connection string to the tag DB")
+        self.__parser.add_option("-u","--user",action="store",dest="user",type="string",help="user name")
+        self.__parser.add_option("-p","--password",action="store",dest="password",type="string",help="password")
+        self.__parser.add_option("-P","--path",action="store",dest="authpath",type="string",help="path to authentication.xml")
+        self.__parser.add_option("-r","--rootname",action="store",dest="rootname",type="string",help="root node name")
+        self.__parser.add_option("-a","--all",action="store_true",dest="all",help="attach all tags in the inventory as leafs under the root")
+        self.__parser.add_option("-v","--verbose",action="store_true",dest="verbose",help="verbose mode")
+        self.__parser.set_defaults(connectstring='')
+        self.__parser.set_defaults(user='')
+        self.__parser.set_defaults(password='')
+        self.__parser.set_defaults(authpath='.')
+        self.__parser.set_defaults(rootname='All')
+        self.__parser.set_defaults(all=False)
+        self.__parser.set_defaults(verbose=False)
+        (options, args) = self.__parser.parse_args()
+        
+        self.__connectstring=self.__parser.values.connectstring
+        self.__user=self.__parser.values.user
+        self.__password=self.__parser.values.password
+        self.__authpath=self.__parser.values.authpath
+        self.__rootname=self.__parser.values.rootname
+        self.__all=self.__parser.values.all
+        self.__verbose=self.__parser.values.verbose
+    def createRootNode(self):
+        """
+        Create root node of the tree 
+        """
+        context = coral.Context()
+        if self.__verbose is True:
+            context.setVerbosityLevel( 'DEBUG' )
+        else:
+            context.setVerbosityLevel( 'ERROR' )
+        svc = coral.ConnectionService( context )
+        session = svc.connect( self.__connectstring,accessMode = coral.access_Update )
+        try:
+            mytree=TagTree.tagTree(session)
+            if mytree.existTagTreeTable() is False:
+                mytree.createTagTreeTable()   
+            mynode=Node.Node()
+            mynode.nodelabel=self.__rootname
+            mynode.globalsince=0
+            mynode.globaltill=4294967295
+            mynode.tagid=0
+            mytree.insertNode(mynode,'ROOT')
+            if self.__all is True:
+                inv=tagInventory.tagInventory(session)
+                result=inv.getAllEntries()
+                for tag in result:
+                    myleaf=Node.Node()
+                    myleaf.nodelabel=tag.tagname
+                    myleaf.tagid=tag.tagid
+                    mytree.insertNode(myleaf,self.__rootname)
+        except Exception, e:
+            print str(e)
+            del session
+if __name__ == "__main__":
+    tagtreerootbuilder=tagTreeRootBuilder() 
+    tagtreerootbuilder.parsecmdln()
+    tagtreerootbuilder.createRootNode()
+    
+
