@@ -1,4 +1,4 @@
-// $Id: TtHadEvtSolutionMaker.cc,v 1.4 2007/10/31 17:22:12 mfhansen Exp $
+// $Id: TtHadEvtSolutionMaker.cc,v 1.5 2007/11/01 20:46:29 mfhansen Exp $
 
 #include "TopQuarkAnalysis/TopEventProducers/interface/TtHadEvtSolutionMaker.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -94,7 +94,7 @@ void TtHadEvtSolutionMaker::produce(edm::Event & iEvent, const edm::EventSetup &
 	    for (unsigned int bh=0; bh!=bJets->size(); bh++) { //loop over hadronic b-jet1
 	      if(!(bh==p || bh==q || bh==j || bh==k)) { 
 		for (unsigned int bbarh=0; bbarh!=bJets->size(); bbarh++) { //loop over hadronic b-jet2
-		  if (!(bbarh==p || bbarh==q || bbarh==j || bbarh==k) && bbarh==bh) {
+		  if (!(bbarh==p || bbarh==q || bbarh==j || bbarh==k) && !(bbarh==bh)) {
 		    // Make event solutions for all possible combinations of the 4 light
 		    // jets and 2 possible b-jets, not including the option of the b's being swapped. 
 		    // Hadp,Hadq is one pair, Hadj,Hadk the other
