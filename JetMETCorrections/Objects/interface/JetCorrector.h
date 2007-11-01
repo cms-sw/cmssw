@@ -1,6 +1,6 @@
 //
 // Original Author:  Fedor Ratnikov Dec 27, 2006
-// $Id: JetCorrector.h,v 1.2 2007/01/05 01:50:36 fedor Exp $
+// $Id: JetCorrector.h,v 1.3 2007/01/18 01:35:13 fedor Exp $
 //
 // Generic interface for JetCorrection services
 //
@@ -24,9 +24,9 @@ class JetCorrector
   virtual ~JetCorrector (){};
 
   /// get correction using Jet information only
-  virtual double correction (const LorentzVector& fJet) const;
+  virtual double correction (const LorentzVector& fJet) const = 0;
   /// apply correction using Jet information only
-  double correction (const reco::Jet& fJet) const {return correction (fJet.p4 ());}
+  virtual double correction (const reco::Jet& fJet) const = 0;
 
   /// apply correction using all event information
   virtual double correction (const reco::Jet& fJet, const edm::Event& fEvent, const edm::EventSetup& fSetup) const;

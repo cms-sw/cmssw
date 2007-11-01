@@ -1,6 +1,6 @@
 //
 // Original Author:  Fedor Ratnikov Feb. 16, 2007
-// $Id: JetCorrector.h,v 1.3 2007/01/18 01:35:13 fedor Exp $
+// $Id: SimpleJetCorrector.h,v 1.1 2007/02/16 23:32:16 fedor Exp $
 //
 // Simplest jet corrector scaling every jet by fixed factor
 //
@@ -19,6 +19,8 @@ class SimpleJetCorrector : public JetCorrector {
   virtual ~SimpleJetCorrector ();
   /// apply correction using Jet information only
   virtual double correction (const LorentzVector& fJet) const {return mScale;}
+  /// apply correction using Jet information only
+  virtual double correction (const reco::Jet& fJet) const {return mScale;}
   /// if correction needs event information
   virtual bool eventRequired () const {return false;}
  private:
