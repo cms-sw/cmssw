@@ -29,7 +29,6 @@ mappingBuilder_(0)
 		    
    	  //Reset DFrames and xtalDetIds
 	  xtalDetIds_[sm][fe][strip][xtal]=0;
-	  //gf//          xtalDFrames_[sm][fe][strip][xtal]=0;
 	}
       }
       //Reset SC Det Ids
@@ -146,7 +145,6 @@ EcalElectronicsMapper::~EcalElectronicsMapper(){
         for(uint xtal=0; xtal<NUMB_XTAL;xtal++){
 	  if(xtalDetIds_[sm][fe][strip][xtal]){ 
             delete xtalDetIds_[sm][fe][strip][xtal]; 
-	    //gf//            delete xtalDFrames_[sm][fe][strip][xtal];
           }
         }
       }
