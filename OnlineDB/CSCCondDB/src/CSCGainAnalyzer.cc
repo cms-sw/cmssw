@@ -30,6 +30,11 @@
 #include "EventFilter/CSCRawToDigi/interface/CSCEventData.h"
 #include "EventFilter/CSCRawToDigi/interface/CSCDMBHeader.h"
 #include "OnlineDB/CSCCondDB/interface/CSCGainAnalyzer.h"
+#include "CondFormats/CSCObjects/interface/CSCMapItem.h"
+///to be used for old mapping
+//#include "OnlineDB/CSCCondDB/interface/CSCMap.h"
+///for new mapping
+#include "OnlineDB/CSCCondDB/interface/CSCMap1.h"
 
 CSCGainAnalyzer::CSCGainAnalyzer(edm::ParameterSet const& conf) {
   debug = conf.getUntrackedParameter<bool>("debug",false);
@@ -216,9 +221,13 @@ CSCGainAnalyzer::~CSCGainAnalyzer(){
   std::string myTime=asctime(clock);
   std::ofstream myGainsFile(myFileName,std::ios::out);
   
-  //DB object and map
+  ///old DB map
+  //cscmap *map = new cscmap();
+  ///new DB mapping
+  CSCMapItem::MapItem mapitem;
+  cscmap1 *map = new cscmap1();
+
   CSCobject *cn = new CSCobject();
-  cscmap *map = new cscmap();
   condbon *dbon = new condbon();
 
   //root ntuple information
@@ -238,8 +247,19 @@ CSCGainAnalyzer::~CSCGainAnalyzer(){
 	int counter=0;
 	std::cout<<" Crate: "<<new_crateID<<" and DMB:  "<<new_dmbID<<std::endl;
 	//	myIndex=0;
-	map->crate_chamber(new_crateID,new_dmbID,&chamber_id,&chamber_num,&sector,&first_strip_index,&strips_per_layer,&chamber_index);
-	std::cout<<"Data is for chamber:: "<<chamber_id<<" in sector:  "<<sector<<" index "<<first_strip_index<<std::endl;
+
+	///old mapping
+	//map->crate_chamber(new_crateID,new_dmbID,&chamber_id,&chamber_num,&sector,&first_strip_index,&strips_per_layer,&chamber_index);
+	///new mapping
+	map->cratedmb(new_crateID,new_dmbID,&mapitem);
+	chamber_num=mapitem.chamberId;
+	sector= mapitem.sector;
+	first_strip_index=mapitem.stripIndex;
+	strips_per_layer=mapitem.strips;
+	chamber_index=mapitem.chamberId;
+	chamber_type = mapitem.chamberLabel;
+
+	std::cout<<"Data is for chamber:: "<<chamber_type<<"  "<<chamber_id<<" in sector:  "<<sector<<" index "<<first_strip_index<<std::endl;
 	
 	calib_evt.id=chamber_num;
 

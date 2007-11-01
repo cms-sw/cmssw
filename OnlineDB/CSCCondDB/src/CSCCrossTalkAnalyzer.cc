@@ -27,7 +27,10 @@
 #include "OnlineDB/CSCCondDB/interface/CSCxTalk.h"
 #include "CondFormats/CSCObjects/interface/CSCcrosstalk.h"
 #include "CondFormats/CSCObjects/interface/CSCPedestals.h"
-#include "OnlineDB/CSCCondDB/interface/CSCMap.h"
+#include "CondFormats/CSCObjects/interface/CSCMapItem.h"
+///to be used with older mapping
+//#include "OnlineDB/CSCCondDB/interface/CSCMap.h"
+#include "OnlineDB/CSCCondDB/interface/CSCMap1.h"
 
 CSCCrossTalkAnalyzer::CSCCrossTalkAnalyzer(edm::ParameterSet const& conf) {
 
@@ -301,7 +304,7 @@ CSCCrossTalkAnalyzer::~CSCCrossTalkAnalyzer(){
   //get name of run file from .cfg and name root output after that
   std::string::size_type runNameStart = name.find("\"",0);
   std::string::size_type runNameEnd   = name.find("raw",0);
-  std::string::size_type rootStart    = name.find("CrossTalk",0);
+  std::string::size_type rootStart    = name.find("Crosstalk",0);
   
   int nameSize = runNameEnd+2-runNameStart;
   int myRootSize = rootStart-runNameStart+8;
@@ -322,8 +325,14 @@ CSCCrossTalkAnalyzer::~CSCCrossTalkAnalyzer(){
   std::string myTime=asctime(clock);
   std::ofstream myXtalkfile(myFileName,std::ios::app);
 
-  //DB map
-  cscmap *map = new cscmap();
+  ///Old DB mapping
+  //CSCobject *cn = new CSCobject();
+  //cscmap *map = new cscmap();
+  
+  ///New DB map
+  CSCMapItem::MapItem mapitem;
+  cscmap1 *map = new cscmap1();
+
   //root ntuple
   TCalibCrossTalkEvt calib_evt;
   TFile calibfile(myNewName, "RECREATE");
@@ -364,8 +373,19 @@ CSCCrossTalkAnalyzer::~CSCCrossTalkAnalyzer(){
       int new_dmbID   = dmbID[i];
       int counter=0;
       std::cout<<" Crate: "<<new_crateID<<" and DMB:  "<<new_dmbID<<std::endl;
-      map->crate_chamber(new_crateID,new_dmbID,&chamber_id,&chamber_num,&sector,&first_strip_index,&strips_per_layer,&chamber_index);
-      std::cout<<"Data is for chamber:: "<< chamber_num<<" in sector:  "<<sector<<std::endl;
+      //Old mapping
+      //map->crate_chamber(new_crateID,new_dmbID,&chamber_id,&chamber_num,&sector,&first_strip_index,&strips_per_layer,&chamber_index);
+      
+      ///New mapping here
+      map->cratedmb(new_crateID,new_dmbID,&mapitem);
+      chamber_num=mapitem.chamberId;
+      sector= mapitem.sector;
+      first_strip_index=mapitem.stripIndex;
+      strips_per_layer=mapitem.strips;
+      chamber_index=mapitem.chamberId;
+      chamber_type = mapitem.chamberLabel;
+
+      std::cout<<"Data is for chamber:: "<<chamber_type<<"  "<<chamber_num<<" in sector:  "<<sector<<std::endl;
 
       calib_evt.id = chamber_num;
 

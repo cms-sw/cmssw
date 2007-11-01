@@ -9,7 +9,6 @@
 #include <sys/stat.h>	
 #include <unistd.h>
 #include <fstream>
-#include "OnlineDB/CSCCondDB/interface/CSCMap.h"
 #include "OnlineDB/CSCCondDB/interface/CSCOnlineDB.h"
 #include "CondFormats/CSCObjects/interface/CSCGains.h"
 #include "CondFormats/CSCObjects/interface/CSCobject.h"
@@ -67,7 +66,7 @@ class CSCGainAnalyzer : public edm::EDAnalyzer {
   float myCharge[20];
   int lines,flagGain,flagIntercept,myIndex,flagRun;
   std::ifstream filein;
-  std::string PSet,name;
+  std::string PSet,name, chamber_type;
   bool debug;
   TH2F adcCharge_ch0;
   TH2F adcCharge_ch1;
