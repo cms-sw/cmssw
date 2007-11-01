@@ -15,7 +15,7 @@
 //
 // Original Author:  Chi Nhan Nguyen
 //         Created:  Mon Feb 19 13:25:24 CST 2007
-// $Id: FastL1GlobalAlgo.h,v 1.12 2007/10/29 18:02:12 smaruyam Exp $
+// $Id: FastL1GlobalAlgo.h,v 1.13 2007/10/31 19:01:19 smaruyam Exp $
 //
 
 // system include files
@@ -101,7 +101,7 @@ class FastL1GlobalAlgo {
       int isEMCand(CaloTowerDetId cid, l1extra::L1EmParticle* p,const edm::Event& e);
       bool isTauJet(int rgnid);
 
-      bool newTau(int rgnid);
+      bool TauIsolation(int rgnid);
 
       void findJets();
       void addJet(int rgnId, bool taubit);
