@@ -18,31 +18,41 @@ bool isValidGeom(int subdet, int iEta, int iPhi, int depth){
   
   //HB ieta/iphi/depths
   EtaMin[0]=1; EtaMax[0]=16;
-  PhiMin[0]=1; PhiMax[0]=71;
+  PhiMin[0]=1; PhiMax[0]=72;
   DepMin[0]=1; DepMax[0]=2;
   
   //HE ieta/iPhi/Depths
   EtaMin[1]=16; EtaMax[1]=29;
-  PhiMin[1]=1; PhiMax[1]=71;
+  PhiMin[1]=1; PhiMax[1]=72;
   DepMin[1]=1; DepMax[1]=3;
   
   //HF ieta/iphi/depths
   EtaMin[2]=29; EtaMax[2]=41;
-  PhiMin[2]=1; PhiMax[2]=71;
+  PhiMin[2]=1; PhiMax[2]=72;
   DepMin[2]=1; DepMax[2]=2;
   
   //HO ieta/iphi/depths
   EtaMin[3]=1; EtaMax[3]=15;
-  PhiMin[3]=1; PhiMax[3]=71;
+  PhiMin[3]=1; PhiMax[3]=72;
   DepMin[3]=4; DepMax[3]=4;
   
   if(iEta!=0) if(abs(iEta)<EtaMin[subdet] || abs(iEta)>EtaMax[subdet]) return false;
   if(iPhi!=0) if(abs(iPhi)<PhiMin[subdet] || abs(iPhi)>PhiMax[subdet]) return false;
   if(depth!=0) if(abs(depth)<DepMin[subdet] || abs(depth)>DepMax[subdet]) return false;
   
-  if(subdet==0 && abs(iEta)==16 && depth==3) return false;
-  if(subdet==1 && abs(iEta)==16 && (depth==1 || depth==2)) return false;
-
+  
+  if(subdet==0 && abs(depth)==2 && abs(iEta)<15) return false;
+  else if(subdet==1){
+    if(abs(iEta)>20 && (iPhi%2)==0) return false;    
+    if(abs(iEta)>39 && (iPhi%4)!=3) return false;    
+    if(abs(iEta)==16 && abs(depth)!=3) return false;
+    if(abs(iEta)==17 && abs(depth)!=1) return false;
+    if(abs(depth)==3){
+      if(abs(iEta)!=27 && abs(iEta)!=28 &&abs(iEta)!=16) return false;
+    }
+  }
+  else if(subdet==2 && (iPhi%2)==0) return false;   
+  
   return true;
 }
 

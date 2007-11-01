@@ -30,6 +30,8 @@
 #include <DQM/HcalMonitorClient/interface/HcalHotCellClient.h>
 #include <DQM/HcalMonitorModule/interface/HcalMonitorSelector.h>
 
+#include <DQM/HcalMonitorClient/interface/HcalDQMDbInterface.h>
+
 #include "TROOT.h"
 #include "TTree.h"
 #include "TGaxis.h"
@@ -118,6 +120,7 @@ private:
   HcalPedestalClient* pedestal_client_;
   HcalLEDClient* led_client_;
   HcalHotCellClient* hot_client_;
+  HcalHotCellDbInterface* dqm_db_;
 
 };
 

@@ -101,6 +101,9 @@ void HcalMonitorClient::initialize(const ParameterSet& ps){
   if( ps.getUntrackedParameter<bool>("HotCellClient", false) )
     hot_client_          = new HcalHotCellClient(ps, dbe_);
 
+  dqm_db_ = new HcalHotCellDbInterface(); 
+
+
   return;
 }
 
@@ -181,6 +184,62 @@ void HcalMonitorClient::endJob(void) {
   if( hot_client_ ) hot_client_->endJob();
   if( pedestal_client_ ) pedestal_client_->endJob();
   if( led_client_ ) led_client_->endJob();
+
+
+  ///Don't leave this here!!!  FIX ME!
+  ///Just a temporary example!!
+  time_t rawtime;
+  time(&rawtime);
+  tm* ptm = gmtime(&rawtime);
+  char ntime[256];
+  sprintf(ntime,"%4d-%02d-%02d %02d:%02d:%02d.0",  
+	  ptm->tm_year+1900, 
+	  ptm->tm_mon,  ptm->tm_mday,
+	  ptm->tm_hour, ptm->tm_min, ptm->tm_sec);
+  
+  const char* version = "V2test";
+  const char* tag = "test3";
+  const char* comment = "Test DQM Input";
+  const char* detector = "HCAL";
+  int iovStart = irun_;
+  int iovEnd = irun_;
+
+  try{
+    XMLPlatformUtils::Initialize();
+    DOMDocument* doc = dqm_db_->createDocument();
+    dqm_db_->createHeader(doc, irun_, getRunStartTime());
+    for(int i=0; i<4; i++){
+      HcalSubdetector subdet = HcalBarrel;
+      if(i==1) subdet =  HcalEndcap;
+      else if(i==2) subdet = HcalForward;
+      else if(i==3) subdet = HcalOuter;
+      
+      for(int ieta=-42; ieta<=42; ieta++){
+	if(ieta==0) continue;
+	for(int iphi=1; iphi<=73; iphi++){
+	  for(int depth=1; depth<=4; depth++){	    
+	    if(!isValidGeom(i, ieta, iphi,depth)) continue;
+
+	    HcalDetId id(subdet,ieta,iphi,depth);
+	    HcalDQMChannelQuality::Item item;
+	    item.mId = id.rawId();
+	    item.mAlgo = 0;
+	    item.mMasked = 0;
+	    item.mQuality = 2;
+	    item.mComment = "First DQM Channel Quality test";
+	    dqm_db_->createDataset(doc,item,ntime,version);
+	  }
+	}
+      }
+    }
+    dqm_db_->createFooter(doc,iovStart, iovEnd,tag,detector,comment);
+    dqm_db_->writeDocument(doc,"myTestXML.xml");
+    doc->release();
+  }
+  catch (...){
+    std::cerr << "Exception" << std::endl;
+  }
+  XMLPlatformUtils::Terminate();
   
   DQMAnalyzer::endJob();
   return;
@@ -266,7 +325,7 @@ void HcalMonitorClient::analyze(const Event& e, const edm::EventSetup& eventSetu
 void HcalMonitorClient::analyze(){
   
   ievt_++;
-  printf("\nHcal Monitor Client heartbeat....\n");
+  if(debug_) printf("\nHcal Monitor Client heartbeat....\n");
 
   createTests();  
   mui_->doMonitoring();
@@ -351,7 +410,7 @@ void HcalMonitorClient::htmlOutput(void){
   htmlFile << "</head>  " << endl;
   htmlFile << "<body>  " << endl;
   htmlFile << "<br>  " << endl;
-  htmlFile << "<center><h1>Hcal Data Quality Monitor</h1></center>" << endl;
+ htmlFile << "<center><h1>Hcal Data Quality Monitor</h1></center>" << endl;
   htmlFile << "<h2>Run Number:&nbsp&nbsp&nbsp" << endl;
   htmlFile << "<span style=\"color: rgb(0, 0, 153);\">" << irun_ <<"</span></h2> " << endl;
   htmlFile << "<h2>Events processed:&nbsp&nbsp&nbsp" << endl;
