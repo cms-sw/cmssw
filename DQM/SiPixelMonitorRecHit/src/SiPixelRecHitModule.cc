@@ -38,14 +38,14 @@ void SiPixelRecHitModule::book(const edm::ParameterSet& iConfig) {
   // XYPosition
   hid = theHistogramId->setHistoId("xypos",id_);
   //std::cout << hid << " " << theHistogramId->getDataCollection(hid) << " " << theHistogramId->getRawId(hid) << std::endl;
-  meXYPos_ = theDMBE->book2D(hid,"XY Position",100,-4.,4,100,-4,4);
+  meXYPos_ = theDMBE->book2D(hid,"XY Position",100,-1.,1,100,-4,4);
   meXYPos_->setAxisTitle("X Position",1);
   meXYPos_->setAxisTitle("Y Position",2);
   hid = theHistogramId->setHistoId("ClustX",id_);
   meClustX_ = theDMBE->book1D(hid, "Cluster X size", 10, 0, 10);
   meClustX_->setAxisTitle("Cluster size X dimension", 1);
   hid = theHistogramId->setHistoId("ClustY",id_);
-  meClustY_ = theDMBE->book1D(hid, "Cluster Y size", 10, 0, 10);
+  meClustY_ = theDMBE->book1D(hid, "Cluster Y size", 25, 0., 25.);
   meClustY_->setAxisTitle("Cluster size Y dimension", 1); 
   delete theHistogramId;
   
@@ -77,7 +77,7 @@ void SiPixelRecHitModule::fill(const float& rechit_x, const float& rechit_y, con
       
   }
   */
-  std::cout << rechit_x << " " << rechit_y << " " << sizeX << " " << sizeY << std::endl;
+  //std::cout << rechit_x << " " << rechit_y << " " << sizeX << " " << sizeY << std::endl;
   meXYPos_->Fill(rechit_x, rechit_y);
   meClustX_->Fill(sizeX);
   meClustY_->Fill(sizeY);

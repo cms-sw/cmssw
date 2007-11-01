@@ -14,7 +14,7 @@
 //
 // Original Author:  Vincenzo Chiochia
 //         Created:  
-// $Id: SiPixelRecHitSource.cc,v 1.1 2007/10/10 03:37:30 krose Exp $
+// $Id: SiPixelRecHitSource.cc,v 1.2 2007/10/19 12:02:32 krose Exp $
 //
 //
 // Adapted by:  Keith Rose
@@ -96,7 +96,7 @@ void SiPixelRecHitSource::endJob(void){
 void SiPixelRecHitSource::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
   eventNo++;
-	cout << eventNo << endl;
+  //cout << eventNo << endl;
   // get input data
   edm::Handle<SiPixelRecHitCollection>  recHitColl;
   iEvent.getByLabel( src_, recHitColl );
@@ -120,7 +120,7 @@ void SiPixelRecHitSource::analyze(const edm::Event& iEvent, const edm::EventSetu
 	  
 
 
-	  cout << TheID << endl;
+	  //cout << TheID << endl;
 	  edm::Ref<edm::DetSetVector<SiPixelCluster>, SiPixelCluster> const& clust = pixeliter->cluster();
 	  int sizeX = (*clust).sizeX();
 	  //cout << sizeX << endl;
