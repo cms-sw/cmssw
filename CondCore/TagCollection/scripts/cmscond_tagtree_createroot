@@ -10,6 +10,7 @@ class tagTreeRootBuilder:
         """
         Class add node in the tag tree
         usage: %prog [options]
+        -f, --file=filename: configuration file
         -c, --connect=connectstring: connection string to the tag DB (required)
         -u, --user=user: user name
         -p, --password=password: password
@@ -32,6 +33,7 @@ class tagTreeRootBuilder:
         Parse commandline
         """
         usage = "usage: \%prog [options] \n"
+        self.__parser.add_option("-f","--file",action="store",dest="filename",help="configuration file")
         self.__parser.add_option("-c","--connect",action="store",dest="connectstring",type="string",help="connection string to the tag DB")
         self.__parser.add_option("-u","--user",action="store",dest="user",type="string",help="user name")
         self.__parser.add_option("-p","--password",action="store",dest="password",type="string",help="password")
@@ -39,6 +41,7 @@ class tagTreeRootBuilder:
         self.__parser.add_option("-r","--rootname",action="store",dest="rootname",type="string",help="root node name")
         self.__parser.add_option("-a","--all",action="store_true",dest="all",help="attach all tags in the inventory as leafs under the root")
         self.__parser.add_option("-v","--verbose",action="store_true",dest="verbose",help="verbose mode")
+        self.__parser.set_defaults(filename='')
         self.__parser.set_defaults(connectstring='')
         self.__parser.set_defaults(user='')
         self.__parser.set_defaults(password='')
@@ -47,14 +50,15 @@ class tagTreeRootBuilder:
         self.__parser.set_defaults(all=False)
         self.__parser.set_defaults(verbose=False)
         (options, args) = self.__parser.parse_args()
-        
-        self.__connectstring=self.__parser.values.connectstring
-        self.__user=self.__parser.values.user
-        self.__password=self.__parser.values.password
-        self.__authpath=self.__parser.values.authpath
-        self.__rootname=self.__parser.values.rootname
-        self.__all=self.__parser.values.all
-        self.__verbose=self.__parser.values.verbose
+        if self.__parser.values.filename!='':
+        else:    
+            self.__connectstring=self.__parser.values.connectstring
+            self.__user=self.__parser.values.user
+            self.__password=self.__parser.values.password
+            self.__authpath=self.__parser.values.authpath
+            self.__rootname=self.__parser.values.rootname
+            self.__all=self.__parser.values.all
+            self.__verbose=self.__parser.values.verbose
     def createRootNode(self):
         """
         Create root node of the tree 
