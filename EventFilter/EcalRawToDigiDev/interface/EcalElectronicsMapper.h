@@ -9,8 +9,8 @@
  
  * \file EcalElectronicsMapper.h
  *
- * $Date: 2007/08/15 14:23:29 $
- * $Revision: 1.7 $
+ * $Date: 2007/10/19 14:36:16 $
+ * $Revision: 1.8 $
  * \author N. Almeida
  * \author G. Franzoni
  *
@@ -92,8 +92,6 @@ public:
   const std::map<uint ,uint>& getDCCMap() const { return myDCCMap_; }
   
   DetId  * getDetIdPointer(uint feChannel, uint strip, uint xtal){  return  xtalDetIds_[smId_-1][feChannel-1][strip-1][xtal-1];}
-
-  EcalDataFrame * getDFramePointer(uint feChannel, uint strip, uint xtal){  return  xtalDFrames_[smId_-1][feChannel-1][strip-1][xtal-1];} 
 	 
   EcalTrigTowerDetId * getTTDetIdPointer(uint tccId, uint tower){ return ttDetIds_[tccId-1][tower-1];}
 	 
@@ -188,7 +186,6 @@ private:
   EcalTrigTowerDetId        * ttDetIds_[NUMB_TCC][NUMB_FE];
   EcalElectronicsId         * ttEleIds_[NUMB_TCC][NUMB_FE];
   EcalTriggerPrimitiveDigi  * ttTPIds_[NUMB_TCC][NUMB_FE];
-  EcalDataFrame             * xtalDFrames_[NUMB_SM][NUMB_FE][NUMB_STRIP][NUMB_XTAL]; 
   EcalSrFlag                * srFlags_[NUMB_SM][NUMB_FE];
   EcalElectronicsMapping    * mappingBuilder_;
   
