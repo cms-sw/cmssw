@@ -19,14 +19,13 @@ void DCCSCBlock::updateCollectors(){
   digis_                  = unpacker_->eeDigisCollection();
 
  
- /*
-   todo : update this for the endcap...
-  
-  invalidGains_           = unpacker_->invalidGainsCollection();
-  invalidGainsSwitch_     = unpacker_->invalidGainsSwitchCollection();
-  invalidGainsSwitchStay_ = unpacker_->invalidGainsSwitchStayCollection();
-  invalidChIds_           = unpacker_->invalidChIdsCollection();
- */
+  //
+  //   todo : update this for the endcap...
+  //  
+  //  invalidGains_           = unpacker_->invalidGainsCollection();
+  //  invalidGainsSwitch_     = unpacker_->invalidGainsSwitchCollection();
+  //  invalidGainsSwitchStay_ = unpacker_->invalidGainsSwitchStayCollection();
+  //  invalidChIds_           = unpacker_->invalidChIdsCollection();
 
 }
 
@@ -58,9 +57,9 @@ void DCCSCBlock::unpackXtalData(uint expStripID, uint expXtalID){
    
    pDetId_ = (EEDetId*) mapper_->getDetIdPointer(towerId_,expStripID,expXtalID);
 
-/*
-   (*invalidChIds_)->push_back(*pDetId_);
-*/
+   //
+   //(*invalidChIds_)->push_back(*pDetId_);
+   //
     stripId = expStripID;
     xtalId  = expXtalID;
     errorOnXtal = true;
@@ -102,9 +101,9 @@ void DCCSCBlock::unpackXtalData(uint expStripID, uint expXtalID){
 		   
            pDetId_ = (EEDetId*) mapper_->getDetIdPointer(towerId_,stripId,xtalId);
 
-/*
-           (*invalidChIds_)->push_back(*pDetId_);
-*/		  
+	   //
+	   // (*invalidChIds_)->push_back(*pDetId_);
+	   //  
 	   errorOnXtal = true;
 	   
 	   // return here, so to skip all the rest
@@ -113,7 +112,7 @@ void DCCSCBlock::unpackXtalData(uint expStripID, uint expXtalID){
 	   return;
         }
 	
-      }
+       }
 
       // Check for zs valid Ids 3) if strip has increased wrt previous xtal
       else if( stripId < lastStripId_){
@@ -124,9 +123,9 @@ void DCCSCBlock::unpackXtalData(uint expStripID, uint expXtalID){
           <<"\n Last unpacked strip was "<<lastStripId_<<" while current strip is "<<stripId;
  
        pDetId_ = (EEDetId*) mapper_->getDetIdPointer(towerId_,stripId,xtalId);
-/*
-       (*invalidChIds_)->push_back(*pDetId_);
-*/		
+       //
+       //(*invalidChIds_)->push_back(*pDetId_);
+       //
         errorOnXtal = true;		  
       }
 		
@@ -135,18 +134,18 @@ void DCCSCBlock::unpackXtalData(uint expStripID, uint expXtalID){
     }
   }// end if(zs_)
  
- 
+  bool frameAdded=false;
+
   // if there is an error on xtal id ignore next error checks  
   // otherwise, assume channel_id is valid and proceed with making and checking the data frame
   if(!errorOnXtal){ 
 
-   // pDetId_ = (EEDetId*) mapper_->getDetIdPointer(towerId_,stripId,xtalId);
-   // if(pDetId_){
-   //   EEDataFrame df(*pDetId_);
-   //   df.setSize(nTSamples_); 
+    pDetId_ = (EEDetId*) mapper_->getDetIdPointer(towerId_,stripId,xtalId);
 
-    pDFId_ = (EEDataFrame*) mapper_->getDFramePointer(towerId_,stripId,xtalId);
-    if(pDFId_){
+    if(pDetId_){
+      (*digis_)->push_back(*pDetId_);
+      EEDataFrame df( (*digis_)->back() );
+      frameAdded=true;
 
       bool wrongGain(false);
 	 
@@ -158,8 +157,7 @@ void DCCSCBlock::unpackXtalData(uint expStripID, uint expXtalID){
         xtalGains_[i]=gain;
         if(gain == 0){	  wrongGain = true; } 
  
-        //df.setSample(i,data);
-        pDFId_->setSample(i,data);
+        df.setSample(i,data);
       }
 	
     
@@ -167,9 +165,9 @@ void DCCSCBlock::unpackXtalData(uint expStripID, uint expXtalID){
         edm::LogWarning("EcalRawToDigiDevGainZero")
         <<"\n For event "<<event_->l1A()<<", fed "<<mapper_->getActiveDCC()<<" and tower "<<towerId_
         <<"\n Gain zero was found in strip "<<stripId<<" and xtal "<<xtalId;   
-/*
-        (*invalidGains_)->push_back(*pDetId_); 
-*/
+	//
+	//(*invalidGains_)->push_back(*pDetId_); 
+	//
         errorOnXtal = true;
 	
 	//return here, so to skip all the rest
@@ -209,9 +207,9 @@ void DCCSCBlock::unpackXtalData(uint expStripID, uint expXtalID){
         edm::LogWarning("EcalRawToDigiDevGainSwitch")
           <<"\n For event "<<event_->l1A()<<", fed "<<mapper_->getActiveDCC()<<" and tower "<<towerId_
           <<"\n A wrong gain transition switch was found in strip "<<stripId<<" and xtal "<<xtalId;    
-/*
-        (*invalidGainsSwitch_)->push_back(*pDetId_);
-*/
+	//
+	//(*invalidGainsSwitch_)->push_back(*pDetId_);
+	//
          errorOnXtal = true;
       } 
 
@@ -220,16 +218,16 @@ void DCCSCBlock::unpackXtalData(uint expStripID, uint expXtalID){
         edm::LogWarning("EcalRawToDigiDevGainSwitch")
           <<"\n For event "<<event_->l1A()<<", fed "<<mapper_->getActiveDCC()<<" and tower "<<towerId_
           <<"\n A wrong gain switch stay was found in strip "<<stripId<<" and xtal "<<xtalId;
-/*      
-       (*invalidGainsSwitchStay_)->push_back(*pDetId_);
-*/
+	//      
+	//(*invalidGainsSwitchStay_)->push_back(*pDetId_);
+	//
         errorOnXtal = true;  
       }
-
-      //Add frame to collection
-//	   if(!errorOnXtal){ (*digis_)->push_back(df);}
-       if(!errorOnXtal){ (*digis_)->push_back(*pDFId_);}
   
+      //Add frame to collection only if all data format and gain rules are respected
+      if(errorOnXtal&&frameAdded) {
+	(*digis_)->pop_back();
+      }
 
    }// End on check of det id
   

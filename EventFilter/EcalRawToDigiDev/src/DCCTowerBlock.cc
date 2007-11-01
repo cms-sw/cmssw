@@ -35,10 +35,8 @@ void DCCTowerBlock::unpackXtalData(uint expStripID, uint expXtalID){
   uint16_t * xData_= reinterpret_cast<uint16_t *>(data_);
 
   // Get xtal data ids
-  uint stripId  = (*xData_)                                          & TOWER_STRIPID_MASK;
+  uint stripId  = (*xData_)                     & TOWER_STRIPID_MASK;
   uint xtalId   = ((*xData_)>>TOWER_XTALID_B )  & TOWER_XTALID_MASK;
-  
-
 
   // check id in case data are not 0suppressed
   if( !zs_ && (expStripID != stripId || expXtalID != xtalId)){ 
@@ -48,14 +46,13 @@ void DCCTowerBlock::unpackXtalData(uint expStripID, uint expXtalID){
       <<"\n The expected strip is "<<expStripID<<" and "<<stripId<<" was found"
       <<"\n The expected xtal  is "<<expXtalID <<" and "<<xtalId<<" was found";	
 
-   
-   pDetId_ = (EBDetId*) mapper_->getDetIdPointer(towerId_,expStripID,expXtalID);
-
-   (*invalidChIds_)->push_back(*pDetId_);
-
-    stripId = expStripID;
-    xtalId  = expXtalID;
-    errorOnXtal = true;
+    // using expected cry_di to raise warning about xtal_id problem
+    pDetId_ = (EBDetId*) mapper_->getDetIdPointer(towerId_,expStripID,expXtalID);
+    (*invalidChIds_)->push_back(*pDetId_);
+    
+    stripId    = expStripID;
+    xtalId     = expXtalID;
+    errorOnXtal= true;
     
     // return here, so to skip all following checks
     lastXtalId_++;
@@ -166,12 +163,15 @@ void DCCTowerBlock::unpackXtalData(uint expStripID, uint expXtalID){
   }// end if (zs_)
 
 
+  bool frameAdded=false;
+
   // if there is an error on xtal id ignore next error checks  
   // otherwise, assume channel_id is valid and proceed with making and checking the data frame
   if(errorOnXtal) return;
   
-  pDFId_ = (EBDataFrame*) mapper_->getDFramePointer(towerId_,stripId,xtalId);	
-  
+  (*digis_)->push_back(*pDetId_);
+  EBDataFrame df( (*digis_)->back() );
+  frameAdded=true;  
   bool wrongGain(false);
   
        //set samples in the frame
@@ -188,7 +188,7 @@ void DCCTowerBlock::unpackXtalData(uint expStripID, uint expXtalID){
 	    return;
 	} 
  
-        pDFId_->setSample(i,data);
+	df.setSample(i,data);
       }
 	
     
@@ -197,7 +197,7 @@ void DCCTowerBlock::unpackXtalData(uint expStripID, uint expXtalID){
 	  <<"\n For event "<<event_->l1A()<<", fed "<<mapper_->getActiveDCC()<<" and tower "<<towerId_
 	  <<"\n Gain zero was found in strip "<<stripId<<" and xtal "<<xtalId;   
 	
-        (*invalidGains_)->push_back(pDFId_->id());
+	(*invalidGains_)->push_back(*pDetId_);
         errorOnXtal = true;
 	
 	//return here, so to skip all the rest
@@ -240,7 +240,7 @@ void DCCTowerBlock::unpackXtalData(uint expStripID, uint expXtalID){
           <<"\n For event "<<event_->l1A()<<", fed "<<mapper_->getActiveDCC()<<" and tower "<<towerId_
           <<"\n A wrong gain transition switch was found in strip "<<stripId<<" and xtal "<<xtalId;    
 
-        (*invalidGainsSwitch_)->push_back(pDFId_->id());
+        (*invalidGainsSwitch_)->push_back(*pDetId_);
 
          errorOnXtal = true;
       } 
@@ -251,15 +251,16 @@ void DCCTowerBlock::unpackXtalData(uint expStripID, uint expXtalID){
           <<"\n For event "<<event_->l1A()<<", fed "<<mapper_->getActiveDCC()<<" and tower "<<towerId_
           <<"\n A wrong gain switch stay was found in strip "<<stripId<<" and xtal "<<xtalId;
       
-       (*invalidGainsSwitchStay_)->push_back(pDFId_->id());       
+	(*invalidGainsSwitchStay_)->push_back(*pDetId_);
 
         errorOnXtal = true;  
       }
 
       //Add frame to collection only if all data format and gain rules are respected
-      if(!errorOnXtal){ (*digis_)->push_back(*pDFId_);}
-  
-   
-  //Point to begin of next xtal Block
-  data_ += numbDWInXtalBlock_;
+      if(errorOnXtal&&frameAdded) {
+	(*digis_)->pop_back();
+      }
+ 
+      //Point to begin of next xtal Block
+      data_ += numbDWInXtalBlock_;
 }
