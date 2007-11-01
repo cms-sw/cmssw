@@ -1,7 +1,7 @@
 /** \file CSCSegmentReader.cc
  *
- *  $Date: 2007/10/27 14:02:21 $
- *  $Revision: 1.15 $
+ *  $Date: 2007/10/27 14:12:27 $
+ *  $Revision: 1.16 $
  *  \author M. Sani
  *
  *  Modified by D. Fortin - UC Riverside
@@ -39,7 +39,7 @@ CSCSegmentReader::CSCSegmentReader(const ParameterSet& pset) {
   if (file->IsOpen()) cout<<"file open!"<<endl;
   else cout<<"*** Error in opening file ***"<<endl;
    
-  hchi2    = new TH1F("h4", "chi2", 120, 0, 60);    
+  hchi2    = new TH1F("h4", "chi2", 500, 0, 5000);    
   hrechit  = new TH1I("h5", "nrechit", 6, 2, 8);  
   hsegment = new TH1I("h6", "segments multiplicity", 20, 0, 20);   
   heta     = new TH1F("h7", "eta sim muons", 50, -2.5, 2.5);  
@@ -50,13 +50,13 @@ CSCSegmentReader::CSCSegmentReader(const ParameterSet& pset) {
   char a[3];
   for (int i=0; i<9; i++) {
     sprintf(a, "h2%d", i);
-    hdxOri[i]    = new TH1F(a, "#Delta X", 101, -5.05, 5.05);
+    hdxOri[i]    = new TH1F(a, "#Delta X", 101, -0.505, 0.505);
     sprintf(a, "h3%d", i);
-    hdyOri[i]    = new TH1F(a, "#Delta Y", 101, -10.1, 10.1);
+    hdyOri[i]    = new TH1F(a, "#Delta Y", 101, -5.05, 5.05);
     sprintf(a, "h4%d", i);
-    hphiDir[i]   = new TH1F(a, "#Delta #phi", 100, -1.6, 1.6);
+    hphiDir[i]   = new TH1F(a, "#Delta #phi", 101, -0.202, 0.202);
     sprintf(a, "h5%d", i);
-    hthetaDir[i] = new TH1F(a, "#Delta #theta", 100, -0.80, 0.80);
+    hthetaDir[i] = new TH1F(a, "#Delta #theta", 101, -0.404, 0.404);
   }    
 }
 
@@ -222,7 +222,11 @@ void CSCSegmentReader::recInfo(const edm::Handle<edm::PSimHitContainer> simHits,
         }
       }
 
-      if ( nRecHitChamber > maxNhits ) continue;
+      if (simId.ring() < 4) {
+        if ( nRecHitChamber > maxNhits ) continue;
+      } else {
+        if ( nRecHitChamber > 3*maxNhits ) continue;
+      }
 
       string s = chamber->specs()->chamberTypeName();
 
@@ -246,13 +250,13 @@ void CSCSegmentReader::recInfo(const edm::Handle<edm::PSimHitContainer> simHits,
 
           satisfied1 = true;
 
-//          if (s == "ME1/a") hrechit->Fill((*segIt).nRecHits());        
           hrechit->Fill((*segIt).nRecHits());        
 
           if ( (*segIt).nRecHits() >= minRechitSegment ) {
 
-//            if (s == "ME1/a") hchi2->Fill(((*segIt).chi2()/(2*(*segIt).nRecHits()-4)));
-            hchi2->Fill(((*segIt).chi2()/(2*(*segIt).nRecHits()-4)));
+
+//	    hchi2->Fill(((*segIt).chi2()/(2*(*segIt).nRecHits()-4)));
+	    hchi2->Fill((*segIt).chi2());
 
             satisfied2 = true;
             break;
@@ -272,7 +276,7 @@ void CSCSegmentReader::simInfo(const edm::Handle<SimTrackContainer> simTracks) {
   for (SimTrackContainer::const_iterator it = simTracks->begin(); it != simTracks->end(); it++) {
         
     if (abs((*it).type()) == 13) {
-      hpt->Fill((*it).momentum().pt());
+      hpt->Fill((*it).momentum().perp());
       heta->Fill((*it).momentum().eta());
     }    
   }    
@@ -295,11 +299,16 @@ void CSCSegmentReader::resolution(const Handle<PSimHitContainer> simHits,
         
     const CSCChamber* chamber = 0;
     const CSCChamber* ch = geom->chamber((*its).cscDetId());
+
+    LocalVector segDir = (*its).localDirection();
+    LocalPoint segLoc  = (*its).localPosition();
+
+    segX = segLoc.x();
+    segY = segLoc.y();
+    
        
     GlobalPoint gpn = ch->layer(6)->surface().toGlobal(LocalPoint(0,0,0)); 	 
     GlobalPoint gpf = ch->layer(1)->surface().toGlobal(LocalPoint(0,0,0));
-
-
 
     int firstLayer = 6;
     int lastLayer = 1;
@@ -308,90 +317,103 @@ void CSCSegmentReader::resolution(const Handle<PSimHitContainer> simHits,
       firstLayer = 1;
       lastLayer = 6;
     }
-        
+
+    bool check1 = false;
+    LocalVector simDir1;
+       
+    double minDphi = maxPhi;
+ 
     for (PSimHitContainer::const_iterator ith = simHits->begin(); ith != simHits->end(); ith++) {
         
-      CSCDetId simId = (CSCDetId)(*ith).detUnitId(); 
+      CSCDetId simId = (CSCDetId)(*ith).detUnitId();
 
       if ((simId.layer() == firstLayer)) {
 
-        // Test if have 6 layers with simhits in chamber
-        std::vector<CSCDetId> chambers;
-        int ith_layer = 0;
-        int nLayerWithSimhitsInChamber = 0; 
-
-        for (PSimHitContainer::const_iterator it2 = simHits->begin(); it2 != simHits->end(); it2++) {        
-          CSCDetId simId2 = (CSCDetId)(*it2).detUnitId();
-          if ((simId2.chamber() == simId.chamber()) &&
-              (simId2.station() == simId.station()) &&
-              (simId2.ring()    == simId.ring())    &&
-              (simId2.endcap()  == simId.endcap())  &&
-              (simId2.layer()   != ith_layer     )) {
-            nLayerWithSimhitsInChamber++;
-            ith_layer = simId2.layer();
-          }
-        }
-
-        if (nLayerWithSimhitsInChamber < minLayerWithSimhitChamber) continue;
-            
         if (ch == geom->chamber(simId)) {
 
-          LocalVector segDir = (*its).localDirection();
-          LocalVector simDir = (*ith).momentumAtEntry().unit();
-                    
-          double deltaTheta = fabs(segDir.theta()-simDir.theta());
-          double deltaPhi = fabs(segDir.phi()-simDir.phi());
-            
-          minPhi = deltaPhi;
-          minTheta = deltaTheta;
-          resoTheta = (segDir.theta()-simDir.theta());
-          resoPhi = (segDir.phi()-simDir.phi());
-          chamber = ch;
+          check1 = true;
+       
+          LocalVector simDir1_temp = (*ith).momentumAtEntry().unit();
 
-          segX = (*its).localPosition().x();
-          segY = (*its).localPosition().y();
+          double simPhi_temp = simDir1_temp.phi();
 
-          sim1X =(*ith).localPosition().x();
-          sim1Y =(*ith).localPosition().y();
-          simTrack = (*ith).trackId();
+          double dPhi = simPhi_temp - segDir.phi();
+ 	  dPhi = fabs(dPhi);
+
+          if ( dPhi < minDphi) {
+            minDphi = fabs(dPhi);
+            simDir1 = simDir1_temp;
+ 
+            sim1X =(*ith).localPosition().x();
+            sim1Y =(*ith).localPosition().y();
+
+            simTrack = (*ith).trackId();
+          }
         }
       }    
     }
+
+
+    minDphi = maxPhi;
+
+    LocalVector simDir6;
+    bool check6 = false;
          
     for (PSimHitContainer::const_iterator ith = simHits->begin(); ith != simHits->end(); ith++) {
         
       CSCDetId simId = (CSCDetId)(*ith).detUnitId();
             
       if ((simId.layer() == lastLayer) && (simTrack = (*ith).trackId())) {
-        sim2X =(*ith).localPosition().x();
-        sim2Y =(*ith).localPosition().y();
-        simX = (sim1X+sim2X)/2.;
-        simY = (sim1Y+sim2Y)/2.;
+
+        check6 = true;
+
+        LocalVector simDir6_temp = (*ith).momentumAtEntry().unit();
+
+        double simPhi_temp = simDir6_temp.phi();
+
+        double dPhi = simPhi_temp - segDir.phi();
+ 	dPhi = fabs(dPhi);
+
+        if ( dPhi < minDphi) {
+          minDphi = fabs(dPhi);
+          simDir6 = simDir6_temp;
+
+          simDir6 = (*ith).momentumAtEntry().unit();                    
+
+          sim2X =(*ith).localPosition().x();
+          sim2Y =(*ith).localPosition().y();
+        }
       }
     }   
 
-    float deltaX = segX - simX;
-    float deltaY = segY - simY;
+    if (check1 && check6) {
+      double simTheta = (simDir1.theta() + simDir6.theta())/2.;
+      double deltaTheta = segDir.theta()-simTheta;
 
-    if ( chamber != 0 &&  abs(deltaX) < 4.5 ) {
+      double simPhi = (simDir1.phi() + simDir6.phi())/2.;
+      double deltaPhi = segDir.phi()-simPhi;
+
+      resoTheta = deltaTheta;
+      resoPhi   = deltaPhi;
+
+      simX = (sim1X+sim2X)/2.;
+      simY = (sim1Y+sim2Y)/2.;
+
+      float deltaX = segX - simX;
+      float deltaY = segY - simY;
+
+      if ( fabs(deltaX) < 4.5 ) {
     
-      string s = chamber->specs()->chamberTypeName();
+//        string s = chamber->specs()->chamberTypeName();
 
-      int indice = 0;
-      if (s == "ME1/a") indice = 0;
-      if (s == "ME1/b") indice = 1;
-      if (s == "ME1/2") indice = 2;
-      if (s == "ME1/3") indice = 3;
-      if (s == "ME2/1") indice = 4;
-      if (s == "ME2/2") indice = 5;
-      if (s == "ME3/1") indice = 6;
-      if (s == "ME3/2") indice = 7;
-      if (s == "ME4/1") indice = 8;
-      hdxOri[indice]->Fill(deltaX);
-      hdyOri[indice]->Fill(deltaY);   
-      hphiDir[indice]->Fill(resoPhi);
-      hthetaDir[indice]->Fill(resoTheta);       
-    }      
+        int indice = 0;
+
+        hdxOri[indice]->Fill(deltaX);
+        hdyOri[indice]->Fill(deltaY);   
+        hphiDir[indice]->Fill(resoPhi);
+        hthetaDir[indice]->Fill(resoTheta);       
+      }       
+    }
   }  
 }
 
