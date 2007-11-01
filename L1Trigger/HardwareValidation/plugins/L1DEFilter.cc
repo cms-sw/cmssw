@@ -1,7 +1,7 @@
 #include "L1Trigger/HardwareValidation/plugins/L1DEFilter.h"
 #include "L1Trigger/HardwareValidation/interface/DEtrait.h"
 using dedefs::DEnsys;
-sd
+
 L1DEFilter::L1DEFilter(const edm::ParameterSet& iConfig) {
   DEsource_ = iConfig.getParameter<edm::InputTag>("DataEmulCompareSource");
   nEvt_ = 0;
