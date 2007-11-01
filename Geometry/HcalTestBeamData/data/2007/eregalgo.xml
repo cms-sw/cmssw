@@ -9,13 +9,13 @@
 <SolidSection label="eregalgo.xml">
 
  <Polycone name="EREG" startPhi="-22.5*deg" deltaPhi="45*deg" >
-  <ZSection z="[esalgo:PRESH_Z_OFFSET] - [esalgo:PRESH_Z_TOTAL]/2." 
-                                 rMin="[eecon:EEIREREG]"  rMax="[esalgo:PRESH_RMAX_FRONT]"/>
-  <ZSection z="[esalgo:PRESH_Z_OFFSET] + [esalgo:PRESH_MID_Z]" 
-                                 rMin="[eecon:EEIREREG]"  rMax="[esalgo:PRESH_RMAX_BACK]"/>
-  <ZSection z="[esalgo:PRESH_Z_OFFSET] + [esalgo:PRESH_Z_TOTAL]/2." 
-                                 rMin="[eecon:EEIREREG]"  rMax="[esalgo:PRESH_RMAX_BACK]"/>
-  <ZSection z="[eecon:EEzFront]" rMin="[eecon:EEIREREG]"  rMax="[esalgo:PRESH_RMAX_BACK]"/>
+  <ZSection z="[escon:PRESH_Z_OFFSET] - [escon:PRESH_Z_TOTAL]/2." 
+                                 rMin="[eecon:EEIREREG]"  rMax="[escon:PRESH_RMAX_FRONT]"/>
+  <ZSection z="[escon:PRESH_Z_OFFSET] + [escon:PRESH_MID_Z]" 
+                                 rMin="[eecon:EEIREREG]"  rMax="[escon:PRESH_RMAX_BACK]"/>
+  <ZSection z="[escon:PRESH_Z_OFFSET] + [escon:PRESH_Z_TOTAL]/2." 
+                                 rMin="[eecon:EEIREREG]"  rMax="[escon:PRESH_RMAX_BACK]"/>
+  <ZSection z="[eecon:EEzFront]" rMin="[eecon:EEIREREG]"  rMax="[escon:PRESH_RMAX_BACK]"/>
   <ZSection z="[eecon:EEzFront]" rMin="[eecon:EEIREREG]"  rMax="[eecon:EErMax1]" />
   <ZSection z="[eecon:EEzBack]"  rMin="[eecon:EEIREREG]"  rMax="[eecon:EErMax2]" />
   <ZSection z="[eecon:EEzBack]"  rMin="[eecon:EEIREREG]"  rMax="[eecon:EBRMax]" />
