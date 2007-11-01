@@ -1,4 +1,4 @@
-// $Id: TtHadEvtSolutionMaker.cc,v 1.4 2007/10/26 15:26:49 mfhansen Exp $
+// $Id: TtHadEvtSolutionMaker.cc,v 1.4 2007/10/31 17:22:12 mfhansen Exp $
 
 #include "TopQuarkAnalysis/TopEventProducers/interface/TtHadEvtSolutionMaker.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -86,8 +86,6 @@ void TtHadEvtSolutionMaker::produce(edm::Event & iEvent, const edm::EventSetup &
   
   std::vector<TtHadEvtSolution> * evtsols = new std::vector<TtHadEvtSolution>();
   if(jetsFound){
-    nJets->Fill(lJets->size());
-    nBjets->Fill(bJets->size());
     //std::cout<<"constructing solutions"<<std::endl;
     for (unsigned int p=0; p<3; p++) {  // loop over light jet p
       for (unsigned int q=p+1; q<4; q++) { // loop over light jet q
