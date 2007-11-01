@@ -13,7 +13,7 @@
 //
 // Original Author:  Camilo Carrillo (Uniandes)
 //         Created:  Tue Oct  2 16:57:49 CEST 2007
-// $Id: MuonSegmentEff.cc,v 1.10 2007/10/24 15:38:57 carrillo Exp $
+// $Id: MuonSegmentEff.cc,v 1.11 2007/10/29 15:42:31 carrillo Exp $
 //
 //
 
@@ -49,6 +49,7 @@
 #include <DataFormats/MuonDetId/interface/CSCDetId.h>
 
 #include <Geometry/RPCGeometry/interface/RPCGeometry.h>
+#include <Geometry/RPCGeometry/interface/RPCGeomServ.h>
 #include <Geometry/DTGeometry/interface/DTGeometry.h>
 #include <Geometry/CSCGeometry/interface/CSCGeometry.h>
 
@@ -107,19 +108,17 @@ private:
 
 class CSCStationIndex{
 public:
-  CSCStationIndex():_region(0),_station(0),_ring(0),_sector(0),_subsector(0){}
-  CSCStationIndex(int region, int station, int ring,int sector,int subsector):
+  CSCStationIndex():_region(0),_station(0),_ring(0),_chamber(0){}
+  CSCStationIndex(int region, int station, int ring, int chamber):
     _region(region),
     _station(station),
     _ring(ring),
-    _sector(sector),
-    _subsector(subsector){}
+    _chamber(chamber){}
   ~CSCStationIndex(){}
   int region() const {return _region;}
   int station() const {return _station;}
   int ring() const {return _ring;}
-  int sector() const {return _sector;}
-  int subsector() const {return _subsector;}
+  int chamber() const {return _chamber;}
   bool operator<(const CSCStationIndex& cscind) const{
     if(cscind.region()!=this->region())
       return cscind.region()<this->region();
@@ -127,19 +126,16 @@ public:
       return cscind.station()<this->station();
     else if(cscind.ring()!=this->ring())
       return cscind.ring()<this->ring();
-    else if(cscind.sector()!=this->sector())
-      return cscind.sector()<this->sector();    
-    else if(cscind.subsector()!=this->subsector())
-      return cscind.subsector()<this->subsector();
+    else if(cscind.chamber()!=this->chamber())
+      return cscind.chamber()<this->chamber();
     return false;
   }
 
 private:
   int _region;
   int _station;
-  int _ring;
-  int _sector;
-  int _subsector;
+  int _ring;  
+  int _chamber;
 };
 
 
@@ -223,7 +219,6 @@ void MuonSegmentEff::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
   
   std::map<DTStationIndex,std::set<RPCDetId> > rollstoreDT;
   std::map<CSCStationIndex,std::set<RPCDetId> > rollstoreCSC;    
-
   
   for (TrackingGeometry::DetContainer::const_iterator it=rpcGeo->dets().begin();it<rpcGeo->dets().end();it++){
     if( dynamic_cast< RPCChamber* >( *it ) != 0 ){
@@ -245,34 +240,31 @@ void MuonSegmentEff::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
 	  rollstoreDT[ind]=myrolls;
 	}
 	else if(inclcsc){
-	   //std::cout<<"--Filling the EndCaps!"<<rpcId<<std::endl;
+	  //std::cout<<"--Filling the EndCaps!"<<rpcId<<std::endl;
 	  int region=rpcId.region();
-	  
-	  int station=rpcId.station();
-	  int ring=rpcId.ring();
-	  int sector=rpcId.sector();
-	  int subsector=rpcId.subsector();
-	  int cscring=ring;
-	  int cscstation=station;
-
-	  if((station==2||station==3)&&ring==3){//Adding Ring 3 of RPC to the CSC Rings 2
-	    cscring = 2;
-	  }
-
+          int station=rpcId.station();
+          int ring=rpcId.ring();
+          int cscring=ring;
+          int cscstation=station;
+	  RPCGeomServ rpcsrv(rpcId);
+	  int rpcsegment = rpcsrv.segment();
+	  int cscchamber = rpcsegment;
+          if((station==2||station==3)&&ring==3){//Adding Ring 3 of RPC to the CSC Ring 2
+            cscring = 2;
+          }
 	  if((station==4)&&(ring==2||ring==3)){//RE4 have just ring 1
-	    cscstation=3;
-	    cscring=2;
-	  }
-
-	  CSCStationIndex ind(region,cscstation,cscring,sector,subsector);
-	  std::set<RPCDetId> myrolls;
-	  //std::cout<<"Associating CSC Station "<<cscstation<<" CSC ring "<<cscring<<" with roll"<<rpcId<<std::endl;
+            cscstation=3;
+            cscring=2;
+          }
+          CSCStationIndex ind(region,cscstation,cscring,cscchamber);
+          std::set<RPCDetId> myrolls;
 	  if (rollstoreCSC.find(ind)!=rollstoreCSC.end()){
-	    myrolls=rollstoreCSC[ind];
-	  }
-	  myrolls.insert(rpcId);
-	  rollstoreCSC[ind]=myrolls;
-	}
+            myrolls=rollstoreCSC[ind];
+          }
+          
+          myrolls.insert(rpcId);
+          rollstoreCSC[ind]=myrolls;
+        }
       }
     }
   }
@@ -431,6 +423,6 @@ MuonSegmentEff::endJob() {
   }
 
   //Giuseppe
-  if(EffSaveRootFile) dbe->save(EffRootFileName);
+  //if(EffSaveRootFile) dbe->save(EffRootFileName);
 }
 

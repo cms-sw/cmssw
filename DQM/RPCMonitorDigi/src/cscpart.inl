@@ -26,53 +26,34 @@ if(allCSCSegments->size()>0){
   for (segment = allCSCSegments->begin();segment!=allCSCSegments->end(); ++segment){
     
     if(segment->dimension()==4){
-
+      
       CSCDetId CSCId = segment->cscDetId();
       std::cout<<"\t \t Number of Segments in"<<CSCId<<" are "<<CSCSegmentsCounter[CSCId]<<std::endl;
       
       if(CSCSegmentsCounter[CSCId]==1){
+	
 	int cscEndCap = CSCId.endcap();
 	int cscStation = CSCId.station();
 	int cscRing = CSCId.ring();
 	int cscChamber = CSCId.chamber();
-
 	int rpcRegion = 1; if(cscEndCap==2) rpcRegion= -1;//Relacion entre las endcaps
 	int rpcRing = cscRing;
 	if(rpcRing==4)rpcRing =1;
 	int rpcStation = cscStation;
-	int rpcSector=0;
-	int rpcSubsector=0;
-
-	if(cscRing==1&&cscStation!=1){//las de 18
-	  rpcSector = (cscChamber-1)/3+1;
-	  rpcSubsector = cscChamber-3*rpcSector+3; 
-	  if(rpcSubsector==1)rpcSubsector=2;else if(rpcSubsector==2)rpcSubsector=1;//intercambia 2x1 en las de 18
+	int rpcSegment = 0;
 	
-	}else{//las de 36
-	  if(cscRing==2&&cscStation==1){
-	    cscChamber=cscChamber+1;
-	  }
-	
-	  rpcSector = (cscChamber-2)/6+1;
-	  rpcSubsector = cscChamber-6*rpcSector+5;
-	
-	  if(cscChamber==1) {
-	    rpcSector = 6; 
-	    rpcSubsector=6;
-	  }
-	
-	  if(cscRing==2&&cscStation==1){
-	    cscChamber=cscChamber-1;
-	  }
-
-
+	if(cscStation!=1&&cscRing==1){//las de 18 CSC
+	  rpcSegment = CSCId.chamber();
 	}
-
+	else{//las de 36 CSC
+	  rpcSegment = (CSCId.chamber()==1) ? 36 : CSCId.chamber()-1;
+	}
+	
 	LocalPoint segmentPosition= segment->localPosition();
 	LocalVector segmentDirection=segment->localDirection();
 	
 	std::cout<<"\t \t We have one segment in this CSC "<<CSCId<<std::endl;
-	std::cout<<"\t \t Its direction and postition is"<<segmentDirection<<""<<segmentPosition<<std::endl;
+	std::cout<<"\t \t Its direction and postition is"<<segmentDirection<<" "<<segmentPosition<<std::endl;
 	
 	float Xo=segmentPosition.x();
 	float Yo=segmentPosition.y();
@@ -88,7 +69,7 @@ if(allCSCSegments->size()>0){
 	
 	std::cout<<"\t \t Loop over all the rolls asociated to this CSC"<<std::endl;
 	
-	std::set<RPCDetId> rollsForThisCSC = rollstoreCSC[CSCStationIndex(rpcRegion,rpcStation,rpcRing,rpcSector,rpcSubsector)];
+	std::set<RPCDetId> rollsForThisCSC = rollstoreCSC[CSCStationIndex(rpcRegion,rpcStation,rpcRing,rpcSegment)];
 
 	for (std::set<RPCDetId>::iterator iteraRoll = rollsForThisCSC.begin();iteraRoll != rollsForThisCSC.end(); iteraRoll++){
 	  const RPCRoll* rollasociated = rpcGeo->roll(*iteraRoll);
