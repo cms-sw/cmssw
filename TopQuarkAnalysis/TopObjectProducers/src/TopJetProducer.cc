@@ -1,5 +1,5 @@
 //
-// $Id: TopJetProducer.cc,v 1.35 2007/10/11 14:46:11 jandrea Exp $
+// $Id: TopJetProducer.cc,v 1.36 2007/10/15 21:06:52 lowette Exp $
 //
 
 #include "TopQuarkAnalysis/TopObjectProducers/interface/TopJetProducer.h"
@@ -177,8 +177,7 @@ void TopJetProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
       for (reco::CandMatchMap::const_iterator f = JetPartonMap->begin(); f != JetPartonMap->end(); f++) {
         const reco::Candidate * jetClone = f->key->masterClone().get();
         // if (jetClone == &((*caljets)[j])) { // comparison by address doesn't work
-        if (fabs(jetClone->pt()  - (*caljets)[j].pt()) < 0.001 &&
-            fabs(jetClone->eta() - (*caljets)[j].eta()) < 0.001 &&
+        if (fabs(jetClone->eta() - (*caljets)[j].eta()) < 0.001 &&
             fabs(jetClone->phi() - (*caljets)[j].phi()) < 0.001) {
           ajet.setPartonFlavour(f->val->pdgId());
         }
