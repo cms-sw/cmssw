@@ -10,7 +10,6 @@
 #include <unistd.h>
 #include <fstream>
 
-#include "OnlineDB/CSCCondDB/interface/CSCMap.h"
 #include "OnlineDB/CSCCondDB/interface/AutoCorrMat.h"
 #include "OnlineDB/CSCCondDB/interface/CSCOnlineDB.h"
 #include "CondFormats/CSCObjects/interface/CSCNoiseMatrix.h"
@@ -54,7 +53,7 @@ class CSCNoiseMatrixAnalyzer : public edm::EDAnalyzer {
  int dmbID[CHAMBERS_ma],crateID[CHAMBERS_ma],size[CHAMBERS_ma];
  int lines,flagMatrix;
  std::ifstream filein;
- std::string PSet,name;
+ std::string PSet,name,chamber_type;
  bool debug;
  float *tmp, corrmat[12];
  float newMatrix1[480];

@@ -28,6 +28,10 @@
 #include "EventFilter/CSCRawToDigi/interface/CSCEventData.h"
 #include "EventFilter/CSCRawToDigi/interface/CSCDMBHeader.h"
 #include "OnlineDB/CSCCondDB/interface/CSCNoiseMatrixAnalyzer.h"
+///Use with old mapping
+//#include "OnlineDB/CSCCondDB/interface/CSCMap.h"
+///Use with new mapping
+#include "OnlineDB/CSCCondDB/interface/CSCMap1.h"
 
 CSCNoiseMatrixAnalyzer::CSCNoiseMatrixAnalyzer(edm::ParameterSet const& conf) {
   debug = conf.getUntrackedParameter<bool>("debug",false);
@@ -154,7 +158,7 @@ CSCNoiseMatrixAnalyzer::~CSCNoiseMatrixAnalyzer(){
   }
   std::string::size_type runNameStart = name.find("\"",0);
   std::string::size_type runNameEnd   = name.find("raw",0);
-  std::string::size_type rootStart    = name.find("SCAPed",0);
+  std::string::size_type rootStart    = name.find("SCA_Pedestals",0);
   int nameSize = runNameEnd+2-runNameStart;
   int myRootSize = rootStart-runNameStart+11;
   std::string myname= name.substr(runNameStart+1,nameSize);
@@ -174,9 +178,12 @@ CSCNoiseMatrixAnalyzer::~CSCNoiseMatrixAnalyzer(){
   std::string myTime=asctime(clock);
   std::ofstream myfile(myFileName,std::ios::out);
     
-  //DB object and map
+  //DB old map
+  //cscmap *map = new cscmap();
+  CSCMapItem::MapItem mapitem;
+  cscmap1 *map = new cscmap1();
+
   CSCobject *cn = new CSCobject();
-  cscmap *map = new cscmap();
   condbon *dbon = new condbon();
   
   //root ntuple
@@ -192,8 +199,19 @@ CSCNoiseMatrixAnalyzer::~CSCNoiseMatrixAnalyzer(){
     int new_crateID = crateID[i];
     int new_dmbID   = dmbID[i];
     std::cout<<" Crate: "<<new_crateID<<" and DMB:  "<<new_dmbID<<std::endl;
-    map->crate_chamber(new_crateID,new_dmbID,&chamber_id,&chamber_num,&sector,&first_strip_index,&strips_per_layer,&chamber_index);
-    std::cout<<"Data is for chamber:: "<< chamber_id<<" in sector:  "<<sector<<std::endl;
+   
+    ///Use with old mapping
+    //map->crate_chamber(new_crateID,new_dmbID,&chamber_id,&chamber_num,&sector,&first_strip_index,&strips_per_layer,&chamber_index);
+    ///new mapping
+    map->cratedmb(new_crateID,new_dmbID,&mapitem);
+    chamber_num=mapitem.chamberId;
+    sector= mapitem.sector;
+    first_strip_index=mapitem.stripIndex;
+    strips_per_layer=mapitem.strips;
+    chamber_index=mapitem.chamberId;
+    chamber_type = mapitem.chamberLabel;
+    
+    std::cout<<"Data is for chamber:: "<<chamber_type<<"  "<< chamber_id<<" in sector:  "<<sector<<std::endl;
        
     calib_evt.id=chamber_num;
     for (int j=0; j<LAYERS_ma; j++){
