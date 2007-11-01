@@ -1,4 +1,4 @@
-$Id: README,v 1.16 2007/10/22 21:23:40 narsky Exp $
+$Id: README,v 1.17 2007/11/01 00:08:27 narsky Exp $
  
 General description of the package:
 -----------------------------------
@@ -1305,7 +1305,7 @@ As an example, try:
 where multi.config consists of 2 lines:
 
 AdaBoost 20 1 0 0.01
-TopdownTree 5 0 1000
+TopdownTree 5 0 1000 0
 
 This will train 20 boosted decision trees for each column of the
 indicator matrix. AdaBoost, unlike all other classifiers, requires 2
