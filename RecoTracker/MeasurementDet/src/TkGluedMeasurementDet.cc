@@ -116,14 +116,38 @@ TkGluedMeasurementDet::fastMeasurements( const TrajectoryStateOnSurface& stateOn
 {
    if (theMonoDet->isActive() || theStereoDet->isActive()) {
       NonPropagatingDetMeasurements realOne;
-      
+      std::vector<TrajectoryMeasurement> ret;      
       if ( typeid(est) == typeid(Chi2MeasurementEstimator&) ) {
           Chi2MeasurementEstimatorForTrackerHits estOpt(static_cast<const Chi2MeasurementEstimator&>(est));;
-          return realOne.get( *this, stateOnThisDet, estOpt);
+          ret = realOne.get( *this, stateOnThisDet, estOpt);
           //return realOne.get( *this, stateOnThisDet, est);
       } else { // can't optimize for this
-          return realOne.get( *this, stateOnThisDet, est);
+          ret = realOne.get( *this, stateOnThisDet, est);
       }
+      if (!ret[0].recHit()->isValid()) {
+          LogDebug("TkStripMeasurementDet") << "No hit found on TkGlued. Testing strips...  ";
+          const BoundPlane &gluedPlane = geomDet().surface();
+          if (  // sorry for the big IF, but I want to exploit short-circuiting of logic
+                (theMonoDet->isActive() && 
+                    (theMonoDet->hasAllGoodChannels() || 
+                       testStrips(stateOnThisDet,gluedPlane,*theMonoDet)
+                    )
+                ) /*Mono OK*/ || 
+                (theStereoDet->isActive() && 
+                    (theStereoDet->hasAllGoodChannels() || 
+                       testStrips(stateOnThisDet,gluedPlane,*theStereoDet)
+                    )
+                ) /*Stereo OK*/ 
+              ) {
+            // no problem, at least one detector has good strips
+          } else {
+            LogDebug("TkStripMeasurementDet") << "Tested strips on TkGlued, returning 'inactive' invalid hit";
+            ret[0] = TrajectoryMeasurement(stateOnThisDet, 
+                         InvalidTransientRecHit::build(&geomDet(), TrackingRecHit::inactive), 
+                         0.F);
+          }
+      }
+      return ret;
    } else {
       std::vector<TrajectoryMeasurement> result;
       result.push_back( TrajectoryMeasurement( stateOnThisDet, 
@@ -189,3 +213,53 @@ void TkGluedMeasurementDet::checkHitProjection(const TransientTrackingRecHit& hi
   
 }
 
+bool
+TkGluedMeasurementDet::testStrips(const TrajectoryStateOnSurface& tsos,
+                                  const BoundPlane &gluedPlane,
+                                  const TkStripMeasurementDet &mdet) const {
+   // from TrackingRecHitProjector
+   const GeomDet &det = mdet.geomDet();
+   const BoundPlane &stripPlane = det.surface();
+
+   LocalPoint glp = tsos.localPosition();
+   LocalError  err = tsos.localError().positionError();
+   LogDebug("TkStripMeasurementDet") << 
+      "Testing local pos glued: " << glp << 
+      " local err glued: " << tsos.localError().positionError() << 
+      " in? " << gluedPlane.bounds().inside(glp) <<
+      " in(3s)? " << gluedPlane.bounds().inside(glp, err, 3.0f);
+
+   GlobalVector gdir = tsos.globalParameters().momentum();
+
+   LocalPoint  slp = stripPlane.toLocal(tsos.globalPosition()); 
+   LocalVector sld = stripPlane.toLocal(gdir);
+
+   double delta = stripPlane.localZ( tsos.globalPosition());
+   LocalPoint pos = slp - sld * delta/sld.z();
+
+
+   // now the error
+   LocalVector hitXAxis = stripPlane.toLocal( gluedPlane.toGlobal( LocalVector(1,0,0)));
+   if (stripPlane.normalVector().dot( gluedPlane.normalVector()) < 0) {
+       // the two planes are inverted, and the correlation element must change sign
+       err = LocalError( err.xx(), -err.xy(), err.yy());
+   }
+   LocalError rotatedError = err.rotate( hitXAxis.x(), hitXAxis.y());
+
+   /* // This is probably meaningless 
+   LogDebug("TkStripMeasurementDet") << 
+      "Testing local pos on strip (SLP): " << slp << 
+      " in? :" << stripPlane.bounds().inside(slp) <<
+      " in(3s)? :" << stripPlane.bounds().inside(slp, rotatedError, 3.0f);
+   // but it helps to test bugs in the formula for POS */
+   LogDebug("TkStripMeasurementDet") << 
+      "Testing local pos strip: " << pos << 
+      " in? " << stripPlane.bounds().inside(pos) <<
+      " in(3s)? " << stripPlane.bounds().inside(pos, rotatedError, 3.0f);
+
+   // now we need to convert to MeasurementFrame
+   const StripTopology &topo = mdet.specificGeomDet().specificTopology();
+   float utraj = topo.measurementPosition(pos).x();
+   float uerr  = std::sqrt(topo.measurementError(pos,rotatedError).uu());
+   return mdet.testStrips(utraj, uerr);
+} 

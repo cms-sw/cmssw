@@ -36,6 +36,7 @@ class GluedGeomDet;
 
 class MeasurementTracker : public MeasurementDetSystem {
 public:
+   enum QualityFlags { BadModules=1, BadAPVFibers=2, BadStrips=4 };
 
   MeasurementTracker(const edm::ParameterSet&              conf,
 		     const PixelClusterParameterEstimator* pixelCPE,
@@ -44,8 +45,10 @@ public:
 		     const TrackerGeometry*  trackerGeom,
 		     const GeometricSearchTracker* geometricSearchTracker,
                      const SiStripQuality *quality,
+                     int   qualityFlags,
+                     int   qualityDebugFlags,
 		     /* const SiStripDetCabling *stripCabling, */
-		     const SiStripNoises *stripNoises, 
+		     //const SiStripNoises *stripNoises, 
 		     bool  isRegional=false);
 
   virtual ~MeasurementTracker();
@@ -90,7 +93,7 @@ public:
   const TrackerGeometry*                theTrackerGeom;
   const GeometricSearchTracker*         theGeometricSearchTracker;
   const SiStripQuality*                 theStripQuality;
-  mutable SiStripNoises*                dummyStripNoises;  // not const
+  //mutable SiStripNoises*                dummyStripNoises;  // not const
 
   bool isRegional_;
 
@@ -108,8 +111,8 @@ public:
   void addStripDets( const TrackingGeometry::DetContainer& dets) const;
 
   /* void initializeStripStatus (const SiStripDetCabling *stripCabling) const; // LEGACY, DEPRECATED */
-  void initializeStripStatus (const SiStripQuality *stripQuality) const;
-  void initializeStripNoises (const SiStripNoises *stripNoises) const;
+  void initializeStripStatus (const SiStripQuality *stripQuality, int qualityFlags, int qualityDebugFlags) const;
+  //void initializeStripNoises (const SiStripNoises *stripNoises) const;
 };
 
 #endif

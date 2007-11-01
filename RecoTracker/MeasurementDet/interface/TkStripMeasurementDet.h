@@ -9,6 +9,7 @@
 #include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "CondFormats/SiStripObjects/interface/SiStripNoises.h"
+#include "CondFormats/SiStripObjects/interface/SiStripBadStrip.h"
 #include "DataFormats/SiStripCommon/interface/SiStripRefGetter.h"
 
 
@@ -57,9 +58,7 @@ public:
   }
   
   void setEmpty(){empty = true;}
-  void setActive(bool active) { active_ = active; }
-  bool isActive() const { return active_; }
-
+  
   virtual RecHitContainer recHits( const TrajectoryStateOnSurface&) const;
 
   virtual std::vector<TrajectoryMeasurement> 
@@ -77,10 +76,32 @@ public:
   buildRecHit( const SiStripRegionalClusterRef&, const LocalTrajectoryParameters& ltp) const;
 
 
-  void setNoises(const SiStripNoises::Range range);
   bool  isEmpty() {return empty;}
   const detset* theSet() {return detSet_;}
   int  size() {return endCluster - beginCluster ; }
+
+  /** \brief Turn on/off the module for reconstruction (using info from DB, usually) */
+  void setActive(bool active) { active_ = active; }
+  /** \brief Is this module active in reconstruction? */
+  bool isActive() const { return active_; }
+
+  /** \brief does this module have at least one bad strip, APV or channel? */
+  bool hasAllGoodChannels() const { return !hasAny128StripBad_ && badStripBlocks_.empty(); }
+
+  /** \brief Sets the status of a block of 128 strips (or all blocks if idx=-1) */
+  void set128StripStatus(bool good, int idx=-1);
+
+  /** \brief return true if there are 'enough' good strips in the utraj +/- 3 uerr range.*/
+  bool testStrips(float utraj, float uerr) const;
+
+  struct BadStripBlock {
+      short first;
+      short last;
+      BadStripBlock(const SiStripBadStrip::data &data) : first(data.firstStrip), last(data.firstStrip+data.range-1) { }
+  };
+  std::vector<BadStripBlock> &getBadStripBlocks() { return badStripBlocks_; }
+
+  // void setNoises(const SiStripNoises::Range range); // DEPRECATED
 private:
 
   const StripGeomDetUnit*               theStripGDU;
@@ -89,10 +110,14 @@ private:
   edm::Handle<edm::DetSetVector<SiStripCluster> > handle_;
   unsigned int id_;
   bool empty;
-  bool active_;
-  bool testStrips(float utraj, float uerr) const;
 
-  SiStripNoises::Range stripNoises_;
+  bool active_;
+  bool bad128Strip_[6];
+  bool hasAny128StripBad_;
+  std::vector<BadStripBlock> badStripBlocks_;  
+  int totalStrips_;
+
+  // SiStripNoises::Range stripNoises_;    // DEPRECATED
 
   // --- regional unpacking
   bool isRegional;
