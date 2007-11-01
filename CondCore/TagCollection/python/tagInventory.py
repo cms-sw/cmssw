@@ -209,7 +209,24 @@ class  tagInventory(object):
         except Exception, e:
             transaction.rollback()
             raise Exception, str(e)
-        
+    def replaceTagLabel( self, tagname, label ):
+        """Replace the run time label of the given tag
+        """
+        try:
+            transaction=self.__session.transaction()
+            transaction.start(False)
+            schema = self.__session.nominalSchema()
+            inputData = coral.AttributeList()
+            inputData.extend( "labelname","string" )
+            inputData.extend( "tagname", "string" ) 
+            inputData[0].setData(label)
+            inputData[1].setData(tagname)
+            editor = schema.tableHandle(self.__tagInventoryTableName).dataEditor()
+            editor.updateRows( "labelname=:labelname", "tagname=:tagname", inputData )
+            transaction.commit()
+        except Exception, e:
+            transaction.rollback()
+            raise Exception, str(e)
 if __name__ == "__main__":
     context = coral.Context()
     context.setVerbosityLevel( 'ERROR' )
