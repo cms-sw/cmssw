@@ -91,7 +91,6 @@ class tagTreeDelete:
         except Exception, e:
             print str(e)
             del session
-        
 if __name__ == "__main__":
     tagdelete=tagTreeDelete() 
     tagdelete.parsecmdln()

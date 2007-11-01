@@ -369,6 +369,7 @@ class tagTree(object):
                 transaction.start(False)
                 tableHandle = self.__session.nominalSchema().tableHandle(self.__tagTreeTableName)
                 editor = tableHandle.dataEditor()
+                conditionData = coral.AttributeList()
                 editor.deleteRows('',conditionData)
                 transaction.commit()
             else :
