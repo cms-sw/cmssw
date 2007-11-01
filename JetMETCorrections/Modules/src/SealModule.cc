@@ -21,11 +21,13 @@ DEFINE_ANOTHER_FWK_MODULE(PlotJetCorrections);
 DEFINE_JET_CORRECTION_SERVICE (SimpleJetCorrector, SimpleJetCorrectionService);
 #include "JetMETCorrections/Algorithms/interface/MCJetCorrector.h"
 DEFINE_JET_CORRECTION_SERVICE (MCJetCorrector, MCJetCorrectionService);
-#include "JetMETCorrections/GammaJet/interface/GammaJetCorrector.h"
-DEFINE_JET_CORRECTION_SERVICE (GammaJetCorrector, GammaJetCorrectionService);
-#include "JetMETCorrections/JetParton/interface/JetPartonCorrector.h"
-DEFINE_JET_CORRECTION_SERVICE (JetPartonCorrector, JetPartonCorrectionService);
+#include "JetMETCorrections/Algorithms/interface/MCJetCorrector3D.h"
+DEFINE_JET_CORRECTION_SERVICE (MCJetCorrector, MCJetCorrectionService3D);
 #include "JetMETCorrections/Algorithms/interface/JetPlusTrackCorrector.h"
 DEFINE_JET_CORRECTION_SERVICE (JetPlusTrackCorrector, JetPlusTrackCorrectionService);
-#include "JetMETCorrections/TauJet/interface/TauJetCorrector.h"
-DEFINE_JET_CORRECTION_SERVICE (TauJetCorrector, TauJetCorrectionService);
+// #include "JetMETCorrections/GammaJet/interface/GammaJetCorrector.h"
+// DEFINE_JET_CORRECTION_SERVICE (GammaJetCorrector, GammaJetCorrectionService);
+// #include "JetMETCorrections/JetParton/interface/JetPartonCorrector.h"
+// DEFINE_JET_CORRECTION_SERVICE (JetPartonCorrector, JetPartonCorrectionService);
+// #include "JetMETCorrections/TauJet/interface/TauJetCorrector.h"
+// DEFINE_JET_CORRECTION_SERVICE (TauJetCorrector, TauJetCorrectionService);
