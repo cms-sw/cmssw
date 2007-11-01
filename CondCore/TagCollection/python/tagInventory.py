@@ -42,6 +42,8 @@ class  tagInventory(object):
                 description.setNotNullConstraint(columnName,True)
             for columnName in self.__tagInventoryTableUniqueColumns :
                 description.setUniqueConstraint(columnName)
+            combinedunique=('recordname','objectname','labelname')
+            description.setUniqueConstraint(combinedunique)
             description.setPrimaryKey(  self.__tagInventoryTablePK )
             self.__tagInventoryTableHandle = schema.createTable( description )
             self.__tagInventoryTableHandle.privilegeManager().grantToPublic( coral.privilege_Select )
