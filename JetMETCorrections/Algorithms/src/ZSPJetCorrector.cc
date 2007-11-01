@@ -27,3 +27,7 @@ ZSPJetCorrector::~ZSPJetCorrector () {
 double ZSPJetCorrector::correction (const LorentzVector& fJet) const {
   return mSimpleCorrector->correctionPtEtaPhiE (fJet.Pt(), fJet.Eta(), fJet.Phi(),fJet.E());
 }
+
+double ZSPJetCorrector::correction (const reco::Jet& fJet) const {
+  return correction (fJet.p4 ());
+}

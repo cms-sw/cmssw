@@ -33,10 +33,14 @@ void JetPlusTrackCorrector::setParameters(double aCalo, double aVert, int theRes
 
 double JetPlusTrackCorrector::correction( const LorentzVector& fJet) const 
 {
-         float mScale = 1.;
-	 	cout<<" JetPlusTrack fake correction "<<endl;	
-     return mScale;
+  throw cms::Exception("Invalid correction use") << "JetPlusTrackCorrector can be run on entire event only";
 }
+
+double JetPlusTrackCorrector::correction( const reco::Jet& fJet) const 
+{
+  throw cms::Exception("Invalid correction use") << "JetPlusTrackCorrector can be run on entire event only";
+}
+
 double JetPlusTrackCorrector::correction(const reco::Jet& fJet,
                                          const edm::Event& iEvent,
                                          const edm::EventSetup& theEventSetup) const 

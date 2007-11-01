@@ -28,6 +28,8 @@ public:
   
   /// apply correction using Jet information only
   virtual double  correction (const LorentzVector& fJet) const;
+  /// apply correction using Jet information only
+  virtual double correction (const reco::Jet& fJet) const;
   
   virtual double correction (const reco::Jet& fJet, const edm::Event& fEvent, const edm::EventSetup& fSetup) const;
 

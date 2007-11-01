@@ -1,27 +1,25 @@
 //
-// Original Author:  Fedor Ratnikov Dec 27, 2006
-// $Id: MCJetCorrector.h,v 1.1 2007/10/03 23:29:50 fedor Exp $
+// Original Author:  Fedor Ratnikov Nov 1, 2007
+// $Id: MCJetCorrector3D.h,v 1.1 2007/10/03 23:29:50 fedor Exp $
 //
-// MC Jet Corrector
+// MC 3D monolithic Jet Corrector
 //
-#ifndef MCJetCorrector_h
-#define MCJetCorrector_h
+#ifndef MCJetCorrector3D_h
+#define MCJetCorrector3D_h
 
 #include "JetMETCorrections/Objects/interface/JetCorrector.h"
-#include "CondFormats/JetMETObjects/interface/SimpleMCJetCorrector.h"
-
 
 /// classes declaration
 namespace edm {
   class ParameterSet;
 }
 
-class SimpleMCJetCorrector;
+class Simple3DMCJetCorrector;
 
-class MCJetCorrector : public JetCorrector {
+class MCJetCorrector3D : public JetCorrector {
  public:
-  MCJetCorrector (const edm::ParameterSet& fParameters);
-  virtual ~MCJetCorrector ();
+  MCJetCorrector3D (const edm::ParameterSet& fParameters);
+  virtual ~MCJetCorrector3D ();
 
   /// apply correction using Jet information only
   virtual double correction (const LorentzVector& fJet) const;
@@ -32,7 +30,7 @@ class MCJetCorrector : public JetCorrector {
   virtual bool eventRequired () const {return false;}
 
  private:
-  SimpleMCJetCorrector* mSimpleCorrector;
+  Simple3DMCJetCorrector* mSimpleCorrector;
 };
 
 #endif
