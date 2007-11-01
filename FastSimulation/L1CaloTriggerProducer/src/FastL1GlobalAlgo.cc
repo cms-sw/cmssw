@@ -13,7 +13,7 @@
 //
 // Original Author:  Chi Nhan Nguyen
 //         Created:  Mon Feb 19 13:25:24 CST 2007
-// $Id: FastL1GlobalAlgo.cc,v 1.28 2007/10/29 18:05:53 smaruyam Exp $
+// $Id: FastL1GlobalAlgo.cc,v 1.29 2007/10/31 19:00:45 smaruyam Exp $
 //
 
 // No BitInfos for release versions
@@ -171,15 +171,15 @@ FastL1GlobalAlgo::findJets() {
 
     if (m_Regions.at(i).SumEt()>m_L1Config.JetSeedEtThreshold) {
       if (isMaxEtRgn_Window33(i)) {
-if (m_GctIso == false){ // old iso
+if (m_GctIso == false){ // tau veto bit iso
 	if (isTauJet(i) && (i%22)>3 && (i%22)<18 ) {
 	  addJet(i,true);    
 	} else {
 	  addJet(i,false);    
 	}
 } // old iso
-if (m_GctIso == true) { // new iso
-        if (newTau(i) && (i%22)>3 && (i%22)<18 ) {
+if (m_GctIso == true) { // et iso
+        if (TauIsolation(i) && (i%22)>3 && (i%22)<18 ) {
           addJet(i,true);
         } else {
           addJet(i,false);
@@ -779,7 +779,7 @@ FastL1GlobalAlgo::isTauJet(int cRgn) {
   if ((cRgn%22)<4 || (cRgn%22)>17) return false;
 
 int shower_shape = 0;
-int new_isolation = 0;
+int et_isolation = 0;
 
   int nwid = m_Regions[cRgn].GetNWId();
   int nid = m_Regions[cRgn].GetNorthId();
@@ -803,9 +803,9 @@ if((cRgn%22)==4  || (cRgn%22)==17 ) {
 	m_Regions[sid].GetTauBit()
 	){
  if (m_DoBitInfo) m_Regions[cRgn].BitInfo.setIsolationVeto ( true); 
-new_isolation = 1;
+et_isolation = 1;
 }
-else{ new_isolation = 2;}
+else{ et_isolation = 2;}
   } // west bd
 
   // east border:
@@ -818,14 +818,14 @@ else{ new_isolation = 2;}
 	m_Regions[sid].GetTauBit()
 	) {
  if (m_DoBitInfo) m_Regions[cRgn].BitInfo.setIsolationVeto ( true);
-new_isolation = 1;
+et_isolation = 1;
 }
-else{ new_isolation = 2;}
+else{ et_isolation = 2;}
   } // east bd
 
 // Closing 2x3 method
-if (new_isolation == 1 || shower_shape == 1 ) return false; // done at boarder
-if (new_isolation == 2 && shower_shape == 0) return true; // done at boarder
+if (et_isolation == 1 || shower_shape == 1 ) return false; // done at boarder
+if (et_isolation == 2 && shower_shape == 0) return true; // done at boarder
 }
 
 if ( (cRgn%22)>4 && (cRgn%22)<17){ // non-boarder
@@ -844,12 +844,12 @@ if ( (cRgn%22)>4 && (cRgn%22)<17){ // non-boarder
       m_Regions[sid].GetTauBit()
       ) {
  if (m_DoBitInfo) m_Regions[cRgn].BitInfo.setIsolationVeto ( true);
-    new_isolation = 1;
+    et_isolation = 1;
 }
-  else {new_isolation = 2;}
+  else {et_isolation = 2;}
 
-if (new_isolation == 1 || shower_shape == 1) return false;
-if (new_isolation == 2 && shower_shape == 0) return true; 
+if (et_isolation == 1 || shower_shape == 1) return false;
+if (et_isolation == 2 && shower_shape == 0) return true; 
 }// non-boarder
 
 return true; // shouldn't reach here
@@ -1107,13 +1107,13 @@ FastL1GlobalAlgo::isEMCand(CaloTowerDetId cid, l1extra::L1EmParticle* ph,const e
 
 // Et Check
 bool
-FastL1GlobalAlgo::newTau(int cRgn) {
+FastL1GlobalAlgo::TauIsolation(int cRgn) {
 
   if ((cRgn%22)<4 || (cRgn%22)>17) return false;
 
 double iso_threshold =  m_IsolationEt; // arbitrarily set
 int shower_shape = 0;
-int new_isolation = 0;
+int et_isolation = 0;
 unsigned int iso_count = 0;
 
   int nwid = m_Regions[cRgn].GetNWId();
@@ -1129,43 +1129,73 @@ unsigned int iso_count = 0;
 if((cRgn%22)==4  || (cRgn%22)==17 ) {
   // west border
   if ((cRgn%22)==4) {
-if( m_Regions[neid].SumEt() > iso_threshold) iso_count ++;
-if( m_Regions[nid].SumEt() > iso_threshold) iso_count ++;
-if( m_Regions[eid].SumEt() > iso_threshold) iso_count ++;
-if( m_Regions[seid].SumEt() > iso_threshold) iso_count ++;
-if( m_Regions[sid].SumEt() > iso_threshold) iso_count ++;
+if( m_Regions[neid].SumEt() > iso_threshold){
+ iso_count ++;
+if (m_Regions[neid].GetTauBit()) iso_count++;
+}
+if( m_Regions[nid].SumEt() > iso_threshold){
+ iso_count ++;
+if (m_Regions[nid].GetTauBit()) iso_count++;
+}
+if( m_Regions[eid].SumEt() > iso_threshold){
+ iso_count ++;
+if (m_Regions[eid].GetTauBit()) iso_count++;
+}
+if( m_Regions[seid].SumEt() > iso_threshold){
+ iso_count ++;
+if (m_Regions[seid].GetTauBit()) iso_count++;
+}
+if( m_Regions[sid].SumEt() > iso_threshold){
+ iso_count ++;
+if (m_Regions[sid].GetTauBit()) iso_count++;
+}
 
     if (iso_count >= 2 ){
  if (m_DoBitInfo){
  m_Regions[cRgn].BitInfo.setIsolationVeto ( true);
 // m_Regions[cRgn].BitInfo.setIsolationCount ( iso_count);
 }
-new_isolation = 1;
+et_isolation = 1;
 }
-else{ new_isolation = 2;}
+else{ et_isolation = 2;}
   } // west bd
 
   // east border:
   if ((cRgn%22)==17) {
-if( m_Regions[nwid].SumEt() > iso_threshold) iso_count ++;
-if( m_Regions[nid].SumEt() > iso_threshold) iso_count ++;
-if( m_Regions[wid].SumEt() > iso_threshold) iso_count ++;
-if( m_Regions[swid].SumEt() > iso_threshold) iso_count ++;
-if( m_Regions[sid].SumEt() > iso_threshold) iso_count ++;
+if( m_Regions[nwid].SumEt() > iso_threshold){
+ iso_count ++;
+if (m_Regions[nwid].GetTauBit()) iso_count++;
+}
+if( m_Regions[nid].SumEt() > iso_threshold){
+ iso_count ++;
+if (m_Regions[nid].GetTauBit()) iso_count++;
+}
+if( m_Regions[wid].SumEt() > iso_threshold){
+ iso_count ++;
+if (m_Regions[wid].GetTauBit()) iso_count++;
+}
+if( m_Regions[swid].SumEt() > iso_threshold){
+ iso_count ++;
+if (m_Regions[swid].GetTauBit()) iso_count++;
+}
+if( m_Regions[sid].SumEt() > iso_threshold){
+ iso_count ++;
+if (m_Regions[sid].GetTauBit()) iso_count++;
+}
 
     if (iso_count >= 2 ){
  if (m_DoBitInfo){
  m_Regions[cRgn].BitInfo.setIsolationVeto ( true);
 // m_Regions[cRgn].BitInfo.setIsolationCount ( iso_count);
 }
-new_isolation = 1;
+et_isolation = 1;
 }
-else{ new_isolation = 2;}
+else{ et_isolation = 2;}
   } // east bd
 
 // Closing 2x3 method
-if (new_isolation == 1 || shower_shape == 1 ) return false; // done at boarder
-if (new_isolation == 2 && shower_shape == 0) return true; // done at boarder
+if (et_isolation == 1 || shower_shape == 1 ) return false; // done at boarder
+if (et_isolation == 2 && shower_shape == 0) return true; // done at boarder
 }
 
 if ( (cRgn%22)>4 && (cRgn%22)<17){ // non-boarder
@@ -1174,26 +1204,50 @@ if ( (cRgn%22)>4 && (cRgn%22)<17){ // non-boarder
     return false;
   }
 
-if( m_Regions[neid].SumEt() > iso_threshold) iso_count ++;
-if( m_Regions[nid].SumEt() > iso_threshold) iso_count ++;
-if( m_Regions[eid].SumEt() > iso_threshold) iso_count ++;
-if( m_Regions[seid].SumEt() > iso_threshold) iso_count ++;
-if( m_Regions[sid].SumEt() > iso_threshold) iso_count ++;
-if( m_Regions[nwid].SumEt() > iso_threshold) iso_count ++;
-if( m_Regions[wid].SumEt() > iso_threshold) iso_count ++;
-if( m_Regions[swid].SumEt() > iso_threshold) iso_count ++;
+if( m_Regions[neid].SumEt() > iso_threshold){
+ iso_count ++;
+if (m_Regions[neid].GetTauBit()) iso_count++;
+}
+if( m_Regions[nid].SumEt() > iso_threshold){
+ iso_count ++;
+if (m_Regions[nid].GetTauBit()) iso_count++;
+}
+if( m_Regions[eid].SumEt() > iso_threshold){
+ iso_count ++;
+if (m_Regions[eid].GetTauBit()) iso_count++;
+}
+if( m_Regions[seid].SumEt() > iso_threshold){
+ iso_count ++;
+if (m_Regions[seid].GetTauBit()) iso_count++;
+}
+if( m_Regions[sid].SumEt() > iso_threshold){
+ iso_count ++;
+if (m_Regions[sid].GetTauBit()) iso_count++;
+}
+if( m_Regions[nwid].SumEt() > iso_threshold){
+ iso_count ++;
+if (m_Regions[nwid].GetTauBit()) iso_count++;
+}
+if( m_Regions[wid].SumEt() > iso_threshold){
+ iso_count ++;
+if (m_Regions[wid].GetTauBit()) iso_count++;
+}
+if( m_Regions[swid].SumEt() > iso_threshold){
+ iso_count ++;
+if (m_Regions[swid].GetTauBit()) iso_count++;
+}
 
     if (iso_count >= 2 ){
  if (m_DoBitInfo){
  m_Regions[cRgn].BitInfo.setIsolationVeto ( true);
 // m_Regions[cRgn].BitInfo.setIsolationCount ( iso_count);
 }
-new_isolation = 1;
+et_isolation = 1;
 }
-  else {new_isolation = 2;}
+  else {et_isolation = 2;}
 
-if (new_isolation == 1 || shower_shape == 1) return false;
-if (new_isolation == 2 && shower_shape == 0) return true;
+if (et_isolation == 1 || shower_shape == 1) return false;
+if (et_isolation == 2 && shower_shape == 0) return true;
 }// non-boarder
 
 return true; // shouldn't reach here
