@@ -53,8 +53,10 @@ std::ostream& operator<<(std::ostream& s, const L1DataEmulRecord& cand) {
   for(int i=0; i<L1DataEmulRecord::DEnsys; i++)
     s << cand.getNCand(i,1) << " ";
   s << "\n\tdigis  size:" << (cand.getColl()).size();
+  s<< std::flush;
   L1DataEmulRecord::L1DEDigiCollection::const_iterator it;
-  for(it = cand.getColl().begin(); it != cand.getColl().end(); it++ )
+  std::vector<L1DataEmulDigi> dgcoll = cand.getColl();
+  for(it = dgcoll.begin(); it != dgcoll.end(); it++ )
     s << "\n\t" << *it;
   return s;
 }
