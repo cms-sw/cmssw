@@ -169,8 +169,11 @@ void EgammaHLTHybridClusterProducer::produce(edm::Event& evt, const edm::EventSe
       double phiLow  = l1CaloGeom->emJetPhiBinLowEdge( phiIndex ) ;
       double phiHigh = l1CaloGeom->emJetPhiBinHighEdge( phiIndex ) ;
 
-       int isforw=0;
-        if(fabs((float) ((etaLow+etaHigh)/2.))>1.5) isforw=1;
+       int isbarl=0;
+       //Part of the region is in the barel if either the upper or lower
+       //edge of the region is within the barrel
+       if(((float)(etaLow)>-1.479 && (float)(etaLow)<1.479) || 
+	  ((float)(etaHigh)>-1.479 && (float)(etaHigh)<1.479)) isbarl=1;
 
 	//std::cout<<"Hybrid etaindex "<<etaIndex<<" low hig : "<<etaLow<<" "<<etaHigh<<" phi low hig" <<phiLow<<" " << phiHigh<<" isforw "<<emItr->gctEmCand()->regionId().isForward()<<" isforwnew" <<isforw<< std::endl;
 
@@ -179,7 +182,10 @@ void EgammaHLTHybridClusterProducer::produce(edm::Event& evt, const edm::EventSe
       phiLow -= regionPhiMargin_;
       phiHigh += regionPhiMargin_;
 
-      if(!isforw) regions.push_back(EcalEtaPhiRegion(etaLow,etaHigh,phiLow,phiHigh));
+      if (etaHigh>1.479) etaHigh=1.479;
+      if (etaLow<-1.479) etaLow=-1.479;
+
+      if(isbarl) regions.push_back(EcalEtaPhiRegion(etaLow,etaHigh,phiLow,phiHigh));
 
     }
   }
@@ -207,8 +213,11 @@ void EgammaHLTHybridClusterProducer::produce(edm::Event& evt, const edm::EventSe
       double phiLow  = l1CaloGeom->emJetPhiBinLowEdge( phiIndex ) ;
       double phiHigh = l1CaloGeom->emJetPhiBinHighEdge( phiIndex ) ;
 
-       int isforw=0;
-        if(fabs((float) ((etaLow+etaHigh)/2.))>1.5) isforw=1;
+       int isbarl=0;
+       //Part of the region is in the barel if either the upper or lower
+       //edge of the region is within the barrel
+       if(((float)(etaLow)>-1.479 && (float)(etaLow)<1.479) || 
+	  ((float)(etaHigh)>-1.479 && (float)(etaHigh)<1.479)) isbarl=1;
 
 	//std::cout<<"Hybrid etaindex "<<etaIndex<<" low hig : "<<etaLow<<" "<<etaHigh<<" phi low hig" <<phiLow<<" " << phiHigh<<" isforw "<<emItr->gctEmCand()->regionId().isForward()<<" isforwnew" <<isforw<< std::endl;
 
@@ -217,7 +226,10 @@ void EgammaHLTHybridClusterProducer::produce(edm::Event& evt, const edm::EventSe
       phiLow -= regionPhiMargin_;
       phiHigh += regionPhiMargin_;
 
-      if(!isforw) regions.push_back(EcalEtaPhiRegion(etaLow,etaHigh,phiLow,phiHigh));
+      if (etaHigh>1.479) etaHigh=1.479;
+      if (etaLow<-1.479) etaLow=-1.479;
+
+      if(isbarl) regions.push_back(EcalEtaPhiRegion(etaLow,etaHigh,phiLow,phiHigh));
 
     }
   }
