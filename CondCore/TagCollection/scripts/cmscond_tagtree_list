@@ -7,7 +7,7 @@ from CondCore.TagCollection import Node,tagInventory,TagTree
 class tagTreePrinter:
     def __init__(self):
         """
-        Class print tag tree
+        Class print/list tag tree
         usage: %prog [options]
         -c, --connect=connectstring: connection string to the tag DB (required)
         -u, --user=user: user name
