@@ -2,7 +2,7 @@
 // Author:  Christophe Delaere
 // Created: Thu Jul  26 11:08:00 CEST 2007
 //
-// $Id: TopTauProducer.cc,v 1.11 2007/10/30 10:02:34 delaer Exp $
+// $Id: TopTauProducer.cc,v 1.12 2007/11/02 20:14:24 delaer Exp $
 //
 
 #include "TopQuarkAnalysis/TopObjectProducers/interface/TopTauProducer.h"
@@ -84,7 +84,7 @@ void TopTauProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
     // produced < 1_7_0, like CSA07 samples.
     // Note that missing input will not block je job.
     // In that case, an empty collection will be produced.
-    edm::LogWarning("DataSource") << "No Tau collection found.";
+    edm::LogWarning("DataSource") << "WARNING! No Tau collection found. This missing input will not block the job. Instead, an empty tau collection is being be produced.";
   }
   if(hasCalotaus && hasPFtaus) {
     edm::LogError("DataSource") << "Ambiguous datasource. Taus can be both CaloTaus or PF taus.";
