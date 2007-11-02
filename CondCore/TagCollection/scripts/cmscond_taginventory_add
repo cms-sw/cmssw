@@ -8,20 +8,26 @@ def stripws(myinput):
     result=('').join(myinput.split(' '))
     return result
 def converttagdata(value):
-    cleanvalue=stripws(value)
     mytagdata={}
-    startbrack=cleanvalue.find('{')
-    endbrack=cleanvalue.find('}')
-    metadatastr=cleanvalue[startbrack+1:endbrack]
-    mytagdata['tagname']=cleanvalue[0:startbrack]
+    startbrack=value.find('{')
+    endbrack=value.find('}')
+    metadatastr=value[startbrack+1:endbrack]
+    mytagdata['tagname']=value[0:startbrack]
     metadatalist=metadatastr.split(',')
     for pair in metadatalist:
         mydata=pair.split('=')
         mytagdata[mydata[0]]=mydata[1]
     return mytagdata
+def converttagcollection(value):
+    cleanvalue=stripws(value)
+    mytagcollection=[]
+    taglist=cleanvalue.split(';')
+    for tagdata in taglist:
+        mytagcollection.append(converttagdata(tagdata))
+    return mytagcollection
 def check_tagdata(option, opt, value):
     try:
-        return converttagdata(value)
+        return converttagcollection(value)
     except ValueError:
         raise OptionValueError(
             "option %s: invalid tagdata: %r" % (opt, value))
@@ -40,7 +46,7 @@ class tagInventoryBuilder:
         -u, --user=user: user name
         -p, --password=password: password
         -P, --path=path: path to authentication.xml
-        -t, --tag=tagdata: \"tagname{pfn=string,objectname=string, recordname=string, labelname=string, timetype=string}\"
+        -t, --tag=tagdata: \"tag1{pfn=string,objectname=string, recordname=string, labelname=string, timetype=string};tag2{...}\"
         -v, --verbose: switch on verbose mode
         -h, --help: print usage
         """
@@ -48,8 +54,8 @@ class tagInventoryBuilder:
         self.__connectstring=''
         self.__user=''
         self.__password=''
-        self.__authpath='.'
-        self.__tagdata={}
+        self.__authpath=''
+        self.__tagcollection=[]
         self.__verbose=False
     def parsecmdln(self):
         """
@@ -67,41 +73,38 @@ class tagInventoryBuilder:
         self.__parser.set_defaults(connectstring='')
         self.__parser.set_defaults(user='')
         self.__parser.set_defaults(password='')
-        self.__parser.set_defaults(authpath='.')
-        self.__parser.set_defaults(tagdata={})
+        self.__parser.set_defaults(authpath='')
+        self.__parser.set_defaults(tagdata=[])
         self.__parser.set_defaults(verbose=False)
         (options, args) = self.__parser.parse_args()
+        if options.filename and options.connectstring:
+            raise OptionValueError("option -%s and -%s are exclusive"%('f','c'))
+        if len(self.__parser.values.authpath)!=0:
+            self.__authpath=self.__parser.values.authpath
+        else:
+            self.__user=self.__parser.values.user
+            self.__password=self.__parser.values.password
+        self.__verbose=self.__parser.values.verbose
         if self.__parser.values.filename!='':
             configparser=ConfigParser()
             configparser.read(self.__parser.values.filename)
-            print configparser.defaults()
-            self.__connectstring=configparser.defaults()['connect']
-            self.__user=configparser.defaults()['user']
-            self.__password=configparser.defaults()['password']
-            self.__authpath=configparser.defaults()['path']
-            self.__tagdata=converttagdata(configparser.tagdata()['tagdata'])
-            self.__verbose=configparser.defaults()['verbose']
+            self.__connectstring=configparser.get("COMMON","connect")
+            data=stripws(configparser.get("TAGINVENTORY",'tagdata'))
+            self.__tagcollection=converttagcollection(data)
+            if self.__parser.values.verbose is True:
+                print 'config file: ',self.__parser.values.filename
         else:
             self.__connectstring=self.__parser.values.connectstring
-            self.__user=self.__parser.values.user
-            self.__password=self.__parser.values.password
-            self.__authpath=self.__parser.values.authpath
-            self.__tagdata=self.__parser.values.tagdata
-            self.__verbose=self.__parser.values.verbose
         if self.__parser.values.verbose is True:
-            print 'config file: ',self.__parser.values.filename
             print 'connectstring: ',self.__connectstring
             print 'user: ',self.__user
             print 'password: ',self.__password
             print 'authpath: ',self.__authpath
-            print 'tagdata: ',self.__tagdata
-    def addEntry(self):
+            print 'tagdata: ',self.__tagcollection
+    def addEntries(self):
         """
-        Add entry in the tag inventory
+        Add entries in the tag inventory
         """
-        if len(self.__tagdata) == 0 :
-            #print 'nothing to add'
-            return
         context = coral.Context()
         if self.__verbose is True:
             context.setVerbosityLevel( 'DEBUG' )
@@ -114,32 +117,32 @@ class tagInventoryBuilder:
             #print 'about to create table'
             if inv.existInventoryTable() is False:
                 inv.createInventoryTable()
-            tagentry=Node.LeafNode()
-            tagentry.tagname=self.__tagdata['tagname']
-            tagentry.objectname=self.__tagdata['objectname']
-            tagentry.pfn=self.__tagdata['pfn']
-            tagentry.recordname=self.__tagdata['recordname']
-            if self.__tagdata.has_key('labelname'):
-                tagentry.labelname=self.__tagdata['labelname']
-            else:
-                tagentry.labelname=''
-            if self.__tagdata.has_key('timetype'):
-                tagentry.timetype=self.__tagdata['timetype']
-            else:
-                tagentry.timetype='runnumber'
-            if self.__tagdata.has_key('comment'):
-                tagentry.comment=self.__tagdata['comment']
-            else:
-                tagentry.comment=''
-            inv.addEntry(tagentry)
+            if len(self.__tagcollection)!=0:
+                for item in self.__tagcollection:
+                    tagentry=Node.LeafNode()
+                    tagentry.tagname=item['tagname']
+                    tagentry.objectname=item['objectname']
+                    tagentry.pfn=item['pfn']
+                    tagentry.recordname=item['recordname']
+                    if item.has_key('labelname'):
+                        tagentry.labelname=item['labelname']
+                    else:
+                        tagentry.labelname=''
+                    if item.has_key('timetype'):
+                        tagentry.timetype=item['timetype']
+                    else:
+                        tagentry.timetype='runnumber'
+                    if item.has_key('comment'):
+                        tagentry.comment=item['comment']
+                    else:
+                        tagentry.comment=''
+                    inv.addEntry(tagentry)
             del session
         except Exception, e:
             print str(e)
-            del session
-        
+            del session        
 if __name__ == "__main__":
     tagbuilder=tagInventoryBuilder() 
     tagbuilder.parsecmdln()
-    tagbuilder.addEntry()
-    
+    tagbuilder.addEntries()
 

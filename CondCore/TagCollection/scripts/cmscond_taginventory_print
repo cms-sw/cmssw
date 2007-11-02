@@ -13,7 +13,7 @@ class tagInventoryPrinter:
         -u, --user=user: user name
         -p, --password=password: password
         -P, --path=path: path to authentication.xml
-        -t, --tag: tag to print
+        -t, --tag: tag to print on detail(optional)
         -v, --verbose: switch on verbose mode
         -h, --help: print usage
         """
@@ -23,14 +23,13 @@ class tagInventoryPrinter:
         self.__password=''
         self.__authpath='.'
         self.__tag=''
-        self.__all=True
         self.__verbose=False
     def parsecmdln(self):
         """
         Parse commandline
         """
         usage = "usage: \%prog [options] \n"
-        self.__parser.add_option("-c","--connect",action="store",dest="connectstring",type="string",help="connection string to the tag DB")
+        self.__parser.add_option("-c","--connect",action="store",dest="connectstring",type="string",help="connection string to the tag DB(required)")
         self.__parser.add_option("-u","--user",action="store",dest="user",type="string",help="user name")
         self.__parser.add_option("-p","--password",action="store",dest="password",type="string",help="password")
         self.__parser.add_option("-P","--path",action="store",dest="authpath",type="string",help="path to authentication.xml")
@@ -47,9 +46,7 @@ class tagInventoryPrinter:
         self.__user=self.__parser.values.user
         self.__password=self.__parser.values.password
         self.__authpath=self.__parser.values.authpath
-        if len(self.__parser.values.tag) != 0:
-            self.__tag=self.__parser.values.tag
-            self.__all=False
+        self.__tag=self.__parser.values.tag
         self.__verbose=self.__parser.values.verbose
         if self.__parser.values.verbose is True:
             print 'connectstring: ',self.__connectstring
@@ -70,7 +67,7 @@ class tagInventoryPrinter:
         session = svc.connect( self.__connectstring,accessMode = coral.access_Update )
         inv=tagInventory.tagInventory(session)
         try:
-            if self.__all is True:
+            if len(self.__tag)==0:
                 result=inv.getAllEntries()
                 print '%s\t%s\t%s'%('#ID#','#Name#','#Label#')
                 for r in result:
