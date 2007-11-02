@@ -1,5 +1,5 @@
 //
-// $Id: TopLeptonCountFilter.cc,v 1.2 2007/10/07 15:49:52 lowette Exp $
+// $Id: TopLeptonCountFilter.cc,v 1.3.2.1 2007/10/30 01:17:31 lowette Exp $
 //
 
 #include "TopQuarkAnalysis/TopObjectProducers/interface/TopLeptonCountFilter.h"
@@ -19,6 +19,7 @@ TopLeptonCountFilter::TopLeptonCountFilter(const edm::ParameterSet & iConfig) {
   countMuons_     = iConfig.getParameter<bool>         ( "countMuons" );
   countTaus_      = iConfig.getParameter<bool>         ( "countTaus" );
   minNumber_      = iConfig.getParameter<unsigned int> ( "minNumber" );
+  maxNumber_      = iConfig.getParameter<unsigned int> ( "maxNumber" );
 }
 
 
@@ -37,5 +38,5 @@ bool TopLeptonCountFilter::filter(edm::Event & iEvent, const edm::EventSetup & i
   nrLeptons += (countElectrons_ ? electrons->size() : 0);
   nrLeptons += (countMuons_     ? muons->size()     : 0);
   nrLeptons += (countTaus_      ? taus->size()      : 0);
-  return nrLeptons >= minNumber_;
+  return nrLeptons >= minNumber_ && nrLeptons <= maxNumber_;
 }

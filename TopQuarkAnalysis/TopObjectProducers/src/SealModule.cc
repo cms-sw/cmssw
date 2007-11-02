@@ -1,6 +1,7 @@
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 
+
 #include "TopQuarkAnalysis/TopObjectProducers/interface/TopElectronProducer.h"
 #include "TopQuarkAnalysis/TopObjectProducers/interface/TopMuonProducer.h"
 #include "TopQuarkAnalysis/TopObjectProducers/interface/TopTauProducer.h"
@@ -13,6 +14,7 @@ DEFINE_FWK_MODULE(TopTauProducer);
 DEFINE_FWK_MODULE(TopJetProducer);
 DEFINE_FWK_MODULE(TopMETProducer);
 
+
 #include "TopQuarkAnalysis/TopObjectProducers/interface/TopObjectSelector.h"
 
 DEFINE_FWK_MODULE(CaloJetSelector);
@@ -23,16 +25,27 @@ DEFINE_FWK_MODULE(TopJetSelector);
 DEFINE_FWK_MODULE(TopMETSelector);
 DEFINE_FWK_MODULE(TopParticleSelector);
 
+
 #include "TopQuarkAnalysis/TopObjectProducers/interface/TopLeptonCountFilter.h"
-#include "TopQuarkAnalysis/TopObjectProducers/interface/TopObjectFilter.h"
 
 DEFINE_FWK_MODULE(TopLeptonCountFilter);
-DEFINE_FWK_MODULE(TopElectronCountFilter);
-DEFINE_FWK_MODULE(TopMuonCountFilter);
-DEFINE_FWK_MODULE(TopTauCountFilter);
-DEFINE_FWK_MODULE(TopJetCountFilter);
-DEFINE_FWK_MODULE(TopMETCountFilter);
-DEFINE_FWK_MODULE(TopParticleCountFilter);
+
+#include "TopQuarkAnalysis/TopObjectProducers/interface/TopObjectFilter.h"
+
+DEFINE_FWK_MODULE(TopElectronMinFilter);
+DEFINE_FWK_MODULE(TopMuonMinFilter);
+DEFINE_FWK_MODULE(TopTauMinFilter);
+DEFINE_FWK_MODULE(TopJetMinFilter);
+DEFINE_FWK_MODULE(TopMETMinFilter);
+DEFINE_FWK_MODULE(TopParticleMinFilter);
+
+DEFINE_FWK_MODULE(TopElectronMaxFilter);
+DEFINE_FWK_MODULE(TopMuonMaxFilter);
+DEFINE_FWK_MODULE(TopTauMaxFilter);
+DEFINE_FWK_MODULE(TopJetMaxFilter);
+DEFINE_FWK_MODULE(TopMETMaxFilter);
+DEFINE_FWK_MODULE(TopParticleMaxFilter);
+
 
 #include "TopQuarkAnalysis/TopObjectProducers/interface/TopObjectEnergyScale.h"
 

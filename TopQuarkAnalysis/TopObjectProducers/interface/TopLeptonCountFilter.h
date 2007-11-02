@@ -1,5 +1,5 @@
 //
-// $Id$
+// $Id: TopLeptonCountFilter.h,v 1.1.4.1 2007/10/30 01:17:33 lowette Exp $
 //
 
 #ifndef TopObjectProducers_TopLeptonCountFilter_h
@@ -31,6 +31,7 @@ class TopLeptonCountFilter : public edm::EDFilter {
     bool          countMuons_;
     bool          countTaus_;
     unsigned int  minNumber_;
+    unsigned int  maxNumber_;
 
 };
 
