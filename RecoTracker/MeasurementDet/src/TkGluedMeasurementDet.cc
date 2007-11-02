@@ -125,7 +125,7 @@ TkGluedMeasurementDet::fastMeasurements( const TrajectoryStateOnSurface& stateOn
           ret = realOne.get( *this, stateOnThisDet, est);
       }
       if (!ret[0].recHit()->isValid()) {
-          LogDebug("TkStripMeasurementDet") << "No hit found on TkGlued. Testing strips...  ";
+          //LogDebug("TkStripMeasurementDet") << "No hit found on TkGlued. Testing strips...  ";
           const BoundPlane &gluedPlane = geomDet().surface();
           if (  // sorry for the big IF, but I want to exploit short-circuiting of logic
                 (theMonoDet->isActive() && 
@@ -141,7 +141,7 @@ TkGluedMeasurementDet::fastMeasurements( const TrajectoryStateOnSurface& stateOn
               ) {
             // no problem, at least one detector has good strips
           } else {
-            LogDebug("TkStripMeasurementDet") << "Tested strips on TkGlued, returning 'inactive' invalid hit";
+            //LogDebug("TkStripMeasurementDet") << "Tested strips on TkGlued, returning 'inactive' invalid hit";
             ret[0] = TrajectoryMeasurement(stateOnThisDet, 
                          InvalidTransientRecHit::build(&geomDet(), TrackingRecHit::inactive), 
                          0.F);
@@ -223,11 +223,11 @@ TkGluedMeasurementDet::testStrips(const TrajectoryStateOnSurface& tsos,
 
    LocalPoint glp = tsos.localPosition();
    LocalError  err = tsos.localError().positionError();
-   LogDebug("TkStripMeasurementDet") << 
+   /*LogDebug("TkStripMeasurementDet") << 
       "Testing local pos glued: " << glp << 
       " local err glued: " << tsos.localError().positionError() << 
       " in? " << gluedPlane.bounds().inside(glp) <<
-      " in(3s)? " << gluedPlane.bounds().inside(glp, err, 3.0f);
+      " in(3s)? " << gluedPlane.bounds().inside(glp, err, 3.0f);*/
 
    GlobalVector gdir = tsos.globalParameters().momentum();
 
@@ -252,10 +252,10 @@ TkGluedMeasurementDet::testStrips(const TrajectoryStateOnSurface& tsos,
       " in? :" << stripPlane.bounds().inside(slp) <<
       " in(3s)? :" << stripPlane.bounds().inside(slp, rotatedError, 3.0f);
    // but it helps to test bugs in the formula for POS */
-   LogDebug("TkStripMeasurementDet") << 
+   /*LogDebug("TkStripMeasurementDet") << 
       "Testing local pos strip: " << pos << 
       " in? " << stripPlane.bounds().inside(pos) <<
-      " in(3s)? " << stripPlane.bounds().inside(pos, rotatedError, 3.0f);
+      " in(3s)? " << stripPlane.bounds().inside(pos, rotatedError, 3.0f);*/
 
    // now we need to convert to MeasurementFrame
    const StripTopology &topo = mdet.specificGeomDet().specificTopology();

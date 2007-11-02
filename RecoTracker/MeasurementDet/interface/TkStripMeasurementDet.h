@@ -81,7 +81,7 @@ public:
   int  size() {return endCluster - beginCluster ; }
 
   /** \brief Turn on/off the module for reconstruction (using info from DB, usually) */
-  void setActive(bool active) { active_ = active; }
+  void setActive(bool active) { active_ = active; if (!active) empty = true; }
   /** \brief Is this module active in reconstruction? */
   bool isActive() const { return active_; }
 

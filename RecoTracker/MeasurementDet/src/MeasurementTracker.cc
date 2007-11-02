@@ -386,6 +386,7 @@ void MeasurementTracker::initializeStripNoises(const SiStripNoises *noises) cons
 
 void MeasurementTracker::initializeStripStatus(const SiStripQuality *quality, int qualityFlags, int qualityDebugFlags) const {
   if ((quality != 0) && (qualityFlags != 0))  {
+    edm::LogWarning("MeasurementTracker") << "qualityFlags = " << qualityFlags;
     unsigned int on = 0, tot = 0; 
     unsigned int foff = 0, ftot = 0, aoff = 0, atot = 0; 
     for (std::vector<TkStripMeasurementDet*>::const_iterator i=theStripDets.begin();

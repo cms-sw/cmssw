@@ -229,10 +229,10 @@ TkStripMeasurementDet::testStrips(float utraj, float uerr) const {
     int end   = (int) (utraj + 3*uerr); if (end > totalStrips_) end = totalStrips_;
 
     if (start >= end) { // which means either end <=0 or start >= totalStrips_
-        LogDebug("TkStripMeasurementDet") << "Testing module " << id_ <<","<<
+        /* LogDebug("TkStripMeasurementDet") << "Testing module " << id_ <<","<<
             " U = " << utraj << " +/- " << uerr << 
             "; Range [" << (utraj - 3*uerr) << ", " << (utraj + 3*uerr) << "] " << 
-            ": YOU'RE COMPLETELY OFF THE MODULE.";
+            ": YOU'RE COMPLETELY OFF THE MODULE."; */
         return false;
     } 
 
@@ -266,12 +266,12 @@ TkStripMeasurementDet::testStrips(float utraj, float uerr) const {
         cur  = next;        // now reach for the unknown
    }
    
-   LogDebug("TkStripMeasurementDet") << "Testing module " << id_ <<","<<
+   /* LogDebug("TkStripMeasurementDet") << "Testing module " << id_ <<","<<
         " U = " << utraj << " +/- " << uerr << 
         "; Range [" << (utraj - 3*uerr) << ", " << (utraj + 3*uerr) << "] " << 
         "= [" << start << "," << end << "]" <<
         " total strips:" << (end-start) << ", good:" << good << ", bad:" << (end-start-good) << 
-        ". " << (good >= 1 ? "OK" : "NO");
+        ". " << (good >= 1 ? "OK" : "NO"); */
 
 //#define RecoTracker_MeasurementDet_TkStripMeasurementDet_RECOUNT_IN_SLOW_AND_STUPID_BUT_SAFE_WAY
 // I can be dangerous to blindly trust some "supposed-to-be-smart" algorithm ...
