@@ -1,8 +1,8 @@
 /*
  * \file EBSummaryClient.cc
  *
- * $Date: 2007/11/02 10:06:27 $
- * $Revision: 1.77 $
+ * $Date: 2007/11/02 10:57:05 $
+ * $Revision: 1.78 $
  * \author G. Della Ricca
  *
 */
@@ -468,7 +468,7 @@ void EBSummaryClient::analyze(void){
     }
   }
 
-  meIntegrity_-setEntries( 0 );
+  meIntegrity_->setEntries( 0 );
   meOccupancy_->setEntries( 0 );
   mePedestalOnline_->setEntries( 0 );
 

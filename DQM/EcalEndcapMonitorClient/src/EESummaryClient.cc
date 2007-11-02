@@ -1,8 +1,8 @@
 /*
  * \file EESummaryClient.cc
  *
- * $Date: 2007/11/02 10:06:24 $
- * $Revision: 1.45 $
+ * $Date: 2007/11/02 10:57:05 $
+ * $Revision: 1.46 $
  * \author G. Della Ricca
  *
 */
@@ -794,8 +794,8 @@ void EESummaryClient::analyze(void){
     }
   }
 
-  meIntegrity_[0]-setEntries( 0 );
-  meIntegrity_[1]-setEntries( 0 );
+  meIntegrity_[0]->setEntries( 0 );
+  meIntegrity_[1]->setEntries( 0 );
   meOccupancy_[0]->setEntries( 0 );
   meOccupancy_[1]->setEntries( 0 );
   mePedestalOnline_[0]->setEntries( 0 );
