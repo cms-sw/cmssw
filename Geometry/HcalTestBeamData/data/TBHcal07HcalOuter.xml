@@ -67,7 +67,7 @@
  <Constant name="layer3tray5Y"  value="176.35*cm"/>
  <Constant name="scntX"         value="(-[packDx2]+([thkScnt]/2)+[thkFront])"/>
  <Constant name="zero"          value="0*fm"/>
- <Constant name="Eta"           value="[TBHcal:Eta]"/>
+ <Constant name="Eta"           value="1.261"/>
 
 </ConstantsSection>
 
