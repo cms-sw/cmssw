@@ -182,10 +182,11 @@ void EcalEndcapRecHitsMaker::init(const edm::EventSetup &es,bool doDigis,bool do
 //	}
       theCalibConstants_ = ical->endcapItems();
       for ( std::vector<float>::const_iterator it = theCalibConstants_.begin(); it != theCalibConstants_.end(); ++it ) {
-	      rms+=fabs(*it-1.);
-	      ++ncells;
+	if(!EEDetId::validHashIndex(ncells)) continue;
+	rms+=(*it-1.)*(*it-1.);
+	++ncells;
       }
-      rms/=(float)ncells;
+      rms = std::sqrt(rms) / (float)ncells;
       std::cout << " Found " << ncells << " cells in the endcap calibration map. RMS is " << rms << std::endl;
     }  
 }

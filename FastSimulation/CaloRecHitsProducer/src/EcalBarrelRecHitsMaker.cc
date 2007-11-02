@@ -194,10 +194,10 @@ void EcalBarrelRecHitsMaker::init(const edm::EventSetup &es,bool doDigis,bool do
 //	}
       theCalibConstants_ = ical->barrelItems();
       for ( std::vector<float>::const_iterator it = theCalibConstants_.begin(); it != theCalibConstants_.end(); ++it ) {
-	      rms+=fabs(*it-1.);
-	      ++ncells;
+	rms+=(*it-1.)*(*it-1.);
+	++ncells;
       }
-      rms/=(float)ncells;
+      rms = std::sqrt(rms) / (float)ncells;
       std::cout << " Found " << ncells << " cells in the barrel calibration map. RMS is " << rms << std::endl;
     }  
 }
