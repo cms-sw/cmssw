@@ -1,8 +1,8 @@
 /*
  * \file EESummaryClient.cc
  *
- * $Date: 2007/10/25 22:40:00 $
- * $Revision: 1.43 $
+ * $Date: 2007/10/26 08:44:56 $
+ * $Revision: 1.44 $
  * \author G. Della Ricca
  *
 */
@@ -1531,7 +1531,7 @@ void EESummaryClient::htmlOutput(int run, string htmlDir, string htmlName){
   obj2f = 0;
   obj2f = UtilsClient::getHisto<TH2F*>( mePedestalOnline_[0] );
 
-  if ( obj2f ) {
+  if ( obj2f && obj2f->GetEntries() != 0 ) {
 
     meName = obj2f->GetName();
 
@@ -1572,7 +1572,7 @@ void EESummaryClient::htmlOutput(int run, string htmlDir, string htmlName){
   obj2f = 0;
   obj2f = UtilsClient::getHisto<TH2F*>( mePedestalOnline_[1] );
 
-  if ( obj2f ) {
+  if ( obj2f && obj2f->GetEntries() != 0 ) {
 
     meName = obj2f->GetName();
 
