@@ -13,7 +13,6 @@ class tagTreePrinter:
         -u, --user=user: user name
         -p, --password=password: password
         -P, --path=path: path to authentication.xml
-        -a, --all: print summary of all
         -l, --leaf: print only leaf tags
         -t, --tag: tag to print
         -v, --verbose: switch on verbose mode
@@ -25,7 +24,6 @@ class tagTreePrinter:
         self.__password=''
         self.__authpath='.'
         self.__tag=''
-        self.__all=False
         self.__leafonly=False
         self.__verbose=False
     def parsecmdln(self):
@@ -37,8 +35,7 @@ class tagTreePrinter:
         self.__parser.add_option("-u","--user",action="store",dest="user",type="string",help="user name")
         self.__parser.add_option("-p","--password",action="store",dest="password",type="string",help="password")
         self.__parser.add_option("-P","--path",action="store",dest="authpath",type="string",help="path to authentication.xml")
-        self.__parser.add_option("-a","--all",action="store_true",dest="all",help="print all tags")
-        self.__parser.add_option("-l","--leaf",action="store_true",dest="leaf",help="print leaf tags")
+        self.__parser.add_option("-l","--leaf",action="store_true",dest="leaf",help="print leaf tags only")
         self.__parser.add_option("-t","--tag",action="store",dest="tag",type="string",help="tag to print")
         self.__parser.add_option("-v","--verbose",action="store_true",dest="verbose",help="verbose mode")
         self.__parser.set_defaults(connectstring='')
@@ -46,7 +43,6 @@ class tagTreePrinter:
         self.__parser.set_defaults(password='')
         self.__parser.set_defaults(authpath='.')
         self.__parser.set_defaults(tag='')
-        self.__parser.set_defaults(all=False)
         self.__parser.set_defaults(leaf=False)
         self.__parser.set_defaults(verbose=False)
         (options, args) = self.__parser.parse_args()
@@ -54,7 +50,6 @@ class tagTreePrinter:
         self.__user=self.__parser.values.user
         self.__password=self.__parser.values.password
         self.__authpath=self.__parser.values.authpath
-        self.__all=self.__parser.values.all
         self.__leaf=self.__parser.values.leaf
         self.__tag=self.__parser.values.tag
         self.__verbose=self.__parser.values.verbose
@@ -63,7 +58,6 @@ class tagTreePrinter:
             print 'user: ',self.__user
             print 'password: ',self.__password
             print 'authpath: ',self.__authpath
-            print 'print all: ',self.__all
             print 'print leaf: ',self.__leaf
             print 'tag: ',self.__tag
     def printme(self):
@@ -87,25 +81,26 @@ class tagTreePrinter:
                        parentname=parentnode.nodelabel
                        print 'leafnode:%s\t parent:%s'%(r.nodelabel,parentname)
                    else:
-                       print 'leafnode:%s\t parent:%s'%(r.nodelabel,'ROOT')
-            elif self.__all is True:
-                result=mytree.getSubtree('ROOT')
-                for r in result:
-                    if r.parentid !=0:
-                        parentnode=mytree.getNodeById(r.parentid)
-                        parentname=parentnode.nodelabel
-                        print 'node:%s\t parent:%s'%(r.nodelabel,parentname)
-                    else:
-                        print 'node:%s\t parent:%s'%(r.nodelabel,'ROOT')
+                       print 'root:%s'%(r.nodelabel)
             else:
-                result=mytree.getSubtree(self.__tag)
-                for r in result:
-                    if r.parentid !=0:
-                        parentnode=mytree.getNodeById(r.parentid)
-                        parentname=parentnode.nodelabel
-                        print 'node:%s\t parent:%s'%(r.nodelabel,parentname)
-                    else:
-                        print 'node:%s\t parent:%s'%(r.nodelabel,'ROOT')
+                if len(self.__tag)==0:
+                    result=mytree.getSubtree('ROOT')
+                    for r in result:
+                        if r.parentid !=0:
+                            parentnode=mytree.getNodeById(r.parentid)
+                            parentname=parentnode.nodelabel
+                            print 'node:%s\t parent:%s'%(r.nodelabel,parentname)
+                        else:
+                            print 'root:%s'%(r.nodelabel)
+                else:
+                    result=mytree.getSubtree(self.__tag)
+                    for r in result:
+                        if r.parentid !=0:
+                            parentnode=mytree.getNodeById(r.parentid)
+                            parentname=parentnode.nodelabel
+                            print 'node:%s\t parent:%s'%(r.nodelabel,parentname)
+                        else:
+                            print 'node:%s'%(r.nodelabel)
             del session
         except Exception, e:
             print str(e)
