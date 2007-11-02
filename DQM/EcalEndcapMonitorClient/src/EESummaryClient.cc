@@ -1,8 +1,8 @@
 /*
  * \file EESummaryClient.cc
  *
- * $Date: 2007/11/02 10:57:05 $
- * $Revision: 1.46 $
+ * $Date: 2007/11/02 10:58:58 $
+ * $Revision: 1.47 $
  * \author G. Della Ricca
  *
 */
@@ -827,6 +827,9 @@ void EESummaryClient::analyze(void){
   meTriggerTowerEmulError_[0]->setEntries( 0 );
   meTriggerTowerEmulError_[1]->setEntries( 0 );
 
+  meGlobalSummary_[0]->setEntries( 0 );
+  meGlobalSummary_[1]->setEntries( 0 );
+
   for ( unsigned int i=0; i<clients_.size(); i++ ) {
 
     EEIntegrityClient* eeic = dynamic_cast<EEIntegrityClient*>(clients_[i]);
@@ -1218,17 +1221,25 @@ void EESummaryClient::analyze(void){
 
       if(meIntegrity_[0] && mePedestalOnline_[0]) {
 
-        float xval = 2;
+        float xval = -1;
         float val_in = meIntegrity_[0]->getBinContent(jx,jy); 
         float val_po = mePedestalOnline_[0]->getBinContent(jx,jy);
 
-        // turn each dark color to bright green
+        // turn each dark color (masked channel) to bright green
         if(val_in>2) val_in=1;
         if(val_po>2) val_po=1;
 
-        if(val_in==0) xval=0;
+        // -1 = unknown
+        //  0 = red
+        //  1 = green
+        //  2 = yellow 
+
+        if(val_in==-1) xval=-1;
+        else if(val_in==0) xval=0;
         else if(val_in==2) xval=2;
-        else xval=val_po;
+        else if(val_po==0) xval=0;
+        else if(val_po==2) xval=2;
+        else xval=1;
 
         meGlobalSummary_[0]->setBinContent( jx, jy, xval );
 
