@@ -4,21 +4,34 @@ from copy import copy
 from optparse import OptionParser, Option, OptionValueError
 import coral
 from CondCore.TagCollection import Node,TagTree,tagInventory
-def convertnodedata(value):
+def stripws(myinput):
+    result=('').join(myinput.split(' '))
+    return result
+
+def convertnodedata(mynodevalue):
     mynodedata={}
-    datastr=('').join(value.split(' '))
-    startbrack=datastr.find('{')
-    endbrack=datastr.find('}')
-    metagdatastr=datastr[startbrack+1:endbrack]
-    mynodedata['nodelabel']=datastr[0:startbrack]
+#    datastr=('').join(value.split(' '))
+    startbrack=mynodevalue.find('{')
+    endbrack=mynodevalue.find('}')
+    metagdatastr=mynodevalue[startbrack+1:endbrack]
+    mynodedata['nodelabel']=mynodevalue[0:startbrack]
     metadatalist=metagdatastr.split(',')
     for pair in metadatalist:
         mydata=pair.split('=')
         mynodedata[mydata[0]]=mydata[1]
     return mynodedata
+
+def convertnodecollection(value):
+    cleanvalue=stripws(value)
+    mynodecollection=[]
+    nodelist=cleanvalue.split(';')
+    for nodedata in nodelist:
+        mynodecollection.append(convertnodedata(nodedata))
+    return mynodecollection
+
 def check_nodedata(option, opt, value):
     try:
-        return convertnodedata(value)
+        return convertnodecollection(value)
     except ValueError:
         raise OptionValueError(
             "option %s: invalid nodedata: %r" % (opt, value))
@@ -32,13 +45,13 @@ class tagTreeBuilder:
         """
         Class add node to an existing tag tree
         usage: %prog [options]
-        -f, --file=filename: configuration file
+        -f, --file=filename: use file to populate the tag tree. -c, -l will not be considered together with the -f option. 
         -c, --connect=connectstring: connection string to the tag DB (required)
         -u, --user=user: user name
         -p, --password=password: password
         -P, --path=path: path to authentication.xml
-        -n, --node=node: nodelabel{parent=string,globalsince=unsigned long long,globaltill=unsigned long long}
-        -l, --isleaf=isleaf: is leaf node
+        -n, --node=node: one or a collection of non-leaf node(s) to attach to the tree. \"node1{parent=string,globalsince=unsigned long long,globaltill=unsigned long long};node2{...}\". 
+        -l, --leafnode=leafnode: one or a collection of leaf node(s) to attach to the tree. \"node1{parent=string};node2{...}\".
         -v, --verbose: switch on verbose mode
         -h, --help: print usage
         """
@@ -46,67 +59,75 @@ class tagTreeBuilder:
         self.__connectstring=''
         self.__user=''
         self.__password=''
-        self.__authpath='.'
-        self.__nodedata={}
-        self.__isleaf=False
+        self.__authpath=''
+        self.__nodecollection=[]
+        self.__leafcollection=[]
         self.__verbose=False
     def parsecmdln(self):
         """
         Parse commandline
         """
         usage = "usage: \%prog [options] \n"
-#        parser = OptionParser(option_class=MyOption)
-        self.__parser.add_option("-f","--file",action="store",dest="filename",help="configuration file")
+        self.__parser.add_option("-f","--file",action="store",dest="filename",help="populate the tag tree from the given file. -c, -l will not be considered together with the -f option.")
         self.__parser.add_option("-c","--connect",action="store",dest="connectstring",type="string",help="connection string to the tag DB")
         self.__parser.add_option("-u","--user",action="store",dest="user",type="string",help="user name")
         self.__parser.add_option("-p","--password",action="store",dest="password",type="string",help="password")
         self.__parser.add_option("-P","--path",action="store",dest="authpath",type="string",help="path to authentication.xml")
-        self.__parser.add_option("-n","--nodedata",action="store",dest="nodedata",type="nodedata",help="nodename{parent=string,globalsince=unsigned long long,globaltill=unsigned long long}")
-        self.__parser.add_option("-l","--isleaf",action="store_true",dest="isleaf",help="is leaf node")
+        self.__parser.add_option("-n","--nodedata",action="store",dest="nodedata",type="nodedata",help="one or a collection of non-leaf node(s) to attach to the tree. \"node1{parent=string,globalsince=unsigned long long,globaltill=unsigned long long};node2{...}\"")
+        self.__parser.add_option("-l","--leafdata",action="store",dest="leafdata",type="nodedata",help=" one or a collection of leaf node(s) to attach to the tree. \"node1{parent=string};node2{...}\" ")
         self.__parser.add_option("-v","--verbose",action="store_true",dest="verbose",help="verbose mode")
         self.__parser.set_defaults(filename='')
         self.__parser.set_defaults(connectstring='')
         self.__parser.set_defaults(user='')
         self.__parser.set_defaults(password='')
-        self.__parser.set_defaults(authpath='.')
-        self.__parser.set_defaults(nodedata={})
+        self.__parser.set_defaults(authpath='')
+        self.__parser.set_defaults(nodedata=[])
+        self.__parser.set_defaults(leafdata=[])
         self.__parser.set_defaults(verbose=False)
-        self.__parser.set_defaults(isleaf=False)
         (options, args) = self.__parser.parse_args()
+        if options.filename and options.connectstring:
+            raise OptionValueError("option -%s and -%s are exclusive"%('f','c'))
+        if len(self.__parser.values.authpath)!=0:
+            self.__authpath=self.__parser.values.authpath
+        else:
+            self.__user=self.__parser.values.user
+            self.__password=self.__parser.values.password
+        self.__verbose=self.__parser.values.verbose
+        
         if self.__parser.values.filename!='':
             configparser=ConfigParser()
             configparser.read(self.__parser.values.filename)
-            print configparser.defaults()
-            self.__connectstring=configparser.defaults()['connect']
-            self.__user=configparser.defaults()['user']
-            self.__password=configparser.defaults()['password']
-            self.__authpath=configparser.defaults()['path']
-            self.__nodedata=convertnodedata(configparser.defaults()['nodedata'])
-            self.__isleaf=configparser.defaults()['isleaf']
-            self.__verbose=configparser.defaults()['verbose']
+            self.__connectstring=configparser.get('COMMON','connect')
+            if configparser.has_option('TAGTREE', 'nodedata'):
+                nodedata=stripws(configparser.get('TAGTREE','nodedata'))
+                self.__nodecollection=convertnodecollection(nodedata)
+            if configparser.has_option('TAGTREE', 'leafdata'):
+                leafdata=stripws(configparser.get('TAGTREE','leafdata'))
+                self.__leafcollection=convertnodecollection(leafdata)
+            if self.__parser.values.verbose is True:
+                print 'config file: ',self.__parser.values.filename
         else:
             self.__connectstring=self.__parser.values.connectstring
-            self.__user=self.__parser.values.user
-            self.__password=self.__parser.values.password
-            self.__authpath=self.__parser.values.authpath
-            self.__nodedata=self.__parser.values.nodedata
-            self.__isleaf=self.__parser.values.isleaf
-            self.__verbose=self.__parser.values.verbose
-        if len(self.__nodedata['parent'])==0:
-            raise ValueError, "empty parent node for \'"+self.__nodedata['nodelabel']+"\'"
+            if self.__parser.nodedata:            
+                nodedata=stripws(self.__parser.values.nodedata)
+                self.__nodecollection=convertnodedata(nodedata)
+            if self.__parser.leafdata:
+                leafdata=stripws(self.__parser.values.leafdata)
+                self.__leafcollection=convertnodedata(leafdata)
         if self.__parser.values.verbose is True:
-            print 'config file: ',self.__parser.values.filename
             print 'connectstring: ',self.__connectstring
             print 'user: ',self.__user
             print 'password: ',self.__password
             print 'authpath: ',self.__authpath
-            print 'nodedata: ',self.__nodedata
-            print 'isleaf: ',self.__isleaf
-    def addEntry(self):
+            print 'nodecollection: ',self.__nodecollection
+            print 'leafcollection: ',self.__leafcollection
+
+    def addEntries(self):
         """
-        Add node in the tag tree
+        Add nodes in the tag tree
         """
-        if len(self.__nodedata) == 0 :
+        if len(self.__nodecollection)==0 and len(self.__leafcollection)==0:
+            print 'empty data, do nothing'
             return
         context = coral.Context()
         if self.__verbose is True:
@@ -119,36 +140,42 @@ class tagTreeBuilder:
         try:
             mytree=TagTree.tagTree(session)
             if mytree.existTagTreeTable() is False:
-                #mytree.createTagTreeTable()
                 raise Exception,'non-existing tag tree table, use cmscond_tagtree_createroot to create the table and tree root first'
-            mynode=Node.Node()
-            mynode.globalsince=0
-            mynode.globaltill=0
-            mynode.tagid=0
-            if self.__isleaf is True:
-                mynode.nodelabel=self.__nodedata['nodelabel']
-                inv=tagInventory.tagInventory(session)
-                result=inv.getEntryByName(self.__nodedata['nodelabel'])
-                if result.tagid == 0:
-                    raise ValueError, "unknown tag \'"+self.__nodedata['nodelabel']+"\' in the inventory"
-                mynode.tagid=result.tagid
-                mytree.insertNode(mynode,self.__nodedata['parent'])
-            else:
+            for item in self.__nodecollection:
                 mynode=Node.Node()
-                mynode.nodelabel=self.__nodedata['nodelabel']
-                if self.__nodedata.has_key('globalsince'):
-                    mynode.globalsince=self.__nodedata['globalsince']
-                if self.__nodedata.has_key('globaltill'):
-                    mynode.globaltill=self.__nodedata['globaltill']
-                mytree.insertNode(mynode,self.__nodedata['parent'])
+                mynode.globalsince=0
+                mynode.globaltill=0
+                mynode.tagid=0
+                mynode.nodelabel=item['nodelabel']
+                if item.has_key('globalsince'):
+                    mynode.globalsince=nodedata['globalsince']
+                if item.has_key('globaltill'):
+                    mynode.globaltill=nodedata['globaltill']
+                if not item.has_key('parent'):
+                    raise KeyError,'no parent parameter for'+mynode.nodelabel
+                mytree.insertNode(mynode,item['parent'])
+            if len(self.__leafcollection)!=0:
+                inv=tagInventory.tagInventory(session)
+                for leafdata in self.__leafcollection:                
+                    myleaf=Node.Node()
+                    myleaf.globalsince=0
+                    myleaf.globaltill=0
+                    myleaf.tagid=0
+                    myleaf.nodelabel=leafdata['nodelabel']
+                    result=inv.getEntryByName(myleaf.nodelabel)
+                    if result.tagid == 0:
+                        raise ValueError, "unknown tag \'"+leafdata['nodelabel']+"\' in the inventory"
+                    myleaf.tagid=result.tagid
+                    if not leafdata.has_key('parent'):
+                        raise KeyError,'no parent parameter for'+myleaf.nodelabel
+                    mytree.insertNode(myleaf,leafdata['parent'])
             del session
         except Exception, e:
             print str(e)
-            del session
-        
+            del session        
 if __name__ == "__main__":
     tagtreebuilder=tagTreeBuilder() 
     tagtreebuilder.parsecmdln()
-    tagtreebuilder.addEntry()
+    tagtreebuilder.addEntries()
 
 

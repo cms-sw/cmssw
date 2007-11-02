@@ -62,7 +62,7 @@ class tagInventoryBuilder:
         Parse commandline
         """
         usage = "usage: \%prog [options] \n"
-        self.__parser.add_option("-f","--file",action="store",dest="filename",help="configuration file")
+        self.__parser.add_option("-f","--file",action="store",dest="filename",help="populate the inventory from the given file. -c,-t will not be considered together with the -f option")
         self.__parser.add_option("-c","--connect",action="store",dest="connectstring",type="string",help="connection string to the tag DB")
         self.__parser.add_option("-u","--user",action="store",dest="user",type="string",help="user name")
         self.__parser.add_option("-p","--password",action="store",dest="password",type="string",help="password")
@@ -95,6 +95,8 @@ class tagInventoryBuilder:
                 print 'config file: ',self.__parser.values.filename
         else:
             self.__connectstring=self.__parser.values.connectstring
+            data=stripws(self.__parser.values.tagdata)
+            self.__tagcollection=converttagcollection(data)
         if self.__parser.values.verbose is True:
             print 'connectstring: ',self.__connectstring
             print 'user: ',self.__user
