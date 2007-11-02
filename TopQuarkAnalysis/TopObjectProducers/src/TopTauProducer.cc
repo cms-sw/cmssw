@@ -2,7 +2,7 @@
 // Author:  Christophe Delaere
 // Created: Thu Jul  26 11:08:00 CEST 2007
 //
-// $Id: TopTauProducer.cc,v 1.10 2007/10/11 14:53:10 delaer Exp $
+// $Id: TopTauProducer.cc,v 1.11 2007/10/30 10:02:34 delaer Exp $
 //
 
 #include "TopQuarkAnalysis/TopObjectProducers/interface/TopTauProducer.h"
@@ -79,7 +79,12 @@ void TopTauProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
     hasCalotaus = true;
   } catch( const edm::Exception &roEX) { }
   if(!hasCalotaus && !hasPFtaus) {
-    edm::LogError("DataSource") << "No Tau collection found.";
+    //Important note:
+    // We are not issuing a LogError to be able to run on AOD samples
+    // produced < 1_7_0, like CSA07 samples.
+    // Note that missing input will not block je job.
+    // In that case, an empty collection will be produced.
+    edm::LogWarning("DataSource") << "No Tau collection found.";
   }
   if(hasCalotaus && hasPFtaus) {
     edm::LogError("DataSource") << "Ambiguous datasource. Taus can be both CaloTaus or PF taus.";
