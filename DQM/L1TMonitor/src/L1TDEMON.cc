@@ -264,6 +264,8 @@ L1TDEMON::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   }
 
 
+  const int nullVal = L1DataEmulDigi().reset();
+
   /// get the de candidates
   L1DEDigiCollection deColl;
   deColl = deRecord->getColl();
@@ -289,19 +291,22 @@ L1TDEMON::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   
   // container for subsystem's leading candidate
   const int ncorr = 3;
-  float LeadCandVal[DEnsys][ncorr] = {{0.}};
+  float LeadCandVal[DEnsys][ncorr] = {{nullVal}};
   for(int i=0; i<DEnsys; i++) 
     for(int j=0; j<ncorr; j++)
-      LeadCandVal[i][j]=-99.;
+      LeadCandVal[i][j]=nullVal;
 
   // d|e candidate loop
   for(L1DEDigiCollection::const_iterator it=deColl.begin(); it!=deColl.end(); it++) {
-    
+
     int    sid = it->sid();
     int    cid = it->cid();
-    assert(isComp[sid]);
-    int type   = it->type();
 
+    if(it->empty())
+      continue;
+    assert(isComp[sid]);
+
+    int type   = it->type();
     double phiv = it->x1();
     double etav = it->x2();
     double x3v  = it->x3();
@@ -319,7 +324,7 @@ L1TDEMON::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
       //if(cid!=RCTrgn) continue;
     }
     if(sid==GCT) { 
-      if(cid=GCTem ) continue;
+      if(cid!=GCTem ) continue;
       //if(cid!=GCTjet) continue;
     }      
     if(sid==DTP) {
@@ -344,11 +349,15 @@ L1TDEMON::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
     //exclude agreeing cands
     wei=1.; if(!type) wei=0.;
-    etaphi[sid]->Fill(etav,phiv,wei);
-    eta   [sid]->Fill(etav,wei);
-    phi   [sid]->Fill(phiv,wei);
-    if(sid==RCT || sid==DTP)
-    x3    [sid]->Fill( x3v,wei);
+    if(etav!=nullVal && phiv!=nullVal)
+      etaphi[sid]->Fill(etav,phiv,wei);
+    if(etav!=nullVal)
+      eta   [sid]->Fill(etav,wei);
+    if(phiv!=nullVal)
+      phi   [sid]->Fill(phiv,wei);
+    if(sid==DTP)
+      if(x3v!=nullVal)
+	x3    [sid]->Fill( x3v,wei);
     
     unsigned int word[2];
     it->data(word);
@@ -361,7 +370,7 @@ L1TDEMON::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
     std::bitset<32> dembits( ( (dexor) & (mask) ) );
     
     if(verbose())
-      std::cout << "dehistos" 
+      std::cout << "l1demon" 
 		<< " sid:" << sid << " cid:" << cid << "\n"
 		<< " data:0x" << std::hex << word[0] << std::dec
 		<< " bitset:" << dbits
@@ -387,10 +396,13 @@ L1TDEMON::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
     //exclude e-only cands (only data)
     wei=1.;if(type==4) wei=0.;
-    etaData[sid]->Fill(etav,wei);
-    phiData[sid]->Fill(phiv,wei);
-    if(sid==RCT || sid==DTP)
-    x3Data [sid]->Fill( x3v,wei);
+    if(etav!=nullVal)
+      etaData[sid]->Fill(etav,wei);
+    if(phiv!=nullVal)
+      phiData[sid]->Fill(phiv,wei);
+    if(sid==DTP)
+      if(x3v!=nullVal)
+	x3Data [sid]->Fill( x3v,wei);
     rnkData[sid]->Fill(rnkv,wei);
 
     //correlations: store leading candidate
@@ -408,9 +420,10 @@ L1TDEMON::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   double wei=1.;
   for(int i=0; i<DEnsys; i++) {
     for(int j=0; j<DEnsys; j++) {
-      if(i>j) continue;
+      if(i>=j) continue;
       for(int k=0; k<ncorr; k++) {
-	CORR[i][j][k]->Fill(LeadCandVal[i][k],LeadCandVal[j][k],wei);
+	if(LeadCandVal[i][k]!=nullVal && LeadCandVal[j][k]!=nullVal)
+	  CORR[i][j][k]->Fill(LeadCandVal[i][k],LeadCandVal[j][k],wei);
       }
     }
   }
