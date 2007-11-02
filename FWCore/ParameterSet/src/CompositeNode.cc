@@ -292,8 +292,10 @@ namespace edm {
       for(; i != e; ++i)
       {
         // let unnamed node go, because they might be in the process
+        // replaceAppend is allowed multiple times
         if((**i).name() != "" && (**i).name() != "nameless" 
-           && (**i).type() != "includeRenamed" && (**i).type() != "es_prefer")
+           && (**i).type() != "includeRenamed" && (**i).type() != "es_prefer"
+           && (**i).type() != "replaceAppend")
         {
           if(std::find(nodeNames.begin(), nodeNames.end(), (**i).name())
              == nodeNames.end())
