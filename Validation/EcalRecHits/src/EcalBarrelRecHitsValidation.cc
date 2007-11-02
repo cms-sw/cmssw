@@ -1,7 +1,7 @@
 /*
  * \file EcalBarrelRecHitsValidation.cc
  *
- * $Date: 2007/08/08 16:20:40 $
+ * $Date: 2007/09/28 12:47:14 $
  * \author C. Rovelli
  *
  */
@@ -141,25 +141,25 @@ void EcalBarrelRecHitsValidation::endJob(){
 void EcalBarrelRecHitsValidation::analyze(const Event& e, const EventSetup& c){
   
   Handle< EBDigiCollection > EcalDigiEB;
-  try {
-    e.getByLabel( EBdigiCollection_, EcalDigiEB);
-  } catch ( cms::Exception& ex ) {
-    edm::LogError("EcalRecHitsTaskError") << "Error! can't get the Digis " << std::endl;
-  }
+  // try {
+  e.getByLabel( EBdigiCollection_, EcalDigiEB);
+  // } catch ( cms::Exception& ex ) {
+  //  edm::LogError("EcalRecHitsTaskError") << "Error! can't get the Digis " << std::endl;
+  //}
   
   Handle< EBUncalibratedRecHitCollection > EcalUncalibRecHitEB;
-  try {
-    e.getByLabel( EBuncalibrechitCollection_, EcalUncalibRecHitEB);
-  } catch ( cms::Exception& ex ) {
-    edm::LogError("EcalRecHitsTaskError") << "Error! can't get the product " << EBuncalibrechitCollection_.label() << ":" << EBuncalibrechitCollection_.instance() ;
-  }
+  // try {
+  e.getByLabel( EBuncalibrechitCollection_, EcalUncalibRecHitEB);
+  // } catch ( cms::Exception& ex ) {
+  //  edm::LogError("EcalRecHitsTaskError") << "Error! can't get the product " << EBuncalibrechitCollection_.label() << ":" << EBuncalibrechitCollection_.instance() ;
+  // }
 
   edm::ESHandle<EcalPedestals> ecalPeds; 
-  try {
-    c.get<EcalPedestalsRcd>().get(ecalPeds);
-  } catch ( cms::Exception& ex ) {
-    edm::LogError("EcalRecHitsTaskError") << "Error! can't get the Ecal pedestals" << std::endl;
-  }
+  // try {
+  c.get<EcalPedestalsRcd>().get(ecalPeds);
+  // } catch ( cms::Exception& ex ) {
+  //  edm::LogError("EcalRecHitsTaskError") << "Error! can't get the Ecal pedestals" << std::endl;
+  //}
 
 
   // ---------------------- 
