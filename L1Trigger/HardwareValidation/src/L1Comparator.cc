@@ -646,6 +646,13 @@ L1Comparator::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   m_match &= evt_match;
   m_dumpFile << std::flush;
 
+  //if collection is empty, add empty digi
+  if(m_dedigis.size()==0) {
+    if(verbose())
+      std::cout << "\n [L1Comparator] adding empty collection to DErecord\n";
+    m_dedigis.push_back(L1DataEmulDigi());
+  }
+  
   // >>---- d|e record ---- <<  
   std::auto_ptr<L1DataEmulRecord> record
     (new L1DataEmulRecord(evt_match,m_doSys,DEmatchEvt,DEncand,m_dedigis));
@@ -727,12 +734,9 @@ void L1Comparator::process(T const* data, T const* emul, const int sys) {
     if(verbose())
       std::cout << "L1Comparator::process " 
 		<< "empty collections -- exiting!\n" << std::flush;
-    //put empty digi
-    if(m_dedigis.size()==0)
-      m_dedigis.push_back(L1DataEmulDigi());
     return;
   }
-
+  
   m_dumpFile << std::setiosflags(std::ios::showpoint | std::ios::fixed 
 				 | std::ios::right | std::ios::adjustfield);
   std::cout  << std::setiosflags(std::ios::showpoint | std::ios::fixed 
