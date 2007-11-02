@@ -1,10 +1,12 @@
 #!/usr/bin/env python
 from ConfigParser import ConfigParser
-from copy import copy
+#from copy import copy
 from optparse import OptionParser, Option, OptionValueError
 import coral
 from CondCore.TagCollection import Node,TagTree,tagInventory
-
+def stripws(myinput):
+    result=('').join(myinput.split(' '))
+    return result
 class tagTreeRootBuilder:
     def __init__(self):
         """
@@ -38,8 +40,8 @@ class tagTreeRootBuilder:
         self.__parser.add_option("-u","--user",action="store",dest="user",type="string",help="user name")
         self.__parser.add_option("-p","--password",action="store",dest="password",type="string",help="password")
         self.__parser.add_option("-P","--path",action="store",dest="authpath",type="string",help="path to authentication.xml")
-        self.__parser.add_option("-r","--rootname",action="store",dest="rootname",type="string",help="root node name")
-        self.__parser.add_option("-a","--all",action="store_true",dest="all",help="attach all tags in the inventory as leafs under the root")
+        self.__parser.add_option("-r","--rootname",action="store",dest="rootname",type="string",help="root node name (default \'All\')")
+        self.__parser.add_option("-a","--all",action="store_true",dest="all",help="attach all tags in the inventory as leafs under the root(optional)")
         self.__parser.add_option("-v","--verbose",action="store_true",dest="verbose",help="verbose mode")
         self.__parser.set_defaults(filename='')
         self.__parser.set_defaults(connectstring='')
@@ -50,15 +52,25 @@ class tagTreeRootBuilder:
         self.__parser.set_defaults(all=False)
         self.__parser.set_defaults(verbose=False)
         (options, args) = self.__parser.parse_args()
-        if self.__parser.values.filename!='':
-        else:    
-            self.__connectstring=self.__parser.values.connectstring
+        if options.filename and options.connectstring:
+            raise OptionValueError("option -%s and -%s are exclusive"%('f','c'))
+        if len(self.__parser.values.authpath)!=0:
+            self.__authpath=self.__parser.values.authpath
+        else:
             self.__user=self.__parser.values.user
             self.__password=self.__parser.values.password
-            self.__authpath=self.__parser.values.authpath
+        self.__verbose=self.__parser.values.verbose
+        self.__all=self.__parser.values.all
+        if self.__parser.values.filename!='':
+            configparser=ConfigParser()
+            configparser.read(self.__parser.values.filename)
+            self.__connectstring=configparser.get("COMMON","connect")
+            self.__rootname=stripws(configparser.get("TAGTREE",'root'))
+            if self.__parser.values.verbose is True:
+                print 'config file: ',self.__parser.values.filename
+        else:    
+            self.__connectstring=self.__parser.values.connectstring
             self.__rootname=self.__parser.values.rootname
-            self.__all=self.__parser.values.all
-            self.__verbose=self.__parser.values.verbose
     def createRootNode(self):
         """
         Create root node of the tree 
