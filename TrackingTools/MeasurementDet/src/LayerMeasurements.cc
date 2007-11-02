@@ -65,8 +65,10 @@ LayerMeasurements::groupedMeasurements( const DetLayer& layer,
 	mdet->fastMeasurements( idet->trajectoryState(), startingState, prop, est);
       if (!tmp.empty()) {
 	// only collect valid RecHits
-	vector<TrajectoryMeasurement>::iterator end = 
-	  (tmp.back().recHit()->isValid() ? tmp.end() : tmp.end()-1);
+	std::vector<TrajectoryMeasurement>::iterator end = 
+                (tmp.back().recHit()->getType() != TrackingRecHit::missing ? 
+                    tmp.end() : 
+                    tmp.end()-1);
 	tmpVec.insert( tmpVec.end(), tmp.begin(), end);
       }
     }
