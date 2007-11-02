@@ -7,10 +7,11 @@
  * Attention: Units are assumed to be cm and radian!
  * \author Sunanda Banerjee
  *
- * $Id: BeamProfileVtxGenerator.h,v 1.3 2007/03/22 02:28:46 yarba Exp $
+ * $Id: BeamProfileVtxGenerator.h,v 1.4 2007/04/27 14:25:34 yumiceva Exp $
  */
 
 #include "IOMC/EventVertexGenerators/interface/BaseEvtVtxGenerator.h"
+#include <vector>
 
 namespace CLHEP
 {
@@ -59,8 +60,10 @@ private:
   double      fSigmaX, fSigmaY;
   double      fMeanX,  fMeanY, fMeanZ;
   double      fEta,    fPhi,   fTheta;
-  bool        fType;
-  CLHEP::HepRandom*  fRandom;   
+  bool        fType,   ffile;
+  int         nBinx,   nBiny;
+  std::vector<double> fdistn;
+  CLHEP::HepRandom*   fRandom;   
 };
 
 #endif
