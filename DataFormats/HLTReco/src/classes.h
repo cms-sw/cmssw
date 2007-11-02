@@ -65,21 +65,21 @@ namespace {
     HLTPerformanceInfo::Path::const_iterator pw13;
 
 
-    reco::TrigObject to;
-    reco::TrigCollection tc;
-    reco::TrigGlobalCollection tg;
+    reco::TriggerObject to;
+    reco::TriggerCollection tc;
+    reco::TriggerGlobalCollection tg;
 
-    reco::TrigPointer tp;
-    reco::TrigPathCollection tpc;
-    reco::TrigTableCollection ttc;
+    reco::TriggerPointer tp;
+    reco::TriggerPathCollection tpc;
+    reco::TriggerTableCollection ttc;
 
-    edm::Wrapper<reco::TrigObject> wto;
-    edm::Wrapper<reco::TrigCollection> wtc;
-    edm::Wrapper<reco::TrigGlobalCollection> wtg;
+    edm::Wrapper<reco::TriggerObject> wto;
+    edm::Wrapper<reco::TriggerCollection> wtc;
+    edm::Wrapper<reco::TriggerGlobalCollection> wtg;
 
-    edm::Wrapper<reco::TrigPointer> wtp;
-    edm::Wrapper<reco::TrigPathCollection> wtpc;
-    edm::Wrapper<reco::TrigTableCollection> wttc;
+    edm::Wrapper<reco::TriggerPointer> wtp;
+    edm::Wrapper<reco::TriggerPathCollection> wtpc;
+    edm::Wrapper<reco::TriggerTableCollection> wttc;
 
   }
 }

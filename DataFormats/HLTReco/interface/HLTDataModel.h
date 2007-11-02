@@ -1,12 +1,12 @@
 #ifndef HLTReco_HLTDataModel_h
 #define HLTReco_HLTDataModel_h
 
-/** \class reco::HLTFilterObject
+/** \class reco::HLTDataModel
  *
+ *  Classes for new HLT data model (to be split into separate header files)
  *
- *
- *  $Date: 2007/10/30 15:17:25 $
- *  $Revision: 1.1 $
+ *  $Date: 2007/10/30 15:33:28 $
+ *  $Revision: 1.2 $
  *
  *  \author Martin Grunewald
  *
@@ -21,55 +21,55 @@
 namespace reco
 {
 
-  typedef math::PtEtaPhiMLorentzVectorF TrigFourMomentum;
+  typedef math::PtEtaPhiMLorentzVectorF TriggerFourMomentum;
 
 
   /// individual physics object (e.g., electron or muon or jet)
-  class TrigObject {
+  class TriggerObject {
 
   private:
     /// 4-momentum of physics object
-    TrigFourMomentum objectP4_;
+    TriggerFourMomentum objectP4_;
     /// id or type - similar to pdgId
     int objectId_;
 
   public:
     /// constructors
-    TrigObject(): objectP4_(), objectId_() { }
-    TrigObject(const TrigFourMomentum& P4, int Id=0): objectP4_(P4), objectId_(Id) { }
+    TriggerObject(): objectP4_(), objectId_() { }
+    TriggerObject(const TriggerFourMomentum& P4, int Id=0): objectP4_(P4), objectId_(Id) { }
 
     /// setters
-    void setP4 (const TrigFourMomentum& P4) {objectP4_ = P4;}
+    void setP4 (const TriggerFourMomentum& P4) {objectP4_ = P4;}
     void setId (int Id=0) {objectId_ = Id;}
 
     /// getters
-    const TrigFourMomentum& getP4() const {return objectP4_;}
+    const TriggerFourMomentum& getP4() const {return objectP4_;}
     const int & getId() const {return objectId_;}
 
   };
 
 
   /// collection of physics objects (e.g., all electrons or all muons)
-  class TrigCollection {
+  class TriggerCollection {
 
   private:
     /// objects making the collection
-    std::vector<TrigObject> trigObjects_;
+    std::vector<TriggerObject> triggerObjects_;
     /// id or type - of collection
     int collectionId_;
 
   public:
     /// constructors
-    TrigCollection(): trigObjects_(), collectionId_() { }
-    TrigCollection(const std::vector<TrigObject>& trigObjects, int Id=0):
-      trigObjects_(trigObjects), collectionId_(Id) { }
+    TriggerCollection(): triggerObjects_(), collectionId_() { }
+    TriggerCollection(const std::vector<TriggerObject>& triggerObjects, int Id=0):
+      triggerObjects_(triggerObjects), collectionId_(Id) { }
 
     /// setters
-    void setCollection(const std::vector<TrigObject>& trigObjects) {trigObjects_=trigObjects;}
+    void setCollection(const std::vector<TriggerObject>& triggerObjects) {triggerObjects_=triggerObjects;}
     void setId(int Id) {collectionId_=Id;}
 
     /// getters
-    const std::vector<TrigObject>& getCollection() {return trigObjects_;}
+    const std::vector<TriggerObject>& getCollection() const {return triggerObjects_;}
     int getId() const {return collectionId_;}
 
   };
@@ -77,29 +77,29 @@ namespace reco
 
   /// collection of physics object collections (all electrons and muons and...)
   /// only needed if we want _one_ EDProduct containing _all_ collections!
-  class TrigGlobalCollection {
+  class TriggerGlobalCollection {
 
   private:
     ///
-    std::vector<TrigCollection> trigCollections_;
+    std::vector<TriggerCollection> triggerCollections_;
 
   public:
     /// constructors
-    TrigGlobalCollection(): trigCollections_() { }
-    TrigGlobalCollection(const std::vector<TrigCollection>& trigCollections):
-      trigCollections_(trigCollections) { }
+    TriggerGlobalCollection(): triggerCollections_() { }
+    TriggerGlobalCollection(const std::vector<TriggerCollection>& triggerCollections):
+      triggerCollections_(triggerCollections) { }
     ///
-    void addCollection(const TrigCollection& trigCollection) {
-      trigCollections_.push_back(trigCollection);}
-    const TrigCollection& getCollection(int i) const {
-      return trigCollections_.at(i);
+    void addCollection(const TriggerCollection& triggerCollection) {
+      triggerCollections_.push_back(triggerCollection);}
+    const TriggerCollection& getCollection(int i) const {
+      return triggerCollections_.at(i);
     }
 
   };
 
 
   /// Pointer to a physics object within a collection
-  class TrigPointer { /// should be edm::Ptr ??
+  class TriggerPointer { /// should be edm::Ptr<T> ??
 
   private:
     edm::ProductID productID_;
@@ -107,8 +107,8 @@ namespace reco
 
   public:
     /// constructors
-    TrigPointer(): productID_(), index_() { }
-    TrigPointer(const edm::ProductID& productID, int index=-1):
+    TriggerPointer(): productID_(), index_() { }
+    TriggerPointer(const edm::ProductID& productID, int index=-1):
       productID_(productID), index_(index) { }
 
     /// setters
@@ -123,26 +123,26 @@ namespace reco
 
 
   /// Collection of pointers to physics objects belonging to a trigger path
-  class TrigPathCollection {
+  class TriggerPathCollection {
 
   private:
     /// non-owning pointrers into collections
-    std::vector<TrigPointer> trigObjects_;
+    std::vector<TriggerPointer> triggerObjects_;
     /// id or type - of collection
     int collectionId_;
     
   public:
     /// constructors
-    TrigPathCollection(): trigObjects_(), collectionId_() { }
-    TrigPathCollection(const std::vector<TrigPointer>& trigObjects, int Id=0):
-      trigObjects_(trigObjects), collectionId_(Id) { }
+    TriggerPathCollection(): triggerObjects_(), collectionId_() { }
+    TriggerPathCollection(const std::vector<TriggerPointer>& triggerObjects, int Id=0):
+      triggerObjects_(triggerObjects), collectionId_(Id) { }
 
     /// setters
-    void setCollection(const std::vector<TrigPointer>& trigObjects) {trigObjects_=trigObjects;}
+    void setCollection(const std::vector<TriggerPointer>& triggerObjects) {triggerObjects_=triggerObjects;}
     void setId(int Id) {collectionId_=Id;}
 
     /// getters
-    const std::vector<TrigPointer>& getCollection() {return trigObjects_;}
+    const std::vector<TriggerPointer>& getCollection() const {return triggerObjects_;}
     int getId() const {return collectionId_;}
 
   };
@@ -150,21 +150,21 @@ namespace reco
 
   /// Collection of pointer collections describing the trigger table
   /// only needed if we want _one_ EDProduct containing _all_ collections!
-  class TrigTableCollection {
+  class TriggerTableCollection {
 
   private:
-    std::vector<TrigPathCollection> trigPathCollections_;
+    std::vector<TriggerPathCollection> triggerPathCollections_;
 
   public:
     /// constructors
-    TrigTableCollection(): trigPathCollections_() { }
-    TrigTableCollection(const std::vector<TrigPathCollection>& trigPathCollections):
-      trigPathCollections_(trigPathCollections) { }
+    TriggerTableCollection(): triggerPathCollections_() { }
+    TriggerTableCollection(const std::vector<TriggerPathCollection>& triggerPathCollections):
+      triggerPathCollections_(triggerPathCollections) { }
     ///
-    void addPathCollection(const TrigPathCollection& trigPathCollection) {
-      trigPathCollections_.push_back(trigPathCollection);}
-    const TrigPathCollection& getPathCollection(int i) const {
-      return trigPathCollections_.at(i);
+    void addPathCollection(const TriggerPathCollection& triggerPathCollection) {
+      triggerPathCollections_.push_back(triggerPathCollection);}
+    const TriggerPathCollection& getPathCollection(int i) const {
+      return triggerPathCollections_.at(i);
     }
 
   };
