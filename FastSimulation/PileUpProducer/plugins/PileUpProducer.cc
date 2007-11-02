@@ -92,6 +92,10 @@ void PileUpProducer::beginJob(const edm::EventSetup & es)
   
   // Read the information from a previous run (to keep reproducibility)
   bool input = this->read(inputFile);
+  if ( input ) 
+    std::cout << "***WARNING*** You are reading pile-up information from the file "
+	      << inputFile << " created in an earlier run."
+	      << std::endl;
 
   // Open the file for saving the information of the current run
   myOutputFile.open ("PileUpOutputFile.txt");
@@ -190,12 +194,12 @@ void PileUpProducer::produce(edm::Event & iEvent, const edm::EventSetup & es)
 		<< " is the file number " << file << std::endl; 
     */
 
-    // Smear the primary vertex
+    // Smear the primary vertex and express it in mm (stupid GenEvent convention...)
     theVertexGenerator->generate();
     HepMC::FourVector smearedVertex =  
-      HepMC::FourVector(theVertexGenerator->X(),
-			theVertexGenerator->Y(),
-			theVertexGenerator->Z(),
+      HepMC::FourVector(theVertexGenerator->X()*10.,
+			theVertexGenerator->Y()*10.,
+			theVertexGenerator->Z()*10.,
 			0.);
     HepMC::GenVertex* aVertex = new HepMC::GenVertex(smearedVertex);
     evt->add_vertex(aVertex);
