@@ -28,15 +28,19 @@ DQMSourceExample::DQMSourceExample( const edm::ParameterSet& ps )
   : DQMAnalyzer(ps)
 {
 
-/// use this to read in reference histograms from file
-//  dbe_->readReferenceME("ref_test.root");
+//// use this to read in reference histograms from file
+//  dbe_->readReferenceME("Ecal_000017220.root");
 //  dbe_->open("ref_test.root",false,"","prep");
 
-// use this to collate histograms from files
-//  dbe_->open("test1.root",true,"","Collate");
-//  dbe_->open("test2.root",true,"","Collate");
+//// use this to collate histograms from files
+//  dbe_->open("Ecal_000017220.root",true,"","Collate");
+//  dbe_->open("Ecal_000017224.root",true,"","Collate");
 
-/// use this to retrieve CMSSW version of file
+//// use this to merge histograms from different runs into the same file
+//  dbe_->open("Ecal_000017220.root",true,"","Run017220");
+//  dbe_->open("Ecal_000017224.root",true,"","Run017224");
+
+//// use this to retrieve CMSSW version of file
 //  cout << dbe_->getFileReleaseVersion("ref_test.root") << endl;
 
 
