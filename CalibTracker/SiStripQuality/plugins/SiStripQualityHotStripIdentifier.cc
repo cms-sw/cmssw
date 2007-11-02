@@ -44,8 +44,8 @@ SiStripQualityHotStripIdentifier::~SiStripQualityHotStripIdentifier(){
 SiStripBadStrip* SiStripQualityHotStripIdentifier::getNewObject(){
 
   edm::LogInfo("SiStripQualityHotStripIdentifier") <<"SiStripQualityHotStripIdentifier::getNewObject called"<<std::endl;
-  
-  SiStripQuality* qobj = new SiStripQuality();
+
+  SiStripBadStrip* obj=new SiStripBadStrip();
   
   edm::ParameterSet parameters=conf_.getParameter<edm::ParameterSet>("AlgoParameters");
   std::string AlgoName = parameters.getParameter<std::string>("AlgoName");
@@ -58,30 +58,41 @@ SiStripBadStrip* SiStripQualityHotStripIdentifier::getNewObject(){
     theIdentifier.setMinNumEntries(parameters.getUntrackedParameter<uint32_t>("MinNumEntries",100));
     theIdentifier.setMinNumEntriesPerStrip(parameters.getUntrackedParameter<uint32_t>("MinNumEntriesPerStrip",5));
 
+    SiStripQuality* qobj = new SiStripQuality();
     theIdentifier.extractBadStrips(qobj,ClusterPositionHistoMap);
+
+    edm::LogInfo("SiStripQualityHotStripIdentifier") <<" [SiStripQualityHotStripIdentifier::getNewObject] copy SiStripObject in SiStripBadStrip"<<std::endl;
+
+    std::stringstream ss;  
+  
+    SiStripBadStrip::RegistryIterator rIter=qobj->getRegistryVectorBegin();
+    SiStripBadStrip::RegistryIterator rIterEnd=qobj->getRegistryVectorEnd();
+    for(;rIter!=rIterEnd;++rIter){
+      SiStripBadStrip::Range range(qobj->getDataVectorBegin()+rIter->ibegin,qobj->getDataVectorBegin()+rIter->iend);
+      if ( ! obj->put(rIter->detid,range) )
+	edm::LogError("SiStripQualityHotStripIdentifier")<<"[SiStripQualityHotStripIdentifier::getNewObject] detid already exists"<<std::endl;
+    }
+    edm::LogInfo("SiStripQualityHotStripIdentifier") <<" [SiStripQualityHotStripIdentifier::getNewObject] " << ss.str() << std::endl;
+
   } else {
     edm::LogError("SiStripQualityHotStripIdentifier") <<" [SiStripQualityHotStripIdentifier::getNewObject] call for a unknow HotStrip identification algoritm"<<std::endl;
-  }
 
-  edm::LogInfo("SiStripQualityHotStripIdentifier") <<" [SiStripQualityHotStripIdentifier::getNewObject] copy SiStripObject in SiStripBadStrip"<<std::endl;
-  SiStripBadStrip* bobj=new SiStripBadStrip();//static_cast<SiStripBadStrip*>(obj);
-
-  std::stringstream ss;  
-  
-  SiStripBadStrip::RegistryIterator rIter=qobj->getRegistryVectorBegin();
-  SiStripBadStrip::RegistryIterator rIterEnd=qobj->getRegistryVectorEnd();
-  for(;rIter!=rIterEnd;++rIter){
-    ss<< " detid "<< rIter->detid<<std::endl;
-    SiStripBadStrip::Range range(qobj->getDataVectorBegin()+rIter->ibegin,qobj->getDataVectorBegin()+rIter->iend);
-    if ( ! bobj->put(rIter->detid,range) )
+    std::vector<uint32_t> a;
+    SiStripBadStrip::Range range(a.begin(),a.end());
+    if ( ! obj->put(0xFFFFFFFF,range) )
       edm::LogError("SiStripQualityHotStripIdentifier")<<"[SiStripQualityHotStripIdentifier::getNewObject] detid already exists"<<std::endl;
   }
-  edm::LogInfo("SiStripQualityHotStripIdentifier") <<" [SiStripQualityHotStripIdentifier::getNewObject] " << ss.str() << std::endl;
-  return bobj;
+  
+  return obj;
 }
 
+void SiStripQualityHotStripIdentifier::algoEndJob(){
+  //Clear map
+  ClusterPositionHistoMap.clear();
+}
 
 void SiStripQualityHotStripIdentifier::resetHistos(){
+  edm::LogInfo("SiStripQualityHotStripIdentifier") <<" [SiStripQualityHotStripIdentifier::resetHistos] " << std::endl;
   SiStrip::QualityHistosMap::iterator it=ClusterPositionHistoMap.begin();
   SiStrip::QualityHistosMap::iterator iEnd=ClusterPositionHistoMap.end();
   for (;it!=iEnd;++it){
@@ -90,15 +101,16 @@ void SiStripQualityHotStripIdentifier::resetHistos(){
 }
 
 void SiStripQualityHotStripIdentifier::bookHistos(){
+  edm::LogInfo("SiStripQualityHotStripIdentifier") <<" [SiStripQualityHotStripIdentifier::bookHistos] " << std::endl;
   char hname[1024];
   std::map<uint32_t, SiStripDetInfoFileReader::DetInfo >::const_iterator it =reader->getAllData().begin();
   std::map<uint32_t, SiStripDetInfoFileReader::DetInfo >::const_iterator iEnd =reader->getAllData().end();
-  for(; it!=iEnd; ++it){
-    
+  for(; it!=iEnd; ++it){    
     sprintf(hname,"h_%d",it->first);
     SiStrip::QualityHistosMap::iterator ref=ClusterPositionHistoMap.find(it->first);
-    if (ref==ClusterPositionHistoMap.end())
+    if (ref==ClusterPositionHistoMap.end()){
       ClusterPositionHistoMap[it->first]=boost::shared_ptr<TH1F>(new TH1F(hname,hname,it->second.nApvs*128,-0.5,it->second.nApvs*128-0.5));
+    }
     else 
       edm::LogError("SiStripQualityHotStripIdentifier") <<" [SiStripQualityHotStripIdentifier::bookHistos] DetId " << it->first << " already found in map. Ignoring new data"<<std::endl;
   }

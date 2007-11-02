@@ -15,8 +15,6 @@
 
 #include <vector>
 
-#include <ext/hash_map>
-
 class SiStripQualityHotStripIdentifier : public ConditionDBWriter<SiStripBadStrip> {
 
 public:
@@ -27,11 +25,14 @@ public:
 private:
 
  //Will be called at the beginning of the job
-  void algoBeginJob(const edm::EventSetup&){resetHistos();}
+  void algoBeginJob(const edm::EventSetup&){ resetHistos(); }
   //Will be called at the beginning of each run in the job
-  void algoBeginRun(const edm::Run &, const edm::EventSetup &){resetHistos();}
+  void algoBeginRun(const edm::Run &, const edm::EventSetup &){ resetHistos(); }
   //Will be called at the beginning of each luminosity block in the run
-  void algoBeginLuminosityBlock(const edm::LuminosityBlock &, const edm::EventSetup &){resetHistos();}
+  void algoBeginLuminosityBlock(const edm::LuminosityBlock &, const edm::EventSetup &){ resetHistos(); }
+  //Will be called at the end of the job
+  void algoEndJob();
+
 
   //Will be called at every event
   void algoAnalyze(const edm::Event&, const edm::EventSetup&);
