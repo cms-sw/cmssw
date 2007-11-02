@@ -53,7 +53,11 @@ namespace edm {
       NodePtr processPSetNodePtr = nodes_->front();
       edm::pset::PSetNode * processPSetNode
         = dynamic_cast<edm::pset::PSetNode*>(processPSetNodePtr.get());
-      assert(processPSetNode != 0);
+      if(processPSetNode == 0) 
+      {
+        throw edm::Exception(errors::Configuration,"ParseTree")
+          << "The top node of the configuration must be a process";
+      }
       return processPSetNode;
     }
 
