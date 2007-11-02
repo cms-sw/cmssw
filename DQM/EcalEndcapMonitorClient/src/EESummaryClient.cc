@@ -1,8 +1,8 @@
 /*
  * \file EESummaryClient.cc
  *
- * $Date: 2007/10/26 08:44:56 $
- * $Revision: 1.44 $
+ * $Date: 2007/11/02 10:06:24 $
+ * $Revision: 1.45 $
  * \author G. Della Ricca
  *
 */
@@ -793,6 +793,13 @@ void EESummaryClient::analyze(void){
       meTriggerTowerEmulError_[1]->setBinContent( ix, iy, -1. );
     }
   }
+
+  meIntegrity_[0]-setEntries( 0 );
+  meIntegrity_[1]-setEntries( 0 );
+  meOccupancy_[0]->setEntries( 0 );
+  meOccupancy_[1]->setEntries( 0 );
+  mePedestalOnline_[0]->setEntries( 0 );
+  mePedestalOnline_[1]->setEntries( 0 );
 
   meLaserL1_[0]->setEntries( 0 );
   meLaserL1_[1]->setEntries( 0 );

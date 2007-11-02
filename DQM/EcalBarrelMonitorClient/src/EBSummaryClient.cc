@@ -1,8 +1,8 @@
 /*
  * \file EBSummaryClient.cc
  *
- * $Date: 2007/10/26 08:44:54 $
- * $Revision: 1.76 $
+ * $Date: 2007/11/02 10:06:27 $
+ * $Revision: 1.77 $
  * \author G. Della Ricca
  *
 */
@@ -467,6 +467,10 @@ void EBSummaryClient::analyze(void){
       meTriggerTowerEmulError_->setBinContent( ipx, iex, -1. ); 
     }
   }
+
+  meIntegrity_-setEntries( 0 );
+  meOccupancy_->setEntries( 0 );
+  mePedestalOnline_->setEntries( 0 );
 
   meLaserL1_->setEntries( 0 );
   meLaserL1PN_->setEntries( 0 );
@@ -988,7 +992,7 @@ void EBSummaryClient::analyze(void){
         float xval = 2;
         float val_in = meIntegrity_->getBinContent(ipx,iex);
         float val_po = mePedestalOnline_->getBinContent(ipx,iex);
-        
+
         // turn each dark color to bright green
         if(val_in>2) val_in=1;
         if(val_po>2) val_po=1;
