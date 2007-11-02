@@ -7,18 +7,22 @@
 #include <sstream>
 #include <iostream>
 
-void SiStripHotStripAlgorithmFromClusterOccupancy::extractBadStrips(SiStripQuality* siStripQuality,DataMap& DM){
+SiStripHotStripAlgorithmFromClusterOccupancy::~SiStripHotStripAlgorithmFromClusterOccupancy(){
+  LogTrace("SiStripHotStripAlgorithmFromClusterOccupancy")<<"[SiStripHotStripAlgorithmFromClusterOccupancy::~SiStripHotStripAlgorithmFromClusterOccupancy] "<<std::endl;
+}
+
+void SiStripHotStripAlgorithmFromClusterOccupancy::extractBadStrips(SiStripQuality* siStripQuality,HistoMap& DM){
 
   LogTrace("SiStripHotStripAlgorithmFromClusterOccupancy")<<"[SiStripHotStripAlgorithmFromClusterOccupancy::extractBadStrips] "<<std::endl;
 
-  DataMap::const_iterator it=DM.begin();
-  DataMap::const_iterator itEnd=DM.end();
+  HistoMap::iterator it=DM.begin();
+  HistoMap::iterator itEnd=DM.end();
   std::vector<unsigned int> badStripList;
   uint32_t detid;
   for (;it!=itEnd;++it){
     pHisto phisto;
-    phisto._th1f=it->second;
-    phisto._NEntries=it->second->GetEntries();
+    phisto._th1f=it->second.get();
+    phisto._NEntries=phisto._th1f->GetEntries();
     detid=it->first;
     
     pQuality=siStripQuality;
@@ -36,6 +40,7 @@ void SiStripHotStripAlgorithmFromClusterOccupancy::extractBadStrips(SiStripQuali
       edm::LogError("SiStripHotStripAlgorithmFromClusterOccupancy")<<"[SiStripHotStripAlgorithmFromClusterOccupancy::extractBadStrips] detid already exists"<<std::endl;
   }
   siStripQuality->fillBadComponents();
+  LogTrace("SiStripHotStripAlgorithmFromClusterOccupancy") << ss.str() << std::endl;
 }
 
   
@@ -65,12 +70,12 @@ void SiStripHotStripAlgorithmFromClusterOccupancy::iterativeSearch(pHisto& histo
       histo._NEntries-=entries;
       histo._NEmptyBins++;
       if (edm::isDebugEnabled())
-	LogTrace("SiStripHotStripAlgorithmFromClusterOccupancy") << " [SiStripHotStripAlgorithmFromClusterOccupancy::iterativeSearch] rejecting strip " << i-1 << std::endl;
+	ss << " [SiStripHotStripAlgorithmFromClusterOccupancy::iterativeSearch] rejecting strip " << i-1 << std::endl;
       vect.push_back(pQuality->encode(i-1,1,0));
     }
   }
   if (edm::isDebugEnabled())
-    LogTrace("SiStripHotStripAlgorithmFromClusterOccupancy") << " [SiStripHotStripAlgorithmFromClusterOccupancy::iterativeSearch] Nbins="<< Nbins << " MaxEntry="<<MaxEntry << " meanVal=" << meanVal << " NEmptyBins="<<histo._NEmptyBins<< " NEntries=" << histo._NEntries << " " << histo._th1f->GetEntries()<< " startingSize " << startingSize << " vector.size " << vect.size() << std::endl;
+    ss << " [SiStripHotStripAlgorithmFromClusterOccupancy::iterativeSearch] Nbins="<< Nbins << " MaxEntry="<<MaxEntry << " meanVal=" << meanVal << " NEmptyBins="<<histo._NEmptyBins<< " NEntries=" << histo._NEntries << " " << histo._th1f->GetEntries()<< " startingSize " << startingSize << " vector.size " << vect.size() << std::endl;
 
   if (vect.size()!=startingSize)
     iterativeSearch(histo,vect);

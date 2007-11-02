@@ -13,7 +13,7 @@
 //
 // Original Author:  Domenico GIORDANO
 //         Created:  Wed Oct  3 12:11:10 CEST 2007
-// $Id:$
+// $Id: SiStripHotStripAlgorithmFromClusterOccupancy.h,v 1.1 2007/10/24 08:42:45 giordano Exp $
 //
 //
 
@@ -22,8 +22,8 @@
 
 // system include files
 #include <memory>
-#include "boost/shared_ptr.hpp"
 #include <vector>
+#include <sstream>
 
 #include "TMath.h"
 
@@ -34,16 +34,16 @@ class SiStripQuality;
 class SiStripHotStripAlgorithmFromClusterOccupancy{
 
 public:
-  typedef SiStrip::QualityHistosMap DataMap;  
+  typedef SiStrip::QualityHistosMap HistoMap;  
   
 
   SiStripHotStripAlgorithmFromClusterOccupancy():prob_(1.E-7),MinNumEntries_(0),MinNumEntriesPerStrip_(0){};
-  virtual ~SiStripHotStripAlgorithmFromClusterOccupancy(){};
+  virtual ~SiStripHotStripAlgorithmFromClusterOccupancy();
 
   void setProbabilityThreshold(long double prob){prob_=prob;}
   void setMinNumEntries(unsigned short m){MinNumEntries_=m;}
   void setMinNumEntriesPerStrip(unsigned short m){MinNumEntriesPerStrip_=m;}
-  void extractBadStrips(SiStripQuality*,DataMap&);
+  void extractBadStrips(SiStripQuality*,HistoMap&);
 
   
  private:
@@ -51,7 +51,7 @@ public:
   struct pHisto{   
 
     pHisto():_NEntries(0),_NEmptyBins(0){};
-    boost::shared_ptr<TH1F> _th1f;
+    TH1F* _th1f;
     int _NEntries;
     int _NEmptyBins;
   };
@@ -64,6 +64,7 @@ public:
   unsigned short MinNumEntriesPerStrip_;
 
   SiStripQuality *pQuality;
+  std::stringstream ss;   
 };
 #endif
 
