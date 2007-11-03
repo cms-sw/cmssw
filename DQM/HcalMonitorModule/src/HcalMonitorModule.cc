@@ -3,8 +3,8 @@
 /*
  * \file HcalMonitorModule.cc
  * 
- * $Date: 2007/10/04 21:03:11 $
- * $Revision: 1.38 $
+ * $Date: 2007/10/11 22:35:52 $
+ * $Revision: 1.39 $
  * \author W Fisher
  *
 */
@@ -30,6 +30,7 @@ HcalMonitorModule::HcalMonitorModule(const edm::ParameterSet& ps)
   rhMon_ = NULL;     pedMon_ = NULL; 
   ledMon_ = NULL;    mtccMon_ = NULL;
   hotMon_ = NULL;    tempAnalysis_ = NULL;
+  deadMon_ = NULL;
   commisMon_ = NULL; tpMon_ = NULL;
 
   if ( ps.getUntrackedParameter<bool>("DataFormatMonitor", false) ) {
@@ -80,6 +81,13 @@ HcalMonitorModule::HcalMonitorModule(const edm::ParameterSet& ps)
     hotMon_->setup(ps, dbe_);
   }
   
+  if ( ps.getUntrackedParameter<bool>("DeadCellMonitor", false) ) {
+    if(debug_ || 1>0) cout << "HcalMonitorModule: Dead Cell monitor flag is on...." << endl;
+    deadMon_ = new HcalDeadCellMonitor();
+    deadMon_->setup(ps, dbe_);
+  }
+  
+
   if ( ps.getUntrackedParameter<bool>("CommissioningMonitor", false) ) {
     if(debug_) cout << "HcalMonitorModule: Commissioning monitor flag is on...." << endl;
     commisMon_ = new HcalCommissioningMonitor();
@@ -105,6 +113,7 @@ HcalMonitorModule::~HcalMonitorModule(){
     if(pedMon_!=NULL)  {  pedMon_->clearME();}
     if(ledMon_!=NULL)  {  ledMon_->clearME();}
     if(hotMon_!=NULL)  {  hotMon_->clearME();}
+    if(deadMon_!=NULL) {  deadMon_->clearME();}
     if(commisMon_!=NULL) {  commisMon_->clearME();}
     if(mtccMon_!=NULL) {  mtccMon_->clearME();}
     if(rhMon_!=NULL)   {  rhMon_->clearME();}
@@ -119,6 +128,7 @@ HcalMonitorModule::~HcalMonitorModule(){
   if(pedMon_!=NULL) { delete pedMon_; pedMon_=NULL; }
   if(ledMon_!=NULL) { delete ledMon_; ledMon_=NULL; }
   if(hotMon_!=NULL) { delete hotMon_; hotMon_=NULL; }
+  if(deadMon_!=NULL) { delete deadMon_; deadMon_=NULL; }
   if(commisMon_!=NULL) { delete commisMon_; commisMon_=NULL; }
   if(mtccMon_!=NULL) { delete mtccMon_; mtccMon_=NULL; }
   if(rhMon_!=NULL) { delete rhMon_; rhMon_=NULL; }
@@ -164,10 +174,12 @@ void HcalMonitorModule::beginJob(const edm::EventSetup& c){
 //--------------------------------------------------------
 void HcalMonitorModule::beginRun(const edm::Run& run, const edm::EventSetup& c) {
   // call DQMAnalyzer in the beginning 
+  cout <<"HcalMonitorModule::beginRun"<<endl;
   DQMAnalyzer::beginRun(run, c);
 
   fedsListed_ = false;
   reset();
+  cout <<"Finished beginRun"<<endl;
 }
 
 //--------------------------------------------------------
@@ -198,8 +210,10 @@ void HcalMonitorModule::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
 void HcalMonitorModule::endRun(const edm::Run& r, const edm::EventSetup& context){
   // do your thing here
   
+  cout <<"HcalMonitorModule::endRun"<<endl;
   // call DQMAnalyzer at the end
   DQMAnalyzer::endRun(r,context); 
+  cout <<"Finished DQMAnalyzer::endRun"<<endl;
 }
 
 
@@ -218,6 +232,7 @@ void HcalMonitorModule::endJob(void) {
   if(pedMon_!=NULL) pedMon_->done();
   if(ledMon_!=NULL) ledMon_->done();
   if(hotMon_!=NULL) hotMon_->done();
+  if(deadMon_!=NULL) deadMon_->done();
   if(commisMon_!=NULL) commisMon_->done();
   if(mtccMon_!=NULL) mtccMon_->done();
   if(tempAnalysis_!=NULL) tempAnalysis_->done();
@@ -240,6 +255,7 @@ void HcalMonitorModule::reset(){
   if(pedMon_!=NULL)  pedMon_->reset();
   if(ledMon_!=NULL)  ledMon_->reset();
   if(hotMon_!=NULL)  hotMon_->reset();
+  if(deadMon_!=NULL)  deadMon_->reset();
   if(commisMon_!=NULL) commisMon_->reset();
   if(mtccMon_!=NULL)   mtccMon_->reset();
   if(tempAnalysis_!=NULL) tempAnalysis_->reset();
@@ -302,6 +318,8 @@ void HcalMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& even
   try{e.getByLabel(inputLabelDigi_,ho_digi);} catch(exception& ex){digiOK_=false;};
   try{e.getByLabel(inputLabelDigi_,tp_digi);} catch(exception& ex){tpdOK_=false;};
 
+
+
   // try to get rechits
   edm::Handle<HBHERecHitCollection> hb_hits;
   edm::Handle<HORecHitCollection> ho_hits;
@@ -344,6 +362,16 @@ void HcalMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& even
   // Hot Cell monitor task
   if((hotMon_ != NULL) && (evtMask&DO_HCAL_RECHITMON) && rechitOK_) 
     hotMon_->processEvent(*hb_hits,*ho_hits,*hf_hits);
+
+  // Dead Cell monitor task -- may end up using both rec hits and digis?
+  if((deadMon_ != NULL) && (evtMask&DO_HCAL_RECHITMON) && rechitOK_ && digiOK_) 
+    {
+      deadMon_->processEvent(*hb_hits,*ho_hits,*hf_hits,
+			     *hbhe_digi,*ho_digi,*hf_digi,*conditions_);
+			     
+      //deadMon_->processEvent_digi(*hbhe_digi,*ho_digi,*hf_digi,*conditions_);
+      //deadMon_->processEvent_hits(*hb_hits,*ho_hits,*hf_hits);
+    }
 
   // Old MTCC monitor task
   if(mtccMon_ != NULL && digiOK_ && ltcOK_) mtccMon_->processEvent(*hbhe_digi,*ho_digi, *ltc,*conditions_);
