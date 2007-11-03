@@ -17,7 +17,7 @@
 //
 // Author:      Domenico Giordano
 // Created:     Wed Sep 26 17:42:12 CEST 2007
-// $Id: SiStripQuality.h,v 1.3 2007/10/18 08:42:17 giordano Exp $
+// $Id: SiStripQuality.h,v 1.4 2007/10/24 08:33:14 giordano Exp $
 //
 
 
@@ -79,6 +79,7 @@ class SiStripQuality: public SiStripBadStrip {
   bool IsFiberBad(const uint32_t& detid, const short& fiberNb) const;
   bool IsApvBad(const uint32_t& detid, const short& apvNb) const;
   bool IsStripBad(const uint32_t& detid, const short& strip) const;
+  bool IsStripBad(const Range& range, const short& strip) const;
   
   short getBadApvs(const uint32_t& detid) const; 
   //each bad apv correspond to a bit to 1: num=

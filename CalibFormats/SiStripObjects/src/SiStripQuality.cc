@@ -1,7 +1,7 @@
  //
 // Author:      Domenico Giordano
 // Created:     Wed Sep 26 17:42:12 CEST 2007
-// $Id: SiStripQuality.cc,v 1.4 2007/10/24 08:33:14 giordano Exp $
+// $Id: SiStripQuality.cc,v 1.5 2007/10/24 15:29:15 giordano Exp $
 //
 #include "FWCore/Framework/interface/eventsetupdata_registration_macro.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripQuality.h"
@@ -360,8 +360,12 @@ bool SiStripQuality::IsApvBad(const uint32_t& detid, const short& apvNb) const{
 }
 
 bool SiStripQuality::IsStripBad(const uint32_t& detid, const short& strip) const{
-  bool result=false;
   SiStripBadStrip::Range range=getRange(detid);
+  return IsStripBad(range,strip);
+}
+
+bool SiStripQuality::IsStripBad(const Range& range, const short& strip) const{
+  bool result=false;
   SiStripBadStrip::data fs;
   for(SiStripBadStrip::ContainerIterator it=range.first;it!=range.second;++it){
     fs=decode(*it);
