@@ -1,8 +1,8 @@
 /*
  * \file EBSummaryClient.cc
  *
- * $Date: 2007/11/02 10:58:58 $
- * $Revision: 1.79 $
+ * $Date: 2007/11/02 12:36:27 $
+ * $Revision: 1.80 $
  * \author G. Della Ricca
  *
 */
@@ -1006,8 +1006,8 @@ void EBSummaryClient::analyze(void){
 
         if(val_in==-1) xval=-1;
         else if(val_in==0) xval=0;
-        else if(val_in==2) xval=2;
         else if(val_po==0) xval=0;
+        else if(val_in==2) xval=2;
         else if(val_po==2) xval=2;
         else xval=1;
 

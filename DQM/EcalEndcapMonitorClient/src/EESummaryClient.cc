@@ -1,8 +1,8 @@
 /*
  * \file EESummaryClient.cc
  *
- * $Date: 2007/11/02 10:58:58 $
- * $Revision: 1.47 $
+ * $Date: 2007/11/02 12:36:25 $
+ * $Revision: 1.48 $
  * \author G. Della Ricca
  *
 */
@@ -1236,8 +1236,8 @@ void EESummaryClient::analyze(void){
 
         if(val_in==-1) xval=-1;
         else if(val_in==0) xval=0;
-        else if(val_in==2) xval=2;
         else if(val_po==0) xval=0;
+        else if(val_in==2) xval=2;
         else if(val_po==2) xval=2;
         else xval=1;
 
@@ -1247,7 +1247,7 @@ void EESummaryClient::analyze(void){
 
       if(meIntegrity_[1] && mePedestalOnline_[1]) {
 
-        float xval = 2;
+        float xval = -1;
         float val_in = meIntegrity_[1]->getBinContent(jx,jy);  
         float val_po = mePedestalOnline_[1]->getBinContent(jx,jy);
 
@@ -1255,9 +1255,17 @@ void EESummaryClient::analyze(void){
         if(val_in>2) val_in=1;
         if(val_po>2) val_po=1;
 
-        if(val_in==0) xval=0;
+        // -1 = unknown
+        //  0 = red
+        //  1 = green
+        //  2 = yellow
+
+        if(val_in==-1) xval=-1;
+        else if(val_in==0) xval=0;
+        else if(val_po==0) xval=0;
         else if(val_in==2) xval=2;
-        else xval=val_po;
+        else if(val_po==2) xval=2;
+        else xval=1;
 
         meGlobalSummary_[1]->setBinContent( jx, jy, xval );
 
