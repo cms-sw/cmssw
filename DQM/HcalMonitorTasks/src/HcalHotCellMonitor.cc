@@ -139,15 +139,15 @@ void HcalHotCellMonitor::setup(const edm::ParameterSet& ps, DaqMonitorBEInterfac
   etaBins_ = (int)(etaMax_ - etaMin_);
   if (debug_) cout << "HotCell eta min/max set to " << etaMin_ << "/" << etaMax_ << endl;
   
-  checkHB_=ps.getUntrackedParameter<bool>("checkHB","true");
-  checkHE_=ps.getUntrackedParameter<bool>("checkHE","true");
-  checkHO_=ps.getUntrackedParameter<bool>("checkHO","true");
-  checkHF_=ps.getUntrackedParameter<bool>("checkHF","true");
-
   phiMax_ = ps.getUntrackedParameter<double>("MaxPhi", 73);
   phiMin_ = ps.getUntrackedParameter<double>("MinPhi", 0);
   phiBins_ = (int)(phiMax_ - phiMin_);
   if (debug_) cout << "HotCell phi min/max set to " << phiMin_ << "/" << phiMax_ << endl;
+
+  checkHB_=ps.getUntrackedParameter<bool>("checkHB","true");
+  checkHE_=ps.getUntrackedParameter<bool>("checkHE","true");
+  checkHO_=ps.getUntrackedParameter<bool>("checkHO","true");
+  checkHF_=ps.getUntrackedParameter<bool>("checkHF","true");
 
   // Energy thresholds for 
   thresholds_ = ps.getUntrackedParameter<vector <double> >("thresholds");
@@ -445,7 +445,7 @@ void HcalHotCellMonitor::processEvent(const HBHERecHitCollection& hbHits, const 
 
  // Fill HF thresholds on first event
 
-  if (debug_) cout <<"Starting process"<<endl;
+  if (debug_) cout <<"HcalHotCellMonitor::processEvent   Starting process"<<endl;
   /*
     // Unnecessary code, now that offset problem has been corrected
   if (ievt_==1)
