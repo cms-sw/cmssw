@@ -3,7 +3,7 @@
 
 //////////////////////////////////////////////////////////////////////
 //
-// $Id: RootOutputFile.h,v 1.10 2007/09/13 16:29:50 paterno Exp $
+// $Id: RootOutputFile.h,v 1.11 2007/10/03 22:26:42 wmtan Exp $
 //
 // Class PoolOutputModule. Output module to POOL file
 //
@@ -33,7 +33,6 @@ class TTree;
 class TFile;
 
 namespace edm {
-  class RootChains;
   class ParameterSet;
   class PoolOutputModule;
 
@@ -55,6 +54,7 @@ namespace edm {
     void writeParameterSetRegistry();
     void writeProductDescriptionRegistry();
     void finishEndFile();
+    void beginInputFile(FileBlock const& fb);
 
     bool isFileFull() const {return newFileAtEndOfRun_;}
 
@@ -78,7 +78,6 @@ namespace edm {
 
     void fillBranches(BranchType const& branchType, Principal const& principal) const;
 
-    RootChains const& chains_;
     OutputItemListArray outputItemList_;
     std::string file_;
     std::string logicalFile_;

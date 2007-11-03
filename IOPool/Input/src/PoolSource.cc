@@ -1,11 +1,10 @@
 /*----------------------------------------------------------------------
-$Id: PoolSource.cc,v 1.67 2007/10/31 20:15:33 wmtan Exp $
+$Id: PoolSource.cc,v 1.68 2007/10/31 22:56:30 wmtan Exp $
 ----------------------------------------------------------------------*/
 #include "PoolSource.h"
 #include "RootFile.h"
 #include "RootTree.h"
 #include "IOPool/Common/interface/ClassFiller.h"
-#include "IOPool/Common/interface/RootChains.h"
 
 #include "FWCore/Catalog/interface/FileCatalog.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
@@ -27,7 +26,8 @@ namespace edm {
     rootFile_(),
     matchMode_(BranchDescription::Permissive),
     flatDistribution_(0),
-    eventsRemainingInFile_(0)
+    eventsRemainingInFile_(0),
+    startAtBeginning_(true)
   {
     std::string matchMode = pset.getUntrackedParameter<std::string>("fileMatchMode", std::string("permissive"));
     if (matchMode == std::string("strict")) matchMode_ = BranchDescription::Strict;
@@ -37,14 +37,8 @@ namespace edm {
       updateProductRegistry();
       setInitialPosition(pset);
       rootFile_->forceRunNumber(pset.getUntrackedParameter<unsigned int>("setRunNumber", 0));
-      if (fileIter_ == fileCatalogItems().begin() && rootFile_->eventTree().entryNumber() == -1) {
-	// Set up TChains for fast cloning if and only if we start from the beginning of the first file.
-        RootChains & chains = RootChains::instance();
-        chains.makeChains();
-        for (std::vector<FileCatalogItem>::const_iterator it = fileCatalogItems().begin(), itEnd = fileCatalogItems().end();
-	     it != itEnd; ++it) {
-	  chains.addFile(it->fileName());
-        }
+      if (fileIter_ != fileCatalogItems().begin() || rootFile_->eventTree().entryNumber() != -1) {
+	startAtBeginning_ = false;
       }
     } else {
       Service<RandomNumberGenerator> rng;
@@ -75,7 +69,7 @@ namespace edm {
       // Open the next input file.
       if (!nextFile()) return boost::shared_ptr<FileBlock>();
     }
-    return boost::shared_ptr<FileBlock>(new FileBlock);
+    return rootFile_->createFileBlock(startAtBeginning_);
   }
 
   void PoolSource::setInitialPosition(ParameterSet const& pset) {

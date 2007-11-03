@@ -22,6 +22,7 @@
 #include "FWCore/Utilities/interface/UnixSignalHandlers.h"
 
 #include "FWCore/Framework/interface/EventProcessor.h"
+#include "FWCore/Framework/interface/FileBlock.h"
 #include "FWCore/Framework/interface/IOVSyncValue.h"
 #include "FWCore/Framework/interface/SourceFactory.h"
 #include "FWCore/Framework/interface/ModuleFactory.h"
@@ -1047,7 +1048,7 @@ namespace edm {
   	  changeState(mInputExhausted);
 	  rc = epInputComplete;
 	  continue;
-        }
+	}
       }
       rc = processRuns(numberEventsToProcess, repeatable);
       if(rc == epCountComplete) {
@@ -1111,6 +1112,9 @@ namespace edm {
       fb = input_->readFile();
     }
     if(fb) {
+      if (maxEventsInput_ >= 0) {
+        fb->setNonClonable();
+      }
       schedule_->beginInputFile(*fb);
     }
     return fb;

@@ -1,15 +1,15 @@
-// $Id: RootOutputFile.cc,v 1.25 2007/10/09 07:12:51 wmtan Exp $
+// $Id: RootOutputFile.cc,v 1.26 2007/10/11 21:52:02 wmtan Exp $
 
 #include "RootOutputFile.h"
 #include "PoolOutputModule.h"
 
 #include "FWCore/Catalog/interface/FileIdentifier.h"
-#include "IOPool/Common/interface/RootChains.h"
 
 #include "DataFormats/Provenance/interface/EventAuxiliary.h" 
 #include "DataFormats/Provenance/interface/FileFormatVersion.h"
 #include "FWCore/Utilities/interface/GetFileFormatVersion.h"
 #include "FWCore/Utilities/interface/EDMException.h"
+#include "FWCore/Framework/interface/FileBlock.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/Framework/interface/LuminosityBlockPrincipal.h"
 #include "FWCore/Framework/interface/RunPrincipal.h"
@@ -30,12 +30,12 @@
 #include "TClass.h"
 #include "Rtypes.h"
 
+#include <algorithm>
 #include <map>
 #include <iomanip>
 
 namespace edm {
   RootOutputFile::RootOutputFile(PoolOutputModule *om, std::string const& fileName, std::string const& logicalFileName) :
-      chains_(om->wantAllEvents() && om->fastCloning() ? RootChains::instance() : RootChains()),
       outputItemList_(), 
       file_(fileName),
       logicalFile_(logicalFileName),
@@ -52,12 +52,11 @@ namespace edm {
       pEventAux_(&eventAux_),
       pLumiAux_(&lumiAux_),
       pRunAux_(&runAux_),
-      eventTree_(filePtr_, InEvent, pEventAux_, om_->basketSize(), om_->splitLevel(),
-		  chains_.event_.get(), chains_.eventMeta_.get(), om_->keptPriorProducts()[InEvent]),
-      lumiTree_(filePtr_, InLumi, pLumiAux_, om_->basketSize(), om_->splitLevel(),
-		 chains_.lumi_.get(), chains_.lumiMeta_.get(), om_->keptPriorProducts()[InLumi]),
-      runTree_(filePtr_, InRun, pRunAux_, om_->basketSize(), om_->splitLevel(),
-		chains_.run_.get(), chains_.runMeta_.get(), om_->keptPriorProducts()[InRun]),
+      eventTree_(filePtr_, InEvent, pEventAux_, om_->basketSize(), om_->splitLevel(), om_->fastCloning(),
+        om_->fileBlock_->tree(), om_->fileBlock_->metaTree(),
+	om_->droppedPriorProducts()[InEvent], om_->fileBlock_->oldBranchNames()),
+      lumiTree_(filePtr_, InLumi, pLumiAux_, om_->basketSize(), om_->splitLevel()),
+      runTree_(filePtr_, InRun, pRunAux_, om_->basketSize(), om_->splitLevel()),
       treePointers_(),
       provenances_(),
       newFileAtEndOfRun_(false) {
@@ -70,7 +69,7 @@ namespace edm {
       BranchType branchType = static_cast<BranchType>(i);
       OutputItemList & outputItemList = outputItemList_[branchType];
 
-      bool fastCloning = treePointers_[branchType]->fastCloning();
+      bool fastCloning = (branchType == InEvent && om_->fastCloning());
       Selections const& descVector =
 	 (fastCloning ? om_->keptProducedProducts()[branchType] : om_->keptProducts()[branchType]);
       Selections const& droppedVector =
@@ -84,13 +83,32 @@ namespace edm {
         BranchDescription const& prod = **it;
         outputItemList.push_back(OutputItem(&prod, false));
       }
+      if (fastCloning) {
+	std::vector<std::string> const& renamed = om_->fileBlock_->newBranchNames();
+	if (!renamed.empty()) {
+          Selections const& kV = om_->keptPriorProducts()[branchType];
+          for (Selections::const_iterator it = kV.begin(), itEnd = kV.end(); it != itEnd; ++it) {
+            BranchDescription const& prod = **it;
+	    if(std::find(renamed.begin(), renamed.end(), prod.branchName()) != renamed.end()) {
+              outputItemList.push_back(OutputItem(&prod, true));
+	    }
+          }
+          Selections const& dV = om_->droppedPriorProducts()[branchType];
+          for (Selections::const_iterator it = dV.begin(), itEnd = dV.end(); it != itEnd; ++it) {
+            BranchDescription const& prod = **it;
+	    if(std::find(renamed.begin(), renamed.end(), prod.branchName()) != renamed.end()) {
+              outputItemList.push_back(OutputItem(&prod, false));
+	    }
+          }
+	}
+      }
       for (OutputItemList::iterator it = outputItemList.begin(), itEnd = outputItemList.end(); it != itEnd; ++it) {
 	treePointers_[branchType]->addBranch(*it->branchDescription_, it->selected_, it->branchEntryDescription_, it->product_);
       }
     }
 
     // Don't split metadata tree.
-    metaDataTree_ = RootOutputTree::makeTree(filePtr_.get(), poolNames::metaDataTreeName(), 0, 0);
+    metaDataTree_ = RootOutputTree::makeTTree(filePtr_.get(), poolNames::metaDataTreeName(), 0);
 
     fid_ = FileID(createFileIdentifier());
 
@@ -105,6 +123,10 @@ namespace edm {
 		      om_->moduleLabel_,  // module label
 		      fid_.fid(), // file id (guid)
 		      eventTree_.branchNames()); // branch names being written
+  }
+
+  void RootOutputFile::beginInputFile(FileBlock const& fb) {
+      eventTree_.fastCloneTree(fb.tree(), fb.metaTree());
   }
 
   void RootOutputFile::writeOne(EventPrincipal const& e) {

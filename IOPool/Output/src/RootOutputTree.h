@@ -5,7 +5,7 @@
 
 RootOutputTree.h // used by ROOT output modules
 
-$Id: RootOutputTree.h,v 1.6 2007/09/10 20:27:09 wmtan Exp $
+$Id: RootOutputTree.h,v 1.8 2007/09/12 22:39:05 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -22,64 +22,72 @@ $Id: RootOutputTree.h,v 1.6 2007/09/10 20:27:09 wmtan Exp $
 #include "DataFormats/Provenance/interface/BranchKey.h"
 #include "DataFormats/Provenance/interface/BranchType.h"
 #include "DataFormats/Provenance/interface/ConstBranchDescription.h"
+#include "DataFormats/Provenance/interface/EventAuxiliary.h"
 #include "DataFormats/Provenance/interface/Selections.h"
 #include "DataFormats/Common/interface/Wrapper.h"
 #include "TBranch.h"
 #include "TTree.h"
 class TFile;
-class TChain;
+class TTree;
 
 namespace edm {
 
   class RootOutputTree {
   public:
+    // Constructor for trees with no fast cloning
     template <typename T>
-    RootOutputTree(
-		   boost::shared_ptr<TFile> filePtr,
+    RootOutputTree(boost::shared_ptr<TFile> filePtr,
 		   BranchType const& branchType,
 		   T const*& pAux,
 		   int bufSize,
 		   int splitLevel,
-		   TChain * chain = 0,
-		   TChain * metaChain = 0,
-		   Selections const& keepList = Selections()) :
-      fastCloning_(chain != 0 && metaChain != 0),
+		   bool fastCloning = false,
+		   TTree * tree = 0,
+		   TTree * metaTree = 0,
+		   Selections const& dropList = Selections(),
+		   std::vector<std::string> renamedList = std::vector<std::string>()) :
       filePtr_(filePtr),
-      tree_(makeTree(filePtr.get(),
-		     BranchTypeToProductTreeName(branchType),
-		     splitLevel,
-		     (fastCloning_ ? chain : 0),
-		     keepList)),
-      metaTree_(makeTree(filePtr.get(),
-	        BranchTypeToMetaDataTreeName(branchType),
-		0,
-		(fastCloning_ ? metaChain : 0),
-		keepList)),
-      auxBranch_(tree_->Branch(BranchTypeToAuxiliaryBranchName(branchType).c_str(), &pAux, bufSize, 0)),
+      fastCloning_(fastCloning),
+      tree_(fastCloning_ ?
+		cloneTTree(filePtr.get(), tree, dropList, renamedList)
+		:
+		makeTTree(filePtr.get(), BranchTypeToProductTreeName(branchType), splitLevel)),
+      metaTree_(fastCloning_ ?
+		cloneTTree(filePtr.get(), metaTree, Selections(), renamedList)
+		:
+		makeTTree(filePtr.get(), BranchTypeToMetaDataTreeName(branchType), 0)),
+      auxBranch_(fastCloning_ ? 0
+		:
+		tree_->Branch(BranchTypeToAuxiliaryBranchName(branchType).c_str(), &pAux, bufSize, 0)),
       branches_(),
       metaBranches_(),
       basketSize_(bufSize),
       splitLevel_(splitLevel),
       branchNames_() {
-      branches_.push_back(auxBranch_);
+      if (auxBranch_ != 0) branches_.push_back(auxBranch_);
     }
+
     ~RootOutputTree() {}
     
-    static TTree * makeTree(TFile * filePtr,
-			    std::string const& name,
-			    int splitLevel,
-			    TChain * chain,
-			    Selections const& keepList = Selections());
+    static void fastCloneTTree(TTree *in, TTree *out);
+
+    static TTree * cloneTTree(TFile *filePtr, TTree *tree, Selections const& dropList, std::vector<std::string> const& renamedList);
+
+    static TTree * makeTTree(TFile *filePtr, std::string const& name, int splitLevel);
+
+    static TTree * assignTTree(TFile *file, TTree * tree);
 
     static void writeTTree(TTree *tree);
 
-    static void pruneTTree(TTree *tree, Selections const& keepList);
+    static void pruneTTree(TTree *tree, Selections const& dropList, std::vector<std::string> const& renamedList);
 
     bool isValid() const;
 
     void addBranch(BranchDescription const& prod, bool selected, BranchEntryDescription const*& pProv, void const*& pProd);
 
     std::vector<std::string> const& branchNames() const {return branchNames_;}
+
+    void fastCloneTree(TTree *tree, TTree *metaTree);
 
     void fillTree() const;
 
@@ -89,15 +97,17 @@ namespace edm {
       return tree_;
     }
 
-    bool const& fastCloning() const {return fastCloning_;}
+    TTree *const metaTree() const {
+      return metaTree_;
+    }
 
   private:
     static void fillTTree(TTree *tree, std::vector<TBranch *> const& branches);
 // We use bare pointers for pointers to some ROOT entities.
 // Root owns them and uses bare pointers internally.
 // Therefore,using smart pointers here will do no good.
-    bool fastCloning_;
     boost::shared_ptr<TFile> filePtr_;
+    bool fastCloning_;
     TTree *const tree_;
     TTree *const metaTree_;
     TBranch *const auxBranch_;

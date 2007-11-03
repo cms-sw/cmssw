@@ -3,7 +3,7 @@
 
 //////////////////////////////////////////////////////////////////////
 //
-// $Id: PoolOutputModule.h,v 1.34 2007/10/03 22:26:42 wmtan Exp $
+// $Id: PoolOutputModule.h,v 1.35 2007/10/29 12:24:26 elmer Exp $
 //
 // Class PoolOutputModule. Output module to POOL file
 //
@@ -39,9 +39,9 @@ namespace edm {
   private:
     virtual void beginJob(EventSetup const&);
     virtual void endJob();
+    virtual void beginInputFile(FileBlock const& fb);
     virtual void write(EventPrincipal const& e);
     virtual void endLuminosityBlock(LuminosityBlockPrincipal const& lb);
-    virtual void beginRun(RunPrincipal const& r);
     virtual void endRun(RunPrincipal const& r);
 
     virtual bool isFileOpen() const;
@@ -66,7 +66,8 @@ namespace edm {
     int const compressionLevel_;
     int const basketSize_;
     int const splitLevel_;
-    bool const fastCloning_;
+    bool fastCloning_;
+    FileBlock *fileBlock_;
     std::string const moduleLabel_;
     int fileCount_;
     boost::shared_ptr<RootOutputFile> rootFile_;

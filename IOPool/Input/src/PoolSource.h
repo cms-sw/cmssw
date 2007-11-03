@@ -5,7 +5,7 @@
 
 PoolSource: This is an InputSource
 
-$Id: PoolSource.h,v 1.40 2007/09/08 02:16:32 wmtan Exp $
+$Id: PoolSource.h,v 1.41 2007/10/31 22:56:30 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -68,6 +68,7 @@ namespace edm {
 
     CLHEP::RandFlat * flatDistribution_;
     int eventsRemainingInFile_;
+    bool startAtBeginning_;
   }; // class PoolSource
   typedef PoolSource PoolRASource;
 }

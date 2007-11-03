@@ -5,6 +5,7 @@
 #include "FWCore/Utilities/interface/GetReleaseVersion.h"
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/FileBlock.h"
 #include "FWCore/Framework/interface/TriggerNamesService.h"
 #include "FWCore/Framework/interface/TriggerReport.h"
 #include "FWCore/Framework/interface/CurrentProcessingContext.h"
@@ -805,7 +806,10 @@ namespace edm {
     for_all(all_output_workers_, boost::bind(&OutputWorker::openNewFileIfNeeded, _1));
   }
 
-  void Schedule::beginInputFile(FileBlock const& fb) {
+  void Schedule::beginInputFile(FileBlock & fb) {
+    if (!limited_output_workers_.empty()) {
+      fb.setNonClonable();
+    }
     for (AllOutputWorkers::const_iterator it = all_output_workers_.begin(), itEnd = all_output_workers_.end();
       it != itEnd; ++it) {
 	(*it)->beginInputFile(fb); 
