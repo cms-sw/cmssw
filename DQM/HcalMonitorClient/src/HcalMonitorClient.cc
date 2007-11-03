@@ -19,6 +19,7 @@ HcalMonitorClient::~HcalMonitorClient(){
   if( pedestal_client_ )   delete pedestal_client_;
   if( led_client_ )        delete led_client_;
   if( hot_client_ )        delete hot_client_;
+  if( dead_client_ )       delete dead_client_;
   if( mui_ )               delete mui_;
 }
 
@@ -31,7 +32,7 @@ void HcalMonitorClient::initialize(const ParameterSet& ps){
 
   dataformat_client_ = 0; digi_client_ = 0;
   rechit_client_ = 0; pedestal_client_ = 0;
-  led_client_ = 0; hot_client_ = 0; 
+  led_client_ = 0; hot_client_ = 0; dead_client_=0;
   lastResetTime_=0;
 
   // MonitorDaemon switch
@@ -100,6 +101,8 @@ void HcalMonitorClient::initialize(const ParameterSet& ps){
     led_client_          = new HcalLEDClient(ps, dbe_);
   if( ps.getUntrackedParameter<bool>("HotCellClient", false) )
     hot_client_          = new HcalHotCellClient(ps, dbe_);
+ if( ps.getUntrackedParameter<bool>("DeadCellClient", false) )
+    dead_client_          = new HcalDeadCellClient(ps, dbe_);
 
   dqm_db_ = new HcalHotCellDbInterface(); 
 
@@ -132,7 +135,8 @@ void HcalMonitorClient::resetAllME() {
   if( rechit_client_ )     rechit_client_->resetAllME();
   if( pedestal_client_ )   pedestal_client_->resetAllME();
   if( led_client_ )        led_client_->resetAllME();
-  if( hot_client_ )         hot_client_->resetAllME();
+  if( hot_client_ )        hot_client_->resetAllME();
+  if( dead_client_ )       dead_client_->resetAllME();
   return;
 }
 
@@ -150,7 +154,8 @@ void HcalMonitorClient::beginJob(const EventSetup& c){
   if( rechit_client_ )     rechit_client_->beginJob();
   if( pedestal_client_ )   pedestal_client_->beginJob(c);
   if( led_client_ )        led_client_->beginJob(c);
-  if( hot_client_ )         hot_client_->beginJob();
+  if( hot_client_ )        hot_client_->beginJob();
+  if( dead_client_ )       dead_client_->beginJob();
 
   return;
 }
@@ -169,6 +174,7 @@ void HcalMonitorClient::beginRun(const Run& r, const EventSetup& c) {
   if( pedestal_client_ )   pedestal_client_->beginRun();
   if( led_client_ )        led_client_->beginRun();
   if( hot_client_ )        hot_client_->beginRun();
+  if( dead_client_ )       dead_client->beginRun();
 
   return;
 }
@@ -178,12 +184,13 @@ void HcalMonitorClient::endJob(void) {
 
   if( debug_ ) cout << "HcalMonitorClient: endJob, ievt = " << ievt_ << endl;
 
-  if( dataformat_client_ ) dataformat_client_->endJob();
-  if( digi_client_ )  digi_client_->endJob();
-  if( rechit_client_ )  rechit_client_->endJob();
-  if( hot_client_ ) hot_client_->endJob();
-  if( pedestal_client_ ) pedestal_client_->endJob();
-  if( led_client_ ) led_client_->endJob();
+  if( dataformat_client_ )     dataformat_client_->endJob();
+  if( digi_client_ )           digi_client_->endJob();
+  if( rechit_client_ )         rechit_client_->endJob();
+  if( hot_client_ )            hot_client_->endJob();
+  if( dead_client_ )           dead_client_->endJob();
+  if( pedestal_client_ )       pedestal_client_->endJob();
+  if( led_client_ )            led_client_->endJob();
 
 
   ///Don't leave this here!!!  FIX ME!
@@ -207,13 +214,14 @@ void HcalMonitorClient::endJob(void) {
   try{
     XMLPlatformUtils::Initialize();
     DOMDocument* doc = dqm_db_->createDocument();
-    dqm_db_->createHeader(doc, irun_, getRunStartTime());
+    //dqm_db_->createHeader(doc, irun_, getRunStartTime());
+    dqm_db_->createHeader(doc,irun_,ntime);
     for(int i=0; i<4; i++){
       HcalSubdetector subdet = HcalBarrel;
       if(i==1) subdet =  HcalEndcap;
       else if(i==2) subdet = HcalForward;
       else if(i==3) subdet = HcalOuter;
-      
+
       for(int ieta=-42; ieta<=42; ieta++){
 	if(ieta==0) continue;
 	for(int iphi=1; iphi<=73; iphi++){
@@ -261,11 +269,12 @@ void HcalMonitorClient::endRun(const Run& r, const EventSetup& c) {
   }
 
   if( hot_client_ )         hot_client_->endRun();
-  if( dataformat_client_ ) dataformat_client_->endRun();
-  if( digi_client_ )       digi_client_->endRun();
-  if( rechit_client_ )     rechit_client_->endRun();
-  if( pedestal_client_ )   pedestal_client_->endRun();
-  if( led_client_ )        led_client_->endRun();
+  if( dead_client_ )        dead_client_->endRun(); 
+  if( dataformat_client_ )  dataformat_client_->endRun();
+  if( digi_client_ )        digi_client_->endRun();
+  if( rechit_client_ )      rechit_client_->endRun();
+  if( pedestal_client_ )    pedestal_client_->endRun();
+  if( led_client_ )         led_client_->endRun();
 
   // call DQMAnalyzer at the end
   DQMAnalyzer::endRun(r,c); 
@@ -337,6 +346,7 @@ void HcalMonitorClient::analyze(){
   if( pedestal_client_ )   pedestal_client_->analyze();      
   if( led_client_ )        led_client_->analyze(); 
   if( hot_client_ )         hot_client_->analyze(); 
+  if( dead_client_ )         dead_client_->analyze(); 
 
   return;
 }
@@ -350,6 +360,7 @@ void HcalMonitorClient::createTests(void){
   if( pedestal_client_ )   pedestal_client_->createTests(); 
   if( led_client_ )        led_client_->createTests(); 
   if( hot_client_ )        hot_client_->createTests(); 
+  if( dead_client_ )        dead_client_->createTests(); 
 
   return;
 }
@@ -370,9 +381,12 @@ void HcalMonitorClient::report(bool doUpdate) {
   if( pedestal_client_ ) pedestal_client_->report();
   if( rechit_client_ ) rechit_client_->report();
   if( hot_client_ ) hot_client_->report();
+  if( dead_client_ ) dead_client_->report();
   
+
   map<string, vector<QReport*> > errE, errW, errO;
   if( hot_client_ ) hot_client_->getErrors(errE,errW,errO);
+  if( dead_client_ ) dead_client_->getErrors(errE,errW,errO);
   if( led_client_ ) led_client_->getErrors(errE,errW,errO);
   if( pedestal_client_ ) pedestal_client_->getErrors(errE,errW,errO);
   if( digi_client_ ) digi_client_->getErrors(errE,errW,errO);
@@ -463,6 +477,17 @@ void HcalMonitorClient::htmlOutput(void){
     else htmlFile << "<td bgcolor=lime align=center>This monitor task has no problems</td>" << endl;
     htmlFile << "</table>" << endl;
   }
+  if( dead_client_) {
+    htmlName = "HcalDeadCellClient.html";
+    dead_client_->htmlOutput(irun_, htmlDir, htmlName);
+    htmlFile << "<table border=0 WIDTH=\"50%\"><tr>" << endl;
+    htmlFile << "<td WIDTH=\"35%\"><a href=\"" << htmlName << "\">Dead Cell Monitor</a></td" << endl;
+    if(dead_client_->hasErrors()) htmlFile << "<td bgcolor=red align=center>This monitor task has errors.</td>" << endl;
+    else if(dead_client_->hasWarnings()) htmlFile << "<td bgcolor=yellow align=center>This monitor task has warnings.</td>" << endl;
+    else if(dead_client_->hasOther()) htmlFile << "<td bgcolor=aqua align=center>This monitor task has messages.</td>" << endl;
+    else htmlFile << "<td bgcolor=lime align=center>This monitor task has no problems</td>" << endl;
+    htmlFile << "</table>" << endl;
+  }
   if( pedestal_client_) {
     htmlName = "HcalPedestalClient.html";
     pedestal_client_->htmlOutput(irun_, htmlDir, htmlName);
@@ -512,12 +537,14 @@ void HcalMonitorClient::offlineSetup(){
   dataformat_client_ = 0; digi_client_ = 0;
   rechit_client_ = 0; pedestal_client_ = 0;
   led_client_ = 0;  hot_client_ = 0;
-  
+  dead_client_=0;
+
   // base Html output directory
   baseHtmlDir_ = ".";
   
   // clients' constructors
   hot_client_          = new HcalHotCellClient();
+  dead_client_         = new HcalDeadCellClient();
   dataformat_client_   = new HcalDataFormatClient();
   rechit_client_       = new HcalRecHitClient();
   digi_client_         = new HcalDigiClient();
@@ -567,6 +594,7 @@ void HcalMonitorClient::loadHistograms(TFile* infile, const char* fname){
   
 
   if(hot_client_) hot_client_->loadHistograms(infile);
+  if(dead_client_) dead_client_->loadHistograms(infile);
   if(dataformat_client_) dataformat_client_->loadHistograms(infile);
   if(rechit_client_) rechit_client_->loadHistograms(infile);
   if(digi_client_) digi_client_->loadHistograms(infile);
@@ -585,6 +613,7 @@ void HcalMonitorClient::dumpHistograms(int& runNum, vector<TH1F*> &hist1d,vector
 
   /*
   if(hot_client_) hot_client_->dumpHistograms(names,meanX,meanY,rmsX,rmsY);
+  if(dead_client_) dead_client_->dumpHistograms(names,meanX,meanY,rmsX,rmsY);
   if(dataformat_client) dataformat_client_->dumpHistograms(names,meanX,meanY,rmsX,rmsY);
   if(rechit_client_) rechit_client_->dumpHistograms(names,meanX,meanY,rmsX,rmsY);
   if(digi_client_) digi_client_->dumpHistograms(names,meanX,meanY,rmsX,rmsY);
