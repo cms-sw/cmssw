@@ -17,7 +17,7 @@
 //
 // Author:      Domenico Giordano
 // Created:     Wed Sep 26 17:42:12 CEST 2007
-// $Id: SiStripQuality.h,v 1.4 2007/10/24 08:33:14 giordano Exp $
+// $Id: SiStripQuality.h,v 1.5 2007/11/03 16:14:54 giordano Exp $
 //
 
 
@@ -80,6 +80,8 @@ class SiStripQuality: public SiStripBadStrip {
   bool IsApvBad(const uint32_t& detid, const short& apvNb) const;
   bool IsStripBad(const uint32_t& detid, const short& strip) const;
   bool IsStripBad(const Range& range, const short& strip) const;
+  int  nBadStripsOnTheLeft(const Range& range, const short& strip) const; //provides number of consecutive bad strips on the left of strip (including strip)
+  int  nBadStripsOnTheRight(const Range& range, const short& strip) const; //provides number of consecutive bad strips on the right of strip (including strip)
   
   short getBadApvs(const uint32_t& detid) const; 
   //each bad apv correspond to a bit to 1: num=

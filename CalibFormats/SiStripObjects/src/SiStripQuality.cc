@@ -1,7 +1,7 @@
  //
 // Author:      Domenico Giordano
 // Created:     Wed Sep 26 17:42:12 CEST 2007
-// $Id: SiStripQuality.cc,v 1.5 2007/10/24 15:29:15 giordano Exp $
+// $Id: SiStripQuality.cc,v 1.6 2007/11/03 16:14:55 giordano Exp $
 //
 #include "FWCore/Framework/interface/eventsetupdata_registration_macro.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripQuality.h"
@@ -369,8 +369,34 @@ bool SiStripQuality::IsStripBad(const Range& range, const short& strip) const{
   SiStripBadStrip::data fs;
   for(SiStripBadStrip::ContainerIterator it=range.first;it!=range.second;++it){
     fs=decode(*it);
-    if ( fs.firstStrip<=strip && strip<=fs.firstStrip+fs.range ){
+    if ( fs.firstStrip<=strip && strip<fs.firstStrip+fs.range ){
       result=true;
+      break;
+    }      
+  }
+  return result;
+}
+
+int SiStripQuality::nBadStripsOnTheLeft(const Range& range, const short& strip) const{
+  int result=0;
+  SiStripBadStrip::data fs;
+  for(SiStripBadStrip::ContainerIterator it=range.first;it!=range.second;++it){
+    fs=decode(*it);
+    if ( fs.firstStrip<=strip && strip<fs.firstStrip+fs.range ){
+      result=strip-fs.firstStrip+1;
+      break;
+    }      
+  }
+  return result;
+}
+
+int SiStripQuality::nBadStripsOnTheRight(const Range& range, const short& strip) const{
+  int result=0;
+  SiStripBadStrip::data fs;
+  for(SiStripBadStrip::ContainerIterator it=range.first;it!=range.second;++it){
+    fs=decode(*it);
+    if ( fs.firstStrip<=strip && strip<fs.firstStrip+fs.range ){
+      result=fs.firstStrip+fs.range-strip;
       break;
     }      
   }
