@@ -1,7 +1,7 @@
 /** \file
  *
- * $Date: 2007/06/20 14:23:41 $
- * $Revision: 1.20 $
+ * $Date: 2007/10/17 10:38:57 $
+ * $Revision: 1.21 $
  * \author Stefano Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
  * \author Riccardo Bellan - INFN TO <riccardo.bellan@cern.ch>
  */
@@ -317,20 +317,19 @@ void DTSegmentUpdator::fitT0(DTRecSegment2D* seg) {
   b=(bl+br)/2.;
 
   // Now we can calculate the t0 correction for the hits
+  // as the average over all the individual hit t0 measurements
 
   double t0_left=0, t0_right=0, t0_corr;
-  if (xl.size()) {
+  if (xl.size())
     for (unsigned int i=0; i<xl.size(); i++) 
       t0_left+=yl[i]-a*xl[i]-b;
-    t0_left/=xl.size();
-  }
-  if (xr.size()) {
+
+  if (xr.size())
     for (unsigned int i=0; i<xr.size(); i++) 
       t0_right+=yr[i]-a*xr[i]-b;
-    t0_right/=xr.size();
-  }
   
-  t0_corr=(t0_right-t0_left)/2.;
+  t0_corr=(t0_right-t0_left)/(xr.size()+xl.size());
+
   if ((t0_left==0) || (t0_right==0)) t0_corr=0;
   // convert drift distance to time
   // TODO: a smarter conversion? (using 1D rechit algo?)

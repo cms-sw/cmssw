@@ -1,7 +1,7 @@
 /** \file
  *
- * $Date: 2007/07/09 13:56:49 $
- * $Revision: 1.1 $
+ * $Date: 2007/10/17 10:32:20 $
+ * $Revision: 1.2 $
  * \author Stefano Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
  * \author Riccardo Bellan - INFN TO <riccardo.bellan@cern.ch>
  * \author Piotr Traczyk - SINS Warsaw <ptraczyk@fuw.edu.pl>
@@ -370,22 +370,19 @@ DTMeantimerPatternReco::fitWithT0(const vector<AssPoint> &assHits, double &chi2,
   a=(al+ar)/2.;
   b=(bl+br)/2.;
 
-// Now we can calculate the t0 correction for the hits
+  // Now we can calculate the t0 correction for the hits
+  // as the average over all the individual hit t0 measurements
 
   double t0_left=0, t0_right=0;
-  if (leftHits.size()) {
+  if (leftHits.size()) 
     for (hitCoord::const_iterator assHit=leftHits.begin(); assHit!=leftHits.end(); ++assHit)
       t0_left+=(*assHit).second-a*(*assHit).first-b;
-    t0_left/=leftHits.size();
-  }
-  if (rightHits.size()) {
-    for (hitCoord::const_iterator assHit=rightHits.begin(); assHit!=rightHits.end(); ++assHit) {
-      t0_right-=(*assHit).second-a*(*assHit).first-b;
-    }
-    t0_right/=rightHits.size();
-  }
-  
-  t0_corr=(t0_left+t0_right)/2.;  
+
+  if (rightHits.size())
+    for (hitCoord::const_iterator assHit=rightHits.begin(); assHit!=rightHits.end(); ++assHit)
+      t0_right+=(*assHit).second-a*(*assHit).first-b;
+
+  t0_corr=(t0_right-t0_left)/(leftHits.size()+rightHits.size());
   
 // Calculate the chi^2 of the hits AFTER t0 correction
 
@@ -394,18 +391,18 @@ DTMeantimerPatternReco::fitWithT0(const vector<AssPoint> &assHits, double &chi2,
   
   if (leftHits.size())
     for (hitCoord::const_iterator assHit=leftHits.begin(); assHit!=leftHits.end(); ++assHit) {
-      chi=(*assHit).second-t0_corr-a*(*assHit).first-b;
+      chi=(*assHit).second+t0_corr-a*(*assHit).first-b;
       chi/=coordError;
       chi2+=chi*chi;
     }
   if (rightHits.size())
     for (hitCoord::const_iterator assHit=rightHits.begin(); assHit!=rightHits.end(); ++assHit) {
-      chi=(*assHit).second+t0_corr-a*(*assHit).first-b;
+      chi=(*assHit).second-t0_corr-a*(*assHit).first-b;
       chi/=coordError;
       chi2+=chi*chi;
     }
 
-  t0_corr/=-0.00543; // convert drift distance to time, positive times mean late particles
+  t0_corr/=0.00543; // convert drift distance to time, positive times mean late particles
 
   if (debug && fitdebug) {
     cout << "      t0_corr = " << t0_corr << "ns  chi2/nHits = " << chi2 << "/" << assHits.size() << endl;
