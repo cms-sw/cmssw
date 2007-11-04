@@ -23,7 +23,6 @@ SiStripActionExecutor::SiStripActionExecutor() {
   //  configParser_ = 0;
   qtHandler_ = 0;
   summaryCreator_= 0;
-  collationDone = false;
 }
 //
 // --  Destructor
@@ -38,40 +37,37 @@ SiStripActionExecutor::~SiStripActionExecutor() {
 //
 // -- Read Configurationn File
 //
-void SiStripActionExecutor::readConfiguration() {
+bool SiStripActionExecutor::readConfiguration() {
   
   if (!summaryCreator_) {
     summaryCreator_ = new SiStripSummaryCreator();
   }
-  summaryCreator_->readConfiguration();
+  if (summaryCreator_->readConfiguration()) return true;
+  else return false;
 }
 //
 // -- Read Configurationn File
 //
 bool SiStripActionExecutor::readConfiguration(int& sum_freq) {
-  readConfiguration();
-  sum_freq = summaryCreator_->getFrequency();
-  if (sum_freq == -1) return false;
-  else return true;
+  bool result = false;
+  if (readConfiguration()) {
+    sum_freq = summaryCreator_->getFrequency();
+    if (sum_freq != -1) result = true;
+  }
+  return result;
 }
 //
 // -- Create and Fill Summary Monitor Elements
 //
 void SiStripActionExecutor::createSummary(DaqMonitorBEInterface* bei) {
   bei->cd();
-  if (collationDone) {
-    cout << " Creating Summary with Collated Monitor Elements " << endl;
-    bei->cd("Collector/Collated/SiStrip");
-    summaryCreator_->createSummary(bei);
-    bei->cd();
-  } else summaryCreator_->createSummary(bei);
+  summaryCreator_->createSummary(bei);
 }
 //
 // -- Setup Quality Tests 
 //
 void SiStripActionExecutor::setupQTests(DaqMonitorBEInterface* bei) {
   bei->cd();
-  if (collationDone) bei->cd("Collector/Collated/SiStrip");
   string localPath = string("DQM/SiStripMonitorClient/test/sistrip_qualitytest_config.xml");
   if (!qtHandler_) {
     qtHandler_ = new QTestHandle();
@@ -85,62 +81,10 @@ void SiStripActionExecutor::setupQTests(DaqMonitorBEInterface* bei) {
   }
 }
 //
-//
-//
-void SiStripActionExecutor::createCollation(MonitorUserInterface* mui){
-  string currDir = mui->getBEInterface()->pwd();
-  map<string, vector<string> > collation_map;
-  vector<string> contentVec;
-  mui->getBEInterface()->getContents(contentVec);
-
-  for (vector<string>::iterator it = contentVec.begin();
-      it != contentVec.end(); it++) {
-    if ((*it).find("module_") == string::npos) continue;
-    string dir_path;
-    vector<string> contents;
-    int nval = SiStripUtility::getMEList((*it), dir_path, contents);
-    string tag = dir_path.substr(dir_path.find("module_")+7, dir_path.size()-1);
-    for (vector<string>::iterator ic = contents.begin(); ic != contents.end(); ic++) {
-      
-      string me_path = dir_path + (*ic);
-      string path = dir_path.substr(dir_path.find("SiStrip"),dir_path.size());
-      MonitorElement* me =  mui->getBEInterface()->get( me_path );
-      TProfile* prof = ExtractTObject<TProfile>().extract( me );
-      TH1F* hist1 = ExtractTObject<TH1F>().extract( me );
-      TH2F* hist2 = ExtractTObject<TH2F>().extract( me );
-      CollateMonitorElement* coll_me = 0;
-      string coll_dir = "Collector/Collated/"+path;
-      map<string, vector<string> >::iterator ipos = collation_map.find(tag);
-      if(ipos == collation_map.end()) {
-        if (collation_map[tag].capacity() != contents.size()) { 
-          collation_map[tag].reserve(contents.size()); 
-        }
-        if      (hist1) coll_me = mui->collate1D((*ic),(*ic),coll_dir);
-        else if (hist2) coll_me = mui->collate2D((*ic),(*ic),coll_dir);
-        else if (prof) coll_me = mui->collate2D((*ic),(*ic),coll_dir);
-        collation_map[tag].push_back(coll_dir+(*ic));
-      } else {
-        if (find(ipos->second.begin(), ipos->second.end(), (*ic)) == ipos->second.end()){
-	  if (hist1)      coll_me = mui->collate1D((*ic),(*ic),coll_dir);
-	  else if (hist2) coll_me = mui->collate2D((*ic),(*ic),coll_dir);
-	  else if (prof)  coll_me = mui->collateProf((*ic),(*ic),coll_dir);
-	  collation_map[tag].push_back(coll_dir+(*ic));	  
-        }
-      }
-      if (coll_me) mui->add(coll_me, me_path);
-    }
-  }
-  collationDone = true;
-}
-//
 // -- Save Monitor Elements in a file
 //      
 void SiStripActionExecutor::saveMEs(DaqMonitorBEInterface* bei, string fname){
-  if (collationDone) {
-    bei->save(fname,"Collector/Collated");
-  } else {
-     bei->save(fname,bei->pwd(),90);
-  }
+   bei->save(fname,bei->pwd(),90);
 }
 //
 // -- Get TkMap ME names

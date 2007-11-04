@@ -11,6 +11,9 @@
 <link rel="stylesheet" type="text/css" href="css_files/folder-tree-static.css"/>
 <link rel="stylesheet" type="text/css" href="css_files/tooltip.css"/>
 <script type="text/javascript" src="WebLib.js"></script> 
+<script type = "text/javascript" src = "js_files/scriptaculous/lib/prototype.js">    </script>
+<script type = "text/javascript" src = "js_files/scriptaculous/src/scriptaculous.js"></script>
+<script type = "text/javascript" src = "js_files/scriptaculous/lib/moo.fx.js">       </script>
 <body>
 <div id="dhtmltooltip"></div>
 <script type="text/javascript" src="js_files/tooltip.js"></script>
@@ -45,13 +48,6 @@
 	  onmouseout="hideddrivetip();">
 	  <fieldset>
 	     <legend>Client Controls</legend>
-	       <input name="collate" 
-                  id="collate_me"
-                  value="Collate ME" 
-                  style="width:20%;margin-left:2%;margin-bottom:1%;margin-top:1%;margin-right:2%"                  
-                  onClick="ClientActions.CollateME()" 
-                  type="submit">
-               </input>
 	       <input name="summary" 
                   id="create_summary"
                   value="Update Summary" 
@@ -256,7 +252,7 @@
                   <select name="mod_num"
                     id="module_numbers"
                     style="margin-left:2%;position:absolute;z-index:0;width:120px;clip:rect(0px,120px,22px,100px);"
-                    onChange="SetSelectedValue();">
+                    onChange="CommonActions.SetSelectedValue();">
                   </select>
                   <input type="text"
                      name="mod_num_edit"

@@ -596,10 +596,9 @@ void SiStripInformationExtractor::readLayoutNames(xgi::Output * out){
 //
 // read the Module And HistoList
 //
-void SiStripInformationExtractor::readModuleAndHistoList(DaqMonitorBEInterface* bei, xgi::Output * out, bool coll_flag) {
+void SiStripInformationExtractor::readModuleAndHistoList(DaqMonitorBEInterface* bei, xgi::Output * out) {
    std::vector<std::string> hnames;
    std::vector<std::string> mod_names;
-   if (coll_flag)  bei->cd("Collector/Collated");
    fillModuleAndHistoList(bei, mod_names, hnames);
    out->getHTTPResponseHeader().addHeader("Content-Type", "text/xml");
   *out << "<?xml version=\"1.0\" ?>" << std::endl;
@@ -619,13 +618,11 @@ void SiStripInformationExtractor::readModuleAndHistoList(DaqMonitorBEInterface* 
    }
    *out << "</HistoList>" << endl;
    *out << "</ModuleAndHistoList>" << endl;
-   if (coll_flag)  bei->cd();
 }
 //
 // read the Module And HistoList
 //
-void SiStripInformationExtractor::readGlobalHistoList(DaqMonitorBEInterface* bei, xgi::Output * out, bool coll_flag) {
-   if (coll_flag)  bei->cd("Collector/Collated");
+void SiStripInformationExtractor::readGlobalHistoList(DaqMonitorBEInterface* bei, xgi::Output * out) {
    std::vector<std::string> hnames;
 
    fillGlobalHistoList(bei, hnames);
@@ -638,16 +635,15 @@ void SiStripInformationExtractor::readGlobalHistoList(DaqMonitorBEInterface* bei
      *out << "<GHisto>" << *it << "</GHisto>" << endl;      
    }
    *out << "</GlobalHistoList>" << endl;
-   if (coll_flag)  bei->cd();
 }
 //
 // read the Structure And SummaryHistogram List
 //
-void SiStripInformationExtractor::readSummaryHistoTree(DaqMonitorBEInterface* bei, string& str_name, xgi::Output * out, bool coll_flag) {
+void SiStripInformationExtractor::readSummaryHistoTree(DaqMonitorBEInterface* bei, string& str_name, xgi::Output * out) {
  
   ostringstream sumtree;
   bei->cd();
-  if (goToDir(bei, str_name, coll_flag)) {
+  if (goToDir(bei, str_name)) {
     sumtree << "<ul id=\"dhtmlgoodies_tree\" class=\"dhtmlgoodies_tree\">" << endl;
     printSummaryHistoList(bei,sumtree);
     sumtree <<"</ul>" << endl;   
@@ -662,9 +658,9 @@ void SiStripInformationExtractor::readSummaryHistoTree(DaqMonitorBEInterface* be
 // read the Structure And Alarm Tree
 //
 void SiStripInformationExtractor::readAlarmTree(DaqMonitorBEInterface* bei, 
-                  string& str_name, xgi::Output * out, bool coll_flag){
+                  string& str_name, xgi::Output * out){
   ostringstream alarmtree;
-  if (goToDir(bei, str_name, coll_flag)) {
+  if (goToDir(bei, str_name)) {
     alarmtree << "<ul id=\"dhtmlgoodies_tree\" class=\"dhtmlgoodies_tree\">" << endl;
     printAlarmList(bei,alarmtree);
     alarmtree <<"</ul>" << endl; 
@@ -745,7 +741,7 @@ const ostringstream&  SiStripInformationExtractor::getImage() const {
 //
 // go to a specific directory after scanning
 //
-bool SiStripInformationExtractor::goToDir(DaqMonitorBEInterface* bei, string& sname, bool flg){ 
+bool SiStripInformationExtractor::goToDir(DaqMonitorBEInterface* bei, string& sname){ 
   string currDir = bei->pwd();
   if (currDir.find("SiStrip") != string::npos)  {
     bei->cd(sname);
@@ -756,12 +752,8 @@ bool SiStripInformationExtractor::goToDir(DaqMonitorBEInterface* bei, string& sn
     vector<string> subdirs = bei->getSubdirs();
     for (vector<string>::const_iterator it = subdirs.begin();
 	 it != subdirs.end(); it++) {
-      if (flg) {
-        if ((*it) == "Collated") bei->cd("Collated"); 
-      } else {
-	bei->cd(*it);
-      }
-      if (goToDir(bei, sname, flg)) return true;
+      bei->cd(*it);
+      if (goToDir(bei, sname)) return true;
       else bei->goUp();
     }
     return false;

@@ -69,8 +69,9 @@ copy("$ENV{PWD}/../test/source_client.cfg", "$ENV{PWD}/cfg/source_client.cfg");
 
 copy("$ENV{PWD}/../test/MESubscriptionList.xml", "$ENV{PWD}/cfg/.");
 copy("$ENV{PWD}/../test/sistrip_qualitytest_config.xml", "$ENV{PWD}/cfg/.");
-copy("$ENV{PWD}/../test/trackermap.txt", "$ENV{PWD}/.");
-copy("$ENV{PWD}/../test/tracker.dat", "$ENV{PWD}/.");
+copy("$ENV{PWD}/../test/Reference.root", "$ENV{PWD}/.");
+copy("$ENV{PWD}/../data/TrackerMapHeader.txt", "$ENV{PWD}/.");
+copy("$ENV{PWD}/../data/TrackerMapTrailer.txt", "$ENV{PWD}/.");
 
 
 
@@ -458,11 +459,13 @@ sub makeCtlDestroy
     $result = $result . "print \"$cmd ...\\n\";\n\n";
     $result = $result . "`$cmd`;\n\n";
     $result = $result . "print \"remove files and dirs ...\n\";\n\n";
-    $result = $result . "`rm -rf cfg/ soap/ xml/ log/ /tmp/sm " .
-	"start configure enable halt stop gennums.txt summaryCatalog.txt test.root`;\n\n";
-    $result = $result . "`rm -rf Online.html loader.html "
+    $result = $result . "`rm -rf cfg/ soap/ xml/ log/ /tmp/sm "
+          . "start configure enable halt stop gennums.txt"
+          . " summaryCatalog.txt test.root`;\n\n";
+    $result = $result . "`rm -rf Online.html loader.html \*.root "
           . "\*.png css_files js_files images WebLib.js `;\n\n";
-    $result = $result . "`rm -rf tracker.dat  trackermap.txt svgmap.xml svgmap_fed.xml`;\n\n";
+    $result = $result . "`rm -rf TrackerMapHeader.txt  TrackerMapTrailer.txt "
+          . "svgmap.xml svgmap_fed.xml Layer\*.xml `;\n\n";
     $result = $result . "print \"FUShmCleanUp_t ...\\n\";\n\n";
     $result = $result . "`FUShmCleanUp_t`;\n\n";
     $result = $result . "print \"XDAQ session destroyed!\\n\";\n\n";

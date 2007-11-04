@@ -4,13 +4,18 @@
 /** \class SiStripAnalyser
  * *
  *  SiStrip SiStripAnalyser
- *  $Date: 2007/10/19 17:42:24 $
- *  $Revision: 1.10 $
+ *  $Date: 2007/10/24 17:13:23 $
+ *  $Revision: 1.11 $
  *  \author  S. Dutta INFN-Pisa
  *   
  */
 
-#include "DQMServices/Components/interface/DQMAnalyzer.h"
+#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/LuminosityBlock.h"
+#include "FWCore/Framework/interface/Run.h"
+
 #include "EventFilter/Utilities/interface/ModuleWeb.h"
 
 #include <iostream>
@@ -25,7 +30,7 @@ class SiStripWebInterface;
 class SiStripFedCabling;
 class SiStripTrackerMapCreator;
  
-class SiStripAnalyser: public DQMAnalyzer, public evf::ModuleWeb{
+class SiStripAnalyser: public edm::EDAnalyzer, public evf::ModuleWeb{
 
 public:
 
@@ -72,21 +77,23 @@ private:
 
   void createFedTrackerMap();
 
+  DaqMonitorBEInterface* dbe_;
   MonitorUserInterface* mui_;
 
   SiStripWebInterface* sistripWebInterface_;
 
-  int tkMapFrequency_;
-  int summaryFrequency_;
   int fileSaveFrequency_;
-  unsigned int collationFlag_;
-  unsigned int staticUpdateFrequency_;
+  int summaryFrequency_;
+  int tkMapFrequency_;
+  int staticUpdateFrequency_;
 
   std::string outputFilePath_;
 
   edm::ESHandle< SiStripFedCabling > fedCabling_;
   SiStripTrackerMapCreator* trackerMapCreator_;
   bool defaultPageCreated_;
+
+  int nLumiSecs_;
 };
 
 

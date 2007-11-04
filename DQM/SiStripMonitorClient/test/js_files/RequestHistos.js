@@ -9,12 +9,24 @@ RequestHistos.RequestHistoList = function()
   if (document.getElementById("module_histos").checked) {
     queryString = "RequestID=SingleModuleHistoList";
     url        += queryString; 
-    WebLib.makeRequest(url, RequestHistos.FillModuleHistoList);
+    var retVal = new Ajax.Request(url,                    
+ 	 	                 {			  
+ 	 		          method: 'get',	  
+ 			          parameters: '', 
+ 			          onSuccess: RequestHistos.FillModuleHistoList
+ 			         });
+//    WebLib.makeRequest(url, RequestHistos.FillModuleHistoList);
     CommonActions.ShowProgress("visible", "Module Histogram List");     
   } else if (document.getElementById("global_histos").checked) {
     queryString = "RequestID=GlobalHistoList";    
     url        += queryString;
-    WebLib.makeRequest(url, RequestHistos.FillGlobalHistoList);     
+    var retVal = new Ajax.Request(url,                    
+ 	 	                 {			  
+ 	 		          method: 'get',	  
+ 			          parameters: '', 
+ 			          onSuccess: RequestHistos.FillGlobalHistoList
+ 			         });
+//    WebLib.makeRequest(url, RequestHistos.FillGlobalHistoList);     
     CommonActions.ShowProgress("visible", "Global Histogram List");
   }
 }
@@ -30,7 +42,13 @@ RequestHistos.RequestSummaryHistoList = function()
   var sname    = obj.options[obj.selectedIndex].value;
   queryString += '&StructureName='+sname;
   url         += queryString; 
-  WebLib.makeRequest(url, RequestHistos.FillSummaryHistoList);     
+  var retVal = new Ajax.Request(url,
+                               {           
+                  		method: 'get',	  
+ 			        parameters: '', 
+ 			        onSuccess: RequestHistos.FillSummaryHistoList
+ 			       });
+//  WebLib.makeRequest(url, RequestHistos.FillSummaryHistoList);     
   CommonActions.ShowProgress("visible", "Summary Histogram Tree");
 }
 //
@@ -45,149 +63,139 @@ RequestHistos.RequestAlarmList = function()
   var sname    = obj.options[obj.selectedIndex].value;
   queryString += '&StructureName='+sname;
   url         += queryString; 
-  WebLib.makeRequest(url, RequestHistos.FillAlarmList);     
+  var retVal = new Ajax.Request(url,
+                               {           
+                  		method: 'get',	  
+ 			        parameters: '', 
+ 			        onSuccess: RequestHistos.FillAlarmList
+ 			       });
+
+//  WebLib.makeRequest(url, RequestHistos.FillAlarmList);     
   CommonActions.ShowProgress("visible", "Alarm Tree");
 }
 //
 // -- Fill list of modules and histogram names in th list area
 //
-RequestHistos.FillModuleHistoList = function() 
+RequestHistos.FillModuleHistoList = function(transport) 
 {
-  if (WebLib.http_request.readyState == 4) {
-    if (WebLib.http_request.status == 200) {
-      CommonActions.ShowProgress("hidden");
-      try 
-      {
-        var doc   = WebLib.http_request.responseXML;
-        var root  = doc.documentElement;
+    CommonActions.ShowProgress("hidden");
+    try 
+    {
+      var doc   = transport.responseXML;
+      var root  = doc.documentElement;
         
-        // Module Number select box
-        var aobj  = document.getElementById("module_numbers");
+      // Module Number select box
+      var aobj  = document.getElementById("module_numbers");
 
-        aobj.options.length = 0;
+      aobj.options.length = 0;
         
-        var mrows = root.getElementsByTagName('ModuleNum');
+       var mrows = root.getElementsByTagName('ModuleNum');
 //        alert(" rows = " + mrows.length);
-        for (var i = 0; i < mrows.length; i++) {
-          var mnum = mrows[i].childNodes[0].nodeValue;
-          var aoption = new Option(mnum, mnum);
-          try 
-          {
-            aobj.add(aoption, null);
-          }
-          catch (e) {
-            aobj.add(aoption, -1);
-          }
+      for (var i = 0; i < mrows.length; i++) {
+        var mnum = mrows[i].childNodes[0].nodeValue;
+        var aoption = new Option(mnum, mnum);
+        try 
+        {
+          aobj.add(aoption, null);
         }
-        // Select the first option and set to editable text  
-        var cobj = document.getElementById("module_number_edit");
-        if (cobj != null) {
-          cobj.value = aobj.options[0].value;;
-        }   
-
-        // Histogram  select box
-        var bobj = document.getElementById("histolistarea");
-        bobj.options.length = 0;
-
-        var hrows = root.getElementsByTagName('Histo');
-        // alert(" rows = " + hrows.length);
-        for (var j = 0; j < hrows.length; j++) {
-          var name  = hrows[j].childNodes[0].nodeValue;
-          var boption = new Option(name, name);
-          try {
-            bobj.add(boption, null);
-          }
-          catch (e) {
-            bobj.add(boption, -1);
-          }
+        catch (e) {
+          aobj.add(aoption, -1);
         }
       }
-      catch (err) {
-        alert ("[RequestHistos.FillModuleHistoList] Error detail: " + err.message); 
+      // Select the first option and set to editable text  
+      var cobj = document.getElementById("module_number_edit");
+      if (cobj != null) {
+        cobj.value = aobj.options[0].value;;
+      }   
+      // Histogram  select box
+      var bobj = document.getElementById("histolistarea");
+      bobj.options.length = 0;
+
+      var hrows = root.getElementsByTagName('Histo');
+      // alert(" rows = " + hrows.length);
+      for (var j = 0; j < hrows.length; j++) {
+        var name  = hrows[j].childNodes[0].nodeValue;
+        var boption = new Option(name, name);
+        try {
+          bobj.add(boption, null);
+        }
+        catch (e) {
+          bobj.add(boption, -1);
+        }
       }
     }
-  }
+    catch (err) {
+      alert ("[RequestHistos.FillModuleHistoList] Error detail: " + err.message); 
+    }
 }
 //
 // -- Fill names of the global histogram
 //
-RequestHistos.FillGlobalHistoList = function() 
+RequestHistos.FillGlobalHistoList = function(transport) 
 {
-  if (WebLib.http_request.readyState == 4) {
-    if (WebLib.http_request.status == 200) {
-      CommonActions.ShowProgress("hidden");
-      try 
-      {
-        var doc  = WebLib.http_request.responseXML;
-        var root = doc.documentElement;
-        
-        // Histogram  select box
-        var bobj = document.getElementById("histolistarea");
-        bobj.options.length = 0;
+    CommonActions.ShowProgress("hidden");
+    try 
+    {
+      var doc  = transport.responseXML;
+      var root = doc.documentElement;
+       
+      // Histogram  select box
+      var bobj = document.getElementById("histolistarea");
+      bobj.options.length = 0;
 
-        var hrows = root.getElementsByTagName('GHisto');
-        // alert(" rows = " + hrows.length);
-        for (var j = 0; j < hrows.length; j++) {
-          var name    = hrows[j].childNodes[0].nodeValue;
-          var boption = new Option(name, name);
-          try 
-          {
-            bobj.add(boption, null);
-          }
-          catch (e) {
-            bobj.add(boption, -1);
-          }
+      var hrows = root.getElementsByTagName('GHisto');
+      // alert(" rows = " + hrows.length);
+      for (var j = 0; j < hrows.length; j++) {
+        var name    = hrows[j].childNodes[0].nodeValue;
+        var boption = new Option(name, name);
+        try 
+        {
+          bobj.add(boption, null);
+        }
+        catch (e) {
+          bobj.add(boption, -1);
         }
       }
-      catch (err) {
-        alert ("[RequestHistos.FillGlobalHistoList] Error detail: " + err.message); 
-      }
     }
-  }
+    catch (err) {
+      alert ("[RequestHistos.FillGlobalHistoList] Error detail: " + err.message); 
+    }
 }
 //
 // -- Fill the summary tree in the list area
 //
-RequestHistos.FillSummaryHistoList = function() 
+RequestHistos.FillSummaryHistoList = function(transport) 
 {
-  if (WebLib.http_request.readyState == 4) {
-    if (WebLib.http_request.status == 200) {
-      CommonActions.ShowProgress("hidden");
-      try {
-        var text = WebLib.http_request.responseText;
-        var obj  = document.getElementById("tree_list");
-        if (obj != null) {
-          obj.innerHTML = text;
-          initTree();
-        }       
-      }
-      catch (err) {
-      // alert ("[RequestHistos.FillSummaryHistoList] Error detail: " + err.message); 
-      }
+    CommonActions.ShowProgress("hidden");
+    try {
+      var text = transport.responseText;
+      var obj  = document.getElementById("tree_list");
+      if (obj != null) {
+        obj.innerHTML = text;
+        initTree();
+      }       
     }
-  }
+    catch (err) {
+    // alert ("[RequestHistos.FillSummaryHistoList] Error detail: " + err.message); 
+    }
 }
 //
 // -- Fill alarm tree in the list area
 //
-RequestHistos.FillAlarmList = function() 
+RequestHistos.FillAlarmList = function(transport) 
 {
-  if (WebLib.http_request.readyState == 4) {
-    if (WebLib.http_request.status == 200) {
-      CommonActions.ShowProgress("hidden");
-      try {
-        var text = WebLib.http_request.responseText;
-        var obj = document.getElementById("alarm_list");
-        if (obj != null) {
-          obj.innerHTML = text;
-          initTree();
-        }       
-      }
-      catch (err) {
-      // alert ("[RequestHistos.FillAlarmList] Error detail: " + err.message); 
-      }
+    CommonActions.ShowProgress("hidden");
+    try {
+      var text = transport.responseText;
+      var obj = document.getElementById("alarm_list");
+      if (obj != null) {
+        obj.innerHTML = text;
+        initTree();
+      }       
     }
-  }
+    catch (err) {
+    // alert ("[RequestHistos.FillAlarmList] Error detail: " + err.message); 
+    }
 }
 //
 // -- Draw selected histograms from the list area
@@ -216,7 +224,14 @@ RequestHistos.DrawSelectedHistos = function()
   }
   queryString += '&width='+canvas.width+'&height='+canvas.height;
   url += queryString;
-  WebLib.makeRequest(url, null);
+  var retVal = new Ajax.Request(url,
+                               {           
+                  		method: 'get',	  
+ 			        parameters: '', 
+ 			        onComplete: ''
+ 			       });
+
+//  WebLib.makeRequest(url, null);
   CommonActions.ShowProgress('visible', 'Selected Plot');
   setTimeout('RequestHistos.UpdatePlot()', 2000);   
 }
@@ -316,7 +331,14 @@ RequestHistos.DrawSingleHisto = function(path)
   queryString += '&width='+canvas.width+'&height='+canvas.height;
   queryString += '&histotype=summary';
   url         += queryString;
-  WebLib.makeRequest(url, null);
+  var retVal = new Ajax.Request(url,
+                               {           
+                  		method: 'get',	  
+ 			        parameters: '', 
+ 			        onComplete: ''
+ 			       });
+
+//  WebLib.makeRequest(url, null);
   CommonActions.ShowProgress('visible', 'Selected Plot');   
   setTimeout('RequestHistos.UpdatePlot()', 2000);     
 }
@@ -330,37 +352,40 @@ RequestHistos.ReadStatus = function(path)
   queryString += '&Path='+path;
   url         += queryString;
   CommonActions.ShowProgress('visible', 'Status Message');
-  WebLib.makeRequest(url, RequestHistos.FillStatus);
+  var retVal = new Ajax.Request(url,
+                               {           
+                  		method: 'get',	  
+ 			        parameters: '', 
+ 			        onSuccess: RequestHistos.FillStatus
+ 			       });
+
+//  WebLib.makeRequest(url, RequestHistos.FillStatus);
 }
 //
 // -- Fill status message from QTest in the status list area
 //
-RequestHistos.FillStatus = function() {
-  if (WebLib.http_request.readyState == 4) {
-    if (WebLib.http_request.status == 200) {
-     CommonActions.ShowProgress('hidden');
-      try {
-        var doc = WebLib.http_request.responseXML;
-        var root = doc.documentElement;
-        var mrows = root.getElementsByTagName('Status');
-        if (mrows.length > 0) {
-          var stat  = mrows[0].childNodes[0].nodeValue;
-          var obj = document.getElementById("status_area");
-          if (obj != null) {
-            obj.innerHTML = stat;
-          }       
-        }
-        mrows = root.getElementsByTagName('HPath');
-        if (mrows.length > 0) {
-          var hpath  = mrows[0].childNodes[0].nodeValue;
-          if (hpath != "NONE") RequestHistos.DrawQTestHisto(hpath);
-        }
+RequestHistos.FillStatus = function(transport) {
+   CommonActions.ShowProgress('hidden');
+   try {
+      var doc = transport.responseXML;
+      var root = doc.documentElement;
+      var mrows = root.getElementsByTagName('Status');
+      if (mrows.length > 0) {
+        var stat  = mrows[0].childNodes[0].nodeValue;
+        var obj = document.getElementById("status_area");
+        if (obj != null) {
+          obj.innerHTML = stat;
+        }       
       }
-      catch (err) {
-//        alert ("Error detail: " + err.message); 
+      mrows = root.getElementsByTagName('HPath');
+      if (mrows.length > 0) {
+        var hpath  = mrows[0].childNodes[0].nodeValue;
+        if (hpath != "NONE") RequestHistos.DrawQTestHisto(hpath);
       }
     }
-  }
+    catch (err) {
+//      alert ("Error detail: " + err.message); 
+    }
 }
 //
 // -- Draw Histogram used for QTest
@@ -378,8 +403,14 @@ RequestHistos.DrawQTestHisto = function(path)
   queryString  += '&width='+canvas.width+'&height='+canvas.height;
   queryString  += '&histotype=qtest';
   url          += queryString;
+  var retVal = new Ajax.Request(url,
+                               {           
+                  		method: 'get',	  
+ 			        parameters: '', 
+ 			        onComplete: ''
+ 			       });
 
-  WebLib.makeRequest(url, null);
+//  WebLib.makeRequest(url, null);
   CommonActions.ShowProgress('visible', 'Selected Plot');
    
   setTimeout('RequestHistos.UpdatePlot()', 2000);     
@@ -408,8 +439,14 @@ RequestHistos.CheckQualityTestResultsLite = function()
   queryString     += '&InfoType=Lite';
   var url          = WebLib.getApplicationURL2();
   url              = url + queryString; 
+  var retVal = new Ajax.Request(url,
+                               {           
+                  		method: 'get',	  
+ 			        parameters: '', 
+ 			        onSuccess: RequestHistos.FillTextStatus
+ 			       });
   
-  WebLib.makeRequest(url, RequestHistos.FillTextStatus); 
+//  WebLib.makeRequest(url, RequestHistos.FillTextStatus); 
 }
 //
 // Check Quality Test Results (Expert)
@@ -419,23 +456,25 @@ RequestHistos.CheckQualityTestResultsDetail = function() {
   queryString     += '&InfoType=Detail';
   var url          = WebLib.getApplicationURL2();
   url              = url + queryString; 
-  
-  WebLib.makeRequest(url, RequestHistos.FillTextStatus); 
+  var retVal = new Ajax.Request(url,
+                               {           
+                  		method: 'get',	  
+ 			        parameters: '', 
+ 			        onSuccess: RequestHistos.FillTextStatus
+ 			       });
+
+//  WebLib.makeRequest(url, RequestHistos.FillTextStatus); 
 }
 //
 // -- Fill the status of QTest in the status list area
 //
-RequestHistos.FillTextStatus = function() 
+RequestHistos.FillTextStatus = function(transport) 
 {
-  if (WebLib.http_request.readyState == 4) {
-    if (WebLib.http_request.status == 200) {
-      try {
-        var text = WebLib.http_request.responseText;
-	CommonActions.FillText("summary_status_area", text);
-      }
-      catch (err) {
-//        alert ("Error detail: " + err.message); 
-      }
+  try {
+    var text = transport.responseText;
+      CommonActions.FillText("summary_status_area", text);
     }
-  }
+    catch (err) {
+//      alert ("Error detail: " + err.message); 
+    }
 }

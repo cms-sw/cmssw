@@ -95,9 +95,6 @@ void SiStripWebInterface::handleCustomRequest(xgi::Input* in,xgi::Output* out)
   else if (requestID == "SaveToFile") {
      theActionFlag = SaveData;
   } 
-  else if (requestID == "CollateME") {
-     theActionFlag = Collate;
-  } 
   //  else if (requestID == "CreateTkMap") {
   //     theActionFlag = CreateTkMap;
   //  } 
@@ -112,26 +109,22 @@ void SiStripWebInterface::handleCustomRequest(xgi::Input* in,xgi::Output* out)
   else if (requestID == "SingleModuleHistoList") {
     theActionFlag = NoAction;
     
-    infoExtractor_->readModuleAndHistoList(bei, out,
-                          actionExecutor_->getCollationFlag() );    
+    infoExtractor_->readModuleAndHistoList(bei, out);
   } 
   else if (requestID == "GlobalHistoList") {
     theActionFlag = NoAction;
     
-    infoExtractor_->readGlobalHistoList(bei, out,
-                          actionExecutor_->getCollationFlag() );    
+    infoExtractor_->readGlobalHistoList(bei, out);
   } 
   else if (requestID == "SummaryHistoList") {
     theActionFlag = NoAction;
     string sname = get_from_multimap(requestMap_, "StructureName");
-   infoExtractor_->readSummaryHistoTree(bei, sname, out,
-                           actionExecutor_->getCollationFlag());    
+    infoExtractor_->readSummaryHistoTree(bei, sname, out);
   } 
   else if (requestID == "AlarmList") {
     theActionFlag = NoAction;
     string sname = get_from_multimap(requestMap_, "StructureName");
-    infoExtractor_->readAlarmTree(bei, sname, out,
-                           actionExecutor_->getCollationFlag());    
+    infoExtractor_->readAlarmTree(bei, sname, out);
   } 
   else if (requestID == "ReadQTestStatus") {
     theActionFlag = NoAction;
@@ -178,7 +171,7 @@ void SiStripWebInterface::handleAnalyserRequest(xgi::Input* in,xgi::Output* out,
   cout << " requestID " << requestID << endl;
   if (requestID == "IsReady") {
     theActionFlag = NoAction;    
-    if (niter > 2) {
+    if (niter > 0) {
       infoExtractor_->readLayoutNames(out);
     } else {
       returnReplyXml(out, "ReadyState", "wait");
@@ -202,26 +195,22 @@ void SiStripWebInterface::handleAnalyserRequest(xgi::Input* in,xgi::Output* out,
   else if (requestID == "SingleModuleHistoList") {
     theActionFlag = NoAction;
     
-    infoExtractor_->readModuleAndHistoList(bei, out,
-                          actionExecutor_->getCollationFlag() );    
+    infoExtractor_->readModuleAndHistoList(bei, out);
   } 
   else if (requestID == "GlobalHistoList") {
     theActionFlag = NoAction;
     
-    infoExtractor_->readGlobalHistoList(bei, out,
-                          actionExecutor_->getCollationFlag() );    
+    infoExtractor_->readGlobalHistoList(bei, out);
   } 
   else if (requestID == "SummaryHistoList") {
     theActionFlag = NoAction;
     string sname = get_from_multimap(requestMap_, "StructureName");
-   infoExtractor_->readSummaryHistoTree(bei, sname, out,
-                           actionExecutor_->getCollationFlag());    
+    infoExtractor_->readSummaryHistoTree(bei, sname, out);
   } 
   else if (requestID == "AlarmList") {
     theActionFlag = NoAction;
     string sname = get_from_multimap(requestMap_, "StructureName");
-    infoExtractor_->readAlarmTree(bei, sname, out,
-                           actionExecutor_->getCollationFlag());    
+    infoExtractor_->readAlarmTree(bei, sname, out);
   } 
   else if (requestID == "ReadQTestStatus") {
     theActionFlag = NoAction;
@@ -269,7 +258,7 @@ void SiStripWebInterface::setupQTests() {
   actionExecutor_->setupQTests((*mui_p)->getBEInterface());
 }
 //
-// -- Read Configurations 
+// -- Read Configurations and access the frequency
 //
 void SiStripWebInterface::readConfiguration(int& sum_freq){
   if (actionExecutor_)  {
@@ -277,6 +266,14 @@ void SiStripWebInterface::readConfiguration(int& sum_freq){
   } else {
     sum_freq   = -1;
   }
+}
+//
+// -- Read Configurations and access the frequency
+//
+bool SiStripWebInterface::readConfiguration(){
+  if (actionExecutor_)
+    return (actionExecutor_->readConfiguration());
+  else return false;
 }
 //
 // -- Perform action
@@ -290,11 +287,6 @@ void SiStripWebInterface::performAction() {
       (*mui_p)->subscribe("Collector/*");
       break;
     } 
-  case SiStripWebInterface::Collate :
-    {
-      actionExecutor_->createCollation((*mui_p));
-      break;
-    }
   case SiStripWebInterface::Summary :
     {
       actionExecutor_->createSummary(bei);

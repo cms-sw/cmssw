@@ -79,13 +79,6 @@ void SiStripClient::onUpdate() const
   std::vector<std::string> uplist;
   mui_->getBEInterface()->getUpdatedContents(uplist);
 
-  // Collation of Monitor Element
-  /*  if (nUpdate == 10) {
-    webInterface_p->setActionFlag(SiStripWebInterface::Collate);
-    seal::Callback action(seal::CreateCallback(webInterface_p, 
-			&SiStripWebInterface::performAction));
-    mui_->addCallback(action); 
-    }*/
   
   // Set Up Quality Tests
   if (nUpdate == 2) webInterface_p->setupQTests();
