@@ -13,10 +13,6 @@
 #include "RecoTracker/Record/interface/TrackerRecoGeometryRecord.h"
 #include "RecoTracker/TkDetLayers/interface/GeometricSearchTracker.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
-#include "DataFormats/GeometrySurface/interface/SimpleConeBounds.h"
-#include "DataFormats/GeometrySurface/interface/SimpleCylinderBounds.h"
-#include "DataFormats/GeometrySurface/interface/SimpleDiskBounds.h"
-#include "DataFormats/GeometrySurface/interface/MediumProperties.h"
 
 #include "SimDataFormats/ValidationFormats/interface/MaterialAccountingStep.h"
 #include "SimDataFormats/ValidationFormats/interface/MaterialAccountingTrack.h"

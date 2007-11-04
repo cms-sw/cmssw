@@ -2,8 +2,6 @@
 #include <string>
 
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
-#include "DataFormats/GeometrySurface/interface/SimpleCylinderBounds.h"
-#include "DataFormats/GeometrySurface/interface/SimpleDiskBounds.h"
 #include "Geometry/CommonDetUnit/interface/GeomDetEnumerators.h"
 #include "TrackingTools/DetLayers/interface/DetLayer.h"
 

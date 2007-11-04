@@ -19,10 +19,6 @@
 #include "RecoTracker/TkDetLayers/interface/GeometricSearchTracker.h"
 
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
-#include "DataFormats/GeometrySurface/interface/SimpleConeBounds.h"
-#include "DataFormats/GeometrySurface/interface/SimpleCylinderBounds.h"
-#include "DataFormats/GeometrySurface/interface/SimpleDiskBounds.h"
-#include "DataFormats/GeometrySurface/interface/MediumProperties.h"
 
 // GEANT4
 #include "G4Step.hh"
