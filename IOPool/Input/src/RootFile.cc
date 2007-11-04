@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: RootFile.cc,v 1.92 2007/10/11 21:52:01 wmtan Exp $
+$Id: RootFile.cc,v 1.93 2007/11/03 06:53:02 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "RootFile.h"
@@ -31,6 +31,7 @@ $Id: RootFile.cc,v 1.92 2007/10/11 21:52:01 wmtan Exp $
 #include "TFile.h"
 #include "TTree.h"
 #include "Rtypes.h"
+#include <algorithm>
 
 namespace edm {
 //---------------------------------------------------------------------
@@ -56,7 +57,7 @@ namespace edm {
       forcedRunNumber_(0),
       forcedRunNumberOffset_(0),
       newBranchToOldBranch_(),
-      newBranchNames_(),
+      sortedNewBranchNames_(),
       oldBranchNames_() {
     treePointers_[InEvent] = &eventTree_;
     treePointers_[InLumi]  = &lumiTree_;
@@ -119,11 +120,12 @@ namespace edm {
 	  prod.init();
 	  newBranchToOldBranch_.insert(std::make_pair(newBD.branchName(), prod.branchName()));
 	  if (newBD.branchType() == InEvent) {
-	    newBranchNames_.push_back(newBD.branchName());
+	    sortedNewBranchNames_.push_back(newBD.branchName());
 	    oldBranchNames_.push_back(prod.branchName());
 	  }
 	}
       }
+      std::sort(sortedNewBranchNames_.begin(), sortedNewBranchNames_.end());
       // freeze the product registry
       newReg->setFrozen();
       productRegistry_ = boost::shared_ptr<ProductRegistry const>(newReg);
@@ -162,7 +164,7 @@ namespace edm {
     return boost::shared_ptr<FileBlock>(new FileBlock(eventTree().tree(),
 						     eventTree().metaTree(),
 						     isFastClonable,
-						     newBranchNames_,
+						     sortedNewBranchNames_,
 						     oldBranchNames_));
   }
 

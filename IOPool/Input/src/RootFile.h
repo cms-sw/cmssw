@@ -5,7 +5,7 @@
 
 RootFile.h // used by ROOT input sources
 
-$Id: RootFile.h,v 1.38 2007/10/08 23:41:57 wmtan Exp $
+$Id: RootFile.h,v 1.39 2007/11/03 06:53:02 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -94,7 +94,7 @@ namespace edm {
     RunNumber_t forcedRunNumber_;
     int forcedRunNumberOffset_;
     std::map<std::string, std::string> newBranchToOldBranch_;
-    std::vector<std::string> newBranchNames_;
+    std::vector<std::string> sortedNewBranchNames_;
     std::vector<std::string> oldBranchNames_;
   }; // class RootFile
 

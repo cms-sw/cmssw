@@ -1,4 +1,4 @@
-// $Id: RootOutputFile.cc,v 1.26 2007/10/11 21:52:02 wmtan Exp $
+// $Id: RootOutputFile.cc,v 1.27 2007/11/03 06:53:02 wmtan Exp $
 
 #include "RootOutputFile.h"
 #include "PoolOutputModule.h"
@@ -84,19 +84,19 @@ namespace edm {
         outputItemList.push_back(OutputItem(&prod, false));
       }
       if (fastCloning) {
-	std::vector<std::string> const& renamed = om_->fileBlock_->newBranchNames();
+	std::vector<std::string> const& renamed = om_->fileBlock_->sortedNewBranchNames();
 	if (!renamed.empty()) {
           Selections const& kV = om_->keptPriorProducts()[branchType];
           for (Selections::const_iterator it = kV.begin(), itEnd = kV.end(); it != itEnd; ++it) {
             BranchDescription const& prod = **it;
-	    if(std::find(renamed.begin(), renamed.end(), prod.branchName()) != renamed.end()) {
+	    if(std::binary_search(renamed.begin(), renamed.end(), prod.branchName())) {
               outputItemList.push_back(OutputItem(&prod, true));
 	    }
           }
           Selections const& dV = om_->droppedPriorProducts()[branchType];
           for (Selections::const_iterator it = dV.begin(), itEnd = dV.end(); it != itEnd; ++it) {
             BranchDescription const& prod = **it;
-	    if(std::find(renamed.begin(), renamed.end(), prod.branchName()) != renamed.end()) {
+	    if(std::binary_search(renamed.begin(), renamed.end(), prod.branchName())) {
               outputItemList.push_back(OutputItem(&prod, false));
 	    }
           }
