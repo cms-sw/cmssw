@@ -1,8 +1,8 @@
 /*
  * \file SiStripAnalyser.cc
  * 
- * $Date: 2007/10/31 07:07:50 $
- * $Revision: 1.15 $
+ * $Date: 2007/11/04 18:46:56 $
+ * $Revision: 1.16 $
  * \author  S. Dutta INFN-Pisa
  *
  */
@@ -16,7 +16,9 @@
 
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/LuminosityBlock.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
 
+#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
 
 #include "CondFormats/DataRecord/interface/SiStripFedCablingRcd.h"
 #include "CondFormats/SiStripObjects/interface/SiStripFedCabling.h"
@@ -54,6 +56,9 @@ SiStripAnalyser::SiStripAnalyser(const edm::ParameterSet& ps) :
   tkMapFrequency_        = ps.getUntrackedParameter<int>("TkMapCreationFrequency",50); 
   staticUpdateFrequency_ = ps.getUntrackedParameter<int>("StaticUpdateFrequency",10);
   outputFilePath_        = ps.getUntrackedParameter<string>("OutputFilePath",".");
+
+  // get back-end interface
+  dbe_ = Service<DaqMonitorBEInterface>().operator->();
 
   // instantiate Monitor UI without connecting to any monitoring server
   // (i.e. "standalone mode")
