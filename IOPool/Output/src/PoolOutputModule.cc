@@ -1,4 +1,4 @@
-// $Id: PoolOutputModule.cc,v 1.89 2007/10/03 22:26:42 wmtan Exp $
+// $Id: PoolOutputModule.cc,v 1.90 2007/11/03 06:53:02 wmtan Exp $
 
 #include "IOPool/Output/src/PoolOutputModule.h"
 #include "boost/array.hpp" 
@@ -29,7 +29,7 @@ namespace edm {
     compressionLevel_(pset.getUntrackedParameter<int>("compressionLevel", 1)),
     basketSize_(pset.getUntrackedParameter<int>("basketSize", 16384)),
     splitLevel_(pset.getUntrackedParameter<int>("splitLevel", 99)),
-    fastCloning_(pset.getUntrackedParameter<bool>("fastCloning", false) && wantAllEvents()),
+    fastCloning_(pset.getUntrackedParameter<bool>("fastCloning", true) && wantAllEvents()),
     fileBlock_(0),
     moduleLabel_(pset.getParameter<std::string>("@module_label")),
     fileCount_(0),
@@ -38,6 +38,10 @@ namespace edm {
     // We need to set a custom streamer for edm::RefCore so that it will not be split.
     // even though a custom streamer is not otherwise necessary.
     SetRefStreamer();
+    // We don't use this next parameter, but we read it anyway because it is part
+    // of the configuration of this module.  An external parser creates the
+    // configuration by reading this source code.
+    pset.getUntrackedParameter<ParameterSet>("dataset", ParameterSet());
   }
 
   void PoolOutputModule::beginInputFile(FileBlock const& fb) {
