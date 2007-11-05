@@ -1,8 +1,8 @@
 /*
  * \file EEBeamCaloTask.cc
  *
- * $Date: 2007/10/17 15:58:45 $
- * $Revision: 1.12 $
+ * $Date: 2007/10/24 18:17:44 $
+ * $Revision: 1.13 $
  * \author A. Ghezzi
  *
  */
@@ -28,7 +28,6 @@
 
 #include "TBDataFormats/EcalTBObjects/interface/EcalTBCollections.h"
 
-#include <DQM/EcalCommon/interface/UtilsClient.h>
 #include <DQM/EcalCommon/interface/Numbers.h>
 
 #include <DQM/EcalEndcapMonitorTasks/interface/EEBeamCaloTask.h>

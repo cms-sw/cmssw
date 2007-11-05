@@ -1,8 +1,8 @@
 /*
  * \file EEBeamHodoTask.cc
  *
- * $Date: 2007/08/14 17:44:47 $
- * $Revision: 1.6 $
+ * $Date: 2007/10/24 18:17:44 $
+ * $Revision: 1.7 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -30,7 +30,6 @@
 
 #include "TBDataFormats/EcalTBObjects/interface/EcalTBCollections.h"
 
-#include <DQM/EcalCommon/interface/UtilsClient.h>
 #include <DQM/EcalCommon/interface/Numbers.h>
 
 #include <DQM/EcalEndcapMonitorTasks/interface/EEBeamHodoTask.h>
