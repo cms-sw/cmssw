@@ -1,8 +1,8 @@
 /*
  * \file EELaserClient.cc
  *
- * $Date: 2007/10/18 09:43:51 $
- * $Revision: 1.39 $
+ * $Date: 2007/10/24 18:17:42 $
+ * $Revision: 1.40 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -1640,22 +1640,22 @@ bool EELaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
       float rms01, rms02, rms03, rms04, rms05, rms06, rms07, rms08;
       float rms09, rms10, rms11, rms12, rms13, rms14, rms15, rms16;
 
-      update01 = UtilsClient::getBinStats(i01_[ism-1], 1, i, num01, mean01, rms01);
-      update02 = UtilsClient::getBinStats(i02_[ism-1], 1, i, num02, mean02, rms02);
-      update03 = UtilsClient::getBinStats(i03_[ism-1], 1, i, num03, mean03, rms03);
-      update04 = UtilsClient::getBinStats(i04_[ism-1], 1, i, num04, mean04, rms04);
-      update05 = UtilsClient::getBinStats(i05_[ism-1], 1, i, num05, mean05, rms05);
-      update06 = UtilsClient::getBinStats(i06_[ism-1], 1, i, num06, mean06, rms06);
-      update07 = UtilsClient::getBinStats(i07_[ism-1], 1, i, num07, mean07, rms07);
-      update08 = UtilsClient::getBinStats(i08_[ism-1], 1, i, num08, mean08, rms08);
-      update09 = UtilsClient::getBinStats(i09_[ism-1], 1, i, num09, mean09, rms09);
-      update10 = UtilsClient::getBinStats(i10_[ism-1], 1, i, num10, mean10, rms10);
-      update11 = UtilsClient::getBinStats(i11_[ism-1], 1, i, num11, mean11, rms11);
-      update12 = UtilsClient::getBinStats(i12_[ism-1], 1, i, num12, mean12, rms12);
-      update13 = UtilsClient::getBinStats(i13_[ism-1], 1, i, num13, mean13, rms13);
-      update14 = UtilsClient::getBinStats(i14_[ism-1], 1, i, num14, mean14, rms14);
-      update15 = UtilsClient::getBinStats(i15_[ism-1], 1, i, num15, mean15, rms15);
-      update16 = UtilsClient::getBinStats(i16_[ism-1], 1, i, num16, mean16, rms16);
+      update01 = UtilsClient::getBinStats(i01_[ism-1], i, 1, num01, mean01, rms01);
+      update02 = UtilsClient::getBinStats(i02_[ism-1], i, 1, num02, mean02, rms02);
+      update03 = UtilsClient::getBinStats(i03_[ism-1], i, 1, num03, mean03, rms03);
+      update04 = UtilsClient::getBinStats(i04_[ism-1], i, 1, num04, mean04, rms04);
+      update05 = UtilsClient::getBinStats(i05_[ism-1], i, 1, num05, mean05, rms05);
+      update06 = UtilsClient::getBinStats(i06_[ism-1], i, 1, num06, mean06, rms06);
+      update07 = UtilsClient::getBinStats(i07_[ism-1], i, 1, num07, mean07, rms07);
+      update08 = UtilsClient::getBinStats(i08_[ism-1], i, 1, num08, mean08, rms08);
+      update09 = UtilsClient::getBinStats(i09_[ism-1], i, 1, num09, mean09, rms09);
+      update10 = UtilsClient::getBinStats(i10_[ism-1], i, 1, num10, mean10, rms10);
+      update11 = UtilsClient::getBinStats(i11_[ism-1], i, 1, num11, mean11, rms11);
+      update12 = UtilsClient::getBinStats(i12_[ism-1], i, 1, num12, mean12, rms12);
+      update13 = UtilsClient::getBinStats(i13_[ism-1], i, 1, num13, mean13, rms13);
+      update14 = UtilsClient::getBinStats(i14_[ism-1], i, 1, num14, mean14, rms14);
+      update15 = UtilsClient::getBinStats(i15_[ism-1], i, 1, num15, mean15, rms15);
+      update16 = UtilsClient::getBinStats(i16_[ism-1], i, 1, num16, mean16, rms16);
 
       if ( update01 || update05 || update09 || update13 ) {
 
@@ -3397,22 +3397,22 @@ void EELaserClient::analyze(void){
       float rms01, rms02, rms03, rms04, rms05, rms06, rms07, rms08;
       float rms09, rms10, rms11, rms12, rms13, rms14, rms15, rms16;
 
-      update01 = UtilsClient::getBinStats(i01_[ism-1], 1, i, num01, mean01, rms01);
-      update02 = UtilsClient::getBinStats(i02_[ism-1], 1, i, num02, mean02, rms02);
-      update03 = UtilsClient::getBinStats(i03_[ism-1], 1, i, num03, mean03, rms03);
-      update04 = UtilsClient::getBinStats(i04_[ism-1], 1, i, num04, mean04, rms04);
-      update05 = UtilsClient::getBinStats(i05_[ism-1], 1, i, num05, mean05, rms05);
-      update06 = UtilsClient::getBinStats(i06_[ism-1], 1, i, num06, mean06, rms06);
-      update07 = UtilsClient::getBinStats(i07_[ism-1], 1, i, num07, mean07, rms07);
-      update08 = UtilsClient::getBinStats(i08_[ism-1], 1, i, num08, mean08, rms08);
-      update09 = UtilsClient::getBinStats(i09_[ism-1], 1, i, num09, mean09, rms09);
-      update10 = UtilsClient::getBinStats(i10_[ism-1], 1, i, num10, mean10, rms10);
-      update11 = UtilsClient::getBinStats(i11_[ism-1], 1, i, num11, mean11, rms11);
-      update12 = UtilsClient::getBinStats(i12_[ism-1], 1, i, num12, mean12, rms12);
-      update13 = UtilsClient::getBinStats(i13_[ism-1], 1, i, num13, mean13, rms13);
-      update14 = UtilsClient::getBinStats(i14_[ism-1], 1, i, num14, mean14, rms14);
-      update15 = UtilsClient::getBinStats(i15_[ism-1], 1, i, num15, mean15, rms15);
-      update16 = UtilsClient::getBinStats(i16_[ism-1], 1, i, num16, mean16, rms16);
+      update01 = UtilsClient::getBinStats(i01_[ism-1], i, 1, num01, mean01, rms01);
+      update02 = UtilsClient::getBinStats(i02_[ism-1], i, 1, num02, mean02, rms02);
+      update03 = UtilsClient::getBinStats(i03_[ism-1], i, 1, num03, mean03, rms03);
+      update04 = UtilsClient::getBinStats(i04_[ism-1], i, 1, num04, mean04, rms04);
+      update05 = UtilsClient::getBinStats(i05_[ism-1], i, 1, num05, mean05, rms05);
+      update06 = UtilsClient::getBinStats(i06_[ism-1], i, 1, num06, mean06, rms06);
+      update07 = UtilsClient::getBinStats(i07_[ism-1], i, 1, num07, mean07, rms07);
+      update08 = UtilsClient::getBinStats(i08_[ism-1], i, 1, num08, mean08, rms08);
+      update09 = UtilsClient::getBinStats(i09_[ism-1], i, 1, num09, mean09, rms09);
+      update10 = UtilsClient::getBinStats(i10_[ism-1], i, 1, num10, mean10, rms10);
+      update11 = UtilsClient::getBinStats(i11_[ism-1], i, 1, num11, mean11, rms11);
+      update12 = UtilsClient::getBinStats(i12_[ism-1], i, 1, num12, mean12, rms12);
+      update13 = UtilsClient::getBinStats(i13_[ism-1], i, 1, num13, mean13, rms13);
+      update14 = UtilsClient::getBinStats(i14_[ism-1], i, 1, num14, mean14, rms14);
+      update15 = UtilsClient::getBinStats(i15_[ism-1], i, 1, num15, mean15, rms15);
+      update16 = UtilsClient::getBinStats(i16_[ism-1], i, 1, num16, mean16, rms16);
 
       if ( update01 && update05 ) {
 
@@ -4363,16 +4363,16 @@ void EELaserClient::htmlOutput(int run, string htmlDir, string htmlName){
       obj1d = 0;
       switch ( iCanvas ) {
         case 1:
-          if ( i01_[ism-1] ) obj1d = i01_[ism-1]->ProjectionY("_py", 1, 1, "e");
+          if ( i01_[ism-1] ) obj1d = i01_[ism-1]->ProjectionX("_px", 1, 1, "e");
           break;
         case 2:
-          if ( i02_[ism-1] ) obj1d = i02_[ism-1]->ProjectionY("_py", 1, 1, "e");
+          if ( i02_[ism-1] ) obj1d = i02_[ism-1]->ProjectionX("_px", 1, 1, "e");
           break;
         case 3:
-          if ( i03_[ism-1] ) obj1d = i03_[ism-1]->ProjectionY("_py", 1, 1, "e");
+          if ( i03_[ism-1] ) obj1d = i03_[ism-1]->ProjectionX("_px", 1, 1, "e");
           break;
         case 4:
-          if ( i04_[ism-1] ) obj1d = i04_[ism-1]->ProjectionY("_py", 1, 1, "e");
+          if ( i04_[ism-1] ) obj1d = i04_[ism-1]->ProjectionX("_px", 1, 1, "e");
           break;
         case 5:
         case 6:
@@ -4419,16 +4419,16 @@ void EELaserClient::htmlOutput(int run, string htmlDir, string htmlName){
       obj1d = 0;
       switch ( iCanvas ) {
         case 1:
-          if ( i09_[ism-1] ) obj1d = i09_[ism-1]->ProjectionY("_py", 1, 1, "e");
+          if ( i09_[ism-1] ) obj1d = i09_[ism-1]->ProjectionX("_px", 1, 1, "e");
           break;
         case 2:
-          if ( i10_[ism-1] ) obj1d = i10_[ism-1]->ProjectionY("_py", 1, 1, "e");
+          if ( i10_[ism-1] ) obj1d = i10_[ism-1]->ProjectionX("_px", 1, 1, "e");
           break;
         case 3:
-          if ( i11_[ism-1] ) obj1d = i11_[ism-1]->ProjectionY("_py", 1, 1, "e");
+          if ( i11_[ism-1] ) obj1d = i11_[ism-1]->ProjectionX("_px", 1, 1, "e");
           break;
         case 4:
-          if ( i12_[ism-1] ) obj1d = i12_[ism-1]->ProjectionY("_py", 1, 1, "e");
+          if ( i12_[ism-1] ) obj1d = i12_[ism-1]->ProjectionX("_px", 1, 1, "e");
           break;
         case 5:
         case 6:
@@ -4477,16 +4477,16 @@ void EELaserClient::htmlOutput(int run, string htmlDir, string htmlName){
       obj1d = 0;
       switch ( iCanvas ) {
         case 1:
-          if ( i05_[ism-1] ) obj1d = i05_[ism-1]->ProjectionY("_py", 1, 1, "e");
+          if ( i05_[ism-1] ) obj1d = i05_[ism-1]->ProjectionX("_px", 1, 1, "e");
           break;
         case 2:
-          if ( i06_[ism-1] ) obj1d = i06_[ism-1]->ProjectionY("_py", 1, 1, "e");
+          if ( i06_[ism-1] ) obj1d = i06_[ism-1]->ProjectionX("_px", 1, 1, "e");
           break;
         case 3:
-          if ( i07_[ism-1] ) obj1d = i07_[ism-1]->ProjectionY("_py", 1, 1, "e");
+          if ( i07_[ism-1] ) obj1d = i07_[ism-1]->ProjectionX("_px", 1, 1, "e");
           break;
         case 4:
-          if ( i08_[ism-1] ) obj1d = i08_[ism-1]->ProjectionY("_py", 1, 1, "e");
+          if ( i08_[ism-1] ) obj1d = i08_[ism-1]->ProjectionX("_px", 1, 1, "e");
           break;
         case 5:
         case 6:
@@ -4643,16 +4643,16 @@ void EELaserClient::htmlOutput(int run, string htmlDir, string htmlName){
       obj1d = 0;
       switch ( iCanvas ) {
       case 1:
-	if ( i13_[ism-1] ) obj1d = i13_[ism-1]->ProjectionY("_py", 1, 1, "e");
+	if ( i13_[ism-1] ) obj1d = i13_[ism-1]->ProjectionX("_px", 1, 1, "e");
 	break;
       case 2:
-	if ( i14_[ism-1] ) obj1d = i14_[ism-1]->ProjectionY("_py", 1, 1, "e");
+	if ( i14_[ism-1] ) obj1d = i14_[ism-1]->ProjectionX("_px", 1, 1, "e");
 	break;
       case 3:
-	if ( i15_[ism-1] ) obj1d = i15_[ism-1]->ProjectionY("_py", 1, 1, "e");
+	if ( i15_[ism-1] ) obj1d = i15_[ism-1]->ProjectionX("_px", 1, 1, "e");
 	break;
       case 4:
-	if ( i16_[ism-1] ) obj1d = i16_[ism-1]->ProjectionY("_py", 1, 1, "e");
+	if ( i16_[ism-1] ) obj1d = i16_[ism-1]->ProjectionX("_px", 1, 1, "e");
 	break;
       case 5:
       case 6:

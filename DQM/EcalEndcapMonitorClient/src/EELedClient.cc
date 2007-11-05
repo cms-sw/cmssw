@@ -1,8 +1,8 @@
 /*
  * \file EELedClient.cc
  *
- * $Date: 2007/10/18 09:43:52 $
- * $Revision: 1.22 $
+ * $Date: 2007/10/24 18:17:43 $
+ * $Revision: 1.23 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -747,13 +747,13 @@ bool EELedClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV*
       float rms01, rms05;
       float rms09, rms13;
 
-      update01 = UtilsClient::getBinStats(i01_[ism-1], 1, i, num01, mean01, rms01);
+      update01 = UtilsClient::getBinStats(i01_[ism-1], i, 1, num01, mean01, rms01);
 
-      update05 = UtilsClient::getBinStats(i05_[ism-1], 1, i, num05, mean05, rms05);
+      update05 = UtilsClient::getBinStats(i05_[ism-1], i, 1, num05, mean05, rms05);
 
-      update09 = UtilsClient::getBinStats(i09_[ism-1], 1, i, num09, mean09, rms09);
+      update09 = UtilsClient::getBinStats(i09_[ism-1], i, 1, num09, mean09, rms09);
 
-      update13 = UtilsClient::getBinStats(i13_[ism-1], 1, i, num13, mean13, rms13);
+      update13 = UtilsClient::getBinStats(i13_[ism-1], i, 1, num13, mean13, rms13);
 
       if ( update01 || update05 || update09 || update13 ) {
 
@@ -1392,13 +1392,13 @@ void EELedClient::analyze(void){
       float rms01, rms05;
       float rms09, rms13;
 
-      update01 = UtilsClient::getBinStats(i01_[ism-1], 1, i, num01, mean01, rms01);
+      update01 = UtilsClient::getBinStats(i01_[ism-1], i, 1, num01, mean01, rms01);
 
-      update05 = UtilsClient::getBinStats(i05_[ism-1], 1, i, num05, mean05, rms05);
+      update05 = UtilsClient::getBinStats(i05_[ism-1], i, 1, num05, mean05, rms05);
 
-      update09 = UtilsClient::getBinStats(i09_[ism-1], 1, i, num09, mean09, rms09);
+      update09 = UtilsClient::getBinStats(i09_[ism-1], i, 1, num09, mean09, rms09);
 
-      update13 = UtilsClient::getBinStats(i13_[ism-1], 1, i, num13, mean13, rms13);
+      update13 = UtilsClient::getBinStats(i13_[ism-1], i, 1, num13, mean13, rms13);
 
       if ( update01 && update05 ) {
 
@@ -2087,7 +2087,7 @@ void EELedClient::htmlOutput(int run, string htmlDir, string htmlName){
       obj1d = 0;
       switch ( iCanvas ) {
         case 1:
-          if ( i01_[ism-1] ) obj1d = i01_[ism-1]->ProjectionY("_py", 1, 1, "e");
+          if ( i01_[ism-1] ) obj1d = i01_[ism-1]->ProjectionX("_px", 1, 1, "e");
           break;
         case 2:
         case 3:
@@ -2137,7 +2137,7 @@ void EELedClient::htmlOutput(int run, string htmlDir, string htmlName){
       obj1d = 0;
       switch ( iCanvas ) {
         case 1:
-          if ( i09_[ism-1] ) obj1d = i09_[ism-1]->ProjectionY("_py", 1, 1, "e");
+          if ( i09_[ism-1] ) obj1d = i09_[ism-1]->ProjectionX("_px", 1, 1, "e");
           break;
         case 2:
         case 3:
@@ -2189,7 +2189,7 @@ void EELedClient::htmlOutput(int run, string htmlDir, string htmlName){
       obj1d = 0;
       switch ( iCanvas ) {
         case 1:
-          if ( i05_[ism-1] ) obj1d = i05_[ism-1]->ProjectionY("_py", 1, 1, "e");
+          if ( i05_[ism-1] ) obj1d = i05_[ism-1]->ProjectionX("_px", 1, 1, "e");
           break;
         case 2:
         case 3:
@@ -2337,7 +2337,7 @@ void EELedClient::htmlOutput(int run, string htmlDir, string htmlName){
       obj1d = 0;
       switch ( iCanvas ) {
       case 1:
-	if ( i13_[ism-1] ) obj1d = i13_[ism-1]->ProjectionY("_py", 1, 1, "e");
+	if ( i13_[ism-1] ) obj1d = i13_[ism-1]->ProjectionX("_px", 1, 1, "e");
 	break;
       case 2:
       case 3:
