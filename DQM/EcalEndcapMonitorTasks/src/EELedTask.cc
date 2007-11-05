@@ -1,8 +1,8 @@
 /*
  * \file EELedTask.cc
  *
- * $Date: 2007/10/14 16:02:59 $
- * $Revision: 1.9 $
+ * $Date: 2007/10/17 15:58:45 $
+ * $Revision: 1.10 $
  * \author G. Della Ricca
  *
 */
@@ -120,20 +120,20 @@ void EELedTask::setup(void){
     dbe_->setCurrentFolder("EcalEndcap/EELedTask/PN/Gain01");
     for (int i = 0; i < 18 ; i++) {
       sprintf(histo, "EEPDT PNs amplitude %s G01", Numbers::sEE(i+1).c_str());
-      mePnAmplMapG01_[i] = dbe_->bookProfile2D(histo, histo, 1, 0., 1., 10, 0., 10., 4096, 0., 4096., "s");
+      mePnAmplMapG01_[i] = dbe_->bookProfile2D(histo, histo, 10, 0., 10., 1, 0., 1., 4096, 0., 4096., "s");
       dbe_->tag(mePnAmplMapG01_[i], i+1);
       sprintf(histo, "EEPDT PNs pedestal %s G01", Numbers::sEE(i+1).c_str());
-      mePnPedMapG01_[i] = dbe_->bookProfile2D(histo, histo, 1, 0., 1., 10, 0., 10., 4096, 0., 4096., "s");
+      mePnPedMapG01_[i] = dbe_->bookProfile2D(histo, histo, 10, 0., 10., 1, 0., 1., 4096, 0., 4096., "s");
       dbe_->tag(mePnPedMapG01_[i], i+1);
     }
 
     dbe_->setCurrentFolder("EcalEndcap/EELedTask/PN/Gain16");
     for (int i = 0; i < 18 ; i++) {
       sprintf(histo, "EEPDT PNs amplitude %s G16", Numbers::sEE(i+1).c_str());
-      mePnAmplMapG16_[i] = dbe_->bookProfile2D(histo, histo, 1, 0., 1., 10, 0., 10., 4096, 0., 4096., "s");
+      mePnAmplMapG16_[i] = dbe_->bookProfile2D(histo, histo, 10, 0., 10., 1, 0., 1., 4096, 0., 4096., "s");
       dbe_->tag(mePnAmplMapG16_[i], i+1);
       sprintf(histo, "EEPDT PNs pedestal %s G16", Numbers::sEE(i+1).c_str());
-      mePnPedMapG16_[i] = dbe_->bookProfile2D(histo, histo, 1, 0., 1., 10, 0., 10., 4096, 0., 4096., "s");
+      mePnPedMapG16_[i] = dbe_->bookProfile2D(histo, histo, 10, 0., 10., 1, 0., 1., 4096, 0., 4096., "s");
       dbe_->tag(mePnPedMapG16_[i], i+1);
     }
 
@@ -364,7 +364,7 @@ void EELedTask::analyze(const Event& e, const EventSetup& c){
 
         float xval = float(adc);
 
-        if ( mePNPed ) mePNPed->Fill(0.5, num - 0.5, xval);
+        if ( mePNPed ) mePNPed->Fill(num - 0.5, 0.5, xval);
 
         xvalped = xvalped + xval;
 
@@ -396,7 +396,7 @@ void EELedTask::analyze(const Event& e, const EventSetup& c){
         mePN = mePnAmplMapG16_[ism-1];
       }
 
-      if ( mePN ) mePN->Fill(0.5, num - 0.5, xvalmax);
+      if ( mePN ) mePN->Fill(num - 0.5, 0.5, xvalmax);
 
       if ( num == 1 ) adcA[ism-1] = xvalmax;
       if ( num == 6 ) adcB[ism-1] = xvalmax;
