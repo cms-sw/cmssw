@@ -67,7 +67,7 @@ unsigned int BscNumberingScheme::getUnitID(const G4Step* aStep) const {
     int station  = 0;
     for (int ich=0; ich  <  level; ich++) {
       // new and old set up configurations are possible:
-      if(name[ich] == "BSC") {
+      if(name[ich] == "BSC1" ||name[ich] == "BSC2" ) {
 	zside   = copyno[ich]-1;
       } else if(name[ich] == "BSCTrap") {
 	det   = 0;
@@ -77,6 +77,9 @@ unsigned int BscNumberingScheme::getUnitID(const G4Step* aStep) const {
         station =  copyno[ich]-1;
       } else if(name[ich] == "BSCTTop") {
 	++station;
+      } else if(name[ich] == "BSC2Pad"){
+	det   = 2;
+        station =  copyno[ich]-1;
       }
 
       LogDebug("BscSim") << "BscNumberingScheme  " << "ich=" << ich  << "copyno" 
@@ -103,8 +106,8 @@ unsigned int BscNumberingScheme::getUnitID(const G4Step* aStep) const {
 
 unsigned BscNumberingScheme::packBscIndex(int zside,int det,  int station){
   unsigned int idx = 6 << 28; // autre numero que les detecteurs existants 
-  idx += (zside<<4)&16;    // vaut 0 ou 1 bit 4    
-  idx += (det<<3)&8;                  //bit 3    det:0-1    1 bit:0-1
+  idx += (zside<<5)&32;    // vaut 0 ou 1 bit 5    
+  idx += (det<<3)&24;                  //bit 3-4    det:0-1-2    2 bits:0-1
   idx += (station&7);                //bits 0-2   station:0-7=8-->2**3 =8     3 bits:0-2         
   LogInfo("BscSim") << "Bsc packing: det " << det 
  << " zside  " << zside << " station " << station  << "-> 0x" << hex << idx << dec <<  endl;
@@ -115,8 +118,8 @@ return idx;
 
 void BscNumberingScheme::unpackBscIndex(const unsigned int& idx) {
   int zside, det, station;
-  zside  = (idx&16)>>4;
-  det    = (idx&8)>>3;
+  zside  = (idx&32)>>5;
+  det    = (idx&24)>>3;
   station = idx&7;                                           
   LogDebug("BscSim") << " Bsc unpacking: 0x " << hex << idx << dec << " -> det " <<   det  << " zside  " << zside << " station " << station  ;
 }
