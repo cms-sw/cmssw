@@ -6,7 +6,7 @@
 //#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "RecoTracker/TransientTrackingRecHit/interface/TSiStripRecHit2DLocalPos.h"
 
-#define RecoTracker_TransientTrackingRecHit_TSiStripMatchedRecHit_RefitLGL
+#define RecoTracker_TransientTrackingRecHit_TSiStripMatchedRecHit_RefitProj
 #ifdef RecoTracker_TransientTrackingRecHit_TSiStripMatchedRecHit_RefitLGL 
 // Local lo Global lo Local
 inline LocalTrajectoryParameters gluedToStereo(const TrajectoryStateOnSurface &tsos, const GluedGeomDet *gdet) {    
@@ -15,14 +15,13 @@ inline LocalTrajectoryParameters gluedToStereo(const TrajectoryStateOnSurface &t
     LocalVector ld = stripPlane.toLocal(tsos.globalParameters().momentum());
     return LocalTrajectoryParameters(lp,ld,tsos.charge());
 }
-#elif RecoTracker_TransientTrackingRecHit_TSiStripMatchedRecHit_RefitProj
+#elif defined(RecoTracker_TransientTrackingRecHit_TSiStripMatchedRecHit_RefitProj)
 // A la RecHitProjector
 inline LocalTrajectoryParameters gluedToStereo(const TrajectoryStateOnSurface &tsos, const GluedGeomDet *gdet) {
-    const BoundPlane &gluedPlane = gdet->surface();
     const BoundPlane &stripPlane = gdet->stereoDet()->surface();
     double delta = stripPlane.localZ( tsos.globalPosition());
     LocalVector ld = stripPlane.toLocal(tsos.globalParameters().momentum());
-    LocalPoint  lp = stripPlane.toLocal(tsos.globalPosition()) - ld*delta()/ld.zeta();
+    LocalPoint  lp = stripPlane.toLocal(tsos.globalPosition()) - ld*delta/ld.z();
     return LocalTrajectoryParameters(lp,ld,tsos.charge());
 }
 #else
