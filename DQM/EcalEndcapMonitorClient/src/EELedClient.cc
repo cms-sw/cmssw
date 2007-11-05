@@ -1,8 +1,8 @@
 /*
  * \file EELedClient.cc
  *
- * $Date: 2007/11/05 10:27:57 $
- * $Revision: 1.24 $
+ * $Date: 2007/11/05 10:32:55 $
+ * $Revision: 1.25 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -213,12 +213,12 @@ void EELedClient::beginJob(MonitorUserInterface* mui){
       qth09_[ism-1]->setMeanRange(amplitudeThresholdPnG01_, 4096.0);
 
       qth13_[ism-1]->setMeanRange(pedPnExpectedMean_[0] - pedPnDiscrepancyMean_[0],
-        			  pedPnExpectedMean_[0] + pedPnDiscrepancyMean_[0]);
+                                  pedPnExpectedMean_[0] + pedPnDiscrepancyMean_[0]);
 
       qth17_[ism-1]->setMeanRange(amplitudeThresholdPnG16_, 4096.0);
 
       qth21_[ism-1]->setMeanRange(pedPnExpectedMean_[1] - pedPnDiscrepancyMean_[1],
-        			  pedPnExpectedMean_[1] + pedPnDiscrepancyMean_[1]);
+                                  pedPnExpectedMean_[1] + pedPnDiscrepancyMean_[1]);
 
       qth01_[ism-1]->setMeanTolerance(percentVariation_);
 
