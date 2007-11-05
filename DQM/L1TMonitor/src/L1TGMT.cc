@@ -3,7 +3,7 @@
  *
  * $Date: 2007/08/27 16:39:19 $
  * $Revision: 1.7 $
- * \author J. Berryhill
+ * \author J. Berryhill, I. Mikulec
  *
  */
 
@@ -66,6 +66,8 @@ void L1TGMT::beginJob(const EventSetup& c)
 {
 
   nev_ = 0;
+  evnum_old_ = -1;
+  bxnum_old_ = -1;
 
   // get hold of back-end interface
   DaqMonitorBEInterface* dbe = 0;
@@ -81,44 +83,79 @@ void L1TGMT::beginJob(const EventSetup& c)
   {
     dbe->setCurrentFolder("L1TMonitor/L1TGMT");
     
-    gmtetavalue[1] = dbe->book1D("GMT_eta_value", 
-       "GMT eta value", 100, -2.5, 2.5 ) ;
-    gmtetavalue[2] = dbe->book1D("GMT_eta_value_+1", 
-       "GMT eta value bx +1", 100, -2.5, 2.5 ) ;
-    gmtetavalue[0] = dbe->book1D("GMT_eta_value_-1", 
-       "GMT eta value bx -1", 100, -2.5, 2.5 ) ;
-    gmtphivalue[1] = dbe->book1D("GMT_phi_value", 
-       "GMT phi value", 100, 0.0, 6.2832 ) ;
-    gmtphivalue[2] = dbe->book1D("GMT_phi_value_+1", 
-       "GMT phi value bx +1", 100, 0.0, 6.2832 ) ;
-    gmtphivalue[0] = dbe->book1D("GMT_phi_value_-1", 
-       "GMT phi value bx -1", 100, 0.0, 6.2832 ) ;
-    gmtptvalue[1] = dbe->book1D("GMT_pt_value", 
-       "GMT pt value", 160, -0.5, 159.5 ) ;
-    gmtptvalue[2] = dbe->book1D("GMT_pt_value_+1", 
-       "GMT pt value bx +1", 160, -0.5, 159.5 ) ;
-    gmtptvalue[0] = dbe->book1D("GMT_pt_value_-1", 
-       "GMT pt value bx -1", 160, -0.5, 159.5 ) ;
-    gmtquality[1] = dbe->book1D("GMT_quality", 
-       "GMT quality", 20, -0.5, 19.5 ) ;
-    gmtquality[2] = dbe->book1D("GMT_quality_+1", 
-       "GMT quality bx +1", 20, -0.5, 19.5 ) ;
-    gmtquality[0] = dbe->book1D("GMT_quality_-1", 
-       "GMT quality bx -1", 20, -0.5, 19.5 ) ;
-    gmtcharge[1] = dbe->book1D("GMT_charge", 
-       "GMT charge", 2, -1.5, 1.5 ) ;
-    gmtcharge[2] = dbe->book1D("GMT_charge_+1", 
-       "GMT charge bx +1", 2, -1.5, 1.5 ) ;
-    gmtcharge[0] = dbe->book1D("GMT_charge_-1", 
-       "GMT charge bx -1", 2, -1.5, 1.5 ) ;
-    gmtntrack = dbe->book1D("GMT_ntrack", 
-       "GMT ntrack", 20, -0.5, 19.5 ) ;
-    gmtbx = dbe->book1D("GMT_bx", 
-       "GMT bx", 3, -1.5, 1.5 ) ;
-    gmtbxrr = dbe->book1D("GMT_bxrr", 
-       "GMT bxrr", 3, -1.5, 1.5 ) ;
+    int neta=100; double etamin=-2.5; double etamax=2.5;
+    int nphi=144; double phimin=  0.; double phimax=6.2832;
+    int nptr=300; double ptrmin=  0.; double ptrmax=150.;
+    int nqty=  8; double qtymin=-0.5; double qtymax=7.5;
+       
+    dttf_nbx = dbe->book2D("DTTF_nbx","DTTF multiplicity in bx", 5, 0., 5., 5, -2.5, 2.5);
+    dttf_eta = dbe->book1D("DTTF_eta", "DTTF eta value", neta, etamin, etamax);
+    dttf_phi = dbe->book1D("DTTF_phi", "DTTF phi value", nphi, phimin, phimax);
+    dttf_ptr = dbe->book1D("DTTF_ptr", "DTTF pt value",  nptr, ptrmin, ptrmax);
+    dttf_qty = dbe->book1D("DTTF_qty", "DTTF quality",   nqty, qtymin, qtymax);
+    dttf_etaphi = dbe->book2D("DTTF_etaphi","DTTF phi vs eta", neta, etamin, etamax, nphi, phimin, phimax);
+    dttf_bits = dbe->book1D("DTTF_bits","DTTF bit population", 32, -0.5, 31.5);
     
+    csctf_nbx = dbe->book2D("CSCTF_nbx","CSCTF multiplicity in bx", 5, 0., 5., 5, -2.5, 2.5);
+    csctf_eta = dbe->book1D("CSCTF_eta", "CSCTF eta value", neta, etamin, etamax);
+    csctf_phi = dbe->book1D("CSCTF_phi", "CSCTF phi value", nphi, phimin, phimax);
+    csctf_ptr = dbe->book1D("CSCTF_ptr", "CSCTF pt value",  nptr, ptrmin, ptrmax);
+    csctf_qty = dbe->book1D("CSCTF_qty", "CSCTF quality",   nqty, qtymin, qtymax);
+    csctf_etaphi = dbe->book2D("CSCTF_etaphi","CSCTF phi vs eta", neta, etamin, etamax, nphi, phimin, phimax);
+    csctf_bits = dbe->book1D("CSCTF_bits","CSCTF bit population", 32, -0.5, 31.5);
+    
+    rpcb_nbx = dbe->book2D("RPCb_nbx","RPCb multiplicity in bx", 5, 0., 5., 5, -2.5, 2.5);
+    rpcb_eta = dbe->book1D("RPCb_eta", "RPCb eta value", neta, etamin, etamax);
+    rpcb_phi = dbe->book1D("RPCb_phi", "RPCb phi value", nphi, phimin, phimax);
+    rpcb_ptr = dbe->book1D("RPCb_ptr", "RPCb pt value",  nptr, ptrmin, ptrmax);
+    rpcb_qty = dbe->book1D("RPCb_qty", "RPCb quality",   nqty, qtymin, qtymax);
+    rpcb_etaphi = dbe->book2D("RPCb_etaphi","RPCb phi vs eta", neta, etamin, etamax, nphi, phimin, phimax);
+    rpcb_bits = dbe->book1D("RPCb_bits","RPCb bit population", 32, -0.5, 31.5);
+    
+    rpcf_nbx = dbe->book2D("RPCf_nbx","RPCf multiplicity in bx", 5, 0., 5., 5, -2.5, 2.5);
+    rpcf_eta = dbe->book1D("RPCf_eta", "RPCf eta value", neta, etamin, etamax);
+    rpcf_phi = dbe->book1D("RPCf_phi", "RPCf phi value", nphi, phimin, phimax);
+    rpcf_ptr = dbe->book1D("RPCf_ptr", "RPCf pt value",  nptr, ptrmin, ptrmax);
+    rpcf_qty = dbe->book1D("RPCf_qty", "RPCf quality",   nqty, qtymin, qtymax);
+    rpcf_etaphi = dbe->book2D("RPCf_etaphi","RPCf phi vs eta", neta, etamin, etamax, nphi, phimin, phimax);
+    rpcf_bits = dbe->book1D("RPCf_bits","RPCf bit population", 32, -0.5, 31.5);
+    
+    gmt_nbx = dbe->book2D("GMT_nbx","GMT multiplicity in bx", 5, 0., 5., 5, -2.5, 2.5);
+    gmt_eta = dbe->book1D("GMT_eta", "GMT eta value", neta, etamin, etamax);
+    gmt_phi = dbe->book1D("GMT_phi", "GMT phi value", nphi, phimin, phimax);
+    gmt_ptr = dbe->book1D("GMT_ptr", "GMT pt value",  nptr, ptrmin, ptrmax);
+    gmt_qty = dbe->book1D("GMT_qty", "GMT quality",   nqty, qtymin, qtymax);
+    gmt_etaphi = dbe->book2D("GMT_etaphi","GMT phi vs eta", neta, etamin, etamax, nphi, phimin, phimax);
+    gmt_bits = dbe->book1D("GMT_bits","GMT bit population", 32, -0.5, 31.5);
 
+    n_rpcb_vs_dttf  = dbe->book2D("n_RPCb_vs_DTTF",  "n cands RPCb vs DTTF",  5, -0.5, 4.5, 5, -0.5, 4.5);
+    n_rpcf_vs_csctf = dbe->book2D("n_RPCf_vs_CSCTF", "n cands RPCf vs CSCTF", 5, -0.5, 4.5, 5, -0.5, 4.5);
+    n_csctf_vs_dttf = dbe->book2D("n_CSCTF_vs_DTTF", "n cands CSCTF vs DTTF", 5, -0.5, 4.5, 5, -0.5, 4.5);
+    
+    dttf_dbx = dbe->book2D("DTTF_dbx","dBX DTTF to previous event", 100, 0., 100., 4, 0., 4.);
+    dttf_dbx->setBinLabel(1,"DTTF",2);
+    dttf_dbx->setBinLabel(2,"RPCb",2);
+    dttf_dbx->setBinLabel(3,"CSCTF",2);
+    dttf_dbx->setBinLabel(4,"RPCf",2);
+    
+    csctf_dbx = dbe->book2D("CSCTF_dbx","dBX CSCTF to previous event", 100, 0., 100., 4, 0., 4.);
+    csctf_dbx->setBinLabel(1,"DTTF",2);
+    csctf_dbx->setBinLabel(2,"RPCb",2);
+    csctf_dbx->setBinLabel(3,"CSCTF",2);
+    csctf_dbx->setBinLabel(4,"RPCf",2);
+    
+    rpcb_dbx = dbe->book2D("RPCb_dbx","dBX RPCb to previous event", 100, 0., 100., 4, 0., 4.);
+    rpcb_dbx->setBinLabel(1,"DTTF",2);
+    rpcb_dbx->setBinLabel(2,"RPCb",2);
+    rpcb_dbx->setBinLabel(3,"CSCTF",2);
+    rpcb_dbx->setBinLabel(4,"RPCf",2);
+    
+    rpcf_dbx = dbe->book2D("RPCf_dbx","dBX RPCf to previous event", 100, 0., 100., 4, 0., 4.);
+    rpcf_dbx->setBinLabel(1,"DTTF",2);
+    rpcf_dbx->setBinLabel(2,"RPCb",2);
+    rpcf_dbx->setBinLabel(3,"CSCTF",2);
+    rpcf_dbx->setBinLabel(4,"RPCf",2);
+    
   }  
 }
 
@@ -143,179 +180,170 @@ void L1TGMT::analyze(const Event& e, const EventSetup& c)
 
 
   try {
-  e.getByLabel(gmtSource_,pCollection);
+    e.getByLabel(gmtSource_,pCollection);
   }
   catch (...) {
     edm::LogInfo("L1TGMT") << "can't find L1MuGMTReadoutCollection with label "
-			       << gmtSource_.label() ;
+    << gmtSource_.label() ;
     return;
   }
 
+  // get GMT readout collection
   L1MuGMTReadoutCollection const* gmtrc = pCollection.product();
+  // get record vector
   vector<L1MuGMTReadoutRecord> gmt_records = gmtrc->getRecords();
+  // loop over records of individual bx's
   vector<L1MuGMTReadoutRecord>::const_iterator RRItr;
-
-  int ngmttrack = 0;
-  for( RRItr = gmt_records.begin() ;
-       RRItr != gmt_records.end() ;
-       RRItr++ ) 
+  for( RRItr = gmt_records.begin(); RRItr != gmt_records.end(); RRItr++ ) 
   {
-
-    if (verbose_)
-    {
-     cout << "Readout Record " << RRItr->getBxInEvent()
-   	    << endl;
-   }
-   gmtbxrr->Fill(RRItr->getBxInEvent());
-
-   vector<L1MuGMTExtendedCand> GMTBrlCands = RRItr->getGMTBrlCands();
- 
-
-   if (verbose_) 
-    {
-     cout << "GMTCands " << GMTBrlCands.size()
-   	    << endl;
+    
+    vector<L1MuRegionalCand> DTTFCands  = RRItr->getDTBXCands();
+    vector<L1MuRegionalCand> CSCTFCands = RRItr->getCSCCands();
+    vector<L1MuRegionalCand> RPCbCands  = RRItr->getBrlRPCCands();
+    vector<L1MuRegionalCand> RPCfCands  = RRItr->getFwdRPCCands();
+    vector<L1MuGMTExtendedCand> GMTCands   = RRItr->getGMTCands();
+    
+    vector<L1MuRegionalCand>::const_iterator DTTFItr;
+    vector<L1MuRegionalCand>::const_iterator CSCTFItr;
+    vector<L1MuRegionalCand>::const_iterator RPCbItr;
+    vector<L1MuRegionalCand>::const_iterator RPCfItr;
+    vector<L1MuGMTExtendedCand>::const_iterator GMTItr;
+    
+    int BxInEvent = RRItr->getBxInEvent();
+    
+    // count non-empty candidates
+    
+    int nDTTF = 0;
+    for( DTTFItr = DTTFCands.begin(); DTTFItr != DTTFCands.end(); ++DTTFItr ) {
+      if(!DTTFItr->empty()) nDTTF++;
     }
+    dttf_nbx->Fill(float(nDTTF),float(BxInEvent));
 
-    for( vector<L1MuGMTExtendedCand>::const_iterator 
-         ECItr = GMTBrlCands.begin() ;
-         ECItr != GMTBrlCands.end() ;
-         ++ECItr ) 
-    {
-
-      int bxindex = ECItr->bx() + 1;
-      if (ECItr->quality() > 0 ) 
-      {
-      ngmttrack++;
-
-      if (verbose_)
-	{  
-     cout << "GMTCand name " << ECItr->name()
-   	    << endl;
-	}
-
-      if (verbose_)
-	{  
-     cout << "GMTCand bx " << ECItr->bx()
-   	    << endl;
-	}
-     gmtbx->Fill(ECItr->bx());
-
-      gmtetavalue[bxindex]->Fill(ECItr->etaValue());
-      if (verbose_)
-	{     
-     cout << "\tGMTCand eta value " << ECItr->etaValue()
-   	    << endl;
-	}
-
-      gmtphivalue[bxindex]->Fill(ECItr->phiValue());
-      if (verbose_)
-	{     
-     cout << "\tGMTCand phi value " << ECItr->phiValue()
-   	    << endl;
-	}
-
-      gmtptvalue[bxindex]->Fill(ECItr->ptValue());
-      if (verbose_)
-	{     
-     cout << "\tGMTCand pt value " << ECItr->ptValue()
-   	    << endl;
-	}
-
-      gmtquality[bxindex]->Fill(ECItr->quality());
-      if (verbose_)
-	{     
-     cout << "\tGMTCand quality " << ECItr->quality()
-   	    << endl;
-	}
-
-      gmtcharge[bxindex]->Fill(ECItr->charge());
-      if (verbose_)
-	{     
-     cout << "\tGMTCand charge " << ECItr->charge()
-   	    << endl;
-	}
-      }
+    int nCSCTF = 0;
+    for( CSCTFItr = CSCTFCands.begin(); CSCTFItr != CSCTFCands.end(); ++CSCTFItr ) {
+      if(!CSCTFItr->empty()) nCSCTF++;
     }
-
-
-   vector<L1MuGMTExtendedCand> GMTFwdCands = RRItr->getGMTFwdCands();
- 
-
-   if (verbose_) 
-    {
-     cout << "GMTCands " << GMTFwdCands.size()
-   	    << endl;
+    csctf_nbx->Fill(float(nCSCTF),float(BxInEvent));
+    
+    int nRPCb = 0;
+    for( RPCbItr = RPCbCands.begin(); RPCbItr != RPCbCands.end(); ++RPCbItr ) {
+      if(!RPCbItr->empty()) nRPCb++;
     }
-
-    for( vector<L1MuGMTExtendedCand>::const_iterator 
-         ECItr = GMTFwdCands.begin() ;
-         ECItr != GMTFwdCands.end() ;
-         ++ECItr ) 
-    {
+    rpcb_nbx->Fill(float(nRPCb),float(BxInEvent));
+    
+    int nRPCf = 0;
+    for( RPCfItr = RPCfCands.begin(); RPCfItr != RPCfCands.end(); ++RPCfItr ) {
+      if(!RPCfItr->empty()) nRPCf++;
+    }
+    rpcf_nbx->Fill(float(nRPCf),float(BxInEvent));
       
-      int bxindex = ECItr->bx() + 1;
-      if (ECItr->quality() > 0 )
-      {
-      ngmttrack++;
-
-      if (verbose_)
-	{  
-     cout << "GMTCand name " << ECItr->name()
-   	    << endl;
-	}
-
-
-      if (verbose_)
-	{  
-     cout << "GMTCand bx " << ECItr->bx()
-   	    << endl;
-	}
-     gmtbx->Fill(ECItr->bx());
-
-      gmtetavalue[bxindex]->Fill(ECItr->etaValue());
-      if (verbose_)
-	{     
-     cout << "\tGMTCand eta value " << ECItr->etaValue()
-   	    << endl;
-	}
-
-      gmtphivalue[bxindex]->Fill(ECItr->phiValue());
-      if (verbose_)
-	{     
-     cout << "\tGMTCand phi value " << ECItr->phiValue()
-   	    << endl;
-	}
-
-      gmtptvalue[bxindex]->Fill(ECItr->ptValue());
-      if (verbose_)
-	{     
-     cout << "\tGMTCand pt value " << ECItr->ptValue()
-   	    << endl;
-	}
-
-      gmtquality[bxindex]->Fill(ECItr->quality());
-      if (verbose_)
-	{     
-     cout << "\tGMTCand quality " << ECItr->quality()
-   	    << endl;
-	}
-
-      gmtcharge[bxindex]->Fill(ECItr->charge());
-      if (verbose_)
-	{     
-     cout << "\tGMTCand charge " << ECItr->charge()
-   	    << endl;
-	}
+    int nGMT = 0;
+    for( GMTItr = GMTCands.begin(); GMTItr != GMTCands.end(); ++GMTItr ) {
+      if(!GMTItr->empty()) nGMT++;
+    }
+    gmt_nbx->Fill(float(nGMT),float(BxInEvent));
+    
+    // from here care only about the L1A bunch crossing
+    if(BxInEvent!=0) continue;
+    
+    // get the absolute bx number of the L1A
+    int Bx = RRItr->getBxNr();
+    int Ev = RRItr->getEvNr();
+ 
+    for( DTTFItr = DTTFCands.begin(); DTTFItr != DTTFCands.end(); ++DTTFItr ) {
+      if(DTTFItr->empty()) continue;
+      dttf_eta->Fill(DTTFItr->etaValue());
+      dttf_phi->Fill(DTTFItr->phiValue());
+      dttf_ptr->Fill(DTTFItr->ptValue());
+      dttf_qty->Fill(DTTFItr->quality());
+      dttf_etaphi->Fill(DTTFItr->etaValue(),DTTFItr->phiValue());
+      int word = DTTFItr->getDataWord();
+      for( int j=0; j<32; j++ ) {
+        if( word&(1<<j) ) dttf_bits->Fill(float(j));
       }
     }
+    
+    for( CSCTFItr = CSCTFCands.begin(); CSCTFItr != CSCTFCands.end(); ++CSCTFItr ) {
+      if(CSCTFItr->empty()) continue;
+      csctf_eta->Fill(CSCTFItr->etaValue());
+      csctf_phi->Fill(CSCTFItr->phiValue());
+      csctf_ptr->Fill(CSCTFItr->ptValue());
+      csctf_qty->Fill(CSCTFItr->quality());
+      csctf_etaphi->Fill(CSCTFItr->etaValue(),CSCTFItr->phiValue());
+      int word = CSCTFItr->getDataWord();
+      for( int j=0; j<32; j++ ) {
+        if( word&(1<<j) ) csctf_bits->Fill(float(j));
+      }
+    }
+    
+    for( RPCbItr = RPCbCands.begin(); RPCbItr != RPCbCands.end(); ++RPCbItr ) {
+      if(RPCbItr->empty()) continue;
+      rpcb_eta->Fill(RPCbItr->etaValue());
+      rpcb_phi->Fill(RPCbItr->phiValue());
+      rpcb_ptr->Fill(RPCbItr->ptValue());
+      rpcb_qty->Fill(RPCbItr->quality());
+      rpcb_etaphi->Fill(RPCbItr->etaValue(),RPCbItr->phiValue());
+      int word = RPCbItr->getDataWord();
+      for( int j=0; j<32; j++ ) {
+        if( word&(1<<j) ) rpcb_bits->Fill(float(j));
+      }
+    }
+    
+    for( RPCfItr = RPCfCands.begin(); RPCfItr != RPCfCands.end(); ++RPCfItr ) {
+      if(RPCfItr->empty()) continue;
+      rpcf_eta->Fill(RPCfItr->etaValue());
+      rpcf_phi->Fill(RPCfItr->phiValue());
+      rpcf_ptr->Fill(RPCfItr->ptValue());
+      rpcf_qty->Fill(RPCfItr->quality());
+      rpcf_etaphi->Fill(RPCfItr->etaValue(),RPCfItr->phiValue());
+      int word = RPCfItr->getDataWord();
+      for( int j=0; j<32; j++ ) {
+        if( word&(1<<j) ) rpcf_bits->Fill(float(j));
+      }
+    }
+    
+    for( GMTItr = GMTCands.begin(); GMTItr != GMTCands.end(); ++GMTItr ) {
+      if(GMTItr->empty()) continue;
+      gmt_eta->Fill(GMTItr->etaValue());
+      gmt_phi->Fill(GMTItr->phiValue());
+      gmt_ptr->Fill(GMTItr->ptValue());
+      gmt_qty->Fill(GMTItr->quality());
+      gmt_etaphi->Fill(GMTItr->etaValue(),GMTItr->phiValue());
+      int word = GMTItr->getDataWord();
+      for( int j=0; j<32; j++ ) {
+        if( word&(1<<j) ) gmt_bits->Fill(float(j));
+      }
+    }
+    
+    n_rpcb_vs_dttf->Fill(float(nDTTF),float(nRPCb));
+    n_rpcf_vs_csctf->Fill(float(nCSCTF),float(nRPCf));
+    n_csctf_vs_dttf->Fill(float(nDTTF),float(nCSCTF));
+    
+    // fill only if previous event corresponds to previous trigger
+    if( (Ev - evnum_old_) == 1 && bxnum_old_ > -1 ) {
+      int dBx = Bx - bxnum_old_;
+      for(int id = 0; id<4; id++) {
+        if( trsrc_old_&(1<<id) ) {
+          if(nDTTF)   dttf_dbx->Fill(float(dBx),float(id));
+          if(nCSCTF) csctf_dbx->Fill(float(dBx),float(id));
+          if(nRPCb)   rpcb_dbx->Fill(float(dBx),float(id));
+          if(nRPCf)   rpcf_dbx->Fill(float(dBx),float(id));
+        }
+      }
+      
+    }
+    
+    // save quantities for the next event
+    evnum_old_ = Ev;
+    bxnum_old_ = Bx;
+    trsrc_old_ = 0;
+    if(nDTTF)  trsrc_old_ |= 1;
+    if(nRPCb)  trsrc_old_ |= 2;
+    if(nCSCTF) trsrc_old_ |= 4;
+    if(nRPCf)  trsrc_old_ |= 8;
+    
+    
   }
 
-      gmtntrack->Fill(ngmttrack);
-      if (verbose_)
-	{     
-     cout << "\tGMTCand ntrack " << ngmttrack
-   	    << endl;
-	}
 }
 
