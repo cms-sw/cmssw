@@ -26,7 +26,7 @@ if(all4DSegments->size()>0){
     std::cout<<"MB4 \t \t DT Segment Dimension "<<segment->dimension()<<std::endl; 
     std::cout<<"MB4 \t \t Is the only in this DT?"<<std::endl;
     
-    if(scounter[DTId] == 1){
+    if(scounter[DTId] == 1 && DTId.station()==4){
       std::cout<<"MB4 \t \t yes"<<std::endl;
       int dtWheel = DTId.wheel();
       int dtStation = DTId.station();
@@ -40,8 +40,6 @@ if(all4DSegments->size()>0){
       std::cout<<"MB4 \t \t Is the segment 2D?"<<std::endl;
       
       
-      //DE ACA PARA ARRIBA SE REPITE EN dtpart.inl
-
       if(segment->dimension()==2){
 	
 	if(dtStation==4){
@@ -79,6 +77,8 @@ if(all4DSegments->size()>0){
 
 	      if(cosAng>MinCosAng){
 		compatiblesegments=true;
+		if(dtSector==13)dtSector=4;
+	        if(dtSector==14)dtSector=10;
 		std::set<RPCDetId> rollsForThisDT = rollstoreDT[DTStationIndex(0,dtWheel,dtSector,dtStation)];
 		std::cout<<"MB4 \t \t Loop over all the rolls asociated to MB4 "<<std::endl;
 		
@@ -233,7 +233,7 @@ if(all4DSegments->size()>0){
 	  }//lood over all the segments looking for one in MB3 
 	}//Is the station 4? for this segment
 	else{
-	  std::cout<<"MB4 \t \t Strange Segment Is a 2D Segment but is not in MB4"<<std::endl;
+	  std::cout<<"MB4 \t \t Segment Is a 2D Segment but is not in MB4"<<std::endl;
 	}
       }
       else{

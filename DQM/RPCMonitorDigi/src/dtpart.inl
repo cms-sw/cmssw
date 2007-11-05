@@ -25,7 +25,7 @@ if(all4DSegments->size()>0){
     std::cout<<"\t \t Number of segments in this DT = "<<scounter[DTId]<<std::endl;
     std::cout<<"\t \t Is the only one in this DT?"<<std::endl;
 
-    if(scounter[DTId] == 1){	
+    if(scounter[DTId]==1 && DTId.station()!=4){	
       std::cout<<"\t \t yes"<<std::endl;
       int dtWheel = DTId.wheel();
       int dtStation = DTId.station();
@@ -50,8 +50,7 @@ if(all4DSegments->size()>0){
 	float dy=segmentDirection.y();
 	float dz=segmentDirection.z();
 	std::cout<<"\t \t Loop over all the rolls asociated to this DT"<<std::endl;
-	if(dtSector==13)dtSector=4;
-	if(dtSector==14)dtSector=10;
+
 	std::set<RPCDetId> rollsForThisDT = rollstoreDT[DTStationIndex(0,dtWheel,dtSector,dtStation)];
 	//Loop over all the rolls
 	
