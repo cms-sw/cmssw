@@ -16,7 +16,6 @@
 <use name=L1TriggerConfig/L1Geometry>
 <use name=Geometry/CommonDetUnit>
 <use name=Geometry/TrackerGeometryBuilder>
-<use name=SimDataFormats/HepMCProduct>
 <use name=DataFormats/FEDRawData>
 <use name=Geometry/EcalMapping>
 <use name=DataFormats/L1Trigger>
@@ -42,7 +41,6 @@
    <use name=L1TriggerConfig/L1Geometry>
    <use name=Geometry/CommonDetUnit>
    <use name=Geometry/TrackerGeometryBuilder>
-   <use name=SimDataFormats/HepMCProduct>
    <use name=DataFormats/FEDRawData>
    <use name=Geometry/EcalMapping>
    <use name=DataFormats/L1Trigger>
