@@ -2,8 +2,8 @@
 /*
  * \file EBIntegrityClient.cc
  *
- * $Date: 2007/10/24 18:17:36 $
- * $Revision: 1.165 $
+ * $Date: 2007/11/05 10:51:29 $
+ * $Revision: 1.166 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -1329,8 +1329,8 @@ void EBIntegrityClient::htmlOutput(int run, string htmlDir, string htmlName){
   htmlFile << "<table border=1>" << std::endl;
   for ( unsigned int i=0; i<superModules_.size(); i ++ ) {
     htmlFile << "<td bgcolor=white><a href=""#"
-	     << Numbers::sEB(superModules_[i]).c_str() << ">"
-	     << setfill( '0' ) << setw(2) << superModules_[i] << "</a></td>";
+             << Numbers::sEB(superModules_[i]).c_str() << ">"
+             << setfill( '0' ) << setw(2) << superModules_[i] << "</a></td>";
   }
   htmlFile << std::endl << "</table>" << std::endl;
   htmlFile << "<hr>" << std::endl;
@@ -1700,8 +1700,8 @@ void EBIntegrityClient::htmlOutput(int run, string htmlDir, string htmlName){
     if( i>0 ) htmlFile << "<a href=""#top"">Top</a>" << std::endl;
     htmlFile << "<hr>" << std::endl;
     htmlFile << "<h3><a name="""
-	     << Numbers::sEB(ism).c_str() << """></a><strong>"
-	     << Numbers::sEB(ism).c_str() << "</strong></h3>" << endl;
+             << Numbers::sEB(ism).c_str() << """></a><strong>"
+             << Numbers::sEB(ism).c_str() << "</strong></h3>" << endl;
     htmlFile << "<table border=\"0\" cellspacing=\"0\" " << endl;
     htmlFile << "cellpadding=\"10\"> " << endl;
     htmlFile << "<tr align=\"left\">" << endl;

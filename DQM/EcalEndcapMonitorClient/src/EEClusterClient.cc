@@ -1,8 +1,8 @@
 /*
  * \file EEClusterClient.cc
  *
- * $Date: 2007/10/18 08:33:38 $
- * $Revision: 1.19 $
+ * $Date: 2007/10/23 09:48:10 $
+ * $Revision: 1.20 $
  * \author G. Della Ricca
  * \author E. Di Marco
  *
@@ -153,9 +153,9 @@ void EEClusterClient::cleanup(void) {
 
     for(int iEE=0;iEE<2;++iEE) {
       for(int i=0;i<3;++i) {
-	if(hProfMap_[i][iEE]) delete hProfMap_[i][iEE];
-	if(hProfMapProjR_[i][iEE]) delete hProfMapProjR_[i][iEE];
-	if(hProfMapProjPhi_[i][iEE]) delete hProfMapProjPhi_[i][iEE];
+        if(hProfMap_[i][iEE]) delete hProfMap_[i][iEE];
+        if(hProfMapProjR_[i][iEE]) delete hProfMapProjR_[i][iEE];
+        if(hProfMapProjPhi_[i][iEE]) delete hProfMapProjPhi_[i][iEE];
       }
     }
 
@@ -871,43 +871,43 @@ void EEClusterClient::htmlOutput(int run, string htmlDir, string htmlName){
 
       if ( objp ) {
 
-	meName = objp->GetName();
+        meName = objp->GetName();
 
-	for ( unsigned int i = 0; i < meName.size(); i++ ) {
-	  if ( meName.substr(i, 1) == " " )  {
-	    meName.replace(i, 1 ,"_" );
-	  }
-	}
-	imgNameEneMap[iVar][iEE] = meName + ".png";
-	imgName = htmlDir + imgNameEneMap[iVar][iEE];
+        for ( unsigned int i = 0; i < meName.size(); i++ ) {
+          if ( meName.substr(i, 1) == " " )  {
+            meName.replace(i, 1 ,"_" );
+          }
+        }
+        imgNameEneMap[iVar][iEE] = meName + ".png";
+        imgName = htmlDir + imgNameEneMap[iVar][iEE];
 
-	cMap->cd();
-	gStyle->SetOptStat(" ");
-	gStyle->SetPalette(10, pCol4);
-	objp->GetXaxis()->SetNdivisions(10, kFALSE);
-	objp->GetYaxis()->SetNdivisions(10, kFALSE);
-	objp->GetZaxis()->SetLabelSize(0.02);
-	cMap->SetGridx();
-	cMap->SetGridy();
-	objp->Draw("colz");
-	if ( iEE == 0 ) labelGrid1.Draw("text,same");
-	if ( iEE == 1 ) labelGrid2.Draw("text,same");
-	Xaxis.Draw();
-	Yaxis.Draw();
-	cMap->SetBit(TGraph::kClipFrame);
-	TLine l;
-	l.SetLineWidth(1);
-	for ( int i=0; i<201; i=i+1){
-	  if ( (Numbers::ixSectorsEE[i]!=0 || Numbers::iySectorsEE[i]!=0) && (Numbers::ixSectorsEE[i+1]!=0 || Numbers::iySectorsEE[i+1]!=0) ) {
-	    l.DrawLine(3.0*(Numbers::ixSectorsEE[i]-50), 3.0*(Numbers::iySectorsEE[i]-50), 3.0*(Numbers::ixSectorsEE[i+1]-50), 3.0*(Numbers::iySectorsEE[i+1]-50));
-	  }
-	}
-	cMap->Update();
-	objp->GetXaxis()->SetLabelColor(0);
-	objp->GetYaxis()->SetLabelColor(0);
-	cMap->SaveAs(imgName.c_str());
-	objp->GetXaxis()->SetLabelColor(1);
-	objp->GetYaxis()->SetLabelColor(1);
+        cMap->cd();
+        gStyle->SetOptStat(" ");
+        gStyle->SetPalette(10, pCol4);
+        objp->GetXaxis()->SetNdivisions(10, kFALSE);
+        objp->GetYaxis()->SetNdivisions(10, kFALSE);
+        objp->GetZaxis()->SetLabelSize(0.02);
+        cMap->SetGridx();
+        cMap->SetGridy();
+        objp->Draw("colz");
+        if ( iEE == 0 ) labelGrid1.Draw("text,same");
+        if ( iEE == 1 ) labelGrid2.Draw("text,same");
+        Xaxis.Draw();
+        Yaxis.Draw();
+        cMap->SetBit(TGraph::kClipFrame);
+        TLine l;
+        l.SetLineWidth(1);
+        for ( int i=0; i<201; i=i+1){
+          if ( (Numbers::ixSectorsEE[i]!=0 || Numbers::iySectorsEE[i]!=0) && (Numbers::ixSectorsEE[i+1]!=0 || Numbers::iySectorsEE[i+1]!=0) ) {
+            l.DrawLine(3.0*(Numbers::ixSectorsEE[i]-50), 3.0*(Numbers::iySectorsEE[i]-50), 3.0*(Numbers::ixSectorsEE[i+1]-50), 3.0*(Numbers::iySectorsEE[i+1]-50));
+          }
+        }
+        cMap->Update();
+        objp->GetXaxis()->SetLabelColor(0);
+        objp->GetYaxis()->SetLabelColor(0);
+        cMap->SaveAs(imgName.c_str());
+        objp->GetXaxis()->SetLabelColor(1);
+        objp->GetYaxis()->SetLabelColor(1);
       }
 
       char projXName[100];
@@ -921,22 +921,22 @@ void EEClusterClient::htmlOutput(int run, string htmlDir, string htmlName){
       obj1pY = hProfMapProjPhi_[iVar][iEE]; 
 
       if(obj1pX && obj1pY) {
-	cEne->cd();
-	gStyle->SetOptStat("emr");
-	obj1pX->GetXaxis()->SetNdivisions(50205, kFALSE);
-	obj1pY->GetXaxis()->SetNdivisions(50206, kFALSE);
+        cEne->cd();
+        gStyle->SetOptStat("emr");
+        obj1pX->GetXaxis()->SetNdivisions(50205, kFALSE);
+        obj1pY->GetXaxis()->SetNdivisions(50206, kFALSE);
       
-	imgName = htmlDir + imgNameEneXproj[iVar][iEE];
-	obj1pX->SetStats(kTRUE);
-	obj1pX->Draw("pe");
-	cEne->Update();
-	cEne->SaveAs(imgName.c_str());
+        imgName = htmlDir + imgNameEneXproj[iVar][iEE];
+        obj1pX->SetStats(kTRUE);
+        obj1pX->Draw("pe");
+        cEne->Update();
+        cEne->SaveAs(imgName.c_str());
       
-	imgName = htmlDir + imgNameEneYproj[iVar][iEE];
-	obj1pY->SetStats(kTRUE);
-	obj1pY->Draw("pe");
-	cEne->Update();
-	cEne->SaveAs(imgName.c_str());
+        imgName = htmlDir + imgNameEneYproj[iVar][iEE];
+        obj1pY->SetStats(kTRUE);
+        obj1pY->Draw("pe");
+        cEne->Update();
+        cEne->SaveAs(imgName.c_str());
       }
     }
   }
@@ -1029,9 +1029,9 @@ void EEClusterClient::htmlOutput(int run, string htmlDir, string htmlName){
   for(int iVar=0; iVar<3; ++iVar) {
     for(int iEE=0; iEE<2; ++iEE) {
       if ( imgNameEneMap[iVar][iEE].size() != 0)
-	htmlFile << "<td><img src=\"" << imgNameEneMap[iVar][iEE] << "\"></td>" << endl;
+        htmlFile << "<td><img src=\"" << imgNameEneMap[iVar][iEE] << "\"></td>" << endl;
       else
-	htmlFile << "<td><img src=\"" << " " << "\"></td>" << endl;
+        htmlFile << "<td><img src=\"" << " " << "\"></td>" << endl;
     }
     htmlFile << "</tr>" << endl;
   }
@@ -1056,13 +1056,13 @@ void EEClusterClient::htmlOutput(int run, string htmlDir, string htmlName){
   for(int iVar=0; iVar<3; ++iVar) {
     for(int iEE=0; iEE<2; ++iEE) { 
       if ( imgNameEneXproj[iVar][iEE].size() != 0 )
-	htmlFile << "<td><img src=\"" << imgNameEneXproj[iVar][iEE] << "\"></td>" << endl;
+        htmlFile << "<td><img src=\"" << imgNameEneXproj[iVar][iEE] << "\"></td>" << endl;
       else
-	htmlFile << "<td><img src=\"" << " " << "\"></td>" << endl;
+        htmlFile << "<td><img src=\"" << " " << "\"></td>" << endl;
       if ( imgNameEneYproj[iVar][iEE].size() != 0 )
-	htmlFile << "<td><img src=\"" << imgNameEneYproj[iVar][iEE] << "\"></td>" << endl;
+        htmlFile << "<td><img src=\"" << imgNameEneYproj[iVar][iEE] << "\"></td>" << endl;
       else
-	htmlFile << "<td><img src=\"" << " " << "\"></td>" << endl;
+        htmlFile << "<td><img src=\"" << " " << "\"></td>" << endl;
     }
     htmlFile << "</tr>" << endl;
   }
@@ -1175,9 +1175,9 @@ void EEClusterClient::htmlOutput(int run, string htmlDir, string htmlName){
       meName = obj1f->GetName();
       
       for ( unsigned int i = 0; i < meName.size(); i++ ) {
-	if ( meName.substr(i, 1) == " " )  {
-	  meName.replace(i, 1, "_");
-	}
+        if ( meName.substr(i, 1) == " " )  {
+          meName.replace(i, 1, "_");
+        }
       }
       
       imgNameHL[iVar] = meName + ".png";

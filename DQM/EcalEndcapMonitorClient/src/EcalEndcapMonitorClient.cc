@@ -1,8 +1,8 @@
 /*
  * \file EcalEndcapMonitorClient.cc
  *
- * $Date: 2007/10/16 08:30:09 $
- * $Revision: 1.73 $
+ * $Date: 2007/10/18 09:43:53 $
+ * $Revision: 1.74 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -1026,11 +1026,11 @@ void EcalEndcapMonitorClient::beginRunDb(void) {
   } else {
     if ( econn ) {
       try {
-	cout << "Fetching masked channels from DB ... " << flush;
-	EcalErrorMask::readDB(econn, &runiov_);
-	cout << "done." << endl;
+        cout << "Fetching masked channels from DB ... " << flush;
+        EcalErrorMask::readDB(econn, &runiov_);
+        cout << "done." << endl;
       } catch (runtime_error &e) {
-	cerr << e.what() << endl;
+        cerr << e.what() << endl;
       }
     }
   }

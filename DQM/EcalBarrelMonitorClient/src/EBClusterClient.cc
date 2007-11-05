@@ -1,8 +1,8 @@
 /*
  * \file EBClusterClient.cc
  *
- * $Date: 2007/10/18 09:43:31 $
- * $Revision: 1.37 $
+ * $Date: 2007/10/23 07:13:24 $
+ * $Revision: 1.38 $
  * \author G. Della Ricca
  * \author F. Cossutti
  * \author E. Di Marco
@@ -715,22 +715,22 @@ void EBClusterClient::htmlOutput(int run, string htmlDir, string htmlName){
       obj1pY = (iCanvas!=3) ? h02ProjPhi_[iCanvas-1] : h04ProjPhi_;
 
       if (obj1pX && obj1pY) {
-	cEne->cd();
-	gStyle->SetOptStat("emr");
-	obj1pX->GetXaxis()->SetNdivisions(40306, kFALSE);
-	obj1pY->GetXaxis()->SetNdivisions(6, kFALSE);
+        cEne->cd();
+        gStyle->SetOptStat("emr");
+        obj1pX->GetXaxis()->SetNdivisions(40306, kFALSE);
+        obj1pY->GetXaxis()->SetNdivisions(6, kFALSE);
 
-	imgName = htmlDir + imgNameBXproj[iCanvas-1];
-	obj1pX->SetStats(kTRUE);
-	obj1pX->Draw("pe");
-	cEne->Update();
-	cEne->SaveAs(imgName.c_str());
+        imgName = htmlDir + imgNameBXproj[iCanvas-1];
+        obj1pX->SetStats(kTRUE);
+        obj1pX->Draw("pe");
+        cEne->Update();
+        cEne->SaveAs(imgName.c_str());
 
-	imgName = htmlDir + imgNameBYproj[iCanvas-1];
-	obj1pY->SetStats(kTRUE);
-	obj1pY->Draw("pe");
-	cEne->Update();
-	cEne->SaveAs(imgName.c_str());
+        imgName = htmlDir + imgNameBYproj[iCanvas-1];
+        obj1pY->SetStats(kTRUE);
+        obj1pY->Draw("pe");
+        cEne->Update();
+        cEne->SaveAs(imgName.c_str());
       }
     }
   }
