@@ -4,7 +4,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: Association.h,v 1.1 2007/10/29 12:53:35 llista Exp $
+ * \version $Id: Association.h,v 1.2 2007/10/30 13:43:37 llista Exp $
  *
  */
 
@@ -20,29 +20,29 @@ namespace edm {
     typedef int index; // negative index == null reference
     typedef ValueMap<index> base;
     typedef typename base::offset offset;
-    typedef edm::RefProd<C> RefProd; // could be specialized for View
-    typedef Ref<typename RefProd::product_type> RefVal;
+    typedef edm::RefProd<C> refprod_type; // could be specialized for View
+    typedef Ref<typename refprod_type::product_type> reference_type;
 
     Association() : base() { }
     template<typename H>
     explicit Association(const H & h) : base(), ref_(h) { }
     
     template<typename RefKey>
-      RefVal operator[](const RefKey & r) const {
+      reference_type operator[](const RefKey & r) const {
       return get(r.id(), r.key());
     }
-    RefVal get(ProductID id, size_t idx) const { 
+    reference_type get(ProductID id, size_t idx) const { 
       index i = base::get(id, idx);
-      if(i < 0) return RefVal(); 
+      if(i < 0) return reference_type(); 
       size_t k = i;
       if (k >= ref_->size()) throwIndexMapBound();
-      return RefVal(ref_,k);
+      return reference_type(ref_,k);
     }
     Association<C> & operator+=(const Association<C> & o) {
       add(o);
       return *this;
     }
-    void setRef(const RefProd & ref) {
+    void setRef(const refprod_type & ref) {
       if(ref_.isNull() ) {
 	ref_ = ref;
       } else {
@@ -53,6 +53,7 @@ namespace edm {
     size_t size() const { return base::size(); }
     bool empty() const { return base::empty(); }
     void clear() { base::clear(); }
+    refprod_type ref() const { return ref_; }
 
     class Filler : public base::Filler {
     public:
@@ -61,7 +62,7 @@ namespace edm {
     };
 
   private:
-    RefProd ref_;
+    refprod_type ref_;
     void throwIndexMapBound() const {
       throw Exception(errors::InvalidReference)
 	<< "Association: index in the map out of upper boundary";
