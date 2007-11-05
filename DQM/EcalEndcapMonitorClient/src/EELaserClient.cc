@@ -1,8 +1,8 @@
 /*
  * \file EELaserClient.cc
  *
- * $Date: 2007/11/05 10:27:56 $
- * $Revision: 1.41 $
+ * $Date: 2007/11/05 10:32:55 $
+ * $Revision: 1.42 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -374,25 +374,25 @@ void EELaserClient::beginJob(MonitorUserInterface* mui){
       qth11_[ism-1]->setMeanRange(amplitudeThresholdPnG01_, 4096.0);
       qth12_[ism-1]->setMeanRange(amplitudeThresholdPnG01_, 4096.0);
       qth13_[ism-1]->setMeanRange(pedPnExpectedMean_[0] - pedPnDiscrepancyMean_[0],
-        			  pedPnExpectedMean_[0] + pedPnDiscrepancyMean_[0]);
+                		  pedPnExpectedMean_[0] + pedPnDiscrepancyMean_[0]);
       qth14_[ism-1]->setMeanRange(pedPnExpectedMean_[0] - pedPnDiscrepancyMean_[0],
-        			  pedPnExpectedMean_[0] + pedPnDiscrepancyMean_[0]);
+                		  pedPnExpectedMean_[0] + pedPnDiscrepancyMean_[0]);
       qth15_[ism-1]->setMeanRange(pedPnExpectedMean_[0] - pedPnDiscrepancyMean_[0],
-        			  pedPnExpectedMean_[0] + pedPnDiscrepancyMean_[0]);
+                		  pedPnExpectedMean_[0] + pedPnDiscrepancyMean_[0]);
       qth16_[ism-1]->setMeanRange(pedPnExpectedMean_[0] - pedPnDiscrepancyMean_[0],
-        			  pedPnExpectedMean_[0] + pedPnDiscrepancyMean_[0]);
+                		  pedPnExpectedMean_[0] + pedPnDiscrepancyMean_[0]);
       qth17_[ism-1]->setMeanRange(amplitudeThresholdPnG16_, 4096.0);
       qth18_[ism-1]->setMeanRange(amplitudeThresholdPnG16_, 4096.0);
       qth19_[ism-1]->setMeanRange(amplitudeThresholdPnG16_, 4096.0);
       qth20_[ism-1]->setMeanRange(amplitudeThresholdPnG16_, 4096.0);
       qth21_[ism-1]->setMeanRange(pedPnExpectedMean_[1] - pedPnDiscrepancyMean_[1],
-        			  pedPnExpectedMean_[1] + pedPnDiscrepancyMean_[1]);
+                		  pedPnExpectedMean_[1] + pedPnDiscrepancyMean_[1]);
       qth22_[ism-1]->setMeanRange(pedPnExpectedMean_[1] - pedPnDiscrepancyMean_[1],
-        			  pedPnExpectedMean_[1] + pedPnDiscrepancyMean_[1]);
+                		  pedPnExpectedMean_[1] + pedPnDiscrepancyMean_[1]);
       qth23_[ism-1]->setMeanRange(pedPnExpectedMean_[1] - pedPnDiscrepancyMean_[1],
-        			  pedPnExpectedMean_[1] + pedPnDiscrepancyMean_[1]);
+                		  pedPnExpectedMean_[1] + pedPnDiscrepancyMean_[1]);
       qth24_[ism-1]->setMeanRange(pedPnExpectedMean_[1] - pedPnDiscrepancyMean_[1],
-        			  pedPnExpectedMean_[1] + pedPnDiscrepancyMean_[1]);
+                		  pedPnExpectedMean_[1] + pedPnDiscrepancyMean_[1]);
       qth01_[ism-1]->setMeanTolerance(percentVariation_);
       qth02_[ism-1]->setMeanTolerance(percentVariation_);
       qth03_[ism-1]->setMeanTolerance(percentVariation_);
