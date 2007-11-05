@@ -2,8 +2,8 @@
 /*
  * \file EEIntegrityClient.cc
  *
- * $Date: 2007/10/22 14:18:35 $
- * $Revision: 1.32 $
+ * $Date: 2007/10/24 18:17:42 $
+ * $Revision: 1.33 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -406,9 +406,6 @@ bool EEIntegrityClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
     UtilsClient::printBadChannels(qth08_[ism-1]);
     UtilsClient::printBadChannels(qth09_[ism-1]);
     UtilsClient::printBadChannels(qth10_[ism-1]);
-
-//    UtilsClient::printBadChannels(qtg01_[ism-1]);
-//    UtilsClient::printBadChannels(qtg02_[ism-1]);
 
     float num00;
 
@@ -1223,20 +1220,6 @@ void EEIntegrityClient::analyze(void){
       }
     }// end of loop on crystals to fill summary plot
 
-    vector<dqm::me_util::Channel> badChannels01;
-    vector<dqm::me_util::Channel> badChannels02;
-    vector<dqm::me_util::Channel> badChannels03;
-    vector<dqm::me_util::Channel> badChannels04;
-    vector<dqm::me_util::Channel> badChannels05;
-    vector<dqm::me_util::Channel> badChannels06;
-
-    if ( qth01_[ism-1] ) badChannels01 = qth01_[ism-1]->getBadChannels();
-    if ( qth02_[ism-1] ) badChannels02 = qth02_[ism-1]->getBadChannels();
-    if ( qth03_[ism-1] ) badChannels03 = qth03_[ism-1]->getBadChannels();
-    if ( qth04_[ism-1] ) badChannels04 = qth04_[ism-1]->getBadChannels();
-    if ( qth05_[ism-1] ) badChannels05 = qth05_[ism-1]->getBadChannels();
-    if ( qth06_[ism-1] ) badChannels06 = qth06_[ism-1]->getBadChannels();
-
     // summaries for mem channels
     float num07, num08, num09, num10;
 
@@ -1348,16 +1331,6 @@ void EEIntegrityClient::analyze(void){
 
       }
     }  // end loop on mem channels
-
-    vector<dqm::me_util::Channel> badChannels07;
-    vector<dqm::me_util::Channel> badChannels08;
-    vector<dqm::me_util::Channel> badChannels09;
-    vector<dqm::me_util::Channel> badChannels10;
-
-    if ( qth07_[ism-1] ) badChannels01 = qth07_[ism-1]->getBadChannels();
-    if ( qth08_[ism-1] ) badChannels02 = qth08_[ism-1]->getBadChannels();
-    if ( qth09_[ism-1] ) badChannels03 = qth09_[ism-1]->getBadChannels();
-    if ( qth10_[ism-1] ) badChannels04 = qth10_[ism-1]->getBadChannels();
 
   }// end loop on supermodules
 

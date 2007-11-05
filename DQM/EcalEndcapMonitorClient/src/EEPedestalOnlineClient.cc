@@ -1,8 +1,8 @@
 /*
  * \file EEPedestalOnlineClient.cc
  *
- * $Date: 2007/10/18 09:43:53 $
- * $Revision: 1.30 $
+ * $Date: 2007/10/24 18:17:44 $
+ * $Revision: 1.31 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -281,8 +281,6 @@ bool EEPedestalOnlineClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov,
 
     UtilsClient::printBadChannels(qth03_[ism-1]);
 
-//    UtilsClient::printBadChannels(qtg03_[ism-1]);
-
     float num03;
     float mean03;
     float rms03;
@@ -543,16 +541,6 @@ void EEPedestalOnlineClient::analyze(void){
 
       }
     }
-
-    vector<dqm::me_util::Channel> badChannels;
-
-    if ( qth03_[ism-1] ) badChannels = qth03_[ism-1]->getBadChannels();
-
-//    if ( ! badChannels.empty() ) {
-//      for ( vector<dqm::me_util::Channel>::iterator it = badChannels.begin(); it != badChannels.end(); ++it ) {
-//        if ( meg03_[ism-1] ) meg03_[ism-1]->setBinContent(it->getBinX(), it->getBinY(), 0.);
-//      }
-//    }
 
   }
 

@@ -1,8 +1,8 @@
 /*
  * \file EBTimingClient.cc
  *
- * $Date: 2007/10/19 12:56:24 $
- * $Revision: 1.45 $
+ * $Date: 2007/10/24 18:17:38 $
+ * $Revision: 1.46 $
  * \author G. Della Ricca
  *
 */
@@ -281,8 +281,6 @@ bool EBTimingClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunI
 
     UtilsClient::printBadChannels(qth01_[ism-1]);
 
-//    UtilsClient::printBadChannels(qtg01_[ism-1]);
-
     float num01;
     float mean01;
     float rms01;
@@ -520,16 +518,6 @@ void EBTimingClient::analyze(void){
 
       }
     }
-
-    vector<dqm::me_util::Channel> badChannels;
-
-    if ( qth01_[ism-1] ) badChannels = qth01_[ism-1]->getBadChannels();
-
-//    if ( ! badChannels.empty() ) {
-//      for ( vector<dqm::me_util::Channel>::iterator it = badChannels.begin(); it != badChannels.end(); ++it ) {
-//        if ( meg01_[ism-1] ) meg01_[ism-1]->setBinContent(it->getBinX(), it->getBinY(), 0.);
-//      }
-//    }
 
   }
 

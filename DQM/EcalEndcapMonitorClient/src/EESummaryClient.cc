@@ -1,8 +1,8 @@
 /*
  * \file EESummaryClient.cc
  *
- * $Date: 2007/11/02 12:36:25 $
- * $Revision: 1.48 $
+ * $Date: 2007/11/03 09:06:43 $
+ * $Revision: 1.49 $
  * \author G. Della Ricca
  *
 */
@@ -603,41 +603,6 @@ void EESummaryClient::cleanup(void) {
 bool EESummaryClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV* moniov) {
 
   bool status = true;
-
-//  UtilsClient::printBadChannels(qtg01_[0]);
-//  UtilsClient::printBadChannels(qtg01_[1]);
-//  UtilsClient::printBadChannels(qtg02_[0]);
-//  UtilsClient::printBadChannels(qtg02_[1]);
-//  UtilsClient::printBadChannels(qtg03_[0]);
-//  UtilsClient::printBadChannels(qtg03_[1]);
-//  UtilsClient::printBadChannels(qtg04_[0]);
-//  UtilsClient::printBadChannels(qtg04_[1]);
-//  UtilsClient::printBadChannels(qtg04PN_[0]);
-//  UtilsClient::printBadChannels(qtg04PN_[1]);
-//  UtilsClient::printBadChannels(qtg05_[0]);
-//  UtilsClient::printBadChannels(qtg05_[1]);
-//  UtilsClient::printBadChannels(qtg05PN_[0]);
-//  UtilsClient::printBadChannels(qtg05PN_[1]);
-//  UtilsClient::printBadChannels(qtg06_[0]);
-//  UtilsClient::printBadChannels(qtg06_[1]);
-//  UtilsClient::printBadChannels(qtg06PN_[0]);
-//  UtilsClient::printBadChannels(qtg06PN_[1]);
-//  UtilsClient::printBadChannels(qtg07_[0]);
-//  UtilsClient::printBadChannels(qtg07_[1]);
-//  UtilsClient::printBadChannels(qtg07PN_[0]);
-//  UtilsClient::printBadChannels(qtg07PN_[1]);
-
-//  UtilsClient::printBadChannels(qtg08_[0]);
-//  UtilsClient::printBadChannels(qtg08_[1]);
-//  UtilsClient::printBadChannels(qtg09_[0]);
-//  UtilsClient::printBadChannels(qtg09_[1]);
-//  UtilsClient::printBadChannels(qtg10_[0]);
-//  UtilsClient::printBadChannels(qtg10_[1]);
-//  UtilsClient::printBadChannels(qtg11_[0]);
-//  UtilsClient::printBadChannels(qtg11_[1]);
-
-//  UtilsClient::printBadChannels(qtg99_[0]);
-//  UtilsClient::printBadChannels(qtg99_[1]);
 
   return status;
 

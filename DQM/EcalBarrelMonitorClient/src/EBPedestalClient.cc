@@ -1,8 +1,8 @@
 /*
  * \file EBPedestalClient.cc
  *
- * $Date: 2007/11/05 10:27:55 $
- * $Revision: 1.158 $
+ * $Date: 2007/11/05 10:32:54 $
+ * $Revision: 1.159 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -539,10 +539,6 @@ bool EBPedestalClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRu
     UtilsClient::printBadChannels(qth02_[ism-1]);
     UtilsClient::printBadChannels(qth03_[ism-1]);
 
-//    UtilsClient::printBadChannels(qtg01_[ism-1]);
-//    UtilsClient::printBadChannels(qtg02_[ism-1]);
-//    UtilsClient::printBadChannels(qtg03_[ism-1]);
-
     for ( int ie = 1; ie <= 85; ie++ ) {
       for ( int ip = 1; ip <= 20; ip++ ) {
 
@@ -634,9 +630,6 @@ bool EBPedestalClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRu
 
     UtilsClient::printBadChannels(qth04_[ism-1]);
     UtilsClient::printBadChannels(qth05_[ism-1]);
-
-//    UtilsClient::printBadChannels(qtg04_[ism-1]);
-//    UtilsClient::printBadChannels(qtg05_[ism-1]);
 
     for ( int i = 1; i <= 10; i++ ) {
 
@@ -1164,48 +1157,6 @@ void EBPedestalClient::analyze(void){
       }
 
     }
-
-    vector<dqm::me_util::Channel> badChannels;
-
-    if ( qth01_[ism-1] ) badChannels = qth01_[ism-1]->getBadChannels();
-
-//    if ( ! badChannels.empty() ) {
-//      for ( vector<dqm::me_util::Channel>::iterator it = badChannels.begin(); it != badChannels.end(); ++it ) {
-//        if ( meg01_[ism-1] ) meg01_[ism-1]->setBinContent(it->getBinX(), it->getBinY(), 0.);
-//      }
-//    }
-
-    if ( qth02_[ism-1] ) badChannels = qth02_[ism-1]->getBadChannels();
-
-//    if ( ! badChannels.empty() ) {
-//      for ( vector<dqm::me_util::Channel>::iterator it = badChannels.begin(); it != badChannels.end(); ++it ) {
-//        if ( meg02_[ism-1] ) meg02_[ism-1]->setBinContent(it->getBinX(), it->getBinY(), 0.);
-//      }
-//    }
-
-    if ( qth03_[ism-1] ) badChannels = qth03_[ism-1]->getBadChannels();
-
-//    if ( ! badChannels.empty() ) {
-//      for ( vector<dqm::me_util::Channel>::iterator it = badChannels.begin(); it != badChannels.end(); ++it ) {
-//        if ( meg03_[ism-1] ) meg03_[ism-1]->setBinContent(it->getBinX(), it->getBinY(), 0.);
-//      }
-//    }
-
-    if ( qth04_[ism-1] ) badChannels = qth04_[ism-1]->getBadChannels();
-
-//    if ( ! badChannels.empty() ) {
-//      for ( vector<dqm::me_util::Channel>::iterator it = badChannels.begin(); it != badChannels.end(); ++it ) {
-//        if ( meg04_[ism-1] ) meg04_[ism-1]->setBinContent(it->getBinX(), it->getBinY(), 0.);
-//      }
-//    }
-
-    if ( qth05_[ism-1] ) badChannels = qth05_[ism-1]->getBadChannels();
-
-//    if ( ! badChannels.empty() ) {
-//      for ( vector<dqm::me_util::Channel>::iterator it = badChannels.begin(); it != badChannels.end(); ++it ) {
-//        if ( meg05_[ism-1] ) meg05_[ism-1]->setBinContent(it->getBinX(), it->getBinY(), 0.);
-//      }
-//    }
 
     for ( int ie = 1; ie <= 85; ie++ ) {
       for ( int ip = 1; ip <= 20; ip++ ) {

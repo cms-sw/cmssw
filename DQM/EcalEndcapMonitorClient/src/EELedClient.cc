@@ -1,8 +1,8 @@
 /*
  * \file EELedClient.cc
  *
- * $Date: 2007/11/05 10:32:55 $
- * $Revision: 1.25 $
+ * $Date: 2007/11/05 10:42:31 $
+ * $Revision: 1.26 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -577,16 +577,6 @@ bool EELedClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV*
     UtilsClient::printBadChannels(qth01_[ism-1]);
     UtilsClient::printBadChannels(qth05_[ism-1]);
 
-    UtilsClient::printBadChannels(qth09_[ism-1]);
-
-    UtilsClient::printBadChannels(qth13_[ism-1]);
-
-    UtilsClient::printBadChannels(qth17_[ism-1]);
-
-    UtilsClient::printBadChannels(qth21_[ism-1]);
-
-//    UtilsClient::printBadChannels(qtg01_[ism-1]);
-
     for ( int ix = 1; ix <= 50; ix++ ) {
       for ( int iy = 1; iy <= 50; iy++ ) {
 
@@ -726,9 +716,13 @@ bool EELedClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV*
 
     cout << " SM=" << ism << endl;
 
-//    UtilsClient::printBadChannels(qtg05_[ism-1]);
+    UtilsClient::printBadChannels(qth09_[ism-1]);
 
-//    UtilsClient::printBadChannels(qtg09_[ism-1]);
+    UtilsClient::printBadChannels(qth13_[ism-1]);
+
+    UtilsClient::printBadChannels(qth17_[ism-1]);
+
+    UtilsClient::printBadChannels(qth21_[ism-1]);
 
     for ( int i = 1; i <= 10; i++ ) {
 
@@ -1463,30 +1457,6 @@ void EELedClient::analyze(void){
       }
 
     }
-
-    vector<dqm::me_util::Channel> badChannels01;
-
-    vector<dqm::me_util::Channel> badChannels05;
-
-    if ( qth01_[ism-1] ) badChannels01 = qth01_[ism-1]->getBadChannels();
-
-    if ( qth05_[ism-1] ) badChannels05 = qth05_[ism-1]->getBadChannels();
-
-    vector<dqm::me_util::Channel> badChannels09;
-
-    vector<dqm::me_util::Channel> badChannels13;
-
-    vector<dqm::me_util::Channel> badChannels17;
-
-    vector<dqm::me_util::Channel> badChannels21;
-
-    if ( qth09_[ism-1] ) badChannels09 = qth09_[ism-1]->getBadChannels();
-
-    if ( qth13_[ism-1] ) badChannels13 = qth13_[ism-1]->getBadChannels();
-
-    if ( qth17_[ism-1] ) badChannels09 = qth17_[ism-1]->getBadChannels();
-
-    if ( qth21_[ism-1] ) badChannels13 = qth21_[ism-1]->getBadChannels();
 
   }
 

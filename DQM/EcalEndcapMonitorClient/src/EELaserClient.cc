@@ -1,8 +1,8 @@
 /*
  * \file EELaserClient.cc
  *
- * $Date: 2007/11/05 10:38:35 $
- * $Revision: 1.43 $
+ * $Date: 2007/11/05 10:42:31 $
+ * $Revision: 1.44 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -1174,11 +1174,6 @@ bool EELaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
     UtilsClient::printBadChannels(qth04_[ism-1]);
     UtilsClient::printBadChannels(qth08_[ism-1]);
 
-//    UtilsClient::printBadChannels(qtg01_[ism-1]);
-//    UtilsClient::printBadChannels(qtg02_[ism-1]);
-//    UtilsClient::printBadChannels(qtg03_[ism-1]);
-//    UtilsClient::printBadChannels(qtg04_[ism-1]);
-
     for ( int ix = 1; ix <= 50; ix++ ) {
       for ( int iy = 1; iy <= 50; iy++ ) {
 
@@ -1604,15 +1599,6 @@ bool EELaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
     UtilsClient::printBadChannels(qth22_[ism-1]);
     UtilsClient::printBadChannels(qth23_[ism-1]);
     UtilsClient::printBadChannels(qth24_[ism-1]);
-
-//    UtilsClient::printBadChannels(qtg05_[ism-1]);
-//    UtilsClient::printBadChannels(qtg06_[ism-1]);
-//    UtilsClient::printBadChannels(qtg07_[ism-1]);
-//    UtilsClient::printBadChannels(qtg08_[ism-1]);
-//    UtilsClient::printBadChannels(qtg09_[ism-1]);
-//    UtilsClient::printBadChannels(qtg10_[ism-1]);
-//    UtilsClient::printBadChannels(qtg11_[ism-1]);
-//    UtilsClient::printBadChannels(qtg12_[ism-1]);
 
     for ( int i = 1; i <= 10; i++ ) {
 
@@ -3624,58 +3610,6 @@ void EELaserClient::analyze(void){
       }
 
     }
-
-    vector<dqm::me_util::Channel> badChannels01;
-    vector<dqm::me_util::Channel> badChannels02;
-    vector<dqm::me_util::Channel> badChannels03;
-    vector<dqm::me_util::Channel> badChannels04;
-    vector<dqm::me_util::Channel> badChannels05;
-    vector<dqm::me_util::Channel> badChannels06;
-    vector<dqm::me_util::Channel> badChannels07;
-    vector<dqm::me_util::Channel> badChannels08;
-
-    if ( qth01_[ism-1] ) badChannels01 = qth01_[ism-1]->getBadChannels();
-    if ( qth02_[ism-1] ) badChannels02 = qth02_[ism-1]->getBadChannels();
-    if ( qth03_[ism-1] ) badChannels03 = qth03_[ism-1]->getBadChannels();
-    if ( qth04_[ism-1] ) badChannels04 = qth04_[ism-1]->getBadChannels();
-    if ( qth05_[ism-1] ) badChannels05 = qth05_[ism-1]->getBadChannels();
-    if ( qth06_[ism-1] ) badChannels06 = qth06_[ism-1]->getBadChannels();
-    if ( qth07_[ism-1] ) badChannels07 = qth07_[ism-1]->getBadChannels();
-    if ( qth08_[ism-1] ) badChannels08 = qth08_[ism-1]->getBadChannels();
-
-    vector<dqm::me_util::Channel> badChannels09;
-    vector<dqm::me_util::Channel> badChannels10;
-    vector<dqm::me_util::Channel> badChannels11;
-    vector<dqm::me_util::Channel> badChannels12;
-    vector<dqm::me_util::Channel> badChannels13;
-    vector<dqm::me_util::Channel> badChannels14;
-    vector<dqm::me_util::Channel> badChannels15;
-    vector<dqm::me_util::Channel> badChannels16;
-    vector<dqm::me_util::Channel> badChannels17;
-    vector<dqm::me_util::Channel> badChannels18;
-    vector<dqm::me_util::Channel> badChannels19;
-    vector<dqm::me_util::Channel> badChannels20;
-    vector<dqm::me_util::Channel> badChannels21;
-    vector<dqm::me_util::Channel> badChannels22;
-    vector<dqm::me_util::Channel> badChannels23;
-    vector<dqm::me_util::Channel> badChannels24;
-
-    if ( qth09_[ism-1] ) badChannels09 = qth09_[ism-1]->getBadChannels();
-    if ( qth10_[ism-1] ) badChannels10 = qth10_[ism-1]->getBadChannels();
-    if ( qth11_[ism-1] ) badChannels11 = qth11_[ism-1]->getBadChannels();
-    if ( qth12_[ism-1] ) badChannels12 = qth12_[ism-1]->getBadChannels();
-    if ( qth13_[ism-1] ) badChannels13 = qth13_[ism-1]->getBadChannels();
-    if ( qth14_[ism-1] ) badChannels14 = qth14_[ism-1]->getBadChannels();
-    if ( qth15_[ism-1] ) badChannels15 = qth15_[ism-1]->getBadChannels();
-    if ( qth16_[ism-1] ) badChannels16 = qth16_[ism-1]->getBadChannels();
-    if ( qth17_[ism-1] ) badChannels09 = qth17_[ism-1]->getBadChannels();
-    if ( qth18_[ism-1] ) badChannels10 = qth18_[ism-1]->getBadChannels();
-    if ( qth19_[ism-1] ) badChannels11 = qth19_[ism-1]->getBadChannels();
-    if ( qth20_[ism-1] ) badChannels12 = qth20_[ism-1]->getBadChannels();
-    if ( qth21_[ism-1] ) badChannels13 = qth21_[ism-1]->getBadChannels();
-    if ( qth22_[ism-1] ) badChannels14 = qth22_[ism-1]->getBadChannels();
-    if ( qth23_[ism-1] ) badChannels15 = qth23_[ism-1]->getBadChannels();
-    if ( qth24_[ism-1] ) badChannels16 = qth24_[ism-1]->getBadChannels();
 
   }
 
