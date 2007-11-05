@@ -4,11 +4,13 @@
 <use name=boost>
 <use name=rootcintex>
 <use name=rootcore>
+<use name=root>
 
 <export>
   <use name=FWCore/Utilities>
   <use name=boost>
   <use name=rootcore>
+  <use name=root>
   <lib name=IOPoolCommon>
 </export>
 
