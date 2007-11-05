@@ -17,6 +17,12 @@
 #include "CalibMuon/CSCCalibration/interface/WriteDBNoiseMatrix.h"
 #include "CalibMuon/CSCCalibration/interface/WriteCrosstalkToDB.h"
 #include "CalibMuon/CSCCalibration/interface/WriteDBCrosstalk.h"
+#include "CalibMuon/CSCCalibration/interface/CSCGainsHandler.h"
+#include "CalibMuon/CSCCalibration/interface/CSCCrosstalkHandler.h"
+#include "CalibMuon/CSCCalibration/interface/CSCNoiseMatrixHandler.h"
+#include "CalibMuon/CSCCalibration/interface/CSCGainsPopConAnalyzer.h"
+#include "CalibMuon/CSCCalibration/interface/CSCNoiseMatrixPopConAnalyzer.h"
+#include "CalibMuon/CSCCalibration/interface/CSCCrosstalkPopConAnalyzer.h"
 #include "CalibMuon/CSCCalibration/interface/CSCCrosstalkConditions.h"
 #include "CalibMuon/CSCCalibration/interface/CSCCrosstalkDBConditions.h"
 #include "CalibMuon/CSCCalibration/interface/CSCGainsConditions.h"
@@ -47,3 +53,6 @@ DEFINE_ANOTHER_FWK_MODULE(WriteNoiseMatrixToDB);
 DEFINE_ANOTHER_FWK_MODULE(WriteDBNoiseMatrix);
 DEFINE_ANOTHER_FWK_MODULE(WriteCrosstalkToDB);
 DEFINE_ANOTHER_FWK_MODULE(WriteDBCrosstalk);
+DEFINE_ANOTHER_FWK_MODULE(CSCGainsPopConAnalyzer);
+DEFINE_ANOTHER_FWK_MODULE(CSCCrosstalkPopConAnalyzer);
+DEFINE_ANOTHER_FWK_MODULE(CSCNoiseMatrixPopConAnalyzer);
