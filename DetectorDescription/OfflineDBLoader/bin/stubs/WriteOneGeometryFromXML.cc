@@ -77,12 +77,13 @@ WriteOneGeometryFromXML::beginJob( edm::EventSetup const& es)
     es.get<IdealGeometryRecord>().get(label_, pDD );
 
     DDCompactView::graph_type gra = pDD->graph();
-    
+
+    DDDToPersFactory dddFact;    
     DDMaterial::iterator<DDMaterial> it(DDMaterial::begin()), ed(DDMaterial::end());
     PMaterial* pm;
     for (; it != ed; ++it) {
       if (! it->isDefined().second) continue;
-      pm = DDDToPersFactory::material ( *it );
+      pm = dddFact.material ( *it );
       pgeom->pMaterials.push_back ( *pm );
       delete pm;
     }
@@ -93,14 +94,14 @@ WriteOneGeometryFromXML::beginJob( edm::EventSetup const& es)
     if ( !rotn.isDefined().second ) {
       DDRotationMatrix* rotID = new DDRotationMatrix();
       DDRotation mydr = DDrot (DDName("IDENTITYDB","generatedForDB"), rotID);
-      pr = DDDToPersFactory::rotation ( mydr );
+      pr = dddFact.rotation ( mydr );
       pgeom->pRotations.push_back ( *pr );
     }
     for (; rit != red; ++rit) {
       if (! rit->isDefined().second) continue;
       // if it is the identity...
       if ( *(rit->matrix()) == *(rotn.matrix()) ) continue;
-      pr = DDDToPersFactory::rotation( *rit );
+      pr = dddFact.rotation( *rit );
       pgeom->pRotations.push_back ( *pr );
     } 
 
@@ -109,7 +110,7 @@ WriteOneGeometryFromXML::beginJob( edm::EventSetup const& es)
     PSolid* ps;
     for (; sit != sed; ++sit) {
       if (! sit->isDefined().second) continue;  
-      ps = DDDToPersFactory::solid( *sit );
+      ps = dddFact.solid( *sit );
       pgeom->pSolids.push_back( *ps );
       delete ps;
     }
@@ -132,7 +133,7 @@ WriteOneGeometryFromXML::beginJob( edm::EventSetup const& es)
       {
 	const DDLogicalPart & ddLP = gra.nodeData(git);
 	//	std::cout << ddLP << std::endl;
-	plp = DDDToPersFactory::logicalPart ( ddLP  );
+	plp = dddFact.logicalPart ( ddLP  );
 	pgeom->pLogicalParts.push_back( *plp );
 	delete plp;
 	++i;
@@ -145,7 +146,7 @@ WriteOneGeometryFromXML::beginJob( edm::EventSetup const& es)
 	    for (; cit != cend; ++cit) 
 	      {
 		const DDLogicalPart & ddcurLP = gra.nodeData(cit->first);
-		ppp = DDDToPersFactory::position ( ddLP, ddcurLP, gra.edgeData(cit->second), *pgeom, rotNumSeed_ );
+		ppp = dddFact.position ( ddLP, ddcurLP, gra.edgeData(cit->second), *pgeom, rotNumSeed_ );
 // 		std::cout << "okay after the factory..." << std::endl;
 		pgeom->pPosParts.push_back( *ppp );
 // 		std::cout << "okay after the push_back" << std::endl;
@@ -166,10 +167,13 @@ WriteOneGeometryFromXML::beginJob( edm::EventSetup const& es)
     // ======= For each DDSpecific...
     for (; spit != spend; ++spit) {
       if ( !spit->isDefined().second ) continue;  
-      psp = DDDToPersFactory::specpar( *spit );
+      psp = dddFact.specpar( *spit );
       pgeom->pSpecPars.push_back( *psp );
       delete psp;
     } 
+    std::cout <<" did the static work? is there a size to this string storage? " << std::endl;
+    std::cout << " dddFact.pstrs.pStrings.size() = " << dddFact.pstrs.pStrings.size() << std::endl;
+    pgeom->pStrings = dddFact.pstrs.pStrings;
     pgeom->pStartNode = DDRootDef::instance().root().toString();
   }  catch (const DDException& de) { 
     std::cout << "ERROR: " << de.what() << std::endl;
