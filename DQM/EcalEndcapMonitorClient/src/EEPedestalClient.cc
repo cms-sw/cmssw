@@ -1,8 +1,8 @@
 /*
  * \file EEPedestalClient.cc
  *
- * $Date: 2007/10/24 18:17:44 $
- * $Revision: 1.32 $
+ * $Date: 2007/11/05 10:27:57 $
+ * $Revision: 1.33 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -1169,7 +1169,7 @@ void EEPedestalClient::analyze(void){
         float val;
 
         val = 1.;
-	//        if ( mean02 < pedestalThresholdPn_ )
+        //        if ( mean02 < pedestalThresholdPn_ )
          if ( mean02 < (expectedMeanPn_[1] - discrepancyMeanPn_[1])
               || (expectedMeanPn_[1] + discrepancyMeanPn_[1]) <  mean02)
            val = 0.;
@@ -1441,8 +1441,8 @@ void EEPedestalClient::htmlOutput(int run, string htmlDir, string htmlName){
   htmlFile << "<table border=1>" << std::endl;
   for ( unsigned int i=0; i<superModules_.size(); i ++ ) {
     htmlFile << "<td bgcolor=white><a href=""#"
-	     << Numbers::sEE(superModules_[i]).c_str() << ">"
-	     << setfill( '0' ) << setw(2) << superModules_[i] << "</a></td>";
+             << Numbers::sEE(superModules_[i]).c_str() << ">"
+             << setfill( '0' ) << setw(2) << superModules_[i] << "</a></td>";
   }
   htmlFile << std::endl << "</table>" << std::endl;
 
@@ -1875,39 +1875,39 @@ void EEPedestalClient::htmlOutput(int run, string htmlDir, string htmlName){
       obj1f = 0;
       switch ( iCanvas ) {
       case 1:
-	if ( mer04_[ism-1] ) obj1f =  UtilsClient::getHisto<TH1F*>(mer04_[ism-1]);
-	break;
+        if ( mer04_[ism-1] ) obj1f =  UtilsClient::getHisto<TH1F*>(mer04_[ism-1]);
+        break;
       case 2:
-	if ( mer05_[ism-1] ) obj1f =  UtilsClient::getHisto<TH1F*>(mer05_[ism-1]);
-	break;
+        if ( mer05_[ism-1] ) obj1f =  UtilsClient::getHisto<TH1F*>(mer05_[ism-1]);
+        break;
       default:
-	break;
+        break;
       }
       
       if ( obj1f ) {
-  	
-	meName = obj1f->GetName();
-  	
-	for ( unsigned int i = 0; i < meName.size(); i++ ) {
-	  if ( meName.substr(i, 1) == " " )  {
-	    meName.replace(i, 1 ,"_" );
-	  }
-	}
-	imgNameMEPnPedRms[iCanvas-1] = meName + ".png";
-	imgName = htmlDir + imgNameMEPnPedRms[iCanvas-1];
-  	
-	cPed->cd();
-	gStyle->SetOptStat("euomr");
-	obj1f->SetStats(kTRUE);
-	//        if ( obj1f->GetMaximum(histMax) > 0. ) {
-	//          gPad->SetLogy(1);
-	//        } else {
-	//          gPad->SetLogy(0);
-	//        }
-	obj1f->Draw();
-	cPed->Update();
-	cPed->SaveAs(imgName.c_str());
-	gPad->SetLogy(0);
+          
+        meName = obj1f->GetName();
+          
+        for ( unsigned int i = 0; i < meName.size(); i++ ) {
+          if ( meName.substr(i, 1) == " " )  {
+            meName.replace(i, 1 ,"_" );
+          }
+        }
+        imgNameMEPnPedRms[iCanvas-1] = meName + ".png";
+        imgName = htmlDir + imgNameMEPnPedRms[iCanvas-1];
+          
+        cPed->cd();
+        gStyle->SetOptStat("euomr");
+        obj1f->SetStats(kTRUE);
+        //        if ( obj1f->GetMaximum(histMax) > 0. ) {
+        //          gPad->SetLogy(1);
+        //        } else {
+        //          gPad->SetLogy(0);
+        //        }
+        obj1f->Draw();
+        cPed->Update();
+        cPed->SaveAs(imgName.c_str());
+        gPad->SetLogy(0);
       }
       
     }
@@ -1915,8 +1915,8 @@ void EEPedestalClient::htmlOutput(int run, string htmlDir, string htmlName){
     if( i>0 ) htmlFile << "<a href=""#top"">Top</a>" << std::endl;
     htmlFile << "<hr>" << std::endl;
     htmlFile << "<h3><a name="""
-	     << Numbers::sEE(ism).c_str() << """></a><strong>"
-	     << Numbers::sEE(ism).c_str() << "</strong></h3>" << endl;
+             << Numbers::sEE(ism).c_str() << """></a><strong>"
+             << Numbers::sEE(ism).c_str() << "</strong></h3>" << endl;
     htmlFile << "<table border=\"0\" cellspacing=\"0\" " << endl;
     htmlFile << "cellpadding=\"10\" align=\"center\"> " << endl;
     htmlFile << "<tr align=\"center\">" << endl;
@@ -2015,21 +2015,21 @@ void EEPedestalClient::htmlOutput(int run, string htmlDir, string htmlName){
       
       if ( imgNameMEPnPed[iCanvas-1].size() != 0 ){
         htmlFile << "<td colspan=\"2\"><img src=\"" << imgNameMEPnPed[iCanvas-1] << "\"></td>" << endl;
-	
-	if ( imgNameMEPnPedRms[iCanvas-1].size() != 0 )
-	  htmlFile << "<td colspan=\"2\"><img src=\"" << imgNameMEPnPedRms[iCanvas-1] << "\"></td>" << endl;
-	else
-	  htmlFile << "<td colspan=\"2\"><img src=\"" << " " << "\"></td>" << endl;
-	
+        
+        if ( imgNameMEPnPedRms[iCanvas-1].size() != 0 )
+          htmlFile << "<td colspan=\"2\"><img src=\"" << imgNameMEPnPedRms[iCanvas-1] << "\"></td>" << endl;
+        else
+          htmlFile << "<td colspan=\"2\"><img src=\"" << " " << "\"></td>" << endl;
+        
       }
       
       else{
-	htmlFile << "<td colspan=\"2\"><img src=\"" << " " << "\"></td>" << endl;
-	
-	if ( imgNameMEPnPedRms[iCanvas-1].size() != 0 )
-	  htmlFile << "<td colspan=\"2\"><img src=\"" << imgNameMEPnPedRms[iCanvas-1] << "\"></td>" << endl;
-	else
-	  htmlFile << "<td colspan=\"2\"><img src=\"" << " " << "\"></td>" << endl;
+        htmlFile << "<td colspan=\"2\"><img src=\"" << " " << "\"></td>" << endl;
+        
+        if ( imgNameMEPnPedRms[iCanvas-1].size() != 0 )
+          htmlFile << "<td colspan=\"2\"><img src=\"" << imgNameMEPnPedRms[iCanvas-1] << "\"></td>" << endl;
+        else
+          htmlFile << "<td colspan=\"2\"><img src=\"" << " " << "\"></td>" << endl;
       }
       
     }  

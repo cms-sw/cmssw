@@ -1,8 +1,8 @@
 /*
  * \file EBPedestalClient.cc
  *
- * $Date: 2007/10/24 18:17:37 $
- * $Revision: 1.157 $
+ * $Date: 2007/11/05 10:27:55 $
+ * $Revision: 1.158 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -1114,7 +1114,7 @@ void EBPedestalClient::analyze(void){
 
         val = 1.;
         if ( mean01 < (expectedMeanPn_[0] - discrepancyMeanPn_[0])
-	     || (expectedMeanPn_[0] + discrepancyMeanPn_[0]) <  mean01)
+             || (expectedMeanPn_[0] + discrepancyMeanPn_[0]) <  mean01)
           val = 0.;
         if ( rms01 >  RMSThresholdPn_[0])
           val = 0.;
@@ -1128,7 +1128,7 @@ void EBPedestalClient::analyze(void){
 
         val = 1.;
         if ( mean02 < (expectedMeanPn_[1] - discrepancyMeanPn_[1])
-	     || (expectedMeanPn_[1] + discrepancyMeanPn_[1]) <  mean02)
+             || (expectedMeanPn_[1] + discrepancyMeanPn_[1]) <  mean02)
           val = 0.;
         if ( rms02 >  RMSThresholdPn_[1])
           val = 0.;
@@ -1392,8 +1392,8 @@ void EBPedestalClient::htmlOutput(int run, string htmlDir, string htmlName){
   htmlFile << "<table border=1>" << std::endl;
   for ( unsigned int i=0; i<superModules_.size(); i ++ ) {
     htmlFile << "<td bgcolor=white><a href=""#"
-	     << Numbers::sEB(superModules_[i]).c_str() << ">"
-	     << setfill( '0' ) << setw(2) << superModules_[i] << "</a></td>";
+             << Numbers::sEB(superModules_[i]).c_str() << ">"
+             << setfill( '0' ) << setw(2) << superModules_[i] << "</a></td>";
   }
   htmlFile << std::endl << "</table>" << std::endl;
 
@@ -1822,8 +1822,8 @@ void EBPedestalClient::htmlOutput(int run, string htmlDir, string htmlName){
     if( i>0 ) htmlFile << "<a href=""#top"">Top</a>" << std::endl;
     htmlFile << "<hr>" << std::endl;
     htmlFile << "<h3><a name="""
-	     << Numbers::sEB(ism).c_str() << """></a><strong>"
-	     << Numbers::sEB(ism).c_str() << "</strong></h3>" << endl;
+             << Numbers::sEB(ism).c_str() << """></a><strong>"
+             << Numbers::sEB(ism).c_str() << "</strong></h3>" << endl;
     htmlFile << "<table border=\"0\" cellspacing=\"0\" " << endl;
     htmlFile << "cellpadding=\"10\" align=\"center\"> " << endl;
     htmlFile << "<tr align=\"center\">" << endl;

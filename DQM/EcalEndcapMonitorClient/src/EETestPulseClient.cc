@@ -1,8 +1,8 @@
 /*
  * \file EETestPulseClient.cc
  *
- * $Date: 2007/10/18 09:43:53 $
- * $Revision: 1.34 $
+ * $Date: 2007/10/24 18:17:44 $
+ * $Revision: 1.35 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -655,10 +655,10 @@ bool EETestPulseClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
       float mean01, mean02, mean03, mean04;
       float rms01, rms02, rms03, rms04;
 
-      update01 = UtilsClient::getBinStats(i01_[ism-1], 1, i, num01, mean01, rms01);
-      update02 = UtilsClient::getBinStats(i02_[ism-1], 1, i, num02, mean02, rms02);
-      update03 = UtilsClient::getBinStats(i03_[ism-1], 1, i, num03, mean03, rms03);
-      update04 = UtilsClient::getBinStats(i04_[ism-1], 1, i, num04, mean04, rms04);
+      update01 = UtilsClient::getBinStats(i01_[ism-1], i, 1, num01, mean01, rms01);
+      update02 = UtilsClient::getBinStats(i02_[ism-1], i, 1, num02, mean02, rms02);
+      update03 = UtilsClient::getBinStats(i03_[ism-1], i, 1, num03, mean03, rms03);
+      update04 = UtilsClient::getBinStats(i04_[ism-1], i, 1, num04, mean04, rms04);
 
       if ( update01 || update02 || update03 || update04 ) {
 
@@ -1037,7 +1037,7 @@ void EETestPulseClient::analyze(void){
 
     for ( int ix = 1; ix <= 50; ix++ ) {
       for ( int iy = 1; iy <= 50; iy++ ) {
-	
+        
         if ( meg01_[ism-1] ) meg01_[ism-1]->setBinContent( ix, iy, -1. );
         if ( meg02_[ism-1] ) meg02_[ism-1]->setBinContent( ix, iy, -1. );
         if ( meg03_[ism-1] ) meg03_[ism-1]->setBinContent( ix, iy, -1. );
@@ -1209,18 +1209,18 @@ void EETestPulseClient::analyze(void){
       float mean01, mean02, mean03, mean04;
       float rms01, rms02, rms03, rms04;
 
-      update01 = UtilsClient::getBinStats(i01_[ism-1], 1, i, num01, mean01, rms01);
-      update02 = UtilsClient::getBinStats(i02_[ism-1], 1, i, num02, mean02, rms02);
-      update03 = UtilsClient::getBinStats(i03_[ism-1], 1, i, num03, mean03, rms03);
-      update04 = UtilsClient::getBinStats(i04_[ism-1], 1, i, num04, mean04, rms04);
+      update01 = UtilsClient::getBinStats(i01_[ism-1], i, 1, num01, mean01, rms01);
+      update02 = UtilsClient::getBinStats(i02_[ism-1], i, 1, num02, mean02, rms02);
+      update03 = UtilsClient::getBinStats(i03_[ism-1], i, 1, num03, mean03, rms03);
+      update04 = UtilsClient::getBinStats(i04_[ism-1], i, 1, num04, mean04, rms04);
       
       if ( mer04_[ism-1] ) mer04_[ism-1]->Fill(rms03);
       if ( mer05_[ism-1] ) mer05_[ism-1]->Fill(rms04);
       
       if ( update01 && update03 ) {
-	
+        
         float val;
-	
+        
         val = 1.;
         if ( mean01 < amplitudeThresholdPnG01_ )
           val = 0.;
@@ -1230,7 +1230,7 @@ void EETestPulseClient::analyze(void){
         if ( rms03 > pedPnRMSThreshold_[0] )
           val = 0.;
         if ( meg04_[ism-1] ) meg04_[ism-1]->setBinContent(i, 1, val);
-	
+        
       }
       
       if ( update02 && update04 ) {
@@ -1372,8 +1372,8 @@ void EETestPulseClient::htmlOutput(int run, string htmlDir, string htmlName){
   htmlFile << "<table border=1>" << std::endl;
   for ( unsigned int i=0; i<superModules_.size(); i ++ ) {
     htmlFile << "<td bgcolor=white><a href=""#"
-	     << Numbers::sEE(superModules_[i]).c_str() << ">"
-	     << setfill( '0' ) << setw(2) << superModules_[i] << "</a></td>";
+             << Numbers::sEE(superModules_[i]).c_str() << ">"
+             << setfill( '0' ) << setw(2) << superModules_[i] << "</a></td>";
   }
   htmlFile << std::endl << "</table>" << std::endl;
 
@@ -1719,7 +1719,7 @@ void EETestPulseClient::htmlOutput(int run, string htmlDir, string htmlName){
         gPad->SetLogy(0);
 
         delete obj1d;
-	
+        
       }
       
       imgNameMEPnPedRms[iCanvas-1] = "";
@@ -1727,41 +1727,41 @@ void EETestPulseClient::htmlOutput(int run, string htmlDir, string htmlName){
       obj1f = 0;
       switch ( iCanvas ) {
       case 1:
-	if ( mer04_[ism-1] ) obj1f =  UtilsClient::getHisto<TH1F*>(mer04_[ism-1]);
-	break;
+        if ( mer04_[ism-1] ) obj1f =  UtilsClient::getHisto<TH1F*>(mer04_[ism-1]);
+        break;
       case 2:
-	if ( mer05_[ism-1] ) obj1f =  UtilsClient::getHisto<TH1F*>(mer05_[ism-1]);
-	break;
+        if ( mer05_[ism-1] ) obj1f =  UtilsClient::getHisto<TH1F*>(mer05_[ism-1]);
+        break;
       default:
-	break;
+        break;
       }
       
       if ( obj1f ) {
-  	
-	meName = obj1f->GetName();
-  	
-	for ( unsigned int i = 0; i < meName.size(); i++ ) {
-	  if ( meName.substr(i, 1) == " " )  {
-	    meName.replace(i, 1 ,"_" );
-	  }
-	}
-	imgNameMEPnPedRms[iCanvas-1] = meName + ".png";
-	imgName = htmlDir + imgNameMEPnPedRms[iCanvas-1];
-  	
-	cPed->cd();
-	gStyle->SetOptStat("euo");
-	obj1f->SetStats(kTRUE);
-	//        if ( obj1f->GetMaximum(histMax) > 0. ) {
-	//          gPad->SetLogy(1);
-	//        } else {
-	//          gPad->SetLogy(0);
-	//        }
-	obj1f->SetMinimum(0.0);
-	obj1f->Draw();
-	cPed->Update();
-	cPed->SaveAs(imgName.c_str());
-	gPad->SetLogy(0);
-	
+          
+        meName = obj1f->GetName();
+          
+        for ( unsigned int i = 0; i < meName.size(); i++ ) {
+          if ( meName.substr(i, 1) == " " )  {
+            meName.replace(i, 1 ,"_" );
+          }
+        }
+        imgNameMEPnPedRms[iCanvas-1] = meName + ".png";
+        imgName = htmlDir + imgNameMEPnPedRms[iCanvas-1];
+          
+        cPed->cd();
+        gStyle->SetOptStat("euo");
+        obj1f->SetStats(kTRUE);
+        //        if ( obj1f->GetMaximum(histMax) > 0. ) {
+        //          gPad->SetLogy(1);
+        //        } else {
+        //          gPad->SetLogy(0);
+        //        }
+        obj1f->SetMinimum(0.0);
+        obj1f->Draw();
+        cPed->Update();
+        cPed->SaveAs(imgName.c_str());
+        gPad->SetLogy(0);
+        
       }
 
     }
@@ -1769,8 +1769,8 @@ void EETestPulseClient::htmlOutput(int run, string htmlDir, string htmlName){
     if( i>0 ) htmlFile << "<a href=""#top"">Top</a>" << std::endl;
     htmlFile << "<hr>" << std::endl;
     htmlFile << "<h3><a name="""
-	     << Numbers::sEE(ism).c_str() << """></a><strong>"
-	     << Numbers::sEE(ism).c_str() << "</strong></h3>" << endl;
+             << Numbers::sEE(ism).c_str() << """></a><strong>"
+             << Numbers::sEE(ism).c_str() << "</strong></h3>" << endl;
     htmlFile << "<table border=\"0\" cellspacing=\"0\" " << endl;
     htmlFile << "cellpadding=\"10\" align=\"center\"> " << endl;
     htmlFile << "<tr align=\"center\">" << endl;

@@ -1,8 +1,8 @@
 /*
  * \file EELaserClient.cc
  *
- * $Date: 2007/10/24 18:17:42 $
- * $Revision: 1.40 $
+ * $Date: 2007/11/05 10:27:56 $
+ * $Revision: 1.41 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -374,25 +374,25 @@ void EELaserClient::beginJob(MonitorUserInterface* mui){
       qth11_[ism-1]->setMeanRange(amplitudeThresholdPnG01_, 4096.0);
       qth12_[ism-1]->setMeanRange(amplitudeThresholdPnG01_, 4096.0);
       qth13_[ism-1]->setMeanRange(pedPnExpectedMean_[0] - pedPnDiscrepancyMean_[0],
-				  pedPnExpectedMean_[0] + pedPnDiscrepancyMean_[0]);
+        			  pedPnExpectedMean_[0] + pedPnDiscrepancyMean_[0]);
       qth14_[ism-1]->setMeanRange(pedPnExpectedMean_[0] - pedPnDiscrepancyMean_[0],
-				  pedPnExpectedMean_[0] + pedPnDiscrepancyMean_[0]);
+        			  pedPnExpectedMean_[0] + pedPnDiscrepancyMean_[0]);
       qth15_[ism-1]->setMeanRange(pedPnExpectedMean_[0] - pedPnDiscrepancyMean_[0],
-				  pedPnExpectedMean_[0] + pedPnDiscrepancyMean_[0]);
+        			  pedPnExpectedMean_[0] + pedPnDiscrepancyMean_[0]);
       qth16_[ism-1]->setMeanRange(pedPnExpectedMean_[0] - pedPnDiscrepancyMean_[0],
-				  pedPnExpectedMean_[0] + pedPnDiscrepancyMean_[0]);
+        			  pedPnExpectedMean_[0] + pedPnDiscrepancyMean_[0]);
       qth17_[ism-1]->setMeanRange(amplitudeThresholdPnG16_, 4096.0);
       qth18_[ism-1]->setMeanRange(amplitudeThresholdPnG16_, 4096.0);
       qth19_[ism-1]->setMeanRange(amplitudeThresholdPnG16_, 4096.0);
       qth20_[ism-1]->setMeanRange(amplitudeThresholdPnG16_, 4096.0);
       qth21_[ism-1]->setMeanRange(pedPnExpectedMean_[1] - pedPnDiscrepancyMean_[1],
-				  pedPnExpectedMean_[1] + pedPnDiscrepancyMean_[1]);
+        			  pedPnExpectedMean_[1] + pedPnDiscrepancyMean_[1]);
       qth22_[ism-1]->setMeanRange(pedPnExpectedMean_[1] - pedPnDiscrepancyMean_[1],
-				  pedPnExpectedMean_[1] + pedPnDiscrepancyMean_[1]);
+        			  pedPnExpectedMean_[1] + pedPnDiscrepancyMean_[1]);
       qth23_[ism-1]->setMeanRange(pedPnExpectedMean_[1] - pedPnDiscrepancyMean_[1],
-				  pedPnExpectedMean_[1] + pedPnDiscrepancyMean_[1]);
+        			  pedPnExpectedMean_[1] + pedPnDiscrepancyMean_[1]);
       qth24_[ism-1]->setMeanRange(pedPnExpectedMean_[1] - pedPnDiscrepancyMean_[1],
-				  pedPnExpectedMean_[1] + pedPnDiscrepancyMean_[1]);
+        			  pedPnExpectedMean_[1] + pedPnDiscrepancyMean_[1]);
       qth01_[ism-1]->setMeanTolerance(percentVariation_);
       qth02_[ism-1]->setMeanTolerance(percentVariation_);
       qth03_[ism-1]->setMeanTolerance(percentVariation_);
@@ -2812,9 +2812,9 @@ void EELaserClient::analyze(void){
         update10 = UtilsClient::getBinStats(h10_[ism-1], ix, iy, num10, mean10, rms10);
         update11 = UtilsClient::getBinStats(h11_[ism-1], ix, iy, num11, mean11, rms11);
         update12 = UtilsClient::getBinStats(h12_[ism-1], ix, iy, num12, mean12, rms12);
-	
+        
          // other SM half
-	
+        
         update13 = UtilsClient::getBinStats(h13_[ism-1], ix, iy, num13, mean13, rms13);
         update14 = UtilsClient::getBinStats(h14_[ism-1], ix, iy, num14, mean14, rms14);
         update15 = UtilsClient::getBinStats(h15_[ism-1], ix, iy, num15, mean15, rms15);
@@ -3422,7 +3422,7 @@ void EELaserClient::analyze(void){
         if ( mean01 < amplitudeThresholdPnG01_ )
           val = 0.;
         if ( mean05 <  pedPnExpectedMean_[0] - pedPnDiscrepancyMean_[0] ||
-	     pedPnExpectedMean_[0] + pedPnDiscrepancyMean_[0] < mean05)
+             pedPnExpectedMean_[0] + pedPnDiscrepancyMean_[0] < mean05)
           val = 0.;
         if ( rms05 > pedPnRMSThreshold_[0] )
           val = 0.;
@@ -3440,7 +3440,7 @@ void EELaserClient::analyze(void){
         if ( mean02 < amplitudeThresholdPnG01_ )
           val = 0.;
         if ( mean06 <  pedPnExpectedMean_[0] - pedPnDiscrepancyMean_[0] ||
-	     pedPnExpectedMean_[0] + pedPnDiscrepancyMean_[0] < mean06)
+             pedPnExpectedMean_[0] + pedPnDiscrepancyMean_[0] < mean06)
           val = 0.;
         if ( rms06 > pedPnRMSThreshold_[0] )
           val = 0.;
@@ -3458,7 +3458,7 @@ void EELaserClient::analyze(void){
         if ( mean03 < amplitudeThresholdPnG01_ )
           val = 0.;
       if ( mean07 <  pedPnExpectedMean_[0] - pedPnDiscrepancyMean_[0] ||
-	   pedPnExpectedMean_[0] + pedPnDiscrepancyMean_[0] < mean07)
+           pedPnExpectedMean_[0] + pedPnDiscrepancyMean_[0] < mean07)
           val = 0.;
       if ( rms07 > pedPnRMSThreshold_[0] )
           val = 0.;
@@ -3476,7 +3476,7 @@ void EELaserClient::analyze(void){
         if ( mean04 < amplitudeThresholdPnG01_ )
           val = 0.;
        if ( mean08 <  pedPnExpectedMean_[0] - pedPnDiscrepancyMean_[0] ||
-	    pedPnExpectedMean_[0] + pedPnDiscrepancyMean_[0] < mean08)
+            pedPnExpectedMean_[0] + pedPnDiscrepancyMean_[0] < mean08)
            val = 0.;
        if ( rms08 > pedPnRMSThreshold_[0] )
            val = 0.;
@@ -3494,11 +3494,11 @@ void EELaserClient::analyze(void){
         if ( mean09 < amplitudeThresholdPnG16_ )
           val = 0.;
         if ( mean13 <  pedPnExpectedMean_[1] - pedPnDiscrepancyMean_[1] ||
-	     pedPnExpectedMean_[1] + pedPnDiscrepancyMean_[1] < mean13)
+             pedPnExpectedMean_[1] + pedPnDiscrepancyMean_[1] < mean13)
           val = 0.;
         if ( rms13 > pedPnRMSThreshold_[1] )
           val = 0.;
-	
+        
         if ( meg09_[ism-1] )           meg09_[ism-1]->setBinContent(i, 1, val);
         if ( mepnprms05_[ism-1] ) mepnprms05_[ism-1]->Fill(rms13);
 
@@ -3511,9 +3511,9 @@ void EELaserClient::analyze(void){
         val = 1.;
         if ( mean10 < amplitudeThresholdPnG16_ )
           val = 0.;
-	//        if ( mean14 < pedestalThresholdPn_ )
+        //        if ( mean14 < pedestalThresholdPn_ )
        if ( mean14 <  pedPnExpectedMean_[1] - pedPnDiscrepancyMean_[1] ||
-	    pedPnExpectedMean_[1] + pedPnDiscrepancyMean_[1] < mean14)
+            pedPnExpectedMean_[1] + pedPnDiscrepancyMean_[1] < mean14)
            val = 0.;
        if ( rms14 > pedPnRMSThreshold_[1] )
           val = 0.;
@@ -3530,9 +3530,9 @@ void EELaserClient::analyze(void){
         val = 1.;
         if ( mean11 < amplitudeThresholdPnG16_ )
           val = 0.;
-	//        if ( mean15 < pedestalThresholdPn_ )
+        //        if ( mean15 < pedestalThresholdPn_ )
         if ( mean15 <  pedPnExpectedMean_[1] - pedPnDiscrepancyMean_[1] ||
-	     pedPnExpectedMean_[1] + pedPnDiscrepancyMean_[1] < mean15)
+             pedPnExpectedMean_[1] + pedPnDiscrepancyMean_[1] < mean15)
           val = 0.;
         if ( rms15 > pedPnRMSThreshold_[1] )
           val = 0.;
@@ -3549,9 +3549,9 @@ void EELaserClient::analyze(void){
         val = 1.;
         if ( mean12 < amplitudeThresholdPnG16_ )
           val = 0.;
-	//        if ( mean16 < pedestalThresholdPn_ )
+        //        if ( mean16 < pedestalThresholdPn_ )
         if ( mean16 <  pedPnExpectedMean_[1] - pedPnDiscrepancyMean_[1] ||
-  	              pedPnExpectedMean_[1] + pedPnDiscrepancyMean_[1] < mean16)
+                        pedPnExpectedMean_[1] + pedPnDiscrepancyMean_[1] < mean16)
           val = 0.;
         if ( rms16 > pedPnRMSThreshold_[1] )
           val = 0.;
@@ -3750,7 +3750,7 @@ void EELaserClient::htmlOutput(int run, string htmlDir, string htmlName){
   htmlFile << "<table border=1>" << std::endl;
   for ( unsigned int i=0; i<superModules_.size(); i ++ ) {
     htmlFile << "<td bgcolor=white><a href=""#"
-	     << Numbers::sEE(superModules_[i]).c_str() << ">"
+             << Numbers::sEE(superModules_[i]).c_str() << ">"
              << setfill( '0' ) << setw(2) << superModules_[i] << "</a></td>";
   }
   htmlFile << std::endl << "</table>" << std::endl;
@@ -4534,52 +4534,52 @@ void EELaserClient::htmlOutput(int run, string htmlDir, string htmlName){
       obj1f = 0;
       switch ( iCanvas ) {
       case 1:
-	if ( mepnprms01_[ism-1] ) obj1f =  UtilsClient::getHisto<TH1F*>(mepnprms01_[ism-1]);
-	break;
+        if ( mepnprms01_[ism-1] ) obj1f =  UtilsClient::getHisto<TH1F*>(mepnprms01_[ism-1]);
+        break;
       case 2:
-	if ( mepnprms02_[ism-1] ) obj1f =  UtilsClient::getHisto<TH1F*>(mepnprms02_[ism-1]);
-	break;
+        if ( mepnprms02_[ism-1] ) obj1f =  UtilsClient::getHisto<TH1F*>(mepnprms02_[ism-1]);
+        break;
       case 3:
-	if ( mepnprms03_[ism-1] ) obj1f =  UtilsClient::getHisto<TH1F*>(mepnprms03_[ism-1]);
-	break;
+        if ( mepnprms03_[ism-1] ) obj1f =  UtilsClient::getHisto<TH1F*>(mepnprms03_[ism-1]);
+        break;
       case 4:
-	if ( mepnprms04_[ism-1] ) obj1f =  UtilsClient::getHisto<TH1F*>(mepnprms04_[ism-1]);
-	break;
+        if ( mepnprms04_[ism-1] ) obj1f =  UtilsClient::getHisto<TH1F*>(mepnprms04_[ism-1]);
+        break;
       case 5:
       case 6:
       case 7:
       case 8:
-	obj2f = 0;
-	break;
+        obj2f = 0;
+        break;
       default:
-	break;
+        break;
       }
       
       if ( obj1f ) {
-  	
-	meName = obj1f->GetName();
-  	
-	for ( unsigned int i = 0; i < meName.size(); i++ ) {
-	  if ( meName.substr(i, 1) == " " )  {
-	    meName.replace(i, 1 ,"_" );
-	  }
-	}
-	imgNameMEPnRmsPedG01[iCanvas-1] = meName + ".png";
-	imgName = htmlDir + imgNameMEPnRmsPedG01[iCanvas-1];
-  	
-	cPed->cd();
-	gStyle->SetOptStat("euomr");
-	obj1f->SetStats(kTRUE);
+          
+        meName = obj1f->GetName();
+          
+        for ( unsigned int i = 0; i < meName.size(); i++ ) {
+          if ( meName.substr(i, 1) == " " )  {
+            meName.replace(i, 1 ,"_" );
+          }
+        }
+        imgNameMEPnRmsPedG01[iCanvas-1] = meName + ".png";
+        imgName = htmlDir + imgNameMEPnRmsPedG01[iCanvas-1];
+          
+        cPed->cd();
+        gStyle->SetOptStat("euomr");
+        obj1f->SetStats(kTRUE);
 //        if ( obj1f->GetMaximum(histMax) > 0. ) {
 //          gPad->SetLogy(1);
 //        } else {
 //          gPad->SetLogy(0);
 //        }
-	obj1f->SetMinimum(0.0);
-	obj1f->Draw();
-	cPed->Update();
-	cPed->SaveAs(imgName.c_str());
-	gPad->SetLogy(0);
+        obj1f->SetMinimum(0.0);
+        obj1f->Draw();
+        cPed->Update();
+        cPed->SaveAs(imgName.c_str());
+        gPad->SetLogy(0);
 
       }
       
@@ -4589,53 +4589,53 @@ void EELaserClient::htmlOutput(int run, string htmlDir, string htmlName){
       obj1f = 0;
       switch ( iCanvas ) {
       case 1:
-	if ( mepnprms05_[ism-1] ) obj1f =  UtilsClient::getHisto<TH1F*>(mepnprms05_[ism-1]);
-	break;
+        if ( mepnprms05_[ism-1] ) obj1f =  UtilsClient::getHisto<TH1F*>(mepnprms05_[ism-1]);
+        break;
       case 2:
-	if ( mepnprms06_[ism-1] ) obj1f =  UtilsClient::getHisto<TH1F*>(mepnprms06_[ism-1]);
-	break;
+        if ( mepnprms06_[ism-1] ) obj1f =  UtilsClient::getHisto<TH1F*>(mepnprms06_[ism-1]);
+        break;
       case 3:
-	if ( mepnprms07_[ism-1] ) obj1f =  UtilsClient::getHisto<TH1F*>(mepnprms07_[ism-1]);
-	break;
+        if ( mepnprms07_[ism-1] ) obj1f =  UtilsClient::getHisto<TH1F*>(mepnprms07_[ism-1]);
+        break;
       case 4:
-	if ( mepnprms08_[ism-1] ) obj1f =  UtilsClient::getHisto<TH1F*>(mepnprms08_[ism-1]);
-	break;
+        if ( mepnprms08_[ism-1] ) obj1f =  UtilsClient::getHisto<TH1F*>(mepnprms08_[ism-1]);
+        break;
       case 5:
       case 6:
       case 7:
       case 8:
-	obj2f = 0;
-	break;
+        obj2f = 0;
+        break;
       default:
-	break;
+        break;
       }
       
       if ( obj1f ) {
-  	
-	meName = obj1f->GetName();
-  	
-	for ( unsigned int i = 0; i < meName.size(); i++ ) {
-	  if ( meName.substr(i, 1) == " " )  {
-	    meName.replace(i, 1 ,"_" );
-	  }
-	}
-	imgNameMEPnRmsPedG16[iCanvas-1] = meName + ".png";
-	imgName = htmlDir + imgNameMEPnRmsPedG16[iCanvas-1];
-  	
-	cPed->cd();
-	gStyle->SetOptStat("euomr");
-	obj1f->SetStats(kTRUE);
+          
+        meName = obj1f->GetName();
+          
+        for ( unsigned int i = 0; i < meName.size(); i++ ) {
+          if ( meName.substr(i, 1) == " " )  {
+            meName.replace(i, 1 ,"_" );
+          }
+        }
+        imgNameMEPnRmsPedG16[iCanvas-1] = meName + ".png";
+        imgName = htmlDir + imgNameMEPnRmsPedG16[iCanvas-1];
+          
+        cPed->cd();
+        gStyle->SetOptStat("euomr");
+        obj1f->SetStats(kTRUE);
 //        if ( obj1f->GetMaximum(histMax) > 0. ) {
 //          gPad->SetLogy(1);
 //        } else {
 //          gPad->SetLogy(0);
 //        }
-	obj1f->SetMinimum(0.0);
-	obj1f->Draw();
-	cPed->Update();
-	cPed->SaveAs(imgName.c_str());
-	gPad->SetLogy(0);
-  	
+        obj1f->SetMinimum(0.0);
+        obj1f->Draw();
+        cPed->Update();
+        cPed->SaveAs(imgName.c_str());
+        gPad->SetLogy(0);
+          
       }
       
       imgNameMEPnPedG16[iCanvas-1] = "";
@@ -4643,31 +4643,31 @@ void EELaserClient::htmlOutput(int run, string htmlDir, string htmlName){
       obj1d = 0;
       switch ( iCanvas ) {
       case 1:
-	if ( i13_[ism-1] ) obj1d = i13_[ism-1]->ProjectionX("_px", 1, 1, "e");
-	break;
+        if ( i13_[ism-1] ) obj1d = i13_[ism-1]->ProjectionX("_px", 1, 1, "e");
+        break;
       case 2:
-	if ( i14_[ism-1] ) obj1d = i14_[ism-1]->ProjectionX("_px", 1, 1, "e");
-	break;
+        if ( i14_[ism-1] ) obj1d = i14_[ism-1]->ProjectionX("_px", 1, 1, "e");
+        break;
       case 3:
-	if ( i15_[ism-1] ) obj1d = i15_[ism-1]->ProjectionX("_px", 1, 1, "e");
-	break;
+        if ( i15_[ism-1] ) obj1d = i15_[ism-1]->ProjectionX("_px", 1, 1, "e");
+        break;
       case 4:
-	if ( i16_[ism-1] ) obj1d = i16_[ism-1]->ProjectionX("_px", 1, 1, "e");
-	break;
+        if ( i16_[ism-1] ) obj1d = i16_[ism-1]->ProjectionX("_px", 1, 1, "e");
+        break;
       case 5:
       case 6:
       case 7:
       case 8:
-	obj2f = 0;
-	break;
+        obj2f = 0;
+        break;
       default:
-	break;
+        break;
       }
       
       if ( obj1d ) {
-	
+        
         meName = obj1d->GetName();
-	
+        
         for ( unsigned int i = 0; i < meName.size(); i++ ) {
           if ( meName.substr(i, 1) == " " )  {
             meName.replace(i, 1 ,"_" );
@@ -4675,7 +4675,7 @@ void EELaserClient::htmlOutput(int run, string htmlDir, string htmlName){
         }
         imgNameMEPnPedG16[iCanvas-1] = meName + ".png";
         imgName = htmlDir + imgNameMEPnPedG16[iCanvas-1];
-	
+        
         cPed->cd();
         gStyle->SetOptStat("euo");
         obj1d->SetStats(kTRUE);
@@ -4689,9 +4689,9 @@ void EELaserClient::htmlOutput(int run, string htmlDir, string htmlName){
         cPed->Update();
         cPed->SaveAs(imgName.c_str());
         gPad->SetLogy(0);
-	
+        
         delete obj1d;
-	
+        
       }
       
     }
@@ -4699,7 +4699,7 @@ void EELaserClient::htmlOutput(int run, string htmlDir, string htmlName){
     if( i>0 ) htmlFile << "<a href=""#top"">Top</a>" << std::endl;
     htmlFile << "<hr>" << std::endl;
     htmlFile << "<h3><a name="""
-	     << Numbers::sEE(ism).c_str() << """></a><strong>"
+             << Numbers::sEE(ism).c_str() << """></a><strong>"
              << Numbers::sEE(ism).c_str() << "</strong></h3>" << endl;
     htmlFile << "<table border=\"0\" cellspacing=\"0\" " << endl;
     htmlFile << "cellpadding=\"10\" align=\"center\"> " << endl;

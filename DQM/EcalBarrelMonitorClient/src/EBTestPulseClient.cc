@@ -1,8 +1,8 @@
 /*
  * \file EBTestPulseClient.cc
  *
- * $Date: 2007/10/24 18:17:37 $
- * $Revision: 1.159 $
+ * $Date: 2007/11/05 10:27:55 $
+ * $Revision: 1.160 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -1177,7 +1177,7 @@ void EBTestPulseClient::analyze(void){
         if ( mean01 < amplitudeThresholdPnG01_ )
           val = 0.;
         if ( mean03 <  pedPnExpectedMean_[0] - pedPnDiscrepancyMean_[0] ||
-	     pedPnExpectedMean_[0] + pedPnDiscrepancyMean_[0] < mean03)
+             pedPnExpectedMean_[0] + pedPnDiscrepancyMean_[0] < mean03)
           val = 0.;
         if ( rms03 > pedPnRMSThreshold_[0] )
           val = 0.;
@@ -1193,7 +1193,7 @@ void EBTestPulseClient::analyze(void){
         if ( mean02 < amplitudeThresholdPnG16_ )
           val = 0.;
         if ( mean04 <  pedPnExpectedMean_[1] - pedPnDiscrepancyMean_[1] ||
-	     pedPnExpectedMean_[1] + pedPnDiscrepancyMean_[1] < mean04)
+             pedPnExpectedMean_[1] + pedPnDiscrepancyMean_[1] < mean04)
           val = 0.;
         if ( rms04 > pedPnRMSThreshold_[1] )
           val = 0.;
@@ -1324,8 +1324,8 @@ void EBTestPulseClient::htmlOutput(int run, string htmlDir, string htmlName){
   htmlFile << "<table border=1>" << std::endl;
   for ( unsigned int i=0; i<superModules_.size(); i ++ ) {
     htmlFile << "<td bgcolor=white><a href=""#"
-	     << Numbers::sEB(superModules_[i]).c_str() << ">"
-	     << setfill( '0' ) << setw(2) << superModules_[i] << "</a></td>";
+             << Numbers::sEB(superModules_[i]).c_str() << ">"
+             << setfill( '0' ) << setw(2) << superModules_[i] << "</a></td>";
   }
   htmlFile << std::endl << "</table>" << std::endl;
 
@@ -1707,8 +1707,8 @@ void EBTestPulseClient::htmlOutput(int run, string htmlDir, string htmlName){
     if( i>0 ) htmlFile << "<a href=""#top"">Top</a>" << std::endl;
     htmlFile << "<hr>" << std::endl;
     htmlFile << "<h3><a name="""
-	     << Numbers::sEB(ism).c_str() << """></a><strong>"
-	     << Numbers::sEB(ism).c_str() << "</strong></h3>" << endl;
+             << Numbers::sEB(ism).c_str() << """></a><strong>"
+             << Numbers::sEB(ism).c_str() << "</strong></h3>" << endl;
     htmlFile << "<table border=\"0\" cellspacing=\"0\" " << endl;
     htmlFile << "cellpadding=\"10\" align=\"center\"> " << endl;
     htmlFile << "<tr align=\"center\">" << endl;
@@ -1775,9 +1775,9 @@ void EBTestPulseClient::htmlOutput(int run, string htmlDir, string htmlName){
         htmlFile << "<td colspan=\"2\"><img src=\"" << " " << "\"></td>" << endl;
 
       if ( imgNameMEPnPedRms[iCanvas-1].size() != 0 )
-	htmlFile << "<td colspan=\"2\"><img src=\"" << imgNameMEPnPedRms[iCanvas-1] << "\"></td>" << endl;
+        htmlFile << "<td colspan=\"2\"><img src=\"" << imgNameMEPnPedRms[iCanvas-1] << "\"></td>" << endl;
       else
-	htmlFile << "<td colspan=\"2\"><img src=\"" << " " << "\"></td>" << endl;
+        htmlFile << "<td colspan=\"2\"><img src=\"" << " " << "\"></td>" << endl;
 
       if ( imgNameMEPn[iCanvas-1].size() != 0 )
         htmlFile << "<td colspan=\"2\"><img src=\"" << imgNameMEPn[iCanvas-1] << "\"></td>" << endl;

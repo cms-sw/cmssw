@@ -1,8 +1,8 @@
 /*
  * \file EELedClient.cc
  *
- * $Date: 2007/10/24 18:17:43 $
- * $Revision: 1.23 $
+ * $Date: 2007/11/05 10:27:57 $
+ * $Revision: 1.24 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -213,12 +213,12 @@ void EELedClient::beginJob(MonitorUserInterface* mui){
       qth09_[ism-1]->setMeanRange(amplitudeThresholdPnG01_, 4096.0);
 
       qth13_[ism-1]->setMeanRange(pedPnExpectedMean_[0] - pedPnDiscrepancyMean_[0],
-				  pedPnExpectedMean_[0] + pedPnDiscrepancyMean_[0]);
+        			  pedPnExpectedMean_[0] + pedPnDiscrepancyMean_[0]);
 
       qth17_[ism-1]->setMeanRange(amplitudeThresholdPnG16_, 4096.0);
 
       qth21_[ism-1]->setMeanRange(pedPnExpectedMean_[1] - pedPnDiscrepancyMean_[1],
-				  pedPnExpectedMean_[1] + pedPnDiscrepancyMean_[1]);
+        			  pedPnExpectedMean_[1] + pedPnDiscrepancyMean_[1]);
 
       qth01_[ism-1]->setMeanTolerance(percentVariation_);
 
@@ -1408,7 +1408,7 @@ void EELedClient::analyze(void){
         if ( mean01 < amplitudeThresholdPnG01_ )
           val = 0.;
         if ( mean05 <  pedPnExpectedMean_[0] - pedPnDiscrepancyMean_[0] ||
-	     pedPnExpectedMean_[0] + pedPnDiscrepancyMean_[0] < mean05)
+             pedPnExpectedMean_[0] + pedPnDiscrepancyMean_[0] < mean05)
           val = 0.;
         if ( rms05 > pedPnRMSThreshold_[0] )
           val = 0.;
@@ -1426,11 +1426,11 @@ void EELedClient::analyze(void){
         if ( mean09 < amplitudeThresholdPnG16_ )
           val = 0.;
         if ( mean13 <  pedPnExpectedMean_[1] - pedPnDiscrepancyMean_[1] ||
-	     pedPnExpectedMean_[1] + pedPnDiscrepancyMean_[1] < mean13)
+             pedPnExpectedMean_[1] + pedPnDiscrepancyMean_[1] < mean13)
           val = 0.;
         if ( rms13 > pedPnRMSThreshold_[1] )
           val = 0.;
-	
+        
         if ( meg09_[ism-1] )           meg09_[ism-1]->setBinContent(i, 1, val);
         if ( mepnprms05_[ism-1] ) mepnprms05_[ism-1]->Fill(rms13);
 
@@ -1544,7 +1544,7 @@ void EELedClient::htmlOutput(int run, string htmlDir, string htmlName){
   htmlFile << "<table border=1>" << std::endl;
   for ( unsigned int i=0; i<superModules_.size(); i ++ ) {
     htmlFile << "<td bgcolor=white><a href=""#"
-	     << Numbers::sEE(superModules_[i]).c_str() << ">"
+             << Numbers::sEE(superModules_[i]).c_str() << ">"
              << setfill( '0' ) << setw(2) << superModules_[i] << "</a></td>";
   }
   htmlFile << std::endl << "</table>" << std::endl;
@@ -2240,8 +2240,8 @@ void EELedClient::htmlOutput(int run, string htmlDir, string htmlName){
       obj1f = 0;
       switch ( iCanvas ) {
       case 1:
-	if ( mepnprms01_[ism-1] ) obj1f =  UtilsClient::getHisto<TH1F*>(mepnprms01_[ism-1]);
-	break;
+        if ( mepnprms01_[ism-1] ) obj1f =  UtilsClient::getHisto<TH1F*>(mepnprms01_[ism-1]);
+        break;
       case 2:
       case 3:
       case 4:
@@ -2249,37 +2249,37 @@ void EELedClient::htmlOutput(int run, string htmlDir, string htmlName){
       case 6:
       case 7:
       case 8:
-	obj2f = 0;
-	break;
+        obj2f = 0;
+        break;
       default:
-	break;
+        break;
       }
       
       if ( obj1f ) {
-  	
-	meName = obj1f->GetName();
-  	
-	for ( unsigned int i = 0; i < meName.size(); i++ ) {
-	  if ( meName.substr(i, 1) == " " )  {
-	    meName.replace(i, 1 ,"_" );
-	  }
-	}
-	imgNameMEPnRmsPedG01[iCanvas-1] = meName + ".png";
-	imgName = htmlDir + imgNameMEPnRmsPedG01[iCanvas-1];
-  	
-	cPed->cd();
-	gStyle->SetOptStat("euomr");
-	obj1f->SetStats(kTRUE);
+          
+        meName = obj1f->GetName();
+          
+        for ( unsigned int i = 0; i < meName.size(); i++ ) {
+          if ( meName.substr(i, 1) == " " )  {
+            meName.replace(i, 1 ,"_" );
+          }
+        }
+        imgNameMEPnRmsPedG01[iCanvas-1] = meName + ".png";
+        imgName = htmlDir + imgNameMEPnRmsPedG01[iCanvas-1];
+          
+        cPed->cd();
+        gStyle->SetOptStat("euomr");
+        obj1f->SetStats(kTRUE);
 //        if ( obj1f->GetMaximum(histMax) > 0. ) {
 //          gPad->SetLogy(1);
 //        } else {
 //          gPad->SetLogy(0);
 //        }
-	obj1f->SetMinimum(0.0);
-	obj1f->Draw();
-	cPed->Update();
-	cPed->SaveAs(imgName.c_str());
-	gPad->SetLogy(0);
+        obj1f->SetMinimum(0.0);
+        obj1f->Draw();
+        cPed->Update();
+        cPed->SaveAs(imgName.c_str());
+        gPad->SetLogy(0);
 
       }
       
@@ -2289,8 +2289,8 @@ void EELedClient::htmlOutput(int run, string htmlDir, string htmlName){
       obj1f = 0;
       switch ( iCanvas ) {
       case 1:
-	if ( mepnprms05_[ism-1] ) obj1f =  UtilsClient::getHisto<TH1F*>(mepnprms05_[ism-1]);
-	break;
+        if ( mepnprms05_[ism-1] ) obj1f =  UtilsClient::getHisto<TH1F*>(mepnprms05_[ism-1]);
+        break;
       case 2:
       case 3:
       case 4:
@@ -2298,38 +2298,38 @@ void EELedClient::htmlOutput(int run, string htmlDir, string htmlName){
       case 6:
       case 7:
       case 8:
-	obj2f = 0;
-	break;
+        obj2f = 0;
+        break;
       default:
-	break;
+        break;
       }
       
       if ( obj1f ) {
-  	
-	meName = obj1f->GetName();
-  	
-	for ( unsigned int i = 0; i < meName.size(); i++ ) {
-	  if ( meName.substr(i, 1) == " " )  {
-	    meName.replace(i, 1 ,"_" );
-	  }
-	}
-	imgNameMEPnRmsPedG16[iCanvas-1] = meName + ".png";
-	imgName = htmlDir + imgNameMEPnRmsPedG16[iCanvas-1];
-  	
-	cPed->cd();
-	gStyle->SetOptStat("euomr");
-	obj1f->SetStats(kTRUE);
+          
+        meName = obj1f->GetName();
+          
+        for ( unsigned int i = 0; i < meName.size(); i++ ) {
+          if ( meName.substr(i, 1) == " " )  {
+            meName.replace(i, 1 ,"_" );
+          }
+        }
+        imgNameMEPnRmsPedG16[iCanvas-1] = meName + ".png";
+        imgName = htmlDir + imgNameMEPnRmsPedG16[iCanvas-1];
+          
+        cPed->cd();
+        gStyle->SetOptStat("euomr");
+        obj1f->SetStats(kTRUE);
 //        if ( obj1f->GetMaximum(histMax) > 0. ) {
 //          gPad->SetLogy(1);
 //        } else {
 //          gPad->SetLogy(0);
 //        }
-	obj1f->SetMinimum(0.0);
-	obj1f->Draw();
-	cPed->Update();
-	cPed->SaveAs(imgName.c_str());
-	gPad->SetLogy(0);
-  	
+        obj1f->SetMinimum(0.0);
+        obj1f->Draw();
+        cPed->Update();
+        cPed->SaveAs(imgName.c_str());
+        gPad->SetLogy(0);
+          
       }
       
       imgNameMEPnPedG16[iCanvas-1] = "";
@@ -2337,8 +2337,8 @@ void EELedClient::htmlOutput(int run, string htmlDir, string htmlName){
       obj1d = 0;
       switch ( iCanvas ) {
       case 1:
-	if ( i13_[ism-1] ) obj1d = i13_[ism-1]->ProjectionX("_px", 1, 1, "e");
-	break;
+        if ( i13_[ism-1] ) obj1d = i13_[ism-1]->ProjectionX("_px", 1, 1, "e");
+        break;
       case 2:
       case 3:
       case 4:
@@ -2346,16 +2346,16 @@ void EELedClient::htmlOutput(int run, string htmlDir, string htmlName){
       case 6:
       case 7:
       case 8:
-	obj2f = 0;
-	break;
+        obj2f = 0;
+        break;
       default:
-	break;
+        break;
       }
       
       if ( obj1d ) {
-	
+        
         meName = obj1d->GetName();
-	
+        
         for ( unsigned int i = 0; i < meName.size(); i++ ) {
           if ( meName.substr(i, 1) == " " )  {
             meName.replace(i, 1 ,"_" );
@@ -2363,7 +2363,7 @@ void EELedClient::htmlOutput(int run, string htmlDir, string htmlName){
         }
         imgNameMEPnPedG16[iCanvas-1] = meName + ".png";
         imgName = htmlDir + imgNameMEPnPedG16[iCanvas-1];
-	
+        
         cPed->cd();
         gStyle->SetOptStat("euo");
         obj1d->SetStats(kTRUE);
@@ -2377,9 +2377,9 @@ void EELedClient::htmlOutput(int run, string htmlDir, string htmlName){
         cPed->Update();
         cPed->SaveAs(imgName.c_str());
         gPad->SetLogy(0);
-	
+        
         delete obj1d;
-	
+        
       }
       
     }
@@ -2387,7 +2387,7 @@ void EELedClient::htmlOutput(int run, string htmlDir, string htmlName){
     if( i>0 ) htmlFile << "<a href=""#top"">Top</a>" << std::endl;
     htmlFile << "<hr>" << std::endl;
     htmlFile << "<h3><a name="""
-	     << Numbers::sEE(ism).c_str() << """></a><strong>"
+             << Numbers::sEE(ism).c_str() << """></a><strong>"
              << Numbers::sEE(ism).c_str() << "</strong></h3>" << endl;
     htmlFile << "<table border=\"0\" cellspacing=\"0\" " << endl;
     htmlFile << "cellpadding=\"10\" align=\"center\"> " << endl;

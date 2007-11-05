@@ -1,8 +1,8 @@
 /*
  * \file EBLaserClient.cc
  *
- * $Date: 2007/10/24 18:17:36 $
- * $Revision: 1.187 $
+ * $Date: 2007/11/05 10:27:55 $
+ * $Revision: 1.188 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -3319,14 +3319,14 @@ void EBLaserClient::analyze(void){
         if ( mean01 < amplitudeThresholdPnG01_ )
           val = 0.;
         if ( mean05 <  pedPnExpectedMean_[0] - pedPnDiscrepancyMean_[0] ||
-	     pedPnExpectedMean_[0] + pedPnDiscrepancyMean_[0] < mean05)
+             pedPnExpectedMean_[0] + pedPnDiscrepancyMean_[0] < mean05)
           val = 0.;
         if ( rms05 > pedPnRMSThreshold_[0] )
           val = 0.;
 
         if ( meg05_[ism-1] )           meg05_[ism-1]->setBinContent(i, 1, val);
         if ( mepnprms01_[ism-1] ) mepnprms01_[ism-1]->Fill(rms05);
-	
+        
       }
 
       if ( update02 && update06 ) {
@@ -3337,7 +3337,7 @@ void EBLaserClient::analyze(void){
         if ( mean02 < amplitudeThresholdPnG01_ )
           val = 0.;
         if ( mean06 <  pedPnExpectedMean_[0] - pedPnDiscrepancyMean_[0] ||
-	     pedPnExpectedMean_[0] + pedPnDiscrepancyMean_[0] < mean06)
+             pedPnExpectedMean_[0] + pedPnDiscrepancyMean_[0] < mean06)
           val = 0.;
         if ( rms06 > pedPnRMSThreshold_[0] )
           val = 0.;
@@ -3354,7 +3354,7 @@ void EBLaserClient::analyze(void){
         if ( mean03 < amplitudeThresholdPnG01_ )
           val = 0.;
         if ( mean07 <  pedPnExpectedMean_[0] - pedPnDiscrepancyMean_[0] ||
-	     pedPnExpectedMean_[0] + pedPnDiscrepancyMean_[0] < mean07)
+             pedPnExpectedMean_[0] + pedPnDiscrepancyMean_[0] < mean07)
           val = 0.;
         if ( rms07 > pedPnRMSThreshold_[0] )
           val = 0.;
@@ -3371,7 +3371,7 @@ void EBLaserClient::analyze(void){
         if ( mean04 < amplitudeThresholdPnG01_ )
           val = 0.;
         if ( mean08 <  pedPnExpectedMean_[0] - pedPnDiscrepancyMean_[0] ||
-	     pedPnExpectedMean_[0] + pedPnDiscrepancyMean_[0] < mean08)
+             pedPnExpectedMean_[0] + pedPnDiscrepancyMean_[0] < mean08)
           val = 0.;
         if ( rms08 > pedPnRMSThreshold_[0] )
           val = 0.;
@@ -3388,7 +3388,7 @@ void EBLaserClient::analyze(void){
         if ( mean09 < amplitudeThresholdPnG16_ )
           val = 0.;
         if ( mean13 <  pedPnExpectedMean_[1] - pedPnDiscrepancyMean_[1] ||
-	     pedPnExpectedMean_[1] + pedPnDiscrepancyMean_[1] < mean13)
+             pedPnExpectedMean_[1] + pedPnDiscrepancyMean_[1] < mean13)
           val = 0.;
         if ( rms13 > pedPnRMSThreshold_[1] )
           val = 0.;
@@ -3405,7 +3405,7 @@ void EBLaserClient::analyze(void){
         if ( mean10 < amplitudeThresholdPnG16_ )
           val = 0.;
         if ( mean14 <  pedPnExpectedMean_[1] - pedPnDiscrepancyMean_[1] ||
-	     pedPnExpectedMean_[1] + pedPnDiscrepancyMean_[1] < mean14)
+             pedPnExpectedMean_[1] + pedPnDiscrepancyMean_[1] < mean14)
           val = 0.;
         if ( rms14 > pedPnRMSThreshold_[1] )
           val = 0.;
@@ -3422,7 +3422,7 @@ void EBLaserClient::analyze(void){
         if ( mean11 < amplitudeThresholdPnG16_ )
           val = 0.;
         if ( mean15 <  pedPnExpectedMean_[1] - pedPnDiscrepancyMean_[1] ||
-	     pedPnExpectedMean_[1] + pedPnDiscrepancyMean_[1] < mean15)
+             pedPnExpectedMean_[1] + pedPnDiscrepancyMean_[1] < mean15)
           val = 0.;
         if ( rms15 > pedPnRMSThreshold_[1] )
           val = 0.;
@@ -3439,7 +3439,7 @@ void EBLaserClient::analyze(void){
         if ( mean12 < amplitudeThresholdPnG16_ )
           val = 0.;
         if ( mean16 <  pedPnExpectedMean_[1] - pedPnDiscrepancyMean_[1] ||
-	     pedPnExpectedMean_[1] + pedPnDiscrepancyMean_[1] < mean16)
+             pedPnExpectedMean_[1] + pedPnDiscrepancyMean_[1] < mean16)
           val = 0.;
         if ( rms16 > pedPnRMSThreshold_[1] )
           val = 0.;
@@ -3637,7 +3637,7 @@ void EBLaserClient::htmlOutput(int run, string htmlDir, string htmlName){
   htmlFile << "<table border=1>" << std::endl;
   for ( unsigned int i=0; i<superModules_.size(); i ++ ) {
     htmlFile << "<td bgcolor=white><a href=""#"
-	     << Numbers::sEB(superModules_[i]).c_str() << ">"
+             << Numbers::sEB(superModules_[i]).c_str() << ">"
              << setfill( '0' ) << setw(2) << superModules_[i] << "</a></td>";
   }
   htmlFile << std::endl << "</table>" << std::endl;
@@ -4570,7 +4570,7 @@ void EBLaserClient::htmlOutput(int run, string htmlDir, string htmlName){
     if( i>0 ) htmlFile << "<a href=""#top"">Top</a>" << std::endl;
     htmlFile << "<hr>" << std::endl;
     htmlFile << "<h3><a name="""
-	     << Numbers::sEB(ism).c_str() << """></a><strong>"
+             << Numbers::sEB(ism).c_str() << """></a><strong>"
              << Numbers::sEB(ism).c_str() << "</strong></h3>" << endl;
     htmlFile << "<table border=\"0\" cellspacing=\"0\" " << endl;
     htmlFile << "cellpadding=\"10\" align=\"center\"> " << endl;
