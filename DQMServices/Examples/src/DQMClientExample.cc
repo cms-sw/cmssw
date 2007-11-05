@@ -2,8 +2,8 @@
 /*
  * \file DQMClientExample.cc
  * 
- * $Date: 2007/10/11 22:41:13 $
- * $Revision: 1.2 $
+ * $Date: 2007/11/05 11:30:19 $
+ * $Revision: 1.3 $
  * \author M. Zanetti - CERN
  *
  */
@@ -148,9 +148,6 @@ void DQMClientExample::endRun(const Run& r, const EventSetup& context){
 
 //--------------------------------------------------------
 void DQMClientExample::endJob(){
-  // remove histograms
-  dbe_->rmdir(monitorName_+"/C1/Tests");
-
 }
 
 
