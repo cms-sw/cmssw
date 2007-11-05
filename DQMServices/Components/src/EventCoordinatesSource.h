@@ -4,8 +4,8 @@
 /*
  * \file EventCoordinatesSource.h
  *
- * $Date: 2007/03/29 14:52:55 $
- * $Revision: 1.2 $
+ * $Date: 2007/03/30 13:57:00 $
+ * $Revision: 1.3 $
  * \author M. Zanetti - INFN Padova
  *
 */
@@ -29,8 +29,6 @@
 #include <vector>
 #include <map>
 
-
-
 class EventCoordinatesSource: public edm::EDAnalyzer{
 
 public:
@@ -49,13 +47,14 @@ protected:
 
 private:
 
-  DaqMonitorBEInterface* dbe;
+  DaqMonitorBEInterface* dbe_;
 
-  edm::ParameterSet parameters;
+  edm::ParameterSet parameters_;
 
-  MonitorElement * runId;
-  MonitorElement * eventId;
-  MonitorElement * timeStamp;
+  MonitorElement * runId_;
+  MonitorElement * eventId_;
+  MonitorElement * lumisecId_;
+  MonitorElement * timeStamp_;
 
 };
 

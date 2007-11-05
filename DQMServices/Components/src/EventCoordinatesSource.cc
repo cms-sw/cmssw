@@ -1,8 +1,8 @@
 /*
  * \file EventCoordinatesSource.cc
  * 
- * $Date: 2007/03/29 14:52:55 $
- * $Revision: 1.2 $
+ * $Date: 2007/04/03 09:51:57 $
+ * $Revision: 1.3 $
  * \author M. Zanetti - CERN PH
  *
  */
@@ -28,23 +28,16 @@ using namespace std;
 
 EventCoordinatesSource::EventCoordinatesSource(const ParameterSet& ps){
   
-  parameters = ps;
+  parameters_ = ps;
   
-  dbe = edm::Service<DaqMonitorBEInterface>().operator->();
+  dbe_ = edm::Service<DaqMonitorBEInterface>().operator->();
 
-  if ( parameters.getUntrackedParameter<bool>("enableMonitorDaemon", true) ) {
-    Service<MonitorDaemon> daemon;
-    daemon.operator->();
-  } 
-  else {
-    cout<<"[EventCoordinatesSource]: Warning, MonitorDaemon service not enabled"<<endl;
-  }
-
-  dbe->setVerbose(1);
-  dbe->setCurrentFolder(parameters.getUntrackedParameter<string>("eventInfoFolder", "EventInfo/")) ;
-  runId = dbe->bookInt("iRun");
-  eventId = dbe->bookInt("iEvent");
-  timeStamp = dbe->bookFloat("timeStamp");
+  dbe_->setVerbose(1);
+  dbe_->setCurrentFolder(parameters_.getUntrackedParameter<string>("eventInfoFolder", "EventInfo/")) ;
+  runId_     = dbe_->bookInt("iRun");
+  lumisecId_ = dbe_->bookInt("iLumiSection");
+  eventId_   = dbe_->bookInt("iEvent");
+  timeStamp_ = dbe_->bookFloat("timeStamp");
 
 }
 
@@ -56,11 +49,9 @@ EventCoordinatesSource::~EventCoordinatesSource(){
 
 void EventCoordinatesSource::analyze(const Event& e, const EventSetup& c){
 
-  runId->Fill(e.id().run());
-  eventId->Fill(e.id().event());
-  timeStamp->Fill(e.time().value());
+  runId_->Fill(e.id().run());
+  lumisecId_->Fill(e.luminosityBlock());
+  eventId_->Fill(e.id().event());
+  timeStamp_->Fill(e.time().value());
 
 }
-
-
-
