@@ -4,7 +4,7 @@
 include "RecoLocalCalo/EcalRecProducers/data/getEcalConditions_frontier.cff"
 include "CalibCalorimetry/EcalLaserCorrection/data/ecalLaserCorrectionService.cfi"
 
-replace ecalConditions.connect="frontier://FrontierDev/CMS_COND_ECAL"				 
+replace ecalConditions.connect="frontier://cms_conditions_data/CMS_COND_17X_ECAL" 
 
 # the following is needed to solve a temporary problem in intercalibcontants in 170p6
 
