@@ -5,14 +5,15 @@
  * *
  *  DQM Test Client
  *
- *  $Date: 2007/09/23 15:22:57 $
- *  $Revision: 1.1 $
+ *  $Date: 2007/10/11 22:41:13 $
+ *  $Revision: 1.2 $
  *  \author  M. Zanetti CERN
  *   
  */
 
-
-#include "DQMServices/Components/interface/DQMAnalyzer.h"
+#include <FWCore/Framework/interface/EDAnalyzer.h>
+#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
 
 #include <memory>
 #include <iostream>
@@ -22,7 +23,7 @@
 #include <map>
 
 
-class DQMClientExample: public DQMAnalyzer{
+class DQMClientExample: public edm::EDAnalyzer {
 
 public:
 
@@ -47,8 +48,8 @@ protected:
                             const edm::EventSetup& context) ;
 
   /// DQM Client Diagnostic
-  void endLuminosityBlock(const edm::LuminosityBlock& lumiSeg, 
-                          const edm::EventSetup& c);
+//  void endLuminosityBlock(const edm::LuminosityBlock& lumiSeg, 
+//                          const edm::EventSetup& c);
 
   /// EndRun
   void endRun(const edm::Run& r, const edm::EventSetup& c);
@@ -58,6 +59,18 @@ protected:
 
 private:
 
+  void initialize();
+  
+  edm::ParameterSet parameters_;
+
+  DaqMonitorBEInterface* dbe_;  
+  std::string monitorName_;
+  int counterLS_;      ///counter
+  int counterEvt_;     ///counter
+  int prescaleLS_;     ///units of lumi sections
+  int prescaleEvt_;    ///prescale on number of events
+
+  // -------- member data --------
   MonitorElement * clientHisto;
 
 };

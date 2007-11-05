@@ -1,20 +1,24 @@
+
 /*
  * \file DQMClientExample.cc
  * 
- * $Date: 2007/09/23 15:22:59 $
- * $Revision: 1.1 $
+ * $Date: 2007/10/11 22:41:13 $
+ * $Revision: 1.2 $
  * \author M. Zanetti - CERN
  *
  */
 
-
 #include "DQMServices/Examples/interface/DQMClientExample.h"
+
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include <FWCore/Framework/interface/Event.h>
+
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include <DQMServices/Core/interface/MonitorElementBaseT.h>
 
-// Geometry
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-
+#include <TH1F.h>
 #include <TF1.h>
 #include <iostream>
 #include <stdio.h>
@@ -26,63 +30,79 @@ using namespace edm;
 using namespace std;
 
 DQMClientExample::DQMClientExample(const edm::ParameterSet& ps)
-  : DQMAnalyzer(ps) {
-  edm::LogVerbatim ("DQMClientExample") <<"[DQMClientExample]: Constructor";
+{
+  parameters_=ps;
+  initialize();
 }
-
 
 DQMClientExample::~DQMClientExample(){
-  edm::LogVerbatim ("DQMClientExample") <<"DQMClientExample: analyzed " << getNumLumiSecs() << " events";
 }
 
+//--------------------------------------------------------
+void DQMClientExample::initialize(){ 
+
+  counterLS_=0; 
+  counterEvt_=0; 
+  
+  // get back-end interface
+  dbe_ = Service<DaqMonitorBEInterface>().operator->();
+  
+  // base folder for the contents of this job
+  monitorName_ = parameters_.getUntrackedParameter<string>("monitorName","");
+  cout << "Monitor name = " << monitorName_ << endl;
+
+  prescaleLS_ = parameters_.getUntrackedParameter<int>("prescaleLS", -1);
+  cout << "DQM lumi section prescale = " << prescaleLS_ << " lumi section(s)"<< endl;
+  prescaleEvt_ = parameters_.getUntrackedParameter<int>("prescaleEvt", -1);
+  cout << "DQM event prescale = " << prescaleEvt_ << " events(s)"<< endl;
+
+      
+}
 
 //--------------------------------------------------------
 void DQMClientExample::beginJob(const EventSetup& context){
-  // call DQMAnalyzer in the beginning 
-  DQMAnalyzer::beginJob(context);
 
-  // then do your thing
-  edm::LogVerbatim ("DQMClientExample") <<"[DQMClientExample]: BeginJob";
-  dbe_->setCurrentFolder(rootFolder_+"C1/Tests");
+  // get backendinterface  
+  dbe_ = Service<DaqMonitorBEInterface>().operator->();
+
+  // do your thing
+  dbe_->setVerbose(1);
+  dbe_->setCurrentFolder(monitorName_+"/C1/Tests");
   clientHisto = dbe_->book1D("clientHisto", "Guassian fit results.", 2, 0, 1);
 }
 
 //--------------------------------------------------------
 void DQMClientExample::beginRun(const Run& r, const EventSetup& context) {
-  // call DQMAnalyzer in the beginning 
-  DQMAnalyzer::beginRun(r,context);
-
-  // then do your thing
-  edm::LogVerbatim ("DQMClientExample") <<"[DQMClientExample]: Begin of Run";
 }
 
 //--------------------------------------------------------
 void DQMClientExample::beginLuminosityBlock(const LuminosityBlock& lumiSeg, const EventSetup& context) {
-  // call DQMAnalyzer in the beginning 
-  DQMAnalyzer::beginLuminosityBlock(lumiSeg,context);
-
-  // then do your thing
-  edm::LogVerbatim ("DQMClientExample") <<"[DQMClientExample]: Begin of LS transition";
+   // optionally reset histograms here
+   // clientHisto->Reset();
 }
 
 //--------------------------------------------------------
 void DQMClientExample::analyze(const Event& e, const EventSetup& context){
+    
+   counterEvt_++;
+   if (prescaleEvt_<1) return;
+   if (prescaleEvt_>0 && counterEvt_%prescaleEvt_ != 0) return;
 
-  // call DQMAnalyzer some place
-  DQMAnalyzer::analyze(e,context);
-}
-
-
-//--------------------------------------------------------
-void DQMClientExample::endLuminosityBlock(const LuminosityBlock& lumiSeg, 
-                                          const EventSetup& context) {
-  // do your thing here
-  edm::LogVerbatim ("DQMClientExample") <<"[DQMClientExample]: End of LS transition, performing the DQM client operation";
-  if ( getNumLumiSecs()%prescaleLS_ != 0 ) return;
-  edm::LogVerbatim ("DQMClientExample") <<"[DQMClientExample]: "<<getNumLumiSecs()<<" updates";
-
-  string folderRoot = rootFolder_;
-  string histoName = folderRoot + "C1/C2/histo4";
+//    // endLuminosityBlock(); // FIXME call client here
+// 
+// }
+// 
+// 
+// //--------------------------------------------------------
+// void DQMClientExample::endLuminosityBlock(const LuminosityBlock& lumiSeg, 
+//                                           const EventSetup& context) {
+// 					  
+//   counterLS_++;
+//   if ( prescaleLS_>0 && counterLS_%prescaleLS_ != 0 ) return;
+//   // do your thing here
+//   
+  
+  string histoName = monitorName_ + "/C1/C2/histo4";
 
   float mean =0;
   float rms = 0;
@@ -90,8 +110,6 @@ void DQMClientExample::endLuminosityBlock(const LuminosityBlock& lumiSeg,
   MonitorElement * meHisto = dbe_->get(histoName);
 
   if (meHisto) {
-    
-    edm::LogVerbatim ("monitorelement") <<"[DQMClientExample]: I've got the histo!!";	
     
     MonitorElementT<TNamed>* tNamedHisto = dynamic_cast<MonitorElementT<TNamed>*>(meHisto);
     if(tNamedHisto) {
@@ -122,26 +140,17 @@ void DQMClientExample::endLuminosityBlock(const LuminosityBlock& lumiSeg,
     edm::LogWarning ("DQMClientExample") <<"-------- "<<theQReport->getMessage()<<" ------- "<<theQReport->getStatus();
   } 
 
-  // call DQMAnalyzer at the end 
-  DQMAnalyzer::endLuminosityBlock(lumiSeg,context);
 }
 
 //--------------------------------------------------------
 void DQMClientExample::endRun(const Run& r, const EventSetup& context){
-  // do your thing here
-  
-  // call DQMAnalyzer at the end
-  DQMAnalyzer::endRun(r,context); 
 }
 
 //--------------------------------------------------------
 void DQMClientExample::endJob(){
-  // do your thing here
-  edm::LogVerbatim ("DQMClientExample") <<"[DQMClientExample] endjob called!";
-  dbe_->rmdir(rootFolder_+"C1/Tests");
+  // remove histograms
+  dbe_->rmdir(monitorName_+"/C1/Tests");
 
-  // call DQMAnalyzer in the end
-  DQMAnalyzer::endJob();
 }
 
 
