@@ -4,8 +4,8 @@
 /** \class L3MuonTrajectoryBuilder
  *  class to build muon trajectory
  *
- *  $Date: 2007/08/22 17:44:32 $
- *  $Revision: 1.1 $
+ *  $Date: 2007/09/27 00:48:35 $
+ *  $Revision: 1.2 $
  *
  *  \author N. Neumeister 	 Purdue University
  *  \author C. Liu 		 Purdue University
@@ -58,10 +58,6 @@ class L3MuonTrajectoryBuilder : public GlobalTrajectoryBuilderBase {
 
     std::string theTkBuilderName;
     edm::ESHandle<TrajectoryBuilder> theTkBuilder;
-
-    NavigationSchool*  theNavigationSchool;
-    unsigned long long theCacheId_DG;
-    unsigned long long theCacheId_MG;
 
 };
 #endif
