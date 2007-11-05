@@ -57,11 +57,8 @@ void SiStripTrackerMapCreator::create(DaqMonitorBEInterface* bei) {
        it != tempVec.end(); it++) {
     if ((*it).find("module_") != string::npos) contentVec.push_back(*it);
   }
-  int ndet = contentVec.size();
   tempVec.clear();
   int ibin = 0;
-  string gname = "GobalFlag";
-  MonitorElement* tkmap_gme = getTkMapMe(bei,gname,ndet); 
   for (vector<string>::iterator it = contentVec.begin();
        it != contentVec.end(); it++) {
     ibin++;
@@ -86,17 +83,8 @@ void SiStripTrackerMapCreator::create(DaqMonitorBEInterface* bei) {
         istat =  SiStripUtility::getStatus(me); 
         local_mes.insert(pair<MonitorElement*, int>(me, istat));
 	if (istat > gstat) gstat = istat;
-        MonitorElement* tkmap_me = getTkMapMe(bei,me_name,ndet);
-	if (tkmap_me){
-          tkmap_me->Fill(ibin, istat);
-	  tkmap_me->setBinLabel(ibin, det_id.c_str());
-        }
       }
     }
-    if (tkmap_gme) {
-       tkmap_gme->Fill(ibin, gstat);
-       tkmap_gme->setBinLabel(ibin, det_id.c_str());
-    }    
     paintTkMap(atoi(det_id.c_str()), local_mes);
   }
   trackerMap_->printonline();  
@@ -251,21 +239,4 @@ void SiStripTrackerMapCreator::paintTkMap(int det_id, map<MonitorElement*, int>&
   int rval, gval, bval;
   SiStripUtility::getStatusColor(gstatus, rval, gval, bval);
   trackerMap_->fillc(det_id, rval, gval, bval);
-}
-//
-// -- get Tracker Map ME 
-//
-MonitorElement* SiStripTrackerMapCreator::getTkMapMe(DaqMonitorBEInterface* bei,
-                    string& me_name, int ndet) {
-  string new_name = "TrackerMap_for_" + me_name;
-  string path = "Collector/" + new_name;
-  MonitorElement*  tkmap_me =0;
-  tkmap_me = bei->get(path);
-  if (!tkmap_me) {
-    string save_dir = bei->pwd();   
-    bei->setCurrentFolder("Collector");
-    tkmap_me = bei->book1D(new_name, new_name, ndet, 0.5, ndet+0.5);
-    bei->setCurrentFolder(save_dir);
-  }
-  return tkmap_me;
 }
