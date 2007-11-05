@@ -1,7 +1,6 @@
 #include "FWCore/Framework/interface/InputSourceMacros.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "IOPool/Streamer/src/TestConsumer.h"
-#include "IOPool/Streamer/interface/EventStreamOutput.h"
 #include "IOPool/Streamer/interface/HLTInfo.h"
 #include "FWCore/ServiceRegistry/interface/ServiceMaker.h"
 
@@ -18,11 +17,6 @@ typedef edm::StreamerInputModule<edm::StreamerFileReader> NewEventStreamFileRead
 
 using edm::StreamerFileReader;
 using edm::StreamerFileWriter;
-
-//Old way of reading and writting Streamer files
-typedef edm::EventStreamingModule<edmtest::TestConsumer> StreamTestConsumer;
-
-DEFINE_FWK_MODULE(StreamTestConsumer);
 
 DEFINE_FWK_INPUT_SOURCE(NewEventStreamFileReader);
 
