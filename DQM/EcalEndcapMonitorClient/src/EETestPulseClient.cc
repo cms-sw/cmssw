@@ -1,8 +1,8 @@
 /*
  * \file EETestPulseClient.cc
  *
- * $Date: 2007/11/05 10:32:55 $
- * $Revision: 1.36 $
+ * $Date: 2007/11/05 10:51:30 $
+ * $Revision: 1.37 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -1572,10 +1572,10 @@ void EETestPulseClient::htmlOutput(int run, string htmlDir, string htmlName){
       obj1d = 0;
       switch ( iCanvas ) {
         case 1:
-          if ( i01_[ism-1] ) obj1d = i01_[ism-1]->ProjectionY("_py", 1, 1, "e");
+          if ( i01_[ism-1] ) obj1d = i01_[ism-1]->ProjectionX("_px", 1, 1, "e");
           break;
         case 2:
-          if ( i02_[ism-1] ) obj1d = i02_[ism-1]->ProjectionY("_py", 1, 1, "e");
+          if ( i02_[ism-1] ) obj1d = i02_[ism-1]->ProjectionX("_px", 1, 1, "e");
           break;
         default:
           break;
@@ -1618,10 +1618,10 @@ void EETestPulseClient::htmlOutput(int run, string htmlDir, string htmlName){
       obj1d = 0;
       switch ( iCanvas ) {
         case 1:
-          if ( i03_[ism-1] ) obj1d = i03_[ism-1]->ProjectionY("_py", 1, 1, "e");
+          if ( i03_[ism-1] ) obj1d = i03_[ism-1]->ProjectionX("_px", 1, 1, "e");
           break;
         case 2:
-          if ( i04_[ism-1] ) obj1d = i04_[ism-1]->ProjectionY("_py", 1, 1, "e");
+          if ( i04_[ism-1] ) obj1d = i04_[ism-1]->ProjectionX("_px", 1, 1, "e");
           break;
         default:
           break;

@@ -1,8 +1,8 @@
 /*
  * \file EELaserClient.cc
  *
- * $Date: 2007/11/05 10:42:31 $
- * $Revision: 1.44 $
+ * $Date: 2007/11/05 10:51:30 $
+ * $Revision: 1.45 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -2799,7 +2799,7 @@ void EELaserClient::analyze(void){
         update11 = UtilsClient::getBinStats(h11_[ism-1], ix, iy, num11, mean11, rms11);
         update12 = UtilsClient::getBinStats(h12_[ism-1], ix, iy, num12, mean12, rms12);
         
-         // other SM half
+        // other SM half
         
         update13 = UtilsClient::getBinStats(h13_[ism-1], ix, iy, num13, mean13, rms13);
         update14 = UtilsClient::getBinStats(h14_[ism-1], ix, iy, num14, mean14, rms14);

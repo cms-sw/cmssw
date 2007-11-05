@@ -1,8 +1,8 @@
 /*
  * \file EELedClient.cc
  *
- * $Date: 2007/11/05 10:42:31 $
- * $Revision: 1.26 $
+ * $Date: 2007/11/05 10:51:30 $
+ * $Revision: 1.27 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -1200,7 +1200,7 @@ void EELedClient::analyze(void){
 
         update09 = UtilsClient::getBinStats(h09_[ism-1], ix, iy, num09, mean09, rms09);
 
-         // other SM half
+        // other SM half
 
         update13 = UtilsClient::getBinStats(h13_[ism-1], ix, iy, num13, mean13, rms13);
         update14 = UtilsClient::getBinStats(h14_[ism-1], ix, iy, num14, mean14, rms14);
