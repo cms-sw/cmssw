@@ -1,6 +1,6 @@
 <use name=DataFormats/RecoCandidate>
 <use name=DataFormats/HcalIsolatedTrack>
-<use name=PhysicsTools/Parser>
+<use name=PhysicsTools/Utilities>
 <use name=SimDataFormats/HepMCProduct>
 <use name=SimGeneral/HepPDTRecord>
 <use name=FWCore/Framework>
