@@ -51,6 +51,7 @@ namespace helper {
     }
   };
 
+  /*
   template<typename OutputCollection, typename InputCollection>
   struct OutputCollectionCreator {
     static std::auto_ptr<OutputCollection> createNewCollection( const edm::Handle<InputCollection> & ) {
@@ -64,6 +65,7 @@ namespace helper {
       return std::auto_ptr<edm::RefToBaseVector<T> >( new edm::RefToBaseVector<T>(h) );
     }
   };
+  */
 
   /*
   template<typename T1, typename T2>
@@ -79,8 +81,9 @@ namespace helper {
   struct CollectionStoreManager {
     typedef OutputCollection collection;
     template<typename C>
-    CollectionStoreManager( const edm::Handle<C> & h ) { 
-      selected_ = OutputCollectionCreator<OutputCollection, C>::createNewCollection(h);
+    CollectionStoreManager( const edm::Handle<C> & h ) :
+    selected_( new OutputCollection ) { 
+      //      selected_ = OutputCollectionCreator<OutputCollection, C>::createNewCollection(h);
     }
     template<typename I>
     void cloneAndStore( const I & begin, const I & end, edm::Event & ) {
