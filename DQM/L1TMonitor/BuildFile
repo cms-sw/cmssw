@@ -10,6 +10,7 @@
 <use name=DataFormats/L1GlobalMuonTrigger>
 <use name=DataFormats/L1GlobalTrigger>
 <use name=DataFormats/FEDRawData>
+<use name=Geometry/EcalMapping>
 <use name=DataFormats/EcalDigi>
 <use name=DQMServices/Core>
 <use name=DQMServices/NodeROOT>
@@ -35,6 +36,7 @@
    <use name=DataFormats/L1GlobalMuonTrigger>
    <use name=DataFormats/L1GlobalTrigger>
    <use name=DataFormats/EcalDigi>
+   <use name=Geometry/EcalMapping>
    <use name=DataFormats/FEDRawData>
  <use name=root>
  <use name=boost>
