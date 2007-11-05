@@ -1,5 +1,6 @@
 #include <iostream>     // FIXME: switch to MessagLogger & friends
 #include <fstream>
+#include <sstream>
 #include <vector>
 #include <string>
 #include <exception>
@@ -23,9 +24,12 @@
 //-------------------------------------------------------------------------
 TrackingMaterialAnalyser::TrackingMaterialAnalyser(const edm::ParameterSet& iPSet)
 {
-  m_material            = iPSet.getParameter<edm::InputTag>("MaterialAccounting");
-  m_stopAtLastDetector  = iPSet.getParameter<bool>("StopAtLastDetector");
-  m_plotter             = new TrackingMaterialPlotter( 300., 120., 10 );      // 10x10 points per cm2
+  m_material                = iPSet.getParameter<edm::InputTag>("MaterialAccounting");
+  m_skipAfterLastDetector   = iPSet.getParameter<bool>("SkipAfterLastDetector");
+  m_skipBeforeFirstDetector = iPSet.getParameter<bool>("SkipBeforeFirstDetector");
+  m_identicalForwardLayers  = iPSet.getParameter<bool>("ForceIdenticalForwardLayers");
+  m_identicalBarrelLayers   = iPSet.getParameter<bool>("ForceIdenticalBarrelLayers");
+  m_plotter                 = new TrackingMaterialPlotter( 300., 120., 10 );      // 10x10 points per cm2
 }    
 
 //-------------------------------------------------------------------------
@@ -40,30 +44,35 @@ void TrackingMaterialAnalyser::endJob(void)
 {
   std::ofstream parameters("parameters");
   std::cout << std::endl << std::fixed;
-  for (std::vector<MaterialAccountingLayer>::const_iterator layer = m_layers.begin(); layer != m_layers.end(); ++layer) {
+  for (unsigned int i = 0; i < m_layers.size(); ++i) {
+    MaterialAccountingLayer & layer = *(m_layers[i]);
     std::cout << std::setprecision(3);
-    std::cout << std::setw(20) << std::left << layer->getName()
-              << "z: [" << std::setw(8) << std::right << layer->getRangeZ().first << "," << std::setw(8) << std::right << layer->getRangeZ().second << "] "
-              << "r: [" << std::setw(7) << std::right << layer->getRangeR().first << "," << std::setw(7) << std::right << layer->getRangeR().second << "] "
+    std::cout << std::setw(20) << std::left << layer.getName()
+              << "z: [" << std::setw(8) << std::right << layer.getRangeZ().first << "," << std::setw(8) << std::right << layer.getRangeZ().second << "] "
+              << "r: [" << std::setw(7) << std::right << layer.getRangeR().first << "," << std::setw(7) << std::right << layer.getRangeR().second << "] "
               << std::endl;
     std::cout << std::setprecision(6);
-    std::cout << "\tnumber of hits:        "        << std::setw(9) << layer->tracks()                  << std::endl;
-    std::cout << "\tnormalized segment length:    " << std::setw(9) << layer->averageLength()           << " ± " << std::setw(9) << layer->sigmaLength()           << " cm" << std::endl;
-    std::cout << "\tnormalized radiation lengths: " << std::setw(9) << layer->averageRadiationLengths() << " ± " << std::setw(9) << layer->sigmaRadiationLengths() << "    ";
-    if (layer->material())
-      std::cout << "\t(was " << layer->material()->radLen() << ")";
+    std::cout << "\tnumber of hits:        "        << std::setw(9) << layer.tracks()                  << std::endl;
+    std::cout << "\tnormalized segment length:    " << std::setw(9) << layer.averageLength()           << " ± " << std::setw(9) << layer.sigmaLength()           << " cm" << std::endl;
+    std::cout << "\tnormalized radiation lengths: " << std::setw(9) << layer.averageRadiationLengths() << " ± " << std::setw(9) << layer.sigmaRadiationLengths() << "    ";
+    if (layer.material())
+      std::cout << "\t(was " << layer.material()->radLen() << ")";
     std::cout << std::endl;
-    std::cout << "\tnormalized energy loss:       " << std::setw(9) << layer->averageEnergyLoss()       << " ± " << std::setw(9) << layer->sigmaEnergyLoss()       << " MeV";
-    if (layer->material())
-      std::cout << "\t(was " << layer->material()->xi() * 1000. << " MeV)";     // GeV --> MeV
+    std::cout << "\tnormalized energy loss:       " << std::setw(9) << layer.averageEnergyLoss()       << " ± " << std::setw(9) << layer.sigmaEnergyLoss()       << " MeV";
+    if (layer.material())
+      std::cout << "\t(was " << layer.material()->xi() * 1000. << " MeV)";     // GeV --> MeV
     std::cout << std::endl;
 
-    parameters << std::setw(20) << std::left << layer->getName() << std::right << std::setprecision(6)
-               << std::setw(6) << layer->tracks()
-               << '\t' << std::setw(9) << layer->averageLength()             << " ± " << std::setw(9) << layer->sigmaLength()             << " cm"
-               << '\t' << std::setw(9) << layer->averageRadiationLengths()   << " ± " << std::setw(9) << layer->sigmaRadiationLengths()
-               << '\t' << std::setw(9) << layer->averageEnergyLoss() / 1000. << " ± " << std::setw(9) << layer->sigmaEnergyLoss() / 1000. << " Gev"
+    parameters << std::setw(20) << std::left << layer.getName() << std::right << std::setprecision(6)
+               << std::setw(6) << layer.tracks()
+               << '\t' << std::setw(9) << layer.averageLength()             << " ± " << std::setw(9) << layer.sigmaLength()             << " cm"
+               << '\t' << std::setw(9) << layer.averageRadiationLengths()   << " ± " << std::setw(9) << layer.sigmaRadiationLengths()
+               << '\t' << std::setw(9) << layer.averageEnergyLoss() / 1000. << " ± " << std::setw(9) << layer.sigmaEnergyLoss() / 1000. << " Gev"
                << std::endl;
+
+    std::stringstream s;
+    s << "layer_" << std::setw(2) << std::setfill('0') << i;
+    layer.savePlots( s.str() );
   }
 
   parameters.close();
@@ -87,7 +96,7 @@ void TrackingMaterialAnalyser::beginJob(const edm::EventSetup & iSetup)
   std::cout << "TrackingMaterialAnalyser: List of the tracker layers: " << std::endl;
   for (std::vector<DetLayer*>::const_iterator layer = layers.begin(); layer != layers.end(); ++layer) {
     std::cout << '\t' << (*layer)->subDetector() << std::endl;
-    m_layers.push_back( MaterialAccountingLayer( **layer ) );
+    m_layers.push_back( new MaterialAccountingLayer( **layer ) );
   }
   std::cout << std::endl;
 }
@@ -116,14 +125,14 @@ void TrackingMaterialAnalyser::split( MaterialAccountingTrack & track )
 
   unsigned int detectors = track.m_detectors.size();
   std::vector<double> limits(detectors + 2);
-  limits[0] = -0.0001;                                                          // 1 um tolerance 
+  limits[0] = -0.0001;                                                              // 1 um tolerance 
   for (unsigned int i = 1; i < detectors; ++i)
     limits[i] = (track.m_detectors[i-1].m_curvilinearOut + track.m_detectors[i].m_curvilinearIn) / 2.;
   if (detectors) {
-    if (m_stopAtLastDetector)
-      limits[detectors] = track.m_detectors[detectors-1].m_curvilinearOut + 0.001;    // 1 um tolerance
+    if (m_skipAfterLastDetector)
+      limits[detectors] = track.m_detectors[detectors-1].m_curvilinearOut + 0.001;  // 1 um tolerance
     else
-      limits[detectors] = track.m_total.length() + 0.001;                             // 1 um tolerance
+      limits[detectors] = track.m_total.length() + 0.001;                           // 1 um tolerance
   }
   limits[detectors+1] = INFINITY;
   //for (unsigned int i = 0; i < detectors; ++i)
@@ -193,11 +202,11 @@ void TrackingMaterialAnalyser::split( MaterialAccountingTrack & track )
   // add the material from each detector to its layer (if there is one and only one)
   for (unsigned int i = 0; i < track.m_detectors.size(); ++i)
     if (group[i] != 0)
-      m_layers[group[i]-1].addDetector( track.m_detectors[i] );
+      m_layers[group[i]-1]->addDetector( track.m_detectors[i] );
 
   // end of track: commit internal buffers and reset the m_layers internal state for a new track
-  for (std::vector<MaterialAccountingLayer>::iterator layer = m_layers.begin(); layer != m_layers.end(); ++layer)
-    layer->endOfTrack();
+  for (unsigned int i = 0; i < m_layers.size(); ++i)
+    m_layers[i]->endOfTrack();
 }
 
 //-------------------------------------------------------------------------
@@ -207,7 +216,7 @@ int TrackingMaterialAnalyser::findLayer( const MaterialAccountingDetector & dete
   int    index  = 0;
   size_t inside = 0;
   for (size_t i = 0; i < m_layers.size(); ++i)
-    if (m_layers[i].inside(detector)) {
+    if (m_layers[i]->inside(detector)) {
       ++inside;
       index = i+1;
     }

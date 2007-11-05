@@ -4,6 +4,9 @@
 #include <iostream>
 #include <string>
 
+#include <TH1F.h>
+#include <TH2F.h>
+
 #include "Geometry/CommonDetUnit/interface/GeomDetEnumerators.h"
 #include "TrackingTools/DetLayers/interface/DetLayer.h"
 
@@ -14,17 +17,20 @@ class DetLayer;
 
 class MaterialAccountingLayer {
 public:
-  MaterialAccountingLayer( void ) :
-    m_layer( 0 ),
-    m_z(0, 0),
-    m_r(0, 0),
-    m_accounting(),
-    m_tracks( 0 ),
-    m_counted( false )
-  { }
-  
-  MaterialAccountingLayer( const DetLayer & layer );
+  /// explicit constructor
+  explicit MaterialAccountingLayer( const DetLayer & layer );
 
+  /// destructor
+  ~MaterialAccountingLayer( void );
+
+private:
+  /// stop default copy ctor
+  MaterialAccountingLayer(const MaterialAccountingLayer & layer);
+
+  /// stop default assignment operator
+  MaterialAccountingLayer& operator=( const MaterialAccountingLayer & layer);
+
+public:
   /// buffer material from a detector, if the detector is inside the DetLayer bounds
   bool addDetector( const MaterialAccountingDetector& detector );
  
@@ -110,6 +116,8 @@ public:
     return m_layer->surface().mediumProperties();
   }
   
+  void savePlots(const std::string & name) const;
+  
 private:
   // m_layer is used access subdetector, R & Z ranges, and to check for inside-ness
   const DetLayer *                  m_layer;
@@ -120,6 +128,12 @@ private:
   unsigned int                      m_tracks;
   bool                              m_counted;
   mutable MaterialAccountingStep    m_buffer;
+
+  // plots of material distribution, and material vs. R/eta
+  TH1F * m_dedx_spectrum;
+  TH1F * m_dedx_vs_eta;
+  TH1F * m_radlen_spectrum;
+  TH1F * m_radlen_vs_eta;
 };
 
 #endif // MaterialAccountingLayer_h

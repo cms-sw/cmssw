@@ -27,10 +27,13 @@ private:
   void split( MaterialAccountingTrack & track );
   int  findLayer( const MaterialAccountingDetector & detector );
 
-  edm::InputTag                         m_material;
-  bool                                  m_stopAtLastDetector; 
-  std::vector<MaterialAccountingLayer>  m_layers;
-  TrackingMaterialPlotter *             m_plotter;
+  edm::InputTag                             m_material;
+  bool                                      m_skipAfterLastDetector;
+  bool                                      m_skipBeforeFirstDetector;
+  bool                                      m_identicalForwardLayers;
+  bool                                      m_identicalBarrelLayers;
+  std::vector<MaterialAccountingLayer *>    m_layers;
+  TrackingMaterialPlotter *                 m_plotter;
 };
 
 
