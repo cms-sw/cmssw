@@ -28,6 +28,7 @@
 #include <DQM/HcalMonitorClient/interface/HcalPedestalClient.h>
 #include <DQM/HcalMonitorClient/interface/HcalLEDClient.h>
 #include <DQM/HcalMonitorClient/interface/HcalHotCellClient.h>
+#include <DQM/HcalMonitorClient/interface/HcalDeadCellClient.h>
 #include <DQM/HcalMonitorModule/interface/HcalMonitorSelector.h>
 
 #include <DQM/HcalMonitorClient/interface/HcalDQMDbInterface.h>
@@ -120,6 +121,7 @@ private:
   HcalPedestalClient* pedestal_client_;
   HcalLEDClient* led_client_;
   HcalHotCellClient* hot_client_;
+  HcalDeadCellClient* dead_client_;
   HcalHotCellDbInterface* dqm_db_;
 
 };

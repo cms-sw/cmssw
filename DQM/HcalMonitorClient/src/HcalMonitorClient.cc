@@ -174,7 +174,7 @@ void HcalMonitorClient::beginRun(const Run& r, const EventSetup& c) {
   if( pedestal_client_ )   pedestal_client_->beginRun();
   if( led_client_ )        led_client_->beginRun();
   if( hot_client_ )        hot_client_->beginRun();
-  if( dead_client_ )       dead_client->beginRun();
+  if( dead_client_ )       dead_client_->beginRun();
 
   return;
 }
