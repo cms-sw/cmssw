@@ -4,8 +4,8 @@
 /*
  * \file DTLocalTriggerTask.h
  *
- * $Date: 2007/09/19 13:36:08 $
- * $Revision: 1.10 $
+ * $Date: 2007/09/20 08:04:28 $
+ * $Revision: 1.11 $
  * \author M. Zanetti - INFN Padova
  *
 */
@@ -83,8 +83,7 @@ class DTLocalTriggerTask: public edm::EDAnalyzer{
   bool debug;
   std::string dcc_label;
   std::string ros_label;
-  std::string seg_label;
-  std::string outputFile;  
+  std::string seg_label; 
   int nevents;
  
   DaqMonitorBEInterface* dbe;

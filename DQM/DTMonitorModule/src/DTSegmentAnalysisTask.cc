@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2007/03/13 18:59:53 $
- *  $Revision: 1.2 $
+ *  $Date: 2007/04/13 10:49:45 $
+ *  $Revision: 1.3 $
  *  \author G. Cerminara - INFN Torino
  */
 
@@ -46,10 +46,6 @@ DTSegmentAnalysisTask::DTSegmentAnalysisTask(const edm::ParameterSet& pset) {
   edm::Service<MonitorDaemon>().operator->();
   theDbe->setCurrentFolder("DT/DTSegmentAnalysisTask");
 
-  // set the name of the outputfile
-  theRootFileName = pset.getUntrackedParameter<string>("rootFileName", "DTSegmentAnalysisTask.root");
-  writeHisto = pset.getUntrackedParameter<bool>("writeHisto", true);
-
   parameters = pset;
 
 }
@@ -70,9 +66,7 @@ void DTSegmentAnalysisTask::beginJob(const edm::EventSetup& context){
 void DTSegmentAnalysisTask::endJob(){
  if(debug)
     cout<<"[DTSegmentAnalysisTask] endjob called!"<<endl;
-  // Write the histos
-  if ( writeHisto ) 
-    theDbe->save(theRootFileName);
+
   theDbe->rmdir("DT/DTSegmentAnalysisTask");
 }
   

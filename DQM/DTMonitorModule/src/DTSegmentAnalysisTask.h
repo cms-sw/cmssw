@@ -11,8 +11,8 @@
  *  All histos are produce per Chamber
  *
  *
- *  $Date: 2006/10/12 09:21:36 $
- *  $Revision: 1.4 $
+ *  $Date: 2007/03/07 08:19:16 $
+ *  $Revision: 1.1 $
  *  \author G. Cerminara - INFN Torino
  */
 
@@ -55,8 +55,6 @@ private:
 
   // Switch for verbosity
   bool debug;
-  std::string theRootFileName;
-  bool writeHisto;
 
   // Lable of 4D segments in the event
   std::string theRecHits4DLabel;

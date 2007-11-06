@@ -1,8 +1,8 @@
 /*
  * \file DTLocalTriggerTask.cc
  * 
- * $Date: 2007/09/21 11:05:24 $
- * $Revision: 1.14 $
+ * $Date: 2007/10/09 14:59:36 $
+ * $Revision: 1.15 $
  * \author M. Zanetti - INFN Padova
  *
 */
@@ -46,8 +46,6 @@ DTLocalTriggerTask::DTLocalTriggerTask(const edm::ParameterSet& ps){
   
   debug = ps.getUntrackedParameter<bool>("debug", "false");
   if(debug)   cout<<"[DTLocalTriggerTask]: Constructor"<<endl;
-
-  outputFile = ps.getUntrackedParameter<string>("outputFile", "DTLocalTriggerSources.root");
 
   dcc_label = ps.getUntrackedParameter<string>("dcc_label", "dttpgprod");
   ros_label = ps.getUntrackedParameter<string>("ros_label", "dtunpacker");
@@ -107,8 +105,7 @@ void DTLocalTriggerTask::beginLuminosityBlock(LuminosityBlock const& lumiSeg, Ev
 void DTLocalTriggerTask::endJob(){
 
   cout << "DTLocalTriggerTask: analyzed " << nevents << " events" << endl;
-  if ( (outputFile.size() != 0) && (parameters.getUntrackedParameter<bool>("writeHisto", true)) ) 
-    dbe->save(outputFile);
+
   dbe->rmdir("DT/DTLocalTriggerTask");
 
 }

@@ -1,8 +1,8 @@
  /*
  * \file DTDigiForNoiseTask.cc
  * 
- * $Date: 2007/09/20 07:18:46 $
- * $Revision: 1.28 $
+ * $Date: 2007/11/06 11:35:04 $
+ * $Revision: 1.4 $
  * \author G. Mila - INFN Torino
  *
  */
@@ -44,8 +44,6 @@ DTDigiForNoiseTask::DTDigiForNoiseTask(const edm::ParameterSet& ps){
   if(debug)
     cout<<"[DTDigiForNoiseTask]: Constructor"<<endl;
 
-  outputFile = ps.getUntrackedParameter<string>("outputFile", "DTDigiForNoiseTask.root");
-
   parameters = ps;
   
   dbe = edm::Service<DaqMonitorBEInterface>().operator->();
@@ -71,10 +69,8 @@ void DTDigiForNoiseTask::endJob(){
   if(debug)
     cout<<"[DTDigiForNoiseTask] endjob called!"<<endl;
 
-  if ( (outputFile.size() != 0) && (parameters.getUntrackedParameter<bool>("writeHisto", true)) ) 
-    dbe->save(outputFile);
-  
   dbe->rmdir("DT/DTDigiForNoiseTask");
+
 }
 
 

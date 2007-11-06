@@ -3,8 +3,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2007/09/20 07:18:07 $
- *  $Revision: 1.4 $
+ *  $Date: 2007/10/09 14:33:45 $
+ *  $Revision: 1.5 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -54,15 +54,10 @@ DTChamberEfficiencyTask::DTChamberEfficiencyTask(const ParameterSet& pset) {
   edm::Service<MonitorDaemon>().operator->();
   theDbe->setCurrentFolder("DT/DTChamberEfficiencyTask");
 
-  // set the name of the outputfile
-  theRootFileName = pset.getUntrackedParameter<string>("rootFileName","DTChamberEfficiencyTask.root");
-  writeHisto = pset.getUntrackedParameter<bool>("writeHisto", true);
-
   parameters = pset;
 
- 
-
 }
+
 
 DTChamberEfficiencyTask::~DTChamberEfficiencyTask(){
   if(debug)
@@ -107,9 +102,7 @@ void DTChamberEfficiencyTask::beginLuminosityBlock(LuminosityBlock const& lumiSe
 void DTChamberEfficiencyTask::endJob(){
  if(debug)
     cout<<"[DTChamberEfficiencyTask] endjob called!"<<endl;
-  // Write the histos
-  if ( writeHisto ) 
-    theDbe->save(theRootFileName);
+ 
   theDbe->rmdir("DT/DTChamberEfficiencyTask");
 }
   
