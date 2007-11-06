@@ -1,8 +1,8 @@
 /*
  * \file EcalEndcapMonitorModule.cc
  *
- * $Date: 2007/09/07 22:30:07 $
- * $Revision: 1.11 $
+ * $Date: 2007/11/06 10:29:42 $
+ * $Revision: 1.12 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -12,13 +12,16 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "DataFormats/EcalRawData/interface/EcalRawDataCollections.h"
-#include "DataFormats/EcalDetId/interface/EBDetId.h"
-#include "DataFormats/EcalDigi/interface/EBDataFrame.h"
+#include "DataFormats/EcalDetId/interface/EEDetId.h"
+#include "DataFormats/EcalDigi/interface/EEDataFrame.h"
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 #include "TBDataFormats/EcalTBObjects/interface/EcalTBCollections.h"
+
 #include "DQMServices/Daemon/interface/MonitorDaemon.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
+
+#include <DQM/EcalCommon/interface/Numbers.h>
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -177,14 +180,14 @@ void EcalEndcapMonitorModule::setup(void){
 
     meEEDCC_ = dbe_->book1D("EEMM SM", "EEMM SM", 18, 1, 19.);
 
-    meEEdigi_ = dbe_->book1D("EEMM digi", "EEMM digi", 100, 0., 61201.);
-    meEEhits_ = dbe_->book1D("EEMM hits", "EEMM hits", 100, 0., 61201.);
+    meEEdigi_ = dbe_->book1D("EEMM digi", "EEMM digi", 100, 0., 13299.);
+    meEEhits_ = dbe_->book1D("EEMM hits", "EEMM hits", 100, 0., 13299.);
 
     if ( enableEventDisplay_ ) {
       dbe_->setCurrentFolder("EcalEndcap/EcalEvent");
       for (int i = 0; i < 18; i++) {
         sprintf(histo, "EEMM event SM%02d", i+1);
-        meEvent_[i] = dbe_->book2D(histo, histo, 85, 0., 85., 20, 0., 20.);
+        meEvent_[i] = dbe_->book2D(histo, histo, 50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50., 50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50.);
         dbe_->tag(meEvent_[i], i+1);
         if ( meEvent_[i] ) meEvent_[i]->setResetMe(true);
       }
@@ -382,8 +385,8 @@ void EcalEndcapMonitorModule::analyze(const Event& e, const EventSetup& c){
 
     for ( EBDigiCollection::const_iterator digiItr = digis->begin(); digiItr != digis->end(); ++digiItr ) {
 
-      EBDataFrame dataframe = (*digiItr);
-      EBDetId id = dataframe.id();
+      EEDataFrame dataframe = (*digiItr);
+      EEDetId id = dataframe.id();
 
       int ic = id.ic();
       int ie = (ic-1)/20 + 1;
@@ -433,32 +436,27 @@ void EcalEndcapMonitorModule::analyze(const Event& e, const EventSetup& c){
       for ( EcalUncalibratedRecHitCollection::const_iterator hitItr = hits->begin(); hitItr != hits->end(); ++hitItr ) {
 
         EcalUncalibratedRecHit hit = (*hitItr);
-        EBDetId id = hit.id();
+        EEDetId id = hit.id();
 
-        int ic = id.ic();
-        int ie = (ic-1)/20 + 1;
-        int ip = (ic-1)%20 + 1;
+        int ix = id.ix();
+        int iy = id.iy();
 
-        int ism = id.ism(); if ( ism > 9 ) continue;
+        int ism = Numbers::iSM( id );
 
-        float xie = ie - 0.5;
-        float xip = ip - 0.5;
+        if ( ism >= 1 && ism <= 9 ) ix = 101 - ix;
+
+        float xix = ix - 0.5;
+        float xiy = iy - 0.5;
 
         LogDebug("EcalEndcapMonitor") << " det id = " << id;
-        LogDebug("EcalEndcapMonitor") << " sm, eta, phi " << ism << " " << ie << " " << ip;
-
-        if ( xie <= 0. || xie >= 85. || xip <= 0. || xip >= 20. ) {
-          LogWarning("EcalEndcapMonitor") << " det id = " << id;
-          LogWarning("EcalEndcapMonitor") << " sm, eta, phi " << ism << " " << ie << " " << ip;
-          LogWarning("EcalEndcapMonitor") << " xie, xip " << xie << " " << xip;
-        }
+        LogDebug("EcalEndcapMonitor") << " sm, ix, iy " << ism << " " << ix << " " << iy;
 
         float xval = hit.amplitude();
 
         LogDebug("EcalEndcapMonitor") << " hit amplitude " << xval;
 
         if ( xval >= 10 ) {
-          if ( meEvent_[ism-1] ) meEvent_[ism-1]->Fill(xie, xip, xval);
+          if ( meEvent_[ism-1] ) meEvent_[ism-1]->Fill(xix, xiy, xval);
         }
 
       }
