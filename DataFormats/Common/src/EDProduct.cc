@@ -1,6 +1,6 @@
 /*----------------------------------------------------------------------
   
-$Id: EDProduct.cc,v 1.7 2007/08/06 22:16:50 wmtan Exp $
+$Id: EDProduct.cc,v 1.8 2007/10/22 19:45:40 chrjones Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -29,8 +29,16 @@ namespace edm {
   void EDProduct::setPtr(const std::type_info& iToType,
                          unsigned long iIndex,
                          void const*& oPtr) const
-{
-  do_setPtr(iToType, iIndex, oPtr);
-}
+  {
+    do_setPtr(iToType, iIndex, oPtr);
+  }
+  
+  void 
+  EDProduct::fillPtrVector(const std::type_info& iToType,
+                              const std::vector<unsigned long>& iIndicies,
+                              std::vector<void const*>& oPtr) const
+  {
+    do_fillPtrVector(iToType, iIndicies, oPtr);
+  }
   
 }
