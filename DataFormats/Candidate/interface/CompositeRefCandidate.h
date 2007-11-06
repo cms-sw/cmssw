@@ -9,7 +9,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: CompositeRefCandidate.h,v 1.20 2007/10/15 12:44:33 llista Exp $
+ * \version $Id: CompositeRefCandidate.h,v 1.21 2007/10/22 17:02:50 llista Exp $
  *
  */
 
@@ -63,6 +63,10 @@ namespace reco {
     CandidateRef daughterRef( size_type i ) const { return dau[ i ]; }
     /// references to daughtes
     const daughters & daughterRefVector() const { return dau; }
+    /// reference to mother at given position
+    CandidateRef motherRef( size_type i = 0 ) const { return mom[ i ]; }
+    /// references to mothers
+    const mothers & motherRefVector() const { return mom; }
     /// set daughters product ID
     void resetDaughters( const edm::ProductID & id ) { dau = daughters( id ); }
     /// number of mothers (zero or one in most of but not all the cases)

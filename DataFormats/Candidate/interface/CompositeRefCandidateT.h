@@ -8,7 +8,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: CompositeRefCandidateT.h,v 1.4 2007/10/15 11:51:25 llista Exp $
+ * \version $Id: CompositeRefCandidateT.h,v 1.6 2007/10/15 12:44:33 llista Exp $
  *
  */
 #include "DataFormats/Candidate/interface/Candidate.h"
@@ -67,6 +67,10 @@ namespace reco {
     typename daughters::value_type daughterRef( size_type i ) const { return dau[ i ]; }
     /// references to daughtes
     const daughters & daughterRefVector() const { return dau; }
+    /// reference to mother at given position
+    typename daughters::value_type motherRef( size_type i = 0 ) const { return mom[ i ]; }
+    /// references to mothers
+    const mothers & motherRefVector() const { return mom; }
     /// set daughters product ID
     void resetDaughters( const edm::ProductID & id ) { dau = daughters( id ); }
 
