@@ -1,3 +1,14 @@
+//
+// Package:     CondCore/ESSources
+// Module:      PoolDBESSource
+//
+// Description: <one line class summary>
+//
+// Implementation:
+//     <Notes on implementation>
+//
+// Author:      Zhen Xie
+//
 // system include files
 #include "boost/shared_ptr.hpp"
 #include "CondCore/ESSources/interface/PoolDBESSource.h"
@@ -18,17 +29,15 @@
 #include "CondCore/IOVService/interface/IOVNames.h"
 #include "CondCore/MetaDataService/interface/MetaData.h"
 #include "CondCore/MetaDataService/interface/MetaDataNames.h"
-#include "POOLCore/Exception.h"
+//#include "POOLCore/Exception.h"
 #include "RelationalAccess/IConnectionService.h"
 #include "RelationalAccess/IWebCacheControl.h"
 #include "FWCore/Catalog/interface/SiteLocalConfig.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include <exception>
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-//#include <sstream>
-#include <cstdlib>
+//#include <cstdlib>
 #include "TagCollectionRetriever.h"
-//#include <iostream>
 //
 // static data member definitions
 //
@@ -415,11 +424,20 @@ std::string
 PoolDBESSource::setupFrontier(const std::string& frontierconnect){ 
   //Mark tables that need to not be cached (always refreshed)
   //strip off the leading protocol:// and trailing schema name from connect
-  edm::Service<edm::SiteLocalConfig> localconfservice;
-  if( !localconfservice.isAvailable() ){
-    throw cms::Exception("edm::SiteLocalConfigService is not available");       
+  std::string realconnect=frontierconnect;
+  std::string proto("frontier://");
+  std::string::size_type fpos=frontierconnect.find(proto);
+  unsigned int nslash=this->countslash(frontierconnect.substr(proto.size(),frontierconnect.size()-fpos));
+  if( nslash!=1 && nslash!=2) {
+    throw cms::Exception("connect string "+frontierconnect+" has bad format");
   }
-  std::string realconnect=localconfservice->lookupCalibConnect(frontierconnect);
+  if(nslash==1){
+    edm::Service<edm::SiteLocalConfig> localconfservice;
+    if( !localconfservice.isAvailable() ){
+      throw cms::Exception("edm::SiteLocalConfigService is not available");       
+    }
+    realconnect=localconfservice->lookupCalibConnect(frontierconnect);
+  }
   std::string::size_type startRefresh = realconnect.find("://");
   if (startRefresh != std::string::npos){
     startRefresh += 3;
@@ -447,4 +465,18 @@ PoolDBESSource::fillTagCollectionFromDB( cond::CoralTransaction& coraldb,
 					 const std::string& roottag ){
   cond::TagCollectionRetriever tagRetriever( coraldb );
   tagRetriever.getTagCollection(roottag,m_tagCollection);
+}
+unsigned int
+PoolDBESSource::countslash(const std::string& input)const{
+  unsigned int count=0;
+  std::string::size_type slashpos( 0 );
+  while( slashpos!=std::string::npos){
+    slashpos = input.find('/', slashpos );
+    if ( slashpos != std::string::npos ){
+      ++count;
+      // start next search after this word
+      slashpos += 1;
+    }
+  }
+  return count;
 }

@@ -1,3 +1,10 @@
+//
+// Package:    CondCore/ESSources
+// Class:      TagCollectionRetriever
+//
+// Author:      Zhen Xie
+//
+//#include <iostream>
 #include "TagCollectionRetriever.h"
 #include "TagDBNames.h"
 #include "RelationalAccess/ISchema.h"
@@ -10,7 +17,6 @@
 #include "CoralBase/AttributeSpecification.h"
 #include "CondCore/DBCommon/interface/CoralTransaction.h"
 #include "CondCore/DBCommon/interface/Exception.h"
-//#include <iostream>
 cond::TagCollectionRetriever::TagCollectionRetriever( cond::CoralTransaction& coraldb ):m_coraldb(&coraldb){
 }
 cond::TagCollectionRetriever::~TagCollectionRetriever(){}

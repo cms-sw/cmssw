@@ -1,7 +1,16 @@
 #ifndef CondCore_ESSources_PoolDBESSource_h
 #define CondCore_ESSources_PoolDBESSource_h
+//
+// Package:    CondCore/ESSources
+// Class:      PoolDBESSource
+//
+/**\class PoolDBESSource PoolDBESSource.h CondCore/ESSources/interface/PoolDBESSource.h
+ Description: EventSetup source module for serving data from offline database
+*/
+//
+// Author:      Zhen Xie
+//
 // system include files
-//#include <memory>
 #include <string>
 #include <map>
 #include <vector>
@@ -52,5 +61,6 @@ class PoolDBESSource : public edm::eventsetup::DataProxyProvider,
   void fillTagCollectionFromDB( cond::CoralTransaction& coraldb,
 				const std::string& roottag );
   std::string setupFrontier(const std::string& frontierconnect);
+  unsigned int countslash(const std::string& input)const;
 };
 #endif
