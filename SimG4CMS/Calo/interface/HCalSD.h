@@ -59,7 +59,7 @@ private:
   HFShowerParam *       showerParam;
   HFShowerPMT *         showerPMT;
   bool                  useBirk;
-  double                birk1, birk2;
+  double                birk1, birk2, betaThr;
   bool                  useHF, useShowerLibrary, useParam, usePMTHit;
   std::vector<double>   layer0wt;
   std::vector<G4String> hfNames;

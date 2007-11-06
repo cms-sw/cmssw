@@ -124,7 +124,7 @@ double HFShowerPMT::getRadius() {
    
   double r = 0.;
   if (indexR >= 0) r = 0.5*(rTable[indexR]+rTable[indexR+1]);
-  if (indexF > 1)  r =-r;
+  if (indexF > 3)  r =-r;
   LogDebug("HFShower") << "HFShower: Radius (" << indexR << "/" << indexF 
 		       << ") " << r;
   return r;

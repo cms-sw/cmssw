@@ -39,6 +39,7 @@ HCalSD::HCalSD(G4String name, const DDCompactView & cpv,
   bool testNumber  = m_HC.getParameter<bool>("TestNumberingScheme");
   bool forTBH2     = m_HC.getUntrackedParameter<bool>("ForTBH2",false);
   usePMTHit        = m_HC.getUntrackedParameter<bool>("UsePMTHits",false);
+  betaThr          = m_HC.getUntrackedParameter<double>("BetaThreshold",0.9);
 
   LogDebug("HcalSim") << "***************************************************" 
 		      << "\n"
@@ -53,8 +54,8 @@ HCalSD::HCalSD(G4String name, const DDCompactView & cpv,
 			  << "\nUse of shower parametrization set to "
 			  << useParam << "\nUse of shower library is set to " 
 			  << useShowerLibrary << "\nUse PMT Hit is set to "
-			  << usePMTHit << "\n"
-			  << "         Use of Birks law is set to      " 
+			  << usePMTHit << " with beta Threshold "<< betaThr
+			  << "\n         Use of Birks law is set to      " 
 			  << useBirk << "  with the two constants C1 = "
 			  << birk1 << ", C2 = " << birk2;
   
@@ -216,7 +217,7 @@ bool HCalSD::ProcessHits(G4Step * aStep, G4TouchableHistory * ) {
 			  << aStep->GetTrack()->GetDefinition()->GetParticleName() << ")";
       if (usePMTHit && showerPMT) getHitPMT(aStep);
     } else {
-      LogDebug("HcalSim") << "HCalSD: Hit from PMT parametrization from " 
+      LogDebug("HcalSim") << "HCalSD: Hit from standard path from " 
 			  <<  nameVolume << " for Track " 
 			  << aStep->GetTrack()->GetTrackID() << " ("
 			  << aStep->GetTrack()->GetDefinition()->GetParticleName() << ")";
@@ -559,7 +560,9 @@ void HCalSD::getHitPMT (G4Step* aStep) {
       etaR          =-etaR;
     }
     if (hitPoint.z() < 0) etaR =-etaR;
-    
+    LogDebug("HcalSim") << "HCalSD::Hit for Detector " << det << " etaR "
+			<< etaR << " phi " << phi/deg << " depth " << depth;
+
     double time = (aStep->GetPostStepPoint()->GetGlobalTime());
     uint32_t unitID = 0;
     if (numberingFromDDD) {
@@ -569,9 +572,9 @@ void HCalSD::getHitPMT (G4Step* aStep) {
     }
     currentID.setID(unitID, time, primaryID);
 
+    double beta = preStepPoint->GetBeta();
     G4String particleType = theTrack->GetDefinition()->GetParticleName();
-    if (particleType == "e-" || particleType == "e+" ||
-	particleType == "gamma" ) {
+    if (beta > betaThr) {
       edepositEM  = edep*GeV; edepositHAD = 0.;
     } else {
       edepositEM  = 0.; edepositHAD = edep*GeV;
@@ -579,7 +582,8 @@ void HCalSD::getHitPMT (G4Step* aStep) {
     LogDebug("HcalSim") << "HCalSD::getHitPMT 1 hit for " << GetName() 
 			<< " of " << primaryID << " with " << particleType
 			<< " of " << preStepPoint->GetKineticEnergy()/GeV 
-			<< " GeV in detector type " << det;
+			<< " GeV with velocity " << beta << " UnitID "
+			<< std::hex << unitID << std::dec;
 
     // check if it is in the same unit and timeslice as the previosus one
     if (currentID == previousID) {
