@@ -1,12 +1,12 @@
-#ifndef TauTagVal_BKG_h
-#define TauTagVal_BKG_h
+#ifndef TauTagVal_EMIso_h
+#define TauTagVal_EMIso_h
 
 // -*- C++ -*-
 //
-// Package:    TauTagVal_BKG
-// Class:      TauTagVal_BKG
+// Package:    TauTagVal_EMIso
+// Class:      TauTagVal_EMIso
 // 
-/**\class TauTagVal_BKG TauTagVal_BKG.cc 
+/**\class TauTagVal_EMIso TauTagVal_EMIso.cc 
 
  Description: EDAnalyzer to validate the Collections from the ConeIsolation Producer
  It is supposed to be used for Offline Tau Reconstrction, so PrimaryVertex should be used.
@@ -31,6 +31,7 @@
 #include "DataFormats/JetReco/interface/Jet.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/BTauReco/interface/JetTracksAssociation.h"
+#include "DataFormats/BTauReco/interface/EMIsolatedTauTagInfo.h"
 #include "DataFormats/BTauReco/interface/IsolatedTauTagInfo.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
@@ -51,13 +52,13 @@ class MonitorElement;
 //
 
     
-class TauTagVal_BKG : public edm::EDAnalyzer {
+class TauTagVal_EMIso : public edm::EDAnalyzer {
 public:
 
 
 
-  explicit TauTagVal_BKG(const edm::ParameterSet&);
-  ~TauTagVal_BKG() {}
+  explicit TauTagVal_EMIso(const edm::ParameterSet&);
+  ~TauTagVal_EMIso() {}
 
   virtual void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup);
   virtual void beginJob();
@@ -122,7 +123,6 @@ private:
   int nRuns;
   std::vector<float> nEventsUsed;
   edm::InputTag jetTagSrc;
-  edm::InputTag genJetSrc;
   std::vector<float> nEventsRiso;
   std::vector<float> nEventsEnergyUsed;
   std::vector<float> nEventsEnergy;
@@ -130,23 +130,17 @@ private:
   
   std::vector<double>nEventsUsed07;
   std::vector<double>nEventsRiso07;
-  std::vector<double>nEventsUsed04;
-  std::vector<double>nEventsRiso04;
 
   std::vector<double>nEventsUsed107;
   std::vector<double>nEventsRiso107;
-  std::vector<double>nEventsUsed104;
-  std::vector<double>nEventsRiso104;
+
 
   std::vector<double>nEventsUsed207;
   std::vector<double>nEventsRiso207;
-  std::vector<double>nEventsUsed204;
-  std::vector<double>nEventsRiso204;
 
   std::vector<double>nEventsUsed307;
   std::vector<double>nEventsRiso307;
-  std::vector<double>nEventsUsed304;
-  std::vector<double>nEventsRiso304;
+
 
 
   TH1D* hRatio;
@@ -157,38 +151,12 @@ private:
   
   std::string outPutFile;
   float rSig,rMatch,ptLeadTk, rIso;
-  //AGGIUNGERE MC INFO???
-  MonitorElement* effFindLeadTk;  
-  MonitorElement* effVsRiso;
-  MonitorElement* EventseffVsRiso;
-  MonitorElement* EventsToteffVsRiso;
-  MonitorElement* effVsEt;
-  MonitorElement* EventseffVsEt;
-  MonitorElement* EventsToteffVsEt;
-  MonitorElement* nSignalTracks;
-  MonitorElement* nSignalTracksAfterIsolation;
-  MonitorElement* nAssociatedTracks;
-  MonitorElement* nSelectedTracks;
-  MonitorElement* ptLeadingTrack;
-  MonitorElement* ptJet;
-  MonitorElement* deltaRLeadTk_Jet;
-  MonitorElement* hEtmean;
-  MonitorElement* hEtamean;
-  MonitorElement *hDRRecLdgTrTauJet;
-  MonitorElement *hDRRecLdgTrTauJet1;
-  MonitorElement* nSelVsRiso07;
-  MonitorElement* nSelVsRiso107;
-  MonitorElement* nSelVsRiso207;
-  MonitorElement* nSelVsRiso307;
-  MonitorElement* nSelVsRiso04;
-  MonitorElement* nSelVsRiso104;
-  MonitorElement* nSelVsRiso204;
-  MonitorElement* nSelVsRiso304;
-  MonitorElement* nTotVsRiso07;
-  MonitorElement* nTotVsRiso107;
-  MonitorElement* nTotVsRiso207;
-  MonitorElement* nTotVsRiso307;
-  MonitorElement* hTauJets;
+  MonitorElement* effVsRiso07;
+  MonitorElement* effVsRiso107;
+  MonitorElement* effVsRiso207;
+  MonitorElement* effVsRiso307;
+
+
    
 
 };

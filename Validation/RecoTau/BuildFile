@@ -5,6 +5,7 @@
 <use name=DQMServices/Core>
 <use name=DataFormats/JetReco>
 <use name=DataFormats/BTauReco>
+<use name=DataFormats/TauReco>
 <use name=DataFormats/Math>
 <use name=DataFormats/HepMCCandidate>
 <use name=SimDataFormats/HepMCProduct>
@@ -22,6 +23,7 @@
    <use name=DQMServices/Core>
    <use name=DataFormats/JetReco>
 <use name=DataFormats/BTauReco>
+<use name=DataFormats/TauReco>
 <use name=DataFormats/HepMCCandidate>
 <use name=SimDataFormats/HepMCProduct>
 <use name=root>

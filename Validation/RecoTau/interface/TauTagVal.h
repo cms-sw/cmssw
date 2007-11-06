@@ -21,19 +21,21 @@
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
 #include "HepMC/GenParticle.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/Common/interface/Ref.h"
 #include "DataFormats/JetReco/interface/Jet.h"
-#include "DataFormats/JetReco/interface/PFJet.h"
-#include "DataFormats/JetReco/interface/JetTracksAssociation.h"
 #include "DataFormats/TrackReco/interface/Track.h"
+//#include "DataFormats/BTauReco/interface/JetTracksAssociation.h"
 #include "DataFormats/BTauReco/interface/IsolatedTauTagInfo.h"
+#include "DataFormats/BTauReco/interface/EMIsolatedTauTagInfo.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
 #include "DataFormats/Math/interface/Vector3D.h"
 #include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
+#include "DataFormats/JetReco/interface/PFJet.h"
 //#include "DataFormats/TauReco/interface/CaloTau.h"
+#include "DataFormats/JetReco/interface/GenJet.h"
 
 // Math
 #include "Math/GenVector/VectorUtil.h"
@@ -64,16 +66,23 @@ public:
 private:
   //------------HELPER FUNCTIONS---------------------------
 
-  std::vector<HepMC::GenParticle*> Daughters(HepMC::GenParticle* p);
+
   std::vector<TLorentzVector> getVectorOfVisibleTauJets(HepMC::GenEvent *theEvent);
+  std::vector<HepMC::GenParticle*> getGenStableDecayProducts(const HepMC::GenParticle* particle);
+  std::vector<TLorentzVector> getVectorOfGenJets(edm::Handle< reco::GenJetCollection >& genJets );
 
   // ----------- MEMBER DATA--------------------------------
-  edm::InputTag jetTagSrc_;
+  enum tauDecayModes {kElectron, kMuon, 
+		      kOneProng0pi0, kOneProng1pi0, kOneProng2pi0,
+		      kThreeProng0pi0, kThreeProng1pi0,
+		      kOther, kUndefined};
+
+  edm::InputTag jetTagSrc_, jetEMTagSrc_, genJetSrc_;
   
   std::string outPutFile_;
   float rSig_,rMatch_,ptLeadTk_, rIso_, minPtIsoRing_;
   int nTracksInIsolationRing_;
-
+  std::string dataType_;
   //AGGIUNGERE MC INFO???
 
   // MonteCarlo Taus -- to see what kind of Taus do we originally have!
@@ -81,7 +90,8 @@ private:
   MonitorElement* etaTauMC_;
   MonitorElement* phiTauMC_;
   MonitorElement* energyTauMC_;
- 
+  MonitorElement* hGenTauDecay_DecayModes_;
+
   MonitorElement* nMCTaus_ptTauJet_;
   MonitorElement* nMCTaus_etaTauJet_;
   MonitorElement* nMCTaus_phiTauJet_;
@@ -117,6 +127,14 @@ private:
   MonitorElement* nIsolatedTausDeltaR_LTandJet_;
   MonitorElement* nAssociatedTracks_of_IsolatedTaus_;
   MonitorElement* nSelectedTracks_of_IsolatedTaus_;
+
+
+// The following histograms count the number of EM isolated isolatedTauTagInfoCollection
+  MonitorElement* nEMIsolatedJet_ptTauJet_;
+  MonitorElement* nEMIsolatedJet_etaTauJet_;
+  MonitorElement* nEMIsolatedJet_phiTauJet_;
+  MonitorElement* nEMIsolatedJet_energyTauJet_;
+
 
   // What is the behaviour of cone isolation size on tagging of MC Taus (CONE_MATCHING_CRITERIA) 
   MonitorElement* nTausTotvsConeIsolation_;
