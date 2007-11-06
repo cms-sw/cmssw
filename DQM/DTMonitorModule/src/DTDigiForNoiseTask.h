@@ -4,15 +4,14 @@
 /*
  * \file DTDigiForNoiseTask.h
  *
- * $Date: 2007/10/09 08:34:20 $
- * $Revision: 1.1 $
+ * $Date: 2007/09/20 07:19:09 $
+ * $Revision: 1.14 $
  * \author G. Mila - INFN Torino
  *
 */
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-//#include <FWCore/Framework/interface/EDAnalyzer.h>
-#include "DQMServices/Components/interface/DQMAnalyzer.h"
+#include <FWCore/Framework/interface/EDAnalyzer.h>
 #include <DataFormats/Common/interface/Handle.h>
 #include <FWCore/Framework/interface/ESHandle.h>
 #include <FWCore/Framework/interface/Event.h>
@@ -38,8 +37,7 @@ class DTLayerId;
 class DTChamberId;
 
 
-//class DTDigiForNoiseTask: public edm::EDAnalyzer{
-class DTDigiForNoiseTask: public DQMAnalyzer{
+class DTDigiForNoiseTask: public edm::EDAnalyzer{
 
 public:
 
