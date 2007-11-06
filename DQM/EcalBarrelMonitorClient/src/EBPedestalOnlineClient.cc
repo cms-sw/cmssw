@@ -1,8 +1,8 @@
 /*
  * \file EBPedestalOnlineClient.cc
  *
- * $Date: 2007/11/05 10:51:30 $
- * $Revision: 1.102 $
+ * $Date: 2007/11/05 11:03:52 $
+ * $Revision: 1.103 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -267,8 +267,9 @@ bool EBPedestalOnlineClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov,
     int ism = superModules_[i];
 
     cout << " SM=" << ism << endl;
+    cout << endl;
 
-    UtilsClient::printBadChannels(qth03_[ism-1]);
+    UtilsClient::printBadChannels(meg03_[ism-1], h03_[ism-1]);
 
     float num03;
     float mean03;

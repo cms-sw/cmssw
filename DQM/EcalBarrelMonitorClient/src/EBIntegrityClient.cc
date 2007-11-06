@@ -2,8 +2,8 @@
 /*
  * \file EBIntegrityClient.cc
  *
- * $Date: 2007/11/05 10:51:29 $
- * $Revision: 1.166 $
+ * $Date: 2007/11/05 11:07:04 $
+ * $Revision: 1.167 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -384,18 +384,24 @@ bool EBIntegrityClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
     int ism = superModules_[i];
 
     cout << " SM=" << ism << endl;
+    cout << endl;
 
-    UtilsClient::printBadChannels(qth01_[ism-1]);
-    UtilsClient::printBadChannels(qth02_[ism-1]);
-    UtilsClient::printBadChannels(qth03_[ism-1]);
-    UtilsClient::printBadChannels(qth04_[ism-1]);
-    UtilsClient::printBadChannels(qth05_[ism-1]);
-    UtilsClient::printBadChannels(qth06_[ism-1]);
+    if ( h00_ && h00_->GetBinContent(ism) != 0 ) {
+      cout << " DCC failed " << h00_->GetBinContent(ism) << " times" << endl;
+      cout << endl;
+    }
 
-    UtilsClient::printBadChannels(qth07_[ism-1]);
-    UtilsClient::printBadChannels(qth08_[ism-1]);
-    UtilsClient::printBadChannels(qth09_[ism-1]);
-    UtilsClient::printBadChannels(qth10_[ism-1]);
+    UtilsClient::printBadChannels(meg01_[ism-1], h01_[ism-1], true);
+    UtilsClient::printBadChannels(meg01_[ism-1], h02_[ism-1], true);
+    UtilsClient::printBadChannels(meg01_[ism-1], h03_[ism-1], true);
+    UtilsClient::printBadChannels(meg01_[ism-1], h04_[ism-1], true);
+    UtilsClient::printBadChannels(meg01_[ism-1], h05_[ism-1], true);
+    UtilsClient::printBadChannels(meg01_[ism-1], h06_[ism-1], true);
+
+    UtilsClient::printBadChannels(meg02_[ism-1], h07_[ism-1], true);
+    UtilsClient::printBadChannels(meg02_[ism-1], h08_[ism-1], true);
+    UtilsClient::printBadChannels(meg02_[ism-1], h09_[ism-1], true);
+    UtilsClient::printBadChannels(meg02_[ism-1], h10_[ism-1], true);
 
     float num00;
 

@@ -1,8 +1,8 @@
 /*
  * \file EELaserClient.cc
  *
- * $Date: 2007/11/05 10:51:30 $
- * $Revision: 1.45 $
+ * $Date: 2007/11/05 11:09:08 $
+ * $Revision: 1.46 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -1164,15 +1164,16 @@ bool EELaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
     int ism = superModules_[i];
 
     cout << " SM=" << ism << endl;
+    cout << endl;
 
-    UtilsClient::printBadChannels(qth01_[ism-1]);
-    UtilsClient::printBadChannels(qth05_[ism-1]);
-    UtilsClient::printBadChannels(qth02_[ism-1]);
-    UtilsClient::printBadChannels(qth06_[ism-1]);
-    UtilsClient::printBadChannels(qth03_[ism-1]);
-    UtilsClient::printBadChannels(qth07_[ism-1]);
-    UtilsClient::printBadChannels(qth04_[ism-1]);
-    UtilsClient::printBadChannels(qth08_[ism-1]);
+    UtilsClient::printBadChannels(meg01_[ism-1], h01_[ism-1]);
+    UtilsClient::printBadChannels(meg01_[ism-1], h13_[ism-1]);
+    UtilsClient::printBadChannels(meg02_[ism-1], h03_[ism-1]);
+    UtilsClient::printBadChannels(meg02_[ism-1], h15_[ism-1]);
+    UtilsClient::printBadChannels(meg03_[ism-1], h05_[ism-1]);
+    UtilsClient::printBadChannels(meg03_[ism-1], h17_[ism-1]);
+    UtilsClient::printBadChannels(meg04_[ism-1], h07_[ism-1]);
+    UtilsClient::printBadChannels(meg04_[ism-1], h19_[ism-1]);
 
     for ( int ix = 1; ix <= 50; ix++ ) {
       for ( int iy = 1; iy <= 50; iy++ ) {
@@ -1582,23 +1583,24 @@ bool EELaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
     int ism = superModules_[i];
 
     cout << " SM=" << ism << endl;
+    cout << endl;
 
-    UtilsClient::printBadChannels(qth09_[ism-1]);
-    UtilsClient::printBadChannels(qth10_[ism-1]);
-    UtilsClient::printBadChannels(qth11_[ism-1]);
-    UtilsClient::printBadChannels(qth12_[ism-1]);
-    UtilsClient::printBadChannels(qth13_[ism-1]);
-    UtilsClient::printBadChannels(qth14_[ism-1]);
-    UtilsClient::printBadChannels(qth15_[ism-1]);
-    UtilsClient::printBadChannels(qth16_[ism-1]);
-    UtilsClient::printBadChannels(qth17_[ism-1]);
-    UtilsClient::printBadChannels(qth18_[ism-1]);
-    UtilsClient::printBadChannels(qth19_[ism-1]);
-    UtilsClient::printBadChannels(qth20_[ism-1]);
-    UtilsClient::printBadChannels(qth21_[ism-1]);
-    UtilsClient::printBadChannels(qth22_[ism-1]);
-    UtilsClient::printBadChannels(qth23_[ism-1]);
-    UtilsClient::printBadChannels(qth24_[ism-1]);
+    UtilsClient::printBadChannels(meg05_[ism-1], i01_[ism-1]);
+    UtilsClient::printBadChannels(meg05_[ism-1], i05_[ism-1]);
+    UtilsClient::printBadChannels(meg06_[ism-1], i02_[ism-1]);
+    UtilsClient::printBadChannels(meg06_[ism-1], i06_[ism-1]);
+    UtilsClient::printBadChannels(meg07_[ism-1], i03_[ism-1]);
+    UtilsClient::printBadChannels(meg07_[ism-1], i07_[ism-1]);
+    UtilsClient::printBadChannels(meg08_[ism-1], i04_[ism-1]);
+    UtilsClient::printBadChannels(meg08_[ism-1], i08_[ism-1]);
+    UtilsClient::printBadChannels(meg09_[ism-1], i09_[ism-1]);
+    UtilsClient::printBadChannels(meg09_[ism-1], i13_[ism-1]);
+    UtilsClient::printBadChannels(meg10_[ism-1], i10_[ism-1]);
+    UtilsClient::printBadChannels(meg10_[ism-1], i14_[ism-1]);
+    UtilsClient::printBadChannels(meg11_[ism-1], i11_[ism-1]);
+    UtilsClient::printBadChannels(meg11_[ism-1], i15_[ism-1]);
+    UtilsClient::printBadChannels(meg12_[ism-1], i12_[ism-1]);
+    UtilsClient::printBadChannels(meg12_[ism-1], i16_[ism-1]);
 
     for ( int i = 1; i <= 10; i++ ) {
 

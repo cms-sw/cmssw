@@ -1,8 +1,8 @@
 /*
  * \file EETimingClient.cc
  *
- * $Date: 2007/11/05 10:51:31 $
- * $Revision: 1.33 $
+ * $Date: 2007/11/05 11:03:53 $
+ * $Revision: 1.34 $
  * \author G. Della Ricca
  *
 */
@@ -288,8 +288,9 @@ bool EETimingClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunI
     int ism = superModules_[i];
 
     cout << " SM=" << ism << endl;
+    cout << endl;
 
-    UtilsClient::printBadChannels(qth01_[ism-1]);
+    UtilsClient::printBadChannels(meg01_[ism-1], h01_[ism-1]);
 
     float num01; 
     float mean01;
