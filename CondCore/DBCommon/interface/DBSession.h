@@ -1,5 +1,15 @@
 #ifndef COND_DBCommon_DBSession_h
 #define COND_DBCommon_DBSession_h
+//
+// Package:    CondCore/DBCommon
+// Class:      DBSession
+//
+/**\class DBSession DBSession.h CondCore/DBCommon/interface/DBSession.h
+ Description: Class to prepare database connection setup
+*/
+//
+// Author:      Zhen Xie
+//
 #include <string>
 #include "SealKernel/Context.h"
 #include "SealKernel/ComponentLoader.h"

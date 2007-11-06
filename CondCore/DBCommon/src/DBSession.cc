@@ -1,3 +1,9 @@
+//
+// Package:    CondCore/DBCommon
+// Class:      DBSession
+//
+// Author:      Zhen Xie
+//
 //seal includes
 #include "PluginManager/PluginManager.h"
 #include "SealKernel/IMessageService.h"
@@ -57,7 +63,9 @@ void cond::DBSession::open(){
     v_msgSvc.front()->setOutputLevel( seal::Msg::Error );
   } 
   //load authentication service
-  if( m_sessionConfig->authenticationMethod()==cond::XML ){
+  std::vector< seal::IHandle<coral::IAuthenticationService> > v_authsvc;
+  if( m_sessionConfig->authenticationMethod()== cond::XML ) {
+    m_loader->load( "CORAL/Services/XMLAuthenticationService" );
     boost::filesystem::path authPath( m_sessionConfig->authName() );
     authPath /= boost::filesystem::path("authentication.xml");
     std::string authName=authPath.string();
@@ -70,13 +78,11 @@ void cond::DBSession::open(){
 	pmgr->property("AuthenticationFile")->set(authName);
       }
     }
-  }
-  std::vector< seal::IHandle<coral::IAuthenticationService> > v_authsvc;
-  if( m_sessionConfig->authenticationMethod()== cond::XML ) {
-    m_loader->load( "CORAL/Services/XMLAuthenticationService" );
   }else{
     m_loader->load( "CORAL/Services/EnvironmentAuthenticationService" );
   }
+  //if( m_sessionConfig->authenticationMethod()==cond::XML ){
+  //  }
   m_context->query(v_authsvc);
   if ( v_authsvc.empty() ) {
     throw cond::Exception( "Could not locate authentication service" );

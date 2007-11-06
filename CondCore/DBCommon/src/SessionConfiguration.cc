@@ -1,5 +1,6 @@
 #include "CondCore/DBCommon/interface/SessionConfiguration.h"
 #include "CondCore/DBCommon/interface/ConnectionConfiguration.h"
+//#include <iostream>
 cond::SessionConfiguration::SessionConfiguration():m_authMethod(cond::Env),m_hasBlobstreamer(false),m_blobstreamerName(""),m_messageLevel(cond::Error),m_conConfig(new ConnectionConfiguration){}
 cond::SessionConfiguration::~SessionConfiguration(){
   delete m_conConfig;

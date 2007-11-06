@@ -1,5 +1,15 @@
 #ifndef COND_DBCommon_SessionConfiguration_h
 #define COND_DBCommon_SessionConfiguration_h
+//
+// Package:    CondCore/DBCommon
+// Class:      SessionConfiguration
+//
+/**\class SessionConfiguration SessionConfiguration.h CondCore/DBCommon/interface/SessionConfiguration.h
+ Description: set cofiguration parameters of the session
+*/
+//
+// Author:      Zhen Xie
+//
 #include "CondCore/DBCommon/interface/AuthenticationMethod.h"
 #include "CondCore/DBCommon/interface/MessageLevel.h"
 #include <string>
