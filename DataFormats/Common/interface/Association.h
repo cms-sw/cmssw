@@ -4,7 +4,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: Association.h,v 1.2 2007/10/30 13:43:37 llista Exp $
+ * \version $Id: Association.h,v 1.3 2007/11/05 15:42:50 llista Exp $
  *
  */
 
@@ -32,7 +32,12 @@ namespace edm {
       return get(r.id(), r.key());
     }
     reference_type get(ProductID id, size_t idx) const { 
-      index i = base::get(id, idx);
+      typename id_offset_vector::const_iterator f = getIdOffset(id);
+      if(f==ids_.end()||f->first != id) return reference_type();
+      offset off = f->second;
+      size_t j = off+idx;
+      if(j >= indices_.size()) throwIndexBound();
+      index i = indices_[j];
       if(i < 0) return reference_type(); 
       size_t k = i;
       if (k >= ref_->size()) throwIndexMapBound();
@@ -55,22 +60,35 @@ namespace edm {
     void clear() { base::clear(); }
     refprod_type ref() const { return ref_; }
 
-    class Filler : public base::Filler {
+    class Filler : public helper::Filler<Association<C> > {
+      typedef helper::Filler<Association<C> > base;
     public:
       explicit Filler(Association<C> & association) : 
-	base::Filler(association) { }
+	base(association) { }
+      void add(const Association<C> & association) {
+	base::map_.setRef(association.ref());
+	base::add(association);
+      }
     };
 
   private:
     refprod_type ref_;
     void throwIndexMapBound() const {
       throw Exception(errors::InvalidReference)
-	<< "Association: index in the map out of upper boundary";
+	<< "Association: index in the map out of upper boundary\n";
     }
     void throwRefSet() const {
       throw Exception(errors::InvalidReference) 
-	<< "Association: reference to product already set";
+	<< "Association: reference to product already set\n";
     }
+
+    void add( const Association<C> & o ) {
+      Filler filler(*this);
+      filler.add(o);
+      filler.fill();
+    }
+
+    friend class helper::Filler<Association<C> >;
   }; 
   
 }
