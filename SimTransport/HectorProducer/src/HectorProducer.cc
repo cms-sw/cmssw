@@ -7,11 +7,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
  
 // HepMC headers
-#include "CLHEP/HepMC/GenEvent.h"
-#include "CLHEP/HepMC/GenParticle.h"
-#include "CLHEP/HepMC/ParticleDataTableConfig.h"
- 
-#include "CLHEP/Vector/LorentzVector.h"
+#include "HepMC/GenEvent.h"
  
 // Hector headers
 #include "SimTransport/HectorProducer/interface/HectorProducer.h"
