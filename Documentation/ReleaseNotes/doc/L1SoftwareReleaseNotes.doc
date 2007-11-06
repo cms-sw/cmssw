@@ -19,7 +19,7 @@ The main change in this release is the inclusion of the GT emulator by default. 
    * Missing Et phi asymmetry problems fixed
 
 - Known issues:
-
+   * L1CondDB tools : write-read to SQLite file only succeeds for L1TriggerKey, other objects fail. Under investigation.
 
 
 <hr>
