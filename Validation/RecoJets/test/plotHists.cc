@@ -111,7 +111,7 @@ PlotPoint fitHist (const TH1D& fHist) {
   }
   double binSize = fHist.GetBinWidth(0);
   double histSigma = fHist.GetRMS();
-  int fitWindow = (int) floor (2.*histSigma/binSize);
+  int fitWindow = (int) floor (histSigma/binSize);
   if (fitWindow < 2) {
     fitWindow = 2;
     std::cout << "fitHist-> window is too narrow (1): " << histSigma << '/' << fitWindow << std::endl;
@@ -143,6 +143,9 @@ PlotPoint fitHist (const TH1D& fHist) {
   result.syserror = sysMean;
   double sysWidth = fabs ((fitLeft.width - fitRight.width));
   result.widtherror = sqrt (fit0.widtherror*fit0.widtherror + sysWidth*sysWidth);
+  if ((result.syserror+result.meanerror) > 5 * fabs(result.y)) { // too big error
+    result.valid = false;
+  }
   return result;
 }
 
