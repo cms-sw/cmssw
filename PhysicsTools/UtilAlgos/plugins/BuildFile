@@ -1,5 +1,5 @@
 <export></export>
-<library name=PhysucsToolsUtilAlgos_plugins file=*.cc>
+<library name=PhysicsToolsUtilAlgos_plugins file=*.cc>
   <use name=FWCore/Framework>
   <use name=FWCore/ParameterSet>
   <use name=PhysicsTools/UtilAlgos>
