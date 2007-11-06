@@ -19,10 +19,10 @@ private:
   
 public:
   JetTagComputerESProducer(const edm::ParameterSet & pset) : m_pset(pset) {
-    setWhatProduced(this, m_pset.retrieve("ComponentName").getString());
+    setWhatProduced(this, m_pset.getParameter<std::string>("@module_label") );
 
     m_jetTagComputer = boost::shared_ptr<JetTagComputer>(
-    new ConcreteJetTagComputer( pset.getParameter<edm::ParameterSet>("JetTagComputerPSet" ) ));
+      new ConcreteJetTagComputer( m_pset.getParameter<edm::ParameterSet>("JetTagComputerPSet") ) );
   }
   
   virtual ~JetTagComputerESProducer() {
