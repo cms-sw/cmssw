@@ -13,7 +13,7 @@
 //
 // Original Author:  Ricardo Vasquez Sierra
 //         Created:  October 8, 2007 
-// $Id: PFTauTagVal.cc,v 1.1.2.8 2007/10/16 03:04:52 vasquez Exp $
+// $Id: PFTauTagVal.cc,v 1.3 2007/11/06 17:43:33 vasquez Exp $
 //
 //
 // user include files
@@ -143,7 +143,7 @@ void PFTauTagVal::beginJob()
 { 
 
 
-}
+} 
 
 // -- method called to produce fill all the histograms --------------------
 void PFTauTagVal::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
@@ -187,9 +187,6 @@ void PFTauTagVal::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
   Handle<PFTauCollection> thePFTauHandle;
   iEvent.getByLabel(PFTauProducer_,thePFTauHandle);
   
-  Handle<PFTauDiscriminatorByIsolation> thePFTauDiscriminatorByIsolation;
-  iEvent.getByLabel(PFTauDiscriminatorByIsolationProducer_,thePFTauDiscriminatorByIsolation);
-
   cout<<"***"<<endl;
   cout<<"Found "<<thePFTauHandle->size()<<" had. tau-jet candidates"<<endl;
   int i_PFTau=0;
