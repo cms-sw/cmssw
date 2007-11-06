@@ -1,3 +1,6 @@
+#ifndef ImpactParameter_JetBProbabilityComputer_h
+#define ImpactParameter_JetBProbabilityComputer_h
+
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/BTauReco/interface/TrackProbabilityTagInfo.h"
 #include "DataFormats/BTauReco/interface/TrackIPTagInfo.h"
@@ -19,7 +22,6 @@ class JetBProbabilityComputer : public JetTagComputer
      m_nbTracks         = parameters.getParameter<unsigned int>("numberOfBTracks");
      m_cutMaxDecayLen   = parameters.getParameter<double>("maximumDecayLength");
      m_cutMaxDistToAxis = parameters.getParameter<double>("maximumDistanceToJetAxis");
-
   }
  
   float discriminator(const reco::BaseTagInfo & ti) const 
@@ -116,3 +118,5 @@ double jetProbability( const std::vector<float> & v ) const
    double m_cutMaxDistToAxis;
 
 };
+
+#endif // ImpactParameter_JetBProbabilityComputer_h

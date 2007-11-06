@@ -1,11 +1,15 @@
+#ifndef ImpactParameter_JetProbabilityComputer_h
+#define ImpactParameter_JetProbabilityComputer_h
+
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/BTauReco/interface/TrackProbabilityTagInfo.h"
 #include "DataFormats/BTauReco/interface/TrackIPTagInfo.h"
+#include "DataFormats/VertexReco/interface/Vertex.h"
 #include "Math/GenVector/VectorUtil.h"
 #include "RecoBTau/JetTagComputer/interface/JetTagComputer.h"
-#include "DataFormats/VertexReco/interface/Vertex.h"
 
 #include <iostream>
+
 class JetProbabilityComputer : public JetTagComputer
 {
  public:
@@ -17,7 +21,6 @@ class JetProbabilityComputer : public JetTagComputer
      m_trackSign        = parameters.getParameter<int>("trackIpSign");
      m_cutMaxDecayLen   = parameters.getParameter<double>("maximumDecayLength"); 
      m_cutMaxDistToAxis = parameters.getParameter<double>("maximumDistanceToJetAxis"); 
-
   }
  
   float discriminator(const reco::BaseTagInfo & ti) const 
@@ -110,3 +113,5 @@ double jetProbability( const std::vector<float> & v ) const
 
 
 };
+
+#endif // ImpactParameter_JetProbabilityComputer_h

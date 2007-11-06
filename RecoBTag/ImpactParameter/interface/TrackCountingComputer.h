@@ -1,5 +1,6 @@
-#ifndef TrackCounting_TrackCountingComputer_h
-#define TrackCounting_TrackCountingComputer_h
+#ifndef ImpactParameter_TrackCountingComputer_h
+#define ImpactParameter_TrackCountingComputer_h
+
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/BTauReco/interface/TrackCountingTagInfo.h"
@@ -14,10 +15,9 @@ class TrackCountingComputer : public JetTagComputer
   {
      m_nthTrack         = parameters.getParameter<int>("nthTrack");
      m_ipType           = parameters.getParameter<int>("impactParamterType");
-     m_deltaR          = parameters.getParameter<double>("deltaR");
+     m_deltaR           = parameters.getParameter<double>("deltaR");
      m_cutMaxDecayLen   = parameters.getParameter<double>("maximumDecayLength"); //used
      m_cutMaxDistToAxis = parameters.getParameter<double>("maximumDistanceToJetAxis"); //used
- 
   }
 
  
@@ -71,4 +71,5 @@ class TrackCountingComputer : public JetTagComputer
    double m_cutMaxDistToAxis;
 
 };
-#endif
+
+#endif // ImpactParameter_TrackCountingComputer_h
