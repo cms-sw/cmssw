@@ -71,6 +71,9 @@ if(allCSCSegments->size()>0){
 	
 	std::set<RPCDetId> rollsForThisCSC = rollstoreCSC[CSCStationIndex(rpcRegion,rpcStation,rpcRing,rpcSegment)];
 
+	std::cout<<"\t \t Number of rolls for this CSC = "<<rollsForThisCSC.size()<<std::endl;
+        assert(rollsForThisCSC.size()>=1);
+
 	for (std::set<RPCDetId>::iterator iteraRoll = rollsForThisCSC.begin();iteraRoll != rollsForThisCSC.end(); iteraRoll++){
 	  const RPCRoll* rollasociated = rpcGeo->roll(*iteraRoll);
 	  RPCDetId rpcId = rollasociated->id();

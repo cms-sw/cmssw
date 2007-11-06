@@ -80,6 +80,10 @@ if(all4DSegments->size()>0){
 		if(dtSector==13)dtSector=4;
 	        if(dtSector==14)dtSector=10;
 		std::set<RPCDetId> rollsForThisDT = rollstoreDT[DTStationIndex(0,dtWheel,dtSector,dtStation)];
+
+		std::cout<<"\t \t Number of rolls for this DT = "<<rollsForThisDT.size()<<std::endl;
+        	assert(rollsForThisDT.size()>=1);
+
 		std::cout<<"MB4 \t \t Loop over all the rolls asociated to MB4 "<<std::endl;
 		
 		for (std::set<RPCDetId>::iterator iteraRoll
