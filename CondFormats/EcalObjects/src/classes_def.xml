@@ -22,14 +22,12 @@
  <class name="EcalChannelStatusCode"/>
 
  <class name="EcalLaserAPDPNRatios"/>
-
  <class name="EcalLaserAPDPNRatios::EcalLaserTimeStamp"/>
  <class name="std::vector<EcalLaserAPDPNRatios::EcalLaserTimeStamp>"/>
-
  <class name="EcalLaserAPDPNRatios::EcalLaserAPDPNpair"/>
- <class name="std::vector<EcalLaserAPDPNRatios::EcalLaserAPDPNpair>"/>
 
  <class name="EcalLaserAlphas"/>
+
  <class name="EcalLaserAPDPNRatiosRef"/>
 
  <class name="EcalTPGFineGrainConstEB"/>
