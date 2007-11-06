@@ -3,16 +3,26 @@
 
 
 - General:
+The main change in this release is the inclusion of the GT emulator by default. Modifications were made to HLT seeding to accomodate this, and to provide compatibility of the HLT with the L1 hardware.
+
 
 - Main changes and new features:
+    * GT emulator included in default L1Emulator sequence to produce L1 decision word and particle-map
+    * L1Extra now only produces L1Extra particles
+    * HLT seeding now uses HLTLevel1GTSeed module
+    * First version of L1CondDB tools available
+    * All emulator modules now configured via EventSetup
+    * Various Jet Counts now available for use in GT algorithms
+    * GCT includes optional 'PiecewiseCubic' jet correction parameterisation + constants tuned on 131 
 
 - Major bug fixes:
+   * Missing Et phi asymmetry problems fixed
 
 - Known issues:
 
 
 
 <hr>
-Last updated: @DATE@ Your name
+Last updated: @DATE@ Jim Brooke
  
 */
