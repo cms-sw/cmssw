@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorModule.cc
  *
- * $Date: 2007/06/21 13:40:06 $
- * $Revision: 1.137 $
+ * $Date: 2007/09/07 22:30:05 $
+ * $Revision: 1.138 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -63,15 +63,6 @@ EcalBarrelMonitorModule::EcalBarrelMonitorModule(const ParameterSet& ps){
   // this should come from the EcalBarrel event header
   runType_ = ps.getUntrackedParameter<int>("runType", -1);
   evtType_ = runType_;
-
-  // DQM ROOT output
-  outputFile_ = ps.getUntrackedParameter<string>("outputFile", "");
-
-  if ( outputFile_.size() != 0 ) {
-    LogInfo("EcalBarrelMonitor") << " Ecal Barrel Monitoring histograms will be saved to '" << outputFile_.c_str() << "'";
-  } else {
-    LogInfo("EcalBarrelMonitor") << " Ecal Barrel Monitoring histograms will NOT be saved";
-  }
 
   // verbosity switch
   verbose_ = ps.getUntrackedParameter<bool>("verbose", false);
@@ -265,8 +256,6 @@ void EcalBarrelMonitorModule::endJob(void) {
   if ( meEvt_ ) meEvt_->Fill(evtNumber_);
 
   if ( meRunType_ ) meRunType_->Fill(runType_);
-
-  if ( outputFile_.size() != 0 && dbe_ ) dbe_->save(outputFile_);
 
   // this should give enough time to meStatus_ to reach the Collector,
   // and then hopefully the Client, and to allow the Client to complete

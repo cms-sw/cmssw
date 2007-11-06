@@ -4,8 +4,8 @@
 /*
  * \file EcalEndcapMonitorModule.h
  *
- * $Date: 2007/05/12 09:32:24 $
- * $Revision: 1.3 $
+ * $Date: 2007/05/25 08:18:13 $
+ * $Revision: 1.4 $
  * \author G. Della Ricca
  *
 */
@@ -89,8 +89,6 @@ MonitorElement* meEEhits_;
 MonitorElement* meEvent_[18];
 
 bool init_;
-
-std::string outputFile_;
 
 };
 

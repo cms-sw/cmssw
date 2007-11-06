@@ -4,8 +4,8 @@
 /*
  * \file EcalBarrelMonitorModule.h
  *
- * $Date: 2007/04/05 14:53:54 $
- * $Revision: 1.42 $
+ * $Date: 2007/05/25 08:19:03 $
+ * $Revision: 1.43 $
  * \author G. Della Ricca
  *
 */
@@ -89,8 +89,6 @@ MonitorElement* meEBhits_;
 MonitorElement* meEvent_[36];
 
 bool init_;
-
-std::string outputFile_;
 
 };
 

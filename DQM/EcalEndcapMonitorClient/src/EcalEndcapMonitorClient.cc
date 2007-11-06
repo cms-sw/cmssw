@@ -1,8 +1,8 @@
 /*
  * \file EcalEndcapMonitorClient.cc
  *
- * $Date: 2007/10/18 09:43:53 $
- * $Revision: 1.74 $
+ * $Date: 2007/11/05 10:59:23 $
+ * $Revision: 1.75 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -117,14 +117,6 @@ void EcalEndcapMonitorClient::initialize(const ParameterSet& ps){
 
   if ( inputFile_.size() != 0 ) {
     cout << " Reading DQM data from inputFile = '" << inputFile_ << "'" << endl;
-  }
-
-  // DQM ROOT output file
-
-  outputFile_ = ps.getUntrackedParameter<string>("outputFile", "");
-
-  if ( outputFile_.size() != 0 ) {
-    cout << " Writing DQM data to outputFile = '" << outputFile_ << "'" << endl;
   }
 
   // Ecal Cond DB
@@ -777,24 +769,6 @@ void EcalEndcapMonitorClient::endRun(void) {
 
   if ( baseHtmlDir_.size() != 0 ) this->htmlOutput();
 
-  if ( outputFile_.size() != 0 ) {
-    string fileName = outputFile_;
-    char tmp[9];
-    if ( fileName.find("RUNNUMBER") < fileName.size() ) {
-      if ( run_ != -1 ) {
-        sprintf(tmp,"%09d", run_);
-      } else {
-        sprintf(tmp,"%09d", 0);
-      }
-      fileName.replace(fileName.find("RUNNUMBER"), 9, tmp);
-    }
-    if ( fileName.find("LBLOCK") < fileName.size() ) {
-      sprintf(tmp,"%06d", 0);
-      fileName.replace(fileName.find("LBLOCK"), 6, tmp);
-    }
-    dbe_->save(fileName);
-  }
-
   if ( subrun_ != -1 ) {
 
     this->writeDb();
@@ -864,25 +838,6 @@ void EcalEndcapMonitorClient::beginLuminosityBlock(const LuminosityBlock &l, con
 void EcalEndcapMonitorClient::endLuminosityBlock(const LuminosityBlock &l, const EventSetup &c) {
 
   this->analyze();
-
-  if ( outputFile_.size() != 0 ) {
-    if ( outputFile_.find("LBLOCK") < outputFile_.size() ) {
-      string fileName = outputFile_;
-      char tmp[10];
-      if ( fileName.find("RUNNUMBER") < fileName.size() ) {
-        if ( run_ != -1 ) {
-          sprintf(tmp,"%09d", run_);
-        } else {
-          sprintf(tmp,"%09d", 0);
-        }
-        fileName.replace(fileName.find("RUNNUMBER"), 9, tmp);
-      }
-      sprintf(tmp,"%06d", l.id().luminosityBlock());
-      fileName.replace(fileName.find("LBLOCK"), 6, tmp);
-
-      dbe_->save(fileName);
-    }
-  }
 
 }
 
@@ -1152,21 +1107,8 @@ void EcalEndcapMonitorClient::writeDb(void) {
   md.setNumEvents(int(nevt));
   md.setMonRunOutcomeDef(monRunOutcomeDef);
 
-  if ( outputFile_.size() != 0 ) {
-    string fileName = outputFile_;
-    for ( unsigned int i = 0; i < fileName.size(); i++ ) {
-      if( fileName.substr(i, 9) == "RUNNUMBER" )  {
-        char tmp[10];
-        if ( run_ != -1 ) {
-          sprintf(tmp,"%09d", run_);
-        } else {
-          sprintf(tmp,"%09d", 0);
-        }
-        fileName.replace(i, 5, tmp);
-      }
-    }
-    md.setRootfileName(fileName);
-  }
+//  string fileName = "";
+//  md.setRootfileName(fileName);
 
   md.setTaskList(taskl);
   md.setTaskOutcome(tasko);

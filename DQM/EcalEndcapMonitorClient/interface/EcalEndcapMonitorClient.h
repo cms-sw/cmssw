@@ -4,8 +4,8 @@
 /*
  * \file EcalEndcapMonitorClient.h
  *
- * $Date: 2007/08/17 09:05:11 $
- * $Revision: 1.20 $
+ * $Date: 2007/09/07 22:30:06 $
+ * $Revision: 1.21 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -144,7 +144,6 @@ int  serverPort_;
  
 string inputFile_;
 string referenceFile_;
-string outputFile_;
  
 string dbName_;
 string dbHostName_;

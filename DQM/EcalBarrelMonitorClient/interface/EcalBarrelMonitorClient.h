@@ -4,8 +4,8 @@
 /*
  * \file EcalBarrelMonitorClient.h
  *
- * $Date: 2007/08/17 09:05:07 $
- * $Revision: 1.84 $
+ * $Date: 2007/09/07 22:30:03 $
+ * $Revision: 1.85 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -143,7 +143,6 @@ bool enableServer_;
 int  serverPort_;
  
 string inputFile_;
-string outputFile_;
  
 string dbName_;
 string dbHostName_;
