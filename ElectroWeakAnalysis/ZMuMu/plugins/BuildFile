@@ -1,13 +1,12 @@
-<use name=FWCore/Framework>
-<use name=PhysicsTools/UtilAlgos>
-<use name=DataFormats/MuonReco>
-<use name=FWCore/ParameterSet>
-<use name=DataFormats/HepMCCandidate>
-<use name=root>
-
-<library file=ZToMuMuHistogrammer.cc></library>
-<library file=ZMuMuAnalyzer.cc></library>
-<library file=ZToMuMuFilter.cc></library>
-<library file=ZToLLEdmNtupleDumper.cc></library>
+<export></export>
+<library name=ElectroWeakAnalysisZMuMu_plugins file=*.cc>
+  <use name=FWCore/Framework>
+  <use name=PhysicsTools/UtilAlgos>
+  <use name=PhysicsTools/Utilities>
+  <use name=DataFormats/MuonReco>
+  <use name=FWCore/ParameterSet>
+  <use name=DataFormats/HepMCCandidate>
+  <use name=root>
+</library>
 
 
