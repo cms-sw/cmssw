@@ -152,4 +152,5 @@ class EcalCondObjectContainer {
                 EcalContainer< EEDetId, Item > ee_;
 };
 
+typedef EcalCondObjectContainer<float> EcalFloatCondObjectContainer;
 #endif
