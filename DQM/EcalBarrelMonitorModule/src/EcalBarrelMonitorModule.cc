@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorModule.cc
  *
- * $Date: 2007/11/06 10:29:39 $
- * $Revision: 1.139 $
+ * $Date: 2007/11/06 11:30:20 $
+ * $Revision: 1.140 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -392,20 +392,10 @@ void EcalBarrelMonitorModule::analyze(const Event& e, const EventSetup& c){
       int ie = (ic-1)/20 + 1;
       int ip = (ic-1)%20 + 1;
 
-      int ism = id.ism();
-
-      float xie = ie - 0.5;
-      float xip = ip - 0.5;
+      int ism = Numbers::iSM( id );
 
       LogDebug("EcalBarrelMonitor") << " det id = " << id;
       LogDebug("EcalBarrelMonitor") << " sm, eta, phi " << ism << " " << ie << " " << ip;
-
-      if ( xie <= 0. || xie >= 85. || xip <= 0. || xip >= 20. ) {
-        LogWarning("EcalBarrelMonitor") << " det id = " << id;
-        LogWarning("EcalBarrelMonitor") << " sm, eta, phi " << ism << " " << ie << " " << ip;
-        LogWarning("EcalBarrelMonitor") << " xie, xip " << xie << " " << xip;
-        return;
-      }
 
     }
 

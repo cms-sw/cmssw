@@ -1,8 +1,8 @@
 /*
  * \file EcalEndcapMonitorModule.cc
  *
- * $Date: 2007/11/06 10:29:42 $
- * $Revision: 1.12 $
+ * $Date: 2007/11/06 11:31:09 $
+ * $Revision: 1.13 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -42,7 +42,7 @@ EcalEndcapMonitorModule::EcalEndcapMonitorModule(const ParameterSet& ps){
 
   EcalTBEventHeader_ = ps.getParameter<edm::InputTag>("EcalTBEventHeader");
   EcalRawDataCollection_ = ps.getParameter<edm::InputTag>("EcalRawDataCollection");
-  EBDigiCollection_ = ps.getParameter<edm::InputTag>("EBDigiCollection");
+  EEDigiCollection_ = ps.getParameter<edm::InputTag>("EEDigiCollection");
   EcalUncalibratedRecHitCollection_ = ps.getParameter<edm::InputTag>("EcalUncalibratedRecHitCollection");
 
   cout << endl;
@@ -372,8 +372,8 @@ void EcalEndcapMonitorModule::analyze(const Event& e, const EventSetup& c){
 
   try {
 
-    Handle<EBDigiCollection> digis;
-    e.getByLabel(EBDigiCollection_, digis);
+    Handle<EEDigiCollection> digis;
+    e.getByLabel(EEDigiCollection_, digis);
 
     int nebd = digis->size();
     LogDebug("EcalEndcapMonitor") << "event " << ievt_ << " digi collection size " << nebd;
@@ -383,29 +383,20 @@ void EcalEndcapMonitorModule::analyze(const Event& e, const EventSetup& c){
     // pause the shipping of monitoring elements
     dbe_->lock();
 
-    for ( EBDigiCollection::const_iterator digiItr = digis->begin(); digiItr != digis->end(); ++digiItr ) {
+    for ( EEDigiCollection::const_iterator digiItr = digis->begin(); digiItr != digis->end(); ++digiItr ) {
 
       EEDataFrame dataframe = (*digiItr);
       EEDetId id = dataframe.id();
 
-      int ic = id.ic();
-      int ie = (ic-1)/20 + 1;
-      int ip = (ic-1)%20 + 1;
+      int ix = id.ix();
+      int iy = id.iy();
 
-      int ism = id.ism(); if ( ism > 9 ) continue;
+      int ism = Numbers::iSM( id );
 
-      float xie = ie - 0.5;
-      float xip = ip - 0.5;
+      if ( ism >= 1 && ism <= 9 ) ix = 101 - ix;
 
       LogDebug("EcalEndcapMonitor") << " det id = " << id;
-      LogDebug("EcalEndcapMonitor") << " sm, eta, phi " << ism << " " << ie << " " << ip;
-
-      if ( xie <= 0. || xie >= 85. || xip <= 0. || xip >= 20. ) {
-        LogWarning("EcalEndcapMonitor") << " det id = " << id;
-        LogWarning("EcalEndcapMonitor") << " sm, eta, phi " << ism << " " << ie << " " << ip;
-        LogWarning("EcalEndcapMonitor") << " xie, xip " << xie << " " << xip;
-        return;
-      }
+      LogDebug("EcalEndcapMonitor") << " sm, ix, iy " << ism << " " << ix << " " << iy;
 
     }
 
@@ -414,7 +405,7 @@ void EcalEndcapMonitorModule::analyze(const Event& e, const EventSetup& c){
 
   } catch ( exception& ex) {
 
-    LogWarning("EcalEndcapMonitorModule") << EBDigiCollection_ << " not available";
+    LogWarning("EcalEndcapMonitorModule") << EEDigiCollection_ << " not available";
 
   }
 
