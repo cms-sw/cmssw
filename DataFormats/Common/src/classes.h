@@ -19,6 +19,7 @@
 #include "DataFormats/Common/interface/DetSetVectorNew.h"
 #include "DataFormats/Common/interface/ConstPtrCache.h"
 #include "DataFormats/Common/interface/BoolCache.h"
+#include "DataFormats/Common/interface/PtrVectorBase.h"
 #include "DataFormats/Common/interface/ValueMap.h"
 
 #include <vector>

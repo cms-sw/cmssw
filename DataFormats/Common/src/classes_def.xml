@@ -38,6 +38,9 @@
  <class name="edm::Wrapper<edm::RefVector<std::vector<int>,int,edm::refhelper::FindUsingAdvance<std::vector<int>,int> > >"/>
  <class name="std::vector<edm::RefItem<unsigned int> >"/>
  <class name="std::vector<edm::RefItem<unsigned long> >"/>
+ <class name="edm::PtrVectorBase" >
+   <field name ="cachedItems_" transient = "true"/>
+ </class>
 <class name="edmNew::dstvdetails::DetSetVectorTrans">
    <field name="filling" transient="true"/>
    <field name="getter" transient="true"/>
