@@ -10,7 +10,7 @@
 
 void MakeValidation(TString sfilename = "GlobalRecHitsHistograms.root",
 		    TString rfilename = 
-		    "GlobalRecHitsHistograms-reference.root",
+		    "GlobalRecHitsHistograms.root",
 		    TString filename = "GlobalRecHitsHistogramsCompare")
 {
   gROOT->Reset();
@@ -36,8 +36,7 @@ void MakeValidation(TString sfilename = "GlobalRecHitsHistograms.root",
 
   // create canvas
   Int_t cWidth = 928, cHeight = 1218;
-  TCanvas *myCanvas = new TCanvas("globalrechits","globalrechits",cWidth,
-				  cHeight);
+  TCanvas *myCanvas = new TCanvas("globalrechits","globalrechits");
 
   // open output ps file
   //TString filename = "GlobalRecHitsHistogramsCompare";
@@ -264,7 +263,7 @@ void MakeValidation(TString sfilename = "GlobalRecHitsHistograms.root",
 
   vector<string> cschistname;
   cschistname.push_back("hCSCn");
-  cschistname.push_back("hCSCResRDPhi");
+  cschistname.push_back("CSCResRDPhi");
   histnames.push_back(34);
 
   vector<string> rpchistname;
@@ -287,244 +286,269 @@ void MakeValidation(TString sfilename = "GlobalRecHitsHistograms.root",
     if (page == 0) {
       //logy3 = kTRUE;
       names = eehistname;
-      Canvas = new TCanvas("eecal","eecal",cWidth,cHeight);
+      Canvas = new TCanvas("eecal","eecal" );
       Canvas->Divide(2,2);
-      myCanvas = Canvas;
+      myCanvas = Canvas; myCanvas->cd(0);
     }
     if (page == 1) {
       //logy3 = kTRUE;
       names = ebhistname;
-      Canvas = new TCanvas("ebcal","ebcal",cWidth,cHeight);
+      Canvas = new TCanvas("ebcal","ebcal" );
       Canvas->Divide(2,2);
-      myCanvas = Canvas;
+      myCanvas = Canvas; myCanvas->cd(0);
     }
     if (page == 2) {
       names = eshistname;
-      Canvas = new TCanvas("escal","escal",cWidth,cWidth);
+      Canvas = new TCanvas("escal","escal");
       Canvas->Divide(2,2);
-      myCanvas = Canvas;
+      myCanvas = Canvas; myCanvas->cd(0);
     }
     if (page == 3) {
       //logy3 = kTRUE;
       names = hbhistname;
-      Canvas = new TCanvas("hbcal","hbcal",cWidth,cHeight);
+      Canvas = new TCanvas("hbcal","hbcal" );
       Canvas->Divide(2,2);
-      myCanvas = Canvas;
+      myCanvas = Canvas; myCanvas->cd(0);
     }
     if (page == 4) {
       //logy3 = kTRUE;
       names = hehistname;
-      Canvas = new TCanvas("hecal","hecal",cWidth,cHeight);
+      Canvas = new TCanvas("hecal","hecal" );
       Canvas->Divide(2,2);
-      myCanvas = Canvas;
+      myCanvas = Canvas; myCanvas->cd(0);
     }
     if (page == 5) {
       //logy3 = kTRUE;
       names = hohistname;
-      Canvas = new TCanvas("hocal","hocal",cWidth,cHeight);
+      Canvas = new TCanvas("hocal","hocal" );
       Canvas->Divide(2,2);
-      myCanvas = Canvas;
+      myCanvas = Canvas; myCanvas->cd(0);
     }
     if (page == 6) {
       //logy3 = kTRUE;
       names = hfhistname;
-      Canvas = new TCanvas("hfcal","hfcal",cWidth,cHeight);
+      Canvas = new TCanvas("hfcal","hfcal");
       Canvas->Divide(2,2);
-      myCanvas = Canvas;
+      myCanvas = Canvas; myCanvas->cd(0);
     }
     if (page == 7) {
       names = tibl1histname;
-      Canvas = new TCanvas("tibl1","tibl1",cWidth,cWidth);
+      Canvas = new TCanvas("tibl1","tibl1" );
       Canvas->Divide(2,2);
-      myCanvas = Canvas;
+      myCanvas = Canvas; myCanvas->cd(0);
     }
     if (page == 8) {
       names = tibl2histname;
-      Canvas = new TCanvas("tibl2","tibl2",cWidth,cWidth);
+      Canvas = new TCanvas("tibl2","tibl2" );
       Canvas->Divide(2,2);
-      myCanvas = Canvas;
+      myCanvas = Canvas; myCanvas->cd(0);
     }
     if (page == 9) {
       names = tibl3histname;
-      Canvas = new TCanvas("tibl3","tibl3",cWidth,cWidth);
+      Canvas = new TCanvas("tibl3","tibl3" );
       Canvas->Divide(2,2);
-      myCanvas = Canvas;
+      myCanvas = Canvas; myCanvas->cd(0);
     }
     if (page == 10) {
       names = tibl4histname;
-      Canvas = new TCanvas("tibl4","tibl4",cWidth,cWidth);
+      Canvas = new TCanvas("tibl4","tibl4" );
       Canvas->Divide(2,2);
-      myCanvas = Canvas;
+      myCanvas = Canvas; myCanvas->cd(0);
     }
     if (page == 11) {
       names = tobl1histname;
-      Canvas = new TCanvas("tobl1","tobl1",cWidth,cWidth);
+      Canvas = new TCanvas("tobl1","tobl1" );
       Canvas->Divide(2,2);
-      myCanvas = Canvas;
+      myCanvas = Canvas; myCanvas->cd(0);
     }
     if (page == 12) {
       names = tobl2histname;
-      Canvas = new TCanvas("tobl2","tobl2",cWidth,cWidth);
+      Canvas = new TCanvas("tobl2","tobl2" );
       Canvas->Divide(2,2);
-      myCanvas = Canvas;
+      myCanvas = Canvas; myCanvas->cd(0);
     }
     if (page == 13) {
       names = tobl3histname;
-      Canvas = new TCanvas("tobl3","tobl3",cWidth,cWidth);
+      Canvas = new TCanvas("tobl3","tobl3" );
       Canvas->Divide(2,2);
-      myCanvas = Canvas;
+      myCanvas = Canvas; myCanvas->cd(0);
     }
     if (page == 14) {
       names = tobl4histname;
-      Canvas = new TCanvas("tobl4","tobl4",cWidth,cWidth);
+      Canvas = new TCanvas("tobl4","tobl4" );
       Canvas->Divide(2,2);
-      myCanvas = Canvas;
+      myCanvas = Canvas; myCanvas->cd(0);
     }
     if (page == 15) {
       names = tidw1histname;
-      Canvas = new TCanvas("tidw1","tidw1",cWidth,cWidth);
+      Canvas = new TCanvas("tidw1","tidw1" );
       Canvas->Divide(2,2);
-      myCanvas = Canvas;
+      myCanvas = Canvas; myCanvas->cd(0);
     }
     if (page == 16) {
       names = tidw2histname;
-      Canvas = new TCanvas("tidw2","tidw2",cWidth,cWidth);
+      Canvas = new TCanvas("tidw2","tidw2" );
       Canvas->Divide(2,2);
-      myCanvas = Canvas;
+      myCanvas = Canvas; myCanvas->cd(0);
     }
     if (page == 17) {
       names = tidw3histname;
-      Canvas = new TCanvas("tidw3","tidw3",cWidth,cWidth);
+      Canvas = new TCanvas("tidw3","tidw3" );
       Canvas->Divide(2,2);
-      myCanvas = Canvas;
+      myCanvas = Canvas; myCanvas->cd(0);
     }
     if (page == 18) {
       names = tecw1histname;
-      Canvas = new TCanvas("tecw1","tecw1",cWidth,cWidth);
+      Canvas = new TCanvas("tecw1","tecw1" );
       Canvas->Divide(2,2);
-      myCanvas = Canvas;
+      myCanvas = Canvas; myCanvas->cd(0);
     }
     if (page == 19) {
       names = tecw2histname;
-      Canvas = new TCanvas("tecw2","tecw2",cWidth,cWidth);
+      Canvas = new TCanvas("tecw2","tecw2" );
       Canvas->Divide(2,2);
-      myCanvas = Canvas;
+      myCanvas = Canvas; myCanvas->cd(0);
     }
     if (page == 20) {
       names = tecw3histname;
-      Canvas = new TCanvas("tecw3","tecw3",cWidth,cWidth);
+      Canvas = new TCanvas("tecw3","tecw3" );
       Canvas->Divide(2,2);
-      myCanvas = Canvas;
+      myCanvas = Canvas; myCanvas->cd(0);
     }
     if (page == 21) {
       names = tecw4histname;
-      Canvas = new TCanvas("tecw4","tecw4",cWidth,cWidth);
+      Canvas = new TCanvas("tecw4","tecw4" );
       Canvas->Divide(2,2);
-      myCanvas = Canvas;
+      myCanvas = Canvas; myCanvas->cd(0);
     }
     if (page == 22) {
       names = tecw5histname;
-      Canvas = new TCanvas("tecw5","tecw5",cWidth,cWidth);
+      Canvas = new TCanvas("tecw5","tecw5" );
       Canvas->Divide(2,2);
-      myCanvas = Canvas;
+      myCanvas = Canvas; myCanvas->cd(0);
     }
     if (page == 23) {
       names = tecw6histname;
-      Canvas = new TCanvas("tecw6","tecw6",cWidth,cWidth);
+      Canvas = new TCanvas("tecw6","tecw6" );
       Canvas->Divide(2,2);
-      myCanvas = Canvas;
+      myCanvas = Canvas; myCanvas->cd(0);
     }
     if (page == 24) {
       names = tecw7histname;
-      Canvas = new TCanvas("tecw7","tecw7",cWidth,cWidth);
+      Canvas = new TCanvas("tecw7","tecw7" );
       Canvas->Divide(2,2);
-      myCanvas = Canvas;
+      myCanvas = Canvas; myCanvas->cd(0);
     }
     if (page == 25) {
       names = tecw8histname;
-      Canvas = new TCanvas("tecw8","tecw8",cWidth,cWidth);
+      Canvas = new TCanvas("tecw8","tecw8" );
       Canvas->Divide(2,2);
-      myCanvas = Canvas;
+      myCanvas = Canvas; myCanvas->cd(0);
     }
     if (page == 26) {
       //logy2 = kTRUE;
       names = brl1histname;
-      Canvas = new TCanvas("brl1","brl1",cWidth,cWidth);
+      Canvas = new TCanvas("brl1","brl1" );
       Canvas->Divide(2,2);
-      myCanvas = Canvas;
+      myCanvas = Canvas; myCanvas->cd(0);
     }
     if (page == 27) {
       //logy2 = kTRUE;
       names = brl2histname;
-      Canvas = new TCanvas("brl2","brl2",cWidth,cWidth);
+      Canvas = new TCanvas("brl2","brl2" );
       Canvas->Divide(2,2);
-      myCanvas = Canvas;
+      myCanvas = Canvas; myCanvas->cd(0);
     }
     if (page == 28) {
       //logy2 = kTRUE;
       names = brl3histname;
-      Canvas = new TCanvas("brl3","brl3",cWidth,cWidth);
+      Canvas = new TCanvas("brl3","brl3" );
       Canvas->Divide(2,2);
-      myCanvas = Canvas;
+      myCanvas = Canvas; myCanvas->cd(0);
     }
     if (page == 29) {
       //logy2 = kTRUE;
       names = fwd1phistname;
-      Canvas = new TCanvas("fwd1p","fwd1p",cWidth,cWidth);
+      Canvas = new TCanvas("fwd1p","fwd1p" );
       Canvas->Divide(2,2);
-      myCanvas = Canvas;
+      myCanvas = Canvas; myCanvas->cd(0);
     }
     if (page == 30) {
       //logy2 = kTRUE;
       names = fwd1nhistname;
-      Canvas = new TCanvas("fwd1n","fwd1n",cWidth,cWidth);
+      Canvas = new TCanvas("fwd1n","fwd1n" );
       Canvas->Divide(2,2);
-      myCanvas = Canvas;
+      myCanvas = Canvas; myCanvas->cd(0);
     }
     if (page == 31) {
       //logy2 = kTRUE;
       names = fwd2phistname;
-      Canvas = new TCanvas("fwd2p","fwd2p",cWidth,cWidth);
+      Canvas = new TCanvas("fwd2p","fwd2p" );
       Canvas->Divide(2,2);
-      myCanvas = Canvas;
+      myCanvas = Canvas; myCanvas->cd(0);
     }
     if (page == 32) {
       //logy2 = kTRUE;
       names = fwd2nhistname;
-      Canvas = new TCanvas("fwd2n","fwd2n",cWidth,cWidth);
+      Canvas = new TCanvas("fwd2n","fwd2n" );
       Canvas->Divide(2,2);
-      myCanvas = Canvas;
+      myCanvas = Canvas; myCanvas->cd(0);
     }
     if (page == 33) {
       names = dthistname;
-      Canvas = new TCanvas("dt","dt",cWidth,cWidth);
+      Canvas = new TCanvas("dt","dt" );
       Canvas->Divide(2,2);
-      myCanvas = Canvas;
+      myCanvas = Canvas; myCanvas->cd(0);
     }
     if (page == 34) {
       names = cschistname;
-      Canvas = new TCanvas("csc","csc",cWidth,cWidth);
+      Canvas = new TCanvas("csc","csc" );
       Canvas->Divide(2,2);
-      myCanvas = Canvas;
+      myCanvas = Canvas; myCanvas->cd(0);
     }
     if (page == 35) {
       names = rpchistname;
-      Canvas = new TCanvas("rpc","rpc",cWidth,cWidth);
+      Canvas = new TCanvas("rpc","rpc" );
       Canvas->Divide(2,2);
-      myCanvas = Canvas;
+      myCanvas = Canvas; myCanvas->cd(0);
     }
 
     // loop through plots
     for (Int_t j = 0; j < names.size(); ++j) {
 
       // extract plot from both files
-      TH1F *sh = (TH1F*)sfile->Get(names[j].c_str());
+      //TH1F *sh = (TH1F*)sfile->Get(names[j].c_str());
+      TH1F *sh; TH1F *rh;
+      if(page >= 0 && page < 3)
+	{
+	  TString hpath = "DQMData/ECal/"+names[j];
+	}
+      if(page >= 3 && page < 7)
+	{
+	  TString hpath = "DQMData/HCal/"+names[j];
+	}
+      if(page >=7 && page < 26)
+	{
+	  TString hpath = "DQMData/SiStrip/"+names[j];
+	}
+      if(page >= 26 && page < 33)
+	{
+	  TString hpath = "DQMData/SiPixels/"+names[j];
+	}
+      if(page >= 33 && page < 36)
+	{
+	  TString hpath = "DQMData/Muons/"+names[j];
+	}
+	sh = (TH1F*)sfile->Get(hpath);
+	rh = (TH1F*)rfile->Get(hpath);
+
+
       if (!sh) cout << names[j].c_str() << "doesn't exist" << endl;
       sh->SetLineColor(scolor);
       sh->SetLineWidth(linewidth);
       sh->SetLineStyle(stype);
       Double_t smax = sh->GetMaximum();
-      TH1F *rh = (TH1F*)rfile->Get(names[j].c_str());
+      //TH1F *rh = (TH1F*)rfile->Get(names[j].c_str());
       rh->SetLineColor(rcolor);
       rh->SetLineWidth(linewidth);
       rh->SetLineStyle(rtype);
@@ -570,7 +594,7 @@ void MakeValidation(TString sfilename = "GlobalRecHitsHistograms.root",
 
       // make plots
       myCanvas->cd(j+1);
-      if (j == 0) gPad->SetLogy();
+      //if (j == 0) gPad->SetLogy();
       //if (logy2 && j == 1) gPad->SetLogy();
       //if (logy3 && j == 2) gPad->SetLogy();
       rh->Draw();
@@ -590,6 +614,12 @@ void MakeValidation(TString sfilename = "GlobalRecHitsHistograms.root",
   // close root files
   rfile->Close();
   sfile->Close();
+
+TString cmnd;
+  cmnd = "ps2pdf "+psfile+" "+filename+".pdf";
+  gSystem->Exec(cmnd);
+  cmnd = "rm "+psfile;
+  gSystem->Exec(cmnd); 
 
   return;
 }
