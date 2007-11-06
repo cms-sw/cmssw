@@ -230,7 +230,6 @@ void DTNoiseCalibration::endJob(){
   for(map<DTLayerId, TH1F*>::const_iterator lHisto = theHistoOccupancyMap.begin();
       lHisto != theHistoOccupancyMap.end();
       lHisto++) {
-    int nevents = (*lHisto).second->GetEntries();
     double TriggerWidth_s = double(TriggerWidth/1e9);
     double normalization = 1/double(TotEvents*TriggerWidth_s);
     (*lHisto).second->Scale(normalization);

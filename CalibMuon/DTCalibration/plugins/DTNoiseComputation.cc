@@ -116,23 +116,17 @@ void DTNoiseComputation::beginJob(const edm::EventSetup& context){
 	  
 	  if(someHowNoisyC.find(make_pair(ch.wheel(),ch.station())) == someHowNoisyC.end()) {
 	    TString histoName_someHowNoisy = "somehowNoisyCell_W"+wheel.str()+"_St"+station.str();
-	    hsomeHowNoisyC = new TH1F(histoName_someHowNoisy,histoName_someHowNoisy,getXMaximum(ch)-1,1,getXMaximum(ch));
+	    hsomeHowNoisyC = new TH1F(histoName_someHowNoisy,histoName_someHowNoisy,getMaxNumBins(ch),1,getMaxNumBins(ch)+1);
 	    someHowNoisyC[make_pair(ch.wheel(),ch.station())]=hsomeHowNoisyC;
 	  }
 	  
 	  if(noisyC.find(make_pair(ch.wheel(),ch.station())) == noisyC.end()) {
 	    TString histoName_noisy = "noisyCell_W"+wheel.str()+"_St"+station.str();
-	    hnoisyC = new TH1F(histoName_noisy,histoName_noisy,getXMaximum(ch)-1,1,getXMaximum(ch));
+	    hnoisyC = new TH1F(histoName_noisy,histoName_noisy,getMaxNumBins(ch),1,getMaxNumBins(ch)+1);
 	    noisyC[make_pair(ch.wheel(),ch.station())]=hnoisyC;
 	  }
 	  
-	  // Get the number of wires
-	  const DTTopology& dtTopo = dtGeom->layer(dtLId)->specificTopology();
-	  const int firstWire = dtTopo.firstChannel();
-	  const int lastWire = dtTopo.lastChannel();
-	  
-	  //to fill a map with the average noise per wire and fill new noise histo
-	  
+	  //to fill a map with the average noise per wire and fill new noise histo	  
 	  if(AvNoisePerSuperLayer.find(dtLId.superlayerId()) == AvNoisePerSuperLayer.end()) {
 	    AverageNoiseName = "AverageNoise_" + getSuperLayerName(dtLId.superlayerId());
 	    hAverageNoiseHisto = new TH1F(AverageNoiseName.c_str(), AverageNoiseName.c_str(), 200, 0, 10000);
@@ -234,7 +228,7 @@ void DTNoiseComputation::endJob(){
     for(int bin=1; bin<(*lHisto).second[0]->GetYaxis()->GetNbins(); bin++){
       int distanceEvt = 1;
       DTWireId wire((*lHisto).first, bin);
-      for(int i=0; i<(*lHisto).second.size(); i++){
+      for(int i=0; i<int((*lHisto).second.size()); i++){
 	for(int evt=1; evt<=(*lHisto).second[i]->GetXaxis()->GetNbins(); evt++){
 	  if((*lHisto).second[i]->GetBinContent(evt,bin) == 0) distanceEvt++;
 	  else { 
@@ -284,15 +278,16 @@ void DTNoiseComputation::endJob(){
 
 
   // histos with the integrated noise per layer
-  int integratedNoise, halfBin, bin, numBin, maxBin;
+  int numBin;
+  double integratedNoise, bin, halfBin, maxBin;
   for(map<DTSuperLayerId, TH1F*>::const_iterator AvNoiseHisto = AvNoisePerSuperLayer.begin();
       AvNoiseHisto != AvNoisePerSuperLayer.end();
       AvNoiseHisto++) {
     integratedNoise=0;
     numBin = (*AvNoiseHisto).second->GetXaxis()->GetNbins();
     maxBin = (*AvNoiseHisto).second->GetXaxis()->GetXmax();
-    bin= maxBin/numBin;
-    halfBin=bin/2;
+    bin= double(maxBin/numBin);
+    halfBin=double(bin/2);
     theNewFile->cd();
     (*AvNoiseHisto).second->Write();
     for(int i=1; i<numBin; i++){
@@ -325,7 +320,7 @@ void DTNoiseComputation::endJob(){
 
   
   //overimpose the average noise histo
-  bool histo;
+  bool histo=false;
   vector<DTChamber*>::const_iterator chamber_it = dtGeom->chambers().begin();
   vector<DTChamber*>::const_iterator chamber_end = dtGeom->chambers().end();
   // Loop over the chambers
@@ -456,10 +451,9 @@ string DTNoiseComputation::getChamberName(const DTLayerId& lId) const {
 }
 
 
-double DTNoiseComputation::getXMaximum(const DTChamberId& chId) const {
+int DTNoiseComputation::getMaxNumBins(const DTChamberId& chId) const {
   
-  bool histo;
-  double maximum=0;
+  int maximum=0;
   
   for(int SL=1; SL<=3; SL++){
     if(!(chId.station()==4 && SL==2)){
@@ -470,7 +464,7 @@ double DTNoiseComputation::getXMaximum(const DTChamberId& chId) const {
 	TH1F *hOccHisto = (TH1F *) theFile->Get(HistoName.c_str());
 	if(hOccHisto){
 	  if (hOccHisto->GetXaxis()->GetXmax()>maximum) 
-	    maximum = hOccHisto->GetXaxis()->GetXmax();
+	    maximum = hOccHisto->GetXaxis()->GetNbins();
 	}
       }
     }
@@ -481,7 +475,6 @@ double DTNoiseComputation::getXMaximum(const DTChamberId& chId) const {
 
 double DTNoiseComputation::getYMaximum(const DTSuperLayerId& slId) const {
   
-  bool histo;
   double maximum=0;
   double dummy = pow(10.,10.);
 

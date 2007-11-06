@@ -106,8 +106,8 @@ private:
   // map of histos with the average integrated noise per SuperLayer
   std::map<DTSuperLayerId, TH1F*> AvNoiseIntegratedPerSuperLayer;
 
-  // get the X axis maximum
-  double getXMaximum(const DTChamberId& chId) const;
+  // get the maximum bin number
+  int getMaxNumBins(const DTChamberId& chId) const;
   
   // get the Y axis maximum
   double getYMaximum(const DTSuperLayerId& slId) const;
