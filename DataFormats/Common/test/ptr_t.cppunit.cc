@@ -19,11 +19,12 @@
 
 #include <iostream>
 
-#include "Reflex/Builder/ReflexBuilder.h"
+#include "DataFormats/Common/test/IntValues.h"
 #include <typeinfo>
 
 using namespace edm;
 using namespace std;
+using namespace test_with_reflex;
 
 class testPtr: public CppUnit::TestFixture {
    CPPUNIT_TEST_SUITE(testPtr);
@@ -275,40 +276,6 @@ namespace {
 
       TestGetter() : hold_(0) {}
    };
-
-   struct IntValue {
-      int value_;
-      IntValue(int iValue): value_(iValue) {}
-   };
-   
-   struct IntValue2 :public IntValue {
-     IntValue2(int iValue2):IntValue(iValue2) {}
-   };
-
-
-   //Need Reflex dicctionaries for the conversion
-   Type type_intvalue = TypeBuilder("IntValue");
-   Type type_intvalue2 = TypeBuilder("IntValue2");
-   
-   void type_intvalue_d() {
-     ClassBuilder("IntValue", typeid(IntValue), sizeof(IntValue), PUBLIC, STRUCT);
-   }
-   void type_intvalue2_d() {
-     ClassBuilder("IntValue2",typeid(IntValue2),sizeof(IntValue2),PUBLIC, STRUCT).
-     AddBase(type_intvalue,BaseOffset<IntValue,IntValue2>::Get(),PUBLIC);
-   }
-   
-   struct Dictionaries {
-     Dictionaries() {
-       type_intvalue_d();
-       type_intvalue2_d();
-     }
-     ~Dictionaries() {
-       type_intvalue.Unload();
-       type_intvalue2.Unload();
-     }
-   };
-   static Dictionaries instance;
 }
 
 
