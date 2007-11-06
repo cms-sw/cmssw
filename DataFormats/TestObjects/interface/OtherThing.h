@@ -7,7 +7,9 @@
 #include "DataFormats/Common/interface/RefToBaseProd.h"
 #include "DataFormats/Common/interface/RefToBase.h"
 #include "DataFormats/Common/interface/Ptr.h"
+#include "DataFormats/Common/interface/PtrVector.h"
 #include "DataFormats/TestObjects/interface/ThingCollectionfwd.h"
+#include "DataFormats/TestObjects/interface/Thing.h"
 
 namespace edmtest {
 
@@ -20,6 +22,7 @@ namespace edmtest {
     edm::RefToBase<Thing>           refToBase;
     edm::RefToBaseProd<Thing>       refToBaseProd;
     edm::Ptr<Thing>                 ptr;
+    edm::PtrVector<Thing>           ptrVec;
   };
 }
 

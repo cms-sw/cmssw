@@ -53,5 +53,6 @@ struct dictionary {
   edm::RefToBaseProd<edmtest::Thing> rtbpThing;
   
   edm::Ptr<edmtest::Thing> ptrThing;
+  edm::PtrVector<edmtest::Thing> ptrVecThing;
 };
 }
