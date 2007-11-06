@@ -22,9 +22,9 @@ MaterialAccountingLayer::MaterialAccountingLayer( const DetLayer & layer ) :
   m_counted( false )
 {
   m_dedx_spectrum   = new TH1F(0, "Energy loss spectrum", 1000,  0, 1);
-  m_dedx_vs_eta     = new TH1F(0, "Energy loss vs. $eta", 1000, -8, 8);
+  m_dedx_vs_eta     = new TH1F(0, "Energy loss vs. eta", 1000, -5, 5);
   m_radlen_spectrum = new TH1F(0, "Radiation lengths spectrum", 1000,  0, 1);
-  m_radlen_vs_eta   = new TH1F(0, "Radiation lengths vs. $eta", 1000, -8, 8);
+  m_radlen_vs_eta   = new TH1F(0, "Radiation lengths vs. eta", 1000, -5, 5);
 }
 
 MaterialAccountingLayer::~MaterialAccountingLayer(void)
@@ -52,7 +52,7 @@ void MaterialAccountingLayer::endOfTrack(void) {
     m_accounting += m_buffer;
     m_errors     += m_buffer * m_buffer;
     ++m_tracks;
-
+ 
     m_dedx_spectrum->Fill(   m_buffer.energyLoss() );
     m_dedx_vs_eta->Fill(     m_buffer.in().eta() );
     m_radlen_spectrum->Fill( m_buffer.radiationLengths() );
@@ -81,10 +81,10 @@ void MaterialAccountingLayer::savePlots(const std::string & name) const
   canvas->SaveAs((name + "_dedx_spectrum.root").c_str(), "");
   delete canvas;
   
-  canvas = new TCanvas ("canvas", "Energy loss vs. $eta", 800, 600);
+  canvas = new TCanvas ("canvas", "Energy loss vs. eta", 800, 600);
   integral = m_dedx_vs_eta->Integral();
   if (integral != 0) {
-    for (unsigned int i = 0 ; i < m_dedx_vs_eta->GetSize(); ++i)
+    for (int i = 0 ; i < m_dedx_vs_eta->GetSize(); ++i)
       (*m_dedx_vs_eta)[i] /= integral;
   }
   m_dedx_vs_eta->Draw("");
@@ -98,10 +98,10 @@ void MaterialAccountingLayer::savePlots(const std::string & name) const
   canvas->SaveAs((name + "_radlen_spectrum.root").c_str(), "");
   delete canvas;
   
-  canvas = new TCanvas ("canvas", "Radiation lenghts vs $eta", 800, 600);
+  canvas = new TCanvas ("canvas", "Radiation lenghts vs. eta", 800, 600);
   integral = m_radlen_vs_eta->Integral();
   if (integral != 0) {
-    for (unsigned int i = 0 ; i < m_radlen_vs_eta->GetSize(); ++i)
+    for (int i = 0 ; i < m_radlen_vs_eta->GetSize(); ++i)
       (*m_radlen_vs_eta)[i] /= integral;
   }
   m_radlen_vs_eta->Draw("");
