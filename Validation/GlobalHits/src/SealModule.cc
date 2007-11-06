@@ -15,3 +15,6 @@ DEFINE_ANOTHER_FWK_MODULE(GlobalHitsHistogrammer);
 
 #include <Validation/GlobalHits/interface/GlobalHitsProdHist.h>
 DEFINE_ANOTHER_FWK_MODULE(GlobalHitsProdHist);
+
+#include <Validation/GlobalHits/interface/GlobalHitsProdHistStripper.h>
+DEFINE_ANOTHER_FWK_MODULE(GlobalHitsProdHistStripper);

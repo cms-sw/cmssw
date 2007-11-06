@@ -2,8 +2,8 @@
  *  
  *  See header file for description of class
  *
- *  $Date: 2007/10/09 00:03:50 $
- *  $Revision: 1.2 $
+ *  $Date: 2007/10/09 13:06:39 $
+ *  $Revision: 1.3 $
  *  \author M. Strang SUNY-Buffalo
  */
 
@@ -423,7 +423,8 @@ GlobalHitsAnalyzer::GlobalHitsAnalyzer(const edm::ParameterSet& iPSet) :
 
     sprintf(hname,"hTrackerPxFZ_3107");
     sprintf(htitle,"Pixel forward hits, Z/cm");
-    meTrackerPxFZ = dbe->book1D(hname,htitle,200,-100.,100.);
+    meTrackerPxFZ = 
+      dbe->book1D(hname,htitle,200,-100.,100.);
     meTrackerPxFZ->setAxisTitle("Z of Hits (cm)",1);
     meTrackerPxFZ->setAxisTitle("Count",2);
 
@@ -723,7 +724,8 @@ void GlobalHitsAnalyzer::fillG4MC(const edm::Event& iEvent)
     
     ++i;
 
-    const HepLorentzVector G4Vtx(itVtx->position().x(),itVtx->position().y(),itVtx->position().z(),itVtx->position().e());
+    const HepLorentzVector G4Vtx(itVtx->position().x(),itVtx->position().y(),
+				 itVtx->position().z(),itVtx->position().e());
 
     if (meGeantVtxX[0]) meGeantVtxX[0]->Fill((G4Vtx[0]*unit)/micrometer);
     if (meGeantVtxX[1]) meGeantVtxX[1]->Fill((G4Vtx[0]*unit)/micrometer);
@@ -761,7 +763,8 @@ void GlobalHitsAnalyzer::fillG4MC(const edm::Event& iEvent)
 
     ++i;
 
-    const HepLorentzVector G4Trk(itTrk->momentum().x(),itTrk->momentum().y(),itTrk->momentum().z(),itTrk->momentum().e());
+    const HepLorentzVector G4Trk(itTrk->momentum().x(),itTrk->momentum().y(),
+				 itTrk->momentum().z(),itTrk->momentum().e());
 
     if (meGeantTrkPt) meGeantTrkPt->
 			Fill(sqrt(G4Trk[0]*G4Trk[0]+G4Trk[1]*G4Trk[1]));

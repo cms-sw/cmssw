@@ -2,8 +2,8 @@
  *  
  *  See header file for description of class
  *
- *  $Date: 2007/10/09 13:06:39 $
- *  $Revision: 1.3 $
+ *  $Date: 2007/10/18 23:07:44 $
+ *  $Revision: 1.1 $
  *  \author M. Strang SUNY-Buffalo
  */
 
@@ -717,29 +717,11 @@ void GlobalHitsProdHist::endRun(edm::Run& iRun, const edm::EventSetup& iSetup)
 
   // store persistent objects
   std::map<std::string, TH1F*>::iterator iter;
-  // for (std::size_t i = 0; i < histList_.size(); ++i) {
   for (std::size_t i = 0; i < histName_.size(); ++i) {
     iter = histMap_.find(histName_[i]);
     if (iter != histMap_.end()) {
-
-      TH1F *histogram = iter->second;
-      std::auto_ptr<TH1F> 
-	hist1D (new TH1F 
-		(
-		 histogram->GetName(),
-		 histogram->GetTitle(),
-		 histogram->GetXaxis()->GetNbins(),
-		 histogram->GetXaxis()->GetXmin(),
-		 histogram->GetXaxis()->GetXmax()
-		 )
-		);
-      for (Int_t j = 0; j < histogram->GetXaxis()->GetNbins(); ++j) {
-	hist1D->SetBinContent(j,histogram->GetBinContent(j));
-	hist1D->SetBinError(j,histogram->GetBinError(j));
-      }
-
+      std::auto_ptr<TH1F> hist1D(iter->second);
       eventout += "\n Storing histogram " + histName_[i];
-
       iRun.put(hist1D, histName_[i]);
     } else {
       warning = true;
