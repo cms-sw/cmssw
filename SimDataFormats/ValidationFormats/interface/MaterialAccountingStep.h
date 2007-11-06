@@ -64,6 +64,8 @@ public:
     m_length           = step.m_length;
     m_radiationLengths = step.m_radiationLengths;
     m_energyLoss       = step.m_energyLoss;
+    m_in               = step.m_in;
+    m_out              = step.m_out;
     return *this;
   }
   
@@ -72,6 +74,14 @@ public:
     m_length           += step.m_length;
     m_radiationLengths += step.m_radiationLengths;
     m_energyLoss       += step.m_energyLoss;
+
+    // assume that perp2 is 0 only for uninitialized steps
+    if ((m_in.perp2() == 0.0) or (step.m_in.perp2() < m_in.perp2()))
+      m_in = step.m_in;
+
+    if ((m_out.perp2() == 0.0) or (step.m_out.perp2() > m_out.perp2()))
+      m_out = step.m_out;
+    
     return *this;
   }
   
@@ -80,6 +90,14 @@ public:
     m_length           -= step.m_length;
     m_radiationLengths -= step.m_radiationLengths;
     m_energyLoss       -= step.m_energyLoss;
+
+    // can anything more sensible be done for m_in and/or m_out ?
+    if ((step.m_in.perp2() <= m_in.perp2()) and (step.m_out.perp2() >= m_in.perp2()))
+      m_in = step.m_out;
+
+    if ((step.m_out.perp2() >= m_out.perp2()) and (step.m_in.perp2() <= m_out.perp2()))
+      m_out = step.m_in;
+      
     return *this;
   }
   
