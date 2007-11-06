@@ -54,7 +54,7 @@
     <Numeric name="Rout"        value="2639.0*mm"/>
     <Numeric name="HEboxDepth"  value="180.0*mm"/>
     <Numeric name="DrEnd"       value="10.0*mm"/>
-    <Numeric name="Etamin"      value="2.000"/>
+    <Numeric name="Etamin"      value="1.566"/>
     <Numeric name="AngBot"      value="5.7*deg"/>
     <Numeric name="AngGap"      value="53.0*deg"/>
     <Numeric name="TolPos"      value="0.90*mm"/>

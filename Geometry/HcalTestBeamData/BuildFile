@@ -1,0 +1,9 @@
+<use name=DetectorDescription/Parser>
+<use name=FWCore/PluginManager>
+
+# Build a plugin:
+<Flags EDM_PLUGIN=1>
+
+<export>
+<lib name=GeometryHcalTestBeamData>
+</export>
