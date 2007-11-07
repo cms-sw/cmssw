@@ -344,17 +344,25 @@ PoolDBESSource::registerProxies(const edm::eventsetup::EventSetupRecordKey& iRec
   std::string proxyname("");
   std::pair< RecordToTypes::iterator,RecordToTypes::iterator > typeItrs = m_recordToTypes.equal_range( recordname );
   for( RecordToTypes::iterator itType = typeItrs.first; itType != typeItrs.second; ++itType ) {
-    static edm::eventsetup::TypeTag defaultType;
+    static const edm::eventsetup::TypeTag defaultType;
     edm::eventsetup::TypeTag type = edm::eventsetup::TypeTag::findType(itType->second);
+    if(defaultType == type ) {
+      //std::cout <<"WARNING: unknown type '"<<itType->second<<"'"<<std::endl;
+      LogDebug("PoolDBESSource ")<<"unknown type '" <<itType->second<<"', continue";
+      continue;
+    }
     objectname=type.name();
     proxyname=buildName(recordname,objectname);
     //std::cout<<"proxyname "<<proxyname<<std::endl;
     ProxyToIOVInfo::iterator pProxyToIOVInfo=m_proxyToIOVInfo.find( proxyname );
-    if(pProxyToIOVInfo==m_proxyToIOVInfo.end()){
+    if ( pProxyToIOVInfo == m_proxyToIOVInfo.end() ) {
+      //std::cout << "WARNING: Proxy not found " << proxyname<<std::endl;
+      //LogDebug("PoolDBESSource ")<<"Proxy not found "<<proxyname<<", continue";
+      //continue;
       throw cond::Exception(std::string("proxy ")+proxyname+"not found");
-    }
+    }    
     for( std::vector<cond::IOVInfo>::iterator it=pProxyToIOVInfo->second.begin();it!=pProxyToIOVInfo->second.end(); ++it ){
-      edm::eventsetup::IdTags iid( it->label.c_str() );
+      //edm::eventsetup::IdTags iid( it->label.c_str() );
       std::string datumName=recordname+"@"+objectname+"@"+(it->label);
       std::map<std::string,std::string>::iterator pDatumToToken=m_datumToToken.find(datumName);
       if( pDatumToToken==m_datumToToken.end() ){
@@ -364,7 +372,7 @@ PoolDBESSource::registerProxies(const edm::eventsetup::EventSetupRecordKey& iRec
 	cond::Connection* c=conHandler.getConnection(it->pfn);
 	boost::shared_ptr<edm::eventsetup::DataProxy> proxy(cond::ProxyFactory::get()->create( proxyname ,c,pDatumToToken) );
 	if(0 != proxy.get()) {
-	  edm::eventsetup::DataKey key( type, iid );
+	  edm::eventsetup::DataKey key( type, edm::eventsetup::IdTags(it->label.c_str()) );
 	  aProxyList.push_back(KeyedProxies::value_type(key,proxy));
 	}
       }
