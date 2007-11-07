@@ -4,6 +4,7 @@
 #include "Geometry/HcalTowerAlgo/src/HcalHardcodeGeometryData.h"
 
 #include <iostream>
+#include <cassert>
 
 HcalTrigTowerGeometry::HcalTrigTowerGeometry() {
   useShortFibers_=true;
