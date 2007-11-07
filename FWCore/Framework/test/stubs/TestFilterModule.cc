@@ -16,7 +16,6 @@
 #include <numeric>
 #include <iterator>
 
-using namespace std;
 using namespace edm;
 
 namespace edmtest
@@ -35,10 +34,10 @@ namespace edmtest
     int    passed_;
     int    failed_;
     bool   dump_;
-    string name_;
+    std::string name_;
     int    numbits_;
-    string expected_pathname_; // if empty, we don't know
-    string expected_modulelabel_; // if empty, we don't know
+    std::string expected_pathname_; // if empty, we don't know
+    std::string expected_modulelabel_; // if empty, we don't know
   };
 
   // -------
@@ -72,7 +71,7 @@ namespace edmtest
     virtual void endRun(edm::RunPrincipal const&){}
     virtual void endJob();
 
-    string name_;
+    std::string name_;
     int num_pass_;
     int total_;
   };
@@ -83,10 +82,10 @@ namespace edmtest
     passed_(),
     failed_(),
     dump_(ps.getUntrackedParameter<bool>("dump",false)),
-    name_(ps.getUntrackedParameter<string>("name","DEFAULT")),
+    name_(ps.getUntrackedParameter<std::string>("name","DEFAULT")),
     numbits_(ps.getUntrackedParameter<int>("numbits",-1)),
-    expected_pathname_(ps.getUntrackedParameter<string>("pathname", "")),
-    expected_modulelabel_(ps.getUntrackedParameter<string>("modlabel", ""))
+    expected_pathname_(ps.getUntrackedParameter<std::string>("pathname", "")),
+    expected_modulelabel_(ps.getUntrackedParameter<std::string>("modlabel", ""))
   {
   }
     
@@ -114,8 +113,8 @@ namespace edmtest
 
     if(prod.size() == 0) return;
     if(prod.size() > 1) {
-      cerr << "More than one trigger result in the event, using first one"
-	   << endl;
+      std::cerr << "More than one trigger result in the event, using first one"
+	   << std::endl;
     }
 
     if (prod[0]->accept()) ++passed_; else ++failed_;
@@ -124,7 +123,7 @@ namespace edmtest
 
     unsigned int numbits = numbits_;
     if(numbits != prod[0]->size()) {
-      cerr << "TestResultAnalyzer named: " << name_
+      std::cerr << "TestResultAnalyzer named: " << name_
 	   << " should have " << numbits
 	   << ", got " << prod[0]->size() << " in TriggerResults\n";
       abort();
@@ -133,7 +132,7 @@ namespace edmtest
 
   void TestResultAnalyzer::endJob()
   {
-    cerr << "TESTRESULTANALYZER " << name_ << ": "
+    std::cerr << "TESTRESULTANALYZER " << name_ << ": "
 	 << "passed=" << passed_ << " failed=" << failed_ << "\n";
   }
 
@@ -169,7 +168,7 @@ namespace edmtest
 
   SewerModule::SewerModule(edm::ParameterSet const& ps):
     edm::OutputModule(ps),
-    name_(ps.getParameter<string>("name")),
+    name_(ps.getParameter<std::string>("name")),
     num_pass_(ps.getParameter<int>("shouldPass")),
     total_()
   {
@@ -188,12 +187,12 @@ namespace edmtest
   void SewerModule::endJob()
   {
     assert( currentContext() == 0 );
-    cerr << "SEWERMODULE " << name_ << ": should pass " << num_pass_
+    std::cerr << "SEWERMODULE " << name_ << ": should pass " << num_pass_
 	 << ", did pass " << total_ << "\n";
 
     if(total_!=num_pass_)
       {
-	cerr << "number passed should be " << num_pass_
+	std::cerr << "number passed should be " << num_pass_
 	     << ", but got " << total_ << "\n";
 	abort();
       }

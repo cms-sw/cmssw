@@ -12,23 +12,22 @@
 #include <numeric>
 #include <iterator>
 
-using namespace std;
 using namespace edm;
 
 namespace {
 
  void printBits(unsigned char c){
 
-         //cout << "HEX: "<< "0123456789ABCDEF"[((c >> 4) & 0xF)] <<endl;
+         //cout << "HEX: "<< "0123456789ABCDEF"[((c >> 4) & 0xF)] << std::endl;
 
         for (int i = 7; i >= 0; --i) {
             int bit = ((c >> i) & 1);
-            cout << " "<<bit;
+            std::cout << " "<<bit;
         }
  }
 
- void packIntoString(vector<unsigned char> const& source,
-                    vector<unsigned char>& package)
+ void packIntoString(std::vector<unsigned char> const& source,
+                    std::vector<unsigned char>& package)
  {
  unsigned int packInOneByte = 4;
  unsigned int sizeOfPackage = 1 + 
@@ -47,7 +46,7 @@ namespace {
    }
   //for (unsigned int i=0; i !=package.size() ; ++i)
   //   printBits(package[i]);
-   cout<<endl;
+   std::cout<< std::endl;
 
  }
 
@@ -67,7 +66,7 @@ namespace edmtest
     virtual void endRun(edm::RunPrincipal const&){}
     virtual void endJob();
 
-    string name_;
+    std::string name_;
     int bitMask_;
     std::vector<unsigned char> hltbits_;
     bool expectTriggerResults_;
@@ -77,7 +76,7 @@ namespace edmtest
 
   TestOutputModule::TestOutputModule(edm::ParameterSet const& ps):
     edm::OutputModule(ps),
-    name_(ps.getParameter<string>("name")),
+    name_(ps.getParameter<std::string>("name")),
     bitMask_(ps.getParameter<int>("bitMask")),
     hltbits_(0),
     expectTriggerResults_(ps.getUntrackedParameter<bool>("expectTriggerResults",true))
@@ -118,9 +117,9 @@ namespace edmtest
         // We did not find one as expected, nothing else to test.
         return;
       }
-      cerr << "\nTestOutputModule::write\n"
+      std::cerr << "\nTestOutputModule::write\n"
            << "Expected there to be no TriggerResults object but we found one"
-           << endl;
+           << std::endl;
       abort();
     }
 
@@ -129,7 +128,7 @@ namespace edmtest
 
     prod = getTriggerResults(e);
 
-    vector<unsigned char> vHltState;
+    std::vector<unsigned char> vHltState;
 
     std::vector<std::string> hlts = getAllTriggerNames();
     unsigned int hltSize = hlts.size(); 
@@ -142,27 +141,27 @@ namespace edmtest
     packIntoString(vHltState, hltbits_);
 
     //This is Just a printing code.
-    cout <<"Size of hltbits:"<<hltbits_.size()<<endl;
+    std::cout <<"Size of hltbits:"<<hltbits_.size()<< std::endl;
 
     char* intp = (char*)&bitMask_;
     bool matched = false;
 
     for(int i = hltbits_.size() - 1; i != -1 ; --i) {
-      cout<<endl<<"Current Bits Mask byte:";printBits(hltbits_[i]);
+      std::cout<< std::endl<<"Current Bits Mask byte:";printBits(hltbits_[i]);
       unsigned char tmp = static_cast<unsigned char>(*(intp+i));
-      cout<<endl<<"Original Byte:";printBits(tmp);cout<<endl;
+      std::cout<< std::endl<<"Original Byte:";printBits(tmp);std::cout<< std::endl;
 
       if (tmp == hltbits_[i]) matched = true;
     }
-    cout<<"\n";
+    std::cout<<"\n";
 
     if ( !matched && hltSize > 0)
     {
-       cerr << "\ncfg bitMask is different from event..aborting."<<endl;
+       std::cerr << "\ncfg bitMask is different from event..aborting."<< std::endl;
 
        abort();
     }
-    else cout <<"\nSUCCESS: Found Matching Bits"<<endl;
+    else std::cout <<"\nSUCCESS: Found Matching Bits"<< std::endl;
   }
 
   void TestOutputModule::endJob()
