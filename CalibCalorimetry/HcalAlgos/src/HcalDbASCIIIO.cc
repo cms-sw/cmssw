@@ -1,7 +1,7 @@
 
 //
 // F.Ratnikov (UMd), Oct 28, 2005
-// $Id: HcalDbASCIIIO.cc,v 1.30 2007/02/12 21:18:10 mansj Exp $
+// $Id: HcalDbASCIIIO.cc,v 1.31 2007/05/05 19:52:55 mansj Exp $
 //
 #include <vector>
 #include <string>
@@ -96,15 +96,15 @@ bool getHcalObject (std::istream& fInput, T* fObject) {
     }
     DetId id = getId (items);
     fObject->sort ();
-    try {
-      fObject->getValues (id);
-      edm::LogWarning("Redefining Channel") << "line: " << buffer << "\n attempts to redefine data. Ignored" << std::endl;
-    }
-    catch (cms::Exception& e) {
-      fObject->addValue (id, 
-			 atof (items [4].c_str()), atof (items [5].c_str()), 
-			 atof (items [6].c_str()), atof (items [7].c_str()));
-    }
+    //    try {
+    fObject->getValues (id);
+    edm::LogWarning("Redefining Channel") << "line: " << buffer << "\n attempts to redefine data. Ignored" << std::endl;
+    //    }
+    //    catch (cms::Exception& e) {
+    //      fObject->addValue (id, 
+    //			 atof (items [4].c_str()), atof (items [5].c_str()), 
+    //			 atof (items [6].c_str()), atof (items [7].c_str()));
+    //    }
   }
   fObject->sort ();
   return true;
@@ -151,23 +151,23 @@ bool HcalDbASCIIIO::getObject (std::istream& fInput, HcalPedestalWidths* fObject
     }
     DetId id = getId (items);
     fObject->sort ();
-    try {
-      fObject->getValues (id);
-      edm::LogWarning("Redefining Channel") << "line: " << buffer << "\n attempts to redefine data. Ignored" << std::endl;
-    }
-    catch (cms::Exception& e) {
-      HcalPedestalWidth* values = fObject->setWidth (id);
-      values->setSigma (0, 0, atof (items [4].c_str()));
-      values->setSigma (1, 0, atof (items [5].c_str()));
-      values->setSigma (1, 1, atof (items [6].c_str()));
-      values->setSigma (2, 0, atof (items [7].c_str()));
-      values->setSigma (2, 1, atof (items [8].c_str()));
-      values->setSigma (2, 2, atof (items [9].c_str()));
-      values->setSigma (3, 0, atof (items [10].c_str()));
-      values->setSigma (3, 1, atof (items [11].c_str()));
-      values->setSigma (3, 2, atof (items [12].c_str()));
-      values->setSigma (3, 3, atof (items [13].c_str()));
-    }
+    //    try {
+    fObject->getValues (id);
+    edm::LogWarning("Redefining Channel") << "line: " << buffer << "\n attempts to redefine data. Ignored" << std::endl;
+    //    }
+//    catch (cms::Exception& e) {
+//      HcalPedestalWidth* values = fObject->setWidth (id);
+//      values->setSigma (0, 0, atof (items [4].c_str()));
+//      values->setSigma (1, 0, atof (items [5].c_str()));
+//      values->setSigma (1, 1, atof (items [6].c_str()));
+//      values->setSigma (2, 0, atof (items [7].c_str()));
+//      values->setSigma (2, 1, atof (items [8].c_str()));
+//      values->setSigma (2, 2, atof (items [9].c_str()));
+//      values->setSigma (3, 0, atof (items [10].c_str()));
+//      values->setSigma (3, 1, atof (items [11].c_str()));
+//      values->setSigma (3, 2, atof (items [12].c_str()));
+//      values->setSigma (3, 3, atof (items [13].c_str()));
+//    }
   }
   fObject->sort ();
   return true;
@@ -220,25 +220,25 @@ bool HcalDbASCIIIO::getObject (std::istream& fInput, HcalQIEData* fObject) {
       }
       DetId id = getId (items);
       fObject->sort ();
-      try {
-	fObject->getCoder (id);
-	edm::LogWarning("Redefining Channel") << "line: " << buffer << "\n attempts to redefine data. Ignored" << std::endl;
-      }
-      catch (cms::Exception& e) {
-	HcalQIECoder coder (id.rawId ());
-	int index = 4;
-	for (unsigned capid = 0; capid < 4; capid++) {
-	  for (unsigned range = 0; range < 4; range++) {
-	    coder.setOffset (capid, range, atof (items [index++].c_str ()));
-	  }
-	}
-	for (unsigned capid = 0; capid < 4; capid++) {
-	  for (unsigned range = 0; range < 4; range++) {
-	    coder.setSlope (capid, range, atof (items [index++].c_str ()));
-	  }
-	}
-	fObject->addCoder (id, coder);
-      }
+      //      try {
+      fObject->getCoder (id);
+      edm::LogWarning("Redefining Channel") << "line: " << buffer << "\n attempts to redefine data. Ignored" << std::endl;
+	//      }
+//      catch (cms::Exception& e) {
+//	HcalQIECoder coder (id.rawId ());
+//	int index = 4;
+//	for (unsigned capid = 0; capid < 4; capid++) {
+//	  for (unsigned range = 0; range < 4; range++) {
+//	    coder.setOffset (capid, range, atof (items [index++].c_str ()));
+//	  }
+//	}
+//	for (unsigned capid = 0; capid < 4; capid++) {
+//	  for (unsigned range = 0; range < 4; range++) {
+//	    coder.setSlope (capid, range, atof (items [index++].c_str ()));
+//	  }
+//	}
+//	fObject->addCoder (id, coder);
+//      }
     }
   }
   fObject->sort ();
@@ -297,20 +297,20 @@ bool HcalDbASCIIIO::getObject (std::istream& fInput, HcalCalibrationQIEData* fOb
     }
     DetId id = getId (items);
     fObject->sort ();
-    try {
-      fObject->getCoder (id);
-      edm::LogWarning("Redefining Channel") << "line: " << buffer << "\n attempts to redefine data. Ignored" << std::endl;
-    }
-    catch (cms::Exception& e) {
-      HcalCalibrationQIECoder coder (id.rawId ());
-      int index = 4;
-      float values [32];
-      for (unsigned bin = 0; bin < 32; bin++) {
-	values[bin] = atof (items [index++].c_str ());
-      }
-      coder.setMinCharges (values);
-      fObject->addCoder (id, coder);
-    }
+    //    try {
+    fObject->getCoder (id);
+    edm::LogWarning("Redefining Channel") << "line: " << buffer << "\n attempts to redefine data. Ignored" << std::endl;
+      //    }
+//    catch (cms::Exception& e) {
+//      HcalCalibrationQIECoder coder (id.rawId ());
+//      int index = 4;
+//      float values [32];
+//      for (unsigned bin = 0; bin < 32; bin++) {
+//	values[bin] = atof (items [index++].c_str ());
+//      }
+//      coder.setMinCharges (values);
+//      fObject->addCoder (id, coder);
+//    }
   }
   fObject->sort ();
   return true;
