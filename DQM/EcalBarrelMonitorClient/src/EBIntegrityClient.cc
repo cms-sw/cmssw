@@ -2,8 +2,8 @@
 /*
  * \file EBIntegrityClient.cc
  *
- * $Date: 2007/11/05 11:07:04 $
- * $Revision: 1.167 $
+ * $Date: 2007/11/06 08:05:16 $
+ * $Revision: 1.168 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -290,7 +290,6 @@ void EBIntegrityClient::setup(void) {
 
       }
     }
-
 
     for ( int ie = 1; ie <= 10; ie++ ) {
       for ( int ip = 1; ip <= 5; ip++ ) {
