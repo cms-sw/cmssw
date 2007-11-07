@@ -27,10 +27,5 @@ replace ecalConditions.toGet = {
 	string tag = "EcalLaserAPDPNRatiosRef_trivial" }
 }
 
-replace src2.producedEcalIntercalibConstants = false
-replace src2.producedEcalWeights = false
-replace src2.producedEcalPedestals = false
-replace src2.producedEcalGainRatios = false
-replace src2.producedEcalADCToGeVConstant = false
-replace src2.producedEcalLaserCorrection = false
+
 
