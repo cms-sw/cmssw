@@ -15,8 +15,6 @@
 #include "DataFormats/TestObjects/interface/OtherThingCollection.h"
 #include "DataFormats/TestObjects/interface/ThingCollection.h"
 
-using namespace std;
-
 namespace edm {
 
   // Constructor 
@@ -45,7 +43,7 @@ namespace edm {
     WTC const* wtp = dynamic_cast<WTC const*>(ep);
     assert(wtp);
     TC const* tp = wtp->product();
-    auto_ptr<TC> thing(new TC(*tp));
+    std::auto_ptr<TC> thing(new TC(*tp));
 
     // Put output into event
     e.put(thing);
