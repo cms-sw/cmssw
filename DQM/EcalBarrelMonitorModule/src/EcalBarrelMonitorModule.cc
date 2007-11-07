@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorModule.cc
  *
- * $Date: 2007/11/07 07:11:27 $
- * $Revision: 1.142 $
+ * $Date: 2007/11/07 18:40:39 $
+ * $Revision: 1.143 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -372,6 +372,9 @@ void EcalBarrelMonitorModule::analyze(const Event& e, const EventSetup& c){
     if ( enableMonitorDaemon_ ) sleep(5);
   }
 
+  // pause the shipping of monitoring elements
+  dbe_->lock();
+
   try {
 
     Handle<EBDigiCollection> digis;
@@ -381,9 +384,6 @@ void EcalBarrelMonitorModule::analyze(const Event& e, const EventSetup& c){
     LogDebug("EcalBarrelMonitor") << "event " << ievt_ << " digi collection size " << nebd;
 
     if ( meEBdigi_ ) meEBdigi_->Fill(float(nebd));
-
-    // pause the shipping of monitoring elements
-    dbe_->lock();
 
     for ( EBDigiCollection::const_iterator digiItr = digis->begin(); digiItr != digis->end(); ++digiItr ) {
 
@@ -400,9 +400,6 @@ void EcalBarrelMonitorModule::analyze(const Event& e, const EventSetup& c){
       LogDebug("EcalBarrelMonitor") << " sm, ieta, iphi " << ism << " " << ie << " " << ip;
 
     }
-
-    // resume the shipping of monitoring elements
-    dbe_->unlock();
 
   } catch ( exception& ex) {
 
@@ -421,9 +418,6 @@ void EcalBarrelMonitorModule::analyze(const Event& e, const EventSetup& c){
     if ( meEBhits_ ) meEBhits_->Fill(float(nebh));
 
     if ( enableEventDisplay_ ) {
-
-      // pause the shipping of monitoring elements
-      dbe_->lock();
 
       for ( EcalUncalibratedRecHitCollection::const_iterator hitItr = hits->begin(); hitItr != hits->end(); ++hitItr ) {
 
@@ -452,9 +446,6 @@ void EcalBarrelMonitorModule::analyze(const Event& e, const EventSetup& c){
 
       }
 
-      // resume the shipping of monitoring elements
-      dbe_->unlock();
-
     }
 
   } catch ( exception& ex) {
@@ -462,6 +453,9 @@ void EcalBarrelMonitorModule::analyze(const Event& e, const EventSetup& c){
     LogWarning("EcalBarrelMonitorModule") << EcalUncalibratedRecHitCollection_ << " not available";
 
   }
+
+  // resume the shipping of monitoring elements
+  dbe_->unlock();
 
 }
 

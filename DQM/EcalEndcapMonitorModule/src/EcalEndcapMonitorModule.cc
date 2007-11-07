@@ -1,8 +1,8 @@
 /*
  * \file EcalEndcapMonitorModule.cc
  *
- * $Date: 2007/11/06 11:37:14 $
- * $Revision: 1.14 $
+ * $Date: 2007/11/07 18:40:40 $
+ * $Revision: 1.15 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -372,6 +372,9 @@ void EcalEndcapMonitorModule::analyze(const Event& e, const EventSetup& c){
     if ( enableMonitorDaemon_ ) sleep(5);
   }
 
+  // pause the shipping of monitoring elements
+  dbe_->lock();
+
   try {
 
     Handle<EEDigiCollection> digis;
@@ -381,9 +384,6 @@ void EcalEndcapMonitorModule::analyze(const Event& e, const EventSetup& c){
     LogDebug("EcalEndcapMonitor") << "event " << ievt_ << " digi collection size " << nebd;
 
     if ( meEEdigi_ ) meEEdigi_->Fill(float(nebd));
-
-    // pause the shipping of monitoring elements
-    dbe_->lock();
 
     for ( EEDigiCollection::const_iterator digiItr = digis->begin(); digiItr != digis->end(); ++digiItr ) {
 
@@ -402,9 +402,6 @@ void EcalEndcapMonitorModule::analyze(const Event& e, const EventSetup& c){
 
     }
 
-    // resume the shipping of monitoring elements
-    dbe_->unlock();
-
   } catch ( exception& ex) {
 
     LogWarning("EcalEndcapMonitorModule") << EEDigiCollection_ << " not available";
@@ -422,9 +419,6 @@ void EcalEndcapMonitorModule::analyze(const Event& e, const EventSetup& c){
     if ( meEEhits_ ) meEEhits_->Fill(float(nebh));
 
     if ( enableEventDisplay_ ) {
-
-      // pause the shipping of monitoring elements
-      dbe_->lock();
 
       for ( EcalUncalibratedRecHitCollection::const_iterator hitItr = hits->begin(); hitItr != hits->end(); ++hitItr ) {
 
@@ -454,9 +448,6 @@ void EcalEndcapMonitorModule::analyze(const Event& e, const EventSetup& c){
 
       }
 
-      // resume the shipping of monitoring elements
-      dbe_->unlock();
-
     }
 
   } catch ( exception& ex) {
@@ -464,6 +455,9 @@ void EcalEndcapMonitorModule::analyze(const Event& e, const EventSetup& c){
     LogWarning("EcalEndcapMonitorModule") << EcalUncalibratedRecHitCollection_ << " not available";
 
   }
+
+  // resume the shipping of monitoring elements
+  dbe_->unlock();
 
 }
 
