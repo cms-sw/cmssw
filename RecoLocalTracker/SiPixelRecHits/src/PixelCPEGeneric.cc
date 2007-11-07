@@ -26,6 +26,14 @@ PixelCPEGeneric::PixelCPEGeneric(edm::ParameterSet const & conf,
     LogDebug("PixelCPEGeneric") 
       << " constructing a generic algorithm for ideal pixel detector.\n"
       << " CPEGeneric:: VerboseLevel = " << theVerboseLevel;
+
+  //dfehling  
+  the_eff_charge_cut_lowX = conf.getUntrackedParameter<double>("eff_charge_cut_lowX");
+  the_eff_charge_cut_lowY = conf.getUntrackedParameter<double>("eff_charge_cut_lowY");
+  the_eff_charge_cut_highX = conf.getUntrackedParameter<double>("eff_charge_cut_highX");
+  the_eff_charge_cut_highY = conf.getUntrackedParameter<double>("eff_charge_cut_highY");
+  the_size_cutX = conf.getUntrackedParameter<double>("size_cutX");
+  the_size_cutY = conf.getUntrackedParameter<double>("size_cutY");
 }
 
 
@@ -112,9 +120,9 @@ PixelCPEGeneric::localPosition(const SiPixelCluster& cluster,
 			      thePitchX,
 			      theTopol->isItBigPixelInX( cluster.minPixelRow() ),
 			      theTopol->isItBigPixelInX( cluster.maxPixelRow() ),
-			      1.0,
-			      2.0,
-			      4.0,   // cut for eff charge width &&&
+			      the_eff_charge_cut_lowX,
+                              the_eff_charge_cut_highX,
+                              the_size_cutX,           // cut for eff charge width &&&
 			      cotAlphaFromCluster_ );  // returned to us
 
 
@@ -129,9 +137,9 @@ PixelCPEGeneric::localPosition(const SiPixelCluster& cluster,
 			      thePitchY,   // 0.5 * lorentz shift (may be 0)
 			      theTopol->isItBigPixelInY( cluster.minPixelCol() ),
 			      theTopol->isItBigPixelInY( cluster.maxPixelCol() ),
-			      1.0,
-			      2.0,
-			      3.0,    // cut for eff charge width  &&&
+			      the_eff_charge_cut_lowY,
+                              the_eff_charge_cut_highY,
+                              the_size_cutY,           // cut for eff charge width &&&
 			      cotBetaFromCluster_ );   // returned to us
 
 
@@ -184,7 +192,7 @@ generic_position_formula( int size,                //!< Size of this projection.
   //--- Predicted charge width from geometry
   double W_pred = 
     theThickness * cot_angle                     // geometric correction (in cm)
-    + 2 * half_lorentz_shift;                    // (in cm) &&& check fpix!  
+    - 2 * half_lorentz_shift;                    // (in cm) &&& check fpix!  
   
 
   //--- Total length of the two edge pixels (first+last)
