@@ -5,8 +5,8 @@
  * *
  *  DQM Test Client
  *
- *  $Date: 2007/07/18 09:14:55 $
- *  $Revision: 1.3 $
+ *  $Date: 2007/09/19 17:32:05 $
+ *  $Revision: 1.4 $
  *  \author  M. Zanetti CERN
  *   
  */
@@ -74,8 +74,6 @@ protected:
   /// DQM Client Diagnostic
   void endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& c);
 
-  /// Save the plots into a file
-  void endRun();
 
 
 

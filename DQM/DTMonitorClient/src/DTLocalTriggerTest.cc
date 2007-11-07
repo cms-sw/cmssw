@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2007/09/19 13:37:45 $
- *  $Revision: 1.9 $
+ *  $Date: 2007/09/20 07:46:22 $
+ *  $Revision: 1.10 $
  *  \author C. Battilana S. Marcellini - INFN Bologna
  */
 
@@ -353,23 +353,8 @@ void DTLocalTriggerTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, Even
     }
   }
 
-  //if (nevents%parameters.getUntrackedParameter<int>("resultsSavingRate",10) == 0){
-  // if ( parameters.getUntrackedParameter<bool>("writeHisto", true) ) 
-  //  dbe->save(parameters.getUntrackedParameter<string>("outputFile", "DTLocalTriggerTest.root"));
-  //}
-
 }
 
-
-void DTLocalTriggerTest::endRun(){
-
-  if ( parameters.getUntrackedParameter<bool>("writeHisto", true) ) {
-    stringstream runNumber; runNumber << run;
-    string rootFile = "DTLocalTriggerTest_" + runNumber.str() + ".root";
-    dbe->save(parameters.getUntrackedParameter<string>("outputFile", rootFile));
-  }
-
-}
 
 
 

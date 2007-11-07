@@ -3,8 +3,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2007/06/19 10:20:52 $
- *  $Revision: 1.10 $
+ *  $Date: 2007/09/19 16:58:48 $
+ *  $Revision: 1.11 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -218,22 +218,6 @@ void DTEfficiencyTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, EventS
   }
 
   
-  //if (nevents%parameters.getUntrackedParameter<int>("resultsSavingRate",10) == 0){
-  //  if ( parameters.getUntrackedParameter<bool>("writeHisto", true) ) 
-  //    dbe->save(parameters.getUntrackedParameter<string>("outputFile", "DTEfficiencyTest.root"));
-  //  edm::LogStatistics();
-  //}
-}
-
-
-void DTEfficiencyTest::endRun(){
-
-  if ( parameters.getUntrackedParameter<bool>("writeHisto", true) ) {
-    stringstream runNumber; runNumber << run;
-    string rootFile = "DTEfficiencyTest_" + runNumber.str() + ".root";
-    dbe->save(parameters.getUntrackedParameter<string>("outputFile", rootFile));
-  }
-
 }
 
 

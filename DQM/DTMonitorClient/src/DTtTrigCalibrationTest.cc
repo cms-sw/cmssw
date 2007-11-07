@@ -1,8 +1,8 @@
 /*
  * \file DTtTrigCalibrationTest.cc
  * 
- * $Date: 2007/09/19 17:32:01 $
- * $Revision: 1.8 $
+ * $Date: 2007/09/19 17:43:12 $
+ * $Revision: 1.9 $
  * \author M. Zanetti - CERN
  *
  */
@@ -174,25 +174,7 @@ void DTtTrigCalibrationTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, 
 
   }
   
-  //if (nevents%parameters.getUntrackedParameter<int>("resultsSavingRate",10) == 0){
-  //  if ( parameters.getUntrackedParameter<bool>("writeHisto", true) ) 
-  //    dbe->save(parameters.getUntrackedParameter<string>("outputFile", "DTtTrigCalibrationTest.root")); 
-  //}
-
-
 }
-
-
-void DTtTrigCalibrationTest::endRun(){
-
-  if ( parameters.getUntrackedParameter<bool>("writeHisto", true) ) {
-    stringstream runNumber; runNumber << run;
-    string rootFile = "DTtTrigCalibrationTest_" + runNumber.str() + ".root";
-    dbe->save(parameters.getUntrackedParameter<string>("outputFile", rootFile));
-  }
-
-}
-
 
 
 

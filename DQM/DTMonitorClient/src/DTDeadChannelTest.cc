@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2007/06/19 10:20:52 $
- *  $Revision: 1.6 $
+ *  $Date: 2007/09/19 17:42:53 $
+ *  $Revision: 1.7 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -213,23 +213,7 @@ void DTDeadChannelTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, Event
     }
   }
 
-  //if (nevents%parameters.getUntrackedParameter<int>("resultsSavingRate",10) == 0){
-  //  if ( parameters.getUntrackedParameter<bool>("writeHisto", true) ) 
-  //    dbe->save(parameters.getUntrackedParameter<string>("outputFile", "DTDeadChannelTest.root"));
-  //}
 }
-
-
-void DTDeadChannelTest::endRun(){
-
-  if ( parameters.getUntrackedParameter<bool>("writeHisto", true) ) {
-    stringstream runNumber; runNumber << run;
-    string rootFile = "DTDeadChannelTest_" + runNumber.str() + ".root";
-    dbe->save(parameters.getUntrackedParameter<string>("outputFile", rootFile));
-  }
-
-}
-
 
 
 void DTDeadChannelTest::endJob(){

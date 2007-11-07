@@ -6,8 +6,8 @@
  * *
  *  DQM Test Client
  *
- *  $Date: 2007/06/19 09:38:04 $
- *  $Revision: 1.4 $
+ *  $Date: 2007/09/20 07:46:30 $
+ *  $Revision: 1.5 $
  *  \author  C. Battilana S. Marcellini - INFN Bologna
  *   
  */
@@ -75,8 +75,6 @@ protected:
   /// DQM Client Diagnostic
   void endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& c);
 
-  /// Save the plots into a file
-  void endRun();
 
 
  private:
