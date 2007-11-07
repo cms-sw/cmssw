@@ -1,8 +1,8 @@
 /*
  * \file EBTimingTask.cc
  *
- * $Date: 2007/10/15 15:01:24 $
- * $Revision: 1.21 $
+ * $Date: 2007/10/16 08:30:08 $
+ * $Revision: 1.22 $
  * \author G. Della Ricca
  *
 */
@@ -142,7 +142,7 @@ void EBTimingTask::analyze(const Event& e, const EventSetup& c){
       float xip = ip - 0.5;
 
       LogDebug("EBTimingTask") << " det id = " << id;
-      LogDebug("EBTimingTask") << " sm, eta, phi " << ism << " " << ie << " " << ip;
+      LogDebug("EBTimingTask") << " sm, ieta, iphi " << ism << " " << ie << " " << ip;
 
       MonitorElement* meTimeMap = 0;
 

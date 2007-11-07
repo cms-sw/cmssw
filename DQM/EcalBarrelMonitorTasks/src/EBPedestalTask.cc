@@ -1,8 +1,8 @@
 /*
  * \file EBPedestalTask.cc
  *
- * $Date: 2007/08/16 14:26:05 $
- * $Revision: 1.64 $
+ * $Date: 2007/10/14 16:02:58 $
+ * $Revision: 1.65 $
  * \author G. Della Ricca
  *
 */
@@ -296,7 +296,7 @@ void EBPedestalTask::analyze(const Event& e, const EventSetup& c){
                dccMap[ism].getRunType() == EcalDCCHeaderBlock::PEDESTAL_GAP ) ) continue;
 
       LogDebug("EBPedestalTask") << " det id = " << id;
-      LogDebug("EBPedestalTask") << " sm, eta, phi " << ism << " " << ie << " " << ip;
+      LogDebug("EBPedestalTask") << " sm, ieta, iphi " << ism << " " << ie << " " << ip;
 
       for (int i = 0; i < 10; i++) {
 

@@ -1,8 +1,8 @@
 /*
  * \file EBPedestalOnlineTask.cc
  *
- * $Date: 2007/05/21 09:57:44 $
- * $Revision: 1.24 $
+ * $Date: 2007/08/14 17:43:06 $
+ * $Revision: 1.25 $
  * \author G. Della Ricca
  *
 */
@@ -144,7 +144,7 @@ void EBPedestalOnlineTask::analyze(const Event& e, const EventSetup& c){
       float xip = ip - 0.5;
 
       LogDebug("EBPedestalOnlineTask") << " det id = " << id;
-      LogDebug("EBPedestalOnlineTask") << " sm, eta, phi " << ism << " " << ie << " " << ip;
+      LogDebug("EBPedestalOnlineTask") << " sm, ieta, iphi " << ism << " " << ie << " " << ip;
 
       for (int i = 0; i < 3; i++) {
 

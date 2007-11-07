@@ -1,8 +1,8 @@
 /*
  * \file EBLaserTask.cc
  *
- * $Date: 2007/10/14 16:02:58 $
- * $Revision: 1.89 $
+ * $Date: 2007/11/05 10:22:25 $
+ * $Revision: 1.90 $
  * \author G. Della Ricca
  *
 */
@@ -579,7 +579,7 @@ void EBLaserTask::analyze(const Event& e, const EventSetup& c){
                dccMap[ism].getRunType() == EcalDCCHeaderBlock::LASER_GAP ) ) continue;
 
       LogDebug("EBLaserTask") << " det id = " << id;
-      LogDebug("EBLaserTask") << " sm, eta, phi " << ism << " " << ie << " " << ip;
+      LogDebug("EBLaserTask") << " sm, ieta, iphi " << ism << " " << ie << " " << ip;
 
       for (int i = 0; i < 10; i++) {
 
@@ -768,7 +768,7 @@ void EBLaserTask::analyze(const Event& e, const EventSetup& c){
                dccMap[ism].getRunType() == EcalDCCHeaderBlock::LASER_GAP ) ) continue;
 
       LogDebug("EBLaserTask") << " det id = " << id;
-      LogDebug("EBLaserTask") << " sm, eta, phi " << ism << " " << ie << " " << ip;
+      LogDebug("EBLaserTask") << " sm, ieta, iphi " << ism << " " << ie << " " << ip;
 
       MonitorElement* meAmplMap = 0;
       MonitorElement* meTimeMap = 0;

@@ -1,8 +1,8 @@
 /*
  * \file EBTestPulseTask.cc
  *
- * $Date: 2007/10/14 16:02:58 $
- * $Revision: 1.78 $
+ * $Date: 2007/11/05 10:22:25 $
+ * $Revision: 1.79 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -274,7 +274,7 @@ void EBTestPulseTask::analyze(const Event& e, const EventSetup& c){
                dccMap[ism].getRunType() != EcalDCCHeaderBlock::TESTPULSE_GAP ) ) continue;
 
       LogDebug("EBTestPulseTask") << " det id = " << id;
-      LogDebug("EBTestPulseTask") << " sm, eta, phi " << ism << " " << ie << " " << ip;
+      LogDebug("EBTestPulseTask") << " sm, ieta, iphi " << ism << " " << ie << " " << ip;
 
       for (int i = 0; i < 10; i++) {
 
@@ -336,7 +336,7 @@ void EBTestPulseTask::analyze(const Event& e, const EventSetup& c){
                dccMap[ism].getRunType() != EcalDCCHeaderBlock::TESTPULSE_GAP ) ) continue;
 
       LogDebug("EBTestPulseTask") << " det id = " << id;
-      LogDebug("EBTestPulseTask") << " sm, eta, phi " << ism << " " << ie << " " << ip;
+      LogDebug("EBTestPulseTask") << " sm, ieta, iphi " << ism << " " << ie << " " << ip;
 
       MonitorElement* meAmplMap = 0;
 

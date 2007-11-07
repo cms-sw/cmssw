@@ -1,8 +1,8 @@
 /*
  * \file EBCosmicTask.cc
  *
- * $Date: 2007/08/14 17:43:06 $
- * $Revision: 1.75 $
+ * $Date: 2007/08/16 14:26:04 $
+ * $Revision: 1.76 $
  * \author G. Della Ricca
  *
 */
@@ -216,7 +216,7 @@ void EBCosmicTask::analyze(const Event& e, const EventSetup& c){
                dccMap[ism].getRunType() == EcalDCCHeaderBlock::PHYSICS_LOCAL ) ) continue;
 
       LogDebug("EBCosmicTask") << " det id = " << id;
-      LogDebug("EBCosmicTask") << " sm, eta, phi " << ism << " " << ie << " " << ip;
+      LogDebug("EBCosmicTask") << " sm, ieta, iphi " << ism << " " << ie << " " << ip;
 
       float xval = hit.energy();
       if ( xval <= 0. ) xval = 0.0;
