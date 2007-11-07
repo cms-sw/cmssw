@@ -20,7 +20,7 @@ EmptyESSource::EmptyESSource(const edm::ParameterSet & pset) :
          setOfIOV_.insert(IOVSyncValue(EventID(*itValue, 0)));
       }
    }
-   //std::copy(temp.begin(), temp.end(), inserter(setOfIOV_ , setOfIOV_.end()));
+   //copy_all(temp, inserter(setOfIOV_ , setOfIOV_.end()));
    
    
    eventsetup::EventSetupRecordKey recordKey = eventsetup::EventSetupRecordKey::TypeTag::findType(recordName_);

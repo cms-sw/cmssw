@@ -12,7 +12,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Sep 19 11:47:28 CEST 2005
-// $Id: EventContentAnalyzer.cc,v 1.23 2007/06/29 16:36:04 wmtan Exp $
+// $Id: EventContentAnalyzer.cc,v 1.24 2007/08/08 03:41:43 chrjones Exp $
 //
 //
 
@@ -36,6 +36,8 @@
 #include "FWCore/Framework/interface/GenericHandle.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+
+#include "FWCore/Utilities/interface/Algorithms.h"
 
 //
 // class declarations
@@ -255,7 +257,7 @@ EventContentAnalyzer::EventContentAnalyzer(const edm::ParameterSet& iConfig) :
   evno_(0)
 {
    //now do what ever initialization is needed
-   std::sort(moduleLabels_.begin(),moduleLabels_.end());
+   edm::sort_all(moduleLabels_);
 }
 
 EventContentAnalyzer::~EventContentAnalyzer()
@@ -319,8 +321,8 @@ EventContentAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& i
        ++cumulates_[key];
        
        if(verbose_) {
-         if(moduleLabels_.size() == 0 ||
-             std::binary_search(moduleLabels_.begin(),moduleLabels_.end(),modLabel)) {
+         if(moduleLabels_.empty() ||
+           edm::binary_search_all(moduleLabels_, modLabel)) {
 	   //indent one level before starting to print
 	   printObject(iEvent,
 		       (*itProv)->className(),
@@ -333,8 +335,8 @@ EventContentAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& i
          }
        }
        if(getData_) {
-         if(getModuleLabels_.size() == 0 ||
-            std::binary_search(getModuleLabels_.begin(),getModuleLabels_.end(),modLabel)) {
+         if(getModuleLabels_.empty() ||
+           edm::binary_search_all(getModuleLabels_, modLabel)) {
            const std::string& className = (*itProv)->className();
            using namespace edm;
            try {
