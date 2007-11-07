@@ -6,9 +6,9 @@
 // Implementation:
 //     Cache and make prescale factors available online.
 //
-// Current revision: $Revision: 1.8 $
-// On branch: $Name: CMSSW_1_7_0_pre3 $
-// Latest change by $Author: gruen $ on $Date: 2007/08/14 19:54:40 $ 
+// Current revision: $Revision: 1.9 $
+// On branch: $Name: CMSSW_1_7_0_pre7 $
+// Latest change by $Author: wmtan $ on $Date: 2007/09/17 16:06:24 $ 
 //
 
 
@@ -18,8 +18,6 @@
 #include <iostream>
 #include <sstream>
 #include <algorithm>
-
-using namespace std;
 
 namespace edm {
   namespace service {
@@ -87,9 +85,9 @@ namespace edm {
       if (fu_ != 0) {
         if ((count_ != 0)&&(e.luminosityBlock() != lsold)) {
 //        if ((count_ != 0)&&(count_/100 != lsold)) {  //test//
-	  ostringstream oss;
-	  string ARRAY_LEN = "_";
-	  string SEPARATOR = " ";
+	  std::ostringstream oss;
+	  std::string ARRAY_LEN = "_";
+	  std::string SEPARATOR = " ";
 	  oss << lsold << SEPARATOR;
 	  //TriggerReport::eventSummary
 	  oss << trold.eventSummary.totalEvents << SEPARATOR
@@ -129,12 +127,12 @@ namespace edm {
     }
 
     // Prepare indexed access without LS#
-    int PrescaleService::getPrescale(string module)
+    int PrescaleService::getPrescale(std::string module)
     {
       return getPrescale(0, module);
     }
 
-    int PrescaleService::getPrescale(unsigned int ls, string module)
+    int PrescaleService::getPrescale(unsigned int ls, std::string module)
     {
       boost::mutex::scoped_lock scoped_lock(mutex);
 
@@ -151,13 +149,13 @@ namespace edm {
 
       int j = prescalers.size()-1;
       for( ; j>=0; j--) {
-//	cout << "getPrescale j " << j << endl;
+//	cout << "getPrescale j " << j << std::endl;
 	unsigned int n; 
-	istringstream iss(prescalers[j]);
+	std::istringstream iss(prescalers[j]);
 	iss >> n;
-//	cout << "getPrescale n " << n << " ls " << ls << endl;
+//	std::cout << "getPrescale n " << n << " ls " << ls << std::endl;
 	if (ls >= n) {
-//	    cout << "getPrescale n  " << n << " <= " << " ls " << ls << endl;
+//	    std::cout << "getPrescale n  " << n << " <= " << " ls " << ls << std::endl;
 	    break;
 	}
       }
@@ -165,12 +163,12 @@ namespace edm {
 
       unsigned int i = j;
       unsigned int n, m;
-      string a, b;
-      istringstream iss(prescalers[i]);
+      std::string a, b;
+      std::istringstream iss(prescalers[i]);
       iss >> n;
       while ( iss.rdstate()==0 ) {
 	iss >> a >> b >> m; 
-//	cout << "getPrescale " << n << "==" << ls << " a " << a << " b " << b << " m " << m << endl;
+//	std::cout << "getPrescale " << n << "==" << ls << " a " << a << " b " << b << " m " << m << std::endl;
 	if ( (b=="*") || (b==module) ) { // allow wildcard after an explicit module list
             if (lsg == ls && lsc < n) {
 		bang++;
@@ -185,12 +183,12 @@ namespace edm {
       return -1;
     }
 
-    int PrescaleService::putPrescale(string s)
+    int PrescaleService::putPrescale(std::string s)
     {
 
-      istringstream iss(s);
+      std::istringstream iss(s);
       unsigned int i, n, m;
-      string a, b;
+      std::string a, b;
       
       iss >> n;
       if (iss.fail()||iss.eof()) {
@@ -244,39 +242,39 @@ namespace edm {
 
     void PrescaleService::getConfig(edm::ParameterSet params)
     {
-      ostringstream oss;
+      std::ostringstream oss;
       unsigned int nss = 0;
-      string SEPARATOR = " ";
+      std::string SEPARATOR = " ";
       oss << "0";
 
       try {
 
-	//        cout << "!!! PrescaleService::getConfig list @all_modules" << endl;
-        vector<string> pModules = params.getParameter<std::vector<std::string> >("@all_modules");
+	//        std::cout << "!!! PrescaleService::getConfig list @all_modules" << std::endl;
+        std::vector<std::string> pModules = params.getParameter<std::vector<std::string> >("@all_modules");
         for(unsigned int i=0; i<pModules.size(); i++) {
-	  //          cout << "  index " << i << ", pModules " << pModules[i] << endl;
+	  //          std::cout << "  index " << i << ", pModules " << pModules[i] << std::endl;
         }
 
-	//        cout << "!!! PrescaleService::getConfig list @path" << endl;
-        vector<string> pPaths = params.getParameter<std::vector<std::string> >("@paths");
+	//        std::cout << "!!! PrescaleService::getConfig list @path" << std::endl;
+        std::vector<std::string> pPaths = params.getParameter<std::vector<std::string> >("@paths");
         for(unsigned int i=0; i<pPaths.size(); i++) {
-	  //          cout << "  index " << i << ", pPaths " << pPaths[i] << endl;
+	  //          std::cout << "  index " << i << ", pPaths " << pPaths[i] << std::endl;
         }
 
-	//        cout << "!!! PrescaleService::getConfig link modules to paths" << endl;
+	//        std::cout << "!!! PrescaleService::getConfig link modules to paths" << std::endl;
         for(unsigned int i=0; i<pModules.size(); i++) {
 	  edm::ParameterSet aa = params.getParameter<edm::ParameterSet>(pModules[i]);
-          string moduleLabel = aa.getParameter<string>("@module_label");
-          string moduleType = aa.getParameter<string>("@module_type");
-	  //          cout << "!!! label : " << moduleLabel << " type : "  << moduleType << endl;
+          std::string moduleLabel = aa.getParameter<std::string>("@module_label");
+          std::string moduleType = aa.getParameter<std::string>("@module_type");
+	  //          std::cout << "!!! label : " << moduleLabel << " type : "  << moduleType << std::endl;
           if(moduleType == "HLTPrescaler") {
 	    unsigned int ps = aa.getParameter<unsigned int>("prescaleFactor");
-	    //	    cout << "!!! label : " << moduleLabel << " type : "  << moduleType << " ps : " << ps << endl;
+	    //	    std::cout << "!!! label : " << moduleLabel << " type : "  << moduleType << " ps : " << ps << std::endl;
             for(unsigned int j=0; j<pPaths.size(); j++) {
-              vector<string> pPM = params.getParameter<std::vector<std::string> >(pPaths[j]);
+              std::vector<std::string> pPM = params.getParameter<std::vector<std::string> >(pPaths[j]);
               for(unsigned int k=0; k<pPM.size(); k++) {
                 if(moduleLabel == pPM[k]) {
-		  //                  cout << "!!! path " << pPaths[j] << " module " << moduleLabel << " ps " << ps << endl;
+		  //                  std::cout << "!!! path " << pPaths[j] << " module " << moduleLabel << " ps " << ps << std::endl;
                   oss << SEPARATOR << pPaths[j] << SEPARATOR << moduleLabel << SEPARATOR << ps;
                   nss++;
                   break;
@@ -286,16 +284,16 @@ namespace edm {
           }
         }
         if (nss != 0) {
-	  //	  cout << "!!! PrescaleService::getConfig putPrescale:" << oss.str() << ":" << endl;
+	  //	  std::cout << "!!! PrescaleService::getConfig putPrescale:" << oss.str() << ":" << std::endl;
 	  putPrescale(oss.str());
-	  //          cout << "!!! PrescaleService::getConfig getStatus: " << getStatus() << endl;
+	  //          std::cout << "!!! PrescaleService::getConfig getStatus: " << getStatus() << std::endl;
         }
 
 
       }
       catch (edm::Exception &e) {
         bcfg++;
-	//        cout << "!!! PrescaleService::getConfig caught " << (string)e.what() << endl;
+	//        std::cout << "!!! PrescaleService::getConfig caught " << (std::string)e.what() << std::endl;
       }
 
     }
@@ -305,12 +303,12 @@ namespace edm {
       fu_ = proc_;
     }
 
-    string PrescaleService::getStatus()
+    std::string PrescaleService::getStatus()
     {
       boost::mutex::scoped_lock scoped_lock(mutex);
 
-      ostringstream oss;
-      string SEPARATOR = " ";
+      std::ostringstream oss;
+      std::string SEPARATOR = " ";
       oss << prescalers.size();
       oss << SEPARATOR << blsn;
       oss << SEPARATOR << bpath;
@@ -328,20 +326,20 @@ namespace edm {
       return stsstr;
     }
 
-    string PrescaleService::getLs(string s)
+    std::string PrescaleService::getLs(std::string s)
     {
       int n;
-      istringstream iss(s);
+      std::istringstream iss(s);
       iss >> n;
       if (n >= 0) {
 	boost::mutex::scoped_lock scoped_lock(mutex);
-	vector<string>::iterator p;
+	std::vector<std::string>::iterator p;
 	for(p=triggers.begin(); p != triggers.end(); ) {
-	  istringstream jss(*p);
+	  std::istringstream jss(*p);
 	  int n2;
 	  jss >> n2;
 	  if (n2 < n) {
-//	    cout << "getLs" << n2 << "<" << n << " erasing " << *p << endl;
+//	    std::cout << "getLs" << n2 << "<" << n << " erasing " << *p << std::endl;
 	    triggers.erase(p);
 	    continue;
 	  }
@@ -351,7 +349,7 @@ namespace edm {
       return getLs();
     }
     
-    string PrescaleService::getLs()
+    std::string PrescaleService::getLs()
     {
       boost::mutex::scoped_lock scoped_lock(mutex);
       trgstr="";
@@ -364,7 +362,7 @@ namespace edm {
       return trgstr;
     }
 
-    string PrescaleService::getTr()
+    std::string PrescaleService::getTr()
     {
       boost::mutex::scoped_lock scoped_lock(mutex);
 
@@ -374,10 +372,10 @@ namespace edm {
 
         // Add an array length indicator so that the resulting string will have a
         // little more readability.
-        string ARRAY_LEN = "_";
-        string SEPARATOR = " ";
+        std::string ARRAY_LEN = "_";
+        std::string SEPARATOR = " ";
 
-        ostringstream oss;
+        std::ostringstream oss;
 
         //TriggerReport::eventSummary
         oss<<tr_.eventSummary.totalEvents<<SEPARATOR

@@ -7,7 +7,6 @@
 #include "DataFormats/TestObjects/interface/ThingCollection.h"
 #include "DataFormats/TestObjects/interface/OtherThingCollection.h"
 
-using namespace std;
 using namespace tfwliteselectortest;
 
 //Names used in common between the worker and the Selector
@@ -17,7 +16,7 @@ static const char* kRefA = "refA";
 
 
 ThingsWorker::ThingsWorker(const TList*, TList& out ) {
-    cout << "begin" << endl;
+    std::cout << "begin" << std::endl;
     h_a  = new TH1F( kA , "a"  , 100,  0, 20 );
     out.Add(h_a);
     
@@ -29,27 +28,27 @@ ThingsWorker::ThingsWorker(const TList*, TList& out ) {
   
 void 
 ThingsWorker::process( const edm::Event& iEvent ) {
-    cout << "processing event " << endl;
+    std::cout << "processing event " << std::endl;
     //  chain->GetEntry( entry );
     using namespace edmtest;
     edm::Handle<OtherThingCollection> hOThings;
     iEvent.getByLabel("OtherThing", "testUserTag", hOThings);
     
-    cout << ">> other things found:" << hOThings->size() << endl;
+    std::cout << ">> other things found:" << hOThings->size() << std::endl;
     for ( size_t i = 0; i < hOThings->size(); ++i ) {
       const OtherThing & thing = (*hOThings)[ i ];
       h_refA ->Fill( thing.ref->a );
-      cout << ">> ref->a:  " << thing.ref->a <<endl;
+      std::cout << ">> ref->a:  " << thing.ref->a << std::endl;
     }
     
     edm::Handle<ThingCollection> hThings;
     iEvent.getByLabel("Thing",hThings);
     const ThingCollection& things = *hThings;
-    cout << ">> things found:" << things.size() << endl;
+    std::cout << ">> things found:" << things.size() << std::endl;
     for ( size_t i = 0; i < things.size(); ++i ) {
       const Thing & thing = things[ i ];
       h_a ->Fill( thing.a );
-      cout << ">> a:  " << thing.a <<endl;
+      std::cout << ">> a:  " << thing.a << std::endl;
     }
     
   }
@@ -66,7 +65,7 @@ void ThingsTSelector2::begin(TList*&)
 }
 
 void ThingsTSelector2::terminate(TList& out) {
-  cout << "terminate" << endl;
+  std::cout << "terminate" << std::endl;
   TCanvas * canvas = new TCanvas( );
   {
      TObject* hist = out.FindObject(kA);
@@ -74,17 +73,17 @@ void ThingsTSelector2::terminate(TList& out) {
 	hist->Draw();
 	canvas->SaveAs( "a.jpg" );
      } else {
-	cout <<"no '"<<kA<<"' histogram"<<endl;
+	std::cout <<"no '"<<kA<<"' histogram"<< std::endl;
      }
   }
-  cout <<"refA"<<endl;
+  std::cout <<"refA"<< std::endl;
   {
      TObject* hist = out.FindObject(kRefA);
      if( 0 != hist ) {
 	hist->Draw();
 	canvas->SaveAs( "refA.jpg" );
      } else {
-	cout <<"no '"<<kRefA<<"' histogram"<<endl;
+	std::cout <<"no '"<<kRefA<<"' histogram"<< std::endl;
      }
   }
   delete canvas;

@@ -2,8 +2,6 @@
 #include "FWCore/Modules/src/Prescaler.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-using namespace std;
-
 namespace edm
 {
   Prescaler::Prescaler(edm::ParameterSet const& ps):
