@@ -1,7 +1,7 @@
 /**
  * Author: Sridhara Dasu
  * Created: 04 July 2007
- * $Id: L1RCTParameters.cc,v 1.6 2007/07/30 15:40:55 dasu Exp $
+ * $Id: L1RCTParameters.cc,v 1.7 2007/07/31 08:34:40 dasu Exp $
  **/
 
 #include <iostream>
@@ -79,17 +79,17 @@ unsigned short L1RCTParameters::calcTower(unsigned short rct_iphi,
 
   // Note absIeta counts from 1-32 (not 0-31)
   if (absIeta <= 24){
-    // assume iphi between 0 and 71; makes towers from 1-32
-    tower = ((absIeta-1)%8)*4 + (iphi%4) + 1;
+    // assume iphi between 0 and 71; makes towers from 0-31, mod. 7Nov07
+    tower = ((absIeta-1)%8)*4 + (iphi%4);  // REMOVED +1
   }
   // 25 <= absIeta <= 28 (card 6)
   else if ((absIeta >= 25) && (absIeta <= 28)){
     if (regionPhi == 0){
-      // towers from 1-32, modified Aug. 1 Jessica Leonard
-      tower = (absIeta-25)*4 + (iphi%4) + 1;
+      // towers from 0-31, modified 7Nov07 Jessica Leonard
+      tower = (absIeta-25)*4 + (iphi%4);  // REMOVED +1
     }
     else {
-      tower = 29 + iphi % 4 + (25 - absIeta) * 4;
+      tower = 28 + iphi % 4 + (25 - absIeta) * 4;  // mod. 7Nov07 JLL
     }
   }
   // absIeta >= 29 (HF regions)
@@ -104,6 +104,7 @@ unsigned short L1RCTParameters::calcTower(unsigned short rct_iphi,
   return tower;
 }
 
+// iCrate 0-17, iCard 0-6, NEW iTower 0-31
 short L1RCTParameters::calcIEta(unsigned short iCrate, unsigned short iCard, 
 				unsigned short iTower) const
 {
@@ -114,36 +115,44 @@ short L1RCTParameters::calcIEta(unsigned short iCrate, unsigned short iCard,
   return iEta;
 }
 
+// iCrate 0-17, iCard 0-6, NEW iTower 0-31
 unsigned short L1RCTParameters::calcIPhi(unsigned short iCrate, 
 					 unsigned short iCard, 
 					 unsigned short iTower) const
 {
   short iPhi;
   if(iCard < 6)
-    iPhi = (iCrate % 9) * 8 + (iCard % 2) * 4 + ((iTower - 1) % 4);
+    iPhi = (iCrate % 9) * 8 + (iCard % 2) * 4 + (iTower % 4); // rm -1 7Nov07
   else if(iCard == 6){
-    if(iTower < 17)
-      iPhi = (iCrate % 9) * 8 + ((iTower - 1) % 4);
+    // region 0
+    if(iTower < 16)  // 17->16
+      iPhi = (iCrate % 9) * 8 + (iTower % 4);  // rm -1
+    // region 1
     else
-      iPhi = (iCrate % 9) * 8 + ((iTower - 17) % 4) + 4;
+      iPhi = (iCrate % 9) * 8 + ((iTower - 16) % 4) + 4; // 17 -> 16
   }
+  // HF regions
   else
     iPhi = (iCrate % 9) * 2 + iTower / 4;
   return iPhi;
 }
 
+// iCrate 0-17, iCard 0-6, NEW iTower 0-31
 unsigned short L1RCTParameters::calcIAbsEta(unsigned short iCrate, unsigned short iCard, 
 					    unsigned short iTower) const
 {
   unsigned short absIEta;
   if(iCard < 6) 
-    absIEta = (iCard / 2) * 8 + ((iTower - 1) / 4) + 1;
+    absIEta = (iCard / 2) * 8 + (iTower / 4) + 1;  // rm -1 JLL 7Nov07
   else if(iCard == 6) {
-    if(iTower < 17)
-      absIEta = 25 + (iTower - 1) / 4;
+    // card 6, region 0
+    if(iTower < 16) // 17->16
+      absIEta = 25 + iTower / 4;  // rm -1
+    // card 6, region 1
     else
-      absIEta = 28 - ((iTower - 17) / 4);
+      absIEta = 28 - ((iTower - 16) / 4);  // 17->16
   }
+  // HF regions
   else
     absIEta = 29 + iTower % 4;
   return absIEta;
