@@ -1,7 +1,7 @@
-#include "PhysicsTools/UtilAlgos/interface/AssociationMerger.h"
+#include "PhysicsTools/UtilAlgos/interface/CollectionAdder.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 
-typedef AssociationMerger<reco::GenParticleCollection> GenParticleMatchMerger;
+typedef CollectionAdder<reco::GenParticleMatch> GenParticleMatchMerger;
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 
