@@ -7,13 +7,12 @@
 #include <typeinfo>
 
 //using namespace cms;
-using namespace std;
 
 void func3()
 {
   throw edm::Exception(edm::errors::NotFound)
     << "This is just a test"
-    << endl;
+    << std::endl;
 }
 
 void func2()
@@ -27,12 +26,12 @@ void func1()
       func2();
   }
   catch (edm::Exception& e) {
-    //cerr << "GOT HERE" << endl;
+    //std::cerr << "GOT HERE" << std::endl;
     throw edm::Exception(edm::errors::Unknown,"In func2",e)
 	<< "Gave up";
   }
   catch (cms::Exception& e) {
-    //cerr << "GOT HERE2 " << typeid(e).name() << endl;
+    //std::cerr << "GOT HERE2 " << typeid(e).name() << std::endl;
     throw cms::Exception("edm::errors::Unknown","In func2 bad place",e)
 	<< "Gave up";
   }
@@ -57,17 +56,17 @@ int main()
     func1();
   }
   catch (cms::Exception& e) {
-    cerr << "*** main caught Exception, output is ***\n"
+    std::cerr << "*** main caught Exception, output is ***\n"
 	 << "(" << e.explainSelf() << ")"
 	 << "*** After exception output ***"
-	 << endl;
+	 << std::endl;
 
-    cerr << "\nCategory name list:\n";
+    std::cerr << "\nCategory name list:\n";
 
 #if 1
     if(e.explainSelf() != answer) {
-	cerr << "not right answer\n(" << answer << ")\n"
-	     << endl;
+	std::cerr << "not right answer\n(" << answer << ")\n"
+	     << std::endl;
 	abort();
     }
 #endif
@@ -75,15 +74,15 @@ int main()
     cms::Exception::CategoryList::const_iterator i(e.history().begin()),
 	b(e.history().end());
 
-    if(e.history().size() !=2) {
-      cerr << "Exception history is bad"  << endl;
+    if(e.history().size() != 2) {
+      std::cerr << "Exception history is bad"  << std::endl;
       abort();
     }
 
     for(int j=0; i != b; ++i, ++j) {
-      cout << "  " << *i << "\n";
+      std::cout << "  " << *i << "\n";
       if(*i != correct[j]) {
-        cerr << "bad category " << *i << endl;
+        std::cerr << "bad category " << *i << std::endl;
         abort();
       }
     }

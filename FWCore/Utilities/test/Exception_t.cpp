@@ -7,7 +7,6 @@
 #include <assert.h>
 
 using namespace cms;
-using namespace std;
 
 struct Thing
 {
@@ -16,7 +15,7 @@ struct Thing
   int x;
 };
 
-ostream& operator<<(ostream& os, const Thing& t)
+std::ostream& operator<<(std::ostream& os, const Thing& t)
 {
   os << "Thing(" << t.x << ")";
   return os;
@@ -62,11 +61,11 @@ void func3()
     << "char*:  " << c1 << "\n"
     << "char[]: " << c2 << "\n"
     << "Thing:  " << thing << "\n"
-    << endl
-    << "double: " << scientific << d << "\n"
-    << "float:  " << setprecision(2) << f << "\n"
-    << "char*:  " << setfill('.') << setw(20) << c1 << "\n"
-    << endl;
+    << std::endl
+    << "double: " << std::scientific << d << "\n"
+    << "float:  " << std::setprecision(2) << f << "\n"
+    << "char*:  " << std::setfill('.') << std::setw(20) << c1 << "\n"
+    << std::endl;
 
   throw e;
 }
@@ -121,20 +120,20 @@ int main()
       func1();
   }
   catch (Exception& e) {
-      cerr << "*** main caught Exception, output is ***\n"
+      std::cerr << "*** main caught Exception, output is ***\n"
 	   << "(" << e.explainSelf() << ")"
 	   << "*** After exception output ***"
-	   << endl;
+	   << std::endl;
 
 
       if(e.explainSelf() != expected) {
-	  cerr << "not right answer\n(" << expected << ")\n"
-	       << endl;
+	  std::cerr << "not right answer\n(" << expected << ")\n"
+	       << std::endl;
 	  abort();
       }
 
 
-      cerr << "\nCategory name list:\n";
+      std::cerr << "\nCategory name list:\n";
 
       Exception::CategoryList::const_iterator i(e.history().begin()),
 	b(e.history().end());
@@ -143,9 +142,9 @@ int main()
       assert (e.history().size() == 2);
 
       for(int j=0; i != b; ++i,++j) {
-	cout << "  " << *i << "\n";
+	std::cout << "  " << *i << "\n";
 	if(*i != correct[j]) {
-	  cerr << "bad category " << *i << endl; abort();
+	  std::cerr << "bad category " << *i << std::endl; abort();
         }
       }
     }

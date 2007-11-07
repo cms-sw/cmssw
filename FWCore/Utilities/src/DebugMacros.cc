@@ -3,8 +3,6 @@
 
 #include <cstdlib>
 
-using namespace std;
-
 namespace edm {
 
   debugvalue::debugvalue():

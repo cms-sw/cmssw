@@ -5,8 +5,6 @@
 #include "FWCore/Utilities/interface/UnixSignalHandlers.h"
 #include "FWCore/Utilities/interface/DebugMacros.h"
 
-using namespace std;
-
 namespace edm {
 
     boost::mutex usr2_lock;

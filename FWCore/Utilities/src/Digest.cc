@@ -4,8 +4,6 @@
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/Utilities/interface/Digest.h"
 
-using std::string;
-
 namespace cms
 {
   namespace
@@ -69,7 +67,7 @@ namespace cms
   }
 
 
-  string MD5Result::toString() const
+  std::string MD5Result::toString() const
   {
     std::ostringstream os;
     os << std::hex << std::setfill('0');
@@ -78,16 +76,16 @@ namespace cms
     return os.str();
   }
 
-  string MD5Result::compactForm() const
+  std::string MD5Result::compactForm() const
   {
     // This is somewhat dangerous, because the conversion of 'unsigned
     // char' to 'char' may be undefined if 'char' is a signed type
     // (4.7p3 in the Standard).
     const char* p = reinterpret_cast<const char*>(&bytes[0]);
-    return string(p, p+sizeof(bytes));
+    return std::string(p, p+sizeof(bytes));
   }
 
-  void MD5Result::fromHexifiedString(string const& hexy)
+  void MD5Result::fromHexifiedString(std::string const& hexy)
   {
     switch (hexy.size())
       {
@@ -98,7 +96,7 @@ namespace cms
 	break;
       case 32:
 	{
-	  string::const_iterator it = hexy.begin();
+	  std::string::const_iterator it = hexy.begin();
 	  for (size_t i = 0; i != 16; ++i)
 	    {
 	      // first nybble
@@ -151,14 +149,14 @@ namespace cms
     md5_init(&state_);
   }
 
-  Digest::Digest(string const& s) :
+  Digest::Digest(std::string const& s) :
     state_()
   {
     md5_init(&state_);
     this->append(s);
   }
 
-  void Digest::append(string const& s) 
+  void Digest::append(std::string const& s) 
   {
     const md5_byte_t* data = reinterpret_cast<const md5_byte_t*>(s.data());
     md5_append(&state_, const_cast<md5_byte_t*>(data), s.size());

@@ -2,7 +2,6 @@
 #include <iostream>
 #include "FWCore/Utilities/interface/Digest.h"
 
-using namespace std;
 using cms::Digest;
 using cms::MD5Result;
 
@@ -22,7 +21,7 @@ void testGivenString(std::string const& s) {
 }
 
 void testConversions() {
-  string data("aldjfakl\tsdjf34234 \najdf");
+  std::string data("aldjfakl\tsdjf34234 \najdf");
   Digest dig(data);
   MD5Result r1 = dig.digest();
   assert(r1.isValid());
