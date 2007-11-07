@@ -64,10 +64,15 @@ DEutils<EcalTrigPrimDigiCollection>::DEDigi(col_cit itd,  col_cit itm, int aflag
   double x1 = (aflag!=4) ? itd->id().iphi() : itm->id().iphi();
   double x2 = (aflag!=4) ? itd->id().ieta() : itm->id().ieta();
   L1DataEmulDigi digi(dedefs::ETP,cid, x1,x2,0, errt);
-  unsigned int dw = (aflag==4)?0:itd->sample(itd->sampleOfInterest()).raw();
-  unsigned int ew = (aflag==3)?0:itm->sample(itm->sampleOfInterest()).raw();
-  //also available: uint32_t id().rawId() ... merge words ?
-  dw &= 0x0fff; ew &= 0x0fff; //12-bit
+  unsigned int dwS = (aflag==4)?0:itd->sample(itd->sampleOfInterest()).raw();
+  unsigned int ewS = (aflag==3)?0:itm->sample(itm->sampleOfInterest()).raw();
+  //dw1 &= 0x01ff; ew1 &= 0x01ff; //9-bit: fg(8),energy(7:0)
+  unsigned int dwI = (aflag==4)?0:itd->id().rawId();
+  unsigned int ewI = (aflag==3)?0:itm->id().rawId();
+  //dw2 &= 0xfe00ffff; ew2 &= 0xfe00ffff; //32-bit, reset unused (24:16)
+  //merge id and sample words
+  unsigned int dw = (dwI & 0xfe00ffff ) | ( (dwS & 0x000001ff)<<16 ); 
+  unsigned int ew = (ewI & 0xfe00ffff ) | ( (ewS & 0x000001ff)<<16 );
   digi.setData(dw,ew);
   int de = (aflag==4)?0:itd->compressedEt() ;
   int ee = (aflag==3)?0:itm->compressedEt() ;
