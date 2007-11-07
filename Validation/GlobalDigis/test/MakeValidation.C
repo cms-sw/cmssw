@@ -57,11 +57,11 @@ void MakeValidation(TString sfilename = "GlobalDigisHistogramsAnalyze.root",
 
   // create attributes
   Int_t rcolor = kBlue;
-  Int_t rtype = kDotted;
+  Int_t rtype = kSolid;
   Int_t stype = kSolid;
-  Int_t scolor = kRed;
-  Int_t linewidth = 2;
-
+  Int_t scolor = kBlack;
+  Int_t rlinewidth = 6;
+  Int_t slinewidth = 2;
   vector<Int_t> histnames;
 
   vector<string> eehistname;
@@ -631,12 +631,12 @@ void MakeValidation(TString sfilename = "GlobalDigisHistogramsAnalyze.root",
 
       if (!sh) cout << names[j].c_str() << "doesn't exist" << endl;
       sh->SetLineColor(scolor);
-      sh->SetLineWidth(linewidth);
+      sh->SetLineWidth(slinewidth);
       sh->SetLineStyle(stype);
       Double_t smax = sh->GetMaximum();
       //TH1F *rh = (TH1F*)rfile->Get(names[j].c_str());
       rh->SetLineColor(rcolor);
-      rh->SetLineWidth(linewidth);
+      rh->SetLineWidth(rlinewidth);
       rh->SetLineStyle(rtype);
       Double_t rmax = rh->GetMaximum();
 
