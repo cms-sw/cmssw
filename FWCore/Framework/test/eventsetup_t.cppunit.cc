@@ -45,7 +45,6 @@ edm::eventsetup::heterocontainer::HCTypeTagTemplate<DummyRecord, edm::eventsetup
 #include "FWCore/Framework/test/DummyEventSetupRecordRetriever.h"
 
 using namespace edm;
-using namespace std;
 
 class testEventsetup: public CppUnit::TestFixture
 {

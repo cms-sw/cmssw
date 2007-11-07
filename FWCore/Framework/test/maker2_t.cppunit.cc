@@ -18,7 +18,6 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-using namespace std;
 using namespace edm;
 
 class TestMod : public EDProducer
@@ -58,7 +57,7 @@ CPPUNIT_TEST_SUITE_REGISTRATION(testmaker2);
 void testmaker2::maker2Test()
 //int main()
 {
-  auto_ptr<Maker> f(new WorkerMaker<TestMod>);
+  std::auto_ptr<Maker> f(new WorkerMaker<TestMod>);
 
   ParameterSet p1;
   p1.addParameter("@module_type",std::string("TestMod") );
@@ -75,8 +74,8 @@ void testmaker2::maker2Test()
   edm::WorkerParams params2(p2, p2, preg, table, "PROD", edm::getReleaseVersion(), edm::getPassID());
 
   sigc::signal<void, const ModuleDescription&> aSignal;
-  auto_ptr<Worker> w1 = f->makeWorker(params1,aSignal,aSignal);
-  auto_ptr<Worker> w2 = f->makeWorker(params2,aSignal,aSignal);
+  std::auto_ptr<Worker> w1 = f->makeWorker(params1,aSignal,aSignal);
+  std::auto_ptr<Worker> w2 = f->makeWorker(params2,aSignal,aSignal);
 
 //  return 0;
 }

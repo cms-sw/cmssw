@@ -3,7 +3,7 @@
 
 Test program for edm::Event.
 
-$Id: Event_t.cpp,v 1.23 2007/08/08 21:51:28 wmtan Exp $
+$Id: Event_t.cpp,v 1.24 2007/10/05 22:00:13 chrjones Exp $
 ----------------------------------------------------------------------*/
 #include <Utilities/Testing/interface/CppUnit_testdriver.icpp>
 #include <cppunit/extensions/HelperMacros.h>
@@ -14,6 +14,7 @@ $Id: Event_t.cpp,v 1.23 2007/08/08 21:51:28 wmtan Exp $
 #include <limits>
 #include <map>
 #include <memory>
+#include <string>
 #include <typeinfo>
 #include <vector>
 
@@ -34,13 +35,13 @@ $Id: Event_t.cpp,v 1.23 2007/08/08 21:51:28 wmtan Exp $
 #include "FWCore/Framework/interface/Selector.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/InputTag.h"
+#include "FWCore/Utilities/interface/Algorithms.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/Utilities/interface/GetPassID.h"
 #include "FWCore/Utilities/interface/GetReleaseVersion.h"
 #include "DataFormats/Provenance/interface/ProcessHistoryRegistry.h"
 
 using namespace edm;
-using namespace std;
 
 // This is a gross hack, to allow us to test the event
 namespace edm
@@ -90,33 +91,33 @@ class testEvent: public CppUnit::TestFixture
  private:
 
   template <class T>
-  void registerProduct(string const& tag,
-		       string const& moduleLabel,
-		       string const& moduleClassName,
-		       string const& processName,
-		       string const& productInstanceName);
+  void registerProduct(std::string const& tag,
+		       std::string const& moduleLabel,
+		       std::string const& moduleClassName,
+		       std::string const& processName,
+		       std::string const& productInstanceName);
 
   template <class T>
-  void registerProduct(string const& tag,
-		       string const& moduleLabel,
-		       string const& moduleClassName,
-		       string const& processName)
+  void registerProduct(std::string const& tag,
+		       std::string const& moduleLabel,
+		       std::string const& moduleClassName,
+		       std::string const& processName)
   {
-    string productInstanceName;
+    std::string productInstanceName;
     registerProduct<T>(tag, moduleLabel, moduleClassName, processName, 
 		       productInstanceName);
   }
 
   template <class T>
-  ProductID addProduct(auto_ptr<T> product,
-		       string const& tag,
-		       string const& productLabel = string());
+  ProductID addProduct(std::auto_ptr<T> product,
+		       std::string const& tag,
+		       std::string const& productLabel = std::string());
   
   ProductRegistry*   availableProducts_;
   EventPrincipal*    principal_;
   Event*             currentEvent_;
   ModuleDescription* currentModuleDescription_;
-  typedef map<string, ModuleDescription> modCache_t;
+  typedef std::map<std::string, ModuleDescription> modCache_t;
   typedef modCache_t::iterator iterator_t;
 
   modCache_t moduleDescriptions_;
@@ -135,21 +136,21 @@ Timestamp make_timestamp() { return Timestamp(1); }
 
 template <class T>
 void
-testEvent::registerProduct(string const& tag,
-			   string const& moduleLabel,
- 			   string const& moduleClassName,
- 			   string const& processName,
-			   string const& productInstanceName)
+testEvent::registerProduct(std::string const& tag,
+			   std::string const& moduleLabel,
+ 			   std::string const& moduleClassName,
+ 			   std::string const& processName,
+			   std::string const& productInstanceName)
 {
   if (!availableProducts_)
     availableProducts_ = new ProductRegistry();
   
   ParameterSet moduleParams;
-  moduleParams.template addParameter<string>("@module_type", moduleClassName);
-  moduleParams.template addParameter<string>("@module_label", moduleLabel);
+  moduleParams.template addParameter<std::string>("@module_type", moduleClassName);
+  moduleParams.template addParameter<std::string>("@module_label", moduleLabel);
   
   ParameterSet processParams;
-  processParams.template addParameter<string>("@process_name", processName);
+  processParams.template addParameter<std::string>("@process_name", processName);
   processParams.template addParameter<ParameterSet>(moduleLabel, moduleParams);
   
   ProcessConfiguration process;
@@ -182,9 +183,9 @@ testEvent::registerProduct(string const& tag,
 // as if it came from the module specified by the given tag.
 template <class T>
 ProductID
-testEvent::addProduct(auto_ptr<T> product,
-		      string const& tag,
-		      string const& productLabel)
+testEvent::addProduct(std::auto_ptr<T> product,
+		      std::string const& tag,
+		      std::string const& productLabel)
 {
   iterator_t description = moduleDescriptions_.find(tag);
   if (description == moduleDescriptions_.end())
@@ -207,7 +208,7 @@ testEvent::testEvent() :
   moduleDescriptions_()
 {
   typedef edmtest::IntProduct prod_t;
-  typedef vector<edmtest::Thing> vec_t;
+  typedef std::vector<edmtest::Thing> vec_t;
 
   registerProduct<prod_t>("nolabel_tag",   "modOne",   "IntProducer",   "EARLY");
   registerProduct<prod_t>("int1_tag",      "modMulti", "IntProducer",   "EARLY", "int1");
@@ -220,14 +221,14 @@ testEvent::testEvent() :
   // Fake up the production of a single IntProduct from an IntProducer
   // module, run in the 'CURRENT' process.
   ParameterSet moduleParams;
-  string moduleLabel("modMulti");
-  string moduleClassName("IntProducer");
-  moduleParams.addParameter<string>("@module_type", moduleClassName);
-  moduleParams.addParameter<string>("@module_label", moduleLabel);
+  std::string moduleLabel("modMulti");
+  std::string moduleClassName("IntProducer");
+  moduleParams.addParameter<std::string>("@module_type", moduleClassName);
+  moduleParams.addParameter<std::string>("@module_label", moduleLabel);
 
   ParameterSet processParams;
-  string processName("CURRENT");
-  processParams.addParameter<string>("@process_name", processName);
+  std::string processName("CURRENT");
+  processParams.addParameter<std::string>("@process_name", processName);
   processParams.addParameter(moduleLabel, moduleParams);
 
   ProcessConfiguration process;
@@ -244,7 +245,7 @@ testEvent::testEvent() :
   currentModuleDescription_->moduleLabel_          = moduleLabel;
   currentModuleDescription_->processConfiguration_ = process;
 
-  string productInstanceName("int1");
+  std::string productInstanceName("int1");
 
   BranchDescription branch;
   branch.moduleLabel_         = moduleLabel;
@@ -277,14 +278,14 @@ void testEvent::setUp()
   // This takes several lines of code but other than
   // the process names none of it is used or interesting.
   ParameterSet moduleParamsEarly;
-  string moduleLabelEarly("currentModule");
-  string moduleClassNameEarly("IntProducer");
-  moduleParamsEarly.addParameter<string>("@module_type", moduleClassNameEarly);
-  moduleParamsEarly.addParameter<string>("@module_label", moduleLabelEarly);
+  std::string moduleLabelEarly("currentModule");
+  std::string moduleClassNameEarly("IntProducer");
+  moduleParamsEarly.addParameter<std::string>("@module_type", moduleClassNameEarly);
+  moduleParamsEarly.addParameter<std::string>("@module_label", moduleLabelEarly);
 
   ParameterSet processParamsEarly;
-  string processNameEarly("EARLY");
-  processParamsEarly.addParameter<string>("@process_name", processNameEarly);
+  std::string processNameEarly("EARLY");
+  processParamsEarly.addParameter<std::string>("@process_name", processNameEarly);
   processParamsEarly.addParameter(moduleLabelEarly, moduleParamsEarly);
 
   ProcessConfiguration processEarly;
@@ -294,14 +295,14 @@ void testEvent::setUp()
   processEarly.parameterSetID_ = processParamsEarly.id();
 
   ParameterSet moduleParamsLate;
-  string moduleLabelLate("currentModule");
-  string moduleClassNameLate("IntProducer");
-  moduleParamsLate.addParameter<string>("@module_type", moduleClassNameLate);
-  moduleParamsLate.addParameter<string>("@module_label", moduleLabelLate);
+  std::string moduleLabelLate("currentModule");
+  std::string moduleClassNameLate("IntProducer");
+  moduleParamsLate.addParameter<std::string>("@module_type", moduleClassNameLate);
+  moduleParamsLate.addParameter<std::string>("@module_label", moduleLabelLate);
 
   ParameterSet processParamsLate;
-  string processNameLate("LATE");
-  processParamsLate.addParameter<string>("@process_name", processNameLate);
+  std::string processNameLate("LATE");
+  processParamsLate.addParameter<std::string>("@process_name", processNameLate);
   processParamsLate.addParameter(moduleLabelLate, moduleParamsLate);
 
   ProcessConfiguration processLate;
@@ -386,7 +387,7 @@ void testEvent::getBySelectorFromEmpty()
 
 void testEvent::putAnIntProduct()
 {
-  auto_ptr<edmtest::IntProduct> three(new edmtest::IntProduct(3));
+  std::auto_ptr<edmtest::IntProduct> three(new edmtest::IntProduct(3));
   currentEvent_->put(three, "int1");
   CPPUNIT_ASSERT(currentEvent_->size() == 1);
   ProducerWorker::commitEvent(*currentEvent_);
@@ -395,7 +396,7 @@ void testEvent::putAnIntProduct()
 
 void testEvent::putAndGetAnIntProduct()
 {
-  auto_ptr<edmtest::IntProduct> four(new edmtest::IntProduct(4));
+  std::auto_ptr<edmtest::IntProduct> four(new edmtest::IntProduct(4));
   currentEvent_->put(four, "int1");
   ProducerWorker::commitEvent(*currentEvent_);
 
@@ -413,7 +414,7 @@ void testEvent::getByProductID()
 {
   
   typedef edmtest::IntProduct product_t;
-  typedef auto_ptr<product_t> ap_t;
+  typedef std::auto_ptr<product_t> ap_t;
   typedef Handle<product_t>  handle_t;
 
   ProductID wanted;
@@ -456,7 +457,7 @@ void testEvent::transaction()
   CPPUNIT_ASSERT(principal_->size() == 0);
   {
     typedef edmtest::IntProduct product_t;
-    typedef auto_ptr<product_t> ap_t;
+    typedef std::auto_ptr<product_t> ap_t;
 
     ap_t three(new product_t(3));
     currentEvent_->put(three, "int1");
@@ -473,9 +474,9 @@ void testEvent::transaction()
 void testEvent::getByInstanceName()
 {
   typedef edmtest::IntProduct product_t;
-  typedef auto_ptr<product_t> ap_t;
+  typedef std::auto_ptr<product_t> ap_t;
   typedef Handle<product_t> handle_t;
-  typedef vector<handle_t> handle_vec;
+  typedef std::vector<handle_t> handle_vec;
 
   ap_t one(new product_t(1));
   ap_t two(new product_t(2));
@@ -494,7 +495,7 @@ void testEvent::getByInstanceName()
   CPPUNIT_ASSERT(currentEvent_->get(sel, h));
   CPPUNIT_ASSERT(h->value == 2);
 
-  string instance;
+  std::string instance;
   Selector sel1(ProductInstanceNameSelector(instance) &&
 	       ModuleLabelSelector("modMulti"));;
 
@@ -507,7 +508,7 @@ void testEvent::getByInstanceName()
   handles.clear();
   currentEvent_->getMany(ModuleLabelSelector("nomatch"), handles);
   CPPUNIT_ASSERT(handles.empty());
-  vector<Handle<int> > nomatches;
+  std::vector<Handle<int> > nomatches;
   currentEvent_->getMany(ModuleLabelSelector("modMulti"), nomatches);
   CPPUNIT_ASSERT(nomatches.empty());
 }
@@ -515,9 +516,9 @@ void testEvent::getByInstanceName()
 void testEvent::getBySelector()
 {
   typedef edmtest::IntProduct product_t;
-  typedef auto_ptr<product_t> ap_t;
+  typedef std::auto_ptr<product_t> ap_t;
   typedef Handle<product_t> handle_t;
-  typedef vector<handle_t> handle_vec;
+  typedef std::vector<handle_t> handle_vec;
 
   ap_t one(new product_t(1));
   ap_t two(new product_t(2));
@@ -528,13 +529,13 @@ void testEvent::getBySelector()
   addProduct(three, "int3_tag");
   addProduct(four,  "nolabel_tag");
 
-  auto_ptr<vector<edmtest::Thing> > ap_vthing(new vector<edmtest::Thing>);
+  std::auto_ptr<std::vector<edmtest::Thing> > ap_vthing(new std::vector<edmtest::Thing>);
   addProduct(ap_vthing, "thing", "");
 
   ap_t oneHundred(new product_t(100));
   addProduct(oneHundred, "int1_tag_late", "int1");
 
-  auto_ptr<edmtest::IntProduct> twoHundred(new edmtest::IntProduct(200));
+  std::auto_ptr<edmtest::IntProduct> twoHundred(new edmtest::IntProduct(200));
   currentEvent_->put(twoHundred, "int1");
   ProducerWorker::commitEvent(*currentEvent_);
 
@@ -598,9 +599,9 @@ void testEvent::getBySelector()
 void testEvent::getByLabel()
 {
   typedef edmtest::IntProduct product_t;
-  typedef auto_ptr<product_t> ap_t;
+  typedef std::auto_ptr<product_t> ap_t;
   typedef Handle<product_t> handle_t;
-  typedef vector<handle_t> handle_vec;
+  typedef std::vector<handle_t> handle_vec;
 
   ap_t one(new product_t(1));
   ap_t two(new product_t(2));
@@ -611,13 +612,13 @@ void testEvent::getByLabel()
   addProduct(three, "int3_tag");
   addProduct(four,  "nolabel_tag");
 
-  auto_ptr<vector<edmtest::Thing> > ap_vthing(new vector<edmtest::Thing>);
+  std::auto_ptr<std::vector<edmtest::Thing> > ap_vthing(new std::vector<edmtest::Thing>);
   addProduct(ap_vthing, "thing", "");
 
   ap_t oneHundred(new product_t(100));
   addProduct(oneHundred, "int1_tag_late", "int1");
 
-  auto_ptr<edmtest::IntProduct> twoHundred(new edmtest::IntProduct(200));
+  std::auto_ptr<edmtest::IntProduct> twoHundred(new edmtest::IntProduct(200));
   currentEvent_->put(twoHundred, "int1");
   ProducerWorker::commitEvent(*currentEvent_);
 
@@ -650,9 +651,9 @@ void testEvent::getByLabel()
 void testEvent::getByType()
 {
   typedef edmtest::IntProduct product_t;
-  typedef auto_ptr<product_t> ap_t;
+  typedef std::auto_ptr<product_t> ap_t;
   typedef Handle<product_t> handle_t;
-  typedef vector<handle_t> handle_vec;
+  typedef std::vector<handle_t> handle_vec;
 
   ap_t one(new product_t(1));
   ap_t two(new product_t(2));
@@ -663,16 +664,16 @@ void testEvent::getByType()
   addProduct(three, "int3_tag");
   addProduct(four,  "nolabel_tag");
 
-  auto_ptr<vector<edmtest::Thing> > ap_vthing(new vector<edmtest::Thing>);
+  std::auto_ptr<std::vector<edmtest::Thing> > ap_vthing(new std::vector<edmtest::Thing>);
   addProduct(ap_vthing, "thing", "");
 
-  auto_ptr<vector<edmtest::Thing> > ap_vthing2(new vector<edmtest::Thing>);
+  std::auto_ptr<std::vector<edmtest::Thing> > ap_vthing2(new std::vector<edmtest::Thing>);
   addProduct(ap_vthing2, "thing2", "inst2");
 
   ap_t oneHundred(new product_t(100));
   addProduct(oneHundred, "int1_tag_late", "int1");
 
-  auto_ptr<edmtest::IntProduct> twoHundred(new edmtest::IntProduct(200));
+  std::auto_ptr<edmtest::IntProduct> twoHundred(new edmtest::IntProduct(200));
   currentEvent_->put(twoHundred, "int1");
   ProducerWorker::commitEvent(*currentEvent_);
 
@@ -688,7 +689,7 @@ void testEvent::getByType()
   CPPUNIT_ASSERT(h_nomatch.failedToGet());
   CPPUNIT_ASSERT_THROW(*h_nomatch, cms::Exception);
 
-  Handle<vector<edmtest::Thing> > hthing;
+  Handle<std::vector<edmtest::Thing> > hthing;
   CPPUNIT_ASSERT_THROW(currentEvent_->getByType(hthing),cms::Exception);
 
   handle_vec handles;
@@ -702,8 +703,7 @@ void testEvent::getByType()
 void testEvent::printHistory()
 {
   ProcessHistory const& history = currentEvent_->processHistory();
-  ofstream out("history.log");
+  std::ofstream out("history.log");
   
-  copy(history.begin(), history.end(),
-       ostream_iterator<ProcessHistory::const_iterator::value_type>(out, "\n"));
+  copy_all(history, std::ostream_iterator<ProcessHistory::const_iterator::value_type>(out, "\n"));
 }

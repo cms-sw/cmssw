@@ -17,7 +17,6 @@
 #include <iostream>
 #include <memory>
 
-using namespace std;
 using namespace edm;
 
 const int numBits = 5;
@@ -26,10 +25,10 @@ const int numMasks = 9;
 const int numAns = numPatterns * numMasks;
 
 typedef bool Answers[numPatterns][numMasks];
-typedef vector<string> Strings;
-typedef vector<Strings> VStrings;
-typedef vector<bool> Bools;
-typedef vector<Bools> VBools;
+typedef std::vector<std::string> Strings;
+typedef std::vector<Strings> VStrings;
+typedef std::vector<bool> Bools;
+typedef std::vector<Bools> VBools;
 
 std::ostream& operator<<(std::ostream& ost, const Strings& s)
 {
@@ -104,7 +103,7 @@ void testone(const Strings& paths,
 
   if (a!=answer || a1 != answer || a2 != answer || b2 != answer || c1 != answer)
     {
-      cerr << "failed to compare pattern with mask: "
+      std::cerr << "failed to compare pattern with mask: "
 	   << "correct=" << answer << " "
 	   << "results=" << a << "  " << a1 << "  " << a2 << "  " << b2 << "\n"
 	   << "pattern=" << pattern << "\n"
@@ -130,7 +129,7 @@ void testone(const Strings& paths,
 
   if (a11 != answer || a12 != answer || a13 != answer || a14 != answer)
     {
-      cerr << "failed to compare pattern with mask using pset ID: "
+      std::cerr << "failed to compare pattern with mask using pset ID: "
 	   << "correct=" << answer << " "
 	   << "results=" << a11 << "  " << a12 << "  " << a13 << "  " << a14 << "\n"
 	   << "pattern=" << pattern << "\n"
@@ -228,8 +227,8 @@ int main()
   // service and setup the service system.
   ParameterSet proc_pset;
 
-  string processName("HLT");
-  proc_pset.addParameter<string>("@process_name", processName);
+  std::string processName("HLT");
+  proc_pset.addParameter<std::string>("@process_name", processName);
 
   ParameterSet trigPaths;
   trigPaths.addParameter<Strings>("@trigger_paths", paths);

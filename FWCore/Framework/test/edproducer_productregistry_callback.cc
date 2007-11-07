@@ -3,7 +3,7 @@
    test for ProductRegistry 
 
    \author Stefano ARGIRO
-   \version $Id: edproducer_productregistry_callback.cc,v 1.12 2007/06/14 17:52:19 wmtan Exp $
+   \version $Id: edproducer_productregistry_callback.cc,v 1.13 2007/08/07 22:10:55 wmtan Exp $
    \date 21 July 2005
 */
 
@@ -128,16 +128,15 @@ public:
 
 void  testEDProducerProductRegistryCallback::testCircularRef(){
    using namespace edm;
-   using namespace std;
    
    SignallingProductRegistry preg;
 
    //Need access to the ConstProductRegistry service
-   auto_ptr<ConstProductRegistry> cReg(new ConstProductRegistry(preg));
+   std::auto_ptr<ConstProductRegistry> cReg(new ConstProductRegistry(preg));
    ServiceToken token = ServiceRegistry::createContaining(cReg);
    ServiceRegistry::Operate startServices(token);
    
-   auto_ptr<Maker> f(new WorkerMaker<TestMod>);
+   std::auto_ptr<Maker> f(new WorkerMaker<TestMod>);
    
    ParameterSet p1;
    p1.addParameter("@module_type",std::string("TestMod") );
@@ -153,7 +152,7 @@ void  testEDProducerProductRegistryCallback::testCircularRef(){
    edm::WorkerParams params2(p2, p2, preg, table, "PROD", edm::getReleaseVersion(), edm::getPassID());
 
    
-   auto_ptr<Maker> lM(new WorkerMaker<ListenMod>);
+   std::auto_ptr<Maker> lM(new WorkerMaker<ListenMod>);
    ParameterSet l1;
    l1.addParameter("@module_type",std::string("ListenMod") );
    l1.addParameter("@module_label",std::string("l1") );
@@ -167,10 +166,10 @@ void  testEDProducerProductRegistryCallback::testCircularRef(){
 
    sigc::signal<void, const ModuleDescription&> aSignal;
 
-   auto_ptr<Worker> w1 = f->makeWorker(params1,aSignal,aSignal);
-   auto_ptr<Worker> wl1 = lM->makeWorker(paramsl1,aSignal,aSignal);
-   auto_ptr<Worker> wl2 = lM->makeWorker(paramsl2,aSignal,aSignal);
-   auto_ptr<Worker> w2 = f->makeWorker(params2,aSignal,aSignal);
+   std::auto_ptr<Worker> w1 = f->makeWorker(params1,aSignal,aSignal);
+   std::auto_ptr<Worker> wl1 = lM->makeWorker(paramsl1,aSignal,aSignal);
+   std::auto_ptr<Worker> wl2 = lM->makeWorker(paramsl2,aSignal,aSignal);
+   std::auto_ptr<Worker> w2 = f->makeWorker(params2,aSignal,aSignal);
 
    //Should be 5 products
    // 1 from the module 't1'
@@ -189,16 +188,15 @@ void  testEDProducerProductRegistryCallback::testCircularRef(){
 
 void  testEDProducerProductRegistryCallback::testCircularRef2(){
    using namespace edm;
-   using namespace std;
    
    SignallingProductRegistry preg;
    
    //Need access to the ConstProductRegistry service
-   auto_ptr<ConstProductRegistry> cReg(new ConstProductRegistry(preg));
+   std::auto_ptr<ConstProductRegistry> cReg(new ConstProductRegistry(preg));
    ServiceToken token = ServiceRegistry::createContaining(cReg);
    ServiceRegistry::Operate startServices(token);
    
-   auto_ptr<Maker> f(new WorkerMaker<TestMod>);
+   std::auto_ptr<Maker> f(new WorkerMaker<TestMod>);
    
    ParameterSet p1;
    p1.addParameter("@module_type",std::string("TestMod") );
@@ -214,7 +212,7 @@ void  testEDProducerProductRegistryCallback::testCircularRef2(){
    edm::WorkerParams params2(p2, p2, preg, table, "PROD", edm::getReleaseVersion(), edm::getPassID());
    
    
-   auto_ptr<Maker> lM(new WorkerMaker<ListenMod>);
+   std::auto_ptr<Maker> lM(new WorkerMaker<ListenMod>);
    ParameterSet l1;
    l1.addParameter("@module_type",std::string("ListenMod") );
    l1.addParameter("@module_label",std::string("l1") );
@@ -228,10 +226,10 @@ void  testEDProducerProductRegistryCallback::testCircularRef2(){
    
    
    sigc::signal<void, const ModuleDescription&> aSignal;
-   auto_ptr<Worker> wl1 = lM->makeWorker(paramsl1,aSignal,aSignal);
-   auto_ptr<Worker> wl2 = lM->makeWorker(paramsl2,aSignal,aSignal);
-   auto_ptr<Worker> w1 = f->makeWorker(params1,aSignal,aSignal);
-   auto_ptr<Worker> w2 = f->makeWorker(params2,aSignal,aSignal);
+   std::auto_ptr<Worker> wl1 = lM->makeWorker(paramsl1,aSignal,aSignal);
+   std::auto_ptr<Worker> wl2 = lM->makeWorker(paramsl2,aSignal,aSignal);
+   std::auto_ptr<Worker> w1 = f->makeWorker(params1,aSignal,aSignal);
+   std::auto_ptr<Worker> w2 = f->makeWorker(params2,aSignal,aSignal);
    
    //Would be 10 products
    // 1 from the module 't1'
@@ -250,16 +248,15 @@ void  testEDProducerProductRegistryCallback::testCircularRef2(){
 
 void  testEDProducerProductRegistryCallback::testTwoListeners(){
    using namespace edm;
-   using namespace std;
    
    SignallingProductRegistry preg;
    
    //Need access to the ConstProductRegistry service
-   auto_ptr<ConstProductRegistry> cReg(new ConstProductRegistry(preg));
+   std::auto_ptr<ConstProductRegistry> cReg(new ConstProductRegistry(preg));
    ServiceToken token = ServiceRegistry::createContaining(cReg);
    ServiceRegistry::Operate startServices(token);
    
-   auto_ptr<Maker> f(new WorkerMaker<TestMod>);
+   std::auto_ptr<Maker> f(new WorkerMaker<TestMod>);
    
    ParameterSet p1;
    p1.addParameter("@module_type",std::string("TestMod") );
@@ -275,12 +272,12 @@ void  testEDProducerProductRegistryCallback::testTwoListeners(){
    edm::WorkerParams params2(p2, p2, preg, table, "PROD", edm::getReleaseVersion(), edm::getPassID());
    
    
-   auto_ptr<Maker> lM(new WorkerMaker<ListenMod>);
+   std::auto_ptr<Maker> lM(new WorkerMaker<ListenMod>);
    ParameterSet l1;
    l1.addParameter("@module_type",std::string("ListenMod") );
    l1.addParameter("@module_label",std::string("l1") );
    
-   auto_ptr<Maker> lFM(new WorkerMaker<ListenFloatMod>);
+   std::auto_ptr<Maker> lFM(new WorkerMaker<ListenFloatMod>);
    ParameterSet l2;
    l2.addParameter("@module_type",std::string("ListenMod") );
    l2.addParameter("@module_label",std::string("l2") );
@@ -290,10 +287,10 @@ void  testEDProducerProductRegistryCallback::testTwoListeners(){
    
    
    sigc::signal<void, const ModuleDescription&> aSignal;
-   auto_ptr<Worker> w1 = f->makeWorker(params1,aSignal,aSignal);
-   auto_ptr<Worker> wl1 = lM->makeWorker(paramsl1,aSignal,aSignal);
-   auto_ptr<Worker> wl2 = lFM->makeWorker(paramsl2,aSignal,aSignal);
-   auto_ptr<Worker> w2 = f->makeWorker(params2,aSignal,aSignal);
+   std::auto_ptr<Worker> w1 = f->makeWorker(params1,aSignal,aSignal);
+   std::auto_ptr<Worker> wl1 = lM->makeWorker(paramsl1,aSignal,aSignal);
+   std::auto_ptr<Worker> wl2 = lFM->makeWorker(paramsl2,aSignal,aSignal);
+   std::auto_ptr<Worker> w2 = f->makeWorker(params2,aSignal,aSignal);
    
    //Should be 8 products
    // 1 from the module 't1'
