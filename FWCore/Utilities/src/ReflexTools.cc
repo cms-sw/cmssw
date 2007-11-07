@@ -12,6 +12,7 @@
 
 #include "FWCore/Utilities/interface/ReflexTools.h"
 #include "FWCore/Utilities/interface/EDMException.h"
+#include "FWCore/Utilities/interface/Algorithms.h"
 
 namespace ROOT {
   namespace Reflex {
@@ -290,10 +291,7 @@ namespace edm
 
             // Check to make sure this base appears only once in the
             // inheritance heirarchy.
-	    std::vector<Type>::const_iterator result;
-            result = find(baseTypes.begin(), baseTypes.end(), baseType);
-            if (result == baseTypes.end()) {
-
+	    if (!search_all(baseTypes, baseType)) {
               // Save the type and recursive look for its base types
 	      baseTypes.push_back(baseType);
               public_base_classes(baseType, baseTypes);
