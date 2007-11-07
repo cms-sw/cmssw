@@ -25,7 +25,7 @@
    if ((rc=func()) < 0)
    {
    throw cms::Exception("DataCorrupt") << "I died with rc = " 
-   << rc << endl;
+   << rc << std::endl;
    }
 
    Derived types are expected to fix the category, either by
