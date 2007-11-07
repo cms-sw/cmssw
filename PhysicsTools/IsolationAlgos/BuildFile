@@ -9,12 +9,14 @@
 <use name=FWCore/ParameterSet>
 <use name=PhysicsTools/IsolationUtils>
 <use name=PhysicsTools/Utilities>
+<use name=PhysicsTools/UtilAlgos>
 <export>
   <lib name=PhysicsToolsIsolationAlgos>
   <use name=FWCore/Framework>
   <use name=FWCore/ParameterSet>
   <use name=PhysicsTools/IsolationUtils>
   <use name=PhysicsTools/Utilities>
+  <use name=PhysicsTools/UtilAlgos>
 </export>
 
 
