@@ -42,8 +42,6 @@ class L1RCT {
   
   void randomInput();
 
-  void saveRCTInput(std::ostream& os);
-
   void print();
   void printCrate(int i){
     crates.at(i).print();
@@ -76,6 +74,19 @@ class L1RCT {
   }
 
   std::vector<L1CaloRegion> getRegions(unsigned crate);
+
+  unsigned short ecalCompressedET(int crate, int card, int tower)
+    {return barrel.at(crate).at(card).at(tower) / 2;}
+  unsigned short ecalFineGrainBit(int crate, int card, int tower)
+    {return barrel.at(crate).at(card).at(tower) & 1;}
+  unsigned short hcalCompressedET(int crate, int card, int tower)
+    {return barrel.at(crate).at(card).at(tower+32) / 2;}
+  unsigned short hcalFineGrainBit(int crate, int card, int tower)
+    {return barrel.at(crate).at(card).at(tower+32) & 1;}
+  unsigned short hfCompressedET(int crate, int tower)
+    {return hf.at(crate).at(tower) / 2;}
+  unsigned short hfFineGrainBit(int crate, int tower)
+    {return hf.at(crate).at(tower) & 1;}
 
  private:
   
