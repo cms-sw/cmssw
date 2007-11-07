@@ -1,8 +1,8 @@
 /*
  * \file EBClusterTask.cc
  *
- * $Date: 2007/10/18 17:09:31 $
- * $Revision: 1.30 $
+ * $Date: 2007/10/23 07:12:12 $
+ * $Revision: 1.31 $
  * \author G. Della Ricca
  * \author E. Di Marco
  *
@@ -326,7 +326,7 @@ void EBClusterTask::analyze(const Event& e, const EventSetup& c){
     Handle<BasicClusterShapeAssociationCollection> pClusterShapeAssociation;
     try	{
       e.getByLabel(ClusterShapeAssociation_, pClusterShapeAssociation);
-    }	catch ( cms::Exception& ex )	{
+    }	catch ( exception& ex )	{
       LogWarning("EBClusterTask") << "Can't get collection with label "   << ClusterShapeAssociation_.label();
     }
 
