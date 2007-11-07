@@ -89,7 +89,9 @@ L1DummyProducer::SimpleDigi(std::auto_ptr<EcalTrigPrimDigiCollection>& data,
   const EcalTrigTowerDetId e_id( side , EcalBarrel, ieta, iphi, 0);
   EcalTriggerPrimitiveDigi e_digi(e_id);
   int energy = (int) (EBase_ + ESigm_*rndGaus_->fire());
-  EcalTriggerPrimitiveSample e_sample(energy, 0, 0);
+  bool fg = (rndFlat_->fire()>0.5);
+  int ttf = (int)(8*rndFlat_->fire()); //0-7
+  EcalTriggerPrimitiveSample e_sample(energy, fg, ttf);
   e_digi.setSize(1); //set sampleOfInterest to 0
   e_digi.setSample(0,e_sample);
   data->push_back(e_digi);
