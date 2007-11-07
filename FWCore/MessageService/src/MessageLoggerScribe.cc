@@ -157,6 +157,7 @@
 #include "FWCore/MessageLogger/interface/ConfigurationHandshake.h"
 
 #include "FWCore/Utilities/interface/EDMException.h"
+#include "FWCore/Utilities/interface/Algorithms.h"
 
 #include <algorithm>
 #include <cassert>
@@ -226,7 +227,7 @@ void
 	catch(cms::Exception& e)
 	{
 	    ++count;
-	    cerr << "MessageLoggerScribe caught " << count
+	    std::cerr << "MessageLoggerScribe caught " << count
 		 << " cms::Exceptions, text = \n"
 		 << e.what() << "\n";
 
@@ -239,7 +240,7 @@ void
 	}
 	catch(...)
 	{
-	    cerr << "MessageLoggerScribe caught an unknown exception and "
+	    std::cerr << "MessageLoggerScribe caught an unknown exception and "
 		 << "will no longer be processing "
 		 << "messages. (entering purge mode)\n";
 	    purge_mode = true;
@@ -281,7 +282,7 @@ void
 	}
 	catch(cms::Exception& e)				// change log 21
 	  {
-	    cerr << "MessageLoggerScribe caught a cms::Exception "
+	    std::cerr << "MessageLoggerScribe caught a cms::Exception "
 		 << "during extern dest configuration:\n"
 		 << e.what() << "\n"
 		 << "This is a serious problem, and the extern dest " 
@@ -290,7 +291,7 @@ void
 	  }
 	catch(...)						// change log 21
 	  {
-	    cerr << "MessageLoggerScribe caught unkonwn exception type\n"
+	    std::cerr << "MessageLoggerScribe caught unkonwn exception type\n"
 		 << "during extern dest configuration. "
 		 << "This is a serious problem, and the extern dest " 
 		 << "will not be produced.\n"
@@ -305,13 +306,13 @@ void
 	}
 	catch(cms::Exception& e)
 	  {
-	    cerr << "MessageLoggerScribe caught exception "
+	    std::cerr << "MessageLoggerScribe caught exception "
 		 << "during summarize:\n"
 		 << e.what() << "\n";
 	  }
 	catch(...)
 	  {
-	    cerr << "MessageLoggerScribe caught unkonwn exception type "
+	    std::cerr << "MessageLoggerScribe caught unkonwn exception type "
 		 << "during summarize. (Ignored)\n";
 	  }
         break;
@@ -324,7 +325,7 @@ void
 	}
 	catch(cms::Exception& e)
 	  {
-	    cerr << "MessageLoggerScribe caught a cms::Exception "
+	    std::cerr << "MessageLoggerScribe caught a cms::Exception "
 		 << "during processing of --jobReport option:\n"
 		 << e.what() << "\n"
 		 << "This likely will affect or prevent the job reoport.\n"
@@ -332,7 +333,7 @@ void
 	  }
 	catch(...)
 	  {
-	    cerr << "MessageLoggerScribe caught unkonwn exception type\n"
+	    std::cerr << "MessageLoggerScribe caught unkonwn exception type\n"
 		 << "during processing of --jobReport option.\n"
 		 << "This likely will affect or prevent the job reoport.\n"
 		 << "However, the rest of the logger continues to run.\n";
@@ -462,9 +463,7 @@ void
       = getAparameter<vString>(job_pset_p,"messageIDs", empty_vString);
 
   // combine the lists, not caring about possible duplicates (for now)
-    std::copy( messageIDs.begin(), messageIDs.end(),
-               std::back_inserter(categories)
-             );
+    copy_all( messageIDs, std::back_inserter(categories) );
   }  // no longer need messageIDs
 
   // grab list of hardwired categories (hardcats) -- these are to be added
@@ -472,9 +471,7 @@ void
   {
     std::vector<std::string> hardcats = messageLoggerDefaults->categories;
   // combine the lists, not caring about possible duplicates (for now)
-    std::copy( hardcats.begin(), hardcats.end(),
-               std::back_inserter(categories)
-             );
+    copy_all( hardcats, std::back_inserter(categories) );
   }  // no longer need hardcats
 
   // grab default threshold common to all destinations
@@ -961,10 +958,7 @@ void
 
     // Check that this is not a duplicate name - 
     // unless it is an ordinary destination (which stats can share)
-    if ( std::find( ordinary_destination_filenames.begin()
-		  , ordinary_destination_filenames.end()
-		  , actual_filename
-		  )  == ordinary_destination_filenames.end() ) {
+    if ( !search_all(ordinary_destination_filenames, actual_filename) ) {
       if ( stream_ps.find(actual_filename)!=stream_ps.end() ) {        
         if (clean_slate_configuration) {			// change log 22
           throw edm::Exception ( edm::errors::Configuration ) 

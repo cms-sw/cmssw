@@ -302,14 +302,14 @@ ELstring  ELstatistics::formSummary( ELmap_stats & stats )  {
     }
     // -----  Emit detailed message information:
     //
-    s << right << setw( 5) << ++n                                     << ' '
-      << left  << setw(20) << (*i).first.id.substr(0,20)              << ' '
-      << left  << setw( 2) << (*i).first.severity.getSymbol()         << ' '
-      << left  << setw(16) << (*i).first.module.substr(0,16)          << ' '
-      << left  << setw(16) << (*i).first.subroutine.substr(0,16)
-      << right << setw( 7) << (*i).second.n
-      << left  << setw( 1) << ( (*i).second.ignoredFlag ? '*' : ' ' )
-      << right << setw( 8) << (*i).second.aggregateN                  << '\n'
+    s << right << std::setw( 5) << ++n                                     << ' '
+      << left  << std::setw(20) << (*i).first.id.substr(0,20)              << ' '
+      << left  << std::setw( 2) << (*i).first.severity.getSymbol()         << ' '
+      << left  << std::setw(16) << (*i).first.module.substr(0,16)          << ' '
+      << left  << std::setw(16) << (*i).first.subroutine.substr(0,16)
+      << right << std::setw( 7) << (*i).second.n
+      << left  << std::setw( 1) << ( (*i).second.ignoredFlag ? '*' : ' ' )
+      << right << std::setw( 8) << (*i).second.aggregateN                  << '\n'
       ;
     ftnote = ftnote || (*i).second.ignoredFlag;
 
@@ -337,14 +337,14 @@ ELstring  ELstatistics::formSummary( ELmap_stats & stats )  {
     if (groupTotal > 0) {
       // -----  Emit detailed message information:
       //
-      s << right << setw( 5) << ++n                                     << ' '
-	<< left  << setw(20) << (*g).substr(0,20)                       << ' '
-	<< left  << setw( 2) << severityLevel.getSymbol()               << ' '
-	<< left  << setw(16) << "  <Any Module>  "                      << ' '
-	<< left  << setw(16) << "<Any Function>"
-	<< right << setw( 7) << groupTotal
-	<< left  << setw( 1) << ( groupIgnored ? '*' : ' ' )
-	<< right << setw( 8) << groupAggregateN                  << '\n'
+      s << right << std::setw( 5) << ++n                                     << ' '
+	<< left  << std::setw(20) << (*g).substr(0,20)                       << ' '
+	<< left  << std::setw( 2) << severityLevel.getSymbol()               << ' '
+	<< left  << std::setw(16) << "  <Any Module>  "                      << ' '
+	<< left  << std::setw(16) << "<Any Function>"
+	<< right << std::setw( 7) << groupTotal
+	<< left  << std::setw( 1) << ( groupIgnored ? '*' : ' ' )
+	<< right << std::setw( 8) << groupAggregateN                  << '\n'
 	;
       ftnote = ftnote || groupIgnored;
 
@@ -380,10 +380,10 @@ ELstring  ELstatistics::formSummary( ELmap_stats & stats )  {
 	   "------------ ---------------- ----------------\n"
 	;
     }
-    s << right << setw( 5) << ++n                             << ' '
-      << left  << setw(20) << (*i).first.id.c_str()           << ' '
-      << left  << setw(16) << (*i).second.context1.c_str()    << ' '
-      << left  << setw(16) << (*i).second.context2.c_str()    << ' '
+    s << right << std::setw( 5) << ++n                             << ' '
+      << left  << std::setw(20) << (*i).first.id.c_str()           << ' '
+      << left  << std::setw(16) << (*i).second.context1.c_str()    << ' '
+      << left  << std::setw(16) << (*i).second.context2.c_str()    << ' '
                            << (*i).second.contextLast.c_str() << '\n'
       ;
   }  // for
@@ -394,9 +394,9 @@ ELstring  ELstatistics::formSummary( ELmap_stats & stats )  {
     <<   "--------    -------------   -----------------\n";
   for ( int k = 0;  k < ELseverityLevel::nLevels;  ++k )  {
     if ( p3[k].n != 0  ||  p3[k].t != 0 )  {
-      s << left  << setw( 8) << ELseverityLevel( ELseverityLevel::ELsev_(k) ).getName().c_str()
-        << right << setw(17) << p3[k].n
-        << right << setw(20) << p3[k].t
+      s << left  << std::setw( 8) << ELseverityLevel( ELseverityLevel::ELsev_(k) ).getName().c_str()
+        << right << std::setw(17) << p3[k].n
+        << right << std::setw(20) << p3[k].t
                              << '\n'
         ;
     }

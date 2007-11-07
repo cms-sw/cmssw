@@ -18,7 +18,6 @@
 #include "FWCore/Integration/test/ViewAnalyzer.h"
 
 using namespace edm;
-using namespace std;
 using namespace std::rel_ops;
 
 namespace edmtest 
@@ -49,10 +48,10 @@ namespace edmtest
   {
     assert(e.size() > 0);
 
-    tester<vector<int> >::call(this, e, "intvec");
-    tester<list<int> >::call(this, e, "intlist");
-    tester<deque<int> >::call(this, e, "intdeque");
-    tester<set<int> >::call(this, e, "intset");
+    tester<std::vector<int> >::call(this, e, "intvec");
+    tester<std::list<int> >::call(this, e, "intlist");
+    tester<std::deque<int> >::call(this, e, "intdeque");
+    tester<std::set<int> >::call(this, e, "intset");
 
 
     tester<SCSimpleProduct>::call(this, e, "simple");
@@ -85,7 +84,7 @@ namespace edmtest
   template <class P, class V>
   void
   ViewAnalyzer::testProduct(Event const& e,
- 			    string const& moduleLabel) const
+ 			    std::string const& moduleLabel) const
   {
     typedef P                               sequence_t;
     typedef V                               value_t;
@@ -128,7 +127,7 @@ namespace edmtest
 
   void
   ViewAnalyzer::testDSVProduct(Event const& e,
- 			    string const& moduleLabel) const
+ 			    std::string const& moduleLabel) const
   {
     typedef edmtest::DSVSimpleProduct sequence_t;
     typedef sequence_t::value_type    value_t;
@@ -169,7 +168,7 @@ namespace edmtest
   // inherits from "Simple" and is named "SimpleDerived"
   void
   ViewAnalyzer::testProductWithBaseClass(Event const& e,
- 			    string const& moduleLabel) const
+ 			    std::string const& moduleLabel) const
   {
     typedef OVSimpleDerivedProduct          sequence_t;
     typedef Simple                          value_t;
@@ -205,9 +204,9 @@ namespace edmtest
 
   void
   ViewAnalyzer::testRefVector(Event const& e,
-			      string const& moduleLabel) const
+			      std::string const& moduleLabel) const
   {
-    typedef RefVector<vector<int> >   sequence_t;
+    typedef RefVector<std::vector<int> >   sequence_t;
     typedef int                       value_t;
     typedef View<value_t>             view_t;
     
@@ -240,7 +239,7 @@ namespace edmtest
 
   void
   ViewAnalyzer::testRefToBaseVector(Event const& e,
-				    string const& moduleLabel) const
+				    std::string const& moduleLabel) const
   {
     typedef RefToBaseVector<int>      sequence_t;
     typedef int                       value_t;

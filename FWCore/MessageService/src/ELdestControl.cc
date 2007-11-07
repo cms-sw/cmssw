@@ -44,7 +44,7 @@ ELdestControl::ELdestControl( ELdestination * dest )
 : d ( dest )
 {
   #ifdef ELdestinationCONSTRUCTOR_TRACE
-    cerr << "Constructor for ELdestControl\n";
+    std::cerr << "Constructor for ELdestControl\n";
   #endif
 }  // ELdestControl()
 
@@ -53,14 +53,14 @@ ELdestControl::ELdestControl( )
 : d ( 0 )
 {
   #ifdef ELdestinationCONSTRUCTOR_TRACE
-    cerr << "Default Constructor for ELdestControl\n";
+    std::cerr << "Default Constructor for ELdestControl\n";
   #endif
 }  // ELdestControl()
 
 
 ELdestControl::~ELdestControl()  {
   #ifdef ELdestinationCONSTRUCTOR_TRACE
-    cerr << "Destructor for ELdestControl\n";
+    std::cerr << "Destructor for ELdestControl\n";
   #endif
 }  // ~ELdestControl()
 

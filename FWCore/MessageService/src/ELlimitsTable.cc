@@ -45,7 +45,7 @@ ELlimitsTable::ELlimitsTable()
 {
 
 #ifdef ELlimitsTableCONSTRUCTOR_TRACE
-  cerr << "Constructor for ELlimitsTable\n";
+  std::cerr << "Constructor for ELlimitsTable\n";
 #endif
 
   for ( int k = 0;  k < ELseverityLevel::nLevels;  ++k )  {
@@ -60,7 +60,7 @@ ELlimitsTable::ELlimitsTable()
 ELlimitsTable::~ELlimitsTable()  {
 
 #ifdef ELlimitsTableCONSTRUCTOR_TRACE
-  cerr << "Destructor for ELlimitsTable\n";
+  std::cerr << "Destructor for ELlimitsTable\n";
 #endif
 
 }  // ~ELlimitsTable()
@@ -76,7 +76,7 @@ void ELlimitsTable::setTableLimit( int n )  { tableLimit = n; }
 bool ELlimitsTable::add( const ELextendedID & xid )  {
 
 #ifdef ELlimitsTableATRACE
-  cerr << "&&&--- adding to limits table: " << xid.id << '\n';
+  std::cerr << "&&&--- adding to limits table: " << xid.id << '\n';
 #endif
 
   ELmap_counts::iterator c = counts.find( xid );
@@ -84,7 +84,7 @@ bool ELlimitsTable::add( const ELextendedID & xid )  {
   if ( c == counts.end() )  {  // no such entry yet
 
     #ifdef ELlimitsTableATRACE
-    cerr << "&&&    no such entry yet in counts \n";
+    std::cerr << "&&&    no such entry yet in counts \n";
     #endif
     int lim;
     int ivl;
@@ -115,7 +115,7 @@ bool ELlimitsTable::add( const ELextendedID & xid )  {
         limits[xid.id] = LimitAndTimespan( lim, ts );
       }
       #ifdef ELlimitsTableATRACE
-      cerr << "&&&    Entry found in limits: limit = " << lim
+      std::cerr << "&&&    Entry found in limits: limit = " << lim
            << " interval = " << ivl
            << " timespan = " << ts << '\n';
       #endif
@@ -125,28 +125,28 @@ bool ELlimitsTable::add( const ELextendedID & xid )  {
       ivl = severityIntervals[xid.severity.getLevel()];
       ts  = severityTimespans[xid.severity.getLevel()];
       #ifdef ELlimitsTableATRACE
-      cerr << "&&&    Limit taken from severityLimits: " << lim << '\n'
+      std::cerr << "&&&    Limit taken from severityLimits: " << lim << '\n'
            << "&&&    Interval taken from severityLimits: " << ivl << '\n';
       #endif
       if ( lim < 0 )  {
         lim = wildcardLimit;
         #ifdef ELlimitsTableATRACE
-        cerr << "&&&    Limit reset to wildcard limit: " << lim << '\n';
+        std::cerr << "&&&    Limit reset to wildcard limit: " << lim << '\n';
         #endif
       }
       if ( ivl < 0 )  {
         ivl = wildcardInterval;
         #ifdef ELlimitsTableATRACE
-        cerr << "&&&    Interval reset to wildcard interval: " << ivl << '\n';
+        std::cerr << "&&&    Interval reset to wildcard interval: " << ivl << '\n';
         #endif
       }
       #ifdef ELlimitsTableATRACE
-      cerr << "&&&    Timespan taken from severityTimespans: " << ts << '\n';
+      std::cerr << "&&&    Timespan taken from severityTimespans: " << ts << '\n';
       #endif
       if ( ts < 0 )  {
         ts = wildcardTimespan;
         #ifdef ELlimitsTableATRACE
-        cerr << "&&&    timespan reset to wildcard timespan: " << ts << '\n';
+        std::cerr << "&&&    timespan reset to wildcard timespan: " << ts << '\n';
         #endif
       }
 

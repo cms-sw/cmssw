@@ -10,8 +10,6 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/Algorithms.h"
 
-using namespace std;
-
 namespace edmtest 
 {
   class PathAnalyzer : public edm::EDAnalyzer
@@ -59,17 +57,17 @@ namespace edmtest
   PathAnalyzer::dumpTriggerNamesServiceInfo(char const* where)
   {
     typedef edm::Service<edm::service::TriggerNamesService>  TNS;
-    typedef vector<string> stringvec;
+    typedef std::vector<std::string> stringvec;
 
     TNS tns;
-    ostringstream message;
+    std::ostringstream message;
 
     stringvec const& trigpaths = tns->getTrigPaths();
     message << "dumpTriggernamesServiceInfo called from PathAnalyzer::"
 	    << where << '\n';
     message << "trigger paths are: ";
 
-    edm::copy_all(trigpaths, ostream_iterator<string>(message, " "));
+    edm::copy_all(trigpaths, std::ostream_iterator<std::string>(message, " "));
     message << '\n';
 
     for (stringvec::const_iterator i = trigpaths.begin(), e = trigpaths.end();
@@ -77,7 +75,7 @@ namespace edmtest
 	 ++i)
       {
 	message << "path name: " << *i << " contains: ";
-	edm::copy_all(tns->getTrigPathModules(*i), ostream_iterator<string>(message, " "));
+	edm::copy_all(tns->getTrigPathModules(*i), std::ostream_iterator<std::string>(message, " "));
 	message << '\n';
       }
 
@@ -88,7 +86,7 @@ namespace edmtest
     edm::LogInfo("PathAnalyzer") << "TNS size: " << tns->size() 
 				 << "\n"
 				 << message.str()
-				 << endl;
+				 << std::endl;
   }
 
 } // namespace edmtest

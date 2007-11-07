@@ -111,7 +111,7 @@ void ELadministrator::setProcess( const ELstring & process )  {
 
   process_ = process;
   #if 0
-    cerr << "Administrator process set to \"" << process << "\"\n";
+    std::cerr << "Administrator process set to \"" << process << "\"\n";
   #endif
 
 }  // setProcess()
@@ -315,13 +315,13 @@ void ELadministrator::finishMsg()  {
     highSeverity_ = msg.xid().severity;
 
   #ifdef ELadTRACE_FINISH
-    cerr << "=:=:=: finshMsg() - lev = " << lev << "\n";
+    std::cerr << "=:=:=: finshMsg() - lev = " << lev << "\n";
   #endif
 
   context_->editErrorObj( msg );
 
   #ifdef ELadTRACE_FINISH
-    cerr << "=:=:=: finshMsg() returns from editErrorObj( msg ) \n";
+    std::cerr << "=:=:=: finshMsg() returns from editErrorObj( msg ) \n";
   #endif
 
   std::list<ELdestination *>::iterator d;
@@ -330,19 +330,19 @@ void ELadministrator::finishMsg()  {
     int destCounter = 0;
   #endif
   if ( sinks().begin() == sinks().end() )  {                   // $$ JV:1
-    cerr << "\nERROR LOGGED WITHOUT DESTINATION!\n";
-    cerr << "Attaching destination \"cerr\" to ELadministrator by default\n\n";
+    std::cerr << "\nERROR LOGGED WITHOUT DESTINATION!\n";
+    std::cerr << "Attaching destination \"cerr\" to ELadministrator by default\n\n";
     ELdestination * dest = new ELoutput(cerr);
     this->sinks().push_back(dest);
   }
   for ( d = sinks().begin();  d != sinks().end();  ++d )  {
     #ifdef ELadTRACE_FINISH
-      cerr << "  =:=:=: log(msg) for a destination number "
+      std::cerr << "  =:=:=: log(msg) for a destination number "
            << ++destCounter << " called ... \n";
     #endif
     mrt = (*d)->log( msg );
     #ifdef ELadTRACE_FINISH
-      cerr << "  =:=:=: log(msg) for a destination returned " << mrt << "\n";
+      std::cerr << "  =:=:=: log(msg) for a destination returned " << mrt << "\n";
     #endif
     if ( mrt )
       msg.setReactedTo(true);
@@ -511,7 +511,7 @@ ELadministrator::ELadministrator()
 {
 
   #ifdef ELadministratorCONSTRUCTOR_TRACE
-    cerr << "ELadminstrator constructor\n";
+    std::cerr << "ELadminstrator constructor\n";
   #endif
 
   for ( int lev = 0;  lev < ELseverityLevel::nLevels;  ++lev )
@@ -526,7 +526,7 @@ ELadminDestroyer::ELadminDestroyer( ELadministrator * ad )  : admin_( ad )  {}
 ELadminDestroyer::~ELadminDestroyer()  {
 
   #ifdef ELadministratorCONSTRUCTOR_TRACE
-    cerr << "~ELadminDestroyer: Deleting admin_\n";
+    std::cerr << "~ELadminDestroyer: Deleting admin_\n";
   #endif
 
   delete admin_;
@@ -544,7 +544,7 @@ void ELadminDestroyer::setELadmin( ELadministrator * ad )  { admin_ = ad; }
 ELadministrator::~ELadministrator()  {
 
   #ifdef ELadministratorCONSTRUCTOR_TRACE
-    cerr << "ELadministrator Destructor\n";
+    std::cerr << "ELadministrator Destructor\n";
   #endif
 
   finishMsg();
