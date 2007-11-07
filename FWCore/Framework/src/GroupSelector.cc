@@ -1,4 +1,4 @@
-// $Id: GroupSelector.cc,v 1.24 2007/06/14 17:52:18 wmtan Exp $
+// $Id: GroupSelector.cc,v 1.25 2007/06/29 03:43:21 wmtan Exp $
 
 #include <algorithm>
 #include <iterator>
@@ -11,6 +11,7 @@
 #include "FWCore/Framework/interface/GroupSelector.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/EDMException.h"
+#include "FWCore/Utilities/interface/Algorithms.h"
 
 
 namespace edm {
@@ -257,9 +258,7 @@ typedef std::vector<edm::BranchDescription const*> VCBDP;
     }
     // We are to write this 'branch' if its name is one of the ones we
     // have been told to write.
-    return std::binary_search(groupsToWrite_.begin(), 
-			       groupsToWrite_.end(),
-			       desc.branchName());
+    return binary_search_all(groupsToWrite_, desc.branchName());
   }
 
   void
@@ -270,9 +269,7 @@ typedef std::vector<edm::BranchDescription const*> VCBDP;
        << " has "
        << groupsToWrite_.size()
        << " groups to write:\n";      
-    std::copy(groupsToWrite_.begin(),
-	      groupsToWrite_.end(),
-	      std::ostream_iterator<std::string>(os, "\n"));
+    copy_all(groupsToWrite_, std::ostream_iterator<std::string>(os, "\n"));
   }
 
 
@@ -305,11 +302,10 @@ typedef std::vector<edm::BranchDescription const*> VCBDP;
     {
       std::vector<GroupSelector::BranchWriteState>::const_iterator it = branchstates.begin();
       std::vector<GroupSelector::BranchWriteState>::const_iterator end = branchstates.end();
-      for (; it != end; ++it)
-	{
+      for (; it != end; ++it) {
 	  if (it->writeMe) groupsToWrite_.push_back(it->desc->branchName());
-	}
-      std::sort(groupsToWrite_.begin(), groupsToWrite_.end());
+      }
+      sort_all(groupsToWrite_);
     }
     initialized_ = true;
   }

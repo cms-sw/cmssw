@@ -151,17 +151,17 @@ namespace edm {
     int maxEventsOut = -1;
     ParameterSet vMaxEventsOut;
     std::vector<std::string> intNames = maxEventsPSet.getParameterNamesForType<int>(false);
-    if (intNames.end() != std::find(intNames.begin(), intNames.end(), input)) {
+    if (search_all(intNames, input)) {
       maxEventsIn = maxEventsPSet.getUntrackedParameter<int>(input);
       ++maxEventSpecs;
     }
-    if (intNames.end() != std::find(intNames.begin(), intNames.end(), output)) {
+    if (search_all(intNames, output)) {
       maxEventsOut = maxEventsPSet.getUntrackedParameter<int>(output);
       ++maxEventSpecs;
     }
     std::vector<std::string> psetNames;
     maxEventsPSet.getParameterSetNames(psetNames, false);
-    if (psetNames.end() != std::find(psetNames.begin(), psetNames.end(), output)) {
+    if (search_all(psetNames, output)) {
       vMaxEventsOut = maxEventsPSet.getUntrackedParameter<ParameterSet>(output);
       ++maxEventSpecs;
     }
@@ -359,11 +359,13 @@ namespace edm {
 	modpset= pset_.getParameter<ParameterSet>(realname);
       } catch(cms::Exception&) {
 	std::string pathType("endpath");
-	if(find(end_path_name_list_.begin(),end_path_name_list_.end(), name) == end_path_name_list_.end()) {
+	if(!search_all(end_path_name_list_, name)) {
 	  pathType = std::string("path");
 	}
-	throw edm::Exception(edm::errors::Configuration)<<"The unknown module label \""<<realname<<"\" appears in "<<pathType<<" \""<<name
-							<<"\"\n please check spelling or remove that label from the path.";
+	throw edm::Exception(edm::errors::Configuration) <<
+	  "The unknown module label \"" << realname <<
+	  "\" appears in " << pathType << " \"" << name <<
+	  "\"\n please check spelling or remove that label from the path.";
       }
       WorkerParams params(pset_, modpset, *prod_reg_, *act_table_,
 			  processName_, getReleaseVersion(), getPassID());
@@ -916,7 +918,7 @@ namespace edm {
 
   void
   Schedule::resetAll() {
-    for_each(workersBegin(), workersEnd(), boost::bind(&Worker::reset, _1));
+    for_all(all_workers_, boost::bind(&Worker::reset, _1));
     results_->reset();
     endpath_results_->reset();
   }

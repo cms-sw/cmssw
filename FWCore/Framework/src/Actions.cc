@@ -2,12 +2,11 @@
 #include "FWCore/Framework/interface/Actions.h"
 #include "FWCore/Utilities/interface/DebugMacros.h"
 #include "FWCore/Utilities/interface/EDMException.h"
+#include "FWCore/Utilities/interface/Algorithms.h"
 #include "boost/lambda/lambda.hpp"
 
 #include <vector>
 #include <iostream>
-
-using namespace std;
 
 namespace edm {
   namespace actions {
@@ -23,7 +22,7 @@ namespace edm {
 	  table_[FailPath]="FailPath";
 	}
 
-	typedef vector<const char*> Table;
+	typedef std::vector<const char*> Table;
 	Table table_;
       };      
     }
@@ -47,7 +46,7 @@ namespace edm {
 			const ParameterSet& pset)
     {
       using namespace boost::lambda;
-      typedef vector<string> vstring;
+      typedef std::vector<std::string> vstring;
 
       // we cannot have parameters in the main process section so look
       // for an untrakced (optional) ParameterSet called "options" for
@@ -57,15 +56,15 @@ namespace edm {
       // exception type should be used so the catch can be more
       // specific.
 
-//	cerr << pset.toString() << endl;
+//	cerr << pset.toString() << std::endl;
 
       ParameterSet defopts;
       ParameterSet opts = 
 	pset.getUntrackedParameter<ParameterSet>("options", defopts);
-      //cerr << "looking for " << actionName(code) << endl;
+      //cerr << "looking for " << actionName(code) << std::endl;
       vstring v = 
 	opts.getUntrackedParameter(actionName(code),vstring());
-      for_each(v.begin(),v.end(), var(out)[_1]=code);      
+      for_all(v, var(out)[_1] = code);      
 
     }  
   }
@@ -104,7 +103,7 @@ namespace edm {
 	ActionMap::const_iterator ib(map_.begin()),ie(map_.end());
 	for(;ib!=ie;++ib)
 	  std::cerr << ib->first << ',' << ib->second << '\n';
-	cerr << endl;
+	std::cerr << std::endl;
       }
 
   }

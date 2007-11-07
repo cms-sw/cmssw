@@ -1,5 +1,5 @@
 /**----------------------------------------------------------------------
-  $Id: Principal.cc,v 1.16 2007/10/05 21:57:44 chrjones Exp $
+  $Id: Principal.cc,v 1.17 2007/10/15 15:17:59 paterno Exp $
   ----------------------------------------------------------------------*/
 
 #include <algorithm>
@@ -409,8 +409,6 @@ namespace edm {
   Principal::getAllProvenance(std::vector<Provenance const*> & provenances) const {
     provenances.clear();
     for (Principal::const_iterator i = begin(), iEnd = end(); i != iEnd; ++i) {
-      SharedConstGroupPtr g = *i;
-      this->resolveProvenance(*g);
       if ((*i)->provenanceAvailable()) provenances.push_back(&(*i)->provenance());
     }
   }

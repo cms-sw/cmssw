@@ -23,6 +23,7 @@
 #include "FWCore/Framework/interface/DataProxyProvider.h"
 #include "FWCore/Framework/interface/EventSetupRecordIntervalFinder.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Utilities/interface/Algorithms.h"
 
 namespace edm {
    namespace eventsetup {
@@ -358,7 +359,7 @@ EventSetupProvider::resetRecordPlusDependentRecords(const EventSetupRecordKey& i
   dependents.erase(std::unique(dependents.begin(),dependents.end()), dependents.end());
   
   itFind->second->resetProxies();
-  std::for_each(dependents.begin(), dependents.end(), 
+  for_all(dependents,
                 boost::bind(&EventSetupRecordProvider::resetProxies,
                             _1));
 }
@@ -404,7 +405,7 @@ EventSetupProvider::proxyProviderDescriptions() const
    typedef std::set<ComponentDescription> Set;
    Set descriptions;
 
-   std::for_each(providers_.begin(), providers_.end(),
+   for_all(providers_,
                  bind(InsertAll(descriptions),
                       bind(&EventSetupRecordProvider::proxyProviderDescriptions,
                            bind(&Providers::value_type::second,_1))));

@@ -10,11 +10,14 @@
 //
 // Author:      Valentin Kuznetsov
 // Created:     Wed Jul 12 11:38:09 EDT 2006
-// $Id: EDLooperHelper.cc,v 1.6 2007/07/13 20:08:14 chrjones Exp $
+// $Id: EDLooperHelper.cc,v 1.7 2007/07/13 20:23:40 chrjones Exp $
 //
 // Revision history
 //
 // $Log: EDLooperHelper.cc,v $
+// Revision 1.7  2007/07/13 20:23:40  chrjones
+// bug fix: arguments must be references since we need them to see changes
+//
 // Revision 1.6  2007/07/13 20:08:14  chrjones
 // Have the code used by the looper properly handle run and luminosity blocks
 //
@@ -37,6 +40,7 @@
 // user include files
 #include "FWCore/Framework/interface/EDLooperHelper.h"
 #include "FWCore/Framework/interface/EventProcessor.h"
+#include "FWCore/Utilities/interface/Algorithms.h"
 
 namespace edm {
 
@@ -47,8 +51,8 @@ namespace edm {
 static const char* const kFacilityString = "FWCore.Framework.EDLooperHelper" ;
 
 // ---- cvs-based strings (Id and Tag with which file was checked out)
-static const char* const kIdString  = "$Id: EDLooperHelper.cc,v 1.6 2007/07/13 20:08:14 chrjones Exp $";
-static const char* const kTagString = "$Name:  $";
+static const char* const kIdString  = "$Id: EDLooperHelper.cc,v 1.7 2007/07/13 20:23:40 chrjones Exp $";
+static const char* const kTagString = "$Name: CMSSW_1_7_0_pre7 $";
 
 //
 // static data member definitions
@@ -98,7 +102,7 @@ EDLooperHelper::runOnce(boost::shared_ptr<edm::RunPrincipal>& rp,
 void
 EDLooperHelper::rewind(const std::set<edm::eventsetup::EventSetupRecordKey>& keys)
 {
-   std::for_each(keys.begin(),keys.end(), 
+   for_all(keys,
         boost::bind(&eventsetup::EventSetupProvider::resetRecordPlusDependentRecords,
                      eventProcessor_->esp_.get(), _1));
    return eventProcessor_->rewind();

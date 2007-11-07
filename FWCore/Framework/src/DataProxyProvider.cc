@@ -115,7 +115,7 @@ DataProxyProvider::usingRecords() const
         ++itRecProxies) {
       returnValue.insert(returnValue.end(), itRecProxies->first);
    }
-   //std::copy(keys_.begin(), keys_.end(), std::inserter(returnValue, returnValue.end()));
+   //copy_all(keys_, std::inserter(returnValue, returnValue.end()));
    return returnValue;
 }   
 

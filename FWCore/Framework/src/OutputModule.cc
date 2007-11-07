@@ -1,6 +1,6 @@
 /*----------------------------------------------------------------------
 
-$Id: OutputModule.cc,v 1.45 2007/10/15 22:35:24 wmtan Exp $
+$Id: OutputModule.cc,v 1.46 2007/10/31 22:56:29 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "FWCore/Framework/interface/OutputModule.h"
@@ -33,7 +33,7 @@ namespace edm {
     return reg->allBranchDescriptions();
   }
 
-  vector<string> const& getAllTriggerNames() {
+  vector<std::string> const& getAllTriggerNames() {
     edm::Service<edm::service::TriggerNamesService> tns;
     return tns->getTrigPaths();
   }
@@ -44,7 +44,7 @@ namespace
 {
   //--------------------------------------------------------
   // Remove whitespace (spaces and tabs) from a string.
-  void remove_whitespace(string& s) {
+  void remove_whitespace(std::string& s) {
     s.erase(remove(s.begin(), s.end(), ' '), s.end());
     s.erase(remove(s.begin(), s.end(), '\t'), s.end());
   }
@@ -62,7 +62,7 @@ namespace
   // optional), return a parsed_path_spec_t containing "a" and "b".
 
   typedef std::pair<string,string> parsed_path_spec_t;
-  void parse_path_spec(string const& path_spec, 
+  void parse_path_spec(std::string const& path_spec, 
 		       parsed_path_spec_t& output) {
     string trimmed_path_spec(path_spec);
     remove_whitespace(trimmed_path_spec);
@@ -78,7 +78,7 @@ namespace
   }
 
   void test_parse_path_spec() {
-    vector<string> paths;
+    vector<std::string> paths;
     paths.push_back("a:p1");
     paths.push_back("b:p2");
     paths.push_back("  c");
@@ -148,8 +148,8 @@ namespace edm {
 	return;
     }
 
-    vector<string> path_specs = 
-      selectevents.getParameter<vector<string> >("SelectEvents");
+    vector<std::string> path_specs = 
+      selectevents.getParameter<vector<std::string> >("SelectEvents");
 
     if (path_specs.empty()) {
 	wantAllEvents_ = true;

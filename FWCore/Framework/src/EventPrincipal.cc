@@ -1,6 +1,7 @@
 #include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/Framework/interface/UnscheduledHandler.h"
 #include "FWCore/Framework/interface/LuminosityBlockPrincipal.h"
+#include "FWCore/Utilities/interface/Algorithms.h"
 #include "DataFormats/Provenance/interface/Provenance.h"
 
 #include <algorithm>
@@ -47,9 +48,7 @@ namespace edm {
     // to recover from this.  Here we check for this problem and throw
     // an exception.
     std::vector<std::string>::const_iterator i =
-      std::find(moduleLabelsRunning_.begin(),
-                moduleLabelsRunning_.end(),
-                prov.moduleLabel());
+      find_in_all(moduleLabelsRunning_, prov.moduleLabel());
 
     if (i != moduleLabelsRunning_.end()) {
       throw edm::Exception(errors::LogicError)

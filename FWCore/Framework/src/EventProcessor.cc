@@ -352,7 +352,6 @@ namespace edm {
   std::auto_ptr<eventsetup::EventSetupProvider>
   makeEventSetupProvider(ParameterSet const& params)
   {
-    using namespace std;
     using namespace edm::eventsetup;
     std::vector<std::string> prefers =
       params.getParameter<std::vector<std::string> >("@all_esprefers");
@@ -437,7 +436,6 @@ namespace edm {
 			 ParameterSet const& params,
 			 EventProcessor::CommonParams const& common)
   {
-    using namespace std;
     using namespace edm::eventsetup;
     std::vector<std::string> providers =
       params.getParameter<std::vector<std::string> >("@all_esmodules");

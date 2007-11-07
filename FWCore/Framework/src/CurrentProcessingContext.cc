@@ -2,8 +2,6 @@
 
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
 
-using namespace std;
-
 namespace edm
 {
   CurrentProcessingContext::CurrentProcessingContext() :
@@ -14,7 +12,7 @@ namespace edm
     isEndPath_(false)
   { }
 
-  CurrentProcessingContext::CurrentProcessingContext(string const* name,
+  CurrentProcessingContext::CurrentProcessingContext(std::string const* name,
 						     int bitpos,
 						     bool isEndPth) :
     pathInSchedule_(bitpos),
@@ -24,7 +22,7 @@ namespace edm
     isEndPath_(isEndPth)
   { }
 
-  string const*
+  std::string const*
   CurrentProcessingContext::moduleLabel() const
   {
     return is_active()
@@ -32,7 +30,7 @@ namespace edm
       : 0;
   }
 
-  string const*
+  std::string const*
   CurrentProcessingContext::pathName() const
   {
     return pathName_;

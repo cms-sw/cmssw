@@ -2,13 +2,11 @@
 #include "FWCore/Framework/interface/EventSelector.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Framework/interface/TriggerNamesService.h"
+#include "FWCore/Utilities/interface/Algorithms.h"
 
 #include "boost/algorithm/string.hpp"
 
 #include <algorithm>
-
-using namespace std;
-
 
 namespace edm
 {
@@ -59,7 +57,7 @@ namespace edm
 	 i!=end; ++i)
       {
 
-	string current_path(*i);
+	std::string current_path(*i);
 	boost::erase_all(current_path, " \t");
 	if(current_path == "*" && !star_done)
 	  {
@@ -78,14 +76,14 @@ namespace edm
 
 	    bool accept_level = (current_path[0]!='!');
 	    // make the name without the bang if need be
-	    string const& realname = 
+	    std::string const& realname = 
 	      accept_level 
 	      ? current_path 
-	      : string((current_path.begin()+1), current_path.end());
+	      : std::string((current_path.begin()+1), current_path.end());
 	    
 	    // see if the name can be found in the full list of paths
 	    Strings::const_iterator pos = 
-	      find(triggernames.begin(),triggernames.end(),realname);
+	      find_in_all(triggernames,realname);
 	    if(pos!=triggernames.end())
 	      {
 		BitInfo bi(distance(triggernames.begin(),pos),accept_level);

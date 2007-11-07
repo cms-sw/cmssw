@@ -3,8 +3,7 @@
 #include "boost/bind.hpp"
 
 #include "FWCore/Framework/interface/CachedProducts.h"
-
-using namespace std;
+#include "FWCore/Utilities/interface/Algorithms.h"
 
 namespace edm 
 {
@@ -20,11 +19,11 @@ namespace edm
     { }
 
     void
-    CachedProducts::setupDefault(vector<string> const& triggernames)
+    CachedProducts::setupDefault(std::vector<std::string> const& triggernames)
     {
 
       // Set up one NamedEventSelector, with default configuration
-      vector<string> paths;
+      std::vector<std::string> paths;
       EventSelector es(paths, triggernames);
       NES nes("", es);
       selectors_.push_back(nes);
@@ -32,14 +31,14 @@ namespace edm
     }
 
     void
-    CachedProducts::setup(vector<parsed_path_spec_t> const& path_specs,
-			  vector<string> const& triggernames,
+    CachedProducts::setup(std::vector<parsed_path_spec_t> const& path_specs,
+			  std::vector<std::string> const& triggernames,
                           const std::string& process_name)
     {
       // paths_for_process maps each PROCESS names to a sequence of
       // PATH names
-      map<string, vector<string> > paths_for_process;
-      for (vector<parsed_path_spec_t>::const_iterator 
+      std::map<std::string, std::vector<std::string> > paths_for_process;
+      for (std::vector<parsed_path_spec_t>::const_iterator 
 	     i = path_specs.begin(), 
 	     e = path_specs.end();
  	   i != e;
@@ -55,7 +54,7 @@ namespace edm
 	}
       // Now go through all the PROCESS names, and create a
       // NamedEventSelector for each.
-      for (map<string, vector<string> >::const_iterator
+      for (std::map<std::string, std::vector<std::string> >::const_iterator
 	     i = paths_for_process.begin(),
 	     e = paths_for_process.end();
 	   i != e;
@@ -152,8 +151,7 @@ namespace edm
     void
     CachedProducts::clear()
     { 
-      std::for_each(selectors_.begin(), selectors_.end(), 
-		    boost::bind(&NamedEventSelector::clear, _1));
+      for_all(selectors_, boost::bind(&NamedEventSelector::clear, _1));
       fillDone_ = false;
       numberFound_ = 0;
     }

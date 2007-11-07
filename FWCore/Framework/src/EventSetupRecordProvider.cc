@@ -18,6 +18,7 @@
 #include "FWCore/Framework/interface/EventSetupRecordProvider.h"
 #include "FWCore/Framework/interface/EventSetupRecordIntervalFinder.h"
 #include "FWCore/Framework/interface/DataProxyProvider.h"
+#include "FWCore/Utilities/interface/Algorithms.h"
 
 
 //
@@ -67,10 +68,7 @@ void
 EventSetupRecordProvider::add(boost::shared_ptr<DataProxyProvider> iProvider)
 {
    assert(iProvider->isUsingRecord(key_));
-   assert(providers_.end() == std::find(providers_.begin(),
-                                          providers_.end(),
-                                          iProvider));
-   
+   assert(!search_all(providers_, iProvider));
    providers_.push_back(iProvider);
 }
 
@@ -104,8 +102,7 @@ EventSetupRecordProvider::setDependentProviders(const std::vector< boost::shared
 void 
 EventSetupRecordProvider::usePreferred(const DataToPreferredProviderMap& iMap)
 {
-   std::for_each(providers_.begin(),providers_.end(), 
-                 boost::bind(&EventSetupRecordProvider::addProxiesToRecord,this,_1,iMap));
+  for_all(providers_, boost::bind(&EventSetupRecordProvider::addProxiesToRecord,this,_1,iMap));
   if (1 < multipleFinders_->size()) {
     //is one of these designated as preferred?
     typedef EventSetupRecordProvider::DataToPreferredProviderMap PreferredMap;
@@ -197,8 +194,7 @@ void
 EventSetupRecordProvider::resetProxies()
 {
   cacheReset();
-  std::for_each(providers_.begin(),providers_.end(),
-                boost::bind(&DataProxyProvider::resetProxies,_1,key_));
+  for_all(providers_, boost::bind(&DataProxyProvider::resetProxies,_1,key_));
 }
 
 

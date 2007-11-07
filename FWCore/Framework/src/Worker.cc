@@ -1,6 +1,6 @@
 
 /*----------------------------------------------------------------------
-$Id: Worker.cc,v 1.23 2007/06/05 04:02:32 wmtan Exp $
+$Id: Worker.cc,v 1.24 2007/06/14 17:52:18 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "FWCore/Framework/src/Worker.h"
@@ -127,8 +127,6 @@ private:
   }
   
   void Worker::endJob() {
-    using namespace std;
-    
     try {
         CallPrePostEndJob cpp(sigs_,md_);
 	implEndJob();

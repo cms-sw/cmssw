@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: DataViewImpl.cc,v 1.21 2007/07/09 07:29:51 llista Exp $
+$Id: DataViewImpl.cc,v 1.22 2007/10/11 15:31:45 chrjones Exp $
 ----------------------------------------------------------------------*/
 
 #include <algorithm>
@@ -9,6 +9,7 @@ $Id: DataViewImpl.cc,v 1.21 2007/07/09 07:29:51 llista Exp $
 #include "FWCore/Framework/interface/Principal.h"
 #include "DataFormats/Provenance/interface/BranchEntryDescription.h"
 #include "FWCore/Framework/interface/Selector.h"
+#include "FWCore/Utilities/interface/Algorithms.h"
 
 namespace edm {
 
@@ -29,7 +30,7 @@ namespace edm {
   DataViewImpl::~DataViewImpl() {
     // anything left here must be the result of a failure
     // let's record them as failed attempts in the event principal
-    for_each(put_products_.begin(),put_products_.end(),deleter());
+    for_all(put_products_, deleter());
   }
 
   size_t
