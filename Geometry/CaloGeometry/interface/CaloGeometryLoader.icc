@@ -30,7 +30,7 @@
 using namespace std;
 
 template <class T>
-CaloGeometryLoader<T>::CaloGeometryLoader<T>() 
+CaloGeometryLoader<T>::CaloGeometryLoader() 
 {
    m_filter.setCriteria( DDValue( "SensitiveDetector",
 				  "EcalSensitiveDetector",
