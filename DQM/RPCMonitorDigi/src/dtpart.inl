@@ -75,14 +75,16 @@ if(all4DSegments->size()>0){
 	  std::cout<<"\t \t \t Center (0,0,0) Roll In DTLocal"<<CenterRollinDTFrame<<std::endl;
 	    
 	  float D=CenterRollinDTFrame.z();
-	  std::cout<<"\t \t \t Is D less than MaxD? D="<<D<<"cm"<<std::endl;
 	  
-	  if(fabs(D)<MaxD){ 
-	    std::cout<<"\t \t \t yes"<<std::endl;
 	    float X=Xo+dx*D/dz;
 	    float Y=Yo+dy*D/dz;
 	    float Z=D;
-	    
+	
+	  std::cout<<"\t \t \t Is the distance less than MaxD? D="<<D<<"cm"<<std::endl;
+  
+
+	  if(X*X+Y*Y+Z*Z<=MaxD*MaxD){ 
+	    std::cout<<"\t \t \t yes"<<std::endl;
 	    const RectangularStripTopology* top_= dynamic_cast<const RectangularStripTopology*> (&(rollasociated->topology()));
 	    LocalPoint xmin = top_->localPosition(0.);
 	    LocalPoint xmax = top_->localPosition((float)rollasociated->nstrips());
@@ -216,7 +218,7 @@ if(all4DSegments->size()>0){
 	    }//Condition for the right match
 	  }else{
 	    std::cout<<"\t \t \t No, Exrtrapolation too long!, canceled"<<std::endl;
-	  }//D not so big
+	  }//D so big
 	}//loop over all the rolls
       }
     }

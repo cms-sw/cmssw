@@ -86,20 +86,6 @@ if(allCSCSegments->size()>0){
 	  GlobalPoint CenterPointCSCGlobal = TheChamber->toGlobal(LocalPoint(0,0,0));
 	  std::cout<<"\t \t \t Center (0,0,0) of the CSC in Global"<<CenterPointCSCGlobal<<std::endl;
 	    
-	  float d=sqrt(
-		       pow(CenterPointRollGlobal.x()-CenterPointCSCGlobal.x(),2)+
-		       pow(CenterPointRollGlobal.y()-CenterPointCSCGlobal.y(),2)+
-		       pow(CenterPointRollGlobal.z()-CenterPointCSCGlobal.z(),2)
-		       );
-
-	  std::cout<<"\t \t \t d="<<d<<"cm"<<std::endl;
-	  
-	  if(d>70.0)
-	    {
-	      std::cout<<"\t \t \t Extrapolation too long, Roll Discarted!!"<<std::endl;
-	    }
-
-	  else{
 	    std::cout<<"\t \t \t Doing the extrapolation"<<std::endl;
 	    std::cout<<"\t \t \t CSC Segment Direction in CSCLocal "<<segmentDirection<<std::endl;
 	    std::cout<<"\t \t \t Segment Point in CSCLocal "<<segmentPosition<<std::endl;
@@ -112,14 +98,15 @@ if(allCSCSegments->size()>0){
 	    
 	    float D=CenterRollinCSCFrame.z();
 	  
-	    std::cout<<"\t \t \t Is D less than MaxD? D="<<D<<"cm"<<std::endl;
 	  
-	    if(fabs(D)<MaxD){
-	      std::cout<<"\t \t \t yes"<<std::endl;
 	      float X=Xo+dx*D/dz;
 	      float Y=Yo+dy*D/dz;
 	      float Z=D;
-	    
+
+	    std::cout<<"\t \t \t Is the distance less than MaxD? D="<<D<<"cm"<<std::endl;
+
+	    if(X*X+Y*Y+Z*Z<MaxD*MaxD){
+	      std::cout<<"\t \t \t yes"<<std::endl;
 	      std::cout<<"\t \t \t X Predicted in CSCLocal= "<<X<<"cm"<<std::endl;
 	      std::cout<<"\t \t \t Y Predicted in CSCLocal= "<<Y<<"cm"<<std::endl;
 	      std::cout<<"\t \t \t Z Predicted in CSCLocal= "<<Z<<"cm"<<std::endl;
@@ -250,7 +237,7 @@ if(allCSCSegments->size()>0){
 		std::cout<<"\t \t \t \t no"<<std::endl;
 	      }//Condition for the right match
 	    }//if extrapolation distance D is not too long
-	  }//if the distance between detectors is not too long
+	  //if the distance between detectors is not too long
 	}//loop over the CSCStationIndex
       }//if we have just one segment
     }//Is the segment 4D?
