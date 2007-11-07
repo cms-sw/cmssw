@@ -14,6 +14,8 @@
 
 #include "VertexTracker.h"
 
+#include "FWCore/Utilities/interface/Algorithms.h"
+
 #if 0
 extern "C" {
   // options:
@@ -270,10 +272,10 @@ void writeProfileData(int fd, const std::string& prefix)
 
   // ------ calculate samples for parents and percentages in vertices ------
 
-  sort(vsyms.begin(),vsyms.end(),idSort);
+  edm::sort_all(vsyms,idSort);
   //Viter::iterator Vib(vsyms.begin()),Vie(vsyms.end());
-  //cout << "sorted table --------------" << std::endl;
-  //while(Vib!=Vie) { cout << "    " << *(*Vib) << std::endl; ++Vib; }
+  //std::cout << "sorted table --------------" << std::endl;
+  //while(Vib!=Vie) { std::cout << "    " << *(*Vib) << std::endl; ++Vib; }
 
   PathSet::const_iterator pat_it_beg(pathset.begin()),
     pat_it_end(pathset.end());
@@ -281,7 +283,7 @@ void writeProfileData(int fd, const std::string& prefix)
   while(pat_it_beg!=pat_it_end) {
       // get set of unique IDs from the path
       ULVec pathcopy(pat_it_beg->tree_);
-      sort(pathcopy.begin(),pathcopy.end());
+      edm::sort_all(pathcopy);
       ULVec::iterator iter = unique(pathcopy.begin(),pathcopy.end());
       ULVec::iterator cop_beg(pathcopy.begin());
       //cout << "length of unique = " << distance(cop_beg,iter) << std::endl;
@@ -316,7 +318,7 @@ void writeProfileData(int fd, const std::string& prefix)
   // -------------- write out the vertices ----------------
 
 
-  sort(vsyms.begin(),vsyms.end(),symSort);
+  edm::sort_all(vsyms,symSort);
   Viter::reverse_iterator vvi(vsyms.rbegin()),vve(vsyms.rend());
   while(vvi != vve) {
       nost << *(*vvi) << "\n";
@@ -336,7 +338,7 @@ void writeProfileData(int fd, const std::string& prefix)
       ++ipath;
   }
 
-  sort(vpaths.begin(),vpaths.end(),pathSort);
+  edm::sort_all(vpaths,pathSort);
   Piter::reverse_iterator ppi(vpaths.rbegin()),ppe(vpaths.rend());
   while(ppi != ppe) {
       tost << *(*ppi) << "\n";

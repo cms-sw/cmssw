@@ -9,7 +9,7 @@
 // Original Author:  E. Sexton-Kennedy
 //         Created:  Tue Apr 11 13:43:16 CDT 2006
 //
-// $Id: EnableFloatingPointExceptions.cc,v 1.12 2007/06/14 21:03:39 wmtan Exp $
+// $Id: EnableFloatingPointExceptions.cc,v 1.13 2007/09/09 18:01:44 marafino Exp $
 //
 
 // system include files
@@ -24,6 +24,7 @@
 #include "FWCore/Services/src/EnableFloatingPointExceptions.h"
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Utilities/interface/Algorithms.h"
 
 using namespace edm::service;
 //
@@ -91,7 +92,7 @@ reportSettings_(false)
 // any user-specified default first.  If there is one, use it to override our default.
 // Then remove it from the list so we don't see it again while handling everything else.
 
-    VString::iterator pos = find(moduleNames.begin(), moduleNames.end(), "default");
+    VString::iterator pos = find_in_all(moduleNames, "default");
     if( pos != moduleNames.end() ) {
       PSet secondary = iPS.getUntrackedParameter<PSet>(*pos, empty_PSet);
       enableDivByZeroEx_  = secondary.getUntrackedParameter<bool>("enableDivByZeroEx", false);
