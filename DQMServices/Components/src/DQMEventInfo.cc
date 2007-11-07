@@ -1,13 +1,13 @@
 /*
- * \file EventCoordinatesSource.cc
+ * \file DQMEventInfo.cc
  * 
- * $Date: 2007/04/03 09:51:57 $
- * $Revision: 1.3 $
+ * $Date: 2007/11/05 16:42:13 $
+ * $Revision: 1.4 $
  * \author M. Zanetti - CERN PH
  *
  */
 
-#include "EventCoordinatesSource.h"
+#include "DQMEventInfo.h"
 
 // Framework
 #include <FWCore/Framework/interface/Event.h>
@@ -26,7 +26,7 @@
 using namespace edm;
 using namespace std;
 
-EventCoordinatesSource::EventCoordinatesSource(const ParameterSet& ps){
+DQMEventInfo::DQMEventInfo(const ParameterSet& ps){
   
   parameters_ = ps;
   
@@ -41,13 +41,13 @@ EventCoordinatesSource::EventCoordinatesSource(const ParameterSet& ps){
 
 }
 
-EventCoordinatesSource::~EventCoordinatesSource(){
+DQMEventInfo::~DQMEventInfo(){
 
-  cout<<"[EventCoordinatesSource]: distructor"<<endl;
+  cout<<"[DQMEventInfo]: distructor"<<endl;
 
 }
 
-void EventCoordinatesSource::analyze(const Event& e, const EventSetup& c){
+void DQMEventInfo::analyze(const Event& e, const EventSetup& c){
 
   runId_->Fill(e.id().run());
   lumisecId_->Fill(e.luminosityBlock());

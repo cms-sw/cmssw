@@ -1,11 +1,11 @@
-#ifndef EventCoordinatesSource_H
-#define EventCoordinatesSource_H
+#ifndef DQMEventInfo_H
+#define DQMEventInfo_H
 
 /*
- * \file EventCoordinatesSource.h
+ * \file DQMEventInfo.h
  *
- * $Date: 2007/03/30 13:57:00 $
- * $Revision: 1.3 $
+ * $Date: 2007/11/05 16:42:13 $
+ * $Revision: 1.4 $
  * \author M. Zanetti - INFN Padova
  *
 */
@@ -29,15 +29,15 @@
 #include <vector>
 #include <map>
 
-class EventCoordinatesSource: public edm::EDAnalyzer{
+class DQMEventInfo: public edm::EDAnalyzer{
 
 public:
 
   /// Constructor
-  EventCoordinatesSource(const edm::ParameterSet& ps);
+  DQMEventInfo(const edm::ParameterSet& ps);
   
   /// Destructor
-  virtual ~EventCoordinatesSource();
+  virtual ~DQMEventInfo();
 
 protected:
 
