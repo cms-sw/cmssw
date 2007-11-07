@@ -2,6 +2,12 @@
 #include <string>
 #include <iostream>
 #include <fstream>
+using std::ostream;
+using std::cout;
+using std::cerr;
+using std::endl;
+
+#include <iomanip>
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
@@ -75,5 +81,53 @@ L1RCTSaveInput::analyze(const edm::Event& event,
   if (ecal.isValid()) { ecalColl = *ecal; }
   if (hcal.isValid()) { hcalColl = *hcal; }
   rct->digiInput(ecalColl, hcalColl);
-  rct->saveRCTInput(ofs);
+  static int nEvents = 0;
+  if(nEvents == 0)
+    {
+      ofs
+	<< "Crate = 0-17" << std::endl
+	<< "Card = 0-7 within the crate" << std::endl
+	<< "Tower = 1-32 covers 4 x 8 covered by the card" << std::endl
+	<< "EMAddr(0:8) = EMFGBit(0:0)+CompressedEMET(1:8)" << std::endl
+	<< "HDAddr(0:8) = HDFGBit(0:0)+CompressedHDET(1:8) - note: HDFGBit(0:0) is not part of the hardware LUT address" << std::endl
+	<< "LutOut(0:17)= LinearEMET(0:6)+HoEFGVetoBit(7:7)+LinearJetET(8:16)+ActivityBit(17:17)" << std::endl
+	<< "Event" << "\t"
+	<< "Crate" << "\t"
+	<< "Card" << "\t"
+	<< "Tower" << "\t"
+	<< "EMAddr" << "\t"
+	<< "HDAddr" << "\t"
+	<< "LUTOut"
+	<< std::endl;
+    }
+  if(nEvents < 64)
+    {
+      for(unsigned short iCrate = 0; iCrate < 18; iCrate++)
+	{
+	  for(unsigned short iCard = 0; iCard < 7; iCard++)
+	    {
+	      // tower numbered from 1-32
+	      for(unsigned short iTower = 0; iTower < 32; iTower++)
+		{
+		  unsigned short ecal = rct->ecalCompressedET(iCrate, iCard, iTower);
+		  unsigned short hcal = rct->hcalCompressedET(iCrate, iCard, iTower);
+		  unsigned short fgbit = rct->ecalFineGrainBit(iCrate, iCard, iTower);
+		  unsigned short mubit = rct->hcalFineGrainBit(iCrate, iCard, iTower);
+		  unsigned long lutOutput = rctLookupTables->lookup(ecal, hcal, fgbit, iCrate, iCard, iTower);
+		  ofs
+		    << std::hex 
+		    << nEvents << "\t"
+		    << iCrate << "\t"
+		    << iCard << "\t"
+		    << iTower << "\t"
+		    << ecal * 2 + fgbit << "\t"
+		    << hcal * 2 + mubit << "\t"
+		    << lutOutput
+		    << std::dec 
+		    << std::endl;
+		}
+	    }
+	}
+    }
+  nEvents++;
 }
