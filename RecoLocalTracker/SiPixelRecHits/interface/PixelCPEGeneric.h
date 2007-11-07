@@ -107,6 +107,14 @@ class PixelCPEGeneric : public PixelCPEBase
   float err2X(bool&, int&) const;
   float err2Y(bool&, int&) const;
 
+  //dfehling -Making cuts externally setable
+  double the_eff_charge_cut_lowX;
+  double the_eff_charge_cut_lowY;
+  double the_eff_charge_cut_highX;
+  double the_eff_charge_cut_highY;
+  double the_size_cutX;
+  double the_size_cutY;
+
  protected:
   //--- These functions are no longer needed, yet they are declared 
   //--- pure virtual in the base class.
