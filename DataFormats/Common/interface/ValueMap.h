@@ -4,7 +4,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: ValueMap.h,v 1.8 2007/10/30 13:43:37 llista Exp $
+ * \version $Id: ValueMap.h,v 1.9 2007/11/06 15:16:57 llista Exp $
  *
  */
 
@@ -34,7 +34,7 @@ namespace edm {
 	typename id_offset_vector::const_iterator j = map.ids_.begin();
 	const typename id_offset_vector::const_iterator end = map.ids_.end();
 	size_t i = 0;
-	const size_t size = map.indices_.size();
+	const size_t size = map.values_.size();
 	std::pair<ProductID, offset> id = *j;
 	do {
 	  ProductID id = j->first;
@@ -44,7 +44,7 @@ namespace edm {
 	  if(f!=values_.end()) throwAdd();
 	  value_vector & values = values_.insert(std::make_pair(id, value_vector())).first->second;
 	  while(i!=max)
-	    values.push_back( map.indices_[i++] );
+	    values.push_back( map.values_[i++] );
 	} while(j != end);
       }
       template<typename H, typename I>
@@ -65,7 +65,7 @@ namespace edm {
 	  map_.ids_.push_back(std::make_pair(id, off));
 	  const value_vector & values = i->second;
 	  for(typename value_vector::const_iterator j = values.begin(); j != values.end(); ++j) {
-	    map_.indices_.push_back( *j );
+	    map_.values_.push_back( *j );
 	    ++off;
 	  }
 	}
@@ -110,8 +110,8 @@ namespace edm {
       if(f==ids_.end()||f->first != id) throwNotExisting();
       offset off = f->second;
       size_t j = off+idx;
-      if(j >= indices_.size()) throwIndexBound();
-      return indices_[j];
+      if(j >= values_.size()) throwIndexBound();
+      return values_[j];
     }
     ValueMap<T> & operator+=(const ValueMap<T> & o) {
       add(o);
@@ -120,14 +120,14 @@ namespace edm {
     bool contains(ProductID id) const {
       return getIdOffset(id) != ids_.end();
     }
-    size_t size() const { return indices_.size(); }
-    bool empty() const { return indices_.empty(); }
-    void clear() { indices_.clear(); ids_.clear(); }
+    size_t size() const { return values_.size(); }
+    bool empty() const { return values_.empty(); }
+    void clear() { values_.clear(); ids_.clear(); }
 
     typedef helper::Filler<ValueMap<T> > Filler;
 
   protected:
-    container indices_;
+    container values_;
     id_offset_vector ids_;
 
     typename id_offset_vector::const_iterator getIdOffset(ProductID id) const {

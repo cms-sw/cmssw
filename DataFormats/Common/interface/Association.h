@@ -4,7 +4,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: Association.h,v 1.3 2007/11/05 15:42:50 llista Exp $
+ * \version $Id: Association.h,v 1.4 2007/11/06 15:16:57 llista Exp $
  *
  */
 
@@ -36,8 +36,8 @@ namespace edm {
       if(f==ids_.end()||f->first != id) return reference_type();
       offset off = f->second;
       size_t j = off+idx;
-      if(j >= indices_.size()) throwIndexBound();
-      index i = indices_[j];
+      if(j >= values_.size()) throwIndexBound();
+      index i = values_[j];
       if(i < 0) return reference_type(); 
       size_t k = i;
       if (k >= ref_->size()) throwIndexMapBound();
