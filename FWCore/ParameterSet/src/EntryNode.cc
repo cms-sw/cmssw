@@ -124,7 +124,15 @@ namespace edm {
          if(value_=="true" || value_=="T" || value_=="True" ||
             value_=="1" || value_=="on" || value_=="On")
            d = true;
-
+         else if(value_=="false" || value_=="F" || value_=="False" ||
+                 value_=="0" || value_=="off" || value_=="Off")
+           d = false;
+         else 
+         {
+            throw edm::Exception(errors::Configuration) << name()
+               << " has a bad value for bool:" << value_
+               << "\nfrom " << traceback();
+         }
          return Entry(name(), d, tracked_);
      }
      else {
