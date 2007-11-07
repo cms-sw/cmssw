@@ -2,8 +2,8 @@
  *
  *  Implementation of QTestConfigure
  *
- *  $Date: 2007/11/07 14:48:01 $
- *  $Revision: 1.6 $
+ *  $Date: 2007/11/07 15:22:03 $
+ *  $Revision: 1.7 $
  *  \author Ilaria Segoni
  */
 #include "DQMServices/ClientConfig/interface/QTestConfigure.h"
@@ -223,7 +223,7 @@ void QTestConfigure::EnableTH2FContentsInRangeTest(std::string testName, std::ma
         double toleranceMean=atof(params["toleranceMean"].c_str());
         if ( toleranceMean != 0 ) me_qc1->setMeanTolerance(toleranceMean);
 
-        double minEntries=atof(params["minEntries"].c_str());
+        int minEntries=atoi(params["minEntries"].c_str());
         if ( minEntries  != 0 ) me_qc1->setMinimumEntries(minEntries);
 
 }
@@ -255,7 +255,7 @@ void QTestConfigure::EnableProfContentsInRangeTest(std::string testName, std::ma
         double toleranceMean=atof(params["toleranceMean"].c_str());
         if ( toleranceMean != 0 ) me_qc1->setMeanTolerance(toleranceMean);
 
-        double minEntries=atof(params["minEntries"].c_str());
+        int minEntries=atoi(params["minEntries"].c_str());
         if ( minEntries  != 0 ) me_qc1->setMinimumEntries(minEntries);
 
 }
@@ -287,7 +287,7 @@ void QTestConfigure::EnableProf2DContentsInRangeTest(std::string testName, std::
         double toleranceMean=atof(params["toleranceMean"].c_str());
         if ( toleranceMean != 0 ) me_qc1->setMeanTolerance(toleranceMean);
 
-        double minEntries=atof(params["minEntries"].c_str());
+        int minEntries=atoi(params["minEntries"].c_str());
         if ( minEntries  != 0 ) me_qc1->setMinimumEntries(minEntries);
 
 }
