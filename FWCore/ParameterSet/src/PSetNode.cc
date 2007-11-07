@@ -129,7 +129,8 @@ namespace edm {
         {
           // print some extra debugging
           ostringstream message;
-          message << "In variable " << (**i).name() << "\nIncluded from:\n" << (**i).traceback();
+          message << "\nIn variable " << (**i).name() 
+                  << "\nIncluded from:\n" << (**i).traceback();
           e.append(message.str());
          
           // pass it on(errors::Configuration
