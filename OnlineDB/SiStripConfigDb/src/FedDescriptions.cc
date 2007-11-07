@@ -1,4 +1,4 @@
-// Last commit: $Id: FedDescriptions.cc,v 1.10 2007/07/13 14:10:33 bainbrid Exp $
+// Last commit: $Id: FedDescriptions.cc,v 1.11 2007/10/20 14:53:45 bainbrid Exp $
 // Latest tag:  $Name: HEAD $
 // Location:    $Source: /cvs_server/repositories/CMSSW/CMSSW/OnlineDB/SiStripConfigDb/src/FedDescriptions.cc,v $
 
@@ -22,8 +22,8 @@ const SiStripConfigDb::FedDescriptions& SiStripConfigDb::getFedDescriptions() {
     //@@ handle fact that "latest" version for FED is signified by "-1", not "0"!
     int16_t major = -1;
     int16_t minor = -1;
-    if ( dbParams_.major_ > 0 ) { major = dbParams_.major_; }
-    if ( dbParams_.minor_ > 0 ) { major = dbParams_.minor_; }
+    if ( dbParams_.fedMajor_ > 0 ) { major = dbParams_.fedMajor_; }
+    if ( dbParams_.fedMinor_ > 0 ) { major = dbParams_.fedMinor_; }
     feds_ = *( deviceFactory(__func__)->getFed9UDescriptions( dbParams_.partition_, 
 							      major, 
 							      minor ) );
@@ -63,9 +63,9 @@ void SiStripConfigDb::uploadFedDescriptions( bool new_major_version ) { //@@ thi
     SiStripConfigDb::FedDescriptions::iterator ifed = feds_.begin();
     for ( ; ifed != feds_.end(); ifed++ ) {
       deviceFactory(__func__)->setFed9UDescription( **ifed, 
- 						    (uint16_t*)(&dbParams_.major_), 
- 						    (uint16_t*)(&dbParams_.minor_),
- 						    false ); // (new_major_version?1:0) ); //@@ HARDWIRED!!!
+ 						    (uint16_t*)(&dbParams_.fedMajor_), 
+ 						    (uint16_t*)(&dbParams_.fedMinor_),
+ 						    false ); // (new_major_version?1:0) ); //@@ should be true???
     }
   }
   catch (...) { 

@@ -1,5 +1,5 @@
-// Last commit: $Id: DeviceDescriptions.cc,v 1.11 2007/03/19 10:44:03 bainbrid Exp $
-// Latest tag:  $Name: TIF_210307 $
+// Last commit: $Id: DeviceDescriptions.cc,v 1.12 2007/03/28 10:29:04 bainbrid Exp $
+// Latest tag:  $Name: HEAD $
 // Location:    $Source: /cvs_server/repositories/CMSSW/CMSSW/OnlineDB/SiStripConfigDb/src/DeviceDescriptions.cc,v $
 
 #include "OnlineDB/SiStripConfigDb/interface/SiStripConfigDb.h"
@@ -58,8 +58,8 @@ const SiStripConfigDb::DeviceDescriptions& SiStripConfigDb::getDeviceDescription
     }
     deviceFactory(__func__)->getFecDeviceDescriptions( dbParams_.partition_, 
 						       devices_,
-						       dbParams_.major_,
-						       dbParams_.minor_ );
+						       dbParams_.fecMajor_,
+						       dbParams_.fecMinor_ );
     deviceFactory(__func__)->getDcuDescriptions( dbParams_.partition_, 
 						 devices_ );
     resetDevices_ = false;
@@ -108,8 +108,8 @@ void SiStripConfigDb::uploadDeviceDescriptions( bool new_major_version ) {
     // Upload devices
     deviceFactory(__func__)->setFecDeviceDescriptions( devices,
 						       dbParams_.partition_, 
-						       &dbParams_.major_,
-						       &dbParams_.minor_,
+						       &(dbParams_.fecMajor_),
+						       &(dbParams_.fecMinor_),
 						       new_major_version );
     
   }

@@ -1,5 +1,5 @@
-// Last commit: $Id: FedConnections.cc,v 1.6 2006/11/03 11:17:24 bainbrid Exp $
-// Latest tag:  $Name:  $
+// Last commit: $Id: FedConnections.cc,v 1.7 2006/11/24 11:41:58 bainbrid Exp $
+// Latest tag:  $Name: HEAD $
 // Location:    $Source: /cvs_server/repositories/CMSSW/CMSSW/OnlineDB/SiStripConfigDb/src/FedConnections.cc,v $
 
 #include "OnlineDB/SiStripConfigDb/interface/SiStripConfigDb.h"
