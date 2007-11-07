@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Sep 30 09:35:20 EDT 2005
-// $Id: es_Label.h,v 1.1 2005/09/30 20:35:12 chrjones Exp $
+// $Id: es_Label.h,v 1.2 2006/08/31 23:26:24 wmtan Exp $
 //
 
 // system include files
@@ -25,6 +25,7 @@
 
 // user include files
 #include "FWCore/Utilities/interface/EDMException.h"
+#include "FWCore/Utilities/interface/Algorithms.h"
 
 // forward declarations
 
@@ -60,7 +61,7 @@ namespace edm {
                labels_.push_back(iString);
             } else if(iIndex > labels_.size()) {
                std::vector<std::string> temp(iIndex+1,def());
-               std::copy(labels_.begin(),labels_.end(), temp.begin());
+               copy_all(labels_, temp.begin());
                labels_.swap(temp);
             } else {
                if( labels_[iIndex] != def() ) {

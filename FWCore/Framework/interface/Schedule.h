@@ -4,7 +4,7 @@
 /*
   Author: Jim Kowalkowski  28-01-06
 
-  $Id: Schedule.h,v 1.30 2007/10/31 22:56:29 wmtan Exp $
+  $Id: Schedule.h,v 1.31 2007/11/03 06:52:54 wmtan Exp $
 
   A class for creating a schedule based on paths in the configuration file.
   The schedule is maintained as a sequence of paths.
@@ -32,8 +32,14 @@
   is always the first module in the endpath.  The TriggerResultInserter
   is given a fixed label of "TriggerResults".
 
-  The Schedule prints a warning if output modules are present in paths.
-  They belong in endpaths.  The Schedule moves them to the endpath.
+  The Schedule throws an exception if an output modules is present
+  in a path.  It belongs in an endpath.
+
+  The Schedule throws an exception if a filter is present
+  in an endpath.  It belongs in a path.
+
+  The Schedule issues a warning if a producer is present
+  in an endpath.  It belongs in a path. 
 
   Processing of an event happens by pushing the event through the Paths.
   The scheduler performs the reset() on each of the workers independent
@@ -62,6 +68,7 @@
 
 */
 
+#include "FWCore/Utilities/interface/Algorithms.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/Provenance/interface/ProvenanceFwd.h"
 #include "DataFormats/Provenance/interface/Provenance.h"
@@ -422,7 +429,7 @@ namespace edm {
   template <typename T>
   bool
   Schedule::runTriggerPaths(T& ep, EventSetup const& es, BranchActionType const& bat) {
-    for_each(trig_paths_.begin(), trig_paths_.end(), run_one_event<T>(ep, es, bat));
+    for_all(trig_paths_, run_one_event<T>(ep, es, bat));
     return results_->accept();
   }
 
@@ -431,7 +438,7 @@ namespace edm {
   Schedule::runEndPaths(T& ep, EventSetup const& es, BranchActionType const& bat) {
     // Note there is no state-checking safety controlling the
     // activation/deactivation of endpaths.
-    for_each(end_paths_.begin(), end_paths_.end(), run_one_event<T>(ep, es, bat));
+    for_all(end_paths_, run_one_event<T>(ep, es, bat));
 
     // We could get rid of the functor run_one_event if we used
     // boost::lambda, but the use of lambda with member functions
@@ -439,7 +446,7 @@ namespace edm {
     // reference, seems much more obscure...
     //
     // using namespace boost::lambda;
-    // for_each(end_paths_.begin(), end_paths_.end(),
+    // for_all(end_paths_,
     //          bind(&Path::runOneEvent, 
     //               boost::lambda::_1, // qualification to avoid ambiguity
     //               var(ep),           //  pass by reference (not copy)

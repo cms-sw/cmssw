@@ -24,10 +24,10 @@
 
       report(INFO, kFacilityString) << "run # " << eventHeader->runNumber()
                                      << "event # " << eventHeader->number()
-				     << endl;
+				     << std::endl;
 
     } catch(NoDataException<Item<DBEventHeader>::contents> &iException) {
-      report(WARNING, kFacilityString) << iException.what() << endl;
+      report(WARNING, kFacilityString) << iException.what() << std::endl;
     }
       
     \endcode
@@ -60,7 +60,7 @@
 //
 // Author:      Chris D Jones
 // Created:     Tue Dec  7 09:10:34 EST 1999
-// $Id: NoDataException.h,v 1.10 2006/08/26 18:39:10 chrjones Exp $
+// $Id: NoDataException.h,v 1.11 2007/06/14 17:52:15 wmtan Exp $
 //
 
 // system include files
