@@ -67,6 +67,8 @@ class L1TdeECAL : public edm::EDAnalyzer {
   std::vector<MonitorElement*> etmapData;
   std::vector<MonitorElement*> etmapEmul;
   std::vector<MonitorElement*> etmapDiff;
+  MonitorElement * EcalEtMapDiff ;
+  MonitorElement * EcalFGMapDiff ;
 
  public:
 
