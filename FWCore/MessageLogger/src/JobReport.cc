@@ -10,7 +10,7 @@
 //		to direct use of LogInfo.
 //
 // Original Author:  Marc Paterno
-// $Id: JobReport.cc,v 1.27 2007/10/27 21:47:59 chrjones Exp $
+// $Id: JobReport.cc,v 1.28 2007/10/29 17:04:17 chrjones Exp $
 //
 
 
@@ -20,10 +20,6 @@
 
 #include <sstream>
 
-using std::string;
-using std::vector;
-using std::ostream;
-      
 namespace edm
 {
     /*
@@ -335,7 +331,7 @@ namespace edm
       impl_(new JobReportImpl(0)) {
     }
 
-    JobReport::JobReport(ostream* iOstream) :
+    JobReport::JobReport(std::ostream* iOstream) :
        impl_(new JobReportImpl(iOstream) ) {
          if(impl_->ost_) {
            *(impl_->ost_)<<"<FrameworkJobReport>\n";
@@ -343,13 +339,13 @@ namespace edm
        }
   
     JobReport::Token
-    JobReport::inputFileOpened(string const& physicalFileName,
-			       string const& logicalFileName,
-			       string const& catalog,
-			       string const& inputSourceClassName,
-			       string const& moduleLabel,
-			       string const& guid,
-			       vector<string> const& branchNames)
+    JobReport::inputFileOpened(std::string const& physicalFileName,
+			       std::string const& logicalFileName,
+			       std::string const& catalog,
+			       std::string const& inputSourceClassName,
+			       std::string const& moduleLabel,
+			       std::string const& guid,
+			       std::vector<std::string> const& branchNames)
     {
       // Do we have to worry about thread safety here? Or is this
       // service used in a way to make this safe?
@@ -376,12 +372,12 @@ namespace edm
     }
 
     JobReport::Token
-    JobReport::inputFileOpened(string const& physicalFileName,
-			       string const& logicalFileName,
-			       string const& catalog,
-			       string const& inputSourceClassName,
-			       string const& moduleLabel,
-			       vector<string> const& branchNames)
+    JobReport::inputFileOpened(std::string const& physicalFileName,
+			       std::string const& logicalFileName,
+			       std::string const& catalog,
+			       std::string const& inputSourceClassName,
+			       std::string const& moduleLabel,
+			       std::vector<std::string> const& branchNames)
     {
       return this->inputFileOpened(physicalFileName,
 				   logicalFileName,
@@ -413,15 +409,15 @@ namespace edm
     }
 
     JobReport::Token 
-    JobReport::outputFileOpened(string const& physicalFileName,
-				string const& logicalFileName,
-				string const& catalog,
-				string const& outputModuleClassName,
-				string const& moduleLabel,
-				string const& guid,
-				string const& dataType,
-				string const& branchHash,
-				vector<string> const& branchNames)
+    JobReport::outputFileOpened(std::string const& physicalFileName,
+				std::string const& logicalFileName,
+				std::string const& catalog,
+				std::string const& outputModuleClassName,
+				std::string const& moduleLabel,
+				std::string const& guid,
+				std::string const& dataType,
+				std::string const& branchHash,
+				std::vector<std::string> const& branchNames)
     {
       impl_->outputFiles_.push_back(JobReport::OutputFile());
       JobReport::OutputFile& r = impl_->outputFiles_.back();
@@ -446,14 +442,14 @@ namespace edm
     }
 
     JobReport::Token 
-    JobReport::outputFileOpened(string const& physicalFileName,
-				string const& logicalFileName,
-				string const& catalog,
-				string const& outputModuleClassName,
-				string const& moduleLabel,
-				string const& guid,
-				string const& dataType,
-				vector<string> const& branchNames)
+    JobReport::outputFileOpened(std::string const& physicalFileName,
+				std::string const& logicalFileName,
+				std::string const& catalog,
+				std::string const& outputModuleClassName,
+				std::string const& moduleLabel,
+				std::string const& guid,
+				std::string const& dataType,
+				std::vector<std::string> const& branchNames)
     {
       return this->outputFileOpened(physicalFileName,
 				    logicalFileName,
@@ -469,13 +465,13 @@ namespace edm
     }
   
     JobReport::Token 
-    JobReport::outputFileOpened(string const& physicalFileName,
-				string const& logicalFileName,
-				string const& catalog,
-				string const& outputModuleClassName,
-				string const& moduleLabel,
-				string const& guid,
-				vector<string> const& branchNames)
+    JobReport::outputFileOpened(std::string const& physicalFileName,
+				std::string const& logicalFileName,
+				std::string const& catalog,
+				std::string const& outputModuleClassName,
+				std::string const& moduleLabel,
+				std::string const& guid,
+				std::vector<std::string> const& branchNames)
     {
       return this->outputFileOpened(physicalFileName,
 				    logicalFileName,
@@ -491,12 +487,12 @@ namespace edm
 
   
   JobReport::Token 
-  JobReport::outputFileOpened(string const& physicalFileName,
-			      string const& logicalFileName,
-			      string const& catalog,
-			      string const& outputModuleClassName,
-			      string const& moduleLabel,
-			      vector<string> const& branchNames)
+  JobReport::outputFileOpened(std::string const& physicalFileName,
+			      std::string const& logicalFileName,
+			      std::string const& catalog,
+			      std::string const& outputModuleClassName,
+			      std::string const& moduleLabel,
+			      std::vector<std::string> const& branchNames)
   {
    
     return this->outputFileOpened(physicalFileName,
