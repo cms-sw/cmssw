@@ -154,7 +154,7 @@ if(all4DSegments->size()>0){
 		std::cout<<"\t \t \t \t \t Digi "<<*digiIt<<std::endl;//print the digis in the event
 		stripDetected=digiIt->strip();
 		
-		float res = (float)(stripDetected) - stripPredicted;
+		double res = fabs((double)(stripDetected) - (double)(stripPredicted));
 
 		//-------filling the histograms--------------------
 

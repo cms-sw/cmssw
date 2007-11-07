@@ -1,8 +1,8 @@
-std::cout <<"\t Getting the DT Geometry"<<std::endl;
+std::cout <<"MB4 \t Getting the DT Geometry"<<std::endl;
 edm::ESHandle<DTGeometry> dtGeo;
 iSetup.get<MuonGeometryRecord>().get(dtGeo);
    
-std::cout <<"\t Getting the DT Segments"<<std::endl;
+std::cout <<"MB4 \t Getting the DT Segments"<<std::endl;
 edm::Handle<DTRecSegment4DCollection> all4DSegments;
 iEvent.getByLabel(dt4DSegments, all4DSegments);
     
@@ -34,12 +34,10 @@ if(all4DSegments->size()>0){
       
       LocalPoint segmentPosition= segment->localPosition();
       LocalVector segmentDirection=segment->localDirection();
-      
-      
+            
       //check if the dimension of the segment is 2
       std::cout<<"MB4 \t \t Is the segment 2D?"<<std::endl;
-      
-      
+            
       if(segment->dimension()==2){
 	
 	if(dtStation==4){
@@ -47,20 +45,21 @@ if(all4DSegments->size()>0){
 	  LocalVector segmentDirectionMB4=segmentDirection;
 	  LocalPoint segmentPositionMB4=segmentPosition;
 	  
-	  std::cout<<"MB4 \t \t 2D in RB4"<<DTId<<" with D="<<segment->dimension()<<segmentPositionMB4<<std::endl;	  
+	  std::cout<<"MB4 \t \t Segment 2D in RB4"<<DTId<<" with D="<<segment->dimension()<<segmentPositionMB4<<std::endl;	  
 	  bool compatiblesegments=false;
 	  float dx=segmentDirectionMB4.x();
 	  float dz=segmentDirectionMB4.z();
-	  std::cout<<"MB4 \t \t Loop over all the segments in MB3"<<std::endl;	  
-	  DTRecSegment4DCollection::const_iterator segMB3;  
-	  
+
 	  const BoundPlane& DTSurface4 = dtGeo->idToDet(DTId)->surface();
+		  
+	  std::cout<<"MB4 \t \t Loop over all the segments in triggering in MB3"<<std::endl;	  
+
+	  DTRecSegment4DCollection::const_iterator segMB3;  
 	  
 	  for(segMB3=all4DSegments->begin();segMB3!=all4DSegments->end();++segMB3){
 	    DTChamberId dtid3 = segMB3->chamberId();
 	    
-	    if(dtid3.station()==3&&dtid3.sector()==DTId.sector()&&dtid3.wheel()==DTId.wheel()&&scounter[dtid3] == 1&&segMB3->dimension()==4){
-	      
+	    if(dtid3.station()==3&&dtid3.wheel()==DTId.wheel()&&scounter[dtid3] == 1&&segMB3->dimension()==4){
 	      const GeomDet* gdet3=dtGeo->idToDet(segMB3->geographicalId());
 	      const BoundPlane & DTSurface3 = gdet3->surface();
 	      
@@ -71,20 +70,26 @@ if(all4DSegments->size()>0){
 	      LocalVector segDirMB4inMB3Frame=DTSurface3.toLocal(DTSurface4.toGlobal(segmentDirectionMB4));
 	      
 	      double cosAng=fabs(dx*dx3+dz*dz3/sqrt((dx3*dx3+dz3*dz3)*(dx*dx+dz*dz)));
-	      std::cout<<"MB4 \t \t Cos Angle Between Segments "<<cosAng<<std::endl;
-
+	      std::cout<<"MB4 \t \t \t Cos Angle Between Segments "<<cosAng<<std::endl;
 	      assert(fabs(cosAng)<=1.);
 
 	      if(cosAng>MinCosAng){
 		compatiblesegments=true;
-		if(dtSector==13)dtSector=4;
-	        if(dtSector==14)dtSector=10;
+		if(dtSector==13){
+		 dtSector=4;
+		 std::cout<<"MB4 \t \t \t !!!!!!!!!!!!changing sector 13 -> 4"<<std::endl;
+	        }
+		if(dtSector==14){
+		 dtSector=10;
+		 std::cout<<"MB4 \t \t \t !!!!!!changing sector 14 -> 10"<<std::endl;	
+		}
+		assert(dtStation==4);
 		std::set<RPCDetId> rollsForThisDT = rollstoreDT[DTStationIndex(0,dtWheel,dtSector,dtStation)];
 
-		std::cout<<"\t \t Number of rolls for this DT = "<<rollsForThisDT.size()<<std::endl;
+		std::cout<<"MB4 \t \t \t Number of rolls for this DT in MB4 = "<<rollsForThisDT.size()<<std::endl;
         	assert(rollsForThisDT.size()>=1);
 
-		std::cout<<"MB4 \t \t Loop over all the rolls asociated to MB4 "<<std::endl;
+		std::cout<<"MB4 \t \t \t Loop over all the rolls asociated to MB4 "<<std::endl;
 		
 		for (std::set<RPCDetId>::iterator iteraRoll
 		       =rollsForThisDT.begin();iteraRoll != rollsForThisDT.end(); iteraRoll++){
@@ -106,7 +111,7 @@ if(all4DSegments->size()>0){
 		  float Z=D;
 		  
 		  const RectangularStripTopology* top_
-		    =dynamic_cast<const RectangularStripTopology*>(&(rollasociated->topology())); //Topologia roll asociado MB4
+		    =dynamic_cast<const RectangularStripTopology*>(&(rollasociated->topology())); //Topology roll asociado MB4
 		  LocalPoint xmin = top_->localPosition(0.);
 		  LocalPoint xmax = top_->localPosition((float)rollasociated->nstrips());
 		  float rsize = fabs( xmax.x()-xmin.x() )*0.5;
@@ -115,13 +120,13 @@ if(all4DSegments->size()>0){
 		  GlobalPoint GlobalPointExtrapolated = DTSurfaceMB3.toGlobal(LocalPoint(X,Y,Z));
 		  LocalPoint PointExtrapolatedRPCFrame = RPCSurfaceRB4.toLocal(GlobalPointExtrapolated);
 		  
-		  std::cout<<"MB4 \t \t \t Does the extrapolation goes inside the roll?"<<std::endl;
+		  std::cout<<"MB4 \t \t \t \t Does the extrapolation goes inside the roll? "<<rollasociated->id()<<std::endl;
 		  
 		  if(fabs(PointExtrapolatedRPCFrame.z()) < 0.01  &&
 		     fabs(PointExtrapolatedRPCFrame.x()) < rsize &&
 		     fabs(PointExtrapolatedRPCFrame.y()) < stripl*0.5){ 
 		    
-		    std::cout<<"MB4 \t \t \t Yes"<<std::endl;
+		    std::cout<<"MB4 \t \t \t \t Yes it goes inside "<<std::endl;
 		    const float stripPredicted=
 		      rollasociated->strip(LocalPoint(PointExtrapolatedRPCFrame.x(),PointExtrapolatedRPCFrame.y(),0.)); 
 		    
@@ -165,7 +170,7 @@ if(all4DSegments->size()>0){
 		    std::cout<<"MB4 \t \t \t \t Loop over all the digis in this roll"<<std::endl;
 		    for (RPCDigiCollection::const_iterator digiIt = rpcRangeDigi.first;digiIt!=rpcRangeDigi.second;++digiIt){
 		      stripDetected=digiIt->strip();
-		      float res = fabs((float)(stripDetected) - stripPredicted);
+		      double res = fabs((double)(stripDetected) - (double)(stripPredicted));
 
 		      //-------filling the histograms--------------------
 
@@ -224,16 +229,18 @@ if(all4DSegments->size()>0){
 		    }
 		  }
 		  else{
-		    std::cout<<"MB4 \t \t \t No"<<std::endl;
+		    std::cout<<"MB4 \t \t \t \t \t No it goes outside"<<std::endl;
 		  }
 		}// loop over the rolls 
 	      }// are the segments compatibles
 	      
 	      else{
 		compatiblesegments=false;
-		std::cout<<"MB4 \t \t I found segments in MB4 and MB3 same wheel and sector but not compatibles Diferent Directions"<<std::endl;
+		std::cout<<"MB4 \t \t \t \t I found segments in MB4 and MB3 same wheel and sector but not compatibles Diferent Directions"<<std::endl;
 	      }
-	    }//if dtid3.station()==3&&dtid3.sector()==DTId.sector()&&dtid3.wheel()==DTId.wheel()&&segMB3->dim()==4
+	    }else{//if dtid3.station()==3&&dtid3.sector()==DTId.sector()&&dtid3.wheel()==DTId.wheel()&&segMB3->dim()==4
+	      std::cout<<"MB4 \t \t \t No the same station or same wheel or segment dim in mb3 not 4D"<<std::endl;
+	    }
 	  }//lood over all the segments looking for one in MB3 
 	}//Is the station 4? for this segment
 	else{
@@ -243,9 +250,11 @@ if(all4DSegments->size()>0){
       else{
 	std::cout<<"MB4 \t \t Is NOT a 2D Segment"<<std::endl;
       }
+    }else{
+      std::cout<<"MB4 \t \t There is not just one segment or is not in station 4"<<std::endl;
     }//De aca para abajo esta en dtpart.inl
   }
 }
 else{
-  std::cout<<"MB4 This event doesn't have 4D Segment"<<std::endl;
+  std::cout<<"MB4 \t This event doesn't have 4D Segment"<<std::endl;
 }

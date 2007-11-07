@@ -13,7 +13,7 @@
 //
 // Original Author:  Camilo Carrillo (Uniandes)
 //         Created:  Tue Oct  2 16:57:49 CEST 2007
-// $Id: MuonSegmentEff.cc,v 1.11 2007/10/29 15:42:31 carrillo Exp $
+// $Id: MuonSegmentEff.cc,v 1.12 2007/11/01 14:38:42 carrillo Exp $
 //
 //
 
@@ -157,8 +157,8 @@ MuonSegmentEff::MuonSegmentEff(const edm::ParameterSet& iConfig)
   incldt=iConfig.getUntrackedParameter<bool>("incldt",true);
   incldtMB4=iConfig.getUntrackedParameter<bool>("incldtMB4",true);
   inclcsc=iConfig.getUntrackedParameter<bool>("inclcsc",true);
-  widestrip=iConfig.getUntrackedParameter<int>("widestrip",4);
-  widestripRB4=iConfig.getUntrackedParameter<int>("widestripRB4",4);
+  widestrip=iConfig.getUntrackedParameter<double>("widestrip",4.);
+  widestripRB4=iConfig.getUntrackedParameter<double>("widestripRB4",4.);
   MinCosAng=iConfig.getUntrackedParameter<double>("MinCosAng",0.9999);
   MaxD=iConfig.getUntrackedParameter<double>("MaxD",40.);
   muonRPCDigis=iConfig.getUntrackedParameter<std::string>("muonRPCDigis","muonRPCDigis");

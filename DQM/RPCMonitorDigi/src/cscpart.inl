@@ -191,7 +191,7 @@ if(allCSCSegments->size()>0){
 		  
 		  int stripDetected=digiIt->strip();
 		  
-		  float res = fabs((float)(stripDetected) - stripPredicted);
+	  	  double res = fabs((double)(stripDetected) - (double)(stripPredicted));
 		  std::cout<<"\t \t \t \t \t Diference "<<res<<std::endl;
 
 
