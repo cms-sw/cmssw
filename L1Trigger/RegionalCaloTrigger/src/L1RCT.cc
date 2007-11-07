@@ -152,8 +152,8 @@ void L1RCT::digiInput(EcalTrigPrimDigiCollection ecalCollection,
     unsigned short ecalInput = energy*2 + fineGrain;
 
     // put input into correct crate/card/tower of barrel
-    if ((crate<18) && (card<7) && ((tower - 1)<32)) {             // changed 64 to 32 Sept. 19 J. Leonard
-      barrel.at(crate).at(card).at(tower - 1) = ecalInput;        // 
+    if ((crate<18) && (card<7) && (tower<32)) {             // changed 64 to 32 Sept. 19 J. Leonard, rm -1 7Nov07
+      barrel.at(crate).at(card).at(tower) = ecalInput;        // rm -1
     }
     else { std::cerr << "L1RCT: out of range!"; }
   }
@@ -190,8 +190,8 @@ void L1RCT::digiInput(EcalTrigPrimDigiCollection ecalCollection,
     unsigned short hcalInput = energy*2 + fineGrain;
     if (absIeta <= 28){
       // put input into correct crate/card/tower of barrel
-      if ((crate<18) && (card<7) && ((tower - 1)<32)) {               // changed 64 to 32 Sept. 19 J. Leonard
-        barrel.at(crate).at(card).at(tower - 1 + 32) = hcalInput;  // hcal towers are ecal + 32 see RC.cc
+      if ((crate<18) && (card<7) && (tower<32)) {               // changed 64 to 32 Sept. 19 J. Leonard, rm -1 7Nov07
+        barrel.at(crate).at(card).at(tower + 32) = hcalInput;  // hcal towers are ecal + 32 see RC.cc; rm -1 7Nov07
       }
       else { std::cout << "L1RCT: hcal out of range!"; }
     }

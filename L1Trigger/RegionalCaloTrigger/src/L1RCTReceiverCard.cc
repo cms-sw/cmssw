@@ -50,21 +50,22 @@ void L1RCTReceiverCard::fileInput(char* filename){
 //First layer is ecal the second is hcal.
 //goes in order of (for crate 0,card 0)
 // (Region 1)   (Region 0)
+// 28 24 20 16 12 08 04 00
 // 29 25 21 17 13 09 05 01
 // 30 26 22 18 14 10 06 02
-// 31 27 23 19 15 11 07 03
-// 32 28 24 20 16 12 08 04 
+// 31 27 23 19 15 11 07 03 
 //
 // For card 6 of crate 0 it would look like 
 //
+// 12 08 04 00
 // 13 09 05 01
 // 14 10 06 02
 // 15 11 07 03
-// 16 12 08 04
+// 16 20 24 28
 // 17 21 25 29
 // 18 22 26 30
 // 19 23 27 31
-// 20 24 28 32
+
 
 void L1RCTReceiverCard::fillInput(vector<unsigned short> input){
   
