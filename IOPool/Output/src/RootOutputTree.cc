@@ -2,7 +2,7 @@
 #include "TFile.h"
 #include "TTree.h"
 #include "TTreeCloner.h"
-#include "FWCore/Utilities/interface/for_all.h"
+#include "FWCore/Utilities/interface/Algorithms.h"
 
 #include "boost/bind.hpp"
 #include <algorithm>
