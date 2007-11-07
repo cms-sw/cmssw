@@ -1,5 +1,5 @@
 /*
- * $Id: ps_t.cppunit.cc,v 1.10 2007/06/19 21:38:23 rpw Exp $
+ * $Id: ps_t.cppunit.cc,v 1.11 2007/10/24 23:31:09 elmer Exp $
  */
 
 #include <algorithm>
@@ -12,6 +12,7 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/EDMException.h"
+#include "FWCore/Utilities/interface/Algorithms.h"
 
 
 class testps: public CppUnit::TestFixture
@@ -299,19 +300,19 @@ test_for_name()
   names = ps.getParameterNames();
   CPPUNIT_ASSERT( names.size() == 2 );
 
-  std::sort(names.begin(), names.end());
-  CPPUNIT_ASSERT( std::binary_search(names.begin(), names.end(), "x") );
-  CPPUNIT_ASSERT( std::binary_search(names.begin(), names.end(), "y") );
+  edm::sort_all(names);
+  CPPUNIT_ASSERT( edm::binary_search_all(names, "x") );
+  CPPUNIT_ASSERT( edm::binary_search_all(names, "y") );
 
   names = ps.template getParameterNamesForType<T>();
   CPPUNIT_ASSERT( names.size() == 1 );
-  std::sort(names.begin(), names.end());
-  CPPUNIT_ASSERT( std::binary_search(names.begin(), names.end(), "x") );
+  edm::sort_all(names);
+  CPPUNIT_ASSERT( edm::binary_search_all(names, "x") );
 
   names = ps.template getParameterNamesForType<T>(false);
   CPPUNIT_ASSERT( names.size() == 1 );
-  std::sort(names.begin(), names.end());
-  CPPUNIT_ASSERT( std::binary_search(names.begin(), names.end(), "y") );
+  edm::sort_all(names);
+  CPPUNIT_ASSERT( edm::binary_search_all(names, "y") );
 }
 
 void testps::nameAccessTest()
