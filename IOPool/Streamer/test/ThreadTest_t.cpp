@@ -8,7 +8,6 @@
 #include <cstdlib>
 
 using namespace edm;
-using namespace std;
 
 // ---------------------------------------
 
@@ -42,7 +41,7 @@ void Consumer::operator()()
       EventBuffer::ConsumerBuffer ob(*b_);
       if(ob.size()==0) break;
       int* i = (int*)ob.buffer();
-      cout << "C" << *i << endl;
+      std::cout << "C" << *i << std::endl;
     }
 }
 
@@ -51,7 +50,7 @@ void Consumer::callme(int value)
   EventBuffer::ProducerBuffer ib(*b_);
   int* v = (int*)ib.buffer();
   *v = value;
-  cout << "P" << value << endl;
+  std::cout << "P" << value << std::endl;
 
   if(value==-1)
     ib.commit(0);
@@ -84,7 +83,7 @@ void Producer::operator()()
       EventBuffer::ProducerBuffer ib(*b_);
       int* v = (int*)ib.buffer();
       *v = i;
-      cout << "P" << i << endl;
+      std::cout << "P" << i << std::endl;
       ib.commit(sizeof(int));
       */
       sig_(i);
@@ -100,39 +99,39 @@ void Producer::operator()()
 void prunner(Producer* p)
 {
   (*p)();
-  cout << "PD" << endl;
+  std::cout << "PD" << std::endl;
 }
 
 void crunner(Consumer* c)
 {
   (*c)();
-  cout << "CD" << endl;
+  std::cout << "CD" << std::endl;
 }
 
 int main(int argc, char* argv[])
 {
   if(argc<3)
     {
-      cerr << "usage: " << argv[0] << " event_size queue_depth number_to_gen"
-	   << endl;
+      std::cerr << "usage: " << argv[0] << " event_size queue_depth number_to_gen"
+	   << std::endl;
       return -1;
     }
 
-  cout << "continuing" << endl;
+  std::cout << "continuing" << std::endl;
 
   int event_sz = atoi(argv[1]);
   int queue_dep = atoi(argv[2]);
   int total = atoi(argv[3]);
 
-  cout << "(1)" << endl;
+  std::cout << "(1)" << std::endl;
   EventBuffer buf(event_sz,queue_dep);
   Producer p(buf,total);
   Consumer c(buf,p.sig_),c2(buf,p.sig);
-  cout << "(2)" << endl;
+  std::cout << "(2)" << std::endl;
   boost::thread con(boost::bind(crunner,&c));
   boost::thread con2(boost::bind(crunner,&c2));
   boost::thread pro(boost::bind(prunner,&p));
-  cout << "(3)" << endl;
+  std::cout << "(3)" << std::endl;
 
   con.join();
   con2.join();

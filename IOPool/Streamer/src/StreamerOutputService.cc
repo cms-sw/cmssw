@@ -1,4 +1,4 @@
-// $Id: StreamerOutputService.cc,v 1.20 2007/02/01 07:56:55 klute Exp $
+// $Id: StreamerOutputService.cc,v 1.21 2007/06/29 16:41:23 wmtan Exp $
 
 #include "IOPool/Streamer/interface/StreamerOutputService.h"
 #include "IOPool/Streamer/interface/MsgTools.h"
@@ -291,10 +291,10 @@ bool StreamerOutputService::wantsEvent(EventMsgView const& eventView)
       unsigned int test = static_cast<unsigned int>(hlt_out[i]);
       std::cout<< hex << ">>>>>>>>>>>  bits = " << test << " " << hlt_out[i] << std::endl;
     }
-    cout << "\nhlt bits=\n(";
+    std::cout << "\nhlt bits=\n(";
     for(int i=(hlt_out.size()-1); i != -1 ; --i)
        printBits(hlt_out[i]);
-    cout << ")\n";
+    std::cout << ")\n";
     */
     int num_paths = eventView.hltCount();
     //std::cout << "num_paths: " << num_paths << std::endl;

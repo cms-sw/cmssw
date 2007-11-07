@@ -20,11 +20,9 @@ Disclaimer: Most of the code here is randomly written during
 
 #include "IOPool/Streamer/interface/DumpTools.h"
 
-using namespace std;
-
 int main()
 { 
-  typedef vector<uint8> Buffer;
+  typedef std::vector<uint8> Buffer;
   Buffer buf(2024);
   Buffer buf2(2024);
 
@@ -83,7 +81,7 @@ int main()
 
   if(equal(&buf[0],&buf[0]+view.size(),buf2.begin())==false)
     {
-      cerr << "Init buffers not the same!\n";
+      std::cerr << "Init buffers not the same!\n";
       dumpInit(&buf[0]);
       dumpInit(&buf2[0]);
       abort();
@@ -132,8 +130,8 @@ int main()
 
   if(equal(&buf[0],&buf[0]+emb.size(),buf2.begin())==false)
     {
-      cerr << "event messages not the same\n";
-      cerr << "size 1st=" << emb.size() << "\n"
+      std::cerr << "event messages not the same\n";
+      std::cerr << "size 1st=" << emb.size() << "\n"
            << "size 2nd=" << emb2.size() << "\n";
 
       dumpEvent(&buf[0]);

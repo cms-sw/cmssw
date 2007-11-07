@@ -131,17 +131,17 @@ namespace edmtestp
 	//std::cout << "allocated frag " << len << std::endl;
 	ist_.read((char*)data.get(),len);
 	//std::cout << "read frag to " << (void*)data.get() << std::endl;
-	if(!ist_ || ist_.eof()) cerr << "got end!!!!" << endl;
+	if(!ist_ || ist_.eof()) std::cerr << "got end!!!!" << std::endl;
         //HEREHERE need a real event number here for id
 	stor::FragEntry* msg = 
 	  new (b.buffer()) stor::FragEntry(data.get(),data.get(),len,1,1,Header::EVENT,0,1,0);
         assert(msg); // Suppresses compiler warning about unused variable
 	//new (b.buffer()) stor::FragEntry(0,0,len);
-	//std::cout << "make entry for frag " << (void*)msg << " " << msg->buffer_address_ << endl;
+	//std::cout << "make entry for frag " << (void*)msg << " " << msg->buffer_address_ << std::endl;
 	data.release();
-	//std::cout << "release frag" << endl;
+	//std::cout << "release frag" << std::endl;
 	b.commit(sizeof(stor::FragEntry));
-	//std::cout << "commit frag " << sizeof(stor::FragEntry) << endl;
+	//std::cout << "commit frag " << sizeof(stor::FragEntry) << std::endl;
 	//sleep(2);
       } **/
   }

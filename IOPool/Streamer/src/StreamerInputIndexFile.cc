@@ -1,4 +1,5 @@
 #include "IOPool/Streamer/interface/StreamerInputIndexFile.h"
+#include "FWCore/Utilities/interface/Algorithms.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Utilities/interface/DebugMacros.h"
 
@@ -200,7 +201,7 @@ bool header_run_sorter(EventIndexRecord* first, EventIndexRecord* second) {
 
 indexRecIter StreamerInputIndexFile::sort() {
   //Run sorting is required ?? 
-  std::sort(this->begin(), this->end(), header_run_sorter);
-  std::sort(this->begin(), this->end(), header_event_sorter);
+  sort_all(*this, header_run_sorter);
+  sort_all(*this, header_event_sorter);
   return this->begin();
 }

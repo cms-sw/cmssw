@@ -14,7 +14,6 @@ Example code to write DQM Event Message to file
 
 #include "DataFormats/Provenance/interface/Timestamp.h"
 
-using namespace std;
 using namespace edm;
 
 //namespace edm
@@ -24,14 +23,14 @@ int main()
 { 
 
 
-  cout << "Just to test DQMEventMessage " << sizeof(DQMEventMsgView) <<endl;
-  cout << "Just to test DQMEventHeader  " << sizeof(DQMEventHeader) <<endl;
+  std::cout << "Just to test DQMEventMessage " << sizeof(DQMEventMsgView) << std::endl;
+  std::cout << "Just to test DQMEventHeader  " << sizeof(DQMEventHeader) << std::endl;
 
 
   StreamDQMInputFile dqm_file("dqm_file.dqm");
 
   while(dqm_file.next()) {
-	cout << "----------DQM EVENT-----------" << endl;
+	cout << "----------DQM EVENT-----------" << std::endl;
 	const DQMEventMsgView* dqmMsgView = dqm_file.currentRecord();
 	cout
 		<< "code = " << dqmMsgView->code()<< ", "

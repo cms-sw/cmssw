@@ -58,24 +58,21 @@ Disclaimer: Most of the code here is randomly written during
 
 #include "FWCore/Utilities/interface/Exception.h"
 
-using namespace std;
-
-
 void useIndexPtr() {
 try{
   // StreamerInputFile can make use of a index reference,
   // if you already have one
   //
-  string initfilename = "teststreamfile.dat";
-  string indexfilename = "testindexfile.ind";
+  std::string initfilename = "teststreamfile.dat";
+  std::string indexfilename = "testindexfile.ind";
 
   StreamerInputIndexFile indexer(indexfilename);
-  cout<<"indexer: "<<endl;
+  std::cout<<"indexer: "<< std::endl;
   StreamerInputFile streamer(initfilename, indexer);
 
   // ------- events
   while(streamer.next()) {
-     cout<<"----------EVENT-----------"<<endl;
+     std::cout<<"----------EVENT-----------"<< std::endl;
      const EventMsgView* eview = streamer.currentRecord();
      dumpEventView(eview);
   }
@@ -87,21 +84,21 @@ try{
 
   // Start from Index file
 
-  cout<<"\n\n-------------START---------------------"<<endl;
+  std::cout<<"\n\n-------------START---------------------"<< std::endl;
   StartIndexRecord* startindx = (StartIndexRecord*)
                                  indexer.startMessage();
-  cout<<"Dump the Start Message from Index:-"<<endl;
-  cout<<"Magic Number is: "<<startindx->magic<<endl;
-  cout<<"Reserved filed is: "<<startindx->reserved<<endl;
+  std::cout<<"Dump the Start Message from Index:-"<< std::endl;
+  std::cout<<"Magic Number is: "<<startindx->magic<< std::endl;
+  std::cout<<"Reserved filed is: "<<startindx->reserved<< std::endl;
   InitMsgView* start = (InitMsgView*) startindx->init;
   dumpStartMsg(start);
 
   //--------- init
-  cout << "Trying to Read The Init message from Streamer File: "
-       << initfilename << endl;
+  std::cout << "Trying to Read The Init message from Streamer File: "
+       << initfilename << std::endl;
   InitMsgView* init =  streamer.startMessage();
-  cout<<"\n\n-------------INIT---------------------"<<endl;
-  cout<<"Dump the Init Message from Streamer:-"<<endl;
+  std::cout<<"\n\n-------------INIT---------------------"<< std::endl;
+  std::cout<<"Dump the Init Message from Streamer:-"<< std::endl;
   dumpInitView(init);
   ******/
 }catch (cms::Exception& e){
@@ -118,19 +115,19 @@ try{
   // This test shows that you can access the index as well.
   // Though may not be very useful.
 
-  string initfilename = "teststreamfile.dat";
-  string indexfilename = "testindexfile.ind";
+  std::string initfilename = "teststreamfile.dat";
+  std::string indexfilename = "testindexfile.ind";
   StreamerInputFile readViaIndex(initfilename, indexfilename);
 
   StreamerInputIndexFile* indexPtr = (StreamerInputIndexFile*)readViaIndex.index();
 
   // ------- event index
   for(indexRecIter it = indexPtr->begin(), itEnd = indexPtr->end(); it != itEnd; ++it) {
-    cout<<"----------EVENT  INDEX-----------"<<endl;
+    std::cout<<"----------EVENT  INDEX-----------"<< std::endl;
     const EventMsgView* iview = (*it)->getEventView();
     dumpEventIndex(iview);
-    cout << "Offset for this event is : "
-         << (*it)->getOffset() << endl;
+    std::cout << "Offset for this event is : "
+         << (*it)->getOffset() << std::endl;
     }
 }catch (cms::Exception& e){
    std::cerr << "Exception caught:  "
@@ -146,13 +143,13 @@ void viaIndex() {
   /** Opens Streamer and corresponding Index file and then
       Loops over the events */
 try{
-  string initfilename = "teststreamfile.dat";
-  string indexfilename = "testindexfile.ind";
+  std::string initfilename = "teststreamfile.dat";
+  std::string indexfilename = "testindexfile.ind";
   StreamerInputFile readViaIndex(initfilename, indexfilename);
 
   // Dump events
   while(readViaIndex.next()) {
-     cout<<"----------EVENT-----------"<<endl;
+     std::cout<<"----------EVENT-----------"<< std::endl;
      const EventMsgView* eview = readViaIndex.currentRecord();
      dumpEventView(eview);
   }
@@ -163,11 +160,11 @@ try{
       // this file also does that so why repeat.
 
   //--------- init
-  cout << "Trying to Read The Init message from Streamer File: "
-       << initfilename << endl;
+  std::cout << "Trying to Read The Init message from Streamer File: "
+       << initfilename << std::endl;
   const InitMsgView* init = readViaIndex.startMessage();
-  cout<<"\n\n-------------INIT---------------------"<<endl;
-  cout<<"Dump the Init Message from Streamer:-"<<endl;
+  std::cout<<"\n\n-------------INIT---------------------"<< std::endl;
+  std::cout<<"Dump the Init Message from Streamer:-"<< std::endl;
   dumpInitView(init);
 
   ******/
@@ -181,28 +178,28 @@ try{
 void separetly() {
 try{
   // ----------- init
-  string initfilename = "teststreamfile.dat";
+  std::string initfilename = "teststreamfile.dat";
   StreamerInputFile stream_reader (initfilename);
 
-  cout << "Trying to Read The Init message from Streamer File: "
-       << initfilename << endl;
+  std::cout << "Trying to Read The Init message from Streamer File: "
+       << initfilename << std::endl;
   const InitMsgView* init = stream_reader.startMessage();
-  cout<<"\n\n-------------INIT---------------------"<<endl;
-  cout<<"Dump the Init Message from Streamer:-"<<endl;
+  std::cout<<"\n\n-------------INIT---------------------"<< std::endl;
+  std::cout<<"Dump the Init Message from Streamer:-"<< std::endl;
   dumpInitView(init);
 
   // ----------- start
 
-  cout<<"\n\n-------------START---------------------"<<endl;
-  string indexfilename = "testindexfile.ind";
+  std::cout<<"\n\n-------------START---------------------"<< std::endl;
+  std::string indexfilename = "testindexfile.ind";
 
   /****
      // Uncomment this block and comment next one line
      // (Single file constructor) if you need
      //  to try out Multi file constructor for index files.
-     // StreamerInputIndexFile(const vector<string>& names);
+     // StreamerInputIndexFile(const std::vector<std::string>& names);
 
-  vector<string> indexfiles;
+  std::vector<sd::string> indexfiles;
   indexfiles.push_back(indexfilename);
   indexfiles.push_back(indexfilename);
   StreamerInputIndexFile index_reader(indexfiles);
@@ -211,7 +208,7 @@ try{
   // ------- event
 
   while(stream_reader.next()) {
-     cout<<"----------EVENT-----------"<<endl;
+     std::cout<<"----------EVENT-----------"<< std::endl;
      const EventMsgView* eview = stream_reader.currentRecord();
      dumpEventView(eview);
   }
@@ -221,20 +218,20 @@ try{
   StreamerInputIndexFile index_reader(indexfilename);
 
   const StartIndexRecord* startindx = index_reader.startMessage();
-  cout <<"---------------------Start Message-------------"<<endl;
-  cout<<"Dump the Start Message from Index:-"<<endl;
-  cout<<"Magic Number is: "<<startindx->getMagic()<<endl;
-  cout<<"Reserved filed is: "<<startindx->getReserved()<<endl;
+  std::cout <<"---------------------Start Message-------------"<< std::endl;
+  std::cout<<"Dump the Start Message from Index:-"<< std::endl;
+  std::cout<<"Magic Number is: "<<startindx->getMagic()<< std::endl;
+  std::cout<<"Reserved filed is: "<<startindx->getReserved()<< std::endl;
   const InitMsgView* start = startindx->getInit();
   dumpStartMsg(start);
 
   // ------- event index
   for(indexRecIter it = index_reader.begin(), itEnd = index_reader.end(); it!= itEnd; ++it) {
-    cout<<"----------EVENT  INDEX-----------"<<endl;
+    std::cout<<"----------EVENT  INDEX-----------"<< std::endl;
     const EventMsgView* iview = (*it)->getEventView();
     dumpEventIndex(iview);
-    cout << "Offset for this event is : "
-         << (*it)->getOffset() << endl;
+    std::cout << "Offset for this event is : "
+         << (*it)->getOffset() << std::endl;
     }
 }catch (cms::Exception& e){
    std::cerr << "Exception caught:  "
@@ -247,33 +244,33 @@ try{
 int readMultipleStreams()
 {
 try{  int evCount=0;
-  vector<string> streamFiles;
+  std::vector<std::string> streamFiles;
   streamFiles.push_back("teststreamfile0.dat");
   streamFiles.push_back("teststreamfile1.dat");
 
   StreamerInputFile stream_reader(streamFiles);
 
-  cout << "Trying to Read The Init message from Streamer File: "
-       << "teststreamfile0.dat" << endl;
+  std::cout << "Trying to Read The Init message from Streamer File: "
+       << "teststreamfile0.dat" << std::endl;
 
   const InitMsgView* init = stream_reader.startMessage();
-  cout<<"\n\n-------------INIT---------------------"<<endl;
-  cout<<"Dump the Init Message from Streamer:-"<<endl;
+  std::cout<<"\n\n-------------INIT---------------------"<< std::endl;
+  std::cout<<"Dump the Init Message from Streamer:-"<< std::endl;
   dumpInitView(init);
 
   while(stream_reader.next()) {
      if (stream_reader.newHeader()) {
-           cout << "File Boundary has just been crossed, a new file is read" << endl;
-           cout << "A new INIT Message is available" << endl;
-           cout << "Event from next file is also avialble" << endl;
+           std::cout << "File Boundary has just been crossed, a new file is read" << std::endl;
+           std::cout << "A new INIT Message is available" << std::endl;
+           std::cout << "Event from next file is also avialble" << std::endl;
      }
-     cout << "----------EVENT-----------" << endl;
+     std::cout << "----------EVENT-----------" << std::endl;
      const EventMsgView* eview = stream_reader.currentRecord();
      dumpEventView(eview);
      ++evCount;
   }
 
- cout <<" TOTAL Events Read: "<<evCount<<endl;
+ std::cout <<" TOTAL Events Read: "<<evCount<< std::endl;
 }catch (cms::Exception& e){
    std::cerr << "Exception caught:  "
              << e.what()
@@ -284,27 +281,27 @@ return 0;
 }
 
 void help() {
-      cout << "Valid options are: " <<endl;
-      cout<<"sep, via, gidx, indx, multi, all"<<endl;
+      std::cout << "Valid options are: " << std::endl;
+      std::cout<<"sep, via, gidx, indx, multi, all"<< std::endl;
 }
 
 int main(int argc, char* argv[]){
 
    if (argc < 2)
    {
-      cout << "No command line argument supplied\n";
+      std::cout << "No command line argument supplied\n";
       help();
       return 0;
    }
 
-   string doThis(argv[1]);
+   std::string doThis(argv[1]);
 
    if(doThis == "all" || doThis == "sep") separetly();
    if(doThis == "all" || doThis == "via") viaIndex();
    if(doThis == "all" || doThis == "gidx") getIndexPtr();
    if(doThis == "all" || doThis == "indx") useIndexPtr();
    if(doThis == "all" || doThis == "multi") readMultipleStreams();
-   cout <<"\n\nReadStreamerFile TEST DONE\n"<<endl;
+   std::cout <<"\n\nReadStreamerFile TEST DONE\n"<< std::endl;
 
    return 0;
 }

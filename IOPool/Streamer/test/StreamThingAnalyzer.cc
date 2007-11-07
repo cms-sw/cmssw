@@ -23,48 +23,47 @@ typedef edmtestprod::IntArray WriteThis;
 #include <numeric>
 #include <iterator>
 
-using namespace std;
 using namespace edmtestprod;
 
 namespace edmtest_thing
 {
   StreamThingAnalyzer::StreamThingAnalyzer(edm::ParameterSet const& ps):
-    name_(ps.getParameter<string>("product_to_get")),
+    name_(ps.getParameter<std::string>("product_to_get")),
     total_(),
     out_("gennums.txt"),
 	cnt_()
   {
     if(!out_)
     {
-	cerr << "cannot open file gennums.txt" << endl;
+	std::cerr << "cannot open file gennums.txt" << std::endl;
         abort();
     }
-	out_ << "event instance value" << endl;
+	out_ << "event instance value" << std::endl;
 
-	//LogDebug("StreamThing") << "ctor completing"; // << endl;
+	//LogDebug("StreamThing") << "ctor completing"; // << std::endl;
 	//edm::LogInfo("stuff") << "again, ctor completing";
   }
     
   StreamThingAnalyzer::~StreamThingAnalyzer()
   {
-    cout << "\nSTREAMTHING_CHECKSUM " << total_ << "\n" << endl;
+    std::cout << "\nSTREAMTHING_CHECKSUM " << total_ << "\n" << std::endl;
   }
 
   void StreamThingAnalyzer::analyze(edm::Event const& e,
 				    edm::EventSetup const&)
   {
     edm::ModuleLabelSelector all(name_);
-    typedef vector<edm::Handle<WriteThis> > ProdList;
+    typedef std::vector<edm::Handle<WriteThis> > ProdList;
     ProdList prod;
     e.getMany(all, prod);
     ProdList::iterator i(prod.begin()),end(prod.end());
     for(; i != end; ++i)
       total_ = accumulate((*i)->data_.begin(),(*i)->data_.end(),total_);
-    //cout << tot << endl;
+    //cout << tot << std::endl;
 
 #if 0
     for(i = prod.begin();i != end; ++i) {
-	  vector<int>::const_iterator ii((*i)->data_.begin()),
+	  std::vector<int>::const_iterator ii((*i)->data_.begin()),
 	     ib((*i)->data_.end());
 	  for(; ii != ib; ++ii) {
              out_ << cnt_ << " " << i->id() << " " << *ii << "\n" ;

@@ -6,7 +6,6 @@
 #include <cstdlib>
 
 using namespace edm;
-using namespace std;
 
 // ---------------------------------------
 
@@ -27,7 +26,7 @@ void Consumer::operator()()
       if(ob.size()==0) break;
       (int*)ob.buffer();
       // int* i = (int*)ob.buffer();
-      //cout << "C" << *i << endl;
+      //cout << "C" << *i << std::endl;
     }
 }
 
@@ -51,7 +50,7 @@ void Producer::operator()()
       EventBuffer::ProducerBuffer ib(*b_);
       int* v = (int*)ib.buffer();
       *v = i;
-      //cout << "P" << i << endl;
+      //cout << "P" << i << std::endl;
       ib.commit(sizeof(int));
   }
 
@@ -64,8 +63,8 @@ int main(int argc, char* argv[])
 {
   if(argc<3)
     {
-      cerr << "usage: " << argv[0] << " event_size queue_depth number_to_gen"
-	   << endl;
+      std::cerr << "usage: " << argv[0] << " event_size queue_depth number_to_gen"
+	   << std::endl;
       return -1;
     }
 

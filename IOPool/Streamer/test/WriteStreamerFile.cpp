@@ -26,11 +26,9 @@ Disclaimer: Most of the code here is randomly written during
 
 #define NO_OF_EVENTS 10
 
-using namespace std;
-
 int main()
 { 
-  typedef vector<uint8> Buffer;
+  typedef std::vector<uint8> Buffer;
   Buffer buf(1024);
   Buffer buf2(1024);
 
@@ -70,21 +68,21 @@ int main()
   //Do a dumpInit here if you need to see the event.    
 
   //Start the Streamer file
-  cout<<"Trying to Write a Streamer file"<<endl; 
-  string initfilename = "teststreamfile.dat";
+  std::cout <<"Trying to Write a Streamer file"<< std::endl; 
+  std::string initfilename = "teststreamfile.dat";
   StreamerOutputFile stream_writer(initfilename);
   
   //Start Index file
-  cout<< "Trying to Write Out The Index Binary File" << initfilename << endl;
-  string indexfilename = "testindexfile.ind";
+  std::cout << "Trying to Write Out The Index Binary File" << initfilename << std::endl;
+  std::string indexfilename = "testindexfile.ind";
   StreamerOutputIndexFile index_writer(indexfilename);
 
-  cout<< "Trying to Write Out The Init message into Streamer File: " 
-      << initfilename << endl;
+  std::cout << "Trying to Write Out The Init message into Streamer File: " 
+      << initfilename << std::endl;
   stream_writer.write(init);
 
-  cout<< "Trying to Write Out The Init message into Index File: "<<
-                                                   indexfilename<<endl;
+  std::cout << "Trying to Write Out The Init message into Index File: "<<
+                                                   indexfilename<< std::endl;
   uint32 magic = 22;
   uint64 reserved = 666;
   index_writer.writeIndexFileHeader(magic, reserved);
@@ -114,13 +112,13 @@ int main()
              emb.eventAddr());
 
     //Lets write this to our streamer file .
-    cout<<"Writing Event# : "<<eventId<<" To Streamer file"<<endl;
+    std::cout<<"Writing Event# : "<<eventId<<" To Streamer file"<< std::endl;
     uint64 offset = stream_writer.write(emb);
   
     //Lets write the Index too
-    cout<<"Writing Event Index :" << eventId 
+    std::cout<<"Writing Event Index :" << eventId 
         <<" with offset# : " << offset << " To Index file" 
-                             <<endl;
+                             << std::endl;
     index_writer.write(emb, offset);
   }
 

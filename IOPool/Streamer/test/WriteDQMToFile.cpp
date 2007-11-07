@@ -14,7 +14,6 @@ Example code to write DQM Event Message to file
 
 #include "DataFormats/Provenance/interface/Timestamp.h"
 
-using namespace std;
 using namespace edm;
 
 //namespace edm
@@ -22,7 +21,7 @@ using namespace edm;
 
 int main()
 { 
-  typedef vector<uint8> Buffer;
+  typedef std::vector<uint8> Buffer;
   Buffer buf(1024);
   //Buffer buf2(1024);
 
@@ -56,7 +55,7 @@ int main()
   	dqmFile.write(dqmMsgBuilder);
    } 
   /***	DQMEventMsgView dqmMsgView(&buf[0]);
-  cout
+  std::cout
     << "code = " << dqmMsgView.code()<< ", "
     << "\nsize = " << dqmMsgView.size()<< ", "
     << "\nrun = " << dqmMsgView.runNumber() << ", "

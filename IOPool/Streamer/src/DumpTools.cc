@@ -4,6 +4,7 @@
 
 #include "IOPool/Streamer/interface/DumpTools.h"
 #include "FWCore/Utilities/interface/Digest.h"
+#include "FWCore/Utilities/interface/Algorithms.h"
 #include <iostream>
 #include <iterator>
 
@@ -35,10 +36,10 @@ void dumpInitHeader(const InitMsgView* view)
   view->l1TriggerNames(vl1names);
 
   std::cout << "HLT names :- \n ";
-  std::copy(vhltnames.begin(),vhltnames.end(),std::ostream_iterator<std::string>(std::cout,"\n"));
+  edm::copy_all(vhltnames,std::ostream_iterator<std::string>(std::cout,"\n"));
 
   std::cout << "L1 names :- \n ";
-  std::copy(vl1names.begin(),vl1names.end(),std::ostream_iterator<std::string>(std::cout,"\n"));
+  edm::copy_all(vl1names,std::ostream_iterator<std::string>(std::cout,"\n"));
   std::cout << "\n";
 
 }
@@ -100,7 +101,7 @@ void dumpEventHeader(const EventMsgView* eview)
   //printBits(hlt_out[0]);  
 
   std::cout << "\nl1 size= " << l1_out.size() << "\n l1 bits=\n";
-  std::copy(l1_out.begin(),l1_out.end(),std::ostream_iterator<bool>(std::cout," "));
+  edm::copy_all(l1_out,std::ostream_iterator<bool>(std::cout," "));
   
   unsigned int bytesForHLT = eview->hltCount();   
   std::cout << "\nhlt Count:" << eview->hltCount() << std::endl;

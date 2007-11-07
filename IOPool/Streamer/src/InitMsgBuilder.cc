@@ -1,5 +1,6 @@
 #include "IOPool/Streamer/interface/InitMsgBuilder.h"
 #include "IOPool/Streamer/interface/MsgHeader.h"
+#include "FWCore/Utilities/interface/Algorithms.h"
 #include <cassert>
 
 InitMsgBuilder::InitMsgBuilder(void* buf, uint32 size,
@@ -63,7 +64,7 @@ uint8* InitMsgBuilder::fillNames(const Strings& names, uint8* pos)
 
   for(Strings::const_iterator beg = names.begin(), begEnd = names.end(); beg != begEnd; ++beg) {
       if(first) first = false; else *pos++ = ' ';
-      pos = std::copy(beg->begin(),beg->end(),pos);
+      pos = edm::copy_all(*beg,pos);
   }
   convert((uint32)(pos-len_pos-sizeof(char_uint32)),len_pos);
   return pos;

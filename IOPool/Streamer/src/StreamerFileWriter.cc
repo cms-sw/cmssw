@@ -1,4 +1,4 @@
-// $Id: StreamerFileWriter.cc,v 1.15 2007/06/29 16:41:23 wmtan Exp $
+// $Id: StreamerFileWriter.cc,v 1.16 2007/08/20 20:23:25 hcheung Exp $
 
 #include "IOPool/Streamer/src/StreamerFileWriter.h"
 
@@ -111,7 +111,7 @@ void StreamerFileWriter::updateHLTStats(std::vector<uint8> const& packedHlt)
        if ((testAgaint << (2 * indxWithinByte)) & (packedHlt.at(whichByte))) {
            ++hltStats_[i];
        }
-       //else  cout <<"Bit "<<i<<" is not set"<<endl;
+       //else  std::cout <<"Bit "<<i<<" is not set"<< std::endl;
     }
    }
 } //namespace edm

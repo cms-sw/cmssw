@@ -1,5 +1,6 @@
 #include "DataFormats/Streamer/interface/StreamedProducts.h"
 #include "FWCore/Utilities/interface/Exception.h"
+#include "FWCore/Utilities/interface/Algorithms.h"
 #include "FWCore/Utilities/interface/DebugMacros.h"
 #include "FWCore/Utilities/interface/ReflexTools.h"
 #include "Cintex/Cintex.h"
@@ -25,7 +26,7 @@ namespace edm {
     if (!missingTypes().empty()) {
       StringSet missing = missingTypes();
       missingTypes().clear();
-      std::for_each(missing.begin(), missing.end(), loadCap);
+      for_all(missing, loadCap);
     }
   }
 

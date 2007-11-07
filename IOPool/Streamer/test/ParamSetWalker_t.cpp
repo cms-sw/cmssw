@@ -9,7 +9,6 @@
 #include <algorithm>
 #include <iterator>
 
-using namespace std;
 using namespace edm;
 
 class ParamSetWalker {
