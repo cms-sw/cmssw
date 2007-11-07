@@ -1,4 +1,4 @@
-// $Id: RootOutputFile.cc,v 1.27 2007/11/03 06:53:02 wmtan Exp $
+// $Id: RootOutputFile.cc,v 1.28 2007/11/04 02:45:09 wmtan Exp $
 
 #include "RootOutputFile.h"
 #include "PoolOutputModule.h"
@@ -9,6 +9,7 @@
 #include "DataFormats/Provenance/interface/FileFormatVersion.h"
 #include "FWCore/Utilities/interface/GetFileFormatVersion.h"
 #include "FWCore/Utilities/interface/EDMException.h"
+#include "FWCore/Utilities/interface/Algorithms.h"
 #include "FWCore/Framework/interface/FileBlock.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/Framework/interface/LuminosityBlockPrincipal.h"
@@ -89,14 +90,14 @@ namespace edm {
           Selections const& kV = om_->keptPriorProducts()[branchType];
           for (Selections::const_iterator it = kV.begin(), itEnd = kV.end(); it != itEnd; ++it) {
             BranchDescription const& prod = **it;
-	    if(std::binary_search(renamed.begin(), renamed.end(), prod.branchName())) {
+	    if(binary_search_all(renamed, prod.branchName())) {
               outputItemList.push_back(OutputItem(&prod, true));
 	    }
           }
           Selections const& dV = om_->droppedPriorProducts()[branchType];
           for (Selections::const_iterator it = dV.begin(), itEnd = dV.end(); it != itEnd; ++it) {
             BranchDescription const& prod = **it;
-	    if(std::binary_search(renamed.begin(), renamed.end(), prod.branchName())) {
+	    if(binary_search_all(renamed, prod.branchName())) {
               outputItemList.push_back(OutputItem(&prod, false));
 	    }
           }

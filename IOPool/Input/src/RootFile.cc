@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: RootFile.cc,v 1.93 2007/11/03 06:53:02 wmtan Exp $
+$Id: RootFile.cc,v 1.94 2007/11/04 02:45:09 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "RootFile.h"
@@ -20,6 +20,7 @@ $Id: RootFile.cc,v 1.93 2007/11/03 06:53:02 wmtan Exp $
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/Registry.h"
+#include "FWCore/Utilities/interface/Algorithms.h"
 //used for friendlyName translation
 #include "FWCore/Utilities/interface/FriendlyName.h"
 
@@ -125,7 +126,7 @@ namespace edm {
 	  }
 	}
       }
-      std::sort(sortedNewBranchNames_.begin(), sortedNewBranchNames_.end());
+      sort_all(sortedNewBranchNames_);
       // freeze the product registry
       newReg->setFrozen();
       productRegistry_ = boost::shared_ptr<ProductRegistry const>(newReg);
