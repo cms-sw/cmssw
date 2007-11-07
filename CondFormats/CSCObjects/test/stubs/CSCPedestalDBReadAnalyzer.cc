@@ -22,8 +22,7 @@ Toy EDProducers and EDProducts for testing purposes only.
 #include "CondFormats/DataRecord/interface/CSCDBPedestalsRcd.h"
 
 using namespace std;
-std::ofstream DBPedestalFile("dbpedestal.dat",std::ios::out);
-int counter=0;
+
 namespace edmtest
 {
   class CSCPedestalDBReadAnalyzer : public edm::EDAnalyzer
@@ -52,8 +51,9 @@ namespace edmtest
     std::vector<CSCDBPedestals::Item>::const_iterator it;
     
     for( it=myped->pedestals.begin();it!=myped->pedestals.end(); ++it ){
-      counter++;
-      DBPedestalFile<<it->ped<<"  "<<it->rms<<std::endl;
+      //no global variables
+	  //   counter++;
+	  //DBPedestalFile<<it->ped<<"  "<<it->rms<<std::endl;
     }
   }
   DEFINE_FWK_MODULE(CSCPedestalDBReadAnalyzer);
