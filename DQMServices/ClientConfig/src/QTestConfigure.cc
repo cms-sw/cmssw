@@ -2,8 +2,8 @@
  *
  *  Implementation of QTestConfigure
  *
- *  $Date: 2007/07/08 21:03:54 $
- *  $Revision: 1.4.2.1 $
+ *  $Date: 2007/09/06 13:21:57 $
+ *  $Revision: 1.5 $
  *  \author Ilaria Segoni
  */
 #include "DQMServices/ClientConfig/interface/QTestConfigure.h"
@@ -27,6 +27,11 @@ bool QTestConfigure::enableTests(std::map<std::string, std::map<std::string, std
 		if(!std::strcmp(testType.c_str(),NoisyChannelROOT::getAlgoName().c_str()))  this->EnableNoisyChannelTest(testName, params,bei);       
 		if(!std::strcmp(testType.c_str(),MeanWithinExpectedROOT::getAlgoName().c_str()))  this->EnableMeanWithinExpectedTest(testName, params,bei);       
                 if(!std::strcmp(testType.c_str(),MostProbableLandauROOT::getAlgoName().c_str()))  this->EnableMostProbableLandauTest(testName, params, bei);
+
+                if(!std::strcmp(testType.c_str(),ContentsTH2FWithinRangeROOT::getAlgoName().c_str())) this->EnableTH2FContentsInRangeTest(testName, params, bei);
+                if(!std::strcmp(testType.c_str(),ContentsProfWithinRangeROOT::getAlgoName().c_str())) this->EnableProfContentsInRangeTest(testName, params, bei);
+                if(!std::strcmp(testType.c_str(),ContentsProf2DWithinRangeROOT::getAlgoName().c_str())) this->EnableProf2DContentsInRangeTest(testName, params, bei);
+
 	}
 	
 	return false;	
@@ -191,7 +196,94 @@ void QTestConfigure::EnableMostProbableLandauTest(
   poQTest->setSigma        ( atof( roMParams["sigma"].c_str()) );
 }
 
-void QTestConfigure::desableTests(std::vector<std::string> testsOFFList, DaqMonitorBEInterface *bei){
+void QTestConfigure::EnableTH2FContentsInRangeTest(std::string testName, std::map<std::string, std::string> params, DaqMonitorBEInterface *bei){
+
+        QCriterion * qc1;
+        if(! bei->getQCriterion(testName) ){
+                testsConfigured.push_back(testName);
+                qc1 = bei->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(),testName);
+        }else{
+                qc1 = bei->getQCriterion(testName);
+        }
+        MEContentsTH2FWithinRangeROOT * me_qc1 = (MEContentsTH2FWithinRangeROOT *) qc1;
+
+        double warning=atof(params["warning"].c_str());
+        double error=atof(params["error"].c_str());
+        me_qc1->setWarningProb(warning);
+        me_qc1->setErrorProb(error);
+
+        double minMean=atof(params["minMean"].c_str());
+        double maxMean=atof(params["maxMean"].c_str());
+        if ( minMean != 0 && maxMean != 0 ) me_qc1->setMeanRange(minMean, maxMean);
+
+        double minRMS=atof(params["minRMS"].c_str());
+        double maxRMS=atof(params["maxRMS"].c_str());
+        if ( minRMS != 0 && maxRMS != 0 ) me_qc1->setMeanRange(minRMS, maxRMS);
+
+        double toleranceMean=atof(params["toleranceMean"].c_str());
+        if ( toleranceMean != 0 ) me_qc1->setMeanTolerance(toleranceMean);
+
+}
+
+void QTestConfigure::EnableProfContentsInRangeTest(std::string testName, std::map<std::string, std::string> params, DaqMonitorBEInterface *bei){
+
+        QCriterion * qc1;
+        if(! bei->getQCriterion(testName) ){
+                testsConfigured.push_back(testName);
+                qc1 = bei->createQTest(ContentsProfWithinRangeROOT::getAlgoName(),testName);
+        }else{
+                qc1 = bei->getQCriterion(testName);
+        }
+        MEContentsProfWithinRangeROOT * me_qc1 = (MEContentsProfWithinRangeROOT *) qc1;
+
+        double warning=atof(params["warning"].c_str());
+        double error=atof(params["error"].c_str());
+        me_qc1->setWarningProb(warning);
+        me_qc1->setErrorProb(error);
+
+        double minMean=atof(params["minMean"].c_str());
+        double maxMean=atof(params["maxMean"].c_str());
+        if ( minMean != 0 && maxMean != 0 ) me_qc1->setMeanRange(minMean, maxMean);
+
+        double minRMS=atof(params["minRMS"].c_str());
+        double maxRMS=atof(params["maxRMS"].c_str());
+        if ( minRMS != 0 && maxRMS != 0 ) me_qc1->setMeanRange(minRMS, maxRMS);
+
+        double toleranceMean=atof(params["toleranceMean"].c_str());
+        if ( toleranceMean != 0 ) me_qc1->setMeanTolerance(toleranceMean);
+
+}
+
+void QTestConfigure::EnableProf2DContentsInRangeTest(std::string testName, std::map<std::string, std::string> params, DaqMonitorBEInterface *bei){
+
+        QCriterion * qc1;
+        if(! bei->getQCriterion(testName) ){
+                testsConfigured.push_back(testName);
+                qc1 = bei->createQTest(ContentsProf2DWithinRangeROOT::getAlgoName(),testName);
+        }else{
+                qc1 = bei->getQCriterion(testName);
+        }
+        MEContentsProf2DWithinRangeROOT * me_qc1 = (MEContentsProf2DWithinRangeROOT *) qc1;
+
+        double warning=atof(params["warning"].c_str());
+        double error=atof(params["error"].c_str());
+        me_qc1->setWarningProb(warning);
+        me_qc1->setErrorProb(error);
+
+        double minMean=atof(params["minMean"].c_str());
+        double maxMean=atof(params["maxMean"].c_str());
+        if ( minMean != 0 && maxMean != 0 ) me_qc1->setMeanRange(minMean, maxMean);
+
+        double minRMS=atof(params["minRMS"].c_str());
+        double maxRMS=atof(params["maxRMS"].c_str());
+        if ( minRMS != 0 && maxRMS != 0 ) me_qc1->setMeanRange(minRMS, maxRMS);
+
+        double toleranceMean=atof(params["toleranceMean"].c_str());
+        if ( toleranceMean != 0 ) me_qc1->setMeanTolerance(toleranceMean);
+
+}
+
+void QTestConfigure::disableTests(std::vector<std::string> testsOFFList, DaqMonitorBEInterface *bei){
  std::vector<std::string>::iterator testsItr;
  for(testsItr= testsOFFList.begin(); testsItr != testsOFFList.end();++testsItr){ 
 	if( bei->getQCriterion(*testsItr) ){
