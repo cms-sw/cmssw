@@ -1,8 +1,8 @@
 /*
  * \file EEBeamCaloTask.cc
  *
- * $Date: 2007/10/24 18:17:44 $
- * $Revision: 1.13 $
+ * $Date: 2007/11/05 19:23:38 $
+ * $Revision: 1.14 $
  * \author A. Ghezzi
  *
  */
@@ -666,7 +666,7 @@ void EEBeamCaloTask::analyze(const Event& e, const EventSetup& c){
 
 
     //LogDebug("EEBeamCaloTask") << " det id = " << id;
-    //LogDebug("EEBeamCaloTask") << " sm, eta, phi " << ism << " " << ie << " " << ip;
+    //LogDebug("EEBeamCaloTask") << " sm, ieta, iphi " << ism << " " << ie << " " << ip;
     //LogDebug("EEBeamCaloTask") << " deta, dphi, i_in_array, i_toBeRead " << deta_c  << " " <<  dphi_c << " " <<i_in_array<<" "<<i_toBeRead;
 
     if( i_in_array < 0 || i_in_array > 8 ){continue;}
@@ -759,7 +759,7 @@ void EEBeamCaloTask::analyze(const Event& e, const EventSetup& c){
 
     int i_in_array = deta_c -3*dphi_c + 4;
     //LogDebug("EEBeamCaloTask") << " rechits det id = " << id;
-    //LogDebug("EEBeamCaloTask") << " rechits sm, eta, phi " << ism << " " << ie << " " << ip;
+    //LogDebug("EEBeamCaloTask") << " rechits sm, ieta, iphi " << ism << " " << ie << " " << ip;
     //LogDebug("EEBeamCaloTask") << " rechits deta, dphi, i_in_array" << deta_c  << " " <<  dphi_c << " " <<i_in_array;
 
     float R_ene = hit.amplitude();

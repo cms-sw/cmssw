@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorModule.cc
  *
- * $Date: 2007/11/06 11:30:20 $
- * $Revision: 1.140 $
+ * $Date: 2007/11/06 11:37:15 $
+ * $Revision: 1.141 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -395,7 +395,7 @@ void EcalBarrelMonitorModule::analyze(const Event& e, const EventSetup& c){
       int ism = Numbers::iSM( id );
 
       LogDebug("EcalBarrelMonitor") << " det id = " << id;
-      LogDebug("EcalBarrelMonitor") << " sm, eta, phi " << ism << " " << ie << " " << ip;
+      LogDebug("EcalBarrelMonitor") << " sm, ieta, iphi " << ism << " " << ie << " " << ip;
 
     }
 
@@ -438,7 +438,7 @@ void EcalBarrelMonitorModule::analyze(const Event& e, const EventSetup& c){
         float xip = ip - 0.5;
 
         LogDebug("EcalBarrelMonitor") << " det id = " << id;
-        LogDebug("EcalBarrelMonitor") << " sm, eta, phi " << ism << " " << ie << " " << ip;
+        LogDebug("EcalBarrelMonitor") << " sm, ieta, iphi " << ism << " " << ie << " " << ip;
 
         float xval = hit.amplitude();
 
