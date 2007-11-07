@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Wed Nov 30 14:55:01 EST 2005
-// $Id: RootAutoLibraryLoader.cc,v 1.10 2007/10/18 18:41:26 wmtan Exp $
+// $Id: RootAutoLibraryLoader.cc,v 1.11 2007/10/19 21:18:28 wmtan Exp $
 //
 
 // system include files
@@ -178,8 +178,8 @@ void registerTypes() {
       classes.push_back(std::pair<std::string,std::string>(className, itInfo->loadable_.native_file_string()));
     }
   }
-  //std::sort(classes.begin(), classes.end(), std::greater<std::string>());
-  //std::sort(classes.begin(), classes.end(), CompareFirst());
+  //sort_all(classes, std::greater<std::string>());
+  //sort_all(classes, CompareFirst());
   //the values are already sorted by less, so just need to reverse to get greater
   for(ClassAndLibraries::reverse_iterator itClass = classes.rbegin(), itClassEnd = classes.rend();
       itClass != itClassEnd;
