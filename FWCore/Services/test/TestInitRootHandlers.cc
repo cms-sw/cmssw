@@ -34,6 +34,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/MessageLogger/interface/ELseverityLevel.h"
 #include "FWCore/Utilities/interface/EDMException.h"
+#include "FWCore/Utilities/interface/Algorithms.h"
 
 
 #include "FWCore/Framework/interface/GenericHandle.h"
@@ -357,7 +358,7 @@ TestInitRootHandlers::TestInitRootHandlers(const edm::ParameterSet& iConfig) :
   evno_(0)
 {
    //now do what ever initialization is needed
-   std::sort(moduleLabels_.begin(),moduleLabels_.end());
+   edm::sort_all(moduleLabels_);
 }
 
 TestInitRootHandlers::~TestInitRootHandlers()
@@ -408,8 +409,8 @@ TestInitRootHandlers::analyze(const edm::Event& iEvent, const edm::EventSetup& i
                 << " \"" << modLabel
                 << "\" \"" << instanceName <<"\"" << std::endl;
       if(verbose_){
-         if( moduleLabels_.size() ==0 ||
-             std::binary_search(moduleLabels_.begin(),moduleLabels_.end(),modLabel)) {
+         if( moduleLabels_.empty() ||
+            edm::binary_search_all(moduleLabels_, modLabel)) {
             //indent one level before starting to print
             std::string startIndent = indentation_+verboseIndentation_;
             printObject(iEvent,
