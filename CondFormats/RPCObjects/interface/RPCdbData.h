@@ -16,6 +16,8 @@ class RPCdbData {
   struct Item {
     int dpid;
     float value;
+    int day;
+    int time;
   };
 
   std::vector<Item> Imon_rpc;
