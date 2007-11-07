@@ -229,7 +229,7 @@ void
     // get FG values
     unsigned int raw[2] ;
     it->data(raw) ;
-    int FG[2] = { (raw[0] & 0x100)!=0, (raw[1] & 0x100)!=0 } ;
+    int FG[2] = { (raw[0] & 0x1000000)!=0, (raw[1] & 0x1000000)!=0 } ;
 
     int type = it->type(); //3 data only, 4 emul only
     if(type!=4 && etmapData[ism-1])
@@ -238,25 +238,15 @@ void
       etmapEmul[ism-1]->Fill(xiet-1, xipt-1, rankarr[1]);
     if(type<2 && etmapDiff[ism-1]) {
       float diff = fabs(rankarr[0]-rankarr[1]);
-      if(diff) {
-	etmapDiff[ism-1]->Fill(xiet-1, xipt-1, diff);
-	float phi = iphi ;
-	if (phi>70) phi -= 73 ;
-	phi *= 5 ;
-	if (phi>0) phi -= 5 ;
-	EcalEtMapDiff->Fill(ieta, phi, diff) ;
-      }
+      etmapDiff[ism-1]->Fill(xiet-1, xipt-1, diff);
+      float phi = iphi ;
+      if (phi>70) phi -= 73 ;
+      phi *= 5 ;
+      if (phi>0) phi -= 5 ;
+      EcalEtMapDiff->Fill(ieta, phi, diff) ;
       diff = fabs(FG[0]-FG[1]);
-      if(diff) {
-	float phi = iphi ;
-	if (phi>70) phi -= 73 ;
-	phi *= 5 ;
-	if (phi>0) phi -= 5 ;
-	EcalFGMapDiff->Fill(ieta, phi, diff) ;
-      }
+      EcalFGMapDiff->Fill(ieta, phi, diff) ;
     }
-    
-
   }//close loop over dedigi-cands
 
 
