@@ -6,8 +6,6 @@
 
 EDM_REGISTER_PLUGINFACTORY(edm::PresencePluginFactory,"CMS EDM Framework Presence");
 
-using namespace std;
-
 namespace edm {
   
   PresenceFactory::~PresenceFactory() {
@@ -25,7 +23,7 @@ namespace edm {
   std::auto_ptr<Presence>
   PresenceFactory::
   makePresence(std::string const & presence_type) const {
-    auto_ptr<Presence> sp(PresencePluginFactory::get()->create(presence_type));
+    std::auto_ptr<Presence> sp(PresencePluginFactory::get()->create(presence_type));
 
     if(sp.get()==0) {
 	throw edm::Exception(errors::Configuration, "NoPresenceModule")
@@ -38,7 +36,7 @@ namespace edm {
 
     FDEBUG(1) << "PresenceFactory: created presence "
 	      << presence_type
-	      << endl;
+	      << std::endl;
 
     return sp;
   }
