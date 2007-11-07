@@ -1,8 +1,8 @@
 /*
  * \file EcalEndcapMonitorModule.cc
  *
- * $Date: 2007/11/06 11:31:09 $
- * $Revision: 1.13 $
+ * $Date: 2007/11/06 11:37:14 $
+ * $Revision: 1.14 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -271,6 +271,8 @@ void EcalEndcapMonitorModule::endJob(void) {
 }
 
 void EcalEndcapMonitorModule::analyze(const Event& e, const EventSetup& c){
+
+  Numbers::initGeometry(c);
 
   if ( ! init_ ) this->setup();
 
