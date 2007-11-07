@@ -17,6 +17,7 @@
 #include "FWCore/PluginManager/interface/PluginFactoryManager.h"
 #include "FWCore/PluginManager/interface/PluginFactoryBase.h"
 #include "FWCore/Utilities/interface/Exception.h"
+#include "FWCore/Utilities/interface/Algorithms.h"
 #include "FWCore/PluginManager/interface/CacheParser.h"
 #include "FWCore/PluginManager/interface/SharedLibrary.h"
 
@@ -26,7 +27,7 @@
 using namespace edmplugin;
 
 namespace std {
-ostream& operator<<(ostream& o, const vector<std::string>& iValue) {
+ostream& operator<<(std::ostream& o, const vector<std::string>& iValue) {
   std::string sep("");
   std::string commaSep(",");
   for(std::vector<std::string>::const_iterator it=iValue.begin(), itEnd=iValue.end();
@@ -194,9 +195,7 @@ int main (int argc, char **argv)
     Listener listener;
     edmplugin::PluginFactoryManager* pfm =  edmplugin::PluginFactoryManager::get();
     pfm->newFactory_.connect(boost::bind(boost::mem_fn(&Listener::newFactory),&listener,_1));
-    std::for_each(pfm->begin(),
-                  pfm->end(),
-                  boost::bind(boost::mem_fn(&Listener::newFactory),&listener,_1));
+    edm::for_all(*pfm, boost::bind(boost::mem_fn(&Listener::newFactory),&listener,_1));
     
     for(std::vector<std::string>::iterator itFile = files.begin();
         itFile != files.end();

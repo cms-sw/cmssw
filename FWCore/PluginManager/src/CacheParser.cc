@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Apr  4 14:30:46 EDT 2007
-// $Id: CacheParser.cc,v 1.1.2.1 2007/04/09 18:46:50 chrjones Exp $
+// $Id: CacheParser.cc,v 1.2 2007/04/12 12:51:12 wmtan Exp $
 //
 
 // system include files
@@ -17,6 +17,7 @@
 // user include files
 #include "FWCore/PluginManager/interface/CacheParser.h"
 #include "FWCore/Utilities/interface/Exception.h"
+#include "FWCore/Utilities/interface/Algorithms.h"
 
 namespace edmplugin {
 //
@@ -175,7 +176,7 @@ CacheParser::write(LoadableToPlugins& iIn, std::ostream& oOut)
        ++it) {
     std::string loadable(it->first.string());
     replaceSpaces(loadable);
-    std::sort(it->second.begin(),it->second.end());
+    edm::sort_all(it->second);
     
     for(std::vector<std::pair<std::string,std::string> >::iterator it2 = it->second.begin();
         it2 != it->second.end();
