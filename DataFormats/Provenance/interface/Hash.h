@@ -5,12 +5,13 @@
 
 #include "FWCore/Utilities/interface/Digest.h"
 #include "FWCore/Utilities/interface/EDMException.h"
+#include "FWCore/Utilities/interface/Algorithms.h"
 
 /*----------------------------------------------------------------------
   
 Hash:
 
-$Id: Hash.h,v 1.1 2007/03/04 04:48:08 wmtan Exp $
+$Id: Hash.h,v 1.2 2007/06/14 03:38:30 wmtan Exp $
 
   Note: The call to 'fixup' in every member function is a temporary
   measure for backwards compatibility. It is necessary in every function
@@ -170,7 +171,7 @@ namespace edm {
   {
     Hash<I> tMe(*this);
     cms::MD5Result temp;
-    std::copy(tMe.hash_.begin(), tMe.hash_.end(), temp.bytes);
+    copy_all(tMe.hash_, temp.bytes);
     os << temp.toString();
     return os;
   }

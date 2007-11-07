@@ -2,6 +2,7 @@
 #include <ostream>
 #include <sstream>
 #include "FWCore/Utilities/interface/Digest.h"
+#include "FWCore/Utilities/interface/Algorithms.h"
 
 #include "DataFormats/Provenance/interface/ProcessHistory.h"
 
@@ -32,7 +33,7 @@ namespace edm {
   std::ostream&
   operator<<(std::ostream& ost, ProcessHistory const& ph) {
     ost << "Process History = ";
-    std::copy(ph.begin(),ph.end(), std::ostream_iterator<ProcessHistory::value_type>(ost,";"));
+    copy_all(ph, std::ostream_iterator<ProcessHistory::value_type>(ost,";"));
     return ost;
   }
 }
