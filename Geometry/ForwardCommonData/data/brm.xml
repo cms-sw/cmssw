@@ -50,7 +50,7 @@
   <rMaterial name="materials:Air"/>
  </LogicalPart>
  <LogicalPart name="BSC2" category="unspecified">
-  <rSolid name="BSC1"/>
+  <rSolid name="BSC2"/>
   <rMaterial name="materials:Air"/>
  </LogicalPart>
  <LogicalPart name="BSCTrap" category="unspecified">
