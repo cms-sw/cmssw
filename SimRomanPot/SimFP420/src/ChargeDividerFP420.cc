@@ -5,6 +5,11 @@
 // Modifications: std::
 ///////////////////////////////////////////////////////////////////////////////
 #include "SimRomanPot/SimFP420/interface/ChargeDividerFP420.h"
+#include "DataFormats/GeometryVector/interface/LocalPoint.h"
+#include "DataFormats/GeometryVector/interface/LocalVector.h"
+
+//#include "SimDataFormats/TrackingHit/interface/PSimHit.h"
+//#include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
 
 using namespace std;
 #include<vector>
@@ -73,7 +78,7 @@ ChargeDividerFP420::~ChargeDividerFP420() {
 }  
 CDividerFP420::ionization_type 
 ChargeDividerFP420::divide(
-			      const FP420G4Hit& hit, const double& pitchcur) {
+			      const PSimHit& hit, const double& pitchcur) {
   // !!!
   //                                       pitchcur - is really moduleThickness here !!!
   // !!!
@@ -81,7 +86,11 @@ ChargeDividerFP420::divide(
 
 
   // sign "-" mean not the same as "+" for middle point !!!
-  G4ThreeVector direction = hit.getExitLocalP() - hit.getEntryLocalP();  
+//  G4ThreeVector direction = hit.getExitLocalP() - hit.getEntryLocalP();
+  LocalVector direction = hit.exitPoint() - hit.entryPoint();
+//   G4ThreeVector direction = hit.exitPoint() - hit.entryPoint();
+  
+//  LocalVector direction = hit.exitPoint() - hit.entryPoint();
   // direction.mag() - length or (size of path) of the hit; direction/direction.mag() - cosines of direction
 
 #ifdef mydigidebug3
@@ -103,8 +112,8 @@ std::cout << "  peakMode = " << peakMode << "  decoMode = " << decoMode << "  fl
 std::cout << "NumberOfSegmentation= " << NumberOfSegmentation << std::endl;
 #endif
  
-//  float eLoss = hit.energyLoss();  // Eloss in GeV
-  float eLoss = hit.getEnergyLoss();  // Eloss in GeV
+  float eLoss = hit.energyLoss();  // Eloss in GeV
+  //  float eLoss = hit.getEnergyLoss();  // Eloss in GeV
 #ifdef mydigidebug3
 std::cout << "CDividerFP420::ChargeDividerFP420:divide: eLoss=  " << eLoss << std::endl;
 #endif
@@ -130,25 +139,27 @@ std::cout << "CDividerFP420::ChargeDividerFP420:divide: decSignal=  " << decSign
 std::cout << "CDividerFP420::ChargeDividerFP420:divide:  resize done; then, fluctuateCharge ? = " << fluctuateCharge << std::endl;
 #endif
   if( fluctuateCharge ) {
-    int pid = hit.getParticleType();
-    float momentum = hit.getPabs();
+    //    int pid = hit.getParticleType();
+    //    float momentum = hit.getPabs();
+    int pid = hit.particleType();
+    float momentum = hit.pabs();
     float length = direction.mag();  // length or (size of path) of the hit;
 #ifdef mydigidebug3
 std::cout << "pid= " << pid << "momentum= " << momentum << "eLoss= " << eLoss << "length= " << length << std::endl;
 #endif
     fluctuateEloss(pid, momentum, eLoss, length, NumberOfSegmentation, eLossVector);   
   }
- 
+
   for ( int i = 0; i != NumberOfSegmentation; i++) {
     if( fluctuateCharge ) {
       energy=eLossVector[i]*decSignal/eLoss;
-      //      EnergySegmentFP420 edu(energy,hit.entryPoint()+float((i+0.5)/NumberOfSegmentation)*direction);//take energy value from vector eLossVector  
-      EnergySegmentFP420 edu(energy,hit.getEntryLocalP()+float((i+0.5)/NumberOfSegmentation)*direction);//take energy value from vector eLossVector  
+      EnergySegmentFP420 edu(energy,hit.entryPoint()+float((i+0.5)/NumberOfSegmentation)*direction);//take energy value from vector eLossVector  
+      //   EnergySegmentFP420 edu(energy,hit.getEntryLocalP()+float((i+0.5)/NumberOfSegmentation)*direction);//take energy value from vector eLossVector  
       _ionization_points[i] = edu; //save
     }else{
       energy=decSignal/float(NumberOfSegmentation);
-      //      EnergySegmentFP420 edu(energy,hit.entryPoint()+float((i+0.5)/NumberOfSegmentation)*direction);//take energy value from eLoss average over n.segments 
-      EnergySegmentFP420 edu(energy,hit.getEntryLocalP()+float((i+0.5)/NumberOfSegmentation)*direction);//take energy value from eLoss average over n.segments 
+       EnergySegmentFP420 edu(energy,hit.entryPoint()+float((i+0.5)/NumberOfSegmentation)*direction);//take energy value from eLoss average over n.segments 
+       // EnergySegmentFP420 edu(energy,hit.getEntryLocalP()+float((i+0.5)/NumberOfSegmentation)*direction);//take energy value from eLoss average over n.segments 
       _ionization_points[i] = edu; //save
     }
   }
@@ -226,7 +237,7 @@ std::cout << "sum=  " << sum << std::endl;
   return;
 }
 
-float ChargeDividerFP420::TimeResponse( const FP420G4Hit& hit ) {
+float ChargeDividerFP420::TimeResponse( const PSimHit& hit ) {
   if (peakMode) {
 #ifdef mydigidebug3
 std::cout << "ChargeDividerFP420:TimeResponse: call of PeakShape" << std::endl;
@@ -241,20 +252,25 @@ std::cout << "ChargeDividerFP420:TimeResponse: call of DeconvolutionShape" << st
 #ifdef mydigidebug3
 std::cout << "ChargeDividerFP420:TimeResponse: no any  Shape" << std::endl;
 #endif
-    return hit.getEnergyLoss();
+//    return hit.getEnergyLoss();
+    return hit.energyLoss();
 
   }
 }
-float ChargeDividerFP420::PeakShape(const FP420G4Hit& hit){
+float ChargeDividerFP420::PeakShape(const PSimHit& hit){
   // 
   // Aim:     return the energyLoss weighted CR-RC shape peaked at t0.
   // 
 
-    float xEntry = hit.getX() - hit.getVx();
-    float yEntry = hit.getY() - hit.getVy();
-    float zEntry = hit.getZ() - hit.getVz();
+  //   float xEntry = hit.getX() - hit.getVx();
+  //  float yEntry = hit.getY() - hit.getVy();
+  //  float zEntry = hit.getZ() - hit.getVz();
+    float xEntry = 0.5;
+    float yEntry = 0.5;
+    float zEntry = 1000.;
 
-    unsigned int unitID = hit.getUnitID();
+    // unsigned int unitID = hit.getUnitID();
+    unsigned int unitID = hit.detUnitId();
     //      int sScale = 20;
       int det, zside, sector, zmodule;
       FP420NumberingScheme::unpackFP420Index(unitID, det, zside, sector, zmodule);
@@ -269,7 +285,8 @@ float ChargeDividerFP420::PeakShape(const FP420G4Hit& hit){
   //  float dist = hit.localPosition().mag();//AZ
   //  float dist = hit.getEntry().mag();
   //  float dist = hit.getEntryLocalP().mag();
-  float dist     = (zStationBegPos[sector-1] - hit.getVz()) / costheta;
+  float dist     = (zStationBegPos[sector-1] - 420000.) / costheta;
+  //  float dist     = (zStationBegPos[sector-1] - hit.getVz()) / costheta;
   dist     = dist/10.;// mm  --> cm as light velocity = 30 cm/ns
 #ifdef mydigidebug3
 std::cout << "sector=" << sector << std::endl;
@@ -286,40 +303,43 @@ std::cout << "dist found =" << dist << std::endl;
   // Time when read out relative to time hit produced.
   float t0 = dist/30.;  // light velocity = 30 cm/ns
   float SigmaShape = 52.17; 
-  float tofNorm = (hit.getTof() - t0)/SigmaShape;
+  //  float tofNorm = (hit.getTof() - t0)/SigmaShape;
+  float tofNorm = (hit.tof() - t0)/SigmaShape;
 
   float readTimeNorm = -tofNorm;
   // return the energyLoss weighted with CR-RC shape peaked at t0.
 #ifdef mydigidebug3
 std::cout << "ChargeDividerFP420:PeakShape::dist=" << dist << std::endl;
 std::cout << "t0=" <<t0  << std::endl;
-std::cout << "hit.getTof()=" << hit.getTof() << std::endl;
+std::cout << "hit.getTof()=" << hit.tof() << std::endl;
 std::cout << "tofNorm=" << tofNorm << std::endl;
 std::cout << "1 + readTimeNorm=" << 1 + readTimeNorm << std::endl;
-std::cout << "hit.getEnergyLoss()=" << hit.getEnergyLoss()  << std::endl;
+std::cout << "hit.getEnergyLoss()=" << hit.energyLoss()  << std::endl;
 std::cout << "(1 + readTimeNorm)*exp(-readTimeNorm)=" << (1 + readTimeNorm)*exp(-readTimeNorm)  << std::endl;
-std::cout << "return=" << hit.getEnergyLoss()*(1 + readTimeNorm)*exp(-readTimeNorm)  << std::endl;
+std::cout << "return=" << hit.energyLoss()*(1 + readTimeNorm)*exp(-readTimeNorm)  << std::endl;
 #endif
   if (1 + readTimeNorm > 0) {
     //    return hit.energyLoss()*(1 + readTimeNorm)*exp(-readTimeNorm);
-    return hit.getEnergyLoss()*(1 + readTimeNorm)*exp(-readTimeNorm);
+    return hit.energyLoss()*(1 + readTimeNorm)*exp(-readTimeNorm);
+    //  return hit.getEnergyLoss()*(1 + readTimeNorm)*exp(-readTimeNorm);
   } else {
     return 0.;
   }
 }
 
-float ChargeDividerFP420::DeconvolutionShape(const FP420G4Hit& hit){
+float ChargeDividerFP420::DeconvolutionShape(const PSimHit& hit){
   // 
   // Aim:     return the energyLoss weighted with a gaussian centered at t0 
   // 
-//    float thetaEntry = hit.getThetaAtEntry();   
-//    float phiEntry = hit->getPhiAtEntry();
+  //   float xEntry = hit.getX() - hit.getVx();
+  //  float yEntry = hit.getY() - hit.getVy();
+  //  float zEntry = hit.getZ() - hit.getVz();
+    float xEntry = 0.5;
+    float yEntry = 0.5;
+    float zEntry = 1000.;
 
-    float xEntry = hit.getX() - hit.getVx();
-    float yEntry = hit.getY() - hit.getVy();
-    float zEntry = hit.getZ() - hit.getVz();
-
-    unsigned int unitID = hit.getUnitID();
+    // unsigned int unitID = hit.getUnitID();
+    unsigned int unitID = hit.detUnitId();
     //      int sScale = 20;
       int det, zside, sector, zmodule;
       FP420NumberingScheme::unpackFP420Index(unitID, det, zside, sector, zmodule);
@@ -330,9 +350,14 @@ float ChargeDividerFP420::DeconvolutionShape(const FP420G4Hit& hit){
   float RRR      = sqrt(xEntry*xEntry + yEntry*yEntry + zEntry*zEntry);
   float costheta = zEntry / RRR ;
   //  float theta    = acos(min(max(costheta,float(-1.)),float(1.)));
-  float dist     = (zStationBegPos[sector-1] - hit.getVz()) / costheta;
+  //  float dist = hit.det().position().mag();
+  //  float dist = hit.localPosition().mag();//AZ
+  //  float dist = hit.getEntry().mag();
+  //  float dist = hit.getEntryLocalP().mag();
+  float dist     = (zStationBegPos[sector-1] - 420000.) / costheta;
+  //  float dist     = (zStationBegPos[sector-1] - hit.getVz()) / costheta;
   dist     = dist/10.;// mm  --> cm as light velocity = 30 cm/ns
-#ifdef mydigidebug33
+#ifdef mydigidebug3
 std::cout << "sector=" << sector << std::endl;
 std::cout << "zmodule=" << zmodule << std::endl;
 std::cout << "zStationBegPos[sector-1]=" << zStationBegPos[sector-1] << std::endl;
@@ -349,7 +374,7 @@ std::cout << "dist found =" << dist << std::endl;
 //fun/pl 1*exp(-0.5*((0.1/30-x)/0.1)**2) 0. 0.08
 //  float SigmaShape = 22.; 
   //  float tofNorm = (hit.tof() - t0)/SigmaShape;
-  float tofNorm = (hit.getTof() - t0)/SigmaShape;
+  float tofNorm = (hit.tof() - t0)/SigmaShape;
   // Time when read out relative to time hit produced.
   float readTimeNorm = -tofNorm;
   // return the energyLoss weighted with a gaussian centered at t0 
@@ -357,13 +382,13 @@ std::cout << "dist found =" << dist << std::endl;
 #ifdef mydigidebug33
 std::cout << "ChargeDividerFP420:DeconvolutionShape::dist=" << dist << std::endl;
 std::cout << "t0=" <<t0  << std::endl;
-std::cout << "hit.getTof()=" << hit.getTof() << std::endl;
+std::cout << "hit.getTof()=" << hit.tof() << std::endl;
 std::cout << "tofNorm=" << tofNorm << std::endl;
-std::cout << "hit.getEnergyLoss()=" << hit.getEnergyLoss()  << std::endl;
+std::cout << "hit.getEnergyLoss()=" << hit.energyLoss()  << std::endl;
 std::cout << "exp(-0.5*readTimeNorm*readTimeNorm)=" << exp(-0.5*readTimeNorm*readTimeNorm)  << std::endl;
-std::cout << "return=" << hit.getEnergyLoss()*exp(-0.5*readTimeNorm*readTimeNorm)  << std::endl;
+std::cout << "return=" << hit.energyLoss()*exp(-0.5*readTimeNorm*readTimeNorm)  << std::endl;
 #endif
-  return hit.getEnergyLoss()*exp(-0.5*readTimeNorm*readTimeNorm);
+  return hit.energyLoss()*exp(-0.5*readTimeNorm*readTimeNorm);
   //  return hit.getEnergyLoss();
 }
 

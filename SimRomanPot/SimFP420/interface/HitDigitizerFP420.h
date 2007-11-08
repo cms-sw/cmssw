@@ -1,11 +1,13 @@
 #ifndef HitDigitizerFP420_h
 #define HitDigitizerFP420_h
  
-#include "SimG4CMS/FP420/interface/FP420G4HitCollection.h"
-#include "SimG4CMS/FP420/interface/FP420G4Hit.h"
+//#include "SimG4CMS/FP420/interface/FP420G4HitCollection.h"
+//#include "SimG4CMS/FP420/interface/FP420G4Hit.h"
 #include "SimRomanPot/SimFP420/interface/CDrifterFP420.h"
 #include "SimRomanPot/SimFP420/interface/CDividerFP420.h"
 #include "SimRomanPot/SimFP420/interface/IChargeFP420.h"
+#include "SimDataFormats/TrackingHit/interface/PSimHit.h"
+#include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
 
 //using namespace std;
 #include<vector>
@@ -41,8 +43,8 @@ class HitDigitizerFP420{
   //CDrifterFP420* getChargeCollectionDrifter(){return theCDrifterFP420;}
   //IChargeFP420* getInduceChargeOnElectrods(){return theIChargeFP420;}
   
-  //  hit_map_type processHit(const FP420G4Hit&, G4ThreeVector, int, int, double);
-  hit_map_type processHit(const FP420G4Hit&, G4ThreeVector, int, int, double, int, double, double);
+  //  hit_map_type processHit(const PSimHit&, G4ThreeVector, int, int, double);
+  hit_map_type processHit(const PSimHit&, G4ThreeVector, int, int, double, int, double, double);
   
  private:
   CDividerFP420* theCDividerFP420;

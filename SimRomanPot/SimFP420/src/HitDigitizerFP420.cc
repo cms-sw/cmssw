@@ -5,8 +5,14 @@
 // Modifications: Here - zside - has a sense of xytype of plane
 ///////////////////////////////////////////////////////////////////////////////
 #include "SimRomanPot/SimFP420/interface/HitDigitizerFP420.h"
-#include "SimG4CMS/FP420/interface/FP420G4HitCollection.h"
-#include "SimG4CMS/FP420/interface/FP420G4Hit.h"
+//#include "SimG4CMS/FP420/interface/FP420G4HitCollection.h"
+//#include "SimG4CMS/FP420/interface/FP420G4Hit.h"
+
+#include "SimDataFormats/TrackingHit/interface/PSimHit.h"
+#include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
+#include "DataFormats/GeometryVector/interface/LocalPoint.h"
+#include "DataFormats/GeometryVector/interface/LocalVector.h"
+
 #include "SimRomanPot/SimFP420/interface/ChargeDrifterFP420.h"
 #include "SimRomanPot/SimFP420/interface/ChargeDividerFP420.h"
 #include "SimRomanPot/SimFP420/interface/InduceChargeFP420.h"
@@ -19,16 +25,12 @@ using namespace std;
 
 //#define mydigidebug2
 
-//HitDigitizerFP420::HitDigitizerFP420(float in,float inp,float inpx,float inpy){
-//HitDigitizerFP420::HitDigitizerFP420(float in,float inp,float inpx,float inpy,float ild,float ildx,float ildy){
 HitDigitizerFP420::HitDigitizerFP420(float in,float ild,float ildx,float ildy,float in0,float in2,float in3){
   moduleThickness =in; 
   double bz420 = in0; 
   double bzD2 =  in2; 
   double bzD3 =  in3;
-  //  double pitch =inp; 
-  //  double pitchX =inpx; 
-  //  double pitchY =inpy; 
+
   double ldrift =ild; 
   double ldriftX =ildx; 
   double ldriftY =ildy; 
@@ -36,7 +38,6 @@ HitDigitizerFP420::HitDigitizerFP420(float in,float ild,float ildx,float ildy,fl
   // Construct default classes
   //
   
-  //theCDividerFP420 = new ChargeDividerFP420(pitch);
   theCDividerFP420 = new ChargeDividerFP420(moduleThickness, bz420, bzD2, bzD3);
   
   depletionVoltage=20.0; //
@@ -101,12 +102,16 @@ HitDigitizerFP420::~HitDigitizerFP420(){
 }
 
 
-//HitDigitizerFP420::hit_map_type HitDigitizerFP420::processHit(const FP420G4Hit& hit, G4ThreeVector bfield, int zside,int numStrips, double pitch){
-HitDigitizerFP420::hit_map_type HitDigitizerFP420::processHit(const FP420G4Hit& hit, G4ThreeVector bfield, int zside,int numStrips, double pitch, int numStripsW, double pitchW, double moduleThickness){
+//HitDigitizerFP420::hit_map_type HitDigitizerFP420::processHit(const PSimHit& hit, G4ThreeVector bfield, int zside,int numStrips, double pitch){
+HitDigitizerFP420::hit_map_type HitDigitizerFP420::processHit(const PSimHit& hit, G4ThreeVector bfield, int zside,int numStrips, double pitch, int numStripsW, double pitchW, double moduleThickness){
   
   // use chargePosition just for cross-check in "induce" method
   // hit center in 3D-detector r.f.
-  G4ThreeVector middle = (hit.getExitLocalP()+hit.getEntryLocalP())/2.;
+
+  float middlex = (hit.exitPoint().x() + hit.entryPoint().x() )/2.;
+  float middley = (hit.exitPoint().y() + hit.entryPoint().y() )/2.;
+
+
   float chargePosition= -100.;
   // Y: 
   if(zside == 1) {
@@ -115,18 +120,14 @@ HitDigitizerFP420::hit_map_type HitDigitizerFP420::processHit(const FP420G4Hit& 
     //      chargePosition  = fabs(int(middle.y()/pitch+0.5*(numStrips+1)) + 1.);
     // local and global reference frames are rotated in 90 degree, so global X and local Y are collinear
     //     chargePosition  = int(fabs(middle.x()/pitch + 0.5*numStrips + 1.));// charge in strip coord 
-    chargePosition = 0.5*(numStrips-1) + middle.x()/pitch ;// charge in strip coord 0 - numStrips-1
+    chargePosition = 0.5*(numStrips-1) + middlex/pitch ;// charge in strip coord 0 - numStrips-1
     
     
   }
   // X:
   else if(zside == 2) {
-    //     chargePosition  = fabs(-numStrips/2. - ( int(middle.y()/pitch) +1.) );
-    //chargePosition  = fabs(int(middle.y()/pitch+0.5*(numStrips+1)) + 1.);
-    //      chargePosition  = fabs(int(middle.x()/pitch+0.5*(numStrips+1)) + 1.);
-    // local and global reference frames are rotated in 90 degree, so global X and local Y are collinear
-    //     chargePosition  = int(fabs(middle.y()/pitch + 0.5*numStrips + 1.));
-    chargePosition = 0.5*(numStrips-1) + middle.y()/pitch ;// charge in strip coord 0 - numStrips-1
+
+    chargePosition = 0.5*(numStrips-1) + middley/pitch ;// charge in strip coord 0 - numStrips-1
     
     //  std::cout << " chargePosition    SiHitDi... = " << chargePosition                       << std::endl;
   }
@@ -146,8 +147,9 @@ HitDigitizerFP420::hit_map_type HitDigitizerFP420::processHit(const FP420G4Hit& 
   
 #ifdef mydigidebug2
   std::cout << " ======   ****   HitDigitizerFP420:  !!!  processHit  !!!  : input: zside=" << zside << " numStrips=  " << numStrips << " pitch=  " << pitch << " Calculated chargePosition=  " << chargePosition << std::endl;
-  std::cout << "The middle of hit point on input was: middle =  " << middle << std::endl;
-  std::cout << "For checks: hit point Entry =  " << hit.getEntry() << std::endl;
+  std::cout << "The middle of hit point on input was: middlex =  " << middlex << std::endl;
+  std::cout << "The middle of hit point on input was: middley =  " << middley << std::endl;
+  //  std::cout << "For checks: hit point Entry =  " << hit.getEntry() << std::endl;
   std::cout << " ======   ****   HitDigitizerFP420:processHit:   start  CDrifterFP420 divide" << std::endl;
 #endif
   //

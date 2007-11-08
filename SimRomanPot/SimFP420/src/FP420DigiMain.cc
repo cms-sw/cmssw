@@ -4,13 +4,25 @@
 // Description: FP420DigiMain for FP420
 // Modifications: 
 ///////////////////////////////////////////////////////////////////////////////
-#include "SimG4CMS/FP420/interface/FP420G4HitCollection.h"
-#include "SimG4CMS/FP420/interface/FP420G4Hit.h"
+#include "SimDataFormats/TrackingHit/interface/PSimHit.h"
+#include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
+
+//#include "SimG4CMS/FP420/interface/FP420G4HitCollection.h"
+//#include "SimG4CMS/FP420/interface/FP420G4Hit.h"
 #include "SimRomanPot/SimFP420/interface/FP420DigiMain.h"
 
 #include "SimRomanPot/SimFP420/interface/ChargeDrifterFP420.h"
 #include "SimRomanPot/SimFP420/interface/ChargeDividerFP420.h"
+
 //#include "SimRomanPot/SimFP420/interface/HDigiFP420.h"
+#include "DataFormats/FP420Digi/interface/HDigiFP420.h"
+//#include "DataFormats/SiStripDigi/interface/SiStripDigi.h"
+//#include "DataFormats/Common/interface/DetSetVector.h"
+//#include "SimDataFormats/TrackerDigiSimLink/interface/StripDigiSimLink.h"
+
+
+
+
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include <gsl/gsl_sf_erf.h>
 #include "CLHEP/Random/RandGauss.h"
@@ -35,15 +47,15 @@ using namespace std;
 FP420DigiMain::FP420DigiMain(const edm::ParameterSet& conf):conf_(conf){
   std::cout << "Creating a FP420DigiMain" << std::endl;
   ndigis=0;
-  edm::ParameterSet m_Anal = conf.getParameter<edm::ParameterSet>("FP420DigiMain");
-  verbosity    = m_Anal.getParameter<int>("Verbosity");
-  theElectronPerADC = m_Anal.getParameter<double>("ElectronFP420PerAdc");
-  theThreshold      = m_Anal.getParameter<double>("AdcFP420Threshold");
-  noNoise           = m_Anal.getParameter<bool>("NoFP420Noise");
-  addNoisyPixels    = m_Anal.getParameter<bool>("AddNoisyPixels");
-  thez420           = m_Anal.getParameter<double>("z420");
-  thezD2            = m_Anal.getParameter<double>("zD2");
-  thezD3            = m_Anal.getParameter<double>("zD3");
+  verbosity = conf_.getUntrackedParameter<int>("VerbosityLevel");
+  theElectronPerADC      = conf_.getParameter<double>("ElectronFP420PerAdc");
+  theThreshold      = conf_.getParameter<double>("AdcFP420Threshold");
+  noNoise      = conf_.getParameter<bool>("NoFP420Noise");
+  addNoisyPixels      = conf_.getParameter<bool>("AddNoisyPixels");
+  thez420      = conf_.getParameter<double>("z420");
+  thezD2      = conf_.getParameter<double>("zD2");
+  thezD3      = conf_.getParameter<double>("zD3");
+
   xytype=2;
 
   if(verbosity>0) {
@@ -107,7 +119,7 @@ FP420DigiMain::~FP420DigiMain(){
 //  Run the algorithm
 //  ------------------
 
-vector <HDigiFP420> FP420DigiMain::run(const std::vector<FP420G4Hit> &input,
+vector <HDigiFP420> FP420DigiMain::run(const std::vector<PSimHit> &input,
 				       G4ThreeVector bfield, unsigned int iu, int sScale)  {
   
   // unpack from iu:
@@ -157,19 +169,21 @@ vector <HDigiFP420> FP420DigiMain::run(const std::vector<FP420G4Hit> &input,
   //
   // First: loop on the SimHits
   //
-  vector<FP420G4Hit>::const_iterator simHitIter = input.begin();
-  vector<FP420G4Hit>::const_iterator simHitIterEnd = input.end();
+  vector<PSimHit>::const_iterator simHitIter = input.begin();
+  vector<PSimHit>::const_iterator simHitIterEnd = input.end();
   for (;simHitIter != simHitIterEnd; ++simHitIter) {
     
-    const FP420G4Hit ihit = *simHitIter;
+    const PSimHit ihit = *simHitIter;
     // detID (AG)
     if ( first ) {
       //       detID = ihit.detUnitId();    // AZ
       first = false;
     }
     // main part here (AZ):
-    double  losenergy = ihit.getEnergyLoss();
-    float   tof = ihit.getTof();
+    double  losenergy = ihit.energyLoss();
+    float   tof = ihit.tof();
+    //ouble  losenergy = ihit.getEnergyLoss();
+    //float   tof = ihit.getTof();
 #ifdef mydigidebug1
     unsigned int unitID = ihit.getUnitID();
     //      int det, zside, sector, zmodule;
@@ -297,9 +311,9 @@ void FP420DigiMain::push_digis(const DigitalMapType& dm,
   }
   
   ////////////////////////////det.specificReadout().addDigis( digis); // 
-         
+  /*       
   //
-  // reworked to access the fraction of amplitude per simhit FP420G4Hit
+  // reworked to access the fraction of amplitude per simhit PSimHit
   //
   for ( HitToDigisMapType::const_iterator mi=htd.begin(); mi!=htd.end(); mi++) {
 #ifdef mydigidebug1
@@ -311,59 +325,61 @@ void FP420DigiMain::push_digis(const DigitalMapType& dm,
       //
       // For each channel, sum up the signals from a simtrack
       //
-      map<const FP420G4Hit *, Amplitude> totalAmplitudePerSimHit;
-      for (vector < pair < const FP420G4Hit*, Amplitude > >::const_iterator simul = 
+      map<const PSimHit *, Amplitude> totalAmplitudePerSimHit;
+      for (vector < pair < const PSimHit*, Amplitude > >::const_iterator simul = 
 	     (*mi).second.begin() ; simul != (*mi).second.end(); simul ++){
 #ifdef mydigidebug1
 	std::cout << " ****push_digis:inside last for: (*simul).second= " << (*simul).second << std::endl;
 #endif
 	totalAmplitudePerSimHit[(*simul).first] += (*simul).second;
       } // for
-    } // if
+    }  // if
   } // for
-  
+*/
 
   /////////////////////////////////////////////////////////////////////////////////////////////
-  /*     
+         
   // reworked to access the fraction of amplitude per simhit
   
-  for ( HitToDigisMapType::const_iterator mi=htd.begin(); mi!=htd.end(); mi++) {
-  
-  if ((*((const_cast<DigitalMapType * >(&dm)))).find((*mi).first) != (*((const_cast<DigitalMapType * >(&dm)))).end() ){
-  // --- For each channel, sum up the signals from a simtrack
-  
-  map<const FP420G4Hit *, Amplitude> totalAmplitudePerSimHit;
-  for (vector < pair < const FP420G4Hit*, Amplitude > >::const_iterator simul =
-  (*mi).second.begin() ; simul != (*mi).second.end(); simul ++){
-  totalAmplitudePerSimHit[(*simul).first] += (*simul).second;
-  }
+    for ( HitToDigisMapType::const_iterator mi=htd.begin(); mi!=htd.end(); mi++) {
+      
+      if ((*((const_cast<DigitalMapType * >(&dm)))).find((*mi).first) != (*((const_cast<DigitalMapType * >(&dm)))).end() ){
+	// --- For each channel, sum up the signals from a simtrack
+	
+	map<const PSimHit *, Amplitude> totalAmplitudePerSimHit;
+	for (vector < pair < const PSimHit*, Amplitude > >::const_iterator simul =
+	       (*mi).second.begin() ; simul != (*mi).second.end(); simul ++){
+	  totalAmplitudePerSimHit[(*simul).first] += (*simul).second;
+	}
+	/*	
+	//--- include the noise as well
+	
+	PileUpFP420::signal_map_type& temp1 = const_cast<PileUpFP420::signal_map_type&>(afterNoise);
+	float totalAmplitude1 = temp1[(*mi).first];
+	
+	//--- digisimlink
+	for (map<const PSimHit *, Amplitude>::const_iterator iter = totalAmplitudePerSimHit.begin();
+	     iter != totalAmplitudePerSimHit.end(); iter++){
+	  
+	  float threshold = 0.;
+	  if (totalAmplitudePerSimHit[(*iter).first]/totalAmplitude1 >= threshold) {
+	    float fraction = totalAmplitudePerSimHit[(*iter).first]/totalAmplitude1;
+	    
+	    //Noise fluctuation could make fraction>1. Unphysical, set it by hand.
+	    if(fraction >1.) fraction = 1.;
+	    
+	    link_coll.push_back(StripDigiSimLink( (*mi).first,   //channel
+						  ((*iter).first)->trackId(), //simhit
+						  fraction));    //fraction
+	  }//if
+	}//for
+*/
 
-  //--- include the noise as well
-  
-  PileUpFP420::signal_map_type& temp1 = const_cast<PileUpFP420::signal_map_type&>(afterNoise);
-  float totalAmplitude1 = temp1[(*mi).first];
-  
-  //--- digisimlink
-  
-  for (map<const FP420G4Hit *, Amplitude>::const_iterator iter = totalAmplitudePerSimHit.begin();
-  iter != totalAmplitudePerSimHit.end(); iter++){
-  
-  float threshold = 0.;
-  if (totalAmplitudePerSimHit[(*iter).first]/totalAmplitude1 >= threshold) {
-  float fraction = totalAmplitudePerSimHit[(*iter).first]/totalAmplitude1;
-  
-  //Noise fluctuation could make fraction>1. Unphysical, set it by hand.
-  if(fraction >1.) fraction = 1.;
-  
-  link_coll.push_back(StripDigiSimLink( (*mi).first,   //channel
-  ((*iter).first)->trackId(), //simhit
-  fraction));    //fraction
-  }//if
-  }//for
-  }//if
-  }//for
-  
-  */
+      }//if
+    }//for
+    
+   
+  /////////////////////////////////////////////////////////////////////////////////////////////
   
   
   

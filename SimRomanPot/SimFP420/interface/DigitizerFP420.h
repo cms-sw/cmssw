@@ -2,86 +2,97 @@
 #define DigitizerFP420_h
 
 ///////////////////////////////////////////////////////////////////////
-/*
 #include "boost/shared_ptr.hpp"
 
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/Handle.h"
-#include "FWCore/Framework/interface/EventSetup.h"
-
-#include "DataFormats/Common/interface/EDProduct.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-*/
-///////////////////////////////////////////////////////////////////////
-// user include files
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-
-// necessary objects:
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
-
-#include "FWCore/Framework/interface/EDProducer.h"
-#include "FWCore/Framework/interface/Event.h"
-//#include "FWCore/Framework/interface/Handle.h"
+#include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 
 #include "DataFormats/Common/interface/EDProduct.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "SimG4Core/Watcher/interface/SimWatcher.h"
+#include "Geometry/CommonDetUnit/interface/GeomDetType.h"
 
+//////////////////
+//#include "SimG4Core/Watcher/interface/SimWatcher.h"
+
+#include "Geometry/CommonDetUnit/interface/GeomDetType.h"
 #include "SimG4CMS/FP420/interface/FP420NumberingScheme.h"
-#include "SimG4CMS/FP420/interface/FP420G4Hit.h"
-#include "SimG4CMS/FP420/interface/FP420G4HitCollection.h"
+#include "SimDataFormats/TrackingHit/interface/PSimHit.h"
+//#include "SimG4CMS/FP420/interface/FP420G4Hit.h"
+#include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
+//#include "SimG4CMS/FP420/interface/FP420G4HitCollection.h"
+#include "SimDataFormats/CrossingFrame/interface/MixCollection.h"
 
 #include "SimRomanPot/SimFP420/interface/FP420DigiMain.h"
-#include "SimRomanPot/SimFP420/interface/DigiCollectionFP420.h"
-//#include "SimRomanPot/SimFP420/interface/ClusterFP420.h"
+
+#include "DataFormats/FP420Digi/interface/DigiCollectionFP420.h"
+#include "DataFormats/FP420Digi/interface/HDigiFP420.h"
+//#include "SimRomanPot/SimFP420/interface/DigiCollectionFP420.h"
 
 #include <CLHEP/Vector/ThreeVector.h>
 #include <string>
 #include<vector>
 #include <iostream>
+#include <map>
 
-
-//  class FP420NumberingScheme;
-//  class FP420DigiMain;
-
-//namespace fp420
-//{
-  class DigitizerFP420: public SimWatcher
+namespace cms
+{
+  class DigitizerFP420: public edm::EDProducer
   {
   public:
+    //     typedef DigiCollectionFP420<unsigned int, HDigiFP420> DigiColFP420;
 
     explicit DigitizerFP420(const edm::ParameterSet& conf);
 
     virtual ~DigitizerFP420();
 
-    //    virtual void produce(FP420G4HitCollection*, DigiCollectionFP420&);
-    virtual void produce(FP420G4HitCollection*, DigiCollectionFP420 &);
+    //    virtual void produce(PSimHitCollection*, DigiCollectionFP420&);
+    virtual void produce(edm::Event& e, const edm::EventSetup& c);
+
+    //     virtual void prodfun(MixCollection<PSimHit>*, DigiCollectionFP420 &);
+     //  virtual void prodfun(std::auto_ptr<MixCollection<PSimHit> >*, DigiCollectionFP420 &);
+
+
+    //           virtual void prodfun(std::auto_ptr<MixCollection<PSimHit> >&, DigiCollectionFP420 &);
 
   private:
-    edm::ParameterSet conf_;
-//  HitDigitizerFP420* theHitDigitizerFP420;
-//    FP420DigiMain stripDigitizer_;
-    FP420DigiMain* stripDigitizer_;
-
-    std::vector<FP420G4Hit> theStripHits;
-    typedef std::map<unsigned int, std::vector<FP420G4Hit>,std::less<unsigned int> > simhit_map;
+  //  std::vector<PSimHit> theStripHits;
+    typedef std::vector<std::string> vstring;
+    typedef std::map<unsigned int, std::vector<PSimHit>,std::less<unsigned int> > simhit_map;
     typedef simhit_map::iterator simhit_map_iterator;
     simhit_map SimHitMap;
 
-    std::vector<HDigiFP420> collector;
+    edm::ParameterSet conf_;
+    vstring trackerContainers;
+
+//  HitDigitizerFP420* theHitDigitizerFP420;
+//    FP420DigiMain stripDigitizer_;
+    FP420DigiMain* stripDigitizer_;
     FP420NumberingScheme * theFP420NumberingScheme;
-    FP420DigiMain * theFP420DigiMain;
+    //  FP420DigiMain * theFP420DigiMain;
     int numStrips;    // number of strips in the module
 
-//    std::vector<ClusterFP420> scollector;
-
     int sn0, pn0, verbosity;
+
+
+    std::vector<HDigiFP420> collector;
+
+     //   DigiCollectionFP420 * output;
+
+
+   //   std::vector<edm::DetSet<HDigiFP420> > output;
+
+ //      DigiCollectionFP420* poutput;
+
+      //  std::map<GeomDetType* , boost::shared_ptr<FP420DigiMain> > theAlgoMap; 
+   // std::vector<edm::DetSet<HDigiFP420> > outputfinal;
+    //    std::vector<edm::DetSet<HDigiFP420SimLink> > theDigiLinkVector;
+  //      std::vector<edm::DetSet<PixelDigi> > theDigiVector;
+
+
+
 
     //    G4ThreeVector bfield(G4ThreeVector);
     //    G4ThreeVector bfield(double, double, double);
@@ -90,6 +101,6 @@
 
 
   };
-
+}
 
 #endif

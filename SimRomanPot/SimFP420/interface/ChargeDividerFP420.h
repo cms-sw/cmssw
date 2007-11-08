@@ -5,8 +5,10 @@
 
 #include "SimRomanPot/SimFP420/interface/CDividerFP420.h"
 #include "SimRomanPot/SimFP420/interface/LandauFP420.h"
-#include "SimG4CMS/FP420/interface/FP420G4HitCollection.h"
-#include "SimG4CMS/FP420/interface/FP420G4Hit.h"
+//#include "SimG4CMS/FP420/interface/FP420G4HitCollection.h"
+//#include "SimG4CMS/FP420/interface/FP420G4Hit.h"
+#include "SimDataFormats/TrackingHit/interface/PSimHit.h"
+#include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
 
 class ChargeDividerFP420 : public CDividerFP420{
  public:
@@ -17,7 +19,7 @@ class ChargeDividerFP420 : public CDividerFP420{
   virtual ~ChargeDividerFP420();
   
   //  CDividerFP420::ionization_type divide(const SimHit&, const StripDet& det);
-  CDividerFP420::ionization_type divide(const FP420G4Hit&, const double&);
+  CDividerFP420::ionization_type divide(const PSimHit&, const double&);
   
  private:
   
@@ -28,9 +30,9 @@ class ChargeDividerFP420 : public CDividerFP420{
   double zD2;  // dist between centers of 1st and 2nd stations
   double zD3;  // dist between centers of 1st and 3rd stations
   
-  float PeakShape(const FP420G4Hit&);
-  float DeconvolutionShape( const FP420G4Hit&);
-  float TimeResponse( const FP420G4Hit&) ; 
+  float PeakShape(const PSimHit&);
+  float DeconvolutionShape( const PSimHit&);
+  float TimeResponse( const PSimHit&) ; 
   void fluctuateEloss(int particleId, float momentum, float eloss, float length, int NumberOfSegmentation, float elossVector[]);   
   //  static SimpleConfigurable<bool> peakMode;
   bool peakMode;

@@ -3,9 +3,15 @@
 
 #include <string>
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
- #include "SimRomanPot/SimFP420/interface/DigiCollectionFP420.h"
-#include "SimG4CMS/FP420/interface/FP420G4HitCollection.h"
-#include "SimG4CMS/FP420/interface/FP420G4Hit.h"
+
+#include "DataFormats/FP420Digi/interface/DigiCollectionFP420.h"
+#include "DataFormats/FP420Digi/interface/HDigiFP420.h"
+
+//#include "SimG4CMS/FP420/interface/FP420G4HitCollection.h"
+//#include "SimG4CMS/FP420/interface/FP420G4Hit.h"
+#include "SimDataFormats/TrackingHit/interface/PSimHit.h"
+//#include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
+
 #include "SimRomanPot/SimFP420/interface/ChargeDrifterFP420.h"
 #include "SimRomanPot/SimFP420/interface/CDividerFP420.h"
 #include "SimRomanPot/SimFP420/interface/ChargeDividerFP420.h"
@@ -39,8 +45,8 @@ public:
 
 
   // Runs the algorithm
-  //  void run(const std::vector<FP420G4Hit*> &input, DigiCollectionFP420 &output,StripGeomDetUnit *det,GlobalVector);
-  vector <HDigiFP420>  run(const std::vector<FP420G4Hit> &input, G4ThreeVector, unsigned int, int);
+  //  void run(const std::vector<PSimHit*> &input, DigiCollectionFP420 &output,StripGeomDetUnit *det,GlobalVector);
+  vector <HDigiFP420>  run(const std::vector<PSimHit> &input, G4ThreeVector, unsigned int, int);
 
  private:
   int ndigis; 
@@ -180,7 +186,7 @@ public:
   // The eloss fluctuation class from G4. Is the right place?
   LandauFP420 fluctuate; //
   GaussNoiseProducerFP420* theNoiser; //
-  std::vector<const FP420G4Hit*> ss;  // ss - pointers to hit info of FP420G4Hit
+  std::vector<const PSimHit*> ss;  // ss - pointers to hit info of PSimHit
                                                                                                   
   void fluctuateEloss(int particleId, float momentum, float eloss,
                       float length, int NumberOfSegments,

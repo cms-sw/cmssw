@@ -26,11 +26,10 @@ ZeroSuppressFP420::ZeroSuppressFP420(const edm::ParameterSet& conf, float noise)
  
 void ZeroSuppressFP420::initParams(edm::ParameterSet const& conf_)
 {
-  edm::ParameterSet m_Anal = conf_.getParameter<edm::ParameterSet>("ZeroSuppressFP420");
-  verbosity    = m_Anal.getParameter<int>("Verbosity");
-  algoConf=m_Anal.getParameter<int>("FedFP420Algorithm"); //FedFP420Algorithm: =1  (,2,3,4)
-  lowthreshConf=m_Anal.getParameter<double>("FedFP420LowThreshold");  // FedFP420LowThreshold  =3.
-  highthreshConf=m_Anal.getParameter<double>("FedFP420HighThreshold"); // FedFP420HighThreshold  =4.
+  verbosity = conf_.getUntrackedParameter<int>("VerbosityLevel");
+  algoConf      = conf_.getParameter<int>("FedFP420Algorithm"); //FedFP420Algorithm: =1  (,2,3,4)
+  lowthreshConf      = conf_.getParameter<double>("FedFP420LowThreshold"); // FedFP420LowThreshold  =3.
+  highthreshConf      = conf_.getParameter<double>("FedFP420HighThreshold"); // FedFP420HighThreshold  =4.
 
 /*
  * There are four possible algorithms, the default of which (4)
@@ -93,14 +92,14 @@ ZSuppressFP420::DigitalMapType ZeroSuppressFP420::trkFEDclusterizer(const Digita
 #ifdef mydigidebug9
    std::cout << "Inside For loop trkFEDclusterizer: strip= " << strip << " adc= " << adc << std::endl;
 #endif
-    //Set values for channels just outside APV or module to infinity.
-    //This is to avoid losing strips at the edges, 
+    //Set values for channels just outside module to infinity.
+    //This is to avoid losing channels at the edges, 
     //which otherwise would pass cuts if strips were next to each other.
     int adcPrev = -99999;
     int adcNext = -99999;
     if ( ((strip)%128) == 127) adcNext = 99999;
     if ( ((strip)%128) == 0)   adcPrev = 99999;
-    //Otherwise if strip was found then find it's ADC count.
+    //Otherwise if channel was found then find it's ADC count.
     if ( iPrev  != in.end() ) adcPrev  = iPrev->second;
     if ( iNext  != in.end() ) adcNext  = iNext->second;
     int adcMaxNeigh = max(adcPrev, adcNext);
@@ -108,7 +107,7 @@ ZSuppressFP420::DigitalMapType ZeroSuppressFP420::trkFEDclusterizer(const Digita
    std::cout << "adcPrev= " << adcPrev << " adcNext= " << adcNext << " adcMaxNeigh= " << adcMaxNeigh << std::endl;
 #endif
      
-    //Find adc values for next neighbouring strips
+    //Find adc values for next neighbouring channes
     iPrev2 = in.find(strip - 2); 
     iNext2 = in.find(strip + 2);
     //See above 
@@ -122,7 +121,7 @@ ZSuppressFP420::DigitalMapType ZeroSuppressFP420::trkFEDclusterizer(const Digita
    std::cout << "adcPrev2= " << adcPrev2 << " adcNext2= " << adcNext2 << std::endl;
    std::cout << "To be accepted or not?  adc= " << adc << " >= theFEDlowThresh=" << theFEDlowThresh << std::endl;
 #endif
-    // Decide if this strip should be accepted.
+    // Decide if this channel should be accepted.
     bool accept = false;
     switch (theFEDalgorithm) {
  

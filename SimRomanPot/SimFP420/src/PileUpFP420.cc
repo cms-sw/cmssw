@@ -4,12 +4,14 @@
 // Description: PileUpFP420 for FP420
 // Modifications: 
 ///////////////////////////////////////////////////////////////////////////////
-#include "SimG4CMS/FP420/interface/FP420G4HitCollection.h"
-#include "SimG4CMS/FP420/interface/FP420G4Hit.h"
+//#include "SimG4CMS/FP420/interface/FP420G4HitCollection.h"
+//#include "SimG4CMS/FP420/interface/FP420G4Hit.h"
 #include "SimRomanPot/SimFP420/interface/PileUpFP420.h"
+#include "SimDataFormats/TrackingHit/interface/PSimHit.h"
+//#include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
 //#define mydigidebug6
 
-void PileUpFP420::add(HitDigitizerFP420::hit_map_type in, const FP420G4Hit& hit){
+void PileUpFP420::add(HitDigitizerFP420::hit_map_type in, const PSimHit& hit){
 
 
 #ifdef mydigidebug6
@@ -19,7 +21,7 @@ void PileUpFP420::add(HitDigitizerFP420::hit_map_type in, const FP420G4Hit& hit)
 
 	  theMap[(*im).first] += Amplitude((*im).second);
 
-	  theMapLink[(*im).first].push_back( pair < const FP420G4Hit*, Amplitude >                                                     (  &hit,  Amplitude((*im).second)   )              );
+	  theMapLink[(*im).first].push_back( pair < const PSimHit*, Amplitude >                                                     (  &hit,  Amplitude((*im).second)   )              );
 
 #ifdef mydigidebug6
 	  std::cout << "*********** Amplitude((*im).first)  = " << Amplitude((*im).first)  << std::endl;
