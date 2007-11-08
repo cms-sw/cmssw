@@ -12,8 +12,8 @@
  *  which had a problem with directories more than one level deep.
  *  (see macro hadd_old.C for this previous implementation).
  *
- *  $Date: 2007/08/02 18:59:58 $
- *  $Revision: 1.3 $
+ *  $Date: 2007/10/03 14:07:07 $
+ *  $Revision: 1.4 $
  *
  *  Authors:
  *  A. Everett Purdue University
@@ -84,7 +84,7 @@ int main(int argc, char *argv[] )
   usage += "\t input= validation_01.root AND validation_02.root\n" ;
   usage += "\t output= validation-canvas.root\n" ;
   usage += "\t         validation-canvas.pdf\n" ;
-  usage += "\t         gif files in validation-canvas\/ \n\t\t\t (a directory tree which has the same \n\t\t\t directory structure as validation-canvas.root\n" ;
+  usage += "\t         gif files in validation-canvas/ \n\t\t\t (a directory tree which has the same \n\t\t\t directory structure as validation-canvas.root\n" ;
   usage += "\n" ; 
 
   boost::program_options::positional_options_description pos ; 
@@ -147,7 +147,7 @@ int main(int argc, char *argv[] )
   baseName->Append("/");
   
   TList *sourcelist = new TList();  
-  for (int i = 0; i < inFileVector.size(); i++) {
+  for (std::vector<std::string>::size_type i = 0; i < inFileVector.size(); i++) {
     cout << inFileVector[i] << " " << endl;
     sourcelist->Add(TFile::Open(TString(inFileVector[i])));
   }
