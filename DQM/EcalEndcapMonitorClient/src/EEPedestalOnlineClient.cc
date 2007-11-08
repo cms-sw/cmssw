@@ -1,8 +1,8 @@
 /*
  * \file EEPedestalOnlineClient.cc
  *
- * $Date: 2007/11/05 11:03:53 $
- * $Revision: 1.33 $
+ * $Date: 2007/11/06 08:05:21 $
+ * $Revision: 1.34 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -22,8 +22,6 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "DQMServices/UI/interface/MonitorUIRoot.h"
-#include "DQMServices/Core/interface/QTestStatus.h"
-#include "DQMServices/QualityTests/interface/QCriterionRoot.h"
 
 #include "OnlineDB/EcalCondDB/interface/RunTag.h"
 #include "OnlineDB/EcalCondDB/interface/RunIOV.h"
@@ -47,9 +45,6 @@ EEPedestalOnlineClient::EEPedestalOnlineClient(const ParameterSet& ps){
 
   // cloneME switch
   cloneME_ = ps.getUntrackedParameter<bool>("cloneME", true);
-
-  // enableQT switch
-  enableQT_ = ps.getUntrackedParameter<bool>("enableQT", true);
 
   // verbosity switch
   verbose_ = ps.getUntrackedParameter<bool>("verbose", false);
@@ -85,10 +80,6 @@ EEPedestalOnlineClient::EEPedestalOnlineClient(const ParameterSet& ps){
 
     mer03_[ism-1] = 0;
 
-    qth03_[ism-1] = 0;
-
-    qtg03_[ism-1] = 0;
-
   }
 
   expectedMean_ = 200.0;
@@ -110,36 +101,6 @@ void EEPedestalOnlineClient::beginJob(MonitorUserInterface* mui){
 
   ievt_ = 0;
   jevt_ = 0;
-
-  if ( enableQT_ ) {
-
-    Char_t qtname[200];
-
-    for ( unsigned int i=0; i<superModules_.size(); i++ ) {
-
-      int ism = superModules_[i];
-
-      sprintf(qtname, "EEPOT quality %s G12", Numbers::sEE(ism).c_str());
-      qth03_[ism-1] = dynamic_cast<MEContentsProf2DWithinRangeROOT*> (dbe_->createQTest(ContentsProf2DWithinRangeROOT::getAlgoName(), qtname));
-
-      qth03_[ism-1]->setMeanRange(expectedMean_ - discrepancyMean_, expectedMean_ + discrepancyMean_);
-
-      qth03_[ism-1]->setRMSRange(0.0, RMSThreshold_);
-
-      qth03_[ism-1]->setMinimumEntries(10*1700);
-
-      qth03_[ism-1]->setErrorProb(1.00);
-
-      sprintf(qtname, "EEPOT quality test %s G12", Numbers::sEE(ism).c_str());
-      qtg03_[ism-1] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (dbe_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
-
-      qtg03_[ism-1]->setMeanRange(1., 6.);
-
-      qtg03_[ism-1]->setErrorProb(1.00);
-
-    }
-
-  }
 
 }
 
@@ -369,24 +330,6 @@ void EEPedestalOnlineClient::subscribe(void){
 
     sprintf(histo, "*/EcalEndcap/EEPedestalOnlineTask/Gain12/EEPOT pedestal %s G12", Numbers::sEE(ism).c_str());
     mui_->subscribe(histo, ism);
-
-  }
-
-  for ( unsigned int i=0; i<superModules_.size(); i++ ) {
-
-    int ism = superModules_[i];
-
-    if ( enableMonitorDaemon_ ) {
-      sprintf(histo, "*/EcalEndcap/EEPedestalOnlineTask/Gain12/EEPOT pedestal %s G12", Numbers::sEE(ism).c_str());
-      if ( qth03_[ism-1] ) dbe_->useQTest(histo, qth03_[ism-1]->getName());
-    } else {
-      sprintf(histo, "EcalEndcap/EEPedestalOnlineTask/Gain12/EEPOT pedestal %s G12", Numbers::sEE(ism).c_str());
-      if ( qth03_[ism-1] ) dbe_->useQTest(histo, qth03_[ism-1]->getName());
-    }
-
-    sprintf(histo, "EcalEndcap/EEPedestalOnlineClient/EEPOT pedestal quality G12 %s", Numbers::sEE(ism).c_str());
-    if ( qtg03_[ism-1] ) dbe_->useQTest(histo, qtg03_[ism-1]->getName());
-
 
   }
 

@@ -4,8 +4,8 @@
 /*
  * \file EBClusterClient.h
  *
- * $Date: 2007/09/07 22:30:03 $
- * $Revision: 1.13 $
+ * $Date: 2007/10/18 08:20:12 $
+ * $Revision: 1.14 $
  * \author G. Della Ricca
  * \author F. Cossutti
  * \author E. Di Marco
@@ -87,7 +87,6 @@ int ievt_;
 int jevt_;
 
 bool cloneME_;
-bool enableQT_;
 
 bool verbose_;
 

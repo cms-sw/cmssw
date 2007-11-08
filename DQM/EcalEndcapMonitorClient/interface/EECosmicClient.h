@@ -4,8 +4,8 @@
 /*
  * \file EECosmicClient.h
  *
- * $Date: 2007/08/17 09:05:11 $
- * $Revision: 1.4 $
+ * $Date: 2007/09/07 22:30:06 $
+ * $Revision: 1.5 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -85,7 +85,6 @@ int ievt_;
 int jevt_;
 
 bool cloneME_;
-bool enableQT_;
 
 bool verbose_;
 

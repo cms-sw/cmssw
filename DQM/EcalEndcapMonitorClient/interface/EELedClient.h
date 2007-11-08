@@ -4,8 +4,8 @@
 /*
  * \file EELedClient.h
  *
- * $Date: 2007/08/17 09:05:11 $
- * $Revision: 1.3 $
+ * $Date: 2007/09/07 22:30:06 $
+ * $Revision: 1.4 $
  * \author G. Della Ricca
  *
 */
@@ -85,7 +85,6 @@ int ievt_;
 int jevt_;
 
 bool cloneME_;
-bool enableQT_;
 
 bool verbose_;
 
@@ -107,18 +106,6 @@ TProfile2D* h13_[18];
 TProfile2D* h14_[18];
 
 TProfile2D* h21_[18];
-
-MEContentsProf2DWithinRangeROOT* qth01_[18];
-
-MEContentsProf2DWithinRangeROOT* qth05_[18];
-
-MEContentsProf2DWithinRangeROOT* qth09_[18];
-
-MEContentsProf2DWithinRangeROOT* qth13_[18];
-
-MEContentsProf2DWithinRangeROOT* qth17_[18];
-
-MEContentsProf2DWithinRangeROOT* qth21_[18];
 
 TProfile2D* hs01_[18];
 
@@ -173,12 +160,6 @@ float amplitudeThresholdPnG16_;
 float pedPnExpectedMean_[2];
 float pedPnDiscrepancyMean_[2];
 float pedPnRMSThreshold_[2];
-
-MEContentsTH2FWithinRangeROOT* qtg01_[36];
-
-MEContentsTH2FWithinRangeROOT* qtg05_[36];
-
-MEContentsTH2FWithinRangeROOT* qtg09_[36];
 
 };
 

@@ -4,8 +4,8 @@
 /*
  * \file EEPedestalClient.h
  *
- * $Date: 2007/08/17 09:05:11 $
- * $Revision: 1.5 $
+ * $Date: 2007/09/07 22:30:06 $
+ * $Revision: 1.6 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -86,7 +86,6 @@ int ievt_;
 int jevt_;
 
 bool cloneME_;
-bool enableQT_;
 
 bool verbose_;
 
@@ -98,13 +97,6 @@ vector<int> superModules_;
 
 MonitorUserInterface* mui_;
 DaqMonitorBEInterface* dbe_;
-
-MEContentsProf2DWithinRangeROOT* qth01_[18];
-MEContentsProf2DWithinRangeROOT* qth02_[18];
-MEContentsProf2DWithinRangeROOT* qth03_[18];
-
-MEContentsProf2DWithinRangeROOT* qth04_[18];
-MEContentsProf2DWithinRangeROOT* qth05_[18];
 
 TProfile2D* h01_[18];
 TProfile2D* h02_[18];
@@ -158,13 +150,6 @@ float RMSThreshold_[3];
 float expectedMeanPn_[2];
 float discrepancyMeanPn_[2];
 float RMSThresholdPn_[2];
-
-MEContentsTH2FWithinRangeROOT* qtg01_[36];
-MEContentsTH2FWithinRangeROOT* qtg02_[36];
-MEContentsTH2FWithinRangeROOT* qtg03_[36];
-
-MEContentsTH2FWithinRangeROOT* qtg04_[36];
-MEContentsTH2FWithinRangeROOT* qtg05_[36];
 
 };
 

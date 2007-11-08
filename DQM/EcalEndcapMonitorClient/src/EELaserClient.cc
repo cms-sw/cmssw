@@ -1,8 +1,8 @@
 /*
  * \file EELaserClient.cc
  *
- * $Date: 2007/11/05 11:09:08 $
- * $Revision: 1.46 $
+ * $Date: 2007/11/06 08:05:21 $
+ * $Revision: 1.47 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -23,8 +23,6 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "DQMServices/UI/interface/MonitorUIRoot.h"
-#include "DQMServices/Core/interface/QTestStatus.h"
-#include "DQMServices/QualityTests/interface/QCriterionRoot.h"
 
 #include "OnlineDB/EcalCondDB/interface/RunTag.h"
 #include "OnlineDB/EcalCondDB/interface/RunIOV.h"
@@ -56,9 +54,6 @@ EELaserClient::EELaserClient(const ParameterSet& ps){
 
   // cloneME switch
   cloneME_ = ps.getUntrackedParameter<bool>("cloneME", true);
-
-  // enableQT switch
-  enableQT_ = ps.getUntrackedParameter<bool>("enableQT", true);
 
   // verbosity switch
   verbose_ = ps.getUntrackedParameter<bool>("verbose", false);
@@ -208,46 +203,6 @@ EELaserClient::EELaserClient(const ParameterSet& ps){
     mepnprms07_[ism-1] = 0;
     mepnprms08_[ism-1] = 0;
     
-    qth01_[ism-1] = 0;
-    qth02_[ism-1] = 0;
-    qth03_[ism-1] = 0;
-    qth04_[ism-1] = 0;
-    qth05_[ism-1] = 0;
-    qth06_[ism-1] = 0;
-    qth07_[ism-1] = 0;
-    qth08_[ism-1] = 0;
-
-    qth09_[ism-1] = 0;
-    qth10_[ism-1] = 0;
-    qth11_[ism-1] = 0;
-    qth12_[ism-1] = 0;
-    qth13_[ism-1] = 0;
-    qth14_[ism-1] = 0;
-    qth15_[ism-1] = 0;
-    qth16_[ism-1] = 0;
-    qth17_[ism-1] = 0;
-    qth18_[ism-1] = 0;
-    qth19_[ism-1] = 0;
-    qth20_[ism-1] = 0;
-    qth21_[ism-1] = 0;
-    qth22_[ism-1] = 0;
-    qth23_[ism-1] = 0;
-    qth24_[ism-1] = 0;
-
-    qtg01_[ism-1] = 0;
-    qtg02_[ism-1] = 0;
-    qtg03_[ism-1] = 0;
-    qtg04_[ism-1] = 0;
-
-    qtg05_[ism-1] = 0;
-    qtg06_[ism-1] = 0;
-    qtg07_[ism-1] = 0;
-    qtg08_[ism-1] = 0;
-    qtg09_[ism-1] = 0;
-    qtg10_[ism-1] = 0;
-    qtg11_[ism-1] = 0;
-    qtg12_[ism-1] = 0;
-
   }
 
   percentVariation_ = 0.4;
@@ -279,264 +234,6 @@ void EELaserClient::beginJob(MonitorUserInterface* mui){
 
   ievt_ = 0;
   jevt_ = 0;
-
-  if ( enableQT_ ) {
-
-    Char_t qtname[200];
-
-    for ( unsigned int i=0; i<superModules_.size(); i++ ) {
-
-      int ism = superModules_[i];
-
-      sprintf(qtname, "EELT laser quality %s L1A", Numbers::sEE(ism).c_str());
-      qth01_[ism-1] = dynamic_cast<MEContentsProf2DWithinRangeROOT*> (dbe_->createQTest(ContentsProf2DWithinRangeROOT::getAlgoName(), qtname));
-
-      sprintf(qtname, "EELT laser quality %s L2A", Numbers::sEE(ism).c_str());
-      qth02_[ism-1] = dynamic_cast<MEContentsProf2DWithinRangeROOT*> (dbe_->createQTest(ContentsProf2DWithinRangeROOT::getAlgoName(), qtname));
-
-      sprintf(qtname, "EELT laser quality %s L3A", Numbers::sEE(ism).c_str());
-      qth03_[ism-1] = dynamic_cast<MEContentsProf2DWithinRangeROOT*> (dbe_->createQTest(ContentsProf2DWithinRangeROOT::getAlgoName(), qtname));
-
-      sprintf(qtname, "EELT laser quality %s L4A", Numbers::sEE(ism).c_str());
-      qth04_[ism-1] = dynamic_cast<MEContentsProf2DWithinRangeROOT*> (dbe_->createQTest(ContentsProf2DWithinRangeROOT::getAlgoName(), qtname));
-
-      sprintf(qtname, "EELT laser quality %s L1B", Numbers::sEE(ism).c_str());
-      qth05_[ism-1] = dynamic_cast<MEContentsProf2DWithinRangeROOT*> (dbe_->createQTest(ContentsProf2DWithinRangeROOT::getAlgoName(), qtname));
-
-      sprintf(qtname, "EELT laser quality %s L2B", Numbers::sEE(ism).c_str());
-      qth06_[ism-1] = dynamic_cast<MEContentsProf2DWithinRangeROOT*> (dbe_->createQTest(ContentsProf2DWithinRangeROOT::getAlgoName(), qtname));
-
-      sprintf(qtname, "EELT laser quality %s L3B", Numbers::sEE(ism).c_str());
-      qth07_[ism-1] = dynamic_cast<MEContentsProf2DWithinRangeROOT*> (dbe_->createQTest(ContentsProf2DWithinRangeROOT::getAlgoName(), qtname));
-
-      sprintf(qtname, "EELT laser quality %s L4B", Numbers::sEE(ism).c_str());
-      qth08_[ism-1] = dynamic_cast<MEContentsProf2DWithinRangeROOT*> (dbe_->createQTest(ContentsProf2DWithinRangeROOT::getAlgoName(), qtname));
-
-      sprintf(qtname, "EELT laser amplitude quality PNs %s L1 G01", Numbers::sEE(ism).c_str());
-      qth09_[ism-1] = dynamic_cast<MEContentsProf2DWithinRangeROOT*> (dbe_->createQTest(ContentsProf2DWithinRangeROOT::getAlgoName(), qtname));
-
-      sprintf(qtname, "EELT laser amplitude quality PNs %s L2 G01", Numbers::sEE(ism).c_str());
-      qth10_[ism-1] = dynamic_cast<MEContentsProf2DWithinRangeROOT*> (dbe_->createQTest(ContentsProf2DWithinRangeROOT::getAlgoName(), qtname));
-
-      sprintf(qtname, "EELT laser amplitude quality PNs %s L3 G01", Numbers::sEE(ism).c_str());
-      qth11_[ism-1] = dynamic_cast<MEContentsProf2DWithinRangeROOT*> (dbe_->createQTest(ContentsProf2DWithinRangeROOT::getAlgoName(), qtname));
-
-      sprintf(qtname, "EELT laser amplitude quality PNs %s L4 G01", Numbers::sEE(ism).c_str());
-      qth12_[ism-1] = dynamic_cast<MEContentsProf2DWithinRangeROOT*> (dbe_->createQTest(ContentsProf2DWithinRangeROOT::getAlgoName(), qtname));
-
-      sprintf(qtname, "EELT laser pedestal quality PNs %s L1 G01", Numbers::sEE(ism).c_str());
-      qth13_[ism-1] = dynamic_cast<MEContentsProf2DWithinRangeROOT*> (dbe_->createQTest(ContentsProf2DWithinRangeROOT::getAlgoName(), qtname));
-
-      sprintf(qtname, "EELT laser pedestal quality PNs %s L2 G01", Numbers::sEE(ism).c_str());
-      qth14_[ism-1] = dynamic_cast<MEContentsProf2DWithinRangeROOT*> (dbe_->createQTest(ContentsProf2DWithinRangeROOT::getAlgoName(), qtname));
-
-      sprintf(qtname, "EELT laser pedestal quality PNs %s L3 G01", Numbers::sEE(ism).c_str());
-      qth15_[ism-1] = dynamic_cast<MEContentsProf2DWithinRangeROOT*> (dbe_->createQTest(ContentsProf2DWithinRangeROOT::getAlgoName(), qtname));
-
-      sprintf(qtname, "EELT laser pedestal quality PNs %s L4 G01", Numbers::sEE(ism).c_str());
-      qth16_[ism-1] = dynamic_cast<MEContentsProf2DWithinRangeROOT*> (dbe_->createQTest(ContentsProf2DWithinRangeROOT::getAlgoName(), qtname));
-
-      sprintf(qtname, "EELT laser amplitude quality PNs %s L1 G16", Numbers::sEE(ism).c_str());
-      qth17_[ism-1] = dynamic_cast<MEContentsProf2DWithinRangeROOT*> (dbe_->createQTest(ContentsProf2DWithinRangeROOT::getAlgoName(), qtname));
-
-      sprintf(qtname, "EELT laser amplitude quality PNs %s L2 G16", Numbers::sEE(ism).c_str());
-      qth18_[ism-1] = dynamic_cast<MEContentsProf2DWithinRangeROOT*> (dbe_->createQTest(ContentsProf2DWithinRangeROOT::getAlgoName(), qtname));
-
-      sprintf(qtname, "EELT laser amplitude quality PNs %s L3 G16", Numbers::sEE(ism).c_str());
-      qth19_[ism-1] = dynamic_cast<MEContentsProf2DWithinRangeROOT*> (dbe_->createQTest(ContentsProf2DWithinRangeROOT::getAlgoName(), qtname));
-
-      sprintf(qtname, "EELT laser amplitude quality PNs %s L4 G16", Numbers::sEE(ism).c_str());
-      qth20_[ism-1] = dynamic_cast<MEContentsProf2DWithinRangeROOT*> (dbe_->createQTest(ContentsProf2DWithinRangeROOT::getAlgoName(), qtname));
-
-      sprintf(qtname, "EELT laser pedestal quality PNs %s L1 G16", Numbers::sEE(ism).c_str());
-      qth21_[ism-1] = dynamic_cast<MEContentsProf2DWithinRangeROOT*> (dbe_->createQTest(ContentsProf2DWithinRangeROOT::getAlgoName(), qtname));
-
-      sprintf(qtname, "EELT laser pedestal quality PNs %s L2 G16", Numbers::sEE(ism).c_str());
-      qth22_[ism-1] = dynamic_cast<MEContentsProf2DWithinRangeROOT*> (dbe_->createQTest(ContentsProf2DWithinRangeROOT::getAlgoName(), qtname));
-
-      sprintf(qtname, "EELT laser pedestal quality PNs %s L3 G16", Numbers::sEE(ism).c_str());
-      qth23_[ism-1] = dynamic_cast<MEContentsProf2DWithinRangeROOT*> (dbe_->createQTest(ContentsProf2DWithinRangeROOT::getAlgoName(), qtname));
-
-      sprintf(qtname, "EELT laser pedestal quality PNs %s L4 G16", Numbers::sEE(ism).c_str());
-      qth24_[ism-1] = dynamic_cast<MEContentsProf2DWithinRangeROOT*> (dbe_->createQTest(ContentsProf2DWithinRangeROOT::getAlgoName(), qtname));
-
-      qth01_[ism-1]->setMeanRange(100.0, 4096.0*12.);
-      qth02_[ism-1]->setMeanRange(100.0, 4096.0*12.);
-      qth03_[ism-1]->setMeanRange(100.0, 4096.0*12.);
-      qth04_[ism-1]->setMeanRange(100.0, 4096.0*12.);
-      qth05_[ism-1]->setMeanRange(100.0, 4096.0*12.);
-      qth06_[ism-1]->setMeanRange(100.0, 4096.0*12.);
-      qth07_[ism-1]->setMeanRange(100.0, 4096.0*12.);
-      qth08_[ism-1]->setMeanRange(100.0, 4096.0*12.);
-
-      qth09_[ism-1]->setMeanRange(amplitudeThresholdPnG01_, 4096.0);
-      qth10_[ism-1]->setMeanRange(amplitudeThresholdPnG01_, 4096.0);
-      qth11_[ism-1]->setMeanRange(amplitudeThresholdPnG01_, 4096.0);
-      qth12_[ism-1]->setMeanRange(amplitudeThresholdPnG01_, 4096.0);
-      qth13_[ism-1]->setMeanRange(pedPnExpectedMean_[0] - pedPnDiscrepancyMean_[0],
-                                  pedPnExpectedMean_[0] + pedPnDiscrepancyMean_[0]);
-      qth14_[ism-1]->setMeanRange(pedPnExpectedMean_[0] - pedPnDiscrepancyMean_[0],
-                                  pedPnExpectedMean_[0] + pedPnDiscrepancyMean_[0]);
-      qth15_[ism-1]->setMeanRange(pedPnExpectedMean_[0] - pedPnDiscrepancyMean_[0],
-                                  pedPnExpectedMean_[0] + pedPnDiscrepancyMean_[0]);
-      qth16_[ism-1]->setMeanRange(pedPnExpectedMean_[0] - pedPnDiscrepancyMean_[0],
-                                  pedPnExpectedMean_[0] + pedPnDiscrepancyMean_[0]);
-      qth17_[ism-1]->setMeanRange(amplitudeThresholdPnG16_, 4096.0);
-      qth18_[ism-1]->setMeanRange(amplitudeThresholdPnG16_, 4096.0);
-      qth19_[ism-1]->setMeanRange(amplitudeThresholdPnG16_, 4096.0);
-      qth20_[ism-1]->setMeanRange(amplitudeThresholdPnG16_, 4096.0);
-      qth21_[ism-1]->setMeanRange(pedPnExpectedMean_[1] - pedPnDiscrepancyMean_[1],
-                                  pedPnExpectedMean_[1] + pedPnDiscrepancyMean_[1]);
-      qth22_[ism-1]->setMeanRange(pedPnExpectedMean_[1] - pedPnDiscrepancyMean_[1],
-                                  pedPnExpectedMean_[1] + pedPnDiscrepancyMean_[1]);
-      qth23_[ism-1]->setMeanRange(pedPnExpectedMean_[1] - pedPnDiscrepancyMean_[1],
-                                  pedPnExpectedMean_[1] + pedPnDiscrepancyMean_[1]);
-      qth24_[ism-1]->setMeanRange(pedPnExpectedMean_[1] - pedPnDiscrepancyMean_[1],
-                                  pedPnExpectedMean_[1] + pedPnDiscrepancyMean_[1]);
-      qth01_[ism-1]->setMeanTolerance(percentVariation_);
-      qth02_[ism-1]->setMeanTolerance(percentVariation_);
-      qth03_[ism-1]->setMeanTolerance(percentVariation_);
-      qth04_[ism-1]->setMeanTolerance(percentVariation_);
-      qth05_[ism-1]->setMeanTolerance(percentVariation_);
-      qth06_[ism-1]->setMeanTolerance(percentVariation_);
-      qth07_[ism-1]->setMeanTolerance(percentVariation_);
-      qth08_[ism-1]->setMeanTolerance(percentVariation_);
-
-      qth09_[ism-1]->setRMSRange(0.0, 4096.0);
-      qth10_[ism-1]->setRMSRange(0.0, 4096.0);
-      qth11_[ism-1]->setRMSRange(0.0, 4096.0);
-      qth12_[ism-1]->setRMSRange(0.0, 4096.0);
-      qth13_[ism-1]->setRMSRange(0.0, pedPnRMSThreshold_[0]);
-      qth14_[ism-1]->setRMSRange(0.0, pedPnRMSThreshold_[0]);
-      qth15_[ism-1]->setRMSRange(0.0, pedPnRMSThreshold_[0]);
-      qth16_[ism-1]->setRMSRange(0.0, pedPnRMSThreshold_[0]);
-      qth17_[ism-1]->setRMSRange(0.0, 4096.0);
-      qth18_[ism-1]->setRMSRange(0.0, 4096.0);
-      qth19_[ism-1]->setRMSRange(0.0, 4096.0);
-      qth20_[ism-1]->setRMSRange(0.0, 4096.0);
-      qth21_[ism-1]->setRMSRange(0.0, pedPnRMSThreshold_[1]);
-      qth22_[ism-1]->setRMSRange(0.0, pedPnRMSThreshold_[1]);
-      qth23_[ism-1]->setRMSRange(0.0, pedPnRMSThreshold_[1]);
-      qth24_[ism-1]->setRMSRange(0.0, pedPnRMSThreshold_[1]);
-      qth01_[ism-1]->setMinimumEntries(10*1700);
-      qth02_[ism-1]->setMinimumEntries(10*1700);
-      qth03_[ism-1]->setMinimumEntries(10*1700);
-      qth04_[ism-1]->setMinimumEntries(10*1700);
-      qth05_[ism-1]->setMinimumEntries(10*1700);
-      qth06_[ism-1]->setMinimumEntries(10*1700);
-      qth07_[ism-1]->setMinimumEntries(10*1700);
-      qth08_[ism-1]->setMinimumEntries(10*1700);
-
-      qth09_[ism-1]->setMinimumEntries(10*10);
-      qth10_[ism-1]->setMinimumEntries(10*10);
-      qth11_[ism-1]->setMinimumEntries(10*10);
-      qth12_[ism-1]->setMinimumEntries(10*10);
-      qth13_[ism-1]->setMinimumEntries(10*10);
-      qth14_[ism-1]->setMinimumEntries(10*10);
-      qth15_[ism-1]->setMinimumEntries(10*10);
-      qth16_[ism-1]->setMinimumEntries(10*10);
-      qth17_[ism-1]->setMinimumEntries(10*10);
-      qth18_[ism-1]->setMinimumEntries(10*10);
-      qth19_[ism-1]->setMinimumEntries(10*10);
-      qth20_[ism-1]->setMinimumEntries(10*10);
-      qth21_[ism-1]->setMinimumEntries(10*10);
-      qth22_[ism-1]->setMinimumEntries(10*10);
-      qth23_[ism-1]->setMinimumEntries(10*10);
-      qth24_[ism-1]->setMinimumEntries(10*10);
-
-      qth01_[ism-1]->setErrorProb(1.00);
-      qth02_[ism-1]->setErrorProb(1.00);
-      qth03_[ism-1]->setErrorProb(1.00);
-      qth04_[ism-1]->setErrorProb(1.00);
-      qth05_[ism-1]->setErrorProb(1.00);
-      qth06_[ism-1]->setErrorProb(1.00);
-      qth07_[ism-1]->setErrorProb(1.00);
-      qth08_[ism-1]->setErrorProb(1.00);
-
-      qth09_[ism-1]->setErrorProb(1.00);
-      qth10_[ism-1]->setErrorProb(1.00);
-      qth11_[ism-1]->setErrorProb(1.00);
-      qth12_[ism-1]->setErrorProb(1.00);
-      qth13_[ism-1]->setErrorProb(1.00);
-      qth14_[ism-1]->setErrorProb(1.00);
-      qth15_[ism-1]->setErrorProb(1.00);
-      qth16_[ism-1]->setErrorProb(1.00);
-      qth17_[ism-1]->setErrorProb(1.00);
-      qth18_[ism-1]->setErrorProb(1.00);
-      qth19_[ism-1]->setErrorProb(1.00);
-      qth20_[ism-1]->setErrorProb(1.00);
-      qth21_[ism-1]->setErrorProb(1.00);
-      qth22_[ism-1]->setErrorProb(1.00);
-      qth23_[ism-1]->setErrorProb(1.00);
-      qth24_[ism-1]->setErrorProb(1.00);
-
-      sprintf(qtname, "EELT quality test %s L1", Numbers::sEE(ism).c_str());
-      qtg01_[ism-1] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (dbe_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
-
-      sprintf(qtname, "EELT quality test %s L2", Numbers::sEE(ism).c_str());
-      qtg02_[ism-1] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (dbe_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
-
-      sprintf(qtname, "EELT quality test %s L3", Numbers::sEE(ism).c_str());
-      qtg03_[ism-1] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (dbe_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
-
-      sprintf(qtname, "EELT quality test %s L4", Numbers::sEE(ism).c_str());
-      qtg04_[ism-1] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (dbe_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
-
-      qtg01_[ism-1]->setMeanRange(1., 6.);
-      qtg02_[ism-1]->setMeanRange(1., 6.);
-      qtg03_[ism-1]->setMeanRange(1., 6.);
-      qtg04_[ism-1]->setMeanRange(1., 6.);
-
-      qtg01_[ism-1]->setErrorProb(1.00);
-      qtg02_[ism-1]->setErrorProb(1.00);
-      qtg03_[ism-1]->setErrorProb(1.00);
-      qtg04_[ism-1]->setErrorProb(1.00);
-
-      sprintf(qtname, "EELT quality test PNs %s L1 G01", Numbers::sEE(ism).c_str());
-      qtg05_[ism-1] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (dbe_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
-
-      sprintf(qtname, "EELT quality test PNs %s L2 G01", Numbers::sEE(ism).c_str());
-      qtg06_[ism-1] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (dbe_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
-
-      sprintf(qtname, "EELT quality test PNs %s L3 G01", Numbers::sEE(ism).c_str());
-      qtg07_[ism-1] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (dbe_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
-
-      sprintf(qtname, "EELT quality test PNs %s L4 G01", Numbers::sEE(ism).c_str());
-      qtg08_[ism-1] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (dbe_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
-
-      sprintf(qtname, "EELT quality test PNs %s L1 G16", Numbers::sEE(ism).c_str());
-      qtg09_[ism-1] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (dbe_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
-
-      sprintf(qtname, "EELT quality test PNs %s L2 G16", Numbers::sEE(ism).c_str());
-      qtg10_[ism-1] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (dbe_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
-
-      sprintf(qtname, "EELT quality test PNs %s L3 G16", Numbers::sEE(ism).c_str());
-      qtg11_[ism-1] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (dbe_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
-
-      sprintf(qtname, "EELT quality test PNs %s L4 G16", Numbers::sEE(ism).c_str());
-      qtg12_[ism-1] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (dbe_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
-
-      qtg05_[ism-1]->setMeanRange(1., 6.);
-      qtg06_[ism-1]->setMeanRange(1., 6.);
-      qtg07_[ism-1]->setMeanRange(1., 6.);
-      qtg08_[ism-1]->setMeanRange(1., 6.);
-      qtg09_[ism-1]->setMeanRange(1., 6.);
-      qtg10_[ism-1]->setMeanRange(1., 6.);
-      qtg11_[ism-1]->setMeanRange(1., 6.);
-      qtg12_[ism-1]->setMeanRange(1., 6.);
-
-      qtg05_[ism-1]->setErrorProb(1.00);
-      qtg06_[ism-1]->setErrorProb(1.00);
-      qtg07_[ism-1]->setErrorProb(1.00);
-      qtg08_[ism-1]->setErrorProb(1.00);
-      qtg09_[ism-1]->setErrorProb(1.00);
-      qtg10_[ism-1]->setErrorProb(1.00);
-      qtg11_[ism-1]->setErrorProb(1.00);
-      qtg12_[ism-1]->setErrorProb(1.00);
-
-    }
-
-  }
 
 }
 
@@ -596,28 +293,28 @@ void EELaserClient::setup(void) {
     meg04_[ism-1] = dbe_->book2D(histo, histo, 50, Numbers::ix0EE(ism)+0., Numbers::ix0EE(ism)+50., 50, Numbers::iy0EE(ism)+0., Numbers::iy0EE(ism)+50.);
 
     if ( meg05_[ism-1] ) dbe_->removeElement( meg05_[ism-1]->getName() );
-    sprintf(histo, "EELT laser quality L1 PNs %s G01", Numbers::sEE(ism).c_str());
+    sprintf(histo, "EELT laser quality L1 PNs G01 %s", Numbers::sEE(ism).c_str());
     meg05_[ism-1] = dbe_->book2D(histo, histo, 10, 0., 10., 1, 0., 5.);
     if ( meg06_[ism-1] ) dbe_->removeElement( meg06_[ism-1]->getName() );
-    sprintf(histo, "EELT laser quality L2 PNs %s G01", Numbers::sEE(ism).c_str());
+    sprintf(histo, "EELT laser quality L2 PNs G01 %s", Numbers::sEE(ism).c_str());
     meg06_[ism-1] = dbe_->book2D(histo, histo, 10, 0., 10., 1, 0., 5.);
     if ( meg07_[ism-1] ) dbe_->removeElement( meg07_[ism-1]->getName() );
-    sprintf(histo, "EELT laser quality L3 PNs %s G01", Numbers::sEE(ism).c_str());
+    sprintf(histo, "EELT laser quality L3 PNs G01 %s", Numbers::sEE(ism).c_str());
     meg07_[ism-1] = dbe_->book2D(histo, histo, 10, 0., 10., 1, 0., 5.);
     if ( meg08_[ism-1] ) dbe_->removeElement( meg08_[ism-1]->getName() );
-    sprintf(histo, "EELT laser quality L4 PNs %s G01", Numbers::sEE(ism).c_str());
+    sprintf(histo, "EELT laser quality L4 PNs G01 %s", Numbers::sEE(ism).c_str());
     meg08_[ism-1] = dbe_->book2D(histo, histo, 10, 0., 10., 1, 0., 5.);
     if ( meg09_[ism-1] ) dbe_->removeElement( meg09_[ism-1]->getName() );
-    sprintf(histo, "EELT laser quality L1 PNs %s G16", Numbers::sEE(ism).c_str());
+    sprintf(histo, "EELT laser quality L1 PNs G16 %s", Numbers::sEE(ism).c_str());
     meg09_[ism-1] = dbe_->book2D(histo, histo, 10, 0., 10., 1, 0., 5.);
     if ( meg10_[ism-1] ) dbe_->removeElement( meg10_[ism-1]->getName() );
-    sprintf(histo, "EELT laser quality L2 PNs %s G16", Numbers::sEE(ism).c_str());
+    sprintf(histo, "EELT laser quality L2 PNs G16 %s", Numbers::sEE(ism).c_str());
     meg10_[ism-1] = dbe_->book2D(histo, histo, 10, 0., 10., 1, 0., 5.);
     if ( meg11_[ism-1] ) dbe_->removeElement( meg11_[ism-1]->getName() );
-    sprintf(histo, "EELT laser quality L3 PNs %s G16", Numbers::sEE(ism).c_str());
+    sprintf(histo, "EELT laser quality L3 PNs G16 %s", Numbers::sEE(ism).c_str());
     meg11_[ism-1] = dbe_->book2D(histo, histo, 10, 0., 10., 1, 0., 5.);
     if ( meg12_[ism-1] ) dbe_->removeElement( meg12_[ism-1]->getName() );
-    sprintf(histo, "EELT laser quality L4 PNs %s G16", Numbers::sEE(ism).c_str());
+    sprintf(histo, "EELT laser quality L4 PNs G16 %s", Numbers::sEE(ism).c_str());
     meg12_[ism-1] = dbe_->book2D(histo, histo, 10, 0., 10., 1, 0., 5.);
 
     if ( mea01_[ism-1] ) dbe_->removeElement( mea01_[ism-1]->getName() );;
@@ -1961,139 +1658,6 @@ void EELaserClient::subscribe(void){
     mui_->subscribe(histo, ism);
     sprintf(histo, "*/EcalEndcap/EELaserTask/Laser4/PN/Gain16/EEPDT PNs pedestal %s G16 L4", Numbers::sEE(ism).c_str());
     mui_->subscribe(histo, ism);
-
-  }
-
-  for ( unsigned int i=0; i<superModules_.size(); i++ ) {
-
-    int ism = superModules_[i];
-
-    if ( enableMonitorDaemon_ ) {
-      sprintf(histo, "*/EcalEndcap/EELaserTask/Laser1/EELT amplitude %s L1A", Numbers::sEE(ism).c_str());
-      if ( qth01_[ism-1] ) dbe_->useQTest(histo, qth01_[ism-1]->getName());
-      sprintf(histo, "*/EcalEndcap/EELaserTask/Laser2/EELT amplitude %s L2A", Numbers::sEE(ism).c_str());
-      if ( qth02_[ism-1] ) dbe_->useQTest(histo, qth02_[ism-1]->getName());
-      sprintf(histo, "*/EcalEndcap/EELaserTask/Laser3/EELT amplitude %s L3A", Numbers::sEE(ism).c_str());
-      if ( qth03_[ism-1] ) dbe_->useQTest(histo, qth03_[ism-1]->getName());
-      sprintf(histo, "*/EcalEndcap/EELaserTask/Laser4/EELT amplitude %s L4A", Numbers::sEE(ism).c_str());
-      if ( qth04_[ism-1] ) dbe_->useQTest(histo, qth04_[ism-1]->getName());
-      sprintf(histo, "*/EcalEndcap/EELaserTask/Laser1/EELT amplitude %s L1B", Numbers::sEE(ism).c_str());
-      if ( qth05_[ism-1] ) dbe_->useQTest(histo, qth05_[ism-1]->getName());
-      sprintf(histo, "*/EcalEndcap/EELaserTask/Laser2/EELT amplitude %s L2B", Numbers::sEE(ism).c_str());
-      if ( qth06_[ism-1] ) dbe_->useQTest(histo, qth06_[ism-1]->getName());
-      sprintf(histo, "*/EcalEndcap/EELaserTask/Laser3/EELT amplitude %s L3B", Numbers::sEE(ism).c_str());
-      if ( qth07_[ism-1] ) dbe_->useQTest(histo, qth07_[ism-1]->getName());
-      sprintf(histo, "*/EcalEndcap/EELaserTask/Laser4/EELT amplitude %s L4B", Numbers::sEE(ism).c_str());
-      if ( qth08_[ism-1] ) dbe_->useQTest(histo, qth08_[ism-1]->getName());
-      sprintf(histo, "*/EcalEndcap/EELaserTask/Laser1/PN/Gain01/EEPDT PNs amplitude %s G01 L1", Numbers::sEE(ism).c_str());
-      if ( qth09_[ism-1] ) dbe_->useQTest(histo, qth09_[ism-1]->getName());
-      sprintf(histo, "*/EcalEndcap/EELaserTask/Laser2/PN/Gain01/EEPDT PNs amplitude %s G01 L2", Numbers::sEE(ism).c_str());
-      if ( qth10_[ism-1] ) dbe_->useQTest(histo, qth10_[ism-1]->getName());
-      sprintf(histo, "*/EcalEndcap/EELaserTask/Laser3/PN/Gain01/EEPDT PNs amplitude %s G01 L3", Numbers::sEE(ism).c_str());
-      if ( qth11_[ism-1] ) dbe_->useQTest(histo, qth11_[ism-1]->getName());
-      sprintf(histo, "*/EcalEndcap/EELaserTask/Laser4/PN/Gain01/EEPDT PNs amplitude %s G01 L4", Numbers::sEE(ism).c_str());
-      if ( qth12_[ism-1] ) dbe_->useQTest(histo, qth12_[ism-1]->getName());
-      sprintf(histo, "*/EcalEndcap/EELaserTask/Laser1/PN/Gain01/EEPDT PNs pedestal %s G01 L1", Numbers::sEE(ism).c_str());
-      if ( qth13_[ism-1] ) dbe_->useQTest(histo, qth13_[ism-1]->getName());
-      sprintf(histo, "*/EcalEndcap/EELaserTask/Laser2/PN/Gain01/EEPDT PNs pedestal %s G01 L2", Numbers::sEE(ism).c_str());
-      if ( qth14_[ism-1] ) dbe_->useQTest(histo, qth14_[ism-1]->getName());
-      sprintf(histo, "*/EcalEndcap/EELaserTask/Laser3/PN/Gain01/EEPDT PNs pedestal %s G01 L3", Numbers::sEE(ism).c_str());
-      if ( qth15_[ism-1] ) dbe_->useQTest(histo, qth15_[ism-1]->getName());
-      sprintf(histo, "*/EcalEndcap/EELaserTask/Laser4/PN/Gain01/EEPDT PNs pedestal %s G01 L4", Numbers::sEE(ism).c_str());
-      if ( qth16_[ism-1] ) dbe_->useQTest(histo, qth16_[ism-1]->getName());
-      sprintf(histo, "*/EcalEndcap/EELaserTask/Laser1/PN/Gain16/EEPDT PNs amplitude %s G16 L1", Numbers::sEE(ism).c_str());
-      if ( qth17_[ism-1] ) dbe_->useQTest(histo, qth17_[ism-1]->getName());
-      sprintf(histo, "*/EcalEndcap/EELaserTask/Laser2/PN/Gain16/EEPDT PNs amplitude %s G16 L2", Numbers::sEE(ism).c_str());
-      if ( qth18_[ism-1] ) dbe_->useQTest(histo, qth18_[ism-1]->getName());
-      sprintf(histo, "*/EcalEndcap/EELaserTask/Laser3/PN/Gain16/EEPDT PNs amplitude %s G16 L3", Numbers::sEE(ism).c_str());
-      if ( qth19_[ism-1] ) dbe_->useQTest(histo, qth19_[ism-1]->getName());
-      sprintf(histo, "*/EcalEndcap/EELaserTask/Laser4/PN/Gain16/EEPDT PNs amplitude %s G16 L4", Numbers::sEE(ism).c_str());
-      if ( qth20_[ism-1] ) dbe_->useQTest(histo, qth20_[ism-1]->getName());
-      sprintf(histo, "*/EcalEndcap/EELaserTask/Laser1/PN/Gain16/EEPDT PNs pedestal %s G16 L1", Numbers::sEE(ism).c_str());
-      if ( qth21_[ism-1] ) dbe_->useQTest(histo, qth21_[ism-1]->getName());
-      sprintf(histo, "*/EcalEndcap/EELaserTask/Laser2/PN/Gain16/EEPDT PNs pedestal %s G16 L2", Numbers::sEE(ism).c_str());
-      if ( qth22_[ism-1] ) dbe_->useQTest(histo, qth22_[ism-1]->getName());
-      sprintf(histo, "*/EcalEndcap/EELaserTask/Laser3/PN/Gain16/EEPDT PNs pedestal %s G16 L3", Numbers::sEE(ism).c_str());
-      if ( qth23_[ism-1] ) dbe_->useQTest(histo, qth23_[ism-1]->getName());
-      sprintf(histo, "*/EcalEndcap/EELaserTask/Laser4/PN/Gain16/EEPDT PNs pedestal %s G16 L4", Numbers::sEE(ism).c_str());
-      if ( qth24_[ism-1] ) dbe_->useQTest(histo, qth24_[ism-1]->getName());
-    } else {
-      sprintf(histo, "EcalEndcap/EELaserTask/Laser1/EELT amplitude %s L1A", Numbers::sEE(ism).c_str());
-      if ( qth01_[ism-1] ) dbe_->useQTest(histo, qth01_[ism-1]->getName());
-      sprintf(histo, "EcalEndcap/EELaserTask/Laser2/EELT amplitude %s L2A", Numbers::sEE(ism).c_str());
-      if ( qth02_[ism-1] ) dbe_->useQTest(histo, qth02_[ism-1]->getName());
-      sprintf(histo, "EcalEndcap/EELaserTask/Laser3/EELT amplitude %s L3A", Numbers::sEE(ism).c_str());
-      if ( qth03_[ism-1] ) dbe_->useQTest(histo, qth03_[ism-1]->getName());
-      sprintf(histo, "EcalEndcap/EELaserTask/Laser4/EELT amplitude %s L4A", Numbers::sEE(ism).c_str());
-      if ( qth04_[ism-1] ) dbe_->useQTest(histo, qth04_[ism-1]->getName());
-      sprintf(histo, "EcalEndcap/EELaserTask/Laser1/EELT amplitude %s L1B", Numbers::sEE(ism).c_str());
-      if ( qth05_[ism-1] ) dbe_->useQTest(histo, qth05_[ism-1]->getName());
-      sprintf(histo, "EcalEndcap/EELaserTask/Laser2/EELT amplitude %s L2B", Numbers::sEE(ism).c_str());
-      if ( qth06_[ism-1] ) dbe_->useQTest(histo, qth06_[ism-1]->getName());
-      sprintf(histo, "EcalEndcap/EELaserTask/Laser3/EELT amplitude %s L3B", Numbers::sEE(ism).c_str());
-      if ( qth07_[ism-1] ) dbe_->useQTest(histo, qth07_[ism-1]->getName());
-      sprintf(histo, "EcalEndcap/EELaserTask/Laser4/EELT amplitude %s L4B", Numbers::sEE(ism).c_str());
-      if ( qth08_[ism-1] ) dbe_->useQTest(histo, qth08_[ism-1]->getName());
-      sprintf(histo, "EcalEndcap/EELaserTask/Laser1/PN/Gain01/EEPDT PNs amplitude %s G01 L1", Numbers::sEE(ism).c_str());
-      if ( qth09_[ism-1] ) dbe_->useQTest(histo, qth09_[ism-1]->getName());
-      sprintf(histo, "EcalEndcap/EELaserTask/Laser2/PN/Gain01/EEPDT PNs amplitude %s G01 L2", Numbers::sEE(ism).c_str());
-      if ( qth10_[ism-1] ) dbe_->useQTest(histo, qth10_[ism-1]->getName());
-      sprintf(histo, "EcalEndcap/EELaserTask/Laser3/PN/Gain01/EEPDT PNs amplitude %s G01 L3", Numbers::sEE(ism).c_str());
-      if ( qth11_[ism-1] ) dbe_->useQTest(histo, qth11_[ism-1]->getName());
-      sprintf(histo, "EcalEndcap/EELaserTask/Laser4/PN/Gain01/EEPDT PNs amplitude %s G01 L4", Numbers::sEE(ism).c_str());
-      if ( qth12_[ism-1] ) dbe_->useQTest(histo, qth12_[ism-1]->getName());
-      sprintf(histo, "EcalEndcap/EELaserTask/Laser1/PN/Gain01/EEPDT PNs pedestal %s G01 L1", Numbers::sEE(ism).c_str());
-      if ( qth13_[ism-1] ) dbe_->useQTest(histo, qth13_[ism-1]->getName());
-      sprintf(histo, "EcalEndcap/EELaserTask/Laser2/PN/Gain01/EEPDT PNs pedestal %s G01 L2", Numbers::sEE(ism).c_str());
-      if ( qth14_[ism-1] ) dbe_->useQTest(histo, qth14_[ism-1]->getName());
-      sprintf(histo, "EcalEndcap/EELaserTask/Laser3/PN/Gain01/EEPDT PNs pedestal %s G01 L3", Numbers::sEE(ism).c_str());
-      if ( qth15_[ism-1] ) dbe_->useQTest(histo, qth15_[ism-1]->getName());
-      sprintf(histo, "EcalEndcap/EELaserTask/Laser4/PN/Gain01/EEPDT PNs pedestal %s G01 L4", Numbers::sEE(ism).c_str());
-      if ( qth16_[ism-1] ) dbe_->useQTest(histo, qth16_[ism-1]->getName());
-      sprintf(histo, "EcalEndcap/EELaserTask/Laser1/PN/Gain16/EEPDT PNs amplitude %s G16 L1", Numbers::sEE(ism).c_str());
-      if ( qth17_[ism-1] ) dbe_->useQTest(histo, qth17_[ism-1]->getName());
-      sprintf(histo, "EcalEndcap/EELaserTask/Laser2/PN/Gain16/EEPDT PNs amplitude %s G16 L2", Numbers::sEE(ism).c_str());
-      if ( qth18_[ism-1] ) dbe_->useQTest(histo, qth18_[ism-1]->getName());
-      sprintf(histo, "EcalEndcap/EELaserTask/Laser3/PN/Gain16/EEPDT PNs amplitude %s G16 L3", Numbers::sEE(ism).c_str());
-      if ( qth19_[ism-1] ) dbe_->useQTest(histo, qth19_[ism-1]->getName());
-      sprintf(histo, "EcalEndcap/EELaserTask/Laser4/PN/Gain16/EEPDT PNs amplitude %s G16 L4", Numbers::sEE(ism).c_str());
-      if ( qth20_[ism-1] ) dbe_->useQTest(histo, qth20_[ism-1]->getName());
-      sprintf(histo, "EcalEndcap/EELaserTask/Laser1/PN/Gain16/EEPDT PNs pedestal %s G16 L1", Numbers::sEE(ism).c_str());
-      if ( qth21_[ism-1] ) dbe_->useQTest(histo, qth21_[ism-1]->getName());
-      sprintf(histo, "EcalEndcap/EELaserTask/Laser2/PN/Gain16/EEPDT PNs pedestal %s G16 L2", Numbers::sEE(ism).c_str());
-      if ( qth22_[ism-1] ) dbe_->useQTest(histo, qth22_[ism-1]->getName());
-      sprintf(histo, "EcalEndcap/EELaserTask/Laser3/PN/Gain16/EEPDT PNs pedestal %s G16 L3", Numbers::sEE(ism).c_str());
-      if ( qth23_[ism-1] ) dbe_->useQTest(histo, qth23_[ism-1]->getName());
-      sprintf(histo, "EcalEndcap/EELaserTask/Laser4/PN/Gain16/EEPDT PNs pedestal %s G16 L4", Numbers::sEE(ism).c_str());
-      if ( qth24_[ism-1] ) dbe_->useQTest(histo, qth24_[ism-1]->getName());
-    }
-
-    sprintf(histo, "EcalEndcap/EELaserTask/EELT laser quality L1 %s", Numbers::sEE(ism).c_str());
-    if ( qtg01_[ism-1] ) dbe_->useQTest(histo, qtg01_[ism-1]->getName());
-    sprintf(histo, "EcalEndcap/EELaserTask/EELT laser quality L2 %s", Numbers::sEE(ism).c_str());
-    if ( qtg02_[ism-1] ) dbe_->useQTest(histo, qtg02_[ism-1]->getName());
-    sprintf(histo, "EcalEndcap/EELaserTask/EELT laser quality L3 %s", Numbers::sEE(ism).c_str());
-    if ( qtg03_[ism-1] ) dbe_->useQTest(histo, qtg03_[ism-1]->getName());
-    sprintf(histo, "EcalEndcap/EELaserTask/EELT laser quality L4 %s", Numbers::sEE(ism).c_str());
-    if ( qtg04_[ism-1] ) dbe_->useQTest(histo, qtg04_[ism-1]->getName());
-
-    sprintf(histo, "EcalEndcap/EELaserTask/EELT laser quality L1 PNs %s G01", Numbers::sEE(ism).c_str());
-    if ( qtg05_[ism-1] ) dbe_->useQTest(histo, qtg05_[ism-1]->getName());
-    sprintf(histo, "EcalEndcap/EELaserTask/EELT laser quality L2 PNs %s G01", Numbers::sEE(ism).c_str());
-    if ( qtg06_[ism-1] ) dbe_->useQTest(histo, qtg06_[ism-1]->getName());
-    sprintf(histo, "EcalEndcap/EELaserTask/EELT laser quality L3 PNs %s G01", Numbers::sEE(ism).c_str());
-    if ( qtg07_[ism-1] ) dbe_->useQTest(histo, qtg07_[ism-1]->getName());
-    sprintf(histo, "EcalEndcap/EELaserTask/EELT laser quality L4 PNs %s G01", Numbers::sEE(ism).c_str());
-    if ( qtg08_[ism-1] ) dbe_->useQTest(histo, qtg08_[ism-1]->getName());
-
-    sprintf(histo, "EcalEndcap/EELaserTask/EELT laser quality L1 PNs %s G16", Numbers::sEE(ism).c_str());
-    if ( qtg09_[ism-1] ) dbe_->useQTest(histo, qtg09_[ism-1]->getName());
-    sprintf(histo, "EcalEndcap/EELaserTask/EELT laser quality L2 PNs %s G16", Numbers::sEE(ism).c_str());
-    if ( qtg10_[ism-1] ) dbe_->useQTest(histo, qtg10_[ism-1]->getName());
-    sprintf(histo, "EcalEndcap/EELaserTask/EELT laser quality L3 PNs %s G16", Numbers::sEE(ism).c_str());
-    if ( qtg11_[ism-1] ) dbe_->useQTest(histo, qtg11_[ism-1]->getName());
-    sprintf(histo, "EcalEndcap/EELaserTask/EELT laser quality L4 PNs %s G16", Numbers::sEE(ism).c_str());
-    if ( qtg12_[ism-1] ) dbe_->useQTest(histo, qtg12_[ism-1]->getName());
 
   }
 

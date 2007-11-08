@@ -4,8 +4,8 @@
 /*
  * \file EcalEndcapMonitorClient.h
  *
- * $Date: 2007/09/07 22:30:06 $
- * $Revision: 1.21 $
+ * $Date: 2007/11/06 10:29:40 $
+ * $Revision: 1.22 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -27,9 +27,6 @@
 #include "OnlineDB/EcalCondDB/interface/MonRunIOV.h"
 
 #include <DQM/EcalEndcapMonitorClient/interface/EEClient.h>
-
-#include "DQMServices/Core/interface/QTestStatus.h"
-#include "DQMServices/QualityTests/interface/QCriterionRoot.h"
 
 #include <DQM/EcalEndcapMonitorClient/interface/EESummaryClient.h>
 
@@ -126,7 +123,6 @@ int ievt_;
 int jevt_;
 
 bool cloneME_;
-bool enableQT_;
 
 bool verbose_;
 

@@ -1,8 +1,8 @@
 /*
  * \file EESummaryClient.cc
  *
- * $Date: 2007/11/03 09:06:43 $
- * $Revision: 1.49 $
+ * $Date: 2007/11/05 10:51:30 $
+ * $Revision: 1.50 $
  * \author G. Della Ricca
  *
 */
@@ -21,8 +21,6 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "DQMServices/UI/interface/MonitorUIRoot.h"
-#include "DQMServices/Core/interface/QTestStatus.h"
-#include "DQMServices/QualityTests/interface/QCriterionRoot.h"
 
 #include "OnlineDB/EcalCondDB/interface/RunTag.h"
 #include "OnlineDB/EcalCondDB/interface/RunIOV.h"
@@ -53,9 +51,6 @@ EESummaryClient::EESummaryClient(const ParameterSet& ps){
 
   // cloneME switch
   cloneME_ = ps.getUntrackedParameter<bool>("cloneME", true);
-
-  // enableQT switch
-  enableQT_ = ps.getUntrackedParameter<bool>("enableQT", true);
 
   // verbosity switch
   verbose_ = ps.getUntrackedParameter<bool>("verbose", false);
@@ -105,41 +100,6 @@ EESummaryClient::EESummaryClient(const ParameterSet& ps){
   meTriggerTowerEmulError_[0] = 0;
   meTriggerTowerEmulError_[1] = 0;
 
-  qtg01_[0] = 0;
-  qtg01_[1] = 0;
-  qtg02_[0] = 0;
-  qtg02_[1] = 0;
-  qtg03_[0] = 0;
-  qtg03_[1] = 0;
-  qtg04_[0] = 0;
-  qtg04_[1] = 0;
-  qtg04PN_[0] = 0;
-  qtg04PN_[1] = 0;
-  qtg05_[0] = 0;
-  qtg05_[1] = 0;
-  qtg05PN_[0] = 0;
-  qtg05PN_[1] = 0;
-  qtg06_[0] = 0;
-  qtg06_[1] = 0;
-  qtg06PN_[0] = 0;
-  qtg06PN_[1] = 0;
-  qtg07_[0] = 0;
-  qtg07_[1] = 0;
-  qtg07PN_[0] = 0;
-  qtg07PN_[1] = 0;
-
-  qtg08_[0] = 0;
-  qtg08_[1] = 0;
-  qtg09_[0] = 0;
-  qtg09_[1] = 0;
-  qtg10_[0] = 0;
-  qtg10_[1] = 0;
-  qtg11_[0] = 0;
-  qtg11_[1] = 0;
-
-  qtg99_[0] = 0;
-  qtg99_[1] = 0;
-
 }
 
 EESummaryClient::~EESummaryClient(){
@@ -155,178 +115,6 @@ void EESummaryClient::beginJob(MonitorUserInterface* mui){
 
   ievt_ = 0;
   jevt_ = 0;
-
-  if ( enableQT_ ) {
-
-    Char_t qtname[200];
-
-    sprintf(qtname, "EEIT EE - summary quality test");
-    qtg01_[0] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (dbe_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
-
-    sprintf(qtname, "EEIT EE + summary quality test");
-    qtg01_[1] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (dbe_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
-
-    sprintf(qtname, "EEOT EE - summary quality test");
-    qtg02_[0] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (dbe_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
-
-    sprintf(qtname, "EEOT EE + summary quality test");
-    qtg02_[1] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (dbe_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
-
-    sprintf(qtname, "EEPOT EE - summary quality test");
-    qtg03_[0] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (dbe_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
-
-    sprintf(qtname, "EEPOT EE + summary quality test");
-    qtg03_[1] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (dbe_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
-
-    sprintf(qtname, "EELT EE - summary quality test L1");
-    qtg04_[0] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (dbe_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
-
-    sprintf(qtname, "EELT EE - PN summary quality test L1");
-    qtg04PN_[0] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (dbe_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
-
-    sprintf(qtname, "EELT EE + summary quality test L1");
-    qtg04_[1] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (dbe_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
-
-    sprintf(qtname, "EELT EE + PN summary quality test L1");
-    qtg04PN_[1] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (dbe_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
-
-    sprintf(qtname, "EELDT EE - summary quality test");
-    qtg05_[0] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (dbe_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
-
-    sprintf(qtname, "EELDT EE - PN summary quality test");
-    qtg05PN_[0] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (dbe_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
-
-    sprintf(qtname, "EELDT EE + summary quality test");
-    qtg05_[1] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (dbe_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
-
-    sprintf(qtname, "EELDT EE + PN summary quality test");
-    qtg05PN_[1] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (dbe_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
-
-    sprintf(qtname, "EEPT EE - summary quality test");
-    qtg06_[0] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (dbe_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
-
-    sprintf(qtname, "EEPT EE - PN summary quality test");
-    qtg06PN_[0] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (dbe_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
-
-    sprintf(qtname, "EEPT EE + summary quality test");
-    qtg06_[1] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (dbe_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
-
-    sprintf(qtname, "EEPT EE + PN summary quality test");
-    qtg06PN_[1] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (dbe_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
-
-    sprintf(qtname, "EETPT EE - summary quality test");
-    qtg07_[0] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (dbe_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
-
-    sprintf(qtname, "EETPT EE - PN summary quality test");
-    qtg07PN_[0] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (dbe_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
-
-    sprintf(qtname, "EETPT EE + summary quality test");
-    qtg07_[1] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (dbe_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
-
-    sprintf(qtname, "EETPT EE + PN summary quality test");
-    qtg07PN_[1] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (dbe_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
-
-    sprintf(qtname, "EECT EE - summary quality test");
-    qtg08_[0] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (dbe_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
-
-    sprintf(qtname, "EECT EE + summary quality test");
-    qtg08_[1] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (dbe_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
-
-    sprintf(qtname, "EETMT EE - summary quality test");
-    qtg09_[0] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (dbe_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
-
-    sprintf(qtname, "EETMT EE + summary quality test");
-    qtg09_[1] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (dbe_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
-
-    sprintf(qtname, "EETTT EE - Et summary quality test");
-//     qtg10_[0] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (dbe_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
-
-    sprintf(qtname, "EETTT EE + Et summary quality test");
-//     qtg10_[1] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (dbe_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
-
-    sprintf(qtname, "EETTT EE - emulator error summary quality test");
-    qtg11_[0] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (dbe_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
-
-    sprintf(qtname, "EETTT EE + emulator error summary quality test");
-    qtg11_[1] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (dbe_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
-
-    sprintf(qtname, "EE global summary quality test EE -");
-    qtg99_[0] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (dbe_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
-
-    sprintf(qtname, "EE global summary quality test EE +");
-    qtg99_[1] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (dbe_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
-
-    qtg01_[0]->setMeanRange(1., 6.);
-    qtg01_[1]->setMeanRange(1., 6.);
-//    qtg02_[0]->setMeanRange(1., 6.);
-//    qtg02_[1]->setMeanRange(1., 6.);
-    qtg03_[0]->setMeanRange(1., 6.);
-    qtg03_[1]->setMeanRange(1., 6.);
-    qtg04_[0]->setMeanRange(1., 6.);
-    qtg04PN_[0]->setMeanRange(1., 6.);
-    qtg04_[1]->setMeanRange(1., 6.);
-    qtg04PN_[1]->setMeanRange(1., 6.);
-    qtg05_[0]->setMeanRange(1., 6.);
-    qtg05PN_[0]->setMeanRange(1., 6.);
-    qtg05_[1]->setMeanRange(1., 6.);
-    qtg05PN_[1]->setMeanRange(1., 6.);
-    qtg06_[0]->setMeanRange(1., 6.);
-    qtg06PN_[0]->setMeanRange(1., 6.);
-    qtg06_[1]->setMeanRange(1., 6.);
-    qtg06PN_[1]->setMeanRange(1., 6.);
-    qtg07_[0]->setMeanRange(1., 6.);
-    qtg07PN_[0]->setMeanRange(1., 6.);
-    qtg07_[1]->setMeanRange(1., 6.);
-    qtg07PN_[1]->setMeanRange(1., 6.);
-
-//    qtg08_[0]->setMeanRange(1., 6.);
-//    qtg08_[1]->setMeanRange(1., 6.);
-//    qtg09_[0]->setMeanRange(1., 6.);
-//    qtg09_[1]->setMeanRange(1., 6.);
-//    qtg10[0]_->setMeanRange(1., 6.);
-//    qtg10[1]_->setMeanRange(1., 6.);
-    qtg11_[0]->setMeanRange(1., 6.);
-    qtg11_[1]->setMeanRange(1., 6.);
-
-    qtg99_[0]->setMeanRange(1., 6.);
-    qtg99_[1]->setMeanRange(1., 6.);
-
-    qtg01_[0]->setErrorProb(1.00);
-    qtg01_[1]->setErrorProb(1.00);
-//    qtg02_[0]->setErrorProb(1.00);
-//    qtg02_[1]->setErrorProb(1.00);
-    qtg03_[0]->setErrorProb(1.00);
-    qtg03_[1]->setErrorProb(1.00);
-    qtg04_[0]->setErrorProb(1.00);
-    qtg04PN_[0]->setErrorProb(1.00);
-    qtg04_[1]->setErrorProb(1.00);
-    qtg04PN_[1]->setErrorProb(1.00);
-    qtg05_[0]->setErrorProb(1.00);
-    qtg05PN_[0]->setErrorProb(1.00);
-    qtg05_[1]->setErrorProb(1.00);
-    qtg05PN_[1]->setErrorProb(1.00);
-    qtg06_[0]->setErrorProb(1.00);
-    qtg06PN_[0]->setErrorProb(1.00);
-    qtg06_[1]->setErrorProb(1.00);
-    qtg06PN_[1]->setErrorProb(1.00);
-    qtg07_[0]->setErrorProb(1.00);
-    qtg07PN_[0]->setErrorProb(1.00);
-    qtg07_[1]->setErrorProb(1.00);
-    qtg07PN_[1]->setErrorProb(1.00);
-
-//    qtg08_[0]->setErrorProb(1.00);
-//    qtg08_[1]->setErrorProb(1.00);
-//    qtg09_[0]->setErrorProb(1.00);
-//    qtg09_[1]->setErrorProb(1.00);
-//    qtg10_[0]->setErrorProb(1.00);
-//    qtg10_[1]->setErrorProb(1.00);
-    qtg11_[0]->setErrorProb(1.00);
-    qtg11_[1]->setErrorProb(1.00);
-
-    qtg99_[0]->setErrorProb(1.00);
-    qtg99_[1]->setErrorProb(1.00);
-
-  }
 
 }
 
@@ -611,75 +399,6 @@ bool EESummaryClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRun
 void EESummaryClient::subscribe(void){
 
   if ( verbose_ ) cout << "EESummaryClient: subscribe" << endl;
-
-  Char_t histo[200];
-
-  sprintf(histo, "EcalEndcap/EESummaryClient/EEIT EE - integrity quality summary");
-  if ( qtg01_[0] ) dbe_->useQTest(histo, qtg01_[0]->getName());
-  sprintf(histo, "EcalEndcap/EESummaryClient/EEIT EE + integrity quality summary");
-  if ( qtg01_[1] ) dbe_->useQTest(histo, qtg01_[1]->getName());
-  sprintf(histo, "EcalEndcap/EESummaryClient/EEOT EE - occupancy summary");
-//  if ( qtg02_[0] ) dbe_->useQTest(histo, qtg02_[0]->getName());
-  sprintf(histo, "EcalEndcap/EESummaryClient/EEOT EE + occupancy summary");
-//  if ( qtg02_[1] ) dbe_->useQTest(histo, qtg02_[1]->getName());
-  sprintf(histo, "EcalEndcap/EESummaryClient/EEPOT EE - pedestal quality summary G12");
-  if ( qtg03_[0] ) dbe_->useQTest(histo, qtg03_[0]->getName());
-  sprintf(histo, "EcalEndcap/EESummaryClient/EEPOT EE + pedestal quality summary G12");
-  if ( qtg03_[1] ) dbe_->useQTest(histo, qtg03_[1]->getName());
-  sprintf(histo, "EcalEndcap/EESummaryClient/EELT EE - laser quality summary L1");
-  if ( qtg04_[0] ) dbe_->useQTest(histo, qtg04_[0]->getName());
-  sprintf(histo, "EcalEndcap/EESummaryClient/EELT EE + laser quality summary L1");
-  if ( qtg04_[1] ) dbe_->useQTest(histo, qtg04_[1]->getName());
-  sprintf(histo, "EcalEndcap/EESummaryClient/EELT EE - PN laser quality summary L1");
-  if ( qtg04PN_[0] ) dbe_->useQTest(histo, qtg04PN_[0]->getName());
-  sprintf(histo, "EcalEndcap/EESummaryClient/EELT EE + PN laser quality summary L1");
-  if ( qtg04PN_[1] ) dbe_->useQTest(histo, qtg04PN_[1]->getName());
-  sprintf(histo, "EcalEndcap/EESummaryClient/EELDT EE - led quality summary");
-  if ( qtg05_[0] ) dbe_->useQTest(histo, qtg05_[1]->getName());
-  sprintf(histo, "EcalEndcap/EESummaryClient/EELDT EE + led quality summary");
-  if ( qtg05_[1] ) dbe_->useQTest(histo, qtg05_[1]->getName());
-  sprintf(histo, "EcalEndcap/EESummaryClient/EELDT EE - PN led quality summary");
-  if ( qtg05PN_[0] ) dbe_->useQTest(histo, qtg05PN_[0]->getName());
-  sprintf(histo, "EcalEndcap/EESummaryClient/EELDT EE + PN led quality summary");
-  if ( qtg05PN_[1] ) dbe_->useQTest(histo, qtg05PN_[1]->getName());
-  sprintf(histo, "EcalEndcap/EESummaryClient/EEPT EE - PN pedestal quality summary");
-  if ( qtg06_[0] ) dbe_->useQTest(histo, qtg06_[0]->getName());
-  sprintf(histo, "EcalEndcap/EESummaryClient/EEPT EE + PN pedestal quality summary");
-  if ( qtg06_[1] ) dbe_->useQTest(histo, qtg06_[1]->getName());
-  sprintf(histo, "EcalEndcap/EESummaryClient/EEPT EE - PN pedestal quality summary");
-  if ( qtg06PN_[0] ) dbe_->useQTest(histo, qtg06PN_[0]->getName());
-  sprintf(histo, "EcalEndcap/EESummaryClient/EEPT EE + PN pedestal quality summary");
-  if ( qtg06PN_[1] ) dbe_->useQTest(histo, qtg06PN_[1]->getName());
-  sprintf(histo, "EcalEndcap/EESummaryClient/EETPT EE - test pulse quality summary");
-  if ( qtg07_[0] ) dbe_->useQTest(histo, qtg07_[0]->getName());
-  sprintf(histo, "EcalEndcap/EESummaryClient/EETPT EE + test pulse quality summary");
-  if ( qtg07_[1] ) dbe_->useQTest(histo, qtg07_[1]->getName());
-  sprintf(histo, "EcalEndcap/EESummaryClient/EETPT EE - PN test pulse quality summary");
-  if ( qtg07PN_[0] ) dbe_->useQTest(histo, qtg07PN_[0]->getName());
-  sprintf(histo, "EcalEndcap/EESummaryClient/EETPT EE + PN test pulse quality summary");
-  if ( qtg07PN_[1] ) dbe_->useQTest(histo, qtg07PN_[1]->getName());
-
-  sprintf(histo, "EcalEndcap/EESummaryClient/EECT EE - cosmic quality summary");
-  if ( qtg08_[0] ) dbe_->useQTest(histo, qtg08_[0]->getName());
-  sprintf(histo, "EcalEndcap/EESummaryClient/EECT EE + cosmic quality summary");
-  if ( qtg08_[1] ) dbe_->useQTest(histo, qtg08_[1]->getName());
-  sprintf(histo, "EcalEndcap/EESummaryClient/EETMT EE - timing quality summary");
-  if ( qtg09_[0] ) dbe_->useQTest(histo, qtg09_[0]->getName());
-  sprintf(histo, "EcalEndcap/EESummaryClient/EETMT EE + timing quality summary");
-  if ( qtg09_[1] ) dbe_->useQTest(histo, qtg09_[1]->getName());
-  sprintf(histo, "EcalEndcap/EESummaryClient/EETTT EE - Et trigger tower quality summary");
-//   if ( qtg10_[0] ) dbe_->useQTest(histo, qtg10_[0]->getName());
-  sprintf(histo, "EcalEndcap/EESummaryClient/EETTT EE + Et trigger tower quality summary");
-//   if ( qtg10_[1] ) dbe_->useQTest(histo, qtg10_[1]->getName());
-  sprintf(histo, "EcalEndcap/EESummaryClient/EETTT EE + emulator error quality summary"); 
-  if ( qtg11_[0] ) dbe_->useQTest(histo, qtg11_[0]->getName());
-  sprintf(histo, "EcalEndcap/EESummaryClient/EETTT EE - emulator error quality summary"); 
-  if ( qtg11_[1] ) dbe_->useQTest(histo, qtg11_[1]->getName());
-
-  sprintf(histo, "EcalEndcap/EESummaryClient/EE global summary EE -");
-  if ( qtg99_[0] ) dbe_->useQTest(histo, qtg99_[0]->getName());
-  sprintf(histo, "EcalEndcap/EESummaryClient/EE global summary EE +");
-  if ( qtg99_[1] ) dbe_->useQTest(histo, qtg99_[1]->getName());
 
 }
 

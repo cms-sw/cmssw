@@ -1,8 +1,8 @@
 /*
  * \file EBTimingClient.cc
  *
- * $Date: 2007/11/05 11:03:52 $
- * $Revision: 1.48 $
+ * $Date: 2007/11/06 08:05:18 $
+ * $Revision: 1.49 $
  * \author G. Della Ricca
  *
 */
@@ -19,8 +19,6 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "DQMServices/UI/interface/MonitorUIRoot.h"
-#include "DQMServices/Core/interface/QTestStatus.h"
-#include "DQMServices/QualityTests/interface/QCriterionRoot.h"
 
 #include "OnlineDB/EcalCondDB/interface/RunTag.h"
 #include "OnlineDB/EcalCondDB/interface/RunIOV.h"
@@ -46,9 +44,6 @@ EBTimingClient::EBTimingClient(const ParameterSet& ps){
 
   // cloneME switch
   cloneME_ = ps.getUntrackedParameter<bool>("cloneME", true);
-
-  // enableQT switch
-  enableQT_ = ps.getUntrackedParameter<bool>("enableQT", true);
 
   // verbosity switch
   verbose_ = ps.getUntrackedParameter<bool>("verbose", false);
@@ -86,10 +81,6 @@ EBTimingClient::EBTimingClient(const ParameterSet& ps){
 
     mer01_[ism-1] = 0;
 
-    qth01_[ism-1] = 0;
-
-    qtg01_[ism-1] = 0;
-
   }
 
   expectedMean_ = 6.0;
@@ -111,36 +102,6 @@ void EBTimingClient::beginJob(MonitorUserInterface* mui){
 
   ievt_ = 0;
   jevt_ = 0;
-
-  if ( enableQT_ ) {
-
-    Char_t qtname[200];
-
-    for ( unsigned int i=0; i<superModules_.size(); i++ ) {
-
-      int ism = superModules_[i];
-
-      sprintf(qtname, "EBTMT quality %s", Numbers::sEB(ism).c_str());
-      qth01_[ism-1] = dynamic_cast<MEContentsProf2DWithinRangeROOT*> (dbe_->createQTest(ContentsProf2DWithinRangeROOT::getAlgoName(), qtname));
-
-      qth01_[ism-1]->setMeanRange(expectedMean_ - discrepancyMean_, expectedMean_ + discrepancyMean_);
-
-      qth01_[ism-1]->setRMSRange(0.0, RMSThreshold_);
-
-      qth01_[ism-1]->setMinimumEntries(10*1700);
-
-      qth01_[ism-1]->setErrorProb(1.00);
-
-      sprintf(qtname, "EBTMT quality test %s", Numbers::sEB(ism).c_str());
-      qtg01_[ism-1] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (dbe_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
-
-      qtg01_[ism-1]->setMeanRange(1., 6.);
-
-      qtg01_[ism-1]->setErrorProb(1.00);
-
-    }
-
-  }
 
 }
 
@@ -354,23 +315,6 @@ void EBTimingClient::subscribe(void){
 
     sprintf(histo, "*/EcalBarrel/EBTimingTask/EBTMT timing %s", Numbers::sEB(ism).c_str());
     mui_->subscribe(histo, ism);
-
-  }
-
-  for ( unsigned int i=0; i<superModules_.size(); i++ ) {
-
-    int ism = superModules_[i];
-
-    if ( enableMonitorDaemon_ ) {
-      sprintf(histo, "*/EcalBarrel/EBTimingTask/EBTMT timing %s", Numbers::sEB(ism).c_str());
-      if ( qth01_[ism-1] ) dbe_->useQTest(histo, qth01_[ism-1]->getName());
-    } else {
-      sprintf(histo, "EcalBarrel/EBTimingTask/EBTMT timing %s", Numbers::sEB(ism).c_str());
-      if ( qth01_[ism-1] ) dbe_->useQTest(histo, qth01_[ism-1]->getName());
-    }
-
-    sprintf(histo, "EcalBarrel/EBTimingClient/EBTMT timing quality %s", Numbers::sEB(ism).c_str());
-    if ( qtg01_[ism-1] ) dbe_->useQTest(histo, qtg01_[ism-1]->getName());
 
   }
 

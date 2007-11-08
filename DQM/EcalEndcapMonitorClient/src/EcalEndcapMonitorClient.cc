@@ -1,8 +1,8 @@
 /*
  * \file EcalEndcapMonitorClient.cc
  *
- * $Date: 2007/11/05 10:59:23 $
- * $Revision: 1.75 $
+ * $Date: 2007/11/06 10:29:40 $
+ * $Revision: 1.76 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -25,7 +25,6 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include "DQMServices/Core/interface/QTestStatus.h"
-#include "DQMServices/QualityTests/interface/QCriterionRoot.h"
 
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "DQMServices/UI/interface/MonitorUIRoot.h"
@@ -202,16 +201,6 @@ void EcalEndcapMonitorClient::initialize(const ParameterSet& ps){
     cout << " cloneME switch is ON" << endl;
   } else {
     cout << " cloneME switch is OFF" << endl;
-  }
-
-  // enableQT switch
-
-  enableQT_ = ps.getUntrackedParameter<bool>("enableQT", true);
-
-  if ( enableQT_ ) {
-    cout << " enableQT switch is ON" << endl;
-  } else {
-    cout << " enableQT switch is OFF" << endl;
   }
 
   // enableExit switch
@@ -1298,11 +1287,6 @@ void EcalEndcapMonitorClient::analyze(void){
 
   if ( verbose_ ) cout << " updates = " << updates << endl;
 
-  // run QTs on MEs updated during last cycle (offline mode)
-  if ( ! enableStateMachine_ ) {
-    if ( enableQT_ ) dbe_->runQTests();
-  }
-
   // update MEs (online mode)
   if ( ! enableStateMachine_ ) {
     mui_->doMonitoring();
@@ -1442,11 +1426,6 @@ void EcalEndcapMonitorClient::analyze(void){
 
         if ( status_ == "running" || status_ == "end-of-run" || forced_update_ ) {
 
-          // run QTs on local MEs, updated in analyze()
-          if ( ! enableStateMachine_ ) {
-            if ( enableQT_ ) dbe_->runQTests();
-          }
-
           // update MEs [again, just to silence a warning]
           if ( ! enableStateMachine_ ) {
             mui_->doMonitoring();
@@ -1458,26 +1437,22 @@ void EcalEndcapMonitorClient::analyze(void){
 
       if ( status_ == "end-of-run" || forced_update_ ) {
 
-        if ( enableQT_ ) {
-
-          cout << endl;
-          switch ( dbe_->getStatus() ) {
-            case dqm::qstatus::ERROR:
-              cout << " Error(s)";
-              break;
-            case dqm::qstatus::WARNING:
-              cout << " Warning(s)";
-              break;
-            case dqm::qstatus::OTHER:
-              cout << " Some tests did not run;";
-              break;
-            default:
-              cout << " No problems";
-          }
-          cout << " reported after running the quality tests" << endl;
-          cout << endl;
-
+        cout << endl;
+        switch ( dbe_->getStatus() ) {
+          case dqm::qstatus::ERROR:
+            cout << " Error(s)";
+            break;
+          case dqm::qstatus::WARNING:
+            cout << " Warning(s)";
+            break;
+          case dqm::qstatus::OTHER:
+            cout << " Some tests did not run;";
+            break;
+          default:
+            cout << " No problems";
         }
+        cout << " reported after running the quality tests" << endl;
+        cout << endl;
 
       }
 

@@ -4,8 +4,8 @@
 /*
  * \file EBIntegrityClient.h
  *
- * $Date: 2007/08/17 09:05:06 $
- * $Revision: 1.50 $
+ * $Date: 2007/09/07 22:30:03 $
+ * $Revision: 1.51 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -86,7 +86,6 @@ int ievt_;
 int jevt_;
 
 bool cloneME_;
-bool enableQT_;
 
 bool verbose_;
 
@@ -112,17 +111,6 @@ TH2F* h08_[36];
 TH2F* h09_[36];
 TH2F* h10_[36];
 
-MEContentsTH2FWithinRangeROOT* qth01_[36];
-MEContentsTH2FWithinRangeROOT* qth02_[36];
-MEContentsTH2FWithinRangeROOT* qth03_[36];
-MEContentsTH2FWithinRangeROOT* qth04_[36];
-MEContentsTH2FWithinRangeROOT* qth05_[36];
-MEContentsTH2FWithinRangeROOT* qth06_[36];
-MEContentsTH2FWithinRangeROOT* qth07_[36];
-MEContentsTH2FWithinRangeROOT* qth08_[36];
-MEContentsTH2FWithinRangeROOT* qth09_[36];
-MEContentsTH2FWithinRangeROOT* qth10_[36];
-
 MonitorElement* meg01_[36];
 MonitorElement* meg02_[36];
 
@@ -134,9 +122,6 @@ TH2F* hmem_[36];
 float threshCry_;
 
 const static int chNum [5][5];
-
-MEContentsTH2FWithinRangeROOT* qtg01_[36];
-MEContentsTH2FWithinRangeROOT* qtg02_[36];
 
 };
 

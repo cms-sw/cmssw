@@ -1,8 +1,8 @@
 /*
  * \file EELedClient.cc
  *
- * $Date: 2007/11/05 11:09:08 $
- * $Revision: 1.28 $
+ * $Date: 2007/11/06 08:05:21 $
+ * $Revision: 1.29 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -23,8 +23,6 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "DQMServices/UI/interface/MonitorUIRoot.h"
-#include "DQMServices/Core/interface/QTestStatus.h"
-#include "DQMServices/QualityTests/interface/QCriterionRoot.h"
 
 #include "OnlineDB/EcalCondDB/interface/RunTag.h"
 #include "OnlineDB/EcalCondDB/interface/RunIOV.h"
@@ -50,9 +48,6 @@ EELedClient::EELedClient(const ParameterSet& ps){
 
   // cloneME switch
   cloneME_ = ps.getUntrackedParameter<bool>("cloneME", true);
-
-  // enableQT switch
-  enableQT_ = ps.getUntrackedParameter<bool>("enableQT", true);
 
   // verbosity switch
   verbose_ = ps.getUntrackedParameter<bool>("verbose", false);
@@ -130,24 +125,6 @@ EELedClient::EELedClient(const ParameterSet& ps){
 
     mepnprms05_[ism-1] = 0;
     
-    qth01_[ism-1] = 0;
-
-    qth05_[ism-1] = 0;
-
-    qth09_[ism-1] = 0;
-
-    qth13_[ism-1] = 0;
-
-    qth17_[ism-1] = 0;
-
-    qth21_[ism-1] = 0;
-
-    qtg01_[ism-1] = 0;
-
-    qtg05_[ism-1] = 0;
-
-    qtg09_[ism-1] = 0;
-
   }
 
   percentVariation_ = 0.4;
@@ -179,107 +156,6 @@ void EELedClient::beginJob(MonitorUserInterface* mui){
 
   ievt_ = 0;
   jevt_ = 0;
-
-  if ( enableQT_ ) {
-
-    Char_t qtname[200];
-
-    for ( unsigned int i=0; i<superModules_.size(); i++ ) {
-
-      int ism = superModules_[i];
-
-      sprintf(qtname, "EELDT led quality %s A", Numbers::sEE(ism).c_str());
-      qth01_[ism-1] = dynamic_cast<MEContentsProf2DWithinRangeROOT*> (dbe_->createQTest(ContentsProf2DWithinRangeROOT::getAlgoName(), qtname));
-
-      sprintf(qtname, "EELDT led quality %s B", Numbers::sEE(ism).c_str());
-      qth05_[ism-1] = dynamic_cast<MEContentsProf2DWithinRangeROOT*> (dbe_->createQTest(ContentsProf2DWithinRangeROOT::getAlgoName(), qtname));
-
-      sprintf(qtname, "EELDT led amplitude quality PNs %s G01", Numbers::sEE(ism).c_str());
-      qth09_[ism-1] = dynamic_cast<MEContentsProf2DWithinRangeROOT*> (dbe_->createQTest(ContentsProf2DWithinRangeROOT::getAlgoName(), qtname));
-
-      sprintf(qtname, "EELDT led pedestal quality PNs %s G01", Numbers::sEE(ism).c_str());
-      qth13_[ism-1] = dynamic_cast<MEContentsProf2DWithinRangeROOT*> (dbe_->createQTest(ContentsProf2DWithinRangeROOT::getAlgoName(), qtname));
-
-      sprintf(qtname, "EELDT led amplitude quality PNs %s G16", Numbers::sEE(ism).c_str());
-      qth17_[ism-1] = dynamic_cast<MEContentsProf2DWithinRangeROOT*> (dbe_->createQTest(ContentsProf2DWithinRangeROOT::getAlgoName(), qtname));
-
-      sprintf(qtname, "EELDT led pedestal quality PNs %s G16", Numbers::sEE(ism).c_str());
-      qth21_[ism-1] = dynamic_cast<MEContentsProf2DWithinRangeROOT*> (dbe_->createQTest(ContentsProf2DWithinRangeROOT::getAlgoName(), qtname));
-
-      qth01_[ism-1]->setMeanRange(100.0, 4096.0*12.);
-
-      qth05_[ism-1]->setMeanRange(100.0, 4096.0*12.);
-
-      qth09_[ism-1]->setMeanRange(amplitudeThresholdPnG01_, 4096.0);
-
-      qth13_[ism-1]->setMeanRange(pedPnExpectedMean_[0] - pedPnDiscrepancyMean_[0],
-                                  pedPnExpectedMean_[0] + pedPnDiscrepancyMean_[0]);
-
-      qth17_[ism-1]->setMeanRange(amplitudeThresholdPnG16_, 4096.0);
-
-      qth21_[ism-1]->setMeanRange(pedPnExpectedMean_[1] - pedPnDiscrepancyMean_[1],
-                                  pedPnExpectedMean_[1] + pedPnDiscrepancyMean_[1]);
-
-      qth01_[ism-1]->setMeanTolerance(percentVariation_);
-
-      qth05_[ism-1]->setMeanTolerance(percentVariation_);
-
-      qth09_[ism-1]->setRMSRange(0.0, 4096.0);
-
-      qth13_[ism-1]->setRMSRange(0.0, pedPnRMSThreshold_[0]);
-
-      qth17_[ism-1]->setRMSRange(0.0, 4096.0);
-
-      qth21_[ism-1]->setRMSRange(0.0, pedPnRMSThreshold_[1]);
-
-      qth01_[ism-1]->setMinimumEntries(10*1700);
-
-      qth05_[ism-1]->setMinimumEntries(10*1700);
-
-      qth09_[ism-1]->setMinimumEntries(10*10);
-
-      qth13_[ism-1]->setMinimumEntries(10*10);
-
-      qth17_[ism-1]->setMinimumEntries(10*10);
-
-      qth21_[ism-1]->setMinimumEntries(10*10);
-
-      qth01_[ism-1]->setErrorProb(1.00);
-
-      qth05_[ism-1]->setErrorProb(1.00);
-
-      qth09_[ism-1]->setErrorProb(1.00);
-
-      qth13_[ism-1]->setErrorProb(1.00);
-
-      qth17_[ism-1]->setErrorProb(1.00);
-
-      qth21_[ism-1]->setErrorProb(1.00);
-
-      sprintf(qtname, "EELDT quality test %s", Numbers::sEE(ism).c_str());
-      qtg01_[ism-1] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (dbe_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
-
-      qtg01_[ism-1]->setMeanRange(1., 6.);
-
-      qtg01_[ism-1]->setErrorProb(1.00);
-
-      sprintf(qtname, "EELDT quality test PNs %s G01", Numbers::sEE(ism).c_str());
-      qtg05_[ism-1] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (dbe_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
-
-      sprintf(qtname, "EELDT quality test PNs %s G16", Numbers::sEE(ism).c_str());
-      qtg09_[ism-1] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (dbe_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
-
-      qtg05_[ism-1]->setMeanRange(1., 6.);
-
-      qtg09_[ism-1]->setMeanRange(1., 6.);
-
-      qtg05_[ism-1]->setErrorProb(1.00);
-
-      qtg09_[ism-1]->setErrorProb(1.00);
-
-    }
-
-  }
 
 }
 
@@ -330,11 +206,11 @@ void EELedClient::setup(void) {
     meg01_[ism-1] = dbe_->book2D(histo, histo, 50, Numbers::ix0EE(ism)+0., Numbers::ix0EE(ism)+50., 50, Numbers::iy0EE(ism)+0., Numbers::iy0EE(ism)+50.);
 
     if ( meg05_[ism-1] ) dbe_->removeElement( meg05_[ism-1]->getName() );
-    sprintf(histo, "EELDT led quality PNs %s G01", Numbers::sEE(ism).c_str());
+    sprintf(histo, "EELDT led quality G01 PNs %s", Numbers::sEE(ism).c_str());
     meg05_[ism-1] = dbe_->book2D(histo, histo, 10, 0., 10., 1, 0., 5.);
 
     if ( meg09_[ism-1] ) dbe_->removeElement( meg09_[ism-1]->getName() );
-    sprintf(histo, "EELDT led quality PNs %s G16", Numbers::sEE(ism).c_str());
+    sprintf(histo, "EELDT led quality G16 PNs %s", Numbers::sEE(ism).c_str());
     meg09_[ism-1] = dbe_->book2D(histo, histo, 10, 0., 10., 1, 0., 5.);
 
     if ( mea01_[ism-1] ) dbe_->removeElement( mea01_[ism-1]->getName() );;
@@ -853,49 +729,6 @@ void EELedClient::subscribe(void){
     mui_->subscribe(histo, ism);
     sprintf(histo, "*/EcalEndcap/EELedTask/PN/Gain16/EEPDT PNs pedestal %s G16", Numbers::sEE(ism).c_str());
     mui_->subscribe(histo, ism);
-
-  }
-
-  for ( unsigned int i=0; i<superModules_.size(); i++ ) {
-
-    int ism = superModules_[i];
-
-    if ( enableMonitorDaemon_ ) {
-      sprintf(histo, "*/EcalEndcap/EELedTask/EELDT amplitude %s A", Numbers::sEE(ism).c_str());
-      if ( qth01_[ism-1] ) dbe_->useQTest(histo, qth01_[ism-1]->getName());
-      sprintf(histo, "*/EcalEndcap/EELedTask/EELDT amplitude %s B", Numbers::sEE(ism).c_str());
-      if ( qth05_[ism-1] ) dbe_->useQTest(histo, qth05_[ism-1]->getName());
-      sprintf(histo, "*/EcalEndcap/EELedTask/PN/Gain01/EEPDT PNs amplitude %s G01", Numbers::sEE(ism).c_str());
-      if ( qth09_[ism-1] ) dbe_->useQTest(histo, qth09_[ism-1]->getName());
-      sprintf(histo, "*/EcalEndcap/EELedTask/PN/Gain01/EEPDT PNs pedestal %s G01", Numbers::sEE(ism).c_str());
-      if ( qth13_[ism-1] ) dbe_->useQTest(histo, qth13_[ism-1]->getName());
-      sprintf(histo, "*/EcalEndcap/EELedTask/PN/Gain16/EEPDT PNs amplitude %s G16", Numbers::sEE(ism).c_str());
-      if ( qth17_[ism-1] ) dbe_->useQTest(histo, qth17_[ism-1]->getName());
-      sprintf(histo, "*/EcalEndcap/EELedTask/PN/Gain16/EEPDT PNs pedestal %s G16", Numbers::sEE(ism).c_str());
-      if ( qth21_[ism-1] ) dbe_->useQTest(histo, qth21_[ism-1]->getName());
-    } else {
-      sprintf(histo, "EcalEndcap/EELedTask/EELDT amplitude %s A", Numbers::sEE(ism).c_str());
-      if ( qth01_[ism-1] ) dbe_->useQTest(histo, qth01_[ism-1]->getName());
-      sprintf(histo, "EcalEndcap/EELedTask/EELDT amplitude %s B", Numbers::sEE(ism).c_str());
-      if ( qth05_[ism-1] ) dbe_->useQTest(histo, qth05_[ism-1]->getName());
-      sprintf(histo, "EcalEndcap/EELedTask/PN/Gain01/EEPDT PNs amplitude %s G01", Numbers::sEE(ism).c_str());
-      if ( qth09_[ism-1] ) dbe_->useQTest(histo, qth09_[ism-1]->getName());
-      sprintf(histo, "EcalEndcap/EELedTask/PN/Gain01/EEPDT PNs pedestal %s G01", Numbers::sEE(ism).c_str());
-      if ( qth13_[ism-1] ) dbe_->useQTest(histo, qth13_[ism-1]->getName());
-      sprintf(histo, "EcalEndcap/EELedTask/PN/Gain16/EEPDT PNs amplitude %s G16", Numbers::sEE(ism).c_str());
-      if ( qth17_[ism-1] ) dbe_->useQTest(histo, qth17_[ism-1]->getName());
-      sprintf(histo, "EcalEndcap/EELedTask/PN/Gain16/EEPDT PNs pedestal %s G16", Numbers::sEE(ism).c_str());
-      if ( qth21_[ism-1] ) dbe_->useQTest(histo, qth21_[ism-1]->getName());
-    }
-
-    sprintf(histo, "EcalEndcap/EELaserTask/EELDT led quality %s", Numbers::sEE(ism).c_str());
-    if ( qtg01_[ism-1] ) dbe_->useQTest(histo, qtg01_[ism-1]->getName());
-
-    sprintf(histo, "EcalEndcap/EELaserTask/EELDT led quality PNs %s G01", Numbers::sEE(ism).c_str());
-    if ( qtg05_[ism-1] ) dbe_->useQTest(histo, qtg05_[ism-1]->getName());
-
-    sprintf(histo, "EcalEndcap/EELaserTask/EELDT led quality PNs %s G16", Numbers::sEE(ism).c_str());
-    if ( qtg09_[ism-1] ) dbe_->useQTest(histo, qtg09_[ism-1]->getName());
 
   }
 

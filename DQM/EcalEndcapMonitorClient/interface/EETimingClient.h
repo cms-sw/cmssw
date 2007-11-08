@@ -4,8 +4,8 @@
 /*
  * \file EETimingClient.h
  *
- * $Date: 2007/08/17 09:05:11 $
- * $Revision: 1.4 $
+ * $Date: 2007/09/07 22:30:06 $
+ * $Revision: 1.5 $
  * \author G. Della Ricca
  *
 */
@@ -85,7 +85,6 @@ int ievt_;
 int jevt_;
 
 bool cloneME_;
-bool enableQT_;
 
 bool verbose_;
 
@@ -97,8 +96,6 @@ vector<int> superModules_;
 
 MonitorUserInterface* mui_;
 DaqMonitorBEInterface* dbe_;
-
-MEContentsProf2DWithinRangeROOT* qth01_[18];
 
 MonitorElement* meh01_[18];
 
@@ -117,8 +114,6 @@ MonitorElement* mer01_[18];
 float expectedMean_;
 float discrepancyMean_;
 float RMSThreshold_;
-
-MEContentsTH2FWithinRangeROOT* qtg01_[36];
 
 };
 

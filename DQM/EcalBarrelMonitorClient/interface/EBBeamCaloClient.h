@@ -4,8 +4,8 @@
 /*
  * \file EBBeamCaloClient.h
  *
- * $Date: 2007/08/17 09:05:06 $
- * $Revision: 1.23 $
+ * $Date: 2007/09/07 22:30:03 $
+ * $Revision: 1.24 $
  * \author G. Della Ricca
  * \author A. Ghezzi
  *
@@ -89,7 +89,6 @@ int ievt_;
 int jevt_;
 
 bool cloneME_;
-bool enableQT_;
 
 bool verbose_;
 

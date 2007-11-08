@@ -1,8 +1,8 @@
 /*
  * \file EEPedestalClient.cc
  *
- * $Date: 2007/11/05 10:51:30 $
- * $Revision: 1.35 $
+ * $Date: 2007/11/06 08:05:21 $
+ * $Revision: 1.36 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -22,8 +22,6 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "DQMServices/UI/interface/MonitorUIRoot.h"
-#include "DQMServices/Core/interface/QTestStatus.h"
-#include "DQMServices/QualityTests/interface/QCriterionRoot.h"
 
 #include "OnlineDB/EcalCondDB/interface/RunTag.h"
 #include "OnlineDB/EcalCondDB/interface/RunIOV.h"
@@ -49,9 +47,6 @@ EEPedestalClient::EEPedestalClient(const ParameterSet& ps){
 
   // cloneME switch
   cloneME_ = ps.getUntrackedParameter<bool>("cloneME", true);
-
-  // enableQT switch
-  enableQT_ = ps.getUntrackedParameter<bool>("enableQT", true);
 
   // verbosity switch
   verbose_ = ps.getUntrackedParameter<bool>("verbose", false);
@@ -118,20 +113,6 @@ EEPedestalClient::EEPedestalClient(const ParameterSet& ps){
     met02_[ism-1] = 0;
     met03_[ism-1] = 0;
 
-    qth01_[ism-1] = 0;
-    qth02_[ism-1] = 0;
-    qth03_[ism-1] = 0;
-
-    qth04_[ism-1] = 0;
-    qth05_[ism-1] = 0;
-
-    qtg01_[ism-1] = 0;
-    qtg02_[ism-1] = 0;
-    qtg03_[ism-1] = 0;
-
-    qtg04_[ism-1] = 0;
-    qtg05_[ism-1] = 0;
-
   }
 
   expectedMean_[0] = 200.0;
@@ -170,90 +151,6 @@ void EEPedestalClient::beginJob(MonitorUserInterface* mui){
 
   ievt_ = 0;
   jevt_ = 0;
-
-  if ( enableQT_ ) {
-
-    Char_t qtname[200];
-
-    for ( unsigned int i=0; i<superModules_.size(); i++ ) {
-
-      int ism = superModules_[i];
-
-      sprintf(qtname, "EEPT quality %s G01", Numbers::sEE(ism).c_str());
-      qth01_[ism-1] = dynamic_cast<MEContentsProf2DWithinRangeROOT*> (dbe_->createQTest(ContentsProf2DWithinRangeROOT::getAlgoName(), qtname));
-
-      sprintf(qtname, "EEPT quality %s G06", Numbers::sEE(ism).c_str());
-      qth02_[ism-1] = dynamic_cast<MEContentsProf2DWithinRangeROOT*> (dbe_->createQTest(ContentsProf2DWithinRangeROOT::getAlgoName(), qtname));
-
-      sprintf(qtname, "EEPT quality %s G12", Numbers::sEE(ism).c_str());
-      qth03_[ism-1] = dynamic_cast<MEContentsProf2DWithinRangeROOT*> (dbe_->createQTest(ContentsProf2DWithinRangeROOT::getAlgoName(), qtname));
-
-      sprintf(qtname, "EEPT pedestal quality PNs %s G01", Numbers::sEE(ism).c_str());
-      qth04_[ism-1] = dynamic_cast<MEContentsProf2DWithinRangeROOT*> (dbe_->createQTest(ContentsProf2DWithinRangeROOT::getAlgoName(), qtname));
-
-      sprintf(qtname, "EEPT pedestal quality PNs %s G16", Numbers::sEE(ism).c_str());
-      qth05_[ism-1] = dynamic_cast<MEContentsProf2DWithinRangeROOT*> (dbe_->createQTest(ContentsProf2DWithinRangeROOT::getAlgoName(), qtname));
-
-      qth01_[ism-1]->setMeanRange(expectedMean_[0] - discrepancyMean_[0], expectedMean_[0] + discrepancyMean_[0]);
-      qth02_[ism-1]->setMeanRange(expectedMean_[1] - discrepancyMean_[1], expectedMean_[1] + discrepancyMean_[1]);
-      qth03_[ism-1]->setMeanRange(expectedMean_[2] - discrepancyMean_[2], expectedMean_[2] + discrepancyMean_[2]);
-      
-      qth04_[ism-1]->setMeanRange(expectedMeanPn_[0] - discrepancyMeanPn_[0], expectedMeanPn_[0] + discrepancyMeanPn_[0]);
-      qth05_[ism-1]->setMeanRange(expectedMeanPn_[1] - discrepancyMeanPn_[1], expectedMeanPn_[1] + discrepancyMeanPn_[1]);
-      
-      qth01_[ism-1]->setRMSRange(0.0, RMSThreshold_[0]);
-      qth02_[ism-1]->setRMSRange(0.0, RMSThreshold_[1]);
-      qth03_[ism-1]->setRMSRange(0.0, RMSThreshold_[2]);
-      
-      qth04_[ism-1]->setRMSRange(0.0, RMSThresholdPn_[0]);
-      qth05_[ism-1]->setRMSRange(0.0, RMSThresholdPn_[1]);
-      
-      qth01_[ism-1]->setMinimumEntries(10*1700);
-      qth02_[ism-1]->setMinimumEntries(10*1700);
-      qth03_[ism-1]->setMinimumEntries(10*1700);
-
-      qth04_[ism-1]->setMinimumEntries(10*10);
-      qth05_[ism-1]->setMinimumEntries(10*10);
-
-      qth01_[ism-1]->setErrorProb(1.00);
-      qth02_[ism-1]->setErrorProb(1.00);
-      qth03_[ism-1]->setErrorProb(1.00);
-
-      qth04_[ism-1]->setErrorProb(1.00);
-      qth05_[ism-1]->setErrorProb(1.00);
-
-      sprintf(qtname, "EEPT quality test %s G01", Numbers::sEE(ism).c_str());
-      qtg01_[ism-1] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (dbe_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
-
-      sprintf(qtname, "EEPT quality test %s G06", Numbers::sEE(ism).c_str());
-      qtg02_[ism-1] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (dbe_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
-
-      sprintf(qtname, "EEPT quality test %s G12", Numbers::sEE(ism).c_str());
-      qtg03_[ism-1] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (dbe_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
-
-      qtg01_[ism-1]->setMeanRange(1., 6.);
-      qtg02_[ism-1]->setMeanRange(1., 6.);
-      qtg03_[ism-1]->setMeanRange(1., 6.);
-
-      qtg01_[ism-1]->setErrorProb(1.00);
-      qtg02_[ism-1]->setErrorProb(1.00);
-      qtg03_[ism-1]->setErrorProb(1.00);
-
-      sprintf(qtname, "EEPT quality test PNs %s G01", Numbers::sEE(ism).c_str());
-      qtg04_[ism-1] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (dbe_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
-
-      sprintf(qtname, "EEPT quality test PNs %s G16", Numbers::sEE(ism).c_str());
-      qtg05_[ism-1] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (dbe_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
-
-      qtg04_[ism-1]->setMeanRange(1., 6.);
-      qtg05_[ism-1]->setMeanRange(1., 6.);
-
-      qtg04_[ism-1]->setErrorProb(1.00);
-      qtg05_[ism-1]->setErrorProb(1.00);
-
-    }
-
-  }
 
 }
 
@@ -760,48 +657,6 @@ void EEPedestalClient::subscribe(void){
     mui_->subscribe(histo, ism);
     sprintf(histo, "*/EcalEndcap/EEPedestalTask/PN/Gain16/EEPDT PNs pedestal %s G16", Numbers::sEE(ism).c_str());
     mui_->subscribe(histo, ism);
-
-  }
-
-  for ( unsigned int i=0; i<superModules_.size(); i++ ) {
-
-    int ism = superModules_[i];
-
-    if ( enableMonitorDaemon_ ) {
-      sprintf(histo, "*/EcalEndcap/EEPedestalTask/Gain01/EEPT pedestal %s G01", Numbers::sEE(ism).c_str());
-      if ( qth01_[ism-1] ) dbe_->useQTest(histo, qth01_[ism-1]->getName());
-      sprintf(histo, "*/EcalEndcap/EEPedestalTask/Gain06/EEPT pedestal %s G06", Numbers::sEE(ism).c_str());
-      if ( qth02_[ism-1] ) dbe_->useQTest(histo, qth02_[ism-1]->getName());
-      sprintf(histo, "*/EcalEndcap/EEPedestalTask/Gain12/EEPT pedestal %s G12", Numbers::sEE(ism).c_str());
-      if ( qth03_[ism-1] ) dbe_->useQTest(histo, qth03_[ism-1]->getName());
-      sprintf(histo, "*/EcalEndcap/EEPedestalTask/PN/Gain01/EEPDT PNs pedestal %s G01", Numbers::sEE(ism).c_str());
-      if ( qth04_[ism-1] ) dbe_->useQTest(histo, qth04_[ism-1]->getName());
-      sprintf(histo, "*/EcalEndcap/EEPedestalTask/PN/Gain16/EEPDT PNs pedestal %s G16", Numbers::sEE(ism).c_str());
-      if ( qth05_[ism-1] ) dbe_->useQTest(histo, qth05_[ism-1]->getName());
-    } else {
-      sprintf(histo, "EcalEndcap/EEPedestalTask/Gain01/EEPT pedestal %s G01", Numbers::sEE(ism).c_str());
-      if ( qth01_[ism-1] ) dbe_->useQTest(histo, qth01_[ism-1]->getName());
-      sprintf(histo, "EcalEndcap/EEPedestalTask/Gain06/EEPT pedestal %s G06", Numbers::sEE(ism).c_str());
-      if ( qth02_[ism-1] ) dbe_->useQTest(histo, qth02_[ism-1]->getName());
-      sprintf(histo, "EcalEndcap/EEPedestalTask/Gain12/EEPT pedestal %s G12", Numbers::sEE(ism).c_str());
-      if ( qth03_[ism-1] ) dbe_->useQTest(histo, qth03_[ism-1]->getName());
-      sprintf(histo, "EcalEndcap/EEPedestalTask/PN/Gain01/EEPDT PNs pedestal %s G01", Numbers::sEE(ism).c_str());
-      if ( qth04_[ism-1] ) dbe_->useQTest(histo, qth04_[ism-1]->getName());
-      sprintf(histo, "EcalEndcap/EEPedestalTask/PN/Gain16/EEPDT PNs pedestal %s G16", Numbers::sEE(ism).c_str());
-      if ( qth05_[ism-1] ) dbe_->useQTest(histo, qth05_[ism-1]->getName());
-    }
-
-    sprintf(histo, "EcalEndcap/EEPedestalClient/EEPT pedestal quality G01 %s", Numbers::sEE(ism).c_str());
-    if ( qtg01_[ism-1] ) dbe_->useQTest(histo, qtg01_[ism-1]->getName());
-    sprintf(histo, "EcalEndcap/EEPedestalClient/EEPT pedestal quality G06 %s", Numbers::sEE(ism).c_str());
-    if ( qtg02_[ism-1] ) dbe_->useQTest(histo, qtg02_[ism-1]->getName());
-    sprintf(histo, "EcalEndcap/EEPedestalClient/EEPT pedestal quality G12 %s", Numbers::sEE(ism).c_str());
-    if ( qtg03_[ism-1] ) dbe_->useQTest(histo, qtg03_[ism-1]->getName());
-
-    sprintf(histo, "EcalEndcap/EEPedestalClient/EEPT pedestal quality PNs G01 %s", Numbers::sEE(ism).c_str());
-    if ( qtg04_[ism-1] ) dbe_->useQTest(histo, qtg04_[ism-1]->getName());
-    sprintf(histo, "EcalEndcap/EEPedestalClient/EEPT pedestal quality PNs G16 %s", Numbers::sEE(ism).c_str());
-    if ( qtg05_[ism-1] ) dbe_->useQTest(histo, qtg05_[ism-1]->getName());
 
   }
 

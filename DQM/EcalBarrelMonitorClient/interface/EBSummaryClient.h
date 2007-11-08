@@ -4,8 +4,8 @@
 /*
  * \file EBSummaryClient.h
  *
- * $Date: 2007/10/19 17:50:15 $
- * $Revision: 1.17 $
+ * $Date: 2007/10/20 07:41:39 $
+ * $Revision: 1.18 $
  * \author G. Della Ricca
  *
 */
@@ -89,7 +89,6 @@ int ievt_;
 int jevt_;
 
 bool cloneME_;
-bool enableQT_;
 
 bool verbose_;
 
@@ -119,24 +118,7 @@ MonitorElement* meTiming_;
 MonitorElement* meTriggerTowerEt_;
 MonitorElement* meTriggerTowerEmulError_;
 
-MEContentsTH2FWithinRangeROOT* qtg01_;
-MEContentsTH2FWithinRangeROOT* qtg02_;
-MEContentsTH2FWithinRangeROOT* qtg03_;
-MEContentsTH2FWithinRangeROOT* qtg04_;
-MEContentsTH2FWithinRangeROOT* qtg04PN_;
-MEContentsTH2FWithinRangeROOT* qtg05_;
-MEContentsTH2FWithinRangeROOT* qtg05PN_;
-MEContentsTH2FWithinRangeROOT* qtg06_;
-MEContentsTH2FWithinRangeROOT* qtg06PN_;
-
-MEContentsTH2FWithinRangeROOT* qtg07_;
-MEContentsTH2FWithinRangeROOT* qtg08_;
-MEContentsTH2FWithinRangeROOT* qtg09_;
-MEContentsTH2FWithinRangeROOT* qtg10_;
-
 MonitorElement* meGlobalSummary_;
-
-MEContentsTH2FWithinRangeROOT* qtg99_;
 
 };
 

@@ -1,8 +1,8 @@
 /*
  * \file EBSummaryClient.cc
  *
- * $Date: 2007/11/03 09:06:50 $
- * $Revision: 1.81 $
+ * $Date: 2007/11/05 10:51:30 $
+ * $Revision: 1.82 $
  * \author G. Della Ricca
  *
 */
@@ -19,8 +19,6 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "DQMServices/UI/interface/MonitorUIRoot.h"
-#include "DQMServices/Core/interface/QTestStatus.h"
-#include "DQMServices/QualityTests/interface/QCriterionRoot.h"
 
 #include "OnlineDB/EcalCondDB/interface/RunTag.h"
 #include "OnlineDB/EcalCondDB/interface/RunIOV.h"
@@ -50,9 +48,6 @@ EBSummaryClient::EBSummaryClient(const ParameterSet& ps){
 
   // cloneME switch
   cloneME_ = ps.getUntrackedParameter<bool>("cloneME", true);
-
-  // enableQT switch
-  enableQT_ = ps.getUntrackedParameter<bool>("enableQT", true);
 
   // verbosity switch
   verbose_ = ps.getUntrackedParameter<bool>("verbose", false);
@@ -84,23 +79,6 @@ EBSummaryClient::EBSummaryClient(const ParameterSet& ps){
   meTriggerTowerEt_        = 0;
   meTriggerTowerEmulError_ = 0;
 
-  qtg01_ = 0;
-  qtg02_ = 0;
-  qtg03_ = 0;
-  qtg04_ = 0;
-  qtg04PN_ = 0;
-  qtg05_ = 0;
-  qtg05PN_ = 0;
-  qtg06_ = 0;
-  qtg06PN_ = 0;
-
-  qtg07_ = 0;
-  qtg08_ = 0;
-  qtg09_ = 0;
-  qtg10_ = 0;
-
-  qtg99_  = 0;
-
 }
 
 EBSummaryClient::~EBSummaryClient(){
@@ -116,88 +94,6 @@ void EBSummaryClient::beginJob(MonitorUserInterface* mui){
 
   ievt_ = 0;
   jevt_ = 0;
-
-  if ( enableQT_ ) {
-
-    Char_t qtname[200];
-
-    sprintf(qtname, "EBIT summary quality test");
-    qtg01_ = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (dbe_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
-
-    sprintf(qtname, "EBOT summary quality test");
-    qtg02_ = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (dbe_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
-
-    sprintf(qtname, "EBPOT summary quality test");
-    qtg03_ = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (dbe_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
-
-    sprintf(qtname, "EBLT summary quality test L1");
-    qtg04_ = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (dbe_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
-
-    sprintf(qtname, "EBLT PN summary quality test L1");
-    qtg04PN_ = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (dbe_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
-
-    sprintf(qtname, "EBPT summary quality test");
-    qtg05_ = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (dbe_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
-
-    sprintf(qtname, "EBPT PN summary quality test");
-    qtg05PN_ = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (dbe_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
-
-    sprintf(qtname, "EBTPT summary quality test");
-    qtg06_ = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (dbe_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
-
-    sprintf(qtname, "EBTPT PN summary quality test");
-    qtg06PN_ = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (dbe_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
-
-    sprintf(qtname, "EBCT summary quality test");
-    qtg07_ = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (dbe_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
-
-    sprintf(qtname, "EBTMT summary quality test");
-    qtg08_ = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (dbe_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
-
-    sprintf(qtname, "EBTTT Et summary quality test");
-//     qtg09_ = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (dbe_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
-
-    sprintf(qtname, "EBTTT emulator error summary quality test");
-    qtg10_ = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (dbe_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
-
-    sprintf(qtname, "EB global summary quality test");
-    qtg99_ = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (dbe_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
-
-    qtg01_->setMeanRange(1., 6.);
-//    qtg02_->setMeanRange(1., 6.);
-    qtg03_->setMeanRange(1., 6.);
-    qtg04_->setMeanRange(1., 6.);
-    qtg04PN_->setMeanRange(1., 6.);
-    qtg05_->setMeanRange(1., 6.);
-    qtg05PN_->setMeanRange(1., 6.);
-    qtg06_->setMeanRange(1., 6.);
-    qtg06PN_->setMeanRange(1., 6.);
-
-//    qtg07_->setMeanRange(1., 6.);
-    qtg08_->setMeanRange(1., 6.);
-//    qtg09_->setMeanRange(1., 6.); 
-    qtg10_->setMeanRange(1., 6.);
-
-    qtg99_->setMeanRange(1., 6.);
-
-    qtg01_->setErrorProb(1.00);
-//    qtg02_->setErrorProb(1.00);
-    qtg03_->setErrorProb(1.00);
-    qtg04_->setErrorProb(1.00);
-    qtg04PN_->setErrorProb(1.00);
-    qtg05_->setErrorProb(1.00);
-    qtg05PN_->setErrorProb(1.00);
-    qtg06_->setErrorProb(1.00);
-    qtg06PN_->setErrorProb(1.00);
-
-//    qtg07_->setErrorProb(1.00);
-    qtg08_->setErrorProb(1.00);
-//    qtg09_->setErrorProb(1.00);
-    qtg10_->setErrorProb(1.00);
-
-    qtg99_->setErrorProb(1.00);
-
-  }
 
 }
 
@@ -356,39 +252,6 @@ bool EBSummaryClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRun
 void EBSummaryClient::subscribe(void){
 
   if ( verbose_ ) cout << "EBSummaryClient: subscribe" << endl;
-
-  Char_t histo[200];
-
-  sprintf(histo, "EcalBarrel/EBSummaryClient/EBIT integrity quality summary");
-  if ( qtg01_ ) dbe_->useQTest(histo, qtg01_->getName());
-  sprintf(histo, "EcalBarrel/EBSummaryClient/EBOT occupancy summary");
-//  if ( qtg02_ ) dbe_->useQTest(histo, qtg02_->getName());
-  sprintf(histo, "EcalBarrel/EBSummaryClient/EBPOT pedestal quality summary G12");
-  if ( qtg03_ ) dbe_->useQTest(histo, qtg03_->getName());
-  sprintf(histo, "EcalBarrel/EBSummaryClient/EBLT laser quality summary L1");
-  if ( qtg04_ ) dbe_->useQTest(histo, qtg04_->getName());
-  sprintf(histo, "EcalBarrel/EBSummaryClient/EBLT PN laser quality summary L1");
-  if ( qtg04PN_ ) dbe_->useQTest(histo, qtg04PN_->getName());
-  sprintf(histo, "EcalBarrel/EBSummaryClient/EBPT pedestal quality summary");
-  if ( qtg05_ ) dbe_->useQTest(histo, qtg05_->getName());
-  sprintf(histo, "EcalBarrel/EBSummaryClient/EBPT PN pedestal quality summary");
-  if ( qtg05PN_ ) dbe_->useQTest(histo, qtg05PN_->getName());
-  sprintf(histo, "EcalBarrel/EBSummaryClient/EBTPT test pulse quality summary");
-  if ( qtg06_ ) dbe_->useQTest(histo, qtg06_->getName());
-  sprintf(histo, "EcalBarrel/EBSummaryClient/EBTPT PN test pulse quality summary");
-  if ( qtg06PN_ ) dbe_->useQTest(histo, qtg06PN_->getName());
-
-  sprintf(histo, "EcalBarrel/EBSummaryClient/EBCT cosmic quality summary");
-  if ( qtg07_ ) dbe_->useQTest(histo, qtg07_->getName());
-  sprintf(histo, "EcalBarrel/EBSummaryClient/EBTMT timing quality summary");
-  if ( qtg08_ ) dbe_->useQTest(histo, qtg08_->getName());
-  sprintf(histo, "EcalBarrel/EBSummaryClient/EBTTT Et trigger tower quality summary");
-//   if ( qtg09_ ) dbe_->useQTest(histo, qtg09_->getName());
-  sprintf(histo, "EcalBarrel/EBSummaryClient/EBTTT emulator error quality summary");
-  if ( qtg10_ ) dbe_->useQTest(histo, qtg10_->getName());
-
-  sprintf(histo, "EcalBarrel/EBSummaryClient/EB global summary");
-  if ( qtg99_ ) dbe_->useQTest(histo, qtg99_->getName());
 
 }
 

@@ -4,8 +4,8 @@
 /*
  * \file EETestPulseClient.h
  *
- * $Date: 2007/08/17 09:05:11 $
- * $Revision: 1.7 $
+ * $Date: 2007/09/07 22:30:06 $
+ * $Revision: 1.8 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -86,7 +86,6 @@ int ievt_;
 int jevt_;
 
 bool cloneME_;
-bool enableQT_;
 
 bool verbose_;
 
@@ -104,15 +103,6 @@ DaqMonitorBEInterface* dbe_;
 TProfile2D* ha01_[18];
 TProfile2D* ha02_[18];
 TProfile2D* ha03_[18];
-
-MEContentsProf2DWithinRangeROOT* qtha01_[18];
-MEContentsProf2DWithinRangeROOT* qtha02_[18];
-MEContentsProf2DWithinRangeROOT* qtha03_[18];
-
-MEContentsProf2DWithinRangeROOT* qtha04_[18];
-MEContentsProf2DWithinRangeROOT* qtha05_[18];
-MEContentsProf2DWithinRangeROOT* qtha06_[18];
-MEContentsProf2DWithinRangeROOT* qtha07_[18];
 
 TProfile2D* hs01_[18];
 TProfile2D* hs02_[18];
@@ -149,13 +139,6 @@ float amplitudeThresholdPnG16_;
 float pedPnExpectedMean_[2];
 float pedPnDiscrepancyMean_[2];
 float pedPnRMSThreshold_[2];
-
-MEContentsTH2FWithinRangeROOT* qtg01_[36];
-MEContentsTH2FWithinRangeROOT* qtg02_[36];
-MEContentsTH2FWithinRangeROOT* qtg03_[36];
-
-MEContentsTH2FWithinRangeROOT* qtg04_[36];
-MEContentsTH2FWithinRangeROOT* qtg05_[36];
 
 };
 

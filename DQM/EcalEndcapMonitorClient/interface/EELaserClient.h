@@ -4,8 +4,8 @@
 /*
  * \file EELaserClient.h
  *
- * $Date: 2007/08/17 09:05:11 $
- * $Revision: 1.5 $
+ * $Date: 2007/09/07 22:30:06 $
+ * $Revision: 1.6 $
  * \author G. Della Ricca
  *
 */
@@ -85,7 +85,6 @@ int ievt_;
 int jevt_;
 
 bool cloneME_;
-bool enableQT_;
 
 bool verbose_;
 
@@ -125,32 +124,6 @@ TProfile2D* h21_[18];
 TProfile2D* h22_[18];
 TProfile2D* h23_[18];
 TProfile2D* h24_[18];
-
-MEContentsProf2DWithinRangeROOT* qth01_[18];
-MEContentsProf2DWithinRangeROOT* qth02_[18];
-MEContentsProf2DWithinRangeROOT* qth03_[18];
-MEContentsProf2DWithinRangeROOT* qth04_[18];
-MEContentsProf2DWithinRangeROOT* qth05_[18];
-MEContentsProf2DWithinRangeROOT* qth06_[18];
-MEContentsProf2DWithinRangeROOT* qth07_[18];
-MEContentsProf2DWithinRangeROOT* qth08_[18];
-
-MEContentsProf2DWithinRangeROOT* qth09_[18];
-MEContentsProf2DWithinRangeROOT* qth10_[18];
-MEContentsProf2DWithinRangeROOT* qth11_[18];
-MEContentsProf2DWithinRangeROOT* qth12_[18];
-MEContentsProf2DWithinRangeROOT* qth13_[18];
-MEContentsProf2DWithinRangeROOT* qth14_[18];
-MEContentsProf2DWithinRangeROOT* qth15_[18];
-MEContentsProf2DWithinRangeROOT* qth16_[18];
-MEContentsProf2DWithinRangeROOT* qth17_[18];
-MEContentsProf2DWithinRangeROOT* qth18_[18];
-MEContentsProf2DWithinRangeROOT* qth19_[18];
-MEContentsProf2DWithinRangeROOT* qth20_[18];
-MEContentsProf2DWithinRangeROOT* qth21_[18];
-MEContentsProf2DWithinRangeROOT* qth22_[18];
-MEContentsProf2DWithinRangeROOT* qth23_[18];
-MEContentsProf2DWithinRangeROOT* qth24_[18];
 
 TProfile2D* hs01_[18];
 TProfile2D* hs02_[18];
@@ -258,20 +231,6 @@ float amplitudeThresholdPnG16_;
 float pedPnExpectedMean_[2];
 float pedPnDiscrepancyMean_[2];
 float pedPnRMSThreshold_[2];
-
-MEContentsTH2FWithinRangeROOT* qtg01_[36];
-MEContentsTH2FWithinRangeROOT* qtg02_[36];
-MEContentsTH2FWithinRangeROOT* qtg03_[36];
-MEContentsTH2FWithinRangeROOT* qtg04_[36];
-
-MEContentsTH2FWithinRangeROOT* qtg05_[36];
-MEContentsTH2FWithinRangeROOT* qtg06_[36];
-MEContentsTH2FWithinRangeROOT* qtg07_[36];
-MEContentsTH2FWithinRangeROOT* qtg08_[36];
-MEContentsTH2FWithinRangeROOT* qtg09_[36];
-MEContentsTH2FWithinRangeROOT* qtg10_[36];
-MEContentsTH2FWithinRangeROOT* qtg11_[36];
-MEContentsTH2FWithinRangeROOT* qtg12_[36];
 
 };
 

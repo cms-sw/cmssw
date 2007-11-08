@@ -1,8 +1,8 @@
 /*
  * \file EBTestPulseClient.cc
  *
- * $Date: 2007/11/05 10:51:30 $
- * $Revision: 1.162 $
+ * $Date: 2007/11/06 08:05:18 $
+ * $Revision: 1.163 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -20,8 +20,6 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "DQMServices/UI/interface/MonitorUIRoot.h"
-#include "DQMServices/Core/interface/QTestStatus.h"
-#include "DQMServices/QualityTests/interface/QCriterionRoot.h"
 
 #include "OnlineDB/EcalCondDB/interface/RunTag.h"
 #include "OnlineDB/EcalCondDB/interface/RunIOV.h"
@@ -48,9 +46,6 @@ EBTestPulseClient::EBTestPulseClient(const ParameterSet& ps){
 
   // cloneME switch
   cloneME_ = ps.getUntrackedParameter<bool>("cloneME", true);
-
-  // enableQT switch
-  enableQT_ = ps.getUntrackedParameter<bool>("enableQT", true);
 
   // verbosity switch
   verbose_ = ps.getUntrackedParameter<bool>("verbose", false);
@@ -103,22 +98,6 @@ EBTestPulseClient::EBTestPulseClient(const ParameterSet& ps){
     mer04_[ism-1] = 0;
     mer05_[ism-1] = 0;
 
-    qtha01_[ism-1] = 0;
-    qtha02_[ism-1] = 0;
-    qtha03_[ism-1] = 0;
-
-    qtha04_[ism-1] = 0;
-    qtha05_[ism-1] = 0;
-    qtha06_[ism-1] = 0;
-    qtha07_[ism-1] = 0;
-
-    qtg01_[ism-1] = 0;
-    qtg02_[ism-1] = 0;
-    qtg03_[ism-1] = 0;
-
-    qtg04_[ism-1] = 0;
-    qtg05_[ism-1] = 0;
-
   }
 
   percentVariation_ = 0.2;
@@ -151,104 +130,6 @@ void EBTestPulseClient::beginJob(MonitorUserInterface* mui){
 
   ievt_ = 0;
   jevt_ = 0;
-
-  if ( enableQT_ ) {
-
-    Char_t qtname[200];
-
-    for ( unsigned int i=0; i<superModules_.size(); i++ ) {
-
-      int ism = superModules_[i];
-
-      sprintf(qtname, "EBTPT quality %s G01", Numbers::sEB(ism).c_str());
-      qtha01_[ism-1] = dynamic_cast<MEContentsProf2DWithinRangeROOT*> (dbe_->createQTest(ContentsProf2DWithinRangeROOT::getAlgoName(), qtname));
-
-      sprintf(qtname, "EBTPT quality %s G06", Numbers::sEB(ism).c_str());
-      qtha02_[ism-1] = dynamic_cast<MEContentsProf2DWithinRangeROOT*> (dbe_->createQTest(ContentsProf2DWithinRangeROOT::getAlgoName(), qtname));
-
-      sprintf(qtname, "EBTPT quality %s G12", Numbers::sEB(ism).c_str());
-      qtha03_[ism-1] = dynamic_cast<MEContentsProf2DWithinRangeROOT*> (dbe_->createQTest(ContentsProf2DWithinRangeROOT::getAlgoName(), qtname));
-
-      sprintf(qtname, "EBTPT amplitude quality PNs %s G01", Numbers::sEB(ism).c_str());
-      qtha04_[ism-1] = dynamic_cast<MEContentsProf2DWithinRangeROOT*> (dbe_->createQTest(ContentsProf2DWithinRangeROOT::getAlgoName(), qtname));
-
-      sprintf(qtname, "EBTPT amplitude quality PNs %s G16", Numbers::sEB(ism).c_str());
-      qtha05_[ism-1] = dynamic_cast<MEContentsProf2DWithinRangeROOT*> (dbe_->createQTest(ContentsProf2DWithinRangeROOT::getAlgoName(), qtname));
-
-      sprintf(qtname, "EBTPT pedestal quality PNs %s G01", Numbers::sEB(ism).c_str());
-      qtha06_[ism-1] = dynamic_cast<MEContentsProf2DWithinRangeROOT*> (dbe_->createQTest(ContentsProf2DWithinRangeROOT::getAlgoName(), qtname));
-
-      sprintf(qtname, "EBTPT pedestal quality PNs %s G16", Numbers::sEB(ism).c_str());
-      qtha07_[ism-1] = dynamic_cast<MEContentsProf2DWithinRangeROOT*> (dbe_->createQTest(ContentsProf2DWithinRangeROOT::getAlgoName(), qtname));
-
-      qtha01_[ism-1]->setMeanTolerance(percentVariation_);
-      qtha02_[ism-1]->setMeanTolerance(percentVariation_);
-      qtha03_[ism-1]->setMeanTolerance(percentVariation_);
-
-      qtha04_[ism-1]->setMeanRange(amplitudeThresholdPnG01_, 4096.0);
-      qtha05_[ism-1]->setMeanRange(amplitudeThresholdPnG16_, 4096.0);
-      qtha06_[ism-1]->setMeanRange(pedPnExpectedMean_[0] - pedPnDiscrepancyMean_[0], pedPnExpectedMean_[0] + pedPnDiscrepancyMean_[0]);
-      qtha07_[ism-1]->setMeanRange(pedPnExpectedMean_[1] - pedPnDiscrepancyMean_[1], pedPnExpectedMean_[1] + pedPnDiscrepancyMean_[1]);
-
-      qtha01_[ism-1]->setRMSRange(0.0, RMSThreshold_);
-      qtha02_[ism-1]->setRMSRange(0.0, RMSThreshold_);
-      qtha03_[ism-1]->setRMSRange(0.0, RMSThreshold_);
-
-      qtha04_[ism-1]->setRMSRange(0.0, 4096.0);
-      qtha05_[ism-1]->setRMSRange(0.0, 4096.0);
-      qtha06_[ism-1]->setRMSRange(0.0, pedPnRMSThreshold_[0]);
-      qtha07_[ism-1]->setRMSRange(0.0, pedPnRMSThreshold_[1]);
-
-      qtha01_[ism-1]->setMinimumEntries(10*1700);
-      qtha02_[ism-1]->setMinimumEntries(10*1700);
-      qtha03_[ism-1]->setMinimumEntries(10*1700);
-
-      qtha04_[ism-1]->setMinimumEntries(10*10);
-      qtha05_[ism-1]->setMinimumEntries(10*10);
-      qtha06_[ism-1]->setMinimumEntries(10*10);
-      qtha07_[ism-1]->setMinimumEntries(10*10);
-
-      qtha01_[ism-1]->setErrorProb(1.00);
-      qtha02_[ism-1]->setErrorProb(1.00);
-      qtha03_[ism-1]->setErrorProb(1.00);
-
-      qtha04_[ism-1]->setErrorProb(1.00);
-      qtha05_[ism-1]->setErrorProb(1.00);
-      qtha06_[ism-1]->setErrorProb(1.00);
-      qtha07_[ism-1]->setErrorProb(1.00);
-
-      sprintf(qtname, "EBTPT quality test %s G01", Numbers::sEB(ism).c_str());
-      qtg01_[ism-1] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (dbe_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
-
-      sprintf(qtname, "EBTPT quality test %s G06", Numbers::sEB(ism).c_str());
-      qtg02_[ism-1] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (dbe_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
-
-      sprintf(qtname, "EBTPT quality test %s G12", Numbers::sEB(ism).c_str());
-      qtg03_[ism-1] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (dbe_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
-
-      qtg01_[ism-1]->setMeanRange(1., 6.);
-      qtg02_[ism-1]->setMeanRange(1., 6.);
-      qtg03_[ism-1]->setMeanRange(1., 6.);
-
-      qtg01_[ism-1]->setErrorProb(1.00);
-      qtg02_[ism-1]->setErrorProb(1.00);
-      qtg03_[ism-1]->setErrorProb(1.00);
-
-      sprintf(qtname, "EBTPT quality test PNs %s G01", Numbers::sEB(ism).c_str());
-      qtg04_[ism-1] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (dbe_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
-
-      sprintf(qtname, "EBTPT quality test PNs %s G16", Numbers::sEB(ism).c_str());
-      qtg05_[ism-1] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (dbe_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
-
-      qtg04_[ism-1]->setMeanRange(1., 6.);
-      qtg05_[ism-1]->setMeanRange(1., 6.);
-
-      qtg04_[ism-1]->setErrorProb(1.00);
-      qtg05_[ism-1]->setErrorProb(1.00);
-
-    }
-
-  }
 
 }
 
@@ -728,56 +609,6 @@ void EBTestPulseClient::subscribe(void){
     mui_->subscribe(histo, ism);
     sprintf(histo, "*/EcalBarrel/EBTestPulseTask/PN/Gain16/EBPDT PNs pedestal %s G16", Numbers::sEB(ism).c_str());
     mui_->subscribe(histo, ism);
-
-  }
-
-  for ( unsigned int i=0; i<superModules_.size(); i++ ) {
-
-    int ism = superModules_[i];
-
-    if ( enableMonitorDaemon_ ) {
-      sprintf(histo, "*/EcalBarrel/EBTestPulseTask/Gain01/EBTPT amplitude %s G01", Numbers::sEB(ism).c_str());
-      if ( qtha01_[ism-1] ) dbe_->useQTest(histo, qtha01_[ism-1]->getName());
-      sprintf(histo, "*/EcalBarrel/EBTestPulseTask/Gain06/EBTPT amplitude %s G06", Numbers::sEB(ism).c_str());
-      if ( qtha02_[ism-1] ) dbe_->useQTest(histo, qtha02_[ism-1]->getName());
-      sprintf(histo, "*/EcalBarrel/EBTestPulseTask/Gain12/EBTPT amplitude %s G12", Numbers::sEB(ism).c_str());
-      if ( qtha03_[ism-1] ) dbe_->useQTest(histo, qtha03_[ism-1]->getName());
-      sprintf(histo, "*/EcalBarrel/EBTestPulseTask/PN/Gain01/EBPDT PNs amplitude %s G01", Numbers::sEB(ism).c_str());
-      if ( qtha04_[ism-1] ) dbe_->useQTest(histo, qtha04_[ism-1]->getName());
-      sprintf(histo, "*/EcalBarrel/EBTestPulseTask/PN/Gain16/EBPDT PNs amplitude %s G16", Numbers::sEB(ism).c_str());
-      if ( qtha05_[ism-1] ) dbe_->useQTest(histo, qtha05_[ism-1]->getName());
-      sprintf(histo, "*/EcalBarrel/EBTestPulseTask/PN/Gain01/EBPDT PNs pedestal %s G01", Numbers::sEB(ism).c_str());
-      if ( qtha06_[ism-1] ) dbe_->useQTest(histo, qtha06_[ism-1]->getName());
-      sprintf(histo, "*/EcalBarrel/EBTestPulseTask/PN/Gain16/EBPDT PNs pedestal %s G16", Numbers::sEB(ism).c_str());
-      if ( qtha07_[ism-1] ) dbe_->useQTest(histo, qtha07_[ism-1]->getName());
-    } else {
-      sprintf(histo, "EcalBarrel/EBTestPulseTask/Gain01/EBTPT amplitude %s G01", Numbers::sEB(ism).c_str());
-      if ( qtha01_[ism-1] ) dbe_->useQTest(histo, qtha01_[ism-1]->getName());
-      sprintf(histo, "EcalBarrel/EBTestPulseTask/Gain06/EBTPT amplitude %s G06", Numbers::sEB(ism).c_str());
-      if ( qtha02_[ism-1] ) dbe_->useQTest(histo, qtha02_[ism-1]->getName());
-      sprintf(histo, "EcalBarrel/EBTestPulseTask/Gain12/EBTPT amplitude %s G12", Numbers::sEB(ism).c_str());
-      if ( qtha03_[ism-1] ) dbe_->useQTest(histo, qtha03_[ism-1]->getName());
-      sprintf(histo, "EcalBarrel/EBTestPulseTask/PN/Gain01/EBPDT PNs amplitude %s G01", Numbers::sEB(ism).c_str());
-      if ( qtha04_[ism-1] ) dbe_->useQTest(histo, qtha04_[ism-1]->getName());
-      sprintf(histo, "EcalBarrel/EBTestPulseTask/PN/Gain16/EBPDT PNs amplitude %s G16", Numbers::sEB(ism).c_str());
-      if ( qtha05_[ism-1] ) dbe_->useQTest(histo, qtha05_[ism-1]->getName());
-      sprintf(histo, "EcalBarrel/EBTestPulseTask/PN/Gain01/EBPDT PNs pedestal %s G01", Numbers::sEB(ism).c_str());
-      if ( qtha06_[ism-1] ) dbe_->useQTest(histo, qtha06_[ism-1]->getName());
-      sprintf(histo, "EcalBarrel/EBTestPulseTask/PN/Gain16/EBPDT PNs pedestal %s G16", Numbers::sEB(ism).c_str());
-      if ( qtha07_[ism-1] ) dbe_->useQTest(histo, qtha07_[ism-1]->getName());
-    }
-
-    sprintf(histo, "EcalBarrel/EBTestPulseClient/EBTPT test pulse quality G01 %s", Numbers::sEB(ism).c_str());
-    if ( qtg01_[ism-1] ) dbe_->useQTest(histo, qtg01_[ism-1]->getName());
-    sprintf(histo, "EcalBarrel/EBTestPulseClient/EBTPT test pulse quality G06 %s", Numbers::sEB(ism).c_str());
-    if ( qtg02_[ism-1] ) dbe_->useQTest(histo, qtg02_[ism-1]->getName());
-    sprintf(histo, "EcalBarrel/EBTestPulseClient/EBTPT test pulse quality G12 %s", Numbers::sEB(ism).c_str());
-    if ( qtg03_[ism-1] ) dbe_->useQTest(histo, qtg03_[ism-1]->getName());
-
-    sprintf(histo, "EcalBarrel/EBTestPulseClient/EBTPT test pulse quality PNs G01 %s", Numbers::sEB(ism).c_str());
-    if ( qtg04_[ism-1] ) dbe_->useQTest(histo, qtg04_[ism-1]->getName());
-    sprintf(histo, "EcalBarrel/EBTestPulseClient/EBTPT test pulse quality PNs G16 %s", Numbers::sEB(ism).c_str());
-    if ( qtg05_[ism-1] ) dbe_->useQTest(histo, qtg05_[ism-1]->getName());
 
   }
 
