@@ -99,7 +99,7 @@ void CustomPhysicsList::addCustomPhysics(){
               if(cp!=0) {
                 //              i++;
                 //              edm::LogInfo("")<<"1"<<std::endl;
-		if(particle->GetParticleType()=="rhadron"){
+		if(particle->GetParticleType()=="rhadron" || particle->GetParticleType()=="mesonino" || particle->GetParticleType() == "sbaryon" ){
 		  if(!myHelper) myHelper = new G4ProcessHelper(myConfig);
 		  pmanager->AddDiscreteProcess(new FullModelHadronicProcess(myHelper)); //GHEISHA
 		}
