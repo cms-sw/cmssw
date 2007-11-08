@@ -9,9 +9,9 @@
 // Implementation:
 //     Cache and make prescale factors available online.
 //
-// Current revision: $Revision: 1.5 $
-// On branch: $Name: V00-03-01 $
-// Latest change by $Author: gruen $ at $Date: 2007/08/14 19:20:28 $
+// Current revision: $Revision: 1.6 $
+// On branch: $Name:  $
+// Latest change by $Author: gruen $ at $Date: 2007/08/14 19:54:58 $
 //
 
 #include "DataFormats/Provenance/interface/EventID.h"
@@ -65,6 +65,8 @@ namespace edm {
       unsigned int bang;         // error count of spoilt events
       unsigned int nops;         // count of empty prescaler vector
       unsigned int bcfg;         // getConfig exception count
+      unsigned int lslast;       // end-of-run LS# cached, 0 if run not ended
+      unsigned int l1ind;        // current L1 index 
 
     public:
 
