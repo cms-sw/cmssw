@@ -14,10 +14,10 @@
 #include <algorithm>
 
 namespace edm {
-  PileUp::PileUp(ParameterSet const& pset,double const averageNumber) :
+  PileUp::PileUp(ParameterSet const& pset,double const averageNumber, int const minb,int const maxb) :
       type_(pset.getParameter<std::string>("type")),
-      minBunch_(pset.getParameter<int>("minBunch")),
-      maxBunch_(pset.getParameter<int>("maxBunch")),
+      minBunch_(minb),
+      maxBunch_(maxb),
       averageNumber_(averageNumber),
       intAverage_(static_cast<int>(averageNumber)),
       poisson_(type_ == "poisson"),

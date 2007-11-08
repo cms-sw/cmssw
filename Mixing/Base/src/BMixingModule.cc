@@ -30,9 +30,12 @@ namespace
       {
 	// We have the parameter
 	// and if we have either averageNumber or cfg by luminosity... make the PileUp
-        
         double averageNumber;
         edm::ParameterSet psin=ps.getParameter<edm::ParameterSet>("input");
+        int minb=psin.getParameter<int>("minBunch");
+	minb=(minb*25)/ps.getParameter<int>("bunchspace");
+        int maxb=psin.getParameter<int>("maxBunch");
+	maxb=(maxb*25)/ps.getParameter<int>("bunchspace");
         vector<string> namesIn = psin.getParameterNames();
         if (find(namesIn.begin(), namesIn.end(), std::string("nbPileupEvents"))
 	    != namesIn.end()) {
@@ -42,14 +45,16 @@ namespace
 	      != namesAverage.end()) 
 	    {
               averageNumber=psin_average.getParameter<double>("averageNumber");
-	      pileup.reset(new edm::PileUp(ps.getParameter<edm::ParameterSet>("input"),averageNumber));
+              edm::LogInfo("MixingModule")<<" Average number used is "<<averageNumber<<", minBunch "<<minb<<", maxBunch "<<maxb;
+	      pileup.reset(new edm::PileUp(ps.getParameter<edm::ParameterSet>("input"),averageNumber,minb,maxb));
 	    }
 	
 	  else if (find(namesAverage.begin(), namesAverage.end(), std::string("Lumi")) 
 		   != namesAverage.end() && find(namesAverage.begin(), namesAverage.end(), std::string("sigmaTot"))
 		   != namesAverage.end()) {
-	    averageNumber=psin_average.getParameter<double>("Lumi")*psin_average.getParameter<double>("sigmaTot")*ps.getParameter<int>("bunchspace")/1000;
-	    pileup.reset(new edm::PileUp(ps.getParameter<edm::ParameterSet>("input"),averageNumber));
+	    averageNumber=psin_average.getParameter<double>("Lumi")*psin_average.getParameter<double>("sigmaTot")*ps.getParameter<int>("bunchspace")/1000*3564./2808.;
+	    edm::LogInfo("MixingModule")<<" Luminosity configuration, average number used is "<<averageNumber<<", minBunch "<<minb<<", maxBunch "<<maxb;
+	    pileup.reset(new edm::PileUp(ps.getParameter<edm::ParameterSet>("input"),averageNumber,minb,maxb));
 	  }
 	}
       }
