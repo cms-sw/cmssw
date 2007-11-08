@@ -52,6 +52,10 @@ namespace pos{
       return id_<aROC.id_;
     }
 
+    const bool operator==(const PixelModuleName& aModule) const{
+      return id_==aModule.id_;
+    }
+
   private:
 
     void parsename(std::string name);

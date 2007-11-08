@@ -235,7 +235,16 @@ std::map <unsigned int, std::set<unsigned int> > PixelDetectorConfig::getFEDsAnd
 
 	return fedsChannels;
 }
- 
+
+bool PixelDetectorConfig::containsModule(const PixelModuleName& moduleToFind) const
+{
+	for ( std::vector<PixelModuleName>::const_iterator modules_itr = modules_.begin(); modules_itr != modules_.end(); modules_itr++ )
+	{
+		if ( *modules_itr == moduleToFind ) return true;
+	}
+	return false;
+}
+
 void PixelDetectorConfig::writeASCII(){
 
   std::ofstream out("detconfig.dat");

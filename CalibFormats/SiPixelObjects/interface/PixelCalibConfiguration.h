@@ -39,7 +39,7 @@ namespace pos{
     PixelCalibConfiguration(std::string filename="");
 
     // This must be run before using commands that require the ROC list.
-    void buildROCAndModuleLists(const PixelNameTranslation* translation);
+    void buildROCAndModuleLists(const PixelNameTranslation* translation, const PixelDetectorConfig* detconfig);
 
     void nextFECState(PixelFECConfigInterface* pixelFEC,
 		      PixelDetectorConfig* detconfig,
@@ -107,6 +107,8 @@ namespace pos{
 
   private:
 
+    // Used in constructor or in buildROCAndModuleLists()
+    void buildROCAndModuleListsFromROCSet(const std::set<PixelROCName>& rocSet);
 
     //Mode is one of the following: 
     //  ThresholdCalDelay
