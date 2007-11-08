@@ -12,8 +12,6 @@ public:
 }
 
   HDigiFP420( int strip, int adc) : strip_(strip), adc_(adc) {
-    numStripsY = 201;        // Y plane number of strips:200*0.050=10mm (zside=1) H
-    numStripsX = 401;        // X plane number of strips:400*0.050=20mm (zside=2) V
 }
     HDigiFP420( short strip, short adc) : strip_(strip), adc_(adc) {
 //    numStripsY = 201;        // Y plane number of strips:200*0.050=10mm (zside=1) H
@@ -36,8 +34,8 @@ public:
   //		  int ix= istrip.channel() - iy*numStripsY;
   //                                             //
 private:
-  int  numStripsY ;        // Y plate number of strips:200*0.050=10mm (zside=1)
-  int  numStripsX ;        // X plate number of strips:400*0.050=20mm (zside=2)
+  static const int  numStripsY= 201 ;        // Y plate number of strips:200*0.050=10mm (zside=1)
+  static const int  numStripsX= 401 ;        // X plate number of strips:400*0.050=20mm (zside=2)
   short strip_;
   short adc_;
 };
