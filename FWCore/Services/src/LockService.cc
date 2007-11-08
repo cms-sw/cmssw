@@ -2,7 +2,7 @@
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
 #include "FWCore/Utilities/interface/DebugMacros.h"
 #include "FWCore/Utilities/interface/GlobalMutex.h"
-#include "FWCore/Utilities/interface/Algorithms.h"
+//#include "FWCore/Utilities/interface/Algorithms.h"
 
 #include <iostream>
 #include <algorithm>
@@ -41,7 +41,8 @@ LockService::~LockService()
 void LockService::preSourceConstruction(const ModuleDescription& desc)
 {
   if(!labels_.empty() &&
-    search_all(labels_, desc.moduleLabel_))
+     find(labels_.begin(), labels_.end(), desc.moduleLabel_) != labels_.end())
+     //search_all(labels_, desc.moduleLabel_))
     {
       FDEBUG(4) << "made a new locked in LockService" << std::endl;
       locker_ = new boost::mutex::scoped_lock(*lock_);
@@ -90,7 +91,8 @@ void LockService::postSource()
 void LockService::preModule(const ModuleDescription& desc)
 {
   if(!labels_.empty() &&
-    search_all(labels_, desc.moduleLabel_))
+     find(labels_.begin(), labels_.end(), desc.moduleLabel_) != labels_.end())
+     //search_all(labels_, desc.moduleLabel_))
     {
       FDEBUG(4) << "made a new locked in LockService" << std::endl;
       locker_ = new boost::mutex::scoped_lock(*lock_);

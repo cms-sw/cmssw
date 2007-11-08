@@ -12,6 +12,9 @@
 class SimpleProfiler
 {
  public:
+  typedef std::vector<void*> VoidVec;
+  typedef VoidVec::size_type size_type;
+
   static SimpleProfiler* instance();
 
   void start();
@@ -19,9 +22,10 @@ class SimpleProfiler
 
   void* stackTop() { return stacktop_; }
   void** tempStack() { return &tmp_stack_[0]; }
+  size_type tempStackSize() { return tmp_stack_.size(); }
+  
   void commitFrame(void** first, void** last);
 
-  typedef std::vector<void*> VoidVec;
  private:
   SimpleProfiler();
   ~SimpleProfiler();

@@ -3,12 +3,19 @@
 #define _POSIX_C_SOURCE 199309
 #endif
 
-#include <cstdio>
+#if __linux
+# include <execinfo.h>
+# include <ucontext.h>
+# include <sys/syscall.h>
+#endif
+
+
 
 #include <pthread.h>
 #include <unistd.h>
 #include <dlfcn.h>
 
+#include <cstdio>
 #include <iostream>
 #include <sstream>
 #include <stdexcept>
@@ -76,18 +83,9 @@ const int REG_ESP = 7;
 namespace 
 {
 
-  struct frame
-  {
-    // member data
-    frame* next;
-    void*  ip;
-
-    // member functions
-    frame() : next(0), ip(0) { }
-    unsigned char instruction() const { return *(unsigned char*)ip; }
-    void print(FILE* out) { fprintf(out, "next: %8.8x  ip: %8.8x  inst: %2.2x\n", next, ip, instruction()); }
-  };
-
+  // Record the dynamic library mapping information from /proc/ for
+  // later use in discovering the names of functions recorded as
+  // 'unknown_*'.
   void write_maps()
   {
     pid_t pid = getpid();
@@ -159,18 +157,172 @@ namespace
   }
 }
 
-namespace {
+namespace 
+{
   // counters
   int samples_total=0;
-  int samples_uninterpretable=0;
-  int samples_ebp_less_esp=0;
-  int samples_bad_ebp=0;
-  int samples_after_push=0;
-  int samples_before_push=0;
-  int samples_between_leave_ret=0;
-  int samples_skipped=0;
-  int samples_outside_range=0;
-  int samples_popped=0;
+  int samples_missing_framepointer=0;
+}
+
+// ---------------------------------------------------------------------
+// This is the stack trace discovery code from IgHookTrace.
+// ---------------------------------------------------------------------
+
+#if __GNUC__ > 3 || (__GNUC__ == 3 && __GNUC_MINOR__ >= 4)
+# define HAVE_UNWIND_BACKTRACE 1
+#endif
+#if !defined MAP_ANONYMOUS && defined MAP_ANON
+# define MAP_ANONYMOUS MAP_ANON
+#endif
+
+#if HAVE_UNWIND_BACKTRACE
+struct IgHookTraceArgs { void **array; int count; int size; };
+extern "C" {
+  typedef unsigned _Unwind_Ptr __attribute__((__mode__(__pointer__)));
+  struct _Unwind_Context;
+  enum _Unwind_Reason_Code
+    {
+      _URC_NO_REASON = 0,
+      _URC_FOREIGN_EXCEPTION_CAUGHT = 1,
+      _URC_FATAL_PHASE2_ERROR = 2,
+      _URC_FATAL_PHASE1_ERROR = 3,
+      _URC_NORMAL_STOP = 4,
+      _URC_END_OF_STACK = 5,
+      _URC_HANDLER_FOUND = 6,
+      _URC_INSTALL_CONTEXT = 7,
+      _URC_CONTINUE_UNWIND = 8
+    };
+
+  typedef _Unwind_Reason_Code (*_Unwind_Trace_Fn) (_Unwind_Context *, void *);
+  _Unwind_Reason_Code _Unwind_Backtrace (_Unwind_Trace_Fn, void *);
+  _Unwind_Ptr _Unwind_GetIP (_Unwind_Context *);
+}
+
+#ifndef __linux
+static _Unwind_Reason_Code
+GCCBackTrace (_Unwind_Context *context, void *arg)
+{
+  IgHookTraceArgs *args = (IgHookTraceArgs *) arg;
+  if (args->count >= 0 && args->count < args->size)
+    args->array [args->count++] = (void *) _Unwind_GetIP (context);
+  else
+    return _URC_END_OF_STACK;
+  return _URC_NO_REASON;
+}
+#endif
+#endif
+
+
+int stacktrace (void *addresses[], int nmax)
+{
+  ++samples_total;
+#if __linux && __i386
+# if ! __x86_64__
+#  define PROBABLY_VSYSCALL_PAGE 0xffff0000
+# else
+#  define PROBABLY_VSYSCALL_PAGE 0xffffffff00000000
+# endif
+  struct frame
+  {
+    // Normal frame.
+    frame		*ebp;
+    void		*eip;
+    // Signal frame stuff, put in here by kernel.
+    int		signo;
+    siginfo_t	*info;
+    ucontext_t	*ctx;
+  };
+  register frame      *ebp __asm__ ("ebp");
+  register frame      *esp __asm__ ("esp");
+  frame               *fp = ebp;
+  int			depth = 0;
+
+  // Add fake entry to be compatible with other methods
+  if (depth < nmax) addresses[depth++] = (void *) &stacktrace;
+
+  // Top-most frame ends with null pointer; check the rest is reasonable
+  while (depth < nmax && fp >= esp)
+    {
+      // Add this stack frame.  The return address is the
+      // instruction immediately after the "call".  The call
+      // instruction itself is 4 or 6 bytes; we guess 4.
+      addresses[depth++] = (char *) fp->eip - 4;
+
+      // Recognise signal frames.  We use two different methods
+      // depending on the linux kernel version.
+      //
+      // For the "old" kernels / systems we check the instructions
+      // at the caller's return address.  We take it to be a signal
+      // frame if we find the signal return code sequence there
+      // and the thread register context structure pointer:
+      //
+      //    mov $__NR_rt_sigreturn, %eax
+      //    int 0x80
+      //
+      // For the "new" kernels / systems the operating system maps
+      // a "vsyscall" page at a high address, and it may contain
+      // either the above code, or use of the sysenter/sysexit
+      // instructions.  We cannot poke at that page so we take the
+      // the high address as an indication this is a signal frame.
+      // (http://www.trilithium.com/johan/2005/08/linux-gate/)
+      // (http://manugarg.googlepages.com/systemcallinlinux2_6.html)
+      //
+      // If we don't recognise the signal frame correctly here, we
+      // lose one stack frame: signal delivery is not a call so
+      // when the signal handler is entered, ebp still points to
+      // what it was just before the signal.
+      unsigned char *insn = (unsigned char *) fp->eip;
+      if (insn
+	  && insn[0] == 0xb8 && insn[1] == __NR_rt_sigreturn
+	  && insn[5] == 0xcd && insn[6] == 0x80
+	  && fp->ctx)
+        {   
+	  void *retip = (void *) fp->ctx->uc_mcontext.gregs [REG_EIP];
+	  if (depth < nmax) addresses[depth++] = retip;
+
+	  fp = (frame *) fp->ctx->uc_mcontext.gregs [REG_EBP];
+	  if (fp && (unsigned long) retip > PROBABLY_VSYSCALL_PAGE)
+	    {
+	      // __kernel_vsyscall stack on system call exit is
+	      // [0] %ebp, [1] %edx, [2] %ecx, [3] return address.
+	      if (depth < nmax) addresses[depth++] = ((void **) fp)[3];
+	      fp = fp->ebp;
+
+	      // It seems the frame _above_ __kernel_syscall (the
+	      // syscall implementation in libc, such as __mmap())
+	      // is essentially frame-pointer-less, so we should
+	      // find also the call above, but I don't know how
+	      // to determine how many arguments the system call
+	      // pushed on stack to call __kernel_syscall short
+	      // of interpreting the DWARF unwind information :-(
+	      // So we may lose one level of call stack here.
+	      ++samples_missing_framepointer;
+	    }
+        }
+
+      // Otherwise it's a normal frame, process through frame pointer.
+      else
+	fp = fp->ebp;
+    }
+
+  return depth;
+#elif __linux
+  return backtrace (addresses, nmax);
+#elif HAVE_UNWIND_BACKTRACE
+  if (nmax >= 1)
+    {
+      IgHookTraceArgs args = { addresses, 0, nmax };
+      _Unwind_Backtrace (&GCCBackTrace, &args);
+
+      if (args.count > 1 && args.array [args.count-1] == 0)
+	args.count--;
+
+      return args.count;
+    }
+  return 0;
+#else
+  return 0;
+#endif
 }
 
 // ---------------------------------------------------------------------
@@ -181,204 +333,17 @@ extern "C"
 {
   void sigFunc(int sig, siginfo_t* info, void* context)
   {
-#if defined(__x86_64__) || defined(__LP64__) || defined(_LP64)
-    return;
-#else
-    int condition = 0;
-    //fprintf(stderr, "--------------------\n");
-    unsigned int* this_sp;
-    unsigned int* this_bp;
-    getSP(this_sp);
-    getBP(this_bp);
-
-    DODEBUG << "got the interrupt: " << sig << " " << pthread_self() << "\n";
     SimpleProfiler* prof = SimpleProfiler::instance();
-    ucontext_t* ucp = (ucontext_t*)context;
-    unsigned char* eip=(unsigned char*)ucp->uc_mcontext.gregs[REG_EIP];
-    void* stacktop = prof->stackTop();
     void** arr = prof->tempStack();
-    ++samples_total;
+    int nmax =   prof->tempStackSize();
+    int stackdepth = stacktrace(arr, nmax);
 
-#if 0
-    std::cerr << "siginfo=" << (void*)info
-	 << " context=" << context
-	 << " stack=" << (void*)ucp->uc_stack.ss_sp
-	 << "\n";
-#endif
+    assert(stackdepth <= nmax);
 
-    // ----- manual way ------
-    unsigned int* ebp=(unsigned int*)ucp->uc_mcontext.gregs[REG_EBP];
-    unsigned int* esp=(unsigned int*)ucp->uc_mcontext.gregs[REG_ESP];
-    int* fir = (int*)arr;
-    int* cur = fir;
-    bool stack_uninterpretable = false;
-
-    if (ebp<esp)
-      {
-	//++error_count;
-	getBP(ebp);
-	if(ebp<esp)
-	  {
-	    *cur++ = ((unsigned int)eip);
-	    *cur++ = 0U;
-	    //std::cerr << "early completion for eip = " << (unsigned int)eip << '\n';
-	    fprintf(frame_cond," early completion for eip %8.8x\n",(unsigned int)eip);
-
-	    ++samples_uninterpretable;
-	    stack_uninterpretable=true;
-	  }
-	else
-	  {
-	    fprintf(frame_cond,"ebp < esp (but not early completion)\n");
-	    ebp=(unsigned int*)(*ebp);
-	    ebp=(unsigned int*)(*ebp);
-	    ++samples_ebp_less_esp;
-	  } 
-      }
-  
-    if (!stack_uninterpretable)
-      {
-	*cur++ = ((unsigned int)eip);
-
-	// Now we handle special cases:
-
-	//  ... if we've done the LEAVE, but not yet the RET, then
-	//  we've already popped the frame for the function we're
-	//  in. We then need to capture the calling routine *from the
-	//  top of the stack*, and then can continue with the normal
-	//  walk up the stack.
-	//writeCond(*(esp-1));
-	//writeCond((int)ebp);
-
-	if(eip[0]==INSTR::RET)
-	  {
-	    ++samples_between_leave_ret;
-	    //std::cerr << "after the leave and immediately before the ret\n";
-	    condition += 1;
-	    //*cur++ = ((unsigned int)*esp);
-	    *cur++ = *esp;
-	  }
-
-	// ... when entering a function, we encounter the following
-	// instructions:
-	//
-	//       PUSH   %ebp
-	//       MOV    %esp,%ebp
-	//
-	// If we're in the new function, but before these instructions
-	// have been done, then EBP and ESP aren't yet set for the new
-	// function... so set them.
-
-	if(
-	   (esp)<(unsigned int*)0x0000ffff||
-	   (esp+1)<(unsigned int*)0x0000ffff||
-	   (esp+2)<(unsigned int*)0x0000ffff
-	   )
-	  {
-	    dumpStack("bad ebp data ****************\n",esp,ebp,eip,ucp); 
-	  }
-	if( *esp==(unsigned int)ebp )
-	  {
-	    ++samples_after_push;
-	    condition += 4;	    
-	    //std::cerr << "after the push, before the mov\n";
-	    ebp = esp;
-	  }
-	else if(eip[0]==0x55 && eip[1]==0x89 && eip[2]==0xe5)
-	  {
-	    ++samples_before_push;
-	    condition += 8;
-	    //std::cerr << "after the call, before the push\n";
-	    *cur++ = *esp;
-	  }
-	// if value at stacktop and stacktop-1 are outside stack range
-	else if((*(esp-2)==0xadb8 && *(esp-1)==0x80cd00))
-	  if( (unsigned int)eip!=*(esp-1) && *eip!=0xc3 && *eip!=0xe8 )
-	    {
-	      ++samples_outside_range;
-	      dumpStack("stacktop and stacktop-1 outside range\n",
-			esp,ebp,eip,ucp);
-	      
-	      if ( (void*)eip > stacktop)
-		{
-		  // The current function had no stack frame.
-		  ++samples_bad_ebp;
-		  condition += 16;
-		  if( (ebp+0)<(unsigned int*)0x0000ffff )
-		    {
-		      dumpStack("bad ebp data ****************\n",
-				esp,ebp,eip,ucp);
-		    }
-		  ebp = (unsigned int*)esp[0];
-                  ebp=0; // we will skip these types of frames for now!!!! (jbk)
-
-		  // 		frame* f = (frame*)(esp[0]);
-		  // 		while ( f != 0 )
-		  // 		  {
-		  // 		    f->print(frame_cond);
-		  // 		    f = f->next;
-		  // 		  }
-		  
-		}
-	      else
-		{
-		  // The stack frame for the current function has
-		  // already been popped.
-		  ++samples_popped;
-		  condition += 2;
-		  //std::cerr << "after the leave but before the ret\n";
-		  *cur++ = *esp;
-		}
-	    }
-	  else
-	    {
-	      //std::cerr << "skip stack trace\n";
-	      ++samples_skipped;
-	      ebp=0;
-	    }
-	
-	if (ebp<reinterpret_cast<unsigned int*>(stacktop) == false) 
-	  fprintf(stderr, "--- not going through the loop this time\n");
-
-	//if (condition!=0) fprintf(stderr, "bad condition: %d\n", condition);
-	//while(ebp<stacktop)
-
-	int counter = 0;
-	while (ebp && ebp<stacktop)
-	  {
-	    //*cur++   = *(ebp+1);
-	    if( (ebp+1)<(unsigned int*)0x0000ffff )
-	      {
-		fprintf(frame_cond,"bad ebp+1 data %8.8x\n",(ebp+1));
-		//dumpStack("bad ebp+1 data ****************\n",
-		//	  esp,ebp,eip,ucp); 
-		break;
-	      }
-	    unsigned int ival = ebp[1];
-	    *cur = ival;
-	    cur++;
-
-	    //ebp=(unsigned int*)(*ebp);
-	    if( (ebp)<(unsigned int*)0x0000ffff )
-	      {
-		fprintf(frame_cond,"bad ebp data\n");
-		//dumpStack("bad ebp data ****************\n",
-		//	  esp,ebp,eip,ucp); 
-		break;
-	      }
-	    unsigned int val = ebp[0];
-	    ebp = reinterpret_cast<unsigned int*>(val);
-
-	    if (++counter > 1000)
-	      {
-		std::cerr << "BAD COUNT!!!!!!\n";
-		break;
-	      }
-	  }
-      }
-    //writeCond(condition)
-    prof->commitFrame((void**)fir,(void**)cur);    
-#endif
+    // We don't want the first three entries, because they always
+    // contain information about the how the signal handler was
+    // called, the signal handler, and the stacktrace function.
+    prof->commitFrame(arr+3, arr + stackdepth);
   }
 }
 
@@ -415,13 +380,9 @@ namespace
       {
 	if(dladdr(sta[i],&look)!=0)
 	  {
-#if 0
-	    std::cerr << "sta[" << i << "]=" << sta[i] << ":  " << (look.dli_saddr ? look.dli_sname : "?") << ":" << look.dli_saddr << "\n"; 
-#endif
 	    if (look.dli_saddr && target_name==look.dli_sname)
 	      {
 		address_of_target = sta[i];
-		// std::cerr << "found " << target_name << "\n";
 	      }
 	  }
 	else
@@ -431,8 +392,8 @@ namespace
 	    // be one that is declared 'static', and is thus not
 	    // visible outside of its compilation unit.
 	    std::cerr << "setStacktop: no function information for " 
-		 << sta[i] 
-		 << "\n";
+		      << sta[i] 
+		      << "\n";
 	  }
       }
 
@@ -448,12 +409,12 @@ namespace
     // top is the frame we are currently looking at.
     // top+1 is the address to which the current frame will return.
     while (depth>0 && (void*)*(top+1) != address_of_target)
-    {
-      //fprintf(stderr,"depth=%d top=%8.8x func=%8.8x\n",depth,top,*(top+1));
-      if (top<(unsigned int*)0x10) fprintf(stderr,"problem\n");
-      top=(unsigned int*)(*top);
-      --depth;
-    };
+      {
+	//fprintf(stderr,"depth=%d top=%8.8x func=%8.8x\n",depth,top,*(top+1));
+	if (top<(unsigned int*)0x10) fprintf(stderr,"problem\n");
+	top=(unsigned int*)(*top);
+	--depth;
+      };
 
     if (depth==0) 
       throw std::runtime_error("setStacktop: could not find stack bottom");
@@ -626,9 +587,9 @@ SimpleProfiler::SimpleProfiler():
   stacktop_(setStacktop())
 {
   if (fd_ < 0) {
-      std::ostringstream ost;
-      ost << "failed to open profiler output file " << filename_;
-      throw std::runtime_error(ost.str().c_str());
+    std::ostringstream ost;
+    ost << "failed to open profiler output file " << filename_;
+    throw std::runtime_error(ost.str().c_str());
   }
   
   openCondFile();
@@ -638,8 +599,8 @@ SimpleProfiler::~SimpleProfiler()
 {
   if (running_)
     std::cerr << "Warning: the profile timer was not stopped,\n"
-	 << "profiling data in " << filename_
-	 << " is probably incomplete and will not be processed\n";
+	      << "profiling data in " << filename_
+	      << " is probably incomplete and will not be processed\n";
 
   closeCondFile();
 }
@@ -661,10 +622,10 @@ void SimpleProfiler::doWrite()
   unsigned int totwr=0;
 
   while (cnt>0 && (totwr=write(fd_,start,cnt)) != cnt) {
-      if(totwr==0) 
-	throw std::runtime_error("SimpleProfiler::doWrite wrote zero bytes");
-      start+=(totwr/sizeof(void*));
-      cnt-=totwr;
+    if(totwr==0) 
+      throw std::runtime_error("SimpleProfiler::doWrite wrote zero bytes");
+    start+=(totwr/sizeof(void*));
+    cnt-=totwr;
   }
 
   curr_ = &frame_data_[0];
@@ -679,12 +640,12 @@ void SimpleProfiler::start()
     boost::mutex::scoped_lock sl(lock_);
 
     if (installed_) {
-	std::cerr << "Warning: second thread " << pthread_self()
-	     << " requested the profiler timer and another thread\n"
-	     << owner_ << "has already started it.\n"
-	     << "Only one thread can do profiling at a time.\n"
-	     << "This second thread will not be profiled.\n";
-	return;
+      std::cerr << "Warning: second thread " << pthread_self()
+		<< " requested the profiler timer and another thread\n"
+		<< owner_ << "has already started it.\n"
+		<< "Only one thread can do profiling at a time.\n"
+		<< "This second thread will not be profiled.\n";
+      return;
     }
     
     installed_ = true;
@@ -740,7 +701,7 @@ void SimpleProfiler::complete()
   if(lseek(fd_,0,SEEK_SET)<0)
     {
       std::cerr << "SimpleProfiler: could not seek to the start of the profile\n"
-	   << " data file during completion.  Data will be lost.\n";
+		<< " data file during completion.  Data will be lost.\n";
       return;
     }
 
@@ -752,19 +713,5 @@ void SimpleProfiler::complete()
   std::ofstream ost(totsname.c_str());
   
   ost << "samples_total " << samples_total << "\n"
-      << "samples_uninterpretable " << samples_uninterpretable << "\n"
-      << "samples_ebp_less_esp " << samples_ebp_less_esp << "\n"
-      << "samples_bad_ebp " << samples_bad_ebp << "\n"
-      << "samples_after_push " << samples_after_push << "\n"
-      << "samples_before_push " << samples_before_push << "\n"
-      << "samples_between_leave_ret " << samples_between_leave_ret << "\n"
-      << "samples_skipped " << samples_skipped << "\n"
-      << "samples_outside_range " << samples_outside_range << "\n"
-      << "samples_popped " << samples_popped << "\n"
-    ;
+      << "samples_missing_framepointer " << samples_missing_framepointer << "\n" ;
 }
-
-
-
-// -----------------------------------------------
-
