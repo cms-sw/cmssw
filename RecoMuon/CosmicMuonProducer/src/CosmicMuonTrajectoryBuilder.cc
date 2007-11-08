@@ -4,8 +4,8 @@
  *  class to build trajectories of cosmic muons and beam-halo muons
  *
  *
- *  $Date: 2007/08/15 16:41:10 $
- *  $Revision: 1.27 $
+ *  $Date: 2007/08/16 19:59:39 $
+ *  $Revision: 1.28 $
  *  \author Chang Liu  - Purdue Univeristy
  */
 
@@ -364,18 +364,18 @@ CosmicMuonTrajectoryBuilder::trajectories(const TrajectorySeed& seed){
      for ( vector<Trajectory*>::iterator t = trajL.begin(); t != trajL.end(); ++t ) delete *t;
      trajL.clear();
 
-     vector<Trajectory> smoothed = theSmoother->trajectories(*myTraj);
-     if ( !smoothed.empty() )  {
-       LogTrace(metname) <<" Smoothed successfully.";
+//     vector<Trajectory> smoothed = theSmoother->trajectories(*myTraj);
+//     if ( !smoothed.empty() )  {
+//       LogTrace(metname) <<" Smoothed successfully.";
 
-       delete myTraj;
-       Trajectory* smthed = new Trajectory(smoothed.front());
-       trajL.push_back(smthed);
-     }
-     else {
-       LogTrace(metname) <<" Smoothing failed.";
+//       delete myTraj;
+//       Trajectory* smthed = new Trajectory(smoothed.front());
+//       trajL.push_back(smthed);
+//     }
+//     else {
+//       LogTrace(metname) <<" Smoothing failed.";
        trajL.push_back(myTraj);
-     }
+//     }
   }
   LogTrace(metname) <<" trajL ok "<<trajL.size();
 
