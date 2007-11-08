@@ -1,11 +1,11 @@
 execute command:
 
-cmsRun runTest1.cfg
+cmsRun runEDDigi.cfg
 
 TheAnalysis.root will be produced 
 
 execute 
 
 root -b zz1.C
+root -b track3D.C
 
-ggv zz1.ps
