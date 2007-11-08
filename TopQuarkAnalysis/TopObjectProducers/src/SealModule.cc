@@ -47,6 +47,12 @@ DEFINE_FWK_MODULE(TopMETMaxFilter);
 DEFINE_FWK_MODULE(TopParticleMaxFilter);
 
 
+#include "AnalysisDataFormats/TopObjects/interface/TopElectron.h"
+#include "AnalysisDataFormats/TopObjects/interface/TopMuon.h"
+#include "AnalysisDataFormats/TopObjects/interface/TopTau.h"
+#include "AnalysisDataFormats/TopObjects/interface/TopJet.h"
+#include "AnalysisDataFormats/TopObjects/interface/TopMET.h"
+
 #include "TopQuarkAnalysis/TopObjectProducers/interface/TopObjectEnergyScale.h"
 
 typedef TopObjectEnergyScale<TopElectron> TopElectronEnergyScale;

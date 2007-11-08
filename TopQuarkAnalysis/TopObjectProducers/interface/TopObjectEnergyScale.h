@@ -8,15 +8,16 @@
 //
 /**\class TopObjectEnergyScale TopObjectEnergyScale.h TopQuarkAnalysis/TopObjectProducers/interface/TopObjectEnergyScale.h
 
- Description: <This class provides energy scale shifting & smearing to certain objects for systematic error studies.>
+ Description: This class provides energy scale shifting & smearing to (inherited) TopObjects for systematic error studies.
 
  Implementation:
-     <Notes on implementation>
+     A detailed documentation is found in
+     TopQuarkAnalysis/TopObjectProducers/data/TopObjectEnergyScale.cfi
 */
 //
 // Original Author:  Volker Adler
 //         Created:  Fri Oct  5 20:20:59 CEST 2007
-// $Id$
+// $Id: TopObjectEnergyScale.h,v 1.1 2007/10/10 02:18:04 lowette Exp $
 //
 
 
@@ -38,49 +39,55 @@ class TopObjectEnergyScale : public edm::EDProducer {
 
   public:
 
-    explicit TopObjectEnergyScale(const edm::ParameterSet&);
+    explicit TopObjectEnergyScale(const edm::ParameterSet& iConfig);
     ~TopObjectEnergyScale();
 
   private:
 
-    virtual void produce( edm::Event&, const edm::EventSetup&);
+    virtual void produce( edm::Event& iEvent, const edm::EventSetup& iSetup);
 
-    void shiftScale(T&);
-    void smearScale(T&);
+    double getSmearing(T& object);
+    void   setScale(T& object);
 
-    edm::InputTag theObjects;
-    double        theFactor,
-                  theIniRes,
-                  theFinalRes;
+    edm::InputTag objects_;
+    double        factor_,
+                  shiftFactor_,
+                  iniRes_,
+                  worsenRes_;
+    bool          useFixedMass_,
+                  useDefaultIniRes_,
+                  useIniResByFraction_,
+                  useWorsenResByFactor_;
 
-    CLHEP::RandGaussQ* theGaussian;
+    CLHEP::RandGaussQ* gaussian_;
 
 };
 
 
 template<class T>
-TopObjectEnergyScale<T>::TopObjectEnergyScale(const edm::ParameterSet& iConfig) :
-  theFactor(1.),
-  theIniRes(0.),
-  theFinalRes(0.),
-  theGaussian(0)
+TopObjectEnergyScale<T>::TopObjectEnergyScale(const edm::ParameterSet& iConfig)
 {
-  theObjects  = iConfig.getParameter<edm::InputTag>("scaledTopObject");
-  theFactor   = iConfig.getParameter<double>       ("shiftFactor");
-  theIniRes   = iConfig.getParameter<double>       ("initialResolution");
-  theFinalRes = iConfig.getParameter<double>       ("finalResolution");
+  objects_              = iConfig.getParameter<edm::InputTag>("scaledTopObject");
+  useFixedMass_         = iConfig.getParameter<bool>         ("fixMass");
+  shiftFactor_          = iConfig.getParameter<double>       ("shiftFactor");
+  useDefaultIniRes_     = iConfig.getParameter<bool>         ("useDefaultInitialResolution");
+  iniRes_               = iConfig.getParameter<double>       ("initialResolution");
+  useIniResByFraction_  = iConfig.getParameter<bool>         ("initialResolutionByFraction");
+  worsenRes_            = iConfig.getParameter<double>       ("worsenResolution");
+  useWorsenResByFactor_ = iConfig.getParameter<bool>         ("worsenResolutionByFactor");
 
   edm::Service<edm::RandomNumberGenerator> rng;
   CLHEP::HepRandomEngine& engine = rng->getEngine();
-  theGaussian = new CLHEP::RandGaussQ(engine);
+  gaussian_ = new CLHEP::RandGaussQ(engine);
 
   produces<std::vector<T> >();
 }
 
 
 template<class T>
-TopObjectEnergyScale<T>::~TopObjectEnergyScale() {
-  delete theGaussian;
+TopObjectEnergyScale<T>::~TopObjectEnergyScale()
+{
+  delete gaussian_;
 }
 
 
@@ -88,49 +95,62 @@ template<class T>
 void TopObjectEnergyScale<T>::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
   edm::Handle<std::vector<T> > objectsHandle;
-  iEvent.getByLabel(theObjects,objectsHandle);
+  iEvent.getByLabel(objects_, objectsHandle);
   std::vector<T> objects = *objectsHandle;
-  std::vector<T>* objectsVector = new std::vector<T>();
+  std::auto_ptr<std::vector<T> > objectsVector(new std::vector<T>);
+  objectsVector->reserve(objectsHandle->size());
 
   for ( unsigned int i = 0; i < objects.size(); i++ ) {
-    if ( theFactor >= 0. && theFactor != 1. )
-      shiftScale(objects[i]);
-    if ( theFinalRes > theIniRes && objects[i].energy() >= 0. )
-      smearScale(objects[i]);
+    factor_ = shiftFactor_ * ( objects[i].energy() > 0. ?
+                               getSmearing(objects[i])  :
+                               0.);
+    setScale(objects[i]);
     objectsVector->push_back(objects[i]);
   }
-  std::auto_ptr<std::vector<T> > ptr(objectsVector);
-  iEvent.put(ptr);
-
-  return;
+  iEvent.put(objectsVector);
 }
 
 
+/// Returns a smearing factor which is multiplied to the initial value then to get it smeared,
+/// sets initial resolution to resolution provided by input TopObject if required
+/// and converts the 'worsenResolution' parameter to protect from meaningless final resolution values.
 template<class T>
-void TopObjectEnergyScale<T>::shiftScale(T& object)
+double TopObjectEnergyScale<T>::getSmearing(T& object)
 {
-  const reco::Particle::LorentzVector newVector(theFactor*object.px(),
-                                                theFactor*object.py(),
-                                                theFactor*object.pz(),
-                                                theFactor*object.energy());
-  object.setP4(newVector);
-
-  return;
+  // overwrite config file parameter 'initialResolution' if required
+  if ( useDefaultIniRes_ ) {
+    // get initial resolution from input TopObject (and calculate relative initial resolution from absolute value)
+    iniRes_ = (1. / sin(object.theta()) * object.getResET() - object.et() * cos(object.theta()) / pow(sin(object.theta()),2) * object.getResTheta()) / object.energy(); // conversion of TopObject::resET and TopObject::resTheta into energy resolution
+  } else if ( ! useIniResByFraction_ ) {
+    // calculate relative initial resolution from absolute value
+    iniRes_ = iniRes_ / object.energy();
+  }
+  // Is 'worsenResolution' a factor or a summand?
+  double finalRes = useWorsenResByFactor_                            ?
+                    (1.+fabs(1.-fabs(worsenRes_)))   * fabs(iniRes_) :
+                    fabs(worsenRes_)/object.energy() + fabs(iniRes_); // conversion as protection from "finalRes_<iniRes_"
+  // return smearing factor
+  return std::max( gaussian_->fire(1., sqrt(pow(finalRes,2)-pow(iniRes_,2))), 0. ); // protection from negative smearing factors
 }
 
 
+/// Mutliplies the final factor (consisting of shifting and smearing factors) to the object's 4-vector
+/// and takes care of preserved masses.
 template<class T>
-void TopObjectEnergyScale<T>::smearScale(T& object)
+void TopObjectEnergyScale<T>::setScale(T& object)
 {
-//  double smearFactor = std::max(theGaussian->fire(object.energy(),object.energy()*sqrt(pow(theFinalRes,2)-pow(theIniRes,2))),0.) / object.energy();
-  double smearFactor = std::max(theGaussian->fire(1, sqrt(pow(theFinalRes,2)-pow(theIniRes,2))), 0.);
-  const reco::Particle::LorentzVector newVector(smearFactor*object.px(),
-                                                smearFactor*object.py(),
-                                                smearFactor*object.pz(),
-                                                smearFactor*object.energy());
-  object.setP4(newVector);
-
-  return;
+  if ( factor_ < 0. ) {
+    factor_ = 0.;
+  }
+  // calculate the momentum factor for fixed or not fixed mass
+  double factorMomentum = useFixedMass_ && object.p() > 0.                                   ?
+                          sqrt(pow(factor_*object.energy(),2)-object.massSqr()) / object.p() :
+                          factor_;
+  // set shifted & smeared new 4-vector
+  object.setP4(reco::Particle::LorentzVector(factorMomentum*object.px(),
+                                             factorMomentum*object.py(),
+                                             factorMomentum*object.pz(),
+                                             factor_       *object.energy()));
 }
 
 
