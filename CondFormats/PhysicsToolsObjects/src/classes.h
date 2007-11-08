@@ -8,11 +8,7 @@ namespace {
 
 #ifdef STD_DICTIONARIES_STUFF_MISSING
 std::vector<unsigned char> v1;
-std::vector<unsigned char>::iterator v2;
-std::vector<unsigned char>::const_iterator v3;
 std::vector<double> v4;
-std::vector<double>::iterator v5;
-std::vector<double>::const_iterator v6;
 std::vector<std::string> v7;
 #endif
 
