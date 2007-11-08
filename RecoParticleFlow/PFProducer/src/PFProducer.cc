@@ -48,11 +48,13 @@ PFProducer::PFProducer(const edm::ParameterSet& iConfig) {
   string mvaWeightFile 
     = iConfig.getParameter<string>("pf_mergedPhotons_mvaWeightFile");
   edm::FileInPath path_mvaWeightFile( mvaWeightFile.c_str() );
-
+  double PSCut = iConfig.getParameter<double>("pf_mergedPhotons_PSCut");
+  
   pfAlgo_.setParameters( calibParamECAL_offset, 
 			 calibParamECAL_slope, 
 			 nSigmaECAL, 
-			 nSigmaHCAL, 
+			 nSigmaHCAL,
+			 PSCut, 
 			 mvaCut, 
 			 path_mvaWeightFile.fullPath().c_str() );
 
