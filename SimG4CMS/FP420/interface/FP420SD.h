@@ -9,11 +9,13 @@
 #include "SimG4Core/Notification/interface/BeginOfEvent.h"
 #include "SimG4Core/Notification/interface/EndOfEvent.h"
 
+#include "SimG4Core/Notification/interface/BeginOfTrack.h"
+#include "SimG4Core/Notification/interface/BeginOfJob.h"
 // last
 //#include "SimG4Core/Application/interface/SimTrackManager.h"
 //#include "SimG4CMS/Calo/interface/CaloSD.h"
 
-
+#include "DataFormats/GeometryVector/interface/LocalPoint.h"
 //#include "SimG4Core/Notification/interface/TrackWithHistory.h"
 //#include "SimG4Core/Notification/interface/TrackContainer.h"
 
@@ -39,7 +41,7 @@
 class TrackingSlaveSD;
 //AZ:
 class FP420SD;
-
+class FrameRotation;
 class TrackInformation;
 class SimTrackManager;
 class TrackingSlaveSD;
@@ -118,12 +120,16 @@ public:
   TrackingSlaveSD* slave;
   FP420NumberingScheme * numberingScheme;
   
-  G4ThreeVector entrancePoint, exitPoint;
-  G4ThreeVector theEntryPoint ;
-  G4ThreeVector theExitPoint  ;
+    G4ThreeVector entrancePoint, exitPoint;
+    G4ThreeVector theEntryPoint ;
+    G4ThreeVector theExitPoint  ;
+
+    //  Local3DPoint  entrancePoint, exitPoint, theEntryPoint, theExitPoint;
+
+
+
   
   float                incidentEnergy;
-  G4int                primID  ; 
   
   //  G4String             name;
   std::string             name;
@@ -137,7 +143,9 @@ public:
   G4VPhysicalVolume*         currentPV;
   // unsigned int         unitID, previousUnitID;
   uint32_t             unitID, previousUnitID;
-  G4int                primaryID, tSliceID;  
+  G4int                tSliceID; 
+  unsigned int                primaryID, primID  ; 
+  
   G4double             tSlice;
   
   G4StepPoint*         preStepPoint; 

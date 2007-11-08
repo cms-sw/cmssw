@@ -8,13 +8,14 @@
 //#include "Geometry/Vector/interface/LocalPoint.h"
 //#include "Geometry/Vector/interface/LocalVector.h"
 
+#include "SimG4Core/SensitiveDetector/interface/FrameRotation.h"
 #include "SimG4Core/Notification/interface/TrackInformation.h"
 #include "SimG4Core/Notification/interface/G4TrackToParticleID.h"
 #include "SimG4Core/Physics/interface/G4ProcessTypeEnumerator.h"
 
 #include "SimDataFormats/SimHitMaker/interface/TrackingSlaveSD.h"
 #include "SimDataFormats/TrackingHit/interface/UpdatablePSimHit.h"
-
+#include "DataFormats/GeometryVector/interface/LocalPoint.h"
 
 #include "SimG4CMS/FP420/interface/FP420SD.h"
 #include "SimG4CMS/FP420/interface/FP420G4Hit.h"
@@ -38,6 +39,15 @@
 #include <iostream>
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+
+#ifdef DUMPPROCESSES
+#include "G4VProcess.hh"
+#endif
+
+using std::cout;
+using std::endl;
+using std::vector;
+using std::string;
 
 //#define debug
 //-------------------------------------------------------------------
@@ -96,13 +106,16 @@ FP420SD::FP420SD(G4String name, const DDCompactView & cpv,
     if      (name == "FP420SI") {
       if (verbn > 0) {
       edm::LogInfo("FP420Sim") << "name = FP420SI and  new FP420NumberingSchem";
+    std::cout << "name = FP420SI and  new FP420NumberingSchem"<< std::endl;
       }
       numberingScheme = new FP420NumberingScheme() ;
     } else {
       edm::LogWarning("FP420Sim") << "FP420SD: ReadoutName not supported\n";
+    std::cout << "FP420SD: ReadoutName not supported"<< std::endl;
     }
     
     edm::LogInfo("FP420Sim") << "FP420SD: Instantiation completed";
+    std::cout << "FP420SD: Instantiation completed"<< std::endl;
   }
 
 
@@ -132,7 +145,8 @@ void FP420SD::Initialize(G4HCofThisEvent * HCE) {
   HCE->AddHitsCollection(hcID, theHC);
 
   tsID   = -2;
-  primID = -2;
+  //  primID = -2;
+  primID = 0;
 
   ////    slave->Initialize();
 }
@@ -396,8 +410,6 @@ void FP420SD::EndOfEvent(G4HCofThisEvent* ) {
               FP420G4Hit* aHit = (*theHC)[j];
 #ifdef ddebug
     //    LogDebug("FP420SD") << " FP420Hit " << j << " " << *aHit << std::endl;
-  //  slave->ProcessHits(aHit->getUnitID(), aHit->getEnergyDeposit()/GeV,
-  //	       aHit->getTimeSlice(), aHit->getTrackID());
     LogDebug("FP420Sim") << "hit number" << j << "unit ID = "<<aHit->getUnitID()<< "\n";
     LogDebug("FP420Sim") << "entry z " << aHit->getEntry().z()<< "\n";
     LogDebug("FP420Sim") << "entr theta " << aHit->getThetaAtEntry()<< "\n";
@@ -413,15 +425,26 @@ void FP420SD::EndOfEvent(G4HCofThisEvent* ) {
     Local3DPoint locEntryPoint(aHit->getEntryLocalP().x(),
 			 aHit->getEntryLocalP().y(),
 			 aHit->getEntryLocalP().z());
-    slave->processHits(PSimHit(locEntryPoint,locExitPoint,
-			       aHit->getPabs(),
-			       aHit->getTof(),
-			       aHit->getEnergyLoss(),
-			       aHit->getParticleType(),
-			       aHit->getUnitID(),
-			       aHit->getTrackID(),
-			       aHit->getThetaAtEntry(),
-			       aHit->getPhiAtEntry()));
+// implicit conversion (slicing) to PSimHit!!!
+    slave->processHits(PSimHit(locEntryPoint,locExitPoint,//entryPoint(), exitPoint()  Local3DPoint
+			       aHit->getPabs(),// pabs()  float
+			       aHit->getTof(), // tof() float
+			       aHit->getEnergyLoss(), // energyLoss() float
+			       aHit->getParticleType(),// particleType()   int
+			       aHit->getUnitID(), // detUnitId() unsigned int 
+			       aHit->getTrackID(),// trackId() unsigned int 
+			       aHit->getThetaAtEntry(),//  thetaAtEntry()   float
+			       aHit->getPhiAtEntry())); //  phiAtEntry()   float  
+
+    //PSimHit( const Local3DPoint& entry, const Local3DPoint& exit, 
+//	   float pabs, float tof, float eloss, int particleType,
+//	   unsigned int detId, unsigned int trackId,
+//	   float theta, float phi, unsigned short processType=0) :
+
+//  LocalVector direction = hit.exitPoint() - hit.entryPoint(); 
+//hit.energyLoss
+
+
     /*      
 			       aHit->getEM(),               -
 			       aHit->getHadr(),             -
@@ -439,7 +462,8 @@ void FP420SD::EndOfEvent(G4HCofThisEvent* ) {
 			       aHit->getVz()));  -
 */
 
-  }
+  } // loop on hits
+
   Summarize();
 }
 
@@ -471,7 +495,10 @@ void FP420SD::PrintAll() {
 //}
 
 void FP420SD::fillHits(edm::PSimHitContainer& c, std::string n) {
-  if (slave->name() == n) c=slave->hits();
+  if (slave->name() == n) {
+    c=slave->hits();
+    std::cout << "FP420SD: fillHits to PSimHitContainer for name= " <<  name << std::endl;
+  }
 }
 
 void FP420SD::update (const BeginOfEvent * i) {

@@ -50,7 +50,8 @@ public:
   double       getIncidentEnergy() const;
   void         setIncidentEnergy (double e);
   
-  G4int          getTrackID() const;
+  //G4int          getTrackID() const;
+  unsigned int               getTrackID() const;
   void         setTrackID (int i);
   
   unsigned int getUnitID() const;
