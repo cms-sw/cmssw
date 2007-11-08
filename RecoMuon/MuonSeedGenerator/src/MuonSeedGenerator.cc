@@ -3,8 +3,8 @@
  *  
  *  All the code is under revision
  *
- *  $Date: 2007/10/10 21:13:48 $
- *  $Revision: 1.19 $
+ *  $Date: 2007/10/16 17:50:43 $
+ *  $Revision: 1.20 $
  *
  *  \author A. Vitelli - INFN Torino, V.Palichik
  *  \author ported by: R. Bellan - INFN Torino
@@ -572,8 +572,10 @@ void MuonSeedGenerator::complete(MuonSeedFinder& seed,
       // allow a looser dphi cut where bend is greatest, so we get those little 5-GeV muons
       // watch out for ghosts from ME1/A, below 2.0.
       float dphicut = (eta2 > 1.6 && eta2 < 2.0) ? 0.1 : 0.07;
-      if ( deta < .1 && dphi < dphicut ) {  
+      // segments at the edge of the barrel may not have a good eta measurement
+      float detacut = (first->isDT() || (*iter)->isDT()) ? 0.2 : 0.1;
 
+      if ( deta < detacut && dphi < dphicut ) {
 	good_rhit.push_back(*iter);
 	if (used) used[nr]=true;
       }
