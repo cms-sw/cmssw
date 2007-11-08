@@ -49,8 +49,8 @@ void CSCNoiseMatrixDBConditions::prefillDBNoiseMatrix()
   }
   
   while (!newdata.eof() ) { 
-    newdata >> new_chamber_id >> new_index>> new_elm33 >> new_elm34 >> new_elm44 >> new_elm35 >> new_elm45 >> new_elm55 >> new_elm46 >> new_elm56 >> new_elm66 >> new_elm57 >> new_elm67 >> new_elm77 ; 
-    new_cham_id.push_back(new_chamber_id);
+    newdata >> new_index>> new_elm33 >> new_elm34 >> new_elm44 >> new_elm35 >> new_elm45 >> new_elm55 >> new_elm46 >> new_elm56 >> new_elm66 >> new_elm57 >> new_elm67 >> new_elm77 ; 
+    //new_cham_id.push_back(new_chamber_id);
     new_index_id.push_back(new_index);
     new_elem33.push_back(new_elm33);
     new_elem34.push_back(new_elm34);
@@ -69,9 +69,9 @@ void CSCNoiseMatrixDBConditions::prefillDBNoiseMatrix()
   newdata.close();
   
   std::vector<CSCDBNoiseMatrix::Item> itemvector;
-   itemvector.resize(217728);
+   itemvector.resize(252288);
 
-  for(int i=0; i<217728;++i){
+  for(int i=0; i<252288;++i){
     itemvector[i].elem33 = db_elem33[i];
     itemvector[i].elem34 = db_elem34[i]; 
     itemvector[i].elem44 = db_elem44[i];
@@ -86,7 +86,7 @@ void CSCNoiseMatrixDBConditions::prefillDBNoiseMatrix()
     itemvector[i].elem77 = db_elem77[i];
   }
 
-  for(int i=0; i<217728;++i){
+  for(int i=0; i<252288;++i){
     counter=db_index_id[i];  
     for (unsigned int k=0;k<new_index_id.size()-1;k++){
       if(counter==new_index_id[k]){
