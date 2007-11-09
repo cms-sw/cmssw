@@ -71,6 +71,7 @@ xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Sche
     </SpecPar>
 
     <SpecPar name="nStrips32" eval="true">
+      <PartSelector path="//REA."/> <!-- A1,2,3; C1,2,3; E1,2,3; F1,2,3 -->
       <PartSelector path="//REC."/>
       <PartSelector path="//REE."/>
       <PartSelector path="//REF."/>
@@ -80,8 +81,10 @@ xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Sche
       <PartSelector path="//REB."/> <!-- B1,2,3 -->
       <Parameter name="nStrips" value="28"/>
     </SpecPar>
-
     <SpecPar name="nStrips64" eval="true">
+      <PartSelector path="//RED."/> <!-- D1,2,3,4; G1,2; H1,2 -->
+      <PartSelector path="//REG."/>
+      <PartSelector path="//REH."/>
       <Parameter name="nStrips" value="64"/>
     </SpecPar>
 
