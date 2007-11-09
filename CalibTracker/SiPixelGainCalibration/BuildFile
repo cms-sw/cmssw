@@ -1,8 +1,11 @@
 <use name=FWCore/Framework>
-<use name=Foundation/PluginManager>
+<use name=FWCore/PluginManager>
 <use name=FWCore/ParameterSet>
 <use name=FWCore/MessageLogger>
+<use name=FWCore/ServiceRegistry>
 <use name=DataFormats/FEDRawData> 
+<use name=DataFormats/SiPixelCalibDigi>
+<use name=DataFormats/SiPixelDigi>
 <use name=CondTools/SiPixel>
 <use name=CondFormats/DataRecord>
 <use name=CondFormats/SiPixelObjects>
@@ -15,18 +18,25 @@
 <use name=Geometry/CommonDetUnit>
 <use name=Geometry/TrackerGeometryBuilder>
 <use name=CalibFormats/SiPixelObjects>
-<flags EDM_PLUGIN=1>
+
 <export>
-   <lib name=CalibTrackerSiPixelGainCalibration>
-   <use name=CalibFormats/SiPixelObjects>
+<!-----   <lib name=CalibTrackerSiPixelGainCalibration>  --->
    <use name=FWCore/Framework>
-   <use name=PhysicsTools/UtilAlgos>
-   <use name=Foundation/PluginManager>
+   <use name=FWCore/PluginManager>
    <use name=FWCore/ParameterSet>
+
+   <use name=CalibFormats/SiPixelObjects>
+   <use name=FWCore/ServiceRegistry>
+   <use name=PhysicsTools/UtilAlgos>
    <use name=FWCore/MessageLogger>
    <use name=DataFormats/FEDRawData>
    <use name=CondTools/SiPixel>
    <use name=PhysicsTools/UtilAlgos>
+   <use name=DataFormats/SiPixelCalibDigi>
+   <use name=DataFormats/SiPixelDigi>
    <use name=CondFormats/DataRecord>
    <use name=Geometry/Records>
+   <use name=Geometry/CommonDetUnit>
+   <use name=Geometry/TrackerGeometryBuilder>
+
 </export>

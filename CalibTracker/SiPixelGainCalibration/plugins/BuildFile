@@ -1,0 +1,4 @@
+<use name=CalibTracker/SiPixelGainCalibration>
+<library file="*.cc" name=CalibTrackerSiPixelGainCalibrationPlugins>
+  <flags EDM_PLUGIN=1>
+</library>
