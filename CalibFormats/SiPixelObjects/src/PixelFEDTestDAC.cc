@@ -11,7 +11,7 @@ using namespace pos;
 
 PixelFEDTestDAC::PixelFEDTestDAC(std::string filename){
 
-  const unsigned long int UB=400;
+  const unsigned long int UB=200;
   const unsigned long int B=500;
   const unsigned long int offset=0;
   vector <unsigned int> pulseTrain(256), pixelDCol(1), pixelPxl(2), pixelTBMHeader(3), pixelTBMTrailer(3);
@@ -28,14 +28,17 @@ PixelFEDTestDAC::PixelFEDTestDAC(std::string filename){
     }
   
   ifstream fin(filename.c_str());
-  
+
   i=start;
 
   getline(fin, line);
   mode_=line;
   assert(mode_=="EmulatedPhysics"||
          mode_=="FEDBaselineWithTestDACs"||
-         mode_=="FEDAddressLevelCalibrationWithTestDACs");
+         mode_=="FEDAddressLevelWithTestDACs");
+
+    std::cout<<"fed test dac 2"<<std::endl;
+
 
   while (!fin.eof())
     {
@@ -121,13 +124,13 @@ unsigned int PixelFEDTestDAC::levelEncoder(int level){
   
   switch (level)
     {
-    case 0: pulse=480; break;
+    case 0: pulse=450; break;
     case 1: pulse=500; break;
-    case 2: pulse=520; break;
-    case 3: pulse=540; break;
-    case 4: pulse=560; break;
-    case 5: pulse=580; break;
-    default: pulse=0; break;
+    case 2: pulse=550; break;
+    case 3: pulse=600; break;
+    case 4: pulse=650; break;
+    case 5: pulse=700; break;
+    default: assert(0); break;
     }
   
   return pulse;
