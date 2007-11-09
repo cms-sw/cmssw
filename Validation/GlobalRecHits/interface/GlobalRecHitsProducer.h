@@ -7,8 +7,8 @@
  *  containing information about various sub-systems in global coordinates 
  *  with full geometry
  *
- *  $Date: 2007/10/04 19:34:25 $
- *  $Revision: 1.11 $
+ *  $Date: 2007/10/22 18:05:10 $
+ *  $Revision: 1.12 $
  *  \author M. Strang SUNY-Buffalo
  */
 
@@ -108,7 +108,8 @@
 #include "Geometry/DTGeometry/interface/DTLayer.h"
 #include "Geometry/DTGeometry/interface/DTGeometry.h"
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
-#include "Validation/GlobalRecHits/interface/DTHitQualityUtils.h"
+//#include "Validation/GlobalRecHits/interface/DTHitQualityUtils.h"
+#include "Validation/DTRecHits/interface/DTHitQualityUtils.h"
 
 // muon CSC info
 #include "DataFormats/CSCDigi/interface/CSCStripDigi.h"
