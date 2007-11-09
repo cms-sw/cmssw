@@ -1,8 +1,8 @@
 /*
  * \file EBCosmicTask.cc
  *
- * $Date: 2007/08/16 14:26:04 $
- * $Revision: 1.76 $
+ * $Date: 2007/11/07 07:07:59 $
+ * $Revision: 1.77 $
  * \author G. Della Ricca
  *
 */
@@ -82,18 +82,23 @@ void EBCosmicTask::setup(void){
     for (int i = 0; i < 36 ; i++) {
       sprintf(histo, "EBCT energy cut %s", Numbers::sEB(i+1).c_str());
       meCutMap_[i] = dbe_->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096., "s");
+      meCutMap_[i]->setAxisTitle("ieta", 1);
+      meCutMap_[i]->setAxisTitle("iphi", 2);
     }
 
     dbe_->setCurrentFolder("EcalBarrel/EBCosmicTask/Sel");
     for (int i = 0; i < 36 ; i++) {
       sprintf(histo, "EBCT energy sel %s", Numbers::sEB(i+1).c_str());
       meSelMap_[i] = dbe_->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096., "s");
+      meSelMap_[i]->setAxisTitle("ieta", 1);
+      meSelMap_[i]->setAxisTitle("iphi", 2);
     }
 
     dbe_->setCurrentFolder("EcalBarrel/EBCosmicTask/Spectrum");
     for (int i = 0; i < 36 ; i++) {
       sprintf(histo, "EBCT energy spectrum %s", Numbers::sEB(i+1).c_str());
       meSpectrumMap_[i] = dbe_->book1D(histo, histo, 100, 0., 1.5);
+      meSpectrumMap_[i]->setAxisTitle("Energy (GeV)", 1);
     }
 
   }

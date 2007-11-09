@@ -1,8 +1,8 @@
 /*
  * \file EECosmicTask.cc
  *
- * $Date: 2007/08/16 14:26:08 $
- * $Revision: 1.13 $
+ * $Date: 2007/08/21 11:31:48 $
+ * $Revision: 1.14 $
  * \author G. Della Ricca
  *
 */
@@ -82,18 +82,23 @@ void EECosmicTask::setup(void){
     for (int i = 0; i < 18 ; i++) {
       sprintf(histo, "EECT energy cut %s", Numbers::sEE(i+1).c_str());
       meCutMap_[i] = dbe_->bookProfile2D(histo, histo, 50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50., 50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50., 4096, 0., 4096., "s");
+      meCutMap_[i]->setAxisTitle("ix", 1);
+      meCutMap_[i]->setAxisTitle("iy", 2);
     }
 
     dbe_->setCurrentFolder("EcalEndcap/EECosmicTask/Sel");
     for (int i = 0; i < 18 ; i++) {
       sprintf(histo, "EECT energy sel %s", Numbers::sEE(i+1).c_str());
       meSelMap_[i] = dbe_->bookProfile2D(histo, histo, 50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50., 50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50., 4096, 0., 4096., "s");
+      meSelMap_[i]->setAxisTitle("ix", 1);
+      meSelMap_[i]->setAxisTitle("iy", 2);
     }
 
     dbe_->setCurrentFolder("EcalEndcap/EECosmicTask/Spectrum");
     for (int i = 0; i < 18 ; i++) {
       sprintf(histo, "EECT energy spectrum %s", Numbers::sEE(i+1).c_str());
       meSpectrumMap_[i] = dbe_->book1D(histo, histo, 100, 0., 1.5);
+      meSpectrumMap_[i]->setAxisTitle("Energy (GeV)", 1);
     }
 
   }

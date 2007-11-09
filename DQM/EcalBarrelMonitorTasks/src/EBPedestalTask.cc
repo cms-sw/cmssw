@@ -1,8 +1,8 @@
 /*
  * \file EBPedestalTask.cc
  *
- * $Date: 2007/10/14 16:02:58 $
- * $Revision: 1.65 $
+ * $Date: 2007/11/07 07:07:59 $
+ * $Revision: 1.66 $
  * \author G. Della Ricca
  *
 */
@@ -91,12 +91,18 @@ void EBPedestalTask::setup(void){
     for (int i = 0; i < 36 ; i++) {
       sprintf(histo, "EBPT pedestal %s G01", Numbers::sEB(i+1).c_str());
       mePedMapG01_[i] = dbe_->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096., "s");
+      mePedMapG01_[i]->setAxisTitle("ieta", 1);
+      mePedMapG01_[i]->setAxisTitle("iphi", 2);
       dbe_->tag(mePedMapG01_[i], i+1);
       sprintf(histo, "EBPT pedestal 3sum %s G01", Numbers::sEB(i+1).c_str());
       mePed3SumMapG01_[i] = dbe_->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096., "s");
+      mePed3SumMapG01_[i]->setAxisTitle("ieta", 1);
+      mePed3SumMapG01_[i]->setAxisTitle("iphi", 2);
       dbe_->tag(mePed3SumMapG01_[i], i+1);
       sprintf(histo, "EBPT pedestal 5sum %s G01", Numbers::sEB(i+1).c_str());
       mePed5SumMapG01_[i] = dbe_->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096., "s");
+      mePed5SumMapG01_[i]->setAxisTitle("ieta", 1);
+      mePed5SumMapG01_[i]->setAxisTitle("iphi", 2);
       dbe_->tag(mePed5SumMapG01_[i], i+1);
     }
 
@@ -104,12 +110,18 @@ void EBPedestalTask::setup(void){
     for (int i = 0; i < 36 ; i++) {
       sprintf(histo, "EBPT pedestal %s G06", Numbers::sEB(i+1).c_str());
       mePedMapG06_[i] = dbe_->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096., "s");
+      mePedMapG06_[i]->setAxisTitle("ieta", 1);
+      mePedMapG06_[i]->setAxisTitle("iphi", 2);
       dbe_->tag(mePedMapG06_[i], i+1);
       sprintf(histo, "EBPT pedestal 3sum %s G06", Numbers::sEB(i+1).c_str());
       mePed3SumMapG06_[i] = dbe_->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096., "s");
+      mePed3SumMapG06_[i]->setAxisTitle("ieta", 1);
+      mePed3SumMapG06_[i]->setAxisTitle("iphi", 2);
       dbe_->tag(mePed3SumMapG06_[i], i+1);
       sprintf(histo, "EBPT pedestal 5sum %s G06", Numbers::sEB(i+1).c_str());
       mePed5SumMapG06_[i] = dbe_->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096., "s");
+      mePed5SumMapG06_[i]->setAxisTitle("ieta", 1);
+      mePed5SumMapG06_[i]->setAxisTitle("iphi", 2);
       dbe_->tag(mePed5SumMapG06_[i], i+1);
     }
 
@@ -117,12 +129,18 @@ void EBPedestalTask::setup(void){
     for (int i = 0; i < 36 ; i++) {
       sprintf(histo, "EBPT pedestal %s G12", Numbers::sEB(i+1).c_str());
       mePedMapG12_[i] = dbe_->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096., "s");
+      mePedMapG12_[i]->setAxisTitle("ieta", 1);
+      mePedMapG12_[i]->setAxisTitle("iphi", 2);
       dbe_->tag(mePedMapG12_[i], i+1);
       sprintf(histo, "EBPT pedestal 3sum %s G12", Numbers::sEB(i+1).c_str());
       mePed3SumMapG12_[i] = dbe_->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096., "s");
+      mePed3SumMapG12_[i]->setAxisTitle("ieta", 1);
+      mePed3SumMapG12_[i]->setAxisTitle("iphi", 2);
       dbe_->tag(mePed3SumMapG12_[i], i+1);
       sprintf(histo, "EBPT pedestal 5sum %s G12", Numbers::sEB(i+1).c_str());
       mePed5SumMapG12_[i] = dbe_->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096., "s");
+      mePed5SumMapG12_[i]->setAxisTitle("ieta", 1);
+      mePed3SumMapG12_[i]->setAxisTitle("iphi", 2);
       dbe_->tag(mePed5SumMapG12_[i], i+1);
     }
 
@@ -132,6 +150,7 @@ void EBPedestalTask::setup(void){
     for (int i = 0; i < 36 ; i++) {
       sprintf(histo, "EBPDT PNs pedestal %s G01", Numbers::sEB(i+1).c_str());
       mePnPedMapG01_[i] =  dbe_->bookProfile2D(histo, histo, 1, 0., 1., 10, 0., 10., 4096, 0., 4096., "s");
+      mePnPedMapG01_[i]->setAxisTitle("channel", 1);
       dbe_->tag(mePnPedMapG01_[i], i+1);
     }
 
@@ -139,6 +158,7 @@ void EBPedestalTask::setup(void){
     for (int i = 0; i < 36 ; i++) {
       sprintf(histo, "EBPDT PNs pedestal %s G16", Numbers::sEB(i+1).c_str());
       mePnPedMapG16_[i] =  dbe_->bookProfile2D(histo, histo, 1, 0., 1., 10, 0., 10., 4096, 0., 4096., "s");
+      mePnPedMapG16_[i]->setAxisTitle("channel", 1);
       dbe_->tag(mePnPedMapG16_[i], i+1);
     }
 

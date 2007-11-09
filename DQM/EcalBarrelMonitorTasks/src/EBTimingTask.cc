@@ -1,8 +1,8 @@
 /*
  * \file EBTimingTask.cc
  *
- * $Date: 2007/10/16 08:30:08 $
- * $Revision: 1.22 $
+ * $Date: 2007/11/07 07:08:00 $
+ * $Revision: 1.23 $
  * \author G. Della Ricca
  *
 */
@@ -78,6 +78,8 @@ void EBTimingTask::setup(void){
     for (int i = 0; i < 36 ; i++) {
       sprintf(histo, "EBTMT timing %s", Numbers::sEB(i+1).c_str());
       meTimeMap_[i] = dbe_->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 250, 0., 10., "s");
+      meTimeMap_[i]->setAxisTitle("ieta", 1);
+      meTimeMap_[i]->setAxisTitle("iphi", 2);
       dbe_->tag(meTimeMap_[i], i+1);
     }
 

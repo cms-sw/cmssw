@@ -1,8 +1,8 @@
 /*
  * \file EEIntegrityTask.cc
  *
- * $Date: 2007/10/15 03:53:07 $
- * $Revision: 1.15 $
+ * $Date: 2007/10/15 16:26:43 $
+ * $Revision: 1.16 $
  * \author G. Della Ricca
  *
  */
@@ -97,12 +97,15 @@ void EEIntegrityTask::setup(void){
     // checking when number of towers in data different than expected from header
     sprintf(histo, "EEIT DCC size error");
     meIntegrityDCCSize = dbe_->book1D(histo, histo, 18, 1, 19.);
+    meIntegrityDCCSize->setAxisTitle("DCC module", 1);
 
     // checking when the gain is 0
     dbe_->setCurrentFolder("EcalEndcap/EEIntegrityTask/Gain");
     for (int i = 0; i < 18 ; i++) {
       sprintf(histo, "EEIT gain %s", Numbers::sEE(i+1).c_str());
       meIntegrityGain[i] = dbe_->book2D(histo, histo, 50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50., 50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50.);
+      meIntegrityGain[i]->setAxisTitle("ix", 1);
+      meIntegrityGain[i]->setAxisTitle("iy", 2);
       dbe_->tag(meIntegrityGain[i], i+1);
     }
 
@@ -111,6 +114,8 @@ void EEIntegrityTask::setup(void){
     for (int i = 0; i < 18 ; i++) {
       sprintf(histo, "EEIT ChId %s", Numbers::sEE(i+1).c_str());
       meIntegrityChId[i] = dbe_->book2D(histo, histo, 50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50., 50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50.);
+      meIntegrityChId[i]->setAxisTitle("ix", 1);
+      meIntegrityChId[i]->setAxisTitle("iy", 2);
       dbe_->tag(meIntegrityChId[i], i+1);
     }
 
@@ -119,6 +124,8 @@ void EEIntegrityTask::setup(void){
     for (int i = 0; i < 18 ; i++) {
       sprintf(histo, "EEIT gain switch %s", Numbers::sEE(i+1).c_str());
       meIntegrityGainSwitch[i] = dbe_->book2D(histo, histo, 50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50., 50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50.);
+      meIntegrityGainSwitch[i]->setAxisTitle("ix", 1);
+      meIntegrityGainSwitch[i]->setAxisTitle("iy", 2);
       dbe_->tag(meIntegrityGainSwitch[i], i+1);
     }
 
@@ -127,6 +134,8 @@ void EEIntegrityTask::setup(void){
     for (int i = 0; i < 18 ; i++) {
       sprintf(histo, "EEIT gain switch stay %s", Numbers::sEE(i+1).c_str());
       meIntegrityGainSwitchStay[i] = dbe_->book2D(histo, histo, 50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50., 50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50.);
+      meIntegrityGainSwitchStay[i]->setAxisTitle("ix", 1);
+      meIntegrityGainSwitchStay[i]->setAxisTitle("iy", 2);
       dbe_->tag(meIntegrityGainSwitchStay[i], i+1);
     }
 
@@ -135,6 +144,8 @@ void EEIntegrityTask::setup(void){
     for (int i = 0; i < 18 ; i++) {
       sprintf(histo, "EEIT TTId %s", Numbers::sEE(i+1).c_str());
       meIntegrityTTId[i] = dbe_->book2D(histo, histo, 50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50., 50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50.);
+      meIntegrityTTId[i]->setAxisTitle("ix", 1);
+      meIntegrityTTId[i]->setAxisTitle("iy", 2);
       dbe_->tag(meIntegrityTTId[i], i+1);
     }
 
@@ -143,6 +154,8 @@ void EEIntegrityTask::setup(void){
     for (int i = 0; i < 18 ; i++) {
       sprintf(histo, "EEIT TTBlockSize %s", Numbers::sEE(i+1).c_str());
       meIntegrityTTBlockSize[i] = dbe_->book2D(histo, histo, 50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50., 50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50.);
+      meIntegrityTTBlockSize[i]->setAxisTitle("ix", 1);
+      meIntegrityTTBlockSize[i]->setAxisTitle("iy", 2);
       dbe_->tag(meIntegrityTTBlockSize[i], i+1);
     }
 
@@ -151,6 +164,8 @@ void EEIntegrityTask::setup(void){
     for (int i = 0; i < 18 ; i++) {
       sprintf(histo, "EEIT MemChId %s", Numbers::sEE(i+1).c_str());
       meIntegrityMemChId[i] = dbe_->book2D(histo, histo, 10, 0., 10., 5, 0., 5.);
+      meIntegrityMemChId[i]->setAxisTitle("pseudo-strip", 1);
+      meIntegrityMemChId[i]->setAxisTitle("channel", 2);
       dbe_->tag(meIntegrityMemChId[i], i+1);
     }
 
@@ -161,6 +176,8 @@ void EEIntegrityTask::setup(void){
     for (int i = 0; i < 18 ; i++) {
       sprintf(histo, "EEIT MemGain %s", Numbers::sEE(i+1).c_str());
       meIntegrityMemGain[i] = dbe_->book2D(histo, histo, 10, 0., 10., 5, 0., 5.);
+      meIntegrityMemGain[i]->setAxisTitle("pseudo-strip", 1);
+      meIntegrityMemGain[i]->setAxisTitle("channel", 2);
       dbe_->tag(meIntegrityMemGain[i], i+1);
     }
 
@@ -169,6 +186,8 @@ void EEIntegrityTask::setup(void){
     for (int i = 0; i < 18 ; i++) {
       sprintf(histo, "EEIT MemTTId %s", Numbers::sEE(i+1).c_str());
       meIntegrityMemTTId[i] = dbe_->book2D(histo, histo, 2, 0., 2., 1, 0., 1.);
+      meIntegrityMemTTId[i]->setAxisTitle("pseudo-strip", 1);
+      meIntegrityMemTTId[i]->setAxisTitle("channel", 2);
       dbe_->tag(meIntegrityMemTTId[i], i+1);
     }
 
@@ -177,6 +196,8 @@ void EEIntegrityTask::setup(void){
     for (int i = 0; i < 18 ; i++) {
       sprintf(histo, "EEIT MemSize %s", Numbers::sEE(i+1).c_str());
       meIntegrityMemTTBlockSize[i] = dbe_->book2D(histo, histo, 2, 0., 2., 1, 0., 1.);
+      meIntegrityMemTTId[i]->setAxisTitle("pseudo-strip", 1);
+      meIntegrityMemTTId[i]->setAxisTitle("channel", 2);
       dbe_->tag(meIntegrityMemTTBlockSize[i], i+1);
     }
 
