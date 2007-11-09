@@ -16,37 +16,37 @@ class SaturationFcn : public FCNBase{
 
 
  void set_data(int N,float *charge_ptr,float *adc_ptr){
-
-   float x[24],y[24];
+ 
+   float x[10],y[10];
 
    for(int i=0;i<N;i++){
      x[i]=charge_ptr[i];
      y[i]=adc_ptr[i];
      datx[i]=x[i];
      daty[i]=y[i];
-     //printf("%d  datx daty %f %f \n",i,datx[i],daty[i]);
+     printf("%d  datx daty %f %f \n",i,datx[i],daty[i]);
    }
    x3start=(y[4]*x[1]-y[1]*x[4])/(x[1]-x[4]);
    x0start=daty[13]-x3start;
    x1start=(y[4]-y[1])/(x[4]-x[1])/x0start;
    x2start=20.;
-   //printf(" x0-2start %f %f %f %f\n",x0start,x1start,x2start,x3start);
+   printf(" x0-2start %f %f %f %f\n",x0start,x1start,x2start,x3start);
  }
  
  virtual double Up() const {return 1.;}
  
  virtual double operator()(const std::vector<double>& x) const {
    double chisq = 0.0;  
-   int N=24;
+   int N=10;
   for(int i=0;i<N;i++){
     double val=1.0+pow(x[1]*datx[i],x[2]);
     double val2=1.0/x[2];
     val=x[0]*x[1]*datx[i]/pow(val,val2);
     double tmp=(daty[i]-x[3]-val);
-    //printf(" dat: %d %f %f %f %f \n",i,datx[i],daty[i]-x[3],val,tmp);
+    printf(" dat: %d %f %f %f %f \n",i,datx[i],daty[i]-x[3],val,tmp);
     chisq=chisq+tmp*tmp;
   }
-  //printf("x0-3 %f %f %f %f chisq %f \n",x[0],x[1],x[2],x[3],chisq);
+  printf("x0-3 %f %f %f %f chisq %f \n",x[0],x[1],x[2],x[3],chisq);
   return chisq; 
  }
 
@@ -57,7 +57,7 @@ class SaturationFcn : public FCNBase{
  
  private:
  
- double datx[24],daty[24];
+ double datx[10],daty[10];
 }; 
 
 #endif

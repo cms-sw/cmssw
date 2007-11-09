@@ -19,12 +19,12 @@ class SaturationFit{
    pFcn->set_data(N,charge_ptr,adc_ptr);
    std::vector<double> par(4,0);
    std::vector<double> err(4,0);
-   //printf(" about to fill pars \n");
+   printf(" about to fill pars \n");
    par[0]=pFcn->x0start;
    par[1]=pFcn->x1start;
    par[2]=pFcn->x2start;
    par[3]=pFcn->x3start;
-   //printf(" pars: %f %f %f %f \n",par[0],par[1],par[2],par[3]);
+   printf(" pars: %f %f %f %f \n",par[0],par[1],par[2],par[3]);
    err[0]=20.0;
    err[1]=0.0001;
    err[2]=1.0;
@@ -33,7 +33,7 @@ class SaturationFit{
    if( !fmin.IsValid()){
      printf(" minuit did not converge \n");
    } else {
-     //std::cout<<"fit succeeded... results: "<<fmin<<std::endl;
+     std::cout<<"fit succeeded... results: "<<fmin<<std::endl;
     chisq = fmin.Fval();
     u[0]     = fmin.UserParameters().Value( static_cast<unsigned int>(0) );
     *u0_ptr=u[0];
@@ -47,7 +47,7 @@ class SaturationFit{
     u[3]     = fmin.UserParameters().Value( static_cast<unsigned int>(3) );
     *u3_ptr=u[3];
     sigma[3] = fmin.UserParameters().Error( static_cast<unsigned int>(3) );
-    //std::cout<<"fitresults: "<<u[0]<<" "<<u[1]<<" "<<u[2]<<" "<<u[3]<<std::endl;
+    std::cout<<"fitresults: "<<u[0]<<" "<<u[1]<<" "<<u[2]<<" "<<u[3]<<std::endl;
     
    }
  }
