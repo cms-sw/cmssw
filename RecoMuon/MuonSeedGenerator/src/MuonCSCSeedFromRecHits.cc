@@ -24,7 +24,9 @@ MuonCSCSeedFromRecHits::MuonCSCSeedFromRecHits(const edm::EventSetup & eSetup)
   fillConstants(3,5, 0.2773, -0.1017);
   fillConstants(3,6, -0.05597, 0.11840);
   fillConstants(3,8, -0.09705, 0.15916);
-  //fillConstants(4,6, -0.2541, 0.2741);
+  // Shih-Chuan's numbers
+  fillConstants(4,6, 0.123, -0.0168);
+
 
 }
 
