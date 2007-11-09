@@ -67,6 +67,7 @@
     private:
        edm::ParameterSet conf_;
        edm::InputTag src_;
+       bool saveFile;
        int eventNo;
        DaqMonitorBEInterface* theDMBE;
        std::map<uint32_t,SiPixelRawDataErrorModule*> thePixelStructure;
