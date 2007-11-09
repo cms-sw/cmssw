@@ -69,7 +69,7 @@ int main()
     {
       for(unsigned short iCard = 0; iCard < 7; iCard++)
 	{
-	  for(unsigned short iTower = 1; iTower <= 32; iTower++)
+	  for(unsigned short iTower = 0; iTower < 32; iTower++)
 	    {
 	      short iEta = rctParameters->calcIEta(iCrate, iCard, iTower);
 	      unsigned short iPhi = rctParameters->calcIPhi(iCrate, iCard, iTower);
