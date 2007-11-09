@@ -1,5 +1,5 @@
-// Last commit: $Id: SiStripPedestalsBuilderFromDb.cc,v 1.1 2006/12/22 12:22:15 bainbrid Exp $
-// Latest tag:  $Name: TIF_190307 $
+// Last commit: $Id: SiStripPedestalsBuilderFromDb.cc,v 1.2 2007/03/19 13:23:07 bainbrid Exp $
+// Latest tag:  $Name:  $
 // Location:    $Source: /cvs_server/repositories/CMSSW/CMSSW/OnlineDB/SiStripESSources/src/SiStripPedestalsBuilderFromDb.cc,v $
 
 #include "OnlineDB/SiStripESSources/interface/SiStripPedestalsBuilderFromDb.h"
@@ -53,10 +53,16 @@ SiStripPedestals* SiStripPedestalsBuilderFromDb::makePedestals() {
   
   // Build and retrieve SiStripConfigDb object using service
   db_ = edm::Service<SiStripConfigDb>().operator->(); //@@ NOT GUARANTEED TO BE THREAD SAFE! 
+
+  LogTrace(mlConfigDb_) 
+    << "TEST db: " << db_;
   
   // Check if DB connection is made 
   if ( db_ ) { 
-
+    
+    LogTrace(mlConfigDb_) 
+      << "TEST dv: " << db_->deviceFactory();
+    
     if ( db_->deviceFactory() ) { 
       
       // Build FEC cabling object
@@ -73,10 +79,12 @@ SiStripPedestals* SiStripPedestalsBuilderFromDb::makePedestals() {
       SiStripDetCabling det_cabling( fed_cabling );
       
       // Populate Pedestals object
+      LogTrace(mlConfigDb_) 
+	<< "TEST db1: " << db_;
       buildPedestals( db_, det_cabling, *pedestals );
       
       // Call virtual method that writes FED cabling object to conditions DB
-      writePedestalsToCondDb( *pedestals );
+      //writePedestalsToCondDb( *pedestals );
       
     } else {
       edm::LogWarning(mlESSources_)
@@ -131,6 +139,7 @@ void SiStripPedestalsBuilderFromDb::buildPedestals( SiStripConfigDb* const db,
     
     // Ignore NULL DetIds
     if ( !(*det_id) ) { continue; }
+    if ( *det_id == sistrip::invalid32_ ) { continue; }
     
     // Iterate through connections for given DetId and fill peds container
     vector<char> peds;
