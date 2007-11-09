@@ -221,7 +221,6 @@ void ESUnpackerTB::word2digi(int fiber, const vector<Word16> & word, ESLocalRawD
   ESKCHIP.setEC(kEC);
   ESKCHIP.setFlag1(kFlag1);
   ESKCHIP.setFlag2(kFlag2);
-  kchips.push_back(ESKCHIP);
 
   if (crcChecker.isCrcOk()) { 
      ESKCHIP.setCRC(1);
