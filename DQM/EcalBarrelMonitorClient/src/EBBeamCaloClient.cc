@@ -1,8 +1,8 @@
 /*
  * \file EBBeamCaloClient.cc
  *
- * $Date: 2007/10/24 18:17:36 $
- * $Revision: 1.55 $
+ * $Date: 2007/11/08 15:43:50 $
+ * $Revision: 1.56 $
  * \author G. Della Ricca
  * \author A. Ghezzi
  *
@@ -176,6 +176,7 @@ void EBBeamCaloClient::setup(void) {
   if( meEBBCaloRedGreenSteps_ ) dbe_->removeElement( meEBBCaloRedGreenSteps_->getName() );
   sprintf(histo, "EBBCT quality entries or read crystals errors");
   meEBBCaloRedGreenSteps_ = dbe_->book2D(histo, histo, 86, 1., 87., 1, 0., 1.);
+  meEBBCaloRedGreenSteps_->setAxisTitle("step in the scan");
   meEBBCaloRedGreenSteps_->Reset();
   for( int bin=1; bin <87; bin++){ meEBBCaloRedGreenSteps_->setBinContent( bin, 1, 2. );}
 
@@ -962,12 +963,10 @@ void EBBeamCaloClient::htmlOutput(int run, string htmlDir, string htmlName){
     gStyle->SetPalette(6, pCol3);
     obj2f->GetXaxis()->SetNdivisions(86);
     obj2f->GetYaxis()->SetNdivisions(0);
-    //obj2f->SetTitle("");
     can->SetGridx();
     //can->SetGridy();
     obj2f->SetMinimum(-0.00000001);
     obj2f->SetMaximum(6.0);
-    obj2f->GetXaxis()->SetTitle("step in the scan");
     obj2f->Draw("col");
     dummyStep.Draw("text90,same");
     can->Update();

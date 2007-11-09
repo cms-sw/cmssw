@@ -1,8 +1,8 @@
 /*
  * \file EELedClient.cc
  *
- * $Date: 2007/11/06 08:05:21 $
- * $Revision: 1.29 $
+ * $Date: 2007/11/08 15:43:53 $
+ * $Revision: 1.30 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -204,62 +204,86 @@ void EELedClient::setup(void) {
     if ( meg01_[ism-1] ) dbe_->removeElement( meg01_[ism-1]->getName() );
     sprintf(histo, "EELDT led quality %s", Numbers::sEE(ism).c_str());
     meg01_[ism-1] = dbe_->book2D(histo, histo, 50, Numbers::ix0EE(ism)+0., Numbers::ix0EE(ism)+50., 50, Numbers::iy0EE(ism)+0., Numbers::iy0EE(ism)+50.);
+    meg01_[ism-1]->setAxisTitle("ix", 1);
+    meg01_[ism-1]->setAxisTitle("iy", 2);
 
     if ( meg05_[ism-1] ) dbe_->removeElement( meg05_[ism-1]->getName() );
     sprintf(histo, "EELDT led quality G01 PNs %s", Numbers::sEE(ism).c_str());
     meg05_[ism-1] = dbe_->book2D(histo, histo, 10, 0., 10., 1, 0., 5.);
+    meg05_[ism-1]->setAxisTitle("pseudo-strip", 1);
+    meg05_[ism-1]->setAxisTitle("channel", 2);
 
     if ( meg09_[ism-1] ) dbe_->removeElement( meg09_[ism-1]->getName() );
     sprintf(histo, "EELDT led quality G16 PNs %s", Numbers::sEE(ism).c_str());
     meg09_[ism-1] = dbe_->book2D(histo, histo, 10, 0., 10., 1, 0., 5.);
+    meg09_[ism-1]->setAxisTitle("pseudo-strip", 1);
+    meg09_[ism-1]->setAxisTitle("channel", 2);
 
     if ( mea01_[ism-1] ) dbe_->removeElement( mea01_[ism-1]->getName() );;
     sprintf(histo, "EELDT amplitude A %s", Numbers::sEE(ism).c_str());
     mea01_[ism-1] = dbe_->book1D(histo, histo, 850, 0., 850.);
+    mea01_[ism-1]->setAxisTitle("channel", 1);
+    mea01_[ism-1]->setAxisTitle("amplitude", 2);
 
     if ( mea05_[ism-1] ) dbe_->removeElement( mea05_[ism-1]->getName() );;
     sprintf(histo, "EELDT amplitude B %s", Numbers::sEE(ism).c_str());
     mea05_[ism-1] = dbe_->book1D(histo, histo, 850, 0., 850.);
+    mea05_[ism-1]->setAxisTitle("channel", 1);    
+    mea05_[ism-1]->setAxisTitle("amplitude", 2);
 
     if ( met01_[ism-1] ) dbe_->removeElement( met01_[ism-1]->getName() );
     sprintf(histo, "EELDT timing A %s", Numbers::sEE(ism).c_str());
     met01_[ism-1] = dbe_->book1D(histo, histo, 850, 0., 850.);
+    met01_[ism-1]->setAxisTitle("channel", 1);
+    met01_[ism-1]->setAxisTitle("jitter", 2);
 
     if ( met05_[ism-1] ) dbe_->removeElement( met05_[ism-1]->getName() );
     sprintf(histo, "EELDT timing B %s", Numbers::sEE(ism).c_str());
     met05_[ism-1] = dbe_->book1D(histo, histo, 850, 0., 850.);
+    met05_[ism-1]->setAxisTitle("channel", 1); 
+    met05_[ism-1]->setAxisTitle("jitter", 2);
 
     if ( metav01_[ism-1] ) dbe_->removeElement( metav01_[ism-1]->getName() );
     sprintf(histo, "EELDT timing mean A %s", Numbers::sEE(ism).c_str());
     metav01_[ism-1] = dbe_->book1D(histo, histo, 100, 0., 10.);
+    metav01_[ism-1]->setAxisTitle("jitter Mean", 1);
 
     if ( metav05_[ism-1] ) dbe_->removeElement( metav05_[ism-1]->getName() );
     sprintf(histo, "EELDT timing mean B %s", Numbers::sEE(ism).c_str());
     metav05_[ism-1] = dbe_->book1D(histo, histo, 100, 0., 10.);
+    metav05_[ism-1]->setAxisTitle("jitter Mean", 1);
 
     if ( metrms01_[ism-1] ) dbe_->removeElement( metrms01_[ism-1]->getName() );
     sprintf(histo, "EELDT timing rms A %s", Numbers::sEE(ism).c_str());
     metrms01_[ism-1] = dbe_->book1D(histo, histo, 100, 0., 0.5);
+    metrms01_[ism-1]->setAxisTitle("jitter RMS", 1);
 
     if ( metrms05_[ism-1] ) dbe_->removeElement( metrms05_[ism-1]->getName() );
     sprintf(histo, "EELDT timing rms B %s", Numbers::sEE(ism).c_str());
     metrms05_[ism-1] = dbe_->book1D(histo, histo, 100, 0., 0.5);
+    metrms05_[ism-1]->setAxisTitle("jitter RMS", 1);
 
     if ( meaopn01_[ism-1] ) dbe_->removeElement( meaopn01_[ism-1]->getName() );
     sprintf(histo, "EELDT amplitude over PN A %s", Numbers::sEE(ism).c_str());
     meaopn01_[ism-1] = dbe_->book1D(histo, histo, 850, 0., 850.);
+    meaopn01_[ism-1]->setAxisTitle("channel", 1);
+    meaopn01_[ism-1]->setAxisTitle("amplitude/PN", 2);
 
     if ( meaopn05_[ism-1] ) dbe_->removeElement( meaopn05_[ism-1]->getName() );
     sprintf(histo, "EELDT amplitude over PN B %s", Numbers::sEE(ism).c_str());
     meaopn05_[ism-1] = dbe_->book1D(histo, histo, 850, 0., 850.);
+    meaopn05_[ism-1]->setAxisTitle("channel", 1);
+    meaopn05_[ism-1]->setAxisTitle("amplitude/PN", 2);
 
     if ( mepnprms01_[ism-1] ) dbe_->removeElement( mepnprms01_[ism-1]->getName() );
     sprintf(histo, "EEPDT PNs pedestal rms %s G01", Numbers::sEE(ism).c_str());
     mepnprms01_[ism-1] = dbe_->book1D(histo, histo, 100, 0., 10.);
+    mepnprms01_[ism-1]->setAxisTitle("RMS", 1);
 
     if ( mepnprms05_[ism-1] ) dbe_->removeElement( mepnprms05_[ism-1]->getName() );
     sprintf(histo, "EEPDT PNs pedestal rms %s G16", Numbers::sEE(ism).c_str());
     mepnprms05_[ism-1] = dbe_->book1D(histo, histo, 100, 0., 10.);
+    mepnprms05_[ism-1]->setAxisTitle("RMS", 1);
 
   }
 
@@ -1444,7 +1468,9 @@ void EELedClient::htmlOutput(int run, string htmlDir, string htmlName){
         cQual->SetGridx();
         cQual->SetGridy();
         obj2f->GetXaxis()->SetLabelSize(0.02);
+        obj2f->GetXaxis()->SetTitleSize(0.02);
         obj2f->GetYaxis()->SetLabelSize(0.02);
+        obj2f->GetYaxis()->SetTitleSize(0.02);
         obj2f->SetMinimum(-0.00000001);
         obj2f->SetMaximum(6.0);
         obj2f->Draw("col");

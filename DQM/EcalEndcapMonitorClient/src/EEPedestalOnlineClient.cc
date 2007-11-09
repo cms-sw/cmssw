@@ -1,8 +1,8 @@
 /*
  * \file EEPedestalOnlineClient.cc
  *
- * $Date: 2007/11/06 08:05:21 $
- * $Revision: 1.34 $
+ * $Date: 2007/11/08 15:43:53 $
+ * $Revision: 1.35 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -149,14 +149,18 @@ void EEPedestalOnlineClient::setup(void) {
     if ( meg03_[ism-1] ) dbe_->removeElement( meg03_[ism-1]->getName() );
     sprintf(histo, "EEPOT pedestal quality G12 %s", Numbers::sEE(ism).c_str());
     meg03_[ism-1] = dbe_->book2D(histo, histo, 50, Numbers::ix0EE(ism)+0., Numbers::ix0EE(ism)+50., 50, Numbers::iy0EE(ism)+0., Numbers::iy0EE(ism)+50.);
+    meg03_[ism-1]->setAxisTitle("ix", 1);
+    meg03_[ism-1]->setAxisTitle("iy", 2);
 
     if ( mep03_[ism-1] ) dbe_->removeElement( mep03_[ism-1]->getName() );
     sprintf(histo, "EEPOT pedestal mean G12 %s", Numbers::sEE(ism).c_str());
     mep03_[ism-1] = dbe_->book1D(histo, histo, 100, 150., 250.);
+    mep03_[ism-1]->setAxisTitle("Mean", 1);
 
     if ( mer03_[ism-1] ) dbe_->removeElement( mer03_[ism-1]->getName() );
     sprintf(histo, "EEPOT pedestal rms G12 %s", Numbers::sEE(ism).c_str());
     mer03_[ism-1] = dbe_->book1D(histo, histo, 100, 0.,  10.);
+    mer03_[ism-1]->setAxisTitle("RMS", 1);
 
   }
 
@@ -585,7 +589,9 @@ void EEPedestalOnlineClient::htmlOutput(int run, string htmlDir, string htmlName
       cQual->SetGridx();
       cQual->SetGridy();
       obj2f->GetXaxis()->SetLabelSize(0.02);
+      obj2f->GetXaxis()->SetTitleSize(0.02);
       obj2f->GetYaxis()->SetLabelSize(0.02);
+      obj2f->GetYaxis()->SetTitleSize(0.02);
       obj2f->SetMinimum(-0.00000001);
       obj2f->SetMaximum(6.0);
       obj2f->Draw("col");

@@ -1,8 +1,8 @@
 /*
  * \file EEBeamCaloClient.cc
  *
- * $Date: 2007/10/24 18:17:42 $
- * $Revision: 1.17 $
+ * $Date: 2007/11/08 15:43:53 $
+ * $Revision: 1.18 $
  * \author G. Della Ricca
  * \author A. Ghezzi
  *
@@ -176,6 +176,7 @@ void EEBeamCaloClient::setup(void) {
   if( meEEBCaloRedGreenSteps_ )  dbe_->removeElement( meEEBCaloRedGreenSteps_->getName() );
   sprintf(histo, "EEBCT quality entries or read crystals errors");
   meEEBCaloRedGreenSteps_ = dbe_->book2D(histo, histo, 86, 1., 87., 1, 0., 1.);
+  meEEBCaloRedGreenSteps_->setAxisTitle("step in the scan");
   meEEBCaloRedGreenSteps_->Reset();
   for( int bin=1; bin <87; bin++){ meEEBCaloRedGreenSteps_->setBinContent( bin, 1, 2. );}
 
@@ -962,12 +963,10 @@ void EEBeamCaloClient::htmlOutput(int run, string htmlDir, string htmlName){
     gStyle->SetPalette(6, pCol3);
     obj2f->GetXaxis()->SetNdivisions(86);
     obj2f->GetYaxis()->SetNdivisions(0);
-    //obj2f->SetTitle("");
     can->SetGridx();
     //can->SetGridy();
     obj2f->SetMinimum(-0.00000001);
     obj2f->SetMaximum(6.0);
-    obj2f->GetXaxis()->SetTitle("step in the scan");
     obj2f->Draw("col");
     dummyStep.Draw("text90,same");
     can->Update();

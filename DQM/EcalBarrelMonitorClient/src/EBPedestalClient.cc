@@ -1,8 +1,8 @@
 /*
  * \file EBPedestalClient.cc
  *
- * $Date: 2007/11/06 08:05:17 $
- * $Revision: 1.161 $
+ * $Date: 2007/11/08 15:43:51 $
+ * $Revision: 1.162 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -197,66 +197,96 @@ void EBPedestalClient::setup(void) {
     if ( meg01_[ism-1] ) dbe_->removeElement( meg01_[ism-1]->getName() );
     sprintf(histo, "EBPT pedestal quality G01 %s", Numbers::sEB(ism).c_str());
     meg01_[ism-1] = dbe_->book2D(histo, histo, 85, 0., 85., 20, 0., 20.);
+    meg01_[ism-1]->setAxisTitle("ieta", 1);
+    meg01_[ism-1]->setAxisTitle("iphi", 2);
     if ( meg02_[ism-1] ) dbe_->removeElement( meg02_[ism-1]->getName() );
     sprintf(histo, "EBPT pedestal quality G06 %s", Numbers::sEB(ism).c_str());
     meg02_[ism-1] = dbe_->book2D(histo, histo, 85, 0., 85., 20, 0., 20.);
+    meg02_[ism-1]->setAxisTitle("ieta", 1);
+    meg02_[ism-1]->setAxisTitle("iphi", 2);
     if ( meg03_[ism-1] ) dbe_->removeElement( meg03_[ism-1]->getName() );
     sprintf(histo, "EBPT pedestal quality G12 %s", Numbers::sEB(ism).c_str());
     meg03_[ism-1] = dbe_->book2D(histo, histo, 85, 0., 85., 20, 0., 20.);
+    meg03_[ism-1]->setAxisTitle("ieta", 1);
+    meg03_[ism-1]->setAxisTitle("iphi", 2);
 
     if ( meg04_[ism-1] ) dbe_->removeElement( meg04_[ism-1]->getName() );
     sprintf(histo, "EBPT pedestal quality PNs G01 %s", Numbers::sEB(ism).c_str());
     meg04_[ism-1] = dbe_->book2D(histo, histo, 10, 0., 10., 1, 0., 5.);
+    meg04_[ism-1]->setAxisTitle("pseudo-strip", 1);
+    meg04_[ism-1]->setAxisTitle("channel", 2);
     if ( meg05_[ism-1] ) dbe_->removeElement( meg05_[ism-1]->getName() );
     sprintf(histo, "EBPT pedestal quality PNs G16 %s", Numbers::sEB(ism).c_str());
     meg05_[ism-1] = dbe_->book2D(histo, histo, 10, 0., 10., 1, 0., 5.);
+    meg05_[ism-1]->setAxisTitle("pseudo-strip", 1);
+    meg05_[ism-1]->setAxisTitle("channel", 2);
 
     if ( mep01_[ism-1] ) dbe_->removeElement( mep01_[ism-1]->getName() );
     sprintf(histo, "EBPT pedestal mean G01 %s", Numbers::sEB(ism).c_str());
     mep01_[ism-1] = dbe_->book1D(histo, histo, 100, 150., 250.);
+    mep01_[ism-1]->setAxisTitle("Mean", 1);
     if ( mep02_[ism-1] ) dbe_->removeElement( mep02_[ism-1]->getName() );
     sprintf(histo, "EBPT pedestal mean G06 %s", Numbers::sEB(ism).c_str());
     mep02_[ism-1] = dbe_->book1D(histo, histo, 100, 150., 250.);
+    mep02_[ism-1]->setAxisTitle("Mean", 1);
     if ( mep03_[ism-1] ) dbe_->removeElement( mep03_[ism-1]->getName() );
     sprintf(histo, "EBPT pedestal mean G12 %s", Numbers::sEB(ism).c_str());
     mep03_[ism-1] = dbe_->book1D(histo, histo, 100, 150., 250.);
+    mep03_[ism-1]->setAxisTitle("Mean", 1);
 
     if ( mer01_[ism-1] ) dbe_->removeElement( mer01_[ism-1]->getName() );
     sprintf(histo, "EBPT pedestal rms G01 %s", Numbers::sEB(ism).c_str());
     mer01_[ism-1] = dbe_->book1D(histo, histo, 100, 0., 10.);
+    mer01_[ism-1]->setAxisTitle("RMS", 1);
     if ( mer02_[ism-1] ) dbe_->removeElement( mer02_[ism-1]->getName() );
     sprintf(histo, "EBPT pedestal rms G06 %s", Numbers::sEB(ism).c_str());
     mer02_[ism-1] = dbe_->book1D(histo, histo, 100, 0., 10.);
+    mer02_[ism-1]->setAxisTitle("RMS", 1);
     if ( mer03_[ism-1] ) dbe_->removeElement( mer03_[ism-1]->getName() );
     sprintf(histo, "EBPT pedestal rms G12 %s", Numbers::sEB(ism).c_str());
     mer03_[ism-1] = dbe_->book1D(histo, histo, 100, 0., 10.);
+    mer03_[ism-1]->setAxisTitle("RMS", 1);
 
     if ( mer04_[ism-1] ) dbe_->removeElement( mer04_[ism-1]->getName() );
     sprintf(histo, "EBPDT PNs pedestal rms %s G01", Numbers::sEB(ism).c_str());
     mer04_[ism-1] = dbe_->book1D(histo, histo, 100, 0., 10.);
+    mer04_[ism-1]->setAxisTitle("RMS", 1);
     if ( mer05_[ism-1] ) dbe_->removeElement( mer05_[ism-1]->getName() );
     sprintf(histo, "EBPDT PNs pedestal rms %s G16", Numbers::sEB(ism).c_str());
     mer05_[ism-1] = dbe_->book1D(histo, histo, 100, 0., 10.);
+    mer05_[ism-1]->setAxisTitle("RMS", 1);
 
     if ( mes01_[ism-1] ) dbe_->removeElement( mes01_[ism-1]->getName() );
     sprintf(histo, "EBPT pedestal 3sum G01 %s", Numbers::sEB(ism).c_str());
     mes01_[ism-1] = dbe_->book2D(histo, histo, 85, 0., 85., 20, 0., 20.);
+    mes01_[ism-1]->setAxisTitle("ieta", 1);
+    mes01_[ism-1]->setAxisTitle("iphi", 2);
     if ( mes02_[ism-1] ) dbe_->removeElement( mes02_[ism-1]->getName() );
     sprintf(histo, "EBPT pedestal 3sum G06 %s", Numbers::sEB(ism).c_str());
     mes02_[ism-1] = dbe_->book2D(histo, histo, 85, 0., 85., 20, 0., 20.);
+    mes02_[ism-1]->setAxisTitle("ieta", 1);
+    mes02_[ism-1]->setAxisTitle("iphi", 2);
     if ( mes03_[ism-1] ) dbe_->removeElement( mes03_[ism-1]->getName() );
     sprintf(histo, "EBPT pedestal 3sum G12 %s", Numbers::sEB(ism).c_str());
     mes03_[ism-1] = dbe_->book2D(histo, histo, 85, 0., 85., 20, 0., 20.);
+    mes03_[ism-1]->setAxisTitle("ieta", 1);
+    mes03_[ism-1]->setAxisTitle("iphi", 2);
 
     if ( met01_[ism-1] ) dbe_->removeElement( met01_[ism-1]->getName() );
     sprintf(histo, "EBPT pedestal 5sum G01 %s", Numbers::sEB(ism).c_str());
     met01_[ism-1] = dbe_->book2D(histo, histo, 85, 0., 85., 20, 0., 20.);
+    met01_[ism-1]->setAxisTitle("ieta", 1);
+    met01_[ism-1]->setAxisTitle("iphi", 2);
     if ( met02_[ism-1] ) dbe_->removeElement( met02_[ism-1]->getName() );
     sprintf(histo, "EBPT pedestal 5sum G06 %s", Numbers::sEB(ism).c_str());
     met02_[ism-1] = dbe_->book2D(histo, histo, 85, 0., 85., 20, 0., 20.);
+    met02_[ism-1]->setAxisTitle("ieta", 1);
+    met02_[ism-1]->setAxisTitle("iphi", 2);
     if ( met03_[ism-1] ) dbe_->removeElement( met03_[ism-1]->getName() );
     sprintf(histo, "EBPT pedestal 5sum G12 %s", Numbers::sEB(ism).c_str());
     met03_[ism-1] = dbe_->book2D(histo, histo, 85, 0., 85., 20, 0., 20.);
+    met03_[ism-1]->setAxisTitle("ieta", 1);
+    met03_[ism-1]->setAxisTitle("iphi", 2);
 
   }
 

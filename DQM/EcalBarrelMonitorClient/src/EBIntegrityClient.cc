@@ -2,8 +2,8 @@
 /*
  * \file EBIntegrityClient.cc
  *
- * $Date: 2007/11/07 13:52:00 $
- * $Revision: 1.169 $
+ * $Date: 2007/11/08 15:43:50 $
+ * $Revision: 1.170 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -163,10 +163,14 @@ void EBIntegrityClient::setup(void) {
     if ( meg01_[ism-1] ) dbe_->removeElement( meg01_[ism-1]->getName() );
     sprintf(histo, "EBIT data integrity quality %s", Numbers::sEB(ism).c_str());
     meg01_[ism-1] = dbe_->book2D(histo, histo, 85, 0., 85., 20, 0., 20.);
+    meg01_[ism-1]->setAxisTitle("ieta", 1);
+    meg01_[ism-1]->setAxisTitle("iphi", 2);
 
     if ( meg02_[ism-1] ) dbe_->removeElement( meg02_[ism-1]->getName() );
     sprintf(histo, "EBIT data integrity quality MEM %s", Numbers::sEB(ism).c_str());
     meg02_[ism-1] = dbe_->book2D(histo, histo, 10, 0., 10., 5, 0.,5.);
+    meg02_[ism-1]->setAxisTitle("pseudo-strip", 1);
+    meg02_[ism-1]->setAxisTitle("channel", 2);
 
   }
 
