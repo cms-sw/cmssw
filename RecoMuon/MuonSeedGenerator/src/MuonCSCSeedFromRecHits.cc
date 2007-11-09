@@ -24,8 +24,11 @@ MuonCSCSeedFromRecHits::MuonCSCSeedFromRecHits(const edm::EventSetup & eSetup)
   fillConstants(3,5, 0.2773, -0.1017);
   fillConstants(3,6, -0.05597, 0.11840);
   fillConstants(3,8, -0.09705, 0.15916);
-  // Shih-Chuan's numbers
-  fillConstants(4,6, 0.123, -0.0168);
+  // numbers from Shih-Chuam's May 2007 talk
+  fillConstants(4,6, -0.123,   0.167);
+  fillConstants(5,7, 0.035, 0.);
+  fillConstants(6,8, 0.025, 0.);
+
 
 
 }
@@ -75,6 +78,11 @@ TrajectorySeed MuonCSCSeedFromRecHits::seed() const
   {
     return result;
   }
+  if(makeSeed(station2Hits, station3Hits, result))
+  {
+    return result;
+  }
+
 
   // no luck
   makeDefaultSeed(result);
