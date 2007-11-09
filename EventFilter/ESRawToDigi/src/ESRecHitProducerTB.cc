@@ -35,7 +35,8 @@ ESRecHitProducerTB::ESRecHitProducerTB(ParameterSet const& ps)
   for (int i=0; i<2; ++i) { 
     for (int j=0; j<4; ++j) { 
       for (int k=0; k<4; ++k) {  
-	sprintf(tmp, "DQMData/ES/QT/PedestalTB/ES Pedestal Fit Mean RMS Z 1 P %1d Col %02d Row %02d", i+1, j+1, k+1);
+	//sprintf(tmp, "DQMData/ES/QT/PedestalTB/ES Pedestal Fit Mean RMS Z 1 P %1d Col %02d Row %02d", i+1, j+1, k+1);
+	sprintf(tmp, "hFit_%d_%d_%d", i+1, j+1, k+1);
 	hist_[i][j][k] = (TH1F*) ped_->Get(tmp);	    
       }          
     }
@@ -91,12 +92,21 @@ void ESRecHitProducerTB::DoCommonMode(double det_data[], double *cm) {
       current_sum1 += current_strip_val1;
     }
   }
-  corrected_sum1 = current_sum1*myltip_factor[n1-1];   // multiply sum by factor
-  corrected_sum1 = corrected_sum1 >> 10;               //shilft right 10 bits [9:0]
-  check_bit1_10 = corrected_sum1 & 1;                  //check bit [10]
-  corrected_sum1 = corrected_sum1 >> 1;                //shilft right 1 more bit [10]
-  if(check_bit1_10 == 1) corrected_sum1++;             //increase by 1 if bit [10] was one
 
+  //corrected_sum1 = current_sum1*myltip_factor[n1];     // multiply sum by factor
+  //corrected_sum1 = corrected_sum1 >> 10;               //shilft right 10 bits [9:0]
+  //check_bit1_10 = corrected_sum1 & 1;                  //check bit [10]
+  //corrected_sum1 = corrected_sum1 >> 1;                //shilft right 1 more bit [10]
+  //if (check_bit1_10==1 && corrected_sum1>=0) corrected_sum1++; //increase by 1 if bit [10] was one
+  //*cm = (float)corrected_sum1;
+
+  float atmp = current_sum1/(float)n1;
+  if (atmp>0) 
+    atmp += 0.5;
+  else if (atmp<0) 
+    atmp -= 0.5;
+  corrected_sum1 = atmp;
+  
   *cm = (float)corrected_sum1;
 
 }
@@ -121,7 +131,7 @@ void ESRecHitProducerTB::produce(Event& e, const EventSetup& es) {
   if( trg->wasLEDTrigger() )              trgbit = 4;
   if( trg->wasLaserTrigger() )            trgbit = 5;
 
-  double t0 = 31;
+  double t0 = 34;
   if (time->ttcL1Atime()>0 && time->BeamCoincidenceCount()>0) t0 =  time->ttcL1Atime() - time->BeamCoincidenceHits(0) - 1000;
 
   // Digis
