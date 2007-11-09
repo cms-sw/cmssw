@@ -194,12 +194,15 @@ void HIPAlignmentAlgorithm::startNewLoop( void )
 
       for (unsigned int l = 0; l < theLevels.size(); ++l)
       {
-        SurveyResidual res(*ali, theLevels[l]);
+        SurveyResidual res(*ali, theLevels[l], true);
 
-        AlgebraicSymMatrix invCov = res.inverseCovariance();
+	if ( res.valid() )
+	{
+	  AlgebraicSymMatrix invCov = res.inverseCovariance();
 
-        uservar->jtvj += invCov;
-        uservar->jtve += invCov * res.sensorResidual();
+	  uservar->jtvj += invCov;
+	  uservar->jtve += invCov * res.sensorResidual();
+	}
       }
 
 // 	align::LocalVectors residuals = res1.pointsResidual();
