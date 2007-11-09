@@ -21,12 +21,12 @@ SurveyResidual::SurveyResidual(const Alignable& ali,
   {
     theMother = theMother->mother(); // move up a level
 
-    if (!theMother)
-    {
-      throw cms::Exception("ConfigError")
-	<< "Alignable (id = " << ali.geomDetId().rawId()
-	<< ") does not belong to a composite of type " << type;
-    }
+    if (!theMother) return;
+//     {
+//       throw cms::Exception("ConfigError")
+// 	<< "Alignable (id = " << ali.geomDetId().rawId()
+// 	<< ") does not belong to a composite of type " << type;
+//     }
   }
 
   if ( !theMother->mother() )

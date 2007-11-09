@@ -8,8 +8,8 @@
  *  For more info, please refer to
  *    http://www.pha.jhu.edu/~gritsan/cms/cms-note-survey.pdf
  *
- *  $Date: 2007/06/24 01:08:20 $
- *  $Revision: 1.3 $
+ *  $Date: 2007/10/08 13:21:29 $
+ *  $Revision: 1.5 $
  *  \author Chung Khim Lae
  */
 
@@ -32,6 +32,11 @@ class SurveyResidual
 		 align::StructureType, // level at which residuals are found 
 		 bool bias = false     // true for biased residuals
 		 );
+
+  /// Check if survey residual is valid (theMother != 0).
+  /// This check must be done before calling the other methods so that
+  /// calculations can be performed correctly.
+  inline bool valid() const;
 
   /// Find residual for the alignable in local frame.
   /// Returns a vector of 6 numbers: first 3 are linear, last 3 are angular.
@@ -73,5 +78,10 @@ class SurveyResidual
 
   align::ErrorMatrix theInverseCovariance;
 };
+
+bool SurveyResidual::valid() const
+{
+  return theMother != 0;
+}
 
 #endif
