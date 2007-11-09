@@ -287,14 +287,11 @@ void SiPixelInformationExtractor::selectSingleModuleHistos(DaqMonitorBEInterface
 							   vector<MonitorElement*> & mes) 
 {  
   string currDir = bei->pwd();
-  QRegExp rx("(\\w+)_siPixel") ;
-  //QRegExp rx2("(\\w+)_ctfWithMaterialTracks") ;
-  //QRegExp rx("(\\w+)_3") ;
+  QRegExp rx("(\\w+)_(siPixel|ctfWithMaterialTracks)") ;
   QString theME ;
   if (currDir.find("Module_") != string::npos ||
       currDir.find("FED_") != string::npos)  
   {
-  //  vector<string> contents = mui->getMEs();    
     vector<string> contents = bei->getMEs(); 
        
     for (vector<string>::const_iterator it = contents.begin(); it != contents.end(); it++) 
@@ -311,15 +308,12 @@ void SiPixelInformationExtractor::selectSingleModuleHistos(DaqMonitorBEInterface
 	{
 	  theME = *it ;
           string temp_s ; 
-          //if( rx1.search(theME) != -1 ) { temp_s = rx1.cap(1).latin1() ; }
-          //else if( rx2.search(theME) != -1 ) { temp_s = rx2.cap(1).latin1() ; }
           if( rx.search(theME) != -1 ) { temp_s = rx.cap(1).latin1() ; }
 	  if (temp_s == (*ih)) 
 	  {
 	    string full_path = currDir + "/" + (*it);
 	    //cout<<"full_path="<<full_path<<endl;
 
-  //	    MonitorElement * me = mui->get(full_path.c_str());
 	    MonitorElement * me = bei->get(full_path.c_str());
 	    
 	    if (me) 
@@ -1010,7 +1004,7 @@ void SiPixelInformationExtractor::printModuleHistoList(DaqMonitorBEInterface * b
     if ((*it).find("_siPixel")!=string::npos || 
         (*it).find("_ctfWithMaterialTracks")!=string::npos) {
       QString qit = (*it) ;
-      QRegExp rx("(\\w+)_(siPixel|ctfWithMaterialTracks|_3)") ;
+      QRegExp rx("(\\w+)_(siPixel|ctfWithMaterialTracks)") ;
       if( rx.search(qit) > -1 ) {qit = rx.cap(1);} 
       str_val << "    <li class=\"dhtmlgoodies_sheet.gif\">\n"
 	      << "     <input id      = \"selectedME\""
@@ -1091,7 +1085,6 @@ void SiPixelInformationExtractor::printSummaryHistoList(DaqMonitorBEInterface * 
 	  << "  </a>" 
 	  << endl;
 
-  //vector<string> meVec     = mui->getMEs(); 
   vector<string> meVec     = bei->getMEs(); 
   
   vector<string> subDirVec = bei->getSubdirs();
@@ -1104,11 +1097,7 @@ void SiPixelInformationExtractor::printSummaryHistoList(DaqMonitorBEInterface * 
        it != meVec.end(); it++) {
     if ((*it).find("SUM") == 0) {
       QString qit = (*it) ;
-      //QRegExp rx1("(\\w+)_siPixel") ;
-      //QRegExp rx2("(\\w+)_ctfWithMaterialTracks") ;
-      QRegExp rx("(\\w+)_3") ;
-      //if( rx1.search(qit) > -1 ) {qit = rx1.cap(1);} 
-      //else if( rx2.search(qit) > -1 ) {qit = rx2.cap(1);} 
+      QRegExp rx("(\\w+)_(siPixel|ctfWithMaterialTracks)");
       if( rx.search(qit) > -1 ) {qit = rx.cap(1);} 
       str_val << "    <li class=\"dhtmlgoodies_sheet.gif\">\n"
 	      << "     <input id      = \"selectedME\""
@@ -1207,7 +1196,6 @@ void SiPixelInformationExtractor::printAlarmList(DaqMonitorBEInterface * bei,
 	    << "\">" << endl;
   vector<string> subDirVec = bei->getSubdirs();
 
-  //vector<string> meVec = mui->getMEs(); 
   vector<string> meVec = bei->getMEs();
    
   if (subDirVec.size() == 0 && meVec.size() == 0) {
@@ -1219,7 +1207,6 @@ void SiPixelInformationExtractor::printAlarmList(DaqMonitorBEInterface * bei,
 	   it != meVec.end(); it++) {
     string full_path = currDir + "/" + (*it);
 
-  //  MonitorElement * me = mui->get(full_path);
     MonitorElement * me = bei->get(full_path);
     
     if (!me) continue;
@@ -1230,15 +1217,8 @@ void SiPixelInformationExtractor::printAlarmList(DaqMonitorBEInterface * bei,
       if(image_name1!="images/LI_green.gif") {
         alarmCounter_++;
         QString qit = (*it) ;
-        //QRegExp rx1("(\\w+)_siPixel") ;
-        //QRegExp rx2("(\\w+)_ctfWithMaterialTracks") ;
-        QRegExp rx("(\\w+)_3") ;
-        //if( rx1.search(qit) > -1 ) {qit = rx1.cap(1);} 
-        //else if( rx2.search(qit) > -1 ) {qit = rx2.cap(1);} 
+        QRegExp rx("(\\w+)_(siPixel|ctfWithMaterialTracks)") ;
         if( rx.search(qit) > -1 ) {qit = rx.cap(1);} 
-//        str_val << "<li class=\"dhtmlgoodies_sheet.gif\"><a href=\"javascript:RequestPlot.ReadStatus('"
-//		<< full_path<< "')\">" << (*it) << "</a><img src=\""
-//		<< image_name1 << "\""<< "</li>" << endl;
         str_val << "	<li class=\"dhtmlgoodies_sheet.gif\">\n"
         	<< "	 <input id	= \"selectedME\""
         	<< "		folder  = \"" << currDir << "\""
@@ -1823,33 +1803,25 @@ void SiPixelInformationExtractor::selectMEList(DaqMonitorBEInterface   * bei,
 					       string	               & theMEName,
 					       vector<MonitorElement*> & mes) 
 {  
-  //DaqMonitorBEInterface * bei = mui->getBEInterface();
   string currDir = bei->pwd();
    
-  QRegExp rx("(\\w+)_siPixel") ;
-  //QRegExp rx2("(\\w+)_ctfWithMaterialTracks") ;
-  //QRegExp rx("(\\w+)_3") ;
+  QRegExp rx("(\\w+)_(siPixel|ctfWithMaterialTracks)") ;
   QString theME ;
    
   // Get ME from Collector/FU0/Tracker/PixelEndcap/HalfCylinder_pX/Disk_X/Blade_XX/Panel_XX/Module_XX
   if (currDir.find("Module_") != string::npos ||
       currDir.find("FED_") != string::npos)  
   {
-  //  vector<string> contents = mui->getMEs();    
     vector<string> contents = bei->getMEs(); 
        
     for (vector<string>::const_iterator it = contents.begin(); it != contents.end(); it++) 
     {
       theME = *it ;
-      //if( rx1.search(theME) == -1 && rx2.search(theME) == -1 ) {continue ;} // If the ME is not a siPixel or ctfWithMaterialTrack one, skip
       if( rx.search(theME) == -1 ) {continue ;} // If the ME is not a siPixel or ctfWithMaterialTrack one, skip
-      //if (rx1.cap(1).latin1() == theMEName || 
-      //    rx2.cap(1).latin1() == theMEName)      // Found the ME we were looking for
       if (rx.cap(1).latin1() == theMEName)  
       {
         string full_path = currDir + "/" + (*it);
 
-  //      MonitorElement * me = mui->get(full_path.c_str());
         MonitorElement * me = bei->get(full_path.c_str());
 	
         if (me) {mes.push_back(me);}
@@ -1876,7 +1848,6 @@ void SiPixelInformationExtractor::sendTkUpdatedStatus(DaqMonitorBEInterface  * b
 						      std::string            & theMEName,
 						      std::string            & theTKType) 
 {
-  //DaqMonitorBEInterface * bei = mui->getBEInterface();
   int rval, gval, bval;
   vector<string>          colorMap ;
   vector<MonitorElement*> me_list;
@@ -1889,10 +1860,8 @@ void SiPixelInformationExtractor::sendTkUpdatedStatus(DaqMonitorBEInterface  * b
 
   string detId = "undefined";
 
-  //QRegExp rx1("\\w+_siPixel\\w+_(\\d+)") ;
-  //QRegExp rx2("\\w+_ctfWithMaterialTracks\\w+_(\\d+)") ;
-  QRegExp rx("\\w+_\\w+_(\\d+)") ;
-
+  QRegExp rx("\\w+_\\w+_(\\d+)");
+  
 //   cout << ACYellow << ACBold
 //        << "[SiPixelInformationExtractor::sendTkUpdatedStatus()] "
 //        << ACPlain
@@ -1920,12 +1889,8 @@ void SiPixelInformationExtractor::sendTkUpdatedStatus(DaqMonitorBEInterface  * b
   {
     QString meName    = (*it)->getName() ;
     QString theMEType = getMEType(*it) ;
-    //if( rx1.search(meName) != -1 || 
-    //    rx2.search(meName) != -1 )
     if( rx.search(meName) != -1 ) 
     {
-     //detId = rx1.cap(1).latin1() ;
-     //if (detId=="undefined") detId = rx2.cap(1).latin1() ;
      detId = rx.cap(1).latin1() ;
      entries = (int)(*it)->getEntries() ;
      if( theTKType == "Averages") 
@@ -2018,19 +1983,13 @@ void SiPixelInformationExtractor::sendTkUpdatedStatus(DaqMonitorBEInterface  * b
  */
 int SiPixelInformationExtractor::getDetId(MonitorElement * mE) 
 {
- //QRegExp rx1("siPixel(\\w+)_(\\d+)") ;
- //QRegExp rx2("ctfWithMaterialTracks(\\w+)_(\\d+)") ;
  QRegExp rx("(\\w+)_(\\w+)_(\\d+)") ;
  QString mEName = mE->getName() ;
 
  int detId = 0;
  
- //if( rx1.search(mEName) != -1 ||
- //    rx2.search(mEName) != -1 )
  if( rx.search(mEName) != -1 )
  {
-  //detId = rx1.cap(2).toInt() ;
-  //if (detId==0) detId = rx2.cap(2).toInt() ;
   detId = rx.cap(3).toInt() ;
  } else {
   cout << ACYellow << ACBold
@@ -2052,7 +2011,6 @@ int SiPixelInformationExtractor::getDetId(MonitorElement * mE)
 void SiPixelInformationExtractor::getMEList(DaqMonitorBEInterface    * bei,  
 					    map<string, int>         & mEHash)
 {
-  //DaqMonitorBEInterface * bei = mui->getBEInterface();
   string currDir = bei->pwd();
    
 //   cout << ACRed << ACBold
@@ -2062,22 +2020,18 @@ void SiPixelInformationExtractor::getMEList(DaqMonitorBEInterface    * bei,
 //        << currDir
 //        << endl ;
        
-  QRegExp rx("(\\w+)_siPixel") ;
-  //QRegExp rx2("(\\w+)_ctfWithMaterialTracks") ;
-  //QRegExp rx("(\\w+)_3") ;
+  QRegExp rx("(\\w+)_(siPixel|ctfWithMaterialTracks)") ;
   QString theME ;
    
   // Get ME from Collector/FU0/Tracker/PixelEndcap/HalfCylinder_pX/Disk_X/Blade_XX/Panel_XX/Module_XX
   if (currDir.find("Module_") != string::npos ||
       currDir.find("FED_") != string::npos)  
   {
-  //  vector<string> contents = mui->getMEs();    
     vector<string> contents = bei->getMEs(); 
        
     for (vector<string>::const_iterator it = contents.begin(); it != contents.end(); it++) 
     {
       theME = *it ;
-      //if( rx1.search(theME) == -1 && rx2.search(theME) == -1 ) {continue ;} // If the ME is not a siPixel or ctfWithMaterialTracks one, skip
 //       cout << ACRed << ACReverse
 //            << "[SiPixelInformationExtractor::getMEList()]"
 //            << ACPlain
@@ -2093,10 +2047,8 @@ void SiPixelInformationExtractor::getMEList(DaqMonitorBEInterface    * bei,
 	    << theME
 	    << endl ;
        continue ;
-      } // If the ME is not a siPixel one, skip
+      } // If the ME is not a Pixel one, skip
       string full_path = currDir + "/" + (*it);
-      //string mEName = rx1.cap(1).latin1() ;
-      //if(mEName==" ") mEName = rx2.cap(1).latin1() ;
       string mEName = rx.cap(1).latin1() ;
       mEHash[mEName]++ ;
     }

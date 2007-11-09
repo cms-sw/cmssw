@@ -200,6 +200,8 @@ void SiPixelActionExecutor::fillBarrelSummary(DaqMonitorBEInterface* bei,
 	  prefix="SUMCLU";
 	else if((*iv)=="residualX"||(*iv)=="residualY")
           prefix="SUMRES";
+	else if((*iv)=="ClustX"||(*iv)=="ClustY")
+	  prefix="SUMHIT";
       }
       if((*iv).find("residual")!=string::npos){ // track residuals
         string tag = prefix + "_" + (*iv) + "_mean_" 
@@ -320,6 +322,8 @@ void SiPixelActionExecutor::fillEndcapSummary(DaqMonitorBEInterface* bei,
 	  prefix="SUMCLU";
 	else if((*iv)=="residualX"||(*iv)=="residualY")
           prefix="SUMRES";
+	else if((*iv)=="ClustX"||(*iv)=="ClustY")
+	  prefix="SUMHIT";
       }
       if((*iv).find("residual")!=string::npos){ // track residuals
         string tag = prefix + "_" + (*iv) + "_mean_" 
@@ -578,6 +582,8 @@ void SiPixelActionExecutor::fillGrandBarrelSummaryHistos(DaqMonitorBEInterface* 
 	    prefix="SUMCLU";
 	  else if((*iv)=="residualX"||(*iv)=="residualY")
             prefix="SUMRES";
+	  else if((*iv)=="ClustX"||(*iv)=="ClustY")
+	    prefix="SUMHIT";
         }
 	string var = "_" + (*iv) + "_";
 	if ((*im).find(var) != string::npos) {
@@ -694,6 +700,8 @@ void SiPixelActionExecutor::fillGrandEndcapSummaryHistos(DaqMonitorBEInterface* 
 	    prefix="SUMCLU";
 	  else if((*iv)=="residualX"||(*iv)=="residualY")
             prefix="SUMRES";
+	  else if((*iv)=="ClustX"||(*iv)=="ClustY")
+	    prefix="SUMHIT";
         }
 	string var = "_" + (*iv) + "_";
 	if ((*im).find(var) != string::npos) {
@@ -858,10 +866,10 @@ MonitorElement* SiPixelActionExecutor::getFEDSummaryME(DaqMonitorBEInterface* be
 // -- Setup Quality Tests 
 //
 void SiPixelActionExecutor::setupQTests(DaqMonitorBEInterface * bei) {
-//cout<<"Entering SiPixelActionExecutor::setupQTests: "<<endl;
+cout<<"Entering SiPixelActionExecutor::setupQTests: "<<endl;
 
   bei->cd();
-  //cout<<"COLLATION: "<<collationDone<<endl;
+  cout<<"COLLATION: "<<collationDone<<" in dir: "<<bei->pwd()<<endl;
   if (collationDone) bei->cd("Collector/Collated/Tracker");
   else bei->cd("Tracker");
   
@@ -877,7 +885,7 @@ void SiPixelActionExecutor::setupQTests(DaqMonitorBEInterface * bei) {
     cout << " Problem setting up quality tests "<<endl;
   }
 
-//cout<<" leaving SiPixelActionExecutor::setupQTests. "<<endl;
+cout<<" leaving SiPixelActionExecutor::setupQTests. "<<endl;
 }
 //
 // -- Check Status of Quality Tests

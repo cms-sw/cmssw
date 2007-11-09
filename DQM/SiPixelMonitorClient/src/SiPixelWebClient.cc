@@ -89,45 +89,39 @@ void SiPixelWebClient::endRun()
 */
 void SiPixelWebClient::onUpdate() const
 {
-//  cout<<"entering onUpdate"<<endl;
   if (!mui_) return;
   DaqMonitorBEInterface * bei = (mui_)->getBEInterface();
 
   int nUpdate = mui_->getNumUpdates();
-  //int nUpdate = bei->getNumUpdates();
   
   // SubscribeAll once:
   if (nUpdate == 0) mui_->subscribe("Collector/*");
-  //if (nUpdate == 0) bei->subscribe("Collector/*");
-
-  // Set Up Quality Tests once:
-  if (nUpdate == 1) webInterface_p->setupQTests();
 
   // Initial Collation of all Monitor Elements in all Sources:
-  if (nUpdate == 2){ //actionExecutor_->createCollation(mui_);
+  if (nUpdate == 1){ 
       webInterface_p->setActionFlag(SiPixelWebInterface::Collate);
       seal::Callback action(seal::CreateCallback(webInterface_p, 
 			    &SiPixelWebInterface::performAction));
       mui_->addCallback(action); 
-   //   bei->addCallback(action); 
   }
   
   // Initial Creation of Summary ME's: 
-  if (nUpdate == 3){ //actionExecutor_->createSummary(mui_);
+  if (nUpdate == 2){ 
       webInterface_p->setActionFlag(SiPixelWebInterface::Summary);
       seal::Callback action(seal::CreateCallback(webInterface_p, 
 			    &SiPixelWebInterface::performAction));
       mui_->addCallback(action);
-  //    bei->addCallback(action);
   }	 
 
+  // Set Up Quality Tests once:
+  if (nUpdate == 3) webInterface_p->setupQTests();
+
   // Initial Check of Quality Test Results:
-  if (nUpdate == 4){ //actionExecutor_->checkQTestResults(mui_);
+  if (nUpdate == 4){ 
       webInterface_p->setActionFlag(SiPixelWebInterface::QTestResult);
       seal::Callback action(seal::CreateCallback(webInterface_p, 
 			    &SiPixelWebInterface::performAction));
       mui_->addCallback(action);
-  //    bei->addCallback(action);
   }
 
   // Initial Creation of Summary Plot for Slide Show:
@@ -140,26 +134,21 @@ void SiPixelWebClient::onUpdate() const
   
   // put here the code that needs to be executed on every update:
   std::vector<std::string> uplist;
-  //mui_->getUpdatedContents(uplist);
   bei->getUpdatedContents(uplist);
 
   // Frequent Updating of Summary ME's: 
-//  if (updateFrequencyForBarrelSummary_ != -1 ) {
     if (nUpdate > 0 && nUpdate%299 == 0) {
       webInterface_p->setActionFlag(SiPixelWebInterface::Summary);
       seal::Callback action(seal::CreateCallback(webInterface_p, 
 			    &SiPixelWebInterface::performAction));
       mui_->addCallback(action);	 
-  //    bei->addCallback(action);	 
     }
-//  }	
   // Frequent Updating of Quality Test Results:
   if (nUpdate > 0 && nUpdate%300 == 0){ 
       webInterface_p->setActionFlag(SiPixelWebInterface::QTestResult);
       seal::Callback action(seal::CreateCallback(webInterface_p, 
 			    &SiPixelWebInterface::performAction));
       mui_->addCallback(action);
-  //    bei->addCallback(action);
   }
   // Frequent Updating of Summary Plot for Slide Show:
 //  if (nUpdate > 0 && nUpdate%301 == 0){ 
@@ -186,10 +175,6 @@ void SiPixelWebClient::onUpdate() const
     seal::Callback action(seal::CreateCallback(webInterface_p, 
 			  &SiPixelWebInterface::performAction));
     mui_->addCallback(action); 
-   // bei->addCallback(action); 
   }  
-
- 
-//  cout<<"leaving onUpdate"<<endl;
 
 }
