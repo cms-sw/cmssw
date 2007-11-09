@@ -1,6 +1,3 @@
-
-
-
 #include "FWCore/PluginManager/interface/ModuleDef.h"
 
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -11,7 +8,7 @@
 #include "DTTTrigAnalyzer.h"
 #include "DTVDriftAnalyzer.h"
 #include "ProduceFakeDB.h"
-
+#include "ShiftTTrigDB.h"
 
 DEFINE_SEAL_MODULE();
 DEFINE_ANOTHER_FWK_MODULE(DumpDBToFile);
@@ -20,5 +17,6 @@ DEFINE_ANOTHER_FWK_MODULE(DTT0Analyzer);
 DEFINE_ANOTHER_FWK_MODULE(DTTTrigAnalyzer);
 DEFINE_ANOTHER_FWK_MODULE(DTVDriftAnalyzer);
 DEFINE_ANOTHER_FWK_MODULE(ProduceFakeDB);
+DEFINE_ANOTHER_FWK_MODULE(ShiftTTrigDB);
 
 
