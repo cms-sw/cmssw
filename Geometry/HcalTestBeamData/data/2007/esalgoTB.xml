@@ -223,6 +223,8 @@
   <Numeric name="absorby" value="25*cm" />  <!--  half width of absorbers -->
   <Numeric name="trabsorbx" value="16*cm" />  <!--  translation of absorbers -->
   <Numeric name="trabsorby" value="58*cm" />  <!--  translation of absorbers -->
+  <Numeric name="xoffset" value="100*cm" /> 
+  <Numeric name="yoffset" value="-58*cm" /> 
 
    <!-- a vector of inner radii of the presh-layers -->
   <Vector name="R_MAX" type="numeric" nEntries="19">

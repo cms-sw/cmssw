@@ -71,8 +71,8 @@
   <Constant name="angle" value="2*[wedge_angle]" />
 
   <Constant name="PRESH_Z_OFFSET"   value="3.0495*m"/>
-  <Constant name="PRESH_RMAX_BACK"  value="[R_MIN]+9*cm"/>
-  <Constant name="PRESH_RMAX_FRONT" value="130*cm"/>
+  <Constant name="PRESH_RMAX_BACK"  value="([R_MIN]+9*cm+13.5*cm)"/>
+  <Constant name="PRESH_RMAX_FRONT" value="(130*cm+13.5*cm)"/>
   <Constant name="PRESH_MID_Z"      value="1.8*cm"/>
 </ConstantsSection>
 

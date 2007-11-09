@@ -18,7 +18,7 @@
 #include "CLHEP/Units/SystemOfUnits.h"
 
 DDEcalPreshowerAlgoTB::DDEcalPreshowerAlgoTB() : DDAlgorithm() {
-  LogDebug("HcalGeom") << "DDEcalPreshowerAlgoTB info: Creating an instance" ;
+  LogDebug("HCalGeom") << "DDEcalPreshowerAlgoTB info: Creating an instance" ;
 
 }
 
@@ -28,40 +28,42 @@ void DDEcalPreshowerAlgoTB::initialize(const DDNumericArguments & nArgs,
 				       const DDStringArguments & sArgs,
 				       const DDStringVectorArguments & vsArgs){
 
-  LogDebug("HcalGeom") << "DDEcalPreshowerAlgoTB info: Initialize" ;
+  LogDebug("HCalGeom") << "DDEcalPreshowerAlgoTB info: Initialize" ;
   quadMin_ = vArgs["IQUAD_MIN"];
-  LogDebug("HcalGeom") << "DDEcalPreshowerAlgoTB IQUAD_MIN";
+  LogDebug("HCalGeom") << "DDEcalPreshowerAlgoTB IQUAD_MIN";
   quadMax_ = vArgs["IQUAD_MAX"];  
-  LogDebug("HcalGeom") << "DDEcalPreshowerAlgoTB IQUAD_MAX";
+  LogDebug("HCalGeom") << "DDEcalPreshowerAlgoTB IQUAD_MAX";
   thickLayers_ = vArgs["Layers"];
-  LogDebug("HcalGeom") << "DDEcalPreshowerAlgoTB Layers";
+  LogDebug("HCalGeom") << "DDEcalPreshowerAlgoTB Layers";
   thickness_ = double(nArgs["PRESH_Z_TOTAL"]);
-  LogDebug("HcalGeom") << "DDEcalPreshowerAlgoTB PRESH_Z_TOTAL";
+  LogDebug("HCalGeom") << "DDEcalPreshowerAlgoTB PRESH_Z_TOTAL";
   materials_ = vsArgs["LayMat"];
-  LogDebug("HcalGeom") << "DDEcalPreshowerAlgoTB material";
+  LogDebug("HCalGeom") << "DDEcalPreshowerAlgoTB material";
   rmaxVec = vArgs["R_MAX"]; // inner radii
-  LogDebug("HcalGeom") << "DDEcalPreshowerAlgoTB R_MAX";
+  LogDebug("HCalGeom") << "DDEcalPreshowerAlgoTB R_MAX";
   rminVec = vArgs["R_MIN"]; // outer radii
-  LogDebug("HcalGeom") << "DDEcalPreshowerAlgoTB R_MIN";
+  LogDebug("HCalGeom") << "DDEcalPreshowerAlgoTB R_MIN";
   waf_intra_col_sep = double(nArgs["waf_intra_col_sep"]);
-  LogDebug("HcalGeom") << "DDEcalPreshowerAlgoTB waf_intra_col_sep";
+  LogDebug("HCalGeom") << "DDEcalPreshowerAlgoTB waf_intra_col_sep";
   waf_inter_col_sep = double(nArgs["waf_inter_col_sep"]);
-  LogDebug("HcalGeom") << "DDEcalPreshowerAlgoTB waf_intra_col_sep = "<<waf_inter_col_sep;
+  LogDebug("HCalGeom") << "DDEcalPreshowerAlgoTB waf_intra_col_sep = "<<waf_inter_col_sep;
   waf_active = double(nArgs["waf_active"]);
-  LogDebug("HcalGeom") << "DDEcalPreshowerAlgoTB waf_active = " << waf_active;
+  LogDebug("HCalGeom") << "DDEcalPreshowerAlgoTB waf_active = " << waf_active;
   wedge_length = double(nArgs["wedge_length"]);
-  LogDebug("HcalGeom") << "DDEcalPreshowerAlgoTB wedge_length = " 
+  LogDebug("HCalGeom") << "DDEcalPreshowerAlgoTB wedge_length = " 
 		       << wedge_length;
   wedge_offset = double(nArgs["wedge_offset"]);
   zwedge_ceramic_diff = double(nArgs["zwedge_ceramic_diff"]);
   ywedge_ceramic_diff = double(nArgs["ywedge_ceramic_diff"]);
-  LogDebug("HcalGeom") << "DDEcalPreshowerAlgoTB info: end initialize" ;
+  LogDebug("HCalGeom") << "DDEcalPreshowerAlgoTB info: end initialize" ;
   micromodulesx = vArgs["MicromodulesX"]; // micromodules in X plane
   micromodulesy = vArgs["MicromodulesY"]; // micromodules in Y plane
   absorbx = double(nArgs["absorbx"]);
   absorby = double(nArgs["absorby"]);
   trabsorbx = double(nArgs["trabsorbx"]);
   trabsorby = double(nArgs["trabsorby"]);
+  xoffset   = double(nArgs["xoffset"]);
+  yoffset   = double(nArgs["yoffset"]);
 
   idNameSpace = DDCurrentNamespace::ns();
 
@@ -69,7 +71,7 @@ void DDEcalPreshowerAlgoTB::initialize(const DDNumericArguments & nArgs,
 
 void DDEcalPreshowerAlgoTB::execute() {
 
-  LogDebug("HcalGeom") << "******** DDEcalPreshowerAlgoTB execute!";
+  LogDebug("HCalGeom") << "******** DDEcalPreshowerAlgoTB execute!";
 
   // creates all the tube-like layers of the preshower
   doLayers();
@@ -103,8 +105,8 @@ void DDEcalPreshowerAlgoTB::doLayers() {
 
     DDSolid solid = DDSolidFactory::box(ddname,absorbx,absorby,zHalf);
     
-    DDName matname(getMaterial(i),"materials"); 
-    DDMaterial material(matname);
+    DDName        matname(getMaterial(i),"materials"); 
+    DDMaterial    material(matname);
     DDLogicalPart layer = DDLogicalPart(ddname,material,solid);
       
     // position the logical part w.r.t. the parent volume
@@ -124,13 +126,12 @@ void DDEcalPreshowerAlgoTB::doLayers() {
       zlead2_ = zpos + zHalf;
     }
       
-    DDpos(layer, parent(), 1, DDTranslation(trabsorbx,trabsorby, zpos), 
-	  DDRotation());
-    LogDebug("HcalGeom") <<"DDEcalPreshowerAlgoTB debug : tubs, Logical part: "
-			 << DDLogicalPart(ddname,material,solid)
-			 << "\n translation "
-			 << DDTranslation(trabsorbx,trabsorby,zpos)
-			 << " rotation " << DDRotation();
+    DDTranslation tran=DDTranslation(trabsorbx+xoffset,trabsorby+yoffset,zpos);
+    DDpos(layer, parent(), 1, tran, DDRotation());
+    LogDebug("HCalGeom") <<"DDEcalPreshowerAlgoTB debug : Child "
+			 << layer << " Copy 1 in " << parent().name()
+			 << " with translation " << tran
+			 << " and rotation " << DDRotation();
     zpos += zHalf;
   }
   
@@ -138,7 +139,7 @@ void DDEcalPreshowerAlgoTB::doLayers() {
 
 void DDEcalPreshowerAlgoTB::doWedges() {
 
-  LogDebug("HcalGeom") << "DDEcalPreshowerAlgoTB::debug : doWedges()";
+  LogDebug("HCalGeom") << "DDEcalPreshowerAlgoTB::debug : doWedges()";
   int nx(0), ny(0), icopy(0), icopyt(0);
   double xpos(0), ypos(0), zpos(0);// zposY(0);
   int sz = int(quadMax_.size());
@@ -153,7 +154,7 @@ void DDEcalPreshowerAlgoTB::doWedges() {
   // Do Plane X
   for(int I=1; I<=sz;++I) {
     for(int J=int(quadMax_[I-1]); J>=int(quadMin_[I-1]); --J) {
-      LogDebug("HcalGeom") <<  "DDEcalPreshowerAlgoTB::I=" << I << " J="  << J;
+      //LogDebug("HCalGeom") <<"DDEcalPreshowerAlgoTB::I=" << I << " J="  << J;
       nx += 1;
       icopy += 1;
       go=0; 
@@ -165,21 +166,21 @@ void DDEcalPreshowerAlgoTB::doWedges() {
       zpos = zlead1_ + wedge_offset;
       // place the wedge
       if (go==1) {
-	tran = DDTranslation(xpos,ypos,zpos);
+	tran = DDTranslation(xoffset+xpos,yoffset+ypos,zpos);
 	DDpos(DDLogicalPart(name1), parent(), icopyt, tran, rot1);
-	LogDebug("HcalGeom") << "DDEcalPreshowerAlgoTB::debug : copy = "
-			     << icopy << " in geom copy " << icopyt
-			     << " Logical part " << DDLogicalPart(name1)
+	LogDebug("HCalGeom") << "DDEcalPreshowerAlgoTB::debug : Child " 
+			     << name1 << " copy = " << icopy << " (" 
+			     << icopyt << ") in Mother " << parent().name()
 			     << " translation " <<tran  << " rotation " <<rot1;
       }
       zpos = zlead1_ + zwedge_ceramic_diff;
       ypos = ypos + ywedge_ceramic_diff;
       if (go==1) {
-	tran = DDTranslation(xpos,ypos,zpos);
+	tran = DDTranslation(xoffset+xpos,yoffset+ypos,zpos);
 	DDpos(DDLogicalPart(name2), parent(), icopyt, tran, rot2);
-	LogDebug("HcalGeom") << "DDEcalPreshowerAlgoTB::debug copy = "
-			     << icopy << " in geom copy " << icopyt
-			     << " Logical part " << DDLogicalPart(name2)
+	LogDebug("HCalGeom") << "DDEcalPreshowerAlgoTB::debug : Child " 
+			     << name2 << " copy = " << icopy << " (" 
+			     << icopyt << ") in Mother " << parent().name()
 			     << " translation " <<tran << " rotation " <<rot2;
       }
     }
@@ -195,21 +196,21 @@ void DDEcalPreshowerAlgoTB::doWedges() {
       ypos = (sz-int(I))*waf_active + wedge_length/2. + 0.05*cm;
       zpos = zlead1_ + wedge_offset;      
       if(go==1) {
-	tran = DDTranslation(xpos,ypos,zpos);
+	tran = DDTranslation(xoffset+xpos,yoffset+ypos,zpos);
 	DDpos(DDLogicalPart(name1), parent(), icopyt, tran, rot1);
-	LogDebug("HcalGeom") << "DDEcalPreshowerAlgoTB::debug : copy = "
-			     << icopy <<  "in geom copy " << icopyt
-			     << " Logical part " << DDLogicalPart(name1)
+	LogDebug("HCalGeom") << "DDEcalPreshowerAlgoTB::debug : Child " 
+			     << name1 << " copy = " << icopy << " (" 
+			     << icopyt << ") in Mother " << parent().name()
 			     << " translation " <<tran << " rotation " <<rot1;
       }
       zpos = zlead1_ + zwedge_ceramic_diff;
       ypos = ypos + ywedge_ceramic_diff;
       if (go==1) {
-	tran =  DDTranslation(xpos,ypos,zpos);
+	tran =  DDTranslation(xoffset+xpos,yoffset+ypos,zpos);
 	DDpos(DDLogicalPart(name2), parent(), icopyt, tran, rot2);
-	LogDebug("HcalGeom") << "DDEcalPreshowerAlgoTB::debug : copy = "
-			     << icopy << " in geom copy " << icopyt
-			     << " Logical part "  << DDLogicalPart(name2)
+	LogDebug("HCalGeom") << "DDEcalPreshowerAlgoTB::debug : Child " 
+			     << name2 << " copy = " << icopy << " (" 
+			     << icopyt << ") in Mother " << parent().name()
 			     << " translation " <<tran << " rotation " <<rot2;
       }
     }
@@ -226,27 +227,27 @@ void DDEcalPreshowerAlgoTB::doWedges() {
       go=0; 
       for (unsigned int m=0; m<micromodulesx.size(); m++) 
 	if (micromodulesx[m]==icopy) {go=1; icopyt +=1;}
-      LogDebug("HcalGeom") << "DDEcalPreshowerAlgoTB::I=" << I << " J="  << J;
+      //LogDebug("HCalGeom") <<"DDEcalPreshowerAlgoTB::I=" << I << " J="  << J;
       xpos = -1.*(J*waf_intra_col_sep + (int(J/2))*waf_inter_col_sep 
 		  - waf_intra_col_sep/2.);
       ypos = -1.*(sz-int(I))*waf_active - wedge_length/2. - 0.05*cm;
       zpos = zlead1_ + wedge_offset;
       if (go==1) {
-	tran =  DDTranslation(xpos,ypos,zpos);
+	tran =  DDTranslation(xoffset+xpos,yoffset+ypos,zpos);
 	DDpos(DDLogicalPart(name1), parent(), icopyt, tran, rot1);
-	LogDebug("HcalGeom") << "DDEcalPreshowerAlgoTB::debug : copy = "
-			     << icopy << " in geom copy " << icopyt
-			     << " Logical part " << DDLogicalPart(name1)
+	LogDebug("HCalGeom") << "DDEcalPreshowerAlgoTB::debug : Child " 
+			     << name1 << " copy = " << icopy << " (" 
+			     << icopyt << ") in Mother " << parent().name()
 			     << " translation " <<tran << " rotation " << rot1;
       }
       zpos = zlead1_ + zwedge_ceramic_diff;
       ypos = ypos - ywedge_ceramic_diff;
       if (go==1) {
-	tran =  DDTranslation(xpos,ypos,zpos);
+	tran =  DDTranslation(xoffset+xpos,yoffset+ypos,zpos);
 	DDpos(DDLogicalPart(name2), parent(), icopyt, tran, rot2);
-	LogDebug("HcalGeom") << "DDEcalPreshowerAlgoTB::debug : copy = "
-			     << icopy << " in geom copy " << icopyt
-			     << " Logical part " << DDLogicalPart(name2)
+	LogDebug("HCalGeom") << "DDEcalPreshowerAlgoTB::debug : Child " 
+			     << name2 << " copy = " << icopy << " (" 
+			     << icopyt << ") in Mother " << parent().name()
 			     << " translation " <<tran << " rotation "<<rot2;
       }
     }
@@ -262,21 +263,21 @@ void DDEcalPreshowerAlgoTB::doWedges() {
       ypos = -1.*(sz-int(I))*waf_active - wedge_length/2. - 0.05*cm;
       zpos = zlead1_ + wedge_offset;      
       if (go==1) {
-	tran =  DDTranslation(xpos,ypos,zpos);
+	tran =  DDTranslation(xoffset+xpos,yoffset+ypos,zpos);
 	DDpos(DDLogicalPart(name1), parent(), icopyt, tran, rot1);
-	LogDebug("HcalGeom") << "DDEcalPreshowerAlgoTB::debug : copy = "
-			     << icopy << " in geom copy " << icopyt
-			     << " Logical part " << DDLogicalPart(name1)
+	LogDebug("HCalGeom") << "DDEcalPreshowerAlgoTB::debug : Child " 
+			     << name1 << " copy = " << icopy << " (" 
+			     << icopyt << ") in Mother " << parent().name()
 			     << " translation " <<tran << " rotation " <<rot1;
       }
       zpos = zlead1_ + zwedge_ceramic_diff;
       ypos = ypos - ywedge_ceramic_diff;
       if (go==1) {
-	tran =  DDTranslation(xpos,ypos,zpos);
+	tran =  DDTranslation(xoffset+xpos,yoffset+ypos,zpos);
 	DDpos(DDLogicalPart(name2), parent(), icopyt, tran, rot2);
-	LogDebug("HcalGeom") << "DDEcalPreshowerAlgoTB::debug : copy = "
-			     << icopy << " in geom copy " << icopyt
-			     << " Logical part " << DDLogicalPart(name2)
+	LogDebug("HCalGeom") << "DDEcalPreshowerAlgoTB::debug : Child " 
+			     << name2 << " copy = " << icopy << " (" 
+			     << icopyt << ") in Mother " << parent().name()
 			     << " translation " <<tran << " rotation " <<rot2;
       }
     }
@@ -296,27 +297,27 @@ void DDEcalPreshowerAlgoTB::doWedges() {
       go=0; 
       for (unsigned int m=0; m<micromodulesy.size(); m++) 
 	if (micromodulesy[m]==icopy) {go=1; icopyt +=1;}
-      LogDebug("HcalGeom") << "DDEcalPreshowerAlgoTB::I=" << I << " J="  << J;
+      //LogDebug("HCalGeom") <<"DDEcalPreshowerAlgoTB::I=" << I << " J="  << J;
       ypos = -1.*(J*waf_intra_col_sep + (int(J/2))*waf_inter_col_sep 
 		  - waf_intra_col_sep/2.);
       xpos = (sz-int(I))*waf_active + wedge_length/2. + 0.05*cm;
       zpos = zlead2_ + wedge_offset;
       if (go==1) {
-	tran =  DDTranslation(xpos,ypos,zpos);
+	tran =  DDTranslation(xoffset+xpos,yoffset+ypos,zpos);
 	DDpos(DDLogicalPart(name1), parent(), icopy+nxt, tran, rot1);
-	LogDebug("HcalGeom") << "DDEcalPreshowerAlgoTB::debug : copy = "
-			     << icopy << " in geom copy " << icopyt+nxt
-			     << " Logical part " << DDLogicalPart(name1)
+	LogDebug("HCalGeom") << "DDEcalPreshowerAlgoTB::debug : Child " 
+			     << name1 << " copy = " << icopy << " (" 
+			     << icopyt+nxt << ") in Mother " << parent().name()
 			     << " translation " <<tran << " rotation " <<rot1;
       }
       zpos = zlead2_ + zwedge_ceramic_diff;
       xpos = xpos + ywedge_ceramic_diff;
       if (go==1) {
-	tran =  DDTranslation(xpos,ypos,zpos);
+	tran =  DDTranslation(xoffset+xpos,yoffset+ypos,zpos);
 	DDpos(DDLogicalPart(name2), parent(), icopyt, tran, rot2);
-	LogDebug("HcalGeom") << "DDEcalPreshowerAlgoTB::debug : copy = "
-			     << icopy << " in geom copy " << icopyt
-			     << " Logical part " << DDLogicalPart(name2)
+	LogDebug("HCalGeom") << "DDEcalPreshowerAlgoTB::debug : Child " 
+			     << name2 << " copy = " << icopy << " (" 
+			     << icopyt << ") in Mother " << parent().name()
 			     << " translation " <<tran << " rotation " <<rot2;
       }
     }
@@ -327,27 +328,27 @@ void DDEcalPreshowerAlgoTB::doWedges() {
       go=0; 
       for (unsigned int m=0; m<micromodulesy.size(); m++) 
 	if (micromodulesy[m]==icopy) {go=1; icopyt +=1;}
-      LogDebug("HcalGeom") << "DDEcalPreshowerAlgoTB::I=" << I << " J="  << J;
+      //LogDebug("HCalGeom") <<"DDEcalPreshowerAlgoTB::I=" << I << " J="  << J;
       ypos = 1.*(J*waf_intra_col_sep + (int(J/2))*waf_inter_col_sep 
 		 - waf_intra_col_sep/2.);
       xpos = (sz-int(I))*waf_active + wedge_length/2. + 0.05*cm;
       zpos = zlead2_ + wedge_offset;
       if (go==1) {
-	tran =  DDTranslation(xpos,ypos,zpos);
+	tran =  DDTranslation(xoffset+xpos,yoffset+ypos,zpos);
 	DDpos(DDLogicalPart(name1), parent(), icopyt+nxt, tran, rot1);
-	LogDebug("HcalGeom") << "DDEcalPreshowerAlgoTB::debug : copy = "
-			     << icopy << " in geom copy " << icopyt+nxt
-			     << " Logical part " << DDLogicalPart(name1)
+	LogDebug("HCalGeom") << "DDEcalPreshowerAlgoTB::debug : Child " 
+			     << name1 << " copy = " << icopy << " (" 
+			     << icopyt+nxt << ") in Mother " << parent().name()
 			     << " translation " <<tran << " rotation " <<rot1;
       }
       zpos = zlead2_ + zwedge_ceramic_diff;
       xpos = xpos + ywedge_ceramic_diff;
       if (go==1) {
-	tran =  DDTranslation(xpos,ypos,zpos);
+	tran =  DDTranslation(xoffset+xpos,yoffset+ypos,zpos);
 	DDpos(DDLogicalPart(name2), parent(), icopyt, tran, rot2);
-	LogDebug("HcalGeom") << "DDEcalPreshowerAlgoTB::debug : copy = "
-			     << icopy << " in geom copy " << icopyt
-			     << " Logical part " << DDLogicalPart(name2) 
+	LogDebug("HCalGeom") << "DDEcalPreshowerAlgoTB::debug : Child " 
+			     << name2 << " copy = " << icopy << " (" 
+			     << icopyt << ") in Mother " << parent().name()
 			     << " translation " <<tran << " rotation " <<rot2;
       }
     }
@@ -363,27 +364,27 @@ void DDEcalPreshowerAlgoTB::doWedges() {
       go=0; 
       for (unsigned int m=0; m<micromodulesy.size(); m++) 
 	if (micromodulesy[m]==icopy) {go=1; icopyt +=1;}
-      LogDebug("HcalGeom") << "DDEcalPreshowerAlgoTB::I=" << I << " J="  << J;
+      //LogDebug("HCalGeom") <<"DDEcalPreshowerAlgoTB::I=" << I << " J="  << J;
       ypos = -1.*(J*waf_intra_col_sep + (int(J/2))*waf_inter_col_sep 
 		  - waf_intra_col_sep/2.);
       xpos = -1.*(sz-int(I))*waf_active - wedge_length/2. - 0.05*cm;
       zpos = zlead2_ + wedge_offset;
       if (go==1) {
-	tran =  DDTranslation(xpos,ypos,zpos);
+	tran =  DDTranslation(xoffset+xpos,yoffset+ypos,zpos);
 	DDpos(DDLogicalPart(name1), parent(), icopyt+nxt, tran, rot1);
-	LogDebug("HcalGeom") << "DDEcalPreshowerAlgoTB::debug : copy = "
-			     << icopy << " in geom copy " << icopyt+nxt
-			     << " Logical part " << DDLogicalPart(name1)
+	LogDebug("HCalGeom") << "DDEcalPreshowerAlgoTB::debug : Child " 
+			     << name1 << " copy = " << icopy << " (" 
+			     << icopyt+nxt << ") in Mother " << parent().name()
 			     << " translation " <<tran << " rotation " <<rot1;
       }      
       zpos = zlead2_ + zwedge_ceramic_diff;
       xpos = xpos - ywedge_ceramic_diff;
       if (go==1) {
-	tran =  DDTranslation(xpos,ypos,zpos);
+	tran =  DDTranslation(xoffset+xpos,yoffset+ypos,zpos);
 	DDpos(DDLogicalPart(name2), parent(), icopyt, tran, rot2);
-	LogDebug("HcalGeom") << "DDEcalPreshowerAlgoTB::debug : copy = "
-			     << icopy << " in geom copy " << icopyt
-			     << " Logical part " << DDLogicalPart(name2)
+	LogDebug("HCalGeom") << "DDEcalPreshowerAlgoTB::debug : Child " 
+			     << name2 << " copy = " << icopy << " (" 
+			     << icopyt << ") in Mother " << parent().name()
 			     << " translation " <<tran << " rotation " <<rot2;
       }
     }
@@ -394,27 +395,27 @@ void DDEcalPreshowerAlgoTB::doWedges() {
       go=0; 
       for (unsigned int m=0; m<micromodulesy.size(); m++) 
 	if (micromodulesy[m]==icopy) {go=1; icopyt +=1;}
-      LogDebug("HcalGeom") << "DDEcalPreshowerAlgoTB::I=" << I << " J="  << J;
+      //LogDebug("HCalGeom") <<"DDEcalPreshowerAlgoTB::I=" << I << " J="  << J;
       ypos = 1.*(J*waf_intra_col_sep + (int(J/2))*waf_inter_col_sep 
 		 - waf_intra_col_sep/2.);
       xpos = -1.*(sz-int(I))*waf_active - wedge_length/2. - 0.05*cm;
       zpos = zlead2_ + wedge_offset;
       if (go==1) {
-	tran =  DDTranslation(xpos,ypos,zpos);
+	tran =  DDTranslation(xoffset+xpos,yoffset+ypos,zpos);
 	DDpos(DDLogicalPart(name1), parent(), icopyt+nxt, tran, rot1);
-	LogDebug("HcalGeom") << "DDEcalPreshowerAlgoTB::debug : copy = "
-			     << icopy << " in geom copy " << icopyt+nxt
-			     << " Logical part " << DDLogicalPart(name1)
+	LogDebug("HCalGeom") << "DDEcalPreshowerAlgoTB::debug : Child " 
+			     << name1 << " copy = " << icopy << " (" 
+			     << icopyt+nxt << ") in Mother " << parent().name()
 			     << " translation " <<tran << " rotation " <<rot1;
       }
       zpos = zlead2_ + zwedge_ceramic_diff;
       xpos = xpos - ywedge_ceramic_diff;
       if (go==1) {
-	tran =  DDTranslation(xpos,ypos,zpos);
+	tran =  DDTranslation(xoffset+xpos,yoffset+ypos,zpos);
 	DDpos(DDLogicalPart(name2), parent(), icopyt, tran, rot2);
-	LogDebug("HcalGeom") << "DDEcalPreshowerAlgoTB::debug : copy = "
-			     << icopy << " in geom copy " << icopyt
-			     << " Logical part " << DDLogicalPart(name2)
+	LogDebug("HCalGeom") << "DDEcalPreshowerAlgoTB::debug : Child " 
+			     << name2 << " copy = " << icopy << " (" 
+			     << icopyt << ") in Mother " << parent().name()
 			     << " translation " <<tran << " rotation " <<rot2;
       }
     }
@@ -434,16 +435,16 @@ void DDEcalPreshowerAlgoTB::doSens() {
   for(size_t i = 0; i<32; ++i) {
     xpos = -waf_active/2. + i*waf_active/32. + waf_active/64.;
     tran = DDTranslation(xpos,0., 0.);
-    DDpos(DDLogicalPart(child1), DDName(mother1), i+1, tran, rot);
-    LogDebug("HcalGeom") << "DDEcalPreshowerAlgoTB::debug : Logical part: "
-			 << DDLogicalPart(child1) << "\ncopy number " << i+1 
+    DDpos(DDLogicalPart(child1), mother1, i+1, tran, rot);
+    LogDebug("HCalGeom") << "DDEcalPreshowerAlgoTB::debug : Child " << child1
+			 << "\ncopy number " << i+1 << " in " << mother1
 			 << " translation "<< tran << " rotation " << rot;
       
     ypos = -waf_active/2. + i*waf_active/32. + waf_active/64.;
     tran = DDTranslation(0.,ypos, 0.);
-    DDpos(DDLogicalPart(child2), DDName(mother2), i+1, tran, rot);
-    LogDebug("HcalGeom") << "DDEcalPreshowerAlgoTB::debug : Logical part: "
-			 << DDLogicalPart(child2) << "\ncopy number " << i+1 
+    DDpos(DDLogicalPart(child2), mother2, i+1, tran, rot);
+    LogDebug("HCalGeom") << "DDEcalPreshowerAlgoTB::debug : Child " << child2
+			 << "\ncopy number " << i+1 << " in " << mother2
 			 << " translation "<< tran << " rotation " << rot;
     
   }
