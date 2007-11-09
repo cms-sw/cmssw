@@ -75,8 +75,9 @@ L1RCTTestAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
        for (em=rctEmCands->begin(); em!=rctEmCands->end(); em++){
 	 //  cout << "(Analyzer)\n" << (*em) << endl;
 	 unsigned short n_emcands = 0;
-	 cout << endl << "rank: " << (*em).rank() ;
+	 //cout << endl << "rank: " << (*em).rank() ;
 	 if ((*em).rank() > 0){
+	   cout << endl << "rank: " << (*em).rank();
 	   unsigned short rgnPhi = 999;
 	   unsigned short rgn = (unsigned short) (*em).rctRegion();
 	   unsigned short card = (unsigned short) (*em).rctCard();

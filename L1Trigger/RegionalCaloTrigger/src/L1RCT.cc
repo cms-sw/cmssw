@@ -155,7 +155,7 @@ void L1RCT::digiInput(EcalTrigPrimDigiCollection ecalCollection,
     if ((crate<18) && (card<7) && (tower<32)) {             // changed 64 to 32 Sept. 19 J. Leonard, rm -1 7Nov07
       barrel.at(crate).at(card).at(tower) = ecalInput;        // rm -1
     }
-    else { std::cerr << "L1RCT: out of range!"; }
+    else { std::cerr << "L1RCT: ecal out of range! tower = " << tower << " iphi is " << iphi << " absieta is " << absIeta << std::endl; }
   }
 
 //same for hcal, once we get the hcal digis, just need to add 32 to towers:
@@ -193,14 +193,14 @@ void L1RCT::digiInput(EcalTrigPrimDigiCollection ecalCollection,
       if ((crate<18) && (card<7) && (tower<32)) {               // changed 64 to 32 Sept. 19 J. Leonard, rm -1 7Nov07
         barrel.at(crate).at(card).at(tower + 32) = hcalInput;  // hcal towers are ecal + 32 see RC.cc; rm -1 7Nov07
       }
-      else { std::cout << "L1RCT: hcal out of range!"; }
+      else { std::cout << "L1RCT: hcal out of range!  tower = " << tower << std::endl; }
     }
     else if ((absIeta >= 29) && (absIeta <= 32)){
       // put input into correct crate/region of HF
       if ((crate<18) && (tower<8)) {
         hf.at(crate).at(tower) = hcalInput;
       }
-      else { std::cout << "L1RCT: hf out of range!"; }
+      else { std::cout << "L1RCT: hf out of range!  region = " << tower << std::endl; }
     }
   }
   
