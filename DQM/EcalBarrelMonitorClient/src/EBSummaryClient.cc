@@ -1,8 +1,8 @@
 /*
  * \file EBSummaryClient.cc
  *
- * $Date: 2007/11/05 10:51:30 $
- * $Revision: 1.82 $
+ * $Date: 2007/11/08 15:43:51 $
+ * $Revision: 1.83 $
  * \author G. Della Ricca
  *
 */
@@ -138,58 +138,86 @@ void EBSummaryClient::setup(void) {
   if ( meIntegrity_ ) dbe_->removeElement( meIntegrity_->getName() );
   sprintf(histo, "EBIT integrity quality summary");
   meIntegrity_ = dbe_->book2D(histo, histo, 360, 0., 360., 170, -85., 85.);
+  meIntegrity_->setAxisTitle("jphi", 1);
+  meIntegrity_->setAxisTitle("jeta", 2);
 
   if ( meOccupancy_ ) dbe_->removeElement( meOccupancy_->getName() );
   sprintf(histo, "EBOT occupancy summary");
   meOccupancy_ = dbe_->book2D(histo, histo, 360, 0., 360., 170, -85., 85.);
+  meOccupancy_->setAxisTitle("jphi", 1);
+  meOccupancy_->setAxisTitle("jeta", 2);
 
   if ( mePedestalOnline_ ) dbe_->removeElement( mePedestalOnline_->getName() );
   sprintf(histo, "EBPOT pedestal quality summary G12");
   mePedestalOnline_ = dbe_->book2D(histo, histo, 360, 0., 360., 170, -85., 85.);
+  mePedestalOnline_->setAxisTitle("jphi", 1);
+  mePedestalOnline_->setAxisTitle("jeta", 2);
 
   if ( meLaserL1_ ) dbe_->removeElement( meLaserL1_->getName() );
   sprintf(histo, "EBLT laser quality summary L1");
   meLaserL1_ = dbe_->book2D(histo, histo, 360, 0., 360., 170, -85., 85.);
+  meLaserL1_->setAxisTitle("jphi", 1);
+  meLaserL1_->setAxisTitle("jeta", 2);
 
   if ( meLaserL1PN_ ) dbe_->removeElement( meLaserL1PN_->getName() );
   sprintf(histo, "EBLT PN laser quality summary L1");
   meLaserL1PN_ = dbe_->book2D(histo, histo, 90, 0., 90., 20, -10., 10.);
+  meLaserL1PN_->setAxisTitle("jphi", 1);
+  meLaserL1PN_->setAxisTitle("jeta", 2);
 
   if( mePedestal_ ) dbe_->removeElement( mePedestal_->getName() );
   sprintf(histo, "EBPT pedestal quality summary");
   mePedestal_ = dbe_->book2D(histo, histo, 360, 0., 360., 170, -85., 85.);
+  mePedestal_->setAxisTitle("jphi", 1);
+  mePedestal_->setAxisTitle("jeta", 2);
 
   if( mePedestalPN_ ) dbe_->removeElement( mePedestalPN_->getName() );
   sprintf(histo, "EBPT PN pedestal quality summary");
   mePedestalPN_ = dbe_->book2D(histo, histo, 90, 0., 90., 20, -10, 10.);
+  mePedestalPN_->setAxisTitle("jphi", 1);
+  mePedestalPN_->setAxisTitle("jeta", 2);
 
   if( meTestPulse_ ) dbe_->removeElement( meTestPulse_->getName() );
   sprintf(histo, "EBTPT test pulse quality summary");
   meTestPulse_ = dbe_->book2D(histo, histo, 360, 0., 360., 170, -85., 85.);
+  meTestPulse_->setAxisTitle("jphi", 1);
+  meTestPulse_->setAxisTitle("jeta", 2);
 
   if( meTestPulsePN_ ) dbe_->removeElement( meTestPulsePN_->getName() );
   sprintf(histo, "EBTPT PN test pulse quality summary");
   meTestPulsePN_ = dbe_->book2D(histo, histo, 90, 0., 90., 20, -10., 10.);
+  meTestPulsePN_->setAxisTitle("jphi", 1);
+  meTestPulsePN_->setAxisTitle("jeta", 2);
 
   if( meCosmic_ ) dbe_->removeElement( meCosmic_->getName() );
   sprintf(histo, "EBCT cosmic quality summary");
   meCosmic_ = dbe_->book2D(histo, histo, 360, 0., 360., 170, -85., 85.);
+  meCosmic_->setAxisTitle("jphi", 1);
+  meCosmic_->setAxisTitle("jeta", 2);
 
   if( meTiming_ ) dbe_->removeElement( meTiming_->getName() );
   sprintf(histo, "EBTMT timing quality summary");
   meTiming_ = dbe_->book2D(histo, histo, 360, 0., 360., 170, -85., 85.);
+  meTiming_->setAxisTitle("jphi", 1);
+  meTiming_->setAxisTitle("jeta", 2);
 
   if( meTriggerTowerEt_ ) dbe_->removeElement( meTriggerTowerEt_->getName() );
   sprintf(histo, "EBTTT Et trigger tower quality summary");
   meTriggerTowerEt_ = dbe_->book3D(histo, histo, 72, 0., 72., 34, -17., 17., 256, 0., 256.);
+  meTriggerTowerEt_->setAxisTitle("jphi", 1);
+  meTriggerTowerEt_->setAxisTitle("jeta", 2);
 
   if( meTriggerTowerEmulError_ ) dbe_->removeElement( meTriggerTowerEmulError_->getName() );
   sprintf(histo, "EBTTT emulator error quality summary");
   meTriggerTowerEmulError_ = dbe_->book2D(histo, histo, 72, 0., 72., 34, -17., 17.);
+  meTriggerTowerEmulError_->setAxisTitle("jphi", 1);
+  meTriggerTowerEmulError_->setAxisTitle("jeta", 2);
 
   if( meGlobalSummary_ ) dbe_->removeElement( meGlobalSummary_->getName() );
   sprintf(histo, "EB global summary");
   meGlobalSummary_ = dbe_->book2D(histo, histo, 360, 0., 360., 170, -85., 85.);
+  meGlobalSummary_->setAxisTitle("jphi", 1);
+  meGlobalSummary_->setAxisTitle("jeta", 2);
 
 }
 
