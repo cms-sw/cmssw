@@ -1,8 +1,8 @@
 /*
  * \file EEPedestalOnlineClient.cc
  *
- * $Date: 2007/11/08 15:43:53 $
- * $Revision: 1.35 $
+ * $Date: 2007/11/09 14:02:33 $
+ * $Revision: 1.36 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -155,12 +155,12 @@ void EEPedestalOnlineClient::setup(void) {
     if ( mep03_[ism-1] ) dbe_->removeElement( mep03_[ism-1]->getName() );
     sprintf(histo, "EEPOT pedestal mean G12 %s", Numbers::sEE(ism).c_str());
     mep03_[ism-1] = dbe_->book1D(histo, histo, 100, 150., 250.);
-    mep03_[ism-1]->setAxisTitle("Mean", 1);
+    mep03_[ism-1]->setAxisTitle("mean", 1);
 
     if ( mer03_[ism-1] ) dbe_->removeElement( mer03_[ism-1]->getName() );
     sprintf(histo, "EEPOT pedestal rms G12 %s", Numbers::sEE(ism).c_str());
     mer03_[ism-1] = dbe_->book1D(histo, histo, 100, 0.,  10.);
-    mer03_[ism-1]->setAxisTitle("RMS", 1);
+    mer03_[ism-1]->setAxisTitle("rms", 1);
 
   }
 

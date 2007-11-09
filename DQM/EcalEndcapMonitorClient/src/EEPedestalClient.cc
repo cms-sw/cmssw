@@ -1,8 +1,8 @@
 /*
  * \file EEPedestalClient.cc
  *
- * $Date: 2007/11/08 15:43:53 $
- * $Revision: 1.37 $
+ * $Date: 2007/11/09 14:02:33 $
+ * $Revision: 1.38 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -226,37 +226,37 @@ void EEPedestalClient::setup(void) {
     if ( mep01_[ism-1] ) dbe_->removeElement( mep01_[ism-1]->getName() );
     sprintf(histo, "EEPT pedestal mean G01 %s", Numbers::sEE(ism).c_str());
     mep01_[ism-1] = dbe_->book1D(histo, histo, 100, 150., 250.);
-    mep01_[ism-1]->setAxisTitle("Mean", 1);
+    mep01_[ism-1]->setAxisTitle("mean", 1);
     if ( mep02_[ism-1] ) dbe_->removeElement( mep02_[ism-1]->getName() );
     sprintf(histo, "EEPT pedestal mean G06 %s", Numbers::sEE(ism).c_str());
     mep02_[ism-1] = dbe_->book1D(histo, histo, 100, 150., 250.);
-    mep02_[ism-1]->setAxisTitle("Mean", 1);
+    mep02_[ism-1]->setAxisTitle("mean", 1);
     if ( mep03_[ism-1] ) dbe_->removeElement( mep03_[ism-1]->getName() );
     sprintf(histo, "EEPT pedestal mean G12 %s", Numbers::sEE(ism).c_str());
     mep03_[ism-1] = dbe_->book1D(histo, histo, 100, 150., 250.);
-    mep03_[ism-1]->setAxisTitle("Mean", 1);
+    mep03_[ism-1]->setAxisTitle("mean", 1);
 
     if ( mer01_[ism-1] ) dbe_->removeElement( mer01_[ism-1]->getName() );
     sprintf(histo, "EEPT pedestal rms G01 %s", Numbers::sEE(ism).c_str());
     mer01_[ism-1] = dbe_->book1D(histo, histo, 100, 0., 10.);
-    mer01_[ism-1]->setAxisTitle("RMS", 1);
+    mer01_[ism-1]->setAxisTitle("rms", 1);
     if ( mer02_[ism-1] ) dbe_->removeElement( mer02_[ism-1]->getName() );
     sprintf(histo, "EEPT pedestal rms G06 %s", Numbers::sEE(ism).c_str());
     mer02_[ism-1] = dbe_->book1D(histo, histo, 100, 0., 10.);
-    mer02_[ism-1]->setAxisTitle("RMS", 1);
+    mer02_[ism-1]->setAxisTitle("rms", 1);
     if ( mer03_[ism-1] ) dbe_->removeElement( mer03_[ism-1]->getName() );
     sprintf(histo, "EEPT pedestal rms G12 %s", Numbers::sEE(ism).c_str());
     mer03_[ism-1] = dbe_->book1D(histo, histo, 100, 0., 10.);
-    mer03_[ism-1]->setAxisTitle("RMS", 1);
+    mer03_[ism-1]->setAxisTitle("rms", 1);
     
     if ( mer04_[ism-1] ) dbe_->removeElement( mer04_[ism-1]->getName() );
     sprintf(histo, "EEPDT PNs pedestal rms %s G01", Numbers::sEE(ism).c_str());
     mer04_[ism-1] = dbe_->book1D(histo, histo, 100, 0., 10.);
-    mer04_[ism-1]->setAxisTitle("RMS", 1);
+    mer04_[ism-1]->setAxisTitle("rms", 1);
     if ( mer05_[ism-1] ) dbe_->removeElement( mer05_[ism-1]->getName() );
     sprintf(histo, "EEPDT PNs pedestal rms %s G16", Numbers::sEE(ism).c_str());
     mer05_[ism-1] = dbe_->book1D(histo, histo, 100, 0., 10.);
-    mer05_[ism-1]->setAxisTitle("RMS", 1);
+    mer05_[ism-1]->setAxisTitle("rms", 1);
 
     if ( mes01_[ism-1] ) dbe_->removeElement( mes01_[ism-1]->getName() );
     sprintf(histo, "EEPT pedestal 3sum G01 %s", Numbers::sEE(ism).c_str());

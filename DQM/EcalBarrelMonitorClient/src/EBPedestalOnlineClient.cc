@@ -1,8 +1,8 @@
 /*
  * \file EBPedestalOnlineClient.cc
  *
- * $Date: 2007/11/08 15:43:51 $
- * $Revision: 1.105 $
+ * $Date: 2007/11/09 14:02:30 $
+ * $Revision: 1.106 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -153,12 +153,12 @@ void EBPedestalOnlineClient::setup(void) {
     if ( mep03_[ism-1] ) dbe_->removeElement( mep03_[ism-1]->getName() );
     sprintf(histo, "EBPOT pedestal mean G12 %s", Numbers::sEB(ism).c_str());
     mep03_[ism-1] = dbe_->book1D(histo, histo, 100, 150., 250.);
-    mep03_[ism-1]->setAxisTitle("Mean", 1);
+    mep03_[ism-1]->setAxisTitle("mean", 1);
 
     if ( mer03_[ism-1] ) dbe_->removeElement( mer03_[ism-1]->getName() );
     sprintf(histo, "EBPOT pedestal rms G12 %s", Numbers::sEB(ism).c_str());
     mer03_[ism-1] = dbe_->book1D(histo, histo, 100, 0.,  10.);
-    mer03_[ism-1]->setAxisTitle("RMS", 1);
+    mer03_[ism-1]->setAxisTitle("rms", 1);
 
   }
 

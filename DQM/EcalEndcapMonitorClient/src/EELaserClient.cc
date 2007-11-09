@@ -1,8 +1,8 @@
 /*
  * \file EELaserClient.cc
  *
- * $Date: 2007/11/08 15:43:53 $
- * $Revision: 1.48 $
+ * $Date: 2007/11/09 14:02:31 $
+ * $Revision: 1.49 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -426,68 +426,68 @@ void EELaserClient::setup(void) {
     if ( metav01_[ism-1] ) dbe_->removeElement( metav01_[ism-1]->getName() );
     sprintf(histo, "EELT timing mean L1A %s", Numbers::sEE(ism).c_str());
     metav01_[ism-1] = dbe_->book1D(histo, histo, 100, 0., 10.);
-    metav01_[ism-1]->setAxisTitle("jitter Mean", 1);
+    metav01_[ism-1]->setAxisTitle("jitter mean", 1);
     if ( metav02_[ism-1] ) dbe_->removeElement( metav02_[ism-1]->getName() );
     sprintf(histo, "EELT timing mean L2A %s", Numbers::sEE(ism).c_str());
     metav02_[ism-1] = dbe_->book1D(histo, histo, 100, 0., 10.);
-    metav02_[ism-1]->setAxisTitle("jitter Mean", 1);
+    metav02_[ism-1]->setAxisTitle("jitter mean", 1);
     if ( metav03_[ism-1] ) dbe_->removeElement( metav03_[ism-1]->getName() );
     sprintf(histo, "EELT timing mean L3A %s", Numbers::sEE(ism).c_str());
     metav03_[ism-1] = dbe_->book1D(histo, histo, 100, 0., 10.);
-    metav03_[ism-1]->setAxisTitle("jitter Mean", 1);
+    metav03_[ism-1]->setAxisTitle("jitter mean", 1);
     if ( metav04_[ism-1] ) dbe_->removeElement( metav04_[ism-1]->getName() );
     sprintf(histo, "EELT timing mean L4A %s", Numbers::sEE(ism).c_str());
     metav04_[ism-1] = dbe_->book1D(histo, histo, 100, 0., 10.);
-    metav04_[ism-1]->setAxisTitle("jitter Mean", 1);
+    metav04_[ism-1]->setAxisTitle("jitter mean", 1);
     if ( metav05_[ism-1] ) dbe_->removeElement( metav05_[ism-1]->getName() );
     sprintf(histo, "EELT timing mean L1B %s", Numbers::sEE(ism).c_str());
     metav05_[ism-1] = dbe_->book1D(histo, histo, 100, 0., 10.);
-    metav05_[ism-1]->setAxisTitle("jitter Mean", 1);
+    metav05_[ism-1]->setAxisTitle("jitter mean", 1);
     if ( metav06_[ism-1] ) dbe_->removeElement( metav06_[ism-1]->getName() );
     sprintf(histo, "EELT timing mean L2B %s", Numbers::sEE(ism).c_str());
     metav06_[ism-1] = dbe_->book1D(histo, histo, 100, 0., 10.);
-    metav06_[ism-1]->setAxisTitle("jitter Mean", 1);
+    metav06_[ism-1]->setAxisTitle("jitter mean", 1);
     if ( metav07_[ism-1] ) dbe_->removeElement( metav07_[ism-1]->getName() );
     sprintf(histo, "EELT timing mean L3B %s", Numbers::sEE(ism).c_str());
     metav07_[ism-1] = dbe_->book1D(histo, histo, 100, 0., 10.);
-    metav07_[ism-1]->setAxisTitle("jitter Mean", 1);
+    metav07_[ism-1]->setAxisTitle("jitter mean", 1);
     if ( metav08_[ism-1] ) dbe_->removeElement( metav08_[ism-1]->getName() );
     sprintf(histo, "EELT timing mean L4B %s", Numbers::sEE(ism).c_str());
     metav08_[ism-1] = dbe_->book1D(histo, histo, 100, 0., 10.);
-    metav08_[ism-1]->setAxisTitle("jitter Mean", 1);
+    metav08_[ism-1]->setAxisTitle("jitter mean", 1);
 
     if ( metrms01_[ism-1] ) dbe_->removeElement( metrms01_[ism-1]->getName() );
     sprintf(histo, "EELT timing rms L1A %s", Numbers::sEE(ism).c_str());
     metrms01_[ism-1] = dbe_->book1D(histo, histo, 100, 0., 0.5);
-    metrms01_[ism-1]->setAxisTitle("jitter RMS", 1);
+    metrms01_[ism-1]->setAxisTitle("jitter rms", 1);
     if ( metrms02_[ism-1] ) dbe_->removeElement( metrms02_[ism-1]->getName() );
     sprintf(histo, "EELT timing rms L2A %s", Numbers::sEE(ism).c_str());
     metrms02_[ism-1] = dbe_->book1D(histo, histo, 100, 0., 0.5);
-    metrms02_[ism-1]->setAxisTitle("jitter RMS", 1);
+    metrms02_[ism-1]->setAxisTitle("jitter rms", 1);
     if ( metrms03_[ism-1] ) dbe_->removeElement( metrms03_[ism-1]->getName() );
     sprintf(histo, "EELT timing rms L3A %s", Numbers::sEE(ism).c_str());
     metrms03_[ism-1] = dbe_->book1D(histo, histo, 100, 0., 0.5);
-    metrms03_[ism-1]->setAxisTitle("jitter RMS", 1);
+    metrms03_[ism-1]->setAxisTitle("jitter rms", 1);
     if ( metrms04_[ism-1] ) dbe_->removeElement( metrms04_[ism-1]->getName() );
     sprintf(histo, "EELT timing rms L4A %s", Numbers::sEE(ism).c_str());
     metrms04_[ism-1] = dbe_->book1D(histo, histo, 100, 0., 0.5);
-    metrms04_[ism-1]->setAxisTitle("jitter RMS", 1);
+    metrms04_[ism-1]->setAxisTitle("jitter rms", 1);
     if ( metrms05_[ism-1] ) dbe_->removeElement( metrms05_[ism-1]->getName() );
     sprintf(histo, "EELT timing rms L1B %s", Numbers::sEE(ism).c_str());
     metrms05_[ism-1] = dbe_->book1D(histo, histo, 100, 0., 0.5);
-    metrms05_[ism-1]->setAxisTitle("jitter RMS", 1);
+    metrms05_[ism-1]->setAxisTitle("jitter rms", 1);
     if ( metrms06_[ism-1] ) dbe_->removeElement( metrms06_[ism-1]->getName() );
     sprintf(histo, "EELT timing rms L2B %s", Numbers::sEE(ism).c_str());
     metrms06_[ism-1] = dbe_->book1D(histo, histo, 100, 0., 0.5);
-    metrms06_[ism-1]->setAxisTitle("jitter RMS", 1);
+    metrms06_[ism-1]->setAxisTitle("jitter rms", 1);
     if ( metrms07_[ism-1] ) dbe_->removeElement( metrms07_[ism-1]->getName() );
     sprintf(histo, "EELT timing rms L3B %s", Numbers::sEE(ism).c_str());
     metrms07_[ism-1] = dbe_->book1D(histo, histo, 100, 0., 0.5);
-    metrms07_[ism-1]->setAxisTitle("jitter RMS", 1);
+    metrms07_[ism-1]->setAxisTitle("jitter rms", 1);
     if ( metrms08_[ism-1] ) dbe_->removeElement( metrms08_[ism-1]->getName() );
     sprintf(histo, "EELT timing rms L4B %s", Numbers::sEE(ism).c_str());
     metrms08_[ism-1] = dbe_->book1D(histo, histo, 100, 0., 0.5);
-    metrms08_[ism-1]->setAxisTitle("jitter RMS", 1);
+    metrms08_[ism-1]->setAxisTitle("jitter rms", 1);
 
     if ( meaopn01_[ism-1] ) dbe_->removeElement( meaopn01_[ism-1]->getName() );
     sprintf(histo, "EELT amplitude over PN L1A %s", Numbers::sEE(ism).c_str());
@@ -533,35 +533,35 @@ void EELaserClient::setup(void) {
     if ( mepnprms01_[ism-1] ) dbe_->removeElement( mepnprms01_[ism-1]->getName() );
     sprintf(histo, "EEPDT PNs pedestal rms %s G01 L1", Numbers::sEE(ism).c_str());
     mepnprms01_[ism-1] = dbe_->book1D(histo, histo, 100, 0., 10.);
-    mepnprms01_[ism-1]->setAxisTitle("RMS", 1);
+    mepnprms01_[ism-1]->setAxisTitle("rms", 1);
     if ( mepnprms02_[ism-1] ) dbe_->removeElement( mepnprms02_[ism-1]->getName() );
     sprintf(histo, "EEPDT PNs pedestal rms %s G01 L2", Numbers::sEE(ism).c_str());
     mepnprms02_[ism-1] = dbe_->book1D(histo, histo, 100, 0., 10.);
-    mepnprms02_[ism-1]->setAxisTitle("RMS", 1);
+    mepnprms02_[ism-1]->setAxisTitle("rms", 1);
     if ( mepnprms03_[ism-1] ) dbe_->removeElement( mepnprms03_[ism-1]->getName() );
     sprintf(histo, "EEPDT PNs pedestal rms %s G01 L3", Numbers::sEE(ism).c_str());
     mepnprms03_[ism-1] = dbe_->book1D(histo, histo, 100, 0., 10.);
-    mepnprms03_[ism-1]->setAxisTitle("RMS", 1);
+    mepnprms03_[ism-1]->setAxisTitle("rms", 1);
     if ( mepnprms04_[ism-1] ) dbe_->removeElement( mepnprms04_[ism-1]->getName() );
     sprintf(histo, "EEPDT PNs pedestal rms %s G01 L4", Numbers::sEE(ism).c_str());
     mepnprms04_[ism-1] = dbe_->book1D(histo, histo, 100, 0., 10.);
-    mepnprms04_[ism-1]->setAxisTitle("RMS", 1);
+    mepnprms04_[ism-1]->setAxisTitle("rms", 1);
     if ( mepnprms05_[ism-1] ) dbe_->removeElement( mepnprms05_[ism-1]->getName() );
     sprintf(histo, "EEPDT PNs pedestal rms %s G16 L1", Numbers::sEE(ism).c_str());
     mepnprms05_[ism-1] = dbe_->book1D(histo, histo, 100, 0., 10.);
-    mepnprms05_[ism-1]->setAxisTitle("RMS", 1);
+    mepnprms05_[ism-1]->setAxisTitle("rms", 1);
     if ( mepnprms06_[ism-1] ) dbe_->removeElement( mepnprms06_[ism-1]->getName() );
     sprintf(histo, "EEPDT PNs pedestal rms %s G16 L2", Numbers::sEE(ism).c_str());
     mepnprms06_[ism-1] = dbe_->book1D(histo, histo, 100, 0., 10.);
-    mepnprms06_[ism-1]->setAxisTitle("RMS", 1);
+    mepnprms06_[ism-1]->setAxisTitle("rms", 1);
     if ( mepnprms07_[ism-1] ) dbe_->removeElement( mepnprms07_[ism-1]->getName() );
     sprintf(histo, "EEPDT PNs pedestal rms %s G16 L3", Numbers::sEE(ism).c_str());
     mepnprms07_[ism-1] = dbe_->book1D(histo, histo, 100, 0., 10.);
-    mepnprms07_[ism-1]->setAxisTitle("RMS", 1);
+    mepnprms07_[ism-1]->setAxisTitle("rms", 1);
     if ( mepnprms08_[ism-1] ) dbe_->removeElement( mepnprms08_[ism-1]->getName() );
     sprintf(histo, "EEPDT PNs pedestal rms %s G16 L4", Numbers::sEE(ism).c_str());
     mepnprms08_[ism-1] = dbe_->book1D(histo, histo, 100, 0., 10.);
-    mepnprms08_[ism-1]->setAxisTitle("RMS", 1);
+    mepnprms08_[ism-1]->setAxisTitle("rms", 1);
 
   }
 

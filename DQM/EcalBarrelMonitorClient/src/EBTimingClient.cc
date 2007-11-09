@@ -1,8 +1,8 @@
 /*
  * \file EBTimingClient.cc
  *
- * $Date: 2007/11/08 15:43:51 $
- * $Revision: 1.50 $
+ * $Date: 2007/11/09 14:02:30 $
+ * $Revision: 1.51 $
  * \author G. Della Ricca
  *
 */
@@ -162,12 +162,12 @@ void EBTimingClient::setup(void) {
     if ( mep01_[ism-1] ) dbe_->removeElement( mep01_[ism-1]->getName() );
     sprintf(histo, "EBTMT timing mean %s", Numbers::sEB(ism).c_str());
     mep01_[ism-1] = dbe_->book1D(histo, histo, 100, 0.0, 10.0);
-    mep01_[ism-1]->setAxisTitle("jitter Mean", 1);
+    mep01_[ism-1]->setAxisTitle("jitter mean", 1);
 
     if ( mer01_[ism-1] ) dbe_->removeElement( mer01_[ism-1]->getName() );
     sprintf(histo, "EBTMT timing rms %s", Numbers::sEB(ism).c_str());
     mer01_[ism-1] = dbe_->book1D(histo, histo, 100, 0.0, 6.0);
-    mer01_[ism-1]->setAxisTitle("jitter RMS", 1);
+    mer01_[ism-1]->setAxisTitle("jitter rms", 1);
 
   }
 

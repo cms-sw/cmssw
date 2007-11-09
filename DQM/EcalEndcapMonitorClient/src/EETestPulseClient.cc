@@ -1,8 +1,8 @@
 /*
  * \file EETestPulseClient.cc
  *
- * $Date: 2007/11/08 15:43:53 $
- * $Revision: 1.40 $
+ * $Date: 2007/11/09 14:02:33 $
+ * $Revision: 1.41 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -223,11 +223,11 @@ void EETestPulseClient::setup(void) {
     if ( mer04_[ism-1] ) dbe_->removeElement( mer04_[ism-1]->getName() );
     sprintf(histo, "EEPDT PNs pedestal rms %s G01", Numbers::sEE(ism).c_str());
     mer04_[ism-1] = dbe_->book1D(histo, histo, 100, 0., 10.);
-    mer04_[ism-1]->setAxisTitle("RMS", 1);
+    mer04_[ism-1]->setAxisTitle("rms", 1);
     if ( mer05_[ism-1] ) dbe_->removeElement( mer05_[ism-1]->getName() );
     sprintf(histo, "EEPDT PNs pedestal rms %s G16", Numbers::sEE(ism).c_str());
     mer05_[ism-1] = dbe_->book1D(histo, histo, 100, 0., 10.);
-    mer05_[ism-1]->setAxisTitle("RMS", 1);
+    mer05_[ism-1]->setAxisTitle("rms", 1);
 
   }
   
