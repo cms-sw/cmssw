@@ -56,33 +56,51 @@ DetId HcalGeometry::getClosestCell(const GlobalPoint& r) const
     bc = HcalForward;
   }
 
-  // find eta bin
-  int etaring = etaRing(bc, abseta);
+  if (bc == HcalForward) {
+    static const double z_long=1100.0;
+    static const double z_short=1120.0;
+    // determine front-face eta
+    double radius=sqrt(pow(r.x(),2)+pow(r.y(),2));
+    double trueAeta=asinh(z_long/radius);
+    // find eta bin
+    int etaring = etaRing(bc, trueAeta);
   
-  int phibin = phiBin(r.phi(), etaring);
+    int phibin = phiBin(r.phi(), etaring);
 
-  // add a sign to the etaring
-  int etabin = (r.z() > 0) ? etaring : -etaring;
+    // add a sign to the etaring
+    int etabin = (r.z() > 0) ? etaring : -etaring;
+    HcalDetId bestId(bc,etabin,phibin,((fabs(r.z())>=z_short)?(2):(1)));
+    return bestId;
+  } else {
 
-  //Now do depth if required
-  int dbin = 1;
-  double pointradius=r.mag();
-  double dradius=99999.;
-  HcalDetId currentId(bc, etabin, phibin, dbin);
-  HcalDetId bestId;
-  for(  ; currentId != HcalDetId(); theTopology->incrementDepth(currentId))
-  {    
-    const CaloCellGeometry * cell = getGeometry(currentId);
-    assert(cell != 0);
-    double radius=cell->getPosition().mag();
-    if(fabs(pointradius-radius)<dradius) 
-    {
-      bestId = currentId;
-      dradius=fabs(pointradius-radius);
-    }
+    // find eta bin
+    int etaring = etaRing(bc, abseta);
+    
+    int phibin = phiBin(r.phi(), etaring);
+    
+    // add a sign to the etaring
+    int etabin = (r.z() > 0) ? etaring : -etaring;
+    
+    //Now do depth if required
+    int dbin = 1;
+    double pointradius=r.mag();
+    double dradius=99999.;
+    HcalDetId currentId(bc, etabin, phibin, dbin);
+    HcalDetId bestId;
+    for(  ; currentId != HcalDetId(); theTopology->incrementDepth(currentId))
+      {    
+	const CaloCellGeometry * cell = getGeometry(currentId);
+	assert(cell != 0);
+	double radius=cell->getPosition().mag();
+	if(fabs(pointradius-radius)<dradius) 
+	  {
+	    bestId = currentId;
+	    dradius=fabs(pointradius-radius);
+	  }
+      }
+    
+    return bestId;
   }
-
-  return bestId;
 }
 
 
