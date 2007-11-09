@@ -121,14 +121,41 @@ void CustomParticleFactory::addCustomParticle(int pdgCode, double mass, const st
     particle->SetCloud(tmpParticle);
     particle->SetSpectator(spectator);
     
-    edm::LogInfo("")<<name<<" being assigned "
+    edm::LogInfo("CustomPhysics")<<name<<" being assigned "
 		    <<particle->GetCloud()->GetParticleName()
 		    <<" and "<<particle->GetSpectator()->GetParticleName()<<std::endl;
-    edm::LogInfo("")<<"Masses: "
+    edm::LogInfo("CustomPhysics")<<"Masses: "
 		    <<particle->GetPDGMass()/GeV<<" Gev, "
 		    <<particle->GetCloud()->GetPDGMass()/GeV<<" GeV and "
 		    <<particle->GetSpectator()->GetPDGMass()/GeV<<" GeV."
 		    <<std::endl;
+  }else if(pType == "mesonino" || pType == "sbaryon")
+  {
+      int sign=1;
+      if(pdgCode < 0 ) sign=-1;
+
+    G4String cloudname = name+"cloud";
+    G4String cloudtype = pType+"cloud";
+    spectator = theParticleTable->FindParticle(1000006*sign);
+    spectatormass = spectator->GetPDGMass();
+    G4double cloudmass = mass-spectatormass/GeV;
+    CustomParticle *tmpParticle  = new CustomParticle(
+                                                      cloudname,           cloudmass * GeV ,        0.0*MeV,  0 ,
+                                                      0,              +1,             0,
+                                                      0,              0,             0,
+                                                      cloudtype,               0,            +1, 0,
+                                                      true,            -1.0,          NULL );
+    particle->SetCloud(tmpParticle);
+    particle->SetSpectator(spectator);
+
+    edm::LogInfo("CustomPhysics")<<name<<" being assigned "
+                    <<particle->GetCloud()->GetParticleName()
+                    <<" and "<<particle->GetSpectator()->GetParticleName()<<std::endl;
+    edm::LogInfo("CustomPhysics")<<"Masses: "
+                    <<particle->GetPDGMass()/GeV<<" Gev, "
+                    <<particle->GetCloud()->GetPDGMass()/GeV<<" GeV and "
+                    <<particle->GetSpectator()->GetPDGMass()/GeV<<" GeV."
+                    <<std::endl;
   }
   else{
     particle->SetCloud(0);
@@ -142,17 +169,22 @@ void  CustomParticleFactory::getMassTable(std::ifstream *configFile) {
   int pdgId;
   double mass;
   std::string name, tmp;
+  std::string line;
+  // This should be compatible IMO to SLHA 
+  while(getline(*configFile,line))
+    {
+    if(tmp.find("Blo")<tmp.npos) break;
+    std::stringstream sstr(line);
+    sstr >>pdgId>>mass>>tmp>>name;
 
-  while(!configFile->eof()){
-    (*configFile)>>pdgId>>mass>>tmp>>name;
      addCustomParticle(pdgId, fabs(mass), name);
     ////Find SM particle partner and check for the antiparticle.
     int pdgIdPartner = pdgId%100;
     G4ParticleTable* theParticleTable = G4ParticleTable::GetParticleTable();
     G4ParticleDefinition *aParticle = theParticleTable->FindParticle(pdgIdPartner);
     //Add antiparticles for SUSY particles only, not for rHadrons.
-    if(aParticle && !CustomPDGParser::s_isRHadron(pdgId) && pdgId!=25 && pdgId!=35 && pdgId!=36 && pdgId!=37){ 
-      int sign = aParticle->GetAntiPDGEncoding()/pdgIdPartner;   
+    if(aParticle && !CustomPDGParser::s_isRHadron(pdgId) && !CustomPDGParser::s_isstopHadron(pdgId)&& pdgId!=1000006 && pdgId!=-1000006  && pdgId!=25 && pdgId!=35 && pdgId!=36 && pdgId!=37){ 
+    int sign = aParticle->GetAntiPDGEncoding()/pdgIdPartner;   
       if(abs(sign)!=1) {
 	std::cout<<"sgn: "<<sign<<" a "
 		 <<aParticle->GetAntiPDGEncoding()
@@ -175,12 +207,12 @@ void  CustomParticleFactory::getMassTable(std::ifstream *configFile) {
       theParticleTable->FindParticle(pdgId)->SetAntiPDGEncoding(-pdgId);
     }
 
-    getline(*configFile,tmp);
+/*    getline(*configFile,tmp);
     char text[100];
     configFile->get(text,3);
     tmp.clear();
     tmp.append(text);
-    if(tmp.find("Bl")<tmp.npos) break;
+    if(tmp.find("Bl")<tmp.npos) break;*/
   }
 }
 

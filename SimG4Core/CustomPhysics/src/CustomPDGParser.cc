@@ -15,7 +15,7 @@ bool CustomPDGParser::s_isRHadron(int pdg)
 bool CustomPDGParser::s_isstopHadron(int pdg) 
 {
  int pdgAbs=abs(pdg);
- return ( (pdgAbs % 100000 / 10000 == 6) ||  (pdgAbs % 10000 / 1000 == 6)  );
+ return ( (pdgAbs % 10000 / 1000 == 6) ||  (pdgAbs % 1000 / 100 == 6)  );
 }
 
 

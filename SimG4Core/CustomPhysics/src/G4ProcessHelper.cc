@@ -31,12 +31,12 @@ G4ProcessHelper::G4ProcessHelper(const edm::ParameterSet & p){
   amplitude = p.getParameter<double>("amplitude")*millibarn;
   suppressionfactor = p.getParameter<double>("reggeSuppression");
   
-  edm::LogInfo("")<<"Read in physics parameters:"<<G4endl;
-  edm::LogInfo("")<<"Resonant = "<< resonant <<G4endl;
-  edm::LogInfo("")<<"ResonanceEnergy = "<<ek_0/GeV<<" GeV"<<G4endl;
-  edm::LogInfo("")<<"Gamma = "<<gamma/GeV<<" GeV"<<G4endl;
-  edm::LogInfo("")<<"Amplitude = "<<amplitude/millibarn<<" millibarn"<<G4endl;
-  edm::LogInfo("")<<"ReggeSuppression = "<<100*suppressionfactor<<" %"<<G4endl;
+  edm::LogInfo("CustomPhysics")<<"Read in physics parameters:"<<G4endl;
+  edm::LogInfo("CustomPhysics")<<"Resonant = "<< resonant <<G4endl;
+  edm::LogInfo("CustomPhysics")<<"ResonanceEnergy = "<<ek_0/GeV<<" GeV"<<G4endl;
+  edm::LogInfo("CustomPhysics")<<"Gamma = "<<gamma/GeV<<" GeV"<<G4endl;
+  edm::LogInfo("CustomPhysics")<<"Amplitude = "<<amplitude/millibarn<<" millibarn"<<G4endl;
+  edm::LogInfo("CustomPhysics")<<"ReggeSuppression = "<<100*suppressionfactor<<" %"<<G4endl;
 
   checkfraction = 0;
   n_22 = 0;
@@ -56,7 +56,7 @@ G4ProcessHelper::G4ProcessHelper(const edm::ParameterSet & p){
     known_particles[incidentDef]=true;
 
     G4String target = tokens[1];
-    edm::LogInfo("")<<"Incident: "<<incident
+    edm::LogInfo("CustomPhysics")<<"Incident: "<<incident
 		    <<" Target: "<<target<<G4endl;
     
     // Making a ReactionProduct
@@ -67,7 +67,7 @@ G4ProcessHelper::G4ProcessHelper(const edm::ParameterSet & p){
 	{
 	  prod.push_back(particleTable->FindParticle(part)->GetPDGEncoding());
 	} else {
-	  edm::LogInfo("")<<"Particle: "<<part<<" is unknown."<<G4endl;
+	  edm::LogInfo("CustomPhysics")<<"Particle: "<<part<<" is unknown."<<G4endl;
 	  G4Exception("G4ProcessHelper", "UnkownParticle", FatalException,
 		      "Initialization: The reaction product list contained an unknown particle");
 	}
@@ -110,12 +110,12 @@ G4double G4ProcessHelper::GetInclusiveCrossSection(const G4DynamicParticle *aPar
     theXsec = 24 * millibarn;
   } else {
     std::vector<G4int> nq=CustomPDGParser::s_containedQuarks(thePDGCode);
-    //    edm::LogInfo("")<<"Number of quarks: "<<nq.size()<<G4endl;
+    //    edm::LogInfo("CustomPhysics")<<"Number of quarks: "<<nq.size()<<G4endl;
     for (std::vector<G4int>::iterator it = nq.begin();
 	 it != nq.end();
 	 it++)
       {
-	//	  edm::LogInfo("")<<"Quarkvector: "<<*it<<G4endl;
+	//	  edm::LogInfo("CustomPhysics")<<"Quarkvector: "<<*it<<G4endl;
 	if (*it == 1 || *it == 2) theXsec += 12 * millibarn;
 	if (*it == 3) theXsec += 6 * millibarn;
       }
@@ -130,8 +130,8 @@ G4double G4ProcessHelper::GetInclusiveCrossSection(const G4DynamicParticle *aPar
       e_0 = sqrt(aParticle->GetDefinition()->GetPDGMass()*aParticle->GetDefinition()->GetPDGMass()
 		 + theProton->GetPDGMass()*theProton->GetPDGMass()
 		 + 2.*e_0*theProton->GetPDGMass());
-      //      edm::LogInfo("")<<e_0/GeV<<G4endl;
-      //      edm::LogInfo("")<<ek_0/GeV<<" "<<aParticle->GetDefinition()->GetPDGMass()/GeV<<" "<<theProton->GetPDGMass()/GeV<<G4endl;
+      //      edm::LogInfo("CustomPhysics")<<e_0/GeV<<G4endl;
+      //      edm::LogInfo("CustomPhysics")<<ek_0/GeV<<" "<<aParticle->GetDefinition()->GetPDGMass()/GeV<<" "<<theProton->GetPDGMass()/GeV<<G4endl;
       double sqrts=sqrt(aParticle->GetDefinition()->GetPDGMass()*aParticle->GetDefinition()->GetPDGMass()
 			+ theProton->GetPDGMass()*theProton->GetPDGMass() + 2*aParticle->GetTotalEnergy()*theProton->GetPDGMass());
 
@@ -215,10 +215,10 @@ ReactionProduct G4ProcessHelper::GetFinalState(const G4Track& aTrack, G4Particle
 	G4cerr << "ReactionProduct has unsupported number of secondaries: "<<secondaries<<G4endl;
       }
     } /*else {
-      edm::LogInfo("")<<"There was an impossible process"<<G4endl;
+      edm::LogInfo("CustomPhysics")<<"There was an impossible process"<<G4endl;
       }*/
   }
-  //  edm::LogInfo("")<<"The size of the ReactionProductList is: "<<theReactionProductList.size()<<G4endl;
+  //  edm::LogInfo("CustomPhysics")<<"The size of the ReactionProductList is: "<<theReactionProductList.size()<<G4endl;
 
   if (theReactionProductList.size()==0) G4Exception("G4ProcessHelper", "NoProcessPossible", FatalException,
 						    "GetFinalState: No process could be selected from the given list.");
@@ -243,19 +243,19 @@ ReactionProduct G4ProcessHelper::GetFinalState(const G4Track& aTrack, G4Particle
       TwotoThreeFlag.push_back(true);
     }
     Probabilities.push_back(CumulatedProbability);
-    //    edm::LogInfo("")<<"Pushing back cumulated probability: "<<CumulatedProbability<<G4endl;
+    //    edm::LogInfo("CustomPhysics")<<"Pushing back cumulated probability: "<<CumulatedProbability<<G4endl;
   }
 
   //Renormalising probabilities
-  //  edm::LogInfo("")<<"Probs: ";
+  //  edm::LogInfo("CustomPhysics")<<"Probs: ";
   for (std::vector<G4double>::iterator it = Probabilities.begin();
        it != Probabilities.end();
        it++)
     {
       *it /= CumulatedProbability;
-      //      edm::LogInfo("")<<*it<<" ";
+      //      edm::LogInfo("CustomPhysics")<<*it<<" ";
     }
-  //  edm::LogInfo("")<<G4endl;
+  //  edm::LogInfo("CustomPhysics")<<G4endl;
 
   // Choosing ReactionProduct
 
@@ -268,13 +268,13 @@ ReactionProduct G4ProcessHelper::GetFinalState(const G4Track& aTrack, G4Particle
   while(!selected && tries < 100){
     i=0;
     G4double dice = G4UniformRand();
-    //    edm::LogInfo("")<<"What's the dice?"<<dice<<G4endl;
+    // edm::LogInfo("CustomPhysics")<<"What's the dice?"<<dice<<G4endl;
     while(dice>Probabilities[i] && std::abs(i)<theReactionProductList.size()){
-      //      edm::LogInfo("")<<"i: "<<i<<G4endl;
+      //      edm::LogInfo("CustomPhysics")<<"i: "<<i<<G4endl;
       i++;
     }
 
-    //    edm::LogInfo("")<<"Chosen i: "<<i<<G4endl;
+    //    edm::LogInfo("CustomPhysics")<<"Chosen i: "<<i<<G4endl;
 
     if(!TwotoThreeFlag[i]) {
       // 2 -> 2 processes are chosen immediately
@@ -288,20 +288,20 @@ ReactionProduct G4ProcessHelper::GetFinalState(const G4Track& aTrack, G4Particle
     if(selected&&particleTable->FindParticle(theReactionProductList[i][0])->GetPDGCharge()!=aDynamicParticle->GetDefinition()->GetPDGCharge())
       {
 	/*
-	edm::LogInfo("")<<"Incoming particle "<<aDynamicParticle->GetDefinition()->GetParticleName()
+	edm::LogInfo("CustomPhysics")<<"Incoming particle "<<aDynamicParticle->GetDefinition()->GetParticleName()
 	      <<" has charge "<<aDynamicParticle->GetDefinition()->GetPDGCharge()<<G4endl;
-	edm::LogInfo("")<<"Suggested particle "<<particleTable->FindParticle(theReactionProductList[i][0])->GetParticleName()
+	edm::LogInfo("CustomPhysics")<<"Suggested particle "<<particleTable->FindParticle(theReactionProductList[i][0])->GetParticleName()
 	      <<" has charge "<<particleTable->FindParticle(theReactionProductList[i][0])->GetPDGCharge()<<G4endl;
 	*/
 	if(G4UniformRand()<suppressionfactor) selected = false;
       }
     tries++;
-    //    edm::LogInfo("")<<"Tries: "<<tries<<G4endl;
+    //    edm::LogInfo("CustomPhysics")<<"Tries: "<<tries<<G4endl;
   }
   if(tries>=100) G4cerr<<"Could not select process!!!!"<<G4endl;
 
-  //  edm::LogInfo("")<<"So far so good"<<G4endl;
-  //  edm::LogInfo("")<<"Sec's: "<<theReactionProductList[i].size()<<G4endl;
+  //  edm::LogInfo("CustomPhysics")<<"So far so good"<<G4endl;
+  //  edm::LogInfo("CustomPhysics")<<"Sec's: "<<theReactionProductList[i].size()<<G4endl;
   
   //Updating checkfraction:
   if (theReactionProductList[i].size()==2) {
@@ -311,8 +311,8 @@ ReactionProduct G4ProcessHelper::GetFinalState(const G4Track& aTrack, G4Particle
   }
 
   checkfraction = (1.0*n_22)/(n_22+n_23);
-  //  edm::LogInfo("")<<"n_22: "<<n_22<<" n_23: "<<n_23<<" Checkfraction: "<<checkfraction<<G4endl;
-  //  edm::LogInfo("") <<"Biig number: "<<n_22+n_23<<G4endl;
+  //  edm::LogInfo("CustomPhysics")<<"n_22: "<<n_22<<" n_23: "<<n_23<<" Checkfraction: "<<checkfraction<<G4endl;
+  //  edm::LogInfo("CustomPhysics") <<"Biig number: "<<n_22+n_23<<G4endl;
   //Return the chosen ReactionProduct
   return theReactionProductList[i];
 }
@@ -320,20 +320,20 @@ ReactionProduct G4ProcessHelper::GetFinalState(const G4Track& aTrack, G4Particle
 G4double G4ProcessHelper::ReactionProductMass(const ReactionProduct& aReaction,const G4DynamicParticle* aDynamicParticle){
   // Incident energy:
   G4double E_incident = aDynamicParticle->GetTotalEnergy();
-  //edm::LogInfo("")<<"Total energy: "<<E_incident<<" Kinetic: "<<aDynamicParticle->GetKineticEnergy()<<G4endl;
+  //edm::LogInfo("CustomPhysics")<<"Total energy: "<<E_incident<<" Kinetic: "<<aDynamicParticle->GetKineticEnergy()<<G4endl;
   // sqrt(s)= sqrt(m_1^2 + m_2^2 + 2 E_1 m_2)
   G4double m_1 = aDynamicParticle->GetDefinition()->GetPDGMass();
   G4double m_2 = theTarget->GetPDGMass();
-  //edm::LogInfo("")<<"M_R: "<<m_1/GeV<<" GeV, M_np: "<<m_2/GeV<<" GeV"<<G4endl;
+  //edm::LogInfo("CustomPhysics")<<"M_R: "<<m_1/GeV<<" GeV, M_np: "<<m_2/GeV<<" GeV"<<G4endl;
   G4double sqrts = sqrt(m_1*m_1 + m_2*(m_2 + 2 * E_incident));
-  //edm::LogInfo("")<<"sqrt(s) = "<<sqrts/GeV<<" GeV"<<G4endl;
+  //edm::LogInfo("CustomPhysics")<<"sqrt(s) = "<<sqrts/GeV<<" GeV"<<G4endl;
   // Sum of rest masses after reaction:
   G4double M_after = 0;
   for (ReactionProduct::const_iterator r_it = aReaction.begin(); r_it !=aReaction.end(); r_it++){
-    //edm::LogInfo("")<<"Mass contrib: "<<(particleTable->FindParticle(*r_it)->GetPDGMass())/MeV<<" MeV"<<G4endl;
+    //edm::LogInfo("CustomPhysics")<<"Mass contrib: "<<(particleTable->FindParticle(*r_it)->GetPDGMass())/MeV<<" MeV"<<G4endl;
     M_after += particleTable->FindParticle(*r_it)->GetPDGMass();
   }
-  //edm::LogInfo("")<<"Intending to return this ReactionProductMass: "<<(sqrts - M_after)/MeV<<" MeV"<<G4endl;
+  //edm::LogInfo("CustomPhysics")<<"Intending to return this ReactionProductMass: "<<(sqrts - M_after)/MeV<<" MeV"<<G4endl;
   return sqrts - M_after;
 }
 
