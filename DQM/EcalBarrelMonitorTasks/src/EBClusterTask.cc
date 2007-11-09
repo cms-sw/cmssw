@@ -1,8 +1,8 @@
 /*
  * \file EBClusterTask.cc
  *
- * $Date: 2007/11/07 18:58:41 $
- * $Revision: 1.32 $
+ * $Date: 2007/11/09 15:55:36 $
+ * $Revision: 1.33 $
  * \author G. Della Ricca
  * \author E. Di Marco
  *
@@ -114,7 +114,7 @@ void EBClusterTask::setup(void){
 
     sprintf(histo, "EBCLT island BC energy");
     meBCEne_ = dbe_->book1D(histo, histo, 100, 0., 150.);
-    meBCEne_->setAxisTitle("Energy (GeV)", 1);
+    meBCEne_->setAxisTitle("energy (GeV)", 1);
 
     sprintf(histo, "EBCLT island BC number");
     meBCNum_ = dbe_->book1D(histo, histo, 100, 0., 100.);
@@ -147,12 +147,12 @@ void EBClusterTask::setup(void){
     sprintf(histo, "EBCLT island BC energy projection eta");
     meBCEneMapProjEta_ = dbe_->bookProfile(histo, histo, 34, -1.479, 1.479, 100, 0., 500., "s");
     meBCEneMapProjEta_->setAxisTitle("eta", 1);
-    meBCEneMapProjEta_->setAxisTitle("Energy (GeV)", 2);
+    meBCEneMapProjEta_->setAxisTitle("energy (GeV)", 2);
 
     sprintf(histo, "EBCLT island BC energy projection phi");
     meBCEneMapProjPhi_ = dbe_->bookProfile(histo, histo, 72, -M_PI*(9+1.5)/9, M_PI*(9-1.5)/9, 100, 0., 500., "s");
     meBCEneMapProjPhi_->setAxisTitle("phi", 1);
-    meBCEneMapProjPhi_->setAxisTitle("Energy (GeV)", 2);
+    meBCEneMapProjPhi_->setAxisTitle("energy (GeV)", 2);
 
     sprintf(histo, "EBCLT island BC number projection eta");
     meBCNumMapProjEta_ = dbe_->book1D(histo, histo, 34, -1.479, 1.479);
@@ -186,7 +186,7 @@ void EBClusterTask::setup(void){
 
     sprintf(histo, "EBCLT hybrid SC energy");
     meSCEne_ = dbe_->book1D(histo, histo, 100, 0., 150.);
-    meSCEne_->setAxisTitle("Energy (GeV)", 1);
+    meSCEne_->setAxisTitle("energy (GeV)", 1);
 
     sprintf(histo, "EBCLT hybrid SC number");
     meSCNum_ = dbe_->book1D(histo, histo, 50, 0., 50.);
@@ -206,7 +206,7 @@ void EBClusterTask::setup(void){
 
     sprintf(histo, "EBCLT dicluster invariant mass");
     meInvMass_ = dbe_->book1D(histo, histo, 100, 0., 200.);
-    meInvMass_->setAxisTitle("Mass (GeV)", 1);
+    meInvMass_->setAxisTitle("mass (GeV)", 1);
 
   }
 

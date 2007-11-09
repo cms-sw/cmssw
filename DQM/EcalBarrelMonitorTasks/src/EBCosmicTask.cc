@@ -1,8 +1,8 @@
 /*
  * \file EBCosmicTask.cc
  *
- * $Date: 2007/11/07 07:07:59 $
- * $Revision: 1.77 $
+ * $Date: 2007/11/09 15:24:05 $
+ * $Revision: 1.78 $
  * \author G. Della Ricca
  *
 */
@@ -98,7 +98,7 @@ void EBCosmicTask::setup(void){
     for (int i = 0; i < 36 ; i++) {
       sprintf(histo, "EBCT energy spectrum %s", Numbers::sEB(i+1).c_str());
       meSpectrumMap_[i] = dbe_->book1D(histo, histo, 100, 0., 1.5);
-      meSpectrumMap_[i]->setAxisTitle("Energy (GeV)", 1);
+      meSpectrumMap_[i]->setAxisTitle("energy (GeV)", 1);
     }
 
   }

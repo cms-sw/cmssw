@@ -1,8 +1,8 @@
 /*
  * \file EECosmicTask.cc
  *
- * $Date: 2007/08/21 11:31:48 $
- * $Revision: 1.14 $
+ * $Date: 2007/11/09 15:24:09 $
+ * $Revision: 1.15 $
  * \author G. Della Ricca
  *
 */
@@ -98,7 +98,7 @@ void EECosmicTask::setup(void){
     for (int i = 0; i < 18 ; i++) {
       sprintf(histo, "EECT energy spectrum %s", Numbers::sEE(i+1).c_str());
       meSpectrumMap_[i] = dbe_->book1D(histo, histo, 100, 0., 1.5);
-      meSpectrumMap_[i]->setAxisTitle("Energy (GeV)", 1);
+      meSpectrumMap_[i]->setAxisTitle("energy (GeV)", 1);
     }
 
   }
