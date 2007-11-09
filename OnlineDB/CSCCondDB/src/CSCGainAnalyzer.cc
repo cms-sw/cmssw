@@ -332,7 +332,7 @@ CSCGainAnalyzer::~CSCGainAnalyzer(){
 		if (size[cham] != strips_per_layer) flagRun = 1; //bad run
 		if (size[cham] == strips_per_layer) flagRun = 0; //good run 
 		if (counter>size[cham]*LAYERS_ga) counter=0;
-		myGainsFile <<layer_id<<"  "<<"  "<<myIndex-1<<"  "<<k<<"  "<<gainSlope<<"  "<<gainIntercept<<"  "<<chi2<<std::endl;
+		myGainsFile <<"  "<<myIndex-1<<"  "<<gainSlope<<"  "<<gainIntercept<<"  "<<chi2<<std::endl;
 		calib_evt.slope     = gainSlope;
 		calib_evt.intercept = gainIntercept;
 		calib_evt.chi2      = chi2;

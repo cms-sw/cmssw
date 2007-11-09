@@ -634,7 +634,7 @@ CSCCrossTalkAnalyzer::~CSCCrossTalkAnalyzer(){
 	  counter++;
 	  myIndex = first_strip_index+counter-1;
 	  if (counter>size[i]*LAYERS_xt) counter=0;
-	  myXtalkfile <<layer_id<<"  "<<myIndex<<"  "<<k<<"  "<<the_xtalk_right_b<<"  "<<the_xtalk_right_a<<"  "<<the_chi2_right<<"  "<<the_xtalk_left_b<<"  "<<the_xtalk_left_a<<"  "<<the_chi2_left<<std::endl;
+	  myXtalkfile <<myIndex<<"  "<<the_xtalk_right_b<<"  "<<the_xtalk_right_a<<"  "<<the_chi2_right<<"  "<<the_xtalk_left_b<<"  "<<the_xtalk_left_a<<"  "<<the_chi2_left<<std::endl;
 
 	  calib_evt.xtalk_slope_left  = xtalk_slope_left[iii][i][j][k]; 
 	  calib_evt.xtalk_slope_right = xtalk_slope_right[iii][i][j][k]; 

@@ -382,7 +382,7 @@ CSCNoiseMatrixAnalyzer::~CSCNoiseMatrixAnalyzer(){
 	counter++; 
 	myIndex = first_strip_index+(counter-1);
 	if (counter>size[i]*LAYERS_ma) counter=0;
-	myfile<<layer_id<<"  "<<myIndex-1<<"  "<<k<<"  "<<tmp[0]<<"  "<<tmp[1]<<"  "<<tmp[3]<<"  "<<tmp[2]<<"  "<<tmp[4]<<"  "<<tmp[6]<<"  "<<tmp[5]<<"  "<<tmp[7]<<"  "<<tmp[9]<<"  "<<tmp[8]<<"  "<<tmp[10]<<"  "<<tmp[11]<<std::endl;
+	myfile<<layer_id<<"  "<<myIndex-1<<"  "<<tmp[0]<<"  "<<tmp[1]<<"  "<<tmp[3]<<"  "<<tmp[2]<<"  "<<tmp[4]<<"  "<<tmp[6]<<"  "<<tmp[5]<<"  "<<tmp[7]<<"  "<<tmp[9]<<"  "<<tmp[8]<<"  "<<tmp[10]<<"  "<<tmp[11]<<std::endl;
       }
     }
   }
