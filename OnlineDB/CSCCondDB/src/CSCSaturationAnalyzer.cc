@@ -28,6 +28,10 @@
 #include "EventFilter/CSCRawToDigi/interface/CSCDMBHeader.h"
 #include "OnlineDB/CSCCondDB/interface/CSCSaturationAnalyzer.h"
 #include "OnlineDB/CSCCondDB/interface/SaturationFit.h"
+///to be used for old mapping
+//#include "OnlineDB/CSCCondDB/interface/CSCMap.h"
+///for new mapping
+#include "OnlineDB/CSCCondDB/interface/CSCMap1.h"
 
 CSCSaturationAnalyzer::CSCSaturationAnalyzer(edm::ParameterSet const& conf) {
   debug = conf.getUntrackedParameter<bool>("debug",false);
@@ -215,9 +219,13 @@ CSCSaturationAnalyzer::~CSCSaturationAnalyzer(){
   std::string myTime=asctime(clock);
   std::ofstream mySatFile(myFileName,std::ios::out);
  
-  //DB object and map
+  ///old DB map
+  //cscmap *map = new cscmap();
+  ///new DB mapping
+  CSCMapItem::MapItem mapitem;
+  cscmap1 *map = new cscmap1();
+ 
   CSCobject *cn = new CSCobject();
-  cscmap *map = new cscmap();
   //condbon *dbon = new condbon();
 
   //root ntuple information
@@ -236,8 +244,18 @@ CSCSaturationAnalyzer::~CSCSaturationAnalyzer(){
 	int new_dmbID   = dmbID[cham];
 	int counter=0;
 	std::cout<<" Crate: "<<new_crateID<<" and DMB:  "<<new_dmbID<<std::endl;
-	map->crate_chamber(new_crateID,new_dmbID,&chamber_id,&chamber_num,&sector,&first_strip_index,&strips_per_layer,&chamber_index);
-	std::cout<<"Data is for chamber:: "<< chamber_id<<" in sector:  "<<sector<<std::endl;
+	///old mapping
+	//map->crate_chamber(new_crateID,new_dmbID,&chamber_id,&chamber_num,&sector,&first_strip_index,&strips_per_layer,&chamber_index);
+	///new mapping
+	map->cratedmb(new_crateID,new_dmbID,&mapitem);
+	chamber_num=mapitem.chamberId;
+	sector= mapitem.sector;
+	first_strip_index=mapitem.stripIndex;
+	strips_per_layer=mapitem.strips;
+	chamber_index=mapitem.chamberId;
+	chamber_type = mapitem.chamberLabel;
+	
+	std::cout<<"Data is for chamber:: "<<chamber_type<<"  "<<chamber_id<<" in sector:  "<<sector<<" index "<<first_strip_index<<std::endl;
 	
 	calib_evt.id=chamber_num;
 	
@@ -259,8 +277,8 @@ CSCSaturationAnalyzer::~CSCSaturationAnalyzer(){
 		  mySatADC[st]=0.0;
 		}
 		
-		for(int ii=0; ii<NUMBERPLOTTED_sat; ii++){//numbers    
-		  myCharge[ii] = 11.2 +(28.0*ii);//224(3V) to 560(5V) fC
+		for(int ii=10; ii<NUMBERPLOTTED_sat; ii++){//numbers    
+		  myCharge[ii] = 11.2 +(28.0*ii)-280.0;//224(3V) to 560(5V) fC
 		  mySatADC[ii] = maxmodten[ii][cham][j][k];
 		  //newCharge[ii] = charge_event;
 		  //fill one histogram with all values for all chambers
@@ -290,7 +308,7 @@ CSCSaturationAnalyzer::~CSCSaturationAnalyzer(){
 		counter++; 
 		myIndex = first_strip_index+counter-1;
 		if (counter>size[cham]*LAYERS_sat) counter=0;
-		mySatFile <<layer_id<<"  "<<"  "<<myIndex-1<<"  "<<k<<"  "<<u0_ptr<<"  "<<u1_ptr<<"  "<<u2_ptr<<"  "<<u3_ptr<<std::endl;
+		mySatFile <<"  "<<myIndex-1<<"  "<<u0_ptr<<"  "<<u1_ptr<<"  "<<u2_ptr<<"  "<<u3_ptr<<std::endl;
 		
 		calib_evt.strip = k;
 		calib_evt.layer = j;

@@ -57,7 +57,7 @@ class CSCSaturationAnalyzer : public edm::EDAnalyzer {
   float maxmodten[NUMMODTEN_sat][CHAMBERS_sat][LAYERS_sat][STRIPS_sat];
   int lines;
   std::ifstream filein;
-  std::string PSet,name;
+  std::string PSet,name,chamber_type;
   bool debug;
   float myCharge[NUMBERPLOTTED_sat],mySatADC[NUMBERPLOTTED_sat],aVar,bVar;
   TH2F adc_vs_charge;
