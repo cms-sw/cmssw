@@ -66,3 +66,17 @@ DEFINE_FWK_MODULE(TopMuonEnergyScale);
 DEFINE_FWK_MODULE(TopTauEnergyScale);
 DEFINE_FWK_MODULE(TopJetEnergyScale);
 DEFINE_FWK_MODULE(TopMETEnergyScale);
+
+#include "TopQuarkAnalysis/TopObjectProducers/interface/TopObjectSpatialResolution.h"
+
+typedef TopObjectSpatialResolution<TopElectron> TopElectronSpatialResolution;
+typedef TopObjectSpatialResolution<TopMuon>     TopMuonSpatialResolution;
+typedef TopObjectSpatialResolution<TopTau>      TopTauSpatialResolution;
+typedef TopObjectSpatialResolution<TopJet>      TopJetSpatialResolution;
+typedef TopObjectSpatialResolution<TopMET>      TopMETSpatialResolution;
+
+DEFINE_FWK_MODULE(TopElectronSpatialResolution);
+DEFINE_FWK_MODULE(TopMuonSpatialResolution);
+DEFINE_FWK_MODULE(TopTauSpatialResolution);
+DEFINE_FWK_MODULE(TopJetSpatialResolution);
+DEFINE_FWK_MODULE(TopMETSpatialResolution);
