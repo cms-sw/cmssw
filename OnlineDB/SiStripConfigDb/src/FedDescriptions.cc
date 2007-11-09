@@ -1,5 +1,5 @@
-// Last commit: $Id: FedDescriptions.cc,v 1.11 2007/10/20 14:53:45 bainbrid Exp $
-// Latest tag:  $Name: HEAD $
+// Last commit: $Id: FedDescriptions.cc,v 1.12 2007/11/07 15:55:33 bainbrid Exp $
+// Latest tag:  $Name:  $
 // Location:    $Source: /cvs_server/repositories/CMSSW/CMSSW/OnlineDB/SiStripConfigDb/src/FedDescriptions.cc,v $
 
 #include "OnlineDB/SiStripConfigDb/interface/SiStripConfigDb.h"
@@ -12,18 +12,33 @@ using namespace sistrip;
 // -----------------------------------------------------------------------------
 // 
 const SiStripConfigDb::FedDescriptions& SiStripConfigDb::getFedDescriptions() {
-  
+
+  LogTrace(mlConfigDb_) << "TEST " << " get here ";
+
   if ( !deviceFactory(__func__) ) { return feds_; }
   if ( !resetFeds_ ) { return feds_; }
   
+  LogTrace(mlConfigDb_) << "TEST " << " get here ";
+
   try {
     deviceFactory(__func__)->setUsingStrips( usingStrips_ );
 
     //@@ handle fact that "latest" version for FED is signified by "-1", not "0"!
-    int16_t major = -1;
-    int16_t minor = -1;
-    if ( dbParams_.fedMajor_ > 0 ) { major = dbParams_.fedMajor_; }
-    if ( dbParams_.fedMinor_ > 0 ) { major = dbParams_.fedMinor_; }
+    int16_t major = 0;
+    int16_t minor = 0;
+    if ( dbParams_.fedMajor_ == 0 && 
+	 dbParams_.fedMinor_ == 0 ) {
+      major = -1;
+      minor = -1;
+    } else {
+      major = dbParams_.fedMajor_; 
+      minor = dbParams_.fedMinor_; 
+    }
+    LogTrace(mlConfigDb_) 
+      << "TEST " 
+      << " dbParams_.partition_: " << dbParams_.partition_
+      << " major: " << major 
+      << " minor: " << minor;
     feds_ = *( deviceFactory(__func__)->getFed9UDescriptions( dbParams_.partition_, 
 							      major, 
 							      minor ) );
