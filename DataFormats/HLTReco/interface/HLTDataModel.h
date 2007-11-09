@@ -5,8 +5,8 @@
  *
  *  Classes for new HLT data model (to be split into separate header files)
  *
- *  $Date: 2007/10/30 15:33:28 $
- *  $Revision: 1.2 $
+ *  $Date: 2007/11/02 07:06:39 $
+ *  $Revision: 1.3 $
  *
  *  \author Martin Grunewald
  *
@@ -14,6 +14,7 @@
 
 #include "DataFormats/Math/interface/LorentzVector.h"
 #include "DataFormats/Provenance/interface/ProductID.h"
+#include "DataFormats/Common/interface/Handle.h"
 
 #include <cassert>
 #include <vector>
@@ -98,26 +99,76 @@ namespace reco
   };
 
 
-  /// Pointer to a physics object within a collection
-  class TriggerPointer { /// should be edm::Ptr<T> ??
+  /// Non-templated pointer class, pointing to an object within a collection
+  class TriggerPointer { // should be edm::Ptr<T> ??
 
   private:
+    /// id of product pointed to
     edm::ProductID productID_;
-    int            index_;
+    /// key to get item within collection pointed to (-1 = none)
+    long int       key_;
 
   public:
     /// constructors
-    TriggerPointer(): productID_(), index_() { }
-    TriggerPointer(const edm::ProductID& productID, int index=-1):
-      productID_(productID), index_(index) { }
+    TriggerPointer(): productID_(), key_() { key_=-1; }
+    TriggerPointer(const edm::ProductID& productID, int key=-1):
+      productID_(productID), key_(key) { }
+
+    template <typename C> 
+    TriggerPointer(const edm::Handle<C>& handle, int key=-1):
+      productID_(handle.id()), key_(key) { }
+    template <typename C> 
+    TriggerPointer(const edm::RefProd<C>& refprod, int key=-1):
+      productID_(refprod.id()), key_(key) { }
+    template <typename C> 
+    TriggerPointer(const edm::RefToBaseProd<C>& reftobaseprod, int key=-1):
+      productID_(reftobaseprod.id()), key_(key) { }
+
+    template <typename C> 
+    TriggerPointer(const edm::Ref<C>& ref):
+      productID_(ref.id()), key_(ref.key()) { }
+    template <typename C> 
+    TriggerPointer(const edm::RefToBase<C>& reftobase):
+      productID_(reftobase.id()), key_(reftobase.key()) { }
+    template <typename T> 
+    TriggerPointer(const edm::Ptr<T> ptr):
+      productID_(ptr.id()), key_(ptr.key()) { }
 
     /// setters
     void setProductID (const edm::ProductID& productID) {productID_=productID;}
-    void setIndex (int index=-1) {index_=index;}
+    void setKey (int key=-1) {key_=key;}
 
     /// getters
-    const edm::ProductID& getProductID() const {return productID_;}
-    int getIndex() const {return index_;}
+    const edm::ProductID& id() const {return productID_;}
+    const long int& key() const {return key_;}
+
+    /// the user needs to provide a Handle to the EDProduct
+    template <typename C>
+    const edm::RefProd<C> getRefProd(const edm::Handle<C>& handle) const {
+      assert(handle.isValid());
+      assert(handle.id()==id()); 
+      edm::RefProd<C> refprod(handle);
+      return refprod;
+    }
+    template <typename C>
+    const edm::Ref<C> getRef(const edm::Handle<C>& handle) const {
+      edm::RefProd<C> refprod(getRefProd<C>(handle));
+      assert (key_>=0);
+      edm::Ref<C> ref(refprod,static_cast<unsigned long int>(key_));
+      return ref;
+    }
+    template <typename C>
+    const edm::Ref<C> getRef(const edm::RefProd<C>& refprod) const {
+      assert (key_>=0);
+      edm::Ref<C> ref(refprod,static_cast<unsigned int>(key_));
+      return ref;
+    }
+    template <typename T>
+    const edm::Ptr<T> getPtr() const {
+      assert (key_>=0);
+      edm::Ptr<T> ptr(id(),key());
+      return ptr;
+    }
 
   };
 
@@ -126,7 +177,7 @@ namespace reco
   class TriggerPathCollection {
 
   private:
-    /// non-owning pointrers into collections
+    /// non-owning pointers into collections
     std::vector<TriggerPointer> triggerObjects_;
     /// id or type - of collection
     int collectionId_;
