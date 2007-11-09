@@ -13,7 +13,7 @@
 //
 // Original Author:  Ursula Berthon
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: PixelMatchGsfElectronAnalyzer.cc,v 1.8 2007/09/12 14:52:59 futyand Exp $
+// $Id: PixelMatchGsfElectronAnalyzer.cc,v 1.9 2007/10/23 13:29:27 charlot Exp $
 //
 //
 
@@ -72,6 +72,8 @@ PixelMatchGsfElectronAnalyzer::~PixelMatchGsfElectronAnalyzer()
 
 void PixelMatchGsfElectronAnalyzer::beginJob(edm::EventSetup const&iSetup){
 
+  histfile_->cd();
+  
   // histos limits, setting for HZZ4l, mH=190
   double pTmax=100.;
   double pmax=300.;
