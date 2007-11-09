@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2006/05/24 13:45:54 $
- *  $Revision: 1.3 $
+ *  $Date: 2007/02/19 11:45:21 $
+ *  $Revision: 1.1 $
  *  \author G. Cerminara - INFN Torino
  */
 
@@ -70,10 +70,10 @@ double DTTTrigSyncT0Only::offset(const DTLayer* layer,
 double DTTTrigSyncT0Only::offset(const DTWireId& wireId) {
   float t0 = 0;
   float t0rms = 0;
-  tZeroMap->cellT0(wireId,
-                   t0,
-                   t0rms,
-                   DTTimeUnits::ns);
+  tZeroMap->get(wireId,
+		t0,
+		t0rms,
+		DTTimeUnits::ns);
   return t0;
 }
 

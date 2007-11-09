@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2007/02/19 11:45:21 $
- *  $Revision: 1.1 $
+ *  $Date: 2007/06/07 08:41:25 $
+ *  $Revision: 1.2 $
  *  \author G. Cerminara - INFN Torino
  */
 
@@ -173,19 +173,20 @@ double DTTTrigSyncFromDB::offset(const DTWireId& wireId) {
   if(doT0Correction)
     {
       // Read the t0 from pulses for this wire (ns)
-        tZeroMap->cellT0(wireId,
-		       t0,
-		       t0rms,
-		       DTTimeUnits::ns);
+      tZeroMap->get(wireId,
+		      t0,
+		      t0rms,
+		      DTTimeUnits::ns);
     }
 
   // Read the ttrig for this wire
   float ttrigMean = 0;
   float ttrigSigma = 0;//FIXME: should use this!
-  tTrigMap->slTtrig(wireId.superlayerId(),
-		    ttrigMean,
-		    ttrigSigma,
-		    DTTimeUnits::ns);
+  tTrigMap->get(wireId.superlayerId(),
+		ttrigMean,
+		ttrigSigma,
+		DTTimeUnits::ns);
+
  return t0 + ttrigMean + kFactor * ttrigSigma;
 }
 
