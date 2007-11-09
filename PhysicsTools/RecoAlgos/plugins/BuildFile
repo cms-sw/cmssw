@@ -6,11 +6,12 @@
   <use name=DataFormats/EgammaCandidates>
   <use name=DataFormats/EgammaReco>
   <use name=DataFormats/TrackReco>
+  <use name=DataFormats/VertexReco>
   <use name=DataFormats/MuonReco>
   <use name=DataFormats/JetReco>
   <use name=DataFormats/METReco>
-  <use name=DataFormats/RecoCandidate>
   <use name=DataFormats/HcalRecHit>
+  <use name=SimDataFormats/TrackingAnalysis>
   <use name=PhysicsTools/CandAlgos>
   <use name=PhysicsTools/RecoAlgos>
   <use name=PhysicsTools/RecoCandUtils>
