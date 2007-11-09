@@ -20,6 +20,7 @@ class ESRecHitSimAlgoTB {
   int gain_;
   double MIPADC_;
   double MIPkeV_;
+  double MPV_[2][4][4];
 
 };
 
