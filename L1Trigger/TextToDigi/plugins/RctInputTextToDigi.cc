@@ -124,7 +124,12 @@ RctInputTextToDigi::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	  if(inputStream_ >> junk) {/*std::cout << "Good: ";*/}
 	  //std::cout << "header junk was input: \"" << junk << "\"."
 	  //		     << std::endl;
-	  if((junk_counter == 11) && (junk.compare("0-32") == 0))
+	  // for oldest version, which is same as newest version
+	  //	  if((junk_counter == 11) && (junk.compare("0-32") == 0))
+	  //	    {
+	  //	      oldVersion_ = true;
+	  //	    }
+	  if((junk_counter == 11) && (junk.compare("1-32") == 0))
 	    {
 	      oldVersion_ = true;
 	    }
@@ -132,8 +137,8 @@ RctInputTextToDigi::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	}
       while (junk.compare("LUTOut") != 0);
       std::cout << "Skipped file header" << std::endl;
-      if (oldVersion_) {std::cout << "oldVersion_ TRUE" << std::endl;}
-      else {std::cout << "oldVersion_ FALSE" << std::endl;}
+      if (oldVersion_) {std::cout << "oldVersion_ TRUE (tower 1-32)" << std::endl;}
+      else {std::cout << "oldVersion_ FALSE (tower 0-31)" << std::endl;}
     }
   
   // can't actually read in phi and eta, file has crate card tower instead
@@ -178,18 +183,18 @@ RctInputTextToDigi::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	  
 	  if (oldVersion_)
 	    {
-	      tower = tower + 1;
+	      tower = tower - 1;
 	    }
 	  int encodedEtEcal = (int) (eAddr>>1);
 	  bool fineGrainEcal = (bool) (eAddr&1);
 	  int encodedEtHcal = (int) (hAddr>>1);
 	  bool fineGrainHcal = (bool) (hAddr&1);  // mip bit
 	  
-	  /*	   std::cout << "Eventnumber " << fileEventNumber << "\tCrate " 
-		   << crate << "\tCard " << card << "\tTower " 
-		   << tower << " \teAddr " << eAddr <<"\thAddr "
-		   << hAddr << "\tjunk " << junk << std::endl;
-	  */
+	  std::cout << "Eventnumber " << fileEventNumber << "\tCrate " 
+		    << crate << "\tCard " << card << "\tTower " 
+		    << tower << " \teAddr " << eAddr <<"\thAddr "
+		    << hAddr << "\tjunk " << junk << std::endl;
+	  
 	  int iEta = lookupTables_->rctParameters()->calcIEta(crate,card,tower);
 	  int iPhi = lookupTables_->rctParameters()->calcIPhi(crate,card,tower);
 	  // transform rct iphi coords into global coords
