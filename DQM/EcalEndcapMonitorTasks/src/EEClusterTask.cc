@@ -1,8 +1,8 @@
 /*
  * \file EEClusterTask.cc
  *
- * $Date: 2007/10/23 09:47:48 $
- * $Revision: 1.16 $
+ * $Date: 2007/11/07 18:58:42 $
+ * $Revision: 1.17 $
  * \author G. Della Ricca
  * \author E. Di Marco
  *
@@ -127,102 +127,159 @@ void EEClusterTask::setup(void){
 
     sprintf(histo, "EECLT BC energy");
     meBCEne_ = dbe_->book1D(histo, histo, 100, 0., 150.);
-
-    sprintf(histo, "EECLT BC size");
-    meBCSiz_ = dbe_->book1D(histo, histo, 10, 0., 10.);
+    meBCEne_->setAxisTitle("Energy (GeV)", 1);
 
     sprintf(histo, "EECLT BC number");
     meBCNum_ = dbe_->book1D(histo, histo, 100, 0., 200.);
+    meBCNum_->setAxisTitle("number of clusters", 1);
+
+    sprintf(histo, "EECLT BC size");
+    meBCSiz_ = dbe_->book1D(histo, histo, 10, 0., 10.);
+    meBCSiz_->setAxisTitle("cluster size", 1);
 
     sprintf(histo, "EECLT BC energy map EE +");
     meBCEneFwdMap_ = dbe_->bookProfile2D(histo, histo, 20, -150.0, 150.0, 20, -150.0, 150.0, 100, 0., 500., "s");
+    meBCEneFwdMap_->setAxisTitle("x", 1);
+    meBCEneFwdMap_->setAxisTitle("y", 2);
 
     sprintf(histo, "EECLT BC number map EE +");
     meBCNumFwdMap_ = dbe_->book2D(histo, histo, 20, -150.0, 150.0, 20, -150.0, 150.0);
+    meBCNumFwdMap_->setAxisTitle("x", 1);
+    meBCNumFwdMap_->setAxisTitle("y", 2);
 
     sprintf(histo, "EECLT BC ET map EE +");
     meBCETFwdMap_ = dbe_->bookProfile2D(histo, histo, 20, -150.0, 150.0, 20, -150.0, 150.0, 100, 0., 500., "s");
+    meBCETFwdMap_->setAxisTitle("x", 1);
+    meBCETFwdMap_->setAxisTitle("y", 2);
 
     sprintf(histo, "EECLT BC size map EE +");
     meBCSizFwdMap_ = dbe_->bookProfile2D(histo, histo, 20, -150.0, 150.0, 20, -150.0, 150.0, 100, 0., 100., "s");
+    meBCSizFwdMap_->setAxisTitle("x", 1);
+    meBCSizFwdMap_->setAxisTitle("y", 2);
 
     sprintf(histo, "EECLT BC energy projection R EE +");
     meBCEneFwdMapProjR_ = dbe_->bookProfile(histo, histo, 20, 0., 150.0, 100, 0., 500., "s");
+    meBCEneFwdMapProjR_->setAxisTitle("R", 1);
+    meBCEneFwdMapProjR_->setAxisTitle("Energy (GeV)", 2);
 
     sprintf(histo, "EECLT BC energy projection phi EE +");
     meBCEneFwdMapProjPhi_ = dbe_->bookProfile(histo, histo, 50, -M_PI, M_PI, 100, 0., 500., "s");
+    meBCEneFwdMapProjPhi_->setAxisTitle("phi", 1);
+    meBCEneFwdMapProjPhi_->setAxisTitle("Energy (GeV)", 2);
 
     sprintf(histo, "EECLT BC number projection R EE +");
     meBCNumFwdMapProjR_ = dbe_->book1D(histo, histo, 20, 0., 150.0);
+    meBCNumFwdMapProjR_->setAxisTitle("R", 1);
+    meBCNumFwdMapProjR_->setAxisTitle("number of clusters", 2);
 
     sprintf(histo, "EECLT BC number projection phi EE +");
     meBCNumFwdMapProjPhi_ = dbe_->book1D(histo, histo, 50, -M_PI, M_PI);
+    meBCNumFwdMapProjPhi_->setAxisTitle("phi", 1);
+    meBCNumFwdMapProjPhi_->setAxisTitle("number of clusters", 2);
 
     sprintf(histo, "EECLT BC ET projection R EE +");
     meBCETFwdMapProjR_ = dbe_->bookProfile(histo, histo, 20, 0., 150.0, 100, 0., 500., "s");
+    meBCETFwdMapProjR_->setAxisTitle("R", 1);
+    meBCETFwdMapProjR_->setAxisTitle("Et", 2);
 
     sprintf(histo, "EECLT BC ET projection phi EE +");
     meBCETFwdMapProjPhi_ = dbe_->bookProfile(histo, histo, 50, -M_PI, M_PI, 100, 0., 500., "s");
+    meBCETFwdMapProjPhi_->setAxisTitle("phi", 1);
+    meBCETFwdMapProjPhi_->setAxisTitle("Et", 2);
 
     sprintf(histo, "EECLT BC size projection R EE +");
     meBCSizFwdMapProjR_ = dbe_->bookProfile(histo, histo, 20, 0., 150.0, 100, 0., 100., "s");
+    meBCSizFwdMapProjR_->setAxisTitle("R", 1);
+    meBCSizFwdMapProjR_->setAxisTitle("cluster size", 2);
 
     sprintf(histo, "EECLT BC size projection phi EE +");
     meBCSizFwdMapProjPhi_ = dbe_->bookProfile(histo, histo, 50, -M_PI, M_PI, 100, 0., 100., "s");
+    meBCSizFwdMapProjPhi_->setAxisTitle("phi", 1);
+    meBCSizFwdMapProjPhi_->setAxisTitle("cluster size", 2);
 
     sprintf(histo, "EECLT BC energy map EE -");
     meBCEneBwdMap_ = dbe_->bookProfile2D(histo, histo, 20, -150.0, 150.0, 20, -150.0, 150.0, 100, 0., 500., "s");
+    meBCEneBwdMap_->setAxisTitle("x", 1);
+    meBCEneBwdMap_->setAxisTitle("y", 2);
 
     sprintf(histo, "EECLT BC number map EE -");
     meBCNumBwdMap_ = dbe_->book2D(histo, histo, 20, -150.0, 150.0, 20, -150.0, 150.0);
+    meBCNumBwdMap_->setAxisTitle("x", 1);
+    meBCNumBwdMap_->setAxisTitle("y", 2);
 
     sprintf(histo, "EECLT BC ET map EE -");
     meBCETBwdMap_ = dbe_->bookProfile2D(histo, histo, 20, -150.0, 150.0, 20, -150.0, 150.0, 100, 0., 500., "s");
+    meBCETBwdMap_->setAxisTitle("x", 1);
+    meBCETBwdMap_->setAxisTitle("y", 2);
 
     sprintf(histo, "EECLT BC size map EE -");
     meBCSizBwdMap_ = dbe_->bookProfile2D(histo, histo, 20, -150.0, 150.0, 20, -150.0, 150.0, 100, 0., 100., "s");
+    meBCSizBwdMap_->setAxisTitle("x", 1);
+    meBCSizBwdMap_->setAxisTitle("y", 2);
 
     sprintf(histo, "EECLT BC energy projection R EE -");
     meBCEneBwdMapProjR_ = dbe_->bookProfile(histo, histo, 20, 0., 150.0, 100, 0., 500., "s");
+    meBCEneBwdMapProjR_->setAxisTitle("R", 1);
+    meBCEneBwdMapProjR_->setAxisTitle("Energy (GeV)", 2);
 
     sprintf(histo, "EECLT BC energy projection phi EE -");
     meBCEneBwdMapProjPhi_ = dbe_->bookProfile(histo, histo, 50, -M_PI, M_PI, 100, 0., 500., "s");
+    meBCEneBwdMapProjPhi_->setAxisTitle("phi", 1);
+    meBCEneBwdMapProjPhi_->setAxisTitle("Energy (GeV)", 2);
 
     sprintf(histo, "EECLT BC number projection R EE -");
     meBCNumBwdMapProjR_ = dbe_->book1D(histo, histo, 20, 0., 150.0);
+    meBCNumBwdMapProjR_->setAxisTitle("R", 1);
+    meBCNumBwdMapProjR_->setAxisTitle("number of clusters", 2);
 
     sprintf(histo, "EECLT BC number projection phi EE -");
     meBCNumBwdMapProjPhi_ = dbe_->book1D(histo, histo, 50, -M_PI, M_PI);
+    meBCNumBwdMapProjPhi_->setAxisTitle("phi", 1);
+    meBCNumBwdMapProjPhi_->setAxisTitle("number of clusters", 2);
 
     sprintf(histo, "EECLT BC ET projection R EE -");
     meBCETBwdMapProjR_ = dbe_->bookProfile(histo, histo, 20, 0., 150.0, 100, 0., 500., "s");
+    meBCETBwdMapProjR_->setAxisTitle("R", 1);
+    meBCETBwdMapProjR_->setAxisTitle("Et", 2);
 
     sprintf(histo, "EECLT BC ET projection phi EE -");
     meBCETBwdMapProjPhi_ = dbe_->bookProfile(histo, histo, 50, -M_PI, M_PI, 100, 0., 500., "s");
+    meBCETBwdMapProjPhi_->setAxisTitle("phi", 1);
+    meBCETBwdMapProjPhi_->setAxisTitle("Et", 2);
 
     sprintf(histo, "EECLT BC size projection R EE -");
     meBCSizBwdMapProjR_ = dbe_->bookProfile(histo, histo, 20, 0., 150.0, 100, 0., 100., "s");
+    meBCSizBwdMapProjR_->setAxisTitle("R", 1);
+    meBCSizBwdMapProjR_->setAxisTitle("cluster size", 2);
 
     sprintf(histo, "EECLT BC size projection phi EE -");
     meBCSizBwdMapProjPhi_ = dbe_->bookProfile(histo, histo, 50, -M_PI, M_PI, 100, 0., 100., "s");
+    meBCSizBwdMapProjPhi_->setAxisTitle("phi", 1);
+    meBCSizBwdMapProjPhi_->setAxisTitle("cluster size", 2);
 
     sprintf(histo, "EECLT SC energy");
     meSCEne_ = dbe_->book1D(histo, histo, 100, 0., 150.);
-
-    sprintf(histo, "EECLT SC size");
-    meSCSiz_ = dbe_->book1D(histo, histo, 10, 0., 10.);
+    meSCEne_->setAxisTitle("Energy (GeV)", 1);
 
     sprintf(histo, "EECLT SC number");
     meSCNum_ = dbe_->book1D(histo, histo, 100, 0., 200.);
+    meSCNum_->setAxisTitle("number of clusters", 1);
+
+    sprintf(histo, "EECLT SC size");
+    meSCSiz_ = dbe_->book1D(histo, histo, 10, 0., 10.);
+    meSCSiz_->setAxisTitle("cluster size", 1);
 
     sprintf(histo, "EECLT island s1s9");
     mes1s9_ = dbe_->book1D(histo, histo, 50, 0., 1.);
+    mes1s9_->setAxisTitle("s1/s9", 1);
 
     sprintf(histo, "EECLT island s9s25");
     mes9s25_ = dbe_->book1D(histo, histo, 75, 0., 1.5);
+    mes9s25_->setAxisTitle("s9/s25", 1);
 
     sprintf(histo, "EECLT dicluster invariant mass");
     meInvMass_ = dbe_->book1D(histo, histo, 100, 0., 200.);
+    meInvMass_->setAxisTitle("Mass (GeV)", 1);
 
   }
 
