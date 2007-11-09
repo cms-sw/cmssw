@@ -445,19 +445,28 @@ namespace edm {
     void ParseTree::processReplaceNode(NodePtr & n,
                                 ParseTree::NodePtrMap  & targetMap)
     {
-      NodePtr targetPtr = findInPath(n->name(), targetMap);
-      ReplaceNode * replaceNode = dynamic_cast<ReplaceNode*>(n.get());
-      assert(replaceNode != 0);
-      // see if we need to resolve this replace node
-      if(replaceNode->value()->type() == "dotdelimited")
+      try
       {
-        NodePtr newValue( findInPath(replaceNode->value()->name(), blocks_) );
-        replaceNode->setValue(newValue);
+        NodePtr targetPtr = findInPath(n->name(), targetMap);
+        ReplaceNode * replaceNode = dynamic_cast<ReplaceNode*>(n.get());
+        assert(replaceNode != 0);
+        // see if we need to resolve this replace node
+        if(replaceNode->value()->type() == "dotdelimited")
+        {
+          NodePtr newValue( findInPath(replaceNode->value()->name(), blocks_) );
+          replaceNode->setValue(newValue);
+        }
+        checkOkToModify(replaceNode, targetPtr);
+        // we're here to replace it.  So replace it.
+        targetPtr->replaceWith(replaceNode);
+        removeNode(n);
       }
-      checkOkToModify(replaceNode, targetPtr);
-      // we're here to replace it.  So replace it.
-      targetPtr->replaceWith(replaceNode);
-      removeNode(n);
+      catch(edm::Exception & e)
+      {
+        e.append("\n");
+        e.append(n->traceback());
+        throw e;
+      }
     }
 
 
