@@ -1,8 +1,8 @@
 /**
  *  See header file for a description of this class.
  *
- *  $Date: 2007/03/28 01:05:33 $
- *  $Revision: 1.20 $
+ *  $Date: 2007/05/01 18:06:19 $
+ *  $Revision: 1.21 $
  *  \author A. Vitelli - INFN Torino, V.Palichik
  *  \author porting  R. Bellan
  *
@@ -74,7 +74,7 @@ vector<TrajectorySeed> MuonSeedFinder::seeds(const edm::EventSetup& eSetup) cons
     }
   }
 
-  if(num_endcap)
+  if(num_endcap > 1)
   {
     LogDebug(metname)
       << "Endcap Seeds " << num_endcap << endl;
