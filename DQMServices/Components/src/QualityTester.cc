@@ -1,8 +1,8 @@
 /*
  * \file QualityTester.cc
  * 
- * $Date: 2007/09/06 13:21:32 $
- * $Revision: 1.5 $
+ * $Date: 2007/09/06 15:40:02 $
+ * $Revision: 1.6 $
  * \author M. Zanetti - CERN PH
  *
  */
@@ -35,6 +35,7 @@ QualityTester::QualityTester(const ParameterSet& ps){
   
   prescaleFactor = ps.getUntrackedParameter<int>("prescaleFactor", 1);
   getQualityTestsFromFile = ps.getUntrackedParameter<bool>("getQualityTestsFromFile", true);
+  reportThreshold = ps.getUntrackedParameter<string>("reportThreshold", "");
 
   mui = new MonitorUIRoot();
   bei = mui->getBEInterface();
@@ -71,6 +72,24 @@ void QualityTester::endLuminosityBlock(LuminosityBlock const& lumiSeg, EventSetu
     edm::LogVerbatim ("QualityTester") <<"Running the Quality Test";    
 
     bei->runQTests();
+
+    if ( reportThreshold.size() != 0 ) {
+      std::map< std::string, std::vector<std::string> > theAlarms=qtHandler->checkDetailedQTStatus(bei);
+      for(std::map<std::string,std::vector<std::string> >::iterator itr=theAlarms.begin();itr!=theAlarms.end();++itr){
+        std::string alarmType = itr->first;
+        std::vector<std::string> msgs=itr->second;
+        if ( ( reportThreshold == "black" ) ||
+             ( reportThreshold == "orange" && ( alarmType == "orange" || alarmType == "red" ) ) ||
+             ( reportThreshold == "red" && alarmType == "red" ) ) {
+          std::cout << std::endl;
+          std::cout << "Error Type: " << alarmType << std::endl;
+          for(std::vector<std::string>::iterator msg=msgs.begin();msg!=msgs.end();++msg ){
+            std::cout << *msg << std::endl;
+          }
+        }
+      }
+      std::cout << std::endl;
+    }
 
   }
 
