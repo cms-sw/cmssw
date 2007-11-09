@@ -1,4 +1,4 @@
-// $Id: StorageManager.cc,v 1.28 2007/08/22 08:27:30 meschi Exp $
+// $Id: StorageManager.cc,v 1.29 2007/10/14 15:06:55 hcheung Exp $
 
 #include <iostream>
 #include <iomanip>
@@ -149,8 +149,9 @@ StorageManager::StorageManager(xdaq::ApplicationStub * s)
   xgi::bind(this,&StorageManager::eventdataWebPage,     "geteventdata");
   xgi::bind(this,&StorageManager::headerdataWebPage,    "getregdata");
   xgi::bind(this,&StorageManager::consumerWebPage,      "registerConsumer");
-  xgi::bind(this,&StorageManager::DQMeventdataWebPage,     "getDQMeventdata");
-  xgi::bind(this,&StorageManager::DQMconsumerWebPage,      "registerDQMConsumer");
+  xgi::bind(this,&StorageManager::consumerListWebPage,  "consumerList");
+  xgi::bind(this,&StorageManager::DQMeventdataWebPage,  "getDQMeventdata");
+  xgi::bind(this,&StorageManager::DQMconsumerWebPage,   "registerDQMConsumer");
   receivedFrames_ = 0;
   pool_is_set_    = 0;
   pool_           = 0;
@@ -1571,6 +1572,137 @@ void StorageManager::headerdataWebPage(xgi::Input *in, xgi::Output *out)
   // How to signal if not yet started, so there is no registry yet?
 }
 
+void StorageManager::consumerListWebPage(xgi::Input *in, xgi::Output *out)
+  throw (xgi::exception::Exception)
+{
+  char buffer[65536];
+
+  out->getHTTPResponseHeader().addHeader("Content-Type", "application/xml");
+  sprintf(buffer,
+	  "<?xml version=\"1.0\" encoding=\"iso-8859-1\"?>\n<Monitor>\n");
+  out->write(buffer,strlen(buffer));
+
+  if(fsm_.stateName()->toString() == "Enabled")
+  {
+    sprintf(buffer, "<ConsumerList>\n");
+    out->write(buffer,strlen(buffer));
+
+    boost::shared_ptr<EventServer> eventServer;
+    if (jc_.get() != NULL)
+    {
+      eventServer = jc_->getEventServer();
+    }
+    if (eventServer.get() != NULL)
+    {
+      std::map< uint32, boost::shared_ptr<ConsumerPipe> > consumerTable = 
+	eventServer->getConsumerTable();
+      std::map< uint32, boost::shared_ptr<ConsumerPipe> >::const_iterator 
+	consumerIter;
+      for (consumerIter = consumerTable.begin();
+	   consumerIter != consumerTable.end();
+	   consumerIter++)
+      {
+	boost::shared_ptr<ConsumerPipe> consumerPipe = consumerIter->second;
+	sprintf(buffer, "<Consumer>\n");
+	out->write(buffer,strlen(buffer));
+
+	sprintf(buffer, "<Name>%s</Name>\n",
+		consumerPipe->getConsumerName().c_str());
+	out->write(buffer,strlen(buffer));
+
+	sprintf(buffer, "<ID>%d</ID>\n", consumerPipe->getConsumerId());
+	out->write(buffer,strlen(buffer));
+
+	sprintf(buffer, "<Time>%d</Time>\n", 
+		(int)consumerPipe->getLastEventRequestTime());
+	out->write(buffer,strlen(buffer));
+
+	sprintf(buffer, "<Host>%s</Host>\n", 
+		consumerPipe->getHostName().c_str());
+	out->write(buffer,strlen(buffer));
+
+	sprintf(buffer, "<Events>%d</Events>\n", consumerPipe->getEvents());
+	out->write(buffer,strlen(buffer));
+
+	sprintf(buffer, "<Failed>%d</Failed>\n", 
+		consumerPipe->getPushEventFailures());
+	out->write(buffer,strlen(buffer));
+
+	sprintf(buffer, "<Idle>%d</Idle>\n", consumerPipe->isIdle());
+	out->write(buffer,strlen(buffer));
+
+	sprintf(buffer, "<Disconnected>%d</Disconnected>\n", 
+		consumerPipe->isDisconnected());
+	out->write(buffer,strlen(buffer));
+
+	sprintf(buffer, "<Ready>%d</Ready>\n", consumerPipe->isReadyForEvent());
+	out->write(buffer,strlen(buffer));
+
+	sprintf(buffer, "</Consumer>\n");
+	out->write(buffer,strlen(buffer));
+      }
+    }
+    boost::shared_ptr<DQMEventServer> dqmServer;
+    if (jc_.get() != NULL)
+    {
+      dqmServer = jc_->getDQMEventServer();
+    }
+    if (dqmServer.get() != NULL)
+    {
+      std::map< uint32, boost::shared_ptr<DQMConsumerPipe> > dqmTable = 
+	dqmServer->getConsumerTable();
+      std::map< uint32, boost::shared_ptr<DQMConsumerPipe> >::const_iterator 
+	dqmIter;
+      for (dqmIter = dqmTable.begin();
+	   dqmIter != dqmTable.end();
+	   dqmIter++)
+      {
+	boost::shared_ptr<DQMConsumerPipe> dqmPipe = dqmIter->second;
+	sprintf(buffer, "<DQMConsumer>\n");
+	out->write(buffer,strlen(buffer));
+
+	sprintf(buffer, "<Name>%s</Name>\n",
+		dqmPipe->getConsumerName().c_str());
+	out->write(buffer,strlen(buffer));
+
+	sprintf(buffer, "<ID>%d</ID>\n", dqmPipe->getConsumerId());
+	out->write(buffer,strlen(buffer));
+
+	sprintf(buffer, "<Time>%d</Time>\n", 
+		(int)dqmPipe->getLastEventRequestTime());
+	out->write(buffer,strlen(buffer));
+
+	sprintf(buffer, "<Host>%s</Host>\n", 
+		dqmPipe->getHostName().c_str());
+	out->write(buffer,strlen(buffer));
+
+	sprintf(buffer, "<Events>%d</Events>\n", dqmPipe->getEvents());
+	out->write(buffer,strlen(buffer));
+
+	sprintf(buffer, "<Failed>%d</Failed>\n", 
+		dqmPipe->getPushEventFailures());
+	out->write(buffer,strlen(buffer));
+
+	sprintf(buffer, "<Idle>%d</Idle>\n", dqmPipe->isIdle());
+	out->write(buffer,strlen(buffer));
+
+	sprintf(buffer, "<Disconnected>%d</Disconnected>\n", 
+		dqmPipe->isDisconnected());
+	out->write(buffer,strlen(buffer));
+
+	sprintf(buffer, "<Ready>%d</Ready>\n", dqmPipe->isReadyForEvent());
+	out->write(buffer,strlen(buffer));
+
+	sprintf(buffer, "</DQMConsumer>\n");
+	out->write(buffer,strlen(buffer));
+      }
+    }
+    sprintf(buffer, "</ConsumerList>\n");
+    out->write(buffer,strlen(buffer));
+  }
+  sprintf(buffer, "</Monitor>");
+  out->write(buffer,strlen(buffer));
+}
 
 ////////////////////////////// consumer registration web page ////////////////////////////
 void StorageManager::consumerWebPage(xgi::Input *in, xgi::Output *out)
@@ -1582,6 +1714,7 @@ void StorageManager::consumerWebPage(xgi::Input *in, xgi::Output *out)
   std::string consumerName = "None provided";
   std::string consumerPriority = "normal";
   std::string consumerRequest = "<>";
+  std::string consumerHost = in->getenv("REMOTE_HOST");
 
   // read the consumer registration message from the http input stream
   std::string lengthString = in->getenv("CONTENT_LENGTH");
@@ -1627,10 +1760,12 @@ void StorageManager::consumerWebPage(xgi::Input *in, xgi::Output *out)
 
     // create the local consumer interface and add it to the event server
     boost::shared_ptr<ConsumerPipe>
-      consPtr(new ConsumerPipe(consumerName, consumerPriority,
+      consPtr(new ConsumerPipe(consumerName, 
+			       consumerPriority,
                                activeConsumerTimeout_.value_,
                                idleConsumerTimeout_.value_,
-                               requestParamSet));
+                               requestParamSet,
+			       consumerHost));
     eventServer->addConsumer(consPtr);
     // over-ride pushmode if not set in StorageManager
     if((consumerPriority.compare("SMProxyServer") == 0) && !pushMode_)
@@ -1748,6 +1883,7 @@ void StorageManager::DQMconsumerWebPage(xgi::Input *in, xgi::Output *out)
     std::string consumerName = "None provided";
     std::string consumerPriority = "normal";
     std::string consumerRequest = "*";
+    std::string consumerHost = in->getenv("REMOTE_HOST");
 
     // read the consumer registration message from the http input stream
     std::string lengthString = in->getenv("CONTENT_LENGTH");
@@ -1792,9 +1928,9 @@ void StorageManager::DQMconsumerWebPage(xgi::Input *in, xgi::Output *out)
       // create the local consumer interface and add it to the event server
       boost::shared_ptr<DQMConsumerPipe>
         consPtr(new DQMConsumerPipe(consumerName, consumerPriority,
-                                 DQMactiveConsumerTimeout_.value_,
-                                 DQMidleConsumerTimeout_.value_,
-                                 consumerRequest));
+				    DQMactiveConsumerTimeout_.value_,
+				    DQMidleConsumerTimeout_.value_,
+				    consumerRequest,consumerHost));
       eventServer->addConsumer(consPtr);
       // over-ride pushmode if not set in StorageManager
       if((consumerPriority.compare("SMProxyServer") == 0) && !pushMode_)

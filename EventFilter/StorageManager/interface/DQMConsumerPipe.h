@@ -25,7 +25,7 @@
  *
  *  Initial Implementation based on Kurt's ConsumerPipe
  *  We can think about a common class later...
- *  $Id: DQMConsumerPipe.h,v 1.3 2007/05/16 22:53:44 hcheung Exp $
+ *  $Id: DQMConsumerPipe.h,v 1.4 2007/10/18 17:41:18 hcheung Exp $
  */
 
 #include <string>
@@ -42,8 +42,8 @@ namespace stor
   {
   public:
     DQMConsumerPipe(std::string name, std::string priority,
-                 int activeTimeout, int idleTimeout,
-                 std::string folderName);
+		    int activeTimeout, int idleTimeout,
+		    std::string folderName, std::string hostName);
 
     ~DQMConsumerPipe();
 
@@ -57,6 +57,11 @@ namespace stor
     boost::shared_ptr< std::vector<char> > getDQMEvent();
     void setPushMode(bool mode) { pushMode_ = mode; }
     void clearQueue();
+    std::string getConsumerName() { return(consumerName_);}
+    int getPushEventFailures() { return(pushEventFailures_);}
+    int getEvents() { return(events_);}
+    time_t getLastEventRequestTime() { return(lastEventRequestTime_);}
+    std::string getHostName() { return(hostName_);}
 
   private:
 
@@ -67,6 +72,8 @@ namespace stor
     std::string consumerName_;
     std::string consumerPriority_;
     std::string topFolderName_;
+    std::string hostName_;
+    int events_;
 
     // data members for tracking active and idle states
     int timeToIdleState_;          // seconds

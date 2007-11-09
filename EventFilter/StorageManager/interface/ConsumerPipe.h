@@ -23,7 +23,7 @@
  *   isIdle() will return false since the consumer has moved from the idle
  *   to the disconnected state.)
  *
- * $Id: ConsumerPipe.h,v 1.6 2007/05/16 22:53:44 hcheung Exp $
+ * $Id: ConsumerPipe.h,v 1.7 2007/10/18 17:41:18 hcheung Exp $
  */
 
 #include <string>
@@ -44,7 +44,8 @@ namespace stor
   public:
     ConsumerPipe(std::string name, std::string priority,
                  int activeTimeout, int idleTimeout,
-                 boost::shared_ptr<edm::ParameterSet> parameterSet);
+                 boost::shared_ptr<edm::ParameterSet> parameterSet,
+		 std::string hostName);
 
     ~ConsumerPipe();
 
@@ -58,6 +59,11 @@ namespace stor
     boost::shared_ptr< std::vector<char> > getEvent();
     void setPushMode(bool mode) { pushMode_ = mode; }
     void clearQueue();
+    std::string getConsumerName() { return(consumerName_);}
+    unsigned int getPushEventFailures() { return(pushEventFailures_);}
+    unsigned int getEvents() { return(events_);}
+    time_t getLastEventRequestTime() { return(lastEventRequestTime_);}
+    std::string getHostName() { return(hostName_);}
 
   private:
 
@@ -67,7 +73,9 @@ namespace stor
     uint32 consumerId_;
     std::string consumerName_;
     std::string consumerPriority_;
+    int events_;
     boost::shared_ptr<edm::ParameterSet> requestParamSet_;
+    std::string hostName_;
 
     // event selector that does the work of accepting/rejecting events
     boost::shared_ptr<edm::EventSelector> eventSelector_;

@@ -4,7 +4,7 @@
  * event server part of the storage manager.
  *
  * 16-Aug-2006 - KAB  - Initial Implementation
- * $Id: ConsumerPipe.cc,v 1.11 2007/10/14 14:24:48 hcheung Exp $
+ * $Id: ConsumerPipe.cc,v 1.12 2007/10/18 17:41:19 hcheung Exp $
  */
 
 #include "EventFilter/StorageManager/interface/ConsumerPipe.h"
@@ -33,11 +33,14 @@ boost::mutex ConsumerPipe::rootIdLock_;
  */
 ConsumerPipe::ConsumerPipe(std::string name, std::string priority,
                            int activeTimeout, int idleTimeout,
-                           boost::shared_ptr<edm::ParameterSet> parameterSet):
+                           boost::shared_ptr<edm::ParameterSet> parameterSet,
+			   std::string hostName):
   han_(curl_easy_init()),
   headers_(),
   consumerName_(name),consumerPriority_(priority),
   requestParamSet_(parameterSet),
+  hostName_(hostName),
+  events_(0),
   pushEventFailures_(0)
 {
   // initialize the time values we use for defining "states"
@@ -196,7 +199,11 @@ void ConsumerPipe::putEvent(boost::shared_ptr< std::vector<char> > bufPtr)
     bool success = pushEvent();
     // update the time of the most recent successful transaction
     if(!success) ++pushEventFailures_;
-    else lastEventRequestTime_ = time(NULL);
+    else
+    {
+      lastEventRequestTime_ = time(NULL);
+      ++events_;
+    }
   }
 }
 

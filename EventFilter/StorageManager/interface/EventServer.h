@@ -12,7 +12,7 @@
  * prescale is in effect.
  *
  * 16-Aug-2006 - KAB  - Initial Implementation
- * $Id$
+ * $Id: EventServer.h,v 1.5 2007/05/16 22:53:44 hcheung Exp $
  */
 
 #include <sys/time.h>
@@ -34,6 +34,7 @@ namespace stor
     ~EventServer();
 
     void addConsumer(boost::shared_ptr<ConsumerPipe> consumer);
+    std::map< uint32, boost::shared_ptr<ConsumerPipe> > getConsumerTable();
     boost::shared_ptr<ConsumerPipe> getConsumer(uint32 consumerId);
     void processEvent(const EventMsgView &eventView);
     boost::shared_ptr< std::vector<char> > getEvent(uint32 consumerId);

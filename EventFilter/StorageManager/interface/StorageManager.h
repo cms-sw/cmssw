@@ -10,7 +10,7 @@
 
      See CMS EventFilter wiki page for further notes.
 
-   $Id: StorageManager.h,v 1.18 2007/08/18 06:04:56 hcheung Exp $
+   $Id: StorageManager.h,v 1.19 2007/08/19 07:31:43 hcheung Exp $
 */
 
 #include <string>
@@ -111,6 +111,8 @@ namespace stor {
     void headerdataWebPage
       (xgi::Input *in, xgi::Output *out) throw (xgi::exception::Exception);
     void consumerWebPage
+      (xgi::Input *in, xgi::Output *out) throw (xgi::exception::Exception);
+    void consumerListWebPage
       (xgi::Input *in, xgi::Output *out) throw (xgi::exception::Exception);
     void DQMeventdataWebPage
       (xgi::Input *in, xgi::Output *out) throw (xgi::exception::Exception);

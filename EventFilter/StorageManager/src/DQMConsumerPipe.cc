@@ -6,7 +6,7 @@
  * Initial Implementation based on Kurt's ConsumerPipe
  * make a common class later when all this works
  *
- * $Id: DQMConsumerPipe.cc,v 1.5 2007/10/14 14:24:48 hcheung Exp $
+ * $Id: DQMConsumerPipe.cc,v 1.6 2007/10/18 17:41:19 hcheung Exp $
  */
 
 #include "EventFilter/StorageManager/interface/DQMConsumerPipe.h"
@@ -34,12 +34,15 @@ boost::mutex DQMConsumerPipe::rootIdLock_;
  * DQMConsumerPipe constructor.
  */
 DQMConsumerPipe::DQMConsumerPipe(std::string name, std::string priority,
-                           int activeTimeout, int idleTimeout,
-                           std::string folderName):
+				 int activeTimeout, int idleTimeout,
+				 std::string folderName,
+				 std::string hostName):
   han_(curl_easy_init()),
   headers_(),
   consumerName_(name),consumerPriority_(priority),
   topFolderName_(folderName),
+  hostName_(hostName),
+  events_(0),
   pushEventFailures_(0)
 {
   // initialize the time values we use for defining "states"
@@ -168,7 +171,11 @@ void DQMConsumerPipe::putDQMEvent(boost::shared_ptr< std::vector<char> > bufPtr)
     bool success = pushEvent();
     // update the time of the most recent successful transaction
     if(!success) ++pushEventFailures_;
-    else lastEventRequestTime_ = time(NULL);
+    else 
+    {
+      lastEventRequestTime_ = time(NULL);
+      ++events_;
+    }
   }
 }
 
