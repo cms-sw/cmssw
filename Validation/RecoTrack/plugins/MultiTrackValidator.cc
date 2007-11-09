@@ -3,7 +3,6 @@
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 
-#include "DataFormats/Common/interface/View.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "SimDataFormats/Track/interface/SimTrackContainer.h"
@@ -214,7 +213,7 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
   edm::LogInfo("TrackValidator") << "\n====================================================" << "\n"
 				 << "Analyzing new event" << "\n"
 				 << "====================================================\n" << "\n";
-
+  
   edm::Handle<TrackingParticleCollection>  TPCollectionHeff ;
   event.getByLabel(label_tp_effic,TPCollectionHeff);
   const TrackingParticleCollection tPCeff = *(TPCollectionHeff.product());
@@ -226,7 +225,7 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
   int w=0;
   for (unsigned int ww=0;ww<associators.size();ww++){
     for (unsigned int www=0;www<label.size();www++){
-      edm::LogVerbatim("TrackValidator") << "Analyzing " 
+      LogTrace("TrackValidator") << "Analyzing " 
 					 << label[www].process()<<":"
 					 << label[www].label()<<":"
 					 << label[www].instance()<<" with "
@@ -234,7 +233,7 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
       //
       //get collections from the event
       //
-      edm::Handle<edm::View<reco::Track> > trackCollection;
+      edm::Handle<reco::TrackCollection> trackCollection;
       event.getByLabel(label[www], trackCollection);
       
       //associate tracks
@@ -251,7 +250,7 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
       //fill simulation histograms
       //compute number of tracks per eta interval
       //
-      edm::LogVerbatim("TrackValidator") << "\n# of TrackingParticles (before cuts): " << tPCeff.size() << "\n";
+      LogTrace("TrackValidator") << "\n# of TrackingParticles (before cuts): " << tPCeff.size() << "\n";
       int ats = 0;
       int st=0;
       for (TrackingParticleCollection::size_type i=0; i<tPCeff.size(); i++){
@@ -265,19 +264,19 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
 	  if (getEta(tp->momentum().eta())>etaintervals[w][f]&&
 	      getEta(tp->momentum().eta())<etaintervals[w][f+1]) {
 	    totSIMeta[w][f]++;
-	    std::vector<std::pair<edm::Ref<edm::View<reco::Track> >, double> > rt;
+	    std::vector<std::pair<edm::Ref<reco::TrackCollection>, double> > rt;
 	    if(simRecColl.find(tp) != simRecColl.end()){
 	      rt = simRecColl[tp];
 	      if (rt.size()!=0) {
-		edm::Ref<edm::View<reco::Track> > t = rt.begin()->first;
+		edm::Ref<reco::TrackCollection> t = rt.begin()->first;
 		ats++;
 		totASSeta[w][f]++;
-		edm::LogVerbatim("TrackValidator") << "TrackingParticle #" << st 
+		LogTrace("TrackValidator") << "TrackingParticle #" << st 
 						   << " with pt=" << sqrt(tp->momentum().perp2()) 
 						   << " associated with quality:" << rt.begin()->second <<"\n";
 	      }
 	    }else{
-	      edm::LogVerbatim("TrackValidator") << "TrackingParticle #" << st
+	      LogTrace("TrackValidator") << "TrackingParticle #" << st
 						 << " with pt=" << sqrt(tp->momentum().perp2())
 						 << " NOT associated to any reco::Track" << "\n";
 	    }
@@ -288,11 +287,11 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
           if (sqrt(tp->momentum().perp2())>pTintervals[w][f]&&
               sqrt(tp->momentum().perp2())<pTintervals[w][f+1]) {
             totSIMpT[w][f]++;
-	    std::vector<std::pair<edm::Ref<edm::View<reco::Track> >, double> > rt;
+	    std::vector<std::pair<edm::Ref<reco::TrackCollection>, double> > rt;
             if(simRecColl.find(tp) != simRecColl.end()){
               rt = simRecColl[tp];
 	      if (rt.size()!=0) {
-		edm::Ref<edm::View<reco::Track> > t = rt.begin()->first;
+		edm::Ref<reco::TrackCollection> t = rt.begin()->first;
 		totASSpT[w][f]++;
 	      }
 	    }
@@ -305,7 +304,7 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
       //
       //fill reconstructed track histograms
       // 
-      edm::LogVerbatim("TrackValidator") << "\n# of reco::Tracks with "
+      LogTrace("TrackValidator") << "\n# of reco::Tracks with "
 					 << label[www].process()<<":"
 					 << label[www].label()<<":"
 					 << label[www].instance()
@@ -313,43 +312,43 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
       int at=0;
       int rT=0;
       for(reco::TrackCollection::size_type i=0; i<trackCollection->size(); ++i){
-	edm::Ref<edm::View<reco::Track> > track(trackCollection, i);
+	edm::Ref<reco::TrackCollection> track(trackCollection, i);
 	rT++;
 
 	std::vector<std::pair<TrackingParticleRef, double> > tp;
+	if(recSimColl.find(track) != recSimColl.end()){
+	  tp = recSimColl[track];
+	  if (tp.size()!=0) {
+	    at++;
+	    LogTrace("TrackValidator") << "reco::Track #" << rT << " with pt=" << track->pt() 
+				       << " associated with quality:" << tp.begin()->second <<"\n";
+	  }
+	} else {
+	  LogTrace("TrackValidator") << "reco::Track #" << rT << " with pt=" << track->pt()
+				     << " NOT associated to any TrackingParticle" << "\n";		  
+	}
+	
 	//Compute fake rate vs eta
 	for (unsigned int f=0; f<etaintervals[w].size()-1; f++){
 	  if (getEta(track->momentum().eta())>etaintervals[w][f]&&
 	      getEta(track->momentum().eta())<etaintervals[w][f+1]) {
 	    totRECeta[w][f]++; 
-	    if(recSimColl.find(track) != recSimColl.end()){
-	      tp = recSimColl[track];
-	      if (tp.size()!=0) {
-		totASS2eta[w][f]++;
-		edm::LogVerbatim("TrackValidator") << "reco::Track #" << rT << " with pt=" << track->pt() 
-						   << " associated with quality:" << tp.begin()->second <<"\n";
-	      }
-	    }else{
-	      edm::LogVerbatim("TrackValidator") << "reco::Track #" << rT << " with pt=" << track->pt()
-						 << " NOT associated to any TrackingParticle" << "\n";
-	    }
+	    if (tp.size()!=0) {
+	      totASS2eta[w][f]++;
+	    }		
 	  }
 	}
-
-        for (unsigned int f=0; f<pTintervals[w].size()-1; f++){
-          if (sqrt(track->momentum().perp2())>pTintervals[w][f]&&
-              sqrt(track->momentum().perp2())<pTintervals[w][f+1]) {
-            totRECpT[w][f]++; 
-	    if(recSimColl.find(track) != recSimColl.end()){
-              tp = recSimColl[track];
-	      if (tp.size()!=0) {
-		at++;
-		totASS2pT[w][f]++;
-	      }
-	    }
-          }
-        }
-
+	
+	for (unsigned int f=0; f<pTintervals[w].size()-1; f++){
+	  if (sqrt(track->momentum().perp2())>pTintervals[w][f]&&
+	      sqrt(track->momentum().perp2())<pTintervals[w][f+1]) {
+	    totRECpT[w][f]++; 
+	    if (tp.size()!=0) {
+	      totASS2pT[w][f]++;
+	    }	      
+	  }
+	}
+	
 	//Fill other histos
  	try{
 	  if (tp.size()==0) continue;
@@ -455,6 +454,7 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
 	  double ptres=track->pt()-sqrt(assocTrack->momentum().perp2()); 
 	  //	  double etares=track->eta()-assocTrack->momentum().pseudoRapidity();
 	  double etares=track->eta()-assocTrack->momentum().Eta();
+
 	  double ptError =  track->ptError();
 	  h_pt[w]->Fill(ptres/ptError);
 	  h_eta[w]->Fill(etares);
@@ -489,12 +489,12 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
 	  thetapull_vs_eta[w]->Fill(getEta(track->eta()),thetaPull);
 
 	} catch (cms::Exception e){
-	  edm::LogError("TrackValidator") << "exception found: " << e.what() << "\n";
+	  LogTrace("TrackValidator") << "exception found: " << e.what() << "\n";
 	}
       }
       if (at!=0) h_tracks[w]->Fill(at);
       h_fakes[w]->Fill(rT-at);
-      edm::LogVerbatim("TrackValidator") << "Total Simulated: " << st << "\n"
+      LogTrace("TrackValidator") << "Total Simulated: " << st << "\n"
 					 << "Total Associated (simToReco): " << ats << "\n"
 					 << "Total Reconstructed: " << rT << "\n"
 					 << "Total Associated (recoToSim): " << at << "\n"
@@ -509,6 +509,9 @@ void MultiTrackValidator::endJob() {
   int w=0;
   for (unsigned int ww=0;ww<associators.size();ww++){
     for (unsigned int www=0;www<label.size();www++){
+
+      TH2F * h =dynamic_cast<TH2F*>(&(**((MonitorElementRootH2 *)d0res_vs_eta[w])));
+      h->FitSlicesY();
 
       //resolution of track params: get sigma from 2D histos
       //       TH2F* d0res_eta = new TH2F("d0res_eta","d0res_eta",nint,min,max, 100, -0.01, 0.01);

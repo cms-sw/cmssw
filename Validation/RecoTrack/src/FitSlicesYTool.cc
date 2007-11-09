@@ -29,6 +29,7 @@ FitSlicesYTool::~FitSlicesYTool(){
   delete h3;  
 }
 void FitSlicesYTool::getFittedMean(MonitorElement * me){
+  if (!(h1&&me)) throw cms::Exception("FitSlicesYTool") << "Pointer =0 : h1=" << h1 << " me=" << me;
   if (h1->GetNbinsX()==me->getNbinsX()){
     for (int bin=0;bin!=h1->GetNbinsX();bin++){
       me->setBinContent(bin+1,h1->GetBinContent(bin+1));
@@ -38,6 +39,7 @@ void FitSlicesYTool::getFittedMean(MonitorElement * me){
   }
 }
 void FitSlicesYTool::getFittedSigma(MonitorElement * me){
+  if (!(h2&&me)) throw cms::Exception("FitSlicesYTool") << "Pointer =0 : h1=" << h1 << " me=" << me;
   if (h2->GetNbinsX()==me->getNbinsX()){
     for (int bin=0;bin!=h2->GetNbinsX();bin++){
       me->setBinContent(bin+1,h2->GetBinContent(bin+1));
@@ -47,6 +49,7 @@ void FitSlicesYTool::getFittedSigma(MonitorElement * me){
   }
 }
 void FitSlicesYTool::getFittedMeanWithError(MonitorElement * me){
+  if (!(h1&&me)) throw cms::Exception("FitSlicesYTool") << "Pointer =0 : h1=" << h1 << " me=" << me;
   if (h1->GetNbinsX()==me->getNbinsX()){
     for (int bin=0;bin!=h1->GetNbinsX();bin++){
       me->setBinContent(bin+1,h1->GetBinContent(bin+1));
@@ -57,6 +60,7 @@ void FitSlicesYTool::getFittedMeanWithError(MonitorElement * me){
   }
 }
 void FitSlicesYTool::getFittedSigmaWithError(MonitorElement * me){
+  if (!(h2&&me)) throw cms::Exception("FitSlicesYTool") << "Pointer =0 : h1=" << h1 << " me=" << me;
   if (h2->GetNbinsX()==me->getNbinsX()){
     for (int bin=0;bin!=h2->GetNbinsX();bin++){
       me->setBinContent(bin+1,h2->GetBinContent(bin+1));
