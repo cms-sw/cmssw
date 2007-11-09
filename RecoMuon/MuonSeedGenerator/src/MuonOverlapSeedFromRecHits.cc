@@ -123,7 +123,9 @@ MuonOverlapSeedFromRecHits::makeSeed(MuonTransientTrackingRecHit::ConstMuonRecHi
       }
     }
 
-    result = createSeed(pt, sigmapt, barrelHit);
+    // use the endcap hit, since segments at the edge of the barrel
+    // might just be 2D
+    result = createSeed(pt, sigmapt, endcapHit);
     //std::cout << "OVERLAPFITTED PT " << pt << " dphi " << dphi << " eta " << eta << std::endl;
     return true;
   }
