@@ -1,8 +1,8 @@
 /*
  * \file EEClusterTask.cc
  *
- * $Date: 2007/11/07 18:58:42 $
- * $Revision: 1.17 $
+ * $Date: 2007/11/09 15:55:36 $
+ * $Revision: 1.18 $
  * \author G. Della Ricca
  * \author E. Di Marco
  *
@@ -127,7 +127,7 @@ void EEClusterTask::setup(void){
 
     sprintf(histo, "EECLT BC energy");
     meBCEne_ = dbe_->book1D(histo, histo, 100, 0., 150.);
-    meBCEne_->setAxisTitle("Energy (GeV)", 1);
+    meBCEne_->setAxisTitle("energy (GeV)", 1);
 
     sprintf(histo, "EECLT BC number");
     meBCNum_ = dbe_->book1D(histo, histo, 100, 0., 200.);
@@ -160,12 +160,12 @@ void EEClusterTask::setup(void){
     sprintf(histo, "EECLT BC energy projection R EE +");
     meBCEneFwdMapProjR_ = dbe_->bookProfile(histo, histo, 20, 0., 150.0, 100, 0., 500., "s");
     meBCEneFwdMapProjR_->setAxisTitle("R", 1);
-    meBCEneFwdMapProjR_->setAxisTitle("Energy (GeV)", 2);
+    meBCEneFwdMapProjR_->setAxisTitle("energy (GeV)", 2);
 
     sprintf(histo, "EECLT BC energy projection phi EE +");
     meBCEneFwdMapProjPhi_ = dbe_->bookProfile(histo, histo, 50, -M_PI, M_PI, 100, 0., 500., "s");
     meBCEneFwdMapProjPhi_->setAxisTitle("phi", 1);
-    meBCEneFwdMapProjPhi_->setAxisTitle("Energy (GeV)", 2);
+    meBCEneFwdMapProjPhi_->setAxisTitle("energy (GeV)", 2);
 
     sprintf(histo, "EECLT BC number projection R EE +");
     meBCNumFwdMapProjR_ = dbe_->book1D(histo, histo, 20, 0., 150.0);
@@ -220,12 +220,12 @@ void EEClusterTask::setup(void){
     sprintf(histo, "EECLT BC energy projection R EE -");
     meBCEneBwdMapProjR_ = dbe_->bookProfile(histo, histo, 20, 0., 150.0, 100, 0., 500., "s");
     meBCEneBwdMapProjR_->setAxisTitle("R", 1);
-    meBCEneBwdMapProjR_->setAxisTitle("Energy (GeV)", 2);
+    meBCEneBwdMapProjR_->setAxisTitle("energy (GeV)", 2);
 
     sprintf(histo, "EECLT BC energy projection phi EE -");
     meBCEneBwdMapProjPhi_ = dbe_->bookProfile(histo, histo, 50, -M_PI, M_PI, 100, 0., 500., "s");
     meBCEneBwdMapProjPhi_->setAxisTitle("phi", 1);
-    meBCEneBwdMapProjPhi_->setAxisTitle("Energy (GeV)", 2);
+    meBCEneBwdMapProjPhi_->setAxisTitle("energy (GeV)", 2);
 
     sprintf(histo, "EECLT BC number projection R EE -");
     meBCNumBwdMapProjR_ = dbe_->book1D(histo, histo, 20, 0., 150.0);
@@ -259,7 +259,7 @@ void EEClusterTask::setup(void){
 
     sprintf(histo, "EECLT SC energy");
     meSCEne_ = dbe_->book1D(histo, histo, 100, 0., 150.);
-    meSCEne_->setAxisTitle("Energy (GeV)", 1);
+    meSCEne_->setAxisTitle("energy (GeV)", 1);
 
     sprintf(histo, "EECLT SC number");
     meSCNum_ = dbe_->book1D(histo, histo, 100, 0., 200.);
@@ -279,7 +279,7 @@ void EEClusterTask::setup(void){
 
     sprintf(histo, "EECLT dicluster invariant mass");
     meInvMass_ = dbe_->book1D(histo, histo, 100, 0., 200.);
-    meInvMass_->setAxisTitle("Mass (GeV)", 1);
+    meInvMass_->setAxisTitle("mass (GeV)", 1);
 
   }
 
