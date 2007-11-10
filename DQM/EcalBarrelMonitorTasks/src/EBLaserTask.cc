@@ -1,8 +1,8 @@
 /*
  * \file EBLaserTask.cc
  *
- * $Date: 2007/11/07 07:07:59 $
- * $Revision: 1.91 $
+ * $Date: 2007/11/09 15:24:06 $
+ * $Revision: 1.92 $
  * \author G. Della Ricca
  *
 */
@@ -133,6 +133,7 @@ void EBLaserTask::setup(void){
       sprintf(histo, "EBLT shape %s L1A", Numbers::sEB(i+1).c_str());
       meShapeMapL1A_[i] = dbe_->bookProfile2D(histo, histo, 1700, 0., 1700., 10, 0., 10., 4096, 0., 4096., "s");
       meShapeMapL1A_[i]->setAxisTitle("channel", 1);
+      meShapeMapL1A_[i]->setAxisTitle("sample", 2);
       dbe_->tag(meShapeMapL1A_[i], i+1);
       sprintf(histo, "EBLT amplitude %s L1A", Numbers::sEB(i+1).c_str());
       meAmplMapL1A_[i] = dbe_->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096.*12., "s");
@@ -153,6 +154,7 @@ void EBLaserTask::setup(void){
       sprintf(histo, "EBLT shape %s L1B", Numbers::sEB(i+1).c_str());
       meShapeMapL1B_[i] = dbe_->bookProfile2D(histo, histo, 1700, 0., 1700., 10, 0., 10., 4096, 0., 4096., "s");
       meShapeMapL1B_[i]->setAxisTitle("channel", 1);
+      meShapeMapL1B_[i]->setAxisTitle("sample", 2);
       dbe_->tag(meShapeMapL1B_[i], i+1);
       sprintf(histo, "EBLT amplitude %s L1B", Numbers::sEB(i+1).c_str());
       meAmplMapL1B_[i] = dbe_->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096.*12., "s");
@@ -176,6 +178,7 @@ void EBLaserTask::setup(void){
       sprintf(histo, "EBLT shape %s L2A", Numbers::sEB(i+1).c_str());
       meShapeMapL2A_[i] = dbe_->bookProfile2D(histo, histo, 1700, 0., 1700., 10, 0., 10., 4096, 0., 4096., "s");
       meShapeMapL2A_[i]->setAxisTitle("channel", 1);
+      meShapeMapL2A_[i]->setAxisTitle("sample", 2);
       dbe_->tag(meShapeMapL2A_[i], i+1);
       sprintf(histo, "EBLT amplitude %s L2A", Numbers::sEB(i+1).c_str());
       meAmplMapL2A_[i] = dbe_->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096.*12., "s");
@@ -196,6 +199,7 @@ void EBLaserTask::setup(void){
       sprintf(histo, "EBLT shape %s L2B", Numbers::sEB(i+1).c_str());
       meShapeMapL2B_[i] = dbe_->bookProfile2D(histo, histo, 1700, 0., 1700., 10, 0., 10., 4096, 0., 4096., "s");
       meShapeMapL2B_[i]->setAxisTitle("channel", 1);
+      meShapeMapL2B_[i]->setAxisTitle("sample", 2);
       dbe_->tag(meShapeMapL2B_[i], i+1);
       sprintf(histo, "EBLT amplitude %s L2B", Numbers::sEB(i+1).c_str());
       meAmplMapL2B_[i] = dbe_->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096.*12., "s");
@@ -219,6 +223,7 @@ void EBLaserTask::setup(void){
       sprintf(histo, "EBLT shape %s L3A", Numbers::sEB(i+1).c_str());
       meShapeMapL3A_[i] = dbe_->bookProfile2D(histo, histo, 1700, 0., 1700., 10, 0., 10., 4096, 0., 4096., "s");
       meShapeMapL3A_[i]->setAxisTitle("channel", 1);
+      meShapeMapL3A_[i]->setAxisTitle("sample", 2);
       dbe_->tag(meShapeMapL3A_[i], i+1);
       sprintf(histo, "EBLT amplitude %s L3A", Numbers::sEB(i+1).c_str());
       meAmplMapL3A_[i] = dbe_->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096.*12., "s");
@@ -239,6 +244,7 @@ void EBLaserTask::setup(void){
       sprintf(histo, "EBLT shape %s L3B", Numbers::sEB(i+1).c_str());
       meShapeMapL3B_[i] = dbe_->bookProfile2D(histo, histo, 1700, 0., 1700., 10, 0., 10., 4096, 0., 4096., "s");
       meShapeMapL3B_[i]->setAxisTitle("channel", 1);
+      meShapeMapL3B_[i]->setAxisTitle("sample", 2);
       dbe_->tag(meShapeMapL3B_[i], i+1);
       sprintf(histo, "EBLT amplitude %s L3B", Numbers::sEB(i+1).c_str());
       meAmplMapL3B_[i] = dbe_->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096.*12., "s");
@@ -262,6 +268,7 @@ void EBLaserTask::setup(void){
       sprintf(histo, "EBLT shape %s L4A", Numbers::sEB(i+1).c_str());
       meShapeMapL4A_[i] = dbe_->bookProfile2D(histo, histo, 1700, 0., 1700., 10, 0., 10., 4096, 0., 4096., "s");
       meShapeMapL4A_[i]->setAxisTitle("channel", 1);
+      meShapeMapL4A_[i]->setAxisTitle("sample", 2);
       dbe_->tag(meShapeMapL4A_[i], i+1);
       sprintf(histo, "EBLT amplitude %s L4A", Numbers::sEB(i+1).c_str());
       meAmplMapL4A_[i] = dbe_->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096.*12., "s");
@@ -282,6 +289,7 @@ void EBLaserTask::setup(void){
       sprintf(histo, "EBLT shape %s L4B", Numbers::sEB(i+1).c_str());
       meShapeMapL4B_[i] = dbe_->bookProfile2D(histo, histo, 1700, 0., 1700., 10, 0., 10., 4096, 0., 4096., "s");
       meShapeMapL4B_[i]->setAxisTitle("channel", 1);
+      meShapeMapL4B_[i]->setAxisTitle("sample", 2);
       dbe_->tag(meShapeMapL4B_[i], i+1);
       sprintf(histo, "EBLT amplitude %s L4B", Numbers::sEB(i+1).c_str());
       meAmplMapL4B_[i] = dbe_->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096.*12., "s");
