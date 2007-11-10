@@ -1,8 +1,8 @@
 /*
  * \file EBTestPulseTask.cc
  *
- * $Date: 2007/11/09 15:24:06 $
- * $Revision: 1.81 $
+ * $Date: 2007/11/10 09:45:39 $
+ * $Revision: 1.82 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -138,10 +138,12 @@ void EBTestPulseTask::setup(void){
       sprintf(histo, "EBPDT PNs amplitude %s G01", Numbers::sEB(i+1).c_str());
       mePnAmplMapG01_[i] = dbe_->bookProfile2D(histo, histo, 10, 0., 10., 1, 0., 1., 4096, 0., 4096., "s");
       mePnAmplMapG01_[i]->setAxisTitle("channel", 1);
+      mePnAmplMapG01_[i]->setAxisTitle("amplitude", 2);
       dbe_->tag(mePnAmplMapG01_[i], i+1);
       sprintf(histo, "EBPDT PNs pedestal %s G01", Numbers::sEB(i+1).c_str());
       mePnPedMapG01_[i] =  dbe_->bookProfile2D(histo, histo, 10, 0., 10., 1, 0., 1., 4096, 0., 4096., "s");
       mePnPedMapG01_[i]->setAxisTitle("channel", 1);
+      mePnPedMapG01_[i]->setAxisTitle("pedestal", 2);
       dbe_->tag(mePnPedMapG01_[i], i+1);
     }
 
@@ -150,10 +152,12 @@ void EBTestPulseTask::setup(void){
       sprintf(histo, "EBPDT PNs amplitude %s G16", Numbers::sEB(i+1).c_str());
       mePnAmplMapG16_[i] = dbe_->bookProfile2D(histo, histo, 10, 0., 10., 1, 0., 1., 4096, 0., 4096., "s");
       mePnAmplMapG16_[i]->setAxisTitle("channel", 1);
+      mePnAmplMapG16_[i]->setAxisTitle("amplitude", 2);
       dbe_->tag(mePnAmplMapG16_[i], i+1);
       sprintf(histo, "EBPDT PNs pedestal %s G16", Numbers::sEB(i+1).c_str());
       mePnPedMapG16_[i] =  dbe_->bookProfile2D(histo, histo, 10, 0., 10., 1, 0., 1., 4096, 0., 4096., "s");
       mePnPedMapG16_[i]->setAxisTitle("channel", 1);
+      mePnPedMapG16_[i]->setAxisTitle("pedestal", 2);
       dbe_->tag(mePnPedMapG16_[i], i+1);
     }
 

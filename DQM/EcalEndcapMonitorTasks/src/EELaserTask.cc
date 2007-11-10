@@ -1,8 +1,8 @@
 /*
  * \file EELaserTask.cc
  *
- * $Date: 2007/11/10 09:13:34 $
- * $Revision: 1.23 $
+ * $Date: 2007/11/10 09:33:24 $
+ * $Revision: 1.24 $
  * \author G. Della Ricca
  *
 */
@@ -315,10 +315,12 @@ void EELaserTask::setup(void){
       sprintf(histo, "EEPDT PNs amplitude %s G01 L1", Numbers::sEE(i+1).c_str());
       mePnAmplMapG01L1_[i] = dbe_->bookProfile2D(histo, histo, 10, 0., 10., 1, 0., 1., 4096, 0., 4096., "s");
       mePnAmplMapG01L1_[i]->setAxisTitle("channel", 1);
+      mePnAmplMapG01L1_[i]->setAxisTitle("amplitude", 2);
       dbe_->tag(mePnAmplMapG01L1_[i], i+1);
       sprintf(histo, "EEPDT PNs pedestal %s G01 L1", Numbers::sEE(i+1).c_str());
       mePnPedMapG01L1_[i] = dbe_->bookProfile2D(histo, histo, 10, 0., 10., 1, 0., 1., 4096, 0., 4096., "s");
       mePnPedMapG01L1_[i]->setAxisTitle("channel", 1);
+      mePnPedMapG01L1_[i]->setAxisTitle("pedestal", 2);
       dbe_->tag(mePnPedMapG01L1_[i], i+1);
     }
 
@@ -327,10 +329,12 @@ void EELaserTask::setup(void){
       sprintf(histo, "EEPDT PNs amplitude %s G16 L1", Numbers::sEE(i+1).c_str());
       mePnAmplMapG16L1_[i] = dbe_->bookProfile2D(histo, histo, 10, 0., 10., 1, 0., 1., 4096, 0., 4096., "s");
       mePnAmplMapG16L1_[i]->setAxisTitle("channel", 1);
+      mePnAmplMapG16L1_[i]->setAxisTitle("amplitude", 2);
       dbe_->tag(mePnAmplMapG16L1_[i], i+1);
       sprintf(histo, "EEPDT PNs pedestal %s G16 L1", Numbers::sEE(i+1).c_str());
       mePnPedMapG16L1_[i] = dbe_->bookProfile2D(histo, histo, 10, 0., 10., 1, 0., 1., 4096, 0., 4096., "s");
       mePnPedMapG16L1_[i]->setAxisTitle("channel", 1);
+      mePnPedMapG16L1_[i]->setAxisTitle("pedestal", 2); 
       dbe_->tag(mePnPedMapG16L1_[i], i+1);
     }
 
@@ -340,11 +344,13 @@ void EELaserTask::setup(void){
     for (int i = 0; i < 18 ; i++) {
       sprintf(histo, "EEPDT PNs amplitude %s G01 L2", Numbers::sEE(i+1).c_str());
       mePnAmplMapG01L2_[i] = dbe_->bookProfile2D(histo, histo, 10, 0., 10., 1, 0., 1., 4096, 0., 4096., "s");
+      mePnAmplMapG01L2_[i]->setAxisTitle("amplitude", 2);
       mePnAmplMapG01L2_[i]->setAxisTitle("channel", 1);
       dbe_->tag(mePnAmplMapG01L2_[i], i+1);
       sprintf(histo, "EEPDT PNs pedestal %s G01 L2", Numbers::sEE(i+1).c_str());
       mePnPedMapG01L2_[i] = dbe_->bookProfile2D(histo, histo, 10, 0., 10., 1, 0., 1., 4096, 0., 4096., "s");
       mePnPedMapG01L2_[i]->setAxisTitle("channel", 1);
+      mePnPedMapG01L2_[i]->setAxisTitle("pedestal", 2);
       dbe_->tag(mePnPedMapG01L2_[i], i+1);
     }
 
@@ -353,10 +359,12 @@ void EELaserTask::setup(void){
       sprintf(histo, "EEPDT PNs amplitude %s G16 L2", Numbers::sEE(i+1).c_str());
       mePnAmplMapG16L2_[i] = dbe_->bookProfile2D(histo, histo, 10, 0., 10., 1, 0., 1., 4096, 0., 4096., "s");
       mePnAmplMapG16L2_[i]->setAxisTitle("channel", 1);
+      mePnAmplMapG16L2_[i]->setAxisTitle("amplitude", 2);
       dbe_->tag(mePnAmplMapG16L2_[i], i+1);
       sprintf(histo, "EEPDT PNs pedestal %s G16 L2", Numbers::sEE(i+1).c_str());
       mePnPedMapG16L2_[i] = dbe_->bookProfile2D(histo, histo, 10, 0., 10., 1, 0., 1., 4096, 0., 4096., "s");
       mePnPedMapG16L2_[i]->setAxisTitle("channel", 1);
+      mePnPedMapG16L2_[i]->setAxisTitle("pedestal", 2); 
       dbe_->tag(mePnPedMapG16L2_[i], i+1);
     }
 
@@ -367,10 +375,12 @@ void EELaserTask::setup(void){
       sprintf(histo, "EEPDT PNs amplitude %s G01 L3", Numbers::sEE(i+1).c_str());
       mePnAmplMapG01L3_[i] = dbe_->bookProfile2D(histo, histo, 10, 0., 10., 1, 0., 1., 4096, 0., 4096., "s");
       mePnAmplMapG01L3_[i]->setAxisTitle("channel", 1);
+      mePnAmplMapG01L3_[i]->setAxisTitle("amplitude", 2);
       dbe_->tag(mePnAmplMapG01L3_[i], i+1);
       sprintf(histo, "EEPDT PNs pedestal %s G01 L3", Numbers::sEE(i+1).c_str());
       mePnPedMapG01L3_[i] = dbe_->bookProfile2D(histo, histo, 10, 0., 10., 1, 0., 1., 4096, 0., 4096., "s");
       mePnPedMapG01L3_[i]->setAxisTitle("channel", 1);
+      mePnPedMapG01L3_[i]->setAxisTitle("pedestal", 2);
       dbe_->tag(mePnPedMapG01L3_[i], i+1);
     }
 
@@ -379,10 +389,12 @@ void EELaserTask::setup(void){
       sprintf(histo, "EEPDT PNs amplitude %s G16 L3", Numbers::sEE(i+1).c_str());
       mePnAmplMapG16L3_[i] = dbe_->bookProfile2D(histo, histo, 10, 0., 10., 1, 0., 1., 4096, 0., 4096., "s");
       mePnAmplMapG16L3_[i]->setAxisTitle("channel", 1);
+      mePnAmplMapG16L3_[i]->setAxisTitle("amplitude", 2);
       dbe_->tag(mePnAmplMapG16L3_[i], i+1);
       sprintf(histo, "EEPDT PNs pedestal %s G16 L3", Numbers::sEE(i+1).c_str());
       mePnPedMapG16L3_[i] = dbe_->bookProfile2D(histo, histo, 10, 0., 10., 1, 0., 1., 4096, 0., 4096., "s");
       mePnPedMapG16L3_[i]->setAxisTitle("channel", 1);
+      mePnPedMapG16L3_[i]->setAxisTitle("pedestal", 2); 
       dbe_->tag(mePnPedMapG16L3_[i], i+1);
     }
 
@@ -393,10 +405,12 @@ void EELaserTask::setup(void){
       sprintf(histo, "EEPDT PNs amplitude %s G01 L4", Numbers::sEE(i+1).c_str());
       mePnAmplMapG01L4_[i] = dbe_->bookProfile2D(histo, histo, 10, 0., 10., 1, 0., 1., 4096, 0., 4096., "s");
       mePnAmplMapG01L4_[i]->setAxisTitle("channel", 1);
+      mePnAmplMapG01L4_[i]->setAxisTitle("amplitude", 2);
       dbe_->tag(mePnAmplMapG01L4_[i], i+1);
       sprintf(histo, "EEPDT PNs pedestal %s G01 L4", Numbers::sEE(i+1).c_str());
       mePnPedMapG01L4_[i] = dbe_->bookProfile2D(histo, histo, 10, 0., 10., 1, 0., 1., 4096, 0., 4096., "s");
       mePnPedMapG01L4_[i]->setAxisTitle("channel", 1);
+      mePnPedMapG01L4_[i]->setAxisTitle("pedestal", 2);
       dbe_->tag(mePnPedMapG01L4_[i], i+1);
     }
 
@@ -405,10 +419,12 @@ void EELaserTask::setup(void){
       sprintf(histo, "EEPDT PNs amplitude %s G16 L4", Numbers::sEE(i+1).c_str());
       mePnAmplMapG16L4_[i] = dbe_->bookProfile2D(histo, histo, 10, 0., 10., 1, 0., 1., 4096, 0., 4096., "s");
       mePnAmplMapG16L4_[i]->setAxisTitle("channel", 1);
+      mePnAmplMapG16L4_[i]->setAxisTitle("amplitude", 2);
       dbe_->tag(mePnAmplMapG16L4_[i], i+1);
       sprintf(histo, "EEPDT PNs pedestal %s G16 L4", Numbers::sEE(i+1).c_str());
       mePnPedMapG16L4_[i] = dbe_->bookProfile2D(histo, histo, 10, 0., 10., 1, 0., 1., 4096, 0., 4096., "s");
       mePnPedMapG16L4_[i]->setAxisTitle("channel", 1);
+      mePnPedMapG16L4_[i]->setAxisTitle("pedestal", 2); 
       dbe_->tag(mePnPedMapG16L4_[i], i+1);
     }
 

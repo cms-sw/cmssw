@@ -1,8 +1,8 @@
 /*
  * \file EEPedestalTask.cc
  *
- * $Date: 2007/11/05 10:22:27 $
- * $Revision: 1.19 $
+ * $Date: 2007/11/09 15:24:09 $
+ * $Revision: 1.20 $
  * \author G. Della Ricca
  *
 */
@@ -151,6 +151,7 @@ void EEPedestalTask::setup(void){
       sprintf(histo, "EEPDT PNs pedestal %s G01", Numbers::sEE(i+1).c_str());
       mePnPedMapG01_[i] =  dbe_->bookProfile2D(histo, histo, 10, 0., 10., 1, 0., 1., 4096, 0., 4096., "s");
       mePnPedMapG01_[i]->setAxisTitle("channel", 1);
+      mePnPedMapG01_[i]->setAxisTitle("pedestal", 2);
       dbe_->tag(mePnPedMapG01_[i], i+1);
     }
 
@@ -159,6 +160,7 @@ void EEPedestalTask::setup(void){
       sprintf(histo, "EEPDT PNs pedestal %s G16", Numbers::sEE(i+1).c_str());
       mePnPedMapG16_[i] =  dbe_->bookProfile2D(histo, histo, 10, 0., 10., 1, 0., 1., 4096, 0., 4096., "s");
       mePnPedMapG16_[i]->setAxisTitle("channel", 1);
+      mePnPedMapG16_[i]->setAxisTitle("pedestal", 2);
       dbe_->tag(mePnPedMapG16_[i], i+1);
     }
 
