@@ -1,8 +1,8 @@
 /*
  * \file EBClusterTask.cc
  *
- * $Date: 2007/11/09 19:15:51 $
- * $Revision: 1.34 $
+ * $Date: 2007/11/09 19:19:56 $
+ * $Revision: 1.35 $
  * \author G. Della Ricca
  * \author E. Di Marco
  *
@@ -167,12 +167,12 @@ void EBClusterTask::setup(void){
     sprintf(histo, "EBCLT island BC ET projection eta");
     meBCETMapProjEta_ = dbe_->bookProfile(histo, histo, 34, -1.479, 1.479, 100, 0., 500., "s");
     meBCETMapProjEta_->setAxisTitle("eta", 1);
-    meBCETMapProjEta_->setAxisTitle("transverse energy", 2);
+    meBCETMapProjEta_->setAxisTitle("transverse energy (GeV)", 2);
 
     sprintf(histo, "EBCLT island BC ET projection phi");
     meBCETMapProjPhi_ = dbe_->bookProfile(histo, histo, 72, -M_PI*(9+1.5)/9, M_PI*(9-1.5)/9, 100, 0., 500., "s");
     meBCETMapProjPhi_->setAxisTitle("phi", 1);
-    meBCETMapProjPhi_->setAxisTitle("transverse energy", 2);
+    meBCETMapProjPhi_->setAxisTitle("transverse energy (GeV)", 2);
 
     sprintf(histo, "EBCLT island BC size projection eta");
     meBCSizMapProjEta_ = dbe_->bookProfile(histo, histo, 34, -1.479, 1.479, 100, 0., 100., "s");
