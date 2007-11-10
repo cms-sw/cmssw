@@ -1,8 +1,8 @@
 /*
  * \file EEClusterClient.cc
  *
- * $Date: 2007/11/08 15:43:53 $
- * $Revision: 1.22 $
+ * $Date: 2007/11/10 10:52:11 $
+ * $Revision: 1.23 $
  * \author G. Della Ricca
  * \author E. Di Marco
  *
@@ -997,8 +997,7 @@ void EEClusterClient::htmlOutput(int run, string htmlDir, string htmlName){
     imgNameNumXproj[iEE] = string(projXName) + ".png";
     sprintf(projYName,"%s_py",meName.c_str());
     imgNameNumYproj[iEE] = string(projYName) + ".png";
-  
-    
+
     obj1dX = hOccMapProjR_[iEE];
     obj1dY = hOccMapProjPhi_[iEE];
     
@@ -1021,12 +1020,10 @@ void EEClusterClient::htmlOutput(int run, string htmlDir, string htmlName){
       cEne->SaveAs(imgName.c_str());
     }
   }
-  
 
   htmlFile << "<table border=\"0\" cellspacing=\"0\" " << endl;
   htmlFile << "cellpadding=\"10\" align=\"center\"> " << endl;
   htmlFile << "<tr align=\"center\">" << endl;
-
 
   for(int iVar=0; iVar<3; ++iVar) {
     for(int iEE=0; iEE<2; ++iEE) {
@@ -1048,7 +1045,6 @@ void EEClusterClient::htmlOutput(int run, string htmlDir, string htmlName){
   htmlFile << "</tr>" << endl;
   htmlFile << "</table>" << endl;
   htmlFile << "<br>" << endl;
-
 
   // projections...
   htmlFile << "<table border=\"0\" cellspacing=\"0\" " << endl;
@@ -1083,9 +1079,6 @@ void EEClusterClient::htmlOutput(int run, string htmlDir, string htmlName){
   htmlFile << "</tr>" << endl;
   htmlFile << "</table>" << endl;
   htmlFile << "<br>" << endl;
-
-
-
 
   // ====>  S U P E R   C L U S T E R S   <====
 
@@ -1149,22 +1142,9 @@ void EEClusterClient::htmlOutput(int run, string htmlDir, string htmlName){
   htmlFile << "</table>" << endl;
   htmlFile << "<br>" << endl;
 
-
-
-
-
-
-
-
-
-
-
-
-
   // ===========================================================================
   // Higher Level variables
   // ===========================================================================
-  
 
   for(int iVar=0; iVar<3; ++iVar) {
 

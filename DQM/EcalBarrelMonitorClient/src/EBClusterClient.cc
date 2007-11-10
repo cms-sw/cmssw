@@ -1,8 +1,8 @@
 /*
  * \file EBClusterClient.cc
  *
- * $Date: 2007/11/05 11:01:08 $
- * $Revision: 1.39 $
+ * $Date: 2007/11/08 15:43:50 $
+ * $Revision: 1.40 $
  * \author G. Della Ricca
  * \author F. Cossutti
  * \author E. Di Marco
@@ -919,7 +919,6 @@ void EBClusterClient::htmlOutput(int run, string htmlDir, string htmlName){
   htmlFile << "</tr>" << endl;
   htmlFile << "</table>" << endl;
   htmlFile << "<br>" << endl;
-
 
   // ===========================================================================
   // Higher Level variables
