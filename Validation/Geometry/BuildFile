@@ -1,21 +1,15 @@
 <export>
  <lib name=ValidationGeometry>
- <use name=root>
- <use name=geant4>
- <use name=boost>
- <use name=FWCore/ParameterSet>
- <use name=FWCore/MessageLogger>
- <use name=SimG4Core/Notification>
- <use name=SimG4Core/Watcher>
- <use name=DQMServices/CoreROOT>
- <use name=FWCore/Framework>
 </export>
 
 <use name=root>
 <use name=geant4>
 <use name=boost>
+<use name=FWCore/Framework>
 <use name=FWCore/ParameterSet>
 <use name=FWCore/MessageLogger>
+<use name=DetectorDescription/Core>
+<use name=Geometry/Records>
 <use name=SimG4Core/Notification>
 <use name=SimG4Core/Watcher>
 <use name=DQMServices/CoreROOT>
