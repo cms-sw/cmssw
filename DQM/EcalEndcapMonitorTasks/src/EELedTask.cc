@@ -1,8 +1,8 @@
 /*
  * \file EELedTask.cc
  *
- * $Date: 2007/11/10 10:03:54 $
- * $Revision: 1.14 $
+ * $Date: 2007/11/10 10:07:04 $
+ * $Revision: 1.15 $
  * \author G. Della Ricca
  *
 */
@@ -94,6 +94,7 @@ void EELedTask::setup(void){
       meShapeMapA_[i] = dbe_->bookProfile2D(histo, histo, 850, 0., 850., 10, 0., 10., 4096, 0., 4096., "s");
       meShapeMapA_[i]->setAxisTitle("channel", 1);
       meShapeMapA_[i]->setAxisTitle("sample", 2);
+      meShapeMapA_[i]->setAxisTitle("amplitude", 3);
       dbe_->tag(meShapeMapA_[i], i+1);
       sprintf(histo, "EELDT amplitude %s A", Numbers::sEE(i+1).c_str());
       meAmplMapA_[i] = dbe_->bookProfile2D(histo, histo, 50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50., 50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50., 4096, 0., 4096.*12., "s");
@@ -115,6 +116,7 @@ void EELedTask::setup(void){
       meShapeMapB_[i] = dbe_->bookProfile2D(histo, histo, 850, 0., 850., 10, 0., 10., 4096, 0., 4096., "s");
       meShapeMapB_[i]->setAxisTitle("channel", 1);
       meShapeMapB_[i]->setAxisTitle("sample", 2);
+      meShapeMapB_[i]->setAxisTitle("amplitude", 3);
       dbe_->tag(meShapeMapB_[i], i+1);
       sprintf(histo, "EELDT amplitude %s B", Numbers::sEE(i+1).c_str());
       meAmplMapB_[i] = dbe_->bookProfile2D(histo, histo, 50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50., 50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50., 4096, 0., 4096.*12., "s");
@@ -136,12 +138,12 @@ void EELedTask::setup(void){
     dbe_->setCurrentFolder("EcalEndcap/EELedTask/PN/Gain01");
     for (int i = 0; i < 18 ; i++) {
       sprintf(histo, "EEPDT PNs amplitude %s G01", Numbers::sEE(i+1).c_str());
-      mePnAmplMapG01_[i] = dbe_->bookProfile2D(histo, histo, 10, 0., 10., 1, 0., 1., 4096, 0., 4096., "s");
+      mePnAmplMapG01_[i] = dbe_->bookProfile(histo, histo, 10, 0., 10., 4096, 0., 4096., "s");
       mePnAmplMapG01_[i]->setAxisTitle("channel", 1);
       mePnAmplMapG01_[i]->setAxisTitle("amplitude", 2);
       dbe_->tag(mePnAmplMapG01_[i], i+1);
       sprintf(histo, "EEPDT PNs pedestal %s G01", Numbers::sEE(i+1).c_str());
-      mePnPedMapG01_[i] = dbe_->bookProfile2D(histo, histo, 10, 0., 10., 1, 0., 1., 4096, 0., 4096., "s");
+      mePnPedMapG01_[i] = dbe_->bookProfile(histo, histo, 10, 0., 10., 4096, 0., 4096., "s");
       mePnPedMapG01_[i]->setAxisTitle("channel", 1);
       mePnPedMapG01_[i]->setAxisTitle("pedestal", 2);
       dbe_->tag(mePnPedMapG01_[i], i+1);
@@ -150,12 +152,12 @@ void EELedTask::setup(void){
     dbe_->setCurrentFolder("EcalEndcap/EELedTask/PN/Gain16");
     for (int i = 0; i < 18 ; i++) {
       sprintf(histo, "EEPDT PNs amplitude %s G16", Numbers::sEE(i+1).c_str());
-      mePnAmplMapG16_[i] = dbe_->bookProfile2D(histo, histo, 10, 0., 10., 1, 0., 1., 4096, 0., 4096., "s");
+      mePnAmplMapG16_[i] = dbe_->bookProfile(histo, histo, 10, 0., 10., 4096, 0., 4096., "s");
       mePnAmplMapG16_[i]->setAxisTitle("channel", 1);
       mePnAmplMapG16_[i]->setAxisTitle("amplitude", 2);
       dbe_->tag(mePnAmplMapG16_[i], i+1);
       sprintf(histo, "EEPDT PNs pedestal %s G16", Numbers::sEE(i+1).c_str());
-      mePnPedMapG16_[i] = dbe_->bookProfile2D(histo, histo, 10, 0., 10., 1, 0., 1., 4096, 0., 4096., "s");
+      mePnPedMapG16_[i] = dbe_->bookProfile(histo, histo, 10, 0., 10., 4096, 0., 4096., "s");
       mePnPedMapG16_[i]->setAxisTitle("channel", 1);
       mePnPedMapG16_[i]->setAxisTitle("pedestal", 2);
       dbe_->tag(mePnPedMapG16_[i], i+1);

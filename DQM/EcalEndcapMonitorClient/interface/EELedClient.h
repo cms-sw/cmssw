@@ -4,8 +4,8 @@
 /*
  * \file EELedClient.h
  *
- * $Date: 2007/09/07 22:30:06 $
- * $Revision: 1.4 $
+ * $Date: 2007/11/08 15:43:52 $
+ * $Revision: 1.5 $
  * \author G. Della Ricca
  *
 */
@@ -141,13 +141,13 @@ MonitorElement* mepnprms01_[18];
 
 MonitorElement* mepnprms05_[18];
 
-TProfile2D* i01_[18];
+TProfile* i01_[18];
 
-TProfile2D* i05_[18];
+TProfile* i05_[18];
 
-TProfile2D* i09_[18];
+TProfile* i09_[18];
 
-TProfile2D* i13_[18];
+TProfile* i13_[18];
 
 // Quality check on crystals
 

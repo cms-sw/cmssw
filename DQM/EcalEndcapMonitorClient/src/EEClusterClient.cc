@@ -1,8 +1,8 @@
 /*
  * \file EEClusterClient.cc
  *
- * $Date: 2007/11/10 10:52:11 $
- * $Revision: 1.23 $
+ * $Date: 2007/11/10 10:55:43 $
+ * $Revision: 1.24 $
  * \author G. Della Ricca
  * \author E. Di Marco
  *
@@ -914,22 +914,22 @@ void EEClusterClient::htmlOutput(int run, string htmlDir, string htmlName){
       imgNameEneXproj[iVar][iEE] = string(projXName) + ".png";
       sprintf(projYName,"%s_py",meName.c_str());
       imgNameEneYproj[iVar][iEE] = string(projYName) + ".png";
-    
-      obj1pX = hProfMapProjR_[iVar][iEE]; 
-      obj1pY = hProfMapProjPhi_[iVar][iEE]; 
+
+      obj1pX = hProfMapProjR_[iVar][iEE];
+      obj1pY = hProfMapProjPhi_[iVar][iEE];
 
       if(obj1pX && obj1pY) {
         cEne->cd();
         gStyle->SetOptStat("emr");
         obj1pX->GetXaxis()->SetNdivisions(50205, kFALSE);
         obj1pY->GetXaxis()->SetNdivisions(50206, kFALSE);
-      
+
         imgName = htmlDir + imgNameEneXproj[iVar][iEE];
         obj1pX->SetStats(kTRUE);
         obj1pX->Draw("pe");
         cEne->Update();
         cEne->SaveAs(imgName.c_str());
-      
+
         imgName = htmlDir + imgNameEneYproj[iVar][iEE];
         obj1pY->SetStats(kTRUE);
         obj1pY->Draw("pe");
@@ -941,7 +941,7 @@ void EEClusterClient::htmlOutput(int run, string htmlDir, string htmlName){
 
   // Cluster occupancy profiles
   for ( int iEE=0; iEE<2; ++iEE ) {
-    
+
     imgNameNumMap[iEE] = "";
 
     objf = hOccMap_[iEE];
@@ -990,7 +990,7 @@ void EEClusterClient::htmlOutput(int run, string htmlDir, string htmlName){
       objf->GetXaxis()->SetLabelColor(1);
       objf->GetYaxis()->SetLabelColor(1);
     }
-  
+
     char projXName[100];
     char projYName[100];
     sprintf(projXName,"%s_px",meName.c_str());
@@ -1000,19 +1000,19 @@ void EEClusterClient::htmlOutput(int run, string htmlDir, string htmlName){
 
     obj1dX = hOccMapProjR_[iEE];
     obj1dY = hOccMapProjPhi_[iEE];
-    
+
     if(obj1dX && obj1dY) {
       cEne->cd();
       gStyle->SetOptStat("emr");
       obj1dX->GetXaxis()->SetNdivisions(50205, kFALSE);
       obj1dY->GetXaxis()->SetNdivisions(50206, kFALSE);
-      
+
       imgName = htmlDir + imgNameNumXproj[iEE];
       obj1dX->SetStats(kTRUE);
       obj1dX->Draw("pe");
       cEne->Update();
       cEne->SaveAs(imgName.c_str());
-      
+
       imgName = htmlDir + imgNameNumYproj[iEE];
       obj1dY->SetStats(kTRUE);
       obj1dY->Draw("pe");
@@ -1052,7 +1052,7 @@ void EEClusterClient::htmlOutput(int run, string htmlDir, string htmlName){
   htmlFile << "<tr align=\"center\">" << endl;
 
   for(int iVar=0; iVar<3; ++iVar) {
-    for(int iEE=0; iEE<2; ++iEE) { 
+    for(int iEE=0; iEE<2; ++iEE) {
       if ( imgNameEneXproj[iVar][iEE].size() != 0 )
         htmlFile << "<td><img src=\"" << imgNameEneXproj[iVar][iEE] << "\"></td>" << endl;
       else
@@ -1065,7 +1065,7 @@ void EEClusterClient::htmlOutput(int run, string htmlDir, string htmlName){
     htmlFile << "</tr>" << endl;
   }
 
-  for(int iEE=0; iEE<2; ++iEE) { 
+  for(int iEE=0; iEE<2; ++iEE) {
     if ( imgNameNumXproj[iEE].size() != 0 )
       htmlFile << "<td><img src=\"" << imgNameNumXproj[iEE] << "\"></td>" << endl;
     else
@@ -1075,7 +1075,7 @@ void EEClusterClient::htmlOutput(int run, string htmlDir, string htmlName){
     else
       htmlFile << "<td><img src=\"" << " " << "\"></td>" << endl;
   }
-  
+
   htmlFile << "</tr>" << endl;
   htmlFile << "</table>" << endl;
   htmlFile << "<br>" << endl;
@@ -1151,17 +1151,17 @@ void EEClusterClient::htmlOutput(int run, string htmlDir, string htmlName){
     imgNameHL[iVar] = "";
 
     obj1f = s01_[iVar];
-    
+
     if ( obj1f ) {
-      
+
       meName = obj1f->GetName();
-      
+
       for ( unsigned int i = 0; i < meName.size(); i++ ) {
         if ( meName.substr(i, 1) == " " )  {
           meName.replace(i, 1, "_");
         }
       }
-      
+
       imgNameHL[iVar] = meName + ".png";
       imgName = htmlDir + imgNameHL[iVar];
 
@@ -1171,10 +1171,10 @@ void EEClusterClient::htmlOutput(int run, string htmlDir, string htmlName){
       obj1f->Draw();
       cEne->Update();
       cEne->SaveAs(imgName.c_str());
-      
+
     }
   }
-  
+
   ///*****************************************************************************///
   htmlFile << "<br>" << endl;
   htmlFile <<  "<a name=\"hl_plots\"> <B> Higher Level Quantities plots </B> </a> " << endl;

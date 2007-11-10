@@ -1,8 +1,8 @@
 /*
  * \file EBTestPulseTask.cc
  *
- * $Date: 2007/11/10 09:45:39 $
- * $Revision: 1.82 $
+ * $Date: 2007/11/10 10:03:52 $
+ * $Revision: 1.83 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -95,6 +95,7 @@ void EBTestPulseTask::setup(void){
       meShapeMapG01_[i] = dbe_->bookProfile2D(histo, histo, 1700, 0., 1700., 10, 0., 10., 4096, 0., 4096., "s");
       meShapeMapG01_[i]->setAxisTitle("channel", 1);
       meShapeMapG01_[i]->setAxisTitle("sample", 2);
+      meShapeMapG01_[i]->setAxisTitle("amplitude", 3);
       dbe_->tag(meShapeMapG01_[i], i+1);
       sprintf(histo, "EBTPT amplitude %s G01", Numbers::sEB(i+1).c_str());
       meAmplMapG01_[i] = dbe_->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096.*12., "s");
@@ -109,6 +110,7 @@ void EBTestPulseTask::setup(void){
       meShapeMapG06_[i] = dbe_->bookProfile2D(histo, histo, 1700, 0., 1700., 10, 0., 10., 4096, 0., 4096., "s");
       meShapeMapG06_[i]->setAxisTitle("channel", 1);
       meShapeMapG06_[i]->setAxisTitle("sample", 2);
+      meShapeMapG06_[i]->setAxisTitle("amplitude", 3);
       dbe_->tag(meShapeMapG06_[i], i+1);
       sprintf(histo, "EBTPT amplitude %s G06", Numbers::sEB(i+1).c_str());
       meAmplMapG06_[i] = dbe_->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096.*12., "s");
@@ -123,6 +125,7 @@ void EBTestPulseTask::setup(void){
       meShapeMapG12_[i] = dbe_->bookProfile2D(histo, histo, 1700, 0., 1700., 10, 0., 10., 4096, 0., 4096., "s");
       meShapeMapG12_[i]->setAxisTitle("channel", 1);
       meShapeMapG12_[i]->setAxisTitle("sample", 2);
+      meShapeMapG12_[i]->setAxisTitle("amplitude", 3);
       dbe_->tag(meShapeMapG12_[i], i+1);
       sprintf(histo, "EBTPT amplitude %s G12", Numbers::sEB(i+1).c_str());
       meAmplMapG12_[i] = dbe_->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096.*12., "s");
@@ -136,12 +139,12 @@ void EBTestPulseTask::setup(void){
     dbe_->setCurrentFolder("EcalBarrel/EBTestPulseTask/PN/Gain01");
     for (int i = 0; i < 36 ; i++) {
       sprintf(histo, "EBPDT PNs amplitude %s G01", Numbers::sEB(i+1).c_str());
-      mePnAmplMapG01_[i] = dbe_->bookProfile2D(histo, histo, 10, 0., 10., 1, 0., 1., 4096, 0., 4096., "s");
+      mePnAmplMapG01_[i] = dbe_->bookProfile(histo, histo, 10, 0., 10., 4096, 0., 4096., "s");
       mePnAmplMapG01_[i]->setAxisTitle("channel", 1);
       mePnAmplMapG01_[i]->setAxisTitle("amplitude", 2);
       dbe_->tag(mePnAmplMapG01_[i], i+1);
       sprintf(histo, "EBPDT PNs pedestal %s G01", Numbers::sEB(i+1).c_str());
-      mePnPedMapG01_[i] =  dbe_->bookProfile2D(histo, histo, 10, 0., 10., 1, 0., 1., 4096, 0., 4096., "s");
+      mePnPedMapG01_[i] =  dbe_->bookProfile(histo, histo, 10, 0., 10., 4096, 0., 4096., "s");
       mePnPedMapG01_[i]->setAxisTitle("channel", 1);
       mePnPedMapG01_[i]->setAxisTitle("pedestal", 2);
       dbe_->tag(mePnPedMapG01_[i], i+1);
@@ -150,12 +153,12 @@ void EBTestPulseTask::setup(void){
     dbe_->setCurrentFolder("EcalBarrel/EBTestPulseTask/PN/Gain16");
     for (int i = 0; i < 36 ; i++) {
       sprintf(histo, "EBPDT PNs amplitude %s G16", Numbers::sEB(i+1).c_str());
-      mePnAmplMapG16_[i] = dbe_->bookProfile2D(histo, histo, 10, 0., 10., 1, 0., 1., 4096, 0., 4096., "s");
+      mePnAmplMapG16_[i] = dbe_->bookProfile(histo, histo, 10, 0., 10., 4096, 0., 4096., "s");
       mePnAmplMapG16_[i]->setAxisTitle("channel", 1);
       mePnAmplMapG16_[i]->setAxisTitle("amplitude", 2);
       dbe_->tag(mePnAmplMapG16_[i], i+1);
       sprintf(histo, "EBPDT PNs pedestal %s G16", Numbers::sEB(i+1).c_str());
-      mePnPedMapG16_[i] =  dbe_->bookProfile2D(histo, histo, 10, 0., 10., 1, 0., 1., 4096, 0., 4096., "s");
+      mePnPedMapG16_[i] =  dbe_->bookProfile(histo, histo, 10, 0., 10., 4096, 0., 4096., "s");
       mePnPedMapG16_[i]->setAxisTitle("channel", 1);
       mePnPedMapG16_[i]->setAxisTitle("pedestal", 2);
       dbe_->tag(mePnPedMapG16_[i], i+1);
@@ -427,7 +430,7 @@ void EBTestPulseTask::analyze(const Event& e, const EventSetup& c){
 
         float xval = float(adc);
 
-        if ( mePNPed ) mePNPed->Fill(num - 0.5, 0.5, xval);
+        if ( mePNPed ) mePNPed->Fill(num - 0.5, xval);
 
         xvalped = xvalped + xval;
 
@@ -455,7 +458,7 @@ void EBTestPulseTask::analyze(const Event& e, const EventSetup& c){
       if ( pn.sample(0).gainId() == 0 ) mePN = mePnAmplMapG01_[ism-1];
       if ( pn.sample(0).gainId() == 1 ) mePN = mePnAmplMapG16_[ism-1];
 
-      if ( mePN ) mePN->Fill(num - 0.5, 0.5, xvalmax);
+      if ( mePN ) mePN->Fill(num - 0.5, xvalmax);
 
     }
 

@@ -1,8 +1,8 @@
 /*
  * \file EETestPulseClient.cc
  *
- * $Date: 2007/11/09 19:52:45 $
- * $Revision: 1.42 $
+ * $Date: 2007/11/10 09:01:55 $
+ * $Revision: 1.43 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -107,13 +107,13 @@ EETestPulseClient::EETestPulseClient(const ParameterSet& ps){
 
   amplitudeThresholdPnG01_ = 200./16.;
   amplitudeThresholdPnG16_ = 200.;
-  
+
   pedPnExpectedMean_[0] = 750.0;
   pedPnExpectedMean_[1] = 750.0;
-  
+
   pedPnDiscrepancyMean_[0] = 100.0;
   pedPnDiscrepancyMean_[1] = 100.0;
-  
+
   pedPnRMSThreshold_[0] = 1.0;
   pedPnRMSThreshold_[1] = 3.0;
 
@@ -230,7 +230,7 @@ void EETestPulseClient::setup(void) {
     mer05_[ism-1]->setAxisTitle("rms", 1);
 
   }
-  
+
   for ( unsigned int i=0; i<superModules_.size(); i++ ) {
 
     int ism = superModules_[i];
@@ -278,7 +278,7 @@ void EETestPulseClient::setup(void) {
     mer05_[ism-1]->Reset();
 
   }
-  
+
 }
 
 void EETestPulseClient::cleanup(void) {
@@ -341,14 +341,14 @@ void EETestPulseClient::cleanup(void) {
     mea02_[ism-1] = 0;
     if ( mea03_[ism-1] ) dbe_->removeElement( mea03_[ism-1]->getName() );
     mea03_[ism-1] = 0;
-    
+
     if ( mer04_[ism-1] ) dbe_->removeElement( mer04_[ism-1]->getName() );
     mer04_[ism-1] = 0;
     if ( mer05_[ism-1] ) dbe_->removeElement( mer05_[ism-1]->getName() );
     mer05_[ism-1] = 0;
-    
+
   }
-  
+
 }
 
 bool EETestPulseClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV* moniov) {
@@ -481,7 +481,7 @@ bool EETestPulseClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
             }
             cout << endl;
 
-            cout << endl; 
+            cout << endl;
 
             shape.setSamples(sample01,  1);
             shape.setSamples(sample02,  6);
@@ -549,10 +549,10 @@ bool EETestPulseClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
       float mean01, mean02, mean03, mean04;
       float rms01, rms02, rms03, rms04;
 
-      update01 = UtilsClient::getBinStats(i01_[ism-1], i, 1, num01, mean01, rms01);
-      update02 = UtilsClient::getBinStats(i02_[ism-1], i, 1, num02, mean02, rms02);
-      update03 = UtilsClient::getBinStats(i03_[ism-1], i, 1, num03, mean03, rms03);
-      update04 = UtilsClient::getBinStats(i04_[ism-1], i, 1, num04, mean04, rms04);
+      update01 = UtilsClient::getBinStats(i01_[ism-1], i, 0, num01, mean01, rms01);
+      update02 = UtilsClient::getBinStats(i02_[ism-1], i, 0, num02, mean02, rms02);
+      update03 = UtilsClient::getBinStats(i03_[ism-1], i, 0, num03, mean03, rms03);
+      update04 = UtilsClient::getBinStats(i04_[ism-1], i, 0, num04, mean04, rms04);
 
       if ( update01 || update02 || update03 || update04 ) {
 
@@ -806,19 +806,19 @@ void EETestPulseClient::analyze(void){
 
     sprintf(histo, (prefixME_+"EcalEndcap/EETestPulseTask/PN/Gain01/EEPDT PNs amplitude %s G01").c_str(), Numbers::sEE(ism).c_str());
     me = dbe_->get(histo);
-    i01_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, i01_[ism-1] );
+    i01_[ism-1] = UtilsClient::getHisto<TProfile*>( me, cloneME_, i01_[ism-1] );
 
     sprintf(histo, (prefixME_+"EcalEndcap/EETestPulseTask/PN/Gain16/EEPDT PNs amplitude %s G16").c_str(), Numbers::sEE(ism).c_str());
     me = dbe_->get(histo);
-    i02_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, i02_[ism-1] );
+    i02_[ism-1] = UtilsClient::getHisto<TProfile*>( me, cloneME_, i02_[ism-1] );
 
     sprintf(histo, (prefixME_+"EcalEndcap/EETestPulseTask/PN/Gain01/EEPDT PNs pedestal %s G01").c_str(), Numbers::sEE(ism).c_str());
     me = dbe_->get(histo);
-    i03_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, i03_[ism-1] );
+    i03_[ism-1] = UtilsClient::getHisto<TProfile*>( me, cloneME_, i03_[ism-1] );
 
     sprintf(histo, (prefixME_+"EcalEndcap/EETestPulseTask/PN/Gain16/EEPDT PNs pedestal %s G16").c_str(), Numbers::sEE(ism).c_str());
     me = dbe_->get(histo);
-    i04_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, i04_[ism-1] );
+    i04_[ism-1] = UtilsClient::getHisto<TProfile*>( me, cloneME_, i04_[ism-1] );
 
     meg01_[ism-1]->Reset();
     meg02_[ism-1]->Reset();
@@ -881,7 +881,7 @@ void EETestPulseClient::analyze(void){
 
     for ( int ix = 1; ix <= 50; ix++ ) {
       for ( int iy = 1; iy <= 50; iy++ ) {
-        
+
         if ( meg01_[ism-1] ) meg01_[ism-1]->setBinContent( ix, iy, -1. );
         if ( meg02_[ism-1] ) meg02_[ism-1]->setBinContent( ix, iy, -1. );
         if ( meg03_[ism-1] ) meg03_[ism-1]->setBinContent( ix, iy, -1. );
@@ -1003,7 +1003,7 @@ void EETestPulseClient::analyze(void){
             int jy = iy + Numbers::iy0EE(ism);
 
             if ( ism >= 1 && ism <= 9 ) jx = 101 - jx;
- 
+
             if ( ! Numbers::validEE(ism, jx, jy) ) continue;
 
             int ic = Numbers::indexEE(ism, ix, iy);
@@ -1053,18 +1053,18 @@ void EETestPulseClient::analyze(void){
       float mean01, mean02, mean03, mean04;
       float rms01, rms02, rms03, rms04;
 
-      update01 = UtilsClient::getBinStats(i01_[ism-1], i, 1, num01, mean01, rms01);
-      update02 = UtilsClient::getBinStats(i02_[ism-1], i, 1, num02, mean02, rms02);
-      update03 = UtilsClient::getBinStats(i03_[ism-1], i, 1, num03, mean03, rms03);
-      update04 = UtilsClient::getBinStats(i04_[ism-1], i, 1, num04, mean04, rms04);
-      
+      update01 = UtilsClient::getBinStats(i01_[ism-1], i, 0, num01, mean01, rms01);
+      update02 = UtilsClient::getBinStats(i02_[ism-1], i, 0, num02, mean02, rms02);
+      update03 = UtilsClient::getBinStats(i03_[ism-1], i, 0, num03, mean03, rms03);
+      update04 = UtilsClient::getBinStats(i04_[ism-1], i, 0, num04, mean04, rms04);
+
       if ( mer04_[ism-1] ) mer04_[ism-1]->Fill(rms03);
       if ( mer05_[ism-1] ) mer05_[ism-1]->Fill(rms04);
-      
+
       if ( update01 && update03 ) {
-        
+
         float val;
-        
+
         val = 1.;
         if ( mean01 < amplitudeThresholdPnG01_ )
           val = 0.;
@@ -1074,9 +1074,9 @@ void EETestPulseClient::analyze(void){
         if ( rms03 > pedPnRMSThreshold_[0] )
           val = 0.;
         if ( meg04_[ism-1] ) meg04_[ism-1]->setBinContent(i, 1, val);
-        
+
       }
-      
+
       if ( update02 && update04 ) {
 
         float val;
@@ -1200,6 +1200,7 @@ void EETestPulseClient::htmlOutput(int run, string htmlDir, string htmlName){
   TH2F* obj2f;
   TH1F* obj1f;
   TH1D* obj1d;
+  TProfile* objp;
 
   // Loop on barrel supermodules
 
@@ -1422,19 +1423,19 @@ void EETestPulseClient::htmlOutput(int run, string htmlDir, string htmlName){
 
       imgNameMEPn[iCanvas-1] = "";
 
-      obj1d = 0;
+      objp = 0;
       switch ( iCanvas ) {
         case 1:
-          if ( i01_[ism-1] ) obj1d = i01_[ism-1]->ProjectionX("_px", 1, 1, "e");
+          objp = i01_[ism-1];
           break;
         case 2:
-          if ( i02_[ism-1] ) obj1d = i02_[ism-1]->ProjectionX("_px", 1, 1, "e");
+          objp = i02_[ism-1];
           break;
         default:
           break;
       }
 
-      if ( obj1d ) {
+      if ( objp ) {
 
         meName = obj1d->GetName();
 
@@ -1448,19 +1449,17 @@ void EETestPulseClient::htmlOutput(int run, string htmlDir, string htmlName){
 
         cAmp->cd();
         gStyle->SetOptStat("euo");
-        obj1d->SetStats(kTRUE);
-//        if ( obj1d->GetMaximum(histMax) > 0. ) {
+        objp->SetStats(kTRUE);
+//        if ( objp->GetMaximum(histMax) > 0. ) {
 //          gPad->SetLogy(1);
 //        } else {
 //          gPad->SetLogy(0);
 //        }
-        obj1d->SetMinimum(0.0);
-        obj1d->Draw();
+        objp->SetMinimum(0.0);
+        objp->Draw();
         cAmp->Update();
         cAmp->SaveAs(imgName.c_str());
         gPad->SetLogy(0);
-
-        delete obj1d;
 
       }
 
@@ -1468,21 +1467,21 @@ void EETestPulseClient::htmlOutput(int run, string htmlDir, string htmlName){
 
       imgNameMEPnPed[iCanvas-1] = "";
 
-      obj1d = 0;
+      objp = 0;
       switch ( iCanvas ) {
         case 1:
-          if ( i03_[ism-1] ) obj1d = i03_[ism-1]->ProjectionX("_px", 1, 1, "e");
+          objp = i03_[ism-1];
           break;
         case 2:
-          if ( i04_[ism-1] ) obj1d = i04_[ism-1]->ProjectionX("_px", 1, 1, "e");
+          objp = i04_[ism-1];
           break;
         default:
           break;
       }
 
-      if ( obj1d ) {
+      if ( objp ) {
 
-        meName = obj1d->GetName();
+        meName = objp->GetName();
 
         for ( unsigned int i = 0; i < meName.size(); i++ ) {
           if ( meName.substr(i, 1) == " " )  {
@@ -1494,24 +1493,22 @@ void EETestPulseClient::htmlOutput(int run, string htmlDir, string htmlName){
 
         cPed->cd();
         gStyle->SetOptStat("euo");
-        obj1d->SetStats(kTRUE);
-//        if ( obj1d->GetMaximum(histMax) > 0. ) {
+        objp->SetStats(kTRUE);
+//        if ( objp->GetMaximum(histMax) > 0. ) {
 //          gPad->SetLogy(1);
 //        } else {
 //          gPad->SetLogy(0);
 //        }
-        obj1d->SetMinimum(0.0);
-        obj1d->Draw();
+        objp->SetMinimum(0.0);
+        objp->Draw();
         cPed->Update();
         cPed->SaveAs(imgName.c_str());
         gPad->SetLogy(0);
 
-        delete obj1d;
-        
       }
-      
+
       imgNameMEPnPedRms[iCanvas-1] = "";
-      
+
       obj1f = 0;
       switch ( iCanvas ) {
       case 1:
@@ -1523,11 +1520,11 @@ void EETestPulseClient::htmlOutput(int run, string htmlDir, string htmlName){
       default:
         break;
       }
-      
+
       if ( obj1f ) {
-          
+
         meName = obj1f->GetName();
-          
+
         for ( unsigned int i = 0; i < meName.size(); i++ ) {
           if ( meName.substr(i, 1) == " " )  {
             meName.replace(i, 1 ,"_" );
@@ -1535,7 +1532,7 @@ void EETestPulseClient::htmlOutput(int run, string htmlDir, string htmlName){
         }
         imgNameMEPnPedRms[iCanvas-1] = meName + ".png";
         imgName = htmlDir + imgNameMEPnPedRms[iCanvas-1];
-          
+
         cPed->cd();
         gStyle->SetOptStat("euo");
         obj1f->SetStats(kTRUE);
@@ -1549,11 +1546,11 @@ void EETestPulseClient::htmlOutput(int run, string htmlDir, string htmlName){
         cPed->Update();
         cPed->SaveAs(imgName.c_str());
         gPad->SetLogy(0);
-        
+
       }
 
     }
-    
+
     if( i>0 ) htmlFile << "<a href=""#top"">Top</a>" << std::endl;
     htmlFile << "<hr>" << std::endl;
     htmlFile << "<h3><a name="""
@@ -1640,7 +1637,7 @@ void EETestPulseClient::htmlOutput(int run, string htmlDir, string htmlName){
     htmlFile << "<tr align=\"center\">  <td colspan=\"2\"> </td>  <td colspan=\"2\">Gain 1</td>  <td colspan=\"2\"> </td> <td colspan=\"2\"> </td> <td colspan=\"2\">Gain 16</td></tr>" << endl;
     htmlFile << "</table>" << endl;
     htmlFile << "<br>" << endl;
-    
+
   }
 
   delete cQual;

@@ -1,8 +1,8 @@
 /*
  * \file EBTestPulseClient.cc
  *
- * $Date: 2007/11/09 14:02:30 $
- * $Revision: 1.165 $
+ * $Date: 2007/11/09 19:51:43 $
+ * $Revision: 1.166 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -527,8 +527,8 @@ bool EBTestPulseClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
       float mean01, mean02, mean03, mean04;
       float rms01, rms02, rms03, rms04;
 
-      update01 = UtilsClient::getBinStats(i01_[ism-1], i, 1, num01, mean01, rms01);
-      update02 = UtilsClient::getBinStats(i02_[ism-1], i, 1, num02, mean02, rms02);
+      update01 = UtilsClient::getBinStats(i01_[ism-1], i, 0, num01, mean01, rms01);
+      update02 = UtilsClient::getBinStats(i02_[ism-1], i, 0, num02, mean02, rms02);
       update03 = UtilsClient::getBinStats(i03_[ism-1], i, 1, num03, mean03, rms03);
       update04 = UtilsClient::getBinStats(i04_[ism-1], i, 1, num04, mean04, rms04);
 
@@ -784,19 +784,19 @@ void EBTestPulseClient::analyze(void){
 
     sprintf(histo, (prefixME_+"EcalBarrel/EBTestPulseTask/PN/Gain01/EBPDT PNs amplitude %s G01").c_str(), Numbers::sEB(ism).c_str());
     me = dbe_->get(histo);
-    i01_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, i01_[ism-1] );
+    i01_[ism-1] = UtilsClient::getHisto<TProfile*>( me, cloneME_, i01_[ism-1] );
 
     sprintf(histo, (prefixME_+"EcalBarrel/EBTestPulseTask/PN/Gain16/EBPDT PNs amplitude %s G16").c_str(), Numbers::sEB(ism).c_str());
     me = dbe_->get(histo);
-    i02_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, i02_[ism-1] );
+    i02_[ism-1] = UtilsClient::getHisto<TProfile*>( me, cloneME_, i02_[ism-1] );
 
     sprintf(histo, (prefixME_+"EcalBarrel/EBTestPulseTask/PN/Gain01/EBPDT PNs pedestal %s G01").c_str(), Numbers::sEB(ism).c_str());
     me = dbe_->get(histo);
-    i03_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, i03_[ism-1] );
+    i03_[ism-1] = UtilsClient::getHisto<TProfile*>( me, cloneME_, i03_[ism-1] );
 
     sprintf(histo, (prefixME_+"EcalBarrel/EBTestPulseTask/PN/Gain16/EBPDT PNs pedestal %s G16").c_str(), Numbers::sEB(ism).c_str());
     me = dbe_->get(histo);
-    i04_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, i04_[ism-1] );
+    i04_[ism-1] = UtilsClient::getHisto<TProfile*>( me, cloneME_, i04_[ism-1] );
 
     meg01_[ism-1]->Reset();
     meg02_[ism-1]->Reset();
@@ -1005,10 +1005,10 @@ void EBTestPulseClient::analyze(void){
       float mean01, mean02, mean03, mean04;
       float rms01, rms02, rms03, rms04;
 
-      update01 = UtilsClient::getBinStats(i01_[ism-1], i, 1, num01, mean01, rms01);
-      update02 = UtilsClient::getBinStats(i02_[ism-1], i, 1, num02, mean02, rms02);
-      update03 = UtilsClient::getBinStats(i03_[ism-1], i, 1, num03, mean03, rms03);
-      update04 = UtilsClient::getBinStats(i04_[ism-1], i, 1, num04, mean04, rms04);
+      update01 = UtilsClient::getBinStats(i01_[ism-1], i, 0, num01, mean01, rms01);
+      update02 = UtilsClient::getBinStats(i02_[ism-1], i, 0, num02, mean02, rms02);
+      update03 = UtilsClient::getBinStats(i03_[ism-1], i, 0, num03, mean03, rms03);
+      update04 = UtilsClient::getBinStats(i04_[ism-1], i, 0, num04, mean04, rms04);
 
       if ( mer04_[ism-1] ) mer04_[ism-1]->Fill(rms03);
       if ( mer05_[ism-1] ) mer05_[ism-1]->Fill(rms04);
@@ -1151,6 +1151,7 @@ void EBTestPulseClient::htmlOutput(int run, string htmlDir, string htmlName){
   TH2F* obj2f;
   TH1F* obj1f;
   TH1D* obj1d;
+  TProfile* objp;
 
   // Loop on barrel supermodules
 
@@ -1357,21 +1358,21 @@ void EBTestPulseClient::htmlOutput(int run, string htmlDir, string htmlName){
 
       imgNameMEPn[iCanvas-1] = "";
 
-      obj1d = 0;
+      objp = 0;
       switch ( iCanvas ) {
         case 1:
-          if ( i01_[ism-1] ) obj1d = i01_[ism-1]->ProjectionX("_px", 1, 1, "e");
+          objp = i01_[ism-1];
           break;
         case 2:
-          if ( i02_[ism-1] ) obj1d = i02_[ism-1]->ProjectionX("_px", 1, 1, "e");
+          objp = i02_[ism-1];
           break;
         default:
           break;
       }
 
-      if ( obj1d ) {
+      if ( objp ) {
 
-        meName = obj1d->GetName();
+        meName = objp->GetName();
 
         for ( unsigned int i = 0; i < meName.size(); i++ ) {
           if ( meName.substr(i, 1) == " " )  {
@@ -1383,19 +1384,17 @@ void EBTestPulseClient::htmlOutput(int run, string htmlDir, string htmlName){
 
         cAmp->cd();
         gStyle->SetOptStat("euo");
-        obj1d->SetStats(kTRUE);
-//        if ( obj1d->GetMaximum(histMax) > 0. ) {
+        objp->SetStats(kTRUE);
+//        if ( objp->GetMaximum(histMax) > 0. ) {
 //          gPad->SetLogy(1);
 //        } else {
 //          gPad->SetLogy(0);
 //        }
-        obj1d->SetMinimum(0.0);
-        obj1d->Draw();
+        objp->SetMinimum(0.0);
+        objp->Draw();
         cAmp->Update();
         cAmp->SaveAs(imgName.c_str());
         gPad->SetLogy(0);
-
-        delete obj1d;
 
       }
 
@@ -1403,21 +1402,21 @@ void EBTestPulseClient::htmlOutput(int run, string htmlDir, string htmlName){
 
       imgNameMEPnPed[iCanvas-1] = "";
 
-      obj1d = 0;
+      objp = 0;
       switch ( iCanvas ) {
         case 1:
-          if ( i03_[ism-1] ) obj1d = i03_[ism-1]->ProjectionX("_px", 1, 1, "e");
+          objp = i03_[ism-1];
           break;
         case 2:
-          if ( i04_[ism-1] ) obj1d = i04_[ism-1]->ProjectionX("_px", 1, 1, "e");
+          objp = i04_[ism-1];
           break;
         default:
           break;
       }
 
-      if ( obj1d ) {
+      if ( objp ) {
 
-        meName = obj1d->GetName();
+        meName = objp->GetName();
 
         for ( unsigned int i = 0; i < meName.size(); i++ ) {
           if ( meName.substr(i, 1) == " " )  {
@@ -1429,22 +1428,19 @@ void EBTestPulseClient::htmlOutput(int run, string htmlDir, string htmlName){
 
         cPed->cd();
         gStyle->SetOptStat("euo");
-        obj1d->SetStats(kTRUE);
-//        if ( obj1d->GetMaximum(histMax) > 0. ) {
+        objp->SetStats(kTRUE);
+//        if ( objp->GetMaximum(histMax) > 0. ) {
 //          gPad->SetLogy(1);
 //        } else {
 //          gPad->SetLogy(0);
 //        }
-        obj1d->SetMinimum(0.0);
-        obj1d->Draw();
+        objp->SetMinimum(0.0);
+        objp->Draw();
         cPed->Update();
         cPed->SaveAs(imgName.c_str());
         gPad->SetLogy(0);
 
-        delete obj1d;
-
       }
-
 
       imgNameMEPnPedRms[iCanvas-1] = "";
 

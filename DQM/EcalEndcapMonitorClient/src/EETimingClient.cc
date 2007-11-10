@@ -1,8 +1,8 @@
 /*
  * \file EETimingClient.cc
  *
- * $Date: 2007/11/09 19:52:45 $
- * $Revision: 1.38 $
+ * $Date: 2007/11/10 08:09:08 $
+ * $Revision: 1.39 $
  * \author G. Della Ricca
  *
 */
@@ -259,7 +259,7 @@ bool EETimingClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunI
 
     UtilsClient::printBadChannels(meg01_[ism-1], h01_[ism-1]);
 
-    float num01; 
+    float num01;
     float mean01;
     float rms01;
 
@@ -286,7 +286,7 @@ bool EETimingClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunI
             cout << "crystal (" << ix << "," << iy << ") " << num01  << " " << mean01 << " " << rms01  << endl;
 
             cout << endl;
-    
+
           }
 
           t.setTimingMean(mean01);
@@ -318,7 +318,7 @@ bool EETimingClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunI
     try {
       cout << "Inserting MonTimingCrystalDat ... " << flush;
       if ( dataset.size() != 0 ) econn->insertDataArraySet(&dataset, moniov);
-      cout << "done." << endl; 
+      cout << "done." << endl;
     } catch (runtime_error &e) {
       cerr << e.what() << endl;
     }
@@ -488,7 +488,7 @@ void EETimingClient::analyze(void){
             int jy = iy + Numbers::iy0EE(ism);
 
             if ( ism >= 1 && ism <= 9 ) jx = 101 - jx;
- 
+
             if ( ! Numbers::validEE(ism, jx, jy) ) continue;
 
             int ic = Numbers::indexEE(ism, ix, iy);

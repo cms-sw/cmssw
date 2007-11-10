@@ -1,8 +1,8 @@
 /*
  * \file EEPedestalOnlineClient.cc
  *
- * $Date: 2007/11/09 14:02:33 $
- * $Revision: 1.36 $
+ * $Date: 2007/11/09 19:52:45 $
+ * $Revision: 1.37 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -466,7 +466,7 @@ void EEPedestalOnlineClient::analyze(void){
             int jy = iy + Numbers::iy0EE(ism);
 
             if ( ism >= 1 && ism <= 9 ) jx = 101 - jx;
- 
+
             if ( ! Numbers::validEE(ism, jx, jy) ) continue;
 
             int ic = Numbers::indexEE(ism, ix, iy);

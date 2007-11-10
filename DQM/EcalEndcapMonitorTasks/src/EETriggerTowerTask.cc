@@ -1,14 +1,13 @@
 /*
  * \file EETriggerTowerTask.cc
  *
- * $Date: 2007/10/26 08:44:56 $
- * $Revision: 1.13 $
+ * $Date: 2007/11/09 15:24:10 $
+ * $Revision: 1.14 $
  * \author C. Bernet
  * \author G. Della Ricca
  * \author E. Di Marco
  *
 */
-
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 

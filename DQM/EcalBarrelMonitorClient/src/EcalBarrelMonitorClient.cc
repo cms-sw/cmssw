@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  *
- * $Date: 2007/11/06 10:29:37 $
- * $Revision: 1.317 $
+ * $Date: 2007/11/08 15:43:51 $
+ * $Revision: 1.318 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -149,7 +149,7 @@ void EcalBarrelMonitorClient::initialize(const ParameterSet& ps){
     cout << " mergeRuns switch is ON" << endl;
   } else {
     cout << " mergeRuns switch is OFF" << endl;
-  } 
+  }
 
   // enableSubRunDb switch
 
@@ -302,7 +302,7 @@ void EcalBarrelMonitorClient::initialize(const ParameterSet& ps){
   enabledClients_.push_back("PedestalOnline");
 
   enabledClients_ = ps.getUntrackedParameter<vector<string> >("enabledClients", enabledClients_);
- 
+
   cout << " Enabled Clients:" << endl;
 
   for ( unsigned int i = 0; i < enabledClients_.size(); i++ ) {
@@ -1810,7 +1810,7 @@ void EcalBarrelMonitorClient::defaultWebPage(xgi::Input *in, xgi::Output *out){
        << std::endl;
   *out << cgicc::input().set("type","hidden").set("name","module").set("value", mname)
        << std::endl;
-  *out << cgicc::input().set("type","hidden").set("name","autorefresh").set("value", autorefresh_?"0":"1") 
+  *out << cgicc::input().set("type","hidden").set("name","autorefresh").set("value", autorefresh_?"0":"1")
        << std::endl;
   *out << cgicc::input().set("type","submit").set("value",autorefresh_?"Toggle AutoRefresh OFF":"Toggle AutoRefresh ON")
        << std::endl;
@@ -1820,20 +1820,20 @@ void EcalBarrelMonitorClient::defaultWebPage(xgi::Input *in, xgi::Output *out){
 
   *out << "<table style=\"font-family: arial\"><tr><td>" << endl;
 
-  *out << "<p style=\"font-family: arial\">" 
-       << "<table border=1>" 
+  *out << "<p style=\"font-family: arial\">"
+       << "<table border=1>"
        << "<tr><th>Cycle</th><td align=right>" << this->getEvtPerJob();
   int nevt = 0;
   if ( this->getEntryHisto() != 0 ) nevt = int( this->getEntryHisto()->GetEntries());
   *out << "<tr><th>Event</th><td align=right>" << nevt
-       << "</td><tr><th>Run</th><td align=right>" << this->getRun() 
-       << "</td><tr><th>Run Type</th><td align=right> " << this->getRunType() 
+       << "</td><tr><th>Run</th><td align=right>" << this->getRun()
+       << "</td><tr><th>Run Type</th><td align=right> " << this->getRunType()
        << "</td></table></p>" << endl;
 
   *out << "</td><td>" << endl;
 
-  *out << "<p style=\"font-family: arial\">" 
-       << "<table border=1>" 
+  *out << "<p style=\"font-family: arial\">"
+       << "<table border=1>"
        << "<tr><th>Evt Type</th><th>Evt/Run</th><th>Evt Type</th><th>Evt/Run</th>" << endl;
   vector<string> runTypes = this->getRunTypes();
   for( unsigned int i=0, j=0; i<runTypes.size(); i++ ) {
@@ -1841,7 +1841,7 @@ void EcalBarrelMonitorClient::defaultWebPage(xgi::Input *in, xgi::Output *out){
       if ( j++%2 == 0 ) *out << "<tr>";
       nevt = 0;
       if ( this->getEntryHisto() != 0 ) nevt = int( this->getEntryHisto()->GetBinContent(i+1));
-      *out << "<td>" << runTypes[i] 
+      *out << "<td>" << runTypes[i]
            << "</td><td align=right>" << nevt << endl;
     }
   }
@@ -1849,15 +1849,15 @@ void EcalBarrelMonitorClient::defaultWebPage(xgi::Input *in, xgi::Output *out){
 
   *out << "</td><tr><td colspan=2>" << endl;
 
-  *out << "<p style=\"font-family: arial\">" 
-       << "<table border=1>" 
+  *out << "<p style=\"font-family: arial\">"
+       << "<table border=1>"
        << "<tr><th>Client</th><th>Cyc/Job</th><th>Cyc/Run</th><th>Client</th><th>Cyc/Job</th><th>Cyc/Run</th>" << endl;
   const vector<EBClient*> clients = this->getClients();
   const vector<string> clientNames = this->getClientNames();
   for( unsigned int i=0; i<clients.size(); i++ ) {
     if ( clients[i] != 0 ) {
       if ( i%2 == 0 ) *out << "<tr>";
-      *out << "<td>" << clientNames[i] 
+      *out << "<td>" << clientNames[i]
            << "</td><td align=right>" << clients[i]->getEvtPerJob()
            << "</td><td align=right>" << clients[i]->getEvtPerRun() << endl;
     }
@@ -1867,7 +1867,7 @@ void EcalBarrelMonitorClient::defaultWebPage(xgi::Input *in, xgi::Output *out){
   *out << "</td><tr><td>" << endl;
 
 
-  *out << "<p style=\"font-family: arial\">" 
+  *out << "<p style=\"font-family: arial\">"
        << "<table border=1>"
        << "<tr><th colspan=2>RunIOV</th>"
        << "<tr><td>Run Number</td><td align=right> " << this->getRunIOV().getRunNumber()
@@ -1877,8 +1877,8 @@ void EcalBarrelMonitorClient::defaultWebPage(xgi::Input *in, xgi::Output *out){
 
   *out << "</td><td colsapn=2>" << endl;
 
-  *out << "<p style=\"font-family: arial\">" 
-       << "<table border=1>" 
+  *out << "<p style=\"font-family: arial\">"
+       << "<table border=1>"
        << "<tr><th colspan=2>RunTag</th>"
        << "<tr><td>GeneralTag</td><td align=right> " << this->getRunIOV().getRunTag().getGeneralTag()
        << "</td><tr><td>Location</td><td align=right> " << this->getRunIOV().getRunTag().getLocationDef().getLocation()
@@ -1887,8 +1887,8 @@ void EcalBarrelMonitorClient::defaultWebPage(xgi::Input *in, xgi::Output *out){
 
   *out << "</td><tr><td>" << endl;
 
-  *out << "<p style=\"font-family: arial\">" 
-       << "<table border=1>" 
+  *out << "<p style=\"font-family: arial\">"
+       << "<table border=1>"
        << "<tr><th colspan=2>MonRunIOV</th>"
        << "<tr><td>SubRun Number</td><td align=right> " << this->getMonIOV().getSubRunNumber()
        << "</td><tr><td>SubRun Start</td><td align=right> " << this->getMonIOV().getSubRunStart().str()
@@ -1897,8 +1897,8 @@ void EcalBarrelMonitorClient::defaultWebPage(xgi::Input *in, xgi::Output *out){
 
   *out << "</td><td colspan=2>" << endl;
 
-  *out << "<p style=\"font-family: arial\">" 
-       << "<table border=1>" 
+  *out << "<p style=\"font-family: arial\">"
+       << "<table border=1>"
        << "<tr><th colspan=2>MonRunTag</th>"
        << "<tr><td>GeneralTag</td><td align=right> " << this->getMonIOV().getMonRunTag().getGeneralTag()
        << "</td><tr><td>Monitoring Version</td><td align=right> " << this->getMonIOV().getMonRunTag().getMonVersionDef().getMonitoringVersion()

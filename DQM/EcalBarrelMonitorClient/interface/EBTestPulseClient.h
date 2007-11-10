@@ -4,8 +4,8 @@
 /*
  * \file EBTestPulseClient.h
  *
- * $Date: 2007/09/07 22:30:03 $
- * $Revision: 1.54 $
+ * $Date: 2007/11/08 15:43:50 $
+ * $Revision: 1.55 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -122,10 +122,10 @@ MonitorElement* mea03_[36];
 MonitorElement* mer04_[36];
 MonitorElement* mer05_[36];
 
-TProfile2D* i01_[36];
-TProfile2D* i02_[36];
-TProfile2D* i03_[36];
-TProfile2D* i04_[36];
+TProfile* i01_[36];
+TProfile* i02_[36];
+TProfile* i03_[36];
+TProfile* i04_[36];
 
 // Quality check on crystals
 

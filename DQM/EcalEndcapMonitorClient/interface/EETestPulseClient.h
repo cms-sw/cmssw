@@ -4,8 +4,8 @@
 /*
  * \file EETestPulseClient.h
  *
- * $Date: 2007/09/07 22:30:06 $
- * $Revision: 1.8 $
+ * $Date: 2007/11/08 15:43:52 $
+ * $Revision: 1.9 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -122,10 +122,10 @@ MonitorElement* mea03_[18];
 MonitorElement* mer04_[18];
 MonitorElement* mer05_[18];
 
-TProfile2D* i01_[18];
-TProfile2D* i02_[18];
-TProfile2D* i03_[18];
-TProfile2D* i04_[18];
+TProfile* i01_[18];
+TProfile* i02_[18];
+TProfile* i03_[18];
+TProfile* i04_[18];
 
 // Quality check on crystals
 

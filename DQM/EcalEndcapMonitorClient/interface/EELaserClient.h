@@ -4,8 +4,8 @@
 /*
  * \file EELaserClient.h
  *
- * $Date: 2007/09/07 22:30:06 $
- * $Revision: 1.6 $
+ * $Date: 2007/11/08 15:43:52 $
+ * $Revision: 1.7 $
  * \author G. Della Ricca
  *
 */
@@ -203,22 +203,22 @@ MonitorElement* mepnprms06_[18];
 MonitorElement* mepnprms07_[18];
 MonitorElement* mepnprms08_[18];
 
-TProfile2D* i01_[18];
-TProfile2D* i02_[18];
-TProfile2D* i03_[18];
-TProfile2D* i04_[18];
-TProfile2D* i05_[18];
-TProfile2D* i06_[18];
-TProfile2D* i07_[18];
-TProfile2D* i08_[18];
-TProfile2D* i09_[18];
-TProfile2D* i10_[18];
-TProfile2D* i11_[18];
-TProfile2D* i12_[18];
-TProfile2D* i13_[18];
-TProfile2D* i14_[18];
-TProfile2D* i15_[18];
-TProfile2D* i16_[18];
+TProfile* i01_[18];
+TProfile* i02_[18];
+TProfile* i03_[18];
+TProfile* i04_[18];
+TProfile* i05_[18];
+TProfile* i06_[18];
+TProfile* i07_[18];
+TProfile* i08_[18];
+TProfile* i09_[18];
+TProfile* i10_[18];
+TProfile* i11_[18];
+TProfile* i12_[18];
+TProfile* i13_[18];
+TProfile* i14_[18];
+TProfile* i15_[18];
+TProfile* i16_[18];
 
 // Quality check on crystals
 

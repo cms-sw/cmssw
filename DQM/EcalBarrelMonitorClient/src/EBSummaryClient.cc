@@ -1,8 +1,8 @@
 /*
  * \file EBSummaryClient.cc
  *
- * $Date: 2007/11/08 15:43:51 $
- * $Revision: 1.83 $
+ * $Date: 2007/11/09 09:34:04 $
+ * $Revision: 1.84 $
  * \author G. Della Ricca
  *
 */
@@ -124,7 +124,7 @@ void EBSummaryClient::endRun(void) {
   if ( verbose_ ) cout << "EBSummaryClient: endRun, jevt = " << jevt_ << endl;
 
   this->unsubscribe();
-  
+
   this->cleanup();
 
 }
@@ -326,7 +326,7 @@ void EBSummaryClient::analyze(void){
 
   for ( int iex = 1; iex <= 20; iex++ ) {
     for ( int ipx = 1; ipx <= 90; ipx++ ) {
-      
+
       meLaserL1PN_->setBinContent( ipx, iex, -1. );
       mePedestalPN_->setBinContent( ipx, iex, -1. );
       meTestPulsePN_->setBinContent( ipx, iex, -1. );
@@ -339,7 +339,7 @@ void EBSummaryClient::analyze(void){
       for ( int en = 1; en <= 256; en++ ) {
         meTriggerTowerEt_->setBinContent( ipx, iex, en, 0. );
       }
-      meTriggerTowerEmulError_->setBinContent( ipx, iex, -1. ); 
+      meTriggerTowerEmulError_->setBinContent( ipx, iex, -1. );
     }
   }
 
@@ -389,7 +389,7 @@ void EBSummaryClient::analyze(void){
     priority.insert( make_pair(3,2) );
     priority.insert( make_pair(4,3) );
     priority.insert( make_pair(5,1) );
-          
+
     for ( unsigned int i=0; i<superModules_.size(); i++ ) {
 
       int ism = superModules_[i];
@@ -496,11 +496,11 @@ void EBSummaryClient::analyze(void){
           }
 
           if ( ebpc ) {
-            
+
             me_01 = ebpc->meg01_[ism-1];
             me_02 = ebpc->meg02_[ism-1];
             me_03 = ebpc->meg03_[ism-1];
-            
+
             if (me_01 && me_02 && me_03 ) {
               float xval=2;
               float val_01=me_01->getBinContent(ie,ip);
@@ -511,7 +511,7 @@ void EBSummaryClient::analyze(void){
               (val_01>2) ? maskedVal.push_back(val_01) : unmaskedVal.push_back(val_01);
               (val_02>2) ? maskedVal.push_back(val_02) : unmaskedVal.push_back(val_02);
               (val_03>2) ? maskedVal.push_back(val_03) : unmaskedVal.push_back(val_03);
-              
+
               float brightColor=-1, darkColor=-1;
               float maxPriority=-1;
               std::vector<float>::const_iterator Val;
@@ -531,7 +531,7 @@ void EBSummaryClient::analyze(void){
 
               int iex;
               int ipx;
-              
+
               if ( ism <= 18 ) {
                 iex = 1+(85-ie);
                 ipx = ip+20*(ism-1);
@@ -549,11 +549,11 @@ void EBSummaryClient::analyze(void){
           }
 
           if ( ebtpc ) {
-            
+
             me_01 = ebtpc->meg01_[ism-1];
             me_02 = ebtpc->meg02_[ism-1];
             me_03 = ebtpc->meg03_[ism-1];
-            
+
             if (me_01 && me_02 && me_03 ) {
               float xval=2;
               float val_01=me_01->getBinContent(ie,ip);
@@ -581,10 +581,10 @@ void EBSummaryClient::analyze(void){
                 if(brightColor==1 && darkColor==5) xval = 5;
                 else xval = brightColor;
               }
-              
+
               int iex;
               int ipx;
-              
+
               if ( ism <= 18 ) {
                 iex = 1+(85-ie);
                 ipx = ip+20*(ism-1);
@@ -598,7 +598,7 @@ void EBSummaryClient::analyze(void){
               }
 
             }
-            
+
           }
 
           if ( ebcc ) {
@@ -656,9 +656,9 @@ void EBSummaryClient::analyze(void){
 
       for (int ie = 1; ie <= 17; ie++ ) {
         for (int ip = 1; ip <= 4; ip++ ) {
-          
+
           if ( ebtttc ) {
-              
+
             h3 = ebtttc->h01_[ism-1];
 
             bool hasRealDigi = false;
@@ -666,14 +666,14 @@ void EBSummaryClient::analyze(void){
             if ( h3 ) {
 
               for ( int en = 1; en <= 256; en++ ) {
-                
+
                 float xval = h3->GetBinContent( ie, ip, en );
-                
-                if(xval!=0) hasRealDigi = true; 
-                
+
+                if(xval!=0) hasRealDigi = true;
+
                 int iex;
                 int ipx;
-                
+
                 if ( ism <= 18 ) {
                   iex = 1+(17-ie);
                   ipx = ip+4*(ism-1);
@@ -681,7 +681,7 @@ void EBSummaryClient::analyze(void){
                   iex = 17+ie;
                   ipx = 1+(4-ip)+4*(ism-19);
                 }
-                
+
                 meTriggerTowerEt_->setBinContent( ipx, iex, en, xval );
 
               }
@@ -702,7 +702,7 @@ void EBSummaryClient::analyze(void){
               int ipx;
 
               if ( ism <= 18 ) {
-                iex = 1+(17-ie);   
+                iex = 1+(17-ie);
                 ipx = ip+4*(ism-1);
               } else {
                 iex = 17+ie;
@@ -714,30 +714,30 @@ void EBSummaryClient::analyze(void){
             }
 
           }
-        } 
+        }
       }
 
       // PN's summaries
       for( int i = 1; i <= 10; i++ ) {
-        for( int j = 1; j <= 5; j++ ) { 
+        for( int j = 1; j <= 5; j++ ) {
 
           if ( ebpc ) {
 
             me_04 = ebpc->meg04_[ism-1];
             me_05 = ebpc->meg05_[ism-1];
-            
+
             if( me_04 && me_05) {
               float xval=2;
               float val_04=me_04->getBinContent(i,1);
               float val_05=me_05->getBinContent(i,1);
-              
+
               std::vector<float> maskedVal, unmaskedVal;
               (val_04>2) ? maskedVal.push_back(val_04) : unmaskedVal.push_back(val_04);
               (val_05>2) ? maskedVal.push_back(val_05) : unmaskedVal.push_back(val_05);
-              
+
               float brightColor=-1, darkColor=-1;
               float maxPriority=-1;
-              
+
               std::vector<float>::const_iterator Val;
               for(Val=unmaskedVal.begin(); Val<unmaskedVal.end(); Val++) {
                 if(priority[*Val]>maxPriority) brightColor=*Val;
@@ -752,10 +752,10 @@ void EBSummaryClient::analyze(void){
                 if(brightColor==1 && darkColor==5) xval = 5;
                 else xval = brightColor;
               }
-              
+
               int iex;
               int ipx;
-              
+
               if(ism<=18) {
                 iex = i;
                 ipx = j+5*(ism-1);
@@ -777,19 +777,19 @@ void EBSummaryClient::analyze(void){
 
             me_04 = ebtpc->meg04_[ism-1];
             me_05 = ebtpc->meg05_[ism-1];
-            
+
             if( me_04 && me_05) {
               float xval=2;
               float val_04=me_04->getBinContent(i,1);
               float val_05=me_05->getBinContent(i,1);
-              
+
               std::vector<float> maskedVal, unmaskedVal;
               (val_04>2) ? maskedVal.push_back(val_04) : unmaskedVal.push_back(val_04);
               (val_05>2) ? maskedVal.push_back(val_05) : unmaskedVal.push_back(val_05);
-              
+
               float brightColor=-1, darkColor=-1;
               float maxPriority=-1;
-              
+
               std::vector<float>::const_iterator Val;
               for(Val=unmaskedVal.begin(); Val<unmaskedVal.end(); Val++) {
                 if(priority[*Val]>maxPriority) brightColor=*Val;
@@ -804,10 +804,10 @@ void EBSummaryClient::analyze(void){
                 if(brightColor==1 && darkColor==5) xval = 5;
                 else xval = brightColor;
               }
-              
+
               int iex;
               int ipx;
-              
+
               if(ism<=18) {
                 iex = i;
                 ipx = j+5*(ism-1);
@@ -831,10 +831,10 @@ void EBSummaryClient::analyze(void){
             if( me ) {
 
               float xval = me->getBinContent(i,1);
-              
+
               int iex;
               int ipx;
-              
+
               if(ism<=18) {
                 iex = i;
                 ipx = j+5*(ism-1);
@@ -851,7 +851,7 @@ void EBSummaryClient::analyze(void){
             }
 
           }
-          
+
         }
       }
 
@@ -1349,14 +1349,14 @@ void EBSummaryClient::htmlOutput(int run, string htmlDir, string htmlName){
 
   obj2f = 0;
   obj2f = UtilsClient::getHisto<TH2F*>( meTiming_ );
-  
+
   if ( obj2f && obj2f->GetEntries() != 0 ) {
-  
+
     meName = obj2f->GetName();
 
     for ( unsigned int i = 0; i < meName.size(); i++ ) {
       if ( meName.substr(i, 1) == " " )  {
-        meName.replace(i, 1 ,"_" ); 
+        meName.replace(i, 1 ,"_" );
       }
     }
     imgNameMapTM = meName + ".png";
@@ -1384,14 +1384,14 @@ void EBSummaryClient::htmlOutput(int run, string htmlDir, string htmlName){
 
   obj2f = 0;
   obj2f = UtilsClient::getHisto<TH2F*>( meTriggerTowerEmulError_ );
-  
+
   if ( obj2f && obj2f->GetEntries() != 0 ) {
-  
+
     meName = obj2f->GetName();
 
     for ( unsigned int i = 0; i < meName.size(); i++ ) {
       if ( meName.substr(i, 1) == " " )  {
-        meName.replace(i, 1 ,"_" ); 
+        meName.replace(i, 1 ,"_" );
       }
     }
     imgNameMapTTEmulError = meName + ".png";
@@ -1421,12 +1421,12 @@ void EBSummaryClient::htmlOutput(int run, string htmlDir, string htmlName){
   obj3f = UtilsClient::getHisto<TH3F*>( meTriggerTowerEt_ );
 
   if ( obj3f && obj3f->GetEntries() != 0 ) {
-  
+
     meName = obj3f->GetName();
 
     for ( unsigned int i = 0; i < meName.size(); i++ ) {
       if ( meName.substr(i, 1) == " " )  {
-        meName.replace(i, 1 ,"_" ); 
+        meName.replace(i, 1 ,"_" );
       }
     }
     imgNameMapTTEt = meName + ".png";
@@ -1450,7 +1450,7 @@ void EBSummaryClient::htmlOutput(int run, string htmlDir, string htmlName){
     obj2f->SetMinimum(0.0);
     obj2p->GetXaxis()->SetLabelSize(0.03);
     obj2p->GetYaxis()->SetLabelSize(0.03);
-    obj2p->GetZaxis()->SetLabelSize(0.03); 
+    obj2p->GetZaxis()->SetLabelSize(0.03);
     obj2p->Draw("colz");
     labelGridTT.Draw("text,same");
     cMap->Update();

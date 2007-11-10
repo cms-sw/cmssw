@@ -1,14 +1,13 @@
 /*
  * \file EBTriggerTowerTask.cc
  *
- * $Date: 2007/11/07 07:08:00 $
- * $Revision: 1.48 $
+ * $Date: 2007/11/09 15:24:06 $
+ * $Revision: 1.49 $
  * \author C. Bernet
  * \author G. Della Ricca
  * \author E. Di Marco
  *
 */
-
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 

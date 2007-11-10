@@ -1,8 +1,8 @@
 /*
  * \file EEPedestalClient.cc
  *
- * $Date: 2007/11/09 14:02:33 $
- * $Revision: 1.38 $
+ * $Date: 2007/11/09 19:52:45 $
+ * $Revision: 1.39 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -126,16 +126,16 @@ EEPedestalClient::EEPedestalClient(const ParameterSet& ps){
   RMSThreshold_[0] = 1.0;
   RMSThreshold_[1] = 1.5;
   RMSThreshold_[2] = 2.5;
-  
+
   expectedMeanPn_[0] = 750.0;
   expectedMeanPn_[1] = 750.0;
-  
+
   discrepancyMeanPn_[0] = 100.0;
   discrepancyMeanPn_[1] = 100.0;
-  
+
   RMSThresholdPn_[0] = 1.0;
   RMSThresholdPn_[1] = 3.0;
-  
+
 }
 
 EEPedestalClient::~EEPedestalClient(){
@@ -248,7 +248,7 @@ void EEPedestalClient::setup(void) {
     sprintf(histo, "EEPT pedestal rms G12 %s", Numbers::sEE(ism).c_str());
     mer03_[ism-1] = dbe_->book1D(histo, histo, 100, 0., 10.);
     mer03_[ism-1]->setAxisTitle("rms", 1);
-    
+
     if ( mer04_[ism-1] ) dbe_->removeElement( mer04_[ism-1]->getName() );
     sprintf(histo, "EEPDT PNs pedestal rms %s G01", Numbers::sEE(ism).c_str());
     mer04_[ism-1] = dbe_->book1D(histo, histo, 100, 0., 10.);
@@ -335,10 +335,10 @@ void EEPedestalClient::setup(void) {
     mer01_[ism-1]->Reset();
     mer02_[ism-1]->Reset();
     mer03_[ism-1]->Reset();
-    
+
     mer04_[ism-1]->Reset();
     mer05_[ism-1]->Reset();
-    
+
     mes01_[ism-1]->Reset();
     mes02_[ism-1]->Reset();
     mes03_[ism-1]->Reset();
@@ -436,12 +436,12 @@ void EEPedestalClient::cleanup(void) {
     mer02_[ism-1] = 0;
     if ( mer03_[ism-1] ) dbe_->removeElement( mer03_[ism-1]->getName() );
     mer03_[ism-1] = 0;
-    
+
     if ( mer04_[ism-1] ) dbe_->removeElement( mer04_[ism-1]->getName() );
     mer04_[ism-1] = 0;
     if ( mer05_[ism-1] ) dbe_->removeElement( mer05_[ism-1]->getName() );
     mer05_[ism-1] = 0;
-    
+
     if ( mes01_[ism-1] ) dbe_->removeElement( mes01_[ism-1]->getName() );
     mes01_[ism-1] = 0;
     if ( mes02_[ism-1] ) dbe_->removeElement( mes02_[ism-1]->getName() );
@@ -471,7 +471,7 @@ bool EEPedestalClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRu
 
   for ( unsigned int i=0; i<superModules_.size(); i++ ) {
 
-    int ism = superModules_[i]; 
+    int ism = superModules_[i];
 
     cout << " SM=" << ism << endl;
     cout << endl;
@@ -591,8 +591,8 @@ bool EEPedestalClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRu
       float mean01, mean02;
       float rms01, rms02;
 
-      update01 = UtilsClient::getBinStats(i01_[ism-1], i, 1, num01, mean01, rms01);
-      update02 = UtilsClient::getBinStats(i02_[ism-1], i, 1, num02, mean02, rms02);
+      update01 = UtilsClient::getBinStats(i01_[ism-1], i, 0, num01, mean01, rms01);
+      update02 = UtilsClient::getBinStats(i02_[ism-1], i, 0, num02, mean02, rms02);
 
       if ( update01 || update02 ) {
 
@@ -852,11 +852,11 @@ void EEPedestalClient::analyze(void){
 
     sprintf(histo, (prefixME_+"EcalEndcap/EEPedestalTask/PN/Gain01/EEPDT PNs pedestal %s G01").c_str(), Numbers::sEE(ism).c_str());
     me = dbe_->get(histo);
-    i01_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, i01_[ism-1] );
+    i01_[ism-1] = UtilsClient::getHisto<TProfile*>( me, cloneME_, i01_[ism-1] );
 
     sprintf(histo, (prefixME_+"EcalEndcap/EEPedestalTask/PN/Gain16/EEPDT PNs pedestal %s G16").c_str(), Numbers::sEE(ism).c_str());
     me = dbe_->get(histo);
-    i02_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, i02_[ism-1] );
+    i02_[ism-1] = UtilsClient::getHisto<TProfile*>( me, cloneME_, i02_[ism-1] );
 
     meg01_[ism-1]->Reset();
     meg02_[ism-1]->Reset();
@@ -875,7 +875,7 @@ void EEPedestalClient::analyze(void){
 
     mer04_[ism-1]->Reset();
     mer05_[ism-1]->Reset();
-    
+
     mes01_[ism-1]->Reset();
     mes02_[ism-1]->Reset();
     mes03_[ism-1]->Reset();
@@ -972,7 +972,7 @@ void EEPedestalClient::analyze(void){
             int jy = iy + Numbers::iy0EE(ism);
 
             if ( ism >= 1 && ism <= 9 ) jx = 101 - jx;
- 
+
             if ( ! Numbers::validEE(ism, jx, jy) ) continue;
 
             int ic = Numbers::indexEE(ism, ix, iy);
@@ -1022,13 +1022,13 @@ void EEPedestalClient::analyze(void){
       float mean01, mean02;
       float rms01, rms02;
 
-      update01 = UtilsClient::getBinStats(i01_[ism-1], i, 1, num01, mean01, rms01);
-      update02 = UtilsClient::getBinStats(i02_[ism-1], i, 1, num02, mean02, rms02);
+      update01 = UtilsClient::getBinStats(i01_[ism-1], i, 0, num01, mean01, rms01);
+      update02 = UtilsClient::getBinStats(i02_[ism-1], i, 0, num02, mean02, rms02);
 
       // filling projections
       if ( mer04_[ism-1] )  mer04_[ism-1]->Fill(rms01);
       if ( mer05_[ism-1] )  mer05_[ism-1]->Fill(rms02);
-      
+
       if ( update01 ) {
 
         float val;
@@ -1314,7 +1314,7 @@ void EEPedestalClient::htmlOutput(int run, string htmlDir, string htmlName){
   dummy1.SetMinimum(0.1);
 
   string imgNameQual[3], imgNameMean[3], imgNameRMS[3], imgName3Sum[3], imgName5Sum[3], imgNameMEPnQual[2], imgNameMEPnPed[2],imgNameMEPnPedRms[2], imgName, meName;
-  
+
   TCanvas* cQual = new TCanvas("cQual", "Temp", 2*csize, 2*csize);
   TCanvas* cQualPN = new TCanvas("cQualPN", "Temp", 2*csize, csize);
   TCanvas* cMean = new TCanvas("cMean", "Temp", csize, csize);
@@ -1325,7 +1325,7 @@ void EEPedestalClient::htmlOutput(int run, string htmlDir, string htmlName){
 
   TH2F* obj2f;
   TH1F* obj1f;
-  TH1D* obj1d;
+  TProfile* objp;
 
   // Loop on barrel supermodules
 
@@ -1672,21 +1672,21 @@ void EEPedestalClient::htmlOutput(int run, string htmlDir, string htmlName){
 
       imgNameMEPnPed[iCanvas-1] = "";
 
-      obj1d = 0;
+      objp = 0;
       switch ( iCanvas ) {
         case 1:
-          if ( i01_[ism-1] ) obj1d = i01_[ism-1]->ProjectionX("_px", 1, 1, "e");
+          objp = i01_[ism-1];
           break;
         case 2:
-          if ( i02_[ism-1] ) obj1d = i02_[ism-1]->ProjectionX("_px", 1, 1, "e");
+          objp = i02_[ism-1];
           break;
         default:
           break;
       }
 
-      if ( obj1d ) {
+      if ( objp ) {
 
-        meName = obj1d->GetName();
+        meName = objp->GetName();
 
         for ( unsigned int i = 0; i < meName.size(); i++ ) {
           if ( meName.substr(i, 1) == " " )  {
@@ -1698,24 +1698,22 @@ void EEPedestalClient::htmlOutput(int run, string htmlDir, string htmlName){
 
         cPed->cd();
         gStyle->SetOptStat("euo");
-        obj1d->SetStats(kTRUE);
-//        if ( obj1d->GetMaximum(histMax) > 0. ) {
+        objp->SetStats(kTRUE);
+//        if ( objp->GetMaximum(histMax) > 0. ) {
 //          gPad->SetLogy(1);
 //        } else {
 //          gPad->SetLogy(0);
 //        }
-        obj1d->SetMinimum(0.0);
-        obj1d->Draw();
+        objp->SetMinimum(0.0);
+        objp->Draw();
         cPed->Update();
         cPed->SaveAs(imgName.c_str());
         gPad->SetLogy(0);
 
-        delete obj1d;
-
       }
-      
+
       imgNameMEPnPedRms[iCanvas-1] = "";
-      
+
       obj1f = 0;
       switch ( iCanvas ) {
       case 1:
@@ -1727,11 +1725,11 @@ void EEPedestalClient::htmlOutput(int run, string htmlDir, string htmlName){
       default:
         break;
       }
-      
+
       if ( obj1f ) {
-          
+
         meName = obj1f->GetName();
-          
+
         for ( unsigned int i = 0; i < meName.size(); i++ ) {
           if ( meName.substr(i, 1) == " " )  {
             meName.replace(i, 1 ,"_" );
@@ -1739,7 +1737,7 @@ void EEPedestalClient::htmlOutput(int run, string htmlDir, string htmlName){
         }
         imgNameMEPnPedRms[iCanvas-1] = meName + ".png";
         imgName = htmlDir + imgNameMEPnPedRms[iCanvas-1];
-          
+
         cPed->cd();
         gStyle->SetOptStat("euomr");
         obj1f->SetStats(kTRUE);
@@ -1753,9 +1751,9 @@ void EEPedestalClient::htmlOutput(int run, string htmlDir, string htmlName){
         cPed->SaveAs(imgName.c_str());
         gPad->SetLogy(0);
       }
-      
+
     }
-    
+
     if( i>0 ) htmlFile << "<a href=""#top"">Top</a>" << std::endl;
     htmlFile << "<hr>" << std::endl;
     htmlFile << "<h3><a name="""
@@ -1856,36 +1854,36 @@ void EEPedestalClient::htmlOutput(int run, string htmlDir, string htmlName){
     htmlFile << "<tr align=\"center\">" << endl;
 
     for ( int iCanvas = 1 ; iCanvas <= 2 ; iCanvas++ ) {
-      
+
       if ( imgNameMEPnPed[iCanvas-1].size() != 0 ){
         htmlFile << "<td colspan=\"2\"><img src=\"" << imgNameMEPnPed[iCanvas-1] << "\"></td>" << endl;
-        
+
         if ( imgNameMEPnPedRms[iCanvas-1].size() != 0 )
           htmlFile << "<td colspan=\"2\"><img src=\"" << imgNameMEPnPedRms[iCanvas-1] << "\"></td>" << endl;
         else
           htmlFile << "<td colspan=\"2\"><img src=\"" << " " << "\"></td>" << endl;
-        
+
       }
-      
+
       else{
         htmlFile << "<td colspan=\"2\"><img src=\"" << " " << "\"></td>" << endl;
-        
+
         if ( imgNameMEPnPedRms[iCanvas-1].size() != 0 )
           htmlFile << "<td colspan=\"2\"><img src=\"" << imgNameMEPnPedRms[iCanvas-1] << "\"></td>" << endl;
         else
           htmlFile << "<td colspan=\"2\"><img src=\"" << " " << "\"></td>" << endl;
       }
-      
-    }  
-    
+
+    }
+
     htmlFile << "</tr>" << endl;
-    
+
     htmlFile << "<tr align=\"right\"><td colspan=\"2\">Gain 1</td>  <td colspan=\"2\"> </td> <td colspan=\"2\">Gain 16</td></tr>" << endl;
     htmlFile << "</table>" << endl;
     htmlFile << "<br>" << endl;
-    
+
    }
-  
+
   delete cQual;
   delete cQualPN;
   delete cMean;

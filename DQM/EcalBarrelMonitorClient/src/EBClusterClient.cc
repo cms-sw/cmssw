@@ -1,8 +1,8 @@
 /*
  * \file EBClusterClient.cc
  *
- * $Date: 2007/11/08 15:43:50 $
- * $Revision: 1.40 $
+ * $Date: 2007/11/10 10:55:43 $
+ * $Revision: 1.41 $
  * \author G. Della Ricca
  * \author F. Cossutti
  * \author E. Di Marco
@@ -64,7 +64,7 @@ EBClusterClient::EBClusterClient(const ParameterSet& ps){
 
   h02_[0] = 0;
   h02ProjEta_[0] = 0;
-  h02ProjPhi_[0] = 0;    
+  h02ProjPhi_[0] = 0;
   h02_[1] = 0;
   h02ProjEta_[1] = 0;
   h02ProjPhi_[1] = 0;
@@ -862,7 +862,7 @@ void EBClusterClient::htmlOutput(int run, string htmlDir, string htmlName){
   htmlFile << "<br>" << endl;
 
   //   // super clusters
-  // 
+  //
   for ( int iCanvas = 1; iCanvas <= 3; iCanvas++ ) {
 
     imgNameS[iCanvas-1] = "";

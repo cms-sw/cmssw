@@ -2,8 +2,8 @@
 /*
  * \file EEIntegrityClient.cc
  *
- * $Date: 2007/11/08 15:43:53 $
- * $Revision: 1.37 $
+ * $Date: 2007/11/09 14:02:31 $
+ * $Revision: 1.38 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -305,7 +305,7 @@ bool EEIntegrityClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
     UtilsClient::printBadChannels(meg01_[ism-1], h04_[ism-1], true);
     UtilsClient::printBadChannels(meg01_[ism-1], h05_[ism-1], true);
     UtilsClient::printBadChannels(meg01_[ism-1], h06_[ism-1], true);
-    
+
     UtilsClient::printBadChannels(meg02_[ism-1], h07_[ism-1], true);
     UtilsClient::printBadChannels(meg02_[ism-1], h08_[ism-1], true);
     UtilsClient::printBadChannels(meg02_[ism-1], h09_[ism-1], true);
@@ -443,7 +443,7 @@ bool EEIntegrityClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
             for ( int iy = 1 + 5*(iyt-1); iy <= 5*iyt; iy++ ) {
               num05  = h05_[ism-1]->GetBinContent(ix, iy);
               if ( num05 > 0 ) update1 = true;
-            } 
+            }
           }
         }
 
@@ -452,7 +452,7 @@ bool EEIntegrityClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
             for ( int iy = 1 + 5*(iyt-1); iy <= 5*iyt; iy++ ) {
               num06  = h06_[ism-1]->GetBinContent(ix, iy);
               if ( num06 > 0 ) update1 = true;
-            } 
+            }
           }
         }
 
@@ -1024,7 +1024,7 @@ void EEIntegrityClient::analyze(void){
             int jy = iy + Numbers::iy0EE(ism);
 
             if ( ism >= 1 && ism <= 9 ) jx = 101 - jx;
- 
+
             if ( ! Numbers::validEE(ism, jx, jy) ) continue;
 
             int ic = Numbers::indexEE(ism, ix, iy);

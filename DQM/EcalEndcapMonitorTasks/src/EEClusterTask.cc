@@ -1,8 +1,8 @@
 /*
  * \file EEClusterTask.cc
  *
- * $Date: 2007/11/09 19:20:01 $
- * $Revision: 1.21 $
+ * $Date: 2007/11/10 12:43:06 $
+ * $Revision: 1.22 $
  * \author G. Della Ricca
  * \author E. Di Marco
  *
@@ -490,7 +490,7 @@ void EEClusterTask::analyze(const Event& e, const EventSetup& c){
     SuperClusterCollection::const_iterator sCluster;
     for ( sCluster = pIslandEndcapSuperClusters->begin(); sCluster != pIslandEndcapSuperClusters->end(); sCluster++ ) {
 
-      // energy, size 
+      // energy, size
       meSCEne_->Fill(sCluster->energy());
       meSCSiz_->Fill(float(sCluster->clustersSize()));
 
@@ -509,7 +509,7 @@ void EEClusterTask::analyze(const Event& e, const EventSetup& c){
 	sc2_p.SetPtEtaPhiE(sCluster->energy()*sin(sCluster->position().theta()),
 			   sCluster->eta(), sCluster->phi(), sCluster->energy());
       }
-      
+
     }
     // Get the invariant mass of the two most energetic super clusters
     if (nscc>1) {

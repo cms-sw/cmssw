@@ -4,8 +4,8 @@
 /*
  * \file EBLaserClient.h
  *
- * $Date: 2007/09/07 22:30:03 $
- * $Revision: 1.61 $
+ * $Date: 2007/11/08 15:43:50 $
+ * $Revision: 1.62 $
  * \author G. Della Ricca
  *
 */
@@ -203,22 +203,22 @@ MonitorElement* mepnprms06_[36];
 MonitorElement* mepnprms07_[36];
 MonitorElement* mepnprms08_[36];
 
-TProfile2D* i01_[36];
-TProfile2D* i02_[36];
-TProfile2D* i03_[36];
-TProfile2D* i04_[36];
-TProfile2D* i05_[36];
-TProfile2D* i06_[36];
-TProfile2D* i07_[36];
-TProfile2D* i08_[36];
-TProfile2D* i09_[36];
-TProfile2D* i10_[36];
-TProfile2D* i11_[36];
-TProfile2D* i12_[36];
-TProfile2D* i13_[36];
-TProfile2D* i14_[36];
-TProfile2D* i15_[36];
-TProfile2D* i16_[36];
+TProfile* i01_[36];
+TProfile* i02_[36];
+TProfile* i03_[36];
+TProfile* i04_[36];
+TProfile* i05_[36];
+TProfile* i06_[36];
+TProfile* i07_[36];
+TProfile* i08_[36];
+TProfile* i09_[36];
+TProfile* i10_[36];
+TProfile* i11_[36];
+TProfile* i12_[36];
+TProfile* i13_[36];
+TProfile* i14_[36];
+TProfile* i15_[36];
+TProfile* i16_[36];
 
 // Quality check on crystals
 

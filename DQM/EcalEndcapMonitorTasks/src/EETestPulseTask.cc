@@ -1,8 +1,8 @@
 /*
  * \file EETestPulseTask.cc
  *
- * $Date: 2007/11/10 09:45:45 $
- * $Revision: 1.22 $
+ * $Date: 2007/11/10 10:03:54 $
+ * $Revision: 1.23 $
  * \author G. Della Ricca
  *
 */
@@ -93,6 +93,7 @@ void EETestPulseTask::setup(void){
       meShapeMapG01_[i] = dbe_->bookProfile2D(histo, histo, 850, 0., 850., 10, 0., 10., 4096, 0., 4096., "s");
       meShapeMapG01_[i]->setAxisTitle("channel", 1);
       meShapeMapG01_[i]->setAxisTitle("sample", 2);
+      meShapeMapG01_[i]->setAxisTitle("amplitude", 3);
       dbe_->tag(meShapeMapG01_[i], i+1);
       sprintf(histo, "EETPT amplitude %s G01", Numbers::sEE(i+1).c_str());
       meAmplMapG01_[i] = dbe_->bookProfile2D(histo, histo, 50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50., 50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50., 4096, 0., 4096.*12., "s");
@@ -107,6 +108,7 @@ void EETestPulseTask::setup(void){
       meShapeMapG06_[i] = dbe_->bookProfile2D(histo, histo, 850, 0., 850., 10, 0., 10., 4096, 0., 4096., "s");
       meShapeMapG06_[i]->setAxisTitle("channel", 1);
       meShapeMapG06_[i]->setAxisTitle("sample", 2);
+      meShapeMapG06_[i]->setAxisTitle("amplitude", 3);
       dbe_->tag(meShapeMapG06_[i], i+1);
       sprintf(histo, "EETPT amplitude %s G06", Numbers::sEE(i+1).c_str());
       meAmplMapG06_[i] = dbe_->bookProfile2D(histo, histo, 50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50., 50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50., 4096, 0., 4096.*12., "s");
@@ -121,6 +123,7 @@ void EETestPulseTask::setup(void){
       meShapeMapG12_[i] = dbe_->bookProfile2D(histo, histo, 850, 0., 850., 10, 0., 10., 4096, 0., 4096., "s");
       meShapeMapG12_[i]->setAxisTitle("channel", 1);
       meShapeMapG12_[i]->setAxisTitle("sample", 2);
+      meShapeMapG12_[i]->setAxisTitle("amplitude", 3);
       dbe_->tag(meShapeMapG12_[i], i+1);
       sprintf(histo, "EETPT amplitude %s G12", Numbers::sEE(i+1).c_str());
       meAmplMapG12_[i] = dbe_->bookProfile2D(histo, histo, 50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50., 50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50., 4096, 0., 4096.*12., "s");
@@ -134,12 +137,12 @@ void EETestPulseTask::setup(void){
     dbe_->setCurrentFolder("EcalEndcap/EETestPulseTask/PN/Gain01");
     for (int i = 0; i < 18 ; i++) {
       sprintf(histo, "EEPDT PNs amplitude %s G01", Numbers::sEE(i+1).c_str());
-      mePnAmplMapG01_[i] = dbe_->bookProfile2D(histo, histo, 10, 0., 10., 1, 0., 1., 4096, 0., 4096., "s");
+      mePnAmplMapG01_[i] = dbe_->bookProfile(histo, histo, 10, 0., 10., 4096, 0., 4096., "s");
       mePnAmplMapG01_[i]->setAxisTitle("channel", 1);
       mePnAmplMapG01_[i]->setAxisTitle("amplitude", 2);
       dbe_->tag(mePnAmplMapG01_[i], i+1);
       sprintf(histo, "EEPDT PNs pedestal %s G01", Numbers::sEE(i+1).c_str());
-      mePnPedMapG01_[i] =  dbe_->bookProfile2D(histo, histo, 10, 0., 10., 1, 0., 1., 4096, 0., 4096., "s");
+      mePnPedMapG01_[i] =  dbe_->bookProfile(histo, histo, 10, 0., 10., 4096, 0., 4096., "s");
       mePnPedMapG01_[i]->setAxisTitle("channel", 1);
       mePnPedMapG01_[i]->setAxisTitle("pedestal", 2);
       dbe_->tag(mePnPedMapG01_[i], i+1);
@@ -148,12 +151,12 @@ void EETestPulseTask::setup(void){
     dbe_->setCurrentFolder("EcalEndcap/EETestPulseTask/PN/Gain16");
     for (int i = 0; i < 18 ; i++) {
       sprintf(histo, "EEPDT PNs amplitude %s G16", Numbers::sEE(i+1).c_str());
-      mePnAmplMapG16_[i] = dbe_->bookProfile2D(histo, histo, 10, 0., 10., 1, 0., 1., 4096, 0., 4096., "s");
+      mePnAmplMapG16_[i] = dbe_->bookProfile(histo, histo, 10, 0., 10., 4096, 0., 4096., "s");
       mePnAmplMapG16_[i]->setAxisTitle("channel", 1);
       mePnAmplMapG16_[i]->setAxisTitle("amplitude", 2);
       dbe_->tag(mePnAmplMapG16_[i], i+1);
       sprintf(histo, "EEPDT PNs pedestal %s G16", Numbers::sEE(i+1).c_str());
-      mePnPedMapG16_[i] =  dbe_->bookProfile2D(histo, histo, 10, 0., 10., 1, 0., 1., 4096, 0., 4096., "s");
+      mePnPedMapG16_[i] =  dbe_->bookProfile(histo, histo, 10, 0., 10., 4096, 0., 4096., "s");
       mePnPedMapG16_[i]->setAxisTitle("channel", 1);
       mePnPedMapG16_[i]->setAxisTitle("pedestal", 2);
       dbe_->tag(mePnPedMapG16_[i], i+1);
@@ -429,7 +432,7 @@ void EETestPulseTask::analyze(const Event& e, const EventSetup& c){
 
         float xval = float(adc);
 
-        if ( mePNPed ) mePNPed->Fill(num - 0.5, 0.5, xval);
+        if ( mePNPed ) mePNPed->Fill(num - 0.5, xval);
 
         xvalped = xvalped + xval;
 
@@ -457,7 +460,7 @@ void EETestPulseTask::analyze(const Event& e, const EventSetup& c){
       if ( pn.sample(0).gainId() == 0 ) mePN = mePnAmplMapG01_[ism-1];
       if ( pn.sample(0).gainId() == 1 ) mePN = mePnAmplMapG16_[ism-1];
 
-      if ( mePN ) mePN->Fill(num - 0.5, 0.5, xvalmax);
+      if ( mePN ) mePN->Fill(num - 0.5, xvalmax);
 
     }
 

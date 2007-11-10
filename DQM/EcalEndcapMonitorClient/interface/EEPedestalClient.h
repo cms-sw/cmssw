@@ -4,8 +4,8 @@
 /*
  * \file EEPedestalClient.h
  *
- * $Date: 2007/09/07 22:30:06 $
- * $Revision: 1.6 $
+ * $Date: 2007/11/08 15:43:52 $
+ * $Revision: 1.7 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -136,8 +136,8 @@ MonitorElement* met01_[18];
 MonitorElement* met02_[18];
 MonitorElement* met03_[18];
 
-TProfile2D* i01_[18];
-TProfile2D* i02_[18];
+TProfile* i01_[18];
+TProfile* i02_[18];
 
 // Quality check on crystals, one per each gain
 

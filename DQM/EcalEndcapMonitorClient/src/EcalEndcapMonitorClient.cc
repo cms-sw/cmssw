@@ -1,8 +1,8 @@
 /*
  * \file EcalEndcapMonitorClient.cc
  *
- * $Date: 2007/11/06 10:29:40 $
- * $Revision: 1.76 $
+ * $Date: 2007/11/08 15:43:53 $
+ * $Revision: 1.77 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -97,7 +97,7 @@ void EcalEndcapMonitorClient::initialize(const ParameterSet& ps){
   runTypes_[EcalDCCHeaderBlock::TESTPULSE_MGPA]         = "TEST_PULSE";
   runTypes_[EcalDCCHeaderBlock::PEDESTAL_STD]           = "PEDESTAL";
   runTypes_[EcalDCCHeaderBlock::PEDESTAL_OFFSET_SCAN]   = "PEDESTAL-OFFSET";
-  
+
   runTypes_[EcalDCCHeaderBlock::COSMICS_GLOBAL]         = "COSMIC";
   runTypes_[EcalDCCHeaderBlock::PHYSICS_GLOBAL]         = "PHYSICS";
   runTypes_[EcalDCCHeaderBlock::COSMICS_LOCAL]          = "COSMIC";
@@ -311,7 +311,7 @@ void EcalEndcapMonitorClient::initialize(const ParameterSet& ps){
   for ( unsigned int i = 0; i < enabledClients_.size(); i++ ) {
     cout << " " << enabledClients_[i];
   }
-  
+
   cout << endl;
 
   // global ROOT style
@@ -459,7 +459,7 @@ void EcalEndcapMonitorClient::initialize(const ParameterSet& ps){
     chb_.insert( EECIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::PEDESTAL_GAP ));
 
   }
-  
+
   if ( find(enabledClients_.begin(), enabledClients_.end(), "TestPulse" ) != enabledClients_.end() ) {
 
     clients_.push_back( new EETestPulseClient(ps) );
@@ -468,8 +468,8 @@ void EcalEndcapMonitorClient::initialize(const ParameterSet& ps){
 
     chb_.insert( EECIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::TESTPULSE_GAP ));
 
-  } 
-    
+  }
+
   if ( find(enabledClients_.begin(), enabledClients_.end(), "BeamCalo" ) != enabledClients_.end() ) {
 
     clients_.push_back( new EEBeamCaloClient(ps) );
@@ -1523,7 +1523,7 @@ void EcalEndcapMonitorClient::analyze(void){
 
         int new_run_ = run_;
         int old_run_ = last_run_;
-            
+
         if ( new_run_ != old_run_ ) {
 
           if ( begin_run_ && ! end_run_ ) {
@@ -1690,8 +1690,8 @@ void EcalEndcapMonitorClient::analyze(const Event &e, const EventSetup &c) {
   run_ = e.id().run();
 
   evt_ = e.id().event();
- 
-  this->analyze(); 
+
+  this->analyze();
 
 }
 
@@ -1795,11 +1795,11 @@ void EcalEndcapMonitorClient::defaultWebPage(xgi::Input *in, xgi::Output *out){
 
   string path;
   string mname;
-  
+
   static bool autorefresh_ = false;
-  
+
   try {
-  
+
     cgicc::Cgicc cgi(in);
 
     if ( xgi::Utils::hasFormElement(cgi,"autorefresh") ) {

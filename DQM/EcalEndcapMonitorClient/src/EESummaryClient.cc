@@ -1,8 +1,8 @@
 /*
  * \file EESummaryClient.cc
  *
- * $Date: 2007/11/08 15:43:53 $
- * $Revision: 1.51 $
+ * $Date: 2007/11/09 09:34:04 $
+ * $Revision: 1.52 $
  * \author G. Della Ricca
  *
 */
@@ -386,10 +386,10 @@ void EESummaryClient::cleanup(void) {
 
   if ( meLed_[0] ) dbe_->removeElement( meLed_[0]->getName() );
   meLed_[0] = 0;
- 
+
   if ( meLed_[1] ) dbe_->removeElement( meLed_[1]->getName() );
   meLed_[1] = 0;
- 
+
   if ( meLedPN_[0] ) dbe_->removeElement( meLedPN_[0]->getName() );
   meLedPN_[0] = 0;
 
@@ -831,14 +831,14 @@ void EESummaryClient::analyze(void){
             me = eetmc->meg01_[ism-1];
 
             if ( me ) {
-    
+
               float xval = me->getBinContent( ix, iy );
 
               if ( ism >= 1 && ism <= 9 ) {
                 if ( Numbers::validEE(ism, 101 - jx, jy) ) meTiming_[0]->setBinContent( jx, jy, xval );
               } else {
                 if ( Numbers::validEE(ism, jx, jy) ) meTiming_[1]->setBinContent( jx, jy, xval );
-              } 
+              }
 
             }
 
@@ -866,7 +866,7 @@ void EESummaryClient::analyze(void){
                 float xval = h3->GetBinContent( ix, iy, en );
 
                 if(xval!=0) hasRealDigi = true;
-                
+
                 if ( ism >= 1 && ism <= 9 ) {
                   if ( xval != 0 ) meTriggerTowerEt_[0]->setBinContent( jx, jy, en, xval );
                 } else {
@@ -937,17 +937,17 @@ void EESummaryClient::analyze(void){
 
       for ( int ix = 1; ix <= 50; ix++ ) {
         for ( int iy = 1; iy <= 50; iy++ ) {
-    
+
           int jx = ix + Numbers::ix0EE(ism);
           int jy = iy + Numbers::iy0EE(ism);
 
           if ( eetttc ) {
 
-            if ( ism >= 1 && ism <= 9 ) { 
+            if ( ism >= 1 && ism <= 9 ) {
               if ( meTriggerTowerEmulError_[0]->getBinContent( jx, jy ) == -1 ) {
                 if ( Numbers::validEE(ism, 101 - jx, jy) ) meTriggerTowerEmulError_[0]->setBinContent( jx, jy, 2 );
               }
-            } else { 
+            } else {
               if ( meTriggerTowerEmulError_[1]->getBinContent( jx, jy ) == -1 ) {
                 if ( Numbers::validEE(ism, jx, jy) ) meTriggerTowerEmulError_[1]->setBinContent( jx, jy, 2 );
               }
@@ -970,7 +970,7 @@ void EESummaryClient::analyze(void){
       if(meIntegrity_[0] && mePedestalOnline_[0]) {
 
         float xval = -1;
-        float val_in = meIntegrity_[0]->getBinContent(jx,jy); 
+        float val_in = meIntegrity_[0]->getBinContent(jx,jy);
         float val_po = mePedestalOnline_[0]->getBinContent(jx,jy);
 
         // turn each dark color (masked channel) to bright green
@@ -980,7 +980,7 @@ void EESummaryClient::analyze(void){
         // -1 = unknown
         //  0 = red
         //  1 = green
-        //  2 = yellow 
+        //  2 = yellow
 
         if(val_in==-1) xval=-1;
         else if(val_in==0) xval=0;
@@ -996,7 +996,7 @@ void EESummaryClient::analyze(void){
       if(meIntegrity_[1] && mePedestalOnline_[1]) {
 
         float xval = -1;
-        float val_in = meIntegrity_[1]->getBinContent(jx,jy);  
+        float val_in = meIntegrity_[1]->getBinContent(jx,jy);
         float val_po = mePedestalOnline_[1]->getBinContent(jx,jy);
 
         // turn each dark color to bright green
@@ -1461,7 +1461,7 @@ void EESummaryClient::htmlOutput(int run, string htmlDir, string htmlName){
     }
     cMap->Update();
     cMap->SaveAs(imgName.c_str());
-  
+
   }
 
 //
@@ -1514,11 +1514,11 @@ void EESummaryClient::htmlOutput(int run, string htmlDir, string htmlName){
 
   obj2f = 0;
   obj2f = UtilsClient::getHisto<TH2F*>( meLed_[1] );
-  
+
   if ( obj2f && obj2f->GetEntries() != 0 ) {
-  
+
     meName = obj2f->GetName();
-  
+
     for ( unsigned int i = 0; i < meName.size(); i++ ) {
       if ( meName.substr(i, 1) == " " )  {
         meName.replace(i, 1 ,"_" );
@@ -1601,7 +1601,7 @@ void EESummaryClient::htmlOutput(int run, string htmlDir, string htmlName){
 
   obj2f = 0;
   obj2f = UtilsClient::getHisto<TH2F*>( mePedestal_[1] );
-  
+
   if ( obj2f && obj2f->GetEntries() != 0 ) {
 
     meName = obj2f->GetName();
@@ -1688,11 +1688,11 @@ void EESummaryClient::htmlOutput(int run, string htmlDir, string htmlName){
 
   obj2f = 0;
   obj2f = UtilsClient::getHisto<TH2F*>( meTestPulse_[1] );
-  
+
   if ( obj2f && obj2f->GetEntries() != 0 ) {
-  
+
     meName = obj2f->GetName();
-  
+
     for ( unsigned int i = 0; i < meName.size(); i++ ) {
       if ( meName.substr(i, 1) == " " )  {
         meName.replace(i, 1 ,"_" );
@@ -1818,7 +1818,7 @@ void EESummaryClient::htmlOutput(int run, string htmlDir, string htmlName){
   obj2f = UtilsClient::getHisto<TH2F*>( meTiming_[0] );
 
   if ( obj2f && obj2f->GetEntries() != 0 ) {
-    
+
     meName = obj2f->GetName();
 
     for ( unsigned int i = 0; i < meName.size(); i++ ) {
@@ -1828,7 +1828,7 @@ void EESummaryClient::htmlOutput(int run, string htmlDir, string htmlName){
     }
     imgNameMapTM[0] = meName + ".png";
     imgName = htmlDir + imgNameMapTM[0];
-    
+
     cMap->cd();
     gStyle->SetOptStat(" ");
     gStyle->SetPalette(6, pCol3);
@@ -1846,7 +1846,7 @@ void EESummaryClient::htmlOutput(int run, string htmlDir, string htmlName){
     for ( int i=0; i<201; i=i+1){
       if ( (Numbers::ixSectorsEE[i]!=0 || Numbers::iySectorsEE[i]!=0) && (Numbers::ixSectorsEE[i+1]!=0 || Numbers::iySectorsEE[i+1]!=0) ) {
         l.DrawLine(Numbers::ixSectorsEE[i], Numbers::iySectorsEE[i], Numbers::ixSectorsEE[i+1], Numbers::iySectorsEE[i+1]);
-      } 
+      }
     }
     cMap->Update();
     cMap->SaveAs(imgName.c_str());
@@ -1857,9 +1857,9 @@ void EESummaryClient::htmlOutput(int run, string htmlDir, string htmlName){
 
   obj2f = 0;
   obj2f = UtilsClient::getHisto<TH2F*>( meTiming_[1] );
-  
+
   if ( obj2f && obj2f->GetEntries() != 0 ) {
-    
+
     meName = obj2f->GetName();
 
     for ( unsigned int i = 0; i < meName.size(); i++ ) {
@@ -1895,10 +1895,10 @@ void EESummaryClient::htmlOutput(int run, string htmlDir, string htmlName){
   }
 
   imgNameMapTTEmulError[0] = "";
-  
+
   obj2f = 0;
   obj2f = UtilsClient::getHisto<TH2F*>( meTriggerTowerEmulError_[0] );
-  
+
   if ( obj2f && obj2f->GetEntries() != 0 ) {
 
     meName = obj2f->GetName();
@@ -1951,7 +1951,7 @@ void EESummaryClient::htmlOutput(int run, string htmlDir, string htmlName){
     }
     imgNameMapTTEmulError[1] = meName + ".png";
     imgName = htmlDir + imgNameMapTTEmulError[1];
-    
+
     cMap->cd();
     gStyle->SetOptStat(" ");
     gStyle->SetPalette(6, pCol3);
@@ -2017,7 +2017,7 @@ void EESummaryClient::htmlOutput(int run, string htmlDir, string htmlName){
     l.SetLineWidth(1);
     for ( int i=0; i<201; i=i+1){
       if ( (Numbers::ixSectorsEE[i]!=0 || Numbers::iySectorsEE[i]!=0) && (Numbers::ixSectorsEE[i+1]!=0 || Numbers::iySectorsEE[i+1]!=0) ) {
-        l.DrawLine(Numbers::ixSectorsEE[i], Numbers::iySectorsEE[i], Numbers::ixSectorsEE[i+1], Numbers::iySectorsEE[i+1]); 
+        l.DrawLine(Numbers::ixSectorsEE[i], Numbers::iySectorsEE[i], Numbers::ixSectorsEE[i+1], Numbers::iySectorsEE[i+1]);
       }
     }
     cMap->Update();
@@ -2119,11 +2119,11 @@ void EESummaryClient::htmlOutput(int run, string htmlDir, string htmlName){
 
   obj2f = 0;
   obj2f = UtilsClient::getHisto<TH2F*>( meGlobalSummary_[1] );
-  
+
   if ( obj2f ) {
 
     meName = obj2f->GetName();
-    
+
     for ( unsigned int i = 0; i < meName.size(); i++ ) {
       if ( meName.substr(i, 1) == " " )  {
         meName.replace(i, 1 ,"_" );
