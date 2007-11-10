@@ -1,8 +1,8 @@
 /*
  * \file EBPedestalTask.cc
  *
- * $Date: 2007/11/07 07:07:59 $
- * $Revision: 1.66 $
+ * $Date: 2007/11/09 15:24:06 $
+ * $Revision: 1.67 $
  * \author G. Della Ricca
  *
 */
@@ -149,7 +149,7 @@ void EBPedestalTask::setup(void){
     dbe_->setCurrentFolder("EcalBarrel/EBPedestalTask/PN/Gain01");
     for (int i = 0; i < 36 ; i++) {
       sprintf(histo, "EBPDT PNs pedestal %s G01", Numbers::sEB(i+1).c_str());
-      mePnPedMapG01_[i] =  dbe_->bookProfile2D(histo, histo, 1, 0., 1., 10, 0., 10., 4096, 0., 4096., "s");
+      mePnPedMapG01_[i] =  dbe_->bookProfile2D(histo, histo, 10, 0., 10., 1, 0., 1., 4096, 0., 4096., "s");
       mePnPedMapG01_[i]->setAxisTitle("channel", 1);
       dbe_->tag(mePnPedMapG01_[i], i+1);
     }
@@ -157,7 +157,7 @@ void EBPedestalTask::setup(void){
     dbe_->setCurrentFolder("EcalBarrel/EBPedestalTask/PN/Gain16");
     for (int i = 0; i < 36 ; i++) {
       sprintf(histo, "EBPDT PNs pedestal %s G16", Numbers::sEB(i+1).c_str());
-      mePnPedMapG16_[i] =  dbe_->bookProfile2D(histo, histo, 1, 0., 1., 10, 0., 10., 4096, 0., 4096., "s");
+      mePnPedMapG16_[i] =  dbe_->bookProfile2D(histo, histo, 10, 0., 10., 1, 0., 1., 4096, 0., 4096., "s");
       mePnPedMapG16_[i]->setAxisTitle("channel", 1);
       dbe_->tag(mePnPedMapG16_[i], i+1);
     }
@@ -458,7 +458,7 @@ void EBPedestalTask::analyze(const Event& e, const EventSetup& c){
 
         float xval = float(adc);
 
-        if ( mePNPed ) mePNPed->Fill(0.5, num - 0.5, xval);
+        if ( mePNPed ) mePNPed->Fill(num - 0.5, 0.5, xval);
 
       }
 
