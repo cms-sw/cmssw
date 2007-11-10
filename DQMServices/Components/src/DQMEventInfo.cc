@@ -1,8 +1,8 @@
 /*
  * \file DQMEventInfo.cc
  * 
- * $Date: 2007/11/05 16:42:13 $
- * $Revision: 1.4 $
+ * $Date: 2007/11/07 13:15:53 $
+ * $Revision: 1.1 $
  * \author M. Zanetti - CERN PH
  *
  */
@@ -43,7 +43,7 @@ DQMEventInfo::DQMEventInfo(const ParameterSet& ps){
 
 DQMEventInfo::~DQMEventInfo(){
 
-  cout<<"[DQMEventInfo]: distructor"<<endl;
+  cout<<"[DQMEventInfo]: destructor"<<endl;
 
 }
 
