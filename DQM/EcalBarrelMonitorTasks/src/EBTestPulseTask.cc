@@ -1,8 +1,8 @@
 /*
  * \file EBTestPulseTask.cc
  *
- * $Date: 2007/11/07 07:08:00 $
- * $Revision: 1.80 $
+ * $Date: 2007/11/09 15:24:06 $
+ * $Revision: 1.81 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -94,7 +94,7 @@ void EBTestPulseTask::setup(void){
       sprintf(histo, "EBTPT shape %s G01", Numbers::sEB(i+1).c_str());
       meShapeMapG01_[i] = dbe_->bookProfile2D(histo, histo, 1700, 0., 1700., 10, 0., 10., 4096, 0., 4096., "s");
       meShapeMapG01_[i]->setAxisTitle("channel", 1);
-      meShapeMapG01_[i]->setAxisTitle("amplitude", 2);
+      meShapeMapG01_[i]->setAxisTitle("sample", 2);
       dbe_->tag(meShapeMapG01_[i], i+1);
       sprintf(histo, "EBTPT amplitude %s G01", Numbers::sEB(i+1).c_str());
       meAmplMapG01_[i] = dbe_->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096.*12., "s");
@@ -108,7 +108,7 @@ void EBTestPulseTask::setup(void){
       sprintf(histo, "EBTPT shape %s G06", Numbers::sEB(i+1).c_str());
       meShapeMapG06_[i] = dbe_->bookProfile2D(histo, histo, 1700, 0., 1700., 10, 0., 10., 4096, 0., 4096., "s");
       meShapeMapG06_[i]->setAxisTitle("channel", 1);
-      meShapeMapG06_[i]->setAxisTitle("amplitude", 2);
+      meShapeMapG06_[i]->setAxisTitle("sample", 2);
       dbe_->tag(meShapeMapG06_[i], i+1);
       sprintf(histo, "EBTPT amplitude %s G06", Numbers::sEB(i+1).c_str());
       meAmplMapG06_[i] = dbe_->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096.*12., "s");
@@ -122,7 +122,7 @@ void EBTestPulseTask::setup(void){
       sprintf(histo, "EBTPT shape %s G12", Numbers::sEB(i+1).c_str());
       meShapeMapG12_[i] = dbe_->bookProfile2D(histo, histo, 1700, 0., 1700., 10, 0., 10., 4096, 0., 4096., "s");
       meShapeMapG12_[i]->setAxisTitle("channel", 1);
-      meShapeMapG12_[i]->setAxisTitle("amplitude", 2);
+      meShapeMapG12_[i]->setAxisTitle("sample", 2);
       dbe_->tag(meShapeMapG12_[i], i+1);
       sprintf(histo, "EBTPT amplitude %s G12", Numbers::sEB(i+1).c_str());
       meAmplMapG12_[i] = dbe_->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096.*12., "s");
