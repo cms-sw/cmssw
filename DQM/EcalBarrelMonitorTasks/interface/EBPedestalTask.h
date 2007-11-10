@@ -4,8 +4,8 @@
 /*
  * \file EBPedestalTask.h
  *
- * $Date: 2007/04/05 13:56:46 $
- * $Revision: 1.23 $
+ * $Date: 2007/04/05 14:53:59 $
+ * $Revision: 1.24 $
  * \author G. Della Ricca
  *
 */
@@ -14,6 +14,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
+class DaqMonitorBEInterface;
 
 class EBPedestalTask: public edm::EDAnalyzer{
 
