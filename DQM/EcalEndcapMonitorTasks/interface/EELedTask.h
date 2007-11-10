@@ -4,8 +4,8 @@
 /*
  * \file EELedTask.h
  *
- * $Date: 2007/07/02 19:51:04 $
- * $Revision: 1.1 $
+ * $Date: 2007/08/14 17:44:47 $
+ * $Revision: 1.2 $
  * \author G. Della Ricca
  *
 */
@@ -14,6 +14,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
+class DaqMonitorBEInterface;
 
 class EELedTask: public edm::EDAnalyzer{
 
