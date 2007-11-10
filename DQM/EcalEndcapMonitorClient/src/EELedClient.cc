@@ -1,8 +1,8 @@
 /*
  * \file EELedClient.cc
  *
- * $Date: 2007/11/09 14:02:31 $
- * $Revision: 1.31 $
+ * $Date: 2007/11/09 19:52:45 $
+ * $Revision: 1.32 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -246,22 +246,22 @@ void EELedClient::setup(void) {
     if ( metav01_[ism-1] ) dbe_->removeElement( metav01_[ism-1]->getName() );
     sprintf(histo, "EELDT timing mean A %s", Numbers::sEE(ism).c_str());
     metav01_[ism-1] = dbe_->book1D(histo, histo, 100, 0., 10.);
-    metav01_[ism-1]->setAxisTitle("jitter mean", 1);
+    metav01_[ism-1]->setAxisTitle("mean", 1);
 
     if ( metav05_[ism-1] ) dbe_->removeElement( metav05_[ism-1]->getName() );
     sprintf(histo, "EELDT timing mean B %s", Numbers::sEE(ism).c_str());
     metav05_[ism-1] = dbe_->book1D(histo, histo, 100, 0., 10.);
-    metav05_[ism-1]->setAxisTitle("jitter mean", 1);
+    metav05_[ism-1]->setAxisTitle("mean", 1);
 
     if ( metrms01_[ism-1] ) dbe_->removeElement( metrms01_[ism-1]->getName() );
     sprintf(histo, "EELDT timing rms A %s", Numbers::sEE(ism).c_str());
     metrms01_[ism-1] = dbe_->book1D(histo, histo, 100, 0., 0.5);
-    metrms01_[ism-1]->setAxisTitle("jitter rms", 1);
+    metrms01_[ism-1]->setAxisTitle("rms", 1);
 
     if ( metrms05_[ism-1] ) dbe_->removeElement( metrms05_[ism-1]->getName() );
     sprintf(histo, "EELDT timing rms B %s", Numbers::sEE(ism).c_str());
     metrms05_[ism-1] = dbe_->book1D(histo, histo, 100, 0., 0.5);
-    metrms05_[ism-1]->setAxisTitle("jitter rms", 1);
+    metrms05_[ism-1]->setAxisTitle("rms", 1);
 
     if ( meaopn01_[ism-1] ) dbe_->removeElement( meaopn01_[ism-1]->getName() );
     sprintf(histo, "EELDT amplitude over PN A %s", Numbers::sEE(ism).c_str());
