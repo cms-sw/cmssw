@@ -12,6 +12,8 @@
 <use name=SimDataFormats/Track>
 <use name=Utilities/General>
 <use name=TrackPropagation/NavPropagator>
+<use name=RecoMuon/TrackingTools>
+<use name=RecoMuon/Navigation>
 
 <flags EDM_PLUGIN=1>
 <export>

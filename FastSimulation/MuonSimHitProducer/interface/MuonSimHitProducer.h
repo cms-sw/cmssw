@@ -15,7 +15,7 @@
 //
 //  Author:  Martijn Mulders
 // Created:  Wed July 11 12:37:24 CET 2007
-// $Id: MuonSimHitProducer.h,v 1.0 2007/07/11 13:53:50 mulders Exp $
+// $Id: MuonSimHitProducer.h,v 1.1 2007/07/11 15:35:32 mulders Exp $
 //
 
 
@@ -34,7 +34,7 @@ class FML3PtSmearer;
 class FMGLfromL3EfficiencyHandler; 
 class FMGLfromL3TKEfficiencyHandler; 
 class FMGLfromTKEfficiencyHandler; 
-
+class MuonTrajectoryUpdator;
 class RandomEngine;
 
 namespace reco { 
@@ -50,6 +50,7 @@ namespace edm {
 // Data Formats
 #include "DataFormats/L1GlobalMuonTrigger/interface/L1MuGMTCand.h"
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
+#include "RecoMuon/TrackingTools/interface/MuonServiceProxy.h"
 
 //
 // class declaration
@@ -64,6 +65,8 @@ class MuonSimHitProducer : public edm::EDProducer {
    private:
 
       const RandomEngine * random;
+      MuonServiceProxy *theService;
+      MuonTrajectoryUpdator *theUpdator;
 
       typedef std::vector<SimpleL1MuGMTCand*> FML1Muons;
       typedef std::vector<L1MuGMTCand> L1MuonsContainer;

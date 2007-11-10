@@ -11,9 +11,11 @@
      <Notes on implementation>
 */
 //
-// Original Author:  Martijn Mulders
+// Original Author:  Martijn Mulders/Matthew Jones
 //         Created:  Wed Jul 30 11:37:24 CET 2007
-// $Id: MuonSimHitProducer.cc,v 1.3 2007/07/12 14:42:44 mulders Exp $
+//         Working:  Fri Nov  9 09:39:33 CST 2007
+//
+// $Id: MuonSimHitProducer.cc,v 1.4 2007/07/23 09:53:01 mulders Exp $
 //
 //
 
@@ -32,6 +34,8 @@
 
 // SimTrack
 #include "SimDataFormats/Track/interface/SimTrack.h"
+#include "SimDataFormats/Vertex/interface/SimVertex.h"
+#include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
 
 // STL headers 
 #include <vector>
@@ -41,7 +45,12 @@
 #include "DataFormats/Math/interface/LorentzVector.h"
 
 // Data Formats
+
+#include "RecoMuon/Navigation/interface/DirectMuonNavigation.h"
+#include "RecoMuon/MeasurementDet/interface/MuonDetLayerMeasurements.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
+#include "DataFormats/MuonDetId/interface/DTLayerId.h"
+#include "DataFormats/MuonDetId/interface/DTWireId.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiTrackerGSRecHit2D.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiTrackerGSRecHit2DCollection.h"
@@ -49,10 +58,17 @@
 
 ////////////////////////////////////////////////////////////////////////////
 
+#include "Geometry/DTGeometry/interface/DTGeometry.h"
+#include "Geometry/CSCGeometry/interface/CSCGeometry.h"
+#include "Geometry/RPCGeometry/interface/RPCGeometry.h"
+#include "Geometry/Records/interface/MuonGeometryRecord.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "MagneticField/VolumeGeometry/interface/MagVolumeOutsideValidity.h"
-#include  "TrackPropagation/NavPropagator/interface/NavPropagator.h"
+#include "TrackPropagation/NavPropagator/interface/NavPropagator.h"
+#include "TrackingTools/GeomPropagators/interface/HelixArbitraryPlaneCrossing.h"
+#include "RecoMuon/TrackingTools/interface/MuonTrajectoryUpdator.h"
+#include "RecoMuon/TrackingTools/interface/MuonPatternRecoDumper.h"
 #include "DataFormats/GeometrySurface/interface/PlaneBuilder.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -61,9 +77,9 @@
 
 // #include "TrackingTools/TrackAssociator/interface/TrackDetectorAssociator.h"
 
+
 // constants, enums and typedefs
 typedef std::vector<L1MuGMTCand> L1MuonCollection;
-
 
 //
 // static data member definitions
@@ -72,18 +88,34 @@ typedef std::vector<L1MuGMTCand> L1MuonCollection;
 //
 // constructors and destructor
 //
-MuonSimHitProducer::MuonSimHitProducer(const edm::ParameterSet& iConfig)
-{
+MuonSimHitProducer::MuonSimHitProducer(const edm::ParameterSet& iConfig) {
 
   readParameters(iConfig.getParameter<edm::ParameterSet>("MUONS"),
 		 iConfig.getParameter<edm::ParameterSet>("TRACKS"));
 
-  //register your products ... need to declare at least one possible product...
-    if (doL1_) produces<std::vector<L1MuGMTCand> >("HitL1Muons");
-    if (doL3_) produces<reco::MuonCollection>("HitL3Muons");
-    if (doGL_) produces<reco::MuonCollection>("HitGlobalMuons");
+//
+//  register your products ... need to declare at least one possible product...
+//
+  if (doL1_) produces<std::vector<L1MuGMTCand> >("HitL1Muons");
+  if (doL3_) produces<reco::MuonCollection>("HitL3Muons");
+  if (doGL_) produces<reco::MuonCollection>("HitGlobalMuons");
+//
+//  Produce SimHits in muon layers...
+//
+  produces<edm::PSimHitContainer>("MuonCSCHits");
+  produces<edm::PSimHitContainer>("MuonDTHits");
+  produces<edm::PSimHitContainer>("MuonRPCHits");
 
-  // Initialize the random number generator service
+  edm::ParameterSet serviceParameters =
+     iConfig.getParameter<edm::ParameterSet>("ServiceParameters");
+  theService = new MuonServiceProxy(serviceParameters);
+  edm::ParameterSet updatorParameters = 
+     iConfig.getParameter<edm::ParameterSet>("MuonTrajectoryUpdatorParameters");
+  theUpdator = new MuonTrajectoryUpdator(updatorParameters,insideOut);
+//
+//  Initialize the random number generator service
+//
+
   edm::Service<edm::RandomNumberGenerator> rng;
   if ( ! rng.isAvailable() ) {
     throw cms::Exception("Configuration") <<
@@ -93,13 +125,11 @@ MuonSimHitProducer::MuonSimHitProducer(const edm::ParameterSet& iConfig)
       "or remove the module that requires it.";
   }
   random = new RandomEngine(&(*rng));
-
 }
 
 
 MuonSimHitProducer::~MuonSimHitProducer()
 {
- 
   // do anything here that needs to be done at destruction time
   // (e.g. close files, deallocate resources etc.)
   
@@ -113,103 +143,350 @@ MuonSimHitProducer::~MuonSimHitProducer()
 
 // ------------ method called to produce the data  ------------
 
-void MuonSimHitProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
-{
+void MuonSimHitProducer::produce(edm::Event& iEvent,
+                                 const edm::EventSetup& iSetup) {
   using namespace edm;
+  using namespace std;
 
-  Handle<std::vector<SimTrack> > simMuons;
+  theService->update(iSetup);
+  DirectMuonNavigation navigation(theService->detLayerGeometry());
+
+  ESHandle<DTGeometry> dtGeom;
+  try {
+    iSetup.get<MuonGeometryRecord>().get(dtGeom);
+  }
+  catch ( ... ) {
+    cout << "FAILED: to get the DT MuonGeometryRecord!" << endl;
+  }
+  ESHandle<CSCGeometry> cscGeom;
+  try {
+    iSetup.get<MuonGeometryRecord>().get(cscGeom);
+  }
+  catch ( ... ) {
+    cout << "FAILED: to get the CSC MuonGeometryRecord!" << endl;
+  }
+  ESHandle<RPCGeometry> rpcGeom;
+  try {
+    iSetup.get<MuonGeometryRecord>().get(rpcGeom);
+  }
+  catch ( ... ) {
+    cout << "FAILED: to get the RPC MuonGeometryRecord!" << endl;
+  }
+
+
+//
+//  Get access to the magnetic field
+//
+  ESHandle<MagneticField> magfield;
+  try {
+    iSetup.get<IdealMagneticFieldRecord>().get(magfield);
+  }
+  catch (...) {
+    cout << "FAILED: to get the IdealMagneticFieldRecord!" << endl;
+  }
+
+  MuonPatternRecoDumper dumper;
+
+  Handle<vector<SimTrack> > simMuons;
+  Handle<vector<SimVertex> > simVertices;
+  vector<PSimHit> theCSCHits;
+  vector<PSimHit> theDTHits;
+  vector<PSimHit> theRPCHits;
+
   iEvent.getByLabel(theSimModuleLabel_,theSimModuleProcess_,simMuons);
-  unsigned nmuons = simMuons->size();
+  iEvent.getByLabel(theSimModuleLabel_,simVertices);
 
+  for ( unsigned int itrk=0; itrk<simMuons->size(); itrk++ ) {
+    const SimTrack &mySimTrack = (*simMuons)[itrk];
+    math::XYZTLorentzVector mySimP4(mySimTrack.momentum().x(),
+                                    mySimTrack.momentum().y(),
+                                    mySimTrack.momentum().z(),
+                                    mySimTrack.momentum().t());
+    double t0 = 0;
+    GlobalPoint initialPosition;
+    int ivert = mySimTrack.vertIndex();
+    if ( ivert >= 0 ) {
+      t0 = (*simVertices)[ivert].position().t();
+      GlobalPoint xyzzy((*simVertices)[ivert].position().x(),
+                        (*simVertices)[ivert].position().y(),
+                        (*simVertices)[ivert].position().z());
+      initialPosition = xyzzy;
+    }
+//
+//  Presumably t0 has dimensions of cm if not mm?
+//  Convert to ns for internal calculations.
+//  I wonder where we should get c from?
+//
+    double tof = t0/29.98;
 
-  for( unsigned fsimi=0; fsimi < nmuons; ++fsimi) {
-    const SimTrack& mySimTrack = (*simMuons)[fsimi];
-
-    bool hasL1 = false , hasL3 = false , hasTK = false , hasGL = false;
-    //Replace with this as soon transition to ROOTMath is complete
-    //    math::XYZTLorentzVector& mySimP4 =  mySimTrack.momentum();
-
-    math::XYZTLorentzVector mySimP4 =  math::XYZTLorentzVector(mySimTrack.momentum().x(),
-							       mySimTrack.momentum().y(),
-							       mySimTrack.momentum().z(),
-							       mySimTrack.momentum().t());
-
-    std::cout << " >>> And now propagate Muon NO. " << fsimi << std::endl;
-    if (debug_) {
-      std::cout << " ===> ParamMuonProducer::reconstruct() found SIMTRACK - pid = "
-		<< mySimTrack.type() ;
-      std::cout << " : pT = " << mySimP4.Pt()
-		<< ", eta = " << mySimP4.Eta()
-		<< ", phi = " << mySimP4.Phi() << std::endl;
-
+    if ( debug_ ) {
+      cout << " ===> ParamMuonProducer::reconstruct() found SIMTRACK - pid = "
+           << mySimTrack.type() ;
+      cout << " : pT = " << mySimP4.Pt()
+           << ", eta = " << mySimP4.Eta()
+           << ", phi = " << mySimP4.Phi() << endl;
     }
 
-// *** Reconstruct parameterized muons starting from undecayed simulated muons
- 
+//
+//  Reconstruct parameterized muons starting from undecayed simulated muons
+//
 
-    GlobalPoint startingPosition = GlobalPoint(mySimTrack.trackerSurfacePosition().x(),
-					       mySimTrack.trackerSurfacePosition().y(),
-					       mySimTrack.trackerSurfacePosition().z());
-    GlobalVector startingMomentum = GlobalVector(mySimTrack.trackerSurfaceMomentum().x(),
-						 mySimTrack.trackerSurfaceMomentum().y(),
-						 mySimTrack.trackerSurfaceMomentum().z());
-    std::cout << " the Muon START position " << startingPosition << std::endl;
-    std::cout << " the Muon START momentum " << startingMomentum << std::endl;
+    GlobalPoint startingPosition(mySimTrack.trackerSurfacePosition().x(),
+                                 mySimTrack.trackerSurfacePosition().y(),
+                                 mySimTrack.trackerSurfacePosition().z());
+    GlobalVector startingMomentum(mySimTrack.trackerSurfaceMomentum().x(),
+                                  mySimTrack.trackerSurfaceMomentum().y(),
+                                  mySimTrack.trackerSurfaceMomentum().z());
+//
+//  Crap... there's no time-of-flight to the trackerSurfacePosition()...
+//  So, this will be wrong when the curvature can't be neglected, but that
+//  will be rather seldom...  May as well ignore the mass too.
+//
+    GlobalVector dtracker = startingPosition-initialPosition;
+    tof += dtracker.mag()/29.98;
 
-    // Get access to the magnetic field
-    edm::ESHandle<MagneticField> magfield;
-    try
-      {
-	iSetup.get<IdealMagneticFieldRecord>().get(magfield);
-      }
-    catch (...)
-      {
-	std::cout << "FAILED: to get the IdealMagneticFieldRecord!" << std::endl;
-      }
-    
+    if ( debug_ ) {
+      cout << " the Muon START position " << startingPosition << endl;
+      cout << " the Muon START momentum " << startingMomentum << endl;
+    }
 
-    // Some magic to define a TrajectoryStateOnSurface
+// 
+//  Some magic to define a TrajectoryStateOnSurface
+//
     PlaneBuilder pb;
     GlobalVector zAxis = startingMomentum.unit();
-    GlobalVector yAxis( zAxis.y(), -zAxis.x(), 0); 
-    GlobalVector xAxis = yAxis.cross( zAxis);
-    Surface::RotationType rot = Surface::RotationType( xAxis, yAxis, zAxis);
-    PlaneBuilder::ReturnType startingPlane = pb.plane( startingPosition, rot);
-    GlobalTrajectoryParameters gtp (startingPosition, startingMomentum, -1, magfield.product() );
-    TrajectoryStateOnSurface startingState( gtp, *startingPlane);
+    GlobalVector yAxis(zAxis.y(),-zAxis.x(),0); 
+    GlobalVector xAxis = yAxis.cross(zAxis);
+    Surface::RotationType rot = Surface::RotationType(xAxis,yAxis,zAxis);
+    PlaneBuilder::ReturnType startingPlane = pb.plane(startingPosition,rot);
+    GlobalTrajectoryParameters gtp(startingPosition,
+                                   startingMomentum,
+                                   (int)mySimTrack.charge(),
+                                   magfield.product());
+    TrajectoryStateOnSurface startingState(gtp,*startingPlane);
 
-    // Define destination plane, 1 meter away in the direction of the muon momentum:
-    float propDistance = 300;
-    //GlobalPoint targetPos ((propDistance*startingMomentum.unit() + mySimTrack.trackerSurfacePosition());
-    //    targetPos = targetPos + startingPosition;
-    GlobalVector PropVector = propDistance*startingMomentum.unit();
-    GlobalPoint targetPos = startingPosition + PropVector;
-    PlaneBuilder::ReturnType muonPlane = pb.plane( targetPos , rot);
-
-
-    // Get a propagator
-    NavPropagator prop(magfield.product());
-    
-    // Do the actual propagation:
-    std::cout << "Propagating toward muon system ................ " << std::endl;
-    TrajectoryStateOnSurface FinalState = prop.propagate( startingState, *muonPlane);
-    if (FinalState.isValid()) {
-      std::cout << "Yes! this muon reached final destination at position " << FinalState.globalPosition() << std::endl;
-      //      std::cout << "which corresponds to an eta of " << std::endl;
-      nMuonTot++;
-    } else {
-      std::cout << "Oops, this muon got lost" << std::endl;
+    vector<const DetLayer *> navLayers;
+    if ( fabs(startingState.globalMomentum().eta()) > 4.5 ) {
+      navLayers = navigation.compatibleEndcapLayers(*(startingState.freeState()),
+                                                    alongMomentum);
     }
- 
-      
-  } // end of loop over generated muons
+    else {
+      navLayers = navigation.compatibleLayers(*(startingState.freeState()),
+                                               alongMomentum);
+    }
+    ESHandle<Propagator> propagator =
+      theService->propagator("SteppingHelixPropagatorAny");
 
+    if ( navLayers.empty() ) continue;
+
+    if ( debug_ ) {
+      cout << "Found " << navLayers.size()
+           << " compatible DetLayers..." << endl;
+    }
+    TrajectoryStateOnSurface propagatedState = startingState;
+    for ( unsigned int ilayer=0; ilayer<navLayers.size(); ilayer++ ) {
+      if ( debug_ ) {
+        cout << "Propagating to layer " << ilayer << " " << dumper.dumpLayer(navLayers[ilayer]) << endl;
+      }
+      vector<DetWithState> comps = navLayers[ilayer]->compatibleDets(propagatedState,*propagator,*(theUpdator->estimator()));
+      if ( comps.empty() ) continue;
+      if ( debug_ ) {
+        cout << "Propagating " << propagatedState << endl;
+      }
+      pair<TrajectoryStateOnSurface,double> next = propagator->propagateWithPath(propagatedState,navLayers[ilayer]->surface());
+      double pi = propagatedState.globalMomentum().mag();
+      if ( next.first.isValid() ) {
+        propagatedState = next.first;
+      }
+//
+//  Consider this... 1 GeV muon has a velocity that is only 0.5% slower than c...
+//  We probably can safely ignore the mass for anything that makes it out to the
+//  muon chambers.
+//
+      double pf = propagatedState.globalMomentum().mag();
+      double pavg = 0.5*(pi+pf);
+      double m = mySimP4.M();
+      double rbeta = sqrt(1+m*m/(pavg*pavg))/29.98;
+      double dtof = next.second*rbeta;
+      if ( debug_ ) {
+        cout << "Propagated to next surface... path length = " << next.second << " cm, dTOF = " << dtof << " ns" << endl;
+      }
+      tof += dtof;
+      const GeomDet *gd = comps[0].first;
+      if ( gd->subDetector() == GeomDetEnumerators::DT ) {
+        DTChamberId id(gd->geographicalId());
+        const DTChamber *chamber = dtGeom->chamber(id);
+        vector<const DTSuperLayer *> superlayer = chamber->superLayers();
+        for ( unsigned int isl=0; isl<superlayer.size(); isl++ ) {
+          vector<const DTLayer *> layer = superlayer[isl]->layers();
+          for ( unsigned int ilayer=0; ilayer<layer.size(); ilayer++ ) {
+            DTLayerId lid = layer[ilayer]->id();
+            if ( debug_ ) {
+              cout << "    Extrapolated to DT (" << lid.wheel() << "," 
+                                                 << lid.station() << "," 
+                                                 << lid.sector() << "," 
+                                                 << lid.superlayer() << "," 
+                                                 << lid.layer() << ")" << endl;
+            }
+            const GeomDetUnit *det = dtGeom->idToDetUnit(lid);
+
+            HelixArbitraryPlaneCrossing crossing(propagatedState.globalPosition().basicVector(),
+                                                 propagatedState.globalMomentum().basicVector(),
+                                                 propagatedState.transverseCurvature(),
+                                                 anyDirection);
+            pair<bool,double> path = crossing.pathLength(det->surface());
+            if ( ! path.first ) continue;
+            LocalPoint lpos = det->toLocal(GlobalPoint(crossing.position(path.second)));
+            if ( fabs(lpos.x()) > 0.5*det->surface().bounds().width() ||
+                 fabs(lpos.y()) > 0.5*det->surface().bounds().length() ) continue;
+//
+//  The use of the channel() method claims to be deprecated in DTTopology...
+//
+            const DTTopology& dtTopo = layer[ilayer]->specificTopology();
+            int wire = dtTopo.channel(lpos);
+//
+//  The wire number calculation is somewhat imperical at this point...  The
+//  drift cell width is 4.22 cm, but the absolute offset needs to be checked.
+//
+//          int wire = round((lpos.x()+0.5*det->surface().bounds().width())/4.22);
+//
+            DTWireId wid(lid,wire);
+            double thickness = det->surface().bounds().thickness();
+            LocalVector lmom = det->toLocal(GlobalVector(crossing.direction(path.second)));
+            lmom = lmom.unit()*propagatedState.localMomentum().mag();
+            double eloss = 0;
+            double pz = fabs(lmom.z());
+            LocalPoint entry = lpos - 0.5*thickness*lmom/pz;
+            LocalPoint exit = lpos + 0.5*thickness*lmom/pz;
+            double dtof = path.second*rbeta;
+            int pid = mySimTrack.type();
+            int trkid = itrk;
+            unsigned int id = wid.rawId();
+	    short unsigned int processType = 2;
+            PSimHit hit(entry,exit,lmom.mag(),
+                        tof+dtof,eloss,pid,id,trkid,lmom.theta(),lmom.phi(),processType);
+            theDTHits.push_back(hit);
+
+          }
+        }
+      }
+      else if ( gd->subDetector() == GeomDetEnumerators::CSC ) {
+        CSCDetId id(gd->geographicalId());
+        const CSCChamber *chamber = cscGeom->chamber(id);
+        vector<const CSCLayer *> layer = chamber->layers();
+        for ( unsigned int ilayer=0; ilayer<layer.size(); ilayer++ ) {
+          CSCDetId lid = layer[ilayer]->id();
+          if ( debug_ ) {
+            cout << "    Extrapolated to CSC (" << lid.endcap() << "," 
+                                                << lid.ring() << "," 
+                                                << lid.station() << "," 
+                                                << lid.layer() << ")" << endl;
+          }
+          const GeomDetUnit *det = cscGeom->idToDetUnit(lid);
+          HelixArbitraryPlaneCrossing crossing(propagatedState.globalPosition().basicVector(),
+                                               propagatedState.globalMomentum().basicVector(),
+                                               propagatedState.transverseCurvature(),
+                                               anyDirection);
+          pair<bool,double> path = crossing.pathLength(det->surface());
+          if ( ! path.first ) continue;
+          LocalPoint lpos = det->toLocal(GlobalPoint(crossing.position(path.second)));
+          if ( fabs(lpos.x()) > 0.5*det->surface().bounds().width() ||
+               fabs(lpos.y()) > 0.5*det->surface().bounds().length() ) continue;
+          double thickness = det->surface().bounds().thickness();
+          LocalVector lmom = det->toLocal(GlobalVector(crossing.direction(path.second)));
+          lmom = lmom.unit()*propagatedState.localMomentum().mag();
+          double eloss = 0;
+          double pz = fabs(lmom.z());
+          LocalPoint entry = lpos - 0.5*thickness*lmom/pz;
+          LocalPoint exit = lpos + 0.5*thickness*lmom/pz;
+          double dtof = path.second*rbeta;
+          int pid = mySimTrack.type();
+          int trkid = itrk;
+          unsigned int id = lid.rawId();
+	  short unsigned int processType = 2;
+          PSimHit hit(entry,exit,lmom.mag(),
+                      tof+dtof,eloss,pid,id,trkid,lmom.theta(),lmom.phi(),processType);
+          theCSCHits.push_back(hit);
+        }
+      }
+      else if ( gd->subDetector() == GeomDetEnumerators::RPCBarrel ||
+                gd->subDetector() == GeomDetEnumerators::RPCEndcap ) {
+        RPCDetId id(gd->geographicalId());
+        const RPCChamber *chamber = rpcGeom->chamber(id);
+        vector<const RPCRoll *> roll = chamber->rolls();
+        for ( unsigned int iroll=0; iroll<roll.size(); iroll++ ) {
+          RPCDetId rid = roll[iroll]->id();
+          if ( debug_ ) {
+            cout << "    Extrapolated to RPC (" << rid.ring() << "," 
+                                                << rid.station() << ","
+                                                << rid.sector() << ","
+                                                << rid.subsector() << ","
+                                                << rid.layer() << ","
+                                                << rid.roll() << ")" << endl;
+          }
+          const GeomDetUnit *det = rpcGeom->idToDetUnit(rid);
+          HelixArbitraryPlaneCrossing crossing(propagatedState.globalPosition().basicVector(),
+                                               propagatedState.globalMomentum().basicVector(),
+                                               propagatedState.transverseCurvature(),
+                                               anyDirection);
+          pair<bool,double> path = crossing.pathLength(det->surface());
+          if ( ! path.first ) continue;
+          LocalPoint lpos = det->toLocal(GlobalPoint(crossing.position(path.second)));
+          if ( fabs(lpos.x()) > 0.5*det->surface().bounds().width() ||
+               fabs(lpos.y()) > 0.5*det->surface().bounds().length() ) continue;
+          double thickness = det->surface().bounds().thickness();
+          LocalVector lmom = det->toLocal(GlobalVector(crossing.direction(path.second)));
+          lmom = lmom.unit()*propagatedState.localMomentum().mag();
+          double eloss = 0;
+          double pz = fabs(lmom.z());
+          LocalPoint entry = lpos - 0.5*thickness*lmom/pz;
+          LocalPoint exit = lpos + 0.5*thickness*lmom/pz;
+          double dtof = path.second*rbeta;
+          int pid = mySimTrack.type();
+          int trkid = itrk;
+          unsigned int id = rid.rawId();
+	  short unsigned int processType = 2;
+          PSimHit hit(entry,exit,lmom.mag(),
+                      tof+dtof,eloss,pid,id,trkid,lmom.theta(),lmom.phi(),processType);
+          theRPCHits.push_back(hit);
+        }
+      }
+      else {
+        cout << "Extrapolated to unknown subdetector '" << gd->subDetector() << "'..." << endl;
+      }
+    }
+  }
+
+  std::auto_ptr<edm::PSimHitContainer> pcsc(new edm::PSimHitContainer);
+  int n = 0;
+  for ( vector<PSimHit>::const_iterator i = theCSCHits.begin();
+        i != theCSCHits.end(); i++ ) {
+    pcsc->push_back(*i);
+    n += 1;
+  }
+  iEvent.put(pcsc,"MuonCSCHits");
+
+  std::auto_ptr<edm::PSimHitContainer> pdt(new edm::PSimHitContainer);
+  n = 0;
+  for ( vector<PSimHit>::const_iterator i = theDTHits.begin();
+        i != theDTHits.end(); i++ ) {
+    pdt->push_back(*i);
+    n += 1;
+  }
+  iEvent.put(pdt,"MuonDTHits");
+
+  std::auto_ptr<edm::PSimHitContainer> prpc(new edm::PSimHitContainer);
+  n = 0;
+  for ( vector<PSimHit>::const_iterator i = theRPCHits.begin();
+        i != theRPCHits.end(); i++ ) {
+    prpc->push_back(*i);
+    n += 1;
+  }
+  iEvent.put(prpc,"MuonRPCHits");
 
 }
 
-
-
-// ------------ method called once each job just before starting event loop  ------------
+// ---- method called once each job just before starting event loop ----
 void MuonSimHitProducer::beginJob(const edm::EventSetup& es)
 {
 
@@ -222,14 +499,14 @@ void MuonSimHitProducer::beginJob(const edm::EventSetup& es)
 // ------------ method called once each job just after ending the event loop  ------------
 void MuonSimHitProducer::endJob() {
 
-  std::cout << " ===> MuonSimHitProducer , final report." << std::endl;
-  std::cout << " ===> Number of succesfully propagated muons in the whole run : "
-  <<   nMuonTot << " -> " << std::endl;
+  //  std::cout << " ===> MuonSimHitProducer , final report." << std::endl;
+  // std::cout << " ===> Number of succesfully propagated muons in the whole run : "
+  //  <<   nMuonTot << " -> " << std::endl;
 }
 
 
 void MuonSimHitProducer::readParameters(const edm::ParameterSet& fastMuons, 
-					 const edm::ParameterSet& fastTracks) {
+                                        const edm::ParameterSet& fastTracks) {
   // Muons
   debug_ = fastMuons.getUntrackedParameter<bool>("Debug");
   doL1_ = fastMuons.getUntrackedParameter<bool>("ProduceL1Muons");
