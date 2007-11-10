@@ -1,8 +1,8 @@
 /*
  * \file EEClusterClient.cc
  *
- * $Date: 2007/11/05 11:01:09 $
- * $Revision: 1.21 $
+ * $Date: 2007/11/08 15:43:53 $
+ * $Revision: 1.22 $
  * \author G. Della Ricca
  * \author E. Di Marco
  *
@@ -879,7 +879,11 @@ void EEClusterClient::htmlOutput(int run, string htmlDir, string htmlName){
         gStyle->SetOptStat(" ");
         gStyle->SetPalette(10, pCol4);
         objp->GetXaxis()->SetNdivisions(10, kFALSE);
+        objp->GetXaxis()->SetLabelSize(0.02);
+        objp->GetXaxis()->SetTitleSize(0.02);
         objp->GetYaxis()->SetNdivisions(10, kFALSE);
+        objp->GetYaxis()->SetLabelSize(0.02);
+        objp->GetYaxis()->SetTitleSize(0.02);
         objp->GetZaxis()->SetLabelSize(0.02);
         cMap->SetGridx();
         cMap->SetGridy();
@@ -958,7 +962,11 @@ void EEClusterClient::htmlOutput(int run, string htmlDir, string htmlName){
       gStyle->SetOptStat(" ");
       gStyle->SetPalette(10, pCol4);
       objf->GetXaxis()->SetNdivisions(10, kFALSE);
+      objf->GetXaxis()->SetLabelSize(0.02);
+      objf->GetXaxis()->SetTitleSize(0.02);
       objf->GetYaxis()->SetNdivisions(10, kFALSE);
+      objf->GetYaxis()->SetLabelSize(0.02);
+      objf->GetYaxis()->SetTitleSize(0.02);
       objf->GetZaxis()->SetLabelSize(0.02);
       cMap->SetGridx();
       cMap->SetGridy();
