@@ -72,11 +72,13 @@ void testPtr::constructTest() {
    CPPUNIT_ASSERT(!nulled);
    CPPUNIT_ASSERT(nulled.isNull());
    CPPUNIT_ASSERT(!nulled.isNonnull());
+   CPPUNIT_ASSERT(!nulled.isAvailable());
 
    Ptr<Dummy> nulledP;
    CPPUNIT_ASSERT(!nulledP);
    CPPUNIT_ASSERT(nulledP.isNull());
    CPPUNIT_ASSERT(!nulledP.isNonnull());
+   CPPUNIT_ASSERT(!nulled.isAvailable());
 
    ProductID const pid(1);
 
@@ -90,6 +92,7 @@ void testPtr::constructTest() {
      TestHandle<DummyCollection> handle(&dummyContainer, pid);
      Ptr<Dummy> dummyPtr(handle,key);
      
+     CPPUNIT_ASSERT(dummyPtr.isAvailable());
      CPPUNIT_ASSERT(dummyPtr.id() == pid);
      //CPPUNIT_ASSERT(dummyPtrProd.id() == pid);
      CPPUNIT_ASSERT(dummyPtr.key() == key);
@@ -109,6 +112,7 @@ void testPtr::constructTest() {
      TestHandle<DummySet> handle(&dummyContainer, pid);
      Ptr<Dummy> dummyPtr(handle,key);
      
+     CPPUNIT_ASSERT(dummyPtr.isAvailable());
      CPPUNIT_ASSERT(dummyPtr.id() == pid);
      //CPPUNIT_ASSERT(dummyPtrProd.id() == pid);
      CPPUNIT_ASSERT(dummyPtr.key() == key);
@@ -130,6 +134,7 @@ void testPtr::constructTest() {
      TestHandle<DummyList> handle(&dummyContainer, pid);
      Ptr<Dummy> dummyPtr(handle,key);
      
+     CPPUNIT_ASSERT(dummyPtr.isAvailable());
      CPPUNIT_ASSERT(dummyPtr.id() == pid);
      //CPPUNIT_ASSERT(dummyPtrProd.id() == pid);
      CPPUNIT_ASSERT(dummyPtr.key() == key);
@@ -151,6 +156,7 @@ void testPtr::constructTest() {
      TestHandle<DummyDeque> handle(&dummyContainer, pid);
      Ptr<Dummy> dummyPtr(handle,key);
      
+     CPPUNIT_ASSERT(dummyPtr.isAvailable());
      CPPUNIT_ASSERT(dummyPtr.id() == pid);
      //CPPUNIT_ASSERT(dummyPtrProd.id() == pid);
      CPPUNIT_ASSERT(dummyPtr.key() == key);
@@ -172,6 +178,7 @@ void testPtr::constructTest() {
      TestHandle<DummyCollection2> handle(&dummyContainer, pid);
      Ptr<Dummy> dummyPtr(handle,key);
      
+     CPPUNIT_ASSERT(dummyPtr.isAvailable());
      CPPUNIT_ASSERT(dummyPtr.id() == pid);
      //CPPUNIT_ASSERT(dummyPtrProd.id() == pid);
      CPPUNIT_ASSERT(dummyPtr.key() == key);
@@ -303,6 +310,7 @@ void testPtr::getTest() {
 
    Ptr<IntValue> ref2(pid, 1, &tester);
 
+   CPPUNIT_ASSERT(ref0.isAvailable());
    CPPUNIT_ASSERT(0 == ref0->value_);
    CPPUNIT_ASSERT(ref0.hasCache());
    CPPUNIT_ASSERT(1 == ref1->value_);

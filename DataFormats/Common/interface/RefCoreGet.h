@@ -5,7 +5,7 @@
   
 RefCoreGet: Free function to get the pointer to a referenced product.
 
-$Id: RefCoreGet.h,v 1.2 2007/05/16 22:31:59 paterno Exp $
+$Id: RefCoreGet.h,v 1.3 2007/08/15 04:26:28 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -20,10 +20,8 @@ namespace edm {
     inline
     T const* 
     getProductPtr_(RefCore const& ref) {
-      ref.checkDereferenceability();
       //if (isNull()) throwInvalidReference();
-
-      EDProduct const* product = ref.productGetter()->getIt(ref.id());      
+      EDProduct const* product = ref.getProductPtr();
       if (product == 0) {
 	throw edm::Exception(errors::ProductNotFound)
 	  << "RefCore: A request to resolve a reference to a product of type: "

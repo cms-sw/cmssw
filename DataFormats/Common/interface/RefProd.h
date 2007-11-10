@@ -5,7 +5,7 @@
   
 Ref: A template for an interproduct reference to a product.
 
-$Id: RefProd.h,v 1.14 2007/07/27 14:50:57 llista Exp $
+$Id: RefProd.h,v 1.15 2007/09/18 08:01:51 llista Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -100,13 +100,13 @@ namespace edm {
     }
 
     /// Checks for null
-    bool isNull() const {return !isNonnull(); }
+    bool isNull() const {return !isNonnull();}
 
     /// Checks for non-null
-    bool isNonnull() const {return id().isValid(); }
+    bool isNonnull() const {return id().isValid();}
 
     /// Checks for null
-    bool operator!() const {return isNull(); }
+    bool operator!() const {return isNull();}
 
     /// Accessor for product ID.
     ProductID id() const {return product_.id();}
@@ -118,7 +118,11 @@ namespace edm {
     bool hasCache() const {return product_.productPtr() != 0;}
 
     /// Checks if product is in memory.
-    bool hasProductCache() const { return hasCache(); }
+    bool hasProductCache() const {return hasCache();}
+
+    /// Checks if collection is in memory or available
+    /// in the Event. No type checking is done.
+    bool isAvailable() const {return product_.isAvailable();}
 
     void swap( RefProd<C> & );
 

@@ -5,7 +5,7 @@
   
 Ref: A template for a interproduct reference to a member of a product.
 
-$Id: Ref.h,v 1.31 2007/09/17 14:15:21 llista Exp $
+$Id: Ref.h,v 1.32 2007/10/02 10:48:30 llista Exp $
 
 ----------------------------------------------------------------------*/
 /**
@@ -267,6 +267,10 @@ namespace edm {
     bool hasProductCache() const {return ref_.refCore().productPtr() != 0;}
 
     bool hasCache() const {return ref_.item().ptr() != 0;}
+
+    /// Checks if collection is in memory or available
+    /// in the Event. No type checking is done.
+    bool isAvailable() const {return ref_.refCore().isAvailable();}
 
   private:
     // Constructor from member of RefVector

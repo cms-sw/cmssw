@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Oct 24 15:26:45 EDT 2007
-// $Id$
+// $Id: PtrVectorBase.h,v 1.1 2007/11/06 20:17:46 chrjones Exp $
 //
 
 // system include files
@@ -56,6 +56,10 @@ namespace edm {
     /// True if the data has already be obtained from the Event
     bool hasCache() const { return 0!=core_.productPtr(); }
     
+    /// True if the data is in memory or is available in the Event
+    /// No type checking is done.
+    bool isAvailable() const{ return core_.isAvailable(); }
+
     /// Is the RefVector empty
     bool empty() const {return indicies_.empty();}
     

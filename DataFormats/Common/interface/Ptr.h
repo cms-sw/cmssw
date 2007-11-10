@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Oct 18 14:41:33 CEST 2007
-// $Id: Ptr.h,v 1.1 2007/10/22 19:50:22 chrjones Exp $
+// $Id: Ptr.h,v 1.2 2007/10/31 18:51:02 chrjones Exp $
 //
 
 // system include files
@@ -122,6 +122,10 @@ namespace edm {
     /// Checks for null
     bool operator!() const {return isNull();}
     
+    /// Checks if collection is in memory or available
+    /// in the event. No type checking is done.
+    bool isAvailable() const {return core_.isAvailable();}
+
     /// Accessor for product ID.
     ProductID id() const {return core_.id();}
     

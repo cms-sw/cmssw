@@ -2,9 +2,8 @@
 #include "FWCore/Utilities/interface/EDMException.h"
 
 namespace edm {
-  void
-  RefCore::checkDereferenceability() const
-  {
+  EDProduct const*
+  RefCore::getProductPtr() const {
     // The following invariant would be nice to establish in all
     // constructors, but we can not be sure that the context in which
     // EDProductGetter::instance() is called will be one where a
@@ -36,6 +35,12 @@ namespace edm {
 	<< "a functioning EDProducterGetter for the context in which this\n"
 	<< "call is mode\n";
     }
+    return productGetter()->getIt(id_);
+  }
+
+  bool
+  RefCore::isAvailable() const {
+      return prodPtr_ != 0 || (id_.isValid() && productGetter() != 0 && productGetter()->getIt(id_) != 0);
   }
 
 //   void
