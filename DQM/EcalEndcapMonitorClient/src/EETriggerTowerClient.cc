@@ -1,8 +1,8 @@
 /*
  * \file EETriggerTowerClient.cc
  *
- * $Date: 2007/11/08 15:43:53 $
- * $Revision: 1.20 $
+ * $Date: 2007/11/10 14:09:12 $
+ * $Revision: 1.21 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -607,7 +607,9 @@ void EETriggerTowerClient::htmlOutput(int run, string htmlDir, string htmlName){
       gStyle->SetPalette(10, pCol4);
       obj2f->SetMinimum(0);
       obj2f->GetXaxis()->SetLabelSize(0.02);
+      obj2f->GetXaxis()->SetTitleSize(0.02);
       obj2f->GetYaxis()->SetLabelSize(0.02);
+      obj2f->GetYaxis()->SetTitleSize(0.02);
       obj2f->GetZaxis()->SetLabelSize(0.02);
       cMe2->SetGridx();
       cMe2->SetGridy();
@@ -671,7 +673,9 @@ void EETriggerTowerClient::htmlOutput(int run, string htmlDir, string htmlName){
         cMe1->SetGridx();
         cMe1->SetGridy();
         obj2p->GetXaxis()->SetLabelSize(0.02);
+        obj2p->GetXaxis()->SetTitleSize(0.02);
         obj2p->GetYaxis()->SetLabelSize(0.02);
+        obj2p->GetYaxis()->SetTitleSize(0.02);
         obj2p->GetZaxis()->SetLabelSize(0.02);
         obj2p->Draw("colz");
         int x1 = labelGrid.GetXaxis()->FindBin(Numbers::ix0EE(ism)+0.);
@@ -776,7 +780,9 @@ void EETriggerTowerClient::htmlOutput(int run, string htmlDir, string htmlName){
           gStyle->SetPalette(10, pCol4);
           obj2f->SetMinimum(0);
           obj2f->GetXaxis()->SetLabelSize(0.02);
+          obj2f->GetXaxis()->SetTitleSize(0.02);
           obj2f->GetYaxis()->SetLabelSize(0.02);
+          obj2f->GetYaxis()->SetTitleSize(0.02);
           obj2f->GetZaxis()->SetLabelSize(0.02);
           cMe2->SetGridx();
           cMe2->SetGridy();
@@ -864,7 +870,9 @@ void EETriggerTowerClient::htmlOutput(int run, string htmlDir, string htmlName){
           gStyle->SetPalette(10, pCol4);
           obj2f->SetMinimum(0);
           obj2f->GetXaxis()->SetLabelSize(0.02);
+          obj2f->GetXaxis()->SetTitleSize(0.02);
           obj2f->GetYaxis()->SetLabelSize(0.02);
+          obj2f->GetYaxis()->SetTitleSize(0.02);
           obj2f->GetZaxis()->SetLabelSize(0.02);
           cMe2->SetGridx();
           cMe2->SetGridy();
