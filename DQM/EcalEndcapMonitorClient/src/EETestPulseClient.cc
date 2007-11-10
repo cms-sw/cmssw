@@ -1,8 +1,8 @@
 /*
  * \file EETestPulseClient.cc
  *
- * $Date: 2007/11/10 09:01:55 $
- * $Revision: 1.43 $
+ * $Date: 2007/11/10 14:09:12 $
+ * $Revision: 1.44 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -1437,7 +1437,7 @@ void EETestPulseClient::htmlOutput(int run, string htmlDir, string htmlName){
 
       if ( objp ) {
 
-        meName = obj1d->GetName();
+        meName = objp->GetName();
 
         for ( unsigned int i = 0; i < meName.size(); i++ ) {
           if ( meName.substr(i, 1) == " " )  {
