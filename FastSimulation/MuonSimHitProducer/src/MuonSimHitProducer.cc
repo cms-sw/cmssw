@@ -15,7 +15,7 @@
 //         Created:  Wed Jul 30 11:37:24 CET 2007
 //         Working:  Fri Nov  9 09:39:33 CST 2007
 //
-// $Id: MuonSimHitProducer.cc,v 1.4 2007/07/23 09:53:01 mulders Exp $
+// $Id: MuonSimHitProducer.cc,v 1.5 2007/11/10 20:11:07 mulders Exp $
 //
 //
 
@@ -344,6 +344,14 @@ void MuonSimHitProducer::produce(edm::Event& iEvent,
 //
             const DTTopology& dtTopo = layer[ilayer]->specificTopology();
             int wire = dtTopo.channel(lpos);
+	    if (wire < dtTopo.firstChannel()) {
+	      cout << "DT wire number too low; check DTTopology.channel() method !!" << endl;
+	      wire = dtTopo.firstChannel();
+	    }
+	    if (wire > dtTopo.lastChannel()) {
+	      cout << "DT wire number too high; check DTTopology.channel() method !!" << endl;
+	      wire = dtTopo.lastChannel();	      
+	    }
 //
 //  The wire number calculation is somewhat imperical at this point...  The
 //  drift cell width is 4.22 cm, but the absolute offset needs to be checked.
