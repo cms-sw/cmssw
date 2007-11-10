@@ -60,11 +60,10 @@ OnDemandMeasurementTracker::OnDemandMeasurementTracker(const edm::ParameterSet& 
 						       const SiStripQuality *stripQuality,
                                                        int   qualityFlags,
                                                        int   qualityDebugFlags,
-						       //const SiStripNoises *stripNoises,
 						       const SiStripRegionCabling * stripRegionCabling,
 						       bool isRegional):
   MeasurementTracker(conf,pixelCPE,stripCPE,hitMatcher,trackerGeom,geometricSearchTracker,
-        stripQuality,qualityFlags,qualityDebugFlags,/*stripNoises,*/isRegional)
+        stripQuality,qualityFlags,qualityDebugFlags,isRegional)
   , category_("OnDemandMeasurementTracker")
   , StayPacked_(true)
   , StripOnDemand_(true)

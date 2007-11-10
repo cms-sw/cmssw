@@ -48,7 +48,7 @@ fastMeasurements( const TrajectoryStateOnSurface& stateOnThisDet,
     result.push_back( TrajectoryMeasurement( stateOnThisDet, 
     		InvalidTransientRecHit::build(&geomDet(), TrackingRecHit::inactive), 
 		0.F));
-   // edm::LogInfo("[*GIO*] TkStrMD") << " DetID " << (theStripGDU->geographicalId())() << " inactive";
+   // edm::LogWarning("TkStripMeasurementDet") << " DetID " << (theStripGDU->geographicalId())() << " inactive";
     return result;
   }
  
@@ -212,7 +212,8 @@ TkStripMeasurementDet::set128StripStatus(bool good, int idx) {
        if (good == false) {
             hasAny128StripBad_ = false;
        } else { // this should not happen, as usually you turn on all fibers
-                // and then turn off the bad ones, and not vice-versa
+                // and then turn off the bad ones, and not vice-versa,
+                // so I don't care if it's not optimized
             hasAny128StripBad_ = true;
             for (int i = 0; i < (totalStrips_ >> 7); i++) {
                 if (bad128Strip_[i] == false) hasAny128StripBad_ = false;
@@ -222,7 +223,6 @@ TkStripMeasurementDet::set128StripStatus(bool good, int idx) {
     
 }
 
-#ifndef RecoTracker_MeasurementDet_TkStripMeasurementDet_BADSTRIP_FROM_NOISE
 bool
 TkStripMeasurementDet::testStrips(float utraj, float uerr) const {
     int start = (int) (utraj - 3*uerr); if (start < 0) start = 0;
@@ -295,59 +295,3 @@ TkStripMeasurementDet::testStrips(float utraj, float uerr) const {
     return (good >= 1); //to be tuned
 }
 
-#else // of #ifndef RecoTracker_MeasurementDet_TkStripMeasurementDet_BADSTRIP_FROM_NOISE
-bool
-TkStripMeasurementDet::testStrips(float utraj, float uerr) const {
-    int istart = (int) (utraj - 3*uerr); if (istart < 0) istart = 0;
-    SiStripNoises::ContainerIterator start = stripNoises_.first + istart;
-    int iend = (int) (utraj + 3*uerr); 
-    SiStripNoises::ContainerIterator end = stripNoises_.first + iend;
-    if (end > stripNoises_.second) end = stripNoises_.second;
-
-    bool goodapv = 0;
-    for (int apv = (istart >> 7), apvend = (iend >> 7); // (x >> 7) = x/128
-          apv <= apvend; apv++) {
-        if (!bad128Strip_[apv]) { goodapv = true; break; }
-    }
-
-    if (!goodapv) {
-        LogDebug("TkStripMeasurementDet") << "Testing module " << id_ <<", "<<
-            " U = " << utraj << " +/- " << (3*uerr) << 
-            " Range U:[" << (utraj - 3*uerr) << ", " << (utraj + 3*uerr) << "] " << 
-            "= I:[" << istart << "," << iend << "]" <<
-            " NO GOOD APV/FIBER";
-        return false;
-    }
-
-    int found = 0, off = 0;
-    while (start < end) {
-        found++;
-        if (bad128Strip_[istart / 128] || (*start < 0)) off++;
-        start++; istart++;
-    }
-    LogDebug("TkStripMeasurementDet") << "Testing module " << (geomDet().geographicalId().rawId()) <<", "<<
-        " U = " << utraj << " +/- " << (3*uerr) << 
-        " Range U:[" << (utraj - 3*uerr) << ", " << (utraj + 3*uerr) << "] " << 
-        "= I:[" << istart << "," << iend << "]" <<
-        " total strips: " << found << ", bad: " << off << 
-        ", verdict: " << ((off == 0) || (off < found));
-    return (off == 0) || (off < found); //to be tuned
-    // succeed if there either there are no bad strips 
-    // (which might mean also that no strip DB is there),
-    // or there is at least *one* good strip
-}
-#endif // of #ifndef RecoTracker_MeasurementDet_TkStripMeasurementDet_BADSTRIP_FROM_NOISE
-
-//  void
-//  TkStripMeasurementDet::setNoises(const SiStripNoises::Range noises) 
-//  {
-//    stripNoises_ = noises;
-//  /*// count bad strips
-//    int found = 0, off = 0;
-//    for (SiStripNoises::ContainerIterator it = stripNoises_.first;
-//          it != stripNoises_.second; it++) {
-//          found++; if (*it < 0) off++;
-//    }
-//    //std::cout << "[*GIO*] DetID " << mydetid << ": bad strips = " << off << "/" << found << "\n";
-//  */
-//  }
