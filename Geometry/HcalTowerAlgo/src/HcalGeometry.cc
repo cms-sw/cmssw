@@ -64,6 +64,7 @@ DetId HcalGeometry::getClosestCell(const GlobalPoint& r) const
     double trueAeta=asinh(z_long/radius);
     // find eta bin
     int etaring = etaRing(bc, trueAeta);
+    if (etaring>theTopology->lastHFRing()) etaRing=theTopology->lastHFRing(); 
   
     int phibin = phiBin(r.phi(), etaring);
 
