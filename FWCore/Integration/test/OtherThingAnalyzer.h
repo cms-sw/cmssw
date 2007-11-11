@@ -9,10 +9,7 @@ namespace edmtest {
   class OtherThingAnalyzer : public edm::EDAnalyzer {
   public:
 
-    // The following is not yet used, but will be the primary
-    // constructor when the parameter set system is available.
-    //
-    explicit OtherThingAnalyzer(edm::ParameterSet const&) {}
+    explicit OtherThingAnalyzer(edm::ParameterSet const& pset);
 
     virtual ~OtherThingAnalyzer() {}
 
@@ -29,6 +26,7 @@ namespace edmtest {
     void doit(edm::DataViewImpl const& dv, std::string const& label);
 
   private:
+    bool thingWasDropped_;
   };
 
 }

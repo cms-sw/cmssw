@@ -12,6 +12,10 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 namespace edmtest {
+  OtherThingAnalyzer::OtherThingAnalyzer(edm::ParameterSet const& pset) :
+    thingWasDropped_(pset.getUntrackedParameter<bool>("thingWasDropped", false)) {
+  }
+
   void OtherThingAnalyzer::analyze(edm::Event const& e, edm::EventSetup const&) {
     doit(e.me(), std::string("testUserTag"));
   }
@@ -52,42 +56,6 @@ namespace edmtest {
       if (otherThing.oneNullOneNot[1].isNull()) {
 	throw cms::Exception("Inconsistent Dat", "OtherThingAnalyzer::analyze")
 	  << " expected non-null reference is null\n";
-      }
-      ThingCollection const& tcoll = *otherThing.refProd;
-      ThingCollection::size_type size1 = tcoll.size();
-      ThingCollection::size_type size2 = otherThing.refProd->size();
-      if (size1 == 0 || size1 != size2) {
-        throw cms::Exception("Inconsistent Data", "OtherThingAnalyzer::analyze") << " RefProd size mismatch " << std::endl;
-      }
-      Thing const& tc = *otherThing.ref;
-      int const& x = otherThing.ref->a;
-      if (tc.a == i && x == i) {
-        edm::LogInfo("OtherThingAnalyzer") << " ITEM " << i << " LABEL " << label << " dereferenced successfully.\n";
-      } else {
-        throw cms::Exception("Inconsistent Data", "OtherThingAnalyzer::analyze") << "ITEM " << i << " has incorrect value " << tc.a << '\n';
-      }
-      int const& xPtr = otherThing.ptr->a;
-      if (tc.a == i && xPtr == i) {
-        edm::LogInfo("OtherThingAnalyzer") << " ITEM " << i << " LABEL " << label << " dereferenced from edm:Ptr successfully.\n";
-      } else {
-        throw cms::Exception("Inconsistent Data", "OtherThingAnalyzer::analyze") << "ITEM " << i << " has incorrect edm::Ptr value " << tc.a << '\n';
-      }
-      
-      const edm::View<Thing>& viewThing = *otherThing.refToBaseProd;
-      const edm::View<Thing>::size_type viewSize1 = viewThing.size();
-      const edm::View<Thing>::size_type viewSize2 = otherThing.refToBaseProd->size();
-      if (viewSize1 == 0 || viewSize2 != viewSize1) {
-        throw cms::Exception("Inconsistent Data", "OtherThingAnalyzer::analyze") << " RefToBaseProd size mismatch " << std::endl;
-      }
-      if (viewSize1 != size1) {
-        throw cms::Exception("Inconsistent Data", "OtherThingAnalyzer::analyze") << " RefToBaseProd size mismatch to RefProd size" << std::endl;
-      }
-      Thing const& tcBase = *otherThing.refToBase;
-      int const& xBase = otherThing.refToBase->a;
-      if (tcBase.a == i && xBase == i) {
-        edm::LogInfo("OtherThingAnalyzer") << " ITEM " << i << " LABEL " << label << " RefToBase dereferenced successfully.\n";
-      } else {
-        throw cms::Exception("Inconsistent Data", "OtherThingAnalyzer::analyze") << "ITEM " << i << " RefToBase has incorrect value " << tc.a << '\n';
       }
 
       bool shouldBeTrue = otherThing.refVec[0] != otherThing.refVec[1];
@@ -130,6 +98,51 @@ namespace edmtest {
       if (!shouldBeTrue) {
         throw cms::Exception("Inconsistent Data", "OtherThingAnalyzer::analyze") << "RefVector inequality has incorrect value\n";
       }
+      assert(otherThing.refProd.isAvailable() != thingWasDropped_);
+      assert(otherThing.ref.isAvailable() != thingWasDropped_);
+      assert(otherThing.ptr.isAvailable() != thingWasDropped_);
+      assert(otherThing.refVec.isAvailable() != thingWasDropped_);
+
+      if (thingWasDropped_) return;
+
+      ThingCollection const& tcoll = *otherThing.refProd;
+      ThingCollection::size_type size1 = tcoll.size();
+      ThingCollection::size_type size2 = otherThing.refProd->size();
+      if (size1 == 0 || size1 != size2) {
+        throw cms::Exception("Inconsistent Data", "OtherThingAnalyzer::analyze") << " RefProd size mismatch " << std::endl;
+      }
+
+      Thing const& tc = *otherThing.ref;
+      int const& x = otherThing.ref->a;
+      if (tc.a == i && x == i) {
+        edm::LogInfo("OtherThingAnalyzer") << " ITEM " << i << " LABEL " << label << " dereferenced successfully.\n";
+      } else {
+        throw cms::Exception("Inconsistent Data", "OtherThingAnalyzer::analyze") << "ITEM " << i << " has incorrect value " << tc.a << '\n';
+      }
+      int const& xPtr = otherThing.ptr->a;
+      if (tc.a == i && xPtr == i) {
+        edm::LogInfo("OtherThingAnalyzer") << " ITEM " << i << " LABEL " << label << " dereferenced from edm:Ptr successfully.\n";
+      } else {
+        throw cms::Exception("Inconsistent Data", "OtherThingAnalyzer::analyze") << "ITEM " << i << " has incorrect edm::Ptr value " << tc.a << '\n';
+      }
+      
+      const edm::View<Thing>& viewThing = *otherThing.refToBaseProd;
+      const edm::View<Thing>::size_type viewSize1 = viewThing.size();
+      const edm::View<Thing>::size_type viewSize2 = otherThing.refToBaseProd->size();
+      if (viewSize1 == 0 || viewSize2 != viewSize1) {
+        throw cms::Exception("Inconsistent Data", "OtherThingAnalyzer::analyze") << " RefToBaseProd size mismatch " << std::endl;
+      }
+      if (viewSize1 != size1) {
+        throw cms::Exception("Inconsistent Data", "OtherThingAnalyzer::analyze") << " RefToBaseProd size mismatch to RefProd size" << std::endl;
+      }
+      Thing const& tcBase = *otherThing.refToBase;
+      int const& xBase = otherThing.refToBase->a;
+      if (tcBase.a == i && xBase == i) {
+        edm::LogInfo("OtherThingAnalyzer") << " ITEM " << i << " LABEL " << label << " RefToBase dereferenced successfully.\n";
+      } else {
+        throw cms::Exception("Inconsistent Data", "OtherThingAnalyzer::analyze") << "ITEM " << i << " RefToBase has incorrect value " << tc.a << '\n';
+      }
+
       Thing const& tcv = *otherThing.refVec[0];
       int const& xv = otherThing.refVec[0]->a;
       if (xv != tcv.a || xv != i) {

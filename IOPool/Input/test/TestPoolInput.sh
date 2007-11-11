@@ -64,6 +64,13 @@ process TESTPROD = {
 	module output = PoolOutputModule {
 		untracked string fileName = '${LOCAL_TMP_DIR}/PoolInputTest.root'
 	}
+	module output2 = PoolOutputModule {
+		untracked string fileName = '${LOCAL_TMP_DIR}/PoolInputDropTest.root'
+		untracked vstring outputCommands = {
+		  "keep *",
+		  "drop *_Thing_*_*"
+		}
+	}
 	module OtherThing = OtherThingProducer {untracked int32 debugLevel = 1}
 	source = EmptySource {
 		untracked uint32 firstRun = 561
@@ -71,7 +78,7 @@ process TESTPROD = {
 		untracked uint32 numberEventsInLuminosityBlock = 3
 		untracked uint32 numberEventsInRun = 7
 	}
-        endpath ep = {output}
+        endpath ep = {output, output2}
 }
 !
 cmsRun --parameter-set ${LOCAL_TMP_DIR}/PrePoolInputTest2.cfg || die 'Failure using PrePoolInputTest2.cfg' $?
@@ -95,4 +102,25 @@ process TESTRECO = {
 }
 !
 cmsRun --parameter-set ${LOCAL_TMP_DIR}/PoolInputTest2.cfg || die 'Failure using PoolInputTest.cfg' $?
+
+cat > ${LOCAL_TMP_DIR}/PoolInputTest3.cfg << !
+# Configuration file for PoolInputTest
+process TESTRECO = {
+	untracked PSet maxEvents = {untracked int32 input = -1}
+	include "FWCore/Framework/test/cmsExceptionsFatal.cff"
+	path p = {Analysis}
+	module Analysis = OtherThingAnalyzer {
+		untracked int32 debugLevel = 1
+		untracked bool thingWasDropped = true
+	}
+	source = PoolSource {
+		untracked uint32 setRunNumber = 121
+		untracked vstring fileNames = {
+			'file:${LOCAL_TMP_DIR}/PoolInputDropTest.root'
+		}
+	}
+}
+!
+cmsRun --parameter-set ${LOCAL_TMP_DIR}/PoolInputTest2.cfg || die 'Failure using PoolInputTest.cfg' $?
+
 
