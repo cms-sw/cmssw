@@ -1,8 +1,8 @@
 /*
  * \file EESummaryClient.cc
  *
- * $Date: 2007/11/09 09:34:04 $
- * $Revision: 1.52 $
+ * $Date: 2007/11/10 14:09:12 $
+ * $Revision: 1.53 $
  * \author G. Della Ricca
  *
 */
@@ -301,13 +301,13 @@ void EESummaryClient::setup(void) {
   meCosmic_[1]->setAxisTitle("iy", 2);
 
   if( meTiming_[0] ) dbe_->removeElement( meTiming_[0]->getName() );
-  sprintf(histo, "EETPT EE - timing quality summary");
+  sprintf(histo, "EETMT EE - timing quality summary");
   meTiming_[0] = dbe_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
   meTiming_[0]->setAxisTitle("ix", 1);
   meTiming_[0]->setAxisTitle("iy", 2);
 
   if( meTiming_[1] ) dbe_->removeElement( meTiming_[1]->getName() );
-  sprintf(histo, "EETPT EE + timing quality summary");
+  sprintf(histo, "EETMT EE + timing quality summary");
   meTiming_[1] = dbe_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
   meTiming_[1]->setAxisTitle("ix", 1);
   meTiming_[1]->setAxisTitle("iy", 2);
