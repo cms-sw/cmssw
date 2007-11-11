@@ -35,6 +35,8 @@ private:
 
 	FILE *file;
 
+	int m_minBX, m_maxBX, central_lct_bx, central_sp_bx;
+
 public:
 	virtual void produce(edm::Event& e, const edm::EventSetup& c);
 

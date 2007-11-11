@@ -36,8 +36,8 @@
 CSCTFUnpacker::CSCTFUnpacker(const edm::ParameterSet& pset):edm::EDProducer(),mapping(0),monitor(0){
 	LogDebug("CSCTFUnpacker|ctor")<<"Started ...";
 
-	m_minBX = pset.getUntrackedParameter<int>("MinBX",-3);
-	m_maxBX = pset.getUntrackedParameter<int>("MaxBX",3);
+	m_minBX = pset.getUntrackedParameter<int>("MinBX",3);
+	m_maxBX = pset.getUntrackedParameter<int>("MaxBX",9);
 
 	// Initialize slot<->sector assignment
 	slot2sector = pset.getUntrackedParameter< std::vector<int> >("slot2sector",std::vector<int>(0));

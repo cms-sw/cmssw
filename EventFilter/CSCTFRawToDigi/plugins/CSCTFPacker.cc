@@ -32,6 +32,17 @@ CSCTFPacker::CSCTFPacker(const edm::ParameterSet &conf):edm::EDProducer(){
 	if( outputFile.length() && (file = fopen(outputFile.c_str(),"wt"))==NULL )
 		throw cms::Exception("OutputFile ")<<"CSCTFPacker: cannot open output file (errno="<<errno<<"). Try outputFile=\"\"";
 
+	// BX window bounds in CMSSW:
+	m_minBX = conf.getUntrackedParameter<int>("MinBX",3);
+	m_maxBX = conf.getUntrackedParameter<int>("MaxBX",9);
+
+	// Finds central LCT BX
+	// assumes window is odd number of bins
+	central_lct_bx = (m_maxBX + m_minBX)/2;
+	// Find central SP BX
+	// assumes window is odd number of bins
+	central_sp_bx = int(nTBINs/2);
+
 	produces<FEDRawDataCollection>("CSCTFRawData");
 }
 
@@ -57,7 +68,8 @@ void CSCTFPacker::produce(edm::Event& e, const edm::EventSetup& c){
 			int cscId   = (*csc).first.triggerCscId()-1;
 			int sector  = (*csc).first.triggerSector()-1 + ( (*csc).first.endcap()==1 ? 0 : 6 );
 			int subSector = CSCTriggerNumbering::triggerSubSectorFromLabels((*csc).first);
-			int tbin    = lct->getBX();
+			int tbin = lct->getBX() - (central_lct_bx-central_sp_bx); // Shift back to hardware BX window definition
+
 			int fpga    = ( subSector ? subSector-1 : station+1 );
 //std::cout<<"Front data station: "<<station<<"  sector: "<<sector<<"  subSector: "<<subSector<<"  tbin: "<<tbin<<"  cscId: "<<cscId<<"  fpga: "<<fpga<<endl;
 
@@ -122,7 +134,7 @@ void CSCTFPacker::produce(edm::Event& e, const edm::EventSetup& c){
 
 	for(L1CSCTrackCollection::const_iterator trk=tracks->begin(); trk<tracks->end(); trk++){
 		int sector = 6*(trk->first.endcap()-1)+trk->first.sector()-1;
-		int tbin   = trk->first.BX();
+		int tbin   = trk->first.BX() + central_sp_bx; // Shift back to hardware BX window definition
 		spDataRecord[sector][tbin][nTrk].phi_       = trk->first.phi_packed();
 		spDataRecord[sector][tbin][nTrk].sign_      =(trk->first.ptLUTAddress()>>20)&0x1;
 		spDataRecord[sector][tbin][nTrk].front_rear = 0; // not necessary
