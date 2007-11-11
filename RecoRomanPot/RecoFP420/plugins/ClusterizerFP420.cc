@@ -15,25 +15,47 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+#include "Geometry/CommonDetUnit/interface/GeomDetType.h"
+#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
+#include "Geometry/TrackerNumberingBuilder/interface/GeometricDet.h"
+
+#include "DataFormats/Common/interface/DetSetVector.h"
+#include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
+
 
 #include "RecoRomanPot/RecoFP420/interface/ClusterizerFP420.h"
-#include "SimRomanPot/SimFP420/interface/DigiCollectionFP420.h"
-#include "RecoRomanPot/RecoFP420/interface/ClusterCollectionFP420.h"
+#include "DataFormats/FP420Digi/interface/DigiCollectionFP420.h"
+#include "DataFormats/FP420Cluster/interface/ClusterCollectionFP420.h"
 #include "RecoRomanPot/RecoFP420/interface/ClusterNoiseFP420.h"
 
+//Random Number
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/Utilities/interface/RandomNumberGenerator.h"
+#include "FWCore/Utilities/interface/Exception.h"
+#include "CLHEP/Random/RandomEngine.h"
+
+#include <cstdlib> 
 #include <iostream> 
 using namespace std;
 
-//ClusterizerFP420::ClusterizerFP420(const edm::ParameterSet& conf):
-//  conf_(conf),sClusterizerFP420_(new FP420ClusterMain(conf)) {
-ClusterizerFP420::ClusterizerFP420(const edm::ParameterSet& conf):
-  conf_(conf) {
+namespace cms
+{
+  ClusterizerFP420::ClusterizerFP420(const edm::ParameterSet& conf):
+    conf_(conf) {
     
     
-    edm::ParameterSet m_Anal = conf.getParameter<edm::ParameterSet>("ClusterizerFP420");
-    verbosity    = m_Anal.getParameter<int>("Verbosity");
-    sn0 = m_Anal.getParameter<int>("NumberFP420Stations");
-    pn0 = m_Anal.getParameter<int>("NumberFP420SPlanes");
+    std::string alias ( conf.getParameter<std::string>("@module_label") );
+    
+    produces<ClusterCollectionFP420>().setBranchAlias( alias );
+    
+    trackerContainers.clear();
+    trackerContainers = conf.getParameter<std::vector<std::string> >("ROUList");
+    
+    verbosity = conf_.getUntrackedParameter<int>("VerbosityLevel");
+    sn0   = conf_.getParameter<int>("NumberFP420Stations");
+    pn0 = conf_.getParameter<int>("NumberFP420SPlanes");
+    
     if (verbosity > 0) {
       std::cout << "Creating a ClusterizerFP420" << std::endl;
       std::cout << "ClusterizerFP420: sn0=" << sn0 << " pn0=" << pn0 << std::endl;
@@ -41,90 +63,169 @@ ClusterizerFP420::ClusterizerFP420(const edm::ParameterSet& conf):
     
     sClusterizerFP420_ = new FP420ClusterMain(conf_,sn0,pn0);
   }
-
-// Virtual destructor needed.
-ClusterizerFP420::~ClusterizerFP420() { 
-  delete sClusterizerFP420_;
-}  
-
-//Get at the beginning
-void ClusterizerFP420::beginJob() {
-  if (verbosity > 0) {
-    std::cout << "BeginJob method " << std::endl;
+  
+  // Virtual destructor needed.
+  ClusterizerFP420::~ClusterizerFP420() { 
+    delete sClusterizerFP420_;
+  }  
+  
+  //Get at the beginning
+  void ClusterizerFP420::beginJob() {
+    if (verbosity > 0) {
+      std::cout << "BeginJob method " << std::endl;
+    }
+    //Getting Calibration data (Noises and BadElectrodes Flag)
+    //    bool UseNoiseBadElectrodeFlagFromDB_=conf_.getParameter<bool>("UseNoiseBadElectrodeFlagFromDB");  
+    //    if (UseNoiseBadElectrodeFlagFromDB_==true){
+    //      iSetup.get<ClusterNoiseFP420Rcd>().get(noise);// AZ: do corrections for noise here
+    //=========================================================
+    // 
+    // Debug: show noise for DetIDs
+    //       ElectrodNoiseMapIterator mapit = noise->m_noises.begin();
+    //       for (;mapit!=noise->m_noises.end();mapit++)
+    // 	{
+    // 	  unsigned int detid = (*mapit).first;
+    // 	  std::cout << "detid " <<  detid << " # Electrode " << (*mapit).second.size()<<std::endl;
+    // 	  //ElectrodNoiseVector theElectrodVector =  (*mapit).second;     
+    // 	  const ElectrodNoiseVector theElectrodVector =  noise->getElectrodNoiseVector(detid);
+    
+    
+    // 	  int electrode=0;
+    // 	  ElectrodNoiseVectorIterator iter=theElectrodVector.begin();
+    // 	  //for(; iter!=theElectrodVector.end(); iter++)
+    // 	  {
+    // 	    std::cout << " electrode " << electrode++ << " =\t"
+    // 		      << iter->getNoise()     << " \t" 
+    // 		      << iter->getDisable()   << " \t" 
+    // 		      << std::endl; 	    
+    // 	  } 
+    //       }
+    //===========================================================
+    //    }
   }
-  //Getting Calibration data (Noises and BadElectrodes Flag)
-  //    bool UseNoiseBadElectrodeFlagFromDB_=conf_.getParameter<bool>("UseNoiseBadElectrodeFlagFromDB");  
-  //    if (UseNoiseBadElectrodeFlagFromDB_==true){
-  //      iSetup.get<ClusterNoiseFP420Rcd>().get(noise);// AZ: do corrections for noise here
-  //=========================================================
-  // 
-  // Debug: show noise for DetIDs
-  //       ElectrodNoiseMapIterator mapit = noise->m_noises.begin();
-  //       for (;mapit!=noise->m_noises.end();mapit++)
-  // 	{
-  // 	  unsigned int detid = (*mapit).first;
-  // 	  std::cout << "detid " <<  detid << " # Electrode " << (*mapit).second.size()<<std::endl;
-  // 	  //ElectrodNoiseVector theElectrodVector =  (*mapit).second;     
-  // 	  const ElectrodNoiseVector theElectrodVector =  noise->getElectrodNoiseVector(detid);
   
-  
-  // 	  int electrode=0;
-  // 	  ElectrodNoiseVectorIterator iter=theElectrodVector.begin();
-  // 	  //for(; iter!=theElectrodVector.end(); iter++)
-  // 	  {
-  // 	    std::cout << " electrode " << electrode++ << " =\t"
-  // 		      << iter->getNoise()     << " \t" 
-  // 		      << iter->getDisable()   << " \t" 
-  // 		      << std::endl; 	    
-  // 	  } 
-  //       }
-  //===========================================================
-  //    }
-}
+  void ClusterizerFP420::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
+  {
+    //  beginJob;
+    // be lazy and include the appropriate namespaces
+    using namespace edm; 
+    using namespace std;   
+    if (verbosity > 0) {
+      std::cout << "ClusterizerFP420: produce" << std::endl;
+    }
+    
+    // Get input
+    //A
+    //   edm::Handle<DigiCollectionFP420> icf_simhit;
+    /*    
+    Handle<DigiCollectionFP420> cf_simhit;
+    std::vector<const DigiCollectionFP420 *> cf_simhitvec;
+    for(uint32_t i = 0; i< trackerContainers.size();i++){
+      iEvent.getByLabel( trackerContainers[i], cf_simhit);
+      cf_simhitvec.push_back(cf_simhit.product());   }
+    std::auto_ptr<DigiCollectionFP420 > digis(new DigiCollectionFP420(cf_simhitvec));
 
-// Initialization:
-//  theFP420NumberingScheme = new FP420NumberingScheme();
-//  theFP420DigiMain = new FP420DigiMain();
-//      void DigitizerFP420::produce(FP420G4HitCollection *   theCAFI, DigiCollectionFP420 & soutput) {
+    std::vector<HDigiFP420> input;
+    DigiCollectionFP420::iterator isim;
+    for (isim=digis->begin(); isim!= digis->end();isim++) {
+      input.push_back(*isim);
+     }
+*/    
+    //B
+	   
+    Handle<DigiCollectionFP420> input;
+    try{
+      //      iEvent.getByLabel( "FP420Digi" , digis);
+      iEvent.getByLabel( trackerContainers[0] , input);
+    } catch(...){;}
 
-// Functions that gets called by framework every event
-// void ClusterizerFP420::produce(DigiCollectionFP420 * input, ClusterCollectionFP420 & soutput)
-void ClusterizerFP420::produce(DigiCollectionFP420 & input, ClusterCollectionFP420 & soutput)
-{
-  //  beginJob;
-  
-  //    put zero to container info from the beginning (important! because not any detID is updated with coming of new event     !!!!!!   
-  // clean info of container from previous event
-  for (int sector=1; sector<sn0; sector++) {
-    for (int zmodule=1; zmodule<pn0; zmodule++) {
-      for (int zside=1; zside<3; zside++) {
-	// zside here defines just Left or Right planes, not their type !!!
-	//	  int sScale = 20;
-	int sScale = 2*(pn0-1);
-	//      int index = FP420NumberingScheme::packFP420Index(det, zside, sector, zmodule);
-	// intindex is a continues numbering of FP420
-	int zScale=2;  unsigned int detID = sScale*(sector - 1)+zScale*(zmodule - 1)+zside;
-	std::vector<ClusterFP420> collector;
-	collector.clear();
-	ClusterCollectionFP420::Range inputRange;
-	inputRange.first = collector.begin();
-	inputRange.second = collector.end();
-	
-	soutput.putclear(inputRange,detID);
-	
+    if (verbosity > 0) {
+      std::cout << "ClusterizerFP420: OK1" << std::endl;
+    }
+
+    // Step C: create empty output collection
+    std::auto_ptr<ClusterCollectionFP420> soutput(new ClusterCollectionFP420);
+    ///////////////////////////////////////////////////////////////////////////////////////////// 
+    /*    
+   std::vector<SimVertex> input;
+   Handle<DigiCollectionFP420> digis;
+   iEvent.getByLabel("FP420Digi",digis);
+   input.insert(input.end(),digis->begin(),digis->end());
+
+
+
+    std::vector<HDigiFP420> input;
+    for(vector<HDigiFP420>::const_iterator vsim=digis->begin();
+	vsim!=digis->end(); ++vsim){
+      input.push_back(*vsim);
+    }
+   theSimTracks.insert(theSimTracks.end(),SimTk->begin(),SimTk->end());
+*/
+    //     std::vector<HDigiFP420> input;
+    //   DigiCollectionFP420  input;
+       //input.push_back(digis);
+	//   input.insert(input.end(), digis->begin(), digis->end());
+
+    /*
+    std::vector<HDigiFP420> input;
+    input.clear();
+    DigiCollectionFP420::ContainerIterator sort_begin = digis->begin();
+    DigiCollectionFP420::ContainerIterator sort_end = digis->end();
+    for ( ;sort_begin != sort_end; ++sort_begin ) {
+      input.push_back(*sort_begin);
+    } // for
+*/
+    
+    
+    //    put zero to container info from the beginning (important! because not any detID is updated with coming of new event     !!!!!!   
+    // clean info of container from previous event
+    for (int sector=1; sector<sn0; sector++) {
+      for (int zmodule=1; zmodule<pn0; zmodule++) {
+	for (int zside=1; zside<3; zside++) {
+	  // zside here defines just Left or Right planes, not their type !!!
+	  //	  int sScale = 20;
+	  int sScale = 2*(pn0-1);
+	  //      int index = FP420NumberingScheme::packFP420Index(det, zside, sector, zmodule);
+	  // intindex is a continues numbering of FP420
+	  int zScale=2;  unsigned int detID = sScale*(sector - 1)+zScale*(zmodule - 1)+zside;
+	  std::vector<ClusterFP420> collector;
+	  collector.clear();
+	  ClusterCollectionFP420::Range inputRange;
+	  inputRange.first = collector.begin();
+	  inputRange.second = collector.end();
+	  
+	  soutput->putclear(inputRange,detID);
+	  
+	}//for
       }//for
     }//for
-  }//for
+    
+    
+    //                                                                                                                      !!!!!!   
+    // if we want to keep Cluster container/Collection for one event --->   uncomment the line below and vice versa
+    soutput->clear();   //container_.clear() --> start from the beginning of the container
+    
+    //                                RUN now:                                                                                 !!!!!!     
+    //  sClusterizerFP420_.run(input, soutput, noise);
+    if (verbosity > 0) {
+      std::cout << "ClusterizerFP420: OK2" << std::endl;
+    }
+      sClusterizerFP420_->run(input, soutput, noise);
+
+    if (verbosity > 0) {
+      std::cout << "ClusterizerFP420: OK3" << std::endl;
+    }
+
+    //	if(collectorZS.data.size()>0){
+
+    //  std::cout <<"=======           ClusterizerFP420:                    end of produce     " <<  std::endl;
+    
+	// Step D: write output to file
+	iEvent.put(soutput);
+    if (verbosity > 0) {
+      std::cout << "ClusterizerFP420: OK4" << std::endl;
+    }
+  }//produce
   
-  
-  //                                                                                                                      !!!!!!   
-  // if we want to keep Cluster container/Collection for one event --->   uncomment the line below and vice versa
-  soutput.clear();   //container_.clear() --> start from the beginning of the container
-  
-  //                                RUN now:                                                                                 !!!!!!     
-  // startFP420ClusterMain_.run(input, soutput, noise);
-  sClusterizerFP420_->run(input, soutput, noise);
-  //  std::cout <<"=======           ClusterizerFP420:                    end of produce     " <<  std::endl;
-  
-}
+} // namespace cms
 

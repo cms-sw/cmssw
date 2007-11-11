@@ -3,8 +3,8 @@
 
 #include "RecoRomanPot/RecoFP420/interface/ClusterNoiseFP420.h"
 
-#include "RecoRomanPot/RecoFP420/interface/ClusterFP420.h"
-#include "SimRomanPot/SimFP420/interface/HDigiFP420.h"
+#include "DataFormats/FP420Cluster/interface/ClusterFP420.h"
+#include "DataFormats/FP420Digi/interface/HDigiFP420.h"
 
 #include <vector>
 #include <algorithm>

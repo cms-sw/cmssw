@@ -1,9 +1,20 @@
 #ifndef TrackProducerFP420_h
 #define TrackProducerFP420_h
 
-#include "RecoRomanPot/RecoFP420/interface/TrackFP420.h"
-#include "RecoRomanPot/RecoFP420/interface/ClusterFP420.h"
-#include "RecoRomanPot/RecoFP420/interface/ClusterCollectionFP420.h"
+#include <string>
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+
+#include "DataFormats/FP420Cluster/interface/TrackFP420.h"
+#include "DataFormats/FP420Cluster/interface/ClusterFP420.h"
+#include "DataFormats/FP420Cluster/interface/ClusterCollectionFP420.h"
 
 #include <vector>
 #include <algorithm>
@@ -18,15 +29,16 @@ public:
   //TrackProducerFP420(int, int, double, double, double, double, double, double, double, double, bool, bool, double, double, float, float);
     TrackProducerFP420(int, int, int, double, double, double, double, double, double, double, double, double, double, double, double, bool, bool, bool, bool, double, double, float, float, double);
 
-    std::vector<TrackFP420> trackFinderMaxAmplitude(ClusterCollectionFP420 input);
-    std::vector<TrackFP420> trackFinderMaxAmplitude2(ClusterCollectionFP420 input);
+  //  std::vector<TrackFP420> trackFinderMaxAmplitude(ClusterCollectionFP420 input);
+  //  std::vector<TrackFP420> trackFinderMaxAmplitude2(ClusterCollectionFP420 input);
 
-    // std::vector<TrackFP420> trackFinderVar1(ClusterCollectionFP420 input);
-    //std::vector<TrackFP420> trackFinderVar2(ClusterCollectionFP420 input);
+  //  // std::vector<TrackFP420> trackFinderVar1(ClusterCollectionFP420 input);
+  //  //std::vector<TrackFP420> trackFinderVar2(ClusterCollectionFP420 input);
 
-    std::vector<TrackFP420> trackFinderSophisticated(ClusterCollectionFP420 input);
+    //    std::vector<TrackFP420> trackFinderSophisticated(ClusterCollectionFP420 input);
+    std::vector<TrackFP420> trackFinderSophisticated(edm::Handle<ClusterCollectionFP420> input);
 
-    std::vector<TrackFP420> trackFinder3D(ClusterCollectionFP420 input);
+  //  std::vector<TrackFP420> trackFinder3D(ClusterCollectionFP420 input);
 
 private:
   ClusterCollectionFP420 soutput;

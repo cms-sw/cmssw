@@ -3,11 +3,18 @@
    
 #include <string>
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
 
-#include "SimRomanPot/SimFP420/interface/DigiCollectionFP420.h"
-#include "RecoRomanPot/RecoFP420/interface/ClusterCollectionFP420.h"
+#include "DataFormats/FP420Digi/interface/DigiCollectionFP420.h"
+#include "DataFormats/FP420Cluster/interface/ClusterCollectionFP420.h"
 #include "RecoRomanPot/RecoFP420/interface/ClusterNoiseFP420.h"
-#include "RecoRomanPot/RecoFP420/interface/ClusterFP420.h"
+#include "DataFormats/FP420Cluster/interface/ClusterFP420.h"
 #include <iostream>
 #include <vector>
 using namespace std;
@@ -26,12 +33,15 @@ class FP420ClusterMain
   ~FP420ClusterMain();
 
   /// Runs the algorithm
-    //void run(const DigiCollectionFP420* input,
-  void run(const DigiCollectionFP420 &input,
-	   ClusterCollectionFP420 &soutput,
-	   const std::vector<ClusterNoiseFP420>& noise 
-	   );
-  //	   ,unsigned int);
+
+//         void run(const DigiCollectionFP420 &input,
+//       	   ClusterCollectionFP420 &soutput,
+//       	   const std::vector<ClusterNoiseFP420>& noise 
+//     	   );
+    void run(edm::Handle<DigiCollectionFP420> &input,
+       	   std::auto_ptr<ClusterCollectionFP420> &soutput,
+       	   std::vector<ClusterNoiseFP420>& noise 
+     	   );
 
  private:
 

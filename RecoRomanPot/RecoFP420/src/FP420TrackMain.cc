@@ -9,8 +9,8 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "RecoRomanPot/RecoFP420/interface/FP420TrackMain.h"
-#include "RecoRomanPot/RecoFP420/interface/ClusterFP420.h"
-#include "RecoRomanPot/RecoFP420/interface/TrackFP420.h"
+#include "DataFormats/FP420Cluster/interface/ClusterFP420.h"
+#include "DataFormats/FP420Cluster/interface/TrackFP420.h"
 #include "RecoRomanPot/RecoFP420/interface/TrackProducerFP420.h"
 
 #include "CLHEP/Random/RandFlat.h"
@@ -22,43 +22,30 @@ using namespace std;
 //FP420TrackMain::FP420TrackMain(){ 
 FP420TrackMain::FP420TrackMain(const edm::ParameterSet& conf):conf_(conf)  { 
   
-  edm::ParameterSet m_Anal = conf.getParameter<edm::ParameterSet>("FP420TrackMain");
-  verbosity    = m_Anal.getParameter<int>("Verbosity");
-
-  //trackMode_         = "TrackProducerMaxAmplitudeFP420";
-  //trackMode_         = "TrackProducerMaxAmplitude2FP420";
-  //trackMode_         = "TrackProducerVar1FP420";
-  //trackMode_         = "TrackProducerVar2FP420";
-  // trackMode_         = "TrackProducerSophisticatedFP420";
-  // trackMode_         = "TrackProducer3DFP420";
-  trackMode_  =  m_Anal.getParameter<std::string>("TrackModeFP420");
+  verbosity   = conf_.getUntrackedParameter<int>("VerbosityLevel");
+  trackMode_  =  conf_.getParameter<std::string>("TrackModeFP420");
+  sn0_ = conf_.getParameter<int>("NumberFP420Stations");
+  pn0_ = conf_.getParameter<int>("NumberFP420SPlanes");
+  zn0_ = conf_.getParameter<int>("NumberFP420SPTypes");
+  z420_           = conf_.getParameter<double>("z420");
+  zD2_            = conf_.getParameter<double>("zD2");
+  zD3_            = conf_.getParameter<double>("zD3");
+  dXX_ = conf_.getParameter<double>("dXXFP420");
+  dYY_ = conf_.getParameter<double>("dYYFP420");
+  chiCutX_ = conf_.getParameter<double>("chiCutX420");
+  chiCutY_ = conf_.getParameter<double>("chiCutY420");
   
-  //  sn0_ = 4;// related to  number of station: sn0=4 mean 3 Stations
-  // pn0_ = 9;// related to number of planes: pn0=5 mean 4 Planes
-    sn0_ = m_Anal.getParameter<int>("NumberFP420Stations");
-    pn0_ = m_Anal.getParameter<int>("NumberFP420SPlanes");
-    zn0_ = m_Anal.getParameter<int>("NumberFP420SPTypes");
-
-    z420_           = m_Anal.getParameter<double>("z420");
-    zD2_            = m_Anal.getParameter<double>("zD2");
-    zD3_            = m_Anal.getParameter<double>("zD3");
-    //  dXX_ = 12.7+0.05;//(BoxYshft+dYGap) + (YSi - YSiDet)/2. = 12.7+0.05
-    dXX_ = m_Anal.getParameter<double>("dXXFP420");//(BoxYshft+dYGap) + (YSi - YSiDet)/2. = 12.7
-    dYY_ = m_Anal.getParameter<double>("dYYFP420");//  XSiDet/2. = 5.0
-    chiCutX_ = m_Anal.getParameter<double>("chiCutX420");//  =3
-    chiCutY_ = m_Anal.getParameter<double>("chiCutY420");//  =3
-    
-    if (verbosity > 0) {
-      std::cout << "FP420TrackMain constructor::" << std::endl;
-      std::cout << "sn0=" << sn0_ << " pn0=" << pn0_ << " zn0=" << zn0_ << std::endl;
-      std::cout << "trackMode = " << trackMode_ << std::endl;
-      std::cout << "dXX=" << dXX_ << " dYY=" << dYY_ << std::endl;
-      std::cout << "chiCutX=" << chiCutX_ << " chiCutY=" << chiCutY_ << std::endl;
-    }
+  if (verbosity > 0) {
+    std::cout << "FP420TrackMain constructor::" << std::endl;
+    std::cout << "sn0=" << sn0_ << " pn0=" << pn0_ << " zn0=" << zn0_ << std::endl;
+    std::cout << "trackMode = " << trackMode_ << std::endl;
+    std::cout << "dXX=" << dXX_ << " dYY=" << dYY_ << std::endl;
+    std::cout << "chiCutX=" << chiCutX_ << " chiCutY=" << chiCutY_ << std::endl;
+  }
   ///////////////////////////////////////////////////////////////////
-      // zD2_ = 1000.;  // dist between centers of 1st and 2nd stations
-      // zD3_ = 8000.;  // dist between centers of 1st and 3rd stations
-  
+    // zD2_ = 1000.;  // dist between centers of 1st and 2nd stations
+    // zD3_ = 8000.;  // dist between centers of 1st and 3rd stations
+    
   UseHalfPitchShiftInX_= true;
   UseHalfPitchShiftInXW_= true;
   UseHalfPitchShiftInY_= true;
@@ -106,14 +93,17 @@ FP420TrackMain::FP420TrackMain(const edm::ParameterSet& conf):conf_(conf)  {
 
 
 
+      if ( trackMode_ == "TrackProducerSophisticatedFP420" ) {
   
   
   //trackMode_ == "TrackProducerVar1FP420" ||
   //trackMode_ == "TrackProducerVar2FP420" ||
-      if ( trackMode_ == "TrackProducerMaxAmplitudeFP420" ||
-	   trackMode_ == "TrackProducerMaxAmplitude2FP420"  ||
-	   trackMode_ == "TrackProducerSophisticatedFP420"  ||
-	   trackMode_ == "TrackProducer3DFP420" )  {
+
+     // if ( trackMode_ == "TrackProducerMaxAmplitudeFP420" ||
+//	   trackMode_ == "TrackProducerMaxAmplitude2FP420"  ||
+//	   trackMode_ == "TrackProducerSophisticatedFP420"  ||
+//	   trackMode_ == "TrackProducer3DFP420" )  {
+
 	finderParameters_ = new TrackProducerFP420(sn0_, pn0_, zn0_, z420_, zD2_, zD3_,
 						   pitchX_, pitchY_,
 						   pitchXW_, pitchYW_,
@@ -138,8 +128,7 @@ FP420TrackMain::~FP420TrackMain() {
 
 
 
-
-void FP420TrackMain::run(const ClusterCollectionFP420 &input, TrackCollectionFP420 &toutput )
+void FP420TrackMain::run(edm::Handle<ClusterCollectionFP420> &input, std::auto_ptr<TrackCollectionFP420> &toutput )
 {
 
   if ( validTrackerizer_ ) {
@@ -182,12 +171,12 @@ void FP420TrackMain::run(const ClusterCollectionFP420 &input, TrackCollectionFP4
 // 	    vector<TrackFP420> collector;
 		 collector.clear();
 
-	  if ( trackMode_ == "TrackProducerMaxAmplitudeFP420") {
-		 collector = finderParameters_->trackFinderMaxAmplitude(input); //std::vector<TrackFP420> collector;
-	  }// if ( trackMode
-	  else if (trackMode_ == "TrackProducerMaxAmplitude2FP420" ) {
-		 collector = finderParameters_->trackFinderMaxAmplitude2(input); //
-	  }// if ( trackMode
+	 // if ( trackMode_ == "TrackProducerMaxAmplitudeFP420") {
+	//	 collector = finderParameters_->trackFinderMaxAmplitude(input); //std::vector<TrackFP420> collector;
+	 // }// if ( trackMode
+	 // else if (trackMode_ == "TrackProducerMaxAmplitude2FP420" ) {
+	//	 collector = finderParameters_->trackFinderMaxAmplitude2(input); //
+	//  }// if ( trackMode
 	  /*
 	  else if (trackMode_ == "TrackProducerVar1FP420" ) {
 		 collector = finderParameters_->trackFinderVar1(input); //
@@ -196,12 +185,14 @@ void FP420TrackMain::run(const ClusterCollectionFP420 &input, TrackCollectionFP4
 		 collector = finderParameters_->trackFinderVar2(input); //
 	  }// if ( trackMode
 */
-	  else if (trackMode_ == "TrackProducerSophisticatedFP420" ) {
+	  if (trackMode_ == "TrackProducerSophisticatedFP420" ) {
 		 collector = finderParameters_->trackFinderSophisticated(input); //
 	  }// if ( trackMode
-	  else if (trackMode_ == "TrackProducer3DFP420" ) {
-		 collector = finderParameters_->trackFinder3D(input); //
-	  }// if ( trackMode
+
+
+	//  else if (trackMode_ == "TrackProducer3DFP420" ) {
+	//	 collector = finderParameters_->trackFinder3D(input); //
+	 // }// if ( trackMode
 
 	  //   if (collector.size()>0){
 		 TrackCollectionFP420::Range inputRange;
@@ -212,11 +203,11 @@ void FP420TrackMain::run(const ClusterCollectionFP420 &input, TrackCollectionFP4
 		   // use it only if TrackCollectionFP420 is the TrackCollection of one event, otherwise, do not use (loose 1st cl. of 1st event only)
 		   first = false;
 		   unsigned int StID0 = 0;
-		   toutput.put(inputRange,StID0); // !!! put into adress 0 for detID which will not be used never
+		   toutput->put(inputRange,StID0); // !!! put into adress 0 for detID which will not be used never
 		 } //if ( first ) 
 
 		 // !!! put                                        !!! put
-		 toutput.put(inputRange,StID);
+		 toutput->put(inputRange,StID);
 
 		 number_localelectroderechits += collector.size();
 		 //  } // if collector.size
