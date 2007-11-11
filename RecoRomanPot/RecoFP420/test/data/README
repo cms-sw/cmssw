@@ -1,122 +1,16 @@
-===========================================
-I. For validation of clusterization the CluFP420Test.cc 
-is used: 
-
-a) with Hector transport, EDDE events
-
-  1) execute command:
-
-  cmsRun runTest1.cfg
-  ( TheAnalysis.root will be produced) 
-
-  2) execute 
-
-  root -b clus.C
-  ( to see the plots: ggv clus.ps)
+execute command:
+================
 
 
-b) with Hector transport, MinBias Pythia events
-
-  1) execute command:
-
-  cmsRun runTest2.cfg
-  ( TheAnalysis.root will be produced) 
-
-  2) execute 
-
-  root -b test.C
-  ( to see the plots: ggv test.ps)
 
 
-b) w/o Hector transport, inline Gun
+cmsRun runEDCluster.cfg  (input:testDIevent.root produce:testCLevent.root)
+cmsRun runEDTrack.cfg    (input:testCLevent.root produce:testTRevent.root) 
+cmsRun runEDCluTrack.cfg (input:testDIevent.root produce:testCLTRevent.root)
 
-  1) execute command:
+if Digitizer is available one can run:
+======================================
+cmsRun runEDDigi.cfg           (produce: testDIevent.root )
+cmsRun runEDDigiCluster.cfg    (produce: testDICLeventt.root)
+cmsRun runEDDigiCluTrack.cfg   (produce: testDICLTRevent.root) 
 
-  cmsRun runTestCl.cfg
-  ( TheAnalysis.root will be produced) 
-
-  2) execute 
-
-  root -b clus.C
-  ( to see the plots: ggv clus.ps)
-
-
-===========================================
-===========================================
-===========================================
-
-
-II. For validation of tracking the RecFP420Test.cc 
-is used:
-
-a) with Hector transport, EDDE events (ejob)
-
-  1) execute command:
-
-    cmsRun runFP420Test.cfg   (ejob)
-    ( TheAnalysis.root will be produced) 
-
-  2) execute 
-
-    root -b track.C
-    ( to see the plots: ggv track.C)
-    root -b clus.C
-    ( to see the plots: ggv clus.ps)
-    root -b track3D.C
-    ( to see the plots: ggv track3D.C)
-
-b) with Hector transport,  MinBias Pythia events (ajob), (fjob)
-
-  1) execute command:
-
-    cmsRun runFP420Test2.cfg
-    cmsRun runFP420Test22.cfg read input root file w/ MinBias Pythia events
-    cmsRun runFP420Test2a.cfg (ajob)
-    cmsRun runFP420Test2f.cfg (fjob)
-    ( TheAnalysis.root will be produced) 
-
-  2) execute 
-
-    root -b track.C
-    ( to see the plots: ggv track.C)
-    root -b clus.C
-    ( to see the plots: ggv clus.ps)
-    root -b track3D.C
-    ( to see the plots: ggv track3D.C)
-
-c) with Hector transport,  inline Gun  (job3)
-
-  1) execute command:
-
-    cmsRun runFP420Test3.cfg   (job3)
-    cmsRun runFP420Test32.cfg   two inline protons (job32)
-    ( TheAnalysis.root will be produced) 
-
-  2) execute 
-
-    root -b talks.C
-    ( to see the plots: ggv talks.C)
-    root -b track.C
-    ( to see the plots: ggv track.C)
-    root -b clus.C
-    ( to see the plots: ggv clus.ps)
-    root -b track3D.C
-    ( to see the plots: ggv track3D.C)
-
-===========================================
-III. For validation of tracking w/o Hector transport 
-===========================================
-the RecFP420Test.cc is also used:  (inline Gun)
-
-1) execute command:
-
-cmsRun run3DTest.cfg    (ijob)
-cmsRun run3DTest2.cfg    two inline protons  (ijob2)
-( TheAnalysis.root will be produced) 
-
-2) execute 
-
-root -b track3D.C
-root -b zz3.C
-( to see the plots: ggv track3D.C)
-===========================================
