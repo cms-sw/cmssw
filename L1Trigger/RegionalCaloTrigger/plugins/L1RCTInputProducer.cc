@@ -30,7 +30,18 @@ L1RCTInputProducer::L1RCTInputProducer(const edm::ParameterSet& conf) :
   ecalDigisLabel(conf.getParameter<edm::InputTag>("ecalDigisLabel")),
   hcalDigisLabel(conf.getParameter<edm::InputTag>("hcalDigisLabel"))
 {
-  produces<vector<int> >();
+  produces<vector<unsigned short> >("rctCrate");
+  produces<vector<unsigned short> >("rctCard");
+  produces<vector<unsigned short> >("rctTower");
+  produces<vector<unsigned int> >("rctEGammaET");
+  produces<vector<bool> >("rctHoEFGVetoBit");
+  produces<vector<unsigned int> >("rctJetMETET");
+  produces<vector<bool> >("rctTowerActivityBit");
+  produces<vector<bool> >("rctTowerMIPBit");
+  produces<vector<unsigned short> >("rctHFCrate");
+  produces<vector<unsigned short> >("rctHFRegion");
+  produces<vector<unsigned int> >("rctHFET");
+  produces<vector<bool> >("rctHFFG");
 }
 
 L1RCTInputProducer::~L1RCTInputProducer()
@@ -79,36 +90,83 @@ void L1RCTInputProducer::produce(edm::Event& event, const edm::EventSetup& event
 
   // Stuff to create
 
-  std::auto_ptr<std::vector<int> > rctLUTOutput(new vector<int>);
+  std::auto_ptr<std::vector<unsigned short> > 
+    rctCrate(new vector<unsigned short>);
+  std::auto_ptr<std::vector<unsigned short> > 
+    rctCard(new vector<unsigned short>);
+  std::auto_ptr<std::vector<unsigned short> > 
+    rctTower(new vector<unsigned short>);
+  std::auto_ptr<std::vector<unsigned int> > 
+    rctEGammaET(new vector<unsigned int>);
+  std::auto_ptr<std::vector<bool> > rctHoEFGVetoBit(new vector<bool>);
+  std::auto_ptr<std::vector<unsigned int> > 
+    rctJetMETET(new vector<unsigned int>);
+  std::auto_ptr<std::vector<bool> > rctTowerActivityBit(new vector<bool>);
+  std::auto_ptr<std::vector<bool> > rctTowerMIPBit(new vector<bool>);
+  
   for(int crate = 0; crate < 18; crate++) {
     for(int card = 0; card < 7; card++) {
       for(int tower = 0; tower < 32; tower++) {
-	unsigned short ecalCompressedET = rct->ecalCompressedET(crate, card, tower);
-	unsigned short ecalFineGrainBit = rct->ecalFineGrainBit(crate, card, tower);
-	unsigned short hcalCompressedET = rct->hcalCompressedET(crate, card, tower);
-	int lutBits = rctLookupTables->lookup(ecalCompressedET, hcalCompressedET, ecalFineGrainBit, crate, card, tower);
-	if(lutBits > 0) {
-	  lutBits += ( (crate >> 18) + (card >> 23) + (tower >> 26) );
-	  rctLUTOutput->push_back(lutBits);
+	unsigned short ecalCompressedET = 
+	  rct->ecalCompressedET(crate, card, tower);
+	unsigned short ecalFineGrainBit = 
+	  rct->ecalFineGrainBit(crate, card, tower);
+	unsigned short hcalCompressedET = 
+	  rct->hcalCompressedET(crate, card, tower);
+	unsigned int lutBits = 
+	  rctLookupTables->lookup(ecalCompressedET, hcalCompressedET, 
+				  ecalFineGrainBit, crate, card, tower);
+	unsigned int eGammaETCode = lutBits & 0x0000007F;
+	bool hOeFGVetoBit = (lutBits >> 7) & 0x00000001;
+	unsigned int jetMETETCode = (lutBits >> 8) & 0x000001FF;
+	bool activityBit = (lutBits >> 17) & 0x00000001;
+	if(eGammaETCode > 0 || jetMETETCode > 0 || 
+	   hOeFGVetoBit || activityBit) {
+	  rctCrate->push_back(crate);
+	  rctCard->push_back(card);
+	  rctTower->push_back(tower);
+	  rctEGammaET->push_back(eGammaETCode);
+	  rctHoEFGVetoBit->push_back(hOeFGVetoBit);
+	  rctJetMETET->push_back(jetMETETCode);
+	  rctTowerActivityBit->push_back(activityBit);
+	  rctTowerMIPBit->push_back(0); // FIXME: MIP bit is not yet defined
 	}
       }
     }
   }
 
-  std::auto_ptr<std::vector<int> > hfLUTOutput(new vector<int>);
+  std::auto_ptr<std::vector<unsigned short> > 
+    rctHFCrate(new vector<unsigned short>);
+  std::auto_ptr<std::vector<unsigned short> > 
+    rctHFRegion(new vector<unsigned short>);
+  std::auto_ptr<std::vector<unsigned int> > rctHFET(new vector<unsigned int>);
+  std::auto_ptr<std::vector<bool> > rctHFFG(new vector<bool>);
   for(int crate = 0; crate < 18; crate++) {
     for(int hfRegion = 0; hfRegion < 8; hfRegion++) {
       unsigned short hfCompressedET = rct->hfCompressedET(crate, hfRegion);
-      int lutBits = rctLookupTables->lookup(hfCompressedET, crate, 999, hfRegion);
-      if(lutBits > 0) {
-	lutBits += ( (crate >> 16) + (hfRegion >> 24) );
-	hfLUTOutput->push_back(lutBits);
+      unsigned int hfETCode = 
+	rctLookupTables->lookup(hfCompressedET, crate, 999, hfRegion);
+      if(hfETCode > 0) {
+	rctHFCrate->push_back(crate);
+	rctHFRegion->push_back(hfRegion);
+	rctHFET->push_back(hfETCode);
+	rctHFFG->push_back(0); // FIXME: HF FG is not yet defined
       }
     }
   }
 
   //putting stuff back into event
-  event.put(rctLUTOutput);
-  event.put(hfLUTOutput);
+  event.put(rctCrate, "rctCrate");
+  event.put(rctCard, "rctCard");
+  event.put(rctTower, "rctTower");
+  event.put(rctEGammaET, "rctEGammaET");
+  event.put(rctHoEFGVetoBit, "rctHoEFGVetoBit");
+  event.put(rctJetMETET, "rctJetMETET");
+  event.put(rctTowerActivityBit, "rctTowerActivityBit");
+  event.put(rctTowerMIPBit, "rctTowerMIPBit");
+  event.put(rctHFCrate, "rctHFCrate");
+  event.put(rctHFRegion, "rctHFRegion");
+  event.put(rctHFET, "rctHFET");
+  event.put(rctHFFG, "rctHFFG");
 
 }
