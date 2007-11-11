@@ -13,7 +13,7 @@
 //
 // Original Author:  Suchandra Dutta
 //         Created:  Fri June  1 17:00:00 CET 2007
-// $Id: SiStripMonitorRawData.cc,v 1.1 2007/06/01 17:19:26 dutta Exp $
+// $Id: SiStripMonitorRawData.cc,v 1.2 2007/07/25 15:41:57 dutta Exp $
 //
 //
 
@@ -83,7 +83,8 @@ void SiStripMonitorRawData::beginJob(const edm::EventSetup& es){
 void SiStripMonitorRawData::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
 
-  std::cout << "Run " << iEvent.id().run() << " Event " << iEvent.id().event() << std::endl;
+   edm::LogInfo("SiStripMonitorRawData") <<"SiStripMonitorRawData::analyze: Run "<< 
+                              iEvent.id().run()  << " Event " << iEvent.id().event();
 
   
   iSetup.get<SiStripDetCablingRcd>().get( detcabling );

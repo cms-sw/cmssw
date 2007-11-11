@@ -13,7 +13,7 @@
 //
 // Original Author:  Simone Gennai and Suchandra Dutta
 //         Created:  Sat Feb  4 20:49:10 CET 2006
-// $Id: SiStripMonitorPedestals.cc,v 1.24 2007/08/24 19:58:37 dutta Exp $
+// $Id: SiStripMonitorPedestals.cc,v 1.25 2007/09/25 17:42:07 dutta Exp $
 //
 //
 
@@ -104,6 +104,12 @@ void SiStripMonitorPedestals::beginJob(const edm::EventSetup& es){
     int napvs = detcabling->nApvPairs(detid) * 2;
     int nStrip  = napvs*128;
     
+    if (napvs > 6) {
+      edm::LogError("SiStripMonitorPedestals") <<"SiStripMonitorPedestals::beginJob: STRANGE !!!!!!  detId "
+                << detid  << " napvs " << napvs <<  " Neglecting !!!!!! ";
+      continue;
+    }
+
     bool newDetId =   apvFactory_->instantiateApvs(detid,napvs);  
   
     if( newDetId ) {
@@ -196,7 +202,8 @@ void SiStripMonitorPedestals::beginJob(const edm::EventSetup& es){
     } //newDetId
           
   }
-  std::cout <<"Number of DETS "<<SelectedDetIds.size()<<std::endl;
+  edm::LogInfo("SiStripMonitorPedestals") <<"SiStripMonitorPedestals::beginJob: Number of DETS "
+                   <<SelectedDetIds.size();
 }
 
 
@@ -204,7 +211,8 @@ void SiStripMonitorPedestals::beginJob(const edm::EventSetup& es){
 void SiStripMonitorPedestals::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
 
-  std::cout << "Run " << iEvent.id().run() << " Event " << iEvent.id().event() << std::endl;
+  edm::LogInfo("SiStripMonitorPedestals") <<"SiStripMonitorPedestals::analyze: Run " << 
+                 iEvent.id().run()  << " Event " << iEvent.id().event();
 
    //get gain correction ES handle
   edm::ESHandle<SiStripPedestals> pedestalHandle;
@@ -235,8 +243,8 @@ void SiStripMonitorPedestals::analyze(const edm::Event& iEvent, const edm::Event
   for (std::map<uint32_t, ModMEs >::const_iterator i = PedMEs.begin() ; i!=PedMEs.end() ; i++) {
     uint32_t detid = i->first; ModMEs local_modmes = i->second;
     if (firstEvent){
-      //edm::LogInfo("SiStripMonitorPedestals") 
-      std::cout << "[SiStripMonitorPedestals::analyze] Get Ped/Noise/Bad Strips from CondDb for DetId " << detid << std::endl;
+      edm::LogInfo("SiStripMonitorPedestals") <<" SiStripMonitorPedestals::analyze: " <<
+              " Get Ped/Noise/Bad Strips from CondDb for DetId " << detid;
       int nStrip  = detcabling->nApvPairs(detid) * 256;
       // Get range of pedestal and noise for the detid
       SiStripNoises::Range noiseRange = noiseHandle->getRange(detid);
@@ -277,14 +285,18 @@ void SiStripMonitorPedestals::analyze(const edm::Event& iEvent, const edm::Event
         digis->data.size() == 0 || 
         digis->data.size() > 768) {
       if (digis == digi_collection->end()) {
-        std::cout <<  " Event " <<  nEvTot_ << " DetId " <<  detid << " at the end of Digi Collection!!!"; 
+        edm::LogError("SiStripMonitorPedestals") << " SiStripMonitorPedestals::analyze: Event " <<  nEvTot_ 
+               << " DetId " <<  detid << " at the end of Digi Collection!!!"; 
       } else {
-        std::cout <<  " Event " <<  nEvTot_ << " DetId " <<  detid << " # of Digis " << digis->data.size() ;
+        edm::LogError("SiStripMonitorPedestals") << " [SiStripMonitorPedestals::analyze: Event " <<  nEvTot_ 
+               << " DetId " <<  detid << " # of Digis " << digis->data.size() ;
       }
       std::vector<FedChannelConnection> fed_conns = detcabling->getConnections(detid);
       for (unsigned int  k = 0; k < fed_conns.size() ; k++) {
-	if (k==0) std::cout <<  " Fed Id " << fed_conns[k].fedId() << " Channel " << fed_conns[k].fedCh();
-	else  std::cout <<  " Channel " << fed_conns[k].fedCh();
+	if (k==0) edm::LogError("SiStripMonitorPedestals") <<" SiStripMonitorPedestals::analyze: Fed Id " <<
+              fed_conns[k].fedId() << " Channel " << fed_conns[k].fedCh();
+	else  edm::LogError("SiStripMonitorPedestals")  <<"  SiStripMonitorPedestals::analyze: Channel " <<
+                            fed_conns[k].fedCh();
       }
       std::cout << std::endl;
       continue;
