@@ -33,8 +33,10 @@ SiStripInformationExtractor::SiStripInformationExtractor() {
     " Creating SiStripInformationExtractor " << "\n" ;
   layoutParser_ = 0;
   readReference_ = false;
-  canvas_ = new TCanvas("TestCanvas", "Test Canvas"); 
   layoutMap.clear();
+  canvasWidth  = 600;
+  canvasHeight = 400;
+  canvas_ = new TCanvas("TestCanvas", "Test Canvas", canvasWidth, canvasHeight); 
   readConfiguration();
 }
 //
@@ -62,13 +64,6 @@ void SiStripInformationExtractor::readConfiguration() {
   } else  edm::LogInfo("SiStripInformationExtractor") << 
           " Problem in reading Layout " << "\n" ;
   if (layoutParser_) delete layoutParser_;
-  int width  = 500;
-  int height = 500;
-
-  canvas_->SetFixedAspectRatio(kTRUE);
-  canvas_->SetCanvasSize(width, height);
-  canvas_->Update();
-  canvas_->Clear();
 
   createDummiesFromLayout();
 }
@@ -121,7 +116,7 @@ void SiStripInformationExtractor::printSummaryHistoList(DaqMonitorBEInterface * 
     if ((*it).find("Summary") == 0) {
       str_val << "<li class=\"dhtmlgoodies_sheet.gif\">"
               << " <a href=\"javascript:RequestHistos.DrawSingleHisto('"
-              << currDir << "/"<< (*it) 
+              << currDir 
               << "')\">" << (*it) 
               << "</a></li>" << endl;
     }
@@ -178,7 +173,7 @@ void SiStripInformationExtractor::printAlarmList(DaqMonitorBEInterface * bei, os
 	  selectImage(image_name1,my_map);
 	  str_val << "<li class=\"dhtmlgoodies_sheet.gif\">"
 		  << " <a href=\"javascript:RequestHistos.ReadStatus('"
-		  << full_path 
+		  << currDir
 		  << "')\">" << (*it) 
 		  << "</a><img src=\"" << image_name1 << "\"></img>"
 	  	  << " </li>" << endl;
@@ -271,7 +266,9 @@ void SiStripInformationExtractor::selectGlobalHistos(DaqMonitorBEInterface * bei
 //
 // --  Plot Selected Monitor Elements
 // 
-void SiStripInformationExtractor::plotSingleModuleHistos(DaqMonitorBEInterface* bei, multimap<string, string>& req_map) {
+void SiStripInformationExtractor::plotSingleModuleHistos(DaqMonitorBEInterface* bei, multimap<string, string>& req_map, xgi::Output * out) {
+
+  setCanvasDimension(req_map);
 
   vector<string> item_list;  
 
@@ -289,21 +286,34 @@ void SiStripInformationExtractor::plotSingleModuleHistos(DaqMonitorBEInterface* 
   bei->cd();
   selectSingleModuleHistos(bei, mod_id, item_list, me_list);
   bei->cd();
-
+  if (namedPictureBuffer_.size() > 100) namedPictureBuffer_.clear();
   if (me_list.size() == 0) {
     setCanvasMessage("Wrong Module Id!!");  
   } else {
-    plotHistos(req_map,me_list,false);
+    out->getHTTPResponseHeader().addHeader("Content-Type", "text/html");
+    out->getHTTPResponseHeader().addHeader("Pragma", "no-cache");   
+    out->getHTTPResponseHeader().addHeader("Cache-Control", "no-store, no-cache, must-revalidate,max-age=0");
+    out->getHTTPResponseHeader().addHeader("Expires","Mon, 26 Jul 1997 05:00:00 GMT");
+    string path = me_list[0]->getPathname();
+    *out << path << " ";
+    for (vector<MonitorElement*>::iterator it = me_list.begin(); it != me_list.end(); it++) {
+      MonitorElement* me = (*it);
+      if (!me) continue;
+      canvas_->Clear();
+      plotHisto(req_map, me, false);
+      string name = me->getName();
+      fillNamedImageBuffer(me->getFullname());
+      *out << name << " ";
+    }
   }
-  fillImageBuffer();
-  canvas_->Clear();
-
 }
 //
 // --  Plot Selected Monitor Elements
 // 
-void SiStripInformationExtractor::plotGlobalHistos(DaqMonitorBEInterface* bei, multimap<string, string>& req_map) {
+void SiStripInformationExtractor::plotGlobalHistos(DaqMonitorBEInterface* bei, multimap<string, string>& req_map, xgi::Output * out) {
  
+  setCanvasDimension(req_map);
+
   vector<string> item_list;  
 
   item_list.clear();     
@@ -313,41 +323,58 @@ void SiStripInformationExtractor::plotGlobalHistos(DaqMonitorBEInterface* bei, m
   bei->cd();
   selectGlobalHistos(bei, item_list, me_list);
   bei->cd();
-
-  plotHistos(req_map,me_list,false);
-  fillImageBuffer();
-  canvas_->Clear();
-
+  if (me_list.size() == 0) {
+    setCanvasMessage("Requested Histograms do not exist!!");
+  } else {
+    out->getHTTPResponseHeader().addHeader("Content-Type", "text/html");
+    out->getHTTPResponseHeader().addHeader("Pragma", "no-cache");   
+    out->getHTTPResponseHeader().addHeader("Cache-Control", "no-store, no-cache, must-revalidate,max-age=0");
+    out->getHTTPResponseHeader().addHeader("Expires","Mon, 26 Jul 1997 05:00:00 GMT");
+    string path = me_list[0]->getPathname();
+    *out << path << " ";
+    for (vector<MonitorElement*>::iterator it = me_list.begin(); it != me_list.end(); it++) {
+      MonitorElement* me = (*it);
+      if (!me) continue;
+      canvas_->Clear();
+      plotHisto(req_map, me, false);
+      string name = me->getName();
+      fillNamedImageBuffer(me->getFullname());
+      *out << name << " ";
+    }
+  }
 }
 //
 // -- plot a Histogram
 //
-void SiStripInformationExtractor::plotHistosFromPath(DaqMonitorBEInterface * bei, std::multimap<std::string, std::string>& req_map){
-  vector<string> item_list;  
-  getItemList(req_map,"Path", item_list);
-  
-  if (item_list.size() == 0) return;
+void SiStripInformationExtractor::plotHistosFromPath(DaqMonitorBEInterface * bei, std::multimap<std::string, std::string>& req_map, xgi::Output * out){
 
-  vector<MonitorElement*> me_list;
+  setCanvasDimension(req_map);
+
+  string me_folder = getItemValue(req_map,"Path");
+
+  if (me_folder.size() == 0) return;
+
   string htype  = getItemValue(req_map,"histotype");
+
+  if (namedPictureBuffer_.size() > 100) namedPictureBuffer_.clear();
+
   if (htype.size() == 0) htype="individual";
-
-  for (vector<string>::iterator it = item_list.begin(); it != item_list.end(); it++) {  
-
-    string path_name = (*it);
-    if (path_name.size() == 0) continue;
-    
-    MonitorElement* me = bei->get(path_name);
-
-    if (me) me_list.push_back(me);
+  out->getHTTPResponseHeader().addHeader("Content-Type", "text/html");
+  out->getHTTPResponseHeader().addHeader("Pragma", "no-cache");   
+  out->getHTTPResponseHeader().addHeader("Cache-Control", "no-store, no-cache, must-revalidate,max-age=0");
+  out->getHTTPResponseHeader().addHeader("Expires","Mon, 26 Jul 1997 05:00:00 GMT");
+  vector<MonitorElement*> all_mes = bei->getContents(me_folder);
+  *out << me_folder << " " ;
+  for(vector<MonitorElement*>::iterator it=all_mes.begin(); it!=all_mes.end(); it++){
+    MonitorElement* me = (*it);
+    if (!me) continue;
+    canvas_->Clear();
+    if (htype == "summary") plotHisto(req_map, me, true);
+    else  plotHisto(req_map, me, false);
+    fillNamedImageBuffer(me->getFullname());
+    string name = me->getName();
+    *out << name << " ";
   }
-  if (me_list.size() == 0) return; 
-  if (htype == "summary") plotHistos(req_map, me_list, true);
-  else plotHistos(req_map, me_list, false); 
-
-  fillImageBuffer();
-  canvas_->Clear();
-
 }
 //
 // plot Histograms from Layout
@@ -359,22 +386,29 @@ void SiStripInformationExtractor::plotHistosFromLayout(DaqMonitorBEInterface * b
     bei->open("Reference.root", false);
     readReference_ = true;
   }
-  int width  = 500;
-  int height = 500;
 
   canvas_->SetFixedAspectRatio(kTRUE);
-  canvas_->SetCanvasSize(width, height);
+  canvas_->SetCanvasSize(canvasWidth, canvasHeight);
   canvas_->Update();
   canvas_->Clear();
 
   gStyle->SetOptStat("emruo");
   gStyle->SetStatFontSize(0.05);
+  ofstream image_file;
+  ofstream title_file;
+  
   for (map<std::string, std::vector< std::string > >::iterator it = layoutMap.begin() ; it != layoutMap.end(); it++) {
-    string fname  = it->first + ".png";
-    int ncol, nrow;
-    defineZone(it->second.size(), ncol, nrow);
-    canvas_->Divide(ncol, nrow);
     int ival = 0;
+    string image_list = "images/" + it->first +".lis";
+    image_file.open(image_list.c_str(), ios::out);
+    if (!image_file) return;
+
+    string title_list = "images/" + it->first +"_titles.lis";
+    title_file.open(title_list.c_str(), ios::out);
+    if (!title_file) return;
+
+    image_file << "[";
+    title_file << "[";
     gStyle->SetOptTitle(0);
     for (vector<string>::iterator im = it->second.begin(); 
 	 im != it->second.end(); im++) {  
@@ -382,22 +416,27 @@ void SiStripInformationExtractor::plotHistosFromLayout(DaqMonitorBEInterface * b
       if (path_name.size() == 0) continue;
       MonitorElement* me = bei->get(path_name);
       ival++;
-      canvas_->cd(ival);
-      if (!me) setCanvasMessage("Plot not ready yet!!");
-      else {
-	TH1* hist1 = ExtractTObject<TH1>().extract(me);
+      ostringstream  fname, ftitle;
+      if (!me) {
+        fname << "images/EmptyPlot.png";
+        ftitle << "EmptyPlot";
+        
+      } else {
+	fname << "images/" << it->first << "_" <<ival << ".png";
+        ftitle << me->getName();
+ 	TH1* hist1 = ExtractTObject<TH1>().extract(me);
 	if (hist1) {
-
+	  
 	  TText tTitle;
 	  tTitle.SetTextFont(64);
 	  tTitle.SetTextSizePixels(20);
-
+	  
           setDrawingOption(hist1);
 	  hist1->DrawCopy();
-
+	  
 	  string ref_path = it->first + "/" + path_name.substr(path_name.rfind("/")+1);
           string hname = hist1->GetTitle();
- 
+	  
           tTitle.DrawTextNDC(0.1, 0.92, hname.c_str());
 	  MonitorElement* me_ref = bei->get(ref_path);
 	  if (me_ref) {
@@ -409,19 +448,30 @@ void SiStripInformationExtractor::plotHistosFromLayout(DaqMonitorBEInterface * b
               else hist1_ref->DrawNormalized("same", hist1->GetEntries());
             }
 	  }
-	} else setCanvasMessage("Plot not ready yet!!"); 
+	}
+	string command = "rm -f " + fname.str();
+	gSystem->Exec(command.c_str());
+	canvas_->Print(fname.str().c_str(),"png");
+	canvas_->Clear();	
+      }
+      if (ival != it->second.size()) {
+        image_file << "\"" << fname.str() << "\","<< endl;
+	title_file << "\"" << ftitle.str() << "\","<< endl;
+      } else {
+        image_file << "\"" << fname.str() << "\"" << endl;
+	title_file << "\"" << ftitle.str() << "\""<< endl;
       }
     }
-    string command = "rm -f " + fname;
-    gSystem->Exec(command.c_str());
-    canvas_->Print(fname.c_str(),"png");
-    canvas_->Clear();
+    image_file << "]" << endl;
+    image_file.close();
+    title_file << "]" << endl;
+    title_file.close();
   }
 }
 //
 // -- Plot Tracker Map MEs
 //
-void SiStripInformationExtractor::plotTrackerMapHistos(DaqMonitorBEInterface* bei, std::multimap<std::string, std::string>& req_map) {
+void SiStripInformationExtractor::plotTrackerMapHistos(DaqMonitorBEInterface* bei, std::multimap<std::string, std::string>& req_map, xgi::Output * out) {
 
   vector<string> me_names;
   string tkmap_name;
@@ -434,13 +484,17 @@ void SiStripInformationExtractor::plotTrackerMapHistos(DaqMonitorBEInterface* be
        it != me_names.end(); it++) {
     req_map.insert(pair<string,string>("histo",(*it)));  
   }   
-  plotSingleModuleHistos(bei, req_map);
+  plotSingleModuleHistos(bei, req_map, out);
 }
 
 //
 // -- Plot Dummy Histograms from Layout
 //
 void SiStripInformationExtractor::createDummiesFromLayout(){
+  canvas_->SetFixedAspectRatio(kTRUE);
+  canvas_->SetCanvasSize(canvasWidth, canvasHeight);
+  canvas_->Update();
+  canvas_->Clear();
   if (layoutMap.size() == 0) return;
   for (map<std::string, std::vector< std::string > >::iterator it = layoutMap.begin() ; it != layoutMap.end(); it++) {
     string fname  = it->first + ".png";
@@ -450,14 +504,33 @@ void SiStripInformationExtractor::createDummiesFromLayout(){
   }
 }
 //
+// -- Get a tagged image 
+//
+const ostringstream& SiStripInformationExtractor::getIMGCImage(DaqMonitorBEInterface * bei, std::multimap<std::string, std::string>& req_map){
+  
+  string path = getItemValue(req_map,"Path");
+  cout << "SiStripInformationExtractor::getIMGCImage" 
+       << " Entered with ==> " 
+       << path 
+       << " " << getItemValue(req_map,"Date") <<endl;
+  string meName;
+  if (hasNamedImage(path)) return getNamedImage(path);
+  else {
+    canvas_->Clear();
+    setCanvasMessage("Plot does not exist !");
+    fillImageBuffer();
+    canvas_->Clear();
+    return getImage();
+  }
+
+}
+//
 //  plot Histograms in a Canvas
 //
 void SiStripInformationExtractor::plotHistos(multimap<string,string>& req_map, 
   			   vector<MonitorElement*> me_list, bool sflag){
   int nhist = me_list.size();
   if (nhist == 0) return;
-  int width = 500;
-  int height = 500;
   canvas_->Clear();
   int ncol = 1, nrow = 1;
  
@@ -475,16 +548,9 @@ void SiStripInformationExtractor::plotHistos(multimap<string,string>& req_map,
     if (hasItem(req_map,"rows")) nrow = atoi(getItemValue(req_map, "rows").c_str());
     if (ncol*nrow < nhist) defineZone(nhist, ncol, nrow);
   }
-  if (hasItem(req_map,"width")) 
-              width = atoi(getItemValue(req_map, "width").c_str());    
-  if (hasItem(req_map,"height"))
-              height = atoi(getItemValue(req_map, "height").c_str());
 
   string dopt;
   if (hasItem(req_map,"drawopt")) dopt = getItemValue(req_map, "drawopt");
-  canvas_->SetFixedAspectRatio(kTRUE);
-  canvas_->SetCanvasSize(width, height);
-  canvas_->Update();
 
   canvas_->Divide(ncol, nrow);
   gStyle->SetOptTitle(0);
@@ -579,9 +645,110 @@ void SiStripInformationExtractor::plotHistos(multimap<string,string>& req_map,
   canvas_->Modified();
 }
 //
+//  plot Histograms in a Canvas
+//
+void SiStripInformationExtractor::plotHisto(multimap<string,string>& req_map, 
+  			   MonitorElement* me, bool sflag){
+  if (sflag) canvas_->Divide(1,2);
+
+  gStyle->SetOptTitle(0);
+  gStyle->SetOptStat("emruo");
+  gStyle->SetStatFontSize(0.05);
+
+  int istat =  SiStripUtility::getStatus(me);
+  string tag;
+  int icol;
+  SiStripUtility::getStatusColor(istat, icol, tag);
+
+  float xlow = -1.0;
+  float xhigh = -1.0;
+  
+  if (hasItem(req_map,"xmin")) xlow = atof(getItemValue(req_map,"xmin").c_str());
+  if (hasItem(req_map,"xmax")) xhigh = atof(getItemValue(req_map,"xmax").c_str()); 
+
+  string dopt;
+  if (hasItem(req_map,"drawopt")) dopt = getItemValue(req_map, "drawopt");
+
+  TProfile* prof = ExtractTObject<TProfile>().extract(me);
+  TH1F* hist1 = ExtractTObject<TH1F>().extract(me);
+  TH2F* hist2 = ExtractTObject<TH2F>().extract(me);
+  
+  if (prof|| hist1 || hist2) {
+    TText tTitle;
+    tTitle.SetTextFont(64);
+    tTitle.SetTextSizePixels(20);
+    if (hist2) {
+      setDrawingOption(hist2, xlow, xhigh);
+      hist2->SetFillColor(1);
+      if (dopt.find("projection") != string::npos) {
+	string ptit = hist2->GetTitle();
+	ptit += " (y-projection)";
+	TH1F thproj(hist2->GetName(),ptit.c_str(),hist2->GetNbinsY(), 
+		    hist2->GetYaxis()->GetXmin(),hist2->GetYaxis()->GetXmax());
+	thproj.GetXaxis()->SetTitle(ptit.c_str());
+	for (int j = 1; j < hist2->GetNbinsY()+1; j++) {
+	  float tot_count = 0.0;
+	  for (int i = 1; i < hist2->GetNbinsX()+1; i++) {
+	    tot_count += hist2->GetBinContent(i,j);
+	  }
+	  thproj.SetBinContent(j, tot_count);
+	}
+	thproj.DrawCopy();
+      } else hist2->Draw(dopt.c_str());
+      tTitle.DrawTextNDC(0.1, 0.92, hist2->GetName());
+    } else if (prof) {
+      setDrawingOption(prof, xlow, xhigh);
+      if (dopt.find("projection") != string::npos) {
+	
+	string ptit = hist1->GetTitle();
+	ptit += " (y-projection)";
+	TH1F thproj(prof->GetName(),ptit.c_str(),100, 
+		    0.0,prof->GetMaximum()*1.2);
+	thproj.GetXaxis()->SetTitle(ptit.c_str());
+	for (int i = 1; i < prof->GetNbinsX()+1; i++) {
+	  thproj.Fill(prof->GetBinContent(i));
+	}
+	thproj.DrawCopy();
+      } else prof->Draw(dopt.c_str());
+      tTitle.DrawTextNDC(0.1, 0.92, prof->GetName());
+    } else {
+      if (dopt.find("projection") != string::npos || sflag) {
+	string ptit = hist1->GetTitle();
+	ptit += " (y-projection)";
+	TH1F thproj(hist1->GetName(),ptit.c_str(),100, 
+		    0.0,hist1->GetMaximum()*1.2);
+	thproj.GetXaxis()->SetTitle(ptit.c_str());
+	for (int i = 1; i < hist1->GetNbinsX()+1; i++) {
+	  thproj.Fill(hist1->GetBinContent(i));
+	}
+	if (sflag) {
+          canvas_->cd(1); 	
+	  hist1->Draw();
+	  canvas_->cd(2); 	
+	  gPad->SetLogy(1);
+	  thproj.DrawCopy();
+	} else thproj.DrawCopy();
+      } else hist1->Draw();
+      tTitle.DrawTextNDC(0.1, 0.92, hist1->GetName());
+    }
+    if (icol != 1) {
+      TText tt;
+      tt.SetTextSize(0.12);
+      tt.SetTextColor(icol);
+      tt.DrawTextNDC(0.5, 0.5, tag.c_str());
+    }
+  } else setCanvasMessage("Plot does not exist (yet)!!"); 
+  
+  canvas_->Update();
+  canvas_->Modified();
+}
+//
 // -- Read Layout Group names
 //
-void SiStripInformationExtractor::readLayoutNames(xgi::Output * out){
+void SiStripInformationExtractor::readLayoutNames(multimap<string, string>& req_map, xgi::Output * out){
+  
+  setCanvasDimension(req_map);
+
   if (layoutMap.size() > 0) {
     out->getHTTPResponseHeader().addHeader("Content-Type", "text/xml");
     *out << "<?xml version=\"1.0\" ?>" << std::endl;
@@ -785,42 +952,61 @@ void SiStripInformationExtractor::selectImage(string& name, dqm::qtests::QR_map&
 //
 // -- Get Warning/Error Messages
 //
-void SiStripInformationExtractor::readStatusMessage(DaqMonitorBEInterface* bei, string& path,xgi::Output * out) {
-  MonitorElement* me = bei->get(path);
-  string hpath;
+void SiStripInformationExtractor::readStatusMessage(DaqMonitorBEInterface* bei, std::multimap<std::string, std::string>& req_map, xgi::Output * out){
+
+  string me_folder = getItemValue(req_map,"Path");
   ostringstream test_status;
-  if (!me) {
-    test_status << " ME Does not exist ! ";
-    hpath = "NOME";
+  
+  out->getHTTPResponseHeader().addHeader("Content-Type", "text/xml");
+  *out << "<?xml version=\"1.0\" ?>" << std::endl;
+  *out << "<StatusAndPath>" << endl;
+  *out << "<PathList>" << endl;
+  if (me_folder.size() == 0) {
+    *out << "<HPath>" << "NONE" << "</HPath>" << endl;     
+    test_status << " ME Does not exist ! " << endl;
   } else {
-    hpath = path.substr(0, path.find("."));
-    dqm::qtests::QR_map test_map = me->getQReports();
-    for (dqm::qtests::QR_map::const_iterator it = test_map.begin(); it != test_map.end();
-	 it++) {
-      int status = it->second->getStatus();
-      test_status << " QTest Status : ";
-      if (status == dqm::qstatus::WARNING) test_status << " Warning ";
-      else if (status == dqm::qstatus::ERROR) test_status << " Error  ";
-      else if (status == dqm::qstatus::STATUS_OK) test_status << " Ok  ";
-      else if (status == dqm::qstatus::OTHER) test_status << " Other(" << status << ") ";
-      string mess_str = it->second->getMessage();
-      test_status <<  "&lt;br/&gt;";
-      mess_str = mess_str.substr(mess_str.find(" Test")+5);
-      test_status <<  " QTest Name  : " << mess_str.substr(0, mess_str.find(")")+1) << endl;
-      test_status << "&lt;br/&gt;";
-      test_status <<  " QTest Detail  : " << mess_str.substr(mess_str.find(")")+2) << endl;      
-    }      
+    vector<MonitorElement*> all_mes = bei->getContents(me_folder);
+    *out << "<HPath>" << me_folder << "</HPath>" << endl;     
+    for(vector<MonitorElement*>::iterator ic=all_mes.begin(); ic!=all_mes.end(); ic++){
+      MonitorElement* me = (*ic);
+      if (!me) continue;
+      string name = me->getName();  
+      dqm::qtests::QR_map test_map = me->getQReports();
+      if (test_map.size() == 0 ) continue;
+      cout << "============> " << name << " " << test_map.size() << endl;
+
+      cout <<  endl;
+      canvas_->Clear();
+      plotHisto(req_map, me, false);
+      fillNamedImageBuffer(me->getFullname());
+      cout <<  endl;
+
+      test_status << " QTest Status for " << name << " : " << endl;
+      test_status << " ======================================================== " << endl; 
+      for (dqm::qtests::QR_map::const_iterator it = test_map.begin(); it != test_map.end();
+	   it++) {
+	int status = it->second->getStatus();
+	if (status == dqm::qstatus::WARNING) test_status << " Warning ";
+	else if (status == dqm::qstatus::ERROR) test_status << " Error  ";
+	else if (status == dqm::qstatus::STATUS_OK) test_status << " Ok  ";
+	else if (status == dqm::qstatus::OTHER) test_status << " Other(" << status << ") ";
+	string mess_str = it->second->getMessage();
+	test_status <<  "&lt;br/&gt;";
+	mess_str = mess_str.substr(mess_str.find(" Test")+5);
+	test_status <<  " QTest Name  : " << mess_str.substr(0, mess_str.find(")")+1) << endl;
+	test_status << "&lt;br/&gt;";
+	test_status <<  " QTest Detail  : " << mess_str.substr(mess_str.find(")")+2) << endl;
+      } 
+      test_status << " ======================================================== " << endl;
+      *out << "<HPath>" << name << "</HPath>" << endl;         
+    }
+    cout << test_status.str() << endl;
   }
-   out->getHTTPResponseHeader().addHeader("Content-Type", "text/xml");
-   *out << "<?xml version=\"1.0\" ?>" << std::endl;
-   *out << "<StatusAndPath>" << endl;
-   *out << "<StatusList>" << endl;
-   *out << "<Status>" << test_status.str() << "</Status>" << endl;      
-   *out << "</StatusList>" << endl;
-   *out << "<PathList>" << endl;
-   *out << "<HPath>" << hpath << "</HPath>" << endl;   
-   *out << "</PathList>" << endl;
-   *out << "</StatusAndPath>" << endl;
+  *out << "</PathList>" << endl;
+  *out << "<StatusList>" << endl;
+  *out << "<Status>" << test_status.str() << "</Status>" << endl;      
+  *out << "</StatusList>" << endl;
+  *out << "</StatusAndPath>" << endl;
 }
 //
 // -- Define Zone from # of histograms
@@ -883,4 +1069,83 @@ void SiStripInformationExtractor::setDrawingOption(TH1* hist, float xlow, float 
     xa->SetRangeUser(xlow, xhigh);
   }
 
+}
+//
+// -- Set Canvas Dimension
+//
+void SiStripInformationExtractor::setCanvasDimension(std::multimap<std::string, std::string>& req_map) {
+
+  if (hasItem(req_map,"width")) 
+              canvasWidth = atoi(getItemValue(req_map, "width").c_str());    
+  if (hasItem(req_map,"height"))
+              canvasHeight = atoi(getItemValue(req_map, "height").c_str());
+  canvas_->SetFixedAspectRatio(kTRUE);
+  canvas_->SetCanvasSize(canvasWidth, canvasHeight);
+  canvas_->Update();
+  canvas_->Clear();
+}
+//------------------------------------------------------------------------------
+/*! \brief (Documentation under construction).
+ *
+ *  This method 
+ */
+void SiStripInformationExtractor::fillNamedImageBuffer(std::string name) {
+  //  canvas_->SetFixedAspectRatio(kTRUE);
+  //  canvas_->SetCanvasSize(520, 440);
+  // Now extract the image
+  // 114 - stands for "no write on Close"
+  TImageDump imgdump("tmp.png", 114);
+  canvas_->Paint();
+  cout << " SiStripInformationExtractor::fillNamedImageBuffer " << name << endl;
+
+ // get an internal image which will be automatically deleted
+ // in the imgdump destructor
+  TImage *image = imgdump.GetImage();
+  if( image == NULL )
+  {
+   cout << "SiStripInformationExtractor::fillNamedImageBuffer : "
+   	<< "WARNING: " 
+	<< "No TImage found for "
+	<< name
+   	<< endl ;
+    return ;
+  }
+
+  char *buf;
+  int sz = 0;
+  image->GetImageBuffer(&buf, &sz);         /* raw buffer */
+
+  pictureBuffer_.str("");
+  for (int i = 0; i < sz; i++) pictureBuffer_ << buf[i];
+  
+  //  delete [] buf;
+  ::free(buf); // buf is allocated via realloc() by a C language AfterStep library invoked by the
+               // default (and so far only) TImage implementation in root, TASImage.
+  
+  if (hasNamedImage(name)) namedPictureBuffer_.erase(name);
+  namedPictureBuffer_[name] = pictureBuffer_.str();
+}
+//------------------------------------------------------------------------------
+/*! \brief (Documentation under construction).
+ *
+ *  This method 
+ */
+const ostringstream& SiStripInformationExtractor::getNamedImage(string name) {
+
+  pictureBuffer_.str("");
+  map<string, string>::const_iterator cPos = namedPictureBuffer_.find(name);
+  if (cPos == namedPictureBuffer_.end()) { 
+  } else pictureBuffer_ << cPos->second;
+  return pictureBuffer_;
+}
+//------------------------------------------------------------------------------
+/*! \brief (Documentation under construction).
+ *
+ *  This method 
+ */
+bool SiStripInformationExtractor::hasNamedImage(string name) {
+  map<string, string>::const_iterator cPos = namedPictureBuffer_.find(name);
+  if (cPos == namedPictureBuffer_.end()) { 
+    return false;
+  } else return true;
 }

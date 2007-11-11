@@ -74,7 +74,7 @@ void SiStripWebInterface::handleCustomRequest(xgi::Input* in,xgi::Output* out)
   if (requestID == "IsReady") {
     theActionFlag = NoAction;    
     if ((*mui_p)->getNumUpdates() > 2) {
-      infoExtractor_->readLayoutNames(out);
+      infoExtractor_->readLayoutNames(requestMap_, out);
     } else {
       returnReplyXml(out, "ReadyState", "wait");
     }
@@ -128,8 +128,7 @@ void SiStripWebInterface::handleCustomRequest(xgi::Input* in,xgi::Output* out)
   } 
   else if (requestID == "ReadQTestStatus") {
     theActionFlag = NoAction;
-    string path = get_from_multimap(requestMap_, "Path");
-    infoExtractor_->readStatusMessage(bei, path, out);
+    infoExtractor_->readStatusMessage(bei, requestMap_, out);
   } 
   else if (requestID == "PlotAsModule") {
     theActionFlag = PlotSingleModuleHistos;    
@@ -154,6 +153,41 @@ void SiStripWebInterface::handleCustomRequest(xgi::Input* in,xgi::Output* out)
     *out << infoExtractor_->getImage().str();
     theActionFlag = NoAction;    
   }
+  else if (requestID == "updateIMGCPlots") {
+    theActionFlag = NoAction;    
+    std::string MEFolder = get_from_multimap(requestMap_, "MEFolder");
+    cout << "SiStripWebInterface::handleCustomRequest : "
+         << "Collecting ME from folder " 
+         << MEFolder
+         << endl ;
+    out->getHTTPResponseHeader().addHeader("Content-Type", "text/html");
+    out->getHTTPResponseHeader().addHeader("Pragma", "no-cache");   
+    out->getHTTPResponseHeader().addHeader("Cache-Control", "no-store, no-cache, must-revalidate,max-age=0");
+    out->getHTTPResponseHeader().addHeader("Expires","Mon, 26 Jul 1997 05:00:00 GMT");
+    bei->cd() ;
+    bei->cd(MEFolder) ;
+    vector<std::string> meList = bei->getMEs() ;
+    bei->cd() ;
+    *out << MEFolder << " " ;
+    cout << "SiStripWebInterface::handleCustomRequest "
+         << "MEFolder: " << MEFolder << endl ;
+    cout << "SiSitrpWebInterface::handleCustomRequest ";
+    for(vector<std::string>::iterator it=meList.begin(); it!=meList.end(); it++)
+    {
+     *out  << *it << " " ;
+      cout << *it << " " ;
+    }
+    cout << endl;       
+  }
+  else if (requestID == "GetIMGCImage") { 
+    theActionFlag = NoAction;    
+    //    std::string imageName = get_from_multimap(requestMap_, "Path");
+    out->getHTTPResponseHeader().addHeader("Content-Type", "image/png");
+    out->getHTTPResponseHeader().addHeader("Pragma", "no-cache");   
+    out->getHTTPResponseHeader().addHeader("Cache-Control", "no-store, no-cache, must-revalidate,max-age=0");
+    out->getHTTPResponseHeader().addHeader("Expires","Mon, 26 Jul 1997 05:00:00 GMT");
+    *out << infoExtractor_->getIMGCImage(bei, requestMap_).str();
+  }
     
   configureCustomRequest(in, out);
 }
@@ -172,7 +206,7 @@ void SiStripWebInterface::handleAnalyserRequest(xgi::Input* in,xgi::Output* out,
   if (requestID == "IsReady") {
     theActionFlag = NoAction;    
     if (niter > 0) {
-      infoExtractor_->readLayoutNames(out);
+      infoExtractor_->readLayoutNames(requestMap_, out);
     } else {
       returnReplyXml(out, "ReadyState", "wait");
     }
@@ -214,20 +248,23 @@ void SiStripWebInterface::handleAnalyserRequest(xgi::Input* in,xgi::Output* out,
   } 
   else if (requestID == "ReadQTestStatus") {
     theActionFlag = NoAction;
-    string path = get_from_multimap(requestMap_, "Path");
-    infoExtractor_->readStatusMessage(bei, path, out);
+    infoExtractor_->readStatusMessage(bei, requestMap_, out);
   } 
-  else if (requestID == "PlotAsModule") {
-    theActionFlag = PlotSingleModuleHistos;    
+   else if (requestID == "PlotAsModule") {
+    theActionFlag = NoAction;  
+    infoExtractor_->plotSingleModuleHistos(bei, requestMap_, out);    
   }
   else if (requestID == "PlotGlobalHisto") {
-    theActionFlag = PlotGlobalHistos;    
+    theActionFlag = NoAction;    
+    infoExtractor_->plotGlobalHistos(bei, requestMap_, out);    
   }
   else if (requestID == "PlotHistogramFromPath") {
-   theActionFlag = PlotHistogramFromPath;
+   theActionFlag = NoAction;
+   infoExtractor_->plotHistosFromPath(bei, requestMap_, out);    
   } 
   else if (requestID == "PlotTkMapHistogram") {
-    theActionFlag = PlotTkMapHistogram;
+    theActionFlag = NoAction;
+    infoExtractor_->plotTrackerMapHistos(bei, requestMap_, out);
   }
   else if (requestID == "PlotHistogramFromLayout") {
     theActionFlag = PlotHistogramFromLayout;
@@ -239,6 +276,42 @@ void SiStripWebInterface::handleAnalyserRequest(xgi::Input* in,xgi::Output* out,
     out->getHTTPResponseHeader().addHeader("Expires","Mon, 26 Jul 1997 05:00:00 GMT");
     *out << infoExtractor_->getImage().str();
     theActionFlag = NoAction;    
+  }
+  else if (requestID == "updateIMGCPlots") {
+    theActionFlag = NoAction;    
+    std::string MEFolder = get_from_multimap(requestMap_, "MEFolder");
+    cout << "SiStripWebInterface::handleAnalyserRequest : "
+         << "Collecting ME from folder " 
+         << MEFolder
+         << endl ;
+    out->getHTTPResponseHeader().addHeader("Content-Type", "text/html");
+    out->getHTTPResponseHeader().addHeader("Pragma", "no-cache");   
+    out->getHTTPResponseHeader().addHeader("Cache-Control", "no-store, no-cache, must-revalidate,max-age=0");
+    out->getHTTPResponseHeader().addHeader("Expires","Mon, 26 Jul 1997 05:00:00 GMT");
+    bei->cd() ;
+    bei->cd(MEFolder) ;
+    vector<std::string> meList = bei->getMEs() ;
+    bei->cd() ;
+    *out << MEFolder << " " ;
+    cout << "SiStripWebInterface::handleAnalyserRequest "
+         << "MEFolder: " << MEFolder << endl ;
+    cout << "SiSitrpWebInterface::handleCustomRequest ";
+    for(vector<std::string>::iterator it=meList.begin(); it!=meList.end(); it++)
+    {
+     *out  << *it << " " ;
+      cout << *it << " " ;
+    }
+    cout << endl;       
+  }
+  else if (requestID == "GetIMGCImage") { 
+    theActionFlag = NoAction;    
+    std::string imageName = get_from_multimap(requestMap_, "ImageName");
+    cout << requestID << " " << imageName << endl;
+    out->getHTTPResponseHeader().addHeader("Content-Type", "image/png");
+    out->getHTTPResponseHeader().addHeader("Pragma", "no-cache");   
+    out->getHTTPResponseHeader().addHeader("Cache-Control", "no-store, no-cache, must-revalidate,max-age=0");
+    out->getHTTPResponseHeader().addHeader("Expires","Mon, 26 Jul 1997 05:00:00 GMT");
+    *out << infoExtractor_->getIMGCImage(bei, requestMap_).str();
   }
     
   performAction();
@@ -300,22 +373,22 @@ void SiStripWebInterface::performAction() {
     }
   case SiStripWebInterface::PlotSingleModuleHistos :
     {
-      infoExtractor_->plotSingleModuleHistos(bei, requestMap_);
+//      infoExtractor_->plotSingleModuleHistos(bei, requestMap_, out);
       break;
     }
   case SiStripWebInterface::PlotGlobalHistos :
     {
-      infoExtractor_->plotGlobalHistos(bei, requestMap_);
+//      infoExtractor_->plotGlobalHistos(bei, requestMap_, out);
       break;
     }
   case SiStripWebInterface::PlotTkMapHistogram :
     {
-      infoExtractor_->plotTrackerMapHistos(bei, requestMap_);
+//      infoExtractor_->plotTrackerMapHistos(bei, requestMap_, out);
       break;
     }
   case SiStripWebInterface::PlotHistogramFromPath :
     {
-      infoExtractor_->plotHistosFromPath(bei, requestMap_);
+//       infoExtractor_->plotHistosFromPath(bei, requestMap_, out);
       break;
     }
   case SiStripWebInterface::PlotHistogramFromLayout :

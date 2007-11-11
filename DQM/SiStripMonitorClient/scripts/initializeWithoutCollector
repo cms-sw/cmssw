@@ -67,12 +67,7 @@ copy("$ENV{PWD}/../test/source_client.cfg", "$ENV{PWD}/cfg/source_client.cfg");
 
 # make source xml input
 
-copy("$ENV{PWD}/../test/MESubscriptionList.xml", "$ENV{PWD}/cfg/.");
 copy("$ENV{PWD}/../test/sistrip_qualitytest_config.xml", "$ENV{PWD}/cfg/.");
-copy("$ENV{PWD}/../test/Reference.root", "$ENV{PWD}/.");
-copy("$ENV{PWD}/../data/TrackerMapHeader.txt", "$ENV{PWD}/.");
-copy("$ENV{PWD}/../data/TrackerMapTrailer.txt", "$ENV{PWD}/.");
-
 
 
 #
@@ -189,11 +184,17 @@ close (CTL);
 `chmod +x destroy`;
 
 #
-# copy scripts
+# copy scripts and other auxiliary files
 #
+copy("$ENV{PWD}/../test/Reference.root", "$ENV{PWD}/.");
+copy("$ENV{PWD}/../test/.trackermap.txt", "$ENV{PWD}/trackermap.txt");
 copy("$ENV{PWD}/../test/.WebLib.js", "$ENV{PWD}/WebLib.js");
 copy("$ENV{PWD}/../test/Online.html", "$ENV{PWD}/.");
 copy("$ENV{PWD}/../test/loader.html", "$ENV{PWD}/.");
+copy("$ENV{PWD}/../test/TrackerMapFrame.html", "$ENV{PWD}/.");
+copy("$ENV{PWD}/../test/TrackerMapSelection.html", "$ENV{PWD}/.");
+copy("$ENV{PWD}/../test/TrackerMapPlot.html", "$ENV{PWD}/.");
+copy("$ENV{PWD}/../test/TrackerMapPlot.html", "$ENV{PWD}/.");
 
 $SERVED_DIR="http://$hostname:40000/temporary";
 system qq[perl], qq[-pi -e], qq[s#SERVED_DIRECTORY_URL#$SERVED_DIR#], qq[$ENV{PWD}/WebLib.js]; 
@@ -463,8 +464,9 @@ sub makeCtlDestroy
           . "start configure enable halt stop gennums.txt"
           . " summaryCatalog.txt test.root`;\n\n";
     $result = $result . "`rm -rf Online.html loader.html \*.root "
+          . " TrackerMapFrame.html TrackerMapPlot.html TrackerMapSelection.html "
           . "\*.png css_files js_files images WebLib.js `;\n\n";
-    $result = $result . "`rm -rf TrackerMapHeader.txt  TrackerMapTrailer.txt "
+    $result = $result . "`rm -rf trackermap.txt "
           . "svgmap.xml svgmap_fed.xml Layer\*.xml `;\n\n";
     $result = $result . "print \"FUShmCleanUp_t ...\\n\";\n\n";
     $result = $result . "`FUShmCleanUp_t`;\n\n";

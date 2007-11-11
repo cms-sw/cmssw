@@ -4,8 +4,8 @@
 /** \class SiStripAnalyser
  * *
  *  SiStrip SiStripAnalyser
- *  $Date: 2007/10/24 17:13:23 $
- *  $Revision: 1.11 $
+ *  $Date: 2007/11/04 18:46:55 $
+ *  $Revision: 1.12 $
  *  \author  S. Dutta INFN-Pisa
  *   
  */
@@ -69,9 +69,6 @@ protected:
   void endJob();
 
 
-  /// Save histograms to a root file
-
-  void saveAll(int irun, int ilumi);
 
 private:
 
@@ -88,6 +85,7 @@ private:
   int staticUpdateFrequency_;
 
   std::string outputFilePath_;
+  std::string outputFileName_;
 
   edm::ESHandle< SiStripFedCabling > fedCabling_;
   SiStripTrackerMapCreator* trackerMapCreator_;

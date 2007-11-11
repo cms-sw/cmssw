@@ -1,8 +1,8 @@
 /*
  * \file SiStripAnalyser.cc
  * 
- * $Date: 2007/11/04 18:46:56 $
- * $Revision: 1.16 $
+ * $Date: 2007/11/05 15:48:30 $
+ * $Revision: 1.17 $
  * \author  S. Dutta INFN-Pisa
  *
  */
@@ -51,11 +51,10 @@ SiStripAnalyser::SiStripAnalyser(const edm::ParameterSet& ps) :
   ModuleWeb("SiStripAnalyser"){
   
   edm::LogInfo("SiStripAnalyser") << " SiStripAnalyser::Creating SiStripAnalyser ";
-  fileSaveFrequency_     = ps.getUntrackedParameter<int>("FileSaveFrequency",50); 
   summaryFrequency_      = ps.getUntrackedParameter<int>("SummaryCreationFrequency",20);
   tkMapFrequency_        = ps.getUntrackedParameter<int>("TkMapCreationFrequency",50); 
   staticUpdateFrequency_ = ps.getUntrackedParameter<int>("StaticUpdateFrequency",10);
-  outputFilePath_        = ps.getUntrackedParameter<string>("OutputFilePath",".");
+
 
   // get back-end interface
   dbe_ = Service<DaqMonitorBEInterface>().operator->();
@@ -156,12 +155,6 @@ void SiStripAnalyser::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, ed
     sistripWebInterface_->performAction();
   }
 
-  // Save MEs in a file
-  if (nLumiSecs_ > 1 && nLumiSecs_%fileSaveFrequency_ == 0) {
-    int iRun = lumiSeg.run();
-    int iLumi  = lumiSeg.luminosityBlock();
-    saveAll(iRun, iLumi);	   
-  }
 }
 
 //
@@ -169,8 +162,6 @@ void SiStripAnalyser::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, ed
 //
 void SiStripAnalyser::endRun(edm::Run const& run, edm::EventSetup const& eSetup){
   edm::LogInfo ("SiStripAnalyser") <<"SiStripAnalyser:: End of Run";
-    int iRun = run.run();
-    saveAll(iRun, -1);	   
 }
 //
 // -- End Job
@@ -178,20 +169,6 @@ void SiStripAnalyser::endRun(edm::Run const& run, edm::EventSetup const& eSetup)
 void SiStripAnalyser::endJob(){
   edm::LogInfo("SiStripAnalyser") <<"SiStripAnalyser:: endjob called!";
 
-}
-//
-// -- Save Histograms in a file
-//
-void SiStripAnalyser::saveAll(int irun, int ilumi) {
-  ostringstream fname;  
-  if (ilumi != -1) {
-    fname << outputFilePath_ << "/" << "DQM_SiStrip_" << irun << "_"<< ilumi << ".root";   
-  } else {
-     fname << outputFilePath_ << "/" << "DQM_SiStrip_" << irun  << ".root";
-  }
-  sistripWebInterface_->setOutputFileName(fname.str());
-  sistripWebInterface_->setActionFlag(SiStripWebInterface::SaveData);
-  sistripWebInterface_->performAction();
 }
 //
 // -- Create default web page
