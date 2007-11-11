@@ -149,7 +149,7 @@ namespace reco {
     /// color (transient)
     int                 color_;
     
-    friend class PFClusterAlgo;
+    friend class ::PFClusterAlgo;
   };
 }
 
