@@ -12,10 +12,6 @@
 
 #include <iostream>
 
-using std::string;
-using std::vector;
-using std::map;
-
 namespace edm {
   namespace pset {
 
@@ -33,7 +29,7 @@ namespace edm {
       doReplaces_ = doOrNotDo;
     }
 
-    ParseTree::ParseTree(const string & configString)
+    ParseTree::ParseTree(const std::string & configString)
     : blocks_(),
       blockCopyNodes_(),
       blockRenameNodes_(),
@@ -247,7 +243,7 @@ namespace edm {
 
     std::string ParseTree::value(const std::string & dotDelimitedNode) const
     {
-      string result = "";
+      std::string result = "";
       NodePtr nodePtr = findInPath(dotDelimitedNode);
       EntryNode * entryNode = dynamic_cast<EntryNode *>(nodePtr.get());
       if(entryNode == 0)
@@ -316,8 +312,8 @@ namespace edm {
           nodeItrEnd = topLevelNodes.end(); nodeItr != nodeItrEnd; ++nodeItr)
       {
         // see what the type is
-        string type = (*nodeItr)->type();
-        string name = (*nodeItr)->name();
+        std::string type = (*nodeItr)->type();
+        std::string name = (*nodeItr)->name();
         // see if it's ont of the many types of ModuleNode first
         ModuleNode * moduleNode = dynamic_cast<ModuleNode *>((*nodeItr).get());
         if(moduleNode != 0) 
@@ -357,7 +353,7 @@ namespace edm {
           blocks_[name] = *nodeItr;
         }
 
-        else if(string(type,0,7) == "replace") {
+        else if(std::string(type,0,7) == "replace") {
           replaceNodes_.push_back(*nodeItr);
         }
 
@@ -495,10 +491,10 @@ namespace edm {
     }
 
 
-    NodePtr ParseTree::findInPath(const string & path, 
+    NodePtr ParseTree::findInPath(const std::string & path, 
                                   const ParseTree::NodePtrMap  & targetMap) const
     {
-      typedef vector<string> stringvec_t;
+      typedef std::vector<std::string> stringvec_t;
       stringvec_t pathElements = tokenize(path, ".");
       stringvec_t::const_iterator it =  pathElements.begin();
       stringvec_t::const_iterator end = pathElements.end();
@@ -526,7 +522,7 @@ namespace edm {
     }
 
 
-    NodePtr ParseTree::findPtr(const string & name, 
+    NodePtr ParseTree::findPtr(const std::string & name, 
                                const ParseTree::NodePtrMap  & targetMap) const 
     {
       NodePtrMap::const_iterator mapItr = targetMap.find(name);
@@ -549,7 +545,7 @@ namespace edm {
         ++next;
 
         // see if this name is a block name
-        string topLevel = tokenize((**modifierItr).name(), ".")[0];
+        std::string topLevel = tokenize((**modifierItr).name(), ".")[0];
         if(blocks_.find(topLevel) != blocks_.end())
         {
           if(strict_)

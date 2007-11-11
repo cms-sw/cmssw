@@ -12,8 +12,8 @@ namespace edm {
   namespace pset {
 
 
-    ModuleNode::ModuleNode(const string& typ, const string& instname,
-                           const string& classname, NodePtrListPtr nl,
+    ModuleNode::ModuleNode(const std::string& typ, const std::string& instname,
+                           const std::string& classname, NodePtrListPtr nl,
                            int line):
       CompositeNode(instname, nl, line),
       type_(typ),

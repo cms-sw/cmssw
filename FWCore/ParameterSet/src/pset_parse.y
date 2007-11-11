@@ -3,7 +3,7 @@
 %{
 
 /*
- * $Id: pset_parse.y,v 1.60 2007/07/23 23:42:35 wmtan Exp $
+ * $Id: pset_parse.y,v 1.61 2007/09/11 17:55:46 rpw Exp $
  *
  * Author: Us
  * Date:   4/28/05
@@ -66,7 +66,6 @@
   #define DBMADE(x) 
 #endif
 
-using namespace std;
 using namespace edm::pset;
 
 /*
@@ -85,11 +84,11 @@ namespace edm
   {
     int lines=1;
     NodePtrList* global_gunk;
-    string currentFile = "";
+    std::string currentFile = "";
   }
 }
 
-inline string toString(char* arg) { string s(arg); free(arg); return s; }
+inline std::string toString(char* arg) { std::string s(arg); free(arg); return s; }
 
 
 %}
@@ -270,9 +269,9 @@ lowlevelnode:    untracked TYPE_tok LETTERSTART_tok EQUAL_tok any
                  {
                    DBPRINT("lowlevelnode: TYPE");
                    bool tr = $<_bool>1;
-                   string type(toString($<str>2));
-                   string name(toString($<str>3));
-                   string value(toString($<str>5));
+                   std::string type(toString($<str>2));
+                   std::string name(toString($<str>3));
+                   std::string value(toString($<str>5));
                    EntryNode* en(new EntryNode(type,name,value,tr,lines));
                    $<_Node>$ = en;
                  }
@@ -281,8 +280,8 @@ lowlevelnode:    untracked TYPE_tok LETTERSTART_tok EQUAL_tok any
                  {
                    DBPRINT("lowlevelnode: VTYPE");
                    bool tr = $<_bool>1;
-                   string type(toString($<str>2));
-                   string name(toString($<str>3));
+                   std::string type(toString($<str>2));
+                   std::string name(toString($<str>3));
                    StringListPtr value($<_StringList>5);
                    VEntryNode* en(new VEntryNode(type,name,value,tr,lines));
                    $<_Node>$ = en;
@@ -292,8 +291,8 @@ lowlevelnode:    untracked TYPE_tok LETTERSTART_tok EQUAL_tok any
                  {
                    DBPRINT("lowlevelnode: STRING");
                    bool tr = $<_bool>1;
-                   string name(toString($<str>3));
-                   string value(toString($<str>5));
+                   std::string name(toString($<str>3));
+                   std::string value(toString($<str>5));
                    EntryNode* en(new EntryNode("string",name,value,tr,lines));
                    $<_Node>$ = en;
                  }
@@ -301,7 +300,7 @@ lowlevelnode:    untracked TYPE_tok LETTERSTART_tok EQUAL_tok any
                  untracked VSTRING_tok LETTERSTART_tok EQUAL_tok possiblyblankstrarray
                  {
                    DBPRINT("lowlevelnode: VSTRING");
-                   string name(toString($<str>3));
+                   std::string name(toString($<str>3));
                    StringListPtr value($<_StringList>5);
                    bool tr = $<_bool>1;
                    VEntryNode* en(new VEntryNode("vstring",name,value,tr,lines));
@@ -312,8 +311,8 @@ lowlevelnode:    untracked TYPE_tok LETTERSTART_tok EQUAL_tok any
                  {
                    DBPRINT("lowlevelnode: FILEINPATH");
                    bool tr = $<_bool>1;
-                   string name(toString($<str>3));
-                   string value(toString($<str>5));
+                   std::string name(toString($<str>3));
+                   std::string value(toString($<str>5));
                    EntryNode* en(new EntryNode("FileInPath",name,value,tr,lines));
                    $<_Node>$ = en;
                  }
@@ -322,8 +321,8 @@ lowlevelnode:    untracked TYPE_tok LETTERSTART_tok EQUAL_tok any
                  {
                    DBPRINT("lowlevelnode: INPUTTAG");
                    bool tr = $<_bool>1;
-                   string name(toString($<str>3));
-                   string value(toString($<str>5));
+                   std::string name(toString($<str>3));
+                   std::string value(toString($<str>5));
                    EntryNode* en(new EntryNode("InputTag",name,value,tr,lines));
                    $<_Node>$ = en;
                  }
@@ -331,7 +330,7 @@ lowlevelnode:    untracked TYPE_tok LETTERSTART_tok EQUAL_tok any
                 untracked VINPUTTAG_tok LETTERSTART_tok EQUAL_tok producttagarray
                  {
                    DBPRINT("lowlevelnode: VINPUTTAG");
-                   string name(toString($<str>3));
+                   std::string name(toString($<str>3));
                    StringListPtr value($<_StringList>5);
                    bool tr = $<_bool>1;
                    VEntryNode* en(new VEntryNode("VInputTag",name,value,tr,lines));
@@ -342,8 +341,8 @@ lowlevelnode:    untracked TYPE_tok LETTERSTART_tok EQUAL_tok any
                  {
                    DBPRINT("lowlevelnode: EVENTID");
                    bool tr = $<_bool>1;
-                   string name(toString($<str>3));
-                   string value(toString($<str>5));
+                   std::string name(toString($<str>3));
+                   std::string value(toString($<str>5));
                    EntryNode* en(new EntryNode("EventID",name,value,tr,lines));
                    $<_Node>$ = en;
                  }
@@ -351,7 +350,7 @@ lowlevelnode:    untracked TYPE_tok LETTERSTART_tok EQUAL_tok any
                 untracked VEVENTID_tok LETTERSTART_tok EQUAL_tok possiblyblankeventidarray
                  {
                    DBPRINT("lowlevelnode: VEVENTID");
-                   string name(toString($<str>3));
+                   std::string name(toString($<str>3));
                    StringListPtr value($<_StringList>5);
                    bool tr = $<_bool>1;
                    VEntryNode* en(new VEntryNode("VEventID",name,value,tr,lines));
@@ -361,7 +360,7 @@ lowlevelnode:    untracked TYPE_tok LETTERSTART_tok EQUAL_tok any
                  USING_tok LETTERSTART_tok
                  {
                    DBPRINT("lowlevelnode: USING");
-                   string name(toString($<str>2));
+                   std::string name(toString($<str>2));
                    UsingNode* en(new UsingNode(name,lines));
                    $<_Node>$ = en;
                  }
@@ -387,7 +386,7 @@ eitherlevelnode:    allpset
                  INCLUDE_tok anyquote
                  {
                    DBPRINT("procnode: INCLUDE");
-                   string name(toString($<str>2));
+                   std::string name(toString($<str>2));
                    IncludeNode * wn(new IncludeNode("include", name, lines));
                    $<_Node>$ = wn;
                  }
@@ -398,7 +397,7 @@ allpset:         untracked PSET_tok LETTERSTART_tok EQUAL_tok scoped
                  {
                    DBPRINT("node: PSET (scoped)");
 		   bool tr = $<_bool>1;
-                   string name(toString($<str>3));
+                   std::string name(toString($<str>3));
                    NodePtrListPtr value($<_NodePtrList>5);
                    PSetNode* en(new PSetNode("PSet",name,value,tr,lines));
                    $<_Node>$ = en;
@@ -409,7 +408,7 @@ allpset:         untracked PSET_tok LETTERSTART_tok EQUAL_tok scoped
                    /* TEMPORARILY allow dots in names, for MessageLogger */
                    DBPRINT("node: PSET (scoped)");
                    bool tr = $<_bool>1;
-                   string name(toString($<str>3));
+                   std::string name(toString($<str>3));
                    NodePtrListPtr value($<_NodePtrList>5);
                    PSetNode* en(new PSetNode("PSet",name,value,tr,lines));
                    $<_Node>$ = en;
@@ -419,7 +418,7 @@ allpset:         untracked PSET_tok LETTERSTART_tok EQUAL_tok scoped
                  {
                    DBPRINT("node: VPSET");
 		   bool tr = $<_bool>1;
-                   string name(toString($<str>3));
+                   std::string name(toString($<str>3));
                    NodePtrListPtr value($<_NodePtrList>6);
                    VPSetNode* en(new VPSetNode("VPSet",name,value,tr,lines));
                    $<_Node>$ = en;
@@ -429,7 +428,7 @@ allpset:         untracked PSET_tok LETTERSTART_tok EQUAL_tok scoped
                  {
                    DBPRINT("node: VPSET (empty)");
                    bool tr = $<_bool>1;
-                   string name(toString($<str>3));
+                   std::string name(toString($<str>3));
                    NodePtrListPtr value(new NodePtrList());
                    VPSetNode* en(new VPSetNode("VPSet",name,value,tr,lines));
                    $<_Node>$ = en;
@@ -438,8 +437,8 @@ allpset:         untracked PSET_tok LETTERSTART_tok EQUAL_tok scoped
                  MIXER_tok LETTERSTART_tok EQUAL_tok LETTERSTART_tok scoped
 		 {
 		   DBPRINT("node: MIXER");
-                   string name(toString($<str>2));
-                   string type(toString($<str>4));
+                   std::string name(toString($<str>2));
+                   std::string type(toString($<str>4));
                    NodePtrListPtr nodelist($<_NodePtrList>5);
                    ModuleNode* wn(new ModuleNode("mixer",name,type,nodelist,lines));
                    $<_Node>$ = wn;
@@ -448,8 +447,8 @@ allpset:         untracked PSET_tok LETTERSTART_tok EQUAL_tok scoped
                  SECSOURCE_tok LETTERSTART_tok EQUAL_tok LETTERSTART_tok scoped		 
 	         {
                    DBPRINT("node: SECSOURCE");
-                   string name(toString($<str>2));
-                   string type(toString($<str>4));
+                   std::string name(toString($<str>2));
+                   std::string type(toString($<str>4));
                    NodePtrListPtr nodelist($<_NodePtrList>5);
                    ModuleNode* wn(new ModuleNode("secsource",name,type,nodelist,lines));
                    $<_Node>$ = wn;
@@ -458,7 +457,7 @@ allpset:         untracked PSET_tok LETTERSTART_tok EQUAL_tok scoped
 	         MIXERPATH_tok LETTERSTART_tok EQUAL_tok SCOPE_START_tok pathseq SCOPE_END_tok
 	         {
                    DBPRINT("procnode: PATH");
-                   string name(toString($<str>2));
+                   std::string name(toString($<str>2));
                    NodePtr path($<_Node>5);
                    WrapperNode* wn(new WrapperNode("mixer_path",name,path,lines));
                    $<_Node>$ = wn;
@@ -478,7 +477,7 @@ nodesarray:      nodesarray COMMA_tok scoped
                  nodesarray COMMA_tok LETTERSTART_tok
                  {
                    NodePtrList* p = $<_NodePtrList>1;
-                   string word(toString($<str>3));
+                   std::string word(toString($<str>3));
                    NodePtr n(new StringNode(word,lines));
                    p->push_back(n);
                    $<_NodePtrList>$ = p;
@@ -495,7 +494,7 @@ nodesarray:      nodesarray COMMA_tok scoped
                |
                  LETTERSTART_tok
                  {
-                   string word(toString($<str>1));
+                   std::string word(toString($<str>1));
                    NodePtr n(new StringNode(word,lines));
                    NodePtrList* p(new NodePtrList);
                    p->push_back(n);
@@ -579,7 +578,7 @@ anys:            anys COMMA_tok any
                  {
                    DBPRINT("anys: anys COMMA_tok any");
                    StringList* p = $<_StringList>1;
-                   string s(toString($<str>3));
+                   std::string s(toString($<str>3));
                    p->push_back(s);
                    $<_StringList>$ = p;
                  }
@@ -587,7 +586,7 @@ anys:            anys COMMA_tok any
                  any
                  {
                    DBPRINT("anys: any");
-                   string s(toString($<str>1));
+                   std::string s(toString($<str>1));
                    StringList* p(new StringList);
                    p->push_back(s);
                    $<_StringList>$ = p;
@@ -599,7 +598,7 @@ stranys:         stranys COMMA_tok anyquote
                  {
                    DBPRINT("anys: anys COMMA_tok any");
                    StringList* p = $<_StringList>1;
-                   string s(toString($<str>3));
+                   std::string s(toString($<str>3));
                    p->push_back(s);
                    $<_StringList>$ = p;
                  }
@@ -607,7 +606,7 @@ stranys:         stranys COMMA_tok anyquote
                  anyquote
                  {
                    DBPRINT("anys: any");
-                   string s(toString($<str>1));
+                   std::string s(toString($<str>1));
                    StringList* p(new StringList);
                    p->push_back(s);
                    $<_StringList>$ = p;
@@ -655,7 +654,7 @@ producttags:     producttags COMMA_tok anyproducttag
                  {
                    DBPRINT("producttag: producttag COMMA_tok producttag");
                    StringList* p = $<_StringList>1;
-                   string s(toString($<str>3));
+                   std::string s(toString($<str>3));
                    p->push_back(s);
                    $<_StringList>$ = p;
                  }
@@ -663,7 +662,7 @@ producttags:     producttags COMMA_tok anyproducttag
                  anyproducttag
                  {
                    DBPRINT("producttags: producttag");
-                   string s(toString($<str>1));
+                   std::string s(toString($<str>1));
                    StringList* p(new StringList);
                    p->push_back(s);
                    $<_StringList>$ = p;
@@ -687,7 +686,7 @@ eventids:        eventids COMMA_tok EVENTIDVALUE_tok
                  {
                    DBPRINT("eventids comma");
                    StringList* p = $<_StringList>1;
-                   string s(toString($<str>3));
+                   std::string s(toString($<str>3));
                    p->push_back(s);
                    $<_StringList>$ = p;
                  }
@@ -695,7 +694,7 @@ eventids:        eventids COMMA_tok EVENTIDVALUE_tok
                  EVENTIDVALUE_tok
                  {
                    DBPRINT("eventids");
-                   string s(toString($<str>1));
+                   std::string s(toString($<str>1));
                    StringList* p(new StringList);
                    p->push_back(s);
                    $<_StringList>$ = p;
@@ -758,7 +757,7 @@ untracked:
 process:         PROCESS_tok LETTERSTART_tok EQUAL_tok SCOPE_START_tok procnodes SCOPE_END_tok
                  {
                    DBPRINT("process: processnodes");
-                   string name(toString($<str>2));
+                   std::string name(toString($<str>2));
                    NodePtrListPtr nodes($<_NodePtrList>5);
                    NodePtr node(new PSetNode("process",name,nodes, false, lines));
                    NodePtrList* p(new NodePtrList);
@@ -803,7 +802,7 @@ procnode:        eitherlevelnode
 toplevelnode:    BLOCK_tok LETTERSTART_tok EQUAL_tok scoped
                  {
                    DBPRINT("procnode: BLOCK");
-                   string name(toString($<str>2));
+                   std::string name(toString($<str>2));
                    NodePtrListPtr value($<_NodePtrList>4);
                    PSetNode* en(new PSetNode("block",name,value, false, lines));
                    $<_Node>$ = en;
@@ -812,8 +811,8 @@ toplevelnode:    BLOCK_tok LETTERSTART_tok EQUAL_tok scoped
                  REPLACE_tok DOTDELIMITED_tok EQUAL_tok replaceEntry
                  {
                    DBPRINT("procnode: REPLACEVALUE");
-                   string name(toString($<str>2));
-                   string value(toString($<str>4));
+                   std::string name(toString($<str>2));
+                   std::string value(toString($<str>4));
                    EntryNode * entry = new EntryNode("replace",name, value, false, lines);
                    NodePtr entryPtr(entry);
                    ReplaceNode* wn(new ReplaceNode("replace", name, entryPtr, false, lines));
@@ -823,8 +822,8 @@ toplevelnode:    BLOCK_tok LETTERSTART_tok EQUAL_tok scoped
                  REPLACE_tok DOTDELIMITED_tok PLUSEQUAL_tok replaceEntry
                  {
                    DBPRINT("procnode: APPENDVALUE");
-                   string name(toString($<str>2));
-                   string value(toString($<str>4));
+                   std::string name(toString($<str>2));
+                   std::string value(toString($<str>4));
                    EntryNode * entry = new EntryNode("replace",name, value, false, lines);
                    NodePtr entryPtr(entry);
                    ReplaceNode* wn(new ReplaceNode("replaceAppend", name, entryPtr, true, lines));
@@ -834,8 +833,8 @@ toplevelnode:    BLOCK_tok LETTERSTART_tok EQUAL_tok scoped
                  REPLACE_tok DOTDELIMITED_tok PLUSEQUAL_tok DOTDELIMITED_tok
                  {
                    DBPRINT("procnode: APPENDNODE");
-                   string name(toString($<str>2));
-                   string value(toString($<str>4));
+                   std::string name(toString($<str>2));
+                   std::string value(toString($<str>4));
                    EntryNode * entry = new EntryNode("dotdelimited",value, value, false, lines);
                    NodePtr entryPtr(entry);
                    ReplaceNode* wn(new ReplaceNode("replaceAppend", name, entryPtr, true, lines));
@@ -845,7 +844,7 @@ toplevelnode:    BLOCK_tok LETTERSTART_tok EQUAL_tok scoped
                  REPLACE_tok DOTDELIMITED_tok EQUAL_tok anyarray
                  {
                    DBPRINT("node: REPLACEARRAY");
-                   string name(toString($<str>2));
+                   std::string name(toString($<str>2));
                    StringListPtr value($<_StringList>4);
                    VEntryNode* en(new VEntryNode("replace",name,value,false,lines));
                    NodePtr entryPtr(en);
@@ -856,7 +855,7 @@ toplevelnode:    BLOCK_tok LETTERSTART_tok EQUAL_tok scoped
                  REPLACE_tok DOTDELIMITED_tok PLUSEQUAL_tok anyarray
                  {
                    DBPRINT("node: APPENDARRAY");
-                   string name(toString($<str>2));
+                   std::string name(toString($<str>2));
                    StringListPtr value($<_StringList>4);
                    VEntryNode* en(new VEntryNode("replace",name,value, false,lines));
                    NodePtr entryPtr(en);
@@ -867,7 +866,7 @@ toplevelnode:    BLOCK_tok LETTERSTART_tok EQUAL_tok scoped
                  REPLACE_tok DOTDELIMITED_tok EQUAL_tok nonblankscoped
                  {
                    DBPRINT("procnode:REPLACESCOPE");
-                   string name(toString($<str>2));
+                   std::string name(toString($<str>2));
                    NodePtrListPtr value($<_NodePtrList>4);
                    PSetNode* en(new PSetNode("replace", name, value, false, lines));
                    NodePtr psetPtr(en);
@@ -878,7 +877,7 @@ toplevelnode:    BLOCK_tok LETTERSTART_tok EQUAL_tok scoped
                  REPLACE_tok LETTERSTART_tok EQUAL_tok nonblankscoped
                  {
                    DBPRINT("procnode:REPLACETOPLEVELPSET");
-                   string name(toString($<str>2));
+                   std::string name(toString($<str>2));
                    NodePtrListPtr value($<_NodePtrList>4);
                    PSetNode* en(new PSetNode("replace", name, value, false, lines));
                    NodePtr psetPtr(en);
@@ -889,8 +888,8 @@ toplevelnode:    BLOCK_tok LETTERSTART_tok EQUAL_tok scoped
                  REPLACE_tok LETTERSTART_tok EQUAL_tok LETTERSTART_tok scoped
                  {
                    DBPRINT("procnode: REPLACEMODULE");
-                   string name(toString($<str>2));
-                   string type(toString($<str>4));
+                   std::string name(toString($<str>2));
+                   std::string type(toString($<str>4));
                    NodePtrListPtr nodelist($<_NodePtrList>5);
                    ModuleNode * moduleNode(new ModuleNode("replace",name,type,nodelist,lines));
                    NodePtr entryPtr(moduleNode);
@@ -901,7 +900,7 @@ toplevelnode:    BLOCK_tok LETTERSTART_tok EQUAL_tok scoped
                  REPLACE_tok DOTDELIMITED_tok EQUAL_tok SCOPE_START_tok vpset SCOPE_END_tok
                  {
                    DBPRINT("procnode: REPLACE_VPSET");
-                   string name(toString($<str>2));
+                   std::string name(toString($<str>2));
                    NodePtrListPtr value($<_NodePtrList>5);
                    VPSetNode* en(new VPSetNode("VPSet",name,value,false,lines));
                    NodePtr vpsetNodePtr(en);
@@ -913,7 +912,7 @@ toplevelnode:    BLOCK_tok LETTERSTART_tok EQUAL_tok scoped
                  {
                    // need to add a rule for appending with a dot-delimited PSet
                    DBPRINT("procnode: SINGLE_APPEND_VPSET");
-                   string name(toString($<str>2));
+                   std::string name(toString($<str>2));
                    NodePtrListPtr value($<_NodePtrList>4);
                    NodePtr contentsPtr(new ContentsNode(value, lines));
                    ReplaceNode* wn(new ReplaceNode("replaceAppend", name, contentsPtr, true, lines));
@@ -923,7 +922,7 @@ toplevelnode:    BLOCK_tok LETTERSTART_tok EQUAL_tok scoped
                  REPLACE_tok DOTDELIMITED_tok PLUSEQUAL_tok SCOPE_START_tok vpset SCOPE_END_tok
                  {
                    DBPRINT("procnode: MULTIPLE_APPEND_VPSET");
-                   string name(toString($<str>2));
+                   std::string name(toString($<str>2));
                    NodePtrListPtr value($<_NodePtrList>5);
                    VPSetNode* en(new VPSetNode("VPSet",name,value,false,lines));
                    NodePtr vpsetNodePtr(en);
@@ -934,8 +933,8 @@ toplevelnode:    BLOCK_tok LETTERSTART_tok EQUAL_tok scoped
                  RENAME_tok LETTERSTART_tok LETTERSTART_tok
                  {
                    DBPRINT("procnode: RENAME");
-                   string from(toString($<str>2));
-                   string to(toString($<str>3));
+                   std::string from(toString($<str>2));
+                   std::string to(toString($<str>3));
                    RenameNode * wn(new RenameNode("rename", from, to, lines));
                    $<_Node>$ = wn;
                  }
@@ -943,8 +942,8 @@ toplevelnode:    BLOCK_tok LETTERSTART_tok EQUAL_tok scoped
 /*                 COPY_tok LETTERSTART_tok LETTERSTART_tok
                  {
                    DBPRINT("procnode: COPY");
-                   string from(toString($<str>2));
-                   string to(toString($<str>3));
+                   std::string from(toString($<str>2));
+                   std::string to(toString($<str>3));
                    CopyNode * wn(new CopyNode("copy", from, to, lines));
                    $<_Node>$ = wn;
                  }
@@ -952,9 +951,9 @@ toplevelnode:    BLOCK_tok LETTERSTART_tok EQUAL_tok scoped
                  namedmodule LETTERSTART_tok EQUAL_tok LETTERSTART_tok scoped
                  {
                    DBPRINT("procnode: MODULE");
-                   string type(toString($<str>1));
-                   string name(toString($<str>2));
-                   string classname(toString($<str>4));
+                   std::string type(toString($<str>1));
+                   std::string name(toString($<str>2));
+                   std::string classname(toString($<str>4));
                    NodePtrListPtr nodelist($<_NodePtrList>5);
                    ModuleNode* wn(new ModuleNode(type,name,classname,nodelist,lines));
                    $<_Node>$ = wn;
@@ -963,9 +962,9 @@ toplevelnode:    BLOCK_tok LETTERSTART_tok EQUAL_tok scoped
                  namedmodule SOURCE_tok EQUAL_tok LETTERSTART_tok scoped
                  {
                    DBPRINT("procnode: MODULE");
-                   string type(toString($<str>1));
-                   string name(toString($<str>2));
-                   string classname(toString($<str>4));
+                   std::string type(toString($<str>1));
+                   std::string name(toString($<str>2));
+                   std::string classname(toString($<str>4));
                    NodePtrListPtr nodelist($<_NodePtrList>5);
                    ModuleNode* wn(new ModuleNode(type,name,classname,nodelist,lines));
                    $<_Node>$ = wn;
@@ -974,8 +973,8 @@ toplevelnode:    BLOCK_tok LETTERSTART_tok EQUAL_tok scoped
                  unnamedmodule EQUAL_tok LETTERSTART_tok scoped
                  {
                    DBPRINT("procnode: SERVICE");
-                   string type(toString($<str>1));
-                   string classname(toString($<str>3));
+                   std::string type(toString($<str>1));
+                   std::string classname(toString($<str>3));
                    NodePtrListPtr nodelist($<_NodePtrList>4);
                    ModuleNode* wn(new ModuleNode(type, "",classname,nodelist,lines));
                    $<_Node>$ = wn;
@@ -984,9 +983,9 @@ toplevelnode:    BLOCK_tok LETTERSTART_tok EQUAL_tok scoped
                  namedmodule LETTERSTART_tok EQUAL_tok LETTERSTART_tok
                  {
                    DBPRINT("procnode: IMPLICITINCLUDE_MODULE");
-                   string type(toString($<str>1));
-                   string label(toString($<str>2));
-                   string classname(toString($<str>4));
+                   std::string type(toString($<str>1));
+                   std::string label(toString($<str>2));
+                   std::string classname(toString($<str>4));
                    ImplicitIncludeNode* wn(new ImplicitIncludeNode(classname, label, lines));
                    $<_Node>$ = wn;
                  }
@@ -994,8 +993,8 @@ toplevelnode:    BLOCK_tok LETTERSTART_tok EQUAL_tok scoped
                  unnamedmodule EQUAL_tok LETTERSTART_tok
                  {
                    DBPRINT("procnode: UNNAMED IMPLICITINCLUDE_MODULE");
-                   string type(toString($<str>1));
-                   string classname(toString($<str>3));
+                   std::string type(toString($<str>1));
+                   std::string classname(toString($<str>3));
                    ImplicitIncludeNode* wn(new ImplicitIncludeNode(classname, classname, lines));
                    $<_Node>$ = wn;
                  }
@@ -1003,10 +1002,10 @@ toplevelnode:    BLOCK_tok LETTERSTART_tok EQUAL_tok scoped
                  namedmodule LETTERSTART_tok EQUAL_tok LETTERSTART_tok FROM_tok anyquote
                  {
                    DBPRINT("procnode: RENAMEDINCLUDE");
-                   string targetType(toString($<str>1));
-                   string newName(toString($<str>2));
-                   string targetName(toString($<str>4));
-                   string includeFile(toString($<str>6));
+                   std::string targetType(toString($<str>1));
+                   std::string newName(toString($<str>2));
+                   std::string targetName(toString($<str>4));
+                   std::string includeFile(toString($<str>6));
                    RenamedIncludeNode * wn(new RenamedIncludeNode("includeRenamed", includeFile, targetType, newName, targetName, lines));
                    $<_Node>$ = wn;
                  }
@@ -1014,7 +1013,7 @@ toplevelnode:    BLOCK_tok LETTERSTART_tok EQUAL_tok scoped
                  SEQUENCE_tok LETTERSTART_tok EQUAL_tok SCOPE_START_tok pathexp SCOPE_END_tok
                  {
                    DBPRINT("procnode: SEQ");
-                   string name(toString($<str>2));
+                   std::string name(toString($<str>2));
                    NodePtr path($<_Node>5);
                    WrapperNode* wn(new WrapperNode("sequence",name,path,lines));
                    $<_Node>$ = wn;
@@ -1023,7 +1022,7 @@ toplevelnode:    BLOCK_tok LETTERSTART_tok EQUAL_tok scoped
                  PATH_tok LETTERSTART_tok EQUAL_tok SCOPE_START_tok pathexp SCOPE_END_tok
                  {
                    DBPRINT("procnode: PATH");
-                   string name(toString($<str>2));
+                   std::string name(toString($<str>2));
                    NodePtr path($<_Node>5);
                    WrapperNode* wn(new WrapperNode("path",name,path,lines));
                    $<_Node>$ = wn;
@@ -1040,7 +1039,7 @@ toplevelnode:    BLOCK_tok LETTERSTART_tok EQUAL_tok scoped
                  ENDPATH_tok LETTERSTART_tok EQUAL_tok SCOPE_START_tok pathexp SCOPE_END_tok
                  {
                    DBPRINT("procnode: ENDPATH");
-                   string name(toString($<str>2));
+                   std::string name(toString($<str>2));
                    NodePtr path($<_Node>5);
                    WrapperNode* wn(new WrapperNode("endpath",name,path,lines));
                    $<_Node>$ = wn;
@@ -1128,7 +1127,7 @@ pathseq:         pathseq COMMA_tok worker
 worker:          bangorletter
                  {
                    DBPRINT("worker: NAME");
-                   string name(toString($<str>1));
+                   std::string name(toString($<str>1));
                    OperandNode* op(new OperandNode("operand",name,lines));
                    $<_Node>$ = op;
                  }

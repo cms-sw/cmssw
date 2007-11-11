@@ -1,7 +1,5 @@
 #include "FWCore/ParameterSet/interface/OperandNode.h"
 #include "FWCore/ParameterSet/interface/Visitor.h"
-using namespace std;
-
 namespace edm {
   namespace pset {
 
@@ -10,16 +8,16 @@ namespace edm {
     // OperandNode
     //--------------------------------------------------
 
-    OperandNode::OperandNode(const string& type,
-                             const string& name,
+    OperandNode::OperandNode(const std::string& type,
+                             const std::string& name,
                              int line):
       Node(name, line),
       type_(type)
     {  }
 
-    string OperandNode::type() const { return type_; }
+    std::string OperandNode::type() const { return type_; }
 
-    void OperandNode::print(ostream& ost, Node::PrintOptions options) const
+    void OperandNode::print(std::ostream& ost, Node::PrintOptions options) const
     {
       ost << name();
     }

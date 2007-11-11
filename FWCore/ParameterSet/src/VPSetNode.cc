@@ -35,8 +35,7 @@ namespace edm {
       ost << type() << " " << name() << " = {\n";
       if(!nodes()->empty())
         {
-          //copy(value_->begin(),value_->end(),
-          //   std::ostream_iterator<NodePtr>(ost,",\n  "));
+          //copy_all(*value_, std::ostream_iterator<NodePtr>(ost,",\n  "));
           NodePtrList::const_iterator ie(nodes()->end()),ib(nodes()->begin());
           --ie;
           copy(ib,ie,

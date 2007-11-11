@@ -33,9 +33,6 @@
 
 #define MYDEBUG(n) FDEBUG(n) << "DBG----- "
 
-using namespace std;
-
-
 namespace edm
 {
   namespace pset
@@ -44,14 +41,14 @@ namespace edm
     //------------------------------------------------------------
     // Helper functions
 
-    typedef void (*writer_func)(ostream&, string const&);
+    typedef void (*writer_func)(std::ostream&, std::string const&);
 
     void 
-    write_string_value(ostream& os, string const& val)
+    write_string_value(std::ostream& os, std::string const& val)
     {
       //make sure the quotes we add are different than the ones
       // used in val
-      string quotes("'");
+      std::string quotes("'");
       if( quotes == val.substr(0,1)) {
 	quotes = "\"";
       }
@@ -60,13 +57,13 @@ namespace edm
     }
 
     void 
-    write_other_value(ostream& os, string const& val)
+    write_other_value(std::ostream& os, std::string const& val)
     {
       os << "'" << val << "'";
     }
 
     void
-    write_trackedness(ostream& os, bool trackedval)
+    write_trackedness(std::ostream& os, bool trackedval)
     {
       if (trackedval) 
 	os << "'tracked'";
@@ -79,12 +76,12 @@ namespace edm
     // output module.
 
     bool
-    looks_like_an_output_module(string const& classname)
+    looks_like_an_output_module(std::string const& classname)
     {
-      string::size_type pos = classname.find("OutputModule");
+      std::string::size_type pos = classname.find("OutputModule");
 
       // If we didn't find OutputModule, it isn't an output module
-      if ( pos == string::npos ) return false;
+      if ( pos == std::string::npos ) return false;
 
       // Now make sure some tricky lad didn't put OutputModule in the
       // middle of a class name... 
@@ -105,19 +102,19 @@ namespace edm
       triggerPaths_(),
       endPaths_()
     {
-      list<string> emptylist;
-      modules_.insert(make_pair(string("es_module"), emptylist));
-      modules_.insert(make_pair(string("es_source"), emptylist));
-      modules_.insert(make_pair(string("es_prefer"), emptylist));
-      modules_.insert(make_pair(string("module"), emptylist));
-      modules_.insert(make_pair(string("source"), emptylist));
-      modules_.insert(make_pair(string("looper"), emptylist));
-      modules_.insert(make_pair(string("sequence"),emptylist));
-      modules_.insert(make_pair(string("path"),emptylist));
-      modules_.insert(make_pair(string("endpath"),emptylist));
-      modules_.insert(make_pair(string("schedule"), emptylist));
-      modules_.insert(make_pair(string("service"),emptylist));
-      modules_.insert(make_pair(string("pset"), emptylist));
+      std::list<std::string> emptylist;
+      modules_.insert(make_pair(std::string("es_module"), emptylist));
+      modules_.insert(make_pair(std::string("es_source"), emptylist));
+      modules_.insert(make_pair(std::string("es_prefer"), emptylist));
+      modules_.insert(make_pair(std::string("module"), emptylist));
+      modules_.insert(make_pair(std::string("source"), emptylist));
+      modules_.insert(make_pair(std::string("looper"), emptylist));
+      modules_.insert(make_pair(std::string("sequence"),emptylist));
+      modules_.insert(make_pair(std::string("path"),emptylist));
+      modules_.insert(make_pair(std::string("endpath"),emptylist));
+      modules_.insert(make_pair(std::string("schedule"), emptylist));
+      modules_.insert(make_pair(std::string("service"),emptylist));
+      modules_.insert(make_pair(std::string("pset"), emptylist));
     }
 
     PythonFormWriter::~PythonFormWriter()
@@ -141,7 +138,7 @@ namespace edm
     PythonFormWriter::visitEntry(const EntryNode& n)
     { 
       MYDEBUG(5) << "Saw an EntryNode\n";
-      ostringstream tuple;
+      std::ostringstream tuple;
 
       tuple << "'"
 	    << n.name() << "': ('"
@@ -168,7 +165,7 @@ namespace edm
     PythonFormWriter::visitVEntry(const VEntryNode& n)
     { 
       MYDEBUG(5) << "Saw a VEntryNode\n";
-      ostringstream tuple;
+      std::ostringstream tuple;
 
       tuple << "'"
 	    << n.name() << "': ('"
@@ -277,7 +274,7 @@ namespace edm
 	  // We're processing (the contents of) a PSet if we got
 	  // here. The following processing assumes this PSet should
 	  // be written a named parameter.
-	  ostringstream out;
+	  std::ostringstream out;
 	  out << "'" 
 	      << n.name() 
 	      << "': ('PSet', ";
@@ -287,7 +284,7 @@ namespace edm
           bool atTopLevel = (moduleStack_.empty());
           if(atTopLevel) 
           {
-            moduleStack_.push(string());
+            moduleStack_.push(std::string());
           }
 	  moduleStack_.top() += out.str();
 	  writeCompositeNode(n);
@@ -314,7 +311,7 @@ namespace edm
     PythonFormWriter::visitVPSet(const VPSetNode& n)
     { 
       MYDEBUG(5) << "Saw a VPSetNode\n";
-      ostringstream out;
+      std::ostringstream out;
       out << "'"
 	  << n.name()
 	  << "': ('VPSet', ";
@@ -333,7 +330,7 @@ namespace edm
       MYDEBUG(5) << "Saw a ModuleNode, name: " 
 		 << n.name() << '\n';
 
-      ostringstream header;
+      std::ostringstream header;
 
       // We don't want to write the name 'nameless' for unnamed
       // es_modules, nor the name 'main_es_input' for unnamed
@@ -344,9 +341,9 @@ namespace edm
            (n.type() == "es_prefer")   )
 	{
           //es_* items are unique based on 'C++ class' and 'label'
-          string prefix("");
-          string label("");
-          string name("@");
+          std::string prefix("");
+          std::string label("");
+          std::string name("@");
           if((n.type() == "es_module" && n.name()!="nameless" ||
               n.type() == "es_source" && n.name()!="main_es_input") ||
               n.type() == "es_prefer" && n.name()!="nameless")
@@ -438,7 +435,7 @@ namespace edm
 
       moduleStack_.top() += '}'; // add trailer
 
-      string section_label = n.type();
+      std::string section_label = n.type();
       // the only module that we expect to see inside
       // another module is the secsource
       if(section_label == "secsource") 
@@ -457,7 +454,7 @@ namespace edm
     void
     PythonFormWriter::visitWrapper(const WrapperNode& n)
     {
-      ostringstream header;
+      std::ostringstream header;
       header << "'";
       if(n.type() != "schedule")
       {
@@ -501,7 +498,7 @@ namespace edm
 
 
     void
-    PythonFormWriter::write(ParseTree& parsetree, ostream& out)
+    PythonFormWriter::write(ParseTree& parsetree, std::ostream& out)
     {
       // Walk the tree, accumulating state.
       parsetree.top()->accept(*this);
@@ -513,7 +510,7 @@ namespace edm
 
       out << ", 'main_input': {\n";
       {
-         list<string> const& input = modules_["source"];
+         std::list<std::string> const& input = modules_["source"];
          if(input.empty()){
             out << "}";
          }
@@ -527,7 +524,7 @@ namespace edm
 
       out << ", 'looper': {\n";
       {
-        list<string> const& input = modules_["looper"];
+        std::list<std::string> const& input = modules_["looper"];
         if(input.empty()){
           out << "}";
         }
@@ -569,7 +566,7 @@ namespace edm
       out << '}';
     }
 
-    void PythonFormWriter::writeType(const string & type, ostream & out)
+    void PythonFormWriter::writeType(const std::string & type, std::ostream & out)
     {
       // We're making plurals here
       out << "# " << type << "s\n";
@@ -580,11 +577,11 @@ namespace edm
       }
     }
 
-    void PythonFormWriter::writeCommaSeparated(const list<string> & input,
-                                               bool addQuotes, ostream & out)
+    void PythonFormWriter::writeCommaSeparated(const std::list<std::string> & input,
+                                               bool addQuotes, std::ostream & out)
     {
-      list<string>::const_iterator i = input.begin();
-      list<string>::const_iterator e = input.end();
+      std::list<std::string>::const_iterator i = input.begin();
+      std::list<std::string>::const_iterator e = input.end();
       for ( bool first = true; i!=e; first=false,++i)
       {
         if (!first) out << ',';
@@ -596,7 +593,7 @@ namespace edm
     }
 
 
-    void PythonFormWriter::doSchedule(ostream & out)
+    void PythonFormWriter::doSchedule(std::ostream & out)
     {
       int nSchedules = modules_["schedule"].size();
       if(nSchedules > 1)
@@ -614,11 +611,11 @@ namespace edm
       else 
       {
         //concatenate triggerPath and endPaths in a comma-delimited list
-        string schedule = "'";
-        list<string> parts(triggerPaths_);
+        std::string schedule = "'";
+        std::list<std::string> parts(triggerPaths_);
         parts.insert(parts.end(), endPaths_.begin(), endPaths_.end());
-        list<string>::const_iterator i = parts.begin();
-        list<string>::const_iterator e = parts.end();
+        std::list<std::string>::const_iterator i = parts.begin();
+        std::list<std::string>::const_iterator e = parts.end();
         for ( bool first = true; i!=e; first=false,++i)
         {
           if (!first) schedule += ',';
@@ -632,7 +629,7 @@ namespace edm
 
 
     //  assumes there's just one in the map
-    void PythonFormWriter::writeSchedule(ostream & out)
+    void PythonFormWriter::writeSchedule(std::ostream & out)
     {
       out << "# schedule\n";
       out << ", 'schedule': " << modules_["schedule"].front() << "\n";

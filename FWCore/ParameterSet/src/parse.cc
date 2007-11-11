@@ -1,5 +1,6 @@
 #include "FWCore/ParameterSet/interface/parse.h"
 #include "FWCore/Utilities/interface/EDMException.h"
+#include "FWCore/Utilities/interface/Algorithms.h"
 #include <boost/tokenizer.hpp>
 #include <fstream>
 #include <iostream>
@@ -71,9 +72,7 @@ namespace edm {
       std::vector<std::string> result;
       separator_t  sep(separator.c_str(), "", boost::keep_empty_tokens); // separator for elements in path
       tokenizer_t  tokens(input, sep);
-      std::copy(tokens.begin(),
-                tokens.end(),
-                std::back_inserter<std::vector<std::string> >(result));
+      copy_all(tokens, std::back_inserter<std::vector<std::string> >(result));
       return result;
     }
 

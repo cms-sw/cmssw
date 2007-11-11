@@ -7,16 +7,13 @@
 #include "FWCore/Utilities/interface/EDMException.h"
 #include <ostream>
 
-
-using namespace std;
-
 namespace edm {
 
   namespace pset {
 
 
-    PSetNode::PSetNode(const string& t,
-                       const string& n,
+    PSetNode::PSetNode(const std::string& t,
+                       const std::string& n,
                        NodePtrListPtr v,
                        bool untracked,
                        int line) :
@@ -34,7 +31,7 @@ namespace edm {
     }
 
 
-    string PSetNode::type() const { return type_; }
+    std::string PSetNode::type() const { return type_; }
 
 
     void PSetNode::dotDelimitedPath(std::string & path) const
@@ -47,7 +44,7 @@ namespace edm {
     }
 
 
-    void PSetNode::print(ostream& ost, Node::PrintOptions options) const
+    void PSetNode::print(std::ostream& ost, Node::PrintOptions options) const
     {
       const char* t = tracked_ ? "" : "untracked ";
       ost << t << type() << " " << name() << " = ";
@@ -128,7 +125,7 @@ namespace edm {
         catch(edm::Exception & e)
         {
           // print some extra debugging
-          ostringstream message;
+          std::ostringstream message;
           message << "\nIn variable " << (**i).name() 
                   << "\nIncluded from:\n" << (**i).traceback();
           e.append(message.str());

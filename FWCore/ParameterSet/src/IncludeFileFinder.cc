@@ -4,9 +4,6 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 using namespace edmplugin;
-using std::string;
-using std::vector;
-using std::pair;
 
 namespace edm {
   namespace pset {
@@ -35,7 +32,7 @@ namespace edm {
           {
             typedef std::map<std::string, std::string>::iterator LibMapItr;
             
-            string moduleClass = itInfo->name_;
+            std::string moduleClass = itInfo->name_;
             std::pair<LibMapItr,LibMapItr> range = theLibraryMap.equal_range(moduleClass);
             if(range.first == range.second) {
               //the first match is the one to keep
@@ -46,12 +43,12 @@ namespace edm {
         }
     }
 
-    edm::FileInPath IncludeFileFinder::find(const string & moduleClass, 
-                                            const string & moduleLabel)
+    edm::FileInPath IncludeFileFinder::find(const std::string & moduleClass, 
+                                            const std::string & moduleLabel)
     {
       FileInPath result;
-      string libraryName = libraryOf(moduleClass);
-      string name = stripHeader(libraryName);
+      std::string libraryName = libraryOf(moduleClass);
+      std::string name = stripHeader(libraryName);
       name = stripTrailer(name);
       // parse around capital letters
       DomainPackagePair parsings
@@ -60,7 +57,7 @@ namespace edm {
       for(DomainPackagePair::const_iterator wordPairItr = parsings.begin(), wordPairItrEnd = parsings.end();
           wordPairItr != wordPairItrEnd; ++wordPairItr)
       {
-        string path = wordPairItr->first + "/" + wordPairItr->second + "/data/"
+        std::string path = wordPairItr->first + "/" + wordPairItr->second + "/data/"
                       + moduleLabel + ".cfi";
         // see if there's a file with this name
         try
@@ -83,9 +80,9 @@ namespace edm {
     }
 
 
-    string IncludeFileFinder::libraryOf(const string & moduleClass)
+    std::string IncludeFileFinder::libraryOf(const std::string & moduleClass)
     {
-      std::map<string, string>::const_iterator mapItr 
+      std::map<std::string, std::string>::const_iterator mapItr 
         = theLibraryMap.find(moduleClass);
       if(mapItr == theLibraryMap.end())
       {
@@ -96,12 +93,12 @@ namespace edm {
     }
 
 
-    string IncludeFileFinder::stripHeader(const string & libraryName)
+    std::string IncludeFileFinder::stripHeader(const std::string & libraryName)
     {
       // We expect a filename like "libMyDomainYourPackage.so"
       // or pluginMyDomainYourPackage.so
       // first strip off the "lib" or "plugin".
-      string result;
+      std::string result;
       if(libraryName.substr(0, 3) == "lib")
       {
         // strip it off
@@ -123,11 +120,11 @@ namespace edm {
     }
 
 
-    string IncludeFileFinder::stripTrailer(const string & libraryName)
+    std::string IncludeFileFinder::stripTrailer(const std::string & libraryName)
     {
-      string result;
+      std::string result;
       unsigned  pos = libraryName.find(".", 0);
-      if(pos == string::npos)
+      if(pos == std::string::npos)
       {
         edm::LogError("Configuration")
             << "Strange library name in IncludeFileFinder: "
@@ -152,7 +149,7 @@ namespace edm {
 
 
     IncludeFileFinder::DomainPackagePair
-    IncludeFileFinder::twoWordsFrom(const string & name)
+    IncludeFileFinder::twoWordsFrom(const std::string & name)
     {
       DomainPackagePair result;
       for(unsigned i = 1; i < name.size()-1 ; ++i) 
@@ -160,9 +157,9 @@ namespace edm {
         // split words at capital letters
         if(isupper(name[i]))
         {
-          string firstWord = name.substr(0, i);
-          string secondWord = name.substr(i, name.size()-i);
-          result.push_back(pair<string, string>(firstWord, secondWord));
+          std::string firstWord = name.substr(0, i);
+          std::string secondWord = name.substr(i, name.size()-i);
+          result.push_back(std::pair<std::string, std::string>(firstWord, secondWord));
         }
       }
       return result;

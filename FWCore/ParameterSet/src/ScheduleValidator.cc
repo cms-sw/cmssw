@@ -3,15 +3,16 @@
    Implementation of class ScheduleValidator
 
    \author Stefano ARGIRO
-   \version $Id: ScheduleValidator.cc,v 1.22 2007/06/14 04:56:00 wmtan Exp $
+   \version $Id: ScheduleValidator.cc,v 1.23 2007/06/25 21:23:12 rpw Exp $
    \date 10 Jun 2005
 */
 
-static const char CVSId[] = "$Id: ScheduleValidator.cc,v 1.22 2007/06/14 04:56:00 wmtan Exp $";
+static const char CVSId[] = "$Id: ScheduleValidator.cc,v 1.23 2007/06/25 21:23:12 rpw Exp $";
 
 #include "FWCore/ParameterSet/src/ScheduleValidator.h"
 #include "FWCore/ParameterSet/interface/OperatorNode.h"
 #include "FWCore/Utilities/interface/EDMException.h"
+#include "FWCore/Utilities/interface/Algorithms.h"
 
 #include <sstream>
 #include <iterator>
@@ -156,10 +157,8 @@ void ScheduleValidator::validateDependencies(const std::string & leafName, const
     if (old_deplist != dep) {
 
       std::ostringstream olddepstr,newdepstr;
-      std::copy(old_deplist.begin(), old_deplist.end(),
-            std::ostream_iterator<std::string>(olddepstr,","));
-      std::copy(dep.begin(), dep.end(),
-            std::ostream_iterator<std::string>(newdepstr,","));
+      copy_all(old_deplist, std::ostream_iterator<std::string>(olddepstr,","));
+      copy_all(dep, std::ostream_iterator<std::string>(newdepstr,","));
       std::string olddeps = olddepstr.str();
       if(olddeps == "") olddeps = "<NOTHING>";
       std::string newdeps = newdepstr.str();
@@ -223,8 +222,7 @@ void ScheduleValidator::validatePath(const std::string & path)
          if(std::find(schedule.begin(), module, *depItr) == module)
          {
            std::ostringstream pathdump;
-           std::copy(schedule.begin(), schedule.end(),
-             std::ostream_iterator<std::string>(pathdump," "));
+           copy_all(schedule, std::ostream_iterator<std::string>(pathdump," "));
            
            throw edm::Exception(errors::Configuration,"InconsistentSchedule")
           << "Module " << *module << " depends on " << *depItr
@@ -271,8 +269,7 @@ ScheduleValidator::dependencies(const std::string& modulename) const{
   }
 
   std::ostringstream deplist;
-  std::copy((*depIt).second.begin(), (*depIt).second.end(), 
-	      std::ostream_iterator<std::string>(deplist,","));
+  copy_all((*depIt).second, std::ostream_iterator<std::string>(deplist,","));
   return deplist.str();
 
 }

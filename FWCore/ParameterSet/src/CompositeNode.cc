@@ -1,5 +1,6 @@
 #include "FWCore/ParameterSet/interface/CompositeNode.h"
 #include "FWCore/Utilities/interface/EDMException.h"
+#include "FWCore/Utilities/interface/Algorithms.h"
 #include <ostream>
 
 namespace edm {
@@ -297,8 +298,7 @@ namespace edm {
            && (**i).type() != "includeRenamed" && (**i).type() != "es_prefer"
            && (**i).type() != "replaceAppend")
         {
-          if(std::find(nodeNames.begin(), nodeNames.end(), (**i).name())
-             == nodeNames.end())
+          if(!search_all(nodeNames, (**i).name()))
           {
             nodeNames.push_back((**i).name());
             // have the child validate itself

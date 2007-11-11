@@ -1,5 +1,6 @@
 #include "FWCore/ParameterSet/interface/IncludeNode.h"
 #include "FWCore/Utilities/interface/EDMException.h"
+#include "FWCore/Utilities/interface/Algorithms.h"
 #include "FWCore/ParameterSet/interface/Visitor.h"
 #include "FWCore/ParameterSet/interface/parse.h"
 #include "FWCore/ParameterSet/interface/FileInPath.h"
@@ -73,8 +74,7 @@ namespace edm {
                               bool strict)
     {
       // we don't allow circular opening of already-open files,
-      if(std::find(openFiles.begin(), openFiles.end(), name())
-         != openFiles.end())
+      if(search_all(openFiles, name()))
       {
         throw edm::Exception(errors::Configuration, "IncludeError")
          << "Circular inclusion of file " << name()
@@ -85,9 +85,7 @@ namespace edm {
       bool ignore = false;
       if(checkMultipleIncludes())
       {
-        std::list<std::string>::const_iterator twinSister
-          = std::find(sameLevelIncludes.begin(), sameLevelIncludes.end(), name());
-        if(twinSister != sameLevelIncludes.end())
+	if(search_all(sameLevelIncludes, name()))
         {
           // duplicate.  Remove this one.
           CompositeNode * parent  = dynamic_cast<CompositeNode *>(getParent());

@@ -10,14 +10,11 @@
 #include <ostream>
 #include <iterator>
 
-using std::string;
-using std::vector;
-
 namespace edm {
   namespace pset {
 
 
-    VEntryNode::VEntryNode(const string& t, const string& n,
+    VEntryNode::VEntryNode(const std::string& t, const std::string& n,
                            StringListPtr v,bool untracked, int line):
       Node(n, line),
       type_(t),
@@ -34,7 +31,7 @@ namespace edm {
      {
      }
 
-    string VEntryNode::type() const { return type_; }
+    std::string VEntryNode::type() const { return type_; }
 
 
     void VEntryNode::print(std::ostream& ost, Node::PrintOptions options) const
@@ -47,7 +44,7 @@ namespace edm {
           StringList::const_iterator ie(value_->end()),ib(value_->begin());
           --ie;
           copy(ib,ie,
-               std::ostream_iterator<string>(ost,", "));
+               std::ostream_iterator<std::string>(ost,", "));
           ost << *ie;
         }
       ost << "\n  }\n";
@@ -151,54 +148,54 @@ namespace edm {
     
     edm::Entry VEntryNode::makeEntry() const
     {
-      vector<string>::const_iterator ib(value_->begin()),
+      std::vector<std::string>::const_iterator ib(value_->begin()),
         ie(value_->end()),k=ib;
 
      if(type()=="vstring")
        {
-         vector<string> usethis;
+         std::vector<std::string> usethis;
          for(;ib!=ie;++ib) usethis.push_back(withoutQuotes(*ib));
          return Entry(name(), usethis, tracked_);
        }
      else if(type()=="vdouble")
        {
-         vector<double> d ;
+         std::vector<double> d ;
          for(ib=k;ib!=ie;++ib) d.push_back(strtod(ib->c_str(),0));
          return Entry(name(), d, tracked_);
        }
      else if(type()=="vint32")
        {
-         vector<int> d ;
+         std::vector<int> d ;
          for(ib=k;ib!=ie;++ib) d.push_back(atoi(ib->c_str()));
          return Entry(name(), d, tracked_);
        }
      else if(type()=="vuint32")
        {
-         vector<unsigned int> d ;
+         std::vector<unsigned int> d ;
          for(ib=k;ib!=ie;++ib) d.push_back(strtoul(ib->c_str(),0,0));
          return Entry(name(), d, tracked_);
        }
      else if(type()=="vint64")
        {
-         vector<boost::int64_t> d ;
+         std::vector<boost::int64_t> d ;
          for(ib=k;ib!=ie;++ib) d.push_back(atoi(ib->c_str()));
          return Entry(name(), d, tracked_);
        }
      else if(type()=="vuint64")
        {
-         vector<boost::uint64_t> d ;
+         std::vector<boost::uint64_t> d ;
          for(ib=k;ib!=ie;++ib) d.push_back(strtoul(ib->c_str(),0,0));
          return Entry(name(), d, tracked_);
        }
      else if(type()=="VInputTag")
        {
-         vector<InputTag> d ;
+         std::vector<InputTag> d ;
          for(ib=k;ib!=ie;++ib) d.push_back( InputTag(withoutQuotes(*ib)) );
          return Entry(name(), d, tracked_);
        }
      else if(type()=="VEventID")
        {
-         vector<edm::EventID> d ;
+         std::vector<edm::EventID> d ;
          for(ib=k;ib!=ie;++ib)
          {
            edm::EventID eventID;
