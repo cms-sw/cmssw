@@ -1,7 +1,7 @@
 /**\class PhotonSimpleAnalyzer
  **
- ** $Date: 2007/08/28 01:49:46 $ 
- ** $Revision: 1.2 $
+ ** $Date: 2007/09/11 21:53:18 $ 
+ ** $Revision: 1.3 $
  ** \author Nancy Marinelli, U. of Notre Dame, US
 */
 
@@ -121,91 +121,97 @@ SimplePhotonAnalyzer::analyze( const edm::Event& evt, const edm::EventSetup& es 
   const HepMC::GenEvent * myGenEvent = hepProd->GetEvent();
  
 
-
-
-  // Just simply loop over uncorrected  Photon candidates 
-  for( reco::PhotonCollection::const_iterator  iPho = phoCollection.begin(); iPho != phoCollection.end(); iPho++) {
-
-    /////  Set event vertex
-    reco::Photon localPho(*iPho);
-    localPho.setVertex(vtx);
-
-    /////  Fill histos
-
-    h1_scE_->Fill( localPho.superCluster()->energy() );
-    h1_scEta_->Fill( localPho.superCluster()->position().eta() );
-    h1_scPhi_->Fill( localPho.superCluster()->position().phi() );
-
-    h1_phoE_->Fill( localPho.energy() );
-    h1_phoEta_->Fill( localPho.eta() );
-    h1_phoPhi_->Fill( localPho.phi() );
-    
-  }  
-
-
-
-  // Loop over corrected  Photon candidates 
-  for( reco::PhotonCollection::const_iterator  iPho = corrPhoCollection.begin(); iPho != corrPhoCollection.end(); iPho++) {
-    
-    /////  Set event vertex
-    reco::Photon localPho(*iPho);
-    localPho.setVertex(vtx);
-
-    /////  Fill histos
-    h1_corrPho_E_->Fill( localPho.energy() );
-    h1_corrPho_Eta_->Fill( localPho.eta() );
-    h1_corrPho_Phi_->Fill( localPho.phi() );
-    h1_corrPho_R9_->Fill( localPho.r9() );
-    
-  } 
-
-
-
   /// Match reconstructed photon candidates with the nearest generated photon
   float minDelta=10000.;
   float delta=0.;
  
-  HepMC::GenParticle mcMatchedPhoton;
+  reco::Photon mcMatchedPhoton;
 
 
-  for( reco::PhotonCollection::const_iterator  iPho = corrPhoCollection.begin(); iPho != corrPhoCollection.end(); iPho++) {
-
-    /////  Set event vertex
-    reco::Photon localPho(*iPho);
-    localPho.setVertex(vtx);
-
-    for ( HepMC::GenEvent::particle_const_iterator p = myGenEvent->particles_begin(); p != myGenEvent->particles_end(); ++p ) {
-      if ( !( (*p)->pdg_id() == 22 && (*p)->status()==1 )  )  continue;
+  for ( HepMC::GenEvent::particle_const_iterator p = myGenEvent->particles_begin(); p != myGenEvent->particles_end(); ++p ) {
+    if ( !( (*p)->pdg_id() == 22 && (*p)->status()==1 )  )  continue;
       
-      float phiClu=localPho.phi();
-      float etaClu=localPho.eta();
-      float phiPho=(*p)->momentum().phi();
-      float etaPho=(*p)->momentum().eta();
-      float deltaPhi = phiClu-phiPho;
-      float deltaEta = etaClu-etaPho;
+    // single primary photons or photons from Higgs or RS Graviton
+    HepMC::GenParticle* mother = 0;
+    if ( (*p)->production_vertex() )  {
+      if ( (*p)->production_vertex()->particles_begin(HepMC::parents) != 
+           (*p)->production_vertex()->particles_end(HepMC::parents))  
+	mother = *((*p)->production_vertex()->particles_begin(HepMC::parents));
+    } 
+    if ( ((mother == 0) || ((mother != 0) && (mother->pdg_id() == 25))
+	  || ((mother != 0) && (mother->pdg_id() == 22)))) { 
+
+      // loop over uncorrected  Photon candidates 
+      for( reco::PhotonCollection::const_iterator  iPho = phoCollection.begin(); iPho != phoCollection.end(); iPho++) {
+
+	/////  Set event vertex
+	reco::Photon localPho(*iPho);
+	localPho.setVertex(vtx);
+
+	float phiClu=localPho.phi();
+	float etaClu=localPho.eta();
+	float phiPho=(*p)->momentum().phi();
+	float etaPho=(*p)->momentum().eta();
+	float deltaPhi = phiClu-phiPho;
+	float deltaEta = etaClu-etaPho;
       
-      
-      if ( deltaPhi > pi )  deltaPhi -= twopi;
-      if ( deltaPhi < -pi) deltaPhi += twopi;
-      deltaPhi=pow(deltaPhi,2);
-      deltaEta=pow(deltaEta,2);
-      delta = sqrt( deltaPhi+deltaEta); 
-      if ( delta < minDelta ) {
-        minDelta=delta;
-	mcMatchedPhoton=*(*p);
-      }
-    } //loop over MC particles
+	if ( deltaPhi > pi )  deltaPhi -= twopi;
+	if ( deltaPhi < -pi) deltaPhi += twopi;
+	deltaPhi=pow(deltaPhi,2);
+	deltaEta=pow(deltaEta,2);
+	delta = sqrt( deltaPhi+deltaEta); 
+	if ( delta<0.1 && delta < minDelta ) {
+	  minDelta=delta;
+	  mcMatchedPhoton=localPho;
+	}
+      } // End loop over uncorrected photons
+
+      h1_scE_->Fill( mcMatchedPhoton.superCluster()->energy() );
+      h1_scEta_->Fill( mcMatchedPhoton.superCluster()->position().eta() );
+      h1_scPhi_->Fill( mcMatchedPhoton.superCluster()->position().phi() );
+	
+      h1_phoE_->Fill( mcMatchedPhoton.energy() );
+      h1_phoEta_->Fill( mcMatchedPhoton.eta() );
+      h1_phoPhi_->Fill( mcMatchedPhoton.phi() );
     
+      // loop over corrected  Photon candidates 
+      for( reco::PhotonCollection::const_iterator  iPho = corrPhoCollection.begin(); iPho != corrPhoCollection.end(); iPho++) {
 
-    h1_recEoverTrueE_     -> Fill( localPho.energy()/ mcMatchedPhoton.momentum().e() );
-    h1_deltaEta_ -> Fill(  localPho.eta()- mcMatchedPhoton.momentum().eta()  );
-    h1_deltaPhi_ -> Fill(  localPho.phi()-mcMatchedPhoton.momentum().phi()  );
+	/////  Set event vertex
+	reco::Photon localPho(*iPho);
+	localPho.setVertex(vtx);
+
+	float phiClu=localPho.phi();
+	float etaClu=localPho.eta();
+	float phiPho=(*p)->momentum().phi();
+	float etaPho=(*p)->momentum().eta();
+	float deltaPhi = phiClu-phiPho;
+	float deltaEta = etaClu-etaPho;
+      
+      
+	if ( deltaPhi > pi )  deltaPhi -= twopi;
+	if ( deltaPhi < -pi) deltaPhi += twopi;
+	deltaPhi=pow(deltaPhi,2);
+	deltaEta=pow(deltaEta,2);
+	delta = sqrt( deltaPhi+deltaEta); 
+	if ( delta<0.1 && delta < minDelta ) {
+	  minDelta=delta;
+	  mcMatchedPhoton=localPho;
+	}
+      } // End loop over corrected photons
     
+      h1_corrPho_E_->Fill( mcMatchedPhoton.energy() );
+      h1_corrPho_Eta_->Fill( mcMatchedPhoton.eta() );
+      h1_corrPho_Phi_->Fill( mcMatchedPhoton.phi() );
+      h1_corrPho_R9_->Fill( mcMatchedPhoton.r9() );
 
+      h1_recEoverTrueE_ -> Fill( mcMatchedPhoton.energy()/ (*p)->momentum().e() );
+      h1_deltaEta_ -> Fill(  mcMatchedPhoton.eta()- (*p)->momentum().eta()  );
+      h1_deltaPhi_ -> Fill(  mcMatchedPhoton.phi()- (*p)->momentum().phi()  );
+    
+    } // End loop over MC particles
 
-  }  //  End loop over reconstructed photons
-
-
+  }
 
 }
 
