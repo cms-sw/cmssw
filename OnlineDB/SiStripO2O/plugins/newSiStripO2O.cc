@@ -31,9 +31,6 @@ void newSiStripO2O::analyze(const edm::Event& evt, const edm::EventSetup& iSetup
   SiStripNoises *noise_cpy = new SiStripNoises();
 
 
-  //COPY CABLING
-  
-
   vector<uint32_t> det_ids;
   det_cabling->addActiveDetectorsRawIds(det_ids);
   if ( det_ids.empty() ) {
@@ -46,6 +43,22 @@ void newSiStripO2O::analyze(const edm::Event& evt, const edm::EventSetup& iSetup
     vector<uint32_t>::const_iterator det_id = det_ids.begin();
     for ( ; det_id != det_ids.end(); det_id++ ) {
       LogTrace("SiStripO2O") << " mySiStripO2O detid " << *det_id << std::endl;
+    }    
+  }
+
+  det_ids.clear();
+  SiStripDetCabling det_cabling_cpy( *cabling_cpy );
+  det_cabling_cpy.addActiveDetectorsRawIds(det_ids);
+  if ( det_ids.empty() ) {
+    edm::LogWarning("SiStripO2O")
+      << "detids vetor empty";
+  }  
+  edm::LogInfo("SiStripO2O") << " Cabling_cpy Found " << det_ids.size() << " active DetIds";
+  if (edm::isDebugEnabled()){
+    // Iterate through active DetIds
+    vector<uint32_t>::const_iterator det_id = det_ids.begin();
+    for ( ; det_id != det_ids.end(); det_id++ ) {
+      LogTrace("SiStripO2O") << " cabling_cpy detid " << *det_id << std::endl;
     }    
   }
 
