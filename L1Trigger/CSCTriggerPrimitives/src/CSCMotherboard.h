@@ -31,8 +31,8 @@
  * in ORCA).
  * Porting from ORCA by S. Valuev (Slava.Valuev@cern.ch), May 2006.
  *
- * $Date: 2007/04/18 16:08:55 $
- * $Revision: 1.4 $
+ * $Date: 2007/08/17 16:12:36 $
+ * $Revision: 1.5 $
  *
  */
 
@@ -93,7 +93,10 @@ class CSCMotherboard
   const unsigned theTrigChamber;
 
   /** Flag for MTCC data. */
-  bool isMTCC; 
+  bool isMTCC;
+
+  /** Flag for new (2007) version of TMB firmware. */
+  bool isTMB07;
 
   /** Container for first correlated LCT. */
   CSCCorrelatedLCTDigi firstLCT;

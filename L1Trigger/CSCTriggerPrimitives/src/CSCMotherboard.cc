@@ -27,8 +27,8 @@
 //                Based on code by Nick Wisniewski (nw@its.caltech.edu)
 //                and a framework by Darin Acosta (acosta@phys.ufl.edu).
 //
-//   $Date: 2007/08/15 12:51:19 $
-//   $Revision: 1.9 $
+//   $Date: 2007/08/17 16:12:36 $
+//   $Revision: 1.10 $
 //
 //   Modifications: Numerous later improvements by Jason Mumford and
 //                  Slava Valuev (see cvs in ORCA).
@@ -65,6 +65,9 @@ CSCMotherboard::CSCMotherboard(unsigned endcap, unsigned station,
   edm::ParameterSet commonParams =
     conf.getParameter<edm::ParameterSet>("commonParam");
   isMTCC = commonParams.getParameter<bool>("isMTCC");
+
+  // Switch for a new (2007) version of the TMB firmware.
+  isTMB07 = commonParams.getParameter<bool>("isTMB07");
 
   // Choose the appropriate set of configuration parameters depending on
   // isMTCC flag.
@@ -235,14 +238,21 @@ CSCCorrelatedLCTDigi CSCMotherboard::constructLCTs(const CSCALCTDigi& aLCT,
 unsigned int CSCMotherboard::encodePattern(const int ptn,
 					   const int stripType) {
   const int kPatternBitWidth = 4;
+  unsigned int pattern;
 
-  // Cathode pattern number is a kPatternBitWidth-1 bit word.
-  unsigned int pattern = (abs(ptn) & ((1<<(kPatternBitWidth-1))-1));
+  if (!isTMB07) {
+    // Cathode pattern number is a kPatternBitWidth-1 bit word.
+    pattern = (abs(ptn) & ((1<<(kPatternBitWidth-1))-1));
 
-  // The pattern has the MSB (4th bit in the default version) set if it
-  // consists of half-strips.
-  if (stripType) {
-    pattern = pattern | (1<<(kPatternBitWidth-1));
+    // The pattern has the MSB (4th bit in the default version) set if it
+    // consists of half-strips.
+    if (stripType) {
+      pattern = pattern | (1<<(kPatternBitWidth-1));
+    }
+  }
+  else {
+    // In the TMB07 firmware, LCT pattern is just a 4-bit CLCT pattern.
+    pattern = (abs(ptn) & ((1<<kPatternBitWidth)-1));
   }
 
   return pattern;
@@ -255,41 +265,61 @@ unsigned int CSCMotherboard::findQuality(const CSCALCTDigi& aLCT,
 					 const CSCCLCTDigi& cLCT) {
   unsigned int quality = 0;
 
-  bool isDistrip = (cLCT.getStripType() == 0);
+  if (!isTMB07) {
+    bool isDistrip = (cLCT.getStripType() == 0);
 
-  if (aLCT.isValid() && !(cLCT.isValid())) {    // no CLCT
-    if (aLCT.getAccelerator()) {quality =  1;}
-    else                       {quality =  3;}
-  }
-  else if (!(aLCT.isValid()) && cLCT.isValid()) { // no ALCT
-    if (isDistrip)             {quality =  4;}
-    else                       {quality =  5;}
-  }
-  else if (aLCT.isValid() && cLCT.isValid()) { // both ALCT and CLCT
-    if (aLCT.getAccelerator()) {quality =  2;} // accelerator muon
-    else {                                     // collision muon
-      // CLCT quality is, in fact, the number of layers hit, so subtract 3
-      // to get quality analogous to ALCT one.
-      int sumQual = aLCT.getQuality() + (cLCT.getQuality()-3);
-      if (sumQual < 1 || sumQual > 6) {
-	edm::LogWarning("CSCMotherboard")
-	  << "+++ findQuality: sumQual = " << sumQual << "+++ \n";
-      }
-      if (isDistrip) { // distrip pattern
-	if (sumQual == 2)      {quality =  6;}
-	else if (sumQual == 3) {quality =  7;}
-	else if (sumQual == 4) {quality =  8;}
-	else if (sumQual == 5) {quality =  9;}
-	else if (sumQual == 6) {quality = 10;}
-      }
-      else {            // halfstrip pattern
-	if (sumQual == 2)      {quality = 11;}
-	else if (sumQual == 3) {quality = 12;}
-	else if (sumQual == 4) {quality = 13;}
-	else if (sumQual == 5) {quality = 14;}
-	else if (sumQual == 6) {quality = 15;}
+    if (aLCT.isValid() && !(cLCT.isValid())) {    // no CLCT
+      if (aLCT.getAccelerator()) {quality =  1;}
+      else                       {quality =  3;}
+    }
+    else if (!(aLCT.isValid()) && cLCT.isValid()) { // no ALCT
+      if (isDistrip)             {quality =  4;}
+      else                       {quality =  5;}
+    }
+    else if (aLCT.isValid() && cLCT.isValid()) { // both ALCT and CLCT
+      if (aLCT.getAccelerator()) {quality =  2;} // accelerator muon
+      else {                                     // collision muon
+	// CLCT quality is, in fact, the number of layers hit, so subtract 3
+	// to get quality analogous to ALCT one.
+	int sumQual = aLCT.getQuality() + (cLCT.getQuality()-3);
+	if (sumQual < 1 || sumQual > 6) {
+	  edm::LogWarning("CSCMotherboard")
+	    << "+++ findQuality: sumQual = " << sumQual << "+++ \n";
+	}
+	if (isDistrip) { // distrip pattern
+	  if (sumQual == 2)      {quality =  6;}
+	  else if (sumQual == 3) {quality =  7;}
+	  else if (sumQual == 4) {quality =  8;}
+	  else if (sumQual == 5) {quality =  9;}
+	  else if (sumQual == 6) {quality = 10;}
+	}
+	else {            // halfstrip pattern
+	  if (sumQual == 2)      {quality = 11;}
+	  else if (sumQual == 3) {quality = 12;}
+	  else if (sumQual == 4) {quality = 13;}
+	  else if (sumQual == 5) {quality = 14;}
+	  else if (sumQual == 6) {quality = 15;}
+	}
       }
     }
+  }
+  else {
+    // Sum of ALCT and CLCT quality bits.  CLCT quality is, in fact, the
+    // number of layers hit, so subtract 3 to put it to the same footing as
+    // the ALCT quality.
+    int sumQual = aLCT.getQuality() + (cLCT.getQuality()-3);
+    if (sumQual < 1 || sumQual > 6) {
+      edm::LogWarning("CSCMotherboard")
+	<< "+++ findQuality: Unexpected sumQual = " << sumQual << "+++\n";
+    }
+
+    // LCT quality is basically the sum of ALCT and CLCT qualities, but split
+    // in two groups depending on the CLCT pattern id (higher quality for
+    // straighter patterns).
+    int offset = 0;
+    if (cLCT.getPattern() <= 7) offset = 4;
+    else                        offset = 9;
+    quality = offset + sumQual;
   }
   return quality;
 }
