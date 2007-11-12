@@ -4,8 +4,8 @@
 /*
  * \file HcalMonitorModule.h
  *
- * $Date: 2007/10/11 22:35:52 $
- * $Revision: 1.18 $
+ * $Date: 2007/11/03 22:59:56 $
+ * $Revision: 1.19 $
  * \author W. Fisher
  *
 */
@@ -14,16 +14,21 @@
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/Run.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+
+
 #include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
 #include "DQMServices/Daemon/interface/MonitorDaemon.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "FWCore/Framework/interface/ESHandle.h"
+//#include "DQMServices/Components/interface/DQMAnalyzer.h"
+
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "DataFormats/Provenance/interface/EventID.h"  
 #include "DataFormats/HcalDigi/interface/HcalUnpackerReport.h"
-#include "DQMServices/Components/interface/DQMAnalyzer.h"
+
 
 #include "DQM/HcalMonitorModule/interface/HcalMonitorSelector.h"
 #include "DQM/HcalMonitorTasks/interface/HcalDigiMonitor.h"
@@ -46,8 +51,9 @@
 #include <string>
 
 using namespace std;
+using namespace edm;
 
-class HcalMonitorModule: public DQMAnalyzer{
+class HcalMonitorModule : public EDAnalyzer{
 
 public:
   
@@ -84,8 +90,53 @@ public:
 
   // Reset
   void reset(void);
-  
+
+  /// Boolean prescale test for this event
+  bool prescale();
+
+  /// Save DQM output file
+  void save(std::string flag="");
+
  private:
+  /********************************************************/
+  //  The following member variables can be specified in  //
+  //  the configuration input file for the process.       //
+  /********************************************************/
+
+  /// Prescale variables for restricting the frequency of analyzer
+  /// behavior.  The base class does not implement prescales.
+  /// Set to -1 to be ignored.
+  int prescaleEvt_;    ///units of events
+  int prescaleLS_;     ///units of lumi sections
+  int prescaleTime_;   ///units of minutes
+  int prescaleUpdate_; ///units of "updates", TBD
+
+  /// The name of the monitoring process which derives from this
+  /// class, used to standardize filename and file structure
+  std::string monitorName_;
+
+  /// Verbosity switch used for debugging or informational output
+  bool debug_;
+
+  /// counters and flags
+  int nevt_;
+  int nlumisecs_;
+  bool saved_;
+
+  struct{
+    timeval startTV,updateTV;
+    double startTime;
+    double elapsedTime; 
+    double updateTime;
+  } psTime_;    
+
+  ///Connection to the DQM backend
+  DaqMonitorBEInterface* dbe_;  
+  
+  // environment variables
+  int irun_,ilumisec_,ievent_,itime_;
+  bool actonLS_ ;
+  std::string rootFolder_;
 
   int ievt_;
   bool fedsListed_;

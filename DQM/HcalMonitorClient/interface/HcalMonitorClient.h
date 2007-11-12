@@ -12,7 +12,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
-#include "DQMServices/Components/interface/DQMAnalyzer.h"
+//#include "DQMServices/Components/interface/DQMAnalyzer.h"
 #include "DQMServices/Daemon/interface/MonitorDaemon.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "DQMServices/Core/interface/CollateMonitorElement.h"
@@ -46,7 +46,7 @@
 
 using namespace std;
 
-class HcalMonitorClient: public DQMAnalyzer{
+class HcalMonitorClient : public EDAnalyzer{
   
 public:
   
@@ -96,9 +96,56 @@ public:
   //Offline output functions
   void loadHistograms(TFile* infile, const char* fname);
   void dumpHistograms(int& runNum, vector<TH1F*> &hist1d, vector<TH2F*> &hist2d);
+
+  /// Boolean prescale test for this event
+  bool prescale();
   
+  /// Save DQM output file
+  void save(std::string flag="");
+
 private:
   void removeAllME(void);
+  /********************************************************/
+  //  The following member variables can be specified in  //
+  //  the configuration input file for the process.       //
+  /********************************************************/
+
+  /// Prescale variables for restricting the frequency of analyzer
+  /// behavior.  The base class does not implement prescales.
+  /// Set to -1 to be ignored.
+  int prescaleEvt_;    ///units of events
+  int prescaleLS_;     ///units of lumi sections
+  int prescaleTime_;   ///units of minutes
+  int prescaleUpdate_; ///units of "updates", TBD
+
+  /// The name of the monitoring process which derives from this
+  /// class, used to standardize filename and file structure
+  std::string monitorName_;
+
+  /// Verbosity switch used for debugging or informational output
+  bool debug_ ;
+
+  /// counters and flags
+  int nevt_;
+  int nlumisecs_;
+  bool saved_;
+
+  struct{
+    timeval startTV,updateTV;
+    double startTime;
+    double elapsedTime; 
+    double updateTime;
+  } psTime_;    
+
+  ///Connection to the DQM backend
+  DaqMonitorBEInterface* dbe_;  
+  MonitorUserInterface* mui_;
+
+
+  // environment variables
+  int irun_,ilumisec_,ievent_,itime_;
+  bool actonLS_ ;
+  std::string rootFolder_;
 
   int ievt_;
   int resetUpdate_;
@@ -114,7 +161,6 @@ private:
   string inputFile_;
   string baseHtmlDir_;
 
-  MonitorUserInterface* mui_;
   HcalDataFormatClient* dataformat_client_;
   HcalDigiClient* digi_client_;
   HcalRecHitClient* rechit_client_;
