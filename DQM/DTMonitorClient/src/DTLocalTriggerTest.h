@@ -33,6 +33,8 @@
 class DTChamberId;
 class DTGeometry;
 class TH1F;
+class TH2F;
+class TH1D;
 
 class DTLocalTriggerTest: public edm::EDAnalyzer{
 
@@ -65,7 +67,13 @@ protected:
   std::pair<float,float> phiRange(const DTChamberId& id);
 
   /// Compute efficiency plots
-  void makeEfficiencyME(TH1F* numerator, TH1F* denominator, MonitorElement* result);
+  void makeEfficiencyME(TH1D* numerator, TH1D* denominator, MonitorElement* result);
+
+  /// Compute 2D efficiency plots
+  void makeEfficiencyME2D(TH2F* numerator, TH2F* denominator, MonitorElement* result);
+
+  /// Convert ME to Histogram fo type T
+  template <class T>  T* getHisto(MonitorElement* me);
 
   /// Get the ME name
   std::string getMEName(std::string histoTag, std::string subfolder, const DTChamberId & chambid);
@@ -91,6 +99,7 @@ protected:
   edm::ESHandle<DTGeometry> muonGeom;
   std::map<int,std::map<std::string,MonitorElement*> >      secME;
   std::map<uint32_t,std::map<std::string,MonitorElement*> > chambME;
+
 
 };
 
