@@ -1392,6 +1392,13 @@ namespace edm {
     schedule_->getTriggerReport(rep);
   }
 
+  void
+  EventProcessor::clearCounters()
+  {
+    return schedule_->clearCounters();
+  }
+
+
   char const* EventProcessor::currentStateName() const
   {
     return stateName(getState());

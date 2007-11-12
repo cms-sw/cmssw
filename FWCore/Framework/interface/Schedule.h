@@ -4,7 +4,7 @@
 /*
   Author: Jim Kowalkowski  28-01-06
 
-  $Id: Schedule.h,v 1.31 2007/11/03 06:52:54 wmtan Exp $
+  $Id: Schedule.h,v 1.32 2007/11/07 07:54:03 wmtan Exp $
 
   A class for creating a schedule based on paths in the configuration file.
   The schedule is maintained as a sequence of paths.
@@ -200,6 +200,9 @@ namespace edm {
 
     /// Return whether a module has reached its maximum count.
     bool const terminate() const;
+
+    ///  Clear all the counters in the trigger report.
+    void clearCounters();
 
     class CallPrePost {
     public:

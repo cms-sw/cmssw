@@ -5,7 +5,7 @@
 
   Author: Jim Kowalkowski 28-01-06
 
-  $Id: Path.h,v 1.14 2007/06/14 17:52:18 wmtan Exp $
+  $Id: Path.h,v 1.15 2007/09/14 23:12:28 wmtan Exp $
 
   An object of this type represents one path in a job configuration.
   It holds the assigned bit position and the list of workers that are
@@ -61,6 +61,8 @@ namespace edm {
     std::pair<double,double> timeCpuReal(unsigned int const i) const {
       return workers_.at(i).timeCpuReal();
     }
+
+    void clearCounters();
 
     int timesRun() const { return timesRun_; }
     int timesPassed() const { return timesPassed_; }

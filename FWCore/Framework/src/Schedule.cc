@@ -917,6 +917,14 @@ namespace edm {
   }
 
   void
+  Schedule::clearCounters() {
+    total_events_ = total_passed_ = 0;
+    for_all(trig_paths_, boost::bind(&Path::clearCounters, _1));
+    for_all(end_paths_, boost::bind(&Path::clearCounters, _1));
+    for_all(all_workers_, boost::bind(&Worker::clearCounters, _1));
+  }
+
+  void
   Schedule::resetAll() {
     for_all(all_workers_, boost::bind(&Worker::reset, _1));
     results_->reset();

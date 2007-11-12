@@ -1,8 +1,12 @@
 
 #include "FWCore/Framework/src/Path.h"
 #include "FWCore/Framework/interface/Actions.h"
+#include "FWCore/Utilities/interface/Algorithms.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+
+#include <algorithm>
+#include "boost/bind.hpp"
 
 namespace edm {
   Path::Path(int bitpos, std::string const& path_name,
@@ -90,5 +94,12 @@ namespace edm {
       state_ = edm::hlt::Fail;
     }
   }
+
+  void
+  Path::clearCounters() {
+    timesRun_ = timesPassed_ = timesFailed_ = timesExcept_ = 0;
+    for_all(workers_, boost::bind(&WorkerInPath::clearCounters, _1));
+  }
+
 
 }
