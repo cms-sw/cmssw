@@ -195,27 +195,28 @@ void CSCTFSPCoreLogic::loadData(const CSCTriggerContainer<csctf::TrackStub>& the
 		    };
 		  break;
 		case 5:
+		  // We need to put the DT stubs 1 BX ahead of the CSC ones for the TF firmware
 		  switch(stubi->getMPCLink())
 		    {
 		    case 1:
-		      io_[relative_bx+1].mb1aVp   = stubi->isValid();
-		      io_[relative_bx+1].mb1aQp   = stubi->getQuality();
-		      io_[relative_bx+1].mb1aPhip = stubi->phiPacked();
+		      io_[relative_bx].mb1aVp   = stubi->isValid();
+		      io_[relative_bx].mb1aQp   = stubi->getQuality();
+		      io_[relative_bx].mb1aPhip = stubi->phiPacked();
 		      break;
 		    case 2:
 		      io_[relative_bx].mb1bVp   = stubi->isValid();
-                      io_[relative_bx+1].mb1bQp   = stubi->getQuality();
-                      io_[relative_bx+1].mb1bPhip = stubi->phiPacked();
+                      io_[relative_bx].mb1bQp   = stubi->getQuality();
+                      io_[relative_bx].mb1bPhip = stubi->phiPacked();
                       break;
 		    case 3:
 		      io_[relative_bx].mb1cVp   = stubi->isValid();
-                      io_[relative_bx+1].mb1cQp   = stubi->getQuality();
-                      io_[relative_bx+1].mb1cPhip = stubi->phiPacked();
+                      io_[relative_bx].mb1cQp   = stubi->getQuality();
+                      io_[relative_bx].mb1cPhip = stubi->phiPacked();
                       break;
 		    case 4:
 		      io_[relative_bx].mb1dVp   = stubi->isValid();
-                      io_[relative_bx+1].mb1dQp   = stubi->getQuality();
-                      io_[relative_bx+1].mb1dPhip = stubi->phiPacked();
+                      io_[relative_bx].mb1dQp   = stubi->getQuality();
+                      io_[relative_bx].mb1dPhip = stubi->phiPacked();
                       break;
 		    default:
 		      edm::LogWarning("CSCTFSPCoreLogic::loadData()") <<  "SERIOUS ERROR: DT LINK " << stubi->getMPCLink()
