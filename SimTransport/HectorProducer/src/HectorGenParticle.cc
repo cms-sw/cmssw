@@ -1,4 +1,5 @@
 #include "SimTransport/HectorProducer/interface/HectorGenParticle.h"
+#include "HepMC/GenVertex.h"
 
 double HectorGenParticle::px() const {
   return  HepMC::GenParticle::momentum().px();
