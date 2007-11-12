@@ -1,3 +1,9 @@
+2007-11-12  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
+
+	* tag V00-13-10
+	* add scripts/edmConfigFromDB (for lack of a better place to put
+	it)
+
 2007-09-26  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
 
 	* tag V00-13-09
