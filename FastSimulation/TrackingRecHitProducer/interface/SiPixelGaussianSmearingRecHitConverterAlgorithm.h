@@ -64,6 +64,8 @@ public:
   void smearHit( const PSimHit& simHit, const PixelGeomDetUnit* detUnit, const double boundX, const double boundY);
 
 private:
+  // Switch between old (ORCA) and new (CMSSW) pixel parameterization
+  bool useCMSSWPixelParameterization;
   //
   bool isFlipped(const PixelGeomDetUnit* theDet) const;
   //

@@ -74,7 +74,7 @@ class SiTrackerGaussianSmearingRecHitConverter : public edm::EDProducer
   void loadPixelData();
   //
   void loadPixelData(TFile* pixelDataFile, unsigned int nMultiplicity, std::string histName,
-		     std::vector<TH1F*>& theMultiplicityCumulativeProbabilities);
+		     std::vector<TH1F*>& theMultiplicityCumulativeProbabilities, bool bigPixels = false);
   //
   //
   // parameters
@@ -83,6 +83,8 @@ class SiTrackerGaussianSmearingRecHitConverter : public edm::EDProducer
   bool trackingPSimHits; // in case it is true make RecHit = replica of PSimHit without errors (1 um)
   //
   bool doMatching;
+  // Switch between old (ORCA) and new (CMSSW) pixel parameterization
+  bool useCMSSWPixelParameterization;
 
   const TrackerGeometry* geometry;
   const TrackerGeometry* misAlignedGeometry;
@@ -102,7 +104,7 @@ class SiTrackerGaussianSmearingRecHitConverter : public edm::EDProducer
   std::vector<TH1F*> theBarrelMultiplicityBetaCumulativeProbabilities;
   std::vector<TH1F*> theForwardMultiplicityAlphaCumulativeProbabilities;
   std::vector<TH1F*> theForwardMultiplicityBetaCumulativeProbabilities;
-  // resolution bins
+   // resolution bins
   double resAlphaBarrel_binMin , resAlphaBarrel_binWidth;
   unsigned int resAlphaBarrel_binN;
   double resBetaBarrel_binMin  , resBetaBarrel_binWidth;

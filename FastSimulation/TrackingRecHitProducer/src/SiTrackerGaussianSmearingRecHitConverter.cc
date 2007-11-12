@@ -67,7 +67,7 @@
 #include <TH1F.h>
 #include <TRandom3.h>
 
-// #define FAMOS_DEBUG
+//#define FAMOS_DEBUG
 
 SiTrackerGaussianSmearingRecHitConverter::SiTrackerGaussianSmearingRecHitConverter(
   edm::ParameterSet const& conf) 
@@ -110,6 +110,12 @@ SiTrackerGaussianSmearingRecHitConverter::SiTrackerGaussianSmearingRecHitConvert
   // switch on/off matching
   doMatching = conf.getParameter<bool>("doRecHitMatching");
 
+  // Switch between old (ORCA) and new (CMSSW) pixel parameterization
+  useCMSSWPixelParameterization = conf.getParameter<bool>("UseCMSSWPixelParametrization");
+#ifdef FAMOS_DEBUG
+  std::cout << (useCMSSWPixelParameterization? "CMSSW" : "ORCA") << " pixel parametrization chosen in config file." << std::endl;
+#endif
+  
   //
   // TIB
   localPositionResolution_TIB1x = conf.getParameter<double>("TIB1x");
@@ -209,15 +215,25 @@ SiTrackerGaussianSmearingRecHitConverter::SiTrackerGaussianSmearingRecHitConvert
   //    
   // from FAMOS: take into account the angle of the strips in the barrel
   //--- The name of the files with the Pixel information
-  thePixelMultiplicityFileName = conf.getParameter<std::string>( "PixelMultiplicityFile" );
+  if(useCMSSWPixelParameterization)
+    thePixelMultiplicityFileName = conf.getParameter<std::string>( "PixelMultiplicityFileNew" );
+  else
+    thePixelMultiplicityFileName = conf.getParameter<std::string>( "PixelMultiplicityFile" );
 #ifdef FAMOS_DEBUG
   std::cout << "Pixel multiplicity data are taken from file " << thePixelMultiplicityFileName << std::endl;
 #endif
   //--- Number of histograms for alpha/beta barrel/forward multiplicity
-  nAlphaBarrel  = conf.getParameter<int>("AlphaBarrelMultiplicity");
-  nBetaBarrel   = conf.getParameter<int>("BetaBarrelMultiplicity");
-  nAlphaForward = conf.getParameter<int>("AlphaForwardMultiplicity");
-  nBetaForward  = conf.getParameter<int>("BetaForwardMultiplicity");
+  if(useCMSSWPixelParameterization) {
+    nAlphaBarrel  = conf.getParameter<int>("AlphaBarrelMultiplicityNew");
+    nBetaBarrel   = conf.getParameter<int>("BetaBarrelMultiplicityNew");
+    nAlphaForward = conf.getParameter<int>("AlphaForwardMultiplicityNew");
+    nBetaForward  = conf.getParameter<int>("BetaForwardMultiplicityNew");
+  } else {
+    nAlphaBarrel  = conf.getParameter<int>("AlphaBarrelMultiplicity");
+    nBetaBarrel   = conf.getParameter<int>("BetaBarrelMultiplicity");
+    nAlphaForward = conf.getParameter<int>("AlphaForwardMultiplicity");
+    nBetaForward  = conf.getParameter<int>("BetaForwardMultiplicity");
+  }
 #ifdef FAMOS_DEBUG
   std::cout << "Pixel maximum multiplicity set to " 
 	    << "\nBarrel"  << "\talpha " << nAlphaBarrel  
@@ -227,13 +243,23 @@ SiTrackerGaussianSmearingRecHitConverter::SiTrackerGaussianSmearingRecHitConvert
 	    << std::endl;
 #endif
   // Resolution Barrel    
-  thePixelBarrelResolutionFileName = conf.getParameter<std::string>( "PixelBarrelResolutionFile");
-  resAlphaBarrel_binMin   = conf.getParameter<double>("AlphaBarrel_BinMin"  );
-  resAlphaBarrel_binWidth = conf.getParameter<double>("AlphaBarrel_BinWidth");
-  resAlphaBarrel_binN     = conf.getParameter<int>(   "AlphaBarrel_BinN"    );
-  resBetaBarrel_binMin    = conf.getParameter<double>("BetaBarrel_BinMin"   );
-  resBetaBarrel_binWidth  = conf.getParameter<double>("BetaBarrel_BinWidth" );
-  resBetaBarrel_binN      = conf.getParameter<int>(   "BetaBarrel_BinN"     );
+  if(useCMSSWPixelParameterization) {
+    thePixelBarrelResolutionFileName = conf.getParameter<std::string>( "PixelBarrelResolutionFileNew");
+    resAlphaBarrel_binMin   = conf.getParameter<double>("AlphaBarrel_BinMinNew"  );
+    resAlphaBarrel_binWidth = conf.getParameter<double>("AlphaBarrel_BinWidthNew");
+    resAlphaBarrel_binN     = conf.getParameter<int>(   "AlphaBarrel_BinNNew"    );
+    resBetaBarrel_binMin    = conf.getParameter<double>("BetaBarrel_BinMinNew"   );
+    resBetaBarrel_binWidth  = conf.getParameter<double>("BetaBarrel_BinWidthNew" );
+    resBetaBarrel_binN      = conf.getParameter<int>(   "BetaBarrel_BinNNew"     );
+  } else {
+    thePixelBarrelResolutionFileName = conf.getParameter<std::string>( "PixelBarrelResolutionFile");
+    resAlphaBarrel_binMin   = conf.getParameter<double>("AlphaBarrel_BinMin"  );
+    resAlphaBarrel_binWidth = conf.getParameter<double>("AlphaBarrel_BinWidth");
+    resAlphaBarrel_binN     = conf.getParameter<int>(   "AlphaBarrel_BinN"    );
+    resBetaBarrel_binMin    = conf.getParameter<double>("BetaBarrel_BinMin"   );
+    resBetaBarrel_binWidth  = conf.getParameter<double>("BetaBarrel_BinWidth" );
+    resBetaBarrel_binN      = conf.getParameter<int>(   "BetaBarrel_BinN"     );
+  }
 #ifdef FAMOS_DEBUG
   std::cout << "Barrel Pixel resolution data are taken from file " 
 	    << thePixelBarrelResolutionFileName << "\n"
@@ -249,13 +275,23 @@ SiTrackerGaussianSmearingRecHitConverter::SiTrackerGaussianSmearingRecHitConvert
   //
   
   // Resolution Forward
-  thePixelForwardResolutionFileName = conf.getParameter<std::string>( "PixelForwardResolutionFile");
-  resAlphaForward_binMin   = conf.getParameter<double>("AlphaForward_BinMin"   );
-  resAlphaForward_binWidth = conf.getParameter<double>("AlphaForward_BinWidth" );
-  resAlphaForward_binN     = conf.getParameter<int>(   "AlphaForward_BinN"     );
-  resBetaForward_binMin    = conf.getParameter<double>("BetaForward_BinMin"    );
-  resBetaForward_binWidth  = conf.getParameter<double>("BetaForward_BinWidth"  );
-  resBetaForward_binN      = conf.getParameter<int>(   "BetaForward_BinN"      );
+  if(useCMSSWPixelParameterization) {
+    thePixelForwardResolutionFileName = conf.getParameter<std::string>( "PixelForwardResolutionFileNew");
+    resAlphaForward_binMin   = conf.getParameter<double>("AlphaForward_BinMinNew"   );
+    resAlphaForward_binWidth = conf.getParameter<double>("AlphaForward_BinWidthNew" );
+    resAlphaForward_binN     = conf.getParameter<int>(   "AlphaForward_BinNNew"     );
+    resBetaForward_binMin    = conf.getParameter<double>("BetaForward_BinMinNew"    );
+    resBetaForward_binWidth  = conf.getParameter<double>("BetaForward_BinWidthNew"  );
+    resBetaForward_binN      = conf.getParameter<int>(   "BetaForward_BinNNew"      );
+  } else {
+    thePixelForwardResolutionFileName = conf.getParameter<std::string>( "PixelForwardResolutionFile");
+    resAlphaForward_binMin   = conf.getParameter<double>("AlphaForward_BinMin"   );
+    resAlphaForward_binWidth = conf.getParameter<double>("AlphaForward_BinWidth" );
+    resAlphaForward_binN     = conf.getParameter<int>(   "AlphaForward_BinN"     );
+    resBetaForward_binMin    = conf.getParameter<double>("BetaForward_BinMin"    );
+    resBetaForward_binWidth  = conf.getParameter<double>("BetaForward_BinWidth"  );
+    resBetaForward_binN      = conf.getParameter<int>(   "BetaForward_BinN"      );
+  }
 #ifdef FAMOS_DEBUG
   std::cout << "Forward Pixel resolution data are taken from file " 
 	    << thePixelForwardResolutionFileName << "\n"
@@ -356,6 +392,7 @@ void SiTrackerGaussianSmearingRecHitConverter::loadPixelData() {
   thePixelBarrelResolutionFile  = new TFile ( edm::FileInPath( thePixelBarrelResolutionFileName  ).fullPath().c_str() , "READ" );
   thePixelForwardResolutionFile = new TFile ( edm::FileInPath( thePixelForwardResolutionFileName ).fullPath().c_str() , "READ" );
   //
+
   // alpha barrel
   loadPixelData( thePixelDataFile, 
 		 nAlphaBarrel  , 
@@ -379,6 +416,40 @@ void SiTrackerGaussianSmearingRecHitConverter::loadPixelData() {
 		 nBetaForward  , 
 		 std::string("hist_beta_forward")  , 
 		 theForwardMultiplicityBetaCumulativeProbabilities  );
+
+  // Load also big pixel data if CMSSW parametrization is on
+  // They are pushed back into the vectors after the normal pixels data:
+  // [0, ..., (size/2)-1] -> Normal pixels
+  // [size/2, ..., size-1] -> Big pixels
+  if(useCMSSWPixelParameterization) {
+    // alpha barrel
+    loadPixelData( thePixelDataFile, 
+                   nAlphaBarrel  , 
+                   std::string("hist_alpha_barrel_big")  , 
+                   theBarrelMultiplicityAlphaCumulativeProbabilities,
+                   true );
+    // 
+    // beta barrel
+    loadPixelData( thePixelDataFile, 
+                   nBetaBarrel   , 
+                   std::string("hist_beta_barrel_big")   , 
+                   theBarrelMultiplicityBetaCumulativeProbabilities,
+                   true );
+    // 
+    // alpha forward
+    loadPixelData( thePixelDataFile, 
+                   nAlphaForward , 
+                   std::string("hist_alpha_forward_big") , 
+                   theForwardMultiplicityAlphaCumulativeProbabilities, 
+                   true );
+    // 
+    // beta forward
+    loadPixelData( thePixelDataFile, 
+                   nBetaForward  , 
+                   std::string("hist_beta_forward_big")  , 
+                   theForwardMultiplicityBetaCumulativeProbabilities, 
+                   true );
+  }
   // 
 }
 
@@ -386,19 +457,26 @@ void SiTrackerGaussianSmearingRecHitConverter::loadPixelData(
   TFile* pixelDataFile, 
   unsigned int nMultiplicity, 
   std::string histName,
-  std::vector<TH1F*>& theMultiplicityCumulativeProbabilities ) 
+  std::vector<TH1F*>& theMultiplicityCumulativeProbabilities,
+  bool bigPixels) 
 {
 
   std::string histName_i = histName + "_%u"; // needed to open histograms with a for
-  theMultiplicityCumulativeProbabilities.clear();
+  if(!bigPixels)
+    theMultiplicityCumulativeProbabilities.clear();
   //
-  std::vector<double> mult; // vector with fixed multiplicity
+  // What's this vector? Not needed - MG
+//  std::vector<double> mult; // vector with fixed multiplicity
   for(unsigned int i = 0; i<nMultiplicity; ++i) {
     TH1F addHist = *((TH1F*) pixelDataFile->Get( Form( histName_i.c_str() ,i+1 )));
     if(i==0) {
       theMultiplicityCumulativeProbabilities.push_back( new TH1F(addHist) );
     } else {
-      TH1F sumHist = *(theMultiplicityCumulativeProbabilities[i-1]);
+      TH1F sumHist;
+      if(bigPixels)
+        sumHist = *(theMultiplicityCumulativeProbabilities[nMultiplicity+i-1]);
+      else
+        sumHist = *(theMultiplicityCumulativeProbabilities[i-1]);
       sumHist.Add(&addHist);
       theMultiplicityCumulativeProbabilities.push_back( new TH1F(sumHist) );
     }
@@ -406,8 +484,22 @@ void SiTrackerGaussianSmearingRecHitConverter::loadPixelData(
 
   // Logger
 #ifdef FAMOS_DEBUG
+  const unsigned int maxMult = theMultiplicityCumulativeProbabilities.size();
+  unsigned int iMult, multSize;
+  if(useCMSSWPixelParameterization) {
+    if(bigPixels) {     
+      iMult = maxMult / 2;
+      multSize = maxMult ;
+    } else {                
+      iMult = 0;
+      multSize = maxMult;
+    }
+  } else {
+    iMult = 0;
+    multSize = maxMult ;
+  }
   std::cout << " Multiplicity cumulated probability " << histName << std::endl;
-  for(unsigned int iMult = 0; iMult<theMultiplicityCumulativeProbabilities.size(); ++iMult) {
+  for(/* void */; iMult<multSize; ++iMult) {
     for(int iBin = 1; iBin<=theMultiplicityCumulativeProbabilities[iMult]->GetNbinsX(); ++iBin) {
       std::cout
 	<< " Multiplicity " << iMult+1 
@@ -468,11 +560,10 @@ void SiTrackerGaussianSmearingRecHitConverter::produce(edm::Event& e, const edm:
   }
   std::auto_ptr<MixCollection<PSimHit> > allTrackerHits(new MixCollection<PSimHit>(cf_simhitvec));
 
-
   // Step B: create temporary RecHit collection and fill it with Gaussian smeared RecHit's
   std::map<unsigned, edm::OwnVector<SiTrackerGSRecHit2D> > temporaryRecHits;
   smearHits( *allTrackerHits, temporaryRecHits);
-  
+
  // Step C: match rechits on stereo layers
   std::map<unsigned, edm::OwnVector<SiTrackerGSRecHit2D> > temporaryMatchedRecHits ;
   if(doMatching)  matchHits(  temporaryRecHits,  temporaryMatchedRecHits, *allTrackerHits);
@@ -482,7 +573,6 @@ void SiTrackerGaussianSmearingRecHitConverter::produce(edm::Event& e, const edm:
     recHitCollection(new SiTrackerGSRecHit2DCollection);
   if(doMatching)   loadRecHits(temporaryMatchedRecHits, *recHitCollection);
   else             loadRecHits(temporaryRecHits, *recHitCollection);
-  
   
   // Step E: write output to file
   e.put(recHitCollection);
