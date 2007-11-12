@@ -7,8 +7,8 @@
 //
 //   Author List: S. Valuev, UCLA.
 //
-//   $Date: 2007/08/17 16:22:40 $
-//   $Revision: 1.15 $
+//   $Date: 2007/10/08 14:36:54 $
+//   $Revision: 1.16 $
 //
 //   Modifications:
 //
@@ -372,7 +372,7 @@ void CSCTriggerPrimitivesReader::bookLCTTMBHistos() {
   hLctTMBKeyGroup  = new TH1F("", "LCT key wiregroup", 120, -0.5, 119.5);
   hLctTMBKeyStrip  = new TH1F("", "LCT key strip",     160, -0.5, 159.5);
   hLctTMBStripType = new TH1F("", "LCT strip type",      3, -0.5,   2.5);
-  hLctTMBPattern   = new TH1F("", "LCT pattern",        10, -0.5,   9.5);
+  hLctTMBPattern   = new TH1F("", "LCT pattern",        13, -0.5,  12.5);
   hLctTMBBend      = new TH1F("", "LCT L/R bend",        3, -0.5,   2.5);
   hLctTMBBXN       = new TH1F("", "LCT bx",             20, -0.5,  19.5);
 
@@ -400,7 +400,7 @@ void CSCTriggerPrimitivesReader::bookLCTMPCHistos() {
   hLctMPCKeyGroup  = new TH1F("", "LCT key wiregroup", 120, -0.5, 119.5);
   hLctMPCKeyStrip  = new TH1F("", "LCT key strip",     160, -0.5, 159.5);
   hLctMPCStripType = new TH1F("", "LCT strip type",      3, -0.5,   2.5);
-  hLctMPCPattern   = new TH1F("", "LCT pattern",        10, -0.5,   9.5);
+  hLctMPCPattern   = new TH1F("", "LCT pattern",        13, -0.5,  12.5);
   hLctMPCBend      = new TH1F("", "LCT L/R bend",        3, -0.5,   2.5);
   hLctMPCBXN       = new TH1F("", "LCT bx",             20, -0.5,  19.5);
 
@@ -709,8 +709,14 @@ void CSCTriggerPrimitivesReader::fillLCTTMBHistos(const CSCCorrelatedLCTDigiColl
 	bool clct_valid = (quality != 1 && quality != 3);
 	if (clct_valid) {
 	  hLctTMBKeyStrip->Fill((*digiIt).getStrip());
-	  hLctTMBStripType->Fill((*digiIt).getStripType());
-	  hLctTMBPattern->Fill((*digiIt).getCLCTPattern());
+	  if (!isTMB07) {
+	    hLctTMBStripType->Fill((*digiIt).getStripType());
+	    hLctTMBPattern->Fill((*digiIt).getCLCTPattern());
+	  }
+	  else {
+	    hLctTMBStripType->Fill(1.);
+	    hLctTMBPattern->Fill((*digiIt).getPattern());
+	  }
 	  hLctTMBBend->Fill((*digiIt).getBend());
 	}
 
@@ -770,8 +776,14 @@ void CSCTriggerPrimitivesReader::fillLCTMPCHistos(const CSCCorrelatedLCTDigiColl
 	bool clct_valid = (quality != 1 && quality != 3);
 	if (clct_valid) {
 	  hLctMPCKeyStrip->Fill((*digiIt).getStrip());
-	  hLctMPCStripType->Fill((*digiIt).getStripType());
-	  hLctMPCPattern->Fill((*digiIt).getCLCTPattern());
+	  if (!isTMB07) {
+	    hLctMPCStripType->Fill((*digiIt).getStripType());
+	    hLctMPCPattern->Fill((*digiIt).getCLCTPattern());
+	  }
+	  else {
+	    hLctMPCStripType->Fill(1.);
+	    hLctMPCPattern->Fill((*digiIt).getPattern());
+	  }
 	  hLctMPCBend->Fill((*digiIt).getBend());
 	}
 
@@ -1128,9 +1140,12 @@ void CSCTriggerPrimitivesReader::compareLCTs(
 	    strstrm << "  **** " << nemul << " valid emul LCTs found:\n";
 	    for (pe = lctV_emul.begin(); pe != lctV_emul.end(); pe++) {
 	      strstrm << "     " << (*pe);
-	      strstrm << " Corr BX = "
+	      strstrm << "    corr BX = "
 		      << convertBXofLCT((*pe).getBX(), detid,
 					alcts_data, clcts_data);
+	      if (isTMB07) {
+		strstrm << " LCT pattern = " << (*pe).getPattern();
+	      }
 	      strstrm << "\n";
 
 	    }
@@ -1207,7 +1222,8 @@ int CSCTriggerPrimitivesReader::convertBXofLCT(
 			     const CSCALCTDigiCollection* alcts_data,
 			     const CSCCLCTDigiCollection* clcts_data) {
   int full_anode_bx = -999, full_cathode_bx = -999, lct_bx = -999;
-  const int tbin_anode_offset = 10; // why not 6???
+  int tbin_anode_offset = 5; // 2007, run 14419.
+  if (isMTCCData_) tbin_anode_offset = 10; // MTCC-II.  Why not 6???
 
   // Extract full 12-bit anode BX word from ALCT collections.
   const CSCALCTDigiCollection::Range& arange = alcts_data->get(detid);
