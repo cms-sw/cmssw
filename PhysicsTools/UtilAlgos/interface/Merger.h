@@ -12,9 +12,9 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Revision: 1.4 $
+ * \version $Revision: 1.5 $
  *
- * $Id: Merger.h,v 1.4 2006/07/26 10:41:14 llista Exp $
+ * $Id: Merger.h,v 1.5 2007/10/22 14:47:30 llista Exp $
  *
  */
 #include "FWCore/Framework/interface/EDProducer.h"
@@ -46,7 +46,7 @@ private:
 template<typename InputCollection, typename OutputCollection, typename P>
 Merger<InputCollection, OutputCollection, P>::Merger( const edm::ParameterSet& par ) : 
   src_( par.template getParameter<vtag>( "src" ) ) {
-  produces<InputCollection>();
+  produces<OutputCollection>();
 }
 
 template<typename InputCollection, typename OutputCollection, typename P>
