@@ -7,9 +7,9 @@
  * 
  * \author Luca Lista, INFN
  *
- * \version $Revision: 1.9 $
+ * \version $Revision: 1.10 $
  *
- * $Id: SingleElementCollectionSelector.h,v 1.9 2007/07/09 08:54:14 llista Exp $
+ * $Id: SingleElementCollectionSelector.h,v 1.10 2007/10/02 12:55:59 llista Exp $
  *
  */
 #include "PhysicsTools/UtilAlgos/interface/SelectionAdderTrait.h"
@@ -45,7 +45,6 @@ private:
   selector select_;
   RefAdder addRef_;
   friend class reco::modules::SingleElementCollectionSelectorEventSetupInit<SingleElementCollectionSelector>;
-  
 };
 
 #include "PhysicsTools/UtilAlgos/interface/EventSetupInitTrait.h"
